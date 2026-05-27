@@ -296,20 +296,33 @@ export const SESSION_SECURITY = Object.freeze({
 } as const);
 
 // ============================================================
-// Encryption Configuration (For reference only)
+// Encryption Configuration (Enhanced with scrypt parameters)
 // ============================================================
 export const ENCRYPTION_CONFIG = Object.freeze({
+  // AES-256-GCM parameters
   ALGORITHM: 'aes-256-gcm',
   KEY_LENGTH: 32,                        // 256 bits
   IV_LENGTH: 16,                         // 128 bits
   AUTH_TAG_LENGTH: 16,                   // 128 bits
-  SALT_ROUNDS: 12,                       // bcrypt rounds
-  HASH_ALGORITHM: 'sha256',
+  
+  // Encoding
   ENCODING: 'hex' as const,
   
-  // Key derivation
+  // Key derivation (scrypt) - OWASP recommended
+  SCRYPT_N: 16384,                       // CPU/memory cost (2^14 = 16,384)
+  SCRYPT_R: 8,                           // Block size
+  SCRYPT_P: 1,                           // Parallelization factor
+  
+  // Legacy key derivation (PBKDF2 - for backward compatibility)
   PBKDF2_ITERATIONS: 100000,
   PBKDF2_DIGEST: 'sha256',
+  
+  // Hashing (for passwords)
+  HASH_ALGORITHM: 'sha256',
+  SALT_ROUNDS: 12,                       // bcrypt rounds (2^12 = 4096 iterations)
+  
+  // Minimum secret length for encryption keys
+  MIN_SECRET_LENGTH: 8,                  // Separate from password policy
 } as const);
 
 // ============================================================
