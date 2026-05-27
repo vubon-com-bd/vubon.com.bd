@@ -1,9 +1,9 @@
 /**
  * Encryption Utilities - Pure AES encryption/decryption
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
-
+ *
  * @module shared-utils/src/crypto/encrypt.util
-
+ *
  * RULES:
  * ✅ ONLY encryption/decryption helpers - NO business logic
  * ✅ NO secret storage, database operations, side effects
@@ -15,18 +15,23 @@
 import crypto from 'crypto';
 
 // Import constants from shared-constants layer (Enterprise rule)
-import { ENCRYPTION_CONFIG, PASSWORD_POLICY } from '@vubon/auth-constants';
+import { ENCRYPTION_CONFIG } from '@vubon/auth-constants';
 
 // ==================== Constants (from shared-constants) ====================
 
-const ALGORITHM = ENCRYPTION_CONFIG.ALGORITHM;              // 'aes-256-gcm'
-const IV_LENGTH = ENCRYPTION_CONFIG.IV_LENGTH;              // 16
-const AUTH_TAG_LENGTH = ENCRYPTION_CONFIG.AUTH_TAG_LENGTH;  // 16
-const ENCODING = ENCRYPTION_CONFIG.ENCODING;                // 'hex'
-const KEY_LENGTH = ENCRYPTION_CONFIG.KEY_LENGTH;            // 32
-const SCRYPT_N = ENCRYPTION_CONFIG.SCRYPT_N || 16384;       // CPU/memory cost
-const SCRYPT_R = ENCRYPTION_CONFIG.SCRYPT_R || 8;           // Block size
-const SCRYPT_P = ENCRYPTION_CONFIG.SCRYPT_P || 1;           // Parallelization
+const ALGORITHM = ENCRYPTION_CONFIG.ALGORITHM;                    // 'aes-256-gcm'
+const IV_LENGTH = ENCRYPTION_CONFIG.IV_LENGTH;                    // 16
+const AUTH_TAG_LENGTH = ENCRYPTION_CONFIG.AUTH_TAG_LENGTH;        // 16
+const ENCODING = ENCRYPTION_CONFIG.ENCODING;                      // 'hex'
+const KEY_LENGTH = ENCRYPTION_CONFIG.KEY_LENGTH;                  // 32
+
+// Scrypt parameters from constants (no fallback - must be defined in config)
+const SCRYPT_N = ENCRYPTION_CONFIG.SCRYPT_N;                      // 16384
+const SCRYPT_R = ENCRYPTION_CONFIG.SCRYPT_R;                      // 8
+const SCRYPT_P = ENCRYPTION_CONFIG.SCRYPT_P;                      // 1
+
+// Minimum secret length for encryption (separate from password policy)
+const MIN_SECRET_LENGTH = ENCRYPTION_CONFIG.MIN_SECRET_LENGTH;    // 8
 
 // AES-256-CBC constants (alternative for compatibility)
 const CBC_ALGORITHM = 'aes-256-cbc';
@@ -70,11 +75,11 @@ const isValidEncryptedFormat = (parts: string[]): parts is [string, string, stri
 /**
  * Encrypt data using AES-256-GCM (Authenticated encryption)
  * Pure function - deterministic given same inputs
-
+ *
  * @param text - Plain text to encrypt
  * @param secret - Secret key (will be derived to 32 bytes)
  * @returns Encrypted string format: iv:encrypted:authTag
-
+ *
  * @example
  * const encrypted = encrypt('sensitive data', 'my-secret-key');
  * // Returns: "a1b2c3:xyz789:auth123"
@@ -83,8 +88,8 @@ export const encrypt = (text: string, secret: string): string => {
   if (!text) {
     throw new Error('Text to encrypt cannot be empty');
   }
-  if (!secret || secret.length < PASSWORD_POLICY.MIN_LENGTH) {
-    throw new Error(`Secret must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters`);
+  if (!secret || secret.length < MIN_SECRET_LENGTH) {
+    throw new Error(`Secret must be at least ${MIN_SECRET_LENGTH} characters`);
   }
 
   const key = deriveKey(secret);
@@ -102,7 +107,7 @@ export const encrypt = (text: string, secret: string): string => {
 /**
  * Encrypt data with custom salt (per-user encryption)
  * Useful for scenarios where each user needs separate encryption
-
+ *
  * @param text - Plain text to encrypt
  * @param secret - Secret key
  * @param userSalt - Unique salt per user (e.g., userId + email)
@@ -112,8 +117,8 @@ export const encryptWithUserSalt = (text: string, secret: string, userSalt: stri
   if (!text) {
     throw new Error('Text to encrypt cannot be empty');
   }
-  if (!secret || secret.length < PASSWORD_POLICY.MIN_LENGTH) {
-    throw new Error(`Secret must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters`);
+  if (!secret || secret.length < MIN_SECRET_LENGTH) {
+    throw new Error(`Secret must be at least ${MIN_SECRET_LENGTH} characters`);
   }
   if (!userSalt) {
     throw new Error('User salt is required for per-user encryption');
@@ -134,7 +139,7 @@ export const encryptWithUserSalt = (text: string, secret: string, userSalt: stri
 /**
  * Decrypt data encrypted with encrypt()
  * Pure function - deterministic given same inputs
-
+ *
  * @param encryptedText - Encrypted string format: iv:encrypted:authTag
  * @param secret - Secret key used for encryption
  * @returns Decrypted plain text
@@ -144,8 +149,8 @@ export const decrypt = (encryptedText: string, secret: string): string => {
   if (!encryptedText) {
     throw new Error('Encrypted text cannot be empty');
   }
-  if (!secret || secret.length < PASSWORD_POLICY.MIN_LENGTH) {
-    throw new Error(`Secret must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters`);
+  if (!secret || secret.length < MIN_SECRET_LENGTH) {
+    throw new Error(`Secret must be at least ${MIN_SECRET_LENGTH} characters`);
   }
 
   const parts = encryptedText.split(':');
@@ -174,7 +179,7 @@ export const decrypt = (encryptedText: string, secret: string): string => {
 
 /**
  * Decrypt data encrypted with encryptWithUserSalt()
-
+ *
  * @param encryptedText - Encrypted string
  * @param secret - Secret key used for encryption
  * @param userSalt - Same user salt used during encryption
@@ -188,8 +193,8 @@ export const decryptWithUserSalt = (
   if (!encryptedText) {
     throw new Error('Encrypted text cannot be empty');
   }
-  if (!secret || secret.length < PASSWORD_POLICY.MIN_LENGTH) {
-    throw new Error(`Secret must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters`);
+  if (!secret || secret.length < MIN_SECRET_LENGTH) {
+    throw new Error(`Secret must be at least ${MIN_SECRET_LENGTH} characters`);
   }
   if (!userSalt) {
     throw new Error('User salt is required for decryption');
@@ -229,8 +234,8 @@ export const encryptCBC = (text: string, secret: string): string => {
   if (!text || !secret) {
     throw new Error('Text and secret are required');
   }
-  if (secret.length < PASSWORD_POLICY.MIN_LENGTH) {
-    throw new Error(`Secret must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters`);
+  if (secret.length < MIN_SECRET_LENGTH) {
+    throw new Error(`Secret must be at least ${MIN_SECRET_LENGTH} characters`);
   }
 
   const key = deriveKey(secret);
@@ -249,8 +254,8 @@ export const decryptCBC = (encryptedText: string, secret: string): string => {
   if (!encryptedText || !secret) {
     throw new Error('Encrypted text and secret are required');
   }
-  if (secret.length < PASSWORD_POLICY.MIN_LENGTH) {
-    throw new Error(`Secret must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters`);
+  if (secret.length < MIN_SECRET_LENGTH) {
+    throw new Error(`Secret must be at least ${MIN_SECRET_LENGTH} characters`);
   }
 
   const parts = encryptedText.split(':');
@@ -277,7 +282,7 @@ export const decryptCBC = (encryptedText: string, secret: string): string => {
  * Simple XOR encryption for NON-SENSITIVE data only!
  * WARNING: NOT cryptographically secure - for obfuscation only
  * Do NOT use for passwords, tokens, or personal data
-
+ *
  * @deprecated Use encrypt() for sensitive data
  */
 export const xorEncrypt = (text: string, key: string): string => {
