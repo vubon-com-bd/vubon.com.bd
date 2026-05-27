@@ -511,13 +511,8 @@ export const MFA_PRESETS = {
   },
 } as const;
 
-export type MfaPreset = ValueOf<typeof MFA_PRESETS>;
+export type MfaPreset = typeof MFA_PRESETS[keyof typeof MFA_PRESETS];
 export type MfaPresetName = keyof typeof MFA_PRESETS;
-
-// ============================================================
-// User Role Types (For MFA requirements)
-// ============================================================
-export type MfaUserRole = 'CUSTOMER' | 'SELLER' | 'ADMIN' | 'SUPER_ADMIN';
 
 // ============================================================
 // Deep freeze everything for immutability
