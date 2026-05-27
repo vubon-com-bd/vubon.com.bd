@@ -1,0 +1,146 @@
+{
+  "name": "@vubon/auth-constants",
+  "version": "1.0.0",
+  "description": "Global immutable contract layer for vubon.com.bd ecommerce ecosystem - Bangladesh's #1 Enterprise E-commerce",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./auth": {
+      "types": "./dist/auth.constants.d.ts",
+      "import": "./dist/auth.constants.mjs",
+      "require": "./dist/auth.constants.js"
+    },
+    "./role": {
+      "types": "./dist/role.constants.d.ts",
+      "import": "./dist/role.constants.mjs",
+      "require": "./dist/role.constants.js"
+    },
+    "./permission": {
+      "types": "./dist/permission.constants.d.ts",
+      "import": "./dist/permission.constants.mjs",
+      "require": "./dist/permission.constants.js"
+    },
+    "./session": {
+      "types": "./dist/session.constants.d.ts",
+      "import": "./dist/session.constants.mjs",
+      "require": "./dist/session.constants.js"
+    },
+    "./mfa": {
+      "types": "./dist/mfa.constants.d.ts",
+      "import": "./dist/mfa.constants.mjs",
+      "require": "./dist/mfa.constants.js"
+    },
+    "./device": {
+      "types": "./dist/device.constants.d.ts",
+      "import": "./dist/device.constants.mjs",
+      "require": "./dist/device.constants.js"
+    },
+    "./social": {
+      "types": "./dist/social.constants.d.ts",
+      "import": "./dist/social.constants.mjs",
+      "require": "./dist/social.constants.js"
+    },
+    "./api": {
+      "types": "./dist/api.constants.d.ts",
+      "import": "./dist/api.constants.mjs",
+      "require": "./dist/api.constants.js"
+    },
+    "./http-status": {
+      "types": "./dist/http-status.constants.d.ts",
+      "import": "./dist/http-status.constants.mjs",
+      "require": "./dist/http-status.constants.js"
+    },
+    "./regex": {
+      "types": "./dist/regex.constants.d.ts",
+      "import": "./dist/regex.constants.mjs",
+      "require": "./dist/regex.constants.js"
+    },
+    "./security": {
+      "types": "./dist/security.constants.d.ts",
+      "import": "./dist/security.constants.mjs",
+      "require": "./dist/security.constants.js"
+    },
+    "./cache": {
+      "types": "./dist/cache.constants.d.ts",
+      "import": "./dist/cache.constants.mjs",
+      "require": "./dist/cache.constants.js"
+    },
+    "./queue": {
+      "types": "./dist/queue.constants.d.ts",
+      "import": "./dist/queue.constants.mjs",
+      "require": "./dist/queue.constants.js"
+    }
+  },
+  "files": [
+    "dist/**/*",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "build:tsc": "tsc",
+    "clean": "rm -rf dist",
+    "dev": "tsup --watch",
+    "prepublishOnly": "npm run clean && npm run build",
+    "test": "echo \"No tests yet\"",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "constants",
+    "enterprise",
+    "ecommerce",
+    "vubon",
+    "immutable",
+    "rbac",
+    "bangladesh",
+    "sslcommerz",
+    "bkash",
+    "nagad",
+    "rocket",
+    "auth",
+    "jwt",
+    "mfa",
+    "session",
+    "cache",
+    "queue"
+  ],
+  "author": "Vubon E-commerce",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {},
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vubon/auth-constants.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vubon/auth-constants/issues"
+  },
+  "homepage": "https://vubon.com.bd"
+}
