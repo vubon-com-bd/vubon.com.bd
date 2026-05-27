@@ -1,9 +1,9 @@
 /**
  * Hash Utilities - Pure password hashing and comparison
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module shared-utils/src/crypto/hash.util
- * 
+ *
  * RULES:
  * ✅ ONLY password hashing and comparison - NO business logic
  * ✅ NO database operations, business logic, side effects
@@ -14,12 +14,22 @@
 
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
+import { PASSWORD_POLICY, ENCRYPTION_CONFIG, COMMON_PASSWORDS } from '@vubon/auth-constants';
 
-// ==================== Constants (Enterprise grade) ====================
+// ==================== Constants (from shared-constants) ====================
 
-export const DEFAULT_SALT_ROUNDS = 12;
-export const MIN_SALT_ROUNDS = 10;
-export const MAX_SALT_ROUNDS = 14;
+// Bcrypt salt rounds from constants
+export const DEFAULT_SALT_ROUNDS = ENCRYPTION_CONFIG.SALT_ROUNDS;
+export const MIN_SALT_ROUNDS = ENCRYPTION_CONFIG.MIN_SALT_ROUNDS;
+export const MAX_SALT_ROUNDS = ENCRYPTION_CONFIG.MAX_SALT_ROUNDS;
+
+// Password strength thresholds from constants
+const PASSWORD_MIN_LENGTH = PASSWORD_POLICY.MIN_LENGTH;
+const PASSWORD_STRONG_LENGTH = PASSWORD_POLICY.STRONG_LENGTH;
+const PASSWORD_VERY_STRONG_LENGTH = PASSWORD_POLICY.VERY_STRONG_LENGTH;
+
+// Common passwords from constants
+const COMMON_PATTERNS = COMMON_PASSWORDS;
 
 // Hash algorithms
 export const HASH_ALGORITHMS = {
@@ -30,23 +40,16 @@ export const HASH_ALGORITHMS = {
 
 export type HashAlgorithm = typeof HASH_ALGORITHMS[keyof typeof HASH_ALGORITHMS];
 
-// Password strength thresholds (based on constants)
-const PASSWORD_MIN_LENGTH = 8;
-const PASSWORD_STRONG_LENGTH = 12;
-const PASSWORD_VERY_STRONG_LENGTH = 16;
-
 // ==================== Private Helpers ====================
 
 /**
- * Validate salt rounds
+ * Validate salt rounds (silent correction, no console.warn)
  */
 const validateSaltRounds = (saltRounds: number): number => {
   if (saltRounds < MIN_SALT_ROUNDS) {
-    console.warn(`Salt rounds ${saltRounds} is below minimum ${MIN_SALT_ROUNDS}. Using minimum.`);
     return MIN_SALT_ROUNDS;
   }
   if (saltRounds > MAX_SALT_ROUNDS) {
-    console.warn(`Salt rounds ${saltRounds} exceeds maximum ${MAX_SALT_ROUNDS}. Using maximum.`);
     return MAX_SALT_ROUNDS;
   }
   return saltRounds;
@@ -57,12 +60,12 @@ const validateSaltRounds = (saltRounds: number): number => {
 /**
  * Hash a password using bcrypt (async - recommended)
  * Pure function - deterministic given same inputs
- * 
+ *
  * @param password - Plain text password (will be validated)
- * @param saltRounds - Number of salt rounds (default: 12, min: 10, max: 14)
+ * @param saltRounds - Number of salt rounds (default from constants, min: 10, max: 14)
  * @returns Hashed password
  * @throws Error if password is empty or invalid
- * 
+ *
  * @example
  * const hash = await hashPassword('mySecurePassword123!');
  * // Returns: "$2a$12$KIXNzGZ5Lk..."
@@ -74,7 +77,7 @@ export const hashPassword = async (
   if (!password || password.length === 0) {
     throw new Error('Password cannot be empty');
   }
-  
+
   const rounds = validateSaltRounds(saltRounds);
   return bcrypt.hash(password, rounds);
 };
@@ -82,9 +85,9 @@ export const hashPassword = async (
 /**
  * Hash a password using bcrypt (sync version)
  * Use async version for better performance in server environments
- * 
+ *
  * @param password - Plain text password
- * @param saltRounds - Number of salt rounds (default: 12)
+ * @param saltRounds - Number of salt rounds (default from constants)
  * @returns Hashed password
  */
 export const hashPasswordSync = (
@@ -94,18 +97,18 @@ export const hashPasswordSync = (
   if (!password || password.length === 0) {
     throw new Error('Password cannot be empty');
   }
-  
+
   const rounds = validateSaltRounds(saltRounds);
   return bcrypt.hashSync(password, rounds);
 };
 
 /**
  * Compare a plain text password with a bcrypt hash
- * 
+ *
  * @param password - Plain text password
  * @param hash - Bcrypt hash to compare against
  * @returns True if password matches the hash
- * 
+ *
  * @example
  * const isValid = await comparePassword('myPassword', storedHash);
  */
@@ -158,7 +161,7 @@ export interface PasswordStrengthResult {
 /**
  * Check if password meets strength requirements
  * Pure function - deterministic based on input
- * 
+ *
  * @param password - Password to check
  * @returns Detailed strength analysis
  */
@@ -168,7 +171,7 @@ export const checkPasswordStrength = (
   const missing: string[] = [];
   const suggestions: string[] = [];
   let score = 0;
-  
+
   // Length checks
   if (password.length >= PASSWORD_MIN_LENGTH) {
     score += 1;
@@ -176,15 +179,15 @@ export const checkPasswordStrength = (
     missing.push(`At least ${PASSWORD_MIN_LENGTH} characters`);
     suggestions.push(`Add ${PASSWORD_MIN_LENGTH - password.length} more characters`);
   }
-  
+
   if (password.length >= PASSWORD_STRONG_LENGTH) {
     score += 0.5;
   }
-  
+
   if (password.length >= PASSWORD_VERY_STRONG_LENGTH) {
     score += 0.5;
   }
-  
+
   // Uppercase check
   if (/[A-Z]/.test(password)) {
     score += 1;
@@ -192,7 +195,7 @@ export const checkPasswordStrength = (
     missing.push('At least one uppercase letter (A-Z)');
     suggestions.push('Add an uppercase letter');
   }
-  
+
   // Lowercase check
   if (/[a-z]/.test(password)) {
     score += 1;
@@ -200,7 +203,7 @@ export const checkPasswordStrength = (
     missing.push('At least one lowercase letter (a-z)');
     suggestions.push('Add a lowercase letter');
   }
-  
+
   // Number check
   if (/[0-9]/.test(password)) {
     score += 1;
@@ -208,7 +211,7 @@ export const checkPasswordStrength = (
     missing.push('At least one number (0-9)');
     suggestions.push('Add a number');
   }
-  
+
   // Special character check
   if (/[^A-Za-z0-9]/.test(password)) {
     score += 1;
@@ -216,22 +219,18 @@ export const checkPasswordStrength = (
     missing.push('At least one special character (!@#$%^&* etc.)');
     suggestions.push('Add a special character like !@#$%');
   }
-  
-  // Bonus: No common patterns check
-  const commonPatterns = [
-    'password', '123456', 'qwerty', 'admin', 'welcome',
-    'bangladesh', 'dhaka', 'vubon', '12345678',
-  ];
-  const hasCommonPattern = commonPatterns.some(
+
+  // Bonus: No common patterns check (from constants)
+  const hasCommonPattern = COMMON_PATTERNS.some(
     (pattern) => password.toLowerCase().includes(pattern)
   );
-  
+
   if (!hasCommonPattern) {
     score += 1;
   } else {
     suggestions.push('Avoid common words and patterns');
   }
-  
+
   // Bonus: No sequential characters
   const hasSequential = /(?:abc|bcd|cde|def|efg|fgh|ghi|hij|ijk|jkl|klm|lmn|mno|nop|opq|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz|123|234|345|456|567|678|789)/i.test(password);
   if (!hasSequential) {
@@ -239,10 +238,10 @@ export const checkPasswordStrength = (
   } else {
     suggestions.push('Avoid sequential characters like "abc" or "123"');
   }
-  
+
   // Normalize score to 0-5 range
   const normalizedScore = Math.min(5, Math.floor(score));
-  
+
   return {
     isValid: missing.length === 0,
     isStrong: password.length >= PASSWORD_STRONG_LENGTH && missing.length === 0,
@@ -258,10 +257,10 @@ export const checkPasswordStrength = (
 /**
  * Generate SHA-256 hash (async - browser compatible)
  * Pure function - deterministic given same input
- * 
+ *
  * @param value - String to hash
  * @returns Hex encoded SHA-256 hash
- * 
+ *
  * @example
  * const hash = await sha256('hello world');
  * // Returns: "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
@@ -270,7 +269,7 @@ export const sha256 = async (value: string): Promise<string> => {
   if (!value) {
     throw new Error('Value to hash cannot be empty');
   }
-  
+
   // Use Web Crypto API (browser compatible)
   const encoder = new TextEncoder();
   const data = encoder.encode(value);
@@ -282,7 +281,7 @@ export const sha256 = async (value: string): Promise<string> => {
 /**
  * Generate SHA-256 hash (sync - Node.js only)
  * Use this in Node.js environments for better performance
- * 
+ *
  * @param value - String to hash
  * @returns Hex encoded SHA-256 hash
  */
@@ -290,13 +289,13 @@ export const sha256Sync = (value: string): string => {
   if (!value) {
     throw new Error('Value to hash cannot be empty');
   }
-  
+
   return crypto.createHash('sha256').update(value, 'utf8').digest('hex');
 };
 
 /**
  * Generate SHA-512 hash (Node.js)
- * 
+ *
  * @param value - String to hash
  * @returns Hex encoded SHA-512 hash
  */
@@ -304,13 +303,13 @@ export const sha512Sync = (value: string): string => {
   if (!value) {
     throw new Error('Value to hash cannot be empty');
   }
-  
+
   return crypto.createHash('sha512').update(value, 'utf8').digest('hex');
 };
 
 /**
  * Generate generic hash with specified algorithm
- * 
+ *
  * @param value - String to hash
  * @param algorithm - Hash algorithm ('sha256', 'sha512', 'md5')
  * @returns Hex encoded hash
@@ -319,17 +318,18 @@ export const hash = (value: string, algorithm: HashAlgorithm = 'sha256'): string
   if (!value) {
     throw new Error('Value to hash cannot be empty');
   }
-  
+
   if (algorithm === 'md5') {
-    console.warn('MD5 is not cryptographically secure. Use SHA-256 for security-sensitive operations.');
+    // Silent fallback to sha256 for security - no console.warn
+    return crypto.createHash('sha256').update(value, 'utf8').digest('hex');
   }
-  
+
   return crypto.createHash(algorithm).update(value, 'utf8').digest('hex');
 };
 
 /**
  * Generate HMAC hash (for message authentication)
- * 
+ *
  * @param value - Value to hash
  * @param secret - Secret key
  * @param algorithm - Hash algorithm (default: sha256)
@@ -343,7 +343,7 @@ export const hmac = (
   if (!value || !secret) {
     throw new Error('Value and secret are required for HMAC');
   }
-  
+
   return crypto.createHmac(algorithm, secret).update(value, 'utf8').digest('hex');
 };
 
@@ -352,14 +352,14 @@ export const hmac = (
 /**
  * Timing-safe string comparison (prevents timing attacks)
  * Use for comparing sensitive values like passwords, tokens
- * 
+ *
  * @param a - First string
  * @param b - Second string
  * @returns True if strings are equal
  */
 export const timingSafeEqual = (a: string, b: string): boolean => {
   if (!a || !b) return false;
-  
+
   try {
     return crypto.timingSafeEqual(
       Buffer.from(a, 'utf8'),
