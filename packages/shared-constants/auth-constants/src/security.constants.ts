@@ -119,12 +119,25 @@ export const SECURITY_HEADER_VALUES = Object.freeze({
 } as const);
 
 // ============================================================
+// Common Passwords Blacklist (Bangladesh specific)
+// ============================================================
+export const COMMON_PASSWORDS = Object.freeze([
+  'password', '123456', 'qwerty', 'admin', 'welcome',
+  'bangladesh', 'dhaka', 'vubon', '12345678',
+  'iloveyou', 'princess', 'sunshine', 'password123',
+  'qwerty123', 'abc123', 'admin123', 'user123',
+  'bangla', 'chittagong', 'rajshahi', 'khulna',
+] as const);
+
+// ============================================================
 // Password Policy (Enhanced)
 // ============================================================
 export const PASSWORD_POLICY = Object.freeze({
   // Length requirements
   MIN_LENGTH: 8,
   MAX_LENGTH: 128,
+  STRONG_LENGTH: 12,           // Minimum length for "strong" password
+  VERY_STRONG_LENGTH: 16,      // Minimum length for "very strong" password
   
   // Character requirements
   REQUIRE_UPPERCASE: true,
@@ -320,6 +333,8 @@ export const ENCRYPTION_CONFIG = Object.freeze({
   // Hashing (for passwords)
   HASH_ALGORITHM: 'sha256',
   SALT_ROUNDS: 12,                       // bcrypt rounds (2^12 = 4096 iterations)
+  MIN_SALT_ROUNDS: 10,                   // Minimum bcrypt rounds
+  MAX_SALT_ROUNDS: 14,                   // Maximum bcrypt rounds
   
   // Minimum secret length for encryption keys
   MIN_SECRET_LENGTH: 8,                  // Separate from password policy
