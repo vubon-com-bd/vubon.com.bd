@@ -1,9 +1,9 @@
 /**
  * Cache Constants - Pure immutable cache configuration
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
-
+ *
  * @module shared-constants/auth-constants/cache.constants
-
+ *
  * RULES:
  * ✅ NO redis client, cache set/get operations
  * ✅ NO functions - ONLY pure string constants
@@ -85,108 +85,229 @@ export const CACHE_KEY_PATTERNS = {
   // ========== User related ==========
   /** Pattern: user:profile:{{userId}} */
   USER_PROFILE: `${CACHE_KEY_PREFIXES.USER}profile:{{userId}}`,
+
+  /** Pattern: user:settings:{{userId}} */
   USER_SETTINGS: `${CACHE_KEY_PREFIXES.USER}settings:{{userId}}`,
+
+  /** Pattern: user:addresses:{{userId}} */
   USER_ADDRESSES: `${CACHE_KEY_PREFIXES.USER}addresses:{{userId}}`,
+
+  /** Pattern: user:recent_views:{{userId}} */
   USER_RECENT_VIEWS: `${CACHE_KEY_PREFIXES.USER}recent_views:{{userId}}`,
+
+  /** Pattern: user:wishlist:{{userId}} */
   USER_WISHLIST: `${CACHE_KEY_PREFIXES.USER}wishlist:{{userId}}`,
+
+  /** Pattern: user:compare:{{userId}} */
   USER_COMPARE: `${CACHE_KEY_PREFIXES.USER}compare:{{userId}}`,
 
   // ========== Session related ==========
+  /** Pattern: session:{{sessionId}} */
   SESSION_DATA: `${CACHE_KEY_PREFIXES.SESSION}{{sessionId}}`,
+
+  /** Pattern: session:user:{{userId}}:{{deviceId}} */
   SESSION_USER_DEVICE: `${CACHE_KEY_PREFIXES.SESSION}user:{{userId}}:{{deviceId}}`,
+
+  /** Pattern: session:list:{{userId}} */
   SESSION_USER_LIST: `${CACHE_KEY_PREFIXES.SESSION}list:{{userId}}`,
 
   // ========== Product related ==========
+  /** Pattern: product:detail:{{productId}} */
   PRODUCT_DETAIL: `${CACHE_KEY_PREFIXES.PRODUCT}detail:{{productId}}`,
+
+  /** Pattern: product:detail:slug:{{slug}} */
   PRODUCT_DETAIL_BY_SLUG: `${CACHE_KEY_PREFIXES.PRODUCT}detail:slug:{{slug}}`,
+
+  /** Pattern: product:list:category:{{categoryId}}:page:{{page}}:limit:{{limit}}:sort:{{sort}} */
   PRODUCT_LIST_BY_CATEGORY: `${CACHE_KEY_PREFIXES.PRODUCT}list:category:{{categoryId}}:page:{{page}}:limit:{{limit}}:sort:{{sort}}`,
+
+  /** Pattern: product:list:brand:{{brandId}}:page:{{page}} */
   PRODUCT_LIST_BY_BRAND: `${CACHE_KEY_PREFIXES.PRODUCT}list:brand:{{brandId}}:page:{{page}}`,
+
+  /** Pattern: product:list:search:{{queryHash}}:page:{{page}} */
   PRODUCT_LIST_SEARCH: `${CACHE_KEY_PREFIXES.PRODUCT}list:search:{{queryHash}}:page:{{page}}`,
+
+  /** Pattern: product:list:flash_sale:{{saleId}} */
   PRODUCT_FLASH_SALE: `${CACHE_KEY_PREFIXES.PRODUCT}flash_sale:{{saleId}}`,
+
+  /** Pattern: product:variants:{{productId}} */
   PRODUCT_VARIANTS: `${CACHE_KEY_PREFIXES.PRODUCT}variants:{{productId}}`,
+
+  /** Pattern: product:related:{{productId}}:limit:{{limit}} */
   PRODUCT_RELATED: `${CACHE_KEY_PREFIXES.PRODUCT}related:{{productId}}:limit:{{limit}}`,
+
+  /** Pattern: product:reviews:{{productId}}:page:{{page}} */
   PRODUCT_REVIEWS: `${CACHE_KEY_PREFIXES.PRODUCT}reviews:{{productId}}:page:{{page}}`,
+
+  /** Pattern: product:rating:{{productId}} */
   PRODUCT_RATING: `${CACHE_KEY_PREFIXES.PRODUCT}rating:{{productId}}`,
+
+  /** Pattern: product:stock:{{productId}} */
   PRODUCT_STOCK: `${CACHE_KEY_PREFIXES.PRODUCT}stock:{{productId}}`,
+
+  /** Pattern: product:low_stock */
   PRODUCT_LOW_STOCK: `${CACHE_KEY_PREFIXES.PRODUCT}low_stock`,
 
   // ========== Category related ==========
+  /** Pattern: category:tree */
   CATEGORY_TREE: `${CACHE_KEY_PREFIXES.CATEGORY}tree`,
+
+  /** Pattern: category:detail:{{categoryId}} */
   CATEGORY_DETAIL: `${CACHE_KEY_PREFIXES.CATEGORY}detail:{{categoryId}}`,
+
+  /** Pattern: category:path:{{categoryId}} */
   CATEGORY_PATH: `${CACHE_KEY_PREFIXES.CATEGORY}path:{{categoryId}}`,
+
+  /** Pattern: category:children:{{parentId}} */
   CATEGORY_CHILDREN: `${CACHE_KEY_PREFIXES.CATEGORY}children:{{parentId}}`,
+
+  /** Pattern: category:meta:{{categoryId}} */
   CATEGORY_META: `${CACHE_KEY_PREFIXES.CATEGORY}meta:{{categoryId}}`,
 
   // ========== Cart related ==========
+  /** Pattern: cart:{{userId}} */
   CART_USER: `${CACHE_KEY_PREFIXES.CART}{{userId}}`,
+
+  /** Pattern: cart:count:{{userId}} */
   CART_COUNT: `${CACHE_KEY_PREFIXES.CART}count:{{userId}}`,
+
+  /** Pattern: cart:coupon:{{userId}} */
   CART_COUPON: `${CACHE_KEY_PREFIXES.CART}coupon:{{userId}}`,
 
   // ========== Order related ==========
+  /** Pattern: order:detail:{{orderId}} */
   ORDER_DETAIL: `${CACHE_KEY_PREFIXES.ORDER}detail:{{orderId}}`,
+
+  /** Pattern: order:tracking:{{trackingId}} */
   ORDER_TRACKING: `${CACHE_KEY_PREFIXES.ORDER}tracking:{{trackingId}}`,
+
+  /** Pattern: order:user:{{userId}}:page:{{page}} */
   ORDER_USER_HISTORY: `${CACHE_KEY_PREFIXES.ORDER}user:{{userId}}:page:{{page}}`,
+
+  /** Pattern: order:status:{{orderId}} */
   ORDER_STATUS: `${CACHE_KEY_PREFIXES.ORDER}status:{{orderId}}`,
+
+  /** Pattern: order:pending_count */
   ORDER_PENDING_COUNT: `${CACHE_KEY_PREFIXES.ORDER}pending_count`,
 
   // ========== Inventory related ==========
+  /** Pattern: inventory:sku:{{sku}} */
   INVENTORY_BY_SKU: `${CACHE_KEY_PREFIXES.INVENTORY}sku:{{sku}}`,
+
+  /** Pattern: inventory:product:{{productId}}:variant:{{variantId}} */
   INVENTORY_PRODUCT_VARIANT: `${CACHE_KEY_PREFIXES.INVENTORY}product:{{productId}}:variant:{{variantId}}`,
+
+  /** Pattern: inventory:reserved:{{sessionId}} */
   INVENTORY_RESERVED: `${CACHE_KEY_PREFIXES.INVENTORY}reserved:{{sessionId}}`,
 
   // ========== Price related ==========
+  /** Pattern: price:product:{{productId}} */
   PRICE_PRODUCT: `${CACHE_KEY_PREFIXES.PRICE}product:{{productId}}`,
+
+  /** Pattern: price:user:{{userId}}:product:{{productId}} */
   PRICE_USER_SPECIFIC: `${CACHE_KEY_PREFIXES.PRICE}user:{{userId}}:product:{{productId}}`,
+
+  /** Pattern: price:bulk:product:{{productId}}:quantity:{{quantity}} */
   PRICE_BULK_DISCOUNT: `${CACHE_KEY_PREFIXES.PRICE}bulk:product:{{productId}}:quantity:{{quantity}}`,
 
   // ========== API Response cache ==========
+  /** Pattern: api:{{endpointHash}}:{{paramsHash}} */
   API_RESPONSE_CACHE: `${CACHE_KEY_PREFIXES.API_RESPONSE}{{endpointHash}}:{{paramsHash}}`,
 
   // ========== Search cache ==========
+  /** Pattern: search:{{queryHash}}:page:{{page}}:limit:{{limit}} */
   SEARCH_RESULTS: `${CACHE_KEY_PREFIXES.SEARCH}{{queryHash}}:page:{{page}}:limit:{{limit}}`,
+
+  /** Pattern: search:suggestions:{{partialQuery}} */
   SEARCH_SUGGESTIONS: `${CACHE_KEY_PREFIXES.SEARCH}suggestions:{{partialQuery}}`,
+
+  /** Pattern: search:popular */
   SEARCH_POPULAR: `${CACHE_KEY_PREFIXES.SEARCH}popular`,
+
+  /** Pattern: search:history:{{userId}} */
   SEARCH_HISTORY: `${CACHE_KEY_PREFIXES.SEARCH}history:{{userId}}`,
 
   // ========== Permission & Role ==========
+  /** Pattern: perm:user:{{userId}} */
   PERMISSION_USER: `${CACHE_KEY_PREFIXES.PERMISSION}user:{{userId}}`,
+
+  /** Pattern: perm:role:{{roleId}} */
   PERMISSION_ROLE: `${CACHE_KEY_PREFIXES.PERMISSION}role:{{roleId}}`,
+
+  /** Pattern: role:{{roleId}} */
   ROLE_DATA: `${CACHE_KEY_PREFIXES.ROLE}{{roleId}}`,
 
   // ========== Vendor (Multi-vendor) ==========
+  /** Pattern: vendor:detail:{{vendorId}} */
   VENDOR_DETAIL: `${CACHE_KEY_PREFIXES.VENDOR}detail:{{vendorId}}`,
+
+  /** Pattern: vendor:products:{{vendorId}}:page:{{page}} */
   VENDOR_PRODUCTS: `${CACHE_KEY_PREFIXES.VENDOR}products:{{vendorId}}:page:{{page}}`,
+
+  /** Pattern: vendor:revenue:{{vendorId}}:date:{{date}} */
   VENDOR_REVENUE: `${CACHE_KEY_PREFIXES.VENDOR}revenue:{{vendorId}}:date:{{date}}`,
 
   // ========== Bangladesh specific (Geo) ==========
+  /** Pattern: district:list */
   DISTRICT_LIST: `${CACHE_KEY_PREFIXES.DISTRICT}list`,
+
+  /** Pattern: district:{{districtId}}:cities */
   DISTRICT_CITIES: `${CACHE_KEY_PREFIXES.DISTRICT}{{districtId}}:cities`,
+
+  /** Pattern: shipping:zone:{{postalCode}} */
   SHIPPING_ZONE_BY_POSTAL: `${CACHE_KEY_PREFIXES.SHIPPING_ZONE}postal:{{postalCode}}`,
 
   // ========== Offers & Promotions ==========
+  /** Pattern: offer:active:homepage */
   OFFER_ACTIVE_HOMEPAGE: `${CACHE_KEY_PREFIXES.OFFER}active:homepage`,
+
+  /** Pattern: offer:category:{{categoryId}} */
   OFFER_BY_CATEGORY: `${CACHE_KEY_PREFIXES.OFFER}category:{{categoryId}}`,
+
+  /** Pattern: coupon:code:{{couponCode}} */
   COUPON_BY_CODE: `${CACHE_KEY_PREFIXES.COUPON}code:{{couponCode}}`,
+
+  /** Pattern: flash_sale:active */
   FLASH_SALE_ACTIVE: `${CACHE_KEY_PREFIXES.FLASH_SALE}active`,
+
+  /** Pattern: flash_sale:{{saleId}}:products */
   FLASH_SALE_PRODUCTS: `${CACHE_KEY_PREFIXES.FLASH_SALE}{{saleId}}:products`,
 
   // ========== Rate Limiting ==========
+  /** Pattern: ratelimit:{{ip}}:{{endpoint}} */
   RATE_LIMIT_KEY: `${CACHE_KEY_PREFIXES.RATE_LIMIT}{{ip}}:{{endpoint}}`,
+
+  /** Pattern: ratelimit:user:{{userId}}:{{endpoint}} */
   RATE_LIMIT_USER: `${CACHE_KEY_PREFIXES.RATE_LIMIT}user:{{userId}}:{{endpoint}}`,
 
   // ========== Locks ==========
+  /** Pattern: lock:resource:{{resourceId}} */
   LOCK_RESOURCE: `${CACHE_KEY_PREFIXES.LOCK}resource:{{resourceId}}`,
+
+  /** Pattern: lock:order:{{orderId}} */
   LOCK_ORDER: `${CACHE_KEY_PREFIXES.LOCK}order:{{orderId}}`,
+
+  /** Pattern: lock:inventory:{{productId}} */
   LOCK_INVENTORY: `${CACHE_KEY_PREFIXES.LOCK}inventory:{{productId}}`,
 
   // ========== Static & SEO ==========
+  /** Pattern: sitemap:{{type}}:page:{{page}} */
   SITEMAP_PAGE: `${CACHE_KEY_PREFIXES.SITEMAP}{{type}}:page:{{page}}`,
+
+  /** Pattern: static:{{pageSlug}} */
   STATIC_PAGE_CONTENT: `${CACHE_KEY_PREFIXES.STATIC_PAGE}{{pageSlug}}`,
+
+  /** Pattern: banner:location:{{location}} */
   BANNER_BY_LOCATION: `${CACHE_KEY_PREFIXES.BANNER}location:{{location}}`,
 
   // ========== System ==========
+  /** Pattern: config:{{key}} */
   SYSTEM_CONFIG: `${CACHE_KEY_PREFIXES.CONFIG}{{key}}`,
+
+  /** Pattern: counter:{{name}}:{{date}} */
   COUNTER_DAILY: `${CACHE_KEY_PREFIXES.COUNTER}{{name}}:{{date}}`,
+
+  /** Pattern: queue:{{queueName}}:processing */
   QUEUE_PROCESSING: `${CACHE_KEY_PREFIXES.QUEUE}{{queueName}}:processing`,
 } as const;
 
@@ -206,47 +327,49 @@ export const CACHE_TTL = {
   YEAR: 31536000,
 
   // ========== Short-lived caches (High volatility) ==========
-  RATE_LIMIT: 60,
-  LOCK: 30,
-  ORDER_STATUS: 30,
-  INVENTORY_RESERVED: 300,
-  FLASH_SALE: 60,
+  RATE_LIMIT: 60,                       // 1 minute
+  LOCK: 30,                             // 30 seconds
+  ORDER_STATUS: 30,                     // 30 seconds
+  INVENTORY_RESERVED: 300,              // 5 minutes
+  FLASH_SALE: 60,                       // 1 minute
 
   // ========== Short-medium caches ==========
-  VERY_SHORT: 300,
-  SHORT: 900,
-  SEARCH_RESULTS: 600,
-  PRODUCT_LIST: 900,
-  CART_DATA: 600,
+  VERY_SHORT: 300,                      // 5 minutes
+  SHORT: 900,                           // 15 minutes
+  SEARCH_RESULTS: 600,                  // 10 minutes
+  PRODUCT_LIST: 900,                    // 15 minutes
+  CART_DATA: 600,                       // 10 minutes
 
   // ========== Medium-lived caches ==========
-  MEDIUM: 1800,
-  DEFAULT: 3600,
-  STANDARD: 3600,
-  USER_PROFILE: 3600,
-  PRODUCT_DETAIL: 7200,
+  MEDIUM: 1800,                         // 30 minutes
+  DEFAULT: 3600,                        // 1 hour
+  STANDARD: 3600,                       // 1 hour
+  USER_PROFILE: 3600,                   // 1 hour
+  PRODUCT_DETAIL: 7200,                 // 2 hours
 
   // ========== Long-lived caches ==========
-  LONG: 86400,
-  CATEGORY_TREE: 86400,
-  BRAND_LIST: 86400,
-  DISTRICT_LIST: 604800,
+  LONG: 86400,                          // 24 hours
+  CATEGORY_TREE: 86400,                 // 24 hours
+  BRAND_LIST: 86400,                    // 24 hours
+  DISTRICT_LIST: 604800,                // 7 days
 
   // ========== Very long caches ==========
-  VERY_LONG: 604800,
-  EXTENDED: 2592000,
-  STATIC_PAGE: 2592000,
-  SITEMAP: 86400,
+  VERY_LONG: 604800,                    // 7 days
+  EXTENDED: 2592000,                    // 30 days
+  STATIC_PAGE: 2592000,                 // 30 days
+  SITEMAP: 86400,                       // 24 hours
 
   // ========== Cache stampede protection ==========
+  // Add jitter to avoid mass expiration (consumer will add random ±20%)
   MAX_JITTER_PERCENT: 20,
 
   // ========== Special values ==========
-  NEVER_EXPIRE: -1,
-  SESSION: 7200,
+  NEVER_EXPIRE: -1,                     // No expiration
+  SESSION: 7200,                        // 2 hours
 } as const;
 
 export type CacheTTL = ValueOf<typeof CACHE_TTL>;
+export type CacheTimeConstant = typeof CACHE_TTL.SECOND | typeof CACHE_TTL.MINUTE | typeof CACHE_TTL.HOUR | typeof CACHE_TTL.DAY | typeof CACHE_TTL.WEEK | typeof CACHE_TTL.MONTH | typeof CACHE_TTL.YEAR;
 
 // ============================================================
 // Cache namespaces (For logical grouping)
@@ -374,11 +497,11 @@ export type CacheInvalidationEvent = ValueOf<typeof CACHE_INVALIDATION_EVENTS>;
 // Cache strategies
 // ============================================================
 export const CACHE_STRATEGIES = {
-  CACHE_THROUGH: 'cache_through',
-  WRITE_THROUGH: 'write_through',
-  WRITE_BEHIND: 'write_behind',
-  REFRESH_AHEAD: 'refresh_ahead',
-  PROACTIVE_REFRESH: 'proactive',
+  CACHE_THROUGH: 'cache_through',      // Read: cache → DB miss → populate
+  WRITE_THROUGH: 'write_through',      // Write: DB → cache simultaneously
+  WRITE_BEHIND: 'write_behind',        // Write: cache → async DB
+  REFRESH_AHEAD: 'refresh_ahead',      // Refresh before expiry
+  PROACTIVE_REFRESH: 'proactive',      // Pre-load hot data
 } as const;
 
 export type CacheStrategy = ValueOf<typeof CACHE_STRATEGIES>;
@@ -388,51 +511,78 @@ export type CacheStrategy = ValueOf<typeof CACHE_STRATEGIES>;
 // ============================================================
 export const CACHE_STAMPEDE_PROTECTION = {
   ENABLED: true,
+
+  // Use stale cache while recomputing
   USE_STALE_ON_RECOMPUTE: true,
+
+  // Probability for early recompute (0-100)
   EARLY_RECOMPUTE_PROBABILITY: 10,
+
+  // Lock duration for recompute (milliseconds)
   RECOMPUTE_LOCK_MS: 5000,
+
+  // Maximum recompute time (seconds)
   MAX_RECOMPUTE_TIME_SECONDS: 30,
 } as const;
+
+export type CacheStampedeProtection = typeof CACHE_STAMPEDE_PROTECTION;
 
 // ============================================================
 // Cache compression settings
 // ============================================================
 export const CACHE_COMPRESSION = {
   ENABLED: true,
-  MIN_SIZE_BYTES: 1024,
-  ALGORITHM: 'gzip' as const,
-  COMPRESSION_LEVEL: 6,
+  MIN_SIZE_BYTES: 1024,                // Compress if > 1KB
+  ALGORITHM: 'gzip',
+  COMPRESSION_LEVEL: 6,               // 1-9 (balance speed vs size)
+
+  // Skip compression for these patterns
   SKIP_PATTERNS: [
     `${CACHE_KEY_PREFIXES.RATE_LIMIT}*`,
     `${CACHE_KEY_PREFIXES.LOCK}*`,
   ],
 } as const;
 
+export type CacheCompression = typeof CACHE_COMPRESSION;
+
 // ============================================================
 // Hot cache warming configuration
 // ============================================================
 export const CACHE_WARMING = {
   ENABLED: true,
+
+  // Keys to pre-warm on startup
   HOT_KEYS: [
     CACHE_KEY_PATTERNS.CATEGORY_TREE,
     CACHE_KEY_PATTERNS.DISTRICT_LIST,
     CACHE_KEY_PATTERNS.OFFER_ACTIVE_HOMEPAGE,
     CACHE_KEY_PATTERNS.FLASH_SALE_ACTIVE,
-  ],
-  SCHEDULE: '0 */6 * * *',
+  ] as const,
+
+  // Warm on schedule (cron pattern)
+  SCHEDULE: '0 */6 * * *',            // Every 6 hours
+
+  // Max concurrent warming jobs
   MAX_CONCURRENT: 5,
 } as const;
+
+export type CacheWarming = typeof CACHE_WARMING;
+export type HotKey = typeof CACHE_WARMING.HOT_KEYS[number];
 
 // ============================================================
 // Cache metrics (For monitoring)
 // ============================================================
 export const CACHE_METRICS = {
   ENABLED: true,
+
+  // Track metrics for these namespaces
   TRACKED_NAMESPACES: [
     CACHE_NAMESPACES.PRODUCT_CATALOG,
     CACHE_NAMESPACES.USER_DATA,
     CACHE_NAMESPACES.SESSION,
-  ],
+  ] as const,
+
+  // Metric keys
   METRIC_KEYS: {
     HIT: 'cache.hit',
     MISS: 'cache.miss',
@@ -444,49 +594,30 @@ export const CACHE_METRICS = {
   },
 } as const;
 
-// ============================================================
-// Helper function to build cache keys (Safe utility)
-// ============================================================
-/**
- * Safely replaces placeholders in cache key patterns
- * @param pattern - Cache key pattern with {{placeholder}}
- * @param params - Object containing key-value pairs for replacement
- * @returns Built cache key string
- * 
- * @example
- * buildCacheKey(CACHE_KEY_PATTERNS.PRODUCT_DETAIL, { productId: '123' })
- * // Returns: 'product:detail:123'
- */
-export function buildCacheKey<T extends Record<string, string | number>>(
-  pattern: CacheKeyPattern,
-  params: T
-): string {
-  let result = pattern;
-  for (const [key, value] of Object.entries(params)) {
-    const placeholder = `{{${key}}}`;
-    if (!pattern.includes(placeholder)) {
-      throw new Error(`Placeholder ${placeholder} not found in pattern: ${pattern}`);
-    }
-    result = result.replace(new RegExp(placeholder, 'g'), String(value));
-  }
-  return result;
-}
+export type CacheMetrics = typeof CACHE_METRICS;
+export type CacheMetricKey = ValueOf<typeof CACHE_METRICS.METRIC_KEYS>;
 
 // ============================================================
-// Helper to add jitter to TTL (Prevent cache stampede)
+// Build Cache Key Helper (Type-safe)
+// Note: This is a utility function, NOT part of the constants file.
+// Put this in a separate file like 'cache.utils.ts'
 // ============================================================
+
 /**
- * Adds random jitter to TTL to prevent mass cache expiration
- * @param ttl - Base TTL in seconds
- * @returns TTL with jitter applied
+ * Type-safe cache key builder
+ * @example
+ * const key = buildCacheKey(CACHE_KEY_PATTERNS.PRODUCT_DETAIL, { productId: 123 });
  */
-export function addCacheJitter(ttl: CacheTTL): number {
-  if (ttl === CACHE_TTL.NEVER_EXPIRE) return ttl;
-  const maxJitter = Math.floor(ttl * (CACHE_TTL.MAX_JITTER_PERCENT / 100));
-  const jitter = Math.floor(Math.random() * maxJitter);
-  const jitterDirection = Math.random() > 0.5 ? 1 : -1;
-  return Math.max(1, ttl + (jitter * jitterDirection));
-}
+export const buildCacheKey = <T extends Record<string, string | number>>(
+  pattern: CacheKeyPattern,
+  params: T
+): string => {
+  let key = pattern;
+  Object.entries(params).forEach(([name, value]) => {
+    key = key.replace(new RegExp(`{{${name}}}`, 'g'), String(value));
+  });
+  return key;
+};
 
 // ============================================================
 // Freeze everything for immutability (deep freeze)
@@ -518,17 +649,3 @@ export const __ALL_CONSTANTS_FROZEN__ = deepFreeze({
   CACHE_WARMING,
   CACHE_METRICS,
 });
-
-// ============================================================
-// Type guard for cache key patterns
-// ============================================================
-export function isCacheKeyPattern(value: unknown): value is CacheKeyPattern {
-  return Object.values(CACHE_KEY_PATTERNS).includes(value as CacheKeyPattern);
-}
-
-// ============================================================
-// Type guard for cache namespaces
-// ============================================================
-export function isCacheNamespace(value: unknown): value is CacheNamespace {
-  return Object.values(CACHE_NAMESPACES).includes(value as CacheNamespace);
-}
