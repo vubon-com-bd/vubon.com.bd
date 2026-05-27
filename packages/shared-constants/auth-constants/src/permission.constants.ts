@@ -1,9 +1,9 @@
 /**
  * Permission Constants - Pure immutable permission keys
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+
  * @module shared-constants/auth-constants/permission.constants
- * 
+
  * RULES:
  * ✅ NO permission resolver, authorization logic
  * ✅ NO functions (Object.values, etc.)
@@ -12,9 +12,17 @@
  */
 
 // ============================================================
+// Type Utilities
+// ============================================================
+export type ValueOf<T> = T[keyof T];
+export type ReadonlyDeep<T> = {
+  readonly [P in keyof T]: ReadonlyDeep<T[P]>;
+};
+
+// ============================================================
 // Core Permissions (Resource:action format)
 // ============================================================
-export const PERMISSIONS = Object.freeze({
+export const PERMISSIONS = {
   // ========== User Management ==========
   USER_CREATE: 'user:create',
   USER_READ: 'user:read',
@@ -25,7 +33,7 @@ export const PERMISSIONS = Object.freeze({
   USER_ACTIVATE: 'user:activate',
   USER_IMPERSONATE: 'user:impersonate',
   USER_EXPORT: 'user:export',
-  
+
   // ========== Role Management ==========
   ROLE_CREATE: 'role:create',
   ROLE_READ: 'role:read',
@@ -33,7 +41,7 @@ export const PERMISSIONS = Object.freeze({
   ROLE_DELETE: 'role:delete',
   ROLE_ASSIGN: 'role:assign',
   ROLE_REVOKE: 'role:revoke',
-  
+
   // ========== Permission Management ==========
   PERMISSION_CREATE: 'permission:create',
   PERMISSION_READ: 'permission:read',
@@ -41,7 +49,7 @@ export const PERMISSIONS = Object.freeze({
   PERMISSION_DELETE: 'permission:delete',
   PERMISSION_ASSIGN: 'permission:assign',
   PERMISSION_REVOKE: 'permission:revoke',
-  
+
   // ========== Product Management ==========
   PRODUCT_CREATE: 'product:create',
   PRODUCT_READ: 'product:read',
@@ -50,26 +58,26 @@ export const PERMISSIONS = Object.freeze({
   PRODUCT_LIST: 'product:list',
   PRODUCT_PUBLISH: 'product:publish',
   PRODUCT_UNPUBLISH: 'product:unpublish',
-  PRODUCT_APPROVE: 'product:approve',      // Admin approval for seller products
+  PRODUCT_APPROVE: 'product:approve',
   PRODUCT_REJECT: 'product:reject',
-  PRODUCT_FEATURE: 'product:feature',       // Feature on homepage
+  PRODUCT_FEATURE: 'product:feature',
   PRODUCT_EXPORT: 'product:export',
   PRODUCT_IMPORT: 'product:import',
   PRODUCT_BULK_UPDATE: 'product:bulk_update',
-  
+
   // ========== Category Management ==========
   CATEGORY_CREATE: 'category:create',
   CATEGORY_READ: 'category:read',
   CATEGORY_UPDATE: 'category:update',
   CATEGORY_DELETE: 'category:delete',
   CATEGORY_SORT: 'category:sort',
-  
+
   // ========== Brand Management ==========
   BRAND_CREATE: 'brand:create',
   BRAND_READ: 'brand:read',
   BRAND_UPDATE: 'brand:update',
   BRAND_DELETE: 'brand:delete',
-  
+
   // ========== Order Management ==========
   ORDER_CREATE: 'order:create',
   ORDER_READ: 'order:read',
@@ -79,11 +87,11 @@ export const PERMISSIONS = Object.freeze({
   ORDER_CANCEL: 'order:cancel',
   ORDER_REFUND: 'order:refund',
   ORDER_APPROVE: 'order:approve',
-  ORDER_SHIP: 'order:ship',               // Mark as shipped
-  ORDER_DELIVER: 'order:deliver',          // Mark as delivered
+  ORDER_SHIP: 'order:ship',
+  ORDER_DELIVER: 'order:deliver',
   ORDER_EXPORT: 'order:export',
   ORDER_BULK_STATUS: 'order:bulk_status',
-  
+
   // ========== Payment Management ==========
   PAYMENT_CREATE: 'payment:create',
   PAYMENT_READ: 'payment:read',
@@ -92,43 +100,43 @@ export const PERMISSIONS = Object.freeze({
   PAYMENT_VOID: 'payment:void',
   PAYMENT_CAPTURE: 'payment:capture',
   PAYMENT_VERIFY: 'payment:verify',
-  
+
   // ========== Inventory Management ==========
   INVENTORY_READ: 'inventory:read',
   INVENTORY_UPDATE: 'inventory:update',
   INVENTORY_ADJUST: 'inventory:adjust',
   INVENTORY_LOW_STOCK_ALERT: 'inventory:low_stock_alert',
   INVENTORY_BULK_UPDATE: 'inventory:bulk_update',
-  
+
   // ========== Review Management ==========
   REVIEW_CREATE: 'review:create',
   REVIEW_READ: 'review:read',
   REVIEW_UPDATE: 'review:update',
   REVIEW_DELETE: 'review:delete',
-  REVIEW_MODERATE: 'review:moderate',      // Approve/reject reviews
-  REVIEW_REPORT: 'review:report',          // Report inappropriate reviews
-  
+  REVIEW_MODERATE: 'review:moderate',
+  REVIEW_REPORT: 'review:report',
+
   // ========== Coupon Management ==========
   COUPON_CREATE: 'coupon:create',
   COUPON_READ: 'coupon:read',
   COUPON_UPDATE: 'coupon:update',
   COUPON_DELETE: 'coupon:delete',
   COUPON_APPLY: 'coupon:apply',
-  
+
   // ========== Offer Management ==========
   OFFER_CREATE: 'offer:create',
   OFFER_READ: 'offer:read',
   OFFER_UPDATE: 'offer:update',
   OFFER_DELETE: 'offer:delete',
   FLASH_SALE_MANAGE: 'flash_sale:manage',
-  
+
   // ========== Cart & Wishlist ==========
   CART_READ: 'cart:read',
   CART_UPDATE: 'cart:update',
   CART_CLEAR: 'cart:clear',
   WISHLIST_READ: 'wishlist:read',
   WISHLIST_UPDATE: 'wishlist:update',
-  
+
   // ========== Shipping Management ==========
   SHIPPING_ZONE_READ: 'shipping_zone:read',
   SHIPPING_ZONE_CREATE: 'shipping_zone:create',
@@ -136,7 +144,7 @@ export const PERMISSIONS = Object.freeze({
   SHIPPING_ZONE_DELETE: 'shipping_zone:delete',
   SHIPPING_COST_MANAGE: 'shipping_cost:manage',
   SHIPPING_TRACK: 'shipping:track',
-  
+
   // ========== Analytics & Reports ==========
   ANALYTICS_READ: 'analytics:read',
   ANALYTICS_SALES: 'analytics:sales',
@@ -145,7 +153,7 @@ export const PERMISSIONS = Object.freeze({
   REPORTS_GENERATE: 'reports:generate',
   EXPORT_DATA: 'export:data',
   IMPORT_DATA: 'import:data',
-  
+
   // ========== System Management ==========
   SYSTEM_CONFIG_READ: 'system:config:read',
   SYSTEM_CONFIG_UPDATE: 'system:config:update',
@@ -155,51 +163,52 @@ export const PERMISSIONS = Object.freeze({
   SYSTEM_BACKUP: 'system:backup',
   SYSTEM_RESTORE: 'system:restore',
   SYSTEM_MONITOR: 'system:monitor',
-  
+
   // ========== Shop/Seller Management ==========
   SHOP_CREATE: 'shop:create',
   SHOP_READ: 'shop:read',
   SHOP_UPDATE: 'shop:update',
   SHOP_DELETE: 'shop:delete',
   SHOP_SETTINGS: 'shop:settings',
-  SHOP_VERIFY: 'shop:verify',             // Admin verification of seller shops
+  SHOP_VERIFY: 'shop:verify',
   SHOP_SUSPEND: 'shop:suspend',
-  
+
   // ========== Vendor Management (Multi-vendor) ==========
   VENDOR_READ: 'vendor:read',
   VENDOR_UPDATE: 'vendor:update',
   VENDOR_VERIFY: 'vendor:verify',
-  VENDOR_PAYOUT: 'vendor:payout',          // Process vendor payments
+  VENDOR_PAYOUT: 'vendor:payout',
   VENDOR_COMMISSION_UPDATE: 'vendor:commission:update',
-  
+
   // ========== Bangladesh Specific ==========
-  MFS_PAYMENT_MANAGE: 'mfs:payment:manage',  // bKash/Nagad/Rocket integration
-  DISTRICT_MANAGE: 'district:manage',         // Manage shipping districts
+  MFS_PAYMENT_MANAGE: 'mfs:payment:manage',
+  DISTRICT_MANAGE: 'district:manage',
   LOCAL_DELIVERY_MANAGE: 'local_delivery:manage',
-  
+
   // ========== Support & Ticket ==========
   TICKET_CREATE: 'ticket:create',
   TICKET_READ: 'ticket:read',
   TICKET_UPDATE: 'ticket:update',
   TICKET_RESOLVE: 'ticket:resolve',
   TICKET_ASSIGN: 'ticket:assign',
-  
+
   // ========== Notification Management ==========
   NOTIFICATION_SEND: 'notification:send',
-  NOTIFICATION_BROADCAST: 'notification:broadcast',  // Send to all users
+  NOTIFICATION_BROADCAST: 'notification:broadcast',
   NOTIFICATION_READ: 'notification:read',
-  
+
   // ========== Audit & Compliance ==========
   AUDIT_LOG_READ: 'audit:log:read',
   AUDIT_LOG_EXPORT: 'audit:log:export',
   COMPLIANCE_REVIEW: 'compliance:review',
-} as const);
+} as const;
+
+export type Permission = ValueOf<typeof PERMISSIONS>;
 
 // ============================================================
 // Permission Groups (Pure arrays - NO Object.values)
 // ============================================================
-export const PERMISSION_GROUPS = Object.freeze({
-  // User & Role Management
+export const PERMISSION_GROUPS = {
   USER_MANAGEMENT: [
     PERMISSIONS.USER_CREATE,
     PERMISSIONS.USER_READ,
@@ -211,7 +220,7 @@ export const PERMISSION_GROUPS = Object.freeze({
     PERMISSIONS.USER_IMPERSONATE,
     PERMISSIONS.USER_EXPORT,
   ] as const,
-  
+
   ROLE_MANAGEMENT: [
     PERMISSIONS.ROLE_CREATE,
     PERMISSIONS.ROLE_READ,
@@ -220,7 +229,7 @@ export const PERMISSION_GROUPS = Object.freeze({
     PERMISSIONS.ROLE_ASSIGN,
     PERMISSIONS.ROLE_REVOKE,
   ] as const,
-  
+
   PERMISSION_MANAGEMENT: [
     PERMISSIONS.PERMISSION_CREATE,
     PERMISSIONS.PERMISSION_READ,
@@ -229,8 +238,7 @@ export const PERMISSION_GROUPS = Object.freeze({
     PERMISSIONS.PERMISSION_ASSIGN,
     PERMISSIONS.PERMISSION_REVOKE,
   ] as const,
-  
-  // Product & Catalog
+
   PRODUCT_MANAGEMENT: [
     PERMISSIONS.PRODUCT_CREATE,
     PERMISSIONS.PRODUCT_READ,
@@ -246,7 +254,7 @@ export const PERMISSION_GROUPS = Object.freeze({
     PERMISSIONS.PRODUCT_IMPORT,
     PERMISSIONS.PRODUCT_BULK_UPDATE,
   ] as const,
-  
+
   CATEGORY_MANAGEMENT: [
     PERMISSIONS.CATEGORY_CREATE,
     PERMISSIONS.CATEGORY_READ,
@@ -254,15 +262,14 @@ export const PERMISSION_GROUPS = Object.freeze({
     PERMISSIONS.CATEGORY_DELETE,
     PERMISSIONS.CATEGORY_SORT,
   ] as const,
-  
+
   BRAND_MANAGEMENT: [
     PERMISSIONS.BRAND_CREATE,
     PERMISSIONS.BRAND_READ,
     PERMISSIONS.BRAND_UPDATE,
     PERMISSIONS.BRAND_DELETE,
   ] as const,
-  
-  // Order & Payment
+
   ORDER_MANAGEMENT: [
     PERMISSIONS.ORDER_CREATE,
     PERMISSIONS.ORDER_READ,
@@ -276,7 +283,7 @@ export const PERMISSION_GROUPS = Object.freeze({
     PERMISSIONS.ORDER_EXPORT,
     PERMISSIONS.ORDER_BULK_STATUS,
   ] as const,
-  
+
   PAYMENT_MANAGEMENT: [
     PERMISSIONS.PAYMENT_CREATE,
     PERMISSIONS.PAYMENT_READ,
@@ -286,8 +293,7 @@ export const PERMISSION_GROUPS = Object.freeze({
     PERMISSIONS.PAYMENT_CAPTURE,
     PERMISSIONS.PAYMENT_VERIFY,
   ] as const,
-  
-  // Inventory
+
   INVENTORY_MANAGEMENT: [
     PERMISSIONS.INVENTORY_READ,
     PERMISSIONS.INVENTORY_UPDATE,
@@ -295,8 +301,7 @@ export const PERMISSION_GROUPS = Object.freeze({
     PERMISSIONS.INVENTORY_LOW_STOCK_ALERT,
     PERMISSIONS.INVENTORY_BULK_UPDATE,
   ] as const,
-  
-  // Reviews
+
   REVIEW_MANAGEMENT: [
     PERMISSIONS.REVIEW_CREATE,
     PERMISSIONS.REVIEW_READ,
@@ -305,8 +310,7 @@ export const PERMISSION_GROUPS = Object.freeze({
     PERMISSIONS.REVIEW_MODERATE,
     PERMISSIONS.REVIEW_REPORT,
   ] as const,
-  
-  // Offers & Coupons
+
   COUPON_MANAGEMENT: [
     PERMISSIONS.COUPON_CREATE,
     PERMISSIONS.COUPON_READ,
@@ -314,7 +318,7 @@ export const PERMISSION_GROUPS = Object.freeze({
     PERMISSIONS.COUPON_DELETE,
     PERMISSIONS.COUPON_APPLY,
   ] as const,
-  
+
   OFFER_MANAGEMENT: [
     PERMISSIONS.OFFER_CREATE,
     PERMISSIONS.OFFER_READ,
@@ -322,20 +326,18 @@ export const PERMISSION_GROUPS = Object.freeze({
     PERMISSIONS.OFFER_DELETE,
     PERMISSIONS.FLASH_SALE_MANAGE,
   ] as const,
-  
-  // Cart & Wishlist
+
   CART_MANAGEMENT: [
     PERMISSIONS.CART_READ,
     PERMISSIONS.CART_UPDATE,
     PERMISSIONS.CART_CLEAR,
   ] as const,
-  
+
   WISHLIST_MANAGEMENT: [
     PERMISSIONS.WISHLIST_READ,
     PERMISSIONS.WISHLIST_UPDATE,
   ] as const,
-  
-  // Shipping
+
   SHIPPING_MANAGEMENT: [
     PERMISSIONS.SHIPPING_ZONE_READ,
     PERMISSIONS.SHIPPING_ZONE_CREATE,
@@ -344,8 +346,7 @@ export const PERMISSION_GROUPS = Object.freeze({
     PERMISSIONS.SHIPPING_COST_MANAGE,
     PERMISSIONS.SHIPPING_TRACK,
   ] as const,
-  
-  // Analytics & Reports
+
   ANALYTICS_AND_REPORTS: [
     PERMISSIONS.ANALYTICS_READ,
     PERMISSIONS.ANALYTICS_SALES,
@@ -355,8 +356,7 @@ export const PERMISSION_GROUPS = Object.freeze({
     PERMISSIONS.EXPORT_DATA,
     PERMISSIONS.IMPORT_DATA,
   ] as const,
-  
-  // System
+
   SYSTEM_MANAGEMENT: [
     PERMISSIONS.SYSTEM_CONFIG_READ,
     PERMISSIONS.SYSTEM_CONFIG_UPDATE,
@@ -367,8 +367,7 @@ export const PERMISSION_GROUPS = Object.freeze({
     PERMISSIONS.SYSTEM_RESTORE,
     PERMISSIONS.SYSTEM_MONITOR,
   ] as const,
-  
-  // Shop & Vendor
+
   SHOP_MANAGEMENT: [
     PERMISSIONS.SHOP_CREATE,
     PERMISSIONS.SHOP_READ,
@@ -378,7 +377,7 @@ export const PERMISSION_GROUPS = Object.freeze({
     PERMISSIONS.SHOP_VERIFY,
     PERMISSIONS.SHOP_SUSPEND,
   ] as const,
-  
+
   VENDOR_MANAGEMENT: [
     PERMISSIONS.VENDOR_READ,
     PERMISSIONS.VENDOR_UPDATE,
@@ -386,15 +385,13 @@ export const PERMISSION_GROUPS = Object.freeze({
     PERMISSIONS.VENDOR_PAYOUT,
     PERMISSIONS.VENDOR_COMMISSION_UPDATE,
   ] as const,
-  
-  // Bangladesh Specific
+
   BANGLADESH_SPECIFIC: [
     PERMISSIONS.MFS_PAYMENT_MANAGE,
     PERMISSIONS.DISTRICT_MANAGE,
     PERMISSIONS.LOCAL_DELIVERY_MANAGE,
   ] as const,
-  
-  // Support
+
   SUPPORT_MANAGEMENT: [
     PERMISSIONS.TICKET_CREATE,
     PERMISSIONS.TICKET_READ,
@@ -402,81 +399,57 @@ export const PERMISSION_GROUPS = Object.freeze({
     PERMISSIONS.TICKET_RESOLVE,
     PERMISSIONS.TICKET_ASSIGN,
   ] as const,
-  
+
   NOTIFICATION_MANAGEMENT: [
     PERMISSIONS.NOTIFICATION_SEND,
     PERMISSIONS.NOTIFICATION_BROADCAST,
     PERMISSIONS.NOTIFICATION_READ,
   ] as const,
-  
-  // Audit
+
   AUDIT_MANAGEMENT: [
     PERMISSIONS.AUDIT_LOG_READ,
     PERMISSIONS.AUDIT_LOG_EXPORT,
     PERMISSIONS.COMPLIANCE_REVIEW,
   ] as const,
-} as const);
+} as const;
+
+export type PermissionGroup = ValueOf<typeof PERMISSION_GROUPS>;
 
 // ============================================================
 // All Permissions List (Pure array - Pre-computed, NO functions)
 // ============================================================
 export const ALL_PERMISSIONS = [
-  // User & Role
   ...PERMISSION_GROUPS.USER_MANAGEMENT,
   ...PERMISSION_GROUPS.ROLE_MANAGEMENT,
   ...PERMISSION_GROUPS.PERMISSION_MANAGEMENT,
-  
-  // Product & Catalog
   ...PERMISSION_GROUPS.PRODUCT_MANAGEMENT,
   ...PERMISSION_GROUPS.CATEGORY_MANAGEMENT,
   ...PERMISSION_GROUPS.BRAND_MANAGEMENT,
-  
-  // Order & Payment
   ...PERMISSION_GROUPS.ORDER_MANAGEMENT,
   ...PERMISSION_GROUPS.PAYMENT_MANAGEMENT,
-  
-  // Inventory
   ...PERMISSION_GROUPS.INVENTORY_MANAGEMENT,
-  
-  // Reviews
   ...PERMISSION_GROUPS.REVIEW_MANAGEMENT,
-  
-  // Offers
   ...PERMISSION_GROUPS.COUPON_MANAGEMENT,
   ...PERMISSION_GROUPS.OFFER_MANAGEMENT,
-  
-  // Cart
   ...PERMISSION_GROUPS.CART_MANAGEMENT,
   ...PERMISSION_GROUPS.WISHLIST_MANAGEMENT,
-  
-  // Shipping
   ...PERMISSION_GROUPS.SHIPPING_MANAGEMENT,
-  
-  // Analytics
   ...PERMISSION_GROUPS.ANALYTICS_AND_REPORTS,
-  
-  // System
   ...PERMISSION_GROUPS.SYSTEM_MANAGEMENT,
-  
-  // Shop & Vendor
   ...PERMISSION_GROUPS.SHOP_MANAGEMENT,
   ...PERMISSION_GROUPS.VENDOR_MANAGEMENT,
-  
-  // Bangladesh
   ...PERMISSION_GROUPS.BANGLADESH_SPECIFIC,
-  
-  // Support
   ...PERMISSION_GROUPS.SUPPORT_MANAGEMENT,
   ...PERMISSION_GROUPS.NOTIFICATION_MANAGEMENT,
-  
-  // Audit
   ...PERMISSION_GROUPS.AUDIT_MANAGEMENT,
 ] as const;
+
+export type AllPermissions = readonly Permission[];
 
 // ============================================================
 // Permission Categories (For UI grouping)
 // ============================================================
-export const PERMISSION_CATEGORIES = Object.freeze({
+export const PERMISSION_CATEGORIES = {
   USER: 'User Management',
   ROLE: 'Role Management',
   PERMISSION: 'Permission Management',
@@ -500,12 +473,14 @@ export const PERMISSION_CATEGORIES = Object.freeze({
   SUPPORT: 'Support & Tickets',
   NOTIFICATION: 'Notification Management',
   AUDIT: 'Audit & Compliance',
-} as const);
+} as const;
+
+export type PermissionCategory = ValueOf<typeof PERMISSION_CATEGORIES>;
 
 // ============================================================
 // Permission to Category Mapping
 // ============================================================
-export const PERMISSION_TO_CATEGORY = Object.freeze({
+export const PERMISSION_TO_CATEGORY = {
   // User permissions
   [PERMISSIONS.USER_CREATE]: PERMISSION_CATEGORIES.USER,
   [PERMISSIONS.USER_READ]: PERMISSION_CATEGORIES.USER,
@@ -516,7 +491,7 @@ export const PERMISSION_TO_CATEGORY = Object.freeze({
   [PERMISSIONS.USER_ACTIVATE]: PERMISSION_CATEGORIES.USER,
   [PERMISSIONS.USER_IMPERSONATE]: PERMISSION_CATEGORIES.USER,
   [PERMISSIONS.USER_EXPORT]: PERMISSION_CATEGORIES.USER,
-  
+
   // Role permissions
   [PERMISSIONS.ROLE_CREATE]: PERMISSION_CATEGORIES.ROLE,
   [PERMISSIONS.ROLE_READ]: PERMISSION_CATEGORIES.ROLE,
@@ -524,7 +499,7 @@ export const PERMISSION_TO_CATEGORY = Object.freeze({
   [PERMISSIONS.ROLE_DELETE]: PERMISSION_CATEGORIES.ROLE,
   [PERMISSIONS.ROLE_ASSIGN]: PERMISSION_CATEGORIES.ROLE,
   [PERMISSIONS.ROLE_REVOKE]: PERMISSION_CATEGORIES.ROLE,
-  
+
   // Permission permissions
   [PERMISSIONS.PERMISSION_CREATE]: PERMISSION_CATEGORIES.PERMISSION,
   [PERMISSIONS.PERMISSION_READ]: PERMISSION_CATEGORIES.PERMISSION,
@@ -532,7 +507,7 @@ export const PERMISSION_TO_CATEGORY = Object.freeze({
   [PERMISSIONS.PERMISSION_DELETE]: PERMISSION_CATEGORIES.PERMISSION,
   [PERMISSIONS.PERMISSION_ASSIGN]: PERMISSION_CATEGORIES.PERMISSION,
   [PERMISSIONS.PERMISSION_REVOKE]: PERMISSION_CATEGORIES.PERMISSION,
-  
+
   // Product permissions
   [PERMISSIONS.PRODUCT_CREATE]: PERMISSION_CATEGORIES.PRODUCT,
   [PERMISSIONS.PRODUCT_READ]: PERMISSION_CATEGORIES.PRODUCT,
@@ -547,20 +522,20 @@ export const PERMISSION_TO_CATEGORY = Object.freeze({
   [PERMISSIONS.PRODUCT_EXPORT]: PERMISSION_CATEGORIES.PRODUCT,
   [PERMISSIONS.PRODUCT_IMPORT]: PERMISSION_CATEGORIES.PRODUCT,
   [PERMISSIONS.PRODUCT_BULK_UPDATE]: PERMISSION_CATEGORIES.PRODUCT,
-  
+
   // Category permissions
   [PERMISSIONS.CATEGORY_CREATE]: PERMISSION_CATEGORIES.CATEGORY,
   [PERMISSIONS.CATEGORY_READ]: PERMISSION_CATEGORIES.CATEGORY,
   [PERMISSIONS.CATEGORY_UPDATE]: PERMISSION_CATEGORIES.CATEGORY,
   [PERMISSIONS.CATEGORY_DELETE]: PERMISSION_CATEGORIES.CATEGORY,
   [PERMISSIONS.CATEGORY_SORT]: PERMISSION_CATEGORIES.CATEGORY,
-  
+
   // Brand permissions
   [PERMISSIONS.BRAND_CREATE]: PERMISSION_CATEGORIES.BRAND,
   [PERMISSIONS.BRAND_READ]: PERMISSION_CATEGORIES.BRAND,
   [PERMISSIONS.BRAND_UPDATE]: PERMISSION_CATEGORIES.BRAND,
   [PERMISSIONS.BRAND_DELETE]: PERMISSION_CATEGORIES.BRAND,
-  
+
   // Order permissions
   [PERMISSIONS.ORDER_CREATE]: PERMISSION_CATEGORIES.ORDER,
   [PERMISSIONS.ORDER_READ]: PERMISSION_CATEGORIES.ORDER,
@@ -573,7 +548,7 @@ export const PERMISSION_TO_CATEGORY = Object.freeze({
   [PERMISSIONS.ORDER_DELIVER]: PERMISSION_CATEGORIES.ORDER,
   [PERMISSIONS.ORDER_EXPORT]: PERMISSION_CATEGORIES.ORDER,
   [PERMISSIONS.ORDER_BULK_STATUS]: PERMISSION_CATEGORIES.ORDER,
-  
+
   // Payment permissions
   [PERMISSIONS.PAYMENT_CREATE]: PERMISSION_CATEGORIES.PAYMENT,
   [PERMISSIONS.PAYMENT_READ]: PERMISSION_CATEGORIES.PAYMENT,
@@ -582,14 +557,14 @@ export const PERMISSION_TO_CATEGORY = Object.freeze({
   [PERMISSIONS.PAYMENT_VOID]: PERMISSION_CATEGORIES.PAYMENT,
   [PERMISSIONS.PAYMENT_CAPTURE]: PERMISSION_CATEGORIES.PAYMENT,
   [PERMISSIONS.PAYMENT_VERIFY]: PERMISSION_CATEGORIES.PAYMENT,
-  
+
   // Inventory permissions
   [PERMISSIONS.INVENTORY_READ]: PERMISSION_CATEGORIES.INVENTORY,
   [PERMISSIONS.INVENTORY_UPDATE]: PERMISSION_CATEGORIES.INVENTORY,
   [PERMISSIONS.INVENTORY_ADJUST]: PERMISSION_CATEGORIES.INVENTORY,
   [PERMISSIONS.INVENTORY_LOW_STOCK_ALERT]: PERMISSION_CATEGORIES.INVENTORY,
   [PERMISSIONS.INVENTORY_BULK_UPDATE]: PERMISSION_CATEGORIES.INVENTORY,
-  
+
   // Review permissions
   [PERMISSIONS.REVIEW_CREATE]: PERMISSION_CATEGORIES.REVIEW,
   [PERMISSIONS.REVIEW_READ]: PERMISSION_CATEGORIES.REVIEW,
@@ -597,7 +572,7 @@ export const PERMISSION_TO_CATEGORY = Object.freeze({
   [PERMISSIONS.REVIEW_DELETE]: PERMISSION_CATEGORIES.REVIEW,
   [PERMISSIONS.REVIEW_MODERATE]: PERMISSION_CATEGORIES.REVIEW,
   [PERMISSIONS.REVIEW_REPORT]: PERMISSION_CATEGORIES.REVIEW,
-  
+
   // Coupon & Offer permissions
   [PERMISSIONS.COUPON_CREATE]: PERMISSION_CATEGORIES.COUPON,
   [PERMISSIONS.COUPON_READ]: PERMISSION_CATEGORIES.COUPON,
@@ -609,14 +584,14 @@ export const PERMISSION_TO_CATEGORY = Object.freeze({
   [PERMISSIONS.OFFER_UPDATE]: PERMISSION_CATEGORIES.OFFER,
   [PERMISSIONS.OFFER_DELETE]: PERMISSION_CATEGORIES.OFFER,
   [PERMISSIONS.FLASH_SALE_MANAGE]: PERMISSION_CATEGORIES.OFFER,
-  
+
   // Cart & Wishlist permissions
   [PERMISSIONS.CART_READ]: PERMISSION_CATEGORIES.CART,
   [PERMISSIONS.CART_UPDATE]: PERMISSION_CATEGORIES.CART,
   [PERMISSIONS.CART_CLEAR]: PERMISSION_CATEGORIES.CART,
   [PERMISSIONS.WISHLIST_READ]: PERMISSION_CATEGORIES.WISHLIST,
   [PERMISSIONS.WISHLIST_UPDATE]: PERMISSION_CATEGORIES.WISHLIST,
-  
+
   // Shipping permissions
   [PERMISSIONS.SHIPPING_ZONE_READ]: PERMISSION_CATEGORIES.SHIPPING,
   [PERMISSIONS.SHIPPING_ZONE_CREATE]: PERMISSION_CATEGORIES.SHIPPING,
@@ -624,7 +599,7 @@ export const PERMISSION_TO_CATEGORY = Object.freeze({
   [PERMISSIONS.SHIPPING_ZONE_DELETE]: PERMISSION_CATEGORIES.SHIPPING,
   [PERMISSIONS.SHIPPING_COST_MANAGE]: PERMISSION_CATEGORIES.SHIPPING,
   [PERMISSIONS.SHIPPING_TRACK]: PERMISSION_CATEGORIES.SHIPPING,
-  
+
   // Analytics permissions
   [PERMISSIONS.ANALYTICS_READ]: PERMISSION_CATEGORIES.ANALYTICS,
   [PERMISSIONS.ANALYTICS_SALES]: PERMISSION_CATEGORIES.ANALYTICS,
@@ -633,7 +608,7 @@ export const PERMISSION_TO_CATEGORY = Object.freeze({
   [PERMISSIONS.REPORTS_GENERATE]: PERMISSION_CATEGORIES.ANALYTICS,
   [PERMISSIONS.EXPORT_DATA]: PERMISSION_CATEGORIES.ANALYTICS,
   [PERMISSIONS.IMPORT_DATA]: PERMISSION_CATEGORIES.ANALYTICS,
-  
+
   // System permissions
   [PERMISSIONS.SYSTEM_CONFIG_READ]: PERMISSION_CATEGORIES.SYSTEM,
   [PERMISSIONS.SYSTEM_CONFIG_UPDATE]: PERMISSION_CATEGORIES.SYSTEM,
@@ -643,7 +618,7 @@ export const PERMISSION_TO_CATEGORY = Object.freeze({
   [PERMISSIONS.SYSTEM_BACKUP]: PERMISSION_CATEGORIES.SYSTEM,
   [PERMISSIONS.SYSTEM_RESTORE]: PERMISSION_CATEGORIES.SYSTEM,
   [PERMISSIONS.SYSTEM_MONITOR]: PERMISSION_CATEGORIES.SYSTEM,
-  
+
   // Shop permissions
   [PERMISSIONS.SHOP_CREATE]: PERMISSION_CATEGORIES.SHOP,
   [PERMISSIONS.SHOP_READ]: PERMISSION_CATEGORIES.SHOP,
@@ -652,41 +627,41 @@ export const PERMISSION_TO_CATEGORY = Object.freeze({
   [PERMISSIONS.SHOP_SETTINGS]: PERMISSION_CATEGORIES.SHOP,
   [PERMISSIONS.SHOP_VERIFY]: PERMISSION_CATEGORIES.SHOP,
   [PERMISSIONS.SHOP_SUSPEND]: PERMISSION_CATEGORIES.SHOP,
-  
+
   // Vendor permissions
   [PERMISSIONS.VENDOR_READ]: PERMISSION_CATEGORIES.VENDOR,
   [PERMISSIONS.VENDOR_UPDATE]: PERMISSION_CATEGORIES.VENDOR,
   [PERMISSIONS.VENDOR_VERIFY]: PERMISSION_CATEGORIES.VENDOR,
   [PERMISSIONS.VENDOR_PAYOUT]: PERMISSION_CATEGORIES.VENDOR,
   [PERMISSIONS.VENDOR_COMMISSION_UPDATE]: PERMISSION_CATEGORIES.VENDOR,
-  
+
   // Bangladesh specific
   [PERMISSIONS.MFS_PAYMENT_MANAGE]: PERMISSION_CATEGORIES.BANGLADESH,
   [PERMISSIONS.DISTRICT_MANAGE]: PERMISSION_CATEGORIES.BANGLADESH,
   [PERMISSIONS.LOCAL_DELIVERY_MANAGE]: PERMISSION_CATEGORIES.BANGLADESH,
-  
+
   // Support permissions
   [PERMISSIONS.TICKET_CREATE]: PERMISSION_CATEGORIES.SUPPORT,
   [PERMISSIONS.TICKET_READ]: PERMISSION_CATEGORIES.SUPPORT,
   [PERMISSIONS.TICKET_UPDATE]: PERMISSION_CATEGORIES.SUPPORT,
   [PERMISSIONS.TICKET_RESOLVE]: PERMISSION_CATEGORIES.SUPPORT,
   [PERMISSIONS.TICKET_ASSIGN]: PERMISSION_CATEGORIES.SUPPORT,
-  
+
   // Notification permissions
   [PERMISSIONS.NOTIFICATION_SEND]: PERMISSION_CATEGORIES.NOTIFICATION,
   [PERMISSIONS.NOTIFICATION_BROADCAST]: PERMISSION_CATEGORIES.NOTIFICATION,
   [PERMISSIONS.NOTIFICATION_READ]: PERMISSION_CATEGORIES.NOTIFICATION,
-  
+
   // Audit permissions
   [PERMISSIONS.AUDIT_LOG_READ]: PERMISSION_CATEGORIES.AUDIT,
   [PERMISSIONS.AUDIT_LOG_EXPORT]: PERMISSION_CATEGORIES.AUDIT,
   [PERMISSIONS.COMPLIANCE_REVIEW]: PERMISSION_CATEGORIES.AUDIT,
-} as const);
+} as const;
 
 // ============================================================
 // Resource Types (For permission checking)
 // ============================================================
-export const PERMISSION_RESOURCES = Object.freeze({
+export const PERMISSION_RESOURCES = {
   USER: 'user',
   ROLE: 'role',
   PERMISSION: 'permission',
@@ -701,43 +676,3 @@ export const PERMISSION_RESOURCES = Object.freeze({
   OFFER: 'offer',
   CART: 'cart',
   WISHLIST: 'wishlist',
-  SHIPPING: 'shipping',
-  ANALYTICS: 'analytics',
-  SYSTEM: 'system',
-  SHOP: 'shop',
-  VENDOR: 'vendor',
-  TICKET: 'ticket',
-  NOTIFICATION: 'notification',
-  AUDIT: 'audit',
-} as const);
-
-// ============================================================
-// Actions (CRUD + custom)
-// ============================================================
-export const PERMISSION_ACTIONS = Object.freeze({
-  CREATE: 'create',
-  READ: 'read',
-  UPDATE: 'update',
-  DELETE: 'delete',
-  LIST: 'list',
-  SUSPEND: 'suspend',
-  ACTIVATE: 'activate',
-  APPROVE: 'approve',
-  REJECT: 'reject',
-  PUBLISH: 'publish',
-  UNPUBLISH: 'unpublish',
-  FEATURE: 'feature',
-  CANCEL: 'cancel',
-  REFUND: 'refund',
-  SHIP: 'ship',
-  DELIVER: 'deliver',
-  EXPORT: 'export',
-  IMPORT: 'import',
-  BULK_UPDATE: 'bulk_update',
-  ADJUST: 'adjust',
-  MODERATE: 'moderate',
-  RESOLVE: 'resolve',
-  ASSIGN: 'assign',
-  SEND: 'send',
-  BROADCAST: 'broadcast',
-} as const);
