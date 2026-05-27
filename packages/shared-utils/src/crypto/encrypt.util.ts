@@ -9,7 +9,7 @@
  * ✅ NO secret storage, database operations, side effects
  * ✅ Pure functions with deterministic output (given same inputs)
  * ✅ Named exports only
- * ✅ No console.log or external API calls 
+ * ✅ No console.log or external API calls।  
  */ 
 
 import crypto from 'crypto';
