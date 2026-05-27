@@ -1,0 +1,176 @@
+{
+  "name": "@vubon/shared-types",
+  "version": "1.0.0",
+  "description": "System-wide type contract layer for vubon.com.bd ecommerce ecosystem - Bangladesh's #1 Enterprise E-commerce",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./auth": {
+      "types": "./dist/auth/index.d.ts",
+      "import": "./dist/auth/index.mjs",
+      "require": "./dist/auth/index.js"
+    },
+    "./common": {
+      "types": "./dist/common/index.d.ts",
+      "import": "./dist/common/index.mjs",
+      "require": "./dist/common/index.js"
+    },
+    "./user": {
+      "types": "./dist/auth/user.types.d.ts",
+      "import": "./dist/auth/user.types.mjs",
+      "require": "./dist/auth/user.types.js"
+    },
+    "./session": {
+      "types": "./dist/auth/session.types.d.ts",
+      "import": "./dist/auth/session.types.mjs",
+      "require": "./dist/auth/session.types.js"
+    },
+    "./token": {
+      "types": "./dist/auth/token.types.d.ts",
+      "import": "./dist/auth/token.types.mjs",
+      "require": "./dist/auth/token.types.js"
+    },
+    "./role": {
+      "types": "./dist/auth/role.types.d.ts",
+      "import": "./dist/auth/role.types.mjs",
+      "require": "./dist/auth/role.types.js"
+    },
+    "./permission": {
+      "types": "./dist/auth/permission.types.d.ts",
+      "import": "./dist/auth/permission.types.mjs",
+      "require": "./dist/auth/permission.types.js"
+    },
+    "./mfa": {
+      "types": "./dist/auth/mfa.types.d.ts",
+      "import": "./dist/auth/mfa.types.mjs",
+      "require": "./dist/auth/mfa.types.js"
+    },
+    "./device": {
+      "types": "./dist/auth/device.types.d.ts",
+      "import": "./dist/auth/device.types.mjs",
+      "require": "./dist/auth/device.types.js"
+    },
+    "./verification": {
+      "types": "./dist/auth/verification.types.d.ts",
+      "import": "./dist/auth/verification.types.mjs",
+      "require": "./dist/auth/verification.types.js"
+    },
+    "./account-lock": {
+      "types": "./dist/auth/account-lock.types.d.ts",
+      "import": "./dist/auth/account-lock.types.mjs",
+      "require": "./dist/auth/account-lock.types.js"
+    },
+    "./login-attempt": {
+      "types": "./dist/auth/login-attempt.types.d.ts",
+      "import": "./dist/auth/login-attempt.types.mjs",
+      "require": "./dist/auth/login-attempt.types.js"
+    },
+    "./social": {
+      "types": "./dist/auth/social.types.d.ts",
+      "import": "./dist/auth/social.types.mjs",
+      "require": "./dist/auth/social.types.js"
+    },
+    "./api": {
+      "types": "./dist/common/api.types.d.ts",
+      "import": "./dist/common/api.types.mjs",
+      "require": "./dist/common/api.types.js"
+    },
+    "./pagination": {
+      "types": "./dist/common/pagination.types.d.ts",
+      "import": "./dist/common/pagination.types.mjs",
+      "require": "./dist/common/pagination.types.js"
+    },
+    "./audit": {
+      "types": "./dist/common/audit.types.d.ts",
+      "import": "./dist/common/audit.types.mjs",
+      "require": "./dist/common/audit.types.js"
+    },
+    "./seo": {
+      "types": "./dist/common/seo.types.d.ts",
+      "import": "./dist/common/seo.types.mjs",
+      "require": "./dist/common/seo.types.js"
+    },
+    "./location": {
+      "types": "./dist/common/location.types.d.ts",
+      "import": "./dist/common/location.types.mjs",
+      "require": "./dist/common/location.types.js"
+    }
+  },
+  "files": [
+    "dist/**/*",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "build:tsc": "tsc",
+    "clean": "rm -rf dist",
+    "dev": "tsup --watch",
+    "prepublishOnly": "npm run clean && npm run build",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "test": "echo \"No tests yet\""
+  },
+  "keywords": [
+    "types",
+    "enterprise",
+    "ecommerce",
+    "vubon",
+    "type-contracts",
+    "bangladesh",
+    "rbac",
+    "auth",
+    "mfa",
+    "session",
+    "audit",
+    "seo",
+    "jwt",
+    "permission",
+    "verification",
+    "social-login",
+    "bkash",
+    "nagad",
+    "rocket",
+    "sslcommerz"
+  ],
+  "author": "Vubon E-commerce",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "@vubon/shared-constants": "workspace:*"
+  },
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vubon/auth-types.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vubon/auth-types/issues"
+  },
+  "homepage": "https://vubon.com.bd"
+}
