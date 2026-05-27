@@ -74,7 +74,7 @@ export const MFA_STATUS = {
   // Active states
   ENABLED: 'enabled',
   ENABLED_DEFAULT: 'enabled_default',   // Using default provider
-  ENABLED_MULTI: 'enabled_multi',        // Multiple providers enabled
+  ENABLED_MULTI: 'enabled_multi',       // Multiple providers enabled
 
   // Security states
   LOCKED: 'locked',
@@ -84,7 +84,7 @@ export const MFA_STATUS = {
 
   // Special states
   BACKUP_ONLY: 'backup_only',           // Only backup codes available
-  RECOVERY_MODE: 'recovery_mode',        // Account recovery MFA bypass
+  RECOVERY_MODE: 'recovery_mode',       // Account recovery MFA bypass
 } as const;
 
 export type MfaStatus = ValueOf<typeof MFA_STATUS>;
@@ -101,7 +101,7 @@ export const MFA_VERIFICATION_TYPES = {
   // Financial transactions (E-commerce critical)
   PAYMENT: 'payment',
   PAYMENT_HIGH_VALUE: 'payment_high_value',      // Above threshold
-  PAYMENT_NEW_METHOD: 'payment_new_method',       // First time using payment method
+  PAYMENT_NEW_METHOD: 'payment_new_method',      // First time using payment method
   WITHDRAWAL: 'withdrawal',
   REFUND: 'refund',
 
@@ -202,12 +202,12 @@ export const RECOVERY_CODES = {
 
   // Usage
   ONE_TIME_USE: true,
-  REGENERATE_ON_USAGE: false,          // Regenerate when low
-  REGENERATE_THRESHOLD: 3,              // Regenerate when 3 or less left
+  REGENERATE_ON_USAGE: false,         // Regenerate when low
+  REGENERATE_THRESHOLD: 3,            // Regenerate when 3 or less left
 
   // Display
   SHOW_AFTER_SETUP: true,
-  FORCE_DOWNLOAD: true,                // Force download as text file
+  FORCE_DOWNLOAD: true,               // Force download as text file
   ALLOW_PRINT: true,
 } as const;
 
@@ -237,8 +237,8 @@ export const MFA_TIMEOUTS = {
   MAX_WHATSAPP_PER_HOUR: 5,
 
   // Session MFA skip (trusted device)
-  TRUSTED_DEVICE_SKIP_SECONDS: 2592000,  // 30 days
-  TRUSTED_LOCATION_SKIP_SECONDS: 86400,  // 24 hours
+  TRUSTED_DEVICE_SKIP_SECONDS: 2592000, // 30 days
+  TRUSTED_LOCATION_SKIP_SECONDS: 86400, // 24 hours
 } as const;
 
 export type MfaTimeouts = typeof MFA_TIMEOUTS;
@@ -248,9 +248,9 @@ export type MfaTimeouts = typeof MFA_TIMEOUTS;
 // ============================================================
 export const MFA_THRESHOLDS = {
   // Transaction value thresholds (in BDT - Bangladesh Taka)
-  PAYMENT_MFA_THRESHOLD_BDT: 25000,      // MFA required for orders > 25,000 BDT
-  HIGH_VALUE_THRESHOLD_BDT: 50000,       // Additional verification for > 50,000 BDT
-  CRYPTO_THRESHOLD_BDT: 10000,           // Lower threshold for crypto payments
+  PAYMENT_MFA_THRESHOLD_BDT: 25000,     // MFA required for orders > 25,000 BDT
+  HIGH_VALUE_THRESHOLD_BDT: 50000,      // Additional verification for > 50,000 BDT
+  CRYPTO_THRESHOLD_BDT: 10000,          // Lower threshold for crypto payments
 
   // Login thresholds
   NEW_DEVICE_MFA_REQUIRED: true,
@@ -258,8 +258,8 @@ export const MFA_THRESHOLDS = {
   SUSPICIOUS_PATTERN_MFA_REQUIRED: true,
 
   // Time-based thresholds
-  NIGHT_TIME_MFA_ENHANCED: true,         // 10 PM - 6 AM (increased scrutiny)
-  WEEKEND_MFA_ENHANCED: true,            // Friday & Saturday (Bangladesh weekend)
+  NIGHT_TIME_MFA_ENHANCED: true,        // 10 PM - 6 AM (increased scrutiny)
+  WEEKEND_MFA_ENHANCED: true,           // Friday & Saturday (Bangladesh weekend)
 
   // Velocity thresholds
   MAX_LOGINS_PER_HOUR_BEFORE_MFA: 5,
@@ -294,8 +294,8 @@ export const MFA_TRUSTED_ENVIRONMENTS = {
     TRUSTED_DEVICE: 'trusted_device',
     TRUSTED_NETWORK: 'trusted_network',
     RECENT_VERIFICATION: 'recent_verification',
-    ADMIN_OVERRIDE: 'admin_override',     // With audit log
-    EMERGENCY_BYPASS: 'emergency',        // For support cases
+    ADMIN_OVERRIDE: 'admin_override',    // With audit log
+    EMERGENCY_BYPASS: 'emergency',       // For support cases
   },
 } as const;
 
@@ -316,16 +316,16 @@ export const MFA_RISK_SCORES = {
     SUSPICIOUS_HOUR: 20,        // 1 AM - 5 AM
     UNUSUAL_AMOUNT: 25,         // Transaction > 2x average
     MULTIPLE_ACCOUNTS_SAME_DEVICE: 50,
-    SIM_SWAP_DETECTED: 100,      // Immediate MFA required
+    SIM_SWAP_DETECTED: 100,     // Immediate MFA required
   },
 
   // Action thresholds
   THRESHOLDS: {
     NO_MFA_NEEDED: 0,
-    PREFER_MFA: 30,              // Suggest MFA but not required
-    MFA_REQUIRED: 50,            // Force MFA
-    MFA_ENHANCED: 75,            // Require 2 different MFA methods
-    BLOCK_TRANSACTION: 100,      // Block and notify support
+    PREFER_MFA: 30,             // Suggest MFA but not required
+    MFA_REQUIRED: 50,           // Force MFA
+    MFA_ENHANCED: 75,           // Require 2 different MFA methods
+    BLOCK_TRANSACTION: 100,     // Block and notify support
   },
 } as const;
 
@@ -337,10 +337,10 @@ export type MfaRiskScores = typeof MFA_RISK_SCORES;
 export const MFA_SETUP_REQUIREMENTS = {
   // Minimum MFA methods required per security level
   MINIMUM_METHODS: {
-    STANDARD: 1,                  // At least one MFA method
-    ENHANCED: 2,                  // At least two different methods
-    HIGH_SECURITY: 2,             // Two methods, one must be hardware/WebAuthn
-    MAXIMUM: 3,                   // Three methods
+    STANDARD: 1,                 // At least one MFA method
+    ENHANCED: 2,                 // At least two different methods
+    HIGH_SECURITY: 2,            // Two methods, one must be hardware/WebAuthn
+    MAXIMUM: 3,                  // Three methods
   },
 
   // Recommended MFA providers by user type
@@ -378,7 +378,7 @@ export const MFA_FALLBACKS = {
 
   // Fallback limitations
   MAX_FALLBACK_ATTEMPTS: 2,
-  FALLBACK_COOLDOWN_SECONDS: 3600,    // 1 hour after fallback use
+  FALLBACK_COOLDOWN_SECONDS: 3600,   // 1 hour after fallback use
 
   // Account recovery after fallback
   RECOVERY_REQUIRED_AFTER_FALLBACK: true,
@@ -394,7 +394,7 @@ export const SIM_SWAP_DETECTION = {
   ENABLED: true,
 
   // Check intervals (seconds)
-  CHECK_INTERVAL_SECONDS: 86400,      // Check daily
+  CHECK_INTERVAL_SECONDS: 86400,     // Check daily
 
   // When SIM swap is detected
   ACTIONS: {
@@ -402,7 +402,7 @@ export const SIM_SWAP_DETECTION = {
     REQUIRE_MFA: true,
     REQUIRE_IDENTITY_VERIFICATION: true,
     SEND_ALERT: true,
-    TEMPORARY_SUSPEND: true,          // 24 hour suspension
+    TEMPORARY_SUSPEND: true,         // 24 hour suspension
   },
 
   // SIM swap cooldown
@@ -421,7 +421,7 @@ export const OFFLINE_MFA = {
   ENABLED: true,
 
   // Offline TOTP (Pre-generated codes)
-  OFFLINE_TOTP_COUNT: 20,              // Generate 20 offline codes
+  OFFLINE_TOTP_COUNT: 20,             // Generate 20 offline codes
   OFFLINE_CODE_LENGTH: 12,
 
   // Offline backup codes (Printable)
@@ -432,7 +432,7 @@ export const OFFLINE_MFA = {
   },
 
   // Offline verification window
-  OFFLINE_VALIDITY_DAYS: 30,           // Offline codes valid for 30 days
+  OFFLINE_VALIDITY_DAYS: 30,          // Offline codes valid for 30 days
 } as const;
 
 export type OfflineMfa = typeof OFFLINE_MFA;
@@ -461,7 +461,7 @@ export const MFA_EVENTS = {
 
   // Bangladesh specific
   MFA_SIM_SWAP_DETECTED: 'mfa.sim_swap.detected',
-  MFA_BYPASS_ADMIN: 'mfa.bypass.admin',      // With audit trail
+  MFA_BYPASS_ADMIN: 'mfa.bypass.admin',     // With audit trail
   MFA_EMERGENCY_ACCESS: 'mfa.emergency.access',
 } as const;
 
@@ -511,7 +511,7 @@ export const MFA_PRESETS = {
   },
 } as const;
 
-export type MfaPreset = typeof MFA_PRESETS[keyof typeof MFA_PRESETS];
+export type MfaPreset = ValueOf<typeof MFA_PRESETS>;
 export type MfaPresetName = keyof typeof MFA_PRESETS;
 
 // ============================================================
