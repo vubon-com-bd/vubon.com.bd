@@ -35,8 +35,7 @@ export const REGEX_EMAIL = {
   BUSINESS_EMAIL: /^[a-zA-Z0-9._%+-]+@(?:gmail\.com|yahoo\.com|outlook\.com|hotmail\.com|icloud\.com|[a-zA-Z0-9.-]+\.com\.bd|\.net\.bd)$/,
 } as const;
 
-export type RegexEmail = typeof REGEX_EMAIL;
-export type RegexEmailPattern = ValueOf<typeof REGEX_EMAIL>;
+export type RegexEmail = ValueOf<typeof REGEX_EMAIL>;
 
 // ============================================================
 // Password Validation Regex
@@ -61,8 +60,7 @@ export const REGEX_PASSWORD = {
   NO_SPACES: /^\S+$/,
 } as const;
 
-export type RegexPassword = typeof REGEX_PASSWORD;
-export type RegexPasswordPattern = ValueOf<typeof REGEX_PASSWORD>;
+export type RegexPassword = ValueOf<typeof REGEX_PASSWORD>;
 
 // ============================================================
 // Phone Number Regex (Bangladesh specific - Complete)
@@ -88,7 +86,7 @@ export const REGEX_PHONE = {
 
     // Teletalk: 015
     TELETALK: /^(?:\+880|0)15\d{8}$/,
-  } as const,
+  },
 
   // Bangladesh all operators combined
   BANGLADESH_ALL: /^(?:\+880|0)1(?:3|4|5|6|7|8|9)\d{8}$/,
@@ -100,9 +98,8 @@ export const REGEX_PHONE = {
   LANDLINE: /^(?:\+880|0)[2-9]\d{1,2}\d{6,7}$/,
 } as const;
 
-export type RegexPhone = typeof REGEX_PHONE;
-export type RegexPhonePattern = ValueOf<typeof REGEX_PHONE>;
-export type RegexPhoneOperator = keyof typeof REGEX_PHONE.BANGLADESH_DETAILED;
+export type RegexPhone = ValueOf<typeof REGEX_PHONE>;
+export type BangladeshOperator = keyof typeof REGEX_PHONE.BANGLADESH_DETAILED;
 
 // ============================================================
 // Bangladesh National ID (NID) Validation
@@ -122,8 +119,7 @@ export const REGEX_NID = {
   BIRTH_REGISTRATION: /^\d{17}$/,
 } as const;
 
-export type RegexNid = typeof REGEX_NID;
-export type RegexNidPattern = ValueOf<typeof REGEX_NID>;
+export type RegexNid = ValueOf<typeof REGEX_NID>;
 
 // ============================================================
 // Bangladeshi Tax Identification Number (TIN)
@@ -139,8 +135,7 @@ export const REGEX_TIN = {
   BUSINESS: /^\d{9}$|^\d{3}-\d{3}-\d{3}$/,
 } as const;
 
-export type RegexTin = typeof REGEX_TIN;
-export type RegexTinPattern = ValueOf<typeof REGEX_TIN>;
+export type RegexTin = ValueOf<typeof REGEX_TIN>;
 
 // ============================================================
 // Bangladesh Postal Code (4 digits)
@@ -153,8 +148,7 @@ export const REGEX_POSTAL_CODE = {
   WITH_PREFIX: /^(?:BD-)?\d{4}$/,
 } as const;
 
-export type RegexPostalCode = typeof REGEX_POSTAL_CODE;
-export type RegexPostalCodePattern = ValueOf<typeof REGEX_POSTAL_CODE>;
+export type RegexPostalCode = ValueOf<typeof REGEX_POSTAL_CODE>;
 
 // ============================================================
 // Bangladesh Bank Account Number
@@ -173,8 +167,7 @@ export const REGEX_BANK_ACCOUNT = {
   WITH_BRANCH: /^\d{3}-\d{7,17}$/,
 } as const;
 
-export type RegexBankAccount = typeof REGEX_BANK_ACCOUNT;
-export type RegexBankAccountPattern = ValueOf<typeof REGEX_BANK_ACCOUNT>;
+export type RegexBankAccount = ValueOf<typeof REGEX_BANK_ACCOUNT>;
 
 // ============================================================
 // Bangladesh Mobile Financial Services (MFS)
@@ -193,9 +186,7 @@ export const REGEX_MFS = {
   TRANSACTION_ID: /^[A-Z0-9]{10,20}$/i,
 } as const;
 
-export type RegexMfs = typeof REGEX_MFS;
-export type RegexMfsPattern = ValueOf<typeof REGEX_MFS>;
-export type MfsProvider = keyof Omit<typeof REGEX_MFS, 'TRANSACTION_ID'>;
+export type RegexMfs = ValueOf<typeof REGEX_MFS>;
 
 // ============================================================
 // URL Validation Regex
@@ -214,8 +205,7 @@ export const REGEX_URL = {
   BD_ECOMMERCE: /^https?:\/\/([\da-z\.-]+)\.(com\.bd|net\.bd|org\.bd)([\/\w \.-]*)*\/?$/i,
 } as const;
 
-export type RegexUrl = typeof REGEX_URL;
-export type RegexUrlPattern = ValueOf<typeof REGEX_URL>;
+export type RegexUrl = ValueOf<typeof REGEX_URL>;
 
 // ============================================================
 // Slug Validation (URL-friendly strings)
@@ -234,8 +224,7 @@ export const REGEX_SLUG = {
   BENGALI: /^[\u0980-\u09FF\p{N}]+(?:-[\u0980-\u09FF\p{N}]+)*$/u,
 } as const;
 
-export type RegexSlug = typeof REGEX_SLUG;
-export type RegexSlugPattern = ValueOf<typeof REGEX_SLUG>;
+export type RegexSlug = ValueOf<typeof REGEX_SLUG>;
 
 // ============================================================
 // Username Validation
@@ -254,8 +243,7 @@ export const REGEX_USERNAME = {
   BENGALI: /^[\u0980-\u09FF\p{N}_.]{3,30}$/u,
 } as const;
 
-export type RegexUsername = typeof REGEX_USERNAME;
-export type RegexUsernamePattern = ValueOf<typeof REGEX_USERNAME>;
+export type RegexUsername = ValueOf<typeof REGEX_USERNAME>;
 
 // ============================================================
 // Product SKU Validation
@@ -266,13 +254,12 @@ export const REGEX_SKU = {
   BANGLADESH_BRAND: /^(?:BD|BAN)-[A-Z0-9]{4,16}$/i,
 } as const;
 
-export type RegexSku = typeof REGEX_SKU;
-export type RegexSkuPattern = ValueOf<typeof REGEX_SKU>;
+export type RegexSku = ValueOf<typeof REGEX_SKU>;
 
 // ============================================================
 // ISBN Validation (basic format)
 // ============================================================
-export const REGEX_ISBN = /^(?:ISBN(?:-10)?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$)[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]$/ as const;
+export const REGEX_ISBN = /^(?:ISBN(?:-10)?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$)[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]$/;
 
 export type RegexIsbn = typeof REGEX_ISBN;
 
@@ -287,8 +274,7 @@ export const REGEX_DATE = {
   DD_MM_YYYY_BD: /^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$/, // With hyphens
 } as const;
 
-export type RegexDate = typeof REGEX_DATE;
-export type RegexDatePattern = ValueOf<typeof REGEX_DATE>;
+export type RegexDate = ValueOf<typeof REGEX_DATE>;
 
 // ============================================================
 // Color Codes
@@ -301,8 +287,7 @@ export const REGEX_COLOR = {
   HSL: /^hsl\((\d{1,3}),\s*(\d{1,3})%,\s*(\d{1,3})%\)$/,
 } as const;
 
-export type RegexColor = typeof REGEX_COLOR;
-export type RegexColorPattern = ValueOf<typeof REGEX_COLOR>;
+export type RegexColor = ValueOf<typeof REGEX_COLOR>;
 
 // ============================================================
 // IP Addresses
@@ -313,66 +298,65 @@ export const REGEX_IP = {
   CIDR: /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}$/,
 } as const;
 
-export type RegexIp = typeof REGEX_IP;
-export type RegexIpPattern = ValueOf<typeof REGEX_IP>;
+export type RegexIp = ValueOf<typeof REGEX_IP>;
 
 // ============================================================
 // Security Patterns
 // ============================================================
 // HTML tags (for sanitization)
-export const REGEX_HTML_TAGS = /<[^>]*>/g as const;
+export const REGEX_HTML_TAGS = /<[^>]*>/g;
 
 // Special characters (for sanitization)
-export const REGEX_SPECIAL_CHARS = /[<>{}[\]|\\\/^~`]/g as const;
+export const REGEX_SPECIAL_CHARS = /[<>{}[\]|\\\/^~`]/g;
 
 // Script tags (XSS prevention)
-export const REGEX_SCRIPT_TAGS = /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi as const;
+export const REGEX_SCRIPT_TAGS = /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi;
 
 // SQL Injection pattern detection
-export const REGEX_SQL_INJECTION = /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE|UNION|JOIN|WHERE|OR|AND)\b|\b(;|--|\/\*|\*\/|@@|@|CHAR|NCHAR|VARCHAR|NVARCHAR|ALTER|BEGIN|CAST|CREATE|CURSOR|DECLARE|DELETE|DROP|END|EXEC|EXECUTE|FETCH|FROM|GROUP|HAVING|INSERT|INTO|JOIN|MERGE|ORDER|REMOVE|REPLICATE|SELECT|SET|TABLE|TRUNCATE|UNION|UPDATE|WAITFOR)\b)/i as const;
+export const REGEX_SQL_INJECTION = /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE|UNION|JOIN|WHERE|OR|AND)\b|\b(;|--|\/\*|\*\/|@@|@|CHAR|NCHAR|VARCHAR|NVARCHAR|ALTER|BEGIN|CAST|CREATE|CURSOR|DECLARE|DELETE|DROP|END|EXEC|EXECUTE|FETCH|FROM|GROUP|HAVING|INSERT|INTO|JOIN|MERGE|ORDER|REMOVE|REPLICATE|SELECT|SET|TABLE|TRUNCATE|UNION|UPDATE|WAITFOR)\b)/i;
 
 // XSS pattern detection
-export const REGEX_XSS = /(\b(on\w+)=|javascript:|<script|<\/script>|alert\(|confirm\(|prompt\(|document\.|window\.|eval\()/i as const;
+export const REGEX_XSS = /(\b(on\w+)=|javascript:|<script|<\/script>|alert\(|confirm\(|prompt\(|document\.|window\.|eval\()/i;
 
-export type RegexSecurity = typeof REGEX_HTML_TAGS | typeof REGEX_SCRIPT_TAGS | typeof REGEX_SQL_INJECTION | typeof REGEX_XSS;
+export type RegexSecurity = typeof REGEX_HTML_TAGS | typeof REGEX_SPECIAL_CHARS | typeof REGEX_SCRIPT_TAGS | typeof REGEX_SQL_INJECTION | typeof REGEX_XSS;
 
 // ============================================================
 // Basic Format Validations
 // ============================================================
 // Alphanumeric only
-export const REGEX_ALPHANUMERIC = /^[a-zA-Z0-9]+$/ as const;
+export const REGEX_ALPHANUMERIC = /^[a-zA-Z0-9]+$/;
 
 // Numbers only
-export const REGEX_NUMERIC = /^\d+$/ as const;
+export const REGEX_NUMERIC = /^\d+$/;
 
 // Decimal numbers (up to 2 decimal places)
-export const REGEX_DECIMAL = /^\d+(?:\.\d{1,2})?$/ as const;
+export const REGEX_DECIMAL = /^\d+(?:\.\d{1,2})?$/;
 
 // Decimal numbers (up to 3 decimal places - for pricing)
-export const REGEX_DECIMAL_3 = /^\d+(?:\.\d{1,3})?$/ as const;
+export const REGEX_DECIMAL_3 = /^\d+(?:\.\d{1,3})?$/;
 
 // Positive integers only
-export const REGEX_POSITIVE_INTEGER = /^[1-9]\d*$/ as const;
+export const REGEX_POSITIVE_INTEGER = /^[1-9]\d*$/;
 
 // Percentage (0-100)
-export const REGEX_PERCENTAGE = /^(?:100(?:\.0{1,2})?|[1-9]?\d(?:\.\d{1,2})?)$/ as const;
+export const REGEX_PERCENTAGE = /^(?:100(?:\.0{1,2})?|[1-9]?\d(?:\.\d{1,2})?)$/;
 
-export type RegexBasic = typeof REGEX_ALPHANUMERIC | typeof REGEX_NUMERIC | typeof REGEX_DECIMAL | typeof REGEX_POSITIVE_INTEGER | typeof REGEX_PERCENTAGE;
+export type RegexBasic = typeof REGEX_ALPHANUMERIC | typeof REGEX_NUMERIC | typeof REGEX_DECIMAL | typeof REGEX_DECIMAL_3 | typeof REGEX_POSITIVE_INTEGER | typeof REGEX_PERCENTAGE;
 
 // ============================================================
 // Financial & Banking (Bangladesh specific)
 // ============================================================
 // BAN (Basic Account Number)
-export const REGEX_BAN = /^[A-Z]{2}\d{20}$/ as const;
+export const REGEX_BAN = /^[A-Z]{2}\d{20}$/;
 
 // Credit card number (Luhn validation not included - just pattern)
-export const REGEX_CREDIT_CARD = /^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13}|6(?:011|5[0-9]{2})[0-9]{12})$/ as const;
+export const REGEX_CREDIT_CARD = /^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13}|6(?:011|5[0-9]{2})[0-9]{12})$/;
 
 // CVV/CVC (3-4 digits)
-export const REGEX_CVV = /^\d{3,4}$/ as const;
+export const REGEX_CVV = /^\d{3,4}$/;
 
 // Card expiry date (MM/YY or MM/YYYY)
-export const REGEX_CARD_EXPIRY = /^(0[1-9]|1[0-2])\/([0-9]{2}|[0-9]{4})$/ as const;
+export const REGEX_CARD_EXPIRY = /^(0[1-9]|1[0-2])\/([0-9]{2}|[0-9]{4})$/;
 
 export type RegexFinancial = typeof REGEX_BAN | typeof REGEX_CREDIT_CARD | typeof REGEX_CVV | typeof REGEX_CARD_EXPIRY;
 
@@ -396,8 +380,7 @@ export const REGEX_ADDRESS = {
   HOUSE_NUMBER: /^[A-Za-z0-9\/\-\.\s]{1,20}$/,
 } as const;
 
-export type RegexAddress = typeof REGEX_ADDRESS;
-export type RegexAddressPattern = ValueOf<typeof REGEX_ADDRESS>;
+export type RegexAddress = ValueOf<typeof REGEX_ADDRESS>;
 
 // ============================================================
 // Bengali Unicode Ranges
@@ -416,36 +399,27 @@ export const REGEX_BENGALI = {
   ALPHANUMERIC: /^[\u0980-\u09FFa-zA-Z0-9\s]{1,100}$/u,
 } as const;
 
-export type RegexBengali = typeof REGEX_BENGALI;
-export type RegexBengaliPattern = ValueOf<typeof REGEX_BENGALI>;
+export type RegexBengali = ValueOf<typeof REGEX_BENGALI>;
 
 // ============================================================
 // BIN (Business Identification Number) - Bangladesh
 // ============================================================
-export const REGEX_BIN = /^\d{9}$|^\d{11}$/ as const;
-
-export type RegexBin = typeof REGEX_BIN;
+export const REGEX_BIN = /^\d{9}$|^\d{11}$/;
 
 // ============================================================
 // Trade License Number (Bangladesh)
 // ============================================================
-export const REGEX_TRADE_LICENSE = /^[A-Z0-9]{6,20}$/i as const;
-
-export type RegexTradeLicense = typeof REGEX_TRADE_LICENSE;
+export const REGEX_TRADE_LICENSE = /^[A-Z0-9]{6,20}$/i;
 
 // ============================================================
 // e-TIN Certificate Number
 // ============================================================
-export const REGEX_ETIN = /^\d{12}$/ as const;
-
-export type RegexEtin = typeof REGEX_ETIN;
+export const REGEX_ETIN = /^\d{12}$/;
 
 // ============================================================
 // Passport Number (Bangladesh)
 // ============================================================
-export const REGEX_PASSPORT = /^[A-Z]{1,2}\d{6,10}$/i as const;
-
-export type RegexPassport = typeof REGEX_PASSPORT;
+export const REGEX_PASSPORT = /^[A-Z]{1}[0-9]{7}$/i;
 
 // ============================================================
 // Deep freeze everything for immutability
