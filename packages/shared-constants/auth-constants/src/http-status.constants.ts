@@ -1,9 +1,9 @@
 /**
  * HTTP Status Constants - Pure immutable HTTP status codes
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module shared-constants/auth-constants/http-status.constants
- * 
+ *
  * RULES:
  * ✅ NO functions - ONLY pure readonly constants
  * ✅ NO business logic
@@ -12,19 +12,29 @@
  */
 
 // ============================================================
+// Type Utilities
+// ============================================================
+export type ValueOf<T> = T[keyof T];
+export type ReadonlyDeep<T> = {
+  readonly [P in keyof T]: ReadonlyDeep<T[P]>;
+};
+
+// ============================================================
 // 1xx Informational Responses
 // ============================================================
-export const HTTP_STATUS_INFORMATIONAL = Object.freeze({
+export const HTTP_STATUS_INFORMATIONAL = {
   CONTINUE: 100,
   SWITCHING_PROTOCOLS: 101,
   PROCESSING: 102,           // WebDAV
   EARLY_HINTS: 103,          // Experimental
-} as const);
+} as const;
+
+export type HttpStatusInformational = ValueOf<typeof HTTP_STATUS_INFORMATIONAL>;
 
 // ============================================================
 // 2xx Success Responses
 // ============================================================
-export const HTTP_STATUS_SUCCESS = Object.freeze({
+export const HTTP_STATUS_SUCCESS = {
   OK: 200,
   CREATED: 201,
   ACCEPTED: 202,
@@ -35,12 +45,14 @@ export const HTTP_STATUS_SUCCESS = Object.freeze({
   MULTI_STATUS: 207,         // WebDAV
   ALREADY_REPORTED: 208,     // WebDAV
   IM_USED: 226,              // HTTP Delta encoding
-} as const);
+} as const;
+
+export type HttpStatusSuccess = ValueOf<typeof HTTP_STATUS_SUCCESS>;
 
 // ============================================================
 // 3xx Redirection Responses
 // ============================================================
-export const HTTP_STATUS_REDIRECTION = Object.freeze({
+export const HTTP_STATUS_REDIRECTION = {
   MULTIPLE_CHOICES: 300,
   MOVED_PERMANENTLY: 301,
   FOUND: 302,
@@ -50,12 +62,14 @@ export const HTTP_STATUS_REDIRECTION = Object.freeze({
   SWITCH_PROXY: 306,         // Deprecated
   TEMPORARY_REDIRECT: 307,
   PERMANENT_REDIRECT: 308,
-} as const);
+} as const;
+
+export type HttpStatusRedirection = ValueOf<typeof HTTP_STATUS_REDIRECTION>;
 
 // ============================================================
 // 4xx Client Error Responses
 // ============================================================
-export const HTTP_STATUS_CLIENT_ERROR = Object.freeze({
+export const HTTP_STATUS_CLIENT_ERROR = {
   BAD_REQUEST: 400,
   UNAUTHORIZED: 401,
   PAYMENT_REQUIRED: 402,
@@ -85,12 +99,14 @@ export const HTTP_STATUS_CLIENT_ERROR = Object.freeze({
   TOO_MANY_REQUESTS: 429,
   REQUEST_HEADER_FIELDS_TOO_LARGE: 431,
   UNAVAILABLE_FOR_LEGAL_REASONS: 451,
-} as const);
+} as const;
+
+export type HttpStatusClientError = ValueOf<typeof HTTP_STATUS_CLIENT_ERROR>;
 
 // ============================================================
 // 5xx Server Error Responses
 // ============================================================
-export const HTTP_STATUS_SERVER_ERROR = Object.freeze({
+export const HTTP_STATUS_SERVER_ERROR = {
   INTERNAL_SERVER_ERROR: 500,
   NOT_IMPLEMENTED: 501,
   BAD_GATEWAY: 502,
@@ -102,23 +118,27 @@ export const HTTP_STATUS_SERVER_ERROR = Object.freeze({
   LOOP_DETECTED: 508,
   NOT_EXTENDED: 510,
   NETWORK_AUTHENTICATION_REQUIRED: 511,
-} as const);
+} as const;
+
+export type HttpStatusServerError = ValueOf<typeof HTTP_STATUS_SERVER_ERROR>;
 
 // ============================================================
 // Combined HTTP Status Codes (All in one)
 // ============================================================
-export const HTTP_STATUS = Object.freeze({
+export const HTTP_STATUS = {
   ...HTTP_STATUS_INFORMATIONAL,
   ...HTTP_STATUS_SUCCESS,
   ...HTTP_STATUS_REDIRECTION,
   ...HTTP_STATUS_CLIENT_ERROR,
   ...HTTP_STATUS_SERVER_ERROR,
-} as const);
+} as const;
+
+export type HttpStatus = ValueOf<typeof HTTP_STATUS>;
 
 // ============================================================
 // Status Code Ranges (Pure constants - NO FUNCTIONS)
 // ============================================================
-export const HTTP_STATUS_RANGES = Object.freeze({
+export const HTTP_STATUS_RANGES = {
   INFORMATIONAL_MIN: 100,
   INFORMATIONAL_MAX: 199,
   SUCCESS_MIN: 200,
@@ -129,18 +149,21 @@ export const HTTP_STATUS_RANGES = Object.freeze({
   CLIENT_ERROR_MAX: 499,
   SERVER_ERROR_MIN: 500,
   SERVER_ERROR_MAX: 599,
-} as const);
+} as const;
+
+export type HttpStatusRanges = typeof HTTP_STATUS_RANGES;
 
 // ============================================================
 // Category lookup tables (Pure constants - Pre-computed)
 // ============================================================
-export const HTTP_STATUS_CATEGORY_MAP = Object.freeze({
-  // Each status code mapped to its category
+export const HTTP_STATUS_CATEGORY_MAP = {
+  // 1xx
   100: 'informational',
   101: 'informational',
   102: 'informational',
   103: 'informational',
-  
+
+  // 2xx
   200: 'success',
   201: 'success',
   202: 'success',
@@ -151,7 +174,8 @@ export const HTTP_STATUS_CATEGORY_MAP = Object.freeze({
   207: 'success',
   208: 'success',
   226: 'success',
-  
+
+  // 3xx
   300: 'redirection',
   301: 'redirection',
   302: 'redirection',
@@ -161,7 +185,8 @@ export const HTTP_STATUS_CATEGORY_MAP = Object.freeze({
   306: 'redirection',
   307: 'redirection',
   308: 'redirection',
-  
+
+  // 4xx
   400: 'client_error',
   401: 'client_error',
   402: 'client_error',
@@ -191,7 +216,8 @@ export const HTTP_STATUS_CATEGORY_MAP = Object.freeze({
   429: 'client_error',
   431: 'client_error',
   451: 'client_error',
-  
+
+  // 5xx
   500: 'server_error',
   501: 'server_error',
   502: 'server_error',
@@ -203,18 +229,20 @@ export const HTTP_STATUS_CATEGORY_MAP = Object.freeze({
   508: 'server_error',
   510: 'server_error',
   511: 'server_error',
-} as const);
+} as const;
+
+export type HttpStatusCategory = ValueOf<typeof HTTP_STATUS_CATEGORY_MAP>;
 
 // ============================================================
 // Status Code to Message Mapping (Complete)
 // ============================================================
-export const HTTP_STATUS_MESSAGES = Object.freeze({
+export const HTTP_STATUS_MESSAGES = {
   // 1xx
   [HTTP_STATUS_INFORMATIONAL.CONTINUE]: 'Continue',
   [HTTP_STATUS_INFORMATIONAL.SWITCHING_PROTOCOLS]: 'Switching Protocols',
   [HTTP_STATUS_INFORMATIONAL.PROCESSING]: 'Processing',
   [HTTP_STATUS_INFORMATIONAL.EARLY_HINTS]: 'Early Hints',
-  
+
   // 2xx
   [HTTP_STATUS_SUCCESS.OK]: 'OK',
   [HTTP_STATUS_SUCCESS.CREATED]: 'Created',
@@ -226,7 +254,7 @@ export const HTTP_STATUS_MESSAGES = Object.freeze({
   [HTTP_STATUS_SUCCESS.MULTI_STATUS]: 'Multi-Status',
   [HTTP_STATUS_SUCCESS.ALREADY_REPORTED]: 'Already Reported',
   [HTTP_STATUS_SUCCESS.IM_USED]: 'IM Used',
-  
+
   // 3xx
   [HTTP_STATUS_REDIRECTION.MULTIPLE_CHOICES]: 'Multiple Choices',
   [HTTP_STATUS_REDIRECTION.MOVED_PERMANENTLY]: 'Moved Permanently',
@@ -236,7 +264,7 @@ export const HTTP_STATUS_MESSAGES = Object.freeze({
   [HTTP_STATUS_REDIRECTION.USE_PROXY]: 'Use Proxy',
   [HTTP_STATUS_REDIRECTION.TEMPORARY_REDIRECT]: 'Temporary Redirect',
   [HTTP_STATUS_REDIRECTION.PERMANENT_REDIRECT]: 'Permanent Redirect',
-  
+
   // 4xx
   [HTTP_STATUS_CLIENT_ERROR.BAD_REQUEST]: 'Bad Request',
   [HTTP_STATUS_CLIENT_ERROR.UNAUTHORIZED]: 'Unauthorized',
@@ -267,7 +295,7 @@ export const HTTP_STATUS_MESSAGES = Object.freeze({
   [HTTP_STATUS_CLIENT_ERROR.TOO_MANY_REQUESTS]: 'Too Many Requests',
   [HTTP_STATUS_CLIENT_ERROR.REQUEST_HEADER_FIELDS_TOO_LARGE]: 'Request Header Fields Too Large',
   [HTTP_STATUS_CLIENT_ERROR.UNAVAILABLE_FOR_LEGAL_REASONS]: 'Unavailable For Legal Reasons',
-  
+
   // 5xx
   [HTTP_STATUS_SERVER_ERROR.INTERNAL_SERVER_ERROR]: 'Internal Server Error',
   [HTTP_STATUS_SERVER_ERROR.NOT_IMPLEMENTED]: 'Not Implemented',
@@ -280,45 +308,51 @@ export const HTTP_STATUS_MESSAGES = Object.freeze({
   [HTTP_STATUS_SERVER_ERROR.LOOP_DETECTED]: 'Loop Detected',
   [HTTP_STATUS_SERVER_ERROR.NOT_EXTENDED]: 'Not Extended',
   [HTTP_STATUS_SERVER_ERROR.NETWORK_AUTHENTICATION_REQUIRED]: 'Network Authentication Required',
-} as const);
+} as const;
+
+export type HttpStatusMessage = ValueOf<typeof HTTP_STATUS_MESSAGES>;
 
 // ============================================================
 // E-commerce specific status code aliases (Bangladesh)
 // ============================================================
-export const ECOMMERCE_HTTP_STATUS = Object.freeze({
+export const ECOMMERCE_HTTP_STATUS = {
   // Payment related (using existing HTTP status codes)
   PAYMENT_REQUIRED: HTTP_STATUS_CLIENT_ERROR.PAYMENT_REQUIRED,     // 402
   INSUFFICIENT_BALANCE: HTTP_STATUS_CLIENT_ERROR.PAYMENT_REQUIRED, // Alias for 402
   ORDER_LOCKED: HTTP_STATUS_CLIENT_ERROR.LOCKED,                   // 423
-  
+
   // Inventory related
   OUT_OF_STOCK: HTTP_STATUS_CLIENT_ERROR.CONFLICT,                 // 409
   INSUFFICIENT_STOCK: HTTP_STATUS_CLIENT_ERROR.CONFLICT,           // 409
-  
+
   // Bangladesh specific payment gateways
   BKASH_PAYMENT_FAILED: HTTP_STATUS_CLIENT_ERROR.PAYMENT_REQUIRED,
   NAGAD_PAYMENT_FAILED: HTTP_STATUS_CLIENT_ERROR.PAYMENT_REQUIRED,
   SSLCOMMERZ_FAILED: HTTP_STATUS_CLIENT_ERROR.PAYMENT_REQUIRED,
-  
+
   // Shipping related
   SHIPPING_NOT_AVAILABLE: HTTP_STATUS_CLIENT_ERROR.SERVICE_UNAVAILABLE, // 503
   DELIVERY_FAILED: HTTP_STATUS_CLIENT_ERROR.GONE,                        // 410
-} as const);
+} as const;
+
+export type EcommerceHttpStatus = ValueOf<typeof ECOMMERCE_HTTP_STATUS>;
 
 // ============================================================
 // Retry-After header status codes (Rate limiting)
 // ============================================================
-export const HTTP_STATUS_WITH_RETRY = Object.freeze({
+export const HTTP_STATUS_WITH_RETRY = {
   TOO_MANY_REQUESTS: HTTP_STATUS_CLIENT_ERROR.TOO_MANY_REQUESTS,   // 429
   SERVICE_UNAVAILABLE: HTTP_STATUS_SERVER_ERROR.SERVICE_UNAVAILABLE, // 503
   BAD_GATEWAY: HTTP_STATUS_SERVER_ERROR.BAD_GATEWAY,               // 502
   GATEWAY_TIMEOUT: HTTP_STATUS_SERVER_ERROR.GATEWAY_TIMEOUT,       // 504
-} as const);
+} as const;
+
+export type HttpStatusWithRetry = ValueOf<typeof HTTP_STATUS_WITH_RETRY>;
 
 // ============================================================
 // Status codes that should not retry (Idempotent safe)
 // ============================================================
-export const HTTP_STATUS_NO_RETRY = Object.freeze({
+export const HTTP_STATUS_NO_RETRY = {
   BAD_REQUEST: HTTP_STATUS_CLIENT_ERROR.BAD_REQUEST,               // 400
   UNAUTHORIZED: HTTP_STATUS_CLIENT_ERROR.UNAUTHORIZED,             // 401
   FORBIDDEN: HTTP_STATUS_CLIENT_ERROR.FORBIDDEN,                   // 403
@@ -327,43 +361,49 @@ export const HTTP_STATUS_NO_RETRY = Object.freeze({
   CONFLICT: HTTP_STATUS_CLIENT_ERROR.CONFLICT,                     // 409
   GONE: HTTP_STATUS_CLIENT_ERROR.GONE,                             // 410
   UNPROCESSABLE_ENTITY: HTTP_STATUS_CLIENT_ERROR.UNPROCESSABLE_ENTITY, // 422
-} as const);
+} as const;
+
+export type HttpStatusNoRetry = ValueOf<typeof HTTP_STATUS_NO_RETRY>;
 
 // ============================================================
 // Status codes that are cacheable
 // ============================================================
-export const HTTP_STATUS_CACHEABLE = Object.freeze({
+export const HTTP_STATUS_CACHEABLE = {
   OK: HTTP_STATUS_SUCCESS.OK,                       // 200
   NON_AUTHORITATIVE_INFO: HTTP_STATUS_SUCCESS.NON_AUTHORITATIVE_INFO, // 203
   NO_CONTENT: HTTP_STATUS_SUCCESS.NO_CONTENT,       // 204
   PARTIAL_CONTENT: HTTP_STATUS_SUCCESS.PARTIAL_CONTENT, // 206
   NOT_MODIFIED: HTTP_STATUS_REDIRECTION.NOT_MODIFIED, // 304
-} as const);
+} as const;
+
+export type HttpStatusCacheable = ValueOf<typeof HTTP_STATUS_CACHEABLE>;
 
 // ============================================================
 // Status codes for CDN caching (E-commerce performance)
 // ============================================================
-export const HTTP_STATUS_CDN_CACHEABLE = Object.freeze({
+export const HTTP_STATUS_CDN_CACHEABLE = {
   OK: HTTP_STATUS_SUCCESS.OK,
   PARTIAL_CONTENT: HTTP_STATUS_SUCCESS.PARTIAL_CONTENT,
   NOT_MODIFIED: HTTP_STATUS_REDIRECTION.NOT_MODIFIED,
-  
+
   // Also cache errors temporarily (to avoid thundering herd)
   SERVICE_UNAVAILABLE: HTTP_STATUS_SERVER_ERROR.SERVICE_UNAVAILABLE, // 503 (short TTL)
   GATEWAY_TIMEOUT: HTTP_STATUS_SERVER_ERROR.GATEWAY_TIMEOUT,         // 504 (short TTL)
-} as const);
+} as const;
+
+export type HttpStatusCdnCacheable = ValueOf<typeof HTTP_STATUS_CDN_CACHEABLE>;
 
 // ============================================================
 // Status code to category name (Pure lookup - NO FUNCTIONS)
 // ============================================================
-export const HTTP_STATUS_TO_CATEGORY = Object.freeze({
-  // Informational
+export const HTTP_STATUS_TO_CATEGORY = {
+  // 1xx
   100: 'informational',
   101: 'informational',
   102: 'informational',
   103: 'informational',
-  
-  // Success
+
+  // 2xx
   200: 'success',
   201: 'success',
   202: 'success',
@@ -374,8 +414,8 @@ export const HTTP_STATUS_TO_CATEGORY = Object.freeze({
   207: 'success',
   208: 'success',
   226: 'success',
-  
-  // Redirection
+
+  // 3xx
   300: 'redirection',
   301: 'redirection',
   302: 'redirection',
@@ -384,8 +424,8 @@ export const HTTP_STATUS_TO_CATEGORY = Object.freeze({
   305: 'redirection',
   307: 'redirection',
   308: 'redirection',
-  
-  // Client Error
+
+  // 4xx
   400: 'client_error',
   401: 'client_error',
   402: 'client_error',
@@ -415,8 +455,8 @@ export const HTTP_STATUS_TO_CATEGORY = Object.freeze({
   429: 'client_error',
   431: 'client_error',
   451: 'client_error',
-  
-  // Server Error
+
+  // 5xx
   500: 'server_error',
   501: 'server_error',
   502: 'server_error',
@@ -428,29 +468,31 @@ export const HTTP_STATUS_TO_CATEGORY = Object.freeze({
   508: 'server_error',
   510: 'server_error',
   511: 'server_error',
-} as const);
+} as const;
 
 // ============================================================
 // Webhook delivery status codes (For payment gateways)
 // ============================================================
-export const WEBHOOK_HTTP_STATUS = Object.freeze({
+export const WEBHOOK_HTTP_STATUS = {
   // Successful delivery
   DELIVERED: HTTP_STATUS_SUCCESS.OK,                          // 200
   ACCEPTED: HTTP_STATUS_SUCCESS.ACCEPTED,                    // 202
-  
+
   // Client error (should retry with backoff)
   BAD_PAYLOAD: HTTP_STATUS_CLIENT_ERROR.BAD_REQUEST,         // 400
   UNAUTHORIZED_WEBHOOK: HTTP_STATUS_CLIENT_ERROR.UNAUTHORIZED, // 401
-  
+
   // Server error (should retry)
   WEBHOOK_TIMEOUT: HTTP_STATUS_SERVER_ERROR.GATEWAY_TIMEOUT, // 504
   WEBHOOK_FAILED: HTTP_STATUS_SERVER_ERROR.BAD_GATEWAY,      // 502
-} as const);
+} as const;
+
+export type WebhookHttpStatus = ValueOf<typeof WEBHOOK_HTTP_STATUS>;
 
 // ============================================================
 // Bangladesh E-commerce specific status messages (Bangla)
 // ============================================================
-export const HTTP_STATUS_MESSAGES_BN = Object.freeze({
+export const HTTP_STATUS_MESSAGES_BN = {
   [HTTP_STATUS_SUCCESS.OK]: 'সফল',
   [HTTP_STATUS_SUCCESS.CREATED]: 'সফলভাবে তৈরি হয়েছে',
   [HTTP_STATUS_CLIENT_ERROR.BAD_REQUEST]: 'ভুল অনুরোধ',
@@ -460,20 +502,62 @@ export const HTTP_STATUS_MESSAGES_BN = Object.freeze({
   [HTTP_STATUS_CLIENT_ERROR.TOO_MANY_REQUESTS]: 'অনেক বেশি অনুরোধ',
   [HTTP_STATUS_SERVER_ERROR.INTERNAL_SERVER_ERROR]: 'সার্ভার সমস্যা',
   [HTTP_STATUS_SERVER_ERROR.SERVICE_UNAVAILABLE]: 'সার্ভার উপলব্ধ নয়',
-} as const);
+} as const;
+
+export type HttpStatusMessageBn = ValueOf<typeof HTTP_STATUS_MESSAGES_BN>;
 
 // ============================================================
 // GraphQL HTTP Status codes mapping
 // ============================================================
-export const GRAPHQL_HTTP_STATUS = Object.freeze({
+export const GRAPHQL_HTTP_STATUS = {
   // GraphQL specific status codes
   BAD_REQUEST: HTTP_STATUS_CLIENT_ERROR.BAD_REQUEST,           // 400 (Bad syntax)
   UNAUTHORIZED: HTTP_STATUS_CLIENT_ERROR.UNAUTHORIZED,         // 401
   FORBIDDEN: HTTP_STATUS_CLIENT_ERROR.FORBIDDEN,               // 403
   NOT_FOUND: HTTP_STATUS_CLIENT_ERROR.NOT_FOUND,               // 404 (Endpoint not found)
   UNPROCESSABLE: HTTP_STATUS_CLIENT_ERROR.UNPROCESSABLE_ENTITY, // 422 (Validation error)
-  
+
   // GraphQL success
   SUCCESS: HTTP_STATUS_SUCCESS.OK,                             // 200
   PARTIAL_SUCCESS: HTTP_STATUS_SUCCESS.PARTIAL_CONTENT,        // 206
-} as const);
+} as const;
+
+export type GraphqlHttpStatus = ValueOf<typeof GRAPHQL_HTTP_STATUS>;
+
+// ============================================================
+// Deep freeze everything for immutability
+// ============================================================
+const deepFreeze = <T>(obj: T): ReadonlyDeep<T> => {
+  Object.freeze(obj);
+  if (obj === null || typeof obj !== 'object') return obj as ReadonlyDeep<T>;
+
+  for (const value of Object.values(obj)) {
+    if (value !== null && typeof value === 'object') {
+      deepFreeze(value);
+    }
+  }
+
+  return obj as ReadonlyDeep<T>;
+};
+
+// Apply deep freeze to all exported objects
+export const __ALL_CONSTANTS_FROZEN__ = deepFreeze({
+  HTTP_STATUS_INFORMATIONAL,
+  HTTP_STATUS_SUCCESS,
+  HTTP_STATUS_REDIRECTION,
+  HTTP_STATUS_CLIENT_ERROR,
+  HTTP_STATUS_SERVER_ERROR,
+  HTTP_STATUS,
+  HTTP_STATUS_RANGES,
+  HTTP_STATUS_CATEGORY_MAP,
+  HTTP_STATUS_MESSAGES,
+  ECOMMERCE_HTTP_STATUS,
+  HTTP_STATUS_WITH_RETRY,
+  HTTP_STATUS_NO_RETRY,
+  HTTP_STATUS_CACHEABLE,
+  HTTP_STATUS_CDN_CACHEABLE,
+  HTTP_STATUS_TO_CATEGORY,
+  WEBHOOK_HTTP_STATUS,
+  HTTP_STATUS_MESSAGES_BN,
+  GRAPHQL_HTTP_STATUS,
+});
