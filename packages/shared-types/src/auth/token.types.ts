@@ -1,9 +1,9 @@
 /**
  * Token Types - Pure TypeScript type contracts for JWT and tokens
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
-
+ *
  * @module shared-types/auth-types/auth/token.types
-
+ *
  * RULES:
  * ✅ ONLY type declarations, interfaces, unions
  * ✅ NO jwt.sign, jwt.verify, token generation logic
@@ -37,10 +37,10 @@ export type TokenType =
   | 'session_transfer'
   | 'device_trust'
   | 'passwordless_login'
-  | ***'whatsapp_otp'           // বাংলাদেশ স্পেসিফিক - হোয়াটসঅ্যাপ ওটিপি***
-  | ***'bkash_auth'             // বাংলাদেশ স্পেসিফিক - বিকাশ অথেনটিকেশন***
-  | ***'nagad_auth'             // বাংলাদেশ স্পেসিফিক - নগদ অথেনটিকেশন***
-  | ***'rocket_auth';           // বাংলাদেশ স্পেসিফিক - রকেট অথেনটিকেশন***
+  | 'whatsapp_otp'           // বাংলাদেশ স্পেসিফিক - হোয়াটসঅ্যাপ ওটিপি
+  | 'bkash_auth'             // বাংলাদেশ স্পেসিফিক - বিকাশ অথেনটিকেশন
+  | 'nagad_auth'             // বাংলাদেশ স্পেসিফিক - নগদ অথেনটিকেশন
+  | 'rocket_auth';           // বাংলাদেশ স্পেসিফিক - রকেট অথেনটিকেশন
 
 // ============================================================
 // Token Algorithm Types
@@ -58,7 +58,7 @@ export interface BaseTokenPayload {
   readonly aud: string;        // audience (from JWT_CONFIG.AUDIENCE)
   readonly jti: string;        // JWT ID (unique)
   readonly nbf?: number;       // not before (Unix timestamp)
-  ***readonly azp?: string;       // authorized party - OAuth2 compatible***
+  readonly azp?: string;       // authorized party - OAuth2 compatible
 }
 
 // ============================================================
@@ -79,15 +79,15 @@ export interface AccessTokenPayload extends BaseTokenPayload {
 
   // বাংলাদেশ স্পেসিফিক ফিল্ডসমূহ
   readonly district?: string;
-  readonly upazila?: string;                      ***// উপজেলা - লোকেশন-বেসড পারমিশনের জন্য***
-  readonly division?: string;                      ***// বিভাগ (ঢাকা, চট্টগ্রাম, রাজশাহী ইত্যাদি)***
+  readonly upazila?: string;                      // উপজেলা - লোকেশন-বেসড পারমিশনের জন্য
+  readonly division?: string;                     // বিভাগ (ঢাকা, চট্টগ্রাম, রাজশাহী ইত্যাদি)
   readonly isPremiumCustomer?: boolean;
-  ***readonly networkType?: '2g' | '3g' | '4g' | '5g' | 'wifi' | 'unknown';  // নেটওয়ার্ক টাইপ***
-  ***readonly mobileOperator?: 'gp' | 'robi' | 'banglalink' | 'teletalk' | 'unknown';  // মোবাইল অপারেটর***
-  ***readonly isNightTime?: boolean;               // রাত ১০টা - সকাল ৬টা (নাইট টাইম সিকিউরিটি)***
-  ***readonly isWeekend?: boolean;                 // শুক্রবার/শনিবার (বাংলাদেশের উইকেন্ড)***
-  ***readonly dataSaverEnabled?: boolean;          // ডাটা সেভার মোড অন/অফ***
-  ***readonly mfaMethodUsed?: 'totp' | 'sms' | 'whatsapp' | 'bkash' | 'nagad' | 'rocket';  // কোন MFA পদ্ধতি ব্যবহার করা হয়েছে***
+  readonly networkType?: '2g' | '3g' | '4g' | '5g' | 'wifi' | 'unknown';  // নেটওয়ার্ক টাইপ
+  readonly mobileOperator?: 'gp' | 'robi' | 'banglalink' | 'teletalk' | 'unknown';  // মোবাইল অপারেটর
+  readonly isNightTime?: boolean;               // রাত ১০টা - সকাল ৬টা (নাইট টাইম সিকিউরিটি)
+  readonly isWeekend?: boolean;                 // শুক্রবার/শনিবার (বাংলাদেশের উইকেন্ড)
+  readonly dataSaverEnabled?: boolean;          // ডাটা সেভার মোড অন/অফ
+  readonly mfaMethodUsed?: 'totp' | 'sms' | 'whatsapp' | 'bkash' | 'nagad' | 'rocket';  // কোন MFA পদ্ধতি ব্যবহার করা হয়েছে
 }
 
 // ============================================================
@@ -99,8 +99,8 @@ export interface RefreshTokenPayload extends BaseTokenPayload {
   readonly tokenVersion: number;
   readonly deviceId: string;
   readonly trustLevel: number;
-  ***readonly deviceType?: 'mobile' | 'desktop' | 'tablet' | 'feature_phone' | 'kiosk';  // ডিভাইস টাইপ***
-  ***readonly networkFingerprint?: string;          // নেটওয়ার্ক ফিঙ্গারপ্রিন্ট (VPN/প্রক্সি ডিটেক্ট করতে)***
+  readonly deviceType?: 'mobile' | 'desktop' | 'tablet' | 'feature_phone' | 'kiosk';  // ডিভাইস টাইপ
+  readonly networkFingerprint?: string;          // নেটওয়ার্ক ফিঙ্গারপ্রিন্ট (VPN/প্রক্সি ডিটেক্ট করতে)
 }
 
 // ============================================================
@@ -113,18 +113,18 @@ export type VerificationPurpose =
   | 'account_recovery'
   | 'email_change'
   | 'phone_change'
-  ***| 'nid_verification'       // বাংলাদেশ NID ভেরিফিকেশন***
-  ***| 'tin_verification'       // বাংলাদেশ টিআইএন ভেরিফিকেশন***
-  ***| 'trade_license_verification';  // ট্রেড লাইসেন্স ভেরিফিকেশন***
+  | 'nid_verification'       // বাংলাদেশ NID ভেরিফিকেশন
+  | 'tin_verification'       // বাংলাদেশ টিআইএন ভেরিফিকেশন
+  | 'trade_license_verification';  // ট্রেড লাইসেন্স ভেরিফিকেশন
 
 export interface VerificationTokenPayload extends BaseTokenPayload {
-  readonly type: 'email_verification' | 'phone_verification' | 'password_reset' | ***'nid_verification'***;
+  readonly type: 'email_verification' | 'phone_verification' | 'password_reset' | 'nid_verification';
   readonly purpose: VerificationPurpose;
   readonly userId: string;
   readonly newValue?: string;                      // New email/phone for change
   readonly redirectUrl?: string;
-  ***readonly documentId?: string;                  // NID/TIN/ট্রেড লাইসেন্সের আইডি***
-  ***readonly documentNumber?: string;              // ডকুমেন্ট নম্বর (এনক্রিপ্টেড)***
+  readonly documentId?: string;                  // NID/TIN/ট্রেড লাইসেন্সের আইডি
+  readonly documentNumber?: string;              // ডকুমেন্ট নম্বর (এনক্রিপ্টেড)
 }
 
 // ============================================================
@@ -138,8 +138,8 @@ export interface MFATokenPayload extends BaseTokenPayload {
   readonly sessionId: string;
   readonly trustDevice: boolean;
   readonly trustDurationDays?: number;
-  ***readonly mfsProvider?: 'bkash' | 'nagad' | 'rocket';  // MFS প্রোভাইডার (বাংলাদেশ স্পেসিফিক)***
-  ***readonly whatsappNumber?: string;               // হোয়াটসঅ্যাপ ওটিপির জন্য ফোন নম্বর***
+  readonly mfsProvider?: 'bkash' | 'nagad' | 'rocket';  // MFS প্রোভাইডার (বাংলাদেশ স্পেসিফিক)
+  readonly whatsappNumber?: string;               // হোয়াটসঅ্যাপ ওটিপির জন্য ফোন নম্বর
 }
 
 // ============================================================
@@ -150,8 +150,8 @@ export interface MagicLinkTokenPayload extends BaseTokenPayload {
   readonly email: string;
   readonly redirectUrl: string;
   readonly action: 'login' | 'signup' | 'verify';
-  ***readonly phoneNumber?: string;                  // ফোন নম্বর দিয়েও ম্যাজিক লিংক***
-  ***readonly viaWhatsApp?: boolean;                // হোয়াটসঅ্যাপে ম্যাজিক লিংক পাঠানো হবে?***
+  readonly phoneNumber?: string;                  // ফোন নম্বর দিয়েও ম্যাজিক লিংক
+  readonly viaWhatsApp?: boolean;                // হোয়াটসঅ্যাপে ম্যাজিক লিংক পাঠানো হবে?
 }
 
 // ============================================================
@@ -162,9 +162,9 @@ export interface SessionTransferTokenPayload extends BaseTokenPayload {
   readonly fromSessionId: string;
   readonly toDeviceId: string;
   readonly transferMethod: 'qr_code' | 'magic_link' | 'otp';
-  ***readonly viaWhatsApp?: boolean;                // হোয়াটসঅ্যাপে ট্রান্সফার কোড পাঠানো***
-  ***readonly viaSms?: boolean;                     // এসএমএসে ট্রান্সফার কোড পাঠানো***
-  ***readonly featurePhoneCompatible?: boolean;     // ফিচার ফোনের জন্য কম্প্যাটিবল মোড***
+  readonly viaWhatsApp?: boolean;                // হোয়াটসঅ্যাপে ট্রান্সফার কোড পাঠানো
+  readonly viaSms?: boolean;                     // এসএমএসে ট্রান্সফার কোড পাঠানো
+  readonly featurePhoneCompatible?: boolean;     // ফিচার ফোনের জন্য কম্প্যাটিবল মোড
 }
 
 // ============================================================
@@ -175,12 +175,13 @@ export interface DeviceTrustTokenPayload extends BaseTokenPayload {
   readonly deviceId: string;
   readonly trustLevel: number;
   readonly userId: string;
-  ***readonly deviceType?: 'mobile' | 'desktop' | 'feature_phone';***
-  ***readonly isPublicDevice?: boolean;             // পাবলিক ডিভাইস (সাইবার ক্যাফে/কিওস্ক)***
+  readonly deviceType?: 'mobile' | 'desktop' | 'feature_phone';
+  readonly isPublicDevice?: boolean;             // পাবলিক ডিভাইস (সাইবার ক্যাফে/কিওস্ক)
 }
 
 // ============================================================
-***// বাংলাদেশ স্পেসিফিক: MFS অথেনটিকেশন টোকেন পেলোড (বিকাশ/নগদ/রকেট)***
+// বাংলাদেশ স্পেসিফিক: MFS অথেনটিকেশন টোকেন পেলোড (বিকাশ/নগদ/রকেট)
+// ============================================================
 export interface MFSProviderPayload extends BaseTokenPayload {
   readonly type: 'bkash_auth' | 'nagad_auth' | 'rocket_auth';
   readonly provider: 'bkash' | 'nagad' | 'rocket';
@@ -192,7 +193,9 @@ export interface MFSProviderPayload extends BaseTokenPayload {
   readonly trustDevice: boolean;
 }
 
-***// বাংলাদেশ স্পেসিফিক: হোয়াটসঅ্যাপ ওটিপি টোকেন পেলোড***
+// ============================================================
+// বাংলাদেশ স্পেসিফিক: হোয়াটসঅ্যাপ ওটিপি টোকেন পেলোড
+// ============================================================
 export interface WhatsAppOTPPayload extends BaseTokenPayload {
   readonly type: 'whatsapp_otp';
   readonly phoneNumber: string;
@@ -219,8 +222,8 @@ export interface APIKeyPayload {
   readonly allowedIps?: readonly string[];
   readonly allowedReferrers?: readonly string[];
   readonly rateLimitPerMinute?: number;
-  ***readonly allowedDistricts?: readonly string[];   // কোন জেলা থেকে এই API Key ব্যবহার করা যাবে***
-  ***readonly allowedNetworkTypes?: readonly ('2g' | '3g' | '4g' | '5g' | 'wifi')[];  // নেটওয়ার্ক রেস্ট্রিকশন***
+  readonly allowedDistricts?: readonly string[];   // কোন জেলা থেকে এই API Key ব্যবহার করা যাবে
+  readonly allowedNetworkTypes?: readonly ('2g' | '3g' | '4g' | '5g' | 'wifi')[];  // নেটওয়ার্ক রেস্ট্রিকশন
 }
 
 // ============================================================
@@ -253,21 +256,21 @@ export interface TokenMetadata {
     readonly country?: string;
     readonly city?: string;
     readonly district?: string;                   // বাংলাদেশ স্পেসিফিক
-    readonly upazila?: string;                    ***// উপজেলা***
-    readonly division?: string;                   ***// বিভাগ***
-    readonly postalCode?: string;                 ***// পোস্টাল কোড***
+    readonly upazila?: string;                    // উপজেলা
+    readonly division?: string;                   // বিভাগ
+    readonly postalCode?: string;                 // পোস্টাল কোড
   };
   readonly purpose?: string;
   readonly redirectUrl?: string;
   readonly originalToken?: string;                // For one-time display (e.g., backup codes)
-  ***readonly networkInfo?: {                      // নেটওয়ার্ক ইনফরমেশন***
+  readonly networkInfo?: {                        // নেটওয়ার্ক ইনফরমেশন
     readonly networkType?: '2g' | '3g' | '4g' | '5g' | 'wifi' | 'unknown';
     readonly mobileOperator?: 'gp' | 'robi' | 'banglalink' | 'teletalk' | 'unknown';
     readonly isVpn?: boolean;
     readonly isProxy?: boolean;
     readonly isTor?: boolean;
   };
-  ***readonly simInfo?: {                         // সিম ইনফরমেশন (সিম সুইপ ডিটেকশনের জন্য)***
+  readonly simInfo?: {                            // সিম ইনফরমেশন (সিম সুইপ ডিটেকশনের জন্য)
     readonly operator?: 'gp' | 'robi' | 'banglalink' | 'teletalk' | 'unknown';
     readonly iccidHash?: string;                  // হ্যাশড ICCID (সিম ইউনিক আইডি)
     readonly lastSimChangeAt?: Date;
@@ -286,8 +289,8 @@ export interface TokenValidationResult<T extends BaseTokenPayload = BaseTokenPay
   readonly isRevoked: boolean;
   readonly needsRefresh: boolean;
   readonly expiresInSeconds?: number;
-  ***readonly requiresAdditionalVerification?: boolean;  // অতিরিক্ত ভেরিফিকেশন দরকার? (যেমন: সিম সুইপ সন্দেহ)***
-  ***readonly suggestedAction?: 'allow' | 'mfa_required' | 'block' | 'notify_admin';  // সুপারিশকৃত অ্যাকশন***
+  readonly requiresAdditionalVerification?: boolean;  // অতিরিক্ত ভেরিফিকেশন দরকার? (যেমন: সিম সুইপ সন্দেহ)
+  readonly suggestedAction?: 'allow' | 'mfa_required' | 'block' | 'notify_admin';  // সুপারিশকৃত অ্যাকশন
 }
 
 // ============================================================
@@ -306,11 +309,11 @@ export type TokenError =
   | 'TOKEN_BLACKLISTED'
   | 'TOKEN_VERSION_MISMATCH'
   | 'TOKEN_DEVICE_MISMATCH'
-  ***| 'TOKEN_DISTRICT_MISMATCH'      // টোকেনের জেলা বর্তমান জেলার সাথে মিলেনি***
-  ***| 'TOKEN_NETWORK_TYPE_MISMATCH'   // নেটওয়ার্ক টাইপ পরিবর্তন হয়েছে (যেমন: ওয়াইফাই থেকে মোবাইল নেটওয়ার্ক)***
-  ***| 'TOKEN_SIM_SWAP_DETECTED'       // সিম সুইপ ডিটেক্ট করা হয়েছে***
-  ***| 'TOKEN_SUSPICIOUS_HOUR'         // রাতের বেলায় অস্বাভাবিক অ্যাক্সেস***
-  ***| 'TOKEN_WEEKEND_RESTRICTION';     // উইকেন্ডে রেস্ট্রিকশন (যদি কনফিগার করা থাকে)***
+  | 'TOKEN_DISTRICT_MISMATCH'      // টোকেনের জেলা বর্তমান জেলার সাথে মিলেনি
+  | 'TOKEN_NETWORK_TYPE_MISMATCH'   // নেটওয়ার্ক টাইপ পরিবর্তন হয়েছে (যেমন: ওয়াইফাই থেকে মোবাইল নেটওয়ার্ক)
+  | 'TOKEN_SIM_SWAP_DETECTED'       // সিম সুইপ ডিটেক্ট করা হয়েছে
+  | 'TOKEN_SUSPICIOUS_HOUR'         // রাতের বেলায় অস্বাভাবিক অ্যাক্সেস
+  | 'TOKEN_WEEKEND_RESTRICTION';     // উইকেন্ডে রেস্ট্রিকশন (যদি কনফিগার করা থাকে)
 
 // ============================================================
 // Create Token Request (Internal)
@@ -321,7 +324,7 @@ export interface CreateTokenRequest {
   readonly expiresInSeconds: number;
   readonly metadata?: Partial<TokenMetadata>;
   readonly customClaims?: Record<string, unknown>;
-  ***readonly mfaStatus?: 'verified' | 'pending' | 'required';  // MFA স্ট্যাটাস***
+  readonly mfaStatus?: 'verified' | 'pending' | 'required';  // MFA স্ট্যাটাস
 }
 
 // ============================================================
@@ -334,12 +337,12 @@ export interface TokenResponse {
   readonly refreshTokenExpiresIn: number;
   readonly tokenType: 'Bearer';
   readonly sessionId?: string;
-  ***readonly mfaRequired?: boolean;                // MFA দরকার কিনা***
-  ***readonly mfaMethods?: readonly ('totp' | 'sms' | 'whatsapp' | 'bkash' | 'nagad' | 'rocket')[];  // উপলব্ধ MFA পদ্ধতি***
+  readonly mfaRequired?: boolean;                // MFA দরকার কিনা
+  readonly mfaMethods?: readonly ('totp' | 'sms' | 'whatsapp' | 'bkash' | 'nagad' | 'rocket')[];  // উপলব্ধ MFA পদ্ধতি
 }
 
 // ============================================================
-// Token Blacklist Entry
+// Token Blacklist Entry (টাইপো ফিক্স করা হয়েছে)
 // ============================================================
 export interface BlacklistedToken {
   readonly tokenId: string;
@@ -348,7 +351,7 @@ export interface BlacklistedToken {
   readonly blacklistedAt: Date;
   readonly reason: string;
   readonly blacklistedBy: 'system' | 'user' | 'admin';
-  ***readonlu simSwapDetected?: boolean;            // সিম সুইপের কারণে ব্ল্যাকলিস্ট করা হয়েছে?***
+  readonly simSwapDetected?: boolean;            // সিম সুইপের কারণে ব্ল্যাকলিস্ট করা হয়েছে?
 }
 
 // ============================================================
@@ -363,8 +366,8 @@ export interface CreateAPIKeyRequest {
   readonly allowedReferrers?: readonly string[];
   readonly rateLimitPerMinute?: number;
   readonly createdBy: string;
-  ***readonly allowedDistricts?: readonly string[];   // কোন জেলা থেকে এই API Key ব্যবহার করা যাবে***
-  ***readonly allowedTimes?: {                        // কোন সময়ে ব্যবহার করা যাবে***
+  readonly allowedDistricts?: readonly string[];   // কোন জেলা থেকে এই API Key ব্যবহার করা যাবে
+  readonly allowedTimes?: {                        // কোন সময়ে ব্যবহার করা যাবে
     readonly startHour: number;                      // 0-23
     readonly endHour: number;                        // 0-23
     readonly allowedDays?: ('sunday' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday')[];
@@ -385,8 +388,8 @@ export interface APIKeyResponse {
   readonly lastUsedAt: Date | null;
   readonly isActive: boolean;
   readonly warning?: string;                      // Security warning
-  ***readonly allowedDistricts?: readonly string[];   // সীমাবদ্ধ জেলার তালিকা***
-  ***readonly usageStats?: {                        // ব্যবহারের পরিসংখ্যান***
+  readonly allowedDistricts?: readonly string[];   // সীমাবদ্ধ জেলার তালিকা
+  readonly usageStats?: {                         // ব্যবহারের পরিসংখ্যান
     readonly totalRequests: number;
     readonly lastRequestAt?: Date;
     readonly requestsByDistrict?: Record<string, number>;
@@ -402,8 +405,8 @@ export interface APIKeyValidationResult {
   readonly error?: string;
   readonly isExpired: boolean;
   readonly hasPermission: (permission: PermissionString) => boolean;
-  ***readonly districtAllowed?: boolean;            // বর্তমান জেলা অনুমোদিত কিনা***
-  ***readonly timeAllowed?: boolean;                 // বর্তমান সময় অনুমোদিত কিনা***
+  readonly districtAllowed?: boolean;            // বর্তমান জেলা অনুমোদিত কিনা
+  readonly timeAllowed?: boolean;                 // বর্তমান সময় অনুমোদিত কিনা
 }
 
 // ============================================================
@@ -434,9 +437,9 @@ export interface TokenIntrospectionResponse {
   readonly jti?: string;
   readonly permissions?: readonly string[];
   readonly role?: string;
-  ***readonly district?: string;                     // বাংলাদেশ স্পেসিফিক***
-  ***readonly networkType?: string;                  // নেটওয়ার্ক টাইপ***
-  ***readonly mfaVerified?: boolean;                 // MFA ভেরিফাইড কিনা***
+  readonly district?: string;                     // বাংলাদেশ স্পেসিফিক
+  readonly networkType?: string;                  // নেটওয়ার্ক টাইপ
+  readonly mfaVerified?: boolean;                 // MFA ভেরিফাইড কিনা
 }
 
 // ============================================================
@@ -448,8 +451,8 @@ export interface TokenRotationRequest {
     readonly deviceId?: string;
     readonly userAgent?: string;
     readonly ipAddress?: string;
-    ***readonly district?: string;                    // বর্তমান জেলা (লোকেশন চেঞ্জ ডিটেক্ট করতে)***
-    ***readonly networkType?: string;                 // বর্তমান নেটওয়ার্ক টাইপ***
+    readonly district?: string;                    // বর্তমান জেলা (লোকেশন চেঞ্জ ডিটেক্ট করতে)
+    readonly networkType?: string;                 // বর্তমান নেটওয়ার্ক টাইপ
   };
 }
 
@@ -459,7 +462,7 @@ export interface TokenRotationResponse {
   readonly accessTokenExpiresIn: number;
   readonly refreshTokenExpiresIn: number;
   readonly tokenVersion: number;
-  ***readonly warning?: string;                       // সাসপিসিয়াস অ্যাক্টিভিটি সনাক্ত হলে ওয়ার্নিং***
+  readonly warning?: string;                       // সাসপিসিয়াস অ্যাক্টিভিটি সনাক্ত হলে ওয়ার্নিং
 }
 
 // ============================================================
@@ -485,11 +488,11 @@ export interface TokenStatistics {
   readonly tokenRefreshRate: number;              // Refreshes per day
   readonly tokenValidationErrors: number;
   
-  ***// বাংলাদেশ স্পেসিফিক স্ট্যাটিস্টিকস***
-  ***readonly tokensByDistrict?: Record<string, number>;  // কোন জেলা থেকে বেশি টোকেন ব্যবহার হচ্ছে***
-  ***readonly tokensByNetworkType?: Record<string, number>; // কোন নেটওয়ার্ক টাইপ থেকে বেশি টোকেন ব্যবহার হচ্ছে***
-  ***readonly simSwapTokenRevocations?: number;           // সিম সুইপের কারণে কত টোকেন রিভোক করা হয়েছে***
-  ***readonly mfaMethodDistribution?: Record<string, number>;  // কোন MFA পদ্ধতি বেশি ব্যবহার হচ্ছে (SMS, WhatsApp, bKash ইত্যাদি)***
+  // বাংলাদেশ স্পেসিফিক স্ট্যাটিস্টিকস
+  readonly tokensByDistrict?: Record<string, number>;  // কোন জেলা থেকে বেশি টোকেন ব্যবহার হচ্ছে
+  readonly tokensByNetworkType?: Record<string, number>; // কোন নেটওয়ার্ক টাইপ থেকে বেশি টোকেন ব্যবহার হচ্ছে
+  readonly simSwapTokenRevocations?: number;           // সিম সুইপের কারণে কত টোকেন রিভোক করা হয়েছে
+  readonly mfaMethodDistribution?: Record<string, number>;  // কোন MFA পদ্ধতি বেশি ব্যবহার হচ্ছে (SMS, WhatsApp, bKash ইত্যাদি)
 }
 
 // ============================================================
@@ -523,8 +526,8 @@ export interface TokenFilterOptions {
   readonly offset?: number;
   readonly sortBy?: 'createdAt' | 'expiresAt' | 'lastUsedAt';
   readonly sortOrder?: 'asc' | 'desc';
-  ***readonly district?: string;                     // জেলা ফিল্টার***
-  ***readonly networkType?: string;                  // নেটওয়ার্ক টাইপ ফিল্টার***
+  readonly district?: string;                     // জেলা ফিল্টার
+  readonly networkType?: string;                  // নেটওয়ার্ক টাইপ ফিল্টার
 }
 
 // ============================================================
@@ -541,9 +544,9 @@ export type TokenEventType =
   | 'token.api_key.created'
   | 'token.api_key.revoked'
   | 'token.rotated'
-  ***| 'token.sim_swap_detected'                    // সিম সুইপ ডিটেক্ট হয়েছে***
-  ***| 'token.district_mismatch'                    // জেলা মিসম্যাচ সনাক্ত হয়েছে***
-  ***| 'token.suspicious_hour_access';               // অস্বাভাবিক সময়ে অ্যাক্সেস***
+  | 'token.sim_swap_detected'                    // সিম সুইপ ডিটেক্ট হয়েছে
+  | 'token.district_mismatch'                    // জেলা মিসম্যাচ সনাক্ত হয়েছে
+  | 'token.suspicious_hour_access';               // অস্বাভাবিক সময়ে অ্যাক্সেস
 
 export interface TokenEvent {
   readonly id: string;
@@ -555,7 +558,7 @@ export interface TokenEvent {
   readonly ipAddress: string;
   readonly userAgent: string;
   readonly metadata: Record<string, unknown>;
-  ***readonly location?: {                          // ইভেন্টের লোকেশন তথ্য***
+  readonly location?: {                          // ইভেন্টের লোকেশন তথ্য
     readonly district?: string;
     readonly upazila?: string;
     readonly division?: string;
@@ -594,8 +597,8 @@ export type TokenWebhookEventType =
   | 'token.revoked'
   | 'token.api_key.created'
   | 'token.api_key.revoked'
-  ***| 'token.sim_swap.revoked'                     // সিম সুইপের কারণে টোকেন রিভোক করা হয়েছে***
-  ***| 'token.mfa.required';                         // MFA প্রয়োজন হয়েছে***
+  | 'token.sim_swap.revoked'                     // সিম সুইপের কারণে টোকেন রিভোক করা হয়েছে
+  | 'token.mfa.required';                         // MFA প্রয়োজন হয়েছে
 
 export interface TokenWebhookPayload {
   readonly eventType: TokenWebhookEventType;
@@ -616,11 +619,11 @@ export interface PasswordlessLoginRequest {
     readonly deviceId?: string;
     readonly userAgent?: string;
     readonly ipAddress?: string;
-    ***readonly district?: string;                    // বর্তমান জেলা***
-    ***readonly networkType?: string;                 // বর্তমান নেটওয়ার্ক টাইপ***
+    readonly district?: string;                    // বর্তমান জেলা
+    readonly networkType?: string;                 // বর্তমান নেটওয়ার্ক টাইপ
   };
-  ***readonly viaWhatsApp?: boolean;                 // হোয়াটসঅ্যাপে ম্যাজিক লিংক পাঠানো হবে?***
-  ***readonly phoneNumber?: string;                  // ফোন নম্বর (হোয়াটসঅ্যাপের জন্য)***
+  readonly viaWhatsApp?: boolean;                 // হোয়াটসঅ্যাপে ম্যাজিক লিংক পাঠানো হবে?
+  readonly phoneNumber?: string;                  // ফোন নম্বর (হোয়াটসঅ্যাপের জন্য)
 }
 
 export interface PasswordlessLoginResponse {
@@ -628,6 +631,6 @@ export interface PasswordlessLoginResponse {
   readonly message: string;
   readonly emailSent: boolean;
   readonly expiresInSeconds: number;
-  ***readonly whatsappSent?: boolean;                // হোয়াটসঅ্যাপে পাঠানো হয়েছে কিনা***
-  ***readonly smsSent?: boolean;                     // এসএমএসে পাঠানো হয়েছে কিনা***
+  readonly whatsappSent?: boolean;                // হোয়াটসঅ্যাপে পাঠানো হয়েছে কিনা
+  readonly smsSent?: boolean;                     // এসএমএসে পাঠানো হয়েছে কিনা
 }
