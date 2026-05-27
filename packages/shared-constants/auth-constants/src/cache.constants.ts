@@ -369,7 +369,6 @@ export const CACHE_TTL = {
 } as const;
 
 export type CacheTTL = ValueOf<typeof CACHE_TTL>;
-export type CacheTimeConstant = typeof CACHE_TTL.SECOND | typeof CACHE_TTL.MINUTE | typeof CACHE_TTL.HOUR | typeof CACHE_TTL.DAY | typeof CACHE_TTL.WEEK | typeof CACHE_TTL.MONTH | typeof CACHE_TTL.YEAR;
 
 // ============================================================
 // Cache namespaces (For logical grouping)
@@ -557,7 +556,7 @@ export const CACHE_WARMING = {
     CACHE_KEY_PATTERNS.DISTRICT_LIST,
     CACHE_KEY_PATTERNS.OFFER_ACTIVE_HOMEPAGE,
     CACHE_KEY_PATTERNS.FLASH_SALE_ACTIVE,
-  ] as const,
+  ],
 
   // Warm on schedule (cron pattern)
   SCHEDULE: '0 */6 * * *',            // Every 6 hours
@@ -567,7 +566,6 @@ export const CACHE_WARMING = {
 } as const;
 
 export type CacheWarming = typeof CACHE_WARMING;
-export type HotKey = typeof CACHE_WARMING.HOT_KEYS[number];
 
 // ============================================================
 // Cache metrics (For monitoring)
@@ -580,7 +578,7 @@ export const CACHE_METRICS = {
     CACHE_NAMESPACES.PRODUCT_CATALOG,
     CACHE_NAMESPACES.USER_DATA,
     CACHE_NAMESPACES.SESSION,
-  ] as const,
+  ],
 
   // Metric keys
   METRIC_KEYS: {
@@ -595,32 +593,9 @@ export const CACHE_METRICS = {
 } as const;
 
 export type CacheMetrics = typeof CACHE_METRICS;
-export type CacheMetricKey = ValueOf<typeof CACHE_METRICS.METRIC_KEYS>;
 
 // ============================================================
-// Build Cache Key Helper (Type-safe)
-// Note: This is a utility function, NOT part of the constants file.
-// Put this in a separate file like 'cache.utils.ts'
-// ============================================================
-
-/**
- * Type-safe cache key builder
- * @example
- * const key = buildCacheKey(CACHE_KEY_PATTERNS.PRODUCT_DETAIL, { productId: 123 });
- */
-export const buildCacheKey = <T extends Record<string, string | number>>(
-  pattern: CacheKeyPattern,
-  params: T
-): string => {
-  let key = pattern;
-  Object.entries(params).forEach(([name, value]) => {
-    key = key.replace(new RegExp(`{{${name}}}`, 'g'), String(value));
-  });
-  return key;
-};
-
-// ============================================================
-// Freeze everything for immutability (deep freeze)
+// Deep freeze everything for immutability
 // ============================================================
 const deepFreeze = <T>(obj: T): ReadonlyDeep<T> => {
   Object.freeze(obj);
