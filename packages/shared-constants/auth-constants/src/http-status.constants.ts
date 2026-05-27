@@ -157,13 +157,13 @@ export type HttpStatusRanges = typeof HTTP_STATUS_RANGES;
 // Category lookup tables (Pure constants - Pre-computed)
 // ============================================================
 export const HTTP_STATUS_CATEGORY_MAP = {
-  // 1xx
+  // Informational
   100: 'informational',
   101: 'informational',
   102: 'informational',
   103: 'informational',
 
-  // 2xx
+  // Success
   200: 'success',
   201: 'success',
   202: 'success',
@@ -175,7 +175,7 @@ export const HTTP_STATUS_CATEGORY_MAP = {
   208: 'success',
   226: 'success',
 
-  // 3xx
+  // Redirection
   300: 'redirection',
   301: 'redirection',
   302: 'redirection',
@@ -186,7 +186,7 @@ export const HTTP_STATUS_CATEGORY_MAP = {
   307: 'redirection',
   308: 'redirection',
 
-  // 4xx
+  // Client Error
   400: 'client_error',
   401: 'client_error',
   402: 'client_error',
@@ -217,7 +217,7 @@ export const HTTP_STATUS_CATEGORY_MAP = {
   431: 'client_error',
   451: 'client_error',
 
-  // 5xx
+  // Server Error
   500: 'server_error',
   501: 'server_error',
   502: 'server_error',
@@ -231,6 +231,7 @@ export const HTTP_STATUS_CATEGORY_MAP = {
   511: 'server_error',
 } as const;
 
+export type HttpStatusCategoryMap = typeof HTTP_STATUS_CATEGORY_MAP;
 export type HttpStatusCategory = ValueOf<typeof HTTP_STATUS_CATEGORY_MAP>;
 
 // ============================================================
@@ -310,7 +311,7 @@ export const HTTP_STATUS_MESSAGES = {
   [HTTP_STATUS_SERVER_ERROR.NETWORK_AUTHENTICATION_REQUIRED]: 'Network Authentication Required',
 } as const;
 
-export type HttpStatusMessage = ValueOf<typeof HTTP_STATUS_MESSAGES>;
+export type HttpStatusMessages = typeof HTTP_STATUS_MESSAGES;
 
 // ============================================================
 // E-commerce specific status code aliases (Bangladesh)
@@ -369,11 +370,11 @@ export type HttpStatusNoRetry = ValueOf<typeof HTTP_STATUS_NO_RETRY>;
 // Status codes that are cacheable
 // ============================================================
 export const HTTP_STATUS_CACHEABLE = {
-  OK: HTTP_STATUS_SUCCESS.OK,                       // 200
+  OK: HTTP_STATUS_SUCCESS.OK,                                       // 200
   NON_AUTHORITATIVE_INFO: HTTP_STATUS_SUCCESS.NON_AUTHORITATIVE_INFO, // 203
-  NO_CONTENT: HTTP_STATUS_SUCCESS.NO_CONTENT,       // 204
-  PARTIAL_CONTENT: HTTP_STATUS_SUCCESS.PARTIAL_CONTENT, // 206
-  NOT_MODIFIED: HTTP_STATUS_REDIRECTION.NOT_MODIFIED, // 304
+  NO_CONTENT: HTTP_STATUS_SUCCESS.NO_CONTENT,                       // 204
+  PARTIAL_CONTENT: HTTP_STATUS_SUCCESS.PARTIAL_CONTENT,             // 206
+  NOT_MODIFIED: HTTP_STATUS_REDIRECTION.NOT_MODIFIED,               // 304
 } as const;
 
 export type HttpStatusCacheable = ValueOf<typeof HTTP_STATUS_CACHEABLE>;
@@ -392,83 +393,6 @@ export const HTTP_STATUS_CDN_CACHEABLE = {
 } as const;
 
 export type HttpStatusCdnCacheable = ValueOf<typeof HTTP_STATUS_CDN_CACHEABLE>;
-
-// ============================================================
-// Status code to category name (Pure lookup - NO FUNCTIONS)
-// ============================================================
-export const HTTP_STATUS_TO_CATEGORY = {
-  // 1xx
-  100: 'informational',
-  101: 'informational',
-  102: 'informational',
-  103: 'informational',
-
-  // 2xx
-  200: 'success',
-  201: 'success',
-  202: 'success',
-  203: 'success',
-  204: 'success',
-  205: 'success',
-  206: 'success',
-  207: 'success',
-  208: 'success',
-  226: 'success',
-
-  // 3xx
-  300: 'redirection',
-  301: 'redirection',
-  302: 'redirection',
-  303: 'redirection',
-  304: 'redirection',
-  305: 'redirection',
-  307: 'redirection',
-  308: 'redirection',
-
-  // 4xx
-  400: 'client_error',
-  401: 'client_error',
-  402: 'client_error',
-  403: 'client_error',
-  404: 'client_error',
-  405: 'client_error',
-  406: 'client_error',
-  407: 'client_error',
-  408: 'client_error',
-  409: 'client_error',
-  410: 'client_error',
-  411: 'client_error',
-  412: 'client_error',
-  413: 'client_error',
-  414: 'client_error',
-  415: 'client_error',
-  416: 'client_error',
-  417: 'client_error',
-  418: 'client_error',
-  421: 'client_error',
-  422: 'client_error',
-  423: 'client_error',
-  424: 'client_error',
-  425: 'client_error',
-  426: 'client_error',
-  428: 'client_error',
-  429: 'client_error',
-  431: 'client_error',
-  451: 'client_error',
-
-  // 5xx
-  500: 'server_error',
-  501: 'server_error',
-  502: 'server_error',
-  503: 'server_error',
-  504: 'server_error',
-  505: 'server_error',
-  506: 'server_error',
-  507: 'server_error',
-  508: 'server_error',
-  510: 'server_error',
-  511: 'server_error',
-} as const;
 
 // ============================================================
 // Webhook delivery status codes (For payment gateways)
@@ -504,7 +428,7 @@ export const HTTP_STATUS_MESSAGES_BN = {
   [HTTP_STATUS_SERVER_ERROR.SERVICE_UNAVAILABLE]: 'সার্ভার উপলব্ধ নয়',
 } as const;
 
-export type HttpStatusMessageBn = ValueOf<typeof HTTP_STATUS_MESSAGES_BN>;
+export type HttpStatusMessagesBn = typeof HTTP_STATUS_MESSAGES_BN;
 
 // ============================================================
 // GraphQL HTTP Status codes mapping
@@ -556,7 +480,6 @@ export const __ALL_CONSTANTS_FROZEN__ = deepFreeze({
   HTTP_STATUS_NO_RETRY,
   HTTP_STATUS_CACHEABLE,
   HTTP_STATUS_CDN_CACHEABLE,
-  HTTP_STATUS_TO_CATEGORY,
   WEBHOOK_HTTP_STATUS,
   HTTP_STATUS_MESSAGES_BN,
   GRAPHQL_HTTP_STATUS,
