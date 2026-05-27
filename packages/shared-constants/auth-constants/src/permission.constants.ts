@@ -8,7 +8,7 @@
  * ✅ NO permission resolver, authorization logic
  * ✅ NO functions (Object.values, etc.)
  * ✅ NO imports from other layers
- * ✅ ONLY pure readonly string constants
+ * ✅ ONLY pure readonly constants
  */
 
 // ============================================================
@@ -173,7 +173,7 @@ export const PERMISSIONS = {
   SHOP_VERIFY: 'shop:verify',
   SHOP_SUSPEND: 'shop:suspend',
 
-  // ========== Vendor Management (Multi-vendor) ==========
+  // ========== Vendor Management ==========
   VENDOR_READ: 'vendor:read',
   VENDOR_UPDATE: 'vendor:update',
   VENDOR_VERIFY: 'vendor:verify',
@@ -646,3 +646,84 @@ export const PERMISSION_RESOURCES = {
   ROLE: 'role',
   PERMISSION: 'permission',
   PRODUCT: 'product',
+  CATEGORY: 'category',
+  BRAND: 'brand',
+  ORDER: 'order',
+  PAYMENT: 'payment',
+  INVENTORY: 'inventory',
+  REVIEW: 'review',
+  COUPON: 'coupon',
+  OFFER: 'offer',
+  CART: 'cart',
+  WISHLIST: 'wishlist',
+  SHIPPING: 'shipping',
+  ANALYTICS: 'analytics',
+  SYSTEM: 'system',
+  SHOP: 'shop',
+  VENDOR: 'vendor',
+  TICKET: 'ticket',
+  NOTIFICATION: 'notification',
+  AUDIT: 'audit',
+} as const;
+
+export type PermissionResource = ValueOf<typeof PERMISSION_RESOURCES>;
+
+// ============================================================
+// Actions (CRUD + custom)
+// ============================================================
+export const PERMISSION_ACTIONS = {
+  CREATE: 'create',
+  READ: 'read',
+  UPDATE: 'update',
+  DELETE: 'delete',
+  LIST: 'list',
+  SUSPEND: 'suspend',
+  ACTIVATE: 'activate',
+  APPROVE: 'approve',
+  REJECT: 'reject',
+  PUBLISH: 'publish',
+  UNPUBLISH: 'unpublish',
+  FEATURE: 'feature',
+  CANCEL: 'cancel',
+  REFUND: 'refund',
+  SHIP: 'ship',
+  DELIVER: 'deliver',
+  EXPORT: 'export',
+  IMPORT: 'import',
+  BULK_UPDATE: 'bulk_update',
+  ADJUST: 'adjust',
+  MODERATE: 'moderate',
+  RESOLVE: 'resolve',
+  ASSIGN: 'assign',
+  SEND: 'send',
+  BROADCAST: 'broadcast',
+} as const;
+
+export type PermissionAction = ValueOf<typeof PERMISSION_ACTIONS>;
+
+// ============================================================
+// Deep freeze everything for immutability
+// ============================================================
+const deepFreeze = <T>(obj: T): ReadonlyDeep<T> => {
+  Object.freeze(obj);
+  if (obj === null || typeof obj !== 'object') return obj as ReadonlyDeep<T>;
+
+  for (const value of Object.values(obj)) {
+    if (value !== null && typeof value === 'object') {
+      deepFreeze(value);
+    }
+  }
+
+  return obj as ReadonlyDeep<T>;
+};
+
+// Apply deep freeze to all exported objects
+export const __ALL_CONSTANTS_FROZEN__ = deepFreeze({
+  PERMISSIONS,
+  PERMISSION_GROUPS,
+  ALL_PERMISSIONS,
+  PERMISSION_CATEGORIES,
+  PERMISSION_TO_CATEGORY,
+  PERMISSION_RESOURCES,
+  PERMISSION_ACTIONS,
+});
