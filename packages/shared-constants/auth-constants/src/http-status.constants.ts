@@ -1,9 +1,9 @@
 /**
  * HTTP Status Constants - Pure immutable HTTP status codes
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
-
+ * 
  * @module shared-constants/auth-constants/http-status.constants
-
+ * 
  * RULES:
  * ✅ NO functions - ONLY pure readonly constants
  * ✅ NO business logic
@@ -157,13 +157,12 @@ export type HttpStatusRanges = typeof HTTP_STATUS_RANGES;
 // Category lookup tables (Pure constants - Pre-computed)
 // ============================================================
 export const HTTP_STATUS_CATEGORY_MAP = {
-  // Informational
+  // Each status code mapped to its category
   100: 'informational',
   101: 'informational',
   102: 'informational',
   103: 'informational',
 
-  // Success
   200: 'success',
   201: 'success',
   202: 'success',
@@ -175,17 +174,16 @@ export const HTTP_STATUS_CATEGORY_MAP = {
   208: 'success',
   226: 'success',
 
-  // Redirection
   300: 'redirection',
   301: 'redirection',
   302: 'redirection',
   303: 'redirection',
   304: 'redirection',
   305: 'redirection',
+  306: 'redirection',
   307: 'redirection',
   308: 'redirection',
 
-  // Client Error
   400: 'client_error',
   401: 'client_error',
   402: 'client_error',
@@ -216,7 +214,6 @@ export const HTTP_STATUS_CATEGORY_MAP = {
   431: 'client_error',
   451: 'client_error',
 
-  // Server Error
   500: 'server_error',
   501: 'server_error',
   502: 'server_error',
@@ -368,11 +365,11 @@ export type HttpStatusNoRetry = ValueOf<typeof HTTP_STATUS_NO_RETRY>;
 // Status codes that are cacheable
 // ============================================================
 export const HTTP_STATUS_CACHEABLE = {
-  OK: HTTP_STATUS_SUCCESS.OK,                                       // 200
+  OK: HTTP_STATUS_SUCCESS.OK,                       // 200
   NON_AUTHORITATIVE_INFO: HTTP_STATUS_SUCCESS.NON_AUTHORITATIVE_INFO, // 203
-  NO_CONTENT: HTTP_STATUS_SUCCESS.NO_CONTENT,                       // 204
-  PARTIAL_CONTENT: HTTP_STATUS_SUCCESS.PARTIAL_CONTENT,             // 206
-  NOT_MODIFIED: HTTP_STATUS_REDIRECTION.NOT_MODIFIED,               // 304
+  NO_CONTENT: HTTP_STATUS_SUCCESS.NO_CONTENT,       // 204
+  PARTIAL_CONTENT: HTTP_STATUS_SUCCESS.PARTIAL_CONTENT, // 206
+  NOT_MODIFIED: HTTP_STATUS_REDIRECTION.NOT_MODIFIED, // 304
 } as const;
 
 export type HttpStatusCacheable = ValueOf<typeof HTTP_STATUS_CACHEABLE>;
@@ -390,7 +387,7 @@ export const HTTP_STATUS_CDN_CACHEABLE = {
   GATEWAY_TIMEOUT: HTTP_STATUS_SERVER_ERROR.GATEWAY_TIMEOUT,         // 504 (short TTL)
 } as const;
 
-export type HttpStatusCDNCacheable = ValueOf<typeof HTTP_STATUS_CDN_CACHEABLE>;
+export type HttpStatusCdnCacheable = ValueOf<typeof HTTP_STATUS_CDN_CACHEABLE>;
 
 // ============================================================
 // Status code to category name (Pure lookup - NO FUNCTIONS)
@@ -521,7 +518,7 @@ export const GRAPHQL_HTTP_STATUS = {
   PARTIAL_SUCCESS: HTTP_STATUS_SUCCESS.PARTIAL_CONTENT,        // 206
 } as const;
 
-export type GraphQLHttpStatus = ValueOf<typeof GRAPHQL_HTTP_STATUS>;
+export type GraphqlHttpStatus = ValueOf<typeof GRAPHQL_HTTP_STATUS>;
 
 // ============================================================
 // Deep freeze everything for immutability
