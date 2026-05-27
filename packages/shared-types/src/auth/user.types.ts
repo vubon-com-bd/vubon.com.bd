@@ -21,17 +21,17 @@ import type { PermissionString } from './permission.types';
 import type { DeviceInfo } from './device.types';
 
 // ============================================================
-// User Status Types (Pure unions - NO constants import)
+// Imports from shared-constants (Type-only)
 // ============================================================
-export type UserStatus = 
-  | 'active'                    // Normal active user
-  | 'inactive'                  // Never logged in / long time inactive
-  | 'suspended'                 // Temporarily suspended
-  | 'banned'                    // Permanently banned
-  | 'pending_verification'      // Awaiting email/phone verification
-  | 'pending_approval'          // Awaiting admin approval (for vendors)
-  | 'deactivated'               // User self-deactivated
-  | 'locked';                   // Security lock (too many failed attempts)
+import type { 
+  USER_STATUS as ConstUserStatus, 
+  USER_TIER as ConstUserTier 
+} from '@vubon/auth-constants';
+
+// ============================================================
+// User Status Types (Based on constants - type-only import)
+// ============================================================
+export type UserStatus = typeof ConstUserStatus[keyof typeof ConstUserStatus];
 
 // ============================================================
 // User Verification Status Types (NO constants import)
@@ -45,14 +45,9 @@ export type UserVerificationStatus =
   | 'document_verified';        // Additional document verification
 
 // ============================================================
-// User Type/Tier (Bangladesh e-commerce specific - NO constants import)
+// User Type/Tier (Based on constants - type-only import)
 // ============================================================
-export type UserTier = 
-  | 'bronze'                    // Regular customer (0-5000 BDT spent)
-  | 'silver'                    // 5,000-25,000 BDT spent
-  | 'gold'                      // 25,000-100,000 BDT spent
-  | 'platinum'                  // 100,000+ BDT spent
-  | 'diamond';                  // 500,000+ BDT spent (premium)
+export type UserTier = typeof ConstUserTier[keyof typeof ConstUserTier];
 
 // ============================================================
 // Core User Entity (Domain model)
