@@ -14,7 +14,7 @@
 // ============================================================
 // Cookie names for authentication
 // ============================================================
-export const AUTH_COOKIE_NAMES = Object.freeze({
+export const AUTH_COOKIE_NAMES = {
   // Core auth cookies
   ACCESS_TOKEN: 'access_token',
   REFRESH_TOKEN: 'refresh_token',
@@ -33,12 +33,12 @@ export const AUTH_COOKIE_NAMES = Object.freeze({
   // MFA related
   MFA_PENDING: 'mfa_pending',
   TRUSTED_DEVICE: 'trusted_device',
-} as const);
+} as const;
 
 // ============================================================
 // HTTP Header names for authentication
 // ============================================================
-export const AUTH_HEADERS = Object.freeze({
+export const AUTH_HEADERS = {
   // Standard auth headers
   AUTHORIZATION: 'authorization',
   BEARER: 'Bearer',
@@ -60,12 +60,12 @@ export const AUTH_HEADERS = Object.freeze({
   // MFA headers
   MFA_TOKEN: 'x-mfa-token',
   TRUST_TOKEN: 'x-trust-token',
-} as const);
+} as const;
 
 // ============================================================
 // Authentication providers (Local + Bangladesh specific)
 // ============================================================
-export const AUTH_PROVIDERS = Object.freeze({
+export const AUTH_PROVIDERS = {
   // Traditional
   LOCAL: 'local',
   EMAIL: 'email',
@@ -89,12 +89,12 @@ export const AUTH_PROVIDERS = Object.freeze({
   MAGIC_LINK: 'magic_link',
   QR_CODE: 'qr_code',
   WHATSAPP: 'whatsapp',
-} as const);
+} as const;
 
 // ============================================================
 // Login methods (User experience focused)
 // ============================================================
-export const LOGIN_TYPES = Object.freeze({
+export const LOGIN_TYPES = {
   // Standard
   EMAIL_PASSWORD: 'email_password',
   PHONE_OTP: 'phone_otp',
@@ -111,12 +111,12 @@ export const LOGIN_TYPES = Object.freeze({
   SSO: 'sso',
   API_KEY: 'api_key',
   SERVICE_ACCOUNT: 'service_account',
-} as const);
+} as const;
 
 // ============================================================
 // Authentication statuses (State machine ready)
 // ============================================================
-export const AUTH_STATUS = Object.freeze({
+export const AUTH_STATUS = {
   // Primary states
   AUTHENTICATED: 'authenticated',
   UNAUTHENTICATED: 'unauthenticated',
@@ -142,12 +142,37 @@ export const AUTH_STATUS = Object.freeze({
   SESSION_EXPIRED: 'session_expired',
   DEVICE_UNTRUSTED: 'device_untrusted',
   LOCATION_CHANGED: 'location_changed',
-} as const);
+} as const;
+
+// ============================================================
+// User Status (For account state management)
+// ============================================================
+export const USER_STATUS = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+  SUSPENDED: 'suspended',
+  BANNED: 'banned',
+  PENDING_VERIFICATION: 'pending_verification',
+  PENDING_APPROVAL: 'pending_approval',
+  DEACTIVATED: 'deactivated',
+  LOCKED: 'locked',
+} as const;
+
+// ============================================================
+// User Tier (Loyalty program - Bangladesh e-commerce)
+// ============================================================
+export const USER_TIER = {
+  BRONZE: 'bronze',     // 0-5,000 BDT spent
+  SILVER: 'silver',     // 5,000-25,000 BDT spent
+  GOLD: 'gold',         // 25,000-100,000 BDT spent
+  PLATINUM: 'platinum', // 100,000-500,000 BDT spent
+  DIAMOND: 'diamond',   // 500,000+ BDT spent
+} as const;
 
 // ============================================================
 // Token expiry times (in seconds) - Production ready
 // ============================================================
-export const TOKEN_EXPIRY = Object.freeze({
+export const TOKEN_EXPIRY = {
   // Access tokens (Short lived for security)
   ACCESS_TOKEN: 900,              // 15 minutes
   ACCESS_TOKEN_REMEMBER_ME: 604800, // 7 days (if remember me checked)
@@ -179,12 +204,12 @@ export const TOKEN_EXPIRY = Object.freeze({
   // Session
   SESSION_IDLE_TIMEOUT: 1800,         // 30 minutes
   SESSION_ABSOLUTE_TIMEOUT: 43200,    // 12 hours
-} as const);
+} as const;
 
 // ============================================================
 // Auth routes (Consistent across frontend & backend)
 // ============================================================
-export const AUTH_ROUTES = Object.freeze({
+export const AUTH_ROUTES = {
   // Core auth endpoints
   LOGIN: '/auth/login',
   LOGOUT: '/auth/logout',
@@ -234,12 +259,12 @@ export const AUTH_ROUTES = Object.freeze({
   // Security
   SECURITY_LOG: '/auth/security-log',
   SUSPICIOUS_ACTIVITY: '/auth/suspicious-activity',
-} as const);
+} as const;
 
 // ============================================================
 // Auth events (Event-driven architecture ready)
 // ============================================================
-export const AUTH_EVENTS = Object.freeze({
+export const AUTH_EVENTS = {
   // Login events
   LOGIN_SUCCESS: 'auth.login.success',
   LOGIN_FAILED: 'auth.login.failed',
@@ -296,12 +321,12 @@ export const AUTH_EVENTS = Object.freeze({
   // Account linking (for Bangladesh multi-platform)
   ACCOUNT_LINKED: 'auth.account.linked',
   ACCOUNT_UNLINKED: 'auth.account.unlinked',
-} as const);
+} as const;
 
 // ============================================================
 // Account lockout policy (Security first)
 // ============================================================
-export const ACCOUNT_LOCKOUT = Object.freeze({
+export const ACCOUNT_LOCKOUT = {
   // Brute force protection
   MAX_FAILED_ATTEMPTS: 5,
   LOCKOUT_DURATION_SECONDS: 900,      // 15 minutes
@@ -322,12 +347,12 @@ export const ACCOUNT_LOCKOUT = Object.freeze({
   // Notification settings
   NOTIFY_ON_LOCK: true,
   NOTIFY_ON_UNLOCK: true,
-} as const);
+} as const;
 
 // ============================================================
 // Session concurrency control (Enterprise grade)
 // ============================================================
-export const SESSION_CONCURRENCY = Object.freeze({
+export const SESSION_CONCURRENCY = {
   // Maximum concurrent sessions per role
   MAX_SESSIONS: {
     CUSTOMER: 5,
@@ -352,12 +377,12 @@ export const SESSION_CONCURRENCY = Object.freeze({
     ADMIN: 600,         // 10 minutes
     SUPER_ADMIN: 300,   // 5 minutes
   },
-} as const);
+} as const;
 
 // ============================================================
 // Device fingerprinting (Security)
 // ============================================================
-export const DEVICE_TRUST = Object.freeze({
+export const DEVICE_TRUST = {
   // Trust duration
   TRUSTED_DEVICE_DURATION: 2592000,    // 30 days
   
@@ -381,12 +406,12 @@ export const DEVICE_TRUST = Object.freeze({
     DEVICE_MEMORY: true,
     HARDWARE_CONCURRENCY: true,
   },
-} as const);
+} as const;
 
 // ============================================================
 // Rate limiting for auth endpoints (DDoS protection)
 // ============================================================
-export const AUTH_RATE_LIMITS = Object.freeze({
+export const AUTH_RATE_LIMITS = {
   // Per endpoint limits (requests per minute)
   LOGIN: 5,
   REGISTER: 3,
@@ -403,12 +428,12 @@ export const AUTH_RATE_LIMITS = Object.freeze({
   // Per user limits (authenticated)
   PER_USER_LIMIT: 100,
   PER_USER_WINDOW: 60,
-} as const);
+} as const;
 
 // ============================================================
 // OTP Configuration (Bangladesh standard)
 // ============================================================
-export const OTP_CONFIG = Object.freeze({
+export const OTP_CONFIG = {
   // OTP format
   LENGTH: 6,                    // 6 digits (Bangladesh standard)
   DIGITS_ONLY: true,
@@ -430,4 +455,4 @@ export const OTP_CONFIG = Object.freeze({
     EMAIL: 'email',
     VOICE: 'voice',
   },
-} as const);
+} as const;
