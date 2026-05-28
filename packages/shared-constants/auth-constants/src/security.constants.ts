@@ -286,6 +286,32 @@ export const STRING_CONFIG = Object.freeze({
 } as const);
 
 // ============================================================
+// Phone Configuration (for phone number validation)
+// ============================================================
+import { REGEX_PHONE } from './regex.constants';
+
+export const PHONE_CONFIG = Object.freeze({
+  DEFAULT_COUNTRY: 'BD',
+  DEFAULT_COUNTRY_CODE: '+880',
+
+  // Bangladesh mobile operators
+  BD_MOBILE_OPERATORS: {
+    GP: { prefix: '017', name: 'Grameenphone', regex: /^017\d{8}$/ },
+    ROB: { prefix: '018', name: 'Robi', regex: /^018\d{8}$/ },
+    BL: { prefix: '019', name: 'Banglalink', regex: /^019\d{8}$/ },
+    TT: { prefix: '015', name: 'Teletalk', regex: /^015\d{8}$/ },
+    AIR: { prefix: '016', name: 'Airtel', regex: /^016\d{8}$/ },
+  } as const,
+
+  // Phone regex patterns
+  BD_MOBILE_REGEX: REGEX_PHONE.BANGLADESH,
+  BD_MOBILE_STRICT_REGEX: REGEX_PHONE.BANGLADESH_ALL,
+
+  // Supported countries
+  SUPPORTED_COUNTRIES: ['BD', 'US', 'GB', 'IN', 'AE', 'SG', 'CA', 'AU'],
+} as const);
+
+// ============================================================
 // OTP Configuration (One-Time Password)
 // ============================================================
 export const OTP_CONFIG = Object.freeze({
