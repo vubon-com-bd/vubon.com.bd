@@ -119,6 +119,39 @@ export const SECURITY_HEADER_VALUES = Object.freeze({
 } as const);
 
 // ============================================================
+// Date Configuration (for date formatting)
+// ============================================================
+export const DATE_CONFIG = Object.freeze({
+  // Date formats
+  DATE_FORMATS: {
+    ISO: 'yyyy-MM-dd',
+    ISO_WITH_TIME: "yyyy-MM-dd'T'HH:mm:ss.SSSxxx",
+    DATE: 'yyyy-MM-dd',
+    TIME: 'HH:mm:ss',
+    DATETIME: 'yyyy-MM-dd HH:mm:ss',
+    DATETIME_12H: 'yyyy-MM-dd hh:mm:ss a',
+    DISPLAY_DATE: 'MMM dd, yyyy',
+    DISPLAY_DATE_LONG: 'MMMM dd, yyyy',
+    DISPLAY_TIME: 'hh:mm a',
+    DISPLAY_DATETIME: 'MMM dd, yyyy hh:mm a',
+    DISPLAY_DATETIME_LONG: 'MMMM dd, yyyy hh:mm:ss a',
+    BENGALI_DATE: 'dd MMM, yyyy',
+    BENGALI_DATETIME: 'dd MMM, yyyy hh:mm a',
+    FILE_DATE: 'yyyy-MM-dd',
+    FILE_DATETIME: 'yyyy-MM-dd_HH-mm-ss',
+    API_DATE: 'yyyy-MM-dd',
+    API_DATETIME: 'yyyy-MM-ddTHH:mm:ssZ',
+  } as const,
+
+  DEFAULT_DATE_FORMAT: 'yyyy-MM-dd',
+  DEFAULT_TIME_FORMAT: 'HH:mm:ss',
+  DEFAULT_DATETIME_FORMAT: 'yyyy-MM-dd HH:mm:ss',
+  DEFAULT_DISPLAY_DATE_FORMAT: 'MMM dd, yyyy',
+  DEFAULT_DISPLAY_DATETIME_FORMAT: 'MMM dd, yyyy hh:mm a',
+  DEFAULT_TIMEZONE: 'Asia/Dhaka',
+} as const);
+
+// ============================================================
 // Currency Configuration (for formatting and conversion)
 // ============================================================
 export const CURRENCY_CONFIG = Object.freeze({
@@ -236,10 +269,10 @@ export const BROWSER_FINGERPRINT_COMPONENTS = Object.freeze([
 export const IP_CONFIG = Object.freeze({
   // IPv4 Regex (strict)
   IPV4_REGEX: /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
-  
+
   // IPv6 Regex (RFC 5954 compliant)
   IPV6_REGEX: /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/,
-  
+
   // Private IPv4 ranges
   PRIVATE_IPV4_RANGES: [
     { start: '10.0.0.0', end: '10.255.255.255', description: 'Class A private' },
@@ -248,7 +281,7 @@ export const IP_CONFIG = Object.freeze({
     { start: '127.0.0.0', end: '127.255.255.255', description: 'Loopback' },
     { start: '169.254.0.0', end: '169.254.255.255', description: 'Link-local' },
   ],
-  
+
   // Reserved/private IPv6 prefixes
   PRIVATE_IPV6_PREFIXES: [
     { prefix: '::1', description: 'Loopback' },
@@ -256,7 +289,7 @@ export const IP_CONFIG = Object.freeze({
     { prefix: 'fd00::', description: 'Unique Local (ULA)' },
     { prefix: 'fe80::', description: 'Link-local' },
   ],
-  
+
   // Forwarded header names (priority order)
   FORWARDED_HEADERS: [
     'x-forwarded-for',
