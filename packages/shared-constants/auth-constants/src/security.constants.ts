@@ -119,6 +119,61 @@ export const SECURITY_HEADER_VALUES = Object.freeze({
 } as const);
 
 // ============================================================
+// OTP Configuration (One-Time Password)
+// ============================================================
+export const OTP_CONFIG = Object.freeze({
+  LENGTH: 6,                       // OTP length in digits
+  DIGITS_ONLY: true,               // Only numeric digits
+  EXPIRY_SECONDS: 300,             // 5 minutes
+  MAX_VERIFY_ATTEMPTS: 3,          // Max attempts before lockout
+  RESEND_COOLDOWN_SECONDS: 30,     // Seconds before resend allowed
+} as const);
+
+// ============================================================
+// Recovery Codes Configuration (MFA Backup)
+// ============================================================
+export const RECOVERY_CODES = Object.freeze({
+  COUNT: 10,                       // Number of recovery codes to generate
+  CODE_LENGTH: 8,                  // Length of each recovery code
+  CODE_FORMAT: 'alphanumeric',     // Format: alphanumeric
+  HASH_ALGORITHM: 'SHA-256',       // For hashing stored codes
+  ONE_TIME_USE: true,              // Codes can only be used once
+} as const);
+
+// ============================================================
+// Token Configuration (General purpose tokens)
+// ============================================================
+export const TOKEN_CONFIG = Object.freeze({
+  DEFAULT_LENGTH: 32,              // Default token length in bytes
+  MIN_LENGTH: 16,                  // Minimum token length
+  MAX_LENGTH: 256,                 // Maximum token length
+  ENCODING: 'hex',                 // Default encoding: hex
+} as const);
+
+// ============================================================
+// Nonce Configuration (Cryptographic nonce)
+// ============================================================
+export const NONCE_CONFIG = Object.freeze({
+  DEFAULT_LENGTH: 16,              // Default nonce length in bytes
+  MIN_LENGTH: 8,                   // Minimum nonce length
+  MAX_LENGTH: 64,                  // Maximum nonce length
+  ENCODING: 'base64',              // Default encoding: base64
+} as const);
+
+// ============================================================
+// Character Sets for Random Generation
+// ============================================================
+export const CHARACTER_SETS = Object.freeze({
+  ALPHANUMERIC: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+  NUMERIC: '0123456789',
+  HEX_LOWER: '0123456789abcdef',
+  HEX_UPPER: '0123456789ABCDEF',
+  BASE64: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
+  BASE64URL: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_',
+  SECURE: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{}<>?',
+} as const);
+
+// ============================================================
 // Common Passwords Blacklist (Bangladesh specific)
 // ============================================================
 export const COMMON_PASSWORDS = Object.freeze([
