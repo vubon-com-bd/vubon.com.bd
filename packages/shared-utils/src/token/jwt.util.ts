@@ -1,9 +1,9 @@
 /**
  * JWT Utilities - Token signing and verification
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- *
+ * 
  * @module shared-utils/src/token/jwt.util
- *
+ * 
  * RULES:
  * ✅ ONLY token signing and verification - NO business logic
  * ✅ NO database operations, session creation, token storage
@@ -13,6 +13,7 @@
  */
 
 import { SignJWT, jwtVerify, decodeJwt, type JWTPayload } from 'jose';
+import { JWT_CONFIG } from '@vubon/auth-constants';
 
 // ==================== Types ====================
 
@@ -46,9 +47,7 @@ export interface VerifiedTokenResult<T extends TokenPayload = TokenPayload> {
 
 // ==================== Constants (from shared-constants) ====================
 
-import { JWT_CONFIG } from '@vubon/auth-constants';
-
-// HS256 configuration for symmetric signing
+// HS256 configuration (symmetric - for internal/legacy use)
 const DEFAULT_ALGORITHM = JWT_CONFIG.HS256_CONFIG.ALGORITHM;      // 'HS256'
 const DEFAULT_TOKEN_TYPE = JWT_CONFIG.HS256_CONFIG.TOKEN_TYPE;     // 'JWT'
 const MIN_SECRET_LENGTH = JWT_CONFIG.HS256_CONFIG.MIN_SECRET_LENGTH; // 32
@@ -65,16 +64,19 @@ const DEFAULT_AUDIENCE = JWT_CONFIG.AUDIENCE; // 'vubon-api'
 const validateTokenParams = (
   secret: string,
   issuer: string,
-  audience: string
+  audience: string,
+  isStrict: boolean = true
 ): void => {
   if (!secret || secret.length < MIN_SECRET_LENGTH) {
     throw new Error(`Secret must be at least ${MIN_SECRET_LENGTH} characters for HS256`);
   }
-  if (!issuer) {
-    throw new Error('Issuer is required');
-  }
-  if (!audience) {
-    throw new Error('Audience is required');
+  if (isStrict) {
+    if (!issuer) {
+      throw new Error('Issuer is required');
+    }
+    if (!audience) {
+      throw new Error('Audience is required');
+    }
   }
 };
 
@@ -89,14 +91,14 @@ const encodeSecret = (secret: string): Uint8Array => {
 
 /**
  * Create a JWT token with HS256 algorithm
- *
+ * 
  * @param payload - Token payload (without iat, exp)
- * @param secret - Secret key (min ${MIN_SECRET_LENGTH} chars for HS256)
+ * @param secret - Secret key (min 32 chars for HS256)
  * @param expiresIn - Expiration time (e.g., '15m', '1h', '7d')
  * @param issuer - Token issuer (defaults to JWT_CONFIG.ISSUER)
  * @param audience - Token audience (defaults to JWT_CONFIG.AUDIENCE)
  * @returns Signed JWT token
- *
+ * 
  * @example
  * const token = await signToken(
  *   { sub: 'user-123', email: 'user@example.com' },
@@ -112,9 +114,9 @@ export const signToken = async <T extends TokenPayload>(
   audience: string = DEFAULT_AUDIENCE
 ): Promise<string> => {
   validateTokenParams(secret, issuer, audience);
-
+  
   const secretKey = encodeSecret(secret);
-
+  
   const jwt = await new SignJWT(payload as JWTPayload)
     .setProtectedHeader({ alg: DEFAULT_ALGORITHM, typ: DEFAULT_TOKEN_TYPE })
     .setIssuedAt()
@@ -122,13 +124,13 @@ export const signToken = async <T extends TokenPayload>(
     .setAudience(audience)
     .setExpirationTime(expiresIn)
     .sign(secretKey);
-
+  
   return jwt;
 };
 
 /**
- * Create a JWT token with custom claims
- *
+ * Create a JWT token with custom claims and optional headers
+ * 
  * @param payload - Complete payload including custom claims
  * @param secret - Secret key
  * @param expiresIn - Expiration time
@@ -146,24 +148,60 @@ export const signTokenWithClaims = async <T extends Record<string, unknown>>(
   customHeaders?: Record<string, unknown>
 ): Promise<string> => {
   validateTokenParams(secret, issuer, audience);
-
+  
   const secretKey = encodeSecret(secret);
-
+  
   let jwt = new SignJWT(payload as JWTPayload)
     .setProtectedHeader({ alg: DEFAULT_ALGORITHM, typ: DEFAULT_TOKEN_TYPE, ...customHeaders })
     .setIssuedAt()
     .setIssuer(issuer)
     .setAudience(audience)
     .setExpirationTime(expiresIn);
-
+  
   return jwt.sign(secretKey);
+};
+
+/**
+ * Create a refresh token (longer expiry)
+ * 
+ * @param payload - Token payload
+ * @param secret - Secret key
+ * @param issuer - Token issuer (defaults to JWT_CONFIG.ISSUER)
+ * @param audience - Token audience (defaults to JWT_CONFIG.AUDIENCE)
+ * @returns Signed refresh token
+ */
+export const signRefreshToken = async <T extends TokenPayload>(
+  payload: Omit<T, 'iat' | 'exp'>,
+  secret: string,
+  issuer: string = DEFAULT_ISSUER,
+  audience: string = DEFAULT_AUDIENCE
+): Promise<string> => {
+  return signToken(payload, secret, JWT_CONFIG.REFRESH_TOKEN_EXPIRY, issuer, audience);
+};
+
+/**
+ * Create an access token (short expiry)
+ * 
+ * @param payload - Token payload
+ * @param secret - Secret key
+ * @param issuer - Token issuer (defaults to JWT_CONFIG.ISSUER)
+ * @param audience - Token audience (defaults to JWT_CONFIG.AUDIENCE)
+ * @returns Signed access token
+ */
+export const signAccessToken = async <T extends TokenPayload>(
+  payload: Omit<T, 'iat' | 'exp'>,
+  secret: string,
+  issuer: string = DEFAULT_ISSUER,
+  audience: string = DEFAULT_AUDIENCE
+): Promise<string> => {
+  return signToken(payload, secret, JWT_CONFIG.ACCESS_TOKEN_EXPIRY, issuer, audience);
 };
 
 // ==================== Verification ====================
 
 /**
  * Verify a JWT token and return payload
- *
+ * 
  * @param token - JWT token to verify
  * @param secret - Secret key used for signing
  * @param issuer - Expected issuer (defaults to JWT_CONFIG.ISSUER)
@@ -180,22 +218,22 @@ export const verifyToken = async <T extends TokenPayload = TokenPayload>(
   if (!token) {
     throw new Error('Token is required');
   }
-
+  
   validateTokenParams(secret, issuer, audience);
-
+  
   const secretKey = encodeSecret(secret);
-
+  
   const { payload } = await jwtVerify(token, secretKey, {
     issuer,
     audience,
   });
-
+  
   return payload as T;
 };
 
 /**
  * Verify a JWT token with detailed result (no throw)
- *
+ * 
  * @param token - JWT token to verify
  * @param secret - Secret key
  * @param issuer - Expected issuer (defaults to JWT_CONFIG.ISSUER)
@@ -217,7 +255,7 @@ export const verifyTokenSafe = async <T extends TokenPayload = TokenPayload>(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     let errorCode: VerifiedTokenResult['errorCode'] = 'INVALID_SIGNATURE';
-
+    
     if (errorMessage.includes('expired')) {
       errorCode = 'EXPIRED';
     } else if (errorMessage.includes('signature')) {
@@ -229,7 +267,7 @@ export const verifyTokenSafe = async <T extends TokenPayload = TokenPayload>(
     } else if (errorMessage.includes('audience')) {
       errorCode = 'AUDIENCE_MISMATCH';
     }
-
+    
     return {
       valid: false,
       payload: null,
@@ -245,7 +283,7 @@ export const verifyTokenSafe = async <T extends TokenPayload = TokenPayload>(
  * Decode JWT without verification
  * WARNING: Use only for extracting non-secure claims!
  * Always verify tokens in production
- *
+ * 
  * @param token - JWT token to decode
  * @returns Decoded payload or null
  */
@@ -253,7 +291,7 @@ export const decodeToken = <T extends TokenPayload = TokenPayload>(
   token: string
 ): T | null => {
   if (!token) return null;
-
+  
   try {
     return decodeJwt(token) as T;
   } catch {
@@ -263,13 +301,13 @@ export const decodeToken = <T extends TokenPayload = TokenPayload>(
 
 /**
  * Decode JWT header (no verification)
- *
+ * 
  * @param token - JWT token
  * @returns Decoded header or null
  */
 export const decodeTokenHeader = (token: string): Record<string, unknown> | null => {
   if (!token) return null;
-
+  
   try {
     const parts = token.split('.');
     if (parts.length !== 3) return null;
@@ -284,7 +322,7 @@ export const decodeTokenHeader = (token: string): Record<string, unknown> | null
 
 /**
  * Extract expiration time from token (Unix timestamp in seconds)
- *
+ * 
  * @param token - JWT token
  * @returns Expiration timestamp or null
  */
@@ -296,7 +334,7 @@ export const getTokenExpiry = (token: string): number | null => {
 
 /**
  * Extract issued at time from token (Unix timestamp in seconds)
- *
+ * 
  * @param token - JWT token
  * @returns Issued at timestamp or null
  */
@@ -308,7 +346,7 @@ export const getTokenIssuedAt = (token: string): number | null => {
 
 /**
  * Check if token is expired
- *
+ * 
  * @param token - JWT token
  * @returns True if expired
  */
@@ -320,7 +358,7 @@ export const isTokenExpired = (token: string): boolean => {
 
 /**
  * Get remaining time on token (seconds)
- *
+ * 
  * @param token - JWT token
  * @returns Remaining seconds (0 if expired)
  */
@@ -333,7 +371,7 @@ export const getTokenRemainingTime = (token: string): number => {
 
 /**
  * Get token age (seconds since issued)
- *
+ * 
  * @param token - JWT token
  * @returns Age in seconds, 0 if not available
  */
@@ -346,7 +384,7 @@ export const getTokenAge = (token: string): number => {
 /**
  * Extract subject (user ID) from token without verification
  * WARNING: Use only for non-secure operations
- *
+ * 
  * @param token - JWT token
  * @returns Subject or null
  */
@@ -357,13 +395,23 @@ export const getTokenSubject = (token: string): string | null => {
 
 /**
  * Extract token type from payload
- *
+ * 
  * @param token - JWT token
  * @returns Token type or null
  */
 export const getTokenType = (token: string): string | null => {
   const decoded = decodeToken(token);
   return decoded?.type || null;
+};
+
+/**
+ * Extract user ID from token (alias for getTokenSubject)
+ * 
+ * @param token - JWT token
+ * @returns User ID or null
+ */
+export const getUserIdFromToken = (token: string): string | null => {
+  return getTokenSubject(token);
 };
 
 // ==================== Type Exports ====================
