@@ -206,6 +206,27 @@ export const CURRENCY_CONFIG = Object.freeze({
 } as const);
 
 // ============================================================
+// String Configuration (for string manipulation)
+// ============================================================
+export const STRING_CONFIG = Object.freeze({
+  SLUG_SEPARATOR: '-',
+  DEFAULT_TRUNCATE_LENGTH: 100,
+  DEFAULT_MAX_WORDS: 50,
+  DEFAULT_MASK_CHAR: '*',
+
+  // Title case exceptions (words that shouldn't be capitalized unless at start)
+  TITLE_CASE_EXCEPTIONS: [
+    'a', 'an', 'and', 'the', 'of', 'for', 'in', 'on', 'at', 'to',
+    'by', 'with', 'without', 'or', 'nor', 'but', 'so', 'yet',
+    'as', 'is', 'was', 'were', 'be', 'been', 'being',
+  ],
+
+  // Slug special characters to remove
+  SLUG_SPECIAL_CHARS_REGEX: /[^\w\s-]/g,
+  SLUG_MULTIPLE_SEPARATOR_REGEX: /[\s_-]+/g,
+} as const);
+
+// ============================================================
 // OTP Configuration (One-Time Password)
 // ============================================================
 export const OTP_CONFIG = Object.freeze({
