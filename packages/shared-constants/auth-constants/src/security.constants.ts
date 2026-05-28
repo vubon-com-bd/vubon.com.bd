@@ -628,9 +628,10 @@ export const ENCRYPTION_CONFIG = Object.freeze({
 } as const);
 
 // ============================================================
-// JWT Configuration
+// JWT Configuration (for authentication)
 // ============================================================
 export const JWT_CONFIG = Object.freeze({
+  // RS256 configuration (asymmetric - for production)
   ALGORITHM: 'RS256',
   ACCESS_TOKEN_EXPIRY: '15m',
   REFRESH_TOKEN_EXPIRY: '7d',
@@ -647,6 +648,13 @@ export const JWT_CONFIG = Object.freeze({
     PERMISSIONS: 'perms',
     SESSION_ID: 'sid',
     DEVICE_ID: 'did',
+  },
+
+  // HS256 configuration (symmetric - for internal/legacy use)
+  HS256_CONFIG: {
+    ALGORITHM: 'HS256',
+    MIN_SECRET_LENGTH: 32,
+    TOKEN_TYPE: 'JWT',
   },
 } as const);
 
