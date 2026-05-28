@@ -9,7 +9,7 @@
  * ✅ NO OTP storage, database operations, side effects
  * ✅ Pure functions with deterministic output (cryptographically random)
  * ✅ Named exports only
- * ✅ No console.log or external API calls
+ * ✅ No console.log or external API calls 
  */
 
 import crypto from 'crypto';
