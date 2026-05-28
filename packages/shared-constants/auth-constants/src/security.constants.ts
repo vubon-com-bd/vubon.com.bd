@@ -259,6 +259,17 @@ export const TOKEN_CONFIG = Object.freeze({
 } as const);
 
 // ============================================================
+// Refresh Token Configuration (for token rotation)
+// ============================================================
+export const REFRESH_TOKEN_CONFIG = Object.freeze({
+  VERSION_LENGTH: 4,
+  DEFAULT_VERSION: 1,
+  MAX_VERSION: 9999,
+  VERSION_SEPARATOR: ':',
+  FAMILY_ID_LENGTH: 32,
+} as const);
+
+// ============================================================
 // Nonce Configuration (Cryptographic nonce)
 // ============================================================
 export const NONCE_CONFIG = Object.freeze({
