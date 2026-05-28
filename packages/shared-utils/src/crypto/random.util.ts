@@ -1,44 +1,69 @@
 /**
  * Random Utilities - Secure random generators
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module shared-utils/src/crypto/random.util
- * 
+ *
  * RULES:
  * ✅ ONLY secure random generation - NO business logic
  * ✅ NO OTP storage, database operations, side effects
  * ✅ Pure functions with deterministic output (cryptographically random)
  * ✅ Named exports only
- * ✅ No console.log (except warnings) or external API calls
+ * ✅ No console.log or external API calls
  */
 
 import crypto from 'crypto';
+import {
+  OTP_CONFIG,
+  RECOVERY_CODES,
+  TOKEN_CONFIG,
+  NONCE_CONFIG,
+  CHARACTER_SETS,
+} from '@vubon/auth-constants';
 
-// ==================== Constants (Enterprise grade) ====================
+// ==================== Constants (from shared-constants) ====================
 
-export const OTP_LENGTH = 6;
-export const OTP_MIN = 100000;
-export const OTP_MAX = 999999;
+// OTP configuration
+export const OTP_LENGTH = OTP_CONFIG.LENGTH;
+export const OTP_MIN = Math.pow(10, OTP_LENGTH - 1);
+export const OTP_MAX = Math.pow(10, OTP_LENGTH) - 1;
+
+// UUID version
 export const UUID_VERSION = 4;
 
-// Character sets
-const ALPHANUMERIC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-const NUMERIC = '0123456789';
-const HEX_LOWER = '0123456789abcdef';
-const HEX_UPPER = '0123456789ABCDEF';
-const BASE64_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-const SECURE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{}<>?';
+// Character sets (from constants)
+const ALPHANUMERIC = CHARACTER_SETS.ALPHANUMERIC;
+const NUMERIC = CHARACTER_SETS.NUMERIC;
+const HEX_LOWER = CHARACTER_SETS.HEX_LOWER;
+const HEX_UPPER = CHARACTER_SETS.HEX_UPPER;
+const BASE64_CHARS = CHARACTER_SETS.BASE64;
+const BASE64URL_CHARS = CHARACTER_SETS.BASE64URL;
+const SECURE_CHARS = CHARACTER_SETS.SECURE;
 
-// Default lengths
-const DEFAULT_TOKEN_LENGTH = 32;
-const DEFAULT_NONCE_LENGTH = 16;
-const DEFAULT_RECOVERY_CODE_COUNT = 10;
-const DEFAULT_RECOVERY_CODE_LENGTH = 8;
+// Default lengths (from constants)
+const DEFAULT_TOKEN_LENGTH = TOKEN_CONFIG.DEFAULT_LENGTH;
+const DEFAULT_NONCE_LENGTH = NONCE_CONFIG.DEFAULT_LENGTH;
+const DEFAULT_RECOVERY_CODE_COUNT = RECOVERY_CODES.COUNT;
+const DEFAULT_RECOVERY_CODE_LENGTH = RECOVERY_CODES.CODE_LENGTH;
+
+// Validation limits
+const MIN_OTP_LENGTH = 4;
+const MAX_OTP_LENGTH = 10;
+const MAX_COUNT = 100;
+const MAX_RECOVERY_CODES = 20;
+const MIN_RECOVERY_CODE_LENGTH = 6;
+const MAX_RECOVERY_CODE_LENGTH = 12;
+const MIN_TOKEN_LENGTH_BYTES = TOKEN_CONFIG.MIN_LENGTH;
+const MAX_TOKEN_LENGTH_BYTES = TOKEN_CONFIG.MAX_LENGTH;
+const MIN_RANDOM_STRING_LENGTH = 1;
+const MAX_RANDOM_STRING_LENGTH = 512;
+const MIN_NONCE_LENGTH_BYTES = NONCE_CONFIG.MIN_LENGTH;
+const MAX_NONCE_LENGTH_BYTES = NONCE_CONFIG.MAX_LENGTH;
 
 // ==================== Private Helpers ====================
 
 /**
- * Generate random bytes and map to character set
+ * Generate random bytes and map to character set (bias-free method)
  */
 const generateRandomFromCharset = (length: number, charset: string): string => {
   if (length <= 0) {
@@ -48,25 +73,32 @@ const generateRandomFromCharset = (length: number, charset: string): string => {
     throw new Error('Character set cannot be empty');
   }
 
-  const bytes = crypto.randomBytes(length);
+  const charsetLength = charset.length;
+  // Calculate maximum valid byte value to avoid modulo bias
+  const maxValid = 256 - (256 % charsetLength);
   let result = '';
-  
-  for (let i = 0; i < length; i++) {
-    result += charset[bytes[i] % charset.length];
+
+  while (result.length < length) {
+    const bytes = crypto.randomBytes(Math.ceil((length - result.length) * 2));
+    for (let i = 0; i < bytes.length && result.length < length; i++) {
+      const byte = bytes[i];
+      if (byte < maxValid) {
+        result += charset[byte % charsetLength];
+      }
+    }
   }
-  
+
   return result;
 };
 
 /**
- * Validate count parameter
+ * Validate count parameter (silent correction - no console.warn)
  */
-const validateCount = (count: number, maxCount: number = 100): number => {
+const validateCount = (count: number, maxCount: number = MAX_COUNT): number => {
   if (count <= 0) {
     throw new Error('Count must be at least 1');
   }
   if (count > maxCount) {
-    console.warn(`Count ${count} exceeds maximum ${maxCount}. Limiting to ${maxCount}.`);
     return maxCount;
   }
   return count;
@@ -75,7 +107,7 @@ const validateCount = (count: number, maxCount: number = 100): number => {
 /**
  * Validate length parameter
  */
-const validateLength = (length: number, min: number = 1, max: number = 1024): number => {
+const validateLength = (length: number, min: number = 1, max: number = MAX_RANDOM_STRING_LENGTH): number => {
   if (length < min) {
     throw new Error(`Length must be at least ${min}`);
   }
@@ -90,16 +122,16 @@ const validateLength = (length: number, min: number = 1, max: number = 1024): nu
 /**
  * Generate a secure numeric OTP (One-Time Password)
  * Cryptographically secure using crypto.randomInt
- * 
+ *
  * @param length - Length of OTP (default: 6, min: 4, max: 10)
  * @returns OTP as zero-padded string
- * 
+ *
  * @example
  * const otp = generateOtp(); // "123456"
  * const otp4 = generateOtp(4); // "7890"
  */
 export const generateOtp = (length: number = OTP_LENGTH): string => {
-  const validLength = validateLength(length, 4, 10);
+  const validLength = validateLength(length, MIN_OTP_LENGTH, MAX_OTP_LENGTH);
   const min = Math.pow(10, validLength - 1);
   const max = Math.pow(10, validLength) - 1;
   const otp = crypto.randomInt(min, max + 1);
@@ -108,13 +140,13 @@ export const generateOtp = (length: number = OTP_LENGTH): string => {
 
 /**
  * Generate multiple OTPs at once
- * 
+ *
  * @param count - Number of OTPs to generate (max: 100)
  * @param length - Length of each OTP (default: 6)
  * @returns Array of OTP strings
  */
 export const generateOtps = (count: number, length: number = OTP_LENGTH): string[] => {
-  const validCount = validateCount(count, 100);
+  const validCount = validateCount(count, MAX_COUNT);
   const otps: string[] = [];
   for (let i = 0; i < validCount; i++) {
     otps.push(generateOtp(length));
@@ -124,15 +156,15 @@ export const generateOtps = (count: number, length: number = OTP_LENGTH): string
 
 /**
  * Generate a numeric OTP as number (without leading zeros)
- * 
+ *
  * @param length - Length of OTP (default: 6)
  * @returns OTP as number
- * 
+ *
  * @example
  * const otp = generateOtpNumber(); // 123456 (number, not string)
  */
 export const generateOtpNumber = (length: number = OTP_LENGTH): number => {
-  const validLength = validateLength(length, 4, 10);
+  const validLength = validateLength(length, MIN_OTP_LENGTH, MAX_OTP_LENGTH);
   const min = Math.pow(10, validLength - 1);
   const max = Math.pow(10, validLength) - 1;
   return crypto.randomInt(min, max + 1);
@@ -143,21 +175,21 @@ export const generateOtpNumber = (length: number = OTP_LENGTH): number => {
 /**
  * Generate a secure random token (hex string)
  * Cryptographically secure - suitable for auth tokens, session IDs
- * 
+ *
  * @param length - Length in bytes (default: 32, gives 64 hex chars)
  * @returns Hex string token
- * 
+ *
  * @example
  * const token = generateToken(); // "a1b2c3d4..."
  */
 export const generateToken = (length: number = DEFAULT_TOKEN_LENGTH): string => {
-  const validLength = validateLength(length, 16, 256);
+  const validLength = validateLength(length, MIN_TOKEN_LENGTH_BYTES, MAX_TOKEN_LENGTH_BYTES);
   return crypto.randomBytes(validLength).toString('hex');
 };
 
 /**
  * Generate a secure random string with custom characters
- * 
+ *
  * @param length - Length of output string (default: 32)
  * @param chars - Character set to use (default: alphanumeric)
  * @returns Random string from character set
@@ -166,7 +198,7 @@ export const generateRandomString = (
   length: number = DEFAULT_TOKEN_LENGTH,
   chars: string = ALPHANUMERIC
 ): string => {
-  const validLength = validateLength(length, 1, 512);
+  const validLength = validateLength(length, MIN_RANDOM_STRING_LENGTH, MAX_RANDOM_STRING_LENGTH);
   return generateRandomFromCharset(validLength, chars);
 };
 
@@ -199,6 +231,13 @@ export const generateBase64Token = (length: number = DEFAULT_TOKEN_LENGTH): stri
 };
 
 /**
+ * Generate a secure base64url token (URL-safe)
+ */
+export const generateBase64UrlToken = (length: number = DEFAULT_TOKEN_LENGTH): string => {
+  return generateRandomString(length, BASE64URL_CHARS);
+};
+
+/**
  * Generate a high-entropy secure token with special characters
  * Suitable for API keys
  */
@@ -211,9 +250,9 @@ export const generateSecureToken = (length: number = DEFAULT_TOKEN_LENGTH): stri
 /**
  * Generate a UUID v4 (RFC 4122 compliant)
  * Uses crypto.randomUUID() for maximum compatibility
- * 
+ *
  * @returns UUID v4 string
- * 
+ *
  * @example
  * const uuid = generateUuid(); // "123e4567-e89b-12d3-a456-426614174000"
  */
@@ -223,12 +262,12 @@ export const generateUuid = (): string => {
 
 /**
  * Generate multiple UUIDs
- * 
+ *
  * @param count - Number of UUIDs to generate (max: 100)
  * @returns Array of UUID strings
  */
 export const generateUuids = (count: number): string[] => {
-  const validCount = validateCount(count, 100);
+  const validCount = validateCount(count, MAX_COUNT);
   const uuids: string[] = [];
   for (let i = 0; i < validCount; i++) {
     uuids.push(generateUuid());
@@ -250,11 +289,11 @@ export const isValidUuid = (uuid: string): boolean => {
 /**
  * Generate backup recovery codes (alphanumeric)
  * Suitable for MFA backup, account recovery
- * 
+ *
  * @param count - Number of codes (default: 10, max: 20)
  * @param codeLength - Length of each code (default: 8, min: 6, max: 12)
  * @returns Array of recovery codes
- * 
+ *
  * @example
  * const codes = generateRecoveryCodes(); // ["AB3F9K2M", "7XQ4W9R2", ...]
  */
@@ -262,11 +301,11 @@ export const generateRecoveryCodes = (
   count: number = DEFAULT_RECOVERY_CODE_COUNT,
   codeLength: number = DEFAULT_RECOVERY_CODE_LENGTH
 ): string[] => {
-  const validCount = validateCount(count, 20);
-  const validLength = validateLength(codeLength, 6, 12);
+  const validCount = validateCount(count, MAX_RECOVERY_CODES);
+  const validLength = validateLength(codeLength, MIN_RECOVERY_CODE_LENGTH, MAX_RECOVERY_CODE_LENGTH);
   const codes: string[] = [];
   const chars = ALPHANUMERIC;
-  
+
   for (let i = 0; i < validCount; i++) {
     let code = '';
     for (let j = 0; j < validLength; j++) {
@@ -275,7 +314,7 @@ export const generateRecoveryCodes = (
     }
     codes.push(code);
   }
-  
+
   return codes;
 };
 
@@ -295,11 +334,11 @@ export const generateFormattedRecoveryCodes = (
   segmentLength: number = 4,
   separator: string = '-'
 ): string[] => {
-  const validCount = validateCount(count, 20);
+  const validCount = validateCount(count, MAX_RECOVERY_CODES);
   const codes: string[] = [];
   const totalLength = segmentLength * 2;
   const chars = ALPHANUMERIC;
-  
+
   for (let i = 0; i < validCount; i++) {
     let raw = '';
     for (let j = 0; j < totalLength; j++) {
@@ -309,7 +348,7 @@ export const generateFormattedRecoveryCodes = (
     const formatted = raw.slice(0, segmentLength) + separator + raw.slice(segmentLength);
     codes.push(formatted);
   }
-  
+
   return codes;
 };
 
@@ -318,19 +357,19 @@ export const generateFormattedRecoveryCodes = (
 /**
  * Generate a cryptographically secure nonce (number used once)
  * Base64 encoded for compactness
- * 
+ *
  * @param length - Length in bytes (default: 16)
  * @returns Base64 encoded nonce
  */
 export const generateNonce = (length: number = DEFAULT_NONCE_LENGTH): string => {
-  const validLength = validateLength(length, 8, 64);
+  const validLength = validateLength(length, MIN_NONCE_LENGTH_BYTES, MAX_NONCE_LENGTH_BYTES);
   return crypto.randomBytes(validLength).toString('base64');
 };
 
 /**
  * Generate a timestamp-based nonce with random component
  * Combines time and randomness for uniqueness without state
- * 
+ *
  * @returns Timestamp-based nonce string
  */
 export const generateTimestampNonce = (): string => {
