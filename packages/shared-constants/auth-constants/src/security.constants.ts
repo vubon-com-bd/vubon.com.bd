@@ -243,6 +243,61 @@ export const IP_CONFIG = Object.freeze({
 } as const);
 
 // ============================================================
+// User Agent Configuration (Bot patterns, device indicators, BD browsers)
+// ============================================================
+export const USER_AGENT_CONFIG = Object.freeze({
+  // Bot/Crawler patterns
+  BOT_PATTERNS: [
+    /bot/i,
+    /crawler/i,
+    /spider/i,
+    /scraper/i,
+    /headless/i,
+    /puppeteer/i,
+    /playwright/i,
+    /selenium/i,
+    /cypress/i,
+    /googlebot/i,
+    /bingbot/i,
+    /slurp/i,
+    /duckduckbot/i,
+    /baiduspider/i,
+    /yandexbot/i,
+    /facebookexternalhit/i,
+    /facebot/i,
+    /twitterbot/i,
+    /linkedinbot/i,
+    /whatsapp/i,
+    /telegrambot/i,
+    /discordbot/i,
+    /slackbot/i,
+  ],
+
+  // Mobile device indicators
+  MOBILE_INDICATORS: [
+    'Mobile',
+    'Android',
+    'iPhone',
+    'iPod',
+    'BlackBerry',
+    'Windows Phone',
+    'Opera Mini',
+    'IEMobile',
+  ],
+
+  // Tablet indicators
+  TABLET_INDICATORS: ['iPad', 'Tablet', 'Kindle', 'Silk'],
+
+  // Bangladesh specific browser patterns
+  BD_BROWSER_PATTERNS: [
+    { pattern: /ucbrowser/i, name: 'UC Browser' },
+    { pattern: /opera mini/i, name: 'Opera Mini' },
+    { pattern: /samsungbrowser/i, name: 'Samsung Browser' },
+    { pattern: /miui browser/i, name: 'Mi Browser' },
+  ],
+} as const);
+
+// ============================================================
 // Common Passwords Blacklist (Bangladesh specific)
 // ============================================================
 export const COMMON_PASSWORDS = Object.freeze([
@@ -699,12 +754,4 @@ export const SECURITY_TESTING = Object.freeze({
   // Test headers (X-Forwarded-*, etc.)
   TEST_HEADERS: {
     X_FORWARDED_FOR: 'x-forwarded-for',
-    X_FORWARDED_PROTO: 'x-forwarded-proto',
-    X_REAL_IP: 'x-real-ip',
-  },
-
-  // Bypass mechanisms (for testing only)
-  TEST_BYPASS_ENABLED: false,
-  TEST_BYPASS_HEADER: 'x-bypass-security',
-  TEST_BYPASS_TOKEN: 'test-bypass-token-123',
-} as const);
+    X_FORWARDED_PROTO:
