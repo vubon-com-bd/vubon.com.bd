@@ -13,32 +13,33 @@
  */
 
 import validator from 'validator';
+import { SANITIZE_CONFIG } from '@vubon/auth-constants';
 
-// ==================== Constants (Enterprise grade) ====================
+// ==================== Constants (from shared-constants) ====================
 
 // HTML/XML patterns
-const HTML_TAG_REGEX = /<[^>]*>/g;
-const HTML_COMMENT_REGEX = /<!--[\s\S]*?-->/g;
-const SCRIPT_TAG_REGEX = /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi;
-const STYLE_TAG_REGEX = /<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi;
-const IFRAME_TAG_REGEX = /<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi;
-const OBJECT_TAG_REGEX = /<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi;
-const EMBED_TAG_REGEX = /<embed\b[^>]*>/gi;
-const FORM_TAG_REGEX = /<form\b[^<]*(?:(?!<\/form>)<[^<]*)*<\/form>/gi;
+const HTML_TAG_REGEX = SANITIZE_CONFIG.HTML_TAG_REGEX;
+const HTML_COMMENT_REGEX = SANITIZE_CONFIG.HTML_COMMENT_REGEX;
+const SCRIPT_TAG_REGEX = SANITIZE_CONFIG.SCRIPT_TAG_REGEX;
+const STYLE_TAG_REGEX = SANITIZE_CONFIG.STYLE_TAG_REGEX;
+const IFRAME_TAG_REGEX = SANITIZE_CONFIG.IFRAME_TAG_REGEX;
+const OBJECT_TAG_REGEX = SANITIZE_CONFIG.OBJECT_TAG_REGEX;
+const EMBED_TAG_REGEX = SANITIZE_CONFIG.EMBED_TAG_REGEX;
+const FORM_TAG_REGEX = SANITIZE_CONFIG.FORM_TAG_REGEX;
 
 // Dangerous protocols
-const JAVASCRIPT_PROTOCOL_REGEX = /javascript:/gi;
-const VBSCRIPT_PROTOCOL_REGEX = /vbscript:/gi;
-const DATA_PROTOCOL_REGEX = /data:/gi;
+const JAVASCRIPT_PROTOCOL_REGEX = SANITIZE_CONFIG.JAVASCRIPT_PROTOCOL_REGEX;
+const VBSCRIPT_PROTOCOL_REGEX = SANITIZE_CONFIG.VBSCRIPT_PROTOCOL_REGEX;
+const DATA_PROTOCOL_REGEX = SANITIZE_CONFIG.DATA_PROTOCOL_REGEX;
 
 // Event handlers
-const ON_EVENT_REGEX = /\bon\w+\s*=/gi;
+const ON_EVENT_REGEX = SANITIZE_CONFIG.ON_EVENT_REGEX;
 
 // SQL injection patterns (basic - use parameterized queries in production)
-const SQL_SPECIAL_CHARS = /['"\\%_]/g;
+const SQL_SPECIAL_CHARS = SANITIZE_CONFIG.SQL_SPECIAL_CHARS;
 
 // Unicode normalization form
-const NORMALIZATION_FORM = 'NFKC';
+const NORMALIZATION_FORM = SANITIZE_CONFIG.NORMALIZATION_FORM;
 
 // ==================== HTML Sanitization ====================
 
@@ -335,20 +336,7 @@ export const escapeSql = (value: string): string => {
  */
 export const hasSqlInjectionPattern = (value: string): boolean => {
   if (!value || typeof value !== 'string') return false;
-  
-  const sqlPatterns = [
-    /(\bSELECT\b.*\bFROM\b)/i,
-    /(\bINSERT\b.*\bINTO\b)/i,
-    /(\bUPDATE\b.*\bSET\b)/i,
-    /(\bDELETE\b.*\bFROM\b)/i,
-    /(\bDROP\b.*\bTABLE\b)/i,
-    /(\bUNION\b.*\bSELECT\b)/i,
-    /(--)/,
-    /(;)/,
-    /('.*OR.*'.*=.*')/i,
-  ];
-  
-  return sqlPatterns.some(pattern => pattern.test(value));
+  return SANITIZE_CONFIG.SQL_INJECTION_REGEX.test(value);
 };
 
 // ==================== Normalization ====================
