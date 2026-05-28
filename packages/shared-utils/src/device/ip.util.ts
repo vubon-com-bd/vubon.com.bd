@@ -1,9 +1,9 @@
 /**
  * IP Utilities - IP parsing and masking
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module shared-utils/src/device/ip.util
- * 
+ *
  * RULES:
  * ✅ ONLY IP parsing, masking, validation - NO business logic
  * ✅ NO GeoIP API requests, network scanning
@@ -12,41 +12,24 @@
  * ✅ No side effects or external API calls
  */
 
-// ==================== Constants (Enterprise grade) ====================
+import { IP_CONFIG } from '@vubon/auth-constants';
+
+// ==================== Constants (from shared-constants) ====================
 
 // IPv4 Regex (strict)
-const IPV4_REGEX = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+const IPV4_REGEX = IP_CONFIG.IPV4_REGEX;
 
 // IPv6 Regex (RFC 5954 compliant)
-const IPV6_REGEX = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
+const IPV6_REGEX = IP_CONFIG.IPV6_REGEX;
 
 // Private IP ranges
-const PRIVATE_IPV4_RANGES = [
-  { start: '10.0.0.0', end: '10.255.255.255', description: 'Class A private' },
-  { start: '172.16.0.0', end: '172.31.255.255', description: 'Class B private' },
-  { start: '192.168.0.0', end: '192.168.255.255', description: 'Class C private' },
-  { start: '127.0.0.0', end: '127.255.255.255', description: 'Loopback' },
-  { start: '169.254.0.0', end: '169.254.255.255', description: 'Link-local' },
-];
+const PRIVATE_IPV4_RANGES = IP_CONFIG.PRIVATE_IPV4_RANGES;
 
 // Reserved/private IPv6 prefixes
-const PRIVATE_IPV6_PREFIXES = [
-  { prefix: '::1', description: 'Loopback' },
-  { prefix: 'fc00::', description: 'Unique Local (ULA)' },
-  { prefix: 'fd00::', description: 'Unique Local (ULA)' },
-  { prefix: 'fe80::', description: 'Link-local' },
-];
+const PRIVATE_IPV6_PREFIXES = IP_CONFIG.PRIVATE_IPV6_PREFIXES;
 
 // Forwarded header names (priority order)
-const FORWARDED_HEADERS = [
-  'x-forwarded-for',
-  'x-real-ip',
-  'cf-connecting-ip',
-  'fastly-client-ip',
-  'true-client-ip',
-  'x-original-forwarded-for',
-  'x-cluster-client-ip',
-] as const;
+const FORWARDED_HEADERS = IP_CONFIG.FORWARDED_HEADERS;
 
 // ==================== Private Helpers ====================
 
@@ -72,10 +55,10 @@ const ipToNumber = (ip: string): number => {
 
 /**
  * Check if string is valid IPv4 address
- * 
+ *
  * @param ip - String to check
  * @returns True if valid IPv4
- * 
+ *
  * @example
  * isIPv4('192.168.1.1') // true
  * isIPv4('256.0.0.1') // false
@@ -91,7 +74,7 @@ export const isIPv4 = (ip: string): boolean => {
 
 /**
  * Check if string is valid IPv6 address
- * 
+ *
  * @param ip - String to check
  * @returns True if valid IPv6
  */
@@ -106,7 +89,7 @@ export const isIPv6 = (ip: string): boolean => {
 
 /**
  * Check if string is valid IP address (IPv4 or IPv6)
- * 
+ *
  * @param ip - String to check
  * @returns True if valid IP
  */
@@ -116,7 +99,7 @@ export const isIP = (ip: string): boolean => {
 
 /**
  * Get IP version
- * 
+ *
  * @param ip - IP address
  * @returns 'IPv4', 'IPv6', or null
  */
@@ -131,17 +114,17 @@ export const getIPVersion = (ip: string): 'IPv4' | 'IPv6' | null => {
 /**
  * Mask IPv4 address for privacy
  * Example: 192.168.1.100 -> 192.168.*.*
- * 
+ *
  * @param ip - IPv4 address
  * @returns Masked IP
  */
 export const maskIPv4 = (ip: string): string => {
   const validIP = validateIP(ip);
   if (!isIPv4(validIP)) return validIP;
-  
+
   const parts = validIP.split('.');
   if (parts.length !== 4) return validIP;
-  
+
   parts[2] = '*';
   parts[3] = '*';
   return parts.join('.');
@@ -150,24 +133,24 @@ export const maskIPv4 = (ip: string): string => {
 /**
  * Mask IPv6 address for privacy
  * Keeps first 2 groups visible
- * 
+ *
  * @param ip - IPv6 address
  * @returns Masked IP
  */
 export const maskIPv6 = (ip: string): string => {
   const validIP = validateIP(ip);
   if (!isIPv6(validIP)) return validIP;
-  
+
   const parts = validIP.split(':');
   if (parts.length < 4) return validIP;
-  
+
   const visible = parts.slice(0, 2);
   return `${visible.join(':')}:****:****:****`;
 };
 
 /**
  * Mask IP address (auto-detects version)
- * 
+ *
  * @param ip - IP address
  * @returns Masked IP
  */
@@ -181,7 +164,7 @@ export const maskIP = (ip: string): string => {
 
 /**
  * Normalize IP address (remove IPv6 brackets, trim)
- * 
+ *
  * @param ip - IP address (may contain brackets)
  * @returns Normalized IP
  */
@@ -192,7 +175,7 @@ export const normalizeIP = (ip: string): string => {
 
 /**
  * Extract client IP from HTTP headers (respects proxy headers)
- * 
+ *
  * @param headers - HTTP headers object
  * @returns Extracted IP or null
  */
@@ -223,7 +206,7 @@ export const extractIPFromHeaders = (headers: {
 /**
  * Get the real client IP from request context
  * Extracts from headers or falls back to direct IP
- * 
+ *
  * @param headers - HTTP headers
  * @param remoteAddress - Direct remote address
  * @returns Client IP address
@@ -235,13 +218,13 @@ export const getClientIP = (
   // Try to extract from forwarded headers first
   const forwardedIP = extractIPFromHeaders(headers);
   if (forwardedIP) return forwardedIP;
-  
+
   // Fallback to remote address
   if (remoteAddress) {
     const normalized = normalizeIP(remoteAddress);
     if (isIP(normalized)) return normalized;
   }
-  
+
   return null;
 };
 
@@ -253,7 +236,7 @@ export const getClientIP = (
 const isPrivateIPv4 = (ip: string): boolean => {
   const parts = ip.split('.').map(Number);
   if (parts.length !== 4) return false;
-  
+
   // 10.0.0.0/8
   if (parts[0] === 10) return true;
   // 172.16.0.0/12
@@ -264,29 +247,29 @@ const isPrivateIPv4 = (ip: string): boolean => {
   if (parts[0] === 127) return true;
   // 169.254.0.0/16 (link-local)
   if (parts[0] === 169 && parts[1] === 254) return true;
-  
+
   return false;
 };
 
 /**
  * Check if IPv6 is private/local
  */
-const isPrivateIPv6 = (ip: string): string => {
+const isPrivateIPv6 = (ip: string): boolean => {
   const lowerIP = ip.toLowerCase();
-  
+
   // ::1 is loopback
   if (lowerIP === '::1') return true;
   // fc00::/7 and fd00::/7 are unique local addresses
   if (lowerIP.startsWith('fc') || lowerIP.startsWith('fd')) return true;
   // fe80::/10 is link-local
   if (lowerIP.startsWith('fe80')) return true;
-  
+
   return false;
 };
 
 /**
  * Check if IP is private/local (not publicly routable)
- * 
+ *
  * @param ip - IP address
  * @returns True if private IP
  */
@@ -298,7 +281,7 @@ export const isPrivateIP = (ip: string): boolean => {
 
 /**
  * Check if IP is public (routable on internet)
- * 
+ *
  * @param ip - IP address
  * @returns True if public IP
  */
@@ -310,7 +293,7 @@ export const isPublicIP = (ip: string): boolean => {
 
 /**
  * Check if IP is within a CIDR range
- * 
+ *
  * @param ip - IP address to check
  * @param cidr - CIDR notation (e.g., '192.168.0.0/16')
  * @returns True if IP is within range
@@ -319,17 +302,17 @@ export const isIPInCIDR = (ip: string, cidr: string): boolean => {
   const [network, maskBits] = cidr.split('/');
   if (!network || !maskBits) return false;
   if (!isIP(network)) return false;
-  
+
   const mask = parseInt(maskBits, 10);
   if (isNaN(mask)) return false;
-  
+
   if (isIPv4(ip) && isIPv4(network)) {
     const ipNum = ipToNumber(ip);
     const networkNum = ipToNumber(network);
     const maskNum = ~((1 << (32 - mask)) - 1);
     return (ipNum & maskNum) === (networkNum & maskNum);
   }
-  
+
   // IPv6 CIDR checking is more complex
   // For simplicity, return false for IPv6 CIDR
   return false;
