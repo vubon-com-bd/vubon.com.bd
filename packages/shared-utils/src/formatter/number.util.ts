@@ -1,9 +1,9 @@
 /**
  * Number Utilities - Number formatting and calculations
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module shared-utils/auth-utils/formatter/number.util
- * 
+ *
  * RULES:
  * ✅ ONLY number formatting and helper calculations - NO business logic
  * ✅ NO financial transaction logic, business calculations
@@ -12,29 +12,23 @@
  * ✅ No side effects or external API calls
  */
 
-// ==================== Constants (Enterprise grade) ====================
+import { NUMBER_CONFIG } from '@vubon/auth-constants';
 
-export const DEFAULT_DECIMAL_PLACES = 2;
-export const DEFAULT_ROUNDING_PRECISION = 2;
-export const DEFAULT_PERCENTAGE_DECIMALS = 1;
+// ==================== Constants (from shared-constants) ====================
+
+export const DEFAULT_DECIMAL_PLACES = NUMBER_CONFIG.DEFAULT_DECIMAL_PLACES;
+export const DEFAULT_ROUNDING_PRECISION = NUMBER_CONFIG.DEFAULT_ROUNDING_PRECISION;
+export const DEFAULT_PERCENTAGE_DECIMALS = NUMBER_CONFIG.DEFAULT_PERCENTAGE_DECIMALS;
 
 // Number format styles
-export const NUMBER_FORMATS = {
-  STANDARD: 'standard',
-  COMMA: 'comma',
-  COMPACT: 'compact',
-  SCIENTIFIC: 'scientific',
-} as const;
-
+export const NUMBER_FORMATS = NUMBER_CONFIG.NUMBER_FORMATS;
 export type NumberFormat = typeof NUMBER_FORMATS[keyof typeof NUMBER_FORMATS];
 
-// Unit suffixes for compact formatting
-const UNIT_SUFFIXES = [
-  { value: 1e3, suffix: 'K' },
-  { value: 1e6, suffix: 'M' },
-  { value: 1e9, suffix: 'B' },
-  { value: 1e12, suffix: 'T' },
-];
+// Unit suffixes for compact formatting (from constants)
+const UNIT_SUFFIXES = NUMBER_CONFIG.UNIT_SUFFIXES;
+
+// Maximum decimal places allowed (from constants)
+const MAX_DECIMAL_PLACES = NUMBER_CONFIG.MAX_DECIMAL_PLACES;
 
 // ==================== Private Helpers ====================
 
@@ -61,11 +55,11 @@ const validateRange = (min: number, max: number): void => {
 
 /**
  * Format number with fixed decimal places
- * 
+ *
  * @param value - Number to format
- * @param decimalPlaces - Number of decimal places (default: 2)
+ * @param decimalPlaces - Number of decimal places (default from constants)
  * @returns Formatted number string
- * 
+ *
  * @example
  * formatNumber(1234.5678, 2) // '1234.57'
  * formatNumber(1234, 0) // '1234'
@@ -75,16 +69,16 @@ export const formatNumber = (
   decimalPlaces: number = DEFAULT_DECIMAL_PLACES
 ): string => {
   const validValue = validateNumber(value);
-  const validDecimals = Math.max(0, Math.min(decimalPlaces, 10));
+  const validDecimals = Math.max(0, Math.min(decimalPlaces, MAX_DECIMAL_PLACES));
   return validValue.toFixed(validDecimals);
 };
 
 /**
  * Format number with thousand separators (commas)
- * 
+ *
  * @param value - Number to format
  * @returns Formatted number string with commas
- * 
+ *
  * @example
  * formatWithCommas(1234567.89) // '1,234,567.89'
  * formatWithCommas(1000000) // '1,000,000'
@@ -96,65 +90,65 @@ export const formatWithCommas = (value: number): string => {
 
 /**
  * Format number with thousand separators (Bangladesh format - using commas)
- * 
+ *
  * @param value - Number to format
  * @returns Formatted number string with commas
- * 
+ *
  * @example
  * formatWithCommasBD(1234567.89) // '12,34,567.89' (BD style)
  */
 export const formatWithCommasBD = (value: number): string => {
   const validValue = validateNumber(value);
-  
+
   // Split integer and decimal parts
   const parts = validValue.toString().split('.');
   let integerPart = parts[0];
   const decimalPart = parts[1] ? `.${parts[1]}` : '';
-  
+
   // Format integer part with BD style (last 3 digits, then groups of 2)
   const lastThree = integerPart.slice(-3);
   const otherDigits = integerPart.slice(0, -3);
-  
+
   if (otherDigits !== '') {
     integerPart = otherDigits.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + lastThree;
   } else {
     integerPart = lastThree;
   }
-  
+
   return integerPart + decimalPart;
 };
 
 /**
  * Format number as compact (e.g., 1.2K, 1.2M, 1.2B)
- * 
+ *
  * @param value - Number to format
  * @param decimalPlaces - Decimal places for compact value (default: 1)
  * @returns Compact formatted string
- * 
+ *
  * @example
  * formatCompact(1234567) // '1.2M'
  * formatCompact(1500) // '1.5K'
  */
 export const formatCompact = (value: number, decimalPlaces: number = 1): string => {
   const validValue = validateNumber(value);
-  
+
   if (Math.abs(validValue) < 1000) {
     return validValue.toString();
   }
-  
+
   for (const suffix of UNIT_SUFFIXES) {
     if (Math.abs(validValue) >= suffix.value) {
       const formatted = (validValue / suffix.value).toFixed(decimalPlaces);
       return `${formatted}${suffix.suffix}`;
     }
   }
-  
+
   return validValue.toString();
 };
 
 /**
  * Format number with custom Intl.NumberFormat options
- * 
+ *
  * @param value - Number to format
  * @param options - Intl.NumberFormat options
  * @returns Formatted number string
@@ -171,46 +165,46 @@ export const formatNumberWithOptions = (
 
 /**
  * Round number to specified decimal places (standard rounding)
- * 
+ *
  * @param value - Number to round
- * @param precision - Decimal places to round to (default: 2)
+ * @param precision - Decimal places to round to (default from constants)
  * @returns Rounded number
- * 
+ *
  * @example
  * round(1234.5678, 2) // 1234.57
  * round(1234.5678, 0) // 1235
  */
 export const round = (value: number, precision: number = DEFAULT_ROUNDING_PRECISION): number => {
   const validValue = validateNumber(value);
-  const validPrecision = Math.max(0, Math.min(precision, 10));
+  const validPrecision = Math.max(0, Math.min(precision, MAX_DECIMAL_PLACES));
   const factor = Math.pow(10, validPrecision);
   return Math.round(validValue * factor) / factor;
 };
 
 /**
  * Round down (floor) to specified decimal places
- * 
+ *
  * @param value - Number to floor
- * @param precision - Decimal places (default: 2)
+ * @param precision - Decimal places (default from constants)
  * @returns Floored number
  */
 export const floor = (value: number, precision: number = DEFAULT_ROUNDING_PRECISION): number => {
   const validValue = validateNumber(value);
-  const validPrecision = Math.max(0, Math.min(precision, 10));
+  const validPrecision = Math.max(0, Math.min(precision, MAX_DECIMAL_PLACES));
   const factor = Math.pow(10, validPrecision);
   return Math.floor(validValue * factor) / factor;
 };
 
 /**
  * Round up (ceil) to specified decimal places
- * 
+ *
  * @param value - Number to ceil
- * @param precision - Decimal places (default: 2)
+ * @param precision - Decimal places (default from constants)
  * @returns Ceiled number
  */
 export const ceil = (value: number, precision: number = DEFAULT_ROUNDING_PRECISION): number => {
   const validValue = validateNumber(value);
-  const validPrecision = Math.max(0, Math.min(precision, 10));
+  const validPrecision = Math.max(0, Math.min(precision, MAX_DECIMAL_PLACES));
   const factor = Math.pow(10, validPrecision);
   return Math.ceil(validValue * factor) / factor;
 };
@@ -219,11 +213,11 @@ export const ceil = (value: number, precision: number = DEFAULT_ROUNDING_PRECISI
 
 /**
  * Calculate percentage value
- * 
+ *
  * @param value - Part value
  * @param total - Total value
  * @returns Percentage (0-100)
- * 
+ *
  * @example
  * calculatePercentage(25, 100) // 25
  * calculatePercentage(30, 200) // 15
@@ -231,15 +225,15 @@ export const ceil = (value: number, precision: number = DEFAULT_ROUNDING_PRECISI
 export const calculatePercentage = (value: number, total: number): number => {
   const validValue = validateNumber(value);
   const validTotal = validateNumber(total);
-  
+
   if (validTotal === 0) return 0;
-  
+
   return (validValue / validTotal) * 100;
 };
 
 /**
  * Calculate value from percentage
- * 
+ *
  * @param percentage - Percentage value
  * @param total - Total value
  * @returns Calculated value
@@ -247,18 +241,18 @@ export const calculatePercentage = (value: number, total: number): number => {
 export const calculateValueFromPercentage = (percentage: number, total: number): number => {
   const validPercentage = validateNumber(percentage);
   const validTotal = validateNumber(total);
-  
+
   return (validPercentage / 100) * validTotal;
 };
 
 /**
  * Format number as percentage
- * 
+ *
  * @param value - Part value
  * @param total - Total value
- * @param decimalPlaces - Decimal places for percentage (default: 1)
+ * @param decimalPlaces - Decimal places for percentage (default from constants)
  * @returns Formatted percentage string
- * 
+ *
  * @example
  * formatPercentage(25, 100) // '25.0%'
  * formatPercentage(30, 200, 0) // '15%'
@@ -275,7 +269,7 @@ export const formatPercentage = (
 
 /**
  * Get percentage result with additional data
- * 
+ *
  * @param value - Part value
  * @param total - Total value
  * @returns Percentage result object
@@ -287,7 +281,7 @@ export const getPercentageResult = (
 ): PercentageResult => {
   const percentage = calculatePercentage(value, total);
   const formatted = formatPercentage(value, total, decimalPlaces);
-  
+
   return {
     value: percentage,
     formatted,
@@ -300,11 +294,11 @@ export const getPercentageResult = (
 /**
  * Generate random integer between min and max (inclusive)
  * WARNING: Not cryptographically secure - use random.util.ts for security
- * 
+ *
  * @param min - Minimum value (inclusive)
  * @param max - Maximum value (inclusive)
  * @returns Random integer
- * 
+ *
  * @example
  * randomInt(1, 10) // Returns between 1 and 10
  */
@@ -316,7 +310,7 @@ export const randomInt = (min: number, max: number): number => {
 /**
  * Generate random float between min and max
  * WARNING: Not cryptographically secure
- * 
+ *
  * @param min - Minimum value
  * @param max - Maximum value
  * @returns Random float
@@ -330,7 +324,7 @@ export const randomFloat = (min: number, max: number): number => {
 
 /**
  * Check if number is within range (inclusive)
- * 
+ *
  * @param value - Number to check
  * @param min - Minimum value
  * @param max - Maximum value
@@ -343,12 +337,12 @@ export const isInRange = (value: number, min: number, max: number): boolean => {
 
 /**
  * Clamp number between min and max
- * 
+ *
  * @param value - Number to clamp
  * @param min - Minimum allowed value
  * @param max - Maximum allowed value
  * @returns Clamped number
- * 
+ *
  * @example
  * clamp(150, 0, 100) // 100
  * clamp(-10, 0, 100) // 0
