@@ -119,6 +119,65 @@ export const SECURITY_HEADER_VALUES = Object.freeze({
 } as const);
 
 // ============================================================
+// Email Configuration (for email validation and categorization)
+// ============================================================
+import { REGEX_EMAIL } from './regex.constants';
+
+export const EMAIL_CONFIG = Object.freeze({
+  // Email regex pattern
+  EMAIL_REGEX: REGEX_EMAIL.STRICT,
+
+  // Common email providers (for categorization)
+  COMMON_EMAIL_DOMAINS: [
+    'gmail.com',
+    'yahoo.com',
+    'hotmail.com',
+    'outlook.com',
+    'icloud.com',
+    'aol.com',
+    'protonmail.com',
+    'mail.com',
+    'gmx.com',
+    'yandex.com',
+  ],
+
+  // Bangladesh specific email domains
+  BANGLADESH_EMAIL_DOMAINS: [
+    'yahoo.com.bd',
+    'gmail.com',
+    'outlook.com',
+    'hotmail.com',
+    'icloud.com',
+    'protonmail.com',
+    'agni.com',
+    'bdcom.com',
+    'btcl.net.bd',
+    'dhaka.net',
+    'link3.net',
+    'grameenphone.com',
+    'robi.com.bd',
+    'banglalink.com',
+    'teletalk.com.bd',
+  ],
+
+  // Educational institutions in Bangladesh
+  EDUCATIONAL_DOMAINS: [
+    'du.ac.bd',
+    'buet.ac.bd',
+    'ru.ac.bd',
+    'cu.ac.bd',
+    'ju.ac.bd',
+    'northsouth.edu',
+    'bracu.ac.bd',
+    'aiub.edu',
+    'iub.edu.bd',
+    'ewubd.edu',
+    'uiu.ac.bd',
+    'daffodilvarsity.edu.bd',
+  ],
+} as const);
+
+// ============================================================
 // Date Configuration (for date formatting)
 // ============================================================
 export const DATE_CONFIG = Object.freeze({
