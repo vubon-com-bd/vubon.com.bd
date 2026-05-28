@@ -312,6 +312,41 @@ export const PHONE_CONFIG = Object.freeze({
 } as const);
 
 // ============================================================
+// Sanitize Configuration (for XSS and input sanitization)
+// ============================================================
+import { REGEX_HTML_TAGS, REGEX_SCRIPT_TAGS, REGEX_SQL_INJECTION, REGEX_XSS } from './regex.constants';
+
+export const SANITIZE_CONFIG = Object.freeze({
+  // HTML/XML patterns
+  HTML_TAG_REGEX: REGEX_HTML_TAGS,
+  HTML_COMMENT_REGEX: /<!--[\s\S]*?-->/g,
+  SCRIPT_TAG_REGEX: REGEX_SCRIPT_TAGS,
+  STYLE_TAG_REGEX: /<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi,
+  IFRAME_TAG_REGEX: /<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi,
+  OBJECT_TAG_REGEX: /<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi,
+  EMBED_TAG_REGEX: /<embed\b[^>]*>/gi,
+  FORM_TAG_REGEX: /<form\b[^<]*(?:(?!<\/form>)<[^<]*)*<\/form>/gi,
+
+  // Dangerous protocols
+  JAVASCRIPT_PROTOCOL_REGEX: /javascript:/gi,
+  VBSCRIPT_PROTOCOL_REGEX: /vbscript:/gi,
+  DATA_PROTOCOL_REGEX: /data:/gi,
+
+  // Event handlers
+  ON_EVENT_REGEX: /\bon\w+\s*=/gi,
+
+  // SQL injection patterns (basic - use parameterized queries in production)
+  SQL_INJECTION_REGEX: REGEX_SQL_INJECTION,
+  SQL_SPECIAL_CHARS: /['"\\%_]/g,
+
+  // XSS pattern
+  XSS_REGEX: REGEX_XSS,
+
+  // Unicode normalization form
+  NORMALIZATION_FORM: 'NFKC',
+} as const);
+
+// ============================================================
 // OTP Configuration (One-Time Password)
 // ============================================================
 export const OTP_CONFIG = Object.freeze({
