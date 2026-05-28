@@ -13,6 +13,7 @@
  */
 
 import UAParser from 'ua-parser-js';
+import { USER_AGENT_CONFIG } from '@vubon/auth-constants';
 
 // ==================== Types ====================
 
@@ -52,57 +53,19 @@ export interface DeviceInfo {
   isBot: boolean;
 }
 
-// ==================== Constants ====================
+// ==================== Constants (from shared-constants) ====================
 
 // Bot/Crawler patterns
-const BOT_PATTERNS = [
-  /bot/i,
-  /crawler/i,
-  /spider/i,
-  /scraper/i,
-  /headless/i,
-  /puppeteer/i,
-  /playwright/i,
-  /selenium/i,
-  /cypress/i,
-  /googlebot/i,
-  /bingbot/i,
-  /slurp/i,
-  /duckduckbot/i,
-  /baiduspider/i,
-  /yandexbot/i,
-  /facebookexternalhit/i,
-  /facebot/i,
-  /twitterbot/i,
-  /linkedinbot/i,
-  /whatsapp/i,
-  /telegrambot/i,
-  /discordbot/i,
-  /slackbot/i,
-];
+const BOT_PATTERNS = USER_AGENT_CONFIG.BOT_PATTERNS;
 
 // Mobile device indicators
-const MOBILE_INDICATORS = [
-  'Mobile',
-  'Android',
-  'iPhone',
-  'iPod',
-  'BlackBerry',
-  'Windows Phone',
-  'Opera Mini',
-  'IEMobile',
-];
+const MOBILE_INDICATORS = USER_AGENT_CONFIG.MOBILE_INDICATORS;
 
 // Tablet indicators
-const TABLET_INDICATORS = ['iPad', 'Tablet', 'Kindle', 'Silk'];
+const TABLET_INDICATORS = USER_AGENT_CONFIG.TABLET_INDICATORS;
 
 // Bangladesh specific browser detection
-const BD_BROWSER_PATTERNS = [
-  { pattern: /ucbrowser/i, name: 'UC Browser' },
-  { pattern: /opera mini/i, name: 'Opera Mini' },
-  { pattern: /samsungbrowser/i, name: 'Samsung Browser' },
-  { pattern: /miui browser/i, name: 'Mi Browser' },
-];
+const BD_BROWSER_PATTERNS = USER_AGENT_CONFIG.BD_BROWSER_PATTERNS;
 
 // ==================== Private Helpers ====================
 
