@@ -13,18 +13,19 @@
  */
 
 import crypto from 'crypto';
+import { TOKEN_CONFIG, REFRESH_TOKEN_CONFIG } from '@vubon/auth-constants';
 
-// ==================== Constants (Enterprise grade) ====================
+// ==================== Constants (from shared-constants) ====================
 
-export const DEFAULT_REFRESH_TOKEN_LENGTH = 64;
-export const REFRESH_TOKEN_VERSION_LENGTH = 4;
-export const MIN_REFRESH_TOKEN_LENGTH = 32;
-export const MAX_REFRESH_TOKEN_LENGTH = 128;
+export const DEFAULT_REFRESH_TOKEN_LENGTH = TOKEN_CONFIG.DEFAULT_LENGTH;  // 32
+export const MIN_REFRESH_TOKEN_LENGTH = TOKEN_CONFIG.MIN_LENGTH;          // 16
+export const MAX_REFRESH_TOKEN_LENGTH = TOKEN_CONFIG.MAX_LENGTH;          // 256
 
-// Token format constants
-const TOKEN_VERSION_SEPARATOR = ':';
-const DEFAULT_VERSION = 1;
-const MAX_VERSION = 9999;
+const REFRESH_TOKEN_VERSION_LENGTH = REFRESH_TOKEN_CONFIG.VERSION_LENGTH;   // 4
+const DEFAULT_VERSION = REFRESH_TOKEN_CONFIG.DEFAULT_VERSION;               // 1
+const MAX_VERSION = REFRESH_TOKEN_CONFIG.MAX_VERSION;                       // 9999
+const TOKEN_VERSION_SEPARATOR = REFRESH_TOKEN_CONFIG.VERSION_SEPARATOR;     // ':'
+const FAMILY_ID_LENGTH = REFRESH_TOKEN_CONFIG.FAMILY_ID_LENGTH;             // 32
 
 // Character sets for token generation
 const HEX_CHARS = '0123456789abcdef';
@@ -79,7 +80,7 @@ const generateRandomBase64Url = (length: number): string => {
 /**
  * Generate a secure refresh token (hex format)
  * 
- * @param length - Token length in bytes (default: 64, gives 128 hex chars)
+ * @param length - Token length in bytes (default from TOKEN_CONFIG.DEFAULT_LENGTH)
  * @returns Hex string refresh token
  * 
  * @example
@@ -94,7 +95,7 @@ export const generateRefreshToken = (length: number = DEFAULT_REFRESH_TOKEN_LENG
  * Generate a URL-safe refresh token (base64url format)
  * Suitable for use in URLs and headers
  * 
- * @param length - Token length in bytes (default: 64)
+ * @param length - Token length in bytes (default from TOKEN_CONFIG.DEFAULT_LENGTH)
  * @returns Base64url encoded refresh token
  */
 export const generateUrlSafeRefreshToken = (length: number = DEFAULT_REFRESH_TOKEN_LENGTH): string => {
@@ -106,7 +107,7 @@ export const generateUrlSafeRefreshToken = (length: number = DEFAULT_REFRESH_TOK
  * Generate a versioned refresh token (with embedded version)
  * Format: {version}:{randomToken}
  * 
- * @param version - Token version (default: 1)
+ * @param version - Token version (default from REFRESH_TOKEN_CONFIG.DEFAULT_VERSION)
  * @returns Versioned refresh token
  * 
  * @example
@@ -125,7 +126,7 @@ export const generateVersionedRefreshToken = (version: number = DEFAULT_VERSION)
  * Contains version and family ID for better security
  * 
  * @param familyId - Token family identifier (for device families)
- * @param version - Token version (default: 1)
+ * @param version - Token version (default from REFRESH_TOKEN_CONFIG.DEFAULT_VERSION)
  * @returns Family-aware refresh token
  */
 export const generateFamilyRefreshToken = (
@@ -223,10 +224,13 @@ export const parseRefreshToken = (token: string): RefreshTokenData | null => {
   
   if (version === null || value === null) return null;
   
+  const familyId = extractTokenFamilyId(token);
+  
   return {
     token,
     version,
     value,
+    familyId: familyId || undefined,
   };
 };
 
@@ -273,7 +277,7 @@ export const rotateFamilyRefreshToken = (oldToken: string): { newToken: string; 
  * @returns New family ID and initial token
  */
 export const createTokenFamily = (): { familyId: string; token: string } => {
-  const familyId = generateRandomHex(16);
+  const familyId = generateRandomHex(FAMILY_ID_LENGTH);
   const token = generateFamilyRefreshToken(familyId, DEFAULT_VERSION);
   return { familyId, token };
 };
@@ -306,7 +310,7 @@ export const isValidRefreshTokenFormat = (token: string): boolean => {
       const version = parseInt(parts[1]!, 10);
       if (isNaN(version) || version < 1 || version > MAX_VERSION) return false;
       if (parts[2]!.length !== DEFAULT_REFRESH_TOKEN_LENGTH * 2) return false;
-      if (parts[0]!.length !== 32) return false; // familyId length
+      if (parts[0]!.length !== FAMILY_ID_LENGTH * 2) return false; // familyId length (hex = 32 chars)
       return true;
     }
     
