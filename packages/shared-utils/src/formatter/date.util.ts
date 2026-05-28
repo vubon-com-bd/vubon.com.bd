@@ -1,9 +1,9 @@
 /**
  * Date Utilities - Timezone-safe date formatting
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+
  * @module shared-utils/src/formatter/date.util
- * 
+
  * RULES:
  * ✅ ONLY date formatting and helpers - NO business logic
  * ✅ NO database timezone mutation, date arithmetic (use date-fns)
@@ -49,45 +49,17 @@ import {
   isThisMonth,
   isThisYear,
 } from 'date-fns';
+import { DATE_CONFIG } from '@vubon/auth-constants';
 
-// ==================== Constants (Enterprise grade) ====================
+// ==================== Constants (from shared-constants) ====================
 
-// Date formats
-export const DATE_FORMATS = {
-  // Standard formats
-  ISO: 'yyyy-MM-dd',
-  ISO_WITH_TIME: "yyyy-MM-dd'T'HH:mm:ss.SSSxxx",
-  DATE: 'yyyy-MM-dd',
-  TIME: 'HH:mm:ss',
-  DATETIME: 'yyyy-MM-dd HH:mm:ss',
-  DATETIME_12H: 'yyyy-MM-dd hh:mm:ss a',
-  
-  // Display formats
-  DISPLAY_DATE: 'MMM dd, yyyy',
-  DISPLAY_DATE_LONG: 'MMMM dd, yyyy',
-  DISPLAY_TIME: 'hh:mm a',
-  DISPLAY_DATETIME: 'MMM dd, yyyy hh:mm a',
-  DISPLAY_DATETIME_LONG: 'MMMM dd, yyyy hh:mm:ss a',
-  
-  // Bangladesh specific (Bengali) - date-fns supports locale
-  BENGALI_DATE: 'dd MMM, yyyy',
-  BENGALI_DATETIME: 'dd MMM, yyyy hh:mm a',
-  
-  // File/export formats
-  FILE_DATE: 'yyyy-MM-dd',
-  FILE_DATETIME: 'yyyy-MM-dd_HH-mm-ss',
-  
-  // API formats
-  API_DATE: 'yyyy-MM-dd',
-  API_DATETIME: 'yyyy-MM-ddTHH:mm:ssZ',
-} as const;
-
-export const DEFAULT_DATE_FORMAT = DATE_FORMATS.DATE;
-export const DEFAULT_TIME_FORMAT = DATE_FORMATS.TIME;
-export const DEFAULT_DATETIME_FORMAT = DATE_FORMATS.DATETIME;
-export const DEFAULT_DISPLAY_DATE_FORMAT = DATE_FORMATS.DISPLAY_DATE;
-export const DEFAULT_DISPLAY_DATETIME_FORMAT = DATE_FORMATS.DISPLAY_DATETIME;
-export const DEFAULT_TIMEZONE = 'Asia/Dhaka';
+export const DATE_FORMATS = DATE_CONFIG.DATE_FORMATS;
+export const DEFAULT_DATE_FORMAT = DATE_CONFIG.DEFAULT_DATE_FORMAT;
+export const DEFAULT_TIME_FORMAT = DATE_CONFIG.DEFAULT_TIME_FORMAT;
+export const DEFAULT_DATETIME_FORMAT = DATE_CONFIG.DEFAULT_DATETIME_FORMAT;
+export const DEFAULT_DISPLAY_DATE_FORMAT = DATE_CONFIG.DEFAULT_DISPLAY_DATE_FORMAT;
+export const DEFAULT_DISPLAY_DATETIME_FORMAT = DATE_CONFIG.DEFAULT_DISPLAY_DATETIME_FORMAT;
+export const DEFAULT_TIMEZONE = DATE_CONFIG.DEFAULT_TIMEZONE;
 
 export type DateFormatString = typeof DATE_FORMATS[keyof typeof DATE_FORMATS];
 
@@ -119,11 +91,11 @@ const safeToDate = (date: Date | string | number | null | undefined): Date | nul
 
 /**
  * Format date to string
- * 
+
  * @param date - Date object, ISO string, or timestamp
  * @param formatString - Format pattern (default: 'yyyy-MM-dd')
  * @returns Formatted date string
- * 
+
  * @example
  * formatDate(new Date(), 'yyyy-MM-dd') // '2024-01-15'
  * formatDate('2024-01-15T10:30:00Z', 'MMM dd, yyyy') // 'Jan 15, 2024'
@@ -138,7 +110,7 @@ export const formatDate = (
 
 /**
  * Format time to string
- * 
+
  * @param date - Date object, ISO string, or timestamp
  * @param formatString - Time format pattern (default: 'HH:mm:ss')
  * @returns Formatted time string
@@ -153,7 +125,7 @@ export const formatTime = (
 
 /**
  * Format datetime to string
- * 
+
  * @param date - Date object, ISO string, or timestamp
  * * @param formatString - Datetime format pattern (default: 'yyyy-MM-dd HH:mm:ss')
  * @returns Formatted datetime string
@@ -168,7 +140,7 @@ export const formatDateTime = (
 
 /**
  * Format date for display (e.g., "Jan 15, 2024")
- * 
+
  * @param date - Date object, ISO string, or timestamp
  * @returns User-friendly date string
  */
@@ -178,7 +150,7 @@ export const formatDisplayDate = (date: Date | string | number): string => {
 
 /**
  * Format datetime for display (e.g., "Jan 15, 2024 10:30 AM")
- * 
+
  * @param date - Date object, ISO string, or timestamp
  * @returns User-friendly datetime string
  */
@@ -188,7 +160,7 @@ export const formatDisplayDateTime = (date: Date | string | number): string => {
 
 /**
  * Format date as ISO string (YYYY-MM-DDTHH:mm:ss.sssZ)
- * 
+
  * @param date - Date object, ISO string, or timestamp
  * @returns ISO string
  */
@@ -199,11 +171,11 @@ export const formatToISO = (date: Date | string | number): string => {
 
 /**
  * Format date as readable relative time (e.g., "2 hours ago", "in 3 days")
- * 
+
  * @param date - Date to compare
  * @param baseDate - Base date for comparison (default: now)
  * @returns Relative time string
- * 
+
  * @example
  * formatRelativeTime(new Date(Date.now() - 3600000)) // 'about 1 hour ago'
  */
@@ -218,11 +190,11 @@ export const formatRelativeTime = (
 
 /**
  * Format relative date (e.g., "today", "yesterday", "last Monday")
- * 
+
  * @param date - Date to format
  * @param baseDate - Base date for comparison (default: now)
  * @returns Relative date string
- * 
+
  * @example
  * formatRelativeDate(new Date()) // 'today'
  * formatRelativeDate(Date.now() - 86400000) // 'yesterday'
@@ -240,7 +212,7 @@ export const formatRelativeDate = (
 
 /**
  * Parse ISO string to Date object
- * 
+
  * @param dateString - ISO date string
  * @returns Date object or null if invalid
  */
@@ -254,7 +226,7 @@ export const parseDate = (dateString: string): Date | null => {
 
 /**
  * Safe date creation with fallback
- * 
+
  * @param value - Date value (Date, string, number, null, undefined)
  * @param fallback - Fallback date if invalid (default: new Date())
  * @returns Valid Date object
@@ -271,7 +243,7 @@ export const safeDate = (
 
 /**
  * Check if date is valid
- * 
+
  * @param date - Date to check
  * @returns True if valid
  */
@@ -282,7 +254,7 @@ export const isValidDate = (date: Date | string | number): boolean => {
 
 /**
  * Check if date is in the past
- * 
+
  * @param date - Date to check
  * @returns True if in past
  */
@@ -293,7 +265,7 @@ export const isPastDate = (date: Date | string | number): boolean => {
 
 /**
  * Check if date is in the future
- * 
+
  * @param date - Date to check
  * @returns True if in future
  */
@@ -476,10 +448,10 @@ export const getEndOfYear = (date: Date | string | number): Date => {
 
 /**
  * Calculate age from birthdate
- * 
+
  * @param birthdate - Birth date
  * @returns Age in years
- * 
+
  * @example
  * calculateAge('1990-01-15') // 34 (if current year is 2024)
  */
@@ -488,11 +460,11 @@ export const calculateAge = (birthdate: Date | string): number => {
   const today = new Date();
   let age = today.getFullYear() - birth.getFullYear();
   const monthDiff = today.getMonth() - birth.getMonth();
-  
+
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
     age--;
   }
-  
+
   return Math.max(0, age);
 };
 
