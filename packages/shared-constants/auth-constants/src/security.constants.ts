@@ -119,6 +119,33 @@ export const SECURITY_HEADER_VALUES = Object.freeze({
 } as const);
 
 // ============================================================
+// Currency Configuration (for formatting and conversion)
+// ============================================================
+export const CURRENCY_CONFIG = Object.freeze({
+  // Supported currencies
+  CURRENCIES: {
+    USD: { code: 'USD', symbol: '$', locale: 'en-US', name: 'US Dollar', decimalPlaces: 2 },
+    BDT: { code: 'BDT', symbol: '৳', locale: 'bn-BD', name: 'Bangladeshi Taka', decimalPlaces: 2 },
+    EUR: { code: 'EUR', symbol: '€', locale: 'de-DE', name: 'Euro', decimalPlaces: 2 },
+    GBP: { code: 'GBP', symbol: '£', locale: 'en-GB', name: 'British Pound', decimalPlaces: 2 },
+    INR: { code: 'INR', symbol: '₹', locale: 'en-IN', name: 'Indian Rupee', decimalPlaces: 2 },
+    AED: { code: 'AED', symbol: 'د.إ', locale: 'ar-AE', name: 'UAE Dirham', decimalPlaces: 2 },
+    SGD: { code: 'SGD', symbol: 'S$', locale: 'en-SG', name: 'Singapore Dollar', decimalPlaces: 2 },
+    CAD: { code: 'CAD', symbol: 'C$', locale: 'en-CA', name: 'Canadian Dollar', decimalPlaces: 2 },
+    AUD: { code: 'AUD', symbol: 'A$', locale: 'en-AU', name: 'Australian Dollar', decimalPlaces: 2 },
+    JPY: { code: 'JPY', symbol: '¥', locale: 'ja-JP', name: 'Japanese Yen', decimalPlaces: 0 },
+    CNY: { code: 'CNY', symbol: '¥', locale: 'zh-CN', name: 'Chinese Yuan', decimalPlaces: 2 },
+  } as const,
+
+  DEFAULT_CURRENCY: 'BDT',
+  DEFAULT_DECIMAL_PLACES: 2,
+  MIN_DECIMAL_PLACES: 0,
+  MAX_DECIMAL_PLACES: 4,
+  MAX_DISCOUNT_PERCENTAGE: 100,
+  MIN_DISCOUNT_PERCENTAGE: 0,
+} as const);
+
+// ============================================================
 // OTP Configuration (One-Time Password)
 // ============================================================
 export const OTP_CONFIG = Object.freeze({
@@ -754,4 +781,12 @@ export const SECURITY_TESTING = Object.freeze({
   // Test headers (X-Forwarded-*, etc.)
   TEST_HEADERS: {
     X_FORWARDED_FOR: 'x-forwarded-for',
-    X_FORWARDED_PROTO:
+    X_FORWARDED_PROTO: 'x-forwarded-proto',
+    X_REAL_IP: 'x-real-ip',
+  },
+
+  // Bypass mechanisms (for testing only)
+  TEST_BYPASS_ENABLED: false,
+  TEST_BYPASS_HEADER: 'x-bypass-security',
+  TEST_BYPASS_TOKEN: 'test-bypass-token-123',
+} as const);
