@@ -152,6 +152,33 @@ export const DATE_CONFIG = Object.freeze({
 } as const);
 
 // ============================================================
+// Number Configuration (for number formatting)
+// ============================================================
+export const NUMBER_CONFIG = Object.freeze({
+  DEFAULT_DECIMAL_PLACES: 2,
+  DEFAULT_ROUNDING_PRECISION: 2,
+  DEFAULT_PERCENTAGE_DECIMALS: 1,
+
+  NUMBER_FORMATS: {
+    STANDARD: 'standard',
+    COMMA: 'comma',
+    COMPACT: 'compact',
+    SCIENTIFIC: 'scientific',
+  } as const,
+
+  // Unit suffixes for compact formatting
+  UNIT_SUFFIXES: [
+    { value: 1e3, suffix: 'K' },
+    { value: 1e6, suffix: 'M' },
+    { value: 1e9, suffix: 'B' },
+    { value: 1e12, suffix: 'T' },
+  ],
+
+  // Maximum decimal places allowed
+  MAX_DECIMAL_PLACES: 10,
+} as const);
+
+// ============================================================
 // Currency Configuration (for formatting and conversion)
 // ============================================================
 export const CURRENCY_CONFIG = Object.freeze({
