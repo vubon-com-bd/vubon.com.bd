@@ -1,9 +1,9 @@
 /**
  * Security Constants - Pure immutable security configuration
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module shared-constants/auth-constants/security.constants
- * 
+ *
  * RULES:
  * ✅ NO helmet setup, crypto functions, encryption logic
  * ✅ NO business logic
@@ -51,7 +51,7 @@ export const SECURITY_HEADERS = Object.freeze({
   CROSS_ORIGIN_OPENER_POLICY: 'Cross-Origin-Opener-Policy',
   CROSS_ORIGIN_EMBEDDER_POLICY: 'Cross-Origin-Embedder-Policy',
   CROSS_ORIGIN_RESOURCE_POLICY: 'Cross-Origin-Resource-Policy',
-  
+
   // CORS headers
   CORS_ORIGIN: 'Access-Control-Allow-Origin',
   CORS_METHODS: 'Access-Control-Allow-Methods',
@@ -59,7 +59,7 @@ export const SECURITY_HEADERS = Object.freeze({
   CORS_CREDENTIALS: 'Access-Control-Allow-Credentials',
   CORS_EXPOSE_HEADERS: 'Access-Control-Expose-Headers',
   CORS_MAX_AGE: 'Access-Control-Max-Age',
-  
+
   // Additional security headers
   FEATURE_POLICY: 'Feature-Policy',
   EXPECT_CT: 'Expect-CT',
@@ -174,6 +174,36 @@ export const CHARACTER_SETS = Object.freeze({
 } as const);
 
 // ============================================================
+// Fingerprint Configuration (Device fingerprinting)
+// ============================================================
+export const FINGERPRINT_CONFIG = Object.freeze({
+  HASH_ALGORITHM: 'sha256',
+  SEPARATOR: '|',
+  DEFAULT_VERSION: 1,
+  MIN_LENGTH: 8,
+  MAX_LENGTH: 64,
+  SHORT_FINGERPRINT_LENGTH: 16,
+} as const);
+
+// ============================================================
+// Browser Fingerprint Components
+// ============================================================
+export const BROWSER_FINGERPRINT_COMPONENTS = Object.freeze([
+  'userAgent',
+  'acceptLanguage',
+  'acceptEncoding',
+  'secChUa',
+  'secChUaPlatform',
+  'secChUaMobile',
+  'platform',
+  'timezone',
+  'screenResolution',
+  'colorDepth',
+  'deviceMemory',
+  'hardwareConcurrency',
+] as const);
+
+// ============================================================
 // Common Passwords Blacklist (Bangladesh specific)
 // ============================================================
 export const COMMON_PASSWORDS = Object.freeze([
@@ -193,25 +223,25 @@ export const PASSWORD_POLICY = Object.freeze({
   MAX_LENGTH: 128,
   STRONG_LENGTH: 12,           // Minimum length for "strong" password
   VERY_STRONG_LENGTH: 16,      // Minimum length for "very strong" password
-  
+
   // Character requirements
   REQUIRE_UPPERCASE: true,
   REQUIRE_LOWERCASE: true,
   REQUIRE_NUMBERS: true,
   REQUIRE_SPECIAL_CHARS: true,
   SPECIAL_CHARS: '!@#$%^&*()_+-=[]{}|;:,.<>?',
-  
+
   // Security features
   PREVENT_COMMON_PASSWORDS: true,
   PREVENT_PERSONAL_INFO: true,
   PREVENT_SEQUENTIAL_CHARS: true,     // Prevent "123456", "abcdef"
   PREVENT_REPEATED_CHARS: true,       // Prevent "aaaaaa"
-  
+
   // History & expiry
   MAX_HISTORY_COUNT: 5,
   EXPIRE_DAYS: 90,
   EXPIRE_WARNING_DAYS: 7,
-  
+
   // Lockout after failed attempts
   MAX_FAILED_ATTEMPTS: 5,
   LOCKOUT_DURATION_MINUTES: 15,
@@ -226,7 +256,7 @@ export const RATE_LIMITS = Object.freeze({
     WINDOW_MS: 60000,      // 1 minute
     MAX_REQUESTS: 100,
   },
-  
+
   // Auth endpoints (Stricter for security)
   AUTH: {
     LOGIN: { WINDOW_MS: 900000, MAX_REQUESTS: 5 },      // 5 per 15 min
@@ -236,7 +266,7 @@ export const RATE_LIMITS = Object.freeze({
     OTP_SEND: { WINDOW_MS: 600000, MAX_REQUESTS: 3 },   // 3 per 10 min
     OTP_VERIFY: { WINDOW_MS: 600000, MAX_REQUESTS: 5 }, // 5 per 10 min
   },
-  
+
   // API endpoints
   API: {
     READ: { WINDOW_MS: 60000, MAX_REQUESTS: 60 },       // 60 per minute
@@ -245,7 +275,7 @@ export const RATE_LIMITS = Object.freeze({
     EXPORT: { WINDOW_MS: 3600000, MAX_REQUESTS: 5 },    // 5 per hour
     IMPORT: { WINDOW_MS: 3600000, MAX_REQUESTS: 3 },    // 3 per hour
   },
-  
+
   // Payment endpoints (Very strict)
   PAYMENT: {
     GENERAL: { WINDOW_MS: 60000, MAX_REQUESTS: 10 },    // 10 per minute
@@ -253,13 +283,13 @@ export const RATE_LIMITS = Object.freeze({
     VERIFY: { WINDOW_MS: 60000, MAX_REQUESTS: 20 },     // 20 per minute
     WEBHOOK: { WINDOW_MS: 60000, MAX_REQUESTS: 100 },   // 100 per minute
   },
-  
+
   // Bangladesh specific: Mobile network based
   MOBILE_NETWORK: {
     SLOW_2G_3G: { WINDOW_MS: 60000, MAX_REQUESTS: 30 }, // Stricter for slow networks
     WIFI_4G_5G: { WINDOW_MS: 60000, MAX_REQUESTS: 100 }, // Normal
   },
-  
+
   // E-commerce specific
   ECOMMERCE: {
     CHECKOUT: { WINDOW_MS: 60000, MAX_REQUESTS: 10 },   // 10 per minute
@@ -281,24 +311,24 @@ export const CORS_CONFIG = Object.freeze({
     'https://admin.vubon.com.bd',
     'https://seller.vubon.com.bd',
     'https://api.vubon.com.bd',
-    
+
     // Bangladesh payment gateways
     'https://sandbox.sslcommerz.com',
     'https://secure.sslcommerz.com',
     'https://www.bkash.com',
     'https://www.nagad.com.bd',
     'https://www.rocket.com.bd',
-    
+
     // Development
     'http://localhost:3000',
     'http://localhost:3001',
     'http://localhost:3002',
     'http://localhost:8080',
   ],
-  
+
   // Allowed methods
   ALLOWED_METHODS: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
-  
+
   // Allowed headers
   ALLOWED_HEADERS: [
     'Origin',
@@ -314,7 +344,7 @@ export const CORS_CONFIG = Object.freeze({
     'x-client-version',
     'x-platform',
   ],
-  
+
   // Exposed headers
   EXPOSED_HEADERS: [
     'x-request-id',
@@ -323,11 +353,11 @@ export const CORS_CONFIG = Object.freeze({
     'x-rate-limit-reset',
     'x-rate-limit-limit',
   ],
-  
+
   // CORS settings
   CREDENTIALS: true,
   MAX_AGE: 86400, // 24 hours
-  
+
   // Preflight cache
   PREFLIGHT_MAX_AGE: 3600, // 1 hour
 } as const);
@@ -341,22 +371,22 @@ export const SESSION_SECURITY = Object.freeze({
   HTTP_ONLY_COOKIE: true,
   SAME_SITE: 'lax' as const,
   COOKIE_ENCRYPTION: true,
-  
+
   // Session management
   REGENERATE_ON_LOGIN: true,
   REGENERATE_ON_PRIVILEGE_ESCALATION: true,
   ABSOLUTE_TIMEOUT_SECONDS: 86400,      // 24 hours
   IDLE_TIMEOUT_SECONDS: 1800,           // 30 minutes
-  
+
   // Session binding (Enhanced security)
   BIND_TO_IP: false,                     // Can cause issues with mobile networks
   BIND_TO_USER_AGENT: true,
   BIND_TO_DEVICE_ID: true,
-  
+
   // Concurrent sessions
   MAX_CONCURRENT_SESSIONS: 5,
   CONCURRENT_SESSION_STRATEGY: 'allow_new_kill_oldest' as const,
-  
+
   // Session invalidation
   INVALIDATE_ON_PASSWORD_CHANGE: true,
   INVALIDATE_ON_ROLE_CHANGE: true,
@@ -372,25 +402,25 @@ export const ENCRYPTION_CONFIG = Object.freeze({
   KEY_LENGTH: 32,                        // 256 bits
   IV_LENGTH: 16,                         // 128 bits
   AUTH_TAG_LENGTH: 16,                   // 128 bits
-  
+
   // Encoding
   ENCODING: 'hex' as const,
-  
+
   // Key derivation (scrypt) - OWASP recommended
   SCRYPT_N: 16384,                       // CPU/memory cost (2^14 = 16,384)
   SCRYPT_R: 8,                           // Block size
   SCRYPT_P: 1,                           // Parallelization factor
-  
+
   // Legacy key derivation (PBKDF2 - for backward compatibility)
   PBKDF2_ITERATIONS: 100000,
   PBKDF2_DIGEST: 'sha256',
-  
+
   // Hashing (for passwords)
   HASH_ALGORITHM: 'sha256',
   SALT_ROUNDS: 12,                       // bcrypt rounds (2^12 = 4096 iterations)
   MIN_SALT_ROUNDS: 10,                   // Minimum bcrypt rounds
   MAX_SALT_ROUNDS: 14,                   // Maximum bcrypt rounds
-  
+
   // Minimum secret length for encryption keys
   MIN_SECRET_LENGTH: 8,                  // Separate from password policy
 } as const);
@@ -406,7 +436,7 @@ export const JWT_CONFIG = Object.freeze({
   VERIFICATION_TOKEN_EXPIRY: '24h',
   ISSUER: 'vubon.com.bd',
   AUDIENCE: 'vubon-api',
-  
+
   // JWT claim names
   CLAIMS: {
     USER_ID: 'sub',
@@ -427,7 +457,7 @@ export const API_KEY_CONFIG = Object.freeze({
   SECRET_LENGTH: 64,
   ALLOWED_IPS: [],                       // Empty means all IPs allowed
   SCOPE_SEPARATOR: ':',
-  
+
   // Rate limits per API key
   RATE_LIMITS: {
     DEFAULT: { WINDOW_MS: 60000, MAX_REQUESTS: 100 },
@@ -446,12 +476,12 @@ export const IP_BLACKLIST = Object.freeze({
     '185.130.5.0/24',
     '194.180.174.0/24',
   ],
-  
+
   // Bangladesh spam IPs (placeholder - actual from monitoring)
   BD_SPAM_IPS: [
     // Will be populated from monitoring system
   ],
-  
+
   // Known VPN/Proxy IPs (partial)
   VPN_PROXY_RANGES: [
     '104.16.0.0/12',
@@ -468,34 +498,34 @@ export const SECURITY_EVENTS = Object.freeze({
   RATE_LIMIT_EXCEEDED: 'security.rate_limit_exceeded',
   BLOCKED_IP: 'security.blocked_ip',
   BRUTE_FORCE_ATTEMPT: 'security.brute_force_attempt',
-  
+
   // Injection attacks
   SQL_INJECTION_ATTEMPT: 'security.sql_injection_attempt',
   XSS_ATTEMPT: 'security.xss_attempt',
   NO_SQL_INJECTION_ATTEMPT: 'security.nosql_injection_attempt',
-  
+
   // API security
   API_KEY_COMPROMISED: 'security.api_key_compromised',
   UNAUTHORIZED_ACCESS: 'security.unauthorized_access',
   SUSPICIOUS_API_PATTERN: 'security.suspicious_api_pattern',
-  
+
   // Payment security (Bangladesh specific)
   PAYMENT_FRAUD_ATTEMPT: 'security.payment_fraud_attempt',
   CARDING_ATTEMPT: 'security.carding_attempt',      // Testing stolen cards
   PROMO_ABUSE_ATTEMPT: 'security.promo_abuse_attempt',
   COUPON_BRUTE_FORCE: 'security.coupon_brute_force',
-  
+
   // Account security
   ACCOUNT_TAKEOVER_ATTEMPT: 'security.account_takeover_attempt',
   CREDENTIAL_STUFFING: 'security.credential_stuffing',
   SIM_SWAP_DETECTED: 'security.sim_swap_detected',
-  
+
   // E-commerce specific
   INVENTORY_SCRAPING: 'security.inventory_scraping',
   PRICE_SCRAPING: 'security.price_scraping',
   REVIEW_SPAM: 'security.review_spam',
   FAKE_ORDER_ATTEMPT: 'security.fake_order_attempt',
-  
+
   // DDoS & Bot
   DDOS_ATTEMPT: 'security.ddos_attempt',
   BOT_DETECTED: 'security.bot_detected',
@@ -514,7 +544,7 @@ export const SECURITY_ALERT_THRESHOLDS = Object.freeze({
     PAYMENT_FRAUD_ATTEMPTS: 2,
     SIM_SWAP_DETECTED: 1,
   },
-  
+
   // High alerts (Monitor closely)
   HIGH: {
     FAILED_LOGINS_PER_IP: 20,
@@ -522,7 +552,7 @@ export const SECURITY_ALERT_THRESHOLDS = Object.freeze({
     RATE_LIMIT_EXCEEDED: 10,
     SUSPICIOUS_API_PATTERNS: 5,
   },
-  
+
   // Medium alerts (Log for analysis)
   MEDIUM: {
     PROMO_ABUSE_ATTEMPTS: 10,
@@ -542,7 +572,7 @@ export const BD_SECURITY_SETTINGS = Object.freeze({
     BANGLALINK: 'banglalink',
     TELETALK: 'teletalk',
   },
-  
+
   // Enhanced security during holidays
   HOLIDAY_ENHANCEMENTS: {
     ENABLED: true,
@@ -550,14 +580,14 @@ export const BD_SECURITY_SETTINGS = Object.freeze({
     ENHANCED_MFA_REQUIRED: true,
     EXTRA_VERIFICATION_FOR_PAYMENTS: true,
   },
-  
+
   // Weekend security (Friday, Saturday in BD)
   WEEKEND_ENHANCEMENTS: {
     ENABLED: true,
     STRICTER_FRAUD_CHECKS: true,
     REVIEW_HIGH_VALUE_TRANSACTIONS: true,
   },
-  
+
   // Night time security (10 PM - 6 AM)
   NIGHT_TIME_ENHANCEMENTS: {
     ENABLED: true,
@@ -597,10 +627,10 @@ export const SECURITY_LOGGING = Object.freeze({
   LOG_ALL_PAYMENT_ACTIONS: true,
   LOG_SENSITIVE_DATA_ACCESS: true,
   LOG_ADMIN_ACTIONS: true,
-  
+
   // Sampling rate (for high-volume logs)
   API_ACCESS_SAMPLE_RATE: 0.01,            // Log 1% of API access
-  
+
   // Retention period (days)
   RETENTION_DAYS: {
     AUTH_LOGS: 90,
@@ -609,7 +639,7 @@ export const SECURITY_LOGGING = Object.freeze({
     ADMIN_LOGS: 365,
     SECURITY_EVENTS: 365,
   },
-  
+
   // Alert channels
   ALERT_CHANNELS: {
     CRITICAL: ['email', 'sms', 'slack'],
@@ -626,14 +656,14 @@ export const SECURITY_TESTING = Object.freeze({
   ENABLED_IN_DEVELOPMENT: true,
   ENABLED_IN_STAGING: true,
   ENABLED_IN_PRODUCTION: false,
-  
+
   // Test headers (X-Forwarded-*, etc.)
   TEST_HEADERS: {
     X_FORWARDED_FOR: 'x-forwarded-for',
     X_FORWARDED_PROTO: 'x-forwarded-proto',
     X_REAL_IP: 'x-real-ip',
   },
-  
+
   // Bypass mechanisms (for testing only)
   TEST_BYPASS_ENABLED: false,
   TEST_BYPASS_HEADER: 'x-bypass-security',
