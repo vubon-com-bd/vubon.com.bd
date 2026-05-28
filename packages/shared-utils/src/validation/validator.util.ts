@@ -1,9 +1,9 @@
 /**
  * Validator Utilities - Reusable validation helpers
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module shared-utils/src/validation/validator.util
- * 
+ *
  * RULES:
  * ✅ ONLY validation helpers - NO business logic
  * ✅ NO schema validation (use shared-schemas)
@@ -13,31 +13,35 @@
  */
 
 import validator from 'validator';
+import {
+  REGEX_ALPHANUMERIC,
+  REGEX_NUMERIC,
+  REGEX_UUID,
+  PASSWORD_POLICY,
+  COMMON_PASSWORDS,
+} from '@vubon/auth-constants';
 
-// ==================== Constants (Enterprise grade) ====================
+// ==================== Constants (from shared-constants) ====================
 
 // UUID regex (RFC 4122)
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const UUID_REGEX = REGEX_UUID.STANDARD;
+const UUID_V4_REGEX = REGEX_UUID.V4;
 
 // String format regexes
 const HEX_REGEX = /^[0-9a-f]+$/i;
 const BASE64_REGEX = /^[A-Za-z0-9+/]+={0,2}$/;
-const ALPHANUMERIC_REGEX = /^[a-zA-Z0-9]+$/;
+const ALPHANUMERIC_REGEX = REGEX_ALPHANUMERIC;
 const ALPHABETIC_REGEX = /^[a-zA-Z]+$/;
-const NUMERIC_REGEX = /^\d+$/;
+const NUMERIC_REGEX = REGEX_NUMERIC;
 const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const OBJECT_ID_REGEX = /^[0-9a-f]{24}$/i;
 
-// Password strength thresholds
-const PASSWORD_MIN_LENGTH = 8;
-const PASSWORD_STRONG_LENGTH = 12;
+// Password strength thresholds (from constants)
+const PASSWORD_MIN_LENGTH = PASSWORD_POLICY.MIN_LENGTH;
+const PASSWORD_STRONG_LENGTH = PASSWORD_POLICY.STRONG_LENGTH;
 
-// Common weak passwords (Bangladesh specific)
-const COMMON_WEAK_PASSWORDS = [
-  'password', '12345678', 'qwerty123', 'admin123', 'welcome123',
-  'bangladesh123', 'dhaka123', 'vubon123', 'customer123',
-];
+// Common weak passwords (from constants)
+const COMMON_WEAK_PASSWORDS = COMMON_PASSWORDS;
 
 // ==================== Private Helpers ====================
 
@@ -53,10 +57,10 @@ const getString = (value: unknown): string => {
 
 /**
  * Check if string is a valid UUID (any version)
- * 
+ *
  * @param value - String to check
  * @returns True if valid UUID
- * 
+ *
  * @example
  * isUuid('123e4567-e89b-12d3-a456-426614174000') // true
  */
@@ -67,7 +71,7 @@ export const isUuid = (value: string): boolean => {
 
 /**
  * Check if string is a valid UUID v4
- * 
+ *
  * @param value - String to check
  * @returns True if valid UUID v4
  */
@@ -78,7 +82,7 @@ export const isUuidV4 = (value: string): boolean => {
 
 /**
  * Check if string is a valid MongoDB ObjectId
- * 
+ *
  * @param value - String to check
  * @returns True if valid ObjectId
  */
@@ -91,7 +95,7 @@ export const isObjectId = (value: string): boolean => {
 
 /**
  * Check if string is alphanumeric (letters and numbers only)
- * 
+ *
  * @param value - String to check
  * @returns True if alphanumeric
  */
@@ -102,7 +106,7 @@ export const isAlphanumeric = (value: string): boolean => {
 
 /**
  * Check if string is alphabetic (letters only)
- * 
+ *
  * @param value - String to check
  * @returns True if alphabetic
  */
@@ -113,7 +117,7 @@ export const isAlphabetic = (value: string): boolean => {
 
 /**
  * Check if string is numeric (digits only)
- * 
+ *
  * @param value - String to check
  * @returns True if numeric
  */
@@ -124,7 +128,7 @@ export const isNumericString = (value: string): boolean => {
 
 /**
  * Check if string is hexadecimal
- * 
+ *
  * @param value - String to check
  * @returns True if hexadecimal
  */
@@ -135,7 +139,7 @@ export const isHex = (value: string): boolean => {
 
 /**
  * Check if string is base64 encoded
- * 
+ *
  * @param value - String to check
  * @returns True if valid base64
  */
@@ -146,7 +150,7 @@ export const isBase64 = (value: string): boolean => {
 
 /**
  * Check if string is valid JSON
- * 
+ *
  * @param value - String to check
  * @returns True if valid JSON
  */
@@ -162,10 +166,10 @@ export const isJson = (value: string): boolean => {
 
 /**
  * Check if string is valid slug format
- * 
+ *
  * @param value - String to check
  * @returns True if valid slug
- * 
+ *
  * @example
  * isValidSlug('my-article-title') // true
  * isValidSlug('My Article Title') // false
@@ -177,7 +181,7 @@ export const isValidSlug = (value: string): boolean => {
 
 /**
  * Check if string is valid domain name
- * 
+ *
  * @param value - String to check
  * @returns True if valid domain
  */
@@ -188,7 +192,7 @@ export const isValidDomain = (value: string): boolean => {
 
 /**
  * Check if string is valid URL
- * 
+ *
  * @param value - String to check
  * @returns True if valid URL
  */
@@ -199,7 +203,7 @@ export const isValidUrl = (value: string): boolean => {
 
 /**
  * Check if string is valid IP address (v4 or v6)
- * 
+ *
  * @param value - String to check
  * @returns True if valid IP
  */
@@ -210,7 +214,7 @@ export const isValidIp = (value: string): boolean => {
 
 /**
  * Check if string is valid IP v4
- * 
+ *
  * @param value - String to check
  * @returns True if valid IPv4
  */
@@ -221,7 +225,7 @@ export const isValidIpV4 = (value: string): boolean => {
 
 /**
  * Check if string is valid IP v6
- * 
+ *
  * @param value - String to check
  * @returns True if valid IPv6
  */
@@ -234,7 +238,7 @@ export const isValidIpV6 = (value: string): boolean => {
 
 /**
  * Check if value is a valid finite number
- * 
+ *
  * @param value - Value to check
  * @returns True if valid number
  */
@@ -244,7 +248,7 @@ export const isValidNumber = (value: unknown): boolean => {
 
 /**
  * Check if value is an integer
- * 
+ *
  * @param value - Value to check
  * @returns True if integer
  */
@@ -254,7 +258,7 @@ export const isInteger = (value: unknown): boolean => {
 
 /**
  * Check if value is a positive integer
- * 
+ *
  * @param value - Value to check
  * @returns True if positive integer
  */
@@ -264,7 +268,7 @@ export const isPositiveInteger = (value: unknown): boolean => {
 
 /**
  * Check if value is a non-negative integer
- * 
+ *
  * @param value - Value to check
  * @returns True if non-negative integer
  */
@@ -274,7 +278,7 @@ export const isNonNegativeInteger = (value: unknown): boolean => {
 
 /**
  * Check if value is within range (inclusive)
- * 
+ *
  * @param value - Number to check
  * @param min - Minimum value
  * @param max - Maximum value
@@ -288,10 +292,10 @@ export const isInRange = (value: number, min: number, max: number): boolean => {
 
 /**
  * Parse string or any value to boolean
- * 
+ *
  * @param value - Value to parse
  * @returns Boolean value
- * 
+ *
  * @example
  * parseBoolean('true') // true
  * parseBoolean('false') // false
@@ -311,7 +315,7 @@ export const parseBoolean = (value: string | boolean | null | undefined): boolea
 
 /**
  * Convert boolean to string
- * 
+ *
  * @param value - Boolean value
  * @returns 'true' or 'false'
  */
@@ -323,7 +327,7 @@ export const toBooleanString = (value: boolean): string => {
 
 /**
  * Check if value is an object (not null, not array)
- * 
+ *
  * @param value - Value to check
  * @returns True if plain object
  */
@@ -333,7 +337,7 @@ export const isObject = (value: unknown): value is Record<string, unknown> => {
 
 /**
  * Check if value is a non-empty object
- * 
+ *
  * @param value - Value to check
  * @returns True if non-empty object
  */
@@ -343,7 +347,7 @@ export const isNonEmptyObject = (value: unknown): boolean => {
 
 /**
  * Check if array is non-empty
- * 
+ *
  * @param value - Array to check
  * @returns True if non-empty array
  */
@@ -353,7 +357,7 @@ export const isNonEmptyArray = <T>(value: T[] | null | undefined): value is T[] 
 
 /**
  * Check if string is null, undefined, or empty/whitespace only
- * 
+ *
  * @param value - String to check
  * @returns True if blank
  */
@@ -365,7 +369,7 @@ export const isBlank = (value: string | null | undefined): boolean => {
 
 /**
  * Check if string is not blank
- * 
+ *
  * @param value - String to check
  * @returns True if not blank
  */
@@ -375,7 +379,7 @@ export const isNotBlank = (value: string | null | undefined): boolean => {
 
 /**
  * Check if value is empty (null, undefined, empty string, empty array, empty object)
- * 
+ *
  * @param value - Value to check
  * @returns True if empty
  */
@@ -389,7 +393,7 @@ export const isEmpty = (value: unknown): boolean => {
 
 /**
  * Check if value is not empty
- * 
+ *
  * @param value - Value to check
  * @returns True if not empty
  */
@@ -401,23 +405,23 @@ export const isNotEmpty = (value: unknown): boolean => {
 
 /**
  * Check if password meets minimum requirements
- * 
+ *
  * @param password - Password to check
  * @returns True if password meets minimum requirements
  */
 export const isPasswordMinimal = (password: string): boolean => {
   if (!password || typeof password !== 'string') return false;
   if (password.length < PASSWORD_MIN_LENGTH) return false;
-  
+
   // Check for common weak passwords
   if (COMMON_WEAK_PASSWORDS.includes(password.toLowerCase())) return false;
-  
+
   return true;
 };
 
 /**
  * Check if password is strong
- * 
+ *
  * @param password - Password to check
  * @returns True if strong password
  */
@@ -425,13 +429,13 @@ export const isPasswordStrong = (password: string): boolean => {
   if (!password || typeof password !== 'string') return false;
   if (password.length < PASSWORD_STRONG_LENGTH) return false;
   if (COMMON_WEAK_PASSWORDS.includes(password.toLowerCase())) return false;
-  
+
   // Must contain uppercase, lowercase, number, and special character
   const hasUppercase = /[A-Z]/.test(password);
   const hasLowercase = /[a-z]/.test(password);
   const hasNumber = /[0-9]/.test(password);
   const hasSpecial = /[^A-Za-z0-9]/.test(password);
-  
+
   return hasUppercase && hasLowercase && hasNumber && hasSpecial;
 };
 
@@ -448,7 +452,7 @@ export interface ValidationResult {
 
 /**
  * Create a validation result object
- * 
+ *
  * @param isValid - Whether validation passed
  * @param errors - Optional error messages
  * @returns ValidationResult object
