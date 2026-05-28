@@ -1,9 +1,9 @@
 /**
  * Phone Utilities - Phone number parsing and formatting
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module shared-utils/src/validation/phone.util
- * 
+ *
  * RULES:
  * ✅ ONLY phone number parsing, formatting, validation - NO business logic
  * ✅ NO SMS sending, telecom API calls
@@ -22,27 +22,22 @@ import {
   PhoneNumber,
   CountryCode,
 } from 'libphonenumber-js';
+import { PHONE_CONFIG } from '@vubon/auth-constants';
 
-// ==================== Constants (Enterprise grade) ====================
+// ==================== Constants (from shared-constants) ====================
 
-export const DEFAULT_COUNTRY = 'BD' as const; // Bangladesh
-export const DEFAULT_COUNTRY_CODE = '+880';
+export const DEFAULT_COUNTRY = PHONE_CONFIG.DEFAULT_COUNTRY; // 'BD'
+export const DEFAULT_COUNTRY_CODE = PHONE_CONFIG.DEFAULT_COUNTRY_CODE; // '+880'
 
 // Bangladesh mobile operators
-export const BD_MOBILE_OPERATORS = {
-  GP: { prefix: '017', name: 'Grameenphone', regex: /^017\d{8}$/ },
-  ROB: { prefix: '018', name: 'Robi', regex: /^018\d{8}$/ },
-  BL: { prefix: '019', name: 'Banglalink', regex: /^019\d{8}$/ },
-  TT: { prefix: '015', name: 'Teletalk', regex: /^015\d{8}$/ },
-  AIR: { prefix: '016', name: 'Airtel', regex: /^016\d{8}$/ },
-} as const;
+export const BD_MOBILE_OPERATORS = PHONE_CONFIG.BD_MOBILE_OPERATORS;
 
 // Bangladesh mobile number regex patterns
-export const BD_MOBILE_REGEX = /^(?:\+880|0)1[3-9]\d{8}$/;
-export const BD_MOBILE_STRICT_REGEX = /^(?:\+880|0)1(?:3|4|5|6|7|8|9)\d{8}$/;
+export const BD_MOBILE_REGEX = PHONE_CONFIG.BD_MOBILE_REGEX;
+export const BD_MOBILE_STRICT_REGEX = PHONE_CONFIG.BD_MOBILE_STRICT_REGEX;
 
 // Supported countries (including Bangladesh focus)
-export const SUPPORTED_COUNTRIES = ['BD', 'US', 'GB', 'IN', 'AE', 'SG', 'CA', 'AU'] as const;
+export const SUPPORTED_COUNTRIES = PHONE_CONFIG.SUPPORTED_COUNTRIES;
 export type SupportedCountry = typeof SUPPORTED_COUNTRIES[number];
 
 // Phone number types
@@ -74,11 +69,11 @@ const validatePhoneInput = (phoneNumber: string): void => {
 
 /**
  * Parse phone number to PhoneNumber object
- * 
+ *
  * @param phoneNumber - Phone number string
  * @param countryCode - Optional country code (default: 'BD')
  * @returns PhoneNumber object or undefined if invalid
- * 
+ *
  * @example
  * parsePhone('01712345678') // PhoneNumber object for Bangladesh
  * parsePhone('+8801712345678') // PhoneNumber object
@@ -90,7 +85,7 @@ export const parsePhone = (phoneNumber: string, countryCode: string = DEFAULT_CO
 
 /**
  * Check if phone number is valid (full validation)
- * 
+ *
  * @param phoneNumber - Phone number string
  * @param countryCode - Optional country code (default: 'BD')
  * @returns True if phone number is valid
@@ -106,7 +101,7 @@ export const isValidPhone = (phoneNumber: string, countryCode: string = DEFAULT_
 
 /**
  * Check if phone number is possible (basic format validation, faster)
- * 
+ *
  * @param phoneNumber - Phone number string
  * @param countryCode - Optional country code (default: 'BD')
  * @returns True if phone number is possible
@@ -122,7 +117,7 @@ export const isPossiblePhone = (phoneNumber: string, countryCode: string = DEFAU
 
 /**
  * Check if phone number is a valid Bangladesh mobile number
- * 
+ *
  * @param phoneNumber - Phone number string
  * @returns True if valid Bangladesh mobile number
  */
@@ -132,7 +127,7 @@ export const isValidBdMobile = (phoneNumber: string): boolean => {
 
 /**
  * Get phone number type (mobile, landline, etc.)
- * 
+ *
  * @param phoneNumber - Phone number string
  * @param countryCode - Optional country code (default: 'BD')
  * @returns Phone number type or 'unknown'
@@ -140,30 +135,30 @@ export const isValidBdMobile = (phoneNumber: string): boolean => {
 export const getPhoneNumberType = (phoneNumber: string, countryCode: string = DEFAULT_COUNTRY): PhoneNumberType => {
   const parsed = parsePhone(phoneNumber, countryCode);
   if (!parsed) return 'unknown';
-  
+
   const type = parsed.getType();
   return (type?.toLowerCase() as PhoneNumberType) || 'unknown';
 };
 
 /**
  * Detect Bangladesh mobile operator from phone number
- * 
+ *
  * @param phoneNumber - Bangladesh phone number
  * @returns Operator name or null
  */
 export const detectBdOperator = (phoneNumber: string): string | null => {
   const normalized = normalizePhone(phoneNumber, 'BD');
   if (!normalized) return null;
-  
+
   // Remove +880 prefix, keep last 10 digits
   const national = normalized.replace(/^\+880/, '');
-  
+
   for (const [key, operator] of Object.entries(BD_MOBILE_OPERATORS)) {
     if (operator.regex.test(national)) {
       return operator.name;
     }
   }
-  
+
   return null;
 };
 
@@ -172,7 +167,7 @@ export const detectBdOperator = (phoneNumber: string): string | null => {
 /**
  * Format phone number to E.164 format (international standard)
  * Example: +8801712345678
- * 
+ *
  * @param phoneNumber - Phone number string
  * @param countryCode - Optional country code (default: 'BD')
  * @returns E.164 formatted number or null
@@ -185,7 +180,7 @@ export const formatToE164 = (phoneNumber: string, countryCode: string = DEFAULT_
 /**
  * Format phone number to international format
  * Example: +880 1712 345678
- * 
+ *
  * @param phoneNumber - Phone number string
  * @param countryCode - Optional country code (default: 'BD')
  * @returns Internationally formatted number or null
@@ -199,7 +194,7 @@ export const formatInternational = (phoneNumber: string, countryCode: string = D
 /**
  * Format phone number to national format
  * Example: 01712 345678
- * 
+ *
  * @param phoneNumber - Phone number string
  * @param countryCode - Optional country code (default: 'BD')
  * @returns Nationally formatted number or null
@@ -212,11 +207,11 @@ export const formatNational = (phoneNumber: string, countryCode: string = DEFAUL
 
 /**
  * Format phone number as you type (progressive formatting)
- * 
+ *
  * @param phoneNumber - Phone number string (partial)
  * @param countryCode - Optional country code (default: 'BD')
  * @returns Formatted string as you type
- * 
+ *
  * @example
  * formatAsYouType('017') // '017'
  * formatAsYouType('0171') // '0171'
@@ -232,7 +227,7 @@ export const formatAsYouType = (phoneNumber: string, countryCode: string = DEFAU
 
 /**
  * Normalize phone number to consistent E.164 format
- * 
+ *
  * @param phoneNumber - Phone number string
  * @param countryCode - Optional country code (default: 'BD')
  * @returns Normalized E.164 number or null
@@ -243,7 +238,7 @@ export const normalizePhone = (phoneNumber: string, countryCode: string = DEFAUL
 
 /**
  * Normalize Bangladesh phone number to +880 format
- * 
+ *
  * @param phoneNumber - Bangladesh phone number (017... or +88017...)
  * @returns Normalized phone number with +880 prefix
  */
@@ -258,7 +253,7 @@ export const normalizeBdPhone = (phoneNumber: string): string | null => {
 /**
  * Convert +880 format to 0 format (local dialing)
  * Example: +8801712345678 -> 01712345678
- * 
+ *
  * @param phoneNumber - Phone number in E.164 format
  * @returns Local format number or null
  */
@@ -272,7 +267,7 @@ export const toLocalFormat = (phoneNumber: string): string | null => {
 
 /**
  * Extract country code from phone number
- * 
+ *
  * @param phoneNumber - Phone number string
  * @param countryCode - Optional country code (default: 'BD')
  * @returns Country code with plus sign (e.g., '+880') or null
@@ -285,7 +280,7 @@ export const extractCountryCode = (phoneNumber: string, countryCode: string = DE
 
 /**
  * Extract national number (without country code)
- * 
+ *
  * @param phoneNumber - Phone number string
  * @param countryCode - Optional country code (default: 'BD')
  * @returns National number or null
@@ -300,7 +295,7 @@ export const extractNationalNumber = (phoneNumber: string, countryCode: string =
 /**
  * Mask phone number for privacy
  * Example: +880 *****5678
- * 
+ *
  * @param phoneNumber - Phone number string
  * @param countryCode - Optional country code (default: 'BD')
  * @returns Masked phone number
@@ -308,19 +303,19 @@ export const extractNationalNumber = (phoneNumber: string, countryCode: string =
 export const maskPhone = (phoneNumber: string, countryCode: string = DEFAULT_COUNTRY): string => {
   const normalized = normalizePhone(phoneNumber, countryCode);
   if (!normalized) return phoneNumber;
-  
+
   const length = normalized.length;
   const visibleStart = 6; // Keep first 6 chars visible
   const visibleEnd = 4; // Keep last 4 chars visible
-  
+
   if (length <= visibleStart + visibleEnd) {
     return normalized;
   }
-  
+
   const start = normalized.slice(0, visibleStart);
   const end = normalized.slice(-visibleEnd);
   const maskedLength = length - visibleStart - visibleEnd;
-  
+
   return `${start}${'*'.repeat(maskedLength)}${end}`;
 };
 
@@ -328,7 +323,7 @@ export const maskPhone = (phoneNumber: string, countryCode: string = DEFAULT_COU
 
 /**
  * Detect country code from phone number
- * 
+ *
  * @param phoneNumber - Phone number string
  * @returns Country code (e.g., 'BD') or null
  */
@@ -365,7 +360,7 @@ export interface PhoneComponents {
 
 /**
  * Extract all phone components into an object
- * 
+ *
  * @param phoneNumber - Phone number string
  * @param countryCode - Optional country code (default: 'BD')
  * @returns PhoneComponents object or null
@@ -373,7 +368,7 @@ export interface PhoneComponents {
 export const getPhoneComponents = (phoneNumber: string, countryCode: string = DEFAULT_COUNTRY): PhoneComponents | null => {
   const parsed = parsePhone(phoneNumber, countryCode);
   const isValid = isValidPhone(phoneNumber, countryCode);
-  
+
   if (!parsed && !isValid) {
     return {
       countryCode: null,
@@ -387,11 +382,11 @@ export const getPhoneComponents = (phoneNumber: string, countryCode: string = DE
       phoneType: 'unknown',
     };
   }
-  
+
   const e164 = formatToE164(phoneNumber, countryCode);
   const isMobile = e164 ? getPhoneNumberType(e164) === 'mobile' : false;
   const operator = e164 && e164.startsWith('+880') ? detectBdOperator(e164) : null;
-  
+
   return {
     countryCode: extractCountryCode(phoneNumber, countryCode),
     nationalNumber: extractNationalNumber(phoneNumber, countryCode),
