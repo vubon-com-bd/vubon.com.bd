@@ -2,7 +2,7 @@
  * Social Auth Client - OAuth and social login client
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  *
- * @module shared-auth/src/client/social.client
+ * @module shared-auth/client/social.client
  *
  * RULES:
  * ✅ ONLY social auth orchestration - NO business logic
@@ -245,4 +245,193 @@ export class SocialAuthClient {
   /**
    * Verify OTP for social login
    */
-  async verifyOTP(phoneNumber: string, provider:
+  async verifyOTP(phoneNumber: string, provider: 'whatsapp' | 'imo' | 'phone_otp', otpCode: string): Promise<{ success: boolean; isNewUser: boolean }> {
+    const sessionId = this.state.pendingOTP?.sessionId;
+    
+    const response = await this.config.apiClient.verifySocialOTP(phoneNumber, provider, otpCode, sessionId);
+    
+    this.state.pendingOTP = null;
+    this.notifyListeners();
+    
+    if (response.success && response.accessToken) {
+      // Store tokens
+      this.notifyListeners();
+    }
+    
+    return { success: response.success, isNewUser: response.isNewUser };
+  }
+
+  /**
+   * Authenticate with MFS (bKash/Nagad/Rocket - Bangladesh specific)
+   */
+  async mfsAuth(provider: 'bkash' | 'nagad' | 'rocket', accountNumber: string, pin?: string, otpCode?: string): Promise<{
+    authenticated: boolean;
+    requiresOTP: boolean;
+    requiresPin: boolean;
+  }> {
+    const response = await this.config.apiClient.mfsAuth(provider, accountNumber, pin, otpCode);
+    
+    if (response.requiresOTP || response.requiresPin) {
+      this.state.pendingMFS = {
+        provider,
+        accountNumber,
+        sessionId: response.sessionId,
+      };
+      this.notifyListeners();
+    } else if (response.authenticated && response.userInfo) {
+      this.state.pendingMFS = null;
+      this.notifyListeners();
+    }
+    
+    return {
+      authenticated: response.authenticated,
+      requiresOTP: response.requiresOTP,
+      requiresPin: response.requiresPin,
+    };
+  }
+
+  /**
+   * Complete MFS auth with OTP
+   */
+  async completeMFSWithOTP(otpCode: string): Promise<boolean> {
+    if (!this.state.pendingMFS) return false;
+    
+    const { provider, accountNumber, sessionId } = this.state.pendingMFS;
+    const response = await this.config.apiClient.mfsAuth(provider, accountNumber, undefined, otpCode);
+    
+    this.state.pendingMFS = null;
+    this.notifyListeners();
+    
+    return response.authenticated;
+  }
+
+  /**
+   * Cancel pending MFS auth
+   */
+  cancelMFS(): void {
+    this.state.pendingMFS = null;
+    this.notifyListeners();
+  }
+
+  /**
+   * Get connected accounts
+   */
+  getConnectedAccounts(): unknown[] {
+    return [...this.state.connectedAccounts];
+  }
+
+  /**
+   * Check if loading
+   */
+  isLoading(): boolean {
+    return this.state.isLoading;
+  }
+
+  /**
+   * Get pending OTP info
+   */
+  getPendingOTP() {
+    return this.state.pendingOTP ? { ...this.state.pendingOTP } : null;
+  }
+
+  /**
+   * Get pending MFS info
+   */
+  getPendingMFS() {
+    return this.state.pendingMFS ? { ...this.state.pendingMFS } : null;
+  }
+
+  /**
+   * Wait for popup callback
+   */
+  private waitForPopupCallback(provider: SocialProvider, state: string): Promise<{ success: boolean; isNewUser: boolean }> {
+    return new Promise((resolve) => {
+      const handleMessage = (event: MessageEvent) => {
+        if (event.data?.type === 'social-login-callback' && event.data?.provider === provider) {
+          window.removeEventListener('message', handleMessage);
+          resolve({ success: event.data.success, isNewUser: event.data.isNewUser });
+        }
+      };
+      
+      window.addEventListener('message', handleMessage);
+      
+      // Timeout after 5 minutes
+      setTimeout(() => {
+        window.removeEventListener('message', handleMessage);
+        resolve({ success: false, isNewUser: false });
+      }, 300000);
+    });
+  }
+
+  /**
+   * Close popup window
+   */
+  closePopup(): void {
+    if (this.popupWindow && !this.popupWindow.closed) {
+      this.popupWindow.close();
+      this.popupWindow = null;
+    }
+  }
+
+  /**
+   * Get current state
+   */
+  getState(): SocialState {
+    return {
+      ...this.state,
+      connectedAccounts: [...this.state.connectedAccounts],
+    };
+  }
+
+  /**
+   * Subscribe to state changes
+   */
+  subscribe(listener: (state: SocialState) => void): () => void {
+    this.listeners.add(listener);
+    listener(this.getState());
+    
+    return () => {
+      this.listeners.delete(listener);
+    };
+  }
+
+  /**
+   * Notify listeners
+   */
+  private notifyListeners(): void {
+    this.listeners.forEach(listener => listener(this.getState()));
+  }
+
+  /**
+   * Destroy client
+   */
+  destroy(): void {
+    this.closePopup();
+    this.listeners.clear();
+  }
+}
+
+// ==================== Singleton ====================
+
+let socialAuthClientInstance: SocialAuthClient | null = null;
+
+export const createSocialAuthClient = (config: SocialClientConfig): SocialAuthClient => {
+  if (socialAuthClientInstance) {
+    socialAuthClientInstance.destroy();
+  }
+  socialAuthClientInstance = new SocialAuthClient(config);
+  return socialAuthClientInstance;
+};
+
+export const getSocialAuthClient = (): SocialAuthClient | null => {
+  return socialAuthClientInstance;
+};
+
+export const resetSocialAuthClient = (): void => {
+  if (socialAuthClientInstance) {
+    socialAuthClientInstance.destroy();
+    socialAuthClientInstance = null;
+  }
+};
+
+export type { SocialState };
