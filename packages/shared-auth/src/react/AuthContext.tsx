@@ -107,6 +107,13 @@ export interface AuthContextValue extends AuthState {
 const normalizeRole = (role: string): string => role.toLowerCase().trim();
 const normalizePermission = (permission: string): string => permission.toLowerCase().trim();
 
+// Simple logger that can be replaced with proper logging solution
+const logError = (error: unknown): void => {
+  if (process.env.NODE_ENV === 'development') {
+    console.error('[AuthContext] Initialization error:', error);
+  }
+};
+
 // ==================== Context ====================
 
 export const AuthContext = React.createContext<AuthContextValue | null>(null);
@@ -126,7 +133,7 @@ export interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ 
   children, 
   authClient, 
-  loadingFallback = null 
+  loadingFallback
 }) => {
   const [state, setState] = React.useState<AuthState>(authClient.getState());
   const [isLoggingIn, setIsLoggingIn] = React.useState(false);
@@ -141,7 +148,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     });
 
     // Initialize client
-    authClient.initialize().catch(console.error);
+    authClient.initialize().catch(logError);
 
     return () => {
       unsubscribe();
@@ -330,7 +337,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   ]);
 
   // Loading state while initializing
-  if (state.isLoading && loadingFallback !== null) {
+  if (state.isLoading && loadingFallback !== undefined) {
     return <>{loadingFallback}</>;
   }
 
