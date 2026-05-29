@@ -2,7 +2,7 @@
  * Session Manager - Active session management
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  *
- * @module shared-auth/client/session-manager
+ * @module shared-auth/src/client/session-manager
  *
  * RULES:
  * ✅ ONLY session management - NO business analytics
