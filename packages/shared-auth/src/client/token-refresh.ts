@@ -2,7 +2,7 @@
  * Token Refresh - Refresh queue and deduplication
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  *
- * @module shared-auth/client/token-refresh
+ * @module shared-auth/src/client/token-refresh
  *
  * RULES:
  * ✅ ONLY token refresh queue management - NO business logic
