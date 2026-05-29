@@ -19,6 +19,9 @@ import type {
   AxiosResponse 
 } from 'axios';
 
+// Import config from shared-config
+import { env } from '@vubon/shared-config/env';
+
 // ==================== Types ====================
 
 export interface InterceptorConfig {
@@ -215,6 +218,14 @@ export interface LoggingOptions {
   logResponse?: boolean;
   logError?: boolean;
   sensitiveHeaders?: string[];
+  /**
+   * Custom log function (e.g., for structured logging)
+   * Defaults to console
+   */
+  logger?: {
+    debug: (message: string, data?: unknown) => void;
+    error: (message: string, data?: unknown) => void;
+  };
 }
 
 const DEFAULT_LOGGING_OPTIONS: LoggingOptions = {
@@ -227,11 +238,10 @@ const DEFAULT_LOGGING_OPTIONS: LoggingOptions = {
 /**
  * Mask sensitive data in headers for logging
  */
-const maskSensitiveHeaders = (headers: Record<string, unknown>): Record<string, unknown> => {
+const maskSensitiveHeaders = (headers: Record<string, unknown>, sensitiveHeaders: string[]): Record<string, unknown> => {
   const masked = { ...headers };
-  const sensitive = DEFAULT_LOGGING_OPTIONS.sensitiveHeaders || [];
   
-  for (const key of sensitive) {
+  for (const key of sensitiveHeaders) {
     const lowerKey = key.toLowerCase();
     if (masked[lowerKey]) {
       masked[lowerKey] = '***MASKED***';
@@ -249,11 +259,13 @@ export const setupLoggingInterceptor = (
   options?: LoggingOptions
 ): () => void => {
   const opts = { ...DEFAULT_LOGGING_OPTIONS, ...options };
+  const logger = opts.logger || console;
+  const sensitiveHeaders = opts.sensitiveHeaders || DEFAULT_LOGGING_OPTIONS.sensitiveHeaders;
   
   const requestInterceptor = client.interceptors.request.use((config) => {
     if (opts.logRequest) {
-      const maskedHeaders = maskSensitiveHeaders({ ...config.headers });
-      console.debug(`[API Request] ${config.method?.toUpperCase()} ${config.url}`, {
+      const maskedHeaders = maskSensitiveHeaders({ ...config.headers }, sensitiveHeaders);
+      logger.debug(`[API Request] ${config.method?.toUpperCase()} ${config.url}`, {
         headers: maskedHeaders,
         params: config.params,
       });
@@ -264,7 +276,7 @@ export const setupLoggingInterceptor = (
   const responseInterceptor = client.interceptors.response.use(
     (response) => {
       if (opts.logResponse) {
-        console.debug(`[API Response] ${response.status} ${response.config.url}`, {
+        logger.debug(`[API Response] ${response.status} ${response.config.url}`, {
           status: response.status,
           duration: response.config?.metadata?.startTime 
             ? Date.now() - response.config.metadata.startTime 
@@ -275,7 +287,7 @@ export const setupLoggingInterceptor = (
     },
     (error: AxiosError) => {
       if (opts.logError) {
-        console.error(`[API Error] ${error.response?.status} ${error.config?.url}`, {
+        logger.error(`[API Error] ${error.response?.status} ${error.config?.url}`, {
           status: error.response?.status,
           message: error.message,
           data: error.response?.data,
@@ -306,22 +318,19 @@ export const setupTimingInterceptor = (client: AxiosInstance): () => void => {
   const responseInterceptor = client.interceptors.response.use(
     (response) => {
       const startTime = response.config?.metadata?.startTime;
-      if (startTime) {
+      if (startTime && process.env.NODE_ENV === 'development') {
         const duration = Date.now() - startTime;
-        // Emit duration for monitoring (without console.log in production)
-        if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-          console.debug(`[Timing] ${response.config.url} - ${duration}ms`);
-        }
+        // eslint-disable-next-line no-console
+        console.debug(`[Timing] ${response.config.url} - ${duration}ms`);
       }
       return response;
     },
     (error) => {
       const startTime = error.config?.metadata?.startTime;
-      if (startTime) {
+      if (startTime && process.env.NODE_ENV === 'development') {
         const duration = Date.now() - startTime;
-        if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-          console.debug(`[Timing Error] ${error.config?.url} - ${duration}ms`);
-        }
+        // eslint-disable-next-line no-console
+        console.debug(`[Timing Error] ${error.config?.url} - ${duration}ms`);
       }
       return Promise.reject(error);
     }
@@ -336,17 +345,39 @@ export const setupTimingInterceptor = (client: AxiosInstance): () => void => {
 // ==================== Retry Interceptor ====================
 
 export interface RetryOptions {
+  /** Maximum number of retries (default: from env or 3) */
   retries?: number;
+  /** Base retry delay in milliseconds (default: from env or 1000) */
   retryDelay?: number;
+  /** HTTP status codes that should trigger retry */
   retryStatusCodes?: number[];
+  /** HTTP methods that can be retried (idempotent methods only) */
   retryMethods?: string[];
+  /** Whether to use exponential backoff (default: true) */
+  exponentialBackoff?: boolean;
 }
 
+// Retriable HTTP status codes (from constants)
+const DEFAULT_RETRIABLE_STATUS_CODES = [408, 429, 500, 502, 503, 504];
+const DEFAULT_RETRIABLE_METHODS = ['GET', 'HEAD', 'OPTIONS'];
+
+// Get defaults from environment
+const getDefaultRetries = (): number => {
+  const maxRetries = env.HTTP_MAX_RETRIES;
+  return maxRetries ? Number(maxRetries) : 3;
+};
+
+const getDefaultRetryDelay = (): number => {
+  const retryDelay = env.HTTP_RETRY_DELAY_MS;
+  return retryDelay ? Number(retryDelay) : 1000;
+};
+
 const DEFAULT_RETRY_OPTIONS: RetryOptions = {
-  retries: 3,
-  retryDelay: 1000,
-  retryStatusCodes: [408, 429, 500, 502, 503, 504],
-  retryMethods: ['GET', 'HEAD', 'OPTIONS'],
+  retries: getDefaultRetries(),
+  retryDelay: getDefaultRetryDelay(),
+  retryStatusCodes: DEFAULT_RETRIABLE_STATUS_CODES,
+  retryMethods: DEFAULT_RETRIABLE_METHODS,
+  exponentialBackoff: true,
 };
 
 /**
@@ -367,9 +398,12 @@ export const setupRetryInterceptor = (
         return Promise.reject(error);
       }
       
+      const method = config.method?.toUpperCase() ?? '';
+      const status = error.response?.status ?? 0;
+      
       const shouldRetry = 
-        opts.retryStatusCodes?.includes(error.response?.status ?? 0) &&
-        opts.retryMethods?.includes(config.method?.toUpperCase() ?? '') &&
+        opts.retryStatusCodes?.includes(status) &&
+        opts.retryMethods?.includes(method) &&
         (config._retryCount || 0) < (opts.retries || 0);
       
       if (!shouldRetry) {
@@ -378,7 +412,12 @@ export const setupRetryInterceptor = (
       
       config._retryCount = (config._retryCount || 0) + 1;
       
-      const delay = (opts.retryDelay || 1000) * (config._retryCount);
+      // Calculate delay with exponential backoff
+      let delay = opts.retryDelay || 1000;
+      if (opts.exponentialBackoff) {
+        delay = delay * (config._retryCount);
+      }
+      
       await new Promise(resolve => setTimeout(resolve, delay));
       
       return client(config);
