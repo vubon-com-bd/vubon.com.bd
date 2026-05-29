@@ -1,9 +1,9 @@
 /**
- * useVerification Hook - Email/Phone verification
+ * useVerification Hook - Email/Phone verification with shared-api integration
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+
  * @module shared-auth/src/react/useVerification
- * 
+
  * RULES:
  * ✅ ONLY verification UI abstraction - NO email/SMS logic
  * ✅ Pure React hook for verification orchestration
@@ -12,6 +12,12 @@
 
 import React from 'react';
 import { useAuthContext } from './AuthContext';
+
+// Import from shared-api and shared-utils
+import { createVerificationEndpoints } from '@vubon/shared-api';
+import { withRetry, DEFAULT_RETRY_CONFIG } from '@vubon/shared-api/client/retry';
+import { getAxiosClient } from '@vubon/shared-api/client/axios';
+import { env } from '@vubon/shared-config/env';
 
 // ==================== Types ====================
 
@@ -81,21 +87,36 @@ export interface UseVerificationReturn {
   resendVerification: (type: VerificationType, sessionId?: string) => Promise<SendVerificationResult>;
 }
 
-// ==================== Helper ====================
+// ==================== Helpers ====================
 
-const API_BASE = '/api/v1/verification';
+// Simple logger that can be replaced with proper logging solution
+const logError = (error: unknown, context: string): void => {
+  if (env.NODE_ENV === 'development') {
+    console.error(`[useVerification] ${context}:`, error);
+  }
+};
+
+// Helper function to extract data from API response
+const extractData = <T>(response: { data?: { data?: T } }): T | undefined => {
+  return response.data?.data;
+};
+
+// Helper function for idempotent GET requests with retry
+const withIdempotentRetry = async <T>(requestFn: () => Promise<T>): Promise<T> => {
+  return withRetry(requestFn, DEFAULT_RETRY_CONFIG);
+};
 
 // ==================== Hook ====================
 
 /**
  * Hook for email and phone verification
- * 
+
  * @example
  * const { sendVerification, verify, isEmailVerified } = useVerification();
- * 
+
  * // Send OTP
  * await sendVerification({ type: 'phone', phoneNumber: '01712345678', method: 'whatsapp' });
- * 
+
  * // Verify OTP
  * const result = await verify({ type: 'phone', code: '123456' });
  */
@@ -104,6 +125,12 @@ export const useVerification = (): UseVerificationReturn => {
   const [loading, setLoading] = React.useState(false);
   const [isEmailVerified, setIsEmailVerified] = React.useState(user?.emailVerified || false);
   const [isPhoneVerified, setIsPhoneVerified] = React.useState(user?.phoneVerified || false);
+
+  // Create API client once
+  const verificationApi = React.useMemo(() => {
+    const client = getAxiosClient({ baseURL: env.API_URL });
+    return createVerificationEndpoints(client);
+  }, []);
 
   // Sync with user context
   React.useEffect(() => {
@@ -115,19 +142,16 @@ export const useVerification = (): UseVerificationReturn => {
     async (params: SendVerificationParams): Promise<SendVerificationResult> => {
       setLoading(true);
       try {
-        const response = await fetch(`${API_BASE}/send`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify(params),
-        });
-        const data = await response.json();
-        return data.data;
+        const response = await verificationApi.sendVerification(params);
+        return extractData(response) as SendVerificationResult;
+      } catch (error) {
+        logError(error, 'sendVerification failed');
+        throw error;
       } finally {
         setLoading(false);
       }
     },
-    []
+    [verificationApi]
   );
 
   const sendPhoneVerification = React.useCallback(
@@ -158,59 +182,55 @@ export const useVerification = (): UseVerificationReturn => {
     async (params: VerifyParams): Promise<VerifyResult> => {
       setLoading(true);
       try {
-        const response = await fetch(`${API_BASE}/verify`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify(params),
-        });
-        const data = await response.json();
-        
+        const response = await verificationApi.verify(params);
+        const result = extractData(response) as VerifyResult;
+
         // Update local verification status on success
-        if (data.data?.verified) {
+        if (result?.verified) {
           if (params.type === 'email') {
             setIsEmailVerified(true);
           } else if (params.type === 'phone' || params.type === 'whatsapp') {
             setIsPhoneVerified(true);
           }
         }
-        
-        return data.data;
+
+        return result;
+      } catch (error) {
+        logError(error, 'verify failed');
+        throw error;
       } finally {
         setLoading(false);
       }
     },
-    []
+    [verificationApi]
   );
 
   const getStatus = React.useCallback(async (): Promise<VerificationStatus> => {
-    const response = await fetch(`${API_BASE}/status`, { credentials: 'include' });
-    const data = await response.json();
-    const status = data.data;
-    
-    setIsEmailVerified(status.emailVerified);
-    setIsPhoneVerified(status.phoneVerified);
-    
-    return status;
-  }, []);
+    return withIdempotentRetry(async () => {
+      const response = await verificationApi.getStatus();
+      const status = extractData(response) as VerificationStatus;
+
+      setIsEmailVerified(status?.emailVerified || false);
+      setIsPhoneVerified(status?.phoneVerified || false);
+
+      return status;
+    });
+  }, [verificationApi]);
 
   const resendVerification = React.useCallback(
     async (type: VerificationType, sessionId?: string): Promise<SendVerificationResult> => {
       setLoading(true);
       try {
-        const response = await fetch(`${API_BASE}/resend/${type}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ sessionId }),
-        });
-        const data = await response.json();
-        return data.data;
+        const response = await verificationApi.resendVerification(type, sessionId);
+        return extractData(response) as SendVerificationResult;
+      } catch (error) {
+        logError(error, 'resendVerification failed');
+        throw error;
       } finally {
         setLoading(false);
       }
     },
-    []
+    [verificationApi]
   );
 
   const isFullyVerified = isEmailVerified && isPhoneVerified;
@@ -246,26 +266,29 @@ export const useIsPhoneVerified = (): boolean => {
 };
 
 /**
- * Hook for resending verification code (lightweight)
+ * Hook for resending verification code (lightweight) with shared-api integration
  */
 export const useResendVerification = () => {
   const [loading, setLoading] = React.useState(false);
 
+  // Create API client once
+  const verificationApi = React.useMemo(() => {
+    const client = getAxiosClient({ baseURL: env.API_URL });
+    return createVerificationEndpoints(client);
+  }, []);
+
   const resend = React.useCallback(async (type: VerificationType, sessionId?: string): Promise<SendVerificationResult> => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/v1/verification/resend/${type}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ sessionId }),
-      });
-      const data = await response.json();
-      return data.data;
+      const response = await verificationApi.resendVerification(type, sessionId);
+      return extractData(response) as SendVerificationResult;
+    } catch (error) {
+      logError(error, 'resendVerification failed');
+      throw error;
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [verificationApi]);
 
   return { resend, loading };
 };
