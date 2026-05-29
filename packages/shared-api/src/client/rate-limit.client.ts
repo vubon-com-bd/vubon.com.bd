@@ -12,6 +12,9 @@
  * ✅ TypeScript strict
  */
 
+// Import config from shared-config
+import { env } from '@vubon/shared-config/env';
+
 // ==================== Types ====================
 
 export interface RateLimitConfig {
@@ -38,11 +41,31 @@ export interface RateLimitStatus {
   resetTimeMs: number;
 }
 
+export interface RateLimitEvent {
+  type: 'request_accepted' | 'request_rejected' | 'queue_full' | 'queue_timeout' | 'rate_limited';
+  timestamp: number;
+  queueLength: number;
+  remainingRequests: number;
+}
+
+export type RateLimitEventCallback = (event: RateLimitEvent) => void;
+
 // ==================== Constants ====================
 
 const DEFAULT_MAX_QUEUE_SIZE = 100;
 const DEFAULT_QUEUE_TIMEOUT_MS = 30000; // 30 seconds
 const CLEANUP_INTERVAL_MS = 60000; // 1 minute
+
+// Get defaults from environment (shared-config)
+const getDefaultMaxRequests = (): number => {
+  const maxRequests = env.RATE_LIMIT_MAX_REQUESTS;
+  return maxRequests ? Number(maxRequests) : 100;
+};
+
+const getDefaultPerMilliseconds = (): number => {
+  const ttl = env.RATE_LIMIT_TTL;
+  return (ttl ? Number(ttl) : 60) * 1000;
+};
 
 // ==================== Rate Limiter Class ====================
 
@@ -52,6 +75,7 @@ export class RateLimiter {
   private processing = false;
   private config: RateLimitConfig;
   private cleanupInterval: ReturnType<typeof setInterval> | null = null;
+  private eventCallbacks: RateLimitEventCallback[] = [];
   
   constructor(config: RateLimitConfig) {
     this.config = {
@@ -67,15 +91,48 @@ export class RateLimiter {
   }
   
   /**
+   * Register event callback
+   */
+  onEvent(callback: RateLimitEventCallback): () => void {
+    this.eventCallbacks.push(callback);
+    return () => {
+      const index = this.eventCallbacks.indexOf(callback);
+      if (index !== -1) this.eventCallbacks.splice(index, 1);
+    };
+  }
+  
+  /**
+   * Emit event
+   */
+  private emitEvent(event: Omit<RateLimitEvent, 'timestamp' | 'queueLength' | 'remainingRequests'>): void {
+    const fullEvent: RateLimitEvent = {
+      ...event,
+      timestamp: Date.now(),
+      queueLength: this.queue.length,
+      remainingRequests: this.getRemainingRequests(),
+    };
+    
+    for (const callback of this.eventCallbacks) {
+      try {
+        callback(fullEvent);
+      } catch {
+        // Ignore callback errors
+      }
+    }
+  }
+  
+  /**
    * Clean up stale (timed out) requests from queue
    */
   private cleanupStaleRequests(): void {
     const now = Date.now();
     const queueTimeout = this.config.queueTimeoutMs || DEFAULT_QUEUE_TIMEOUT_MS;
+    let staleCount = 0;
     
     this.queue = this.queue.filter((request) => {
       const isStale = now - request.timestamp > queueTimeout;
       if (isStale) {
+        staleCount++;
         if (request.timeoutId) {
           clearTimeout(request.timeoutId);
         }
@@ -84,6 +141,10 @@ export class RateLimiter {
       }
       return true;
     });
+    
+    if (staleCount > 0) {
+      this.emitEvent({ type: 'queue_timeout' });
+    }
   }
   
   /**
@@ -117,11 +178,38 @@ export class RateLimiter {
   }
   
   /**
+   * Execute multiple requests in batch (with combined rate limiting)
+   */
+  async executeBatch<T>(
+    requests: Array<() => Promise<T>>,
+    priority: number = 0
+  ): Promise<T[]> {
+    // Calculate total "cost" of batch (number of requests)
+    const batchCost = requests.length;
+    
+    // Check if we have enough capacity for the batch
+    if (this.getRemainingRequests() < batchCost && this.isRateLimited()) {
+      this.emitEvent({ type: 'rate_limited' });
+      throw new Error(`Rate limit exceeded. Need ${batchCost} slots, only ${this.getRemainingRequests()} available.`);
+    }
+    
+    // Execute all requests sequentially (respecting rate limit)
+    const results: T[] = [];
+    for (const request of requests) {
+      const result = await this.execute(request, priority);
+      results.push(result);
+    }
+    return results;
+  }
+  
+  /**
    * Execute request with rate limiting and priority queue
    */
   async execute<T>(request: () => Promise<T>, priority: number = 0): Promise<T> {
     // Check queue size limit
-    if (this.queue.length >= (this.config.maxQueueSize || DEFAULT_MAX_QUEUE_SIZE)) {
+    const maxQueueSize = this.config.maxQueueSize || DEFAULT_MAX_QUEUE_SIZE;
+    if (this.queue.length >= maxQueueSize) {
+      this.emitEvent({ type: 'queue_full' });
       throw new Error('Rate limit queue is full. Please try again later.');
     }
     
@@ -141,6 +229,7 @@ export class RateLimiter {
         const index = this.queue.findIndex((item) => item.id === queueItem.id);
         if (index !== -1) {
           this.queue.splice(index, 1);
+          this.emitEvent({ type: 'queue_timeout' });
           reject(new Error('Request timeout in queue'));
         }
       }, queueTimeout);
@@ -175,6 +264,7 @@ export class RateLimiter {
     
     if (this.isRateLimited()) {
       const waitTime = this.getTimeUntilNextSlot();
+      this.emitEvent({ type: 'rate_limited' });
       setTimeout(() => this.processQueue(), Math.min(waitTime, 1000));
       return;
     }
@@ -193,11 +283,13 @@ export class RateLimiter {
     }
     
     this.requestTimestamps.push(Date.now());
+    this.emitEvent({ type: 'request_accepted' });
     
     try {
       const result = await request.execute();
       request.resolve(result);
     } catch (error) {
+      this.emitEvent({ type: 'request_rejected' });
       request.reject(error);
     } finally {
       this.processing = false;
@@ -287,13 +379,25 @@ export class RateLimiter {
       this.requestTimestamps = [];
     }
   }
+  
+  /**
+   * Wait for rate limit to reset
+   */
+  async waitForReset(): Promise<void> {
+    if (!this.isRateLimited()) return;
+    
+    const waitTime = this.getTimeUntilNextSlot();
+    if (waitTime > 0) {
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
+  }
 }
 
-// ==================== Rate Limiter Factories ====================
+// ==================== Rate Limiter Factories (with env defaults) ====================
 
 export const DEFAULT_RATE_LIMIT_CONFIG: RateLimitConfig = {
-  maxRequests: 100,
-  perMilliseconds: 60000, // 1 minute
+  maxRequests: getDefaultMaxRequests(),
+  perMilliseconds: getDefaultPerMilliseconds(),
   maxQueueSize: 100,
   queueTimeoutMs: 30000,
 };
@@ -347,10 +451,27 @@ export const createApiRateLimiter = (): RateLimiter => {
   return new RateLimiter(API_RATE_LIMIT_CONFIG);
 };
 
+/**
+ * Create search-specific rate limiter
+ */
+export const createSearchRateLimiter = (): RateLimiter => {
+  return new RateLimiter(SEARCH_RATE_LIMIT_CONFIG);
+};
+
+/**
+ * Create payment-specific rate limiter
+ */
+export const createPaymentRateLimiter = (): RateLimiter => {
+  return new RateLimiter(PAYMENT_RATE_LIMIT_CONFIG);
+};
+
 // ==================== Singleton Instances ====================
 
 let defaultLimiter: RateLimiter | null = null;
 let authLimiter: RateLimiter | null = null;
+let apiLimiter: RateLimiter | null = null;
+let searchLimiter: RateLimiter | null = null;
+let paymentLimiter: RateLimiter | null = null;
 
 /**
  * Get or create default rate limiter singleton
@@ -373,6 +494,36 @@ export const getAuthRateLimiter = (): RateLimiter => {
 };
 
 /**
+ * Get or create API rate limiter singleton
+ */
+export const getApiRateLimiter = (): RateLimiter => {
+  if (!apiLimiter) {
+    apiLimiter = createApiRateLimiter();
+  }
+  return apiLimiter;
+};
+
+/**
+ * Get or create search rate limiter singleton
+ */
+export const getSearchRateLimiter = (): RateLimiter => {
+  if (!searchLimiter) {
+    searchLimiter = createSearchRateLimiter();
+  }
+  return searchLimiter;
+};
+
+/**
+ * Get or create payment rate limiter singleton
+ */
+export const getPaymentRateLimiter = (): RateLimiter => {
+  if (!paymentLimiter) {
+    paymentLimiter = createPaymentRateLimiter();
+  }
+  return paymentLimiter;
+};
+
+/**
  * Reset all rate limiters
  */
 export const resetRateLimiters = (): void => {
@@ -384,8 +535,20 @@ export const resetRateLimiters = (): void => {
     authLimiter.destroy();
     authLimiter = null;
   }
+  if (apiLimiter) {
+    apiLimiter.destroy();
+    apiLimiter = null;
+  }
+  if (searchLimiter) {
+    searchLimiter.destroy();
+    searchLimiter = null;
+  }
+  if (paymentLimiter) {
+    paymentLimiter.destroy();
+    paymentLimiter = null;
+  }
 };
 
 // ==================== Type Exports ====================
 
-export type { QueuedRequest, RateLimitStatus };
+export type { QueuedRequest, RateLimitStatus, RateLimitEvent, RateLimitEventCallback };
