@@ -14,6 +14,9 @@
 
 import type { AxiosError } from 'axios';
 
+// Import config from shared-config
+import { env } from '@vubon/shared-config/env';
+
 // ==================== Types ====================
 
 export interface RetryConfig {
@@ -25,6 +28,10 @@ export interface RetryConfig {
   retryableErrors: readonly string[];
   retryableMethods?: readonly string[];
   jitterEnabled?: boolean;
+  /** Maximum retry duration in milliseconds (overall timeout) */
+  maxRetryDurationMs?: number;
+  /** Callback before each retry attempt */
+  onRetry?: (attempt: number, delay: number, error: AxiosError) => void;
 }
 
 export interface RetryOptions {
@@ -42,12 +49,23 @@ export interface RetryableError {
   method?: string;
 }
 
-// ==================== Constants ====================
+// ==================== Constants (from shared-config/env) ====================
 
-const DEFAULT_MAX_RETRIES = 3;
-const DEFAULT_INITIAL_DELAY_MS = 1000;
+const getDefaultMaxRetries = (): number => {
+  const maxRetries = env.HTTP_MAX_RETRIES;
+  return maxRetries ? Number(maxRetries) : 3;
+};
+
+const getDefaultInitialDelayMs = (): number => {
+  const retryDelay = env.HTTP_RETRY_DELAY_MS;
+  return retryDelay ? Number(retryDelay) : 1000;
+};
+
+const DEFAULT_MAX_RETRIES = getDefaultMaxRetries();
+const DEFAULT_INITIAL_DELAY_MS = getDefaultInitialDelayMs();
 const DEFAULT_BACKOFF_MULTIPLIER = 2;
 const DEFAULT_MAX_DELAY_MS = 30000; // 30 seconds
+const DEFAULT_MAX_RETRY_DURATION_MS = 120000; // 2 minutes
 
 // Status codes that should NEVER be retried (client errors)
 export const NEVER_RETRY_STATUSES: readonly number[] = [
@@ -193,17 +211,30 @@ export const calculateDelay = (
 };
 
 /**
+ * Check if retry duration exceeded maximum allowed time
+ */
+export const isRetryDurationExceeded = (
+  startTime: number,
+  config: RetryConfig
+): boolean => {
+  const maxDuration = config.maxRetryDurationMs ?? DEFAULT_MAX_RETRY_DURATION_MS;
+  return Date.now() - startTime >= maxDuration;
+};
+
+/**
  * Execute function with retry logic using exponential backoff
  * 
  * @param fn - Async function to execute
  * @param config - Retry configuration
  * @param attempt - Current attempt (internal use)
+ * @param startTime - Start time for duration tracking (internal use)
  * @returns Promise resolving to function result
  */
 export const withRetry = async <T>(
   fn: () => Promise<T>,
   config: RetryConfig = DEFAULT_RETRY_CONFIG,
-  attempt: number = 1
+  attempt: number = 1,
+  startTime: number = Date.now()
 ): Promise<T> => {
   try {
     return await fn();
@@ -211,16 +242,26 @@ export const withRetry = async <T>(
     const axiosError = error as AxiosError;
     
     // Check if we should retry
-    if (attempt >= config.maxRetries || !shouldRetry(axiosError, config)) {
+    const shouldRetryCheck = shouldRetry(axiosError, config);
+    const maxRetriesReached = attempt >= config.maxRetries;
+    const durationExceeded = isRetryDurationExceeded(startTime, config);
+    
+    if (maxRetriesReached || !shouldRetryCheck || durationExceeded) {
       throw error;
     }
     
     // Calculate delay and wait
     const delay = calculateDelay(attempt, config);
+    
+    // Call onRetry callback if provided
+    if (config.onRetry) {
+      config.onRetry(attempt, delay, axiosError);
+    }
+    
     await new Promise((resolve) => setTimeout(resolve, delay));
     
     // Retry recursively
-    return withRetry(fn, config, attempt + 1);
+    return withRetry(fn, config, attempt + 1, startTime);
   }
 };
 
@@ -235,6 +276,7 @@ export class RetryHandler {
       initialDelayMs: DEFAULT_INITIAL_DELAY_MS,
       backoffMultiplier: DEFAULT_BACKOFF_MULTIPLIER,
       maxDelayMs: DEFAULT_MAX_DELAY_MS,
+      maxRetryDurationMs: DEFAULT_MAX_RETRY_DURATION_MS,
       jitterEnabled: true,
       retryableStatuses: [...DEFAULT_RETRYABLE_STATUSES],
       retryableErrors: [...DEFAULT_RETRYABLE_ERRORS],
@@ -254,6 +296,16 @@ export class RetryHandler {
    */
   async executeWithMaxRetries<T>(fn: () => Promise<T>, maxRetries: number): Promise<T> {
     return withRetry(fn, { ...this.config, maxRetries }, 1);
+  }
+  
+  /**
+   * Execute with onRetry callback
+   */
+  async executeWithCallback<T>(
+    fn: () => Promise<T>,
+    onRetry: (attempt: number, delay: number, error: AxiosError) => void
+  ): Promise<T> {
+    return withRetry(fn, { ...this.config, onRetry }, 1);
   }
   
   /**
@@ -296,6 +348,7 @@ export class RetryHandler {
       initialDelayMs: DEFAULT_INITIAL_DELAY_MS,
       backoffMultiplier: DEFAULT_BACKOFF_MULTIPLIER,
       maxDelayMs: DEFAULT_MAX_DELAY_MS,
+      maxRetryDurationMs: DEFAULT_MAX_RETRY_DURATION_MS,
       jitterEnabled: true,
       retryableStatuses: [...DEFAULT_RETRYABLE_STATUSES],
       retryableErrors: [...DEFAULT_RETRYABLE_ERRORS],
@@ -310,6 +363,7 @@ export const DEFAULT_RETRY_CONFIG: RetryConfig = {
   initialDelayMs: DEFAULT_INITIAL_DELAY_MS,
   backoffMultiplier: DEFAULT_BACKOFF_MULTIPLIER,
   maxDelayMs: DEFAULT_MAX_DELAY_MS,
+  maxRetryDurationMs: DEFAULT_MAX_RETRY_DURATION_MS,
   jitterEnabled: true,
   retryableStatuses: [...DEFAULT_RETRYABLE_STATUSES],
   retryableErrors: [...DEFAULT_RETRYABLE_ERRORS],
@@ -320,6 +374,7 @@ export const AGGRESSIVE_RETRY_CONFIG: RetryConfig = {
   initialDelayMs: 500,
   backoffMultiplier: 2,
   maxDelayMs: 60000,
+  maxRetryDurationMs: 180000, // 3 minutes
   jitterEnabled: true,
   retryableStatuses: [...DEFAULT_RETRYABLE_STATUSES],
   retryableErrors: [...DEFAULT_RETRYABLE_ERRORS],
@@ -330,6 +385,7 @@ export const CONSERVATIVE_RETRY_CONFIG: RetryConfig = {
   initialDelayMs: 2000,
   backoffMultiplier: 3,
   maxDelayMs: 30000,
+  maxRetryDurationMs: 60000, // 1 minute
   jitterEnabled: true,
   retryableStatuses: [408, 429, 500, 502, 503],
   retryableErrors: ['ECONNRESET', 'ETIMEDOUT'],
