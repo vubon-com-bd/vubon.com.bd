@@ -18,8 +18,11 @@ import type {
   PaginatedApiResponse,
 } from '@vubon/auth-types';
 
+// Import API routes from constants
+import { API_ROUTES } from '@vubon/auth-constants';
+
 // Import retry utilities
-import { withRetry, DEFAULT_RETRY_CONFIG } from '../client/retry.client';
+import { withRetry, DEFAULT_RETRY_CONFIG } from '../../client/retry.client';
 
 // ==================== Types ====================
 
@@ -38,6 +41,7 @@ export interface PhoneLoginRequest {
   rememberMe?: boolean;
   deviceId?: string | null;
   captchaToken?: string;
+  mobileOperator?: 'gp' | 'robi' | 'banglalink' | 'teletalk';
 }
 
 export interface OtpLoginRequest {
@@ -199,15 +203,29 @@ export interface SessionInfo {
   sessionId: string;
 }
 
+// Helper function to make requests with retry for idempotent operations
+const withOptionalRetry = async <T>(
+  requestFn: () => Promise<T>,
+  shouldRetry: boolean = false
+): Promise<T> => {
+  if (shouldRetry) {
+    return withRetry(requestFn, DEFAULT_RETRY_CONFIG);
+  }
+  return requestFn();
+};
+
 // ==================== Endpoint Functions ====================
 
 export const createAuthEndpoints = (client: AxiosInstance) => {
+  // Helper to get full API path
+  const api = (path: string) => path;
+  
   return {
     /**
      * Login with email and password
      */
     login: async (data: LoginRequest): Promise<LoginResponse> => {
-      const response = await client.post<ApiResponse<LoginResponse>>('/api/v1/auth/login', data);
+      const response = await client.post<ApiResponse<LoginResponse>>(api(API_ROUTES.AUTH_LOGIN), data);
       return response.data.data;
     },
     
@@ -231,7 +249,7 @@ export const createAuthEndpoints = (client: AxiosInstance) => {
      * Register new user
      */
     register: async (data: RegisterRequest): Promise<RegisterResponse> => {
-      const response = await client.post<ApiResponse<RegisterResponse>>('/api/v1/auth/register', data);
+      const response = await client.post<ApiResponse<RegisterResponse>>(api(API_ROUTES.AUTH_REGISTER), data);
       return response.data.data;
     },
     
@@ -239,7 +257,7 @@ export const createAuthEndpoints = (client: AxiosInstance) => {
      * Refresh access token
      */
     refreshToken: async (data: RefreshTokenRequest): Promise<RefreshTokenResponse> => {
-      const response = await client.post<ApiResponse<RefreshTokenResponse>>('/api/v1/auth/refresh', data);
+      const response = await client.post<ApiResponse<RefreshTokenResponse>>(api(API_ROUTES.AUTH_REFRESH), data);
       return response.data.data;
     },
     
@@ -247,7 +265,7 @@ export const createAuthEndpoints = (client: AxiosInstance) => {
      * Logout user
      */
     logout: async (data?: LogoutRequest): Promise<{ success: boolean }> => {
-      const response = await client.post<ApiResponse<{ success: boolean }>>('/api/v1/auth/logout', data || {});
+      const response = await client.post<ApiResponse<{ success: boolean }>>(api(API_ROUTES.AUTH_LOGOUT), data || {});
       return response.data.data;
     },
     
@@ -255,7 +273,7 @@ export const createAuthEndpoints = (client: AxiosInstance) => {
      * Forgot password - send reset email
      */
     forgotPassword: async (data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> => {
-      const response = await client.post<ApiResponse<ForgotPasswordResponse>>('/api/v1/auth/forgot-password', data);
+      const response = await client.post<ApiResponse<ForgotPasswordResponse>>(api(API_ROUTES.AUTH_FORGOT_PASSWORD), data);
       return response.data.data;
     },
     
@@ -268,11 +286,13 @@ export const createAuthEndpoints = (client: AxiosInstance) => {
     },
     
     /**
-     * Reset password with token
+     * Reset password with token (idempotent - can retry on network errors)
      */
-    resetPassword: async (data: ResetPasswordRequest): Promise<ResetPasswordResponse> => {
-      const response = await client.post<ApiResponse<ResetPasswordResponse>>('/api/v1/auth/reset-password', data);
-      return response.data.data;
+    resetPassword: async (data: ResetPasswordRequest, enableRetry: boolean = false): Promise<ResetPasswordResponse> => {
+      return withOptionalRetry(async () => {
+        const response = await client.post<ApiResponse<ResetPasswordResponse>>(api(API_ROUTES.AUTH_RESET_PASSWORD), data);
+        return response.data.data;
+      }, enableRetry);
     },
     
     /**
@@ -284,11 +304,13 @@ export const createAuthEndpoints = (client: AxiosInstance) => {
     },
     
     /**
-     * Validate reset token
+     * Validate reset token (idempotent GET - safe to retry)
      */
     validateResetToken: async (token: string): Promise<ValidateResetTokenResponse> => {
-      const response = await client.get<ApiResponse<ValidateResetTokenResponse>>(`/api/v1/auth/validate-reset-token/${token}`);
-      return response.data.data;
+      return withRetry(async () => {
+        const response = await client.get<ApiResponse<ValidateResetTokenResponse>>(`${api(API_ROUTES.AUTH_RESET_PASSWORD)}/validate/${token}`);
+        return response.data.data;
+      }, DEFAULT_RETRY_CONFIG);
     },
     
     /**
@@ -319,11 +341,13 @@ export const createAuthEndpoints = (client: AxiosInstance) => {
     },
     
     /**
-     * Get current session info
+     * Get current session info (idempotent GET - safe to retry)
      */
     getSession: async (): Promise<SessionInfo> => {
-      const response = await client.get<ApiResponse<SessionInfo>>('/api/v1/auth/session');
-      return response.data.data;
+      return withRetry(async () => {
+        const response = await client.get<ApiResponse<SessionInfo>>('/api/v1/auth/session');
+        return response.data.data;
+      }, DEFAULT_RETRY_CONFIG);
     },
     
     /**
@@ -331,7 +355,7 @@ export const createAuthEndpoints = (client: AxiosInstance) => {
      */
     sendEmailVerification: async (email?: string): Promise<{ success: boolean; message: string; expiresInSeconds: number }> => {
       const response = await client.post<ApiResponse<{ success: boolean; message: string; expiresInSeconds: number }>>(
-        '/api/v1/auth/send-email-verification',
+        api(API_ROUTES.AUTH_VERIFY_EMAIL) + '/resend',
         { email }
       );
       return response.data.data;
@@ -341,7 +365,7 @@ export const createAuthEndpoints = (client: AxiosInstance) => {
      * Verify email with token
      */
     verifyEmail: async (token: string): Promise<{ success: boolean; message: string }> => {
-      const response = await client.post<ApiResponse<{ success: boolean; message: string }>>('/api/v1/auth/verify-email', { token });
+      const response = await client.post<ApiResponse<{ success: boolean; message: string }>>(api(API_ROUTES.AUTH_VERIFY_EMAIL), { token });
       return response.data.data;
     },
     
