@@ -21,10 +21,6 @@ import { API_ROUTES } from '@vubon/auth-constants';
 // Import retry utilities
 import { withRetry, DEFAULT_RETRY_CONFIG } from '../../client/retry.client';
 
-// ==================== Constants ====================
-
-const ACCOUNT_LOCK_BASE = '/api/v1/account-lock';
-
 // ==================== Types ====================
 
 export interface AccountLockStatus {
@@ -169,6 +165,20 @@ const withIdempotentRetry = async <T>(requestFn: () => Promise<T>): Promise<T> =
 
 // ==================== Endpoint Functions ====================
 
+// Helper to get the base path from constants, with fallback
+// Assumes API_ROUTES has ACCOUNT_LOCK or similar structure
+// If not, you'll need to add: ACCOUNT_LOCK: '/api/v1/account-lock' to your constants
+const getAccountLockBase = (): string => {
+  // Try to get from constants first (assuming API_ROUTES has ACCOUNT_LOCK)
+  if (API_ROUTES.ACCOUNT_LOCK) {
+    return API_ROUTES.ACCOUNT_LOCK;
+  }
+  // Fallback for backward compatibility
+  return '/api/v1/account-lock';
+};
+
+const ACCOUNT_LOCK_BASE = getAccountLockBase();
+
 export const createAccountLockEndpoints = (client: AxiosInstance) => {
   return {
     /**
@@ -176,7 +186,12 @@ export const createAccountLockEndpoints = (client: AxiosInstance) => {
      * Idempotent GET - safe to retry
      */
     getLockStatus: async (email?: string, phoneNumber?: string): Promise<AccountLockStatus> => {
-      const url = buildUrlWithParams(`${ACCOUNT_LOCK_BASE}/status`, { email, phoneNumber });
+      // Try to use API_ROUTES.ACCOUNT_LOCK_STATUS if available, otherwise construct
+      const statusPath = API_ROUTES.ACCOUNT_LOCK_STATUS 
+        ? API_ROUTES.ACCOUNT_LOCK_STATUS 
+        : `${ACCOUNT_LOCK_BASE}/status`;
+      
+      const url = buildUrlWithParams(statusPath, { email, phoneNumber });
       
       return withIdempotentRetry(async () => {
         const response = await client.get<ApiResponse<AccountLockStatus>>(url);
@@ -189,8 +204,12 @@ export const createAccountLockEndpoints = (client: AxiosInstance) => {
      * Idempotent GET - safe to retry
      */
     getFailedAttempts: async (): Promise<FailedAttemptsResponse> => {
+      const path = API_ROUTES.ACCOUNT_LOCK_FAILED_ATTEMPTS 
+        ? API_ROUTES.ACCOUNT_LOCK_FAILED_ATTEMPTS 
+        : `${ACCOUNT_LOCK_BASE}/failed-attempts`;
+      
       return withIdempotentRetry(async () => {
-        const response = await client.get<ApiResponse<FailedAttemptsResponse>>(`${ACCOUNT_LOCK_BASE}/failed-attempts`);
+        const response = await client.get<ApiResponse<FailedAttemptsResponse>>(path);
         return response.data.data;
       });
     },
@@ -200,8 +219,12 @@ export const createAccountLockEndpoints = (client: AxiosInstance) => {
      * Idempotent GET - safe to retry
      */
     getUserFailedAttempts: async (userId: string): Promise<FailedAttemptsResponse> => {
+      const path = API_ROUTES.ACCOUNT_LOCK_USER_FAILED_ATTEMPTS 
+        ? API_ROUTES.ACCOUNT_LOCK_USER_FAILED_ATTEMPTS.replace('{{userId}}', userId)
+        : `${ACCOUNT_LOCK_BASE}/failed-attempts/${userId}`;
+      
       return withIdempotentRetry(async () => {
-        const response = await client.get<ApiResponse<FailedAttemptsResponse>>(`${ACCOUNT_LOCK_BASE}/failed-attempts/${userId}`);
+        const response = await client.get<ApiResponse<FailedAttemptsResponse>>(path);
         return response.data.data;
       });
     },
@@ -211,7 +234,11 @@ export const createAccountLockEndpoints = (client: AxiosInstance) => {
      * Non-idempotent - no retry (user action)
      */
     unlockAccount: async (data: UnlockAccountRequest): Promise<UnlockAccountResponse> => {
-      const response = await client.post<ApiResponse<UnlockAccountResponse>>(`${ACCOUNT_LOCK_BASE}/unlock`, data);
+      const path = API_ROUTES.ACCOUNT_LOCK_UNLOCK 
+        ? API_ROUTES.ACCOUNT_LOCK_UNLOCK 
+        : `${ACCOUNT_LOCK_BASE}/unlock`;
+      
+      const response = await client.post<ApiResponse<UnlockAccountResponse>>(path, data);
       return response.data.data;
     },
 
@@ -224,8 +251,12 @@ export const createAccountLockEndpoints = (client: AxiosInstance) => {
       reason: string,
       adminId: string
     ): Promise<UnlockAccountResponse> => {
+      const path = API_ROUTES.ACCOUNT_LOCK_ADMIN_UNLOCK 
+        ? API_ROUTES.ACCOUNT_LOCK_ADMIN_UNLOCK 
+        : `${ACCOUNT_LOCK_BASE}/admin/unlock`;
+      
       const response = await client.post<ApiResponse<UnlockAccountResponse>>(
-        `${ACCOUNT_LOCK_BASE}/admin/unlock`,
+        path,
         { userId, reason, adminId }
       );
       return response.data.data;
@@ -236,7 +267,11 @@ export const createAccountLockEndpoints = (client: AxiosInstance) => {
      * Non-idempotent - no retry (admin action)
      */
     lockAccount: async (data: LockAccountRequest): Promise<LockAccountResponse> => {
-      const response = await client.post<ApiResponse<LockAccountResponse>>(`${ACCOUNT_LOCK_BASE}/admin/lock`, data);
+      const path = API_ROUTES.ACCOUNT_LOCK_ADMIN_LOCK 
+        ? API_ROUTES.ACCOUNT_LOCK_ADMIN_LOCK 
+        : `${ACCOUNT_LOCK_BASE}/admin/lock`;
+      
+      const response = await client.post<ApiResponse<LockAccountResponse>>(path, data);
       return response.data.data;
     },
 
@@ -245,7 +280,11 @@ export const createAccountLockEndpoints = (client: AxiosInstance) => {
      * Idempotent GET - safe to retry
      */
     getMyLockHistory: async (params?: PaginationParams): Promise<LockHistoryResponse> => {
-      const url = buildUrlWithParams(`${ACCOUNT_LOCK_BASE}/history`, params);
+      const historyPath = API_ROUTES.ACCOUNT_LOCK_HISTORY 
+        ? API_ROUTES.ACCOUNT_LOCK_HISTORY 
+        : `${ACCOUNT_LOCK_BASE}/history`;
+      
+      const url = buildUrlWithParams(historyPath, params);
       
       return withIdempotentRetry(async () => {
         const response = await client.get<ApiResponse<LockHistoryResponse>>(url);
@@ -258,7 +297,11 @@ export const createAccountLockEndpoints = (client: AxiosInstance) => {
      * Idempotent GET - safe to retry
      */
     getLockHistory: async (userId: string, params?: PaginationParams): Promise<LockHistoryResponse> => {
-      const url = buildUrlWithParams(`${ACCOUNT_LOCK_BASE}/history/${userId}`, params);
+      const path = API_ROUTES.ACCOUNT_LOCK_USER_HISTORY 
+        ? API_ROUTES.ACCOUNT_LOCK_USER_HISTORY.replace('{{userId}}', userId)
+        : `${ACCOUNT_LOCK_BASE}/history/${userId}`;
+      
+      const url = buildUrlWithParams(path, params);
       
       return withIdempotentRetry(async () => {
         const response = await client.get<ApiResponse<LockHistoryResponse>>(url);
@@ -271,8 +314,12 @@ export const createAccountLockEndpoints = (client: AxiosInstance) => {
      * Idempotent GET - safe to retry
      */
     getLockStats: async (): Promise<AccountLockStats> => {
+      const path = API_ROUTES.ACCOUNT_LOCK_STATS 
+        ? API_ROUTES.ACCOUNT_LOCK_STATS 
+        : `${ACCOUNT_LOCK_BASE}/stats`;
+      
       return withIdempotentRetry(async () => {
-        const response = await client.get<ApiResponse<AccountLockStats>>(`${ACCOUNT_LOCK_BASE}/stats`);
+        const response = await client.get<ApiResponse<AccountLockStats>>(path);
         return response.data.data;
       });
     },
@@ -282,8 +329,12 @@ export const createAccountLockEndpoints = (client: AxiosInstance) => {
      * Non-idempotent - no retry (admin action)
      */
     clearFailedAttempts: async (userId: string, adminId: string): Promise<{ success: boolean }> => {
+      const path = API_ROUTES.ACCOUNT_LOCK_CLEAR_ATTEMPTS 
+        ? API_ROUTES.ACCOUNT_LOCK_CLEAR_ATTEMPTS 
+        : `${ACCOUNT_LOCK_BASE}/clear-failed-attempts`;
+      
       const response = await client.post<ApiResponse<{ success: boolean }>>(
-        `${ACCOUNT_LOCK_BASE}/clear-failed-attempts`,
+        path,
         { userId, adminId }
       );
       return response.data.data;
