@@ -41,7 +41,7 @@ export interface PhoneLoginRequest {
   rememberMe?: boolean;
   deviceId?: string | null;
   captchaToken?: string;
-  mobileOperator?: 'gp' | 'robi' | 'banglalink' | 'teletalk';
+  mobileOperator?: 'gp' | 'robi' | 'banglalink' | 'teletalk';  // বাংলাদেশ স্পেসিফিক
 }
 
 export interface OtpLoginRequest {
@@ -217,7 +217,7 @@ const withOptionalRetry = async <T>(
 // ==================== Endpoint Functions ====================
 
 export const createAuthEndpoints = (client: AxiosInstance) => {
-  // Helper to get full API path
+  // Helper to get full API path (using constants)
   const api = (path: string) => path;
   
   return {
@@ -233,7 +233,10 @@ export const createAuthEndpoints = (client: AxiosInstance) => {
      * Login with phone number and password (Bangladesh specific)
      */
     phoneLogin: async (data: PhoneLoginRequest): Promise<LoginResponse> => {
-      const response = await client.post<ApiResponse<LoginResponse>>('/api/v1/auth/login/phone', data);
+      const response = await client.post<ApiResponse<LoginResponse>>(API_ROUTES.AUTH_LOGIN, {
+        ...data,
+        loginMethod: 'phone',
+      });
       return response.data.data;
     },
     
@@ -241,7 +244,7 @@ export const createAuthEndpoints = (client: AxiosInstance) => {
      * Login with OTP (passwordless)
      */
     otpLogin: async (data: OtpLoginRequest): Promise<LoginResponse> => {
-      const response = await client.post<ApiResponse<LoginResponse>>('/api/v1/auth/login/otp', data);
+      const response = await client.post<ApiResponse<LoginResponse>>(`${API_ROUTES.AUTH_LOGIN}/otp`, data);
       return response.data.data;
     },
     
@@ -281,7 +284,7 @@ export const createAuthEndpoints = (client: AxiosInstance) => {
      * Forgot password - send OTP to phone (Bangladesh specific)
      */
     forgotPasswordPhone: async (data: ForgotPasswordPhoneRequest): Promise<ForgotPasswordPhoneResponse> => {
-      const response = await client.post<ApiResponse<ForgotPasswordPhoneResponse>>('/api/v1/auth/forgot-password/phone', data);
+      const response = await client.post<ApiResponse<ForgotPasswordPhoneResponse>>(`${API_ROUTES.AUTH_FORGOT_PASSWORD}/phone`, data);
       return response.data.data;
     },
     
@@ -299,7 +302,7 @@ export const createAuthEndpoints = (client: AxiosInstance) => {
      * Reset password with OTP (Bangladesh specific)
      */
     resetPasswordWithOtp: async (data: ResetPasswordOtpRequest): Promise<ResetPasswordResponse> => {
-      const response = await client.post<ApiResponse<ResetPasswordResponse>>('/api/v1/auth/reset-password/otp', data);
+      const response = await client.post<ApiResponse<ResetPasswordResponse>>(`${API_ROUTES.AUTH_RESET_PASSWORD}/otp`, data);
       return response.data.data;
     },
     
@@ -317,7 +320,7 @@ export const createAuthEndpoints = (client: AxiosInstance) => {
      * Verify OTP (Bangladesh specific)
      */
     verifyOtp: async (data: VerifyOtpRequest): Promise<VerifyOtpResponse> => {
-      const response = await client.post<ApiResponse<VerifyOtpResponse>>('/api/v1/auth/verify-otp', data);
+      const response = await client.post<ApiResponse<VerifyOtpResponse>>(API_ROUTES.AUTH_VERIFY_OTP, data);
       return response.data.data;
     },
     
@@ -325,9 +328,10 @@ export const createAuthEndpoints = (client: AxiosInstance) => {
      * Request OTP for password reset
      */
     requestResetOtp: async (phoneNumber: string, method: 'sms' | 'whatsapp' = 'sms'): Promise<ForgotPasswordPhoneResponse> => {
-      const response = await client.post<ApiResponse<ForgotPasswordPhoneResponse>>('/api/v1/auth/request-reset-otp', {
+      const response = await client.post<ApiResponse<ForgotPasswordPhoneResponse>>(API_ROUTES.AUTH_SEND_OTP, {
         phoneNumber,
         method,
+        type: 'password_reset',
       });
       return response.data.data;
     },
@@ -355,7 +359,7 @@ export const createAuthEndpoints = (client: AxiosInstance) => {
      */
     sendEmailVerification: async (email?: string): Promise<{ success: boolean; message: string; expiresInSeconds: number }> => {
       const response = await client.post<ApiResponse<{ success: boolean; message: string; expiresInSeconds: number }>>(
-        api(API_ROUTES.AUTH_VERIFY_EMAIL) + '/resend',
+        `${api(API_ROUTES.AUTH_VERIFY_EMAIL)}/resend`,
         { email }
       );
       return response.data.data;
@@ -372,11 +376,22 @@ export const createAuthEndpoints = (client: AxiosInstance) => {
     /**
      * Send phone verification OTP (Bangladesh specific)
      */
-    sendPhoneVerification: async (phoneNumber: string, method: 'sms' | 'whatsapp' = 'sms'): Promise<{ success: boolean; message: string; expiresInSeconds: number; resendCooldownSeconds: number }> => {
-      const response = await client.post<ApiResponse<{ success: boolean; message: string; expiresInSeconds: number; resendCooldownSeconds: number }>>(
-        '/api/v1/auth/send-phone-verification',
-        { phoneNumber, method }
-      );
+    sendPhoneVerification: async (phoneNumber: string, method: 'sms' | 'whatsapp' = 'sms'): Promise<{ 
+      success: boolean; 
+      message: string; 
+      expiresInSeconds: number; 
+      resendCooldownSeconds: number 
+    }> => {
+      const response = await client.post<ApiResponse<{ 
+        success: boolean; 
+        message: string; 
+        expiresInSeconds: number; 
+        resendCooldownSeconds: number 
+      }>>(API_ROUTES.AUTH_SEND_OTP, {
+        phoneNumber,
+        method,
+        type: 'phone_verification',
+      });
       return response.data.data;
     },
     
@@ -384,9 +399,10 @@ export const createAuthEndpoints = (client: AxiosInstance) => {
      * Verify phone with OTP
      */
     verifyPhone: async (phoneNumber: string, otpCode: string): Promise<{ success: boolean; message: string; verified: boolean }> => {
-      const response = await client.post<ApiResponse<{ success: boolean; message: string; verified: boolean }>>('/api/v1/auth/verify-phone', {
+      const response = await client.post<ApiResponse<{ success: boolean; message: string; verified: boolean }>>(API_ROUTES.AUTH_VERIFY_OTP, {
         phoneNumber,
         otpCode,
+        type: 'phone_verification',
       });
       return response.data.data;
     },
