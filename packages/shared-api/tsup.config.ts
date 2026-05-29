@@ -18,16 +18,16 @@ export default defineConfig({
     'client/retry': 'src/client/retry.client.ts',
     
     // Endpoints individual modules (for granular tree-shaking)
-    'endpoints/auth': 'src/endpoints/auth.endpoints.ts',
-    'endpoints/social': 'src/endpoints/social.endpoints.ts',
-    'endpoints/user': 'src/endpoints/user.endpoints.ts',
-    'endpoints/role': 'src/endpoints/role.endpoints.ts',
-    'endpoints/permission': 'src/endpoints/permission.endpoints.ts',
-    'endpoints/session': 'src/endpoints/session.endpoints.ts',
-    'endpoints/mfa': 'src/endpoints/mfa.endpoints.ts',
-    'endpoints/device': 'src/endpoints/device.endpoints.ts',
-    'endpoints/verification': 'src/endpoints/verification.endpoints.ts',
-    'endpoints/account-lock': 'src/endpoints/account-lock.endpoints.ts',
+    'endpoints/auth': 'src/endpoints/auth/auth.endpoints.ts',
+    'endpoints/social': 'src/endpoints/auth/social.endpoints.ts',
+    'endpoints/user': 'src/endpoints/user/user.endpoints.ts',
+    'endpoints/role': 'src/endpoints/rbac/role.endpoints.ts',
+    'endpoints/permission': 'src/endpoints/rbac/permission.endpoints.ts',
+    'endpoints/session': 'src/endpoints/user/session.endpoints.ts',
+    'endpoints/mfa': 'src/endpoints/auth/mfa.endpoints.ts',
+    'endpoints/device': 'src/endpoints/device/device.endpoints.ts',
+    'endpoints/verification': 'src/endpoints/auth/verification.endpoints.ts',
+    'endpoints/account-lock': 'src/endpoints/auth/account-lock.endpoints.ts',
   },
   
   // Output formats - both CommonJS and ESM
