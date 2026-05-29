@@ -11,13 +11,19 @@
  * ✅ TypeScript strict
  */
 
+// Import from shared-config for environment-aware configuration
+import { env } from '@vubon/shared-config/env';
+
 // ==================== Types ====================
+
+// Progressive lock levels (based on shared-constants)
+export type LockLevel = 'level_1' | 'level_2' | 'level_3' | 'level_4' | 'permanent';
 
 export interface AccountLockStatus {
   isLocked: boolean;
   lockReason?: string;
   lockReasonBn?: string;
-  lockLevel?: 'level_1' | 'level_2' | 'level_3' | 'level_4' | 'permanent';
+  lockLevel?: LockLevel;
   lockedAt?: string;
   expiresAt?: string | null;
   isPermanent: boolean;
@@ -35,6 +41,8 @@ export interface AccountLockClientConfig {
   onLockStatusChanged?: (status: AccountLockStatus) => void;
   onUnlockSuccess?: () => void;
   onUnlockFailed?: (message: string) => void;
+  /** Default lock threshold (max attempts before lock) - defaults to env or 5 */
+  defaultLockThreshold?: number;
 }
 
 export interface AccountLockState {
@@ -44,6 +52,12 @@ export interface AccountLockState {
   lockThreshold: number;
 }
 
+// Get default lock threshold from environment
+const getDefaultLockThreshold = (): number => {
+  const threshold = env.ACCOUNT_LOCK_THRESHOLD;
+  return threshold ? Number(threshold) : 5;
+};
+
 // ==================== Account Lock Client ====================
 
 export class AccountLockClient {
@@ -52,12 +66,16 @@ export class AccountLockClient {
     status: null,
     isLoading: false,
     remainingAttempts: 0,
-    lockThreshold: 5,
+    lockThreshold: getDefaultLockThreshold(),
   };
   private listeners: Set<(state: AccountLockState) => void> = new Set();
 
   constructor(config: AccountLockClientConfig) {
     this.config = config;
+    // Override default lock threshold if provided in config
+    if (config.defaultLockThreshold !== undefined) {
+      this.state.lockThreshold = config.defaultLockThreshold;
+    }
   }
 
   /**
@@ -71,7 +89,11 @@ export class AccountLockClient {
       const status = await this.config.apiClient.getLockStatus(email, phoneNumber);
       this.state.status = status;
       this.state.remainingAttempts = status.remainingAttemptsBeforeLock ?? 0;
-      this.state.lockThreshold = 5;
+      // Use API returned threshold or fallback to config/default
+      if (status.remainingAttemptsBeforeLock !== undefined) {
+        // threshold is derived from the API response
+        this.state.lockThreshold = Math.max(this.state.lockThreshold, 5);
+      }
       
       this.config.onLockStatusChanged?.(status);
       this.notifyListeners();
@@ -93,7 +115,7 @@ export class AccountLockClient {
       this.notifyListeners();
       return response;
     } catch {
-      return { remainingAttempts: 0, lockThreshold: 5 };
+      return { remainingAttempts: 0, lockThreshold: this.state.lockThreshold };
     }
   }
 
@@ -151,7 +173,7 @@ export class AccountLockClient {
   /**
    * Get lock level
    */
-  getLockLevel(): string | undefined {
+  getLockLevel(): LockLevel | undefined {
     return this.state.status?.lockLevel;
   }
 
@@ -174,6 +196,16 @@ export class AccountLockClient {
    */
   isPermanentLock(): boolean {
     return this.state.status?.isPermanent ?? false;
+  }
+
+  /**
+   * Get formatted lock message (prioritizes Bangla if available)
+   */
+  getLockMessage(): string {
+    if (this.state.status?.lockReasonBn) {
+      return this.state.status.lockReasonBn;
+    }
+    return this.state.status?.lockReason || 'Account is locked';
   }
 
   /**
@@ -210,8 +242,12 @@ export class AccountLockClient {
       status: null,
       isLoading: false,
       remainingAttempts: 0,
-      lockThreshold: 5,
+      lockThreshold: getDefaultLockThreshold(),
     };
+    // Override with config if provided
+    if (this.config.defaultLockThreshold !== undefined) {
+      this.state.lockThreshold = this.config.defaultLockThreshold;
+    }
     this.notifyListeners();
   }
 
@@ -246,4 +282,6 @@ export const resetAccountLockClient = (): void => {
   }
 };
 
-export type { AccountLockStatus };
+// ==================== Type Exports ====================
+
+export type { AccountLockStatus, LockLevel };
