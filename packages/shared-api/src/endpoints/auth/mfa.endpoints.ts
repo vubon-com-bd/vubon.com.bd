@@ -21,13 +21,37 @@ import { withRetry, DEFAULT_RETRY_CONFIG } from '../../client/retry.client';
 
 // ==================== Constants ====================
 
-// Base path for MFA endpoints
+// Base path for MFA endpoints (using constants where available)
 const MFA_BASE = '/api/v1/mfa';
 
 // Helper function for idempotent GET requests with retry
 const withIdempotentRetry = async <T>(requestFn: () => Promise<T>): Promise<T> => {
-    return withRetry(requestFn, DEFAULT_RETRY_CONFIG);
+  return withRetry(requestFn, DEFAULT_RETRY_CONFIG);
 };
+
+// Helper function to build URL with query parameters
+const buildUrlWithParams = (baseUrl: string, params?: Record<string, string | number | undefined>): string => {
+  if (!params) return baseUrl;
+
+  const filteredParams = Object.fromEntries(
+    Object.entries(params).filter(([, value]) => value !== undefined && value !== null)
+  );
+
+  if (Object.keys(filteredParams).length === 0) return baseUrl;
+
+  const searchParams = new URLSearchParams();
+  Object.entries(filteredParams).forEach(([key, value]) => {
+    searchParams.append(key, String(value));
+  });
+
+  return `${baseUrl}?${searchParams.toString()}`;
+};
+
+// Pagination parameters
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+}
 
 // ==================== Types ====================
 
@@ -201,6 +225,16 @@ export interface WebAuthnAuthResponse {
   userVerification?: 'discouraged' | 'preferred' | 'required';
 }
 
+// Backup Codes List Response (paginated)
+export interface BackupCodesListResponse {
+  backupCodes: string[];
+  remainingCount: number;
+  totalCount: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 // ==================== Endpoint Functions ====================
 
 export const createMfaEndpoints = (client: AxiosInstance) => {
@@ -248,20 +282,21 @@ export const createMfaEndpoints = (client: AxiosInstance) => {
      * Non-idempotent POST - no retry (user/admin action)
      */
     disable: async (methodId?: string, reason?: string): Promise<{ success: boolean; message: string }> => {
-      const response = await client.post<ApiResponse<{ success: boolean; message: string }>>(`${MFA_BASE}/disable`, { 
-        methodId, 
-        reason 
+      const response = await client.post<ApiResponse<{ success: boolean; message: string }>>(`${MFA_BASE}/disable`, {
+        methodId,
+        reason,
       });
       return response.data.data;
     },
 
     /**
-     * Get backup codes
+     * Get backup codes (paginated)
      * Idempotent GET - safe to retry
      */
-    getBackupCodes: async (): Promise<{ backupCodes: string[]; remainingCount: number; totalCount: number }> => {
+    getBackupCodes: async (params?: PaginationParams): Promise<BackupCodesListResponse> => {
+      const url = buildUrlWithParams(`${MFA_BASE}/backup-codes`, params);
       return withIdempotentRetry(async () => {
-        const response = await client.get<ApiResponse<{ backupCodes: string[]; remainingCount: number; totalCount: number }>>(`${MFA_BASE}/backup-codes`);
+        const response = await client.get<ApiResponse<BackupCodesListResponse>>(url);
         return response.data.data;
       });
     },
