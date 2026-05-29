@@ -1,9 +1,9 @@
 /**
  * Environment Schema - Type-safe environment contract
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+
  * @module shared-config/src/env/env.schema
- * 
+
  * RULES:
  * ✅ ONLY Zod schemas - NO business logic
  * ✅ NO runtime mutation, side effects
@@ -12,6 +12,13 @@
  */
 
 import { z } from 'zod';
+import { 
+  JWT_CONFIG, 
+  RATE_LIMITS, 
+  SESSION_SECURITY, 
+  ENCRYPTION_CONFIG,
+  CORS_CONFIG 
+} from '@vubon/auth-constants';
 
 // ==================== Node Environment ====================
 
@@ -57,15 +64,23 @@ export const RedisConfigSchema = z.object({
   REDIS_MAX_RETRIES: z.coerce.number().int().min(1).max(10).default(3),
 });
 
-// ==================== JWT Configuration ====================
+// ==================== JWT Configuration (using constants) ====================
 
 export const JWTConfigSchema = z.object({
   JWT_SECRET: z.string().min(32, 'JWT secret must be at least 32 characters'),
-  JWT_ACCESS_EXPIRY: z.string().regex(/^\d+[smhdw]$/, 'Invalid expiry format (e.g., 15m, 1h, 7d)').default('15m'),
-  JWT_REFRESH_EXPIRY: z.string().regex(/^\d+[smhdw]$/, 'Invalid expiry format').default('7d'),
-  JWT_ISSUER: z.string().default('vubon.com.bd'),
-  JWT_AUDIENCE: z.string().default('vubon-api'),
-  JWT_ALGORITHM: z.enum(['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512']).default('HS256'),
+  JWT_ACCESS_EXPIRY: z
+    .string()
+    .regex(/^\d+[smhdw]$/, 'Invalid expiry format (e.g., 15m, 1h, 7d)')
+    .default(JWT_CONFIG.ACCESS_TOKEN_EXPIRY),
+  JWT_REFRESH_EXPIRY: z
+    .string()
+    .regex(/^\d+[smhdw]$/, 'Invalid expiry format')
+    .default(JWT_CONFIG.REFRESH_TOKEN_EXPIRY),
+  JWT_ISSUER: z.string().default(JWT_CONFIG.ISSUER),
+  JWT_AUDIENCE: z.string().default(JWT_CONFIG.AUDIENCE),
+  JWT_ALGORITHM: z
+    .enum(['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512'])
+    .default('HS256'),
 });
 
 // ==================== OAuth Configuration ====================
@@ -133,8 +148,15 @@ export const NagadOAuthSchema = z.object({
   NAGAD_BASE_URL: z.string().url().default('https://sandbox.mynagad.com'),
 });
 
-export const OAuthConfigSchema = z.object({
-  ...GoogleOAuthSchema.shape,
+// Required OAuth providers (for validation)
+export const RequiredOAuthConfigSchema = z.object({
+  GOOGLE_CLIENT_ID: z.string().min(1, 'GOOGLE_CLIENT_ID is required'),
+  GOOGLE_CLIENT_SECRET: z.string().min(1, 'GOOGLE_CLIENT_SECRET is required'),
+  GOOGLE_CALLBACK_URL: z.string().url('Invalid Google callback URL'),
+});
+
+// Optional OAuth providers (partial)
+export const OptionalOAuthConfigSchema = z.object({
   ...GitHubOAuthSchema.shape,
   ...FacebookOAuthSchema.shape,
   ...AppleOAuthSchema.shape,
@@ -144,37 +166,63 @@ export const OAuthConfigSchema = z.object({
   ...NagadOAuthSchema.shape,
 }).partial();
 
-// ==================== Security Configuration ====================
+export const OAuthConfigSchema = z.object({
+  ...GoogleOAuthSchema.shape,
+  ...GitHubOAuthSchema.shape,
+  ...FacebookOAuthSchema.shape,
+  ...AppleOAuthSchema.shape,
+  ...LinkedInOAuthSchema.shape,
+  ...WhatsAppOAuthSchema.shape,
+  ...BkashOAuthSchema.shape,
+  ...NagadOAuthSchema.shape,
+});
+
+// ==================== Security Configuration (using constants) ====================
 
 export const SecurityConfigSchema = z.object({
-  // CORS
-  CORS_ORIGINS: z.string().transform((val) => val.split(',').map(o => o.trim())),
-  CORS_CREDENTIALS: z.coerce.boolean().default(true),
-  CORS_MAX_AGE: z.coerce.number().int().positive().default(86400),
-  
-  // Rate Limiting
-  RATE_LIMIT_TTL: z.coerce.number().int().positive().default(60),
-  RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive().default(100),
-  RATE_LIMIT_LOGIN_TTL: z.coerce.number().int().positive().default(900),
-  RATE_LIMIT_LOGIN_MAX: z.coerce.number().int().positive().default(5),
-  RATE_LIMIT_PAYMENT_TTL: z.coerce.number().int().positive().default(60),
-  RATE_LIMIT_PAYMENT_MAX: z.coerce.number().int().positive().default(10),
-  
-  // Password & Encryption
-  BCRYPT_SALT_ROUNDS: z.coerce.number().int().min(10).max(14).default(12),
+  // CORS (using constants)
+  CORS_ORIGINS: z
+    .string()
+    .default(CORS_CONFIG.ALLOWED_ORIGINS.join(','))
+    .transform((val) => val.split(',').map((o) => o.trim())),
+  CORS_CREDENTIALS: z.coerce.boolean().default(CORS_CONFIG.CREDENTIALS),
+  CORS_MAX_AGE: z.coerce.number().int().positive().default(CORS_CONFIG.MAX_AGE),
+
+  // Rate Limiting (using constants)
+  RATE_LIMIT_TTL: z.coerce.number().int().positive().default(RATE_LIMITS.GLOBAL.WINDOW_MS / 1000),
+  RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive().default(RATE_LIMITS.GLOBAL.MAX_REQUESTS),
+  RATE_LIMIT_LOGIN_TTL: z.coerce.number().int().positive().default(RATE_LIMITS.AUTH.LOGIN.WINDOW_MS / 1000),
+  RATE_LIMIT_LOGIN_MAX: z.coerce.number().int().positive().default(RATE_LIMITS.AUTH.LOGIN.MAX_REQUESTS),
+  RATE_LIMIT_PAYMENT_TTL: z.coerce.number().int().positive().default(RATE_LIMITS.PAYMENT.INITIATE.WINDOW_MS / 1000),
+  RATE_LIMIT_PAYMENT_MAX: z.coerce.number().int().positive().default(RATE_LIMITS.PAYMENT.INITIATE.MAX_REQUESTS),
+
+  // Password & Encryption (using constants)
+  BCRYPT_SALT_ROUNDS: z
+    .coerce.number()
+    .int()
+    .min(ENCRYPTION_CONFIG.MIN_SALT_ROUNDS)
+    .max(ENCRYPTION_CONFIG.MAX_SALT_ROUNDS)
+    .default(ENCRYPTION_CONFIG.SALT_ROUNDS),
   SESSION_SECRET: z.string().min(32, 'SESSION_SECRET must be at least 32 characters'),
-  ENCRYPTION_KEY: z.string().min(32, 'ENCRYPTION_KEY must be at least 32 characters'),
-  ENCRYPTION_ALGORITHM: z.enum(['aes-256-gcm', 'aes-256-cbc']).default('aes-256-gcm'),
-  
+  ENCRYPTION_KEY: z
+    .string()
+    .min(32, 'ENCRYPTION_KEY must be at least 32 characters')
+    .regex(/^[a-f0-9]{64}$/i, 'ENCRYPTION_KEY must be a 64-character hex string'),
+  ENCRYPTION_ALGORITHM: z
+    .enum(['aes-256-gcm', 'aes-256-cbc'])
+    .default(ENCRYPTION_CONFIG.ALGORITHM),
+
   // CSRF Protection
   CSRF_PROTECTION_ENABLED: z.coerce.boolean().default(true),
   CSRF_COOKIE_NAME: z.string().default('csrf-token'),
-  
-  // Session Security
-  SESSION_COOKIE_SECURE: z.coerce.boolean().default(true),
-  SESSION_COOKIE_HTTP_ONLY: z.coerce.boolean().default(true),
-  SESSION_COOKIE_SAME_SITE: z.enum(['strict', 'lax', 'none']).default('lax'),
-  SESSION_TTL_SECONDS: z.coerce.number().int().positive().default(7200),
+
+  // Session Security (using constants)
+  SESSION_COOKIE_SECURE: z.coerce.boolean().default(SESSION_SECURITY.SECURE_COOKIE),
+  SESSION_COOKIE_HTTP_ONLY: z.coerce.boolean().default(SESSION_SECURITY.HTTP_ONLY_COOKIE),
+  SESSION_COOKIE_SAME_SITE: z
+    .enum(['strict', 'lax', 'none'])
+    .default(SESSION_SECURITY.SAME_SITE),
+  SESSION_TTL_SECONDS: z.coerce.number().int().positive().default(SESSION_SECURITY.ABSOLUTE_TIMEOUT_SECONDS),
 });
 
 // ==================== Email Configuration ====================
@@ -191,7 +239,7 @@ export const EmailConfigSchema = z.object({
   SMTP_SEND_TIMEOUT: z.coerce.number().int().positive().default(10000),
 });
 
-// ==================== Feature Flags ====================
+// ==================== Feature Flags (Bangladesh specific) ====================
 
 export const FeatureFlagsSchema = z.object({
   ENABLE_MFA: z.coerce.boolean().default(true),
@@ -221,13 +269,17 @@ export const EnvSchema = z.object({
 
 // ==================== Type Exports ====================
 
-export type NodeEnv = z.infer < typeof NodeEnvSchema > ;
-export type ServerConfig = z.infer < typeof ServerConfigSchema > ;
-export type DatabaseConfig = z.infer < typeof DatabaseConfigSchema > ;
-export type RedisConfig = z.infer < typeof RedisConfigSchema > ;
-export type JWTConfig = z.infer < typeof JWTConfigSchema > ;
-export type OAuthConfig = z.infer < typeof OAuthConfigSchema > ;
-export type SecurityConfig = z.infer < typeof SecurityConfigSchema > ;
-export type EmailConfig = z.infer < typeof EmailConfigSchema > ;
-export type FeatureFlags = z.infer < typeof FeatureFlagsSchema > ;
-export type Env = z.infer < typeof EnvSchema > ;
+export type NodeEnv = z.infer<typeof NodeEnvSchema>;
+export type ServerConfig = z.infer<typeof ServerConfigSchema>;
+export type DatabaseConfig = z.infer<typeof DatabaseConfigSchema>;
+export type RedisConfig = z.infer<typeof RedisConfigSchema>;
+export type JWTConfig = z.infer<typeof JWTConfigSchema>;
+export type OAuthConfig = z.infer<typeof OAuthConfigSchema>;
+export type SecurityConfig = z.infer<typeof SecurityConfigSchema>;
+export type EmailConfig = z.infer<typeof EmailConfigSchema>;
+export type FeatureFlags = z.infer<typeof FeatureFlagsSchema>;
+export type Env = z.infer<typeof EnvSchema>;
+
+// ==================== Required OAuth Config Type (for validation) ====================
+
+export type RequiredOAuthConfig = z.infer<typeof RequiredOAuthConfigSchema>;
