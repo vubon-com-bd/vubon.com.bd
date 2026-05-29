@@ -13,6 +13,12 @@
 import React from 'react';
 import { useAuthContext } from './AuthContext';
 
+// Import from shared-api and shared-utils
+import { createAccountLockEndpoints } from '@vubon/shared-api';
+import { withRetry, DEFAULT_RETRY_CONFIG } from '@vubon/shared-api/client/retry';
+import { getAxiosClient } from '@vubon/shared-api/client/axios';
+import { env } from '@vubon/shared-config/env';
+
 // ==================== Types ====================
 
 export interface AccountLockInfo {
@@ -67,12 +73,33 @@ export interface UseAccountLockReturn {
   loading: boolean;
 }
 
+// Simple logger that can be replaced with proper logging solution
+const logError = (error: unknown, context: string): void => {
+  if (env.NODE_ENV === 'development') {
+    console.error(`[useAccountLock] ${context}:`, error);
+  }
+};
+
+// Helper function to extract data from API response
+const extractData = <T>(response: { data?: { data?: T } }): T | undefined => {
+  return response.data?.data;
+};
+
+// Helper function for idempotent GET requests with retry
+const withIdempotentRetry = async <T>(requestFn: () => Promise<T>): Promise<T> => {
+  return withRetry(requestFn, DEFAULT_RETRY_CONFIG);
+};
+
 // ==================== Helper ====================
 
+/**
+ * Fetch lock status using shared-api with retry support
+ */
 const fetchLockStatus = async (): Promise<AccountLockInfo> => {
-  const response = await fetch('/api/v1/account-lock/status', { credentials: 'include' });
-  const data = await response.json();
-  return data.data;
+  const client = getAxiosClient({ baseURL: env.API_URL });
+  const accountLockApi = createAccountLockEndpoints(client);
+  
+  return withIdempotentRetry(() => accountLockApi.getLockStatus());
 };
 
 // ==================== Hook ====================
@@ -106,7 +133,7 @@ export const useAccountLock = (): UseAccountLockReturn => {
       const status = await fetchLockStatus();
       setInfo(status);
     } catch (error) {
-      console.error('Failed to load account lock status:', error);
+      logError(error, 'Failed to load account lock status');
       // Fallback to auth context values
       setInfo({
         isLocked: authIsLocked(),
