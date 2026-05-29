@@ -1,5 +1,5 @@
 /**
- * useDeviceTrust Hook - Device trust management
+ * useDeviceTrust Hook - Device trust management with shared-api integration
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module shared-auth/src/react/useDeviceTrust
@@ -12,6 +12,10 @@
 
 import React from 'react';
 import { useAuthContext } from './AuthContext';
+import { getAxiosClient } from '@vubon/shared-api/client/axios';
+import { createDeviceEndpoints } from '@vubon/shared-api/endpoints/device';
+import { withRetry, DEFAULT_RETRY_CONFIG } from '@vubon/shared-api/client/retry';
+import { env } from '@vubon/shared-config/env';
 
 // ==================== Types ====================
 
@@ -43,6 +47,16 @@ export interface DeviceFingerprint {
   version: number;
 }
 
+export interface DeviceInfo {
+  userAgent: string;
+  language: string;
+  platform: string;
+  screenResolution: string;
+  timezone: string;
+  deviceMemory?: number;
+  hardwareConcurrency?: number;
+}
+
 export interface UseDeviceTrustReturn {
   /** List of trusted devices */
   devices: TrustedDevice[];
@@ -64,9 +78,22 @@ export interface UseDeviceTrustReturn {
   loading: boolean;
 }
 
-// ==================== Helper ====================
+// Simple logger that can be replaced with proper logging solution
+const logError = (error: unknown, context: string): void => {
+  if (env.NODE_ENV === 'development') {
+    console.error(`[useDeviceTrust] ${context}:`, error);
+  }
+};
 
-const API_BASE = '/api/v1/devices';
+// Helper function to extract data from API response
+const extractData = <T>(response: { data?: { data?: T } }): T | undefined => {
+  return response.data?.data;
+};
+
+// Helper function for idempotent GET requests with retry
+const withIdempotentRetry = async <T>(requestFn: () => Promise<T>): Promise<T> => {
+  return withRetry(requestFn, DEFAULT_RETRY_CONFIG);
+};
 
 // ==================== Hook ====================
 
@@ -86,18 +113,23 @@ export const useDeviceTrust = (): UseDeviceTrustReturn => {
   const [devices, setDevices] = React.useState<TrustedDevice[]>([]);
   const [loading, setLoading] = React.useState(true);
 
+  // Create API client once
+  const deviceApi = React.useMemo(() => {
+    const client = getAxiosClient();
+    return createDeviceEndpoints(client);
+  }, []);
+
   const loadDevices = React.useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(API_BASE, { credentials: 'include' });
-      const data = await response.json();
-      setDevices(data.data || []);
+      const loadedDevices = await withIdempotentRetry(() => deviceApi.getDevices());
+      setDevices(loadedDevices);
     } catch (error) {
-      console.error('Failed to load trusted devices:', error);
+      logError(error, 'Failed to load trusted devices');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [deviceApi]);
 
   // Load devices on mount
   React.useEffect(() => {
@@ -107,83 +139,6 @@ export const useDeviceTrust = (): UseDeviceTrustReturn => {
   const currentDevice = React.useMemo(() => {
     return devices.find((d) => d.isCurrent);
   }, [devices]);
-
-  const trustCurrentDevice = React.useCallback(
-    async (durationDays?: number): Promise<TrustedDevice> => {
-      // First, get device fingerprint
-      const fingerprint = await getDeviceFingerprint();
-
-      const response = await fetch(`${API_BASE}/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          deviceInfo: {
-            // Device info will be collected client-side
-            userAgent: navigator.userAgent,
-            language: navigator.language,
-            platform: navigator.platform,
-            screenResolution: `${window.screen.width}x${window.screen.height}`,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          },
-          fingerprint,
-          trustDevice: true,
-          trustDurationDays: durationDays,
-        }),
-      });
-      const data = await response.json();
-      await loadDevices(); // Refresh list
-      return data.data;
-    },
-    [loadDevices]
-  );
-
-  const updateDeviceTrust = React.useCallback(
-    async (deviceId: string, trustLevel: 'standard' | 'trusted' | 'high_trust', durationDays?: number, reason?: string): Promise<TrustedDevice> => {
-      const response = await fetch(`${API_BASE}/${deviceId}/trust`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ trustLevel, durationDays, reason }),
-      });
-      const data = await response.json();
-      await loadDevices(); // Refresh list
-      return data.data;
-    },
-    [loadDevices]
-  );
-
-  const removeDevice = React.useCallback(
-    async (deviceId: string, reason?: string): Promise<boolean> => {
-      const response = await fetch(`${API_BASE}/${deviceId}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ reason }),
-      });
-      const data = await response.json();
-      if (data.success) {
-        await loadDevices();
-      }
-      return data.success;
-    },
-    [loadDevices]
-  );
-
-  const renameDevice = React.useCallback(
-    async (deviceId: string, name: string): Promise<TrustedDevice> => {
-      const response = await fetch(`${API_BASE}/${deviceId}/rename`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ name }),
-      });
-      const data = await response.json();
-      await loadDevices();
-      return data.data;
-    },
-    [loadDevices]
-  );
 
   const getDeviceFingerprint = React.useCallback(async (): Promise<DeviceFingerprint> => {
     // Collect browser fingerprint components
@@ -212,6 +167,74 @@ export const useDeviceTrust = (): UseDeviceTrustReturn => {
       version: 1,
     };
   }, []);
+
+  const getDeviceInfo = React.useCallback((): DeviceInfo => {
+    return {
+      userAgent: navigator.userAgent,
+      language: navigator.language,
+      platform: navigator.platform,
+      screenResolution: `${window.screen.width}x${window.screen.height}`,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      // @ts-expect-error - deviceMemory is not standard yet
+      deviceMemory: navigator.deviceMemory,
+      hardwareConcurrency: navigator.hardwareConcurrency,
+    };
+  }, []);
+
+  const trustCurrentDevice = React.useCallback(
+    async (durationDays?: number): Promise<TrustedDevice> => {
+      const fingerprint = await getDeviceFingerprint();
+      const deviceInfo = getDeviceInfo();
+
+      const response = await deviceApi.registerDevice({
+        deviceInfo,
+        fingerprint: {
+          hash: fingerprint.hash,
+          components: fingerprint.components,
+          version: fingerprint.version,
+        },
+        trustDevice: true,
+        trustDurationDays: durationDays,
+      });
+
+      await loadDevices(); // Refresh list
+      return response;
+    },
+    [deviceApi, loadDevices, getDeviceFingerprint, getDeviceInfo]
+  );
+
+  const updateDeviceTrust = React.useCallback(
+    async (deviceId: string, trustLevel: 'standard' | 'trusted' | 'high_trust', durationDays?: number, reason?: string): Promise<TrustedDevice> => {
+      const response = await deviceApi.updateDeviceTrust(deviceId, {
+        trustLevel,
+        durationDays,
+        reason,
+      });
+      await loadDevices(); // Refresh list
+      return response;
+    },
+    [deviceApi, loadDevices]
+  );
+
+  const removeDevice = React.useCallback(
+    async (deviceId: string, reason?: string): Promise<boolean> => {
+      const result = await deviceApi.removeDevice(deviceId, reason);
+      if (result.success) {
+        await loadDevices();
+      }
+      return result.success;
+    },
+    [deviceApi, loadDevices]
+  );
+
+  const renameDevice = React.useCallback(
+    async (deviceId: string, name: string): Promise<TrustedDevice> => {
+      const response = await deviceApi.renameDevice(deviceId, name);
+      await loadDevices();
+      return response;
+    },
+    [deviceApi, loadDevices]
+  );
 
   const refreshDevices = React.useCallback(async () => {
     await loadDevices();
@@ -250,4 +273,4 @@ export const useDeviceTrustLevel = (): string => {
 
 // ==================== Type Exports ====================
 
-export type { UseDeviceTrustReturn, TrustedDevice, DeviceFingerprint };
+export type { UseDeviceTrustReturn, TrustedDevice, DeviceFingerprint, DeviceInfo };
