@@ -14,6 +14,10 @@ import React from 'react';
 import { useAuthContext } from './AuthContext';
 import type { MFAProvider, MFASetupResponse, MFAMethod } from '../client/auth.client';
 
+// Import API utilities from shared-api
+import { createMfaEndpoints, getAxiosClient } from '@vubon/shared-api';
+import { API_ROUTES } from '@vubon/auth-constants';
+
 // ==================== Types ====================
 
 export interface UseMFAReturn {
@@ -30,14 +34,27 @@ export interface UseMFAReturn {
   /** Get backup codes */
   getBackupCodes: () => Promise<string[]>;
   /** Regenerate backup codes */
-  regenerateBackupCodes: () =>Promise<string[]>;
+  regenerateBackupCodes: () => Promise<string[]>;
   /** Disable MFA for a method */
-  disableMFA: (methodId?:string, reason?: string) =>Promise<boolean>;
+  disableMFA: (methodId?: string, reason?: string) => Promise<boolean>;
   /** Set primary MFA method */
   setPrimaryMethod: (methodId: string) => Promise<boolean>;
   /** Refresh MFA methods list */
-  refreshMethods:() => Promise<void>;
+  refreshMethods: () => Promise<void>;
 }
+
+// ==================== Helper Functions ====================
+
+// Lazy initialize MFA endpoints (to avoid creating client on module load)
+let mfaEndpoints: ReturnType<typeof createMfaEndpoints> | null = null;
+
+const getMfaEndpoints = () => {
+  if (!mfaEndpoints) {
+    const client = getAxiosClient();
+    mfaEndpoints = createMfaEndpoints(client);
+  }
+  return mfaEndpoints;
+};
 
 // ==================== Hook ====================
 
@@ -98,50 +115,57 @@ export const useMFA = (): UseMFAReturn => {
   );
 
   const getBackupCodes = React.useCallback(async (): Promise<string[]> => {
-    const response = await fetch('/api/v1/mfa/backup-codes', { credentials: 'include' });
-    const data = await response.json();
-    return data.data?.backupCodes || [];
+    try {
+      const endpoints = getMfaEndpoints();
+      const response = await endpoints.getBackupCodes();
+      return response.backupCodes;
+    } catch (error) {
+      console.error('Failed to get backup codes:', error);
+      return [];
+    }
   }, []);
 
   const regenerateBackupCodes = React.useCallback(async (): Promise<string[]> => {
-    const response = await fetch('/api/v1/mfa/backup-codes/regenerate', {
-      method: 'POST',
-      credentials: 'include',
-    });
-    const data = await response.json();
-    return data.data?.backupCodes || [];
+    try {
+      const endpoints = getMfaEndpoints();
+      const response = await endpoints.regenerateBackupCodes();
+      return response.backupCodes;
+    } catch (error) {
+      console.error('Failed to regenerate backup codes:', error);
+      return [];
+    }
   }, []);
 
   const disableMFA = React.useCallback(
     async (methodId?: string, reason?: string): Promise<boolean> => {
-      const response = await fetch('/api/v1/mfa/disable', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ methodId, reason }),
-      });
-      const data = await response.json();
-      if (data.success) {
-        await loadMethods();
+      try {
+        const endpoints = getMfaEndpoints();
+        const response = await endpoints.disable(methodId, reason);
+        if (response.success) {
+          await loadMethods();
+        }
+        return response.success;
+      } catch (error) {
+        console.error('Failed to disable MFA:', error);
+        return false;
       }
-      return data.success;
     },
     [loadMethods]
   );
 
   const setPrimaryMethod = React.useCallback(
     async (methodId: string): Promise<boolean> => {
-      const response = await fetch('/api/v1/mfa/primary', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ methodId }),
-      });
-      const data = await response.json();
-      if (data.success) {
-        await loadMethods();
+      try {
+        const endpoints = getMfaEndpoints();
+        const response = await endpoints.setPrimaryMethod(methodId);
+        if (response.success) {
+          await loadMethods();
+        }
+        return response.success;
+      } catch (error) {
+        console.error('Failed to set primary MFA method:', error);
+        return false;
       }
-      return data.success;
     },
     [loadMethods]
   );
