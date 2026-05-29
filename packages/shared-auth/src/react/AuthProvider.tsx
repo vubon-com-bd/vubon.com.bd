@@ -20,7 +20,8 @@ import type { AuthClient, MFAProvider } from '../client/auth.client';
 export interface AuthProviderProps {
   children: React.ReactNode;
   authClient: AuthClient;
-  loadingFallback?: React.ReactNode;           // Changed from loadingComponent for consistency with AuthContext
+  /** Loading component to show while initializing (renamed from loadingComponent for consistency with AuthContext) */
+  loadingFallback?: React.ReactNode;
   onLoginSuccess?: (user: AuthContextValue['user']) => void;
   onLoginError?: (error: Error) => void;
   onRegisterSuccess?: () => void;
@@ -31,13 +32,6 @@ export interface AuthProviderProps {
   onMfaRequired?: () => void;
   onAccountLocked?: (remainingTimeSeconds: number) => void;
 }
-
-// Simple logger that can be replaced with proper logging solution
-const logError = (error: unknown): void => {
-  if (process.env.NODE_ENV === 'development') {
-    console.error('[AuthProvider] Error:', error);
-  }
-};
 
 // ==================== Provider ====================
 
@@ -72,14 +66,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         onAccountLocked?.(newState.remainingLockTimeSeconds || 0);
       }
       prevLockedRef.current = newState.accountLocked;
-
       setState(newState);
     });
 
     // Initialize auth client
     authClient.initialize()
       .catch((error) => {
-        logError(error);
+        // Use a more sophisticated logger in production
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Auth initialization error:', error);
+        }
         onError?.(error);
       })
       .finally(() => {
@@ -109,7 +105,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     return () => clearInterval(checkInterval);
   }, [state.isAuthenticated, authClient, onSessionExpired]);
 
-  // Email login handler
+  // --- Authentication Methods ---
   const login = React.useCallback(
     async (credentials: LoginCredentials) => {
       setIsLoggingIn(true);
@@ -128,7 +124,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     [authClient, onLoginSuccess, onLoginError, onError]
   );
 
-  // Phone login handler (Bangladesh specific)
   const phoneLogin = React.useCallback(
     async (credentials: PhoneLoginCredentials) => {
       setIsLoggingIn(true);
@@ -153,7 +148,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     [authClient, onLoginSuccess, onLoginError, onError]
   );
 
-  // OTP login handler (Bangladesh specific)
   const otpLogin = React.useCallback(
     async (credentials: OtpLoginCredentials) => {
       setIsLoggingIn(true);
@@ -172,7 +166,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     [authClient, onLoginSuccess, onLoginError, onError]
   );
 
-  // Register handler
   const register = React.useCallback(
     async (data: RegisterFormData) => {
       setIsRegistering(true);
@@ -191,7 +184,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     [authClient, onRegisterSuccess, onRegisterError, onError]
   );
 
-  // Logout handler
   const logout = React.useCallback(
     async (allDevices?: boolean) => {
       setIsLoggingOut(true);
@@ -208,12 +200,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     [authClient, onLogout, onError]
   );
 
-  // Refresh session
   const refreshSession = React.useCallback(async () => {
     return authClient.refreshSession();
   }, [authClient]);
 
-  // MFA verification
+  // --- MFA Methods ---
   const verifyMfa = React.useCallback(
     async (code: string, methodId?: string, trustDevice?: boolean, challengeId?: string) => {
       try {
@@ -228,7 +219,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     [authClient, onLoginSuccess, onError]
   );
 
-  // MFA setup
   const setupMfa = React.useCallback(
     async (provider: MFAProvider, identifier?: string, label?: string) => {
       return authClient.setupMFA(provider, identifier, label);
@@ -236,12 +226,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     [authClient]
   );
 
-  // Get MFA methods
   const getMfaMethods = React.useCallback(async () => {
     return authClient.getMFAMethods();
   }, [authClient]);
 
-  // Unlock account
+  // --- Account Lock Methods ---
   const unlockAccount = React.useCallback(
     async (data: { email?: string; phoneNumber?: string; backupCode?: string; verificationCode?: string; otpCode?: string }) => {
       return authClient.unlockAccount(data);
@@ -249,102 +238,74 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     [authClient]
   );
 
-  // Check if account is locked
-  const isAccountLockedFn = React.useCallback(() => {
+  const isAccountLocked = React.useCallback(() => {
     return authClient.isAccountLocked();
   }, [authClient]);
 
-  // Get remaining lock time
-  const getRemainingLockTimeFn = React.useCallback(() => {
+  const getRemainingLockTime = React.useCallback(() => {
     return authClient.getRemainingLockTime();
   }, [authClient]);
 
-  // Role check (UX optimization only - NOT security boundary)
+  // --- Role & Permission Helpers (UI only) ---
+  const userRole = state.user?.role;
+  const userPermissions = state.user?.permissions;
+
   const hasRole = React.useCallback(
     (role: string | string[]): boolean => {
-      const userRole = state.user?.role;
       if (!userRole) return false;
-
-      const roles = Array.isArray(role) ? role : [role];
-      return roles.includes(userRole);
+      const rolesToCheck = Array.isArray(role) ? role : [role];
+      return rolesToCheck.includes(userRole);
     },
-    [state.user?.role]
+    [userRole]
   );
 
-  // Check if user has any of the specified roles
   const hasAnyRole = React.useCallback(
     (roles: string[]): boolean => {
-      const userRole = state.user?.role;
       if (!userRole) return false;
       return roles.includes(userRole);
     },
-    [state.user?.role]
+    [userRole]
   );
 
-  // Check if user has all specified roles
-  // Note: Currently supports single role; if multi-role support is added, this will need to be updated
   const hasAllRoles = React.useCallback(
     (roles: string[]): boolean => {
-      const userRole = state.user?.role;
+      // Note: This assumes a user can have only one role. If a user can have multiple roles, this logic needs to be updated.
       if (!userRole) return false;
-      // For single role system, check if user's role matches all requested roles
       return roles.every((role) => role === userRole);
     },
-    [state.user?.role]
+    [userRole]
   );
 
-  // Permission check (UX optimization only - NOT security boundary)
   const hasPermission = React.useCallback(
     (permission: string): boolean => {
-      const userRole = state.user?.role;
-      const userPermissions = state.user?.permissions;
-
-      // Check if user has explicit permissions from token
+      // Check for explicit permissions from token first
       if (userPermissions?.includes(permission)) {
         return true;
       }
 
       if (!userRole) return false;
 
-      // Super admin has all permissions
-      if (userRole === 'super_admin') return true;
-
-      // Admin has most permissions
-      if (userRole === 'admin') {
-        const adminPermissions = ['user:read', 'user:list', 'user:update', 'role:read', 'permission:read'];
-        return adminPermissions.includes(permission);
+      // Role-based permission mapping (UX optimization only)
+      switch (userRole) {
+        case 'super_admin':
+          return true;
+        case 'admin':
+          return ['user:read', 'user:list', 'user:update', 'role:read', 'permission:read'].includes(permission);
+        case 'seller':
+          return ['product:create', 'product:read', 'product:update', 'product:delete', 'order:read', 'order:update', 'inventory:read', 'inventory:update'].includes(permission);
+        case 'vendor':
+          return ['product:create', 'product:read', 'product:update', 'product:delete', 'order:read', 'inventory:read'].includes(permission);
+        case 'delivery_agent':
+          return ['order:read', 'order:update', 'delivery:update'].includes(permission);
+        case 'customer':
+          return ['product:read', 'order:create', 'order:read', 'review:create'].includes(permission);
+        default:
+          return false;
       }
-
-      // Seller permissions
-      if (userRole === 'seller') {
-        const sellerPermissions = ['product:create', 'product:read', 'product:update', 'product:delete', 'order:read', 'order:update', 'inventory:read', 'inventory:update'];
-        return sellerPermissions.includes(permission);
-      }
-
-      // Vendor permissions (Bangladesh specific)
-      if (userRole === 'vendor') {
-        const vendorPermissions = ['product:create', 'product:read', 'product:update', 'product:delete', 'order:read', 'inventory:read'];
-        return vendorPermissions.includes(permission);
-      }
-
-      // Delivery agent permissions (Bangladesh specific)
-      if (userRole === 'delivery_agent') {
-        const deliveryPermissions = ['order:read', 'order:update', 'delivery:update'];
-        return deliveryPermissions.includes(permission);
-      }
-
-      // Customer permissions
-      if (userRole === 'customer') {
-        const customerPermissions = ['product:read', 'order:create', 'order:read', 'review:create'];
-        return customerPermissions.includes(permission);
-      }
-
-      return false;
     },
-    [state.user?.role, state.user?.permissions]
+    [userRole, userPermissions]
   );
 
-  // Check if user has any of the specified permissions
   const hasAnyPermission = React.useCallback(
     (permissions: string[]): boolean => {
       return permissions.some((p) => hasPermission(p));
@@ -352,7 +313,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     [hasPermission]
   );
 
-  // Check if user has all specified permissions
   const hasAllPermissions = React.useCallback(
     (permissions: string[]): boolean => {
       return permissions.every((p) => hasPermission(p));
@@ -360,16 +320,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     [hasPermission]
   );
 
-  // Compute derived values
-  const displayName = state.user
-    ? state.user.displayName || `${state.user.firstName} ${state.user.lastName}`
-    : '';
+  // --- Derived Values ---
+  const displayName = state.user?.displayName || `${state.user?.firstName || ''} ${state.user?.lastName || ''}`.trim() || '';
   const userTier = state.user?.userTier || 'bronze';
-  const isVerified = state.user?.emailVerified || false;
+  const isVerified = !!(state.user?.emailVerified || state.user?.phoneVerified);
   const isMfaRequired = state.requiresMfa;
   const isAccountLockedState = state.accountLocked;
   const remainingLockTime = state.remainingLockTimeSeconds;
 
+  // --- Context Value ---
   const value: AuthContextValue = {
     ...state,
     isLoading: state.isLoading || !isInitialized,
@@ -389,7 +348,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     setupMfa,
     getMfaMethods,
     unlockAccount,
-    getRemainingLockTime: getRemainingLockTimeFn,
+    getRemainingLockTime,
     hasRole,
     hasAnyRole,
     hasAllRoles,
