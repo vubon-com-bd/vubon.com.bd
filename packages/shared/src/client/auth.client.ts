@@ -1,9 +1,9 @@
 /**
  * Auth Client - Authentication infrastructure abstraction
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module shared-auth/client/auth.client
- * 
+ *
  * RULES:
  * ✅ ONLY authentication orchestration - NO business logic
  * ✅ NO UI rendering, toast, redirect, business authorization
@@ -12,6 +12,7 @@
  * ✅ TypeScript strict
  */
 
+import { decodeJwt } from 'jose';
 import type {
   LoginRequest,
   LoginResponse,
@@ -25,6 +26,20 @@ import type { MFAVerifyResponse, MFASetupResponse } from '@vubon/shared-api';
 
 // ==================== Types ====================
 
+// বাংলাদেশ স্পেসিফিক MFA প্রোভাইডার টাইপ
+export type MFAProvider = 
+  | 'totp' 
+  | 'sms' 
+  | 'email' 
+  | 'backup_code' 
+  | 'webauthn'
+  | 'whatsapp_otp'
+  | 'imo_otp'
+  | 'bkash_pin'
+  | 'nagad_pin'
+  | 'rocket_pin'
+  | 'voice_call_otp';
+
 export interface AuthClientConfig {
   apiClient: {
     // Core auth
@@ -37,10 +52,12 @@ export interface AuthClientConfig {
     getSession?: () => Promise<{ user: UserInfo; expiresAt: string }>;
     // MFA
     verifyMFA?: (data: { mfaCode: string; methodId?: string; trustDevice?: boolean; challengeId?: string }) => Promise<MFAVerifyResponse>;
-    setupMFA?: (provider: string) => Promise<MFASetupResponse>;
-    getMFAMethods?: () => Promise<{ methods: Array<{ id: string; provider: string; isPrimary: boolean }> }>;
+    setupMFA?: (provider: MFAProvider) => Promise<MFASetupResponse>;
+    getMFAMethods?: () => Promise<{ methods: Array<{ id: string; provider: MFAProvider; isPrimary: boolean }> }>;
     // Account lock
     getAccountLockStatus?: () => Promise<{ isLocked: boolean; remainingLockTimeSeconds?: number; remainingAttemptsBeforeLock?: number }>;
+    // Unlock account
+    unlockAccount?: (data: { email?: string; phoneNumber?: string; backupCode?: string; verificationCode?: string; otpCode?: string }) => Promise<{ success: boolean; message: string }>;
     // Verification
     sendVerification?: (type: 'email' | 'phone', target: string) => Promise<{ success: boolean; expiresInSeconds: number }>;
     verifyCode?: (type: 'email' | 'phone', code: string) => Promise<{ success: boolean; verified: boolean }>;
@@ -67,7 +84,7 @@ export interface AuthState {
   refreshToken: string | null;
   requiresMfa: boolean;
   mfaSessionId?: string;
-  mfaMethods?: Array<{ id: string; provider: string; isPrimary: boolean }>;
+  mfaMethods?: Array<{ id: string; provider: MFAProvider; isPrimary: boolean }>;
   accountLocked: boolean;
   remainingLockTimeSeconds?: number;
   remainingAttemptsBeforeLock?: number;
@@ -123,7 +140,7 @@ export class AuthClient {
     if (this.autoRefreshInterval) {
       clearInterval(this.autoRefreshInterval);
     }
-    
+
     this.autoRefreshInterval = setInterval(() => {
       this.checkAndRefreshToken();
     }, this.autoRefreshIntervalSeconds * 1000);
@@ -135,7 +152,7 @@ export class AuthClient {
   private async checkAndRefreshToken(): Promise<void> {
     const token = this.state.accessToken;
     if (!token || !this.state.isAuthenticated) return;
-    
+
     const expiresIn = this.getTokenExpirySeconds(token);
     if (expiresIn !== null && expiresIn <= this.refreshTokenBufferSeconds) {
       await this.refreshSession();
@@ -162,7 +179,7 @@ export class AuthClient {
             requiresMfa: false,
             accountLocked: false,
           });
-          
+
           // Check account lock status in background
           this.checkAccountLockStatus();
           return;
@@ -184,7 +201,7 @@ export class AuthClient {
    */
   private async checkAccountLockStatus(): Promise<void> {
     if (!this.config.apiClient.getAccountLockStatus) return;
-    
+
     try {
       const status = await this.config.apiClient.getAccountLockStatus();
       if (status.isLocked) {
@@ -201,11 +218,33 @@ export class AuthClient {
   }
 
   /**
+   * Unlock account (self-service)
+   */
+  async unlockAccount(data: { email?: string; phoneNumber?: string; backupCode?: string; verificationCode?: string; otpCode?: string }): Promise<{ success: boolean; message: string }> {
+    if (!this.config.apiClient.unlockAccount) {
+      throw new Error('Account unlock not configured');
+    }
+
+    const response = await this.config.apiClient.unlockAccount(data);
+    
+    if (response.success) {
+      this.setState({
+        ...this.state,
+        accountLocked: false,
+        remainingLockTimeSeconds: undefined,
+        remainingAttemptsBeforeLock: undefined,
+      });
+    }
+    
+    return response;
+  }
+
+  /**
    * Login with email and password
    */
   async login(data: LoginRequest): Promise<LoginResponse> {
     const response = await this.config.apiClient.login(data);
-    
+
     if (response.requiresMfa) {
       // Fetch available MFA methods
       let mfaMethods;
@@ -213,7 +252,7 @@ export class AuthClient {
         const methodsRes = await this.config.apiClient.getMFAMethods();
         mfaMethods = methodsRes.methods;
       }
-      
+
       this.setState({
         ...this.state,
         requiresMfa: true,
@@ -224,7 +263,7 @@ export class AuthClient {
       });
       return response;
     }
-    
+
     this.handleLoginSuccess(response);
     return response;
   }
@@ -233,31 +272,31 @@ export class AuthClient {
    * Login with phone number (Bangladesh specific)
    */
   async phoneLogin(
-    phoneNumber: string, 
-    password: string, 
-    rememberMe?: boolean, 
+    phoneNumber: string,
+    password: string,
+    rememberMe?: boolean,
     deviceId?: string,
     mobileOperator?: 'gp' | 'robi' | 'banglalink' | 'teletalk'
   ): Promise<LoginResponse> {
     if (!this.config.apiClient.phoneLogin) {
       throw new Error('Phone login not configured');
     }
-    
-    const response = await this.config.apiClient.phoneLogin({ 
-      phoneNumber, 
-      password, 
-      rememberMe, 
+
+    const response = await this.config.apiClient.phoneLogin({
+      phoneNumber,
+      password,
+      rememberMe,
       deviceId,
       mobileOperator,
     });
-    
+
     if (response.requiresMfa) {
       let mfaMethods;
       if (this.config.apiClient.getMFAMethods) {
         const methodsRes = await this.config.apiClient.getMFAMethods();
         mfaMethods = methodsRes.methods;
       }
-      
+
       this.setState({
         ...this.state,
         requiresMfa: true,
@@ -268,7 +307,7 @@ export class AuthClient {
       });
       return response;
     }
-    
+
     this.handleLoginSuccess(response);
     return response;
   }
@@ -280,7 +319,7 @@ export class AuthClient {
     if (!this.config.apiClient.otpLogin) {
       throw new Error('OTP login not configured');
     }
-    
+
     const response = await this.config.apiClient.otpLogin({ phoneNumber, otpCode, rememberMe, deviceId });
     this.handleLoginSuccess(response);
     return response;
@@ -293,9 +332,9 @@ export class AuthClient {
     if (!this.config.apiClient.verifyMFA) {
       throw new Error('MFA verification not configured');
     }
-    
+
     const response = await this.config.apiClient.verifyMFA({ mfaCode, methodId, trustDevice, challengeId });
-    
+
     if (response.verified) {
       // After MFA verification, we need to complete login
       // This assumes the verify endpoint returns tokens
@@ -303,14 +342,14 @@ export class AuthClient {
         this.handleLoginSuccess(response as unknown as LoginResponse);
       }
     }
-    
+
     return response as unknown as LoginResponse;
   }
 
   /**
    * Setup MFA for current user
    */
-  async setupMFA(provider: string): Promise<MFASetupResponse> {
+  async setupMFA(provider: MFAProvider): Promise<MFASetupResponse> {
     if (!this.config.apiClient.setupMFA) {
       throw new Error('MFA setup not configured');
     }
@@ -320,7 +359,7 @@ export class AuthClient {
   /**
    * Get MFA methods for current user
    */
-  async getMFAMethods(): Promise<Array<{ id: string; provider: string; isPrimary: boolean }>> {
+  async getMFAMethods(): Promise<Array<{ id: string; provider: MFAProvider; isPrimary: boolean }>> {
     if (!this.config.apiClient.getMFAMethods) {
       return [];
     }
@@ -343,7 +382,7 @@ export class AuthClient {
     if (refreshToken) {
       await this.config.apiClient.logout({ refreshToken, allDevices }).catch(() => {});
     }
-    
+
     this.clearSession();
   }
 
@@ -357,7 +396,7 @@ export class AuthClient {
     }
 
     this.refreshPromise = this.doRefresh();
-    
+
     try {
       const result = await this.refreshPromise;
       return result;
@@ -379,7 +418,7 @@ export class AuthClient {
     try {
       const response = await this.config.apiClient.refreshToken(refreshToken);
       this.config.tokenStorage.setTokens(response.accessToken, response.refreshToken);
-      
+
       const user = this.decodeToken(response.accessToken);
       if (user) {
         this.setState({
@@ -393,7 +432,7 @@ export class AuthClient {
         });
         return true;
       }
-      
+
       this.clearSession();
       return false;
     } catch (error) {
@@ -409,7 +448,7 @@ export class AuthClient {
    */
   private handleLoginSuccess(response: LoginResponse): void {
     this.config.tokenStorage.setTokens(response.accessToken, response.refreshToken);
-    
+
     const user = this.decodeToken(response.accessToken);
     if (user) {
       this.setState({
@@ -470,22 +509,11 @@ export class AuthClient {
   }
 
   /**
-   * Decode JWT payload
+   * Decode JWT payload using jose (cross-platform: Node.js + Browser)
    */
   private decodeTokenPayload(token: string): Record<string, unknown> | null {
     try {
-      const base64Url = token.split('.')[1];
-      if (!base64Url) return null;
-      
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
-      );
-      
-      return JSON.parse(jsonPayload);
+      return decodeJwt(token);
     } catch {
       return null;
     }
@@ -497,7 +525,7 @@ export class AuthClient {
   private decodeToken(token: string): User | null {
     const payload = this.decodeTokenPayload(token);
     if (!payload) return null;
-    
+
     return {
       id: (payload.sub || payload.userId || payload.id) as string,
       email: payload.email as string,
@@ -529,7 +557,7 @@ export class AuthClient {
   subscribe(listener: (state: AuthState) => void): () => void {
     this.listeners.add(listener);
     listener(this.getState());
-    
+
     return () => {
       this.listeners.delete(listener);
     };
@@ -640,4 +668,4 @@ export const resetAuthClient = (): void => {
 
 // ==================== Type Exports ====================
 
-export type { AuthClientConfig, AuthState, User };
+export type { AuthClientConfig, AuthState, User, MFAProvider };
