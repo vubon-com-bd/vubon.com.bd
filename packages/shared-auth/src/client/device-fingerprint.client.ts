@@ -2,7 +2,7 @@
  * Device Fingerprint Client - Browser fingerprint abstraction
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  *
- * @module shared-auth/client/device-fingerprint.client
+ * @module shared-auth/src/client/device-fingerprint.client
  *
  * RULES:
  * ✅ ONLY browser fingerprint abstraction - NO invasive tracking
