@@ -2,7 +2,7 @@
  * Token Storage - Secure token storage abstraction
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  *
- * @module shared-auth/client/token-storage
+ * @module shared-auth/src/client/token-storage
  *
  * RULES:
  * ✅ ONLY token storage abstraction - NO business logic
