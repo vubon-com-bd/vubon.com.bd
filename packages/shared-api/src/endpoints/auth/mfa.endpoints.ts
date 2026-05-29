@@ -1,9 +1,9 @@
 /**
  * MFA Endpoints - Multi-Factor Authentication API contracts
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module shared-api/endpoints/auth/mfa.endpoints
- * 
+ *
  * RULES:
  * ✅ ONLY API endpoint contracts - NO business logic
  * ✅ NO TOTP generation, secret encryption
@@ -14,6 +14,20 @@
 
 import type { AxiosInstance } from 'axios';
 import type { ApiResponse } from '@vubon/auth-types';
+
+// Import API routes from constants and retry utilities
+import { API_ROUTES } from '@vubon/auth-constants';
+import { withRetry, DEFAULT_RETRY_CONFIG } from '../../client/retry.client';
+
+// ==================== Constants ====================
+
+// Base path for MFA endpoints
+const MFA_BASE = '/api/v1/mfa';
+
+// Helper function for idempotent GET requests with retry
+const withIdempotentRetry = async <T>(requestFn: () => Promise<T>): Promise<T> => {
+    return withRetry(requestFn, DEFAULT_RETRY_CONFIG);
+};
 
 // ==================== Types ====================
 
@@ -193,124 +207,145 @@ export const createMfaEndpoints = (client: AxiosInstance) => {
   return {
     /**
      * Get MFA status for current user
+     * Idempotent GET - safe to retry
      */
     getStatus: async (): Promise<MFAStatusResponse> => {
-      const response = await client.get<ApiResponse<MFAStatusResponse>>('/api/v1/mfa/status');
-      return response.data.data;
+      return withIdempotentRetry(async () => {
+        const response = await client.get<ApiResponse<MFAStatusResponse>>(`${MFA_BASE}/status`);
+        return response.data.data;
+      });
     },
-    
+
     /**
      * Setup MFA for a provider
+     * Non-idempotent POST - no retry (user action)
      */
     setup: async (data: MFASetupRequest): Promise<MFASetupResponse> => {
-      const response = await client.post<ApiResponse<MFASetupResponse>>('/api/v1/mfa/setup', data);
+      const response = await client.post<ApiResponse<MFASetupResponse>>(`${MFA_BASE}/setup`, data);
       return response.data.data;
     },
-    
+
     /**
      * Setup TOTP specifically
+     * Non-idempotent POST - no retry (user action)
      */
     setupTotp: async (data: TOTPSetupRequest): Promise<TOTPSetupResponse> => {
-      const response = await client.post<ApiResponse<TOTPSetupResponse>>('/api/v1/mfa/totp/setup', data);
+      const response = await client.post<ApiResponse<TOTPSetupResponse>>(`${MFA_BASE}/totp/setup`, data);
       return response.data.data;
     },
-    
+
     /**
      * Verify and enable MFA
+     * Non-idempotent POST - no retry (user action)
      */
     verify: async (data: MFAVerifyRequest): Promise<MFAVerifyResponse> => {
-      const response = await client.post<ApiResponse<MFAVerifyResponse>>('/api/v1/mfa/verify', data);
+      const response = await client.post<ApiResponse<MFAVerifyResponse>>(`${MFA_BASE}/verify`, data);
       return response.data.data;
     },
-    
+
     /**
      * Disable MFA for a method or all methods
+     * Non-idempotent POST - no retry (user/admin action)
      */
     disable: async (methodId?: string, reason?: string): Promise<{ success: boolean; message: string }> => {
-      const response = await client.post<ApiResponse<{ success: boolean; message: string }>>('/api/v1/mfa/disable', { 
+      const response = await client.post<ApiResponse<{ success: boolean; message: string }>>(`${MFA_BASE}/disable`, { 
         methodId, 
         reason 
       });
       return response.data.data;
     },
-    
+
     /**
      * Get backup codes
+     * Idempotent GET - safe to retry
      */
     getBackupCodes: async (): Promise<{ backupCodes: string[]; remainingCount: number; totalCount: number }> => {
-      const response = await client.get<ApiResponse<{ backupCodes: string[]; remainingCount: number; totalCount: number }>>('/api/v1/mfa/backup-codes');
-      return response.data.data;
+      return withIdempotentRetry(async () => {
+        const response = await client.get<ApiResponse<{ backupCodes: string[]; remainingCount: number; totalCount: number }>>(`${MFA_BASE}/backup-codes`);
+        return response.data.data;
+      });
     },
-    
+
     /**
      * Regenerate backup codes
+     * Non-idempotent POST - no retry (user action)
      */
     regenerateBackupCodes: async (): Promise<{ backupCodes: string[] }> => {
-      const response = await client.post<ApiResponse<{ backupCodes: string[] }>>('/api/v1/mfa/backup-codes/regenerate');
+      const response = await client.post<ApiResponse<{ backupCodes: string[] }>>(`${MFA_BASE}/backup-codes/regenerate`);
       return response.data.data;
     },
-    
+
     /**
      * Verify with backup code (recovery)
+     * Non-idempotent POST - no retry (user action)
      */
     verifyWithBackupCode: async (data: MFARecoveryRequest): Promise<MFARecoveryResponse> => {
-      const response = await client.post<ApiResponse<MFARecoveryResponse>>('/api/v1/mfa/recovery', data);
+      const response = await client.post<ApiResponse<MFARecoveryResponse>>(`${MFA_BASE}/recovery`, data);
       return response.data.data;
     },
-    
+
     /**
      * Create MFA challenge for step-up authentication
+     * Non-idempotent POST - no retry (user action)
      */
     createChallenge: async (data: MFAChallengeRequest): Promise<MFAChallengeResponse> => {
-      const response = await client.post<ApiResponse<MFAChallengeResponse>>('/api/v1/mfa/challenge', data);
+      const response = await client.post<ApiResponse<MFAChallengeResponse>>(`${MFA_BASE}/challenge`, data);
       return response.data.data;
     },
-    
+
     /**
      * Get challenge status
+     * Idempotent GET - safe to retry
      */
     getChallengeStatus: async (challengeId: string): Promise<MFAChallengeResponse> => {
-      const response = await client.get<ApiResponse<MFAChallengeResponse>>(`/api/v1/mfa/challenge/${challengeId}`);
-      return response.data.data;
+      return withIdempotentRetry(async () => {
+        const response = await client.get<ApiResponse<MFAChallengeResponse>>(`${MFA_BASE}/challenge/${challengeId}`);
+        return response.data.data;
+      });
     },
-    
+
     /**
      * Set primary MFA method
+     * Non-idempotent POST - no retry (user action)
      */
     setPrimaryMethod: async (methodId: string): Promise<{ success: boolean }> => {
-      const response = await client.post<ApiResponse<{ success: boolean }>>('/api/v1/mfa/primary', { methodId });
+      const response = await client.post<ApiResponse<{ success: boolean }>>(`${MFA_BASE}/primary`, { methodId });
       return response.data.data;
     },
-    
+
     /**
      * Get WebAuthn registration options
+     * Non-idempotent POST - no retry (user action, triggers state change on server)
      */
     getWebAuthnRegistration: async (data: WebAuthnRegistrationRequest): Promise<WebAuthnRegistrationResponse> => {
-      const response = await client.post<ApiResponse<WebAuthnRegistrationResponse>>('/api/v1/mfa/webauthn/register/begin', data);
+      const response = await client.post<ApiResponse<WebAuthnRegistrationResponse>>(`${MFA_BASE}/webauthn/register/begin`, data);
       return response.data.data;
     },
-    
+
     /**
      * Complete WebAuthn registration
+     * Non-idempotent POST - no retry (user action)
      */
     completeWebAuthnRegistration: async (credential: unknown): Promise<MFASetupResponse> => {
-      const response = await client.post<ApiResponse<MFASetupResponse>>('/api/v1/mfa/webauthn/register/complete', { credential });
+      const response = await client.post<ApiResponse<MFASetupResponse>>(`${MFA_BASE}/webauthn/register/complete`, { credential });
       return response.data.data;
     },
-    
+
     /**
      * Get WebAuthn authentication options
+     * Non-idempotent POST - no retry (user action, triggers state change on server)
      */
     getWebAuthnAuth: async (): Promise<WebAuthnAuthResponse> => {
-      const response = await client.get<ApiResponse<WebAuthnAuthResponse>>('/api/v1/mfa/webauthn/auth/begin');
+      const response = await client.post<ApiResponse<WebAuthnAuthResponse>>(`${MFA_BASE}/webauthn/auth/begin`);
       return response.data.data;
     },
-    
+
     /**
      * Complete WebAuthn authentication
+     * Non-idempotent POST - no retry (user action)
      */
     completeWebAuthnAuth: async (credential: unknown): Promise<MFAVerifyResponse> => {
-      const response = await client.post<ApiResponse<MFAVerifyResponse>>('/api/v1/mfa/webauthn/auth/complete', { credential });
+      const response = await client.post<ApiResponse<MFAVerifyResponse>>(`${MFA_BASE}/webauthn/auth/complete`, { credential });
       return response.data.data;
     },
   };
