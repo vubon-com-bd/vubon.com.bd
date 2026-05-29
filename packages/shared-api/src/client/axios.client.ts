@@ -1,9 +1,9 @@
 /**
  * Axios Client - Enterprise HTTP client configuration
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module shared-api/src/client/axios.client
- * 
+ *
  * RULES:
  * ✅ ONLY HTTP client configuration - NO business logic
  * ✅ NO UI, routing, toast, React components
@@ -12,9 +12,9 @@
  * ✅ No database or framework imports
  */
 
-import axios, { 
-  type AxiosInstance, 
-  type AxiosRequestConfig, 
+import axios, {
+  type AxiosInstance,
+  type AxiosRequestConfig,
   type AxiosResponse,
   type AxiosError,
   type InternalAxiosRequestConfig,
@@ -22,6 +22,9 @@ import axios, {
 
 // Import types from shared packages
 import type { ApiResponse, ApiErrorResponse } from '@vubon/auth-types';
+
+// Import config from shared-config (optional - can be overridden)
+import { env } from '@vubon/shared-config/env';
 
 // ==================== Configuration ====================
 
@@ -33,20 +36,28 @@ export interface HttpClientConfig {
   maxRedirects?: number;
   maxContentLength?: number;
   proxy?: boolean;
+  /** Maximum number of retries for failed requests */
+  maxRetries?: number;
+  /** Retry delay in milliseconds (base for exponential backoff) */
+  retryDelayMs?: number;
 }
 
 export const DEFAULT_CLIENT_CONFIG: HttpClientConfig = {
-  baseURL: typeof window !== 'undefined' ? window.location.origin : process.env.API_URL || 'http://localhost:3000',
-  timeout: 30000,
+  baseURL: (typeof window !== 'undefined' ? window.location.origin : env.API_URL) || 'http://localhost:3000',
+  timeout: env.HTTP_TIMEOUT ? Number(env.HTTP_TIMEOUT) : 30000,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
     'X-Requested-With': 'XMLHttpRequest',
+    'X-Client-Version': '1.0.0',
+    'X-Platform': 'web',
   },
   maxRedirects: 5,
   maxContentLength: 10 * 1024 * 1024, // 10MB
   proxy: false,
+  maxRetries: 3,
+  retryDelayMs: 1000,
 };
 
 // ==================== Types ====================
@@ -55,16 +66,37 @@ export interface RequestConfig extends AxiosRequestConfig {
   skipAuth?: boolean;
   skipRefresh?: boolean;
   retryCount?: number;
+  /** Skip retry for this specific request */
+  skipRetry?: boolean;
+  /** Request priority for queueing */
+  priority?: 'high' | 'normal' | 'low';
 }
 
 export type RequestInterceptor = (config: InternalAxiosRequestConfig) => InternalAxiosRequestConfig | Promise<InternalAxiosRequestConfig>;
 export type ResponseInterceptor = (response: AxiosResponse) => AxiosResponse | Promise<AxiosResponse>;
 export type ErrorInterceptor = (error: AxiosError) => Promise<never>;
 
+/**
+ * Request queue item interface
+ */
+interface QueuedRequest {
+  config: RequestConfig;
+  resolve: (value: AxiosResponse) => void;
+  reject: (reason?: unknown) => void;
+  priority: number;
+  timestamp: number;
+}
+
 // ==================== Client Creation ====================
 
 let clientInstance: AxiosInstance | null = null;
 let interceptorsRegistered = false;
+
+// Request queue for handling concurrent requests
+let requestQueue: QueuedRequest[] = [];
+let isProcessingQueue = false;
+let activeRequests = 0;
+const MAX_CONCURRENT_REQUESTS = 5;
 
 /**
  * Create axios instance with configuration
@@ -72,7 +104,7 @@ let interceptorsRegistered = false;
  */
 export const createAxiosClient = (config?: Partial<HttpClientConfig>): AxiosInstance => {
   const finalConfig = { ...DEFAULT_CLIENT_CONFIG, ...config };
-  
+
   const client = axios.create({
     baseURL: finalConfig.baseURL,
     timeout: finalConfig.timeout,
@@ -82,8 +114,64 @@ export const createAxiosClient = (config?: Partial<HttpClientConfig>): AxiosInst
     maxContentLength: finalConfig.maxContentLength,
     proxy: finalConfig.proxy,
   });
-  
+
   return client;
+};
+
+/**
+ * Process queued requests
+ */
+const processQueue = async (): Promise<void> => {
+  if (isProcessingQueue || requestQueue.length === 0) return;
+  if (activeRequests >= MAX_CONCURRENT_REQUESTS) return;
+
+  isProcessingQueue = true;
+
+  try {
+    // Sort by priority (higher number = higher priority)
+    requestQueue.sort((a, b) => b.priority - a.priority);
+
+    while (requestQueue.length > 0 && activeRequests < MAX_CONCURRENT_REQUESTS) {
+      const queued = requestQueue.shift();
+      if (!queued) continue;
+
+      activeRequests++;
+
+      const { config, resolve, reject } = queued;
+
+      // Execute request without queueing again
+      const client = getAxiosClient();
+      client(config)
+        .then(resolve)
+        .catch(reject)
+        .finally(() => {
+          activeRequests--;
+          processQueue(); // Process next batch
+        });
+    }
+  } finally {
+    isProcessingQueue = false;
+  }
+};
+
+/**
+ * Queue a request (for rate limiting / concurrency control)
+ */
+export const queueRequest = (config: RequestConfig): Promise<AxiosResponse> => {
+  return new Promise((resolve, reject) => {
+    const priorityMap = { high: 3, normal: 2, low: 1 };
+    const priority = priorityMap[config.priority || 'normal'];
+
+    requestQueue.push({
+      config,
+      resolve,
+      reject,
+      priority,
+      timestamp: Date.now(),
+    });
+
+    processQueue();
+  });
 };
 
 /**
@@ -99,7 +187,7 @@ export const registerInterceptors = (
   if (onRequest) {
     client.interceptors.request.use(onRequest);
   }
-  
+
   if (onResponse || onError) {
     client.interceptors.response.use(
       onResponse || ((response) => response),
@@ -129,6 +217,9 @@ export const resetAxiosClient = (): void => {
     clientInstance = null;
   }
   interceptorsRegistered = false;
+  requestQueue = [];
+  activeRequests = 0;
+  isProcessingQueue = false;
 };
 
 /**
@@ -192,7 +283,7 @@ export const isClientInitialized = (): boolean => {
  */
 export const getClientConfig = (): Partial<HttpClientConfig> | null => {
   if (!clientInstance) return null;
-  
+
   return {
     baseURL: clientInstance.defaults.baseURL,
     timeout: clientInstance.defaults.timeout,
@@ -211,11 +302,11 @@ export const createAbortableConfig = (timeoutMs?: number): RequestConfig => {
   const config: RequestConfig = {
     signal: controller.signal,
   };
-  
+
   if (timeoutMs) {
     setTimeout(() => controller.abort(), timeoutMs);
   }
-  
+
   return config;
 };
 
@@ -226,12 +317,41 @@ export const cancelRequest = (controller: AbortController): void => {
   controller.abort();
 };
 
+/**
+ * Get queue status
+ */
+export const getQueueStatus = (): {
+  queuedRequests: number;
+  activeRequests: number;
+  maxConcurrent: number;
+} => {
+  return {
+    queuedRequests: requestQueue.length,
+    activeRequests,
+    maxConcurrent: MAX_CONCURRENT_REQUESTS,
+  };
+};
+
+/**
+ * Clear all queued requests
+ */
+export const clearQueue = (): void => {
+  const failedRequests = [...requestQueue];
+  requestQueue = [];
+  activeRequests = 0;
+
+  // Reject all pending requests
+  failedRequests.forEach(({ reject }) => {
+    reject(new Error('Request queue cleared'));
+  });
+};
+
 // ==================== Type Exports ====================
 
-export type { 
-  AxiosInstance, 
-  AxiosRequestConfig, 
-  AxiosResponse, 
+export type {
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
   AxiosError,
   InternalAxiosRequestConfig,
   ApiResponse,
