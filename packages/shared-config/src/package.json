@@ -1,0 +1,182 @@
+{
+  "name": "@vubon/shared-config",
+  "version": "1.0.0",
+  "description": "Centralized configuration layer for vubon.com.bd ecommerce ecosystem - Bangladesh's #1 Enterprise E-commerce",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./env": {
+      "types": "./dist/env/index.d.ts",
+      "import": "./dist/env/index.mjs",
+      "require": "./dist/env/index.js"
+    },
+    "./oauth": {
+      "types": "./dist/oauth/index.d.ts",
+      "import": "./dist/oauth/index.mjs",
+      "require": "./dist/oauth/index.js"
+    },
+    "./seo": {
+      "types": "./dist/seo/index.d.ts",
+      "import": "./dist/seo/index.mjs",
+      "require": "./dist/seo/index.js"
+    },
+    "./security": {
+      "types": "./dist/security/index.d.ts",
+      "import": "./dist/security/index.mjs",
+      "require": "./dist/security/index.js"
+    },
+    "./env/schema": {
+      "types": "./dist/env/env.schema.d.ts",
+      "import": "./dist/env/env.schema.mjs",
+      "require": "./dist/env/env.schema.js"
+    },
+    "./env/validation": {
+      "types": "./dist/env/env.validation.d.ts",
+      "import": "./dist/env/env.validation.mjs",
+      "require": "./dist/env/env.validation.js"
+    },
+    "./oauth/google": {
+      "types": "./dist/oauth/google.config.d.ts",
+      "import": "./dist/oauth/google.config.mjs",
+      "require": "./dist/oauth/google.config.js"
+    },
+    "./oauth/facebook": {
+      "types": "./dist/oauth/facebook.config.d.ts",
+      "import": "./dist/oauth/facebook.config.mjs",
+      "require": "./dist/oauth/facebook.config.js"
+    },
+    "./oauth/github": {
+      "types": "./dist/oauth/github.config.d.ts",
+      "import": "./dist/oauth/github.config.mjs",
+      "require": "./dist/oauth/github.config.js"
+    },
+    "./oauth/apple": {
+      "types": "./dist/oauth/apple.config.d.ts",
+      "import": "./dist/oauth/apple.config.mjs",
+      "require": "./dist/oauth/apple.config.js"
+    },
+    "./oauth/linkedin": {
+      "types": "./dist/oauth/linkedin.config.d.ts",
+      "import": "./dist/oauth/linkedin.config.mjs",
+      "require": "./dist/oauth/linkedin.config.js"
+    },
+    "./seo/seo": {
+      "types": "./dist/seo/seo.config.d.ts",
+      "import": "./dist/seo/seo.config.mjs",
+      "require": "./dist/seo/seo.config.js"
+    },
+    "./seo/robots": {
+      "types": "./dist/seo/robots.config.d.ts",
+      "import": "./dist/seo/robots.config.mjs",
+      "require": "./dist/seo/robots.config.js"
+    },
+    "./seo/sitemap": {
+      "types": "./dist/seo/sitemap.config.d.ts",
+      "import": "./dist/seo/sitemap.config.mjs",
+      "require": "./dist/seo/sitemap.config.js"
+    },
+    "./security/cors": {
+      "types": "./dist/security/cors.config.d.ts",
+      "import": "./dist/security/cors.config.mjs",
+      "require": "./dist/security/cors.config.js"
+    },
+    "./security/rate-limit": {
+      "types": "./dist/security/rate-limit.config.d.ts",
+      "import": "./dist/security/rate-limit.config.mjs",
+      "require": "./dist/security/rate-limit.config.js"
+    },
+    "./security/helmet": {
+      "types": "./dist/security/helmet.config.d.ts",
+      "import": "./dist/security/helmet.config.mjs",
+      "require": "./dist/security/helmet.config.js"
+    }
+  },
+  "files": [
+    "dist/**/*",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "build:tsc": "tsc",
+    "clean": "rm -rf dist",
+    "dev": "tsup --watch",
+    "prepublishOnly": "npm run clean && npm run build",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\""
+  },
+  "keywords": [
+    "config",
+    "env",
+    "oauth",
+    "seo",
+    "security",
+    "enterprise",
+    "ecommerce",
+    "vubon",
+    "bangladesh",
+    "cors",
+    "rate-limit",
+    "helmet",
+    "csp",
+    "sitemap",
+    "robots-txt",
+    "google",
+    "facebook",
+    "github",
+    "apple",
+    "linkedin"
+  ],
+  "author": "Vubon E-commerce",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "dotenv-expand": "^10.0.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "peerDependencies": {
+    "@vubon/auth-constants": "workspace:*",
+    "@vubon/shared-types": "workspace:*",
+    "@vubon/auth-schemas": "workspace:*",
+    "@vubon/shared-utils": "workspace:*"
+  },
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vubon/shared-config.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vubon/shared-config/issues"
+  },
+  "homepage": "https://vubon.com.bd"
+}
