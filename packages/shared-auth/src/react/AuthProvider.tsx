@@ -14,13 +14,40 @@
 import React from 'react';
 import { AuthContext, type AuthContextValue, type RegisterFormData, type LoginCredentials, type PhoneLoginCredentials, type OtpLoginCredentials } from './AuthContext';
 import type { AuthClient, MFAProvider } from '../client/auth.client';
+import { env } from '@vubon/shared-config/env';
+
+// ==================== Constants ====================
+
+// Session check interval (configurable via env, default: 60 seconds)
+const SESSION_CHECK_INTERVAL_MS = env.SESSION_CHECK_INTERVAL_MS ? Number(env.SESSION_CHECK_INTERVAL_MS) : 60000;
+
+// Helper: Normalize role/permission strings
+const normalizeString = (value: string): string => value.toLowerCase().trim();
+
+// Helper: Check if permission matches wildcard pattern (e.g., 'product:*')
+const matchesWildcard = (permission: string, userPermission: string): boolean => {
+  if (permission.endsWith(':*')) {
+    const resource = permission.slice(0, -2);
+    return userPermission.startsWith(`${resource}:`);
+  }
+  return false;
+};
+
+// Helper: Check if role matches wildcard pattern (e.g., 'admin:*')
+const matchesRoleWildcard = (rolePattern: string, userRole: string): boolean => {
+  if (rolePattern.endsWith(':*')) {
+    const rolePrefix = rolePattern.slice(0, -2);
+    return userRole.startsWith(rolePrefix);
+  }
+  return false;
+};
 
 // ==================== Types ====================
 
 export interface AuthProviderProps {
   children: React.ReactNode;
   authClient: AuthClient;
-  /** Loading component to show while initializing */
+  /** Loading component to show while initializing (renamed from loadingComponent for consistency with AuthContext) */
   loadingFallback?: React.ReactNode;
   onLoginSuccess?: (user: AuthContextValue['user']) => void;
   onLoginError?: (error: Error) => void;
@@ -31,33 +58,7 @@ export interface AuthProviderProps {
   onSessionExpired?: () => void;
   onMfaRequired?: () => void;
   onAccountLocked?: (remainingTimeSeconds: number) => void;
-  /** Callback when session is about to expire (e.g., 5 minutes before expiry) */
-  onSessionExpiring?: (remainingSeconds: number) => void;
-  /** Session check interval in milliseconds (default: 60000 - 1 minute) */
-  sessionCheckIntervalMs?: number;
-  /** Session expiry warning threshold in seconds (default: 300 - 5 minutes) */
-  sessionExpiryWarningThresholdSeconds?: number;
 }
-
-// ==================== Constants ====================
-
-const DEFAULT_SESSION_CHECK_INTERVAL_MS = 60000; // 1 minute
-const DEFAULT_SESSION_EXPIRY_WARNING_THRESHOLD_SECONDS = 300; // 5 minutes
-
-// ==================== Utility Functions ====================
-
-/**
- * Format display name from user data
- * Pure function - no side effects
- */
-const formatDisplayName = (user: AuthContextValue['user']): string => {
-  if (user?.displayName) return user.displayName;
-  if (user?.firstName && user?.lastName) return `${user.firstName} ${user.lastName}`.trim();
-  if (user?.firstName) return user.firstName;
-  if (user?.lastName) return user.lastName;
-  if (user?.email) return user.email;
-  return '';
-};
 
 // ==================== Provider ====================
 
@@ -74,9 +75,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   onSessionExpired,
   onMfaRequired,
   onAccountLocked,
-  onSessionExpiring,
-  sessionCheckIntervalMs = DEFAULT_SESSION_CHECK_INTERVAL_MS,
-  sessionExpiryWarningThresholdSeconds = DEFAULT_SESSION_EXPIRY_WARNING_THRESHOLD_SECONDS,
 }) => {
   const [state, setState] = React.useState(() => authClient.getState());
   const [isInitialized, setIsInitialized] = React.useState(false);
@@ -86,8 +84,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 
   // Track previous lock status for callbacks
   const prevLockedRef = React.useRef(false);
-  const prevRequiresMfaRef = React.useRef(false);
-  const sessionCheckIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
 
   // Subscribe to auth client changes
   React.useEffect(() => {
@@ -97,20 +93,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         onAccountLocked?.(newState.remainingLockTimeSeconds || 0);
       }
       prevLockedRef.current = newState.accountLocked;
-      
-      // Check for MFA requirement change
-      if (prevRequiresMfaRef.current !== newState.requiresMfa && newState.requiresMfa) {
-        onMfaRequired?.();
-      }
-      prevRequiresMfaRef.current = newState.requiresMfa;
-      
       setState(newState);
     });
 
     // Initialize auth client
     authClient.initialize()
       .catch((error) => {
-        if (process.env.NODE_ENV === 'development') {
+        // Use a more sophisticated logger in production
+        if (env.NODE_ENV === 'development') {
           console.error('Auth initialization error:', error);
         }
         onError?.(error);
@@ -120,48 +110,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       });
 
     return unsubscribe;
-  }, [authClient, onError, onAccountLocked, onMfaRequired]);
+  }, [authClient, onError, onAccountLocked]);
 
   // Check MFA requirement after login attempts
   React.useEffect(() => {
-    if (state.requiresMfa && isInitialized && !prevRequiresMfaRef.current) {
+    if (state.requiresMfa && isInitialized) {
       onMfaRequired?.();
     }
   }, [state.requiresMfa, isInitialized, onMfaRequired]);
 
-  // Check session expiry and expiring warning periodically
+  // Check session expiry periodically
   React.useEffect(() => {
-    if (!onSessionExpired && !onSessionExpiring) return;
+    if (!onSessionExpired) return;
 
-    const checkSession = () => {
-      if (!state.isAuthenticated) return;
-      
-      const remainingSeconds = authClient.getSessionRemainingTime?.() ?? 0;
-      
-      // Check if session is expired
-      if (remainingSeconds <= 0 && authClient.isAuthenticated && !authClient.isAuthenticated()) {
-        onSessionExpired?.();
-        return;
+    const checkInterval = setInterval(() => {
+      if (state.isAuthenticated && authClient.isAuthenticated && !authClient.isAuthenticated()) {
+        onSessionExpired();
       }
-      
-      // Check if session is about to expire (warning)
-      if (onSessionExpiring && remainingSeconds > 0 && remainingSeconds <= sessionExpiryWarningThresholdSeconds) {
-        onSessionExpiring(remainingSeconds);
-      }
-    };
+    }, SESSION_CHECK_INTERVAL_MS);
 
-    sessionCheckIntervalRef.current = setInterval(checkSession, sessionCheckIntervalMs);
-    
-    // Initial check
-    checkSession();
-
-    return () => {
-      if (sessionCheckIntervalRef.current) {
-        clearInterval(sessionCheckIntervalRef.current);
-        sessionCheckIntervalRef.current = null;
-      }
-    };
-  }, [state.isAuthenticated, authClient, onSessionExpired, onSessionExpiring, sessionCheckIntervalMs, sessionExpiryWarningThresholdSeconds]);
+    return () => clearInterval(checkInterval);
+  }, [state.isAuthenticated, authClient, onSessionExpired]);
 
   // --- Authentication Methods ---
   const login = React.useCallback(
@@ -304,24 +273,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     return authClient.getRemainingLockTime();
   }, [authClient]);
 
-  // --- Role & Permission Helpers (UI only) - With Multi-role support ---
+  // --- Role & Permission Helpers (UI only) - Enhanced with wildcard support and multi-role support ---
   const userRoles = React.useMemo(() => {
     const role = state.user?.role;
-    // Support both single role (string) and multiple roles (array)
-    if (Array.isArray(role)) return role;
-    if (role) return [role];
-    return [];
-  }, [state.user?.role]);
-  
+    // Support for multiple roles (if user has roles array, otherwise convert single role to array)
+    if (state.user?.roles && Array.isArray(state.user.roles)) {
+      return state.user.roles.map(normalizeString);
+    }
+    return role ? [normalizeString(role)] : [];
+  }, [state.user?.role, state.user?.roles]);
+
   const userPermissions = React.useMemo(() => {
-    return state.user?.permissions ?? [];
+    return state.user?.permissions?.map(normalizeString) ?? [];
   }, [state.user?.permissions]);
 
   const hasRole = React.useCallback(
     (role: string | string[]): boolean => {
       if (userRoles.length === 0) return false;
+
       const rolesToCheck = Array.isArray(role) ? role : [role];
-      return rolesToCheck.some(r => userRoles.includes(r));
+      const normalizedRoles = rolesToCheck.map(normalizeString);
+
+      return normalizedRoles.some(requiredRole => {
+        // Wildcard check (e.g., 'admin:*' matches 'admin', 'admin_super', 'admin_regular')
+        if (requiredRole.endsWith(':*')) {
+          const rolePrefix = requiredRole.slice(0, -2);
+          return userRoles.some(userRole => userRole.startsWith(rolePrefix));
+        }
+        return userRoles.includes(requiredRole);
+      });
     },
     [userRoles]
   );
@@ -329,7 +309,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const hasAnyRole = React.useCallback(
     (roles: string[]): boolean => {
       if (userRoles.length === 0) return false;
-      return roles.some(r => userRoles.includes(r));
+      const normalizedRoles = roles.map(normalizeString);
+      return normalizedRoles.some(requiredRole => {
+        if (requiredRole.endsWith(':*')) {
+          const rolePrefix = requiredRole.slice(0, -2);
+          return userRoles.some(userRole => userRole.startsWith(rolePrefix));
+        }
+        return userRoles.includes(requiredRole);
+      });
     },
     [userRoles]
   );
@@ -337,72 +324,87 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const hasAllRoles = React.useCallback(
     (roles: string[]): boolean => {
       if (userRoles.length === 0) return false;
-      return roles.every(r => userRoles.includes(r));
+      const normalizedRoles = roles.map(normalizeString);
+      return normalizedRoles.every(requiredRole => {
+        if (requiredRole.endsWith(':*')) {
+          const rolePrefix = requiredRole.slice(0, -2);
+          return userRoles.some(userRole => userRole.startsWith(rolePrefix));
+        }
+        return userRoles.includes(requiredRole);
+      });
     },
     [userRoles]
   );
 
-  // Check if permission matches wildcard pattern (e.g., 'product:*' matches 'product:create')
-  const matchesWildcard = (permissionPattern: string, actualPermission: string): boolean => {
-    if (!permissionPattern.endsWith(':*')) return false;
-    const resource = permissionPattern.slice(0, -2);
-    return actualPermission.startsWith(`${resource}:`);
-  };
-
   const hasPermission = React.useCallback(
     (permission: string | string[]): boolean => {
-      const permissionsToCheck = Array.isArray(permission) ? permission : [permission];
-      
-      // Check explicit permissions from token (including wildcards)
-      for (const required of permissionsToCheck) {
-        let hasMatch = false;
-        
-        for (const userPerm of userPermissions) {
-          // Direct match
-          if (userPerm === required) {
-            hasMatch = true;
-            break;
-          }
-          // Wildcard match (user has 'product:*', required is 'product:create')
-          if (matchesWildcard(userPerm, required)) {
-            hasMatch = true;
-            break;
-          }
-          // Required is wildcard, user has any matching permission
-          if (matchesWildcard(required, userPerm)) {
-            hasMatch = true;
-            break;
+      if (userPermissions.length === 0) {
+        // Fallback to role-based permission mapping only if no explicit permissions
+        if (!userRoles.length) return false;
+
+        // Role-based permission mapping (UX optimization only - NOT security boundary)
+        const roleBasedPermissions: Record<string, string[]> = {
+          super_admin: [],
+          admin: ['user:read', 'user:list', 'user:update', 'role:read', 'permission:read'],
+          seller: ['product:create', 'product:read', 'product:update', 'product:delete', 'order:read', 'order:update', 'inventory:read', 'inventory:update'],
+          vendor: ['product:create', 'product:read', 'product:update', 'product:delete', 'order:read', 'inventory:read'],
+          delivery_agent: ['order:read', 'order:update', 'delivery:update'],
+          customer: ['product:read', 'order:create', 'order:read', 'review:create'],
+        };
+
+        // Super admin has all permissions
+        if (userRoles.includes('super_admin')) return true;
+
+        // Check role-based permissions
+        let allowedPermissions: string[] = [];
+        for (const role of userRoles) {
+          if (roleBasedPermissions[role]) {
+            allowedPermissions = [...allowedPermissions, ...roleBasedPermissions[role]];
           }
         }
-        
-        if (!hasMatch) return false;
+
+        const permissionsToCheck = Array.isArray(permission) ? permission : [permission];
+        const normalizedPermissions = permissionsToCheck.map(normalizeString);
+
+        return normalizedPermissions.some(p => allowedPermissions.includes(p));
       }
-      
-      return true;
+
+      // Check against actual user permissions (from token)
+      const permissionsToCheck = Array.isArray(permission) ? permission : [permission];
+      const normalizedPermissions = permissionsToCheck.map(normalizeString);
+
+      return normalizedPermissions.some(requiredPermission => {
+        // Wildcard check (e.g., 'product:*' matches 'product:create', 'product:read', etc.)
+        if (requiredPermission.endsWith(':*')) {
+          const resource = requiredPermission.slice(0, -2);
+          return userPermissions.some(userPerm => userPerm.startsWith(`${resource}:`));
+        }
+        return userPermissions.includes(requiredPermission);
+      });
     },
-    [userPermissions]
+    [userPermissions, userRoles]
   );
 
   const hasAnyPermission = React.useCallback(
     (permissions: string[]): boolean => {
-      return permissions.some((p) => hasPermission(p));
+      const normalizedPermissions = permissions.map(normalizeString);
+      return normalizedPermissions.some(p => hasPermission(p));
     },
     [hasPermission]
   );
 
   const hasAllPermissions = React.useCallback(
     (permissions: string[]): boolean => {
-      return permissions.every((p) => hasPermission(p));
+      const normalizedPermissions = permissions.map(normalizeString);
+      return normalizedPermissions.every(p => hasPermission(p));
     },
     [hasPermission]
   );
 
   // --- Derived Values ---
-  const displayName = formatDisplayName(state.user);
+  const displayName = state.user?.displayName || `${state.user?.firstName || ''} ${state.user?.lastName || ''}`.trim() || '';
   const userTier = state.user?.userTier || 'bronze';
-  const isEmailVerified = state.user?.emailVerified ?? false;
-  const isPhoneVerified = state.user?.phoneVerified ?? false;
-  const isVerified = isEmailVerified && isPhoneVerified;
+  const isVerified = !!(state.user?.emailVerified || state.user?.phoneVerified);
   const isMfaRequired = state.requiresMfa;
   const isAccountLockedState = state.accountLocked;
   const remainingLockTime = state.remainingLockTimeSeconds;
@@ -428,19 +430,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     getMfaMethods,
     unlockAccount,
     getRemainingLockTime,
-    // Role & Permission helpers
     hasRole,
     hasAnyRole,
     hasAllRoles,
     hasPermission,
     hasAnyPermission,
     hasAllPermissions,
-    // User info
     displayName,
     userTier,
     isVerified,
-    isEmailVerified,
-    isPhoneVerified,
   };
 
   // Show loading state while initializing
