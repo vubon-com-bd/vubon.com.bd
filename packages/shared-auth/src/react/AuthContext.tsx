@@ -12,7 +12,7 @@
  */
 
 import React, { useCallback, useMemo } from 'react';
-import type { AuthState, User, AuthClient, MFAProvider } from '../client/auth.client';
+import type { AuthState, User, AuthClient, MFAProvider, MFASetupResponse, MFAMethod } from '../client/auth.client';
 
 // ==================== Types ====================
 
@@ -68,8 +68,20 @@ export interface AuthContextValue extends AuthState {
 
   // MFA methods
   verifyMfa: (params: MfaVerificationParams) => Promise<void>;
+  /** Setup MFA for a provider (TOTP, SMS, WhatsApp, bKash PIN, etc.) */
+  setupMfa: (provider: MFAProvider, identifier?: string, label?: string) => Promise<MFASetupResponse>;
+  /** Get all MFA methods for current user */
+  getMfaMethods: () => Promise<MFAMethod[]>;
   isMfaRequired: boolean;
   mfaMethods?: Array<{ id: string; provider: MFAProvider; isPrimary: boolean }>;
+
+  // Account lock methods
+  /** Check if account is locked */
+  isAccountLocked: () => boolean;
+  /** Get remaining lock time in seconds */
+  getRemainingLockTime: () => number;
+  /** Unlock account using backup code, OTP, or verification code */
+  unlockAccount: (data: { email?: string; phoneNumber?: string; backupCode?: string; verificationCode?: string; otpCode?: string }) => Promise<{ success: boolean; message: string }>;
 
   // Permission helpers (UI only - NOT security boundary)
   /** Check if user has specific role (case-insensitive) */
@@ -226,6 +238,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     await authClient.verifyMfa(params.code, params.methodId, params.trustDevice, params.challengeId);
   }, [authClient]);
 
+  const setupMfa = useCallback(async (provider: MFAProvider, identifier?: string, label?: string): Promise<MFASetupResponse> => {
+    return authClient.setupMFA(provider, identifier, label);
+  }, [authClient]);
+
+  const getMfaMethods = useCallback(async (): Promise<MFAMethod[]> => {
+    return authClient.getMFAMethods();
+  }, [authClient]);
+
+  const isAccountLocked = useCallback((): boolean => {
+    return authClient.isAccountLocked();
+  }, [authClient]);
+
+  const getRemainingLockTime = useCallback((): number => {
+    return authClient.getRemainingLockTime();
+  }, [authClient]);
+
+  const unlockAccount = useCallback(async (data: { email?: string; phoneNumber?: string; backupCode?: string; verificationCode?: string; otpCode?: string }) => {
+    return authClient.unlockAccount(data);
+  }, [authClient]);
+
   // ==================== Permission Helpers (Memoized for performance) ====================
 
   const userRoles = useMemo(() => {
@@ -289,6 +321,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     logout,
     refreshSession,
     verifyMfa,
+    setupMfa,
+    getMfaMethods,
+    isAccountLocked,
+    getRemainingLockTime,
+    unlockAccount,
     // MFA
     isMfaRequired: state.requiresMfa,
     mfaMethods: state.mfaMethods,
@@ -319,6 +356,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     logout,
     refreshSession,
     verifyMfa,
+    setupMfa,
+    getMfaMethods,
+    isAccountLocked,
+    getRemainingLockTime,
+    unlockAccount,
     hasRole,
     hasAnyRole,
     hasAllRoles,
