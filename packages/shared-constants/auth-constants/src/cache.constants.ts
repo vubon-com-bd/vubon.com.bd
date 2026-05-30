@@ -1,9 +1,9 @@
 /**
  * Cache Constants - Pure immutable cache configuration
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- *
+
  * @module shared-constants/auth-constants/cache.constants
- *
+
  * RULES:
  * ✅ NO redis client, cache set/get operations
  * ✅ NO functions - ONLY pure string constants
@@ -593,34 +593,3 @@ export const CACHE_METRICS = {
 } as const;
 
 export type CacheMetrics = typeof CACHE_METRICS;
-
-// ============================================================
-// Deep freeze everything for immutability
-// ============================================================
-const deepFreeze = <T>(obj: T): ReadonlyDeep<T> => {
-  Object.freeze(obj);
-  if (obj === null || typeof obj !== 'object') return obj as ReadonlyDeep<T>;
-  
-  for (const value of Object.values(obj)) {
-    if (value !== null && typeof value === 'object') {
-      deepFreeze(value);
-    }
-  }
-  
-  return obj as ReadonlyDeep<T>;
-};
-
-// Apply deep freeze to all exported objects
-export const __ALL_CONSTANTS_FROZEN__ = deepFreeze({
-  CACHE_KEY_PREFIXES,
-  CACHE_KEY_PATTERNS,
-  CACHE_TTL,
-  CACHE_NAMESPACES,
-  CACHE_INVALIDATION_PATTERNS,
-  CACHE_INVALIDATION_EVENTS,
-  CACHE_STRATEGIES,
-  CACHE_STAMPEDE_PROTECTION,
-  CACHE_COMPRESSION,
-  CACHE_WARMING,
-  CACHE_METRICS,
-});
