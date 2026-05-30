@@ -9,19 +9,23 @@
  * ✅ Redirects authenticated users away
  * ✅ Pure React guard component
  * ✅ TypeScript strict
+ * ✅ Next.js App Router compatible (uses useRouter from next/navigation)
  */
 
+'use client';
+
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '../react/useAuth';
 
 // ==================== Types ====================
 
 export interface PublicRouteProps {
   children: React.ReactNode;
-  fallback ? : React.ReactNode;
-  redirectTo ? : string;
-  replace ? : boolean;
-  loadingComponent ? : React.ReactNode;
+  fallback?: React.ReactNode;
+  redirectTo?: string;
+  replace?: boolean;
+  loadingComponent?: React.ReactNode;
 }
 
 // ==================== Guard Component ====================
@@ -36,32 +40,33 @@ export interface PublicRouteProps {
  *   <LoginPage />
  * </PublicRoute>
  */
-export const PublicRoute: React.FC < PublicRouteProps > = ({
+export const PublicRoute: React.FC<PublicRouteProps> = ({
   children,
   fallback = null,
   redirectTo = '/',
   replace = false,
   loadingComponent = null,
 }) => {
+  const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
-  
+
   // Show loading state
   if (isLoading) {
     return loadingComponent ? <>{loadingComponent}</> : null;
   }
-  
-  // If authenticated, redirect away
+
+  // If authenticated, redirect away using Next.js router
   if (isAuthenticated) {
-    if (typeof window !== 'undefined' && redirectTo) {
+    if (redirectTo) {
       if (replace) {
-        window.location.replace(redirectTo);
+        router.replace(redirectTo);
       } else {
-        window.location.href = redirectTo;
+        router.push(redirectTo);
       }
     }
     return <>{fallback}</>;
   }
-  
+
   // If not authenticated, render children
   return <>{children}</>;
 };
@@ -82,9 +87,9 @@ export const withPublicRoute = <P extends object>(
       <Component {...props} />
     </PublicRoute>
   );
-  
+
   WrappedComponent.displayName = `withPublicRoute(${Component.displayName || Component.name || 'Component'})`;
-  
+
   return WrappedComponent;
 };
 
