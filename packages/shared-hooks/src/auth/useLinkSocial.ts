@@ -12,7 +12,7 @@
  * ✅ TypeScript strict
  */
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { getAxiosClient } from '@vubon/shared-api/client/axios';
 import { createSocialEndpoints } from '@vubon/shared-api/endpoints/social';
 import type { SocialProvider, SocialAccount } from '@vubon/shared-types';
@@ -26,9 +26,14 @@ export interface LinkSocialRequest {
   makePrimary?: boolean;
 }
 
+// LinkSocialResponse extends SocialAccount (no type casting needed)
 export interface LinkSocialResponse extends SocialAccount {
-  isPrimary: boolean;
-  isVerified: boolean;
+  // All SocialAccount fields are inherited
+  // Add any additional fields if needed
+}
+
+export interface SetPrimarySocialRequest {
+  accountId: string;
 }
 
 export interface SetPrimarySocialResponse {
@@ -36,17 +41,16 @@ export interface SetPrimarySocialResponse {
   message?: string;
 }
 
-export interface UseLinkSocialOptions {
-  onSuccess?: (data: LinkSocialResponse) => void;
-  onError?: (error: Error) => void;
-  onSettled?: () => void;
-}
+// Use MutationOptions for better type inference
+export type UseLinkSocialOptions = Omit<
+  UseMutationOptions<LinkSocialResponse, Error, LinkSocialRequest>,
+  'mutationFn'
+>;
 
-export interface UseSetPrimarySocialOptions {
-  onSuccess?: (data: SetPrimarySocialResponse) => void;
-  onError?: (error: Error) => void;
-  onSettled?: () => void;
-}
+export type UseSetPrimarySocialOptions = Omit<
+  UseMutationOptions<SetPrimarySocialResponse, Error, SetPrimarySocialRequest>,
+  'mutationFn'
+>;
 
 // ==================== Query Keys ====================
 
@@ -59,7 +63,7 @@ const getUserQueryKey = () => ['user'] as const;
  * Hook for linking social account to existing user
 
  * @example
- * const { mutate: linkSocial, isLoading } = useLinkSocial({
+ * const { mutate: linkSocial, isPending } = useLinkSocial({
  *   onSuccess: (data) => {
  *     console.log('Linked:', data.provider);
  *   },
@@ -74,7 +78,7 @@ const getUserQueryKey = () => ['user'] as const;
 export const useLinkSocial = (options?: UseLinkSocialOptions) => {
   const queryClient = useQueryClient();
 
-  // Create endpoints with authenticated client
+  // Create endpoints with authenticated client (created once)
   const endpoints = createSocialEndpoints(getAxiosClient());
 
   return useMutation({
@@ -85,6 +89,7 @@ export const useLinkSocial = (options?: UseLinkSocialOptions) => {
         state: request.state || '',
         makePrimary: request.makePrimary,
       });
+      // Response matches SocialAccount type which extends LinkSocialResponse
       return response as LinkSocialResponse;
     },
     onSuccess: (data) => {
@@ -102,6 +107,7 @@ export const useLinkSocial = (options?: UseLinkSocialOptions) => {
     onSettled: () => {
       options?.onSettled?.();
     },
+    ...options,
   });
 };
 
@@ -109,7 +115,7 @@ export const useLinkSocial = (options?: UseLinkSocialOptions) => {
  * Hook for setting primary social account
 
  * @example
- * const { mutate: setPrimarySocial } = useSetPrimarySocial({
+ * const { mutate: setPrimarySocial, isPending } = useSetPrimarySocial({
  *   onSuccess: (data) => {
  *     console.log('Primary account updated:', data.message);
  *   }
@@ -124,8 +130,8 @@ export const useSetPrimarySocial = (options?: UseSetPrimarySocialOptions) => {
   const endpoints = createSocialEndpoints(getAxiosClient());
 
   return useMutation({
-    mutationFn: async ({ accountId }: { accountId: string }): Promise<SetPrimarySocialResponse> => {
-      const response = await endpoints.setPrimaryAccount(accountId);
+    mutationFn: async ({ accountId }: SetPrimarySocialRequest): Promise<SetPrimarySocialResponse> => {
+      await endpoints.setPrimaryAccount(accountId);
       return { success: true, message: 'Primary account updated successfully' };
     },
     onSuccess: (data) => {
@@ -143,9 +149,17 @@ export const useSetPrimarySocial = (options?: UseSetPrimarySocialOptions) => {
     onSettled: () => {
       options?.onSettled?.();
     },
+    ...options,
   });
 };
 
 // ==================== Type Exports ====================
 
-export type { UseLinkSocialOptions, UseSetPrimarySocialOptions, LinkSocialRequest, LinkSocialResponse, SetPrimarySocialResponse };
+export type {
+  UseLinkSocialOptions,
+  UseSetPrimarySocialOptions,
+  LinkSocialRequest,
+  LinkSocialResponse,
+  SetPrimarySocialRequest,
+  SetPrimarySocialResponse,
+};
