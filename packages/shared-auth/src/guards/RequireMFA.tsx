@@ -15,18 +15,24 @@ import React from 'react';
 import { useAuth } from '../react/useAuth';
 import { RequireAuth } from './RequireAuth';
 
+// Import from shared-api and shared-utils
+import { createMfaEndpoints } from '@vubon/shared-api';
+import { withRetry, DEFAULT_RETRY_CONFIG } from '@vubon/shared-api/client/retry';
+import { getAxiosClient } from '@vubon/shared-api/client/axios';
+import { env } from '@vubon/shared-config/env';
+
 // ==================== Types ====================
 
 export interface RequireMFAProps {
   children: React.ReactNode;
-  fallback ? : React.ReactNode;
-  redirectTo ? : string;
-  mfaStatusPath ? : string;
-  loadingFallback ? : React.ReactNode;
+  fallback?: React.ReactNode;
+  redirectTo?: string;
+  mfaStatusPath?: string;
+  loadingFallback?: React.ReactNode;
   /** Whether MFA is optional or required */
-  required ? : boolean;
+  required?: boolean;
   /** Specific MFA methods required (e.g., ['totp', 'sms']) */
-  requiredMethods ? : string[];
+  requiredMethods?: string[];
 }
 
 export interface UseMFAStatusReturn {
@@ -36,9 +42,28 @@ export interface UseMFAStatusReturn {
   primaryMethod: string | null;
   isLoading: boolean;
   isRequired: boolean;
+  /** Refresh MFA status manually */
+  refreshStatus: () => Promise<void>;
 }
 
-// ==================== Hook ====================
+// ==================== Helpers ====================
+
+// Simple logger that can be replaced with proper logging solution
+const logError = (error: unknown, context: string): void => {
+  if (env.NODE_ENV === 'development') {
+    console.error(`[RequireMFA] ${context}:`, error);
+  }
+};
+
+// Helper function to extract data from API response
+const extractData = <T>(response: { data?: { data?: T } }): T | undefined => {
+  return response.data?.data;
+};
+
+// Helper function for idempotent GET requests with retry
+const withIdempotentRetry = async <T>(requestFn: () => Promise<T>): Promise<T> => {
+  return withRetry(requestFn, DEFAULT_RETRY_CONFIG);
+};
 
 /**
  * Hook to check MFA status (UX optimization only)
@@ -48,43 +73,56 @@ export const useMFAStatus = (): UseMFAStatusReturn => {
   const { user, isAuthenticated } = useAuth();
   const [hasMFAEnabled, setHasMFAEnabled] = React.useState(false);
   const [hasMfaVerified, setHasMfaVerified] = React.useState(false);
-  const [availableMethods, setAvailableMethods] = React.useState < string[] > ([]);
-  const [primaryMethod, setPrimaryMethod] = React.useState < string | null > (null);
+  const [availableMethods, setAvailableMethods] = React.useState<string[]>([]);
+  const [primaryMethod, setPrimaryMethod] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isRequired, setIsRequired] = React.useState(false);
-  
-  React.useEffect(() => {
+
+  // Create API client once
+  const mfaApi = React.useMemo(() => {
+    const client = getAxiosClient({ baseURL: env.API_URL });
+    return createMfaEndpoints(client);
+  }, []);
+
+  const fetchMFAStatus = React.useCallback(async () => {
     if (!isAuthenticated) {
       setIsLoading(false);
       return;
     }
-    
-    const checkMFAStatus = async () => {
-      setIsLoading(true);
-      try {
-        // This should call your backend MFA status endpoint
-        // For now, using placeholder logic based on user data
-        const hasMfa = false; // Replace with actual API call
-        setHasMFAEnabled(hasMfa);
-        setHasMfaVerified(hasMfa);
-        
-        // Check if MFA is required for this user (based on role or settings)
-        const mfaRequired = user?.role === 'admin' || user?.role === 'super_admin';
-        setIsRequired(mfaRequired);
-        
-        // Available methods would come from backend
-        setAvailableMethods(['totp', 'sms']);
-        setPrimaryMethod(null);
-      } catch (error) {
-        console.error('Failed to check MFA status:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    checkMFAStatus();
-  }, [isAuthenticated, user?.role]);
-  
+
+    setIsLoading(true);
+    try {
+      // API call to get MFA status with retry support
+      const response = await withIdempotentRetry(() => mfaApi.getStatus());
+      const status = extractData(response);
+
+      setHasMFAEnabled(status?.enabled || false);
+      setHasMfaVerified(status?.enabled || false);
+      setAvailableMethods(status?.methods?.map((m: { provider: string }) => m.provider) || []);
+      setPrimaryMethod(status?.defaultMethod || null);
+
+      // Check if MFA is required for this user (based on role or settings)
+      const mfaRequired = status?.requiredForRole || status?.requiredForAction || false;
+      setIsRequired(mfaRequired);
+    } catch (error) {
+      logError(error, 'Failed to fetch MFA status');
+      // Fallback to role-based check if API fails
+      const fallbackRequired = user?.role === 'admin' || user?.role === 'super_admin';
+      setIsRequired(fallbackRequired);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isAuthenticated, mfaApi, user?.role]);
+
+  // Load status on mount
+  React.useEffect(() => {
+    fetchMFAStatus();
+  }, [fetchMFAStatus]);
+
+  const refreshStatus = React.useCallback(async () => {
+    await fetchMFAStatus();
+  }, [fetchMFAStatus]);
+
   return {
     hasMFAEnabled,
     hasMfaVerified,
@@ -92,6 +130,7 @@ export const useMFAStatus = (): UseMFAStatusReturn => {
     primaryMethod,
     isLoading,
     isRequired,
+    refreshStatus,
   };
 };
 
@@ -112,8 +151,14 @@ export const useMFAStatus = (): UseMFAStatusReturn => {
  * <RequireMFA required={false}>
  *   <SettingsPage />
  * </RequireMFA>
+ * 
+ * @example
+ * // Require specific MFA methods
+ * <RequireMFA requiredMethods={['totp', 'sms']}>
+ *   <PaymentPage />
+ * </RequireMFA>
  */
-export const RequireMFA: React.FC < RequireMFAProps > = ({
+export const RequireMFA: React.FC<RequireMFAProps> = ({
   children,
   fallback = null,
   redirectTo = '/mfa/setup',
@@ -122,7 +167,7 @@ export const RequireMFA: React.FC < RequireMFAProps > = ({
   requiredMethods,
 }) => {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { hasMFAEnabled, isLoading: mfaLoading, isRequired, availableMethods } = useMFAStatus();
+  const { hasMFAEnabled, isLoading: mfaLoading, isRequired, availableMethods, refreshStatus } = useMFAStatus();
   
   const isLoading = authLoading || mfaLoading;
   
