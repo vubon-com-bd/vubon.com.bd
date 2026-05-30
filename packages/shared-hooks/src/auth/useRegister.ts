@@ -1,9 +1,9 @@
 /**
  * useRegister Hook - Registration mutation orchestration
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
-
+ *
  * @module shared-hooks/src/auth/useRegister
-
+ *
  * RULES:
  * ✅ ONLY mutation orchestration - NO business logic
  * ✅ NO email verification business logic, account creation policies
@@ -85,11 +85,13 @@ const getAuthClientOrThrow = () => {
 };
 
 // Helper to generate placeholder email for phone-only users
+// Uses timestamp + phoneNumber to ensure uniqueness
 const generatePlaceholderEmail = (phoneNumber: string): string => {
   // Normalize phone number to remove special characters
   const normalizedPhone = phoneNumber.replace(/[^0-9]/g, '');
   const timestamp = Date.now();
-  return `${normalizedPhone}.${timestamp}@phone.vubon.com.bd`;
+  const randomSuffix = Math.random().toString(36).substring(2, 8);
+  return `${normalizedPhone}.${timestamp}.${randomSuffix}@phone.vubon.com.bd`;
 };
 
 // ==================== Hooks ====================
@@ -97,7 +99,7 @@ const generatePlaceholderEmail = (phoneNumber: string): string => {
 /**
  * Hook for standard email registration mutation
  * Orchestrates API call and optional cache invalidation
-
+ *
  * @example
  * const { mutate: register, isLoading } = useRegister({
  *   onSuccess: (data) => {
@@ -108,7 +110,7 @@ const generatePlaceholderEmail = (phoneNumber: string): string => {
  *     }
  *   }
  * });
-
+ *
  * register({
  *   email: 'user@example.com',
  *   firstName: 'John',
@@ -129,7 +131,7 @@ export const useRegister = (options?: UseRegisterOptions): UseRegisterReturn => 
     },
     onSuccess: (data) => {
       // Invalidate user queries if registration auto-logs in (no verification required)
-      if (data.success && !data.emailVerificationRequired) {
+      if (data.success && !data.emailVerificationRequired && !data.phoneVerificationRequired) {
         queryClient.invalidateQueries({ queryKey: getCurrentUserQueryKey() });
         queryClient.invalidateQueries({ queryKey: getUserQueryKey() });
       }
@@ -155,14 +157,14 @@ export const useRegister = (options?: UseRegisterOptions): UseRegisterReturn => 
 
 /**
  * Hook for phone-only registration (Bangladesh specific)
-
+ *
  * @example
  * const { mutate: phoneRegister, isLoading } = usePhoneRegister({
  *   onSuccess: (data) => {
  *     console.log('Phone registration successful');
  *   }
  * });
-
+ *
  * phoneRegister({
  *   phoneNumber: '01712345678',
  *   firstName: 'John',
@@ -176,7 +178,7 @@ export const usePhoneRegister = (options?: UseRegisterOptions) => {
   const queryClient = useQueryClient();
   const authClient = getAuthClientOrThrow();
 
-  const mutation = useMutation({
+  return useMutation({
     mutationFn: async (data: PhoneRegisterData): Promise<RegisterResponse> => {
       const registerData: RegisterData = {
         email: generatePlaceholderEmail(data.phoneNumber),
@@ -208,21 +210,19 @@ export const usePhoneRegister = (options?: UseRegisterOptions) => {
       options?.onSettled?.();
     },
   });
-
-  return mutation;
 };
 
 /**
  * Hook for OTP registration (passwordless - Bangladesh specific)
- * Uses shared-api instead of direct fetch
-
+ * Uses shared-api directly (AuthClient may not have otpRegister method)
+ *
  * @example
  * const { mutate: otpRegister, isLoading } = useOtpRegister({
  *   onSuccess: (data) => {
  *     console.log('OTP registration successful');
  *   }
  * });
-
+ *
  * otpRegister({
  *   phoneNumber: '01712345678',
  *   otpCode: '123456',
@@ -235,14 +235,16 @@ export const useOtpRegister = (options?: UseRegisterOptions) => {
   const queryClient = useQueryClient();
   const authClient = getAuthClientOrThrow();
 
-  const mutation = useMutation({
+  // Check if authClient supports otpRegister
+  if (typeof authClient.otpRegister !== 'function') {
+    throw new Error(
+      'AuthClient does not support otpRegister. Please ensure your AuthClient implementation includes this method.'
+    );
+  }
+
+  return useMutation({
     mutationFn: async (data: OtpRegisterData): Promise<RegisterResponse> => {
-      // Use authClient's OTP register method (assuming it exists)
-      // If not, we need to add it to AuthClient interface
-      const response = await authClient.otpRegister?.(data);
-      if (!response) {
-        throw new Error('OTP registration not supported by auth client');
-      }
+      const response = await authClient.otpRegister!(data);
       return response;
     },
     onSuccess: (data) => {
@@ -259,8 +261,6 @@ export const useOtpRegister = (options?: UseRegisterOptions) => {
       options?.onSettled?.();
     },
   });
-
-  return mutation;
 };
 
 // ==================== Type Exports ====================
