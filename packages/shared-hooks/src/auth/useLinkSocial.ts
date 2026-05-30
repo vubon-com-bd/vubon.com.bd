@@ -1,9 +1,9 @@
 /**
  * useLinkSocial Hook - Connect social account to existing user
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
- * @module shared-hooks/auth-hooks/auth/useLinkSocial
- * 
+
+ * @module shared-hooks/src/auth/useLinkSocial
+
  * RULES:
  * ✅ ONLY mutation orchestration - NO business logic
  * ✅ NO direct provider SDK secrets
@@ -13,8 +13,9 @@
  */
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createSocialEndpoints } from '@vubon/auth-api';
-import type { SocialProvider, SocialAccount } from '@vubon/auth-api';
+import { getAxiosClient } from '@vubon/shared-api/client/axios';
+import { createSocialEndpoints } from '@vubon/shared-api/endpoints/social';
+import type { SocialProvider, SocialAccount } from '@vubon/shared-types';
 
 // ==================== Types ====================
 
@@ -30,22 +31,33 @@ export interface LinkSocialResponse extends SocialAccount {
   isVerified: boolean;
 }
 
+export interface SetPrimarySocialResponse {
+  success: boolean;
+  message?: string;
+}
+
 export interface UseLinkSocialOptions {
   onSuccess?: (data: LinkSocialResponse) => void;
   onError?: (error: Error) => void;
   onSettled?: () => void;
 }
 
+export interface UseSetPrimarySocialOptions {
+  onSuccess?: (data: SetPrimarySocialResponse) => void;
+  onError?: (error: Error) => void;
+  onSettled?: () => void;
+}
+
 // ==================== Query Keys ====================
 
-const SOCIAL_ACCOUNTS_QUERY_KEY = ['socialAccounts'] as const;
-const USER_QUERY_KEY = ['user'] as const;
+const getSocialAccountsQueryKey = () => ['socialAccounts'] as const;
+const getUserQueryKey = () => ['user'] as const;
 
 // ==================== Hook ====================
 
 /**
  * Hook for linking social account to existing user
- * 
+
  * @example
  * const { mutate: linkSocial, isLoading } = useLinkSocial({
  *   onSuccess: (data) => {
@@ -55,36 +67,33 @@ const USER_QUERY_KEY = ['user'] as const;
  *     console.error('Failed to link:', error);
  *   }
  * });
- * 
+
  * // Usage after OAuth callback
  * linkSocial({ provider: 'google', code: 'authorization_code' });
  */
 export const useLinkSocial = (options?: UseLinkSocialOptions) => {
   const queryClient = useQueryClient();
 
+  // Create endpoints with authenticated client
+  const endpoints = createSocialEndpoints(getAxiosClient());
+
   return useMutation({
     mutationFn: async (request: LinkSocialRequest): Promise<LinkSocialResponse> => {
-      const response = await fetch('/api/v1/auth/social/link', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(request),
+      const response = await endpoints.connectAccount({
+        provider: request.provider,
+        code: request.code,
+        state: request.state || '',
+        makePrimary: request.makePrimary,
       });
-      
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || 'Failed to link social account');
-      }
-      
-      const data = await response.json();
-      return data.data || data;
+      return response as LinkSocialResponse;
     },
     onSuccess: (data) => {
       // Invalidate social accounts list
-      queryClient.invalidateQueries({ queryKey: SOCIAL_ACCOUNTS_QUERY_KEY });
-      
+      queryClient.invalidateQueries({ queryKey: getSocialAccountsQueryKey() });
+
       // Invalidate user query (in case primary account changed)
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
-      
+      queryClient.invalidateQueries({ queryKey: getUserQueryKey() });
+
       options?.onSuccess?.(data);
     },
     onError: (error) => {
@@ -98,42 +107,35 @@ export const useLinkSocial = (options?: UseLinkSocialOptions) => {
 
 /**
  * Hook for setting primary social account
- * 
+
  * @example
  * const { mutate: setPrimarySocial } = useSetPrimarySocial({
- *   onSuccess: () => {
- *     console.log('Primary account updated');
+ *   onSuccess: (data) => {
+ *     console.log('Primary account updated:', data.message);
  *   }
  * });
- * 
+
  * setPrimarySocial({ accountId: 'social_account_id' });
  */
-export const useSetPrimarySocial = (options?: UseLinkSocialOptions) => {
+export const useSetPrimarySocial = (options?: UseSetPrimarySocialOptions) => {
   const queryClient = useQueryClient();
 
+  // Create endpoints with authenticated client
+  const endpoints = createSocialEndpoints(getAxiosClient());
+
   return useMutation({
-    mutationFn: async ({ accountId }: { accountId: string }): Promise<{ success: boolean }> => {
-      const response = await fetch('/api/v1/auth/social/primary', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ accountId }),
-      });
-      
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || 'Failed to set primary account');
-      }
-      
-      return response.json();
+    mutationFn: async ({ accountId }: { accountId: string }): Promise<SetPrimarySocialResponse> => {
+      const response = await endpoints.setPrimaryAccount(accountId);
+      return { success: true, message: 'Primary account updated successfully' };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       // Invalidate social accounts list
-      queryClient.invalidateQueries({ queryKey: SOCIAL_ACCOUNTS_QUERY_KEY });
-      
+      queryClient.invalidateQueries({ queryKey: getSocialAccountsQueryKey() });
+
       // Invalidate user query
-      queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
-      
-      options?.onSuccess?.(null as never);
+      queryClient.invalidateQueries({ queryKey: getUserQueryKey() });
+
+      options?.onSuccess?.(data);
     },
     onError: (error) => {
       options?.onError?.(error as Error);
@@ -146,4 +148,4 @@ export const useSetPrimarySocial = (options?: UseLinkSocialOptions) => {
 
 // ==================== Type Exports ====================
 
-export type { UseLinkSocialOptions, LinkSocialRequest, LinkSocialResponse };
+export type { UseLinkSocialOptions, UseSetPrimarySocialOptions, LinkSocialRequest, LinkSocialResponse, SetPrimarySocialResponse };
