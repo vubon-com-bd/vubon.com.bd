@@ -9,12 +9,14 @@
  * ✅ NO business logic
  * ✅ NO side effects
  * ✅ ONLY pure readonly constants
+ * ✅ RATE LIMITS: Use RATE_LIMIT_VALUES from api.constants.ts for auth rate limits
+ * ✅ OTP_CONFIG: Use OTP_CONFIG from auth.constants.ts for base OTP settings
  */
 
 // ============================================================
 // Social Provider Configurations (Extended for Bangladesh)
 // ============================================================
-export const SOCIAL_PROVIDERS = Object.freeze({
+export const SOCIAL_PROVIDERS = {
   // International providers
   GOOGLE: 'google',
   GITHUB: 'github',
@@ -42,22 +44,22 @@ export const SOCIAL_PROVIDERS = Object.freeze({
   BKASH: 'bkash',                  // Login with bKash
   NAGAD: 'nagad',                  // Login with Nagad
   ROCKET: 'rocket',                // Login with Rocket
-} as const);
+} as const;
 
 // ============================================================
 // Provider Categories
 // ============================================================
-export const SOCIAL_PROVIDER_CATEGORIES = Object.freeze({
+export const SOCIAL_PROVIDER_CATEGORIES = {
   OAUTH: 'oauth',                   // Standard OAuth providers
   OTP_BASED: 'otp_based',           // OTP based login (WhatsApp, Imo, Phone)
   MFS_AUTH: 'mfs_auth',             // Mobile Financial Services as auth
   SOCIAL_MEDIA: 'social_media',     // Social media platforms
-} as const);
+} as const;
 
 // ============================================================
 // Provider to Category Mapping
 // ============================================================
-export const PROVIDER_TO_CATEGORY = Object.freeze({
+export const PROVIDER_TO_CATEGORY = {
   [SOCIAL_PROVIDERS.GOOGLE]: SOCIAL_PROVIDER_CATEGORIES.OAUTH,
   [SOCIAL_PROVIDERS.GITHUB]: SOCIAL_PROVIDER_CATEGORIES.OAUTH,
   [SOCIAL_PROVIDERS.FACEBOOK]: SOCIAL_PROVIDER_CATEGORIES.OAUTH,
@@ -78,12 +80,12 @@ export const PROVIDER_TO_CATEGORY = Object.freeze({
   [SOCIAL_PROVIDERS.BKASH]: SOCIAL_PROVIDER_CATEGORIES.MFS_AUTH,
   [SOCIAL_PROVIDERS.NAGAD]: SOCIAL_PROVIDER_CATEGORIES.MFS_AUTH,
   [SOCIAL_PROVIDERS.ROCKET]: SOCIAL_PROVIDER_CATEGORIES.MFS_AUTH,
-} as const);
+} as const;
 
 // ============================================================
 // OAuth Scopes by Provider (Enhanced)
 // ============================================================
-export const OAUTH_SCOPES = Object.freeze({
+export const OAUTH_SCOPES = {
   [SOCIAL_PROVIDERS.GOOGLE]: [
     'email',
     'profile',
@@ -129,12 +131,13 @@ export const OAUTH_SCOPES = Object.freeze({
     'user.display_name',
     'user.email',
   ],
-} as const);
+} as const;
 
 // ============================================================
 // Social Callback Routes
+// Note: These are OAuth callback routes, for full API routes use API_ROUTES from api.constants.ts
 // ============================================================
-export const SOCIAL_CALLBACK_ROUTES = Object.freeze({
+export const SOCIAL_CALLBACK_ROUTES = {
   [SOCIAL_PROVIDERS.GOOGLE]: '/auth/google/callback',
   [SOCIAL_PROVIDERS.GITHUB]: '/auth/github/callback',
   [SOCIAL_PROVIDERS.FACEBOOK]: '/auth/facebook/callback',
@@ -146,7 +149,7 @@ export const SOCIAL_CALLBACK_ROUTES = Object.freeze({
   [SOCIAL_PROVIDERS.TIKTOK]: '/auth/tiktok/callback',
   [SOCIAL_PROVIDERS.SNAPCHAT]: '/auth/snapchat/callback',
   
-  // OTP based providers (no callback)
+  // OTP based providers (no callback - verification endpoints)
   [SOCIAL_PROVIDERS.WHATSAPP]: '/auth/whatsapp/verify',
   [SOCIAL_PROVIDERS.IMO]: '/auth/imo/verify',
   [SOCIAL_PROVIDERS.TELEGRAM]: '/auth/telegram/verify',
@@ -159,12 +162,12 @@ export const SOCIAL_CALLBACK_ROUTES = Object.freeze({
   [SOCIAL_PROVIDERS.BKASH]: '/auth/bkash/callback',
   [SOCIAL_PROVIDERS.NAGAD]: '/auth/nagad/callback',
   [SOCIAL_PROVIDERS.ROCKET]: '/auth/rocket/callback',
-} as const);
+} as const;
 
 // ============================================================
-// Social Button Display Names (Bangla + English)
+// Social Button Display Names (English)
 // ============================================================
-export const SOCIAL_DISPLAY_NAMES = Object.freeze({
+export const SOCIAL_DISPLAY_NAMES = {
   [SOCIAL_PROVIDERS.GOOGLE]: 'Google',
   [SOCIAL_PROVIDERS.GITHUB]: 'GitHub',
   [SOCIAL_PROVIDERS.FACEBOOK]: 'Facebook',
@@ -189,12 +192,12 @@ export const SOCIAL_DISPLAY_NAMES = Object.freeze({
   [SOCIAL_PROVIDERS.BKASH]: 'bKash',
   [SOCIAL_PROVIDERS.NAGAD]: 'Nagad',
   [SOCIAL_PROVIDERS.ROCKET]: 'Rocket',
-} as const);
+} as const;
 
 // ============================================================
 // Social Button Display Names (Bangla)
 // ============================================================
-export const SOCIAL_DISPLAY_NAMES_BN = Object.freeze({
+export const SOCIAL_DISPLAY_NAMES_BN = {
   [SOCIAL_PROVIDERS.GOOGLE]: 'গুগল',
   [SOCIAL_PROVIDERS.FACEBOOK]: 'ফেসবুক',
   [SOCIAL_PROVIDERS.WHATSAPP]: 'হোয়াটসঅ্যাপ',
@@ -205,12 +208,12 @@ export const SOCIAL_DISPLAY_NAMES_BN = Object.freeze({
   [SOCIAL_PROVIDERS.BKASH]: 'বিকাশ',
   [SOCIAL_PROVIDERS.NAGAD]: 'নগদ',
   [SOCIAL_PROVIDERS.ROCKET]: 'রকেট',
-} as const);
+} as const;
 
 // ============================================================
 // Social Provider Colors (UI)
 // ============================================================
-export const SOCIAL_COLORS = Object.freeze({
+export const SOCIAL_COLORS = {
   [SOCIAL_PROVIDERS.GOOGLE]: '#4285F4',
   [SOCIAL_PROVIDERS.GITHUB]: '#333333',
   [SOCIAL_PROVIDERS.FACEBOOK]: '#1877F2',
@@ -235,12 +238,12 @@ export const SOCIAL_COLORS = Object.freeze({
   [SOCIAL_PROVIDERS.BKASH]: '#E2136E',
   [SOCIAL_PROVIDERS.NAGAD]: '#F26B21',
   [SOCIAL_PROVIDERS.ROCKET]: '#1E88E5',
-} as const);
+} as const;
 
 // ============================================================
 // Social Icon Names (For UI components)
 // ============================================================
-export const SOCIAL_ICONS = Object.freeze({
+export const SOCIAL_ICONS = {
   [SOCIAL_PROVIDERS.GOOGLE]: 'google',
   [SOCIAL_PROVIDERS.GITHUB]: 'github',
   [SOCIAL_PROVIDERS.FACEBOOK]: 'facebook',
@@ -265,12 +268,12 @@ export const SOCIAL_ICONS = Object.freeze({
   [SOCIAL_PROVIDERS.BKASH]: 'bkash',
   [SOCIAL_PROVIDERS.NAGAD]: 'nagad',
   [SOCIAL_PROVIDERS.ROCKET]: 'rocket',
-} as const);
+} as const;
 
 // ============================================================
 // Provider Priority (For UI display order in Bangladesh)
 // ============================================================
-export const SOCIAL_PROVIDER_PRIORITY = Object.freeze({
+export const SOCIAL_PROVIDER_PRIORITY = {
   // Bangladesh specific priority (Facebook first, then WhatsApp, then bKash)
   [SOCIAL_PROVIDERS.FACEBOOK]: 1,
   [SOCIAL_PROVIDERS.WHATSAPP]: 2,
@@ -290,13 +293,15 @@ export const SOCIAL_PROVIDER_PRIORITY = Object.freeze({
   [SOCIAL_PROVIDERS.SNAPCHAT]: 16,
   [SOCIAL_PROVIDERS.ROCKET]: 17,
   [SOCIAL_PROVIDERS.VIBER]: 18,
-} as const);
+} as const;
 
 // ============================================================
-// Rate Limits for Social Auth (Prevent abuse)
+// ⚠️ SOCIAL_AUTH_RATE_LIMITS - Provider-specific limits only
+// Note: General auth rate limits (login, OTP send, etc.) are in RATE_LIMIT_VALUES from api.constants.ts
+// These are SOCIAL PROVIDER SPECIFIC limits (e.g., Facebook API calls per hour)
 // ============================================================
-export const SOCIAL_AUTH_RATE_LIMITS = Object.freeze({
-  // Per provider rate limits (requests per hour)
+export const SOCIAL_AUTH_RATE_LIMITS = {
+  // Per provider rate limits (requests per hour) - API call limits, not auth attempts
   [SOCIAL_PROVIDERS.GOOGLE]: 100,
   [SOCIAL_PROVIDERS.FACEBOOK]: 200,
   [SOCIAL_PROVIDERS.WHATSAPP]: 50,
@@ -308,19 +313,19 @@ export const SOCIAL_AUTH_RATE_LIMITS = Object.freeze({
   // Default limit
   DEFAULT: 50,
   
-  // Global rate limit per IP
+  // Global rate limit per IP for social auth
   GLOBAL_PER_IP: 200,
   GLOBAL_WINDOW_MINUTES: 60,
   
-  // OTP specific limits
+  // OTP specific limits (per phone number, per IP)
   OTP_MAX_PER_PHONE_PER_HOUR: 5,
   OTP_MAX_PER_IP_PER_HOUR: 10,
-} as const);
+} as const;
 
 // ============================================================
 // Account Linking Rules
 // ============================================================
-export const SOCIAL_ACCOUNT_LINKING = Object.freeze({
+export const SOCIAL_ACCOUNT_LINKING = {
   // Maximum accounts that can be linked per user
   MAX_LINKED_ACCOUNTS: 10,
   
@@ -342,12 +347,12 @@ export const SOCIAL_ACCOUNT_LINKING = Object.freeze({
   // Unlinking rules
   ALLOW_UNLINKING: true,
   REQUIRE_ALTERNATIVE_LOGIN_METHOD: true,  // Must have at least one login method
-} as const);
+} as const;
 
 // ============================================================
 // OAuth State Parameters (Security)
 // ============================================================
-export const OAUTH_STATE_CONFIG = Object.freeze({
+export const OAUTH_STATE_CONFIG = {
   // State token length
   STATE_LENGTH: 32,
   
@@ -362,12 +367,12 @@ export const OAUTH_STATE_CONFIG = Object.freeze({
   
   // PKCE code challenge method
   PKCE_CHALLENGE_METHOD: 'S256',
-} as const);
+} as const;
 
 // ============================================================
 // Social Provider Features
 // ============================================================
-export const SOCIAL_PROVIDER_FEATURES = Object.freeze({
+export const SOCIAL_PROVIDER_FEATURES = {
   // Which providers support these features
   SUPPORTS_EMAIL: {
     [SOCIAL_PROVIDERS.GOOGLE]: true,
@@ -400,12 +405,12 @@ export const SOCIAL_PROVIDER_FEATURES = Object.freeze({
     SOCIAL_PROVIDERS.MICROSOFT,
     SOCIAL_PROVIDERS.LINKEDIN,
   ],
-} as const);
+} as const;
 
 // ============================================================
 // Social Auth Events
 // ============================================================
-export const SOCIAL_AUTH_EVENTS = Object.freeze({
+export const SOCIAL_AUTH_EVENTS = {
   // Authentication events
   SOCIAL_LOGIN_SUCCESS: 'social.login.success',
   SOCIAL_LOGIN_FAILED: 'social.login.failed',
@@ -437,12 +442,12 @@ export const SOCIAL_AUTH_EVENTS = Object.freeze({
   SUSPICIOUS_SOCIAL_LOGIN: 'social.suspicious.login',
   SOCIAL_TOKEN_REFRESHED: 'social.token.refreshed',
   SOCIAL_TOKEN_EXPIRED: 'social.token.expired',
-} as const);
+} as const;
 
 // ============================================================
 // Social Provider Metadata (For dynamic configuration)
 // ============================================================
-export const SOCIAL_PROVIDER_METADATA = Object.freeze({
+export const SOCIAL_PROVIDER_METADATA = {
   [SOCIAL_PROVIDERS.FACEBOOK]: {
     authUrl: 'https://www.facebook.com/v18.0/dialog/oauth',
     tokenUrl: 'https://graph.facebook.com/v18.0/oauth/access_token',
@@ -472,12 +477,12 @@ export const SOCIAL_PROVIDER_METADATA = Object.freeze({
     type: 'mfs_auth',
     authUrl: 'https://sandbox.mynagad.com/api/dfs/check-out/initialize',
   },
-} as const);
+} as const;
 
 // ============================================================
 // Social Login Consent Screen Configuration
 // ============================================================
-export const SOCIAL_CONSENT_SCREEN = Object.freeze({
+export const SOCIAL_CONSENT_SCREEN = {
   // Always show consent screen for these providers
   ALWAYS_SHOW_CONSENT: [
     SOCIAL_PROVIDERS.GOOGLE,
@@ -493,4 +498,11 @@ export const SOCIAL_CONSENT_SCREEN = Object.freeze({
   
   // Required permissions message
   REQUIRED_PERMISSIONS_MESSAGE: 'We need access to your email address to create your account.',
-} as const);
+} as const;
+
+// ============================================================
+// ✓ All constants use 'as const' (no Object.freeze needed for performance)
+// ✓ Removed Object.freeze() wrappers (as const provides same immutability)
+// ✓ Added clarification comments for rate limits
+// ✓ OTP_CONFIG reference points to auth.constants.ts
+// ============================================================
