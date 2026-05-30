@@ -1,9 +1,9 @@
 /**
  * MFA Constants - Pure immutable Multi-Factor Authentication configuration
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- *
+
  * @module shared-constants/auth-constants/mfa.constants
- *
+
  * RULES:
  * ✅ NO OTP generation, QR code generation, TOTP verification
  * ✅ NO imports from other layers (pure standalone)
@@ -517,39 +517,3 @@ export const MFA_PRESETS = {
 
 export type MfaPreset = typeof MFA_PRESETS[keyof typeof MFA_PRESETS];
 export type MfaPresetName = keyof typeof MFA_PRESETS;
-
-// ============================================================
-// Deep freeze everything for immutability
-// ============================================================
-const deepFreeze = <T>(obj: T): ReadonlyDeep<T> => {
-  Object.freeze(obj);
-  if (obj === null || typeof obj !== 'object') return obj as ReadonlyDeep<T>;
-
-  for (const value of Object.values(obj)) {
-    if (value !== null && typeof value === 'object') {
-      deepFreeze(value);
-    }
-  }
-
-  return obj as ReadonlyDeep<T>;
-};
-
-// Apply deep freeze to all exported objects
-export const __ALL_CONSTANTS_FROZEN__ = deepFreeze({
-  MFA_PROVIDERS,
-  MFA_STATUS,
-  MFA_VERIFICATION_TYPES,
-  MFA_PRIORITY,
-  OTP_CONFIG,
-  RECOVERY_CODES,
-  MFA_TIMEOUTS,
-  MFA_THRESHOLDS,
-  MFA_TRUSTED_ENVIRONMENTS,
-  MFA_RISK_SCORES,
-  MFA_SETUP_REQUIREMENTS,
-  MFA_FALLBACKS,
-  SIM_SWAP_DETECTION,
-  OFFLINE_MFA,
-  MFA_EVENTS,
-  MFA_PRESETS,
-});
