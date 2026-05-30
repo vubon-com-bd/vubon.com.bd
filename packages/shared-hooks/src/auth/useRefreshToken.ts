@@ -1,9 +1,9 @@
 /**
  * useRefreshToken Hook - Token refresh orchestration
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module shared-hooks/src/auth/useRefreshToken
- * 
+ *
  * RULES:
  * ✅ ONLY token refresh orchestration - NO business logic
  * ✅ NO infinite retry loops, refresh business rules
@@ -14,6 +14,7 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAuthClient } from '@vubon/shared-auth';
+import { getTokenExpiry, decodeToken } from '@vubon/shared-utils';
 
 // ==================== Types ====================
 
@@ -30,6 +31,8 @@ export interface UseRefreshTokenOptions {
   onSettled?: () => void;
   /** Whether to invalidate user queries after refresh (default: true) */
   invalidateUserQueries?: boolean;
+  /** Refresh buffer in seconds before token expiry (default: 60) */
+  refreshBufferSeconds?: number;
 }
 
 export interface UseRefreshTokenReturn {
@@ -46,6 +49,7 @@ export interface UseRefreshTokenReturn {
 const getCurrentUserQueryKey = () => ['currentUser'] as const;
 const getUserQueryKey = () => ['user'] as const;
 const getSessionsQueryKey = () => ['sessions'] as const;
+const getDevicesQueryKey = () => ['devices'] as const;
 
 // Helper to ensure auth client is initialized
 const getAuthClientOrThrow = () => {
@@ -56,14 +60,13 @@ const getAuthClientOrThrow = () => {
   return client;
 };
 
-// Helper to decode token and get expiry
-const getTokenExpiry = (token: string): number => {
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1] || ''));
-    return payload.exp || 0;
-  } catch {
-    return 0;
-  }
+// Helper to check if token is about to expire
+const isTokenExpiringSoon = (token: string, bufferSeconds: number): boolean => {
+  if (!token) return true;
+  const exp = getTokenExpiry(token);
+  if (exp === null) return true;
+  const now = Math.floor(Date.now() / 1000);
+  return exp - now < bufferSeconds;
 };
 
 // ==================== Hook ====================
@@ -71,7 +74,7 @@ const getTokenExpiry = (token: string): number => {
 /**
  * Hook for refreshing access token
  * Handles deduplication and queueing via auth client
- * 
+ *
  * @example
  * const { mutate: refreshToken, isLoading } = useRefreshToken({
  *   onSuccess: (data) => {
@@ -82,7 +85,7 @@ const getTokenExpiry = (token: string): number => {
  *     // Redirect to login
  *   }
  * });
- * 
+ *
  * // Usage (usually called automatically by interceptor)
  * refreshToken();
  */
@@ -90,30 +93,57 @@ export const useRefreshToken = (options?: UseRefreshTokenOptions) => {
   const queryClient = useQueryClient();
   const authClient = getAuthClientOrThrow();
   const invalidateUserQueries = options?.invalidateUserQueries ?? true;
+  const refreshBufferSeconds = options?.refreshBufferSeconds ?? 60;
 
   return useMutation({
     mutationFn: async (): Promise<RefreshTokenResponse> => {
+      const oldAccessToken = authClient.getAccessToken();
+
+      // Skip refresh if token is still fresh enough
+      if (oldAccessToken && !isTokenExpiringSoon(oldAccessToken, refreshBufferSeconds)) {
+        const refreshToken = authClient.getRefreshToken();
+        if (!refreshToken) {
+          throw new Error('No refresh token available');
+        }
+
+        const exp = getTokenExpiry(oldAccessToken);
+        const now = Math.floor(Date.now() / 1000);
+        const expiresIn = Math.max(60, (exp || now + 3600) - now);
+
+        return {
+          accessToken: oldAccessToken,
+          refreshToken: refreshToken,
+          expiresIn,
+          success: true,
+        };
+      }
+
+      // Perform refresh
       const success = await authClient.refreshSession();
-      
+
       if (!success) {
         throw new Error('Failed to refresh token: session refresh returned false');
       }
-      
-      const accessToken = authClient.getAccessToken();
-      const refreshToken = authClient.getRefreshToken();
-      
-      if (!accessToken) {
+
+      const newAccessToken = authClient.getAccessToken();
+      const newRefreshToken = authClient.getRefreshToken();
+
+      if (!newAccessToken) {
         throw new Error('No access token available after successful refresh');
       }
-      
+
+      if (!newRefreshToken) {
+        throw new Error('No refresh token available after successful refresh');
+      }
+
       // Calculate expiry from token
-      const exp = getTokenExpiry(accessToken);
+      const exp = getTokenExpiry(newAccessToken);
       const now = Math.floor(Date.now() / 1000);
-      const expiresIn = Math.max(60, exp - now);
-      
+      const expiresIn = Math.max(60, (exp || now + 3600) - now);
+
       return {
-        accessToken,
-        refreshToken: refreshToken || '',
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
         expiresIn,
         success: true,
       };
@@ -124,8 +154,9 @@ export const useRefreshToken = (options?: UseRefreshTokenOptions) => {
         queryClient.invalidateQueries({ queryKey: getCurrentUserQueryKey() });
         queryClient.invalidateQueries({ queryKey: getUserQueryKey() });
         queryClient.invalidateQueries({ queryKey: getSessionsQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getDevicesQueryKey() });
       }
-      
+
       options?.onSuccess?.(data);
     },
     onError: (error) => {
@@ -141,34 +172,32 @@ export const useRefreshToken = (options?: UseRefreshTokenOptions) => {
 /**
  * Hook that returns a function to check if token is expired and refresh if needed
  * Useful for manual token management
- * 
+ *
  * @example
  * const { ensureValidToken, isRefreshing } = useEnsureValidToken();
- * 
+ *
  * // Before making an API call
  * await ensureValidToken();
  * // Then make the API call
  */
-export const useEnsureValidToken = () => {
-  const { mutateAsync: refreshToken, isPending: isRefreshing } = useRefreshToken();
+export const useEnsureValidToken = (bufferSeconds?: number) => {
+  const { mutateAsync: refreshToken, isPending: isRefreshing } = useRefreshToken({
+    refreshBufferSeconds: bufferSeconds,
+  });
+  const authClient = getAuthClient();
 
   const ensureValidToken = async (): Promise<boolean> => {
-    const authClient = getAuthClient();
     if (!authClient) {
       return false;
     }
-    
+
     const token = authClient.getAccessToken();
     if (!token) {
       return false;
     }
-    
-    // Check if token is expired or about to expire (within 5 minutes)
-    const exp = getTokenExpiry(token);
-    const now = Math.floor(Date.now() / 1000);
-    const buffer = 300; // 5 minutes buffer
-    
-    if (exp - now < buffer) {
+
+    const buffer = bufferSeconds ?? 60;
+    if (isTokenExpiringSoon(token, buffer)) {
       try {
         await refreshToken();
       } catch {
@@ -181,6 +210,32 @@ export const useEnsureValidToken = () => {
   return {
     ensureValidToken,
     isRefreshing,
+  };
+};
+
+/**
+ * Hook to get current token expiry info
+ *
+ * @example
+ * const { expiresIn, isExpired, expiresAt } = useTokenExpiry();
+ */
+export const useTokenExpiry = () => {
+  const authClient = getAuthClient();
+
+  const token = authClient?.getAccessToken();
+  const expirySeconds = token ? getTokenExpiry(token) : null;
+
+  const now = Math.floor(Date.now() / 1000);
+  const expiresIn = expirySeconds ? Math.max(0, expirySeconds - now) : 0;
+  const isExpired = expiresIn <= 0;
+  const isExpiringSoon = expiresIn <= 60;
+
+  return {
+    expiresIn,
+    isExpired,
+    isExpiringSoon,
+    expiresAt: expirySeconds ? new Date(expirySeconds * 1000) : null,
+    hasToken: !!token,
   };
 };
 
