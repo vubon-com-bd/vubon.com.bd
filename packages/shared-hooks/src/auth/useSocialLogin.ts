@@ -1,34 +1,34 @@
 /**
  * useSocialLogin Hook - OAuth flow trigger abstraction
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- *
+
  * @module shared-hooks/src/auth/useSocialLogin
- *
+
  * RULES:
  * ✅ ONLY OAuth flow trigger - NO business logic
  * ✅ NO OAuth secret handling, backend OAuth validation
+ * ✅ Uses shared-config for client IDs (not directly reading env)
  * ✅ Pure React hook for social login initiation
  * ✅ TypeScript strict
  */
 
 import { useCallback, useState, useRef } from 'react';
-import { getAxiosClient } from '@vubon/shared-api/client/axios';
-import { createSocialEndpoints } from '@vubon/shared-api/endpoints/social';
+
+// Import client IDs from shared-config (Environment variables are resolved there)
+import {
+  env,
+  isGoogleConfigured,
+  isFacebookConfigured,
+  isGithubConfigured,
+  isAppleConfigured,
+  isLinkedInConfigured,
+} from '@vubon/shared-config/env';
+
+import type { SocialProvider } from '@vubon/shared-types';
 
 // ==================== Types ====================
 
-export type SocialProvider =
-  | 'google'
-  | 'github'
-  | 'facebook'
-  | 'apple'
-  | 'linkedin'
-  | 'whatsapp'
-  | 'imo'
-  | 'telegram'
-  | 'bkash'
-  | 'nagad'
-  | 'rocket';
+export type { SocialProvider };
 
 export interface UseSocialLoginOptions {
   /** Redirect URI for OAuth callback (default: `${window.location.origin}/auth/callback`) */
@@ -68,8 +68,8 @@ export interface UseSocialLoginReturn {
 // ==================== Provider Configurations ====================
 
 interface ProviderConfig {
-  /** Environment variable key for client ID */
-  clientIdEnvKey: string;
+  /** Function to get client ID (from shared-config or direct) */
+  getClientId: () => string;
   /** OAuth authorization URL */
   authUrl: string;
   /** OAuth scopes (space-separated) */
@@ -78,11 +78,33 @@ interface ProviderConfig {
   additionalParams?: Record<string, string>;
   /** Whether this provider works better with popup */
   usesPopup?: boolean;
+  /** Function to check if provider is configured */
+  isConfigured: () => boolean;
 }
+
+// Helper function to get client IDs from shared-config env
+const getGoogleClientId = (): string => env.GOOGLE_CLIENT_ID || '';
+const getFacebookClientId = (): string => env.FACEBOOK_CLIENT_ID || '';
+const getGithubClientId = (): string => env.GITHUB_CLIENT_ID || '';
+const getAppleClientId = (): string => env.APPLE_CLIENT_ID || '';
+const getLinkedInClientId = (): string => env.LINKEDIN_CLIENT_ID || '';
+const getWhatsAppClientId = (): string => env.WHATSAPP_PHONE_NUMBER_ID || '';
+const getBkashClientId = (): string => env.BKASH_APP_KEY || '';
+const getNagadClientId = (): string => env.NAGAD_MERCHANT_ID || '';
+
+// Helper functions to check if providers are configured
+const isGoogleConfiguredFn = (): boolean => isGoogleConfigured();
+const isFacebookConfiguredFn = (): boolean => isFacebookConfigured();
+const isGithubConfiguredFn = (): boolean => isGithubConfigured();
+const isAppleConfiguredFn = (): boolean => isAppleConfigured();
+const isLinkedInConfiguredFn = (): boolean => isLinkedInConfigured();
+const isWhatsAppConfigured = (): boolean => !!env.WHATSAPP_PHONE_NUMBER_ID;
+const isBkashConfigured = (): boolean => !!env.BKASH_APP_KEY;
+const isNagadConfigured = (): boolean => !!env.NAGAD_MERCHANT_ID;
 
 const PROVIDER_CONFIGS: Record<SocialProvider, ProviderConfig> = {
   google: {
-    clientIdEnvKey: 'NEXT_PUBLIC_GOOGLE_CLIENT_ID',
+    getClientId: getGoogleClientId,
     authUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
     scopes: 'openid email profile',
     additionalParams: {
@@ -90,69 +112,80 @@ const PROVIDER_CONFIGS: Record<SocialProvider, ProviderConfig> = {
       prompt: 'select_account',
     },
     usesPopup: true,
+    isConfigured: isGoogleConfiguredFn,
   },
   github: {
-    clientIdEnvKey: 'NEXT_PUBLIC_GITHUB_CLIENT_ID',
+    getClientId: getGithubClientId,
     authUrl: 'https://github.com/login/oauth/authorize',
     scopes: 'read:user user:email',
     usesPopup: true,
+    isConfigured: isGithubConfiguredFn,
   },
   facebook: {
-    clientIdEnvKey: 'NEXT_PUBLIC_FACEBOOK_CLIENT_ID',
+    getClientId: getFacebookClientId,
     authUrl: 'https://www.facebook.com/v18.0/dialog/oauth',
     scopes: 'email public_profile',
     usesPopup: true,
+    isConfigured: isFacebookConfiguredFn,
   },
   apple: {
-    clientIdEnvKey: 'NEXT_PUBLIC_APPLE_CLIENT_ID',
+    getClientId: getAppleClientId,
     authUrl: 'https://appleid.apple.com/auth/authorize',
     scopes: 'name email',
     additionalParams: {
       response_mode: 'form_post',
     },
     usesPopup: true,
+    isConfigured: isAppleConfiguredFn,
   },
   linkedin: {
-    clientIdEnvKey: 'NEXT_PUBLIC_LINKEDIN_CLIENT_ID',
+    getClientId: getLinkedInClientId,
     authUrl: 'https://www.linkedin.com/oauth/v2/authorization',
     scopes: 'openid profile email',
     usesPopup: true,
+    isConfigured: isLinkedInConfiguredFn,
   },
   whatsapp: {
-    clientIdEnvKey: 'NEXT_PUBLIC_WHATSAPP_CLIENT_ID',
+    getClientId: getWhatsAppClientId,
     authUrl: 'https://api.whatsapp.com/send',
     scopes: '',
     usesPopup: false,
+    isConfigured: isWhatsAppConfigured,
   },
   imo: {
-    clientIdEnvKey: 'NEXT_PUBLIC_IMO_CLIENT_ID',
+    getClientId: () => '',
     authUrl: 'https://imo.im/login',
     scopes: '',
     usesPopup: false,
+    isConfigured: () => false, // Imo OAuth is not standard, handled via phone verification
   },
   telegram: {
-    clientIdEnvKey: 'NEXT_PUBLIC_TELEGRAM_BOT_NAME',
-    authUrl: 'https://oauth.telegram.org/auth',
+    getClientId: () => process.env.NEXT_PUBLIC_TELEGRAM_BOT_NAME || '',
+    authUrl: 'https://oauth.telegram.org/embed',
     scopes: '',
     usesPopup: true,
+    isConfigured: () => !!process.env.NEXT_PUBLIC_TELEGRAM_BOT_NAME,
   },
   bkash: {
-    clientIdEnvKey: 'NEXT_PUBLIC_BKASH_APP_KEY',
+    getClientId: getBkashClientId,
     authUrl: 'https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout',
     scopes: '',
     usesPopup: true,
+    isConfigured: isBkashConfigured,
   },
   nagad: {
-    clientIdEnvKey: 'NEXT_PUBLIC_NAGAD_MERCHANT_ID',
+    getClientId: getNagadClientId,
     authUrl: 'https://sandbox.mynagad.com/api/dfs/check-out/initialize',
     scopes: '',
     usesPopup: true,
+    isConfigured: isNagadConfigured,
   },
   rocket: {
-    clientIdEnvKey: 'NEXT_PUBLIC_ROCKET_MERCHANT_ID',
+    getClientId: () => process.env.NEXT_PUBLIC_ROCKET_MERCHANT_ID || '',
     authUrl: 'https://rocket.com.bd/api/auth',
     scopes: '',
     usesPopup: true,
+    isConfigured: () => !!process.env.NEXT_PUBLIC_ROCKET_MERCHANT_ID,
   },
 };
 
@@ -175,20 +208,12 @@ const getPopupFeatures = (width: number, height: number): string => {
 };
 
 /**
- * Get client ID from environment variables
- */
-const getClientId = (provider: SocialProvider): string => {
-  const config = PROVIDER_CONFIGS[provider];
-  if (!config) return '';
-  return process.env[config.clientIdEnvKey] || '';
-};
-
-/**
- * Check if provider is configured
+ * Check if provider is configured (uses shared-config helpers)
  */
 const isProviderConfigured = (provider: SocialProvider): boolean => {
-  const clientId = getClientId(provider);
-  return !!clientId;
+  const config = PROVIDER_CONFIGS[provider];
+  if (!config) return false;
+  return config.isConfigured();
 };
 
 /**
@@ -203,6 +228,11 @@ const getProviderConfig = (provider: SocialProvider): ProviderConfig | null => {
 /**
  * Hook for initiating social login flows
  * Opens OAuth redirect or popup
+ * 
+ * IMPROVEMENT: 
+ * - Uses shared-config for client ID resolution (not direct process.env)
+ * - Better error messages with provider names
+ * - Proper cleanup of intervals and event listeners
  *
  * @example
  * const { loginWithGoogle, loginWithFacebook, isLoading } = useSocialLogin({
@@ -213,15 +243,13 @@ const getProviderConfig = (provider: SocialProvider): ProviderConfig | null => {
  *     // Handle the OAuth code (send to backend)
  *   }
  * });
- *
- * // Usage
- * <Button onClick={loginWithGoogle}>Login with Google</Button>
  */
 export const useSocialLogin = (options?: UseSocialLoginOptions): UseSocialLoginReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeProvider, setActiveProvider] = useState<SocialProvider | null>(null);
   const popupRef = useRef<Window | null>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const messageHandlerRef = useRef<((event: MessageEvent) => void) | null>(null);
 
   /**
    * Clean up popup and intervals
@@ -231,6 +259,12 @@ export const useSocialLogin = (options?: UseSocialLoginOptions): UseSocialLoginR
       clearInterval(pollIntervalRef.current);
       pollIntervalRef.current = null;
     }
+    
+    if (messageHandlerRef.current) {
+      window.removeEventListener('message', messageHandlerRef.current);
+      messageHandlerRef.current = null;
+    }
+    
     if (popupRef.current && !popupRef.current.closed) {
       popupRef.current.close();
       popupRef.current = null;
@@ -244,7 +278,9 @@ export const useSocialLogin = (options?: UseSocialLoginOptions): UseSocialLoginR
     (provider: SocialProvider) => {
       // Validate provider configuration
       if (!isProviderConfigured(provider)) {
-        options?.onError?.(new Error(`${provider} OAuth is not configured`));
+        const errorMessage = `${provider} OAuth is not configured. Please check your environment variables.`;
+        console.error(`[useSocialLogin] ${errorMessage}`);
+        options?.onError?.(new Error(errorMessage));
         return;
       }
 
@@ -259,13 +295,17 @@ export const useSocialLogin = (options?: UseSocialLoginOptions): UseSocialLoginR
 
       const config = getProviderConfig(provider);
       if (!config) {
-        options?.onError?.(new Error(`Unknown provider: ${provider}`));
+        const errorMessage = `Unknown provider: ${provider}`;
+        console.error(`[useSocialLogin] ${errorMessage}`);
+        options?.onError?.(new Error(errorMessage));
         return;
       }
 
-      const clientId = getClientId(provider);
+      const clientId = config.getClientId();
       if (!clientId) {
-        options?.onError?.(new Error(`${provider} client ID not configured`));
+        const errorMessage = `${provider} client ID not configured. Please check your environment variables.`;
+        console.error(`[useSocialLogin] ${errorMessage}`);
+        options?.onError?.(new Error(errorMessage));
         return;
       }
 
@@ -286,7 +326,7 @@ export const useSocialLogin = (options?: UseSocialLoginOptions): UseSocialLoginR
       options?.onSuccess?.({ provider });
 
       if (usePopup && typeof window !== 'undefined') {
-        // Clean up any existing popup
+        // Clean up any existing popup and intervals
         cleanup();
 
         const width = options?.popupWidth || 500;
@@ -302,7 +342,9 @@ export const useSocialLogin = (options?: UseSocialLoginOptions): UseSocialLoginR
           // Popup was blocked
           setIsLoading(false);
           setActiveProvider(null);
-          options?.onError?.(new Error('Popup was blocked. Please allow popups for this site.'));
+          const errorMessage = 'Popup was blocked. Please allow popups for this site.';
+          console.warn(`[useSocialLogin] ${errorMessage}`);
+          options?.onError?.(new Error(errorMessage));
           return;
         }
 
@@ -316,30 +358,45 @@ export const useSocialLogin = (options?: UseSocialLoginOptions): UseSocialLoginR
           }
         }, 500);
 
-        // Listen for message from popup
+        // Create message handler for popup communication
         const messageHandler = (event: MessageEvent) => {
           // Validate origin for security
           const allowedOrigins = [
             window.location.origin,
             'https://vubon.com.bd',
             'https://api.vubon.com.bd',
+            'https://accounts.google.com',
+            'https://github.com',
+            'https://www.facebook.com',
+            'https://appleid.apple.com',
+            'https://www.linkedin.com',
           ];
+          
+          // Add localhost for development
+          if (process.env.NODE_ENV === 'development') {
+            allowedOrigins.push('http://localhost:3000', 'http://localhost:3001');
+          }
+          
           if (!allowedOrigins.includes(event.origin)) {
             return;
           }
 
           if (event.data?.type === 'oauth_callback' && event.data?.provider === provider) {
-            window.removeEventListener('message', messageHandler);
             cleanup();
             setIsLoading(false);
             setActiveProvider(null);
 
             if (event.data.code) {
               options?.onCodeReceived?.(provider, event.data.code);
+            } else if (event.data.error) {
+              const errorMessage = event.data.error_description || event.data.error;
+              console.error(`[useSocialLogin] OAuth error: ${errorMessage}`);
+              options?.onError?.(new Error(errorMessage));
             }
           }
         };
 
+        messageHandlerRef.current = messageHandler;
         window.addEventListener('message', messageHandler);
       } else {
         // Full page redirect
@@ -349,6 +406,7 @@ export const useSocialLogin = (options?: UseSocialLoginOptions): UseSocialLoginR
     [options, cleanup]
   );
 
+  // Return memoized login functions
   return {
     loginWithGoogle: useCallback(() => loginWithProvider('google'), [loginWithProvider]),
     loginWithGithub: useCallback(() => loginWithProvider('github'), [loginWithProvider]),
