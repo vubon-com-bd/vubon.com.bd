@@ -46,6 +46,11 @@
       "import": "./dist/social.constants.mjs",
       "require": "./dist/social.constants.js"
     },
+    "./event": {
+      "types": "./dist/evn.constants.d.ts",
+      "import": "./dist/evn.constants.mjs",
+      "require": "./dist/evn.constants.js"
+    },
     "./api": {
       "types": "./dist/api.constants.d.ts",
       "import": "./dist/api.constants.mjs",
@@ -111,7 +116,8 @@
     "mfa",
     "session",
     "cache",
-    "queue"
+    "queue",
+    "event"
   ],
   "author": "Vubon E-commerce",
   "license": "UNLICENSED",
