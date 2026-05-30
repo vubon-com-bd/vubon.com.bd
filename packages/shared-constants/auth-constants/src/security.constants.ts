@@ -711,4 +711,292 @@ export const SESSION_SECURITY = {
   CONCURRENT_SESSION_STRATEGY: 'allow_new_kill_oldest' as const,
 
   // Session invalidation
-  INVALIDATE_ON_PASSWORD_CHANGE:
+  INVALIDATE_ON_PASSWORD_CHANGE: true,
+  INVALIDATE_ON_ROLE_CHANGE: true,
+  INVALIDATE_ON_MFA_CHANGE: true,
+} as const;
+
+// ============================================================
+// Encryption Configuration (Enhanced with scrypt parameters)
+// ============================================================
+export const ENCRYPTION_CONFIG = {
+  // AES-256-GCM parameters
+  ALGORITHM: 'aes-256-gcm',
+  KEY_LENGTH: 32,                        // 256 bits
+  IV_LENGTH: 16,                         // 128 bits
+  AUTH_TAG_LENGTH: 16,                   // 128 bits
+
+  // Encoding
+  ENCODING: 'hex' as const,
+
+  // Key derivation (scrypt) - OWASP recommended
+  SCRYPT_N: 16384,                       // CPU/memory cost (2^14 = 16,384)
+  SCRYPT_R: 8,                           // Block size
+  SCRYPT_P: 1,                           // Parallelization factor
+
+  // Legacy key derivation (PBKDF2 - for backward compatibility)
+  PBKDF2_ITERATIONS: 100000,
+  PBKDF2_DIGEST: 'sha256',
+
+  // Hashing (for passwords)
+  HASH_ALGORITHM: 'sha256',
+  SALT_ROUNDS: 12,                       // bcrypt rounds (2^12 = 4096 iterations)
+  MIN_SALT_ROUNDS: 10,                   // Minimum bcrypt rounds
+  MAX_SALT_ROUNDS: 14,                   // Maximum bcrypt rounds
+
+  // Minimum secret length for encryption keys
+  MIN_SECRET_LENGTH: 8,                  // Separate from password policy
+} as const;
+
+// ============================================================
+// JWT Configuration (for authentication)
+// ============================================================
+export const JWT_CONFIG = {
+  // RS256 configuration (asymmetric - for production)
+  ALGORITHM: 'RS256',
+  ACCESS_TOKEN_EXPIRY: '15m',
+  REFRESH_TOKEN_EXPIRY: '7d',
+  RESET_TOKEN_EXPIRY: '1h',
+  VERIFICATION_TOKEN_EXPIRY: '24h',
+  ISSUER: 'vubon.com.bd',
+  AUDIENCE: 'vubon-api',
+
+  // JWT claim names
+  CLAIMS: {
+    USER_ID: 'sub',
+    EMAIL: 'email',
+    ROLES: 'roles',
+    PERMISSIONS: 'perms',
+    SESSION_ID: 'sid',
+    DEVICE_ID: 'did',
+  },
+
+  // HS256 configuration (symmetric - for internal/legacy use)
+  HS256_CONFIG: {
+    ALGORITHM: 'HS256',
+    MIN_SECRET_LENGTH: 32,
+    TOKEN_TYPE: 'JWT',
+  },
+} as const;
+
+// ============================================================
+// API Key Configuration
+// ============================================================
+export const API_KEY_CONFIG = {
+  PREFIX: 'vub_',
+  KEY_LENGTH: 32,
+  SECRET_LENGTH: 64,
+  ALLOWED_IPS: [],                       // Empty means all IPs allowed
+  SCOPE_SEPARATOR: ':',
+
+  // Rate limits per API key
+  RATE_LIMITS: {
+    DEFAULT: { WINDOW_MS: 60000, MAX_REQUESTS: 100 },
+    PREMIUM: { WINDOW_MS: 60000, MAX_REQUESTS: 1000 },
+    ENTERPRISE: { WINDOW_MS: 60000, MAX_REQUESTS: 10000 },
+  },
+} as const;
+
+// ============================================================
+// IP Blacklist (Bangladesh specific spam/fraud IPs)
+// ============================================================
+export const IP_BLACKLIST = {
+  // Known malicious IP ranges
+  MALICIOUS_RANGES: [
+    '5.188.210.0/24',
+    '185.130.5.0/24',
+    '194.180.174.0/24',
+  ],
+
+  // Bangladesh spam IPs (placeholder - actual from monitoring)
+  BD_SPAM_IPS: [
+    // Will be populated from monitoring system
+  ],
+
+  // Known VPN/Proxy IPs (partial)
+  VPN_PROXY_RANGES: [
+    '104.16.0.0/12',
+    '172.64.0.0/13',
+  ],
+} as const;
+
+// ============================================================
+// Security Events (Enhanced for e-commerce)
+// ============================================================
+export const SECURITY_EVENTS = {
+  // Authentication events
+  SUSPICIOUS_ACTIVITY: 'security.suspicious_activity',
+  RATE_LIMIT_EXCEEDED: 'security.rate_limit_exceeded',
+  BLOCKED_IP: 'security.blocked_ip',
+  BRUTE_FORCE_ATTEMPT: 'security.brute_force_attempt',
+
+  // Injection attacks
+  SQL_INJECTION_ATTEMPT: 'security.sql_injection_attempt',
+  XSS_ATTEMPT: 'security.xss_attempt',
+  NO_SQL_INJECTION_ATTEMPT: 'security.nosql_injection_attempt',
+
+  // API security
+  API_KEY_COMPROMISED: 'security.api_key_compromised',
+  UNAUTHORIZED_ACCESS: 'security.unauthorized_access',
+  SUSPICIOUS_API_PATTERN: 'security.suspicious_api_pattern',
+
+  // Payment security (Bangladesh specific)
+  PAYMENT_FRAUD_ATTEMPT: 'security.payment_fraud_attempt',
+  CARDING_ATTEMPT: 'security.carding_attempt',      // Testing stolen cards
+  PROMO_ABUSE_ATTEMPT: 'security.promo_abuse_attempt',
+  COUPON_BRUTE_FORCE: 'security.coupon_brute_force',
+
+  // Account security
+  ACCOUNT_TAKEOVER_ATTEMPT: 'security.account_takeover_attempt',
+  CREDENTIAL_STUFFING: 'security.credential_stuffing',
+  SIM_SWAP_DETECTED: 'security.sim_swap_detected',
+
+  // E-commerce specific
+  INVENTORY_SCRAPING: 'security.inventory_scraping',
+  PRICE_SCRAPING: 'security.price_scraping',
+  REVIEW_SPAM: 'security.review_spam',
+  FAKE_ORDER_ATTEMPT: 'security.fake_order_attempt',
+
+  // DDoS & Bot
+  DDOS_ATTEMPT: 'security.ddos_attempt',
+  BOT_DETECTED: 'security.bot_detected',
+  HIGH_TRAFFIC_ALERT: 'security.high_traffic_alert',
+} as const;
+
+// ============================================================
+// Security Alert Thresholds
+// ============================================================
+export const SECURITY_ALERT_THRESHOLDS = {
+  // Critical alerts (Immediate action)
+  CRITICAL: {
+    SQL_INJECTION_ATTEMPTS: 3,
+    XSS_ATTEMPTS: 5,
+    ACCOUNT_TAKEOVER_ATTEMPTS: 3,
+    PAYMENT_FRAUD_ATTEMPTS: 2,
+    SIM_SWAP_DETECTED: 1,
+  },
+
+  // High alerts (Monitor closely)
+  HIGH: {
+    FAILED_LOGINS_PER_IP: 20,
+    FAILED_LOGINS_PER_USER: 5,
+    RATE_LIMIT_EXCEEDED: 10,
+    SUSPICIOUS_API_PATTERNS: 5,
+  },
+
+  // Medium alerts (Log for analysis)
+  MEDIUM: {
+    PROMO_ABUSE_ATTEMPTS: 10,
+    COUPON_BRUTE_FORCE_ATTEMPTS: 50,
+    REVIEW_SPAM_ATTEMPTS: 20,
+  },
+} as const;
+
+// ============================================================
+// Bangladesh Specific Security Settings
+// ============================================================
+export const BD_SECURITY_SETTINGS = {
+  // Mobile network operators
+  MOBILE_OPERATORS: {
+    GP: 'grameenphone',
+    ROBI: 'robi',
+    BANGLALINK: 'banglalink',
+    TELETALK: 'teletalk',
+  },
+
+  // Enhanced security during holidays
+  HOLIDAY_ENHANCEMENTS: {
+    ENABLED: true,
+    STRICTER_RATE_LIMITS: true,
+    ENHANCED_MFA_REQUIRED: true,
+    EXTRA_VERIFICATION_FOR_PAYMENTS: true,
+  },
+
+  // Weekend security (Friday, Saturday in BD)
+  WEEKEND_ENHANCEMENTS: {
+    ENABLED: true,
+    STRICTER_FRAUD_CHECKS: true,
+    REVIEW_HIGH_VALUE_TRANSACTIONS: true,
+  },
+
+  // Night time security (10 PM - 6 AM)
+  NIGHT_TIME_ENHANCEMENTS: {
+    ENABLED: true,
+    ADDITIONAL_MFA_REQUIRED: true,
+    FLAG_SUSPICIOUS_ACTIVITY: true,
+  },
+} as const;
+
+// ============================================================
+// Security Headers for Payment Gateways
+// ============================================================
+export const PAYMENT_GATEWAY_SECURITY = {
+  SSLCOMMERZ: {
+    ALLOWED_IPS: ['45.64.44.0/24', '45.64.45.0/24'],
+    WEBHOOK_SECRET_REQUIRED: true,
+    SIGNATURE_VERIFICATION: true,
+  },
+  BKASH: {
+    ALLOWED_IPS: ['103.115.80.0/20'],
+    WEBHOOK_SECRET_REQUIRED: true,
+    SIGNATURE_VERIFICATION: true,
+  },
+  NAGAD: {
+    ALLOWED_IPS: ['103.112.0.0/16'],
+    WEBHOOK_SECRET_REQUIRED: true,
+    SIGNATURE_VERIFICATION: true,
+  },
+} as const;
+
+// ============================================================
+// Security Logging Configuration
+// ============================================================
+export const SECURITY_LOGGING = {
+  // What to log
+  LOG_ALL_AUTH_ATTEMPTS: true,
+  LOG_ALL_API_ACCESS: false,               // Too verbose, only sample
+  LOG_ALL_PAYMENT_ACTIONS: true,
+  LOG_SENSITIVE_DATA_ACCESS: true,
+  LOG_ADMIN_ACTIONS: true,
+
+  // Sampling rate (for high-volume logs)
+  API_ACCESS_SAMPLE_RATE: 0.01,            // Log 1% of API access
+
+  // Retention period (days)
+  RETENTION_DAYS: {
+    AUTH_LOGS: 90,
+    API_LOGS: 30,
+    PAYMENT_LOGS: 365,                      // Financial regulations
+    ADMIN_LOGS: 365,
+    SECURITY_EVENTS: 365,
+  },
+
+  // Alert channels
+  ALERT_CHANNELS: {
+    CRITICAL: ['email', 'sms', 'slack'],
+    HIGH: ['email', 'slack'],
+    MEDIUM: ['slack'],
+    LOW: ['log_only'],
+  },
+} as const;
+
+// ============================================================
+// Security Testing Headers (For development/staging)
+// ============================================================
+export const SECURITY_TESTING = {
+  ENABLED_IN_DEVELOPMENT: true,
+  ENABLED_IN_STAGING: true,
+  ENABLED_IN_PRODUCTION: false,
+
+  // Test headers (X-Forwarded-*, etc.)
+  TEST_HEADERS: {
+    X_FORWARDED_FOR: 'x-forwarded-for',
+    X_FORWARDED_PROTO: 'x-forwarded-proto',
+    X_REAL_IP: 'x-real-ip',
+  },
+
+  // Bypass mechanisms (for testing only)
+  TEST_BYPASS_ENABLED: false,
+  TEST_BYPASS_HEADER: 'x-bypass-security',
+  TEST_BYPASS_TOKEN: 'test-bypass-token-123',
+} as const;
