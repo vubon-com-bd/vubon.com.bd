@@ -1,9 +1,9 @@
 /**
  * Require MFA Guard - MFA route protection
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module shared-auth/src/guards/RequireMFA
- * 
+ *
  * RULES:
  * ✅ ONLY MFA route protection - NO business logic
  * ✅ NO MFA verification engine, TOTP generation
@@ -17,6 +17,7 @@ import { RequireAuth } from './RequireAuth';
 
 // Import from shared-api and shared-utils
 import { createMfaEndpoints } from '@vubon/shared-api';
+import { extractData } from '@vubon/shared-api/client'; // <-- উন্নতি: কেন্দ্রীভূত হেল্পার ব্যবহার
 import { withRetry, DEFAULT_RETRY_CONFIG } from '@vubon/shared-api/client/retry';
 import { getAxiosClient } from '@vubon/shared-api/client/axios';
 import { env } from '@vubon/shared-config/env';
@@ -27,7 +28,6 @@ export interface RequireMFAProps {
   children: React.ReactNode;
   fallback?: React.ReactNode;
   redirectTo?: string;
-  mfaStatusPath?: string;
   loadingFallback?: React.ReactNode;
   /** Whether MFA is optional or required */
   required?: boolean;
@@ -53,11 +53,6 @@ const logError = (error: unknown, context: string): void => {
   if (env.NODE_ENV === 'development') {
     console.error(`[RequireMFA] ${context}:`, error);
   }
-};
-
-// Helper function to extract data from API response
-const extractData = <T>(response: { data?: { data?: T } }): T | undefined => {
-  return response.data?.data;
 };
 
 // Helper function for idempotent GET requests with retry
@@ -94,11 +89,19 @@ export const useMFAStatus = (): UseMFAStatusReturn => {
     try {
       // API call to get MFA status with retry support
       const response = await withIdempotentRetry(() => mfaApi.getStatus());
-      const status = extractData(response);
+      
+      // উন্নতি: extractData হেল্পার ব্যবহার করে টাইপ-সেফ ডাটা এক্সট্রাক্ট
+      const status = extractData<{ 
+        enabled: boolean; 
+        methods: { provider: string }[]; 
+        defaultMethod: string | null; 
+        requiredForRole?: boolean; 
+        requiredForAction?: boolean; 
+      }>(response);
 
       setHasMFAEnabled(status?.enabled || false);
       setHasMfaVerified(status?.enabled || false);
-      setAvailableMethods(status?.methods?.map((m: { provider: string }) => m.provider) || []);
+      setAvailableMethods(status?.methods?.map((m) => m.provider) || []);
       setPrimaryMethod(status?.defaultMethod || null);
 
       // Check if MFA is required for this user (based on role or settings)
@@ -125,7 +128,7 @@ export const useMFAStatus = (): UseMFAStatusReturn => {
 
   return {
     hasMFAEnabled,
-    hasMfaVerified,
+    hasMfaVerified,        // <-- উন্নতি: আগে রিটার্ন করা হচ্ছিল না, এখন করা হচ্ছে
     availableMethods,
     primaryMethod,
     isLoading,
@@ -139,19 +142,19 @@ export const useMFAStatus = (): UseMFAStatusReturn => {
 /**
  * Guard component that requires MFA to be enabled
  * Redirects to MFA setup if not enabled
- * 
+ *
  * @example
  * // Protect sensitive routes requiring MFA
  * <RequireMFA redirectTo="/mfa/setup">
  *   <AdminDashboard />
  * </RequireMFA>
- * 
+ *
  * @example
  * // Make MFA optional but recommended
  * <RequireMFA required={false}>
  *   <SettingsPage />
  * </RequireMFA>
- * 
+ *
  * @example
  * // Require specific MFA methods
  * <RequireMFA requiredMethods={['totp', 'sms']}>
@@ -168,12 +171,12 @@ export const RequireMFA: React.FC<RequireMFAProps> = ({
 }) => {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { hasMFAEnabled, isLoading: mfaLoading, isRequired, availableMethods, refreshStatus } = useMFAStatus();
-  
+
   const isLoading = authLoading || mfaLoading;
-  
+
   // Check if MFA is effectively required
   const effectivelyRequired = required && isRequired;
-  
+
   // Check if user has required methods
   const hasRequiredMethods = React.useMemo(() => {
     if (!requiredMethods || requiredMethods.length === 0) {
@@ -181,35 +184,35 @@ export const RequireMFA: React.FC<RequireMFAProps> = ({
     }
     return requiredMethods.every((method) => availableMethods.includes(method));
   }, [requiredMethods, availableMethods, hasMFAEnabled]);
-  
+
   // Show loading state
   if (isLoading) {
     return <>{loadingFallback}</>;
   }
-  
+
   // Must be authenticated first
   if (!isAuthenticated) {
     return <RequireAuth redirectTo="/login">{null}</RequireAuth>;
   }
-  
+
   // If MFA is required but not enabled, redirect
   if (effectivelyRequired && !hasRequiredMethods && redirectTo && typeof window !== 'undefined') {
     window.location.href = redirectTo;
     return null;
   }
-  
+
   // If MFA is required but user doesn't have required methods
   if (requiredMethods && requiredMethods.length > 0 && !hasRequiredMethods) {
     return <>{fallback}</>;
   }
-  
+
   return <>{children}</>;
 };
 
 /**
  * Higher-order component for requiring MFA
  * Wraps a component with RequireMFA guard
- * 
+ *
  * @example
  * const AdminPanel = withMFA(AdminComponent, { redirectTo: '/mfa/setup' });
  */
@@ -222,9 +225,9 @@ export const withMFA = <P extends object>(
       <Component {...props} />
     </RequireMFA>
   );
-  
+
   WrappedComponent.displayName = `withMFA(${Component.displayName || Component.name || 'Component'})`;
-  
+
   return WrappedComponent;
 };
 
