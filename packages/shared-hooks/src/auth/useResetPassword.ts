@@ -73,8 +73,41 @@ export interface RequestResetOtpResponse {
   remainingAttempts: number;
 }
 
+export interface VerifyResetOtpData {
+  phoneNumber: string;
+  otpCode: string;
+  sessionId?: string;
+}
+
+export interface VerifyResetOtpResponse {
+  success: boolean;
+  verified: boolean;
+  resetToken?: string;
+  expiresInSeconds?: number;
+  remainingAttempts?: number;
+  message?: string;
+}
+
 export interface UseResetPasswordOptions {
   onSuccess?: (data: ResetPasswordResponse) => void;
+  onError?: (error: Error) => void;
+  onSettled?: () => void;
+}
+
+export interface UseRequestResetOtpOptions {
+  onSuccess?: (data: RequestResetOtpResponse) => void;
+  onError?: (error: Error) => void;
+  onSettled?: () => void;
+}
+
+export interface UseValidateResetTokenOptions {
+  onSuccess?: (data: ValidateResetTokenResponse) => void;
+  onError?: (error: Error) => void;
+  onSettled?: () => void;
+}
+
+export interface UseVerifyResetOtpOptions {
+  onSuccess?: (data: VerifyResetOtpResponse) => void;
   onError?: (error: Error) => void;
   onSettled?: () => void;
 }
@@ -195,10 +228,7 @@ export const useResetPasswordWithOtp = (options?: UseResetPasswordOptions) => {
  *
  * validateToken({ token: 'reset-token-from-email' });
  */
-export const useValidateResetToken = (options?: {
-  onSuccess?: (data: ValidateResetTokenResponse) => void;
-  onError?: (error: Error) => void;
-}) => {
+export const useValidateResetToken = (options?: UseValidateResetTokenOptions) => {
   const endpoints = getAuthEndpoints();
 
   return useMutation({
@@ -211,6 +241,9 @@ export const useValidateResetToken = (options?: {
     },
     onError: (error) => {
       options?.onError?.(error as Error);
+    },
+    onSettled: () => {
+      options?.onSettled?.();
     },
   });
 };
@@ -228,10 +261,7 @@ export const useValidateResetToken = (options?: {
  *
  * requestResetOtp({ phoneNumber: '01712345678', method: 'whatsapp' });
  */
-export const useRequestResetOtp = (options?: {
-  onSuccess?: (data: RequestResetOtpResponse) => void;
-  onError?: (error: Error) => void;
-}) => {
+export const useRequestResetOtp = (options?: UseRequestResetOtpOptions) => {
   const endpoints = getAuthEndpoints();
 
   return useMutation({
@@ -244,6 +274,9 @@ export const useRequestResetOtp = (options?: {
     },
     onError: (error) => {
       options?.onError?.(error as Error);
+    },
+    onSettled: () => {
+      options?.onSettled?.();
     },
   });
 };
@@ -260,17 +293,19 @@ export const useRequestResetOtp = (options?: {
  *   }
  * });
  *
- * verifyResetOtp({ phoneNumber: '01712345678', otpCode: '123456' });
+ * verifyResetOtp({ phoneNumber: '01712345678', otpCode: '123456', sessionId: 'session-123' });
  */
-export const useVerifyResetOtp = (options?: {
-  onSuccess?: (data: { verified: boolean; resetToken?: string; expiresInSeconds?: number; remainingAttempts?: number }) => void;
-  onError?: (error: Error) => void;
-}) => {
+export const useVerifyResetOtp = (options?: UseVerifyResetOtpOptions) => {
   const endpoints = getAuthEndpoints();
 
   return useMutation({
-    mutationFn: async ({ phoneNumber, otpCode, sessionId }: { phoneNumber: string; otpCode: string; sessionId?: string }) => {
-      const response = await endpoints.verifyOtp({ phoneNumber, otpCode, type: 'reset' });
+    mutationFn: async (data: VerifyResetOtpData): Promise<VerifyResetOtpResponse> => {
+      const response = await endpoints.verifyOtp({
+        phoneNumber: data.phoneNumber,
+        otpCode: data.otpCode,
+        type: 'reset',
+        sessionId: data.sessionId,
+      });
       return response;
     },
     onSuccess: (data) => {
@@ -279,6 +314,9 @@ export const useVerifyResetOtp = (options?: {
     onError: (error) => {
       options?.onError?.(error as Error);
     },
+    onSettled: () => {
+      options?.onSettled?.();
+    },
   });
 };
 
@@ -286,6 +324,9 @@ export const useVerifyResetOtp = (options?: {
 
 export type {
   UseResetPasswordOptions,
+  UseRequestResetOtpOptions,
+  UseValidateResetTokenOptions,
+  UseVerifyResetOtpOptions,
   ResetPasswordData,
   ResetPasswordWithOtpData,
   ResetPasswordResponse,
@@ -293,4 +334,6 @@ export type {
   RequestResetOtpResponse,
   ValidateResetTokenData,
   ValidateResetTokenResponse,
+  VerifyResetOtpData,
+  VerifyResetOtpResponse,
 };
