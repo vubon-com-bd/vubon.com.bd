@@ -23,20 +23,9 @@ export interface RequireAuthProps {
   replace?: boolean;
   loadingFallback?: React.ReactNode;
   onUnauthenticated?: () => void;
-  /**
-   * Use Next.js router for navigation (requires next/navigation)
-   * @default false
-   */
+  /** Use Next.js router for navigation (requires Next.js environment) */
   useNextRouter?: boolean;
 }
-
-// ==================== Default Loading Component ====================
-
-const DefaultLoadingFallback: React.FC = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
-  </div>
-);
 
 // ==================== Guard Component ====================
 
@@ -45,14 +34,14 @@ const DefaultLoadingFallback: React.FC = () => (
  * Redirects to login page if not authenticated
  *
  * @example
- * // Protect dashboard route with Next.js router
- * <RequireAuth redirectTo="/login" useNextRouter>
+ * // Protect dashboard route (plain redirect)
+ * <RequireAuth redirectTo="/login">
  *   <DashboardPage />
  * </RequireAuth>
  *
  * @example
- * // Protect dashboard route with window.location
- * <RequireAuth redirectTo="/login">
+ * // Protect dashboard route with Next.js router
+ * <RequireAuth redirectTo="/login" useNextRouter>
  *   <DashboardPage />
  * </RequireAuth>
  */
@@ -61,33 +50,38 @@ export const RequireAuth: React.FC<RequireAuthProps> = ({
   fallback,
   redirectTo = '/login',
   replace = false,
-  loadingFallback,
+  loadingFallback = null,
   onUnauthenticated,
   useNextRouter = false,
 }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
-  // Lazy load Next.js router only when needed and on client side
-  const nextRouter = (() => {
-    if (useNextRouter && typeof window !== 'undefined') {
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const { useRouter } = require('next/navigation');
-        return useRouter();
-      } catch {
-        console.warn('next/navigation not available. Falling back to window.location.');
-        return null;
-      }
+  // Next.js router (only if useNextRouter is true)
+  let nextRouter: ReturnType<typeof import('next/navigation').useRouter> | null = null;
+  if (useNextRouter) {
+    try {
+      // Dynamic import to avoid errors in non-Next.js environments
+      const { useRouter } = require('next/navigation');
+      nextRouter = useRouter();
+    } catch {
+      // Silently fail - fallback to window.location
+      useNextRouter = false;
     }
-    return null;
-  })();
+  }
 
-  // Determine which loading fallback to use
-  const LoadingComponent = loadingFallback ?? <DefaultLoadingFallback />;
+  // Default loading fallback
+  const defaultLoadingFallback = (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-center">
+        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        <p className="mt-2 text-gray-600">Loading...</p>
+      </div>
+    </div>
+  );
 
   // Show loading state
   if (isLoading) {
-    return <>{LoadingComponent}</>;
+    return <>{loadingFallback ?? defaultLoadingFallback}</>;
   }
 
   // If not authenticated, redirect
@@ -95,15 +89,15 @@ export const RequireAuth: React.FC<RequireAuthProps> = ({
     onUnauthenticated?.();
 
     if (typeof window !== 'undefined' && redirectTo) {
-      // Use Next.js router if available and requested
       if (useNextRouter && nextRouter) {
+        // Next.js router navigation
         if (replace) {
           nextRouter.replace(redirectTo);
         } else {
           nextRouter.push(redirectTo);
         }
       } else {
-        // Fallback to window.location
+        // Plain redirect
         if (replace) {
           window.location.replace(redirectTo);
         } else {
@@ -123,11 +117,6 @@ export const RequireAuth: React.FC<RequireAuthProps> = ({
  * Wraps a component with RequireAuth guard
  *
  * @example
- * // With Next.js router
- * const DashboardPage = withAuth(DashboardComponent, { redirectTo: '/login', useNextRouter: true });
- *
- * @example
- * // With window.location
  * const DashboardPage = withAuth(DashboardComponent, { redirectTo: '/login' });
  */
 export const withAuth = <P extends object>(
