@@ -701,29 +701,3 @@ export const PERMISSION_ACTIONS = {
 
 export type PermissionAction = ValueOf<typeof PERMISSION_ACTIONS>;
 
-// ============================================================
-// Deep freeze everything for immutability
-// ============================================================
-const deepFreeze = <T>(obj: T): ReadonlyDeep<T> => {
-  Object.freeze(obj);
-  if (obj === null || typeof obj !== 'object') return obj as ReadonlyDeep<T>;
-
-  for (const value of Object.values(obj)) {
-    if (value !== null && typeof value === 'object') {
-      deepFreeze(value);
-    }
-  }
-
-  return obj as ReadonlyDeep<T>;
-};
-
-// Apply deep freeze to all exported objects
-export const __ALL_CONSTANTS_FROZEN__ = deepFreeze({
-  PERMISSIONS,
-  PERMISSION_GROUPS,
-  ALL_PERMISSIONS,
-  PERMISSION_CATEGORIES,
-  PERMISSION_TO_CATEGORY,
-  PERMISSION_RESOURCES,
-  PERMISSION_ACTIONS,
-});
