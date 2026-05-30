@@ -680,38 +680,3 @@ export const QUEUE_HEALTH = {
 } as const;
 
 export type QueueHealth = typeof QUEUE_HEALTH;
-
-// ============================================================
-// Deep freeze everything for immutability
-// ============================================================
-const deepFreeze = <T>(obj: T): ReadonlyDeep<T> => {
-  Object.freeze(obj);
-  if (obj === null || typeof obj !== 'object') return obj as ReadonlyDeep<T>;
-
-  for (const value of Object.values(obj)) {
-    if (value !== null && typeof value === 'object') {
-      deepFreeze(value);
-    }
-  }
-
-  return obj as ReadonlyDeep<T>;
-};
-
-// Apply deep freeze to all exported objects
-export const __ALL_CONSTANTS_FROZEN__ = deepFreeze({
-  QUEUES,
-  EXCHANGES,
-  ROUTING_KEYS,
-  QUEUE_DLX,
-  QUEUE_PRIORITIES,
-  QUEUE_CONCURRENCY,
-  QUEUE_TIMEOUTS,
-  EVENT_NAMES,
-  JOB_TYPES,
-  QUEUE_METRICS,
-  RETRY_STRATEGIES,
-  QUEUE_RETRY_CONFIG,
-  QUEUE_RATE_LIMITS,
-  QUEUE_SCHEDULING,
-  QUEUE_HEALTH,
-});
