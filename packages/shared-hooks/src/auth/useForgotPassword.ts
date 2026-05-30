@@ -1,9 +1,9 @@
 /**
  * useForgotPassword Hook - Password reset request mutation
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+
  * @module shared-hooks/src/auth/useForgotPassword
- * 
+
  * RULES:
  * ✅ ONLY mutation orchestration - NO business logic
  * ✅ NO email sending, reset token generation
@@ -13,142 +13,87 @@
  */
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createAuthEndpoints } from '@vubon/auth-api';
-import { getAuthClient } from '@vubon/auth-shared';
+import { getAxiosClient } from '@vubon/shared-api/client/axios';
+import { createAuthEndpoints } from '@vubon/shared-api/endpoints/auth';
 
 // ==================== Types ====================
 
-export interface ForgotPasswordRequest {
-  email: string;
-  captchaToken ? : string;
-}
-
-export interface ForgotPasswordPhoneRequest {
-  phoneNumber: string;
-  method ? : 'sms' | 'whatsapp';
-  captchaToken ? : string;
-}
+// Union type for both email and phone-based reset (better than separate hooks)
+export type ForgotPasswordInput =
+  | { email: string; captchaToken?: string }
+  | { phoneNumber: string; method?: 'sms' | 'whatsapp'; captchaToken?: string };
 
 export interface ForgotPasswordResponse {
   success: boolean;
   message: string;
-  messageBn ? : string;
+  messageBn?: string;
   resetTokenSent: boolean;
-  maskedEmail ? : string;
-  maskedPhone ? : string;
+  maskedEmail?: string;
+  maskedPhone?: string;
   expiresInSeconds: number;
   resendCooldownSeconds: number;
+  sessionId?: string; // For OTP-based reset
 }
 
 export interface UseForgotPasswordOptions {
-  onSuccess ? : (data: ForgotPasswordResponse) => void;
-  onError ? : (error: Error) => void;
-  onSettled ? : () => void;
+  onSuccess?: (data: ForgotPasswordResponse) => void;
+  onError?: (error: Error) => void;
+  onSettled?: () => void;
 }
+
+// Helper to check if input is phone-based
+const isPhoneRequest = (input: ForgotPasswordInput): input is Extract<ForgotPasswordInput, { phoneNumber: string }> => {
+  return 'phoneNumber' in input;
+};
 
 // ==================== Hook ====================
 
 /**
- * Hook for requesting password reset email
- * 
+ * Hook for requesting password reset (email or phone - Bangladesh specific)
+ * Single unified hook that handles both email and phone-based reset
+
  * @example
- * const { mutate: forgotPassword, isLoading, error } = useForgotPassword({
+ * // Email reset
+ * const { mutate: forgotPassword, isLoading } = useForgotPassword({
  *   onSuccess: (data) => {
  *     console.log('Reset email sent:', data.message);
- *   },
- *   onError: (error) => {
- *     console.error('Failed:', error);
  *   }
  * });
- * 
- * // Usage
  * forgotPassword({ email: 'user@example.com' });
- */
-export const useForgotPassword = (options ? : UseForgotPasswordOptions) => {
-  const queryClient = useQueryClient();
-  const authClient = getAuthClient();
-  
-  // Get API client (uses the same axios instance as auth client)
-  const apiClient = authClient?.['config']?.apiClient;
-  
-  return useMutation({
-    mutationFn: async (data: ForgotPasswordRequest | ForgotPasswordPhoneRequest): Promise < ForgotPasswordResponse > => {
-      // Check if phone number is provided (Bangladesh specific)
-      if ('phoneNumber' in data) {
-        // Phone-based reset
-        const response = await fetch('/api/v1/auth/forgot-password/phone', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-        
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.message || 'Failed to send reset OTP');
-        }
-        
-        return response.json();
-      }
-      
-      // Email-based reset
-      const response = await fetch('/api/v1/auth/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to send reset email');
-      }
-      
-      return response.json();
-    },
-    onSuccess: (data) => {
-      // Invalidate any password-related queries if needed
-      // queryClient.invalidateQueries({ queryKey: ['user'] });
-      options?.onSuccess?.(data);
-    },
-    onError: (error) => {
-      options?.onError?.(error as Error);
-    },
-    onSettled: () => {
-      options?.onSettled?.();
-    },
-  });
-};
 
-/**
- * Hook for requesting password reset via phone (Bangladesh specific)
- * 
  * @example
- * const { mutate: forgotPasswordPhone, isLoading } = useForgotPasswordPhone({
- *   onSuccess: (data) => {
- *     console.log('OTP sent to:', data.maskedPhone);
- *   }
- * });
- * 
- * forgotPasswordPhone({ phoneNumber: '01712345678', method: 'whatsapp' });
+ * // Phone reset (Bangladesh specific)
+ * forgotPassword({ phoneNumber: '01712345678', method: 'whatsapp' });
  */
-export const useForgotPasswordPhone = (options ? : UseForgotPasswordOptions) => {
+export const useForgotPassword = (options?: UseForgotPasswordOptions) => {
   const queryClient = useQueryClient();
-  
+
+  // Get authenticated endpoints (uses same axios instance as auth client)
+  const endpoints = createAuthEndpoints(getAxiosClient());
+
   return useMutation({
-    mutationFn: async (data: ForgotPasswordPhoneRequest): Promise < ForgotPasswordResponse > => {
-      const response = await fetch('/api/v1/auth/forgot-password/phone', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || error.messageBn || 'Failed to send reset OTP');
+    mutationFn: async (data: ForgotPasswordInput): Promise<ForgotPasswordResponse> => {
+      if (isPhoneRequest(data)) {
+        // Phone-based reset (Bangladesh specific)
+        const response = await endpoints.forgotPasswordPhone({
+          phoneNumber: data.phoneNumber,
+          method: data.method,
+          captchaToken: data.captchaToken,
+        });
+        return response;
       }
-      
-      return response.json();
+
+      // Email-based reset
+      const response = await endpoints.forgotPassword({
+        email: data.email,
+        captchaToken: data.captchaToken,
+      });
+      return response;
     },
     onSuccess: (data) => {
+      // Invalidate related queries
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+      queryClient.invalidateQueries({ queryKey: ['account-lock'] });
       options?.onSuccess?.(data);
     },
     onError: (error) => {
