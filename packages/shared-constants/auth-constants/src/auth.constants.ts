@@ -9,6 +9,8 @@
  * ✅ NO business logic
  * ✅ NO side effects
  * ✅ ONLY pure readonly constants
+ * ✅ ROUTES: Use API_ROUTES from api.constants.ts instead of duplicating here
+ * ✅ RATE LIMITS: Use RATE_LIMIT_VALUES from api.constants.ts
  */
 
 // ============================================================
@@ -207,8 +209,16 @@ export const TOKEN_EXPIRY = {
 } as const;
 
 // ============================================================
-// Auth routes (Consistent across frontend & backend)
+// ⚠️ AUTH_ROUTES - DEPRECATED (Single source of truth moved to api.constants.ts)
 // ============================================================
+/**
+ * @deprecated Use API_ROUTES from api.constants.ts instead
+ * Example: import { API_ROUTES } from './api.constants'
+ * Then use: API_ROUTES.AUTH_LOGIN, API_ROUTES.AUTH_REFRESH, etc.
+ * 
+ * This object is kept for backward compatibility only.
+ * Please migrate to API_ROUTES to avoid duplication.
+ */
 export const AUTH_ROUTES = {
   // Core auth endpoints
   LOGIN: '/auth/login',
@@ -409,8 +419,16 @@ export const DEVICE_TRUST = {
 } as const;
 
 // ============================================================
-// Rate limiting for auth endpoints (DDoS protection)
+// ⚠️ AUTH_RATE_LIMITS - DEPRECATED (Single source of truth moved to api.constants.ts)
 // ============================================================
+/**
+ * @deprecated Use RATE_LIMIT_VALUES from api.constants.ts instead
+ * Example: import { RATE_LIMIT_VALUES } from './api.constants'
+ * Then use: RATE_LIMIT_VALUES.LOGIN, RATE_LIMIT_VALUES.OTP_SEND, etc.
+ * 
+ * This object is kept for backward compatibility only.
+ * Please migrate to RATE_LIMIT_VALUES to avoid duplication.
+ */
 export const AUTH_RATE_LIMITS = {
   // Per endpoint limits (requests per minute)
   LOGIN: 5,
@@ -456,3 +474,9 @@ export const OTP_CONFIG = {
     VOICE: 'voice',
   },
 } as const;
+
+// ============================================================
+// ✓ All constants are frozen with as const
+// ✓ DEPRECATED items marked with @deprecated
+// ✓ Migration path documented in comments
+// ============================================================
