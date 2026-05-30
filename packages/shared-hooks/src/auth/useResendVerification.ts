@@ -15,6 +15,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAxiosClient } from '@vubon/shared-api/client/axios';
 import { createVerificationEndpoints } from '@vubon/shared-api/endpoints/verification';
+import type { ApiResponse } from '@vubon/shared-types';
 
 // ==================== Types ====================
 
@@ -51,6 +52,35 @@ export interface UseResendVerificationOptions {
   onError?: (error: Error) => void;
   onSettled?: () => void;
 }
+
+// Type for the internal API response (before mapping)
+interface VerificationApiResendResponse {
+  success: boolean;
+  message: string;
+  messageBn?: string;
+  expiresInSeconds: number;
+  resendCooldownSeconds: number;
+  sessionId?: string;
+  remainingAttempts?: number;
+}
+
+// Helper to get masked target from type and identifier
+const getMaskedTarget = (type: VerificationType, email?: string, phoneNumber?: string): string => {
+  if (type === 'email' && email) {
+    const [username, domain] = email.split('@');
+    const maskedUsername = username ? username.slice(0, 2) + '***' : '***';
+    return `${maskedUsername}@${domain || 'example.com'}`;
+  }
+  if ((type === 'phone' || type === 'whatsapp' || type === 'imo') && phoneNumber) {
+    // Mask phone: keep first 3 and last 3 digits
+    const cleaned = phoneNumber.replace(/[^0-9]/g, '');
+    if (cleaned.length >= 6) {
+      return cleaned.slice(0, 3) + '*****' + cleaned.slice(-3);
+    }
+    return '***';
+  }
+  return '***';
+};
 
 // ==================== Query Keys ====================
 
@@ -95,21 +125,19 @@ export const useResendVerification = (options?: UseResendVerificationOptions) =>
 
   return useMutation({
     mutationFn: async (request: ResendVerificationRequest): Promise<ResendVerificationResponse> => {
-      // Convert request to the format expected by verification API
-      const response = await endpoints.resendVerification(
-        request.type,
-        request.sessionId
-      );
-      // Map response to expected format
+      const response = await endpoints.resendVerification(request.type, request.sessionId) as unknown as VerificationApiResendResponse;
+
+      const maskedTarget = getMaskedTarget(request.type, request.email, request.phoneNumber);
+
       return {
         success: response.success,
         message: response.message,
         messageBn: response.messageBn,
-        maskedTarget: response.maskedTarget,
+        maskedTarget,
         expiresInSeconds: response.expiresInSeconds,
         resendCooldownSeconds: response.resendCooldownSeconds,
         sessionId: response.sessionId,
-        remainingAttempts: (response as any).remainingAttempts,
+        remainingAttempts: response.remainingAttempts,
       };
     },
     onSuccess: (data) => {
@@ -163,20 +191,16 @@ export const useResendEmailVerification = (options?: UseResendVerificationOption
  *   }
  * });
  *
- * resendPhone({
- *   phoneNumber: '01712345678',
- *   method: 'whatsapp',
- *   locale: 'bn'
- * });
+ * resendPhone('01712345678', 'whatsapp', 'bn');
  */
 export const useResendPhoneVerification = (options?: UseResendVerificationOptions) => {
   const resendVerification = useResendVerification(options);
 
   return {
-    mutate: (request: Omit<ResendVerificationRequest, 'type'> & { phoneNumber: string }) =>
-      resendVerification.mutate({ type: 'phone', ...request }),
-    mutateAsync: (request: Omit<ResendVerificationRequest, 'type'> & { phoneNumber: string }) =>
-      resendVerification.mutateAsync({ type: 'phone', ...request }),
+    mutate: (phoneNumber: string, method: 'sms' | 'whatsapp' | 'imo' | 'voice' = 'sms', locale?: 'en' | 'bn') =>
+      resendVerification.mutate({ type: 'phone', phoneNumber, method, locale }),
+    mutateAsync: (phoneNumber: string, method: 'sms' | 'whatsapp' | 'imo' | 'voice' = 'sms', locale?: 'en' | 'bn') =>
+      resendVerification.mutateAsync({ type: 'phone', phoneNumber, method, locale }),
     isLoading: resendVerification.isLoading,
     isError: resendVerification.isError,
     error: resendVerification.error,
