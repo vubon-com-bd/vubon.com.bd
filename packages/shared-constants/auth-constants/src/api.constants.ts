@@ -8,7 +8,7 @@
  * ✅ NO axios instances, API calls, fetch requests
  * ✅ NO business logic
  * ✅ NO side effects
- * ✅ NO direct process.env (use ENV_CONFIG for that)
+ * ✅ NO direct process.env (use imported ENV_CONFIG)
  * ✅ ONLY pure readonly constants
  */
 
@@ -84,13 +84,23 @@ export const API_RESOURCES = {
 export type APIResource = ValueOf<typeof API_RESOURCES>;
 
 // ============================================================
-// Environment Configuration (Safe wrapper for process.env)
+// Environment Configuration Interface (No process.env here)
+// ⚠️ ACTUAL VALUES MUST BE INJECTED FROM EXTERNAL CONFIG FILE
 // ============================================================
-export const ENV_CONFIG = {
-  NODE_ENV: (process.env.NODE_ENV as 'development' | 'production' | 'test') || 'development',
-  API_BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
-  IS_PRODUCTION: process.env.NODE_ENV === 'production',
-  IS_DEVELOPMENT: process.env.NODE_ENV === 'development',
+export interface EnvConfig {
+  readonly NODE_ENV: 'development' | 'production' | 'test';
+  readonly API_BASE_URL: string;
+  readonly IS_PRODUCTION: boolean;
+  readonly IS_DEVELOPMENT: boolean;
+}
+
+// Placeholder - will be replaced by actual config from env.constants.ts
+// This avoids direct process.env access in this file
+export const ENV_CONFIG: EnvConfig = {
+  NODE_ENV: 'development',
+  API_BASE_URL: 'http://localhost:3000',
+  IS_PRODUCTION: false,
+  IS_DEVELOPMENT: true,
 } as const;
 
 // ============================================================
@@ -107,7 +117,7 @@ export const API_ROUTES = {
   LIVENESS: `${API_PREFIXES.HEALTH}/liveness`,
   METRICS: API_PREFIXES.METRICS,
 
-  // Auth Routes
+  // Auth Routes (Single source of truth - use these everywhere)
   AUTH: REST_V1,
   AUTH_LOGIN: `${REST_V1}/login`,
   AUTH_LOGOUT: `${REST_V1}/logout`,
@@ -334,7 +344,7 @@ export const API_HEADERS = {
   STORE_ID: 'x-store-id',
   VENDOR_ID: 'x-vendor-id',
   SESSION_ID: 'x-session-id',
-  DEVICE_TYPE: 'x-device-type', // mobile, tablet, desktop
+  DEVICE_TYPE: 'x-device-type',
 
   // Security
   CSP: 'content-security-policy',
@@ -361,7 +371,7 @@ export const API_QUERY_PARAMS = {
   LIMIT: 'limit',
   OFFSET: 'offset',
 
-  // Sorting (simplified - no duplicates)
+  // Sorting (simplified - use SORT_BY & SORT_ORDER, use SORT_FIELDS for values)
   SORT_BY: 'sort_by',
   SORT_ORDER: 'sort_order',
 
@@ -403,7 +413,7 @@ export const API_QUERY_PARAMS = {
 export type APIQueryParam = ValueOf<typeof API_QUERY_PARAMS>;
 
 // ============================================================
-// Sort Order Values (clean - no duplicates)
+// Sort Order Values (single source of truth - use this for SORT_ORDER values)
 // ============================================================
 export const SORT_ORDERS = {
   ASC: 'asc',
@@ -413,7 +423,7 @@ export const SORT_ORDERS = {
 export type SortOrder = ValueOf<typeof SORT_ORDERS>;
 
 // ============================================================
-// Sort Field Options (common sorting fields)
+// Sort Field Options (use these as valid values for SORT_BY param)
 // ============================================================
 export const SORT_FIELDS = {
   CREATED_AT: 'created_at',
@@ -528,17 +538,17 @@ export type APIRateLimitKey = ValueOf<typeof API_RATE_LIMITS>;
 // Default Rate Limit Values (requests per timeframe)
 // ============================================================
 export const RATE_LIMIT_VALUES = {
-  PUBLIC_READ: { points: 100, duration: 60 },     // 100 req/min
-  PUBLIC_WRITE: { points: 50, duration: 60 },     // 50 req/min
-  AUTH_READ: { points: 30, duration: 60 },        // 30 req/min
-  AUTH_WRITE: { points: 10, duration: 60 },       // 10 req/min
-  LOGIN: { points: 5, duration: 60 },             // 5 login attempts/min
-  OTP_SEND: { points: 3, duration: 60 },          // 3 OTP requests/min
-  CHECKOUT: { points: 10, duration: 60 },         // 10 checkouts/min
-  PAYMENT: { points: 5, duration: 60 },           // 5 payment attempts/min
-  SEARCH: { points: 30, duration: 60 },           // 30 searches/min
-  ADMIN_READ: { points: 200, duration: 60 },      // 200 req/min for admin
-  ADMIN_WRITE: { points: 100, duration: 60 },     // 100 req/min for admin
+  PUBLIC_READ: { points: 100, duration: 60 },
+  PUBLIC_WRITE: { points: 50, duration: 60 },
+  AUTH_READ: { points: 30, duration: 60 },
+  AUTH_WRITE: { points: 10, duration: 60 },
+  LOGIN: { points: 5, duration: 60 },
+  OTP_SEND: { points: 3, duration: 60 },
+  CHECKOUT: { points: 10, duration: 60 },
+  PAYMENT: { points: 5, duration: 60 },
+  SEARCH: { points: 30, duration: 60 },
+  ADMIN_READ: { points: 200, duration: 60 },
+  ADMIN_WRITE: { points: 100, duration: 60 },
 } as const;
 
 // ============================================================
@@ -557,14 +567,15 @@ export type Currency = ValueOf<typeof SUPPORTED_CURRENCIES>;
 // Supported Locales
 // ============================================================
 export const SUPPORTED_LOCALES = {
-  BN: 'bn-BD',  // Bengali (Bangladesh)
-  EN: 'en-US',  // English (US)
+  BN: 'bn-BD',
+  EN: 'en-US',
 } as const;
 
 export type Locale = ValueOf<typeof SUPPORTED_LOCALES>;
 
 // ============================================================
-// HTTP Status Codes (for reference)
+// HTTP Status Codes (Single source of truth)
+// Use: HTTP_STATUS.OK, HTTP_STATUS.NOT_FOUND, etc.
 // ============================================================
 export const HTTP_STATUS = {
   // Success
@@ -594,39 +605,7 @@ export const HTTP_STATUS = {
 export type HTTPStatus = ValueOf<typeof HTTP_STATUS>;
 
 // ============================================================
-// Freeze everything for immutability (deep freeze)
+// ✓ All constants are frozen with as const (TypeScript level)
+// ✓ No deepFreeze runtime function - better performance
+// ✓ Pure type-safe immutable constants
 // ============================================================
-const deepFreeze = <T>(obj: T): ReadonlyDeep<T> => {
-  Object.freeze(obj);
-  if (obj === null || typeof obj !== 'object') return obj as ReadonlyDeep<T>;
-  
-  for (const value of Object.values(obj)) {
-    if (value !== null && typeof value === 'object') {
-      deepFreeze(value);
-    }
-  }
-  
-  return obj as ReadonlyDeep<T>;
-};
-
-// Apply deep freeze to all exported objects
-export const __ALL_CONSTANTS_FROZEN__ = deepFreeze({
-  API_VERSIONS,
-  API_PREFIXES,
-  API_RESOURCES,
-  ENV_CONFIG,
-  API_ROUTES,
-  CLIENT_ROUTES,
-  PAGINATION,
-  API_HEADERS,
-  API_QUERY_PARAMS,
-  SORT_ORDERS,
-  SORT_FIELDS,
-  API_RESPONSE_STATUS,
-  API_ERROR_CODES,
-  API_RATE_LIMITS,
-  RATE_LIMIT_VALUES,
-  SUPPORTED_CURRENCIES,
-  SUPPORTED_LOCALES,
-  HTTP_STATUS,
-});
