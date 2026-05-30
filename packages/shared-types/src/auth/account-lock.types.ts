@@ -1,9 +1,9 @@
 /**
  * Account Lock Types - Pure TypeScript type contracts for Account Locking
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
- * @module shared-types/auth-types/auth/account-lock.types
- * 
+ *
+ * @module shared-types/auth/account-lock.types
+ *
  * RULES:
  * ✅ ONLY type declarations, interfaces, unions
  * ✅ NO lock enforcement logic, rate limiting implementation
@@ -44,12 +44,7 @@ export type LockStatus =
 // ============================================================
 // Lock Level Types (Progressive lockout - Bangladesh specific)
 // ============================================================
-export type LockLevel = 
-  | 'level_1'    // 5 min - First lockout
-  | 'level_2'    // 15 min - Second lockout
-  | 'level_3'    // 1 hour - Third lockout
-  | 'level_4'    // 24 hours - Fourth lockout
-  | 'permanent'; // Permanent ban
+export type LockLevel = keyof typeof LOCKOUT_LEVELS | 'permanent';
 
 // Lock level configuration (based on constants)
 export interface LockLevelConfig {
@@ -88,7 +83,7 @@ export interface LockMetadata {
   readonly adminNotes?: string;
   readonly ticketId?: string;
   readonly escalationHistory?: ReadonlyArray<LockEscalationEvent>;
-  
+
   // Bangladesh specific
   readonly mobileOperator?: string;  // GP, Robi, Banglalink, Teletalk
   readonly district?: string;
@@ -186,7 +181,7 @@ export interface FailedAttemptEvent {
   readonly totalAttemptsToday: number;
   readonly remainingAttemptsBeforeLock: number;
   readonly lockLevel: LockLevel;
-  
+
   // Bangladesh specific
   readonly isSuspiciousTime?: boolean;     // Night time (10 PM - 6 AM)
   readonly isWeekend?: boolean;             // Friday/Saturday
