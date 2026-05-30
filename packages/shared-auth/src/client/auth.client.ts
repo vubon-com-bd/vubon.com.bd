@@ -1,9 +1,9 @@
 /**
  * Auth Client - Authentication infrastructure abstraction
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- *
+
  * @module shared-auth/client/auth.client
- *
+
  * RULES:
  * ✅ ONLY authentication orchestration - NO business logic
  * ✅ NO UI rendering, toast, redirect, business authorization
@@ -40,6 +40,16 @@ export type MFAProvider =
   | 'rocket_pin'
   | 'voice_call_otp';
 
+export interface OtpRegisterData {
+  phoneNumber: string;
+  otpCode: string;
+  firstName: string;
+  lastName: string;
+  acceptTerms: boolean;
+  marketingConsent?: boolean;
+  referrerCode?: string;
+}
+
 export interface AuthClientConfig {
   apiClient: {
     // Core auth
@@ -47,6 +57,7 @@ export interface AuthClientConfig {
     phoneLogin?: (data: { phoneNumber: string; password: string; rememberMe?: boolean; deviceId?: string; mobileOperator?: string }) => Promise<LoginResponse>;
     otpLogin?: (data: { phoneNumber: string; otpCode: string; rememberMe?: boolean; deviceId?: string }) => Promise<LoginResponse>;
     register: (data: RegisterRequest) => Promise<RegisterResponse>;
+    otpRegister?: (data: OtpRegisterData) => Promise<RegisterResponse>;
     refreshToken: (refreshToken: string) => Promise<RefreshTokenResponse>;
     logout: (data?: LogoutRequest) => Promise<{ success: boolean }>;
     getSession?: () => Promise<{ user: UserInfo; expiresAt: string }>;
@@ -226,7 +237,7 @@ export class AuthClient {
     }
 
     const response = await this.config.apiClient.unlockAccount(data);
-    
+
     if (response.success) {
       this.setState({
         ...this.state,
@@ -235,7 +246,7 @@ export class AuthClient {
         remainingAttemptsBeforeLock: undefined,
       });
     }
-    
+
     return response;
   }
 
@@ -322,6 +333,26 @@ export class AuthClient {
 
     const response = await this.config.apiClient.otpLogin({ phoneNumber, otpCode, rememberMe, deviceId });
     this.handleLoginSuccess(response);
+    return response;
+  }
+
+  /**
+   * OTP Registration (passwordless - Bangladesh specific)
+   * ✅ NEW METHOD ADDED
+   */
+  async otpRegister(data: OtpRegisterData): Promise<RegisterResponse> {
+    if (!this.config.apiClient.otpRegister) {
+      throw new Error('OTP registration not configured in API client');
+    }
+
+    const response = await this.config.apiClient.otpRegister(data);
+    
+    // If registration is successful and no verification required, auto-login
+    if (response.success && !response.emailVerificationRequired && !response.phoneVerificationRequired) {
+      // Note: OTP registration might return tokens directly
+      // If not, user needs to login separately
+    }
+    
     return response;
   }
 
@@ -668,4 +699,4 @@ export const resetAuthClient = (): void => {
 
 // ==================== Type Exports ====================
 
-export type { AuthClientConfig, AuthState, User, MFAProvider };
+export type { AuthClientConfig, AuthState, User, MFAProvider, OtpRegisterData };
