@@ -9,6 +9,7 @@
  * ✅ NO business permission logic, admin policies
  * ✅ Pure React guard component
  * ✅ TypeScript strict
+ * ✅ Supports both Next.js App Router and Client-side routing
  */
 
 import React from 'react';
@@ -23,9 +24,21 @@ export interface RequireAuthProps {
   replace?: boolean;
   loadingFallback?: React.ReactNode;
   onUnauthenticated?: () => void;
-  /** Use Next.js router for navigation (requires Next.js environment) */
+  /** Use Next.js router instead of window.location (requires next/navigation) */
   useNextRouter?: boolean;
 }
+
+// ==================== Private Helpers ====================
+
+/**
+ * Simple loading spinner component (optional)
+ * Can be overridden via loadingFallback prop
+ */
+const DefaultLoadingSpinner: React.FC = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
 // ==================== Guard Component ====================
 
@@ -33,15 +46,25 @@ export interface RequireAuthProps {
  * Guard component that requires authentication
  * Redirects to login page if not authenticated
  *
+ * Supports:
+ * - Next.js App Router (when useNextRouter=true)
+ * - Client-side routing (window.location)
+ *
  * @example
- * // Protect dashboard route (plain redirect)
+ * // Client-side redirect (default)
  * <RequireAuth redirectTo="/login">
  *   <DashboardPage />
  * </RequireAuth>
  *
  * @example
- * // Protect dashboard route with Next.js router
+ * // Next.js App Router redirect
  * <RequireAuth redirectTo="/login" useNextRouter>
+ *   <DashboardPage />
+ * </RequireAuth>
+ *
+ * @example
+ * // With custom loading fallback
+ * <RequireAuth loadingFallback={<MySkeleton />}>
  *   <DashboardPage />
  * </RequireAuth>
  */
@@ -50,38 +73,18 @@ export const RequireAuth: React.FC<RequireAuthProps> = ({
   fallback,
   redirectTo = '/login',
   replace = false,
-  loadingFallback = null,
+  loadingFallback,
   onUnauthenticated,
   useNextRouter = false,
 }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
-  // Next.js router (only if useNextRouter is true)
-  let nextRouter: ReturnType<typeof import('next/navigation').useRouter> | null = null;
-  if (useNextRouter) {
-    try {
-      // Dynamic import to avoid errors in non-Next.js environments
-      const { useRouter } = require('next/navigation');
-      nextRouter = useRouter();
-    } catch {
-      // Silently fail - fallback to window.location
-      useNextRouter = false;
-    }
-  }
-
-  // Default loading fallback
-  const defaultLoadingFallback = (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="text-center">
-        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-        <p className="mt-2 text-gray-600">Loading...</p>
-      </div>
-    </div>
-  );
+  // Determine which loading fallback to use
+  const effectiveLoadingFallback = loadingFallback ?? <DefaultLoadingSpinner />;
 
   // Show loading state
   if (isLoading) {
-    return <>{loadingFallback ?? defaultLoadingFallback}</>;
+    return <>{effectiveLoadingFallback}</>;
   }
 
   // If not authenticated, redirect
@@ -89,15 +92,26 @@ export const RequireAuth: React.FC<RequireAuthProps> = ({
     onUnauthenticated?.();
 
     if (typeof window !== 'undefined' && redirectTo) {
-      if (useNextRouter && nextRouter) {
-        // Next.js router navigation
-        if (replace) {
-          nextRouter.replace(redirectTo);
-        } else {
-          nextRouter.push(redirectTo);
-        }
+      // Use Next.js router if requested
+      if (useNextRouter) {
+        // Dynamic import to avoid breaking non-Next.js environments
+        import('next/navigation').then(({ useRouter }) => {
+          const router = useRouter();
+          if (replace) {
+            router.replace(redirectTo);
+          } else {
+            router.push(redirectTo);
+          }
+        }).catch(() => {
+          // Fallback to window.location if next/navigation fails
+          if (replace) {
+            window.location.replace(redirectTo);
+          } else {
+            window.location.href = redirectTo;
+          }
+        });
       } else {
-        // Plain redirect
+        // Standard client-side redirect
         if (replace) {
           window.location.replace(redirectTo);
         } else {
@@ -117,7 +131,12 @@ export const RequireAuth: React.FC<RequireAuthProps> = ({
  * Wraps a component with RequireAuth guard
  *
  * @example
+ * // Client-side redirect
  * const DashboardPage = withAuth(DashboardComponent, { redirectTo: '/login' });
+ *
+ * @example
+ * // Next.js App Router redirect
+ * const DashboardPage = withAuth(DashboardComponent, { redirectTo: '/login', useNextRouter: true });
  */
 export const withAuth = <P extends object>(
   Component: React.ComponentType<P>,
