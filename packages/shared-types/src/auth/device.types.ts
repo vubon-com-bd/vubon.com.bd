@@ -1,9 +1,9 @@
 /**
  * Device Types - Pure TypeScript type contracts for Device Management
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
- * @module shared-types/auth-types/auth/device.types
- * 
+ *
+ * @module shared-types/auth/device.types
+ *
  * RULES:
  * ✅ ONLY type declarations, interfaces, unions
  * ✅ NO fingerprint generation, device detection logic
@@ -19,11 +19,13 @@ import type {
   DEVICE_RISK_LEVEL,
   DEVICE_TRUST_DURATION,
   FINGERPRINT_COMPONENTS,
+  DEVICE_RISK_INDICATORS,
 } from '@vubon/auth-constants';
 
 // ============================================================
 // Device Type Unions (Based on constants - NO enums)
 // ============================================================
+export type BaseDeviceType = keyof typeof DEVICE_TYPES;
 export type DeviceType = typeof DEVICE_TYPES[keyof typeof DEVICE_TYPES];
 
 // Extended device types for Bangladesh market
@@ -37,6 +39,7 @@ export type ExtendedDeviceType =
 // ============================================================
 // Operating System Types
 // ============================================================
+export type BaseOSType = keyof typeof OS_TYPES;
 export type OSType = typeof OS_TYPES[keyof typeof OS_TYPES];
 
 // Extended OS types for Bangladesh
@@ -48,6 +51,7 @@ export type ExtendedOSType =
 // ============================================================
 // Browser Types
 // ============================================================
+export type BaseBrowserType = keyof typeof BROWSER_TYPES;
 export type BrowserType = typeof BROWSER_TYPES[keyof typeof BROWSER_TYPES];
 
 // Extended browser types for Bangladesh
@@ -111,7 +115,7 @@ export interface DeviceInfo {
   readonly language: string;
   readonly timezone: string;
   readonly timezoneOffset: number;
-  
+
   // Bangladesh specific
   readonly networkType?: NetworkType;
   readonly mobileOperator?: MobileOperator;
@@ -123,16 +127,15 @@ export interface DeviceInfo {
 // ============================================================
 // Device Fingerprint (Hashed, not raw data)
 // ============================================================
+export type FingerprintComponent = typeof FINGERPRINT_COMPONENTS[keyof typeof FINGERPRINT_COMPONENTS];
+
 export interface DeviceFingerprint {
   readonly hash: string;                 // SHA-256 hashed fingerprint
-  readonly components: ReadonlyArray<string>;
-  readonly componentVersions: Record<string, string>;
+  readonly components: ReadonlyArray<FingerprintComponent>;
+  readonly componentVersions: Record<FingerprintComponent, string>;
   readonly generatedAt: Date;
   readonly version: number;              // Fingerprint version (for updates)
 }
-
-// Fingerprint components based on constants
-export type FingerprintComponent = typeof FINGERPRINT_COMPONENTS[keyof typeof FINGERPRINT_COMPONENTS];
 
 export interface FingerprintData {
   readonly component: FingerprintComponent;
@@ -154,7 +157,7 @@ export interface TrustedDevice {
   readonly lastUsedAt: Date;
   readonly expiresAt: Date | null;
   readonly name: string | null;
-  readonly familyShared: boolean;          // Family sharing enabled
+  readonly isFamilyShared: boolean;          // Family sharing enabled
   readonly familyMemberId?: string;        // Which family member owns
 }
 
@@ -263,7 +266,7 @@ export interface DeviceRiskAssessment {
   readonly riskScore: number;           // 0-100
   readonly riskLevel: 'low' | 'medium' | 'high' | 'critical';
   readonly factors: ReadonlyArray<DeviceRiskFactor>;
-  readonly requiresMFA: boolean;
+  readonly requiresMfa: boolean;
   readonly requiresAdditionalVerification: boolean;
   readonly recommendedTrustLevel: ExtendedTrustLevel;
   readonly assessedAt: Date;
@@ -280,20 +283,7 @@ export interface DeviceRiskFactor {
 // ============================================================
 // Device Risk Factors (Based on constants)
 // ============================================================
-export type RiskIndicator = 
-  | 'vpn_detected'
-  | 'proxy_detected'
-  | 'tor_detected'
-  | 'datacenter_ip'
-  | 'frequent_ip_change'
-  | 'frequent_user_agent_change'
-  | 'suspicious_headers'
-  | 'new_geo_location'
-  | 'new_device_type'
-  | 'uncommon_browser'
-  | 'multiple_accounts_same_device'
-  | 'fast_account_switching'
-  | 'known_fraud_device';
+export type RiskIndicator = typeof DEVICE_RISK_INDICATORS[keyof typeof DEVICE_RISK_INDICATORS];
 
 // ============================================================
 // Device Statistics (For admin dashboard)
@@ -306,41 +296,41 @@ export interface DeviceStatistics {
   readonly suspendedDevices: number;
   readonly familySharedDevices: number;
   readonly averageTrustScore: number;
-  
+
   readonly devicesByType: ReadonlyArray<{
     readonly type: ExtendedDeviceType;
     readonly count: number;
     readonly percentage: number;
   }>;
-  
+
   readonly devicesByOS: ReadonlyArray<{
     readonly os: ExtendedOSType;
     readonly count: number;
     readonly percentage: number;
   }>;
-  
+
   readonly devicesByBrowser: ReadonlyArray<{
     readonly browser: ExtendedBrowserType;
     readonly count: number;
     readonly percentage: number;
   }>;
-  
+
   // Bangladesh specific
   readonly devicesByNetworkType: ReadonlyArray<{
     readonly network: NetworkType;
     readonly count: number;
   }>;
-  
+
   readonly devicesByMobileOperator: ReadonlyArray<{
     readonly operator: MobileOperator;
     readonly count: number;
   }>;
-  
+
   readonly devicesByDistrict: ReadonlyArray<{
     readonly district: string;
     readonly count: number;
   }>;
-  
+
   readonly suspiciousDevices: number;
   readonly highRiskDevices: number;
 }
