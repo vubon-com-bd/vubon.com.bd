@@ -1,9 +1,9 @@
 /**
  * Device Constants - Pure immutable device configuration
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- *
+
  * @module shared-constants/auth-constants/device.constants
- *
+
  * RULES:
  * ✅ NO device fingerprint generation logic
  * ✅ NO business logic
@@ -519,41 +519,3 @@ export const ROLE_DEVICE_ALLOWANCE = {
 
 export type RoleDeviceAllowance = typeof ROLE_DEVICE_ALLOWANCE;
 export type UserRole = keyof typeof ROLE_DEVICE_ALLOWANCE;
-
-// ============================================================
-// Deep freeze everything for immutability
-// ============================================================
-const deepFreeze = <T>(obj: T): ReadonlyDeep<T> => {
-  Object.freeze(obj);
-  if (obj === null || typeof obj !== 'object') return obj as ReadonlyDeep<T>;
-
-  for (const value of Object.values(obj)) {
-    if (value !== null && typeof value === 'object') {
-      deepFreeze(value);
-    }
-  }
-
-  return obj as ReadonlyDeep<T>;
-};
-
-// Apply deep freeze to all exported objects
-export const __ALL_CONSTANTS_FROZEN__ = deepFreeze({
-  DEVICE_TYPES,
-  DEVICE_CATEGORIES,
-  OS_TYPES,
-  BROWSER_TYPES,
-  NETWORK_TYPES,
-  DEVICE_TRUST_DURATION,
-  DEVICE_FINGERPRINT_HEADERS,
-  DEVICE_RISK_LEVEL,
-  DEVICE_RISK_INDICATORS,
-  DEVICE_ACTIVITY_LIMITS,
-  UNKNOWN_DEVICE_HANDLING,
-  SESSION_TRANSFER,
-  DEVICE_PAIRING,
-  DEVICE_LOGGING,
-  FINGERPRINT_COMPONENTS,
-  DEVICE_COMPLIANCE,
-  DEVICE_PERFORMANCE,
-  ROLE_DEVICE_ALLOWANCE,
-});
