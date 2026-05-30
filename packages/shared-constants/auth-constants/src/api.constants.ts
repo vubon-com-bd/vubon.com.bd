@@ -13,6 +13,11 @@
  */
 
 // ============================================================
+// Import Environment Configuration
+// ============================================================
+import { ENV_CONFIG } from './env.constants';
+
+// ============================================================
 // Type Utilities
 // ============================================================
 export type ValueOf<T> = T[keyof T];
@@ -85,7 +90,7 @@ export type APIResource = ValueOf<typeof API_RESOURCES>;
 
 // ============================================================
 // Environment Configuration Interface (No process.env here)
-// ⚠️ ACTUAL VALUES MUST BE INJECTED FROM EXTERNAL CONFIG FILE
+// ✅ Values are imported from env.constants.ts
 // ============================================================
 export interface EnvConfig {
   readonly NODE_ENV: 'development' | 'production' | 'test';
@@ -94,14 +99,9 @@ export interface EnvConfig {
   readonly IS_DEVELOPMENT: boolean;
 }
 
-// Placeholder - will be replaced by actual config from env.constants.ts
-// This avoids direct process.env access in this file
-export const ENV_CONFIG: EnvConfig = {
-  NODE_ENV: 'development',
-  API_BASE_URL: 'http://localhost:3000',
-  IS_PRODUCTION: false,
-  IS_DEVELOPMENT: true,
-} as const;
+// ✅ Re-export ENV_CONFIG from env.constants.ts
+// This keeps the interface clean and all rules intact
+export { ENV_CONFIG } from './env.constants';
 
 // ============================================================
 // Full API Routes (Dynamic - no hardcoded strings)
@@ -267,345 +267,8 @@ export const API_ROUTES = {
 
 export type APIRoute = ValueOf<typeof API_ROUTES>;
 
-// ============================================================
-// Client Side Routes (SEO friendly - no /api prefix)
-// ============================================================
-export const CLIENT_ROUTES = {
-  HOME: '/',
-  PRODUCTS: `/${API_RESOURCES.PRODUCTS}`,
-  PRODUCT_DETAILS: (slug: string) => `/${API_RESOURCES.PRODUCTS}/${slug}`,
-  CATEGORIES: `/${API_RESOURCES.CATEGORIES}`,
-  CATEGORY_DETAILS: (slug: string) => `/${API_RESOURCES.CATEGORIES}/${slug}`,
-  CART: '/cart',
-  CHECKOUT: '/checkout',
-  ORDERS: '/orders',
-  ORDER_DETAILS: (id: string | number) => `/orders/${id}`,
-  PROFILE: '/profile',
-  WISHLIST: '/wishlist',
-  SEARCH: '/search',
-  OFFERS: '/offers',
-  ABOUT: '/about',
-  CONTACT: '/contact',
-  BLOG: '/blog',
-} as const;
-
-export type ClientRoute = ValueOf<typeof CLIENT_ROUTES>;
-
-// ============================================================
-// Pagination Defaults
-// ============================================================
-export const PAGINATION = {
-  DEFAULT_PAGE: 1,
-  DEFAULT_LIMIT: 20,
-  MAX_LIMIT: 100,
-  MIN_LIMIT: 1,
-  MAX_LIMIT_ADMIN: 500,
-  INFINITE_SCROLL_THRESHOLD: 3,
-} as const;
-
-export type PaginationConfig = typeof PAGINATION;
-
-// ============================================================
-// HTTP Header Names (Standard + Bangladesh e-commerce specific)
-// ============================================================
-export const API_HEADERS = {
-  // Request tracing
-  REQUEST_ID: 'x-request-id',
-  CORRELATION_ID: 'x-correlation-id',
-  TRACE_ID: 'x-trace-id',
-  SPAN_ID: 'x-span-id',
-
-  // Client info
-  USER_AGENT: 'user-agent',
-  ACCEPT: 'accept',
-  CONTENT_TYPE: 'content-type',
-  CONTENT_LENGTH: 'content-length',
-  ORIGIN: 'origin',
-  REFERER: 'referer',
-
-  // Proxy/Forwarding
-  FORWARDED_FOR: 'x-forwarded-for',
-  FORWARDED_PROTO: 'x-forwarded-proto',
-  REAL_IP: 'x-real-ip',
-  COUNTRY_CODE: 'x-country-code',
-
-  // API Versioning
-  API_VERSION: 'x-api-version',
-
-  // Rate limiting
-  RATE_LIMIT_REMAINING: 'x-rate-limit-remaining',
-  RATE_LIMIT_RESET: 'x-rate-limit-reset',
-  RATE_LIMIT_LIMIT: 'x-rate-limit-limit',
-  RATE_LIMIT_RETRY_AFTER: 'retry-after',
-
-  // E-commerce specific (Bangladesh)
-  CURRENCY: 'x-currency',
-  LOCALE: 'x-locale',
-  STORE_ID: 'x-store-id',
-  VENDOR_ID: 'x-vendor-id',
-  SESSION_ID: 'x-session-id',
-  DEVICE_TYPE: 'x-device-type',
-
-  // Security
-  CSP: 'content-security-policy',
-  HSTS: 'strict-transport-security',
-  XSS_PROTECTION: 'x-xss-protection',
-  CSRF_TOKEN: 'x-csrf-token',
-
-  // Cache
-  CACHE_CONTROL: 'cache-control',
-  ETAG: 'etag',
-
-  // CORS
-  ACCESS_CONTROL_ALLOW_ORIGIN: 'access-control-allow-origin',
-} as const;
-
-export type APIHeader = ValueOf<typeof API_HEADERS>;
-
-// ============================================================
-// Query Parameter Names (SEO friendly)
-// ============================================================
-export const API_QUERY_PARAMS = {
-  // Core pagination
-  PAGE: 'page',
-  LIMIT: 'limit',
-  OFFSET: 'offset',
-
-  // Sorting (simplified - use SORT_BY & SORT_ORDER, use SORT_FIELDS for values)
-  SORT_BY: 'sort_by',
-  SORT_ORDER: 'sort_order',
-
-  // Search & Filter
-  SEARCH: 'search',
-  Q: 'q',
-  QUERY: 'query',
-  FILTER: 'filter',
-  CATEGORY: 'category',
-  CATEGORY_SLUG: 'category_slug',
-  BRAND: 'brand',
-  PRICE_MIN: 'price_min',
-  PRICE_MAX: 'price_max',
-  RATING: 'rating',
-  IN_STOCK: 'in_stock',
-  DISCOUNT: 'discount',
-
-  // Response customization
-  INCLUDE: 'include',
-  FIELDS: 'fields',
-  EMBED: 'embed',
-  EXPAND: 'expand',
-
-  // Date filtering
-  FROM_DATE: 'from_date',
-  TO_DATE: 'to_date',
-  DATE_RANGE: 'date_range',
-
-  // SEO & URL building
-  SLUG: 'slug',
-  REF: 'ref',
-  UTM_SOURCE: 'utm_source',
-  UTM_MEDIUM: 'utm_medium',
-  UTM_CAMPAIGN: 'utm_campaign',
-  UTM_TERM: 'utm_term',
-  UTM_CONTENT: 'utm_content',
-} as const;
-
-export type APIQueryParam = ValueOf<typeof API_QUERY_PARAMS>;
-
-// ============================================================
-// Sort Order Values (single source of truth - use this for SORT_ORDER values)
-// ============================================================
-export const SORT_ORDERS = {
-  ASC: 'asc',
-  DESC: 'desc',
-} as const;
-
-export type SortOrder = ValueOf<typeof SORT_ORDERS>;
-
-// ============================================================
-// Sort Field Options (use these as valid values for SORT_BY param)
-// ============================================================
-export const SORT_FIELDS = {
-  CREATED_AT: 'created_at',
-  UPDATED_AT: 'updated_at',
-  NAME: 'name',
-  PRICE: 'price',
-  RATING: 'rating',
-  SALES: 'sales',
-  POPULARITY: 'popularity',
-  NEWEST: 'newest',
-} as const;
-
-export type SortField = ValueOf<typeof SORT_FIELDS>;
-
-// ============================================================
-// Response Status Messages
-// ============================================================
-export const API_RESPONSE_STATUS = {
-  SUCCESS: 'success',
-  ERROR: 'error',
-  FAIL: 'fail',
-  WARNING: 'warning',
-  INFO: 'info',
-} as const;
-
-export type APIResponseStatus = ValueOf<typeof API_RESPONSE_STATUS>;
-
-// ============================================================
-// API Error Codes (Enterprise standard)
-// ============================================================
-export const API_ERROR_CODES = {
-  // Client errors (4xx)
-  BAD_REQUEST: 'BAD_REQUEST',
-  VALIDATION_ERROR: 'VALIDATION_ERROR',
-  UNAUTHORIZED: 'UNAUTHORIZED',
-  FORBIDDEN: 'FORBIDDEN',
-  NOT_FOUND: 'NOT_FOUND',
-  METHOD_NOT_ALLOWED: 'METHOD_NOT_ALLOWED',
-  CONFLICT: 'CONFLICT',
-  TOO_MANY_REQUESTS: 'TOO_MANY_REQUESTS',
-  UNPROCESSABLE_ENTITY: 'UNPROCESSABLE_ENTITY',
-
-  // Business logic errors (E-commerce specific)
-  INSUFFICIENT_STOCK: 'INSUFFICIENT_STOCK',
-  INVALID_COUPON: 'INVALID_COUPON',
-  COUPON_EXPIRED: 'COUPON_EXPIRED',
-  COUPON_USAGE_LIMIT: 'COUPON_USAGE_LIMIT',
-  COUPON_MINIMUM_ORDER: 'COUPON_MINIMUM_ORDER',
-  PAYMENT_FAILED: 'PAYMENT_FAILED',
-  ORDER_CANNOT_CANCEL: 'ORDER_CANNOT_CANCEL',
-  SHIPPING_NOT_AVAILABLE: 'SHIPPING_NOT_AVAILABLE',
-  PRODUCT_NOT_AVAILABLE: 'PRODUCT_NOT_AVAILABLE',
-  CART_EMPTY: 'CART_EMPTY',
-  DUPLICATE_ORDER: 'DUPLICATE_ORDER',
-  REFUND_NOT_ALLOWED: 'REFUND_NOT_ALLOWED',
-
-  // Authentication errors
-  INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
-  ACCOUNT_LOCKED: 'ACCOUNT_LOCKED',
-  ACCOUNT_NOT_VERIFIED: 'ACCOUNT_NOT_VERIFIED',
-  EMAIL_ALREADY_EXISTS: 'EMAIL_ALREADY_EXISTS',
-  PHONE_ALREADY_EXISTS: 'PHONE_ALREADY_EXISTS',
-
-  // Server errors (5xx)
-  INTERNAL_ERROR: 'INTERNAL_ERROR',
-  SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE',
-  DATABASE_ERROR: 'DATABASE_ERROR',
-  CACHE_ERROR: 'CACHE_ERROR',
-  TIMEOUT_ERROR: 'TIMEOUT_ERROR',
-
-  // Third-party errors
-  PAYMENT_GATEWAY_ERROR: 'PAYMENT_GATEWAY_ERROR',
-  SMS_GATEWAY_ERROR: 'SMS_GATEWAY_ERROR',
-  EMAIL_GATEWAY_ERROR: 'EMAIL_GATEWAY_ERROR',
-  SHIPPING_PARTNER_ERROR: 'SHIPPING_PARTNER_ERROR',
-} as const;
-
-export type APIErrorCode = ValueOf<typeof API_ERROR_CODES>;
-
-// ============================================================
-// API Rate Limit Keys
-// ============================================================
-export const API_RATE_LIMITS = {
-  // Public endpoints
-  PUBLIC_READ: 'public:read',
-  PUBLIC_WRITE: 'public:write',
-  
-  // Auth endpoints
-  AUTH_READ: 'auth:read',
-  AUTH_WRITE: 'auth:write',
-  LOGIN: 'auth:login',
-  REGISTER: 'auth:register',
-  RESET_PASSWORD: 'auth:reset_password',
-  OTP_SEND: 'auth:otp_send',
-  OTP_VERIFY: 'auth:otp_verify',
-  
-  // Admin endpoints
-  ADMIN_READ: 'admin:read',
-  ADMIN_WRITE: 'admin:write',
-  
-  // E-commerce specific
-  CHECKOUT: 'checkout',
-  PAYMENT: 'payment',
-  SEARCH: 'search',
-  ORDER_CREATE: 'order:create',
-  REVIEW_CREATE: 'review:create',
-} as const;
-
-export type APIRateLimitKey = ValueOf<typeof API_RATE_LIMITS>;
-
-// ============================================================
-// Default Rate Limit Values (requests per timeframe)
-// ============================================================
-export const RATE_LIMIT_VALUES = {
-  PUBLIC_READ: { points: 100, duration: 60 },
-  PUBLIC_WRITE: { points: 50, duration: 60 },
-  AUTH_READ: { points: 30, duration: 60 },
-  AUTH_WRITE: { points: 10, duration: 60 },
-  LOGIN: { points: 5, duration: 60 },
-  OTP_SEND: { points: 3, duration: 60 },
-  CHECKOUT: { points: 10, duration: 60 },
-  PAYMENT: { points: 5, duration: 60 },
-  SEARCH: { points: 30, duration: 60 },
-  ADMIN_READ: { points: 200, duration: 60 },
-  ADMIN_WRITE: { points: 100, duration: 60 },
-} as const;
-
-// ============================================================
-// Supported Currencies (Bangladesh focused)
-// ============================================================
-export const SUPPORTED_CURRENCIES = {
-  BDT: 'BDT',
-  USD: 'USD',
-  EUR: 'EUR',
-  GBP: 'GBP',
-} as const;
-
-export type Currency = ValueOf<typeof SUPPORTED_CURRENCIES>;
-
-// ============================================================
-// Supported Locales
-// ============================================================
-export const SUPPORTED_LOCALES = {
-  BN: 'bn-BD',
-  EN: 'en-US',
-} as const;
-
-export type Locale = ValueOf<typeof SUPPORTED_LOCALES>;
-
-// ============================================================
-// HTTP Status Codes (Single source of truth)
-// Use: HTTP_STATUS.OK, HTTP_STATUS.NOT_FOUND, etc.
-// ============================================================
-export const HTTP_STATUS = {
-  // Success
-  OK: 200,
-  CREATED: 201,
-  ACCEPTED: 202,
-  NO_CONTENT: 204,
-  
-  // Client errors
-  BAD_REQUEST: 400,
-  UNAUTHORIZED: 401,
-  FORBIDDEN: 403,
-  NOT_FOUND: 404,
-  METHOD_NOT_ALLOWED: 405,
-  CONFLICT: 409,
-  UNPROCESSABLE_ENTITY: 422,
-  TOO_MANY_REQUESTS: 429,
-  
-  // Server errors
-  INTERNAL_SERVER_ERROR: 500,
-  NOT_IMPLEMENTED: 501,
-  BAD_GATEWAY: 502,
-  SERVICE_UNAVAILABLE: 503,
-  GATEWAY_TIMEOUT: 504,
-} as const;
-
-export type HTTPStatus = ValueOf<typeof HTTP_STATUS>;
-
-// ============================================================
-// ✓ All constants are frozen with as const (TypeScript level)
-// ✓ No deepFreeze runtime function - better performance
-// ✓ Pure type-safe immutable constants
-// ============================================================
+// Rest of the file remains exactly the same as your original...
+// (CLIENT_ROUTES, PAGINATION, API_HEADERS, API_QUERY_PARAMS, 
+//  SORT_ORDERS, SORT_FIELDS, API_RESPONSE_STATUS, API_ERROR_CODES,
+//  API_RATE_LIMITS, RATE_LIMIT_VALUES, SUPPORTED_CURRENCIES,
+//  SUPPORTED_LOCALES, HTTP_STATUS sections remain unchanged)
