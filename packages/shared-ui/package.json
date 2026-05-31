@@ -52,11 +52,10 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup && tsc --emitDeclarationOnly",
-    "build:tsc": "tsc",
+    "build": "tsup",
     "clean": "rm -rf dist",
     "dev": "tsup --watch",
-    "prepublishOnly": "npm run clean && npm run build",
+    "prepublishOnly": "pnpm run clean && pnpm run build",
     "type-check": "tsc --noEmit",
     "lint": "eslint src/**/*.ts src/**/*.tsx",
     "lint:fix": "eslint src/**/*.ts src/**/*.tsx --fix",
@@ -83,25 +82,18 @@
   "private": true,
   "engines": {
     "node": ">=18.0.0",
-    "npm": ">=9.0.0"
+    "pnpm": ">=8.0.0"
   },
+  "packageManager": "pnpm@8.15.0",
   "peerDependencies": {
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },
-  "peerDependenciesMeta": {
-    "react": {
-      "optional": false
-    },
-    "react-dom": {
-      "optional": false
-    }
-  },
   "dependencies": {
-    "clsx": "^2.0.0",
-    "tailwind-merge": "^2.0.0",
     "class-variance-authority": "^0.7.0",
-    "framer-motion": "^10.16.0"
+    "clsx": "^2.0.0",
+    "framer-motion": "^10.16.0",
+    "tailwind-merge": "^2.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",
@@ -112,6 +104,8 @@
     "eslint": "^8.0.0",
     "eslint-plugin-react": "^7.33.0",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "^8.0.0",
+    "lint-staged": "^15.0.0",
     "postcss": "^8.4.0",
     "prettier": "^3.0.0",
     "react": "^18.0.0",
@@ -121,12 +115,12 @@
     "typescript": "^5.0.0"
   },
   "sideEffects": [
-    "**/*.css",
-    "**/*.css.map"
+    "**/*.css"
   ],
   "publishConfig": {
     "access": "restricted",
-    "registry": "https://npm.pkg.github.com/"
+    "registry": "https://npm.pkg.github.com/",
+    "tag": "latest"
   },
   "repository": {
     "type": "git",
@@ -135,5 +129,30 @@
   "bugs": {
     "url": "https://github.com/vubon/shared-ui/issues"
   },
-  "homepage": "https://vubon.com.bd"
+  "homepage": "https://vubon.com.bd",
+  "typesVersions": {
+    "*": {
+      "components": [
+        "./dist/components/index.d.ts"
+      ],
+      "components/ui": [
+        "./dist/components/ui/index.d.ts"
+      ],
+      "components/forms": [
+        "./dist/components/forms/index.d.ts"
+      ],
+      "components/layout": [
+        "./dist/components/layout/index.d.ts"
+      ],
+      "hooks": [
+        "./dist/hooks/index.d.ts"
+      ],
+      "styles": [
+        "./dist/styles/index.d.ts"
+      ],
+      "cn": [
+        "./dist/utils/cn.d.ts"
+      ]
+    }
+  }
 }
