@@ -1,0 +1,503 @@
+/**
+ * Seller Theme - Vendor/Seller dashboard styles
+ * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
+ * 
+ * @module shared-ui/src/styles/themes/seller.theme
+ * 
+ * RULES:
+ * ✅ ONLY seller theme tokens - NO business logic
+ * ✅ Pure CSS variables for seller dashboard
+ */
+
+/* ============================================================
+   Seller Theme Variables (Light Mode)
+   ============================================================ */
+.seller-theme {
+  /* Primary brand (Teal for seller/merchant experience) */
+  --color-primary-50: #f0fdfa;
+  --color-primary-100: #ccfbf1;
+  --color-primary-200: #99f6e4;
+  --color-primary-300: #5eead4;
+  --color-primary-400: #2dd4bf;
+  --color-primary-500: #14b8a6;
+  --color-primary-600: #0d9488;
+  --color-primary-700: #0f766e;
+  --color-primary-800: #115e59;
+  --color-primary-900: #134e4a;
+  
+  /* Seller specific colors */
+  --sidebar-bg: #ffffff;
+  --sidebar-text: #1f2937;
+  --sidebar-border: #e5e7eb;
+  --sidebar-hover: #f3f4f6;
+  --sidebar-active: var(--color-primary-50);
+  --sidebar-active-text: var(--color-primary-700);
+  
+  --header-bg: #f9fafb;
+  --header-border: #e5e7eb;
+  
+  --dashboard-card-bg: #ffffff;
+  --dashboard-card-border: #e5e7eb;
+  --dashboard-card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  
+  --table-header-bg: #f1f5f9;
+  --table-row-hover: #f8fafc;
+  
+  /* Revenue colors */
+  --revenue-positive: #10b981;
+  --revenue-negative: #ef4444;
+  --revenue-neutral: #6b7280;
+  
+  /* Order status colors */
+  --order-pending: #f59e0b;
+  --order-processing: #3b82f6;
+  --order-shipped: #8b5cf6;
+  --order-delivered: #10b981;
+  --order-cancelled: #ef4444;
+  --order-refunded: #6b7280;
+  
+  /* Analytics colors */
+  --chart-primary: var(--color-primary-500);
+  --chart-secondary: #818cf8;
+  --chart-success: #10b981;
+  --chart-warning: #f59e0b;
+  
+  /* Commission badges */
+  --commission-bg: #fef3c7;
+  --commission-text: #92400e;
+  
+  /* Payout status */
+  --payout-pending: #f59e0b;
+  --payout-processing: #3b82f6;
+  --payout-completed: #10b981;
+  --payout-failed: #ef4444;
+  
+  /* Inventory alerts */
+  --inventory-low: #f59e0b;
+  --inventory-out: #ef4444;
+  --inventory-normal: #10b981;
+  
+  /* Seller rating */
+  --rating-bg: #fef3c7;
+  --rating-text: #92400e;
+  --rating-star: #facc15;
+  
+  /* Product approval */
+  --product-approved: #10b981;
+  --product-pending: #f59e0b;
+  --product-rejected: #ef4444;
+  
+  /* Spacing */
+  --sidebar-width: 260px;
+  --header-height: 64px;
+  --content-padding: 24px;
+  
+  /* Buttons */
+  --btn-primary-bg: var(--color-primary-600);
+  --btn-primary-text: #ffffff;
+  --btn-primary-hover: var(--color-primary-700);
+  --btn-outline-border: var(--color-primary-600);
+  --btn-outline-text: var(--color-primary-600);
+  --btn-outline-hover: var(--color-primary-50);
+}
+
+/* ============================================================
+   Seller Theme - Dark Mode
+   ============================================================ */
+.seller-theme.dark {
+  --sidebar-bg: #1f2937;
+  --sidebar-text: #f3f4f6;
+  --sidebar-border: #374151;
+  --sidebar-hover: #374151;
+  --sidebar-active: #374151;
+  --sidebar-active-text: var(--color-primary-400);
+  
+  --header-bg: #1f2937;
+  --header-border: #374151;
+  
+  --dashboard-card-bg: #1f2937;
+  --dashboard-card-border: #374151;
+  
+  --table-header-bg: #1f2937;
+  --table-row-hover: #374151;
+  
+  --chart-primary: var(--color-primary-400);
+}
+
+/* ============================================================
+   Seller Dashboard Layout
+   ============================================================ */
+.seller-theme .seller-sidebar {
+  background-color: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  width: var(--sidebar-width);
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  overflow-y: auto;
+  transition: width 0.2s ease;
+  z-index: 30;
+}
+
+.seller-theme .seller-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: var(--sidebar-text);
+  transition: background-color 0.2s, color 0.2s;
+  border-radius: 0.5rem;
+  margin: 0.25rem 0.75rem;
+}
+
+.seller-theme .seller-sidebar-item:hover {
+  background-color: var(--sidebar-hover);
+}
+
+.seller-theme .seller-sidebar-item.active {
+  background-color: var(--sidebar-active);
+  color: var(--sidebar-active-text);
+}
+
+.seller-theme .seller-sidebar-item.active svg {
+  color: var(--color-primary-600);
+}
+
+.seller-theme .seller-header {
+  background-color: var(--header-bg);
+  border-bottom: 1px solid var(--header-border);
+  height: var(--header-height);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.seller-theme .seller-content {
+  margin-left: var(--sidebar-width);
+  padding: var(--content-padding);
+}
+
+/* ============================================================
+   Dashboard Cards
+   ============================================================ */
+.seller-theme .seller-stat-card {
+  background-color: var(--dashboard-card-bg);
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: var(--dashboard-card-shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.seller-theme .seller-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.seller-theme .seller-stat-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary, #6b7280);
+  margin-bottom: 0.5rem;
+}
+
+.seller-theme .seller-stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary, #1f2937);
+}
+
+.seller-theme .seller-stat-trend {
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.seller-theme .seller-stat-trend.positive {
+  color: var(--revenue-positive);
+}
+
+.seller-theme .seller-stat-trend.negative {
+  color: var(--revenue-negative);
+}
+
+/* ============================================================
+   Revenue Chart
+   ============================================================ */
+.seller-theme .revenue-chart {
+  background-color: var(--dashboard-card-bg);
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.seller-theme .chart-container {
+  height: 300px;
+  width: 100%;
+}
+
+/* ============================================================
+   Orders Table
+   ============================================================ */
+.seller-theme .seller-orders-table {
+  background-color: var(--dashboard-card-bg);
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.seller-theme .seller-orders-table thead {
+  background-color: var(--table-header-bg);
+}
+
+.seller-theme .seller-orders-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--dashboard-card-border);
+}
+
+.seller-theme .seller-orders-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--dashboard-card-border);
+}
+
+.seller-theme .seller-orders-table tbody tr:hover {
+  background-color: var(--table-row-hover);
+}
+
+/* ============================================================
+   Order Status Badges
+   ============================================================ */
+.seller-theme .order-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.seller-theme .order-status.pending {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--order-pending);
+}
+
+.seller-theme .order-status.processing {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--order-processing);
+}
+
+.seller-theme .order-status.shipped {
+  background-color: rgba(139, 92, 246, 0.1);
+  color: var(--order-shipped);
+}
+
+.seller-theme .order-status.delivered {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--order-delivered);
+}
+
+.seller-theme .order-status.cancelled {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--order-cancelled);
+}
+
+.seller-theme .order-status.refunded {
+  background-color: rgba(107, 114, 128, 0.1);
+  color: var(--order-refunded);
+}
+
+/* ============================================================
+   Product Management
+   ============================================================ */
+.seller-theme .product-approval-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.seller-theme .product-approval-badge.approved {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--product-approved);
+}
+
+.seller-theme .product-approval-badge.pending {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--product-pending);
+}
+
+.seller-theme .product-approval-badge.rejected {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--product-rejected);
+}
+
+.seller-theme .inventory-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.seller-theme .inventory-status.normal {
+  color: var(--inventory-normal);
+}
+
+.seller-theme .inventory-status.low {
+  color: var(--inventory-low);
+}
+
+.seller-theme .inventory-status.out {
+  color: var(--inventory-out);
+}
+
+/* ============================================================
+   Payout Section
+   ============================================================ */
+.seller-theme .payout-card {
+  background-color: var(--dashboard-card-bg);
+  border: 1px solid var(--dashboard-card-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.seller-theme .payout-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.seller-theme .payout-status.pending {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--payout-pending);
+}
+
+.seller-theme .payout-status.processing {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--payout-processing);
+}
+
+.seller-theme .payout-status.completed {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--payout-completed);
+}
+
+.seller-theme .payout-status.failed {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--payout-failed);
+}
+
+/* ============================================================
+   Commission Section
+   ============================================================ */
+.seller-theme .commission-badge {
+  background-color: var(--commission-bg);
+  color: var(--commission-text);
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* ============================================================
+   Seller Rating
+   ============================================================ */
+.seller-theme .seller-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.seller-theme .seller-rating-stars {
+  display: inline-flex;
+  gap: 0.125rem;
+}
+
+.seller-theme .seller-rating-star {
+  width: 1rem;
+  height: 1rem;
+  color: var(--rating-star);
+  fill: var(--rating-star);
+}
+
+.seller-theme .seller-rating-score {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.seller-theme .seller-rating-count {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+/* ============================================================
+   Responsive Adjustments
+   ============================================================ */
+@media (max-width: 1024px) {
+  .seller-theme .seller-sidebar {
+    width: 72px;
+  }
+  
+  .seller-theme .seller-sidebar-item span:not(.sr-only) {
+    display: none;
+  }
+  
+  .seller-theme .seller-content {
+    margin-left: 72px;
+  }
+}
+
+@media (max-width: 768px) {
+  .seller-theme {
+    --sidebar-width: 0px;
+    --content-padding: 16px;
+  }
+  
+  .seller-theme .seller-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .seller-theme .seller-sidebar.open {
+    transform: translateX(0);
+  }
+  
+  .seller-theme .seller-content {
+    margin-left: 0;
+  }
+  
+  .seller-theme .seller-stat-value {
+    font-size: 1.5rem;
+  }
+}
+
+/* ============================================================
+   Print Styles
+   ============================================================ */
+@media print {
+  .seller-theme .seller-sidebar,
+  .seller-theme .seller-header,
+  .seller-theme .no-print {
+    display: none !important;
+  }
+  
+  .seller-theme .seller-content {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .seller-theme .seller-stat-card,
+  .seller-theme .revenue-chart,
+  .seller-theme .seller-orders-table {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #e5e7eb;
+  }
+}
