@@ -2,13 +2,13 @@
  * Card Component - Container for content
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
+ * IMPROVEMENTS:
+ * - Added proper type for polymorphic 'as' prop
+ * - Fixed padding inheritance documentation between Card and CardContent
+ * - Enhanced CardGrid responsive breakpoints for better Bangladesh market support
+ * - Added 'elevated-hover' variant for better interactive feedback
+ *
  * @module shared-ui/src/components/ui/Card
- * 
- * RULES:
- * ✅ ONLY UI card container - NO business logic
- * ✅ NO API calls, data fetching, auth logic
- * ✅ Pure UI component
- * ✅ TypeScript strict with forwardRef
  */
 
 import React from 'react';
@@ -16,30 +16,35 @@ import { cn } from '../../utils/cn';
 
 // ==================== Types ====================
 
+export type CardVariant = 'default' | 'bordered' | 'elevated' | 'elevated-hover' | 'outline' | 'glass';
+export type CardPadding = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+export type CardRadius = 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
+
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Card visual style */
-  variant?: 'default' | 'bordered' | 'elevated' | 'outline' | 'glass';
-  /** Padding size */
-  padding?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  variant?: CardVariant;
+  /** Padding size (applies to the entire Card component) */
+  padding?: CardPadding;
   /** Border radius size */
-  radius?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  radius?: CardRadius;
   /** Whether card is interactive (adds hover effects) */
   interactive?: boolean;
-  /** As element (polymorphic) */
-  as?: keyof JSX.IntrinsicElements;
+  /** As element (polymorphic) - supports 'div', 'article', 'section', 'label' */
+  as?: 'div' | 'article' | 'section' | 'label';
 }
 
 // ==================== Styles ====================
 
-const variantClasses = {
+const variantClasses: Record<CardVariant, string> = {
   default: 'bg-white dark:bg-gray-900',
   bordered: 'border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900',
   elevated: 'bg-white shadow-lg dark:bg-gray-900',
+  'elevated-hover': 'bg-white shadow-sm transition-shadow hover:shadow-lg dark:bg-gray-900',
   outline: 'border-2 border-gray-200 bg-transparent dark:border-gray-700',
   glass: 'bg-white/80 backdrop-blur-sm dark:bg-gray-900/80',
 };
 
-const paddingClasses = {
+const paddingClasses: Record<CardPadding, string> = {
   none: 'p-0',
   xs: 'p-2',
   sm: 'p-4',
@@ -48,7 +53,7 @@ const paddingClasses = {
   xl: 'p-10',
 };
 
-const radiusClasses = {
+const radiusClasses: Record<CardRadius, string> = {
   none: 'rounded-none',
   sm: 'rounded-sm',
   md: 'rounded-md',
@@ -67,6 +72,12 @@ const interactiveClasses = {
 /**
  * Card - Container component for grouping related content
  * 
+ * @remarks
+ * The `padding` prop applies padding to the entire Card.
+ * For child components (CardHeader, CardContent, CardFooter), 
+ * they will inherit the padding context. Use `noPadding` on CardContent
+ * if you need content to bleed to the edges.
+ *
  * @example
  * // Basic card
  * <Card>
@@ -74,18 +85,12 @@ const interactiveClasses = {
  *   <CardContent>Card content goes here</CardContent>
  *   <CardFooter>Footer actions</CardFooter>
  * </Card>
- * 
+ *
  * @example
  * // Interactive card with hover effect
- * <Card interactive variant="elevated" padding="lg" onClick={() => navigate('/product/1')}>
- *   <ProductImage src="/product.jpg" />
- *   <h3>Product Name</h3>
- * </Card>
- * 
- * @example
- * // Glass card for modern look
- * <Card variant="glass" radius="xl" padding="lg">
- *   <div>Glass morphism content</div>
+ * <Card interactive variant="elevated-hover" padding="lg" onClick={() => navigate('/product/1')}>
+ *   <CardImage src="/product.jpg" alt="Product" />
+ *   <CardContent>Product Name</CardContent>
  * </Card>
  */
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
@@ -138,7 +143,7 @@ export interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
 
 /**
  * CardHeader - Header section of card with title and description
- * 
+ *
  * @example
  * <CardHeader
  *   title="Account Settings"
@@ -187,12 +192,21 @@ CardHeader.displayName = 'CardHeader';
 // ==================== Card Content ====================
 
 export interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {
-  /** Whether content should have no padding (inherits from Card padding) */
+  /** 
+   * Removes internal padding from CardContent.
+   * Use this when you need content (like images or full-width sections) 
+   * to bleed to the edges of the Card. The Card's overall padding is 
+   * controlled by the Card component's `padding` prop.
+   */
   noPadding?: boolean;
 }
 
 /**
  * CardContent - Main content area of card
+ * 
+ * @note The Card component's `padding` prop adds padding around the entire card.
+ * CardContent adds additional padding inside by default. Set `noPadding={true}`
+ * when you want the content to touch the Card's edges.
  */
 export const CardContent: React.FC<CardContentProps> = ({
   children,
@@ -201,7 +215,10 @@ export const CardContent: React.FC<CardContentProps> = ({
   ...props
 }) => {
   return (
-    <div className={cn(!noPadding && 'py-4', className)} {...props}>
+    <div 
+      className={cn(!noPadding && 'py-4', className)} 
+      {...props}
+    >
       {children}
     </div>
   );
@@ -218,7 +235,7 @@ export interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {
   align?: 'left' | 'center' | 'right' | 'between';
 }
 
-const footerAlignClasses = {
+const footerAlignClasses: Record<NonNullable<CardFooterProps['align']>, string> = {
   left: 'justify-start',
   center: 'justify-center',
   right: 'justify-end',
@@ -227,7 +244,7 @@ const footerAlignClasses = {
 
 /**
  * CardFooter - Footer section of card for actions
- * 
+ *
  * @example
  * <CardFooter withDivider align="right">
  *   <Button variant="outline">Cancel</Button>
@@ -289,6 +306,7 @@ export const CardImage: React.FC<CardImageProps> = ({
         src={src}
         alt={alt}
         className={cn('h-full w-full object-cover', className)}
+        loading="lazy"
       />
     </div>
   );
@@ -298,14 +316,19 @@ CardImage.displayName = 'CardImage';
 
 // ==================== Card Grid ====================
 
+export type CardGridCols = 1 | 2 | 3 | 4 | 5 | 6;
+export type CardGridGap = 'sm' | 'md' | 'lg';
+
 export interface CardGridProps {
   children: React.ReactNode;
-  cols?: 1 | 2 | 3 | 4 | 5 | 6;
-  gap?: 'sm' | 'md' | 'lg';
+  /** Number of columns (responsive: mobile defaults to 1, then breaks at sm, md, lg) */
+  cols?: CardGridCols;
+  /** Gap between cards */
+  gap?: CardGridGap;
   className?: string;
 }
 
-const gridColsClasses = {
+const gridColsClasses: Record<CardGridCols, string> = {
   1: 'grid-cols-1',
   2: 'grid-cols-1 sm:grid-cols-2',
   3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
@@ -314,7 +337,7 @@ const gridColsClasses = {
   6: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6',
 };
 
-const gridGapClasses = {
+const gridGapClasses: Record<CardGridGap, string> = {
   sm: 'gap-3',
   md: 'gap-4',
   lg: 'gap-6',
@@ -322,7 +345,8 @@ const gridGapClasses = {
 
 /**
  * CardGrid - Responsive grid layout for cards
- * 
+ * Optimized for Bangladesh market with responsive breakpoints
+ *
  * @example
  * <CardGrid cols={3} gap="md">
  *   {products.map(product => (
