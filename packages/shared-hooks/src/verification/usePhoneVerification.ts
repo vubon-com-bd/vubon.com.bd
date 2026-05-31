@@ -2,26 +2,16 @@
  * usePhoneVerification Hook - Phone verification orchestration
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  *
- * IMPROVEMENTS:
- * - Uses shared-api instead of raw fetch for consistent error handling
- * - Proper TypeScript types with shared-types integration
- * - Added Bengali message support (messageBn)
- * - Proper retry logic and error handling
- * - Cache invalidation strategies
- * - Type-safe query keys
- * - Proper loading states and error formatting
- * - Cooldown management for resend functionality
+ * FIXES:
+ * - useIsPhoneVerified now fetches from API when cache is empty
+ * - Removed unsafe `as any` type assertions
+ * - Added proper type-safe error handling
+ * - Improved TypeScript types for API responses
  *
  * @module shared-hooks/src/verification/usePhoneVerification
- *
- * RULES:
- * ✅ ONLY mutation orchestration - NO business logic
- * ✅ NO SMS provider integration (handled by backend)
- * ✅ React Query integration with cache invalidation
- * ✅ TypeScript strict
  */
 
-import { useMutation, useQueryClient, UseMutationOptions } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { getAxiosClient } from '@vubon/shared-api/client/axios';
 import { createVerificationEndpoints } from '@vubon/shared-api/endpoints/verification';
 import type { ApiResponse } from '@vubon/shared-types';
@@ -104,15 +94,33 @@ const getVerificationEndpoints = () => {
 // Helper to extract data from API response
 const extractData = <T>(response: ApiResponse<T>): T => response.data;
 
-// Helper to format error response
+// Type for the verification status response from API
+interface VerificationStatusResponse {
+  emailVerified: boolean;
+  phoneVerified: boolean;
+  whatsappVerified?: boolean;
+  fullyVerified: boolean;
+  emailVerifiedAt?: string;
+  phoneVerifiedAt?: string;
+  whatsappVerifiedAt?: string;
+}
+
+// Helper to format error response (type-safe - no `as any`)
 const formatError = (error: unknown): PhoneVerificationError => {
   if (error instanceof Error) {
+    // Safely extract properties without `as any`
+    const err = error as Error & {
+      code?: string;
+      messageBn?: string;
+      remainingAttempts?: number;
+      retryAfterSeconds?: number;
+    };
     return {
-      message: error.message,
-      code: (error as any).code,
-      messageBn: (error as any).messageBn,
-      remainingAttempts: (error as any).remainingAttempts,
-      retryAfterSeconds: (error as any).retryAfterSeconds,
+      message: err.message,
+      code: err.code,
+      messageBn: err.messageBn,
+      remainingAttempts: err.remainingAttempts,
+      retryAfterSeconds: err.retryAfterSeconds,
     };
   }
   return { message: 'An unknown error occurred' };
@@ -163,29 +171,6 @@ const clearStoredSessionId = (): void => {
 
 /**
  * Hook for sending phone verification code (Bangladesh specific)
- * Uses shared-api instead of raw fetch for consistent error handling and auth
- *
- * @example
- * const { mutate: sendVerification, isLoading } = useSendPhoneVerification({
- *   onSuccess: (data) => {
- *     console.log('OTP sent to:', data.maskedPhone);
- *     console.log('Expires in:', data.expiresInSeconds, 'seconds');
- *     // Store sessionId for verification
- *     setSessionId(data.sessionId);
- *   },
- *   onError: (error) => {
- *     console.error('Failed to send OTP:', error.message);
- *     if (error.remainingAttempts) {
- *       console.log(`${error.remainingAttempts} attempts remaining`);
- *     }
- *   },
- *   retry: (failureCount, error) => {
- *     // Don't retry on rate limit
- *     return error.code !== 'rate_limited';
- *   }
- * });
- *
- * sendVerification({ phoneNumber: '01712345678', method: 'whatsapp', locale: 'bn' });
  */
 export const useSendPhoneVerification = (options?: UseSendPhoneVerificationOptions) => {
   const queryClient = useQueryClient();
@@ -208,11 +193,10 @@ export const useSendPhoneVerification = (options?: UseSendPhoneVerificationOptio
         expiresInSeconds: response.expiresInSeconds,
         resendCooldownSeconds: response.resendCooldownSeconds,
         sessionId: response.sessionId || '',
-        remainingAttempts: (response as any).remainingAttempts || 3,
+        remainingAttempts: response.remainingAttempts ?? 3,
       };
     },
     onSuccess: (data) => {
-      // Store session ID for later verification
       if (data.sessionId) {
         storeSessionId(data.sessionId);
       }
@@ -237,19 +221,6 @@ export const useSendPhoneVerification = (options?: UseSendPhoneVerificationOptio
 
 /**
  * Hook for sending WhatsApp verification (Bangladesh specific)
- * Simplified wrapper around useSendPhoneVerification
- *
- * @example
- * const { mutate: sendWhatsAppVerification, isLoading } = useSendWhatsAppVerification({
- *   onSuccess: (data) => {
- *     console.log('WhatsApp verification sent to:', data.maskedPhone);
- *   },
- *   onError: (error) => {
- *     console.error('Failed:', error.message);
- *   }
- * });
- *
- * sendWhatsAppVerification('01712345678', 'bn');
  */
 export const useSendWhatsAppVerification = (options?: UseSendPhoneVerificationOptions) => {
   const sendVerification = useSendPhoneVerification(options);
@@ -268,16 +239,6 @@ export const useSendWhatsAppVerification = (options?: UseSendPhoneVerificationOp
 
 /**
  * Hook for sending IMO verification (Bangladesh specific)
- * Simplified wrapper around useSendPhoneVerification
- *
- * @example
- * const { mutate: sendImoVerification } = useSendImoVerification({
- *   onSuccess: (data) => {
- *     console.log('IMO verification sent');
- *   }
- * });
- *
- * sendImoVerification('01712345678');
  */
 export const useSendImoVerification = (options?: UseSendPhoneVerificationOptions) => {
   const sendVerification = useSendPhoneVerification(options);
@@ -296,16 +257,6 @@ export const useSendImoVerification = (options?: UseSendPhoneVerificationOptions
 
 /**
  * Hook for sending voice OTP verification (Bangladesh specific - for feature phones)
- * Simplified wrapper around useSendPhoneVerification
- *
- * @example
- * const { mutate: sendVoiceVerification } = useSendVoiceVerification({
- *   onSuccess: (data) => {
- *     console.log('Voice OTP call initiated');
- *   }
- * });
- *
- * sendVoiceVerification('01712345678', 'bn');
  */
 export const useSendVoiceVerification = (options?: UseSendPhoneVerificationOptions) => {
   const sendVerification = useSendPhoneVerification(options);
@@ -324,27 +275,6 @@ export const useSendVoiceVerification = (options?: UseSendPhoneVerificationOptio
 
 /**
  * Hook for verifying phone number with OTP code
- * Uses shared-api instead of raw fetch for consistent error handling
- *
- * @example
- * const { mutate: verifyPhone, isLoading } = useVerifyPhoneCode({
- *   onSuccess: (data) => {
- *     if (data.verified) {
- *       console.log('Phone number verified successfully');
- *     } else if (data.remainingAttempts > 0) {
- *       console.log(`Verification failed, ${data.remainingAttempts} attempts left`);
- *     }
- *   },
- *   onError: (error) => {
- *     console.error('Verification failed:', error.message);
- *   },
- *   retry: (failureCount, error) => {
- *     // Don't retry verification on invalid code
- *     return error.code !== 'invalid_code';
- *   }
- * });
- *
- * verifyPhone({ code: '123456', sessionId: 'session-123' });
  */
 export const useVerifyPhoneCode = (options?: UseVerifyPhoneCodeOptions) => {
   const queryClient = useQueryClient();
@@ -370,13 +300,9 @@ export const useVerifyPhoneCode = (options?: UseVerifyPhoneCodeOptions) => {
     },
     onSuccess: (data) => {
       if (data.verified) {
-        // Clear stored session ID
         clearStoredSessionId();
-
-        // Invalidate user data to reflect verified status
         invalidateVerificationQueries(queryClient);
       }
-
       options?.onSuccess?.(data);
     },
     onError: (error) => {
@@ -388,35 +314,16 @@ export const useVerifyPhoneCode = (options?: UseVerifyPhoneCodeOptions) => {
     },
     retry: (failureCount, error) => {
       const formattedError = formatError(error);
-      // Don't retry verification on invalid code or max attempts exceeded
       if (isNonRetryableError(formattedError) || formattedError.code === 'invalid_code') {
         return false;
       }
-      return failureCount < 1; // Verification shouldn't retry automatically
+      return failureCount < 1;
     },
   });
 };
 
 /**
  * Hook for resending phone verification OTP
- * Uses shared-api for consistent error handling
- *
- * @example
- * const { mutate: resendVerification, isLoading } = useResendPhoneVerification({
- *   onSuccess: (data) => {
- *     console.log('OTP resent, cooldown:', data.resendCooldownSeconds);
- *   },
- *   onError: (error) => {
- *     if (error.retryAfterSeconds) {
- *       console.log(`Please wait ${error.retryAfterSeconds} seconds`);
- *     }
- *   }
- * });
- *
- * resendVerification('01712345678');
- *
- * // With specific method
- * resendVerification('01712345678', 'whatsapp');
  */
 export const useResendPhoneVerification = (options?: UseSendPhoneVerificationOptions) => {
   const sendVerification = useSendPhoneVerification(options);
@@ -435,42 +342,53 @@ export const useResendPhoneVerification = (options?: UseSendPhoneVerificationOpt
 
 /**
  * Hook for checking phone verification status
- *
- * @example
- * const { isPhoneVerified, isLoading } = useIsPhoneVerified();
- *
- * if (!isPhoneVerified && !isLoading) {
- *   return <VerifyPhonePrompt />;
- * }
+ * FIXED: Fetches from API when cache is empty
  */
 export const useIsPhoneVerified = () => {
   const queryClient = useQueryClient();
+  const endpoints = getVerificationEndpoints();
 
-  // Get verification status from cache
-  const verificationStatus = queryClient.getQueryData<{ phoneVerified: boolean }>(VERIFICATION_STATUS_QUERY_KEY);
+  // First check cache
+  const cachedStatus = queryClient.getQueryData<{ phoneVerified: boolean }>(VERIFICATION_STATUS_QUERY_KEY);
+
+  const query = useQuery({
+    queryKey: PHONE_VERIFICATION_STATUS_KEY,
+    queryFn: async (): Promise<{ phoneVerified: boolean; phoneVerifiedAt?: string }> => {
+      const response = await endpoints.getStatus();
+      const data = extractData<VerificationStatusResponse>(response);
+      // Update cache
+      queryClient.setQueryData(VERIFICATION_STATUS_QUERY_KEY, {
+        emailVerified: data.emailVerified,
+        phoneVerified: data.phoneVerified,
+        fullyVerified: data.fullyVerified,
+      });
+      return {
+        phoneVerified: data.phoneVerified,
+        phoneVerifiedAt: data.phoneVerifiedAt,
+      };
+    },
+    staleTime: 30 * 1000, // 30 seconds
+    enabled: cachedStatus === undefined, // Only fetch if cache is empty
+  });
+
+  // Return cached value if available, otherwise use query result
+  if (cachedStatus !== undefined) {
+    return {
+      isPhoneVerified: cachedStatus.phoneVerified ?? false,
+      isLoading: false,
+      refetch: () => query.refetch(),
+    };
+  }
 
   return {
-    isPhoneVerified: verificationStatus?.phoneVerified ?? false,
+    isPhoneVerified: query.data?.phoneVerified ?? false,
+    isLoading: query.isLoading,
+    refetch: () => query.refetch(),
   };
 };
 
 /**
  * Hook for resending phone verification with cooldown management
- *
- * @example
- * const { resend, remainingSeconds, canResend, startCooldown } = useResendWithCooldown();
- *
- * const handleResend = () => {
- *   resend('01712345678', {
- *     onSuccess: (data) => {
- *       startCooldown(data.resendCooldownSeconds);
- *     }
- *   });
- * };
- *
- * <Button onClick={handleResend} disabled={!canResend}>
- *   {canResend ? 'Resend OTP' : `Wait ${remainingSeconds}s`}
- * </Button>
  */
 export const useResendWithCooldown = () => {
   const [remainingSeconds, setRemainingSeconds] = React.useState(0);
