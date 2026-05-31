@@ -1,16 +1,16 @@
 /**
  * Token Value Object - Pure Domain Core
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module domain/value-objects/token.vo
- * 
+ *
  * @description
  * Represents a generic token with type, expiry, and lifecycle tracking.
  * Used for authentication, authorization, password reset, email verification, etc.
- * 
+ *
  * IMPORTANT: This domain object represents the token AS A CONCEPT.
  * Actual JWT signing/verification happens in Infrastructure layer.
- * 
+ *
  * Enterprise Rules:
  * ✅ Immutable - Token value never changes after creation
  * ✅ Self-validating - Validates format based on type
@@ -18,7 +18,7 @@
  * ✅ Lifecycle-aware - Tracks usage and revocation
  * ✅ Framework-free - No JWT library dependencies
  * ✅ Security-first - Token value never logged or serialized
- * 
+ *
  * Token Types:
  * - ACCESS: Short-lived JWT for API access
  * - REFRESH: Long-lived token for obtaining new access tokens
@@ -28,7 +28,7 @@
  * - MFA: Multi-factor authentication token
  * - SESSION: Session identifier token
  * - CSRF: Cross-site request forgery token
- * 
+ *
  * @example
  * const token = new Token('eyJhbGciOiJIUzI1NiIs...', TokenType.ACCESS);
  * console.log(token.isExpired()); // false
@@ -111,7 +111,7 @@ export const TOKEN_CONFIG = {
     [TokenType.DEVICE]: 2592000,    // 30 days
     [TokenType.BACKUP]: 0,          // No expiry (one-time use)
   },
-  
+
   // One-time tokens (can only be used once)
   ONE_TIME_TOKENS: new Set<TokenType>([
     TokenType.RESET,
@@ -120,7 +120,7 @@ export const TOKEN_CONFIG = {
     TokenType.MFA,
     TokenType.BACKUP,
   ]),
-  
+
   // Token prefixes for identification
   PREFIXES: {
     [TokenType.API_KEY]: 'vub_',
@@ -131,7 +131,7 @@ export const TOKEN_CONFIG = {
     [TokenType.MAGIC_LINK]: 'mag_',
     [TokenType.DEVICE]: 'dev_',
   },
-  
+
   // Minimum lengths by type
   MIN_LENGTH: {
     [TokenType.ACCESS]: 20,
@@ -146,7 +146,7 @@ export const TOKEN_CONFIG = {
     [TokenType.DEVICE]: 32,
     [TokenType.BACKUP]: 8,
   },
-  
+
   // Maximum lengths by type
   MAX_LENGTH: {
     [TokenType.ACCESS]: 2048,       // JWTs can be long
@@ -161,13 +161,13 @@ export const TOKEN_CONFIG = {
     [TokenType.DEVICE]: 500,
     [TokenType.BACKUP]: 10,
   },
-  
+
   // JWT pattern (optional, for validation)
   JWT_PATTERN: /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/,
-  
+
   // Alphanumeric pattern for non-JWT tokens
   ALPHANUMERIC_PATTERN: /^[A-Za-z0-9\-_.]+$/,
-  
+
   // Refresh threshold (percentage of lifetime before refresh recommended)
   REFRESH_THRESHOLD: 0.2, // Refresh when 20% of time remaining
 } as const;
@@ -176,7 +176,7 @@ export const TOKEN_CONFIG = {
 
 /**
  * Token Value Object
- * 
+ *
  * Represents a token with type, expiry, and lifecycle
  */
 export class Token extends ValueObject {
@@ -191,7 +191,7 @@ export class Token extends ValueObject {
 
   /**
    * Creates a new Token value object
-   * 
+   *
    * @param token - Raw token string
    * @param type - Type of token
    * @param issuedAt - Optional issuance time (defaults to now)
@@ -207,16 +207,16 @@ export class Token extends ValueObject {
     metadata?: TokenMetadata
   ) {
     super();
-    
+
     const validation = Token.validate(token, type);
     if (!validation.isValid) {
       throw new Error(`Invalid token: ${validation.error}`);
     }
-    
+
     this._value = validation.normalized!;
     this._type = type;
     this._issuedAt = issuedAt ? new Date(issuedAt) : new Date();
-    
+
     if (expiresAt) {
       this._expiresAt = new Date(expiresAt);
     } else {
@@ -225,10 +225,10 @@ export class Token extends ValueObject {
         ? new Date(this._issuedAt.getTime() + expirySeconds * 1000)
         : new Date(8640000000000000); // Far future for non-expiring tokens
     }
-    
+
     this._status = TokenStatus.ACTIVE;
     this._metadata = metadata;
-    
+
     this.validate();
   }
 
@@ -239,7 +239,7 @@ export class Token extends ValueObject {
     if (this.isEmpty()) {
       throw new Error('Token cannot be empty');
     }
-    
+
     if (this._issuedAt > this._expiresAt) {
       throw new Error('IssuedAt cannot be after ExpiresAt');
     }
@@ -305,7 +305,7 @@ export class Token extends ValueObject {
     }
 
     const trimmed = token.trim();
-    
+
     if (trimmed.length === 0) {
       return {
         isValid: false,
@@ -365,24 +365,52 @@ export class Token extends ValueObject {
   }
 
   /**
-   * Generate a cryptographically-inspired random token of specified type
-   * Note: For true crypto, use infrastructure layer
+   * Generate a cryptographically random token of specified type
+   * Uses Web Crypto API where available, fallback to Node.js crypto
    */
   public static generate(type: TokenType, length?: number): string {
     const tokenLength = length || TOKEN_CONFIG.MIN_LENGTH[type];
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let randomValues: Uint8Array;
     let result = '';
-    
-    for (let i = 0; i < tokenLength; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
+
+    // Try to use Web Crypto API if available (browser environment)
+    if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
+      randomValues = new Uint8Array(tokenLength);
+      window.crypto.getRandomValues(randomValues);
+      for (let i = 0; i < tokenLength; i++) {
+        result += chars.charAt(randomValues[i] % chars.length);
+      }
     }
-    
+    // Fallback to Node.js crypto module (server environment)
+    else if (typeof require === 'function') {
+      try {
+        const crypto = require('crypto');
+        randomValues = crypto.randomBytes(tokenLength);
+        for (let i = 0; i < tokenLength; i++) {
+          result += chars.charAt(randomValues[i] % chars.length);
+        }
+      } catch (error) {
+        // Ultimate fallback (should not happen in production)
+        console.warn('Falling back to Math.random for token generation');
+        for (let i = 0; i < tokenLength; i++) {
+          result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+      }
+    }
+    else {
+      // Ultimate fallback (should not happen in production)
+      for (let i = 0; i < tokenLength; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+    }
+
     // Add prefix if configured
     const prefix = TOKEN_CONFIG.PREFIXES[type as keyof typeof TOKEN_CONFIG.PREFIXES];
     if (prefix) {
       result = prefix + result;
     }
-    
+
     return result;
   }
 
@@ -512,10 +540,10 @@ export class Token extends ValueObject {
     if (!this.isActive()) {
       throw new Error('Cannot use inactive token');
     }
-    
+
     this._lastUsedAt = new Date();
     this._usedCount++;
-    
+
     if (this.isOneTime() && this._usedCount >= 1) {
       this._status = TokenStatus.USED;
     }
@@ -577,7 +605,7 @@ export class Token extends ValueObject {
     const totalLifetime = this._expiresAt.getTime() - this._issuedAt.getTime();
     const thresholdTime = totalLifetime * TOKEN_CONFIG.REFRESH_THRESHOLD;
     const remaining = this.getRemainingTime() * 1000;
-    
+
     return Math.max(0, remaining - thresholdTime);
   }
 
@@ -714,7 +742,7 @@ export function createTokenForPurpose(
   const expiresAt = expiresIn > 0
     ? new Date(issuedAt.getTime() + expiresIn * 1000)
     : undefined;
-  
+
   return new Token(value, type, issuedAt, expiresAt, metadata);
 }
 
