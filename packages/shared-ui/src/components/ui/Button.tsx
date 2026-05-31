@@ -1,15 +1,16 @@
 /**
  * Button Component - Reusable button with variants
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+
  * @module shared-ui/src/components/ui/Button
- * 
+
  * RULES:
  * ✅ ONLY UI button component - NO business logic
  * ✅ NO API calls, auth redirect, business logic
  * ✅ Pure UI component
  * ✅ TypeScript strict with forwardRef
  * ✅ Class-variance-authority for variant management
+ * ✅ Supports asChild (polymorphic) pattern for rendering as child component
  */
 
 import React from 'react';
@@ -63,7 +64,7 @@ const buttonVariants = cva(
 // ==================== Types ====================
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'as'>,
     VariantProps<typeof buttonVariants> {
   /** Show loading spinner */
   loading?: boolean;
@@ -75,10 +76,14 @@ export interface ButtonProps
   loadingText?: string;
   /** As element (polymorphic) */
   as?: 'button' | 'a';
+  /** Render as child component (for Link components) */
+  asChild?: boolean;
   /** Target for link variant */
   target?: string;
   /** Rel for link variant */
   rel?: string;
+  /** href for link variant */
+  href?: string;
 }
 
 // ==================== Spinner Component ====================
@@ -88,7 +93,7 @@ const Spinner: React.FC<{ size?: 'sm' | 'md' }> = ({ size = 'md' }) => {
     sm: 'h-3 w-3',
     md: 'h-4 w-4',
   };
-  
+
   return (
     <svg
       className={cn('animate-spin', spinnerSizes[size])}
@@ -117,29 +122,35 @@ const Spinner: React.FC<{ size?: 'sm' | 'md' }> = ({ size = 'md' }) => {
 
 /**
  * Button - Reusable button component with multiple variants and sizes
- * 
+ *
  * @example
  * // Primary button
  * <Button variant="primary">Click me</Button>
- * 
+ *
  * @example
  * // With icons
  * <Button leftIcon={<PlusIcon />} rightIcon={<ArrowIcon />}>
  *   Add Item
  * </Button>
- * 
+ *
  * @example
  * // Loading state
  * <Button loading loadingText="Saving...">
  *   Save Changes
  * </Button>
- * 
+ *
  * @example
  * // Link as button
  * <Button as="a" href="/login" variant="outline">
  *   Sign In
  * </Button>
- * 
+ *
+ * @example
+ * // Using asChild with Next.js Link
+ * <Button asChild>
+ *   <Link href="/dashboard">Dashboard</Link>
+ * </Button>
+ *
  * @example
  * // Danger action
  * <Button variant="danger" size="lg">
@@ -161,48 +172,98 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       children,
       disabled,
       as = 'button',
+      asChild = false,
       target,
       rel,
+      href,
       ...props
     },
     ref
   ) => {
-    const Comp = as === 'a' ? 'a' : 'button';
     const isLink = as === 'a';
     const isDisabled = disabled || loading;
-
-    // Determine spinner size based on button size
     const spinnerSize = size === 'xs' || size === 'icon-sm' ? 'sm' : 'md';
-    
-    // Loading text to show
     const displayLoadingText = loadingText || (typeof children === 'string' ? children : 'Loading...');
 
-    // For link buttons, pass href instead of type
-    const linkProps = isLink ? { href: props.href, target, rel } : {};
+    // For asChild pattern, render the child with merged props
+    if (asChild && React.isValidElement(children)) {
+      return React.cloneElement(children as React.ReactElement, {
+        className: cn(buttonVariants({ variant, size, fullWidth, rounded }), className),
+        'aria-disabled': isDisabled,
+        ...(isDisabled && { 'data-disabled': '' }),
+        ...props,
+      });
+    }
 
+    // For link variant as 'a'
+    if (isLink) {
+      return (
+        <a
+          className={cn(buttonVariants({ variant, size, fullWidth, rounded, className }))}
+          href={href}
+          target={target}
+          rel={rel}
+          ref={ref as any}
+          aria-disabled={isDisabled}
+          {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
+        >
+          {renderContent({ loading, leftIcon, rightIcon, children, loadingText: displayLoadingText, spinnerSize })}
+        </a>
+      );
+    }
+
+    // Default button
     return (
-      <Comp
+      <button
         className={cn(buttonVariants({ variant, size, fullWidth, rounded, className }))}
-        ref={ref as any}
-        disabled={!isLink ? isDisabled : undefined}
-        type={!isLink ? props.type || 'button' : undefined}
-        {...linkProps}
-        {...(props as any)}
+        ref={ref}
+        disabled={isDisabled}
+        type={props.type || 'button'}
+        {...props}
       >
-        {loading && (
-          <span className={cn(children && 'mr-2')}>
-            <Spinner size={spinnerSize} />
-          </span>
-        )}
-        {!loading && leftIcon && <span className="mr-2">{leftIcon}</span>}
-        {loading && loadingText ? displayLoadingText : children}
-        {!loading && rightIcon && <span className="ml-2">{rightIcon}</span>}
-      </Comp>
+        {renderContent({ loading, leftIcon, rightIcon, children, loadingText: displayLoadingText, spinnerSize })}
+      </button>
     );
   }
 );
 
 Button.displayName = 'Button';
+
+// Helper function to render button content
+const renderContent = ({
+  loading,
+  leftIcon,
+  rightIcon,
+  children,
+  loadingText,
+  spinnerSize,
+}: {
+  loading?: boolean;
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
+  children: React.ReactNode;
+  loadingText: string;
+  spinnerSize: 'sm' | 'md';
+}) => {
+  if (loading) {
+    return (
+      <>
+        <span className={cn(children && 'mr-2')}>
+          <Spinner size={spinnerSize} />
+        </span>
+        {loadingText}
+      </>
+    );
+  }
+
+  return (
+    <>
+      {leftIcon && <span className="mr-2">{leftIcon}</span>}
+      {children}
+      {rightIcon && <span className="ml-2">{rightIcon}</span>}
+    </>
+  );
+};
 
 // ==================== IconButton ====================
 
@@ -215,7 +276,7 @@ export interface IconButtonProps extends Omit<ButtonProps, 'leftIcon' | 'rightIc
 
 /**
  * IconButton - Button with only an icon
- * 
+ *
  * @example
  * <IconButton
  *   icon={<CloseIcon />}
@@ -225,10 +286,10 @@ export interface IconButtonProps extends Omit<ButtonProps, 'leftIcon' | 'rightIc
  * />
  */
 export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
-  ({ icon, 'aria-label': ariaLabel, ...props }, ref) => {
+  ({ icon, 'aria-label': ariaLabel, children, ...props }, ref) => {
     return (
       <Button ref={ref} leftIcon={icon} aria-label={ariaLabel} {...props}>
-        {null}
+        {undefined}
       </Button>
     );
   }
@@ -262,13 +323,13 @@ const groupOrientationClasses = {
 
 /**
  * ButtonGroup - Group of buttons with consistent spacing
- * 
+ *
  * @example
  * <ButtonGroup spacing="md">
  *   <Button variant="outline">Cancel</Button>
  *   <Button>Save</Button>
  * </ButtonGroup>
- * 
+ *
  * @example
  * // Attached buttons (like segmented control)
  * <ButtonGroup attached>
@@ -286,20 +347,23 @@ export const ButtonGroup: React.FC<ButtonGroupProps> = ({
 }) => {
   const enhancedChildren = React.Children.map(children, (child, index) => {
     if (!React.isValidElement(child)) return child;
-    
+
     if (attached) {
+      const isHorizontal = orientation === 'horizontal';
+      const isFirst = index === 0;
+      const isLast = index === React.Children.count(children) - 1;
+
       return React.cloneElement(child, {
         className: cn(
           child.props.className,
-          orientation === 'horizontal' && 'rounded-none first:rounded-l-md last:rounded-r-md',
-          orientation === 'vertical' && 'rounded-none first:rounded-t-md last:rounded-b-md',
-          orientation === 'horizontal' && index !== 0 && '-ml-px',
-          orientation === 'vertical' && index !== 0 && '-mt-px',
-          child.props.className
+          !isHorizontal && 'rounded-none first:rounded-t-md last:rounded-b-md',
+          isHorizontal && 'rounded-none first:rounded-l-md last:rounded-r-md',
+          isHorizontal && !isFirst && '-ml-px',
+          !isHorizontal && !isFirst && '-mt-px'
         ),
       });
     }
-    
+
     return child;
   });
 
