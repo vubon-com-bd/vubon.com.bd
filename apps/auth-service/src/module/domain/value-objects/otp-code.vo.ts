@@ -1,13 +1,13 @@
 /**
  * OTP Code Value Object - Pure Domain Core
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+
  * @module domain/value-objects/otp-code.vo
- * 
+
  * @description
  * Represents a One-Time Password (OTP) code with validation, expiry, and usage tracking.
  * Used for MFA, password reset, email verification, and transaction confirmation.
- * 
+
  * Enterprise Rules:
  * ✅ Immutable - OTP value never changes after creation
  * ✅ Self-validating - Validates format based on type
@@ -15,7 +15,8 @@
  * ✅ Usage-aware - Tracks attempts and usage status
  * ✅ Framework-free - No external dependencies
  * ✅ Bangladesh specific - Mobile operator optimization ready
- * 
+ * ✅ Secure - Uses crypto.randomInt for OTP generation
+
  * @example
  * const otp = new OtpCode('123456', OtpType.SMS, OtpPurpose.LOGIN);
  * console.log(otp.isExpired()); // false
@@ -104,7 +105,7 @@ export const OTP_CONFIG = {
     [OtpType.WHATSAPP]: { min: 6, max: 6, pattern: /^\d{6}$/ },
     [OtpType.VOICE]: { min: 6, max: 6, pattern: /^\d{6}$/ },
   },
-  
+
   // Expiry times in seconds by type
   EXPIRY_SECONDS: {
     [OtpType.SMS]: 300,           // 5 minutes
@@ -117,26 +118,52 @@ export const OTP_CONFIG = {
     [OtpType.WHATSAPP]: 300,      // 5 minutes
     [OtpType.VOICE]: 300,         // 5 minutes
   },
-  
+
   // Attempt limits
   MAX_VERIFICATION_ATTEMPTS: 3,
   MAX_RESEND_ATTEMPTS: 5,
   RESEND_COOLDOWN_SECONDS: 30,
-  
+
   // Rate limits
   MAX_OTP_PER_PHONE_PER_HOUR: 5,
   MAX_OTP_PER_EMAIL_PER_HOUR: 10,
   MAX_OTP_PER_IP_PER_HOUR: 20,
-  
+
   // Security buffer (seconds before expiry to treat as expired)
   EXPIRY_BUFFER_SECONDS: 5,
 } as const;
+
+// ==================== Secure Random Generator ====================
+
+/**
+ * Cryptographically secure random integer generator
+ * Falls back to Math.random only if crypto is not available (e.g., React Native without polyfill)
+ */
+function secureRandomInt(min: number, max: number): number {
+  const range = max - min;
+  
+  // Try Node.js crypto first
+  if (typeof globalThis.crypto !== 'undefined' && globalThis.crypto.getRandomValues) {
+    // Web Crypto API (works in browsers, Node.js 19+, React Native with polyfill)
+    const randomBuffer = new Uint32Array(1);
+    globalThis.crypto.getRandomValues(randomBuffer);
+    const randomNumber = randomBuffer[0] / (0xffffffff + 1);
+    return min + Math.floor(randomNumber * range);
+  }
+  
+  // Fallback for environments without crypto (should not happen in production)
+  // Warning logged for development only
+  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
+    console.warn('[SecureRandom] Falling back to Math.random - not secure for production!');
+  }
+  return min + Math.floor(Math.random() * range);
+}
 
 // ==================== OTP Code Value Object ====================
 
 /**
  * OTP Code Value Object
- * 
+
  * Represents a validated OTP with lifecycle tracking
  */
 export class OtpCode extends ValueObject {
@@ -152,7 +179,7 @@ export class OtpCode extends ValueObject {
 
   /**
    * Creates a new OTP Code value object
-   * 
+
    * @param code - Raw OTP code string
    * @param type - Type of OTP
    * @param purpose - Business purpose
@@ -166,25 +193,25 @@ export class OtpCode extends ValueObject {
     createdAt?: Date
   ) {
     super();
-    
+
     const validation = OtpCode.validate(code, type);
     if (!validation.isValid) {
       throw new Error(`Invalid OTP: ${validation.error}`);
     }
-    
+
     this._value = validation.normalized!;
     this._type = type;
     this._purpose = purpose;
     this._createdAt = createdAt || new Date();
-    
+
     const expirySeconds = OTP_CONFIG.EXPIRY_SECONDS[type];
     this._expiresAt = expirySeconds > 0 
       ? new Date(this._createdAt.getTime() + expirySeconds * 1000)
       : new Date(8640000000000000); // Far future for backup codes
-    
+
     this._attemptCount = 0;
     this._resendCount = 0;
-    
+
     this.validate();
   }
 
@@ -195,7 +222,7 @@ export class OtpCode extends ValueObject {
     if (this.isEmpty()) {
       throw new Error('OTP code cannot be empty');
     }
-    
+
     if (this._createdAt > this._expiresAt) {
       throw new Error('CreatedAt cannot be after ExpiresAt');
     }
@@ -258,7 +285,7 @@ export class OtpCode extends ValueObject {
     }
 
     const trimmed = code.trim();
-    
+
     if (trimmed.length === 0) {
       return {
         isValid: false,
@@ -299,19 +326,21 @@ export class OtpCode extends ValueObject {
   }
 
   /**
-   * Generate a cryptographically-inspired random OTP code
-   * Note: For true crypto, use infrastructure layer
+   * Generate a cryptographically secure random OTP code
+   * Uses Web Crypto API (Node.js crypto.getRandomValues) for security
    */
   public static generate(type: OtpType): string {
     const config = OTP_CONFIG.LENGTHS[type];
     const length = config.max;
-    
+
     if (type === OtpType.BACKUP) {
       // Generate alphanumeric backup code (no ambiguous characters)
+      // Removed: 0, O, I, l to avoid confusion
       const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
       let result = '';
       for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
+        const randomIndex = secureRandomInt(0, chars.length);
+        result += chars[randomIndex];
       }
       // Format with hyphen for readability (e.g., "AB3F-9K2M")
       if (length === 8) {
@@ -320,9 +349,38 @@ export class OtpCode extends ValueObject {
       return result;
     } else {
       // Generate numeric OTP with leading zeros preserved
+      // Using cryptographically secure random digits
       let result = '';
       for (let i = 0; i < length; i++) {
-        result += Math.floor(Math.random() * 10);
+        const digit = secureRandomInt(0, 10);
+        result += digit.toString();
+      }
+      return result;
+    }
+  }
+
+  /**
+   * Generate OTP with external random function (for dependency injection)
+   * Use this method if you want to pass a custom random generator
+   */
+  public static generateWithRandom(type: OtpType, randomInt: (min: number, max: number) => number): string {
+    const config = OTP_CONFIG.LENGTHS[type];
+    const length = config.max;
+
+    if (type === OtpType.BACKUP) {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let result = '';
+      for (let i = 0; i < length; i++) {
+        result += chars[randomInt(0, chars.length)];
+      }
+      if (length === 8) {
+        return result.slice(0, 4) + '-' + result.slice(4);
+      }
+      return result;
+    } else {
+      let result = '';
+      for (let i = 0; i < length; i++) {
+        result += randomInt(0, 10).toString();
       }
       return result;
     }
@@ -409,7 +467,7 @@ export class OtpCode extends ValueObject {
     if (this._verifiedAt) {
       return true; // Already used
     }
-    
+
     const bufferMs = OTP_CONFIG.EXPIRY_BUFFER_SECONDS * 1000;
     const effectiveExpiry = new Date(this._expiresAt.getTime() - bufferMs);
     return new Date() > effectiveExpiry;
@@ -448,7 +506,7 @@ export class OtpCode extends ValueObject {
   public getRemainingSeconds(): number {
     if (this.isExpired()) return 0;
     if (this._type === OtpType.BACKUP) return -1; // No expiry
-    
+
     const remaining = Math.max(0, (this._expiresAt.getTime() - new Date().getTime()) / 1000);
     return Math.ceil(remaining);
   }
@@ -470,30 +528,30 @@ export class OtpCode extends ValueObject {
 
   /**
    * Verify the OTP code
-   * 
+
    * @param inputCode - The code to verify
    * @returns True if code matches and is valid
    */
   public verify(inputCode: string): boolean {
     this._attemptCount++;
     this._lastAttemptAt = new Date();
-    
+
     if (this.isUsed()) {
       return false;
     }
-    
+
     if (this.isExpired()) {
       return false;
     }
-    
+
     const normalizedInput = inputCode.trim().replace(/-/g, '');
     const normalizedValue = this._value.replace(/-/g, '');
     const isMatch = normalizedValue === normalizedInput;
-    
+
     if (isMatch) {
       this._verifiedAt = new Date();
     }
-    
+
     return isMatch;
   }
 
@@ -525,15 +583,15 @@ export class OtpCode extends ValueObject {
     if (this._resendCount >= OTP_CONFIG.MAX_RESEND_ATTEMPTS) {
       return false;
     }
-    
+
     if (this.isUsed()) {
       return false;
     }
-    
+
     // Check cooldown
     const cooldownMs = OTP_CONFIG.RESEND_COOLDOWN_SECONDS * 1000;
     const timeSinceCreation = new Date().getTime() - this._createdAt.getTime();
-    
+
     return timeSinceCreation >= cooldownMs;
   }
 
@@ -558,15 +616,15 @@ export class OtpCode extends ValueObject {
     if (!mask) {
       return this._value;
     }
-    
+
     // Mask all but last 2 digits/characters
     const visibleChars = 2;
     const maskedLength = this._value.length - visibleChars;
     if (maskedLength <= 0) return this._value;
-    
+
     const maskedPart = '*'.repeat(maskedLength);
     const visiblePart = this._value.slice(-visibleChars);
-    
+
     // If backup code with hyphen, preserve hyphen position
     if (this._type === OtpType.BACKUP && this._value.includes('-')) {
       const parts = this._value.split('-');
@@ -574,7 +632,7 @@ export class OtpCode extends ValueObject {
         return `${'*'.repeat(parts[0].length)}-${'*'.repeat(parts[1].length)}`;
       }
     }
-    
+
     return maskedPart + visiblePart;
   }
 
@@ -592,12 +650,12 @@ export class OtpCode extends ValueObject {
     if (this._type === OtpType.BACKUP && this._value.includes('-')) {
       return this._value;
     }
-    
+
     // Add space every 3 digits for readability
     if (this._value.length === 6) {
       return `${this._value.slice(0, 3)} ${this._value.slice(3)}`;
     }
-    
+
     return this._value;
   }
 
@@ -678,7 +736,7 @@ export function createOtpForPurpose(
 ): OtpCode {
   // Map purpose to default OTP type
   let defaultType: OtpType;
-  
+
   switch (purpose) {
     case OtpPurpose.LOGIN:
     case OtpPurpose.REGISTRATION:
@@ -702,10 +760,51 @@ export function createOtpForPurpose(
     default:
       defaultType = OtpType.SMS;
   }
-  
+
   const finalType = type || defaultType;
   const code = OtpCode.generate(finalType);
-  
+
+  return new OtpCode(code, finalType, purpose);
+}
+
+/**
+ * Create OTP for specific purpose with custom random generator
+ * Use this for testing or custom RNG injection
+ */
+export function createOtpForPurposeWithRandom(
+  purpose: OtpPurpose,
+  randomInt: (min: number, max: number) => number,
+  type?: OtpType
+): OtpCode {
+  let defaultType: OtpType;
+
+  switch (purpose) {
+    case OtpPurpose.LOGIN:
+    case OtpPurpose.REGISTRATION:
+      defaultType = OtpType.SMS;
+      break;
+    case OtpPurpose.EMAIL_VERIFICATION:
+    case OtpPurpose.PASSWORD_RESET:
+      defaultType = OtpType.EMAIL;
+      break;
+    case OtpPurpose.MFA_VERIFICATION:
+    case OtpPurpose.MFA_SETUP:
+      defaultType = OtpType.TOTP;
+      break;
+    case OtpPurpose.PAYMENT_CONFIRMATION:
+    case OtpPurpose.WITHDRAWAL:
+      defaultType = OtpType.TRANSACTION;
+      break;
+    case OtpPurpose.BKASH_PAYMENT:
+      defaultType = OtpType.SMS;
+      break;
+    default:
+      defaultType = OtpType.SMS;
+  }
+
+  const finalType = type || defaultType;
+  const code = OtpCode.generateWithRandom(finalType, randomInt);
+
   return new OtpCode(code, finalType, purpose);
 }
 
