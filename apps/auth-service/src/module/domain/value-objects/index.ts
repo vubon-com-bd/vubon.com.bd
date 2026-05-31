@@ -51,7 +51,7 @@ export { isEmail, createEmailFromRequest, isValidEmailFormat } from './email.vo'
 export { isPhone, phoneFromE164, formatPhoneForSMS, detectBangladeshOperator } from './phone.vo';
 export { isDeviceId, createDeviceIdFromRequest, createOrGetDeviceId } from './device-id.vo';
 export { isIpAddress, createIpFromRequest } from './ip-address.vo';
-export { isPassword, secureCompare } from './password.vo';
+export { isPassword } from './password.vo';
 export { isOtpCode, createOtpForPurpose } from './otp-code.vo';
 export { isToken, createTokenForPurpose, isValidTokenFormat } from './token.vo';
 export { isUserAgent, createUserAgentFromRequest, shouldBlockUserAgent } from './user-agent.vo';
