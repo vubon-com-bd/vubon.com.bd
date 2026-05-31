@@ -1,7 +1,7 @@
 /**
  * useSessions Hook - Sessions query with shared-api integration
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- *
+
  * IMPROVEMENTS:
  * - Uses shared-api instead of raw fetch for consistent error handling and auth
  * - Proper TypeScript types with shared-types integration
@@ -10,10 +10,11 @@
  * - Cache invalidation support
  * - Type-safe query keys
  * - Added session time remaining hook with auto-refresh
- *
+
  * @module shared-hooks/src/session/useSessions
  */
 
+import React from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAxiosClient } from '@vubon/shared-api/client/axios';
 import { createSessionEndpoints } from '@vubon/shared-api/endpoints/session';
@@ -154,7 +155,7 @@ const getTimeRemainingSeconds = (session: Session): number => {
 
 /**
  * Hook for fetching user sessions using shared-api
- *
+
  * @example
  * const { sessions, activeSessions, currentSession, isLoading, refetch } = useSessions({
  *   staleTime: 30 * 1000,
@@ -163,9 +164,9 @@ const getTimeRemainingSeconds = (session: Session): number => {
  *     console.log(`Loaded ${data.sessions.length} sessions`);
  *   }
  * });
- *
+
  * if (isLoading) return <LoadingSpinner />;
- *
+
  * return (
  *   <div>
  *     <p>Current session: {currentSession?.deviceInfo.browser}</p>
@@ -242,7 +243,7 @@ export const useSessions = (options?: UseSessionsOptions): UseSessionsReturn => 
 
 /**
  * Hook for fetching a single session by ID using shared-api
- *
+
  * @example
  * const { data: session, isLoading } = useSessionById('session-id-123', {
  *   onSuccess: (session) => {
@@ -272,7 +273,7 @@ export const useSessionById = (sessionId: string, options?: Omit<UseSessionsOpti
 
 /**
  * Hook for session statistics (admin only) using shared-api
- *
+
  * @example
  * const { data: stats, isLoading } = useSessionStatistics({
  *   onSuccess: (stats) => {
@@ -302,7 +303,7 @@ export const useSessionStatistics = (options?: Omit<UseSessionsOptions, 'include
 
 /**
  * Hook for checking if a session is expired
- *
+
  * @example
  * const isExpired = useIsSessionExpired(session);
  * if (isExpired) {
@@ -316,10 +317,10 @@ export const useIsSessionExpired = (session: Session | undefined): boolean => {
 
 /**
  * Hook for getting session time remaining with auto-refresh
- *
+
  * @example
  * const { secondsRemaining, isExpired, isExpiringSoon } = useSessionTimeRemaining(session);
- *
+
  * if (isExpiringSoon) {
  *   return <SessionExpiringWarning seconds={secondsRemaining} />;
  * }
@@ -356,7 +357,7 @@ export const useSessionTimeRemaining = (session: Session | undefined): UseSessio
 
 /**
  * Hook for getting sessions by device type
- *
+
  * @example
  * const { mobileSessions, desktopSessions } = useSessionsByDeviceType();
  */
@@ -391,7 +392,7 @@ export const useSessionsByDeviceType = (options?: UseSessionsOptions) => {
 
 /**
  * Hook for getting family shared sessions (Bangladesh specific)
- *
+
  * @example
  * const { familySharedSessions, familyMemberCount } = useFamilySharedSessions();
  */
