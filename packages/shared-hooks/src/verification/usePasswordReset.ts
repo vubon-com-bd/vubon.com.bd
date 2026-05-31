@@ -1,7 +1,7 @@
 /**
  * usePasswordReset Hook - Password reset workflow abstraction
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- *
+
  * IMPROVEMENTS:
  * - Uses shared-api instead of raw fetch for consistent error handling
  * - Proper TypeScript types with shared-types integration
@@ -12,9 +12,9 @@
  * - Added request OTP hook for phone-based reset
  * - Added verify OTP hook for phone-based reset
  * - Proper loading states and error formatting
- *
+
  * @module shared-hooks/src/verification/usePasswordReset
- *
+
  * RULES:
  * ✅ ONLY mutation orchestration - NO business logic
  * ✅ NO token generation (handled by backend)
@@ -81,6 +81,7 @@ export interface RequestResetOtpRequest {
   method?: 'sms' | 'whatsapp' | 'voice';
   captchaToken?: string;
   locale?: 'en' | 'bn';
+  sessionId?: string;
 }
 
 export interface RequestResetOtpResponse {
@@ -688,7 +689,7 @@ export const useValidateResetToken = (options?: {
  *   }
  * });
  *
- * resendResetOtp({ sessionId: 'session-123' });
+ * resendResetOtp({ sessionId: 'session-123', phoneNumber: '01712345678' });
  */
 export const useResendResetOtp = (options?: {
   onSuccess?: (data: RequestResetOtpResponse) => void;
@@ -699,19 +700,18 @@ export const useResendResetOtp = (options?: {
   const requestOtp = useRequestResetOtp(options);
 
   return {
-    mutate: (sessionId: string, phoneNumber?: string) => {
-      if (phoneNumber) {
-        requestOtp.mutate({ phoneNumber, sessionId });
-      } else {
-        // If only sessionId is provided, we need to have stored phoneNumber
+    mutate: (phoneNumber: string, sessionId?: string) => {
+      if (!phoneNumber) {
         console.warn('Phone number is required for resending OTP');
+        return;
       }
+      requestOtp.mutate({ phoneNumber, sessionId });
     },
-    mutateAsync: (sessionId: string, phoneNumber?: string) => {
-      if (phoneNumber) {
-        return requestOtp.mutateAsync({ phoneNumber, sessionId });
+    mutateAsync: (phoneNumber: string, sessionId?: string) => {
+      if (!phoneNumber) {
+        return Promise.reject(new Error('Phone number is required for resending OTP'));
       }
-      return Promise.reject(new Error('Phone number is required for resending OTP'));
+      return requestOtp.mutateAsync({ phoneNumber, sessionId });
     },
     isLoading: requestOtp.isLoading,
     isError: requestOtp.isError,
