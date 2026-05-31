@@ -13,7 +13,13 @@
  * ✅ Performance optimized with useCallback and useRef
  */
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import React, {
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+  useMemo,
+} from 'react';
 import { type Toast, type ToastVariant } from '../components/ui/Toast';
 
 // ==================== Types ====================
@@ -73,6 +79,13 @@ export interface UseToastReturn {
   resumeToast: (id: string) => void;
   /** Toast queue (for debugging) */
   queue: Toast[];
+}
+
+export interface ToastContextValue extends UseToastReturn {
+  /** Toast container position */
+  position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center';
+  /** Maximum toasts at once */
+  maxToasts?: number;
 }
 
 // ==================== Constants ====================
@@ -320,16 +333,9 @@ export const useToast = (): UseToastReturn => {
 
 // ==================== Toast Context ====================
 
-import React from 'react';
-
-export interface ToastContextValue extends UseToastReturn {
-  /** Toast container position */
-  position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center';
-  /** Maximum toasts at once */
-  maxToasts?: number;
-}
-
 const ToastContext = React.createContext<ToastContextValue | null>(null);
+
+ToastContext.displayName = 'ToastContext';
 
 /**
  * ToastProvider - Context provider for toast notifications
