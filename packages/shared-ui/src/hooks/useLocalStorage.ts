@@ -1,15 +1,15 @@
 /**
  * useLocalStorage Hook - Browser storage helper
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+
  * @module shared-ui/src/hooks/useLocalStorage
- * 
+
  * RULES:
  * ✅ ONLY browser storage helper - NO business logic
  * ✅ NO auth token storage, refresh token management, secure credential logic
  * ✅ Pure UI hook for non-sensitive data
  * ✅ TypeScript strict
- * 
+
  * WARNING: Do NOT use for auth tokens, passwords, or sensitive user data.
  * Use secure cookie storage (httpOnly) for authentication instead.
  */
@@ -18,18 +18,20 @@ import { useState, useEffect, useCallback } from 'react';
 
 // ==================== Types ====================
 
-export interface UseLocalStorageOptions < T > {
+export interface UseLocalStorageOptions<T> {
+  /** Storage key */
+  key: string;
   /** Initial value if key doesn't exist */
   initialValue: T;
   /** Whether to sync across tabs (default: true) */
-  syncAcrossTabs ? : boolean;
+  syncAcrossTabs?: boolean;
   /** Custom serializer (default: JSON.stringify) */
-  serialize ? : (value: T) => string;
+  serialize?: (value: T) => string;
   /** Custom deserializer (default: JSON.parse) */
-  deserialize ? : (value: string) => T;
+  deserialize?: (value: string) => T;
 }
 
-export interface UseLocalStorageReturn < T > {
+export interface UseLocalStorageReturn<T> {
   /** Current stored value */
   value: T;
   /** Set stored value */
@@ -44,85 +46,100 @@ export interface UseLocalStorageReturn < T > {
 
 /**
  * Hook for using localStorage with type safety
- * 
+
  * WARNING: Do NOT use for sensitive data like auth tokens.
  * Use secure cookie storage for authentication instead.
- * 
+
  * Good for:
  * - UI preferences (theme, language)
  * - User settings (notification preferences)
  * - Form drafts
  * - Recently viewed items
- * 
+
  * Bad for:
  * - Auth tokens (use httpOnly cookies)
  * - Passwords
  * - Payment info
  * - Personal identifiable information
- * 
+
  * @example
  * // Store user preference
  * const { value: theme, setValue: setTheme } = useLocalStorage({
+ *   key: 'theme',
  *   initialValue: 'light',
  * });
- * 
+
  * @example
  * // With custom serializer (e.g., for Date objects)
  * const { value: data } = useLocalStorage({
+ *   key: 'cachedData',
  *   initialValue: [],
  *   serialize: (value) => JSON.stringify(value),
  *   deserialize: (value) => JSON.parse(value),
  * });
- * 
+
  * @example
  * // Disable cross-tab sync
  * const { value } = useLocalStorage({
+ *   key: 'expandedState',
  *   initialValue: { expanded: true },
  *   syncAcrossTabs: false,
  * });
  */
-export function useLocalStorage < T > (options: UseLocalStorageOptions < T > ): UseLocalStorageReturn < T > {
+export function useLocalStorage<T>(options: UseLocalStorageOptions<T>): UseLocalStorageReturn<T> {
   const {
+    key,
     initialValue,
     syncAcrossTabs = true,
     serialize = JSON.stringify,
     deserialize = JSON.parse,
   } = options;
-  
+
+  if (!key) {
+    throw new Error('useLocalStorage: key is required');
+  }
+
+  // Read initial value from localStorage
   const readValue = useCallback((): T => {
     if (typeof window === 'undefined') {
       return initialValue;
     }
-    
+
     try {
       const item = window.localStorage.getItem(key);
-      return item ? (deserialize(item) as T) : initialValue;
+      return item !== null ? (deserialize(item) as T) : initialValue;
     } catch (error) {
-      console.warn(`Error reading localStorage key:`, error);
+      console.warn(`Error reading localStorage key "${key}":`, error);
       return initialValue;
     }
-  }, [initialValue, deserialize]);
-  
-  const [storedValue, setStoredValue] = useState < T > (() => readValue());
-  const [hasValue, setHasValue] = useState < boolean > (() => {
+  }, [key, initialValue, deserialize]);
+
+  const [storedValue, setStoredValue] = useState<T>(() => readValue());
+  const [hasValue, setHasValue] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem(key) !== null;
   });
-  
+
   const setValue = useCallback(
     (value: T | ((prev: T) => T)) => {
       if (typeof window === 'undefined') {
         console.warn('localStorage is not available in this environment');
         return;
       }
-      
+
       try {
         const newValue = value instanceof Function ? value(storedValue) : value;
         const serialized = serialize(newValue);
         window.localStorage.setItem(key, serialized);
         setStoredValue(newValue);
         setHasValue(true);
-        
+
+        // Dispatch custom event for same-window updates
+        window.dispatchEvent(new CustomEvent('localStorageChange', {
+          detail: { key, newValue: serialized },
+        }));
+
+        // Dispatch storage event for cross-tab sync
         if (syncAcrossTabs) {
           window.dispatchEvent(new StorageEvent('storage', {
             key,
@@ -131,20 +148,25 @@ export function useLocalStorage < T > (options: UseLocalStorageOptions < T > ): 
           }));
         }
       } catch (error) {
-        console.warn(`Error setting localStorage key:`, error);
+        console.warn(`Error setting localStorage key "${key}":`, error);
       }
     },
     [key, storedValue, serialize, syncAcrossTabs]
   );
-  
+
   const removeValue = useCallback(() => {
     if (typeof window === 'undefined') return;
-    
+
     try {
       window.localStorage.removeItem(key);
       setStoredValue(initialValue);
       setHasValue(false);
-      
+
+      // Dispatch custom event for same-window updates
+      window.dispatchEvent(new CustomEvent('localStorageChange', {
+        detail: { key, newValue: null },
+      }));
+
       if (syncAcrossTabs) {
         window.dispatchEvent(new StorageEvent('storage', {
           key,
@@ -153,33 +175,58 @@ export function useLocalStorage < T > (options: UseLocalStorageOptions < T > ): 
         }));
       }
     } catch (error) {
-      console.warn(`Error removing localStorage key:`, error);
+      console.warn(`Error removing localStorage key "${key}":`, error);
     }
   }, [key, initialValue, syncAcrossTabs]);
-  
+
   // Listen for storage changes from other tabs/windows
   useEffect(() => {
     if (!syncAcrossTabs) return;
-    
+
     const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === key && event.newValue !== null) {
-        try {
-          const newValue = deserialize(event.newValue);
-          setStoredValue(newValue);
-          setHasValue(true);
-        } catch {
-          // Ignore parse errors
+      if (event.key === key) {
+        if (event.newValue !== null) {
+          try {
+            const newValue = deserialize(event.newValue);
+            setStoredValue(newValue);
+            setHasValue(true);
+          } catch {
+            // Ignore parse errors
+          }
+        } else {
+          setStoredValue(initialValue);
+          setHasValue(false);
         }
-      } else if (event.key === key && event.newValue === null) {
-        setStoredValue(initialValue);
-        setHasValue(false);
       }
     };
-    
+
+    // Listen for custom events from same window
+    const handleCustomChange = (event: CustomEvent<{ key: string; newValue: string | null }>) => {
+      if (event.detail.key === key) {
+        if (event.detail.newValue !== null) {
+          try {
+            const newValue = deserialize(event.detail.newValue);
+            setStoredValue(newValue);
+            setHasValue(true);
+          } catch {
+            // Ignore parse errors
+          }
+        } else {
+          setStoredValue(initialValue);
+          setHasValue(false);
+        }
+      }
+    };
+
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('localStorageChange', handleCustomChange as EventListener);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('localStorageChange', handleCustomChange as EventListener);
+    };
   }, [key, syncAcrossTabs, deserialize, initialValue]);
-  
+
   return {
     value: storedValue,
     setValue,
@@ -192,44 +239,50 @@ export function useLocalStorage < T > (options: UseLocalStorageOptions < T > ): 
 
 /**
  * Hook for using sessionStorage (cleared when tab is closed)
- * 
+
  * @example
- * const { value, setValue } = useSessionStorage({ initialValue: {} });
+ * const { value, setValue } = useSessionStorage({
+ *   key: 'tempFormData',
+ *   initialValue: {}
+ * });
  */
-export function useSessionStorage < T > (options: UseLocalStorageOptions < T > ): UseLocalStorageReturn < T > {
+export function useSessionStorage<T>(options: UseLocalStorageOptions<T>): UseLocalStorageReturn<T> {
   const {
+    key,
     initialValue,
     syncAcrossTabs = false, // sessionStorage doesn't sync across tabs
     serialize = JSON.stringify,
     deserialize = JSON.parse,
   } = options;
-  
-  const key = options.key;
-  
+
+  if (!key) {
+    throw new Error('useSessionStorage: key is required');
+  }
+
   const readValue = useCallback((): T => {
     if (typeof window === 'undefined') {
       return initialValue;
     }
-    
+
     try {
       const item = window.sessionStorage.getItem(key);
-      return item ? (deserialize(item) as T) : initialValue;
+      return item !== null ? (deserialize(item) as T) : initialValue;
     } catch (error) {
-      console.warn(`Error reading sessionStorage key:`, error);
+      console.warn(`Error reading sessionStorage key "${key}":`, error);
       return initialValue;
     }
-  }, [initialValue, deserialize]);
-  
-  const [storedValue, setStoredValue] = useState < T > (() => readValue());
-  const [hasValue, setHasValue] = useState < boolean > (() => {
+  }, [key, initialValue, deserialize]);
+
+  const [storedValue, setStoredValue] = useState<T>(() => readValue());
+  const [hasValue, setHasValue] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
     return window.sessionStorage.getItem(key) !== null;
   });
-  
+
   const setValue = useCallback(
     (value: T | ((prev: T) => T)) => {
       if (typeof window === 'undefined') return;
-      
+
       try {
         const newValue = value instanceof Function ? value(storedValue) : value;
         const serialized = serialize(newValue);
@@ -237,24 +290,24 @@ export function useSessionStorage < T > (options: UseLocalStorageOptions < T > )
         setStoredValue(newValue);
         setHasValue(true);
       } catch (error) {
-        console.warn(`Error setting sessionStorage key:`, error);
+        console.warn(`Error setting sessionStorage key "${key}":`, error);
       }
     },
     [key, storedValue, serialize]
   );
-  
+
   const removeValue = useCallback(() => {
     if (typeof window === 'undefined') return;
-    
+
     try {
       window.sessionStorage.removeItem(key);
       setStoredValue(initialValue);
       setHasValue(false);
     } catch (error) {
-      console.warn(`Error removing sessionStorage key:`, error);
+      console.warn(`Error removing sessionStorage key "${key}":`, error);
     }
   }, [key, initialValue]);
-  
+
   return {
     value: storedValue,
     setValue,
@@ -267,13 +320,23 @@ export function useSessionStorage < T > (options: UseLocalStorageOptions < T > )
 
 /**
  * Legacy hook for using localStorage (simpler API)
- * 
+ *
  * @deprecated Use useLocalStorage with object options instead for better type safety
+ *
+ * @example
+ * // Deprecated
+ * const [theme, setTheme] = useLocalStorageLegacy('theme', 'light');
+ *
+ * // Recommended
+ * const { value: theme, setValue: setTheme } = useLocalStorage({
+ *   key: 'theme',
+ *   initialValue: 'light',
+ * });
  */
-export function useLocalStorageLegacy < T > (
+export function useLocalStorageLegacy<T>(
   key: string,
   initialValue: T
 ): [T, (value: T | ((val: T) => T)) => void] {
-  const { value, setValue } = useLocalStorage({ initialValue });
+  const { value, setValue } = useLocalStorage({ key, initialValue });
   return [value, setValue];
 }
