@@ -1,30 +1,31 @@
 /**
  * Password Value Object - Pure Domain Core
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+
  * @module domain/value-objects/password.vo
- * 
+
  * @description
  * Represents a plain-text password BEFORE hashing (domain layer).
  * Validates complexity, strength, and security rules.
- * 
+
  * IMPORTANT: This value object holds plain text password ONLY for validation.
  * After validation, the password MUST be hashed in the Application/Infrastructure layer.
  * Domain layer NEVER performs hashing - that's infrastructure concern.
- * 
+
  * Enterprise Rules:
  * ✅ Immutable - Password value never changes after creation
  * ✅ Self-validating - Validates complexity and security rules
  * ✅ Framework-free - No external dependencies
  * ✅ No hashing - Hashing is infrastructure concern
  * ✅ Zero exposure - Password not included in serialization
- * 
+
  * Security Notes:
  * - Password is stored in memory only during validation
  * - Should be garbage collected after use
  * - Never log or persist plain text passwords
  * - Use secure comparison (timing-safe) in infrastructure layer
- * 
+ * - Uses crypto.randomInt() for cryptographically secure random generation
+
  * @example
  * const password = new Password('MyStr0ng!P@ssw0rd');
  * console.log(password.getStrength()); // 'very_strong'
@@ -145,16 +146,16 @@ export const PASSWORD_CONFIG = {
   MIN_LENGTH: 8,
   MAX_LENGTH: 128,  // Prevent DoS
   RECOMMENDED_LENGTH: 12,
-  
+
   // Character requirements
   REQUIRE_UPPERCASE: true,
   REQUIRE_LOWERCASE: true,
   REQUIRE_NUMBERS: true,
   REQUIRE_SPECIAL: true,
-  
+
   // Special characters allowed
   ALLOWED_SPECIAL: '!@#$%^&*()_+-=[]{}|;:,.<>?',
-  
+
   // Strength thresholds (entropy in bits)
   ENTROPY_THRESHOLDS: {
     [PasswordStrength.VERY_WEAK]: 0,
@@ -163,7 +164,7 @@ export const PASSWORD_CONFIG = {
     [PasswordStrength.STRONG]: 70,
     [PasswordStrength.VERY_STRONG]: 90,
   },
-  
+
   // Estimated crack times (for reference)
   CRACK_TIME_THRESHOLDS: {
     [PasswordStrength.VERY_WEAK]: 'seconds',
@@ -172,7 +173,7 @@ export const PASSWORD_CONFIG = {
     [PasswordStrength.STRONG]: 'years',
     [PasswordStrength.VERY_STRONG]: 'centuries',
   },
-  
+
   // Common patterns
   COMMON_PASSWORDS_SET: COMMON_PASSWORDS,
   SEQUENTIAL_PATTERNS,
@@ -181,11 +182,57 @@ export const PASSWORD_CONFIG = {
   BANGLADESH_PATTERNS,
 } as const;
 
+// ==================== Secure Random Implementation ====================
+
+/**
+ * Cryptographically secure random integer generator
+ * Falls back to Math.random for environments without crypto (with warning)
+ */
+function secureRandomInt(max: number): number {
+  // Browser environment
+  if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
+    const array = new Uint32Array(1);
+    window.crypto.getRandomValues(array);
+    return array[0] % max;
+  }
+  
+  // Node.js environment
+  if (typeof globalThis !== 'undefined' && 
+      (globalThis as any).crypto && 
+      (globalThis as any).crypto.randomInt) {
+    return (globalThis as any).crypto.randomInt(max);
+  }
+  
+  // Node.js alternative (crypto module)
+  if (typeof require !== 'undefined') {
+    try {
+      const crypto = require('crypto');
+      return crypto.randomInt(max);
+    } catch (e) {
+      // Fallback - not cryptographically secure
+      console.warn('[Password] Using non-cryptographic random fallback - not secure for production');
+      return Math.floor(Math.random() * max);
+    }
+  }
+  
+  // Final fallback - not cryptographically secure
+  console.warn('[Password] Using non-cryptographic random fallback - not secure for production');
+  return Math.floor(Math.random() * max);
+}
+
+/**
+ * Cryptographically secure random character selector
+ */
+function secureRandomChar(chars: string): string {
+  const randomIndex = secureRandomInt(chars.length);
+  return chars[randomIndex];
+}
+
 // ==================== Password Value Object ====================
 
 /**
  * Password Value Object
- * 
+
  * Represents a plain-text password before hashing.
  * Validates complexity and strength but does NOT hash.
  */
@@ -199,25 +246,25 @@ export class Password extends ValueObject {
 
   /**
    * Creates a new Password value object
-   * 
+
    * @param password - Plain text password
    * @throws {Error} If password fails validation
    */
   constructor(password: string) {
     super();
-    
+
     const validation = Password.validate(password);
     if (!validation.isValid) {
       throw new Error(`Invalid password: ${validation.errors.join(', ')}`);
     }
-    
+
     this._value = password;
     this._strength = validation.strength;
     this._entropy = validation.entropy;
     this._validationErrors = validation.errors;
     this._validationWarnings = validation.warnings;
     this._validationSuggestions = validation.suggestions;
-    
+
     this.validate();
   }
 
@@ -228,7 +275,7 @@ export class Password extends ValueObject {
     if (this.isEmpty()) {
       throw new Error('Password cannot be empty');
     }
-    
+
     if (this._value.length > PASSWORD_CONFIG.MAX_LENGTH) {
       throw new Error(`Password too long (max ${PASSWORD_CONFIG.MAX_LENGTH} characters)`);
     }
@@ -252,7 +299,7 @@ export class Password extends ValueObject {
     if (typeof password !== 'string') {
       return null;
     }
-    
+
     try {
       return new Password(password);
     } catch {
@@ -261,30 +308,36 @@ export class Password extends ValueObject {
   }
 
   /**
-   * Generate a random strong password (domain utility)
+   * Generate a cryptographically secure random strong password
+   * Uses crypto.randomInt() / crypto.getRandomValues() for security
    */
   public static generateRandom(length: number = 16): string {
     const uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
     const lowercase = 'abcdefghijkmnopqrstuvwxyz';
     const numbers = '23456789';
     const special = '!@#$%^&*';
-    
+
     const all = uppercase + lowercase + numbers + special;
-    let password = '';
     
-    // Ensure at least one of each type
-    password += uppercase.charAt(Math.floor(Math.random() * uppercase.length));
-    password += lowercase.charAt(Math.floor(Math.random() * lowercase.length));
-    password += numbers.charAt(Math.floor(Math.random() * numbers.length));
-    password += special.charAt(Math.floor(Math.random() * special.length));
-    
-    // Fill the rest
-    for (let i = password.length; i < length; i++) {
-      password += all.charAt(Math.floor(Math.random() * all.length));
+    // Ensure at least one of each type using secure random
+    let passwordChars: string[] = [];
+    passwordChars.push(secureRandomChar(uppercase));
+    passwordChars.push(secureRandomChar(lowercase));
+    passwordChars.push(secureRandomChar(numbers));
+    passwordChars.push(secureRandomChar(special));
+
+    // Fill the rest with secure random
+    for (let i = passwordChars.length; i < length; i++) {
+      passwordChars.push(secureRandomChar(all));
     }
-    
-    // Shuffle
-    return password.split('').sort(() => Math.random() - 0.5).join('');
+
+    // Fisher-Yates shuffle (cryptographically secure)
+    for (let i = passwordChars.length - 1; i > 0; i--) {
+      const j = secureRandomInt(i + 1);
+      [passwordChars[i], passwordChars[j]] = [passwordChars[j], passwordChars[i]];
+    }
+
+    return passwordChars.join('');
   }
 
   // ============================================================
@@ -293,7 +346,7 @@ export class Password extends ValueObject {
 
   /**
    * Validates a password and returns detailed results
-   * 
+
    * @param password - The password to validate
    * @returns Validation result with strength, entropy, errors, warnings, suggestions
    */
@@ -301,7 +354,7 @@ export class Password extends ValueObject {
     const errors: string[] = [];
     const warnings: string[] = [];
     const suggestions: string[] = [];
-    
+
     // Check type and emptiness
     if (!password || typeof password !== 'string') {
       errors.push('Password cannot be null or undefined');
@@ -327,12 +380,12 @@ export class Password extends ValueObject {
         suggestions,
       };
     }
-    
+
     if (password.length < PASSWORD_CONFIG.MIN_LENGTH) {
       errors.push(`Password must be at least ${PASSWORD_CONFIG.MIN_LENGTH} characters`);
       suggestions.push(`Make password at least ${PASSWORD_CONFIG.RECOMMENDED_LENGTH} characters`);
     }
-    
+
     if (password.length > PASSWORD_CONFIG.MAX_LENGTH) {
       errors.push(`Password cannot exceed ${PASSWORD_CONFIG.MAX_LENGTH} characters`);
     }
@@ -342,22 +395,22 @@ export class Password extends ValueObject {
     let hasLower = /[a-z]/.test(password);
     let hasNumber = /[0-9]/.test(password);
     let hasSpecial = new RegExp(`[${PASSWORD_CONFIG.ALLOWED_SPECIAL}]`).test(password);
-    
+
     if (PASSWORD_CONFIG.REQUIRE_UPPERCASE && !hasUpper) {
       errors.push('Password must contain at least one uppercase letter');
       suggestions.push('Add an uppercase letter (A-Z)');
     }
-    
+
     if (PASSWORD_CONFIG.REQUIRE_LOWERCASE && !hasLower) {
       errors.push('Password must contain at least one lowercase letter');
       suggestions.push('Add a lowercase letter (a-z)');
     }
-    
+
     if (PASSWORD_CONFIG.REQUIRE_NUMBERS && !hasNumber) {
       errors.push('Password must contain at least one number');
       suggestions.push('Add a number (0-9)');
     }
-    
+
     if (PASSWORD_CONFIG.REQUIRE_SPECIAL && !hasSpecial) {
       errors.push(`Password must contain at least one special character (${PASSWORD_CONFIG.ALLOWED_SPECIAL})`);
       suggestions.push(`Add a special character (${PASSWORD_CONFIG.ALLOWED_SPECIAL})`);
@@ -433,7 +486,7 @@ export class Password extends ValueObject {
     // Calculate entropy
     const entropyResult = this.calculateEntropy(password);
     const entropy = entropyResult.bits;
-    
+
     // Determine strength
     let strength = PasswordStrength.VERY_WEAK;
     if (errors.length === 0) {
@@ -471,37 +524,37 @@ export class Password extends ValueObject {
 
   /**
    * Calculate password entropy (bits)
-   * 
+
    * Entropy = log2(character_set_size ^ password_length)
-   * 
+
    * @param password - The password to analyze
    * @returns Entropy result with bits, strength, and estimated crack time
    */
   private static calculateEntropy(password: string): EntropyResult {
     let charsetSize = 0;
-    
+
     if (/[a-z]/.test(password)) charsetSize += 26;  // lowercase
     if (/[A-Z]/.test(password)) charsetSize += 26;  // uppercase
     if (/[0-9]/.test(password)) charsetSize += 10;  // numbers
     if (new RegExp(`[${PASSWORD_CONFIG.ALLOWED_SPECIAL}]`).test(password)) {
       charsetSize += PASSWORD_CONFIG.ALLOWED_SPECIAL.length;
     }
-    
+
     if (charsetSize === 0) return {
       bits: 0,
       strength: PasswordStrength.VERY_WEAK,
       estimatedCrackTime: 'instantly',
     };
-    
+
     const bits = Math.log2(Math.pow(charsetSize, password.length));
-    
+
     let estimatedCrackTime: string;
     if (bits >= 90) estimatedCrackTime = 'centuries';
     else if (bits >= 70) estimatedCrackTime = 'years';
     else if (bits >= 50) estimatedCrackTime = 'hours';
     else if (bits >= 35) estimatedCrackTime = 'minutes';
     else estimatedCrackTime = 'seconds';
-    
+
     let strength: PasswordStrength;
     if (bits >= PASSWORD_CONFIG.ENTROPY_THRESHOLDS[PasswordStrength.VERY_STRONG]) {
       strength = PasswordStrength.VERY_STRONG;
@@ -514,7 +567,7 @@ export class Password extends ValueObject {
     } else {
       strength = PasswordStrength.VERY_WEAK;
     }
-    
+
     return { bits, strength, estimatedCrackTime };
   }
 
@@ -588,7 +641,7 @@ export class Password extends ValueObject {
       [PasswordStrength.STRONG]: 3,
       [PasswordStrength.VERY_STRONG]: 4,
     };
-    
+
     return strengthOrder[this._strength] >= strengthOrder[minStrength];
   }
 
@@ -609,22 +662,22 @@ export class Password extends ValueObject {
     phone?: string
   ): boolean {
     const lowerPassword = this._value.toLowerCase();
-    
+
     if (email && email.includes('@')) {
       const emailLocal = email.split('@')[0]?.toLowerCase();
       if (emailLocal && lowerPassword.includes(emailLocal)) {
         return true;
       }
     }
-    
+
     if (name && lowerPassword.includes(name.toLowerCase())) {
       return true;
     }
-    
+
     if (phone && phone.length >= 4 && lowerPassword.includes(phone.slice(-4))) {
       return true;
     }
-    
+
     return false;
   }
 
