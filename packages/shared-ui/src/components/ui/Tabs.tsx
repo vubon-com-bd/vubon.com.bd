@@ -1,14 +1,15 @@
 /**
- * Table Component - Data table with sorting and pagination
+ * Tabs Component - Accessible tab interface
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
- * @module shared-ui/src/components/ui/Table
- * 
+
+ * @module shared-ui/src/components/ui/Tabs
+
  * RULES:
- * ✅ ONLY UI table component - NO business logic
- * ✅ NO fetching users, fetching orders, API integration
- * ✅ Pure UI component with sorting/pagination UI
- * ✅ TypeScript strict with generics
+ * ✅ ONLY UI tabs component - NO business logic
+ * ✅ NO API calls, routing logic
+ * ✅ Pure UI component with accessibility
+ * ✅ TypeScript strict with forwardRef
+ * ✅ Accessibility support (role="tablist", role="tab", aria-selected)
  */
 
 import React from 'react';
@@ -16,367 +17,554 @@ import { cn } from '../../utils/cn';
 
 // ==================== Types ====================
 
-export interface TableColumn<T = unknown> {
-  /** Unique key for the column */
-  key: string;
-  /** Column header text */
-  header: string;
-  /** Bengali header text (optional) */
-  headerBn?: string;
-  /** Custom render function for cell */
-  render?: (item: T, index: number) => React.ReactNode;
-  /** Whether column is sortable */
-  sortable?: boolean;
-  /** Width of the column */
-  width?: string | number;
-  /** Alignment of content */
-  align?: 'left' | 'center' | 'right';
+export interface TabItem {
+  /** Unique identifier for the tab */
+  id: string;
+  /** Tab label */
+  label: string;
+  /** Bengali label (optional) */
+  labelBn?: string;
+  /** Tab content */
+  content: React.ReactNode;
+  /** Whether tab is disabled */
+  disabled?: boolean;
+  /** Icon to show before label */
+  icon?: React.ReactNode;
+  /** Badge count to show after label */
+  badge?: number;
+}
+
+export interface TabsProps {
+  /** Tab items */
+  items: TabItem[];
+  /** Currently active tab ID (controlled) */
+  activeTab?: string;
+  /** Default active tab ID (uncontrolled) */
+  defaultActiveTab?: string;
+  /** Callback when tab changes */
+  onTabChange?: (tabId: string) => void;
+  /** Tab orientation */
+  orientation?: 'horizontal' | 'vertical';
+  /** Visual variant */
+  variant?: 'default' | 'underline' | 'pills' | 'cards';
+  /** Size of tabs */
+  size?: 'sm' | 'md' | 'lg';
+  /** Whether to animate content transition */
+  animated?: boolean;
+  /** Whether to lazy load content (load only when tab is active) */
+  lazyLoad?: boolean;
   /** Additional CSS classes */
   className?: string;
-  /** Whether to hide on mobile (responsive) */
-  hideOnMobile?: boolean;
+  /** Current locale for labels */
+  locale?: 'en' | 'bn';
+  /** Whether to fit tabs to full width */
+  fullWidth?: boolean;
 }
 
-export interface TableProps<T = unknown> {
-  /** Table columns configuration */
-  columns: TableColumn<T>[];
-  /** Table data */
-  data: T[];
-  /** Loading state */
-  loading?: boolean;
-  /** Empty state message */
-  emptyMessage?: string;
-  /** Empty state message in Bengali */
-  emptyMessageBn?: string;
-  /** Callback when row is clicked */
-  onRowClick?: (item: T, index: number) => void;
-  /** Current sort key */
-  sortKey?: string;
-  /** Current sort direction */
-  sortDirection?: 'asc' | 'desc';
-  /** Callback when sort changes */
-  onSort?: (key: string, direction: 'asc' | 'desc') => void;
-  /** Current locale for header labels */
-  locale?: 'en' | 'bn';
-  /** Additional CSS classes */
+// ==================== Styles ====================
+
+const variantStyles = {
+  default: {
+    tab: 'border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300',
+    activeTab: 'border-primary-500 text-primary-600 dark:text-primary-400',
+    tabList: 'border-b border-gray-200 dark:border-gray-700',
+  },
+  underline: {
+    tab: 'border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300',
+    activeTab: 'border-primary-500 text-primary-600 dark:text-primary-400',
+    tabList: 'border-b border-gray-200 dark:border-gray-700',
+  },
+  pills: {
+    tab: 'rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-300',
+    activeTab: 'bg-primary-50 text-primary-600 dark:bg-primary-950/30 dark:text-primary-400',
+    tabList: '',
+  },
+  cards: {
+    tab: 'rounded-t-lg border border-b-0 text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800',
+    activeTab: 'bg-white text-primary-600 dark:bg-gray-900 dark:text-primary-400',
+    tabList: '',
+  },
+};
+
+const sizeClasses = {
+  sm: 'px-3 py-1.5 text-sm',
+  md: 'px-4 py-2 text-sm',
+  lg: 'px-6 py-3 text-base',
+};
+
+const iconSizeClasses = {
+  sm: 'h-4 w-4',
+  md: 'h-4 w-4',
+  lg: 'h-5 w-5',
+};
+
+// ==================== Subcomponents ====================
+
+export interface TabListProps {
+  children: React.ReactNode;
+  orientation?: 'horizontal' | 'vertical';
+  variant?: 'default' | 'underline' | 'pills' | 'cards';
+  fullWidth?: boolean;
   className?: string;
-  /** Whether table has hover effect on rows */
-  hover?: boolean;
-  /** Whether table has striped rows */
-  striped?: boolean;
-  /** Whether table has bordered cells */
-  bordered?: boolean;
-  /** Compact mode (smaller padding) */
-  compact?: boolean;
-  /** Current page (for displaying row numbers) */
-  currentPage?: number;
-  /** Page size (for displaying row numbers) */
-  pageSize?: number;
 }
 
-// ==================== Alignment Classes ====================
-
-const alignClasses = {
-  left: 'text-left',
-  center: 'text-center',
-  right: 'text-right',
-};
-
-// ==================== Table Header ====================
-
-interface TableHeaderProps<T> {
-  columns: TableColumn<T>[];
-  sortKey?: string;
-  sortDirection?: 'asc' | 'desc';
-  onSort?: (key: string) => void;
-  locale?: 'en' | 'bn';
-}
-
-const TableHeader = <T,>({
-  columns,
-  sortKey,
-  sortDirection,
-  onSort,
-  locale = 'en',
-}: TableHeaderProps<T>) => {
-  const getHeaderText = (column: TableColumn<T>): string => {
-    if (locale === 'bn' && column.headerBn) {
-      return column.headerBn;
-    }
-    return column.header;
-  };
-
-  return (
-    <thead className="bg-gray-50 dark:bg-gray-800">
-      <tr>
-        {columns.map((column) => (
-          <th
-            key={column.key}
-            onClick={() => column.sortable && onSort?.(column.key)}
-            className={cn(
-              'px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400',
-              column.sortable && 'cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-700',
-              alignClasses[column.align || 'left'],
-              column.hideOnMobile && 'hidden sm:table-cell',
-              column.className
-            )}
-            style={column.width ? { width: column.width } : undefined}
-          >
-            <div className="flex items-center gap-1">
-              <span>{getHeaderText(column)}</span>
-              {column.sortable && (
-                <span className="inline-flex flex-col">
-                  <svg
-                    className={cn(
-                      'h-2 w-2',
-                      sortKey === column.key && sortDirection === 'asc'
-                        ? 'text-primary-600'
-                        : 'text-gray-400'
-                    )}
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z" />
-                  </svg>
-                  <svg
-                    className={cn(
-                      'h-2 w-2',
-                      sortKey === column.key && sortDirection === 'desc'
-                        ? 'text-primary-600'
-                        : 'text-gray-400'
-                    )}
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z" />
-                  </svg>
-                </span>
-              )}
-            </div>
-          </th>
-        ))}
-      </tr>
-    </thead>
-  );
-};
-
-// ==================== Table Body ====================
-
-interface TableBodyProps<T> {
-  columns: TableColumn<T>[];
-  data: T[];
-  loading?: boolean;
-  emptyMessage?: string;
-  emptyMessageBn?: string;
-  onRowClick?: (item: T, index: number) => void;
-  hover?: boolean;
-  striped?: boolean;
-  compact?: boolean;
-  locale?: 'en' | 'bn';
-  startIndex?: number;
-}
-
-const TableBody = <T,>({
-  columns,
-  data,
-  loading,
-  emptyMessage = 'No data available',
-  emptyMessageBn = 'কোনো ডেটা নেই',
-  onRowClick,
-  hover = true,
-  striped = false,
-  compact = false,
-  locale = 'en',
-  startIndex = 0,
-}: TableBodyProps<T>) => {
-  const emptyText = locale === 'bn' ? emptyMessageBn : emptyMessage;
-  const rowPadding = compact ? 'px-4 py-2' : 'px-6 py-4';
-
-  if (loading) {
-    return (
-      <tbody>
-        <tr>
-          <td colSpan={columns.length} className="px-6 py-12 text-center">
-            <div className="flex justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-primary-500 dark:border-gray-700" />
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    );
-  }
-
-  if (data.length === 0) {
-    return (
-      <tbody>
-        <tr>
-          <td
-            colSpan={columns.length}
-            className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
-          >
-            {emptyText}
-          </td>
-        </tr>
-      </tbody>
-    );
-  }
-
-  return (
-    <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
-      {data.map((item, index) => (
-        <tr
-          key={index}
-          onClick={() => onRowClick?.(item, index)}
-          className={cn(
-            hover && 'hover:bg-gray-50 dark:hover:bg-gray-800',
-            striped && index % 2 === 1 && 'bg-gray-50 dark:bg-gray-800/50',
-            onRowClick && 'cursor-pointer'
-          )}
-        >
-          {columns.map((column) => (
-            <td
-              key={column.key}
-              className={cn(
-                'whitespace-nowrap text-sm text-gray-900 dark:text-gray-300',
-                rowPadding,
-                alignClasses[column.align || 'left'],
-                column.hideOnMobile && 'hidden sm:table-cell',
-                column.className
-              )}
-            >
-              {column.render
-                ? column.render(item, startIndex + index)
-                : (item as Record<string, unknown>)[column.key] as string}
-            </td>
-          ))}
-        </tr>
-      ))}
-    </tbody>
-  );
-};
-
-// ==================== Main Component ====================
-
-/**
- * Table - Data table component with sorting and pagination UI
- * 
- * @example
- * // Basic table
- * <Table
- *   columns={[
- *     { key: 'name', header: 'Name' },
- *     { key: 'email', header: 'Email' },
- *     { key: 'role', header: 'Role' },
- *   ]}
- *   data={users}
- * />
- * 
- * @example
- * // With custom render and sorting
- * <Table
- *   columns={[
- *     { key: 'name', header: 'Name', sortable: true },
- *     { 
- *       key: 'status', 
- *       header: 'Status',
- *       render: (item) => <Badge variant={item.status === 'active' ? 'success' : 'default'}>
- *         {item.status}
- *       </Badge>
- *     },
- *   ]}
- *   data={users}
- *   sortKey={sortKey}
- *   sortDirection={sortDirection}
- *   onSort={handleSort}
- * />
- * 
- * @example
- * // With Bengali locale
- * <Table
- *   columns={[
- *     { key: 'name', header: 'Name', headerBn: 'নাম' },
- *     { key: 'email', header: 'Email', headerBn: 'ইমেইল' },
- *   ]}
- *   data={users}
- *   locale="bn"
- * />
- */
-export const Table = <T,>({
-  columns,
-  data,
-  loading = false,
-  emptyMessage,
-  emptyMessageBn,
-  onRowClick,
-  sortKey,
-  sortDirection,
-  onSort,
-  locale = 'en',
+export const TabList: React.FC<TabListProps> = ({
+  children,
+  orientation = 'horizontal',
+  variant = 'default',
+  fullWidth = false,
   className,
-  hover = true,
-  striped = false,
-  bordered = false,
-  compact = false,
-  currentPage = 1,
-  pageSize = 10,
-}: TableProps<T>) => {
-  const handleSort = (key: string) => {
-    if (!onSort) return;
-    const newDirection =
-      sortKey === key && sortDirection === 'asc' ? 'desc' : 'asc';
-    onSort(key, newDirection);
-  };
-
-  const startIndex = (currentPage - 1) * pageSize;
-
+}) => {
   return (
     <div
+      role="tablist"
+      aria-orientation={orientation}
       className={cn(
-        'overflow-x-auto rounded-lg',
-        bordered && 'border border-gray-200 dark:border-gray-700',
+        'flex',
+        orientation === 'horizontal' ? 'flex-row' : 'flex-col',
+        variantStyles[variant].tabList,
+        fullWidth && orientation === 'horizontal' && 'w-full',
         className
       )}
     >
-      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-        <TableHeader
-          columns={columns}
-          sortKey={sortKey}
-          sortDirection={sortDirection}
-          onSort={handleSort}
-          locale={locale}
-        />
-        <TableBody
-          columns={columns}
-          data={data}
-          loading={loading}
-          emptyMessage={emptyMessage}
-          emptyMessageBn={emptyMessageBn}
-          onRowClick={onRowClick}
-          hover={hover}
-          striped={striped}
-          compact={compact}
-          locale={locale}
-          startIndex={startIndex}
-        />
-      </table>
+      {children}
     </div>
   );
 };
 
-Table.displayName = 'Table';
+TabList.displayName = 'TabList';
 
-// ==================== Table Caption ====================
-
-export interface TableCaptionProps {
+export interface TabTriggerProps {
   children: React.ReactNode;
+  value: string;
+  isActive?: boolean;
+  disabled?: boolean;
+  onClick?: () => void;
+  id?: string;
   className?: string;
 }
 
-/**
- * TableCaption - Caption for the table
- */
-export const TableCaption: React.FC<TableCaptionProps> = ({ children, className }) => {
-  return <caption className={cn('py-2 text-left text-sm text-gray-500', className)}>{children}</caption>;
+export const TabTrigger: React.FC<TabTriggerProps> = ({
+  children,
+  value,
+  isActive,
+  disabled,
+  onClick,
+  id,
+  className,
+}) => {
+  const triggerId = id || `tab-trigger-${value}`;
+
+  return (
+    <button
+      id={triggerId}
+      role="tab"
+      type="button"
+      aria-selected={isActive}
+      aria-controls={`tab-panel-${value}`}
+      tabIndex={isActive ? 0 : -1}
+      disabled={disabled}
+      onClick={onClick}
+      className={cn(
+        'flex items-center gap-2 font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
+        variantStyles.default.tab,
+        isActive && variantStyles.default.activeTab,
+        disabled && 'cursor-not-allowed opacity-50',
+        className
+      )}
+    >
+      {children}
+    </button>
+  );
 };
 
-TableCaption.displayName = 'TableCaption';
+TabTrigger.displayName = 'TabTrigger';
+
+export interface TabContentProps {
+  children: React.ReactNode;
+  value: string;
+  isActive: boolean;
+  id?: string;
+  className?: string;
+}
+
+export const TabContent: React.FC<TabContentProps> = ({
+  children,
+  value,
+  isActive,
+  id,
+  className,
+}) => {
+  const contentId = id || `tab-panel-${value}`;
+
+  if (!isActive) {
+    return null;
+  }
+
+  return (
+    <div
+      id={contentId}
+      role="tabpanel"
+      tabIndex={0}
+      aria-labelledby={`tab-trigger-${value}`}
+      className={cn('focus:outline-none', className)}
+    >
+      {children}
+    </div>
+  );
+};
+
+TabContent.displayName = 'TabContent';
+
+// ==================== Main Component ====================
+
+/**
+ * Tabs - Accessible tabs component
+
+ * @example
+ * // Basic tabs
+ * <Tabs
+ *   items={[
+ *     { id: 'tab1', label: 'Tab 1', content: <div>Content 1</div> },
+ *     { id: 'tab2', label: 'Tab 2', content: <div>Content 2</div> },
+ *   ]}
+ *   defaultActiveTab="tab1"
+ * />
+
+ * @example
+ * // With icons and badges
+ * <Tabs
+ *   items={[
+ *     { id: 'profile', label: 'Profile', icon: <UserIcon />, content: <ProfileForm /> },
+ *     { id: 'settings', label: 'Settings', badge: 3, content: <SettingsForm /> },
+ *   ]}
+ *   variant="pills"
+ * />
+
+ * @example
+ * // Vertical tabs with Bengali labels
+ * <Tabs
+ *   items={[
+ *     { id: 'personal', label: 'Personal', labelBn: 'ব্যক্তিগত', content: <PersonalInfo /> },
+ *     { id: 'payment', label: 'Payment', labelBn: 'পেমেন্ট', content: <PaymentMethods /> },
+ *   ]}
+ *   orientation="vertical"
+ *   variant="cards"
+ *   locale="bn"
+ * />
+ */
+export const Tabs: React.FC<TabsProps> = ({
+  items,
+  activeTab: controlledActiveTab,
+  defaultActiveTab,
+  onTabChange,
+  orientation = 'horizontal',
+  variant = 'default',
+  size = 'md',
+  animated = true,
+  lazyLoad = false,
+  className,
+  locale = 'en',
+  fullWidth = false,
+}) => {
+  const [uncontrolledActiveTab, setUncontrolledActiveTab] = React.useState(
+    defaultActiveTab || items[0]?.id || ''
+  );
+  const isControlled = controlledActiveTab !== undefined;
+  const activeTab = isControlled ? controlledActiveTab : uncontrolledActiveTab;
+
+  const handleTabChange = (tabId: string) => {
+    if (isControlled) {
+      onTabChange?.(tabId);
+    } else {
+      setUncontrolledActiveTab(tabId);
+      onTabChange?.(tabId);
+    }
+  };
+
+  const getLabel = (item: TabItem): string => {
+    if (locale === 'bn' && item.labelBn) {
+      return item.labelBn;
+    }
+    return item.label;
+  };
+
+  const activeItem = items.find((item) => item.id === activeTab);
+
+  return (
+    <div
+      className={cn(
+        'flex',
+        orientation === 'vertical' ? 'flex-row gap-6' : 'flex-col',
+        className
+      )}
+    >
+      {/* Tab List */}
+      <div
+        role="tablist"
+        aria-orientation={orientation}
+        className={cn(
+          'flex',
+          orientation === 'horizontal'
+            ? cn('flex-row', fullWidth && 'w-full')
+            : 'flex-col',
+          orientation === 'horizontal' && variantStyles[variant].tabList,
+          variant === 'cards' && 'gap-0',
+          variant === 'pills' && 'gap-1',
+          variant === 'default' && 'gap-0',
+          className
+        )}
+      >
+        {items.map((item) => {
+          const isActive = activeTab === item.id;
+          const tabClasses = cn(
+            'flex items-center gap-2 font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
+            sizeClasses[size],
+            variantStyles[variant].tab,
+            isActive && variantStyles[variant].activeTab,
+            item.disabled && 'cursor-not-allowed opacity-50',
+            variant === 'cards' && !isActive && 'border border-transparent',
+            variant === 'cards' && isActive && 'border border-gray-200 dark:border-gray-700',
+            variant === 'cards' && orientation === 'horizontal' && 'mb-[-1px]',
+            variant === 'cards' && orientation === 'vertical' && 'mr-[-1px]',
+            variant === 'underline' && 'border-b-2',
+            fullWidth && orientation === 'horizontal' && 'flex-1 justify-center'
+          );
+
+          return (
+            <button
+              key={item.id}
+              role="tab"
+              type="button"
+              aria-selected={isActive}
+              aria-controls={`tab-panel-${item.id}`}
+              tabIndex={isActive ? 0 : -1}
+              disabled={item.disabled}
+              onClick={() => !item.disabled && handleTabChange(item.id)}
+              className={tabClasses}
+            >
+              {item.icon && (
+                <span className={cn('flex-shrink-0', iconSizeClasses[size])}>
+                  {item.icon}
+                </span>
+              )}
+              <span>{getLabel(item)}</span>
+              {item.badge !== undefined && item.badge > 0 && (
+                <span className="ml-1.5 rounded-full bg-gray-200 px-1.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                  {item.badge > 99 ? '99+' : item.badge}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Tab Content */}
+      <div
+        className={cn(
+          'flex-1',
+          orientation === 'vertical' && 'min-w-0',
+          animated && 'transition-all duration-200'
+        )}
+      >
+        {items.map((item) => {
+          const isActive = activeTab === item.id;
+          const shouldRender = !lazyLoad || isActive;
+
+          if (!shouldRender) return null;
+
+          return (
+            <div
+              key={item.id}
+              id={`tab-panel-${item.id}`}
+              role="tabpanel"
+              tabIndex={0}
+              aria-labelledby={`tab-trigger-${item.id}`}
+              hidden={!isActive}
+              className={cn(
+                'focus:outline-none',
+                animated && isActive && 'animate-in fade-in-0 duration-200'
+              )}
+            >
+              {item.content}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+Tabs.displayName = 'Tabs';
+
+// ==================== Compound Component API ====================
+
+export interface CompoundTabsProps {
+  children: React.ReactNode;
+  defaultValue?: string;
+  value?: string;
+  onValueChange?: (value: string) => void;
+  orientation?: 'horizontal' | 'vertical';
+  variant?: 'default' | 'underline' | 'pills' | 'cards';
+  className?: string;
+}
+
+interface TabsContextValue {
+  value: string;
+  onValueChange: (value: string) => void;
+  orientation: 'horizontal' | 'vertical';
+  variant: 'default' | 'underline' | 'pills' | 'cards';
+}
+
+const TabsContext = React.createContext<TabsContextValue | null>(null);
+
+const useTabsContext = () => {
+  const context = React.useContext(TabsContext);
+  if (!context) {
+    throw new Error('Tabs compound components must be used within TabsRoot');
+  }
+  return context;
+};
+
+export const TabsRoot: React.FC<CompoundTabsProps> = ({
+  children,
+  defaultValue,
+  value: controlledValue,
+  onValueChange,
+  orientation = 'horizontal',
+  variant = 'default',
+  className,
+}) => {
+  const [uncontrolledValue, setUncontrolledValue] = React.useState(defaultValue || '');
+  const isControlled = controlledValue !== undefined;
+  const value = isControlled ? controlledValue : uncontrolledValue;
+
+  const handleValueChange = (newValue: string) => {
+    if (!isControlled) {
+      setUncontrolledValue(newValue);
+    }
+    onValueChange?.(newValue);
+  };
+
+  return (
+    <TabsContext.Provider
+      value={{
+        value,
+        onValueChange: handleValueChange,
+        orientation,
+        variant,
+      }}
+    >
+      <div
+        className={cn(
+          'flex',
+          orientation === 'vertical' ? 'flex-row gap-6' : 'flex-col',
+          className
+        )}
+      >
+        {children}
+      </div>
+    </TabsContext.Provider>
+  );
+};
+
+TabsRoot.displayName = 'TabsRoot';
+
+export const TabsList: React.FC<{ children: React.ReactNode; className?: string }> = ({
+  children,
+  className,
+}) => {
+  const { orientation, variant } = useTabsContext();
+
+  return (
+    <div
+      role="tablist"
+      aria-orientation={orientation}
+      className={cn(
+        'flex',
+        orientation === 'horizontal' ? 'flex-row' : 'flex-col',
+        variantStyles[variant].tabList,
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
+};
+
+TabsList.displayName = 'TabsList';
+
+export interface TabsTriggerProps {
+  value: string;
+  children: React.ReactNode;
+  disabled?: boolean;
+  className?: string;
+}
+
+export const TabsTrigger: React.FC<TabsTriggerProps> = ({
+  value,
+  children,
+  disabled,
+  className,
+}) => {
+  const { value: activeValue, onValueChange, orientation, variant } = useTabsContext();
+  const isActive = activeValue === value;
+
+  return (
+    <button
+      role="tab"
+      type="button"
+      aria-selected={isActive}
+      aria-controls={`tab-panel-${value}`}
+      tabIndex={isActive ? 0 : -1}
+      disabled={disabled}
+      onClick={() => !disabled && onValueChange(value)}
+      className={cn(
+        'flex items-center gap-2 font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
+        sizeClasses.md,
+        variantStyles[variant].tab,
+        isActive && variantStyles[variant].activeTab,
+        disabled && 'cursor-not-allowed opacity-50',
+        variant === 'cards' && !isActive && 'border border-transparent',
+        variant === 'cards' && isActive && 'border border-gray-200 dark:border-gray-700',
+        variant === 'cards' && orientation === 'horizontal' && 'mb-[-1px]',
+        variant === 'cards' && orientation === 'vertical' && 'mr-[-1px]',
+        variant === 'underline' && 'border-b-2',
+        className
+      )}
+    >
+      {children}
+    </button>
+  );
+};
+
+TabsTrigger.displayName = 'TabsTrigger';
+
+export const TabsContent: React.FC<{ value: string; children: React.ReactNode; className?: string }> = ({
+  value,
+  children,
+  className,
+}) => {
+  const { value: activeValue } = useTabsContext();
+  const isActive = activeValue === value;
+
+  if (!isActive) return null;
+
+  return (
+    <div
+      id={`tab-panel-${value}`}
+      role="tabpanel"
+      tabIndex={0}
+      aria-labelledby={`tab-trigger-${value}`}
+      className={cn('flex-1 focus:outline-none', className)}
+    >
+      {children}
+    </div>
+  );
+};
+
+TabsContent.displayName = 'TabsContent';
+
+// ==================== Type Exports ====================
+
+export type { TabItem, TabsProps, CompoundTabsProps, TabsTriggerProps };
