@@ -1,13 +1,13 @@
 /**
  * useDebounce Hook - Debounce value changes
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module shared-ui/src/hooks/useDebounce
- * 
+ *
  * RULES:
  * ✅ ONLY UI debounce hook - NO business logic
  * ✅ NO API calls, auth logic
- * ✅ Pure React hook
+ * ✅ Pure React hook with AbortController support
  * ✅ TypeScript strict
  */
 
@@ -24,6 +24,16 @@ export interface UseDebounceOptions {
   leading?: boolean;
   /** Trailing edge execution (execute after delay) */
   trailing?: boolean;
+  /** AbortSignal for cancelling pending debounce */
+  signal?: AbortSignal;
+}
+
+export interface DebouncedFunction<T extends (...args: unknown[]) => unknown> {
+  (...args: Parameters<T>): void;
+  /** Cancel any pending debounced execution */
+  cancel: () => void;
+  /** Immediately execute any pending debounced execution */
+  flush: () => void;
 }
 
 // ==================== useDebounce ====================
@@ -31,31 +41,31 @@ export interface UseDebounceOptions {
 /**
  * Hook for debouncing a value
  * Useful for search inputs, form fields, etc.
- * 
+ *
  * @example
  * // Search input with debounce
  * const [searchTerm, setSearchTerm] = useState('');
  * const debouncedSearch = useDebounce(searchTerm, 500);
- * 
+ *
  * useEffect(() => {
  *   if (debouncedSearch) {
  *     searchAPI(debouncedSearch);
  *   }
  * }, [debouncedSearch]);
- * 
+ *
  * @example
- * // With custom options
- * const debouncedValue = useDebounce(value, { delay: 300, leading: true });
+ * // With AbortController for cleanup
+ * const abortController = new AbortController();
+ * const debouncedValue = useDebounce(value, { delay: 300, signal: abortController.signal });
  */
 export function useDebounce<T>(value: T, delayOrOptions: number | UseDebounceOptions = 500): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-  
   const options: UseDebounceOptions = typeof delayOrOptions === 'number'
     ? { delay: delayOrOptions, leading: false, trailing: true }
     : { delay: 500, leading: false, trailing: true, ...delayOrOptions };
-  
-  const { delay = 500, leading = false, trailing = true, maxWait } = options;
-  
+
+  const { delay = 500, leading = false, trailing = true, maxWait, signal } = options;
+
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const maxWaitTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const leadingCalledRef = useRef(false);
@@ -66,10 +76,29 @@ export function useDebounce<T>(value: T, delayOrOptions: number | UseDebounceOpt
     valueRef.current = value;
   }, [value]);
 
+  // Handle AbortSignal
+  useEffect(() => {
+    if (!signal) return;
+
+    const abortHandler = () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      if (maxWaitTimeoutRef.current) {
+        clearTimeout(maxWaitTimeoutRef.current);
+        maxWaitTimeoutRef.current = null;
+      }
+    };
+
+    signal.addEventListener('abort', abortHandler);
+    return () => signal.removeEventListener('abort', abortHandler);
+  }, [signal]);
+
   // Handle maxWait timeout
   useEffect(() => {
     if (!maxWait) return;
-    
+
     const maxWaitHandler = () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -80,52 +109,59 @@ export function useDebounce<T>(value: T, delayOrOptions: number | UseDebounceOpt
       }
       leadingCalledRef.current = false;
     };
-    
+
     if (maxWaitTimeoutRef.current) {
       clearTimeout(maxWaitTimeoutRef.current);
     }
+
+    // Don't set maxWait if signal is aborted
+    if (signal?.aborted) return;
+
     maxWaitTimeoutRef.current = setTimeout(maxWaitHandler, maxWait);
-    
+
     return () => {
       if (maxWaitTimeoutRef.current) {
         clearTimeout(maxWaitTimeoutRef.current);
       }
     };
-  }, [value, maxWait, trailing]);
+  }, [value, maxWait, trailing, signal]);
 
   useEffect(() => {
+    // Don't proceed if signal is aborted
+    if (signal?.aborted) return;
+
     // Leading edge execution
     if (leading && !leadingCalledRef.current) {
       setDebouncedValue(value);
       leadingCalledRef.current = true;
-      
-      // Reset leading flag after delay
+
       const resetTimer = setTimeout(() => {
         leadingCalledRef.current = false;
       }, delay);
-      
+
       return () => clearTimeout(resetTimer);
     }
-    
+
     // Trailing edge execution (standard debounce)
     if (trailing) {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
-      
+
       timeoutRef.current = setTimeout(() => {
+        if (signal?.aborted) return;
         setDebouncedValue(value);
         leadingCalledRef.current = false;
         timeoutRef.current = null;
       }, delay);
     }
-    
+
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [value, delay, leading, trailing]);
+  }, [value, delay, leading, trailing, signal]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -146,25 +182,31 @@ export function useDebounce<T>(value: T, delayOrOptions: number | UseDebounceOpt
 
 /**
  * Hook for debouncing a callback function
- * 
+ *
  * @example
  * const debouncedSearch = useDebouncedCallback((query: string) => {
  *   searchAPI(query);
  * }, 500);
- * 
+ *
  * // Usage
  * onChange={(e) => debouncedSearch(e.target.value)}
+ *
+ * // With cancel and flush
+ * const debounced = useDebouncedCallback(apiCall, 300);
+ * debounced('test');
+ * debounced.cancel(); // Cancel pending execution
+ * debounced.flush(); // Immediately execute pending
  */
 export function useDebouncedCallback<T extends (...args: unknown[]) => unknown>(
   callback: T,
   delayOrOptions: number | UseDebounceOptions = 500
-): (...args: Parameters<T>) => void {
+): DebouncedFunction<T> {
   const options: UseDebounceOptions = typeof delayOrOptions === 'number'
     ? { delay: delayOrOptions, leading: false, trailing: true }
     : { delay: 500, leading: false, trailing: true, ...delayOrOptions };
-  
-  const { delay = 500, leading = false, trailing = true, maxWait } = options;
-  
+
+  const { delay = 500, leading = false, trailing = true, maxWait, signal } = options;
+
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const maxWaitTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const leadingCalledRef = useRef(false);
@@ -177,47 +219,73 @@ export function useDebouncedCallback<T extends (...args: unknown[]) => unknown>(
   }, [callback]);
 
   const invokeCallback = useCallback(() => {
-    if (lastArgsRef.current) {
+    if (lastArgsRef.current && !signal?.aborted) {
       callbackRef.current(...lastArgsRef.current);
       lastArgsRef.current = undefined;
     }
     leadingCalledRef.current = false;
+  }, [signal]);
+
+  const cancel = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    if (maxWaitTimeoutRef.current) {
+      clearTimeout(maxWaitTimeoutRef.current);
+      maxWaitTimeoutRef.current = null;
+    }
+    lastArgsRef.current = undefined;
+    leadingCalledRef.current = false;
   }, []);
+
+  const flush = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    if (lastArgsRef.current) {
+      invokeCallback();
+    }
+  }, [invokeCallback]);
 
   const debouncedCallback = useCallback(
     (...args: Parameters<T>) => {
+      // Don't proceed if signal is aborted
+      if (signal?.aborted) return;
+
       lastArgsRef.current = args;
-      
+
       // Leading edge execution
       if (leading && !leadingCalledRef.current) {
         callbackRef.current(...args);
         leadingCalledRef.current = true;
         lastArgsRef.current = undefined;
-        
+
         const resetTimer = setTimeout(() => {
           leadingCalledRef.current = false;
         }, delay);
-        
+
         timeoutRef.current = resetTimer as unknown as NodeJS.Timeout;
         return;
       }
-      
+
       // Trailing edge execution
       if (trailing) {
         if (timeoutRef.current) {
           clearTimeout(timeoutRef.current);
         }
-        
+
         timeoutRef.current = setTimeout(invokeCallback, delay);
       }
     },
-    [leading, trailing, delay, invokeCallback]
+    [leading, trailing, delay, invokeCallback, signal]
   );
 
   // Handle maxWait
   useEffect(() => {
-    if (!maxWait) return;
-    
+    if (!maxWait || signal?.aborted) return;
+
     const maxWaitHandler = () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -225,20 +293,32 @@ export function useDebouncedCallback<T extends (...args: unknown[]) => unknown>(
       }
       invokeCallback();
     };
-    
+
     if (maxWaitTimeoutRef.current) {
       clearTimeout(maxWaitTimeoutRef.current);
     }
     maxWaitTimeoutRef.current = setTimeout(maxWaitHandler, maxWait);
-    
+
     return () => {
       if (maxWaitTimeoutRef.current) {
         clearTimeout(maxWaitTimeoutRef.current);
       }
     };
-  }, [maxWait, invokeCallback]);
+  }, [maxWait, invokeCallback, signal]);
 
-  // Cleanup
+  // Handle AbortSignal
+  useEffect(() => {
+    if (!signal) return;
+
+    const abortHandler = () => {
+      cancel();
+    };
+
+    signal.addEventListener('abort', abortHandler);
+    return () => signal.removeEventListener('abort', abortHandler);
+  }, [signal, cancel]);
+
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {
@@ -250,7 +330,12 @@ export function useDebouncedCallback<T extends (...args: unknown[]) => unknown>(
     };
   }, []);
 
-  return debouncedCallback;
+  // Attach cancel and flush to the debounced function
+  const debounced = debouncedCallback as DebouncedFunction<T>;
+  debounced.cancel = cancel;
+  debounced.flush = flush;
+
+  return debounced;
 }
 
 // ==================== useThrottle ====================
@@ -262,20 +347,24 @@ export interface UseThrottleOptions {
   leading?: boolean;
   /** Trailing edge execution */
   trailing?: boolean;
+  /** AbortSignal for cancelling pending throttle */
+  signal?: AbortSignal;
 }
 
 /**
  * Hook for throttling a value (limits update frequency)
- * 
+ *
  * @example
  * const throttledPosition = useThrottle(scrollPosition, 100);
  */
-export function useThrottle<T>(value: T, delay: number = 500): T {
+export function useThrottle<T>(value: T, delay: number = 500, signal?: AbortSignal): T {
   const [throttledValue, setThrottledValue] = useState<T>(value);
   const lastRun = useRef<number>(Date.now());
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    if (signal?.aborted) return;
+
     const now = Date.now();
     const timeSinceLastRun = now - lastRun.current;
 
@@ -287,6 +376,7 @@ export function useThrottle<T>(value: T, delay: number = 500): T {
         clearTimeout(timeoutRef.current);
       }
       timeoutRef.current = setTimeout(() => {
+        if (signal?.aborted) return;
         setThrottledValue(value);
         lastRun.current = Date.now();
         timeoutRef.current = null;
@@ -298,11 +388,120 @@ export function useThrottle<T>(value: T, delay: number = 500): T {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [value, delay]);
+  }, [value, delay, signal]);
 
   return throttledValue;
 }
 
+/**
+ * Hook for throttling a callback function
+ *
+ * @example
+ * const throttledScroll = useThrottleCallback(() => {
+ *   console.log('Scroll position:', window.scrollY);
+ * }, 100);
+ *
+ * window.addEventListener('scroll', throttledScroll);
+ */
+export function useThrottleCallback<T extends (...args: unknown[]) => unknown>(
+  callback: T,
+  delay: number = 500,
+  options?: { leading?: boolean; trailing?: boolean; signal?: AbortSignal }
+): DebouncedFunction<T> {
+  const { leading = true, trailing = false, signal } = options || {};
+
+  const lastRun = useRef<number>(0);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastArgsRef = useRef<Parameters<T>>();
+  const callbackRef = useRef(callback);
+
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
+
+  const invokeCallback = useCallback(() => {
+    if (lastArgsRef.current && !signal?.aborted) {
+      callbackRef.current(...lastArgsRef.current);
+      lastArgsRef.current = undefined;
+    }
+  }, [signal]);
+
+  const cancel = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    lastArgsRef.current = undefined;
+  }, []);
+
+  const flush = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    if (lastArgsRef.current) {
+      invokeCallback();
+    }
+  }, [invokeCallback]);
+
+  const throttledCallback = useCallback(
+    (...args: Parameters<T>) => {
+      if (signal?.aborted) return;
+
+      const now = Date.now();
+      const timeSinceLastRun = now - lastRun.current;
+
+      lastArgsRef.current = args;
+
+      if (timeSinceLastRun >= delay) {
+        if (leading) {
+          callbackRef.current(...args);
+          lastArgsRef.current = undefined;
+        }
+        lastRun.current = now;
+
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+
+        if (trailing) {
+          timeoutRef.current = setTimeout(() => {
+            invokeCallback();
+            lastRun.current = Date.now();
+            timeoutRef.current = null;
+          }, delay);
+        }
+      } else if (trailing && !timeoutRef.current) {
+        timeoutRef.current = setTimeout(() => {
+          invokeCallback();
+          lastRun.current = Date.now();
+          timeoutRef.current = null;
+        }, delay - timeSinceLastRun);
+      }
+    },
+    [delay, leading, trailing, invokeCallback, signal]
+  );
+
+  // Handle AbortSignal
+  useEffect(() => {
+    if (!signal) return;
+
+    const abortHandler = () => {
+      cancel();
+    };
+
+    signal.addEventListener('abort', abortHandler);
+    return () => signal.removeEventListener('abort', abortHandler);
+  }, [signal, cancel]);
+
+  const throttled = throttledCallback as DebouncedFunction<T>;
+  throttled.cancel = cancel;
+  throttled.flush = flush;
+
+  return throttled;
+}
+
 // ==================== Type Exports ====================
 
-export type { UseDebounceOptions };
+export type { UseDebounceOptions, DebouncedFunction };
