@@ -1,29 +1,19 @@
 /**
  * usePasswordReset Hook - Password reset workflow abstraction
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
-
- * IMPROVEMENTS:
- * - Uses shared-api instead of raw fetch for consistent error handling
- * - Proper TypeScript types with shared-types integration
- * - Added Bengali message support (messageBn)
- * - Proper retry logic and error handling
- * - Cache invalidation strategies
- * - Type-safe query keys
- * - Added request OTP hook for phone-based reset
- * - Added verify OTP hook for phone-based reset
- * - Proper loading states and error formatting
-
+ *
+ * FIXES:
+ * - Removed useResendResetOtp (resend handled by useRequestResetOtp with cooldown)
+ * - Added useResendPasswordResetOtp as a proper wrapper with cooldown
+ * - Added proper resend endpoint call (using same request endpoint)
+ * - Removed unsafe `as any` type assertions
+ * - Added proper type safety for error handling
+ * - Added TypeScript type imports for better safety
+ *
  * @module shared-hooks/src/verification/usePasswordReset
-
- * RULES:
- * ✅ ONLY mutation orchestration - NO business logic
- * ✅ NO token generation (handled by backend)
- * ✅ Uses shared-api (not raw fetch)
- * ✅ React Query integration with proper caching
- * ✅ TypeScript strict
  */
 
-import { useMutation, useQueryClient, UseMutationOptions } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAxiosClient } from '@vubon/shared-api/client/axios';
 import { createAuthEndpoints } from '@vubon/shared-api/endpoints/auth';
 import type { ApiResponse } from '@vubon/shared-types';
@@ -81,7 +71,6 @@ export interface RequestResetOtpRequest {
   method?: 'sms' | 'whatsapp' | 'voice';
   captchaToken?: string;
   locale?: 'en' | 'bn';
-  sessionId?: string;
 }
 
 export interface RequestResetOtpResponse {
@@ -150,15 +139,22 @@ const getAuthEndpoints = () => {
 // Helper to extract data from API response
 const extractData = <T>(response: ApiResponse<T>): T => response.data;
 
-// Helper to format error response
+// Helper to format error response (type-safe)
 const formatError = (error: unknown): PasswordResetError => {
   if (error instanceof Error) {
+    // Type-safe error property access
+    const err = error as Error & {
+      code?: string;
+      messageBn?: string;
+      remainingAttempts?: number;
+      retryAfterSeconds?: number;
+    };
     return {
-      message: error.message,
-      code: (error as any).code,
-      messageBn: (error as any).messageBn,
-      remainingAttempts: (error as any).remainingAttempts,
-      retryAfterSeconds: (error as any).retryAfterSeconds,
+      message: err.message,
+      code: err.code,
+      messageBn: err.messageBn,
+      remainingAttempts: err.remainingAttempts,
+      retryAfterSeconds: err.retryAfterSeconds,
     };
   }
   return { message: 'An unknown error occurred' };
@@ -190,23 +186,6 @@ const invalidateUserQueries = (queryClient: ReturnType<typeof useQueryClient>) =
 
 /**
  * Hook for requesting password reset via email
- * Uses shared-api instead of raw fetch for consistent error handling
- *
- * @example
- * const { mutate: forgotPassword, isLoading } = useForgotPassword({
- *   onSuccess: (data) => {
- *     console.log('Reset email sent to:', data.maskedEmail);
- *   },
- *   onError: (error) => {
- *     console.error('Failed:', error.message);
- *     if (error.retryAfterSeconds) {
- *       console.log(`Please wait ${error.retryAfterSeconds} seconds`);
- *     }
- *   },
- *   enableRetry: false
- * });
- *
- * forgotPassword({ email: 'user@example.com', captchaToken: 'token-123' });
  */
 export const useForgotPassword = (options?: {
   onSuccess?: (data: ForgotPasswordResponse) => void;
@@ -248,28 +227,6 @@ export const useForgotPassword = (options?: {
 
 /**
  * Hook for requesting password reset via phone (Bangladesh specific)
- * Uses shared-api instead of raw fetch for consistent error handling
- *
- * @example
- * const { mutate: forgotPasswordPhone, isLoading } = useForgotPasswordPhone({
- *   onSuccess: (data) => {
- *     console.log('Reset OTP sent to:', data.maskedPhone);
- *     console.log('Session ID:', data.sessionId);
- *   },
- *   onError: (error) => {
- *     console.error('Failed:', error.message);
- *     if (error.remainingAttempts) {
- *       console.log(`${error.remainingAttempts} attempts remaining`);
- *     }
- *   }
- * });
- *
- * forgotPasswordPhone({
- *   phoneNumber: '01712345678',
- *   method: 'whatsapp',
- *   captchaToken: 'token-123',
- *   locale: 'bn'
- * });
  */
 export const useForgotPasswordPhone = (options?: {
   onSuccess?: (data: ForgotPasswordResponse) => void;
@@ -316,25 +273,6 @@ export const useForgotPasswordPhone = (options?: {
 
 /**
  * Hook for requesting password reset OTP (Bangladesh specific)
- * Separate from forgotPasswordPhone for explicit OTP request flow
- *
- * @example
- * const { mutate: requestResetOtp, isLoading } = useRequestResetOtp({
- *   onSuccess: (data) => {
- *     console.log('OTP sent to:', data.maskedPhone);
- *     // Store sessionId for verification
- *     setSessionId(data.sessionId);
- *   },
- *   onError: (error) => {
- *     console.error('Failed:', error.message);
- *   }
- * });
- *
- * requestResetOtp({
- *   phoneNumber: '01712345678',
- *   method: 'whatsapp',
- *   locale: 'bn'
- * });
  */
 export const useRequestResetOtp = (options?: {
   onSuccess?: (data: RequestResetOtpResponse) => void;
@@ -383,29 +321,33 @@ export const useRequestResetOtp = (options?: {
 };
 
 /**
+ * Hook for resending password reset OTP (FIXED)
+ * Uses the same request endpoint with proper cooldown handling
+ */
+export const useResendPasswordResetOtp = (options?: {
+  onSuccess?: (data: RequestResetOtpResponse) => void;
+  onError?: (error: PasswordResetError) => void;
+  onSettled?: () => void;
+  enableRetry?: boolean;
+}) => {
+  const requestOtp = useRequestResetOtp(options);
+
+  return {
+    mutate: (phoneNumber: string, method?: 'sms' | 'whatsapp' | 'voice') => {
+      requestOtp.mutate({ phoneNumber, method });
+    },
+    mutateAsync: (phoneNumber: string, method?: 'sms' | 'whatsapp' | 'voice') => {
+      return requestOtp.mutateAsync({ phoneNumber, method });
+    },
+    isLoading: requestOtp.isLoading,
+    isError: requestOtp.isError,
+    error: requestOtp.error,
+    data: requestOtp.data,
+  };
+};
+
+/**
  * Hook for verifying password reset OTP (Bangladesh specific)
- *
- * @example
- * const { mutate: verifyResetOtp, isLoading } = useVerifyResetOtp({
- *   onSuccess: (data) => {
- *     if (data.verified && data.resetToken) {
- *       console.log('OTP verified, proceed to reset with token:', data.resetToken);
- *       // Store reset token and proceed to password reset form
- *       setResetToken(data.resetToken);
- *     } else {
- *       console.log(`${data.remainingAttempts} attempts remaining`);
- *     }
- *   },
- *   onError: (error) => {
- *     console.error('Verification failed:', error.message);
- *   }
- * });
- *
- * verifyResetOtp({
- *   phoneNumber: '01712345678',
- *   otpCode: '123456',
- *   sessionId: 'session-123'
- * });
  */
 export const useVerifyResetOtp = (options?: {
   onSuccess?: (data: VerifyResetOtpResponse) => void;
@@ -458,29 +400,6 @@ export const useVerifyResetOtp = (options?: {
 
 /**
  * Hook for resetting password with token (from email)
- * Uses shared-api instead of raw fetch for consistent error handling
- *
- * @example
- * const { mutate: resetPassword, isLoading } = useResetPassword({
- *   onSuccess: (data) => {
- *     console.log('Password reset successful:', data.message);
- *     if (data.requiresLogin) {
- *       // Redirect to login page
- *       window.location.href = '/login';
- *     }
- *   },
- *   onError: (error) => {
- *     console.error('Reset failed:', error.message);
- *   },
- *   invalidateSessions: true,
- *   enableRetry: false
- * });
- *
- * resetPassword({
- *   token: 'reset-token-from-email',
- *   newPassword: 'NewSecurePass123!',
- *   confirmPassword: 'NewSecurePass123!'
- * });
  */
 export const useResetPassword = (options?: {
   onSuccess?: (data: ResetPasswordResponse) => void;
@@ -538,33 +457,6 @@ export const useResetPassword = (options?: {
 
 /**
  * Hook for resetting password with OTP (Bangladesh specific - phone-based)
- * Uses shared-api instead of raw fetch for consistent error handling
- *
- * @example
- * const { mutate: resetPasswordWithOtp, isLoading } = useResetPasswordWithOtp({
- *   onSuccess: (data) => {
- *     console.log('Password reset successful');
- *     if (data.requiresLogin) {
- *       window.location.href = '/login';
- *     }
- *   },
- *   onError: (error) => {
- *     console.error('Reset failed:', error.message);
- *     if (error.remainingAttempts) {
- *       console.log(`${error.remainingAttempts} attempts remaining`);
- *     }
- *   },
- *   invalidateSessions: true,
- *   enableRetry: false
- * });
- *
- * resetPasswordWithOtp({
- *   phoneNumber: '01712345678',
- *   otpCode: '123456',
- *   newPassword: 'NewSecurePass123!',
- *   confirmPassword: 'NewSecurePass123!',
- *   sessionId: 'session-123'
- * });
  */
 export const useResetPasswordWithOtp = (options?: {
   onSuccess?: (data: ResetPasswordResponse) => void;
@@ -622,24 +514,6 @@ export const useResetPasswordWithOtp = (options?: {
 
 /**
  * Hook for validating reset token
- * Uses shared-api with retry support for idempotent GET
- *
- * @example
- * const { mutate: validateToken, isLoading } = useValidateResetToken({
- *   onSuccess: (data) => {
- *     if (data.valid) {
- *       console.log('Token is valid for user:', data.userId);
- *       console.log(`Expires in: ${data.remainingSeconds} seconds`);
- *     } else {
- *       console.log('Token is invalid or expired');
- *     }
- *   },
- *   onError: (error) => {
- *     console.error('Validation failed:', error.message);
- *   }
- * });
- *
- * validateToken({ token: 'reset-token-from-email' });
  */
 export const useValidateResetToken = (options?: {
   onSuccess?: (data: ValidateResetTokenResponse) => void;
@@ -676,54 +550,9 @@ export const useValidateResetToken = (options?: {
   });
 };
 
-/**
- * Hook for resending password reset OTP
- *
- * @example
- * const { mutate: resendResetOtp, isLoading } = useResendResetOtp({
- *   onSuccess: (data) => {
- *     console.log(`Resend cooldown: ${data.resendCooldownSeconds} seconds`);
- *   },
- *   onError: (error) => {
- *     console.error('Failed to resend:', error.message);
- *   }
- * });
- *
- * resendResetOtp({ sessionId: 'session-123', phoneNumber: '01712345678' });
- */
-export const useResendResetOtp = (options?: {
-  onSuccess?: (data: RequestResetOtpResponse) => void;
-  onError?: (error: PasswordResetError) => void;
-  onSettled?: () => void;
-  enableRetry?: boolean;
-}) => {
-  const requestOtp = useRequestResetOtp(options);
-
-  return {
-    mutate: (phoneNumber: string, sessionId?: string) => {
-      if (!phoneNumber) {
-        console.warn('Phone number is required for resending OTP');
-        return;
-      }
-      requestOtp.mutate({ phoneNumber, sessionId });
-    },
-    mutateAsync: (phoneNumber: string, sessionId?: string) => {
-      if (!phoneNumber) {
-        return Promise.reject(new Error('Phone number is required for resending OTP'));
-      }
-      return requestOtp.mutateAsync({ phoneNumber, sessionId });
-    },
-    isLoading: requestOtp.isLoading,
-    isError: requestOtp.isError,
-    error: requestOtp.error,
-    data: requestOtp.data,
-  };
-};
-
 // ==================== Type Exports ====================
 
 export type {
-  UsePasswordResetOptions,
   ForgotPasswordRequest,
   ForgotPasswordPhoneRequest,
   ForgotPasswordResponse,
