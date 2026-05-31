@@ -15,7 +15,7 @@
 import { useMutation, useQueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { getAxiosClient } from '@vubon/shared-api/client/axios';
 import { createUserEndpoints } from '@vubon/shared-api/endpoints/user';
-import { UserProfileUpdateSchema } from '@vubon/auth-schemas';
+import { UpdateUserProfileSchema } from '@vubon/auth-schemas';
 import type { ApiResponse } from '@vubon/shared-types';
 
 // ==================== Types ====================
