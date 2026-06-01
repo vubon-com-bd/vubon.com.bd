@@ -33,26 +33,38 @@ import {
   MinLength, 
   MaxLength,
   Matches,
-  ValidateIf,
   IsUUID,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
+// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট
+import { 
+  PHONE_PATTERNS, 
+  PASSWORD_PATTERNS,
+  SUPPORTED_LANGUAGES,
+  NAME_PATTERNS,
+} from '@vubon/shared-constants';
+
+// ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট
+import type { 
+  UserPreferences, 
+  SupportedLanguage,
+  District,
+  Upazila,
+} from '@vubon/shared-types';
+
 // ============================================================
-// Supported Languages
+// Re-export for convenience (maintains backward compatibility)
 // ============================================================
 
-export const SUPPORTED_LANGUAGES = ['en', 'bn'] as const;
-export type SupportedLanguage = typeof SUPPORTED_LANGUAGES[number];
+export { SUPPORTED_LANGUAGES };
+export type { SupportedLanguage, UserPreferences };
 
 // ============================================================
-// Request DTOs
+// User Preferences DTO (using shared type)
 // ============================================================
 
-/**
- * User Preferences DTO
- */
-export class UserPreferencesDto {
+export class UserPreferencesDto implements UserPreferences {
   @ApiPropertyOptional({
     description: 'Email notifications enabled',
     example: true,
@@ -156,6 +168,10 @@ export class UserPreferencesDto {
   autoApplyCoupons?: boolean;
 }
 
+// ============================================================
+// Request DTOs
+// ============================================================
+
 /**
  * Update Profile Request DTO
  * For non-sensitive profile updates
@@ -186,7 +202,7 @@ export class UpdateProfileDto {
   @IsString({ message: 'Full name must be a string' })
   @MinLength(2, { message: 'Full name must be at least 2 characters long' })
   @MaxLength(100, { message: 'Full name cannot exceed 100 characters' })
-  @Matches(/^[a-zA-Z\u0980-\u09FF\s.'-]+$/, {
+  @Matches(NAME_PATTERNS.FULL_NAME, {
     message: 'Full name can only contain letters, spaces, dots, hyphens, and apostrophes',
   })
   fullName?: string;
@@ -201,6 +217,9 @@ export class UpdateProfileDto {
   @IsString({ message: 'Display name must be a string' })
   @MinLength(2, { message: 'Display name must be at least 2 characters long' })
   @MaxLength(50, { message: 'Display name cannot exceed 50 characters' })
+  @Matches(NAME_PATTERNS.DISPLAY_NAME, {
+    message: 'Display name can contain letters, numbers, spaces, and underscores',
+  })
   displayName?: string;
 
   @ApiPropertyOptional({
@@ -240,7 +259,7 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsString({ message: 'Preferred district must be a string' })
   @MaxLength(50, { message: 'Preferred district cannot exceed 50 characters' })
-  preferredDistrict?: string;
+  preferredDistrict?: District;
 
   @ApiPropertyOptional({
     description: 'Preferred upazila (Bangladesh)',
@@ -250,7 +269,7 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsString({ message: 'Preferred upazila must be a string' })
   @MaxLength(50, { message: 'Preferred upazila cannot exceed 50 characters' })
-  preferredUpazila?: string;
+  preferredUpazila?: Upazila;
 
   @ApiPropertyOptional({
     description: 'User preferences',
@@ -266,8 +285,8 @@ export class UpdateProfileDto {
     timezone?: string,
     language?: SupportedLanguage,
     displayName?: string,
-    preferredDistrict?: string,
-    preferredUpazila?: string,
+    preferredDistrict?: District,
+    preferredUpazila?: Upazila,
     preferences?: UserPreferencesDto
   ) {
     this.fullName = fullName;
@@ -312,6 +331,7 @@ export class UpdateEmailDto {
   })
   @IsString({ message: 'Current password must be a string' })
   @IsNotEmpty({ message: 'Current password is required' })
+  @MinLength(8, { message: 'Current password must be at least 8 characters' })
   currentPassword: string;
 
   @ApiPropertyOptional({
@@ -347,11 +367,11 @@ export class UpdatePhoneDto {
     description: 'New phone number (E.164 format)',
     example: '+8801987654321',
     required: true,
-    pattern: '^\\+8801[3-9]\\d{8}$',
+    pattern: PHONE_PATTERNS.BANGLADESH_E164,
   })
   @IsString({ message: 'Phone number must be a string' })
   @IsNotEmpty({ message: 'New phone number is required' })
-  @Matches(/^\+8801[3-9]\d{8}$/, {
+  @Matches(PHONE_PATTERNS.BANGLADESH_E164, {
     message: 'Phone number must be in E.164 format (e.g., +8801712345678)',
   })
   newPhone: string;
@@ -365,6 +385,7 @@ export class UpdatePhoneDto {
   })
   @IsString({ message: 'Current password must be a string' })
   @IsNotEmpty({ message: 'Current password is required' })
+  @MinLength(8, { message: 'Current password must be at least 8 characters' })
   currentPassword: string;
 
   @ApiPropertyOptional({
@@ -734,4 +755,4 @@ export class VerifyPhoneChangeResponseDto {
 // Type Exports
 // ============================================================
 
-export type { UserPreferencesDto as UserPreferencesDtoType };
+export type { UserPreferences as UserPreferencesDtoType };
