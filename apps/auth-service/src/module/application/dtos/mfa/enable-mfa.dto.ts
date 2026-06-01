@@ -30,25 +30,20 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
+// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট - Phone number pattern
+import { PHONE_PATTERNS, MFA_TYPES } from '@vubon/shared-constants';
+// ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট - MFA type enum values
+import type { MFAType } from '@vubon/shared-types';
+
 // ============================================================
 // MFA Type Enum (Bangladesh specific)
 // ============================================================
 
 /**
  * Multi-Factor Authentication types
+ * Values are re-exported from shared-constants for consistency
  */
-export enum MFAType {
-  TOTP = 'TOTP',              // Time-based One-Time Password (Google Authenticator)
-  SMS = 'SMS',                // SMS OTP
-  EMAIL = 'EMAIL',            // Email OTP
-  WEBAUTHN = 'WEBAUTHN',      // Biometric/Passkey
-  WHATSAPP = 'WHATSAPP',      // WhatsApp OTP (Bangladesh specific)
-  IMO = 'IMO',                // Imo OTP (Bangladesh specific)
-  BKASH_PIN = 'BKASH_PIN',    // bKash PIN as MFA (Bangladesh specific)
-  NAGAD_PIN = 'NAGAD_PIN',    // Nagad PIN as MFA (Bangladesh specific)
-  ROCKET_PIN = 'ROCKET_PIN',  // Rocket PIN as MFA (Bangladesh specific)
-  VOICE_CALL = 'VOICE_CALL',  // Voice call OTP (for feature phones)
-}
+export { MFA_TYPES as MFATypeValues };
 
 // ============================================================
 // Request DTOs
@@ -86,22 +81,22 @@ export enum MFAType {
 export class EnableMfaDto {
   @ApiProperty({
     description: 'Type of MFA to enable',
-    enum: MFAType,
-    example: MFAType.TOTP,
+    enum: MFA_TYPES,
+    example: MFA_TYPES.TOTP,
     required: true,
   })
-  @IsEnum(MFAType, { message: 'Invalid MFA type' })
+  @IsEnum(MFA_TYPES, { message: `Invalid MFA type. Must be one of: ${Object.values(MFA_TYPES).join(', ')}` })
   @IsNotEmpty({ message: 'MFA type is required' })
   type: MFAType;
 
   @ApiPropertyOptional({
     description: 'Phone number for SMS/WhatsApp/Voice MFA (required for these types)',
     example: '+8801712345678',
-    pattern: '^\\+8801[3-9]\\d{8}$',
+    pattern: PHONE_PATTERNS.BANGLADESH_E164,
   })
   @IsOptional()
   @IsString({ message: 'Phone must be a string' })
-  @Matches(/^\+8801[3-9]\d{8}$/, {
+  @Matches(PHONE_PATTERNS.BANGLADESH_E164, {
     message: 'Phone number must be in E.164 format (e.g., +8801712345678)',
   })
   phone?: string;
@@ -109,11 +104,11 @@ export class EnableMfaDto {
   @ApiPropertyOptional({
     description: 'bKash account number (required for BKASH_PIN)',
     example: '+8801712345678',
-    pattern: '^\\+8801[3-9]\\d{8}$',
+    pattern: PHONE_PATTERNS.BANGLADESH_E164,
   })
   @IsOptional()
   @IsString({ message: 'bKash account must be a string' })
-  @Matches(/^\+8801[3-9]\d{8}$/, {
+  @Matches(PHONE_PATTERNS.BANGLADESH_E164, {
     message: 'bKash account must be in E.164 format (e.g., +8801712345678)',
   })
   bkashAccount?: string;
@@ -121,11 +116,11 @@ export class EnableMfaDto {
   @ApiPropertyOptional({
     description: 'Nagad account number (required for NAGAD_PIN)',
     example: '+8801712345678',
-    pattern: '^\\+8801[3-9]\\d{8}$',
+    pattern: PHONE_PATTERNS.BANGLADESH_E164,
   })
   @IsOptional()
   @IsString({ message: 'Nagad account must be a string' })
-  @Matches(/^\+8801[3-9]\d{8}$/, {
+  @Matches(PHONE_PATTERNS.BANGLADESH_E164, {
     message: 'Nagad account must be in E.164 format (e.g., +8801712345678)',
   })
   nagadAccount?: string;
@@ -133,11 +128,11 @@ export class EnableMfaDto {
   @ApiPropertyOptional({
     description: 'Rocket account number (required for ROCKET_PIN)',
     example: '+8801712345678',
-    pattern: '^\\+8801[3-9]\\d{8}$',
+    pattern: PHONE_PATTERNS.BANGLADESH_E164,
   })
   @IsOptional()
   @IsString({ message: 'Rocket account must be a string' })
-  @Matches(/^\+8801[3-9]\d{8}$/, {
+  @Matches(PHONE_PATTERNS.BANGLADESH_E164, {
     message: 'Rocket account must be in E.164 format (e.g., +8801712345678)',
   })
   rocketAccount?: string;
@@ -224,18 +219,26 @@ export class TOTPSetupResponseDto {
   })
   methodId: string;
 
+  @ApiPropertyOptional({
+    description: 'Bengali success message',
+    example: 'আপনার TOTP সেটআপ প্রস্তুত',
+  })
+  messageBn?: string;
+
   constructor(
     secret: string, 
     qrCodeUri: string, 
     provisioningUri: string, 
     recoveryCodes: string[],
-    methodId: string
+    methodId: string,
+    messageBn?: string
   ) {
     this.secret = secret;
     this.qrCodeUri = qrCodeUri;
     this.provisioningUri = provisioningUri;
     this.recoveryCodes = recoveryCodes;
     this.methodId = methodId;
+    this.messageBn = messageBn;
   }
 }
 
@@ -509,7 +512,7 @@ export class WebAuthnSetupResponseDto {
 export class EnableMfaResponseDto {
   @ApiProperty({
     description: 'Type of MFA being set up',
-    enum: MFAType,
+    enum: MFA_TYPES,
   })
   type: MFAType;
 
@@ -546,8 +549,8 @@ export class MFAStatusResponseDto {
 
   @ApiPropertyOptional({
     description: 'Enabled MFA type (if enabled)',
-    enum: MFAType,
-    example: MFAType.TOTP,
+    enum: MFA_TYPES,
+    example: MFA_TYPES.TOTP,
   })
   type?: MFAType;
 
@@ -596,7 +599,7 @@ export class MFAStatusResponseDto {
 
   @ApiPropertyOptional({
     description: 'Primary MFA method',
-    enum: MFAType,
+    enum: MFA_TYPES,
   })
   primaryMethod?: MFAType;
 
