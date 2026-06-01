@@ -29,131 +29,52 @@ import {
   Max,
   IsNotEmpty,
   IsBoolean,
-  ArrayMinSize,
-  ArrayMaxSize,
   ValidateNested
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
+// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট
+import { 
+  AUDIT_ACTIONS, 
+  AUDIT_SOURCES, 
+  AUDIT_SEVERITIES,
+  AUDIT_ENTITY_TYPES
+} from '@vubon/shared-constants';
+import type { 
+  AuditAction as SharedAuditAction, 
+  AuditSource as SharedAuditSource, 
+  AuditSeverity as SharedAuditSeverity,
+  AuditEntityType as SharedAuditEntityType
+} from '@vubon/shared-types';
+
 // ============================================================
-// Audit Action Enum (Bangladesh specific actions added)
+// Re-export enums for backward compatibility (from constants)
 // ============================================================
 
 /**
- * Audit action types
+ * Audit action types (re-exported from shared-constants)
  */
-export enum AuditAction {
-  // CRUD Operations
-  CREATE = 'CREATE',
-  UPDATE = 'UPDATE',
-  DELETE = 'DELETE',
-  READ = 'READ',
-  BULK_CREATE = 'BULK_CREATE',
-  BULK_UPDATE = 'BULK_UPDATE',
-  BULK_DELETE = 'BULK_DELETE',
-  
-  // Authentication
-  LOGIN = 'LOGIN',
-  LOGIN_FAILED = 'LOGIN_FAILED',
-  LOGOUT = 'LOGOUT',
-  REGISTER = 'REGISTER',
-  REGISTER_FAILED = 'REGISTER_FAILED',
-  
-  // MFA
-  MFA_ENABLED = 'MFA_ENABLED',
-  MFA_DISABLED = 'MFA_DISABLED',
-  MFA_VERIFIED = 'MFA_VERIFIED',
-  MFA_FAILED = 'MFA_FAILED',
-  MFA_BACKUP_CODE_USED = 'MFA_BACKUP_CODE_USED',
-  
-  // Password
-  PASSWORD_CHANGED = 'PASSWORD_CHANGED',
-  PASSWORD_RESET = 'PASSWORD_RESET',
-  PASSWORD_RESET_REQUESTED = 'PASSWORD_RESET_REQUESTED',
-  PASSWORD_RESET_FAILED = 'PASSWORD_RESET_FAILED',
-  
-  // Account
-  ACCOUNT_LOCKED = 'ACCOUNT_LOCKED',
-  ACCOUNT_UNLOCKED = 'ACCOUNT_UNLOCKED',
-  ACCOUNT_SUSPENDED = 'ACCOUNT_SUSPENDED',
-  ACCOUNT_ACTIVATED = 'ACCOUNT_ACTIVATED',
-  ACCOUNT_DELETED = 'ACCOUNT_DELETED',
-  ACCOUNT_RESTORED = 'ACCOUNT_RESTORED',
-  
-  // Email/Phone Verification
-  EMAIL_VERIFIED = 'EMAIL_VERIFIED',
-  EMAIL_VERIFICATION_SENT = 'EMAIL_VERIFICATION_SENT',
-  PHONE_VERIFIED = 'PHONE_VERIFIED',
-  PHONE_VERIFICATION_SENT = 'PHONE_VERIFICATION_SENT',
-  
-  // Social Auth
-  SOCIAL_LINK = 'SOCIAL_LINK',
-  SOCIAL_UNLINK = 'SOCIAL_UNLINK',
-  SOCIAL_LOGIN = 'SOCIAL_LOGIN',
-  SOCIAL_LOGIN_FAILED = 'SOCIAL_LOGIN_FAILED',
-  
-  // Session
-  SESSION_CREATED = 'SESSION_CREATED',
-  SESSION_REVOKED = 'SESSION_REVOKED',
-  SESSION_REVOKED_ALL = 'SESSION_REVOKED_ALL',
-  SESSION_EXTENDED = 'SESSION_EXTENDED',
-  SESSION_EXPIRED = 'SESSION_EXPIRED',
-  
-  // Device
-  DEVICE_REGISTERED = 'DEVICE_REGISTERED',
-  DEVICE_TRUSTED = 'DEVICE_TRUSTED',
-  DEVICE_UNTRUSTED = 'DEVICE_UNTRUSTED',
-  DEVICE_REMOVED = 'DEVICE_REMOVED',
-  
-  // Admin Actions
-  ROLE_CHANGED = 'ROLE_CHANGED',
-  USER_SUSPENDED = 'USER_SUSPENDED',
-  USER_ACTIVATED = 'USER_ACTIVATED',
-  USER_IMPERSONATED = 'USER_IMPERSONATED',
-  PERMISSION_GRANTED = 'PERMISSION_GRANTED',
-  PERMISSION_REVOKED = 'PERMISSION_REVOKED',
-  
-  // Bangladesh Specific
-  BKASH_PAYMENT = 'BKASH_PAYMENT',
-  NAGAD_PAYMENT = 'NAGAD_PAYMENT',
-  ROCKET_PAYMENT = 'ROCKET_PAYMENT',
-  WHATSAPP_LOGIN = 'WHATSAPP_LOGIN',
-  IMO_LOGIN = 'IMO_LOGIN',
-  DISTRICT_CHANGED = 'DISTRICT_CHANGED',
-  UPAZILA_CHANGED = 'UPAZILA_CHANGED',
-  
-  // System
-  SYSTEM_CONFIG_CHANGED = 'SYSTEM_CONFIG_CHANGED',
-  SYSTEM_BACKUP = 'SYSTEM_BACKUP',
-  SYSTEM_RESTORE = 'SYSTEM_RESTORE',
-  SYSTEM_HEALTH_CHECK = 'SYSTEM_HEALTH_CHECK',
-  SYSTEM_CACHE_CLEARED = 'SYSTEM_CACHE_CLEARED',
-}
+export const AuditAction = AUDIT_ACTIONS;
+export type AuditAction = SharedAuditAction;
 
 /**
- * Audit source types
+ * Audit source types (re-exported from shared-constants)
  */
-export enum AuditSource {
-  API = 'API',
-  ADMIN_PANEL = 'ADMIN_PANEL',
-  SYSTEM = 'SYSTEM',
-  CRON_JOB = 'CRON_JOB',
-  WEBHOOK = 'WEBHOOK',
-  MIGRATION = 'MIGRATION',
-  MOBILE_APP = 'MOBILE_APP',
-  THIRD_PARTY = 'THIRD_PARTY',
-}
+export const AuditSource = AUDIT_SOURCES;
+export type AuditSource = SharedAuditSource;
 
 /**
- * Audit severity levels
+ * Audit severity levels (re-exported from shared-constants)
  */
-export enum AuditSeverity {
-  INFO = 'INFO',
-  WARNING = 'WARNING',
-  ERROR = 'ERROR',
-  CRITICAL = 'CRITICAL',
-}
+export const AuditSeverity = AUDIT_SEVERITIES;
+export type AuditSeverity = SharedAuditSeverity;
+
+/**
+ * Audit entity types (re-exported from shared-constants)
+ */
+export const AuditEntityType = AUDIT_ENTITY_TYPES;
+export type AuditEntityType = SharedAuditEntityType;
 
 // ============================================================
 // Entity Audit DTO (for entities with audit fields)
@@ -262,6 +183,7 @@ export class AuditDto {
 
 /**
  * Change detail for audit log
+ * ✅ Improved: Using unknown instead of any for better type safety
  */
 export class ChangeDetail {
   @ApiProperty({ description: 'Field name that changed' })
@@ -270,17 +192,17 @@ export class ChangeDetail {
   field: string;
 
   @ApiProperty({ description: 'Old value (before change)' })
-  oldValue: any;
+  oldValue: unknown;
 
   @ApiProperty({ description: 'New value (after change)' })
-  newValue: any;
+  newValue: unknown;
 
   @ApiPropertyOptional({ description: 'Data type of the field', example: 'string' })
   @IsOptional()
   @IsString()
   dataType?: string;
 
-  constructor(field: string, oldValue: any, newValue: any, dataType?: string) {
+  constructor(field: string, oldValue: unknown, newValue: unknown, dataType?: string) {
     this.field = field;
     this.oldValue = oldValue;
     this.newValue = newValue;
@@ -306,19 +228,18 @@ export class AuditLogDto {
 
   @ApiProperty({
     description: 'Type of the audited entity',
+    enum: AUDIT_ENTITY_TYPES,
     example: 'User',
-    enum: ['User', 'Session', 'MFA', 'SocialAccount', 'RefreshToken', 'AccountLock', 'Device', 'LoginAttempt'],
   })
-  @IsString()
-  @IsNotEmpty()
-  entityType: string;
+  @IsEnum(AUDIT_ENTITY_TYPES)
+  entityType: AuditEntityType;
 
   @ApiProperty({
     description: 'Audit action performed',
-    enum: AuditAction,
-    example: AuditAction.UPDATE,
+    enum: AUDIT_ACTIONS,
+    example: AUDIT_ACTIONS.UPDATE,
   })
-  @IsEnum(AuditAction)
+  @IsEnum(AUDIT_ACTIONS)
   action: AuditAction;
 
   @ApiPropertyOptional({
@@ -383,23 +304,23 @@ export class AuditLogDto {
 
   @ApiPropertyOptional({
     description: 'Source of the audit action',
-    enum: AuditSource,
-    example: AuditSource.API,
-    default: AuditSource.API,
+    enum: AUDIT_SOURCES,
+    example: AUDIT_SOURCES.API,
+    default: AUDIT_SOURCES.API,
   })
   @IsOptional()
-  @IsEnum(AuditSource)
-  source?: AuditSource = AuditSource.API;
+  @IsEnum(AUDIT_SOURCES)
+  source?: AuditSource = AUDIT_SOURCES.API;
 
   @ApiPropertyOptional({
     description: 'Severity level of the audit event',
-    enum: AuditSeverity,
-    example: AuditSeverity.INFO,
-    default: AuditSeverity.INFO,
+    enum: AUDIT_SEVERITIES,
+    example: AUDIT_SEVERITIES.INFO,
+    default: AUDIT_SEVERITIES.INFO,
   })
   @IsOptional()
-  @IsEnum(AuditSeverity)
-  severity?: AuditSeverity = AuditSeverity.INFO;
+  @IsEnum(AUDIT_SEVERITIES)
+  severity?: AuditSeverity = AUDIT_SEVERITIES.INFO;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for distributed tracing',
@@ -452,7 +373,7 @@ export class AuditLogDto {
   @Min(0)
   durationMs?: number;
 
-  // Bangladesh specific fields
+  // ✅ Bangladesh specific fields - Keeping as is, they are useful
   @ApiPropertyOptional({
     description: 'District where the action was performed',
     example: 'Dhaka',
@@ -480,7 +401,7 @@ export class AuditLogDto {
 
   constructor(
     entityId: string,
-    entityType: string,
+    entityType: AuditEntityType,
     action: AuditAction,
     userId?: string,
     ipAddress?: string,
@@ -510,8 +431,8 @@ export class AuditLogDto {
     this.deviceId = deviceId;
     this.changes = changes;
     this.timestamp = new Date();
-    this.source = source || AuditSource.API;
-    this.severity = severity || AuditSeverity.INFO;
+    this.source = source || AUDIT_SOURCES.API;
+    this.severity = severity || AUDIT_SEVERITIES.INFO;
     this.correlationId = correlationId;
     this.requestId = requestId;
     this.status = status || 'success';
@@ -542,18 +463,18 @@ export class AuditLogQueryDto {
 
   @ApiPropertyOptional({
     description: 'Filter by entity type',
-    enum: ['User', 'Session', 'MFA', 'SocialAccount', 'RefreshToken', 'AccountLock', 'Device', 'LoginAttempt'],
+    enum: AUDIT_ENTITY_TYPES,
   })
   @IsOptional()
-  @IsString()
-  entityType?: string;
+  @IsEnum(AUDIT_ENTITY_TYPES)
+  entityType?: AuditEntityType;
 
   @ApiPropertyOptional({
     description: 'Filter by action',
-    enum: AuditAction,
+    enum: AUDIT_ACTIONS,
   })
   @IsOptional()
-  @IsEnum(AuditAction)
+  @IsEnum(AUDIT_ACTIONS)
   action?: AuditAction;
 
   @ApiPropertyOptional({
@@ -566,18 +487,18 @@ export class AuditLogQueryDto {
 
   @ApiPropertyOptional({
     description: 'Filter by source',
-    enum: AuditSource,
+    enum: AUDIT_SOURCES,
   })
   @IsOptional()
-  @IsEnum(AuditSource)
+  @IsEnum(AUDIT_SOURCES)
   source?: AuditSource;
 
   @ApiPropertyOptional({
     description: 'Filter by severity',
-    enum: AuditSeverity,
+    enum: AUDIT_SEVERITIES,
   })
   @IsOptional()
-  @IsEnum(AuditSeverity)
+  @IsEnum(AUDIT_SEVERITIES)
   severity?: AuditSeverity;
 
   @ApiPropertyOptional({
