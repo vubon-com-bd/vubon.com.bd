@@ -29,8 +29,14 @@ import {
   IsArray,
   ArrayMinSize,
   ArrayMaxSize,
+  IsBoolean,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট
+import { SESSION_CONSTANTS, DEVICE_ID_CONSTANTS } from '@vubon/shared-constants';
+// ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট
+import type { SessionId, DeviceId, UserId } from '@vubon/shared-types';
 
 // ============================================================
 // Request DTOs
@@ -56,19 +62,22 @@ export class RevokeSessionDto {
   })
   @IsUUID(4, { message: 'Session ID must be a valid UUID' })
   @IsNotEmpty({ message: 'Session ID is required' })
-  sessionId: string;
+  // ✅ ব্র্যান্ডেড টাইপ ব্যবহারের পরামর্শ (DTO প্রপার্টি হিসেবে)
+  sessionId: SessionId;
 
   @ApiPropertyOptional({
     description: 'Reason for revoking session (for audit trail)',
     example: 'Security precaution - unusual activity detected',
-    maxLength: 500,
+    maxLength: SESSION_CONSTANTS.MAX_REASON_LENGTH,
   })
   @IsOptional()
   @IsString({ message: 'Reason must be a string' })
-  @MaxLength(500, { message: 'Reason cannot exceed 500 characters' })
+  @MaxLength(SESSION_CONSTANTS.MAX_REASON_LENGTH, { 
+    message: `Reason cannot exceed ${SESSION_CONSTANTS.MAX_REASON_LENGTH} characters` 
+  })
   reason?: string;
 
-  constructor(sessionId: string, reason?: string) {
+  constructor(sessionId: SessionId, reason?: string) {
     this.sessionId = sessionId;
     this.reason = reason;
   }
@@ -88,13 +97,15 @@ export class RevokeSessionsByDeviceDto {
   @ApiProperty({
     description: 'Device ID to revoke all sessions from',
     example: 'device_550e8400-e29b-41d4-a716-446655440000',
-    format: 'uuid',
     required: true,
   })
   @IsString({ message: 'Device ID must be a string' })
   @IsNotEmpty({ message: 'Device ID is required' })
-  @MaxLength(255, { message: 'Device ID cannot exceed 255 characters' })
-  deviceId: string;
+  @MaxLength(DEVICE_ID_CONSTANTS.MAX_LENGTH, { 
+    message: `Device ID cannot exceed ${DEVICE_ID_CONSTANTS.MAX_LENGTH} characters` 
+  })
+  // ✅ ব্র্যান্ডেড টাইপ ব্যবহারের পরামর্শ
+  deviceId: DeviceId;
 
   @ApiPropertyOptional({
     description: 'Whether to exclude current session (if it matches this device)',
@@ -108,14 +119,16 @@ export class RevokeSessionsByDeviceDto {
   @ApiPropertyOptional({
     description: 'Reason for revoking device sessions',
     example: 'Device reported as lost or stolen',
-    maxLength: 500,
+    maxLength: SESSION_CONSTANTS.MAX_REASON_LENGTH,
   })
   @IsOptional()
   @IsString({ message: 'Reason must be a string' })
-  @MaxLength(500, { message: 'Reason cannot exceed 500 characters' })
+  @MaxLength(SESSION_CONSTANTS.MAX_REASON_LENGTH, { 
+    message: `Reason cannot exceed ${SESSION_CONSTANTS.MAX_REASON_LENGTH} characters` 
+  })
   reason?: string;
 
-  constructor(deviceId: string, excludeCurrentSession?: boolean, reason?: string) {
+  constructor(deviceId: DeviceId, excludeCurrentSession?: boolean, reason?: string) {
     this.deviceId = deviceId;
     this.excludeCurrentSession = excludeCurrentSession ?? true;
     this.reason = reason;
@@ -135,7 +148,7 @@ export class AdminRevokeSessionDto {
   })
   @IsUUID(4, { message: 'User ID must be a valid UUID' })
   @IsNotEmpty({ message: 'User ID is required' })
-  targetUserId: string;
+  targetUserId: UserId;
 
   @ApiProperty({
     description: 'Session ID to revoke',
@@ -145,16 +158,18 @@ export class AdminRevokeSessionDto {
   })
   @IsUUID(4, { message: 'Session ID must be a valid UUID' })
   @IsNotEmpty({ message: 'Session ID is required' })
-  sessionId: string;
+  sessionId: SessionId;
 
   @ApiPropertyOptional({
     description: 'Reason for admin revocation',
     example: 'Policy violation',
-    maxLength: 500,
+    maxLength: SESSION_CONSTANTS.MAX_REASON_LENGTH,
   })
   @IsOptional()
   @IsString({ message: 'Reason must be a string' })
-  @MaxLength(500, { message: 'Reason cannot exceed 500 characters' })
+  @MaxLength(SESSION_CONSTANTS.MAX_REASON_LENGTH, { 
+    message: `Reason cannot exceed ${SESSION_CONSTANTS.MAX_REASON_LENGTH} characters` 
+  })
   reason?: string;
 
   @ApiPropertyOptional({
@@ -166,7 +181,7 @@ export class AdminRevokeSessionDto {
   @IsUUID(4, { message: 'Admin ID must be a valid UUID' })
   adminId?: string;
 
-  constructor(targetUserId: string, sessionId: string, reason?: string, adminId?: string) {
+  constructor(targetUserId: UserId, sessionId: SessionId, reason?: string, adminId?: string) {
     this.targetUserId = targetUserId;
     this.sessionId = sessionId;
     this.reason = reason;
@@ -185,19 +200,25 @@ export class BulkRevokeSessionsDto {
     required: true,
   })
   @IsArray({ message: 'Session IDs must be an array' })
-  @ArrayMinSize(1, { message: 'At least one session ID is required' })
-  @ArrayMaxSize(100, { message: 'Cannot revoke more than 100 sessions at once' })
+  @ArrayMinSize(SESSION_CONSTANTS.MIN_BULK_REVOKE_SIZE, { 
+    message: `At least ${SESSION_CONSTANTS.MIN_BULK_REVOKE_SIZE} session ID is required` 
+  })
+  @ArrayMaxSize(SESSION_CONSTANTS.MAX_BULK_REVOKE_SIZE, { 
+    message: `Cannot revoke more than ${SESSION_CONSTANTS.MAX_BULK_REVOKE_SIZE} sessions at once` 
+  })
   @IsUUID(4, { each: true, message: 'Each session ID must be a valid UUID' })
-  sessionIds: string[];
+  sessionIds: SessionId[];
 
   @ApiPropertyOptional({
     description: 'Reason for bulk revocation',
     example: 'Security incident - mass logout required',
-    maxLength: 500,
+    maxLength: SESSION_CONSTANTS.MAX_REASON_LENGTH,
   })
   @IsOptional()
   @IsString({ message: 'Reason must be a string' })
-  @MaxLength(500, { message: 'Reason cannot exceed 500 characters' })
+  @MaxLength(SESSION_CONSTANTS.MAX_REASON_LENGTH, { 
+    message: `Reason cannot exceed ${SESSION_CONSTANTS.MAX_REASON_LENGTH} characters` 
+  })
   reason?: string;
 
   @ApiPropertyOptional({
@@ -207,9 +228,9 @@ export class BulkRevokeSessionsDto {
   })
   @IsOptional()
   @IsUUID(4, { message: 'User ID must be a valid UUID' })
-  userId?: string;
+  userId?: UserId;
 
-  constructor(sessionIds: string[], reason?: string, userId?: string) {
+  constructor(sessionIds: SessionId[], reason?: string, userId?: UserId) {
     this.sessionIds = sessionIds;
     this.reason = reason;
     this.userId = userId;
