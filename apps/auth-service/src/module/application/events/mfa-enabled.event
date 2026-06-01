@@ -1,0 +1,177 @@
+/**
+ * MFA Enabled Event - Pure Domain/Application Event
+ * 
+ * @module application/events/mfa-enabled.event
+ * 
+ * @description
+ * Event emitted when Multi-Factor Authentication is enabled for a user.
+ * Used for security monitoring, audit logging, and compliance tracking.
+ * 
+ * Enterprise Rules:
+ * ✅ Immutable event data
+ * ✅ No business logic
+ * ✅ No side effects
+ * ✅ Event ID for tracing
+ * ✅ Correlation ID for distributed tracing
+ * ✅ MFA type and method tracking
+ */
+
+import { randomUUID } from 'crypto';
+
+/**
+ * Base Domain Event Interface
+ */
+export interface DomainEvent {
+  readonly eventId: string;
+  readonly eventName: string;
+  readonly occurredAt: Date;
+  readonly version: number;
+  readonly correlationId?: string;
+  readonly causationId?: string;
+}
+
+/**
+ * MFA Type Enum
+ */
+export enum MFAType {
+  TOTP = 'TOTP',
+  SMS = 'SMS',
+  EMAIL = 'EMAIL',
+  WEBAUTHN = 'WEBAUTHN',
+}
+
+/**
+ * MFA Method Enum
+ */
+export enum MFAMethod {
+  AUTHENTICATOR_APP = 'AUTHENTICATOR_APP',  // Google Authenticator, Microsoft Authenticator
+  SMS_OTP = 'SMS_OTP',
+  EMAIL_OTP = 'EMAIL_OTP',
+  WEBAUTHN = 'WEBAUTHN',                    // Biometric/Passkey
+  PUSH_NOTIFICATION = 'PUSH_NOTIFICATION',
+  HARDWARE_TOKEN = 'HARDWARE_TOKEN',        // YubiKey
+}
+
+/**
+ * MFA Enabled Event
+ * 
+ * Emitted when MFA is enabled for a user
+ * 
+ * @example
+ * // User enables TOTP MFA via authenticator app
+ * const event = new MfaEnabledEvent(
+ *   'usr_123',
+ *   MFAType.TOTP,
+ *   MFAMethod.AUTHENTICATOR_APP,
+ *   'device_456',
+ *   'req_abc123',
+ *   undefined,
+ *   { appName: 'Google Authenticator' }
+ * );
+ * 
+ * @example
+ * // User enables SMS MFA
+ * const event = new MfaEnabledEvent(
+ *   'usr_123',
+ *   MFAType.SMS,
+ *   MFAMethod.SMS_OTP,
+ *   'device_456',
+ *   'req_abc123',
+ *   undefined,
+ *   { phone: '+88017******78' }
+ * );
+ */
+export class MfaEnabledEvent implements DomainEvent {
+  // DomainEvent interface properties
+  public readonly eventId: string;
+  public readonly eventName: string = 'user.mfa_enabled';
+  public readonly occurredAt: Date;
+  public readonly version: number = 1;
+
+  // Event-specific properties
+  public readonly userId: string;
+  public readonly mfaType: MFAType;
+  public readonly mfaMethod: MFAMethod;
+  public readonly deviceId?: string;
+  public readonly ipAddress?: string;
+  public readonly userAgent?: string;
+  public readonly correlationId?: string;
+  public readonly causationId?: string;
+  public readonly metadata?: Record<string, unknown>;
+
+  constructor(
+    userId: string,
+    mfaType: MFAType,
+    mfaMethod: MFAMethod,
+    correlationId?: string,
+    causationId?: string,
+    deviceId?: string,
+    ipAddress?: string,
+    userAgent?: string,
+    metadata?: Record<string, unknown>
+  ) {
+    this.eventId = randomUUID();
+    this.occurredAt = new Date();
+    this.userId = userId;
+    this.mfaType = mfaType;
+    this.mfaMethod = mfaMethod;
+    this.correlationId = correlationId;
+    this.causationId = causationId;
+    this.deviceId = deviceId;
+    this.ipAddress = ipAddress;
+    this.userAgent = userAgent;
+    this.metadata = metadata;
+  }
+}
+
+/**
+ * MFA Enabled Event Data Interface
+ * For event serialization/deserialization
+ */
+export interface MfaEnabledEventData {
+  userId: string;
+  mfaType: MFAType;
+  mfaMethod: MFAMethod;
+  deviceId?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  correlationId?: string;
+  causationId?: string;
+  metadata?: Record<string, unknown>;
+}
+
+/**
+ * MFA Setup Complete Event
+ * Emitted when MFA setup is fully completed and verified
+ */
+export class MfaSetupCompleteEvent implements DomainEvent {
+  public readonly eventId: string;
+  public readonly eventName: string = 'user.mfa_setup_complete';
+  public readonly occurredAt: Date;
+  public readonly version: number = 1;
+
+  public readonly userId: string;
+  public readonly mfaType: MFAType;
+  public readonly mfaMethod: MFAMethod;
+  public readonly verificationTimeMs: number;
+  public readonly correlationId?: string;
+  public readonly metadata?: Record<string, unknown>;
+
+  constructor(
+    userId: string,
+    mfaType: MFAType,
+    mfaMethod: MFAMethod,
+    verificationTimeMs: number,
+    correlationId?: string,
+    metadata?: Record<string, unknown>
+  ) {
+    this.eventId = randomUUID();
+    this.occurredAt = new Date();
+    this.userId = userId;
+    this.mfaType = mfaType;
+    this.mfaMethod = mfaMethod;
+    this.verificationTimeMs = verificationTimeMs;
+    this.correlationId = correlationId;
+    this.metadata = metadata;
+  }
+}
