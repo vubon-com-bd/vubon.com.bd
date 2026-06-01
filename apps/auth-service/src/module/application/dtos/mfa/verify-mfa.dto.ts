@@ -35,26 +35,16 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-// ============================================================
-// Enums
-// ============================================================
+// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট
+import { 
+  OTP_CONFIG, 
+  BACKUP_CODE_CONFIG,
+  MFA_TYPES,
+  DEVICE_ID_CONFIG 
+} from '@vubon/shared-constants';
 
-/**
- * MFA Type enum for verification
- */
-export enum MFAType {
-  TOTP = 'TOTP',
-  SMS = 'SMS',
-  EMAIL = 'EMAIL',
-  BACKUP = 'BACKUP',
-  WEBAUTHN = 'WEBAUTHN',
-  WHATSAPP = 'WHATSAPP',
-  IMO = 'IMO',
-  BKASH_PIN = 'BKASH_PIN',
-  NAGAD_PIN = 'NAGAD_PIN',
-  ROCKET_PIN = 'ROCKET_PIN',
-  VOICE_CALL = 'VOICE_CALL',
-}
+// ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট
+import type { MFAType } from '@vubon/shared-types';
 
 // ============================================================
 // Request DTOs
@@ -97,29 +87,28 @@ export class VerifyMfaDto {
   mfaSessionId: string;
 
   @ApiPropertyOptional({
-    description: '6-digit MFA code from authenticator app/SMS/email/WhatsApp/Imo',
+    description: 'MFA verification code from authenticator app/SMS/email/WhatsApp/Imo',
     example: '123456',
-    minLength: 6,
-    maxLength: 8,
-    pattern: '^[0-9]{6,8}$',
+    minLength: OTP_CONFIG.LENGTH,
+    maxLength: OTP_CONFIG.LENGTH,
   })
   @IsOptional()
   @IsString({ message: 'Code must be a string' })
-  @MinLength(6, { message: 'Code must be at least 6 digits' })
-  @MaxLength(8, { message: 'Code cannot exceed 8 digits' })
-  @Matches(/^[0-9]+$/, { message: 'Code must contain only digits' })
+  @Matches(OTP_CONFIG.PATTERN, { 
+    message: `Code must be ${OTP_CONFIG.LENGTH} digits` 
+  })
   @ValidateIf(o => !o.backupCode && !o.bkashPin && !o.nagadPin && !o.rocketPin)
   code?: string;
 
   @ApiPropertyOptional({
     description: 'Backup code (one of the recovery codes)',
     example: 'AB3F-9K2M',
-    pattern: '^[A-Z0-9]{4,5}-[A-Z0-9]{4,5}$',
+    pattern: BACKUP_CODE_CONFIG.PATTERN.source,
   })
   @IsOptional()
   @IsString({ message: 'Backup code must be a string' })
-  @Matches(/^[A-Z0-9]{4,5}-[A-Z0-9]{4,5}$/, {
-    message: 'Backup code must be in format XXXX-XXXX or XXXXX-XXXXX (e.g., AB3F-9K2M)',
+  @Matches(BACKUP_CODE_CONFIG.PATTERN, {
+    message: BACKUP_CODE_CONFIG.ERROR_MESSAGE,
   })
   @ValidateIf(o => !o.code && !o.bkashPin && !o.nagadPin && !o.rocketPin)
   backupCode?: string;
@@ -129,7 +118,6 @@ export class VerifyMfaDto {
     example: '1234',
     minLength: 4,
     maxLength: 4,
-    pattern: '^[0-9]{4}$',
   })
   @IsOptional()
   @IsString({ message: 'bKash PIN must be a string' })
@@ -142,7 +130,6 @@ export class VerifyMfaDto {
     example: '1234',
     minLength: 4,
     maxLength: 4,
-    pattern: '^[0-9]{4}$',
   })
   @IsOptional()
   @IsString({ message: 'Nagad PIN must be a string' })
@@ -155,7 +142,6 @@ export class VerifyMfaDto {
     example: '1234',
     minLength: 4,
     maxLength: 4,
-    pattern: '^[0-9]{4}$',
   })
   @IsOptional()
   @IsString({ message: 'Rocket PIN must be a string' })
@@ -166,11 +152,13 @@ export class VerifyMfaDto {
   @ApiPropertyOptional({
     description: 'Device identifier for remembering this device',
     example: 'device_550e8400-e29b-41d4-a716-446655440000',
-    maxLength: 255,
+    maxLength: DEVICE_ID_CONFIG.MAX_LENGTH,
   })
   @IsOptional()
   @IsString({ message: 'Device ID must be a string' })
-  @MaxLength(255, { message: 'Device ID cannot exceed 255 characters' })
+  @MaxLength(DEVICE_ID_CONFIG.MAX_LENGTH, { 
+    message: `Device ID cannot exceed ${DEVICE_ID_CONFIG.MAX_LENGTH} characters` 
+  })
   deviceId?: string;
 
   @ApiPropertyOptional({
@@ -184,11 +172,11 @@ export class VerifyMfaDto {
 
   @ApiPropertyOptional({
     description: 'Specific MFA method to use (if user has multiple)',
-    enum: MFAType,
-    example: MFAType.TOTP,
+    enum: MFA_TYPES,
+    example: MFA_TYPES.TOTP,
   })
   @IsOptional()
-  @IsEnum(MFAType, { message: 'Invalid MFA method' })
+  @IsEnum(MFA_TYPES, { message: 'Invalid MFA method' })
   method?: MFAType;
 
   /**
@@ -234,26 +222,26 @@ export class VerifyMfaDto {
 export class VerifyMfaSetupDto {
   @ApiProperty({
     description: 'MFA type being verified',
-    enum: MFAType,
-    example: MFAType.TOTP,
+    enum: MFA_TYPES,
+    example: MFA_TYPES.TOTP,
     required: true,
   })
-  @IsEnum(MFAType, { message: 'Invalid MFA type' })
+  @IsEnum(MFA_TYPES, { message: 'Invalid MFA type' })
   @IsNotEmpty({ message: 'MFA type is required' })
   type: MFAType;
 
   @ApiProperty({
-    description: '6-digit verification code',
+    description: 'Verification code',
     example: '123456',
-    minLength: 6,
-    maxLength: 8,
+    minLength: OTP_CONFIG.LENGTH,
+    maxLength: OTP_CONFIG.LENGTH,
     required: true,
   })
   @IsString({ message: 'Code must be a string' })
   @IsNotEmpty({ message: 'Verification code is required' })
-  @MinLength(6, { message: 'Code must be at least 6 digits' })
-  @MaxLength(8, { message: 'Code cannot exceed 8 digits' })
-  @Matches(/^[0-9]+$/, { message: 'Code must contain only digits' })
+  @Matches(OTP_CONFIG.PATTERN, { 
+    message: `Code must be ${OTP_CONFIG.LENGTH} digits` 
+  })
   code: string;
 
   @ApiPropertyOptional({
@@ -424,7 +412,7 @@ export class MFARequiredResponseDto {
 
   @ApiProperty({
     description: 'Available MFA methods for this user',
-    enum: MFAType,
+    enum: MFA_TYPES,
     isArray: true,
     example: ['TOTP', 'SMS', 'WHATSAPP', 'BKASH_PIN'],
   })
