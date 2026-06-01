@@ -16,6 +16,7 @@
  * ✅ Phone number validation for Bangladesh
  * ✅ Support for phone-only and OTP registration
  * ✅ Cross-field validation (password & confirmPassword match)
+ * ✅ Phase-1 integration: shared-constants & shared-types
  */
 
 import { 
@@ -34,6 +35,20 @@ import {
   ValidationArguments,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+// ✅ Phase-1: Import from shared-constants
+import {
+  PASSWORD_POLICY,
+  REGEX_PASSWORD,
+  REGEX_EMAIL,
+  REGEX_PHONE,
+  REGEX_USERNAME,
+  USER_TIERS,
+  REGISTRATION_METHODS,
+} from '@vubon/shared-constants';
+
+// ✅ Phase-1: Import types from shared-types
+import type { UserTier, RegistrationMethod as TRegistrationMethod } from '@vubon/shared-types';
 
 // ============================================================
 // Custom Validator: Match (for password & confirmPassword)
@@ -74,34 +89,30 @@ export function Match(property: string, validationOptions?: ValidationOptions) {
 }
 
 // ============================================================
-// Enums
+// ✅ IMPROVED: Using shared constants instead of local enum
 // ============================================================
 
 /**
- * Registration method types
+ * Registration method types (from shared-constants)
  */
-export enum RegistrationMethod {
-  EMAIL = 'EMAIL',
-  PHONE = 'PHONE',
-  OTP = 'OTP',
-  SOCIAL = 'SOCIAL',
-}
+export const RegistrationMethod = REGISTRATION_METHODS;
+export type RegistrationMethod = TRegistrationMethod;
 
 // ============================================================
-// Constants
+// Constants (from shared-constants)
 // ============================================================
 
 /**
  * Password validation hints (for API documentation)
  */
 const PASSWORD_HINTS = {
-  minLength: 8,
-  maxLength: 128,
-  requireUppercase: true,
-  requireLowercase: true,
-  requireNumbers: true,
-  requireSpecial: true,
-  specialChars: '!@#$%^&*()_+-=[]{}|;:,.<>?',
+  minLength: PASSWORD_POLICY.MIN_LENGTH,
+  maxLength: PASSWORD_POLICY.MAX_LENGTH,
+  requireUppercase: PASSWORD_POLICY.REQUIRE_UPPERCASE,
+  requireLowercase: PASSWORD_POLICY.REQUIRE_LOWERCASE,
+  requireNumbers: PASSWORD_POLICY.REQUIRE_NUMBERS,
+  requireSpecial: PASSWORD_POLICY.REQUIRE_SPECIAL_CHARS,
+  specialChars: PASSWORD_POLICY.SPECIAL_CHARS,
 };
 
 // ============================================================
@@ -129,11 +140,12 @@ export class RegisterDto {
     required: true,
     format: 'email',
     maxLength: 255,
-    pattern: '^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$',
   })
   @IsEmail({}, { message: 'Please provide a valid email address' })
   @IsNotEmpty({ message: 'Email is required' })
   @MaxLength(255, { message: 'Email cannot exceed 255 characters' })
+  // ✅ IMPROVED: Using shared-constants regex
+  @Matches(REGEX_EMAIL.STRICT, { message: 'Please provide a valid email address' })
   email: string;
 
   @ApiProperty({
@@ -144,17 +156,17 @@ export class RegisterDto {
     maxLength: PASSWORD_HINTS.maxLength,
     format: 'password',
     writeOnly: true,
-    pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$',
   })
   @IsString({ message: 'Password must be a string' })
   @IsNotEmpty({ message: 'Password is required' })
-  @MinLength(PASSWORD_HINTS.minLength, { 
-    message: `Password must be at least ${PASSWORD_HINTS.minLength} characters long` 
+  @MinLength(PASSWORD_POLICY.MIN_LENGTH, { 
+    message: `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters long` 
   })
-  @MaxLength(PASSWORD_HINTS.maxLength, { 
-    message: `Password cannot exceed ${PASSWORD_HINTS.maxLength} characters` 
+  @MaxLength(PASSWORD_POLICY.MAX_LENGTH, { 
+    message: `Password cannot exceed ${PASSWORD_POLICY.MAX_LENGTH} characters` 
   })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
+  // ✅ IMPROVED: Using shared-constants password regex
+  @Matches(REGEX_PASSWORD.STRONG, {
     message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
   })
   password: string;
@@ -182,8 +194,9 @@ export class RegisterDto {
   @IsNotEmpty({ message: 'Full name is required' })
   @MinLength(2, { message: 'Full name must be at least 2 characters long' })
   @MaxLength(100, { message: 'Full name cannot exceed 100 characters' })
-  @Matches(/^[a-zA-Z\u0980-\u09FF\s.'-]+$/, {
-    message: 'Full name can only contain letters, spaces, dots, hyphens, and apostrophes',
+  // ✅ IMPROVED: Using shared-constants name pattern
+  @Matches(REGEX_USERNAME.STANDARD, {
+    message: 'Full name can only contain letters, numbers, spaces, dots, hyphens, and underscores',
   })
   fullName: string;
 
@@ -200,13 +213,13 @@ export class RegisterDto {
   @ApiPropertyOptional({
     description: 'Phone number (E.164 format, Bangladesh numbers start with +880)',
     example: '+8801712345678',
-    pattern: '^\\+8801[3-9]\\d{8}$',
     maxLength: 15,
   })
   @IsOptional()
   @IsString({ message: 'Phone number must be a string' })
-  @Matches(/^\+8801[3-9]\d{8}$/, {
-    message: 'Phone number must be in E.164 format (e.g., +8801712345678)',
+  // ✅ IMPROVED: Using shared-constants phone regex
+  @Matches(REGEX_PHONE.BANGLADESH, {
+    message: 'Please provide a valid Bangladesh phone number (e.g., +8801712345678)',
   })
   phone?: string;
 
@@ -301,11 +314,11 @@ export class PhoneRegisterDto {
     description: 'Bangladesh phone number (E.164 format)',
     example: '+8801712345678',
     required: true,
-    pattern: '^\\+8801[3-9]\\d{8}$',
   })
   @IsString({ message: 'Phone number must be a string' })
   @IsNotEmpty({ message: 'Phone number is required' })
-  @Matches(/^\+8801[3-9]\d{8}$/, { 
+  // ✅ IMPROVED: Using shared-constants phone regex
+  @Matches(REGEX_PHONE.BANGLADESH, { 
     message: 'Please provide a valid Bangladesh phone number (e.g., +8801712345678)' 
   })
   phoneNumber: string;
@@ -334,8 +347,9 @@ export class PhoneRegisterDto {
   @IsNotEmpty({ message: 'Full name is required' })
   @MinLength(2, { message: 'Full name must be at least 2 characters long' })
   @MaxLength(100, { message: 'Full name cannot exceed 100 characters' })
-  @Matches(/^[a-zA-Z\u0980-\u09FF\s.'-]+$/, {
-    message: 'Full name can only contain letters, spaces, dots, hyphens, and apostrophes',
+  // ✅ IMPROVED: Using shared-constants name pattern
+  @Matches(REGEX_USERNAME.STANDARD, {
+    message: 'Full name can only contain letters, numbers, spaces, dots, hyphens, and underscores',
   })
   fullName: string;
 
@@ -490,10 +504,10 @@ export class RegisterResponseDto {
 
   @ApiPropertyOptional({
     description: 'User tier after registration',
-    enum: ['BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'DIAMOND'],
-    example: 'BRONZE',
+    enum: Object.values(USER_TIERS),
+    example: USER_TIERS.BRONZE,
   })
-  userTier?: string;
+  userTier?: UserTier;
 
   constructor(
     userId: string, 
@@ -506,7 +520,7 @@ export class RegisterResponseDto {
     phoneNumber?: string,
     message?: string,
     messageBn?: string,
-    userTier?: string
+    userTier?: UserTier
   ) {
     this.userId = userId;
     this.email = email;
