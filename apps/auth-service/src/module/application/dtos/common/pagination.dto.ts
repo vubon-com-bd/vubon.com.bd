@@ -15,6 +15,7 @@
  * ✅ Max limit enforcement (DoS protection)
  * ✅ Support for offset-based and cursor-based pagination
  * ✅ Bangladesh specific - Bengali locale support
+ * ✅ Centralized constants from shared-constants
  */
 
 import { 
@@ -36,25 +37,34 @@ import {
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
+// ✅ Phase-1: Import from shared-constants (centralized configuration)
+import { 
+  PAGINATION, 
+  SORT_ORDER, 
+  PAGINATION_TYPE,
+  SORT_DIRECTION,
+  DATE_RANGE,
+  SEARCH_CONFIG,
+} from '@vubon/shared-constants';
+
+// ✅ Phase-1: Import types from shared-types
+import type { SortOrder as SharedSortOrder, PaginationType as SharedPaginationType } from '@vubon/shared-types';
+
 // ============================================================
-// Enums
+// Re-export for backward compatibility
 // ============================================================
 
 /**
- * Sort order for pagination
+ * Sort order for pagination (from shared-constants)
  */
-export enum SortOrder {
-  ASC = 'ASC',
-  DESC = 'DESC',
-}
+export { SORT_ORDER as SortOrder };
+export type SortOrder = SharedSortOrder;
 
 /**
- * Pagination type
+ * Pagination type (from shared-constants)
  */
-export enum PaginationType {
-  OFFSET = 'OFFSET',
-  CURSOR = 'CURSOR',
-}
+export { PAGINATION_TYPE as PaginationType };
+export type PaginationType = SharedPaginationType;
 
 // ============================================================
 // Request DTOs
@@ -69,29 +79,29 @@ export enum PaginationType {
 export class PaginationQueryDto {
   @ApiPropertyOptional({
     description: 'Page number (1-indexed)',
-    example: 1,
-    minimum: 1,
-    default: 1,
+    example: PAGINATION.DEFAULT_PAGE,
+    minimum: PAGINATION.MIN_PAGE,
+    default: PAGINATION.DEFAULT_PAGE,
   })
   @Type(() => Number)
   @IsNumber({}, { message: 'Page must be a number' })
-  @Min(1, { message: 'Page must be at least 1' })
+  @Min(PAGINATION.MIN_PAGE, { message: `Page must be at least ${PAGINATION.MIN_PAGE}` })
   @IsOptional()
-  page?: number = 1;
+  page?: number = PAGINATION.DEFAULT_PAGE;
 
   @ApiPropertyOptional({
     description: 'Number of items per page',
-    example: 20,
-    minimum: 1,
-    maximum: 100,
-    default: 20,
+    example: PAGINATION.DEFAULT_LIMIT,
+    minimum: PAGINATION.MIN_LIMIT,
+    maximum: PAGINATION.MAX_LIMIT,
+    default: PAGINATION.DEFAULT_LIMIT,
   })
   @Type(() => Number)
   @IsNumber({}, { message: 'Limit must be a number' })
-  @Min(1, { message: 'Limit must be at least 1' })
-  @Max(100, { message: 'Limit cannot exceed 100' })
+  @Min(PAGINATION.MIN_LIMIT, { message: `Limit must be at least ${PAGINATION.MIN_LIMIT}` })
+  @Max(PAGINATION.MAX_LIMIT, { message: `Limit cannot exceed ${PAGINATION.MAX_LIMIT}` })
   @IsOptional()
-  limit?: number = 20;
+  limit?: number = PAGINATION.DEFAULT_LIMIT;
 
   @ApiPropertyOptional({
     description: 'Field to sort by',
@@ -104,40 +114,42 @@ export class PaginationQueryDto {
 
   @ApiPropertyOptional({
     description: 'Sort order',
-    enum: SortOrder,
-    example: SortOrder.DESC,
-    default: SortOrder.DESC,
+    enum: SORT_ORDER,
+    example: SORT_ORDER.DESC,
+    default: SORT_ORDER.DESC,
   })
   @IsOptional()
-  @IsEnum(SortOrder, { message: 'Sort order must be ASC or DESC' })
-  sortOrder?: SortOrder = SortOrder.DESC;
+  @IsEnum(SORT_ORDER, { message: 'Sort order must be ASC or DESC' })
+  sortOrder?: SharedSortOrder = SORT_ORDER.DESC;
 
   /**
    * Calculate skip value for database queries
+   * @deprecated Use service layer for calculations
    */
   getSkip(): number {
-    return ((this.page || 1) - 1) * (this.limit || 20);
+    return ((this.page || PAGINATION.DEFAULT_PAGE) - 1) * (this.limit || PAGINATION.DEFAULT_LIMIT);
   }
 
   /**
    * Get sort direction as string for ORM
+   * @deprecated Use service layer for conversions
    */
   getSortDirection(): 'asc' | 'desc' {
-    return this.sortOrder === SortOrder.ASC ? 'asc' : 'desc';
+    return this.sortOrder === SORT_ORDER.ASC ? SORT_DIRECTION.ASC : SORT_DIRECTION.DESC;
   }
 
   /**
    * Get validated page number
    */
-  getPage(): number {
-    return Math.max(1, this.page || 1);
+  getValidatedPage(): number {
+    return Math.max(PAGINATION.MIN_PAGE, this.page || PAGINATION.DEFAULT_PAGE);
   }
 
   /**
    * Get validated limit
    */
-  getLimit(): number {
-    return Math.min(100, Math.max(1, this.limit || 20));
+  getValidatedLimit(): number {
+    return Math.min(PAGINATION.MAX_LIMIT, Math.max(PAGINATION.MIN_LIMIT, this.limit || PAGINATION.DEFAULT_LIMIT));
   }
 }
 
@@ -155,31 +167,31 @@ export class PaginationQueryDto {
 export class PaginationDto {
   @ApiProperty({
     description: 'Page number (1-indexed)',
-    example: 1,
-    minimum: 1,
-    default: 1,
+    example: PAGINATION.DEFAULT_PAGE,
+    minimum: PAGINATION.MIN_PAGE,
+    default: PAGINATION.DEFAULT_PAGE,
     required: false,
   })
   @Type(() => Number)
   @IsNumber({}, { message: 'Page must be a number' })
-  @Min(1, { message: 'Page must be at least 1' })
+  @Min(PAGINATION.MIN_PAGE, { message: `Page must be at least ${PAGINATION.MIN_PAGE}` })
   @IsOptional()
-  page: number = 1;
+  page: number = PAGINATION.DEFAULT_PAGE;
 
   @ApiProperty({
     description: 'Number of items per page',
-    example: 20,
-    minimum: 1,
-    maximum: 100,
-    default: 20,
+    example: PAGINATION.DEFAULT_LIMIT,
+    minimum: PAGINATION.MIN_LIMIT,
+    maximum: PAGINATION.MAX_LIMIT,
+    default: PAGINATION.DEFAULT_LIMIT,
     required: false,
   })
   @Type(() => Number)
   @IsNumber({}, { message: 'Limit must be a number' })
-  @Min(1, { message: 'Limit must be at least 1' })
-  @Max(100, { message: 'Limit cannot exceed 100' })
+  @Min(PAGINATION.MIN_LIMIT, { message: `Limit must be at least ${PAGINATION.MIN_LIMIT}` })
+  @Max(PAGINATION.MAX_LIMIT, { message: `Limit cannot exceed ${PAGINATION.MAX_LIMIT}` })
   @IsOptional()
-  limit: number = 20;
+  limit: number = PAGINATION.DEFAULT_LIMIT;
 
   @ApiPropertyOptional({
     description: 'Field to sort by',
@@ -192,16 +204,17 @@ export class PaginationDto {
 
   @ApiPropertyOptional({
     description: 'Sort order',
-    enum: SortOrder,
-    example: SortOrder.DESC,
-    default: SortOrder.DESC,
+    enum: SORT_ORDER,
+    example: SORT_ORDER.DESC,
+    default: SORT_ORDER.DESC,
   })
   @IsOptional()
-  @IsEnum(SortOrder, { message: 'Sort order must be ASC or DESC' })
-  sortOrder?: SortOrder = SortOrder.DESC;
+  @IsEnum(SORT_ORDER, { message: 'Sort order must be ASC or DESC' })
+  sortOrder?: SharedSortOrder = SORT_ORDER.DESC;
 
   /**
    * Calculate skip value for database queries
+   * @deprecated Use service layer for calculations
    */
   getSkip(): number {
     return (this.page - 1) * this.limit;
@@ -209,12 +222,13 @@ export class PaginationDto {
 
   /**
    * Get sort direction as string
+   * @deprecated Use service layer for conversions
    */
   getSortDirection(): 'asc' | 'desc' {
-    return this.sortOrder === SortOrder.ASC ? 'asc' : 'desc';
+    return this.sortOrder === SORT_ORDER.ASC ? SORT_DIRECTION.ASC : SORT_DIRECTION.DESC;
   }
 
-  constructor(page: number = 1, limit: number = 20) {
+  constructor(page: number = PAGINATION.DEFAULT_PAGE, limit: number = PAGINATION.DEFAULT_LIMIT) {
     this.page = page;
     this.limit = limit;
   }
@@ -244,18 +258,18 @@ export class CursorPaginationDto {
 
   @ApiProperty({
     description: 'Number of items per page',
-    example: 20,
-    minimum: 1,
-    maximum: 100,
-    default: 20,
+    example: PAGINATION.DEFAULT_LIMIT,
+    minimum: PAGINATION.MIN_LIMIT,
+    maximum: PAGINATION.MAX_LIMIT,
+    default: PAGINATION.DEFAULT_LIMIT,
     required: false,
   })
   @Type(() => Number)
   @IsNumber({}, { message: 'Limit must be a number' })
-  @Min(1, { message: 'Limit must be at least 1' })
-  @Max(100, { message: 'Limit cannot exceed 100' })
+  @Min(PAGINATION.MIN_LIMIT, { message: `Limit must be at least ${PAGINATION.MIN_LIMIT}` })
+  @Max(PAGINATION.MAX_LIMIT, { message: `Limit cannot exceed ${PAGINATION.MAX_LIMIT}` })
   @IsOptional()
-  limit: number = 20;
+  limit: number = PAGINATION.DEFAULT_LIMIT;
 
   @ApiPropertyOptional({
     description: 'Field to sort by (must have unique index)',
@@ -268,22 +282,22 @@ export class CursorPaginationDto {
 
   @ApiPropertyOptional({
     description: 'Sort order',
-    enum: SortOrder,
-    example: SortOrder.DESC,
-    default: SortOrder.DESC,
+    enum: SORT_ORDER,
+    example: SORT_ORDER.DESC,
+    default: SORT_ORDER.DESC,
   })
   @IsOptional()
-  @IsEnum(SortOrder, { message: 'Sort order must be ASC or DESC' })
-  sortOrder?: SortOrder = SortOrder.DESC;
+  @IsEnum(SORT_ORDER, { message: 'Sort order must be ASC or DESC' })
+  sortOrder?: SharedSortOrder = SORT_ORDER.DESC;
 
   /**
    * Get pagination type
    */
-  getType(): PaginationType {
-    return this.cursor ? PaginationType.CURSOR : PaginationType.OFFSET;
+  getPaginationType(): SharedPaginationType {
+    return this.cursor ? PAGINATION_TYPE.CURSOR : PAGINATION_TYPE.OFFSET;
   }
 
-  constructor(limit: number = 20, cursor?: string) {
+  constructor(limit: number = PAGINATION.DEFAULT_LIMIT, cursor?: string) {
     this.limit = limit;
     this.cursor = cursor;
   }
@@ -297,10 +311,10 @@ export class CursorPaginationDto {
  * Pagination Metadata DTO
  */
 export class PaginationMetadataDto {
-  @ApiProperty({ description: 'Current page number', example: 1, minimum: 1 })
+  @ApiProperty({ description: 'Current page number', example: 1, minimum: PAGINATION.MIN_PAGE })
   page: number;
 
-  @ApiProperty({ description: 'Items per page', example: 20, minimum: 1, maximum: 100 })
+  @ApiProperty({ description: 'Items per page', example: 20, minimum: PAGINATION.MIN_LIMIT, maximum: PAGINATION.MAX_LIMIT })
   limit: number;
 
   @ApiProperty({ description: 'Total number of items', example: 100, minimum: 0 })
@@ -362,8 +376,8 @@ export class PaginatedResponseDto<T> {
     total: number,
     paginationDto: PaginationDto | PaginationQueryDto,
   ): PaginatedResponseDto<T> {
-    const page = 'page' in paginationDto ? paginationDto.page : 1;
-    const limit = 'limit' in paginationDto ? paginationDto.limit : 20;
+    const page = 'page' in paginationDto ? paginationDto.page : PAGINATION.DEFAULT_PAGE;
+    const limit = 'limit' in paginationDto ? paginationDto.limit : PAGINATION.DEFAULT_LIMIT;
     return new PaginatedResponseDto<T>(items, total, page, limit);
   }
 
@@ -388,6 +402,13 @@ export class PaginatedResponseDto<T> {
   hasItems(): boolean {
     return this.items.length > 0;
   }
+
+  /**
+   * Check if empty
+   */
+  isEmpty(): boolean {
+    return !this.hasItems();
+  }
 }
 
 /**
@@ -400,7 +421,7 @@ export class CursorPaginatedResponseDto<T> {
   @ApiProperty({ description: 'Next cursor for pagination' })
   nextCursor: string | null;
 
-  @ApiProperty({ description: 'Number of items returned', example: 20 })
+  @ApiProperty({ description: 'Number of items returned', example: PAGINATION.DEFAULT_LIMIT })
   limit: number;
 
   @ApiProperty({ description: 'Whether there are more items', example: true })
@@ -444,7 +465,7 @@ export class CursorPaginatedResponseDto<T> {
 export class BaseFilterDto extends PaginationDto {
   @ApiPropertyOptional({
     description: 'Filter by date range - start',
-    example: '2024-01-01T00:00:00.000Z',
+    example: DATE_RANGE.DEFAULT_START,
     format: 'date-time',
   })
   @IsOptional()
@@ -454,7 +475,7 @@ export class BaseFilterDto extends PaginationDto {
 
   @ApiPropertyOptional({
     description: 'Filter by date range - end',
-    example: '2024-01-31T23:59:59.999Z',
+    example: DATE_RANGE.DEFAULT_END,
     format: 'date-time',
   })
   @IsOptional()
@@ -466,11 +487,11 @@ export class BaseFilterDto extends PaginationDto {
   @ApiPropertyOptional({
     description: 'Search term for text search',
     example: 'john',
-    maxLength: 100,
+    maxLength: SEARCH_CONFIG.MAX_LENGTH,
   })
   @IsOptional()
   @IsString({ message: 'Search term must be a string' })
-  @MaxLength(100, { message: 'Search term cannot exceed 100 characters' })
+  @MaxLength(SEARCH_CONFIG.MAX_LENGTH, { message: `Search term cannot exceed ${SEARCH_CONFIG.MAX_LENGTH} characters` })
   search?: string;
 
   @ApiPropertyOptional({
@@ -481,12 +502,37 @@ export class BaseFilterDto extends PaginationDto {
   @IsString({ message: 'Status must be a string' })
   status?: string;
 
+  @ApiPropertyOptional({
+    description: 'Filter by district (Bangladesh specific)',
+    example: 'Dhaka',
+  })
+  @IsOptional()
+  @IsString()
+  district?: string;
+
+  @ApiPropertyOptional({
+    description: 'Include soft-deleted records',
+    example: false,
+  })
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  includeDeleted?: boolean = false;
+
   /**
    * Convert status string to array
    */
   getStatusArray(): string[] {
     if (!this.status) return [];
     return this.status.split(',').map(s => s.trim().toUpperCase());
+  }
+
+  /**
+   * Validate date range
+   */
+  isValidDateRange(): boolean {
+    if (!this.startDate || !this.endDate) return true;
+    return this.startDate <= this.endDate;
   }
 }
 
@@ -496,7 +542,7 @@ export class BaseFilterDto extends PaginationDto {
 export class BaseFilterQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({
     description: 'Filter by date range - start',
-    example: '2024-01-01T00:00:00.000Z',
+    example: DATE_RANGE.DEFAULT_START,
     format: 'date-time',
   })
   @IsOptional()
@@ -506,7 +552,7 @@ export class BaseFilterQueryDto extends PaginationQueryDto {
 
   @ApiPropertyOptional({
     description: 'Filter by date range - end',
-    example: '2024-01-31T23:59:59.999Z',
+    example: DATE_RANGE.DEFAULT_END,
     format: 'date-time',
   })
   @IsOptional()
@@ -518,11 +564,11 @@ export class BaseFilterQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({
     description: 'Search term for text search',
     example: 'john',
-    maxLength: 100,
+    maxLength: SEARCH_CONFIG.MAX_LENGTH,
   })
   @IsOptional()
   @IsString({ message: 'Search term must be a string' })
-  @MaxLength(100, { message: 'Search term cannot exceed 100 characters' })
+  @MaxLength(SEARCH_CONFIG.MAX_LENGTH, { message: `Search term cannot exceed ${SEARCH_CONFIG.MAX_LENGTH} characters` })
   search?: string;
 
   @ApiPropertyOptional({
@@ -565,6 +611,14 @@ export class BaseFilterQueryDto extends PaginationQueryDto {
     if (!this.status) return [];
     return this.status.split(',').map(s => s.trim().toUpperCase());
   }
+
+  /**
+   * Validate date range
+   */
+  isValidDateRange(): boolean {
+    if (!this.startDate || !this.endDate) return true;
+    return this.startDate <= this.endDate;
+  }
 }
 
 // ============================================================
@@ -576,14 +630,23 @@ export class BaseFilterQueryDto extends PaginationQueryDto {
  */
 export class SortOption {
   @ApiProperty({ description: 'Field to sort by', example: 'createdAt' })
+  @IsString()
   field: string;
 
-  @ApiProperty({ description: 'Sort order', enum: SortOrder, example: SortOrder.DESC })
-  order: SortOrder;
+  @ApiProperty({ description: 'Sort order', enum: SORT_ORDER, example: SORT_ORDER.DESC })
+  @IsEnum(SORT_ORDER)
+  order: SharedSortOrder;
 
-  constructor(field: string, order: SortOrder = SortOrder.DESC) {
+  constructor(field: string, order: SharedSortOrder = SORT_ORDER.DESC) {
     this.field = field;
     this.order = order;
+  }
+
+  /**
+   * Get sort direction for ORM
+   */
+  getDirection(): 'asc' | 'desc' {
+    return this.order === SORT_ORDER.ASC ? SORT_DIRECTION.ASC : SORT_DIRECTION.DESC;
   }
 }
 
@@ -598,7 +661,7 @@ export class MultiSortDto {
   })
   @IsOptional()
   @IsArray()
-  @ArrayMaxSize(5, { message: 'Maximum 5 sort fields allowed' })
+  @ArrayMaxSize(PAGINATION.MAX_SORT_FIELDS, { message: `Maximum ${PAGINATION.MAX_SORT_FIELDS} sort fields allowed` })
   @ValidateIf((o) => o.sorts)
   sorts?: SortOption[];
 
@@ -606,7 +669,14 @@ export class MultiSortDto {
    * Get sort options as object
    */
   getSortOptions(): SortOption[] {
-    return this.sorts || [new SortOption('createdAt', SortOrder.DESC)];
+    return this.sorts || [new SortOption('createdAt', SORT_ORDER.DESC)];
+  }
+
+  /**
+   * Check if has sort options
+   */
+  hasSorts(): boolean {
+    return this.sorts !== undefined && this.sorts.length > 0;
   }
 }
 
