@@ -15,6 +15,7 @@
  * ✅ No domain logic
  * ✅ No repository calls
  * ✅ Bangladesh specific - Phone login support
+ * ✅ Phase-1 integration with shared-constants and shared-types
  */
 
 import { 
@@ -31,45 +32,64 @@ import {
   IsArray,
   ArrayMaxSize,
   ValidateIf,
+  IsNumber,
+  Min,
+  Max,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // ============================================================
-// Enums
+// Phase-1: shared-constants import (type-only for enums)
+// ============================================================
+import {
+  LOGIN_METHODS,
+  USER_ROLES,
+  USER_TIERS,
+  AUTH_COOKIE_NAMES,
+  TOKEN_EXPIRY,
+  REGEX_PHONE,
+  REGEX_EMAIL,
+  PASSWORD_POLICY,
+  MFA_PROVIDERS,
+} from '@vubon/shared-constants';
+
+// ============================================================
+// Phase-1: shared-types import (type-only for contracts)
+// ============================================================
+import type { 
+  UserRole, 
+  UserTier,
+  ApiResponse,
+  PaginatedApiResponse,
+} from '@vubon/shared-types';
+
+// ============================================================
+// Enums (Built from shared-constants for consistency)
 // ============================================================
 
 /**
- * Login method types
+ * Login method types (from shared-constants)
  */
-export enum LoginMethod {
-  EMAIL = 'EMAIL',
-  PHONE = 'PHONE',
-  USERNAME = 'USERNAME',
-}
+export const LoginMethod = LOGIN_METHODS;
+export type TLoginMethod = typeof LOGIN_METHODS[keyof typeof LOGIN_METHODS];
 
 /**
- * User role types
+ * User role types (from shared-constants)
  */
-export enum UserRoleDto {
-  USER = 'USER',
-  ADMIN = 'ADMIN',
-  MODERATOR = 'MODERATOR',
-  SUPER_ADMIN = 'SUPER_ADMIN',
-  SELLER = 'SELLER',
-  VENDOR = 'VENDOR',
-  DELIVERY_AGENT = 'DELIVERY_AGENT',
-}
+export const UserRoleEnum = USER_ROLES;
+export type TUserRole = UserRole;
 
 /**
- * User tier types (Bangladesh loyalty program)
+ * User tier types (from shared-constants)
  */
-export enum UserTierDto {
-  BRONZE = 'BRONZE',
-  SILVER = 'SILVER',
-  GOLD = 'GOLD',
-  PLATINUM = 'PLATINUM',
-  DIAMOND = 'DIAMOND',
-}
+export const UserTierEnum = USER_TIERS;
+export type TUserTier = UserTier;
+
+/**
+ * MFA provider types (from shared-constants)
+ */
+export const MFAProviderEnum = MFA_PROVIDERS;
+export type TMFAProvider = typeof MFA_PROVIDERS[keyof typeof MFA_PROVIDERS];
 
 // ============================================================
 // Request DTOs
@@ -97,21 +117,26 @@ export class LoginDto {
   @IsEmail({}, { message: 'Please provide a valid email address' })
   @IsNotEmpty({ message: 'Email is required' })
   @MaxLength(255, { message: 'Email cannot exceed 255 characters' })
+  @Matches(REGEX_EMAIL.STRICT, { message: 'Please provide a valid email address' })
   email: string;
 
   @ApiProperty({
     description: 'User password',
     example: 'MyStr0ng!P@ssw0rd',
     required: true,
-    minLength: 8,
-    maxLength: 128,
+    minLength: PASSWORD_POLICY.MIN_LENGTH,
+    maxLength: PASSWORD_POLICY.MAX_LENGTH,
     format: 'password',
     writeOnly: true,
   })
   @IsString({ message: 'Password must be a string' })
   @IsNotEmpty({ message: 'Password is required' })
-  @MinLength(8, { message: 'Password must be at least 8 characters long' })
-  @MaxLength(128, { message: 'Password cannot exceed 128 characters' })
+  @MinLength(PASSWORD_POLICY.MIN_LENGTH, { 
+    message: `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters long` 
+  })
+  @MaxLength(PASSWORD_POLICY.MAX_LENGTH, { 
+    message: `Password cannot exceed ${PASSWORD_POLICY.MAX_LENGTH} characters` 
+  })
   password: string;
 
   @ApiPropertyOptional({
@@ -140,8 +165,18 @@ export class LoginDto {
     default: LoginMethod.EMAIL,
   })
   @IsOptional()
-  @IsEnum(LoginMethod, { message: 'Login method must be EMAIL, PHONE, or USERNAME' })
-  method?: LoginMethod = LoginMethod.EMAIL;
+  @IsEnum(LoginMethod, { 
+    message: `Login method must be one of: ${Object.values(LoginMethod).join(', ')}` 
+  })
+  method?: TLoginMethod = LoginMethod.EMAIL;
+
+  @ApiPropertyOptional({
+    description: 'CAPTCHA token for bot protection',
+    example: '03AGdBq27...',
+  })
+  @IsOptional()
+  @IsString({ message: 'CAPTCHA token must be a string' })
+  captchaToken?: string;
 
   constructor(email: string, password: string, deviceId?: string, rememberMe?: boolean) {
     this.email = email;
@@ -171,8 +206,8 @@ export class PhoneLoginDto {
   })
   @IsString({ message: 'Phone number must be a string' })
   @IsNotEmpty({ message: 'Phone number is required' })
-  @Matches(/^\+8801[3-9]\d{8}$/, { 
-    message: 'Please provide a valid Bangladesh phone number (e.g., +8801712345678)' 
+  @Matches(REGEX_PHONE.BANGLADESH_ALL, { 
+    message: 'Please provide a valid Bangladesh phone number (e.g., +8801712345678 or 01712345678)' 
   })
   phoneNumber: string;
 
@@ -180,15 +215,19 @@ export class PhoneLoginDto {
     description: 'User password',
     example: 'MyStr0ng!P@ssw0rd',
     required: true,
-    minLength: 8,
-    maxLength: 128,
+    minLength: PASSWORD_POLICY.MIN_LENGTH,
+    maxLength: PASSWORD_POLICY.MAX_LENGTH,
     format: 'password',
     writeOnly: true,
   })
   @IsString({ message: 'Password must be a string' })
   @IsNotEmpty({ message: 'Password is required' })
-  @MinLength(8, { message: 'Password must be at least 8 characters long' })
-  @MaxLength(128, { message: 'Password cannot exceed 128 characters' })
+  @MinLength(PASSWORD_POLICY.MIN_LENGTH, { 
+    message: `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters long` 
+  })
+  @MaxLength(PASSWORD_POLICY.MAX_LENGTH, { 
+    message: `Password cannot exceed ${PASSWORD_POLICY.MAX_LENGTH} characters` 
+  })
   password: string;
 
   @ApiPropertyOptional({
@@ -209,6 +248,14 @@ export class PhoneLoginDto {
   @IsOptional()
   @IsBoolean({ message: 'Remember me must be a boolean' })
   rememberMe?: boolean = false;
+
+  @ApiPropertyOptional({
+    description: 'CAPTCHA token for bot protection',
+    example: '03AGdBq27...',
+  })
+  @IsOptional()
+  @IsString({ message: 'CAPTCHA token must be a string' })
+  captchaToken?: string;
 
   constructor(phoneNumber: string, password: string, deviceId?: string, rememberMe?: boolean) {
     this.phoneNumber = phoneNumber;
@@ -238,8 +285,8 @@ export class OtpLoginDto {
   })
   @IsString({ message: 'Phone number must be a string' })
   @IsNotEmpty({ message: 'Phone number is required' })
-  @Matches(/^\+8801[3-9]\d{8}$/, { 
-    message: 'Please provide a valid Bangladesh phone number (e.g., +8801712345678)' 
+  @Matches(REGEX_PHONE.BANGLADESH_ALL, { 
+    message: 'Please provide a valid Bangladesh phone number (e.g., +8801712345678 or 01712345678)' 
   })
   phoneNumber: string;
 
@@ -387,17 +434,17 @@ export class UserResponseDto {
 
   @ApiProperty({
     description: 'User role',
-    enum: UserRoleDto,
-    example: UserRoleDto.USER,
+    enum: UserRoleEnum,
+    example: UserRoleEnum.CUSTOMER,
   })
-  role: UserRoleDto;
+  role: TUserRole;
 
   @ApiProperty({
     description: 'User tier (loyalty program)',
-    enum: UserTierDto,
-    example: UserTierDto.BRONZE,
+    enum: UserTierEnum,
+    example: UserTierEnum.BRONZE,
   })
-  tier: UserTierDto;
+  tier: TUserTier;
 
   @ApiPropertyOptional({
     description: 'Avatar URL',
@@ -427,6 +474,10 @@ export class UserResponseDto {
     description: 'User tier discount percentage',
     example: 5,
   })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
   tierDiscount?: number;
 
   @ApiPropertyOptional({
@@ -435,13 +486,19 @@ export class UserResponseDto {
   })
   hasFreeShipping?: boolean;
 
+  @ApiPropertyOptional({
+    description: 'Preferred language (Bangla/English)',
+    example: 'en',
+  })
+  preferredLanguage?: 'en' | 'bn';
+
   constructor(
     id: string,
     email: string,
     fullName: string,
     displayName: string,
-    role: UserRoleDto,
-    tier: UserTierDto,
+    role: TUserRole,
+    tier: TUserTier,
     isEmailVerified?: boolean,
     isPhoneVerified?: boolean,
     mfaEnabled?: boolean,
@@ -480,14 +537,14 @@ export class LoginResponseDto {
 
   @ApiProperty({
     description: 'Access token expiry time in seconds',
-    example: 900,
+    example: TOKEN_EXPIRY.ACCESS_TOKEN,
     minimum: 1,
   })
   expiresIn: number;
 
   @ApiProperty({
     description: 'Refresh token expiry time in seconds',
-    example: 604800,
+    example: TOKEN_EXPIRY.REFRESH_TOKEN,
     minimum: 1,
   })
   refreshExpiresIn: number;
@@ -562,13 +619,13 @@ export class TokenRefreshResponseDto {
 
   @ApiProperty({
     description: 'Access token expiry time in seconds',
-    example: 900,
+    example: TOKEN_EXPIRY.ACCESS_TOKEN,
   })
   expiresIn: number;
 
   @ApiProperty({
     description: 'Refresh token expiry time in seconds',
-    example: 604800,
+    example: TOKEN_EXPIRY.REFRESH_TOKEN,
   })
   refreshExpiresIn: number;
 
@@ -633,11 +690,11 @@ export class MFARequiredResponseDto {
 
   @ApiProperty({
     description: 'Available MFA methods',
-    enum: ['TOTP', 'SMS', 'EMAIL', 'BACKUP_CODE', 'WHATSAPP', 'BKASH_PIN'],
+    enum: MFAProviderEnum,
     isArray: true,
-    example: ['TOTP', 'SMS'],
+    example: [MFAProviderEnum.TOTP, MFAProviderEnum.SMS],
   })
-  availableMethods: string[];
+  availableMethods: TMFAProvider[];
 
   @ApiPropertyOptional({
     description: 'Masked phone number for SMS MFA',
@@ -652,6 +709,12 @@ export class MFARequiredResponseDto {
   maskedEmail?: string;
 
   @ApiPropertyOptional({
+    description: 'WhatsApp number for WhatsApp MFA (Bangladesh specific)',
+    example: '+88017******78',
+  })
+  maskedWhatsApp?: string;
+
+  @ApiPropertyOptional({
     description: 'Login session ID (partial login)',
     example: 'login_session_abc123',
   })
@@ -659,16 +722,18 @@ export class MFARequiredResponseDto {
 
   constructor(
     mfaSessionId: string, 
-    availableMethods: string[], 
+    availableMethods: TMFAProvider[], 
     maskedPhone?: string, 
     maskedEmail?: string,
-    loginSessionId?: string
+    loginSessionId?: string,
+    maskedWhatsApp?: string
   ) {
     this.mfaSessionId = mfaSessionId;
     this.availableMethods = availableMethods;
     this.maskedPhone = maskedPhone;
     this.maskedEmail = maskedEmail;
     this.loginSessionId = loginSessionId;
+    this.maskedWhatsApp = maskedWhatsApp;
   }
 }
 
@@ -676,4 +741,4 @@ export class MFARequiredResponseDto {
 // Type Exports
 // ============================================================
 
-export type { UserRoleDto as UserRoleDtoType, UserTierDto as UserTierDtoType };
+export type { TUserRole, TUserTier, TMFAProvider };
