@@ -15,6 +15,7 @@
  * ✅ Password rules documentation
  * ✅ Phone number validation for Bangladesh
  * ✅ Support for phone-only and OTP registration
+ * ✅ Cross-field validation (password & confirmPassword match)
  */
 
 import { 
@@ -28,8 +29,49 @@ import {
   IsBoolean,
   IsEnum,
   ValidateIf,
+  registerDecorator,
+  ValidationOptions,
+  ValidationArguments,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+// ============================================================
+// Custom Validator: Match (for password & confirmPassword)
+// ============================================================
+
+/**
+ * Custom validation decorator to check if two fields match
+ * 
+ * @param property - Name of the property to compare with
+ * @param validationOptions - Class-validator options
+ * @returns Decorator function
+ * 
+ * @example
+ * @Match('password', { message: 'Passwords do not match' })
+ * confirmPassword: string;
+ */
+export function Match(property: string, validationOptions?: ValidationOptions) {
+  return (object: object, propertyName: string) => {
+    registerDecorator({
+      name: 'match',
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      constraints: [property],
+      validator: {
+        validate(value: any, args: ValidationArguments) {
+          const [relatedPropertyName] = args.constraints;
+          const relatedValue = (args.object as any)[relatedPropertyName];
+          return value === relatedValue;
+        },
+        defaultMessage(args: ValidationArguments) {
+          const [relatedPropertyName] = args.constraints;
+          return `${args.property} must match ${relatedPropertyName}`;
+        },
+      },
+    });
+  };
+}
 
 // ============================================================
 // Enums
@@ -126,6 +168,7 @@ export class RegisterDto {
   })
   @IsString({ message: 'Confirm password must be a string' })
   @IsNotEmpty({ message: 'Confirm password is required' })
+  @Match('password', { message: 'Password and confirm password do not match' })
   confirmPassword: string;
 
   @ApiProperty({
@@ -706,3 +749,4 @@ export class ResendVerificationResponseDto {
 // ============================================================
 
 export type { PASSWORD_HINTS as PasswordHints };
+export { Match };
