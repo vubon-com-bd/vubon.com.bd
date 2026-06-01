@@ -14,6 +14,7 @@
  * ✅ API documentation decorators (Swagger)
  * ✅ User ID comes from JWT (not from request body)
  * ✅ Support for single session, all sessions, and device-specific logout
+ * ✅ Connected with shared-constants and shared-types (Phase 1)
  */
 
 import {
@@ -21,17 +22,35 @@ import {
   IsNotEmpty,
   IsOptional,
   IsBoolean,
-  IsUUID,
-  MaxLength,
   IsIn,
+  MaxLength,
+  IsObject,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // ============================================================
-// Types
+// Phase 1 Imports (shared-constants & shared-types)
 // ============================================================
 
-export type LogoutScope = 'current' | 'all' | 'device' | 'except_current';
+// ✅ Import from shared-constants for consistency
+import { 
+  LOGOUT_SCOPE,
+  LOGOUT_REASONS,
+  MAX_SESSION_ID_LENGTH,
+  MAX_DEVICE_ID_LENGTH,
+  MAX_REASON_LENGTH,
+} from '@vubon/shared-constants';
+
+// ✅ Import from shared-types for standardized error codes
+import type { ApiErrorCode, SessionId, DeviceId } from '@vubon/shared-types';
+
+// ============================================================
+// Types (using constants for values)
+// ============================================================
+
+// ✅ Logout scope type using constants values
+export type LogoutScope = typeof LOGOUT_SCOPE[keyof typeof LOGOUT_SCOPE];
+export type LogoutReason = typeof LOGOUT_REASONS[keyof typeof LOGOUT_REASONS];
 
 // ============================================================
 // Request DTOs
@@ -48,7 +67,8 @@ export type LogoutScope = 'current' | 'all' | 'device' | 'except_current';
  *   "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
  *   "scope": "current",
  *   "sessionId": "session_abc123",
- *   "deviceId": "device_xyz789"
+ *   "deviceId": "device_xyz789",
+ *   "reason": "USER_INITIATED"
  * }
  */
 export class LogoutDto {
@@ -63,43 +83,52 @@ export class LogoutDto {
   
   @ApiPropertyOptional({
     description: 'Logout scope',
-    example: 'current',
-    enum: ['current', 'all', 'device', 'except_current'],
-    default: 'current',
+    example: LOGOUT_SCOPE.CURRENT,
+    enum: Object.values(LOGOUT_SCOPE),
+    default: LOGOUT_SCOPE.CURRENT,
   })
   @IsOptional()
-  @IsIn(['current', 'all', 'device', 'except_current'], { 
-    message: 'Scope must be current, all, device, or except_current' 
+  // ✅ Using constant values for validation
+  @IsIn(Object.values(LOGOUT_SCOPE), { 
+    message: `Scope must be one of: ${Object.values(LOGOUT_SCOPE).join(', ')}` 
   })
-  scope?: LogoutScope = 'current';
+  scope?: LogoutScope = LOGOUT_SCOPE.CURRENT;
   
   @ApiPropertyOptional({
     description: 'Specific session ID to revoke (used with scope="current")',
     example: 'sess_550e8400-e29b-41d4-a716-446655440000',
+    maxLength: MAX_SESSION_ID_LENGTH,
   })
   @IsOptional()
   @IsString({ message: 'Session ID must be a string' })
-  @MaxLength(255, { message: 'Session ID cannot exceed 255 characters' })
+  @MaxLength(MAX_SESSION_ID_LENGTH, { 
+    message: `Session ID cannot exceed ${MAX_SESSION_ID_LENGTH} characters` 
+  })
   sessionId?: string;
 
   @ApiPropertyOptional({
     description: 'Device ID to revoke sessions from (used with scope="device")',
     example: 'device_550e8400-e29b-41d4-a716-446655440000',
+    maxLength: MAX_DEVICE_ID_LENGTH,
   })
   @IsOptional()
   @IsString({ message: 'Device ID must be a string' })
-  @MaxLength(255, { message: 'Device ID cannot exceed 255 characters' })
+  @MaxLength(MAX_DEVICE_ID_LENGTH, { 
+    message: `Device ID cannot exceed ${MAX_DEVICE_ID_LENGTH} characters` 
+  })
   deviceId?: string;
 
   @ApiPropertyOptional({
     description: 'Reason for logout (for audit)',
-    example: 'User initiated logout',
-    maxLength: 500,
+    example: LOGOUT_REASONS.USER_INITIATED,
+    enum: Object.values(LOGOUT_REASONS),
+    maxLength: MAX_REASON_LENGTH,
   })
   @IsOptional()
-  @IsString({ message: 'Reason must be a string' })
-  @MaxLength(500, { message: 'Reason cannot exceed 500 characters' })
-  reason?: string;
+  @IsIn(Object.values(LOGOUT_REASONS), { 
+    message: `Reason must be one of: ${Object.values(LOGOUT_REASONS).join(', ')}` 
+  })
+  reason?: LogoutReason;
 
   @ApiPropertyOptional({
     description: 'Whether to keep the current session when logging out from all devices',
@@ -115,11 +144,11 @@ export class LogoutDto {
     scope?: LogoutScope, 
     sessionId?: string,
     deviceId?: string,
-    reason?: string,
+    reason?: LogoutReason,
     keepCurrent?: boolean
   ) {
     this.refreshToken = refreshToken;
-    this.scope = scope ?? 'current';
+    this.scope = scope ?? LOGOUT_SCOPE.CURRENT;
     this.sessionId = sessionId;
     this.deviceId = deviceId;
     this.reason = reason;
@@ -151,15 +180,17 @@ export class LogoutAllDevicesDto {
 
   @ApiPropertyOptional({
     description: 'Reason for logging out from all devices',
-    example: 'Security concern - suspicious activity detected',
-    maxLength: 500,
+    example: LOGOUT_REASONS.SECURITY_CONCERN,
+    enum: Object.values(LOGOUT_REASONS),
+    maxLength: MAX_REASON_LENGTH,
   })
   @IsOptional()
-  @IsString({ message: 'Reason must be a string' })
-  @MaxLength(500, { message: 'Reason cannot exceed 500 characters' })
-  reason?: string;
+  @IsIn(Object.values(LOGOUT_REASONS), { 
+    message: `Reason must be one of: ${Object.values(LOGOUT_REASONS).join(', ')}` 
+  })
+  reason?: LogoutReason;
   
-  constructor(confirm: boolean, keepCurrent?: boolean, reason?: string) {
+  constructor(confirm: boolean, keepCurrent?: boolean, reason?: LogoutReason) {
     this.confirm = confirm;
     this.keepCurrent = keepCurrent ?? false;
     this.reason = reason;
@@ -174,23 +205,28 @@ export class RevokeSessionDto {
     description: 'Session ID to revoke',
     example: 'sess_550e8400-e29b-41d4-a716-446655440000',
     required: true,
+    maxLength: MAX_SESSION_ID_LENGTH,
   })
   @IsString({ message: 'Session ID must be a string' })
   @IsNotEmpty({ message: 'Session ID is required' })
-  @MaxLength(255, { message: 'Session ID cannot exceed 255 characters' })
+  @MaxLength(MAX_SESSION_ID_LENGTH, { 
+    message: `Session ID cannot exceed ${MAX_SESSION_ID_LENGTH} characters` 
+  })
   sessionId: string;
 
   @ApiPropertyOptional({
     description: 'Reason for revoking the session',
-    example: 'User requested logout from this device',
-    maxLength: 500,
+    example: LOGOUT_REASONS.USER_INITIATED,
+    enum: Object.values(LOGOUT_REASONS),
+    maxLength: MAX_REASON_LENGTH,
   })
   @IsOptional()
-  @IsString({ message: 'Reason must be a string' })
-  @MaxLength(500, { message: 'Reason cannot exceed 500 characters' })
-  reason?: string;
+  @IsIn(Object.values(LOGOUT_REASONS), { 
+    message: `Reason must be one of: ${Object.values(LOGOUT_REASONS).join(', ')}` 
+  })
+  reason?: LogoutReason;
   
-  constructor(sessionId: string, reason?: string) {
+  constructor(sessionId: string, reason?: LogoutReason) {
     this.sessionId = sessionId;
     this.reason = reason;
   }
@@ -204,10 +240,13 @@ export class RevokeDeviceSessionsDto {
     description: 'Device ID to revoke all sessions from',
     example: 'device_550e8400-e29b-41d4-a716-446655440000',
     required: true,
+    maxLength: MAX_DEVICE_ID_LENGTH,
   })
   @IsString({ message: 'Device ID must be a string' })
   @IsNotEmpty({ message: 'Device ID is required' })
-  @MaxLength(255, { message: 'Device ID cannot exceed 255 characters' })
+  @MaxLength(MAX_DEVICE_ID_LENGTH, { 
+    message: `Device ID cannot exceed ${MAX_DEVICE_ID_LENGTH} characters` 
+  })
   deviceId: string;
 
   @ApiPropertyOptional({
@@ -221,15 +260,17 @@ export class RevokeDeviceSessionsDto {
 
   @ApiPropertyOptional({
     description: 'Reason for revoking device sessions',
-    example: 'Device reported as lost/stolen',
-    maxLength: 500,
+    example: LOGOUT_REASONS.DEVICE_LOST,
+    enum: Object.values(LOGOUT_REASONS),
+    maxLength: MAX_REASON_LENGTH,
   })
   @IsOptional()
-  @IsString({ message: 'Reason must be a string' })
-  @MaxLength(500, { message: 'Reason cannot exceed 500 characters' })
-  reason?: string;
+  @IsIn(Object.values(LOGOUT_REASONS), { 
+    message: `Reason must be one of: ${Object.values(LOGOUT_REASONS).join(', ')}` 
+  })
+  reason?: LogoutReason;
 
-  constructor(deviceId: string, keepCurrent?: boolean, reason?: string) {
+  constructor(deviceId: string, keepCurrent?: boolean, reason?: LogoutReason) {
     this.deviceId = deviceId;
     this.keepCurrent = keepCurrent ?? false;
     this.reason = reason;
@@ -272,8 +313,8 @@ export class LogoutResponseDto {
 
   @ApiPropertyOptional({
     description: 'Scope of logout performed',
-    example: 'current',
-    enum: ['current', 'all', 'device'],
+    example: LOGOUT_SCOPE.CURRENT,
+    enum: Object.values(LOGOUT_SCOPE),
   })
   scope?: LogoutScope;
   
@@ -458,6 +499,7 @@ export class RevokeDeviceSessionsResponseDto {
 
 /**
  * Logout Error Response DTO
+ * ✅ Using shared-types for standardized error codes
  */
 export class LogoutErrorResponseDto {
   @ApiProperty({
@@ -481,9 +523,18 @@ export class LogoutErrorResponseDto {
   @ApiProperty({
     description: 'Error type',
     example: 'INVALID_TOKEN',
-    enum: ['INVALID_TOKEN', 'TOKEN_EXPIRED', 'SESSION_NOT_FOUND', 'DEVICE_NOT_FOUND', 'UNAUTHORIZED'],
+    enum: [
+      'INVALID_TOKEN', 
+      'TOKEN_EXPIRED', 
+      'SESSION_NOT_FOUND', 
+      'DEVICE_NOT_FOUND', 
+      'UNAUTHORIZED',
+      'INVALID_SESSION',
+      'SESSION_ALREADY_REVOKED'
+    ],
   })
-  error: string;
+  // ✅ Using ApiErrorCode type from shared-types
+  error: ApiErrorCode;
   
   @ApiProperty({
     description: 'Timestamp of error',
@@ -492,7 +543,7 @@ export class LogoutErrorResponseDto {
   })
   timestamp: string;
 
-  constructor(message: string, error: string, messageBn?: string) {
+  constructor(message: string, error: ApiErrorCode, messageBn?: string) {
     this.statusCode = 400;
     this.message = message;
     this.messageBn = messageBn;
@@ -505,4 +556,4 @@ export class LogoutErrorResponseDto {
 // Type Exports
 // ============================================================
 
-export type { LogoutScope as LogoutScopeType };
+export type { LogoutScope as LogoutScopeType, LogoutReason as LogoutReasonType };
