@@ -36,33 +36,24 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
+// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট
+import { 
+  PASSWORD_PATTERNS, 
+  PHONE_PATTERNS, 
+  PASSWORD_LENGTH,
+  USER_ROLES,
+  USER_TIERS,
+  NAME_PATTERNS,
+} from '@vubon/shared-constants';
+
+// ✅ Phase-1 (shared-types) থেকে টাইপ ইম্পোর্ট
+import type { UserRole, UserTier } from '@vubon/shared-types';
+
 // ============================================================
-// Enums
+// Enums (Now using shared constants)
 // ============================================================
 
-/**
- * User roles for creation (admin only)
- */
-export enum AdminCreateUserRole {
-  CUSTOMER = 'CUSTOMER',
-  SELLER = 'SELLER',
-  VENDOR = 'VENDOR',
-  MODERATOR = 'MODERATOR',
-  ADMIN = 'ADMIN',
-  SUPPORT = 'SUPPORT',
-  DELIVERY_AGENT = 'DELIVERY_AGENT',
-}
-
-/**
- * User tier for loyalty program
- */
-export enum UserTier {
-  BRONZE = 'BRONZE',
-  SILVER = 'SILVER',
-  GOLD = 'GOLD',
-  PLATINUM = 'PLATINUM',
-  DIAMOND = 'DIAMOND',
-}
+// ❌ Removed local enums - using USER_ROLES and USER_TIERS from shared-constants
 
 /**
  * User preferences
@@ -118,16 +109,20 @@ export class CreateUserDto {
     description: 'User password',
     example: 'MyStr0ng!P@ssw0rd123',
     required: true,
-    minLength: 8,
-    maxLength: 128,
+    minLength: PASSWORD_LENGTH.MIN,
+    maxLength: PASSWORD_LENGTH.MAX,
     format: 'password',
     writeOnly: true,
   })
   @IsString({ message: 'Password must be a string' })
   @IsNotEmpty({ message: 'Password is required' })
-  @MinLength(8, { message: 'Password must be at least 8 characters long' })
-  @MaxLength(128, { message: 'Password cannot exceed 128 characters' })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
+  @MinLength(PASSWORD_LENGTH.MIN, { 
+    message: `Password must be at least ${PASSWORD_LENGTH.MIN} characters long` 
+  })
+  @MaxLength(PASSWORD_LENGTH.MAX, { 
+    message: `Password cannot exceed ${PASSWORD_LENGTH.MAX} characters` 
+  })
+  @Matches(PASSWORD_PATTERNS.STRONG, {
     message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
   })
   password: string;
@@ -154,7 +149,7 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Full name is required' })
   @MinLength(2, { message: 'Full name must be at least 2 characters long' })
   @MaxLength(100, { message: 'Full name cannot exceed 100 characters' })
-  @Matches(/^[a-zA-Z\u0980-\u09FF\s.'-]+$/, {
+  @Matches(NAME_PATTERNS.FULL_NAME, {
     message: 'Full name can only contain letters, spaces, dots, hyphens, and apostrophes',
   })
   fullName: string;
@@ -172,11 +167,10 @@ export class CreateUserDto {
   @ApiPropertyOptional({
     description: 'Phone number (E.164 format, Bangladesh numbers start with +880)',
     example: '+8801712345678',
-    pattern: '^\\+8801[3-9]\\d{8}$',
   })
   @IsOptional()
   @IsString({ message: 'Phone number must be a string' })
-  @Matches(/^\+8801[3-9]\d{8}$/, {
+  @Matches(PHONE_PATTERNS.BANGLADESH_E164, {
     message: 'Phone number must be in E.164 format (e.g., +8801712345678)',
   })
   phone?: string;
@@ -340,9 +334,13 @@ export class AdminCreateUserDto {
   })
   @IsString({ message: 'Password must be a string' })
   @IsNotEmpty({ message: 'Password is required' })
-  @MinLength(8, { message: 'Password must be at least 8 characters long' })
-  @MaxLength(128, { message: 'Password cannot exceed 128 characters' })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
+  @MinLength(PASSWORD_LENGTH.MIN, { 
+    message: `Password must be at least ${PASSWORD_LENGTH.MIN} characters long` 
+  })
+  @MaxLength(PASSWORD_LENGTH.MAX, { 
+    message: `Password cannot exceed ${PASSWORD_LENGTH.MAX} characters` 
+  })
+  @Matches(PASSWORD_PATTERNS.STRONG, {
     message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
   })
   password: string;
@@ -367,6 +365,9 @@ export class AdminCreateUserDto {
   @IsNotEmpty({ message: 'Full name is required' })
   @MinLength(2, { message: 'Full name must be at least 2 characters long' })
   @MaxLength(100, { message: 'Full name cannot exceed 100 characters' })
+  @Matches(NAME_PATTERNS.FULL_NAME, {
+    message: 'Full name can only contain letters, spaces, dots, hyphens, and apostrophes',
+  })
   fullName: string;
 
   @ApiPropertyOptional({
@@ -385,31 +386,31 @@ export class AdminCreateUserDto {
   })
   @IsOptional()
   @IsString({ message: 'Phone number must be a string' })
-  @Matches(/^\+8801[3-9]\d{8}$/, {
+  @Matches(PHONE_PATTERNS.BANGLADESH_E164, {
     message: 'Phone number must be in E.164 format (e.g., +8801712345678)',
   })
   phone?: string;
 
   @ApiProperty({
     description: 'User role',
-    enum: AdminCreateUserRole,
-    example: AdminCreateUserRole.CUSTOMER,
-    default: AdminCreateUserRole.CUSTOMER,
+    enum: USER_ROLES,
+    example: USER_ROLES.CUSTOMER,
+    default: USER_ROLES.CUSTOMER,
     required: false,
   })
   @IsOptional()
-  @IsEnum(AdminCreateUserRole, { message: 'Invalid role' })
-  role?: AdminCreateUserRole = AdminCreateUserRole.CUSTOMER;
+  @IsEnum(USER_ROLES, { message: 'Invalid role' })
+  role?: UserRole = USER_ROLES.CUSTOMER;
 
   @ApiPropertyOptional({
     description: 'User tier (loyalty program)',
-    enum: UserTier,
-    example: UserTier.BRONZE,
-    default: UserTier.BRONZE,
+    enum: USER_TIERS,
+    example: USER_TIERS.BRONZE,
+    default: USER_TIERS.BRONZE,
   })
   @IsOptional()
-  @IsEnum(UserTier, { message: 'Invalid user tier' })
-  userTier?: UserTier = UserTier.BRONZE;
+  @IsEnum(USER_TIERS, { message: 'Invalid user tier' })
+  userTier?: UserTier = USER_TIERS.BRONZE;
 
   @ApiPropertyOptional({
     description: 'Preferred language',
@@ -495,13 +496,8 @@ export class AdminCreateUserDto {
   @MaxLength(50, { message: 'Trade license number cannot exceed 50 characters' })
   tradeLicenseNumber?: string;
 
-  @ApiPropertyOptional({
-    description: 'Admin ID who created this user (auto-filled from JWT)',
-    example: 'admin_550e8400-e29b-41d4-a716-446655440000',
-  })
-  @IsOptional()
-  @IsUUID(4, { message: 'Created by must be a valid UUID' })
-  createdBy?: string;
+  // ❌ REMOVED: createdBy property - this should never come from client
+  // createdBy will be set in the application service layer from authenticated admin
 
   @ApiPropertyOptional({
     description: 'User preferences',
@@ -517,7 +513,7 @@ export class AdminCreateUserDto {
     confirmPassword: string,
     fullName: string,
     phone?: string,
-    role?: AdminCreateUserRole,
+    role?: UserRole,
     userTier?: UserTier,
     preferredLanguage?: 'en' | 'bn',
     preferredDistrict?: string,
@@ -529,7 +525,6 @@ export class AdminCreateUserDto {
     isPhoneVerified?: boolean,
     businessName?: string,
     tradeLicenseNumber?: string,
-    createdBy?: string,
     preferences?: UserPreferencesDto
   ) {
     this.email = email;
@@ -537,8 +532,8 @@ export class AdminCreateUserDto {
     this.confirmPassword = confirmPassword;
     this.fullName = fullName;
     this.phone = phone;
-    this.role = role ?? AdminCreateUserRole.CUSTOMER;
-    this.userTier = userTier ?? UserTier.BRONZE;
+    this.role = role ?? USER_ROLES.CUSTOMER;
+    this.userTier = userTier ?? USER_TIERS.BRONZE;
     this.preferredLanguage = preferredLanguage ?? 'en';
     this.preferredDistrict = preferredDistrict;
     this.preferredUpazila = preferredUpazila;
@@ -549,7 +544,6 @@ export class AdminCreateUserDto {
     this.isPhoneVerified = isPhoneVerified ?? false;
     this.businessName = businessName;
     this.tradeLicenseNumber = tradeLicenseNumber;
-    this.createdBy = createdBy;
     this.preferences = preferences;
   }
 }
@@ -606,17 +600,17 @@ export class CreateUserResponseDto {
 
   @ApiPropertyOptional({
     description: 'User role',
-    enum: AdminCreateUserRole,
-    example: AdminCreateUserRole.CUSTOMER,
+    enum: USER_ROLES,
+    example: USER_ROLES.CUSTOMER,
   })
-  role?: string;
+  role?: UserRole;
 
   @ApiPropertyOptional({
     description: 'User tier',
-    enum: UserTier,
-    example: UserTier.BRONZE,
+    enum: USER_TIERS,
+    example: USER_TIERS.BRONZE,
   })
-  userTier?: string;
+  userTier?: UserTier;
 
   @ApiPropertyOptional({
     description: 'Timestamp when user was created',
@@ -643,8 +637,8 @@ export class CreateUserResponseDto {
     fullName: string,
     requiresEmailVerification: boolean = true,
     requiresPhoneVerification: boolean = false,
-    role?: string,
-    userTier?: string,
+    role?: UserRole,
+    userTier?: UserTier,
     createdAt?: Date,
     phoneNumber?: string,
     sessionId?: string,
@@ -665,37 +659,6 @@ export class CreateUserResponseDto {
     this.sessionId = sessionId;
     this.accessToken = accessToken;
   }
-
-  /**
-   * Create response from user entity
-   */
-  static fromUser(
-    userId: string,
-    email: string,
-    fullName: string,
-    requiresEmailVerification: boolean,
-    requiresPhoneVerification: boolean = false,
-    role?: string,
-    userTier?: string,
-    createdAt?: Date,
-    phoneNumber?: string,
-    sessionId?: string,
-    accessToken?: string
-  ): CreateUserResponseDto {
-    return new CreateUserResponseDto(
-      userId,
-      email,
-      fullName,
-      requiresEmailVerification,
-      requiresPhoneVerification,
-      role,
-      userTier,
-      createdAt,
-      phoneNumber,
-      sessionId,
-      accessToken
-    );
-  }
 }
 
 /**
@@ -703,7 +666,7 @@ export class CreateUserResponseDto {
  */
 export class AdminCreateUserResponseDto extends CreateUserResponseDto {
   @ApiPropertyOptional({
-    description: 'Admin ID who created this user',
+    description: 'Admin ID who created this user (auto-filled from JWT)',
     example: 'admin_550e8400-e29b-41d4-a716-446655440000',
   })
   createdBy?: string;
@@ -738,8 +701,8 @@ export class AdminCreateUserResponseDto extends CreateUserResponseDto {
     fullName: string,
     requiresEmailVerification: boolean,
     requiresPhoneVerification: boolean = false,
-    role?: string,
-    userTier?: string,
+    role?: UserRole,
+    userTier?: UserTier,
     createdBy?: string,
     requirePasswordChange?: boolean,
     emailPreVerified?: boolean,
