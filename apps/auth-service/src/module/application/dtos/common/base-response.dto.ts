@@ -10,62 +10,95 @@
  * 
  * Enterprise Rules:
  * ✅ ONLY data transport and DTO factory methods
- * ✅ NO business logic
- * ✅ NO database queries
- * ✅ NO infrastructure imports
+ * ✅ NO business logic, NO database queries, NO infrastructure imports
  * ✅ Static factory methods are acceptable (pure DTO creation)
  * ✅ Bangladesh specific - Bengali error messages support
+ * ✅ Type-safe with shared-types integration
+ * ✅ HTTP status code compliant
+ * 
+ * @example
+ * // Success response
+ * return BaseResponseDto.success(userData, 'User fetched successfully');
+ * 
+ * // Error response
+ * return BaseResponseDto.error('Invalid credentials', 401);
+ * 
+ * // Paginated response
+ * return new PaginatedResponseDto(items, page, limit, total).toBaseResponse();
  */
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+// ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট - Single source of truth
+import type { ErrorCode as SharedErrorCode } from '@vubon/shared-types';
 
 // ============================================================
 // Types
 // ============================================================
 
-export type ErrorCode = 
-  | 'BAD_REQUEST'
-  | 'UNAUTHORIZED'
-  | 'FORBIDDEN'
-  | 'NOT_FOUND'
-  | 'CONFLICT'
-  | 'VALIDATION_ERROR'
-  | 'INTERNAL_ERROR'
-  | 'TOO_MANY_REQUESTS'
-  | 'RATE_LIMITED'
-  | 'ACCOUNT_LOCKED'
-  | 'ACCOUNT_SUSPENDED'
-  | 'EMAIL_NOT_VERIFIED'
-  | 'PHONE_NOT_VERIFIED'
-  | 'MFA_REQUIRED'
-  | 'MFA_FAILED'
-  | 'TOKEN_EXPIRED'
-  | 'INVALID_CREDENTIALS';
+/**
+ * Error codes for programmatic error handling
+ * Centralized from shared-types to maintain consistency
+ * 
+ * @see {@link ErrorCode} from @vubon/shared-types
+ */
+export type ErrorCode = SharedErrorCode;
 
 // ============================================================
 // Validation Error Detail DTO
 // ============================================================
 
 /**
- * Validation error detail
+ * Detailed validation error for specific fields
+ * Used in validation error responses to indicate which fields failed
+ * 
+ * @example
+ * {
+ *   "field": "email",
+ *   "message": "Email must be valid",
+ *   "messageBn": "ইমেইল সঠিক হতে হবে",
+ *   "code": "INVALID_EMAIL",
+ *   "rejectedValue": "invalid-email"
+ * }
  */
 export class ValidationErrorDetail {
-  @ApiProperty({ description: 'Field name with error', example: 'email' })
+  @ApiProperty({ 
+    description: 'Field name with error', 
+    example: 'email' 
+  })
   field: string;
 
-  @ApiProperty({ description: 'Error message', example: 'Email must be valid' })
+  @ApiProperty({ 
+    description: 'Error message in English', 
+    example: 'Email must be valid' 
+  })
   message: string;
 
-  @ApiPropertyOptional({ description: 'Bengali error message for Bangladesh users', example: 'ইমেইল সঠিক হতে হবে' })
+  @ApiPropertyOptional({ 
+    description: 'Error message in Bengali (Bangladesh specific)', 
+    example: 'ইমেইল সঠিক হতে হবে' 
+  })
   messageBn?: string;
 
-  @ApiPropertyOptional({ description: 'Error code', example: 'INVALID_EMAIL' })
+  @ApiPropertyOptional({ 
+    description: 'Error code for programmatic handling', 
+    example: 'INVALID_EMAIL' 
+  })
   code?: string;
 
-  @ApiPropertyOptional({ description: 'Rejected value', example: 'invalid-email' })
+  @ApiPropertyOptional({ 
+    description: 'Rejected value that caused the error', 
+    example: 'invalid-email' 
+  })
   rejectedValue?: any;
 
-  constructor(field: string, message: string, rejectedValue?: any, messageBn?: string, code?: string) {
+  constructor(
+    field: string, 
+    message: string, 
+    rejectedValue?: any, 
+    messageBn?: string, 
+    code?: string
+  ) {
     this.field = field;
     this.message = message;
     this.messageBn = messageBn;
@@ -79,28 +112,50 @@ export class ValidationErrorDetail {
 // ============================================================
 
 /**
- * Base Response Metadata
+ * Metadata for API responses
+ * Includes request tracing, timing, and environment information
  */
 export class ResponseMetadata {
-  @ApiProperty({ description: 'Request timestamp', example: '2024-01-01T00:00:00.000Z' })
+  @ApiProperty({ 
+    description: 'Request timestamp (ISO 8601)', 
+    example: '2024-01-01T00:00:00.000Z' 
+  })
   timestamp: string;
 
-  @ApiPropertyOptional({ description: 'Request path', example: '/api/v1/auth/login' })
+  @ApiPropertyOptional({ 
+    description: 'Request path', 
+    example: '/api/v1/auth/login' 
+  })
   path?: string;
 
-  @ApiPropertyOptional({ description: 'HTTP method', example: 'POST' })
+  @ApiPropertyOptional({ 
+    description: 'HTTP method', 
+    example: 'POST' 
+  })
   method?: string;
 
-  @ApiPropertyOptional({ description: 'Response time in milliseconds', example: 45 })
+  @ApiPropertyOptional({ 
+    description: 'Response time in milliseconds', 
+    example: 45 
+  })
   durationMs?: number;
 
-  @ApiPropertyOptional({ description: 'Request ID for tracing', example: 'req_abc123' })
+  @ApiPropertyOptional({ 
+    description: 'Unique request ID for tracing', 
+    example: 'req_abc123' 
+  })
   requestId?: string;
 
-  @ApiPropertyOptional({ description: 'API version', example: 'v1' })
+  @ApiPropertyOptional({ 
+    description: 'API version', 
+    example: 'v1' 
+  })
   version?: string;
 
-  @ApiPropertyOptional({ description: 'Environment', example: 'production' })
+  @ApiPropertyOptional({ 
+    description: 'Environment (development/staging/production)', 
+    example: 'production' 
+  })
   environment?: string;
 
   constructor(
@@ -126,38 +181,83 @@ export class ResponseMetadata {
 // ============================================================
 
 /**
- * Base Response DTO
  * Generic wrapper for all API responses
+ * Ensures consistent response format across all endpoints
+ * 
+ * @template T - Type of the data payload
+ * 
+ * @example
+ * // Success response with data
+ * const response = new BaseResponseDto(true, 200, 'Success', { id: 1 });
+ * 
+ * // Error response
+ * const errorResponse = BaseResponseDto.error('Not found', 404);
  */
 export class BaseResponseDto<T> {
-  @ApiProperty({ description: 'Whether the operation was successful', example: true })
+  @ApiProperty({ 
+    description: 'Whether the operation was successful', 
+    example: true 
+  })
   success: boolean;
 
-  @ApiProperty({ description: 'Status code (HTTP compatible)', example: 200 })
+  @ApiProperty({ 
+    description: 'HTTP status code', 
+    example: 200 
+  })
   statusCode: number;
 
-  @ApiProperty({ description: 'Response message', example: 'Operation successful' })
+  @ApiProperty({ 
+    description: 'Response message in English', 
+    example: 'Operation successful' 
+  })
   message: string;
 
-  @ApiPropertyOptional({ description: 'Bengali response message for Bangladesh users', example: 'অপারেশন সফল হয়েছে' })
+  @ApiPropertyOptional({ 
+    description: 'Response message in Bengali (Bangladesh specific)', 
+    example: 'অপারেশন সফল হয়েছে' 
+  })
   messageBn?: string;
 
-  @ApiPropertyOptional({ description: 'Error code for programmatic handling', enum: ['BAD_REQUEST', 'UNAUTHORIZED', 'FORBIDDEN', 'NOT_FOUND', 'CONFLICT', 'VALIDATION_ERROR', 'INTERNAL_ERROR', 'TOO_MANY_REQUESTS'] })
+  @ApiPropertyOptional({ 
+    description: 'Error code for programmatic handling', 
+    enum: [
+      'BAD_REQUEST', 'UNAUTHORIZED', 'FORBIDDEN', 'NOT_FOUND',
+      'CONFLICT', 'VALIDATION_ERROR', 'INTERNAL_ERROR', 
+      'TOO_MANY_REQUESTS', 'RATE_LIMITED', 'ACCOUNT_LOCKED',
+      'ACCOUNT_SUSPENDED', 'EMAIL_NOT_VERIFIED', 'PHONE_NOT_VERIFIED',
+      'MFA_REQUIRED', 'MFA_FAILED', 'TOKEN_EXPIRED', 'INVALID_CREDENTIALS'
+    ] 
+  })
   errorCode?: ErrorCode;
 
-  @ApiPropertyOptional({ description: 'Response data payload' })
+  @ApiPropertyOptional({ 
+    description: 'Response data payload', 
+    example: { id: 'usr_123', email: 'user@example.com' } 
+  })
   data?: T;
 
-  @ApiPropertyOptional({ description: 'Validation errors (if any)', type: [ValidationErrorDetail] })
+  @ApiPropertyOptional({ 
+    description: 'Validation error details (for 400 responses)', 
+    type: [ValidationErrorDetail] 
+  })
   errors?: ValidationErrorDetail[];
 
-  @ApiPropertyOptional({ description: 'Generic error messages', type: [String] })
+  @ApiPropertyOptional({ 
+    description: 'Generic error messages in English', 
+    type: [String] 
+  })
   errorMessages?: string[];
 
-  @ApiPropertyOptional({ description: 'Bengali error messages', type: [String] })
+  @ApiPropertyOptional({ 
+    description: 'Generic error messages in Bengali', 
+    type: [String] 
+  })
   errorMessagesBn?: string[];
 
-  @ApiPropertyOptional({ description: 'Response metadata', type: ResponseMetadata })
+  @ApiPropertyOptional({ 
+    description: 'Response metadata for tracing', 
+    type: ResponseMetadata 
+  })
   metadata?: ResponseMetadata;
 
   constructor(
@@ -185,11 +285,20 @@ export class BaseResponseDto<T> {
   }
 
   // ============================================================
-  // Factory Methods
+  // Success Factory Methods
   // ============================================================
 
   /**
-   * Create a success response
+   * Create a standard 200 OK success response
+   * 
+   * @param data - Response data payload
+   * @param message - Success message in English
+   * @param statusCode - HTTP status code (default: 200)
+   * @param metadata - Optional response metadata
+   * @param messageBn - Bengali success message
+   * 
+   * @example
+   * return BaseResponseDto.success(user, 'User fetched successfully');
    */
   static success<T>(
     data: T,
@@ -204,7 +313,12 @@ export class BaseResponseDto<T> {
   }
 
   /**
-   * Create a success response for creation (201)
+   * Create a 201 Created success response (resource created)
+   * 
+   * @param data - Created resource data
+   * @param message - Success message in English
+   * @param metadata - Optional response metadata
+   * @param messageBn - Bengali success message
    */
   static created<T>(
     data: T,
@@ -218,7 +332,11 @@ export class BaseResponseDto<T> {
   }
 
   /**
-   * Create a success response for no content (204)
+   * Create a 204 No Content success response (no data to return)
+   * 
+   * @param message - Success message in English
+   * @param metadata - Optional response metadata
+   * @param messageBn - Bengali success message
    */
   static noContent(
     message: string = 'Operation successful',
@@ -230,8 +348,21 @@ export class BaseResponseDto<T> {
     );
   }
 
+  // ============================================================
+  // Error Factory Methods
+  // ============================================================
+
   /**
-   * Create an error response
+   * Create a generic error response
+   * 
+   * @param message - Error message in English
+   * @param statusCode - HTTP status code (default: 400)
+   * @param errors - Validation error details
+   * @param errorMessages - Generic error messages
+   * @param metadata - Optional response metadata
+   * @param messageBn - Bengali error message
+   * @param errorCode - Programmatic error code
+   * @param errorMessagesBn - Bengali generic error messages
    */
   static error(
     message: string,
@@ -244,12 +375,18 @@ export class BaseResponseDto<T> {
     errorMessagesBn?: string[]
   ): BaseResponseDto<null> {
     return new BaseResponseDto<null>(
-      false, statusCode, message, null, errors, errorMessages, metadata, messageBn, errorCode, errorMessagesBn
+      false, statusCode, message, null, errors, errorMessages, metadata, 
+      messageBn, errorCode, errorMessagesBn
     );
   }
 
   /**
-   * Create a validation error response (400)
+   * Create a 400 Bad Request validation error response
+   * 
+   * @param errors - Validation error details
+   * @param message - Error message in English
+   * @param metadata - Optional response metadata
+   * @param messageBn - Bengali error message
    */
   static validationError(
     errors: ValidationErrorDetail[],
@@ -263,7 +400,11 @@ export class BaseResponseDto<T> {
   }
 
   /**
-   * Create an unauthorized response (401)
+   * Create a 401 Unauthorized error response
+   * 
+   * @param message - Error message in English
+   * @param metadata - Optional response metadata
+   * @param messageBn - Bengali error message
    */
   static unauthorized(
     message: string = 'Unauthorized',
@@ -276,7 +417,11 @@ export class BaseResponseDto<T> {
   }
 
   /**
-   * Create a forbidden response (403)
+   * Create a 403 Forbidden error response
+   * 
+   * @param message - Error message in English
+   * @param metadata - Optional response metadata
+   * @param messageBn - Bengali error message
    */
   static forbidden(
     message: string = 'Forbidden',
@@ -289,7 +434,11 @@ export class BaseResponseDto<T> {
   }
 
   /**
-   * Create a not found response (404)
+   * Create a 404 Not Found error response
+   * 
+   * @param message - Error message in English
+   * @param metadata - Optional response metadata
+   * @param messageBn - Bengali error message
    */
   static notFound(
     message: string = 'Resource not found',
@@ -302,7 +451,11 @@ export class BaseResponseDto<T> {
   }
 
   /**
-   * Create a conflict response (409)
+   * Create a 409 Conflict error response
+   * 
+   * @param message - Error message in English
+   * @param metadata - Optional response metadata
+   * @param messageBn - Bengali error message
    */
   static conflict(
     message: string = 'Resource conflict',
@@ -315,20 +468,31 @@ export class BaseResponseDto<T> {
   }
 
   /**
-   * Create a too many requests response (429)
+   * Create a 429 Too Many Requests error response
+   * 
+   * @param message - Error message in English
+   * @param metadata - Optional response metadata
+   * @param messageBn - Bengali error message
+   * @param retryAfterSeconds - Seconds to wait before retrying
    */
   static tooManyRequests(
     message: string = 'Too many requests',
     metadata?: ResponseMetadata,
-    messageBn?: string
-  ): BaseResponseDto<null> {
-    return new BaseResponseDto<null>(
-      false, 429, message, null, undefined, undefined, metadata, messageBn, 'TOO_MANY_REQUESTS'
+    messageBn?: string,
+    retryAfterSeconds?: number
+  ): BaseResponseDto<{ retryAfterSeconds?: number }> {
+    return new BaseResponseDto<{ retryAfterSeconds?: number }>(
+      false, 429, message, retryAfterSeconds ? { retryAfterSeconds } : null, 
+      undefined, undefined, metadata, messageBn, 'TOO_MANY_REQUESTS'
     );
   }
 
   /**
-   * Create an internal server error response (500)
+   * Create a 500 Internal Server Error response
+   * 
+   * @param message - Error message in English
+   * @param metadata - Optional response metadata
+   * @param messageBn - Bengali error message
    */
   static internalError(
     message: string = 'Internal server error',
@@ -340,68 +504,134 @@ export class BaseResponseDto<T> {
     );
   }
 
+  // ============================================================
+  // Business Logic Error Factory Methods
+  // ============================================================
+
   /**
-   * Create an account locked response (423)
+   * Create a 423 Account Locked response
+   * 
+   * @param message - Error message in English
+   * @param remainingLockTime - Lock duration in minutes or seconds
+   * @param metadata - Optional response metadata
+   * @param messageBn - Bengali error message
    */
   static accountLocked(
     message: string = 'Account is locked',
+    remainingLockTime?: number,
     metadata?: ResponseMetadata,
-    messageBn?: string,
-    remainingLockTime?: number
-  ): BaseResponseDto<{ remainingLockTime: number }> {
-    return new BaseResponseDto<{ remainingLockTime: number }>(
-      false, 423, message, { remainingLockTime: remainingLockTime || 0 }, undefined, undefined, metadata, messageBn, 'ACCOUNT_LOCKED'
+    messageBn?: string
+  ): BaseResponseDto<{ remainingLockTime?: number }> {
+    return new BaseResponseDto<{ remainingLockTime?: number }>(
+      false, 423, message, remainingLockTime ? { remainingLockTime } : null, 
+      undefined, undefined, metadata, messageBn, 'ACCOUNT_LOCKED'
     );
   }
 
   /**
-   * Create an MFA required response
+   * Create an MFA Required response (status code may vary)
+   * 
+   * @param message - Message in English
+   * @param mfaMethods - Available MFA methods
+   * @param metadata - Optional response metadata
+   * @param messageBn - Bengali message
+   * @param mfaSessionId - Optional MFA session ID
    */
   static mfaRequired(
     message: string = 'MFA verification required',
+    mfaMethods: string[] = [],
     metadata?: ResponseMetadata,
     messageBn?: string,
-    mfaMethods?: string[]
-  ): BaseResponseDto<{ mfaMethods: string[] }> {
-    return new BaseResponseDto<{ mfaMethods: string[] }>(
-      false, 401, message, { mfaMethods: mfaMethods || [] }, undefined, undefined, metadata, messageBn, 'MFA_REQUIRED'
+    mfaSessionId?: string
+  ): BaseResponseDto<{ mfaMethods: string[]; mfaSessionId?: string }> {
+    return new BaseResponseDto<{ mfaMethods: string[]; mfaSessionId?: string }>(
+      false, 401, message, { mfaMethods, mfaSessionId }, 
+      undefined, undefined, metadata, messageBn, 'MFA_REQUIRED'
     );
+  }
+
+  /**
+   * Create a 429 Rate Limited response (alias for tooManyRequests)
+   */
+  static rateLimited(
+    retryAfterSeconds: number,
+    message: string = 'Rate limit exceeded',
+    metadata?: ResponseMetadata,
+    messageBn?: string
+  ): BaseResponseDto<{ retryAfterSeconds: number }> {
+    return BaseResponseDto.tooManyRequests(message, metadata, messageBn, retryAfterSeconds);
   }
 }
 
 // ============================================================
-// Paginated Response DTO
+// Pagination Metadata DTO
 // ============================================================
 
 /**
- * Pagination metadata
+ * Pagination metadata for paginated responses
+ * Supports both offset-based and cursor-based pagination
  */
 export class PaginationMetadata {
-  @ApiProperty({ description: 'Current page number', example: 1, minimum: 1 })
+  @ApiProperty({ 
+    description: 'Current page number (1-indexed)', 
+    example: 1, 
+    minimum: 1 
+  })
   page: number;
 
-  @ApiProperty({ description: 'Items per page', example: 20, minimum: 1, maximum: 100 })
+  @ApiProperty({ 
+    description: 'Number of items per page', 
+    example: 20, 
+    minimum: 1, 
+    maximum: 100 
+  })
   limit: number;
 
-  @ApiProperty({ description: 'Total number of items', example: 100, minimum: 0 })
+  @ApiProperty({ 
+    description: 'Total number of items available', 
+    example: 100, 
+    minimum: 0 
+  })
   total: number;
 
-  @ApiProperty({ description: 'Total number of pages', example: 5, minimum: 1 })
+  @ApiProperty({ 
+    description: 'Total number of pages', 
+    example: 5, 
+    minimum: 1 
+  })
   totalPages: number;
 
-  @ApiProperty({ description: 'Whether there is a next page', example: true })
+  @ApiProperty({ 
+    description: 'Whether there is a next page', 
+    example: true 
+  })
   hasNextPage: boolean;
 
-  @ApiProperty({ description: 'Whether there is a previous page', example: false })
+  @ApiProperty({ 
+    description: 'Whether there is a previous page', 
+    example: false 
+  })
   hasPreviousPage: boolean;
 
-  @ApiPropertyOptional({ description: 'Next cursor for cursor-based pagination', example: 'cursor_abc123' })
+  @ApiPropertyOptional({ 
+    description: 'Cursor for the next page (cursor-based pagination)', 
+    example: 'cursor_abc123' 
+  })
   nextCursor?: string;
 
-  @ApiPropertyOptional({ description: 'Previous cursor for cursor-based pagination', example: 'cursor_xyz789' })
+  @ApiPropertyOptional({ 
+    description: 'Cursor for the previous page (cursor-based pagination)', 
+    example: 'cursor_xyz789' 
+  })
   prevCursor?: string;
 
-  constructor(page: number, limit: number, total: number, nextCursor?: string, prevCursor?: string) {
+  constructor(
+    page: number, 
+    limit: number, 
+    total: number, 
+    nextCursor?: string, 
+    prevCursor?: string
+  ) {
     this.page = page;
     this.limit = limit;
     this.total = total;
@@ -413,24 +643,51 @@ export class PaginationMetadata {
   }
 }
 
+// ============================================================
+// Paginated Response DTO
+// ============================================================
+
 /**
- * Paginated Response DTO
- * Wrapper for paginated list responses
+ * Generic wrapper for paginated list responses
+ * 
+ * @template T - Type of items in the list
+ * 
+ * @example
+ * const paginatedResponse = new PaginatedResponseDto(items, page, limit, total);
+ * return paginatedResponse.toBaseResponse('Users fetched successfully');
  */
 export class PaginatedResponseDto<T> {
-  @ApiProperty({ description: 'List of items', isArray: true })
+  @ApiProperty({ 
+    description: 'List of items', 
+    isArray: true 
+  })
   items: T[];
 
-  @ApiProperty({ description: 'Pagination metadata', type: PaginationMetadata })
+  @ApiProperty({ 
+    description: 'Pagination metadata', 
+    type: PaginationMetadata 
+  })
   pagination: PaginationMetadata;
 
-  constructor(items: T[], page: number, limit: number, total: number, nextCursor?: string, prevCursor?: string) {
+  constructor(
+    items: T[], 
+    page: number, 
+    limit: number, 
+    total: number, 
+    nextCursor?: string, 
+    prevCursor?: string
+  ) {
     this.items = items;
     this.pagination = new PaginationMetadata(page, limit, total, nextCursor, prevCursor);
   }
 
   /**
-   * Convert to BaseResponseDto
+   * Convert to standard BaseResponseDto
+   * 
+   * @param message - Success message in English
+   * @param metadata - Optional response metadata
+   * @param messageBn - Bengali success message
+   * @returns BaseResponseDto wrapping the paginated data
    */
   toBaseResponse(
     message: string = 'Operation successful',
@@ -446,13 +703,20 @@ export class PaginatedResponseDto<T> {
 // ============================================================
 
 /**
- * Empty response (for no content)
+ * Empty response for operations that return no data
+ * Typically used with 204 No Content responses
  */
 export class EmptyResponseDto {
-  @ApiProperty({ description: 'Success message', example: 'Operation completed successfully' })
+  @ApiProperty({ 
+    description: 'Success message in English', 
+    example: 'Operation completed successfully' 
+  })
   message: string;
 
-  @ApiPropertyOptional({ description: 'Bengali success message', example: 'অপারেশন সফলভাবে সম্পন্ন হয়েছে' })
+  @ApiPropertyOptional({ 
+    description: 'Success message in Bengali (Bangladesh specific)', 
+    example: 'অপারেশন সফলভাবে সম্পন্ন হয়েছে' 
+  })
   messageBn?: string;
 
   constructor(message: string = 'Operation completed successfully', messageBn?: string) {
