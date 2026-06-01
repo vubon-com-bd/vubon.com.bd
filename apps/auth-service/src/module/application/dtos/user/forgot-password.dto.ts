@@ -37,22 +37,28 @@ import {
   Matches,
   MaxLength,
   MinLength,
-  ValidateIf,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
+// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট - কেন্দ্রীভূত কনফিগারেশন
+import { 
+  PASSWORD_POLICY, 
+  PASSWORD_PATTERNS, 
+  PHONE_PATTERNS, 
+  RESET_METHODS,
+  TOKEN_PATTERNS,
+  RATE_LIMIT_CONFIG,
+} from '@vubon/shared-constants';
+
+// ✅ Phase-1 (shared-types) থেকে টাইপ ইম্পোর্ট
+import type { ResetMethod } from '@vubon/shared-types';
+
 // ============================================================
-// Enums
+// Enums (কনস্ট্যান্ট থেকে ইম্পোর্ট করা)
 // ============================================================
 
-/**
- * Reset method type
- */
-export enum ResetMethod {
-  EMAIL = 'email',
-  SMS = 'sms',
-  WHATSAPP = 'whatsapp',
-}
+// লোকাল এনামের বদলে কনস্ট্যান্ট ব্যবহার
+export const ResetMethod = RESET_METHODS;
 
 // ============================================================
 // Request DTOs
@@ -105,6 +111,7 @@ export class ForgotPasswordDto {
  * {
  *   "phoneNumber": "+8801712345678",
  *   "method": "sms",
+ *   "language": "bn",
  *   "captchaToken": "03AGdBq25..."
  * }
  */
@@ -113,19 +120,19 @@ export class ForgotPasswordPhoneDto {
     description: 'Bangladesh phone number (E.164 format)',
     example: '+8801712345678',
     required: true,
-    pattern: '^\\+8801[3-9]\\d{8}$',
+    pattern: PHONE_PATTERNS.BANGLADESH_E164,
   })
   @IsString({ message: 'Phone number must be a string' })
   @IsNotEmpty({ message: 'Phone number is required' })
-  @Matches(/^\+8801[3-9]\d{8}$/, { 
+  @Matches(PHONE_PATTERNS.BANGLADESH_E164, { 
     message: 'Please provide a valid Bangladesh phone number (e.g., +8801712345678)' 
   })
   phoneNumber: string;
 
   @ApiPropertyOptional({
     description: 'Reset method (sms, whatsapp)',
-    example: 'sms',
     enum: ResetMethod,
+    example: ResetMethod.SMS,
     default: ResetMethod.SMS,
   })
   @IsOptional()
@@ -134,7 +141,7 @@ export class ForgotPasswordPhoneDto {
 
   @ApiPropertyOptional({
     description: 'Preferred language for OTP message',
-    example: 'en',
+    example: 'bn',
     enum: ['en', 'bn'],
     default: 'en',
   })
@@ -154,7 +161,12 @@ export class ForgotPasswordPhoneDto {
   @MaxLength(1000, { message: 'Captcha token is too long' })
   captchaToken?: string;
 
-  constructor(phoneNumber: string, method?: ResetMethod, language?: 'en' | 'bn', captchaToken?: string) {
+  constructor(
+    phoneNumber: string, 
+    method?: ResetMethod, 
+    language?: 'en' | 'bn', 
+    captchaToken?: string
+  ) {
     this.phoneNumber = phoneNumber;
     this.method = method ?? ResetMethod.SMS;
     this.language = language ?? 'en';
@@ -221,23 +233,28 @@ export class ResetPasswordDto {
   })
   @IsString({ message: 'Token must be a string' })
   @IsNotEmpty({ message: 'Reset token is required' })
+  @Matches(TOKEN_PATTERNS.JWT, { message: 'Invalid token format' })
   token: string;
   
   @ApiProperty({
     description: 'New password',
     example: 'MyNewStr0ng!P@ssw0rd123',
     required: true,
-    minLength: 8,
-    maxLength: 128,
     format: 'password',
     writeOnly: true,
+    minLength: PASSWORD_POLICY.MIN_LENGTH,
+    maxLength: PASSWORD_POLICY.MAX_LENGTH,
   })
   @IsString({ message: 'New password must be a string' })
   @IsNotEmpty({ message: 'New password is required' })
-  @MinLength(8, { message: 'Password must be at least 8 characters long' })
-  @MaxLength(128, { message: 'Password cannot exceed 128 characters' })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
-    message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+  @MinLength(PASSWORD_POLICY.MIN_LENGTH, { 
+    message: `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters long` 
+  })
+  @MaxLength(PASSWORD_POLICY.MAX_LENGTH, { 
+    message: `Password cannot exceed ${PASSWORD_POLICY.MAX_LENGTH} characters` 
+  })
+  @Matches(PASSWORD_PATTERNS.STRONG, {
+    message: PASSWORD_POLICY.STRONG_PASSWORD_MESSAGE,
   })
   newPassword: string;
 
@@ -274,11 +291,11 @@ export class ResetPasswordWithOtpDto {
     description: 'Bangladesh phone number (E.164 format)',
     example: '+8801712345678',
     required: true,
-    pattern: '^\\+8801[3-9]\\d{8}$',
+    pattern: PHONE_PATTERNS.BANGLADESH_E164,
   })
   @IsString({ message: 'Phone number must be a string' })
   @IsNotEmpty({ message: 'Phone number is required' })
-  @Matches(/^\+8801[3-9]\d{8}$/, { 
+  @Matches(PHONE_PATTERNS.BANGLADESH_E164, { 
     message: 'Please provide a valid Bangladesh phone number (e.g., +8801712345678)' 
   })
   phoneNumber: string;
@@ -300,17 +317,21 @@ export class ResetPasswordWithOtpDto {
     description: 'New password',
     example: 'MyNewStr0ng!P@ssw0rd123',
     required: true,
-    minLength: 8,
-    maxLength: 128,
     format: 'password',
     writeOnly: true,
+    minLength: PASSWORD_POLICY.MIN_LENGTH,
+    maxLength: PASSWORD_POLICY.MAX_LENGTH,
   })
   @IsString({ message: 'New password must be a string' })
   @IsNotEmpty({ message: 'New password is required' })
-  @MinLength(8, { message: 'Password must be at least 8 characters long' })
-  @MaxLength(128, { message: 'Password cannot exceed 128 characters' })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
-    message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+  @MinLength(PASSWORD_POLICY.MIN_LENGTH, { 
+    message: `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters long` 
+  })
+  @MaxLength(PASSWORD_POLICY.MAX_LENGTH, { 
+    message: `Password cannot exceed ${PASSWORD_POLICY.MAX_LENGTH} characters` 
+  })
+  @Matches(PASSWORD_PATTERNS.STRONG, {
+    message: PASSWORD_POLICY.STRONG_PASSWORD_MESSAGE,
   })
   newPassword: string;
 
@@ -324,7 +345,12 @@ export class ResetPasswordWithOtpDto {
   @IsString({ message: 'Confirm password must be a string' })
   confirmPassword?: string;
 
-  constructor(phoneNumber: string, otpCode: string, newPassword: string, confirmPassword?: string) {
+  constructor(
+    phoneNumber: string, 
+    otpCode: string, 
+    newPassword: string, 
+    confirmPassword?: string
+  ) {
     this.phoneNumber = phoneNumber;
     this.otpCode = otpCode;
     this.newPassword = newPassword;
@@ -347,11 +373,11 @@ export class VerifyResetOtpDto {
     description: 'Bangladesh phone number (E.164 format)',
     example: '+8801712345678',
     required: true,
-    pattern: '^\\+8801[3-9]\\d{8}$',
+    pattern: PHONE_PATTERNS.BANGLADESH_E164,
   })
   @IsString({ message: 'Phone number must be a string' })
   @IsNotEmpty({ message: 'Phone number is required' })
-  @Matches(/^\+8801[3-9]\d{8}$/, { 
+  @Matches(PHONE_PATTERNS.BANGLADESH_E164, { 
     message: 'Please provide a valid Bangladesh phone number (e.g., +8801712345678)' 
   })
   phoneNumber: string;
@@ -464,13 +490,25 @@ export class ForgotPasswordResponseDto {
     message?: string,
     messageBn?: string
   ): ForgotPasswordResponseDto {
-    return new ForgotPasswordResponseDto(false, undefined, message, messageBn, maskedIdentifier, sessionId, otpExpirySeconds);
+    return new ForgotPasswordResponseDto(
+      false, 
+      undefined, 
+      message, 
+      messageBn, 
+      maskedIdentifier, 
+      sessionId, 
+      otpExpirySeconds
+    );
   }
   
   /**
    * Create rate limited response
    */
-  static rateLimited(retryAfterSeconds: number, message?: string, messageBn?: string): ForgotPasswordResponseDto {
+  static rateLimited(
+    retryAfterSeconds: number, 
+    message?: string, 
+    messageBn?: string
+  ): ForgotPasswordResponseDto {
     return new ForgotPasswordResponseDto(true, retryAfterSeconds, message, messageBn);
   }
 }
@@ -607,13 +645,20 @@ export class ValidateResetTokenResponseDto {
   })
   userId?: string;
 
+  @ApiPropertyOptional({
+    description: 'Bengali validation message',
+    example: 'টোকেনটি বৈধ',
+  })
+  messageBn?: string;
+
   constructor(
     isValid: boolean, 
     email?: string, 
     expiresAt?: Date,
     remainingSeconds?: number,
     userId?: string,
-    phoneNumber?: string
+    phoneNumber?: string,
+    messageBn?: string
   ) {
     this.isValid = isValid;
     this.email = email;
@@ -623,6 +668,7 @@ export class ValidateResetTokenResponseDto {
     }
     this.remainingSeconds = remainingSeconds;
     this.userId = userId;
+    this.messageBn = messageBn;
   }
 }
 
@@ -655,16 +701,24 @@ export class ResetRateLimitResponseDto {
   })
   resetInSeconds: number;
 
+  @ApiPropertyOptional({
+    description: 'Bengali message',
+    example: 'আপনি অনেক বেশি রিকোয়েস্ট করেছেন। অনুগ্রহ করে কিছুক্ষণ পরে আবার চেষ্টা করুন।',
+  })
+  messageBn?: string;
+
   constructor(
     limited: boolean,
     remainingRequests: number,
     resetAt: Date,
-    resetInSeconds: number
+    resetInSeconds: number,
+    messageBn?: string
   ) {
     this.limited = limited;
     this.remainingRequests = remainingRequests;
     this.resetAt = resetAt.toISOString();
     this.resetInSeconds = resetInSeconds;
+    this.messageBn = messageBn;
   }
 }
 
