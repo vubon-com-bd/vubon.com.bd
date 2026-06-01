@@ -36,24 +36,19 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-// ============================================================
-// Types
-// ============================================================
-
-/**
- * Session revocation scope
- */
-export type RevocationScope = 'all' | 'except_current' | 'by_device_type' | 'by_trust_level';
-
-/**
- * Device types for filtering (Bangladesh specific)
- */
-export type DeviceTypeFilter = 'mobile' | 'tablet' | 'desktop' | 'laptop' | 'feature_phone' | 'tv' | 'wearable';
-
-/**
- * Trust levels for filtering
- */
-export type TrustLevelFilter = 'untrusted' | 'standard' | 'trusted' | 'high_trust';
+// ✅ Phase-1 (shared-constants & shared-types) থেকে ইম্পোর্ট
+import { 
+  SESSION_CONFIG, 
+  BATCH_CONFIG,
+  DEVICE_TYPES,
+  TRUST_LEVELS,
+  REVOCATION_SCOPES
+} from '@vubon/shared-constants';
+import type { 
+  DeviceType, 
+  TrustLevel, 
+  RevocationScope 
+} from '@vubon/shared-types';
 
 // ============================================================
 // Request DTOs
@@ -91,15 +86,15 @@ export class RevokeAllSessionsDto {
 
   @ApiPropertyOptional({
     description: 'Revocation scope',
-    example: 'all',
-    enum: ['all', 'except_current', 'by_device_type', 'by_trust_level'],
-    default: 'except_current',
+    example: REVOCATION_SCOPES.EXCEPT_CURRENT,
+    enum: Object.values(REVOCATION_SCOPES),
+    default: REVOCATION_SCOPES.EXCEPT_CURRENT,
   })
   @IsOptional()
-  @IsIn(['all', 'except_current', 'by_device_type', 'by_trust_level'], { 
-    message: 'Scope must be all, except_current, by_device_type, or by_trust_level' 
+  @IsIn(Object.values(REVOCATION_SCOPES), { 
+    message: `Scope must be one of: ${Object.values(REVOCATION_SCOPES).join(', ')}` 
   })
-  scope?: RevocationScope = 'except_current';
+  scope?: RevocationScope = REVOCATION_SCOPES.EXCEPT_CURRENT;
 
   @ApiPropertyOptional({
     description: 'Whether to exclude current session from revocation',
@@ -122,33 +117,33 @@ export class RevokeAllSessionsDto {
 
   @ApiPropertyOptional({
     description: 'Device types to revoke (when scope is by_device_type)',
-    example: ['mobile', 'tablet'],
-    enum: ['mobile', 'tablet', 'desktop', 'laptop', 'feature_phone', 'tv', 'wearable'],
+    example: [DEVICE_TYPES.MOBILE, DEVICE_TYPES.TABLET],
+    enum: DEVICE_TYPES,
     isArray: true,
   })
   @IsOptional()
   @IsArray({ message: 'Device types must be an array' })
   @ArrayMaxSize(10, { message: 'Maximum 10 device types allowed' })
-  @IsIn(['mobile', 'tablet', 'desktop', 'laptop', 'feature_phone', 'tv', 'wearable'], { 
+  @IsIn(Object.values(DEVICE_TYPES), { 
     each: true,
-    message: 'Invalid device type' 
+    message: `Device type must be one of: ${Object.values(DEVICE_TYPES).join(', ')}` 
   })
-  deviceTypes?: DeviceTypeFilter[];
+  deviceTypes?: DeviceType[];
 
   @ApiPropertyOptional({
     description: 'Trust levels to revoke (when scope is by_trust_level)',
-    example: ['untrusted', 'standard'],
-    enum: ['untrusted', 'standard', 'trusted', 'high_trust'],
+    example: [TRUST_LEVELS.UNTRUSTED, TRUST_LEVELS.STANDARD],
+    enum: TRUST_LEVELS,
     isArray: true,
   })
   @IsOptional()
   @IsArray({ message: 'Trust levels must be an array' })
   @ArrayMaxSize(4, { message: 'Maximum 4 trust levels allowed' })
-  @IsIn(['untrusted', 'standard', 'trusted', 'high_trust'], { 
+  @IsIn(Object.values(TRUST_LEVELS), { 
     each: true,
-    message: 'Invalid trust level' 
+    message: `Trust level must be one of: ${Object.values(TRUST_LEVELS).join(', ')}` 
   })
-  trustLevels?: TrustLevelFilter[];
+  trustLevels?: TrustLevel[];
 
   @ApiPropertyOptional({
     description: 'Reason for revoking sessions (for audit)',
@@ -166,14 +161,14 @@ export class RevokeAllSessionsDto {
     currentSessionId?: string,
     reason?: string,
     scope?: RevocationScope,
-    deviceTypes?: DeviceTypeFilter[],
-    trustLevels?: TrustLevelFilter[]
+    deviceTypes?: DeviceType[],
+    trustLevels?: TrustLevel[]
   ) {
     this.confirm = confirm;
     this.excludeCurrentSession = excludeCurrentSession ?? true;
     this.currentSessionId = currentSessionId;
     this.reason = reason;
-    this.scope = scope ?? 'except_current';
+    this.scope = scope ?? REVOCATION_SCOPES.EXCEPT_CURRENT;
     this.deviceTypes = deviceTypes;
     this.trustLevels = trustLevels;
   }
@@ -205,43 +200,43 @@ export class AdminRevokeSessionsDto {
 
   @ApiPropertyOptional({
     description: 'Revocation scope',
-    example: 'all',
-    enum: ['all', 'except_current', 'by_device_type', 'by_trust_level'],
-    default: 'all',
+    example: REVOCATION_SCOPES.ALL,
+    enum: Object.values(REVOCATION_SCOPES),
+    default: REVOCATION_SCOPES.ALL,
   })
   @IsOptional()
-  @IsIn(['all', 'except_current', 'by_device_type', 'by_trust_level'], { 
-    message: 'Scope must be all, except_current, by_device_type, or by_trust_level' 
+  @IsIn(Object.values(REVOCATION_SCOPES), { 
+    message: `Scope must be one of: ${Object.values(REVOCATION_SCOPES).join(', ')}` 
   })
-  scope?: RevocationScope = 'all';
+  scope?: RevocationScope = REVOCATION_SCOPES.ALL;
 
   @ApiPropertyOptional({
     description: 'Device types to revoke (when scope is by_device_type)',
-    example: ['mobile', 'tablet'],
-    enum: ['mobile', 'tablet', 'desktop', 'laptop', 'feature_phone', 'tv', 'wearable'],
+    example: [DEVICE_TYPES.MOBILE, DEVICE_TYPES.TABLET],
+    enum: DEVICE_TYPES,
     isArray: true,
   })
   @IsOptional()
   @IsArray({ message: 'Device types must be an array' })
-  @IsIn(['mobile', 'tablet', 'desktop', 'laptop', 'feature_phone', 'tv', 'wearable'], { 
+  @IsIn(Object.values(DEVICE_TYPES), { 
     each: true,
-    message: 'Invalid device type' 
+    message: `Device type must be one of: ${Object.values(DEVICE_TYPES).join(', ')}` 
   })
-  deviceTypes?: DeviceTypeFilter[];
+  deviceTypes?: DeviceType[];
 
   @ApiPropertyOptional({
     description: 'Trust levels to revoke (when scope is by_trust_level)',
-    example: ['untrusted', 'standard'],
-    enum: ['untrusted', 'standard', 'trusted', 'high_trust'],
+    example: [TRUST_LEVELS.UNTRUSTED, TRUST_LEVELS.STANDARD],
+    enum: TRUST_LEVELS,
     isArray: true,
   })
   @IsOptional()
   @IsArray({ message: 'Trust levels must be an array' })
-  @IsIn(['untrusted', 'standard', 'trusted', 'high_trust'], { 
+  @IsIn(Object.values(TRUST_LEVELS), { 
     each: true,
-    message: 'Invalid trust level' 
+    message: `Trust level must be one of: ${Object.values(TRUST_LEVELS).join(', ')}` 
   })
-  trustLevels?: TrustLevelFilter[];
+  trustLevels?: TrustLevel[];
 
   @ApiPropertyOptional({
     description: 'Reason for admin revocation',
@@ -268,14 +263,14 @@ export class AdminRevokeSessionsDto {
     reason?: string, 
     adminId?: string,
     scope?: RevocationScope,
-    deviceTypes?: DeviceTypeFilter[],
-    trustLevels?: TrustLevelFilter[]
+    deviceTypes?: DeviceType[],
+    trustLevels?: TrustLevel[]
   ) {
     this.targetUserId = targetUserId;
     this.confirm = confirm;
     this.reason = reason;
     this.adminId = adminId;
-    this.scope = scope ?? 'all';
+    this.scope = scope ?? REVOCATION_SCOPES.ALL;
     this.deviceTypes = deviceTypes;
     this.trustLevels = trustLevels;
   }
@@ -290,11 +285,13 @@ export class BulkRevokeSessionsDto {
     example: ['usr_550e8400-e29b-41d4-a716-446655440000', 'usr_550e8400-e29b-41d4-a716-446655440001'],
     isArray: true,
     minItems: 1,
-    maxItems: 100,
+    maxItems: BATCH_CONFIG.MAX_USERS_PER_BATCH,
     required: true,
   })
   @IsArray({ message: 'User IDs must be an array' })
-  @ArrayMaxSize(100, { message: 'Maximum 100 users per batch' })
+  @ArrayMaxSize(BATCH_CONFIG.MAX_USERS_PER_BATCH, { 
+    message: `Maximum ${BATCH_CONFIG.MAX_USERS_PER_BATCH} users per batch` 
+  })
   @IsUUID(4, { each: true, message: 'Each user ID must be a valid UUID' })
   userIds: string[];
 
@@ -568,4 +565,4 @@ export class BulkRevokeSessionsResponseDto {
 // Type Exports
 // ============================================================
 
-export type { RevocationScope, DeviceTypeFilter, TrustLevelFilter };
+export type { RevocationScope, DeviceType, TrustLevel };
