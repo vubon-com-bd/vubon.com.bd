@@ -25,17 +25,20 @@ import {
   MinLength,
   MaxLength,
   Matches,
-  ValidateIf,
   IsBoolean,
   IsIn,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-// ============================================================
-// Types
-// ============================================================
-
-export type MFADisableScope = 'single' | 'all';
+// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট - কেন্দ্রীভূত কনফিগারেশন
+import { 
+  BACKUP_CODE_PATTERN, 
+  MFS_PIN_PATTERN, 
+  OTP_PATTERN,
+  MFA_DISABLE_SCOPES 
+} from '@vubon/shared-constants';
+// ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট - টাইপ কনসিস্টেন্সি
+import type { MFADisableScope } from '@vubon/shared-types';
 
 // ============================================================
 // Request DTO
@@ -63,27 +66,25 @@ export class DisableMfaDto {
     example: '123456',
     minLength: 6,
     maxLength: 8,
-    pattern: '^[0-9]{6,8}$',
+    pattern: OTP_PATTERN,
   })
   @IsOptional()
   @IsString({ message: 'Code must be a string' })
   @MinLength(6, { message: 'Code must be at least 6 digits long' })
   @MaxLength(8, { message: 'Code cannot exceed 8 digits' })
-  @Matches(/^\d+$/, { message: 'Code must contain only digits' })
+  @Matches(OTP_PATTERN, { message: 'Code must contain only digits' })
   code?: string;
   
   @ApiPropertyOptional({
     description: 'Backup code (one-time use)',
     example: 'AB3F-9K2M',
-    minLength: 8,
-    maxLength: 10,
-    pattern: '^[A-Z0-9]{4,5}-[A-Z0-9]{4,5}$',
+    pattern: BACKUP_CODE_PATTERN,
   })
   @IsOptional()
   @IsString({ message: 'Backup code must be a string' })
   @MinLength(8, { message: 'Backup code must be at least 8 characters' })
   @MaxLength(10, { message: 'Backup code cannot exceed 10 characters' })
-  @Matches(/^[A-Z0-9]{4,5}-[A-Z0-9]{4,5}$/, {
+  @Matches(BACKUP_CODE_PATTERN, {
     message: 'Backup code must be in format XXXX-XXXX or XXXXX-XXXXX'
   })
   backupCode?: string;
@@ -91,37 +92,31 @@ export class DisableMfaDto {
   @ApiPropertyOptional({
     description: 'bKash PIN (for disabling bKash MFA)',
     example: '1234',
-    minLength: 4,
-    maxLength: 4,
-    pattern: '^[0-9]{4}$',
+    pattern: MFS_PIN_PATTERN,
   })
   @IsOptional()
   @IsString({ message: 'bKash PIN must be a string' })
-  @Matches(/^\d{4}$/, { message: 'bKash PIN must be exactly 4 digits' })
+  @Matches(MFS_PIN_PATTERN, { message: 'bKash PIN must be exactly 4 digits' })
   bkashPin?: string;
 
   @ApiPropertyOptional({
     description: 'Nagad PIN (for disabling Nagad MFA)',
     example: '1234',
-    minLength: 4,
-    maxLength: 4,
-    pattern: '^[0-9]{4}$',
+    pattern: MFS_PIN_PATTERN,
   })
   @IsOptional()
   @IsString({ message: 'Nagad PIN must be a string' })
-  @Matches(/^\d{4}$/, { message: 'Nagad PIN must be exactly 4 digits' })
+  @Matches(MFS_PIN_PATTERN, { message: 'Nagad PIN must be exactly 4 digits' })
   nagadPin?: string;
 
   @ApiPropertyOptional({
     description: 'Rocket PIN (for disabling Rocket MFA)',
     example: '1234',
-    minLength: 4,
-    maxLength: 4,
-    pattern: '^[0-9]{4}$',
+    pattern: MFS_PIN_PATTERN,
   })
   @IsOptional()
   @IsString({ message: 'Rocket PIN must be a string' })
-  @Matches(/^\d{4}$/, { message: 'Rocket PIN must be exactly 4 digits' })
+  @Matches(MFS_PIN_PATTERN, { message: 'Rocket PIN must be exactly 4 digits' })
   rocketPin?: string;
   
   @ApiPropertyOptional({
@@ -134,13 +129,15 @@ export class DisableMfaDto {
 
   @ApiPropertyOptional({
     description: 'Disable scope - single method or all methods',
-    example: 'single',
-    enum: ['single', 'all'],
-    default: 'single',
+    example: MFA_DISABLE_SCOPES.SINGLE,
+    enum: Object.values(MFA_DISABLE_SCOPES),
+    default: MFA_DISABLE_SCOPES.SINGLE,
   })
   @IsOptional()
-  @IsIn(['single', 'all'], { message: 'Scope must be single or all' })
-  scope?: MFADisableScope = 'single';
+  @IsIn(Object.values(MFA_DISABLE_SCOPES), { 
+    message: `Scope must be one of: ${Object.values(MFA_DISABLE_SCOPES).join(', ')}` 
+  })
+  scope?: MFADisableScope = MFA_DISABLE_SCOPES.SINGLE;
   
   @ApiPropertyOptional({
     description: 'Reason for disabling MFA (for audit logging)',
@@ -194,7 +191,7 @@ export class DisableMfaDto {
     this.backupCode = backupCode;
     this.methodId = methodId;
     this.reason = reason;
-    this.scope = scope ?? 'single';
+    this.scope = scope ?? MFA_DISABLE_SCOPES.SINGLE;
     this.confirm = confirm;
     this.bkashPin = bkashPin;
     this.nagadPin = nagadPin;
@@ -285,6 +282,36 @@ export class DisableMfaResponseDto {
     this.allMethodsDisabled = allMethodsDisabled;
     this.disabledMethodIds = disabledMethodIds;
     this.hasOtherMethods = hasOtherMethods;
+  }
+
+  /**
+   * Create success response
+   */
+  static success(
+    userId: string,
+    methodsDisabled: number,
+    allMethodsDisabled?: boolean,
+    disabledMethodIds?: string[],
+    hasOtherMethods?: boolean,
+    messageBn?: string
+  ): DisableMfaResponseDto {
+    return new DisableMfaResponseDto(
+      true,
+      userId,
+      undefined,
+      messageBn,
+      methodsDisabled,
+      allMethodsDisabled,
+      disabledMethodIds,
+      hasOtherMethods
+    );
+  }
+
+  /**
+   * Create error response
+   */
+  static error(userId: string, message: string, messageBn?: string): DisableMfaResponseDto {
+    return new DisableMfaResponseDto(false, userId, message, messageBn);
   }
 }
 
@@ -426,6 +453,42 @@ export class DisableMfaErrorResponseDto {
     this.timestamp = new Date().toISOString();
     this.remainingAttempts = remainingAttempts;
     this.lockoutMinutes = lockoutMinutes;
+  }
+
+  /**
+   * Create error response
+   */
+  static invalidCode(messageBn?: string, remainingAttempts?: number): DisableMfaErrorResponseDto {
+    return new DisableMfaErrorResponseDto(
+      'Invalid verification code',
+      'INVALID_CODE',
+      messageBn,
+      remainingAttempts
+    );
+  }
+
+  /**
+   * Create expired code error response
+   */
+  static codeExpired(messageBn?: string): DisableMfaErrorResponseDto {
+    return new DisableMfaErrorResponseDto(
+      'Verification code has expired',
+      'CODE_EXPIRED',
+      messageBn
+    );
+  }
+
+  /**
+   * Create max attempts exceeded error response
+   */
+  static maxAttemptsExceeded(messageBn?: string, lockoutMinutes?: number): DisableMfaErrorResponseDto {
+    return new DisableMfaErrorResponseDto(
+      'Maximum verification attempts exceeded. Account temporarily locked.',
+      'MAX_ATTEMPTS_EXCEEDED',
+      messageBn,
+      undefined,
+      lockoutMinutes
+    );
   }
 }
 
