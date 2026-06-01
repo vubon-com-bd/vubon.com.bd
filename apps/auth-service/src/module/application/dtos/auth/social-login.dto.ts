@@ -15,6 +15,7 @@
  * ✅ Bangladesh-specific providers included
  * ✅ User ID from JWT (not from client)
  * ✅ Phone-based social login support (WhatsApp, Imo)
+ * ✅ Integrated with shared-constants and shared-types
  */
 
 import { 
@@ -28,37 +29,63 @@ import {
   IsEmail,
   Matches,
   ValidateIf,
+  MinLength,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
+// ✅ Phase-1: Import from shared-constants (single source of truth)
+import { 
+  SOCIAL_PROVIDERS, 
+  REGEX_PHONE, 
+  TOKEN_CONFIG,
+} from '@vubon/shared-constants';
+
+// ✅ Phase-1: Import types from shared-types
+import type { SocialProvider, TokenType } from '@vubon/shared-types';
+
 // ============================================================
-// Social Provider Enum (Bangladesh specific)
+// Constants (Re-export for convenience)
 // ============================================================
 
 /**
  * Social providers including Bangladesh-specific options
+ * Re-exported from shared-constants for backward compatibility
  */
-export enum SocialProvider {
-  // International providers
-  GOOGLE = 'google',
-  FACEBOOK = 'facebook',
-  GITHUB = 'github',
-  LINKEDIN = 'linkedin',
-  APPLE = 'apple',
-  TWITTER = 'twitter',
-  INSTAGRAM = 'instagram',
-  MICROSOFT = 'microsoft',
-  
-  // Bangladesh-specific providers (Messaging)
-  WHATSAPP = 'whatsapp',
-  IMO = 'imo',
-  TELEGRAM = 'telegram',
-  VIBER = 'viber',
-  
-  // Bangladesh-specific providers (Mobile Financial Services)
-  BKASH = 'bkash',
-  NAGAD = 'nagad',
-  ROCKET = 'rocket',
+export const SocialProvider = SOCIAL_PROVIDERS;
+
+// ============================================================
+// Helper: Match decorator (reusable utility)
+// ============================================================
+
+/**
+ * Custom validation decorator to check if two fields match
+ * Can be moved to shared-utils for reuse across multiple DTOs
+ * 
+ * @param property - Name of the property to compare with
+ * @param validationOptions - Class-validator options
+ * @returns Decorator function
+ */
+export function Match(property: string, validationOptions?: ValidationOptions) {
+  return (object: object, propertyName: string) => {
+    registerDecorator({
+      name: 'match',
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      constraints: [property],
+      validator: {
+        validate(value: any, args: ValidationArguments) {
+          const [relatedPropertyName] = args.constraints;
+          const relatedValue = (args.object as any)[relatedPropertyName];
+          return value === relatedValue;
+        },
+        defaultMessage(args: ValidationArguments) {
+          const [relatedPropertyName] = args.constraints;
+          return `${args.property} must match ${relatedPropertyName}`;
+        },
+      },
+    });
+  };
 }
 
 // ============================================================
@@ -91,12 +118,17 @@ export class SocialLoginDto {
     description: 'OAuth access token from social provider',
     example: 'ya29.a0AfH6S...',
     required: true,
-    minLength: 10,
-    maxLength: 4096,
+    minLength: TOKEN_CONFIG.MIN_LENGTH.ACCESS,
+    maxLength: TOKEN_CONFIG.MAX_LENGTH.ACCESS,
   })
   @IsString({ message: 'Access token must be a string' })
   @IsNotEmpty({ message: 'Access token is required' })
-  @MaxLength(4096, { message: 'Access token cannot exceed 4096 characters' })
+  @MinLength(TOKEN_CONFIG.MIN_LENGTH.ACCESS, { 
+    message: `Access token must be at least ${TOKEN_CONFIG.MIN_LENGTH.ACCESS} characters` 
+  })
+  @MaxLength(TOKEN_CONFIG.MAX_LENGTH.ACCESS, { 
+    message: `Access token cannot exceed ${TOKEN_CONFIG.MAX_LENGTH.ACCESS} characters` 
+  })
   accessToken: string;
 
   @ApiPropertyOptional({
@@ -128,18 +160,30 @@ export class SocialLoginDto {
   @MaxLength(255, { message: 'State cannot exceed 255 characters' })
   state?: string;
 
+  @ApiPropertyOptional({
+    description: 'OAuth code verifier for PKCE',
+    example: 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk',
+    maxLength: 128,
+  })
+  @IsOptional()
+  @IsString({ message: 'Code verifier must be a string' })
+  @MaxLength(128, { message: 'Code verifier cannot exceed 128 characters' })
+  codeVerifier?: string;
+
   constructor(
     provider: SocialProvider,
     accessToken: string,
     deviceId?: string,
     rememberMe?: boolean,
-    state?: string
+    state?: string,
+    codeVerifier?: string
   ) {
     this.provider = provider;
     this.accessToken = accessToken;
     this.deviceId = deviceId;
     this.rememberMe = rememberMe ?? false;
     this.state = state;
+    this.codeVerifier = codeVerifier;
   }
 }
 
@@ -151,6 +195,7 @@ export class SocialLoginDto {
  *   "provider": "whatsapp",
  *   "phoneNumber": "+8801712345678",
  *   "otpCode": "123456",
+ *   "confirmOtpCode": "123456",
  *   "deviceId": "device_550e8400-e29b-41d4-a716-446655440000",
  *   "rememberMe": true
  * }
@@ -172,11 +217,10 @@ export class SocialPhoneLoginDto {
     description: 'Bangladesh phone number (E.164 format)',
     example: '+8801712345678',
     required: true,
-    pattern: '^\\+8801[3-9]\\d{8}$',
   })
   @IsString({ message: 'Phone number must be a string' })
   @IsNotEmpty({ message: 'Phone number is required' })
-  @Matches(/^\+8801[3-9]\d{8}$/, { 
+  @Matches(REGEX_PHONE.BANGLADESH, { 
     message: 'Please provide a valid Bangladesh phone number (e.g., +8801712345678)' 
   })
   phoneNumber: string;
@@ -187,12 +231,29 @@ export class SocialPhoneLoginDto {
     required: true,
     minLength: 6,
     maxLength: 6,
-    pattern: '^[0-9]{6}$',
   })
   @IsString({ message: 'OTP code must be a string' })
   @IsNotEmpty({ message: 'OTP code is required' })
   @Matches(/^\d{6}$/, { message: 'OTP code must be exactly 6 digits' })
   otpCode: string;
+
+  @ApiPropertyOptional({
+    description: 'Confirm OTP code (must match otpCode)',
+    example: '123456',
+    required: false,
+  })
+  @IsOptional()
+  @IsString({ message: 'Confirm OTP code must be a string' })
+  @Match('otpCode', { message: 'OTP code and confirm OTP code do not match' })
+  confirmOtpCode?: string;
+
+  @ApiPropertyOptional({
+    description: 'Email address (optional, for account recovery)',
+    example: 'user@vubon.com.bd',
+  })
+  @IsOptional()
+  @IsEmail({}, { message: 'Please provide a valid email address' })
+  email?: string;
 
   @ApiPropertyOptional({
     description: 'Device identifier for session tracking',
@@ -213,18 +274,34 @@ export class SocialPhoneLoginDto {
   @IsBoolean({ message: 'Remember me must be a boolean' })
   rememberMe?: boolean = false;
 
+  @ApiPropertyOptional({
+    description: 'Preferred language for OTP message',
+    example: 'en',
+    enum: ['en', 'bn'],
+    default: 'en',
+  })
+  @IsOptional()
+  @IsEnum(['en', 'bn'], { message: 'Language must be en or bn' })
+  locale?: 'en' | 'bn' = 'en';
+
   constructor(
     provider: SocialProvider,
     phoneNumber: string,
     otpCode: string,
     deviceId?: string,
-    rememberMe?: boolean
+    rememberMe?: boolean,
+    confirmOtpCode?: string,
+    email?: string,
+    locale?: 'en' | 'bn'
   ) {
     this.provider = provider;
     this.phoneNumber = phoneNumber;
     this.otpCode = otpCode;
     this.deviceId = deviceId;
     this.rememberMe = rememberMe ?? false;
+    this.confirmOtpCode = confirmOtpCode;
+    this.email = email;
+    this.locale = locale ?? 'en';
   }
 }
 
@@ -247,10 +324,17 @@ export class SocialLinkDto {
     description: 'OAuth access token from social provider',
     example: 'ya29.a0AfH6S...',
     required: true,
+    minLength: TOKEN_CONFIG.MIN_LENGTH.ACCESS,
+    maxLength: TOKEN_CONFIG.MAX_LENGTH.ACCESS,
   })
   @IsString({ message: 'Access token must be a string' })
   @IsNotEmpty({ message: 'Access token is required' })
-  @MaxLength(4096, { message: 'Access token cannot exceed 4096 characters' })
+  @MinLength(TOKEN_CONFIG.MIN_LENGTH.ACCESS, { 
+    message: `Access token must be at least ${TOKEN_CONFIG.MIN_LENGTH.ACCESS} characters` 
+  })
+  @MaxLength(TOKEN_CONFIG.MAX_LENGTH.ACCESS, { 
+    message: `Access token cannot exceed ${TOKEN_CONFIG.MAX_LENGTH.ACCESS} characters` 
+  })
   accessToken: string;
 
   @ApiPropertyOptional({
@@ -262,10 +346,38 @@ export class SocialLinkDto {
   @IsBoolean({ message: 'Make primary must be a boolean' })
   makePrimary?: boolean = false;
 
-  constructor(provider: SocialProvider, accessToken: string, makePrimary?: boolean) {
+  @ApiPropertyOptional({
+    description: 'State parameter for CSRF protection',
+    example: 'random-state-string-123',
+    maxLength: 255,
+  })
+  @IsOptional()
+  @IsString({ message: 'State must be a string' })
+  @MaxLength(255, { message: 'State cannot exceed 255 characters' })
+  state?: string;
+
+  @ApiPropertyOptional({
+    description: 'OAuth code verifier for PKCE',
+    example: 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk',
+    maxLength: 128,
+  })
+  @IsOptional()
+  @IsString({ message: 'Code verifier must be a string' })
+  @MaxLength(128, { message: 'Code verifier cannot exceed 128 characters' })
+  codeVerifier?: string;
+
+  constructor(
+    provider: SocialProvider, 
+    accessToken: string, 
+    makePrimary?: boolean,
+    state?: string,
+    codeVerifier?: string
+  ) {
     this.provider = provider;
     this.accessToken = accessToken;
     this.makePrimary = makePrimary ?? false;
+    this.state = state;
+    this.codeVerifier = codeVerifier;
   }
 }
 
@@ -285,6 +397,15 @@ export class SocialUnlinkDto {
   provider: SocialProvider;
 
   @ApiPropertyOptional({
+    description: 'Whether to keep user data after unlinking',
+    example: true,
+    default: true,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'Keep data must be a boolean' })
+  keepData?: boolean = true;
+
+  @ApiPropertyOptional({
     description: 'Reason for unlinking (for audit)',
     example: 'User requested removal',
     maxLength: 500,
@@ -294,8 +415,9 @@ export class SocialUnlinkDto {
   @MaxLength(500, { message: 'Reason cannot exceed 500 characters' })
   reason?: string;
 
-  constructor(provider: SocialProvider, reason?: string) {
+  constructor(provider: SocialProvider, keepData?: boolean, reason?: string) {
     this.provider = provider;
+    this.keepData = keepData ?? true;
     this.reason = reason;
   }
 }
@@ -338,11 +460,26 @@ export class SocialCallbackQueryDto {
   @IsString()
   error_description?: string;
 
-  constructor(code: string, state: string, error?: string, error_description?: string) {
+  @ApiPropertyOptional({
+    description: 'OAuth code verifier for PKCE',
+    example: 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk',
+  })
+  @IsOptional()
+  @IsString()
+  code_verifier?: string;
+
+  constructor(
+    code: string, 
+    state: string, 
+    error?: string, 
+    error_description?: string,
+    code_verifier?: string
+  ) {
     this.code = code;
     this.state = state;
     this.error = error;
     this.error_description = error_description;
+    this.code_verifier = code_verifier;
   }
 }
 
@@ -381,6 +518,9 @@ export class SocialUserInfoDto {
   @ApiPropertyOptional({ description: 'Is phone verified by provider' })
   phoneVerified?: boolean;
 
+  @ApiPropertyOptional({ description: 'Provider display name' })
+  providerDisplayName?: string;
+
   constructor(
     id: string,
     email: string,
@@ -390,7 +530,8 @@ export class SocialUserInfoDto {
     firstName?: string,
     lastName?: string,
     phoneNumber?: string,
-    phoneVerified?: boolean
+    phoneVerified?: boolean,
+    providerDisplayName?: string
   ) {
     this.id = id;
     this.email = email;
@@ -401,6 +542,7 @@ export class SocialUserInfoDto {
     this.lastName = lastName;
     this.phoneNumber = phoneNumber;
     this.phoneVerified = phoneVerified;
+    this.providerDisplayName = providerDisplayName;
   }
 }
 
@@ -471,6 +613,12 @@ export class SocialLoginResponseDto {
   })
   sessionId?: string;
 
+  @ApiPropertyOptional({
+    description: 'Whether MFA is required',
+    example: false,
+  })
+  mfaRequired?: boolean;
+
   constructor(
     accessToken: string,
     refreshToken: string,
@@ -486,7 +634,8 @@ export class SocialLoginResponseDto {
       hasSocialLogin?: boolean;
     },
     isNewConnection?: boolean,
-    sessionId?: string
+    sessionId?: string,
+    mfaRequired?: boolean
   ) {
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
@@ -496,6 +645,7 @@ export class SocialLoginResponseDto {
     this.isNewConnection = isNewConnection;
     this.user = user;
     this.sessionId = sessionId;
+    this.mfaRequired = mfaRequired;
   }
 }
 
@@ -594,11 +744,24 @@ export class SocialUnlinkResponseDto {
   })
   unlinkedAt: string;
 
-  constructor(provider: SocialProvider, unlinkedAt: Date, message?: string, messageBn?: string) {
+  @ApiPropertyOptional({
+    description: 'Whether user data was kept',
+    example: true,
+  })
+  dataKept?: boolean;
+
+  constructor(
+    provider: SocialProvider, 
+    unlinkedAt: Date, 
+    message?: string, 
+    messageBn?: string,
+    dataKept?: boolean
+  ) {
     this.message = message || 'Social account unlinked successfully';
     this.messageBn = messageBn;
     this.provider = provider;
     this.unlinkedAt = unlinkedAt.toISOString();
+    this.dataKept = dataKept;
   }
 }
 
@@ -615,16 +778,16 @@ export class LinkedSocialAccountDto {
   @ApiProperty({ description: 'Provider display name', example: 'Google' })
   providerDisplayName: string;
 
-  @ApiProperty({ description: 'Provider user email', required: false })
+  @ApiPropertyOptional({ description: 'Provider user email' })
   email?: string;
 
-  @ApiProperty({ description: 'Provider phone number', required: false })
+  @ApiPropertyOptional({ description: 'Provider phone number' })
   phoneNumber?: string;
 
-  @ApiProperty({ description: 'Provider user name', required: false })
+  @ApiPropertyOptional({ description: 'Provider user name' })
   name?: string;
 
-  @ApiProperty({ description: 'Profile picture URL', required: false })
+  @ApiPropertyOptional({ description: 'Profile picture URL' })
   picture?: string;
 
   @ApiProperty({ description: 'Whether this is the primary account' })
@@ -633,7 +796,7 @@ export class LinkedSocialAccountDto {
   @ApiProperty({ description: 'Timestamp when linked' })
   linkedAt: string;
 
-  @ApiProperty({ description: 'Last used timestamp', required: false })
+  @ApiPropertyOptional({ description: 'Last used timestamp' })
   lastUsedAt?: string;
 
   constructor(
@@ -674,11 +837,15 @@ export class ListLinkedAccountsResponseDto {
   @ApiProperty({ description: 'Whether user can add more accounts' })
   canAddMore: boolean;
 
-  constructor(accounts: LinkedSocialAccountDto[], maxAccounts: number = 10) {
+  @ApiPropertyOptional({ description: 'Primary account provider' })
+  primaryProvider?: SocialProvider;
+
+  constructor(accounts: LinkedSocialAccountDto[], maxAccounts: number = 10, primaryProvider?: SocialProvider) {
     this.accounts = accounts;
     this.total = accounts.length;
     this.maxAccounts = maxAccounts;
     this.canAddMore = accounts.length < maxAccounts;
+    this.primaryProvider = primaryProvider;
   }
 }
 
