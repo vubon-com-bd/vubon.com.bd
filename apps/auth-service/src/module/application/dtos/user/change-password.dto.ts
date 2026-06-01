@@ -34,28 +34,37 @@ import {
   MinLength, 
   MaxLength,
   Matches,
-  Max,
-  Min,
+  IsIn,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
+// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট - সেন্ট্রালাইজড কনফিগারেশন
+import { PASSWORD_POLICY, ACCOUNT_LOCKOUT } from '@vubon/shared-constants';
+// ✅ Phase-1 (shared-types) থেকে টাইপ ইম্পোর্ট
+import type { PasswordStrength } from '@vubon/shared-types';
+
 // ============================================================
-// Password Validation Constants
+// Enums
 // ============================================================
 
 /**
- * Password validation rules (for documentation)
+ * Password change flow type
  */
-export const PASSWORD_RULES = {
-  minLength: 8,
-  maxLength: 128,
-  strongMinLength: 12,
-  requireUppercase: true,
-  requireLowercase: true,
-  requireNumbers: true,
-  requireSpecial: true,
-  specialChars: '!@#$%^&*()_+-=[]{}|;:,.<>?',
-};
+export enum PasswordChangeFlow {
+  USER_INITIATED = 'USER_INITIATED',
+  FORGOT_PASSWORD = 'FORGOT_PASSWORD',
+  FORCE_CHANGE = 'FORCE_CHANGE',
+  BREACH_DETECTED = 'BREACH_DETECTED',
+}
+
+/**
+ * Password strength level for change
+ */
+export enum PasswordStrengthLevel {
+  STANDARD = 'STANDARD',
+  STRONG = 'STRONG',
+  VERY_STRONG = 'VERY_STRONG',
+}
 
 // ============================================================
 // Request DTOs
@@ -71,7 +80,8 @@ export const PASSWORD_RULES = {
  *   "currentPassword": "MyOldP@ssw0rd",
  *   "newPassword": "MyNewStr0ng!P@ssw0rd",
  *   "logoutOtherDevices": true,
- *   "deviceId": "device_123"
+ *   "deviceId": "device_123",
+ *   "strengthLevel": "STRONG"
  * }
  */
 export class ChangePasswordDto {
@@ -81,16 +91,16 @@ export class ChangePasswordDto {
     required: true,
     format: 'password',
     writeOnly: true,
-    minLength: PASSWORD_RULES.minLength,
-    maxLength: PASSWORD_RULES.maxLength,
+    minLength: PASSWORD_POLICY.MIN_LENGTH,
+    maxLength: PASSWORD_POLICY.MAX_LENGTH,
   })
   @IsString({ message: 'Current password must be a string' })
   @IsNotEmpty({ message: 'Current password is required' })
-  @MinLength(PASSWORD_RULES.minLength, { 
-    message: `Current password must be at least ${PASSWORD_RULES.minLength} characters long` 
+  @MinLength(PASSWORD_POLICY.MIN_LENGTH, { 
+    message: `Current password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters long` 
   })
-  @MaxLength(PASSWORD_RULES.maxLength, { 
-    message: `Current password cannot exceed ${PASSWORD_RULES.maxLength} characters` 
+  @MaxLength(PASSWORD_POLICY.MAX_LENGTH, { 
+    message: `Current password cannot exceed ${PASSWORD_POLICY.MAX_LENGTH} characters` 
   })
   currentPassword: string;
 
@@ -100,20 +110,20 @@ export class ChangePasswordDto {
     required: true,
     format: 'password',
     writeOnly: true,
-    minLength: PASSWORD_RULES.minLength,
-    maxLength: PASSWORD_RULES.maxLength,
-    pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$',
+    minLength: PASSWORD_POLICY.MIN_LENGTH,
+    maxLength: PASSWORD_POLICY.MAX_LENGTH,
+    pattern: PASSWORD_POLICY.REGEX_PATTERN,
   })
   @IsString({ message: 'New password must be a string' })
   @IsNotEmpty({ message: 'New password is required' })
-  @MinLength(PASSWORD_RULES.minLength, { 
-    message: `New password must be at least ${PASSWORD_RULES.minLength} characters long` 
+  @MinLength(PASSWORD_POLICY.MIN_LENGTH, { 
+    message: `New password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters long` 
   })
-  @MaxLength(PASSWORD_RULES.maxLength, { 
-    message: `New password cannot exceed ${PASSWORD_RULES.maxLength} characters` 
+  @MaxLength(PASSWORD_POLICY.MAX_LENGTH, { 
+    message: `New password cannot exceed ${PASSWORD_POLICY.MAX_LENGTH} characters` 
   })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
-    message: 'New password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+  @Matches(PASSWORD_POLICY.REGEX_PATTERN, {
+    message: PASSWORD_POLICY.ERROR_MESSAGES.COMPLEXITY,
   })
   newPassword: string;
 
@@ -144,24 +154,48 @@ export class ChangePasswordDto {
   @IsBoolean({ message: 'Skip validation must be a boolean' })
   skipCurrentPasswordValidation?: boolean = false;
 
+  @ApiPropertyOptional({
+    description: 'Password change flow type',
+    enum: PasswordChangeFlow,
+    example: PasswordChangeFlow.USER_INITIATED,
+    default: PasswordChangeFlow.USER_INITIATED,
+  })
+  @IsOptional()
+  @IsEnum(PasswordChangeFlow, { message: 'Invalid change flow type' })
+  flow?: PasswordChangeFlow = PasswordChangeFlow.USER_INITIATED;
+
+  @ApiPropertyOptional({
+    description: 'Password strength level required',
+    enum: PasswordStrengthLevel,
+    example: PasswordStrengthLevel.STRONG,
+    default: PasswordStrengthLevel.STANDARD,
+  })
+  @IsOptional()
+  @IsEnum(PasswordStrengthLevel, { message: 'Invalid strength level' })
+  strengthLevel?: PasswordStrengthLevel = PasswordStrengthLevel.STANDARD;
+
   constructor(
     currentPassword: string, 
     newPassword: string, 
     logoutOtherDevices?: boolean,
     deviceId?: string,
-    skipCurrentPasswordValidation?: boolean
+    skipCurrentPasswordValidation?: boolean,
+    flow?: PasswordChangeFlow,
+    strengthLevel?: PasswordStrengthLevel
   ) {
     this.currentPassword = currentPassword;
     this.newPassword = newPassword;
     this.logoutOtherDevices = logoutOtherDevices ?? true;
     this.deviceId = deviceId;
     this.skipCurrentPasswordValidation = skipCurrentPasswordValidation ?? false;
+    this.flow = flow ?? PasswordChangeFlow.USER_INITIATED;
+    this.strengthLevel = strengthLevel ?? PasswordStrengthLevel.STANDARD;
   }
 }
 
 /**
  * Strong Password Change Request DTO (for enhanced security)
- * Requires stronger password validation
+ * Uses VERY_STRONG level from policy
  */
 export class StrongChangePasswordDto extends ChangePasswordDto {
   @ApiProperty({
@@ -170,19 +204,20 @@ export class StrongChangePasswordDto extends ChangePasswordDto {
     required: true,
     format: 'password',
     writeOnly: true,
-    minLength: PASSWORD_RULES.strongMinLength,
-    maxLength: PASSWORD_RULES.maxLength,
+    minLength: PASSWORD_POLICY.STRONG_MIN_LENGTH,
+    maxLength: PASSWORD_POLICY.MAX_LENGTH,
+    pattern: PASSWORD_POLICY.STRONG_REGEX_PATTERN,
   })
   @IsString({ message: 'New password must be a string' })
   @IsNotEmpty({ message: 'New password is required' })
-  @MinLength(PASSWORD_RULES.strongMinLength, { 
-    message: `New password must be at least ${PASSWORD_RULES.strongMinLength} characters long` 
+  @MinLength(PASSWORD_POLICY.STRONG_MIN_LENGTH, { 
+    message: `New password must be at least ${PASSWORD_POLICY.STRONG_MIN_LENGTH} characters long` 
   })
-  @MaxLength(PASSWORD_RULES.maxLength, { 
-    message: `New password cannot exceed ${PASSWORD_RULES.maxLength} characters` 
+  @MaxLength(PASSWORD_POLICY.MAX_LENGTH, { 
+    message: `New password cannot exceed ${PASSWORD_POLICY.MAX_LENGTH} characters` 
   })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/, {
-    message: 'New password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (minimum 12 characters)',
+  @Matches(PASSWORD_POLICY.STRONG_REGEX_PATTERN, {
+    message: PASSWORD_POLICY.ERROR_MESSAGES.STRONG_COMPLEXITY,
   })
   newPassword: string;
 
@@ -191,9 +226,10 @@ export class StrongChangePasswordDto extends ChangePasswordDto {
     newPassword: string, 
     logoutOtherDevices?: boolean,
     deviceId?: string,
-    skipCurrentPasswordValidation?: boolean
+    skipCurrentPasswordValidation?: boolean,
+    flow?: PasswordChangeFlow
   ) {
-    super(currentPassword, newPassword, logoutOtherDevices, deviceId, skipCurrentPasswordValidation);
+    super(currentPassword, newPassword, logoutOtherDevices, deviceId, skipCurrentPasswordValidation, flow, PasswordStrengthLevel.VERY_STRONG);
   }
 }
 
@@ -218,17 +254,19 @@ export class AdminForceChangePasswordDto {
     required: true,
     format: 'password',
     writeOnly: true,
+    minLength: PASSWORD_POLICY.MIN_LENGTH,
+    maxLength: PASSWORD_POLICY.MAX_LENGTH,
   })
   @IsString({ message: 'New password must be a string' })
   @IsNotEmpty({ message: 'New password is required' })
-  @MinLength(PASSWORD_RULES.minLength, { 
-    message: `Password must be at least ${PASSWORD_RULES.minLength} characters long` 
+  @MinLength(PASSWORD_POLICY.MIN_LENGTH, { 
+    message: `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters long` 
   })
-  @MaxLength(PASSWORD_RULES.maxLength, { 
-    message: `Password cannot exceed ${PASSWORD_RULES.maxLength} characters` 
+  @MaxLength(PASSWORD_POLICY.MAX_LENGTH, { 
+    message: `Password cannot exceed ${PASSWORD_POLICY.MAX_LENGTH} characters` 
   })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
-    message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+  @Matches(PASSWORD_POLICY.REGEX_PATTERN, {
+    message: PASSWORD_POLICY.ERROR_MESSAGES.COMPLEXITY,
   })
   newPassword: string;
 
@@ -261,6 +299,15 @@ export class AdminForceChangePasswordDto {
   notifyUser?: boolean = true;
 
   @ApiPropertyOptional({
+    description: 'Notify user via SMS (Bangladesh specific)',
+    example: false,
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'Notify via SMS must be a boolean' })
+  notifySms?: boolean = false;
+
+  @ApiPropertyOptional({
     description: 'Revoke all existing sessions',
     example: true,
     default: true,
@@ -269,13 +316,24 @@ export class AdminForceChangePasswordDto {
   @IsBoolean({ message: 'Revoke sessions must be a boolean' })
   revokeSessions?: boolean = true;
 
+  @ApiPropertyOptional({
+    description: 'Force user to set a new password immediately',
+    example: true,
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'Force immediate change must be a boolean' })
+  forceImmediateChange?: boolean = false;
+
   constructor(
     targetUserId: string,
     newPassword: string,
     requireChangeOnNextLogin?: boolean,
     reason?: string,
     notifyUser?: boolean,
-    revokeSessions?: boolean
+    revokeSessions?: boolean,
+    notifySms?: boolean,
+    forceImmediateChange?: boolean
   ) {
     this.targetUserId = targetUserId;
     this.newPassword = newPassword;
@@ -283,6 +341,8 @@ export class AdminForceChangePasswordDto {
     this.reason = reason;
     this.notifyUser = notifyUser ?? true;
     this.revokeSessions = revokeSessions ?? true;
+    this.notifySms = notifySms ?? false;
+    this.forceImmediateChange = forceImmediateChange ?? false;
   }
 }
 
@@ -337,13 +397,20 @@ export class ChangePasswordResponseDto {
   })
   newSessionId?: string;
 
+  @ApiPropertyOptional({
+    description: 'Notification sent (email/SMS)',
+    example: true,
+  })
+  notificationSent?: boolean;
+
   constructor(
     success: boolean, 
     message: string, 
     sessionsRevoked?: number,
     requiresChangeOnNextLogin?: boolean,
     messageBn?: string,
-    newSessionId?: string
+    newSessionId?: string,
+    notificationSent?: boolean
   ) {
     this.success = success;
     this.message = message;
@@ -352,6 +419,7 @@ export class ChangePasswordResponseDto {
     this.changedAt = new Date().toISOString();
     this.requiresChangeOnNextLogin = requiresChangeOnNextLogin;
     this.newSessionId = newSessionId;
+    this.notificationSent = notificationSent;
   }
 
   /**
@@ -361,7 +429,8 @@ export class ChangePasswordResponseDto {
     sessionsRevoked?: number,
     requiresChangeOnNextLogin?: boolean,
     messageBn?: string,
-    newSessionId?: string
+    newSessionId?: string,
+    notificationSent?: boolean
   ): ChangePasswordResponseDto {
     return new ChangePasswordResponseDto(
       true,
@@ -369,7 +438,8 @@ export class ChangePasswordResponseDto {
       sessionsRevoked,
       requiresChangeOnNextLogin,
       messageBn,
-      newSessionId
+      newSessionId,
+      notificationSent
     );
   }
 
@@ -392,10 +462,23 @@ export class ValidateCurrentPasswordResponseDto {
   isValid: boolean;
 
   @ApiPropertyOptional({
+    description: 'Bengali message',
+    example: 'পাসওয়ার্ড বৈধ',
+  })
+  messageBn?: string;
+
+  @ApiPropertyOptional({
     description: 'Remaining attempts before account lockout',
     example: 3,
+    minimum: 0,
   })
   remainingAttempts?: number;
+
+  @ApiPropertyOptional({
+    description: 'Maximum attempts before lockout',
+    example: 5,
+  })
+  maxAttempts?: number;
 
   @ApiPropertyOptional({
     description: 'Whether account is locked',
@@ -410,11 +493,28 @@ export class ValidateCurrentPasswordResponseDto {
   })
   lockoutExpiresAt?: string;
 
-  constructor(isValid: boolean, remainingAttempts?: number, isLocked?: boolean, lockoutExpiresAt?: Date) {
+  @ApiPropertyOptional({
+    description: 'Lockout duration in minutes',
+    example: 15,
+  })
+  lockoutDurationMinutes?: number;
+
+  constructor(
+    isValid: boolean, 
+    remainingAttempts?: number, 
+    isLocked?: boolean, 
+    lockoutExpiresAt?: Date,
+    messageBn?: string,
+    maxAttempts?: number,
+    lockoutDurationMinutes?: number
+  ) {
     this.isValid = isValid;
     this.remainingAttempts = remainingAttempts;
     this.isLocked = isLocked;
     this.lockoutExpiresAt = lockoutExpiresAt?.toISOString();
+    this.messageBn = messageBn;
+    this.maxAttempts = maxAttempts ?? ACCOUNT_LOCKOUT.MAX_FAILED_ATTEMPTS;
+    this.lockoutDurationMinutes = lockoutDurationMinutes ?? Math.floor(ACCOUNT_LOCKOUT.LOCKOUT_DURATION_SECONDS / 60);
   }
 }
 
@@ -429,10 +529,22 @@ export class PasswordRulesResponseDto {
   minLength: number;
 
   @ApiProperty({
+    description: 'Standard password minimum length',
+    example: 8,
+  })
+  standardMinLength: number;
+
+  @ApiProperty({
     description: 'Strong password minimum length',
     example: 12,
   })
   strongMinLength: number;
+
+  @ApiProperty({
+    description: 'Very strong password minimum length',
+    example: 16,
+  })
+  veryStrongMinLength: number;
 
   @ApiProperty({
     description: 'Maximum password length',
@@ -482,17 +594,32 @@ export class PasswordRulesResponseDto {
   })
   strongPattern: string;
 
+  @ApiProperty({
+    description: 'Very strong password regex pattern',
+    example: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{16,}$',
+  })
+  veryStrongPattern: string;
+
+  @ApiPropertyOptional({
+    description: 'Bengali version of password rules',
+    example: 'পাসওয়ার্ডে কমপক্ষে ৮টি অক্ষর থাকতে হবে...',
+  })
+  rulesBn?: string;
+
   constructor() {
-    this.minLength = PASSWORD_RULES.minLength;
-    this.strongMinLength = PASSWORD_RULES.strongMinLength;
-    this.maxLength = PASSWORD_RULES.maxLength;
-    this.requireUppercase = PASSWORD_RULES.requireUppercase;
-    this.requireLowercase = PASSWORD_RULES.requireLowercase;
-    this.requireNumbers = PASSWORD_RULES.requireNumbers;
-    this.requireSpecial = PASSWORD_RULES.requireSpecial;
-    this.specialChars = PASSWORD_RULES.specialChars;
-    this.pattern = '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$';
-    this.strongPattern = '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{12,}$';
+    this.minLength = PASSWORD_POLICY.MIN_LENGTH;
+    this.standardMinLength = PASSWORD_POLICY.MIN_LENGTH;
+    this.strongMinLength = PASSWORD_POLICY.STRONG_MIN_LENGTH;
+    this.veryStrongMinLength = PASSWORD_POLICY.VERY_STRONG_MIN_LENGTH;
+    this.maxLength = PASSWORD_POLICY.MAX_LENGTH;
+    this.requireUppercase = PASSWORD_POLICY.REQUIRE_UPPERCASE;
+    this.requireLowercase = PASSWORD_POLICY.REQUIRE_LOWERCASE;
+    this.requireNumbers = PASSWORD_POLICY.REQUIRE_NUMBERS;
+    this.requireSpecial = PASSWORD_POLICY.REQUIRE_SPECIAL;
+    this.specialChars = PASSWORD_POLICY.SPECIAL_CHARS;
+    this.pattern = PASSWORD_POLICY.REGEX_PATTERN;
+    this.strongPattern = PASSWORD_POLICY.STRONG_REGEX_PATTERN;
+    this.veryStrongPattern = PASSWORD_POLICY.VERY_STRONG_REGEX_PATTERN;
   }
 }
 
@@ -513,6 +640,12 @@ export class PasswordChangeAuditDto {
   userEmail: string;
 
   @ApiProperty({
+    description: 'User phone (masked for privacy)',
+    example: '+88017******78',
+  })
+  userPhoneMasked?: string;
+
+  @ApiProperty({
     description: 'Changed by (user ID or admin ID)',
     example: 'usr_550e8400-e29b-41d4-a716-446655440000',
   })
@@ -521,9 +654,9 @@ export class PasswordChangeAuditDto {
   @ApiProperty({
     description: 'Changed by type',
     example: 'user',
-    enum: ['user', 'admin', 'system', 'reset'],
+    enum: ['user', 'admin', 'system', 'reset', 'breach'],
   })
-  changedByType: 'user' | 'admin' | 'system' | 'reset';
+  changedByType: 'user' | 'admin' | 'system' | 'reset' | 'breach';
 
   @ApiProperty({
     description: 'IP address of the request',
@@ -544,6 +677,14 @@ export class PasswordChangeAuditDto {
   deviceId: string;
 
   @ApiProperty({
+    description: 'Password strength score after change',
+    example: 85,
+    minimum: 0,
+    maximum: 100,
+  })
+  newPasswordStrength: number;
+
+  @ApiProperty({
     description: 'Timestamp of change',
     example: '2024-01-01T00:00:00.000Z',
     format: 'date-time',
@@ -554,19 +695,23 @@ export class PasswordChangeAuditDto {
     userId: string,
     userEmail: string,
     changedBy: string,
-    changedByType: 'user' | 'admin' | 'system' | 'reset',
+    changedByType: 'user' | 'admin' | 'system' | 'reset' | 'breach',
     ipAddress: string,
     userAgent: string,
     deviceId: string,
-    changedAt: Date
+    changedAt: Date,
+    newPasswordStrength?: number,
+    userPhoneMasked?: string
   ) {
     this.userId = userId;
     this.userEmail = userEmail;
+    this.userPhoneMasked = userPhoneMasked;
     this.changedBy = changedBy;
     this.changedByType = changedByType;
     this.ipAddress = ipAddress;
     this.userAgent = userAgent;
     this.deviceId = deviceId;
+    this.newPasswordStrength = newPasswordStrength ?? 0;
     this.changedAt = changedAt.toISOString();
   }
 }
@@ -575,4 +720,5 @@ export class PasswordChangeAuditDto {
 // Type Exports
 // ============================================================
 
-export type { PASSWORD_RULES as PasswordRules };
+export type { PasswordStrengthLevel as PasswordStrengthLevelType };
+export { PasswordChangeFlow as PasswordChangeFlowType };
