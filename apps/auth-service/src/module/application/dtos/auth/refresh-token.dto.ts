@@ -27,8 +27,25 @@ import {
   IsBoolean,
   IsNumber,
   Min,
+  ValidateIf,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট - এক জায়গায় সংরক্ষিত কনস্ট্যান্ট
+import { 
+  JWT_PATTERN, 
+  TOKEN_TYPE,
+  IPV4_PATTERN,
+  IPV6_PATTERN
+} from '@vubon/shared-constants';
+
+// ✅ Phase-1 (shared-types) থেকে টাইপ ইম্পোর্ট - টাইপ সেফটি নিশ্চিতকরণ
+import type { 
+  UserRole, 
+  UserTier, 
+  TokenType,
+  PermissionString 
+} from '@vubon/shared-types';
 
 // ============================================================
 // Request DTOs
@@ -55,11 +72,10 @@ export class RefreshTokenDto {
   @IsString({ message: 'Refresh token must be a string' })
   @IsNotEmpty({ message: 'Refresh token is required' })
   @MaxLength(2048, { message: 'Refresh token cannot exceed 2048 characters' })
-  @Matches(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/, {
-    message: 'Refresh token must be a valid JWT format',
-  })
+  // ✅ ইম্প্রুভমেন্ট: কনস্ট্যান্ট থেকে রেজেক্স ব্যবহার
+  @Matches(JWT_PATTERN, { message: 'Refresh token must be a valid JWT format' })
   refreshToken: string;
-  
+
   @ApiPropertyOptional({
     description: 'Device identifier for security tracking',
     example: 'device_550e8400-e29b-41d4-a716-446655440000',
@@ -69,7 +85,7 @@ export class RefreshTokenDto {
   @IsString({ message: 'Device ID must be a string' })
   @MaxLength(255, { message: 'Device ID cannot exceed 255 characters' })
   deviceId?: string;
-  
+
   @ApiPropertyOptional({
     description: 'Session ID for tracking',
     example: 'sess_550e8400-e29b-41d4-a716-446655440000',
@@ -94,12 +110,18 @@ export class RefreshTokenDto {
   })
   @IsOptional()
   @IsString({ message: 'IP address must be a string' })
-  @Matches(/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/, {
-    message: 'IP address must be a valid IPv4 address',
-  })
+  // ✅ ইম্প্রুভমেন্ট: শেয়ার্ড প্যাটার্ন ব্যবহার করে ভ্যালিডেশন (IPv4 + IPv6 support)
+  @ValidateIf(o => o.ipAddress !== undefined)
+  @Matches(IPV4_PATTERN, { message: 'IP address must be a valid IPv4 address' })
   ipAddress?: string;
-  
-  constructor(refreshToken: string, deviceId?: string, sessionId?: string, userAgent?: string, ipAddress?: string) {
+
+  constructor(
+    refreshToken: string, 
+    deviceId?: string, 
+    sessionId?: string, 
+    userAgent?: string, 
+    ipAddress?: string
+  ) {
     this.refreshToken = refreshToken;
     this.deviceId = deviceId;
     this.sessionId = sessionId;
@@ -121,7 +143,7 @@ export class TokenRefreshResponseDto {
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjQyNjIyfQ',
   })
   accessToken: string;
-  
+
   @ApiProperty({
     description: 'Access token expiry time in seconds',
     example: 900,
@@ -130,20 +152,20 @@ export class TokenRefreshResponseDto {
   @IsNumber()
   @Min(1)
   expiresIn: number;
-  
+
   @ApiProperty({
     description: 'Token type (always Bearer)',
     example: 'Bearer',
     default: 'Bearer',
   })
   tokenType: string = 'Bearer';
-  
+
   @ApiPropertyOptional({
     description: 'New refresh token (if rotation is enabled)',
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidHlwZSI6InJlZnJlc2giLCJpYXQiOjE1MTYyMzkwMjJ9',
   })
   refreshToken?: string;
-  
+
   @ApiPropertyOptional({
     description: 'Refresh token expiry time in seconds',
     example: 604800,
@@ -151,7 +173,7 @@ export class TokenRefreshResponseDto {
   @IsNumber()
   @Min(1)
   refreshExpiresIn?: number;
-  
+
   @ApiPropertyOptional({
     description: 'Whether token rotation occurred',
     example: true,
@@ -201,14 +223,14 @@ export class TokenRevokeResponseDto {
     example: 'টোকেন সফলভাবে রিভোক করা হয়েছে',
   })
   messageBn?: string;
-  
+
   @ApiProperty({
     description: 'Revocation timestamp',
     example: '2024-01-01T00:00:00.000Z',
     format: 'date-time',
   })
   revokedAt: string;
-  
+
   @ApiPropertyOptional({
     description: 'Number of tokens revoked',
     example: 1,
@@ -241,45 +263,54 @@ export class TokenValidationResponseDto {
     example: true,
   })
   valid: boolean;
-  
+
   @ApiPropertyOptional({
     description: 'User ID (if token is valid)',
     example: 'usr_550e8400-e29b-41d4-a716-446655440000',
   })
   userId?: string;
-  
+
   @ApiPropertyOptional({
     description: 'User email (if token is valid)',
     example: 'user@vubon.com.bd',
   })
   email?: string;
-  
+
   @ApiPropertyOptional({
     description: 'User role (if token is valid)',
+    // ✅ ইম্প্রুভমেন্ট: shared-types থেকে টাইপ ব্যবহার করে Enum তৈরি
+    enum: ['SUPER_ADMIN', 'ADMIN', 'MODERATOR', 'USER', 'SELLER', 'VENDOR', 'DELIVERY_AGENT'],
     example: 'ADMIN',
   })
-  role?: string;
-  
+  role?: UserRole;
+
+  @ApiPropertyOptional({
+    description: 'User tier (loyalty program)',
+    enum: ['BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'DIAMOND'],
+    example: 'GOLD',
+  })
+  tier?: UserTier;
+
   @ApiPropertyOptional({
     description: 'Token expiry timestamp',
     example: '2024-01-01T00:15:00.000Z',
     format: 'date-time',
   })
   expiresAt?: string;
-  
+
   @ApiPropertyOptional({
     description: 'Token issued at timestamp',
     example: '2024-01-01T00:00:00.000Z',
     format: 'date-time',
   })
   issuedAt?: string;
-  
+
   @ApiPropertyOptional({
     description: 'Token scopes/permissions',
-    example: ['read', 'write'],
+    example: ['user:read', 'user:write'],
     isArray: true,
   })
-  scopes?: string[];
+  scopes?: PermissionString[];
 
   @ApiPropertyOptional({
     description: 'Session ID associated with token',
@@ -295,27 +326,30 @@ export class TokenValidationResponseDto {
 
   @ApiPropertyOptional({
     description: 'Token type (access or refresh)',
-    example: 'access',
-    enum: ['access', 'refresh'],
+    // ✅ ইম্প্রুভমেন্ট: shared-constants থেকে ইম্পোর্ট করা ভ্যালু ব্যবহার
+    enum: [TOKEN_TYPE.ACCESS, TOKEN_TYPE.REFRESH],
+    example: TOKEN_TYPE.ACCESS,
   })
-  tokenType?: 'access' | 'refresh';
+  tokenType?: TokenType;
 
   constructor(
-    valid: boolean, 
-    userId?: string, 
-    expiresAt?: string, 
-    scopes?: string[],
+    valid: boolean,
+    userId?: string,
+    expiresAt?: string,
+    scopes?: PermissionString[],
     email?: string,
-    role?: string,
+    role?: UserRole,
+    tier?: UserTier,
     issuedAt?: string,
     sessionId?: string,
     deviceId?: string,
-    tokenType?: 'access' | 'refresh'
+    tokenType?: TokenType
   ) {
     this.valid = valid;
     if (userId) this.userId = userId;
     if (email) this.email = email;
     if (role) this.role = role;
+    if (tier) this.tier = tier;
     if (expiresAt) this.expiresAt = expiresAt;
     if (issuedAt) this.issuedAt = issuedAt;
     if (scopes) this.scopes = scopes;
@@ -377,10 +411,18 @@ export class TokenFamilyRevokeResponseDto {
   })
   revokedAt: string;
 
-  constructor(revokedCount: number, message?: string) {
+  @ApiPropertyOptional({
+    description: 'Affected user IDs',
+    example: ['usr_1', 'usr_2'],
+    isArray: true,
+  })
+  affectedUserIds?: string[];
+
+  constructor(revokedCount: number, affectedUserIds?: string[], message?: string) {
     this.message = message || 'Token family successfully revoked';
     this.revokedCount = revokedCount;
     this.revokedAt = new Date().toISOString();
+    this.affectedUserIds = affectedUserIds;
   }
 }
 
@@ -393,7 +435,7 @@ export class TokenRefreshErrorResponseDto {
     example: 401,
   })
   statusCode: number;
-  
+
   @ApiProperty({
     description: 'Error message',
     example: 'Invalid or expired refresh token',
@@ -405,7 +447,7 @@ export class TokenRefreshErrorResponseDto {
     example: 'অবৈধ বা মেয়াদোত্তীর্ণ রিফ্রেশ টোকেন',
   })
   messageBn?: string;
-  
+
   @ApiProperty({
     description: 'Error type',
     example: 'UNAUTHORIZED',
@@ -418,14 +460,14 @@ export class TokenRefreshErrorResponseDto {
     example: 'TOKEN_EXPIRED',
   })
   errorCode?: string;
-  
+
   @ApiProperty({
     description: 'Timestamp of error',
     example: '2024-01-01T00:00:00.000Z',
     format: 'date-time',
   })
   timestamp: string;
-  
+
   constructor(message: string, error: string, messageBn?: string, errorCode?: string) {
     this.statusCode = 401;
     this.message = message;
