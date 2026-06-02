@@ -21,6 +21,9 @@ import type {
   DEVICE_RISK_INDICATORS,
 } from '@vubon/shared-constants';
 
+// Import LocationInfo from location.types.ts to avoid duplication
+import type { LocationInfo } from '../common/location.types';
+
 // ============================================================
 // Device Type Unions (Based on constants - NO enums)
 // ============================================================
@@ -241,19 +244,6 @@ export interface DeviceActivity {
   readonly userAgent?: string;
   readonly location?: LocationInfo;
   readonly metadata?: Record<string, unknown>;
-}
-
-// ============================================================
-// Location Information (Based on IP)
-// ============================================================
-export interface LocationInfo {
-  readonly country: string;
-  readonly city: string;
-  readonly district?: string;
-  readonly upazila?: string;
-  readonly latitude?: number;
-  readonly longitude?: number;
-  readonly isp?: string;
 }
 
 // ============================================================
@@ -585,6 +575,11 @@ export interface DeviceMetrics {
     readonly NEW_DEVICE_DAILY_SPIKE: 1000;
   };
 }
+
+// ============================================================
+// Re-export LocationInfo from location.types.ts
+// ============================================================
+export type { LocationInfo };
 
 // ============================================================
 // Type Exports
