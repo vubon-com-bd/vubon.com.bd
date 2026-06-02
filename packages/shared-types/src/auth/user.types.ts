@@ -26,7 +26,7 @@ import type { DeviceInfo } from './device.types';
 import type { 
   USER_STATUS as ConstUserStatus, 
   USER_TIER as ConstUserTier 
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // ============================================================
 // User Status Types (Based on constants - type-only import)
@@ -37,12 +37,12 @@ export type UserStatus = typeof ConstUserStatus[keyof typeof ConstUserStatus];
 // User Verification Status Types (NO constants import)
 // ============================================================
 export type UserVerificationStatus = 
-  | 'unverified'                // No verification completed
-  | 'email_verified'            // Email verified only
-  | 'phone_verified'            // Phone verified only (Bangladesh specific)
-  | 'fully_verified'            // Both email and phone verified
-  | 'kyc_verified'              // KYC completed (for vendors)
-  | 'document_verified';        // Additional document verification
+  | 'unverified'
+  | 'email_verified'
+  | 'phone_verified'
+  | 'fully_verified'
+  | 'kyc_verified'
+  | 'document_verified';
 
 // ============================================================
 // User Type/Tier (Based on constants - type-only import)
@@ -60,7 +60,7 @@ export interface User {
   readonly lastName: string;
   readonly displayName: string;
   readonly avatar: string | null;
-  readonly role: ExtendedRole;           // From role.types.ts
+  readonly role: ExtendedRole;
   readonly userTier: UserTier;
   readonly status: UserStatus;
   readonly verificationStatus: UserVerificationStatus;
@@ -69,19 +69,19 @@ export interface User {
   readonly kycVerifiedAt: Date | null;
   readonly lastLoginAt: Date | null;
   readonly lastLoginIp: string | null;
-  readonly lastLoginDevice: DeviceInfo | null;  // From device.types.ts
+  readonly lastLoginDevice: DeviceInfo | null;
   readonly createdAt: Date;
   readonly updatedAt: Date;
   readonly deletedAt: Date | null;
   readonly metadata: UserMetadata;
   
   // Bangladesh specific
-  readonly nidNumber?: string;              // National ID (for KYC)
-  readonly tinNumber?: string;              // Tax ID (for sellers)
-  readonly tradeLicenseNumber?: string;     // For vendors
+  readonly nidNumber?: string;
+  readonly tinNumber?: string;
+  readonly tradeLicenseNumber?: string;
   readonly preferredDistrict?: string;
   readonly preferredUpazila?: string;
-  readonly preferredLanguage: 'en' | 'bn';  // Bengali support
+  readonly preferredLanguage: 'en' | 'bn';
 }
 
 // ============================================================
@@ -90,7 +90,7 @@ export interface User {
 export type UserMetadata = {
   readonly [key: string]: string | number | boolean | null | readonly unknown[] | Record<string, unknown>;
   
-  // Common metadata fields (NO constants)
+  // Common metadata fields
   readonly signupSource?: 'email' | 'google' | 'facebook' | 'whatsapp' | 'phone' | 'bkash';
   readonly referralCode?: string;
   readonly referredBy?: string;
@@ -116,13 +116,13 @@ export interface UserDTO {
   readonly lastName: string;
   readonly displayName: string;
   readonly avatar: string | null;
-  readonly role: ExtendedRole;              // From role.types.ts
+  readonly role: ExtendedRole;
   readonly userTier: UserTier;
   readonly status: UserStatus;
   readonly verificationStatus: UserVerificationStatus;
-  readonly createdAt: string;               // ISO date string
-  readonly updatedAt: string;               // ISO date string
-  readonly lastLoginAt: string | null;      // ISO date string
+  readonly createdAt: string;
+  readonly updatedAt: string;
+  readonly lastLoginAt: string | null;
 }
 
 // ============================================================
@@ -136,7 +136,7 @@ export interface UserProfileDTO {
   readonly lastName: string;
   readonly displayName: string;
   readonly avatar: string | null;
-  readonly role: ExtendedRole;              // From role.types.ts
+  readonly role: ExtendedRole;
   readonly userTier: UserTier;
   readonly verificationStatus: UserVerificationStatus;
   readonly createdAt: string;
@@ -158,7 +158,7 @@ export interface CreateUserRequest {
   readonly firstName: string;
   readonly lastName: string;
   readonly password: string;
-  readonly role?: ExtendedRole;             // From role.types.ts
+  readonly role?: ExtendedRole;
   readonly acceptTerms: boolean;
   readonly marketingConsent?: boolean;
   readonly referralCode?: string;
@@ -196,10 +196,10 @@ export interface UserListResponse {
 // ============================================================
 export interface UserFilters {
   readonly status?: UserStatus;
-  readonly role?: ExtendedRole;             // From role.types.ts
+  readonly role?: ExtendedRole;
   readonly userTier?: UserTier;
   readonly verificationStatus?: UserVerificationStatus;
-  readonly search?: string;                  // Search in email, name, phone
+  readonly search?: string;
   readonly fromDate?: Date;
   readonly toDate?: Date;
   readonly hasPhoneVerified?: boolean;
@@ -239,7 +239,7 @@ export interface UserActivitySummary {
 // ============================================================
 export interface UserPreferences {
   readonly language: 'en' | 'bn';
-  readonly timezone: string;                // e.g., 'Asia/Dhaka'
+  readonly timezone: string;
   readonly currency: 'BDT' | 'USD';
   readonly emailNotifications: boolean;
   readonly smsNotifications: boolean;
@@ -269,9 +269,9 @@ export interface UserSessionInfo {
   readonly firstName: string;
   readonly lastName: string;
   readonly avatar: string | null;
-  readonly role: ExtendedRole;              // From role.types.ts
+  readonly role: ExtendedRole;
   readonly userTier: UserTier;
-  readonly permissions: readonly PermissionString[];  // From permission.types.ts
+  readonly permissions: readonly PermissionString[];
   readonly verificationStatus: UserVerificationStatus;
   readonly mfaEnabled: boolean;
 }
@@ -409,7 +409,7 @@ export interface UserStatistics {
   readonly newUsersThisMonth: number;
   
   readonly usersByStatus: Record<UserStatus, number>;
-  readonly usersByRole: Record<ExtendedRole, number>;     // From role.types.ts
+  readonly usersByRole: Record<ExtendedRole, number>;
   readonly usersByTier: Record<UserTier, number>;
   readonly usersByVerificationStatus: Record<UserVerificationStatus, number>;
   
@@ -417,8 +417,8 @@ export interface UserStatistics {
   readonly verifiedPhoneCount: number;
   readonly kycVerifiedCount: number;
   
-  readonly averageLoginFrequency: number;      // Logins per week
-  readonly returningUsersRate: number;         // Percentage
+  readonly averageLoginFrequency: number;
+  readonly returningUsersRate: number;
   
   // Bangladesh specific
   readonly usersByDistrict: ReadonlyArray<{
