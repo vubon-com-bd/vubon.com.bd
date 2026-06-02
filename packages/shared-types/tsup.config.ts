@@ -55,7 +55,7 @@ export default defineConfig({
   // Bundle all dependencies? No - peer dependencies external
   bundle: false,
 
-  // External dependencies (peer dependencies) - FIXED
+  // External dependencies (peer dependencies)
   external: ['@vubon/shared-constants'],
 
   // Platform - neutral (works in Node.js and browser)
@@ -75,9 +75,6 @@ export default defineConfig({
 
   // Environment variables (none needed for types)
   define: {},
-
-  // No replacement needed
-  replace: {},
 
   // No esbuild plugins needed
   esbuildPlugins: [],
