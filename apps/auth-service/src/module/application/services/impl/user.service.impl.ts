@@ -49,6 +49,24 @@ import { Email } from '../../../domain/value-objects/email.vo';
 import { Password } from '../../../domain/value-objects/password.vo';
 import { Phone } from '../../../domain/value-objects/phone.vo';
 
+// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট
+import { 
+  USER_CONFIG, 
+  PASSWORD_POLICY, 
+  USER_STATUS, 
+  USER_ROLES, 
+  USER_TIERS, 
+  AUDIT_ACTIONS,
+  ACCOUNT_CONFIG,
+  NOTIFICATION_TEMPLATES
+} from '@vubon/shared-constants';
+
+// ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট
+import type { UserTier as SharedUserTier, UserStatus as SharedUserStatus, UserRole as SharedUserRole } from '@vubon/shared-types';
+
+// ✅ Phase-1 (shared-utils) থেকে ইম্পোর্ট
+import { maskEmail, maskPhone, isValidDistrict, isValidUpazila } from '@vubon/shared-utils';
+
 // Events
 import { UserRegisteredEvent } from '../../events/user-registered.event';
 import { PasswordChangedEvent } from '../../events/password-changed.event';
@@ -66,15 +84,6 @@ import { PasswordHasher } from '../interfaces/password-hasher.interface';
 import { EventBus } from '../interfaces/event-bus.interface';
 import { TokenGenerator } from '../interfaces/token-generator.interface';
 import { OtpService } from '../interfaces/otp.service.interface';
-
-// ============================================================
-// Constants
-// ============================================================
-
-const PASSWORD_RULES = {
-  MIN_LENGTH: 8,
-  MAX_LENGTH: 128,
-};
 
 // ============================================================
 // Session Service Interface (for dependency)
@@ -138,6 +147,16 @@ export class UserServiceImpl implements UserService {
   ): Promise<UpdateProfileResponseDto> {
     const user = await this.findUserOrThrow(userId);
 
+    // ✅ Validate district if provided
+    if (dto.preferredDistrict && !isValidDistrict(dto.preferredDistrict)) {
+      throw new BadRequestException(`Invalid district: ${dto.preferredDistrict}`);
+    }
+
+    // ✅ Validate upazila if provided
+    if (dto.preferredUpazila && !isValidUpazila(dto.preferredUpazila, dto.preferredDistrict)) {
+      throw new BadRequestException(`Invalid upazila: ${dto.preferredUpazila} for district ${dto.preferredDistrict}`);
+    }
+
     // Update fields using domain methods
     if (dto.fullName !== undefined) {
       user.updateFullName(dto.fullName);
@@ -189,7 +208,7 @@ export class UserServiceImpl implements UserService {
     // Audit log
     await this.auditService.logUserAction(
       userId,
-      'PROFILE_UPDATED',
+      AUDIT_ACTIONS.PROFILE_UPDATED,
       { updatedFields: Object.keys(dto).filter(k => dto[k as keyof UpdateProfileDto] !== undefined) },
       deviceInfo
     );
@@ -229,7 +248,7 @@ export class UserServiceImpl implements UserService {
     if (!isValid) {
       await this.auditService.logUserAction(
         userId,
-        'EMAIL_CHANGE_FAILED',
+        AUDIT_ACTIONS.EMAIL_CHANGE_FAILED,
         { reason: 'Invalid password' },
         deviceInfo
       );
@@ -264,14 +283,14 @@ export class UserServiceImpl implements UserService {
     // Audit log
     await this.auditService.logUserAction(
       userId,
-      'EMAIL_CHANGE_INITIATED',
-      { newEmail: this.maskEmail(dto.newEmail) },
+      AUDIT_ACTIONS.EMAIL_CHANGE_INITIATED,
+      { newEmail: maskEmail(dto.newEmail) },
       deviceInfo
     );
 
     return new UpdateEmailResponseDto(
       true,
-      this.maskEmail(dto.newEmail),
+      maskEmail(dto.newEmail),
       undefined,
       'Email change initiated. Please verify your new email address.'
     );
@@ -315,14 +334,14 @@ export class UserServiceImpl implements UserService {
     // Audit log
     await this.auditService.logUserAction(
       userId,
-      'EMAIL_CHANGED',
-      { oldEmail: this.maskEmail(oldEmail), newEmail: this.maskEmail(newEmail.getValue()) },
+      AUDIT_ACTIONS.EMAIL_CHANGED,
+      { oldEmail: maskEmail(oldEmail), newEmail: maskEmail(newEmail.getValue()) },
       deviceInfo
     );
 
     return new UpdateEmailResponseDto(
       false,
-      this.maskEmail(newEmail.getValue()),
+      maskEmail(newEmail.getValue()),
       undefined,
       'Email updated successfully.'
     );
@@ -348,7 +367,7 @@ export class UserServiceImpl implements UserService {
     if (!isValid) {
       await this.auditService.logUserAction(
         userId,
-        'PHONE_CHANGE_FAILED',
+        AUDIT_ACTIONS.PHONE_CHANGE_FAILED,
         { reason: 'Invalid password' },
         deviceInfo
       );
@@ -374,14 +393,14 @@ export class UserServiceImpl implements UserService {
     // Audit log
     await this.auditService.logUserAction(
       userId,
-      'PHONE_CHANGE_INITIATED',
-      { newPhone: this.maskPhone(dto.newPhone), method: dto.method },
+      AUDIT_ACTIONS.PHONE_CHANGE_INITIATED,
+      { newPhone: maskPhone(dto.newPhone), method: dto.method },
       deviceInfo
     );
 
     return new UpdatePhoneResponseDto(
       true,
-      this.maskPhone(dto.newPhone),
+      maskPhone(dto.newPhone),
       otpResult.sessionId,
       dto.method,
       'Phone change initiated. Please verify your new phone number.'
@@ -425,14 +444,14 @@ export class UserServiceImpl implements UserService {
     // Audit log
     await this.auditService.logUserAction(
       userId,
-      'PHONE_CHANGED',
-      { oldPhone: oldPhone ? this.maskPhone(oldPhone) : null, newPhone: this.maskPhone(newPhoneNumber) },
+      AUDIT_ACTIONS.PHONE_CHANGED,
+      { oldPhone: oldPhone ? maskPhone(oldPhone) : null, newPhone: maskPhone(newPhoneNumber) },
       deviceInfo
     );
 
     return new UpdatePhoneResponseDto(
       false,
-      this.maskPhone(newPhoneNumber),
+      maskPhone(newPhoneNumber),
       undefined,
       undefined,
       'Phone number updated successfully.'
@@ -460,7 +479,7 @@ export class UserServiceImpl implements UserService {
       if (!isValid) {
         await this.auditService.logUserAction(
           userId,
-          'PASSWORD_CHANGE_FAILED',
+          AUDIT_ACTIONS.PASSWORD_CHANGE_FAILED,
           { reason: 'Invalid current password' },
           deviceInfo
         );
@@ -468,8 +487,9 @@ export class UserServiceImpl implements UserService {
       }
     }
 
-    // Check password history (prevent reuse)
-    const recentHashes = await this.passwordHistoryRepository.getRecentHashes(userId, 5);
+    // ✅ Check password history (prevent reuse) - using config constant
+    const preventReuseCount = ACCOUNT_CONFIG.PASSWORD_PREVENT_REUSE_COUNT || 5;
+    const recentHashes = await this.passwordHistoryRepository.getRecentHashes(userId, preventReuseCount);
     for (const hash of recentHashes) {
       const isReused = await this.passwordHasher.compare(dto.newPassword, hash);
       if (isReused) {
@@ -477,7 +497,7 @@ export class UserServiceImpl implements UserService {
       }
     }
 
-    // Validate new password strength
+    // ✅ Validate new password strength
     const strengthResult = await this.passwordHasher.validateStrength(dto.newPassword);
     if (!strengthResult.isValid) {
       throw new BadRequestException(strengthResult.errors.join(', '));
@@ -541,7 +561,7 @@ export class UserServiceImpl implements UserService {
     // Audit log
     await this.auditService.logUserAction(
       userId,
-      'PASSWORD_CHANGED',
+      AUDIT_ACTIONS.PASSWORD_CHANGED,
       { sessionsRevoked, method: dto.skipCurrentPasswordValidation ? 'reset' : 'user_change' },
       deviceInfo
     );
@@ -607,19 +627,23 @@ export class UserServiceImpl implements UserService {
     // Audit log
     await this.auditService.logUserAction(
       userId,
-      'ACCOUNT_DELETED',
+      AUDIT_ACTIONS.ACCOUNT_DELETED,
       { sessionsRevoked },
       deviceInfo
     );
 
+    // ✅ Use config constant for data retention
+    const dataRetentionDays = ACCOUNT_CONFIG.DATA_RETENTION_DAYS || 30;
+    const reactivationDeadline = new Date(Date.now() + dataRetentionDays * 24 * 60 * 60 * 1000);
+
     return {
       success: true,
-      message: 'Account deleted successfully. Your data will be retained for 30 days.',
+      message: `Account deleted successfully. Your data will be retained for ${dataRetentionDays} days.`,
       userId,
       deletedAt: new Date().toISOString(),
-      dataRetentionDays: 30,
+      dataRetentionDays,
       canReactivate: true,
-      reactivationDeadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+      reactivationDeadline: reactivationDeadline.toISOString()
     };
   }
 
@@ -635,7 +659,7 @@ export class UserServiceImpl implements UserService {
     // Audit log
     await this.auditService.logUserAction(
       userId,
-      'ACCOUNT_RESTORED',
+      AUDIT_ACTIONS.ACCOUNT_RESTORED,
       {},
       deviceInfo
     );
@@ -799,9 +823,17 @@ export class UserServiceImpl implements UserService {
       user.updatePreferredLanguage(dto.preferredLanguage);
     }
     if (dto.preferredDistrict) {
+      // ✅ Validate district
+      if (!isValidDistrict(dto.preferredDistrict)) {
+        throw new BadRequestException(`Invalid district: ${dto.preferredDistrict}`);
+      }
       user.updatePreferredDistrict(dto.preferredDistrict);
     }
     if (dto.preferredUpazila) {
+      // ✅ Validate upazila
+      if (!isValidUpazila(dto.preferredUpazila, dto.preferredDistrict)) {
+        throw new BadRequestException(`Invalid upazila: ${dto.preferredUpazila}`);
+      }
       user.updatePreferredUpazila(dto.preferredUpazila);
     }
     if (dto.preferences) {
@@ -851,7 +883,7 @@ export class UserServiceImpl implements UserService {
     // Audit log
     await this.auditService.logUserAction(
       adminId,
-      'USER_CREATED',
+      AUDIT_ACTIONS.USER_CREATED,
       { 
         targetUserId: user.getId(),
         email: user.getEmail().getValue(),
@@ -894,6 +926,16 @@ export class UserServiceImpl implements UserService {
 
     const user = await this.findUserOrThrow(targetUserId);
 
+    // ✅ Validate district if provided
+    if (dto.preferredDistrict && !isValidDistrict(dto.preferredDistrict)) {
+      throw new BadRequestException(`Invalid district: ${dto.preferredDistrict}`);
+    }
+
+    // ✅ Validate upazila if provided
+    if (dto.preferredUpazila && !isValidUpazila(dto.preferredUpazila, dto.preferredDistrict)) {
+      throw new BadRequestException(`Invalid upazila: ${dto.preferredUpazila} for district ${dto.preferredDistrict}`);
+    }
+
     // Update fields using domain methods
     if (dto.fullName !== undefined) {
       user.updateFullName(dto.fullName);
@@ -925,7 +967,7 @@ export class UserServiceImpl implements UserService {
     // Audit log
     await this.auditService.logUserAction(
       adminId,
-      'USER_UPDATED',
+      AUDIT_ACTIONS.USER_UPDATED,
       { 
         targetUserId,
         updatedFields: Object.keys(dto).filter(k => dto[k as keyof UpdateProfileDto] !== undefined)
@@ -955,7 +997,7 @@ export class UserServiceImpl implements UserService {
     // Audit log
     await this.auditService.logUserAction(
       adminId,
-      'USER_PERMANENTLY_DELETED',
+      AUDIT_ACTIONS.USER_PERMANENTLY_DELETED,
       { targetUserId, userEmail: user.getEmail().getValue() },
       deviceInfo
     );
@@ -983,7 +1025,7 @@ export class UserServiceImpl implements UserService {
     // Audit log
     await this.auditService.logUserAction(
       adminId,
-      'USER_ACTIVATED',
+      AUDIT_ACTIONS.USER_ACTIVATED,
       { targetUserId },
       deviceInfo
     );
@@ -1005,7 +1047,7 @@ export class UserServiceImpl implements UserService {
     // Audit log
     await this.auditService.logUserAction(
       adminId,
-      'USER_DEACTIVATED',
+      AUDIT_ACTIONS.USER_DEACTIVATED,
       { targetUserId, reason },
       deviceInfo
     );
@@ -1031,7 +1073,7 @@ export class UserServiceImpl implements UserService {
     // Audit log
     await this.auditService.logUserAction(
       adminId,
-      'USER_SUSPENDED',
+      AUDIT_ACTIONS.USER_SUSPENDED,
       { targetUserId, reason, durationDays },
       deviceInfo
     );
@@ -1075,7 +1117,7 @@ export class UserServiceImpl implements UserService {
     // Audit log
     await this.auditService.logUserAction(
       adminId,
-      'USER_ROLE_CHANGED',
+      AUDIT_ACTIONS.USER_ROLE_CHANGED,
       { targetUserId, oldRole, newRole },
       deviceInfo
     );
@@ -1152,19 +1194,5 @@ export class UserServiceImpl implements UserService {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
     return user;
-  }
-
-  private maskEmail(email: string): string {
-    const [local, domain] = email.split('@');
-    if (!local || !domain) return email;
-    if (local.length <= 2) {
-      return `${local[0]}***@${domain}`;
-    }
-    return `${local[0]}***${local[local.length - 1]}@${domain}`;
-  }
-
-  private maskPhone(phone: string): string {
-    if (phone.length <= 6) return '***';
-    return phone.substring(0, phone.length - 4) + '****';
   }
 }
