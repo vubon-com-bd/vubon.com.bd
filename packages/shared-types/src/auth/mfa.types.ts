@@ -20,7 +20,7 @@ import type {
   RECOVERY_CODES,
   MFA_TIMEOUTS,
   MFA_PRESETS,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // ============================================================
 // MFA Provider Types (Based on constants - NO enums)
