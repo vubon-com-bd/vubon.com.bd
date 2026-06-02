@@ -12,8 +12,6 @@
  * ✅ NO framework imports
  */
 
-import type { HTTP_STATUS } from '@vubon/shared-constants';
-
 // ============================================================
 // Generic API Response Wrapper
 // ============================================================
@@ -48,24 +46,12 @@ export interface ApiErrorResponse {
 }
 
 // ============================================================
-// Paginated API Response
+// Paginated API Response (PaginationMetadata now imported from pagination.types)
 // ============================================================
+import type { PaginationMetadata } from './pagination.types';
+
 export interface PaginatedApiResponse<T> extends ApiResponse<T[]> {
   readonly pagination: PaginationMetadata;
-}
-
-// ============================================================
-// Pagination Metadata
-// ============================================================
-export interface PaginationMetadata {
-  readonly page: number;
-  readonly limit: number;
-  readonly total: number;
-  readonly totalPages: number;
-  readonly hasNext: boolean;
-  readonly hasPrevious: boolean;
-  readonly nextCursor?: string;                  // For cursor-based pagination
-  readonly prevCursor?: string;                  // For cursor-based pagination
 }
 
 // ============================================================
