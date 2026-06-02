@@ -15,6 +15,7 @@
  * ✅ No framework decorators
  * ✅ Complete DTO-based contract
  * ✅ Bangladesh specific - WhatsApp, Imo, bKash, Nagad, Rocket MFA support
+ * ✅ DeviceInfo from shared-types for consistency
  */
 
 import { 
@@ -33,24 +34,24 @@ import {
 } from '../../dtos/mfa/disable-mfa.dto';
 import { MfaBackupCodesResponseDto } from '../../mappers/mfa.mapper';
 
+// ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট - DeviceInfo centralized
+import type { DeviceInfo as SharedDeviceInfo, MFAType, MFAStatus } from '@vubon/shared-types';
+
 // ============================================================
-// Types
+// Types (Re-export shared types for convenience)
 // ============================================================
 
 /**
  * Device information interface (Bangladesh specific)
+ * Re-exported from shared-types for consistency across all services
  */
-export interface DeviceInfo {
-  ipAddress: string;
-  userAgent: string;
-  deviceId?: string;
-  correlationId?: string;
-  // Bangladesh specific
-  district?: string;
-  upazila?: string;
-  mobileOperator?: 'gp' | 'robi' | 'banglalink' | 'teletalk' | 'unknown';
-  networkType?: '2g' | '3g' | '4g' | '5g' | 'wifi' | 'unknown';
-}
+export type DeviceInfo = SharedDeviceInfo;
+
+/**
+ * MFA type enum (Bangladesh specific)
+ * Should be imported from shared-constants in implementation
+ */
+export type { MFAType, MFAStatus };
 
 /**
  * Backup code verification result
@@ -120,6 +121,39 @@ export interface MFAStatistics {
   monthlyAdoptionTrend?: Array<{ month: string; count: number }>;
 }
 
+/**
+ * Verify code DTO (improvement: grouped parameters)
+ */
+export interface VerifyCodeDto {
+  code: string;
+  methodId?: string;
+  type?: string;
+}
+
+/**
+ * Recovery initiation result
+ */
+export interface RecoveryInitiationResult {
+  recoverySessionId: string;
+  expiresIn: number;
+  remainingAttempts: number;
+  maskedRecoveryEmail?: string;
+  maskedRecoveryPhone?: string;
+}
+
+/**
+ * Recovery completion result
+ */
+export interface RecoveryCompletionResult {
+  success: boolean;
+  sessionId?: string;
+  accessToken?: string;
+  refreshToken?: string;
+  expiresIn?: number;
+  message?: string;
+  messageBn?: string;
+}
+
 // ============================================================
 // MFA Service Interface
 // ============================================================
@@ -145,20 +179,18 @@ export interface MfaService {
   /**
    * Verify and complete MFA setup
    * @param userId - User ID from JWT
-   * @param type - MFA type being verified
-   * @param code - Verification code
+   * @param dto - Verification data (improved: using VerifyCodeDto)
    * @param deviceInfo - Device context
    * @returns Verification response
    */
   verifyMfaSetup(
     userId: string,
-    type: string,
-    code: string,
+    dto: VerifyCodeDto,
     deviceInfo: DeviceInfo
   ): Promise<MfaVerificationResponseDto>;
   
   /**
-   * Verify and complete MFA setup with method ID
+   * Verify and complete MFA setup with method ID (simplified)
    * @param userId - User ID from JWT
    * @param methodId - MFA method ID
    * @param code - Verification code
@@ -346,12 +378,14 @@ export interface MfaService {
    * @param userId - User ID
    * @param adminId - Admin ID
    * @param deviceInfo - Device context
+   * @param reason - Reason for reset (for audit)
    * @returns void
    */
   resetMfaLock(
     userId: string,
     adminId: string,
-    deviceInfo: DeviceInfo
+    deviceInfo: DeviceInfo,
+    reason?: string
   ): Promise<void>;
   
   // ============================================================
@@ -369,12 +403,12 @@ export interface MfaService {
    * Initiate MFA recovery flow
    * @param userId - User ID
    * @param deviceInfo - Device context
-   * @returns Recovery session ID
+   * @returns Recovery session result with session ID
    */
   initiateRecovery(
     userId: string,
     deviceInfo: DeviceInfo
-  ): Promise<{ recoverySessionId: string; expiresIn: number }>;
+  ): Promise<RecoveryInitiationResult>;
   
   /**
    * Complete MFA recovery
@@ -383,7 +417,7 @@ export interface MfaService {
    * @param recoveryCode - Recovery code
    * @param newPassword - Optional new password
    * @param deviceInfo - Device context
-   * @returns Success status and new session
+   * @returns Recovery completion result
    */
   completeRecovery(
     userId: string,
@@ -391,7 +425,7 @@ export interface MfaService {
     recoveryCode: string,
     newPassword?: string,
     deviceInfo?: DeviceInfo
-  ): Promise<{ success: boolean; sessionId?: string; accessToken?: string }>;
+  ): Promise<RecoveryCompletionResult>;
   
   // ============================================================
   // Admin Operations
@@ -423,7 +457,7 @@ export interface MfaService {
   forceEnableMfa(
     userId: string,
     adminId: string,
-    type: string,
+    type: MFAType,
     deviceInfo: DeviceInfo
   ): Promise<EnableMfaResponseDto>;
   
@@ -435,7 +469,7 @@ export interface MfaService {
   
   /**
    * Get MFA adoption trend
-   * @param months - Number of months to analyze
+   * @param months - Number of months to analyze (default: 12)
    * @returns Adoption trend data
    */
   getMfaAdoptionTrend(months?: number): Promise<Array<{ month: string; enabledCount: number; totalUsers: number; percentage: number }>>;
@@ -445,21 +479,39 @@ export interface MfaService {
    * @param fromDate - Start date
    * @param toDate - End date
    * @param adminId - Admin ID
-   * @returns MFA audit data
+   * @param format - Export format ('json' | 'csv' | 'xlsx')
+   * @returns MFA audit data (string for CSV/JSON, Buffer for XLSX)
    */
   exportMfaAuditData(
     fromDate: Date,
     toDate: Date,
-    adminId: string
-  ): Promise<Array<{
-    userId: string;
-    email: string;
-    mfaEnabled: boolean;
-    mfaType?: string;
-    enabledAt?: Date;
-    lastUsedAt?: Date;
-    backupCodesRemaining: number;
-  }>>;
+    adminId: string,
+    format?: 'json' | 'csv' | 'xlsx'
+  ): Promise<string | Buffer>;
+  
+  /**
+   * Get MFA audit trail for user
+   * @param userId - User ID
+   * @param limit - Maximum number of entries
+   * @param offset - Pagination offset
+   * @returns Audit trail entries
+   */
+  getMfaAuditTrail(
+    userId: string,
+    limit?: number,
+    offset?: number
+  ): Promise<{
+    items: Array<{
+      id: string;
+      action: 'enabled' | 'disabled' | 'verified' | 'failed' | 'locked' | 'unlocked' | 'backup_code_used';
+      timestamp: Date;
+      methodType?: string;
+      ipAddress?: string;
+      deviceId?: string;
+      details?: string;
+    }>;
+    total: number;
+  }>;
 }
 
 // ============================================================
@@ -472,5 +524,8 @@ export type {
   MFAMethodInfo as MFAMethodInfoType,
   MFALockStatus as MFALockStatusType,
   MFARecoveryOptions as MFARecoveryOptionsType,
-  MFAStatistics as MFAStatisticsType
+  MFAStatistics as MFAStatisticsType,
+  VerifyCodeDto as VerifyCodeDtoType,
+  RecoveryInitiationResult as RecoveryInitiationResultType,
+  RecoveryCompletionResult as RecoveryCompletionResultType
 };
