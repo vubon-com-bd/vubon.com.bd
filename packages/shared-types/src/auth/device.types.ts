@@ -20,7 +20,7 @@ import type {
   DEVICE_TRUST_DURATION,
   FINGERPRINT_COMPONENTS,
   DEVICE_RISK_INDICATORS,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // ============================================================
 // Device Type Unions (Based on constants - NO enums)
