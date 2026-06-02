@@ -15,7 +15,7 @@
 import type {
   LOCKOUT_LEVELS,
   ACCOUNT_LOCKOUT,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // ============================================================
 // Lock Reason Types (Pure union types - NO enums)
