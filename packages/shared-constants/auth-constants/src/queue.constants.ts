@@ -23,14 +23,12 @@ export type ReadonlyDeep<T> = {
 // CRITICAL: Queue Broker Connection Configuration
 // ============================================================
 export const QUEUE_CONNECTION_CONFIG = {
-  // Primary Redis Queue Broker (Bull/BullMQ)
   REDIS: {
-    HOST: process.env.QUEUE_REDIS_HOST || process.env.REDIS_HOST || 'localhost',
-    PORT: parseInt(process.env.QUEUE_REDIS_PORT || process.env.REDIS_PORT || '6379'),
-    PASSWORD: process.env.QUEUE_REDIS_PASSWORD || process.env.REDIS_PASSWORD,
-    DB_INDEX: parseInt(process.env.QUEUE_REDIS_DB || '2'), // Separate DB for queues
+    HOST: process.env['QUEUE_REDIS_HOST'] || process.env['REDIS_HOST'] || 'localhost',
+    PORT: parseInt(process.env['QUEUE_REDIS_PORT'] || process.env['REDIS_PORT'] || '6379'),
+    PASSWORD: process.env['QUEUE_REDIS_PASSWORD'] || process.env['REDIS_PASSWORD'] || '',
+    DB_INDEX: parseInt(process.env['QUEUE_REDIS_DB'] || '2'),
     
-    // Connection Pool
     POOL: {
       MIN: 10,
       MAX: 30,
@@ -38,19 +36,15 @@ export const QUEUE_CONNECTION_CONFIG = {
       IDLE_TIMEOUT_MS: 60000,
     },
     
-    // Cluster Configuration (Production)
-    CLUSTER_ENABLED: process.env.REDIS_CLUSTER_ENABLED === 'true',
-    CLUSTER_NODES: process.env.REDIS_CLUSTER_NODES?.split(',') || [],
+    CLUSTER_ENABLED: process.env['REDIS_CLUSTER_ENABLED'] === 'true',
+    CLUSTER_NODES: process.env['REDIS_CLUSTER_NODES']?.split(',') || [],
     CLUSTER_MAX_REDIRECTS: 3,
     
-    // TLS/SSL Configuration
-    TLS_ENABLED: process.env.REDIS_TLS === 'true',
-    TLS_CA: process.env.REDIS_CA_CERT,
-    TLS_CERT: process.env.REDIS_CERT,
-    TLS_KEY: process.env.REDIS_KEY,
-    TLS_REJECT_UNAUTHORIZED: process.env.NODE_ENV === 'production',
+    TLS_ENABLED: process.env['REDIS_TLS'] === 'true',
+    TLS_CA: process.env['REDIS_CA_CERT'],
+    TLS_CERT: process.env['REDIS_CERT'],
+    TLS_KEY: process.env['REDIS_KEY'],
     
-    // Timeouts
     TIMEOUT: {
       CONNECT_MS: 5000,
       READ_MS: 3000,
@@ -58,7 +52,6 @@ export const QUEUE_CONNECTION_CONFIG = {
       COMMAND_MS: 10000,
     },
     
-    // Retry Strategy
     RETRY_STRATEGY: {
       MAX_RETRIES: 5,
       RETRY_DELAY_MS: 1000,
@@ -67,7 +60,6 @@ export const QUEUE_CONNECTION_CONFIG = {
       RETRYABLE_ERRORS: ['ECONNRESET', 'ETIMEDOUT', 'ECONNREFUSED'],
     },
     
-    // Circuit Breaker
     CIRCUIT_BREAKER: {
       ENABLED: true,
       FAILURE_THRESHOLD: 5,
@@ -76,7 +68,6 @@ export const QUEUE_CONNECTION_CONFIG = {
       ROLLING_WINDOW_MS: 60000,
     },
     
-    // Health Check
     HEALTH_CHECK: {
       ENABLED: true,
       INTERVAL_MS: 30000,
@@ -84,16 +75,13 @@ export const QUEUE_CONNECTION_CONFIG = {
     },
   },
   
-  // Read Replica for queue inspection/monitoring
   READ_REPLICA: {
-    ENABLED: process.env.QUEUE_REPLICA_ENABLED === 'true',
-    HOST: process.env.QUEUE_REPLICA_HOST,
-    PORT: parseInt(process.env.QUEUE_REPLICA_PORT || '6379'),
-    PASSWORD: process.env.QUEUE_REPLICA_PASSWORD,
-    WEIGHT: 0.5, // 50% of read operations
+    ENABLED: process.env['QUEUE_REPLICA_ENABLED'] === 'true',
+    HOST: process.env['QUEUE_REPLICA_HOST'],
+    PORT: parseInt(process.env['QUEUE_REPLICA_PORT'] || '6379'),
+    PASSWORD: process.env['QUEUE_REPLICA_PASSWORD'],
   },
   
-  // Fallback In-Memory Queue (when Redis is down)
   FALLBACK: {
     ENABLED: true,
     TYPE: 'memory',
@@ -103,12 +91,11 @@ export const QUEUE_CONNECTION_CONFIG = {
     CLEANUP_INTERVAL_MS: 60000,
   },
   
-  // Write Strategy
   WRITE_STRATEGY: {
-    MODE: 'primary_first', // 'primary_first', 'write_all', 'write_majority'
+    MODE: 'primary_first',
     CONSISTENCY: 'eventual',
     WRITE_TIMEOUT_MS: 5000,
-    ACKNOWLEDGEMENT: 'wait_for_all', // 'wait_for_none', 'wait_for_primary', 'wait_for_all'
+    ACKNOWLEDGEMENT: 'wait_for_all',
   },
 } as const;
 
@@ -118,11 +105,11 @@ export const QUEUE_CONNECTION_CONFIG = {
 export const QUEUE_WORKER_CONFIG = {
   WORKER: {
     CONCURRENCY: 10,
-    LOCK_DURATION_MS: 30000,        // 30 seconds job lock
-    LOCK_RENEW_TIME_MS: 15000,      // Renew lock after 15 seconds
-    STALLED_INTERVAL_MS: 30000,     // Check stalled jobs every 30 seconds
-    MAX_STALLED_COUNT: 3,           // Max times a job can be stalled
-    RUN_DELAY_MS: 0,                // No delay before processing
+    LOCK_DURATION_MS: 30000,
+    LOCK_RENEW_TIME_MS: 15000,
+    STALLED_INTERVAL_MS: 30000,
+    MAX_STALLED_COUNT: 3,
+    RUN_DELAY_MS: 0,
     SETTINGS: {
       LOCK_RENEW_TIME: 15000,
       STALLED_INTERVAL: 30000,
@@ -132,38 +119,38 @@ export const QUEUE_WORKER_CONFIG = {
   
   JOB: {
     REMOVE_ON_COMPLETE: {
-      AGE: 3600,    // Keep completed jobs for 1 hour
-      COUNT: 1000,  // Keep last 1000 completed jobs
+      AGE: 3600,
+      COUNT: 1000,
     },
     REMOVE_ON_FAIL: {
-      AGE: 86400,   // Keep failed jobs for 24 hours
-      COUNT: 5000,  // Keep last 5000 failed jobs
+      AGE: 86400,
+      COUNT: 5000,
     },
     REMOVE_ON_DELAY: {
-      AGE: 604800,  // Keep delayed jobs for 7 days
-      COUNT: 10000, // Keep last 10000 delayed jobs
+      AGE: 604800,
+      COUNT: 10000,
     },
-    KEEP_JOB_LOGS: 100, // Keep last 100 job logs
+    KEEP_JOB_LOGS: 100,
   },
   
   RATE_LIMITER: {
     ENABLED: true,
     GROUP_KEY: 'queue:ratelimit:',
-    DURATION_MS: 60000,    // 1 minute window
-    POINTS: 100,           // 100 jobs per minute default
-    BLOCK_DURATION_MS: 30000, // Block for 30 seconds if rate limit exceeded
-    MAX_DELAY_MS: 300000,  // Max delay 5 minutes
+    DURATION_MS: 60000,
+    POINTS: 100,
+    BLOCK_DURATION_MS: 30000,
+    MAX_DELAY_MS: 300000,
   },
   
   SANDBOX: {
-    ENABLED: false,         // Enable for isolated job processing
+    ENABLED: false,
     MAX_MEMORY_MB: 512,
     TIMEOUT_MS: 60000,
     MAX_CPU_PERCENT: 50,
   },
   
   SPAWN: {
-    ENABLED: false,         // Enable for separate process per job
+    ENABLED: false,
     MAX_CHILDREN: 10,
     CHILD_TIMEOUT_MS: 30000,
   },
@@ -175,7 +162,6 @@ export const QUEUE_WORKER_CONFIG = {
 export const QUEUE_MONITORING_CONFIG = {
   ENABLED: true,
   
-  // Prometheus metrics
   METRICS: {
     JOB_COUNT: {
       NAME: 'vubon_queue_jobs_total',
@@ -227,7 +213,6 @@ export const QUEUE_MONITORING_CONFIG = {
     },
   },
   
-  // Queue Dashboard
   DASHBOARD: {
     ENABLED: true,
     PATH: '/admin/queues',
@@ -237,31 +222,27 @@ export const QUEUE_MONITORING_CONFIG = {
     EXPORT_ENABLED: true,
   },
   
-  // Alerting rules
   ALERTS: {
     QUEUE_SIZE_THRESHOLD: 10000,
     QUEUE_SIZE_CRITICAL: 50000,
-    FAILURE_RATE_THRESHOLD: 0.1,    // 10% failure rate
-    JOB_LAG_THRESHOLD_SECONDS: 300,  // 5 minutes lag
+    FAILURE_RATE_THRESHOLD: 0.1,
+    JOB_LAG_THRESHOLD_SECONDS: 300,
     DLQ_SIZE_THRESHOLD: 1000,
     STALLED_JOB_THRESHOLD: 3,
     WORKER_COUNT_DROPPED: true,
     
-    // Alert channels
-    SLACK_WEBHOOK: process.env.SLACK_ALERTS_WEBHOOK,
-    EMAIL_RECIPIENTS: process.env.ALERT_EMAILS?.split(','),
+    SLACK_WEBHOOK: process.env['SLACK_ALERTS_WEBHOOK'],
+    EMAIL_RECIPIENTS: process.env['ALERT_EMAILS']?.split(','),
     
-    // Cooldown between alerts (seconds)
     COOLDOWN_MINUTES: 5,
     NOTIFICATION_CHANNELS: ['slack', 'email'],
   },
   
-  // OpenTelemetry tracing
   TRACING: {
     ENABLED: true,
-    SAMPLING_RATE: 0.1,  // 10% of jobs
+    SAMPLING_RATE: 0.1,
     EXPORTER: 'jaeger',
-    EXPORTER_ENDPOINT: process.env.JAEGER_ENDPOINT,
+    EXPORTER_ENDPOINT: process.env['JAEGER_ENDPOINT'],
     SERVICE_NAME: 'vubon-queue-service',
     SPAN_ATTRIBUTES: ['queue', 'jobId', 'status'],
   },
@@ -274,11 +255,11 @@ export const QUEUE_BACKPRESSURE_CONFIG = {
   ENABLED: true,
   
   THRESHOLDS: {
-    HIGH_WATERMARK: 10000,   // Start backpressure at 10k jobs
-    LOW_WATERMARK: 5000,      // Resume at 5k jobs
-    PAUSE_ON_HIGH: true,      // Pause producers when high
-    RESUME_ON_LOW: true,      // Resume when low
-    CRITICAL_THRESHOLD: 50000, // Critical - need intervention
+    HIGH_WATERMARK: 10000,
+    LOW_WATERMARK: 5000,
+    PAUSE_ON_HIGH: true,
+    RESUME_ON_LOW: true,
+    CRITICAL_THRESHOLD: 50000,
   },
   
   DRAIN_STRATEGY: {
@@ -289,7 +270,6 @@ export const QUEUE_BACKPRESSURE_CONFIG = {
     DRAIN_ON_STARTUP: true,
   },
   
-  // Priority order for draining (critical queues first)
   PRIORITY_ORDER: [
     'payment.queue',
     'sslcommerz.queue',
@@ -307,8 +287,8 @@ export const QUEUE_BACKPRESSURE_CONFIG = {
   
   ADAPTIVE: {
     ENABLED: true,
-    UPDATE_INTERVAL_MS: 60000,  // Update every minute
-    SMOOTHING_FACTOR: 0.3,      // Exponential smoothing
+    UPDATE_INTERVAL_MS: 60000,
+    SMOOTHING_FACTOR: 0.3,
     MIN_WORKERS: 1,
     MAX_WORKERS: 50,
   },
@@ -340,16 +320,16 @@ export const QUEUE_SECURITY = {
   },
   
   IP_WHITELIST: {
-    ENABLED: process.env.NODE_ENV === 'production',
-    ALLOWED_IPS: process.env.QUEUE_ALLOWED_IPS?.split(',') || [],
+    ENABLED: process.env['NODE_ENV'] === 'production',
+    ALLOWED_IPS: process.env['QUEUE_ALLOWED_IPS']?.split(',') || [],
     ALLOWED_CIDRS: ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16'],
   },
   
   ACCESS_CONTROL: {
     ROLES: {
-      ADMIN: ['*'],  // Full access
-      MONITOR: ['view', 'metrics'],  // Read-only
-      OPERATOR: ['view', 'retry', 'delete'],  // Limited write
+      ADMIN: ['*'],
+      MONITOR: ['view', 'metrics'],
+      OPERATOR: ['view', 'retry', 'delete'],
     },
   },
 } as const;
@@ -358,7 +338,6 @@ export const QUEUE_SECURITY = {
 // Queue Names (Core business queues)
 // ============================================================
 export const QUEUES = {
-  // Core Business Queues
   AUTH: 'auth.queue',
   USER: 'user.queue',
   PRODUCT: 'product.queue',
@@ -367,63 +346,43 @@ export const QUEUES = {
   INVENTORY: 'inventory.queue',
   CART: 'cart.queue',
   CHECKOUT: 'checkout.queue',
-
-  // Communication Queues
   EMAIL: 'email.queue',
   SMS: 'sms.queue',
   NOTIFICATION: 'notification.queue',
   PUSH: 'push.queue',
   WHATSAPP: 'whatsapp.queue',
   VOICE_CALL: 'voice_call.queue',
-
-  // Bangladesh Specific Payment Gateways
   SSLCOMMERZ: 'sslcommerz.queue',
   BKASH: 'bkash.queue',
   NAGAD: 'nagad.queue',
   ROCKET: 'rocket.queue',
   STRIPE: 'stripe.queue',
   PAYPAL: 'paypal.queue',
-
-  // Bangladesh Specific Shipping Partners
   REDX: 'redx.queue',
   PAPERFLY: 'paperfly.queue',
   SUNDARBAN: 'sundarban.queue',
   SA_PARIBAHAN: 'sa_paribahan.queue',
   PATHAO: 'pathao.queue',
-
-  // SMS Providers (Bangladesh)
   SMS_BANGLALINK: 'sms.banglalink.queue',
   SMS_GP: 'sms.gp.queue',
   SMS_ROBI: 'sms.robi.queue',
   SMS_TELETALK: 'sms.teletalk.queue',
   SMS_OTHERS: 'sms.others.queue',
-
-  // Processing Queues
   JOB: 'job.queue',
   BATCH: 'batch.queue',
   REPORT: 'report.queue',
   ANALYTICS: 'analytics.queue',
-
-  // Integration Queues
   WEBHOOK: 'webhook.queue',
   SYNC: 'sync.queue',
   IMPORT: 'import.queue',
   EXPORT: 'export.queue',
-
-  // Background Tasks
   CLEANUP: 'cleanup.queue',
   MAINTENANCE: 'maintenance.queue',
   BACKUP: 'backup.queue',
-
-  // Real-time Queues
   REALTIME: 'realtime.queue',
   EVENT: 'event.queue',
-
-  // Third-party API Queues (Rate limited)
   THIRD_PARTY_API: 'third_party_api.queue',
   RATE_LIMITED: 'rate_limited.queue',
-
-  // Dead Letter Queues
   DLQ_MAIN: 'dlq.main',
   DLQ_RETRY: 'dlq.retry',
   DLQ_PAYMENT: 'dlq.payment',
@@ -433,7 +392,7 @@ export const QUEUES = {
 export type Queue = ValueOf<typeof QUEUES>;
 
 // ============================================================
-// Exchange Names (Keep your existing)
+// Exchange Names
 // ============================================================
 export const EXCHANGES = {
   DIRECT_AUTH: 'auth.direct',
@@ -457,7 +416,7 @@ export const EXCHANGES = {
 export type Exchange = ValueOf<typeof EXCHANGES>;
 
 // ============================================================
-// Routing Keys (Keep your existing)
+// Routing Keys
 // ============================================================
 export const ROUTING_KEYS = {
   AUTH_LOGIN: 'auth.login',
@@ -527,7 +486,7 @@ export const ROUTING_KEYS = {
 export type RoutingKey = ValueOf<typeof ROUTING_KEYS>;
 
 // ============================================================
-// Queue Dead Letter Configuration (Keep your existing)
+// Queue Dead Letter Configuration
 // ============================================================
 export const QUEUE_DLX = {
   ENABLED: true,
@@ -552,7 +511,7 @@ export const QUEUE_DLX = {
 } as const;
 
 // ============================================================
-// Queue Priorities (Keep your existing)
+// Queue Priorities
 // ============================================================
 export const QUEUE_PRIORITIES = {
   CRITICAL: 10,
@@ -575,7 +534,7 @@ export const QUEUE_PRIORITIES = {
 export type QueuePriority = ValueOf<typeof QUEUE_PRIORITIES>;
 
 // ============================================================
-// Consumer Concurrency Settings (Keep your existing)
+// Consumer Concurrency Settings
 // ============================================================
 export const QUEUE_CONCURRENCY = {
   EMAIL: 50,
@@ -604,7 +563,7 @@ export const QUEUE_CONCURRENCY = {
 export type QueueConcurrency = typeof QUEUE_CONCURRENCY;
 
 // ============================================================
-// Queue Timeouts (Keep your existing)
+// Queue Timeouts
 // ============================================================
 export const QUEUE_TIMEOUTS = {
   PAYMENT: 60000,
@@ -632,7 +591,7 @@ export const QUEUE_TIMEOUTS = {
 export type QueueTimeout = ValueOf<typeof QUEUE_TIMEOUTS>;
 
 // ============================================================
-// Event Names (Keep your existing)
+// Event Names
 // ============================================================
 export const EVENT_NAMES = {
   DOMAIN_USER_REGISTERED: 'domain.user.registered',
@@ -686,7 +645,7 @@ export const EVENT_NAMES = {
 export type EventName = ValueOf<typeof EVENT_NAMES>;
 
 // ============================================================
-// Job Types (Keep your existing)
+// Job Types
 // ============================================================
 export const JOB_TYPES = {
   DATA_IMPORT: 'data.import',
@@ -720,7 +679,7 @@ export const JOB_TYPES = {
 export type JobType = ValueOf<typeof JOB_TYPES>;
 
 // ============================================================
-// Retry Strategies (Keep your existing)
+// Retry Strategies
 // ============================================================
 export const RETRY_STRATEGIES = {
   LINEAR: 'linear',
@@ -732,7 +691,7 @@ export const RETRY_STRATEGIES = {
 export type RetryStrategy = ValueOf<typeof RETRY_STRATEGIES>;
 
 // ============================================================
-// Retry Configuration by Queue Type (Keep your existing)
+// Retry Configuration by Queue Type
 // ============================================================
 export const QUEUE_RETRY_CONFIG = {
   [QUEUES.PAYMENT]: {
@@ -795,7 +754,7 @@ export const QUEUE_RETRY_CONFIG = {
 export type QueueRetryConfig = typeof QUEUE_RETRY_CONFIG;
 
 // ============================================================
-// Rate Limiting for Queues (Keep your existing)
+// Rate Limiting for Queues
 // ============================================================
 export const QUEUE_RATE_LIMITS = {
   ENABLED: true,
@@ -829,12 +788,11 @@ export const QUEUE_RATE_LIMITS = {
 export type QueueRateLimits = typeof QUEUE_RATE_LIMITS;
 
 // ============================================================
-// Queue Scheduling (Keep your existing)
+// Queue Scheduling
 // ============================================================
 export const QUEUE_SCHEDULING = {
   TIMEZONE: 'Asia/Dhaka',
   HOLIDAY_SUSPEND_QUEUES: [
-    QUEUES.SHIPPING,
     QUEUES.REDX,
     QUEUES.PAPERFLY,
     QUEUES.SUNDARBAN,
@@ -849,7 +807,7 @@ export const QUEUE_SCHEDULING = {
 export type QueueScheduling = typeof QUEUE_SCHEDULING;
 
 // ============================================================
-// Queue Health Checks (Keep your existing)
+// Queue Health Checks
 // ============================================================
 export const QUEUE_HEALTH = {
   ENABLED: true,
