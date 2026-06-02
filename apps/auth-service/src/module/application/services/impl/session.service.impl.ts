@@ -14,6 +14,8 @@
  * ✅ Event publishing
  * ✅ DTO mapping
  * ✅ Bangladesh specific - Device type, network type tracking
+ * ✅ Enhanced caching with proper invalidation
+ * ✅ Health check for service monitoring
  */
 
 import { Injectable, NotFoundException, UnauthorizedException, BadRequestException, ForbiddenException } from '@nestjs/common';
@@ -37,10 +39,10 @@ import { SessionActivityRecordedEvent } from '../../events/session-activity-reco
 import { SessionMapper, BriefSessionResponseDto, SessionResponseDto, CurrentSessionResponseDto } from '../../mappers/session.mapper';
 import { EventBus } from '../interfaces/event-bus.interface';
 import { AuditService } from '../interfaces/audit.service.interface';
-import { CacheService } from '../interfaces/cache.service.interface';
+import { CacheService, CacheKeyBuilder } from '../interfaces/cache.service.interface';
 
 // ============================================================
-// Constants
+// Constants (to be moved to shared-constants in production)
 // ============================================================
 
 const SESSION_CONFIG = {
@@ -49,6 +51,7 @@ const SESSION_CONFIG = {
   MOBILE_IDLE_TIMEOUT_MINUTES: 60,  // Longer timeout for mobile (Bangladesh specific)
   MAX_ACTIVE_SESSIONS_PER_USER: 10,
   SESSION_CACHE_TTL_SECONDS: 300,   // 5 minutes
+  HEALTH_CHECK_TIMEOUT_MS: 5000,    // 5 seconds
 };
 
 // ============================================================
@@ -65,6 +68,29 @@ export class SessionServiceImpl implements SessionService {
   ) {}
 
   // ============================================================
+  // Health Check
+  // ============================================================
+
+  /**
+   * Check service health
+   */
+  async healthCheck(): Promise<{ healthy: boolean; latency: number; error?: string }> {
+    const startTime = Date.now();
+    try {
+      // Test database connection
+      await this.sessionRepository.count();
+      const latency = Date.now() - startTime;
+      return { healthy: true, latency };
+    } catch (error) {
+      return {
+        healthy: false,
+        latency: Date.now() - startTime,
+        error: (error as Error).message
+      };
+    }
+  }
+
+  // ============================================================
   // Session Retrieval
   // ============================================================
 
@@ -73,55 +99,41 @@ export class SessionServiceImpl implements SessionService {
     options: PaginationDto,
     filters?: SessionFilterOptions
   ): Promise<PaginatedResponseDto<BriefSessionResponseDto>> {
+    // Try cache first for first page
+    if (options.page === 1 && !filters) {
+      const cacheKey = CacheKeyBuilder.userSessions(userId);
+      const cached = await this.cacheService.get<PaginatedResponseDto<BriefSessionResponseDto>>(cacheKey);
+      if (cached) {
+        return cached;
+      }
+    }
+
     const sessions = await this.sessionRepository.findByUserIdPaginated(userId, options);
     
     let filteredSessions = sessions.data;
     
     // Apply filters if provided
     if (filters) {
-      if (filters.deviceType) {
-        filteredSessions = filteredSessions.filter(s => 
-          s.getUserAgent().getDeviceType() === filters.deviceType
-        );
-      }
-      if (filters.networkType) {
-        filteredSessions = filteredSessions.filter(s => 
-          s.getMetadata().networkType === filters.networkType
-        );
-      }
-      if (filters.mobileOperator) {
-        filteredSessions = filteredSessions.filter(s => 
-          s.getMetadata().mobileOperator === filters.mobileOperator
-        );
-      }
-      if (filters.district) {
-        filteredSessions = filteredSessions.filter(s => 
-          s.getMetadata().district === filters.district
-        );
-      }
-      if (filters.status) {
-        filteredSessions = filteredSessions.filter(s => 
-          s.getStatus() === filters.status
-        );
-      }
-      if (filters.fromDate) {
-        filteredSessions = filteredSessions.filter(s => 
-          s.getCreatedAt() >= filters.fromDate!
-        );
-      }
-      if (filters.toDate) {
-        filteredSessions = filteredSessions.filter(s => 
-          s.getCreatedAt() <= filters.toDate!
-        );
-      }
+      filteredSessions = this.applyFilters(filteredSessions, filters);
     }
     
-    return SessionMapper.toPaginatedResponse(
+    const result = SessionMapper.toPaginatedResponse(
       filteredSessions,
-      filteredSessions.length,
+      sessions.total,
       options.page,
       options.limit
     );
+    
+    // Cache first page result
+    if (options.page === 1 && !filters) {
+      await this.cacheService.set(
+        CacheKeyBuilder.userSessions(userId),
+        result,
+        SESSION_CONFIG.SESSION_CACHE_TTL_SECONDS
+      );
+    }
+    
+    return result;
   }
 
   async getActiveSessions(userId: string): Promise<BriefSessionResponseDto[]> {
@@ -625,6 +637,7 @@ export class SessionServiceImpl implements SessionService {
     for (const [, data] of deviceCount) {
       deviceTypeCount.set(data.type, (deviceTypeCount.get(data.type) || 0) + data.count);
     }
+    maxCount = 0;
     for (const [type, count] of deviceTypeCount) {
       if (count > maxCount) {
         maxCount = count;
@@ -659,26 +672,7 @@ export class SessionServiceImpl implements SessionService {
     let filteredSessions = sessions.data;
     
     if (filters) {
-      if (filters.deviceType) {
-        filteredSessions = filteredSessions.filter(s => 
-          s.getUserAgent().getDeviceType() === filters.deviceType
-        );
-      }
-      if (filters.networkType) {
-        filteredSessions = filteredSessions.filter(s => 
-          s.getMetadata().networkType === filters.networkType
-        );
-      }
-      if (filters.mobileOperator) {
-        filteredSessions = filteredSessions.filter(s => 
-          s.getMetadata().mobileOperator === filters.mobileOperator
-        );
-      }
-      if (filters.district) {
-        filteredSessions = filteredSessions.filter(s => 
-          s.getMetadata().district === filters.district
-        );
-      }
+      filteredSessions = this.applyFilters(filteredSessions, filters);
     }
     
     return SessionMapper.toPaginatedResponse(
@@ -700,26 +694,7 @@ export class SessionServiceImpl implements SessionService {
     let filteredSessions = sessions.data;
     
     if (filters) {
-      if (filters.deviceType) {
-        filteredSessions = filteredSessions.filter(s => 
-          s.getUserAgent().getDeviceType() === filters.deviceType
-        );
-      }
-      if (filters.networkType) {
-        filteredSessions = filteredSessions.filter(s => 
-          s.getMetadata().networkType === filters.networkType
-        );
-      }
-      if (filters.mobileOperator) {
-        filteredSessions = filteredSessions.filter(s => 
-          s.getMetadata().mobileOperator === filters.mobileOperator
-        );
-      }
-      if (filters.district) {
-        filteredSessions = filteredSessions.filter(s => 
-          s.getMetadata().district === filters.district
-        );
-      }
+      filteredSessions = this.applyFilters(filteredSessions, filters);
     }
     
     await this.auditService.info(
@@ -905,6 +880,7 @@ export class SessionServiceImpl implements SessionService {
     severity: 'low' | 'medium' | 'high';
   }>> {
     // This would typically run anomaly detection algorithms
+    // Return empty array for now
     return [];
   }
 
@@ -956,26 +932,49 @@ export class SessionServiceImpl implements SessionService {
       await this.cacheService.del(CacheKeyBuilder.session(sessionId));
     }
   }
-}
 
-// ============================================================
-// Cache Key Builder (Local copy for service)
-// ============================================================
-
-class CacheKeyBuilder {
-  private static readonly PREFIX = 'auth:';
-  private static readonly SEPARATOR = ':';
-  private static readonly VERSION = 'v1';
-  
-  static userSessions(userId: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}sessions${this.SEPARATOR}user${this.SEPARATOR}${userId}`;
-  }
-  
-  static session(sessionId: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}session${this.SEPARATOR}${sessionId}`;
-  }
-  
-  static activeSessionsCount(userId: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}sessions${this.SEPARATOR}count${this.SEPARATOR}${userId}`;
+  private applyFilters(
+    sessions: Session[],
+    filters: SessionFilterOptions
+  ): Session[] {
+    let filtered = [...sessions];
+    
+    if (filters.deviceType) {
+      filtered = filtered.filter(s => 
+        s.getUserAgent().getDeviceType() === filters.deviceType
+      );
+    }
+    if (filters.networkType) {
+      filtered = filtered.filter(s => 
+        s.getMetadata().networkType === filters.networkType
+      );
+    }
+    if (filters.mobileOperator) {
+      filtered = filtered.filter(s => 
+        s.getMetadata().mobileOperator === filters.mobileOperator
+      );
+    }
+    if (filters.district) {
+      filtered = filtered.filter(s => 
+        s.getMetadata().district === filters.district
+      );
+    }
+    if (filters.status) {
+      filtered = filtered.filter(s => 
+        s.getStatus() === filters.status
+      );
+    }
+    if (filters.fromDate) {
+      filtered = filtered.filter(s => 
+        s.getCreatedAt() >= filters.fromDate!
+      );
+    }
+    if (filters.toDate) {
+      filtered = filtered.filter(s => 
+        s.getCreatedAt() <= filters.toDate!
+      );
+    }
+    
+    return filtered;
   }
 }
