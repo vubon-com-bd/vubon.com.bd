@@ -17,40 +17,94 @@
  */
 
 // ============================================================
-// Cache Options
+// Phase-1 Imports (shared-types and shared-constants)
 // ============================================================
 
-export interface CacheOptions {
-  ttl?: number;           // Time to live in seconds
-  nx?: boolean;           // Only set if key does not exist
-  xx?: boolean;           // Only set if key already exists
-  prefix?: string;        // Custom key prefix
-}
+// ✅ Phase-1 (shared-types) - Type definitions from centralized location
+import type {
+  CacheOptions as SharedCacheOptions,
+  CacheSetOptions as SharedCacheSetOptions,
+  CacheMultiGetResult as SharedCacheMultiGetResult,
+  CacheStatistics as SharedCacheStatistics,
+} from '@vubon/shared-types';
 
-export interface CacheSetOptions extends CacheOptions {
-  keepTTL?: boolean;      // Keep existing TTL when updating
-}
-
-export interface CacheMultiGetResult<T> {
-  key: string;
-  value: T | null;
-  found: boolean;
-}
+// ✅ Phase-1 (shared-constants) - Configuration from centralized location
+import {
+  CACHE_CONFIG,
+  CACHE_KEY_PREFIX,
+  CACHE_VERSION,
+  CACHE_DEFAULT_TTL,
+  CACHE_KEY_SEPARATOR,
+} from '@vubon/shared-constants';
 
 // ============================================================
-// Cache Statistics
+// Cache Options (Re-export with local alias for convenience)
 // ============================================================
 
-export interface CacheStatistics {
-  hits: number;
-  misses: number;
-  hitRate: number;
-  totalOperations: number;
-  keysCount: number;
-  memoryUsage?: number;   // Bytes (if available)
-  // Bangladesh specific - network performance
+/**
+ * Cache operation options
+ */
+export interface CacheOptions extends SharedCacheOptions {
+  // Extended with Bangladesh-specific options
+  /**
+   * Compress data for slow networks (Bangladesh specific)
+   */
+  compress?: boolean;
+  
+  /**
+   * Enable early refresh (refresh TTL before expiry)
+   */
+  earlyRefresh?: boolean;
+  
+  /**
+   * Refresh threshold percentage (e.g., 80 = refresh at 80% of TTL)
+   */
+  refreshThreshold?: number;
+}
+
+/**
+ * Cache set options
+ */
+export interface CacheSetOptions extends SharedCacheSetOptions {
+  // Extended with Bangladesh-specific options
+  compress?: boolean;
+}
+
+/**
+ * Cache multi-get result
+ */
+export type CacheMultiGetResult<T> = SharedCacheMultiGetResult<T>;
+
+// ============================================================
+// Cache Statistics (Enhanced for Bangladesh)
+// ============================================================
+
+export interface CacheStatistics extends SharedCacheStatistics {
+  // Bangladesh specific - network performance metrics
+  /**
+   * Average latency in milliseconds (Bangladesh network conditions)
+   */
   averageLatencyMs?: number;
+  
+  /**
+   * 95th percentile latency
+   */
   p95LatencyMs?: number;
+  
+  /**
+   * 99th percentile latency
+   */
+  p99LatencyMs?: number;
+  
+  /**
+   * Cache hit rate by region (Bangladesh districts)
+   */
+  hitRateByRegion?: Record<string, number>;
+  
+  /**
+   * Cache miss rate by time of day (peak hours in Bangladesh)
+   */
+  missRateByHour?: Record<number, number>;
 }
 
 // ============================================================
@@ -67,16 +121,21 @@ export interface CacheService {
    * @param key - Cache key
    * @returns Value or null if not found
    */
-  get<T = any>(key: string): Promise<T | null>;
+  get<T = unknown>(key: string): Promise<T | null>;
 
   /**
    * Set value with optional TTL
    * @param key - Cache key
    * @param value - Value to store
-   * @param ttl - Time to live in seconds
+   * @param ttl - Time to live in seconds (default from config)
    * @param options - Additional options
    */
-  set<T>(key: string, value: T, ttl?: number, options?: CacheSetOptions): Promise<void>;
+  set<T>(
+    key: string,
+    value: T,
+    ttl?: number,
+    options?: CacheSetOptions
+  ): Promise<void>;
 
   /**
    * Set value only if key does not exist
@@ -88,16 +147,18 @@ export interface CacheService {
   setNx<T>(key: string, value: T, ttl?: number): Promise<boolean>;
 
   /**
-   * Get or set value (cache-aside pattern)
+   * Get or set value (cache-aside pattern with early refresh)
    * @param key - Cache key
    * @param factory - Function to generate value if not cached
    * @param ttl - Time to live in seconds
+   * @param options - Additional options
    * @returns Cached or generated value
    */
   getOrSet<T>(
     key: string,
     factory: () => Promise<T>,
-    ttl?: number
+    ttl?: number,
+    options?: CacheOptions
   ): Promise<T>;
 
   // ============================================================
@@ -109,21 +170,24 @@ export interface CacheService {
    * @param keys - Array of cache keys
    * @returns Array of values (null for missing keys)
    */
-  mget<T = any>(keys: string[]): Promise<(T | null)[]>;
+  mget<T = unknown>(keys: string[]): Promise<(T | null)[]>;
 
   /**
    * Get multiple values with keys (batch)
    * @param keys - Array of cache keys
    * @returns Array of results with key and value
    */
-  mgetWithKeys<T = any>(keys: string[]): Promise<CacheMultiGetResult<T>[]>;
+  mgetWithKeys<T = unknown>(keys: string[]): Promise<CacheMultiGetResult<T>[]>;
 
   /**
    * Set multiple values at once (batch)
    * @param entries - Array of key-value pairs
    * @param ttl - Time to live in seconds
    */
-  mset<T>(entries: Array<{ key: string; value: T }>, ttl?: number): Promise<void>;
+  mset<T>(
+    entries: Array<{ key: string; value: T }>,
+    ttl?: number
+  ): Promise<void>;
 
   // ============================================================
   // Delete Operations
@@ -213,7 +277,7 @@ export interface CacheService {
    * @param field - Field name
    * @param value - Field value
    */
-  hset(key: string, field: string, value: any): Promise<void>;
+  hset(key: string, field: string, value: unknown): Promise<void>;
 
   /**
    * Get field from hash
@@ -221,14 +285,14 @@ export interface CacheService {
    * @param field - Field name
    * @returns Field value or null
    */
-  hget<T = any>(key: string, field: string): Promise<T | null>;
+  hget<T = unknown>(key: string, field: string): Promise<T | null>;
 
   /**
    * Get all fields from hash
    * @param key - Hash key
    * @returns All fields as object
    */
-  hgetall<T = any>(key: string): Promise<Record<string, T>>;
+  hgetall<T = unknown>(key: string): Promise<Record<string, T>>;
 
   /**
    * Get multiple fields from hash
@@ -236,14 +300,14 @@ export interface CacheService {
    * @param fields - Field names
    * @returns Array of field values
    */
-  hmget<T = any>(key: string, fields: string[]): Promise<(T | null)[]>;
+  hmget<T = unknown>(key: string, fields: string[]): Promise<(T | null)[]>;
 
   /**
    * Set multiple fields in hash
    * @param key - Hash key
    * @param entries - Field-value pairs
    */
-  hmset(key: string, entries: Record<string, any>): Promise<void>;
+  hmset(key: string, entries: Record<string, unknown>): Promise<void>;
 
   /**
    * Delete field from hash
@@ -336,14 +400,14 @@ export interface CacheService {
    * @param key - List key
    * @returns Value or null
    */
-  lpop<T = any>(key: string): Promise<T | null>;
+  lpop<T = unknown>(key: string): Promise<T | null>;
 
   /**
    * Pop from right of list
    * @param key - List key
    * @returns Value or null
    */
-  rpop<T = any>(key: string): Promise<T | null>;
+  rpop<T = unknown>(key: string): Promise<T | null>;
 
   /**
    * Get range from list
@@ -352,7 +416,7 @@ export interface CacheService {
    * @param stop - Stop index
    * @returns Array of values
    */
-  lrange<T = any>(key: string, start: number, stop: number): Promise<T[]>;
+  lrange<T = unknown>(key: string, start: number, stop: number): Promise<T[]>;
 
   // ============================================================
   // Sorted Set Operations (for leaderboards, rate limiting)
@@ -456,145 +520,430 @@ export const CACHE_SERVICE = 'CACHE_SERVICE';
 // Cache Key Builder Utility (for consistent key generation)
 // ============================================================
 
+/**
+ * Cache key builder for consistent key generation across the application
+ * Uses centralized constants from shared-config
+ */
 export class CacheKeyBuilder {
-  private static readonly PREFIX = 'auth:';
-  private static readonly SEPARATOR = ':';
-  private static readonly VERSION = 'v1';
+  // ✅ Using constants from shared-constants
+  private static readonly PREFIX = CACHE_KEY_PREFIX;
+  private static readonly VERSION = CACHE_VERSION;
+  private static readonly SEPARATOR = CACHE_KEY_SEPARATOR;
+  private static readonly DEFAULT_TTL = CACHE_DEFAULT_TTL;
 
   // ============================================================
   // User Cache Keys
   // ============================================================
   
+  /**
+   * Get cache key for user by ID
+   * @param userId - User ID
+   * @returns Cache key
+   */
   static user(userId: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}user${this.SEPARATOR}${userId}`;
+    return this.build('user', userId);
   }
 
+  /**
+   * Get cache key for user by email
+   * @param email - Email address
+   * @returns Cache key
+   */
   static userByEmail(email: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}user${this.SEPARATOR}email${this.SEPARATOR}${email.toLowerCase()}`;
+    return this.build('user', 'email', email.toLowerCase());
   }
 
+  /**
+   * Get cache key for user by phone
+   * @param phone - Phone number (E.164 format)
+   * @returns Cache key
+   */
   static userByPhone(phone: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}user${this.SEPARATOR}phone${this.SEPARATOR}${phone}`;
+    return this.build('user', 'phone', phone);
   }
 
+  /**
+   * Get cache key for user permissions
+   * @param userId - User ID
+   * @returns Cache key
+   */
   static userPermissions(userId: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}user${this.SEPARATOR}${userId}${this.SEPARATOR}permissions`;
+    return this.build('user', userId, 'permissions');
   }
 
+  /**
+   * Get cache key for user roles
+   * @param userId - User ID
+   * @returns Cache key
+   */
   static userRoles(userId: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}user${this.SEPARATOR}${userId}${this.SEPARATOR}roles`;
+    return this.build('user', userId, 'roles');
+  }
+
+  /**
+   * Get cache key for user MFA status
+   * @param userId - User ID
+   * @returns Cache key
+   */
+  static userMFAStatus(userId: string): string {
+    return this.build('user', userId, 'mfa');
   }
 
   // ============================================================
   // Session Cache Keys
   // ============================================================
   
+  /**
+   * Get cache key for session by ID
+   * @param sessionId - Session ID
+   * @returns Cache key
+   */
   static session(sessionId: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}session${this.SEPARATOR}${sessionId}`;
+    return this.build('session', sessionId);
   }
 
+  /**
+   * Get cache key for user sessions list
+   * @param userId - User ID
+   * @returns Cache key
+   */
   static userSessions(userId: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}sessions${this.SEPARATOR}user${this.SEPARATOR}${userId}`;
+    return this.build('sessions', 'user', userId);
+  }
+
+  /**
+   * Get cache key for session by token
+   * @param token - Session token
+   * @returns Cache key
+   */
+  static sessionByToken(token: string): string {
+    return this.build('session', 'token', this.hashToken(token));
   }
 
   // ============================================================
   // MFA Cache Keys
   // ============================================================
   
+  /**
+   * Get cache key for MFA session
+   * @param mfaSessionId - MFA session ID
+   * @returns Cache key
+   */
   static mfaSession(mfaSessionId: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}mfa${this.SEPARATOR}session${this.SEPARATOR}${mfaSessionId}`;
+    return this.build('mfa', 'session', mfaSessionId);
   }
 
+  /**
+   * Get cache key for MFA attempts counter
+   * @param userId - User ID
+   * @returns Cache key
+   */
   static mfaAttempts(userId: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}mfa${this.SEPARATOR}attempts${this.SEPARATOR}${userId}`;
+    return this.build('mfa', 'attempts', userId);
+  }
+
+  /**
+   * Get cache key for MFA lockout
+   * @param userId - User ID
+   * @returns Cache key
+   */
+  static mfaLockout(userId: string): string {
+    return this.build('mfa', 'lockout', userId);
   }
 
   // ============================================================
   // OTP Cache Keys
   // ============================================================
   
+  /**
+   * Get cache key for OTP code
+   * @param key - OTP identifier (phone/email)
+   * @returns Cache key
+   */
   static otp(key: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}otp${this.SEPARATOR}${key}`;
+    return this.build('otp', key);
   }
 
+  /**
+   * Get cache key for OTP attempts counter
+   * @param key - OTP identifier (phone/email)
+   * @returns Cache key
+   */
   static otpAttempts(key: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}otp${this.SEPARATOR}attempts${this.SEPARATOR}${key}`;
+    return this.build('otp', 'attempts', key);
+  }
+
+  /**
+   * Get cache key for OTP resend cooldown
+   * @param key - OTP identifier (phone/email)
+   * @returns Cache key
+   */
+  static otpResendCooldown(key: string): string {
+    return this.build('otp', 'resend', key);
   }
 
   // ============================================================
   // Rate Limit Cache Keys
   // ============================================================
   
+  /**
+   * Get cache key for rate limit
+   * @param key - Rate limit identifier
+   * @returns Cache key
+   */
   static rateLimit(key: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}ratelimit${this.SEPARATOR}${key}`;
+    return this.build('ratelimit', key);
   }
 
+  /**
+   * Get cache key for rate limit by IP and endpoint
+   * @param ip - IP address
+   * @param endpoint - API endpoint
+   * @returns Cache key
+   */
   static rateLimitByIp(ip: string, endpoint: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}ratelimit${this.SEPARATOR}ip${this.SEPARATOR}${ip}${this.SEPARATOR}${endpoint}`;
+    return this.build('ratelimit', 'ip', ip, endpoint);
   }
 
+  /**
+   * Get cache key for rate limit by user and endpoint
+   * @param userId - User ID
+   * @param endpoint - API endpoint
+   * @returns Cache key
+   */
   static rateLimitByUser(userId: string, endpoint: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}ratelimit${this.SEPARATOR}user${this.SEPARATOR}${userId}${this.SEPARATOR}${endpoint}`;
+    return this.build('ratelimit', 'user', userId, endpoint);
   }
 
   // ============================================================
   // Account Lock Cache Keys
   // ============================================================
   
+  /**
+   * Get cache key for account lock
+   * @param userId - User ID
+   * @returns Cache key
+   */
   static accountLock(userId: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}lock${this.SEPARATOR}${userId}`;
+    return this.build('lock', userId);
   }
 
+  /**
+   * Get cache key for failed login attempts
+   * @param userId - User ID
+   * @returns Cache key
+   */
   static failedAttempts(userId: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}failed_attempts${this.SEPARATOR}${userId}`;
+    return this.build('failed_attempts', userId);
   }
 
   // ============================================================
   // Email/Phone Change Cache Keys
   // ============================================================
   
+  /**
+   * Get cache key for email change request
+   * @param userId - User ID
+   * @returns Cache key
+   */
   static emailChange(userId: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}email_change${this.SEPARATOR}${userId}`;
+    return this.build('email_change', userId);
   }
 
+  /**
+   * Get cache key for phone change request
+   * @param userId - User ID
+   * @returns Cache key
+   */
   static phoneChange(userId: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}phone_change${this.SEPARATOR}${userId}`;
+    return this.build('phone_change', userId);
   }
 
   // ============================================================
   // Token Blacklist
   // ============================================================
   
+  /**
+   * Get cache key for blacklisted token
+   * @param tokenId - Token ID (jti)
+   * @returns Cache key
+   */
   static blacklistedToken(tokenId: string): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}blacklist${this.SEPARATOR}token${this.SEPARATOR}${tokenId}`;
+    return this.build('blacklist', 'token', tokenId);
+  }
+
+  // ============================================================
+  // Password Reset Cache Keys
+  // ============================================================
+  
+  /**
+   * Get cache key for password reset token
+   * @param token - Reset token
+   * @returns Cache key
+   */
+  static passwordResetToken(token: string): string {
+    return this.build('password_reset', this.hashToken(token));
+  }
+
+  /**
+   * Get cache key for password reset attempts
+   * @param email - Email address
+   * @returns Cache key
+   */
+  static passwordResetAttempts(email: string): string {
+    return this.build('password_reset', 'attempts', email.toLowerCase());
+  }
+
+  // ============================================================
+  // Device Cache Keys
+  // ============================================================
+  
+  /**
+   * Get cache key for trusted device
+   * @param deviceId - Device ID
+   * @returns Cache key
+   */
+  static trustedDevice(deviceId: string): string {
+    return this.build('device', 'trusted', deviceId);
+  }
+
+  /**
+   * Get cache key for user devices list
+   * @param userId - User ID
+   * @returns Cache key
+   */
+  static userDevices(userId: string): string {
+    return this.build('devices', userId);
+  }
+
+  // ============================================================
+  // Bangladesh Specific: District-based Cache
+  // ============================================================
+  
+  /**
+   * Get cache key for district data
+   * @param district - District name
+   * @returns Cache key
+   */
+  static districtData(district: string): string {
+    return this.build('bangladesh', 'district', district.toLowerCase());
+  }
+
+  /**
+   * Get cache key for upazila data
+   * @param district - District name
+   * @param upazila - Upazila name
+   * @returns Cache key
+   */
+  static upazilaData(district: string, upazila: string): string {
+    return this.build('bangladesh', 'upazila', district.toLowerCase(), upazila.toLowerCase());
+  }
+
+  /**
+   * Get cache key for mobile operator settings
+   * @param operator - Mobile operator (gp, robi, banglalink, teletalk)
+   * @returns Cache key
+   */
+  static mobileOperatorConfig(operator: string): string {
+    return this.build('bangladesh', 'mobile', operator.toLowerCase());
   }
 
   // ============================================================
   // Generic Build Method
   // ============================================================
   
+  /**
+   * Build cache key from parts
+   * @param parts - Key parts
+   * @returns Formatted cache key
+   */
   static build(...parts: string[]): string {
-    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}${parts.join(this.SEPARATOR)}`;
+    return [this.PREFIX, this.VERSION, ...parts].join(this.SEPARATOR);
+  }
+
+  /**
+   * Get default TTL for cache keys
+   * @returns Default TTL in seconds
+   */
+  static getDefaultTTL(): number {
+    return this.DEFAULT_TTL;
+  }
+
+  /**
+   * Hash a token for use as cache key (for security)
+   * @param token - Raw token
+   * @returns Hashed token (first 32 chars of SHA-256)
+   */
+  private static hashToken(token: string): string {
+    // Simple hash for cache key (not for security)
+    // In production, use crypto.createHash('sha256')
+    let hash = 0;
+    for (let i = 0; i < token.length; i++) {
+      const char = token.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    return Math.abs(hash).toString(36);
   }
 
   // ============================================================
   // Pattern Builders (for batch operations)
   // ============================================================
   
+  /**
+   * Get pattern for all user cache keys
+   * @returns Pattern string
+   */
   static userPattern(): string {
     return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}user${this.SEPARATOR}*`;
   }
 
+  /**
+   * Get pattern for all session cache keys
+   * @returns Pattern string
+   */
   static sessionPattern(): string {
     return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}session${this.SEPARATOR}*`;
   }
 
+  /**
+   * Get pattern for all MFA cache keys
+   * @returns Pattern string
+   */
   static mfaPattern(): string {
     return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}mfa${this.SEPARATOR}*`;
   }
 
+  /**
+   * Get pattern for all OTP cache keys
+   * @returns Pattern string
+   */
   static otpPattern(): string {
     return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}otp${this.SEPARATOR}*`;
+  }
+
+  /**
+   * Get pattern for all rate limit cache keys
+   * @returns Pattern string
+   */
+  static rateLimitPattern(): string {
+    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}ratelimit${this.SEPARATOR}*`;
+  }
+
+  /**
+   * Get pattern for all blacklisted tokens
+   * @returns Pattern string
+   */
+  static blacklistPattern(): string {
+    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}blacklist${this.SEPARATOR}*`;
+  }
+
+  /**
+   * Get pattern for all Bangladesh-specific cache keys
+   * @returns Pattern string
+   */
+  static bangladeshPattern(): string {
+    return `${this.PREFIX}${this.VERSION}${this.SEPARATOR}bangladesh${this.SEPARATOR}*`;
   }
 }
 
@@ -602,4 +951,9 @@ export class CacheKeyBuilder {
 // Type Exports
 // ============================================================
 
-export type { CacheOptions as CacheOptionsType, CacheSetOptions as CacheSetOptionsType, CacheMultiGetResult as CacheMultiGetResultType, CacheStatistics as CacheStatisticsType };
+export type {
+  CacheOptions as CacheOptionsType,
+  CacheSetOptions as CacheSetOptionsType,
+  CacheMultiGetResult as CacheMultiGetResultType,
+  CacheStatistics as CacheStatisticsType,
+};
