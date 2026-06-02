@@ -2,15 +2,13 @@
  * Social Auth Constants - Pure immutable OAuth configuration
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-constants/auth-constants/social.constants
+ * @module shared-constants/social.constants
  * 
  * RULES:
  * ✅ NO OAuth implementation, token exchange logic
  * ✅ NO business logic
  * ✅ NO side effects
  * ✅ ONLY pure readonly constants
- * ✅ RATE LIMITS: Use RATE_LIMIT_VALUES from api.constants.ts for auth rate limits
- * ✅ OTP_CONFIG: Use OTP_CONFIG from auth.constants.ts for base OTP settings
  */
 
 // ============================================================
@@ -46,6 +44,8 @@ export const SOCIAL_PROVIDERS = {
   ROCKET: 'rocket',                // Login with Rocket
 } as const;
 
+export type SocialProvider = typeof SOCIAL_PROVIDERS[keyof typeof SOCIAL_PROVIDERS];
+
 // ============================================================
 // Provider Categories
 // ============================================================
@@ -55,6 +55,8 @@ export const SOCIAL_PROVIDER_CATEGORIES = {
   MFS_AUTH: 'mfs_auth',             // Mobile Financial Services as auth
   SOCIAL_MEDIA: 'social_media',     // Social media platforms
 } as const;
+
+export type SocialProviderCategory = typeof SOCIAL_PROVIDER_CATEGORIES[keyof typeof SOCIAL_PROVIDER_CATEGORIES];
 
 // ============================================================
 // Provider to Category Mapping
@@ -81,6 +83,8 @@ export const PROVIDER_TO_CATEGORY = {
   [SOCIAL_PROVIDERS.NAGAD]: SOCIAL_PROVIDER_CATEGORIES.MFS_AUTH,
   [SOCIAL_PROVIDERS.ROCKET]: SOCIAL_PROVIDER_CATEGORIES.MFS_AUTH,
 } as const;
+
+export type ProviderToCategory = typeof PROVIDER_TO_CATEGORY;
 
 // ============================================================
 // OAuth Scopes by Provider (Enhanced)
@@ -133,9 +137,10 @@ export const OAUTH_SCOPES = {
   ],
 } as const;
 
+export type OAuthScopes = typeof OAUTH_SCOPES;
+
 // ============================================================
 // Social Callback Routes
-// Note: These are OAuth callback routes, for full API routes use API_ROUTES from api.constants.ts
 // ============================================================
 export const SOCIAL_CALLBACK_ROUTES = {
   [SOCIAL_PROVIDERS.GOOGLE]: '/auth/google/callback',
@@ -163,6 +168,8 @@ export const SOCIAL_CALLBACK_ROUTES = {
   [SOCIAL_PROVIDERS.NAGAD]: '/auth/nagad/callback',
   [SOCIAL_PROVIDERS.ROCKET]: '/auth/rocket/callback',
 } as const;
+
+export type SocialCallbackRoutes = typeof SOCIAL_CALLBACK_ROUTES;
 
 // ============================================================
 // Social Button Display Names (English)
@@ -194,6 +201,8 @@ export const SOCIAL_DISPLAY_NAMES = {
   [SOCIAL_PROVIDERS.ROCKET]: 'Rocket',
 } as const;
 
+export type SocialDisplayNames = typeof SOCIAL_DISPLAY_NAMES;
+
 // ============================================================
 // Social Button Display Names (Bangla)
 // ============================================================
@@ -205,10 +214,13 @@ export const SOCIAL_DISPLAY_NAMES_BN = {
   [SOCIAL_PROVIDERS.TELEGRAM]: 'টেলিগ্রাম',
   [SOCIAL_PROVIDERS.PHONE_OTP]: 'মোবাইল নম্বর',
   [SOCIAL_PROVIDERS.WHATSAPP_OTP]: 'হোয়াটসঅ্যাপ (ওটিপি)',
+  [SOCIAL_PROVIDERS.IMO_OTP]: 'আইএমও (ওটিপি)',
   [SOCIAL_PROVIDERS.BKASH]: 'বিকাশ',
   [SOCIAL_PROVIDERS.NAGAD]: 'নগদ',
   [SOCIAL_PROVIDERS.ROCKET]: 'রকেট',
 } as const;
+
+export type SocialDisplayNamesBn = typeof SOCIAL_DISPLAY_NAMES_BN;
 
 // ============================================================
 // Social Provider Colors (UI)
@@ -240,6 +252,8 @@ export const SOCIAL_COLORS = {
   [SOCIAL_PROVIDERS.ROCKET]: '#1E88E5',
 } as const;
 
+export type SocialColors = typeof SOCIAL_COLORS;
+
 // ============================================================
 // Social Icon Names (For UI components)
 // ============================================================
@@ -270,8 +284,11 @@ export const SOCIAL_ICONS = {
   [SOCIAL_PROVIDERS.ROCKET]: 'rocket',
 } as const;
 
+export type SocialIcons = typeof SOCIAL_ICONS;
+
 // ============================================================
 // Provider Priority (For UI display order in Bangladesh)
+// UPDATED: Added OTP variants
 // ============================================================
 export const SOCIAL_PROVIDER_PRIORITY = {
   // Bangladesh specific priority (Facebook first, then WhatsApp, then bKash)
@@ -281,7 +298,9 @@ export const SOCIAL_PROVIDER_PRIORITY = {
   [SOCIAL_PROVIDERS.BKASH]: 4,
   [SOCIAL_PROVIDERS.NAGAD]: 5,
   [SOCIAL_PROVIDERS.PHONE_OTP]: 6,
+  [SOCIAL_PROVIDERS.WHATSAPP_OTP]: 6.5,      // UPDATED
   [SOCIAL_PROVIDERS.IMO]: 7,
+  [SOCIAL_PROVIDERS.IMO_OTP]: 7.5,           // UPDATED
   [SOCIAL_PROVIDERS.TELEGRAM]: 8,
   [SOCIAL_PROVIDERS.APPLE]: 9,
   [SOCIAL_PROVIDERS.GITHUB]: 10,
@@ -295,20 +314,60 @@ export const SOCIAL_PROVIDER_PRIORITY = {
   [SOCIAL_PROVIDERS.VIBER]: 18,
 } as const;
 
+export type SocialProviderPriority = typeof SOCIAL_PROVIDER_PRIORITY;
+
 // ============================================================
-// ⚠️ SOCIAL_AUTH_RATE_LIMITS - Provider-specific limits only
-// Note: General auth rate limits (login, OTP send, etc.) are in RATE_LIMIT_VALUES from api.constants.ts
-// These are SOCIAL PROVIDER SPECIFIC limits (e.g., Facebook API calls per hour)
+// Provider Trust Levels (For security scoring)
+// ============================================================
+export const SOCIAL_PROVIDER_TRUST_LEVELS = {
+  // High trust (Verified, established providers)
+  [SOCIAL_PROVIDERS.GOOGLE]: 95,
+  [SOCIAL_PROVIDERS.APPLE]: 95,
+  [SOCIAL_PROVIDERS.MICROSOFT]: 90,
+  [SOCIAL_PROVIDERS.FACEBOOK]: 85,
+  
+  // Medium trust
+  [SOCIAL_PROVIDERS.GITHUB]: 80,
+  [SOCIAL_PROVIDERS.LINKEDIN]: 80,
+  [SOCIAL_PROVIDERS.TWITTER]: 75,
+  
+  // OTP based (Phone number verified)
+  [SOCIAL_PROVIDERS.PHONE_OTP]: 70,
+  [SOCIAL_PROVIDERS.WHATSAPP]: 65,
+  [SOCIAL_PROVIDERS.WHATSAPP_OTP]: 65,
+  [SOCIAL_PROVIDERS.IMO]: 60,
+  [SOCIAL_PROVIDERS.IMO_OTP]: 60,
+  [SOCIAL_PROVIDERS.TELEGRAM]: 60,
+  
+  // MFS Auth
+  [SOCIAL_PROVIDERS.BKASH]: 75,
+  [SOCIAL_PROVIDERS.NAGAD]: 75,
+  [SOCIAL_PROVIDERS.ROCKET]: 70,
+  
+  // Lower trust (Social media, entertainment)
+  [SOCIAL_PROVIDERS.INSTAGRAM]: 50,
+  [SOCIAL_PROVIDERS.TIKTOK]: 45,
+  [SOCIAL_PROVIDERS.SNAPCHAT]: 40,
+  [SOCIAL_PROVIDERS.VIBER]: 55,
+} as const;
+
+export type SocialProviderTrustLevels = typeof SOCIAL_PROVIDER_TRUST_LEVELS;
+
+// ============================================================
+// SOCIAL_AUTH_RATE_LIMITS - Provider-specific limits only
 // ============================================================
 export const SOCIAL_AUTH_RATE_LIMITS = {
-  // Per provider rate limits (requests per hour) - API call limits, not auth attempts
+  // Per provider rate limits (requests per hour) - API call limits
   [SOCIAL_PROVIDERS.GOOGLE]: 100,
   [SOCIAL_PROVIDERS.FACEBOOK]: 200,
   [SOCIAL_PROVIDERS.WHATSAPP]: 50,
+  [SOCIAL_PROVIDERS.WHATSAPP_OTP]: 50,
   [SOCIAL_PROVIDERS.PHONE_OTP]: 20,
   [SOCIAL_PROVIDERS.IMO]: 30,
+  [SOCIAL_PROVIDERS.IMO_OTP]: 30,
   [SOCIAL_PROVIDERS.BKASH]: 100,
   [SOCIAL_PROVIDERS.NAGAD]: 100,
+  [SOCIAL_PROVIDERS.ROCKET]: 80,
   
   // Default limit
   DEFAULT: 50,
@@ -322,58 +381,54 @@ export const SOCIAL_AUTH_RATE_LIMITS = {
   OTP_MAX_PER_IP_PER_HOUR: 10,
 } as const;
 
+export type SocialAuthRateLimits = typeof SOCIAL_AUTH_RATE_LIMITS;
+
 // ============================================================
 // Account Linking Rules
 // ============================================================
 export const SOCIAL_ACCOUNT_LINKING = {
-  // Maximum accounts that can be linked per user
   MAX_LINKED_ACCOUNTS: 10,
-  
-  // Whether multiple providers can be linked
   ALLOW_MULTIPLE_PROVIDERS: true,
-  
-  // Whether same provider multiple accounts allowed
   ALLOW_MULTIPLE_SAME_PROVIDER: false,
-  
-  // Auto-link accounts with same email
   AUTO_LINK_BY_EMAIL: true,
-  
-  // Require verification before linking
   REQUIRE_VERIFICATION_BEFORE_LINK: true,
-  
-  // Verification methods
   VERIFICATION_METHODS: ['email', 'phone'],
-  
-  // Unlinking rules
   ALLOW_UNLINKING: true,
-  REQUIRE_ALTERNATIVE_LOGIN_METHOD: true,  // Must have at least one login method
+  REQUIRE_ALTERNATIVE_LOGIN_METHOD: true,
+  
+  // Which provider combinations are allowed
+  ALLOWED_COMBINATIONS: {
+    GOOGLE_AND_FACEBOOK: true,
+    GOOGLE_AND_PHONE: true,
+    FACEBOOK_AND_WHATSAPP: true,
+    BKASH_AND_PHONE: true,
+    NAGAD_AND_PHONE: true,
+  },
 } as const;
+
+export type SocialAccountLinking = typeof SOCIAL_ACCOUNT_LINKING;
 
 // ============================================================
 // OAuth State Parameters (Security)
 // ============================================================
 export const OAUTH_STATE_CONFIG = {
-  // State token length
   STATE_LENGTH: 32,
-  
-  // State token expiry (seconds)
   STATE_EXPIRY_SECONDS: 300,  // 5 minutes
-  
-  // Whether to include PKCE (Proof Key for Code Exchange)
   ENABLE_PKCE: true,
-  
-  // PKCE code verifier length
   PKCE_VERIFIER_LENGTH: 64,
-  
-  // PKCE code challenge method
   PKCE_CHALLENGE_METHOD: 'S256',
+  
+  // Nonce length (for OpenID Connect)
+  NONCE_LENGTH: 32,
+  NONCE_EXPIRY_SECONDS: 300,
 } as const;
+
+export type OAuthStateConfig = typeof OAUTH_STATE_CONFIG;
 
 // ============================================================
 // Social Provider Features
 // ============================================================
 export const SOCIAL_PROVIDER_FEATURES = {
-  // Which providers support these features
   SUPPORTS_EMAIL: {
     [SOCIAL_PROVIDERS.GOOGLE]: true,
     [SOCIAL_PROVIDERS.FACEBOOK]: true,
@@ -382,12 +437,15 @@ export const SOCIAL_PROVIDER_FEATURES = {
     [SOCIAL_PROVIDERS.MICROSOFT]: true,
     [SOCIAL_PROVIDERS.LINKEDIN]: true,
     [SOCIAL_PROVIDERS.WHATSAPP]: false,
+    [SOCIAL_PROVIDERS.WHATSAPP_OTP]: false,
     [SOCIAL_PROVIDERS.IMO]: false,
+    [SOCIAL_PROVIDERS.IMO_OTP]: false,
     [SOCIAL_PROVIDERS.PHONE_OTP]: false,
     [SOCIAL_PROVIDERS.BKASH]: true,
+    [SOCIAL_PROVIDERS.NAGAD]: true,
+    [SOCIAL_PROVIDERS.ROCKET]: true,
   },
   
-  // Which providers support profile picture
   SUPPORTS_AVATAR: {
     [SOCIAL_PROVIDERS.GOOGLE]: true,
     [SOCIAL_PROVIDERS.FACEBOOK]: true,
@@ -396,7 +454,14 @@ export const SOCIAL_PROVIDER_FEATURES = {
     [SOCIAL_PROVIDERS.MICROSOFT]: true,
   },
   
-  // Which providers require redirect URI whitelisting
+  SUPPORTS_REFRESH_TOKEN: {
+    [SOCIAL_PROVIDERS.GOOGLE]: true,
+    [SOCIAL_PROVIDERS.FACEBOOK]: true,
+    [SOCIAL_PROVIDERS.GITHUB]: true,
+    [SOCIAL_PROVIDERS.APPLE]: true,
+    [SOCIAL_PROVIDERS.MICROSOFT]: true,
+  },
+  
   REQUIRE_REDIRECT_WHITELIST: [
     SOCIAL_PROVIDERS.GOOGLE,
     SOCIAL_PROVIDERS.FACEBOOK,
@@ -406,6 +471,8 @@ export const SOCIAL_PROVIDER_FEATURES = {
     SOCIAL_PROVIDERS.LINKEDIN,
   ],
 } as const;
+
+export type SocialProviderFeatures = typeof SOCIAL_PROVIDER_FEATURES;
 
 // ============================================================
 // Social Auth Events
@@ -444,65 +511,145 @@ export const SOCIAL_AUTH_EVENTS = {
   SOCIAL_TOKEN_EXPIRED: 'social.token.expired',
 } as const;
 
+export type SocialAuthEvents = typeof SOCIAL_AUTH_EVENTS;
+
 // ============================================================
 // Social Provider Metadata (For dynamic configuration)
 // ============================================================
 export const SOCIAL_PROVIDER_METADATA = {
   [SOCIAL_PROVIDERS.FACEBOOK]: {
+    type: 'oauth',
     authUrl: 'https://www.facebook.com/v18.0/dialog/oauth',
     tokenUrl: 'https://graph.facebook.com/v18.0/oauth/access_token',
     userInfoUrl: 'https://graph.facebook.com/me',
     responseType: 'code',
     grantType: 'authorization_code',
+    version: 'v18.0',
   },
   [SOCIAL_PROVIDERS.GOOGLE]: {
+    type: 'oauth',
     authUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
     tokenUrl: 'https://oauth2.googleapis.com/token',
     userInfoUrl: 'https://www.googleapis.com/oauth2/v2/userinfo',
     responseType: 'code',
     grantType: 'authorization_code',
+    version: 'v2',
   },
   [SOCIAL_PROVIDERS.WHATSAPP]: {
     type: 'otp_based',
     otpLength: 6,
     otpExpirySeconds: 300,
     messageTemplate: 'Your {{app_name}} verification code is: {{code}}',
+    resendCooldownSeconds: 30,
+  },
+  [SOCIAL_PROVIDERS.WHATSAPP_OTP]: {
+    type: 'otp_based',
+    otpLength: 6,
+    otpExpirySeconds: 300,
+    messageTemplate: 'Your {{app_name}} OTP code is: {{code}}',
+    resendCooldownSeconds: 30,
+  },
+  [SOCIAL_PROVIDERS.IMO_OTP]: {
+    type: 'otp_based',
+    otpLength: 6,
+    otpExpirySeconds: 300,
+    messageTemplate: 'Your {{app_name}} verification code: {{code}}',
+    resendCooldownSeconds: 30,
+  },
+  [SOCIAL_PROVIDERS.PHONE_OTP]: {
+    type: 'otp_based',
+    otpLength: 6,
+    otpExpirySeconds: 300,
+    messageTemplate: 'Your {{app_name}} OTP is: {{code}}',
+    resendCooldownSeconds: 30,
   },
   [SOCIAL_PROVIDERS.BKASH]: {
     type: 'mfs_auth',
     authUrl: 'https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout',
     grantType: 'client_credentials',
+    version: 'v1.2.0',
   },
   [SOCIAL_PROVIDERS.NAGAD]: {
     type: 'mfs_auth',
     authUrl: 'https://sandbox.mynagad.com/api/dfs/check-out/initialize',
+    version: 'v1',
+  },
+  [SOCIAL_PROVIDERS.ROCKET]: {
+    type: 'mfs_auth',
+    authUrl: 'https://api.rocket.com.bd/auth',
+    version: 'v1',
   },
 } as const;
+
+export type SocialProviderMetadata = typeof SOCIAL_PROVIDER_METADATA;
 
 // ============================================================
 // Social Login Consent Screen Configuration
 // ============================================================
 export const SOCIAL_CONSENT_SCREEN = {
-  // Always show consent screen for these providers
   ALWAYS_SHOW_CONSENT: [
     SOCIAL_PROVIDERS.GOOGLE,
     SOCIAL_PROVIDERS.FACEBOOK,
     SOCIAL_PROVIDERS.MICROSOFT,
   ],
   
-  // Consent message templates
   MESSAGES: {
     EN: 'We will access your {{provider}} profile information (name, email) to create your account on {{app_name}}.',
     BN: '{{app_name}}-এ আপনার অ্যাকাউন্ট তৈরি করতে আমরা আপনার {{provider}} প্রোফাইলের তথ্য (নাম, ইমেইল) অ্যাক্সেস করব।',
   },
   
-  // Required permissions message
   REQUIRED_PERMISSIONS_MESSAGE: 'We need access to your email address to create your account.',
+  
+  // Privacy policy links
+  PRIVACY_POLICY_URL: 'https://vubon.com.bd/privacy',
+  TERMS_URL: 'https://vubon.com.bd/terms',
 } as const;
 
+export type SocialConsentScreen = typeof SOCIAL_CONSENT_SCREEN;
+
 // ============================================================
-// ✓ All constants use 'as const' (no Object.freeze needed for performance)
-// ✓ Removed Object.freeze() wrappers (as const provides same immutability)
-// ✓ Added clarification comments for rate limits
-// ✓ OTP_CONFIG reference points to auth.constants.ts
+// Social Auth Metrics (For monitoring)
 // ============================================================
+export const SOCIAL_AUTH_METRICS = {
+  ENABLED: true,
+  
+  METRICS: {
+    LOGIN_SUCCESS_RATE: 'vubon_social_login_success_rate',
+    LOGIN_FAILURE_RATE: 'vubon_social_login_failure_rate',
+    ACCOUNT_LINKING_RATE: 'vubon_social_account_linking_rate',
+    PROVIDER_DISTRIBUTION: 'vubon_social_provider_distribution',
+    OTP_SENT_TOTAL: 'vubon_social_otp_sent_total',
+    MFS_AUTH_SUCCESS_RATE: 'vubon_mfs_auth_success_rate',
+  },
+  
+  ALERT_THRESHOLDS: {
+    HIGH_FAILURE_RATE: 0.15,      // 15% failure rate
+    HIGH_OTP_REQUEST_RATE: 100,    // >100 OTP requests per hour
+    SUSPICIOUS_LINKING_RATE: 50,   // >50 account links per hour
+  },
+} as const;
+
+export type SocialAuthMetrics = typeof SOCIAL_AUTH_METRICS;
+
+// ============================================================
+// Type Exports
+// ============================================================
+export type SocialProviderValue = typeof SOCIAL_PROVIDERS;
+export type SocialProviderCategoryValue = typeof SOCIAL_PROVIDER_CATEGORIES;
+export type ProviderToCategoryValue = typeof PROVIDER_TO_CATEGORY;
+export type OAuthScopesValue = typeof OAUTH_SCOPES;
+export type SocialCallbackRoutesValue = typeof SOCIAL_CALLBACK_ROUTES;
+export type SocialDisplayNamesValue = typeof SOCIAL_DISPLAY_NAMES;
+export type SocialDisplayNamesBnValue = typeof SOCIAL_DISPLAY_NAMES_BN;
+export type SocialColorsValue = typeof SOCIAL_COLORS;
+export type SocialIconsValue = typeof SOCIAL_ICONS;
+export type SocialProviderPriorityValue = typeof SOCIAL_PROVIDER_PRIORITY;
+export type SocialProviderTrustLevelsValue = typeof SOCIAL_PROVIDER_TRUST_LEVELS;
+export type SocialAuthRateLimitsValue = typeof SOCIAL_AUTH_RATE_LIMITS;
+export type SocialAccountLinkingValue = typeof SOCIAL_ACCOUNT_LINKING;
+export type OAuthStateConfigValue = typeof OAUTH_STATE_CONFIG;
+export type SocialProviderFeaturesValue = typeof SOCIAL_PROVIDER_FEATURES;
+export type SocialAuthEventsValue = typeof SOCIAL_AUTH_EVENTS;
+export type SocialProviderMetadataValue = typeof SOCIAL_PROVIDER_METADATA;
+export type SocialConsentScreenValue = typeof SOCIAL_CONSENT_SCREEN;
+export type SocialAuthMetricsValue = typeof SOCIAL_AUTH_METRICS;
