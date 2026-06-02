@@ -88,7 +88,7 @@ export interface User {
 // User Metadata (Flexible key-value storage)
 // ============================================================
 export type UserMetadata = {
-  readonly [key: string]: string | number | boolean | null | readonly unknown[] | Record<string, unknown>;
+  readonly [key: string]: string | number | boolean | null | readonly unknown[] | Record<string, unknown> | Date;
   
   // Common metadata fields
   readonly signupSource?: 'email' | 'google' | 'facebook' | 'whatsapp' | 'phone' | 'bkash';
