@@ -1,9 +1,9 @@
 /**
  * Device Constants - Pure immutable device configuration
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
-
- * @module shared-constants/auth-constants/device.constants
-
+ * 
+ * @module shared-constants/device.constants
+ * 
  * RULES:
  * ✅ NO device fingerprint generation logic
  * ✅ NO business logic
@@ -394,6 +394,7 @@ export type DeviceLogging = typeof DEVICE_LOGGING;
 
 // ============================================================
 // Device Fingerprint Components (What data is collected)
+// UPDATED: Added battery status
 // ============================================================
 export const FINGERPRINT_COMPONENTS = {
   // Browser data
@@ -406,6 +407,7 @@ export const FINGERPRINT_COMPONENTS = {
   COLOR_DEPTH: true,
   DEVICE_MEMORY: true,
   HARDWARE_CONCURRENCY: true,     // CPU cores
+  BATTERY_STATUS: true,            // Battery level, charging status (UPDATED)
 
   // Software data
   PLATFORM: true,
@@ -481,6 +483,7 @@ export type DevicePerformance = typeof DEVICE_PERFORMANCE;
 
 // ============================================================
 // Allowed Device Types by Role
+// UPDATED: Added DELIVERY_AGENT role
 // ============================================================
 export const ROLE_DEVICE_ALLOWANCE = {
   CUSTOMER: {
@@ -515,7 +518,173 @@ export const ROLE_DEVICE_ALLOWANCE = {
     ] as DeviceType[],
     maxDevices: 2,
   },
+  // UPDATED: Added DELIVERY_AGENT role
+  DELIVERY_AGENT: {
+    allowed: [
+      DEVICE_TYPES.MOBILE,
+      DEVICE_TYPES.FEATURE_PHONE,
+    ] as DeviceType[],
+    maxDevices: 2,
+    description: 'Delivery agents need mobile access for order tracking and delivery confirmation',
+  },
+  // UPDATED: Added VENDOR role
+  VENDOR: {
+    allowed: [
+      DEVICE_TYPES.DESKTOP,
+      DEVICE_TYPES.LAPTOP,
+      DEVICE_TYPES.MOBILE,
+      DEVICE_TYPES.TABLET,
+    ] as DeviceType[],
+    maxDevices: 8,
+    description: 'Vendors manage their shops across multiple devices',
+  },
+  // UPDATED: Added SUPPORT_AGENT role
+  SUPPORT_AGENT: {
+    allowed: [
+      DEVICE_TYPES.DESKTOP,
+      DEVICE_TYPES.LAPTOP,
+    ] as DeviceType[],
+    maxDevices: 3,
+    description: 'Support agents need desktop/laptop for ticket management',
+  },
 } as const;
 
 export type RoleDeviceAllowance = typeof ROLE_DEVICE_ALLOWANCE;
 export type UserRole = keyof typeof ROLE_DEVICE_ALLOWANCE;
+
+// ============================================================
+// Device Type to Category Mapping
+// ============================================================
+export const DEVICE_TYPE_TO_CATEGORY = {
+  [DEVICE_TYPES.DESKTOP]: DEVICE_CATEGORIES.HIGH_TRUST,
+  [DEVICE_TYPES.LAPTOP]: DEVICE_CATEGORIES.HIGH_TRUST,
+  [DEVICE_TYPES.TABLET]: DEVICE_CATEGORIES.MEDIUM_TRUST,
+  [DEVICE_TYPES.MOBILE]: DEVICE_CATEGORIES.MEDIUM_TRUST,
+  [DEVICE_TYPES.TABLET_PHONE]: DEVICE_CATEGORIES.MEDIUM_TRUST,
+  [DEVICE_TYPES.FEATURE_PHONE]: DEVICE_CATEGORIES.LOW_TRUST,
+  [DEVICE_TYPES.KIOSK]: DEVICE_CATEGORIES.LOW_TRUST,
+  [DEVICE_TYPES.POS_DEVICE]: DEVICE_CATEGORIES.LOW_TRUST,
+  [DEVICE_TYPES.TV]: DEVICE_CATEGORIES.RESTRICTED,
+  [DEVICE_TYPES.CONSOLE]: DEVICE_CATEGORIES.RESTRICTED,
+  [DEVICE_TYPES.WEARABLE]: DEVICE_CATEGORIES.RESTRICTED,
+  [DEVICE_TYPES.OTHER]: DEVICE_CATEGORIES.LOW_TRUST,
+} as const;
+
+export type DeviceTypeToCategory = typeof DEVICE_TYPE_TO_CATEGORY;
+
+// ============================================================
+// Browser Trust Levels (Based on security features)
+// ============================================================
+export const BROWSER_TRUST_LEVELS = {
+  // High trust (Modern, secure browsers)
+  [BROWSER_TYPES.CHROME]: 90,
+  [BROWSER_TYPES.FIREFOX]: 90,
+  [BROWSER_TYPES.SAFARI]: 90,
+  [BROWSER_TYPES.EDGE]: 85,
+  [BROWSER_TYPES.BRAVE]: 85,
+  [BROWSER_TYPES.VIVALDI]: 80,
+  [BROWSER_TYPES.SAMSUNG]: 80,
+  
+  // Medium trust (Popular but limited security)
+  [BROWSER_TYPES.OPERA]: 70,
+  [BROWSER_TYPES.XIAOMI]: 65,
+  [BROWSER_TYPES.HUAWEI]: 65,
+  
+  // Low trust (Mini browsers, older browsers)
+  [BROWSER_TYPES.UC_BROWSER]: 40,
+  [BROWSER_TYPES.OPERA_MINI]: 35,
+  [BROWSER_TYPES.UC_MINI]: 35,
+  [BROWSER_TYPES.BANGLADESH_BROWSER]: 30,
+  
+  // WebViews (Lower trust)
+  [BROWSER_TYPES.WEBVIEW]: 25,
+  [BROWSER_TYPES.CHROME_WEBVIEW]: 30,
+  
+  // Unknown
+  [BROWSER_TYPES.OTHER]: 20,
+} as const;
+
+export type BrowserTrustLevels = typeof BROWSER_TRUST_LEVELS;
+
+// ============================================================
+// Network Security Levels
+// ============================================================
+export const NETWORK_SECURITY_LEVELS = {
+  // High security
+  [NETWORK_TYPES.WIFI_SECURE]: 90,
+  [NETWORK_TYPES.ETHERNET]: 90,
+  
+  // Medium security
+  [NETWORK_TYPES.WIFI]: 70,
+  [NETWORK_TYPES.MOBILE_5G]: 65,
+  [NETWORK_TYPES.MOBILE_4G]: 60,
+  
+  // Low security
+  [NETWORK_TYPES.MOBILE_3G]: 40,
+  [NETWORK_TYPES.WIFI_PUBLIC]: 35,
+  
+  // Very low security
+  [NETWORK_TYPES.MOBILE_2G]: 20,
+  [NETWORK_TYPES.MOBILE_UNKNOWN]: 15,
+  [NETWORK_TYPES.VPN]: 10,
+  [NETWORK_TYPES.PROXY]: 5,
+  [NETWORK_TYPES.TOR]: 0,
+  
+  [NETWORK_TYPES.UNKNOWN]: 25,
+} as const;
+
+export type NetworkSecurityLevels = typeof NETWORK_SECURITY_LEVELS;
+
+// ============================================================
+// Device Metrics (For monitoring)
+// ============================================================
+export const DEVICE_METRICS = {
+  ENABLED: true,
+  
+  // Metrics to track
+  METRICS: {
+    ACTIVE_DEVICES: 'vubon_devices_active',
+    NEW_DEVICES_7_DAYS: 'vubon_devices_new_7d',
+    UNKNOWN_DEVICES: 'vubon_devices_unknown',
+    HIGH_RISK_DEVICES: 'vubon_devices_high_risk',
+    BLOCKED_DEVICES: 'vubon_devices_blocked',
+    DEVICE_TYPE_DISTRIBUTION: 'vubon_devices_by_type',
+    BROWSER_DISTRIBUTION: 'vubon_devices_by_browser',
+    OS_DISTRIBUTION: 'vubon_devices_by_os',
+    NETWORK_TYPE_DISTRIBUTION: 'vubon_devices_by_network',
+    DEVICE_MULTI_ACCOUNT: 'vubon_devices_multi_account',
+  },
+  
+  // Alert thresholds
+  ALERT_THRESHOLDS: {
+    HIGH_RISK_DEVICE_PERCENTAGE: 10,  // Alert if >10% devices are high risk
+    MULTI_ACCOUNT_DEVICE_COUNT: 10,    // Alert if device used for >10 accounts
+    NEW_DEVICE_DAILY_SPIKE: 1000,      // Alert if >1000 new devices per day
+  },
+} as const;
+
+export type DeviceMetrics = typeof DEVICE_METRICS;
+
+// ============================================================
+// Type Exports
+// ============================================================
+export type DeviceTypeValue = typeof DEVICE_TYPES;
+export type DeviceCategoryValue = typeof DEVICE_CATEGORIES;
+export type OsTypeValue = typeof OS_TYPES;
+export type BrowserTypeValue = typeof BROWSER_TYPES;
+export type NetworkTypeValue = typeof NETWORK_TYPES;
+export type DeviceRiskLevelValue = typeof DEVICE_RISK_LEVEL;
+export type DeviceRiskIndicatorValue = typeof DEVICE_RISK_INDICATORS;
+export type DeviceActivityLimitsValue = typeof DEVICE_ACTIVITY_LIMITS;
+export type UnknownDeviceHandlingValue = typeof UNKNOWN_DEVICE_HANDLING;
+export type SessionTransferValue = typeof SESSION_TRANSFER;
+export type DevicePairingValue = typeof DEVICE_PAIRING;
+export type DeviceLoggingValue = typeof DEVICE_LOGGING;
+export type FingerprintComponentsValue = typeof FINGERPRINT_COMPONENTS;
+export type DeviceComplianceValue = typeof DEVICE_COMPLIANCE;
+export type DevicePerformanceValue = typeof DEVICE_PERFORMANCE;
+export type RoleDeviceAllowanceValue = typeof ROLE_DEVICE_ALLOWANCE;
+export type DeviceTypeToCategoryValue = typeof DEVICE_TYPE_TO_CATEGORY;
+export type BrowserTrustLevelsValue = typeof BROWSER_TRUST_LEVELS;
+export type NetworkSecurityLevelsValue = typeof NETWORK_SECURITY_LEVELS;
+export type DeviceMetricsValue = typeof DEVICE_METRICS;
