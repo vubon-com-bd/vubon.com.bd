@@ -18,7 +18,7 @@ import type {
   SESSION_METADATA,
   SESSION_SECURITY,
   SESSION_EVENTS,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 import type { DeviceInfo, LocationInfo } from './device.types';
 import type { UserSessionInfo } from './user.types';
