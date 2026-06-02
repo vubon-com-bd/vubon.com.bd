@@ -26,10 +26,10 @@ export type ReadonlyDeep<T> = {
 export const CACHE_CONNECTION_CONFIG = {
   // Primary Redis Cache Store
   REDIS: {
-    HOST: process.env.REDIS_CACHE_HOST || process.env.REDIS_HOST || 'localhost',
-    PORT: parseInt(process.env.REDIS_CACHE_PORT || process.env.REDIS_PORT || '6379'),
-    PASSWORD: process.env.REDIS_CACHE_PASSWORD || process.env.REDIS_PASSWORD,
-    DB_INDEX: parseInt(process.env.REDIS_CACHE_DB || '1'), // Separate DB for cache
+    HOST: process.env['REDIS_CACHE_HOST'] || process.env['REDIS_HOST'] || 'localhost',
+    PORT: parseInt(process.env['REDIS_CACHE_PORT'] || process.env['REDIS_PORT'] || '6379'),
+    PASSWORD: process.env['REDIS_CACHE_PASSWORD'] || process.env['REDIS_PASSWORD'],
+    DB_INDEX: parseInt(process.env['REDIS_CACHE_DB'] || '1'),
     
     // Connection Pool
     POOL: {
@@ -41,16 +41,16 @@ export const CACHE_CONNECTION_CONFIG = {
     },
     
     // Cluster Configuration (Production)
-    CLUSTER_ENABLED: process.env.REDIS_CLUSTER_ENABLED === 'true',
-    CLUSTER_NODES: process.env.REDIS_CLUSTER_NODES?.split(',') || [],
+    CLUSTER_ENABLED: process.env['REDIS_CLUSTER_ENABLED'] === 'true',
+    CLUSTER_NODES: process.env['REDIS_CLUSTER_NODES']?.split(',') || [],
     CLUSTER_MAX_REDIRECTS: 3,
     
     // TLS/SSL Configuration
-    TLS_ENABLED: process.env.REDIS_TLS === 'true',
-    TLS_CA: process.env.REDIS_CA_CERT,
-    TLS_CERT: process.env.REDIS_CERT,
-    TLS_KEY: process.env.REDIS_KEY,
-    TLS_REJECT_UNAUTHORIZED: process.env.NODE_ENV === 'production',
+    TLS_ENABLED: process.env['REDIS_TLS'] === 'true',
+    TLS_CA: process.env['REDIS_CA_CERT'],
+    TLS_CERT: process.env['REDIS_CERT'],
+    TLS_KEY: process.env['REDIS_KEY'],
+    TLS_REJECT_UNAUTHORIZED: process.env['NODE_ENV'] === 'production',
     
     // Timeouts
     TIMEOUT: {
@@ -88,11 +88,11 @@ export const CACHE_CONNECTION_CONFIG = {
   
   // Read Replica for load balancing
   READ_REPLICA: {
-    ENABLED: process.env.REDIS_REPLICA_ENABLED === 'true',
-    HOST: process.env.REDIS_REPLICA_HOST,
-    PORT: parseInt(process.env.REDIS_REPLICA_PORT || '6379'),
-    PASSWORD: process.env.REDIS_REPLICA_PASSWORD,
-    WEIGHT: 0.7, // 70% of reads go to replica
+    ENABLED: process.env['REDIS_REPLICA_ENABLED'] === 'true',
+    HOST: process.env['REDIS_REPLICA_HOST'],
+    PORT: parseInt(process.env['REDIS_REPLICA_PORT'] || '6379'),
+    PASSWORD: process.env['REDIS_REPLICA_PASSWORD'],
+    WEIGHT: 0.7,
     HEALTH_CHECK_INTERVAL_MS: 60000,
   },
   
@@ -101,14 +101,14 @@ export const CACHE_CONNECTION_CONFIG = {
     ENABLED: true,
     TYPE: 'memory',
     MAX_ITEMS: 10000,
-    TTL_SECONDS: 300, // 5 minutes only
+    TTL_SECONDS: 300,
     CLEANUP_INTERVAL_MS: 60000,
     MAX_MEMORY_MB: 512,
   },
   
   // Write Strategy
   WRITE_STRATEGY: {
-    MODE: 'write_through', // 'write_through', 'write_behind', 'write_around'
+    MODE: 'write_through',
     CONSISTENCY: 'eventual',
     WRITE_TIMEOUT_MS: 1000,
     ASYNC_WRITE: false,
@@ -121,7 +121,6 @@ export const CACHE_CONNECTION_CONFIG = {
 export const CACHE_SYNC_CONFIG = {
   ENABLED: true,
   
-  // Pub/Sub for cache invalidation
   PUB_SUB: {
     ENABLED: true,
     CHANNEL: 'vubon:cache:invalidate',
@@ -130,16 +129,10 @@ export const CACHE_SYNC_CONFIG = {
     MAX_SUBSCRIBERS: 100,
   },
   
-  // Broadcast invalidation to all servers
   BROADCAST_INVALIDATION: true,
-  
-  // Max latency for sync (milliseconds)
   MAX_LATENCY_MS: 500,
-  
-  // Sync batch size
   BATCH_SIZE: 100,
   
-  // Conflict resolution
   CONFLICT_RESOLUTION: {
     STRATEGY: 'last_write_wins',
     TIMESTAMP_TOLERANCE_MS: 100,
@@ -152,7 +145,6 @@ export const CACHE_SYNC_CONFIG = {
 export const CACHE_MONITORING = {
   ENABLED: true,
   
-  // Prometheus metrics
   METRICS: {
     HIT_RATIO: 'vubon_cache_hit_ratio',
     LATENCY_MS: 'vubon_cache_latency_ms',
@@ -163,28 +155,23 @@ export const CACHE_MONITORING = {
     OPERATIONS_TOTAL: 'vubon_cache_operations_total',
   },
   
-  // Health check endpoint
   HEALTH_CHECK: {
     ENABLED: true,
     INTERVAL_MS: 30000,
     TIMEOUT_MS: 2000,
     ENDPOINT: '/health/cache',
-    DETAILED: process.env.NODE_ENV !== 'production',
+    DETAILED: process.env['NODE_ENV'] !== 'production',
   },
   
-  // Alerting rules
   ALERTS: {
-    HIT_RATIO_BELOW: 0.7, // Alert if hit ratio < 70%
-    LATENCY_ABOVE_MS: 100, // Alert if latency > 100ms
-    CONNECTION_FAILURES: 5, // Alert after 5 failures
-    MEMORY_USAGE_ABOVE_MB: 1024, // Alert if memory > 1GB
-    ERROR_RATE_ABOVE: 0.05, // Alert if error rate > 5%
+    HIT_RATIO_BELOW: 0.7,
+    LATENCY_ABOVE_MS: 100,
+    CONNECTION_FAILURES: 5,
+    MEMORY_USAGE_ABOVE_MB: 1024,
+    ERROR_RATE_ABOVE: 0.05,
     
-    // Alert channels
-    SLACK_WEBHOOK: process.env.SLACK_ALERTS_WEBHOOK,
-    EMAIL_RECIPIENTS: process.env.ALERT_EMAILS?.split(','),
-    
-    // Cooldown between alerts (seconds)
+    SLACK_WEBHOOK: process.env['SLACK_ALERTS_WEBHOOK'],
+    EMAIL_RECIPIENTS: process.env['ALERT_EMAILS']?.split(','),
     COOLDOWN_SECONDS: 300,
   },
 } as const;
@@ -193,18 +180,16 @@ export const CACHE_MONITORING = {
 // Cache Eviction Policy
 // ============================================================
 export const CACHE_EVICTION = {
-  POLICY: 'lru', // 'lru', 'lfu', 'ttl_only', 'random'
-  MAX_MEMORY_MB: parseInt(process.env.CACHE_MAX_MEMORY_MB || '1024'),
-  EVICTION_STRATEGY: 'allkeys-lru', // 'allkeys-lru', 'volatile-lru', 'allkeys-random', 'volatile-random'
+  POLICY: 'lru',
+  MAX_MEMORY_MB: parseInt(process.env['CACHE_MAX_MEMORY_MB'] || '1024'),
+  EVICTION_STRATEGY: 'allkeys-lru',
   SAMPLE_SIZE: 5,
   
-  // LFU specific (if used)
   LFU: {
     LOG_FACTOR: 10,
-    DECAY_TIME: 60, // minutes
+    DECAY_TIME: 60,
   },
   
-  // Max keys limit
   MAX_KEYS: 1000000,
 } as const;
 
@@ -212,7 +197,6 @@ export const CACHE_EVICTION = {
 // Cache Key Prefixes (namespace isolation)
 // ============================================================
 export const CACHE_KEY_PREFIXES = {
-  // Core domain prefixes
   USER: 'user:',
   SESSION: 'session:',
   PRODUCT: 'product:',
@@ -221,24 +205,16 @@ export const CACHE_KEY_PREFIXES = {
   CART: 'cart:',
   INVENTORY: 'inventory:',
   PRICE: 'price:',
-
-  // Performance & optimization
   RATE_LIMIT: 'ratelimit:',
   API_RESPONSE: 'api:',
   VIEW_COUNT: 'view:',
   SEARCH: 'search:',
-
-  // Authorization
   PERMISSION: 'perm:',
   ROLE: 'role:',
-
-  // System
   CONFIG: 'config:',
   COUNTER: 'counter:',
   LOCK: 'lock:',
   QUEUE: 'queue:',
-
-  // E-commerce specific (Bangladesh)
   BANNER: 'banner:',
   OFFER: 'offer:',
   COUPON: 'coupon:',
@@ -246,17 +222,11 @@ export const CACHE_KEY_PREFIXES = {
   BRAND: 'brand:',
   REVIEW: 'review:',
   RATING: 'rating:',
-
-  // Multi-vendor support
   VENDOR: 'vendor:',
   VENDOR_PRODUCT: 'vendor_product:',
-
-  // Geographic (Bangladesh specific)
   DISTRICT: 'district:',
   CITY: 'city:',
   SHIPPING_ZONE: 'shipping_zone:',
-
-  // SEO & Static
   SITEMAP: 'sitemap:',
   SEO_REDIRECT: 'seo_redirect:',
   STATIC_PAGE: 'static:',
@@ -265,23 +235,18 @@ export const CACHE_KEY_PREFIXES = {
 export type CacheKeyPrefix = ValueOf<typeof CACHE_KEY_PREFIXES>;
 
 // ============================================================
-// Cache key patterns (Keep your existing patterns)
+// Cache key patterns
 // ============================================================
 export const CACHE_KEY_PATTERNS = {
-  // User related
   USER_PROFILE: `${CACHE_KEY_PREFIXES.USER}profile:{{userId}}`,
   USER_SETTINGS: `${CACHE_KEY_PREFIXES.USER}settings:{{userId}}`,
   USER_ADDRESSES: `${CACHE_KEY_PREFIXES.USER}addresses:{{userId}}`,
   USER_RECENT_VIEWS: `${CACHE_KEY_PREFIXES.USER}recent_views:{{userId}}`,
   USER_WISHLIST: `${CACHE_KEY_PREFIXES.USER}wishlist:{{userId}}`,
   USER_COMPARE: `${CACHE_KEY_PREFIXES.USER}compare:{{userId}}`,
-
-  // Session related
   SESSION_DATA: `${CACHE_KEY_PREFIXES.SESSION}{{sessionId}}`,
   SESSION_USER_DEVICE: `${CACHE_KEY_PREFIXES.SESSION}user:{{userId}}:{{deviceId}}`,
   SESSION_USER_LIST: `${CACHE_KEY_PREFIXES.SESSION}list:{{userId}}`,
-
-  // Product related
   PRODUCT_DETAIL: `${CACHE_KEY_PREFIXES.PRODUCT}detail:{{productId}}`,
   PRODUCT_DETAIL_BY_SLUG: `${CACHE_KEY_PREFIXES.PRODUCT}detail:slug:{{slug}}`,
   PRODUCT_LIST_BY_CATEGORY: `${CACHE_KEY_PREFIXES.PRODUCT}list:category:{{categoryId}}:page:{{page}}:limit:{{limit}}:sort:{{sort}}`,
@@ -294,82 +259,52 @@ export const CACHE_KEY_PATTERNS = {
   PRODUCT_RATING: `${CACHE_KEY_PREFIXES.PRODUCT}rating:{{productId}}`,
   PRODUCT_STOCK: `${CACHE_KEY_PREFIXES.PRODUCT}stock:{{productId}}`,
   PRODUCT_LOW_STOCK: `${CACHE_KEY_PREFIXES.PRODUCT}low_stock`,
-
-  // Category related
   CATEGORY_TREE: `${CACHE_KEY_PREFIXES.CATEGORY}tree`,
   CATEGORY_DETAIL: `${CACHE_KEY_PREFIXES.CATEGORY}detail:{{categoryId}}`,
   CATEGORY_PATH: `${CACHE_KEY_PREFIXES.CATEGORY}path:{{categoryId}}`,
   CATEGORY_CHILDREN: `${CACHE_KEY_PREFIXES.CATEGORY}children:{{parentId}}`,
   CATEGORY_META: `${CACHE_KEY_PREFIXES.CATEGORY}meta:{{categoryId}}`,
-
-  // Cart related
   CART_USER: `${CACHE_KEY_PREFIXES.CART}{{userId}}`,
   CART_COUNT: `${CACHE_KEY_PREFIXES.CART}count:{{userId}}`,
   CART_COUPON: `${CACHE_KEY_PREFIXES.CART}coupon:{{userId}}`,
-
-  // Order related
   ORDER_DETAIL: `${CACHE_KEY_PREFIXES.ORDER}detail:{{orderId}}`,
   ORDER_TRACKING: `${CACHE_KEY_PREFIXES.ORDER}tracking:{{trackingId}}`,
   ORDER_USER_HISTORY: `${CACHE_KEY_PREFIXES.ORDER}user:{{userId}}:page:{{page}}`,
   ORDER_STATUS: `${CACHE_KEY_PREFIXES.ORDER}status:{{orderId}}`,
   ORDER_PENDING_COUNT: `${CACHE_KEY_PREFIXES.ORDER}pending_count`,
-
-  // Inventory related
   INVENTORY_BY_SKU: `${CACHE_KEY_PREFIXES.INVENTORY}sku:{{sku}}`,
   INVENTORY_PRODUCT_VARIANT: `${CACHE_KEY_PREFIXES.INVENTORY}product:{{productId}}:variant:{{variantId}}`,
   INVENTORY_RESERVED: `${CACHE_KEY_PREFIXES.INVENTORY}reserved:{{sessionId}}`,
-
-  // Price related
   PRICE_PRODUCT: `${CACHE_KEY_PREFIXES.PRICE}product:{{productId}}`,
   PRICE_USER_SPECIFIC: `${CACHE_KEY_PREFIXES.PRICE}user:{{userId}}:product:{{productId}}`,
   PRICE_BULK_DISCOUNT: `${CACHE_KEY_PREFIXES.PRICE}bulk:product:{{productId}}:quantity:{{quantity}}`,
-
-  // API Response cache
   API_RESPONSE_CACHE: `${CACHE_KEY_PREFIXES.API_RESPONSE}{{endpointHash}}:{{paramsHash}}`,
-
-  // Search cache
   SEARCH_RESULTS: `${CACHE_KEY_PREFIXES.SEARCH}{{queryHash}}:page:{{page}}:limit:{{limit}}`,
   SEARCH_SUGGESTIONS: `${CACHE_KEY_PREFIXES.SEARCH}suggestions:{{partialQuery}}`,
   SEARCH_POPULAR: `${CACHE_KEY_PREFIXES.SEARCH}popular`,
   SEARCH_HISTORY: `${CACHE_KEY_PREFIXES.SEARCH}history:{{userId}}`,
-
-  // Permission & Role
   PERMISSION_USER: `${CACHE_KEY_PREFIXES.PERMISSION}user:{{userId}}`,
   PERMISSION_ROLE: `${CACHE_KEY_PREFIXES.PERMISSION}role:{{roleId}}`,
   ROLE_DATA: `${CACHE_KEY_PREFIXES.ROLE}{{roleId}}`,
-
-  // Vendor (Multi-vendor)
   VENDOR_DETAIL: `${CACHE_KEY_PREFIXES.VENDOR}detail:{{vendorId}}`,
   VENDOR_PRODUCTS: `${CACHE_KEY_PREFIXES.VENDOR}products:{{vendorId}}:page:{{page}}`,
   VENDOR_REVENUE: `${CACHE_KEY_PREFIXES.VENDOR}revenue:{{vendorId}}:date:{{date}}`,
-
-  // Bangladesh specific (Geo)
   DISTRICT_LIST: `${CACHE_KEY_PREFIXES.DISTRICT}list`,
   DISTRICT_CITIES: `${CACHE_KEY_PREFIXES.DISTRICT}{{districtId}}:cities`,
   SHIPPING_ZONE_BY_POSTAL: `${CACHE_KEY_PREFIXES.SHIPPING_ZONE}postal:{{postalCode}}`,
-
-  // Offers & Promotions
   OFFER_ACTIVE_HOMEPAGE: `${CACHE_KEY_PREFIXES.OFFER}active:homepage`,
   OFFER_BY_CATEGORY: `${CACHE_KEY_PREFIXES.OFFER}category:{{categoryId}}`,
   COUPON_BY_CODE: `${CACHE_KEY_PREFIXES.COUPON}code:{{couponCode}}`,
   FLASH_SALE_ACTIVE: `${CACHE_KEY_PREFIXES.FLASH_SALE}active`,
   FLASH_SALE_PRODUCTS: `${CACHE_KEY_PREFIXES.FLASH_SALE}{{saleId}}:products`,
-
-  // Rate Limiting
   RATE_LIMIT_KEY: `${CACHE_KEY_PREFIXES.RATE_LIMIT}{{ip}}:{{endpoint}}`,
   RATE_LIMIT_USER: `${CACHE_KEY_PREFIXES.RATE_LIMIT}user:{{userId}}:{{endpoint}}`,
-
-  // Locks
   LOCK_RESOURCE: `${CACHE_KEY_PREFIXES.LOCK}resource:{{resourceId}}`,
   LOCK_ORDER: `${CACHE_KEY_PREFIXES.LOCK}order:{{orderId}}`,
   LOCK_INVENTORY: `${CACHE_KEY_PREFIXES.LOCK}inventory:{{productId}}`,
-
-  // Static & SEO
   SITEMAP_PAGE: `${CACHE_KEY_PREFIXES.SITEMAP}{{type}}:page:{{page}}`,
   STATIC_PAGE_CONTENT: `${CACHE_KEY_PREFIXES.STATIC_PAGE}{{pageSlug}}`,
   BANNER_BY_LOCATION: `${CACHE_KEY_PREFIXES.BANNER}location:{{location}}`,
-
-  // System
   SYSTEM_CONFIG: `${CACHE_KEY_PREFIXES.CONFIG}{{key}}`,
   COUNTER_DAILY: `${CACHE_KEY_PREFIXES.COUNTER}{{name}}:{{date}}`,
   QUEUE_PROCESSING: `${CACHE_KEY_PREFIXES.QUEUE}{{queueName}}:processing`,
@@ -378,7 +313,7 @@ export const CACHE_KEY_PATTERNS = {
 export type CacheKeyPattern = ValueOf<typeof CACHE_KEY_PATTERNS>;
 
 // ============================================================
-// Cache TTL values (in seconds) - Keep your existing
+// Cache TTL values (in seconds)
 // ============================================================
 export const CACHE_TTL = {
   SECOND: 1,
