@@ -15,7 +15,7 @@
 import type {
   ACCOUNT_LOCKOUT,
   AUTH_RATE_LIMITS,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // ============================================================
 // Login Attempt Status (Pure union type - NO enums)
