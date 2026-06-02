@@ -39,24 +39,35 @@ import {
   CurrentSessionResponseDto 
 } from '../../mappers/session.mapper';
 
+// ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট
+import type { 
+  DeviceInfo, 
+  SessionFilterOptions as SharedSessionFilterOptions,
+  SessionStatistics as SharedSessionStatistics,
+  GlobalSessionStatistics as SharedGlobalSessionStatistics,
+  NetworkType,
+  MobileOperator,
+  SessionStatus
+} from '@vubon/shared-types';
+
+// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট
+import { 
+  NETWORK_TYPES, 
+  MOBILE_OPERATORS, 
+  SESSION_STATUS,
+  DEFAULT_IDLE_THRESHOLD_MINUTES,
+  MAX_SESSION_EXTENSION_MINUTES
+} from '@vubon/shared-constants';
+
 // ============================================================
-// Types
+// Types (Re-export from shared-types for convenience)
 // ============================================================
 
 /**
  * Device information interface (Bangladesh specific)
+ * @deprecated Import from '@vubon/shared-types' instead
  */
-export interface DeviceInfo {
-  ipAddress: string;
-  userAgent: string;
-  deviceId?: string;
-  correlationId?: string;
-  // Bangladesh specific
-  district?: string;
-  upazila?: string;
-  mobileOperator?: 'gp' | 'robi' | 'banglalink' | 'teletalk' | 'unknown';
-  networkType?: '2g' | '3g' | '4g' | '5g' | 'wifi' | 'unknown';
-}
+export type DeviceInfo = SharedDeviceInfo;
 
 /**
  * Session extension request
@@ -80,29 +91,63 @@ export interface SessionHeartbeatDto {
  */
 export interface SessionFilterOptions {
   deviceType?: string;
-  networkType?: string;
-  mobileOperator?: string;
+  networkType?: NetworkType;
+  mobileOperator?: MobileOperator;
   district?: string;
-  status?: string;
+  status?: SessionStatus;
   fromDate?: Date;
   toDate?: Date;
+  /**
+   * Filter by specific device ID
+   */
+  deviceId?: string;
+  /**
+   * Filter by IP address pattern
+   */
+  ipAddress?: string;
+  /**
+   * Whether to include expired sessions
+   */
+  includeExpired?: boolean;
+  /**
+   * Sort field
+   */
+  sortBy?: 'createdAt' | 'lastActivityAt' | 'expiresAt';
+  /**
+   * Sort order
+   */
+  sortOrder?: 'asc' | 'desc';
 }
 
 /**
- * Session statistics
+ * Session statistics (Bangladesh specific)
  */
 export interface SessionStatistics {
   totalSessions: number;
   activeSessions: number;
   expiredSessions: number;
   revokedSessions: number;
+  idleSessions: number;
   averageSessionDurationHours: number;
+  medianSessionDurationHours: number;
   mostUsedDeviceId: string | null;
   mostUsedDeviceType: string | null;
   // Bangladesh specific
-  sessionsByNetworkType?: Record<string, number>;
-  sessionsByMobileOperator?: Record<string, number>;
+  sessionsByNetworkType?: Record<NetworkType, number>;
+  sessionsByMobileOperator?: Record<MobileOperator, number>;
   sessionsByDistrict?: Array<{ district: string; count: number }>;
+  /**
+   * Active sessions by hour of day
+   */
+  activeSessionsByHour?: Array<{ hour: number; count: number }>;
+  /**
+   * Peak concurrent sessions
+   */
+  peakConcurrentSessions?: number;
+  /**
+   * Peak concurrent time
+   */
+  peakConcurrentTime?: Date;
 }
 
 /**
@@ -112,16 +157,27 @@ export interface GlobalSessionStatistics {
   totalActiveSessions: number;
   totalSessionsLast24h: number;
   totalSessionsLast7d: number;
+  totalSessionsLast30d: number;
   averageSessionDuration: number;
   medianSessionDuration: number;
   peakConcurrentSessions: number;
   peakConcurrentTime?: Date;
   topDevices: Array<{ deviceId: string; deviceType: string; count: number }>;
+  topUsers: Array<{ userId: string; email: string; sessionCount: number }>;
   // Bangladesh specific
-  sessionsByNetworkType: Record<string, number>;
-  sessionsByMobileOperator: Record<string, number>;
+  sessionsByNetworkType: Record<NetworkType, number>;
+  sessionsByMobileOperator: Record<MobileOperator, number>;
   sessionsByDistrict: Array<{ district: string; count: number }>;
   activeSessionsByHour: Array<{ hour: number; count: number }>;
+  /**
+   * Anomaly detection summary
+   */
+  anomalies?: {
+    totalAnomalies: number;
+    highRiskCount: number;
+    mediumRiskCount: number;
+    lowRiskCount: number;
+  };
 }
 
 /**
@@ -132,6 +188,43 @@ export interface SessionCleanupResult {
   idleRevoked: number;
   totalCleaned: number;
   durationMs: number;
+  /**
+   * Number of sessions archived
+   */
+  archivedCount?: number;
+  /**
+   * Errors encountered during cleanup
+   */
+  errors?: string[];
+}
+
+/**
+ * Session validation result
+ */
+export interface SessionValidationResult {
+  isValid: boolean;
+  isExpired: boolean;
+  isIdle: boolean;
+  isRevoked: boolean;
+  belongsToUser: boolean;
+  remainingTimeMinutes: number;
+  idleTimeMinutes: number;
+  sessionId: string;
+  userId?: string;
+}
+
+/**
+ * Session activity summary for user
+ */
+export interface SessionActivitySummary {
+  userId: string;
+  totalSessions: number;
+  activeSessions: number;
+  averageSessionDuration: number;
+  mostActiveDeviceType: string;
+  mostActiveNetworkType: NetworkType;
+  mostActiveDistrict?: string;
+  lastSessionAt?: Date;
 }
 
 // ============================================================
@@ -186,6 +279,46 @@ export interface SessionService {
     userId: string, 
     sessionId: string
   ): Promise<CurrentSessionResponseDto>;
+  
+  // ============================================================
+  // Session Validation
+  // ============================================================
+  
+  /**
+   * Validate session (check if active and valid)
+   * @param sessionId - Session ID
+   * @returns Validation result with detailed status
+   */
+  validateSession(sessionId: string): Promise<SessionValidationResult>;
+  
+  /**
+   * Validate session with ownership check
+   * @param userId - User ID
+   * @param sessionId - Session ID
+   * @returns True if session belongs to user and is active
+   */
+  validateSessionOwnership(
+    userId: string, 
+    sessionId: string
+  ): Promise<boolean>;
+  
+  /**
+   * Check if session is expired
+   * @param sessionId - Session ID
+   * @returns True if session is expired
+   */
+  isSessionExpired(sessionId: string): Promise<boolean>;
+  
+  /**
+   * Check if session is idle
+   * @param sessionId - Session ID
+   * @param idleThresholdMinutes - Idle threshold in minutes (default: from constants)
+   * @returns True if session is idle
+   */
+  isSessionIdle(
+    sessionId: string, 
+    idleThresholdMinutes?: number
+  ): Promise<boolean>;
   
   // ============================================================
   // Session Revocation
@@ -258,46 +391,6 @@ export interface SessionService {
   ): Promise<BulkRevokeSessionsResponseDto>;
   
   // ============================================================
-  // Session Validation
-  // ============================================================
-  
-  /**
-   * Validate session (check if active and valid)
-   * @param sessionId - Session ID
-   * @returns True if session is valid and active
-   */
-  validateSession(sessionId: string): Promise<boolean>;
-  
-  /**
-   * Validate session with ownership check
-   * @param userId - User ID
-   * @param sessionId - Session ID
-   * @returns True if session belongs to user and is active
-   */
-  validateSessionOwnership(
-    userId: string, 
-    sessionId: string
-  ): Promise<boolean>;
-  
-  /**
-   * Check if session is expired
-   * @param sessionId - Session ID
-   * @returns True if session is expired
-   */
-  isSessionExpired(sessionId: string): Promise<boolean>;
-  
-  /**
-   * Check if session is idle
-   * @param sessionId - Session ID
-   * @param idleThresholdMinutes - Idle threshold in minutes
-   * @returns True if session is idle
-   */
-  isSessionIdle(
-    sessionId: string, 
-    idleThresholdMinutes?: number
-  ): Promise<boolean>;
-  
-  // ============================================================
   // Session Management
   // ============================================================
   
@@ -307,6 +400,7 @@ export interface SessionService {
    * @param dto - Extension request
    * @param deviceInfo - Device context
    * @returns Updated session
+   * @throws {ValidationError} If extension exceeds maximum allowed
    */
   extendSession(
     userId: string,
@@ -354,17 +448,26 @@ export interface SessionService {
    */
   getSessionStatistics(userId: string): Promise<SessionStatistics>;
   
+  /**
+   * Get session activity summary for user
+   * @param userId - User ID
+   * @returns Session activity summary
+   */
+  getSessionActivitySummary(userId: string): Promise<SessionActivitySummary>;
+  
   // ============================================================
   // Admin Operations
   // ============================================================
   
   /**
    * Get all active sessions (admin dashboard)
+   * @param adminId - Admin ID
    * @param options - Pagination options
    * @param filters - Optional filters
    * @returns Paginated active sessions
    */
   getAllActiveSessions(
+    adminId: string,
     options: PaginationDto,
     filters?: SessionFilterOptions
   ): Promise<PaginatedResponseDto<BriefSessionResponseDto>>;
@@ -413,13 +516,26 @@ export interface SessionService {
   ): Promise<PaginatedResponseDto<BriefSessionResponseDto>>;
   
   /**
+   * Get sessions by IP address (admin)
+   * @param adminId - Admin ID
+   * @param ipAddress - IP address
+   * @param options - Pagination options
+   * @returns Paginated sessions
+   */
+  getSessionsByIpAddress(
+    adminId: string,
+    ipAddress: string,
+    options: PaginationDto
+  ): Promise<PaginatedResponseDto<BriefSessionResponseDto>>;
+  
+  /**
    * Cleanup stale/expired sessions (scheduled job)
    * @returns Cleanup result
    */
   cleanupStaleSessions(): Promise<SessionCleanupResult>;
   
   // ============================================================
-  // Session Monitoring
+  // Session Monitoring & Analytics
   // ============================================================
   
   /**
@@ -442,7 +558,9 @@ export interface SessionService {
     byHour: Array<{ hour: number; count: number }>;
     byDay: Array<{ day: string; count: number }>;
     byDeviceType: Record<string, number>;
-    byNetworkType: Record<string, number>;
+    byNetworkType: Record<NetworkType, number>;
+    byMobileOperator: Record<MobileOperator, number>;
+    byDistrict: Array<{ district: string; count: number }>;
   }>;
   
   /**
@@ -457,8 +575,10 @@ export interface SessionService {
     email: string;
     anomalyType: 'multiple_ips' | 'multiple_devices' | 'unusual_hours' | 'unusual_location';
     description: string;
+    descriptionBn?: string;
     detectedAt: Date;
-    severity: 'low' | 'medium' | 'high';
+    severity: 'low' | 'medium' | 'high' | 'critical';
+    recommendation?: string;
   }>>;
   
   /**
@@ -475,6 +595,41 @@ export interface SessionService {
     toDate: Date,
     format: 'json' | 'csv' | 'xlsx'
   ): Promise<{ data: string | Buffer; filename: string; contentType: string }>;
+  
+  /**
+   * Get user session timeline (for security audit)
+   * @param adminId - Admin ID
+   * @param userId - User ID
+   * @param options - Pagination options
+   * @returns Session timeline
+   */
+  getUserSessionTimeline(
+    adminId: string,
+    userId: string,
+    options: PaginationDto
+  ): Promise<PaginatedResponseDto<{
+    sessionId: string;
+    createdAt: Date;
+    expiresAt: Date;
+    lastActivityAt: Date;
+    deviceInfo: DeviceInfo;
+    ipAddress: string;
+    location?: string;
+    status: string;
+  }>>;
+  
+  /**
+   * Force expire all idle sessions (emergency)
+   * @param adminId - Admin ID
+   * @param reason - Reason for forced expiration
+   * @param idleThresholdMinutes - Idle threshold in minutes
+   * @returns Number of sessions expired
+   */
+  forceExpireIdleSessions(
+    adminId: string,
+    reason: string,
+    idleThresholdMinutes?: number
+  ): Promise<number>;
 }
 
 // ============================================================
@@ -486,5 +641,7 @@ export type {
   SessionStatistics as SessionStatisticsType,
   GlobalSessionStatistics as GlobalSessionStatisticsType,
   SessionCleanupResult as SessionCleanupResultType,
-  SessionHeartbeatDto as SessionHeartbeatDtoType
+  SessionHeartbeatDto as SessionHeartbeatDtoType,
+  SessionValidationResult as SessionValidationResultType,
+  SessionActivitySummary as SessionActivitySummaryType
 };
