@@ -46,10 +46,10 @@
       "import": "./dist/social.constants.mjs",
       "require": "./dist/social.constants.js"
     },
-    "./event": {
-      "types": "./dist/evn.constants.d.ts",
-      "import": "./dist/evn.constants.mjs",
-      "require": "./dist/evn.constants.js"
+    "./env": {
+      "types": "./dist/env.constants.d.ts",
+      "import": "./dist/env.constants.mjs",
+      "require": "./dist/env.constants.js"
     },
     "./api": {
       "types": "./dist/api.constants.d.ts",
