@@ -14,13 +14,13 @@
 // ============================================================
 // Environment detection (for conditional configs)
 // ============================================================
-const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const IS_PRODUCTION = process.env['NODE_ENV'] === 'production';
 const IS_DEVELOPMENT = !IS_PRODUCTION;
 
 // ============================================================
 // Imports from other constants (single source of truth)
 // ============================================================
-import { OTP_CONFIG } from './auth.constants';
+import type { OTP_CONFIG } from './auth.constants';
 import { 
   REGEX_EMAIL, 
   REGEX_PHONE, 
@@ -36,8 +36,6 @@ import {
 // ============================================================
 export const CSP_DIRECTIVES = {
   DEFAULT_SRC: ["'self'"],
-  // PRODUCTION: No 'unsafe-inline', uses nonce-based approach
-  // DEVELOPMENT: Allows 'unsafe-inline' for HMR and dev tools
   SCRIPT_SRC: IS_PRODUCTION 
     ? ["'self'", 'https://www.google.com/recaptcha/', 'https://www.gstatic.com/recaptcha/']
     : ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://www.google.com/recaptcha/', 'https://www.gstatic.com/recaptcha/'],
@@ -67,7 +65,7 @@ export const CSP_DIRECTIVES = {
   BASE_URI: ["'self'"],
   FORM_ACTION: ["'self'", 'https://*.sslcommerz.com', 'https://*.bkash.com'],
   FRAME_ANCESTORS: ["'none'"],
-  UPGRADE_INSECURE_REQUESTS: IS_PRODUCTION ? [] : [],
+  UPGRADE_INSECURE_REQUESTS: [],
   BLOCK_ALL_MIXED_CONTENT: [],
   MANIFEST_SRC: ["'self'"],
   WORKER_SRC: ["'self'", 'blob:'],
@@ -346,13 +344,11 @@ export const SANITIZE_CONFIG = {
 export const CORS_CONFIG = {
   ALLOWED_ORIGINS: IS_PRODUCTION
     ? [
-        // Production domains only
         'https://vubon.com.bd',
         'https://www.vubon.com.bd',
         'https://admin.vubon.com.bd',
         'https://seller.vubon.com.bd',
         'https://api.vubon.com.bd',
-        // Bangladesh payment gateways
         'https://sandbox.sslcommerz.com',
         'https://secure.sslcommerz.com',
         'https://www.bkash.com',
@@ -360,7 +356,6 @@ export const CORS_CONFIG = {
         'https://www.rocket.com.bd',
       ]
     : [
-        // Development & staging
         'https://vubon.com.bd',
         'https://www.vubon.com.bd',
         'https://admin.vubon.com.bd',
@@ -373,7 +368,6 @@ export const CORS_CONFIG = {
         'http://localhost:8080',
         'http://127.0.0.1:3000',
         'http://127.0.0.1:3001',
-        // Payment gateways (sandbox for dev)
         'https://sandbox.sslcommerz.com',
         'https://secure.sslcommerz.com',
         'https://www.bkash.com',
@@ -409,43 +403,42 @@ export const CORS_CONFIG = {
 
 // ============================================================
 // Rate Limiting Configuration (Bangladesh optimized)
-// Fixed window times for clarity
 // ============================================================
 export const RATE_LIMITS = {
   GLOBAL: {
-    WINDOW_MS: 60 * 1000,      // 1 minute
+    WINDOW_MS: 60 * 1000,
     MAX_REQUESTS: 100,
   },
   AUTH: {
-    LOGIN: { WINDOW_MS: 15 * 60 * 1000, MAX_REQUESTS: 5 },      // 5 per 15 minutes
-    REGISTER: { WINDOW_MS: 60 * 60 * 1000, MAX_REQUESTS: 3 },    // 3 per hour
-    PASSWORD_RESET: { WINDOW_MS: 60 * 60 * 1000, MAX_REQUESTS: 3 }, // 3 per hour
-    MFA_VERIFY: { WINDOW_MS: 15 * 60 * 1000, MAX_REQUESTS: 5 },   // 5 per 15 minutes
-    OTP_SEND: { WINDOW_MS: 10 * 60 * 1000, MAX_REQUESTS: 3 },     // 3 per 10 minutes
-    OTP_VERIFY: { WINDOW_MS: 10 * 60 * 1000, MAX_REQUESTS: 5 },    // 5 per 10 minutes
+    LOGIN: { WINDOW_MS: 15 * 60 * 1000, MAX_REQUESTS: 5 },
+    REGISTER: { WINDOW_MS: 60 * 60 * 1000, MAX_REQUESTS: 3 },
+    PASSWORD_RESET: { WINDOW_MS: 60 * 60 * 1000, MAX_REQUESTS: 3 },
+    MFA_VERIFY: { WINDOW_MS: 15 * 60 * 1000, MAX_REQUESTS: 5 },
+    OTP_SEND: { WINDOW_MS: 10 * 60 * 1000, MAX_REQUESTS: 3 },
+    OTP_VERIFY: { WINDOW_MS: 10 * 60 * 1000, MAX_REQUESTS: 5 },
   },
   API: {
-    READ: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 60 },       // 60 per minute
-    WRITE: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 30 },      // 30 per minute
-    SEARCH: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 20 },     // 20 per minute
-    EXPORT: { WINDOW_MS: 60 * 60 * 1000, MAX_REQUESTS: 5 }, // 5 per hour
-    IMPORT: { WINDOW_MS: 60 * 60 * 1000, MAX_REQUESTS: 3 }, // 3 per hour
+    READ: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 60 },
+    WRITE: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 30 },
+    SEARCH: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 20 },
+    EXPORT: { WINDOW_MS: 60 * 60 * 1000, MAX_REQUESTS: 5 },
+    IMPORT: { WINDOW_MS: 60 * 60 * 1000, MAX_REQUESTS: 3 },
   },
   PAYMENT: {
-    GENERAL: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 10 },     // 10 per minute
-    INITIATE: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 5 },     // 5 per minute
-    VERIFY: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 20 },      // 20 per minute
-    WEBHOOK: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 100 },    // 100 per minute
+    GENERAL: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 10 },
+    INITIATE: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 5 },
+    VERIFY: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 20 },
+    WEBHOOK: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 100 },
   },
   MOBILE_NETWORK: {
-    SLOW_2G_3G: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 30 },   // Stricter for slow networks
-    WIFI_4G_5G: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 100 },  // Normal
+    SLOW_2G_3G: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 30 },
+    WIFI_4G_5G: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 100 },
   },
   ECOMMERCE: {
-    CHECKOUT: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 10 },     // 10 per minute
-    ADD_TO_CART: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 60 },  // 60 per minute
-    APPLY_COUPON: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 20 }, // 20 per minute
-    REVIEW_SUBMIT: { WINDOW_MS: 60 * 60 * 1000, MAX_REQUESTS: 10 }, // 10 per hour
+    CHECKOUT: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 10 },
+    ADD_TO_CART: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 60 },
+    APPLY_COUPON: { WINDOW_MS: 60 * 1000, MAX_REQUESTS: 20 },
+    REVIEW_SUBMIT: { WINDOW_MS: 60 * 60 * 1000, MAX_REQUESTS: 10 },
   },
 } as const;
 
@@ -459,9 +452,9 @@ export const SESSION_SECURITY = {
   COOKIE_ENCRYPTION: true,
   REGENERATE_ON_LOGIN: true,
   REGENERATE_ON_PRIVILEGE_ESCALATION: true,
-  ABSOLUTE_TIMEOUT_SECONDS: 86400,      // 24 hours
-  IDLE_TIMEOUT_SECONDS: 1800,           // 30 minutes
-  BIND_TO_IP: false,                     // Mobile networks in Bangladesh
+  ABSOLUTE_TIMEOUT_SECONDS: 86400,
+  IDLE_TIMEOUT_SECONDS: 1800,
+  BIND_TO_IP: false,
   BIND_TO_USER_AGENT: true,
   BIND_TO_DEVICE_ID: true,
   MAX_CONCURRENT_SESSIONS: 5,
@@ -476,17 +469,17 @@ export const SESSION_SECURITY = {
 // ============================================================
 export const ENCRYPTION_CONFIG = {
   ALGORITHM: 'aes-256-gcm',
-  KEY_LENGTH: 32,                        // 256 bits
-  IV_LENGTH: 16,                         // 128 bits
-  AUTH_TAG_LENGTH: 16,                   // 128 bits
+  KEY_LENGTH: 32,
+  IV_LENGTH: 16,
+  AUTH_TAG_LENGTH: 16,
   ENCODING: 'hex' as const,
-  SCRYPT_N: 16384,                       // 2^14 = 16,384 (OWASP recommended)
-  SCRYPT_R: 8,                           // Block size
-  SCRYPT_P: 1,                           // Parallelization factor
+  SCRYPT_N: 16384,
+  SCRYPT_R: 8,
+  SCRYPT_P: 1,
   PBKDF2_ITERATIONS: 100000,
   PBKDF2_DIGEST: 'sha256',
   HASH_ALGORITHM: 'sha256',
-  SALT_ROUNDS: 12,                       // bcrypt rounds
+  SALT_ROUNDS: 12,
   MIN_SALT_ROUNDS: 10,
   MAX_SALT_ROUNDS: 14,
   MIN_SECRET_LENGTH: 8,
