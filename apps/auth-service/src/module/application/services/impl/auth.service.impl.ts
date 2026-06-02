@@ -17,7 +17,7 @@
  * ✅ Bangladesh specific - Phone login, OTP login
  */
 
-import { Injectable, Inject, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
+import { Injectable, Inject, UnauthorizedException, ConflictException, BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 
 import { LoginDto, LoginResponseDto, MFARequiredResponseDto } from '../../dtos/auth/login.dto';
@@ -27,7 +27,11 @@ import { LogoutDto, LogoutResponseDto } from '../../dtos/auth/logout.dto';
 import { ForgotPasswordDto, ForgotPasswordPhoneDto, ForgotPasswordResponseDto, ResetPasswordDto, ResetPasswordResponseDto, ValidateResetTokenResponseDto, ResetPasswordWithOtpDto, VerifyResetOtpDto } from '../../dtos/user/forgot-password.dto';
 import { AuthService, DeviceInfo } from '../interfaces/auth.service.interface';
 
-import { PasswordHasher, TokenGenerator, EventBus, CacheService, TransactionManager } from './infrastructure.interface';
+import { PasswordHasher } from '../interfaces/password-hasher.interface';
+import { TokenGenerator } from '../interfaces/token-generator.interface';
+import { EventBus, EventNames } from '../interfaces/event-bus.interface';
+import { CacheService, CacheKeyBuilder } from '../interfaces/cache.service.interface';
+import { TransactionManager } from '../interfaces/transaction-manager.interface';
 
 import { UserRepository } from '../../../domain/repositories/user.repository.interface';
 import { SessionRepository } from '../../../domain/repositories/session.repository.interface';
@@ -50,41 +54,39 @@ import { UserAgent } from '../../../domain/value-objects/user-agent.vo';
 import { DeviceId } from '../../../domain/value-objects/device-id.vo';
 import { OtpCode, OtpType, OtpPurpose } from '../../../domain/value-objects/otp-code.vo';
 
+// Import Shared Constants (Phase 1)
+import { 
+  SESSION_CONFIG, 
+  OTP_CONFIG, 
+  MFA_CONFIG,
+  TOKEN_EXPIRY,
+  ACCOUNT_LOCK_POLICY,
+  PASSWORD_POLICY
+} from '@vubon/shared-constants';
+
+// Import Shared Types (Phase 1)
+import type { LoginMethod, LoginType, LogoutReason, LogoutSource, LoginFailureReason } from '@vubon/shared-types';
+
+// Import Events
 import { UserRegisteredEvent, RegistrationMethod, RegistrationSource } from '../../events/user-registered.event';
-import { UserLoggedInEvent, LoginMethod, LoginType } from '../../events/user-logged-in.event';
-import { UserLoggedOutEvent, LogoutReason, LogoutSource } from '../../events/user-logged-out.event';
-import { LoginFailedEvent, LoginFailureReason } from '../../events/login-failed.event';
+import { UserLoggedInEvent } from '../../events/user-logged-in.event';
+import { UserLoggedOutEvent } from '../../events/user-logged-out.event';
+import { LoginFailedEvent } from '../../events/login-failed.event';
 import { AccountLockedEvent, AccountLockReason as LockReason, AccountLockMethod, AccountLockSource } from '../../events/account-locked.event';
 import { PasswordResetRequestedEvent } from '../../events/password-reset-requested.event';
 import { PasswordResetCompletedEvent } from '../../events/password-reset-completed.event';
 import { WelcomeEmailEvent } from '../../events/welcome-email.event';
-import { PhoneVerifiedEvent } from '../../events/phone-verified.event';
-
-// ============================================================
-// Constants
-// ============================================================
-
-const SESSION_CONFIG = {
-  REMEMBER_ME_HOURS: 24 * 30, // 30 days
-  DEFAULT_HOURS: 24 * 1, // 1 day
-  ACCESS_TOKEN_EXPIRY_SECONDS: 3600, // 1 hour
-  REFRESH_TOKEN_EXPIRY_DAYS: 7,
-  MAX_FAILED_ATTEMPTS: 5,
-  MFA_SESSION_TTL_SECONDS: 300, // 5 minutes
-};
-
-const OTP_CONFIG = {
-  EXPIRY_SECONDS: 300, // 5 minutes
-  RESEND_COOLDOWN_SECONDS: 30,
-  MAX_ATTEMPTS: 3,
-};
 
 // ============================================================
 // Custom Domain Errors
 // ============================================================
 
 export class AccountLockedError extends Error {
-  constructor(message: string, public readonly remainingTimeMinutes: number, public readonly remainingTimeSeconds: number) {
+  constructor(
+    message: string, 
+    public readonly remainingTimeMinutes: number, 
+    public readonly remainingTimeSeconds: number
+  ) {
     super(message);
     this.name = 'AccountLockedError';
   }
@@ -136,7 +138,7 @@ export class AuthServiceImpl implements AuthService {
     try {
       email = new Email(dto.email);
     } catch (error) {
-      await this.publishLoginFailedEvent(dto.email, deviceInfo, LoginFailureReason.INVALID_EMAIL);
+      await this.publishLoginFailedEvent(dto.email, deviceInfo, 'INVALID_EMAIL' as LoginFailureReason);
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -144,14 +146,14 @@ export class AuthServiceImpl implements AuthService {
     const user = await this.userRepository.findByEmail(email);
     
     if (!user) {
-      await this.publishLoginFailedEvent(dto.email, deviceInfo, LoginFailureReason.USER_NOT_FOUND);
+      await this.publishLoginFailedEvent(dto.email, deviceInfo, 'USER_NOT_FOUND' as LoginFailureReason);
       throw new UnauthorizedException('Invalid credentials');
     }
 
     // 3. Check account lock status
     const accountLock = await this.accountLockRepository.findByUserId(user.getId());
     if (accountLock && accountLock.isLocked()) {
-      const remainingMinutes = Math.ceil(accountLock.getRemainingLockTime() / (60 * 1000));
+      const remainingMinutes = Math.ceil(accountLock.getRemainingLockTime() / 60000);
       const remainingSeconds = Math.ceil(accountLock.getRemainingLockTime() / 1000);
       throw new AccountLockedError(
         `Account is locked. Please try again in ${remainingMinutes} minutes.`,
@@ -172,7 +174,7 @@ export class AuthServiceImpl implements AuthService {
     // 5. Verify password
     const isPasswordValid = await this.passwordHasher.compare(
       dto.password,
-      user.getPassword().getValue()
+      user.getPasswordHash()
     );
 
     if (!isPasswordValid) {
@@ -180,7 +182,7 @@ export class AuthServiceImpl implements AuthService {
       await this.publishLoginFailedEvent(
         dto.email,
         deviceInfo,
-        LoginFailureReason.INVALID_PASSWORD,
+        'INVALID_PASSWORD' as LoginFailureReason,
         user.getId()
       );
       throw new UnauthorizedException('Invalid credentials');
@@ -200,15 +202,19 @@ export class AuthServiceImpl implements AuthService {
     // 8. MFA check
     if (user.isMfaEnabled()) {
       const mfaSessionId = await this.createMfaSession(user.getId(), deviceInfo);
-      return new MFARequiredResponseDto(mfaSessionId, ['TOTP', 'SMS'], undefined, undefined, 3);
+      const availableMethods = await this.getAvailableMfaMethods(user.getId());
+      return new MFARequiredResponseDto(
+        mfaSessionId, 
+        availableMethods, 
+        undefined, 
+        undefined, 
+        MFA_CONFIG.MAX_VERIFICATION_ATTEMPTS
+      );
     }
 
     // 9. Create session and tokens
-    const { accessToken, refreshTokenValue, session } = await this.createUserSession(
-      user,
-      deviceInfo,
-      dto.rememberMe
-    );
+    const { accessToken, refreshTokenValue, session, accessTokenExpiresIn, refreshTokenExpiresIn } = 
+      await this.createUserSession(user, deviceInfo, dto.rememberMe || false);
 
     // 10. Record login
     user.recordLogin();
@@ -218,8 +224,8 @@ export class AuthServiceImpl implements AuthService {
     await this.eventBus.publish(
       new UserLoggedInEvent(
         user.getId(),
-        LoginMethod.PASSWORD,
-        LoginType.INITIAL,
+        'PASSWORD' as LoginMethod,
+        'INITIAL' as LoginType,
         deviceInfo.correlationId,
         undefined,
         deviceInfo.ipAddress,
@@ -229,7 +235,7 @@ export class AuthServiceImpl implements AuthService {
         undefined,
         false,
         false,
-        dto.rememberMe
+        dto.rememberMe || false
       )
     );
 
@@ -237,8 +243,8 @@ export class AuthServiceImpl implements AuthService {
     return new LoginResponseDto(
       accessToken,
       refreshTokenValue,
-      SESSION_CONFIG.ACCESS_TOKEN_EXPIRY_SECONDS,
-      SESSION_CONFIG.REFRESH_TOKEN_EXPIRY_DAYS * 86400,
+      accessTokenExpiresIn,
+      refreshTokenExpiresIn,
       {
         id: user.getId(),
         email: user.getEmail().getValue(),
@@ -278,7 +284,7 @@ export class AuthServiceImpl implements AuthService {
     // 3. Check account lock status
     const accountLock = await this.accountLockRepository.findByUserId(user.getId());
     if (accountLock && accountLock.isLocked()) {
-      const remainingMinutes = Math.ceil(accountLock.getRemainingLockTime() / (60 * 1000));
+      const remainingMinutes = Math.ceil(accountLock.getRemainingLockTime() / 60000);
       const remainingSeconds = Math.ceil(accountLock.getRemainingLockTime() / 1000);
       throw new AccountLockedError(
         `Account is locked. Please try again in ${remainingMinutes} minutes.`,
@@ -290,7 +296,7 @@ export class AuthServiceImpl implements AuthService {
     // 4. Verify password
     const isPasswordValid = await this.passwordHasher.compare(
       password,
-      user.getPassword().getValue()
+      user.getPasswordHash()
     );
 
     if (!isPasswordValid) {
@@ -304,21 +310,37 @@ export class AuthServiceImpl implements AuthService {
     }
 
     // 6. Create session and tokens
-    const { accessToken, refreshTokenValue, session } = await this.createUserSession(
-      user,
-      deviceInfo,
-      false
-    );
+    const { accessToken, refreshTokenValue, session, accessTokenExpiresIn, refreshTokenExpiresIn } = 
+      await this.createUserSession(user, deviceInfo, false);
 
     // 7. Record login
     user.recordLogin();
     await this.userRepository.save(user);
 
+    // 8. Publish event
+    await this.eventBus.publish(
+      new UserLoggedInEvent(
+        user.getId(),
+        'PHONE' as LoginMethod,
+        'INITIAL' as LoginType,
+        deviceInfo.correlationId,
+        undefined,
+        deviceInfo.ipAddress,
+        deviceInfo.deviceId,
+        deviceInfo.userAgent,
+        session.getId(),
+        undefined,
+        false,
+        false,
+        false
+      )
+    );
+
     return new LoginResponseDto(
       accessToken,
       refreshTokenValue,
-      SESSION_CONFIG.ACCESS_TOKEN_EXPIRY_SECONDS,
-      SESSION_CONFIG.REFRESH_TOKEN_EXPIRY_DAYS * 86400,
+      accessTokenExpiresIn,
+      refreshTokenExpiresIn,
       {
         id: user.getId(),
         email: user.getEmail().getValue(),
@@ -340,11 +362,19 @@ export class AuthServiceImpl implements AuthService {
     otpCode: string,
     deviceInfo: DeviceInfo
   ): Promise<LoginResponseDto> {
-    // 1. Validate OTP
-    const otpCacheKey = `otp:login:${phoneNumber}`;
+    // 1. Validate OTP from cache
+    const otpCacheKey = CacheKeyBuilder.otp(`login:${phoneNumber}`);
     const cachedOtp = await this.cacheService.get(otpCacheKey);
     
     if (!cachedOtp || cachedOtp !== otpCode) {
+      // Track failed OTP attempt
+      const attemptsKey = CacheKeyBuilder.otpAttempts(`login:${phoneNumber}`);
+      const attempts = await this.cacheService.incr(attemptsKey);
+      await this.cacheService.expire(attemptsKey, OTP_CONFIG.MAX_ATTEMPTS_WINDOW_SECONDS);
+      
+      if (attempts >= OTP_CONFIG.MAX_VERIFICATION_ATTEMPTS) {
+        throw new UnauthorizedException('Too many failed attempts. Please request a new OTP.');
+      }
       throw new UnauthorizedException('Invalid or expired OTP');
     }
 
@@ -352,30 +382,45 @@ export class AuthServiceImpl implements AuthService {
     let user = await this.userRepository.findByPhone(new Phone(phoneNumber));
     
     if (!user) {
-      // Auto-register user with phone number
-      // This would require additional implementation
       throw new UnauthorizedException('User not found. Please register first.');
     }
 
     // 3. Delete used OTP
     await this.cacheService.del(otpCacheKey);
+    await this.cacheService.del(CacheKeyBuilder.otpAttempts(`login:${phoneNumber}`));
 
     // 4. Create session and tokens
-    const { accessToken, refreshTokenValue, session } = await this.createUserSession(
-      user,
-      deviceInfo,
-      false
-    );
+    const { accessToken, refreshTokenValue, session, accessTokenExpiresIn, refreshTokenExpiresIn } = 
+      await this.createUserSession(user, deviceInfo, false);
 
     // 5. Record login
     user.recordLogin();
     await this.userRepository.save(user);
 
+    // 6. Publish event
+    await this.eventBus.publish(
+      new UserLoggedInEvent(
+        user.getId(),
+        'OTP' as LoginMethod,
+        'INITIAL' as LoginType,
+        deviceInfo.correlationId,
+        undefined,
+        deviceInfo.ipAddress,
+        deviceInfo.deviceId,
+        deviceInfo.userAgent,
+        session.getId(),
+        undefined,
+        false,
+        false,
+        false
+      )
+    );
+
     return new LoginResponseDto(
       accessToken,
       refreshTokenValue,
-      SESSION_CONFIG.ACCESS_TOKEN_EXPIRY_SECONDS,
-      SESSION_CONFIG.REFRESH_TOKEN_EXPIRY_DAYS * 86400,
+      accessTokenExpiresIn,
+      refreshTokenExpiresIn,
       {
         id: user.getId(),
         email: user.getEmail().getValue(),
@@ -401,44 +446,60 @@ export class AuthServiceImpl implements AuthService {
       throw new BadRequestException('Passwords do not match');
     }
 
-    // 2. Check if user exists
+    // 2. Validate password strength
+    const passwordStrength = await this.passwordHasher.validateStrength(dto.password);
+    if (!passwordStrength.isValid) {
+      throw new BadRequestException(
+        `Password does not meet requirements: ${passwordStrength.errors.join(', ')}`
+      );
+    }
+
+    // 3. Check if user exists by email
     const email = new Email(dto.email);
-    const exists = await this.userRepository.existsByEmail(email);
+    const existsByEmail = await this.userRepository.existsByEmail(email);
     
-    if (exists) {
+    if (existsByEmail) {
       throw new ConflictException('User with this email already exists');
     }
 
-    // 3. Create user entity
-    const password = new Password(dto.password);
-    const hashedPassword = await this.passwordHasher.hash(password.getValue());
+    // 4. Check if user exists by phone (if provided)
+    if (dto.phone) {
+      const phone = new Phone(dto.phone);
+      const existsByPhone = await this.userRepository.existsByPhone(phone);
+      if (existsByPhone) {
+        throw new ConflictException('User with this phone number already exists');
+      }
+    }
+
+    // 5. Hash password
+    const hashedPassword = await this.passwordHasher.hash(dto.password);
     
-    // Override password with hashed value (Note: In production, use separate VO)
+    // 6. Create user entity
     const user = User.create(
       email,
       new Password(hashedPassword),
       dto.fullName,
-      undefined,
       dto.phone ? new Phone(dto.phone) : undefined,
       dto.displayName,
       dto.preferredLanguage
     );
 
-    // 4. Save user (transaction)
+    // 7. Save user (in transaction)
     await this.transactionManager.runInTransaction(async () => {
       await this.userRepository.save(user);
     });
 
-    // 5. Create email verification
+    // 8. Create email verification
     const verificationCode = OtpCode.generate(OtpType.EMAIL);
+    const verificationToken = new Token(verificationCode, TokenType.VERIFICATION);
     const verification = EmailVerification.create(
       user.getId(),
       email,
-      new OtpCode(verificationCode, OtpType.EMAIL, OtpPurpose.EMAIL_VERIFICATION)
+      verificationToken
     );
     await this.emailVerificationRepository.save(verification);
 
-    // 6. Publish welcome email event
+    // 9. Publish welcome email event
     await this.eventBus.publish(
       new WelcomeEmailEvent(
         user.getId(),
@@ -448,7 +509,7 @@ export class AuthServiceImpl implements AuthService {
       )
     );
 
-    // 7. Publish user registered event
+    // 10. Publish user registered event
     await this.eventBus.publish(
       new UserRegisteredEvent(
         user.getId(),
@@ -487,18 +548,33 @@ export class AuthServiceImpl implements AuthService {
     deviceInfo: DeviceInfo
   ): Promise<TokenRefreshResponseDto> {
     // 1. Verify token signature
-    const payload = await this.tokenGenerator.verifyToken(dto.refreshToken);
+    const verificationResult = await this.tokenGenerator.verifyTokenSafe(dto.refreshToken);
     
+    if (!verificationResult.isValid) {
+      throw new UnauthorizedException(`Invalid refresh token: ${verificationResult.error}`);
+    }
+
+    const payload = verificationResult.payload;
     if (!payload || payload.type !== 'refresh') {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException('Invalid token type. Expected refresh token.');
     }
 
     // 2. Find refresh token entity
     const token = new Token(dto.refreshToken, TokenType.REFRESH);
     const refreshToken = await this.refreshTokenRepository.findByToken(token);
     
-    if (!refreshToken || !refreshToken.isValidForRotation()) {
-      throw new UnauthorizedException('Invalid or expired refresh token');
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token not found');
+    }
+    
+    if (!refreshToken.isValidForRotation()) {
+      if (refreshToken.isRevoked()) {
+        throw new UnauthorizedException('Refresh token has been revoked');
+      }
+      if (refreshToken.isExpired()) {
+        throw new UnauthorizedException('Refresh token has expired');
+      }
+      throw new UnauthorizedException('Invalid refresh token');
     }
 
     // 3. Get user
@@ -507,26 +583,44 @@ export class AuthServiceImpl implements AuthService {
       throw new UnauthorizedException('User not found');
     }
 
-    // 4. Generate new tokens
-    const newAccessToken = await this.tokenGenerator.generateAccessToken(
+    // 4. Generate new tokens using TokenGenerator
+    const tokenPair = await this.tokenGenerator.generateTokenPair(
       user.getId(),
       user.getEmail().getValue(),
-      user.getRole()
+      user.getRole(),
+      { deviceId: deviceInfo.deviceId, sessionId: refreshToken.getSessionId() }
     );
-    
-    const newRefreshTokenValue = await this.tokenGenerator.generateRefreshToken(user.getId());
 
-    // 5. Rotate refresh token
-    const newToken = new Token(newRefreshTokenValue, TokenType.REFRESH);
+    // 5. Rotate refresh token (revoke old, create new)
+    const newToken = new Token(tokenPair.refreshToken!, TokenType.REFRESH);
     const rotatedToken = refreshToken.rotate(newToken);
     
-    await this.refreshTokenRepository.save(rotatedToken);
+    await this.transactionManager.runInTransaction(async () => {
+      await this.refreshTokenRepository.save(rotatedToken);
+    });
+
+    // 6. Publish token refreshed event
+    await this.eventBus.publish({
+      eventId: uuidv4(),
+      eventName: EventNames.TOKEN_REFRESHED,
+      aggregateId: user.getId(),
+      aggregateVersion: 1,
+      eventVersion: 1,
+      occurredAt: new Date(),
+      userId: user.getId(),
+      metadata: {
+        oldTokenId: refreshToken.getId(),
+        newTokenId: rotatedToken.getId(),
+        deviceId: deviceInfo.deviceId,
+        ipAddress: deviceInfo.ipAddress,
+      },
+    });
 
     return new TokenRefreshResponseDto(
-      newAccessToken,
-      newRefreshTokenValue,
-      SESSION_CONFIG.ACCESS_TOKEN_EXPIRY_SECONDS,
-      SESSION_CONFIG.REFRESH_TOKEN_EXPIRY_DAYS * 86400,
+      tokenPair.accessToken,
+      tokenPair.refreshToken!,
+      tokenPair.expiresIn,
+      tokenPair.refreshExpiresIn!,
       true
     );
   }
@@ -564,17 +658,20 @@ export class AuthServiceImpl implements AuthService {
       } else {
         // Revoke current session by refresh token
         if (dto.refreshToken) {
-          const token = new Token(dto.refreshToken, TokenType.REFRESH);
-          const refreshToken = await this.refreshTokenRepository.findByToken(token);
-          if (refreshToken) {
-            const session = await this.sessionRepository.findById(refreshToken.getSessionId());
-            if (session && session.validateOwnership(userId)) {
-              session.revoke('User logged out');
-              await this.sessionRepository.save(session);
-              sessionsRevoked = 1;
-              revokedSessionIds = [session.getId()];
+          const verificationResult = await this.tokenGenerator.verifyTokenSafe(dto.refreshToken);
+          if (verificationResult.isValid && verificationResult.payload) {
+            const token = new Token(dto.refreshToken, TokenType.REFRESH);
+            const refreshToken = await this.refreshTokenRepository.findByToken(token);
+            if (refreshToken && refreshToken.getUserId() === userId) {
+              const session = await this.sessionRepository.findById(refreshToken.getSessionId());
+              if (session && session.validateOwnership(userId)) {
+                session.revoke('User logged out');
+                await this.sessionRepository.save(session);
+                sessionsRevoked = 1;
+                revokedSessionIds = [session.getId()];
+              }
+              await this.refreshTokenRepository.revoke(refreshToken.getId(), 'User logged out');
             }
-            await this.refreshTokenRepository.revoke(refreshToken.getId(), 'User logged out');
           }
         }
       }
@@ -585,8 +682,8 @@ export class AuthServiceImpl implements AuthService {
       new UserLoggedOutEvent(
         userId,
         dto.sessionId,
-        LogoutReason.USER_INITIATED,
-        LogoutSource.USER,
+        'USER_INITIATED' as LogoutReason,
+        'USER' as LogoutSource,
         deviceInfo.correlationId,
         undefined,
         deviceInfo.deviceId,
@@ -597,6 +694,41 @@ export class AuthServiceImpl implements AuthService {
     );
 
     return new LogoutResponseDto('Successfully logged out', sessionsRevoked, revokedSessionIds);
+  }
+
+  async logoutAllDevices(
+    userId: string,
+    deviceInfo: DeviceInfo
+  ): Promise<LogoutAllDevicesResponseDto> {
+    const sessions = await this.sessionRepository.findActiveSessions(userId);
+    let sessionsRevoked = 0;
+
+    await this.transactionManager.runInTransaction(async () => {
+      for (const session of sessions) {
+        session.revoke('User logged out from all devices');
+        await this.sessionRepository.save(session);
+        sessionsRevoked++;
+      }
+      
+      await this.refreshTokenRepository.revokeAllByUserId(userId, 'User logged out from all devices');
+    });
+
+    await this.eventBus.publish(
+      new UserLoggedOutEvent(
+        userId,
+        undefined,
+        'USER_INITIATED' as LogoutReason,
+        'USER' as LogoutSource,
+        deviceInfo.correlationId,
+        undefined,
+        deviceInfo.deviceId,
+        deviceInfo.ipAddress,
+        deviceInfo.userAgent,
+        sessionsRevoked
+      )
+    );
+
+    return new LogoutAllDevicesResponseDto(sessionsRevoked, sessions.length, false);
   }
 
   // ============================================================
@@ -612,6 +744,17 @@ export class AuthServiceImpl implements AuthService {
     
     // Always return success (no user enumeration)
     if (user) {
+      // Check rate limiting
+      const rateLimitKey = CacheKeyBuilder.rateLimit(`forgot-password:${user.getId()}`);
+      const requestCount = await this.cacheService.incr(rateLimitKey);
+      if (requestCount === 1) {
+        await this.cacheService.expire(rateLimitKey, 3600); // 1 hour window
+      }
+      
+      if (requestCount > 3) {
+        return ForgotPasswordResponseDto.rateLimited(3600, 'Too many requests. Please try again later.');
+      }
+      
       const resetToken = await this.tokenGenerator.generatePasswordResetToken(user.getId());
       await this.eventBus.publish(
         new PasswordResetRequestedEvent(
@@ -624,7 +767,27 @@ export class AuthServiceImpl implements AuthService {
       );
     }
 
-    return ForgotPasswordResponseDto.success('user@example.com');
+    return ForgotPasswordResponseDto.success('u***r@example.com');
+  }
+
+  async forgotPasswordPhone(
+    dto: ForgotPasswordPhoneDto,
+    deviceInfo: DeviceInfo
+  ): Promise<ForgotPasswordResponseDto> {
+    const phone = new Phone(dto.phoneNumber);
+    const user = await this.userRepository.findByPhone(phone);
+    
+    if (user) {
+      // Generate OTP
+      const otpCode = OtpCode.generate(OtpType.SMS);
+      const otpCacheKey = CacheKeyBuilder.otp(`reset:${phone.getE164()}`);
+      await this.cacheService.set(otpCacheKey, otpCode, OTP_CONFIG.EXPIRY_SECONDS);
+      
+      // In production, send OTP via SMS/WhatsApp
+      // await this.notificationService.sendOtp(phone.getE164(), otpCode, dto.method);
+    }
+    
+    return ForgotPasswordResponseDto.success(null, uuidv4(), OTP_CONFIG.EXPIRY_SECONDS);
   }
 
   async resetPassword(
@@ -632,10 +795,15 @@ export class AuthServiceImpl implements AuthService {
     deviceInfo: DeviceInfo
   ): Promise<ResetPasswordResponseDto> {
     // 1. Verify token
-    const payload = await this.tokenGenerator.verifyToken(dto.token);
+    const verificationResult = await this.tokenGenerator.verifyTokenSafe(dto.token);
     
-    if (!payload || payload.type !== 'reset') {
+    if (!verificationResult.isValid) {
       throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    const payload = verificationResult.payload;
+    if (!payload || payload.type !== 'reset') {
+      throw new BadRequestException('Invalid token type');
     }
 
     // 2. Get user
@@ -644,23 +812,46 @@ export class AuthServiceImpl implements AuthService {
       throw new BadRequestException('User not found');
     }
 
-    // 3. Validate new password
-    const newPassword = new Password(dto.newPassword);
+    // 3. Check if user is deleted or suspended
+    if (user.getStatus() === UserStatus.DELETED) {
+      throw new BadRequestException('Account has been deleted');
+    }
+    if (user.getStatus() === UserStatus.SUSPENDED) {
+      throw new BadRequestException('Account is suspended');
+    }
+
+    // 4. Validate new password strength
+    const passwordStrength = await this.passwordHasher.validateStrength(dto.newPassword);
+    if (!passwordStrength.isValid) {
+      throw new BadRequestException(
+        `Password does not meet requirements: ${passwordStrength.errors.join(', ')}`
+      );
+    }
+
+    // 5. Check password history (prevent reuse)
+    const passwordHistory = await this.userRepository.getPasswordHistory(user.getId(), 5);
+    const isReused = await this.passwordHasher.checkHistory(dto.newPassword, passwordHistory);
+    if (isReused.isNew === false) {
+      throw new BadRequestException('Cannot reuse a recent password');
+    }
+
+    // 6. Hash new password
+    const hashedPassword = await this.passwordHasher.hash(dto.newPassword);
     
-    // 4. Hash new password
-    const hashedPassword = await this.passwordHasher.hash(newPassword.getValue());
-    
-    // 5. Update password
+    // 7. Update password
     user.changePassword(new Password(hashedPassword));
     await this.userRepository.save(user);
 
-    // 6. Revoke all sessions
-    await this.sessionRepository.deleteAllByUserId(user.getId(), 'Password reset');
+    // 8. Revoke all sessions
+    const sessionsRevoked = await this.sessionRepository.deleteAllByUserId(user.getId(), 'Password reset');
     
-    // 7. Revoke all refresh tokens
+    // 9. Revoke all refresh tokens
     await this.refreshTokenRepository.revokeAllByUserId(user.getId(), 'Password reset');
 
-    // 8. Publish event
+    // 10. Add to password history
+    await this.userRepository.addPasswordHistory(user.getId(), hashedPassword);
+
+    // 11. Publish event
     await this.eventBus.publish(
       new PasswordResetCompletedEvent(
         user.getId(),
@@ -671,127 +862,187 @@ export class AuthServiceImpl implements AuthService {
       )
     );
 
-    return ResetPasswordResponseDto.success(0);
+    return ResetPasswordResponseDto.success(sessionsRevoked);
   }
 
-  // ============================================================
-  // Private Helper Methods
-  // ============================================================
-
-  private async handleFailedLogin(user: User, deviceInfo: DeviceInfo): Promise<void> {
-    let accountLock = await this.accountLockRepository.findByUserId(user.getId());
+  async resetPasswordWithOtp(
+    dto: ResetPasswordWithOtpDto,
+    deviceInfo: DeviceInfo
+  ): Promise<ResetPasswordResponseDto> {
+    // 1. Verify OTP
+    const phone = new Phone(dto.phoneNumber);
+    const otpCacheKey = CacheKeyBuilder.otp(`reset:${phone.getE164()}`);
+    const cachedOtp = await this.cacheService.get(otpCacheKey);
     
-    if (!accountLock) {
-      accountLock = AccountLock.create(user.getId(), AccountLockReason.FAILED_LOGIN_ATTEMPTS);
+    if (!cachedOtp || cachedOtp !== dto.otpCode) {
+      throw new BadRequestException('Invalid or expired OTP');
     }
-    
-    const failureCount = await this.accountLockRepository.incrementFailureCountForUser(user.getId());
-    
-    if (failureCount >= SESSION_CONFIG.MAX_FAILED_ATTEMPTS && !accountLock.isLocked()) {
-      const lockDuration = Math.min(15 * Math.pow(2, accountLock.getLockLevel()), 1440);
-      accountLock.lock(AccountLockReason.FAILED_LOGIN_ATTEMPTS, lockDuration);
-      await this.accountLockRepository.save(accountLock);
-      
-      await this.eventBus.publish(
-        new AccountLockedEvent(
-          user.getId(),
-          LockReason.FAILED_LOGIN_ATTEMPTS,
-          AccountLockMethod.AUTOMATIC,
-          AccountLockSource.SYSTEM,
-          deviceInfo.correlationId,
-          undefined,
-          deviceInfo.ipAddress,
-          deviceInfo.deviceId,
-          undefined,
-          failureCount,
-          lockDuration,
-          accountLock.getLockLevel() + 1,
-          { maxAttempts: SESSION_CONFIG.MAX_FAILED_ATTEMPTS }
-        )
+
+    // 2. Find user
+    const user = await this.userRepository.findByPhone(phone);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    // 3. Validate new password
+    const passwordStrength = await this.passwordHasher.validateStrength(dto.newPassword);
+    if (!passwordStrength.isValid) {
+      throw new BadRequestException(
+        `Password does not meet requirements: ${passwordStrength.errors.join(', ')}`
       );
     }
+
+    // 4. Update password
+    const hashedPassword = await this.passwordHasher.hash(dto.newPassword);
+    user.changePassword(new Password(hashedPassword));
+    await this.userRepository.save(user);
+
+    // 5. Delete used OTP
+    await this.cacheService.del(otpCacheKey);
+
+    // 6. Revoke all sessions
+    const sessionsRevoked = await this.sessionRepository.deleteAllByUserId(user.getId(), 'Password reset');
+
+    return ResetPasswordResponseDto.success(sessionsRevoked);
   }
 
-  private async publishLoginFailedEvent(
-    email: string,
-    deviceInfo: DeviceInfo,
-    reason: LoginFailureReason,
-    userId?: string
-  ): Promise<void> {
-    await this.eventBus.publish(
-      new LoginFailedEvent(
-        email,
-        deviceInfo.ipAddress,
-        reason,
-        deviceInfo.correlationId,
-        undefined,
-        userId,
-        deviceInfo.userAgent,
-        deviceInfo.deviceId
-      )
-    );
-  }
-
-  private async createUserSession(
-    user: User,
-    deviceInfo: DeviceInfo,
-    rememberMe: boolean = false
-  ): Promise<{
-    accessToken: string;
-    refreshTokenValue: string;
-    session: Session;
-  }> {
-    const deviceId = new DeviceId(deviceInfo.deviceId || uuidv4());
-    const ipAddress = new IpAddress(deviceInfo.ipAddress);
-    const userAgent = new UserAgent(deviceInfo.userAgent);
+  async verifyResetOtp(
+    dto: VerifyResetOtpDto,
+    deviceInfo: DeviceInfo
+  ): Promise<{ success: boolean; resetToken?: string; expiresInSeconds?: number }> {
+    const phone = new Phone(dto.phoneNumber);
+    const otpCacheKey = CacheKeyBuilder.otp(`reset:${phone.getE164()}`);
+    const cachedOtp = await this.cacheService.get(otpCacheKey);
     
-    const accessToken = await this.tokenGenerator.generateAccessToken(
-      user.getId(),
+    if (!cachedOtp || cachedOtp !== dto.otpCode) {
+      throw new BadRequestException('Invalid or expired OTP');
+    }
+
+    const user = await this.userRepository.findByPhone(phone);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    // Generate reset token for password reset
+    const resetToken = await this.tokenGenerator.generatePasswordResetToken(user.getId());
+    const expiresInSeconds = TOKEN_EXPIRY.PASSWORD_RESET_TOKEN;
+
+    // Delete used OTP
+    await this.cacheService.del(otpCacheKey);
+
+    return {
+      success: true,
+      resetToken,
+      expiresInSeconds,
+    };
+  }
+
+  async validateResetToken(token: string): Promise<ValidateResetTokenResponseDto> {
+    const verificationResult = await this.tokenGenerator.verifyTokenSafe(token);
+    
+    if (!verificationResult.isValid) {
+      return new ValidateResetTokenResponseDto(false);
+    }
+
+    const payload = verificationResult.payload;
+    if (!payload || payload.type !== 'reset') {
+      return new ValidateResetTokenResponseDto(false);
+    }
+
+    const user = await this.userRepository.findById(payload.sub);
+    if (!user) {
+      return new ValidateResetTokenResponseDto(false);
+    }
+
+    const remainingSeconds = verificationResult.remainingSeconds || 0;
+    const expiresAt = new Date(Date.now() + remainingSeconds * 1000);
+
+    return new ValidateResetTokenResponseDto(
+      true,
       user.getEmail().getValue(),
-      user.getRole()
-    );
-    
-    const refreshTokenValue = await this.tokenGenerator.generateRefreshToken(user.getId());
-    const token = new Token(refreshTokenValue, TokenType.REFRESH);
-    
-    const sessionDurationHours = rememberMe 
-      ? SESSION_CONFIG.REMEMBER_ME_HOURS 
-      : SESSION_CONFIG.DEFAULT_HOURS;
-    
-    const session = Session.create(
+      expiresAt,
+      remainingSeconds,
       user.getId(),
-      token,
-      ipAddress,
-      userAgent,
-      deviceId,
-      sessionDurationHours * 60,
-      undefined,
-      undefined,
-      { networkType: deviceInfo.networkType, mobileOperator: deviceInfo.mobileOperator, district: deviceInfo.district, upazila: deviceInfo.upazila }
+      user.getPhone()?.getE164()
     );
-    
-    await this.sessionRepository.save(session);
-    
-    const refreshToken = RefreshToken.create(
-      user.getId(), 
-      token, 
-      undefined,
-      deviceId,
-      ipAddress,
-      userAgent.getValue()
-    );
-    await this.refreshTokenRepository.save(refreshToken);
-    
-    return { accessToken, refreshTokenValue, session };
   }
 
-  private async createMfaSession(userId: string, deviceInfo: DeviceInfo): Promise<string> {
-    const mfaSessionId = uuidv4();
-    await this.cacheService.set(
-      `mfa:session:${mfaSessionId}`,
-      { userId, deviceInfo, createdAt: new Date().toISOString() },
-      SESSION_CONFIG.MFA_SESSION_TTL_SECONDS
-    );
-    return mfaSessionId;
-  }
-}
+  async changePassword(
+    userId: string,
+    dto: ChangePasswordDto,
+    deviceInfo: DeviceInfo
+  ): Promise<ChangePasswordResponseDto> {
+    // 1. Get user
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // 2. Verify current password (if not skipped)
+    if (!dto.skipCurrentPasswordValidation) {
+      const isCurrentPasswordValid = await this.passwordHasher.compare(
+        dto.currentPassword,
+        user.getPasswordHash()
+      );
+      if (!isCurrentPasswordValid) {
+        return ChangePasswordResponseDto.error('Current password is incorrect');
+      }
+    }
+
+    // 3. Validate new password strength
+    const passwordStrength = await this.passwordHasher.validateStrength(dto.newPassword);
+    if (!passwordStrength.isValid) {
+      return ChangePasswordResponseDto.error(
+        `Password does not meet requirements: ${passwordStrength.errors.join(', ')}`
+      );
+    }
+
+    // 4. Check password history (prevent reuse)
+    const passwordHistory = await this.userRepository.getPasswordHistory(user.getId(), 5);
+    const isReused = await this.passwordHasher.checkHistory(dto.newPassword, passwordHistory);
+    if (isReused.isNew === false) {
+      return ChangePasswordResponseDto.error('Cannot reuse a recent password');
+    }
+
+    // 5. Hash new password
+    const hashedPassword = await this.passwordHasher.hash(dto.newPassword);
+    
+    // 6. Update password
+    user.changePassword(new Password(hashedPassword));
+    await this.userRepository.save(user);
+
+    // 7. Add to password history
+    await this.userRepository.addPasswordHistory(user.getId(), hashedPassword);
+
+    // 8. Revoke other sessions if requested
+    let sessionsRevoked = 0;
+    if (dto.logoutOtherDevices) {
+      const sessions = await this.sessionRepository.findActiveSessions(userId);
+      for (const session of sessions) {
+        if (session.getId() !== dto.deviceId) {
+          session.revoke('Password changed - logged out from other devices');
+          await this.sessionRepository.save(session);
+          sessionsRevoked++;
+        }
+      }
+      
+      // Revoke all refresh tokens except current
+      await this.refreshTokenRepository.revokeAllByUserId(userId, 'Password changed');
+    }
+
+    // 9. Publish event
+    await this.eventBus.publish({
+      eventId: uuidv4(),
+      eventName: EventNames.USER_PASSWORD_CHANGED,
+      aggregateId: user.getId(),
+      aggregateVersion: user.getVersion(),
+      eventVersion: 1,
+      occurredAt: new Date(),
+      userId: user.getId(),
+      metadata: {
+        changedBy: userId,
+        changedAt: new Date(),
+        ipAddress: deviceInfo.ipAddress,
+        deviceId: deviceInfo.deviceId,
+        userAgent: deviceInfo.userAgent,
+        revokedOtherSessions: dto
