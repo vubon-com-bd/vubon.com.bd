@@ -15,7 +15,7 @@
 import type {
   TOKEN_EXPIRY,
   OTP_CONFIG,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // ============================================================
 // Verification Types (Based on constants)
