@@ -12,10 +12,23 @@
  * ✅ NO framework imports
  */
 
-import type {
-  LOCKOUT_LEVELS,
-  ACCOUNT_LOCKOUT,
-} from '@vubon/shared-constants';
+import type { ACCOUNT_LOCKOUT } from '@vubon/shared-constants';
+
+// ============================================================
+// Lock Level Types (Progressive lockout - Bangladesh specific)
+// ============================================================
+export type LockLevel = 'LEVEL_1' | 'LEVEL_2' | 'LEVEL_3' | 'LEVEL_4' | 'permanent';
+
+// Lock level configuration interface
+export interface LockLevelConfig {
+  readonly level: LockLevel;
+  readonly maxAttempts: number;
+  readonly durationSeconds: number;
+}
+
+// LOCKOUT_LEVELS from constants (type-only)
+export type LOCKOUT_LEVELS_TYPE = typeof ACCOUNT_LOCKOUT.LOCKOUT_LEVELS;
+export type LockoutLevelKey = keyof LOCKOUT_LEVELS_TYPE;
 
 // ============================================================
 // Lock Reason Types (Pure union types - NO enums)
@@ -42,16 +55,14 @@ export type LockStatus =
   | 'permanent';
 
 // ============================================================
-// Lock Level Types (Progressive lockout - Bangladesh specific)
+// Lock Level Configuration (based on constants)
 // ============================================================
-export type LockLevel = keyof typeof LOCKOUT_LEVELS | 'permanent';
-
-// Lock level configuration (based on constants)
-export interface LockLevelConfig {
-  readonly level: LockLevel;
-  readonly maxAttempts: number;
-  readonly durationSeconds: number;
-}
+export const LOCKOUT_LEVELS_CONFIG: Record<Exclude<LockLevel, 'permanent'>, LockLevelConfig> = {
+  LEVEL_1: { level: 'LEVEL_1', maxAttempts: 5, durationSeconds: 300 },
+  LEVEL_2: { level: 'LEVEL_2', maxAttempts: 10, durationSeconds: 900 },
+  LEVEL_3: { level: 'LEVEL_3', maxAttempts: 15, durationSeconds: 3600 },
+  LEVEL_4: { level: 'LEVEL_4', maxAttempts: 20, durationSeconds: 86400 },
+};
 
 // ============================================================
 // Account Lock Entity (Core domain model)
@@ -78,14 +89,14 @@ export interface LockMetadata {
   readonly userAgent?: string;
   readonly deviceId?: string;
   readonly failedAttemptsCount: number;
-  readonly totalFailedAttempts?: number;  // Lifetime failed attempts
+  readonly totalFailedAttempts?: number;
   readonly lastFailedAttemptAt?: Date;
   readonly adminNotes?: string;
   readonly ticketId?: string;
   readonly escalationHistory?: ReadonlyArray<LockEscalationEvent>;
 
   // Bangladesh specific
-  readonly mobileOperator?: string;  // GP, Robi, Banglalink, Teletalk
+  readonly mobileOperator?: string;
   readonly district?: string;
   readonly simSwapDetected?: boolean;
 }
@@ -112,7 +123,7 @@ export interface AccountLockStatusResponse {
   readonly expiresAt?: Date | null;
   readonly isPermanent: boolean;
   readonly remainingLockTimeSeconds?: number;
-  readonly nextLockLevel?: LockLevel;  // Warning: next lock will be stricter
+  readonly nextLockLevel?: LockLevel;
 }
 
 // ============================================================
@@ -121,12 +132,12 @@ export interface AccountLockStatusResponse {
 export interface LockAccountRequest {
   readonly userId: string;
   readonly reason: LockReason;
-  readonly durationSeconds?: number;      // null or -1 = permanent
-  readonly lockLevel?: LockLevel;         // Auto-calculated if not provided
+  readonly durationSeconds?: number;
+  readonly lockLevel?: LockLevel;
   readonly adminNotes?: string;
-  readonly adminId?: string;              // Who initiated the lock
-  readonly notifyUser?: boolean;          // Send notification
-  readonly notifyReason?: string;         // User-facing reason
+  readonly adminId?: string;
+  readonly notifyUser?: boolean;
+  readonly notifyReason?: string;
 }
 
 // ============================================================
@@ -137,11 +148,11 @@ export interface UnlockAccountRequest {
   readonly reason: string;
   readonly adminId: string;
   readonly notifyUser?: boolean;
-  readonly resetAttemptCount?: boolean;   // Reset failed attempt counter
+  readonly resetAttemptCount?: boolean;
 }
 
 // ============================================================
-// Account Lock History (User lock history DTO)
+// Account Lock History Response (User lock history DTO)
 // ============================================================
 export interface AccountLockHistoryResponse {
   readonly userId: string;
@@ -161,7 +172,7 @@ export interface AccountLockHistoryResponse {
 export interface LockThresholdConfig {
   readonly maxFailedAttempts: number;
   readonly lockDurationSeconds: number;
-  readonly permanentLockAfter: number;        // Number of locks before permanent
+  readonly permanentLockAfter: number;
   readonly suspiciousActivityThreshold: number;
   readonly progressiveLockoutEnabled: boolean;
   readonly lockLevels: ReadonlyArray<LockLevelConfig>;
@@ -183,9 +194,9 @@ export interface FailedAttemptEvent {
   readonly lockLevel: LockLevel;
 
   // Bangladesh specific
-  readonly isSuspiciousTime?: boolean;     // Night time (10 PM - 6 AM)
-  readonly isWeekend?: boolean;             // Friday/Saturday
-  readonly locationChanged?: boolean;       // Different district/city
+  readonly isSuspiciousTime?: boolean;
+  readonly isWeekend?: boolean;
+  readonly locationChanged?: boolean;
 }
 
 // ============================================================
@@ -199,7 +210,6 @@ export type LockNotificationType =
   | 'lock_level_escalated'
   | 'permanent_lock_warning';
 
-// Lock notification payload
 export interface LockNotificationPayload {
   readonly userId: string;
   readonly type: LockNotificationType;
@@ -220,7 +230,7 @@ export interface LockAuditLogEntry {
   readonly action: 'lock' | 'unlock' | 'escalate' | 'warning_sent';
   readonly reason: LockReason | string;
   readonly lockLevel: LockLevel;
-  readonly performedBy: string;        // system | admin_id | user_id
+  readonly performedBy: string;
   readonly performedAt: Date;
   readonly ipAddress: string;
   readonly metadata: Record<string, unknown>;
@@ -270,21 +280,16 @@ export interface LockDashboardStats {
   readonly locksByLevel: Record<LockLevel, number>;
   readonly locksByReason: Partial<Record<LockReason, number>>;
   readonly averageLockDurationSeconds: number;
-  readonly mostLockedDistrict?: string;      // Bangladesh specific
+  readonly mostLockedDistrict?: string;
   readonly topLockedIPs?: ReadonlyArray<{ ip: string; count: number }>;
   readonly recentLockEvents: ReadonlyArray<LockAuditLogEntry>;
   readonly updatedAt: Date;
 }
 
 // ============================================================
-// Lock Policy Rules (From constants - type only import)
-// ============================================================
-// Using constants from shared-constants for type safety
-export type AccountLockoutConstants = typeof ACCOUNT_LOCKOUT;
-export type LockoutLevels = typeof LOCKOUT_LEVELS;
-
 // Derived types from constants
-export type ProgressiveLockoutLevel = keyof LockoutLevels;
+// ============================================================
+export type ProgressiveLockoutLevel = keyof typeof LOCKOUT_LEVELS_CONFIG;
 
 export interface ProgressiveLockoutConfig {
   readonly attempts: number;
@@ -296,7 +301,7 @@ export interface ProgressiveLockoutConfig {
 // ============================================================
 export interface SmartLockDetectionResult {
   readonly shouldLock: boolean;
-  readonly confidence: number;           // 0-100
+  readonly confidence: number;
   readonly reasons: ReadonlyArray<string>;
   readonly suggestedLockLevel?: LockLevel;
   readonly suggestedDurationSeconds?: number;
