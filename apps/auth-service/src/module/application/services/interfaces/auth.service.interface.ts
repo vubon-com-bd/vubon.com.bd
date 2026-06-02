@@ -71,24 +71,29 @@ import {
   DisableMfaResponseDto
 } from '../../dtos/mfa/enable-mfa.dto';
 
-/**
- * Device information interface (Bangladesh specific)
- */
-export interface DeviceInfo {
-  ipAddress: string;
-  userAgent: string;
-  deviceId?: string;
-  correlationId?: string;
-  // Bangladesh specific
-  district?: string;
-  upazila?: string;
-  mobileOperator?: 'gp' | 'robi' | 'banglalink' | 'teletalk' | 'unknown';
-  networkType?: '2g' | '3g' | '4g' | '5g' | 'wifi' | 'unknown';
-}
+// ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট - DeviceInfo টাইপ কেন্দ্রীভূত
+import type { DeviceInfo } from '@vubon/shared-types';
+
+// ============================================================
+// Enums & Constants (For type safety)
+// ============================================================
+
+// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট - কেন্দ্রীভূত কনফিগারেশন
+import { 
+  MFA_METHODS, 
+  SOCIAL_PROVIDERS,
+  LOGIN_METHODS,
+  PASSWORD_POLICY 
+} from '@vubon/shared-constants';
+
+// Re-export types for convenience
+export type { DeviceInfo };
+
+// ============================================================
+// Auth Service Interface
+// ============================================================
 
 /**
- * Auth Service Interface
- * 
  * Contract for all authentication-related operations
  */
 export interface AuthService {
@@ -336,7 +341,7 @@ export interface AuthService {
   
   /**
    * Get password validation rules
-   * @returns Password rules
+   * @returns Password rules (using centralized constants)
    */
   getPasswordRules(): Promise<PasswordRulesResponseDto>;
   
@@ -397,7 +402,7 @@ export interface AuthService {
   /**
    * Get MFA status for user
    * @param userId - User ID from JWT
-   * @returns MFA status
+   * @returns MFA status (with available methods from constants)
    */
   getMFAStatus(userId: string): Promise<MFAStatusResponseDto>;
   
@@ -501,7 +506,7 @@ export interface AuthService {
 }
 
 // ============================================================
-// Type Exports
+// Re-export constants for convenience
 // ============================================================
 
-export type { DeviceInfo as DeviceInfoType };
+export { MFA_METHODS, SOCIAL_PROVIDERS, LOGIN_METHODS, PASSWORD_POLICY };
