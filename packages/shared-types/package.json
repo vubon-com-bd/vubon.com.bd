@@ -168,10 +168,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vubon/auth-types.git"
+    "url": "git+https://github.com/vubon/shared-types.git"
   },
   "bugs": {
-    "url": "https://github.com/vubon/auth-types/issues"
+    "url": "https://github.com/vubon/shared-types/issues"
   },
   "homepage": "https://vubon.com.bd"
 }
