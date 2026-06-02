@@ -1,9 +1,9 @@
 /**
- * Cache Constants - Pure immutable cache configuration
- * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
-
- * @module shared-constants/auth-constants/cache.constants
-
+ * Cache Constants - Enterprise Grade with Connection Config
+ * Production-ready for vubon.com.bd - Bangladesh's #1 E-commerce
+ * 
+ * @module shared-constants/cache.constants
+ * 
  * RULES:
  * ✅ NO redis client, cache set/get operations
  * ✅ NO functions - ONLY pure string constants
@@ -21,7 +21,195 @@ export type ReadonlyDeep<T> = {
 };
 
 // ============================================================
-// Redis key prefixes (namespace isolation)
+// CRITICAL: Cache Connection Configuration
+// ============================================================
+export const CACHE_CONNECTION_CONFIG = {
+  // Primary Redis Cache Store
+  REDIS: {
+    HOST: process.env.REDIS_CACHE_HOST || process.env.REDIS_HOST || 'localhost',
+    PORT: parseInt(process.env.REDIS_CACHE_PORT || process.env.REDIS_PORT || '6379'),
+    PASSWORD: process.env.REDIS_CACHE_PASSWORD || process.env.REDIS_PASSWORD,
+    DB_INDEX: parseInt(process.env.REDIS_CACHE_DB || '1'), // Separate DB for cache
+    
+    // Connection Pool
+    POOL: {
+      MIN: 10,
+      MAX: 50,
+      ACQUIRE_TIMEOUT_MS: 5000,
+      IDLE_TIMEOUT_MS: 60000,
+      FIFO: true,
+    },
+    
+    // Cluster Configuration (Production)
+    CLUSTER_ENABLED: process.env.REDIS_CLUSTER_ENABLED === 'true',
+    CLUSTER_NODES: process.env.REDIS_CLUSTER_NODES?.split(',') || [],
+    CLUSTER_MAX_REDIRECTS: 3,
+    
+    // TLS/SSL Configuration
+    TLS_ENABLED: process.env.REDIS_TLS === 'true',
+    TLS_CA: process.env.REDIS_CA_CERT,
+    TLS_CERT: process.env.REDIS_CERT,
+    TLS_KEY: process.env.REDIS_KEY,
+    TLS_REJECT_UNAUTHORIZED: process.env.NODE_ENV === 'production',
+    
+    // Timeouts
+    TIMEOUT: {
+      CONNECT_MS: 3000,
+      READ_MS: 2000,
+      WRITE_MS: 2000,
+      COMMAND_MS: 5000,
+    },
+    
+    // Retry Strategy
+    RETRY_STRATEGY: {
+      MAX_RETRIES: 3,
+      RETRY_DELAY_MS: 500,
+      BACKOFF_MULTIPLIER: 2,
+      MAX_RETRY_DELAY_MS: 2000,
+      RETRYABLE_ERRORS: ['ECONNRESET', 'ETIMEDOUT', 'ECONNREFUSED'],
+    },
+    
+    // Circuit Breaker
+    CIRCUIT_BREAKER: {
+      ENABLED: true,
+      FAILURE_THRESHOLD: 5,
+      RESET_TIMEOUT_MS: 30000,
+      HALF_OPEN_MAX_ATTEMPTS: 3,
+      ROLLING_WINDOW_MS: 60000,
+    },
+    
+    // Health Check
+    HEALTH_CHECK: {
+      ENABLED: true,
+      INTERVAL_MS: 30000,
+      TIMEOUT_MS: 2000,
+    },
+  },
+  
+  // Read Replica for load balancing
+  READ_REPLICA: {
+    ENABLED: process.env.REDIS_REPLICA_ENABLED === 'true',
+    HOST: process.env.REDIS_REPLICA_HOST,
+    PORT: parseInt(process.env.REDIS_REPLICA_PORT || '6379'),
+    PASSWORD: process.env.REDIS_REPLICA_PASSWORD,
+    WEIGHT: 0.7, // 70% of reads go to replica
+    HEALTH_CHECK_INTERVAL_MS: 60000,
+  },
+  
+  // Fallback In-Memory Cache (when Redis is down)
+  FALLBACK: {
+    ENABLED: true,
+    TYPE: 'memory',
+    MAX_ITEMS: 10000,
+    TTL_SECONDS: 300, // 5 minutes only
+    CLEANUP_INTERVAL_MS: 60000,
+    MAX_MEMORY_MB: 512,
+  },
+  
+  // Write Strategy
+  WRITE_STRATEGY: {
+    MODE: 'write_through', // 'write_through', 'write_behind', 'write_around'
+    CONSISTENCY: 'eventual',
+    WRITE_TIMEOUT_MS: 1000,
+    ASYNC_WRITE: false,
+  },
+} as const;
+
+// ============================================================
+// Cache Sync Configuration (Multi-server)
+// ============================================================
+export const CACHE_SYNC_CONFIG = {
+  ENABLED: true,
+  
+  // Pub/Sub for cache invalidation
+  PUB_SUB: {
+    ENABLED: true,
+    CHANNEL: 'vubon:cache:invalidate',
+    USE_REDIS: true,
+    MESSAGE_TIMEOUT_MS: 5000,
+    MAX_SUBSCRIBERS: 100,
+  },
+  
+  // Broadcast invalidation to all servers
+  BROADCAST_INVALIDATION: true,
+  
+  // Max latency for sync (milliseconds)
+  MAX_LATENCY_MS: 500,
+  
+  // Sync batch size
+  BATCH_SIZE: 100,
+  
+  // Conflict resolution
+  CONFLICT_RESOLUTION: {
+    STRATEGY: 'last_write_wins',
+    TIMESTAMP_TOLERANCE_MS: 100,
+  },
+} as const;
+
+// ============================================================
+// Cache Monitoring & Metrics
+// ============================================================
+export const CACHE_MONITORING = {
+  ENABLED: true,
+  
+  // Prometheus metrics
+  METRICS: {
+    HIT_RATIO: 'vubon_cache_hit_ratio',
+    LATENCY_MS: 'vubon_cache_latency_ms',
+    MEMORY_USAGE_BYTES: 'vubon_cache_memory_bytes',
+    EVICTED_KEYS: 'vubon_cache_evicted_keys_total',
+    CONNECTION_POOL_SIZE: 'vubon_cache_pool_size',
+    KEY_COUNT: 'vubon_cache_key_count',
+    OPERATIONS_TOTAL: 'vubon_cache_operations_total',
+  },
+  
+  // Health check endpoint
+  HEALTH_CHECK: {
+    ENABLED: true,
+    INTERVAL_MS: 30000,
+    TIMEOUT_MS: 2000,
+    ENDPOINT: '/health/cache',
+    DETAILED: process.env.NODE_ENV !== 'production',
+  },
+  
+  // Alerting rules
+  ALERTS: {
+    HIT_RATIO_BELOW: 0.7, // Alert if hit ratio < 70%
+    LATENCY_ABOVE_MS: 100, // Alert if latency > 100ms
+    CONNECTION_FAILURES: 5, // Alert after 5 failures
+    MEMORY_USAGE_ABOVE_MB: 1024, // Alert if memory > 1GB
+    ERROR_RATE_ABOVE: 0.05, // Alert if error rate > 5%
+    
+    // Alert channels
+    SLACK_WEBHOOK: process.env.SLACK_ALERTS_WEBHOOK,
+    EMAIL_RECIPIENTS: process.env.ALERT_EMAILS?.split(','),
+    
+    // Cooldown between alerts (seconds)
+    COOLDOWN_SECONDS: 300,
+  },
+} as const;
+
+// ============================================================
+// Cache Eviction Policy
+// ============================================================
+export const CACHE_EVICTION = {
+  POLICY: 'lru', // 'lru', 'lfu', 'ttl_only', 'random'
+  MAX_MEMORY_MB: parseInt(process.env.CACHE_MAX_MEMORY_MB || '1024'),
+  EVICTION_STRATEGY: 'allkeys-lru', // 'allkeys-lru', 'volatile-lru', 'allkeys-random', 'volatile-random'
+  SAMPLE_SIZE: 5,
+  
+  // LFU specific (if used)
+  LFU: {
+    LOG_FACTOR: 10,
+    DECAY_TIME: 60, // minutes
+  },
+  
+  // Max keys limit
+  MAX_KEYS: 1000000,
+} as const;
+
+// ============================================================
+// Cache Key Prefixes (namespace isolation)
 // ============================================================
 export const CACHE_KEY_PREFIXES = {
   // Core domain prefixes
@@ -77,247 +265,122 @@ export const CACHE_KEY_PREFIXES = {
 export type CacheKeyPrefix = ValueOf<typeof CACHE_KEY_PREFIXES>;
 
 // ============================================================
-// Cache key patterns (String-based - NO FUNCTIONS ALLOWED)
-// Format: use {{placeholder}} for dynamic parts
-// Consumer will do: pattern.replace('{{id}}', actualId)
+// Cache key patterns (Keep your existing patterns)
 // ============================================================
 export const CACHE_KEY_PATTERNS = {
-  // ========== User related ==========
-  /** Pattern: user:profile:{{userId}} */
+  // User related
   USER_PROFILE: `${CACHE_KEY_PREFIXES.USER}profile:{{userId}}`,
-
-  /** Pattern: user:settings:{{userId}} */
   USER_SETTINGS: `${CACHE_KEY_PREFIXES.USER}settings:{{userId}}`,
-
-  /** Pattern: user:addresses:{{userId}} */
   USER_ADDRESSES: `${CACHE_KEY_PREFIXES.USER}addresses:{{userId}}`,
-
-  /** Pattern: user:recent_views:{{userId}} */
   USER_RECENT_VIEWS: `${CACHE_KEY_PREFIXES.USER}recent_views:{{userId}}`,
-
-  /** Pattern: user:wishlist:{{userId}} */
   USER_WISHLIST: `${CACHE_KEY_PREFIXES.USER}wishlist:{{userId}}`,
-
-  /** Pattern: user:compare:{{userId}} */
   USER_COMPARE: `${CACHE_KEY_PREFIXES.USER}compare:{{userId}}`,
 
-  // ========== Session related ==========
-  /** Pattern: session:{{sessionId}} */
+  // Session related
   SESSION_DATA: `${CACHE_KEY_PREFIXES.SESSION}{{sessionId}}`,
-
-  /** Pattern: session:user:{{userId}}:{{deviceId}} */
   SESSION_USER_DEVICE: `${CACHE_KEY_PREFIXES.SESSION}user:{{userId}}:{{deviceId}}`,
-
-  /** Pattern: session:list:{{userId}} */
   SESSION_USER_LIST: `${CACHE_KEY_PREFIXES.SESSION}list:{{userId}}`,
 
-  // ========== Product related ==========
-  /** Pattern: product:detail:{{productId}} */
+  // Product related
   PRODUCT_DETAIL: `${CACHE_KEY_PREFIXES.PRODUCT}detail:{{productId}}`,
-
-  /** Pattern: product:detail:slug:{{slug}} */
   PRODUCT_DETAIL_BY_SLUG: `${CACHE_KEY_PREFIXES.PRODUCT}detail:slug:{{slug}}`,
-
-  /** Pattern: product:list:category:{{categoryId}}:page:{{page}}:limit:{{limit}}:sort:{{sort}} */
   PRODUCT_LIST_BY_CATEGORY: `${CACHE_KEY_PREFIXES.PRODUCT}list:category:{{categoryId}}:page:{{page}}:limit:{{limit}}:sort:{{sort}}`,
-
-  /** Pattern: product:list:brand:{{brandId}}:page:{{page}} */
   PRODUCT_LIST_BY_BRAND: `${CACHE_KEY_PREFIXES.PRODUCT}list:brand:{{brandId}}:page:{{page}}`,
-
-  /** Pattern: product:list:search:{{queryHash}}:page:{{page}} */
   PRODUCT_LIST_SEARCH: `${CACHE_KEY_PREFIXES.PRODUCT}list:search:{{queryHash}}:page:{{page}}`,
-
-  /** Pattern: product:list:flash_sale:{{saleId}} */
   PRODUCT_FLASH_SALE: `${CACHE_KEY_PREFIXES.PRODUCT}flash_sale:{{saleId}}`,
-
-  /** Pattern: product:variants:{{productId}} */
   PRODUCT_VARIANTS: `${CACHE_KEY_PREFIXES.PRODUCT}variants:{{productId}}`,
-
-  /** Pattern: product:related:{{productId}}:limit:{{limit}} */
   PRODUCT_RELATED: `${CACHE_KEY_PREFIXES.PRODUCT}related:{{productId}}:limit:{{limit}}`,
-
-  /** Pattern: product:reviews:{{productId}}:page:{{page}} */
   PRODUCT_REVIEWS: `${CACHE_KEY_PREFIXES.PRODUCT}reviews:{{productId}}:page:{{page}}`,
-
-  /** Pattern: product:rating:{{productId}} */
   PRODUCT_RATING: `${CACHE_KEY_PREFIXES.PRODUCT}rating:{{productId}}`,
-
-  /** Pattern: product:stock:{{productId}} */
   PRODUCT_STOCK: `${CACHE_KEY_PREFIXES.PRODUCT}stock:{{productId}}`,
-
-  /** Pattern: product:low_stock */
   PRODUCT_LOW_STOCK: `${CACHE_KEY_PREFIXES.PRODUCT}low_stock`,
 
-  // ========== Category related ==========
-  /** Pattern: category:tree */
+  // Category related
   CATEGORY_TREE: `${CACHE_KEY_PREFIXES.CATEGORY}tree`,
-
-  /** Pattern: category:detail:{{categoryId}} */
   CATEGORY_DETAIL: `${CACHE_KEY_PREFIXES.CATEGORY}detail:{{categoryId}}`,
-
-  /** Pattern: category:path:{{categoryId}} */
   CATEGORY_PATH: `${CACHE_KEY_PREFIXES.CATEGORY}path:{{categoryId}}`,
-
-  /** Pattern: category:children:{{parentId}} */
   CATEGORY_CHILDREN: `${CACHE_KEY_PREFIXES.CATEGORY}children:{{parentId}}`,
-
-  /** Pattern: category:meta:{{categoryId}} */
   CATEGORY_META: `${CACHE_KEY_PREFIXES.CATEGORY}meta:{{categoryId}}`,
 
-  // ========== Cart related ==========
-  /** Pattern: cart:{{userId}} */
+  // Cart related
   CART_USER: `${CACHE_KEY_PREFIXES.CART}{{userId}}`,
-
-  /** Pattern: cart:count:{{userId}} */
   CART_COUNT: `${CACHE_KEY_PREFIXES.CART}count:{{userId}}`,
-
-  /** Pattern: cart:coupon:{{userId}} */
   CART_COUPON: `${CACHE_KEY_PREFIXES.CART}coupon:{{userId}}`,
 
-  // ========== Order related ==========
-  /** Pattern: order:detail:{{orderId}} */
+  // Order related
   ORDER_DETAIL: `${CACHE_KEY_PREFIXES.ORDER}detail:{{orderId}}`,
-
-  /** Pattern: order:tracking:{{trackingId}} */
   ORDER_TRACKING: `${CACHE_KEY_PREFIXES.ORDER}tracking:{{trackingId}}`,
-
-  /** Pattern: order:user:{{userId}}:page:{{page}} */
   ORDER_USER_HISTORY: `${CACHE_KEY_PREFIXES.ORDER}user:{{userId}}:page:{{page}}`,
-
-  /** Pattern: order:status:{{orderId}} */
   ORDER_STATUS: `${CACHE_KEY_PREFIXES.ORDER}status:{{orderId}}`,
-
-  /** Pattern: order:pending_count */
   ORDER_PENDING_COUNT: `${CACHE_KEY_PREFIXES.ORDER}pending_count`,
 
-  // ========== Inventory related ==========
-  /** Pattern: inventory:sku:{{sku}} */
+  // Inventory related
   INVENTORY_BY_SKU: `${CACHE_KEY_PREFIXES.INVENTORY}sku:{{sku}}`,
-
-  /** Pattern: inventory:product:{{productId}}:variant:{{variantId}} */
   INVENTORY_PRODUCT_VARIANT: `${CACHE_KEY_PREFIXES.INVENTORY}product:{{productId}}:variant:{{variantId}}`,
-
-  /** Pattern: inventory:reserved:{{sessionId}} */
   INVENTORY_RESERVED: `${CACHE_KEY_PREFIXES.INVENTORY}reserved:{{sessionId}}`,
 
-  // ========== Price related ==========
-  /** Pattern: price:product:{{productId}} */
+  // Price related
   PRICE_PRODUCT: `${CACHE_KEY_PREFIXES.PRICE}product:{{productId}}`,
-
-  /** Pattern: price:user:{{userId}}:product:{{productId}} */
   PRICE_USER_SPECIFIC: `${CACHE_KEY_PREFIXES.PRICE}user:{{userId}}:product:{{productId}}`,
-
-  /** Pattern: price:bulk:product:{{productId}}:quantity:{{quantity}} */
   PRICE_BULK_DISCOUNT: `${CACHE_KEY_PREFIXES.PRICE}bulk:product:{{productId}}:quantity:{{quantity}}`,
 
-  // ========== API Response cache ==========
-  /** Pattern: api:{{endpointHash}}:{{paramsHash}} */
+  // API Response cache
   API_RESPONSE_CACHE: `${CACHE_KEY_PREFIXES.API_RESPONSE}{{endpointHash}}:{{paramsHash}}`,
 
-  // ========== Search cache ==========
-  /** Pattern: search:{{queryHash}}:page:{{page}}:limit:{{limit}} */
+  // Search cache
   SEARCH_RESULTS: `${CACHE_KEY_PREFIXES.SEARCH}{{queryHash}}:page:{{page}}:limit:{{limit}}`,
-
-  /** Pattern: search:suggestions:{{partialQuery}} */
   SEARCH_SUGGESTIONS: `${CACHE_KEY_PREFIXES.SEARCH}suggestions:{{partialQuery}}`,
-
-  /** Pattern: search:popular */
   SEARCH_POPULAR: `${CACHE_KEY_PREFIXES.SEARCH}popular`,
-
-  /** Pattern: search:history:{{userId}} */
   SEARCH_HISTORY: `${CACHE_KEY_PREFIXES.SEARCH}history:{{userId}}`,
 
-  // ========== Permission & Role ==========
-  /** Pattern: perm:user:{{userId}} */
+  // Permission & Role
   PERMISSION_USER: `${CACHE_KEY_PREFIXES.PERMISSION}user:{{userId}}`,
-
-  /** Pattern: perm:role:{{roleId}} */
   PERMISSION_ROLE: `${CACHE_KEY_PREFIXES.PERMISSION}role:{{roleId}}`,
-
-  /** Pattern: role:{{roleId}} */
   ROLE_DATA: `${CACHE_KEY_PREFIXES.ROLE}{{roleId}}`,
 
-  // ========== Vendor (Multi-vendor) ==========
-  /** Pattern: vendor:detail:{{vendorId}} */
+  // Vendor (Multi-vendor)
   VENDOR_DETAIL: `${CACHE_KEY_PREFIXES.VENDOR}detail:{{vendorId}}`,
-
-  /** Pattern: vendor:products:{{vendorId}}:page:{{page}} */
   VENDOR_PRODUCTS: `${CACHE_KEY_PREFIXES.VENDOR}products:{{vendorId}}:page:{{page}}`,
-
-  /** Pattern: vendor:revenue:{{vendorId}}:date:{{date}} */
   VENDOR_REVENUE: `${CACHE_KEY_PREFIXES.VENDOR}revenue:{{vendorId}}:date:{{date}}`,
 
-  // ========== Bangladesh specific (Geo) ==========
-  /** Pattern: district:list */
+  // Bangladesh specific (Geo)
   DISTRICT_LIST: `${CACHE_KEY_PREFIXES.DISTRICT}list`,
-
-  /** Pattern: district:{{districtId}}:cities */
   DISTRICT_CITIES: `${CACHE_KEY_PREFIXES.DISTRICT}{{districtId}}:cities`,
-
-  /** Pattern: shipping:zone:{{postalCode}} */
   SHIPPING_ZONE_BY_POSTAL: `${CACHE_KEY_PREFIXES.SHIPPING_ZONE}postal:{{postalCode}}`,
 
-  // ========== Offers & Promotions ==========
-  /** Pattern: offer:active:homepage */
+  // Offers & Promotions
   OFFER_ACTIVE_HOMEPAGE: `${CACHE_KEY_PREFIXES.OFFER}active:homepage`,
-
-  /** Pattern: offer:category:{{categoryId}} */
   OFFER_BY_CATEGORY: `${CACHE_KEY_PREFIXES.OFFER}category:{{categoryId}}`,
-
-  /** Pattern: coupon:code:{{couponCode}} */
   COUPON_BY_CODE: `${CACHE_KEY_PREFIXES.COUPON}code:{{couponCode}}`,
-
-  /** Pattern: flash_sale:active */
   FLASH_SALE_ACTIVE: `${CACHE_KEY_PREFIXES.FLASH_SALE}active`,
-
-  /** Pattern: flash_sale:{{saleId}}:products */
   FLASH_SALE_PRODUCTS: `${CACHE_KEY_PREFIXES.FLASH_SALE}{{saleId}}:products`,
 
-  // ========== Rate Limiting ==========
-  /** Pattern: ratelimit:{{ip}}:{{endpoint}} */
+  // Rate Limiting
   RATE_LIMIT_KEY: `${CACHE_KEY_PREFIXES.RATE_LIMIT}{{ip}}:{{endpoint}}`,
-
-  /** Pattern: ratelimit:user:{{userId}}:{{endpoint}} */
   RATE_LIMIT_USER: `${CACHE_KEY_PREFIXES.RATE_LIMIT}user:{{userId}}:{{endpoint}}`,
 
-  // ========== Locks ==========
-  /** Pattern: lock:resource:{{resourceId}} */
+  // Locks
   LOCK_RESOURCE: `${CACHE_KEY_PREFIXES.LOCK}resource:{{resourceId}}`,
-
-  /** Pattern: lock:order:{{orderId}} */
   LOCK_ORDER: `${CACHE_KEY_PREFIXES.LOCK}order:{{orderId}}`,
-
-  /** Pattern: lock:inventory:{{productId}} */
   LOCK_INVENTORY: `${CACHE_KEY_PREFIXES.LOCK}inventory:{{productId}}`,
 
-  // ========== Static & SEO ==========
-  /** Pattern: sitemap:{{type}}:page:{{page}} */
+  // Static & SEO
   SITEMAP_PAGE: `${CACHE_KEY_PREFIXES.SITEMAP}{{type}}:page:{{page}}`,
-
-  /** Pattern: static:{{pageSlug}} */
   STATIC_PAGE_CONTENT: `${CACHE_KEY_PREFIXES.STATIC_PAGE}{{pageSlug}}`,
-
-  /** Pattern: banner:location:{{location}} */
   BANNER_BY_LOCATION: `${CACHE_KEY_PREFIXES.BANNER}location:{{location}}`,
 
-  // ========== System ==========
-  /** Pattern: config:{{key}} */
+  // System
   SYSTEM_CONFIG: `${CACHE_KEY_PREFIXES.CONFIG}{{key}}`,
-
-  /** Pattern: counter:{{name}}:{{date}} */
   COUNTER_DAILY: `${CACHE_KEY_PREFIXES.COUNTER}{{name}}:{{date}}`,
-
-  /** Pattern: queue:{{queueName}}:processing */
   QUEUE_PROCESSING: `${CACHE_KEY_PREFIXES.QUEUE}{{queueName}}:processing`,
 } as const;
 
 export type CacheKeyPattern = ValueOf<typeof CACHE_KEY_PATTERNS>;
 
 // ============================================================
-// Cache TTL values (in seconds) - Production optimized
+// Cache TTL values (in seconds) - Keep your existing
 // ============================================================
 export const CACHE_TTL = {
-  // ========== Time constants ==========
   SECOND: 1,
   MINUTE: 60,
   HOUR: 3600,
@@ -326,52 +389,150 @@ export const CACHE_TTL = {
   MONTH: 2592000,
   YEAR: 31536000,
 
-  // ========== Short-lived caches (High volatility) ==========
-  RATE_LIMIT: 60,                       // 1 minute
-  LOCK: 30,                             // 30 seconds
-  ORDER_STATUS: 30,                     // 30 seconds
-  INVENTORY_RESERVED: 300,              // 5 minutes
-  FLASH_SALE: 60,                       // 1 minute
-
-  // ========== Short-medium caches ==========
-  VERY_SHORT: 300,                      // 5 minutes
-  SHORT: 900,                           // 15 minutes
-  SEARCH_RESULTS: 600,                  // 10 minutes
-  PRODUCT_LIST: 900,                    // 15 minutes
-  CART_DATA: 600,                       // 10 minutes
-
-  // ========== Medium-lived caches ==========
-  MEDIUM: 1800,                         // 30 minutes
-  DEFAULT: 3600,                        // 1 hour
-  STANDARD: 3600,                       // 1 hour
-  USER_PROFILE: 3600,                   // 1 hour
-  PRODUCT_DETAIL: 7200,                 // 2 hours
-
-  // ========== Long-lived caches ==========
-  LONG: 86400,                          // 24 hours
-  CATEGORY_TREE: 86400,                 // 24 hours
-  BRAND_LIST: 86400,                    // 24 hours
-  DISTRICT_LIST: 604800,                // 7 days
-
-  // ========== Very long caches ==========
-  VERY_LONG: 604800,                    // 7 days
-  EXTENDED: 2592000,                    // 30 days
-  STATIC_PAGE: 2592000,                 // 30 days
-  SITEMAP: 86400,                       // 24 hours
-
-  // ========== Cache stampede protection ==========
-  // Add jitter to avoid mass expiration (consumer will add random ±20%)
+  RATE_LIMIT: 60,
+  LOCK: 30,
+  ORDER_STATUS: 30,
+  INVENTORY_RESERVED: 300,
+  FLASH_SALE: 60,
+  VERY_SHORT: 300,
+  SHORT: 900,
+  SEARCH_RESULTS: 600,
+  PRODUCT_LIST: 900,
+  CART_DATA: 600,
+  MEDIUM: 1800,
+  DEFAULT: 3600,
+  STANDARD: 3600,
+  USER_PROFILE: 3600,
+  PRODUCT_DETAIL: 7200,
+  LONG: 86400,
+  CATEGORY_TREE: 86400,
+  BRAND_LIST: 86400,
+  DISTRICT_LIST: 604800,
+  VERY_LONG: 604800,
+  EXTENDED: 2592000,
+  STATIC_PAGE: 2592000,
+  SITEMAP: 86400,
   MAX_JITTER_PERCENT: 20,
-
-  // ========== Special values ==========
-  NEVER_EXPIRE: -1,                     // No expiration
-  SESSION: 7200,                        // 2 hours
+  NEVER_EXPIRE: -1,
+  SESSION: 7200,
 } as const;
 
 export type CacheTTL = ValueOf<typeof CACHE_TTL>;
 
 // ============================================================
-// Cache namespaces (For logical grouping)
+// Cache Invalidation Patterns
+// ============================================================
+export const CACHE_INVALIDATION_PATTERNS = {
+  USER_ALL: `${CACHE_KEY_PREFIXES.USER}*`,
+  USER_PROFILE_PATTERN: `${CACHE_KEY_PREFIXES.USER}profile:*`,
+  USER_SESSION_PATTERN: `${CACHE_KEY_PREFIXES.SESSION}*`,
+  PRODUCT_ALL: `${CACHE_KEY_PREFIXES.PRODUCT}*`,
+  PRODUCT_DETAIL_PATTERN: `${CACHE_KEY_PREFIXES.PRODUCT}detail:*`,
+  PRODUCT_LIST_PATTERN: `${CACHE_KEY_PREFIXES.PRODUCT}list:*`,
+  CATEGORY_ALL: `${CACHE_KEY_PREFIXES.CATEGORY}*`,
+  CATEGORY_TREE_PATTERN: `${CACHE_KEY_PREFIXES.CATEGORY}tree*`,
+  CART_USER_PATTERN: `${CACHE_KEY_PREFIXES.CART}*`,
+  ORDER_ALL: `${CACHE_KEY_PREFIXES.ORDER}*`,
+  INVENTORY_ALL: `${CACHE_KEY_PREFIXES.INVENTORY}*`,
+  PRICE_ALL: `${CACHE_KEY_PREFIXES.PRICE}*`,
+  SEARCH_ALL: `${CACHE_KEY_PREFIXES.SEARCH}*`,
+  VENDOR_ALL: `${CACHE_KEY_PREFIXES.VENDOR}*`,
+  OFFER_ALL: `${CACHE_KEY_PREFIXES.OFFER}*`,
+  FLASH_SALE_ALL: `${CACHE_KEY_PREFIXES.FLASH_SALE}*`,
+  CONFIG_ALL: `${CACHE_KEY_PREFIXES.CONFIG}*`,
+  STATIC_ALL: `${CACHE_KEY_PREFIXES.STATIC_PAGE}*`,
+} as const;
+
+export type CacheInvalidationPattern = ValueOf<typeof CACHE_INVALIDATION_PATTERNS>;
+
+// ============================================================
+// Cache Invalidation Events
+// ============================================================
+export const CACHE_INVALIDATION_EVENTS = {
+  USER_UPDATED: 'cache.invalidate.user',
+  USER_DELETED: 'cache.invalidate.user.delete',
+  USER_SESSION_CHANGED: 'cache.invalidate.user.session',
+  PRODUCT_CREATED: 'cache.invalidate.product.create',
+  PRODUCT_UPDATED: 'cache.invalidate.product.update',
+  PRODUCT_DELETED: 'cache.invalidate.product.delete',
+  PRODUCT_PRICE_CHANGED: 'cache.invalidate.product.price',
+  PRODUCT_STOCK_CHANGED: 'cache.invalidate.product.stock',
+  CATEGORY_UPDATED: 'cache.invalidate.category',
+  CATEGORY_DELETED: 'cache.invalidate.category.delete',
+  ORDER_CREATED: 'cache.invalidate.order.create',
+  ORDER_UPDATED: 'cache.invalidate.order.update',
+  ORDER_STATUS_CHANGED: 'cache.invalidate.order.status',
+  CART_UPDATED: 'cache.invalidate.cart',
+  INVENTORY_CHANGED: 'cache.invalidate.inventory',
+  PRICE_CHANGED: 'cache.invalidate.price',
+  BULK_PRICE_CHANGED: 'cache.invalidate.price.bulk',
+  CONFIG_CHANGED: 'cache.invalidate.config',
+  OFFER_CREATED: 'cache.invalidate.offer.create',
+  OFFER_UPDATED: 'cache.invalidate.offer.update',
+  OFFER_EXPIRED: 'cache.invalidate.offer.expire',
+  FLASH_SALE_STARTED: 'cache.invalidate.flash_sale.start',
+  FLASH_SALE_ENDED: 'cache.invalidate.flash_sale.end',
+  SEARCH_INDEX_UPDATED: 'cache.invalidate.search',
+  VENDOR_UPDATED: 'cache.invalidate.vendor',
+} as const;
+
+export type CacheInvalidationEvent = ValueOf<typeof CACHE_INVALIDATION_EVENTS>;
+
+// ============================================================
+// Cache Strategies
+// ============================================================
+export const CACHE_STRATEGIES = {
+  CACHE_THROUGH: 'cache_through',
+  WRITE_THROUGH: 'write_through',
+  WRITE_BEHIND: 'write_behind',
+  REFRESH_AHEAD: 'refresh_ahead',
+  PROACTIVE_REFRESH: 'proactive',
+} as const;
+
+export type CacheStrategy = ValueOf<typeof CACHE_STRATEGIES>;
+
+// ============================================================
+// Cache Stampede Protection
+// ============================================================
+export const CACHE_STAMPEDE_PROTECTION = {
+  ENABLED: true,
+  USE_STALE_ON_RECOMPUTE: true,
+  EARLY_RECOMPUTE_PROBABILITY: 10,
+  RECOMPUTE_LOCK_MS: 5000,
+  MAX_RECOMPUTE_TIME_SECONDS: 30,
+} as const;
+
+// ============================================================
+// Cache Compression Settings
+// ============================================================
+export const CACHE_COMPRESSION = {
+  ENABLED: true,
+  MIN_SIZE_BYTES: 1024,
+  ALGORITHM: 'gzip',
+  COMPRESSION_LEVEL: 6,
+  SKIP_PATTERNS: [
+    `${CACHE_KEY_PREFIXES.RATE_LIMIT}*`,
+    `${CACHE_KEY_PREFIXES.LOCK}*`,
+  ],
+} as const;
+
+// ============================================================
+// Hot Cache Warming
+// ============================================================
+export const CACHE_WARMING = {
+  ENABLED: true,
+  HOT_KEYS: [
+    CACHE_KEY_PATTERNS.CATEGORY_TREE,
+    CACHE_KEY_PATTERNS.DISTRICT_LIST,
+    CACHE_KEY_PATTERNS.OFFER_ACTIVE_HOMEPAGE,
+    CACHE_KEY_PATTERNS.FLASH_SALE_ACTIVE,
+  ],
+  SCHEDULE: '0 */6 * * *',
+  MAX_CONCURRENT: 5,
+} as const;
+
+// ============================================================
+// Cache Namespaces
 // ============================================================
 export const CACHE_NAMESPACES = {
   USER_SESSION: 'session',
@@ -392,204 +553,9 @@ export const CACHE_NAMESPACES = {
 export type CacheNamespace = ValueOf<typeof CACHE_NAMESPACES>;
 
 // ============================================================
-// Cache invalidation patterns (Wildcard based)
+// Export all configs
 // ============================================================
-export const CACHE_INVALIDATION_PATTERNS = {
-  // User related invalidation patterns
-  USER_ALL: `${CACHE_KEY_PREFIXES.USER}*`,
-  USER_PROFILE_PATTERN: `${CACHE_KEY_PREFIXES.USER}profile:*`,
-  USER_SESSION_PATTERN: `${CACHE_KEY_PREFIXES.SESSION}*`,
-
-  // Product related invalidation patterns
-  PRODUCT_ALL: `${CACHE_KEY_PREFIXES.PRODUCT}*`,
-  PRODUCT_DETAIL_PATTERN: `${CACHE_KEY_PREFIXES.PRODUCT}detail:*`,
-  PRODUCT_LIST_PATTERN: `${CACHE_KEY_PREFIXES.PRODUCT}list:*`,
-
-  // Category related invalidation patterns
-  CATEGORY_ALL: `${CACHE_KEY_PREFIXES.CATEGORY}*`,
-  CATEGORY_TREE_PATTERN: `${CACHE_KEY_PREFIXES.CATEGORY}tree*`,
-
-  // Cart invalidation
-  CART_USER_PATTERN: `${CACHE_KEY_PREFIXES.CART}*`,
-
-  // Order invalidation
-  ORDER_ALL: `${CACHE_KEY_PREFIXES.ORDER}*`,
-
-  // Inventory invalidation
-  INVENTORY_ALL: `${CACHE_KEY_PREFIXES.INVENTORY}*`,
-
-  // Price invalidation
-  PRICE_ALL: `${CACHE_KEY_PREFIXES.PRICE}*`,
-
-  // Search invalidation
-  SEARCH_ALL: `${CACHE_KEY_PREFIXES.SEARCH}*`,
-
-  // Vendor invalidation
-  VENDOR_ALL: `${CACHE_KEY_PREFIXES.VENDOR}*`,
-
-  // Offer invalidation
-  OFFER_ALL: `${CACHE_KEY_PREFIXES.OFFER}*`,
-  FLASH_SALE_ALL: `${CACHE_KEY_PREFIXES.FLASH_SALE}*`,
-
-  // System invalidation
-  CONFIG_ALL: `${CACHE_KEY_PREFIXES.CONFIG}*`,
-  STATIC_ALL: `${CACHE_KEY_PREFIXES.STATIC_PAGE}*`,
-} as const;
-
-export type CacheInvalidationPattern = ValueOf<typeof CACHE_INVALIDATION_PATTERNS>;
-
-// ============================================================
-// Events that trigger cache invalidation
-// ============================================================
-export const CACHE_INVALIDATION_EVENTS = {
-  // User events
-  USER_UPDATED: 'cache.invalidate.user',
-  USER_DELETED: 'cache.invalidate.user.delete',
-  USER_SESSION_CHANGED: 'cache.invalidate.user.session',
-
-  // Product events
-  PRODUCT_CREATED: 'cache.invalidate.product.create',
-  PRODUCT_UPDATED: 'cache.invalidate.product.update',
-  PRODUCT_DELETED: 'cache.invalidate.product.delete',
-  PRODUCT_PRICE_CHANGED: 'cache.invalidate.product.price',
-  PRODUCT_STOCK_CHANGED: 'cache.invalidate.product.stock',
-
-  // Category events
-  CATEGORY_UPDATED: 'cache.invalidate.category',
-  CATEGORY_DELETED: 'cache.invalidate.category.delete',
-
-  // Order events
-  ORDER_CREATED: 'cache.invalidate.order.create',
-  ORDER_UPDATED: 'cache.invalidate.order.update',
-  ORDER_STATUS_CHANGED: 'cache.invalidate.order.status',
-
-  // Cart events
-  CART_UPDATED: 'cache.invalidate.cart',
-
-  // Inventory events
-  INVENTORY_CHANGED: 'cache.invalidate.inventory',
-
-  // Price events
-  PRICE_CHANGED: 'cache.invalidate.price',
-  BULK_PRICE_CHANGED: 'cache.invalidate.price.bulk',
-
-  // Config events
-  CONFIG_CHANGED: 'cache.invalidate.config',
-
-  // Offer events
-  OFFER_CREATED: 'cache.invalidate.offer.create',
-  OFFER_UPDATED: 'cache.invalidate.offer.update',
-  OFFER_EXPIRED: 'cache.invalidate.offer.expire',
-  FLASH_SALE_STARTED: 'cache.invalidate.flash_sale.start',
-  FLASH_SALE_ENDED: 'cache.invalidate.flash_sale.end',
-
-  // Search events
-  SEARCH_INDEX_UPDATED: 'cache.invalidate.search',
-
-  // Vendor events
-  VENDOR_UPDATED: 'cache.invalidate.vendor',
-} as const;
-
-export type CacheInvalidationEvent = ValueOf<typeof CACHE_INVALIDATION_EVENTS>;
-
-// ============================================================
-// Cache strategies
-// ============================================================
-export const CACHE_STRATEGIES = {
-  CACHE_THROUGH: 'cache_through',      // Read: cache → DB miss → populate
-  WRITE_THROUGH: 'write_through',      // Write: DB → cache simultaneously
-  WRITE_BEHIND: 'write_behind',        // Write: cache → async DB
-  REFRESH_AHEAD: 'refresh_ahead',      // Refresh before expiry
-  PROACTIVE_REFRESH: 'proactive',      // Pre-load hot data
-} as const;
-
-export type CacheStrategy = ValueOf<typeof CACHE_STRATEGIES>;
-
-// ============================================================
-// Cache stampede protection (Catch up cache)
-// ============================================================
-export const CACHE_STAMPEDE_PROTECTION = {
-  ENABLED: true,
-
-  // Use stale cache while recomputing
-  USE_STALE_ON_RECOMPUTE: true,
-
-  // Probability for early recompute (0-100)
-  EARLY_RECOMPUTE_PROBABILITY: 10,
-
-  // Lock duration for recompute (milliseconds)
-  RECOMPUTE_LOCK_MS: 5000,
-
-  // Maximum recompute time (seconds)
-  MAX_RECOMPUTE_TIME_SECONDS: 30,
-} as const;
-
-export type CacheStampedeProtection = typeof CACHE_STAMPEDE_PROTECTION;
-
-// ============================================================
-// Cache compression settings
-// ============================================================
-export const CACHE_COMPRESSION = {
-  ENABLED: true,
-  MIN_SIZE_BYTES: 1024,                // Compress if > 1KB
-  ALGORITHM: 'gzip',
-  COMPRESSION_LEVEL: 6,               // 1-9 (balance speed vs size)
-
-  // Skip compression for these patterns
-  SKIP_PATTERNS: [
-    `${CACHE_KEY_PREFIXES.RATE_LIMIT}*`,
-    `${CACHE_KEY_PREFIXES.LOCK}*`,
-  ],
-} as const;
-
-export type CacheCompression = typeof CACHE_COMPRESSION;
-
-// ============================================================
-// Hot cache warming configuration
-// ============================================================
-export const CACHE_WARMING = {
-  ENABLED: true,
-
-  // Keys to pre-warm on startup
-  HOT_KEYS: [
-    CACHE_KEY_PATTERNS.CATEGORY_TREE,
-    CACHE_KEY_PATTERNS.DISTRICT_LIST,
-    CACHE_KEY_PATTERNS.OFFER_ACTIVE_HOMEPAGE,
-    CACHE_KEY_PATTERNS.FLASH_SALE_ACTIVE,
-  ],
-
-  // Warm on schedule (cron pattern)
-  SCHEDULE: '0 */6 * * *',            // Every 6 hours
-
-  // Max concurrent warming jobs
-  MAX_CONCURRENT: 5,
-} as const;
-
-export type CacheWarming = typeof CACHE_WARMING;
-
-// ============================================================
-// Cache metrics (For monitoring)
-// ============================================================
-export const CACHE_METRICS = {
-  ENABLED: true,
-
-  // Track metrics for these namespaces
-  TRACKED_NAMESPACES: [
-    CACHE_NAMESPACES.PRODUCT_CATALOG,
-    CACHE_NAMESPACES.USER_DATA,
-    CACHE_NAMESPACES.SESSION,
-  ],
-
-  // Metric keys
-  METRIC_KEYS: {
-    HIT: 'cache.hit',
-    MISS: 'cache.miss',
-    SET: 'cache.set',
-    DELETE: 'cache.delete',
-    INVALIDATE: 'cache.invalidate',
-    RECOMPUTE_TIME: 'cache.recompute.time',
-    COMPRESSION_RATIO: 'cache.compression.ratio',
-  },
-} as const;
-
-export type CacheMetrics = typeof CACHE_METRICS;
+export type CacheConnectionConfig = typeof CACHE_CONNECTION_CONFIG;
+export type CacheSyncConfig = typeof CACHE_SYNC_CONFIG;
+export type CacheMonitoring = typeof CACHE_MONITORING;
+export type CacheEviction = typeof CACHE_EVICTION;
