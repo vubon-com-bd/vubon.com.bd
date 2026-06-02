@@ -20,7 +20,7 @@ import type {
   ROLE_CATEGORIES,
   ROLE_INHERITANCE,
   SYSTEM_ROLES,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // ============================================================
 // Role Type (Based on constants - union over enum)
@@ -67,22 +67,22 @@ export type RoleCategory = typeof ROLE_CATEGORIES[keyof typeof ROLE_CATEGORIES];
 // ============================================================
 export interface RoleMetadata {
   readonly name: string;
-  readonly nameBn?: string;                    // Bengali name (Bangladesh specific)
+  readonly nameBn?: string;
   readonly description: string;
-  readonly descriptionBn?: string;             // Bengali description
+  readonly descriptionBn?: string;
   readonly category: RoleCategory;
   readonly isSystemRole: boolean;
   readonly canBeDeleted: boolean;
   readonly canBeModified: boolean;
   readonly canBeAssignedAutomatically: boolean;
-  readonly maxAssignees: number;               // -1 = unlimited
+  readonly maxAssignees: number;
   readonly requiresMfa: boolean;
-  readonly requiresVerification?: boolean;     // Email/phone verification
-  readonly requiresKyc?: boolean;              // KYC verification
+  readonly requiresVerification?: boolean;
+  readonly requiresKyc?: boolean;
   readonly auditLogging: 'full' | 'standard' | 'basic' | 'none';
   readonly color: string;
   readonly icon?: string;
-  readonly priority: number;                   // For sorting/display
+  readonly priority: number;
 }
 
 // ============================================================
@@ -92,7 +92,7 @@ export interface RoleInheritance {
   readonly role: ExtendedRole;
   readonly parentRole: ExtendedRole | null;
   readonly hierarchy: number;
-  readonly inheritedPermissions: readonly string[];  // Permissions from parent
+  readonly inheritedPermissions: readonly string[];
 }
 
 // ============================================================
@@ -170,8 +170,8 @@ export interface UpdateRoleRequest {
 // ============================================================
 export interface DeleteRoleRequest {
   readonly role: ExtendedRole;
-  readonly force?: boolean;                   // Force delete even with assignments
-  readonly reassignTo?: ExtendedRole;         // Reassign users to this role
+  readonly force?: boolean;
+  readonly reassignTo?: ExtendedRole;
   readonly deletedBy: string;
   readonly reason: string;
 }
@@ -296,7 +296,7 @@ export interface RoleFilterOptions {
   readonly isSystemRole?: boolean;
   readonly requiresMfa?: boolean;
   readonly requiresKyc?: boolean;
-  readonly search?: string;                  // Search in name/description
+  readonly search?: string;
   readonly limit?: number;
   readonly offset?: number;
   readonly sortBy?: 'name' | 'hierarchy' | 'userCount' | 'createdAt';
@@ -335,8 +335,8 @@ export interface RoleEvent {
   readonly id: string;
   readonly eventType: RoleEventType;
   readonly role: ExtendedRole;
-  readonly userId?: string;                  // Affected user (for assignment)
-  readonly affectedUserIds?: readonly string[]; // For bulk operations
+  readonly userId?: string;
+  readonly affectedUserIds?: readonly string[];
   readonly timestamp: Date;
   readonly actorId: string;
   readonly actorIp: string;
