@@ -39,7 +39,6 @@ import {
   CreateUserResponseDto,
   AdminCreateUserDto,
   AdminCreateUserResponseDto,
-  UserTier,
   UserPreferencesDto as UserPreferencesDtoType
 } from '../../dtos/user/create-user.dto';
 import { 
@@ -54,107 +53,77 @@ import {
 } from '../../mappers/user.mapper';
 import { AuditDto } from '../../dtos/common/audit.dto';
 
+// ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট
+import type { 
+  DeviceInfo as SharedDeviceInfo,
+  UserTier as SharedUserTier,
+  UserFilters as SharedUserFilters,
+  UserStatistics as SharedUserStatistics,
+  RegistrationTrend as SharedRegistrationTrend,
+  DeleteAccountResponse as SharedDeleteAccountResponse,
+  ReactivateAccountResponse as SharedReactivateAccountResponse
+} from '@vubon/shared-types';
+
+// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট
+import { 
+  USER_TIERS, 
+  USER_STATUSES, 
+  USER_ROLES,
+  BANGLADESH_DISTRICTS,
+  BANGLADESH_UPAZILAS,
+  MOBILE_OPERATORS,
+  NETWORK_TYPES
+} from '@vubon/shared-constants';
+
 // ============================================================
-// Types
+// Types (Using shared-types for consistency)
 // ============================================================
 
 /**
  * Device information interface (Bangladesh specific)
+ * ✅ Moved to shared-types - imported from there
  */
-export interface DeviceInfo {
-  ipAddress: string;
-  userAgent: string;
-  deviceId?: string;
-  correlationId?: string;
-  // Bangladesh specific
-  district?: string;
-  upazila?: string;
-  mobileOperator?: 'gp' | 'robi' | 'banglalink' | 'teletalk' | 'unknown';
-  networkType?: '2g' | '3g' | '4g' | '5g' | 'wifi' | 'unknown';
-}
+export type DeviceInfo = SharedDeviceInfo;
 
 /**
  * User filters for search (Bangladesh specific)
+ * ✅ Moved to shared-types - imported from there
  */
-export interface UserFilters {
-  email?: string;
-  phone?: string;
-  fullName?: string;
-  status?: string;
-  role?: string;
-  tier?: UserTier;
-  isEmailVerified?: boolean;
-  isPhoneVerified?: boolean;
-  isKycVerified?: boolean;
-  fromDate?: Date;
-  toDate?: Date;
-  search?: string;
-  district?: string;
+export interface UserFilters extends SharedUserFilters {
+  // Additional Bangladesh-specific filters
+  district?: typeof BANGLADESH_DISTRICTS[number];
   upazila?: string;
-  minTotalSpent?: number;
-  maxTotalSpent?: number;
+  mobileOperator?: typeof MOBILE_OPERATORS[number];
+  networkType?: typeof NETWORK_TYPES[number];
 }
 
 /**
  * Delete account response
+ * ✅ Using shared-types definition
  */
-export interface DeleteAccountResponseDto {
-  success: boolean;
-  message: string;
-  messageBn?: string;
-  userId: string;
-  deletedAt: string;
-  dataRetentionDays: number;
-  canReactivate: boolean;
-  reactivationDeadline?: string;
-}
+export type DeleteAccountResponseDto = SharedDeleteAccountResponse;
 
 /**
  * Account reactivation response
+ * ✅ Using shared-types definition
  */
-export interface ReactivateAccountResponseDto {
-  success: boolean;
-  message: string;
-  messageBn?: string;
-  userId: string;
-  reactivatedAt: string;
-  requiresPasswordReset: boolean;
-}
+export type ReactivateAccountResponseDto = SharedReactivateAccountResponse;
 
 /**
  * User statistics (Bangladesh specific)
+ * ✅ Using shared-types definition
  */
-export interface UserStatistics {
-  totalUsers: number;
-  activeUsers: number;
-  inactiveUsers: number;
-  suspendedUsers: number;
-  lockedUsers: number;
-  deletedUsers: number;
-  pendingVerificationUsers: number;
-  newUsersToday: number;
-  newUsersThisWeek: number;
-  newUsersThisMonth: number;
-  verifiedEmailPercentage: number;
-  verifiedPhonePercentage: number;
-  kycVerifiedPercentage: number;
-  mfaEnabledPercentage: number;
-  byRole: Record<string, number>;
-  byStatus: Record<string, number>;
-  byTier: Record<UserTier, number>;
-  usersByDistrict?: Array<{ district: string; count: number }>;
-  usersByPreferredLanguage?: Record<string, number>;
+export interface UserStatistics extends SharedUserStatistics {
+  usersByDistrict?: Array<{ district: typeof BANGLADESH_DISTRICTS[number]; count: number }>;
+  usersByMobileOperator?: Array<{ operator: typeof MOBILE_OPERATORS[number]; count: number }>;
+  usersByNetworkType?: Array<{ networkType: typeof NETWORK_TYPES[number]; count: number }>;
 }
 
 /**
  * User registration trend
+ * ✅ Using shared-types definition
  */
-export interface RegistrationTrend {
-  date: string;
-  count: number;
-  byRole: Record<string, number>;
-  byTier: Record<UserTier, number>;
-}
+export type RegistrationTrend = SharedRegistrationTrend;
 
 // ============================================================
 // User Service Interface
@@ -395,7 +364,7 @@ export interface UserService {
    * @returns Tier benefits
    */
   getUserTierBenefits(userId: string): Promise<{
-    tier: UserTier;
+    tier: SharedUserTier;
     discountPercentage: number;
     freeShipping: boolean;
     prioritySupport: boolean;
@@ -429,45 +398,45 @@ export interface UserService {
   
   /**
    * Get users by role
-   * @param role - User role
+   * @param role - User role (from USER_ROLES constants)
    * @param options - Pagination options
    * @returns Paginated users
    */
   getUsersByRole(
-    role: string,
+    role: typeof USER_ROLES[keyof typeof USER_ROLES],
     options: PaginationDto
   ): Promise<PaginatedResponseDto<BriefUserResponseDto>>;
   
   /**
    * Get users by status
-   * @param status - User status
+   * @param status - User status (from USER_STATUSES constants)
    * @param options - Pagination options
    * @returns Paginated users
    */
   getUsersByStatus(
-    status: string,
+    status: typeof USER_STATUSES[keyof typeof USER_STATUSES],
     options: PaginationDto
   ): Promise<PaginatedResponseDto<BriefUserResponseDto>>;
   
   /**
    * Get users by tier (loyalty program)
-   * @param tier - User tier
+   * @param tier - User tier (from USER_TIERS constants)
    * @param options - Pagination options
    * @returns Paginated users
    */
   getUsersByTier(
-    tier: UserTier,
+    tier: SharedUserTier,
     options: PaginationDto
   ): Promise<PaginatedResponseDto<BriefUserResponseDto>>;
   
   /**
    * Get users by district (Bangladesh specific)
-   * @param district - District name
+   * @param district - District name (from BANGLADESH_DISTRICTS)
    * @param options - Pagination options
    * @returns Paginated users
    */
   getUsersByDistrict(
-    district: string,
+    district: typeof BANGLADESH_DISTRICTS[number],
     options: PaginationDto
   ): Promise<PaginatedResponseDto<BriefUserResponseDto>>;
   
@@ -565,14 +534,14 @@ export interface UserService {
    * Change user role (admin only)
    * @param adminId - Admin ID
    * @param targetUserId - User ID
-   * @param newRole - New role
+   * @param newRole - New role (from USER_ROLES constants)
    * @param deviceInfo - Device context
    * @returns Updated user
    */
   changeUserRole(
     adminId: string,
     targetUserId: string,
-    newRole: string,
+    newRole: typeof USER_ROLES[keyof typeof USER_ROLES],
     deviceInfo: DeviceInfo
   ): Promise<UserResponseDto>;
   
@@ -580,7 +549,7 @@ export interface UserService {
    * Change user tier (admin only)
    * @param adminId - Admin ID
    * @param targetUserId - User ID
-   * @param newTier - New tier
+   * @param newTier - New tier (from USER_TIERS constants)
    * @param reason - Reason for tier change
    * @param deviceInfo - Device context
    * @returns Updated user
@@ -588,7 +557,7 @@ export interface UserService {
   changeUserTier(
     adminId: string,
     targetUserId: string,
-    newTier: UserTier,
+    newTier: SharedUserTier,
     reason: string,
     deviceInfo: DeviceInfo
   ): Promise<UserResponseDto>;
@@ -684,7 +653,7 @@ export interface UserService {
 }
 
 // ============================================================
-// Type Exports
+// Type Exports (Using shared-types when available)
 // ============================================================
 
 export type { 
@@ -692,5 +661,20 @@ export type {
   DeleteAccountResponseDto as DeleteAccountResponseDtoType,
   ReactivateAccountResponseDto as ReactivateAccountResponseDtoType,
   UserStatistics as UserStatisticsType,
-  RegistrationTrend as RegistrationTrendType
+  RegistrationTrend as RegistrationTrendType,
+  SharedUserTier as UserTierType
+};
+
+// ============================================================
+// Constants Exports (For external use)
+// ============================================================
+
+export { 
+  USER_TIERS,
+  USER_STATUSES,
+  USER_ROLES,
+  BANGLADESH_DISTRICTS,
+  BANGLADESH_UPAZILAS,
+  MOBILE_OPERATORS,
+  NETWORK_TYPES
 };
