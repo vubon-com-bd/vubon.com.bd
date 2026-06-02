@@ -6,6 +6,23 @@ export default defineConfig({
     index: 'src/index.ts',
     'auth/index': 'src/auth/index.ts',
     'common/index': 'src/common/index.ts',
+    // Also export individual type files for deep imports
+    'auth/user.types': 'src/auth/user.types.ts',
+    'auth/session.types': 'src/auth/session.types.ts',
+    'auth/mfa.types': 'src/auth/mfa.types.ts',
+    'auth/role.types': 'src/auth/role.types.ts',
+    'auth/permission.types': 'src/auth/permission.types.ts',
+    'auth/token.types': 'src/auth/token.types.ts',
+    'auth/device.types': 'src/auth/device.types.ts',
+    'auth/social.types': 'src/auth/social.types.ts',
+    'auth/verification.types': 'src/auth/verification.types.ts',
+    'auth/account-lock.types': 'src/auth/account-lock.types.ts',
+    'auth/login-attempt.types': 'src/auth/login-attempt.types.ts',
+    'common/api.types': 'src/common/api.types.ts',
+    'common/pagination.types': 'src/common/pagination.types.ts',
+    'common/audit.types': 'src/common/audit.types.ts',
+    'common/location.types': 'src/common/location.types.ts',
+    'common/seo.types': 'src/common/seo.types.ts',
   },
 
   // Output formats - both CommonJS and ESM
@@ -38,8 +55,8 @@ export default defineConfig({
   // Bundle all dependencies? No - peer dependencies external
   bundle: false,
 
-  // External dependencies (peer dependencies)
-  external: ['@vubon/auth-constants'],
+  // External dependencies (peer dependencies) - FIXED
+  external: ['@vubon/shared-constants'],
 
   // Platform - neutral (works in Node.js and browser)
   platform: 'neutral',
