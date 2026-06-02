@@ -27,7 +27,7 @@
     "noPropertyAccessFromIndexSignature": true,
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -42,31 +42,16 @@
     "incremental": false,
     "noEmitOnError": true,
     "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
+    "types": ["node"],
     "paths": {
-      "@/*": ["./src/*"],
-      "@vubon/shared-constants": ["../shared-constants/src"],
-      "@vubon/shared-constants/*": ["../shared-constants/src/*"]
+      "@/*": ["./src/*"]
     }
   },
-  "include": [
-    "src/**/*.ts",
-    "../shared-constants/src/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules", 
-    "dist", 
-    "**/*.test.ts", 
-    "**/*.spec.ts", 
-    "coverage",
-    "../shared-constants/dist"
-  ],
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts", "coverage"],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"
     }
-  },
-  "references": [
-    { "path": "../shared-constants" }
-  ]
+  }
 }
