@@ -16,28 +16,55 @@
  * ✅ Support for token rotation and blacklisting
  */
 
+// ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট
+import type { 
+  TokenType, 
+  TokenPayload as SharedTokenPayload,
+  UserTier,
+  TokenVerificationResult as SharedTokenVerificationResult,
+  TokenPairResponse as SharedTokenPairResponse,
+  TokenIntrospectionResponse as SharedTokenIntrospectionResponse,
+  TokenOptions as SharedTokenOptions
+} from '@vubon/shared-types';
+
+// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট
+import { 
+  TOKEN_CONFIG,
+  USER_TIERS,
+  TOKEN_TYPES,
+  JWT_ALGORITHMS
+} from '@vubon/shared-constants';
+
 // ============================================================
-// Token Types
+// Token Types (Re-exported from shared-constants for convenience)
 // ============================================================
 
-export enum TokenType {
-  ACCESS = 'access',
-  REFRESH = 'refresh',
-  RESET = 'reset',
-  VERIFICATION = 'verification',
-  EMAIL_CHANGE = 'email_change',
-  MAGIC_LINK = 'magic_link',
-  MFA = 'mfa',
-  SESSION = 'session',
-  API_KEY = 'api_key',
-  DEVICE = 'device',
-}
+/**
+ * Token types - Re-exported from shared-constants
+ * 
+ * @example
+ * const type = TokenType.ACCESS; // 'access'
+ * const type = TokenType.REFRESH; // 'refresh'
+ */
+export { TOKEN_TYPES as TokenType };
 
 // ============================================================
-// Token Payload Interface (Extended)
+// User Tier Types (Re-exported from shared-constants)
 // ============================================================
 
-export interface TokenPayload {
+/**
+ * User tier for loyalty program
+ */
+export { USER_TIERS as UserTier };
+
+// ============================================================
+// Token Payload Interface (Extended - using shared-types)
+// ============================================================
+
+/**
+ * Token payload interface extending shared-types
+ */
+export interface TokenPayload extends SharedTokenPayload {
   /** User ID (standard JWT claim: subject) */
   sub: string;
   
@@ -50,8 +77,8 @@ export interface TokenPayload {
   /** User role (optional - for access tokens) */
   role?: string;
   
-  /** User tier (Bangladesh loyalty program) */
-  tier?: 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM' | 'DIAMOND';
+  /** User tier (Bangladesh loyalty program) - using shared-constants */
+  tier?: UserTier;
   
   /** Token type (access, refresh, reset, verification, email_change) */
   type?: TokenType;
@@ -94,17 +121,17 @@ export interface TokenPayload {
 }
 
 // ============================================================
-// Token Options Interface
+// Token Options Interface (Enhanced with shared-constants)
 // ============================================================
 
-export interface TokenOptions {
+export interface TokenOptions extends SharedTokenOptions {
   /** Token expiration (e.g., '15m', '1h', '7d') */
   expiresIn?: string;
   
-  /** Token issuer */
+  /** Token issuer (default from config) */
   issuer?: string;
   
-  /** Token audience */
+  /** Token audience (default from config) */
   audience?: string;
   
   /** JWT ID (if not provided, auto-generated) */
@@ -125,15 +152,18 @@ export interface TokenOptions {
   /** Not before time (seconds from now) */
   notBefore?: number;
   
+  /** Algorithm to use for signing (default from config) */
+  algorithm?: typeof JWT_ALGORITHMS[keyof typeof JWT_ALGORITHMS];
+  
   /** Additional custom claims */
   [key: string]: unknown;
 }
 
 // ============================================================
-// Token Verification Result
+// Token Verification Result (Using shared-types)
 // ============================================================
 
-export interface TokenVerificationResult {
+export interface TokenVerificationResult extends SharedTokenVerificationResult {
   /** Whether the token is valid */
   isValid: boolean;
   
@@ -154,10 +184,10 @@ export interface TokenVerificationResult {
 }
 
 // ============================================================
-// Token Pair Response
+// Token Pair Response (Using shared-types)
 // ============================================================
 
-export interface TokenPairResponse {
+export interface TokenPairResponse extends SharedTokenPairResponse {
   /** Access token (short-lived) */
   accessToken: string;
   
@@ -175,10 +205,10 @@ export interface TokenPairResponse {
 }
 
 // ============================================================
-// Token Introspection Response (OAuth2 compliant)
+// Token Introspection Response (OAuth2 compliant - using shared-types)
 // ============================================================
 
-export interface TokenIntrospectionResponse {
+export interface TokenIntrospectionResponse extends SharedTokenIntrospectionResponse {
   /** Whether token is active */
   active: boolean;
   
@@ -597,3 +627,21 @@ export type {
   TokenPairResponse as TokenPairResponseType,
   TokenIntrospectionResponse as TokenIntrospectionResponseType
 };
+
+// ============================================================
+// Helper Constants (From shared-config)
+// ============================================================
+
+/**
+ * Default token expiry values (from shared-config)
+ * These should be imported from shared-config at runtime
+ */
+export const DEFAULT_TOKEN_EXPIRY = {
+  ACCESS_TOKEN: TOKEN_CONFIG.ACCESS_TOKEN_EXPIRY,
+  REFRESH_TOKEN: TOKEN_CONFIG.REFRESH_TOKEN_EXPIRY,
+  RESET_TOKEN: TOKEN_CONFIG.RESET_TOKEN_EXPIRY,
+  VERIFICATION_TOKEN: TOKEN_CONFIG.VERIFICATION_TOKEN_EXPIRY,
+  MAGIC_LINK_TOKEN: TOKEN_CONFIG.MAGIC_LINK_TOKEN_EXPIRY,
+  MFA_TOKEN: TOKEN_CONFIG.MFA_TOKEN_EXPIRY,
+  API_KEY_TOKEN: TOKEN_CONFIG.API_KEY_TOKEN_EXPIRY,
+} as const;
