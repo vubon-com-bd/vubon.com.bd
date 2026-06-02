@@ -3,12 +3,13 @@
     "target": "ES2020",
     "module": "ESNext",
     "lib": ["ES2020"],
+    "moduleResolution": "bundler",
+    "types": ["node"],                    // ✅ যোগ করুন
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": ".",                    // <- root এ ফাইল থাকলে
-    // "rootDir": "./src",             // <- src ফোল্ডারে থাকলে
+    "rootDir": "./src",
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -28,7 +29,6 @@
     "noPropertyAccessFromIndexSignature": true,
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,
-    "moduleResolution": "node",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -43,22 +43,12 @@
     "incremental": false,
     "noEmitOnError": true,
     "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": [
-    "**/*.ts",           // সব টাইপস্ক্রিপ্ট ফাইল
-    "src/**/*.ts"        // src ফোল্ডার
-  ],
-  "exclude": [
-    "node_modules", 
-    "dist", 
-    "**/*.test.ts", 
-    "**/*.spec.ts", 
-    "coverage"
-  ],
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts", "coverage"],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"
