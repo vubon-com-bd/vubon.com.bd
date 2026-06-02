@@ -51,22 +51,31 @@ import { MfaVerificationFailedEvent } from '../../events/mfa-verification-failed
 import { MfaBackupCodeUsedEvent } from '../../events/mfa-backup-code-used.event';
 import { MfaBackupCodesRegeneratedEvent } from '../../events/mfa-backup-codes-regenerated.event';
 import { MfaLockResetEvent } from '../../events/mfa-lock-reset.event';
+import { MfaPrimaryMethodChangedEvent } from '../../events/mfa-primary-method-changed.event';
+import { MfaMethodRemovedEvent } from '../../events/mfa-method-removed.event';
 
 import { MfaMapper, MfaBackupCodesResponseDto } from '../../mappers/mfa.mapper';
 import { MfaGenerator, EventBus, TransactionManager, CacheService, PasswordHasher, TokenGenerator } from './infrastructure.interface';
 
-// ============================================================
-// Constants
-// ============================================================
+// ✅ GRUP 1: shared-constants থেকে ইম্পোর্ট
+import { 
+  MFA_CONFIG,
+  MFA_TYPES,
+  TOKEN_TYPES,
+  SESSION_CONFIG,
+  OTP_CONFIG,
+  CACHE_KEY_PATTERNS
+} from '@vubon/shared-constants';
 
-const MFA_CONFIG = {
-  MAX_VERIFICATION_ATTEMPTS: 3,
-  VERIFICATION_SESSION_TTL_SECONDS: 300, // 5 minutes
-  BACKUP_CODE_REGENERATE_COOLDOWN_HOURS: 24,
-  TRUSTED_SESSION_DAYS: 30,
-  OTP_RESEND_COOLDOWN_SECONDS: 30,
-  MAX_OTP_REQUESTS_PER_HOUR: 5,
-};
+// ✅ GRUP 2: shared-utils থেকে ইম্পোর্ট
+import { 
+  maskEmail, 
+  maskPhoneNumber, 
+  maskAccountNumber 
+} from '@vubon/shared-utils';
+
+// ✅ GRUP 3: CacheKeyBuilder ব্যবহার
+import { CacheKeyBuilder } from '../interfaces/cache.service.interface';
 
 // ============================================================
 // MFA Service Implementation
@@ -90,6 +99,73 @@ export class MfaServiceImpl implements MfaService {
   ) {}
 
   // ============================================================
+  // Private Helper Methods
+  // ============================================================
+
+  private generateId(): string {
+    return crypto.randomUUID();
+  }
+
+  private async findUserOrThrow(userId: string): Promise<User> {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
+  private async hashBackupCodes(codes: string[]): Promise<string[]> {
+    const hashedCodes = await Promise.all(
+      codes.map(code => this.mfaGenerator.hashBackupCode(code))
+    );
+    return hashedCodes;
+  }
+
+  private getMfaTypeDisplayName(type: MFAType): string {
+    const displayNames: Record<MFAType, string> = {
+      [MFAType.TOTP]: 'Authenticator App',
+      [MFAType.SMS]: 'SMS',
+      [MFAType.EMAIL]: 'Email',
+      [MFAType.WEBAUTHN]: 'Passkey/Biometric',
+      [MFAType.WHATSAPP]: 'WhatsApp',
+      [MFAType.IMO]: 'Imo',
+      [MFAType.BKASH_PIN]: 'bKash PIN',
+      [MFAType.NAGAD_PIN]: 'Nagad PIN',
+      [MFAType.ROCKET_PIN]: 'Rocket PIN',
+      [MFAType.VOICE_CALL]: 'Voice Call',
+    };
+    return displayNames[type] || type;
+  }
+
+  private getMfaTypeDisplayNameBn(type: MFAType): string {
+    const displayNamesBn: Record<MFAType, string> = {
+      [MFAType.TOTP]: 'অথেনটিকেটর অ্যাপ',
+      [MFAType.SMS]: 'এসএমএস',
+      [MFAType.EMAIL]: 'ইমেইল',
+      [MFAType.WEBAUTHN]: 'পাসকি/বায়োমেট্রিক',
+      [MFAType.WHATSAPP]: 'হোয়াটসঅ্যাপ',
+      [MFAType.IMO]: 'আইএমও',
+      [MFAType.BKASH_PIN]: 'বিকাশ পিন',
+      [MFAType.NAGAD_PIN]: 'নগদ পিন',
+      [MFAType.ROCKET_PIN]: 'রকেট পিন',
+      [MFAType.VOICE_CALL]: 'ভয়েস কল',
+    };
+    return displayNamesBn[type] || type;
+  }
+
+  private async checkBackupCodeRegenerationLimit(userId: string): Promise<boolean> {
+    const cacheKey = CacheKeyBuilder.mfaBackupRegenerate(userId);
+    const lastRegeneration = await this.cacheService.get<number>(cacheKey);
+    
+    if (!lastRegeneration) {
+      return true;
+    }
+    
+    const hoursSinceLastRegeneration = (Date.now() - lastRegeneration) / (1000 * 60 * 60);
+    return hoursSinceLastRegeneration >= MFA_CONFIG.BACKUP_CODE_REGENERATE_COOLDOWN_HOURS;
+  }
+
+  // ============================================================
   // MFA Setup
   // ============================================================
 
@@ -100,41 +176,43 @@ export class MfaServiceImpl implements MfaService {
   ): Promise<EnableMfaResponseDto> {
     const user = await this.findUserOrThrow(userId);
 
-    // Check if MFA already enabled for this type
-    const existingMfa = await this.mfaRepository.findByUserIdAndType(userId, dto.type as MFAType);
+    // ✅ GRUP 4: এনাম টাইপ ব্যবহার
+    const mfaType = dto.type as MFAType;
+    
+    const existingMfa = await this.mfaRepository.findByUserIdAndType(userId, mfaType);
     if (existingMfa && existingMfa.isEnabled()) {
       throw new ConflictException(`MFA with type ${dto.type} is already enabled`);
     }
 
     let setupResult;
 
-    switch (dto.type) {
-      case DtoMFAType.TOTP:
+    switch (mfaType) {
+      case MFAType.TOTP:
         setupResult = await this.setupTOTP(user, dto, deviceInfo);
         break;
-      case DtoMFAType.SMS:
+      case MFAType.SMS:
         setupResult = await this.setupSMS(user, dto, deviceInfo);
         break;
-      case DtoMFAType.EMAIL:
+      case MFAType.EMAIL:
         setupResult = await this.setupEmail(user, dto, deviceInfo);
         break;
-      case DtoMFAType.WHATSAPP:
+      case MFAType.WHATSAPP:
         setupResult = await this.setupWhatsApp(user, dto, deviceInfo);
         break;
-      case DtoMFAType.BKASH_PIN:
+      case MFAType.BKASH_PIN:
         setupResult = await this.setupBkashPin(user, dto, deviceInfo);
         break;
-      case DtoMFAType.NAGAD_PIN:
+      case MFAType.NAGAD_PIN:
         setupResult = await this.setupNagadPin(user, dto, deviceInfo);
         break;
-      case DtoMFAType.ROCKET_PIN:
+      case MFAType.ROCKET_PIN:
         setupResult = await this.setupRocketPin(user, dto, deviceInfo);
         break;
       default:
         throw new BadRequestException(`Unsupported MFA type: ${dto.type}`);
     }
 
-    return new EnableMfaResponseDto(dto.type as MFAType, setupResult);
+    return new EnableMfaResponseDto(mfaType, setupResult);
   }
 
   private async setupTOTP(
@@ -144,14 +222,10 @@ export class MfaServiceImpl implements MfaService {
   ): Promise<any> {
     const email = user.getEmail().getValue();
     const secret = await this.mfaGenerator.generateTOTPSecret(email);
-    const qrCodeUri = secret.qrCodeUri;
-    const provisioningUri = secret.provisioningUri;
     const backupCodes = await this.mfaGenerator.generateBackupCodes();
 
-    // Hash backup codes for storage
     const hashedBackupCodes = await this.hashBackupCodes(backupCodes);
 
-    // Create MFA entity (pending verification)
     const mfa = MFA.enable(
       user.getId(),
       MFAType.TOTP,
@@ -160,7 +234,7 @@ export class MfaServiceImpl implements MfaService {
       hashedBackupCodes,
       dto.makePrimary || false,
       1,
-      this.generateId
+      () => this.generateId()
     );
 
     await this.mfaRepository.save(mfa);
@@ -168,8 +242,8 @@ export class MfaServiceImpl implements MfaService {
     return {
       methodId: mfa.getId(),
       secret: secret.secret,
-      qrCodeUri,
-      provisioningUri,
+      qrCodeUri: secret.qrCodeUri,
+      provisioningUri: secret.provisioningUri,
       recoveryCodes: backupCodes,
     };
   }
@@ -195,23 +269,25 @@ export class MfaServiceImpl implements MfaService {
       hashedBackupCodes,
       dto.makePrimary || false,
       2,
-      this.generateId
+      () => this.generateId()
     );
 
     await this.mfaRepository.save(mfa);
 
-    // Store OTP session
+    // ✅ GRUP 3: CacheKeyBuilder ব্যবহার
+    const otpKey = CacheKeyBuilder.mfaOtp(mfa.getId());
     await this.cacheService.set(
-      `mfa:otp:${mfa.getId()}`,
+      otpKey,
       { otp: otpResult.sessionId, phone: dto.phone },
       MFA_CONFIG.VERIFICATION_SESSION_TTL_SECONDS
     );
 
     return {
       methodId: mfa.getId(),
-      maskedPhone: otpResult.maskedPhone,
+      // ✅ GRUP 2: shared-utils থেকে মাস্কিং ফাংশন
+      maskedPhone: maskPhoneNumber(dto.phone),
       recoveryCodes: backupCodes,
-      resendCooldownSeconds: otpResult.resendCooldownSeconds,
+      resendCooldownSeconds: MFA_CONFIG.RESEND_COOLDOWN_SECONDS,
     };
   }
 
@@ -236,22 +312,24 @@ export class MfaServiceImpl implements MfaService {
       hashedBackupCodes,
       dto.makePrimary || false,
       4,
-      this.generateId
+      () => this.generateId()
     );
 
     await this.mfaRepository.save(mfa);
 
+    // ✅ GRUP 3: CacheKeyBuilder ব্যবহার
+    const otpKey = CacheKeyBuilder.mfaOtp(mfa.getId());
     await this.cacheService.set(
-      `mfa:otp:${mfa.getId()}`,
+      otpKey,
       { otp: otpResult.sessionId, phone: dto.phone },
       MFA_CONFIG.VERIFICATION_SESSION_TTL_SECONDS
     );
 
     return {
       methodId: mfa.getId(),
-      maskedPhone: otpResult.maskedPhone,
+      maskedPhone: maskPhoneNumber(dto.phone),
       recoveryCodes: backupCodes,
-      resendCooldownSeconds: otpResult.resendCooldownSeconds,
+      resendCooldownSeconds: MFA_CONFIG.RESEND_COOLDOWN_SECONDS,
     };
   }
 
@@ -275,14 +353,14 @@ export class MfaServiceImpl implements MfaService {
       hashedBackupCodes,
       dto.makePrimary || false,
       7,
-      this.generateId
+      () => this.generateId()
     );
 
     await this.mfaRepository.save(mfa);
 
     return {
       methodId: mfa.getId(),
-      maskedAccount: this.maskAccountNumber(dto.bkashAccount),
+      maskedAccount: maskAccountNumber(dto.bkashAccount),
       provider: 'bKash',
       recoveryCodes: backupCodes,
     };
@@ -308,14 +386,14 @@ export class MfaServiceImpl implements MfaService {
       hashedBackupCodes,
       dto.makePrimary || false,
       7,
-      this.generateId
+      () => this.generateId()
     );
 
     await this.mfaRepository.save(mfa);
 
     return {
       methodId: mfa.getId(),
-      maskedAccount: this.maskAccountNumber(dto.nagadAccount),
+      maskedAccount: maskAccountNumber(dto.nagadAccount),
       provider: 'Nagad',
       recoveryCodes: backupCodes,
     };
@@ -341,14 +419,14 @@ export class MfaServiceImpl implements MfaService {
       hashedBackupCodes,
       dto.makePrimary || false,
       7,
-      this.generateId
+      () => this.generateId()
     );
 
     await this.mfaRepository.save(mfa);
 
     return {
       methodId: mfa.getId(),
-      maskedAccount: this.maskAccountNumber(dto.rocketAccount),
+      maskedAccount: maskAccountNumber(dto.rocketAccount),
       provider: 'Rocket',
       recoveryCodes: backupCodes,
     };
@@ -372,22 +450,24 @@ export class MfaServiceImpl implements MfaService {
       hashedBackupCodes,
       dto.makePrimary || false,
       3,
-      this.generateId
+      () => this.generateId()
     );
 
     await this.mfaRepository.save(mfa);
 
+    // ✅ GRUP 3: CacheKeyBuilder ব্যবহার
+    const otpKey = CacheKeyBuilder.mfaOtp(mfa.getId());
     await this.cacheService.set(
-      `mfa:otp:${mfa.getId()}`,
+      otpKey,
       { otp: otpResult.sessionId, email },
       MFA_CONFIG.VERIFICATION_SESSION_TTL_SECONDS
     );
 
     return {
       methodId: mfa.getId(),
-      maskedEmail: this.maskEmail(email),
+      maskedEmail: maskEmail(email),
       recoveryCodes: backupCodes,
-      resendCooldownSeconds: otpResult.resendCooldownSeconds,
+      resendCooldownSeconds: MFA_CONFIG.RESEND_COOLDOWN_SECONDS,
     };
   }
 
@@ -397,7 +477,9 @@ export class MfaServiceImpl implements MfaService {
     code: string,
     deviceInfo: DeviceInfo
   ): Promise<MfaVerificationResponseDto> {
-    const mfa = await this.mfaRepository.findByUserIdAndType(userId, type as MFAType);
+    // ✅ GRUP 4: এনাম টাইপ ব্যবহার
+    const mfaType = type as MFAType;
+    const mfa = await this.mfaRepository.findByUserIdAndType(userId, mfaType);
     
     if (!mfa || mfa.getStatus() !== MFAStatus.PENDING_VERIFICATION) {
       throw new BadRequestException('MFA setup not found or already verified');
@@ -405,21 +487,24 @@ export class MfaServiceImpl implements MfaService {
 
     let isValid = false;
 
-    switch (type as MFAType) {
+    switch (mfaType) {
       case MFAType.TOTP:
         isValid = await this.mfaGenerator.verifyTOTPCode(mfa.getSecret(), code);
         break;
       case MFAType.SMS:
       case MFAType.WHATSAPP:
       case MFAType.EMAIL:
-        const otpData = await this.cacheService.get(`mfa:otp:${mfa.getId()}`);
+        // ✅ GRUP 3: CacheKeyBuilder ব্যবহার
+        const otpKey = CacheKeyBuilder.mfaOtp(mfa.getId());
+        const otpData = await this.cacheService.get<{ otp: string; phone?: string; email?: string }>(otpKey);
+        
         if (otpData) {
-          if (type === MFAType.SMS) {
-            isValid = await this.mfaGenerator.verifySmsOtp(otpData.phone, code, otpData.otp);
-          } else if (type === MFAType.WHATSAPP) {
-            isValid = await this.mfaGenerator.verifyWhatsAppOtp(otpData.phone, code, otpData.otp);
+          if (mfaType === MFAType.SMS) {
+            isValid = await this.mfaGenerator.verifySmsOtp(otpData.phone!, code, otpData.otp);
+          } else if (mfaType === MFAType.WHATSAPP) {
+            isValid = await this.mfaGenerator.verifyWhatsAppOtp(otpData.phone!, code, otpData.otp);
           } else {
-            isValid = await this.mfaGenerator.verifyEmailOtp(otpData.email, code, otpData.otp);
+            isValid = await this.mfaGenerator.verifyEmailOtp(otpData.email!, code, otpData.otp);
           }
         }
         break;
@@ -440,7 +525,6 @@ export class MfaServiceImpl implements MfaService {
       throw new BadRequestException('Invalid verification code');
     }
 
-    // Complete MFA setup
     mfa.markAsVerified();
     
     const user = await this.findUserOrThrow(userId);
@@ -451,13 +535,14 @@ export class MfaServiceImpl implements MfaService {
       await this.userRepository.save(user);
     });
 
-    // Clean up OTP session
-    await this.cacheService.del(`mfa:otp:${mfa.getId()}`);
+    // ✅ GRUP 3: CacheKeyBuilder ব্যবহার করে ক্লিনআপ
+    const otpKey = CacheKeyBuilder.mfaOtp(mfa.getId());
+    await this.cacheService.del(otpKey);
 
     await this.eventBus.publish(
       new MfaEnabledEvent(
         userId,
-        type as MFAType,
+        mfaType,
         mfa.getId(),
         deviceInfo.correlationId,
         deviceInfo.ipAddress,
@@ -483,8 +568,10 @@ export class MfaServiceImpl implements MfaService {
     dto: VerifyMfaDto,
     deviceInfo: DeviceInfo
   ): Promise<MfaVerifyResponseDto> {
-    // Get MFA session from cache
-    const sessionData = await this.cacheService.get(`mfa:login:session:${dto.mfaSessionId}`);
+    // ✅ GRUP 3: CacheKeyBuilder ব্যবহার
+    const mfaSessionKey = CacheKeyBuilder.mfaSession(dto.mfaSessionId);
+    const sessionData = await this.cacheService.get<{ sessionId: string; userId: string }>(mfaSessionKey);
+    
     if (!sessionData) {
       throw new UnauthorizedException('Invalid or expired MFA session');
     }
@@ -495,7 +582,6 @@ export class MfaServiceImpl implements MfaService {
       throw new BadRequestException('MFA is not enabled for this user');
     }
 
-    // Check if MFA is locked
     if (mfa.isLocked()) {
       const remainingMinutes = mfa.getRemainingLockTimeMinutes();
       throw new UnauthorizedException(`MFA is locked. Try again in ${remainingMinutes} minutes.`);
@@ -509,10 +595,9 @@ export class MfaServiceImpl implements MfaService {
       const result = await this.mfaGenerator.verifyBackupCode(hashedCode, mfa.getBackupCodes() as string[]);
       verified = result.isValid;
       
-      if (verified) {
-        // Remove used backup code
+      if (verified && result.usedIndex !== undefined) {
         const updatedCodes = [...mfa.getBackupCodes()];
-        updatedCodes.splice(result.usedIndex!, 1);
+        updatedCodes.splice(result.usedIndex, 1);
         await this.mfaRepository.updateBackupCodes(mfa.getId(), updatedCodes);
         
         await this.eventBus.publish(
@@ -588,14 +673,14 @@ export class MfaServiceImpl implements MfaService {
       trustedDeviceId = await this.createTrustedDevice(user, dto.deviceId, deviceInfo);
     }
 
-    // Delete MFA session from cache
-    await this.cacheService.del(`mfa:login:session:${dto.mfaSessionId}`);
+    // ✅ GRUP 3: CacheKeyBuilder ব্যবহার করে ক্লিনআপ
+    await this.cacheService.del(mfaSessionKey);
 
     return new MfaVerifyResponseDto(
       tokenPair.accessToken,
       tokenPair.refreshToken || '',
       tokenPair.expiresIn,
-      tokenPair.refreshExpiresIn || 604800,
+      tokenPair.refreshExpiresIn || MFA_CONFIG.TRUSTED_SESSION_DAYS * 86400,
       sessionData.sessionId,
       {
         id: user.getId(),
@@ -605,6 +690,23 @@ export class MfaServiceImpl implements MfaService {
       },
       !!trustedDeviceId
     );
+  }
+
+  private async createTrustedDevice(
+    user: User,
+    deviceId: string,
+    deviceInfo: DeviceInfo
+  ): Promise<string> {
+    // Create trusted device record
+    const device = await this.deviceRepository.createOrUpdate(
+      user.getId(),
+      deviceId,
+      deviceInfo.userAgent,
+      deviceInfo.ipAddress,
+      MFA_CONFIG.TRUSTED_SESSION_DAYS
+    );
+    
+    return device.getId();
   }
 
   async verifyBackupCode(
@@ -621,15 +723,16 @@ export class MfaServiceImpl implements MfaService {
     const hashedCode = await this.mfaGenerator.hashBackupCode(backupCode);
     const result = await this.mfaGenerator.verifyBackupCode(hashedCode, mfa.getBackupCodes() as string[]);
     
-    if (result.isValid) {
+    if (result.isValid && result.usedIndex !== undefined) {
       const updatedCodes = [...mfa.getBackupCodes()];
-      updatedCodes.splice(result.usedIndex!, 1);
+      updatedCodes.splice(result.usedIndex, 1);
       await this.mfaRepository.updateBackupCodes(mfa.getId(), updatedCodes);
       
-      const warning = result.remainingCodes <= 3 
+      const isLow = result.remainingCodes <= 3;
+      const warning = isLow 
         ? `You have only ${result.remainingCodes} backup codes remaining. Please generate new ones.`
         : undefined;
-      const warningBn = result.remainingCodes <= 3
+      const warningBn = isLow
         ? `আপনার কাছে মাত্র ${result.remainingCodes}টি ব্যাকআপ কোড বাকি আছে। অনুগ্রহ করে নতুন জেনারেট করুন।`
         : undefined;
       
@@ -638,7 +741,7 @@ export class MfaServiceImpl implements MfaService {
         remainingCodes: result.remainingCodes,
         warning,
         warningBn,
-        isLow: result.remainingCodes <= 3,
+        isLow,
       };
     }
     
@@ -713,12 +816,10 @@ export class MfaServiceImpl implements MfaService {
       throw new UnauthorizedException('Invalid verification');
     }
 
-    // Disable MFA
     mfa.disable();
     
     const user = await this.findUserOrThrow(userId);
     
-    // Check if user has other MFA methods
     const otherMethods = await this.mfaRepository.findAllByUserId(userId);
     const hasOtherMethods = otherMethods.some(m => m.getId() !== mfa.getId() && m.isEnabled());
     
@@ -733,7 +834,6 @@ export class MfaServiceImpl implements MfaService {
       }
     });
 
-    // Revoke all sessions if no MFA left
     if (!hasOtherMethods) {
       await this.sessionRepository.revokeAllByUserId(userId, 'MFA disabled');
     }
@@ -757,7 +857,7 @@ export class MfaServiceImpl implements MfaService {
       undefined,
       1,
       !hasOtherMethods,
-      [methodId],
+      [methodId || mfa.getId()],
       hasOtherMethods
     );
   }
@@ -769,22 +869,28 @@ export class MfaServiceImpl implements MfaService {
     const enabledMethods = methods.filter(m => m.isEnabled());
     const primaryMethod = enabledMethods.find(m => m.isPrimary()) || enabledMethods[0];
     
+    const maskedPhone = methods.find(m => m.getType() === MFAType.SMS || m.getType() === MFAType.WHATSAPP)
+      ?.getIdentifier();
+    const maskedEmail = methods.find(m => m.getType() === MFAType.EMAIL)
+      ?.getIdentifier();
+    const maskedBkashAccount = methods.find(m => m.getType() === MFAType.BKASH_PIN)
+      ?.getIdentifier();
+    
     return new MFAStatusResponseDto(
       enabledMethods.length > 0,
       primaryMethod?.getType(),
       enabledMethods.map(m => m.getType()),
-      undefined, // maskedPhone
-      undefined, // maskedEmail
+      maskedPhone ? maskPhoneNumber(maskedPhone) : undefined,
+      maskedEmail ? maskEmail(maskedEmail) : undefined,
       methods.some(m => m.getStatus() === MFAStatus.PENDING_VERIFICATION),
       methods.reduce((sum, m) => sum + m.getRemainingBackupCodesCount(), 0),
       methods.some(m => m.areBackupCodesLow()),
-      undefined, // maskedBkashAccount
+      maskedBkashAccount ? maskAccountNumber(maskedBkashAccount) : undefined,
       primaryMethod?.getType()
     );
   }
 
   async getDetailedMfaStatus(userId: string, adminId: string): Promise<MFAStatusResponseDto> {
-    // Admin audit log
     this.logger.log(`Admin ${adminId} accessed MFA details for user ${userId}`);
     return this.getMfaStatus(userId);
   }
@@ -798,183 +904,4 @@ export class MfaServiceImpl implements MfaService {
       typeDisplayName: this.getMfaTypeDisplayName(m.getType()),
       typeDisplayNameBn: this.getMfaTypeDisplayNameBn(m.getType()),
       identifier: m.getIdentifier(),
-      maskedIdentifier: this.maskIdentifier(m.getIdentifier(), m.getType()),
-      isPrimary: m.isPrimary(),
-      isVerified: m.isEnabled(),
-      createdAt: m.getCreatedAt(),
-      lastUsedAt: m.getLastUsedAt(),
-    }));
-  }
-
-  async setPrimaryMfaMethod(userId: string, methodId: string, deviceInfo: DeviceInfo): Promise<void> {
-    const methods = await this.mfaRepository.findAllByUserId(userId);
-    
-    for (const method of methods) {
-      const isPrimary = method.getId() === methodId;
-      if (method.isPrimary() !== isPrimary) {
-        method.setPrimary(isPrimary);
-        await this.mfaRepository.save(method);
-      }
-    }
-    
-    await this.eventBus.publish(
-      new MfaPrimaryMethodChangedEvent(userId, methodId, deviceInfo.correlationId)
-    );
-  }
-
-  async removeMfaMethod(userId: string, methodId: string, deviceInfo: DeviceInfo): Promise<void> {
-    const mfa = await this.mfaRepository.findById(methodId);
-    
-    if (!mfa || mfa.getUserId() !== userId) {
-      throw new NotFoundException('MFA method not found');
-    }
-    
-    if (!mfa.isEnabled()) {
-      throw new BadRequestException('MFA method is not enabled');
-    }
-    
-    mfa.disable();
-    await this.mfaRepository.save(mfa);
-    
-    const otherMethods = await this.mfaRepository.findAllByUserId(userId);
-    const hasOtherMethods = otherMethods.some(m => m.getId() !== methodId && m.isEnabled());
-    
-    if (!hasOtherMethods) {
-      const user = await this.findUserOrThrow(userId);
-      user.disableMFA();
-      await this.userRepository.save(user);
-    }
-    
-    await this.eventBus.publish(
-      new MfaMethodRemovedEvent(userId, mfa.getType(), methodId, deviceInfo.correlationId)
-    );
-  }
-
-  // ============================================================
-  // Backup Codes Management
-  // ============================================================
-
-  async generateBackupCodes(
-    userId: string,
-    deviceInfo: DeviceInfo
-  ): Promise<MfaBackupCodesResponseDto> {
-    const methods = await this.mfaRepository.findAllByUserId(userId);
-    const enabledMethods = methods.filter(m => m.isEnabled());
-    
-    if (enabledMethods.length === 0) {
-      throw new BadRequestException('No MFA methods enabled');
-    }
-    
-    // Generate for primary method or first enabled
-    const targetMethod = enabledMethods.find(m => m.isPrimary()) || enabledMethods[0];
-    
-    // Rate limiting check
-    const canRegenerate = await this.checkBackupCodeRegenerationLimit(userId);
-    if (!canRegenerate) {
-      throw new TooManyRequestsException(
-        `Backup codes can only be regenerated once every ${MFA_CONFIG.BACKUP_CODE_REGENERATE_COOLDOWN_HOURS} hours`
-      );
-    }
-    
-    const newBackupCodes = await this.mfaGenerator.generateBackupCodes();
-    const hashedCodes = await this.hashBackupCodes(newBackupCodes);
-    
-    await this.mfaRepository.updateBackupCodes(targetMethod.getId(), hashedCodes);
-    
-    await this.cacheService.set(
-      `mfa:backup:regenerate:${userId}`,
-      Date.now(),
-      MFA_CONFIG.BACKUP_CODE_REGENERATE_COOLDOWN_HOURS * 3600
-    );
-    
-    await this.eventBus.publish(
-      new MfaBackupCodesRegeneratedEvent(userId, deviceInfo.correlationId)
-    );
-    
-    return {
-      backupCodes: newBackupCodes,
-      remainingCount: newBackupCodes.length,
-      regeneratedAt: new Date(),
-    };
-  }
-
-  async regenerateBackupCodes(
-    userId: string,
-    deviceInfo: DeviceInfo
-  ): Promise<MfaBackupCodesResponseDto> {
-    return this.generateBackupCodes(userId, deviceInfo);
-  }
-
-  async getRemainingBackupCodesCount(userId: string): Promise<number> {
-    const methods = await this.mfaRepository.findAllByUserId(userId);
-    return methods.reduce((sum, m) => sum + m.getRemainingBackupCodesCount(), 0);
-  }
-
-  async getMaskedBackupCodes(userId: string): Promise<{ codes: string[]; remainingCount: number }> {
-    const methods = await this.mfaRepository.findAllByUserId(userId);
-    const primaryMethod = methods.find(m => m.isPrimary()) || methods[0];
-    
-    if (!primaryMethod) {
-      return { codes: [], remainingCount: 0 };
-    }
-    
-    // Return masked codes (last 4 chars only)
-    const codes = primaryMethod.getBackupCodes().map(code => `****-****-${code.slice(-4)}`);
-    return {
-      codes,
-      remainingCount: primaryMethod.getRemainingBackupCodesCount(),
-    };
-  }
-
-  // ============================================================
-  // MFA Lock Management
-  // ============================================================
-
-  async isMfaLocked(userId: string): Promise<MFALockStatus> {
-    const mfa = await this.mfaRepository.findByUserId(userId);
-    if (!mfa) {
-      return { isLocked: false, remainingMinutes: 0, remainingSeconds: 0 };
-    }
-    
-    const remainingSeconds = mfa.getRemainingLockTimeMinutes() * 60;
-    return {
-      isLocked: mfa.isLocked(),
-      remainingMinutes: mfa.getRemainingLockTimeMinutes(),
-      remainingSeconds,
-      lockedAt: mfa.getLockedAt(),
-      expiresAt: mfa.getLockedUntil(),
-    };
-  }
-
-  async getRemainingVerificationAttempts(userId: string): Promise<number> {
-    const mfa = await this.mfaRepository.findByUserId(userId);
-    if (!mfa) {
-      return MFA_CONFIG.MAX_VERIFICATION_ATTEMPTS;
-    }
-    return mfa.getRemainingAttempts();
-  }
-
-  async resetMfaLock(userId: string, adminId: string, deviceInfo: DeviceInfo): Promise<void> {
-    const mfa = await this.mfaRepository.findByUserId(userId);
-    if (!mfa) {
-      throw new NotFoundException('MFA not found');
-    }
-    
-    mfa.unlock();
-    await this.mfaRepository.save(mfa);
-    
-    await this.eventBus.publish(
-      new MfaLockResetEvent(userId, adminId, deviceInfo.correlationId)
-    );
-  }
-
-  // ============================================================
-  // Recovery Options
-  // ============================================================
-
-  async getRecoveryOptions(userId: string): Promise<MFARecoveryOptions> {
-    const mfa = await this.mfaRepository.findByUserId(userId);
-    const user = await this.userRepository.findById(userId);
-    
-    const recoveryEmail = user?.getEmail().getValue();
-    const recoveryPhone = user?.getPhone()?.getE164
+      maskedIdentifier: this.maskIdentifier(m.getIdentifier(),
