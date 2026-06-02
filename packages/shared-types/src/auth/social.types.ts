@@ -21,7 +21,7 @@ import type {
   SOCIAL_ICONS,
   SOCIAL_PROVIDER_PRIORITY,
   SOCIAL_AUTH_RATE_LIMITS,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // ============================================================
 // Social Provider Types (Based on constants - NO enums)
