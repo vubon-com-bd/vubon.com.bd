@@ -18,7 +18,7 @@ import type {
   PERMISSION_RESOURCES,
   PERMISSION_ACTIONS,
   PERMISSION_CATEGORIES,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // ============================================================
 // Permission Resource Types (Based on constants - NO enums)
