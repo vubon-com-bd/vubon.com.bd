@@ -16,136 +16,23 @@
  * ✅ Bangladesh specific - District, upazila, mobile operator tracking
  */
 
+// ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট
+import type { 
+  AuditAction as SharedAuditAction, 
+  AuditSeverity as SharedAuditSeverity,
+  AuditExportFormat as SharedAuditExportFormat
+} from '@vubon/shared-types';
+
+// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট
+import { AUDIT_CONFIG } from '@vubon/shared-constants';
+
 // ============================================================
 // Audit Action Types (Extended for Bangladesh)
+// Using shared-types for consistency
 // ============================================================
 
-export enum AuditAction {
-  // Authentication
-  LOGIN_SUCCESS = 'LOGIN_SUCCESS',
-  LOGIN_FAILED = 'LOGIN_FAILED',
-  LOGOUT = 'LOGOUT',
-  REGISTER = 'REGISTER',
-  REGISTER_COMPLETED = 'REGISTER_COMPLETED',
-  
-  // Account Management
-  ACCOUNT_UPDATED = 'ACCOUNT_UPDATED',
-  ACCOUNT_DELETED = 'ACCOUNT_DELETED',
-  ACCOUNT_RESTORED = 'ACCOUNT_RESTORED',
-  ACCOUNT_LOCKED = 'ACCOUNT_LOCKED',
-  ACCOUNT_UNLOCKED = 'ACCOUNT_UNLOCKED',
-  ACCOUNT_SUSPENDED = 'ACCOUNT_SUSPENDED',
-  ACCOUNT_ACTIVATED = 'ACCOUNT_ACTIVATED',
-  
-  // Password
-  PASSWORD_CHANGED = 'PASSWORD_CHANGED',
-  PASSWORD_RESET = 'PASSWORD_RESET',
-  PASSWORD_RESET_REQUESTED = 'PASSWORD_RESET_REQUESTED',
-  PASSWORD_RESET_FAILED = 'PASSWORD_RESET_FAILED',
-  
-  // Email/Phone
-  EMAIL_UPDATED = 'EMAIL_UPDATED',
-  EMAIL_VERIFIED = 'EMAIL_VERIFIED',
-  EMAIL_VERIFICATION_SENT = 'EMAIL_VERIFICATION_SENT',
-  PHONE_UPDATED = 'PHONE_UPDATED',
-  PHONE_VERIFIED = 'PHONE_VERIFIED',
-  PHONE_VERIFICATION_SENT = 'PHONE_VERIFICATION_SENT',
-  
-  // MFA
-  MFA_ENABLED = 'MFA_ENABLED',
-  MFA_DISABLED = 'MFA_DISABLED',
-  MFA_VERIFIED = 'MFA_VERIFIED',
-  MFA_FAILED = 'MFA_FAILED',
-  MFA_BACKUP_CODE_USED = 'MFA_BACKUP_CODE_USED',
-  MFA_SETUP_INITIATED = 'MFA_SETUP_INITIATED',
-  MFA_METHOD_ADDED = 'MFA_METHOD_ADDED',
-  MFA_METHOD_REMOVED = 'MFA_METHOD_REMOVED',
-  
-  // Session
-  SESSION_CREATED = 'SESSION_CREATED',
-  SESSION_REVOKED = 'SESSION_REVOKED',
-  SESSION_REVOKED_ALL = 'SESSION_REVOKED_ALL',
-  SESSION_EXTENDED = 'SESSION_EXTENDED',
-  SESSION_EXPIRED = 'SESSION_EXPIRED',
-  
-  // Device
-  DEVICE_REGISTERED = 'DEVICE_REGISTERED',
-  DEVICE_TRUSTED = 'DEVICE_TRUSTED',
-  DEVICE_UNTRUSTED = 'DEVICE_UNTRUSTED',
-  DEVICE_REMOVED = 'DEVICE_REMOVED',
-  
-  // Social Auth
-  SOCIAL_LOGIN = 'SOCIAL_LOGIN',
-  SOCIAL_LOGIN_FAILED = 'SOCIAL_LOGIN_FAILED',
-  SOCIAL_ACCOUNT_LINKED = 'SOCIAL_ACCOUNT_LINKED',
-  SOCIAL_ACCOUNT_UNLINKED = 'SOCIAL_ACCOUNT_UNLINKED',
-  
-  // Bangladesh Specific - MFS Payments
-  BKASH_PAYMENT_INITIATED = 'BKASH_PAYMENT_INITIATED',
-  BKASH_PAYMENT_SUCCESS = 'BKASH_PAYMENT_SUCCESS',
-  BKASH_PAYMENT_FAILED = 'BKASH_PAYMENT_FAILED',
-  NAGAD_PAYMENT_INITIATED = 'NAGAD_PAYMENT_INITIATED',
-  NAGAD_PAYMENT_SUCCESS = 'NAGAD_PAYMENT_SUCCESS',
-  NAGAD_PAYMENT_FAILED = 'NAGAD_PAYMENT_FAILED',
-  ROCKET_PAYMENT_INITIATED = 'ROCKET_PAYMENT_INITIATED',
-  ROCKET_PAYMENT_SUCCESS = 'ROCKET_PAYMENT_SUCCESS',
-  ROCKET_PAYMENT_FAILED = 'ROCKET_PAYMENT_FAILED',
-  
-  // Bangladesh Specific - Social Login
-  WHATSAPP_LOGIN = 'WHATSAPP_LOGIN',
-  WHATSAPP_LOGIN_FAILED = 'WHATSAPP_LOGIN_FAILED',
-  IMO_LOGIN = 'IMO_LOGIN',
-  IMO_LOGIN_FAILED = 'IMO_LOGIN_FAILED',
-  TELEGRAM_LOGIN = 'TELEGRAM_LOGIN',
-  TELEGRAM_LOGIN_FAILED = 'TELEGRAM_LOGIN_FAILED',
-  
-  // Admin Actions
-  ADMIN_ACTION = 'ADMIN_ACTION',
-  USER_ROLE_CHANGED = 'USER_ROLE_CHANGED',
-  USER_IMPERSONATED = 'USER_IMPERSONATED',
-  ADMIN_LOGIN = 'ADMIN_LOGIN',
-  ADMIN_LOGOUT = 'ADMIN_LOGOUT',
-  
-  // Security
-  SUSPICIOUS_ACTIVITY = 'SUSPICIOUS_ACTIVITY',
-  RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED',
-  IP_BLOCKED = 'IP_BLOCKED',
-  IP_UNBLOCKED = 'IP_UNBLOCKED',
-  DEVICE_BLOCKED = 'DEVICE_BLOCKED',
-  DEVICE_UNBLOCKED = 'DEVICE_UNBLOCKED',
-  TOKEN_COMPROMISED = 'TOKEN_COMPROMISED',
-  
-  // Data Access
-  DATA_EXPORTED = 'DATA_EXPORTED',
-  DATA_IMPORTED = 'DATA_IMPORTED',
-  SENSITIVE_DATA_ACCESSED = 'SENSITIVE_DATA_ACCESSED',
-  REPORT_GENERATED = 'REPORT_GENERATED',
-  
-  // User Profile
-  PROFILE_UPDATED = 'PROFILE_UPDATED',
-  AVATAR_UPLOADED = 'AVATAR_UPLOADED',
-  AVATAR_DELETED = 'AVATAR_DELETED',
-  
-  // Location (Bangladesh specific)
-  DISTRICT_CHANGED = 'DISTRICT_CHANGED',
-  UPAZILA_CHANGED = 'UPAZILA_CHANGED',
-  ADDRESS_ADDED = 'ADDRESS_ADDED',
-  ADDRESS_UPDATED = 'ADDRESS_UPDATED',
-  ADDRESS_DELETED = 'ADDRESS_DELETED',
-}
-
-// ============================================================
-// Audit Severity Levels
-// ============================================================
-
-export enum AuditSeverity {
-  DEBUG = 'DEBUG',       // Development/debugging
-  INFO = 'INFO',         // Normal operations
-  WARNING = 'WARNING',   // Suspicious but not critical
-  ERROR = 'ERROR',       // Error occurred
-  CRITICAL = 'CRITICAL', // Security incident
-  SECURITY = 'SECURITY', // Security-related event (login, MFA, etc.)
-}
+// লোকাল এনামের বদলে শেয়ার্ড টাইপ ব্যবহার করুন
+export { SharedAuditAction as AuditAction, SharedAuditSeverity as AuditSeverity };
 
 // ============================================================
 // Audit Context (Bangladesh specific)
@@ -163,6 +50,21 @@ export interface AuditContext {
   upazila?: string;
   mobileOperator?: 'gp' | 'robi' | 'banglalink' | 'teletalk' | 'unknown';
   networkType?: '2g' | '3g' | '4g' | '5g' | 'wifi' | 'unknown';
+  // Request tracking
+  path?: string;
+  method?: string;
+  statusCode?: number;
+}
+
+// ============================================================
+// Change Detail for State Tracking
+// ============================================================
+
+export interface ChangeDetail {
+  field: string;
+  oldValue: unknown;
+  newValue: unknown;
+  dataType?: string;
 }
 
 // ============================================================
@@ -171,13 +73,14 @@ export interface AuditContext {
 
 export interface AuditLogEntry {
   id?: string;
-  action: AuditAction;
+  action: SharedAuditAction;
   userId?: string;
   email?: string;
   phoneNumber?: string;
-  severity: AuditSeverity;
+  severity: SharedAuditSeverity;
   context?: AuditContext;
   details?: Record<string, unknown>;
+  changes?: ChangeDetail[];  // ✅ Added for structured change tracking
   before?: Record<string, unknown>;
   after?: Record<string, unknown>;
   error?: string;
@@ -196,6 +99,9 @@ export interface AuditLogEntry {
   district?: string;
   upazila?: string;
   mobileOperator?: string;
+  // Performance tracking
+  responseSize?: number;
+  queryCount?: number;
 }
 
 // ============================================================
@@ -205,10 +111,10 @@ export interface AuditLogEntry {
 export interface AuditQueryFilters {
   userId?: string;
   email?: string;
-  action?: AuditAction;
-  actionList?: AuditAction[];
-  severity?: AuditSeverity;
-  severityList?: AuditSeverity[];
+  action?: SharedAuditAction;
+  actionList?: SharedAuditAction[];
+  severity?: SharedAuditSeverity;
+  severityList?: SharedAuditSeverity[];
   fromDate?: Date;
   toDate?: Date;
   ipAddress?: string;
@@ -219,6 +125,8 @@ export interface AuditQueryFilters {
   mobileOperator?: string;
   hasError?: boolean;
   search?: string;  // Search in details, error
+  path?: string;     // ✅ Added for endpoint filtering
+  statusCode?: number; // ✅ Added for HTTP status filtering
 }
 
 // ============================================================
@@ -241,14 +149,16 @@ export interface PaginatedAuditResult {
 
 export interface AuditStatistics {
   totalEvents: number;
-  byAction: Record<AuditAction, number>;
-  bySeverity: Record<AuditSeverity, number>;
+  byAction: Record<SharedAuditAction, number>;
+  bySeverity: Record<SharedAuditSeverity, number>;
   eventsLast24h: number;
   eventsLast7d: number;
   eventsLast30d: number;
   uniqueUsers: number;
-  topActions: Array<{ action: AuditAction; count: number }>;
+  topActions: Array<{ action: SharedAuditAction; count: number }>;
   topUsers: Array<{ userId: string; email: string; count: number }>;
+  averageResponseTimeMs: number;  // ✅ Added for performance monitoring
+  errorRate: number;               // ✅ Added for error tracking
   // Bangladesh specific
   eventsByDistrict?: Array<{ district: string; count: number }>;
   eventsByMobileOperator?: Array<{ operator: string; count: number }>;
@@ -256,20 +166,26 @@ export interface AuditStatistics {
 }
 
 // ============================================================
-// Audit Export Format
+// Audit Export Format (Using shared-types)
 // ============================================================
 
-export type AuditExportFormat = 'json' | 'csv' | 'xlsx';
+export { SharedAuditExportFormat as AuditExportFormat };
+export type AuditExportFormat = SharedAuditExportFormat;
 
 export interface AuditExportOptions {
   format: AuditExportFormat;
   filters: AuditQueryFilters;
   includeDetails?: boolean;
   includeBeforeAfter?: boolean;
+  includeChanges?: boolean;  // ✅ Added for structured change export
+  dateRange?: {
+    from: Date;
+    to: Date;
+  };
 }
 
 // ============================================================
-// Audit Service Configuration
+// Audit Service Configuration (Enhanced)
 // ============================================================
 
 export interface AuditServiceConfig {
@@ -279,13 +195,16 @@ export interface AuditServiceConfig {
   logSensitiveData: boolean;
   logRequestBody: boolean;
   logResponseBody: boolean;
-  excludedActions?: AuditAction[];
+  excludedActions?: SharedAuditAction[];
   excludedPaths?: string[];
   // Batch processing
   batchSize?: number;
   flushIntervalMs?: number;
   // Storage
   storageType?: 'database' | 'file' | 'elasticsearch' | 'cloudwatch';
+  // ✅ Enhanced with defaults from constants
+  maxBatchSize?: number;
+  compressionEnabled?: boolean;
   // Bangladesh specific
   logDistrictInfo?: boolean;
   logMobileOperator?: boolean;
@@ -293,7 +212,68 @@ export interface AuditServiceConfig {
 }
 
 // ============================================================
-// Audit Service Interface
+// Default Configuration (from shared-constants)
+// ============================================================
+
+export const DEFAULT_AUDIT_CONFIG: AuditServiceConfig = {
+  enabled: true,
+  retentionDays: AUDIT_CONFIG.RETENTION_DAYS,
+  asyncLogging: true,
+  logSensitiveData: false,
+  logRequestBody: false,
+  logResponseBody: false,
+  batchSize: AUDIT_CONFIG.BATCH_SIZE,
+  flushIntervalMs: AUDIT_CONFIG.FLUSH_INTERVAL_MS,
+  storageType: 'database',
+  maxBatchSize: AUDIT_CONFIG.MAX_BATCH_SIZE,
+  compressionEnabled: false,
+  logDistrictInfo: true,
+  logMobileOperator: true,
+  logNetworkType: false,
+};
+
+// ============================================================
+// Audit Summary Report
+// ============================================================
+
+export interface AuditSummaryReport {
+  period: {
+    from: Date;
+    to: Date;
+  };
+  totalEvents: number;
+  uniqueUsers: number;
+  uniqueActions: number;
+  successRate: number;
+  errorRate: number;
+  topActions: Array<{ action: SharedAuditAction; count: number }>;
+  topUsers: Array<{ userId: string; email: string; count: number }>;
+  // Performance metrics
+  averageResponseTimeMs: number;
+  p95ResponseTimeMs: number;
+  p99ResponseTimeMs: number;
+  // Bangladesh specific
+  topDistricts?: Array<{ district: string; count: number }>;
+  topMobileOperators?: Array<{ operator: string; count: number }>;
+  peakActivityHour?: number;
+  generatedAt: Date;
+}
+
+// ============================================================
+// Audit Retention Policy
+// ============================================================
+
+export interface AuditRetentionPolicy {
+  retentionDays: number;
+  archiveAfterDays: number;
+  deleteAfterDays: number;
+  archiveLocation?: string;
+  compressionEnabled: boolean;
+  excludeSeverity?: SharedAuditSeverity[];
+}
+
+// ============================================================
+// Audit Service Interface (Enhanced)
 // ============================================================
 
 export interface AuditService {
@@ -311,7 +291,7 @@ export interface AuditService {
    * @param context - Audit context (optional)
    */
   info(
-    action: AuditAction, 
+    action: SharedAuditAction, 
     userId?: string, 
     details?: Record<string, unknown>,
     context?: AuditContext
@@ -325,7 +305,7 @@ export interface AuditService {
    * @param context - Audit context (optional)
    */
   warn(
-    action: AuditAction, 
+    action: SharedAuditAction, 
     userId?: string, 
     details?: Record<string, unknown>,
     context?: AuditContext
@@ -340,7 +320,7 @@ export interface AuditService {
    * @param context - Audit context (optional)
    */
   error(
-    action: AuditAction, 
+    action: SharedAuditAction, 
     userId: string | undefined, 
     error: string, 
     details?: Record<string, unknown>,
@@ -355,7 +335,7 @@ export interface AuditService {
    * @param context - Audit context (optional)
    */
   critical(
-    action: AuditAction, 
+    action: SharedAuditAction, 
     userId?: string, 
     details?: Record<string, unknown>,
     context?: AuditContext
@@ -369,7 +349,7 @@ export interface AuditService {
    * @param context - Audit context (optional)
    */
   security(
-    action: AuditAction, 
+    action: SharedAuditAction, 
     userId?: string, 
     details?: Record<string, unknown>,
     context?: AuditContext
@@ -384,10 +364,24 @@ export interface AuditService {
    * @param context - Audit context (optional)
    */
   logChange(
-    action: AuditAction,
+    action: SharedAuditAction,
     userId: string,
     before: Record<string, unknown>,
     after: Record<string, unknown>,
+    context?: AuditContext
+  ): Promise<void>;
+  
+  /**
+   * Log structured changes with field-level tracking
+   * @param action - Audit action
+   * @param userId - User ID
+   * @param changes - Array of field changes
+   * @param context - Audit context (optional)
+   */
+  logStructuredChange(
+    action: SharedAuditAction,
+    userId: string,
+    changes: ChangeDetail[],
     context?: AuditContext
   ): Promise<void>;
   
@@ -408,6 +402,14 @@ export interface AuditService {
   getStatistics(days?: number): Promise<AuditStatistics>;
   
   /**
+   * Generate audit summary report
+   * @param fromDate - Start date
+   * @param toDate - End date
+   * @returns Audit summary report
+   */
+  generateSummaryReport(fromDate: Date, toDate: Date): Promise<AuditSummaryReport>;
+  
+  /**
    * Export audit logs for compliance
    * @param options - Export options
    * @returns Export data (string for CSV/JSON, Buffer for XLSX)
@@ -420,6 +422,13 @@ export interface AuditService {
    * @returns Number of deleted entries
    */
   cleanup(retentionDays: number): Promise<number>;
+  
+  /**
+   * Archive old audit logs
+   * @param olderThanDays - Archive logs older than N days
+   * @returns Archive result with file path
+   */
+  archiveOldLogs(olderThanDays: number): Promise<{ archivedCount: number; archivePath?: string }>;
   
   /**
    * Get a single audit entry by ID
@@ -437,13 +446,40 @@ export interface AuditService {
   getUserAuditTrail(userId: string, limit?: number): Promise<AuditLogEntry[]>;
   
   /**
+   * Get audit trail for a specific request (distributed tracing)
+   * @param correlationId - Correlation ID
+   * @returns Array of audit entries for the request chain
+   */
+  getRequestAuditTrail(correlationId: string): Promise<AuditLogEntry[]>;
+  
+  /**
    * Check if audit logging is enabled
    */
   isEnabled(): boolean;
+  
+  /**
+   * Get current audit configuration
+   */
+  getConfig(): AuditServiceConfig;
+  
+  /**
+   * Update audit configuration (dynamic)
+   * @param config - Partial configuration update
+   */
+  updateConfig(config: Partial<AuditServiceConfig>): Promise<void>;
 }
 
 // ============================================================
 // Type Exports
 // ============================================================
 
-export type { AuditContext as AuditContextType, AuditExportOptions as AuditExportOptionsType };
+export type { 
+  AuditContext as AuditContextType, 
+  AuditExportOptions as AuditExportOptionsType,
+  AuditLogEntry as AuditLogEntryType,
+  AuditQueryFilters as AuditQueryFiltersType,
+  AuditStatistics as AuditStatisticsType,
+  AuditSummaryReport as AuditSummaryReportType,
+  AuditRetentionPolicy as AuditRetentionPolicyType,
+  ChangeDetail as ChangeDetailType
+};
