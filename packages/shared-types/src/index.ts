@@ -2,7 +2,7 @@
  * Auth Types - Root Barrel Export
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-types/auth-types/index
+ * @module shared-types/index
  * 
  * RULES:
  * ✅ ONLY re-exports - NO logic, NO initialization
@@ -10,12 +10,8 @@
  * ✅ Pure TypeScript type exports only
  */
 
-// ============================================================
-// Auth Domain Types
-// ============================================================
+// Re-export all auth types
 export * from './auth';
 
-// ============================================================
-// Common Utility Types
-// ============================================================
+// Re-export all common types
 export * from './common';
