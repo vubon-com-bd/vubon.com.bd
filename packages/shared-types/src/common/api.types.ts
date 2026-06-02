@@ -12,7 +12,7 @@
  * ✅ NO framework imports
  */
 
-import type { HTTP_STATUS } from '@vubon/auth-constants';
+import type { HTTP_STATUS } from '@vubon/shared-constants';
 
 // ============================================================
 // Generic API Response Wrapper
