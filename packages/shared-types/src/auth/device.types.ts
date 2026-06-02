@@ -126,7 +126,7 @@ export interface DeviceInfo {
 // ============================================================
 // Device Fingerprint (Hashed, not raw data)
 // ============================================================
-export type FingerprintComponentValue = keyof typeof FINGERPRINT_COMPONENTS;
+export type FingerprintComponentValue = Extract<keyof typeof FINGERPRINT_COMPONENTS, string>;
 
 export interface DeviceFingerprint {
   readonly hash: string;
@@ -449,7 +449,7 @@ export interface DeviceFilterOptions {
 }
 
 // ============================================================
-// Device Trust Duration Type
+// Device Trust Duration Type (Replacement for DEVICE_TRUST_DURATION)
 // ============================================================
 export type DeviceTrustDurationValue = 
   | 0
@@ -462,6 +462,130 @@ export type DeviceTrustDurationValue =
   | 31536000
   | -1;
 
+export interface DeviceTrustDuration {
+  readonly NEVER: 0;
+  readonly ONE_DAY: 86400;
+  readonly THREE_DAYS: 259200;
+  readonly SEVEN_DAYS: 604800;
+  readonly FOURTEEN_DAYS: 1209600;
+  readonly THIRTY_DAYS: 2592000;
+  readonly NINETY_DAYS: 7776000;
+  readonly ONE_YEAR: 31536000;
+  readonly FOREVER: -1;
+}
+
+// ============================================================
+// Device Type to Category Mapping
+// ============================================================
+export type DeviceCategory = 'high_trust' | 'medium_trust' | 'low_trust' | 'restricted';
+
+export interface DeviceTypeToCategoryMap {
+  readonly desktop: 'high_trust';
+  readonly laptop: 'high_trust';
+  readonly tablet: 'medium_trust';
+  readonly mobile: 'medium_trust';
+  readonly tablet_phone: 'medium_trust';
+  readonly feature_phone: 'low_trust';
+  readonly kiosk: 'low_trust';
+  readonly pos_device: 'low_trust';
+  readonly tv: 'restricted';
+  readonly console: 'restricted';
+  readonly wearable: 'restricted';
+  readonly other: 'low_trust';
+}
+
+// ============================================================
+// Browser Trust Levels
+// ============================================================
+export type BrowserTrustScore = 
+  | 90  // Chrome, Firefox, Safari
+  | 85  // Edge, Brave
+  | 80  // Vivaldi, Samsung
+  | 70  // Opera
+  | 65  // Xiaomi, Huawei
+  | 40  // UC Browser
+  | 35  // Opera Mini
+  | 30  // UC Mini, WebView
+  | 25  // Chrome WebView
+  | 20; // Unknown
+
+export interface BrowserTrustLevels {
+  readonly chrome: 90;
+  readonly firefox: 90;
+  readonly safari: 90;
+  readonly edge: 85;
+  readonly brave: 85;
+  readonly vivaldi: 80;
+  readonly samsung_browser: 80;
+  readonly opera: 70;
+  readonly xiaomi_browser: 65;
+  readonly huawei_browser: 65;
+  readonly uc_browser: 40;
+  readonly opera_mini: 35;
+  readonly uc_mini: 35;
+  readonly bd_browser: 30;
+  readonly webview: 25;
+  readonly chrome_webview: 30;
+  readonly other: 20;
+}
+
+// ============================================================
+// Network Security Levels
+// ============================================================
+export type NetworkSecurityScore = 
+  | 90  // wifi_secure, ethernet
+  | 70  // wifi
+  | 65  // 5g
+  | 60  // 4g
+  | 40  // 3g
+  | 35  // wifi_public
+  | 20  // 2g
+  | 15  // mobile_unknown
+  | 10  // vpn
+  | 5   // proxy
+  | 0   // tor
+  | 25; // unknown
+
+export interface NetworkSecurityLevels {
+  readonly wifi_secure: 90;
+  readonly ethernet: 90;
+  readonly wifi: 70;
+  readonly mobile_5g: 65;
+  readonly mobile_4g: 60;
+  readonly mobile_3g: 40;
+  readonly wifi_public: 35;
+  readonly mobile_2g: 20;
+  readonly mobile_unknown: 15;
+  readonly vpn: 10;
+  readonly proxy: 5;
+  readonly tor: 0;
+  readonly unknown: 25;
+}
+
+// ============================================================
+// Device Metrics (For monitoring)
+// ============================================================
+export interface DeviceMetrics {
+  readonly enabled: true;
+  readonly metrics: {
+    readonly ACTIVE_DEVICES: 'vubon_devices_active';
+    readonly NEW_DEVICES_7_DAYS: 'vubon_devices_new_7d';
+    readonly UNKNOWN_DEVICES: 'vubon_devices_unknown';
+    readonly HIGH_RISK_DEVICES: 'vubon_devices_high_risk';
+    readonly BLOCKED_DEVICES: 'vubon_devices_blocked';
+    readonly DEVICE_TYPE_DISTRIBUTION: 'vubon_devices_by_type';
+    readonly BROWSER_DISTRIBUTION: 'vubon_devices_by_browser';
+    readonly OS_DISTRIBUTION: 'vubon_devices_by_os';
+    readonly NETWORK_TYPE_DISTRIBUTION: 'vubon_devices_by_network';
+    readonly DEVICE_MULTI_ACCOUNT: 'vubon_devices_multi_account';
+  };
+  readonly alertThresholds: {
+    readonly HIGH_RISK_DEVICE_PERCENTAGE: 10;
+    readonly MULTI_ACCOUNT_DEVICE_COUNT: 10;
+    readonly NEW_DEVICE_DAILY_SPIKE: 1000;
+  };
+}
+
 // ============================================================
 // Type Exports
 // ============================================================
@@ -469,6 +593,7 @@ export type DeviceInfoType = DeviceInfo;
 export type DeviceFingerprintType = DeviceFingerprint;
 export type TrustedDeviceType = TrustedDevice;
 export type DeviceDTOType = DeviceDTO;
+export type DeviceActivityTypeType = DeviceActivityType;
 export type DeviceRiskAssessmentType = DeviceRiskAssessment;
 export type DeviceStatisticsType = DeviceStatistics;
 export type DevicePairingType = DevicePairing;
