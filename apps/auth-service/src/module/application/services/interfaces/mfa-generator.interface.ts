@@ -14,196 +14,96 @@
  * ✅ Framework-free
  * ✅ Type-safe
  * ✅ Bangladesh specific - WhatsApp, Imo, bKash, Nagad, Rocket MFA support
+ * ✅ All types centralized using shared-constants and shared-types
  */
 
-// ============================================================
-// Phase-1 (shared-types & shared-constants) - Type-safe imports
-// ============================================================
-
-// Import types from shared-types
-import type {
-  MfaGeneratorType as SharedMfaGeneratorType,
-  MfaProviderInfo as SharedMfaProviderInfo,
-  MfaSetupResult as SharedMfaSetupResult,
-  TotpVerificationResult as SharedTotpVerificationResult,
-  BackupCodeResult as SharedBackupCodeResult,
-  MFSPinVerificationResult as SharedMFSPinVerificationResult,
-  OtpResult as SharedOtpResult,
+// ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট
+import type { 
+  MfaGeneratorType, 
+  MfaProviderInfo, 
+  MfaSetupResult,
+  TotpVerificationResult,
+  BackupCodeResult,
+  MFSPinVerificationResult,
+  OtpResult
 } from '@vubon/shared-types';
 
-// Import constants from shared-constants
-import {
-  MFA_TYPES,
-  MFA_CONFIG,
+// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট
+import { 
+  MFA_TYPES, 
+  MFA_PROVIDERS,
+  RECOVERY_CODE_CONFIG,
   OTP_CONFIG,
-  BACKUP_CODE_CONFIG,
-  WEBAUTHN_CONFIG,
-  MFA_PROVIDER_PRIORITY,
+  WEB_AUTHN_CONFIG
 } from '@vubon/shared-constants';
 
 // ============================================================
-// MFA Type Enum (Re-export from shared-constants for convenience)
+// Re-export types from shared-types (no local duplication)
+// ============================================================
+
+export { 
+  MfaGeneratorType,
+  MfaProviderInfo,
+  MfaSetupResult,
+  TotpVerificationResult,
+  BackupCodeResult,
+  MFSPinVerificationResult,
+  OtpResult
+};
+
+// ============================================================
+// Constants derived from shared-constants
 // ============================================================
 
 /**
- * MFA Generator Type Enum
- * Bangladesh specific types included
+ * Default number of backup codes to generate
+ * Value from RECOVERY_CODE_CONFIG.DEFAULT_COUNT
  */
-export enum MfaGeneratorType {
-  TOTP = MFA_TYPES.TOTP,
-  SMS = MFA_TYPES.SMS,
-  EMAIL = MFA_TYPES.EMAIL,
-  WEBAUTHN = MFA_TYPES.WEBAUTHN,
-  WHATSAPP = MFA_TYPES.WHATSAPP,      // Bangladesh specific
-  IMO = MFA_TYPES.IMO,                // Bangladesh specific
-  BKASH_PIN = MFA_TYPES.BKASH_PIN,    // Bangladesh specific
-  NAGAD_PIN = MFA_TYPES.NAGAD_PIN,    // Bangladesh specific
-  ROCKET_PIN = MFA_TYPES.ROCKET_PIN,  // Bangladesh specific
-  VOICE_CALL = MFA_TYPES.VOICE_CALL,  // For feature phones
-}
+export const DEFAULT_BACKUP_CODE_COUNT = RECOVERY_CODE_CONFIG.DEFAULT_COUNT;
 
-// ============================================================
-// MFA Provider Info
-// ============================================================
+/**
+ * Default length of each backup code
+ * Value from RECOVERY_CODE_CONFIG.DEFAULT_LENGTH
+ */
+export const DEFAULT_BACKUP_CODE_LENGTH = RECOVERY_CODE_CONFIG.DEFAULT_LENGTH;
 
-export interface MfaProviderInfo {
-  type: MfaGeneratorType;
-  displayName: string;
-  displayNameBn?: string;     // Bengali name
-  description: string;
-  descriptionBn?: string;     // Bengali description
-  icon?: string;
-  isEnabled: boolean;
-  priority: number;           // Display priority (from shared-constants)
-}
+/**
+ * Available MFA types for runtime validation
+ * Value from MFA_TYPES
+ */
+export const AVAILABLE_MFA_TYPES = MFA_TYPES;
 
-// ============================================================
-// MFA Setup Result
-// ============================================================
+/**
+ * Provider display names for UI
+ */
+export const MFA_PROVIDER_NAMES: Record<MfaGeneratorType, { en: string; bn: string }> = {
+  [MFA_TYPES.TOTP]: { en: 'Authenticator App', bn: 'অথেনটিকেটর অ্যাপ' },
+  [MFA_TYPES.SMS]: { en: 'SMS', bn: 'এসএমএস' },
+  [MFA_TYPES.EMAIL]: { en: 'Email', bn: 'ইমেইল' },
+  [MFA_TYPES.WEBAUTHN]: { en: 'Biometric / Passkey', bn: 'বায়োমেট্রিক / পাসকি' },
+  [MFA_TYPES.WHATSAPP]: { en: 'WhatsApp', bn: 'হোয়াটসঅ্যাপ' },
+  [MFA_TYPES.IMO]: { en: 'Imo', bn: 'আইএমও' },
+  [MFA_TYPES.BKASH_PIN]: { en: 'bKash PIN', bn: 'বিকাশ পিন' },
+  [MFA_TYPES.NAGAD_PIN]: { en: 'Nagad PIN', bn: 'নগদ পিন' },
+  [MFA_TYPES.ROCKET_PIN]: { en: 'Rocket PIN', bn: 'রকেট পিন' },
+  [MFA_TYPES.VOICE_CALL]: { en: 'Voice Call', bn: 'ভয়েস কল' },
+};
 
-export interface MfaSetupResult {
-  /** Method ID for reference */
-  methodId: string;
-  
-  /** Secret key for TOTP (base32 encoded) - for TOTP only */
-  secret?: string;
-  
-  /** QR code URI for authenticator app - for TOTP only */
-  qrCodeUri?: string;
-  
-  /** Provisioning URI for manual entry - for TOTP only */
-  provisioningUri?: string;
-  
-  /** Recovery codes for account recovery */
-  recoveryCodes: string[];
-  
-  /** Masked phone number - for SMS/WhatsApp */
-  maskedPhone?: string;
-  
-  /** Masked email - for Email */
-  maskedEmail?: string;
-  
-  /** Masked account number - for bKash/Nagad/Rocket */
-  maskedAccount?: string;
-  
-  /** Provider name - for MFS */
-  providerName?: string;
-  
-  /** WebAuthn challenge - for WebAuthn */
-  challenge?: string;
-  
-  /** RP ID - for WebAuthn */
-  rpId?: string;
-  
-  /** RP Name - for WebAuthn */
-  rpName?: string;
-  
-  /** User ID - for WebAuthn */
-  userId?: string;
-  
-  /** User Name - for WebAuthn */
-  userName?: string;
-  
-  /** User Display Name - for WebAuthn */
-  userDisplayName?: string;
-  
-  /** Timeout in milliseconds (from shared-constants) */
-  timeout?: number;
-  
-  /** Attestation type - for WebAuthn */
-  attestation?: string;
-  
-  /** Authenticator selection - for WebAuthn */
-  authenticatorSelection?: {
-    authenticatorAttachment?: 'platform' | 'cross-platform';
-    residentKey?: 'discouraged' | 'preferred' | 'required';
-    userVerification?: 'discouraged' | 'preferred' | 'required';
-  };
-}
-
-// ============================================================
-// TOTP Verification Result
-// ============================================================
-
-export interface TotpVerificationResult {
-  /** Whether the code is valid */
-  isValid: boolean;
-  /** Remaining attempts before lockout */
-  remainingAttempts?: number;
-  /** Whether the account is locked due to too many failures */
-  isLocked?: boolean;
-  /** Lockout expiry time */
-  lockoutExpiresAt?: Date;
-}
-
-// ============================================================
-// Backup Code Result
-// ============================================================
-
-export interface BackupCodeResult {
-  /** Whether the backup code is valid */
-  isValid: boolean;
-  /** Index of the used backup code */
-  usedIndex?: number;
-  /** Remaining backup codes count */
-  remainingCodes: number;
-  /** Whether backup codes are low (<= threshold from shared-constants) */
-  areCodesLow: boolean;
-}
-
-// ============================================================
-// MFS PIN Verification Result (Bangladesh specific)
-// ============================================================
-
-export interface MFSPinVerificationResult {
-  /** Whether the PIN is valid */
-  isValid: boolean;
-  /** Remaining attempts before lockout */
-  remainingAttempts?: number;
-  /** Whether the account is locked */
-  isLocked?: boolean;
-  /** Provider type */
-  provider: 'bkash' | 'nagad' | 'rocket';
-}
-
-// ============================================================
-// SMS/WhatsApp/Imo OTP Result
-// ============================================================
-
-export interface OtpResult {
-  /** Whether OTP was sent successfully */
-  sent: boolean;
-  /** Masked phone number */
-  maskedPhone: string;
-  /** OTP expiry in seconds (from shared-constants) */
-  expiresInSeconds: number;
-  /** Resend cooldown in seconds (from shared-constants) */
-  resendCooldownSeconds: number;
-  /** Session ID for tracking */
-  sessionId?: string;
-  /** Remaining attempts */
-  remainingAttempts: number;
-}
+/**
+ * Provider priority for UI display (lower number = higher priority)
+ */
+export const MFA_PROVIDER_PRIORITY: Record<MfaGeneratorType, number> = {
+  [MFA_TYPES.TOTP]: 1,
+  [MFA_TYPES.WEBAUTHN]: 2,
+  [MFA_TYPES.WHATSAPP]: 3,
+  [MFA_TYPES.SMS]: 4,
+  [MFA_TYPES.EMAIL]: 5,
+  [MFA_TYPES.IMO]: 6,
+  [MFA_TYPES.BKASH_PIN]: 7,
+  [MFA_TYPES.NAGAD_PIN]: 7,
+  [MFA_TYPES.ROCKET_PIN]: 7,
+  [MFA_TYPES.VOICE_CALL]: 8,
+};
 
 // ============================================================
 // MFA Generator Interface
@@ -214,7 +114,7 @@ export interface MfaGenerator {
    * Generate TOTP secret for MFA setup
    * 
    * @param email - User email for QR code generation
-   * @param issuer - Issuer name (default from shared-constants)
+   * @param issuer - Issuer name (default: from shared-constants)
    * @returns MFA setup result with secret, QR code, and recovery codes
    * 
    * @example
@@ -229,7 +129,7 @@ export interface MfaGenerator {
    * 
    * @param secret - The TOTP secret key
    * @param code - The 6-digit code from authenticator app
-   * @param window - Optional time window (default from shared-constants)
+   * @param window - Optional time window (default: from shared-constants)
    * @returns Verification result
    * 
    * @example
@@ -367,8 +267,8 @@ export interface MfaGenerator {
   /**
    * Generate a new set of backup codes
    * 
-   * @param count - Number of backup codes to generate (default from shared-constants)
-   * @param length - Length of each backup code (default from shared-constants)
+   * @param count - Number of backup codes to generate (default: from shared-constants)
+   * @param length - Length of each backup code (default: from shared-constants)
    * @param format - Format of backup codes ('plain' or 'formatted-with-hyphen')
    * @returns Array of backup codes
    * 
@@ -386,6 +286,18 @@ export interface MfaGenerator {
   ): Promise<string[]>;
   
   /**
+   * Hash backup code for secure storage
+   * 
+   * @param code - Backup code to hash
+   * @returns Hashed backup code
+   * 
+   * @example
+   * const hashed = await mfaGenerator.hashBackupCode('AB3F-9K2M');
+   * // '$2b$10$...'
+   */
+  hashBackupCode(code: string): Promise<string>;
+  
+  /**
    * Verify backup code
    * 
    * @param code - Backup code to verify
@@ -400,18 +312,6 @@ export interface MfaGenerator {
    * }
    */
   verifyBackupCode(code: string, storedHashes: string[]): Promise<BackupCodeResult>;
-  
-  /**
-   * Hash backup code for secure storage
-   * 
-   * @param code - Backup code to hash
-   * @returns Hashed backup code
-   * 
-   * @example
-   * const hashed = await mfaGenerator.hashBackupCode('AB3F-9K2M');
-   * // '$2b$10$...'
-   */
-  hashBackupCode(code: string): Promise<string>;
   
   /**
    * Get WebAuthn registration options
@@ -458,7 +358,7 @@ export interface MfaGenerator {
    * 
    * @param secret - TOTP secret key
    * @param email - User email
-   * @param issuer - Issuer name (default from shared-constants)
+   * @param issuer - Issuer name (default: from shared-constants)
    * @returns Provisioning URI
    * 
    * @example
@@ -472,7 +372,7 @@ export interface MfaGenerator {
    * 
    * @param secret - TOTP secret key
    * @param email - User email
-   * @param issuer - Issuer name (default from shared-constants)
+   * @param issuer - Issuer name (default: from shared-constants)
    * @returns QR code as data URL (base64)
    * 
    * @example
@@ -484,7 +384,7 @@ export interface MfaGenerator {
   /**
    * Get MFA provider information
    * 
-   * @returns List of available MFA providers
+   * @returns List of available MFA providers with Bengali names
    */
   getProviders(): Promise<MfaProviderInfo[]>;
   
@@ -521,20 +421,20 @@ export interface MfaGenerator {
 }
 
 // ============================================================
+// Dependency Injection Token
+// ============================================================
+
+export const MFA_GENERATOR_SERVICE = 'MFA_GENERATOR_SERVICE';
+
+// ============================================================
 // Type Exports
 // ============================================================
 
-export type {
+export type { 
   MfaProviderInfo as MfaProviderInfoType,
   MfaSetupResult as MfaSetupResultType,
   TotpVerificationResult as TotpVerificationResultType,
   BackupCodeResult as BackupCodeResultType,
   MFSPinVerificationResult as MFSPinVerificationResultType,
-  OtpResult as OtpResultType,
+  OtpResult as OtpResultType
 };
-
-// ============================================================
-// Service Injection Token
-// ============================================================
-
-export const MFA_GENERATOR = 'MFA_GENERATOR';
