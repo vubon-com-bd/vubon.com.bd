@@ -158,11 +158,8 @@
     "vitest": "^1.0.0"
   },
   "peerDependencies": {
-    "@vubon/auth-constants": "workspace:*",
-    "@vubon/shared-types": "workspace:*",
-    "@vubon/auth-schemas": "workspace:*",
-    "@vubon/shared-utils": "workspace:*",
-    "@vubon/shared-config": "workspace:*"
+    "@vubon/shared-constants": "^1.0.0",
+    "@vubon/shared-types": "^1.0.0"
   },
   "sideEffects": false,
   "publishConfig": {
