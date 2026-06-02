@@ -7,7 +7,8 @@
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": ".",                    // <- root এ ফাইল থাকলে
+    // "rootDir": "./src",             // <- src ফোল্ডারে থাকলে
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -47,8 +48,17 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts", "coverage"],
+  "include": [
+    "**/*.ts",           // সব টাইপস্ক্রিপ্ট ফাইল
+    "src/**/*.ts"        // src ফোল্ডার
+  ],
+  "exclude": [
+    "node_modules", 
+    "dist", 
+    "**/*.test.ts", 
+    "**/*.spec.ts", 
+    "coverage"
+  ],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"
