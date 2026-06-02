@@ -16,7 +16,7 @@ import type {
   TOKEN_EXPIRY,
   JWT_CONFIG,
   API_KEY_CONFIG,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 import type { Role } from './role.types';
 import type { PermissionString } from './permission.types';
