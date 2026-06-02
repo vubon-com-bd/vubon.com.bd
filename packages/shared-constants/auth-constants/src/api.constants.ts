@@ -10,16 +10,11 @@
  * ✅ NO side effects
  * ✅ ONLY pure readonly constants
  */
-
+// প্রতিটি ফাইলের শুরুতে যোগ করুন:
+import type { ValueOf, ReadonlyDeep } from './common.types';
 import { ENV_CONFIG } from './env.constants';
 
-// ============================================================
-// Type Utilities
-// ============================================================
-export type ValueOf<T> = T[keyof T];
-export type ReadonlyDeep<T> = {
-  readonly [P in keyof T]: ReadonlyDeep<T[P]>;
-};
+
 
 // ============================================================
 // API Versioning
