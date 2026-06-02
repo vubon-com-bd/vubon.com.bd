@@ -6,18 +6,39 @@
  * 
  * @description
  * Service contract for sending notifications to users.
- * Supports email, SMS, push notifications, and Bangladesh-specific channels (WhatsApp, Imo).
+ * Supports email, SMS, push notifications, and Bangladesh-specific channels (WhatsApp, Imo, Voice).
  * 
  * Enterprise Rules:
  * ✅ ONLY interface definitions - NO implementation
  * ✅ No business logic
  * ✅ No infrastructure imports
  * ✅ Framework-free
- * ✅ Bangladesh specific - WhatsApp and Imo support
+ * ✅ Bangladesh specific - WhatsApp, Imo, Voice Call support
  */
 
 // ============================================================
-// Notification Types
+// Phase-1: Import from shared-constants and shared-types
+// ============================================================
+
+// ✅ Import from shared-constants
+import {
+  NOTIFICATION_TEMPLATES,
+  NOTIFICATION_TYPES,
+  NOTIFICATION_PRIORITIES,
+  NOTIFICATION_CHANNELS,
+  LOCALES,
+} from '@vubon/shared-constants';
+
+// ✅ Import types from shared-types
+import type {
+  Locale,
+  NotificationType as SharedNotificationType,
+  NotificationPriority as SharedNotificationPriority,
+  NotificationChannel as SharedNotificationChannel,
+} from '@vubon/shared-types';
+
+// ============================================================
+// Notification Types (Re-export from shared-constants for convenience)
 // ============================================================
 
 export enum NotificationType {
@@ -266,19 +287,19 @@ export interface RefundProcessedData {
 }
 
 // ============================================================
-// Notification Options
+// Notification Options (Using shared types)
 // ============================================================
 
 export interface NotificationOptions {
-  type: NotificationType;
-  priority?: NotificationPriority;
-  channel: NotificationChannel;
+  type: SharedNotificationType;
+  priority?: SharedNotificationPriority;
+  channel: SharedNotificationChannel;
   to: string;                           // Email address or phone number
   subject?: string;
   subjectBn?: string;                   // Bengali subject
   template?: string;
   data: Record<string, unknown>;
-  locale?: 'en' | 'bn';                // Language preference
+  locale?: Locale;                      // ✅ Using shared Locale type
   metadata?: {
     userId?: string;
     correlationId?: string;
@@ -301,10 +322,41 @@ export interface NotificationResult {
   error?: string;
   errorBn?: string;
   sentAt: Date;
-  channel: NotificationChannel;
+  channel: SharedNotificationChannel;
   provider?: string;                    // 'sendgrid', 'twilio', 'whatsapp_business', etc.
   deliveryStatus?: 'queued' | 'sent' | 'delivered' | 'failed' | 'read';
 }
+
+// ============================================================
+// Template Names (Using shared-constants)
+// ============================================================
+
+export const NotificationTemplates = {
+  // Email templates
+  WELCOME_EMAIL: NOTIFICATION_TEMPLATES.WELCOME_EMAIL,
+  VERIFICATION_EMAIL: NOTIFICATION_TEMPLATES.VERIFICATION_EMAIL,
+  PASSWORD_RESET_EMAIL: NOTIFICATION_TEMPLATES.PASSWORD_RESET_EMAIL,
+  PASSWORD_CHANGED_EMAIL: NOTIFICATION_TEMPLATES.PASSWORD_CHANGED_EMAIL,
+  LOGIN_ALERT_EMAIL: NOTIFICATION_TEMPLATES.LOGIN_ALERT_EMAIL,
+  ACCOUNT_LOCKED_EMAIL: NOTIFICATION_TEMPLATES.ACCOUNT_LOCKED_EMAIL,
+  ACCOUNT_UNLOCKED_EMAIL: NOTIFICATION_TEMPLATES.ACCOUNT_UNLOCKED_EMAIL,
+  
+  // SMS templates
+  OTP_SMS: NOTIFICATION_TEMPLATES.OTP_SMS,
+  LOGIN_ALERT_SMS: NOTIFICATION_TEMPLATES.LOGIN_ALERT_SMS,
+  ACCOUNT_LOCKED_SMS: NOTIFICATION_TEMPLATES.ACCOUNT_LOCKED_SMS,
+  
+  // WhatsApp templates (Bangladesh specific)
+  OTP_WHATSAPP: NOTIFICATION_TEMPLATES.OTP_WHATSAPP,
+  ORDER_CONFIRMATION_WHATSAPP: NOTIFICATION_TEMPLATES.ORDER_CONFIRMATION_WHATSAPP,
+  PAYMENT_SUCCESS_WHATSAPP: NOTIFICATION_TEMPLATES.PAYMENT_SUCCESS_WHATSAPP,
+  
+  // Imo templates (Bangladesh specific)
+  OTP_IMO: NOTIFICATION_TEMPLATES.OTP_IMO,
+  
+  // Voice templates (Bangladesh specific - feature phones)
+  OTP_VOICE: NOTIFICATION_TEMPLATES.OTP_VOICE,
+} as const;
 
 // ============================================================
 // Notification Service Interface
@@ -323,7 +375,7 @@ export interface NotificationService {
     email: string,
     name: string,
     nameBn?: string,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: 'en' | 'bn' }
+    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
   ): Promise<void>;
 
   /**
@@ -334,7 +386,7 @@ export interface NotificationService {
     email: string,
     code: string,
     expiresInMinutes?: number,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: 'en' | 'bn' }
+    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
   ): Promise<void>;
 
   /**
@@ -345,7 +397,7 @@ export interface NotificationService {
     email: string,
     resetLink: string,
     expiresInHours?: number,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: 'en' | 'bn' }
+    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
   ): Promise<void>;
 
   /**
@@ -355,7 +407,7 @@ export interface NotificationService {
     userId: string,
     email: string,
     data?: PasswordChangedData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: 'en' | 'bn' }
+    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
   ): Promise<void>;
 
   // ============================================================
@@ -371,7 +423,7 @@ export interface NotificationService {
     code: string,
     method: 'sms' | 'whatsapp' | 'imo' | 'voice' | 'email',
     expiresInMinutes?: number,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: 'en' | 'bn' }
+    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
   ): Promise<void>;
 
   /**
@@ -381,7 +433,7 @@ export interface NotificationService {
     userId: string,
     email: string,
     data: MfaEnabledData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: 'en' | 'bn' }
+    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
   ): Promise<void>;
 
   /**
@@ -391,7 +443,7 @@ export interface NotificationService {
     userId: string,
     email: string,
     data: MfaDisabledData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: 'en' | 'bn' }
+    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
   ): Promise<void>;
 
   // ============================================================
@@ -405,7 +457,7 @@ export interface NotificationService {
     userId: string,
     email: string,
     data: EmailChangedData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: 'en' | 'bn' }
+    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
   ): Promise<void>;
 
   /**
@@ -416,7 +468,7 @@ export interface NotificationService {
     email: string,
     phone: string,
     data: PhoneChangedData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: 'en' | 'bn' }
+    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
   ): Promise<void>;
 
   // ============================================================
@@ -430,7 +482,7 @@ export interface NotificationService {
     userId: string,
     email: string,
     data: AccountLockedData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: 'en' | 'bn' }
+    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
   ): Promise<void>;
 
   /**
@@ -440,7 +492,7 @@ export interface NotificationService {
     userId: string,
     email: string,
     data: AccountUnlockedData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: 'en' | 'bn' }
+    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
   ): Promise<void>;
 
   /**
@@ -450,7 +502,7 @@ export interface NotificationService {
     userId: string,
     email: string,
     data: LoginAlertData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: 'en' | 'bn' }
+    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
   ): Promise<void>;
 
   /**
@@ -460,7 +512,7 @@ export interface NotificationService {
     userId: string,
     email: string,
     data: SuspiciousActivityData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: 'en' | 'bn' }
+    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
   ): Promise<void>;
 
   /**
@@ -470,7 +522,7 @@ export interface NotificationService {
     userId: string,
     email: string,
     data: AccountDeletedData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: 'en' | 'bn' }
+    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
   ): Promise<void>;
 
   // ============================================================
@@ -485,7 +537,7 @@ export interface NotificationService {
     email: string,
     phone: string,
     data: PaymentSuccessData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: 'en' | 'bn' }
+    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
   ): Promise<void>;
 
   /**
@@ -496,7 +548,7 @@ export interface NotificationService {
     email: string,
     phone: string,
     data: PaymentFailedData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: 'en' | 'bn' }
+    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
   ): Promise<void>;
 
   /**
@@ -506,7 +558,7 @@ export interface NotificationService {
     userId: string,
     email: string,
     data: OrderConfirmationData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: 'en' | 'bn' }
+    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
   ): Promise<void>;
 
   /**
@@ -516,7 +568,7 @@ export interface NotificationService {
     userId: string,
     email: string,
     data: OrderShippedData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: 'en' | 'bn' }
+    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
   ): Promise<void>;
 
   /**
@@ -526,7 +578,7 @@ export interface NotificationService {
     userId: string,
     email: string,
     data: OrderDeliveredData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: 'en' | 'bn' }
+    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
   ): Promise<void>;
 
   /**
@@ -536,7 +588,7 @@ export interface NotificationService {
     userId: string,
     email: string,
     data: RefundProcessedData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: 'en' | 'bn' }
+    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
   ): Promise<void>;
 
   // ============================================================
@@ -602,8 +654,8 @@ export interface NotificationService {
   ): Promise<{
     notifications: Array<{
       id: string;
-      channel: NotificationChannel;
-      type: NotificationType;
+      channel: SharedNotificationChannel;
+      type: SharedNotificationType;
       subject: string;
       sentAt: Date;
       status: string;
@@ -632,7 +684,7 @@ export function isNotificationResult(obj: unknown): obj is NotificationResult {
 // ============================================================
 
 export function createNotificationOptions(
-  channel: NotificationChannel,
+  channel: SharedNotificationChannel,
   to: string,
   data: Record<string, unknown>,
   options?: Partial<NotificationOptions>,
@@ -646,37 +698,6 @@ export function createNotificationOptions(
     ...options,
   };
 }
-
-// ============================================================
-// Template names for different notification types
-// ============================================================
-
-export const NotificationTemplates = {
-  // Email templates
-  WELCOME_EMAIL: 'welcome-email',
-  VERIFICATION_EMAIL: 'verification-email',
-  PASSWORD_RESET_EMAIL: 'password-reset-email',
-  PASSWORD_CHANGED_EMAIL: 'password-changed-email',
-  LOGIN_ALERT_EMAIL: 'login-alert-email',
-  ACCOUNT_LOCKED_EMAIL: 'account-locked-email',
-  ACCOUNT_UNLOCKED_EMAIL: 'account-unlocked-email',
-  
-  // SMS templates
-  OTP_SMS: 'otp-sms',
-  LOGIN_ALERT_SMS: 'login-alert-sms',
-  ACCOUNT_LOCKED_SMS: 'account-locked-sms',
-  
-  // WhatsApp templates (Bangladesh specific)
-  OTP_WHATSAPP: 'otp-whatsapp',
-  ORDER_CONFIRMATION_WHATSAPP: 'order-confirmation-whatsapp',
-  PAYMENT_SUCCESS_WHATSAPP: 'payment-success-whatsapp',
-  
-  // Imo templates (Bangladesh specific)
-  OTP_IMO: 'otp-imo',
-  
-  // Voice templates (Bangladesh specific - feature phones)
-  OTP_VOICE: 'otp-voice',
-} as const;
 
 // ============================================================
 // Type Exports
@@ -706,3 +727,6 @@ export type {
   NotificationOptions as NotificationOptionsType,
   NotificationResult as NotificationResultType,
 };
+
+// Re-export shared types for convenience
+export type { Locale, SharedNotificationType, SharedNotificationPriority, SharedNotificationChannel };
