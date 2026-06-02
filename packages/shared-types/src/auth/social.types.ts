@@ -2,7 +2,7 @@
  * Social Auth Types - Pure TypeScript type contracts for OAuth
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-types/auth-types/auth/social.types
+ * @module shared-types/auth/social.types
  * 
  * RULES:
  * ✅ ONLY type declarations, interfaces, unions
@@ -31,28 +31,28 @@ export type SocialProvider = typeof SOCIAL_PROVIDERS[keyof typeof SOCIAL_PROVIDE
 // Extended social providers for Bangladesh market
 export type ExtendedSocialProvider = 
   | SocialProvider
-  | 'whatsapp'           // WhatsApp OTP login (popular in BD)
-  | 'imo'                // Imo login (Bangladesh specific)
-  | 'telegram'           // Telegram login
-  | 'viber'              // Viber login
-  | 'instagram'          // Instagram login
-  | 'tiktok'             // TikTok login
-  | 'snapchat'           // Snapchat login
-  | 'phone_otp'          // Phone number OTP (Bangladesh specific)
-  | 'whatsapp_otp'       // WhatsApp OTP
-  | 'imo_otp'            // Imo OTP (Bangladesh specific)
-  | 'bkash'              // bKash login (Bangladesh specific)
-  | 'nagad'              // Nagad login (Bangladesh specific)
-  | 'rocket';            // Rocket login (Bangladesh specific)
+  | 'whatsapp'
+  | 'imo'
+  | 'telegram'
+  | 'viber'
+  | 'instagram'
+  | 'tiktok'
+  | 'snapchat'
+  | 'phone_otp'
+  | 'whatsapp_otp'
+  | 'imo_otp'
+  | 'bkash'
+  | 'nagad'
+  | 'rocket';
 
 // ============================================================
 // Provider Category Types
 // ============================================================
 export type SocialProviderCategory = 
-  | 'oauth'              // Standard OAuth providers
-  | 'otp_based'          // OTP based login
-  | 'mfs_auth'           // Mobile Financial Services as auth
-  | 'social_media';      // Social media platforms
+  | 'oauth'
+  | 'otp_based'
+  | 'mfs_auth'
+  | 'social_media';
 
 // ============================================================
 // Social Account Entity (Core domain model)
@@ -64,7 +64,7 @@ export interface SocialAccount {
   readonly providerUserId: string;
   readonly email: string;
   readonly emailVerified: boolean;
-  readonly phoneNumber?: string;                    // Bangladesh specific
+  readonly phoneNumber?: string;
   readonly phoneVerified?: boolean;
   readonly name: string;
   readonly firstName?: string;
@@ -86,7 +86,7 @@ export interface SocialAccountMetadata {
   readonly lastSyncAt?: Date;
   readonly syncErrors?: number;
   readonly tokenExpiresAt?: Date;
-  readonly refreshToken?: string;                   // Encrypted
+  readonly refreshToken?: string;
   readonly scopesGranted?: readonly string[];
   readonly ipAddressConnected?: string;
   readonly userAgentConnected?: string;
@@ -108,7 +108,7 @@ export type SocialProviderData =
   | WhatsAppProviderData
   | ImoProviderData
   | TelegramProviderData
-  | MFSProviderData;                                // bKash/Nagad/Rocket
+  | MFSProviderData;
 
 // International Providers
 export interface GoogleProviderData {
@@ -119,7 +119,7 @@ export interface GoogleProviderData {
   readonly familyName: string;
   readonly locale: string;
   readonly picture?: string;
-  readonly hd?: string;                             // Hosted domain
+  readonly hd?: string;
 }
 
 export interface GitHubProviderData {
@@ -253,14 +253,14 @@ export interface OAuthAuthorizationRequest {
   readonly redirectUri: string;
   readonly state: string;
   readonly scopes?: readonly string[];
-  readonly codeChallenge?: string;                  // PKCE
+  readonly codeChallenge?: string;
   readonly codeChallengeMethod?: 'S256' | 'plain';
 }
 
 export interface OAuthAuthorizationResponse {
   readonly url: string;
   readonly state: string;
-  readonly codeVerifier?: string;                  // For PKCE (store temporarily)
+  readonly codeVerifier?: string;
 }
 
 // ============================================================
@@ -270,7 +270,7 @@ export interface OAuthCallbackRequest {
   readonly provider: ExtendedSocialProvider;
   readonly code: string;
   readonly state: string;
-  readonly codeVerifier?: string;                  // PKCE
+  readonly codeVerifier?: string;
   readonly error?: string;
   readonly errorDescription?: string;
 }
@@ -284,12 +284,12 @@ export interface OAuthCallbackResponse {
     readonly isLinked: boolean;
   };
   readonly isNewUser: boolean;
-  readonly isNewConnection: boolean;               // Existing user connecting new provider
+  readonly isNewConnection: boolean;
   readonly accessToken?: string;
   readonly refreshToken?: string;
   readonly expiresIn?: number;
   readonly requiresEmailVerification?: boolean;
-  readonly requiresPhoneVerification?: boolean;    // Bangladesh specific
+  readonly requiresPhoneVerification?: boolean;
 }
 
 // ============================================================
@@ -355,7 +355,7 @@ export interface SocialAccountDTO {
   readonly email: string;
   readonly name: string;
   readonly avatar: string | null;
-  readonly connectedAt: string;                    // ISO date
+  readonly connectedAt: string;
   readonly lastUsedAt: string | null;
   readonly isPrimary: boolean;
   readonly iconName: string;
@@ -369,7 +369,7 @@ export interface OAuthProviderConfig {
   readonly provider: ExtendedSocialProvider;
   readonly providerCategory: SocialProviderCategory;
   readonly clientId: string;
-  readonly clientSecret?: string;                  // Only in server config
+  readonly clientSecret?: string;
   readonly authUrl: string;
   readonly tokenUrl: string;
   readonly userInfoUrl: string;
@@ -391,9 +391,9 @@ export interface OAuthStateData {
   readonly state: string;
   readonly provider: ExtendedSocialProvider;
   readonly redirectUri: string;
-  readonly userId?: string;                        // For connecting existing account
+  readonly userId?: string;
   readonly action: 'login' | 'connect' | 'disconnect';
-  readonly codeVerifier?: string;                  // PKCE
+  readonly codeVerifier?: string;
   readonly createdAt: Date;
   readonly expiresAt: Date;
   readonly ipAddress: string;
@@ -407,8 +407,8 @@ export interface SocialLoginOptions {
   readonly provider: ExtendedSocialProvider;
   readonly redirectUri?: string;
   readonly scopes?: readonly string[];
-  readonly autoCreateUser?: boolean;               // Create user if doesn't exist
-  readonly linkExistingUser?: boolean;             // Link to existing email match
+  readonly autoCreateUser?: boolean;
+  readonly linkExistingUser?: boolean;
   readonly returnUserInfo?: boolean;
 }
 
@@ -442,13 +442,12 @@ export interface SocialAuthStatistics {
   readonly loginSuccessRate: Record<ExtendedSocialProvider, number>;
   readonly loginAttemptsByProvider: Record<ExtendedSocialProvider, number>;
   
-  readonly topConnectingCountries: readonly Array<{
+  readonly topConnectingCountries: Array<{
     readonly country: string;
     readonly count: number;
   }>;
   
-  // Bangladesh specific
-  readonly mfsConnections: number;                 // bKash/Nagad/Rocket
+  readonly mfsConnections: number;
   readonly whatsappConnections: number;
   readonly imoConnections: number;
 }
@@ -526,8 +525,8 @@ export interface SocialOTPVerificationRequest {
 export interface MFSAuthRequest {
   readonly provider: 'bkash' | 'nagad' | 'rocket';
   readonly accountNumber: string;
-  readonly pin?: string;                           // For PIN-based auth
-  readonly otpCode?: string;                       // For OTP-based auth
+  readonly pin?: string;
+  readonly otpCode?: string;
   readonly callbackUrl?: string;
 }
 
