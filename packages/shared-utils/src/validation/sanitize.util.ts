@@ -2,7 +2,7 @@
  * Sanitize Utilities - XSS prevention and input cleaning
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-utils/src/validation/sanitize.util
+ * @module shared-utils/validation/sanitize.util
  * 
  * RULES:
  * ✅ ONLY input sanitization and cleaning - NO business logic
@@ -13,33 +13,35 @@
  */
 
 import validator from 'validator';
-import { SANITIZE_CONFIG } from '@vubon/auth-constants';
+// ✅ FIXED: Correct package name
+import { SANITIZE_CONFIG } from '@vubon/shared-constants';
 
 // ==================== Constants (from shared-constants) ====================
 
-// HTML/XML patterns
-const HTML_TAG_REGEX = SANITIZE_CONFIG.HTML_TAG_REGEX;
-const HTML_COMMENT_REGEX = SANITIZE_CONFIG.HTML_COMMENT_REGEX;
-const SCRIPT_TAG_REGEX = SANITIZE_CONFIG.SCRIPT_TAG_REGEX;
-const STYLE_TAG_REGEX = SANITIZE_CONFIG.STYLE_TAG_REGEX;
-const IFRAME_TAG_REGEX = SANITIZE_CONFIG.IFRAME_TAG_REGEX;
-const OBJECT_TAG_REGEX = SANITIZE_CONFIG.OBJECT_TAG_REGEX;
-const EMBED_TAG_REGEX = SANITIZE_CONFIG.EMBED_TAG_REGEX;
-const FORM_TAG_REGEX = SANITIZE_CONFIG.FORM_TAG_REGEX;
+// ✅ FIXED: Add fallbacks for missing constants
+const HTML_TAG_REGEX = SANITIZE_CONFIG?.HTML_TAG_REGEX || /<[^>]*>/g;
+const HTML_COMMENT_REGEX = SANITIZE_CONFIG?.HTML_COMMENT_REGEX || /<!--[\s\S]*?-->/g;
+const SCRIPT_TAG_REGEX = SANITIZE_CONFIG?.SCRIPT_TAG_REGEX || /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi;
+const STYLE_TAG_REGEX = SANITIZE_CONFIG?.STYLE_TAG_REGEX || /<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi;
+const IFRAME_TAG_REGEX = SANITIZE_CONFIG?.IFRAME_TAG_REGEX || /<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi;
+const OBJECT_TAG_REGEX = SANITIZE_CONFIG?.OBJECT_TAG_REGEX || /<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi;
+const EMBED_TAG_REGEX = SANITIZE_CONFIG?.EMBED_TAG_REGEX || /<embed\b[^>]*>/gi;
+const FORM_TAG_REGEX = SANITIZE_CONFIG?.FORM_TAG_REGEX || /<form\b[^<]*(?:(?!<\/form>)<[^<]*)*<\/form>/gi;
 
 // Dangerous protocols
-const JAVASCRIPT_PROTOCOL_REGEX = SANITIZE_CONFIG.JAVASCRIPT_PROTOCOL_REGEX;
-const VBSCRIPT_PROTOCOL_REGEX = SANITIZE_CONFIG.VBSCRIPT_PROTOCOL_REGEX;
-const DATA_PROTOCOL_REGEX = SANITIZE_CONFIG.DATA_PROTOCOL_REGEX;
+const JAVASCRIPT_PROTOCOL_REGEX = SANITIZE_CONFIG?.JAVASCRIPT_PROTOCOL_REGEX || /javascript:/gi;
+const VBSCRIPT_PROTOCOL_REGEX = SANITIZE_CONFIG?.VBSCRIPT_PROTOCOL_REGEX || /vbscript:/gi;
+const DATA_PROTOCOL_REGEX = SANITIZE_CONFIG?.DATA_PROTOCOL_REGEX || /data:/gi;
 
 // Event handlers
-const ON_EVENT_REGEX = SANITIZE_CONFIG.ON_EVENT_REGEX;
+const ON_EVENT_REGEX = SANITIZE_CONFIG?.ON_EVENT_REGEX || /\bon\w+\s*=/gi;
 
 // SQL injection patterns (basic - use parameterized queries in production)
-const SQL_SPECIAL_CHARS = SANITIZE_CONFIG.SQL_SPECIAL_CHARS;
+const SQL_SPECIAL_CHARS = SANITIZE_CONFIG?.SQL_SPECIAL_CHARS || /['"\\%_]/g;
+const SQL_INJECTION_REGEX = SANITIZE_CONFIG?.SQL_INJECTION_REGEX || /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE|UNION|JOIN|WHERE|OR|AND)\b|\b(;|--|\/\*|\*\/|@@|@|CHAR|NCHAR|VARCHAR|NVARCHAR|ALTER|BEGIN|CAST|CREATE|CURSOR|DECLARE|DELETE|DROP|END|EXEC|EXECUTE|FETCH|FROM|GROUP|HAVING|INSERT|INTO|JOIN|MERGE|ORDER|REMOVE|REPLICATE|SELECT|SET|TABLE|TRUNCATE|UNION|UPDATE|WAITFOR)\b)/i;
 
 // Unicode normalization form
-const NORMALIZATION_FORM = SANITIZE_CONFIG.NORMALIZATION_FORM;
+const NORMALIZATION_FORM = SANITIZE_CONFIG?.NORMALIZATION_FORM || 'NFKC';
 
 // ==================== HTML Sanitization ====================
 
@@ -336,7 +338,7 @@ export const escapeSql = (value: string): string => {
  */
 export const hasSqlInjectionPattern = (value: string): boolean => {
   if (!value || typeof value !== 'string') return false;
-  return SANITIZE_CONFIG.SQL_INJECTION_REGEX.test(value);
+  return SQL_INJECTION_REGEX.test(value);
 };
 
 // ==================== Normalization ====================
@@ -477,6 +479,23 @@ export const sanitize = (value: string, options: Partial<SanitizationOptions> = 
   }
   
   return result;
+};
+
+// ==================== Bangladesh Specific Helpers ====================
+
+/**
+ * Sanitize Bengali text (remove harmful HTML while preserving Bengali characters)
+ * 
+ * @param value - Input string with potential Bengali text
+ * @returns Sanitized string safe for Bengali content
+ */
+export const sanitizeBengaliText = (value: string): string => {
+  if (!value || typeof value !== 'string') return '';
+  // First sanitize HTML normally, which preserves Unicode characters
+  let sanitized = sanitizeHtml(value);
+  // Additional normalization for Bengali text
+  sanitized = normalizeUnicode(sanitized);
+  return sanitized;
 };
 
 // ==================== Type Exports ====================
