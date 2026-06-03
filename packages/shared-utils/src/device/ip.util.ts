@@ -2,7 +2,7 @@
  * IP Utilities - IP parsing and masking
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce 
  *
- * @module shared-utils/src/device/ip.util
+ * @module shared-utils/device/ip.util
  *
  * RULES:
  * ✅ ONLY IP parsing, masking, validation - NO business logic
@@ -12,24 +12,39 @@
  * ✅ No side effects or external API calls
  */
 
-import { IP_CONFIG } from '@vubon/auth-constants';
+// ✅ FIXED: Correct package name
+import { IP_CONFIG } from '@vubon/shared-constants';
 
 // ==================== Constants (from shared-constants) ====================
 
-// IPv4 Regex (strict)
-const IPV4_REGEX = IP_CONFIG.IPV4_REGEX;
+// ✅ FIXED: Add fallbacks for missing constants
+const IPV4_REGEX = IP_CONFIG?.IPV4_REGEX || /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+const IPV6_REGEX = IP_CONFIG?.IPV6_REGEX || /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
 
-// IPv6 Regex (RFC 5954 compliant)
-const IPV6_REGEX = IP_CONFIG.IPV6_REGEX;
+const PRIVATE_IPV4_RANGES = IP_CONFIG?.PRIVATE_IPV4_RANGES || [
+  { start: '10.0.0.0', end: '10.255.255.255', description: 'Class A private' },
+  { start: '172.16.0.0', end: '172.31.255.255', description: 'Class B private' },
+  { start: '192.168.0.0', end: '192.168.255.255', description: 'Class C private' },
+  { start: '127.0.0.0', end: '127.255.255.255', description: 'Loopback' },
+  { start: '169.254.0.0', end: '169.254.255.255', description: 'Link-local' },
+];
 
-// Private IP ranges
-const PRIVATE_IPV4_RANGES = IP_CONFIG.PRIVATE_IPV4_RANGES;
+const PRIVATE_IPV6_PREFIXES = IP_CONFIG?.PRIVATE_IPV6_PREFIXES || [
+  { prefix: '::1', description: 'Loopback' },
+  { prefix: 'fc00::', description: 'Unique Local (ULA)' },
+  { prefix: 'fd00::', description: 'Unique Local (ULA)' },
+  { prefix: 'fe80::', description: 'Link-local' },
+];
 
-// Reserved/private IPv6 prefixes
-const PRIVATE_IPV6_PREFIXES = IP_CONFIG.PRIVATE_IPV6_PREFIXES;
-
-// Forwarded header names (priority order)
-const FORWARDED_HEADERS = IP_CONFIG.FORWARDED_HEADERS;
+const FORWARDED_HEADERS = IP_CONFIG?.FORWARDED_HEADERS || [
+  'x-forwarded-for',
+  'x-real-ip',
+  'cf-connecting-ip',
+  'fastly-client-ip',
+  'true-client-ip',
+  'x-original-forwarded-for',
+  'x-cluster-client-ip',
+];
 
 // ==================== Private Helpers ====================
 
@@ -318,6 +333,37 @@ export const isIPInCIDR = (ip: string, cidr: string): boolean => {
   return false;
 };
 
+// ==================== Additional Helpers ====================
+
+/**
+ * Get the network part of an IPv4 address
+ *
+ * @param ip - IPv4 address
+ * @param maskBits - CIDR mask bits (e.g., 24)
+ * @returns Network address
+ */
+export const getNetworkAddress = (ip: string, maskBits: number): string | null => {
+  if (!isIPv4(ip)) return null;
+  const ipNum = ipToNumber(ip);
+  const maskNum = ~((1 << (32 - maskBits)) - 1);
+  const networkNum = ipNum & maskNum;
+  
+  const parts = [
+    (networkNum >>> 24) & 255,
+    (networkNum >>> 16) & 255,
+    (networkNum >>> 8) & 255,
+    networkNum & 255,
+  ];
+  return parts.join('.');
+};
+
 // ==================== Type Exports ====================
 
 export type IPVersion = 'IPv4' | 'IPv6';
+export const IP_CONFIG_EXPORTS = {
+  IPV4_REGEX,
+  IPV6_REGEX,
+  PRIVATE_IPV4_RANGES,
+  PRIVATE_IPV6_PREFIXES,
+  FORWARDED_HEADERS,
+};
