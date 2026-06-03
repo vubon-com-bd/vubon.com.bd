@@ -33,6 +33,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "preserveConstEnums": true,
     "removeComments": true,
     "emitDecoratorMetadata": false,
     "experimentalDecorators": false,
@@ -43,15 +44,33 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@vubon/auth-constants": ["../shared-constants/auth-constants/src"],
-      "@vubon/shared-types": ["../shared-types/auth-types/src"]
+      "@vubon/shared-constants": ["../shared-constants/src"],
+      "@vubon/shared-constants/*": ["../shared-constants/src/*"],
+      "@vubon/shared-types": ["../shared-types/src"],
+      "@vubon/shared-types/*": ["../shared-types/src/*"]
     }
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts", "coverage"],
+  "include": [
+    "src/**/*.ts",
+    "../shared-constants/src/**/*.ts",
+    "../shared-types/src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules", 
+    "dist", 
+    "**/*.test.ts", 
+    "**/*.spec.ts", 
+    "coverage",
+    "../shared-constants/dist",
+    "../shared-types/dist"
+  ],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"
     }
-  }
+  },
+  "references": [
+    { "path": "../shared-constants" },
+    { "path": "../shared-types" }
+  ]
 }
