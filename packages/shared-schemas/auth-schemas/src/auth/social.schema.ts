@@ -2,7 +2,7 @@
  * Social Auth Schemas - Pure validation for OAuth
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-schemas/auth-schemas/src/auth/social.schema
+ * @module shared-schemas/auth/social.schema
  * 
  * RULES:
  * ✅ ONLY Zod schemas - NO business logic
@@ -16,15 +16,26 @@
 import { z } from 'zod';
 
 // Import constants from shared-constants layer (Enterprise rule)
-import {
-  SOCIAL_PROVIDERS,
-  OAUTH_SCOPES,
-  SOCIAL_CALLBACK_ROUTES,
-  SOCIAL_PROVIDER_PRIORITY,
-  SOCIAL_AUTH_RATE_LIMITS,
-} from '@vubon/auth-constants';
+// ✅ FIXED: Correct package name and only needed imports
+import { SOCIAL_PROVIDERS } from '@vubon/shared-constants';
 
 // ==================== Primitives (Reusable) ====================
+
+// Phone Schema for Bangladesh (Used in WhatsApp OTP, etc.)
+// ✅ FIXED: Added export and brand
+export const PhoneSchema = z
+  .string()
+  .regex(/^(?:\+880|0)1[3-9]\d{8}$/, 'Invalid Bangladesh phone number. Use format: 01XXXXXXXXX or +8801XXXXXXXXX')
+  .transform((val) => {
+    if (val.startsWith('0')) {
+      return `+88${val}`;
+    }
+    if (val.startsWith('+880')) {
+      return val;
+    }
+    return `+880${val}`;
+  })
+  .brand('Phone');
 
 // Social Provider Schema (Based on constants)
 export const SocialProviderSchema = z.enum([
@@ -136,10 +147,40 @@ export const FacebookOAuthDataSchema = z
   .strict()
   .brand('FacebookOAuthData');
 
+// GitHub OAuth Data Schema
+export const GitHubOAuthDataSchema = z
+  .object({
+    id: z.number(),
+    login: z.string(),
+    name: z.string().nullable(),
+    email: z.string().email().nullable(),
+    avatar_url: z.string().url().optional(),
+    bio: z.string().nullable().optional(),
+    company: z.string().nullable().optional(),
+    location: z.string().nullable().optional(),
+    followers: z.number().optional(),
+    following: z.number().optional(),
+  })
+  .strict()
+  .brand('GitHubOAuthData');
+
+// Apple OAuth Data Schema
+export const AppleOAuthDataSchema = z
+  .object({
+    sub: z.string(),
+    email: z.string().email(),
+    email_verified: z.boolean(),
+    is_private_email: z.boolean().optional(),
+    real_user_status: z.number().optional(),
+    name: z.string().optional(),
+  })
+  .strict()
+  .brand('AppleOAuthData');
+
 // WhatsApp OAuth Data Schema (Bangladesh specific)
 export const WhatsAppOAuthDataSchema = z
   .object({
-    phoneNumber: z.string().regex(/^(?:\+880|0)1[3-9]\d{8}$/, 'Invalid Bangladesh phone number'),
+    phoneNumber: PhoneSchema,
     verified: z.boolean(),
     businessAccount: z.boolean().default(false),
     displayName: z.string(),
@@ -159,6 +200,30 @@ export const BkashOAuthDataSchema = z
   })
   .strict()
   .brand('BkashOAuthData');
+
+// Nagad OAuth Data Schema (Bangladesh specific)
+export const NagadOAuthDataSchema = z
+  .object({
+    accountNumber: z.string().min(11).max(20),
+    maskedAccountNumber: z.string(),
+    accountType: z.enum(['personal', 'merchant']),
+    accountHolderName: z.string(),
+    verified: z.boolean(),
+  })
+  .strict()
+  .brand('NagadOAuthData');
+
+// Rocket OAuth Data Schema (Bangladesh specific)
+export const RocketOAuthDataSchema = z
+  .object({
+    accountNumber: z.string().min(11).max(20),
+    maskedAccountNumber: z.string(),
+    accountType: z.enum(['personal', 'merchant']),
+    accountHolderName: z.string(),
+    verified: z.boolean(),
+  })
+  .strict()
+  .brand('RocketOAuthData');
 
 // ==================== Request Schemas ====================
 
@@ -225,7 +290,7 @@ export const SocialDisconnectRequestSchema = z
 // Social OTP Request (Bangladesh specific - WhatsApp/Imo OTP)
 export const SocialOTPRequestSchema = z
   .object({
-    phoneNumber: z.string().regex(/^(?:\+880|0)1[3-9]\d{8}$/, 'Invalid Bangladesh phone number'),
+    phoneNumber: PhoneSchema,
     provider: z.enum(['whatsapp', 'imo', 'phone_otp']),
     method: z.enum(['sms', 'whatsapp', 'imo']),
     locale: z.enum(['en', 'bn']).default('en'),
@@ -236,7 +301,7 @@ export const SocialOTPRequestSchema = z
 // Social OTP Verification Request
 export const SocialOTPVerificationSchema = z
   .object({
-    phoneNumber: z.string().regex(/^(?:\+880|0)1[3-9]\d{8}$/, 'Invalid Bangladesh phone number'),
+    phoneNumber: PhoneSchema,
     provider: z.enum(['whatsapp', 'imo', 'phone_otp']),
     otpCode: z.string().length(6, 'OTP must be 6 digits').regex(/^\d{6}$/, 'OTP must contain only digits'),
     sessionId: z.string().uuid().optional(),
@@ -250,7 +315,7 @@ export const MFSAuthRequestSchema = z
     provider: z.enum(['bkash', 'nagad', 'rocket']),
     accountNumber: z.string().min(11).max(20),
     pin: z.string().length(4, 'PIN must be 4 digits').regex(/^\d{4}$/, 'PIN must contain only digits').optional(),
-    otpCode: z.string().length(6, 'OTP must be 6 digits').optional(),
+    otpCode: z.string().length(6, 'OTP must be 6 digits').regex(/^\d{6}$/, 'OTP must contain only digits').optional(),
     callbackUrl: z.string().url().optional(),
   })
   .strict()
@@ -269,7 +334,7 @@ export const MFSAuthRequestSchema = z
 export const SocialUserInfoSchema = z
   .object({
     email: z.string().email().optional(),
-    phoneNumber: z.string().optional(),
+    phoneNumber: PhoneSchema.optional(),
     name: z.string().min(1, 'Name is required'),
     firstName: z.string().optional(),
     lastName: z.string().optional(),
@@ -291,7 +356,7 @@ export const SocialCallbackResponseSchema = z
       .object({
         userId: z.string().uuid(),
         email: z.string().email().optional(),
-        phoneNumber: z.string().optional(),
+        phoneNumber: PhoneSchema.optional(),
         isLinked: z.boolean().default(false),
       })
       .optional(),
@@ -313,7 +378,7 @@ export const SocialAccountSchema = z
     provider: SocialProviderSchema,
     providerUserId: z.string(),
     email: z.string().email().nullable(),
-    phoneNumber: z.string().nullable(),
+    phoneNumber: PhoneSchema.nullable(),
     name: z.string(),
     firstName: z.string().nullable(),
     lastName: z.string().nullable(),
@@ -388,6 +453,10 @@ export const SocialAuthErrorSchema = z
       'phone_already_exists',
       'account_already_linked',
       'rate_limited',
+      'invalid_pin',
+      'invalid_otp',
+      'otp_expired',
+      'max_attempts_exceeded',
     ]),
     errorDescription: z.string().optional(),
   })
@@ -396,6 +465,7 @@ export const SocialAuthErrorSchema = z
 
 // ==================== Type Exports ====================
 
+export type Phone = z.infer<typeof PhoneSchema>;
 export type SocialProvider = z.infer<typeof SocialProviderSchema>;
 export type OAuthState = z.infer<typeof OAuthStateSchema>;
 export type OAuthCode = z.infer<typeof OAuthCodeSchema>;
@@ -406,8 +476,12 @@ export type PKCECodeChallenge = z.infer<typeof PKCECodeChallengeSchema>;
 
 export type GoogleOAuthData = z.infer<typeof GoogleOAuthDataSchema>;
 export type FacebookOAuthData = z.infer<typeof FacebookOAuthDataSchema>;
+export type GitHubOAuthData = z.infer<typeof GitHubOAuthDataSchema>;
+export type AppleOAuthData = z.infer<typeof AppleOAuthDataSchema>;
 export type WhatsAppOAuthData = z.infer<typeof WhatsAppOAuthDataSchema>;
 export type BkashOAuthData = z.infer<typeof BkashOAuthDataSchema>;
+export type NagadOAuthData = z.infer<typeof NagadOAuthDataSchema>;
+export type RocketOAuthData = z.infer<typeof RocketOAuthDataSchema>;
 
 export type SocialLoginRequest = z.infer<typeof SocialLoginRequestSchema>;
 export type SocialLoginResponse = z.infer<typeof SocialLoginResponseSchema>;
