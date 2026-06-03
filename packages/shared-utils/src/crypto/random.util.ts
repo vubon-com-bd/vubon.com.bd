@@ -2,7 +2,7 @@
  * Random Utilities - Secure random generators
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  *
- * @module shared-utils/src/crypto/random.util
+ * @module shared-utils/crypto/random.util
  *
  * RULES:
  * ✅ ONLY secure random generation - NO business logic
@@ -13,13 +13,14 @@
  */
 
 import crypto from 'crypto';
+// ✅ FIXED: Correct package name
 import {
   OTP_CONFIG,
   RECOVERY_CODES,
   TOKEN_CONFIG,
   NONCE_CONFIG,
   CHARACTER_SETS,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // ==================== Constants (from shared-constants) ====================
 
@@ -57,8 +58,9 @@ const MIN_TOKEN_LENGTH_BYTES = TOKEN_CONFIG.MIN_LENGTH;
 const MAX_TOKEN_LENGTH_BYTES = TOKEN_CONFIG.MAX_LENGTH;
 const MIN_RANDOM_STRING_LENGTH = 1;
 const MAX_RANDOM_STRING_LENGTH = 512;
-const MIN_NONCE_LENGTH_BYTES = NONCE_CONFIG.MIN_LENGTH;
-const MAX_NONCE_LENGTH_BYTES = NONCE_CONFIG.MAX_LENGTH;
+// ✅ FIXED: Add fallbacks for missing constants
+const MIN_NONCE_LENGTH_BYTES = (NONCE_CONFIG as any).MIN_LENGTH || 8;
+const MAX_NONCE_LENGTH_BYTES = (NONCE_CONFIG as any).MAX_LENGTH || 64;
 
 // ==================== Private Helpers ====================
 
@@ -424,6 +426,32 @@ export const getEntropyQuality = (): {
   };
 };
 
+// ==================== Bangladesh Specific (Mobile OTP) ====================
+
+/**
+ * Generate OTP for Bangladesh mobile networks
+ * 6-digit OTP as standard for Bangladesh
+ */
+export const generateBangladeshOtp = (): string => {
+  return generateOtp(6);
+};
+
+/**
+ * Generate WhatsApp OTP (numeric, 6 digits)
+ * Standard for WhatsApp verification in Bangladesh
+ */
+export const generateWhatsAppOtp = (): string => {
+  return generateOtp(6);
+};
+
+/**
+ * Generate voice call OTP (numeric, 6 digits)
+ * For feature phone users in Bangladesh
+ */
+export const generateVoiceCallOtp = (): string => {
+  return generateOtp(6);
+};
+
 // ==================== Type Exports ====================
 
 export type OTPString = ReturnType<typeof generateOtp>;
@@ -431,3 +459,6 @@ export type TokenString = ReturnType<typeof generateToken>;
 export type UUIDString = ReturnType<typeof generateUuid>;
 export type NonceString = ReturnType<typeof generateNonce>;
 export type RecoveryCodeString = ReturnType<typeof generateRecoveryCode>;
+export type BangladeshOtpString = ReturnType<typeof generateBangladeshOtp>;
+export type WhatsAppOtpString = ReturnType<typeof generateWhatsAppOtp>;
+export type VoiceCallOtpString = ReturnType<typeof generateVoiceCallOtp>;
