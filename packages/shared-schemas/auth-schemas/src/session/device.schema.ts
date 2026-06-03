@@ -2,7 +2,7 @@
  * Device Schemas - Pure validation for device management
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-schemas/auth-schemas/src/session/device.schema
+ * @module shared-schemas/session/device.schema
  * 
  * RULES:
  * ✅ ONLY Zod schemas - NO business logic
@@ -16,15 +16,14 @@
 import { z } from 'zod';
 
 // Import constants from shared-constants layer (Enterprise rule)
+// ✅ FIXED: Correct package name, removed unused imports
 import {
   DEVICE_TYPES,
   OS_TYPES,
   BROWSER_TYPES,
   DEVICE_RISK_LEVEL,
-  DEVICE_TRUST_DURATION,
-  DEVICE_FINGERPRINT_HEADERS,
   NETWORK_TYPES,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // ==================== Primitives (Reusable) ====================
 
@@ -33,7 +32,14 @@ export const DeviceIdSchema = z
   .string()
   .min(1, 'Device ID is required')
   .max(255, 'Device ID too long')
+  .regex(/^[a-zA-Z0-9\-_]+$/, 'Device ID contains invalid characters')
   .brand('DeviceId');
+
+// User ID Schema
+export const UserIdSchema = z.string().uuid('Invalid user ID format').brand('UserId');
+
+// Session ID Schema
+export const SessionIdSchema = z.string().uuid('Invalid session ID format').brand('SessionId');
 
 // Device Type Schema (Based on constants)
 export const DeviceTypeSchema = z.enum([
@@ -123,15 +129,15 @@ export const DeviceInfoSchema = z
     deviceId: DeviceIdSchema,
     deviceType: DeviceTypeSchema,
     os: OSTypeSchema,
-    osVersion: z.string().max(50).optional(),
+    osVersion: z.string().max(50, 'OS version too long').optional(),
     browser: BrowserTypeSchema,
-    browserVersion: z.string().max(50).optional(),
+    browserVersion: z.string().max(50, 'Browser version too long').optional(),
     isMobile: z.boolean(),
     isTouchDevice: z.boolean(),
     screenResolution: z.string().regex(/^\d+x\d+$/, 'Invalid screen resolution format (e.g., 1920x1080)').optional(),
     screenWidth: z.number().int().min(0).optional(),
     screenHeight: z.number().int().min(0).optional(),
-    colorDepth: z.number().int().min(0).optional(),
+    colorDepth: z.number().int().min(0).max(48, 'Color depth cannot exceed 48-bit').optional(),
     language: z.string().min(2, 'Language code required').max(10, 'Language code too long'),
     timezone: z.string().min(1, 'Timezone required'),
     timezoneOffset: z.number().int().min(-720).max(840).optional(),
@@ -139,8 +145,8 @@ export const DeviceInfoSchema = z
     networkType: NetworkTypeSchema.optional(),
     mobileOperator: MobileOperatorSchema.optional(),
     dataSaverEnabled: z.boolean().optional(),
-    district: z.string().optional(),
-    upazila: z.string().optional(),
+    district: z.string().max(50).optional(),
+    upazila: z.string().max(50).optional(),
   })
   .strict()
   .brand('DeviceInfo');
@@ -148,11 +154,11 @@ export const DeviceInfoSchema = z
 // Device Fingerprint Schema (Hashed, not raw data)
 export const DeviceFingerprintSchema = z
   .object({
-    hash: z.string().min(32, 'Invalid fingerprint hash').max(128),
+    hash: z.string().min(32, 'Invalid fingerprint hash').max(128, 'Fingerprint hash too long'),
     components: z.array(z.string()).min(1, 'At least one fingerprint component required'),
     componentVersions: z.record(z.string()).optional(),
     generatedAt: z.date(),
-    version: z.number().int().min(1).default(1),
+    version: z.number().int().min(1).max(10, 'Fingerprint version cannot exceed 10').default(1),
   })
   .strict()
   .brand('DeviceFingerprint');
@@ -161,7 +167,7 @@ export const DeviceFingerprintSchema = z
 export const TrustedDeviceSchema = z
   .object({
     id: z.string().uuid(),
-    userId: z.string().uuid(),
+    userId: UserIdSchema,
     deviceId: DeviceIdSchema,
     deviceInfo: DeviceInfoSchema,
     fingerprint: DeviceFingerprintSchema.optional(),
@@ -172,7 +178,7 @@ export const TrustedDeviceSchema = z
     expiresAt: z.date().nullable(),
     name: z.string().max(100, 'Device name too long').nullable(),
     familyShared: z.boolean().default(false),
-    familyMemberId: z.string().uuid().optional(),
+    familyMemberId: UserIdSchema.optional(),
   })
   .strict()
   .brand('TrustedDevice');
@@ -181,13 +187,13 @@ export const TrustedDeviceSchema = z
 export const DeviceRiskAssessmentSchema = z
   .object({
     deviceId: DeviceIdSchema,
-    userId: z.string().uuid(),
+    userId: UserIdSchema,
     riskScore: z.number().int().min(0).max(100),
     riskLevel: z.enum(['low', 'medium', 'high', 'critical']),
     factors: z.array(
       z.object({
         factor: z.string(),
-        score: z.number().int(),
+        score: z.number().int().min(0).max(100),
         weight: z.number().min(0).max(1),
         reason: z.string(),
         evidence: z.string().optional(),
@@ -206,7 +212,7 @@ export const DeviceActivitySchema = z
   .object({
     id: z.string().uuid(),
     deviceId: DeviceIdSchema,
-    userId: z.string().uuid(),
+    userId: UserIdSchema,
     activityType: z.enum([
       'login',
       'logout',
@@ -222,16 +228,16 @@ export const DeviceActivitySchema = z
       'suspicious_activity_detected',
     ]),
     timestamp: z.date(),
-    ipAddress: z.string().ip(),
-    userAgent: z.string().optional(),
+    ipAddress: z.string().ip('Invalid IP address format'),
+    userAgent: z.string().max(1000, 'User agent too long').optional(),
     location: z
       .object({
         country: z.string().optional(),
         city: z.string().optional(),
         district: z.string().optional(),
         upazila: z.string().optional(),
-        latitude: z.number().optional(),
-        longitude: z.number().optional(),
+        latitude: z.number().min(-90).max(90).optional(),
+        longitude: z.number().min(-180).max(180).optional(),
       })
       .optional(),
     metadata: z.record(z.unknown()).optional(),
@@ -244,14 +250,14 @@ export const DeviceActivitySchema = z
 // Register Device Request
 export const RegisterDeviceSchema = z
   .object({
-    userId: z.string().uuid('Invalid user ID'),
+    userId: UserIdSchema,
     deviceInfo: DeviceInfoSchema,
     fingerprint: DeviceFingerprintSchema.optional(),
     name: z.string().max(100, 'Device name too long').optional(),
     trustDevice: z.boolean().default(false),
-    trustDurationDays: z.number().int().min(1).max(365).optional(),
+    trustDurationDays: z.number().int().min(1).max(365, 'Trust duration cannot exceed 365 days').optional(),
     isFamilyShared: z.boolean().default(false),
-    familyMemberId: z.string().uuid().optional(),
+    familyMemberId: UserIdSchema.optional(),
   })
   .strict()
   .brand('RegisterDeviceRequest');
@@ -260,11 +266,11 @@ export const RegisterDeviceSchema = z
 export const UpdateDeviceTrustSchema = z
   .object({
     deviceId: DeviceIdSchema,
-    userId: z.string().uuid('Invalid user ID'),
+    userId: UserIdSchema,
     trustLevel: DeviceTrustLevelSchema,
-    durationDays: z.number().int().min(1).max(365).optional(),
-    reason: z.string().max(500).optional(),
-    adminId: z.string().uuid().optional(),
+    durationDays: z.number().int().min(1).max(365, 'Trust duration cannot exceed 365 days').optional(),
+    reason: z.string().max(500, 'Reason too long').optional(),
+    adminId: UserIdSchema.optional(),
   })
   .strict()
   .brand('UpdateDeviceTrustRequest');
@@ -273,8 +279,8 @@ export const UpdateDeviceTrustSchema = z
 export const RemoveDeviceSchema = z
   .object({
     deviceId: DeviceIdSchema,
-    userId: z.string().uuid('Invalid user ID'),
-    reason: z.string().max(500).optional(),
+    userId: UserIdSchema,
+    reason: z.string().max(500, 'Reason too long').optional(),
     revokeTrustOnly: z.boolean().default(false),
   })
   .strict()
@@ -283,11 +289,11 @@ export const RemoveDeviceSchema = z
 // Device Session Transfer Request (Bangladesh specific)
 export const DeviceSessionTransferSchema = z
   .object({
-    fromSessionId: z.string().uuid('Invalid session ID'),
+    fromSessionId: SessionIdSchema,
     toDeviceInfo: DeviceInfoSchema,
     transferMethod: z.enum(['qr_code', 'magic_link', 'otp']),
     transferCode: z.string().optional(),
-    userId: z.string().uuid('Invalid user ID'),
+    userId: UserIdSchema,
   })
   .strict()
   .brand('DeviceSessionTransferRequest');
@@ -295,9 +301,9 @@ export const DeviceSessionTransferSchema = z
 // Device Pairing Request (Family sharing - Bangladesh specific)
 export const DevicePairingSchema = z
   .object({
-    ownerUserId: z.string().uuid('Invalid owner user ID'),
+    ownerUserId: UserIdSchema,
     pairedDeviceId: DeviceIdSchema,
-    pairedUserId: z.string().uuid('Invalid paired user ID'),
+    pairedUserId: UserIdSchema,
     relationship: z.enum(['parent', 'child', 'spouse', 'sibling', 'other']),
     permissions: z.array(
       z.enum([
@@ -309,16 +315,39 @@ export const DevicePairingSchema = z
         'limited_payment',
         'full_payment',
       ])
-    ),
+    ).min(1, 'At least one permission required'),
     expiresAt: z.date().optional(),
   })
   .strict()
+  .refine(
+    (data) => {
+      // expiresAt must be in the future if provided
+      if (data.expiresAt && data.expiresAt <= new Date()) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Expiration date must be in the future',
+      path: ['expiresAt'],
+    }
+  )
   .brand('DevicePairingRequest');
+
+// Device Unpair Request
+export const DeviceUnpairSchema = z
+  .object({
+    pairingId: z.string().uuid('Invalid pairing ID'),
+    userId: UserIdSchema,
+    reason: z.string().max(500).optional(),
+  })
+  .strict()
+  .brand('DeviceUnpairRequest');
 
 // Device Filter Schema (For listing devices)
 export const DeviceFilterSchema = z
   .object({
-    userId: z.string().uuid().optional(),
+    userId: UserIdSchema.optional(),
     trustLevel: DeviceTrustLevelSchema.optional(),
     deviceType: DeviceTypeSchema.optional(),
     isActive: z.boolean().optional(),
@@ -326,7 +355,7 @@ export const DeviceFilterSchema = z
     fromDate: z.date().optional(),
     toDate: z.date().optional(),
     page: z.number().int().positive().default(1),
-    limit: z.number().int().min(1).max(100).default(20),
+    limit: z.number().int().min(1).max(100, 'Limit cannot exceed 100').default(20),
     sortBy: z.enum(['trustedAt', 'lastUsedAt', 'trustLevel']).default('lastUsedAt'),
     sortOrder: z.enum(['asc', 'desc']).default('desc'),
   })
@@ -363,6 +392,8 @@ export const DeviceListResponseSchema = z
     page: z.number().int().positive(),
     limit: z.number().int().min(1).max(100),
     totalPages: z.number().int().min(0),
+    hasNext: z.boolean(),
+    hasPrevious: z.boolean(),
   })
   .strict()
   .brand('DeviceListResponse');
@@ -370,7 +401,7 @@ export const DeviceListResponseSchema = z
 // Device Session Transfer Response
 export const DeviceSessionTransferResponseSchema = z
   .object({
-    transferId: z.string().uuid(),
+    transferId: SessionIdSchema,
     transferMethod: z.enum(['qr_code', 'magic_link', 'otp']),
     qrCodeUrl: z.string().url().optional(),
     magicLink: z.string().url().optional(),
@@ -385,9 +416,9 @@ export const DeviceSessionTransferResponseSchema = z
 export const DevicePairingResponseSchema = z
   .object({
     pairingId: z.string().uuid(),
-    ownerUserId: z.string().uuid(),
+    ownerUserId: UserIdSchema,
     pairedDeviceId: DeviceIdSchema,
-    pairedUserId: z.string().uuid(),
+    pairedUserId: UserIdSchema,
     relationship: z.string(),
     permissions: z.array(z.string()),
     pairedAt: z.date(),
@@ -449,6 +480,7 @@ export const DeviceStatisticsResponseSchema = z
     ),
     suspiciousDevices: z.number().int(),
     highRiskDevices: z.number().int(),
+    updatedAt: z.date(),
   })
   .strict()
   .brand('DeviceStatisticsResponse');
@@ -471,15 +503,27 @@ export const DeviceErrorSchema = z
       'insufficient_permissions',
       'transfer_not_found',
       'transfer_expired',
+      'invalid_transfer_code',
+      'family_sharing_not_allowed',
+      'device_limit_reached',
     ]),
     field: z.string().optional(),
+    details: z.record(z.unknown()).optional(),
   })
   .strict()
   .brand('DeviceError');
 
+// ==================== Helper Types (For frontend) ====================
+
+export type DeviceRegistrationFormData = RegisterDeviceRequest;
+export type DeviceTrustFormData = UpdateDeviceTrustRequest;
+export type DevicePairingFormData = DevicePairingRequest;
+
 // ==================== Type Exports ====================
 
 export type DeviceId = z.infer<typeof DeviceIdSchema>;
+export type UserId = z.infer<typeof UserIdSchema>;
+export type SessionId = z.infer<typeof SessionIdSchema>;
 export type DeviceType = z.infer<typeof DeviceTypeSchema>;
 export type OSType = z.infer<typeof OSTypeSchema>;
 export type BrowserType = z.infer<typeof BrowserTypeSchema>;
@@ -498,6 +542,7 @@ export type UpdateDeviceTrustRequest = z.infer<typeof UpdateDeviceTrustSchema>;
 export type RemoveDeviceRequest = z.infer<typeof RemoveDeviceSchema>;
 export type DeviceSessionTransferRequest = z.infer<typeof DeviceSessionTransferSchema>;
 export type DevicePairingRequest = z.infer<typeof DevicePairingSchema>;
+export type DeviceUnpairRequest = z.infer<typeof DeviceUnpairSchema>;
 export type DeviceFilterRequest = z.infer<typeof DeviceFilterSchema>;
 
 export type DeviceResponse = z.infer<typeof DeviceResponseSchema>;
