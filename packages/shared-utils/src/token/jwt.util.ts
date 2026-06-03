@@ -2,7 +2,7 @@
  * JWT Utilities - Token signing and verification
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce 
  * 
- * @module shared-utils/src/token/jwt.util
+ * @module shared-utils/token/jwt.util
  * 
  * RULES:
  * ✅ ONLY token signing and verification - NO business logic
@@ -13,7 +13,8 @@
  */
 
 import { SignJWT, jwtVerify, decodeJwt, type JWTPayload } from 'jose';
-import { JWT_CONFIG } from '@vubon/auth-constants';
+// ✅ FIXED: Correct package name
+import { JWT_CONFIG } from '@vubon/shared-constants';
 
 // ==================== Types ====================
 
@@ -29,6 +30,10 @@ export interface TokenPayload extends JWTPayload {
   role?: string;         // User role
   sessionId?: string;    // Session ID
   deviceId?: string;     // Device ID
+  // Bangladesh specific
+  district?: string;     // User district
+  networkType?: string;  // Network type (2G/3G/4G/5G/WiFi)
+  isNightTime?: boolean; // Night time flag (10 PM - 6 AM)
 }
 
 export interface TokenConfig {
@@ -48,13 +53,17 @@ export interface VerifiedTokenResult<T extends TokenPayload = TokenPayload> {
 // ==================== Constants (from shared-constants) ====================
 
 // HS256 configuration (symmetric - for internal/legacy use)
-const DEFAULT_ALGORITHM = JWT_CONFIG.HS256_CONFIG.ALGORITHM;      // 'HS256'
-const DEFAULT_TOKEN_TYPE = JWT_CONFIG.HS256_CONFIG.TOKEN_TYPE;     // 'JWT'
-const MIN_SECRET_LENGTH = JWT_CONFIG.HS256_CONFIG.MIN_SECRET_LENGTH; // 32
+const DEFAULT_ALGORITHM = JWT_CONFIG.HS256_CONFIG?.ALGORITHM || 'HS256';
+const DEFAULT_TOKEN_TYPE = JWT_CONFIG.HS256_CONFIG?.TOKEN_TYPE || 'JWT';
+const MIN_SECRET_LENGTH = JWT_CONFIG.HS256_CONFIG?.MIN_SECRET_LENGTH || 32;
 
 // Default issuer and audience (can be overridden by function parameters)
-const DEFAULT_ISSUER = JWT_CONFIG.ISSUER;    // 'vubon.com.bd'
-const DEFAULT_AUDIENCE = JWT_CONFIG.AUDIENCE; // 'vubon-api'
+const DEFAULT_ISSUER = JWT_CONFIG.ISSUER || 'vubon.com.bd';
+const DEFAULT_AUDIENCE = JWT_CONFIG.AUDIENCE || 'vubon-api';
+
+// Token expiry defaults (from constants with fallbacks)
+const DEFAULT_ACCESS_TOKEN_EXPIRY = JWT_CONFIG.ACCESS_TOKEN_EXPIRY || '15m';
+const DEFAULT_REFRESH_TOKEN_EXPIRY = JWT_CONFIG.REFRESH_TOKEN_EXPIRY || '7d';
 
 // ==================== Private Helpers ====================
 
@@ -176,7 +185,7 @@ export const signRefreshToken = async <T extends TokenPayload>(
   issuer: string = DEFAULT_ISSUER,
   audience: string = DEFAULT_AUDIENCE
 ): Promise<string> => {
-  return signToken(payload, secret, JWT_CONFIG.REFRESH_TOKEN_EXPIRY, issuer, audience);
+  return signToken(payload, secret, DEFAULT_REFRESH_TOKEN_EXPIRY, issuer, audience);
 };
 
 /**
@@ -194,7 +203,44 @@ export const signAccessToken = async <T extends TokenPayload>(
   issuer: string = DEFAULT_ISSUER,
   audience: string = DEFAULT_AUDIENCE
 ): Promise<string> => {
-  return signToken(payload, secret, JWT_CONFIG.ACCESS_TOKEN_EXPIRY, issuer, audience);
+  return signToken(payload, secret, DEFAULT_ACCESS_TOKEN_EXPIRY, issuer, audience);
+};
+
+/**
+ * Create a token with Bangladesh specific claims
+ * 
+ * @param userId - User ID
+ * @param email - User email
+ * @param role - User role
+ * @param secret - Secret key
+ * @param district - User district (Bangladesh)
+ * @param networkType - Network type (2G/3G/4G/5G/WiFi)
+ * @returns Signed access token with BD claims
+ */
+export const signBangladeshAccessToken = async (
+  userId: string,
+  email: string,
+  role: string,
+  secret: string,
+  district?: string,
+  networkType?: string
+): Promise<string> => {
+  const isNightTime = () => {
+    const hour = new Date().getHours();
+    return hour >= 22 || hour < 6; // 10 PM - 6 AM
+  };
+
+  const payload = {
+    sub: userId,
+    email,
+    role,
+    type: 'access',
+    district,
+    networkType,
+    isNightTime: isNightTime(),
+  };
+
+  return signAccessToken(payload, secret);
 };
 
 // ==================== Verification ====================
@@ -412,6 +458,50 @@ export const getTokenType = (token: string): string | null => {
  */
 export const getUserIdFromToken = (token: string): string | null => {
   return getTokenSubject(token);
+};
+
+/**
+ * Extract role from token
+ * 
+ * @param token - JWT token
+ * @returns Role or null
+ */
+export const getRoleFromToken = (token: string): string | null => {
+  const decoded = decodeToken(token);
+  return decoded?.role || null;
+};
+
+/**
+ * Extract session ID from token
+ * 
+ * @param token - JWT token
+ * @returns Session ID or null
+ */
+export const getSessionIdFromToken = (token: string): string | null => {
+  const decoded = decodeToken(token);
+  return decoded?.sessionId || null;
+};
+
+/**
+ * Check if token is a refresh token
+ * 
+ * @param token - JWT token
+ * @returns True if refresh token
+ */
+export const isRefreshToken = (token: string): boolean => {
+  const type = getTokenType(token);
+  return type === 'refresh';
+};
+
+/**
+ * Check if token is an access token
+ * 
+ * @param token - JWT token
+ * @returns True if access token
+ */
+export const isAccessToken = (token: string): boolean => {
+  const type = getTokenType(token);
+  return type === 'access';
 };
 
 // ==================== Type Exports ====================
