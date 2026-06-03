@@ -2,7 +2,7 @@
  * Login Schemas - Pure validation for authentication
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-schemas/auth-schemas/src/auth/login.schema
+ * @module shared-schemas/auth/login.schema
  * 
  * RULES:
  * ✅ ONLY Zod schemas - NO business logic
@@ -16,11 +16,12 @@
 import { z } from 'zod';
 
 // Import constants from shared-constants layer (Enterprise rule)
+// ✅ FIXED: Correct package name
 import {
   REGEX_PHONE,
   PASSWORD_POLICY,
   TOKEN_EXPIRY,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // ==================== Primitives (Reusable) ====================
 
@@ -59,6 +60,7 @@ export const ClientInfoSchema = z
     // Bangladesh specific
     mobileOperator: z.enum(['gp', 'robi', 'banglalink', 'teletalk', 'unknown']).optional(),
     networkType: z.enum(['2g', '3g', '4g', '5g', 'wifi', 'unknown']).optional(),
+    district: z.string().optional(), // For location-based security
   })
   .partial()
   .strict();
@@ -92,7 +94,7 @@ export const PhoneLoginSchema = z
   .object({
     phoneNumber: z
       .string()
-      .regex(REGEX_PHONE.BANGLADESH, 'Invalid Bangladesh phone number format')
+      .regex(REGEX_PHONE.BANGLADESH, 'Invalid Bangladesh phone number format. Use format: 01XXXXXXXXX or +8801XXXXXXXXX')
       .transform((val) => {
         // Normalize to +880 format
         if (val.startsWith('0')) {
@@ -142,7 +144,7 @@ export const OtpLoginSchema = z
   .object({
     phoneNumber: z
       .string()
-      .regex(REGEX_PHONE.BANGLADESH, 'Invalid Bangladesh phone number format')
+      .regex(REGEX_PHONE.BANGLADESH, 'Invalid Bangladesh phone number format. Use format: 01XXXXXXXXX or +8801XXXXXXXXX')
       .transform((val) => {
         if (val.startsWith('0')) {
           return `+88${val}`;
@@ -179,6 +181,15 @@ export const MfaLoginSchema = z
   .strict()
   .brand('MfaLoginRequest');
 
+// Refresh Token Request Schema
+export const RefreshTokenRequestSchema = z
+  .object({
+    refreshToken: z.string().min(1, 'Refresh token is required'),
+    deviceId: DeviceIdSchema,
+  })
+  .strict()
+  .brand('RefreshTokenRequest');
+
 // ==================== Response Schemas ====================
 
 // Login Response Schema
@@ -212,9 +223,9 @@ export const LoginResponseSchema = z
 // Refresh Token Response Schema
 export const RefreshTokenResponseSchema = z
   .object({
-    accessToken: z.string().min(1),
-    refreshToken: z.string().min(1),
-    expiresIn: z.number().int().positive(),
+    accessToken: z.string().min(1, 'Access token is required'),
+    refreshToken: z.string().min(1, 'Refresh token is required'),
+    expiresIn: z.number().int().positive().default(TOKEN_EXPIRY.ACCESS_TOKEN),
     tokenType: z.literal('Bearer'),
   })
   .strict()
@@ -248,41 +259,87 @@ export const LoginErrorSchema = z
       'invalid_credentials',
       'account_locked',
       'account_suspended',
+      'account_banned',
+      'account_deleted',
       'email_not_verified',
       'phone_not_verified',
       'mfa_required',
       'mfa_failed',
+      'mfa_not_enrolled',
       'rate_limited',
       'ip_blocked',
+      'device_blocked',
       'too_many_attempts',
+      'invalid_captcha',
+      'session_expired',
+      'invalid_refresh_token',
     ]),
     remainingAttempts: z.number().int().min(0).optional(),
     lockoutDuration: z.number().int().optional(),
     retryAfterSeconds: z.number().int().optional(),
+    mfaMethods: z.array(z.string()).optional(),
   })
   .strict()
   .brand('LoginError');
 
-// ==================== Type Exports ====================
-
-export type LoginMethod = z.infer < typeof LoginMethodSchema > ;
-export type LoginRequest = z.infer < typeof LoginSchema > ;
-export type PhoneLoginRequest = z.infer < typeof PhoneLoginSchema > ;
-export type UsernameLoginRequest = z.infer < typeof UsernameLoginSchema > ;
-export type OtpLoginRequest = z.infer < typeof OtpLoginSchema > ;
-export type MfaLoginRequest = z.infer < typeof MfaLoginSchema > ;
-export type LoginResponse = z.infer < typeof LoginResponseSchema > ;
-export type RefreshTokenResponse = z.infer < typeof RefreshTokenResponseSchema > ;
-export type LogoutRequest = z.infer < typeof LogoutRequestSchema > ;
-export type LogoutResponse = z.infer < typeof LogoutResponseSchema > ;
-export type LoginError = z.infer < typeof LoginErrorSchema > ;
-export type DeviceId = z.infer < typeof DeviceIdSchema > ;
-export type ClientInfo = z.infer < typeof ClientInfoSchema > ;
-export type CaptchaToken = z.infer < typeof CaptchaTokenSchema > ;
-
 // ==================== Helper Types (For frontend usage) ====================
 
+// Type exports
+export type LoginMethod = z.infer<typeof LoginMethodSchema>;
+export type LoginRequest = z.infer<typeof LoginSchema>;
+export type PhoneLoginRequest = z.infer<typeof PhoneLoginSchema>;
+export type UsernameLoginRequest = z.infer<typeof UsernameLoginSchema>;
+export type OtpLoginRequest = z.infer<typeof OtpLoginSchema>;
+export type MfaLoginRequest = z.infer<typeof MfaLoginSchema>;
+export type RefreshTokenRequest = z.infer<typeof RefreshTokenRequestSchema>;
+export type LoginResponse = z.infer<typeof LoginResponseSchema>;
+export type RefreshTokenResponse = z.infer<typeof RefreshTokenResponseSchema>;
+export type LogoutRequest = z.infer<typeof LogoutRequestSchema>;
+export type LogoutResponse = z.infer<typeof LogoutResponseSchema>;
+export type LoginError = z.infer<typeof LoginErrorSchema>;
+export type DeviceId = z.infer<typeof DeviceIdSchema>;
+export type ClientInfo = z.infer<typeof ClientInfoSchema>;
+export type CaptchaToken = z.infer<typeof CaptchaTokenSchema>;
+
+// Form data types for frontend
 export type LoginFormData = LoginRequest;
 export type PhoneLoginFormData = PhoneLoginRequest;
 export type OtpLoginFormData = OtpLoginRequest;
 export type MfaLoginFormData = MfaLoginRequest;
+
+// ==================== Additional Helper Schemas ====================
+
+// Social Login Request Schema
+export const SocialLoginRequestSchema = z
+  .object({
+    provider: z.enum(['google', 'facebook', 'apple', 'github', 'whatsapp', 'bkash', 'nagad', 'rocket']),
+    accessToken: z.string().min(1, 'Access token is required'),
+    deviceId: DeviceIdSchema,
+    clientInfo: ClientInfoSchema.optional(),
+  })
+  .strict()
+  .brand('SocialLoginRequest');
+
+// Magic Link Request Schema
+export const MagicLinkRequestSchema = z
+  .object({
+    email: z.string().email('Invalid email format').trim().toLowerCase(),
+    redirectUrl: z.string().url('Invalid redirect URL').optional(),
+    deviceId: DeviceIdSchema,
+  })
+  .strict()
+  .brand('MagicLinkRequest');
+
+// Magic Link Verify Schema
+export const MagicLinkVerifySchema = z
+  .object({
+    token: z.string().min(1, 'Token is required'),
+    deviceId: DeviceIdSchema,
+    clientInfo: ClientInfoSchema.optional(),
+  })
+  .strict()
+  .brand('MagicLinkVerifyRequest');
+
+export type SocialLoginRequest = z.infer<typeof SocialLoginRequestSchema>;
+export type MagicLinkRequest = z.infer<typeof MagicLinkRequestSchema>;
+export type MagicLinkVerifyRequest = z.infer<typeof MagicLinkVerifySchema>;
