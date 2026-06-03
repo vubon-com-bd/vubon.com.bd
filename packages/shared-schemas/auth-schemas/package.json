@@ -132,8 +132,6 @@
     "@types/node": "^20.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
-    "@vubon/shared-constants": "^1.0.0",
-    "@vubon/shared-types": "^1.0.0",
     "eslint": "^8.0.0",
     "prettier": "^3.0.0",
     "tsup": "^8.0.0",
@@ -141,8 +139,6 @@
     "vitest": "^1.0.0"
   },
   "peerDependencies": {
-    "@vubon/shared-constants": "^1.0.0",
-    "@vubon/shared-types": "^1.0.0",
     "zod": "^3.22.0"
   },
   "sideEffects": false,
