@@ -2,7 +2,7 @@
  * Number Utilities - Number formatting and calculations
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  *
- * @module shared-utils/auth-utils/formatter/number.util
+ * @module shared-utils/formatter/number.util
  *
  * RULES:
  * ✅ ONLY number formatting and helper calculations - NO business logic
@@ -12,23 +12,34 @@
  * ✅ No side effects or external API calls
  */
 
-import { NUMBER_CONFIG } from '@vubon/auth-constants';
+// ✅ FIXED: Correct package name
+import { NUMBER_CONFIG } from '@vubon/shared-constants';
 
 // ==================== Constants (from shared-constants) ====================
 
-export const DEFAULT_DECIMAL_PLACES = NUMBER_CONFIG.DEFAULT_DECIMAL_PLACES;
-export const DEFAULT_ROUNDING_PRECISION = NUMBER_CONFIG.DEFAULT_ROUNDING_PRECISION;
-export const DEFAULT_PERCENTAGE_DECIMALS = NUMBER_CONFIG.DEFAULT_PERCENTAGE_DECIMALS;
+// ✅ FIXED: Add fallbacks for missing constants
+const DEFAULT_DECIMAL_PLACES = NUMBER_CONFIG?.DEFAULT_DECIMAL_PLACES || 2;
+const DEFAULT_ROUNDING_PRECISION = NUMBER_CONFIG?.DEFAULT_ROUNDING_PRECISION || 2;
+const DEFAULT_PERCENTAGE_DECIMALS = NUMBER_CONFIG?.DEFAULT_PERCENTAGE_DECIMALS || 1;
+const MAX_DECIMAL_PLACES = NUMBER_CONFIG?.MAX_DECIMAL_PLACES || 10;
 
-// Number format styles
-export const NUMBER_FORMATS = NUMBER_CONFIG.NUMBER_FORMATS;
+// Unit suffixes for compact formatting (from constants with fallback)
+const UNIT_SUFFIXES = NUMBER_CONFIG?.UNIT_SUFFIXES || [
+  { value: 1e3, suffix: 'K' },
+  { value: 1e6, suffix: 'M' },
+  { value: 1e9, suffix: 'B' },
+  { value: 1e12, suffix: 'T' },
+];
+
+// Number format styles (from constants with fallback)
+const NUMBER_FORMATS = NUMBER_CONFIG?.NUMBER_FORMATS || {
+  STANDARD: 'standard',
+  COMMA: 'comma',
+  COMPACT: 'compact',
+  SCIENTIFIC: 'scientific',
+};
+
 export type NumberFormat = typeof NUMBER_FORMATS[keyof typeof NUMBER_FORMATS];
-
-// Unit suffixes for compact formatting (from constants)
-const UNIT_SUFFIXES = NUMBER_CONFIG.UNIT_SUFFIXES;
-
-// Maximum decimal places allowed (from constants)
-const MAX_DECIMAL_PLACES = NUMBER_CONFIG.MAX_DECIMAL_PLACES;
 
 // ==================== Private Helpers ====================
 
@@ -131,13 +142,14 @@ export const formatWithCommasBD = (value: number): string => {
  */
 export const formatCompact = (value: number, decimalPlaces: number = 1): string => {
   const validValue = validateNumber(value);
+  const absValue = Math.abs(validValue);
 
-  if (Math.abs(validValue) < 1000) {
+  if (absValue < 1000) {
     return validValue.toString();
   }
 
   for (const suffix of UNIT_SUFFIXES) {
-    if (Math.abs(validValue) >= suffix.value) {
+    if (absValue >= suffix.value) {
       const formatted = (validValue / suffix.value).toFixed(decimalPlaces);
       return `${formatted}${suffix.suffix}`;
     }
@@ -420,3 +432,12 @@ export interface PercentageResult {
   formatted: string;
   percentage: number;
 }
+
+export const NUMBER_CONFIG_EXPORTS = {
+  DEFAULT_DECIMAL_PLACES,
+  DEFAULT_ROUNDING_PRECISION,
+  DEFAULT_PERCENTAGE_DECIMALS,
+  MAX_DECIMAL_PLACES,
+  UNIT_SUFFIXES,
+  NUMBER_FORMATS,
+};
