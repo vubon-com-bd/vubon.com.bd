@@ -16,9 +16,6 @@ import type {
   MFA_PROVIDERS,
   MFA_STATUS,
   MFA_VERIFICATION_TYPES,
-  OTP_CONFIG,
-  RECOVERY_CODES,
-  MFA_TIMEOUTS,
   MFA_PRESETS,
 } from '@vubon/shared-constants';
 
