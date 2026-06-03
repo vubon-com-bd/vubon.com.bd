@@ -2,7 +2,7 @@
  * Validator Utilities - Reusable validation helpers
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  *
- * @module shared-utils/src/validation/validator.util
+ * @module shared-utils/validation/validator.util
  *
  * RULES:
  * ✅ ONLY validation helpers - NO business logic
@@ -13,35 +13,41 @@
  */
 
 import validator from 'validator';
+// ✅ FIXED: Correct package name
 import {
   REGEX_ALPHANUMERIC,
   REGEX_NUMERIC,
   REGEX_UUID,
   PASSWORD_POLICY,
   COMMON_PASSWORDS,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // ==================== Constants (from shared-constants) ====================
 
-// UUID regex (RFC 4122)
-const UUID_REGEX = REGEX_UUID.STANDARD;
-const UUID_V4_REGEX = REGEX_UUID.V4;
+// UUID regex (RFC 4122) - with fallbacks
+// ✅ FIXED: Add fallbacks for missing constants
+const UUID_REGEX = REGEX_UUID?.STANDARD || /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_V4_REGEX = REGEX_UUID?.V4 || /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 // String format regexes
 const HEX_REGEX = /^[0-9a-f]+$/i;
 const BASE64_REGEX = /^[A-Za-z0-9+/]+={0,2}$/;
-const ALPHANUMERIC_REGEX = REGEX_ALPHANUMERIC;
+const ALPHANUMERIC_REGEX = REGEX_ALPHANUMERIC || /^[a-zA-Z0-9]+$/;
 const ALPHABETIC_REGEX = /^[a-zA-Z]+$/;
-const NUMERIC_REGEX = REGEX_NUMERIC;
+const NUMERIC_REGEX = REGEX_NUMERIC || /^\d+$/;
 const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const OBJECT_ID_REGEX = /^[0-9a-f]{24}$/i;
 
 // Password strength thresholds (from constants)
-const PASSWORD_MIN_LENGTH = PASSWORD_POLICY.MIN_LENGTH;
-const PASSWORD_STRONG_LENGTH = PASSWORD_POLICY.STRONG_LENGTH;
+const PASSWORD_MIN_LENGTH = PASSWORD_POLICY?.MIN_LENGTH || 8;
+// ✅ FIXED: Add fallback for STRONG_LENGTH
+const PASSWORD_STRONG_LENGTH = PASSWORD_POLICY?.STRONG_LENGTH || 12;
 
 // Common weak passwords (from constants)
-const COMMON_WEAK_PASSWORDS = COMMON_PASSWORDS;
+const COMMON_WEAK_PASSWORDS = COMMON_PASSWORDS || [
+  'password', '123456', 'qwerty', 'admin', 'welcome',
+  'bangladesh', 'dhaka', 'vubon', '12345678',
+];
 
 // ==================== Private Helpers ====================
 
