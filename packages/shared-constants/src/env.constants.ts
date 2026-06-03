@@ -152,17 +152,6 @@ export const QUEUE_CONFIG: QueueConfig = {
   CONCURRENCY: validateNumber(process.env['QUEUE_CONCURRENCY'], 5, 1),
 };
 
-// Email Config
-export const EMAIL_CONFIG: EmailConfig = {
-  SMTP_HOST: validateRequired(process.env['SMTP_HOST'], 'SMTP_HOST'),
-  SMTP_PORT: validatePort(process.env['SMTP_PORT'], 587),
-  SMTP_USER: validateRequired(process.env['SMTP_USER'], 'SMTP_USER'),
-  SMTP_PASS: validateRequired(process.env['SMTP_PASS'], 'SMTP_PASS'),
-  SMTP_SECURE: validateBoolean(process.env['SMTP_SECURE']),
-  FROM_EMAIL: process.env['FROM_EMAIL'] || 'noreply@vubon.com.bd',
-  FROM_NAME: process.env['FROM_NAME'] || 'Vubon Platform',
-  TIMEOUT_MS: validateNumber(process.env['EMAIL_TIMEOUT_MS'], 10000, 2000),
-};
 
 // Security Config
 export const SECURITY_CONFIG: SecurityConfig = {
