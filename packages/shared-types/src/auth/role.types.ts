@@ -15,10 +15,7 @@
 import type {
   ROLES,
   ROLE_HIERARCHY,
-  ROLE_METADATA,
-  ROLE_COLORS,
   ROLE_CATEGORIES,
-  ROLE_INHERITANCE,
   SYSTEM_ROLES,
 } from '@vubon/shared-constants';
 
