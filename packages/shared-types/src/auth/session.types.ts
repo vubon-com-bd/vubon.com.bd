@@ -13,15 +13,10 @@
  */
 
 import type {
-  SESSION_STATUS,
-  SESSION_TTL,
-  SESSION_METADATA,
-  SESSION_SECURITY,
-  SESSION_EVENTS,
+  SESSION_STATUS
 } from '@vubon/shared-constants';
 
 import type { DeviceInfo, LocationInfo } from './device.types';
-import type { UserSessionInfo } from './user.types';
 
 // ============================================================
 // Session Status Types (Based on constants - NO enums)
