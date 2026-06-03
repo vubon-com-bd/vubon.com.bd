@@ -2,7 +2,7 @@
  * Role Schemas - Pure validation for RBAC
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-schemas/auth-schemas/src/role/role.schema
+ * @module shared-schemas/role/role.schema
  * 
  * RULES:
  * ✅ ONLY Zod schemas - NO business logic
@@ -16,6 +16,7 @@
 import { z } from 'zod';
 
 // Import constants from shared-constants layer (Enterprise rule)
+// ✅ FIXED: Correct package name
 import {
   ROLES,
   ROLE_HIERARCHY,
@@ -24,7 +25,7 @@ import {
   ROLE_CATEGORIES,
   ROLE_INHERITANCE,
   SYSTEM_ROLES,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // Import permission string schema from permission.schema
 import { PermissionStringSchema } from './permission.schema';
@@ -45,7 +46,7 @@ export const RoleIdSchema = z.string().uuid('Invalid role ID format').brand('Rol
 // Role Hierarchy Schema (Role to level mapping)
 export const RoleHierarchySchema = z.record(RoleNameSchema, z.number().int().min(0).max(100));
 
-// Role Category Schema
+// Role Category Schema (Based on constants)
 export const RoleCategorySchema = z.enum([
   ROLE_CATEGORIES.SYSTEM,
   ROLE_CATEGORIES.MANAGEMENT,
@@ -56,10 +57,11 @@ export const RoleCategorySchema = z.enum([
   ROLE_CATEGORIES.BANGLADESH,
 ]);
 
-// Role Color Schema
+// Role Color Schema (Based on constants with fallback)
 export const RoleColorSchema = z
   .string()
   .regex(/^#[0-9A-Fa-f]{6}$/, 'Invalid color format. Must be a valid hex color (e.g., #FF0000)')
+  .default('#10B981')
   .brand('RoleColor');
 
 // ==================== Domain Schemas ====================
@@ -133,7 +135,7 @@ export const CreateRoleSchema = z
   .object({
     name: RoleNameSchema,
     nameBn: z.string().optional(),
-    description: z.string().max(500, 'Description is required'),
+    description: z.string().min(1, 'Description is required').max(500, 'Description too long'),
     descriptionBn: z.string().max(500).optional(),
     category: RoleCategorySchema.default('operations'),
     permissions: z.array(PermissionStringSchema).min(1, 'Role must have at least one permission'),
@@ -151,6 +153,7 @@ export const CreateRoleSchema = z
 // Update Role Request
 export const UpdateRoleSchema = z
   .object({
+    roleId: RoleIdSchema,
     name: RoleNameSchema.optional(),
     nameBn: z.string().optional(),
     description: z.string().max(500).optional(),
@@ -175,7 +178,7 @@ export const DeleteRoleSchema = z
     force: z.boolean().default(false),
     reassignTo: RoleNameSchema.optional(),
     deletedBy: z.string().uuid('Invalid deleter ID'),
-    reason: z.string().max(500).optional(),
+    reason: z.string().min(1, 'Reason is required for role deletion').max(500),
   })
   .strict()
   .refine(
@@ -204,6 +207,19 @@ export const AssignRoleSchema = z
     notifyUser: z.boolean().default(false),
   })
   .strict()
+  .refine(
+    (data) => {
+      // expiresAt must be in the future if provided
+      if (data.expiresAt && data.expiresAt <= new Date()) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Expiration date must be in the future',
+      path: ['expiresAt'],
+    }
+  )
   .brand('AssignRoleRequest');
 
 // Remove Role Request
@@ -229,12 +245,25 @@ export const BulkAssignRoleSchema = z
     notifyUsers: z.boolean().default(false),
   })
   .strict()
+  .refine(
+    (data) => {
+      // expiresAt must be in the future if provided
+      if (data.expiresAt && data.expiresAt <= new Date()) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Expiration date must be in the future',
+      path: ['expiresAt'],
+    }
+  )
   .brand('BulkAssignRoleRequest');
 
 // Bulk Remove Role Request
 export const BulkRemoveRoleSchema = z
   .object({
-    userIds: z.array(z.string().uuid()).min(1).max(100),
+    userIds: z.array(z.string().uuid()).min(1, 'At least one user ID required').max(100, 'Maximum 100 users per request'),
     role: RoleNameSchema,
     reason: z.string().max(500).optional(),
     removedBy: z.string().uuid('Invalid remover ID'),
@@ -296,6 +325,8 @@ export const RoleListResponseSchema = z
     page: z.number().int().positive(),
     limit: z.number().int().min(1).max(100),
     totalPages: z.number().int().min(0),
+    hasNext: z.boolean(),
+    hasPrevious: z.boolean(),
   })
   .strict()
   .brand('RoleListResponse');
@@ -305,10 +336,12 @@ export const UserRolesResponseSchema = z
   .object({
     userId: z.string().uuid(),
     email: z.string().email(),
+    phoneNumber: z.string().optional(),
     roles: z.array(
       z.object({
         role: RoleNameSchema,
         name: z.string(),
+        nameBn: z.string().optional(),
         assignedAt: z.date(),
         expiresAt: z.date().nullable(),
         isActive: z.boolean(),
@@ -351,7 +384,7 @@ export const BulkAssignRoleResponseSchema = z
   .strict()
   .brand('BulkAssignRoleResponse');
 
-// Role Hierarchy Check Response
+// Role Hierarchy Check Response Schema
 export const RoleHierarchyCheckResponseSchema = z
   .object({
     higherRole: RoleNameSchema,
@@ -360,11 +393,12 @@ export const RoleHierarchyCheckResponseSchema = z
     lowerHierarchy: z.number().int(),
     isHigher: z.boolean(),
     hierarchyDifference: z.number().int(),
+    canManage: z.boolean(), // Whether higher role can manage lower role
   })
   .strict()
   .brand('RoleHierarchyCheckResponse');
 
-// Role Statistics Response (For admin dashboard)
+// Role Statistics Response Schema (For admin dashboard)
 export const RoleStatisticsResponseSchema = z
   .object({
     totalRoles: z.number().int(),
@@ -381,6 +415,7 @@ export const RoleStatisticsResponseSchema = z
     expiringAssignments: z.array(
       z.object({
         userId: z.string().uuid(),
+        userEmail: z.string().email(),
         role: RoleNameSchema,
         expiresAt: z.date(),
       })
@@ -390,11 +425,13 @@ export const RoleStatisticsResponseSchema = z
     recentAssignments: z.array(
       z.object({
         userId: z.string().uuid(),
+        userEmail: z.string().email(),
         role: RoleNameSchema,
         assignedAt: z.date(),
         assignedBy: z.string().uuid(),
       })
     ),
+    updatedAt: z.date(),
   })
   .strict()
   .brand('RoleStatisticsResponse');
@@ -416,11 +453,23 @@ export const RoleErrorSchema = z
       'circular_role_inheritance',
       'max_assignees_exceeded',
       'insufficient_permissions',
+      'role_already_assigned',
+      'role_not_assigned',
+      'expiration_date_invalid',
     ]),
     field: z.string().optional(),
+    details: z.record(z.unknown()).optional(),
   })
   .strict()
   .brand('RoleError');
+
+// ==================== System Roles Constant (Type-safe) ====================
+
+export const SystemRolesList = SYSTEM_ROLES as readonly string[];
+
+// ==================== Role Hierarchy Constant (Type-safe) ====================
+
+export const RoleHierarchyMap = ROLE_HIERARCHY;
 
 // ==================== Type Exports ====================
 
