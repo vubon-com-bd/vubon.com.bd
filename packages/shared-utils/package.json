@@ -178,6 +178,9 @@
     "@types/validator": "^13.11.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
+    "@vubon/shared-constants": "workspace:*",
+    "@vubon/shared-types": "workspace:*",
+    "@vubon/shared-schemas": "workspace:*",
     "eslint": "^8.0.0",
     "prettier": "^3.0.0",
     "tsup": "^8.0.0",
@@ -185,9 +188,9 @@
     "vitest": "^1.0.0"
   },
   "peerDependencies": {
-    "@vubon/auth-constants": "workspace:*",
+    "@vubon/shared-constants": "workspace:*",
     "@vubon/shared-types": "workspace:*",
-    "@vubon/auth-schemas": "workspace:*"
+    "@vubon/shared-schemas": "workspace:*"
   },
   "sideEffects": false,
   "publishConfig": {
@@ -196,10 +199,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vubon/auth-utils.git"
+    "url": "git+https://github.com/vubon/shared-utils.git"
   },
   "bugs": {
-    "url": "https://github.com/vubon/auth-utils/issues"
+    "url": "https://github.com/vubon/shared-utils/issues"
   },
   "homepage": "https://vubon.com.bd"
 }
