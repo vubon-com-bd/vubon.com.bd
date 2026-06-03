@@ -2,7 +2,7 @@
  * Fingerprint Utilities - Device fingerprint hashing
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  *
- * @module shared-utils/src/device/fingerprint.util
+ * @module shared-utils/device/fingerprint.util
  *
  * RULES:
  * ✅ ONLY fingerprint hashing and comparison - NO business logic
@@ -13,21 +13,34 @@
  */
 
 import crypto from 'crypto';
-import { ENCRYPTION_CONFIG, FINGERPRINT_CONFIG, BROWSER_FINGERPRINT_COMPONENTS } from '@vubon/auth-constants';
+// ✅ FIXED: Correct package name
+import { ENCRYPTION_CONFIG, FINGERPRINT_CONFIG, BROWSER_FINGERPRINT_COMPONENTS } from '@vubon/shared-constants';
 
 // ==================== Constants (from shared-constants) ====================
 
-export const FINGERPRINT_HASH_ALGORITHM = ENCRYPTION_CONFIG.HASH_ALGORITHM; // 'sha256'
-export const FINGERPRINT_SEPARATOR = FINGERPRINT_CONFIG.SEPARATOR;           // '|'
-export const DEFAULT_FINGERPRINT_VERSION = FINGERPRINT_CONFIG.DEFAULT_VERSION; // 1
+// ✅ FIXED: Add fallbacks for missing constants
+const FINGERPRINT_HASH_ALGORITHM = ENCRYPTION_CONFIG?.HASH_ALGORITHM || 'sha256';
+const FINGERPRINT_SEPARATOR = FINGERPRINT_CONFIG?.SEPARATOR || '|';
+const DEFAULT_FINGERPRINT_VERSION = FINGERPRINT_CONFIG?.DEFAULT_VERSION || 1;
+const MIN_FINGERPRINT_LENGTH = FINGERPRINT_CONFIG?.MIN_LENGTH || 8;
+const MAX_FINGERPRINT_LENGTH = FINGERPRINT_CONFIG?.MAX_LENGTH || 64;
+const DEFAULT_SHORT_LENGTH = FINGERPRINT_CONFIG?.SHORT_FINGERPRINT_LENGTH || 16;
 
-// Browser fingerprint components (from shared-constants)
-const BROWSER_COMPONENTS = BROWSER_FINGERPRINT_COMPONENTS;
-
-// Fingerprint length constraints
-const MIN_FINGERPRINT_LENGTH = FINGERPRINT_CONFIG.MIN_LENGTH;     // 8
-const MAX_FINGERPRINT_LENGTH = FINGERPRINT_CONFIG.MAX_LENGTH;     // 64
-const DEFAULT_SHORT_LENGTH = FINGERPRINT_CONFIG.SHORT_FINGERPRINT_LENGTH; // 16
+// Browser fingerprint components (from shared-constants with fallback)
+const BROWSER_COMPONENTS = BROWSER_FINGERPRINT_COMPONENTS || [
+  'userAgent',
+  'acceptLanguage',
+  'acceptEncoding',
+  'secChUa',
+  'secChUaPlatform',
+  'secChUaMobile',
+  'platform',
+  'timezone',
+  'screenResolution',
+  'colorDepth',
+  'deviceMemory',
+  'hardwareConcurrency',
+];
 
 // ==================== Private Helpers ====================
 
@@ -85,6 +98,7 @@ export const generateFingerprintFromHeaders = (headers: {
   secChUa?: string;
   secChUaPlatform?: string;
   secChUaMobile?: string;
+  platform?: string;
 }): string => {
   const components = [
     headers.userAgent || 'unknown',
@@ -93,6 +107,7 @@ export const generateFingerprintFromHeaders = (headers: {
     headers.secChUa || 'unknown',
     headers.secChUaPlatform || 'unknown',
     headers.secChUaMobile || 'unknown',
+    headers.platform || 'unknown',
   ];
 
   return generateFingerprint(components);
@@ -305,3 +320,13 @@ export interface FingerprintComponents {
   secChUaPlatform?: string;
   secChUaMobile?: string;
 }
+
+export const FINGERPRINT_CONFIG_EXPORTS = {
+  FINGERPRINT_HASH_ALGORITHM,
+  FINGERPRINT_SEPARATOR,
+  DEFAULT_FINGERPRINT_VERSION,
+  MIN_FINGERPRINT_LENGTH,
+  MAX_FINGERPRINT_LENGTH,
+  DEFAULT_SHORT_LENGTH,
+  BROWSER_COMPONENTS,
+};
