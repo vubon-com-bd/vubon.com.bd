@@ -2,7 +2,7 @@
  * Session Schemas - Pure validation for session management
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-schemas/auth-schemas/src/session/session.schema
+ * @module shared-schemas/session/session.schema
  * 
  * RULES:
  * ✅ ONLY Zod schemas - NO business logic
@@ -16,13 +16,11 @@
 import { z } from 'zod';
 
 // Import constants from shared-constants layer (Enterprise rule)
+// ✅ FIXED: Correct package name, removed unused imports
 import {
   SESSION_STATUS,
-  SESSION_TTL,
-  SESSION_SECURITY,
-  SESSION_EVENTS,
   DEVICE_TYPES,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 import { DeviceInfoSchema } from './device.schema';
 
@@ -48,6 +46,9 @@ export const AccessTokenSchema = z
 
 // Token ID Schema (JTI - JWT ID)
 export const TokenIdSchema = z.string().uuid('Invalid token ID format').brand('TokenId');
+
+// User ID Schema
+export const UserIdSchema = z.string().uuid('Invalid user ID format').brand('UserId');
 
 // Session Status Schema (Based on constants)
 export const SessionStatusSchema = z.enum([
@@ -77,13 +78,19 @@ export const SessionTrustLevelSchema = z.enum([
   'maximum_trust',
 ]);
 
+// Network Type Schema (Bangladesh specific)
+export const NetworkTypeSchema = z.enum(['2g', '3g', '4g', '5g', 'wifi', 'unknown']);
+
+// Mobile Operator Schema (Bangladesh specific)
+export const MobileOperatorSchema = z.enum(['gp', 'robi', 'banglalink', 'teletalk', 'unknown']);
+
 // ==================== Domain Schemas ====================
 
 // Location Info Schema (Bangladesh specific)
 export const LocationInfoSchema = z
   .object({
     country: z.string().optional(),
-    countryCode: z.string().length(2).optional(),
+    countryCode: z.string().length(2, 'Country code must be 2 characters').optional(),
     city: z.string().optional(),
     district: z.string().optional(),      // Bangladesh specific
     upazila: z.string().optional(),       // Bangladesh specific
@@ -115,7 +122,7 @@ export const SessionTokensSchema = z
 export const SessionSchema = z
   .object({
     id: SessionIdSchema,
-    userId: z.string().uuid(),
+    userId: UserIdSchema,
     tokenId: TokenIdSchema,
     refreshTokenId: TokenIdSchema,
     status: SessionStatusSchema,
@@ -124,28 +131,28 @@ export const SessionSchema = z
     userAgent: z.string().max(1000, 'User agent too long'),
     location: LocationInfoSchema.nullable(),
     lastActivityAt: z.date(),
-    lastActivityUrl: z.string().optional(),
+    lastActivityUrl: z.string().url('Invalid URL').optional(),
     expiresAt: z.date(),
     idleTimeoutAt: z.date(),
     absoluteTimeoutAt: z.date(),
     createdAt: z.date(),
     revokedAt: z.date().nullable(),
     revokedReason: z.string().max(500).optional(),
-    revokedBy: z.string().uuid().nullable(),
+    revokedBy: UserIdSchema.nullable(),
     trustLevel: SessionTrustLevelSchema.default('untrusted'),
     trustExpiresAt: z.date().nullable(),
     mfaVerified: z.boolean().default(false),
     mfaVerifiedAt: z.date().nullable(),
     mfaMethodUsed: z.string().nullable(),
     // Bangladesh specific
-    networkType: z.enum(['2g', '3g', '4g', '5g', 'wifi', 'unknown']).optional(),
-    mobileOperator: z.enum(['gp', 'robi', 'banglalink', 'teletalk', 'unknown']).optional(),
+    networkType: NetworkTypeSchema.optional(),
+    mobileOperator: MobileOperatorSchema.optional(),
     district: z.string().optional(),
     upazila: z.string().optional(),
     dataSaverEnabled: z.boolean().optional(),
     isFamilyShared: z.boolean().default(false),
-    familyMemberId: z.string().uuid().optional(),
-    sessionTransferId: z.string().uuid().optional(),
+    familyMemberId: UserIdSchema.optional(),
+    sessionTransferId: SessionIdSchema.optional(),
   })
   .strict()
   .brand('Session');
@@ -155,18 +162,18 @@ export const SessionSchema = z
 // Create Session Request
 export const CreateSessionSchema = z
   .object({
-    userId: z.string().uuid('Invalid user ID'),
+    userId: UserIdSchema,
     deviceInfo: DeviceInfoSchema,
     ipAddress: z.string().ip('Invalid IP address'),
     userAgent: z.string().max(1000, 'User agent too long'),
     trustDevice: z.boolean().default(false),
-    trustDurationDays: z.number().int().min(1).max(365).optional(),
+    trustDurationDays: z.number().int().min(1).max(365, 'Trust duration cannot exceed 365 days').optional(),
     rememberMe: z.boolean().default(false),
     mfaVerified: z.boolean().default(false),
     mfaMethodUsed: z.string().optional(),
-    sessionTransferId: z.string().uuid().optional(),
+    sessionTransferId: SessionIdSchema.optional(),
     isFamilyShared: z.boolean().default(false),
-    familyMemberId: z.string().uuid().optional(),
+    familyMemberId: UserIdSchema.optional(),
   })
   .strict()
   .brand('CreateSessionRequest');
@@ -222,7 +229,7 @@ export const RefreshSessionResponseSchema = z
 export const TerminateSessionSchema = z
   .object({
     sessionId: SessionIdSchema,
-    userId: z.string().uuid('Invalid user ID'),
+    userId: UserIdSchema,
     reason: z.string().max(500).optional(),
     revokedBy: z.enum(['user', 'admin', 'system']).default('user'),
   })
@@ -232,7 +239,7 @@ export const TerminateSessionSchema = z
 // Terminate Sessions Request (Bulk)
 export const TerminateSessionsSchema = z
   .object({
-    userId: z.string().uuid('Invalid user ID'),
+    userId: UserIdSchema,
     exceptSessionId: SessionIdSchema.optional(),
     exceptDeviceIds: z.array(z.string()).optional(),
     allDevices: z.boolean().default(false),
@@ -274,7 +281,7 @@ export const SessionValidationResponseSchema = z
     session: z
       .object({
         id: SessionIdSchema,
-        userId: z.string().uuid(),
+        userId: UserIdSchema,
         deviceInfo: DeviceInfoSchema,
         ipAddress: z.string().ip(),
         location: LocationInfoSchema.nullable(),
@@ -286,7 +293,7 @@ export const SessionValidationResponseSchema = z
         mfaVerified: z.boolean(),
       })
       .nullable(),
-    userId: z.string().uuid().nullable(),
+    userId: UserIdSchema.nullable(),
     error: z
       .enum([
         'SESSION_NOT_FOUND',
@@ -322,8 +329,8 @@ export const SessionValidationResponseSchema = z
 export const SessionHeartbeatSchema = z
   .object({
     sessionId: SessionIdSchema,
-    userId: z.string().uuid('Invalid user ID'),
-    currentUrl: z.string().url().optional(),
+    userId: UserIdSchema,
+    currentUrl: z.string().url('Invalid URL').optional(),
     activityType: z.enum(['page_view', 'api_call', 'user_interaction']).default('page_view'),
   })
   .strict()
@@ -341,10 +348,36 @@ export const SessionHeartbeatResponseSchema = z
   .strict()
   .brand('SessionHeartbeatResponse');
 
+// Session Transfer Request (Device to device)
+export const SessionTransferRequestSchema = z
+  .object({
+    fromSessionId: SessionIdSchema,
+    toDeviceInfo: DeviceInfoSchema,
+    transferMethod: z.enum(['qr_code', 'magic_link', 'otp']),
+    transferCode: z.string().optional(),
+    userId: UserIdSchema,
+  })
+  .strict()
+  .brand('SessionTransferRequest');
+
+// Session Transfer Response
+export const SessionTransferResponseSchema = z
+  .object({
+    transferId: SessionIdSchema,
+    transferMethod: z.string(),
+    qrCodeUrl: z.string().url().optional(),
+    magicLink: z.string().url().optional(),
+    otpSent: z.boolean().optional(),
+    expiresAt: z.date(),
+    status: z.enum(['pending', 'completed', 'expired']),
+  })
+  .strict()
+  .brand('SessionTransferResponse');
+
 // Session Filter Schema (For listing sessions)
 export const SessionFilterSchema = z
   .object({
-    userId: z.string().uuid().optional(),
+    userId: UserIdSchema.optional(),
     status: SessionStatusSchema.optional(),
     deviceId: z.string().optional(),
     deviceType: z.enum([
@@ -358,9 +391,9 @@ export const SessionFilterSchema = z
     toDate: z.date().optional(),
     isCurrent: z.boolean().optional(),
     isFamilyShared: z.boolean().optional(),
-    networkType: z.enum(['2g', '3g', '4g', '5g', 'wifi', 'unknown']).optional(),
+    networkType: NetworkTypeSchema.optional(),
     page: z.number().int().positive().default(1),
-    limit: z.number().int().min(1).max(100).default(20),
+    limit: z.number().int().min(1).max(100, 'Limit cannot exceed 100').default(20),
     sortBy: z.enum(['createdAt', 'lastActivityAt', 'expiresAt']).default('lastActivityAt'),
     sortOrder: z.enum(['asc', 'desc']).default('desc'),
   })
@@ -381,12 +414,16 @@ export const SessionListResponseSchema = z
         createdAt: z.date(),
         isCurrent: z.boolean(),
         trustLevel: SessionTrustLevelSchema,
+        isFamilyShared: z.boolean(),
+        deviceName: z.string().optional(),
       })
     ),
     total: z.number().int().min(0),
     page: z.number().int().positive(),
     limit: z.number().int().min(1).max(100),
     totalPages: z.number().int().min(0),
+    hasNext: z.boolean(),
+    hasPrevious: z.boolean(),
   })
   .strict()
   .brand('SessionListResponse');
@@ -405,7 +442,7 @@ export const SessionStatisticsResponseSchema = z
     sessionsByNetworkType: z.record(z.string(), z.number().int()),
     sessionsPerUser: z.array(
       z.object({
-        userId: z.string().uuid(),
+        userId: UserIdSchema,
         email: z.string().email(),
         count: z.number().int(),
         activeCount: z.number().int(),
@@ -419,9 +456,35 @@ export const SessionStatisticsResponseSchema = z
     ),
     suspiciousSessions: z.number().int(),
     sessionsNeedingCleanup: z.number().int(),
+    updatedAt: z.date(),
   })
   .strict()
   .brand('SessionStatisticsResponse');
+
+// Session Cleanup Request
+export const SessionCleanupRequestSchema = z
+  .object({
+    olderThan: z.date().optional(),
+    status: z.array(SessionStatusSchema).optional(),
+    userId: UserIdSchema.optional(),
+    deviceId: z.string().optional(),
+    limit: z.number().int().min(1).max(10000).default(1000),
+    batchSize: z.number().int().min(10).max(500).default(100),
+  })
+  .strict()
+  .brand('SessionCleanupRequest');
+
+// Session Cleanup Response
+export const SessionCleanupResponseSchema = z
+  .object({
+    totalDeleted: z.number().int(),
+    archivedCount: z.number().int(),
+    failedCount: z.number().int(),
+    cleanupCompletedAt: z.date(),
+    cleanupDurationMs: z.number().int(),
+  })
+  .strict()
+  .brand('SessionCleanupResponse');
 
 // ==================== Error Schemas ====================
 
@@ -442,9 +505,13 @@ export const SessionErrorSchema = z
       'ip_changed',
       'user_agent_changed',
       'network_disconnected',
+      'session_transfer_failed',
+      'invalid_transfer_code',
+      'family_sharing_not_allowed',
     ]),
     remainingSessions: z.number().int().optional(),
     retryAfterSeconds: z.number().int().optional(),
+    details: z.record(z.unknown()).optional(),
   })
   .strict()
   .brand('SessionError');
@@ -455,8 +522,11 @@ export type SessionId = z.infer<typeof SessionIdSchema>;
 export type RefreshToken = z.infer<typeof RefreshTokenSchema>;
 export type AccessToken = z.infer<typeof AccessTokenSchema>;
 export type TokenId = z.infer<typeof TokenIdSchema>;
+export type UserId = z.infer<typeof UserIdSchema>;
 export type SessionStatus = z.infer<typeof SessionStatusSchema>;
 export type SessionTrustLevel = z.infer<typeof SessionTrustLevelSchema>;
+export type NetworkType = z.infer<typeof NetworkTypeSchema>;
+export type MobileOperator = z.infer<typeof MobileOperatorSchema>;
 export type LocationInfo = z.infer<typeof LocationInfoSchema>;
 export type SessionTokens = z.infer<typeof SessionTokensSchema>;
 export type Session = z.infer<typeof SessionSchema>;
@@ -472,7 +542,11 @@ export type ValidateSessionRequest = z.infer<typeof ValidateSessionSchema>;
 export type SessionValidationResponse = z.infer<typeof SessionValidationResponseSchema>;
 export type SessionHeartbeatRequest = z.infer<typeof SessionHeartbeatSchema>;
 export type SessionHeartbeatResponse = z.infer<typeof SessionHeartbeatResponseSchema>;
+export type SessionTransferRequest = z.infer<typeof SessionTransferRequestSchema>;
+export type SessionTransferResponse = z.infer<typeof SessionTransferResponseSchema>;
 export type SessionFilterRequest = z.infer<typeof SessionFilterSchema>;
 export type SessionListResponse = z.infer<typeof SessionListResponseSchema>;
 export type SessionStatisticsResponse = z.infer<typeof SessionStatisticsResponseSchema>;
+export type SessionCleanupRequest = z.infer<typeof SessionCleanupRequestSchema>;
+export type SessionCleanupResponse = z.infer<typeof SessionCleanupResponseSchema>;
 export type SessionError = z.infer<typeof SessionErrorSchema>;
