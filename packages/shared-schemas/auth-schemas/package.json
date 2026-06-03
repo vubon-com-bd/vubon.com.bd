@@ -1,5 +1,5 @@
 {
-  "name": "@vubon/auth-schemas",
+  "name": "@vubon/shared-schemas",
   "version": "1.0.0",
   "description": "Single Source of Truth validation layer for vubon.com.bd ecommerce ecosystem - Bangladesh's #1 Enterprise E-commerce",
   "main": "./dist/index.js",
@@ -135,10 +135,10 @@
     "eslint": "^8.0.0",
     "prettier": "^3.0.0",
     "tsup": "^8.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "@vubon/shared-constants": "workspace:*"
   },
   "peerDependencies": {
-    "@vubon/shared-constants": "workspace:*",
     "zod": "^3.22.0"
   },
   "sideEffects": false,
@@ -148,10 +148,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vubon/auth-schemas.git"
+    "url": "git+https://github.com/vubon/shared-schemas.git"
   },
   "bugs": {
-    "url": "https://github.com/vubon/auth-schemas/issues"
+    "url": "https://github.com/vubon/shared-schemas/issues"
   },
   "homepage": "https://vubon.com.bd"
 }
