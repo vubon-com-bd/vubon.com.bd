@@ -2,7 +2,7 @@
  * String Utilities - String manipulation and formatting
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
 
- * @module shared-utils/src/formatter/string.util
+ * @module shared-utils/formatter/string.util
 
  * RULES:
  * ✅ ONLY string manipulation helpers - NO business logic
@@ -12,17 +12,23 @@
  * ✅ No side effects or external API calls
  */
 
-import { STRING_CONFIG } from '@vubon/auth-constants';
+// ✅ FIXED: Correct package name
+import { STRING_CONFIG } from '@vubon/shared-constants';
 
 // ==================== Constants (from shared-constants) ====================
 
-const SLUG_SEPARATOR = STRING_CONFIG.SLUG_SEPARATOR;
-const DEFAULT_TRUNCATE_LENGTH = STRING_CONFIG.DEFAULT_TRUNCATE_LENGTH;
-const DEFAULT_MAX_WORDS = STRING_CONFIG.DEFAULT_MAX_WORDS;
-const DEFAULT_MASK_CHAR = STRING_CONFIG.DEFAULT_MASK_CHAR;
-const TITLE_CASE_EXCEPTIONS = STRING_CONFIG.TITLE_CASE_EXCEPTIONS;
-const SLUG_SPECIAL_CHARS_REGEX = STRING_CONFIG.SLUG_SPECIAL_CHARS_REGEX;
-const SLUG_MULTIPLE_SEPARATOR_REGEX = STRING_CONFIG.SLUG_MULTIPLE_SEPARATOR_REGEX;
+// ✅ FIXED: Add fallbacks for missing constants
+const SLUG_SEPARATOR = STRING_CONFIG?.SLUG_SEPARATOR || '-';
+const DEFAULT_TRUNCATE_LENGTH = STRING_CONFIG?.DEFAULT_TRUNCATE_LENGTH || 100;
+const DEFAULT_MAX_WORDS = STRING_CONFIG?.DEFAULT_MAX_WORDS || 50;
+const DEFAULT_MASK_CHAR = STRING_CONFIG?.DEFAULT_MASK_CHAR || '*';
+const TITLE_CASE_EXCEPTIONS = STRING_CONFIG?.TITLE_CASE_EXCEPTIONS || [
+  'a', 'an', 'and', 'the', 'of', 'for', 'in', 'on', 'at', 'to',
+  'by', 'with', 'without', 'or', 'nor', 'but', 'so', 'yet',
+  'as', 'is', 'was', 'were', 'be', 'been', 'being',
+];
+const SLUG_SPECIAL_CHARS_REGEX = STRING_CONFIG?.SLUG_SPECIAL_CHARS_REGEX || /[^\w\s-]/g;
+const SLUG_MULTIPLE_SEPARATOR_REGEX = STRING_CONFIG?.SLUG_MULTIPLE_SEPARATOR_REGEX || /[\s_-]+/g;
 
 // ==================== Private Helpers ====================
 
@@ -56,10 +62,10 @@ export const slugify = (value: string, separator: string = SLUG_SEPARATOR): stri
   return validValue
     .toLowerCase()
     .trim()
-    .replace(SLUG_SPECIAL_CHARS_REGEX, '') // Remove special characters
-    .replace(SLUG_MULTIPLE_SEPARATOR_REGEX, separator) // Replace spaces and underscores
-    .replace(new RegExp(`${separator}+`, 'g'), separator) // Remove multiple separators
-    .replace(new RegExp(`^${separator}|${separator}$`, 'g'), ''); // Trim separators
+    .replace(SLUG_SPECIAL_CHARS_REGEX, '')
+    .replace(SLUG_MULTIPLE_SEPARATOR_REGEX, separator)
+    .replace(new RegExp(`${separator}+`, 'g'), separator)
+    .replace(new RegExp(`^${separator}|${separator}$`, 'g'), '');
 };
 
 /**
@@ -393,6 +399,39 @@ export const maskEmail = (email: string): string => {
  */
 export const maskPhone = (phone: string): string => {
   return maskString(phone, 4, 4);
+};
+
+// ==================== Additional Helpers ====================
+
+/**
+ * Reverse a string
+ *
+ * @param value - String to reverse
+ * @returns Reversed string
+ */
+export const reverse = (value: string): string => {
+  const validValue = validateString(value);
+  return validValue.split('').reverse().join('');
+};
+
+/**
+ * Check if string is empty or only whitespace
+ *
+ * @param value - String to check
+ * @returns True if blank
+ */
+export const isBlank = (value: string): boolean => {
+  return !value || value.trim().length === 0;
+};
+
+/**
+ * Check if string is not empty
+ *
+ * @param value - String to check
+ * @returns True if not blank
+ */
+export const isNotBlank = (value: string): boolean => {
+  return !isBlank(value);
 };
 
 // ==================== Type Exports ====================
