@@ -13,10 +13,7 @@
 // ============================================================
 // Type Utilities
 // ============================================================
-export type ValueOf<T> = T[keyof T];
-export type ReadonlyDeep<T> = {
-  readonly [P in keyof T]: ReadonlyDeep<T[P]>;
-};
+import type { ValueOf } from './common.types';
 
 // ============================================================
 // Email Validation Regex
@@ -454,7 +451,7 @@ export const REGEX_ADDRESS = {
   HOUSE_NUMBER: /^[A-Za-z0-9\/\-\.\s]{1,20}$/,
   
   // Full address (with Bengali support)
-  FULL_ADDRESS: /^[A-Za-z0-9\u0980-\u09FF\s\-\,\.\/\#]{5,200}$/u,
+  FULL_ADDRESS: /^[A-Za-z0-9\u0980-\u09FF\s\-\\.\/\.]{5,200}$/u,
 } as const;
 
 export type RegexAddress = ValueOf<typeof REGEX_ADDRESS>;
