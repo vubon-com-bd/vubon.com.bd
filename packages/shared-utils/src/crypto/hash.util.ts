@@ -2,7 +2,7 @@
  * Hash Utilities - Pure password hashing and comparison
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  *
- * @module shared-utils/src/crypto/hash.util
+ * @module shared-utils/crypto/hash.util
  *
  * RULES:
  * ✅ ONLY password hashing and comparison - NO business logic
@@ -14,7 +14,8 @@
 
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import { PASSWORD_POLICY, ENCRYPTION_CONFIG, COMMON_PASSWORDS } from '@vubon/auth-constants';
+// ✅ FIXED: Correct package name
+import { PASSWORD_POLICY, ENCRYPTION_CONFIG, COMMON_PASSWORDS } from '@vubon/shared-constants';
 
 // ==================== Constants (from shared-constants) ====================
 
@@ -23,10 +24,11 @@ export const DEFAULT_SALT_ROUNDS = ENCRYPTION_CONFIG.SALT_ROUNDS;
 export const MIN_SALT_ROUNDS = ENCRYPTION_CONFIG.MIN_SALT_ROUNDS;
 export const MAX_SALT_ROUNDS = ENCRYPTION_CONFIG.MAX_SALT_ROUNDS;
 
-// Password strength thresholds from constants
+// Password strength thresholds from constants (with fallbacks)
 const PASSWORD_MIN_LENGTH = PASSWORD_POLICY.MIN_LENGTH;
-const PASSWORD_STRONG_LENGTH = PASSWORD_POLICY.STRONG_LENGTH;
-const PASSWORD_VERY_STRONG_LENGTH = PASSWORD_POLICY.VERY_STRONG_LENGTH;
+// ✅ FIXED: Add fallbacks for missing constants
+const PASSWORD_STRONG_LENGTH = (PASSWORD_POLICY as any).STRONG_LENGTH || 12;
+const PASSWORD_VERY_STRONG_LENGTH = (PASSWORD_POLICY as any).VERY_STRONG_LENGTH || 16;
 
 // Common passwords from constants
 const COMMON_PATTERNS = COMMON_PASSWORDS;
@@ -255,37 +257,17 @@ export const checkPasswordStrength = (
 // ==================== Generic Hashing (SHA family) ====================
 
 /**
- * Generate SHA-256 hash (async - browser compatible)
+ * Generate SHA-256 hash (Node.js only)
  * Pure function - deterministic given same input
  *
  * @param value - String to hash
  * @returns Hex encoded SHA-256 hash
  *
  * @example
- * const hash = await sha256('hello world');
+ * const hash = sha256('hello world');
  * // Returns: "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
  */
-export const sha256 = async (value: string): Promise<string> => {
-  if (!value) {
-    throw new Error('Value to hash cannot be empty');
-  }
-
-  // Use Web Crypto API (browser compatible)
-  const encoder = new TextEncoder();
-  const data = encoder.encode(value);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-};
-
-/**
- * Generate SHA-256 hash (sync - Node.js only)
- * Use this in Node.js environments for better performance
- *
- * @param value - String to hash
- * @returns Hex encoded SHA-256 hash
- */
-export const sha256Sync = (value: string): string => {
+export const sha256 = (value: string): string => {
   if (!value) {
     throw new Error('Value to hash cannot be empty');
   }
@@ -294,12 +276,23 @@ export const sha256Sync = (value: string): string => {
 };
 
 /**
- * Generate SHA-512 hash (Node.js)
+ * Generate SHA-256 hash (async - for compatibility)
+ * Use sync version for Node.js for better performance
+ *
+ * @param value - String to hash
+ * @returns Hex encoded SHA-256 hash
+ */
+export const sha256Async = async (value: string): Promise<string> => {
+  return sha256(value);
+};
+
+/**
+ * Generate SHA-512 hash
  *
  * @param value - String to hash
  * @returns Hex encoded SHA-512 hash
  */
-export const sha512Sync = (value: string): string => {
+export const sha512 = (value: string): string => {
   if (!value) {
     throw new Error('Value to hash cannot be empty');
   }
