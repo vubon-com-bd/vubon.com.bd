@@ -2,7 +2,7 @@
  * Register Schemas - Pure validation for user registration
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-schemas/auth-schemas/auth/register.schema
+ * @module shared-schemas/auth/register.schema
  * 
  * RULES:
  * ✅ ONLY Zod schemas - NO business logic
@@ -16,11 +16,12 @@
 import { z } from 'zod';
 
 // Import constants from shared-constants layer (Enterprise rule)
+// ✅ FIXED: Correct package name
 import {
   REGEX_EMAIL,
   REGEX_PHONE,
   PASSWORD_POLICY,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // ==================== Primitives (Reusable) ====================
 
@@ -29,15 +30,16 @@ export const UserEmailSchema = z
   .string()
   .min(1, 'Email is required')
   .max(255, 'Email too long')
-  .regex(REGEX_EMAIL.STRICT, 'Invalid email format')
+  .regex(REGEX_EMAIL.STRICT, 'Invalid email format. Example: user@example.com')
   .trim()
   .toLowerCase()
   .brand('UserEmail');
 
 // Phone Schema (Bangladesh specific - Based on REGEX_PHONE)
+// ✅ FIXED: brand after optional/nullable
 export const UserPhoneSchema = z
   .string()
-  .regex(REGEX_PHONE.BANGLADESH, 'Invalid Bangladesh phone number format')
+  .regex(REGEX_PHONE.BANGLADESH, 'Invalid Bangladesh phone number format. Use format: 01XXXXXXXXX or +8801XXXXXXXXX')
   .transform((val) => {
     // Normalize to +880 format
     if (val.startsWith('0')) {
@@ -48,14 +50,14 @@ export const UserPhoneSchema = z
     }
     return `+880${val}`;
   })
-  .brand('UserPhone')
   .optional()
-  .nullable();
+  .nullable()
+  .brand('UserPhone');
 
 // Phone Schema (Required version)
 export const UserPhoneRequiredSchema = z
   .string()
-  .regex(REGEX_PHONE.BANGLADESH, 'Invalid Bangladesh phone number format')
+  .regex(REGEX_PHONE.BANGLADESH, 'Invalid Bangladesh phone number format. Use format: 01XXXXXXXXX or +8801XXXXXXXXX')
   .transform((val) => {
     if (val.startsWith('0')) {
       return `+88${val}`;
@@ -67,7 +69,7 @@ export const UserPhoneRequiredSchema = z
   })
   .brand('UserPhoneRequired');
 
-// First Name Schema
+// First Name Schema (Supports English & Bengali)
 export const UserFirstNameSchema = z
   .string()
   .min(1, 'First name is required')
@@ -77,7 +79,7 @@ export const UserFirstNameSchema = z
   .trim()
   .brand('UserFirstName');
 
-// Last Name Schema
+// Last Name Schema (Supports English & Bengali)
 export const UserLastNameSchema = z
   .string()
   .min(1, 'Last name is required')
@@ -92,6 +94,7 @@ export const UserDisplayNameSchema = z
   .string()
   .min(2, 'Display name must be at least 2 characters')
   .max(100, 'Display name cannot exceed 100 characters')
+  .regex(/^[a-zA-Z0-9\u0980-\u09FF\s_.-]+$/, 'Display name contains invalid characters')
   .trim()
   .optional()
   .brand('UserDisplayName');
@@ -136,7 +139,16 @@ export const UserStrongPasswordSchema = z
         path: ['password'],
       });
     }
-  });
+    // Optional: Check for repeated characters (security)
+    if (/(.)\1{2,}/.test(val)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Password should not contain repeated characters (e.g., "aaa")',
+        path: ['password'],
+      });
+    }
+  })
+  .brand('UserStrongPassword');
 
 // Username Schema (For username-based registration)
 export const UsernameSchema = z
@@ -372,9 +384,14 @@ export const RegisterErrorSchema = z
       'invalid_captcha',
       'password_too_weak',
       'terms_not_accepted',
+      'privacy_not_accepted',
       'underage',
       'invalid_trade_license',
       'invalid_nid',
+      'invalid_tin',
+      'business_already_registered',
+      'phone_not_verified',
+      'email_not_verified',
     ]),
     field: z.string().optional(),
   })
