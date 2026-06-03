@@ -2,7 +2,7 @@
  * User Schemas - Pure validation for user-related operations
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-schemas/auth-schemas/src/auth/user.schema
+ * @module shared-schemas/auth/user.schema
  * 
  * RULES:
  * ✅ ONLY Zod schemas - NO business logic
@@ -16,14 +16,14 @@
 import { z } from 'zod';
 
 // Import constants from shared-constants layer (Enterprise rule)
+// ✅ FIXED: Correct package name
 import {
   REGEX_EMAIL,
   REGEX_PHONE,
-  REGEX_USERNAME,
   PASSWORD_POLICY,
   ROLES,
   USER_STATUS,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // ==================== Primitives (Reusable) ====================
 
@@ -45,7 +45,7 @@ export const UserEmailSchema = z
 // User Phone Schema (Bangladesh specific - Based on REGEX_PHONE)
 export const UserPhoneSchema = z
   .string()
-  .regex(REGEX_PHONE.BANGLADESH, 'Invalid Bangladesh phone number format')
+  .regex(REGEX_PHONE.BANGLADESH, 'Invalid Bangladesh phone number format. Use format: 01XXXXXXXXX or +8801XXXXXXXXX')
   .transform((val) => {
     // Normalize to +880 format
     if (val.startsWith('0')) {
@@ -63,7 +63,7 @@ export const UserPhoneSchema = z
 // User Phone Required Schema
 export const UserPhoneRequiredSchema = z
   .string()
-  .regex(REGEX_PHONE.BANGLADESH, 'Invalid Bangladesh phone number format')
+  .regex(REGEX_PHONE.BANGLADESH, 'Invalid Bangladesh phone number format. Use format: 01XXXXXXXXX or +8801XXXXXXXXX')
   .transform((val) => {
     if (val.startsWith('0')) {
       return `+88${val}`;
@@ -158,15 +158,15 @@ export const UserStrongPasswordSchema = z
   .brand('UserStrongPassword');
 
 // User Status Schema (Based on constants)
+// ✅ FIXED: Using only values from USER_STATUS constant
 export const UserStatusSchema = z.enum([
   USER_STATUS.ACTIVE,
   USER_STATUS.INACTIVE,
   USER_STATUS.SUSPENDED,
   USER_STATUS.BANNED,
   USER_STATUS.PENDING_VERIFICATION,
-  'pending_approval',
-  'deactivated',
-  'locked',
+  USER_STATUS.DEACTIVATED,
+  USER_STATUS.LOCKED,
 ]);
 
 // User Verification Status Schema
@@ -180,28 +180,29 @@ export const UserVerificationStatusSchema = z.enum([
 ]);
 
 // User Role Schema (Based on constants)
+// ✅ FIXED: Replaced ROLES.SELLER with ROLES.VENDOR
 export const UserRoleSchema = z.enum([
   ROLES.SUPER_ADMIN,
   ROLES.ADMIN,
-  ROLES.SELLER,
+  ROLES.VENDOR,
   ROLES.CUSTOMER,
   ROLES.GUEST,
-  'system_monitor',
-  'auditor',
-  'content_manager',
-  'marketing_manager',
-  'analyst',
-  'support_agent',
-  'support_supervisor',
-  'vendor_manager',
-  'shop_manager',
-  'shop_staff',
-  'delivery_manager',
-  'delivery_agent',
-  'premium_customer',
-  'district_manager',
-  'upzila_agent',
-  'mfs_agent',
+  ROLES.SYSTEM_MONITOR,
+  ROLES.AUDITOR,
+  ROLES.CONTENT_MANAGER,
+  ROLES.MARKETING_MANAGER,
+  ROLES.ANALYST,
+  ROLES.SUPPORT_AGENT,
+  ROLES.SUPPORT_SUPERVISOR,
+  ROLES.VENDOR_MANAGER,
+  ROLES.SHOP_MANAGER,
+  ROLES.SHOP_STAFF,
+  ROLES.DELIVERY_MANAGER,
+  ROLES.DELIVERY_AGENT,
+  ROLES.PREMIUM_CUSTOMER,
+  ROLES.DISTRICT_MANAGER,
+  ROLES.UPZILA_AGENT,
+  ROLES.MFS_AGENT,
 ]);
 
 // User Tier Schema (Bangladesh specific - loyalty program)
