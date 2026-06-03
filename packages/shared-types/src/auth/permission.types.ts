@@ -13,11 +13,8 @@
  */
 
 import type {
-  PERMISSIONS,
-  PERMISSION_GROUPS,
   PERMISSION_RESOURCES,
   PERMISSION_ACTIONS,
-  PERMISSION_CATEGORIES,
 } from '@vubon/shared-constants';
 
 // ============================================================
