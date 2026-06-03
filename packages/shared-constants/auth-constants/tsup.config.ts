@@ -74,10 +74,7 @@ export default defineConfig({
   },
 
   // Environment variables (none needed for constants)
-  define: {},
-
-  // No replacement needed
-  replace: {},
+  define: {},  
 
   // No esbuild plugins needed
   esbuildPlugins: [],
