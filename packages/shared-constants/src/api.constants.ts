@@ -10,11 +10,10 @@
  * ✅ NO side effects
  * ✅ ONLY pure readonly constants
  */
-// প্রতিটি ফাইলের শুরুতে যোগ করুন:
-import type { ValueOf, ReadonlyDeep } from './common.types';
+
 import { ENV_CONFIG } from './env.constants';
 
-
+import type { ValueOf } from './common.types';
 
 // ============================================================
 // API Versioning
@@ -50,9 +49,9 @@ export const API_GATEWAY_CONFIG = {
   EXTERNAL_API_URL: ENV_CONFIG.IS_PRODUCTION 
     ? 'https://api.vubon.com.bd'
     : 'http://localhost:3000',
-  INTERNAL_API_URL: process.env.INTERNAL_API_URL || 'http://localhost:3001',
-  ADMIN_API_URL: process.env.ADMIN_API_URL || 'http://localhost:3002',
-  PARTNER_API_URL: process.env.PARTNER_API_URL || 'http://localhost:3003',
+  INTERNAL_API_URL: process.env['INTERNAL_API_URL'] || 'http://localhost:3001',
+  ADMIN_API_URL: process.env['ADMIN_API_URL'] || 'http://localhost:3002',
+  PARTNER_API_URL: process.env['PARTNER_API_URL'] || 'http://localhost:3003',
   
   TIMEOUT: {
     DEFAULT: 30000,      // 30 seconds
