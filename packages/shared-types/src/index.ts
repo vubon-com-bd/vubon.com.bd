@@ -332,8 +332,6 @@ export {
   type BulkLockResult,
   type AutoUnlockSchedule,
   type LockDashboardStats,
-  type AccountLockoutConstants,
-  type LockoutLevels,
   type ProgressiveLockoutLevel,
   type ProgressiveLockoutConfig,
   type SmartLockDetectionResult,
