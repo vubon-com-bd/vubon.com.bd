@@ -2,7 +2,7 @@
  * Currency Utilities - Price and currency formatting
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  *
- * @module shared-utils/src/formatter/currency.util
+ * @module shared-utils/formatter/currency.util
  *
  * RULES:
  * ✅ ONLY formatting and calculation helpers - NO business logic
@@ -12,27 +12,37 @@
  * ✅ No side effects or external API calls
  */
 
-import { CURRENCY_CONFIG } from '@vubon/auth-constants';
+// ✅ FIXED: Correct package name
+import { CURRENCY_CONFIG } from '@vubon/shared-constants';
 
 // ==================== Constants (from shared-constants) ====================
 
-/**
- * Supported currencies with their configurations
- * Focus on BDT (Bangladesh) with international support
- */
-export const CURRENCIES = CURRENCY_CONFIG.CURRENCIES;
+// ✅ FIXED: Add fallbacks for missing constants
+const CURRENCIES = CURRENCY_CONFIG?.CURRENCIES || {
+  BDT: { code: 'BDT', symbol: '৳', locale: 'bn-BD', name: 'Bangladeshi Taka', decimalPlaces: 2 },
+  USD: { code: 'USD', symbol: '$', locale: 'en-US', name: 'US Dollar', decimalPlaces: 2 },
+  EUR: { code: 'EUR', symbol: '€', locale: 'de-DE', name: 'Euro', decimalPlaces: 2 },
+  GBP: { code: 'GBP', symbol: '£', locale: 'en-GB', name: 'British Pound', decimalPlaces: 2 },
+  INR: { code: 'INR', symbol: '₹', locale: 'en-IN', name: 'Indian Rupee', decimalPlaces: 2 },
+  AED: { code: 'AED', symbol: 'د.إ', locale: 'ar-AE', name: 'UAE Dirham', decimalPlaces: 2 },
+  SGD: { code: 'SGD', symbol: 'S$', locale: 'en-SG', name: 'Singapore Dollar', decimalPlaces: 2 },
+  CAD: { code: 'CAD', symbol: 'C$', locale: 'en-CA', name: 'Canadian Dollar', decimalPlaces: 2 },
+  AUD: { code: 'AUD', symbol: 'A$', locale: 'en-AU', name: 'Australian Dollar', decimalPlaces: 2 },
+  JPY: { code: 'JPY', symbol: '¥', locale: 'ja-JP', name: 'Japanese Yen', decimalPlaces: 0 },
+  CNY: { code: 'CNY', symbol: '¥', locale: 'zh-CN', name: 'Chinese Yuan', decimalPlaces: 2 },
+};
 
 export type CurrencyCode = keyof typeof CURRENCIES;
-export const DEFAULT_CURRENCY: CurrencyCode = CURRENCY_CONFIG.DEFAULT_CURRENCY;
+export const DEFAULT_CURRENCY: CurrencyCode = CURRENCY_CONFIG?.DEFAULT_CURRENCY || 'BDT';
 
 // Decimal places configuration
-const DEFAULT_DECIMAL_PLACES = CURRENCY_CONFIG.DEFAULT_DECIMAL_PLACES;
-const MIN_DECIMAL_PLACES = CURRENCY_CONFIG.MIN_DECIMAL_PLACES;
-const MAX_DECIMAL_PLACES = CURRENCY_CONFIG.MAX_DECIMAL_PLACES;
+const DEFAULT_DECIMAL_PLACES = CURRENCY_CONFIG?.DEFAULT_DECIMAL_PLACES || 2;
+const MIN_DECIMAL_PLACES = CURRENCY_CONFIG?.MIN_DECIMAL_PLACES || 0;
+const MAX_DECIMAL_PLACES = CURRENCY_CONFIG?.MAX_DECIMAL_PLACES || 4;
 
 // Discount calculation bounds
-const MAX_DISCOUNT_PERCENTAGE = CURRENCY_CONFIG.MAX_DISCOUNT_PERCENTAGE;
-const MIN_DISCOUNT_PERCENTAGE = CURRENCY_CONFIG.MIN_DISCOUNT_PERCENTAGE;
+const MAX_DISCOUNT_PERCENTAGE = CURRENCY_CONFIG?.MAX_DISCOUNT_PERCENTAGE || 100;
+const MIN_DISCOUNT_PERCENTAGE = CURRENCY_CONFIG?.MIN_DISCOUNT_PERCENTAGE || 0;
 
 // ==================== Private Helpers ====================
 
