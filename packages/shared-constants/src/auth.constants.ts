@@ -259,7 +259,7 @@ export const SOCIAL_AUTH_CONFIG = {
       FIELDS: ['id', 'email', 'first_name', 'last_name', 'picture'],
     },
     GITHUB: {
-      ENABLED: process.env.NODE_ENV === 'development',
+      ENABLED: process.env['NODE_ENV'] === 'development',
       SCOPES: ['user:email'],
       FIELDS: ['id', 'email', 'name', 'avatar_url'],
     },
@@ -345,47 +345,7 @@ export const SESSION_CONCURRENCY = {
   },
 } as const;
 
-// ============================================================
-// Device fingerprinting
-// ============================================================
-export const DEVICE_TRUST = {
-  TRUSTED_DEVICE_DURATION: 2592000,
-  TRUST_LEVELS: {
-    FULLY_TRUSTED: 'fully_trusted',
-    PARTIALLY_TRUSTED: 'partially_trusted',
-    UNTRUSTED: 'untrusted',
-    SUSPICIOUS: 'suspicious',
-  },
-  FINGERPRINT_COMPONENTS: {
-    USER_AGENT: true,
-    LANGUAGE: true,
-    COLOR_DEPTH: true,
-    SCREEN_RESOLUTION: true,
-    TIMEZONE: true,
-    PLATFORM: true,
-    TOUCH_SUPPORT: true,
-    DEVICE_MEMORY: true,
-    HARDWARE_CONCURRENCY: true,
-  },
-} as const;
 
-// ============================================================
-// OTP Configuration (Bangladesh standard)
-// ============================================================
-export const OTP_CONFIG = {
-  LENGTH: 6,
-  DIGITS_ONLY: true,
-  EXPIRY_SECONDS: 300,
-  MAX_SEND_PER_HOUR: 5,
-  MAX_VERIFY_ATTEMPTS: 3,
-  RESEND_COOLDOWN_SECONDS: 30,
-  PROVIDERS: {
-    SMS: 'sms',
-    WHATSAPP: 'whatsapp',
-    EMAIL: 'email',
-    VOICE: 'voice',
-  },
-} as const;
 
 // ============================================================
 // Auth events (Event-driven architecture ready)
