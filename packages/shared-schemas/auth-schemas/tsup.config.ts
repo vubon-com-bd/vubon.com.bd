@@ -54,7 +54,7 @@ export default defineConfig({
   // External dependencies (peer dependencies)
   external: [
     'zod',
-    '@vubon/auth-constants',
+    '@vubon/shared-constants',
     '@vubon/shared-types',
   ],
   
@@ -93,10 +93,10 @@ export default defineConfig({
   
   // Enable onSuccess hook for logging
   onSuccess: async () => {
-    console.log('✅ @vubon/auth-schemas build complete!');
+    console.log('✅ @vubon/shared-schemas build complete!');
     console.log('📦 Output: dist/');
     console.log('📝 Formats: CommonJS + ESM');
     console.log('🔷 Types: .d.ts files generated');
-    console.log('🔗 External dependencies: zod, @vubon/auth-constants, @vubon/shared-types');
+    console.log('🔗 External dependencies: zod, @vubon/shared-constants, @vubon/shared-types');
   },
 });
