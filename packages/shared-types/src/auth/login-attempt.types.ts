@@ -13,7 +13,6 @@
  */
 
 import type {
-  ACCOUNT_LOCKOUT,
   AUTH_RATE_LIMITS,
 } from '@vubon/shared-constants';
 
