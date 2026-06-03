@@ -16,7 +16,7 @@
  * user.types.ts → device.types.ts → (indirectly) shared-constants
  */
 
-import type { Role, ExtendedRole } from './role.types';
+import type { ExtendedRole } from './role.types';
 import type { PermissionString } from './permission.types';
 import type { DeviceInfo } from './device.types';
 
