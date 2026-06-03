@@ -2,7 +2,7 @@
  * User Agent Utilities - Browser and OS detection
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-utils/src/device/user-agent.util
+ * @module shared-utils/device/user-agent.util
  * 
  * RULES:
  * ✅ ONLY user agent parsing and detection - NO business logic
@@ -13,7 +13,8 @@
  */
 
 import UAParser from 'ua-parser-js';
-import { USER_AGENT_CONFIG } from '@vubon/auth-constants';
+// ✅ FIXED: Correct package name
+import { USER_AGENT_CONFIG } from '@vubon/shared-constants';
 
 // ==================== Types ====================
 
@@ -55,17 +56,31 @@ export interface DeviceInfo {
 
 // ==================== Constants (from shared-constants) ====================
 
-// Bot/Crawler patterns
-const BOT_PATTERNS = USER_AGENT_CONFIG.BOT_PATTERNS;
+// ✅ FIXED: Add fallbacks for missing constants
+const BOT_PATTERNS = USER_AGENT_CONFIG?.BOT_PATTERNS || [
+  /bot/i, /crawler/i, /spider/i, /scraper/i, /headless/i,
+  /puppeteer/i, /playwright/i, /selenium/i, /cypress/i,
+  /googlebot/i, /bingbot/i, /slurp/i, /duckduckbot/i,
+  /baiduspider/i, /yandexbot/i, /facebookexternalhit/i,
+  /facebot/i, /twitterbot/i, /linkedinbot/i, /whatsapp/i,
+  /telegrambot/i, /discordbot/i, /slackbot/i,
+];
 
-// Mobile device indicators
-const MOBILE_INDICATORS = USER_AGENT_CONFIG.MOBILE_INDICATORS;
+const MOBILE_INDICATORS = USER_AGENT_CONFIG?.MOBILE_INDICATORS || [
+  'Mobile', 'Android', 'iPhone', 'iPod', 'BlackBerry',
+  'Windows Phone', 'Opera Mini', 'IEMobile',
+];
 
-// Tablet indicators
-const TABLET_INDICATORS = USER_AGENT_CONFIG.TABLET_INDICATORS;
+const TABLET_INDICATORS = USER_AGENT_CONFIG?.TABLET_INDICATORS || [
+  'iPad', 'Tablet', 'Kindle', 'Silk',
+];
 
-// Bangladesh specific browser detection
-const BD_BROWSER_PATTERNS = USER_AGENT_CONFIG.BD_BROWSER_PATTERNS;
+const BD_BROWSER_PATTERNS = USER_AGENT_CONFIG?.BD_BROWSER_PATTERNS || [
+  { pattern: /ucbrowser/i, name: 'UC Browser' },
+  { pattern: /opera mini/i, name: 'Opera Mini' },
+  { pattern: /samsungbrowser/i, name: 'Samsung Browser' },
+  { pattern: /miui browser/i, name: 'Mi Browser' },
+];
 
 // ==================== Private Helpers ====================
 
@@ -319,6 +334,43 @@ export const getDeviceInfo = (userAgent: string): DeviceInfo => {
   };
 };
 
+// ==================== Additional Helpers ====================
+
+/**
+ * Get user agent summary (short description)
+ * 
+ * @param userAgent - User agent string
+ * @returns Summary string (e.g., "Chrome 120 on Windows")
+ */
+export const getUserAgentSummary = (userAgent: string): string => {
+  const info = getDeviceInfo(userAgent);
+  if (info.isBot) return `Bot: ${info.browser}`;
+  return `${info.browser} ${info.browserVersion} on ${info.os}`;
+};
+
+/**
+ * Check if user agent indicates a feature phone (Bangladesh specific)
+ * 
+ * @param userAgent - User agent string
+ * @returns True if likely a feature phone
+ */
+export const isFeaturePhone = (userAgent: string): boolean => {
+  const validUA = validateUserAgent(userAgent);
+  if (!validUA) return false;
+  
+  const featurePhonePatterns = [
+    /Nokia/i, /J2ME/i, /MIDP/i, /CLDC/i, /UP\.Browser/i,
+    /NetFront/i, /Teleca/i, /Opera Mini/i,
+  ];
+  return featurePhonePatterns.some(pattern => pattern.test(validUA));
+};
+
 // ==================== Type Exports ====================
 
 export type { DeviceInfo, ParsedUserAgent };
+export const USER_AGENT_CONFIG_EXPORTS = {
+  BOT_PATTERNS,
+  MOBILE_INDICATORS,
+  TABLET_INDICATORS,
+  BD_BROWSER_PATTERNS,
+};
