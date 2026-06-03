@@ -2,7 +2,7 @@
  * Date Utilities - Timezone-safe date formatting
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
 
- * @module shared-utils/src/formatter/date.util
+ * @module shared-utils/formatter/date.util
 
  * RULES:
  * ✅ ONLY date formatting and helpers - NO business logic
@@ -49,17 +49,34 @@ import {
   isThisMonth,
   isThisYear,
 } from 'date-fns';
-import { DATE_CONFIG } from '@vubon/auth-constants';
+// ✅ FIXED: Correct package name
+import { DATE_CONFIG } from '@vubon/shared-constants';
 
 // ==================== Constants (from shared-constants) ====================
 
-export const DATE_FORMATS = DATE_CONFIG.DATE_FORMATS;
-export const DEFAULT_DATE_FORMAT = DATE_CONFIG.DEFAULT_DATE_FORMAT;
-export const DEFAULT_TIME_FORMAT = DATE_CONFIG.DEFAULT_TIME_FORMAT;
-export const DEFAULT_DATETIME_FORMAT = DATE_CONFIG.DEFAULT_DATETIME_FORMAT;
-export const DEFAULT_DISPLAY_DATE_FORMAT = DATE_CONFIG.DEFAULT_DISPLAY_DATE_FORMAT;
-export const DEFAULT_DISPLAY_DATETIME_FORMAT = DATE_CONFIG.DEFAULT_DISPLAY_DATETIME_FORMAT;
-export const DEFAULT_TIMEZONE = DATE_CONFIG.DEFAULT_TIMEZONE;
+// ✅ FIXED: Add fallbacks for missing constants
+const DATE_FORMATS = DATE_CONFIG?.DATE_FORMATS || {
+  ISO: 'yyyy-MM-dd',
+  ISO_WITH_TIME: "yyyy-MM-dd'T'HH:mm:ss.SSSxxx",
+  DATE: 'yyyy-MM-dd',
+  TIME: 'HH:mm:ss',
+  DATETIME: 'yyyy-MM-dd HH:mm:ss',
+  DISPLAY_DATE: 'MMM dd, yyyy',
+  DISPLAY_DATETIME: 'MMM dd, yyyy hh:mm a',
+  BENGALI_DATE: 'dd MMM, yyyy',
+  BENGALI_DATETIME: 'dd MMM, yyyy hh:mm a',
+  FILE_DATE: 'yyyy-MM-dd',
+  FILE_DATETIME: 'yyyy-MM-dd_HH-mm-ss',
+  API_DATE: 'yyyy-MM-dd',
+  API_DATETIME: 'yyyy-MM-ddTHH:mm:ssZ',
+};
+
+export const DEFAULT_DATE_FORMAT = DATE_CONFIG?.DEFAULT_DATE_FORMAT || 'yyyy-MM-dd';
+export const DEFAULT_TIME_FORMAT = DATE_CONFIG?.DEFAULT_TIME_FORMAT || 'HH:mm:ss';
+export const DEFAULT_DATETIME_FORMAT = DATE_CONFIG?.DEFAULT_DATETIME_FORMAT || 'yyyy-MM-dd HH:mm:ss';
+export const DEFAULT_DISPLAY_DATE_FORMAT = DATE_CONFIG?.DEFAULT_DISPLAY_DATE_FORMAT || 'MMM dd, yyyy';
+export const DEFAULT_DISPLAY_DATETIME_FORMAT = DATE_CONFIG?.DEFAULT_DISPLAY_DATETIME_FORMAT || 'MMM dd, yyyy hh:mm a';
+export const DEFAULT_TIMEZONE = DATE_CONFIG?.DEFAULT_TIMEZONE || 'Asia/Dhaka';
 
 export type DateFormatString = typeof DATE_FORMATS[keyof typeof DATE_FORMATS];
 
