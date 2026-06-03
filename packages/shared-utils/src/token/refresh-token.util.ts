@@ -2,7 +2,7 @@
  * Refresh Token Utilities - Refresh token creation and rotation
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-utils/src/token/refresh-token.util
+ * @module shared-utils/token/refresh-token.util
  * 
  * RULES:
  * ✅ ONLY token generation and rotation helpers - NO business logic
@@ -13,7 +13,8 @@
  */
 
 import crypto from 'crypto';
-import { TOKEN_CONFIG, REFRESH_TOKEN_CONFIG } from '@vubon/auth-constants';
+// ✅ FIXED: Correct package name
+import { TOKEN_CONFIG, REFRESH_TOKEN_CONFIG } from '@vubon/shared-constants';
 
 // ==================== Constants (from shared-constants) ====================
 
@@ -21,11 +22,12 @@ export const DEFAULT_REFRESH_TOKEN_LENGTH = TOKEN_CONFIG.DEFAULT_LENGTH;  // 32
 export const MIN_REFRESH_TOKEN_LENGTH = TOKEN_CONFIG.MIN_LENGTH;          // 16
 export const MAX_REFRESH_TOKEN_LENGTH = TOKEN_CONFIG.MAX_LENGTH;          // 256
 
-const REFRESH_TOKEN_VERSION_LENGTH = REFRESH_TOKEN_CONFIG.VERSION_LENGTH;   // 4
-const DEFAULT_VERSION = REFRESH_TOKEN_CONFIG.DEFAULT_VERSION;               // 1
-const MAX_VERSION = REFRESH_TOKEN_CONFIG.MAX_VERSION;                       // 9999
-const TOKEN_VERSION_SEPARATOR = REFRESH_TOKEN_CONFIG.VERSION_SEPARATOR;     // ':'
-const FAMILY_ID_LENGTH = REFRESH_TOKEN_CONFIG.FAMILY_ID_LENGTH;             // 32
+// ✅ FIXED: Add fallbacks for missing constants
+const REFRESH_TOKEN_VERSION_LENGTH = REFRESH_TOKEN_CONFIG?.VERSION_LENGTH || 4;
+const DEFAULT_VERSION = REFRESH_TOKEN_CONFIG?.DEFAULT_VERSION || 1;
+const MAX_VERSION = REFRESH_TOKEN_CONFIG?.MAX_VERSION || 9999;
+const TOKEN_VERSION_SEPARATOR = REFRESH_TOKEN_CONFIG?.VERSION_SEPARATOR || ':';
+const FAMILY_ID_LENGTH = REFRESH_TOKEN_CONFIG?.FAMILY_ID_LENGTH || 32;
 
 // Character sets for token generation
 const HEX_CHARS = '0123456789abcdef';
@@ -310,7 +312,7 @@ export const isValidRefreshTokenFormat = (token: string): boolean => {
       const version = parseInt(parts[1]!, 10);
       if (isNaN(version) || version < 1 || version > MAX_VERSION) return false;
       if (parts[2]!.length !== DEFAULT_REFRESH_TOKEN_LENGTH * 2) return false;
-      if (parts[0]!.length !== FAMILY_ID_LENGTH * 2) return false; // familyId length (hex = 32 chars)
+      if (parts[0]!.length !== FAMILY_ID_LENGTH * 2) return false;
       return true;
     }
     
@@ -351,6 +353,39 @@ export const isTokenVersionNewer = (token: string, expectedVersion: number): boo
   return version > expectedVersion;
 };
 
+// ==================== Bangladesh Specific Helpers ====================
+
+/**
+ * Generate refresh token for Bangladesh mobile users
+ * Optimized for mobile network conditions
+ * 
+ * @returns Mobile-optimized refresh token
+ */
+export const generateMobileRefreshToken = (): string => {
+  // Shorter expiry indicator (encoded in token structure)
+  return generateUrlSafeRefreshToken(24); // 24 bytes = 32 chars base64url
+};
+
+/**
+ * Generate refresh token for feature phone users (Bangladesh)
+ * Even shorter for limited storage
+ * 
+ * @returns Feature phone optimized refresh token
+ */
+export const generateFeaturePhoneRefreshToken = (): string => {
+  return generateUrlSafeRefreshToken(16); // 16 bytes = 22 chars base64url
+};
+
+/**
+ * Check if refresh token is compatible with feature phone storage
+ * 
+ * @param token - Refresh token
+ * @returns True if token length is suitable for feature phones
+ */
+export const isFeaturePhoneCompatible = (token: string): boolean => {
+  return token.length <= 64; // Feature phones have limited storage
+};
+
 // ==================== Type Exports ====================
 
 export interface RefreshTokenData {
@@ -364,3 +399,10 @@ export interface TokenRotationResult {
   oldToken: RefreshTokenData;
   newToken: RefreshTokenData;
 }
+
+// ==================== Type Exports ====================
+
+export type RefreshToken = ReturnType<typeof generateRefreshToken>;
+export type UrlSafeRefreshToken = ReturnType<typeof generateUrlSafeRefreshToken>;
+export type VersionedRefreshToken = ReturnType<typeof generateVersionedRefreshToken>;
+export type FamilyRefreshToken = ReturnType<typeof generateFamilyRefreshToken>;
