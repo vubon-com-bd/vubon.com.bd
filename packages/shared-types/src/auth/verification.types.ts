@@ -11,12 +11,6 @@
  * ✅ NO validation schemas (Zod)
  * ✅ NO framework imports
  */
-
-import type {
-  TOKEN_EXPIRY,
-  OTP_CONFIG,
-} from '@vubon/shared-constants';
-
 // ============================================================
 // Verification Types (Based on constants)
 // ============================================================
