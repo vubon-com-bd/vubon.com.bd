@@ -539,29 +539,6 @@ export const SESSION_EVENTS = {
   SESSION_POOR_NETWORK_MODE: 'session.poor_network_mode',
 } as const;
 
-// ============================================================
-// Session Transfer (Device to device)
-// ============================================================
-export const SESSION_TRANSFER = {
-  ENABLED: true,
-  METHODS: {
-    QR_CODE: 'qr_code',
-    MAGIC_LINK: 'magic_link',
-    OTP: 'otp',
-  },
-  QR_CODE_TTL: 60,
-  MAGIC_LINK_TTL: 300,
-  TRANSFER_TOKEN_TTL: 300,
-  MAX_PENDING_TRANSFERS: 3,
-  ALLOWED_TRANSFERS: {
-    MOBILE_TO_DESKTOP: true,
-    DESKTOP_TO_MOBILE: true,
-    TABLET_TO_MOBILE: true,
-    FEATURE_PHONE_TO_SMART: false,
-  },
-  REQUIRE_CONFIRMATION: true,
-  CONFIRMATION_METHODS: ['email', 'sms'],
-} as const;
 
 // ============================================================
 // Family Session Sharing (Bangladesh specific)
