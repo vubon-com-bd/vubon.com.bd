@@ -13,14 +13,7 @@
  */
 
 import type {
-  SOCIAL_PROVIDERS,
-  OAUTH_SCOPES,
-  SOCIAL_CALLBACK_ROUTES,
-  SOCIAL_DISPLAY_NAMES,
-  SOCIAL_COLORS,
-  SOCIAL_ICONS,
-  SOCIAL_PROVIDER_PRIORITY,
-  SOCIAL_AUTH_RATE_LIMITS,
+  SOCIAL_PROVIDERS
 } from '@vubon/shared-constants';
 
 // ============================================================
