@@ -2,7 +2,7 @@
  * MFA Schemas - Pure validation for Multi-Factor Authentication
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-schemas/auth-schemas/auth/mfa.schema
+ * @module shared-schemas/auth/mfa.schema
  * 
  * RULES:
  * ✅ ONLY Zod schemas - NO business logic
@@ -16,6 +16,7 @@
 import { z } from 'zod';
 
 // Import constants from shared-constants layer (Enterprise rule)
+// ✅ FIXED: Correct package name
 import {
   MFA_PROVIDERS,
   MFA_VERIFICATION_TYPES,
@@ -23,7 +24,7 @@ import {
   OTP_CONFIG,
   RECOVERY_CODES,
   MFA_TIMEOUTS,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // ==================== Primitives (Reusable) ====================
 
@@ -60,14 +61,14 @@ export const MFAVerificationTypeSchema = z.enum([
 ]);
 
 // MFA Status Schema (Based on constants)
+// ✅ FIXED: Use safe approach with fallback strings
 export const MFAStatusSchema = z.enum([
   MFA_STATUS.NOT_ENABLED,
   MFA_STATUS.SETUP_PENDING,
   MFA_STATUS.ENABLED,
   MFA_STATUS.LOCKED,
-  MFA_STATUS.DISABLED,
+  'disabled',  // Use string directly for consistent behavior
   MFA_STATUS.BACKUP_ONLY,
-  // Extended statuses
   'setup_in_progress',
   'enabled_default',
   'enabled_multi',
@@ -83,24 +84,25 @@ export const OTPCodeSchema = z
   .brand('OTPCode');
 
 // Backup Code Schema (Based on RECOVERY_CODES)
+// ✅ FIXED: Allow both uppercase and lowercase letters
 export const BackupCodeSchema = z
   .string()
   .length(RECOVERY_CODES.CODE_LENGTH, `Backup code must be ${RECOVERY_CODES.CODE_LENGTH} characters`)
-  .regex(/^[A-Z0-9]{8}$/, 'Backup code must be 8 alphanumeric characters')
+  .regex(/^[A-Za-z0-9]{8}$/, 'Backup code must be 8 alphanumeric characters (letters and numbers only)')
   .brand('BackupCode');
 
 // MFA Method ID Schema
-export const MFAMethodIdSchema = z.string().uuid().brand('MFAMethodId');
+export const MFAMethodIdSchema = z.string().uuid('Invalid MFA method ID format').brand('MFAMethodId');
 
 // MFA Challenge ID Schema
-export const MFAChallengeIdSchema = z.string().uuid().brand('MFAChallengeId');
+export const MFAChallengeIdSchema = z.string().uuid('Invalid challenge ID format').brand('MFAChallengeId');
 
 // TOTP Secret Schema
 export const TOTPSecretSchema = z
   .string()
   .min(16, 'TOTP secret must be at least 16 characters')
   .max(64, 'TOTP secret too long')
-  .regex(/^[A-Z2-7]+=*$/, 'Invalid TOTP secret format (Base32)')
+  .regex(/^[A-Z2-7]+=*$/, 'Invalid TOTP secret format (must be Base32 encoded)')
   .brand('TOTPSecret');
 
 // WebAuthn Challenge Schema
@@ -114,7 +116,7 @@ export const WebAuthnChallengeSchema = z
 // MFA Setup Request
 export const MFASetupRequestSchema = z
   .object({
-    userId: z.string().uuid(),
+    userId: z.string().uuid('Invalid user ID format'),
     provider: MFAProviderSchema,
     identifier: z.string().min(1, 'Identifier is required').max(255, 'Identifier too long'),
     label: z.string().max(100, 'Label too long').optional(),
@@ -126,7 +128,7 @@ export const MFASetupRequestSchema = z
 // MFA Verify Request
 export const MFAVerifyRequestSchema = z
   .object({
-    userId: z.string().uuid(),
+    userId: z.string().uuid('Invalid user ID format'),
     methodId: MFAMethodIdSchema.optional(),
     code: z.string().min(1, 'Verification code is required'),
     verificationType: MFAVerificationTypeSchema,
@@ -140,9 +142,9 @@ export const MFAVerifyRequestSchema = z
 // MFA Recovery Request (Using backup codes)
 export const MFARecoveryRequestSchema = z
   .object({
-    userId: z.string().uuid(),
+    userId: z.string().uuid('Invalid user ID format'),
     backupCode: BackupCodeSchema,
-    newPassword: z.string().min(8).max(128).optional(),
+    newPassword: z.string().min(8, 'Password must be at least 8 characters').max(128, 'Password too long').optional(),
     trustDevice: z.boolean().default(false),
   })
   .strict()
@@ -151,16 +153,16 @@ export const MFARecoveryRequestSchema = z
 // MFA Challenge Request (Request available methods)
 export const MFAChallengeRequestSchema = z
   .object({
-    userId: z.string().uuid(),
+    userId: z.string().uuid('Invalid user ID format'),
     verificationType: MFAVerificationTypeSchema,
     preferredMethod: MFAProviderSchema.optional(),
     forceMethod: z.boolean().default(false),
     metadata: z
       .object({
-        amount: z.number().positive().optional(),
+        amount: z.number().positive('Amount must be positive').optional(),
         orderId: z.string().optional(),
         deviceId: z.string().optional(),
-        ipAddress: z.string().ip().optional(),
+        ipAddress: z.string().ip('Invalid IP address format').optional(),
       })
       .optional(),
   })
@@ -170,18 +172,18 @@ export const MFAChallengeRequestSchema = z
 // Disable MFA Request
 export const DisableMFARequestSchema = z
   .object({
-    userId: z.string().uuid(),
+    userId: z.string().uuid('Invalid user ID format'),
     methodId: MFAMethodIdSchema.optional(),
     code: OTPCodeSchema.optional(),
     backupCode: BackupCodeSchema.optional(),
-    reason: z.string().max(500).optional(),
-    adminId: z.string().uuid().optional(), // If disabled by admin
+    reason: z.string().max(500, 'Reason too long').optional(),
+    adminId: z.string().uuid('Invalid admin ID format').optional(), // If disabled by admin
   })
   .strict()
   .refine(
     (data) => data.code !== undefined || data.backupCode !== undefined || data.adminId !== undefined,
     {
-      message: 'Either code, backup code, or admin ID is required',
+      message: 'Either verification code, backup code, or admin ID is required to disable MFA',
       path: ['code'],
     }
   )
@@ -190,9 +192,9 @@ export const DisableMFARequestSchema = z
 // TOTP Setup Request (Specific to TOTP)
 export const TOTPSetupRequestSchema = z
   .object({
-    userId: z.string().uuid(),
+    userId: z.string().uuid('Invalid user ID format'),
     issuer: z.string().default('vubon.com.bd'),
-    accountName: z.string().email(),
+    accountName: z.string().email('Invalid email format for account name'),
   })
   .strict()
   .brand('TOTPSetupRequest');
@@ -200,9 +202,9 @@ export const TOTPSetupRequestSchema = z
 // WebAuthn Registration Request
 export const WebAuthnRegistrationRequestSchema = z
   .object({
-    userId: z.string().uuid(),
+    userId: z.string().uuid('Invalid user ID format'),
     deviceName: z.string().min(1, 'Device name is required').max(100, 'Device name too long'),
-    displayName: z.string().optional(),
+    displayName: z.string().max(100, 'Display name too long').optional(),
     authenticatorType: z.enum(['platform', 'cross-platform']).default('cross-platform'),
   })
   .strict()
@@ -211,7 +213,7 @@ export const WebAuthnRegistrationRequestSchema = z
 // WebAuthn Authentication Request
 export const WebAuthnAuthRequestSchema = z
   .object({
-    userId: z.string().uuid(),
+    userId: z.string().uuid('Invalid user ID format'),
     challengeId: MFAChallengeIdSchema.optional(),
   })
   .strict()
@@ -220,8 +222,8 @@ export const WebAuthnAuthRequestSchema = z
 // WhatsApp MFA Request (Bangladesh specific)
 export const WhatsAppMFARequestSchema = z
   .object({
-    userId: z.string().uuid(),
-    phoneNumber: z.string().regex(/^(?:\+880|0)1[3-9]\d{8}$/, 'Invalid Bangladesh phone number'),
+    userId: z.string().uuid('Invalid user ID format'),
+    phoneNumber: z.string().regex(/^(?:\+880|0)1[3-9]\d{8}$/, 'Invalid Bangladesh phone number. Use format: 01XXXXXXXXX or +8801XXXXXXXXX'),
     method: z.enum(['whatsapp_otp', 'whatsapp']),
   })
   .strict()
@@ -230,10 +232,10 @@ export const WhatsAppMFARequestSchema = z
 // MFS MFA Request (bKash/Nagad/Rocket - Bangladesh specific)
 export const MFSMFARequestSchema = z
   .object({
-    userId: z.string().uuid(),
+    userId: z.string().uuid('Invalid user ID format'),
     provider: z.enum(['bkash_pin', 'nagad_pin', 'rocket_pin']),
-    accountNumber: z.string().min(11).max(20),
-    pin: z.string().length(4).regex(/^\d{4}$/, 'PIN must be 4 digits'),
+    accountNumber: z.string().min(11, 'Account number must be at least 11 digits').max(20, 'Account number too long'),
+    pin: z.string().length(4, 'PIN must be 4 digits').regex(/^\d{4}$/, 'PIN must contain only digits'),
   })
   .strict()
   .brand('MFSMFARequest');
@@ -245,7 +247,7 @@ export const MFASetupResponseSchema = z
   .object({
     methodId: MFAMethodIdSchema,
     provider: MFAProviderSchema,
-    qrCodeUrl: z.string().url().optional(),
+    qrCodeUrl: z.string().url('Invalid QR code URL').optional(),
     secret: TOTPSecretSchema.optional(),
     backupCodes: z.array(z.string()).optional(),
     instructions: z.string().optional(),
@@ -346,7 +348,7 @@ export const TOTPSetupResponseSchema = z
   .object({
     methodId: MFAMethodIdSchema,
     secret: TOTPSecretSchema,
-    qrCodeUrl: z.string().url(),
+    qrCodeUrl: z.string().url('Invalid QR code URL'),
     backupCodes: z.array(z.string()),
   })
   .strict()
