@@ -2,7 +2,7 @@
  * Password Reset Schemas - Pure validation for password recovery
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-schemas/auth-schemas/src/auth/password-reset.schema
+ * @module shared-schemas/auth/password-reset.schema
  * 
  * RULES:
  * ✅ ONLY Zod schemas - NO business logic
@@ -16,32 +16,55 @@
 import { z } from 'zod';
 
 // Import constants from shared-constants layer (Enterprise rule)
+// ✅ FIXED: Correct package name
 import {
   PASSWORD_POLICY,
   TOKEN_EXPIRY,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // ==================== Primitives (Reusable) ====================
 
 // Email Schema (Reused from user.schema - will be imported when created)
-// For now, define locally following enterprise best practices
-const EmailSchema = z
+// ✅ FIXED: Added export
+export const EmailSchema = z
   .string()
   .min(1, 'Email is required')
   .max(255, 'Email too long')
-  .email('Invalid email format')
+  .email('Invalid email format. Example: user@example.com')
   .trim()
-  .toLowerCase();
+  .toLowerCase()
+  .brand('Email');
+
+// Phone Schema (Bangladesh specific)
+// ✅ FIXED: Added export
+export const PhoneSchema = z
+  .string()
+  .regex(/^(?:\+880|0)1[3-9]\d{8}$/, 'Invalid Bangladesh phone number format. Use format: 01XXXXXXXXX or +8801XXXXXXXXX')
+  .transform((val) => {
+    if (val.startsWith('0')) {
+      return `+88${val}`;
+    }
+    if (val.startsWith('+880')) {
+      return val;
+    }
+    return `+880${val}`;
+  })
+  .brand('Phone');
 
 // Password Schema (Reused from user.schema)
-const PasswordSchema = z
+// ✅ FIXED: Added export
+export const PasswordSchema = z
   .string()
   .min(PASSWORD_POLICY.MIN_LENGTH, `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters`)
-  .max(PASSWORD_POLICY.MAX_LENGTH, `Password cannot exceed ${PASSWORD_POLICY.MAX_LENGTH} characters`);
+  .max(PASSWORD_POLICY.MAX_LENGTH, `Password cannot exceed ${PASSWORD_POLICY.MAX_LENGTH} characters`)
+  .brand('Password');
 
 // Password strength validation
-const PasswordStrengthSchema = z
+// ✅ FIXED: Added export
+export const PasswordStrengthSchema = z
   .string()
+  .min(PASSWORD_POLICY.MIN_LENGTH, `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters`)
+  .max(PASSWORD_POLICY.MAX_LENGTH, `Password cannot exceed ${PASSWORD_POLICY.MAX_LENGTH} characters`)
   .superRefine((val, ctx) => {
     if (PASSWORD_POLICY.REQUIRE_UPPERCASE && !/[A-Z]/.test(val)) {
       ctx.addIssue({
@@ -71,7 +94,16 @@ const PasswordStrengthSchema = z
         path: ['password'],
       });
     }
-  });
+    // Additional check: no repeated characters (3+ times)
+    if (/(.)\1{2,}/.test(val)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Password should not contain repeated characters (e.g., "aaa")',
+        path: ['password'],
+      });
+    }
+  })
+  .brand('PasswordStrength');
 
 // Verification Token Schema
 export const VerificationTokenSchema = z
@@ -84,13 +116,23 @@ export const VerificationTokenSchema = z
 // User ID Schema
 export const UserIdSchema = z.string().uuid('Invalid user ID format').brand('UserId');
 
+// Session ID Schema
+export const SessionIdSchema = z.string().uuid('Invalid session ID format').brand('SessionId');
+
+// CAPTCHA Token Schema
+export const CaptchaTokenSchema = z
+  .string()
+  .min(1, 'CAPTCHA verification required')
+  .optional()
+  .brand('CaptchaToken');
+
 // ==================== Request Schemas ====================
 
-// Forgot Password Request (Step 1)
+// Forgot Password Request (Step 1 - Email)
 export const ForgotPasswordSchema = z
   .object({
     email: EmailSchema,
-    captchaToken: z.string().min(1, 'CAPTCHA token required').optional(),
+    captchaToken: CaptchaTokenSchema,
   })
   .strict()
   .brand('ForgotPasswordRequest');
@@ -98,25 +140,14 @@ export const ForgotPasswordSchema = z
 // Forgot Password with Phone (Bangladesh specific)
 export const ForgotPasswordPhoneSchema = z
   .object({
-    phoneNumber: z
-      .string()
-      .regex(/^(?:\+880|0)1[3-9]\d{8}$/, 'Invalid Bangladesh phone number format')
-      .transform((val) => {
-        if (val.startsWith('0')) {
-          return `+88${val}`;
-        }
-        if (val.startsWith('+880')) {
-          return val;
-        }
-        return `+880${val}`;
-      }),
+    phoneNumber: PhoneSchema,
     method: z.enum(['sms', 'whatsapp']).default('sms'),
-    captchaToken: z.string().min(1, 'CAPTCHA token required').optional(),
+    captchaToken: CaptchaTokenSchema,
   })
   .strict()
   .brand('ForgotPasswordPhoneRequest');
 
-// Reset Password Request (Step 2)
+// Reset Password Request (Step 2 - Token based)
 export const ResetPasswordSchema = z
   .object({
     token: VerificationTokenSchema,
@@ -130,10 +161,11 @@ export const ResetPasswordSchema = z
   })
   .refine(
     (data) => {
-      // Additional check: password should not be same as common passwords
+      // Common passwords blocklist (Bangladesh specific)
       const commonPasswords = [
         'password123', '12345678', 'qwerty123', 'admin123',
-        'bangladesh123', 'dhaka123', 'vubon123',
+        'bangladesh123', 'dhaka123', 'vubon123', 'chittagong123',
+        '123456789', 'password', '123456', 'qwerty', 'abc123',
       ];
       return !commonPasswords.includes(data.newPassword.toLowerCase());
     },
@@ -169,10 +201,9 @@ export const ValidateResetTokenSchema = z
 // Request OTP for Password Reset (Bangladesh specific)
 export const RequestResetOTPSchema = z
   .object({
-    phoneNumber: z
-      .string()
-      .regex(/^(?:\+880|0)1[3-9]\d{8}$/, 'Invalid Bangladesh phone number format'),
+    phoneNumber: PhoneSchema,
     method: z.enum(['sms', 'whatsapp', 'voice']).default('sms'),
+    locale: z.enum(['en', 'bn']).default('en'),
   })
   .strict()
   .brand('RequestResetOTPRequest');
@@ -180,18 +211,16 @@ export const RequestResetOTPSchema = z
 // Verify OTP for Password Reset
 export const VerifyResetOTPSchema = z
   .object({
-    phoneNumber: z
-      .string()
-      .regex(/^(?:\+880|0)1[3-9]\d{8}$/, 'Invalid Bangladesh phone number format'),
+    phoneNumber: PhoneSchema,
     otpCode: z.string().length(6, 'OTP must be 6 digits').regex(/^\d{6}$/, 'OTP must contain only digits'),
-    sessionId: z.string().uuid().optional(),
+    sessionId: SessionIdSchema.optional(),
   })
   .strict()
   .brand('VerifyResetOTPRequest');
 
 // ==================== Response Schemas ====================
 
-// Forgot Password Response
+// Forgot Password Response (Email)
 export const ForgotPasswordResponseSchema = z
   .object({
     success: z.boolean(),
@@ -200,8 +229,9 @@ export const ForgotPasswordResponseSchema = z
     resetTokenSent: z.boolean(),
     email: z.string().email().optional(),
     maskedEmail: z.string().optional(), // e.g., "u***@example.com"
-    expiresInSeconds: z.number().int().positive().default(TOKEN_EXPIRY.PASSWORD_RESET_TOKEN),
+    expiresInSeconds: z.number().int().positive().default(TOKEN_EXPIRY?.PASSWORD_RESET_TOKEN || 1800),
     resendCooldownSeconds: z.number().int().default(60),
+    requiresCaptcha: z.boolean().optional(),
   })
   .strict()
   .brand('ForgotPasswordResponse');
@@ -217,7 +247,8 @@ export const ForgotPasswordPhoneResponseSchema = z
     method: z.enum(['sms', 'whatsapp']),
     expiresInSeconds: z.number().int().positive().default(300),
     resendCooldownSeconds: z.number().int().default(30),
-    sessionId: z.string().uuid().optional(),
+    sessionId: SessionIdSchema.optional(),
+    remainingAttempts: z.number().int().default(3),
   })
   .strict()
   .brand('ForgotPasswordPhoneResponse');
@@ -230,6 +261,7 @@ export const ResetPasswordResponseSchema = z
     messageBn: z.string().optional(),
     requiresLogin: z.boolean().default(true),
     redirectUrl: z.string().url().optional(),
+    sessionCreated: z.boolean().optional(),
   })
   .strict()
   .brand('ResetPasswordResponse');
@@ -244,6 +276,7 @@ export const TokenValidationResponseSchema = z
     phoneNumber: z.string().optional(),
     remainingSeconds: z.number().int().min(0).optional(),
     isExpired: z.boolean().optional(),
+    isValidFormat: z.boolean().optional(),
   })
   .strict()
   .brand('TokenValidationResponse');
@@ -259,7 +292,7 @@ export const RequestResetOTPResponseSchema = z
     method: z.enum(['sms', 'whatsapp', 'voice']),
     expiresInSeconds: z.number().int().positive().default(300),
     resendCooldownSeconds: z.number().int().default(30),
-    sessionId: z.string().uuid(),
+    sessionId: SessionIdSchema,
     remainingAttempts: z.number().int().default(3),
   })
   .strict()
@@ -274,16 +307,19 @@ export const VerifyResetOTPResponseSchema = z
     expiresInSeconds: z.number().int().positive().optional(),
     message: z.string().optional(),
     remainingAttempts: z.number().int().optional(),
+    userId: UserIdSchema.optional(),
   })
   .strict()
   .brand('VerifyResetOTPResponse');
 
-// Password Reset Error Response
+// ==================== Error Response Schemas ====================
+
 export const PasswordResetErrorSchema = z
   .object({
     error: z.string(),
     errorCode: z.enum([
       'invalid_email',
+      'invalid_phone',
       'user_not_found',
       'invalid_token',
       'token_expired',
@@ -294,6 +330,11 @@ export const PasswordResetErrorSchema = z
       'password_reused',
       'account_locked',
       'account_suspended',
+      'invalid_otp',
+      'otp_expired',
+      'max_otp_attempts_exceeded',
+      'session_expired',
+      'invalid_captcha',
     ]),
     remainingAttempts: z.number().int().min(0).optional(),
     retryAfterSeconds: z.number().int().optional(),
@@ -301,10 +342,25 @@ export const PasswordResetErrorSchema = z
   .strict()
   .brand('PasswordResetError');
 
+// ==================== Helper Types (For frontend) ====================
+
+export type ResetPasswordFormData = ResetPasswordRequest;
+export type ForgotPasswordFormData = ForgotPasswordRequest;
+export type ForgotPasswordPhoneFormData = ForgotPasswordPhoneRequest;
+export type StrongResetPasswordFormData = StrongResetPasswordRequest;
+export type RequestResetOTPFormData = RequestResetOTPRequest;
+export type VerifyResetOTPFormData = VerifyResetOTPRequest;
+
 // ==================== Type Exports ====================
 
+export type Email = z.infer<typeof EmailSchema>;
+export type Phone = z.infer<typeof PhoneSchema>;
+export type Password = z.infer<typeof PasswordSchema>;
+export type PasswordStrength = z.infer<typeof PasswordStrengthSchema>;
 export type VerificationToken = z.infer<typeof VerificationTokenSchema>;
 export type UserId = z.infer<typeof UserIdSchema>;
+export type SessionId = z.infer<typeof SessionIdSchema>;
+export type CaptchaToken = z.infer<typeof CaptchaTokenSchema>;
 
 export type ForgotPasswordRequest = z.infer<typeof ForgotPasswordSchema>;
 export type ForgotPasswordPhoneRequest = z.infer<typeof ForgotPasswordPhoneSchema>;
@@ -321,9 +377,3 @@ export type TokenValidationResponse = z.infer<typeof TokenValidationResponseSche
 export type RequestResetOTPResponse = z.infer<typeof RequestResetOTPResponseSchema>;
 export type VerifyResetOTPResponse = z.infer<typeof VerifyResetOTPResponseSchema>;
 export type PasswordResetError = z.infer<typeof PasswordResetErrorSchema>;
-
-// ==================== Helper Types ====================
-
-export type ResetPasswordFormData = ResetPasswordRequest;
-export type ForgotPasswordFormData = ForgotPasswordRequest;
-export type ForgotPasswordPhoneFormData = ForgotPasswordPhoneRequest;
