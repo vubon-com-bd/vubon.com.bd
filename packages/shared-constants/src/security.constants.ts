@@ -15,12 +15,10 @@
 // Environment detection (for conditional configs)
 // ============================================================
 const IS_PRODUCTION = process.env['NODE_ENV'] === 'production';
-const IS_DEVELOPMENT = !IS_PRODUCTION;
 
 // ============================================================
 // Imports from other constants (single source of truth)
 // ============================================================
-import type { OTP_CONFIG } from './auth.constants';
 import { 
   REGEX_EMAIL, 
   REGEX_PHONE, 
