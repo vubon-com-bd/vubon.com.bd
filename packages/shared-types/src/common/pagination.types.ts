@@ -204,6 +204,7 @@ export interface PaginationMetaWithLinks extends PaginationMetadata {
   readonly queryParams?: Record<string, unknown>;
 }
 
+
 // ============================================================
 // Full Paginated Response (With data + metadata + links)
 // ============================================================
