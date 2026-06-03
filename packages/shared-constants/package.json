@@ -1,5 +1,5 @@
 {
-  "name": "@vubon/auth-constants",
+  "name": "@vubon/shared-constants",
   "version": "1.0.0",
   "description": "Global immutable contract layer for vubon.com.bd ecommerce ecosystem - Bangladesh's #1 Enterprise E-commerce",
   "main": "./dist/index.js",
@@ -127,7 +127,7 @@
     "npm": ">=9.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
+    "@types/node": "^20.19.41",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.0.0",
@@ -135,7 +135,6 @@
     "tsup": "^8.0.0",
     "typescript": "^5.0.0"
   },
-  "peerDependencies": {},
   "sideEffects": false,
   "publishConfig": {
     "access": "restricted",
