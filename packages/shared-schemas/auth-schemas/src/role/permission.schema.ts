@@ -2,7 +2,7 @@
  * Permission Schemas - Pure validation for permissions
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-schemas/auth-schemas/src/role/permission.schema
+ * @module shared-schemas/role/permission.schema
  * 
  * RULES:
  * ✅ ONLY Zod schemas - NO business logic
@@ -16,11 +16,11 @@
 import { z } from 'zod';
 
 // Import constants from shared-constants layer (Enterprise rule)
+// ✅ FIXED: Correct package name, removed unused import
 import {
   PERMISSION_RESOURCES,
   PERMISSION_ACTIONS,
-  PERMISSIONS,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // ==================== Primitives (Reusable) ====================
 
@@ -108,6 +108,9 @@ export const PermissionIdSchema = z.string().uuid('Invalid permission ID format'
 // Role ID Schema
 export const RoleIdSchema = z.string().uuid('Invalid role ID format').brand('RoleId');
 
+// User ID Schema
+export const UserIdSchema = z.string().uuid('Invalid user ID format').brand('UserId');
+
 // ==================== Domain Schemas ====================
 
 // Permission Entity Schema
@@ -122,7 +125,7 @@ export const PermissionSchema = z
     isSystem: z.boolean().default(false),
     isDeprecated: z.boolean().default(false),
     deprecatedAt: z.date().optional(),
-    deprecatedReason: z.string().optional(),
+    deprecatedReason: z.string().max(500).optional(),
     createdAt: z.date(),
     updatedAt: z.date(),
   })
@@ -133,7 +136,7 @@ export const PermissionSchema = z
 export const PermissionGroupSchema = z
   .object({
     id: z.string().uuid(),
-    name: z.string().min(1, 'Group name is required').max(100),
+    name: z.string().min(1, 'Group name is required').max(100, 'Group name too long'),
     description: z.string().max(500).optional(),
     category: z.string(),
     permissions: z.array(PermissionStringSchema),
@@ -150,7 +153,7 @@ export const RolePermissionAssignmentSchema = z
     roleName: z.string(),
     permissions: z.array(PermissionStringSchema),
     assignedAt: z.date(),
-    assignedBy: z.string().uuid(),
+    assignedBy: UserIdSchema,
     isInherited: z.boolean().default(false),
     inheritedFrom: z.string().optional(),
   })
@@ -162,7 +165,7 @@ export const RolePermissionAssignmentSchema = z
 // Check Permission Request
 export const CheckPermissionSchema = z
   .object({
-    userId: z.string().uuid('Invalid user ID'),
+    userId: UserIdSchema,
     permission: PermissionStringSchema,
     context: z
       .object({
@@ -171,14 +174,14 @@ export const CheckPermissionSchema = z
         vendorId: z.string().optional(),
         orderId: z.string().optional(),
         productId: z.string().optional(),
-        userId: z.string().uuid().optional(),
+        userId: UserIdSchema.optional(),
         organizationId: z.string().optional(),
-        ownerId: z.string().optional(),
-        ipAddress: z.string().ip().optional(),
-        userAgent: z.string().optional(),
+        ownerId: UserIdSchema.optional(),
+        ipAddress: z.string().ip('Invalid IP address format').optional(),
+        userAgent: z.string().max(500).optional(),
         districtId: z.string().optional(),
         upazilaId: z.string().optional(),
-        amount: z.number().positive().optional(),
+        amount: z.number().positive('Amount must be positive').optional(),
       })
       .optional(),
     bypassCache: z.boolean().default(false),
@@ -189,7 +192,7 @@ export const CheckPermissionSchema = z
 // Bulk Check Permission Request
 export const BulkCheckPermissionSchema = z
   .object({
-    userId: z.string().uuid('Invalid user ID'),
+    userId: UserIdSchema,
     permissions: z.array(PermissionStringSchema).min(1, 'At least one permission required').max(100, 'Maximum 100 permissions per request'),
     context: z.record(z.string(), z.unknown()).optional(),
     requireAll: z.boolean().default(false),
@@ -202,7 +205,7 @@ export const GrantPermissionSchema = z
   .object({
     roleId: RoleIdSchema,
     permissions: z.array(PermissionStringSchema).min(1, 'At least one permission required'),
-    grantedBy: z.string().uuid('Invalid grantor ID'),
+    grantedBy: UserIdSchema,
     reason: z.string().max(500).optional(),
   })
   .strict()
@@ -213,7 +216,7 @@ export const RevokePermissionSchema = z
   .object({
     roleId: RoleIdSchema,
     permissions: z.array(PermissionStringSchema).min(1, 'At least one permission required'),
-    revokedBy: z.string().uuid('Invalid revoker ID'),
+    revokedBy: UserIdSchema,
     reason: z.string().max(500).optional(),
   })
   .strict()
@@ -227,7 +230,7 @@ export const CreatePermissionSchema = z
     action: PermissionActionSchema,
     description: z.string().max(500).optional(),
     category: z.string().optional(),
-    createdBy: z.string().uuid(),
+    createdBy: UserIdSchema,
   })
   .strict()
   .brand('CreatePermissionRequest');
@@ -240,7 +243,7 @@ export const UpdatePermissionSchema = z
     category: z.string().optional(),
     isDeprecated: z.boolean().optional(),
     deprecatedReason: z.string().max(500).optional(),
-    updatedBy: z.string().uuid(),
+    updatedBy: UserIdSchema,
   })
   .strict()
   .brand('UpdatePermissionRequest');
@@ -250,10 +253,20 @@ export const DeletePermissionSchema = z
   .object({
     permissionId: PermissionIdSchema,
     force: z.boolean().default(false),
-    deletedBy: z.string().uuid(),
+    deletedBy: UserIdSchema,
     reason: z.string().max(500).optional(),
   })
   .strict()
+  .refine(
+    (data) => {
+      // System permissions cannot be deleted without force flag
+      return !(!data.force && data.permissionId);
+    },
+    {
+      message: 'System permissions cannot be deleted. Use force flag to override',
+      path: ['force'],
+    }
+  )
   .brand('DeletePermissionRequest');
 
 // Permission Sync Request (For role updates)
@@ -262,7 +275,7 @@ export const PermissionSyncSchema = z
     roleId: RoleIdSchema,
     permissions: z.array(PermissionStringSchema),
     operation: z.enum(['set', 'add', 'remove']),
-    modifiedBy: z.string().uuid(),
+    modifiedBy: UserIdSchema,
     reason: z.string().max(500).optional(),
   })
   .strict()
@@ -303,7 +316,7 @@ export const PermissionCheckResponseSchema = z
 // Bulk Permission Check Response
 export const BulkPermissionCheckResponseSchema = z
   .object({
-    userId: z.string().uuid(),
+    userId: UserIdSchema,
     allGranted: z.boolean(),
     results: z.array(
       z.object({
@@ -322,8 +335,9 @@ export const BulkPermissionCheckResponseSchema = z
 // User Permissions Response
 export const UserPermissionsResponseSchema = z
   .object({
-    userId: z.string().uuid(),
+    userId: UserIdSchema,
     email: z.string().email(),
+    phoneNumber: z.string().optional(),
     permissions: z.array(PermissionStringSchema),
     roles: z.array(
       z.object({
@@ -346,6 +360,8 @@ export const PermissionListResponseSchema = z
     page: z.number().int().positive(),
     limit: z.number().int().min(1).max(100),
     totalPages: z.number().int().min(0),
+    hasNext: z.boolean(),
+    hasPrevious: z.boolean(),
   })
   .strict()
   .brand('PermissionListResponse');
@@ -382,6 +398,35 @@ export const PermissionTreeNodeSchema = z
   .strict()
   .brand('PermissionTreeNode');
 
+// Permission Statistics Response (For admin dashboard)
+export const PermissionStatisticsResponseSchema = z
+  .object({
+    totalPermissions: z.number().int(),
+    totalRoles: z.number().int(),
+    totalAssignments: z.number().int(),
+    permissionsByResource: z.record(PermissionResourceSchema, z.number().int()),
+    permissionsByAction: z.record(PermissionActionSchema, z.number().int()),
+    permissionsByCategory: z.record(z.string(), z.number().int()),
+    mostAssignedPermissions: z.array(
+      z.object({
+        permission: PermissionStringSchema,
+        assignmentCount: z.number().int(),
+      })
+    ),
+    unusedPermissions: z.array(PermissionStringSchema),
+    deprecatedPermissions: z.array(PermissionStringSchema),
+    recentChanges: z.array(
+      z.object({
+        permission: PermissionStringSchema,
+        action: z.enum(['added', 'removed', 'updated']),
+        timestamp: z.date(),
+      })
+    ),
+    updatedAt: z.date(),
+  })
+  .strict()
+  .brand('PermissionStatisticsResponse');
+
 // ==================== Error Schemas ====================
 
 export const PermissionErrorSchema = z
@@ -398,11 +443,29 @@ export const PermissionErrorSchema = z
       'invalid_action',
       'permission_grant_failed',
       'permission_revoke_failed',
+      'permission_already_granted',
+      'permission_not_granted',
+      'invalid_context',
     ]),
     field: z.string().optional(),
+    details: z.record(z.unknown()).optional(),
   })
   .strict()
   .brand('PermissionError');
+
+// ==================== Helper Functions (Type-safe) ====================
+
+// Helper to create a permission string
+export const createPermissionString = (resource: string, action: string): string => {
+  return `${resource}:${action}`;
+};
+
+// Helper to parse permission string
+export const parsePermissionString = (permission: string): { resource: string; action: string } | null => {
+  const parts = permission.split(':');
+  if (parts.length !== 2) return null;
+  return { resource: parts[0], action: parts[1] };
+};
 
 // ==================== Type Exports ====================
 
@@ -411,6 +474,7 @@ export type PermissionAction = z.infer<typeof PermissionActionSchema>;
 export type PermissionString = z.infer<typeof PermissionStringSchema>;
 export type PermissionId = z.infer<typeof PermissionIdSchema>;
 export type RoleId = z.infer<typeof RoleIdSchema>;
+export type UserId = z.infer<typeof UserIdSchema>;
 
 export type Permission = z.infer<typeof PermissionSchema>;
 export type PermissionGroup = z.infer<typeof PermissionGroupSchema>;
@@ -432,4 +496,5 @@ export type UserPermissionsResponse = z.infer<typeof UserPermissionsResponseSche
 export type PermissionListResponse = z.infer<typeof PermissionListResponseSchema>;
 export type PermissionSyncResponse = z.infer<typeof PermissionSyncResponseSchema>;
 export type PermissionTreeNode = z.infer<typeof PermissionTreeNodeSchema>;
+export type PermissionStatisticsResponse = z.infer<typeof PermissionStatisticsResponseSchema>;
 export type PermissionError = z.infer<typeof PermissionErrorSchema>;
