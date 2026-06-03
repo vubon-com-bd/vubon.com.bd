@@ -2,7 +2,7 @@
  * Verification Schemas - Pure validation for email/phone verification
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-schemas/auth-schemas/src/auth/verification.schema
+ * @module shared-schemas/auth/verification.schema
  * 
  * RULES:
  * ✅ ONLY Zod schemas - NO business logic
@@ -16,26 +16,30 @@
 import { z } from 'zod';
 
 // Import constants from shared-constants layer (Enterprise rule)
+// ✅ FIXED: Correct package name
 import {
   TOKEN_EXPIRY,
   OTP_CONFIG,
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // ==================== Primitives (Reusable) ====================
 
 // Email Schema
-const UserEmailSchema = z
+// ✅ FIXED: Added export
+export const UserEmailSchema = z
   .string()
   .min(1, 'Email is required')
   .max(255, 'Email too long')
-  .email('Invalid email format')
+  .email('Invalid email format. Example: user@example.com')
   .trim()
-  .toLowerCase();
+  .toLowerCase()
+  .brand('UserEmail');
 
 // Phone Schema (Bangladesh specific)
-const UserPhoneSchema = z
+// ✅ FIXED: Added export
+export const UserPhoneSchema = z
   .string()
-  .regex(/^(?:\+880|0)1[3-9]\d{8}$/, 'Invalid Bangladesh phone number format')
+  .regex(/^(?:\+880|0)1[3-9]\d{8}$/, 'Invalid Bangladesh phone number format. Use format: 01XXXXXXXXX or +8801XXXXXXXXX')
   .transform((val) => {
     if (val.startsWith('0')) {
       return `+88${val}`;
@@ -44,7 +48,8 @@ const UserPhoneSchema = z
       return val;
     }
     return `+880${val}`;
-  });
+  })
+  .brand('UserPhone');
 
 // Verification Type Schema
 export const VerificationTypeSchema = z.enum([
@@ -90,10 +95,11 @@ export const VerificationTokenSchema = z
   .brand('VerificationToken');
 
 // Verification Code Schema (OTP)
+// ✅ FIXED: Fallback if OTP_CONFIG.LENGTH is undefined
 export const VerificationCodeSchema = z
   .string()
-  .length(OTP_CONFIG.LENGTH, `Verification code must be ${OTP_CONFIG.LENGTH} digits`)
-  .regex(new RegExp(`^[0-9]{${OTP_CONFIG.LENGTH}}$`), 'Verification code must contain only digits')
+  .length(OTP_CONFIG?.LENGTH || 6, `Verification code must be ${OTP_CONFIG?.LENGTH || 6} digits`)
+  .regex(new RegExp(`^[0-9]{${OTP_CONFIG?.LENGTH || 6}}$`), 'Verification code must contain only digits')
   .brand('VerificationCode');
 
 // User ID Schema
@@ -113,8 +119,8 @@ export const SendVerificationSchema = z
     target: z.union([UserEmailSchema, UserPhoneSchema]),
     metadata: z
       .object({
-        ipAddress: z.string().ip().optional(),
-        userAgent: z.string().optional(),
+        ipAddress: z.string().ip('Invalid IP address format').optional(),
+        userAgent: z.string().max(500, 'User agent too long').optional(),
         deviceId: z.string().optional(),
       })
       .optional(),
@@ -148,7 +154,7 @@ export const ResendVerificationSchema = z
     userId: UserIdSchema,
     type: VerificationTypeSchema,
     method: VerificationMethodSchema.optional(),
-    reason: z.string().max(200).optional(),
+    reason: z.string().max(200, 'Reason too long').optional(),
   })
   .strict()
   .brand('ResendVerificationRequest');
@@ -162,7 +168,7 @@ export const MagicLinkRequestSchema = z
       .object({
         deviceId: z.string().optional(),
         userAgent: z.string().optional(),
-        ipAddress: z.string().ip().optional(),
+        ipAddress: z.string().ip('Invalid IP address format').optional(),
       })
       .optional(),
     action: z.enum(['login', 'signup', 'verify']).default('login'),
@@ -184,7 +190,7 @@ export const EmailChangeRequestSchema = z
     userId: UserIdSchema,
     newEmail: UserEmailSchema,
     password: z.string().min(1, 'Password is required'),
-    reason: z.string().max(200).optional(),
+    reason: z.string().max(200, 'Reason too long').optional(),
   })
   .strict()
   .brand('EmailChangeRequest');
@@ -203,7 +209,7 @@ export const PhoneChangeRequestSchema = z
     userId: UserIdSchema,
     newPhoneNumber: UserPhoneSchema,
     password: z.string().min(1, 'Password is required'),
-    reason: z.string().max(200).optional(),
+    reason: z.string().max(200, 'Reason too long').optional(),
   })
   .strict()
   .brand('PhoneChangeRequest');
@@ -254,7 +260,7 @@ export const VoiceVerificationSchema = z
   .object({
     phoneNumber: UserPhoneSchema,
     language: z.enum(['en', 'bn']).default('bn'),
-    retryCount: z.number().int().min(1).max(3).optional(),
+    retryCount: z.number().int().min(1).max(3, 'Retry count cannot exceed 3').optional(),
   })
   .strict()
   .brand('VoiceVerificationRequest');
@@ -282,7 +288,7 @@ export const ResendVerificationResponseSchema = z
     success: z.boolean(),
     message: z.string(),
     messageBn: z.string().optional(),
-    cooldownSeconds: z.number().int().positive(),
+    cooldownSeconds: z.number().int().positive('Cooldown must be positive'),
     expiresAt: z.date(),
     method: VerificationMethodSchema,
     sessionId: SessionIdSchema,
@@ -312,7 +318,7 @@ export const MagicLinkResponseSchema = z
     message: z.string(),
     emailSent: z.boolean(),
     maskedEmail: z.string(),
-    expiresInSeconds: z.number().int().positive().default(TOKEN_EXPIRY.MAGIC_LINK_TOKEN),
+    expiresInSeconds: z.number().int().positive().default(TOKEN_EXPIRY?.MAGIC_LINK_TOKEN || 300),
     resendCooldownSeconds: z.number().int().default(60),
   })
   .strict()
@@ -338,7 +344,7 @@ export const SendOTPResponseSchema = z
     otpSent: z.boolean(),
     maskedPhone: z.string(),
     method: z.enum(['sms', 'whatsapp', 'voice']),
-    expiresInSeconds: z.number().int().positive().default(OTP_CONFIG.TOTP_INTERVAL_SECONDS * 10),
+    expiresInSeconds: z.number().int().positive().default(OTP_CONFIG?.TOTP_INTERVAL_SECONDS ? OTP_CONFIG.TOTP_INTERVAL_SECONDS * 10 : 300),
     resendCooldownSeconds: z.number().int().default(30),
     sessionId: SessionIdSchema,
     remainingAttempts: z.number().int().default(3),
@@ -354,7 +360,7 @@ export const EmailChangeResponseSchema = z
     verificationSent: z.boolean(),
     targetEmail: z.string().email(),
     maskedEmail: z.string(),
-    expiresInSeconds: z.number().int().positive().default(TOKEN_EXPIRY.EMAIL_VERIFICATION_TOKEN),
+    expiresInSeconds: z.number().int().positive().default(TOKEN_EXPIRY?.EMAIL_VERIFICATION_TOKEN || 86400),
     requiresCurrentEmailVerification: z.boolean().default(false),
   })
   .strict()
@@ -428,6 +434,8 @@ export const VerificationErrorSchema = z
 
 // ==================== Type Exports ====================
 
+export type UserEmail = z.infer<typeof UserEmailSchema>;
+export type UserPhone = z.infer<typeof UserPhoneSchema>;
 export type VerificationType = z.infer<typeof VerificationTypeSchema>;
 export type VerificationStatus = z.infer<typeof VerificationStatusSchema>;
 export type VerificationMethod = z.infer<typeof VerificationMethodSchema>;
