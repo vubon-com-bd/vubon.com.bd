@@ -2,7 +2,7 @@
  * Phone Utilities - Phone number parsing and formatting
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  *
- * @module shared-utils/src/validation/phone.util
+ * @module shared-utils/validation/phone.util
  *
  * RULES:
  * ✅ ONLY phone number parsing, formatting, validation - NO business logic
@@ -22,22 +22,30 @@ import {
   PhoneNumber,
   CountryCode,
 } from 'libphonenumber-js';
-import { PHONE_CONFIG } from '@vubon/auth-constants';
+// ✅ FIXED: Correct package name
+import { PHONE_CONFIG } from '@vubon/shared-constants';
 
 // ==================== Constants (from shared-constants) ====================
 
-export const DEFAULT_COUNTRY = PHONE_CONFIG.DEFAULT_COUNTRY; // 'BD'
-export const DEFAULT_COUNTRY_CODE = PHONE_CONFIG.DEFAULT_COUNTRY_CODE; // '+880'
+// ✅ FIXED: Add fallbacks for missing constants
+export const DEFAULT_COUNTRY = PHONE_CONFIG?.DEFAULT_COUNTRY || 'BD';
+export const DEFAULT_COUNTRY_CODE = PHONE_CONFIG?.DEFAULT_COUNTRY_CODE || '+880';
 
-// Bangladesh mobile operators
-export const BD_MOBILE_OPERATORS = PHONE_CONFIG.BD_MOBILE_OPERATORS;
+// Bangladesh mobile operators (with fallback)
+export const BD_MOBILE_OPERATORS = PHONE_CONFIG?.BD_MOBILE_OPERATORS || {
+  GP: { prefix: '017', name: 'Grameenphone', regex: /^017\d{8}$/ },
+  ROB: { prefix: '018', name: 'Robi', regex: /^018\d{8}$/ },
+  BL: { prefix: '019', name: 'Banglalink', regex: /^019\d{8}$/ },
+  TT: { prefix: '015', name: 'Teletalk', regex: /^015\d{8}$/ },
+  AIR: { prefix: '016', name: 'Airtel', regex: /^016\d{8}$/ },
+};
 
-// Bangladesh mobile number regex patterns
-export const BD_MOBILE_REGEX = PHONE_CONFIG.BD_MOBILE_REGEX;
-export const BD_MOBILE_STRICT_REGEX = PHONE_CONFIG.BD_MOBILE_STRICT_REGEX;
+// Bangladesh mobile number regex patterns (with fallback)
+export const BD_MOBILE_REGEX = PHONE_CONFIG?.BD_MOBILE_REGEX || /^(?:\+880|0)1[3-9]\d{8}$/;
+export const BD_MOBILE_STRICT_REGEX = PHONE_CONFIG?.BD_MOBILE_STRICT_REGEX || /^(?:\+880|0)1(?:3|4|5|6|7|8|9)\d{8}$/;
 
 // Supported countries (including Bangladesh focus)
-export const SUPPORTED_COUNTRIES = PHONE_CONFIG.SUPPORTED_COUNTRIES;
+export const SUPPORTED_COUNTRIES = PHONE_CONFIG?.SUPPORTED_COUNTRIES || ['BD', 'US', 'GB', 'IN', 'AE', 'SG', 'CA', 'AU'];
 export type SupportedCountry = typeof SUPPORTED_COUNTRIES[number];
 
 // Phone number types
@@ -319,6 +327,18 @@ export const maskPhone = (phoneNumber: string, countryCode: string = DEFAULT_COU
   return `${start}${'*'.repeat(maskedLength)}${end}`;
 };
 
+/**
+ * Mask Bangladesh phone number (specialized)
+ */
+export const maskBdPhone = (phoneNumber: string): string => {
+  const normalized = normalizeBdPhone(phoneNumber);
+  if (!normalized) return phoneNumber;
+  // Show +880*****5678 format
+  const start = normalized.slice(0, 4); // +880
+  const end = normalized.slice(-4);
+  return `${start}*****${end}`;
+};
+
 // ==================== Country Detection ====================
 
 /**
@@ -356,6 +376,7 @@ export interface PhoneComponents {
   isMobile: boolean;
   operator: string | null;
   phoneType: PhoneNumberType;
+  isBangladesh: boolean;
 }
 
 /**
@@ -380,12 +401,14 @@ export const getPhoneComponents = (phoneNumber: string, countryCode: string = DE
       isMobile: false,
       operator: null,
       phoneType: 'unknown',
+      isBangladesh: false,
     };
   }
 
   const e164 = formatToE164(phoneNumber, countryCode);
   const isMobile = e164 ? getPhoneNumberType(e164) === 'mobile' : false;
   const operator = e164 && e164.startsWith('+880') ? detectBdOperator(e164) : null;
+  const isBangladesh = e164?.startsWith('+880') ?? false;
 
   return {
     countryCode: extractCountryCode(phoneNumber, countryCode),
@@ -397,6 +420,7 @@ export const getPhoneComponents = (phoneNumber: string, countryCode: string = DE
     isMobile,
     operator,
     phoneType: getPhoneNumberType(phoneNumber, countryCode),
+    isBangladesh,
   };
 };
 
