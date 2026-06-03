@@ -50,27 +50,17 @@
       "@vubon/shared-types/*": ["../shared-types/src/*"]
     }
   },
-  "include": [
-    "src/**/*.ts",
-    "../shared-constants/src/**/*.ts",
-    "../shared-types/src/**/*.ts"
-  ],
+  "include": ["src/**/*.ts"],
   "exclude": [
-    "node_modules", 
-    "dist", 
-    "**/*.test.ts", 
-    "**/*.spec.ts", 
-    "coverage",
-    "../shared-constants/dist",
-    "../shared-types/dist"
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "coverage"
   ],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"
     }
-  },
-  "references": [
-    { "path": "../shared-constants" },
-    { "path": "../shared-types" }
-  ]
+  }
 }
