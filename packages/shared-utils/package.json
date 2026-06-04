@@ -180,15 +180,17 @@
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.0.0",
     "prettier": "^3.0.0",
-    "tsup": "^8.0.0",
+    "tsup": "^8.5.1",
     "typescript": "^5.0.0",
-    "vitest": "^1.0.0"
+    "vitest": "^4.1.8"
   },
-  "peerDependencies": {
+
+   "peerDependencies": {
     "@vubon/shared-constants": "^1.0.0",
     "@vubon/shared-types": "^1.0.0",
     "@vubon/shared-schemas": "^1.0.0"
   },
+  
   "sideEffects": false,
   "publishConfig": {
     "access": "restricted",
