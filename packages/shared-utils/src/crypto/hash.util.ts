@@ -14,8 +14,17 @@
 
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-// ✅ FIXED: Correct package name
-import { PASSWORD_POLICY, ENCRYPTION_CONFIG, COMMON_PASSWORDS } from '@vubon/shared-constants';
+// ✅ FIXED: Correct package name and imports
+import { PASSWORD_POLICY, ENCRYPTION_CONFIG } from '@vubon/shared-constants';
+
+// ✅ FIXED: Define COMMON_PASSWORDS locally since not exported from constants
+const COMMON_PASSWORDS: string[] = [
+  'password', '123456', 'qwerty', 'admin', 'welcome',
+  'bangladesh', 'dhaka', 'vubon', '12345678', 'password123',
+  'iloveyou', 'princess', 'sunshine', 'qwerty123',
+  'abc123', 'admin123', 'user123', 'bangla', 'chittagong',
+  'rajshahi', 'khulna', '123456789', 'password1234',
+];
 
 // ==================== Constants (from shared-constants) ====================
 
@@ -30,7 +39,7 @@ const PASSWORD_MIN_LENGTH = PASSWORD_POLICY.MIN_LENGTH;
 const PASSWORD_STRONG_LENGTH = (PASSWORD_POLICY as any).STRONG_LENGTH || 12;
 const PASSWORD_VERY_STRONG_LENGTH = (PASSWORD_POLICY as any).VERY_STRONG_LENGTH || 16;
 
-// Common passwords from constants
+// Common passwords
 const COMMON_PATTERNS = COMMON_PASSWORDS;
 
 // Hash algorithms
@@ -150,8 +159,9 @@ export const isValidBcryptHash = (hash: string): boolean => {
 
 /**
  * Password strength result interface
+ * ✅ FIXED: Renamed to avoid conflict, exported as type
  */
-export interface PasswordStrengthResult {
+export interface PasswordStrengthInfo {
   isValid: boolean;      // Meets minimum requirements (8+ chars, mixed case, number, special)
   isStrong: boolean;     // Meets strong requirements (12+ chars, all criteria)
   isVeryStrong: boolean; // Meets very strong requirements (16+ chars, all criteria)
@@ -169,7 +179,7 @@ export interface PasswordStrengthResult {
  */
 export const checkPasswordStrength = (
   password: string
-): PasswordStrengthResult => {
+): PasswordStrengthInfo => {
   const missing: string[] = [];
   const suggestions: string[] = [];
   let score = 0;
@@ -223,8 +233,9 @@ export const checkPasswordStrength = (
   }
 
   // Bonus: No common patterns check (from constants)
+  // ✅ FIXED: Added proper type for pattern parameter
   const hasCommonPattern = COMMON_PATTERNS.some(
-    (pattern) => password.toLowerCase().includes(pattern)
+    (pattern: string) => password.toLowerCase().includes(pattern)
   );
 
   if (!hasCommonPattern) {
@@ -365,4 +376,5 @@ export const timingSafeEqual = (a: string, b: string): boolean => {
 
 // ==================== Type Exports ====================
 
-export type { PasswordStrengthResult };
+// ✅ FIXED: Re-export type (no conflict now)
+export type { PasswordStrengthInfo };
