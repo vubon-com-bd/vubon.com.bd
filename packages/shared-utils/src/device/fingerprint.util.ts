@@ -13,21 +13,20 @@
  */
 
 import crypto from 'crypto';
-// ✅ FIXED: Correct package name
-import { ENCRYPTION_CONFIG, FINGERPRINT_CONFIG, BROWSER_FINGERPRINT_COMPONENTS } from '@vubon/shared-constants';
+// ✅ FIXED: Only import what exists
+import { ENCRYPTION_CONFIG } from '@vubon/shared-constants';
 
-// ==================== Constants (from shared-constants) ====================
+// ==================== Fallback Constants ====================
 
-// ✅ FIXED: Add fallbacks for missing constants
-const FINGERPRINT_HASH_ALGORITHM = ENCRYPTION_CONFIG?.HASH_ALGORITHM || 'sha256';
-const FINGERPRINT_SEPARATOR = FINGERPRINT_CONFIG?.SEPARATOR || '|';
-const DEFAULT_FINGERPRINT_VERSION = FINGERPRINT_CONFIG?.DEFAULT_VERSION || 1;
-const MIN_FINGERPRINT_LENGTH = FINGERPRINT_CONFIG?.MIN_LENGTH || 8;
-const MAX_FINGERPRINT_LENGTH = FINGERPRINT_CONFIG?.MAX_LENGTH || 64;
-const DEFAULT_SHORT_LENGTH = FINGERPRINT_CONFIG?.SHORT_FINGERPRINT_LENGTH || 16;
+const FINGERPRINT_CONFIG = {
+  SEPARATOR: '|',
+  DEFAULT_VERSION: 1,
+  MIN_LENGTH: 8,
+  MAX_LENGTH: 64,
+  SHORT_FINGERPRINT_LENGTH: 16,
+};
 
-// Browser fingerprint components (from shared-constants with fallback)
-const BROWSER_COMPONENTS = BROWSER_FINGERPRINT_COMPONENTS || [
+const BROWSER_FINGERPRINT_COMPONENTS = [
   'userAgent',
   'acceptLanguage',
   'acceptEncoding',
@@ -41,6 +40,20 @@ const BROWSER_COMPONENTS = BROWSER_FINGERPRINT_COMPONENTS || [
   'deviceMemory',
   'hardwareConcurrency',
 ];
+
+// ==================== Constants ====================
+
+export const FINGERPRINT_HASH_ALGORITHM = ENCRYPTION_CONFIG?.HASH_ALGORITHM || 'sha256';
+export const FINGERPRINT_SEPARATOR = FINGERPRINT_CONFIG.SEPARATOR;
+export const DEFAULT_FINGERPRINT_VERSION = FINGERPRINT_CONFIG.DEFAULT_VERSION;
+
+// Browser fingerprint components
+const BROWSER_COMPONENTS = BROWSER_FINGERPRINT_COMPONENTS;
+
+// Fingerprint length constraints
+const MIN_FINGERPRINT_LENGTH = FINGERPRINT_CONFIG.MIN_LENGTH;
+const MAX_FINGERPRINT_LENGTH = FINGERPRINT_CONFIG.MAX_LENGTH;
+const DEFAULT_SHORT_LENGTH = FINGERPRINT_CONFIG.SHORT_FINGERPRINT_LENGTH;
 
 // ==================== Private Helpers ====================
 
@@ -155,7 +168,7 @@ export const normalizeFingerprintComponents = (
 ): string[] => {
   return Object.keys(components)
     .sort()
-    .map((key) => `${key}:${normalizeComponent(components[key])}`);
+    .map((key) => `${key}:${normalizeComponent(components[key] || '')}`);
 };
 
 /**
