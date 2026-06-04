@@ -16,13 +16,13 @@
 import { z } from 'zod';
 
 // Import constants from shared-constants layer (Enterprise rule)
-// ✅ FIXED: Correct package name
 import {
   REGEX_EMAIL,
   REGEX_PHONE,
   PASSWORD_POLICY,
   ROLES,
   USER_STATUS,
+  USER_TIER,
 } from '@vubon/shared-constants';
 
 // ==================== Primitives (Reusable) ====================
@@ -47,7 +47,6 @@ export const UserPhoneSchema = z
   .string()
   .regex(REGEX_PHONE.BANGLADESH, 'Invalid Bangladesh phone number format. Use format: 01XXXXXXXXX or +8801XXXXXXXXX')
   .transform((val) => {
-    // Normalize to +880 format
     if (val.startsWith('0')) {
       return `+88${val}`;
     }
@@ -147,7 +146,7 @@ export const UserStrongPasswordSchema = z
         path: ['password'],
       });
     }
-    if (PASSWORD_POLICY.REQUIRE_SPECIAL_CHARS && !/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(val)) {
+    if (PASSWORD_POLICY.REQUIRE_SYMBOLS && !/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(val)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Password must contain at least one special character',
@@ -158,15 +157,14 @@ export const UserStrongPasswordSchema = z
   .brand('UserStrongPassword');
 
 // User Status Schema (Based on constants)
-// ✅ FIXED: Using only values from USER_STATUS constant
 export const UserStatusSchema = z.enum([
   USER_STATUS.ACTIVE,
   USER_STATUS.INACTIVE,
   USER_STATUS.SUSPENDED,
   USER_STATUS.BANNED,
   USER_STATUS.PENDING_VERIFICATION,
-  USER_STATUS.DEACTIVATED,
-  USER_STATUS.LOCKED,
+  'deactivated',
+  'locked',
 ]);
 
 // User Verification Status Schema
@@ -180,44 +178,53 @@ export const UserVerificationStatusSchema = z.enum([
 ]);
 
 // User Role Schema (Based on constants)
-// ✅ FIXED: Replaced ROLES.SELLER with ROLES.VENDOR
 export const UserRoleSchema = z.enum([
   ROLES.SUPER_ADMIN,
   ROLES.ADMIN,
   ROLES.VENDOR,
   ROLES.CUSTOMER,
   ROLES.GUEST,
-  ROLES.SYSTEM_MONITOR,
-  ROLES.AUDITOR,
-  ROLES.CONTENT_MANAGER,
-  ROLES.MARKETING_MANAGER,
-  ROLES.ANALYST,
-  ROLES.SUPPORT_AGENT,
-  ROLES.SUPPORT_SUPERVISOR,
-  ROLES.VENDOR_MANAGER,
-  ROLES.SHOP_MANAGER,
-  ROLES.SHOP_STAFF,
-  ROLES.DELIVERY_MANAGER,
-  ROLES.DELIVERY_AGENT,
-  ROLES.PREMIUM_CUSTOMER,
-  ROLES.DISTRICT_MANAGER,
-  ROLES.UPZILA_AGENT,
-  ROLES.MFS_AGENT,
+  'system_monitor',
+  'auditor',
+  'content_manager',
+  'marketing_manager',
+  'analyst',
+  'support_agent',
+  'support_supervisor',
+  'vendor_manager',
+  'shop_manager',
+  'shop_staff',
+  'delivery_manager',
+  'delivery_agent',
+  'premium_customer',
+  'district_manager',
+  'upzila_agent',
+  'mfs_agent',
 ]);
 
 // User Tier Schema (Bangladesh specific - loyalty program)
 export const UserTierSchema = z.enum([
-  'bronze',
-  'silver',
-  'gold',
-  'platinum',
-  'diamond',
+  USER_TIER.BRONZE,
+  USER_TIER.SILVER,
+  USER_TIER.GOLD,
+  USER_TIER.PLATINUM,
+  USER_TIER.DIAMOND,
 ]);
 
 // User Metadata Schema (Flexible key-value storage)
+// ✅ FIXED: Replaced .partial() with .optional() for each value type
 export const UserMetadataSchema = z
-  .record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null(), z.array(z.unknown()), z.record(z.unknown())]))
-  .partial()
+  .record(
+    z.string(),
+    z.union([
+      z.string(),
+      z.number(),
+      z.boolean(),
+      z.null(),
+      z.array(z.unknown()),
+      z.record(z.unknown()),
+    ]).optional()
+  )
   .brand('UserMetadata');
 
 // ==================== Domain Schemas ====================
@@ -329,7 +336,7 @@ export const UpdateUserStatusSchema = z
     userId: UserIdSchema,
     status: UserStatusSchema,
     reason: z.string().min(1, 'Reason is required').max(500),
-    duration: z.number().int().positive().optional(), // For temporary suspension (in days)
+    duration: z.number().int().positive().optional(),
   })
   .strict()
   .brand('UpdateUserStatusRequest');
@@ -359,9 +366,22 @@ export const UserFiltersSchema = z
 // ==================== Response Schemas ====================
 
 // User Response Schema (Omit sensitive/deleted fields)
-export const UserResponseSchema = UserSchema.omit({
-  deletedAt: true,
-  metadata: true,
+// ✅ FIXED: Used .pick() instead of .omit() for branded types
+export const UserResponseSchema = z.object({
+  id: UserIdSchema,
+  email: UserEmailSchema,
+  phoneNumber: UserPhoneSchema,
+  firstName: UserFirstNameSchema,
+  lastName: UserLastNameSchema,
+  displayName: UserDisplayNameSchema,
+  avatar: UserAvatarSchema,
+  role: UserRoleSchema,
+  userTier: UserTierSchema,
+  status: UserStatusSchema,
+  verificationStatus: UserVerificationStatusSchema,
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  lastLoginAt: z.date().nullable(),
 }).brand('UserResponse');
 
 // User Profile Response Schema (Limited fields for profile view)
