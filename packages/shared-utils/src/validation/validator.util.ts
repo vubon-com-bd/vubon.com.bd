@@ -13,21 +13,18 @@
  */
 
 import validator from 'validator';
-// ✅ FIXED: Correct package name
+// ✅ FIXED: Correct package name and only existing exports
 import {
   REGEX_ALPHANUMERIC,
   REGEX_NUMERIC,
-  REGEX_UUID,
   PASSWORD_POLICY,
-  COMMON_PASSWORDS,
 } from '@vubon/shared-constants';
 
-// ==================== Constants (from shared-constants) ====================
+// ==================== Local Fallback Constants ====================
 
-// UUID regex (RFC 4122) - with fallbacks
-// ✅ FIXED: Add fallbacks for missing constants
-const UUID_REGEX = REGEX_UUID?.STANDARD || /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const UUID_V4_REGEX = REGEX_UUID?.V4 || /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+// UUID regex (RFC 4122) - local fallback
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 // String format regexes
 const HEX_REGEX = /^[0-9a-f]+$/i;
@@ -38,26 +35,23 @@ const NUMERIC_REGEX = REGEX_NUMERIC || /^\d+$/;
 const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const OBJECT_ID_REGEX = /^[0-9a-f]{24}$/i;
 
-// Password strength thresholds (from constants)
+// Password strength thresholds (from constants with fallback)
 const PASSWORD_MIN_LENGTH = PASSWORD_POLICY?.MIN_LENGTH || 8;
-// ✅ FIXED: Add fallback for STRONG_LENGTH
-const PASSWORD_STRONG_LENGTH = PASSWORD_POLICY?.STRONG_LENGTH || 12;
+// ✅ FIXED: STRONG_LENGTH does not exist, using custom value
+const PASSWORD_STRONG_LENGTH = 12;
 
-// Common weak passwords (from constants)
-const COMMON_WEAK_PASSWORDS = COMMON_PASSWORDS || [
+// Common weak passwords (local fallback)
+const COMMON_WEAK_PASSWORDS = [
   'password', '123456', 'qwerty', 'admin', 'welcome',
-  'bangladesh', 'dhaka', 'vubon', '12345678',
+  'bangladesh', 'dhaka', 'vubon', '12345678', 'password123',
+  'iloveyou', 'princess', 'sunshine', 'qwerty123',
+  'abc123', 'admin123', 'user123', 'bangla', 'chittagong',
+  'rajshahi', 'khulna', '123456789',
 ];
 
 // ==================== Private Helpers ====================
 
-/**
- * Safely get string value
- */
-const getString = (value: unknown): string => {
-  if (value === null || value === undefined) return '';
-  return String(value);
-};
+// ✅ FIXED: Removed unused getString function
 
 // ==================== UUID Validation ====================
 
@@ -472,7 +466,3 @@ export const createValidationResult = (
     ...(errors && errors.length > 0 ? { errors } : {}),
   };
 };
-
-// ==================== Type Exports ====================
-
-export type { ValidationResult };
