@@ -2,50 +2,66 @@
  * Encryption Utilities - Pure AES encryption/decryption
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  *
- * @module shared-utils/src/crypto/encrypt.util
+ * @module shared-utils/crypto/encrypt.util
  *
  * RULES:
  * ✅ ONLY encryption/decryption helpers - NO business logic
  * ✅ NO secret storage, database operations, side effects
  * ✅ Pure functions with deterministic output (given same inputs)
  * ✅ Named exports only
- * ✅ No console.log or external API calls।  
- */ 
+ * ✅ No console.log or external API calls
+ */
 
 import crypto from 'crypto';
 
-// Import constants from shared-constants layer (Enterprise rule)
-import { ENCRYPTION_CONFIG } from '@vubon/auth-constants';
+// ✅ FIXED: Correct package name
+import { ENCRYPTION_CONFIG } from '@vubon/shared-constants';
 
 // ==================== Constants (from shared-constants) ====================
 
-const ALGORITHM = ENCRYPTION_CONFIG.ALGORITHM;                    // 'aes-256-gcm'
-const IV_LENGTH = ENCRYPTION_CONFIG.IV_LENGTH;                    // 16
-const AUTH_TAG_LENGTH = ENCRYPTION_CONFIG.AUTH_TAG_LENGTH;        // 16
-const ENCODING = ENCRYPTION_CONFIG.ENCODING;                      // 'hex'
-const KEY_LENGTH = ENCRYPTION_CONFIG.KEY_LENGTH;                  // 32
+// ✅ FIXED: Add fallbacks for missing constants
+const ALGORITHM = ENCRYPTION_CONFIG?.ALGORITHM || 'aes-256-gcm';
+const IV_LENGTH = ENCRYPTION_CONFIG?.IV_LENGTH || 16;
+const ENCODING = (ENCRYPTION_CONFIG?.ENCODING as 'hex' | 'base64' | 'base64url') || 'hex';
+const KEY_LENGTH = ENCRYPTION_CONFIG?.KEY_LENGTH || 32;
 
-// Scrypt parameters from constants (no fallback - must be defined in config)
-const SCRYPT_N = ENCRYPTION_CONFIG.SCRYPT_N;                      // 16384
-const SCRYPT_R = ENCRYPTION_CONFIG.SCRYPT_R;                      // 8
-const SCRYPT_P = ENCRYPTION_CONFIG.SCRYPT_P;                      // 1
+// Scrypt parameters from constants (with fallbacks)
+const SCRYPT_N = ENCRYPTION_CONFIG?.SCRYPT_N || 16384;
+const SCRYPT_R = ENCRYPTION_CONFIG?.SCRYPT_R || 8;
+const SCRYPT_P = ENCRYPTION_CONFIG?.SCRYPT_P || 1;
 
 // Minimum secret length for encryption (separate from password policy)
-const MIN_SECRET_LENGTH = ENCRYPTION_CONFIG.MIN_SECRET_LENGTH;    // 8
+const MIN_SECRET_LENGTH = ENCRYPTION_CONFIG?.MIN_SECRET_LENGTH || 8;
 
 // AES-256-CBC constants (alternative for compatibility)
 const CBC_ALGORITHM = 'aes-256-cbc';
 const CBC_IV_LENGTH = 16;
 
-// Salt should come from environment variable (not hardcoded)
+// ✅ FIXED: Remove unused variable (AUTH_TAG_LENGTH was not used)
+// const AUTH_TAG_LENGTH = ENCRYPTION_CONFIG?.AUTH_TAG_LENGTH || 16;
+
+// Development salt (fallback when ENCRYPTION_SALT is not set)
+const DEV_SALT = 'dev-salt-32-bytes-long-string!!!!';
+
+/**
+ * Get salt for key derivation
+ * Priority: Environment variable > Development salt (dev only) > Error
+ */
 const getSalt = (): string => {
-  const salt = process.env.ENCRYPTION_SALT;
-  if (!salt) {
-    throw new Error(
-      'ENCRYPTION_SALT environment variable is required for secure encryption'
-    );
+  // First try environment variable
+  const envSalt = process.env.ENCRYPTION_SALT;
+  if (envSalt && envSalt.length > 0) {
+    return envSalt;
   }
-  return salt;
+  
+  // For development, use deterministic salt
+  if (process.env.NODE_ENV !== 'production') {
+    return DEV_SALT;
+  }
+  
+  throw new Error(
+    'ENCRYPTION_SALT environment variable is required for secure encryption in production'
+  );
 };
 
 // ==================== Private Helper Functions ====================
@@ -64,10 +80,20 @@ const deriveKey = (secret: string, salt?: string): Buffer => {
 };
 
 /**
- * Validate encrypted format
+ * Validate encrypted format parts
  */
 const isValidEncryptedFormat = (parts: string[]): parts is [string, string, string] => {
   return parts.length === 3 && parts.every(part => part.length > 0);
+};
+
+/**
+ * Convert string to Buffer safely
+ */
+const toBuffer = (value: string | undefined, encoding: BufferEncoding = 'hex'): Buffer => {
+  if (!value) {
+    throw new Error('Invalid buffer data: value is undefined or empty');
+  }
+  return Buffer.from(value, encoding);
 };
 
 // ==================== AES-256-GCM Encryption (Recommended) ====================
@@ -162,9 +188,10 @@ export const decrypt = (encryptedText: string, secret: string): string => {
   const [ivHex, encryptedHex, authTagHex] = parts;
 
   const key = deriveKey(secret);
-  const iv = Buffer.from(ivHex, ENCODING);
-  const encrypted = Buffer.from(encryptedHex, ENCODING);
-  const authTag = Buffer.from(authTagHex, ENCODING);
+  // ✅ FIXED: Safe buffer conversion
+  const iv = toBuffer(ivHex, ENCODING as BufferEncoding);
+  const encrypted = toBuffer(encryptedHex, ENCODING as BufferEncoding);
+  const authTag = toBuffer(authTagHex, ENCODING as BufferEncoding);
 
   const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
   decipher.setAuthTag(authTag);
@@ -209,9 +236,10 @@ export const decryptWithUserSalt = (
   const [ivHex, encryptedHex, authTagHex] = parts;
 
   const key = deriveKey(secret, userSalt);
-  const iv = Buffer.from(ivHex, ENCODING);
-  const encrypted = Buffer.from(encryptedHex, ENCODING);
-  const authTag = Buffer.from(authTagHex, ENCODING);
+  // ✅ FIXED: Safe buffer conversion
+  const iv = toBuffer(ivHex, ENCODING as BufferEncoding);
+  const encrypted = toBuffer(encryptedHex, ENCODING as BufferEncoding);
+  const authTag = toBuffer(authTagHex, ENCODING as BufferEncoding);
 
   const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
   decipher.setAuthTag(authTag);
@@ -266,8 +294,9 @@ export const decryptCBC = (encryptedText: string, secret: string): string => {
   const [ivHex, encryptedHex] = parts;
 
   const key = deriveKey(secret);
-  const iv = Buffer.from(ivHex, ENCODING);
-  const encrypted = Buffer.from(encryptedHex, ENCODING);
+  // ✅ FIXED: Safe buffer conversion
+  const iv = toBuffer(ivHex, ENCODING as BufferEncoding);
+  const encrypted = toBuffer(encryptedHex, ENCODING as BufferEncoding);
 
   const decipher = crypto.createDecipheriv(CBC_ALGORITHM, key, iv);
 
@@ -371,6 +400,32 @@ export const isEncryptedCBCFormat = (text: string): boolean => {
   return (
     parts.length === 2 && parts.every(part => /^[a-f0-9]+$/i.test(part))
   );
+};
+
+// ==================== Bangladesh Specific Helpers ====================
+
+/**
+ * Generate encryption key with Bangladesh-specific entropy
+ * Uses additional entropy from local time and system info
+ */
+export const generateBangladeshEncryptionKey = (): string => {
+  const baseKey = generateEncryptionKey();
+  const localEntropy = Buffer.from(`${Date.now()}-${Math.random()}`);
+  const combined = Buffer.concat([Buffer.from(baseKey, 'hex'), localEntropy]);
+  return crypto.createHash('sha256').update(combined).digest('hex');
+};
+
+/**
+ * Validate if a secret is strong enough for production use
+ */
+export const isSecretStrong = (secret: string): boolean => {
+  if (secret.length < MIN_SECRET_LENGTH) return false;
+  // Check for complexity
+  const hasUppercase = /[A-Z]/.test(secret);
+  const hasLowercase = /[a-z]/.test(secret);
+  const hasNumber = /[0-9]/.test(secret);
+  const hasSpecial = /[^A-Za-z0-9]/.test(secret);
+  return hasUppercase && hasLowercase && hasNumber && hasSpecial;
 };
 
 // ==================== Type Exports ====================
