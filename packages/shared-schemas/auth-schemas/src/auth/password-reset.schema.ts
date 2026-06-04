@@ -45,11 +45,12 @@ export const PhoneSchema = z
   })
   .brand('Phone');
 
-// Password Schema (NO brand for comparison)
+// Password Schema (Basic - no strength validation)
 export const PasswordSchema = z
   .string()
   .min(PASSWORD_POLICY?.MIN_LENGTH || 8, `Password must be at least ${PASSWORD_POLICY?.MIN_LENGTH || 8} characters`)
-  .max(PASSWORD_POLICY?.MAX_LENGTH || 128, `Password cannot exceed ${PASSWORD_POLICY?.MAX_LENGTH || 128} characters`);
+  .max(PASSWORD_POLICY?.MAX_LENGTH || 128, `Password cannot exceed ${PASSWORD_POLICY?.MAX_LENGTH || 128} characters`)
+  .brand('Password');
 
 // Password strength validation with fallbacks
 export const PasswordStrengthSchema = z
@@ -57,9 +58,9 @@ export const PasswordStrengthSchema = z
   .min(PASSWORD_POLICY?.MIN_LENGTH || 8, `Password must be at least ${PASSWORD_POLICY?.MIN_LENGTH || 8} characters`)
   .max(PASSWORD_POLICY?.MAX_LENGTH || 128, `Password cannot exceed ${PASSWORD_POLICY?.MAX_LENGTH || 128} characters`)
   .superRefine((val, ctx) => {
-    const requireUppercase = (PASSWORD_POLICY as any)?.REQUIRE_UPPERCASE ?? true;
-    const requireLowercase = (PASSWORD_POLICY as any)?.REQUIRE_LOWERCASE ?? true;
-    const requireNumbers = (PASSWORD_POLICY as any)?.REQUIRE_NUMBERS ?? true;
+    const requireUppercase = PASSWORD_POLICY?.REQUIRE_UPPERCASE ?? true;
+    const requireLowercase = PASSWORD_POLICY?.REQUIRE_LOWERCASE ?? true;
+    const requireNumbers = PASSWORD_POLICY?.REQUIRE_NUMBERS ?? true;
     const requireSpecialChars = (PASSWORD_POLICY as any)?.REQUIRE_SPECIAL_CHARS ?? true;
     
     if (requireUppercase && !/[A-Z]/.test(val)) {
@@ -99,9 +100,6 @@ export const PasswordStrengthSchema = z
     }
   })
   .brand('PasswordStrength');
-
-// Branded version for specific use cases
-export const BrandedPasswordSchema = PasswordSchema.brand('Password');
 
 // Verification Token Schema
 export const VerificationTokenSchema = z
@@ -152,7 +150,6 @@ export const ForgotPasswordPhoneSchema = z
   .brand('ForgotPasswordPhoneRequest');
 
 // Reset Password Request (Step 2 - Token based)
-// ✅ FIXED: Using unbranded PasswordSchema for comparison
 export const ResetPasswordSchema = z
   .object({
     token: VerificationTokenSchema,
@@ -181,11 +178,12 @@ export const ResetPasswordSchema = z
   .brand('ResetPasswordRequest');
 
 // Strong Password Reset Request (For enhanced security)
+// ✅ FIXED: Both passwords use same schema (PasswordStrengthSchema)
 export const StrongResetPasswordSchema = z
   .object({
     token: VerificationTokenSchema,
     newPassword: PasswordStrengthSchema,
-    confirmPassword: PasswordSchema,
+    confirmPassword: PasswordStrengthSchema,  // ✅ Changed from PasswordSchema to PasswordStrengthSchema
   })
   .strict()
   .refine((data) => data.newPassword === data.confirmPassword, {
@@ -360,7 +358,6 @@ export type VerifyResetOTPFormData = VerifyResetOTPRequest;
 export type Email = z.infer<typeof EmailSchema>;
 export type Phone = z.infer<typeof PhoneSchema>;
 export type Password = z.infer<typeof PasswordSchema>;
-export type BrandedPassword = z.infer<typeof BrandedPasswordSchema>;
 export type PasswordStrength = z.infer<typeof PasswordStrengthSchema>;
 export type VerificationToken = z.infer<typeof VerificationTokenSchema>;
 export type UserId = z.infer<typeof UserIdSchema>;
