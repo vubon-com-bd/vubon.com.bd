@@ -368,9 +368,24 @@ export const PermissionSyncResponseSchema = z
   .strict()
   .brand('PermissionSyncResponse');
 
-// Permission Tree Node Response (For UI)
-// ✅ FIXED: Correctly defined without type annotation conflict
-export const PermissionTreeNodeSchema = z.lazy(() =>
+// ==================== Permission Tree Node (Type + Schema) ====================
+
+// First define the type for the tree node
+export type PermissionTreeNode = {
+  resource: string;
+  resourceLabel: string;
+  category: string;
+  actions: {
+    action: string;
+    actionLabel: string;
+    permission: string;
+    isGranted?: boolean;
+  }[];
+  children?: PermissionTreeNode[];
+};
+
+// Then define the schema using the type (✅ FIXED: No more implicit any)
+export const PermissionTreeNodeSchema: z.ZodSchema<PermissionTreeNode> = z.lazy(() =>
   z.object({
     resource: PermissionResourceSchema,
     resourceLabel: z.string(),
@@ -383,7 +398,7 @@ export const PermissionTreeNodeSchema = z.lazy(() =>
         isGranted: z.boolean().optional(),
       })
     ),
-    children: z.array(z.lazy(() => PermissionTreeNodeSchema)).optional(),
+    children: z.array(PermissionTreeNodeSchema).optional(),
   })
 ).brand('PermissionTreeNode');
 
