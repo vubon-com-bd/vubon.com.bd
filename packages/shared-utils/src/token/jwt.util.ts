@@ -96,6 +96,16 @@ const encodeSecret = (secret: string): Uint8Array => {
   return new TextEncoder().encode(secret);
 };
 
+/**
+ * Safe buffer conversion helper
+ */
+const safeBuffer = (value: string | undefined, encoding: BufferEncoding = 'utf8'): Buffer => {
+  if (!value) {
+    return Buffer.from('');
+  }
+  return Buffer.from(value, encoding);
+};
+
 // ==================== Signing ====================
 
 /**
@@ -357,7 +367,9 @@ export const decodeTokenHeader = (token: string): Record<string, unknown> | null
   try {
     const parts = token.split('.');
     if (parts.length !== 3) return null;
-    const header = JSON.parse(Buffer.from(parts[0], 'base64').toString());
+    // ✅ FIXED: Safe buffer conversion
+    const headerJson = safeBuffer(parts[0], 'base64').toString();
+    const header = JSON.parse(headerJson);
     return header;
   } catch {
     return null;
@@ -504,6 +516,7 @@ export const isAccessToken = (token: string): boolean => {
   return type === 'access';
 };
 
-// ==================== Type Exports ====================
+// ==================== Type Export ====================
 
-export type { VerifiedTokenResult };
+// ✅ FIXED: Removed duplicate export - already exported above
+// export type { VerifiedTokenResult };
