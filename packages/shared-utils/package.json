@@ -1,7 +1,8 @@
 {
   "name": "@vubon/shared-utils",
   "version": "1.0.0",
-  "description": "Pure, stateless, deterministic utility layer for vubon.com.bd ecommerce ecosystem - Bangladesh's #1 Enterprise E-commerce",
+  "private": true,
+  "description": "Pure, stateless, deterministic utility layer for vubon.com.bd ecommerce ecosystem",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -118,50 +119,13 @@
     }
   },
   "files": [
-    "dist/**/*",
-    "README.md"
+    "dist/**/*"
   ],
   "scripts": {
     "build": "tsup",
-    "build:tsc": "tsc",
     "clean": "rm -rf dist",
     "dev": "tsup --watch",
-    "prepublishOnly": "npm run clean && npm run build",
-    "test": "vitest",
-    "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "type-check": "tsc --noEmit",
-    "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix",
-    "format": "prettier --write \"src/**/*.ts\"",
-    "format:check": "prettier --check \"src/**/*.ts\""
-  },
-  "keywords": [
-    "utils",
-    "crypto",
-    "validation",
-    "formatter",
-    "device",
-    "token",
-    "enterprise",
-    "ecommerce",
-    "vubon",
-    "bangladesh",
-    "jwt",
-    "bcrypt",
-    "date-fns",
-    "phone",
-    "email",
-    "fingerprint",
-    "user-agent",
-    "ip"
-  ],
-  "author": "Vubon E-commerce",
-  "license": "UNLICENSED",
-  "private": true,
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -176,35 +140,12 @@
     "@types/node": "^20.0.0",
     "@types/ua-parser-js": "^0.7.39",
     "@types/validator": "^13.11.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "eslint": "^8.0.0",
-    "prettier": "^3.0.0",
     "tsup": "^8.5.1",
-    "typescript": "^5.0.0",
-    "vitest": "^4.1.8"
+    "typescript": "^5.0.0"
   },
   "peerDependencies": {
     "@vubon/shared-constants": "file:../shared-constants",
     "@vubon/shared-types": "file:../shared-types",
     "@vubon/shared-schemas": "file:../shared-schemas"
-  },
-  "devDependencies": {
-    "@vubon/shared-constants": "file:../shared-constants",
-    "@vubon/shared-types": "file:../shared-types",
-    "@vubon/shared-schemas": "file:../shared-schemas"
-  },
-  "sideEffects": false,
-  "publishConfig": {
-    "access": "restricted",
-    "registry": "https://npm.pkg.github.com/"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/vubon/shared-utils.git"
-  },
-  "bugs": {
-    "url": "https://github.com/vubon/shared-utils/issues"
-  },
-  "homepage": "https://vubon.com.bd"
+  }
 }
