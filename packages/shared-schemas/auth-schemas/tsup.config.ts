@@ -24,8 +24,16 @@ export default defineConfig({
   // Output formats - both CommonJS and ESM
   format: ['cjs', 'esm'],
   
-  // Generate TypeScript declarations
-  dts: true,
+  // Generate TypeScript declarations with custom options
+  dts: {
+    resolve: true,
+    entry: {
+      index: 'src/index.ts',
+      'auth/index': 'src/auth/index.ts',
+      'role/index': 'src/role/index.ts',
+      'session/index': 'src/session/index.ts',
+    },
+  },
   
   // Clean output directory before build
   clean: true,
@@ -49,13 +57,11 @@ export default defineConfig({
   splitting: false,
   
   // Bundle dependencies? No - peer dependencies should be external
-  bundle: false,
+  bundle: true,
   
   // External dependencies (peer dependencies)
   external: [
     'zod',
-    '@vubon/shared-constants',
-    '@vubon/shared-types',
   ],
   
   // Platform - neutral (works in Node.js and browser)
@@ -94,6 +100,6 @@ export default defineConfig({
     console.log('📦 Output: dist/');
     console.log('📝 Formats: CommonJS + ESM');
     console.log('🔷 Types: .d.ts files generated');
-    console.log('🔗 External dependencies: zod, @vubon/shared-constants, @vubon/shared-types');
+    console.log('🔗 External dependencies: zod');
   },
 });
