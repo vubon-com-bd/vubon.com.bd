@@ -43,8 +43,6 @@ const TOKEN_VERSION_SEPARATOR = REFRESH_TOKEN_CONFIG.VERSION_SEPARATOR;
 const FAMILY_ID_LENGTH = REFRESH_TOKEN_CONFIG.FAMILY_ID_LENGTH;
 
 // Character sets for token generation
-// ✅ FIXED: Removed unused HEX_CHARS (was never read)
-// const HEX_CHARS = '0123456789abcdef';
 const BASE64_URL_SAFE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 
 // ==================== Private Helpers ====================
@@ -249,7 +247,8 @@ export const parseRefreshToken = (token: string): RefreshTokenData | null => {
     token,
     version,
     value,
-    familyId: familyId || undefined,
+    // ✅ FIXED: familyId is optional, so we can leave it undefined
+    ...(familyId && { familyId }),
   };
 };
 
@@ -408,7 +407,7 @@ export interface RefreshTokenData {
   token: string;
   version: number;
   value: string;
-  familyId?: string;
+  familyId?: string;  // ✅ FIXED: Made optional to match return type
 }
 
 export interface TokenRotationResult {
