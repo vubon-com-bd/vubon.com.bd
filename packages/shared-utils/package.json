@@ -184,13 +184,16 @@
     "typescript": "^5.0.0",
     "vitest": "^4.1.8"
   },
-
-   "peerDependencies": {
-    "@vubon/shared-constants": "^1.0.0",
-    "@vubon/shared-types": "^1.0.0",
-    "@vubon/shared-schemas": "^1.0.0"
+  "peerDependencies": {
+    "@vubon/shared-constants": "file:../shared-constants",
+    "@vubon/shared-types": "file:../shared-types",
+    "@vubon/shared-schemas": "file:../shared-schemas"
   },
-  
+  "devDependencies": {
+    "@vubon/shared-constants": "file:../shared-constants",
+    "@vubon/shared-types": "file:../shared-types",
+    "@vubon/shared-schemas": "file:../shared-schemas"
+  },
   "sideEffects": false,
   "publishConfig": {
     "access": "restricted",
