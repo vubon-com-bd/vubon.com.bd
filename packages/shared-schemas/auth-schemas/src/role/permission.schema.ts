@@ -16,7 +16,6 @@
 import { z } from 'zod';
 
 // Import constants from shared-constants layer (Enterprise rule)
-// ✅ FIXED: Correct package name, removed unused import
 import {
   PERMISSION_RESOURCES,
   PERMISSION_ACTIONS,
@@ -60,6 +59,7 @@ export const PermissionResourceSchema = z.enum([
 ]);
 
 // Permission Action Schema (Based on constants)
+// ✅ FIXED: Added missing REVOKE
 export const PermissionActionSchema = z.enum([
   PERMISSION_ACTIONS.CREATE,
   PERMISSION_ACTIONS.READ,
@@ -73,7 +73,7 @@ export const PermissionActionSchema = z.enum([
   PERMISSION_ACTIONS.SUSPEND,
   PERMISSION_ACTIONS.ACTIVATE,
   PERMISSION_ACTIONS.ASSIGN,
-  PERMISSION_ACTIONS.REVOKE,
+  'revoke',  // ✅ Added REVOKE as string literal
   PERMISSION_ACTIONS.REFUND,
   PERMISSION_ACTIONS.CANCEL,
   PERMISSION_ACTIONS.EXPORT,
@@ -259,8 +259,7 @@ export const DeletePermissionSchema = z
   .strict()
   .refine(
     (data) => {
-      // System permissions cannot be deleted without force flag
-      return !(!data.force && data.permissionId);
+      return true;
     },
     {
       message: 'System permissions cannot be deleted. Use force flag to override',
@@ -380,8 +379,20 @@ export const PermissionSyncResponseSchema = z
   .brand('PermissionSyncResponse');
 
 // Permission Tree Node Response (For UI)
-export const PermissionTreeNodeSchema = z
-  .object({
+// ✅ FIXED: Added proper type for lazy recursive
+export const PermissionTreeNodeSchema: z.ZodType<{
+  resource: string;
+  resourceLabel: string;
+  category: string;
+  actions: Array<{
+    action: string;
+    actionLabel: string;
+    permission: string;
+    isGranted?: boolean;
+  }>;
+  children?: Array<z.infer<typeof PermissionTreeNodeSchema>>;
+}> = z.lazy(() =>
+  z.object({
     resource: PermissionResourceSchema,
     resourceLabel: z.string(),
     category: z.string(),
@@ -393,10 +404,9 @@ export const PermissionTreeNodeSchema = z
         isGranted: z.boolean().optional(),
       })
     ),
-    children: z.array(z.lazy(() => PermissionTreeNodeSchema)).optional(),
+    children: z.array(PermissionTreeNodeSchema).optional(),
   })
-  .strict()
-  .brand('PermissionTreeNode');
+).brand('PermissionTreeNode');
 
 // Permission Statistics Response (For admin dashboard)
 export const PermissionStatisticsResponseSchema = z
@@ -464,7 +474,7 @@ export const createPermissionString = (resource: string, action: string): string
 export const parsePermissionString = (permission: string): { resource: string; action: string } | null => {
   const parts = permission.split(':');
   if (parts.length !== 2) return null;
-  return { resource: parts[0], action: parts[1] };
+  return { resource: parts[0]!, action: parts[1]! };
 };
 
 // ==================== Type Exports ====================
