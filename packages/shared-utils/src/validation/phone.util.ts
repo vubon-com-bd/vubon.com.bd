@@ -26,7 +26,7 @@ import { PHONE_CONFIG } from '@vubon/shared-constants';
 // ==================== Constants (from shared-constants) ====================
 
 // ✅ FIXED: Add fallbacks for missing constants
-export const DEFAULT_COUNTRY = PHONE_CONFIG?.DEFAULT_COUNTRY || 'BD';
+export const DEFAULT_COUNTRY = (PHONE_CONFIG?.DEFAULT_COUNTRY as CountryCode) || 'BD';
 export const DEFAULT_COUNTRY_CODE = PHONE_CONFIG?.DEFAULT_COUNTRY_CODE || '+880';
 
 // Bangladesh mobile operators (with fallback)
@@ -71,14 +71,6 @@ const validatePhoneInput = (phoneNumber: string): void => {
   }
 };
 
-/**
- * Convert string to CountryCode safely
- */
-const toCountryCode = (code: string): CountryCode | undefined => {
-  const validCodes: CountryCode[] = ['BD', 'US', 'GB', 'IN', 'AE', 'SG', 'CA', 'AU', 'PK', 'NP', 'MY', 'TH'];
-  return validCodes.includes(code as CountryCode) ? (code as CountryCode) : undefined;
-};
-
 // ==================== Parsing ====================
 
 /**
@@ -87,11 +79,14 @@ const toCountryCode = (code: string): CountryCode | undefined => {
  * @param phoneNumber - Phone number string
  * @param countryCode - Optional country code (default: 'BD')
  * @returns PhoneNumber object or undefined if invalid
+ *
+ * @example
+ * parsePhone('01712345678') // PhoneNumber object for Bangladesh
+ * parsePhone('+8801712345678') // PhoneNumber object
  */
-export const parsePhone = (phoneNumber: string, countryCode: string = DEFAULT_COUNTRY): PhoneNumber | undefined => {
+export const parsePhone = (phoneNumber: string, countryCode: CountryCode = DEFAULT_COUNTRY): PhoneNumber | undefined => {
   validatePhoneInput(phoneNumber);
-  const cc = toCountryCode(countryCode);
-  return safeParsePhone(phoneNumber, cc);
+  return safeParsePhone(phoneNumber, countryCode);
 };
 
 /**
@@ -101,11 +96,10 @@ export const parsePhone = (phoneNumber: string, countryCode: string = DEFAULT_CO
  * @param countryCode - Optional country code (default: 'BD')
  * @returns True if phone number is valid
  */
-export const isValidPhone = (phoneNumber: string, countryCode: string = DEFAULT_COUNTRY): boolean => {
+export const isValidPhone = (phoneNumber: string, countryCode: CountryCode = DEFAULT_COUNTRY): boolean => {
   if (!phoneNumber) return false;
   try {
-    const cc = toCountryCode(countryCode);
-    return isValidPhoneNumber(phoneNumber, cc);
+    return isValidPhoneNumber(phoneNumber, countryCode);
   } catch {
     return false;
   }
@@ -118,11 +112,10 @@ export const isValidPhone = (phoneNumber: string, countryCode: string = DEFAULT_
  * @param countryCode - Optional country code (default: 'BD')
  * @returns True if phone number is possible
  */
-export const isPossiblePhone = (phoneNumber: string, countryCode: string = DEFAULT_COUNTRY): boolean => {
+export const isPossiblePhone = (phoneNumber: string, countryCode: CountryCode = DEFAULT_COUNTRY): boolean => {
   if (!phoneNumber) return false;
   try {
-    const cc = toCountryCode(countryCode);
-    return isPossiblePhoneNumber(phoneNumber, cc);
+    return isPossiblePhoneNumber(phoneNumber, countryCode);
   } catch {
     return false;
   }
@@ -145,7 +138,7 @@ export const isValidBdMobile = (phoneNumber: string): boolean => {
  * @param countryCode - Optional country code (default: 'BD')
  * @returns Phone number type or 'unknown'
  */
-export const getPhoneNumberType = (phoneNumber: string, countryCode: string = DEFAULT_COUNTRY): PhoneNumberType => {
+export const getPhoneNumberType = (phoneNumber: string, countryCode: CountryCode = DEFAULT_COUNTRY): PhoneNumberType => {
   const parsed = parsePhone(phoneNumber, countryCode);
   if (!parsed) return 'unknown';
 
@@ -166,8 +159,9 @@ export const detectBdOperator = (phoneNumber: string): string | null => {
   // Remove +880 prefix, keep last 10 digits
   const national = normalized.replace(/^\+880/, '');
 
-  // ✅ FIXED: Use Object.values() instead of Object.entries() to avoid unused variable
-  for (const operator of Object.values(BD_MOBILE_OPERATORS)) {
+  // ✅ FIXED: Use Object.values instead of destructuring key
+  const operators = Object.values(BD_MOBILE_OPERATORS);
+  for (const operator of operators) {
     if (operator.regex.test(national)) {
       return operator.name;
     }
@@ -186,7 +180,7 @@ export const detectBdOperator = (phoneNumber: string): string | null => {
  * @param countryCode - Optional country code (default: 'BD')
  * @returns E.164 formatted number or null
  */
-export const formatToE164 = (phoneNumber: string, countryCode: string = DEFAULT_COUNTRY): string | null => {
+export const formatToE164 = (phoneNumber: string, countryCode: CountryCode = DEFAULT_COUNTRY): string | null => {
   const parsed = parsePhone(phoneNumber, countryCode);
   return parsed?.format('E.164') ?? null;
 };
@@ -199,7 +193,7 @@ export const formatToE164 = (phoneNumber: string, countryCode: string = DEFAULT_
  * @param countryCode - Optional country code (default: 'BD')
  * @returns Internationally formatted number or null
  */
-export const formatInternational = (phoneNumber: string, countryCode: string = DEFAULT_COUNTRY): string | null => {
+export const formatInternational = (phoneNumber: string, countryCode: CountryCode = DEFAULT_COUNTRY): string | null => {
   const parsed = parsePhone(phoneNumber, countryCode);
   if (!parsed) return null;
   return parsed.formatInternational();
@@ -213,7 +207,7 @@ export const formatInternational = (phoneNumber: string, countryCode: string = D
  * @param countryCode - Optional country code (default: 'BD')
  * @returns Nationally formatted number or null
  */
-export const formatNational = (phoneNumber: string, countryCode: string = DEFAULT_COUNTRY): string | null => {
+export const formatNational = (phoneNumber: string, countryCode: CountryCode = DEFAULT_COUNTRY): string | null => {
   const parsed = parsePhone(phoneNumber, countryCode);
   if (!parsed) return null;
   return parsed.formatNational();
@@ -225,8 +219,14 @@ export const formatNational = (phoneNumber: string, countryCode: string = DEFAUL
  * @param phoneNumber - Phone number string (partial)
  * @param countryCode - Optional country code (default: 'BD')
  * @returns Formatted string as you type
+ *
+ * @example
+ * formatAsYouType('017') // '017'
+ * formatAsYouType('0171') // '0171'
+ * formatAsYouType('01712') // '01712'
+ * formatAsYouType('017123') // '017 123'
  */
-export const formatAsYouType = (phoneNumber: string, countryCode: string = DEFAULT_COUNTRY): string => {
+export const formatAsYouType = (phoneNumber: string, countryCode: CountryCode = DEFAULT_COUNTRY): string => {
   const formatter = new AsYouType(countryCode);
   return formatter.input(phoneNumber);
 };
@@ -235,13 +235,20 @@ export const formatAsYouType = (phoneNumber: string, countryCode: string = DEFAU
 
 /**
  * Normalize phone number to consistent E.164 format
+ *
+ * @param phoneNumber - Phone number string
+ * @param countryCode - Optional country code (default: 'BD')
+ * @returns Normalized E.164 number or null
  */
-export const normalizePhone = (phoneNumber: string, countryCode: string = DEFAULT_COUNTRY): string | null => {
+export const normalizePhone = (phoneNumber: string, countryCode: CountryCode = DEFAULT_COUNTRY): string | null => {
   return formatToE164(phoneNumber, countryCode);
 };
 
 /**
  * Normalize Bangladesh phone number to +880 format
+ *
+ * @param phoneNumber - Bangladesh phone number (017... or +88017...)
+ * @returns Normalized phone number with +880 prefix
  */
 export const normalizeBdPhone = (phoneNumber: string): string | null => {
   const normalized = normalizePhone(phoneNumber, 'BD');
@@ -254,6 +261,9 @@ export const normalizeBdPhone = (phoneNumber: string): string | null => {
 /**
  * Convert +880 format to 0 format (local dialing)
  * Example: +8801712345678 -> 01712345678
+ *
+ * @param phoneNumber - Phone number in E.164 format
+ * @returns Local format number or null
  */
 export const toLocalFormat = (phoneNumber: string): string | null => {
   const normalized = normalizePhone(phoneNumber, 'BD');
@@ -265,8 +275,12 @@ export const toLocalFormat = (phoneNumber: string): string | null => {
 
 /**
  * Extract country code from phone number
+ *
+ * @param phoneNumber - Phone number string
+ * @param countryCode - Optional country code (default: 'BD')
+ * @returns Country code with plus sign (e.g., '+880') or null
  */
-export const extractCountryCode = (phoneNumber: string, countryCode: string = DEFAULT_COUNTRY): string | null => {
+export const extractCountryCode = (phoneNumber: string, countryCode: CountryCode = DEFAULT_COUNTRY): string | null => {
   const parsed = parsePhone(phoneNumber, countryCode);
   if (!parsed) return null;
   return `+${parsed.countryCallingCode}`;
@@ -274,8 +288,12 @@ export const extractCountryCode = (phoneNumber: string, countryCode: string = DE
 
 /**
  * Extract national number (without country code)
+ *
+ * @param phoneNumber - Phone number string
+ * @param countryCode - Optional country code (default: 'BD')
+ * @returns National number or null
  */
-export const extractNationalNumber = (phoneNumber: string, countryCode: string = DEFAULT_COUNTRY): string | null => {
+export const extractNationalNumber = (phoneNumber: string, countryCode: CountryCode = DEFAULT_COUNTRY): string | null => {
   const parsed = parsePhone(phoneNumber, countryCode);
   return parsed?.nationalNumber?.toString() ?? null;
 };
@@ -285,14 +303,18 @@ export const extractNationalNumber = (phoneNumber: string, countryCode: string =
 /**
  * Mask phone number for privacy
  * Example: +880 *****5678
+ *
+ * @param phoneNumber - Phone number string
+ * @param countryCode - Optional country code (default: 'BD')
+ * @returns Masked phone number
  */
-export const maskPhone = (phoneNumber: string, countryCode: string = DEFAULT_COUNTRY): string => {
+export const maskPhone = (phoneNumber: string, countryCode: CountryCode = DEFAULT_COUNTRY): string => {
   const normalized = normalizePhone(phoneNumber, countryCode);
   if (!normalized) return phoneNumber;
 
   const length = normalized.length;
-  const visibleStart = 6;
-  const visibleEnd = 4;
+  const visibleStart = 6; // Keep first 6 chars visible
+  const visibleEnd = 4; // Keep last 4 chars visible
 
   if (length <= visibleStart + visibleEnd) {
     return normalized;
@@ -311,7 +333,8 @@ export const maskPhone = (phoneNumber: string, countryCode: string = DEFAULT_COU
 export const maskBdPhone = (phoneNumber: string): string => {
   const normalized = normalizeBdPhone(phoneNumber);
   if (!normalized) return phoneNumber;
-  const start = normalized.slice(0, 4);
+  // Show +880*****5678 format
+  const start = normalized.slice(0, 4); // +880
   const end = normalized.slice(-4);
   return `${start}*****${end}`;
 };
@@ -320,6 +343,9 @@ export const maskBdPhone = (phoneNumber: string): string => {
 
 /**
  * Detect country code from phone number
+ *
+ * @param phoneNumber - Phone number string
+ * @returns Country code (e.g., 'BD') or null
  */
 export const detectCountry = (phoneNumber: string): string | null => {
   try {
@@ -330,6 +356,9 @@ export const detectCountry = (phoneNumber: string): string | null => {
   }
 };
 
+/**
+ * Alias for detectCountry
+ */
 export const getPhoneCountry = detectCountry;
 
 // ==================== Component Extraction ====================
@@ -352,8 +381,12 @@ export interface PhoneComponents {
 
 /**
  * Extract all phone components into an object
+ *
+ * @param phoneNumber - Phone number string
+ * @param countryCode - Optional country code (default: 'BD')
+ * @returns PhoneComponents object or null
  */
-export const getPhoneComponents = (phoneNumber: string, countryCode: string = DEFAULT_COUNTRY): PhoneComponents => {
+export const getPhoneComponents = (phoneNumber: string, countryCode: CountryCode = DEFAULT_COUNTRY): PhoneComponents => {
   const isValid = isValidPhone(phoneNumber, countryCode);
   const parsed = parsePhone(phoneNumber, countryCode);
 
@@ -393,5 +426,5 @@ export const getPhoneComponents = (phoneNumber: string, countryCode: string = DE
 
 // ==================== Type Exports ====================
 
-// ✅ FIXED: Export types (interfaces already exported above)
-export type { PhoneComponents, PhoneNumber, CountryCode };
+export type { PhoneComponents, PhoneNumber };
+export type { CountryCode } from 'libphonenumber-js';
