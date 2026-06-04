@@ -2,7 +2,7 @@
  * Email Utilities - Email normalization and formatting
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  *
- * @module shared-utils/src/validation/email.util
+ * @module shared-utils/validation/email.util
  *
  * RULES:
  * ✅ ONLY email normalization, validation, formatting - NO business logic
@@ -13,21 +13,36 @@
  */
 
 import validator from 'validator';
-import { EMAIL_CONFIG } from '@vubon/auth-constants';
+// ✅ FIXED: Correct package name
+import { EMAIL_CONFIG } from '@vubon/shared-constants';
 
 // ==================== Constants (from shared-constants) ====================
 
-// Email regex pattern from constants
-const EMAIL_REGEX = EMAIL_CONFIG.EMAIL_REGEX;
+// Email regex pattern from constants (with fallback)
+const EMAIL_REGEX = EMAIL_CONFIG?.EMAIL_REGEX || /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/;
 
 // Common email providers (for categorization)
-const COMMON_EMAIL_DOMAINS = EMAIL_CONFIG.COMMON_EMAIL_DOMAINS;
+const COMMON_EMAIL_DOMAINS = EMAIL_CONFIG?.COMMON_EMAIL_DOMAINS || [
+  'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com',
+  'icloud.com', 'aol.com', 'protonmail.com', 'mail.com',
+];
 
 // Bangladesh specific email domains
-const BANGLADESH_EMAIL_DOMAINS = EMAIL_CONFIG.BANGLADESH_EMAIL_DOMAINS;
+const BANGLADESH_EMAIL_DOMAINS = EMAIL_CONFIG?.BANGLADESH_EMAIL_DOMAINS || [
+  'yahoo.com.bd', 'gmail.com', 'outlook.com', 'hotmail.com',
+  'agni.com', 'bdcom.com', 'btcl.net.bd', 'dhaka.net',
+];
 
 // Educational institutions in Bangladesh
-const EDUCATIONAL_DOMAINS = EMAIL_CONFIG.EDUCATIONAL_DOMAINS;
+const EDUCATIONAL_DOMAINS = EMAIL_CONFIG?.EDUCATIONAL_DOMAINS || [
+  'du.ac.bd', 'buet.ac.bd', 'ru.ac.bd', 'cu.ac.bd', 'ju.ac.bd',
+  'northsouth.edu', 'bracu.ac.bd', 'aiub.edu', 'iub.edu.bd',
+];
+
+// Create Sets for O(1) lookup
+const COMMON_EMAIL_DOMAINS_SET = new Set(COMMON_EMAIL_DOMAINS);
+const BANGLADESH_EMAIL_DOMAINS_SET = new Set(BANGLADESH_EMAIL_DOMAINS);
+const EDUCATIONAL_DOMAINS_SET = new Set(EDUCATIONAL_DOMAINS);
 
 // ==================== Normalization ====================
 
@@ -125,8 +140,6 @@ export const hasMxRecords = async (email: string): Promise<boolean> => {
   const domain = getEmailDomain(email);
   if (!domain) return false;
 
-  // Note: This requires a DNS lookup - only use when necessary
-  // For pure validation, use isValidEmail() instead
   try {
     const dns = await import('dns');
     const { promises } = dns;
@@ -188,7 +201,8 @@ export const getEmailDomain = (email: string): string | null => {
 export const isCommonEmailDomain = (email: string): boolean => {
   const domain = getEmailDomain(email);
   if (!domain) return false;
-  return COMMON_EMAIL_DOMAINS.includes(domain);
+  // ✅ FIXED: Using Set for type-safe includes
+  return COMMON_EMAIL_DOMAINS_SET.has(domain);
 };
 
 /**
@@ -200,7 +214,8 @@ export const isCommonEmailDomain = (email: string): boolean => {
 export const isBangladeshEmailDomain = (email: string): boolean => {
   const domain = getEmailDomain(email);
   if (!domain) return false;
-  return BANGLADESH_EMAIL_DOMAINS.includes(domain);
+  // ✅ FIXED: Using Set for type-safe includes
+  return BANGLADESH_EMAIL_DOMAINS_SET.has(domain);
 };
 
 /**
@@ -218,7 +233,8 @@ export const isEducationalEmail = (email: string): boolean => {
     return true;
   }
 
-  return EDUCATIONAL_DOMAINS.includes(domain);
+  // ✅ FIXED: Using Set for type-safe includes
+  return EDUCATIONAL_DOMAINS_SET.has(domain);
 };
 
 /**
@@ -278,4 +294,5 @@ export const getEmailComponents = (email: string): EmailComponents | null => {
 
 // ==================== Type Exports ====================
 
-export type { EmailComponents };
+// ✅ FIXED: EmailComponents already exported as interface above
+// No duplicate export needed
