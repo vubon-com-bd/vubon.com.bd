@@ -31,7 +31,6 @@ export const ResetEmailSchema = z
   .brand('ResetEmail');
 
 // Phone Schema for Password Reset (Bangladesh specific)
-// ✅ FIXED: Renamed to avoid conflict
 export const ResetPhoneSchema = z
   .string()
   .regex(/^(?:\+880|0)1[3-9]\d{8}$/, 'Invalid Bangladesh phone number format. Use format: 01XXXXXXXXX or +8801XXXXXXXXX')
@@ -346,12 +345,13 @@ export const PasswordResetErrorSchema = z
 
 // ==================== Helper Types (For frontend) ====================
 
-export type ResetPasswordFormData = ResetPasswordRequestSchema;
-export type ForgotPasswordFormData = ForgotPasswordSchema;
-export type ForgotPasswordPhoneFormData = ForgotPasswordPhoneSchema;
-export type StrongResetPasswordFormData = StrongResetPasswordRequestSchema;
-export type RequestResetOTPFormData = RequestResetOTPSchema;
-export type VerifyResetOTPFormData = VerifyResetOTPSchema;
+// ✅ FIXED: Using z.infer for type extraction
+export type ResetPasswordFormData = z.infer<typeof ResetPasswordRequestSchema>;
+export type ForgotPasswordFormData = z.infer<typeof ForgotPasswordSchema>;
+export type ForgotPasswordPhoneFormData = z.infer<typeof ForgotPasswordPhoneSchema>;
+export type StrongResetPasswordFormData = z.infer<typeof StrongResetPasswordRequestSchema>;
+export type RequestResetOTPFormData = z.infer<typeof RequestResetOTPSchema>;
+export type VerifyResetOTPFormData = z.infer<typeof VerifyResetOTPSchema>;
 
 // ==================== Type Exports ====================
 
