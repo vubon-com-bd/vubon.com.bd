@@ -248,7 +248,6 @@ export const UpdatePermissionSchema = z
   .brand('UpdatePermissionRequest');
 
 // Delete Permission Request
-// ✅ FIXED: Removed unused 'data' parameter
 export const DeletePermissionSchema = z
   .object({
     permissionId: PermissionIdSchema,
@@ -369,8 +368,10 @@ export const PermissionSyncResponseSchema = z
   .strict()
   .brand('PermissionSyncResponse');
 
+// ==================== Permission Tree Node Schema ====================
+
 // Permission Tree Node Response (For UI)
-// ✅ FIXED: isGranted as optional boolean
+// ✅ FIXED: Properly typed recursive schema
 export const PermissionTreeNodeSchema: z.ZodType<{
   resource: string;
   resourceLabel: string;
@@ -395,7 +396,7 @@ export const PermissionTreeNodeSchema: z.ZodType<{
         isGranted: z.boolean().optional(),
       })
     ),
-    children: z.array(PermissionTreeNodeSchema).optional(),
+    children: z.array(z.lazy(() => PermissionTreeNodeSchema)).optional(),
   })
 ).brand('PermissionTreeNode');
 
