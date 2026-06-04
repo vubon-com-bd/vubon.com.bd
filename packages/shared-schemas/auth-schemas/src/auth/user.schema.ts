@@ -10,7 +10,6 @@
  * ✅ NO side effects, NO async
  * ✅ Reusable primitives from constants
  * ✅ Strict mode enabled
- * ✅ Type exports with z.infer
  */
 
 import { z } from 'zod';
@@ -27,10 +26,8 @@ import {
 
 // ==================== Primitives (Reusable) ====================
 
-// User ID Schema
 export const UserIdSchema = z.string().uuid('Invalid user ID format').brand('UserId');
 
-// User Email Schema (Based on REGEX_EMAIL constants)
 export const UserEmailSchema = z
   .string()
   .min(1, 'Email is required')
@@ -42,7 +39,6 @@ export const UserEmailSchema = z
   .toLowerCase()
   .brand('UserEmail');
 
-// User Phone Schema (Bangladesh specific - Based on REGEX_PHONE)
 export const UserPhoneSchema = z
   .string()
   .regex(REGEX_PHONE.BANGLADESH, 'Invalid Bangladesh phone number format. Use format: 01XXXXXXXXX or +8801XXXXXXXXX')
@@ -59,7 +55,6 @@ export const UserPhoneSchema = z
   .nullable()
   .brand('UserPhone');
 
-// User Phone Required Schema
 export const UserPhoneRequiredSchema = z
   .string()
   .regex(REGEX_PHONE.BANGLADESH, 'Invalid Bangladesh phone number format. Use format: 01XXXXXXXXX or +8801XXXXXXXXX')
@@ -74,7 +69,6 @@ export const UserPhoneRequiredSchema = z
   })
   .brand('UserPhoneRequired');
 
-// User First Name Schema (Supports English & Bengali)
 export const UserFirstNameSchema = z
   .string()
   .min(1, 'First name is required')
@@ -84,7 +78,6 @@ export const UserFirstNameSchema = z
   .trim()
   .brand('UserFirstName');
 
-// User Last Name Schema (Supports English & Bengali)
 export const UserLastNameSchema = z
   .string()
   .min(1, 'Last name is required')
@@ -94,7 +87,6 @@ export const UserLastNameSchema = z
   .trim()
   .brand('UserLastName');
 
-// User Display Name Schema
 export const UserDisplayNameSchema = z
   .string()
   .min(3, 'Display name must be at least 3 characters')
@@ -103,7 +95,6 @@ export const UserDisplayNameSchema = z
   .trim()
   .brand('UserDisplayName');
 
-// User Avatar Schema
 export const UserAvatarSchema = z
   .string()
   .url('Invalid avatar URL')
@@ -112,14 +103,12 @@ export const UserAvatarSchema = z
   .nullable()
   .brand('UserAvatar');
 
-// User Password Schema (Based on PASSWORD_POLICY constants)
 export const UserPasswordSchema = z
   .string()
   .min(PASSWORD_POLICY.MIN_LENGTH, `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters`)
   .max(PASSWORD_POLICY.MAX_LENGTH, `Password cannot exceed ${PASSWORD_POLICY.MAX_LENGTH} characters`)
   .brand('UserPassword');
 
-// User Strong Password Schema (With all validations)
 export const UserStrongPasswordSchema = z
   .string()
   .min(PASSWORD_POLICY.MIN_LENGTH, `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters`)
@@ -156,7 +145,6 @@ export const UserStrongPasswordSchema = z
   })
   .brand('UserStrongPassword');
 
-// User Status Schema (Based on constants)
 export const UserStatusSchema = z.enum([
   USER_STATUS.ACTIVE,
   USER_STATUS.INACTIVE,
@@ -167,7 +155,6 @@ export const UserStatusSchema = z.enum([
   'locked',
 ]);
 
-// User Verification Status Schema
 export const UserVerificationStatusSchema = z.enum([
   'unverified',
   'email_verified',
@@ -177,7 +164,6 @@ export const UserVerificationStatusSchema = z.enum([
   'document_verified',
 ]);
 
-// User Role Schema (Based on constants)
 export const UserRoleSchema = z.enum([
   ROLES.SUPER_ADMIN,
   ROLES.ADMIN,
@@ -202,7 +188,6 @@ export const UserRoleSchema = z.enum([
   'mfs_agent',
 ]);
 
-// User Tier Schema (Bangladesh specific - loyalty program)
 export const UserTierSchema = z.enum([
   USER_TIER.BRONZE,
   USER_TIER.SILVER,
@@ -211,7 +196,6 @@ export const UserTierSchema = z.enum([
   USER_TIER.DIAMOND,
 ]);
 
-// User Metadata Schema (Flexible key-value storage)
 export const UserMetadataSchema = z
   .record(
     z.string(),
@@ -228,7 +212,6 @@ export const UserMetadataSchema = z
 
 // ==================== Domain Schemas ====================
 
-// Core User Schema (Domain model)
 export const UserSchema = z
   .object({
     id: UserIdSchema,
@@ -252,7 +235,6 @@ export const UserSchema = z
     updatedAt: z.date(),
     deletedAt: z.date().nullable(),
     metadata: UserMetadataSchema.optional(),
-    // Bangladesh specific
     nidNumber: z.string().optional().nullable(),
     tinNumber: z.string().optional().nullable(),
     tradeLicenseNumber: z.string().optional().nullable(),
@@ -265,7 +247,6 @@ export const UserSchema = z
 
 // ==================== Request Schemas ====================
 
-// Create User Request
 export const CreateUserSchema = z
   .object({
     email: UserEmailSchema,
@@ -288,7 +269,6 @@ export const CreateUserSchema = z
   })
   .brand('CreateUserRequest');
 
-// Update User Request
 export const UpdateUserSchema = z
   .object({
     firstName: UserFirstNameSchema.optional(),
@@ -302,7 +282,6 @@ export const UpdateUserSchema = z
   .strict()
   .brand('UpdateUserRequest');
 
-// Update User Profile Request (Extended)
 export const UpdateUserProfileSchema = z
   .object({
     firstName: UserFirstNameSchema.optional(),
@@ -318,7 +297,6 @@ export const UpdateUserProfileSchema = z
   .strict()
   .brand('UpdateUserProfileRequest');
 
-// Update User Role Request (Admin only)
 export const UpdateUserRoleSchema = z
   .object({
     userId: UserIdSchema,
@@ -329,7 +307,6 @@ export const UpdateUserRoleSchema = z
   .strict()
   .brand('UpdateUserRoleRequest');
 
-// Update User Status Request (Admin only)
 export const UpdateUserStatusSchema = z
   .object({
     userId: UserIdSchema,
@@ -340,7 +317,6 @@ export const UpdateUserStatusSchema = z
   .strict()
   .brand('UpdateUserStatusRequest');
 
-// User Filters Schema (For listing users)
 export const UserFiltersSchema = z
   .object({
     status: UserStatusSchema.optional(),
@@ -364,7 +340,6 @@ export const UserFiltersSchema = z
 
 // ==================== Response Schemas ====================
 
-// User Response Schema (Omit sensitive/deleted fields)
 export const UserResponseSchema = z.object({
   id: UserIdSchema,
   email: UserEmailSchema,
@@ -382,7 +357,6 @@ export const UserResponseSchema = z.object({
   lastLoginAt: z.date().nullable(),
 }).brand('UserResponse');
 
-// User Profile Response Schema (Limited fields for profile view)
 export const UserProfileResponseSchema = z
   .object({
     id: UserIdSchema,
@@ -403,7 +377,6 @@ export const UserProfileResponseSchema = z
   .strict()
   .brand('UserProfileResponse');
 
-// User List Response Schema (Paginated)
 export const UserListResponseSchema = z
   .object({
     users: z.array(UserResponseSchema),
@@ -417,7 +390,6 @@ export const UserListResponseSchema = z
   .strict()
   .brand('UserListResponse');
 
-// User Activity Summary Schema
 export const UserActivitySummarySchema = z
   .object({
     userId: UserIdSchema,
@@ -437,7 +409,6 @@ export const UserActivitySummarySchema = z
   .strict()
   .brand('UserActivitySummary');
 
-// User Preferences Schema
 export const UserPreferencesSchema = z
   .object({
     language: z.enum(['en', 'bn']).default('en'),
@@ -483,37 +454,3 @@ export const UserErrorSchema = z
   })
   .strict()
   .brand('UserError');
-
-// ==================== Type Exports (Only unique names) ====================
-
-// Types with `Schema` suffix are values, types with same name without `Schema` are z.infer types
-export type UserId = z.infer<typeof UserIdSchema>;
-export type UserEmail = z.infer<typeof UserEmailSchema>;
-export type UserPhone = z.infer<typeof UserPhoneSchema>;
-export type UserPhoneRequired = z.infer<typeof UserPhoneRequiredSchema>;
-export type UserFirstName = z.infer<typeof UserFirstNameSchema>;
-export type UserLastName = z.infer<typeof UserLastNameSchema>;
-export type UserDisplayName = z.infer<typeof UserDisplayNameSchema>;
-export type UserAvatar = z.infer<typeof UserAvatarSchema>;
-export type UserPassword = z.infer<typeof UserPasswordSchema>;
-export type UserStrongPassword = z.infer<typeof UserStrongPasswordSchema>;
-export type UserStatus = z.infer<typeof UserStatusSchema>;
-export type UserVerificationStatus = z.infer<typeof UserVerificationStatusSchema>;
-export type UserRole = z.infer<typeof UserRoleSchema>;
-export type UserTier = z.infer<typeof UserTierSchema>;
-export type UserMetadata = z.infer<typeof UserMetadataSchema>;
-
-export type User = z.infer<typeof UserSchema>;
-export type CreateUserRequest = z.infer<typeof CreateUserSchema>;
-export type UpdateUserRequest = z.infer<typeof UpdateUserSchema>;
-export type UpdateUserProfileRequest = z.infer<typeof UpdateUserProfileSchema>;
-export type UpdateUserRoleRequest = z.infer<typeof UpdateUserRoleSchema>;
-export type UpdateUserStatusRequest = z.infer<typeof UpdateUserStatusSchema>;
-export type UserFilters = z.infer<typeof UserFiltersSchema>;
-
-export type UserResponse = z.infer<typeof UserResponseSchema>;
-export type UserProfileResponse = z.infer<typeof UserProfileResponseSchema>;
-export type UserListResponse = z.infer<typeof UserListResponseSchema>;
-export type UserActivitySummary = z.infer<typeof UserActivitySummarySchema>;
-export type UserPreferences = z.infer<typeof UserPreferencesSchema>;
-export type UserError = z.infer<typeof UserErrorSchema>;
