@@ -113,7 +113,8 @@ export const formatWithCommasBD = (value: number): string => {
 
   // Split integer and decimal parts
   const parts = validValue.toString().split('.');
-  let integerPart = parts[0];
+  // ✅ FIXED: Ensure integerPart has a default value
+  let integerPart = parts[0] || '0';
   const decimalPart = parts[1] ? `.${parts[1]}` : '';
 
   // Format integer part with BD style (last 3 digits, then groups of 2)
