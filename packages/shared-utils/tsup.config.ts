@@ -71,7 +71,7 @@ export default defineConfig({
   // Bundle dependencies? No - dependencies should be external
   bundle: false,
   
-  // External dependencies (peer dependencies)
+  // ✅ FIXED: Correct package names in external
   external: [
     'bcryptjs',
     'date-fns',
@@ -79,10 +79,10 @@ export default defineConfig({
     'libphonenumber-js',
     'ua-parser-js',
     'validator',
-    // Peer dependencies
-    '@vubon/auth-constants',
+    // Peer dependencies (✅ সঠিক নাম)
+    '@vubon/shared-constants',
     '@vubon/shared-types',
-    '@vubon/auth-schemas',
+    '@vubon/shared-schemas',
   ],
   
   // Platform - neutral (works in Node.js)
