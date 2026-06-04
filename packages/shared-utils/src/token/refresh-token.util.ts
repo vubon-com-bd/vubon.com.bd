@@ -13,24 +13,38 @@
  */
 
 import crypto from 'crypto';
-// ✅ FIXED: Correct package name
-import { TOKEN_CONFIG, REFRESH_TOKEN_CONFIG } from '@vubon/shared-constants';
 
-// ==================== Constants (from shared-constants) ====================
+// ==================== Local Fallback Constants ====================
 
-export const DEFAULT_REFRESH_TOKEN_LENGTH = TOKEN_CONFIG.DEFAULT_LENGTH;  // 32
-export const MIN_REFRESH_TOKEN_LENGTH = TOKEN_CONFIG.MIN_LENGTH;          // 16
-export const MAX_REFRESH_TOKEN_LENGTH = TOKEN_CONFIG.MAX_LENGTH;          // 256
+const TOKEN_CONFIG = {
+  DEFAULT_LENGTH: 32,
+  MIN_LENGTH: 16,
+  MAX_LENGTH: 256,
+};
 
-// ✅ FIXED: Add fallbacks for missing constants
-const REFRESH_TOKEN_VERSION_LENGTH = REFRESH_TOKEN_CONFIG?.VERSION_LENGTH || 4;
-const DEFAULT_VERSION = REFRESH_TOKEN_CONFIG?.DEFAULT_VERSION || 1;
-const MAX_VERSION = REFRESH_TOKEN_CONFIG?.MAX_VERSION || 9999;
-const TOKEN_VERSION_SEPARATOR = REFRESH_TOKEN_CONFIG?.VERSION_SEPARATOR || ':';
-const FAMILY_ID_LENGTH = REFRESH_TOKEN_CONFIG?.FAMILY_ID_LENGTH || 32;
+const REFRESH_TOKEN_CONFIG = {
+  VERSION_LENGTH: 4,
+  DEFAULT_VERSION: 1,
+  MAX_VERSION: 9999,
+  VERSION_SEPARATOR: ':',
+  FAMILY_ID_LENGTH: 32,
+};
+
+// ==================== Constants ====================
+
+export const DEFAULT_REFRESH_TOKEN_LENGTH = TOKEN_CONFIG.DEFAULT_LENGTH;
+export const MIN_REFRESH_TOKEN_LENGTH = TOKEN_CONFIG.MIN_LENGTH;
+export const MAX_REFRESH_TOKEN_LENGTH = TOKEN_CONFIG.MAX_LENGTH;
+
+const REFRESH_TOKEN_VERSION_LENGTH = REFRESH_TOKEN_CONFIG.VERSION_LENGTH;
+const DEFAULT_VERSION = REFRESH_TOKEN_CONFIG.DEFAULT_VERSION;
+const MAX_VERSION = REFRESH_TOKEN_CONFIG.MAX_VERSION;
+const TOKEN_VERSION_SEPARATOR = REFRESH_TOKEN_CONFIG.VERSION_SEPARATOR;
+const FAMILY_ID_LENGTH = REFRESH_TOKEN_CONFIG.FAMILY_ID_LENGTH;
 
 // Character sets for token generation
-const HEX_CHARS = '0123456789abcdef';
+// ✅ FIXED: Removed unused HEX_CHARS (was never read)
+// const HEX_CHARS = '0123456789abcdef';
 const BASE64_URL_SAFE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 
 // ==================== Private Helpers ====================
@@ -72,7 +86,10 @@ const generateRandomBase64Url = (length: number): string => {
   const bytes = crypto.randomBytes(length);
   let result = '';
   for (let i = 0; i < bytes.length; i++) {
-    result += BASE64_URL_SAFE[bytes[i] % BASE64_URL_SAFE.length];
+    const byte = bytes[i];
+    if (byte !== undefined) {
+      result += BASE64_URL_SAFE[byte % BASE64_URL_SAFE.length];
+    }
   }
   return result;
 };
@@ -362,7 +379,6 @@ export const isTokenVersionNewer = (token: string, expectedVersion: number): boo
  * @returns Mobile-optimized refresh token
  */
 export const generateMobileRefreshToken = (): string => {
-  // Shorter expiry indicator (encoded in token structure)
   return generateUrlSafeRefreshToken(24); // 24 bytes = 32 chars base64url
 };
 
