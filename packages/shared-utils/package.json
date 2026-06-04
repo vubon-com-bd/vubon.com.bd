@@ -1,5 +1,5 @@
 {
-  "name": "@vubon/shared-utils",
+  "name": "@vubon/shared-utils", 
   "version": "1.0.0",
   "private": true,
   "description": "Pure, stateless, deterministic utility layer for vubon.com.bd ecommerce ecosystem",
