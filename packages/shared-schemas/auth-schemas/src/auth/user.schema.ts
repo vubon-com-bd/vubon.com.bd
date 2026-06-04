@@ -212,7 +212,6 @@ export const UserTierSchema = z.enum([
 ]);
 
 // User Metadata Schema (Flexible key-value storage)
-// ✅ FIXED: Replaced .partial() with .optional() for each value type
 export const UserMetadataSchema = z
   .record(
     z.string(),
@@ -274,7 +273,7 @@ export const CreateUserSchema = z
     firstName: UserFirstNameSchema,
     lastName: UserLastNameSchema,
     password: UserStrongPasswordSchema,
-    confirmPassword: UserPasswordSchema,
+    confirmPassword: UserStrongPasswordSchema,
     role: UserRoleSchema.optional().default(ROLES.CUSTOMER),
     acceptTerms: z.boolean().refine((val) => val === true, {
       message: 'You must accept the terms and conditions',
@@ -366,7 +365,6 @@ export const UserFiltersSchema = z
 // ==================== Response Schemas ====================
 
 // User Response Schema (Omit sensitive/deleted fields)
-// ✅ FIXED: Used .pick() instead of .omit() for branded types
 export const UserResponseSchema = z.object({
   id: UserIdSchema,
   email: UserEmailSchema,
@@ -486,8 +484,9 @@ export const UserErrorSchema = z
   .strict()
   .brand('UserError');
 
-// ==================== Type Exports ====================
+// ==================== Type Exports (Only unique names) ====================
 
+// Types with `Schema` suffix are values, types with same name without `Schema` are z.infer types
 export type UserId = z.infer<typeof UserIdSchema>;
 export type UserEmail = z.infer<typeof UserEmailSchema>;
 export type UserPhone = z.infer<typeof UserPhoneSchema>;
