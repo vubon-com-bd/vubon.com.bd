@@ -16,15 +16,9 @@
 import { z } from 'zod';
 
 // Import constants from shared-constants layer (Enterprise rule)
-// ✅ FIXED: Correct package name
+// ✅ FIXED: Removed unused imports
 import {
-  ROLES,
-  ROLE_HIERARCHY,
-  ROLE_METADATA,
-  ROLE_COLORS,
   ROLE_CATEGORIES,
-  ROLE_INHERITANCE,
-  SYSTEM_ROLES,
 } from '@vubon/shared-constants';
 
 // Import permission string schema from permission.schema
@@ -43,21 +37,19 @@ export const RoleNameSchema = z
 // Role ID Schema
 export const RoleIdSchema = z.string().uuid('Invalid role ID format').brand('RoleId');
 
-// Role Hierarchy Schema (Role to level mapping)
-export const RoleHierarchySchema = z.record(RoleNameSchema, z.number().int().min(0).max(100));
-
-// Role Category Schema (Based on constants)
+// Role Category Schema
+// ✅ FIXED: Use proper enum values
 export const RoleCategorySchema = z.enum([
-  ROLE_CATEGORIES.SYSTEM,
-  ROLE_CATEGORIES.MANAGEMENT,
-  ROLE_CATEGORIES.OPERATIONS,
-  ROLE_CATEGORIES.VENDOR,
-  ROLE_CATEGORIES.DELIVERY,
-  ROLE_CATEGORIES.CUSTOMER,
-  ROLE_CATEGORIES.BANGLADESH,
+  'System Administration',
+  'Management',
+  'Operations',
+  'Vendor Management',
+  'Delivery & Logistics',
+  'Customer',
+  'Bangladesh Specific',
 ]);
 
-// Role Color Schema (Based on constants with fallback)
+// Role Color Schema
 export const RoleColorSchema = z
   .string()
   .regex(/^#[0-9A-Fa-f]{6}$/, 'Invalid color format. Must be a valid hex color (e.g., #FF0000)')
@@ -137,7 +129,7 @@ export const CreateRoleSchema = z
     nameBn: z.string().optional(),
     description: z.string().min(1, 'Description is required').max(500, 'Description too long'),
     descriptionBn: z.string().max(500).optional(),
-    category: RoleCategorySchema.default('operations'),
+    category: RoleCategorySchema.default('Operations'),
     permissions: z.array(PermissionStringSchema).min(1, 'Role must have at least one permission'),
     parentRole: RoleNameSchema.optional(),
     color: RoleColorSchema.optional(),
@@ -393,7 +385,7 @@ export const RoleHierarchyCheckResponseSchema = z
     lowerHierarchy: z.number().int(),
     isHigher: z.boolean(),
     hierarchyDifference: z.number().int(),
-    canManage: z.boolean(), // Whether higher role can manage lower role
+    canManage: z.boolean(),
   })
   .strict()
   .brand('RoleHierarchyCheckResponse');
@@ -462,14 +454,6 @@ export const RoleErrorSchema = z
   })
   .strict()
   .brand('RoleError');
-
-// ==================== System Roles Constant (Type-safe) ====================
-
-export const SystemRolesList = SYSTEM_ROLES as readonly string[];
-
-// ==================== Role Hierarchy Constant (Type-safe) ====================
-
-export const RoleHierarchyMap = ROLE_HIERARCHY;
 
 // ==================== Type Exports ====================
 
