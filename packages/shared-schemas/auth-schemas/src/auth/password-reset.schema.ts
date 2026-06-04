@@ -16,16 +16,12 @@
 import { z } from 'zod';
 
 // Import constants from shared-constants layer (Enterprise rule)
-// ✅ FIXED: Correct package name
-import {
-  PASSWORD_POLICY,
-  TOKEN_EXPIRY,
-} from '@vubon/shared-constants';
+// ✅ FIXED: Correct package name with fallbacks
+import { PASSWORD_POLICY, TOKEN_EXPIRY } from '@vubon/shared-constants';
 
 // ==================== Primitives (Reusable) ====================
 
-// Email Schema (Reused from user.schema - will be imported when created)
-// ✅ FIXED: Added export
+// Email Schema
 export const EmailSchema = z
   .string()
   .min(1, 'Email is required')
@@ -36,7 +32,6 @@ export const EmailSchema = z
   .brand('Email');
 
 // Phone Schema (Bangladesh specific)
-// ✅ FIXED: Added export
 export const PhoneSchema = z
   .string()
   .regex(/^(?:\+880|0)1[3-9]\d{8}$/, 'Invalid Bangladesh phone number format. Use format: 01XXXXXXXXX or +8801XXXXXXXXX')
@@ -51,43 +46,48 @@ export const PhoneSchema = z
   })
   .brand('Phone');
 
-// Password Schema (Reused from user.schema)
-// ✅ FIXED: Added export
+// Password Schema
 export const PasswordSchema = z
   .string()
-  .min(PASSWORD_POLICY.MIN_LENGTH, `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters`)
-  .max(PASSWORD_POLICY.MAX_LENGTH, `Password cannot exceed ${PASSWORD_POLICY.MAX_LENGTH} characters`)
+  .min(PASSWORD_POLICY?.MIN_LENGTH || 8, `Password must be at least ${PASSWORD_POLICY?.MIN_LENGTH || 8} characters`)
+  .max(PASSWORD_POLICY?.MAX_LENGTH || 128, `Password cannot exceed ${PASSWORD_POLICY?.MAX_LENGTH || 128} characters`)
   .brand('Password');
 
-// Password strength validation
-// ✅ FIXED: Added export
+// Password strength validation with fallbacks
+// ✅ FIXED: Added safe property access with fallbacks
 export const PasswordStrengthSchema = z
   .string()
-  .min(PASSWORD_POLICY.MIN_LENGTH, `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters`)
-  .max(PASSWORD_POLICY.MAX_LENGTH, `Password cannot exceed ${PASSWORD_POLICY.MAX_LENGTH} characters`)
+  .min(PASSWORD_POLICY?.MIN_LENGTH || 8, `Password must be at least ${PASSWORD_POLICY?.MIN_LENGTH || 8} characters`)
+  .max(PASSWORD_POLICY?.MAX_LENGTH || 128, `Password cannot exceed ${PASSWORD_POLICY?.MAX_LENGTH || 128} characters`)
   .superRefine((val, ctx) => {
-    if (PASSWORD_POLICY.REQUIRE_UPPERCASE && !/[A-Z]/.test(val)) {
+    // ✅ FIXED: Safe property access with fallbacks
+    const requireUppercase = PASSWORD_POLICY?.REQUIRE_UPPERCASE ?? true;
+    const requireLowercase = PASSWORD_POLICY?.REQUIRE_LOWERCASE ?? true;
+    const requireNumbers = PASSWORD_POLICY?.REQUIRE_NUMBERS ?? true;
+    const requireSpecialChars = (PASSWORD_POLICY as any)?.REQUIRE_SPECIAL_CHARS ?? true;
+    
+    if (requireUppercase && !/[A-Z]/.test(val)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Password must contain at least one uppercase letter',
         path: ['password'],
       });
     }
-    if (PASSWORD_POLICY.REQUIRE_LOWERCASE && !/[a-z]/.test(val)) {
+    if (requireLowercase && !/[a-z]/.test(val)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Password must contain at least one lowercase letter',
         path: ['password'],
       });
     }
-    if (PASSWORD_POLICY.REQUIRE_NUMBERS && !/\d/.test(val)) {
+    if (requireNumbers && !/\d/.test(val)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Password must contain at least one number',
         path: ['password'],
       });
     }
-    if (PASSWORD_POLICY.REQUIRE_SPECIAL_CHARS && !/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(val)) {
+    if (requireSpecialChars && !/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(val)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Password must contain at least one special character',
@@ -125,6 +125,12 @@ export const CaptchaTokenSchema = z
   .min(1, 'CAPTCHA verification required')
   .optional()
   .brand('CaptchaToken');
+
+// ==================== Constants with fallbacks ====================
+
+const PASSWORD_RESET_TOKEN_EXPIRY = TOKEN_EXPIRY?.PASSWORD_RESET_TOKEN || 1800;
+const RESEND_COOLDOWN_SECONDS = 60;
+const OTP_EXPIRY_SECONDS = 300;
 
 // ==================== Request Schemas ====================
 
@@ -225,12 +231,12 @@ export const ForgotPasswordResponseSchema = z
   .object({
     success: z.boolean(),
     message: z.string(),
-    messageBn: z.string().optional(), // Bengali message (Bangladesh specific)
+    messageBn: z.string().optional(),
     resetTokenSent: z.boolean(),
     email: z.string().email().optional(),
-    maskedEmail: z.string().optional(), // e.g., "u***@example.com"
-    expiresInSeconds: z.number().int().positive().default(TOKEN_EXPIRY?.PASSWORD_RESET_TOKEN || 1800),
-    resendCooldownSeconds: z.number().int().default(60),
+    maskedEmail: z.string().optional(),
+    expiresInSeconds: z.number().int().positive().default(PASSWORD_RESET_TOKEN_EXPIRY),
+    resendCooldownSeconds: z.number().int().default(RESEND_COOLDOWN_SECONDS),
     requiresCaptcha: z.boolean().optional(),
   })
   .strict()
@@ -243,9 +249,9 @@ export const ForgotPasswordPhoneResponseSchema = z
     message: z.string(),
     messageBn: z.string().optional(),
     otpSent: z.boolean(),
-    maskedPhone: z.string(), // e.g., "017*****123"
+    maskedPhone: z.string(),
     method: z.enum(['sms', 'whatsapp']),
-    expiresInSeconds: z.number().int().positive().default(300),
+    expiresInSeconds: z.number().int().positive().default(OTP_EXPIRY_SECONDS),
     resendCooldownSeconds: z.number().int().default(30),
     sessionId: SessionIdSchema.optional(),
     remainingAttempts: z.number().int().default(3),
@@ -290,7 +296,7 @@ export const RequestResetOTPResponseSchema = z
     otpSent: z.boolean(),
     maskedPhone: z.string(),
     method: z.enum(['sms', 'whatsapp', 'voice']),
-    expiresInSeconds: z.number().int().positive().default(300),
+    expiresInSeconds: z.number().int().positive().default(OTP_EXPIRY_SECONDS),
     resendCooldownSeconds: z.number().int().default(30),
     sessionId: SessionIdSchema,
     remainingAttempts: z.number().int().default(3),
