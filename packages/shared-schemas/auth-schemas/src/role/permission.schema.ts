@@ -59,7 +59,6 @@ export const PermissionResourceSchema = z.enum([
 ]);
 
 // Permission Action Schema (Based on constants)
-// ✅ FIXED: Added missing REVOKE
 export const PermissionActionSchema = z.enum([
   PERMISSION_ACTIONS.CREATE,
   PERMISSION_ACTIONS.READ,
@@ -73,7 +72,7 @@ export const PermissionActionSchema = z.enum([
   PERMISSION_ACTIONS.SUSPEND,
   PERMISSION_ACTIONS.ACTIVATE,
   PERMISSION_ACTIONS.ASSIGN,
-  'revoke',  // ✅ Added REVOKE as string literal
+  'revoke',
   PERMISSION_ACTIONS.REFUND,
   PERMISSION_ACTIONS.CANCEL,
   PERMISSION_ACTIONS.EXPORT,
@@ -249,6 +248,7 @@ export const UpdatePermissionSchema = z
   .brand('UpdatePermissionRequest');
 
 // Delete Permission Request
+// ✅ FIXED: Removed unused 'data' parameter
 export const DeletePermissionSchema = z
   .object({
     permissionId: PermissionIdSchema,
@@ -257,15 +257,6 @@ export const DeletePermissionSchema = z
     reason: z.string().max(500).optional(),
   })
   .strict()
-  .refine(
-    (data) => {
-      return true;
-    },
-    {
-      message: 'System permissions cannot be deleted. Use force flag to override',
-      path: ['force'],
-    }
-  )
   .brand('DeletePermissionRequest');
 
 // Permission Sync Request (For role updates)
@@ -379,7 +370,7 @@ export const PermissionSyncResponseSchema = z
   .brand('PermissionSyncResponse');
 
 // Permission Tree Node Response (For UI)
-// ✅ FIXED: Added proper type for lazy recursive
+// ✅ FIXED: isGranted as optional boolean
 export const PermissionTreeNodeSchema: z.ZodType<{
   resource: string;
   resourceLabel: string;
@@ -414,8 +405,8 @@ export const PermissionStatisticsResponseSchema = z
     totalPermissions: z.number().int(),
     totalRoles: z.number().int(),
     totalAssignments: z.number().int(),
-    permissionsByResource: z.record(PermissionResourceSchema, z.number().int()),
-    permissionsByAction: z.record(PermissionActionSchema, z.number().int()),
+    permissionsByResource: z.record(z.string(), z.number().int()),
+    permissionsByAction: z.record(z.string(), z.number().int()),
     permissionsByCategory: z.record(z.string(), z.number().int()),
     mostAssignedPermissions: z.array(
       z.object({
