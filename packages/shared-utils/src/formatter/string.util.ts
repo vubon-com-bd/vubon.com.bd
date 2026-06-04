@@ -28,9 +28,6 @@ const TITLE_CASE_EXCEPTIONS = STRING_CONFIG?.TITLE_CASE_EXCEPTIONS || [
   'as', 'is', 'was', 'were', 'be', 'been', 'being',
 ];
 
-// ✅ FIXED: Create Set for O(1) lookup and type safety
-const TITLE_CASE_EXCEPTIONS_SET = new Set(TITLE_CASE_EXCEPTIONS);
-
 const SLUG_SPECIAL_CHARS_REGEX = STRING_CONFIG?.SLUG_SPECIAL_CHARS_REGEX || /[^\w\s-]/g;
 const SLUG_MULTIPLE_SEPARATOR_REGEX = STRING_CONFIG?.SLUG_MULTIPLE_SEPARATOR_REGEX || /[\s_-]+/g;
 
@@ -253,7 +250,7 @@ export const toTitleCase = (value: string): string => {
     .toLowerCase()
     .split(' ')
     .map((word, index) => {
-      // ✅ FIXED: Using Set for type-safe includes check
+      // ✅ FIXED: Type-safe check using includes with type assertion
       if (index === 0 || !(TITLE_CASE_EXCEPTIONS as readonly string[]).includes(word)) {
         return capitalize(word);
       }
