@@ -13,8 +13,33 @@
  */
 
 import UAParser from 'ua-parser-js';
-// ✅ FIXED: Correct package name
-import { USER_AGENT_CONFIG } from '@vubon/shared-constants';
+
+// ==================== Local Fallback Constants ====================
+
+const BOT_PATTERNS: RegExp[] = [
+  /bot/i, /crawler/i, /spider/i, /scraper/i, /headless/i,
+  /puppeteer/i, /playwright/i, /selenium/i, /cypress/i,
+  /googlebot/i, /bingbot/i, /slurp/i, /duckduckbot/i,
+  /baiduspider/i, /yandexbot/i, /facebookexternalhit/i,
+  /facebot/i, /twitterbot/i, /linkedinbot/i, /whatsapp/i,
+  /telegrambot/i, /discordbot/i, /slackbot/i,
+];
+
+const MOBILE_INDICATORS: string[] = [
+  'Mobile', 'Android', 'iPhone', 'iPod', 'BlackBerry',
+  'Windows Phone', 'Opera Mini', 'IEMobile',
+];
+
+const TABLET_INDICATORS: string[] = [
+  'iPad', 'Tablet', 'Kindle', 'Silk',
+];
+
+const BD_BROWSER_PATTERNS: { pattern: RegExp; name: string }[] = [
+  { pattern: /ucbrowser/i, name: 'UC Browser' },
+  { pattern: /opera mini/i, name: 'Opera Mini' },
+  { pattern: /samsungbrowser/i, name: 'Samsung Browser' },
+  { pattern: /miui browser/i, name: 'Mi Browser' },
+];
 
 // ==================== Types ====================
 
@@ -54,34 +79,6 @@ export interface DeviceInfo {
   isBot: boolean;
 }
 
-// ==================== Constants (from shared-constants) ====================
-
-// ✅ FIXED: Add fallbacks for missing constants
-const BOT_PATTERNS = USER_AGENT_CONFIG?.BOT_PATTERNS || [
-  /bot/i, /crawler/i, /spider/i, /scraper/i, /headless/i,
-  /puppeteer/i, /playwright/i, /selenium/i, /cypress/i,
-  /googlebot/i, /bingbot/i, /slurp/i, /duckduckbot/i,
-  /baiduspider/i, /yandexbot/i, /facebookexternalhit/i,
-  /facebot/i, /twitterbot/i, /linkedinbot/i, /whatsapp/i,
-  /telegrambot/i, /discordbot/i, /slackbot/i,
-];
-
-const MOBILE_INDICATORS = USER_AGENT_CONFIG?.MOBILE_INDICATORS || [
-  'Mobile', 'Android', 'iPhone', 'iPod', 'BlackBerry',
-  'Windows Phone', 'Opera Mini', 'IEMobile',
-];
-
-const TABLET_INDICATORS = USER_AGENT_CONFIG?.TABLET_INDICATORS || [
-  'iPad', 'Tablet', 'Kindle', 'Silk',
-];
-
-const BD_BROWSER_PATTERNS = USER_AGENT_CONFIG?.BD_BROWSER_PATTERNS || [
-  { pattern: /ucbrowser/i, name: 'UC Browser' },
-  { pattern: /opera mini/i, name: 'Opera Mini' },
-  { pattern: /samsungbrowser/i, name: 'Samsung Browser' },
-  { pattern: /miui browser/i, name: 'Mi Browser' },
-];
-
 // ==================== Private Helpers ====================
 
 /**
@@ -113,10 +110,6 @@ const detectBangladeshBrowser = (userAgent: string): string | null => {
  * 
  * @param userAgent - User agent string
  * @returns Parsed user agent object
- * 
- * @example
- * parseUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
- * // Returns object with browser, device, os, engine, cpu info
  */
 export const parseUserAgent = (userAgent: string): ParsedUserAgent => {
   const validUA = validateUserAgent(userAgent);
@@ -133,7 +126,6 @@ export const parseUserAgent = (userAgent: string): ParsedUserAgent => {
   const parser = new UAParser(validUA);
   const result = parser.getResult();
 
-  // Check for Bangladesh-specific browsers
   const bdBrowser = detectBangladeshBrowser(validUA);
   const browserName = bdBrowser || result.browser.name || 'unknown';
 
@@ -164,9 +156,6 @@ export const parseUserAgent = (userAgent: string): ParsedUserAgent => {
 
 /**
  * Detect device type from user agent
- * 
- * @param userAgent - User agent string
- * @returns Device type ('mobile', 'tablet', 'desktop', 'bot', 'unknown')
  */
 export const detectDeviceType = (userAgent: string): string => {
   const validUA = validateUserAgent(userAgent);
@@ -176,15 +165,14 @@ export const detectDeviceType = (userAgent: string): string => {
   const parsed = parseUserAgent(validUA);
   const deviceType = parsed.device.type;
   
-  // UAParser sometimes returns 'mobile' for phones, 'tablet' for tablets
   if (deviceType === 'mobile') return 'mobile';
   if (deviceType === 'tablet') return 'tablet';
   
-  // Fallback detection
-  if (MOBILE_INDICATORS.some(indicator => validUA.includes(indicator))) {
+  // ✅ FIXED: Added type annotation for indicator parameter
+  if (MOBILE_INDICATORS.some((indicator: string) => validUA.includes(indicator))) {
     return 'mobile';
   }
-  if (TABLET_INDICATORS.some(indicator => validUA.includes(indicator))) {
+  if (TABLET_INDICATORS.some((indicator: string) => validUA.includes(indicator))) {
     return 'tablet';
   }
   
@@ -193,56 +181,40 @@ export const detectDeviceType = (userAgent: string): string => {
 
 /**
  * Detect browser name from user agent
- * 
- * @param userAgent - User agent string
- * @returns Browser name
  */
 export const detectBrowser = (userAgent: string): string => {
   const validUA = validateUserAgent(userAgent);
   if (!validUA) return 'unknown';
-  
   const parsed = parseUserAgent(validUA);
   return parsed.browser.name;
 };
 
 /**
  * Detect OS name from user agent
- * 
- * @param userAgent - User agent string
- * @returns OS name
  */
 export const detectOS = (userAgent: string): string => {
   const validUA = validateUserAgent(userAgent);
   if (!validUA) return 'unknown';
-  
   const parsed = parseUserAgent(validUA);
   return parsed.os.name;
 };
 
 /**
  * Detect browser version from user agent
- * 
- * @param userAgent - User agent string
- * @returns Browser version
  */
 export const detectBrowserVersion = (userAgent: string): string => {
   const validUA = validateUserAgent(userAgent);
   if (!validUA) return 'unknown';
-  
   const parsed = parseUserAgent(validUA);
   return parsed.browser.version;
 };
 
 /**
  * Detect OS version from user agent
- * 
- * @param userAgent - User agent string
- * @returns OS version
  */
 export const detectOSVersion = (userAgent: string): string => {
   const validUA = validateUserAgent(userAgent);
   if (!validUA) return 'unknown';
-  
   const parsed = parseUserAgent(validUA);
   return parsed.os.version;
 };
@@ -251,9 +223,6 @@ export const detectOSVersion = (userAgent: string): string => {
 
 /**
  * Check if user agent is from mobile device
- * 
- * @param userAgent - User agent string
- * @returns True if mobile device
  */
 export const isMobile = (userAgent: string): boolean => {
   const deviceType = detectDeviceType(userAgent);
@@ -262,9 +231,6 @@ export const isMobile = (userAgent: string): boolean => {
 
 /**
  * Check if user agent is from tablet device
- * 
- * @param userAgent - User agent string
- * @returns True if tablet device
  */
 export const isTablet = (userAgent: string): boolean => {
   const deviceType = detectDeviceType(userAgent);
@@ -273,9 +239,6 @@ export const isTablet = (userAgent: string): boolean => {
 
 /**
  * Check if user agent is from desktop device
- * 
- * @param userAgent - User agent string
- * @returns True if desktop device
  */
 export const isDesktop = (userAgent: string): boolean => {
   const deviceType = detectDeviceType(userAgent);
@@ -284,22 +247,16 @@ export const isDesktop = (userAgent: string): boolean => {
 
 /**
  * Check if user agent is from a bot or crawler
- * 
- * @param userAgent - User agent string
- * @returns True if bot/crawler
  */
 export const isBot = (userAgent: string): boolean => {
   const validUA = validateUserAgent(userAgent);
   if (!validUA) return false;
-  
-  return BOT_PATTERNS.some((pattern) => pattern.test(validUA));
+  // ✅ FIXED: Added type annotation for pattern parameter
+  return BOT_PATTERNS.some((pattern: RegExp) => pattern.test(validUA));
 };
 
 /**
  * Get detailed device information
- * 
- * @param userAgent - User agent string
- * @returns Device info object
  */
 export const getDeviceInfo = (userAgent: string): DeviceInfo => {
   const validUA = validateUserAgent(userAgent);
@@ -338,9 +295,6 @@ export const getDeviceInfo = (userAgent: string): DeviceInfo => {
 
 /**
  * Get user agent summary (short description)
- * 
- * @param userAgent - User agent string
- * @returns Summary string (e.g., "Chrome 120 on Windows")
  */
 export const getUserAgentSummary = (userAgent: string): string => {
   const info = getDeviceInfo(userAgent);
@@ -350,9 +304,6 @@ export const getUserAgentSummary = (userAgent: string): string => {
 
 /**
  * Check if user agent indicates a feature phone (Bangladesh specific)
- * 
- * @param userAgent - User agent string
- * @returns True if likely a feature phone
  */
 export const isFeaturePhone = (userAgent: string): boolean => {
   const validUA = validateUserAgent(userAgent);
@@ -362,15 +313,10 @@ export const isFeaturePhone = (userAgent: string): boolean => {
     /Nokia/i, /J2ME/i, /MIDP/i, /CLDC/i, /UP\.Browser/i,
     /NetFront/i, /Teleca/i, /Opera Mini/i,
   ];
-  return featurePhonePatterns.some(pattern => pattern.test(validUA));
+  return featurePhonePatterns.some((pattern: RegExp) => pattern.test(validUA));
 };
 
 // ==================== Type Exports ====================
 
-export type { DeviceInfo, ParsedUserAgent };
-export const USER_AGENT_CONFIG_EXPORTS = {
-  BOT_PATTERNS,
-  MOBILE_INDICATORS,
-  TABLET_INDICATORS,
-  BD_BROWSER_PATTERNS,
-};
+// ✅ Note: DeviceInfo and ParsedUserAgent already exported as interfaces above
+// No duplicate export statements needed
