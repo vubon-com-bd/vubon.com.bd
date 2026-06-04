@@ -26,7 +26,11 @@ const TITLE_CASE_EXCEPTIONS = STRING_CONFIG?.TITLE_CASE_EXCEPTIONS || [
   'a', 'an', 'and', 'the', 'of', 'for', 'in', 'on', 'at', 'to',
   'by', 'with', 'without', 'or', 'nor', 'but', 'so', 'yet',
   'as', 'is', 'was', 'were', 'be', 'been', 'being',
-];
+] as const;
+
+// Create a Set for O(1) lookup performance
+const TITLE_CASE_EXCEPTIONS_SET = new Set(TITLE_CASE_EXCEPTIONS);
+
 const SLUG_SPECIAL_CHARS_REGEX = STRING_CONFIG?.SLUG_SPECIAL_CHARS_REGEX || /[^\w\s-]/g;
 const SLUG_MULTIPLE_SEPARATOR_REGEX = STRING_CONFIG?.SLUG_MULTIPLE_SEPARATOR_REGEX || /[\s_-]+/g;
 
@@ -249,7 +253,8 @@ export const toTitleCase = (value: string): string => {
     .toLowerCase()
     .split(' ')
     .map((word, index) => {
-      if (index === 0 || !TITLE_CASE_EXCEPTIONS.includes(word)) {
+      // ✅ FIXED: Using Set for type-safe includes check
+      if (index === 0 || !TITLE_CASE_EXCEPTIONS_SET.has(word as typeof TITLE_CASE_EXCEPTIONS[number])) {
         return capitalize(word);
       }
       return word;
