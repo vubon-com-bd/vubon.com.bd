@@ -12,16 +12,16 @@
  * ✅ No side effects or external API calls
  */
 
-// ✅ FIXED: Correct package name
-import { IP_CONFIG } from '@vubon/shared-constants';
+// ✅ FIXED: IP_CONFIG not exported, using local fallbacks
+// import { IP_CONFIG } from '@vubon/shared-constants';
 
-// ==================== Constants (from shared-constants) ====================
+// ==================== Local Fallback Constants ====================
 
-// ✅ FIXED: Add fallbacks for missing constants
-const IPV4_REGEX = IP_CONFIG?.IPV4_REGEX || /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-const IPV6_REGEX = IP_CONFIG?.IPV6_REGEX || /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
+const IPV4_REGEX = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
-const PRIVATE_IPV4_RANGES = IP_CONFIG?.PRIVATE_IPV4_RANGES || [
+const IPV6_REGEX = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
+
+const PRIVATE_IPV4_RANGES = [
   { start: '10.0.0.0', end: '10.255.255.255', description: 'Class A private' },
   { start: '172.16.0.0', end: '172.31.255.255', description: 'Class B private' },
   { start: '192.168.0.0', end: '192.168.255.255', description: 'Class C private' },
@@ -29,14 +29,14 @@ const PRIVATE_IPV4_RANGES = IP_CONFIG?.PRIVATE_IPV4_RANGES || [
   { start: '169.254.0.0', end: '169.254.255.255', description: 'Link-local' },
 ];
 
-const PRIVATE_IPV6_PREFIXES = IP_CONFIG?.PRIVATE_IPV6_PREFIXES || [
+const PRIVATE_IPV6_PREFIXES = [
   { prefix: '::1', description: 'Loopback' },
   { prefix: 'fc00::', description: 'Unique Local (ULA)' },
   { prefix: 'fd00::', description: 'Unique Local (ULA)' },
   { prefix: 'fe80::', description: 'Link-local' },
 ];
 
-const FORWARDED_HEADERS = IP_CONFIG?.FORWARDED_HEADERS || [
+const FORWARDED_HEADERS = [
   'x-forwarded-for',
   'x-real-ip',
   'cf-connecting-ip',
@@ -63,7 +63,7 @@ const validateIP = (ip: string): string => {
  */
 const ipToNumber = (ip: string): number => {
   const parts = ip.split('.').map(Number);
-  return (parts[0] << 24) + (parts[1] << 16) + (parts[2] << 8) + parts[3];
+  return ((parts[0] || 0) << 24) + ((parts[1] || 0) << 16) + ((parts[2] || 0) << 8) + (parts[3] || 0);
 };
 
 // ==================== Validation ====================
@@ -207,7 +207,6 @@ export const extractIPFromHeaders = (headers: {
   for (const header of FORWARDED_HEADERS) {
     const value = headers[header];
     if (value) {
-      // x-forwarded-for can contain multiple IPs (client, proxy1, proxy2)
       const ips = value.split(',');
       const firstIP = ips[0]?.trim();
       if (firstIP && isIP(firstIP)) {
@@ -230,11 +229,9 @@ export const getClientIP = (
   headers: Record<string, string | undefined>,
   remoteAddress?: string
 ): string | null => {
-  // Try to extract from forwarded headers first
   const forwardedIP = extractIPFromHeaders(headers);
   if (forwardedIP) return forwardedIP;
 
-  // Fallback to remote address
   if (remoteAddress) {
     const normalized = normalizeIP(remoteAddress);
     if (isIP(normalized)) return normalized;
@@ -252,15 +249,10 @@ const isPrivateIPv4 = (ip: string): boolean => {
   const parts = ip.split('.').map(Number);
   if (parts.length !== 4) return false;
 
-  // 10.0.0.0/8
   if (parts[0] === 10) return true;
-  // 172.16.0.0/12
-  if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return true;
-  // 192.168.0.0/16
+  if (parts[0] === 172 && (parts[1] || 0) >= 16 && (parts[1] || 0) <= 31) return true;
   if (parts[0] === 192 && parts[1] === 168) return true;
-  // 127.0.0.0/8 (localhost)
   if (parts[0] === 127) return true;
-  // 169.254.0.0/16 (link-local)
   if (parts[0] === 169 && parts[1] === 254) return true;
 
   return false;
@@ -272,11 +264,8 @@ const isPrivateIPv4 = (ip: string): boolean => {
 const isPrivateIPv6 = (ip: string): boolean => {
   const lowerIP = ip.toLowerCase();
 
-  // ::1 is loopback
   if (lowerIP === '::1') return true;
-  // fc00::/7 and fd00::/7 are unique local addresses
   if (lowerIP.startsWith('fc') || lowerIP.startsWith('fd')) return true;
-  // fe80::/10 is link-local
   if (lowerIP.startsWith('fe80')) return true;
 
   return false;
@@ -328,8 +317,6 @@ export const isIPInCIDR = (ip: string, cidr: string): boolean => {
     return (ipNum & maskNum) === (networkNum & maskNum);
   }
 
-  // IPv6 CIDR checking is more complex
-  // For simplicity, return false for IPv6 CIDR
   return false;
 };
 
@@ -360,10 +347,3 @@ export const getNetworkAddress = (ip: string, maskBits: number): string | null =
 // ==================== Type Exports ====================
 
 export type IPVersion = 'IPv4' | 'IPv6';
-export const IP_CONFIG_EXPORTS = {
-  IPV4_REGEX,
-  IPV6_REGEX,
-  PRIVATE_IPV4_RANGES,
-  PRIVATE_IPV6_PREFIXES,
-  FORWARDED_HEADERS,
-};
