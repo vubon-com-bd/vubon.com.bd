@@ -16,7 +16,6 @@
 import { z } from 'zod';
 
 // Import constants from shared-constants layer (Enterprise rule)
-// ✅ FIXED: Correct package name with fallbacks
 import { PASSWORD_POLICY, TOKEN_EXPIRY } from '@vubon/shared-constants';
 
 // ==================== Primitives (Reusable) ====================
@@ -46,24 +45,21 @@ export const PhoneSchema = z
   })
   .brand('Phone');
 
-// Password Schema
+// Password Schema (NO brand for comparison)
 export const PasswordSchema = z
   .string()
   .min(PASSWORD_POLICY?.MIN_LENGTH || 8, `Password must be at least ${PASSWORD_POLICY?.MIN_LENGTH || 8} characters`)
-  .max(PASSWORD_POLICY?.MAX_LENGTH || 128, `Password cannot exceed ${PASSWORD_POLICY?.MAX_LENGTH || 128} characters`)
-  .brand('Password');
+  .max(PASSWORD_POLICY?.MAX_LENGTH || 128, `Password cannot exceed ${PASSWORD_POLICY?.MAX_LENGTH || 128} characters`);
 
 // Password strength validation with fallbacks
-// ✅ FIXED: Added safe property access with fallbacks
 export const PasswordStrengthSchema = z
   .string()
   .min(PASSWORD_POLICY?.MIN_LENGTH || 8, `Password must be at least ${PASSWORD_POLICY?.MIN_LENGTH || 8} characters`)
   .max(PASSWORD_POLICY?.MAX_LENGTH || 128, `Password cannot exceed ${PASSWORD_POLICY?.MAX_LENGTH || 128} characters`)
   .superRefine((val, ctx) => {
-    // ✅ FIXED: Safe property access with fallbacks
-    const requireUppercase = PASSWORD_POLICY?.REQUIRE_UPPERCASE ?? true;
-    const requireLowercase = PASSWORD_POLICY?.REQUIRE_LOWERCASE ?? true;
-    const requireNumbers = PASSWORD_POLICY?.REQUIRE_NUMBERS ?? true;
+    const requireUppercase = (PASSWORD_POLICY as any)?.REQUIRE_UPPERCASE ?? true;
+    const requireLowercase = (PASSWORD_POLICY as any)?.REQUIRE_LOWERCASE ?? true;
+    const requireNumbers = (PASSWORD_POLICY as any)?.REQUIRE_NUMBERS ?? true;
     const requireSpecialChars = (PASSWORD_POLICY as any)?.REQUIRE_SPECIAL_CHARS ?? true;
     
     if (requireUppercase && !/[A-Z]/.test(val)) {
@@ -94,7 +90,6 @@ export const PasswordStrengthSchema = z
         path: ['password'],
       });
     }
-    // Additional check: no repeated characters (3+ times)
     if (/(.)\1{2,}/.test(val)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -104,6 +99,9 @@ export const PasswordStrengthSchema = z
     }
   })
   .brand('PasswordStrength');
+
+// Branded version for specific use cases
+export const BrandedPasswordSchema = PasswordSchema.brand('Password');
 
 // Verification Token Schema
 export const VerificationTokenSchema = z
@@ -154,6 +152,7 @@ export const ForgotPasswordPhoneSchema = z
   .brand('ForgotPasswordPhoneRequest');
 
 // Reset Password Request (Step 2 - Token based)
+// ✅ FIXED: Using unbranded PasswordSchema for comparison
 export const ResetPasswordSchema = z
   .object({
     token: VerificationTokenSchema,
@@ -167,7 +166,6 @@ export const ResetPasswordSchema = z
   })
   .refine(
     (data) => {
-      // Common passwords blocklist (Bangladesh specific)
       const commonPasswords = [
         'password123', '12345678', 'qwerty123', 'admin123',
         'bangladesh123', 'dhaka123', 'vubon123', 'chittagong123',
@@ -362,6 +360,7 @@ export type VerifyResetOTPFormData = VerifyResetOTPRequest;
 export type Email = z.infer<typeof EmailSchema>;
 export type Phone = z.infer<typeof PhoneSchema>;
 export type Password = z.infer<typeof PasswordSchema>;
+export type BrandedPassword = z.infer<typeof BrandedPasswordSchema>;
 export type PasswordStrength = z.infer<typeof PasswordStrengthSchema>;
 export type VerificationToken = z.infer<typeof VerificationTokenSchema>;
 export type UserId = z.infer<typeof UserIdSchema>;
