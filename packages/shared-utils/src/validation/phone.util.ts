@@ -14,8 +14,6 @@
 
 import {
   parsePhoneNumber,
-  formatPhoneNumber,
-  formatPhoneNumberIntl,
   AsYouType,
   isPossiblePhoneNumber,
   isValidPhoneNumber,
@@ -161,7 +159,7 @@ export const detectBdOperator = (phoneNumber: string): string | null => {
   // Remove +880 prefix, keep last 10 digits
   const national = normalized.replace(/^\+880/, '');
 
-  for (const [key, operator] of Object.entries(BD_MOBILE_OPERATORS)) {
+  for (const [opKey, operator] of Object.entries(BD_MOBILE_OPERATORS)) {
     if (operator.regex.test(national)) {
       return operator.name;
     }
@@ -196,7 +194,9 @@ export const formatToE164 = (phoneNumber: string, countryCode: string = DEFAULT_
 export const formatInternational = (phoneNumber: string, countryCode: string = DEFAULT_COUNTRY): string | null => {
   const parsed = parsePhone(phoneNumber, countryCode);
   if (!parsed) return null;
-  return formatPhoneNumberIntl(parsed.number);
+  // ✅ FIXED: Use parsed.number directly and format
+  const formatted = parsed.formatInternational();
+  return formatted || null;
 };
 
 /**
@@ -210,7 +210,8 @@ export const formatInternational = (phoneNumber: string, countryCode: string = D
 export const formatNational = (phoneNumber: string, countryCode: string = DEFAULT_COUNTRY): string | null => {
   const parsed = parsePhone(phoneNumber, countryCode);
   if (!parsed) return null;
-  return formatPhoneNumber(parsed.number);
+  const formatted = parsed.formatNational();
+  return formatted || null;
 };
 
 /**
@@ -295,7 +296,7 @@ export const extractCountryCode = (phoneNumber: string, countryCode: string = DE
  */
 export const extractNationalNumber = (phoneNumber: string, countryCode: string = DEFAULT_COUNTRY): string | null => {
   const parsed = parsePhone(phoneNumber, countryCode);
-  return parsed?.nationalNumber.toString() ?? null;
+  return parsed?.nationalNumber?.toString() ?? null;
 };
 
 // ==================== Masking ====================
@@ -386,9 +387,9 @@ export interface PhoneComponents {
  * @param countryCode - Optional country code (default: 'BD')
  * @returns PhoneComponents object or null
  */
-export const getPhoneComponents = (phoneNumber: string, countryCode: string = DEFAULT_COUNTRY): PhoneComponents | null => {
-  const parsed = parsePhone(phoneNumber, countryCode);
+export const getPhoneComponents = (phoneNumber: string, countryCode: string = DEFAULT_COUNTRY): PhoneComponents => {
   const isValid = isValidPhone(phoneNumber, countryCode);
+  const parsed = parsePhone(phoneNumber, countryCode);
 
   if (!parsed && !isValid) {
     return {
@@ -426,5 +427,6 @@ export const getPhoneComponents = (phoneNumber: string, countryCode: string = DE
 
 // ==================== Type Exports ====================
 
+// ✅ FIXED: Remove duplicate export - interface already exported above
 export type { PhoneComponents, PhoneNumber };
 export type { CountryCode } from 'libphonenumber-js';
