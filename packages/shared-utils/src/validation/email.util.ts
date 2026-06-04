@@ -39,10 +39,10 @@ const EDUCATIONAL_DOMAINS = EMAIL_CONFIG?.EDUCATIONAL_DOMAINS || [
   'northsouth.edu', 'bracu.ac.bd', 'aiub.edu', 'iub.edu.bd',
 ];
 
-// Create Sets for O(1) lookup
-const COMMON_EMAIL_DOMAINS_SET = new Set(COMMON_EMAIL_DOMAINS);
-const BANGLADESH_EMAIL_DOMAINS_SET = new Set(BANGLADESH_EMAIL_DOMAINS);
-const EDUCATIONAL_DOMAINS_SET = new Set(EDUCATIONAL_DOMAINS);
+// ✅ FIXED: Create Sets with explicit string type
+const COMMON_EMAIL_DOMAINS_SET = new Set<string>(COMMON_EMAIL_DOMAINS);
+const BANGLADESH_EMAIL_DOMAINS_SET = new Set<string>(BANGLADESH_EMAIL_DOMAINS);
+const EDUCATIONAL_DOMAINS_SET = new Set<string>(EDUCATIONAL_DOMAINS);
 
 // ==================== Normalization ====================
 
@@ -169,15 +169,16 @@ export const maskEmail = (email: string): string => {
   if (!username || !domain) return email;
 
   if (username.length <= 2) {
-    return `${username[0]}${username[1] || ''}***@${domain}`;
+    const firstChar = username[0] || '';
+    const secondChar = username[1] || '';
+    return `${firstChar}${secondChar}***@${domain}`;
   }
 
-  const firstChar = username[0];
-  const lastChar = username[username.length - 1];
-  const middleLength = username.length - 2;
-  const maskedMiddle = '*'.repeat(Math.min(middleLength, 3));
+  const firstChar = username[0] || '';
+  const lastChar = username[username.length - 1] || '';
+  const masked = `${firstChar}***${lastChar}`;
 
-  return `${firstChar}${maskedMiddle}${lastChar}@${domain}`;
+  return `${masked}@${domain}`;
 };
 
 /**
@@ -188,8 +189,8 @@ export const maskEmail = (email: string): string => {
  */
 export const getEmailDomain = (email: string): string | null => {
   if (!email) return null;
-  const [, domain] = email.split('@');
-  return domain || null;
+  const parts = email.split('@');
+  return parts.length === 2 ? (parts[1] ?? null) : null;
 };
 
 /**
@@ -201,7 +202,7 @@ export const getEmailDomain = (email: string): string | null => {
 export const isCommonEmailDomain = (email: string): boolean => {
   const domain = getEmailDomain(email);
   if (!domain) return false;
-  // ✅ FIXED: Using Set for type-safe includes
+  // ✅ FIXED: Using Set with explicit string type
   return COMMON_EMAIL_DOMAINS_SET.has(domain);
 };
 
@@ -214,7 +215,7 @@ export const isCommonEmailDomain = (email: string): boolean => {
 export const isBangladeshEmailDomain = (email: string): boolean => {
   const domain = getEmailDomain(email);
   if (!domain) return false;
-  // ✅ FIXED: Using Set for type-safe includes
+  // ✅ FIXED: Using Set with explicit string type
   return BANGLADESH_EMAIL_DOMAINS_SET.has(domain);
 };
 
@@ -233,7 +234,7 @@ export const isEducationalEmail = (email: string): boolean => {
     return true;
   }
 
-  // ✅ FIXED: Using Set for type-safe includes
+  // ✅ FIXED: Using Set with explicit string type
   return EDUCATIONAL_DOMAINS_SET.has(domain);
 };
 
@@ -245,8 +246,8 @@ export const isEducationalEmail = (email: string): boolean => {
  */
 export const getEmailUsername = (email: string): string => {
   if (!email) return '';
-  const [username] = email.split('@');
-  return username || '';
+  const parts = email.split('@');
+  return parts.length === 2 ? (parts[0] ?? '') : '';
 };
 
 /**
@@ -294,5 +295,5 @@ export const getEmailComponents = (email: string): EmailComponents | null => {
 
 // ==================== Type Exports ====================
 
-// ✅ FIXED: EmailComponents already exported as interface above
-// No duplicate export needed
+// Export the interface type (already exported as interface above)
+export type { EmailComponents };
