@@ -10,37 +10,41 @@
  * ✅ Pure Zod schema exports only
  */
 
+// ============================================================
 // Auth Domain Schemas
+// ============================================================
 export * from './auth';
 
+// ============================================================
 // Role & Permission Schemas
+// ============================================================
 export * from './role';
 
-// Session & Device Schemas (rename conflicting exports to avoid ambiguity)
+// ============================================================
+// Session & Device Schemas (with renamed exports to avoid conflicts)
+// ============================================================
 export {
   // Session schemas (renamed to avoid conflict with auth)
   SessionIdSchema as SessionDocumentIdSchema,
-  UserIdSchema as SessionUserIdSchema,
-  NetworkTypeSchema as SessionNetworkTypeSchema,
-  MobileOperatorSchema as SessionMobileOperatorSchema,
-  // Re-export all other session exports
+  SessionSchema,
+  SessionStatusSchema,
+  SessionTrustLevelSchema,
+  SessionTokensSchema,
+  LocationInfoSchema,
   RefreshTokenSchema,
   AccessTokenSchema,
   TokenIdSchema,
-  SessionStatusSchema,
-  SessionTrustLevelSchema,
-  LocationInfoSchema,
-  SessionTokensSchema,
-  SessionSchema,
+  // Request schemas
   CreateSessionSchema,
   RefreshSessionSchema,
   TerminateSessionSchema,
-  TerminateSessionsRequestSchema,
+  TerminateSessionsSchema as TerminateSessionsRequestSchema,
   ValidateSessionSchema,
   SessionHeartbeatSchema,
   SessionTransferRequestSchema,
   SessionFilterSchema,
   SessionCleanupRequestSchema,
+  // Response schemas
   CreateSessionResponseSchema,
   RefreshSessionResponseSchema,
   TerminateSessionsResponseSchema,
@@ -50,32 +54,10 @@ export {
   SessionListResponseSchema,
   SessionStatisticsResponseSchema,
   SessionCleanupResponseSchema,
+  // Error schemas
   SessionErrorSchema,
-  // Device schemas (no conflicts)
-  DeviceIdSchema,
-  DeviceTypeSchema,
-  OSTypeSchema,
-  BrowserTypeSchema,
-  DeviceTrustLevelSchema,
-  DeviceInfoSchema,
-  DeviceFingerprintSchema,
-  TrustedDeviceSchema,
-  DeviceRiskAssessmentSchema,
-  DeviceActivitySchema,
-  RegisterDeviceSchema,
-  UpdateDeviceTrustSchema,
-  RemoveDeviceSchema,
-  DeviceSessionTransferSchema,
-  DevicePairingSchema,
-  DeviceUnpairSchema,
-  DeviceFilterSchema,
-  DeviceResponseSchema,
-  DeviceListResponseSchema,
-  DeviceSessionTransferResponseSchema,
-  DevicePairingResponseSchema,
-  DeviceStatisticsResponseSchema,
-  DeviceErrorSchema,
   // Types
+  type SessionId,
   type RefreshToken,
   type AccessToken,
   type TokenId,
@@ -103,7 +85,32 @@ export {
   type SessionCleanupRequest,
   type SessionCleanupResponse,
   type SessionError,
-  // Device types
+  // Device schemas
+  DeviceIdSchema,
+  DeviceTypeSchema,
+  OSTypeSchema,
+  BrowserTypeSchema,
+  DeviceTrustLevelSchema,
+  DeviceInfoSchema,
+  DeviceFingerprintSchema,
+  TrustedDeviceSchema,
+  DeviceRiskAssessmentSchema,
+  DeviceActivitySchema,
+  RegisterDeviceSchema,
+  UpdateDeviceTrustSchema,
+  RemoveDeviceSchema,
+  DeviceSessionTransferSchema,
+  DevicePairingSchema,
+  DeviceUnpairSchema,
+  DeviceFilterSchema,
+  DeviceResponseSchema,
+  DeviceListResponseSchema,
+  DeviceSessionTransferResponseSchema,
+  DevicePairingResponseSchema,
+  DeviceStatisticsResponseSchema,
+  DeviceErrorSchema,
+  NetworkTypeSchema,
+  MobileOperatorSchema,
   type DeviceId,
   type DeviceType,
   type OSType,
@@ -127,4 +134,6 @@ export {
   type DevicePairingResponse,
   type DeviceStatisticsResponse,
   type DeviceError,
+  type NetworkType,
+  type MobileOperator,
 } from './session';
