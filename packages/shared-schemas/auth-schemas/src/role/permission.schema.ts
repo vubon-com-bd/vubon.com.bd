@@ -368,22 +368,9 @@ export const PermissionSyncResponseSchema = z
   .strict()
   .brand('PermissionSyncResponse');
 
-// ==================== Permission Tree Node Schema ====================
-
 // Permission Tree Node Response (For UI)
-// ✅ FIXED: Properly typed recursive schema
-export const PermissionTreeNodeSchema: z.ZodType<{
-  resource: string;
-  resourceLabel: string;
-  category: string;
-  actions: Array<{
-    action: string;
-    actionLabel: string;
-    permission: string;
-    isGranted?: boolean;
-  }>;
-  children?: Array<z.infer<typeof PermissionTreeNodeSchema>>;
-}> = z.lazy(() =>
+// ✅ FIXED: Correctly defined without type annotation conflict
+export const PermissionTreeNodeSchema = z.lazy(() =>
   z.object({
     resource: PermissionResourceSchema,
     resourceLabel: z.string(),
