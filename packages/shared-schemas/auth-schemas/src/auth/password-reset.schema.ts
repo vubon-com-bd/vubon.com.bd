@@ -20,18 +20,19 @@ import { PASSWORD_POLICY, TOKEN_EXPIRY } from '@vubon/shared-constants';
 
 // ==================== Primitives (Reusable) ====================
 
-// Email Schema
-export const EmailSchema = z
+// Email Schema for Password Reset
+export const ResetEmailSchema = z
   .string()
   .min(1, 'Email is required')
   .max(255, 'Email too long')
   .email('Invalid email format. Example: user@example.com')
   .trim()
   .toLowerCase()
-  .brand('Email');
+  .brand('ResetEmail');
 
-// Phone Schema (Bangladesh specific)
-export const PhoneSchema = z
+// Phone Schema for Password Reset (Bangladesh specific)
+// ✅ FIXED: Renamed to avoid conflict
+export const ResetPhoneSchema = z
   .string()
   .regex(/^(?:\+880|0)1[3-9]\d{8}$/, 'Invalid Bangladesh phone number format. Use format: 01XXXXXXXXX or +8801XXXXXXXXX')
   .transform((val) => {
@@ -43,17 +44,17 @@ export const PhoneSchema = z
     }
     return `+880${val}`;
   })
-  .brand('Phone');
+  .brand('ResetPhone');
 
-// Password Schema (Basic - no strength validation)
-export const PasswordSchema = z
+// Password Schema for Reset
+export const ResetPasswordSchema = z
   .string()
   .min(PASSWORD_POLICY?.MIN_LENGTH || 8, `Password must be at least ${PASSWORD_POLICY?.MIN_LENGTH || 8} characters`)
   .max(PASSWORD_POLICY?.MAX_LENGTH || 128, `Password cannot exceed ${PASSWORD_POLICY?.MAX_LENGTH || 128} characters`)
-  .brand('Password');
+  .brand('ResetPassword');
 
 // Password strength validation with fallbacks
-export const PasswordStrengthSchema = z
+export const ResetPasswordStrengthSchema = z
   .string()
   .min(PASSWORD_POLICY?.MIN_LENGTH || 8, `Password must be at least ${PASSWORD_POLICY?.MIN_LENGTH || 8} characters`)
   .max(PASSWORD_POLICY?.MAX_LENGTH || 128, `Password cannot exceed ${PASSWORD_POLICY?.MAX_LENGTH || 128} characters`)
@@ -61,7 +62,7 @@ export const PasswordStrengthSchema = z
     const requireUppercase = PASSWORD_POLICY?.REQUIRE_UPPERCASE ?? true;
     const requireLowercase = PASSWORD_POLICY?.REQUIRE_LOWERCASE ?? true;
     const requireNumbers = PASSWORD_POLICY?.REQUIRE_NUMBERS ?? true;
-    const requireSpecialChars = (PASSWORD_POLICY as any)?.REQUIRE_SPECIAL_CHARS ?? true;
+    const requireSpecialChars = (PASSWORD_POLICY as any)?.REQUIRE_SYMBOLS ?? true;
     
     if (requireUppercase && !/[A-Z]/.test(val)) {
       ctx.addIssue({
@@ -99,28 +100,28 @@ export const PasswordStrengthSchema = z
       });
     }
   })
-  .brand('PasswordStrength');
+  .brand('ResetPasswordStrength');
 
-// Verification Token Schema
-export const VerificationTokenSchema = z
+// Verification Token Schema for Password Reset
+export const ResetVerificationTokenSchema = z
   .string()
   .min(32, 'Invalid token format')
   .max(512, 'Token too long')
   .regex(/^[a-zA-Z0-9\-_]+$/, 'Token contains invalid characters')
-  .brand('VerificationToken');
+  .brand('ResetVerificationToken');
 
-// User ID Schema
-export const UserIdSchema = z.string().uuid('Invalid user ID format').brand('UserId');
+// User ID Schema for Password Reset
+export const ResetUserIdSchema = z.string().uuid('Invalid user ID format').brand('ResetUserId');
 
-// Session ID Schema
-export const SessionIdSchema = z.string().uuid('Invalid session ID format').brand('SessionId');
+// Session ID Schema for Password Reset
+export const ResetSessionIdSchema = z.string().uuid('Invalid session ID format').brand('ResetSessionId');
 
-// CAPTCHA Token Schema
-export const CaptchaTokenSchema = z
+// CAPTCHA Token Schema for Password Reset
+export const ResetCaptchaTokenSchema = z
   .string()
   .min(1, 'CAPTCHA verification required')
   .optional()
-  .brand('CaptchaToken');
+  .brand('ResetCaptchaToken');
 
 // ==================== Constants with fallbacks ====================
 
@@ -133,8 +134,8 @@ const OTP_EXPIRY_SECONDS = 300;
 // Forgot Password Request (Step 1 - Email)
 export const ForgotPasswordSchema = z
   .object({
-    email: EmailSchema,
-    captchaToken: CaptchaTokenSchema,
+    email: ResetEmailSchema,
+    captchaToken: ResetCaptchaTokenSchema,
   })
   .strict()
   .brand('ForgotPasswordRequest');
@@ -142,19 +143,19 @@ export const ForgotPasswordSchema = z
 // Forgot Password with Phone (Bangladesh specific)
 export const ForgotPasswordPhoneSchema = z
   .object({
-    phoneNumber: PhoneSchema,
+    phoneNumber: ResetPhoneSchema,
     method: z.enum(['sms', 'whatsapp']).default('sms'),
-    captchaToken: CaptchaTokenSchema,
+    captchaToken: ResetCaptchaTokenSchema,
   })
   .strict()
   .brand('ForgotPasswordPhoneRequest');
 
 // Reset Password Request (Step 2 - Token based)
-export const ResetPasswordSchema = z
+export const ResetPasswordRequestSchema = z
   .object({
-    token: VerificationTokenSchema,
-    newPassword: PasswordSchema,
-    confirmPassword: PasswordSchema,
+    token: ResetVerificationTokenSchema,
+    newPassword: ResetPasswordSchema,
+    confirmPassword: ResetPasswordSchema,
   })
   .strict()
   .refine((data) => data.newPassword === data.confirmPassword, {
@@ -178,12 +179,11 @@ export const ResetPasswordSchema = z
   .brand('ResetPasswordRequest');
 
 // Strong Password Reset Request (For enhanced security)
-// ✅ FIXED: Both passwords use same schema (PasswordStrengthSchema)
-export const StrongResetPasswordSchema = z
+export const StrongResetPasswordRequestSchema = z
   .object({
-    token: VerificationTokenSchema,
-    newPassword: PasswordStrengthSchema,
-    confirmPassword: PasswordStrengthSchema,  // ✅ Changed from PasswordSchema to PasswordStrengthSchema
+    token: ResetVerificationTokenSchema,
+    newPassword: ResetPasswordStrengthSchema,
+    confirmPassword: ResetPasswordStrengthSchema,
   })
   .strict()
   .refine((data) => data.newPassword === data.confirmPassword, {
@@ -195,7 +195,7 @@ export const StrongResetPasswordSchema = z
 // Validate Reset Token Request
 export const ValidateResetTokenSchema = z
   .object({
-    token: VerificationTokenSchema,
+    token: ResetVerificationTokenSchema,
   })
   .strict()
   .brand('ValidateResetTokenRequest');
@@ -203,7 +203,7 @@ export const ValidateResetTokenSchema = z
 // Request OTP for Password Reset (Bangladesh specific)
 export const RequestResetOTPSchema = z
   .object({
-    phoneNumber: PhoneSchema,
+    phoneNumber: ResetPhoneSchema,
     method: z.enum(['sms', 'whatsapp', 'voice']).default('sms'),
     locale: z.enum(['en', 'bn']).default('en'),
   })
@@ -213,9 +213,9 @@ export const RequestResetOTPSchema = z
 // Verify OTP for Password Reset
 export const VerifyResetOTPSchema = z
   .object({
-    phoneNumber: PhoneSchema,
+    phoneNumber: ResetPhoneSchema,
     otpCode: z.string().length(6, 'OTP must be 6 digits').regex(/^\d{6}$/, 'OTP must contain only digits'),
-    sessionId: SessionIdSchema.optional(),
+    sessionId: ResetSessionIdSchema.optional(),
   })
   .strict()
   .brand('VerifyResetOTPRequest');
@@ -249,7 +249,7 @@ export const ForgotPasswordPhoneResponseSchema = z
     method: z.enum(['sms', 'whatsapp']),
     expiresInSeconds: z.number().int().positive().default(OTP_EXPIRY_SECONDS),
     resendCooldownSeconds: z.number().int().default(30),
-    sessionId: SessionIdSchema.optional(),
+    sessionId: ResetSessionIdSchema.optional(),
     remainingAttempts: z.number().int().default(3),
   })
   .strict()
@@ -273,7 +273,7 @@ export const TokenValidationResponseSchema = z
   .object({
     valid: z.boolean(),
     expiresAt: z.date().optional(),
-    userId: UserIdSchema.optional(),
+    userId: ResetUserIdSchema.optional(),
     email: z.string().email().optional(),
     phoneNumber: z.string().optional(),
     remainingSeconds: z.number().int().min(0).optional(),
@@ -294,7 +294,7 @@ export const RequestResetOTPResponseSchema = z
     method: z.enum(['sms', 'whatsapp', 'voice']),
     expiresInSeconds: z.number().int().positive().default(OTP_EXPIRY_SECONDS),
     resendCooldownSeconds: z.number().int().default(30),
-    sessionId: SessionIdSchema,
+    sessionId: ResetSessionIdSchema,
     remainingAttempts: z.number().int().default(3),
   })
   .strict()
@@ -305,11 +305,11 @@ export const VerifyResetOTPResponseSchema = z
   .object({
     success: z.boolean(),
     verified: z.boolean(),
-    resetToken: VerificationTokenSchema.optional(),
+    resetToken: ResetVerificationTokenSchema.optional(),
     expiresInSeconds: z.number().int().positive().optional(),
     message: z.string().optional(),
     remainingAttempts: z.number().int().optional(),
-    userId: UserIdSchema.optional(),
+    userId: ResetUserIdSchema.optional(),
   })
   .strict()
   .brand('VerifyResetOTPResponse');
@@ -346,28 +346,28 @@ export const PasswordResetErrorSchema = z
 
 // ==================== Helper Types (For frontend) ====================
 
-export type ResetPasswordFormData = ResetPasswordRequest;
-export type ForgotPasswordFormData = ForgotPasswordRequest;
-export type ForgotPasswordPhoneFormData = ForgotPasswordPhoneRequest;
-export type StrongResetPasswordFormData = StrongResetPasswordRequest;
-export type RequestResetOTPFormData = RequestResetOTPRequest;
-export type VerifyResetOTPFormData = VerifyResetOTPRequest;
+export type ResetPasswordFormData = ResetPasswordRequestSchema;
+export type ForgotPasswordFormData = ForgotPasswordSchema;
+export type ForgotPasswordPhoneFormData = ForgotPasswordPhoneSchema;
+export type StrongResetPasswordFormData = StrongResetPasswordRequestSchema;
+export type RequestResetOTPFormData = RequestResetOTPSchema;
+export type VerifyResetOTPFormData = VerifyResetOTPSchema;
 
 // ==================== Type Exports ====================
 
-export type Email = z.infer<typeof EmailSchema>;
-export type Phone = z.infer<typeof PhoneSchema>;
-export type Password = z.infer<typeof PasswordSchema>;
-export type PasswordStrength = z.infer<typeof PasswordStrengthSchema>;
-export type VerificationToken = z.infer<typeof VerificationTokenSchema>;
-export type UserId = z.infer<typeof UserIdSchema>;
-export type SessionId = z.infer<typeof SessionIdSchema>;
-export type CaptchaToken = z.infer<typeof CaptchaTokenSchema>;
+export type ResetEmail = z.infer<typeof ResetEmailSchema>;
+export type ResetPhone = z.infer<typeof ResetPhoneSchema>;
+export type ResetPassword = z.infer<typeof ResetPasswordSchema>;
+export type ResetPasswordStrength = z.infer<typeof ResetPasswordStrengthSchema>;
+export type ResetVerificationToken = z.infer<typeof ResetVerificationTokenSchema>;
+export type ResetUserId = z.infer<typeof ResetUserIdSchema>;
+export type ResetSessionId = z.infer<typeof ResetSessionIdSchema>;
+export type ResetCaptchaToken = z.infer<typeof ResetCaptchaTokenSchema>;
 
 export type ForgotPasswordRequest = z.infer<typeof ForgotPasswordSchema>;
 export type ForgotPasswordPhoneRequest = z.infer<typeof ForgotPasswordPhoneSchema>;
-export type ResetPasswordRequest = z.infer<typeof ResetPasswordSchema>;
-export type StrongResetPasswordRequest = z.infer<typeof StrongResetPasswordSchema>;
+export type ResetPasswordRequest = z.infer<typeof ResetPasswordRequestSchema>;
+export type StrongResetPasswordRequest = z.infer<typeof StrongResetPasswordRequestSchema>;
 export type ValidateResetTokenRequest = z.infer<typeof ValidateResetTokenSchema>;
 export type RequestResetOTPRequest = z.infer<typeof RequestResetOTPSchema>;
 export type VerifyResetOTPRequest = z.infer<typeof VerifyResetOTPSchema>;
