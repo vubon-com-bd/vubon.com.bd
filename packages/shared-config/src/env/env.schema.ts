@@ -12,13 +12,14 @@
  */
 
 import { z } from 'zod';
-import { 
+// ✅ FIXED: Correct package name and import specific types
+import type { 
   JWT_CONFIG, 
   RATE_LIMITS, 
   SESSION_SECURITY, 
   ENCRYPTION_CONFIG,
   CORS_CONFIG 
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // ==================== Node Environment ====================
 
@@ -30,9 +31,9 @@ export const ServerConfigSchema = z.object({
   NODE_ENV: NodeEnvSchema,
   PORT: z.coerce.number().int().positive().default(3000),
   HOST: z.string().default('0.0.0.0'),
-  API_URL: z.string().url('API_URL must be a valid URL'),
-  APP_URL: z.string().url('APP_URL must be a valid URL'),
-  FRONTEND_URL: z.string().url('FRONTEND_URL must be a valid URL'),
+  API_URL: z.string().url('API_URL must be a valid URL').default('http://localhost:3000'),
+  APP_URL: z.string().url('APP_URL must be a valid URL').default('http://localhost:3001'),
+  FRONTEND_URL: z.string().url('FRONTEND_URL must be a valid URL').default('http://localhost:3000'),
   // Bangladesh specific
   TIMEZONE: z.string().default('Asia/Dhaka'),
   LOCALE: z.string().default('bn-BD'),
@@ -64,20 +65,20 @@ export const RedisConfigSchema = z.object({
   REDIS_MAX_RETRIES: z.coerce.number().int().min(1).max(10).default(3),
 });
 
-// ==================== JWT Configuration (using constants) ====================
+// ==================== JWT Configuration ====================
 
 export const JWTConfigSchema = z.object({
   JWT_SECRET: z.string().min(32, 'JWT secret must be at least 32 characters'),
   JWT_ACCESS_EXPIRY: z
     .string()
     .regex(/^\d+[smhdw]$/, 'Invalid expiry format (e.g., 15m, 1h, 7d)')
-    .default(JWT_CONFIG.ACCESS_TOKEN_EXPIRY),
+    .default('15m'),
   JWT_REFRESH_EXPIRY: z
     .string()
     .regex(/^\d+[smhdw]$/, 'Invalid expiry format')
-    .default(JWT_CONFIG.REFRESH_TOKEN_EXPIRY),
-  JWT_ISSUER: z.string().default(JWT_CONFIG.ISSUER),
-  JWT_AUDIENCE: z.string().default(JWT_CONFIG.AUDIENCE),
+    .default('7d'),
+  JWT_ISSUER: z.string().default('vubon.com.bd'),
+  JWT_AUDIENCE: z.string().default('vubon-api'),
   JWT_ALGORITHM: z
     .enum(['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512'])
     .default('HS256'),
@@ -87,40 +88,40 @@ export const JWTConfigSchema = z.object({
 
 // Google OAuth
 export const GoogleOAuthSchema = z.object({
-  GOOGLE_CLIENT_ID: z.string().min(1, 'GOOGLE_CLIENT_ID is required'),
-  GOOGLE_CLIENT_SECRET: z.string().min(1, 'GOOGLE_CLIENT_SECRET is required'),
-  GOOGLE_CALLBACK_URL: z.string().url('Invalid Google callback URL'),
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_CALLBACK_URL: z.string().url().optional(),
 });
 
 // GitHub OAuth
 export const GitHubOAuthSchema = z.object({
-  GITHUB_CLIENT_ID: z.string().min(1, 'GITHUB_CLIENT_ID is required'),
-  GITHUB_CLIENT_SECRET: z.string().min(1, 'GITHUB_CLIENT_SECRET is required'),
-  GITHUB_CALLBACK_URL: z.string().url('Invalid GitHub callback URL'),
+  GITHUB_CLIENT_ID: z.string().optional(),
+  GITHUB_CLIENT_SECRET: z.string().optional(),
+  GITHUB_CALLBACK_URL: z.string().url().optional(),
 });
 
 // Facebook OAuth
 export const FacebookOAuthSchema = z.object({
-  FACEBOOK_CLIENT_ID: z.string().min(1, 'FACEBOOK_CLIENT_ID is required'),
-  FACEBOOK_CLIENT_SECRET: z.string().min(1, 'FACEBOOK_CLIENT_SECRET is required'),
-  FACEBOOK_CALLBACK_URL: z.string().url('Invalid Facebook callback URL'),
+  FACEBOOK_CLIENT_ID: z.string().optional(),
+  FACEBOOK_CLIENT_SECRET: z.string().optional(),
+  FACEBOOK_CALLBACK_URL: z.string().url().optional(),
   FACEBOOK_API_VERSION: z.string().default('v18.0'),
 });
 
 // Apple OAuth
 export const AppleOAuthSchema = z.object({
-  APPLE_CLIENT_ID: z.string().min(1, 'APPLE_CLIENT_ID is required'),
-  APPLE_TEAM_ID: z.string().min(1, 'APPLE_TEAM_ID is required'),
-  APPLE_KEY_ID: z.string().min(1, 'APPLE_KEY_ID is required'),
-  APPLE_PRIVATE_KEY: z.string().min(1, 'APPLE_PRIVATE_KEY is required'),
-  APPLE_CALLBACK_URL: z.string().url('Invalid Apple callback URL'),
+  APPLE_CLIENT_ID: z.string().optional(),
+  APPLE_TEAM_ID: z.string().optional(),
+  APPLE_KEY_ID: z.string().optional(),
+  APPLE_PRIVATE_KEY: z.string().optional(),
+  APPLE_CALLBACK_URL: z.string().url().optional(),
 });
 
 // LinkedIn OAuth
 export const LinkedInOAuthSchema = z.object({
-  LINKEDIN_CLIENT_ID: z.string().min(1, 'LINKEDIN_CLIENT_ID is required'),
-  LINKEDIN_CLIENT_SECRET: z.string().min(1, 'LINKEDIN_CLIENT_SECRET is required'),
-  LINKEDIN_CALLBACK_URL: z.string().url('Invalid LinkedIn callback URL'),
+  LINKEDIN_CLIENT_ID: z.string().optional(),
+  LINKEDIN_CLIENT_SECRET: z.string().optional(),
+  LINKEDIN_CALLBACK_URL: z.string().url().optional(),
 });
 
 // WhatsApp OAuth (Bangladesh specific)
@@ -148,24 +149,6 @@ export const NagadOAuthSchema = z.object({
   NAGAD_BASE_URL: z.string().url().default('https://sandbox.mynagad.com'),
 });
 
-// Required OAuth providers (for validation)
-export const RequiredOAuthConfigSchema = z.object({
-  GOOGLE_CLIENT_ID: z.string().min(1, 'GOOGLE_CLIENT_ID is required'),
-  GOOGLE_CLIENT_SECRET: z.string().min(1, 'GOOGLE_CLIENT_SECRET is required'),
-  GOOGLE_CALLBACK_URL: z.string().url('Invalid Google callback URL'),
-});
-
-// Optional OAuth providers (partial)
-export const OptionalOAuthConfigSchema = z.object({
-  ...GitHubOAuthSchema.shape,
-  ...FacebookOAuthSchema.shape,
-  ...AppleOAuthSchema.shape,
-  ...LinkedInOAuthSchema.shape,
-  ...WhatsAppOAuthSchema.shape,
-  ...BkashOAuthSchema.shape,
-  ...NagadOAuthSchema.shape,
-}).partial();
-
 export const OAuthConfigSchema = z.object({
   ...GoogleOAuthSchema.shape,
   ...GitHubOAuthSchema.shape,
@@ -177,62 +160,54 @@ export const OAuthConfigSchema = z.object({
   ...NagadOAuthSchema.shape,
 });
 
-// ==================== Security Configuration (using constants) ====================
+// ==================== Security Configuration ====================
 
 export const SecurityConfigSchema = z.object({
-  // CORS (using constants)
+  // CORS
   CORS_ORIGINS: z
     .string()
-    .default(CORS_CONFIG.ALLOWED_ORIGINS.join(','))
+    .default('http://localhost:3000,http://localhost:3001')
     .transform((val) => val.split(',').map((o) => o.trim())),
-  CORS_CREDENTIALS: z.coerce.boolean().default(CORS_CONFIG.CREDENTIALS),
-  CORS_MAX_AGE: z.coerce.number().int().positive().default(CORS_CONFIG.MAX_AGE),
+  CORS_CREDENTIALS: z.coerce.boolean().default(true),
+  CORS_MAX_AGE: z.coerce.number().int().positive().default(86400),
 
-  // Rate Limiting (using constants)
-  RATE_LIMIT_TTL: z.coerce.number().int().positive().default(RATE_LIMITS.GLOBAL.WINDOW_MS / 1000),
-  RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive().default(RATE_LIMITS.GLOBAL.MAX_REQUESTS),
-  RATE_LIMIT_LOGIN_TTL: z.coerce.number().int().positive().default(RATE_LIMITS.AUTH.LOGIN.WINDOW_MS / 1000),
-  RATE_LIMIT_LOGIN_MAX: z.coerce.number().int().positive().default(RATE_LIMITS.AUTH.LOGIN.MAX_REQUESTS),
-  RATE_LIMIT_PAYMENT_TTL: z.coerce.number().int().positive().default(RATE_LIMITS.PAYMENT.INITIATE.WINDOW_MS / 1000),
-  RATE_LIMIT_PAYMENT_MAX: z.coerce.number().int().positive().default(RATE_LIMITS.PAYMENT.INITIATE.MAX_REQUESTS),
+  // Rate Limiting
+  RATE_LIMIT_TTL: z.coerce.number().int().positive().default(60),
+  RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive().default(100),
+  RATE_LIMIT_LOGIN_TTL: z.coerce.number().int().positive().default(900),
+  RATE_LIMIT_LOGIN_MAX: z.coerce.number().int().positive().default(5),
+  RATE_LIMIT_PAYMENT_TTL: z.coerce.number().int().positive().default(60),
+  RATE_LIMIT_PAYMENT_MAX: z.coerce.number().int().positive().default(5),
 
-  // Password & Encryption (using constants)
-  BCRYPT_SALT_ROUNDS: z
-    .coerce.number()
-    .int()
-    .min(ENCRYPTION_CONFIG.MIN_SALT_ROUNDS)
-    .max(ENCRYPTION_CONFIG.MAX_SALT_ROUNDS)
-    .default(ENCRYPTION_CONFIG.SALT_ROUNDS),
+  // Password & Encryption
+  BCRYPT_SALT_ROUNDS: z.coerce.number().int().min(10).max(14).default(12),
   SESSION_SECRET: z.string().min(32, 'SESSION_SECRET must be at least 32 characters'),
   ENCRYPTION_KEY: z
     .string()
     .min(32, 'ENCRYPTION_KEY must be at least 32 characters')
-    .regex(/^[a-f0-9]{64}$/i, 'ENCRYPTION_KEY must be a 64-character hex string'),
-  ENCRYPTION_ALGORITHM: z
-    .enum(['aes-256-gcm', 'aes-256-cbc'])
-    .default(ENCRYPTION_CONFIG.ALGORITHM),
+    .regex(/^[a-f0-9]{64}$/i, 'ENCRYPTION_KEY must be a 64-character hex string')
+    .optional(),
+  ENCRYPTION_ALGORITHM: z.enum(['aes-256-gcm', 'aes-256-cbc']).default('aes-256-gcm'),
 
   // CSRF Protection
   CSRF_PROTECTION_ENABLED: z.coerce.boolean().default(true),
   CSRF_COOKIE_NAME: z.string().default('csrf-token'),
 
-  // Session Security (using constants)
-  SESSION_COOKIE_SECURE: z.coerce.boolean().default(SESSION_SECURITY.SECURE_COOKIE),
-  SESSION_COOKIE_HTTP_ONLY: z.coerce.boolean().default(SESSION_SECURITY.HTTP_ONLY_COOKIE),
-  SESSION_COOKIE_SAME_SITE: z
-    .enum(['strict', 'lax', 'none'])
-    .default(SESSION_SECURITY.SAME_SITE),
-  SESSION_TTL_SECONDS: z.coerce.number().int().positive().default(SESSION_SECURITY.ABSOLUTE_TIMEOUT_SECONDS),
+  // Session Security
+  SESSION_COOKIE_SECURE: z.coerce.boolean().default(true),
+  SESSION_COOKIE_HTTP_ONLY: z.coerce.boolean().default(true),
+  SESSION_COOKIE_SAME_SITE: z.enum(['strict', 'lax', 'none']).default('lax'),
+  SESSION_TTL_SECONDS: z.coerce.number().int().positive().default(86400),
 });
 
 // ==================== Email Configuration ====================
 
 export const EmailConfigSchema = z.object({
-  SMTP_HOST: z.string().min(1, 'SMTP_HOST is required'),
+  SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.coerce.number().int().positive().max(65535).default(587),
-  SMTP_USER: z.string().email('Invalid SMTP user email'),
-  SMTP_PASSWORD: z.string().min(1, 'SMTP_PASSWORD is required'),
-  SMTP_FROM_EMAIL: z.string().email('Invalid from email'),
+  SMTP_USER: z.string().email().optional(),
+  SMTP_PASSWORD: z.string().optional(),
+  SMTP_FROM_EMAIL: z.string().email().default('noreply@vubon.com.bd'),
   SMTP_FROM_NAME: z.string().default('Vubon'),
   SMTP_SECURE: z.coerce.boolean().default(false),
   SMTP_TLS_ENABLED: z.coerce.boolean().default(true),
@@ -265,7 +240,7 @@ export const EnvSchema = z.object({
   ...SecurityConfigSchema.shape,
   ...EmailConfigSchema.shape,
   ...FeatureFlagsSchema.shape,
-}).strict();
+});
 
 // ==================== Type Exports ====================
 
@@ -279,7 +254,3 @@ export type SecurityConfig = z.infer<typeof SecurityConfigSchema>;
 export type EmailConfig = z.infer<typeof EmailConfigSchema>;
 export type FeatureFlags = z.infer<typeof FeatureFlagsSchema>;
 export type Env = z.infer<typeof EnvSchema>;
-
-// ==================== Required OAuth Config Type (for validation) ====================
-
-export type RequiredOAuthConfig = z.infer<typeof RequiredOAuthConfigSchema>;
