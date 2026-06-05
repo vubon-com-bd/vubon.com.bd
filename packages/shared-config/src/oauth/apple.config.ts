@@ -150,6 +150,100 @@ export const getAppleLoginUrl = (state: string, nonce: string): string => {
   return `${APPLE_AUTH_URL}?${params.toString()}`;
 };
 
+/**
+ * ✅ FIXED: Extract user info from Apple ID token response
+ * 
+ * @param userInfo - Raw Apple user info from token response
+ * @returns Normalized user info
+ * 
+ * @example
+ * extractAppleUserInfo({
+ *   sub: '001234.abc123',
+ *   email: 'user@example.com',
+ *   email_verified: true,
+ *   name: { firstName: 'John', lastName: 'Doe' }
+ * })
+ */
+export const extractAppleUserInfo = (userInfo: {
+  sub: string;
+  email?: string;
+  email_verified?: boolean;
+  is_private_email?: boolean;
+  name?: {
+    firstName?: string;
+    lastName?: string;
+  };
+}): {
+  id: string;
+  email: string | null;
+  emailVerified: boolean;
+  firstName: string | null;
+  lastName: string | null;
+  isPrivateEmail: boolean;
+} => {
+  return {
+    id: userInfo.sub,
+    email: userInfo.email || null,
+    emailVerified: userInfo.email_verified || false,
+    firstName: userInfo.name?.firstName || null,
+    lastName: userInfo.name?.lastName || null,
+    isPrivateEmail: userInfo.is_private_email || false,
+  };
+};
+
+/**
+ * ✅ FIXED: Get client secret configuration for Apple
+ * Note: This returns the config, actual signing happens in service layer
+ */
+export const getAppleClientSecretConfig = (): {
+  teamId: string;
+  clientId: string;
+  keyId: string;
+  privateKey: string;
+} => {
+  return {
+    teamId: appleOAuthConfig.teamId,
+    clientId: appleOAuthConfig.clientId,
+    keyId: appleOAuthConfig.keyId,
+    privateKey: appleOAuthConfig.privateKey,
+  };
+};
+
+/**
+ * Get revoke URL with token
+ */
+export const getRevokeUrl = (token: string, tokenTypeHint: 'access_token' | 'refresh_token' = 'access_token'): string => {
+  const params = new URLSearchParams({
+    token,
+    token_type_hint: tokenTypeHint,
+    client_id: appleOAuthConfig.clientId,
+  });
+  return `${APPLE_REVOKE_URL}?${params.toString()}`;
+};
+
+/**
+ * Get the real user status description
+ */
+export const getRealUserStatusDescription = (status: number): string => {
+  switch (status) {
+    case appleOAuthConfig.realUserStatus.UNSUPPORTED:
+      return 'Unsupported - Device does not support real user indicator';
+    case appleOAuthConfig.realUserStatus.UNKNOWN:
+      return 'Unknown - Could not determine if user is real';
+    case appleOAuthConfig.realUserStatus.LIKELY_REAL:
+      return 'Likely Real - User is likely a real person';
+    default:
+      return 'Unknown status';
+  }
+};
+
+/**
+ * Check if email is a private relay email (Apple's private email relay)
+ */
+export const isPrivateRelayEmail = (email: string): boolean => {
+  return email?.endsWith('@privaterelay.appleid.com') ?? false;
+};
+
 // ==================== Type Exports ====================
 
 export type AppleScope = typeof APPLE_SCOPES[keyof typeof APPLE_SCOPES];
@@ -157,3 +251,8 @@ export type AppleResponseType = typeof APPLE_RESPONSE_TYPES[keyof typeof APPLE_R
 export type AppleResponseMode = typeof APPLE_RESPONSE_MODES[keyof typeof APPLE_RESPONSE_MODES];
 export type AppleGrantType = typeof APPLE_GRANT_TYPES[keyof typeof APPLE_GRANT_TYPES];
 export type AppleOAuthConfig = typeof appleOAuthConfig;
+
+// ==================== Extracted User Info Type ====================
+
+export type ExtractedAppleUserInfo = ReturnType<typeof extractAppleUserInfo>;
+export type AppleClientSecretConfig = ReturnType<typeof getAppleClientSecretConfig>;
