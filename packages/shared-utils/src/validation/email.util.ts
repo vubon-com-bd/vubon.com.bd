@@ -292,8 +292,3 @@ export const getEmailComponents = (email: string): EmailComponents | null => {
     isBangladeshDomain: isBangladeshEmailDomain(email),
   };
 };
-
-// ==================== Type Exports ====================
-
-// Export the interface type (already exported as interface above)
-export type { EmailComponents };
