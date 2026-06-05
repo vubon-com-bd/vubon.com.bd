@@ -31,7 +31,7 @@ const loadEnv = (): void => {
     const result = dotenv.config({ path: envPath });
     if (!result.error) {
       dotenvExpand.expand(result);
-      break; // Stop after first successful load
+      break;
     }
   }
 };
@@ -50,7 +50,6 @@ const logValidationError = (error: unknown): void => {
   if (error instanceof Error) {
     console.error(`   ${error.message}`);
     
-    // Log missing or invalid fields
     if (error.name === 'ZodError' && 'issues' in (error as { issues?: unknown[] })) {
       const zodError = error as { issues?: Array<{ path: string[]; message: string }> };
       if (zodError.issues) {
@@ -70,12 +69,6 @@ const logValidationError = (error: unknown): void => {
 /**
  * Validate and parse environment variables
  * Throws error if validation fails - fail fast on startup
- * 
- * @returns Validated environment object
- * @throws ZodError if validation fails
- * 
- * @example
- * const env = validateEnv(); // Throws if invalid
  */
 export const validateEnv = (): Env => {
   return EnvSchema.parse(process.env);
@@ -85,8 +78,6 @@ export const validateEnv = (): Env => {
  * Safe validate environment with error handling
  * Returns null on validation failure (for graceful degradation)
  * Not recommended for production - use validateEnv() instead
- * 
- * @returns Validated environment or null
  */
 export const safeValidateEnv = (): Env | null => {
   try {
@@ -126,16 +117,12 @@ export const isTest = env.NODE_ENV === 'test';
 /**
  * Check if running in staging (if applicable)
  */
-export const isStaging = env.NODE_ENV === 'staging' || (isProduction && (env.APP_URL?.includes('staging') ?? false));
+export const isStaging = (): boolean => {
+  return (env.NODE_ENV as string) === 'staging' || (isProduction && (env.APP_URL?.includes('staging') ?? false));
+};
 
 /**
  * Get environment variable with type safety
- * 
- * @param key - Environment variable key
- * @returns Type-safe value
- * 
- * @example
- * const port = getEnv('PORT'); // number
  */
 export const getEnv = <K extends keyof Env>(key: K): Env[K] => {
   return env[key];
@@ -143,9 +130,6 @@ export const getEnv = <K extends keyof Env>(key: K): Env[K] => {
 
 /**
  * Check if specific OAuth provider is configured
- * 
- * @param provider - OAuth provider name
- * @returns True if provider is configured
  */
 export const isOAuthConfigured = (provider: 'google' | 'github' | 'facebook' | 'apple' | 'linkedin'): boolean => {
   const config: Record<string, boolean> = {
@@ -160,8 +144,6 @@ export const isOAuthConfigured = (provider: 'google' | 'github' | 'facebook' | '
 
 /**
  * Get list of configured OAuth providers
- * 
- * @returns Array of configured provider names
  */
 export const getConfiguredOAuthProviders = (): string[] => {
   const providers: string[] = [];
@@ -175,9 +157,6 @@ export const getConfiguredOAuthProviders = (): string[] => {
 
 /**
  * Check if feature is enabled
- * 
- * @param feature - Feature flag name
- * @returns True if feature is enabled
  */
 export const isFeatureEnabled = (feature: keyof Env): boolean => {
   const value = env[feature];
@@ -186,13 +165,11 @@ export const isFeatureEnabled = (feature: keyof Env): boolean => {
 
 /**
  * Get CORS origins as array
- * 
- * @returns Array of allowed origins
  */
 export const getCorsOrigins = (): string[] => {
-  const origins = env.CORS_ORIGINS;
-  if (typeof origins === 'string') {
-    // ✅ FIXED: Added proper type for parameter 'o'
+  // ✅ FIXED: Use type assertion to avoid 'never' error
+  const origins = env.CORS_ORIGINS as string;
+  if (origins && typeof origins === 'string') {
     return origins.split(',').map((o: string) => o.trim());
   }
   return [];
