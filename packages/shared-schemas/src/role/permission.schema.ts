@@ -384,24 +384,6 @@ export type PermissionTreeNode = {
   children?: PermissionTreeNode[];
 };
 
-// Then define the schema using the type (✅ FIXED: No more implicit any)
-export const PermissionTreeNodeSchema: z.ZodSchema<PermissionTreeNode> = z.lazy(() =>
-  z.object({
-    resource: PermissionResourceSchema,
-    resourceLabel: z.string(),
-    category: z.string(),
-    actions: z.array(
-      z.object({
-        action: PermissionActionSchema,
-        actionLabel: z.string(),
-        permission: PermissionStringSchema,
-        isGranted: z.boolean().optional(),
-      })
-    ),
-    children: z.array(PermissionTreeNodeSchema).optional(),
-  })
-).brand('PermissionTreeNode');
-
 // Permission Statistics Response (For admin dashboard)
 export const PermissionStatisticsResponseSchema = z
   .object({
@@ -499,6 +481,5 @@ export type BulkPermissionCheckResponse = z.infer<typeof BulkPermissionCheckResp
 export type UserPermissionsResponse = z.infer<typeof UserPermissionsResponseSchema>;
 export type PermissionListResponse = z.infer<typeof PermissionListResponseSchema>;
 export type PermissionSyncResponse = z.infer<typeof PermissionSyncResponseSchema>;
-export type PermissionTreeNode = z.infer<typeof PermissionTreeNodeSchema>;
 export type PermissionStatisticsResponse = z.infer<typeof PermissionStatisticsResponseSchema>;
 export type PermissionError = z.infer<typeof PermissionErrorSchema>;
