@@ -161,10 +161,10 @@
     "vitest": "^1.0.0"
   },
   "peerDependencies": {
-    "@vubon/shared-constants": "^1.0.0",
-    "@vubon/shared-types": "^1.0.0",
-    "@vubon/shared-schemas": "^1.0.0",
-    "@vubon/shared-utils": "^1.0.0"
+    "@vubon/shared-constants": "file:../shared-constants",
+    "@vubon/shared-types": "file:../shared-types",
+    "@vubon/shared-schemas": "file:../shared-schemas",
+    "@vubon/shared-utils": "file:../shared-utils"
   },
   "sideEffects": false,
   "publishConfig": {
