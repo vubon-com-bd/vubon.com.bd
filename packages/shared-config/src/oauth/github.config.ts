@@ -29,21 +29,13 @@ export const GITHUB_API_VERSION = '2022-11-28';
 // ==================== Scopes ====================
 
 export const GITHUB_SCOPES = {
-  /** Read access to user's public profile information */
   READ_USER: 'read:user',
-  /** Read access to user's email addresses (private and public) */
   USER_EMAIL: 'user:email',
-  /** Full access to user's profile (including private info) */
   USER: 'user',
-  /** Read access to user's organization memberships */
   READ_ORG: 'read:org',
-  /** Write access to user's repositories */
   REPO: 'repo',
-  /** Write access to user's gists */
   GIST: 'gist',
-  /** Read access to user's notifications */
   NOTIFICATIONS: 'notifications',
-  /** Admin access to user's projects */
   PROJECT: 'project',
 } as const;
 
@@ -69,7 +61,7 @@ export const GITHUB_GRANT_TYPES = {
 
 // ==================== Configuration ====================
 
-export const githubOAuthConfig = Object.freeze({
+export const githubOAuthConfig = {
   // Basic provider info
   provider: GITHUB_PROVIDER_NAME,
   providerName: 'GitHub',
@@ -114,7 +106,7 @@ export const githubOAuthConfig = Object.freeze({
     'public_gists',
     'created_at',
     'updated_at',
-  ] as const,
+  ],
   
   // Email fields
   emailFields: [
@@ -122,7 +114,7 @@ export const githubOAuthConfig = Object.freeze({
     'primary',
     'verified',
     'visibility',
-  ] as const,
+  ],
   
   // User info mapping (GitHub -> our system)
   userInfoMapping: {
@@ -142,7 +134,7 @@ export const githubOAuthConfig = Object.freeze({
     publicGists: 'public_gists',
     createdAt: 'created_at',
     updatedAt: 'updated_at',
-  } as const,
+  },
   
   // Email mapping
   emailMapping: {
@@ -150,8 +142,8 @@ export const githubOAuthConfig = Object.freeze({
     isPrimary: 'primary',
     isVerified: 'verified',
     visibility: 'visibility',
-  } as const,
-}) as const;
+  },
+} as const;
 
 // ==================== Helper Functions ====================
 
@@ -191,17 +183,10 @@ export const getRevokeUrl = (): string => {
 };
 
 /**
- * ✅ FIXED: Extract primary email from GitHub emails response
+ * Extract primary email from GitHub emails response
  * 
  * @param emails - Array of GitHub email objects
  * @returns Primary email info or null
- * 
- * @example
- * extractPrimaryEmail([
- *   { email: 'primary@example.com', primary: true, verified: true, visibility: 'public' },
- *   { email: 'secondary@example.com', primary: false, verified: true, visibility: null }
- * ])
- * // Returns: { email: 'primary@example.com', isVerified: true, visibility: 'public' }
  */
 export const extractPrimaryEmail = (emails: Array<{
   email: string;
@@ -219,21 +204,10 @@ export const extractPrimaryEmail = (emails: Array<{
 };
 
 /**
- * ✅ FIXED: Extract user info from GitHub API response
+ * Extract user info from GitHub API response
  * 
  * @param data - Raw GitHub user data
  * @returns Normalized user info
- * 
- * @example
- * extractGitHubUserInfo({
- *   id: 123456,
- *   login: 'username',
- *   name: 'John Doe',
- *   email: 'john@example.com',
- *   avatar_url: 'https://...',
- *   followers: 100,
- *   following: 50
- * })
  */
 export const extractGitHubUserInfo = (data: {
   id: number;
@@ -322,9 +296,6 @@ export type GitHubScope = typeof GITHUB_SCOPES[keyof typeof GITHUB_SCOPES];
 export type GitHubResponseType = typeof GITHUB_RESPONSE_TYPES[keyof typeof GITHUB_RESPONSE_TYPES];
 export type GitHubGrantType = typeof GITHUB_GRANT_TYPES[keyof typeof GITHUB_GRANT_TYPES];
 export type GitHubOAuthConfig = typeof githubOAuthConfig;
-
-// ==================== Extracted Types ====================
-
 export type ExtractedGitHubUserInfo = ReturnType<typeof extractGitHubUserInfo>;
 export type ExtractedPrimaryEmail = ReturnType<typeof extractPrimaryEmail>;
 export type GitHubApiHeaders = ReturnType<typeof getGitHubApiHeaders>;
