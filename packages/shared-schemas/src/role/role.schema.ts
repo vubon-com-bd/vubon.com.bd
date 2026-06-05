@@ -15,12 +15,6 @@
 
 import { z } from 'zod';
 
-// Import constants from shared-constants layer (Enterprise rule)
-// ✅ FIXED: Removed unused imports
-import {
-  ROLE_CATEGORIES,
-} from '@vubon/shared-constants';
-
 // Import permission string schema from permission.schema
 import { PermissionStringSchema } from './permission.schema';
 
