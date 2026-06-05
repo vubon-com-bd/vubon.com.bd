@@ -426,5 +426,5 @@ export const getPhoneComponents = (phoneNumber: string, countryCode: CountryCode
 
 // ==================== Type Exports ====================
 
-export type { PhoneComponents, PhoneNumber };
+export type { PhoneNumber };
 export type { CountryCode } from 'libphonenumber-js';
