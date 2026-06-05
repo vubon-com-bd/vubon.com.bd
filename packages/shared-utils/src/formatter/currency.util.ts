@@ -382,6 +382,4 @@ export const isCurrencySupported = (currencyCode: string): currencyCode is Curre
   return currencyCode in CURRENCIES;
 };
 
-// ==================== Type Exports ====================
 
-export type { CurrencyInfo };
