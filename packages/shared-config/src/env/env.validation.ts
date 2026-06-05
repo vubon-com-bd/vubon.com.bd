@@ -1,4 +1,3 @@
-
 /**
  * Environment Validation - Safe env parsing and validation
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
@@ -168,6 +167,7 @@ export const isFeatureEnabled = (feature: keyof Env): boolean => {
  * Get CORS origins as array
  */
 export const getCorsOrigins = (): string[] => {
+  // ✅ FIXED: CORS_ORIGINS is already string[] from Zod transform
   const origins = env.CORS_ORIGINS;
   if (origins && Array.isArray(origins)) {
     return origins;
@@ -188,3 +188,7 @@ export const isMaintenanceMode = (): boolean => {
 export const isDebugMode = (): boolean => {
   return env.ENABLE_DEBUG_MODE === true && !isProduction;
 };
+
+// ==================== Type Exports ====================
+
+export type ValidatedEnv = Env;
