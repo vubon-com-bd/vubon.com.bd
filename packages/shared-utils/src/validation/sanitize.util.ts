@@ -37,7 +37,6 @@ const DATA_PROTOCOL_REGEX = SANITIZE_CONFIG?.DATA_PROTOCOL_REGEX || /data:/gi;
 const ON_EVENT_REGEX = SANITIZE_CONFIG?.ON_EVENT_REGEX || /\bon\w+\s*=/gi;
 
 // SQL injection patterns (basic - use parameterized queries in production)
-const SQL_SPECIAL_CHARS = SANITIZE_CONFIG?.SQL_SPECIAL_CHARS || /['"\\%_]/g;
 const SQL_INJECTION_REGEX = SANITIZE_CONFIG?.SQL_INJECTION_REGEX || /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE|UNION|JOIN|WHERE|OR|AND)\b|\b(;|--|\/\*|\*\/|@@|@|CHAR|NCHAR|VARCHAR|NVARCHAR|ALTER|BEGIN|CAST|CREATE|CURSOR|DECLARE|DELETE|DROP|END|EXEC|EXECUTE|FETCH|FROM|GROUP|HAVING|INSERT|INTO|JOIN|MERGE|ORDER|REMOVE|REPLICATE|SELECT|SET|TABLE|TRUNCATE|UNION|UPDATE|WAITFOR)\b)/i;
 
 // Unicode normalization form
@@ -498,6 +497,3 @@ export const sanitizeBengaliText = (value: string): string => {
   return sanitized;
 };
 
-// ==================== Type Exports ====================
-
-export type { SanitizationOptions };
