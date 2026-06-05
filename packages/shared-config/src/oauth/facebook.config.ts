@@ -204,6 +204,70 @@ export const getUserInfoUrl = (accessToken: string, fields?: readonly string[]):
   return `${FACEBOOK_USER_INFO_URL}?${params.toString()}`;
 };
 
+/**
+ * ✅ FIXED: Extract avatar URL from Facebook picture data
+ * 
+ * @param pictureData - Facebook picture data object
+ * @returns Avatar URL or null if not available
+ * 
+ * @example
+ * extractAvatarUrl({ data: { url: 'https://...' } }) // 'https://...'
+ */
+export const extractAvatarUrl = (pictureData: { data?: { url?: string } }): string | null => {
+  return pictureData?.data?.url || null;
+};
+
+/**
+ * Extract user info from Facebook API response
+ * 
+ * @param data - Raw Facebook user data
+ * @returns Normalized user info
+ */
+export const extractFacebookUserInfo = (data: Record<string, unknown>): {
+  id: string;
+  email: string | null;
+  name: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  avatar: string | null;
+  birthday: string | null;
+  gender: string | null;
+  location: string | null;
+} => {
+  return {
+    id: (data.id as string) || '',
+    email: (data.email as string) || null,
+    name: (data.name as string) || null,
+    firstName: (data.first_name as string) || null,
+    lastName: (data.last_name as string) || null,
+    avatar: extractAvatarUrl(data.picture as { data?: { url?: string } }),
+    birthday: (data.birthday as string) || null,
+    gender: (data.gender as string) || null,
+    location: (data.location as { name?: string })?.name || null,
+  };
+};
+
+/**
+ * Get revoke URL for token
+ */
+export const getRevokeUrl = (accessToken: string): string => {
+  const params = new URLSearchParams({
+    access_token: accessToken,
+  });
+  return `${FACEBOOK_REVOKE_URL}?${params.toString()}`;
+};
+
+/**
+ * Get debug token URL
+ */
+export const getDebugTokenUrl = (accessToken: string): string => {
+  const params = new URLSearchParams({
+    input_token: accessToken,
+    access_token: `${facebookOAuthConfig.clientId}|${facebookOAuthConfig.clientSecret}`,
+  });
+  return `${FACEBOOK_DEBUG_TOKEN_URL}?${params.toString()}`;
+};
+
 // ==================== Type Exports ====================
 
 export type FacebookScope = typeof FACEBOOK_SCOPES[keyof typeof FACEBOOK_SCOPES];
@@ -211,3 +275,7 @@ export type FacebookResponseType = typeof FACEBOOK_RESPONSE_TYPES[keyof typeof F
 export type FacebookDisplayMode = typeof FACEBOOK_DISPLAY_MODES[keyof typeof FACEBOOK_DISPLAY_MODES];
 export type FacebookGrantType = typeof FACEBOOK_GRANT_TYPES[keyof typeof FACEBOOK_GRANT_TYPES];
 export type FacebookOAuthConfig = typeof facebookOAuthConfig;
+
+// ==================== Extracted User Info Type ====================
+
+export type ExtractedFacebookUserInfo = ReturnType<typeof extractFacebookUserInfo>;
