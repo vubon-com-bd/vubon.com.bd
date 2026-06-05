@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
+    "target": "ES2020",
     "module": "ESNext",
+    "lib": ["ES2020"],
     "moduleResolution": "bundler",
-    "lib": ["ES2022"],
+    "types": ["node"],                    // ✅ যোগ করুন
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -25,9 +26,9 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,
-    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -41,41 +42,16 @@
     "checkJs": false,
     "incremental": false,
     "noEmitOnError": true,
-    "baseUrl": ".",
+    "allowSyntheticDefaultImports": true,
     "paths": {
-      "@/*": ["./src/*"],
-      "@vubon/shared-constants": ["../shared-constants/src"],
-      "@vubon/shared-constants/*": ["../shared-constants/src/*"],
-      "@vubon/shared-types": ["../shared-types/src"],
-      "@vubon/shared-types/*": ["../shared-types/src/*"],
-      "@vubon/shared-schemas": ["../shared-schemas/src"],
-      "@vubon/shared-schemas/*": ["../shared-schemas/src/*"]
+      "@/*": ["./src/*"]
     }
   },
-  "include": [
-    "src/**/*.ts",
-    "../shared-constants/src/**/*.ts",
-    "../shared-types/src/**/*.ts",
-    "../shared-schemas/src/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules", 
-    "dist", 
-    "**/*.test.ts", 
-    "**/*.spec.ts", 
-    "coverage",
-    "../shared-constants/dist",
-    "../shared-types/dist",
-    "../shared-schemas/dist"
-  ],
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts", "coverage"],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"
     }
-  },
-  "references": [
-    { "path": "../shared-constants" },
-    { "path": "../shared-types" },
-    { "path": "../shared-schemas" }
-  ]
+  }
 }
