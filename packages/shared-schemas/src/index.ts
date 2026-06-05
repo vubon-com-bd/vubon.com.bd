@@ -38,7 +38,6 @@ export {
   CreateSessionSchema,
   RefreshSessionSchema,
   TerminateSessionSchema,
-  TerminateSessionsSchema as TerminateSessionsRequestSchema,
   ValidateSessionSchema,
   SessionHeartbeatSchema,
   SessionTransferRequestSchema,
@@ -109,8 +108,6 @@ export {
   DevicePairingResponseSchema,
   DeviceStatisticsResponseSchema,
   DeviceErrorSchema,
-  NetworkTypeSchema,
-  MobileOperatorSchema,
   type DeviceId,
   type DeviceType,
   type OSType,
@@ -134,6 +131,4 @@ export {
   type DevicePairingResponse,
   type DeviceStatisticsResponse,
   type DeviceError,
-  type NetworkType,
-  type MobileOperator,
 } from './session';
