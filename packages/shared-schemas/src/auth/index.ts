@@ -70,7 +70,7 @@ export {
   // Errors
   LoginErrorSchema,
   // Additional
-  SocialLoginRequestSchema,
+
   MagicLinkRequestSchema,
   MagicLinkVerifySchema,
 } from './login.schema';
@@ -93,7 +93,6 @@ export {
   MarketingConsentSchema,
   AgeVerificationSchema,
   ReferralCodeSchema,
-  CaptchaTokenSchema as RegisterCaptchaTokenSchema,
   RegisterSchema,
   EmailRegisterSchema,
   PhoneRegisterSchema,
