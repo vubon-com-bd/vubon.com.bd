@@ -2,7 +2,7 @@
  * Google OAuth Configuration - Pure readonly OAuth metadata
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-config/src/oauth/google.config
+ * @module shared-config/oauth/google.config
  * 
  * RULES:
  * ✅ ONLY OAuth configuration - NO business logic
@@ -179,13 +179,23 @@ export const isGoogleOAuthConfigured = (): boolean => {
 /**
  * Get Google login URL with parameters
  * Pure function - no side effects
+ * 
+ * @param state - CSRF protection state token
+ * @param nonce - Optional nonce for OIDC
+ * @param hd - Optional hosted domain restriction
+ * @param prompt - Optional prompt type (default: 'select_account')
+ * @param accessType - Optional access type (default: 'offline')
+ * @returns Full Google login URL
+ * 
+ * @example
+ * const loginUrl = getGoogleLoginUrl('random-state-123');
  */
 export const getGoogleLoginUrl = (
   state: string,
   nonce?: string,
   hd?: string,
-  prompt?: string,
-  accessType?: string
+  prompt: string = GOOGLE_DEFAULT_PROMPT,
+  accessType: string = GOOGLE_DEFAULT_ACCESS_TYPE
 ): string => {
   const params = new URLSearchParams({
     client_id: googleOAuthConfig.clientId,
@@ -193,8 +203,8 @@ export const getGoogleLoginUrl = (
     response_type: googleOAuthConfig.responseType,
     scope: googleOAuthConfig.scopes.join(' '),
     state,
-    access_type: accessType || googleOAuthConfig.accessType,
-    prompt: prompt || googleOAuthConfig.prompt,
+    access_type: accessType,
+    prompt: prompt,
   });
   
   if (nonce) {
@@ -205,17 +215,66 @@ export const getGoogleLoginUrl = (
     params.set('hd', hd);
   }
   
+  // Add PKCE code challenge if needed
+  if (googleOAuthConfig.enablePKCE) {
+    params.set('code_challenge_method', 'S256');
+  }
+  
   return `${GOOGLE_AUTH_URL}?${params.toString()}`;
 };
 
 /**
  * Get revoke URL with token
+ * 
+ * @param token - Access token to revoke
+ * @returns Revoke URL with token parameter
  */
 export const getRevokeUrl = (token: string): string => {
   const params = new URLSearchParams({
     token,
   });
   return `${GOOGLE_REVOKE_URL}?${params.toString()}`;
+};
+
+/**
+ * Get token exchange params
+ * 
+ * @param code - Authorization code
+ * @param codeVerifier - PKCE code verifier
+ * @returns Token exchange parameters
+ */
+export const getTokenExchangeParams = (
+  code: string,
+  codeVerifier?: string
+): Record<string, string> => {
+  const params: Record<string, string> = {
+    client_id: googleOAuthConfig.clientId,
+    client_secret: googleOAuthConfig.clientSecret,
+    code,
+    grant_type: GOOGLE_GRANT_TYPES.AUTHORIZATION_CODE,
+    redirect_uri: googleOAuthConfig.callbackUrl,
+  };
+  
+  if (codeVerifier) {
+    params.code_verifier = codeVerifier;
+  }
+  
+  return params;
+};
+
+/**
+ * Get refresh token params
+ * 
+ * @param refreshToken - Refresh token
+ * @returns Refresh token parameters
+ */
+export const getRefreshTokenParams = (refreshToken: string): Record<string, string> => {
+  return {
+    client_id: googleOAuthConfig.clientId,
+    client_secret: googleOAuthConfig.clientSecret,
+    refresh_token: refreshToken,
+    grant_type: GOOGLE_GRANT_TYPES.REFRESH_TOKEN,
+  };
 };
 
 // ==================== Type Exports ====================
