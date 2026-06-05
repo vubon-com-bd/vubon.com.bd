@@ -8,7 +8,7 @@
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": ".",
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -41,21 +41,32 @@
     "checkJs": false,
     "incremental": false,
     "noEmitOnError": true,
+    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
       "@vubon/shared-constants": ["../shared-constants/src"],
       "@vubon/shared-constants/*": ["../shared-constants/src/*"],
       "@vubon/shared-types": ["../shared-types/src"],
-      "@vubon/shared-types/*": ["../shared-types/src/*"]
+      "@vubon/shared-types/*": ["../shared-types/src/*"],
+      "@vubon/shared-utils": ["../shared-utils/src"],
+      "@vubon/shared-utils/*": ["../shared-utils/src/*"]
     }
   },
-  "include": ["src/**/*.ts"],
+  "include": [
+    "src/**/*.ts",
+    "../shared-constants/src/**/*.ts",
+    "../shared-types/src/**/*.ts",
+    "../shared-utils/src/**/*.ts"
+  ],
   "exclude": [
     "node_modules",
     "dist",
     "**/*.test.ts",
     "**/*.spec.ts",
-    "coverage"
+    "coverage",
+    "../shared-constants/dist",
+    "../shared-types/dist",
+    "../shared-utils/dist"
   ],
   "ts-node": {
     "compilerOptions": {
