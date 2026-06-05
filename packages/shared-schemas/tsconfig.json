@@ -41,7 +41,6 @@
     "checkJs": false,
     "incremental": false,
     "noEmitOnError": true,
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
       "@vubon/shared-constants": ["../shared-constants/src"],
