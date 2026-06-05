@@ -182,9 +182,140 @@ export const getEmailUrl = (accessToken: string): string => {
   return `${LINKEDIN_EMAIL_URL}&oauth2_access_token=${accessToken}`;
 };
 
+/**
+ * ✅ FIXED: Extract user info from LinkedIn API response
+ * 
+ * @param data - Raw LinkedIn user info from userinfo endpoint
+ * @returns Normalized user info
+ * 
+ * @example
+ * extractLinkedInUserInfo({
+ *   sub: '123456',
+ *   email: 'user@example.com',
+ *   email_verified: true,
+ *   name: 'John Doe',
+ *   given_name: 'John',
+ *   family_name: 'Doe',
+ *   picture: 'https://...',
+ *   locale: 'en-US'
+ * })
+ */
+export const extractLinkedInUserInfo = (data: {
+  sub: string;
+  email?: string;
+  email_verified?: boolean;
+  name?: string;
+  given_name?: string;
+  family_name?: string;
+  picture?: string;
+  locale?: string;
+}): {
+  id: string;
+  email: string | null;
+  emailVerified: boolean;
+  name: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  avatar: string | null;
+  locale: string | null;
+} => {
+  return {
+    id: data.sub,
+    email: data.email || null,
+    emailVerified: data.email_verified || false,
+    name: data.name || null,
+    firstName: data.given_name || null,
+    lastName: data.family_name || null,
+    avatar: data.picture || null,
+    locale: data.locale || null,
+  };
+};
+
+/**
+ * ✅ FIXED: Get required headers for LinkedIn API requests
+ * 
+ * @param accessToken - OAuth access token
+ * @returns Headers object for LinkedIn API
+ */
+export const getLinkedInApiHeaders = (accessToken: string): Record<string, string> => {
+  return {
+    'Authorization': `Bearer ${accessToken}`,
+    'Content-Type': 'application/json',
+    'X-Restli-Protocol-Version': '2.0.0',
+  };
+};
+
+/**
+ * ✅ FIXED: Extract primary email from LinkedIn v2 email response
+ * 
+ * @param data - LinkedIn email API response
+ * @returns Email address or null
+ * 
+ * @example
+ * extractLinkedInEmail({
+ *   elements: [{ handle: 'user@example.com', handleS: 'user@example.com' }]
+ * })
+ * // Returns: 'user@example.com'
+ */
+export const extractLinkedInEmail = (data: {
+  elements?: Array<{
+    handle?: string;
+    handleS?: string;
+  }>;
+}): string | null => {
+  const emailElement = data.elements?.[0];
+  if (!emailElement) return null;
+  return emailElement.handleS || emailElement.handle || null;
+};
+
+/**
+ * Get revoke URL with token
+ */
+export const getRevokeUrl = (token: string): string => {
+  const params = new URLSearchParams({
+    token,
+  });
+  return `${LINKEDIN_REVOKE_URL}?${params.toString()}`;
+};
+
+/**
+ * Get user info URL
+ */
+export const getUserInfoUrl = (): string => {
+  return LINKEDIN_USER_INFO_URL;
+};
+
+/**
+ * Extract profile picture URL from LinkedIn profile data
+ * 
+ * @param profileData - LinkedIn profile data with profilePicture
+ * @returns Profile picture URL or null
+ */
+export const extractProfilePicture = (profileData: {
+  profilePicture?: {
+    'displayImage~'?: {
+      elements?: Array<{
+        identifiers?: Array<{
+          identifier?: string;
+        }>;
+      }>;
+    };
+  };
+}): string | null => {
+  const pictureData = profileData.profilePicture?.['displayImage~'];
+  const element = pictureData?.elements?.[0];
+  const identifier = element?.identifiers?.[0];
+  return identifier?.identifier || null;
+};
+
 // ==================== Type Exports ====================
 
 export type LinkedInScope = typeof LINKEDIN_SCOPES[keyof typeof LINKEDIN_SCOPES];
 export type LinkedInResponseType = typeof LINKEDIN_RESPONSE_TYPES[keyof typeof LINKEDIN_RESPONSE_TYPES];
 export type LinkedInGrantType = typeof LINKEDIN_GRANT_TYPES[keyof typeof LINKEDIN_GRANT_TYPES];
 export type LinkedInOAuthConfig = typeof linkedinOAuthConfig;
+
+// ==================== Extracted Types ====================
+
+export type ExtractedLinkedInUserInfo = ReturnType<typeof extractLinkedInUserInfo>;
+export type LinkedInApiHeaders = ReturnType<typeof getLinkedInApiHeaders>;
