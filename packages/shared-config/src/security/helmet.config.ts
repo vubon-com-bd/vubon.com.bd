@@ -17,7 +17,7 @@ import { env } from '../env/env.validation';
 // ==================== Constants ====================
 
 // Production domains (Bangladesh specific)
-const PRODUCTION_DOMAINS = [
+const PRODUCTION_DOMAINS: string[] = [
   'https://vubon.com.bd',
   'https://www.vubon.com.bd',
   'https://api.vubon.com.bd',
@@ -26,14 +26,14 @@ const PRODUCTION_DOMAINS = [
 ];
 
 // CDN domains
-const CDN_DOMAINS = [
+const CDN_DOMAINS: string[] = [
   'https://cdn.vubon.com.bd',
   'https://*.cloudinary.com',
   'https://*.cloudfront.net',
 ];
 
 // Payment gateway domains (Bangladesh specific)
-const PAYMENT_DOMAINS = [
+const PAYMENT_DOMAINS: string[] = [
   'https://secure.sslcommerz.com',
   'https://sandbox.sslcommerz.com',
   'https://*.bkash.com',
@@ -42,7 +42,7 @@ const PAYMENT_DOMAINS = [
 ];
 
 // Analytics domains
-const ANALYTICS_DOMAINS = [
+const ANALYTICS_DOMAINS: string[] = [
   'https://www.googletagmanager.com',
   'https://www.google-analytics.com',
   'https://analytics.vubon.com.bd',
@@ -297,14 +297,15 @@ export const isCspUnsafeInlineAllowed = (): boolean => {
   return false;
 };
 
+// ✅ FIXED: সরলীকৃত - TypeScript type inference সমস্যা এড়ানোর জন্য
 export const getAllowedDomains = (directive: keyof typeof cspConfig.directives): string[] => {
-  const domains = cspConfig.directives[directive];
+  // Direct type assertion to avoid complex type inference
+  const domains = cspConfig.directives[directive] as unknown as string[];
   const result: string[] = [];
   
-  if (Array.isArray(domains)) {
-    for (let i = 0; i < domains.length; i++) {
-      const d = domains[i];
-      if (typeof d === 'string' && d.charAt(0) !== "'") {
+  if (domains && Array.isArray(domains)) {
+    for (const d of domains) {
+      if (d && typeof d === 'string' && d[0] !== "'") {
         result.push(d);
       }
     }
