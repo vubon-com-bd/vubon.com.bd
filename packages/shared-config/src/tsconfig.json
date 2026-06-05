@@ -55,32 +55,18 @@
     }
   },
   "include": [
-    "src/**/*.ts",
-    "../shared-constants/src/**/*.ts",
-    "../shared-types/src/**/*.ts",
-    "../shared-schemas/src/**/*.ts",
-    "../shared-utils/src/**/*.ts"
+    "src/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     "dist",
     "**/*.test.ts",
     "**/*.spec.ts",
-    "coverage",
-    "../shared-constants/dist",
-    "../shared-types/dist",
-    "../shared-schemas/dist",
-    "../shared-utils/dist"
+    "coverage"
   ],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"
     }
-  },
-  "references": [
-    { "path": "../shared-constants" },
-    { "path": "../shared-types" },
-    { "path": "../shared-schemas" },
-    { "path": "../shared-utils" }
-  ]
+  }
 }
