@@ -297,19 +297,20 @@ export const isCspUnsafeInlineAllowed = (): boolean => {
   return false;
 };
 
-export const getAllowedDomains = (directive: keyof typeof cspConfig.directives): readonly string[] => {
+export const getAllowedDomains = (directive: keyof typeof cspConfig.directives): string[] => {
   const domains = cspConfig.directives[directive];
+  const result: string[] = [];
+  
   if (Array.isArray(domains)) {
-    // ✅ FIXED: Proper type checking without type predicate
-    const result: string[] = [];
-    for (const d of domains) {
-      if (typeof d === 'string' && !d.startsWith("'")) {
+    for (let i = 0; i < domains.length; i++) {
+      const d = domains[i];
+      if (typeof d === 'string' && d.charAt(0) !== "'") {
         result.push(d);
       }
     }
-    return result;
   }
-  return [];
+  
+  return result;
 };
 
 // ==================== Type Exports ====================
