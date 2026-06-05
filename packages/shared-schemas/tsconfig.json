@@ -41,32 +41,21 @@
     "checkJs": false,
     "incremental": false,
     "noEmitOnError": true,
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
       "@vubon/shared-constants": ["../shared-constants/src"],
       "@vubon/shared-constants/*": ["../shared-constants/src/*"],
       "@vubon/shared-types": ["../shared-types/src"],
-      "@vubon/shared-types/*": ["../shared-types/src/*"],
-      "@vubon/shared-utils": ["../shared-utils/src"],
-      "@vubon/shared-utils/*": ["../shared-utils/src/*"]
+      "@vubon/shared-types/*": ["../shared-types/src/*"]
     }
   },
-  "include": [
-    "src/**/*.ts",
-    "../shared-constants/src/**/*.ts",
-    "../shared-types/src/**/*.ts",
-    "../shared-utils/src/**/*.ts"
-  ],
+  "include": ["src/**/*.ts"],
   "exclude": [
     "node_modules",
     "dist",
     "**/*.test.ts",
     "**/*.spec.ts",
-    "coverage",
-    "../shared-constants/dist",
-    "../shared-types/dist",
-    "../shared-utils/dist"
+    "coverage"
   ],
   "ts-node": {
     "compilerOptions": {
