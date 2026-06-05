@@ -167,10 +167,10 @@ export const isFeatureEnabled = (feature: keyof Env): boolean => {
  * Get CORS origins as array
  */
 export const getCorsOrigins = (): string[] => {
-  // ✅ FIXED: Use type assertion to avoid 'never' error
-  const origins = env.CORS_ORIGINS as string;
-  if (origins && typeof origins === 'string') {
-    return origins.split(',').map((o: string) => o.trim());
+  // ✅ FIXED: CORS_ORIGINS is already string[] from Zod transform
+  const origins = env.CORS_ORIGINS;
+  if (origins && Array.isArray(origins)) {
+    return origins;
   }
   return [];
 };
