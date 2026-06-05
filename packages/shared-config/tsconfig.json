@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "lib": ["ES2022"],
     "declaration": true,
     "declarationMap": true,
@@ -41,7 +41,6 @@
     "checkJs": false,
     "incremental": false,
     "noEmitOnError": true,
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }
