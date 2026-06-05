@@ -51,8 +51,8 @@ const logValidationError = (error: unknown): void => {
     console.error(`   ${error.message}`);
     
     // Log missing or invalid fields
-    if (error.name === 'ZodError' && 'issues' in (error as { issues ? : unknown[] })) {
-      const zodError = error as { issues ? : Array < { path: string[];message: string } > };
+    if (error.name === 'ZodError' && 'issues' in (error as { issues?: unknown[] })) {
+      const zodError = error as { issues?: Array<{ path: string[]; message: string }> };
       if (zodError.issues) {
         console.error('   Missing/Invalid fields:');
         zodError.issues.forEach((issue) => {
@@ -104,7 +104,7 @@ export const safeValidateEnv = (): Env | null => {
  * Throws at import time if validation fails - prevents invalid startup
  * This is the main export that should be used throughout the app
  */
-export const env: Readonly < Env > = Object.freeze(validateEnv());
+export const env: Readonly<Env> = Object.freeze(validateEnv());
 
 // ==================== Environment Helpers ====================
 
@@ -126,7 +126,7 @@ export const isTest = env.NODE_ENV === 'test';
 /**
  * Check if running in staging (if applicable)
  */
-export const isStaging = env.NODE_ENV === 'staging' || (isProduction && env.APP_URL?.includes('staging'));
+export const isStaging = env.NODE_ENV === 'staging' || (isProduction && (env.APP_URL?.includes('staging') ?? false));
 
 /**
  * Get environment variable with type safety
@@ -190,8 +190,10 @@ export const isFeatureEnabled = (feature: keyof Env): boolean => {
  * @returns Array of allowed origins
  */
 export const getCorsOrigins = (): string[] => {
-  if (typeof env.CORS_ORIGINS === 'string') {
-    return env.CORS_ORIGINS.split(',').map(o => o.trim());
+  const origins = env.CORS_ORIGINS;
+  if (typeof origins === 'string') {
+    // ✅ FIXED: Added proper type for parameter 'o'
+    return origins.split(',').map((o: string) => o.trim());
   }
   return [];
 };
