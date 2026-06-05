@@ -190,9 +190,141 @@ export const getRevokeUrl = (): string => {
   return GITHUB_REVOKE_URL.replace('{client_id}', githubOAuthConfig.clientId);
 };
 
+/**
+ * ✅ FIXED: Extract primary email from GitHub emails response
+ * 
+ * @param emails - Array of GitHub email objects
+ * @returns Primary email info or null
+ * 
+ * @example
+ * extractPrimaryEmail([
+ *   { email: 'primary@example.com', primary: true, verified: true, visibility: 'public' },
+ *   { email: 'secondary@example.com', primary: false, verified: true, visibility: null }
+ * ])
+ * // Returns: { email: 'primary@example.com', isVerified: true, visibility: 'public' }
+ */
+export const extractPrimaryEmail = (emails: Array<{
+  email: string;
+  primary: boolean;
+  verified: boolean;
+  visibility: string | null;
+}>): { email: string; isVerified: boolean; visibility: string | null } | null => {
+  const primaryEmail = emails.find(e => e.primary);
+  if (!primaryEmail) return null;
+  return {
+    email: primaryEmail.email,
+    isVerified: primaryEmail.verified,
+    visibility: primaryEmail.visibility,
+  };
+};
+
+/**
+ * ✅ FIXED: Extract user info from GitHub API response
+ * 
+ * @param data - Raw GitHub user data
+ * @returns Normalized user info
+ * 
+ * @example
+ * extractGitHubUserInfo({
+ *   id: 123456,
+ *   login: 'username',
+ *   name: 'John Doe',
+ *   email: 'john@example.com',
+ *   avatar_url: 'https://...',
+ *   followers: 100,
+ *   following: 50
+ * })
+ */
+export const extractGitHubUserInfo = (data: {
+  id: number;
+  login: string;
+  name?: string | null;
+  email?: string | null;
+  avatar_url?: string;
+  bio?: string | null;
+  company?: string | null;
+  location?: string | null;
+  blog?: string | null;
+  twitter_username?: string | null;
+  followers?: number;
+  following?: number;
+  public_repos?: number;
+  public_gists?: number;
+  created_at?: string;
+  updated_at?: string;
+}): {
+  id: string;
+  login: string;
+  name: string | null;
+  email: string | null;
+  avatar: string | null;
+  bio: string | null;
+  company: string | null;
+  location: string | null;
+  website: string | null;
+  twitter: string | null;
+  followers: number;
+  following: number;
+  publicRepos: number;
+  publicGists: number;
+  createdAt: string | null;
+  updatedAt: string | null;
+} => {
+  return {
+    id: String(data.id),
+    login: data.login,
+    name: data.name || null,
+    email: data.email || null,
+    avatar: data.avatar_url || null,
+    bio: data.bio || null,
+    company: data.company || null,
+    location: data.location || null,
+    website: data.blog || null,
+    twitter: data.twitter_username || null,
+    followers: data.followers || 0,
+    following: data.following || 0,
+    publicRepos: data.public_repos || 0,
+    publicGists: data.public_gists || 0,
+    createdAt: data.created_at || null,
+    updatedAt: data.updated_at || null,
+  };
+};
+
+/**
+ * Get user info URL with custom headers note
+ * GitHub API requires Accept header for proper response
+ */
+export const getUserInfoUrl = (): string => {
+  return GITHUB_USER_INFO_URL;
+};
+
+/**
+ * Get required headers for GitHub API requests
+ */
+export const getGitHubApiHeaders = (accessToken: string): Record<string, string> => {
+  return {
+    'Authorization': `Bearer ${accessToken}`,
+    'Accept': 'application/vnd.github.v3+json',
+    'X-GitHub-Api-Version': GITHUB_API_VERSION,
+  };
+};
+
+/**
+ * Get emails URL
+ */
+export const getUserEmailsUrl = (): string => {
+  return GITHUB_USER_EMAIL_URL;
+};
+
 // ==================== Type Exports ====================
 
 export type GitHubScope = typeof GITHUB_SCOPES[keyof typeof GITHUB_SCOPES];
 export type GitHubResponseType = typeof GITHUB_RESPONSE_TYPES[keyof typeof GITHUB_RESPONSE_TYPES];
 export type GitHubGrantType = typeof GITHUB_GRANT_TYPES[keyof typeof GITHUB_GRANT_TYPES];
 export type GitHubOAuthConfig = typeof githubOAuthConfig;
+
+// ==================== Extracted Types ====================
+
+export type ExtractedGitHubUserInfo = ReturnType<typeof extractGitHubUserInfo>;
+export type ExtractedPrimaryEmail = ReturnType<typeof extractPrimaryEmail>;
+export type GitHubApiHeaders = ReturnType<typeof getGitHubApiHeaders>;
