@@ -65,15 +65,15 @@ export default defineConfig({
   // Bundle dependencies? No - dependencies should be external
   bundle: false,
   
-  // External dependencies (peer dependencies)
+  // ✅ FIXED: External dependencies with correct package names
   external: [
     'dotenv',
     'dotenv-expand',
     'zod',
-    // Peer dependencies
-    '@vubon/auth-constants',
+    // Peer dependencies (সঠিক নাম)
+    '@vubon/shared-constants',
     '@vubon/shared-types',
-    '@vubon/auth-schemas',
+    '@vubon/shared-schemas',
     '@vubon/shared-utils',
   ],
   
@@ -94,9 +94,6 @@ export default defineConfig({
   
   // Environment variables (none needed for config)
   define: {},
-  
-  // No replacement needed
-  replace: {},
   
   // No esbuild plugins needed
   esbuildPlugins: [],
