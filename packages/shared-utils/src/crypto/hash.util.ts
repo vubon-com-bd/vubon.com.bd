@@ -374,7 +374,3 @@ export const timingSafeEqual = (a: string, b: string): boolean => {
   }
 };
 
-// ==================== Type Exports ====================
-
-// ✅ FIXED: Re-export type (no conflict now)
-export type { PasswordStrengthInfo };
