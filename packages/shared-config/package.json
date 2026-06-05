@@ -158,12 +158,12 @@
     "prettier": "^3.0.0",
     "tsup": "^8.0.0",
     "typescript": "^5.0.0",
-    "vitest": "^1.0.0"
+    "vitest": "^4.1.8"
   },
   "peerDependencies": {
     "@vubon/shared-constants": "file:../shared-constants",
-    "@vubon/shared-types": "file:../shared-types",
     "@vubon/shared-schemas": "file:../shared-schemas",
+    "@vubon/shared-types": "file:../shared-types",
     "@vubon/shared-utils": "file:../shared-utils"
   },
   "sideEffects": false,
