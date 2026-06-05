@@ -55,6 +55,9 @@ const ANALYTICS_DOMAINS = [
   'https://analytics.vubon.com.bd',
 ];
 
+// Is production environment
+const IS_PRODUCTION = env.NODE_ENV === 'production';
+
 // ==================== CSP (Content Security Policy) ====================
 
 export const cspConfig = Object.freeze({
@@ -62,11 +65,11 @@ export const cspConfig = Object.freeze({
     // Default policy
     defaultSrc: ["'self'", ...PRODUCTION_DOMAINS],
     
-    // Script sources
+    // ✅ FIXED: Script sources - removed unsafe-inline and unsafe-eval in production
     scriptSrc: [
       "'self'",
-      "'unsafe-inline'", // Required for some inline scripts
-      "'unsafe-eval'",   // Required for development only
+      // Only allow unsafe-inline/unsafe-eval in development
+      ...(IS_PRODUCTION ? [] : ["'unsafe-inline'", "'unsafe-eval'"]),
       ...ANALYTICS_DOMAINS,
       ...PRODUCTION_DOMAINS,
       "'wasm-unsafe-eval'",
@@ -75,7 +78,8 @@ export const cspConfig = Object.freeze({
     // Style sources
     styleSrc: [
       "'self'",
-      "'unsafe-inline'",
+      // Allow unsafe-inline in development only
+      ...(IS_PRODUCTION ? [] : ["'unsafe-inline'"]),
       'https://fonts.googleapis.com',
       ...PRODUCTION_DOMAINS,
     ],
@@ -142,12 +146,12 @@ export const cspConfig = Object.freeze({
     baseUri: ["'self'"],
     
     // Upgrade insecure requests to HTTPS
-    upgradeInsecureRequests: env.NODE_ENV === 'production' ? [] : undefined,
+    upgradeInsecureRequests: IS_PRODUCTION ? [] : undefined,
     
     // Block mixed content (HTTP on HTTPS pages)
-    blockAllMixedContent: env.NODE_ENV === 'production' ? [] : undefined,
+    blockAllMixedContent: IS_PRODUCTION ? [] : undefined,
   },
-  reportOnly: env.NODE_ENV === 'development',
+  reportOnly: !IS_PRODUCTION,
   reportUri: '/api/csp-report',
 } as const);
 
@@ -156,7 +160,7 @@ export const cspConfig = Object.freeze({
 export const securityHeadersConfig = Object.freeze({
   // Strict Transport Security (HSTS)
   hsts: {
-    enabled: true,
+    enabled: IS_PRODUCTION,
     maxAge: 31536000, // 1 year
     includeSubDomains: true,
     preload: true,
@@ -223,7 +227,7 @@ export const securityHeadersConfig = Object.freeze({
   
   // Expect-CT (Certificate Transparency)
   expectCt: {
-    enabled: true,
+    enabled: IS_PRODUCTION,
     maxAge: 86400, // 24 hours
     enforce: true,
   },
@@ -237,7 +241,7 @@ export const securityHeadersConfig = Object.freeze({
 // ==================== Trusted Types (for XSS prevention) ====================
 
 export const trustedTypesConfig = Object.freeze({
-  enabled: true,
+  enabled: IS_PRODUCTION,
   policies: ['default', 'dompurify', 'vubon-policy'],
   policyName: 'vubon-policy',
   // Trusted type for HTML sanitization
@@ -266,11 +270,16 @@ export const helmetConfigByEnv = Object.freeze({
       ...securityHeadersConfig.permissionsPolicy,
       enabled: false,
     },
+    expectCt: {
+      ...securityHeadersConfig.expectCt,
+      enabled: false,
+    },
   },
   production: {
     csp: cspConfig,
     hsts: securityHeadersConfig.hsts,
     permissionsPolicy: securityHeadersConfig.permissionsPolicy,
+    expectCt: securityHeadersConfig.expectCt,
   },
   test: {
     csp: {
@@ -283,6 +292,14 @@ export const helmetConfigByEnv = Object.freeze({
     },
     hsts: {
       ...securityHeadersConfig.hsts,
+      enabled: false,
+    },
+    permissionsPolicy: {
+      ...securityHeadersConfig.permissionsPolicy,
+      enabled: false,
+    },
+    expectCt: {
+      ...securityHeadersConfig.expectCt,
       enabled: false,
     },
   },
@@ -305,7 +322,7 @@ export const getHelmetConfig = (environment: 'development' | 'production' | 'tes
  * Check if CSP is in report-only mode
  */
 export const isCspReportOnly = (): boolean => {
-  return cspConfig.reportOnly || env.NODE_ENV === 'development';
+  return cspConfig.reportOnly || !IS_PRODUCTION;
 };
 
 /**
@@ -315,11 +332,39 @@ export const getCspReportUri = (): string => {
   return cspConfig.reportUri;
 };
 
+/**
+ * Get nonce for CSP (for inline scripts)
+ * This generates a nonce placeholder - actual nonce should be generated per request
+ */
+export const getCspNonce = (): string => {
+  return '{{nonce}}';
+};
+
+/**
+ * Check if CSP directive allows unsafe-inline
+ */
+export const isCspUnsafeInlineAllowed = (): boolean => {
+  const scriptSrc = cspConfig.directives.scriptSrc;
+  return !IS_PRODUCTION && scriptSrc.includes("'unsafe-inline'");
+};
+
+/**
+ * Get all allowed domains for a specific directive
+ */
+export const getAllowedDomains = (directive: keyof typeof cspConfig.directives): readonly string[] => {
+  const domains = cspConfig.directives[directive];
+  if (Array.isArray(domains)) {
+    return domains.filter(d => !d.startsWith("'"));
+  }
+  return [];
+};
+
 // ==================== Type Exports ====================
 
 export type CSPConfig = typeof cspConfig;
 export type SecurityHeadersConfig = typeof securityHeadersConfig;
 export type TrustedTypesConfig = typeof trustedTypesConfig;
+export type HelmetConfigByEnv = typeof helmetConfigByEnv;
 
 export interface HelmetConfig {
   contentSecurityPolicy: typeof cspConfig;
