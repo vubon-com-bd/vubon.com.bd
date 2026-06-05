@@ -12,13 +12,14 @@
  */
 
 import { z } from 'zod';
+// ✅ FIXED: Correct package name
 import { 
   JWT_CONFIG, 
   RATE_LIMITS, 
   SESSION_SECURITY, 
   ENCRYPTION_CONFIG,
   CORS_CONFIG 
-} from '@vubon/auth-constants';
+} from '@vubon/shared-constants';
 
 // ==================== Node Environment ====================
 
