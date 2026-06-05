@@ -28,9 +28,7 @@ export const APPLE_OAUTH_VERSION = '1.0';
 // ==================== Scopes ====================
 
 export const APPLE_SCOPES = {
-  /** User's name (first name, last name) - requires user interaction */
   NAME: 'name',
-  /** User's email address */
   EMAIL: 'email',
 } as const;
 
@@ -68,7 +66,7 @@ export const APPLE_GRANT_TYPES = {
 
 // ==================== Configuration ====================
 
-export const appleOAuthConfig = Object.freeze({
+export const appleOAuthConfig = {
   // Basic provider info
   provider: APPLE_PROVIDER_NAME,
   providerName: 'Apple',
@@ -107,15 +105,15 @@ export const appleOAuthConfig = Object.freeze({
     firstName: 'name.firstName',
     lastName: 'name.lastName',
     isPrivateEmail: 'is_private_email',
-  } as const,
+  },
   
   // Real user status values
   realUserStatus: {
     UNSUPPORTED: 0,
     UNKNOWN: 1,
     LIKELY_REAL: 2,
-  } as const,
-}) as const;
+  },
+} as const;
 
 // ==================== Helper Functions ====================
 
@@ -151,18 +149,7 @@ export const getAppleLoginUrl = (state: string, nonce: string): string => {
 };
 
 /**
- * ✅ FIXED: Extract user info from Apple ID token response
- * 
- * @param userInfo - Raw Apple user info from token response
- * @returns Normalized user info
- * 
- * @example
- * extractAppleUserInfo({
- *   sub: '001234.abc123',
- *   email: 'user@example.com',
- *   email_verified: true,
- *   name: { firstName: 'John', lastName: 'Doe' }
- * })
+ * Extract user info from Apple ID token response
  */
 export const extractAppleUserInfo = (userInfo: {
   sub: string;
@@ -192,8 +179,7 @@ export const extractAppleUserInfo = (userInfo: {
 };
 
 /**
- * ✅ FIXED: Get client secret configuration for Apple
- * Note: This returns the config, actual signing happens in service layer
+ * Get client secret configuration for Apple
  */
 export const getAppleClientSecretConfig = (): {
   teamId: string;
@@ -251,8 +237,5 @@ export type AppleResponseType = typeof APPLE_RESPONSE_TYPES[keyof typeof APPLE_R
 export type AppleResponseMode = typeof APPLE_RESPONSE_MODES[keyof typeof APPLE_RESPONSE_MODES];
 export type AppleGrantType = typeof APPLE_GRANT_TYPES[keyof typeof APPLE_GRANT_TYPES];
 export type AppleOAuthConfig = typeof appleOAuthConfig;
-
-// ==================== Extracted User Info Type ====================
-
 export type ExtractedAppleUserInfo = ReturnType<typeof extractAppleUserInfo>;
 export type AppleClientSecretConfig = ReturnType<typeof getAppleClientSecretConfig>;
