@@ -36,6 +36,6 @@ export {
 } from './env.validation';
 
 // ============================================================
-// Type Exports
+// Type Exports (from validation)
 // ============================================================
-export type { Env, ValidatedEnv, NodeEnv, ServerConfig, DatabaseConfig, RedisConfig, JWTConfig, OAuthConfig, SecurityConfig, EmailConfig, FeatureFlags } from './env.schema';
+export type { ValidatedEnv } from './env.validation';
