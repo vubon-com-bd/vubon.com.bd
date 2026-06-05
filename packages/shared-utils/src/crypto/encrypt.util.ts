@@ -49,13 +49,13 @@ const DEV_SALT = 'dev-salt-32-bytes-long-string!!!!';
  */
 const getSalt = (): string => {
   // First try environment variable
-  const envSalt = process.env.ENCRYPTION_SALT;
+  const envSalt = process.env['ENCRYPTION_SALT'];
   if (envSalt && envSalt.length > 0) {
     return envSalt;
   }
   
   // For development, use deterministic salt
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env['NODE_ENV'] !== 'production') {
     return DEV_SALT;
   }
   
