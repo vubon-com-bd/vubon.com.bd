@@ -20,9 +20,10 @@ import { env } from '../env/env.validation';
 const ONE_MINUTE = 60 * 1000;
 const FIVE_MINUTES = 5 * ONE_MINUTE;
 const FIFTEEN_MINUTES = 15 * ONE_MINUTE;
-const THIRTY_MINUTES = 30 * ONE_MINUTE;
+// ✅ FIXED: Removed unused constants
+// const THIRTY_MINUTES = 30 * ONE_MINUTE;
 const ONE_HOUR = 60 * ONE_MINUTE;
-const ONE_DAY = 24 * ONE_HOUR;
+// const ONE_DAY = 24 * ONE_HOUR;
 
 // Default rate limits from environment
 const DEFAULT_GLOBAL_LIMIT = env.RATE_LIMIT_MAX_REQUESTS || 100;
@@ -39,8 +40,8 @@ export const rateLimitConfig = Object.freeze({
     max: DEFAULT_GLOBAL_LIMIT,
     skipSuccessfulRequests: false,
     skipFailedRequests: false,
-    standardHeaders: true, // Return rate limit headers
-    legacyHeaders: false,  // Don't return X-RateLimit-* headers
+    standardHeaders: true,
+    legacyHeaders: false,
   },
   
   // Authentication endpoints (stricter)
@@ -207,10 +208,9 @@ export const rateLimitConfig = Object.freeze({
   
   // Store configuration
   store: {
-    type: 'redis' as const, // 'memory', 'redis', 'memcached'
+    type: 'redis' as const,
     prefix: 'ratelimit:',
     resetOnChange: false,
-    // Redis specific
     redis: {
       enableOfflineQueue: false,
       connectionTimeout: 5000,
@@ -286,7 +286,6 @@ export const getUserTierRateLimit = (tier: 'standard' | 'premium' | 'seller' | '
  * Check if IP is whitelisted
  */
 export const isIpWhitelisted = (ip: string): boolean => {
-  // Pure function - just checks the config
   return rateLimitConfig.whitelist.ips.includes(ip);
 };
 
