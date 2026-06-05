@@ -36,7 +36,6 @@ export {
   UserPermissionsResponseSchema,
   PermissionListResponseSchema,
   PermissionSyncResponseSchema,
-  PermissionTreeNodeSchema,
   PermissionStatisticsResponseSchema,
   PermissionErrorSchema,
   createPermissionString,
