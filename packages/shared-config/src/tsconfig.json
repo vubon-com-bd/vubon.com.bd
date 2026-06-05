@@ -33,6 +33,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "preserveConstEnums": true,
     "removeComments": true,
     "emitDecoratorMetadata": false,
     "experimentalDecorators": false,
@@ -43,17 +44,43 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@vubon/auth-constants": ["../shared-constants/auth-constants/src"],
-      "@vubon/auth-types": ["../shared-types/src"],
-      "@vubon/auth-schemas": ["../shared-schemas/auth-schemas/src"],
-      "@vubon/auth-utils": ["../shared-utils/src"]
+      "@vubon/shared-constants": ["../shared-constants/src"],
+      "@vubon/shared-constants/*": ["../shared-constants/src/*"],
+      "@vubon/shared-types": ["../shared-types/src"],
+      "@vubon/shared-types/*": ["../shared-types/src/*"],
+      "@vubon/shared-schemas": ["../shared-schemas/src"],
+      "@vubon/shared-schemas/*": ["../shared-schemas/src/*"],
+      "@vubon/shared-utils": ["../shared-utils/src"],
+      "@vubon/shared-utils/*": ["../shared-utils/src/*"]
     }
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts", "coverage"],
+  "include": [
+    "src/**/*.ts",
+    "../shared-constants/src/**/*.ts",
+    "../shared-types/src/**/*.ts",
+    "../shared-schemas/src/**/*.ts",
+    "../shared-utils/src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "coverage",
+    "../shared-constants/dist",
+    "../shared-types/dist",
+    "../shared-schemas/dist",
+    "../shared-utils/dist"
+  ],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"
     }
-  }
+  },
+  "references": [
+    { "path": "../shared-constants" },
+    { "path": "../shared-types" },
+    { "path": "../shared-schemas" },
+    { "path": "../shared-utils" }
+  ]
 }
