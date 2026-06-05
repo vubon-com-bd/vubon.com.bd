@@ -132,7 +132,7 @@ export const UserStrongPasswordSchema = z
         path: ['password'],
       });
     }
-    if (PASSWORD_POLICY.REQUIRE_SPECIAL_CHARS && !/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(val)) {
+    if (PASSWORD_POLICY.REQUIRE_SYMBOLS && !/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(val)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Password must contain at least one special character',
@@ -193,12 +193,6 @@ export const ReferralCodeSchema = z
   .nullable()
   .brand('ReferralCode');
 
-// CAPTCHA Token Schema
-export const CaptchaTokenSchema = z
-  .string()
-  .min(1, 'CAPTCHA verification required')
-  .optional()
-  .brand('CaptchaToken');
 
 // ==================== Request Schemas ====================
 
@@ -217,7 +211,6 @@ export const RegisterSchema = z
     marketingConsent: MarketingConsentSchema,
     ageConfirmed: AgeVerificationSchema,
     referrerCode: ReferralCodeSchema,
-    captchaToken: CaptchaTokenSchema,
   })
   .strict()
   .refine((data) => data.password === data.confirmPassword, {
@@ -237,9 +230,7 @@ export const EmailRegisterSchema = z
     acceptTerms: AcceptTermsSchema,
     acceptPrivacy: AcceptPrivacySchema,
     marketingConsent: MarketingConsentSchema,
-    referrerCode: ReferralCodeSchema,
-    captchaToken: CaptchaTokenSchema,
-  })
+    referrerCode: ReferralCodeSchema,  })
   .strict()
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
@@ -259,8 +250,7 @@ export const PhoneRegisterSchema = z
     acceptPrivacy: AcceptPrivacySchema,
     marketingConsent: MarketingConsentSchema,
     referrerCode: ReferralCodeSchema,
-    captchaToken: CaptchaTokenSchema,
-  })
+    })
   .strict()
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
@@ -318,8 +308,7 @@ export const VendorRegisterSchema = z
     acceptTerms: AcceptTermsSchema,
     acceptPrivacy: AcceptPrivacySchema,
     marketingConsent: MarketingConsentSchema,
-    captchaToken: CaptchaTokenSchema,
-  })
+    })
   .strict()
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
@@ -410,8 +399,6 @@ export type UserPassword = z.infer<typeof UserPasswordSchema>;
 export type UserStrongPassword = z.infer<typeof UserStrongPasswordSchema>;
 export type Username = z.infer<typeof UsernameSchema>;
 export type ReferralCode = z.infer<typeof ReferralCodeSchema>;
-export type CaptchaToken = z.infer<typeof CaptchaTokenSchema>;
-
 export type RegisterRequest = z.infer<typeof RegisterSchema>;
 export type EmailRegisterRequest = z.infer<typeof EmailRegisterSchema>;
 export type PhoneRegisterRequest = z.infer<typeof PhoneRegisterSchema>;
