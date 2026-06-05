@@ -70,9 +70,9 @@ const TEST_ORIGINS = [
 
 // ==================== CORS Configuration ====================
 
-export const corsConfig = Object.freeze({
+export const corsConfig = {
   // Allowed origins (from environment, comma-separated)
-  origins: env.CORS_ORIGINS,
+  origin: env.CORS_ORIGINS as string | string[],
   
   // Allow credentials (cookies, authorization headers)
   credentials: env.CORS_CREDENTIALS,
@@ -95,24 +95,33 @@ export const corsConfig = Object.freeze({
   
   // Don't pass preflight response to next handler
   preflightContinue: false,
-} as const);
+} as const;
 
 // ==================== Environment-specific overrides ====================
 
-export const corsConfigByEnv = Object.freeze({
+export const corsConfigByEnv = {
   development: {
-    ...corsConfig,
-    origins: DEVELOPMENT_ORIGINS,
+    origin: DEVELOPMENT_ORIGINS,
     credentials: true,
     maxAge: 0, // No caching for development
+    methods: ALLOWED_METHODS,
+    allowedHeaders: ALLOWED_HEADERS,
+    exposedHeaders: EXPOSED_HEADERS,
+    optionsSuccessStatus: 204,
+    preflightContinue: false,
   },
   production: corsConfig,
   test: {
-    ...corsConfig,
-    origins: TEST_ORIGINS,
+    origin: TEST_ORIGINS,
     credentials: true,
+    maxAge: 0,
+    methods: ALLOWED_METHODS,
+    allowedHeaders: ALLOWED_HEADERS,
+    exposedHeaders: EXPOSED_HEADERS,
+    optionsSuccessStatus: 204,
+    preflightContinue: false,
   },
-} as const);
+} as const;
 
 // ==================== Helper Functions ====================
 
@@ -122,9 +131,9 @@ export const corsConfigByEnv = Object.freeze({
 export const getCorsConfig = (environment: 'development' | 'production' | 'test' = env.NODE_ENV): CorsOptions => {
   const config = corsConfigByEnv[environment];
   if (!config) {
-    return corsConfigByEnv.production;
+    return corsConfigByEnv.production as CorsOptions;
   }
-  return config;
+  return config as CorsOptions;
 };
 
 /**
@@ -133,7 +142,7 @@ export const getCorsConfig = (environment: 'development' | 'production' | 'test'
  */
 export const isOriginAllowed = (origin: string, environment?: 'development' | 'production' | 'test'): boolean => {
   const config = getCorsConfig(environment);
-  const allowedOrigins = config.origins;
+  const allowedOrigins = config.origin;
   
   if (allowedOrigins === true) return true;
   if (allowedOrigins === false) return false;
@@ -148,7 +157,7 @@ export const isOriginAllowed = (origin: string, environment?: 'development' | 'p
  */
 export const getAllowedOrigins = (environment?: 'development' | 'production' | 'test'): string[] => {
   const config = getCorsConfig(environment);
-  const origins = config.origins;
+  const origins = config.origin;
   
   if (Array.isArray(origins)) return origins;
   if (typeof origins === 'string') return [origins];
