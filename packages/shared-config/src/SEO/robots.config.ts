@@ -16,25 +16,21 @@ import { env } from '../env/env.validation';
 
 // ==================== Constants ====================
 
-// Base URLs
+// Base URL
 const APP_URL = env.APP_URL || 'https://vubon.com.bd';
-const API_URL = env.API_URL || 'https://api.vubon.com.bd';
+// ✅ FIXED: Removed unused API_URL
+// const API_URL = env.API_URL || 'https://api.vubon.com.bd';
 
 // Dynamic paths to disallow (Bangladesh e-commerce specific)
 const DISALLOW_PATHS = [
-  // API routes
   '/api/',
   '/api/*',
   '/graphql',
   '/webhook',
-  
-  // Admin routes
   '/admin/',
   '/admin/*',
   '/dashboard',
   '/dashboard/*',
-  
-  // Auth routes
   '/auth/',
   '/auth/*',
   '/login',
@@ -46,8 +42,6 @@ const DISALLOW_PATHS = [
   '/verify-phone',
   '/mfa',
   '/mfa/*',
-  
-  // Checkout & Payment
   '/checkout/',
   '/checkout/*',
   '/cart',
@@ -56,21 +50,15 @@ const DISALLOW_PATHS = [
   '/payment/*',
   '/order/*/invoice',
   '/order/*/confirm',
-  
-  // Account management
   '/account/*/edit',
   '/account/*/delete',
   '/account/*/change-password',
   '/profile',
   '/profile/*',
-  
-  // Dynamic pages
   '/search?*',
   '/filter?*',
   '/sort?*',
   '/page?*',
-  
-  // Query parameters (block all URLs with these params)
   '/*?*sort*',
   '/*?*filter*',
   '/*?*page*',
@@ -80,8 +68,6 @@ const DISALLOW_PATHS = [
   '/*?*utm_campaign*',
   '/*?*utm_term*',
   '/*?*utm_content*',
-  
-  // Internal/system paths
   '/_next/',
   '/_next/*',
   '/static/',
@@ -89,18 +75,12 @@ const DISALLOW_PATHS = [
   '/images/temp/',
   '/temp/',
   '/cache/',
-  
-  // File uploads
   '/uploads/temp/',
   '/uploads/*/temp/',
-  
-  // Debug/Dev paths
   '/debug/',
   '/dev/',
   '/test/',
   '/staging/',
-  
-  // Vendor/Seller paths (not for SEO)
   '/seller/',
   '/seller/*',
   '/vendor/',
@@ -146,23 +126,24 @@ export const robotsTxtConfig = Object.freeze({
   // Environment-specific behavior
   env: {
     development: {
-      enabled: false, // No robots.txt in development
+      enabled: false,
       disallow: ['/'],
+      sitemaps: [],
     },
     staging: {
       enabled: true,
       disallow: ['/'],
-      sitemaps: [],
+      sitemaps: [] as string[],
     },
     production: {
       enabled: true,
-      disallow: [],
+      disallow: [] as string[],
       sitemaps: [
         `${APP_URL}/sitemap.xml`,
         `${APP_URL}/sitemap-products.xml`,
         `${APP_URL}/sitemap-categories.xml`,
         `${APP_URL}/sitemap-blog.xml`,
-      ],
+      ] as string[],
     },
   },
   
@@ -178,7 +159,7 @@ export const robotsTxtConfig = Object.freeze({
       name: '*',
       allow: ALLOW_PATHS,
       disallow: DISALLOW_PATHS,
-      crawlDelay: 1, // seconds
+      crawlDelay: 1,
     },
     {
       name: 'Googlebot',
@@ -312,7 +293,7 @@ export const metaRobotsConfig = Object.freeze({
     archive: true,
     snippet: true,
     imageIndex: true,
-    maxSnippet: -1, // No limit
+    maxSnippet: -1,
     maxImagePreview: 'large',
     maxVideoPreview: -1,
   },
@@ -334,7 +315,6 @@ export const metaRobotsConfig = Object.freeze({
     snippet: false,
     imageIndex: false,
   },
-  // Bangladesh specific: prevent indexing of Bengali search results
   noIndexSearch: {
     index: false,
     follow: true,
@@ -349,14 +329,20 @@ export const metaRobotsConfig = Object.freeze({
  * Get robots.txt config for current environment
  */
 export const getRobotsTxtConfig = () => {
-  const environment = env.NODE_ENV;
-  const envConfig = robotsTxtConfig.env[environment as keyof typeof robotsTxtConfig.env];
+  const environment = env.NODE_ENV as 'development' | 'staging' | 'production';
+  const envConfig = robotsTxtConfig.env[environment];
+  
   if (envConfig) {
+    // ✅ FIXED: Properly handle sitemaps property
+    const sitemaps = 'sitemaps' in envConfig && Array.isArray(envConfig.sitemaps) 
+      ? envConfig.sitemaps 
+      : robotsTxtConfig.sitemaps;
+    
     return {
       ...robotsTxtConfig,
       enabled: envConfig.enabled,
       disallow: envConfig.disallow,
-      sitemaps: envConfig.sitemaps || robotsTxtConfig.sitemaps,
+      sitemaps,
     };
   }
   return robotsTxtConfig;
