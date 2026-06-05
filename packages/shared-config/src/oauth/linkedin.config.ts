@@ -30,17 +30,11 @@ export const LINKEDIN_OAUTH_VERSION = '2.0';
 // ==================== Scopes ====================
 
 export const LINKEDIN_SCOPES = {
-  /** OpenID Connect scope - required for OIDC */
   OPENID: 'openid',
-  /** Access to user's profile information (name, picture, etc.) */
   PROFILE: 'profile',
-  /** Access to user's email address */
   EMAIL: 'email',
-  /** Post, comment and interact on behalf of a member */
   W_MEMBER_SOCIAL: 'w_member_social',
-  /** Access to user's organization/company pages */
   ORGANIZATION: 'organization',
-  /** Access to user's network data */
   NETWORK: 'network',
 } as const;
 
@@ -68,7 +62,7 @@ export const LINKEDIN_GRANT_TYPES = {
 
 // ==================== Configuration ====================
 
-export const linkedinOAuthConfig = Object.freeze({
+export const linkedinOAuthConfig = {
   // Basic provider info
   provider: LINKEDIN_PROVIDER_NAME,
   providerName: 'LinkedIn',
@@ -105,7 +99,7 @@ export const linkedinOAuthConfig = Object.freeze({
     'family_name',
     'picture',
     'locale',
-  ] as const,
+  ],
   
   // Profile fields (for old v2 API)
   profileFields: [
@@ -119,7 +113,7 @@ export const linkedinOAuthConfig = Object.freeze({
     'location',
     'summary',
     'positions',
-  ] as const,
+  ],
   
   // User info mapping (LinkedIn -> our system)
   userInfoMapping: {
@@ -131,7 +125,7 @@ export const linkedinOAuthConfig = Object.freeze({
     lastName: 'family_name',
     avatar: 'picture',
     locale: 'locale',
-  } as const,
+  },
   
   // OIDC provider metadata
   oidcProviderMetadata: {
@@ -143,8 +137,8 @@ export const linkedinOAuthConfig = Object.freeze({
     response_types_supported: ['code'],
     scopes_supported: ['openid', 'profile', 'email'],
     claims_supported: ['sub', 'email', 'email_verified', 'name', 'given_name', 'family_name', 'picture', 'locale'],
-  } as const,
-}) as const;
+  },
+} as const;
 
 // ==================== Helper Functions ====================
 
@@ -183,22 +177,7 @@ export const getEmailUrl = (accessToken: string): string => {
 };
 
 /**
- * ✅ FIXED: Extract user info from LinkedIn API response
- * 
- * @param data - Raw LinkedIn user info from userinfo endpoint
- * @returns Normalized user info
- * 
- * @example
- * extractLinkedInUserInfo({
- *   sub: '123456',
- *   email: 'user@example.com',
- *   email_verified: true,
- *   name: 'John Doe',
- *   given_name: 'John',
- *   family_name: 'Doe',
- *   picture: 'https://...',
- *   locale: 'en-US'
- * })
+ * Extract user info from LinkedIn API response
  */
 export const extractLinkedInUserInfo = (data: {
   sub: string;
@@ -232,10 +211,7 @@ export const extractLinkedInUserInfo = (data: {
 };
 
 /**
- * ✅ FIXED: Get required headers for LinkedIn API requests
- * 
- * @param accessToken - OAuth access token
- * @returns Headers object for LinkedIn API
+ * Get required headers for LinkedIn API requests
  */
 export const getLinkedInApiHeaders = (accessToken: string): Record<string, string> => {
   return {
@@ -246,16 +222,7 @@ export const getLinkedInApiHeaders = (accessToken: string): Record<string, strin
 };
 
 /**
- * ✅ FIXED: Extract primary email from LinkedIn v2 email response
- * 
- * @param data - LinkedIn email API response
- * @returns Email address or null
- * 
- * @example
- * extractLinkedInEmail({
- *   elements: [{ handle: 'user@example.com', handleS: 'user@example.com' }]
- * })
- * // Returns: 'user@example.com'
+ * Extract primary email from LinkedIn v2 email response
  */
 export const extractLinkedInEmail = (data: {
   elements?: Array<{
@@ -287,9 +254,6 @@ export const getUserInfoUrl = (): string => {
 
 /**
  * Extract profile picture URL from LinkedIn profile data
- * 
- * @param profileData - LinkedIn profile data with profilePicture
- * @returns Profile picture URL or null
  */
 export const extractProfilePicture = (profileData: {
   profilePicture?: {
@@ -314,8 +278,5 @@ export type LinkedInScope = typeof LINKEDIN_SCOPES[keyof typeof LINKEDIN_SCOPES]
 export type LinkedInResponseType = typeof LINKEDIN_RESPONSE_TYPES[keyof typeof LINKEDIN_RESPONSE_TYPES];
 export type LinkedInGrantType = typeof LINKEDIN_GRANT_TYPES[keyof typeof LINKEDIN_GRANT_TYPES];
 export type LinkedInOAuthConfig = typeof linkedinOAuthConfig;
-
-// ==================== Extracted Types ====================
-
 export type ExtractedLinkedInUserInfo = ReturnType<typeof extractLinkedInUserInfo>;
 export type LinkedInApiHeaders = ReturnType<typeof getLinkedInApiHeaders>;
