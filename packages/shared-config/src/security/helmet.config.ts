@@ -16,12 +16,8 @@ import { env } from '../env/env.validation';
 
 // ==================== Constants ====================
 
-// Common development domains
-const DEVELOPMENT_DOMAINS = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'http://127.0.0.1:3000',
-];
+// ✅ FIXED: Removed unused DEVELOPMENT_DOMAINS
+// const DEVELOPMENT_DOMAINS = [...]
 
 // Production domains (Bangladesh specific)
 const PRODUCTION_DOMAINS = [
@@ -60,12 +56,12 @@ const IS_PRODUCTION = env.NODE_ENV === 'production';
 
 // ==================== CSP (Content Security Policy) ====================
 
-export const cspConfig = Object.freeze({
+export const cspConfig = {
   directives: {
     // Default policy
     defaultSrc: ["'self'", ...PRODUCTION_DOMAINS],
     
-    // ✅ FIXED: Script sources - removed unsafe-inline and unsafe-eval in production
+    // Script sources
     scriptSrc: [
       "'self'",
       // Only allow unsafe-inline/unsafe-eval in development
@@ -78,7 +74,6 @@ export const cspConfig = Object.freeze({
     // Style sources
     styleSrc: [
       "'self'",
-      // Allow unsafe-inline in development only
       ...(IS_PRODUCTION ? [] : ["'unsafe-inline'"]),
       'https://fonts.googleapis.com',
       ...PRODUCTION_DOMAINS,
@@ -117,7 +112,7 @@ export const cspConfig = Object.freeze({
     // Frame sources (for iframes)
     frameSrc: [
       "'none'",
-      ...PAYMENT_DOMAINS, // Payment gateways need iframes
+      ...PAYMENT_DOMAINS,
     ],
     
     // Object sources (plugins, etc.)
@@ -153,11 +148,11 @@ export const cspConfig = Object.freeze({
   },
   reportOnly: !IS_PRODUCTION,
   reportUri: '/api/csp-report',
-} as const);
+} as const;
 
 // ==================== Security Headers Configuration ====================
 
-export const securityHeadersConfig = Object.freeze({
+export const securityHeadersConfig = {
   // Strict Transport Security (HSTS)
   hsts: {
     enabled: IS_PRODUCTION,
@@ -169,7 +164,7 @@ export const securityHeadersConfig = Object.freeze({
   // X-Frame-Options (clickjacking protection)
   xFrameOptions: {
     enabled: true,
-    value: 'DENY' as const, // 'DENY' | 'SAMEORIGIN'
+    value: 'DENY' as const,
   },
   
   // X-Content-Type-Options (MIME type sniffing protection)
@@ -236,23 +231,21 @@ export const securityHeadersConfig = Object.freeze({
   originAgentCluster: {
     enabled: true,
   },
-} as const);
+} as const;
 
 // ==================== Trusted Types (for XSS prevention) ====================
 
-export const trustedTypesConfig = Object.freeze({
+export const trustedTypesConfig = {
   enabled: IS_PRODUCTION,
   policies: ['default', 'dompurify', 'vubon-policy'],
   policyName: 'vubon-policy',
-  // Trusted type for HTML sanitization
   htmlSanitizer: 'dompurify',
-  // Trusted type for script URLs
   scriptURL: 'vubon-policy',
-} as const);
+} as const;
 
 // ==================== Environment-specific overrides ====================
 
-export const helmetConfigByEnv = Object.freeze({
+export const helmetConfigByEnv = {
   development: {
     csp: {
       ...cspConfig,
@@ -303,7 +296,7 @@ export const helmetConfigByEnv = Object.freeze({
       enabled: false,
     },
   },
-} as const);
+} as const;
 
 // ==================== Helper Functions ====================
 
@@ -345,7 +338,10 @@ export const getCspNonce = (): string => {
  */
 export const isCspUnsafeInlineAllowed = (): boolean => {
   const scriptSrc = cspConfig.directives.scriptSrc;
-  return !IS_PRODUCTION && scriptSrc.includes("'unsafe-inline'");
+  if (!IS_PRODUCTION && scriptSrc) {
+    return scriptSrc.includes("'unsafe-inline'");
+  }
+  return false;
 };
 
 /**
@@ -354,7 +350,8 @@ export const isCspUnsafeInlineAllowed = (): boolean => {
 export const getAllowedDomains = (directive: keyof typeof cspConfig.directives): readonly string[] => {
   const domains = cspConfig.directives[directive];
   if (Array.isArray(domains)) {
-    return domains.filter(d => !d.startsWith("'"));
+    // ✅ FIXED: Filter domains, handle potentially undefined values
+    return domains.filter((d): d is string => typeof d === 'string' && !d.startsWith("'"));
   }
   return [];
 };
