@@ -30,29 +30,17 @@ export const FACEBOOK_OAUTH_VERSION = '2.0';
 // ==================== Scopes ====================
 
 export const FACEBOOK_SCOPES = {
-  /** Access to user's email address */
   EMAIL: 'email',
-  /** Access to user's public profile (name, profile picture, age range) */
   PUBLIC_PROFILE: 'public_profile',
-  /** Access to user's birthday */
   USER_BIRTHDAY: 'user_birthday',
-  /** Access to user's gender */
   USER_GENDER: 'user_gender',
-  /** Access to user's location */
   USER_LOCATION: 'user_location',
-  /** Access to user's photos */
   USER_PHOTOS: 'user_photos',
-  /** Access to user's videos */
   USER_VIDEOS: 'user_videos',
-  /** Access to user's posts */
   USER_POSTS: 'user_posts',
-  /** Access to user's friends list */
   USER_FRIENDS: 'user_friends',
-  /** Access to user's about info */
   USER_ABOUT_ME: 'user_about_me',
-  /** Access to user's education history */
   USER_EDUCATION_HISTORY: 'user_education_history',
-  /** Access to user's work history */
   USER_WORK_HISTORY: 'user_work_history',
 } as const;
 
@@ -74,13 +62,9 @@ export const FACEBOOK_DEFAULT_RESPONSE_TYPE = FACEBOOK_RESPONSE_TYPES.CODE;
 // ==================== Display Modes ====================
 
 export const FACEBOOK_DISPLAY_MODES = {
-  /** Standard desktop view */
   PAGE: 'page',
-  /** Mobile-optimized view */
   POPUP: 'popup',
-  /** Mobile web view */
   TOUCH: 'touch',
-  /** Async dialog */
   ASYNC: 'async',
 } as const;
 
@@ -95,7 +79,7 @@ export const FACEBOOK_GRANT_TYPES = {
 
 // ==================== Configuration ====================
 
-export const facebookOAuthConfig = Object.freeze({
+export const facebookOAuthConfig = {
   // Basic provider info
   provider: FACEBOOK_PROVIDER_NAME,
   providerName: 'Facebook',
@@ -133,7 +117,7 @@ export const facebookOAuthConfig = Object.freeze({
     'birthday',
     'gender',
     'location',
-  ] as const,
+  ],
   
   // Picture size options
   pictureSizes: {
@@ -154,8 +138,8 @@ export const facebookOAuthConfig = Object.freeze({
     birthday: 'birthday',
     gender: 'gender',
     location: 'location.name',
-  } as const,
-}) as const;
+  },
+} as const;
 
 // ==================== Helper Functions ====================
 
@@ -205,13 +189,7 @@ export const getUserInfoUrl = (accessToken: string, fields?: readonly string[]):
 };
 
 /**
- * ✅ FIXED: Extract avatar URL from Facebook picture data
- * 
- * @param pictureData - Facebook picture data object
- * @returns Avatar URL or null if not available
- * 
- * @example
- * extractAvatarUrl({ data: { url: 'https://...' } }) // 'https://...'
+ * Extract avatar URL from Facebook picture data
  */
 export const extractAvatarUrl = (pictureData: { data?: { url?: string } }): string | null => {
   return pictureData?.data?.url || null;
@@ -219,9 +197,6 @@ export const extractAvatarUrl = (pictureData: { data?: { url?: string } }): stri
 
 /**
  * Extract user info from Facebook API response
- * 
- * @param data - Raw Facebook user data
- * @returns Normalized user info
  */
 export const extractFacebookUserInfo = (data: Record<string, unknown>): {
   id: string;
@@ -275,7 +250,4 @@ export type FacebookResponseType = typeof FACEBOOK_RESPONSE_TYPES[keyof typeof F
 export type FacebookDisplayMode = typeof FACEBOOK_DISPLAY_MODES[keyof typeof FACEBOOK_DISPLAY_MODES];
 export type FacebookGrantType = typeof FACEBOOK_GRANT_TYPES[keyof typeof FACEBOOK_GRANT_TYPES];
 export type FacebookOAuthConfig = typeof facebookOAuthConfig;
-
-// ==================== Extracted User Info Type ====================
-
 export type ExtractedFacebookUserInfo = ReturnType<typeof extractFacebookUserInfo>;
