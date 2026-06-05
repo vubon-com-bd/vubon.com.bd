@@ -25,16 +25,7 @@ export default defineConfig({
   format: ['cjs', 'esm'],
   
   // Generate TypeScript declarations with custom options
-  dts: {
-    resolve: true,
-    entry: {
-      index: 'src/index.ts',
-      'auth/index': 'src/auth/index.ts',
-      'role/index': 'src/role/index.ts',
-      'session/index': 'src/session/index.ts',
-    },
-  },
-  
+  dts: false,
   // Clean output directory before build
   clean: true,
   
@@ -57,12 +48,10 @@ export default defineConfig({
   splitting: false,
   
   // Bundle dependencies? No - peer dependencies should be external
-  bundle: true,
+  bundle: false,
   
   // External dependencies (peer dependencies)
-  external: [
-    'zod',
-  ],
+  external: [],
   
   // Platform - neutral (works in Node.js and browser)
   platform: 'neutral',
@@ -75,24 +64,6 @@ export default defineConfig({
   
   // Skip build if errors
   skipNodeModulesBundle: true,
-  
-  // No need to bundle node modules
-  noExternal: [],
-  
-  // Environment variables (none needed for schemas)
-  define: {},
-  
-  // No esbuild plugins needed
-  esbuildPlugins: [],
-  
-  // No metadata
-  metafile: false,
-  
-  // No watch in production (use dev script)
-  watch: false,
-  
-  // No legacy output
-  legacyOutput: false,
   
   // Enable onSuccess hook for logging
   onSuccess: async () => {
