@@ -2,7 +2,7 @@
  * Session & Device Schemas - Barrel Export
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-schemas/session/index
+ * @module shared-schemas/src/session/index
  * 
  * RULES:
  * ✅ ONLY re-exports - NO logic, NO initialization
@@ -31,7 +31,6 @@ export {
   CreateSessionSchema,
   RefreshSessionSchema,
   TerminateSessionSchema,
-  TerminateSessionsRequestSchema,
   ValidateSessionSchema,
   SessionHeartbeatSchema,
   SessionTransferRequestSchema,
