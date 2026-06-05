@@ -2,7 +2,7 @@
  * Session Schemas - Pure validation for session management
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-schemas/session/session.schema
+ * @module shared-schemas/src/session/session.schema
  * 
  * RULES:
  * ✅ ONLY Zod schemas - NO business logic
@@ -205,7 +205,7 @@ export const CreateSessionResponseSchema = z
 export const RefreshSessionSchema = z
   .object({
     refreshToken: RefreshTokenSchema,
-    deviceInfo: DeviceInfoSchema.partial().optional(),
+    deviceInfo: DeviceInfoSchema.unwrap().optional(),
     ipAddress: z.string().ip().optional(),
     userAgent: z.string().max(1000).optional(),
   })
