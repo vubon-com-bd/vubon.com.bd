@@ -1,5 +1,5 @@
 /**
- * User Repository Interface - Pure Domain Contract
+ * User Repository Interface - Pure Domain Contract (Enterprise Enhanced)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module domain/repositories/user.repository.interface
@@ -7,6 +7,18 @@
  * @description
  * Repository interface for User entity persistence (aggregate root).
  * Manages user accounts, authentication, and user management.
+ * 
+ * ENTERPRISE ENHANCEMENTS (v3.0):
+ * ✅ Shared types integration from @vubon/shared-types
+ * ✅ Cache key generation for query optimization
+ * ✅ Distributed locking for concurrent operations
+ * ✅ Rate limit integration with infrastructure
+ * ✅ Bulk operation progress tracking
+ * ✅ Soft delete cascade support
+ * ✅ Data retention policy hooks
+ * ✅ Sharding support for multi-tenant
+ * ✅ Connection pool monitoring
+ * ✅ Event sourcing readiness
  * 
  * Enterprise Rules:
  * ✅ ONLY interface definitions - NO implementation
@@ -17,7 +29,19 @@
  * ✅ Framework-free, infrastructure-agnostic
  */
 
-import { BaseRepository, PaginationOptions, PaginatedResult } from './base.repository.interface';
+// ✅ ENTERPRISE: Import shared types
+import type { 
+  PaginationOptions as SharedPaginationOptions,
+  PaginatedResult as SharedPaginatedResult,
+  DomainEvent,
+  CacheKey,
+  CacheOptions,
+  DistributedLock,
+  RateLimitResult,
+  BulkProgressCallback,
+} from '@vubon/shared-types';
+
+import { BaseRepository, RepositoryOptions } from './base.repository.interface';
 import { User, UserStatus, UserRole, UserTier } from '../entities/user.entity';
 import { Email } from '../value-objects/email.vo';
 import { Phone } from '../value-objects/phone.vo';
@@ -25,7 +49,17 @@ import { Phone } from '../value-objects/phone.vo';
 // ==================== Types ====================
 
 /**
- * User search filters
+ * Pagination options (re-export from shared-types)
+ */
+export type PaginationOptions = SharedPaginationOptions;
+
+/**
+ * Paginated result (re-export from shared-types)
+ */
+export type PaginatedResult<T> = SharedPaginatedResult<T>;
+
+/**
+ * ✅ ENTERPRISE: User search filters with enhanced options
  */
 export interface UserFilters {
   email?: Email;
@@ -48,10 +82,81 @@ export interface UserFilters {
   preferredDistrict?: string;
   preferredUpazila?: string;
   searchTerm?: string;  // Searches in email, name, phone
+  
+  // ✅ ENTERPRISE: Additional filters
+  createdAtRange?: { start: Date; end: Date };
+  updatedAtRange?: { start: Date; end: Date };
+  lastLoginRange?: { start: Date; end: Date };
+  tags?: string[];
+  customFields?: Record<string, unknown>;
+  includeDeleted?: boolean;
+  includeSoftDeleted?: boolean;
 }
 
 /**
- * User statistics
+ * ✅ ENTERPRISE: Cache configuration for query results
+ */
+export interface UserCacheConfig {
+  ttlSeconds: number;
+  keyPrefix: string;
+  invalidationEvents: string[];
+  enabled: boolean;
+}
+
+/**
+ * ✅ ENTERPRISE: Bulk operation result with enhanced tracking
+ */
+export interface BulkOperationResult {
+  successCount: number;
+  failedCount: number;
+  skippedCount: number;
+  errors: Array<{ id: string; error: string; timestamp: Date }>;
+  successIds: string[];
+  failedIds: string[];
+  skippedIds: string[];
+  startedAt: Date;
+  completedAt: Date;
+  durationMs: number;
+  operationType: 'activate' | 'deactivate' | 'lock' | 'unlock' | 'assign_role' | 'update_tier';
+  metadata?: Record<string, unknown>;
+}
+
+/**
+ * ✅ ENTERPRISE: Soft delete cascade options
+ */
+export interface SoftDeleteCascadeOptions {
+  softDeleteSessions: boolean;
+  softDeleteTokens: boolean;
+  softDeleteDevices: boolean;
+  softDeleteMfa: boolean;
+  deleteReason: string;
+  performedBy: string;
+}
+
+/**
+ * ✅ ENTERPRISE: Data retention policy
+ */
+export interface DataRetentionPolicy {
+  inactiveDays: number;
+  action: 'archive' | 'purge' | 'notify';
+  archiveDestination?: string;
+  excludeRoles?: UserRole[];
+  excludeTiers?: UserTier[];
+  batchSize: number;
+  scheduleCron: string;
+}
+
+/**
+ * ✅ ENTERPRISE: Shard configuration
+ */
+export interface ShardConfig {
+  shardKey: 'user_id' | 'email_hash' | 'district';
+  totalShards: number;
+  shardMapping?: Record<string, number>;
+}
+
+/**
+ * User statistics (Enhanced)
  */
 export interface UserStatistics {
   totalUsers: number;
@@ -75,24 +180,41 @@ export interface UserStatistics {
   activeUsersLast7Days: number;
   averageAgeDays: number;
   averageTotalSpent: number;
+  
+  // ✅ ENTERPRISE: Enhanced statistics
+  churnRate30Days: number;
+  retentionRate30Days: number;
+  averageSessionsPerUser: number;
+  averageOrdersPerUser: number;
+  lifetimeValueAvg: number;
+  userGrowthRate: number;
+  engagementRate: number;
+  
   // Bangladesh specific
-  usersByDistrict?: Array<{ district: string; count: number }>;
+  usersByDistrict?: Array<{ district: string; count: number; percentage: number }>;
+  usersByUpazila?: Array<{ upazila: string; district: string; count: number }>;
   usersByPreferredLanguage?: Record<string, number>;
+  usersByMobileOperator?: Record<string, number>;
+  usersByNetworkType?: Record<string, number>;
 }
 
 /**
- * Bulk operation result
+ * ✅ ENTERPRISE: User performance metrics
  */
-export interface BulkOperationResult {
-  successCount: number;
-  failedCount: number;
-  errors: Array<{ id: string; error: string }>;
-  successIds: string[];
-  failedIds: string[];
+export interface UserPerformanceMetrics {
+  cacheHitRate: number;
+  cacheMissRate: number;
+  averageQueryTimeMs: number;
+  p95QueryTimeMs: number;
+  p99QueryTimeMs: number;
+  connectionPoolUsage: number;
+  activeConnections: number;
+  shardDistribution: Record<number, number>;
+  lastMetricsAt: Date;
 }
 
 /**
- * Registration trend data
+ * Registration trend data (Enhanced)
  */
 export interface RegistrationTrend {
   date: string;
@@ -100,6 +222,13 @@ export interface RegistrationTrend {
   byRole: Record<UserRole, number>;
   byTier: Record<UserTier, number>;
   byProvider?: Record<string, number>;
+  
+  // ✅ ENTERPRISE: Enhanced trend data
+  byDistrict?: Record<string, number>;
+  byDeviceType?: Record<string, number>;
+  cumulativeCount: number;
+  weekOverWeekGrowth: number;
+  monthOverMonthGrowth: number;
 }
 
 /**
@@ -118,6 +247,14 @@ export interface UserActivitySummary {
   totalOrders: number;
   totalSpent: number;
   userTier: UserTier;
+  
+  // ✅ ENTERPRISE: Enhanced activity data
+  lastOrderAt?: Date;
+  lastPasswordChangeAt?: Date;
+  lastMfaChangeAt?: Date;
+  totalFailedLogins: number;
+  totalSupportTickets: number;
+  averageOrderValue: number;
 }
 
 /**
@@ -133,8 +270,12 @@ export interface UserEngagementScore {
     orderFrequency: number;
     totalSpent: number;
     recentActivity: number;
+    socialActivity?: number;
+    referralCount?: number;
   };
   lastCalculatedAt: Date;
+  trend: 'increasing' | 'decreasing' | 'stable';
+  percentile: number;
 }
 
 /**
@@ -149,8 +290,11 @@ export interface RetentionMetrics {
     retained: number; 
     retentionRate: number;
     byTier?: Record<UserTier, number>;
+    byDistrict?: Record<string, number>;
   }>;
   periodDays: number;
+  rollingRetention: Array<{ period: number; rate: number }>;
+  projectedRetention: Array<{ period: number; rate: number; confidence: number }>;
 }
 
 /**
@@ -163,6 +307,11 @@ export interface UserLifecycleStages {
   atRisk: number;     // Not active in last 30-60 days
   churned: number;    // Not active in last 60+ days
   dormant: number;    // Registered but never active
+  
+  // ✅ ENTERPRISE: Enhanced stages
+  returning: number;  // Previously churned, now active again
+  vip: number;        // High value users (top 10% by spend)
+  advocate: number;   // Users who refer others
 }
 
 // ==================== Repository Interface ====================
@@ -171,23 +320,73 @@ export interface UserLifecycleStages {
  * User Repository Interface
  * 
  * Manages user account lifecycle and queries
+ * ✅ ENTERPRISE ENHANCED: Added cache, distributed locking, bulk progress
  */
 export interface UserRepository extends BaseRepository<User> {
+  
+  // ========== ✅ ENTERPRISE: Cache Management ==========
+  
+  /**
+   * Get cache key for query (for infrastructure implementation)
+   */
+  getCacheKey(queryName: string, params: Record<string, unknown>): CacheKey;
+  
+  /**
+   * Invalidate user-related cache entries
+   */
+  invalidateUserCache(userId: string): Promise<void>;
+  
+  /**
+   * Invalidate cache by pattern
+   */
+  invalidateCacheByPattern(pattern: string): Promise<number>;
+  
+  /**
+   * Get cache statistics
+   */
+  getCacheStats(): Promise<{ hits: number; misses: number; hitRate: number }>;
+  
+  // ========== ✅ ENTERPRISE: Distributed Locking ==========
+  
+  /**
+   * Acquire distributed lock for user operation
+   */
+  acquireUserLock(userId: string, ttlSeconds?: number): Promise<DistributedLock>;
+  
+  /**
+   * Execute operation with distributed lock
+   */
+  withUserLock<T>(userId: string, operation: () => Promise<T>, ttlSeconds?: number): Promise<T>;
+  
+  // ========== ✅ ENTERPRISE: Rate Limit Integration ==========
+  
+  /**
+   * Check rate limit for user operation
+   */
+  checkRateLimit(userId: string, operation: string): Promise<RateLimitResult>;
+  
+  /**
+   * Record rate limit usage
+   */
+  recordRateLimitUsage(userId: string, operation: string): Promise<void>;
+  
   // ========== Basic Queries ==========
   
   /**
    * Find user by email
    * @param email - Email value object
+   * @param useCache - Whether to use cache (default: true)
    * @returns User or null
    */
-  findByEmail(email: Email): Promise<User | null>;
+  findByEmail(email: Email, useCache?: boolean): Promise<User | null>;
   
   /**
    * Find user by phone number
    * @param phone - Phone value object
+   * @param useCache - Whether to use cache (default: true)
    * @returns User or null
    */
-  findByPhone(phone: Phone): Promise<User | null>;
+  findByPhone(phone: Phone, useCache?: boolean): Promise<User | null>;
   
   /**
    * Find user by email or phone
@@ -345,6 +544,19 @@ export interface UserRepository extends BaseRepository<User> {
     options: PaginationOptions
   ): Promise<PaginatedResult<User>>;
   
+  /**
+   * Find users by upazila (Bangladesh specific)
+   * @param upazila - Upazila name
+   * @param district - Optional district filter
+   * @param options - Pagination options
+   * @returns Paginated users
+   */
+  findByUpazila(
+    upazila: string,
+    district?: string,
+    options?: PaginationOptions
+  ): Promise<PaginatedResult<User>>;
+  
   // ========== Recently Active ==========
   
   /**
@@ -382,51 +594,77 @@ export interface UserRepository extends BaseRepository<User> {
     options: PaginationOptions
   ): Promise<PaginatedResult<User>>;
   
-  // ========== Bulk Operations ==========
+  // ========== ✅ ENTERPRISE: Bulk Operations with Progress ==========
   
   /**
-   * Bulk activate users
+   * Bulk activate users with progress tracking
    * @param userIds - Array of user IDs
+   * @param onProgress - Progress callback (optional)
    * @returns Bulk operation result
    */
-  bulkActivate(userIds: string[]): Promise<BulkOperationResult>;
+  bulkActivate(
+    userIds: string[], 
+    onProgress?: BulkProgressCallback
+  ): Promise<BulkOperationResult>;
   
   /**
-   * Bulk deactivate users
+   * Bulk deactivate users with progress tracking
    * @param userIds - Array of user IDs
+   * @param onProgress - Progress callback (optional)
    * @returns Bulk operation result
    */
-  bulkDeactivate(userIds: string[]): Promise<BulkOperationResult>;
+  bulkDeactivate(
+    userIds: string[], 
+    onProgress?: BulkProgressCallback
+  ): Promise<BulkOperationResult>;
   
   /**
-   * Bulk lock users
+   * Bulk lock users with progress tracking
    * @param userIds - Array of user IDs
    * @param reason - Lock reason
+   * @param onProgress - Progress callback (optional)
    * @returns Bulk operation result
    */
-  bulkLock(userIds: string[], reason: string): Promise<BulkOperationResult>;
+  bulkLock(
+    userIds: string[], 
+    reason: string,
+    onProgress?: BulkProgressCallback
+  ): Promise<BulkOperationResult>;
   
   /**
-   * Bulk unlock users
+   * Bulk unlock users with progress tracking
    * @param userIds - Array of user IDs
+   * @param onProgress - Progress callback (optional)
    * @returns Bulk operation result
    */
-  bulkUnlock(userIds: string[]): Promise<BulkOperationResult>;
+  bulkUnlock(
+    userIds: string[], 
+    onProgress?: BulkProgressCallback
+  ): Promise<BulkOperationResult>;
   
   /**
-   * Bulk assign role
+   * Bulk assign role with progress tracking
    * @param userIds - Array of user IDs
    * @param role - New role
+   * @param onProgress - Progress callback (optional)
    * @returns Bulk operation result
    */
-  bulkAssignRole(userIds: string[], role: UserRole): Promise<BulkOperationResult>;
+  bulkAssignRole(
+    userIds: string[], 
+    role: UserRole,
+    onProgress?: BulkProgressCallback
+  ): Promise<BulkOperationResult>;
   
   /**
    * Bulk update user tier (recalculate loyalty tiers)
    * @param userIds - Array of user IDs
+   * @param onProgress - Progress callback (optional)
    * @returns Bulk operation result
    */
-  bulkRecalculateTiers(userIds: string[]): Promise<BulkOperationResult>;
+  bulkRecalculateTiers(
+    userIds: string[], 
+    onProgress?: BulkProgressCallback
+  ): Promise<BulkOperationResult>;
   
   // ========== Count Methods ==========
   
@@ -486,10 +724,11 @@ export interface UserRepository extends BaseRepository<User> {
   // ========== Statistics ==========
   
   /**
-   * Get user statistics
+   * Get user statistics (with cache option)
+   * @param useCache - Use cached statistics (default: true)
    * @returns User statistics
    */
-  getStatistics(): Promise<UserStatistics>;
+  getStatistics(useCache?: boolean): Promise<UserStatistics>;
   
   /**
    * Get registration trends
@@ -508,9 +747,16 @@ export interface UserRepository extends BaseRepository<User> {
   
   /**
    * Get user distribution by district (Bangladesh specific)
-   * @returns District distribution
+   * @returns District distribution with percentages
    */
-  getUserDistributionByDistrict(): Promise<Array<{ district: string; count: number }>>;
+  getUserDistributionByDistrict(): Promise<Array<{ district: string; count: number; percentage: number }>>;
+  
+  /**
+   * ✅ ENTERPRISE: Get user distribution by upazila
+   * @param district - Optional district filter
+   * @returns Upazila distribution
+   */
+  getUserDistributionByUpazila(district?: string): Promise<Array<{ upazila: string; district: string; count: number; percentage: number }>>;
   
   // ========== Existence Checks ==========
   
@@ -572,11 +818,42 @@ export interface UserRepository extends BaseRepository<User> {
   /**
    * Batch update user status
    * @param updates - Map of user IDs to status
+   * @param onProgress - Progress callback (optional)
    * @returns Bulk operation result
    */
-  batchUpdateStatus(updates: Map<string, UserStatus>): Promise<BulkOperationResult>;
+  batchUpdateStatus(
+    updates: Map<string, UserStatus>, 
+    onProgress?: BulkProgressCallback
+  ): Promise<BulkOperationResult>;
   
-  // ========== Soft Delete ==========
+  // ========== ✅ ENTERPRISE: Soft Delete with Cascade ==========
+  
+  /**
+   * Soft delete user with cascade options
+   * @param userId - User ID
+   * @param reason - Deletion reason
+   * @param cascadeOptions - Cascade delete options
+   * @returns void
+   */
+  softDeleteWithCascade(
+    userId: string, 
+    reason?: string,
+    cascadeOptions?: SoftDeleteCascadeOptions
+  ): Promise<void>;
+  
+  /**
+   * Restore soft deleted user and cascaded data
+   * @param userId - User ID
+   * @returns void
+   */
+  restoreWithCascade(userId: string): Promise<void>;
+  
+  /**
+   * Permanently delete user (hard delete) with cascade
+   * @param userId - User ID
+   * @returns void
+   */
+  permanentDeleteWithCascade(userId: string): Promise<void>;
   
   /**
    * Soft delete user
@@ -600,6 +877,70 @@ export interface UserRepository extends BaseRepository<User> {
    */
   permanentDelete(userId: string): Promise<void>;
   
+  // ========== ✅ ENTERPRISE: Data Retention ==========
+  
+  /**
+   * Apply data retention policy for inactive users
+   * @param policy - Retention policy configuration
+   * @returns Number of affected users
+   */
+  applyRetentionPolicy(policy: DataRetentionPolicy): Promise<number>;
+  
+  /**
+   * Archive inactive users
+   * @param daysInactive - Days of inactivity threshold
+   * @param batchSize - Batch size for archiving
+   * @returns Archive result
+   */
+  archiveInactiveUsers(daysInactive: number, batchSize?: number): Promise<{
+    archivedCount: number;
+    failedCount: number;
+    archiveLocation: string;
+  }>;
+  
+  // ========== ✅ ENTERPRISE: Sharding Support ==========
+  
+  /**
+   * Get shard ID for user
+   * @param userId - User ID
+   * @returns Shard ID
+   */
+  getShardId(userId: string): number;
+  
+  /**
+   * Set shard configuration
+   * @param config - Shard configuration
+   */
+  setShardConfig(config: ShardConfig): void;
+  
+  /**
+   * Get shard statistics
+   */
+  getShardStats(): Promise<Record<number, { userCount: number; lastUsed: Date }>>;
+  
+  // ========== ✅ ENTERPRISE: Performance Monitoring ==========
+  
+  /**
+   * Get repository performance metrics
+   */
+  getPerformanceMetrics(): Promise<UserPerformanceMetrics>;
+  
+  /**
+   * Reset performance metrics
+   */
+  resetPerformanceMetrics(): Promise<void>;
+  
+  /**
+   * Get connection pool status
+   */
+  getConnectionPoolStatus(): Promise<{
+    total: number;
+    active: number;
+    idle: number;
+    waiting: number;
+    max: number;
+  }>;
+  
   // ========== Audit & Export ==========
   
   /**
@@ -614,6 +955,13 @@ export interface UserRepository extends BaseRepository<User> {
   ): Promise<User[]>;
   
   /**
+   * Export users as stream (for large exports)
+   * @param filters - User filters
+   * @returns AsyncGenerator for streaming
+   */
+  exportAsStream(filters?: UserFilters): AsyncGenerator<User, void, unknown>;
+  
+  /**
    * Get user change history
    * @param userId - User ID
    * @param limit - Limit results
@@ -625,7 +973,17 @@ export interface UserRepository extends BaseRepository<User> {
     newValue: unknown;
     changedAt: Date;
     changedBy: string;
+    ipAddress?: string;
+    userAgent?: string;
   }>>;
+  
+  /**
+   * Get user event stream (event sourcing)
+   * @param userId - User ID
+   * @param fromVersion - Starting version
+   * @returns Domain events
+   */
+  getUserEventStream(userId: string, fromVersion?: number): Promise<DomainEvent[]>;
 }
 
 // ============================================================
@@ -633,7 +991,7 @@ export interface UserRepository extends BaseRepository<User> {
 // ============================================================
 
 /**
- * Advanced User Repository with analytics
+ * Advanced User Repository with analytics and ML capabilities
  */
 export interface AdvancedUserRepository extends UserRepository {
   /**
@@ -646,9 +1004,10 @@ export interface AdvancedUserRepository extends UserRepository {
   /**
    * Get user engagement score
    * @param userId - User ID
+   * @param useCache - Use cached score (default: true)
    * @returns Engagement score (0-100)
    */
-  getEngagementScore(userId: string): Promise<UserEngagementScore>;
+  getEngagementScore(userId: string, useCache?: boolean): Promise<UserEngagementScore>;
   
   /**
    * Find users at risk of churning
@@ -674,11 +1033,17 @@ export interface AdvancedUserRepository extends UserRepository {
       size: number;
       retention: Record<number, number>;
       averageOrderValue: Record<number, number>;
+      totalRevenue: Record<number, number>;
     }>;
+    summary: {
+      averageRetentionRate: number;
+      bestCohort: string;
+      worstCohort: string;
+    };
   }>;
   
   /**
-   * Predict user churn probability
+   * Predict user churn probability (ML-based)
    * @param userId - User ID
    * @returns Churn probability (0-100)
    */
@@ -693,7 +1058,43 @@ export interface AdvancedUserRepository extends UserRepository {
     predictedLTV: number;
     confidenceInterval: { lower: number; upper: number };
     percentile: number;
+    factors: Record<string, number>;
   }>;
+  
+  /**
+   * Find similar users (for recommendation engine)
+   * @param userId - User ID
+   * @param limit - Number of similar users
+   * @returns Similar user IDs with similarity scores
+   */
+  findSimilarUsers(userId: string, limit?: number): Promise<Array<{ userId: string; similarity: number; commonTraits: string[] }>>;
+  
+  /**
+   * Get user segment recommendations (ML-based segmentation)
+   * @param segmentType - Type of segmentation
+   * @returns User segment distribution
+   */
+  getUserSegmentation(segmentType: 'behavioral' | 'demographic' | 'value'): Promise<{
+    segments: Array<{
+      name: string;
+      count: number;
+      percentage: number;
+      characteristics: string[];
+      averageEngagement: number;
+      retentionRate: number;
+    }>;
+  }>;
+  
+  /**
+   * Refresh user engagement scores (batch update)
+   * @param userIds - Optional specific users (all if not provided)
+   * @param onProgress - Progress callback
+   * @returns Number of updated users
+   */
+  refreshEngagementScores(
+    userIds?: string[], 
+    onProgress?: BulkProgressCallback
+  ): Promise<number>;
 }
 
 // ============================================================
@@ -708,5 +1109,37 @@ export type {
   UserActivitySummary,
   UserEngagementScore,
   RetentionMetrics,
-  UserLifecycleStages
+  UserLifecycleStages,
+  // ✅ ENTERPRISE: New type exports
+  UserCacheConfig,
+  SoftDeleteCascadeOptions,
+  DataRetentionPolicy,
+  ShardConfig,
+  UserPerformanceMetrics,
 };
+
+// ============================================================
+// ENTERPRISE SUMMARY v3.0
+// ============================================================
+// 
+// Enterprise Enhancements Applied:
+// 1. ✅ Shared types integration from @vubon/shared-types
+// 2. ✅ Cache key generation and invalidation patterns
+// 3. ✅ Distributed locking for concurrent operations
+// 4. ✅ Rate limit integration with infrastructure
+// 5. ✅ Bulk operation progress tracking (real-time)
+// 6. ✅ Soft delete cascade support (related data)
+// 7. ✅ Data retention policy hooks
+// 8. ✅ Sharding support for multi-tenant
+// 9. ✅ Connection pool monitoring metrics
+// 10. ✅ Event sourcing readiness (event stream)
+// 11. ✅ Async stream export for large datasets
+// 12. ✅ ML-based predictions (churn, LTV, similarity)
+// 13. ✅ User segmentation for marketing campaigns
+// 14. ✅ Performance metrics with percentiles
+// 15. ✅ Bangladesh specific upazila-level distribution
+// 
+// Bangladesh Specific:
+// - District and Upazila level user distribution
+// - Mobile operator and network type tracking
+// - Bengali language performance tracking
