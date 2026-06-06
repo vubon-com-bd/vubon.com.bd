@@ -1,5 +1,5 @@
 /**
- * Account Lock Entity - Pure Domain Core
+ * Account Lock Entity - Pure Domain Core (Enterprise Enhanced)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module domain/entities/account-lock.entity
@@ -8,15 +8,29 @@
  * Represents account lock state with progressive locking based on failure count.
  * Used for brute force protection and security policy enforcement.
  * 
- * Enterprise Rules:
+ * Enterprise Features:
+ * ✅ Shared configuration from @vubon/shared-constants
  * ✅ Progressive lock durations (15m -> 1h -> 24h -> permanent)
  * ✅ Auto-lock after configurable failure threshold
+ * ✅ IP-based tracking for distributed attacks
+ * ✅ Multi-channel notification support
  * ✅ Domain events for audit trail
  * ✅ Framework-free, pure domain logic
  * ✅ Bangladesh specific - SIM swap detection support
+ * 
+ * Enterprise Enhancements Applied (v2.0):
+ * 1. LOCK_CONFIG moved to shared-constants (Single Source of Truth)
+ * 2. IP address tracking for distributed attack detection
+ * 3. Multi-channel notification configuration
+ * 4. Device fingerprint tracking
+ * 5. Geographic location tracking (Bangladesh districts)
+ * 6. Enhanced risk scoring with ML-ready factors
  */
 
 import { BaseEntity, EntityValidationError, type IdGenerator } from './base.entity';
+
+// ✅ ENTERPRISE ENHANCEMENT: Import from shared-constants
+import { LOCK_CONFIG } from '@vubon/shared-constants';
 
 // ==================== Enums ====================
 
@@ -32,6 +46,9 @@ export enum AccountLockReason {
   SIM_SWAP_DETECTED = 'SIM_SWAP_DETECTED',  // Bangladesh specific
   PAYMENT_FRAUD_SUSPECTED = 'PAYMENT_FRAUD_SUSPECTED',
   ACCOUNT_TAKEOVER_ATTEMPT = 'ACCOUNT_TAKEOVER_ATTEMPT',
+  IP_BASED_ATTACK = 'IP_BASED_ATTACK',           // ✅ Enterprise: Distributed attack detection
+  DEVICE_FINGERPRINT_MISMATCH = 'DEVICE_FINGERPRINT_MISMATCH', // ✅ Enterprise: Device theft detection
+  UNUSUAL_LOCATION = 'UNUSUAL_LOCATION',         // ✅ Enterprise: Geographic anomaly
 }
 
 /**
@@ -45,6 +62,26 @@ export enum LockLevel {
 }
 
 /**
+ * Risk severity levels (✅ Enterprise: Enhanced risk scoring)
+ */
+export enum RiskSeverity {
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH',
+  CRITICAL = 'CRITICAL',
+}
+
+/**
+ * Notification channel types (✅ Enterprise: Multi-channel notification)
+ */
+export enum NotificationChannel {
+  EMAIL = 'EMAIL',
+  SMS = 'SMS',
+  PUSH = 'PUSH',
+  WHATSAPP = 'WHATSAPP',  // Bangladesh specific
+}
+
+/**
  * Domain event types for account lock
  */
 export enum AccountLockEventType {
@@ -53,6 +90,11 @@ export enum AccountLockEventType {
   ACCOUNT_LOCK_FAILURE = 'account.lock.failure',
   ACCOUNT_LOCK_PROGRESSIVE = 'account.lock.progressive',
   ACCOUNT_LOCK_WARNING = 'account.lock.warning',
+  // ✅ Enterprise: Enhanced events
+  ACCOUNT_LOCK_IP_TRACKED = 'account.lock.ip_tracked',
+  ACCOUNT_LOCK_DEVICE_TRACKED = 'account.lock.device_tracked',
+  ACCOUNT_LOCK_GEO_TRACKED = 'account.lock.geo_tracked',
+  ACCOUNT_LOCK_NOTIFICATION_SENT = 'account.lock.notification_sent',
 }
 
 // ==================== Types ====================
@@ -74,38 +116,75 @@ export interface ProgressiveLockConfig {
   levels: LockDurationConfig[];
 }
 
-// ==================== Constants ====================
+/**
+ * ✅ Enterprise: IP tracking information
+ */
+export interface IPTrackingInfo {
+  ipAddress: string;
+  firstAttemptAt: Date;
+  lastAttemptAt: Date;
+  attemptCount: number;
+  isBlocked: boolean;
+  blockedAt?: Date;
+}
 
 /**
- * Lock configuration constants
+ * ✅ Enterprise: Device fingerprint tracking
  */
-const LOCK_CONFIG = {
-  // Failure threshold
-  MAX_FAILURE_COUNT: 5,
-  
-  // Progressive lock durations (milliseconds)
-  PROGRESSIVE_DURATIONS: [
-    15 * 60 * 1000,     // Level 1: 15 minutes
-    60 * 60 * 1000,     // Level 2: 1 hour
-    24 * 60 * 60 * 1000, // Level 3: 24 hours
-    null,               // Level 4: Permanent (admin unlock only)
-  ],
-  
-  // Lock durations by reason (for manual locks)
-  REASON_DURATIONS: {
-    [AccountLockReason.FAILED_LOGIN_ATTEMPTS]: 15 * 60 * 1000,
-    [AccountLockReason.SUSPICIOUS_ACTIVITY]: 60 * 60 * 1000,
-    [AccountLockReason.POLICY_VIOLATION]: 24 * 60 * 60 * 1000,
-    [AccountLockReason.ADMIN_ACTION]: null,
-    [AccountLockReason.BRUTE_FORCE_DETECTED]: 24 * 60 * 60 * 1000,
-    [AccountLockReason.SIM_SWAP_DETECTED]: 48 * 60 * 60 * 1000, // 48 hours
-    [AccountLockReason.PAYMENT_FRAUD_SUSPECTED]: 72 * 60 * 60 * 1000, // 72 hours
-    [AccountLockReason.ACCOUNT_TAKEOVER_ATTEMPT]: 24 * 60 * 60 * 1000,
-  },
-  
-  // Warning threshold (send warning when attempts reach this count)
-  WARNING_THRESHOLD: 3,
-} as const;
+export interface DeviceTrackingInfo {
+  deviceId: string;
+  fingerprint: string;
+  firstSeenAt: Date;
+  lastSeenAt: Date;
+  trustLevel: 'trusted' | 'unknown' | 'suspicious';
+}
+
+/**
+ * ✅ Enterprise: Geographic location tracking (Bangladesh specific)
+ */
+export interface GeoLocationInfo {
+  district?: string;
+  upazila?: string;
+  division?: string;
+  isBangladesh: boolean;
+  isSuspiciousLocation: boolean;
+}
+
+/**
+ * ✅ Enterprise: Risk assessment result
+ */
+export interface RiskAssessment {
+  severity: RiskSeverity;
+  score: number;           // 0-100
+  factors: string[];
+  recommendedAction: 'allow' | 'warn' | 'challenge' | 'block';
+  requiresAdminReview: boolean;
+}
+
+/**
+ * ✅ Enterprise: Notification configuration for lock events
+ */
+export interface NotificationConfig {
+  channels: NotificationChannel[];
+  sendWarning: boolean;
+  sendLockNotification: boolean;
+  sendUnlockNotification: boolean;
+  includeIpAddress: boolean;
+  includeLocation: boolean;
+}
+
+// ==================== Constants (from shared-config) ====================
+
+// Use configuration from shared-constants (Single Source of Truth)
+const {
+  MAX_FAILURE_COUNT,
+  PROGRESSIVE_DURATIONS,
+  WARNING_THRESHOLD,
+  REASON_DURATIONS,
+  IP_BLOCK_DURATION_HOURS,
+  MAX_IP_ATTEMPTS_PER_HOUR,
+  NOTIFICATION_CONFIG,
+} = LOCK_CONFIG;
 
 // ==================== Account Lock Entity ====================
 
@@ -113,6 +192,7 @@ const LOCK_CONFIG = {
  * Account Lock Entity
  * 
  * Tracks account lock state with progressive duration based on lock count
+ * ✅ Enterprise Enhanced: IP tracking, device tracking, geo location, risk scoring
  */
 export class AccountLock extends BaseEntity {
   private _userId: string;
@@ -126,6 +206,18 @@ export class AccountLock extends BaseEntity {
   private _unlockedBy: string | undefined;
   private _unlockReason: string | undefined;
   private _metadata: Record<string, unknown> | undefined;
+  
+  // ✅ Enterprise: IP tracking for distributed attack detection
+  private _ipTrackingInfo: IPTrackingInfo | undefined;
+  
+  // ✅ Enterprise: Device fingerprint tracking
+  private _deviceTrackingInfo: DeviceTrackingInfo | undefined;
+  
+  // ✅ Enterprise: Geographic location tracking
+  private _geoLocationInfo: GeoLocationInfo | undefined;
+  
+  // ✅ Enterprise: Last notification sent tracking
+  private _lastNotificationSentAt: Map<NotificationChannel, Date> = new Map();
 
   private constructor(
     id: string,
@@ -140,6 +232,9 @@ export class AccountLock extends BaseEntity {
     unlockedBy: string | undefined,
     unlockReason: string | undefined,
     metadata: Record<string, unknown> | undefined,
+    ipTrackingInfo: IPTrackingInfo | undefined,
+    deviceTrackingInfo: DeviceTrackingInfo | undefined,
+    geoLocationInfo: GeoLocationInfo | undefined,
     createdAt: Date,
     updatedAt: Date,
     version: number
@@ -157,6 +252,9 @@ export class AccountLock extends BaseEntity {
     this._unlockedBy = unlockedBy;
     this._unlockReason = unlockReason;
     this._metadata = metadata;
+    this._ipTrackingInfo = ipTrackingInfo;
+    this._deviceTrackingInfo = deviceTrackingInfo;
+    this._geoLocationInfo = geoLocationInfo;
     
     this.validate();
   }
@@ -174,6 +272,11 @@ export class AccountLock extends BaseEntity {
     if (this._lockLevel < LockLevel.LEVEL_1 || this._lockLevel > LockLevel.LEVEL_4) {
       throw new EntityValidationError('Invalid lock level');
     }
+    
+    // ✅ Enterprise: Validate IP tracking if present
+    if (this._ipTrackingInfo && this._ipTrackingInfo.attemptCount < 0) {
+      throw new EntityValidationError('IP attempt count cannot be negative');
+    }
   }
 
   // ============================================================
@@ -189,13 +292,40 @@ export class AccountLock extends BaseEntity {
     failureCount: number = 0,
     lockedBy?: string,
     metadata?: Record<string, unknown>,
-    idGenerator?: IdGenerator
+    idGenerator?: IdGenerator,
+    ipAddress?: string,
+    deviceId?: string,
+    geoLocation?: GeoLocationInfo
   ): AccountLock {
     const now = new Date();
     const lockLevel = LockLevel.LEVEL_1;
-    const duration = LOCK_CONFIG.REASON_DURATIONS[reason];
+    const duration = REASON_DURATIONS[reason as keyof typeof REASON_DURATIONS] || PROGRESSIVE_DURATIONS[0];
     const lockedUntil = duration ? new Date(now.getTime() + duration) : undefined;
     const lockId = idGenerator ? idGenerator.generate() : generateLockId();
+    
+    // ✅ Enterprise: Initialize IP tracking if IP provided
+    let ipTrackingInfo: IPTrackingInfo | undefined;
+    if (ipAddress) {
+      ipTrackingInfo = {
+        ipAddress,
+        firstAttemptAt: now,
+        lastAttemptAt: now,
+        attemptCount: failureCount,
+        isBlocked: false,
+      };
+    }
+    
+    // ✅ Enterprise: Initialize device tracking if device ID provided
+    let deviceTrackingInfo: DeviceTrackingInfo | undefined;
+    if (deviceId) {
+      deviceTrackingInfo = {
+        deviceId,
+        fingerprint: metadata?.fingerprint as string || 'unknown',
+        firstSeenAt: now,
+        lastSeenAt: now,
+        trustLevel: 'unknown',
+      };
+    }
     
     const lock = new AccountLock(
       lockId,
@@ -210,6 +340,9 @@ export class AccountLock extends BaseEntity {
       undefined,
       undefined,
       metadata,
+      ipTrackingInfo,
+      deviceTrackingInfo,
+      geoLocation,
       now,
       now,
       1
@@ -227,8 +360,14 @@ export class AccountLock extends BaseEntity {
         lockLevel: lock._lockLevel,
         duration: duration,
         lockedBy,
+        ipAddress: ipTrackingInfo?.ipAddress,
+        deviceId,
+        geoLocation: geoLocation?.district,
       },
     });
+    
+    // ✅ Enterprise: Send notification after lock
+    lock.sendLockNotification();
     
     return lock;
   }
@@ -249,6 +388,9 @@ export class AccountLock extends BaseEntity {
     unlockedBy?: string;
     unlockReason?: string;
     metadata?: Record<string, unknown>;
+    ipTrackingInfo?: IPTrackingInfo;
+    deviceTrackingInfo?: DeviceTrackingInfo;
+    geoLocationInfo?: GeoLocationInfo;
     createdAt: Date;
     updatedAt: Date;
     version: number;
@@ -266,6 +408,9 @@ export class AccountLock extends BaseEntity {
       data.unlockedBy,
       data.unlockReason,
       data.metadata,
+      data.ipTrackingInfo,
+      data.deviceTrackingInfo,
+      data.geoLocationInfo,
       data.createdAt,
       data.updatedAt,
       data.version
@@ -281,10 +426,10 @@ export class AccountLock extends BaseEntity {
    */
   private static getProgressiveDuration(lockLevel: LockLevel): number | null {
     const index = lockLevel - 1;
-    if (index >= LOCK_CONFIG.PROGRESSIVE_DURATIONS.length) {
-      return LOCK_CONFIG.PROGRESSIVE_DURATIONS[LOCK_CONFIG.PROGRESSIVE_DURATIONS.length - 1];
+    if (index >= PROGRESSIVE_DURATIONS.length) {
+      return PROGRESSIVE_DURATIONS[PROGRESSIVE_DURATIONS.length - 1];
     }
-    return LOCK_CONFIG.PROGRESSIVE_DURATIONS[index];
+    return PROGRESSIVE_DURATIONS[index];
   }
 
   /**
@@ -302,8 +447,87 @@ export class AccountLock extends BaseEntity {
    */
   public shouldSendWarning(): boolean {
     return !this.isLocked() && 
-           this._failureCount >= LOCK_CONFIG.WARNING_THRESHOLD &&
-           this._failureCount < LOCK_CONFIG.MAX_FAILURE_COUNT;
+           this._failureCount >= WARNING_THRESHOLD &&
+           this._failureCount < MAX_FAILURE_COUNT;
+  }
+
+  /**
+   * ✅ Enterprise: Check if IP is blocked
+   */
+  public isIPBlocked(): boolean {
+    if (!this._ipTrackingInfo) return false;
+    if (!this._ipTrackingInfo.isBlocked) return false;
+    
+    // Check if IP block has expired
+    if (this._ipTrackingInfo.blockedAt) {
+      const blockExpiry = new Date(this._ipTrackingInfo.blockedAt.getTime() + IP_BLOCK_DURATION_HOURS * 60 * 60 * 1000);
+      if (new Date() > blockExpiry) {
+        this._ipTrackingInfo.isBlocked = false;
+        return false;
+      }
+    }
+    
+    return true;
+  }
+
+  /**
+   * ✅ Enterprise: Check if IP has exceeded rate limit
+   */
+  public hasIPExceededRateLimit(): boolean {
+    if (!this._ipTrackingInfo) return false;
+    
+    const now = new Date();
+    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+    
+    // Reset count if last attempt was over an hour ago
+    if (this._ipTrackingInfo.lastAttemptAt < oneHourAgo) {
+      this._ipTrackingInfo.attemptCount = 0;
+      return false;
+    }
+    
+    return this._ipTrackingInfo.attemptCount >= MAX_IP_ATTEMPTS_PER_HOUR;
+  }
+
+  /**
+   * ✅ Enterprise: Get notification configuration
+   */
+  private getNotificationConfig(): NotificationConfig {
+    const config = NOTIFICATION_CONFIG[this._lockLevel as keyof typeof NOTIFICATION_CONFIG];
+    return config || NOTIFICATION_CONFIG.LEVEL_1;
+  }
+
+  /**
+   * ✅ Enterprise: Send lock notification
+   */
+  private sendLockNotification(): void {
+    const config = this.getNotificationConfig();
+    
+    for (const channel of config.channels) {
+      const lastSent = this._lastNotificationSentAt.get(channel);
+      const cooldownMinutes = 5; // Don't spam
+      
+      if (!lastSent || (Date.now() - lastSent.getTime()) > cooldownMinutes * 60 * 1000) {
+        this._lastNotificationSentAt.set(channel, new Date());
+        
+        this.addDomainEvent({
+          eventId: generateEventId(),
+          eventType: AccountLockEventType.ACCOUNT_LOCK_NOTIFICATION_SENT,
+          aggregateId: this.id,
+          occurredOn: new Date(),
+          version: this.version,
+          metadata: {
+            userId: this._userId,
+            channel,
+            lockLevel: this._lockLevel,
+            reason: this._reason,
+            includeIpAddress: config.includeIpAddress,
+            includeLocation: config.includeLocation,
+            ipAddress: config.includeIpAddress ? this._ipTrackingInfo?.ipAddress : undefined,
+            location: config.includeLocation ? this._geoLocationInfo?.district : undefined,
+          },
+        });
+      }
+    }
   }
 
   // ============================================================
@@ -312,21 +536,90 @@ export class AccountLock extends BaseEntity {
 
   /**
    * Increment failure count and auto-lock if threshold exceeded
+   * ✅ Enterprise: Enhanced with IP and device tracking
    * 
+   * @param ipAddress - Optional IP address for tracking
+   * @param deviceId - Optional device ID for tracking
    * @returns Current failure count
    * @throws {Error} If account is currently locked and not expired
    */
-  public incrementFailure(): number {
+  public incrementFailure(ipAddress?: string, deviceId?: string): number {
     // If locked and not expired, cannot increment
     if (this.isLocked() && !this.isLockExpired()) {
       throw new EntityValidationError('Account is currently locked');
+    }
+    
+    // ✅ Enterprise: Update IP tracking
+    if (ipAddress) {
+      if (!this._ipTrackingInfo) {
+        this._ipTrackingInfo = {
+          ipAddress,
+          firstAttemptAt: new Date(),
+          lastAttemptAt: new Date(),
+          attemptCount: 0,
+          isBlocked: false,
+        };
+      } else if (this._ipTrackingInfo.ipAddress !== ipAddress) {
+        // IP changed - could be distributed attack
+        this.addDomainEvent({
+          eventId: generateEventId(),
+          eventType: AccountLockEventType.ACCOUNT_LOCK_IP_TRACKED,
+          aggregateId: this.id,
+          occurredOn: new Date(),
+          version: this.version,
+          metadata: {
+            userId: this._userId,
+            oldIp: this._ipTrackingInfo.ipAddress,
+            newIp: ipAddress,
+            isDistributedAttack: true,
+          },
+        });
+        this._ipTrackingInfo.ipAddress = ipAddress;
+      }
+      
+      this._ipTrackingInfo.lastAttemptAt = new Date();
+      this._ipTrackingInfo.attemptCount++;
+      
+      // Block IP if rate limit exceeded
+      if (this.hasIPExceededRateLimit() && !this._ipTrackingInfo.isBlocked) {
+        this._ipTrackingInfo.isBlocked = true;
+        this._ipTrackingInfo.blockedAt = new Date();
+      }
+    }
+    
+    // ✅ Enterprise: Update device tracking
+    if (deviceId) {
+      if (!this._deviceTrackingInfo) {
+        this._deviceTrackingInfo = {
+          deviceId,
+          fingerprint: 'unknown',
+          firstSeenAt: new Date(),
+          lastSeenAt: new Date(),
+          trustLevel: 'unknown',
+        };
+      } else if (this._deviceTrackingInfo.deviceId !== deviceId) {
+        this.addDomainEvent({
+          eventId: generateEventId(),
+          eventType: AccountLockEventType.ACCOUNT_LOCK_DEVICE_TRACKED,
+          aggregateId: this.id,
+          occurredOn: new Date(),
+          version: this.version,
+          metadata: {
+            userId: this._userId,
+            oldDeviceId: this._deviceTrackingInfo.deviceId,
+            newDeviceId: deviceId,
+          },
+        });
+        this._deviceTrackingInfo.deviceId = deviceId;
+        this._deviceTrackingInfo.trustLevel = 'suspicious';
+      }
+      this._deviceTrackingInfo.lastSeenAt = new Date();
     }
     
     // If lock expired, reset state
     if (this.isLocked() && this.isLockExpired()) {
       this._lockedUntil = undefined;
       this._unlockedAt = undefined;
-      // Don't reset failure count immediately - progressive locking
     }
     
     this._failureCount++;
@@ -345,12 +638,14 @@ export class AccountLock extends BaseEntity {
           currentAttempts: this._failureCount,
           remainingAttempts: this.getRemainingAttempts(),
           nextLockLevel: this.getNextLockLevel(),
+          ipAddress: this._ipTrackingInfo?.ipAddress,
+          deviceId: this._deviceTrackingInfo?.deviceId,
         },
       });
     }
     
     // Auto-lock after threshold
-    if (this._failureCount >= LOCK_CONFIG.MAX_FAILURE_COUNT && !this.isLocked()) {
+    if (this._failureCount >= MAX_FAILURE_COUNT && !this.isLocked()) {
       this.lockWithProgressiveDuration();
     }
     
@@ -365,6 +660,8 @@ export class AccountLock extends BaseEntity {
         userId: this._userId,
         failureCount: this._failureCount,
         remainingAttempts: this.getRemainingAttempts(),
+        ipAddress,
+        deviceId,
       },
     });
     
@@ -396,6 +693,7 @@ export class AccountLock extends BaseEntity {
         reason: this._reason,
         lockLevel: this._lockLevel,
         duration: duration,
+        ipAddress: this._ipTrackingInfo?.ipAddress,
       },
     });
     
@@ -413,23 +711,56 @@ export class AccountLock extends BaseEntity {
         },
       });
     }
+    
+    // ✅ Enterprise: Send notification
+    this.sendLockNotification();
   }
 
   /**
    * Lock account manually (admin or security)
+   * ✅ Enterprise: Enhanced with IP and device tracking
    */
-  public lock(reason: AccountLockReason, duration?: number, lockedBy?: string, metadata?: Record<string, unknown>): void {
+  public lock(
+    reason: AccountLockReason, 
+    duration?: number, 
+    lockedBy?: string, 
+    metadata?: Record<string, unknown>,
+    ipAddress?: string,
+    deviceId?: string
+  ): void {
     if (this.isLocked() && !this.isLockExpired()) {
       throw new EntityValidationError('Account already locked');
     }
     
-    const lockDuration = duration ?? LOCK_CONFIG.REASON_DURATIONS[reason];
+    const lockDuration = duration ?? REASON_DURATIONS[reason as keyof typeof REASON_DURATIONS];
     this._lockedUntil = lockDuration ? new Date(Date.now() + lockDuration) : undefined;
     this._reason = reason;
     this._lockedAt = new Date();
     this._unlockedAt = undefined;
     this._lockedBy = lockedBy;
     this._metadata = metadata;
+    
+    // ✅ Enterprise: Update tracking info
+    if (ipAddress && !this._ipTrackingInfo) {
+      this._ipTrackingInfo = {
+        ipAddress,
+        firstAttemptAt: this._lockedAt,
+        lastAttemptAt: this._lockedAt,
+        attemptCount: 0,
+        isBlocked: true,
+        blockedAt: this._lockedAt,
+      };
+    }
+    
+    if (deviceId && !this._deviceTrackingInfo) {
+      this._deviceTrackingInfo = {
+        deviceId,
+        fingerprint: 'unknown',
+        firstSeenAt: this._lockedAt,
+        lastSeenAt: this._lockedAt,
+        trustLevel: 'suspicious',
+      };
+    }
     
     // Set lock level based on duration
     if (this._lockedUntil === null || this._lockedUntil === undefined) {
@@ -460,8 +791,13 @@ export class AccountLock extends BaseEntity {
         lockedBy,
         isManual: true,
         duration,
+        ipAddress,
+        deviceId,
       },
     });
+    
+    // ✅ Enterprise: Send notification
+    this.sendLockNotification();
   }
 
   /**
@@ -520,6 +856,135 @@ export class AccountLock extends BaseEntity {
         },
       });
     }
+  }
+
+  /**
+   * ✅ Enterprise: Assess account risk level
+   */
+  public assessRisk(): RiskAssessment {
+    const factors: string[] = [];
+    let score = 0;
+    
+    // Factor 1: Failure count
+    if (this._failureCount >= MAX_FAILURE_COUNT) {
+      score += 40;
+      factors.push('Maximum failure attempts reached');
+    } else if (this._failureCount >= WARNING_THRESHOLD) {
+      score += 20;
+      factors.push('Multiple failed attempts');
+    }
+    
+    // Factor 2: Lock level
+    switch (this._lockLevel) {
+      case LockLevel.LEVEL_4:
+        score += 30;
+        factors.push('Permanent lock status');
+        break;
+      case LockLevel.LEVEL_3:
+        score += 20;
+        factors.push('Extended lock duration (24h+)');
+        break;
+      case LockLevel.LEVEL_2:
+        score += 10;
+        factors.push('Medium lock duration');
+        break;
+    }
+    
+    // Factor 3: IP-based attack detection
+    if (this._ipTrackingInfo) {
+      if (this._ipTrackingInfo.attemptCount >= MAX_IP_ATTEMPTS_PER_HOUR) {
+        score += 15;
+        factors.push(`High failure rate from IP: ${this._ipTrackingInfo.ipAddress}`);
+      }
+      if (this._ipTrackingInfo.isBlocked) {
+        score += 10;
+        factors.push('IP address is blocked');
+      }
+    }
+    
+    // Factor 4: Device trust level
+    if (this._deviceTrackingInfo) {
+      if (this._deviceTrackingInfo.trustLevel === 'suspicious') {
+        score += 10;
+        factors.push('Suspicious device fingerprint');
+      }
+    }
+    
+    // Factor 5: Geographic anomaly
+    if (this._geoLocationInfo?.isSuspiciousLocation) {
+      score += 15;
+      factors.push(`Unusual location: ${this._geoLocationInfo.district || 'unknown'}`);
+    }
+    
+    // Determine severity and recommended action
+    let severity: RiskSeverity;
+    let recommendedAction: 'allow' | 'warn' | 'challenge' | 'block';
+    let requiresAdminReview = false;
+    
+    if (score >= 70) {
+      severity = RiskSeverity.CRITICAL;
+      recommendedAction = 'block';
+      requiresAdminReview = true;
+    } else if (score >= 50) {
+      severity = RiskSeverity.HIGH;
+      recommendedAction = 'challenge';
+      requiresAdminReview = true;
+    } else if (score >= 30) {
+      severity = RiskSeverity.MEDIUM;
+      recommendedAction = 'warn';
+    } else {
+      severity = RiskSeverity.LOW;
+      recommendedAction = 'allow';
+    }
+    
+    return {
+      severity,
+      score,
+      factors,
+      recommendedAction,
+      requiresAdminReview,
+    };
+  }
+
+  /**
+   * ✅ Enterprise: Get notification channels for this lock
+   */
+  public getNotificationChannels(): NotificationChannel[] {
+    const config = this.getNotificationConfig();
+    return config.channels;
+  }
+
+  /**
+   * ✅ Enterprise: Update geographic location
+   */
+  public updateGeoLocation(district?: string, upazila?: string, division?: string): void {
+    const oldLocation = this._geoLocationInfo?.district;
+    
+    this._geoLocationInfo = {
+      district,
+      upazila,
+      division,
+      isBangladesh: !!district, // Assuming district means Bangladesh
+      isSuspiciousLocation: oldLocation !== undefined && oldLocation !== district,
+    };
+    
+    if (this._geoLocationInfo.isSuspiciousLocation) {
+      this.addDomainEvent({
+        eventId: generateEventId(),
+        eventType: AccountLockEventType.ACCOUNT_LOCK_GEO_TRACKED,
+        aggregateId: this.id,
+        occurredOn: new Date(),
+        version: this.version,
+        metadata: {
+          userId: this._userId,
+          oldLocation,
+          newLocation: district,
+          isSuspicious: true,
+        },
+      });
+    }
+    
+    this.touch();
   }
 
   // ============================================================
@@ -593,14 +1058,35 @@ export class AccountLock extends BaseEntity {
    */
   public getRemainingAttempts(): number {
     if (this.isLocked()) return 0;
-    return Math.max(0, LOCK_CONFIG.MAX_FAILURE_COUNT - this._failureCount);
+    return Math.max(0, MAX_FAILURE_COUNT - this._failureCount);
   }
 
   /**
    * Check if account is at risk (close to lock)
    */
   public isAtRisk(): boolean {
-    return !this.isLocked() && this._failureCount >= LOCK_CONFIG.MAX_FAILURE_COUNT - 2;
+    return !this.isLocked() && this._failureCount >= MAX_FAILURE_COUNT - 2;
+  }
+
+  /**
+   * ✅ Enterprise: Get IP tracking information
+   */
+  public getIPTrackingInfo(): IPTrackingInfo | undefined {
+    return this._ipTrackingInfo ? { ...this._ipTrackingInfo } : undefined;
+  }
+
+  /**
+   * ✅ Enterprise: Get device tracking information
+   */
+  public getDeviceTrackingInfo(): DeviceTrackingInfo | undefined {
+    return this._deviceTrackingInfo ? { ...this._deviceTrackingInfo } : undefined;
+  }
+
+  /**
+   * ✅ Enterprise: Get geographic location information
+   */
+  public getGeoLocationInfo(): GeoLocationInfo | undefined {
+    return this._geoLocationInfo ? { ...this._geoLocationInfo } : undefined;
   }
 
   // ============================================================
@@ -627,59 +1113,7 @@ export class AccountLock extends BaseEntity {
    * Convert to JSON serializable object
    */
   public toJSON(): Record<string, unknown> {
+    const riskAssessment = this.assessRisk();
+    
     return {
-      ...super.toJSON(),
-      userId: this._userId,
-      reason: this._reason,
-      lockedAt: this._lockedAt.toISOString(),
-      unlockedAt: this._unlockedAt?.toISOString(),
-      failureCount: this._failureCount,
-      lockedUntil: this._lockedUntil?.toISOString(),
-      lockLevel: this._lockLevel,
-      lockedBy: this._lockedBy,
-      unlockedBy: this._unlockedBy,
-      unlockReason: this._unlockReason,
-      isLocked: this.isLocked(),
-      isLockExpired: this.isLockExpired(),
-      isPermanent: this.isPermanentLock(),
-      remainingLockTime: this.getRemainingLockTime(),
-      remainingLockTimeFormatted: this.getRemainingLockTimeFormatted(),
-      remainingAttempts: this.getRemainingAttempts(),
-      isAtRisk: this.isAtRisk(),
-      lockSeverity: this.getLockSeverity(),
-    };
-  }
-}
-
-// ============================================================
-// Helper Functions
-// ============================================================
-
-/**
- * Generate lock ID (pure domain function)
- */
-function generateLockId(): string {
-  const timestamp = Date.now().toString(36);
-  const random = Math.random().toString(36).substring(2, 11);
-  return `lock_${timestamp}_${random}`;
-}
-
-/**
- * Generate event ID (pure domain function)
- */
-function generateEventId(): string {
-  const timestamp = Date.now().toString(36);
-  const random = Math.random().toString(36).substring(2, 10);
-  const counter = (generateEventId.counter = (generateEventId.counter || 0) + 1);
-  return `evt_${timestamp}_${random}_${counter}`;
-}
-
-namespace generateEventId {
-  export let counter = 0;
-}
-
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { LockDurationConfig, ProgressiveLockConfig };
+      ...super
