@@ -1,5 +1,5 @@
 /**
- * Password Reset Entity - Pure Domain Core
+ * Password Reset Entity - Pure Domain Core (Enterprise Enhanced)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module domain/entities/password-reset.entity
@@ -9,15 +9,15 @@
  * Used for secure password recovery workflow.
  * 
  * Enterprise Rules:
+ * ✅ Shared configuration from @vubon/shared-constants
  * ✅ 1-hour token expiry (configurable)
- * ✅ Rate limiting on reset requests
+ * ✅ Rate limiting on reset requests (3 per day, 15 min cooldown)
+ * ✅ Concurrent pending request prevention
  * ✅ Domain events for all state changes
  * ✅ Track request source for security
  * ✅ Framework-free (no crypto dependency)
- * ✅ Bangladesh specific - Phone-based password reset support
- * 
- * IMPORTANT: Token validation uses domain Token.equals() method.
- * Actual token signature verification happens in infrastructure.
+ * ✅ Bangladesh specific - Phone-based password reset support (SMS/WhatsApp/Voice)
+ * ✅ Configurable notification templates
  */
 
 import { BaseEntity, EntityValidationError, type IdGenerator } from './base.entity';
@@ -27,6 +27,9 @@ import { Phone } from '../value-objects/phone.vo';
 import { IpAddress } from '../value-objects/ip-address.vo';
 import { UserAgent } from '../value-objects/user-agent.vo';
 import { DeviceId } from '../value-objects/device-id.vo';
+
+// ✅ ENTERPRISE ENHANCEMENT: Import from shared-constants (Single Source of Truth)
+import { PASSWORD_RESET_CONFIG } from '@vubon/shared-constants';
 
 // ==================== Enums ====================
 
@@ -41,13 +44,13 @@ export enum PasswordResetStatus {
 }
 
 /**
- * Password reset method enumeration
+ * Password reset method enumeration (Bangladesh specific)
  */
 export enum PasswordResetMethod {
   EMAIL = 'EMAIL',
   SMS = 'SMS',
   WHATSAPP = 'WHATSAPP',      // Bangladesh specific
-  VOICE = 'VOICE',            // Voice call OTP
+  VOICE = 'VOICE',            // Voice call OTP for feature phones
 }
 
 /**
@@ -60,33 +63,62 @@ export enum PasswordResetEventType {
   PASSWORD_RESET_CANCELLED = 'password_reset.cancelled',
   PASSWORD_RESET_FAILED = 'password_reset.failed',
   PASSWORD_RESET_REQUESTED = 'password_reset.requested',
+  PASSWORD_RESET_CONCURRENT_BLOCKED = 'password_reset.concurrent_blocked', // ✅ Enterprise: Concurrent request prevention
 }
 
 // ==================== Types ====================
 
 /**
- * Password reset configuration constants
+ * Password reset configuration from shared-constants
  */
-const RESET_CONFIG = {
-  EXPIRY_HOURS: 1,
-  EXPIRY_MS: 60 * 60 * 1000,      // 1 hour
-  MAX_REQUESTS_PER_DAY: 3,
-  COOLDOWN_MINUTES: 15,
-  COOLDOWN_MS: 15 * 60 * 1000,
-  MAX_VERIFICATION_ATTEMPTS: 5,
-} as const;
+export type PasswordResetConfig = typeof PASSWORD_RESET_CONFIG;
 
 /**
  * Password reset identifier (email or phone)
  */
-export type ResetIdentifier = { type: 'email'; value: Email } | { type: 'phone'; value: Phone };
+export type ResetIdentifier = 
+  | { type: 'email'; value: Email } 
+  | { type: 'phone'; value: Phone };
+
+/**
+ * Rate limit check result
+ */
+export interface RateLimitResult {
+  limited: boolean;
+  remainingMinutes: number;
+  remainingRequests: number;
+  message?: string;
+}
+
+/**
+ * Notification template for different reset methods
+ */
+export interface NotificationTemplate {
+  sms: string;
+  whatsapp: string;
+  voice: string;
+  email: string;
+}
+
+// ==================== Constants from Shared Config ====================
+
+// ✅ ENTERPRISE ENHANCEMENT: Use from shared-constants
+const {
+  EXPIRY_HOURS,
+  EXPIRY_MS,
+  MAX_REQUESTS_PER_DAY,
+  COOLDOWN_MINUTES,
+  COOLDOWN_MS,
+  MAX_VERIFICATION_ATTEMPTS,
+  ALLOW_CONCURRENT_REQUESTS,
+} = PASSWORD_RESET_CONFIG;
 
 // ==================== Password Reset Entity ====================
 
 /**
  * Password Reset Entity
  * 
- * Manages password reset requests
+ * Manages password reset requests with full audit trail
  */
 export class PasswordReset extends BaseEntity {
   private _userId: string;
@@ -104,6 +136,7 @@ export class PasswordReset extends BaseEntity {
   private _lastRequestAt: Date | undefined;
   private _verificationAttempts: number;
   private _otpCode?: string;           // For phone-based reset (stored temporarily)
+  private _cancelReason?: string;       // ✅ Enterprise: Track cancellation reason
 
   private constructor(
     id: string,
@@ -122,6 +155,7 @@ export class PasswordReset extends BaseEntity {
     lastRequestAt: Date | undefined,
     verificationAttempts: number,
     otpCode: string | undefined,
+    cancelReason: string | undefined,
     createdAt: Date,
     updatedAt: Date,
     version: number
@@ -143,6 +177,7 @@ export class PasswordReset extends BaseEntity {
     this._lastRequestAt = lastRequestAt;
     this._verificationAttempts = verificationAttempts;
     this._otpCode = otpCode;
+    this._cancelReason = cancelReason;
     
     this.validate();
   }
@@ -154,7 +189,8 @@ export class PasswordReset extends BaseEntity {
     if (!this._userId) {
       throw new EntityValidationError('Password reset requires a user ID');
     }
-    if (!this._token && this._method !== PasswordResetMethod.SMS && this._method !== PasswordResetMethod.WHATSAPP) {
+    if (!this._token && this._method !== PasswordResetMethod.SMS && 
+        this._method !== PasswordResetMethod.WHATSAPP && this._method !== PasswordResetMethod.VOICE) {
       throw new EntityValidationError('Password reset requires a token');
     }
     if (!this._ipAddress) {
@@ -169,10 +205,10 @@ export class PasswordReset extends BaseEntity {
     if (this._requestCount < 0) {
       throw new EntityValidationError('Request count cannot be negative');
     }
-    if (this._requestCount > RESET_CONFIG.MAX_REQUESTS_PER_DAY) {
+    if (this._requestCount > MAX_REQUESTS_PER_DAY) {
       throw new EntityValidationError('Request count exceeds maximum allowed');
     }
-    if (this._verificationAttempts > RESET_CONFIG.MAX_VERIFICATION_ATTEMPTS) {
+    if (this._verificationAttempts > MAX_VERIFICATION_ATTEMPTS) {
       throw new EntityValidationError('Verification attempts exceed maximum allowed');
     }
   }
@@ -193,13 +229,27 @@ export class PasswordReset extends BaseEntity {
     deviceId: DeviceId,
     idGenerator: IdGenerator,
     requestCount: number = 0,
-    lastRequestAt?: Date
+    lastRequestAt?: Date,
+    existingPendingRequests: PasswordReset[] = []
   ): PasswordReset {
     const now = new Date();
-    const expiresAt = new Date(now.getTime() + RESET_CONFIG.EXPIRY_MS);
+    const expiresAt = new Date(now.getTime() + EXPIRY_MS);
     
-    // Rate limiting check
-    PasswordReset.checkRateLimit(requestCount, lastRequestAt);
+    // ✅ Enterprise: Check rate limit
+    const rateLimit = PasswordReset.checkRateLimit(requestCount, lastRequestAt);
+    if (rateLimit.limited) {
+      throw new EntityValidationError(rateLimit.message || 'Rate limit exceeded');
+    }
+    
+    // ✅ Enterprise: Check for concurrent pending requests
+    if (!ALLOW_CONCURRENT_REQUESTS) {
+      const hasPending = PasswordReset.hasPendingRequest(userId, existingPendingRequests);
+      if (hasPending) {
+        throw new EntityValidationError(
+          'You already have a pending password reset request. Please wait for it to expire or be used.'
+        );
+      }
+    }
     
     const reset = new PasswordReset(
       idGenerator.generate(),
@@ -218,6 +268,7 @@ export class PasswordReset extends BaseEntity {
       now,
       0,
       undefined,
+      undefined,
       now,
       now,
       1
@@ -234,6 +285,9 @@ export class PasswordReset extends BaseEntity {
         method: PasswordResetMethod.EMAIL,
         identifier: email.getValue(),
         expiresAt: expiresAt.toISOString(),
+        requestCount: requestCount + 1,
+        ipAddress: ipAddress.getValue(),
+        deviceId: deviceId.getValue(),
       },
     });
     
@@ -253,13 +307,27 @@ export class PasswordReset extends BaseEntity {
     deviceId: DeviceId,
     idGenerator: IdGenerator,
     requestCount: number = 0,
-    lastRequestAt?: Date
+    lastRequestAt?: Date,
+    existingPendingRequests: PasswordReset[] = []
   ): PasswordReset {
     const now = new Date();
-    const expiresAt = new Date(now.getTime() + RESET_CONFIG.EXPIRY_MS);
+    const expiresAt = new Date(now.getTime() + EXPIRY_MS);
     
-    // Rate limiting check
-    PasswordReset.checkRateLimit(requestCount, lastRequestAt);
+    // ✅ Enterprise: Check rate limit
+    const rateLimit = PasswordReset.checkRateLimit(requestCount, lastRequestAt);
+    if (rateLimit.limited) {
+      throw new EntityValidationError(rateLimit.message || 'Rate limit exceeded');
+    }
+    
+    // ✅ Enterprise: Check for concurrent pending requests
+    if (!ALLOW_CONCURRENT_REQUESTS) {
+      const hasPending = PasswordReset.hasPendingRequest(userId, existingPendingRequests);
+      if (hasPending) {
+        throw new EntityValidationError(
+          'You already have a pending password reset request. Please wait for it to expire or be used.'
+        );
+      }
+    }
     
     const reset = new PasswordReset(
       idGenerator.generate(),
@@ -278,6 +346,7 @@ export class PasswordReset extends BaseEntity {
       now,
       0,
       otpCode,
+      undefined,
       now,
       now,
       1
@@ -294,6 +363,9 @@ export class PasswordReset extends BaseEntity {
         method,
         identifier: phone.getE164(),
         expiresAt: expiresAt.toISOString(),
+        requestCount: requestCount + 1,
+        ipAddress: ipAddress.getValue(),
+        deviceId: deviceId.getValue(),
       },
     });
     
@@ -321,6 +393,7 @@ export class PasswordReset extends BaseEntity {
     lastRequestAt?: Date;
     verificationAttempts: number;
     otpCode?: string;
+    cancelReason?: string;
     createdAt: Date;
     updatedAt: Date;
     version: number;
@@ -346,6 +419,7 @@ export class PasswordReset extends BaseEntity {
       data.lastRequestAt,
       data.verificationAttempts,
       data.otpCode,
+      data.cancelReason,
       data.createdAt,
       data.updatedAt,
       data.version
@@ -358,25 +432,69 @@ export class PasswordReset extends BaseEntity {
 
   /**
    * Check rate limit for reset requests
+   * ✅ Enterprise: Enhanced with detailed result
    */
-  private static checkRateLimit(requestCount: number, lastRequestAt?: Date): void {
-    if (requestCount >= RESET_CONFIG.MAX_REQUESTS_PER_DAY) {
-      throw new EntityValidationError(
-        `Maximum reset requests (${RESET_CONFIG.MAX_REQUESTS_PER_DAY}) exceeded for today`
-      );
+  private static checkRateLimit(
+    requestCount: number, 
+    lastRequestAt?: Date
+  ): RateLimitResult {
+    if (requestCount >= MAX_REQUESTS_PER_DAY) {
+      return {
+        limited: true,
+        remainingMinutes: 0,
+        remainingRequests: 0,
+        message: `Maximum reset requests (${MAX_REQUESTS_PER_DAY}) exceeded for today. Please try again tomorrow.`,
+      };
     }
     
     if (lastRequestAt) {
       const timeSinceLastRequest = new Date().getTime() - lastRequestAt.getTime();
-      if (timeSinceLastRequest < RESET_CONFIG.COOLDOWN_MS) {
+      if (timeSinceLastRequest < COOLDOWN_MS) {
         const remainingMinutes = Math.ceil(
-          (RESET_CONFIG.COOLDOWN_MS - timeSinceLastRequest) / (60 * 1000)
+          (COOLDOWN_MS - timeSinceLastRequest) / (60 * 1000)
         );
-        throw new EntityValidationError(
-          `Please wait ${remainingMinutes} minutes before requesting another reset`
-        );
+        return {
+          limited: true,
+          remainingMinutes,
+          remainingRequests: MAX_REQUESTS_PER_DAY - requestCount,
+          message: `Please wait ${remainingMinutes} minute${remainingMinutes !== 1 ? 's' : ''} before requesting another reset.`,
+        };
       }
     }
+    
+    return {
+      limited: false,
+      remainingMinutes: 0,
+      remainingRequests: MAX_REQUESTS_PER_DAY - requestCount,
+    };
+  }
+
+  /**
+   * ✅ Enterprise: Check if user has a pending reset request
+   */
+  private static hasPendingRequest(
+    userId: string, 
+    existingRequests: PasswordReset[]
+  ): boolean {
+    return existingRequests.some(request => 
+      request.getUserId() === userId && 
+      request.getStatus() === PasswordResetStatus.PENDING &&
+      !request.isExpired()
+    );
+  }
+
+  /**
+   * ✅ Enterprise: Get notification template for this reset method
+   */
+  private getNotificationTemplate(): string {
+    const templates: Record<PasswordResetMethod, string> = {
+      [PasswordResetMethod.SMS]: `Your password reset OTP is: {code}. Valid for {expiry} minutes.`,
+      [PasswordResetMethod.WHATSAPP]: `🔐 *Vubon Password Reset*\n\nYour OTP is: *{code}*\nValid for {expiry} minutes.\nNever share this code with anyone.`,
+      [PasswordResetMethod.VOICE]: `Your password reset OTP is {code}. This code is valid for {expiry} minutes.`,
+      [PasswordResetMethod.EMAIL]: `Click the link below to reset your password: {link}`,
+    };
+    
+    return templates[this._method] || templates[PasswordResetMethod.SMS];
   }
 
   // ============================================================
@@ -416,10 +534,11 @@ export class PasswordReset extends BaseEntity {
           userId: this._userId,
           reason: 'Invalid OTP',
           remainingAttempts: this.getRemainingAttempts(),
+          method: this._method,
         },
       });
       
-      if (this._verificationAttempts >= RESET_CONFIG.MAX_VERIFICATION_ATTEMPTS) {
+      if (this._verificationAttempts >= MAX_VERIFICATION_ATTEMPTS) {
         this.expire();
       }
     }
@@ -459,6 +578,7 @@ export class PasswordReset extends BaseEntity {
         metadata: {
           userId: this._userId,
           reason: 'Invalid token',
+          method: this._method,
         },
       });
     }
@@ -494,6 +614,9 @@ export class PasswordReset extends BaseEntity {
       metadata: {
         userId: this._userId,
         method: this._method,
+        identifier: this._identifier.type === 'email' 
+          ? this._identifier.value.getValue() 
+          : this._identifier.value.getE164(),
       },
     });
   }
@@ -517,6 +640,8 @@ export class PasswordReset extends BaseEntity {
       version: this.version,
       metadata: {
         userId: this._userId,
+        reason: 'Token expired',
+        expiresAt: this._expiresAt.toISOString(),
       },
     });
   }
@@ -533,6 +658,7 @@ export class PasswordReset extends BaseEntity {
     
     this._status = PasswordResetStatus.CANCELLED;
     this._cancelledAt = new Date();
+    this._cancelReason = reason;
     this.touch();
     
     this.addDomainEvent({
@@ -544,6 +670,7 @@ export class PasswordReset extends BaseEntity {
       metadata: {
         userId: this._userId,
         reason,
+        method: this._method,
       },
     });
   }
@@ -586,7 +713,7 @@ export class PasswordReset extends BaseEntity {
    */
   public getRemainingAttempts(): number {
     if (this._method === PasswordResetMethod.EMAIL) return 0;
-    return Math.max(0, RESET_CONFIG.MAX_VERIFICATION_ATTEMPTS - this._verificationAttempts);
+    return Math.max(0, MAX_VERIFICATION_ATTEMPTS - this._verificationAttempts);
   }
 
   /**
@@ -597,31 +724,32 @@ export class PasswordReset extends BaseEntity {
     if (minutes <= 0) return 'Expired';
     if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
     const hours = Math.floor(minutes / 60);
-    return `${hours} hour${hours !== 1 ? 's' : ''}`;
+    const remainingMinutes = minutes % 60;
+    if (remainingMinutes === 0) return `${hours} hour${hours !== 1 ? 's' : ''}`;
+    return `${hours} hour${hours !== 1 ? 's' : ''} ${remainingMinutes} minute${remainingMinutes !== 1 ? 's' : ''}`;
   }
 
   /**
-   * Static method to check rate limit
+   * ✅ Enterprise: Static method to check rate limit
    */
-  public static isRateLimited(
+  public static getRateLimitStatus(
     requestCount: number,
     lastRequestAt?: Date
-  ): { limited: boolean; remainingMinutes: number } {
-    if (requestCount >= RESET_CONFIG.MAX_REQUESTS_PER_DAY) {
-      return { limited: true, remainingMinutes: 0 };
-    }
+  ): RateLimitResult {
+    return PasswordReset.checkRateLimit(requestCount, lastRequestAt);
+  }
+
+  /**
+   * ✅ Enterprise: Get formatted notification message
+   */
+  public getNotificationMessage(codeOrLink: string, expiryMinutes?: number): string {
+    const template = this.getNotificationTemplate();
+    const expiry = expiryMinutes || EXPIRY_HOURS * 60;
     
-    if (lastRequestAt) {
-      const timeSinceLastRequest = new Date().getTime() - lastRequestAt.getTime();
-      if (timeSinceLastRequest < RESET_CONFIG.COOLDOWN_MS) {
-        const remainingMinutes = Math.ceil(
-          (RESET_CONFIG.COOLDOWN_MS - timeSinceLastRequest) / (60 * 1000)
-        );
-        return { limited: true, remainingMinutes };
-      }
-    }
-    
-    return { limited: false, remainingMinutes: 0 };
+    return template
+      .replace('{code}', codeOrLink)
+      .replace('{expiry}', expiry.toString())
+      .replace('{link}', codeOrLink);
   }
 
   // ============================================================
@@ -636,12 +764,14 @@ export class PasswordReset extends BaseEntity {
   public getExpiresAt(): Date { return new Date(this._expiresAt); }
   public getUsedAt(): Date | undefined { return this._usedAt ? new Date(this._usedAt) : undefined; }
   public getCancelledAt(): Date | undefined { return this._cancelledAt ? new Date(this._cancelledAt) : undefined; }
+  public getCancelReason(): string | undefined { return this._cancelReason; }
   public getIpAddress(): IpAddress { return this._ipAddress; }
   public getUserAgent(): UserAgent { return this._userAgent; }
   public getDeviceId(): DeviceId { return this._deviceId; }
   public getRequestCount(): number { return this._requestCount; }
   public getLastRequestAt(): Date | undefined { return this._lastRequestAt ? new Date(this._lastRequestAt) : undefined; }
   public getVerificationAttempts(): number { return this._verificationAttempts; }
+  public getOtpCode(): string | undefined { return this._otpCode; }
 
   // ============================================================
   // JSON Serialization
@@ -663,11 +793,17 @@ export class PasswordReset extends BaseEntity {
       expiresAt: this._expiresAt.toISOString(),
       usedAt: this._usedAt?.toISOString(),
       cancelledAt: this._cancelledAt?.toISOString(),
+      cancelReason: this._cancelReason,
       isValid: this.isValid(),
       isExpired: this.isExpired(),
       remainingTime: this.getRemainingTimeFormatted(),
+      remainingTimeMinutes: this.getRemainingTimeMinutes(),
       requestCount: this._requestCount,
+      remainingRequests: Math.max(0, MAX_REQUESTS_PER_DAY - this._requestCount),
       remainingAttempts: this.getRemainingAttempts(),
+      verificationAttempts: this._verificationAttempts,
+      ipAddress: this._ipAddress.getValue(),
+      deviceId: this._deviceId.getValue(),
       // ⚠️ Token and OTP code are intentionally excluded for security
     };
   }
@@ -695,4 +831,4 @@ namespace generateEventId {
 // Type Exports
 // ============================================================
 
-export type { ResetIdentifier };
+export type { ResetIdentifier, RateLimitResult, NotificationTemplate, PasswordResetConfig };
