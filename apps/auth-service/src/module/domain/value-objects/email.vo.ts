@@ -1,25 +1,21 @@
 /**
- * Email Value Object - Pure Domain Core
+ * Email Value Object - Pure Domain Core (Refactored)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module domain/value-objects/email.vo
  * 
  * @description
  * Represents an email address with validation and normalization.
- * Used for user identification, communication, and authentication.
+ * Uses shared utilities from @vubon/shared-* packages for validation,
+ * avoiding code duplication.
  * 
  * Enterprise Rules:
  * ✅ Immutable - Email never changes after creation
  * ✅ Self-validating - Validates format and constraints
  * ✅ Normalized - Standardized format for equality
  * ✅ Framework-free - No external dependencies
+ * ✅ Reuses shared validation - No duplicate code
  * ✅ Bangladesh specific - Support for .com.bd, .edu.bd, etc.
- * 
- * Supported formats:
- * - Standard: user@example.com
- * - Subaddress: user+tag@example.com
- * - Bangladesh domains: user@example.com.bd, user@example.edu.bd
- * - International: user@пример.рф (Unicode support ready)
  * 
  * @example
  * const email = new Email('User@Example.COM');
@@ -30,6 +26,23 @@
  */
 
 import { ValueObject } from './base.vo';
+
+// ✅ FIXED: Import from shared packages instead of duplicating logic
+import { 
+  isValidEmail, 
+  normalizeEmail, 
+  maskEmail as maskEmailUtil,
+  getEmailDomain,
+  getLocalPart,
+  isCommonEmailDomain,
+  isBangladeshEmailDomain,
+  isEducationalEmail,
+  getEmailComponents,
+  type EmailComponents as SharedEmailComponents
+} from '@vubon/shared-utils';
+
+import { REGEX_EMAIL } from '@vubon/shared-constants';
+import { EmailSchema } from '@vubon/shared-schemas';
 
 // ==================== Types ====================
 
@@ -52,46 +65,13 @@ export type EmailDomainCategory = 'free' | 'corporate' | 'bangladesh' | 'disposa
  */
 export type EmailProvider = 'google' | 'microsoft' | 'apple' | 'yahoo' | 'protonmail' | 'other';
 
-// ==================== Constants ====================
+// ==================== Constants (Bangladesh Specific - Not in shared) ====================
 
 /**
- * Common email domain categories (Bangladesh specific)
+ * Bangladesh specific email domains (Not in shared-utils)
+ * These are unique to the domain layer and not generic enough for shared-utils
  */
-export const EMAIL_DOMAINS = {
-  // Free email providers
-  FREE: new Set([
-    'gmail.com',
-    'yahoo.com',
-    'hotmail.com',
-    'outlook.com',
-    'live.com',
-    'aol.com',
-    'icloud.com',
-    'me.com',
-    'protonmail.com',
-    'mail.com',
-    'yandex.com',
-    'gmx.com',
-    'zoho.com',
-    'tutanota.com',
-  ]),
-  
-  // Bangladesh specific domains
-  BANGLADESH: new Set([
-    'gmail.com',
-    'yahoo.com',
-    'outlook.com',
-    'hotmail.com',
-    'bangla.net',
-    'agni.com',
-    'citechco.net',
-    'bdcom.com',
-    'bol-online.com',
-    'dhaka.net',
-    'link3.net',
-    'btcl.net.bd',
-  ]),
-  
+export const BANGLADESH_SPECIFIC_DOMAINS = {
   // Disposable email domains (for fraud prevention)
   DISPOSABLE: new Set([
     'tempmail.com',
@@ -119,31 +99,7 @@ export const EMAIL_DOMAINS = {
     'wegwerfmail.org',
   ]),
   
-  // Educational domains (Bangladesh)
-  EDUCATIONAL: new Set([
-    'du.ac.bd',
-    'buet.ac.bd',
-    'ru.ac.bd',
-    'cu.ac.bd',
-    'ju.ac.bd',
-    'northsouth.edu',
-    'bracu.ac.bd',
-    'aiub.edu',
-    'iub.edu.bd',
-    'ewubd.edu',
-    'uiu.ac.bd',
-    'daffodilvarsity.edu.bd',
-    'aust.edu',
-    'diu.edu.bd',
-    'sub.ac.bd',
-    'mbstu.ac.bd',
-    'pstu.ac.bd',
-    'hstu.ac.bd',
-    'sau.ac.bd',
-    'bau.edu.bd',
-  ]),
-  
-  // Government domains (Bangladesh)
+  // Bangladesh government domains
   GOVERNMENT: new Set([
     'gov.bd',
     'moi.gov.bd',
@@ -151,31 +107,33 @@ export const EMAIL_DOMAINS = {
     'a2i.gov.bd',
     'dgdpr.gov.bd',
   ]),
+  
+  // Bangladesh specific corporate domains
+  BANGLADESH_CORPORATE: new Set([
+    'bangla.net',
+    'agni.com',
+    'citechco.net',
+    'bdcom.com',
+    'bol-online.com',
+    'dhaka.net',
+    'link3.net',
+    'btcl.net.bd',
+  ]),
 } as const;
 
 /**
- * Email configuration constants
+ * Email configuration constants (Only BD specific, rest from shared)
  */
 export const EMAIL_CONFIG = {
-  MAX_LENGTH: 254,           // RFC 5321 limit
-  MAX_LOCAL_PART: 64,        // RFC 5321 local part limit
-  MAX_DOMAIN_PART: 255,      // RFC 1035 domain limit
-  
-  // Special email patterns
+  // Bangladesh specific patterns
   PATTERNS: {
-    // Standard email pattern (RFC 5322 compliant)
-    STANDARD: /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$/,
-    
-    // Subaddress pattern (user+tag@example.com)
-    SUBADDRESS: /^([a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*)\+([a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)@(.+)$/,
-    
-    // Bangladesh specific domain patterns
+    // Bangladesh specific domain pattern
     BANGLADESH_DOMAIN: /\.(com\.bd|net\.bd|org\.bd|edu\.bd|gov\.bd|ac\.bd|mil\.bd)$/i,
     
-    // Educational domain pattern
+    // Educational domain pattern (enhanced for BD)
     EDUCATIONAL_DOMAIN: /\.(edu|ac\.bd|edu\.bd)$/i,
     
-    // Government domain pattern
+    // Government domain pattern (enhanced for BD)
     GOVERNMENT_DOMAIN: /\.(gov|gov\.bd)$/i,
   },
 } as const;
@@ -186,6 +144,7 @@ export const EMAIL_CONFIG = {
  * Email Value Object
  * 
  * Represents a validated and normalized email address
+ * Uses shared utilities for validation to avoid code duplication
  */
 export class Email extends ValueObject {
   private readonly _value: string;
@@ -193,6 +152,7 @@ export class Email extends ValueObject {
   private readonly _domain: string;
   private readonly _subAddressTag?: string;
   private readonly _normalized: string;
+  private readonly _sharedComponents: SharedEmailComponents | null;
 
   /**
    * Creates a new Email value object
@@ -203,26 +163,37 @@ export class Email extends ValueObject {
   constructor(email: string) {
     super();
     
-    const validation = Email.validate(email);
-    if (!validation.isValid) {
-      throw new Error(`Invalid email: ${validation.error}`);
+    // ✅ FIXED: Use shared schema for validation
+    const schemaResult = EmailSchema.safeParse(email);
+    if (!schemaResult.success) {
+      throw new Error(`Invalid email: ${schemaResult.error.errors[0]?.message || 'Invalid format'}`);
     }
     
-    const normalized = validation.normalized!;
+    // ✅ FIXED: Use shared utility for normalization
+    const normalized = normalizeEmail(email);
+    
+    // ✅ FIXED: Final validation with shared utility
+    if (!isValidEmail(normalized)) {
+      throw new Error('Invalid email format');
+    }
+    
     this._value = email.trim();
     this._normalized = normalized;
     
+    // ✅ FIXED: Use shared utility for components
+    this._sharedComponents = getEmailComponents(normalized);
+    
     // Parse components
     const [localPart, domain] = normalized.split('@');
-    this._domain = domain;
+    this._domain = domain || '';
     
-    // Check for subaddress (tag)
-    const subaddressMatch = localPart.match(EMAIL_CONFIG.PATTERNS.SUBADDRESS);
+    // Check for subaddress (tag) - domain specific, not in shared
+    const subaddressMatch = localPart?.match(/^(.+)\+(.+)$/);
     if (subaddressMatch) {
-      this._localPart = subaddressMatch[1]!;
+      this._localPart = subaddressMatch[1] || '';
       this._subAddressTag = subaddressMatch[2];
     } else {
-      this._localPart = localPart;
+      this._localPart = localPart || '';
       this._subAddressTag = undefined;
     }
     
@@ -238,8 +209,8 @@ export class Email extends ValueObject {
       throw new Error('Email cannot be empty');
     }
     
-    if (this._value.length > EMAIL_CONFIG.MAX_LENGTH) {
-      throw new Error(`Email too long (max ${EMAIL_CONFIG.MAX_LENGTH} characters)`);
+    if (this._value.length > 254) {
+      throw new Error('Email too long (max 254 characters)');
     }
   }
 
@@ -278,11 +249,11 @@ export class Email extends ValueObject {
   }
 
   // ============================================================
-  // Validation Methods
+  // Validation Methods (Using Shared Utilities)
   // ============================================================
 
   /**
-   * Validates an email address
+   * Validates an email address using shared utilities
    * 
    * @param email - The email to validate
    * @returns Validation result with normalized value if valid
@@ -306,92 +277,32 @@ export class Email extends ValueObject {
       };
     }
     
-    if (trimmed.length > EMAIL_CONFIG.MAX_LENGTH) {
+    if (trimmed.length > 254) {
       return {
         isValid: false,
-        error: `Email too long (max ${EMAIL_CONFIG.MAX_LENGTH} characters)`,
+        error: 'Email too long (max 254 characters)',
       };
     }
 
-    // Normalize to lowercase
-    const normalized = trimmed.toLowerCase();
-    
-    // Check format
-    if (!EMAIL_CONFIG.PATTERNS.STANDARD.test(normalized)) {
+    // ✅ FIXED: Use shared schema validation
+    const schemaResult = EmailSchema.safeParse(trimmed);
+    if (!schemaResult.success) {
+      return {
+        isValid: false,
+        error: schemaResult.error.errors[0]?.message || 'Invalid email format',
+      };
+    }
+
+    // ✅ FIXED: Use shared utility for validation
+    if (!isValidEmail(trimmed)) {
       return {
         isValid: false,
         error: 'Invalid email format',
       };
     }
 
-    // Split and validate parts
-    const atIndex = normalized.indexOf('@');
-    if (atIndex === -1) {
-      return {
-        isValid: false,
-        error: 'Email must contain @ symbol',
-      };
-    }
-    
-    const localPart = normalized.substring(0, atIndex);
-    const domain = normalized.substring(atIndex + 1);
-    
-    if (!localPart || !domain) {
-      return {
-        isValid: false,
-        error: 'Email must contain local part and domain',
-      };
-    }
-    
-    // Check local part length
-    if (localPart.length > EMAIL_CONFIG.MAX_LOCAL_PART) {
-      return {
-        isValid: false,
-        error: `Local part too long (max ${EMAIL_CONFIG.MAX_LOCAL_PART} characters)`,
-      };
-    }
-    
-    // Check domain part length
-    if (domain.length > EMAIL_CONFIG.MAX_DOMAIN_PART) {
-      return {
-        isValid: false,
-        error: `Domain too long (max ${EMAIL_CONFIG.MAX_DOMAIN_PART} characters)`,
-      };
-    }
-
-    // Validate domain segments
-    const domainSegments = domain.split('.');
-    if (domainSegments.length < 2) {
-      return {
-        isValid: false,
-        error: 'Domain must contain at least one dot',
-      };
-    }
-    
-    // Check each domain segment
-    for (const segment of domainSegments) {
-      if (segment.length === 0) {
-        return {
-          isValid: false,
-          error: 'Domain cannot have empty segments',
-        };
-      }
-      if (!/^[a-z0-9-]+$/.test(segment)) {
-        return {
-          isValid: false,
-          error: 'Domain contains invalid characters',
-        };
-      }
-    }
-    
-    // Check TLD (top level domain) length
-    const tld = domainSegments[domainSegments.length - 1]!;
-    if (tld.length < 2) {
-      return {
-        isValid: false,
-        error: 'TLD too short (minimum 2 characters)',
-      };
-    }
+    // ✅ FIXED: Use shared utility for normalization
+    const normalized = normalizeEmail(trimmed);
 
     return {
       isValid: true,
@@ -402,12 +313,11 @@ export class Email extends ValueObject {
 
   /**
    * Normalize email to canonical form
-   * - Lowercase
-   * - Trim whitespace
-   * - Remove subaddress (optional)
+   * Uses shared utility
    */
   public static normalize(email: string, stripSubaddress: boolean = false): string {
-    const normalized = email.trim().toLowerCase();
+    // ✅ FIXED: Use shared utility
+    let normalized = normalizeEmail(email);
     
     if (stripSubaddress) {
       const [localPart, domain] = normalized.split('@');
@@ -470,7 +380,7 @@ export class Email extends ValueObject {
   }
 
   // ============================================================
-  // Provider Detection
+  // Provider Detection (Domain Specific - Not in shared)
   // ============================================================
 
   /**
@@ -487,9 +397,10 @@ export class Email extends ValueObject {
 
   /**
    * Check if email uses a free provider
+   * Uses shared utility
    */
   public isFreeProvider(): boolean {
-    return EMAIL_DOMAINS.FREE.has(this._domain);
+    return isCommonEmailDomain(this._normalized);
   }
 
   /**
@@ -497,22 +408,22 @@ export class Email extends ValueObject {
    */
   public isBangladeshEmail(): boolean {
     return EMAIL_CONFIG.PATTERNS.BANGLADESH_DOMAIN.test(this._domain) ||
-           EMAIL_DOMAINS.BANGLADESH.has(this._domain);
+           BANGLADESH_SPECIFIC_DOMAINS.BANGLADESH_CORPORATE.has(this._domain);
   }
 
   /**
    * Check if email is from a disposable/temporary service
    */
   public isDisposable(): boolean {
-    return EMAIL_DOMAINS.DISPOSABLE.has(this._domain);
+    return BANGLADESH_SPECIFIC_DOMAINS.DISPOSABLE.has(this._domain);
   }
 
   /**
    * Check if email is from educational institution
+   * Uses shared utility
    */
   public isEducationalEmail(): boolean {
-    return EMAIL_CONFIG.PATTERNS.EDUCATIONAL_DOMAIN.test(this._domain) ||
-           EMAIL_DOMAINS.EDUCATIONAL.has(this._domain);
+    return isEducationalEmail(this._normalized);
   }
 
   /**
@@ -520,7 +431,7 @@ export class Email extends ValueObject {
    */
   public isGovernmentEmail(): boolean {
     return EMAIL_CONFIG.PATTERNS.GOVERNMENT_DOMAIN.test(this._domain) ||
-           EMAIL_DOMAINS.GOVERNMENT.has(this._domain);
+           BANGLADESH_SPECIFIC_DOMAINS.GOVERNMENT.has(this._domain);
   }
 
   /**
@@ -569,15 +480,10 @@ export class Email extends ValueObject {
 
   /**
    * Mask email for privacy (e.g., u***r@example.com)
+   * ✅ FIXED: Uses shared utility
    */
   public mask(): string {
-    const localPart = this._localPart;
-    if (localPart.length <= 2) {
-      return `${localPart[0]}***@${this._domain}`;
-    }
-    const firstChar = localPart[0];
-    const lastChar = localPart[localPart.length - 1];
-    return `${firstChar}***${lastChar}@${this._domain}`;
+    return maskEmailUtil(this._value);
   }
 
   /**
@@ -591,6 +497,13 @@ export class Email extends ValueObject {
     if (this.isFreeProvider()) return 'free';
     if (this.isCorporateEmail()) return 'corporate';
     return 'other';
+  }
+
+  /**
+   * Get shared email components (from shared-utils)
+   */
+  public getSharedComponents(): SharedEmailComponents | null {
+    return this._sharedComponents;
   }
 
   /**
@@ -626,6 +539,8 @@ export class Email extends ValueObject {
       subAddressTag: this._subAddressTag,
       provider: this.getProvider(),
       category: this.getDomainCategory(),
+      isBangladesh: this.isBangladeshEmail(),
+      isDisposable: this.isDisposable(),
     };
   }
 
@@ -658,9 +573,10 @@ export function createEmailFromRequest(email: string | null | undefined): Email 
 
 /**
  * Validate email format (simple boolean check)
+ * ✅ FIXED: Uses shared utility
  */
 export function isValidEmailFormat(email: string): boolean {
-  return Email.validate(email).isValid;
+  return isValidEmail(email);
 }
 
 // ============================================================
