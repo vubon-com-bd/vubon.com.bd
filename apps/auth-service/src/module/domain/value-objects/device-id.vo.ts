@@ -92,36 +92,22 @@ export const DEVICE_ID_CONSTANTS = {
     UUID: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     FINGERPRINT_HASH: /^[a-f0-9]{32,128}$/i,
     BROWSER_FINGERPRINT: /^fp_[a-zA-Z0-9]{16,64}$/,
-    // Pattern for retry-enhanced fingerprints
     BROWSER_FINGERPRINT_RETRY: /^fp(_retry\d+)?(_[a-zA-Z0-9]{1,6})?_[a-z0-9]+_[a-z0-9]+_\d+$/i,
     MOBILE_ANDROID: /^ANDROID_[a-zA-Z0-9]{16,64}$/i,
     MOBILE_IOS: /^IOS_[a-zA-Z0-9]{16,64}$/i,
-    // Bangladesh specific mobile device pattern
     MOBILE_BD: /^BD_MOBILE_01[3-9][0-9]{8}$/i,
-    // Generic alphanumeric with separators
     STANDARD: /^[a-zA-Z0-9\-_.:]{1,512}$/,
   },
 
   // Ephemeral/private browsing indicators
   EPHEMERAL_PATTERNS: [
     'private', 'incognito', 'temporary', 'unknown', '0', 'null', 'undefined',
-    'anonymous', 'guest', 'temp', 'retry', // 'retry' is acceptable for temporary connections
+    'anonymous', 'guest', 'temp', 'retry',
   ],
 } as const;
 
 // ==================== Device ID Value Object ====================
 
-/**
- * Device ID Value Object
- * 
- * Represents a unique identifier for a device.
- * Used for:
- * - Device fingerprinting
- * - Session management
- * - MFA trust decisions
- * - Security event tracking
- * - Connection retry correlation
- */
 export class DeviceId extends ValueObject {
   private readonly _value: string;
   private readonly _normalized: string;
@@ -131,13 +117,8 @@ export class DeviceId extends ValueObject {
   private readonly _retryAttempt?: number;
   private readonly _correlationId?: string;
 
-  /**
-   * Creates a new Device ID value object
-   * 
-   * @param deviceId - Raw device identifier string
-   * @param timestamp - Optional timestamp when device was first seen
-   * @throws {Error} If device ID is invalid
-   */
+  private static _counter = 0;
+
   constructor(deviceId: string, timestamp?: Date) {
     super();
 
@@ -151,18 +132,12 @@ export class DeviceId extends ValueObject {
     this._timestamp = timestamp;
     this._platform = this.detectPlatform(this._value);
     this._deviceType = this.detectType(this._value);
-    
-    // Extract retry metadata from the device ID
     this._retryAttempt = this.extractRetryAttempt(this._value);
     this._correlationId = this.extractCorrelationId(this._value);
 
-    // Auto-validation
     this.validate();
   }
 
-  /**
-   * Protected validation method
-   */
   protected validate(): void {
     if (this.isEmpty()) {
       throw new Error('Device ID cannot be empty');
@@ -177,18 +152,10 @@ export class DeviceId extends ValueObject {
   // Factory Methods
   // ============================================================
 
-  /**
-   * Static factory method for creating DeviceId from known valid value
-   * (Skips validation for performance - use only when value is trusted)
-   */
   public static fromValid(deviceId: string, timestamp?: Date): DeviceId {
-    const instance = new DeviceId(deviceId, timestamp);
-    return instance;
+    return new DeviceId(deviceId, timestamp);
   }
 
-  /**
-   * Creates a DeviceId from unknown input (safe parsing)
-   */
   public static tryCreate(deviceId: unknown, timestamp?: Date): DeviceId | null {
     if (typeof deviceId !== 'string') {
       return null;
@@ -201,24 +168,6 @@ export class DeviceId extends ValueObject {
     }
   }
 
-  /**
-   * Create a DeviceId for a new device (generates a new fingerprint)
-   * Enhanced with retry context for connection change resilience
-   * 
-   * @param options - Generation options including retry context
-   * @returns A new DeviceId instance
-   * 
-   * @example
-   * // Normal generation
-   * const deviceId = DeviceId.generateNew();
-   * 
-   * // With retry context (e.g., after connection failure)
-   * const deviceId = DeviceId.generateNew({ 
-   *   platform: 'web', 
-   *   retryAttempt: 2, 
-   *   correlationId: 'req_abc123' 
-   * });
-   */
   public static generateNew(options: GenerationOptions = {}): DeviceId {
     const { 
       platform = 'web', 
@@ -228,16 +177,13 @@ export class DeviceId extends ValueObject {
       timestamp = new Date() 
     } = options;
     
-    // Add retry marker if this is a retry attempt
     const retryMarker = retryAttempt > 0 ? `_retry${retryAttempt}` : '';
     
-    // Add correlation ID for tracking request chains (last 6 chars for compactness)
     let correlationMarker = '';
     if (correlationId) {
       const cleanCorrelation = correlationId.replace(/[^a-zA-Z0-9]/g, '').slice(-6);
       correlationMarker = cleanCorrelation ? `_${cleanCorrelation}` : '';
     } else if (previousDeviceId) {
-      // If we have a previous device ID, extract its correlation for continuity
       const extractedCorr = DeviceId.extractCorrelationId(previousDeviceId);
       if (extractedCorr) {
         correlationMarker = `_${extractedCorr}`;
@@ -252,15 +198,10 @@ export class DeviceId extends ValueObject {
     if (platform === 'android') prefix = 'ANDROID';
     if (platform === 'ios') prefix = 'IOS';
     
-    // Build device ID with retry context for debugging and correlation
     const deviceId = `${prefix}${retryMarker}${correlationMarker}_${timeStr}_${random}_${counter}`;
     return new DeviceId(deviceId, timestamp);
   }
 
-  /**
-   * Create a DeviceId that preserves continuity from a previous device ID
-   * Useful for connection retries where the original device ID might be stale
-   */
   public static continueFrom(previousDeviceId: DeviceId, retryAttempt: number): DeviceId {
     return DeviceId.generateNew({
       platform: previousDeviceId.getPlatform(),
@@ -270,43 +211,28 @@ export class DeviceId extends ValueObject {
     });
   }
 
-  private static _counter = 0;
-
   // ============================================================
   // Metadata Extraction Methods
   // ============================================================
 
-  /**
-   * Extract retry attempt number from device ID string
-   */
   private static extractRetryAttempt(deviceId: string): number | undefined {
     const match = deviceId.match(/_retry(\d+)/);
     return match ? parseInt(match[1], 10) : undefined;
   }
 
-  /**
-   * Extract correlation ID from device ID string
-   */
   private static extractCorrelationId(deviceId: string): string | undefined {
     const match = deviceId.match(/_([a-zA-Z0-9]{1,6})_(?:[a-z0-9]+_[a-z0-9]+_\d+$)/);
     if (match && match[1] && !match[1].startsWith('retry')) {
       return match[1];
     }
-    // Alternative pattern for retry markers
     const retryMatch = deviceId.match(/_retry\d+_([a-zA-Z0-9]{1,6})_/);
     return retryMatch ? retryMatch[1] : undefined;
   }
 
-  /**
-   * Extract retry attempt number from instance
-   */
   private extractRetryAttempt(deviceId: string): number | undefined {
     return DeviceId.extractRetryAttempt(deviceId);
   }
 
-  /**
-   * Extract correlation ID from instance
-   */
   private extractCorrelationId(deviceId: string): string | undefined {
     return DeviceId.extractCorrelationId(deviceId);
   }
@@ -315,14 +241,7 @@ export class DeviceId extends ValueObject {
   // Validation Methods
   // ============================================================
 
-  /**
-   * Validates a device ID string
-   * 
-   * @param deviceId - The device ID to validate
-   * @returns Validation result with normalized value if valid
-   */
   public static validate(deviceId: string): DeviceIdValidation {
-    // Check if empty
     if (!deviceId || typeof deviceId !== 'string') {
       return {
         isValid: false,
@@ -332,7 +251,6 @@ export class DeviceId extends ValueObject {
 
     const trimmed = deviceId.trim();
 
-    // Check length constraints
     if (trimmed.length === 0) {
       return {
         isValid: false,
@@ -347,7 +265,6 @@ export class DeviceId extends ValueObject {
       };
     }
 
-    // Check format against supported patterns
     let isValidFormat = false;
 
     for (const pattern of Object.values(DEVICE_ID_CONSTANTS.PATTERNS)) {
@@ -364,7 +281,6 @@ export class DeviceId extends ValueObject {
       };
     }
 
-    // Normalize and return
     const normalized = DeviceId.normalize(trimmed);
 
     return {
@@ -374,25 +290,16 @@ export class DeviceId extends ValueObject {
     };
   }
 
-  /**
-   * Normalize a device ID to canonical form
-   * - Lowercase for case-insensitive comparison
-   * - Trim whitespace
-   * - Remove duplicate separators
-   */
   private static normalize(deviceId: string): string {
     return deviceId
       .trim()
       .toLowerCase()
-      .replace(/-{2,}/g, '-')      // Replace multiple hyphens with single
-      .replace(/_{2,}/g, '_')       // Replace multiple underscores with single
-      .replace(/\.{2,}/g, '.')      // Replace multiple dots with single
-      .replace(/:{2,}/g, ':');      // Replace multiple colons with single
+      .replace(/-{2,}/g, '-')
+      .replace(/_{2,}/g, '_')
+      .replace(/\.{2,}/g, '.')
+      .replace(/:{2,}/g, ':');
   }
 
-  /**
-   * Detect device platform from ID pattern
-   */
   private detectPlatform(deviceId: string): DevicePlatform {
     const id = deviceId.toLowerCase();
 
@@ -406,9 +313,6 @@ export class DeviceId extends ValueObject {
     return 'unknown';
   }
 
-  /**
-   * Detect device ID type
-   */
   private detectType(deviceId: string): DeviceIdType {
     const id = deviceId;
 
@@ -428,108 +332,63 @@ export class DeviceId extends ValueObject {
   // Instance Methods
   // ============================================================
 
-  /**
-   * Instance normalization
-   */
   private normalize(deviceId: string): string {
     return DeviceId.normalize(deviceId);
   }
 
-  /**
-   * Get the raw device ID value
-   */
   public getValue(): string {
     return this._value;
   }
 
-  /**
-   * Get the normalized device ID (for equality comparison)
-   */
   public getNormalized(): string {
     return this._normalized;
   }
 
-  /**
-   * Get the timestamp when device was first seen
-   */
   public getTimestamp(): Date | undefined {
     return this._timestamp;
   }
 
-  /**
-   * Get device platform
-   */
   public getPlatform(): DevicePlatform {
     return this._platform;
   }
 
-  /**
-   * Get device ID type
-   */
   public getDeviceType(): DeviceIdType {
     return this._deviceType;
   }
 
-  /**
-   * Get retry attempt number (if this device was created during a retry)
-   */
   public getRetryAttempt(): number | undefined {
     return this._retryAttempt;
   }
 
-  /**
-   * Get correlation ID for tracking request chains
-   */
   public getCorrelationId(): string | undefined {
     return this._correlationId;
   }
 
-  /**
-   * Check if this device ID was created during a connection retry
-   */
   public isFromRetry(): boolean {
-    return (this._retryAttempt !== undefined && this._retryAttempt > 0);
+    return this._retryAttempt !== undefined && this._retryAttempt > 0;
   }
 
-  /**
-   * Check if the device ID matches a specific pattern
-   */
   public matchesPattern(pattern: keyof typeof DEVICE_ID_CONSTANTS.PATTERNS): boolean {
     const regex = DEVICE_ID_CONSTANTS.PATTERNS[pattern];
     return regex.test(this._value);
   }
 
-  /**
-   * Check if this is a UUID format device ID
-   */
   public isUuid(): boolean {
     return this._deviceType === 'uuid';
   }
 
-  /**
-   * Check if this is a browser fingerprint
-   */
   public isBrowserFingerprint(): boolean {
     return this._deviceType === 'browser' || this._deviceType === 'fingerprint';
   }
 
-  /**
-   * Check if this is a mobile device ID
-   */
   public isMobileDevice(): boolean {
     return this._deviceType === 'mobile';
   }
 
-  /**
-   * Check if this is a Bangladesh mobile device ID
-   */
   public isBangladeshMobile(): boolean {
     return DEVICE_ID_CONSTANTS.PATTERNS.MOBILE_BD.test(this._value);
   }
 
-  /**
-   * Check if the device ID is empty/placeholder
-   */
   public override isEmpty(): boolean {
     return this._value === '' || 
            this._value === 'unknown' || 
@@ -538,29 +397,18 @@ export class DeviceId extends ValueObject {
            this._value === 'undefined';
   }
 
-  /**
-   * Check if this device ID is trusted (non-ephemeral)
-   * Retry-based IDs are considered ephemeral as they might be connection artifacts
-   */
   public isPersistent(): boolean {
     const lowerValue = this._value.toLowerCase();
     if (this.isFromRetry()) {
-      return false; // Retry-based IDs are temporary
+      return false;
     }
     return !DEVICE_ID_CONSTANTS.EPHEMERAL_PATTERNS.some(pattern => lowerValue.includes(pattern));
   }
 
-  /**
-   * Check if this is an ephemeral/private browsing device
-   */
   public isEphemeral(): boolean {
     return !this.isPersistent();
   }
 
-  /**
-   * Create a new device ID for a retry attempt
-   * Preserves platform and correlation for tracking
-   */
   public forRetry(retryAttempt: number): DeviceId {
     return DeviceId.generateNew({
       platform: this._platform,
@@ -574,20 +422,11 @@ export class DeviceId extends ValueObject {
   // ValueObject Implementation
   // ============================================================
 
-  /**
-   * Get equality components for parent class comparison
-   * Uses normalized value for case-insensitive comparison
-   * Excludes retry metadata from equality (same device despite retry)
-   */
   protected getEqualityComponents(): readonly unknown[] {
-    // Strip retry and correlation metadata for equality
     const baseValue = this._normalized.replace(/_(?:retry\d+|[a-zA-Z0-9]{1,6})_(?=[a-z0-9]+_)/, '_');
     return [baseValue, this._platform];
   }
 
-  /**
-   * Convert to JSON serializable object
-   */
   public override toJSON(): Record<string, unknown> {
     return {
       value: this._value,
@@ -602,9 +441,6 @@ export class DeviceId extends ValueObject {
     };
   }
 
-  /**
-   * String representation for debugging
-   */
   public override toString(): string {
     const retryInfo = this._retryAttempt ? ` retry:${this._retryAttempt}` : '';
     const corrInfo = this._correlationId ? ` corr:${this._correlationId}` : '';
@@ -616,18 +452,10 @@ export class DeviceId extends ValueObject {
 // Utility Functions
 // ============================================================
 
-/**
- * Type guard to check if a value is a DeviceId
- */
 export function isDeviceId(value: unknown): value is DeviceId {
   return value instanceof DeviceId;
 }
 
-/**
- * Create a DeviceId from a request context
- * Handles headers, params, and generates fallback if needed
- * Enhanced with retry context detection
- */
 export function createDeviceIdFromRequest(
   fingerprint: string | null | undefined,
   userAgent: string | null | undefined,
@@ -635,11 +463,9 @@ export function createDeviceIdFromRequest(
   retryCount?: number,
   correlationId?: string
 ): DeviceId {
-  // Priority 1: Explicit fingerprint (with retry context handling)
   if (fingerprint && DeviceId.validate(fingerprint).isValid) {
     try {
       const existingId = new DeviceId(fingerprint);
-      // If we have a retry context and the device ID isn't from a retry, create continuity
       if (retryCount && retryCount > 0 && !existingId.isFromRetry()) {
         return existingId.forRetry(retryCount);
       }
@@ -649,7 +475,6 @@ export function createDeviceIdFromRequest(
     }
   }
 
-  // Priority 2: Generate from user agent + IP (pure domain hashing)
   const components = [userAgent || '', ipAddress || ''].filter(Boolean);
   if (components.length > 0) {
     let hash = 0;
@@ -664,7 +489,6 @@ export function createDeviceIdFromRequest(
     return new DeviceId(generatedId);
   }
 
-  // Priority 3: Generate new with retry context if provided
   return DeviceId.generateNew({
     platform: 'web',
     retryAttempt: retryCount,
@@ -672,15 +496,13 @@ export function createDeviceIdFromRequest(
   });
 }
 
-/**
- * Create a DeviceId from localStorage or generate new one
- * Preserves retry context when possible
- */
-export function createOrGetDeviceId(storedId: string | null, retryContext?: { attempt?: number; correlationId?: string }): DeviceId {
+export function createOrGetDeviceId(
+  storedId: string | null, 
+  retryContext?: { attempt?: number; correlationId?: string }
+): DeviceId {
   if (storedId && DeviceId.validate(storedId).isValid) {
     try {
       const existingId = new DeviceId(storedId);
-      // If we're in a retry context and the stored ID isn't from a retry, create continuity
       if (retryContext?.attempt && retryContext.attempt > 0 && !existingId.isFromRetry()) {
         return existingId.forRetry(retryContext.attempt);
       }
