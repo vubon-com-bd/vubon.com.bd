@@ -1,5 +1,5 @@
 /**
- * Device Entity - Pure Domain Core
+ * Device Entity - Pure Domain Core (Enterprise Enhanced)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module domain/entities/device.entity
@@ -15,12 +15,18 @@
  * ✅ Domain events for device lifecycle
  * ✅ Framework-free (no crypto dependency)
  * ✅ Bangladesh specific - Feature phone detection
+ * ✅ Mobile operator tracking for Bangladesh ISP detection
+ * ✅ Device limit enforcement
+ * ✅ Trust level expiration tracking
  */
 
 import { BaseEntity, EntityValidationError, type IdGenerator } from './base.entity';
 import { DeviceId, type DevicePlatform } from '../value-objects/device-id.vo';
 import { UserAgent, DeviceType as UserAgentDeviceType } from '../value-objects/user-agent.vo';
 import { IpAddress } from '../value-objects/ip-address.vo';
+
+// ✅ ENTERPRISE ENHANCEMENT: Import from shared-constants (Single Source of Truth)
+import { DEVICE_CONFIG } from '@vubon/shared-constants';
 
 // ==================== Enums ====================
 
@@ -63,6 +69,11 @@ export enum DeviceTrustLevel {
 }
 
 /**
+ * Bangladesh mobile operator types
+ */
+export type BDMobileOperator = 'gp' | 'robi' | 'banglalink' | 'teletalk' | 'unknown';
+
+/**
  * Device event types
  */
 export enum DeviceEventType {
@@ -75,31 +86,16 @@ export enum DeviceEventType {
   DEVICE_STATUS_CHANGED = 'device.status_changed',
   DEVICE_TYPE_CHANGED = 'device.type_changed',
   DEVICE_USAGE_RECORDED = 'device.usage_recorded',
+  DEVICE_OPERATOR_DETECTED = 'device.operator_detected',     // ✅ Enterprise: BD operator tracking
+  DEVICE_LIMIT_WARNING = 'device.limit_warning',             // ✅ Enterprise: Limit enforcement
 }
 
 // ==================== Types ====================
 
 /**
- * Device configuration interface
+ * Device configuration interface (now from shared-constants)
  */
-export interface DeviceConfig {
-  maxTrustedDevices: number;
-  maxDevicesPerUser: number;
-  staleDaysThreshold: number;
-  fingerprintNormalization: boolean;
-}
-
-// ==================== Constants ====================
-
-/**
- * Device configuration constants
- */
-const DEVICE_CONFIG = {
-  MAX_TRUSTED_DEVICES: 10,
-  MAX_DEVICES_PER_USER: 20,
-  STALE_DAYS_THRESHOLD: 90,
-  FINGERPRINT_NORMALIZATION: true,
-} as const;
+export type { DeviceConfig } from '@vubon/shared-constants';
 
 // ==================== Device Entity ====================
 
@@ -122,6 +118,12 @@ export class Device extends BaseEntity {
   private _usageCount: number;
   private _lastIpAddress?: IpAddress;
   private _trustExpiresAt?: Date;
+  
+  // ✅ ENTERPRISE ENHANCEMENT: Bangladesh mobile operator tracking
+  private _mobileOperator?: BDMobileOperator;
+  
+  // ✅ ENTERPRISE ENHANCEMENT: Device trust score (0-100)
+  private _trustScore: number = 0;
 
   private constructor(
     id: string,
@@ -138,6 +140,8 @@ export class Device extends BaseEntity {
     usageCount: number,
     lastIpAddress: IpAddress | undefined,
     trustExpiresAt: Date | undefined,
+    mobileOperator: BDMobileOperator | undefined,
+    trustScore: number,
     createdAt: Date,
     updatedAt: Date,
     version: number
@@ -157,6 +161,8 @@ export class Device extends BaseEntity {
     this._usageCount = usageCount;
     this._lastIpAddress = lastIpAddress;
     this._trustExpiresAt = trustExpiresAt;
+    this._mobileOperator = mobileOperator;
+    this._trustScore = trustScore;
     
     this.validate();
   }
@@ -177,8 +183,8 @@ export class Device extends BaseEntity {
     if (this._usageCount < 0) {
       throw new EntityValidationError('Usage count cannot be negative');
     }
-    if (this._deviceType === DeviceType.UNKNOWN && this._userAgent.isBot()) {
-      // Bot detection is handled, no error needed
+    if (this._trustScore < 0 || this._trustScore > 100) {
+      throw new EntityValidationError('Trust score must be between 0 and 100');
     }
   }
 
@@ -188,6 +194,7 @@ export class Device extends BaseEntity {
 
   /**
    * Register a new device (factory method)
+   * ✅ ENTERPRISE ENHANCEMENT: Checks device limit before creation
    */
   public static register(
     userId: string,
@@ -195,12 +202,28 @@ export class Device extends BaseEntity {
     userAgent: UserAgent,
     fingerprint: string | undefined,
     ipAddress: IpAddress | undefined,
-    idGenerator: IdGenerator
+    idGenerator: IdGenerator,
+    currentDeviceCount: number = 0
   ): Device {
+    // ✅ ENTERPRISE ENHANCEMENT: Check device limit
+    if (currentDeviceCount >= DEVICE_CONFIG.MAX_DEVICES_PER_USER) {
+      throw new EntityValidationError(
+        `Maximum devices per user (${DEVICE_CONFIG.MAX_DEVICES_PER_USER}) reached. ` +
+        `Current: ${currentDeviceCount}. Please remove an existing device first.`
+      );
+    }
+    
     const now = new Date();
     const deviceType = Device.mapUserAgentToDeviceType(userAgent);
     const devicePlatform = deviceId.getPlatform();
     const trustLevel = Device.determineInitialTrustLevel(userAgent, deviceId);
+    const trustScore = Device.calculateInitialTrustScore(userAgent, deviceId);
+    
+    // ✅ ENTERPRISE ENHANCEMENT: Detect mobile operator if IP is from Bangladesh
+    let mobileOperator: BDMobileOperator | undefined;
+    if (ipAddress && ipAddress.isBangladeshISP()) {
+      mobileOperator = Device.detectMobileOperator(ipAddress);
+    }
     
     const device = new Device(
       idGenerator.generate(),
@@ -217,6 +240,8 @@ export class Device extends BaseEntity {
       0,
       ipAddress,
       undefined,
+      mobileOperator,
+      trustScore,
       now,
       now,
       1
@@ -234,9 +259,30 @@ export class Device extends BaseEntity {
         deviceType: device._deviceType,
         devicePlatform: device._devicePlatform,
         trustLevel: device._trustLevel,
+        trustScore: device._trustScore,
         isBot: userAgent.isBot(),
+        mobileOperator,
+        currentDeviceCount: currentDeviceCount + 1,
+        maxDevices: DEVICE_CONFIG.MAX_DEVICES_PER_USER,
       },
     });
+    
+    // ✅ ENTERPRISE ENHANCEMENT: Warn if close to limit
+    if (currentDeviceCount + 1 >= DEVICE_CONFIG.MAX_DEVICES_PER_USER - 1) {
+      device.addDomainEvent({
+        eventId: generateEventId(),
+        eventType: DeviceEventType.DEVICE_LIMIT_WARNING,
+        aggregateId: device.id,
+        occurredOn: now,
+        version: 1,
+        metadata: {
+          userId: device._userId,
+          currentCount: currentDeviceCount + 1,
+          maxLimit: DEVICE_CONFIG.MAX_DEVICES_PER_USER,
+          message: `Device limit warning: ${currentDeviceCount + 1}/${DEVICE_CONFIG.MAX_DEVICES_PER_USER} devices used`,
+        },
+      });
+    }
     
     return device;
   }
@@ -259,6 +305,8 @@ export class Device extends BaseEntity {
     usageCount: number;
     lastIpAddress?: IpAddress;
     trustExpiresAt?: Date;
+    mobileOperator?: BDMobileOperator;
+    trustScore: number;
     createdAt: Date;
     updatedAt: Date;
     version: number;
@@ -278,6 +326,8 @@ export class Device extends BaseEntity {
       data.usageCount,
       data.lastIpAddress,
       data.trustExpiresAt,
+      data.mobileOperator,
+      data.trustScore,
       data.createdAt,
       data.updatedAt,
       data.version
@@ -320,17 +370,53 @@ export class Device extends BaseEntity {
    * Determine initial trust level for a new device
    */
   private static determineInitialTrustLevel(userAgent: UserAgent, deviceId: DeviceId): DeviceTrustLevel {
-    // Bots get no trust
-    if (userAgent.isBot()) {
-      return DeviceTrustLevel.UNTRUSTED;
-    }
-    
-    // Known trusted device types
+    if (userAgent.isBot()) return DeviceTrustLevel.UNTRUSTED;
     if (deviceId.isPersistent() && !userAgent.isHeadless() && !userAgent.isAutomation()) {
       return DeviceTrustLevel.STANDARD;
     }
-    
     return DeviceTrustLevel.UNTRUSTED;
+  }
+  
+  /**
+   * ✅ ENTERPRISE ENHANCEMENT: Calculate initial trust score (0-100)
+   */
+  private static calculateInitialTrustScore(userAgent: UserAgent, deviceId: DeviceId): number {
+    let score = 0;
+    
+    // Base score for valid device
+    if (deviceId.isPersistent()) score += 30;
+    
+    // Browser trust
+    if (!userAgent.isBot()) score += 20;
+    if (!userAgent.isHeadless()) score += 15;
+    if (!userAgent.isAutomation()) score += 10;
+    
+    // Device type bonus
+    const deviceType = Device.mapUserAgentToDeviceType(userAgent);
+    if (deviceType === DeviceType.DESKTOP || deviceType === DeviceType.LAPTOP) score += 15;
+    if (deviceType === DeviceType.MOBILE && !userAgent.isFeaturePhone()) score += 10;
+    
+    // Cap at 100
+    return Math.min(100, score);
+  }
+  
+  /**
+   * ✅ ENTERPRISE ENHANCEMENT: Detect mobile operator from IP address
+   */
+  private static detectMobileOperator(ipAddress: IpAddress): BDMobileOperator | undefined {
+    // This is a simplified detection - in production, use IP2Location or similar
+    const ip = ipAddress.getValue();
+    
+    // GP (Grameenphone) ranges
+    if (ip.startsWith('114.130.') && parseInt(ip.split('.')[2] || '0') < 32) return 'gp';
+    // Robi ranges
+    if (ip.startsWith('114.31.') && parseInt(ip.split('.')[2] || '0') < 16) return 'robi';
+    // Banglalink ranges
+    if (ip.startsWith('114.130.') && parseInt(ip.split('.')[2] || '0') >= 32) return 'banglalink';
+    // Teletalk ranges
+    if (ip.startsWith('114.130.') && parseInt(ip.split('.')[2] || '0') >= 48) return 'teletalk';
+    
+    return undefined;
   }
 
   /**
@@ -353,10 +439,20 @@ export class Device extends BaseEntity {
 
   /**
    * Trust this device (skip MFA for future logins)
+   * ✅ ENTERPRISE ENHANCEMENT: Checks max trusted devices limit
    */
-  public trust(durationDays?: number): void {
+  public trust(durationDays?: number, currentTrustedCount: number = 0): void {
     if (this._status === DeviceStatus.BLOCKED) {
       throw new EntityValidationError('Cannot trust a blocked device');
+    }
+    
+    // ✅ ENTERPRISE ENHANCEMENT: Check max trusted devices
+    if (this._status !== DeviceStatus.TRUSTED && 
+        currentTrustedCount >= DEVICE_CONFIG.MAX_TRUSTED_DEVICES) {
+      throw new EntityValidationError(
+        `Maximum trusted devices (${DEVICE_CONFIG.MAX_TRUSTED_DEVICES}) reached. ` +
+        `Current: ${currentTrustedCount}. Please revoke trust from another device first.`
+      );
     }
     
     if (this._status === DeviceStatus.TRUSTED && this._trustLevel === DeviceTrustLevel.TRUSTED) {
@@ -366,6 +462,7 @@ export class Device extends BaseEntity {
     this._status = DeviceStatus.TRUSTED;
     this._trustLevel = DeviceTrustLevel.TRUSTED;
     this._trustedAt = new Date();
+    this._trustScore = Math.min(100, this._trustScore + 20);
     
     if (durationDays) {
       const expiresAt = new Date();
@@ -385,6 +482,9 @@ export class Device extends BaseEntity {
         deviceId: this._deviceId.getValue(),
         trustedAt: this._trustedAt,
         durationDays,
+        newTrustScore: this._trustScore,
+        currentTrustedCount: currentTrustedCount + 1,
+        maxTrustedDevices: DEVICE_CONFIG.MAX_TRUSTED_DEVICES,
       },
     });
   }
@@ -401,6 +501,7 @@ export class Device extends BaseEntity {
     this._trustLevel = DeviceTrustLevel.STANDARD;
     this._trustedAt = undefined;
     this._trustExpiresAt = undefined;
+    this._trustScore = Math.max(0, this._trustScore - 10);
     this.touch();
     
     this.addDomainEvent({
@@ -411,6 +512,7 @@ export class Device extends BaseEntity {
       version: this.version,
       metadata: {
         deviceId: this._deviceId.getValue(),
+        newTrustScore: this._trustScore,
       },
     });
   }
@@ -425,6 +527,7 @@ export class Device extends BaseEntity {
     
     this._status = DeviceStatus.BLOCKED;
     this._trustLevel = DeviceTrustLevel.UNTRUSTED;
+    this._trustScore = 0;
     this.touch();
     
     this.addDomainEvent({
@@ -520,13 +623,43 @@ export class Device extends BaseEntity {
 
   /**
    * Record device usage
+   * ✅ ENTERPRISE ENHANCEMENT: Updates trust score and mobile operator
    */
   public recordUsage(ipAddress?: IpAddress): void {
     this._lastUsedAt = new Date();
     this._usageCount++;
+    
+    // ✅ ENTERPRISE ENHANCEMENT: Update trust score based on usage
+    if (this._trustScore < 100) {
+      this._trustScore = Math.min(100, this._trustScore + 1);
+    }
+    
     if (ipAddress) {
       this._lastIpAddress = ipAddress;
+      
+      // ✅ ENTERPRISE ENHANCEMENT: Detect mobile operator if changed
+      if (ipAddress.isBangladeshISP()) {
+        const newOperator = Device.detectMobileOperator(ipAddress);
+        if (newOperator && this._mobileOperator !== newOperator) {
+          const oldOperator = this._mobileOperator;
+          this._mobileOperator = newOperator;
+          
+          this.addDomainEvent({
+            eventId: generateEventId(),
+            eventType: DeviceEventType.DEVICE_OPERATOR_DETECTED,
+            aggregateId: this.id,
+            occurredOn: new Date(),
+            version: this.version,
+            metadata: {
+              deviceId: this._deviceId.getValue(),
+              oldOperator,
+              newOperator,
+            },
+          });
+        }
+      }
     }
+    
     this.touch();
     
     // Check if device should be marked stale
@@ -543,6 +676,7 @@ export class Device extends BaseEntity {
       metadata: {
         deviceId: this._deviceId.getValue(),
         usageCount: this._usageCount,
+        trustScore: this._trustScore,
       },
     });
   }
@@ -566,6 +700,7 @@ export class Device extends BaseEntity {
     const currentIndex = trustLevels.indexOf(this._trustLevel);
     if (currentIndex < trustLevels.length - 1) {
       this._trustLevel = trustLevels[currentIndex + 1];
+      this._trustScore = Math.min(100, this._trustScore + 15);
       this.touch();
     }
   }
@@ -573,6 +708,42 @@ export class Device extends BaseEntity {
   // ============================================================
   // Status Check Methods
   // ============================================================
+
+  /**
+   * Check if device can be added (limit check)
+   * ✅ ENTERPRISE ENHANCEMENT: Static limit check method
+   */
+  public static canAddDevice(currentCount: number): { allowed: boolean; remaining: number; message?: string } {
+    if (currentCount >= DEVICE_CONFIG.MAX_DEVICES_PER_USER) {
+      return {
+        allowed: false,
+        remaining: 0,
+        message: `Maximum devices (${DEVICE_CONFIG.MAX_DEVICES_PER_USER}) reached.`,
+      };
+    }
+    return {
+      allowed: true,
+      remaining: DEVICE_CONFIG.MAX_DEVICES_PER_USER - currentCount,
+    };
+  }
+  
+  /**
+   * Check if device can be trusted (limit check)
+   * ✅ ENTERPRISE ENHANCEMENT: Static trust limit check method
+   */
+  public static canTrustDevice(currentTrustedCount: number): { allowed: boolean; remaining: number; message?: string } {
+    if (currentTrustedCount >= DEVICE_CONFIG.MAX_TRUSTED_DEVICES) {
+      return {
+        allowed: false,
+        remaining: 0,
+        message: `Maximum trusted devices (${DEVICE_CONFIG.MAX_TRUSTED_DEVICES}) reached.`,
+      };
+    }
+    return {
+      allowed: true,
+      remaining: DEVICE_CONFIG.MAX_TRUSTED_DEVICES - currentTrustedCount,
+    };
+  }
 
   /**
    * Check if device is trusted
@@ -636,6 +807,13 @@ export class Device extends BaseEntity {
   public isBot(): boolean {
     return this._deviceType === DeviceType.BOT || this._userAgent.isBot();
   }
+  
+  /**
+   * ✅ ENTERPRISE ENHANCEMENT: Check if device is from Bangladesh
+   */
+  public isFromBangladesh(): boolean {
+    return !!this._mobileOperator;
+  }
 
   // ============================================================
   // Time Methods
@@ -677,6 +855,8 @@ export class Device extends BaseEntity {
   public getUsageCount(): number { return this._usageCount; }
   public getLastIpAddress(): IpAddress | undefined { return this._lastIpAddress; }
   public getTrustExpiresAt(): Date | undefined { return this._trustExpiresAt ? new Date(this._trustExpiresAt) : undefined; }
+  public getMobileOperator(): BDMobileOperator | undefined { return this._mobileOperator; }
+  public getTrustScore(): number { return this._trustScore; }
 
   // ============================================================
   // JSON Serialization
@@ -695,15 +875,18 @@ export class Device extends BaseEntity {
       userAgent: this._userAgent.getValue(),
       status: this._status,
       trustLevel: this._trustLevel,
+      trustScore: this._trustScore,
       lastUsedAt: this._lastUsedAt.toISOString(),
       trustedAt: this._trustedAt?.toISOString(),
       trustExpiresAt: this._trustExpiresAt?.toISOString(),
       trustRemainingDays: this.getTrustRemainingDays(),
       fingerprint: this._fingerprint ? '[REDACTED]' : undefined,
       usageCount: this._usageCount,
+      mobileOperator: this._mobileOperator,
       isTrusted: this.isTrusted(),
       isActive: this.isActive(),
       isBot: this.isBot(),
+      isFromBangladesh: this.isFromBangladesh(),
       daysSinceLastUsed: this.getDaysSinceLastUsed(),
       isStale: this.isStale(),
     };
@@ -732,4 +915,4 @@ namespace generateEventId {
 // Type Exports
 // ============================================================
 
-export type { DeviceConfig };
+export type { DeviceConfig, BDMobileOperator };
