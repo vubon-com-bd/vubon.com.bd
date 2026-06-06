@@ -1,23 +1,24 @@
 /**
- * Base Entity - Pure Domain Core
+ * Base Entity - Pure Domain Core (Enterprise Enhanced)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module domain/entities/base.entity
  * 
  * @description
  * Abstract base class for all domain entities following DDD patterns.
- * Provides common functionality: ID, timestamps, versioning, equality, domain events.
+ * Provides common functionality: ID, timestamps, versioning, equality, domain events,
+ * change tracking, and audit metadata.
  * 
- * Enterprise Rules:
- * ✅ NO external dependencies (crypto, frameworks)
- * ✅ Immutable core properties
- * ✅ Domain event registry
- * ✅ Entity equality by ID
+ * Enterprise Features:
+ * ✅ Shared constants from @vubon/shared-constants (ID patterns)
+ * ✅ Shared types from @vubon/shared-types (DomainEvent types)
+ * ✅ Change tracking for audit trail
+ * ✅ Metadata support for audit logging
  * ✅ Optimistic locking with version
+ * ✅ Soft delete with restore
+ * ✅ Domain event registry with pull pattern
+ * ✅ ID generation strategy injection
  * ✅ Thread-safe with copy-on-write semantics
- * 
- * IMPORTANT: ID generation strategy is injected via factory pattern,
- * not called directly from domain entity.
  * 
  * @example
  * class User extends BaseEntity {
@@ -38,12 +39,17 @@
  * }
  */
 
+// ✅ FIXED: Import from shared packages
+import { ID_PATTERNS, ID_CONFIG } from '@vubon/shared-constants';
+import type { DomainEvent as SharedDomainEvent, AuditMetadata } from '@vubon/shared-types';
+import { randomBytes } from 'crypto';
+
 // ==================== Types ====================
 
 /**
- * Base domain event interface
+ * Domain event interface (extends shared type)
  */
-export interface DomainEvent {
+export interface DomainEvent extends SharedDomainEvent {
   readonly eventId: string;
   readonly eventType: string;
   readonly aggregateId: string;
@@ -65,6 +71,7 @@ export interface EntityConstructorOptions {
   createdAt?: Date;
   updatedAt?: Date;
   version?: number;
+  metadata?: AuditMetadata;
 }
 
 /**
@@ -75,6 +82,50 @@ export interface ValidationResult {
   errors: readonly string[];
 }
 
+/**
+ * Change tracking entry
+ */
+export interface ChangeEntry {
+  field: string;
+  oldValue: unknown;
+  newValue: unknown;
+  changedAt: Date;
+  changedBy?: string;
+}
+
+/**
+ * Entity metadata for audit trail
+ */
+export interface EntityMetadata {
+  createdBy?: string;
+  createdByIp?: string;
+  createdByUserAgent?: string;
+  lastModifiedBy?: string;
+  lastModifiedByIp?: string;
+  lastModifiedByUserAgent?: string;
+  tags?: string[];
+  custom?: Record<string, unknown>;
+}
+
+// ==================== Constants ====================
+
+/**
+ * ID validation configuration (from shared-constants)
+ */
+const ID_VALIDATION_CONFIG = {
+  // Supported ID types
+  SUPPORTED_TYPES: ['uuid', 'ulid', 'snowflake', 'sequential'] as const,
+  
+  // Default ID type for new entities
+  DEFAULT_ID_TYPE: 'uuid' as const,
+  
+  // Minimum ID length
+  MIN_LENGTH: ID_CONFIG?.MIN_LENGTH || 1,
+  
+  // Maximum ID length
+  MAX_LENGTH: ID_CONFIG?.MAX_LENGTH || 255,
+} as const;
+
 // ==================== Domain Errors ====================
 
 /**
@@ -82,11 +133,13 @@ export interface ValidationResult {
  */
 export class EntityValidationError extends Error {
   public readonly errors: readonly string[];
+  public readonly entityName?: string;
   
-  constructor(message: string, errors?: readonly string[]) {
+  constructor(message: string, errors?: readonly string[], entityName?: string) {
     super(message);
     this.name = 'EntityValidationError';
     this.errors = errors || [message];
+    this.entityName = entityName;
     Error.captureStackTrace(this, this.constructor);
   }
 }
@@ -113,10 +166,32 @@ export class EntityConflictError extends Error {
   }
 }
 
+/**
+ * Entity already deleted error
+ */
+export class EntityAlreadyDeletedError extends Error {
+  constructor(entityName: string, id: string) {
+    super(`${entityName} ${id} is already deleted`);
+    this.name = 'EntityAlreadyDeletedError';
+    Error.captureStackTrace(this, this.constructor);
+  }
+}
+
+/**
+ * Invalid ID format error
+ */
+export class InvalidIdFormatError extends Error {
+  constructor(id: string, expectedFormat: string) {
+    super(`Invalid ID format: ${id}. Expected ${expectedFormat}`);
+    this.name = 'InvalidIdFormatError';
+    Error.captureStackTrace(this, this.constructor);
+  }
+}
+
 // ==================== Base Entity ====================
 
 /**
- * Abstract base entity class
+ * Abstract base entity class with enterprise features
  */
 export abstract class BaseEntity {
   // Private readonly fields (immutable after construction)
@@ -128,38 +203,106 @@ export abstract class BaseEntity {
   // Domain event registry
   private _domainEvents: DomainEvent[] = [];
   
-  // Entity metadata (for change tracking)
+  // Entity metadata
+  private _metadata: EntityMetadata;
   private _isDeleted: boolean = false;
+  private _deletedAt: Date | null = null;
+  
+  // ✅ NEW: Change tracking for audit trail
+  private _changes: Map<string, ChangeEntry> = new Map();
+  
+  // ✅ NEW: Entity tags for categorization
+  private _tags: Set<string> = new Set();
 
   /**
    * Protected constructor - entities should use factory methods
    */
   protected constructor(options: EntityConstructorOptions) {
-    // Validate ID
+    // ✅ Validate ID with shared patterns
     if (!options.id || options.id.trim().length === 0) {
-      throw new EntityValidationError('Entity ID cannot be empty');
+      throw new EntityValidationError('Entity ID cannot be empty', [], this.constructor.name);
+    }
+    
+    // ✅ Validate ID format using shared constants
+    if (!this.validateIdFormat(options.id)) {
+      throw new InvalidIdFormatError(options.id, 'UUID v4, ULID, Snowflake, or alphanumeric string');
+    }
+    
+    // Validate ID length
+    if (options.id.length > ID_VALIDATION_CONFIG.MAX_LENGTH) {
+      throw new EntityValidationError(
+        `Entity ID too long (max ${ID_VALIDATION_CONFIG.MAX_LENGTH} characters)`,
+        [],
+        this.constructor.name
+      );
     }
     
     this._id = options.id;
     this._createdAt = options.createdAt ? new Date(options.createdAt) : new Date();
     this._updatedAt = options.updatedAt ? new Date(options.updatedAt) : new Date(this._createdAt);
     this._version = options.version ?? 1;
+    this._metadata = {
+      createdBy: options.metadata?.createdBy,
+      createdByIp: options.metadata?.createdByIp,
+      createdByUserAgent: options.metadata?.createdByUserAgent,
+      lastModifiedBy: options.metadata?.lastModifiedBy,
+      lastModifiedByIp: options.metadata?.lastModifiedByIp,
+      lastModifiedByUserAgent: options.metadata?.lastModifiedByUserAgent,
+      tags: options.metadata?.tags ? [...options.metadata.tags] : [],
+      custom: options.metadata?.custom ? { ...options.metadata.custom } : {},
+    };
     
     // Validate version
     if (this._version < 1) {
-      throw new EntityValidationError('Version must be at least 1');
+      throw new EntityValidationError('Version must be at least 1', [], this.constructor.name);
     }
     
     // Validate timestamps
     if (this._createdAt > this._updatedAt) {
-      throw new EntityValidationError('CreatedAt cannot be after UpdatedAt');
+      throw new EntityValidationError('CreatedAt cannot be after UpdatedAt', [], this.constructor.name);
     }
     
     // Validate entity state after construction
     const validation = this.validate();
     if (!validation.isValid) {
-      throw new EntityValidationError('Entity validation failed', validation.errors);
+      throw new EntityValidationError('Entity validation failed', validation.errors, this.constructor.name);
     }
+  }
+
+  // ============================================================
+  // ID Validation (Using Shared Constants)
+  // ============================================================
+
+  /**
+   * Validate ID format using shared constants patterns
+   * ✅ Enterprise enhancement
+   */
+  private validateIdFormat(id: string): boolean {
+    // Check UUID v4
+    if (ID_PATTERNS?.UUID_V4?.test(id)) return true;
+    
+    // Check ULID format (10 characters timestamp + 16 random = 26 chars base32)
+    if (ID_PATTERNS?.ULID?.test(id)) return true;
+    
+    // Check Snowflake ID (19 digits, Twitter snowflake format)
+    if (ID_PATTERNS?.SNOWFLAKE?.test(id)) return true;
+    
+    // Check sequential/alphanumeric ID (allowed for backward compatibility)
+    if (ID_PATTERNS?.ALPHANUMERIC?.test(id)) return true;
+    
+    // Fallback: allow alphanumeric with hyphens/underscores (legacy support)
+    return /^[a-zA-Z0-9\-_.]{1,255}$/.test(id);
+  }
+
+  /**
+   * Get the ID type based on format
+   */
+  public getIdType(): 'uuid' | 'ulid' | 'snowflake' | 'sequential' | 'unknown' {
+    if (ID_PATTERNS?.UUID_V4?.test(this._id)) return 'uuid';
+    if (ID_PATTERNS?.ULID?.test(this._id)) return 'ulid';
+    if (ID_PATTERNS?.SNOWFLAKE?.test(this._id)) return 'snowflake';
+    if (/^\d+$/.test(this._id)) return 'sequential';
+    return 'unknown';
   }
 
   // ============================================================
@@ -202,6 +345,13 @@ export abstract class BaseEntity {
   }
 
   /**
+   * Get deletion timestamp
+   */
+  public get deletedAt(): Date | null {
+    return this._deletedAt ? new Date(this._deletedAt) : null;
+  }
+
+  /**
    * Check if entity is newly created (not yet persisted)
    */
   public get isNew(): boolean {
@@ -212,7 +362,39 @@ export abstract class BaseEntity {
    * Check if entity has been modified since load
    */
   public get isDirty(): boolean {
-    return this._version > 1;
+    return this._version > 1 || this._changes.size > 0;
+  }
+
+  /**
+   * Get entity metadata (readonly copy)
+   */
+  public get metadata(): Readonly<EntityMetadata> {
+    return {
+      ...this._metadata,
+      tags: this._metadata.tags ? [...this._metadata.tags] : [],
+      custom: this._metadata.custom ? { ...this._metadata.custom } : {},
+    };
+  }
+
+  /**
+   * Get all changes (for audit trail)
+   */
+  public getChanges(): ReadonlyMap<string, ChangeEntry> {
+    return new Map(this._changes);
+  }
+
+  /**
+   * Get entity tags
+   */
+  public getTags(): readonly string[] {
+    return Array.from(this._tags);
+  }
+
+  /**
+   * Check if entity has specific tag
+   */
+  public hasTag(tag: string): boolean {
+    return this._tags.has(tag);
   }
 
   // ============================================================
@@ -229,9 +411,17 @@ export abstract class BaseEntity {
    * Update timestamp and increment version
    * Called automatically when entity changes
    */
-  protected touch(): void {
+  protected touch(modifiedBy?: string, modifiedByIp?: string): void {
     this._updatedAt = new Date();
     this._version++;
+    
+    // Update metadata if provided
+    if (modifiedBy) {
+      this._metadata.lastModifiedBy = modifiedBy;
+    }
+    if (modifiedByIp) {
+      this._metadata.lastModifiedByIp = modifiedByIp;
+    }
   }
 
   /**
@@ -243,19 +433,108 @@ export abstract class BaseEntity {
   }
 
   /**
+   * Track a field change for audit trail
+   */
+  protected trackChange<T>(
+    field: string,
+    oldValue: T,
+    newValue: T,
+    changedBy?: string
+  ): void {
+    // Skip if values are equal
+    if (oldValue === newValue) return;
+    
+    const change: ChangeEntry = {
+      field,
+      oldValue: this.deepCopy(oldValue),
+      newValue: this.deepCopy(newValue),
+      changedAt: new Date(),
+      changedBy,
+    };
+    
+    this._changes.set(field, change);
+  }
+
+  /**
+   * Deep copy a value for change tracking
+   */
+  private deepCopy<T>(value: T): T {
+    if (value === null || value === undefined) return value;
+    if (value instanceof Date) return new Date(value) as T;
+    if (value instanceof Map) return new Map(value) as T;
+    if (value instanceof Set) return new Set(value) as T;
+    if (typeof value === 'object') {
+      try {
+        return JSON.parse(JSON.stringify(value));
+      } catch {
+        return value;
+      }
+    }
+    return value;
+  }
+
+  /**
+   * Clear all tracked changes (after persistence)
+   */
+  protected clearChanges(): void {
+    this._changes.clear();
+  }
+
+  /**
+   * Add a tag to the entity
+   */
+  protected addTag(tag: string): void {
+    this._tags.add(tag);
+    this.trackChange('tags', Array.from(this._tags), Array.from(this._tags));
+  }
+
+  /**
+   * Remove a tag from the entity
+   */
+  protected removeTag(tag: string): void {
+    if (this._tags.delete(tag)) {
+      this.trackChange('tags', Array.from(this._tags), Array.from(this._tags));
+    }
+  }
+
+  /**
+   * Update metadata field
+   */
+  protected updateMetadata(key: keyof EntityMetadata, value: unknown): void {
+    const oldValue = this._metadata[key];
+    if (oldValue !== value) {
+      (this._metadata[key] as unknown) = value;
+      this.trackChange(`metadata.${String(key)}`, oldValue, value);
+    }
+  }
+
+  /**
    * Mark entity as deleted (soft delete)
    */
-  protected markAsDeleted(): void {
+  protected markAsDeleted(deletedBy?: string, deletedByIp?: string): void {
+    if (this._isDeleted) {
+      throw new EntityAlreadyDeletedError(this.constructor.name, this._id);
+    }
+    
     this._isDeleted = true;
-    this.touch();
+    this._deletedAt = new Date();
+    this.updateMetadata('lastModifiedBy', deletedBy);
+    this.updateMetadata('lastModifiedByIp', deletedByIp);
+    this.touch(deletedBy, deletedByIp);
   }
 
   /**
    * Restore entity from soft delete
    */
-  protected restore(): void {
+  protected restore(restoredBy?: string): void {
+    if (!this._isDeleted) {
+      return;
+    }
+    
     this._isDeleted = false;
-    this.touch();
+    this._deletedAt = null;
+    this.updateMetadata('lastModifiedBy', restoredBy);
+    this.touch(restoredBy);
   }
 
   /**
@@ -264,7 +543,11 @@ export abstract class BaseEntity {
    */
   protected ensureNotDeleted(): void {
     if (this._isDeleted) {
-      throw new EntityValidationError(`Cannot perform operation on deleted entity ${this.constructor.name} ${this._id}`);
+      throw new EntityValidationError(
+        `Cannot perform operation on deleted entity ${this.constructor.name} ${this._id}`,
+        ['Entity is soft-deleted. Use restore() first if needed.'],
+        this.constructor.name
+      );
     }
   }
 
@@ -299,7 +582,7 @@ export abstract class BaseEntity {
    */
   protected addDomainEvent(event: DomainEvent): void {
     if (!event) {
-      throw new EntityValidationError('Domain event cannot be null');
+      throw new EntityValidationError('Domain event cannot be null', [], this.constructor.name);
     }
     this._domainEvents.push(event);
   }
@@ -344,6 +627,37 @@ export abstract class BaseEntity {
   }
 
   // ============================================================
+  // Audit Trail Methods
+  // ============================================================
+
+  /**
+   * Get audit trail for this entity
+   */
+  public getAuditTrail(): {
+    createdAt: Date;
+    createdBy?: string;
+    createdByIp?: string;
+    lastModifiedAt: Date;
+    lastModifiedBy?: string;
+    lastModifiedByIp?: string;
+    changes: ChangeEntry[];
+    deletedAt?: Date | null;
+    deletedBy?: string;
+  } {
+    return {
+      createdAt: this._createdAt,
+      createdBy: this._metadata.createdBy,
+      createdByIp: this._metadata.createdByIp,
+      lastModifiedAt: this._updatedAt,
+      lastModifiedBy: this._metadata.lastModifiedBy,
+      lastModifiedByIp: this._metadata.lastModifiedByIp,
+      changes: Array.from(this._changes.values()),
+      deletedAt: this._deletedAt,
+      deletedBy: this._metadata.lastModifiedBy,
+    };
+  }
+
+  // ============================================================
   // JSON Serialization
   // ============================================================
 
@@ -353,10 +667,19 @@ export abstract class BaseEntity {
   public toJSON(): Record<string, unknown> {
     return {
       id: this._id,
+      idType: this.getIdType(),
       createdAt: this._createdAt.toISOString(),
       updatedAt: this._updatedAt.toISOString(),
       version: this._version,
       isDeleted: this._isDeleted,
+      deletedAt: this._deletedAt?.toISOString() || null,
+      tags: Array.from(this._tags),
+      metadata: {
+        createdBy: this._metadata.createdBy,
+        createdByIp: this._metadata.createdByIp,
+        lastModifiedBy: this._metadata.lastModifiedBy,
+        lastModifiedByIp: this._metadata.lastModifiedByIp,
+      },
     };
   }
 
@@ -365,14 +688,17 @@ export abstract class BaseEntity {
    * Override in child classes for custom persistence mapping
    */
   public toPersistence(): Record<string, unknown> {
-    return this.toJSON();
+    return {
+      ...this.toJSON(),
+      changes: this.isDirty ? Array.from(this._changes.values()) : undefined,
+    };
   }
 
   /**
    * String representation for debugging
    */
   public toString(): string {
-    return `${this.constructor.name}(id=${this._id}, version=${this._version}, deleted=${this._isDeleted})`;
+    return `${this.constructor.name}(id=${this._id}, type=${this.getIdType()}, version=${this._version}, deleted=${this._isDeleted})`;
   }
 
   // ============================================================
@@ -400,12 +726,28 @@ export abstract class BaseEntity {
    */
   protected mergeFrom(other: this): void {
     if (!this.hasSameIdentity(other)) {
-      throw new EntityValidationError('Cannot merge entities with different IDs');
+      throw new EntityValidationError(
+        'Cannot merge entities with different IDs',
+        [`Source ID: ${this._id}, Target ID: ${other._id}`],
+        this.constructor.name
+      );
     }
     
     this._updatedAt = new Date(other._updatedAt);
     this._version = other._version;
     this._isDeleted = other._isDeleted;
+    this._deletedAt = other._deletedAt ? new Date(other._deletedAt) : null;
+    
+    // Merge metadata
+    this._metadata = {
+      ...this._metadata,
+      ...other._metadata,
+      tags: other._metadata.tags ? [...other._metadata.tags] : this._metadata.tags,
+      custom: other._metadata.custom ? { ...other._metadata.custom } : this._metadata.custom,
+    };
+    
+    // Merge tags
+    this._tags = new Set([...this._tags, ...other._tags]);
     
     // Merge domain events without duplication
     const existingEventIds = new Set(this._domainEvents.map(e => e.eventId));
@@ -414,6 +756,8 @@ export abstract class BaseEntity {
         this._domainEvents.push(event);
       }
     }
+    
+    // Note: Changes are NOT merged - they are specific to the instance
   }
 }
 
@@ -445,6 +789,11 @@ export interface IdGenerator {
    * Generate a sequential ID
    */
   generateSequential(): string;
+  
+  /**
+   * Generate an ID of specific type
+   */
+  generateOfType(type: 'uuid' | 'ulid' | 'snowflake' | 'sequential'): string;
 }
 
 /**
@@ -459,17 +808,39 @@ export class TestIdGenerator implements IdGenerator {
   }
   
   generateUlid(): string {
-    return this.generate();
+    // Generate a ULID-compatible format (timestamp + random)
+    const timestamp = Date.now().toString(36).padStart(10, '0');
+    const random = Math.random().toString(36).substring(2, 18);
+    return `${timestamp}${random}`.toUpperCase();
   }
   
   generateSnowflake(): string {
-    return this.generate();
+    const timestamp = BigInt(Date.now()) - 1288834974657n;
+    const machineId = 1n;
+    const sequence = BigInt(this.counter % 4096);
+    const snowflake = (timestamp << 22n) | (machineId << 12n) | sequence;
+    return snowflake.toString();
   }
   
   generateSequential(): string {
     return `${++this.counter}`;
   }
+  
+  generateOfType(type: 'uuid' | 'ulid' | 'snowflake' | 'sequential'): string {
+    switch (type) {
+      case 'ulid': return this.generateUlid();
+      case 'snowflake': return this.generateSnowflake();
+      case 'sequential': return this.generateSequential();
+      default: return this.generate();
+    }
+  }
 }
+
+/**
+ * ⚠️ WARNING: Crypto-based ID generator removed from domain layer.
+ * Crypto operations belong in infrastructure layer.
+ * Use IdGenerator interface for injection instead.
+ */
 
 // ============================================================
 // Abstract Domain Event Implementation
@@ -549,4 +920,4 @@ export function combineValidationResults(results: readonly ValidationResult[]): 
 // Type Exports
 // ============================================================
 
-export type { EntityConstructorOptions, ValidationResult };
+export type { EntityConstructorOptions, ValidationResult, ChangeEntry, EntityMetadata };
