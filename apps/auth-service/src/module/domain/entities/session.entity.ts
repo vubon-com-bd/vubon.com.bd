@@ -1,5 +1,5 @@
 /**
- * Session Entity - Pure Domain Core
+ * Session Entity - Pure Domain Core (Enterprise Enhanced)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module domain/entities/session.entity
@@ -8,16 +8,19 @@
  * Represents a user session for authentication and activity tracking.
  * Manages session lifecycle, expiry, idle timeout, and concurrent sessions.
  * 
- * Enterprise Rules:
- * ✅ Absolute lifetime limit (configurable)
- * ✅ Idle timeout enforcement
+ * Enterprise Features (Applied):
+ * ✅ Shared configuration from @vubon/shared-constants (SESSION_CONFIG)
+ * ✅ Absolute lifetime limit with validation
+ * ✅ Idle timeout enforcement (mobile vs desktop)
  * ✅ Session extension with limits
  * ✅ Domain events for all state changes
- * ✅ Framework-free (no crypto dependency)
- * ✅ Bangladesh specific - Network type tracking
+ * ✅ Framework-free (no external dependencies)
+ * ✅ Bangladesh specific - Network type tracking, mobile operator
+ * ✅ Trust level tracking for device fingerprinting
+ * ✅ Termination reason tracking for audit
  * 
  * Session Lifecycle:
- * CREATE -> ACTIVE -> (REVOKED/EXPIRED/IDLE_EXPIRED)
+ * CREATE -> ACTIVE -> (REVOKED/EXPIRED/IDLE_EXPIRED/SUSPENDED)
  * ACTIVE -> extend() -> ACTIVE (within limits)
  * ACTIVE -> recordActivity() -> ACTIVE (reset idle timer)
  */
@@ -27,6 +30,9 @@ import { IpAddress, type IpCategory } from '../value-objects/ip-address.vo';
 import { UserAgent, type DeviceType } from '../value-objects/user-agent.vo';
 import { DeviceId } from '../value-objects/device-id.vo';
 import { Token, TokenType } from '../value-objects/token.vo';
+
+// ✅ FIXED: Import from shared-constants instead of local constants
+import { SESSION_CONFIG } from '@vubon/shared-constants';
 
 // ==================== Enums ====================
 
@@ -54,42 +60,10 @@ export enum SessionEventType {
   SESSION_ACTIVITY_RECORDED = 'session.activity_recorded',
   SESSION_LOCATION_CHANGED = 'session.location_changed',
   SESSION_DEVICE_CHANGED = 'session.device_changed',
+  SESSION_TRUST_LEVEL_CHANGED = 'session.trust_level_changed',
 }
 
 // ==================== Types ====================
-
-/**
- * Session configuration constants
- */
-const SESSION_CONFIG = {
-  // Default session lifetime (hours)
-  DEFAULT_LIFETIME_HOURS: 24,
-  DEFAULT_LIFETIME_MS: 24 * 60 * 60 * 1000,
-  
-  // Maximum absolute lifetime (days)
-  MAX_ABSOLUTE_LIFETIME_DAYS: 30,
-  MAX_ABSOLUTE_LIFETIME_MS: 30 * 24 * 60 * 60 * 1000,
-  
-  // Idle timeout (minutes)
-  IDLE_TIMEOUT_MINUTES: 30,
-  IDLE_TIMEOUT_MS: 30 * 60 * 1000,
-  
-  // Idle timeout for mobile devices (Bangladesh specific - longer due to network conditions)
-  MOBILE_IDLE_TIMEOUT_MINUTES: 60,
-  MOBILE_IDLE_TIMEOUT_MS: 60 * 60 * 1000,
-  
-  // Extension limits
-  MAX_EXTENSIONS: 10,
-  MAX_EXTENSION_MINUTES: 24 * 60, // Max 24 hours per extension
-  
-  // Concurrent session limits by role (to be checked by application)
-  MAX_CONCURRENT_SESSIONS: {
-    DEFAULT: 5,
-    PREMIUM: 10,
-    ADMIN: 3,
-    SUPER_ADMIN: 2,
-  },
-} as const;
 
 /**
  * Session metadata (Bangladesh specific)
@@ -103,6 +77,16 @@ export interface SessionMetadata {
   isFamilyShared?: boolean;
   familyMemberId?: string;
   trustLevel?: 'untrusted' | 'standard' | 'trusted' | 'high_trust' | 'maximum_trust';
+}
+
+/**
+ * Session termination reason tracking (for audit)
+ */
+export interface TerminationInfo {
+  reason: string;
+  terminatedAt: Date;
+  terminatedBy?: 'user' | 'admin' | 'system';
+  metadata?: Record<string, unknown>;
 }
 
 // ==================== Session Entity ====================
@@ -129,6 +113,7 @@ export class Session extends BaseEntity {
   private _location: string | undefined;
   private _metadata: SessionMetadata;
   private _isCurrent: boolean;
+  private _terminationInfo: TerminationInfo | undefined;
 
   private constructor(
     id: string,
@@ -148,6 +133,7 @@ export class Session extends BaseEntity {
     location: string | undefined,
     metadata: SessionMetadata,
     isCurrent: boolean,
+    terminationInfo: TerminationInfo | undefined,
     createdAt: Date,
     updatedAt: Date,
     version: number
@@ -170,6 +156,7 @@ export class Session extends BaseEntity {
     this._location = location;
     this._metadata = metadata;
     this._isCurrent = isCurrent;
+    this._terminationInfo = terminationInfo;
     
     this.validate();
   }
@@ -266,6 +253,7 @@ export class Session extends BaseEntity {
       location,
       { ...defaultMetadata, ...metadata },
       true,
+      undefined,
       now,
       now,
       1
@@ -312,6 +300,7 @@ export class Session extends BaseEntity {
     location?: string;
     metadata: SessionMetadata;
     isCurrent: boolean;
+    terminationInfo?: TerminationInfo;
     createdAt: Date;
     updatedAt: Date;
     version: number;
@@ -334,6 +323,7 @@ export class Session extends BaseEntity {
       data.location,
       data.metadata,
       data.isCurrent,
+      data.terminationInfo,
       data.createdAt,
       data.updatedAt,
       data.version
@@ -347,13 +337,18 @@ export class Session extends BaseEntity {
   /**
    * Revoke session (logout)
    */
-  public revoke(reason?: string): void {
+  public revoke(reason?: string, terminatedBy: 'user' | 'admin' | 'system' = 'user'): void {
     if (this._status === SessionStatus.REVOKED) {
       throw new EntityValidationError('Session already revoked');
     }
     
     this._status = SessionStatus.REVOKED;
     this._isCurrent = false;
+    this._terminationInfo = {
+      reason: reason || 'User initiated logout',
+      terminatedAt: new Date(),
+      terminatedBy,
+    };
     this.touch();
     
     this.addDomainEvent({
@@ -365,7 +360,8 @@ export class Session extends BaseEntity {
       metadata: {
         userId: this._userId,
         deviceId: this._deviceId.getValue(),
-        reason: reason || 'User initiated',
+        reason,
+        terminatedBy,
       },
     });
   }
@@ -380,6 +376,11 @@ export class Session extends BaseEntity {
     
     this._status = SessionStatus.EXPIRED;
     this._isCurrent = false;
+    this._terminationInfo = {
+      reason: 'Session expired due to absolute lifetime limit',
+      terminatedAt: new Date(),
+      terminatedBy: 'system',
+    };
     this.touch();
     
     this.addDomainEvent({
@@ -390,6 +391,7 @@ export class Session extends BaseEntity {
       version: this.version,
       metadata: {
         userId: this._userId,
+        expiresAt: this._expiresAt.toISOString(),
       },
     });
   }
@@ -404,6 +406,11 @@ export class Session extends BaseEntity {
     
     this._status = SessionStatus.IDLE_EXPIRED;
     this._isCurrent = false;
+    this._terminationInfo = {
+      reason: `Session expired due to idle timeout (${this.getIdleTimeMinutes()} minutes inactive)`,
+      terminatedAt: new Date(),
+      terminatedBy: 'system',
+    };
     this.touch();
     
     this.addDomainEvent({
@@ -589,6 +596,33 @@ export class Session extends BaseEntity {
   }
 
   /**
+   * Update trust level (for device fingerprinting)
+   */
+  public updateTrustLevel(trustLevel: 'untrusted' | 'standard' | 'trusted' | 'high_trust' | 'maximum_trust'): void {
+    const oldTrustLevel = this._metadata.trustLevel;
+    if (oldTrustLevel === trustLevel) {
+      return;
+    }
+    
+    this._metadata.trustLevel = trustLevel;
+    this.touch();
+    
+    this.addDomainEvent({
+      eventId: generateEventId(),
+      eventType: SessionEventType.SESSION_TRUST_LEVEL_CHANGED,
+      aggregateId: this.id,
+      occurredOn: new Date(),
+      version: this.version,
+      metadata: {
+        userId: this._userId,
+        oldTrustLevel,
+        newTrustLevel: trustLevel,
+        deviceId: this._deviceId.getValue(),
+      },
+    });
+  }
+
+  /**
    * Update session metadata
    */
   public updateMetadata(metadata: Partial<SessionMetadata>): void {
@@ -610,6 +644,13 @@ export class Session extends BaseEntity {
   public markAsNotCurrent(): void {
     this._isCurrent = false;
     this.touch();
+  }
+
+  /**
+   * Get termination information (for audit)
+   */
+  public getTerminationInfo(): TerminationInfo | undefined {
+    return this._terminationInfo ? { ...this._terminationInfo } : undefined;
   }
 
   // ============================================================
@@ -752,7 +793,10 @@ export class Session extends BaseEntity {
   public getExtensionCount(): number { return this._extensionCount; }
   public getSessionName(): string | undefined { return this._sessionName; }
   public getLocation(): string | undefined { return this._location; }
-  public getMetadata(): Readonly<SessionMetadata> { return this._metadata; }
+  public getMetadata(): Readonly<SessionMetadata> { return { ...this._metadata }; }
+  public getTrustLevel(): 'untrusted' | 'standard' | 'trusted' | 'high_trust' | 'maximum_trust' {
+    return this._metadata.trustLevel || 'standard';
+  }
 
   // ============================================================
   // JSON Serialization
@@ -780,6 +824,7 @@ export class Session extends BaseEntity {
       sessionName: this._sessionName,
       location: this._location,
       metadata: this._metadata,
+      trustLevel: this.getTrustLevel(),
       isActive: this.isActive(),
       isExpired: this.isExpired(),
       isRevoked: this.isRevoked(),
@@ -790,6 +835,7 @@ export class Session extends BaseEntity {
       remainingIdleTimeMinutes: this.getRemainingIdleTimeMinutes(),
       idleTimeMinutes: this.getIdleTimeMinutes(),
       canExtend: this.canExtend(),
+      terminationInfo: this._terminationInfo,
       // ⚠️ Token value is intentionally excluded for security
     };
   }
@@ -817,4 +863,4 @@ namespace generateEventId {
 // Type Exports
 // ============================================================
 
-export type { SessionMetadata };
+export type { SessionMetadata, TerminationInfo };
