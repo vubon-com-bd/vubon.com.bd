@@ -687,6 +687,38 @@ export const SECURITY_TESTING = {
 } as const;
 
 // ============================================================
+// Risk Thresholds for Login Attempts & Security Scoring
+// ============================================================
+export const RISK_THRESHOLDS = {
+  MIN_RISK_SCORE: 0,
+  MAX_RISK_SCORE: 100,
+  LOW_RISK_MAX: 30,
+  MEDIUM_RISK_MAX: 60,
+  HIGH_RISK_MAX: 80,
+  // CRITICAL: 81-100
+} as const;
+
+// ============================================================
+// Login Attempt Configuration
+// ============================================================
+export const LOGIN_ATTEMPT_CONFIG = {
+  SUSPICIOUS_ACTIVITY_COOLDOWN_MINUTES: 5,
+  MAX_RISK_ESCALATIONS_PER_HOUR: 3,
+} as const;
+
+// ============================================================
+// Risk Level Helper Function
+// ============================================================
+export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
+export const getRiskLevel = (score: number): RiskLevel => {
+  if (score >= 81) return 'CRITICAL';
+  if (score >= 61) return 'HIGH';
+  if (score >= 31) return 'MEDIUM';
+  return 'LOW';
+};
+
+// ============================================================
 // Type Exports
 // ============================================================
 export type CSPDirectives = typeof CSP_DIRECTIVES;
