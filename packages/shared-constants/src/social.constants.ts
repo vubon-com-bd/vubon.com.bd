@@ -288,7 +288,6 @@ export type SocialIcons = typeof SOCIAL_ICONS;
 
 // ============================================================
 // Provider Priority (For UI display order in Bangladesh)
-// UPDATED: Added OTP variants
 // ============================================================
 export const SOCIAL_PROVIDER_PRIORITY = {
   // Bangladesh specific priority (Facebook first, then WhatsApp, then bKash)
@@ -298,9 +297,9 @@ export const SOCIAL_PROVIDER_PRIORITY = {
   [SOCIAL_PROVIDERS.BKASH]: 4,
   [SOCIAL_PROVIDERS.NAGAD]: 5,
   [SOCIAL_PROVIDERS.PHONE_OTP]: 6,
-  [SOCIAL_PROVIDERS.WHATSAPP_OTP]: 6.5,      // UPDATED
+  [SOCIAL_PROVIDERS.WHATSAPP_OTP]: 6.5,
   [SOCIAL_PROVIDERS.IMO]: 7,
-  [SOCIAL_PROVIDERS.IMO_OTP]: 7.5,           // UPDATED
+  [SOCIAL_PROVIDERS.IMO_OTP]: 7.5,
   [SOCIAL_PROVIDERS.TELEGRAM]: 8,
   [SOCIAL_PROVIDERS.APPLE]: 9,
   [SOCIAL_PROVIDERS.GITHUB]: 10,
@@ -632,6 +631,96 @@ export const SOCIAL_AUTH_METRICS = {
 export type SocialAuthMetrics = typeof SOCIAL_AUTH_METRICS;
 
 // ============================================================
+// ✅ ENTERPRISE ENHANCEMENT: Social Provider Configuration
+// (For social-account.entity.ts and UI components)
+// ============================================================
+
+/**
+ * Social provider configuration for account linking limits
+ */
+export const SOCIAL_CONFIG = {
+  MAX_LINKED_ACCOUNTS: 5,
+  MAX_UNLINK_PER_DAY: 5,
+  SYNC_THRESHOLD_DAYS: 7,
+  MIN_NAME_LENGTH: 2,
+  MAX_NAME_LENGTH: 100,
+  PROVIDER_EMAIL_DOMAINS: {
+    GOOGLE: ['gmail.com', 'googlemail.com'],
+    MICROSOFT: ['outlook.com', 'hotmail.com', 'live.com', 'msn.com'],
+    APPLE: ['icloud.com', 'me.com', 'mac.com'],
+    GITHUB: [] as string[], // GitHub doesn't have email domain restriction
+    LINKEDIN: ['linkedin.com'],
+    FACEBOOK: ['facebook.com', 'fb.com'],
+  },
+} as const;
+
+export type SocialConfig = typeof SOCIAL_CONFIG;
+
+/**
+ * Provider display names for UI (English)
+ */
+export const PROVIDER_DISPLAY_NAMES = {
+  // International providers
+  [SOCIAL_PROVIDERS.GOOGLE]: 'Google',
+  [SOCIAL_PROVIDERS.FACEBOOK]: 'Facebook',
+  [SOCIAL_PROVIDERS.GITHUB]: 'GitHub',
+  [SOCIAL_PROVIDERS.LINKEDIN]: 'LinkedIn',
+  [SOCIAL_PROVIDERS.APPLE]: 'Apple',
+  [SOCIAL_PROVIDERS.TWITTER]: 'Twitter',
+  [SOCIAL_PROVIDERS.INSTAGRAM]: 'Instagram',
+  [SOCIAL_PROVIDERS.MICROSOFT]: 'Microsoft',
+  [SOCIAL_PROVIDERS.TIKTOK]: 'TikTok',
+  [SOCIAL_PROVIDERS.SNAPCHAT]: 'Snapchat',
+  // Bangladesh specific messaging apps
+  [SOCIAL_PROVIDERS.WHATSAPP]: 'WhatsApp',
+  [SOCIAL_PROVIDERS.IMO]: 'Imo',
+  [SOCIAL_PROVIDERS.TELEGRAM]: 'Telegram',
+  [SOCIAL_PROVIDERS.VIBER]: 'Viber',
+  // Mobile Financial Services (Bangladesh)
+  [SOCIAL_PROVIDERS.BKASH]: 'bKash',
+  [SOCIAL_PROVIDERS.NAGAD]: 'Nagad',
+  [SOCIAL_PROVIDERS.ROCKET]: 'Rocket',
+  // OTP variants
+  [SOCIAL_PROVIDERS.PHONE_OTP]: 'Phone Number',
+  [SOCIAL_PROVIDERS.WHATSAPP_OTP]: 'WhatsApp',
+  [SOCIAL_PROVIDERS.IMO_OTP]: 'Imo',
+} as const;
+
+export type ProviderDisplayNames = typeof PROVIDER_DISPLAY_NAMES;
+
+/**
+ * Provider icon URLs for UI components
+ */
+export const PROVIDER_ICON_URLS = {
+  // International providers
+  [SOCIAL_PROVIDERS.GOOGLE]: '/icons/social/google.svg',
+  [SOCIAL_PROVIDERS.FACEBOOK]: '/icons/social/facebook.svg',
+  [SOCIAL_PROVIDERS.GITHUB]: '/icons/social/github.svg',
+  [SOCIAL_PROVIDERS.LINKEDIN]: '/icons/social/linkedin.svg',
+  [SOCIAL_PROVIDERS.APPLE]: '/icons/social/apple.svg',
+  [SOCIAL_PROVIDERS.TWITTER]: '/icons/social/twitter.svg',
+  [SOCIAL_PROVIDERS.INSTAGRAM]: '/icons/social/instagram.svg',
+  [SOCIAL_PROVIDERS.MICROSOFT]: '/icons/social/microsoft.svg',
+  [SOCIAL_PROVIDERS.TIKTOK]: '/icons/social/tiktok.svg',
+  [SOCIAL_PROVIDERS.SNAPCHAT]: '/icons/social/snapchat.svg',
+  // Bangladesh specific messaging apps
+  [SOCIAL_PROVIDERS.WHATSAPP]: '/icons/social/whatsapp.svg',
+  [SOCIAL_PROVIDERS.IMO]: '/icons/social/imo.svg',
+  [SOCIAL_PROVIDERS.TELEGRAM]: '/icons/social/telegram.svg',
+  [SOCIAL_PROVIDERS.VIBER]: '/icons/social/viber.svg',
+  // Mobile Financial Services (Bangladesh)
+  [SOCIAL_PROVIDERS.BKASH]: '/icons/social/bkash.svg',
+  [SOCIAL_PROVIDERS.NAGAD]: '/icons/social/nagad.svg',
+  [SOCIAL_PROVIDERS.ROCKET]: '/icons/social/rocket.svg',
+  // OTP variants (use same as parent)
+  [SOCIAL_PROVIDERS.PHONE_OTP]: '/icons/social/phone.svg',
+  [SOCIAL_PROVIDERS.WHATSAPP_OTP]: '/icons/social/whatsapp.svg',
+  [SOCIAL_PROVIDERS.IMO_OTP]: '/icons/social/imo.svg',
+} as const;
+
+export type ProviderIconUrls = typeof PROVIDER_ICON_URLS;
+
+// ============================================================
 // Type Exports
 // ============================================================
 export type SocialProviderValue = typeof SOCIAL_PROVIDERS;
@@ -644,12 +733,4 @@ export type SocialDisplayNamesBnValue = typeof SOCIAL_DISPLAY_NAMES_BN;
 export type SocialColorsValue = typeof SOCIAL_COLORS;
 export type SocialIconsValue = typeof SOCIAL_ICONS;
 export type SocialProviderPriorityValue = typeof SOCIAL_PROVIDER_PRIORITY;
-export type SocialProviderTrustLevelsValue = typeof SOCIAL_PROVIDER_TRUST_LEVELS;
-export type SocialAuthRateLimitsValue = typeof SOCIAL_AUTH_RATE_LIMITS;
-export type SocialAccountLinkingValue = typeof SOCIAL_ACCOUNT_LINKING;
-export type OAuthStateConfigValue = typeof OAUTH_STATE_CONFIG;
-export type SocialProviderFeaturesValue = typeof SOCIAL_PROVIDER_FEATURES;
-export type SocialAuthEventsValue = typeof SOCIAL_AUTH_EVENTS;
-export type SocialProviderMetadataValue = typeof SOCIAL_PROVIDER_METADATA;
-export type SocialConsentScreenValue = typeof SOCIAL_CONSENT_SCREEN;
-export type SocialAuthMetricsValue = typeof SOCIAL_AUTH_METRICS;
+export type SocialProviderTrustLevelsValue = typeof SOCIAL
