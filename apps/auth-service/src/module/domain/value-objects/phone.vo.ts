@@ -1,26 +1,19 @@
 /**
- * Phone Number Value Object - Pure Domain Core
+ * Phone Number Value Object - Pure Domain Core (Refactored)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module domain/value-objects/phone.vo
  * 
  * @description
- * Represents a validated and normalized phone number in E.164 format.
- * Used for user contact, SMS delivery, MFA, and communication.
+ * Represents a validated and normalized phone number using shared utilities.
+ * Uses libphonenumber-js via @vubon/shared-utils for reliable validation.
  * 
  * Enterprise Rules:
  * ✅ Immutable - Phone number never changes after creation
- * ✅ Self-validating - Validates format and country-specific rules
+ * ✅ Self-validating - Uses shared validation utilities
  * ✅ Normalized - E.164 standard format
- * ✅ Framework-free - No external dependencies
+ * ✅ Framework-free - Uses shared packages
  * ✅ Bangladesh specific - Complete BD operator detection
- * 
- * Supported features:
- * - E.164 international format
- * - Bangladesh mobile number detection
- * - Operator detection (GP, Robi, Banglalink, Teletalk)
- * - Number type detection (mobile, landline, toll-free)
- * - Privacy-safe masking
  * 
  * @example
  * const phone = new Phone('01712345678');
@@ -30,11 +23,24 @@
  */
 
 import { ValueObject } from './base.vo';
+import { 
+  parsePhone,
+  isValidPhone,
+  isValidBdMobile,
+  formatToE164,
+  formatNational,
+  formatInternational,
+  getPhoneComponents,
+  type PhoneComponents as SharedPhoneComponents,
+  type PhoneNumber,
+  type CountryCode
+} from '@vubon/shared-utils';
+import { PhoneSchema } from '@vubon/shared-schemas';
 
 // ==================== Enums ====================
 
 /**
- * Phone number types
+ * Phone number types (Domain-specific categorization)
  */
 export enum PhoneType {
   MOBILE = 'mobile',
@@ -43,6 +49,10 @@ export enum PhoneType {
   PREMIUM = 'premium',
   SHARED_COST = 'shared_cost',
   VOIP = 'voip',
+  PERSONAL_NUMBER = 'personal_number',
+  PAGER = 'pager',
+  UAN = 'uan',
+  VOICEMAIL = 'voicemail',
   UNKNOWN = 'unknown',
 }
 
@@ -74,7 +84,7 @@ export interface PhoneValidation {
 }
 
 /**
- * Phone number components
+ * Phone number components (Domain-specific)
  */
 export interface PhoneComponents {
   countryCode: string;
@@ -83,12 +93,13 @@ export interface PhoneComponents {
   type: PhoneType;
   operator: BDOperator;
   isBangladesh: boolean;
+  isMobile: boolean;
 }
 
 // ==================== Constants ====================
 
 /**
- * Phone number configuration
+ * Phone number configuration (Bangladesh specific)
  */
 export const PHONE_CONFIG = {
   // E.164 constraints (RFC 3966)
@@ -98,19 +109,7 @@ export const PHONE_CONFIG = {
   // Country codes
   BANGLADESH_CC: '880',
   
-  // Bangladesh number patterns
-  BD_MOBILE_PREFIXES: ['13', '14', '15', '16', '17', '18', '19'],
-  BD_LANDLINE_PREFIXES: ['2', '3', '4', '5', '6', '7', '8', '9'],
-  
-  // Operator patterns (after country code, first 2 digits)
-  OPERATOR_PATTERNS: {
-    [BDOperator.GP]: /^1(?:3|4|7)\d{8}$/,
-    [BDOperator.ROBI]: /^1(?:6|8|9)\d{8}$/,
-    [BDOperator.BANGLALINK]: /^19\d{8}$/,
-    [BDOperator.TELETALK]: /^15\d{8}$/,
-  },
-  
-  // Operator prefix mapping
+  // Bangladesh operator patterns (for display/UI only, validation uses shared-utils)
   OPERATOR_PREFIXES: {
     '13': BDOperator.GP,
     '14': BDOperator.GP,
@@ -121,12 +120,6 @@ export const PHONE_CONFIG = {
     '19': BDOperator.BANGLALINK,
   },
   
-  // Toll-free prefixes (international)
-  TOLL_FREE_PREFIXES: ['800', '888', '877', '866', '855', '844'],
-  
-  // Premium rate prefixes
-  PREMIUM_PREFIXES: ['900', '976', '977', '978', '979', '190'],
-  
   // Operator display names
   OPERATOR_NAMES: {
     [BDOperator.GP]: 'Grameenphone',
@@ -135,22 +128,71 @@ export const PHONE_CONFIG = {
     [BDOperator.TELETALK]: 'Teletalk',
     [BDOperator.UNKNOWN]: 'Unknown',
   },
+  
+  // Local format patterns for Bangladesh
+  LOCAL_FORMAT: {
+    MOBILE: (num: string) => `${num.substring(0, 5)}-${num.substring(5)}`,
+    LANDLINE: (num: string) => `${num.substring(0, 4)}-${num.substring(4)}`,
+  },
 } as const;
+
+// ==================== Helper Functions ====================
+
+/**
+ * Map shared-utils phone type to domain PhoneType
+ */
+const mapPhoneType = (type: string | undefined): PhoneType => {
+  if (!type) return PhoneType.UNKNOWN;
+  
+  const typeMap: Record<string, PhoneType> = {
+    'mobile': PhoneType.MOBILE,
+    'fixed-line': PhoneType.LANDLINE,
+    'fixed-line-or-mobile': PhoneType.MOBILE,
+    'toll-free': PhoneType.TOLL_FREE,
+    'premium-rate': PhoneType.PREMIUM,
+    'shared-cost': PhoneType.SHARED_COST,
+    'voip': PhoneType.VOIP,
+    'personal-number': PhoneType.PERSONAL_NUMBER,
+    'pager': PhoneType.PAGER,
+    'uan': PhoneType.UAN,
+    'voicemail': PhoneType.VOICEMAIL,
+  };
+  
+  return typeMap[type.toLowerCase()] || PhoneType.UNKNOWN;
+};
+
+/**
+ * Map operator string to BDOperator enum
+ */
+const mapOperator = (operator: string | null): BDOperator => {
+  if (!operator) return BDOperator.UNKNOWN;
+  
+  const operatorMap: Record<string, BDOperator> = {
+    'Grameenphone': BDOperator.GP,
+    'Robi': BDOperator.ROBI,
+    'Airtel': BDOperator.ROBI,
+    'Banglalink': BDOperator.BANGLALINK,
+    'Teletalk': BDOperator.TELETALK,
+  };
+  
+  return operatorMap[operator] || BDOperator.UNKNOWN;
+};
 
 // ==================== Phone Number Value Object ====================
 
 /**
  * Phone Number Value Object
  * 
- * Represents a validated and normalized phone number
+ * Represents a validated and normalized phone number using shared utilities
  */
 export class Phone extends ValueObject {
-  private readonly _value: string;        // Raw normalized value
-  private readonly _e164: string;         // E.164 format
+  private readonly _value: string;        // Raw input value (for reference)
+  private readonly _e164: string;         // E.164 format (canonical)
   private readonly _countryCode: string;
   private readonly _nationalNumber: string;
   private readonly _type: PhoneType;
   private readonly _operator: BDOperator;
+  private readonly _sharedComponents: SharedPhoneComponents | null;
 
   /**
    * Creates a new Phone value object
@@ -161,19 +203,58 @@ export class Phone extends ValueObject {
   constructor(phone: string) {
     super();
     
-    const validation = Phone.validate(phone);
-    if (!validation.isValid) {
-      throw new Error(`Invalid phone number: ${validation.error}`);
+    // ✅ Use shared schema for validation
+    const schemaResult = PhoneSchema.safeParse(phone);
+    if (!schemaResult.success) {
+      throw new Error(`Invalid phone number: ${schemaResult.error.errors[0]?.message || 'Invalid format'}`);
     }
     
-    this._value = validation.normalized!;
-    this._e164 = validation.e164!;
-    this._countryCode = validation.countryCode!;
-    this._nationalNumber = validation.nationalNumber!;
-    this._type = validation.type!;
-    this._operator = validation.operator || BDOperator.UNKNOWN;
+    // ✅ Use shared utility for validation
+    if (!isValidPhone(phone, 'BD')) {
+      throw new Error('Invalid phone number format');
+    }
+    
+    this._value = phone.trim();
+    
+    // ✅ Use shared utility for E.164 format
+    this._e164 = formatToE164(phone, 'BD')!;
+    
+    // ✅ Use shared utility for components
+    this._sharedComponents = getPhoneComponents(phone, 'BD');
+    
+    // Parse country code and national number
+    const e164Match = this._e164.match(/^\+(\d{1,3})(\d+)$/);
+    this._countryCode = e164Match?.[1] || PHONE_CONFIG.BANGLADESH_CC;
+    this._nationalNumber = e164Match?.[2] || '';
+    
+    // Determine type using shared utility + domain mapping
+    const parsed = parsePhone(phone, 'BD');
+    const sharedType = parsed?.getType();
+    this._type = mapPhoneType(sharedType);
+    
+    // Determine operator (Bangladesh specific)
+    this._operator = this.detectOperator();
     
     this.validate();
+  }
+
+  /**
+   * Detect Bangladesh operator from phone number
+   */
+  private detectOperator(): BDOperator {
+    if (!this.isBangladesh()) {
+      return BDOperator.UNKNOWN;
+    }
+    
+    // Try to detect via shared utility first
+    const sharedOperator = this._sharedComponents?.operator;
+    if (sharedOperator) {
+      return mapOperator(sharedOperator);
+    }
+    
+    // Fallback to prefix-based detection (for consistency)
+    const prefix = this._nationalNumber.substring(0, 2);
+    return PHONE_CONFIG.OPERATOR_PREFIXES[prefix as keyof typeof PHONE_CONFIG.OPERATOR_PREFIXES] || BDOperator.UNKNOWN;
   }
 
   /**
@@ -182,6 +263,10 @@ export class Phone extends ValueObject {
   protected validate(): void {
     if (this.isEmpty()) {
       throw new Error('Phone number cannot be empty');
+    }
+    
+    if (this._e164.length > PHONE_CONFIG.MAX_LENGTH) {
+      throw new Error(`Phone number too long (max ${PHONE_CONFIG.MAX_LENGTH} digits)`);
     }
   }
 
@@ -227,7 +312,7 @@ export class Phone extends ValueObject {
   }
 
   // ============================================================
-  // Validation Methods
+  // Validation Methods (Using Shared Utilities)
   // ============================================================
 
   /**
@@ -253,107 +338,48 @@ export class Phone extends ValueObject {
         error: 'Phone number cannot be empty',
       };
     }
-
-    // Remove all non-digit characters except '+'
-    let cleaned = trimmed.replace(/[^\d+]/g, '');
     
-    // Ensure '+' prefix for E.164
-    if (!cleaned.startsWith('+')) {
-      // Handle local Bangladesh format (starts with 0)
-      if (cleaned.startsWith('0')) {
-        cleaned = '+' + PHONE_CONFIG.BANGLADESH_CC + cleaned.substring(1);
-      } else {
-        cleaned = '+' + cleaned;
-      }
+    // ✅ Use shared schema validation
+    const schemaResult = PhoneSchema.safeParse(trimmed);
+    if (!schemaResult.success) {
+      return {
+        isValid: false,
+        error: schemaResult.error.errors[0]?.message || 'Invalid phone format',
+      };
     }
     
-    // Parse country code and national number
-    let countryCode = '';
-    let nationalNumber = '';
-    let e164 = '';
-    
-    // Try to parse as E.164
-    const e164Match = cleaned.match(/^\+(\d{1,3})(\d+)$/);
-    if (e164Match) {
-      countryCode = e164Match[1]!;
-      nationalNumber = e164Match[2]!;
-      e164 = cleaned;
-    } else {
+    // ✅ Use shared utility for validation
+    if (!isValidPhone(trimmed, 'BD')) {
       return {
         isValid: false,
         error: 'Invalid phone number format',
       };
     }
     
-    // Validate length
-    const digitCount = e164.replace(/\D/g, '').length;
-    if (digitCount > PHONE_CONFIG.MAX_LENGTH) {
+    // ✅ Use shared utility for E.164
+    const e164 = formatToE164(trimmed, 'BD');
+    if (!e164) {
       return {
         isValid: false,
-        error: `Phone number too long (max ${PHONE_CONFIG.MAX_LENGTH} digits)`,
+        error: 'Could not normalize to E.164 format',
       };
     }
     
-    if (digitCount < PHONE_CONFIG.MIN_LENGTH) {
-      return {
-        isValid: false,
-        error: `Phone number too short (min ${PHONE_CONFIG.MIN_LENGTH} digits)`,
-      };
-    }
+    // Parse components
+    const e164Match = e164.match(/^\+(\d{1,3})(\d+)$/);
+    const countryCode = e164Match?.[1] || PHONE_CONFIG.BANGLADESH_CC;
+    const nationalNumber = e164Match?.[2] || '';
     
-    // Detect type and operator based on country
-    let type = PhoneType.UNKNOWN;
-    let operator = BDOperator.UNKNOWN;
+    // Determine type
+    const parsed = parsePhone(trimmed, 'BD');
+    const sharedType = parsed?.getType();
+    const type = mapPhoneType(sharedType);
     
-    // Bangladesh specific validation
-    if (countryCode === PHONE_CONFIG.BANGLADESH_CC) {
-      // Validate length (10 digits after country code for BD)
-      if (nationalNumber.length !== 10) {
-        return {
-          isValid: false,
-          error: 'Bangladeshi number must be 10 digits after country code',
-        };
-      }
-      
-      // Check if mobile
-      const firstTwo = nationalNumber.substring(0, 2);
-      const isMobile = PHONE_CONFIG.BD_MOBILE_PREFIXES.includes(firstTwo);
-      const isLandline = PHONE_CONFIG.BD_LANDLINE_PREFIXES.includes(firstTwo[0] || '') && !isMobile;
-      
-      if (isMobile) {
-        type = PhoneType.MOBILE;
-        
-        // Detect operator from prefix
-        operator = PHONE_CONFIG.OPERATOR_PREFIXES[firstTwo as keyof typeof PHONE_CONFIG.OPERATOR_PREFIXES] || BDOperator.UNKNOWN;
-      } else if (isLandline) {
-        type = PhoneType.LANDLINE;
-      } else {
-        return {
-          isValid: false,
-          error: 'Invalid Bangladeshi phone number format',
-        };
-      }
-    } else {
-      // International number validation
-      // Basic validation: must have reasonable length
-      if (nationalNumber.length < 5 || nationalNumber.length > 12) {
-        return {
-          isValid: false,
-          error: 'Invalid national number length for international format',
-        };
-      }
-      
-      // Check for toll-free numbers
-      const nationalPrefix = nationalNumber.substring(0, 3);
-      if (PHONE_CONFIG.TOLL_FREE_PREFIXES.includes(nationalPrefix)) {
-        type = PhoneType.TOLL_FREE;
-      } else if (PHONE_CONFIG.PREMIUM_PREFIXES.includes(nationalPrefix)) {
-        type = PhoneType.PREMIUM;
-      } else if (/^[0-9]{8,10}$/.test(nationalNumber)) {
-        type = PhoneType.MOBILE; // Assume mobile for common length
-      } else {
-        type = PhoneType.UNKNOWN;
-      }
+    // Determine operator for Bangladesh
+    let operator: BDOperator | undefined;
+    if (countryCode === PHONE_CONFIG.BANGLADESH_CC && nationalNumber.length === 10) {
+      const prefix = nationalNumber.substring(0, 2);
+      operator = PHONE_CONFIG.OPERATOR_PREFIXES[prefix as keyof typeof PHONE_CONFIG.OPERATOR_PREFIXES];
     }
     
     return {
@@ -372,18 +398,14 @@ export class Phone extends ValueObject {
    * Normalize phone number to E.164 format
    */
   public static normalizeToE164(phone: string): string | null {
-    const validation = Phone.validate(phone);
-    return validation.isValid ? validation.e164! : null;
+    return formatToE164(phone, 'BD');
   }
 
   /**
    * Check if a phone number is valid Bangladesh mobile
    */
   public static isValidBangladeshMobile(phone: string): boolean {
-    const validation = Phone.validate(phone);
-    return validation.isValid && 
-           validation.countryCode === PHONE_CONFIG.BANGLADESH_CC &&
-           validation.type === PhoneType.MOBILE;
+    return isValidBdMobile(phone);
   }
 
   // ============================================================
@@ -398,7 +420,7 @@ export class Phone extends ValueObject {
   }
 
   /**
-   * Get raw normalized value
+   * Get raw input value
    */
   public getValue(): string {
     return this._value;
@@ -433,6 +455,13 @@ export class Phone extends ValueObject {
   }
 
   /**
+   * Get operator name for display
+   */
+  public getOperatorName(): string {
+    return PHONE_CONFIG.OPERATOR_NAMES[this._operator];
+  }
+
+  /**
    * Get all components as an object
    */
   public getComponents(): PhoneComponents {
@@ -443,7 +472,15 @@ export class Phone extends ValueObject {
       type: this._type,
       operator: this._operator,
       isBangladesh: this.isBangladesh(),
+      isMobile: this.isMobile(),
     };
+  }
+
+  /**
+   * Get shared components (from shared-utils)
+   */
+  public getSharedComponents(): SharedPhoneComponents | null {
+    return this._sharedComponents;
   }
 
   // ============================================================
@@ -534,31 +571,35 @@ export class Phone extends ValueObject {
       return this._e164;
     }
     
-    const local = this._nationalNumber;
-    if (local.length === 10) {
-      return `${local.substring(0, 5)}-${local.substring(5)}`;
+    const national = this._nationalNumber;
+    if (national.length === 10 && this.isMobile()) {
+      return PHONE_CONFIG.LOCAL_FORMAT.MOBILE(national);
+    }
+    if (national.length >= 8) {
+      return PHONE_CONFIG.LOCAL_FORMAT.LANDLINE(national);
     }
     
-    return local;
+    return national;
   }
 
   /**
-   * Get formatted international format
+   * Get formatted international format using shared-utils
    * @example '+8801712345678' -> '+880 1712-345678'
    */
   public getInternationalFormat(): string {
-    if (this.isBangladesh()) {
-      const local = this._nationalNumber;
-      return `+${this._countryCode} ${local.substring(0, 4)}-${local.substring(4)}`;
-    }
-    
-    // For other countries, add space after country code
-    return `+${this._countryCode} ${this._nationalNumber}`;
+    return formatInternational(this._value, 'BD') || this._e164;
+  }
+
+  /**
+   * Get national format using shared-utils
+   * @example '+8801712345678' -> '01712 345678'
+   */
+  public getNationalFormat(): string {
+    return formatNational(this._value, 'BD') || this._nationalNumber;
   }
 
   /**
    * Get compact format (for small spaces)
-   * @example '+8801712345678' -> '+8801712...'
    */
   public getCompactFormat(): string {
     const e164 = this._e164;
@@ -568,15 +609,8 @@ export class Phone extends ValueObject {
     return e164.substring(0, 8) + '...';
   }
 
-  /**
-   * Get operator name (for display)
-   */
-  public getOperatorName(): string {
-    return PHONE_CONFIG.OPERATOR_NAMES[this._operator];
-  }
-
   // ============================================================
-  // Capability Checks
+  // Capability Checks (Domain-specific business rules)
   // ============================================================
 
   /**
@@ -612,6 +646,14 @@ export class Phone extends ValueObject {
    */
   public isViberCapable(): boolean {
     return this.isMobile();
+  }
+
+  /**
+   * Check if MFS (Mobile Financial Service) is available for this number
+   * bKash, Nagad, Rocket require Bangladesh mobile number
+   */
+  public isMFSCapable(): boolean {
+    return this.isBangladesh() && this.isMobile();
   }
 
   // ============================================================
@@ -650,6 +692,15 @@ export class Phone extends ValueObject {
       masked: this.mask(),
       localFormat: this.getLocalFormat(),
       internationalFormat: this.getInternationalFormat(),
+      nationalFormat: this.getNationalFormat(),
+      capabilities: {
+        sms: this.canReceiveSMS(),
+        voice: this.canReceiveVoice(),
+        whatsapp: this.isWhatsAppCapable(),
+        imo: this.isImoCapable(),
+        viber: this.isViberCapable(),
+        mfs: this.isMFSCapable(),
+      },
     };
   }
 
@@ -691,7 +742,7 @@ export function formatPhoneForSMS(phone: Phone): string {
 }
 
 /**
- * Extract operator from Bangladesh phone number
+ * Detect operator from Bangladesh phone number
  */
 export function detectBangladeshOperator(phoneNumber: string): BDOperator {
   const phone = Phone.tryCreate(phoneNumber);
