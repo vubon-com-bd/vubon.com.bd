@@ -1,12 +1,24 @@
 /**
- * Social Account Repository Interface - Pure Domain Contract
+ * Social Account Repository Interface - Pure Domain Contract (Enterprise Enhanced v2.0)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+
  * @module domain/repositories/social-account.repository.interface
- * 
+
  * @description
  * Repository interface for SocialAccount entity persistence.
  * Manages social account linking for OAuth authentication.
+ * 
+ * ENTERPRISE ENHANCEMENTS (v2.0):
+ * ✅ Token expiry tracking with expiry notifications
+ * ✅ Provider-specific rate limiting
+ * ✅ Batch refresh token operations
+ * ✅ Account conflict resolution strategies
+ * ✅ Provider health scoring (reliability tracking)
+ * ✅ Cross-device sync tracking
+ * ✅ Geo-location based provider recommendations
+ * ✅ Provider deprecation lifecycle management
+ * ✅ Webhook delivery tracking for OAuth events
+ * ✅ Consent refresh reminders (GDPR compliance)
  * 
  * Enterprise Rules:
  * ✅ ONLY interface definitions - NO implementation
@@ -51,6 +63,14 @@ export interface ProviderStatistics {
   linkingTrendLast7Days: number;
   unlinkingTrendLast7Days: number;
   verificationRate: number;
+  /** ✅ Enterprise: Provider health score (0-100) */
+  healthScore: number;
+  /** ✅ Enterprise: Average response time (ms) */
+  averageResponseTimeMs: number;
+  /** ✅ Enterprise: Error rate (0-100) */
+  errorRate: number;
+  /** ✅ Enterprise: Last outage detected */
+  lastOutageAt?: Date;
 }
 
 /**
@@ -89,6 +109,10 @@ export interface BulkUnlinkResult {
   errors: Array<{ id: string; error: string }>;
   unlinkedAccountIds: string[];
   affectedUserIds: string[];
+  /** ✅ Enterprise: Duration in milliseconds */
+  durationMs: number;
+  /** ✅ Enterprise: Notifications sent */
+  notificationsSent: boolean;
 }
 
 /**
@@ -106,6 +130,12 @@ export interface SocialAccountFilters {
   fromDate?: Date;
   toDate?: Date;
   district?: string;
+  /** ✅ Enterprise: Filter by token expiry */
+  tokenExpiringWithinDays?: number;
+  /** ✅ Enterprise: Filter by token expired */
+  tokenExpired?: boolean;
+  /** ✅ Enterprise: Filter by needs consent refresh */
+  needsConsentRefresh?: boolean;
 }
 
 /**
@@ -117,6 +147,10 @@ export interface SocialAccountMergeResult {
   secondaryUserId: string;
   conflicts: Array<{ field: string; primaryValue: string; secondaryValue: string }>;
   resolvedAt: Date;
+  /** ✅ Enterprise: Resolution strategy used */
+  resolutionStrategy: 'keep_primary' | 'keep_secondary' | 'merge_fields' | 'admin_review';
+  /** ✅ Enterprise: User notified */
+  userNotified: boolean;
 }
 
 /**
@@ -135,10 +169,133 @@ export interface SocialAnomalyDetectionResult {
   detectedAt: Date;
 }
 
+/**
+ * ✅ Enterprise: Token expiry notification result
+ */
+export interface TokenExpiryNotificationResult {
+  accountId: string;
+  userId: string;
+  provider: SocialProvider;
+  daysUntilExpiry: number;
+  notificationSent: boolean;
+  sentAt: Date;
+  channel: 'email' | 'push' | 'whatsapp';
+  acknowledged: boolean;
+}
+
+/**
+ * ✅ Enterprise: Provider health status
+ */
+export interface ProviderHealthStatus {
+  provider: SocialProvider;
+  healthScore: number;  // 0-100
+  status: 'healthy' | 'degraded' | 'unhealthy' | 'outage';
+  lastSuccessAt: Date;
+  lastFailureAt?: Date;
+  consecutiveFailures: number;
+  averageLatencyMs: number;
+  uptimePercentage: number;
+  recommendations: string[];
+}
+
+/**
+ * ✅ Enterprise: Account conflict resolution options
+ */
+export interface AccountConflictResolution {
+  accountId: string;
+  userId: string;
+  provider: SocialProvider;
+  conflictType: 'duplicate_email' | 'duplicate_phone' | 'duplicate_provider_id';
+  resolvedBy: 'auto' | 'admin' | 'user';
+  resolutionAction: 'merge' | 'keep_both' | 'keep_primary' | 'unlink_secondary';
+  resolvedAt: Date;
+  resolvedByUserId?: string;
+  notes?: string;
+}
+
+/**
+ * ✅ Enterprise: Consent refresh reminder
+ */
+export interface ConsentRefreshReminder {
+  accountId: string;
+  userId: string;
+  provider: SocialProvider;
+  lastConsentAt: Date;
+  expiresAt: Date;
+  daysUntilExpiry: number;
+  reminderSentAt?: Date;
+  reminderCount: number;
+  status: 'pending' | 'sent' | 'acknowledged' | 'expired' | 'refreshed';
+}
+
+/**
+ * ✅ Enterprise: Provider deprecation plan
+ */
+export interface ProviderDeprecationPlan {
+  provider: SocialProvider;
+  deprecationDate: Date;
+  sunsetDate: Date;
+  alternativeProviders: SocialProvider[];
+  migrationRequired: boolean;
+  affectedUserCount: number;
+  notificationSent: boolean;
+  migrationStatus: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+}
+
+/**
+ * ✅ Enterprise: OAuth webhook delivery record
+ */
+export interface OAuthWebhookDelivery {
+  id: string;
+  provider: SocialProvider;
+  eventType: 'link' | 'unlink' | 'token_refresh' | 'consent_revoked' | 'account_deleted';
+  userId: string;
+  payload: Record<string, unknown>;
+  deliveredAt: Date;
+  success: boolean;
+  statusCode?: number;
+  retryCount: number;
+  errorMessage?: string;
+}
+
+/**
+ * ✅ Enterprise: Cross-device sync request
+ */
+export interface SocialAccountSyncRequest {
+  requestId: string;
+  sourceUserId: string;
+  targetUserId: string;
+  sourceProvider: SocialProvider;
+  targetProvider: SocialProvider;
+  status: 'pending' | 'approved' | 'rejected' | 'completed' | 'failed';
+  requestedAt: Date;
+  expiresAt: Date;
+  approvedBy?: string;
+  approvedAt?: Date;
+  syncData?: {
+    accounts: string[];
+    preferences: boolean;
+    settings: boolean;
+  };
+}
+
+/**
+ * ✅ Enterprise: Geo-location based recommendation
+ */
+export interface GeoLocationRecommendation {
+  district: string;
+  division: string;
+  recommendedProvider: SocialProvider;
+  alternativeProviders: SocialProvider[];
+  reason: string;
+  confidenceScore: number;  // 0-100
+  localPopularityRank: number;
+}
+
 // ==================== Repository Interface ====================
 
 /**
- * Social Account Repository Interface
+ * Social Account Repository Interface (Enterprise Enhanced)
  * 
  * Manages social account linking and provider integration
  */
@@ -281,6 +438,55 @@ export interface SocialAccountRepository extends BaseRepository<SocialAccount> {
    * @returns Array of social accounts
    */
   findByPhone(phone: Phone): Promise<SocialAccount[]>;
+  
+  // ========== ✅ Enterprise: Token Expiry Operations ==========
+  
+  /**
+   * Find accounts with expiring tokens
+   * @param daysThreshold - Days before expiry to consider "expiring soon"
+   * @param options - Pagination options
+   * @returns Paginated accounts with expiring tokens
+   */
+  findAccountsWithExpiringTokens(
+    daysThreshold: number,
+    options?: PaginationOptions
+  ): Promise<PaginatedResult<SocialAccount>>;
+  
+  /**
+   * Find accounts with expired tokens
+   * @param options - Pagination options
+   * @returns Paginated accounts with expired tokens
+   */
+  findAccountsWithExpiredTokens(options?: PaginationOptions): Promise<PaginatedResult<SocialAccount>>;
+  
+  /**
+   * Send token expiry notifications
+   * @param accounts - Accounts to notify
+   * @returns Notification results
+   */
+  sendTokenExpiryNotifications(
+    accounts: SocialAccount[]
+  ): Promise<TokenExpiryNotificationResult[]>;
+  
+  /**
+   * Record token refresh attempt
+   * @param accountId - Account ID
+   * @param success - Whether refresh succeeded
+   * @param newExpiryDate - New expiry date (if success)
+   * @returns Updated account
+   */
+  recordTokenRefresh(
+    accountId: string,
+    success: boolean,
+    newExpiryDate?: Date
+  ): Promise<SocialAccount>;
+  
+  /**
+   * Batch refresh tokens for accounts
+   * @param accountIds - Array of account IDs
+   * @returns Refresh results
+   */
+  batchRefreshTokens(accountIds: string[]): Promise<Map<string, { success: boolean; newExpiryDate?: Date; error?: string }>>;
   
   // ========== Status Check Operations ==========
   
@@ -470,9 +676,14 @@ export interface SocialAccountRepository extends BaseRepository<SocialAccount> {
    * Merge social accounts (when users have duplicate provider accounts)
    * @param primaryUserId - Primary user ID
    * @param secondaryUserId - Secondary user ID to merge from
+   * @param resolutionStrategy - Strategy for resolving conflicts
    * @returns Number of merged accounts
    */
-  mergeSocialAccounts(primaryUserId: string, secondaryUserId: string): Promise<SocialAccountMergeResult>;
+  mergeSocialAccounts(
+    primaryUserId: string, 
+    secondaryUserId: string,
+    resolutionStrategy?: 'keep_primary' | 'keep_secondary' | 'merge_fields' | 'admin_review'
+  ): Promise<SocialAccountMergeResult>;
   
   // ========== Anomaly Detection ==========
   
@@ -504,6 +715,286 @@ export interface SocialAccountRepository extends BaseRepository<SocialAccount> {
     preferredProvider: SocialProvider;
   }>;
   
+  // ========== ✅ Enterprise: Provider Health Management ==========
+  
+  /**
+   * Get provider health status
+   * @param provider - Social provider
+   * @returns Provider health status
+   */
+  getProviderHealth(provider: SocialProvider): Promise<ProviderHealthStatus>;
+  
+  /**
+   * Record provider operation result (for health scoring)
+   * @param provider - Social provider
+   * @param success - Whether operation succeeded
+   * @param latencyMs - Operation latency in milliseconds
+   * @returns Updated health status
+   */
+  recordProviderOperation(
+    provider: SocialProvider,
+    success: boolean,
+    latencyMs: number
+  ): Promise<ProviderHealthStatus>;
+  
+  /**
+   * Get all provider health statuses
+   * @returns Map of provider to health status
+   */
+  getAllProviderHealth(): Promise<Map<SocialProvider, ProviderHealthStatus>>;
+  
+  /**
+   * Get recommended providers based on health and user context
+   * @param userId - User ID (for personalization)
+   * @param geoLocation - Optional geographic location
+   * @returns Array of recommended providers with scores
+   */
+  getRecommendedProviders(
+    userId?: string,
+    geoLocation?: { district: string; division: string }
+  ): Promise<Array<{ provider: SocialProvider; score: number; reason: string }>>;
+  
+  // ========== ✅ Enterprise: Consent Management ==========
+  
+  /**
+   * Get accounts needing consent refresh
+   * @param daysThreshold - Days before expiry to consider
+   * @returns Array of consent refresh reminders
+   */
+  getAccountsNeedingConsentRefresh(daysThreshold: number): Promise<ConsentRefreshReminder[]>;
+  
+  /**
+   * Send consent refresh reminders
+   * @param reminders - Reminders to send
+   * @returns Updated reminders with sent status
+   */
+  sendConsentRefreshReminders(reminders: ConsentRefreshReminder[]): Promise<ConsentRefreshReminder[]>;
+  
+  /**
+   * Record consent refresh
+   * @param accountId - Account ID
+   * @returns Updated account
+   */
+  recordConsentRefresh(accountId: string): Promise<SocialAccount>;
+  
+  /**
+   * Acknowledge consent reminder
+   * @param reminderId - Reminder ID
+   * @param acknowledgedBy - User ID
+   * @returns Updated reminder
+   */
+  acknowledgeConsentReminder(reminderId: string, acknowledgedBy: string): Promise<ConsentRefreshReminder>;
+  
+  // ========== ✅ Enterprise: Provider Deprecation Management ==========
+  
+  /**
+   * Create provider deprecation plan
+   * @param plan - Deprecation plan
+   * @returns Created plan
+   */
+  createDeprecationPlan(plan: Omit<ProviderDeprecationPlan, 'affectedUserCount' | 'notificationSent' | 'migrationStatus'>): Promise<ProviderDeprecationPlan>;
+  
+  /**
+   * Get active deprecation plans
+   * @returns Array of active deprecation plans
+   */
+  getActiveDeprecationPlans(): Promise<ProviderDeprecationPlan[]>;
+  
+  /**
+   * Get users affected by deprecation
+   * @param provider - Social provider being deprecated
+   * @param options - Pagination options
+   * @returns Paginated affected users
+   */
+  getUsersAffectedByDeprecation(
+    provider: SocialProvider,
+    options?: PaginationOptions
+  ): Promise<PaginatedResult<{ userId: string; email: string; phone?: string }>>;
+  
+  /**
+   * Migrate users from deprecated provider
+   * @param fromProvider - Deprecated provider
+   * @param toProvider - Target provider
+   * @param options - Migration options
+   * @returns Migration result
+   */
+  migrateUsersFromDeprecatedProvider(
+    fromProvider: SocialProvider,
+    toProvider: SocialProvider,
+    options?: { batchSize?: number; dryRun?: boolean }
+  ): Promise<{ migratedCount: number; failedCount: number; errors: Array<{ userId: string; error: string }> }>;
+  
+  // ========== ✅ Enterprise: Webhook Delivery Management ==========
+  
+  /**
+   * Record OAuth webhook delivery
+   * @param delivery - Webhook delivery record
+   * @returns Created record ID
+   */
+  recordWebhookDelivery(delivery: Omit<OAuthWebhookDelivery, 'id'>): Promise<string>;
+  
+  /**
+   * Get failed webhook deliveries for retry
+   * @param maxRetries - Maximum retry count
+   * @returns Failed deliveries
+   */
+  getFailedWebhookDeliveries(maxRetries: number): Promise<OAuthWebhookDelivery[]>;
+  
+  /**
+   * Retry failed webhook delivery
+   * @param deliveryId - Delivery ID
+   * @returns Updated delivery record
+   */
+  retryWebhookDelivery(deliveryId: string): Promise<OAuthWebhookDelivery>;
+  
+  /**
+   * Get webhook delivery statistics
+   * @param provider - Optional provider filter
+   * @returns Delivery statistics
+   */
+  getWebhookDeliveryStats(provider?: SocialProvider): Promise<{
+    totalDeliveries: number;
+    successRate: number;
+    averageLatencyMs: number;
+    failuresByReason: Record<string, number>;
+  }>;
+  
+  // ========== ✅ Enterprise: Cross-Device Sync ==========
+  
+  /**
+   * Create cross-device sync request
+   * @param sourceUserId - Source user ID
+   * @param targetUserId - Target user ID
+   * @param sourceProvider - Source provider
+   * @param targetProvider - Target provider
+   * @param syncData - Data to sync
+   * @returns Sync request ID
+   */
+  createCrossDeviceSyncRequest(
+    sourceUserId: string,
+    targetUserId: string,
+    sourceProvider: SocialProvider,
+    targetProvider: SocialProvider,
+    syncData: SocialAccountSyncRequest['syncData']
+  ): Promise<string>;
+  
+  /**
+   * Get pending sync requests for user
+   * @param userId - User ID
+   * @returns Pending sync requests
+   */
+  getPendingSyncRequests(userId: string): Promise<SocialAccountSyncRequest[]>;
+  
+  /**
+   * Approve cross-device sync request
+   * @param requestId - Request ID
+   * @param approvedBy - User ID approving the request
+   * @returns Updated request
+   */
+  approveSyncRequest(requestId: string, approvedBy: string): Promise<SocialAccountSyncRequest>;
+  
+  /**
+   * Reject cross-device sync request
+   * @param requestId - Request ID
+   * @param rejectedBy - User ID rejecting the request
+   * @param reason - Rejection reason
+   * @returns Updated request
+   */
+  rejectSyncRequest(requestId: string, rejectedBy: string, reason: string): Promise<SocialAccountSyncRequest>;
+  
+  /**
+   * Complete sync request (transfer data)
+   * @param requestId - Request ID
+   * @returns Completion result
+   */
+  completeSyncRequest(requestId: string): Promise<{ success: boolean; syncedAccounts: number; errors?: string[] }>;
+  
+  // ========== ✅ Enterprise: Geo-Location Recommendations ==========
+  
+  /**
+   * Get geo-location based provider recommendations
+   * @param district - Bangladesh district
+   * @param division - Bangladesh division (optional)
+   * @returns Provider recommendations
+   */
+  getGeoLocationRecommendations(
+    district: string,
+    division?: string
+  ): Promise<GeoLocationRecommendation>;
+  
+  /**
+   * Update geo-location popularity data
+   * @param district - District name
+   * @param providerUsage - Provider usage counts
+   * @returns Updated recommendations
+   */
+  updateGeoLocationPopularity(
+    district: string,
+    providerUsage: Record<SocialProvider, number>
+  ): Promise<GeoLocationRecommendation>;
+  
+  /**
+   * Get popular providers by district
+   * @param limit - Number of districts to return
+   * @returns Top providers by district
+   */
+  getPopularProvidersByDistrict(limit?: number): Promise<Array<{ district: string; topProvider: SocialProvider; adoptionRate: number }>>;
+  
+  // ========== ✅ Enterprise: Conflict Resolution ==========
+  
+  /**
+   * Find account conflicts
+   * @param userId - User ID to check
+   * @returns Array of conflicts
+   */
+  findAccountConflicts(userId: string): Promise<AccountConflictResolution[]>;
+  
+  /**
+   * Resolve account conflict
+   * @param conflict - Conflict resolution details
+   * @returns Resolved conflict
+   */
+  resolveAccountConflict(conflict: Omit<AccountConflictResolution, 'resolvedAt'>): Promise<AccountConflictResolution>;
+  
+  /**
+   * Auto-resolve conflicts based on rules
+   * @param userId - User ID
+   * @param autoResolveRules - Rules for auto-resolution
+   * @returns Number of resolved conflicts
+   */
+  autoResolveConflicts(
+    userId: string,
+    autoResolveRules?: { preferVerified: boolean; preferPrimary: boolean; keepNewest: boolean }
+  ): Promise<number>;
+  
+  // ========== ✅ Enterprise: Rate Limiting ==========
+  
+  /**
+   * Check rate limit for provider operation
+   * @param userId - User ID
+   * @param provider - Social provider
+   * @param operationType - Type of operation
+   * @returns Rate limit status
+   */
+  checkProviderRateLimit(
+    userId: string,
+    provider: SocialProvider,
+    operationType: 'link' | 'unlink' | 'refresh' | 'sync'
+  ): Promise<{ allowed: boolean; remaining: number; resetAt: Date; retryAfterSeconds?: number }>;
+  
+  /**
+   * Increment rate limit counter for provider
+   * @param userId - User ID
+   * @param provider - Social provider
+   * @param operationType - Type of operation
+   * @returns Updated count
+   */
+  incrementProviderRateLimit(
+    userId: string,
+    provider: SocialProvider,
+    operationType: 'link' | 'unlink' | 'refresh' | 'sync'
+  ): Promise<number>;
+  
   // ========== Audit Operations ==========
   
   /**
@@ -528,10 +1019,27 @@ export interface SocialAccountRepository extends BaseRepository<SocialAccount> {
   getLinkingHistory(userId: string, limit?: number): Promise<Array<{
     id: string;
     provider: SocialProvider;
-    action: 'linked' | 'unlinked' | 'suspended' | 'reactivated';
+    action: 'linked' | 'unlinked' | 'suspended' | 'reactivated' | 'token_refreshed' | 'consent_refreshed';
     timestamp: Date;
     reason?: string;
+    metadata?: Record<string, unknown>;
   }>>;
+  
+  // ========== Batch Operations ==========
+  
+  /**
+   * Batch update account statuses
+   * @param updates - Map of account IDs to status
+   * @returns Number of updated accounts
+   */
+  batchUpdateStatus(updates: Map<string, SocialAccountStatus>): Promise<number>;
+  
+  /**
+   * Batch update last sync timestamps
+   * @param accountIds - Array of account IDs
+   * @returns Number of updated accounts
+   */
+  batchUpdateLastSync(accountIds: string[]): Promise<number>;
 }
 
 // ============================================================
@@ -545,5 +1053,43 @@ export type {
   BulkUnlinkResult,
   SocialAccountFilters,
   SocialAccountMergeResult,
-  SocialAnomalyDetectionResult
+  SocialAnomalyDetectionResult,
+  // ✅ Enterprise: New type exports
+  TokenExpiryNotificationResult,
+  ProviderHealthStatus,
+  AccountConflictResolution,
+  ConsentRefreshReminder,
+  ProviderDeprecationPlan,
+  OAuthWebhookDelivery,
+  SocialAccountSyncRequest,
+  GeoLocationRecommendation,
 };
+
+// ============================================================
+// ENTERPRISE SUMMARY v2.0
+// ============================================================
+// 
+// Enterprise Enhancements Applied:
+// 1. ✅ Token expiry tracking with expiry notifications
+// 2. ✅ Provider-specific rate limiting
+// 3. ✅ Batch refresh token operations
+// 4. ✅ Account conflict resolution strategies
+// 5. ✅ Provider health scoring (reliability tracking)
+// 6. ✅ Cross-device sync tracking
+// 7. ✅ Geo-location based provider recommendations
+// 8. ✅ Provider deprecation lifecycle management
+// 9. ✅ Webhook delivery tracking for OAuth events
+// 10. ✅ Consent refresh reminders (GDPR compliance)
+// 11. ✅ Provider health status monitoring
+// 12. ✅ Auto-resolution of account conflicts
+// 13. ✅ Geo-location popularity tracking
+// 14. ✅ Performance metrics (latency, error rate)
+// 15. ✅ Migration support for deprecated providers
+// 
+// Bangladesh Specific:
+// - District and division-based provider recommendations
+// - Phone-based provider support (WhatsApp, Imo, bKash, Nagad, Rocket)
+// - Local popularity tracking for BD providers
+// - Geo-location based recommendations for BD districts
+// 
+// ============================================================
