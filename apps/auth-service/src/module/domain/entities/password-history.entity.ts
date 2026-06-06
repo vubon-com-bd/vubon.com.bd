@@ -1,5 +1,5 @@
 /**
- * Password History Entity - Pure Domain Core
+ * Password History Entity - Pure Domain Core (Enterprise Enhanced)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module domain/entities/password-history.entity
@@ -8,25 +8,38 @@
  * Represents a historical record of password changes for a user.
  * Used for password reuse prevention, security auditing, and password expiry policies.
  * 
- * Enterprise Rules:
+ * Enterprise Rules (Applied):
+ * ✅ Shared constants from @vubon/shared-constants
  * ✅ Immutable - History entries never change after creation
  * ✅ Self-validating - Validates password history rules
  * ✅ Framework-free - No external dependencies
  * ✅ Audit ready - Tracks when and how password was changed
  * ✅ Bangladesh specific - Compliance with Bangladesh Bank security guidelines
+ * ✅ Password expiry warning threshold
+ * ✅ Multi-reason change tracking
+ * 
+ * Enterprise Enhancements (v2.0):
+ * 1. PASSWORD_HISTORY_CONFIG moved to shared-constants
+ * 2. Password expiry warning threshold (7 days before expiry)
+ * 3. Multi-reason password change tracking
+ * 4. Enhanced breach detection with severity levels
+ * 5. Password age categorization (new/recent/old/expired)
+ * 6. Compliance reporting support
  * 
  * @example
  * const history = PasswordHistory.create(
  *   'user_123',
  *   'hashed_password_value',
  *   PasswordChangeContext.USER,
- *   '192.168.1.100',
- *   'Mozilla/5.0...',
- *   'device_456'
+ *   { ipAddress: '192.168.1.100', userAgent: 'Mozilla/5.0...', deviceId: 'device_456' },
+ *   idGenerator
  * );
  */
 
 import { BaseEntity, EntityValidationError, type IdGenerator } from './base.entity';
+
+// ✅ ENTERPRISE ENHANCEMENT: Import from shared-constants (Single Source of Truth)
+import { PASSWORD_HISTORY_CONFIG } from '@vubon/shared-constants';
 
 // ==================== Enums ====================
 
@@ -50,6 +63,29 @@ export enum PasswordHistoryEventType {
   PASSWORD_CHANGED = 'password.changed',
   PASSWORD_EXPIRED = 'password.expired',
   PASSWORD_BREACH_DETECTED = 'password.breach_detected',
+  PASSWORD_EXPIRY_WARNING = 'password.expiry_warning',  // ✅ Enterprise: Warning event
+  PASSWORD_REUSE_ATTEMPT = 'password.reuse_attempt',    // ✅ Enterprise: Reuse attempt tracking
+}
+
+/**
+ * ✅ Enterprise: Breach severity levels
+ */
+export enum BreachSeverity {
+  CRITICAL = 'CRITICAL',    // Password found in active breach
+  HIGH = 'HIGH',            // Password found in recent breach
+  MEDIUM = 'MEDIUM',        // Password found in older breach
+  LOW = 'LOW',              // Potential breach
+}
+
+/**
+ * ✅ Enterprise: Password age category
+ */
+export enum PasswordAgeCategory {
+  NEW = 'NEW',              // Less than 7 days old
+  RECENT = 'RECENT',        // 7-30 days old
+  MODERATE = 'MODERATE',    // 30-60 days old
+  OLD = 'OLD',              // 60-90 days old
+  EXPIRING = 'EXPIRING',    // 90+ days old (expired or about to expire)
 }
 
 // ==================== Types ====================
@@ -66,28 +102,35 @@ export interface PasswordChangeMetadata {
   adminName?: string;
   reason?: string;
   breachSource?: string;      // If changed due to breach
+  breachSeverity?: BreachSeverity;  // ✅ Enterprise: Breach severity level
   previousHash?: string;       // For audit trail
+  multipleReasons?: PasswordChangeContext[];  // ✅ Enterprise: Multi-reason tracking
 }
 
 /**
- * Password history configuration
+ * Password history configuration (from shared-constants)
  */
-export interface PasswordHistoryConfig {
-  maxHistoryCount: number;
-  passwordExpiryDays: number;
-  preventReuseCount: number;
-}
-
-// ==================== Constants ====================
+export type PasswordHistoryConfigType = typeof PASSWORD_HISTORY_CONFIG;
 
 /**
- * Password history configuration constants
+ * ✅ Enterprise: Password expiry warning result
  */
-export const PASSWORD_HISTORY_CONFIG = {
-  MAX_HISTORY_COUNT: 10,      // Keep last 10 passwords
-  PREVENT_REUSE_COUNT: 5,     // Cannot reuse last 5 passwords
-  PASSWORD_EXPIRY_DAYS: 90,   // Bangladesh Bank recommends 90 days
-} as const;
+export interface ExpiryWarningResult {
+  needsWarning: boolean;
+  daysUntilExpiry: number;
+  warningThresholdDays: number;
+  severity: 'info' | 'warning' | 'critical';
+}
+
+// ==================== Constants from Shared Config ====================
+
+// ✅ ENTERPRISE ENHANCEMENT: Use from shared-constants
+const {
+  MAX_HISTORY_COUNT,
+  PREVENT_REUSE_COUNT,
+  PASSWORD_EXPIRY_DAYS,
+  EXPIRY_WARNING_DAYS,
+} = PASSWORD_HISTORY_CONFIG;
 
 // ==================== Password History Entity ====================
 
@@ -95,6 +138,7 @@ export const PASSWORD_HISTORY_CONFIG = {
  * Password History Entity
  * 
  * Tracks password changes for security and compliance
+ * ✅ Enterprise Enhanced: Warning thresholds, multi-reason tracking, breach severity
  */
 export class PasswordHistory extends BaseEntity {
   private readonly _userId: string;
@@ -110,6 +154,10 @@ export class PasswordHistory extends BaseEntity {
   private readonly _reason?: string;
   private readonly _breachSource?: string;
   private readonly _previousHash?: string;
+  
+  // ✅ Enterprise: New fields
+  private readonly _breachSeverity?: BreachSeverity;
+  private readonly _multipleReasons?: PasswordChangeContext[];
 
   private constructor(
     id: string,
@@ -137,6 +185,8 @@ export class PasswordHistory extends BaseEntity {
     this._reason = metadata.reason;
     this._breachSource = metadata.breachSource;
     this._previousHash = metadata.previousHash;
+    this._breachSeverity = metadata.breachSeverity;
+    this._multipleReasons = metadata.multipleReasons;
     
     this.validate();
   }
@@ -160,6 +210,12 @@ export class PasswordHistory extends BaseEntity {
     if (this._changedAt > new Date()) {
       throw new EntityValidationError('Change timestamp cannot be in the future');
     }
+    
+    // ✅ Enterprise: Validate breach severity if present
+    if (this._breachSource && !this._breachSeverity) {
+      // Default to HIGH if not specified
+      (this as any)._breachSeverity = BreachSeverity.HIGH;
+    }
   }
 
   // ============================================================
@@ -168,6 +224,7 @@ export class PasswordHistory extends BaseEntity {
 
   /**
    * Create a new password history entry
+   * ✅ Enterprise: Enhanced with metadata validation
    */
   public static create(
     userId: string,
@@ -178,6 +235,11 @@ export class PasswordHistory extends BaseEntity {
   ): PasswordHistory {
     const now = new Date();
     const id = idGenerator?.generate() || generateSimpleId();
+    
+    // ✅ Enterprise: Validate breach severity if breach source is provided
+    if (metadata.breachSource && !metadata.breachSeverity) {
+      metadata.breachSeverity = BreachSeverity.HIGH;
+    }
     
     const history = new PasswordHistory(
       id,
@@ -191,18 +253,31 @@ export class PasswordHistory extends BaseEntity {
       1
     );
     
+    const eventMetadata: Record<string, unknown> = {
+      userId,
+      changedBy,
+      reason: metadata.reason,
+      adminId: metadata.adminId,
+    };
+    
+    // ✅ Enterprise: Add breach severity to event if applicable
+    if (metadata.breachSeverity) {
+      eventMetadata.breachSeverity = metadata.breachSeverity;
+      eventMetadata.breachSource = metadata.breachSource;
+    }
+    
+    // ✅ Enterprise: Add multiple reasons to event if applicable
+    if (metadata.multipleReasons && metadata.multipleReasons.length > 0) {
+      eventMetadata.multipleReasons = metadata.multipleReasons;
+    }
+    
     history.addDomainEvent({
       eventId: generateEventId(),
       eventType: PasswordHistoryEventType.PASSWORD_CHANGED,
       aggregateId: history.id,
       occurredOn: now,
       version: 1,
-      metadata: {
-        userId,
-        changedBy,
-        reason: metadata.reason,
-        adminId: metadata.adminId,
-      },
+      metadata: eventMetadata,
     });
     
     return history;
@@ -210,11 +285,13 @@ export class PasswordHistory extends BaseEntity {
 
   /**
    * Create a password history entry for a breach detection
+   * ✅ Enterprise: Enhanced with severity levels
    */
   public static createForBreach(
     userId: string,
     passwordHash: string,
     breachSource: string,
+    severity: BreachSeverity = BreachSeverity.HIGH,
     reason?: string,
     idGenerator?: IdGenerator
   ): PasswordHistory {
@@ -224,7 +301,8 @@ export class PasswordHistory extends BaseEntity {
       PasswordChangeContext.BREACH,
       {
         breachSource,
-        reason: reason || `Password compromised in ${breachSource} breach`,
+        breachSeverity: severity,
+        reason: reason || `Password compromised in ${breachSource} breach (Severity: ${severity})`,
       },
       idGenerator
     );
@@ -250,6 +328,70 @@ export class PasswordHistory extends BaseEntity {
   }
 
   /**
+   * ✅ Enterprise: Create with multiple reasons
+   */
+  public static createWithMultipleReasons(
+    userId: string,
+    passwordHash: string,
+    reasons: PasswordChangeContext[],
+    metadata: PasswordChangeMetadata = {},
+    idGenerator?: IdGenerator
+  ): PasswordHistory {
+    if (!reasons || reasons.length === 0) {
+      throw new EntityValidationError('At least one reason is required for multi-reason change');
+    }
+    
+    const primaryReason = reasons[0]!;
+    const reasonString = `${reasons.join(', ')}${metadata.reason ? `: ${metadata.reason}` : ''}`;
+    
+    return PasswordHistory.create(
+      userId,
+      passwordHash,
+      primaryReason,
+      {
+        ...metadata,
+        reason: reasonString,
+        multipleReasons: reasons,
+      },
+      idGenerator
+    );
+  }
+
+  /**
+   * ✅ Enterprise: Create for reuse attempt detection
+   */
+  public static createForReuseAttempt(
+    userId: string,
+    passwordHash: string,
+    attemptedContext: PasswordChangeContext,
+    idGenerator?: IdGenerator
+  ): PasswordHistory {
+    const history = PasswordHistory.create(
+      userId,
+      passwordHash,
+      attemptedContext,
+      {
+        reason: 'Password reuse attempt detected and blocked',
+      },
+      idGenerator
+    );
+    
+    history.addDomainEvent({
+      eventId: generateEventId(),
+      eventType: PasswordHistoryEventType.PASSWORD_REUSE_ATTEMPT,
+      aggregateId: history.id,
+      occurredOn: new Date(),
+      version: history.version,
+      metadata: {
+        userId,
+        attemptedContext,
+      },
+    });
+    
+    return history;
+  }
+
+  /**
    * Reconstitute from persistence
    */
   public static reconstitute(data: {
@@ -267,6 +409,8 @@ export class PasswordHistory extends BaseEntity {
     reason?: string;
     breachSource?: string;
     previousHash?: string;
+    breachSeverity?: BreachSeverity;
+    multipleReasons?: PasswordChangeContext[];
     createdAt: Date;
     updatedAt: Date;
     version: number;
@@ -287,6 +431,8 @@ export class PasswordHistory extends BaseEntity {
         reason: data.reason,
         breachSource: data.breachSource,
         previousHash: data.previousHash,
+        breachSeverity: data.breachSeverity,
+        multipleReasons: data.multipleReasons,
       },
       data.createdAt,
       data.updatedAt,
@@ -311,6 +457,12 @@ export class PasswordHistory extends BaseEntity {
   public getReason(): string | undefined { return this._reason; }
   public getBreachSource(): string | undefined { return this._breachSource; }
   public getPreviousHash(): string | undefined { return this._previousHash; }
+  
+  // ✅ Enterprise: New getters
+  public getBreachSeverity(): BreachSeverity | undefined { return this._breachSeverity; }
+  public getMultipleReasons(): readonly PasswordChangeContext[] | undefined { 
+    return this._multipleReasons ? [...this._multipleReasons] : undefined; 
+  }
 
   // ============================================================
   // Query Methods
@@ -377,8 +529,80 @@ export class PasswordHistory extends BaseEntity {
   /**
    * Check if password is expired by policy
    */
-  public isExpired(expiryDays: number = PASSWORD_HISTORY_CONFIG.PASSWORD_EXPIRY_DAYS): boolean {
+  public isExpired(expiryDays: number = PASSWORD_EXPIRY_DAYS): boolean {
     return this.getAgeInDays() >= expiryDays;
+  }
+
+  /**
+   * ✅ Enterprise: Check if password needs expiry warning
+   */
+  public needsExpiryWarning(warningDays: number = EXPIRY_WARNING_DAYS): ExpiryWarningResult {
+    const daysUntilExpiry = PASSWORD_EXPIRY_DAYS - this.getAgeInDays();
+    const needsWarning = daysUntilExpiry <= warningDays && daysUntilExpiry > 0;
+    
+    let severity: 'info' | 'warning' | 'critical' = 'info';
+    if (daysUntilExpiry <= 3 && daysUntilExpiry > 0) {
+      severity = 'critical';
+    } else if (daysUntilExpiry <= 7 && daysUntilExpiry > 0) {
+      severity = 'warning';
+    } else if (daysUntilExpiry <= warningDays && daysUntilExpiry > 0) {
+      severity = 'info';
+    }
+    
+    return {
+      needsWarning,
+      daysUntilExpiry: Math.max(0, daysUntilExpiry),
+      warningThresholdDays: warningDays,
+      severity,
+    };
+  }
+
+  /**
+   * ✅ Enterprise: Get password age category
+   */
+  public getAgeCategory(): PasswordAgeCategory {
+    const ageInDays = this.getAgeInDays();
+    
+    if (ageInDays < 7) return PasswordAgeCategory.NEW;
+    if (ageInDays < 30) return PasswordAgeCategory.RECENT;
+    if (ageInDays < 60) return PasswordAgeCategory.MODERATE;
+    if (ageInDays < PASSWORD_EXPIRY_DAYS) return PasswordAgeCategory.OLD;
+    return PasswordAgeCategory.EXPIRING;
+  }
+
+  /**
+   * ✅ Enterprise: Check if this was a breach with critical severity
+   */
+  public isCriticalBreach(): boolean {
+    return this.isBreachChange() && this._breachSeverity === BreachSeverity.CRITICAL;
+  }
+
+  /**
+   * ✅ Enterprise: Check if password change had multiple reasons
+   */
+  public hasMultipleReasons(): boolean {
+    return !!(this._multipleReasons && this._multipleReasons.length > 1);
+  }
+
+  // ============================================================
+  // Compliance & Reporting
+  // ============================================================
+
+  /**
+   * ✅ Enterprise: Get compliance report data
+   */
+  public getComplianceData(): Record<string, unknown> {
+    return {
+      userId: this._userId,
+      changedAt: this._changedAt.toISOString(),
+      changedBy: this._changedBy,
+      ageInDays: this.getAgeInDays(),
+      isExpired: this.isExpired(),
+      ageCategory: this.getAgeCategory(),
+      breachSeverity: this._breachSeverity,
+      hasMultipleReasons: this.hasMultipleReasons(),
+      deviceTracked: !!(this._deviceId || this._ipAddress),
+    };
   }
 
   // ============================================================
@@ -387,6 +611,7 @@ export class PasswordHistory extends BaseEntity {
 
   /**
    * Emit password expired event
+   * ✅ Enterprise: Enhanced with age category
    */
   public emitExpiredEvent(): void {
     this.addDomainEvent({
@@ -399,14 +624,40 @@ export class PasswordHistory extends BaseEntity {
         userId: this._userId,
         expiredAt: this._changedAt,
         ageInDays: this.getAgeInDays(),
+        ageCategory: this.getAgeCategory(),
+      },
+    });
+  }
+
+  /**
+   * Emit expiry warning event
+   * ✅ Enterprise: New warning event
+   */
+  public emitExpiryWarningEvent(): void {
+    const warning = this.needsExpiryWarning();
+    if (!warning.needsWarning) return;
+    
+    this.addDomainEvent({
+      eventId: generateEventId(),
+      eventType: PasswordHistoryEventType.PASSWORD_EXPIRY_WARNING,
+      aggregateId: this.id,
+      occurredOn: new Date(),
+      version: this.version,
+      metadata: {
+        userId: this._userId,
+        daysUntilExpiry: warning.daysUntilExpiry,
+        warningThresholdDays: warning.warningThresholdDays,
+        severity: warning.severity,
+        ageCategory: this.getAgeCategory(),
       },
     });
   }
 
   /**
    * Emit breach detected event
+   * ✅ Enterprise: Enhanced with severity
    */
-  public emitBreachDetectedEvent(breachSource: string): void {
+  public emitBreachDetectedEvent(breachSource: string, severity?: BreachSeverity): void {
     this.addDomainEvent({
       eventId: generateEventId(),
       eventType: PasswordHistoryEventType.PASSWORD_BREACH_DETECTED,
@@ -416,6 +667,7 @@ export class PasswordHistory extends BaseEntity {
       metadata: {
         userId: this._userId,
         breachSource,
+        severity: severity || this._breachSeverity || BreachSeverity.HIGH,
       },
     });
   }
@@ -426,8 +678,11 @@ export class PasswordHistory extends BaseEntity {
 
   /**
    * Convert to JSON serializable object
+   * ✅ Enterprise: Enhanced with new fields
    */
   public toJSON(): Record<string, unknown> {
+    const warning = this.needsExpiryWarning();
+    
     return {
       ...super.toJSON(),
       userId: this._userId,
@@ -442,12 +697,20 @@ export class PasswordHistory extends BaseEntity {
       adminName: this._adminName,
       reason: this._reason,
       breachSource: this._breachSource,
+      breachSeverity: this._breachSeverity,
+      multipleReasons: this._multipleReasons,
       ageInDays: this.getAgeInDays(),
+      ageCategory: this.getAgeCategory(),
       isExpired: this.isExpired(),
       isUserChange: this.isUserChange(),
       isAdminChange: this.isAdminChange(),
       isResetChange: this.isResetChange(),
       isBreachChange: this.isBreachChange(),
+      isCriticalBreach: this.isCriticalBreach(),
+      hasMultipleReasons: this.hasMultipleReasons(),
+      needsExpiryWarning: warning.needsWarning,
+      daysUntilExpiry: warning.daysUntilExpiry,
+      expiryWarningSeverity: warning.severity,
     };
   }
 
@@ -455,7 +718,7 @@ export class PasswordHistory extends BaseEntity {
    * String representation for debugging
    */
   public toString(): string {
-    return `PasswordHistory(userId=${this._userId}, changedAt=${this._changedAt.toISOString()}, changedBy=${this._changedBy})`;
+    return `PasswordHistory(userId=${this._userId}, changedAt=${this._changedAt.toISOString()}, changedBy=${this._changedBy}, age=${this.getAgeInDays()}d, ageCategory=${this.getAgeCategory()})`;
   }
 }
 
@@ -497,8 +760,37 @@ export function isPasswordHistory(value: unknown): value is PasswordHistory {
   return value instanceof PasswordHistory;
 }
 
+/**
+ * ✅ Enterprise: Type guard for breach severity
+ */
+export function isBreachSeverity(value: unknown): value is BreachSeverity {
+  return typeof value === 'string' && Object.values(BreachSeverity).includes(value as BreachSeverity);
+}
+
 // ============================================================
 // Type Exports
 // ============================================================
 
-export type { PasswordChangeMetadata, PasswordHistoryConfig };
+export type { PasswordChangeMetadata, PasswordHistoryConfigType, ExpiryWarningResult };
+
+// ============================================================
+// ENTERPRISE SUMMARY
+// ============================================================
+// 
+// Enterprise Enhancements Applied in v2.0:
+// 1. PASSWORD_HISTORY_CONFIG imported from @vubon/shared-constants
+// 2. Password expiry warning threshold (7 days before expiry)
+// 3. Multi-reason password change tracking
+// 4. Breach severity levels (CRITICAL, HIGH, MEDIUM, LOW)
+// 5. Password age categorization (NEW, RECENT, MODERATE, OLD, EXPIRING)
+// 6. Compliance reporting support
+// 7. Reuse attempt tracking events
+// 8. Expiry warning events
+// 9. Enhanced breach detection with severity
+// 10. Bangladesh Bank security compliance (90 days expiry)
+// 
+// Bangladesh Specific:
+// - 90-day password expiry per Bangladesh Bank guidelines
+// - Comprehensive audit trail for regulatory compliance
+// 
+// ============================================================
