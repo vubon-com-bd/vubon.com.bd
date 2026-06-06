@@ -1,5 +1,5 @@
 /**
- * Login Attempt Entity - Pure Domain Core
+ * Login Attempt Entity - Pure Domain Core (Enterprise Enhanced)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module domain/entities/login-attempt.entity
@@ -14,6 +14,9 @@
  * ✅ Domain events for suspicious activities
  * ✅ Framework-free (no crypto dependency)
  * ✅ Bangladesh specific - Mobile operator tracking
+ * ✅ Enterprise Enhanced: Shared constants for risk thresholds
+ * ✅ MFA method tracking for audit trail
+ * ✅ Risk score history for escalation detection
  * 
  * IMPORTANT: VPN/Proxy detection is infrastructure concern.
  * Risk score should be calculated by infrastructure services
@@ -25,6 +28,9 @@ import { Email } from '../value-objects/email.vo';
 import { IpAddress } from '../value-objects/ip-address.vo';
 import { UserAgent } from '../value-objects/user-agent.vo';
 import { DeviceId } from '../value-objects/device-id.vo';
+
+// ✅ ENTERPRISE ENHANCEMENT: Import from shared-constants (Single Source of Truth)
+import { RISK_THRESHOLDS, LOGIN_ATTEMPT_CONFIG } from '@vubon/shared-constants';
 
 // ==================== Enums ====================
 
@@ -57,6 +63,11 @@ export enum RiskLevel {
 }
 
 /**
+ * MFA method types for tracking
+ */
+export type MFAMethod = 'totp' | 'sms' | 'email' | 'whatsapp' | 'imo' | 'bkash_pin' | 'nagad_pin' | 'rocket_pin' | 'voice_call' | 'none';
+
+/**
  * Login attempt event types
  */
 export enum LoginAttemptEventType {
@@ -66,27 +77,28 @@ export enum LoginAttemptEventType {
   SUSPICIOUS_PATTERN_DETECTED = 'login_attempt.suspicious_pattern_detected',
   SUCCESSFUL_LOGIN = 'login_attempt.successful',
   FAILED_LOGIN = 'login_attempt.failed',
+  // ✅ ENTERPRISE ENHANCEMENT: Risk escalation event
+  RISK_ESCALATED = 'login_attempt.risk_escalated',
+  MFA_VERIFIED = 'login_attempt.mfa_verified',
+  MFA_FAILED_VERIFICATION = 'login_attempt.mfa_failed',
 }
 
 // ==================== Types ====================
 
 /**
- * Risk score thresholds
+ * ✅ ENTERPRISE ENHANCEMENT: Use from shared-constants instead of local
+ * No local thresholds - Single Source of Truth!
  */
-const RISK_THRESHOLDS = {
-  HIGH_RISK: 70,
-  CRITICAL_RISK: 90,
-  MEDIUM_RISK: 40,
-} as const;
 
 /**
- * Login attempt metadata interface
+ * Login attempt metadata interface (Bangladesh specific)
  */
 export interface LoginAttemptMetadata {
   location?: {
     country?: string;
     city?: string;
     district?: string; // Bangladesh specific
+    upazila?: string; // Bangladesh specific
     latitude?: number;
     longitude?: number;
   };
@@ -94,8 +106,28 @@ export interface LoginAttemptMetadata {
   networkType?: '2g' | '3g' | '4g' | '5g' | 'wifi' | 'unknown';
   isWeekend?: boolean;
   isNightTime?: boolean;
-  attemptedViaMFS?: boolean;
+  attemptedViaMFS?: boolean; // bKash/Nagad/Rocket
+  dataSaverEnabled?: boolean;
 }
+
+// ==================== Constants from Shared Config ====================
+
+// Use configuration from shared-constants (Single Source of Truth)
+const {
+  HIGH_RISK_THRESHOLD,
+  CRITICAL_RISK_THRESHOLD,
+  MEDIUM_RISK_THRESHOLD,
+  MAX_RISK_SCORE,
+  MIN_RISK_SCORE,
+} = RISK_THRESHOLDS;
+
+const {
+  SUSPICIOUS_ACTIVITY_COOLDOWN_MINUTES,
+  MAX_RISK_ESCALATIONS_PER_HOUR,
+} = LOGIN_ATTEMPT_CONFIG || {
+  SUSPICIOUS_ACTIVITY_COOLDOWN_MINUTES: 5,
+  MAX_RISK_ESCALATIONS_PER_HOUR: 3,
+};
 
 // ==================== Login Attempt Entity ====================
 
@@ -103,6 +135,7 @@ export interface LoginAttemptMetadata {
  * Login Attempt Entity
  * 
  * Records login attempts with risk scoring for security monitoring
+ * ✅ ENTERPRISE ENHANCED: Risk history tracking, MFA method tracking
  */
 export class LoginAttempt extends BaseEntity {
   private _userId: string | undefined;
@@ -118,6 +151,22 @@ export class LoginAttempt extends BaseEntity {
   private _metadata?: LoginAttemptMetadata;
   private _isMfaVerified: boolean;
   private _sessionId?: string;
+  
+  // ✅ ENTERPRISE ENHANCEMENT: Track MFA method used
+  private _mfaMethodUsed?: MFAMethod;
+  
+  // ✅ ENTERPRISE ENHANCEMENT: Track risk history for escalation detection
+  private _riskHistory: Array<{
+    score: number;
+    level: RiskLevel;
+    timestamp: Date;
+  }> = [];
+  
+  // ✅ ENTERPRISE ENHANCEMENT: Track number of risk escalations
+  private _riskEscalationCount: number = 0;
+  
+  // ✅ ENTERPRISE ENHANCEMENT: Track last suspicious activity
+  private _lastSuspiciousActivityAt?: Date;
 
   private constructor(
     id: string,
@@ -134,6 +183,10 @@ export class LoginAttempt extends BaseEntity {
     metadata: LoginAttemptMetadata | undefined,
     isMfaVerified: boolean,
     sessionId: string | undefined,
+    mfaMethodUsed: MFAMethod | undefined,
+    riskHistory: Array<{ score: number; level: RiskLevel; timestamp: Date }>,
+    riskEscalationCount: number,
+    lastSuspiciousActivityAt: Date | undefined,
     createdAt: Date,
     updatedAt: Date,
     version: number
@@ -153,6 +206,10 @@ export class LoginAttempt extends BaseEntity {
     this._metadata = metadata;
     this._isMfaVerified = isMfaVerified;
     this._sessionId = sessionId;
+    this._mfaMethodUsed = mfaMethodUsed;
+    this._riskHistory = riskHistory;
+    this._riskEscalationCount = riskEscalationCount;
+    this._lastSuspiciousActivityAt = lastSuspiciousActivityAt;
     
     this.validate();
   }
@@ -173,8 +230,11 @@ export class LoginAttempt extends BaseEntity {
     if (!this._deviceId) {
       throw new EntityValidationError('Login attempt requires a device ID');
     }
-    if (this._riskScore < 0 || this._riskScore > 100) {
-      throw new EntityValidationError('Risk score must be between 0 and 100');
+    if (this._riskScore < MIN_RISK_SCORE || this._riskScore > MAX_RISK_SCORE) {
+      throw new EntityValidationError(`Risk score must be between ${MIN_RISK_SCORE} and ${MAX_RISK_SCORE}`);
+    }
+    if (this._riskEscalationCount < 0) {
+      throw new EntityValidationError('Risk escalation count cannot be negative');
     }
   }
 
@@ -216,10 +276,21 @@ export class LoginAttempt extends BaseEntity {
       metadata,
       false,
       sessionId,
+      undefined, // mfaMethodUsed
+      [], // riskHistory (will add initial entry)
+      0, // riskEscalationCount
+      undefined, // lastSuspiciousActivityAt
       now,
       now,
       1
     );
+    
+    // Add initial risk history entry
+    attempt._riskHistory.push({
+      score: riskScore,
+      level: riskLevel,
+      timestamp: now,
+    });
     
     const eventType = result === LoginResult.SUCCESS 
       ? LoginAttemptEventType.SUCCESSFUL_LOGIN 
@@ -281,6 +352,10 @@ export class LoginAttempt extends BaseEntity {
     metadata?: LoginAttemptMetadata;
     isMfaVerified: boolean;
     sessionId?: string;
+    mfaMethodUsed?: MFAMethod;
+    riskHistory: Array<{ score: number; level: RiskLevel; timestamp: Date }>;
+    riskEscalationCount: number;
+    lastSuspiciousActivityAt?: Date;
     createdAt: Date;
     updatedAt: Date;
     version: number;
@@ -300,6 +375,10 @@ export class LoginAttempt extends BaseEntity {
       data.metadata,
       data.isMfaVerified,
       data.sessionId,
+      data.mfaMethodUsed,
+      data.riskHistory,
+      data.riskEscalationCount,
+      data.lastSuspiciousActivityAt,
       data.createdAt,
       data.updatedAt,
       data.version
@@ -312,12 +391,213 @@ export class LoginAttempt extends BaseEntity {
 
   /**
    * Calculate risk level from risk score
+   * ✅ ENTERPRISE ENHANCEMENT: Uses shared constants
    */
   private static calculateRiskLevel(riskScore: number): RiskLevel {
-    if (riskScore >= RISK_THRESHOLDS.CRITICAL_RISK) return RiskLevel.CRITICAL;
-    if (riskScore >= RISK_THRESHOLDS.HIGH_RISK) return RiskLevel.HIGH;
-    if (riskScore >= RISK_THRESHOLDS.MEDIUM_RISK) return RiskLevel.MEDIUM;
+    if (riskScore >= CRITICAL_RISK_THRESHOLD) return RiskLevel.CRITICAL;
+    if (riskScore >= HIGH_RISK_THRESHOLD) return RiskLevel.HIGH;
+    if (riskScore >= MEDIUM_RISK_THRESHOLD) return RiskLevel.MEDIUM;
     return RiskLevel.LOW;
+  }
+
+  /**
+   * Check if this attempt is within cooldown period for notifications
+   */
+  private isWithinCooldown(): boolean {
+    if (!this._lastSuspiciousActivityAt) return false;
+    const cooldownMs = SUSPICIOUS_ACTIVITY_COOLDOWN_MINUTES * 60 * 1000;
+    return (Date.now() - this._lastSuspiciousActivityAt.getTime()) < cooldownMs;
+  }
+
+  /**
+   * Check if risk escalation rate limit is exceeded
+   */
+  private hasExceededEscalationRate(): boolean {
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const recentEscalations = this._riskHistory.filter(h => 
+      h.timestamp > oneHourAgo && h.level !== this._riskLevel
+    ).length;
+    return recentEscalations >= MAX_RISK_ESCALATIONS_PER_HOUR;
+  }
+
+  // ============================================================
+  // Business Methods
+  // ============================================================
+
+  /**
+   * Link attempt to a known user (after successful identification)
+   */
+  public linkToUser(userId: string): void {
+    if (this._userId) {
+      throw new EntityValidationError('Login attempt already linked to a user');
+    }
+    if (!userId) {
+      throw new EntityValidationError('User ID is required');
+    }
+    
+    this._userId = userId;
+    this.touch();
+  }
+
+  /**
+   * Mark MFA as verified for this attempt
+   * ✅ ENTERPRISE ENHANCEMENT: Track which MFA method was used
+   */
+  public markMfaVerified(method?: MFAMethod): void {
+    if (this._isMfaVerified) {
+      return;
+    }
+    this._isMfaVerified = true;
+    if (method) {
+      this._mfaMethodUsed = method;
+    }
+    this.touch();
+    
+    this.addDomainEvent({
+      eventId: generateEventId(),
+      eventType: LoginAttemptEventType.MFA_VERIFIED,
+      aggregateId: this.id,
+      occurredOn: new Date(),
+      version: this.version,
+      metadata: {
+        userId: this._userId,
+        method: method || 'unknown',
+      },
+    });
+  }
+  
+  /**
+   * Mark MFA verification failed
+   */
+  public markMfaFailed(reason: string): void {
+    this.addDomainEvent({
+      eventId: generateEventId(),
+      eventType: LoginAttemptEventType.MFA_FAILED_VERIFICATION,
+      aggregateId: this.id,
+      occurredOn: new Date(),
+      version: this.version,
+      metadata: {
+        userId: this._userId,
+        reason,
+        method: this._mfaMethodUsed,
+      },
+    });
+    this.touch();
+  }
+
+  /**
+   * Set session ID for this attempt
+   */
+  public setSessionId(sessionId: string): void {
+    this._sessionId = sessionId;
+    this.touch();
+  }
+
+  /**
+   * Update risk score (for ongoing monitoring)
+   * ✅ ENTERPRISE ENHANCEMENT: Track risk history and detect escalations
+   */
+  public updateRiskScore(newScore: number): void {
+    if (newScore < MIN_RISK_SCORE || newScore > MAX_RISK_SCORE) {
+      throw new EntityValidationError(`Risk score must be between ${MIN_RISK_SCORE} and ${MAX_RISK_SCORE}`);
+    }
+    
+    const previousRiskLevel = this._riskLevel;
+    const previousScore = this._riskScore;
+    
+    this._riskScore = newScore;
+    this._riskLevel = LoginAttempt.calculateRiskLevel(newScore);
+    
+    // Add to risk history
+    this._riskHistory.push({
+      score: newScore,
+      level: this._riskLevel,
+      timestamp: new Date(),
+    });
+    
+    // Trim history to last 100 entries
+    if (this._riskHistory.length > 100) {
+      this._riskHistory = this._riskHistory.slice(-100);
+    }
+    
+    this.touch();
+    
+    // ✅ ENTERPRISE ENHANCEMENT: Detect risk escalation
+    if (previousRiskLevel !== this._riskLevel && this._riskLevel !== RiskLevel.LOW) {
+      this._riskEscalationCount++;
+      
+      // Check if we should emit risk escalation event
+      if (!this.hasExceededEscalationRate()) {
+        this.addDomainEvent({
+          eventId: generateEventId(),
+          eventType: LoginAttemptEventType.RISK_ESCALATED,
+          aggregateId: this.id,
+          occurredOn: new Date(),
+          version: this.version,
+          metadata: {
+            userId: this._userId,
+            previousScore: previousScore,
+            newScore: newScore,
+            previousLevel: previousRiskLevel,
+            newLevel: this._riskLevel,
+            escalationCount: this._riskEscalationCount,
+            email: this._email.getValue(),
+          },
+        });
+      }
+    }
+  }
+
+  /**
+   * Record brute force pattern detected
+   */
+  public markBruteForcePattern(pattern: string): void {
+    this.addDomainEvent({
+      eventId: generateEventId(),
+      eventType: LoginAttemptEventType.BRUTE_FORCE_PATTERN_DETECTED,
+      aggregateId: this.id,
+      occurredOn: new Date(),
+      version: this.version,
+      metadata: {
+        email: this._email.getValue(),
+        ipAddress: this._ipAddress.getValue(),
+        deviceId: this._deviceId.getValue(),
+        pattern,
+        attemptCount: this._riskScore,
+      },
+    });
+  }
+
+  /**
+   * Record suspicious pattern detected
+   * ✅ ENTERPRISE ENHANCEMENT: Cooldown to prevent notification spam
+   */
+  public markSuspiciousPattern(reason: string, force: boolean = false): void {
+    // Don't emit if within cooldown and not forced
+    if (!force && this.isWithinCooldown()) {
+      return;
+    }
+    
+    this._lastSuspiciousActivityAt = new Date();
+    
+    this.addDomainEvent({
+      eventId: generateEventId(),
+      eventType: LoginAttemptEventType.SUSPICIOUS_PATTERN_DETECTED,
+      aggregateId: this.id,
+      occurredOn: new Date(),
+      version: this.version,
+      metadata: {
+        email: this._email.getValue(),
+        reason,
+        riskScore: this._riskScore,
+        riskLevel: this._riskLevel,
+        ipAddress: this._ipAddress.getValue(),
+        deviceId: this._deviceId.getValue(),
+        escalationCount: this._riskEscalationCount,
+      },
+    });
+    
+    this.touch();
   }
 
   // ============================================================
@@ -431,82 +711,61 @@ export class LoginAttempt extends BaseEntity {
   public getRiskScore(): number {
     return this._riskScore;
   }
-
-  // ============================================================
-  // Business Methods
-  // ============================================================
-
+  
   /**
-   * Link attempt to a known user (after successful identification)
+   * Get the MFA method used (if any)
    */
-  public linkToUser(userId: string): void {
-    if (this._userId) {
-      throw new EntityValidationError('Login attempt already linked to a user');
+  public getMfaMethodUsed(): MFAMethod | undefined {
+    return this._mfaMethodUsed;
+  }
+  
+  /**
+   * Get risk history
+   */
+  public getRiskHistory(): ReadonlyArray<{ score: number; level: RiskLevel; timestamp: Date }> {
+    return [...this._riskHistory];
+  }
+  
+  /**
+   * Get risk escalation count
+   */
+  public getRiskEscalationCount(): number {
+    return this._riskEscalationCount;
+  }
+  
+  /**
+   * Check if this attempt had a risk escalation
+   */
+  public hadRiskEscalation(): boolean {
+    return this._riskEscalationCount > 0;
+  }
+  
+  /**
+   * Get the highest risk level observed in history
+   */
+  public getHighestRiskLevel(): RiskLevel {
+    let highest: RiskLevel = RiskLevel.LOW;
+    for (const entry of this._riskHistory) {
+      if (entry.level === RiskLevel.CRITICAL) return RiskLevel.CRITICAL;
+      if (entry.level === RiskLevel.HIGH && highest !== RiskLevel.CRITICAL) highest = RiskLevel.HIGH;
+      if (entry.level === RiskLevel.MEDIUM && highest === RiskLevel.LOW) highest = RiskLevel.MEDIUM;
     }
-    if (!userId) {
-      throw new EntityValidationError('User ID is required');
-    }
+    return highest;
+  }
+  
+  /**
+   * Get the risk score trend (increasing/decreasing/stable)
+   */
+  public getRiskTrend(): 'increasing' | 'decreasing' | 'stable' {
+    if (this._riskHistory.length < 2) return 'stable';
     
-    this._userId = userId;
-    this.touch();
-  }
-
-  /**
-   * Mark MFA as verified for this attempt
-   */
-  public markMfaVerified(): void {
-    if (this._isMfaVerified) {
-      return;
-    }
-    this._isMfaVerified = true;
-    this.touch();
-  }
-
-  /**
-   * Set session ID for this attempt
-   */
-  public setSessionId(sessionId: string): void {
-    this._sessionId = sessionId;
-    this.touch();
-  }
-
-  /**
-   * Record brute force pattern detected
-   */
-  public markBruteForcePattern(pattern: string): void {
-    this.addDomainEvent({
-      eventId: generateEventId(),
-      eventType: LoginAttemptEventType.BRUTE_FORCE_PATTERN_DETECTED,
-      aggregateId: this.id,
-      occurredOn: new Date(),
-      version: this.version,
-      metadata: {
-        email: this._email.getValue(),
-        ipAddress: this._ipAddress.getValue(),
-        deviceId: this._deviceId.getValue(),
-        pattern,
-        attemptCount: this._riskScore,
-      },
-    });
-  }
-
-  /**
-   * Record suspicious pattern detected
-   */
-  public markSuspiciousPattern(reason: string): void {
-    this.addDomainEvent({
-      eventId: generateEventId(),
-      eventType: LoginAttemptEventType.SUSPICIOUS_PATTERN_DETECTED,
-      aggregateId: this.id,
-      occurredOn: new Date(),
-      version: this.version,
-      metadata: {
-        email: this._email.getValue(),
-        reason,
-        riskScore: this._riskScore,
-        riskLevel: this._riskLevel,
-      },
-    });
+    const firstScore = this._riskHistory[0]?.score ?? 0;
+    const lastScore = this._riskHistory[this._riskHistory.length - 1]?.score ?? 0;
+    const threshold = 10; // 10 point difference to consider a trend
+    
+    if (lastScore > firstScore + threshold) return 'increasing';
+    if (lastScore < firstScore - threshold) return 'decreasing';
+    return 'stable';
   }
 
   // ============================================================
@@ -548,11 +807,19 @@ export class LoginAttempt extends BaseEntity {
       metadata: this._metadata,
       isMfaVerified: this._isMfaVerified,
       sessionId: this._sessionId,
+      mfaMethodUsed: this._mfaMethodUsed,
       isSuspicious: this.isSuspicious(),
       isHighRisk: this.isHighRisk(),
       isCriticalRisk: this.isCriticalRisk(),
       wasSuccessful: this.wasSuccessful(),
       minutesSinceAttempt: this.getMinutesSinceAttempt(),
+      riskEscalationCount: this._riskEscalationCount,
+      hadRiskEscalation: this.hadRiskEscalation(),
+      highestRiskLevel: this.getHighestRiskLevel(),
+      riskTrend: this.getRiskTrend(),
+      // Risk history is included for debugging but truncated for performance
+      riskHistoryLength: this._riskHistory.length,
+      lastSuspiciousActivityAt: this._lastSuspiciousActivityAt?.toISOString(),
     };
   }
 }
@@ -579,4 +846,4 @@ namespace generateEventId {
 // Type Exports
 // ============================================================
 
-export type { LoginAttemptMetadata };
+export type { LoginAttemptMetadata, MFAMethod };
