@@ -1,5 +1,5 @@
 /**
- * Refresh Token Entity - Pure Domain Core
+ * Refresh Token Entity - Pure Domain Core (Enterprise Enhanced)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module domain/entities/refresh-token.entity
@@ -15,18 +15,24 @@
  * ✅ Domain events for security audit
  * ✅ Framework-free (no crypto dependency)
  * ✅ Absolute maximum lifetime (30 days max)
+ * ✅ Session linking for complete audit trail
+ * ✅ QR code support for feature phones (Bangladesh)
  * 
  * Security Features:
  * - If a rotated token is used, entire family is revoked (theft detection)
  * - Maximum absolute lifetime (30 days max)
  * - One-time use tokens (marked as used)
  * - Family tracking for audit
+ * - Session linkage for complete session management
  */
 
 import { BaseEntity, EntityValidationError, type IdGenerator } from './base.entity';
 import { Token, TokenType } from '../value-objects/token.vo';
 import { DeviceId } from '../value-objects/device-id.vo';
 import { IpAddress } from '../value-objects/ip-address.vo';
+
+// ✅ FIXED: Import from shared-constants instead of local constants
+import { REFRESH_TOKEN_CONFIG } from '@vubon/shared-constants';
 
 // ==================== Enums ====================
 
@@ -52,20 +58,41 @@ export enum RefreshTokenEventType {
   REFRESH_TOKEN_EXPIRED = 'refresh_token.expired',
   REFRESH_TOKEN_COMPROMISED = 'refresh_token.compromised',
   REFRESH_TOKEN_FAMILY_REVOKED = 'refresh_token.family_revoked',
+  REFRESH_TOKEN_SESSION_LINKED = 'refresh_token.session_linked',
+  REFRESH_TOKEN_QR_GENERATED = 'refresh_token.qr_generated',
 }
 
 // ==================== Types ====================
 
 /**
- * Refresh token configuration constants
+ * Refresh token configuration (from shared-constants)
+ * Now using REFRESH_TOKEN_CONFIG from @vubon/shared-constants
  */
 const REFRESH_CONFIG = {
-  EXPIRY_DAYS: 7,
-  EXPIRY_MS: 7 * 24 * 60 * 60 * 1000,
-  MAX_ABSOLUTE_LIFETIME_DAYS: 30,
-  MAX_ABSOLUTE_LIFETIME_MS: 30 * 24 * 60 * 60 * 1000,
-  MAX_ROTATION_COUNT: 50, // Prevent infinite rotation chains
+  EXPIRY_DAYS: REFRESH_TOKEN_CONFIG.EXPIRY_DAYS,
+  EXPIRY_MS: REFRESH_TOKEN_CONFIG.EXPIRY_DAYS * 24 * 60 * 60 * 1000,
+  MAX_ABSOLUTE_LIFETIME_DAYS: REFRESH_TOKEN_CONFIG.MAX_ABSOLUTE_LIFETIME_DAYS,
+  MAX_ABSOLUTE_LIFETIME_MS: REFRESH_TOKEN_CONFIG.MAX_ABSOLUTE_LIFETIME_DAYS * 24 * 60 * 60 * 1000,
+  MAX_ROTATION_COUNT: REFRESH_TOKEN_CONFIG.MAX_ROTATION_COUNT,
 } as const;
+
+/**
+ * QR Code generation result (Bangladesh specific - for feature phones)
+ */
+export interface QrCodeResult {
+  token: string;
+  expiresAt: Date;
+  qrDataUrl?: string;
+}
+
+/**
+ * Session link information
+ */
+export interface SessionLinkInfo {
+  sessionId: string;
+  linkedAt: Date;
+  linkedBy: string;
+}
 
 // ==================== Refresh Token Entity ====================
 
@@ -89,6 +116,16 @@ export class RefreshToken extends BaseEntity {
   private _deviceId?: DeviceId;
   private _ipAddress?: IpAddress;
   private _userAgent?: string;
+  
+  // ✅ NEW: Session linking for complete audit trail
+  private _sessionId?: string;
+  private _sessionLinkedAt?: Date;
+  private _sessionLinkedBy?: string;
+  
+  // ✅ NEW: QR Code support for feature phones (Bangladesh specific)
+  private _qrCodeToken?: string;
+  private _qrCodeExpiresAt?: Date;
+  private _qrCodeGeneratedAt?: Date;
 
   private constructor(
     id: string,
@@ -106,6 +143,12 @@ export class RefreshToken extends BaseEntity {
     deviceId: DeviceId | undefined,
     ipAddress: IpAddress | undefined,
     userAgent: string | undefined,
+    sessionId: string | undefined,
+    sessionLinkedAt: Date | undefined,
+    sessionLinkedBy: string | undefined,
+    qrCodeToken: string | undefined,
+    qrCodeExpiresAt: Date | undefined,
+    qrCodeGeneratedAt: Date | undefined,
     createdAt: Date,
     updatedAt: Date,
     version: number
@@ -126,6 +169,12 @@ export class RefreshToken extends BaseEntity {
     this._deviceId = deviceId;
     this._ipAddress = ipAddress;
     this._userAgent = userAgent;
+    this._sessionId = sessionId;
+    this._sessionLinkedAt = sessionLinkedAt;
+    this._sessionLinkedBy = sessionLinkedBy;
+    this._qrCodeToken = qrCodeToken;
+    this._qrCodeExpiresAt = qrCodeExpiresAt;
+    this._qrCodeGeneratedAt = qrCodeGeneratedAt;
     
     this.validate();
   }
@@ -153,6 +202,11 @@ export class RefreshToken extends BaseEntity {
     }
     if (this._expiresAt < this.createdAt) {
       throw new EntityValidationError('ExpiresAt cannot be before CreatedAt');
+    }
+    
+    // ✅ Validate QR code expiry if present
+    if (this._qrCodeExpiresAt && this._qrCodeExpiresAt < this._qrCodeGeneratedAt!) {
+      throw new EntityValidationError('QR code expiry cannot be before generation time');
     }
   }
 
@@ -194,6 +248,12 @@ export class RefreshToken extends BaseEntity {
       deviceId,
       ipAddress,
       userAgent,
+      undefined,  // sessionId
+      undefined,  // sessionLinkedAt
+      undefined,  // sessionLinkedBy
+      undefined,  // qrCodeToken
+      undefined,  // qrCodeExpiresAt
+      undefined,  // qrCodeGeneratedAt
       now,
       now,
       1
@@ -210,6 +270,7 @@ export class RefreshToken extends BaseEntity {
         family: tokenFamily,
         expiresAt: expiresAt.toISOString(),
         deviceId: deviceId?.getValue(),
+        hasDeviceInfo: !!(deviceId || ipAddress || userAgent),
       },
     });
     
@@ -235,6 +296,12 @@ export class RefreshToken extends BaseEntity {
     deviceId?: DeviceId;
     ipAddress?: IpAddress;
     userAgent?: string;
+    sessionId?: string;
+    sessionLinkedAt?: Date;
+    sessionLinkedBy?: string;
+    qrCodeToken?: string;
+    qrCodeExpiresAt?: Date;
+    qrCodeGeneratedAt?: Date;
     createdAt: Date;
     updatedAt: Date;
     version: number;
@@ -255,6 +322,12 @@ export class RefreshToken extends BaseEntity {
       data.deviceId,
       data.ipAddress,
       data.userAgent,
+      data.sessionId,
+      data.sessionLinkedAt,
+      data.sessionLinkedBy,
+      data.qrCodeToken,
+      data.qrCodeExpiresAt,
+      data.qrCodeGeneratedAt,
       data.createdAt,
       data.updatedAt,
       data.version
@@ -289,6 +362,7 @@ export class RefreshToken extends BaseEntity {
         userId: this._userId,
         family: this._family,
         reason: reason || 'Manual revocation',
+        rotationCount: this._rotationCount,
       },
     });
   }
@@ -323,7 +397,7 @@ export class RefreshToken extends BaseEntity {
     // Revoke current token
     this.revoke('Rotated');
     
-    // Create new token in same family
+    // Create new token in same family, preserving session link
     const rotatedToken = RefreshToken.create(
       this._userId,
       newToken,
@@ -335,6 +409,11 @@ export class RefreshToken extends BaseEntity {
       this.id,
       this._rotationCount + 1
     );
+    
+    // ✅ Preserve session link if exists
+    if (this._sessionId) {
+      rotatedToken.linkToSession(this._sessionId, 'rotation_preserved');
+    }
     
     this.addDomainEvent({
       eventId: generateEventId(),
@@ -348,6 +427,7 @@ export class RefreshToken extends BaseEntity {
         newTokenId: rotatedToken.id,
         family: this._family,
         rotationCount: this._rotationCount + 1,
+        preservedSession: !!this._sessionId,
       },
     });
     
@@ -381,6 +461,7 @@ export class RefreshToken extends BaseEntity {
       version: this.version,
       metadata: {
         userId: this._userId,
+        sessionId: this._sessionId,
       },
     });
   }
@@ -405,6 +486,7 @@ export class RefreshToken extends BaseEntity {
         userId: this._userId,
         family: this._family,
         reason,
+        rotationCount: this._rotationCount,
       },
     });
     
@@ -425,6 +507,7 @@ export class RefreshToken extends BaseEntity {
         userId: this._userId,
         family: this._family,
         tokenCount: familyTokens.length,
+        reason,
       },
     });
   }
@@ -448,8 +531,148 @@ export class RefreshToken extends BaseEntity {
       version: this.version,
       metadata: {
         userId: this._userId,
+        expiresAt: this._expiresAt.toISOString(),
       },
     });
+  }
+
+  // ============================================================
+  // ✅ NEW: Session Linking Methods
+  // ============================================================
+
+  /**
+   * Link refresh token to a session
+   */
+  public linkToSession(sessionId: string, linkedBy: string = 'system'): void {
+    if (!this.isActive()) {
+      throw new EntityValidationError(
+        `Cannot link inactive token to session. Current status: ${this._status}`
+      );
+    }
+    
+    this._sessionId = sessionId;
+    this._sessionLinkedAt = new Date();
+    this._sessionLinkedBy = linkedBy;
+    this.touch();
+    
+    this.addDomainEvent({
+      eventId: generateEventId(),
+      eventType: RefreshTokenEventType.REFRESH_TOKEN_SESSION_LINKED,
+      aggregateId: this.id,
+      occurredOn: new Date(),
+      version: this.version,
+      metadata: {
+        userId: this._userId,
+        sessionId,
+        linkedBy,
+        tokenFamily: this._family,
+      },
+    });
+  }
+
+  /**
+   * Unlink refresh token from session
+   */
+  public unlinkFromSession(): void {
+    if (!this._sessionId) {
+      return;
+    }
+    
+    this._sessionId = undefined;
+    this._sessionLinkedAt = undefined;
+    this._sessionLinkedBy = undefined;
+    this.touch();
+  }
+
+  /**
+   * Get session link information
+   */
+  public getSessionLinkInfo(): SessionLinkInfo | undefined {
+    if (!this._sessionId) {
+      return undefined;
+    }
+    
+    return {
+      sessionId: this._sessionId,
+      linkedAt: this._sessionLinkedAt!,
+      linkedBy: this._sessionLinkedBy!,
+    };
+  }
+
+  // ============================================================
+  // ✅ NEW: QR Code Support for Feature Phones (Bangladesh)
+  // ============================================================
+
+  /**
+   * Generate QR code token for feature phone authentication
+   * This allows users on feature phones to authenticate via QR code
+   */
+  public generateQrCodeToken(qrCodeValue?: string, expiresInMinutes: number = 5): QrCodeResult {
+    if (!this.isActive()) {
+      throw new EntityValidationError(
+        `Cannot generate QR code for inactive token. Current status: ${this._status}`
+      );
+    }
+    
+    // Generate QR code token (shorter for feature phone compatibility)
+    const qrToken = qrCodeValue || Token.generate(TokenType.DEVICE, 16);
+    const expiresAt = new Date(Date.now() + expiresInMinutes * 60 * 1000);
+    
+    this._qrCodeToken = qrToken;
+    this._qrCodeExpiresAt = expiresAt;
+    this._qrCodeGeneratedAt = new Date();
+    this.touch();
+    
+    this.addDomainEvent({
+      eventId: generateEventId(),
+      eventType: RefreshTokenEventType.REFRESH_TOKEN_QR_GENERATED,
+      aggregateId: this.id,
+      occurredOn: new Date(),
+      version: this.version,
+      metadata: {
+        userId: this._userId,
+        expiresAt: expiresAt.toISOString(),
+        expiresInMinutes,
+      },
+    });
+    
+    return {
+      token: qrToken,
+      expiresAt,
+    };
+  }
+
+  /**
+   * Verify QR code token
+   */
+  public verifyQrCodeToken(qrToken: string): boolean {
+    if (!this._qrCodeToken) {
+      return false;
+    }
+    
+    if (this._qrCodeExpiresAt && new Date() > this._qrCodeExpiresAt) {
+      return false;
+    }
+    
+    return this._qrCodeToken === qrToken;
+  }
+
+  /**
+   * Invalidate QR code token (after use)
+   */
+  public invalidateQrCode(): void {
+    this._qrCodeToken = undefined;
+    this._qrCodeExpiresAt = undefined;
+    this._qrCodeGeneratedAt = undefined;
+    this.touch();
+  }
+
+  /**
+   * Check if QR code is still valid
+   */
+  public isQrCodeValid(): boolean {
+    return !!this._qrCodeToken && 
+           (!this._qrCodeExpiresAt || new Date() <= this._qrCodeExpiresAt);
   }
 
   // ============================================================
@@ -498,6 +721,15 @@ export class RefreshToken extends BaseEntity {
   }
 
   /**
+   * Check if token is active
+   */
+  public isActive(): boolean {
+    return this._status === RefreshTokenStatus.ACTIVE && 
+           !this.isExpired() && 
+           !this.hasExceededAbsoluteLifetime();
+  }
+
+  /**
    * Get remaining time in days/hours/minutes
    */
   public getRemainingTime(): { days: number; hours: number; minutes: number } {
@@ -525,6 +757,21 @@ export class RefreshToken extends BaseEntity {
     return 'Expiring soon';
   }
 
+  /**
+   * Get token age in days
+   */
+  public getAgeInDays(): number {
+    const ageMs = Date.now() - this.getCreatedAt().getTime();
+    return Math.floor(ageMs / (24 * 60 * 60 * 1000));
+  }
+
+  /**
+   * Check if token can be refreshed (for this token)
+   */
+  public canBeRefreshed(): boolean {
+    return this.isActive() && !this.hasExceededAbsoluteLifetime();
+  }
+
   // ============================================================
   // Getters
   // ============================================================
@@ -543,6 +790,16 @@ export class RefreshToken extends BaseEntity {
   public getDeviceId(): DeviceId | undefined { return this._deviceId; }
   public getIpAddress(): IpAddress | undefined { return this._ipAddress; }
   public getUserAgent(): string | undefined { return this._userAgent; }
+  
+  // ✅ NEW: Session getters
+  public getSessionId(): string | undefined { return this._sessionId; }
+  public getSessionLinkedAt(): Date | undefined { return this._sessionLinkedAt ? new Date(this._sessionLinkedAt) : undefined; }
+  public getSessionLinkedBy(): string | undefined { return this._sessionLinkedBy; }
+  
+  // ✅ NEW: QR code getters
+  public getQrCodeToken(): string | undefined { return this._qrCodeToken; }
+  public getQrCodeExpiresAt(): Date | undefined { return this._qrCodeExpiresAt ? new Date(this._qrCodeExpiresAt) : undefined; }
+  public getQrCodeGeneratedAt(): Date | undefined { return this._qrCodeGeneratedAt ? new Date(this._qrCodeGeneratedAt) : undefined; }
 
   // ============================================================
   // JSON Serialization
@@ -553,6 +810,7 @@ export class RefreshToken extends BaseEntity {
    */
   public toJSON(): Record<string, unknown> {
     const remaining = this.getRemainingTime();
+    const sessionLink = this.getSessionLinkInfo();
     
     return {
       ...super.toJSON(),
@@ -564,14 +822,25 @@ export class RefreshToken extends BaseEntity {
       family: this._family,
       rotationCount: this._rotationCount,
       deviceId: this._deviceId?.getValue(),
+      ipAddress: this._ipAddress?.getValue(),
+      sessionId: this._sessionId,
+      sessionLink,
       isExpired: this.isExpired(),
       isRevoked: this.isRevoked(),
+      isCompromised: this.isCompromised(),
+      isActive: this.isActive(),
       isValidForRotation: this.isValidForRotation(),
+      hasExceededAbsoluteLifetime: this.hasExceededAbsoluteLifetime(),
       remainingDays: remaining.days,
       remainingHours: remaining.hours,
       remainingMinutes: remaining.minutes,
       remainingTimeFormatted: this.getRemainingTimeFormatted(),
-      // ⚠️ Token value is intentionally excluded for security
+      ageInDays: this.getAgeInDays(),
+      canBeRefreshed: this.canBeRefreshed(),
+      hasQrCode: !!this._qrCodeToken,
+      isQrCodeValid: this.isQrCodeValid(),
+      qrCodeExpiresAt: this._qrCodeExpiresAt?.toISOString(),
+      // ⚠️ Token value and QR code token are intentionally excluded for security
     };
   }
 }
@@ -598,4 +867,4 @@ namespace generateEventId {
 // Type Exports
 // ============================================================
 
-export type { RefreshTokenConfig };
+export type { RefreshTokenConfig, QrCodeResult, SessionLinkInfo };
