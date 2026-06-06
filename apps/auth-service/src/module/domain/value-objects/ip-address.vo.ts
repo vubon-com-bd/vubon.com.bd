@@ -6,7 +6,6 @@
  * 
  * @description
  * Represents a validated and normalized IP address (IPv4 or IPv6).
- * Uses shared constants for IP ranges (private, Bangladesh ISP, cloud providers).
  * Used for security tracking, geolocation (at infrastructure level),
  * rate limiting, and access control.
  * 
@@ -15,7 +14,6 @@
  * ✅ Self-validating - Validates format and ranges
  * ✅ Normalized - Consistent format (IPv6 compressed)
  * ✅ Framework-free - No external dependencies
- * ✅ Shared ranges - Reuses constants across services
  * ✅ Bangladesh specific - Local ISP range detection
  * 
  * IMPORTANT: VPN/Proxy detection belongs to INFRASTRUCTURE layer
@@ -30,14 +28,6 @@
  */
 
 import { ValueObject } from './base.vo';
-
-// ✅ FIXED: Import IP ranges from shared-constants (reusable across services)
-import {
-  PRIVATE_IP_RANGES,
-  BANGLADESH_ISP_RANGES,
-  CLOUD_IP_RANGES,
-  type IpRange,
-} from '@vubon/shared-constants';
 
 // ==================== Types ====================
 
@@ -65,6 +55,92 @@ export enum IpCategory {
   /** Bangladesh specific - Local ISP ranges */
   BANGLADESH_ISP = 'bangladesh_isp',
 }
+
+/**
+ * IP range for CIDR calculation
+ */
+export interface IpRange {
+  start: string;
+  end: string;
+  name: string;
+}
+
+// ==================== Constants ====================
+
+/**
+ * Private IP ranges (RFC 1918, RFC 4193, etc.)
+ */
+export const PRIVATE_IP_RANGES: Record<'IPv4' | 'IPv6', IpRange[]> = {
+  IPv4: [
+    { start: '10.0.0.0', end: '10.255.255.255', name: 'Class A Private' },
+    { start: '172.16.0.0', end: '172.31.255.255', name: 'Class B Private' },
+    { start: '192.168.0.0', end: '192.168.255.255', name: 'Class C Private' },
+    { start: '127.0.0.0', end: '127.255.255.255', name: 'Loopback' },
+    { start: '169.254.0.0', end: '169.254.255.255', name: 'Link Local' },
+    { start: '0.0.0.0', end: '0.255.255.255', name: 'Invalid/Unknown' },
+  ],
+  IPv6: [
+    { start: '::1', end: '::1', name: 'Loopback' },
+    { start: 'fe80::', end: 'febf:ffff:ffff:ffff:ffff:ffff:ffff:ffff', name: 'Link Local' },
+    { start: 'fc00::', end: 'fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', name: 'Unique Local' },
+    { start: 'ff00::', end: 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', name: 'Multicast' },
+    { start: '::', end: '::', name: 'Unspecified' },
+  ],
+};
+
+/**
+ * Bangladesh ISP IP ranges (common Bangladeshi ISPs)
+ * Note: This is a partial list - full list requires infrastructure data
+ */
+export const BANGLADESH_ISP_RANGES: IpRange[] = [
+  // BTCL (Bangladesh Telecommunications Company Limited)
+  { start: '203.112.0.0', end: '203.112.255.255', name: 'BTCL' },
+  { start: '202.84.0.0', end: '202.84.255.255', name: 'BTCL' },
+  // Fiber @ Home
+  { start: '103.137.0.0', end: '103.137.255.255', name: 'Fiber@Home' },
+  // Link3 Technologies
+  { start: '103.15.0.0', end: '103.15.255.255', name: 'Link3' },
+  // AmberIT
+  { start: '103.134.0.0', end: '103.134.255.255', name: 'AmberIT' },
+  // Dhaka Com
+  { start: '103.113.0.0', end: '103.113.255.255', name: 'Dhaka Com' },
+  // BDCOM
+  { start: '103.4.0.0', end: '103.4.255.255', name: 'BDCOM' },
+  // Next Online
+  { start: '103.7.0.0', end: '103.7.255.255', name: 'Next Online' },
+  // Dot Internet
+  { start: '103.16.0.0', end: '103.16.255.255', name: 'Dot Internet' },
+  // infoLink
+  { start: '103.48.0.0', end: '103.48.255.255', name: 'infoLink' },
+  // Grameenphone (GP)
+  { start: '114.130.0.0', end: '114.130.31.255', name: 'Grameenphone' },
+  // Robi
+  { start: '114.31.0.0', end: '114.31.15.255', name: 'Robi' },
+  // Banglalink
+  { start: '114.130.32.0', end: '114.130.47.255', name: 'Banglalink' },
+  // Teletalk
+  { start: '114.130.48.0', end: '114.130.63.255', name: 'Teletalk' },
+];
+
+/**
+ * Cloud provider IP ranges (partial)
+ */
+export const CLOUD_IP_RANGES: IpRange[] = [
+  // AWS
+  { start: '3.0.0.0', end: '3.255.255.255', name: 'AWS' },
+  { start: '13.0.0.0', end: '13.255.255.255', name: 'AWS' },
+  { start: '52.0.0.0', end: '52.255.255.255', name: 'AWS' },
+  { start: '54.0.0.0', end: '54.255.255.255', name: 'AWS' },
+  // GCP
+  { start: '34.0.0.0', end: '34.255.255.255', name: 'GCP' },
+  { start: '35.0.0.0', end: '35.255.255.255', name: 'GCP' },
+  // Azure
+  { start: '13.64.0.0', end: '13.127.255.255', name: 'Azure' },
+  { start: '40.0.0.0', end: '40.255.255.255', name: 'Azure' },
+  // DigitalOcean
+  { start: '138.197.0.0', end: '138.197.255.255', name: 'DigitalOcean' },
+  { start: '159.89.0.0', end: '159.89.255.255', name: 'DigitalOcean' },
+];
 
 // ==================== Regex Patterns ====================
 
@@ -316,12 +392,12 @@ export class IpAddress extends ValueObject {
   }
 
   /**
-   * Determine IP category using shared constants
+   * Determine IP category
    */
   private static determineCategory(ip: string, version: 4 | 6): IpCategory {
     const instance = new IpAddress(ip);
     
-    // Check private ranges (from shared-constants)
+    // Check private ranges
     for (const range of PRIVATE_IP_RANGES[version === 4 ? 'IPv4' : 'IPv6']) {
       if (instance.isInRange(range.start, range.end)) {
         if (range.name === 'Loopback') return IpCategory.LOOPBACK;
@@ -330,7 +406,7 @@ export class IpAddress extends ValueObject {
       }
     }
     
-    // Check Bangladesh ISP ranges (from shared-constants) - IPv4 only
+    // Check Bangladesh ISP ranges (IPv4 only)
     if (version === 4) {
       for (const range of BANGLADESH_ISP_RANGES) {
         if (instance.isInRange(range.start, range.end)) {
@@ -339,7 +415,7 @@ export class IpAddress extends ValueObject {
       }
     }
     
-    // Check cloud provider ranges (from shared-constants)
+    // Check cloud provider ranges
     for (const range of CLOUD_IP_RANGES) {
       if (instance.isInRange(range.start, range.end)) {
         return IpCategory.CLOUD;
