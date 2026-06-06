@@ -43,6 +43,46 @@
  * }
  */
 
+// ==================== Shared Package Imports (Enterprise) ====================
+
+// Configuration from shared-constants
+import { 
+  VALUE_OBJECT_CONFIG,
+  ENV_CONFIG,
+  RETRY_CONFIG
+} from '@vubon/shared-constants';
+
+// Utilities from shared-utils
+import { 
+  timingSafeEqual, 
+  sleep,
+  isDevelopment,
+  isProduction,
+  logger
+} from '@vubon/shared-utils';
+
+// Types from shared-types
+import type { 
+  ValueObjectMetadata as SharedValueObjectMetadata,
+  ValidationErrorCode,
+  ValueObjectSnapshot
+} from '@vubon/shared-types';
+
+// ==================== Constants (from shared-config) ====================
+
+const VALUE_OBJECT_MARKER = Symbol('ValueObject');
+
+// Retry configuration from shared-constants
+const DEFAULT_RETRY_COUNT = VALUE_OBJECT_CONFIG?.DEFAULT_RETRY_COUNT ?? 3;
+const DEFAULT_RETRY_DELAY_MS = VALUE_OBJECT_CONFIG?.DEFAULT_RETRY_DELAY_MS ?? 100;
+const DEFAULT_TEMPORAL_TOLERANCE_MS = VALUE_OBJECT_CONFIG?.DEFAULT_TEMPORAL_TOLERANCE_MS ?? 1000;
+
+// Environment-based degraded mode
+const ALLOW_DEGRADED_MODE = VALUE_OBJECT_CONFIG?.ALLOW_DEGRADED_MODE ?? !ENV_CONFIG?.IS_PRODUCTION;
+
+// Logger context
+const LOG_CONTEXT = 'ValueObject';
+
 // ==================== Types ====================
 
 /**
@@ -73,13 +113,14 @@ export interface TemporalEqualityConfig {
 /**
  * Metadata for offline-first synchronization
  */
-export interface ValueObjectMetadata {
+export interface ValueObjectMetadata extends SharedValueObjectMetadata {
   version: string;
   timestamp: string;
   className: string;
   syncStatus?: 'synced' | 'pending' | 'failed';
   lastSyncAttempt?: string;
   retryCount?: number;
+  environment?: string;
 }
 
 /**
@@ -94,6 +135,8 @@ export interface ValidationOptions {
   retryDelayMs?: number;
   /** Fallback value when validation fails in degraded mode */
   fallbackOnError?: boolean;
+  /** Log validation failures */
+  logFailures?: boolean;
 }
 
 /**
@@ -106,14 +149,9 @@ export interface SerializationOptions {
   pretty?: boolean;
   /** Exclude certain fields */
   excludeFields?: string[];
+  /** Include environment info */
+  includeEnvironment?: boolean;
 }
-
-// ==================== Constants ====================
-
-const VALUE_OBJECT_MARKER = Symbol('ValueObject');
-const DEFAULT_TEMPORAL_TOLERANCE_MS = 1000; // 1 second default tolerance
-const DEFAULT_RETRY_COUNT = 3;
-const DEFAULT_RETRY_DELAY_MS = 100;
 
 // ==================== Domain Errors ====================
 
@@ -123,13 +161,18 @@ const DEFAULT_RETRY_DELAY_MS = 100;
 export abstract class ValueObjectError extends Error {
   constructor(
     message: string,
-    public readonly code: string,
+    public readonly code: ValidationErrorCode | string,
     public readonly field?: string,
     public readonly canRetry: boolean = true
   ) {
     super(message);
     this.name = this.constructor.name;
     Error.captureStackTrace(this, this.constructor);
+    
+    // Log error in production
+    if (isProduction()) {
+      logger.error(`[${LOG_CONTEXT}] ${this.name}: ${message}`, { code, field, canRetry });
+    }
   }
 }
 
@@ -176,6 +219,9 @@ export abstract class ValueObject {
   /** Cache for equality components (for performance) */
   private _equalityComponentsCache: readonly unknown[] | null = null;
 
+  /** Creation timestamp for tracking */
+  private readonly _createdAt: number = Date.now();
+
   /**
    * Constructor with automatic validation
    * @param options - Validation options for external dependencies
@@ -184,8 +230,18 @@ export abstract class ValueObject {
     this.validateSync();
     this.validateAsync().catch(err => {
       // Async validation errors are logged but don't block construction
-      console.warn(`Async validation failed for ${this.constructor.name}:`, err);
+      const shouldLog = this.validationOptions?.logFailures ?? true;
+      if (shouldLog && !ALLOW_DEGRADED_MODE) {
+        logger.warn(`[${LOG_CONTEXT}] Async validation failed for ${this.constructor.name}:`, err);
+      }
     });
+  }
+
+  /**
+   * Get the creation timestamp of this value object
+   */
+  public get createdAt(): number {
+    return this._createdAt;
   }
 
   /**
@@ -238,6 +294,7 @@ export abstract class ValueObject {
 
   /**
    * Perform external validation with retry logic
+   * Uses exponential backoff for retry delays
    * 
    * @param validationFn - The async validation function
    * @param options - Retry options
@@ -247,9 +304,9 @@ export abstract class ValueObject {
     validationFn: () => Promise<T>,
     options?: { retryCount?: number; retryDelayMs?: number; allowDegradedMode?: boolean }
   ): Promise<T> {
-    const retryCount = options?.retryCount ?? DEFAULT_RETRY_COUNT;
-    const retryDelayMs = options?.retryDelayMs ?? DEFAULT_RETRY_DELAY_MS;
-    const allowDegradedMode = options?.allowDegradedMode ?? this.validationOptions?.allowDegradedMode ?? false;
+    const retryCount = options?.retryCount ?? this.validationOptions?.retryCount ?? DEFAULT_RETRY_COUNT;
+    const retryDelayMs = options?.retryDelayMs ?? this.validationOptions?.retryDelayMs ?? DEFAULT_RETRY_DELAY_MS;
+    const allowDegradedMode = options?.allowDegradedMode ?? this.validationOptions?.allowDegradedMode ?? ALLOW_DEGRADED_MODE;
 
     let lastError: Error | undefined;
 
@@ -263,15 +320,18 @@ export abstract class ValueObject {
         const isConnectionError = this.isConnectionError(err);
         
         if (isConnectionError && i < retryCount) {
-          // Exponential backoff
+          // Exponential backoff: retryDelayMs * 2^i
           const delay = retryDelayMs * Math.pow(2, i);
-          await this.sleep(delay);
+          if (isDevelopment()) {
+            logger.debug(`[${LOG_CONTEXT}] Retry ${i + 1}/${retryCount} after ${delay}ms`, { className: this.constructor.name });
+          }
+          await sleep(delay);
           continue;
         }
         
         // If not a connection error or no retries left
         if (allowDegradedMode && isConnectionError) {
-          console.warn(`Validation degraded mode for ${this.constructor.name}:`, err);
+          logger.warn(`[${LOG_CONTEXT}] Validation degraded mode for ${this.constructor.name}:`, err);
           throw new ConnectionAwareValidationError('External validation failed, using degraded mode', err);
         }
         
@@ -287,21 +347,13 @@ export abstract class ValueObject {
    */
   private isConnectionError(err: unknown): boolean {
     const errorMessage = String(err).toLowerCase();
-    return (
-      errorMessage.includes('network') ||
-      errorMessage.includes('connection') ||
-      errorMessage.includes('timeout') ||
-      errorMessage.includes('fetch') ||
-      errorMessage.includes('econnrefused') ||
-      errorMessage.includes('enotfound')
-    );
-  }
-
-  /**
-   * Sleep utility for retry delays
-   */
-  private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    const connectionErrorPatterns = [
+      'network', 'connection', 'timeout', 'fetch',
+      'econnrefused', 'enotfound', 'socket', 'dns',
+      'tls', 'ssl', 'certificate', 'econnreset'
+    ];
+    
+    return connectionErrorPatterns.some(pattern => errorMessage.includes(pattern));
   }
 
   /**
@@ -312,8 +364,6 @@ export abstract class ValueObject {
       const components = this.getCachedEqualityComponents();
       this._temporalFieldCache = new Set();
       
-      // Try to get field names from component structure
-      // Override in child classes to provide explicit field names
       for (let i = 0; i < components.length; i++) {
         const comp = components[i];
         if (comp instanceof Date) {
@@ -339,6 +389,7 @@ export abstract class ValueObject {
    * - Handles cross-module class instances
    * - Null-safe and type-safe
    * - Optimized for performance with early returns
+   * - Uses timing-safe comparison for sensitive strings
    * 
    * @param other - The value object to compare with
    * @returns true if both value objects have identical equality components
@@ -571,10 +622,11 @@ export abstract class ValueObject {
     
     // Include metadata for offline-first synchronization
     const metadata: ValueObjectMetadata = {
-      version: '2.0.0',
+      version: VALUE_OBJECT_CONFIG?.VERSION ?? '2.0.0',
       timestamp: new Date().toISOString(),
       className: this.constructor.name,
-      syncStatus: 'synced'
+      syncStatus: 'synced',
+      environment: isProduction() ? 'production' : isDevelopment() ? 'development' : 'unknown'
     };
     
     const result: Record<string, unknown> = { value, _metadata: metadata };
@@ -582,6 +634,15 @@ export abstract class ValueObject {
     // Apply field exclusion if specified
     if (options?.excludeFields && options.excludeFields.length > 0) {
       this.excludeFieldsFromResult(result, options.excludeFields);
+    }
+    
+    // Include environment info if requested
+    if (options?.includeEnvironment) {
+      result._environment = {
+        nodeEnv: ENV_CONFIG?.NODE_ENV,
+        isProduction: isProduction(),
+        timestamp: Date.now()
+      };
     }
     
     return result;
@@ -704,8 +765,6 @@ export abstract class ValueObject {
    * Override in child classes if constructor signature differs
    */
   protected reconstruct(components: unknown[]): this {
-    // Default reconstruction assumes constructor takes components as spread arguments
-    // Override this method in child classes for custom reconstruction logic
     const Constructor = this.constructor as new (...args: unknown[]) => this;
     return new Constructor(...components);
   }
@@ -714,24 +773,20 @@ export abstract class ValueObject {
    * Create a snapshot for offline storage
    * Includes state and metadata for sync
    */
-  public snapshot(): {
-    value: unknown;
-    metadata: ValueObjectMetadata;
-    className: string;
-    timestamp: number;
-  } {
+  public snapshot(): ValueObjectSnapshot {
     return {
       value: this.getCachedEqualityComponents().length === 1 
         ? this.getCachedEqualityComponents()[0] 
         : [...this.getCachedEqualityComponents()],
       metadata: {
-        version: '2.0.0',
+        version: VALUE_OBJECT_CONFIG?.VERSION ?? '2.0.0',
         timestamp: new Date().toISOString(),
         className: this.constructor.name,
         syncStatus: 'synced'
       },
       className: this.constructor.name,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      createdAt: this._createdAt
     };
   }
 
@@ -740,7 +795,7 @@ export abstract class ValueObject {
    */
   public static fromSnapshot<T extends ValueObject>(
     this: new (...args: unknown[]) => T,
-    snapshot: ReturnType<ValueObject['snapshot']>
+    snapshot: ValueObjectSnapshot
   ): T {
     const value = snapshot.value;
     const components = Array.isArray(value) ? value : [value];
@@ -775,6 +830,7 @@ export abstract class ValueObject {
   /**
    * Deep equality check for components
    * Handles nested objects, arrays, and value objects
+   * Uses timing-safe comparison for sensitive string values
    */
   private areEqual(a: unknown, b: unknown): boolean {
     // Strict equality for primitives (fast path)
@@ -825,6 +881,11 @@ export abstract class ValueObject {
       const aArray = Array.from(a);
       const bArray = Array.from(b);
       return this.areEqual(aArray, bArray);
+    }
+
+    // Handle strings with timing-safe comparison (for sensitive data)
+    if (typeof a === 'string' && typeof b === 'string') {
+      return timingSafeEqual(a, b);
     }
 
     // Handle objects (shallow comparison)
@@ -938,12 +999,16 @@ export async function batchValidateValueObjects(
     valueObjects.map(async (vo) => {
       try {
         if (options?.allowDegradedMode) {
-          await vo['validateAsync']?.();
+          await (vo as any).validateAsync?.();
         } else {
-          await vo['validateAsync']?.();
+          await (vo as any).validateAsync?.();
         }
       } catch (err) {
         errors.push(err as Error);
+        
+        if (options?.logFailures !== false) {
+          logger.error(`[ValueObject] Batch validation failed for ${vo.constructor.name}:`, err);
+        }
       }
     })
   );
@@ -956,4 +1021,10 @@ export async function batchValidateValueObjects(
 
 // ==================== Type Exports ====================
 
-export type { ValueObjectComparison, TemporalEqualityConfig, ValueObjectMetadata, ValidationOptions, SerializationOptions };
+export type { 
+  ValueObjectComparison, 
+  TemporalEqualityConfig, 
+  ValueObjectMetadata, 
+  ValidationOptions, 
+  SerializationOptions 
+};
