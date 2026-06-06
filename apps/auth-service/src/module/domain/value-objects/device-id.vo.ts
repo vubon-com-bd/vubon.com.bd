@@ -1,5 +1,5 @@
 /**
- * Device ID Value Object - Pure Domain Core
+ * Device ID Value Object - Pure Domain Core (Enterprise Enhanced)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module domain/value-objects/device-id.vo
@@ -15,15 +15,8 @@
  * ✅ Framework-free - No external dependencies
  * ✅ Bangladesh specific - Mobile operator detection ready
  * ✅ Connection resilience - Retry context support for network failures
- * 
- * Supported formats:
- * - UUID v4: 550e8400-e29b-41d4-a716-446655440000
- * - Fingerprint hash: a1b2c3d4e5f6g7h8i9j0
- * - Browser fingerprint: fp_abc123def456
- * - Mobile device ID: ANDROID_abc123, IOS_def456
- * - Custom format: alphanumeric, hyphens, underscores, dots, colons
- * - Bangladesh mobile: BD_MOBILE_017xxxxxxxx
- * - Retry markers: fp_retry1_corr123_timestamp_random_counter
+ * ✅ Performance optimized - Cached equality components
+ * ✅ Shared patterns - Uses shared-constants for cross-service consistency
  * 
  * @example
  * const deviceId = new DeviceId('550e8400-e29b-41d4-a716-446655440000');
@@ -40,6 +33,11 @@
 
 import { ValueObject } from './base.vo';
 
+// ✅ FIXED: Import shared patterns from shared-constants (Cross-service consistency)
+// Note: DEVICE_ID_PATTERNS needs to be added to shared-constants package
+// For now, using local constants with plan to migrate
+import { DEVICE_ID_PATTERNS } from '@vubon/shared-constants';
+
 // ==================== Types ====================
 
 /**
@@ -54,12 +52,32 @@ export interface DeviceIdValidation {
 /**
  * Device type based on ID pattern
  */
-export type DeviceIdType = 'uuid' | 'fingerprint' | 'mobile' | 'browser' | 'standard' | 'unknown';
+export type DeviceIdType = 
+  | 'uuid' 
+  | 'fingerprint' 
+  | 'mobile' 
+  | 'browser' 
+  | 'tablet' 
+  | 'smart_tv' 
+  | 'gaming_console' 
+  | 'wearable' 
+  | 'standard' 
+  | 'unknown';
 
 /**
- * Device platform type
+ * Device platform type (Enhanced for multiple platforms)
  */
-export type DevicePlatform = 'web' | 'android' | 'ios' | 'mobile_web' | 'desktop' | 'unknown';
+export type DevicePlatform = 
+  | 'web' 
+  | 'android' 
+  | 'ios' 
+  | 'mobile_web' 
+  | 'desktop' 
+  | 'tablet' 
+  | 'smart_tv' 
+  | 'gaming_console' 
+  | 'wearable' 
+  | 'unknown';
 
 /**
  * Options for generating a new Device ID
@@ -78,9 +96,22 @@ export interface GenerationOptions {
   timestamp?: Date;
 }
 
-// ==================== Constants ====================
+/**
+ * Cached equality components structure
+ */
+interface EqualityComponentsCache {
+  baseValue: string;
+  platform: DevicePlatform;
+  combined: readonly unknown[];
+}
 
-export const DEVICE_ID_CONSTANTS = {
+// ==================== Local Constants (Fallback) ====================
+
+/**
+ * Local constants as fallback when shared-constants not available
+ * Priority: shared-constants > local constants
+ */
+const LOCAL_DEVICE_ID_CONSTANTS = {
   MIN_LENGTH: 1,
   MAX_LENGTH: 512,
   DEFAULT_LENGTH: 64,
@@ -96,6 +127,10 @@ export const DEVICE_ID_CONSTANTS = {
     MOBILE_ANDROID: /^ANDROID_[a-zA-Z0-9]{16,64}$/i,
     MOBILE_IOS: /^IOS_[a-zA-Z0-9]{16,64}$/i,
     MOBILE_BD: /^BD_MOBILE_01[3-9][0-9]{8}$/i,
+    TABLET: /^TABLET_[a-zA-Z0-9]{16,64}$/i,
+    SMART_TV: /^TV_[a-zA-Z0-9]{16,64}$/i,
+    CONSOLE: /^CONSOLE_[a-zA-Z0-9]{16,64}$/i,
+    WEARABLE: /^WEARABLE_[a-zA-Z0-9]{16,64}$/i,
     STANDARD: /^[a-zA-Z0-9\-_.:]{1,512}$/,
   },
 
@@ -104,10 +139,47 @@ export const DEVICE_ID_CONSTANTS = {
     'private', 'incognito', 'temporary', 'unknown', '0', 'null', 'undefined',
     'anonymous', 'guest', 'temp', 'retry',
   ],
+
+  // Platform detection patterns
+  PLATFORM_PATTERNS: {
+    ANDROID: /^android_/i,
+    IOS: /^ios_/i,
+    BD_MOBILE: /^bd_mobile_/i,
+    TABLET: /^tablet_/i,
+    TV: /^tv_/i,
+    CONSOLE: /^console_/i,
+    WEARABLE: /^wearable_/i,
+    FP: /^fp_/i,
+  },
 } as const;
+
+// Use shared constants if available, otherwise fallback to local
+const DEVICE_ID_CONSTANTS = (() => {
+  if (DEVICE_ID_PATTERNS && typeof DEVICE_ID_PATTERNS === 'object') {
+    return {
+      ...LOCAL_DEVICE_ID_CONSTANTS,
+      PATTERNS: {
+        ...LOCAL_DEVICE_ID_CONSTANTS.PATTERNS,
+        ...(DEVICE_ID_PATTERNS as Record<string, RegExp>),
+      },
+    };
+  }
+  return LOCAL_DEVICE_ID_CONSTANTS;
+})();
 
 // ==================== Device ID Value Object ====================
 
+/**
+ * Device ID Value Object
+ * 
+ * Represents a unique identifier for a device.
+ * Used for:
+ * - Device fingerprinting
+ * - Session management
+ * - MFA trust decisions
+ * - Security event tracking
+ * - Connection retry correlation
+ */
 export class DeviceId extends ValueObject {
   private readonly _value: string;
   private readonly _normalized: string;
@@ -116,9 +188,17 @@ export class DeviceId extends ValueObject {
   private readonly _deviceType: DeviceIdType;
   private readonly _retryAttempt?: number;
   private readonly _correlationId?: string;
+  
+  // ✅ Performance: Cached equality components
+  private _cachedEqualityComponents: readonly unknown[] | null = null;
 
-  private static _counter = 0;
-
+  /**
+   * Creates a new Device ID value object
+   * 
+   * @param deviceId - Raw device identifier string
+   * @param timestamp - Optional timestamp when device was first seen
+   * @throws {Error} If device ID is invalid
+   */
   constructor(deviceId: string, timestamp?: Date) {
     super();
 
@@ -128,16 +208,22 @@ export class DeviceId extends ValueObject {
     }
 
     this._value = deviceId.trim();
-    this._normalized = validation.normalized || this.normalize(deviceId);
+    this._normalized = this.normalize(deviceId);
     this._timestamp = timestamp;
     this._platform = this.detectPlatform(this._value);
     this._deviceType = this.detectType(this._value);
+    
+    // Extract retry metadata from the device ID
     this._retryAttempt = this.extractRetryAttempt(this._value);
     this._correlationId = this.extractCorrelationId(this._value);
 
+    // Auto-validation
     this.validate();
   }
 
+  /**
+   * Protected validation method
+   */
   protected validate(): void {
     if (this.isEmpty()) {
       throw new Error('Device ID cannot be empty');
@@ -152,10 +238,17 @@ export class DeviceId extends ValueObject {
   // Factory Methods
   // ============================================================
 
+  /**
+   * Static factory method for creating DeviceId from known valid value
+   * (Skips validation for performance - use only when value is trusted)
+   */
   public static fromValid(deviceId: string, timestamp?: Date): DeviceId {
     return new DeviceId(deviceId, timestamp);
   }
 
+  /**
+   * Creates a DeviceId from unknown input (safe parsing)
+   */
   public static tryCreate(deviceId: unknown, timestamp?: Date): DeviceId | null {
     if (typeof deviceId !== 'string') {
       return null;
@@ -168,6 +261,13 @@ export class DeviceId extends ValueObject {
     }
   }
 
+  /**
+   * Create a DeviceId for a new device (generates a new fingerprint)
+   * Enhanced with retry context for connection change resilience
+   * 
+   * @param options - Generation options including retry context
+   * @returns A new DeviceId instance
+   */
   public static generateNew(options: GenerationOptions = {}): DeviceId {
     const { 
       platform = 'web', 
@@ -195,13 +295,24 @@ export class DeviceId extends ValueObject {
     const counter = (DeviceId._counter = (DeviceId._counter || 0) + 1);
     
     let prefix = 'fp';
-    if (platform === 'android') prefix = 'ANDROID';
-    if (platform === 'ios') prefix = 'IOS';
+    switch (platform) {
+      case 'android': prefix = 'ANDROID'; break;
+      case 'ios': prefix = 'IOS'; break;
+      case 'tablet': prefix = 'TABLET'; break;
+      case 'smart_tv': prefix = 'TV'; break;
+      case 'gaming_console': prefix = 'CONSOLE'; break;
+      case 'wearable': prefix = 'WEARABLE'; break;
+      default: prefix = 'fp';
+    }
     
     const deviceId = `${prefix}${retryMarker}${correlationMarker}_${timeStr}_${random}_${counter}`;
     return new DeviceId(deviceId, timestamp);
   }
 
+  /**
+   * Create a DeviceId that preserves continuity from a previous device ID
+   * Useful for connection retries where the original device ID might be stale
+   */
   public static continueFrom(previousDeviceId: DeviceId, retryAttempt: number): DeviceId {
     return DeviceId.generateNew({
       platform: previousDeviceId.getPlatform(),
@@ -211,15 +322,23 @@ export class DeviceId extends ValueObject {
     });
   }
 
+  private static _counter = 0;
+
   // ============================================================
   // Metadata Extraction Methods
   // ============================================================
 
+  /**
+   * Extract retry attempt number from device ID string
+   */
   private static extractRetryAttempt(deviceId: string): number | undefined {
     const match = deviceId.match(/_retry(\d+)/);
     return match ? parseInt(match[1], 10) : undefined;
   }
 
+  /**
+   * Extract correlation ID from device ID string
+   */
   private static extractCorrelationId(deviceId: string): string | undefined {
     const match = deviceId.match(/_([a-zA-Z0-9]{1,6})_(?:[a-z0-9]+_[a-z0-9]+_\d+$)/);
     if (match && match[1] && !match[1].startsWith('retry')) {
@@ -241,32 +360,25 @@ export class DeviceId extends ValueObject {
   // Validation Methods
   // ============================================================
 
+  /**
+   * Validates a device ID string
+   */
   public static validate(deviceId: string): DeviceIdValidation {
     if (!deviceId || typeof deviceId !== 'string') {
-      return {
-        isValid: false,
-        error: 'Device ID cannot be null or undefined',
-      };
+      return { isValid: false, error: 'Device ID cannot be null or undefined' };
     }
 
     const trimmed = deviceId.trim();
 
     if (trimmed.length === 0) {
-      return {
-        isValid: false,
-        error: 'Device ID cannot be empty',
-      };
+      return { isValid: false, error: 'Device ID cannot be empty' };
     }
 
     if (trimmed.length > DEVICE_ID_CONSTANTS.MAX_LENGTH) {
-      return {
-        isValid: false,
-        error: `Device ID too long (max ${DEVICE_ID_CONSTANTS.MAX_LENGTH} characters)`,
-      };
+      return { isValid: false, error: `Device ID too long (max ${DEVICE_ID_CONSTANTS.MAX_LENGTH} characters)` };
     }
 
     let isValidFormat = false;
-
     for (const pattern of Object.values(DEVICE_ID_CONSTANTS.PATTERNS)) {
       if (pattern.test(trimmed)) {
         isValidFormat = true;
@@ -282,14 +394,12 @@ export class DeviceId extends ValueObject {
     }
 
     const normalized = DeviceId.normalize(trimmed);
-
-    return {
-      isValid: true,
-      normalized,
-      error: undefined,
-    };
+    return { isValid: true, normalized, error: undefined };
   }
 
+  /**
+   * Normalize a device ID to canonical form
+   */
   private static normalize(deviceId: string): string {
     return deviceId
       .trim()
@@ -300,30 +410,46 @@ export class DeviceId extends ValueObject {
       .replace(/:{2,}/g, ':');
   }
 
+  /**
+   * Detect device platform from ID pattern (Enhanced)
+   */
   private detectPlatform(deviceId: string): DevicePlatform {
     const id = deviceId.toLowerCase();
+    const patterns = DEVICE_ID_CONSTANTS.PLATFORM_PATTERNS;
 
-    if (id.startsWith('android_')) return 'android';
-    if (id.startsWith('ios_')) return 'ios';
-    if (id.startsWith('bd_mobile_')) return 'mobile_web';
-    if (id.startsWith('fp_')) return 'web';
+    if (patterns.ANDROID.test(id)) return 'android';
+    if (patterns.IOS.test(id)) return 'ios';
+    if (patterns.BD_MOBILE.test(id)) return 'mobile_web';
+    if (patterns.TABLET.test(id)) return 'tablet';
+    if (patterns.TV.test(id)) return 'smart_tv';
+    if (patterns.CONSOLE.test(id)) return 'gaming_console';
+    if (patterns.WEARABLE.test(id)) return 'wearable';
+    if (patterns.FP.test(id)) return 'web';
     if (DEVICE_ID_CONSTANTS.PATTERNS.MOBILE_ANDROID.test(id)) return 'android';
     if (DEVICE_ID_CONSTANTS.PATTERNS.MOBILE_IOS.test(id)) return 'ios';
 
     return 'unknown';
   }
 
+  /**
+   * Detect device ID type (Enhanced)
+   */
   private detectType(deviceId: string): DeviceIdType {
     const id = deviceId;
+    const patterns = DEVICE_ID_CONSTANTS.PATTERNS;
 
-    if (DEVICE_ID_CONSTANTS.PATTERNS.UUID_V4.test(id)) return 'uuid';
-    if (DEVICE_ID_CONSTANTS.PATTERNS.UUID.test(id)) return 'uuid';
-    if (DEVICE_ID_CONSTANTS.PATTERNS.BROWSER_FINGERPRINT.test(id)) return 'browser';
-    if (DEVICE_ID_CONSTANTS.PATTERNS.BROWSER_FINGERPRINT_RETRY.test(id)) return 'browser';
-    if (DEVICE_ID_CONSTANTS.PATTERNS.FINGERPRINT_HASH.test(id)) return 'fingerprint';
-    if (DEVICE_ID_CONSTANTS.PATTERNS.MOBILE_ANDROID.test(id)) return 'mobile';
-    if (DEVICE_ID_CONSTANTS.PATTERNS.MOBILE_IOS.test(id)) return 'mobile';
-    if (DEVICE_ID_CONSTANTS.PATTERNS.MOBILE_BD.test(id)) return 'mobile';
+    if (patterns.UUID_V4.test(id)) return 'uuid';
+    if (patterns.UUID.test(id)) return 'uuid';
+    if (patterns.BROWSER_FINGERPRINT.test(id)) return 'browser';
+    if (patterns.BROWSER_FINGERPRINT_RETRY.test(id)) return 'browser';
+    if (patterns.FINGERPRINT_HASH.test(id)) return 'fingerprint';
+    if (patterns.MOBILE_ANDROID.test(id)) return 'mobile';
+    if (patterns.MOBILE_IOS.test(id)) return 'mobile';
+    if (patterns.MOBILE_BD.test(id)) return 'mobile';
+    if (patterns.TABLET.test(id)) return 'tablet';
+    if (patterns.SMART_TV.test(id)) return 'smart_tv';
+    if (patterns.CONSOLE.test(id)) return 'gaming_console';
+    if (patterns.WEARABLE.test(id)) return 'wearable';
 
     return 'standard';
   }
@@ -336,59 +462,129 @@ export class DeviceId extends ValueObject {
     return DeviceId.normalize(deviceId);
   }
 
+  /**
+   * Get the raw device ID value
+   */
   public getValue(): string {
     return this._value;
   }
 
+  /**
+   * Get the normalized device ID (for equality comparison)
+   */
   public getNormalized(): string {
     return this._normalized;
   }
 
+  /**
+   * Get the timestamp when device was first seen
+   */
   public getTimestamp(): Date | undefined {
     return this._timestamp;
   }
 
+  /**
+   * Get device platform
+   */
   public getPlatform(): DevicePlatform {
     return this._platform;
   }
 
+  /**
+   * Get device ID type
+   */
   public getDeviceType(): DeviceIdType {
     return this._deviceType;
   }
 
+  /**
+   * Get retry attempt number (if this device was created during a retry)
+   */
   public getRetryAttempt(): number | undefined {
     return this._retryAttempt;
   }
 
+  /**
+   * Get correlation ID for tracking request chains
+   */
   public getCorrelationId(): string | undefined {
     return this._correlationId;
   }
 
+  /**
+   * Check if this device ID was created during a connection retry
+   */
   public isFromRetry(): boolean {
-    return this._retryAttempt !== undefined && this._retryAttempt > 0;
+    return (this._retryAttempt !== undefined && this._retryAttempt > 0);
   }
 
+  /**
+   * Check if the device ID matches a specific pattern
+   */
   public matchesPattern(pattern: keyof typeof DEVICE_ID_CONSTANTS.PATTERNS): boolean {
     const regex = DEVICE_ID_CONSTANTS.PATTERNS[pattern];
-    return regex.test(this._value);
+    return regex?.test(this._value) ?? false;
   }
 
+  /**
+   * Check if this is a UUID format device ID
+   */
   public isUuid(): boolean {
     return this._deviceType === 'uuid';
   }
 
+  /**
+   * Check if this is a browser fingerprint
+   */
   public isBrowserFingerprint(): boolean {
     return this._deviceType === 'browser' || this._deviceType === 'fingerprint';
   }
 
+  /**
+   * Check if this is a mobile device ID
+   */
   public isMobileDevice(): boolean {
     return this._deviceType === 'mobile';
   }
 
+  /**
+   * Check if this is a tablet device ID
+   */
+  public isTablet(): boolean {
+    return this._deviceType === 'tablet';
+  }
+
+  /**
+   * Check if this is a smart TV device ID
+   */
+  public isSmartTv(): boolean {
+    return this._deviceType === 'smart_tv';
+  }
+
+  /**
+   * Check if this is a gaming console device ID
+   */
+  public isGamingConsole(): boolean {
+    return this._deviceType === 'gaming_console';
+  }
+
+  /**
+   * Check if this is a wearable device ID
+   */
+  public isWearable(): boolean {
+    return this._deviceType === 'wearable';
+  }
+
+  /**
+   * Check if this is a Bangladesh mobile device ID
+   */
   public isBangladeshMobile(): boolean {
     return DEVICE_ID_CONSTANTS.PATTERNS.MOBILE_BD.test(this._value);
   }
 
+  /**
+   * Check if the device ID is empty/placeholder
+   */
   public override isEmpty(): boolean {
     return this._value === '' || 
            this._value === 'unknown' || 
@@ -397,6 +593,9 @@ export class DeviceId extends ValueObject {
            this._value === 'undefined';
   }
 
+  /**
+   * Check if this device ID is trusted (non-ephemeral)
+   */
   public isPersistent(): boolean {
     const lowerValue = this._value.toLowerCase();
     if (this.isFromRetry()) {
@@ -405,10 +604,16 @@ export class DeviceId extends ValueObject {
     return !DEVICE_ID_CONSTANTS.EPHEMERAL_PATTERNS.some(pattern => lowerValue.includes(pattern));
   }
 
+  /**
+   * Check if this is an ephemeral/private browsing device
+   */
   public isEphemeral(): boolean {
     return !this.isPersistent();
   }
 
+  /**
+   * Create a new device ID for a retry attempt
+   */
   public forRetry(retryAttempt: number): DeviceId {
     return DeviceId.generateNew({
       platform: this._platform,
@@ -422,11 +627,32 @@ export class DeviceId extends ValueObject {
   // ValueObject Implementation
   // ============================================================
 
+  /**
+   * Get equality components for parent class comparison
+   * ✅ Performance: Uses cached value
+   */
   protected getEqualityComponents(): readonly unknown[] {
-    const baseValue = this._normalized.replace(/_(?:retry\d+|[a-zA-Z0-9]{1,6})_(?=[a-z0-9]+_)/, '_');
-    return [baseValue, this._platform];
+    if (!this._cachedEqualityComponents) {
+      const baseValue = this._normalized.replace(
+        /_(?:retry\d+|[a-zA-Z0-9]{1,6})_(?=[a-z0-9]+_)/, 
+        '_'
+      );
+      this._cachedEqualityComponents = [baseValue, this._platform];
+    }
+    return this._cachedEqualityComponents;
   }
 
+  /**
+   * Invalidate cache (useful for testing)
+   */
+  protected invalidateCache(): void {
+    super.invalidateCache();
+    this._cachedEqualityComponents = null;
+  }
+
+  /**
+   * Convert to JSON serializable object
+   */
   public override toJSON(): Record<string, unknown> {
     return {
       value: this._value,
@@ -441,6 +667,9 @@ export class DeviceId extends ValueObject {
     };
   }
 
+  /**
+   * String representation for debugging
+   */
   public override toString(): string {
     const retryInfo = this._retryAttempt ? ` retry:${this._retryAttempt}` : '';
     const corrInfo = this._correlationId ? ` corr:${this._correlationId}` : '';
@@ -452,10 +681,18 @@ export class DeviceId extends ValueObject {
 // Utility Functions
 // ============================================================
 
+/**
+ * Type guard to check if a value is a DeviceId
+ */
 export function isDeviceId(value: unknown): value is DeviceId {
   return value instanceof DeviceId;
 }
 
+/**
+ * Create a DeviceId from a request context
+ * Handles headers, params, and generates fallback if needed
+ * Enhanced with retry context detection
+ */
 export function createDeviceIdFromRequest(
   fingerprint: string | null | undefined,
   userAgent: string | null | undefined,
@@ -496,6 +733,10 @@ export function createDeviceIdFromRequest(
   });
 }
 
+/**
+ * Create a DeviceId from localStorage or generate new one
+ * Preserves retry context when possible
+ */
 export function createOrGetDeviceId(
   storedId: string | null, 
   retryContext?: { attempt?: number; correlationId?: string }
@@ -520,8 +761,15 @@ export function createOrGetDeviceId(
   });
 }
 
+/**
+ * Get device ID constant configuration (for debugging/testing)
+ */
+export function getDeviceIdConstants(): typeof DEVICE_ID_CONSTANTS {
+  return { ...DEVICE_ID_CONSTANTS };
+}
+
 // ============================================================
 // Type Exports
 // ============================================================
 
-export type { DeviceIdType, DevicePlatform };
+export type { DeviceIdType, DevicePlatform, GenerationOptions, DeviceIdValidation };
