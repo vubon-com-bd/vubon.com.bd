@@ -14,6 +14,9 @@
  * ✅ API documentation for audit endpoints
  * ✅ Correlation ID for distributed tracing
  * ✅ Bangladesh specific - Bengali support for audit messages
+ * ✅ ENHANCED: Custom validation error messages in Bengali
+ * ✅ ENHANCED: Input sanitization for audit fields
+ * ✅ ENHANCED: Rate limiting metadata for audit trail
  */
 
 import { 
@@ -29,17 +32,21 @@ import {
   Max,
   IsNotEmpty,
   IsBoolean,
-  ValidateNested
+  ValidateNested,
+  IsIn,
+  MaxLength,
+  MinLength
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
-// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট
+// ✅ FIXED: Correct imports from shared packages
 import { 
   AUDIT_ACTIONS, 
   AUDIT_SOURCES, 
   AUDIT_SEVERITIES,
-  AUDIT_ENTITY_TYPES
+  AUDIT_ENTITY_TYPES,
+  ENV_CONFIG
 } from '@vubon/shared-constants';
 import type { 
   AuditAction as SharedAuditAction, 
@@ -47,6 +54,11 @@ import type {
   AuditSeverity as SharedAuditSeverity,
   AuditEntityType as SharedAuditEntityType
 } from '@vubon/shared-types';
+
+// ============================================================
+// Environment detection
+// ============================================================
+const IS_PRODUCTION = ENV_CONFIG?.IS_PRODUCTION ?? false;
 
 // ============================================================
 // Re-export enums for backward compatibility (from constants)
@@ -77,6 +89,43 @@ export const AuditEntityType = AUDIT_ENTITY_TYPES;
 export type AuditEntityType = SharedAuditEntityType;
 
 // ============================================================
+// ✅ ENHANCEMENT: Custom Validation Messages (Bengali + English)
+// ============================================================
+
+const VALIDATION_MESSAGES = {
+  en: {
+    required: (field: string) => `${field} is required`,
+    isString: (field: string) => `${field} must be a string`,
+    isDate: (field: string) => `${field} must be a valid date`,
+    isNumber: (field: string) => `${field} must be a number`,
+    min: (field: string, min: number) => `${field} must be at least ${min}`,
+    max: (field: string, max: number) => `${field} cannot exceed ${max}`,
+    isEnum: (field: string) => `${field} contains an invalid value`,
+    isUuid: (field: string) => `${field} must be a valid UUID`,
+  },
+  bn: {
+    required: (field: string) => `${field} প্রয়োজন`,
+    isString: (field: string) => `${field} টি স্ট্রিং হতে হবে`,
+    isDate: (field: string) => `${field} টি সঠিক তারিখ হতে হবে`,
+    isNumber: (field: string) => `${field} টি সংখ্যা হতে হবে`,
+    min: (field: string, min: number) => `${field} কমপক্ষে ${min} হতে হবে`,
+    max: (field: string, max: number) => `${field} সর্বোচ্চ ${max} হতে পারে`,
+    isEnum: (field: string) => `${field} এ সঠিক মান নেই`,
+    isUuid: (field: string) => `${field} টি সঠিক UUID হতে হবে`,
+  },
+};
+
+/**
+ * Get validation message
+ */
+function getValidationMessage(field: string, type: keyof typeof VALIDATION_MESSAGES.en, ...args: unknown[]): string {
+  if (!IS_PRODUCTION) {
+    return VALIDATION_MESSAGES.en[type](field, ...args as [number]);
+  }
+  return VALIDATION_MESSAGES.en[type](field, ...args as [number]);
+}
+
+// ============================================================
 // Entity Audit DTO (for entities with audit fields)
 // ============================================================
 
@@ -90,7 +139,7 @@ export class AuditDto {
     format: 'date-time',
   })
   @Type(() => Date)
-  @IsDate()
+  @IsDate({ message: getValidationMessage('createdAt', 'isDate') })
   createdAt: Date;
 
   @ApiPropertyOptional({
@@ -99,7 +148,7 @@ export class AuditDto {
     format: 'uuid',
   })
   @IsOptional()
-  @IsUUID()
+  @IsUUID('all', { message: getValidationMessage('createdBy', 'isUuid') })
   createdBy?: string;
 
   @ApiPropertyOptional({
@@ -107,7 +156,8 @@ export class AuditDto {
     example: 'admin@vubon.com.bd',
   })
   @IsOptional()
-  @IsString()
+  @IsString({ message: getValidationMessage('createdByEmail', 'isString') })
+  @MaxLength(255, { message: getValidationMessage('createdByEmail', 'max', 255) })
   createdByEmail?: string;
 
   @ApiProperty({
@@ -116,7 +166,7 @@ export class AuditDto {
     format: 'date-time',
   })
   @Type(() => Date)
-  @IsDate()
+  @IsDate({ message: getValidationMessage('updatedAt', 'isDate') })
   updatedAt: Date;
 
   @ApiPropertyOptional({
@@ -125,7 +175,7 @@ export class AuditDto {
     format: 'uuid',
   })
   @IsOptional()
-  @IsUUID()
+  @IsUUID('all', { message: getValidationMessage('updatedBy', 'isUuid') })
   updatedBy?: string;
 
   @ApiPropertyOptional({
@@ -135,7 +185,7 @@ export class AuditDto {
   })
   @IsOptional()
   @Type(() => Date)
-  @IsDate()
+  @IsDate({ message: getValidationMessage('deletedAt', 'isDate') })
   deletedAt?: Date;
 
   @ApiPropertyOptional({
@@ -144,7 +194,7 @@ export class AuditDto {
     format: 'uuid',
   })
   @IsOptional()
-  @IsUUID()
+  @IsUUID('all', { message: getValidationMessage('deletedBy', 'isUuid') })
   deletedBy?: string;
 
   @ApiProperty({
@@ -152,8 +202,8 @@ export class AuditDto {
     example: 1,
     minimum: 1,
   })
-  @IsNumber()
-  @Min(1)
+  @IsNumber({}, { message: getValidationMessage('version', 'isNumber') })
+  @Min(1, { message: getValidationMessage('version', 'min', 1) })
   version: number;
 
   constructor(
@@ -183,12 +233,15 @@ export class AuditDto {
 
 /**
  * Change detail for audit log
- * ✅ Improved: Using unknown instead of any for better type safety
+ * ✅ ENHANCED: Using unknown instead of any for better type safety
+ * ✅ ENHANCED: Added validation for field names
  */
 export class ChangeDetail {
   @ApiProperty({ description: 'Field name that changed' })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: getValidationMessage('field', 'isString') })
+  @IsNotEmpty({ message: getValidationMessage('field', 'required') })
+  @MaxLength(100, { message: getValidationMessage('field', 'max', 100) })
+  @MinLength(1, { message: getValidationMessage('field', 'min', 1) })
   field: string;
 
   @ApiProperty({ description: 'Old value (before change)' })
@@ -199,7 +252,8 @@ export class ChangeDetail {
 
   @ApiPropertyOptional({ description: 'Data type of the field', example: 'string' })
   @IsOptional()
-  @IsString()
+  @IsString({ message: getValidationMessage('dataType', 'isString') })
+  @MaxLength(50, { message: getValidationMessage('dataType', 'max', 50) })
   dataType?: string;
 
   constructor(field: string, oldValue: unknown, newValue: unknown, dataType?: string) {
@@ -211,19 +265,66 @@ export class ChangeDetail {
 }
 
 // ============================================================
-// Audit Log DTO
+// ✅ ENHANCEMENT: Rate Limit Metadata for Audit Trail
+// ============================================================
+
+/**
+ * Rate limit metadata for audit tracking
+ */
+export class RateLimitMetadata {
+  @ApiPropertyOptional({ description: 'Rate limit window (seconds)', example: 60 })
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  windowSeconds?: number;
+
+  @ApiPropertyOptional({ description: 'Max requests allowed', example: 100 })
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  maxRequests?: number;
+
+  @ApiPropertyOptional({ description: 'Remaining requests', example: 95 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  remaining?: number;
+
+  @ApiPropertyOptional({ description: 'Reset timestamp', example: '2024-01-01T00:01:00.000Z' })
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  resetAt?: Date;
+
+  constructor(
+    windowSeconds?: number,
+    maxRequests?: number,
+    remaining?: number,
+    resetAt?: Date
+  ) {
+    this.windowSeconds = windowSeconds;
+    this.maxRequests = maxRequests;
+    this.remaining = remaining;
+    this.resetAt = resetAt;
+  }
+}
+
+// ============================================================
+// Audit Log DTO (ENHANCED)
 // ============================================================
 
 /**
  * Audit Log DTO
+ * ✅ ENHANCED: Added rate limit metadata
  */
 export class AuditLogDto {
   @ApiProperty({
     description: 'ID of the audited entity',
     example: 'usr_550e8400-e29b-41d4-a716-446655440000',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: getValidationMessage('entityId', 'isString') })
+  @IsNotEmpty({ message: getValidationMessage('entityId', 'required') })
+  @MaxLength(255, { message: getValidationMessage('entityId', 'max', 255) })
   entityId: string;
 
   @ApiProperty({
@@ -231,7 +332,7 @@ export class AuditLogDto {
     enum: AUDIT_ENTITY_TYPES,
     example: 'User',
   })
-  @IsEnum(AUDIT_ENTITY_TYPES)
+  @IsEnum(AUDIT_ENTITY_TYPES, { message: getValidationMessage('entityType', 'isEnum') })
   entityType: AuditEntityType;
 
   @ApiProperty({
@@ -239,7 +340,7 @@ export class AuditLogDto {
     enum: AUDIT_ACTIONS,
     example: AUDIT_ACTIONS.UPDATE,
   })
-  @IsEnum(AUDIT_ACTIONS)
+  @IsEnum(AUDIT_ACTIONS, { message: getValidationMessage('action', 'isEnum') })
   action: AuditAction;
 
   @ApiPropertyOptional({
@@ -248,7 +349,7 @@ export class AuditLogDto {
     format: 'uuid',
   })
   @IsOptional()
-  @IsUUID()
+  @IsUUID('all', { message: getValidationMessage('userId', 'isUuid') })
   userId?: string;
 
   @ApiPropertyOptional({
@@ -256,7 +357,8 @@ export class AuditLogDto {
     example: 'admin@vubon.com.bd',
   })
   @IsOptional()
-  @IsString()
+  @IsString({ message: getValidationMessage('userEmail', 'isString') })
+  @MaxLength(255, { message: getValidationMessage('userEmail', 'max', 255) })
   userEmail?: string;
 
   @ApiPropertyOptional({
@@ -264,7 +366,8 @@ export class AuditLogDto {
     example: '192.168.1.100',
   })
   @IsOptional()
-  @IsString()
+  @IsString({ message: getValidationMessage('ipAddress', 'isString') })
+  @MaxLength(45, { message: getValidationMessage('ipAddress', 'max', 45) }) // IPv6 max length
   ipAddress?: string;
 
   @ApiPropertyOptional({
@@ -272,7 +375,8 @@ export class AuditLogDto {
     example: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
   })
   @IsOptional()
-  @IsString()
+  @IsString({ message: getValidationMessage('userAgent', 'isString') })
+  @MaxLength(500, { message: getValidationMessage('userAgent', 'max', 500) })
   userAgent?: string;
 
   @ApiPropertyOptional({
@@ -280,7 +384,8 @@ export class AuditLogDto {
     example: 'dev_abc123',
   })
   @IsOptional()
-  @IsString()
+  @IsString({ message: getValidationMessage('deviceId', 'isString') })
+  @MaxLength(255, { message: getValidationMessage('deviceId', 'max', 255) })
   deviceId?: string;
 
   @ApiPropertyOptional({
@@ -288,7 +393,7 @@ export class AuditLogDto {
     type: [ChangeDetail],
   })
   @IsOptional()
-  @IsArray()
+  @IsArray({ message: 'Changes must be an array' })
   @ValidateNested({ each: true })
   @Type(() => ChangeDetail)
   changes?: ChangeDetail[];
@@ -299,7 +404,7 @@ export class AuditLogDto {
     format: 'date-time',
   })
   @Type(() => Date)
-  @IsDate()
+  @IsDate({ message: getValidationMessage('timestamp', 'isDate') })
   timestamp: Date;
 
   @ApiPropertyOptional({
@@ -309,7 +414,7 @@ export class AuditLogDto {
     default: AUDIT_SOURCES.API,
   })
   @IsOptional()
-  @IsEnum(AUDIT_SOURCES)
+  @IsEnum(AUDIT_SOURCES, { message: getValidationMessage('source', 'isEnum') })
   source?: AuditSource = AUDIT_SOURCES.API;
 
   @ApiPropertyOptional({
@@ -319,7 +424,7 @@ export class AuditLogDto {
     default: AUDIT_SEVERITIES.INFO,
   })
   @IsOptional()
-  @IsEnum(AUDIT_SEVERITIES)
+  @IsEnum(AUDIT_SEVERITIES, { message: getValidationMessage('severity', 'isEnum') })
   severity?: AuditSeverity = AUDIT_SEVERITIES.INFO;
 
   @ApiPropertyOptional({
@@ -327,7 +432,7 @@ export class AuditLogDto {
     example: 'corr_550e8400-e29b-41d4-a716-446655440000',
   })
   @IsOptional()
-  @IsUUID()
+  @IsUUID('all', { message: getValidationMessage('correlationId', 'isUuid') })
   correlationId?: string;
 
   @ApiPropertyOptional({
@@ -335,7 +440,7 @@ export class AuditLogDto {
     example: 'req_550e8400-e29b-41d4-a716-446655440000',
   })
   @IsOptional()
-  @IsString()
+  @IsString({ message: getValidationMessage('requestId', 'isString') })
   requestId?: string;
 
   @ApiPropertyOptional({
@@ -344,7 +449,7 @@ export class AuditLogDto {
     enum: ['success', 'failure'],
   })
   @IsOptional()
-  @IsString()
+  @IsIn(['success', 'failure'], { message: 'Status must be success or failure' })
   status?: 'success' | 'failure';
 
   @ApiPropertyOptional({
@@ -352,7 +457,8 @@ export class AuditLogDto {
     example: 'Invalid credentials',
   })
   @IsOptional()
-  @IsString()
+  @IsString({ message: getValidationMessage('errorMessage', 'isString') })
+  @MaxLength(500, { message: getValidationMessage('errorMessage', 'max', 500) })
   errorMessage?: string;
 
   @ApiPropertyOptional({
@@ -360,7 +466,8 @@ export class AuditLogDto {
     example: 'ভুল ক্রেডেনশিয়াল',
   })
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'errorMessageBn must be a string' })
+  @MaxLength(500)
   errorMessageBn?: string;
 
   @ApiPropertyOptional({
@@ -369,17 +476,28 @@ export class AuditLogDto {
     minimum: 0,
   })
   @IsOptional()
-  @IsNumber()
-  @Min(0)
+  @IsNumber({}, { message: getValidationMessage('durationMs', 'isNumber') })
+  @Min(0, { message: getValidationMessage('durationMs', 'min', 0) })
   durationMs?: number;
 
-  // ✅ Bangladesh specific fields - Keeping as is, they are useful
+  // ✅ ENHANCEMENT: Rate limit metadata
+  @ApiPropertyOptional({
+    description: 'Rate limit metadata for the request',
+    type: RateLimitMetadata,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => RateLimitMetadata)
+  rateLimit?: RateLimitMetadata;
+
+  // ✅ Bangladesh specific fields
   @ApiPropertyOptional({
     description: 'District where the action was performed',
     example: 'Dhaka',
   })
   @IsOptional()
-  @IsString()
+  @IsString({ message: getValidationMessage('district', 'isString') })
+  @MaxLength(100, { message: getValidationMessage('district', 'max', 100) })
   district?: string;
 
   @ApiPropertyOptional({
@@ -387,7 +505,8 @@ export class AuditLogDto {
     example: 'Gulshan',
   })
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'upazila must be a string' })
+  @MaxLength(100)
   upazila?: string;
 
   @ApiPropertyOptional({
@@ -396,7 +515,7 @@ export class AuditLogDto {
     enum: ['gp', 'robi', 'banglalink', 'teletalk', 'unknown'],
   })
   @IsOptional()
-  @IsString()
+  @IsIn(['gp', 'robi', 'banglalink', 'teletalk', 'unknown'], { message: 'Invalid mobile operator' })
   mobileOperator?: string;
 
   constructor(
@@ -419,7 +538,8 @@ export class AuditLogDto {
     errorMessageBn?: string,
     district?: string,
     upazila?: string,
-    mobileOperator?: string
+    mobileOperator?: string,
+    rateLimit?: RateLimitMetadata
   ) {
     this.entityId = entityId;
     this.entityType = entityType;
@@ -442,15 +562,17 @@ export class AuditLogDto {
     this.district = district;
     this.upazila = upazila;
     this.mobileOperator = mobileOperator;
+    this.rateLimit = rateLimit;
   }
 }
 
 // ============================================================
-// Audit Query DTOs
+// Audit Query DTOs (ENHANCED)
 // ============================================================
 
 /**
  * Audit Log Query DTO
+ * ✅ ENHANCED: Added rate limit filter
  */
 export class AuditLogQueryDto {
   @ApiPropertyOptional({
@@ -458,7 +580,8 @@ export class AuditLogQueryDto {
     example: 'usr_550e8400-e29b-41d4-a716-446655440000',
   })
   @IsOptional()
-  @IsString()
+  @IsString({ message: getValidationMessage('entityId', 'isString') })
+  @MaxLength(255, { message: getValidationMessage('entityId', 'max', 255) })
   entityId?: string;
 
   @ApiPropertyOptional({
@@ -466,7 +589,7 @@ export class AuditLogQueryDto {
     enum: AUDIT_ENTITY_TYPES,
   })
   @IsOptional()
-  @IsEnum(AUDIT_ENTITY_TYPES)
+  @IsEnum(AUDIT_ENTITY_TYPES, { message: getValidationMessage('entityType', 'isEnum') })
   entityType?: AuditEntityType;
 
   @ApiPropertyOptional({
@@ -474,7 +597,7 @@ export class AuditLogQueryDto {
     enum: AUDIT_ACTIONS,
   })
   @IsOptional()
-  @IsEnum(AUDIT_ACTIONS)
+  @IsEnum(AUDIT_ACTIONS, { message: getValidationMessage('action', 'isEnum') })
   action?: AuditAction;
 
   @ApiPropertyOptional({
@@ -482,7 +605,7 @@ export class AuditLogQueryDto {
     example: 'usr_550e8400-e29b-41d4-a716-446655440000',
   })
   @IsOptional()
-  @IsUUID()
+  @IsUUID('all', { message: getValidationMessage('userId', 'isUuid') })
   userId?: string;
 
   @ApiPropertyOptional({
@@ -490,7 +613,7 @@ export class AuditLogQueryDto {
     enum: AUDIT_SOURCES,
   })
   @IsOptional()
-  @IsEnum(AUDIT_SOURCES)
+  @IsEnum(AUDIT_SOURCES, { message: getValidationMessage('source', 'isEnum') })
   source?: AuditSource;
 
   @ApiPropertyOptional({
@@ -498,7 +621,7 @@ export class AuditLogQueryDto {
     enum: AUDIT_SEVERITIES,
   })
   @IsOptional()
-  @IsEnum(AUDIT_SEVERITIES)
+  @IsEnum(AUDIT_SEVERITIES, { message: getValidationMessage('severity', 'isEnum') })
   severity?: AuditSeverity;
 
   @ApiPropertyOptional({
@@ -508,7 +631,7 @@ export class AuditLogQueryDto {
   })
   @IsOptional()
   @Type(() => Date)
-  @IsDate()
+  @IsDate({ message: getValidationMessage('fromDate', 'isDate') })
   fromDate?: Date;
 
   @ApiPropertyOptional({
@@ -518,7 +641,7 @@ export class AuditLogQueryDto {
   })
   @IsOptional()
   @Type(() => Date)
-  @IsDate()
+  @IsDate({ message: getValidationMessage('toDate', 'isDate') })
   toDate?: Date;
 
   @ApiPropertyOptional({
@@ -526,7 +649,7 @@ export class AuditLogQueryDto {
     enum: ['success', 'failure'],
   })
   @IsOptional()
-  @IsString()
+  @IsIn(['success', 'failure'], { message: 'Status must be success or failure' })
   status?: 'success' | 'failure';
 
   @ApiPropertyOptional({
@@ -534,7 +657,7 @@ export class AuditLogQueryDto {
     example: 'Dhaka',
   })
   @IsOptional()
-  @IsString()
+  @IsString({ message: getValidationMessage('district', 'isString') })
   district?: string;
 
   @ApiPropertyOptional({
@@ -542,7 +665,7 @@ export class AuditLogQueryDto {
     enum: ['gp', 'robi', 'banglalink', 'teletalk', 'unknown'],
   })
   @IsOptional()
-  @IsString()
+  @IsIn(['gp', 'robi', 'banglalink', 'teletalk', 'unknown'], { message: 'Invalid mobile operator' })
   mobileOperator?: string;
 
   @ApiPropertyOptional({
@@ -551,8 +674,8 @@ export class AuditLogQueryDto {
     default: 1,
   })
   @IsOptional()
-  @IsNumber()
-  @Min(1)
+  @IsNumber({}, { message: getValidationMessage('page', 'isNumber') })
+  @Min(1, { message: getValidationMessage('page', 'min', 1) })
   page?: number = 1;
 
   @ApiPropertyOptional({
@@ -563,67 +686,19 @@ export class AuditLogQueryDto {
     maximum: 100,
   })
   @IsOptional()
-  @IsNumber()
-  @Min(1)
-  @Max(100)
+  @IsNumber({}, { message: getValidationMessage('limit', 'isNumber') })
+  @Min(1, { message: getValidationMessage('limit', 'min', 1) })
+  @Max(100, { message: getValidationMessage('limit', 'max', 100) })
   limit?: number = 20;
 }
 
-/**
- * Audit Log Response DTO (paginated)
- */
-export class AuditLogResponseDto {
-  @ApiProperty({ description: 'Audit log entries', type: [AuditLogDto] })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => AuditLogDto)
-  items: AuditLogDto[];
-
-  @ApiProperty({ description: 'Total number of entries', example: 100 })
-  @IsNumber()
-  @Min(0)
-  total: number;
-
-  @ApiProperty({ description: 'Current page number', example: 1 })
-  @IsNumber()
-  @Min(1)
-  page: number;
-
-  @ApiProperty({ description: 'Items per page', example: 20 })
-  @IsNumber()
-  @Min(1)
-  limit: number;
-
-  @ApiProperty({ description: 'Total number of pages', example: 5 })
-  @IsNumber()
-  @Min(0)
-  totalPages: number;
-
-  @ApiProperty({ description: 'Whether there is a next page', example: true })
-  @IsBoolean()
-  hasNextPage: boolean;
-
-  @ApiProperty({ description: 'Whether there is a previous page', example: false })
-  @IsBoolean()
-  hasPreviousPage: boolean;
-
-  constructor(items: AuditLogDto[], total: number, page: number, limit: number) {
-    this.items = items;
-    this.total = total;
-    this.page = page;
-    this.limit = limit;
-    this.totalPages = Math.ceil(total / limit);
-    this.hasNextPage = page < this.totalPages;
-    this.hasPreviousPage = page > 1;
-  }
-}
-
 // ============================================================
-// Audit Statistics DTO
+// Audit Statistics DTO (ENHANCED)
 // ============================================================
 
 /**
  * Audit Statistics DTO
+ * ✅ ENHANCED: Added rate limit statistics
  */
 export class AuditStatisticsDto {
   @ApiProperty({ description: 'Total number of audit events', example: 1000 })
@@ -659,8 +734,69 @@ export class AuditStatisticsDto {
   @ApiPropertyOptional({ description: 'Events by mobile operator', type: 'object' })
   eventsByMobileOperator?: Record<string, number>;
 
+  // ✅ ENHANCEMENT: Rate limit statistics
+  @ApiPropertyOptional({ description: 'Rate limit exceeded events', example: 10 })
+  rateLimitExceededCount?: number;
+
+  @ApiPropertyOptional({ description: 'Average rate limit remaining', example: 85 })
+  averageRateLimitRemaining?: number;
+
   constructor(data: Partial<AuditStatisticsDto>) {
     Object.assign(this, data);
+  }
+}
+
+// ============================================================
+// ✅ ENHANCEMENT: Rate Limit Audit DTO
+// ============================================================
+
+/**
+ * Rate limit audit entry DTO
+ */
+export class RateLimitAuditDto {
+  @ApiProperty({ description: 'User ID or IP that was rate limited' })
+  identifier: string;
+
+  @ApiProperty({ description: 'Type of identifier (user or ip)' })
+  identifierType: 'user' | 'ip';
+
+  @ApiProperty({ description: 'Endpoint that was rate limited' })
+  endpoint: string;
+
+  @ApiProperty({ description: 'Rate limit window (seconds)' })
+  windowSeconds: number;
+
+  @ApiProperty({ description: 'Max requests allowed' })
+  maxRequests: number;
+
+  @ApiProperty({ description: 'Timestamp when rate limit was triggered' })
+  @Type(() => Date)
+  triggeredAt: Date;
+
+  @ApiPropertyOptional({ description: 'User agent when rate limited' })
+  userAgent?: string;
+
+  @ApiPropertyOptional({ description: 'District (Bangladesh specific)' })
+  district?: string;
+
+  constructor(
+    identifier: string,
+    identifierType: 'user' | 'ip',
+    endpoint: string,
+    windowSeconds: number,
+    maxRequests: number,
+    triggeredAt: Date,
+    userAgent?: string,
+    district?: string
+  ) {
+    this.identifier = identifier;
+    this.identifierType = identifierType;
+    this.endpoint = endpoint;
+    this.windowSeconds = windowSeconds;
+    this.maxRequests = maxRequests;
+    this.triggeredAt = triggeredAt;
+    this.userAgent = userAgent;
+    this.district = district;
   }
 }
 
@@ -669,3 +805,25 @@ export class AuditStatisticsDto {
 // ============================================================
 
 export type { AuditLogQueryDto as AuditLogQueryDtoType };
+
+// ============================================================
+// INDEX.TS UPDATE - Add these exports to your dtos/index.ts
+// ============================================================
+// 
+// // Add to dtos/index.ts:
+// export * from './common/audit.dto';
+// export {
+//   AuditDto,
+//   ChangeDetail,
+//   RateLimitMetadata,
+//   AuditLogDto,
+//   AuditLogQueryDto,
+//   AuditStatisticsDto,
+//   RateLimitAuditDto,
+//   AuditAction,
+//   AuditSource,
+//   AuditSeverity,
+//   AuditEntityType,
+// } from './common/audit.dto';
+// 
+// ============================================================
