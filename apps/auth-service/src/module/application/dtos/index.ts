@@ -1,25 +1,25 @@
 /**
- * DTOs Index - Barrel Export
+ * DTOs - Root Barrel Export
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module application/dtos/index
  * 
  * @description
- * Central export point for all Data Transfer Objects.
- * NO business logic, NO validation logic, ONLY re-exports.
+ * All Data Transfer Objects are exported from this index.
+ * DTOs define the shape of data for API requests and responses.
  * 
- * Enterprise Rules:
+ * RULES:
  * ✅ ONLY re-exports - NO logic, NO initialization
  * ✅ NO functions, NO side effects
- * ✅ Framework-free exports
+ * ✅ Pure DTO exports only
  */
 
 // ============================================================
 // Common DTOs
 // ============================================================
-export * from './common/pagination.dto';
-export * from './common/base-response.dto';
 export * from './common/audit.dto';
+export * from './common/base-response.dto';
+export * from './common/pagination.dto';
 
 // ============================================================
 // Auth DTOs
@@ -50,3 +50,39 @@ export * from './mfa/disable-mfa.dto';
 // ============================================================
 export * from './session/revoke-session.dto';
 export * from './session/revoke-all-sessions.dto';
+
+// ============================================================
+// Re-export commonly used types from audit.dto for convenience
+// ============================================================
+export {
+  AuditDto,
+  ChangeDetail,
+  RateLimitMetadata,
+  AuditLogDto,
+  AuditLogQueryDto,
+  AuditStatisticsDto,
+  RateLimitAuditDto,
+  AuditAction,
+  AuditSource,
+  AuditSeverity,
+  AuditEntityType,
+} from './common/audit.dto';
+
+// ============================================================
+// Re-export Base Response DTO types for convenience
+// ============================================================
+export type {
+  BaseResponse,
+  SuccessResponse,
+  ErrorResponse,
+  PaginatedResponse,
+} from './common/base-response.dto';
+
+// ============================================================
+// Re-export Pagination DTO types for convenience
+// ============================================================
+export type {
+  PaginationParams,
+  PaginatedResult,
+  PaginationMeta,
+} from './common/pagination.dto';
