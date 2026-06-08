@@ -1,19 +1,36 @@
 /**
- * Event Bus Interface - Pure Application Contract
+ * Event Bus Interface - Pure Application Contract (Enterprise Enhanced v2.0)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module application/services/interfaces/event-bus.interface
  * 
  * @description
- * Interface for event publishing and subscription.
+ * Interface for event publishing and subscription with enterprise features.
  * Implementation resides in infrastructure layer.
+ * 
+ * ENTERPRISE ENHANCEMENTS (v2.0):
+ * ✅ Event sourcing ready (aggregateVersion, eventVersion, replayEvents)
+ * ✅ Dead Letter Queue with retry mechanism
+ * ✅ Pattern-based subscription (wildcard matching)
+ * ✅ Batch publishing with parallel/concurrent support
+ * ✅ Correlation and Causation IDs for distributed tracing
+ * ✅ Idempotent event processing support
+ * ✅ Partition key support for event streaming
+ * ✅ Priority-based handler execution
+ * ✅ Circuit breaker pattern for handlers
+ * ✅ Rate limiting for event handlers
+ * ✅ Batch processing with progress tracking
+ * ✅ Event schema validation
+ * ✅ Event expiry and TTL support
+ * ✅ Bangladesh specific events (WhatsApp, bKash, District tracking)
+ * ✅ Performance metrics with P95/P99 latency
+ * ✅ Real-time monitoring dashboard integration
  * 
  * Enterprise Rules:
  * ✅ Pure interface - No implementation
  * ✅ No business logic
  * ✅ Infrastructure-agnostic
  * ✅ Event sourcing ready
- * ✅ Bangladesh specific - MFS payment events, WhatsApp login events
  * ✅ Type-safe event names using shared-constants
  */
 
@@ -21,6 +38,58 @@
 import { EVENT_NAMES, EVENT_VERSIONS, DOMAIN_EVENTS } from '@vubon/shared-constants';
 // ✅ Phase-1: Import from shared-types for type safety
 import type { EventMetadata, EventPayload, EventHandlerResult } from '@vubon/shared-types';
+
+// ============================================================
+// ✅ ENTERPRISE ENHANCEMENT: Circuit Breaker Configuration
+// ============================================================
+
+export interface CircuitBreakerConfig {
+  /** Failure threshold count before opening circuit */
+  failureThreshold: number;
+  /** Timeout in milliseconds before attempting half-open */
+  timeoutMs: number;
+  /** Success threshold in half-open state to close circuit */
+  successThreshold: number;
+  /** Whether circuit breaker is enabled for this handler */
+  enabled: boolean;
+}
+
+// ============================================================
+// ✅ ENTERPRISE ENHANCEMENT: Rate Limiting for Handlers
+// ============================================================
+
+export interface HandlerRateLimitConfig {
+  /** Maximum number of events per time window */
+  maxEvents: number;
+  /** Time window in seconds */
+  windowSeconds: number;
+  /** Whether rate limiting is enabled */
+  enabled: boolean;
+}
+
+// ============================================================
+// ✅ ENTERPRISE ENHANCEMENT: Event Schema Validation
+// ============================================================
+
+export interface EventSchemaValidation {
+  /** JSON Schema for event payload validation */
+  schema: Record<string, unknown>;
+  /** Whether validation is required */
+  required: boolean;
+  /** Version of the schema */
+  version: number;
+}
+
+// ============================================================
+// ✅ ENTERPRISE ENHANCEMENT: Event TTL Configuration
+// ============================================================
+
+export interface EventTTLConfig {
+  /** Time to live in seconds for the event */
+  ttlSeconds: number;
+  /** Whether event should be deleted after TTL */
+  deleteAfterExpiry: boolean;
+}
 
 // ============================================================
 // Domain Event Interface (Enhanced with Bangladesh metadata)
@@ -89,6 +158,22 @@ export interface DomainEvent {
   
   /** Source service that published the event */
   readonly source?: string;
+  
+  // ✅ ENTERPRISE ENHANCEMENT: Expiry support
+  /** Time to live in seconds for the event */
+  readonly ttlSeconds?: number;
+  
+  /** When the event expires (events older than this should be ignored) */
+  readonly expiresAt?: Date;
+  
+  /** Priority of the event (higher numbers processed first) */
+  readonly priority?: number;
+  
+  /** District for geographic partitioning (Bangladesh specific) */
+  readonly district?: string;
+  
+  /** Division for geographic partitioning (Bangladesh specific) */
+  readonly division?: string;
 }
 
 // ============================================================
@@ -98,7 +183,26 @@ export interface DomainEvent {
 export type EventHandler<T extends DomainEvent = DomainEvent> = (event: T) => Promise<EventHandlerResult>;
 
 // ============================================================
-// Event Handler Options
+// ✅ ENTERPRISE ENHANCEMENT: Batch Progress Callback
+// ============================================================
+
+export interface BatchProgress {
+  /** Total events in batch */
+  total: number;
+  /** Processed events count */
+  processed: number;
+  /** Successfully processed events */
+  succeeded: number;
+  /** Failed events */
+  failed: number;
+  /** Progress percentage (0-100) */
+  percentage: number;
+  /** Estimated remaining time in milliseconds */
+  estimatedRemainingMs?: number;
+}
+
+// ============================================================
+// Event Handler Options (Enhanced)
 // ============================================================
 
 export interface EventHandlerOptions {
@@ -117,15 +221,37 @@ export interface EventHandlerOptions {
   /** Maximum retry attempts */
   maxRetries?: number;
   
-  /** Delay between retries in milliseconds */
+  /** Delay between retries in milliseconds (with exponential backoff) */
   retryDelayMs?: number;
+  
+  /** Whether to use exponential backoff for retries */
+  exponentialBackoff?: boolean;
   
   /** Filter function to conditionally execute handler */
   filter?: (event: DomainEvent) => boolean | Promise<boolean>;
+  
+  // ✅ ENTERPRISE ENHANCEMENT: Circuit breaker support
+  /** Circuit breaker configuration */
+  circuitBreaker?: CircuitBreakerConfig;
+  
+  // ✅ ENTERPRISE ENHANCEMENT: Rate limiting support
+  /** Rate limit configuration */
+  rateLimit?: HandlerRateLimitConfig;
+  
+  // ✅ ENTERPRISE ENHANCEMENT: Idempotency key extractor
+  /** Function to extract idempotency key from event */
+  idempotencyKeyExtractor?: (event: DomainEvent) => string;
+  
+  // ✅ ENTERPRISE ENHANCEMENT: Dead letter queue configuration
+  /** Whether to send failed events to DLQ */
+  sendToDLQ?: boolean;
+  
+  /** Maximum age for events in DLQ (seconds) */
+  dlqMaxAgeSeconds?: number;
 }
 
 // ============================================================
-// Event Subscription Interface
+// Event Subscription Interface (Enhanced)
 // ============================================================
 
 export interface EventSubscription {
@@ -152,10 +278,17 @@ export interface EventSubscription {
   
   /** Get statistics for this subscription */
   getStats(): SubscriptionStats;
+  
+  // ✅ ENTERPRISE ENHANCEMENT: Circuit breaker status
+  /** Get circuit breaker status for this subscription */
+  getCircuitBreakerStatus(): { isOpen: boolean; failureCount: number; nextAttemptAt?: Date };
+  
+  /** Reset circuit breaker for this subscription */
+  resetCircuitBreaker(): void;
 }
 
 // ============================================================
-// Subscription Statistics
+// Subscription Statistics (Enhanced)
 // ============================================================
 
 export interface SubscriptionStats {
@@ -173,10 +306,29 @@ export interface SubscriptionStats {
   
   /** Average processing time in milliseconds */
   averageProcessingTimeMs: number;
+  
+  // ✅ ENTERPRISE ENHANCEMENT: Extended metrics
+  /** Minimum processing time in milliseconds */
+  minProcessingTimeMs?: number;
+  
+  /** Maximum processing time in milliseconds */
+  maxProcessingTimeMs?: number;
+  
+  /** P95 processing time in milliseconds */
+  p95ProcessingTimeMs?: number;
+  
+  /** P99 processing time in milliseconds */
+  p99ProcessingTimeMs?: number;
+  
+  /** Number of times circuit breaker opened */
+  circuitBreakerOpenCount?: number;
+  
+  /** Number of times rate limit was hit */
+  rateLimitHitCount?: number;
 }
 
 // ============================================================
-// Batch Publishing Options
+// Batch Publishing Options (Enhanced)
 // ============================================================
 
 export interface BatchPublishOptions {
@@ -191,6 +343,16 @@ export interface BatchPublishOptions {
   
   /** Timeout for entire batch in milliseconds */
   timeoutMs?: number;
+  
+  // ✅ ENTERPRISE ENHANCEMENT: Batch progress tracking
+  /** Progress callback for batch processing */
+  onProgress?: (progress: BatchProgress) => void;
+  
+  /** Whether to preserve event order */
+  preserveOrder?: boolean;
+  
+  /** Batch size for chunked processing */
+  batchSize?: number;
 }
 
 // ============================================================
@@ -210,6 +372,8 @@ export interface EventBusStatistics {
     totalExecutions: number;
     averageExecutionTimeMs: number;
     failedExecutions: number;
+    p95ExecutionTimeMs?: number;
+    p99ExecutionTimeMs?: number;
   };
   /** Bangladesh specific - events by district */
   eventsByDistrict?: Record<string, number>;
@@ -217,6 +381,54 @@ export interface EventBusStatistics {
   eventsByMobileOperator?: Record<string, number>;
   /** Events by hour of day (0-23) */
   eventsByHour?: Record<number, number>;
+  /** Events by priority level */
+  eventsByPriority?: Record<number, number>;
+  /** Dead letter queue size */
+  dlqSize?: number;
+  /** Circuit breaker open count */
+  circuitBreakerOpenCount?: number;
+}
+
+// ============================================================
+// ✅ ENTERPRISE ENHANCEMENT: Event Schema Registry
+// ============================================================
+
+export interface EventSchemaRegistry {
+  /** Register schema for an event type */
+  registerSchema(eventName: string, schema: EventSchemaValidation): void;
+  
+  /** Get schema for an event type */
+  getSchema(eventName: string): EventSchemaValidation | undefined;
+  
+  /** Validate event against its schema */
+  validateEvent(event: DomainEvent): { isValid: boolean; errors?: string[] };
+}
+
+// ============================================================
+// ✅ ENTERPRISE ENHANCEMENT: Event Stream Query Options
+// ============================================================
+
+export interface EventStreamQueryOptions {
+  /** Start time for query */
+  fromDate?: Date;
+  /** End time for query */
+  toDate?: Date;
+  /** Aggregate ID filter */
+  aggregateId?: string;
+  /** Event names filter */
+  eventNames?: string[];
+  /** Limit number of events */
+  limit?: number;
+  /** Offset for pagination */
+  offset?: number;
+  /** Sort order */
+  sortOrder?: 'asc' | 'desc';
+  /** Partition key filter */
+  partitionKey?: string;
+  /** District filter (Bangladesh specific) */
+  district?: string;
+  /** Mobile operator filter (Bangladesh specific) */
+  mobileOperator?: string;
 }
 
 // ============================================================
@@ -313,6 +525,13 @@ export interface EventBus {
    * @param handler - Event handler function
    * @param options - Handler options
    * @returns Event subscription object
+   * 
+   * @example
+   * // Subscribe to all user-related events
+   * eventBus.subscribeByPattern('user.*', handler);
+   * 
+   * // Subscribe to all payment-related events
+   * eventBus.subscribeByPattern('*.payment.*', handler);
    */
   subscribeByPattern(
     pattern: string,
@@ -339,9 +558,6 @@ export interface EventBus {
    * 
    * @param subscriptionId - Subscription ID to remove
    * @returns True if unsubscribed successfully
-   * 
-   * @example
-   * const success = eventBus.unsubscribe('sub_123456');
    */
   unsubscribe(subscriptionId: string): Promise<boolean>;
   
@@ -392,18 +608,43 @@ export interface EventBus {
    */
   healthCheck(): Promise<boolean>;
   
+  // ============================================================
+  // ✅ ENTERPRISE ENHANCEMENT: Event Sourcing Methods
+  // ============================================================
+  
   /**
    * Replay events from a specific point (for event sourcing)
    * 
    * @param fromEventId - Event ID to start from
    * @param toEventId - Event ID to end at (optional)
    * @param handler - Handler to process replayed events
+   * @param options - Replay options (batch size, parallel)
    */
   replayEvents(
     fromEventId: string,
     toEventId?: string,
+    handler?: EventHandler,
+    options?: { batchSize?: number; parallel?: boolean }
+  ): Promise<void>;
+  
+  /**
+   * Replay events for a specific aggregate
+   * 
+   * @param aggregateId - Aggregate root ID
+   * @param fromVersion - Starting version
+   * @param toVersion - Ending version (optional)
+   * @param handler - Handler to process replayed events
+   */
+  replayAggregateEvents(
+    aggregateId: string,
+    fromVersion: number,
+    toVersion?: number,
     handler?: EventHandler
   ): Promise<void>;
+  
+  // ============================================================
+  // ✅ ENTERPRISE ENHANCEMENT: Dead Letter Queue Methods
+  // ============================================================
   
   /**
    * Get dead letter queue events (failed events)
@@ -411,7 +652,7 @@ export interface EventBus {
    * @param limit - Maximum number of events to return
    * @returns Array of failed events with error details
    */
-  getDeadLetterEvents(limit?: number): Promise<Array<{ event: DomainEvent; error: string; failedAt: Date }>>;
+  getDeadLetterEvents(limit?: number): Promise<Array<{ event: DomainEvent; error: string; failedAt: Date; retryCount: number }>>;
   
   /**
    * Retry failed events from dead letter queue
@@ -420,6 +661,84 @@ export interface EventBus {
    * @returns Number of events retried
    */
   retryFailedEvents(eventIds?: string[]): Promise<number>;
+  
+  /**
+   * Clear dead letter queue
+   * 
+   * @param olderThan - Clear events older than this date (optional)
+   * @returns Number of events cleared
+   */
+  clearDeadLetterQueue(olderThan?: Date): Promise<number>;
+  
+  // ============================================================
+  // ✅ ENTERPRISE ENHANCEMENT: Event Query Methods
+  // ============================================================
+  
+  /**
+   * Query events from event store
+   * 
+   * @param options - Query options
+   * @returns Array of matching events
+   */
+  queryEvents(options: EventStreamQueryOptions): Promise<DomainEvent[]>;
+  
+  /**
+   * Get event by ID
+   * 
+   * @param eventId - Event ID
+   * @returns Event or null
+   */
+  getEventById(eventId: string): Promise<DomainEvent | null>;
+  
+  /**
+   * Get events by correlation ID (distributed tracing)
+   * 
+   * @param correlationId - Correlation ID
+   * @returns Array of events in the trace chain
+   */
+  getEventsByCorrelationId(correlationId: string): Promise<DomainEvent[]>;
+  
+  // ============================================================
+  // ✅ ENTERPRISE ENHANCEMENT: Schema Registry
+  // ============================================================
+  
+  /**
+   * Get event schema registry
+   * 
+   * @returns Schema registry instance
+   */
+  getSchemaRegistry(): EventSchemaRegistry;
+  
+  // ============================================================
+  // ✅ ENTERPRISE ENHANCEMENT: Monitoring & Alerting
+  // ============================================================
+  
+  /**
+   * Get real-time monitoring metrics
+   * 
+   * @returns Monitoring metrics
+   */
+  getMonitoringMetrics(): Promise<{
+    eventsPerSecond: number;
+    averageLatencyMs: number;
+    errorRate: number;
+    activeSubscriptions: number;
+    dlqSize: number;
+    circuitBreakersOpen: number;
+  }>;
+  
+  /**
+   * Get alerts for event processing issues
+   * 
+   * @returns Active alerts
+   */
+  getActiveAlerts(): Promise<Array<{
+    id: string;
+    severity: 'info' | 'warning' | 'critical';
+    message: string;
+    triggeredAt: Date;
+    acknowledged: boolean;
+  }>>;
 }
 
 // ============================================================
@@ -445,6 +764,11 @@ export abstract class BaseDomainEvent implements DomainEvent {
   public readonly isIdempotent: boolean;
   public readonly partitionKey?: string;
   public readonly source: string;
+  public readonly ttlSeconds?: number;
+  public readonly expiresAt?: Date;
+  public readonly priority?: number;
+  public readonly district?: string;
+  public readonly division?: string;
 
   constructor(
     public readonly eventName: keyof typeof EVENT_NAMES,
@@ -467,6 +791,11 @@ export abstract class BaseDomainEvent implements DomainEvent {
       partitionKey?: string;
       source?: string;
       eventVersion?: number;
+      ttlSeconds?: number;
+      expiresAt?: Date;
+      priority?: number;
+      district?: string;
+      division?: string;
     },
   ) {
     this.eventId = generateEventId();
@@ -487,6 +816,19 @@ export abstract class BaseDomainEvent implements DomainEvent {
     this.isIdempotent = options?.isIdempotent ?? false;
     this.partitionKey = options?.partitionKey ?? aggregateId;
     this.source = options?.source ?? 'auth-service';
+    this.ttlSeconds = options?.ttlSeconds;
+    this.expiresAt = options?.expiresAt;
+    this.priority = options?.priority;
+    this.district = options?.district;
+    this.division = options?.division;
+  }
+  
+  /**
+   * Check if event has expired
+   */
+  public isExpired(): boolean {
+    if (!this.expiresAt) return false;
+    return new Date() > this.expiresAt;
   }
 }
 
@@ -521,11 +863,13 @@ export class UserRegisteredEvent extends BaseDomainEvent {
     public readonly email: string,
     public readonly fullName: string,
     public readonly phoneNumber?: string,
+    public readonly district?: string,
     options?: ConstructorParameters<typeof BaseDomainEvent>[3],
   ) {
     super(EVENT_NAMES.USER_REGISTERED, aggregateId, aggregateVersion, {
       ...options,
-      payload: { email, fullName, phoneNumber },
+      payload: { email, fullName, phoneNumber, district },
+      district,
     });
   }
 }
@@ -553,11 +897,12 @@ export class WhatsAppLoginEvent extends BaseDomainEvent {
     aggregateId: string,
     aggregateVersion: number,
     public readonly phoneNumber: string,
+    public readonly operator?: 'gp' | 'robi' | 'banglalink' | 'teletalk',
     options?: ConstructorParameters<typeof BaseDomainEvent>[3],
   ) {
     super(EVENT_NAMES.WHATSAPP_LOGIN, aggregateId, aggregateVersion, {
       ...options,
-      payload: { phoneNumber },
+      payload: { phoneNumber, operator },
       metadata: { ...options?.metadata, loginProvider: 'whatsapp' },
     });
   }
@@ -690,6 +1035,7 @@ export class DistrictChangedEvent extends BaseDomainEvent {
       ...options,
       userId,
       payload: { oldDistrict, newDistrict },
+      district: newDistrict,
     });
   }
 }
@@ -704,5 +1050,12 @@ export type {
   EventHandlerOptions as EventHandlerOptionsType,
   BatchPublishOptions as BatchPublishOptionsType,
   SubscriptionStats as SubscriptionStatsType,
+  CircuitBreakerConfig as CircuitBreakerConfigType,
+  HandlerRateLimitConfig as HandlerRateLimitConfigType,
+  EventSchemaValidation as EventSchemaValidationType,
+  EventTTLConfig as EventTTLConfigType,
+  BatchProgress as BatchProgressType,
+  EventStreamQueryOptions as EventStreamQueryOptionsType,
+  EventSchemaRegistry as EventSchemaRegistryType,
 };
 export type EventHandlerType = EventHandler;
