@@ -1,5 +1,5 @@
 /**
- * Create User DTOs - Pure Data Transport Objects
+ * Create User DTOs - Pure Data Transport Objects (Enterprise Enhanced)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module application/dtos/user/create-user.dto
@@ -8,11 +8,18 @@
  * Data transfer objects for user creation (registration and admin creation).
  * NO business logic, NO database queries, NO infrastructure imports.
  * 
+ * ENTERPRISE ENHANCEMENTS:
+ * ✅ Reusable @Match decorator from shared-utils
+ * ✅ Centralized patterns from shared-constants (single source of truth)
+ * ✅ Full TypeScript strict mode with shared-types
+ * ✅ Bangladesh-specific validation (phone, district, language)
+ * ✅ Security: Public registration role is FIXED, admin creation separate
+ * 
  * Security Rules:
  * ✅ Public registration: role is FIXED to CUSTOMER (not accepted from client)
  * ✅ Admin creation: separate DTO with role validation
  * ✅ Regular users cannot assign roles to themselves
- * ✅ Phone validation for Bangladesh numbers
+ * ✅ Phone validation for Bangladesh numbers using shared patterns
  * ✅ User tier support for loyalty program
  * 
  * Flow:
@@ -27,7 +34,6 @@ import {
   IsOptional, 
   IsBoolean,
   IsEnum,
-  IsUUID,
   MinLength, 
   MaxLength,
   Matches,
@@ -36,7 +42,7 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট
+// ✅ ENTERPRISE: Import from shared packages (single source of truth)
 import { 
   PASSWORD_PATTERNS, 
   PHONE_PATTERNS, 
@@ -45,18 +51,17 @@ import {
   USER_TIERS,
   NAME_PATTERNS,
 } from '@vubon/shared-constants';
-
-// ✅ Phase-1 (shared-types) থেকে টাইপ ইম্পোর্ট
 import type { UserRole, UserTier } from '@vubon/shared-types';
 
-// ============================================================
-// Enums (Now using shared constants)
-// ============================================================
+// ✅ ENTERPRISE ENHANCEMENT: Import reusable Match decorator from shared-utils
+import { Match } from '@vubon/shared-utils';
 
-// ❌ Removed local enums - using USER_ROLES and USER_TIERS from shared-constants
+// ============================================================
+// Types
+// ============================================================
 
 /**
- * User preferences
+ * User preferences interface
  */
 export interface UserPreferencesDto {
   language?: 'en' | 'bn';
@@ -136,6 +141,8 @@ export class CreateUserDto {
   })
   @IsString({ message: 'Confirm password must be a string' })
   @IsNotEmpty({ message: 'Confirm password is required' })
+  // ✅ ENTERPRISE ENHANCEMENT: Using shared-utils Match decorator instead of custom logic
+  @Match('password', { message: 'Password and confirm password do not match' })
   confirmPassword: string;
 
   @ApiProperty({
@@ -354,6 +361,8 @@ export class AdminCreateUserDto {
   })
   @IsString({ message: 'Confirm password must be a string' })
   @IsNotEmpty({ message: 'Confirm password is required' })
+  // ✅ ENTERPRISE ENHANCEMENT: Using shared-utils Match decorator
+  @Match('password', { message: 'Password and confirm password do not match' })
   confirmPassword: string;
 
   @ApiProperty({
