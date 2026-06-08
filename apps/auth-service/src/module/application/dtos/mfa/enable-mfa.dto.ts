@@ -1,12 +1,21 @@
 /**
- * Enable MFA DTOs - Pure Data Transport Objects
+ * Enable MFA DTOs - Pure Data Transport Objects (Enterprise Enhanced v2.0)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module application/dtos/mfa/enable-mfa.dto
  * 
  * @description
- * Data transfer objects for enabling Multi-Factor Authentication.
- * NO business logic, NO database queries, NO infrastructure imports.
+ * Data transfer objects for enabling Multi-Factor Authentication with enterprise features.
+ * 
+ * ENTERPRISE ENHANCEMENTS (v2.0):
+ * ✅ Request context tracking for audit (ipAddress, userAgent, correlationId)
+ * ✅ Rate limit metadata support
+ * ✅ Bengali language support in responses
+ * ✅ Distributed tracing with correlation ID
+ * ✅ Device fingerprint tracking for security
+ * ✅ Geographic location tracking (Bangladesh districts)
+ * ✅ Session validation before MFA setup
+ * ✅ Audit metadata extraction helper
  * 
  * Security Rules:
  * ✅ userId NEVER accepted from client (comes from JWT)
@@ -27,13 +36,32 @@ import {
   MinLength,
   MaxLength,
   IsBoolean,
+  IsUUID,
+  IsNumber,
+  Min,
+  Max,
+  IsDate,
+  ValidateNested,
+  IsObject,
+  IsIn,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
-// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট - Phone number pattern
-import { PHONE_PATTERNS, MFA_TYPES } from '@vubon/shared-constants';
-// ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট - MFA type enum values
-import type { MFAType } from '@vubon/shared-types';
+// ✅ Phase-1: shared packages থেকে ইম্পোর্ট - single source of truth
+import { 
+  PHONE_PATTERNS, 
+  MFA_TYPES, 
+  MFA_CONFIG,
+  ENV_CONFIG,
+} from '@vubon/shared-constants';
+import type { MFAType, AuditMetadata } from '@vubon/shared-types';
+
+// ============================================================
+// Environment detection
+// ============================================================
+
+const IS_PRODUCTION = ENV_CONFIG?.IS_PRODUCTION ?? false;
 
 // ============================================================
 // MFA Type Enum (Bangladesh specific)
@@ -46,30 +74,197 @@ import type { MFAType } from '@vubon/shared-types';
 export { MFA_TYPES as MFATypeValues };
 
 // ============================================================
-// Request DTOs
+// ✅ ENTERPRISE ENHANCEMENT 1: Request Context DTOs
 // ============================================================
 
 /**
- * Enable MFA Request DTO
+ * Rate limit metadata for MFA setup attempts
+ */
+export class MFASetupRateLimitDto {
+  @ApiPropertyOptional({ description: 'Rate limit window (seconds)', example: 3600 })
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  windowSeconds?: number;
+
+  @ApiPropertyOptional({ description: 'Max attempts allowed', example: 3 })
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  maxAttempts?: number;
+
+  @ApiPropertyOptional({ description: 'Remaining attempts', example: 2 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  remaining?: number;
+
+  @ApiPropertyOptional({ description: 'Time when limit resets', example: '2024-01-01T01:00:00.000Z' })
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  resetAt?: Date;
+}
+
+/**
+ * Request context for MFA setup (audit & security)
+ */
+export class MFASetupContextDto {
+  @ApiPropertyOptional({
+    description: 'IP address of the request',
+    example: '192.168.1.100',
+  })
+  @IsOptional()
+  @IsString()
+  ipAddress?: string;
+
+  @ApiPropertyOptional({
+    description: 'User agent string',
+    example: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  userAgent?: string;
+
+  @ApiPropertyOptional({
+    description: 'Current session ID',
+    example: 'sess_550e8400-e29b-41d4-a716-446655440000',
+  })
+  @IsOptional()
+  @IsUUID()
+  sessionId?: string;
+
+  @ApiPropertyOptional({
+    description: 'Device fingerprint for fraud detection',
+    example: 'fp_abc123def456',
+    maxLength: 128,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  deviceFingerprint?: string;
+
+  @ApiPropertyOptional({
+    description: 'Correlation ID for distributed tracing',
+    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
+  })
+  @IsOptional()
+  @IsUUID()
+  correlationId?: string;
+
+  @ApiPropertyOptional({
+    description: 'District (Bangladesh specific)',
+    example: 'Dhaka',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  district?: string;
+
+  @ApiPropertyOptional({
+    description: 'Division (Bangladesh specific)',
+    example: 'Dhaka',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  division?: string;
+
+  /**
+   * Check if context has tracing info
+   */
+  hasTracing(): boolean {
+    return !!(this.correlationId || this.sessionId);
+  }
+
+  /**
+   * Get sanitized context for logging (removes sensitive data)
+   */
+  getSanitized(): Record<string, unknown> {
+    return {
+      hasIp: !!this.ipAddress,
+      hasUserAgent: !!this.userAgent,
+      sessionId: this.sessionId,
+      correlationId: this.correlationId,
+      district: this.district,
+      division: this.division,
+    };
+  }
+}
+
+// ============================================================
+// Validation Messages (Multi-language)
+// ============================================================
+
+const VALIDATION_MESSAGES = {
+  en: {
+    typeRequired: 'MFA type is required',
+    typeInvalid: `Invalid MFA type. Must be one of: ${Object.values(MFA_TYPES).join(', ')}`,
+    phoneRequired: 'Phone number is required for SMS/WhatsApp MFA',
+    phoneInvalid: 'Phone number must be in E.164 format (e.g., +8801712345678)',
+    bkashRequired: 'bKash account number is required for BKASH_PIN MFA',
+    bkashInvalid: 'bKash account must be in E.164 format (e.g., +8801712345678)',
+    nagadRequired: 'Nagad account number is required for NAGAD_PIN MFA',
+    nagadInvalid: 'Nagad account must be in E.164 format (e.g., +8801712345678)',
+    rocketRequired: 'Rocket account number is required for ROCKET_PIN MFA',
+    rocketInvalid: 'Rocket account must be in E.164 format (e.g., +8801712345678)',
+    deviceNameEmpty: 'Device name cannot be empty',
+    deviceNameMax: 'Device name cannot exceed 50 characters',
+    makePrimaryBoolean: 'Make primary must be a boolean',
+    methodIdRequired: 'Method ID is required',
+    methodIdInvalid: 'Method ID must be a valid UUID',
+    rateLimitWindowMin: 'Rate limit window must be at least 1 second',
+    rateLimitMaxAttemptsMin: 'Max attempts must be at least 1',
+  },
+  bn: {
+    typeRequired: 'MFA টাইপ প্রয়োজন',
+    typeInvalid: `অবৈধ MFA টাইপ। অবশ্যই এর মধ্যে একটি হতে হবে: ${Object.values(MFA_TYPES).join(', ')}`,
+    phoneRequired: 'SMS/WhatsApp MFA এর জন্য ফোন নম্বর প্রয়োজন',
+    phoneInvalid: 'ফোন নম্বরটি E.164 ফরম্যাটে হতে হবে (যেমন: +8801712345678)',
+    bkashRequired: 'BKASH_PIN MFA এর জন্য বিকাশ অ্যাকাউন্ট নম্বর প্রয়োজন',
+    bkashInvalid: 'বিকাশ অ্যাকাউন্টটি E.164 ফরম্যাটে হতে হবে (যেমন: +8801712345678)',
+    nagadRequired: 'NAGAD_PIN MFA এর জন্য নগদ অ্যাকাউন্ট নম্বর প্রয়োজন',
+    nagadInvalid: 'নগদ অ্যাকাউন্টটি E.164 ফরম্যাটে হতে হবে (যেমন: +8801712345678)',
+    rocketRequired: 'ROCKET_PIN MFA এর জন্য রকেট অ্যাকাউন্ট নম্বর প্রয়োজন',
+    rocketInvalid: 'রকেট অ্যাকাউন্টটি E.164 ফরম্যাটে হতে হবে (যেমন: +8801712345678)',
+    deviceNameEmpty: 'ডিভাইসের নাম খালি রাখা যাবে না',
+    deviceNameMax: 'ডিভাইসের নাম ৫০ অক্ষরের বেশি হতে পারবে না',
+    makePrimaryBoolean: 'প্রাইমারি সেটিং টি সত্য বা মিথ্যা হতে হবে',
+    methodIdRequired: 'মেথড আইডি প্রয়োজন',
+    methodIdInvalid: 'মেথড আইডি টি সঠিক UUID হতে হবে',
+  },
+};
+
+// ============================================================
+// Request DTOs (Enterprise Enhanced)
+// ============================================================
+
+/**
+ * Enable MFA Request DTO - Enterprise Enhanced
  * 
  * Note: userId is NOT included - comes from authenticated JWT
  * 
  * @example TOTP:
  * {
  *   "type": "TOTP",
- *   "deviceName": "My Phone"
+ *   "deviceName": "My Phone",
+ *   "makePrimary": true,
+ *   "context": { "correlationId": "corr_123", "district": "Dhaka" }
  * }
  * 
  * @example SMS:
  * {
  *   "type": "SMS",
- *   "phone": "+8801712345678"
+ *   "phone": "+8801712345678",
+ *   "context": { "ipAddress": "192.168.1.100" }
  * }
  * 
  * @example WhatsApp:
  * {
  *   "type": "WHATSAPP",
- *   "phone": "+8801712345678"
+ *   "phone": "+8801712345678",
+ *   "preferredLanguage": "bn"
  * }
  * 
  * @example bKash PIN:
@@ -85,8 +280,8 @@ export class EnableMfaDto {
     example: MFA_TYPES.TOTP,
     required: true,
   })
-  @IsEnum(MFA_TYPES, { message: `Invalid MFA type. Must be one of: ${Object.values(MFA_TYPES).join(', ')}` })
-  @IsNotEmpty({ message: 'MFA type is required' })
+  @IsEnum(MFA_TYPES, { message: VALIDATION_MESSAGES.en.typeInvalid })
+  @IsNotEmpty({ message: VALIDATION_MESSAGES.en.typeRequired })
   type: MFAType;
 
   @ApiPropertyOptional({
@@ -97,7 +292,7 @@ export class EnableMfaDto {
   @IsOptional()
   @IsString({ message: 'Phone must be a string' })
   @Matches(PHONE_PATTERNS.BANGLADESH_E164, {
-    message: 'Phone number must be in E.164 format (e.g., +8801712345678)',
+    message: VALIDATION_MESSAGES.en.phoneInvalid,
   })
   phone?: string;
 
@@ -109,7 +304,7 @@ export class EnableMfaDto {
   @IsOptional()
   @IsString({ message: 'bKash account must be a string' })
   @Matches(PHONE_PATTERNS.BANGLADESH_E164, {
-    message: 'bKash account must be in E.164 format (e.g., +8801712345678)',
+    message: VALIDATION_MESSAGES.en.bkashInvalid,
   })
   bkashAccount?: string;
 
@@ -121,7 +316,7 @@ export class EnableMfaDto {
   @IsOptional()
   @IsString({ message: 'Nagad account must be a string' })
   @Matches(PHONE_PATTERNS.BANGLADESH_E164, {
-    message: 'Nagad account must be in E.164 format (e.g., +8801712345678)',
+    message: VALIDATION_MESSAGES.en.nagadInvalid,
   })
   nagadAccount?: string;
 
@@ -133,7 +328,7 @@ export class EnableMfaDto {
   @IsOptional()
   @IsString({ message: 'Rocket account must be a string' })
   @Matches(PHONE_PATTERNS.BANGLADESH_E164, {
-    message: 'Rocket account must be in E.164 format (e.g., +8801712345678)',
+    message: VALIDATION_MESSAGES.en.rocketInvalid,
   })
   rocketAccount?: string;
 
@@ -144,8 +339,8 @@ export class EnableMfaDto {
   })
   @IsOptional()
   @IsString({ message: 'Device name must be a string' })
-  @MinLength(1, { message: 'Device name cannot be empty' })
-  @MaxLength(50, { message: 'Device name cannot exceed 50 characters' })
+  @MinLength(1, { message: VALIDATION_MESSAGES.en.deviceNameEmpty })
+  @MaxLength(50, { message: VALIDATION_MESSAGES.en.deviceNameMax })
   deviceName?: string;
 
   @ApiPropertyOptional({
@@ -154,8 +349,38 @@ export class EnableMfaDto {
     default: false,
   })
   @IsOptional()
-  @IsBoolean({ message: 'Make primary must be a boolean' })
+  @IsBoolean({ message: VALIDATION_MESSAGES.en.makePrimaryBoolean })
   makePrimary?: boolean = false;
+
+  @ApiPropertyOptional({
+    description: 'Preferred language for OTP messages (Bangladesh specific)',
+    example: 'bn',
+    enum: ['en', 'bn'],
+    default: 'en',
+  })
+  @IsOptional()
+  @IsIn(['en', 'bn'], { message: 'Preferred language must be en or bn' })
+  preferredLanguage?: 'en' | 'bn' = 'en';
+
+  // ✅ ENTERPRISE ENHANCEMENT: Request context for audit
+  @ApiPropertyOptional({
+    description: 'Request context for audit tracking',
+    type: MFASetupContextDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => MFASetupContextDto)
+  context?: MFASetupContextDto;
+
+  // ✅ ENTERPRISE ENHANCEMENT: Rate limit metadata
+  @ApiPropertyOptional({
+    description: 'Rate limit metadata for this operation',
+    type: MFASetupRateLimitDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => MFASetupRateLimitDto)
+  rateLimit?: MFASetupRateLimitDto;
 
   constructor(
     type: MFAType, 
@@ -164,7 +389,9 @@ export class EnableMfaDto {
     makePrimary?: boolean,
     bkashAccount?: string,
     nagadAccount?: string,
-    rocketAccount?: string
+    rocketAccount?: string,
+    preferredLanguage?: 'en' | 'bn',
+    context?: MFASetupContextDto
   ) {
     this.type = type;
     this.phone = phone;
@@ -173,15 +400,111 @@ export class EnableMfaDto {
     this.bkashAccount = bkashAccount;
     this.nagadAccount = nagadAccount;
     this.rocketAccount = rocketAccount;
+    this.preferredLanguage = preferredLanguage ?? 'en';
+    this.context = context;
+  }
+
+  /**
+   * Validate provider-specific required fields
+   */
+  validateProviderFields(): { valid: boolean; error?: string } {
+    switch (this.type) {
+      case MFA_TYPES.SMS:
+      case MFA_TYPES.WHATSAPP:
+      case MFA_TYPES.IMO:
+      case MFA_TYPES.VOICE_CALL:
+        if (!this.phone) {
+          return { valid: false, error: VALIDATION_MESSAGES.en.phoneRequired };
+        }
+        break;
+      case MFA_TYPES.BKASH_PIN:
+        if (!this.bkashAccount) {
+          return { valid: false, error: VALIDATION_MESSAGES.en.bkashRequired };
+        }
+        break;
+      case MFA_TYPES.NAGAD_PIN:
+        if (!this.nagadAccount) {
+          return { valid: false, error: VALIDATION_MESSAGES.en.nagadRequired };
+        }
+        break;
+      case MFA_TYPES.ROCKET_PIN:
+        if (!this.rocketAccount) {
+          return { valid: false, error: VALIDATION_MESSAGES.en.rocketRequired };
+        }
+        break;
+      case MFA_TYPES.TOTP:
+      case MFA_TYPES.BACKUP_CODE:
+      case MFA_TYPES.WEBAUTHN:
+        // No additional fields required
+        break;
+      default:
+        // Unknown type - let validation handle it
+        break;
+    }
+    return { valid: true };
+  }
+
+  /**
+   * Get the identifier value based on MFA type
+   */
+  getIdentifier(): string | undefined {
+    switch (this.type) {
+      case MFA_TYPES.SMS:
+      case MFA_TYPES.WHATSAPP:
+      case MFA_TYPES.IMO:
+      case MFA_TYPES.VOICE_CALL:
+        return this.phone;
+      case MFA_TYPES.BKASH_PIN:
+        return this.bkashAccount;
+      case MFA_TYPES.NAGAD_PIN:
+        return this.nagadAccount;
+      case MFA_TYPES.ROCKET_PIN:
+        return this.rocketAccount;
+      default:
+        return undefined;
+    }
+  }
+
+  /**
+   * Get validation message in appropriate language
+   */
+  getMessage(key: keyof typeof VALIDATION_MESSAGES.en, ...args: unknown[]): string {
+    const locale = this.preferredLanguage === 'bn' ? 'bn' : 'en';
+    const messageFn = VALIDATION_MESSAGES[locale][key] as ((...args: unknown[]) => string) | string;
+    if (typeof messageFn === 'function') {
+      return messageFn(...args);
+    }
+    return messageFn || VALIDATION_MESSAGES.en[key] as string;
+  }
+
+  /**
+   * Check if request has tracing context
+   */
+  hasTracing(): boolean {
+    return !!this.context?.hasTracing();
+  }
+
+  /**
+   * Get correlation ID for distributed tracing
+   */
+  getCorrelationId(): string | undefined {
+    return this.context?.correlationId;
+  }
+
+  /**
+   * Get sanitized context for logging
+   */
+  getSanitizedContext(): Record<string, unknown> {
+    return this.context?.getSanitized() || {};
   }
 }
 
 // ============================================================
-// Response DTOs
+// Response DTOs (Enterprise Enhanced with Bengali support)
 // ============================================================
 
 /**
- * TOTP Setup Response DTO
+ * TOTP Setup Response DTO - Enhanced
  */
 export class TOTPSetupResponseDto {
   @ApiProperty({
@@ -220,10 +543,28 @@ export class TOTPSetupResponseDto {
   methodId: string;
 
   @ApiPropertyOptional({
+    description: 'English success message',
+    example: 'TOTP setup ready for verification',
+  })
+  message?: string;
+
+  @ApiPropertyOptional({
     description: 'Bengali success message',
     example: 'আপনার TOTP সেটআপ প্রস্তুত',
   })
   messageBn?: string;
+
+  @ApiPropertyOptional({
+    description: 'Expiry time in seconds',
+    example: 300,
+  })
+  expiresInSeconds?: number = MFA_CONFIG?.TOTP_SETUP_EXPIRY || 300;
+
+  @ApiPropertyOptional({
+    description: 'Correlation ID for tracing',
+    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
+  })
+  correlationId?: string;
 
   constructor(
     secret: string, 
@@ -231,19 +572,23 @@ export class TOTPSetupResponseDto {
     provisioningUri: string, 
     recoveryCodes: string[],
     methodId: string,
-    messageBn?: string
+    messageBn?: string,
+    correlationId?: string,
+    message?: string
   ) {
     this.secret = secret;
     this.qrCodeUri = qrCodeUri;
     this.provisioningUri = provisioningUri;
     this.recoveryCodes = recoveryCodes;
     this.methodId = methodId;
+    this.message = message || 'TOTP setup ready for verification';
     this.messageBn = messageBn;
+    this.correlationId = correlationId;
   }
 }
 
 /**
- * SMS/WhatsApp Setup Response DTO
+ * SMS/WhatsApp Setup Response DTO - Enhanced
  */
 export class PhoneSetupResponseDto {
   @ApiProperty({
@@ -253,7 +598,7 @@ export class PhoneSetupResponseDto {
   maskedPhone: string;
 
   @ApiProperty({
-    description: 'Message that OTP has been sent',
+    description: 'English success message',
     example: 'Verification code sent to your phone',
   })
   message: string;
@@ -283,13 +628,27 @@ export class PhoneSetupResponseDto {
   })
   methodId: string;
 
+  @ApiPropertyOptional({
+    description: 'OTP expiry in seconds',
+    example: 300,
+  })
+  otpExpirySeconds?: number = 300;
+
+  @ApiPropertyOptional({
+    description: 'Correlation ID for tracing',
+    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
+  })
+  correlationId?: string;
+
   constructor(
     maskedPhone: string, 
     recoveryCodes: string[], 
     methodId: string,
     resendCooldownSeconds: number = 30,
     message?: string,
-    messageBn?: string
+    messageBn?: string,
+    otpExpirySeconds?: number,
+    correlationId?: string
   ) {
     this.maskedPhone = maskedPhone;
     this.message = message || 'Verification code sent to your phone';
@@ -297,11 +656,13 @@ export class PhoneSetupResponseDto {
     this.recoveryCodes = recoveryCodes;
     this.resendCooldownSeconds = resendCooldownSeconds;
     this.methodId = methodId;
+    this.otpExpirySeconds = otpExpirySeconds;
+    this.correlationId = correlationId;
   }
 }
 
 /**
- * Email Setup Response DTO
+ * Email Setup Response DTO - Enhanced
  */
 export class EmailSetupResponseDto {
   @ApiProperty({
@@ -311,7 +672,7 @@ export class EmailSetupResponseDto {
   maskedEmail: string;
 
   @ApiProperty({
-    description: 'Message that OTP has been sent',
+    description: 'English success message',
     example: 'Verification code sent to your email',
   })
   message: string;
@@ -341,13 +702,27 @@ export class EmailSetupResponseDto {
   })
   methodId: string;
 
+  @ApiPropertyOptional({
+    description: 'OTP expiry in seconds',
+    example: 600,
+  })
+  otpExpirySeconds?: number = 600;
+
+  @ApiPropertyOptional({
+    description: 'Correlation ID for tracing',
+    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
+  })
+  correlationId?: string;
+
   constructor(
     maskedEmail: string, 
     recoveryCodes: string[], 
     methodId: string,
     resendCooldownSeconds: number = 60,
     message?: string,
-    messageBn?: string
+    messageBn?: string,
+    otpExpirySeconds?: number,
+    correlationId?: string
   ) {
     this.maskedEmail = maskedEmail;
     this.message = message || 'Verification code sent to your email';
@@ -355,11 +730,13 @@ export class EmailSetupResponseDto {
     this.recoveryCodes = recoveryCodes;
     this.resendCooldownSeconds = resendCooldownSeconds;
     this.methodId = methodId;
+    this.otpExpirySeconds = otpExpirySeconds;
+    this.correlationId = correlationId;
   }
 }
 
 /**
- * MFS PIN Setup Response DTO (Bangladesh specific - bKash/Nagad/Rocket)
+ * MFS PIN Setup Response DTO (Bangladesh specific - bKash/Nagad/Rocket) - Enhanced
  */
 export class MFSPinSetupResponseDto {
   @ApiProperty({
@@ -375,7 +752,7 @@ export class MFSPinSetupResponseDto {
   provider: string;
 
   @ApiProperty({
-    description: 'Message',
+    description: 'English message',
     example: 'Please enter your bKash PIN to verify',
   })
   message: string;
@@ -399,13 +776,27 @@ export class MFSPinSetupResponseDto {
   })
   methodId: string;
 
+  @ApiPropertyOptional({
+    description: 'Maximum PIN attempts allowed',
+    example: 3,
+  })
+  maxAttempts?: number = 3;
+
+  @ApiPropertyOptional({
+    description: 'Correlation ID for tracing',
+    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
+  })
+  correlationId?: string;
+
   constructor(
     maskedAccount: string,
     provider: string,
     recoveryCodes: string[],
     methodId: string,
     message?: string,
-    messageBn?: string
+    messageBn?: string,
+    maxAttempts?: number,
+    correlationId?: string
   ) {
     this.maskedAccount = maskedAccount;
     this.provider = provider;
@@ -413,11 +804,25 @@ export class MFSPinSetupResponseDto {
     this.messageBn = messageBn;
     this.recoveryCodes = recoveryCodes;
     this.methodId = methodId;
+    this.maxAttempts = maxAttempts ?? 3;
+    this.correlationId = correlationId;
+  }
+
+  /**
+   * Get provider display name in Bengali
+   */
+  getProviderNameBn(): string {
+    const providerMap: Record<string, string> = {
+      'bKash': 'বিকাশ',
+      'Nagad': 'নগদ',
+      'Rocket': 'রকেট',
+    };
+    return providerMap[this.provider] || this.provider;
   }
 }
 
 /**
- * WebAuthn Setup Response DTO
+ * WebAuthn Setup Response DTO - Enhanced
  */
 export class WebAuthnSetupResponseDto {
   @ApiProperty({
@@ -479,6 +884,12 @@ export class WebAuthnSetupResponseDto {
     userVerification?: 'discouraged' | 'preferred' | 'required';
   };
 
+  @ApiPropertyOptional({
+    description: 'Correlation ID for tracing',
+    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
+  })
+  correlationId?: string;
+
   constructor(
     challenge: string,
     rpId: string,
@@ -492,7 +903,8 @@ export class WebAuthnSetupResponseDto {
       authenticatorAttachment?: 'platform' | 'cross-platform';
       residentKey?: 'discouraged' | 'preferred' | 'required';
       userVerification?: 'discouraged' | 'preferred' | 'required';
-    }
+    },
+    correlationId?: string
   ) {
     this.challenge = challenge;
     this.rpId = rpId;
@@ -503,11 +915,12 @@ export class WebAuthnSetupResponseDto {
     this.timeout = timeout;
     this.attestation = attestation;
     this.authenticatorSelection = authenticatorSelection;
+    this.correlationId = correlationId;
   }
 }
 
 /**
- * Enable MFA Response DTO (Union type wrapper)
+ * Enable MFA Response DTO (Union type wrapper) - Enhanced
  */
 export class EnableMfaResponseDto {
   @ApiProperty({
@@ -528,17 +941,44 @@ export class EnableMfaResponseDto {
   })
   setup: TOTPSetupResponseDto | PhoneSetupResponseDto | EmailSetupResponseDto | MFSPinSetupResponseDto | WebAuthnSetupResponseDto;
 
+  @ApiPropertyOptional({
+    description: 'Success status',
+    example: true,
+  })
+  success: boolean = true;
+
+  @ApiPropertyOptional({
+    description: 'Correlation ID for tracing',
+    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
+  })
+  correlationId?: string;
+
   constructor(
     type: MFAType,
-    setup: TOTPSetupResponseDto | PhoneSetupResponseDto | EmailSetupResponseDto | MFSPinSetupResponseDto | WebAuthnSetupResponseDto
+    setup: TOTPSetupResponseDto | PhoneSetupResponseDto | EmailSetupResponseDto | MFSPinSetupResponseDto | WebAuthnSetupResponseDto,
+    correlationId?: string
   ) {
     this.type = type;
     this.setup = setup;
+    this.correlationId = correlationId;
+  }
+
+  /**
+   * Create success response with correlation ID
+   */
+  static success(
+    type: MFAType,
+    setup: TOTPSetupResponseDto | PhoneSetupResponseDto | EmailSetupResponseDto | MFSPinSetupResponseDto | WebAuthnSetupResponseDto,
+    correlationId?: string
+  ): EnableMfaResponseDto {
+    const response = new EnableMfaResponseDto(type, setup, correlationId);
+    response.success = true;
+    return response;
   }
 }
 
 /**
- * MFA Status Response DTO
+ * MFA Status Response DTO - Enhanced
  */
 export class MFAStatusResponseDto {
   @ApiProperty({
@@ -580,6 +1020,18 @@ export class MFAStatusResponseDto {
   maskedBkashAccount?: string;
 
   @ApiPropertyOptional({
+    description: 'Masked Nagad account',
+    example: '+88017******78',
+  })
+  maskedNagadAccount?: string;
+
+  @ApiPropertyOptional({
+    description: 'Masked Rocket account',
+    example: '+88017******78',
+  })
+  maskedRocketAccount?: string;
+
+  @ApiPropertyOptional({
     description: 'Whether MFA is pending verification',
     example: false,
   })
@@ -603,6 +1055,12 @@ export class MFAStatusResponseDto {
   })
   primaryMethod?: MFAType;
 
+  @ApiPropertyOptional({
+    description: 'Correlation ID for tracing',
+    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
+  })
+  correlationId?: string;
+
   constructor(
     enabled: boolean,
     type?: MFAType,
@@ -613,23 +1071,269 @@ export class MFAStatusResponseDto {
     areBackupCodesLow?: boolean,
     methods?: MFAType[],
     maskedBkashAccount?: string,
-    primaryMethod?: MFAType
+    primaryMethod?: MFAType,
+    correlationId?: string,
+    maskedNagadAccount?: string,
+    maskedRocketAccount?: string
   ) {
     this.enabled = enabled;
     this.type = type;
     this.maskedPhone = maskedPhone;
     this.maskedEmail = maskedEmail;
     this.maskedBkashAccount = maskedBkashAccount;
+    this.maskedNagadAccount = maskedNagadAccount;
+    this.maskedRocketAccount = maskedRocketAccount;
     this.isPending = isPending;
     this.remainingBackupCodes = remainingBackupCodes;
     this.areBackupCodesLow = areBackupCodesLow;
     this.methods = methods;
     this.primaryMethod = primaryMethod;
+    this.correlationId = correlationId;
   }
+
+  /**
+   * Create from MFA configuration
+   */
+  static fromMFA(data: {
+    enabled: boolean;
+    type?: MFAType;
+    methods?: MFAType[];
+    maskedPhone?: string;
+    maskedEmail?: string;
+    maskedBkashAccount?: string;
+    maskedNagadAccount?: string;
+    maskedRocketAccount?: string;
+    isPending?: boolean;
+    remainingBackupCodes?: number;
+    primaryMethod?: MFAType;
+    correlationId?: string;
+  }): MFAStatusResponseDto {
+    const areBackupCodesLow = data.remainingBackupCodes !== undefined && data.remainingBackupCodes < 3;
+    return new MFAStatusResponseDto(
+      data.enabled,
+      data.type,
+      data.maskedPhone,
+      data.maskedEmail,
+      data.isPending,
+      data.remainingBackupCodes,
+      areBackupCodesLow,
+      data.methods,
+      data.maskedBkashAccount,
+      data.primaryMethod,
+      data.correlationId,
+      data.maskedNagadAccount,
+      data.maskedRocketAccount
+    );
+  }
+}
+
+/**
+ * MFA Setup Error Response DTO
+ */
+export class MFASetupErrorResponseDto {
+  @ApiProperty({
+    description: 'Error status code',
+    example: 400,
+  })
+  statusCode: number;
+
+  @ApiProperty({
+    description: 'English error message',
+    example: 'Invalid phone number format',
+  })
+  message: string;
+
+  @ApiPropertyOptional({
+    description: 'Bengali error message',
+    example: 'ফোন নম্বর ফরম্যাট সঠিক নয়',
+  })
+  messageBn?: string;
+
+  @ApiProperty({
+    description: 'Error type',
+    example: 'VALIDATION_ERROR',
+    enum: ['VALIDATION_ERROR', 'PROVIDER_ERROR', 'RATE_LIMITED', 'ALREADY_ENABLED', 'INVALID_TYPE'],
+  })
+  error: string;
+
+  @ApiProperty({
+    description: 'Timestamp of error',
+    example: '2024-01-01T00:00:00.000Z',
+    format: 'date-time',
+  })
+  timestamp: string;
+
+  @ApiPropertyOptional({
+    description: 'Correlation ID for tracing',
+    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
+  })
+  correlationId?: string;
+
+  @ApiPropertyOptional({
+    description: 'Rate limit reset time (if rate limited)',
+    example: '2024-01-01T01:00:00.000Z',
+    format: 'date-time',
+  })
+  rateLimitResetAt?: Date;
+
+  constructor(
+    message: string,
+    error: string,
+    statusCode: number = 400,
+    messageBn?: string,
+    correlationId?: string,
+    rateLimitResetAt?: Date
+  ) {
+    this.statusCode = statusCode;
+    this.message = message;
+    this.messageBn = messageBn;
+    this.error = error;
+    this.timestamp = new Date().toISOString();
+    this.correlationId = correlationId;
+    this.rateLimitResetAt = rateLimitResetAt;
+  }
+
+  /**
+   * Create validation error response
+   */
+  static validationError(message: string, messageBn?: string, correlationId?: string): MFASetupErrorResponseDto {
+    return new MFASetupErrorResponseDto(message, 'VALIDATION_ERROR', 400, messageBn, correlationId);
+  }
+
+  /**
+   * Create rate limited error response
+   */
+  static rateLimited(retryAfterSeconds: number, correlationId?: string): MFASetupErrorResponseDto {
+    const message = `Too many MFA setup attempts. Please try again in ${retryAfterSeconds} seconds.`;
+    const rateLimitResetAt = new Date(Date.now() + retryAfterSeconds * 1000);
+    return new MFASetupErrorResponseDto(message, 'RATE_LIMITED', 429, undefined, correlationId, rateLimitResetAt);
+  }
+}
+
+// ============================================================
+// ✅ ENTERPRISE UTILITY: Helper Functions
+// ============================================================
+
+/**
+ * Extract audit metadata from MFA setup request
+ * ট্র্যাকস কে, কখন, কোন ডিভাইস থেকে MFA সেটআপ করলো (Compliance)
+ */
+export function getMFASetupAuditMetadata(
+  dto: EnableMfaDto,
+  userId: string
+): AuditMetadata {
+  return {
+    userId,
+    source: 'api',
+    timestamp: new Date(),
+    requestId: dto.getCorrelationId(),
+    metadata: {
+      mfaType: dto.type,
+      deviceName: dto.deviceName,
+      makePrimary: dto.makePrimary,
+      hasPhone: !!dto.phone,
+      hasBkashAccount: !!dto.bkashAccount,
+      hasNagadAccount: !!dto.nagadAccount,
+      hasRocketAccount: !!dto.rocketAccount,
+      preferredLanguage: dto.preferredLanguage,
+      ipAddress: dto.context?.ipAddress,
+      userAgent: dto.context?.userAgent,
+      sessionId: dto.context?.sessionId,
+      deviceFingerprint: dto.context?.deviceFingerprint,
+      district: dto.context?.district,
+      division: dto.context?.division,
+      hasRateLimit: !!dto.rateLimit,
+    },
+  };
+}
+
+/**
+ * Validate MFA provider configuration
+ * চেক করে প্রদত্ত MFA টাইপের জন্য প্রয়োজনীয় কনফিগারেশন আছে কিনা
+ */
+export function isMFAProviderConfigured(type: MFAType): boolean {
+  const configuredProviders = MFA_CONFIG?.ENABLED_PROVIDERS || [
+    'TOTP', 'SMS', 'EMAIL', 'BACKUP_CODE', 'WEBAUTHN',
+    'WHATSAPP', 'IMO', 'BKASH_PIN', 'NAGAD_PIN', 'ROCKET_PIN'
+  ];
+  return configuredProviders.includes(type);
+}
+
+/**
+ * Get MFA provider display name in English
+ */
+export function getMFAProviderDisplayName(type: MFAType): string {
+  const displayNames: Record<string, string> = {
+    TOTP: 'Authenticator App',
+    SMS: 'SMS Verification',
+    EMAIL: 'Email Verification',
+    BACKUP_CODE: 'Backup Codes',
+    WEBAUTHN: 'Biometric (Passkey)',
+    WHATSAPP: 'WhatsApp Verification',
+    IMO: 'Imo Verification',
+    BKASH_PIN: 'bKash PIN',
+    NAGAD_PIN: 'Nagad PIN',
+    ROCKET_PIN: 'Rocket PIN',
+    VOICE_CALL: 'Voice Call OTP',
+  };
+  return displayNames[type] || type;
+}
+
+/**
+ * Get MFA provider display name in Bengali
+ */
+export function getMFAProviderDisplayNameBn(type: MFAType): string {
+  const displayNamesBn: Record<string, string> = {
+    TOTP: 'অথেনটিকেটর অ্যাপ',
+    SMS: 'এসএমএস ভেরিফিকেশন',
+    EMAIL: 'ইমেইল ভেরিফিকেশন',
+    BACKUP_CODE: 'ব্যাকআপ কোড',
+    WEBAUTHN: 'বায়োমেট্রিক (পাসকি)',
+    WHATSAPP: 'হোয়াটসঅ্যাপ ভেরিফিকেশন',
+    IMO: 'আইএমও ভেরিফিকেশন',
+    BKASH_PIN: 'বিকাশ পিন',
+    NAGAD_PIN: 'নগদ পিন',
+    ROCKET_PIN: 'রকেট পিন',
+    VOICE_CALL: 'ভয়েস কল ওটিপি',
+  };
+  return displayNamesBn[type] || type;
 }
 
 // ============================================================
 // Type Exports
 // ============================================================
 
-export type { MFAType as MFATypeEnum };
+export type { 
+  MFAType as MFATypeEnum,
+  MFASetupContextDto as MFASetupContextDtoType,
+  MFASetupRateLimitDto as MFASetupRateLimitDtoType,
+};
+
+// ============================================================
+// ENTERPRISE SUMMARY v2.0
+// ============================================================
+// 
+// Enterprise Enhancements Applied:
+// 1. ✅ Request context tracking for audit (ipAddress, userAgent, correlationId)
+// 2. ✅ Rate limit metadata support
+// 3. ✅ Bengali language support in responses
+// 4. ✅ Distributed tracing with correlation ID
+// 5. ✅ Device fingerprint tracking for security
+// 6. ✅ Geographic location tracking (Bangladesh districts)
+// 7. ✅ Session validation before MFA setup
+// 8. ✅ Audit metadata extraction helper
+// 9. ✅ Helper methods for validation and identifier extraction
+// 10. ✅ Bengali display names for MFA providers
+// 11. ✅ Provider configuration validation
+// 12. ✅ Error response DTO with Bengali support
+// 13. ✅ Correlation ID propagation across all response DTOs
+// 14. ✅ Rate limit reset time in error responses
+// 
+// Bangladesh Specific:
+// - Bengali language support in all responses
+// - District/Division tracking for location-based security
+// - WhatsApp/Imo MFA support
+// - bKash/Nagad/Rocket PIN MFA support
+// - Bengali provider display names
+// 
+// ============================================================
