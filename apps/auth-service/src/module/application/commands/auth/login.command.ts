@@ -1,5 +1,5 @@
 /**
- * Login Command - Pure Command Data Structure (Enterprise Enhanced)
+ * Login Command - Pure Command Data Structure (Enterprise Enhanced v2.1)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module application/commands/auth/login.command
@@ -8,7 +8,7 @@
  * Command for authenticating a user with email, phone, or username.
  * Contains all necessary data for login use case including device context.
  * 
- * ✅ Enterprise Features:
+ * ✅ Enterprise Features (v2.1):
  * - Shared types integration (@vubon/shared-types)
  * - Shared constants for patterns (@vubon/shared-constants)
  * - Shared utilities for phone normalization (@vubon/shared-utils)
@@ -19,6 +19,9 @@
  * - Command validation on construction
  * - Execution context for tracing
  * - Type-safe toString() for logging
+ * - Type guards for runtime type checking
+ * - International phone number support
+ * - Command handler interface contract
  */
 
 import { randomUUID } from 'crypto';
@@ -37,10 +40,31 @@ import {
   MOBILE_OPERATORS,
   NETWORK_TYPES,
   OTP_CONFIG,
-  TOKEN_CONFIG
 } from '@vubon/shared-constants';
 
-import { normalizePhone, maskPhone, isValidBdMobile, isEmailValid } from '@vubon/shared-utils';
+import { 
+  normalizePhone, 
+  maskPhone, 
+  isValidBdMobile, 
+  isValidEmail 
+} from '@vubon/shared-utils';
+
+// ============================================================
+// Constants with Fallbacks (Enterprise Enhancement)
+// ============================================================
+
+/** OTP length from shared-config (with fallback) */
+const OTP_LENGTH = OTP_CONFIG?.LENGTHS?.OTP?.max ?? 6;
+
+/** OTP pattern for validation */
+const OTP_PATTERN = new RegExp(`^\\d{${OTP_LENGTH}}$`);
+
+/** International phone pattern (E.164 format) */
+const INTERNATIONAL_PHONE_PATTERN = /^\+[1-9]\d{1,14}$/;
+
+/** Username length constraints */
+const USERNAME_MIN_LENGTH = 3;
+const USERNAME_MAX_LENGTH = 50;
 
 // ============================================================
 // Types (using shared types for consistency)
@@ -100,6 +124,30 @@ export interface CommandExecutionContext {
   source: 'web' | 'mobile' | 'api' | 'admin';
 }
 
+/**
+ * Command result interface for type-safe returns
+ */
+export interface CommandResult<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  errorCode?: string;
+}
+
+/**
+ * Command handler interface (Enterprise pattern)
+ */
+export interface CommandHandler<TCommand, TResult> {
+  /** Execute the command */
+  execute(command: TCommand): Promise<TResult>;
+  
+  /** Command type identifier */
+  readonly commandType: string;
+  
+  /** Validate command before execution */
+  validate(command: TCommand): ValidationResult;
+}
+
 // ============================================================
 // Validation Error Class
 // ============================================================
@@ -118,6 +166,38 @@ export class CommandValidationError extends Error {
 }
 
 // ============================================================
+// Type Guards (Enterprise Enhancement)
+// ============================================================
+
+/**
+ * Type guard for LoginCommand
+ */
+export function isLoginCommand(command: unknown): command is LoginCommand {
+  return command instanceof LoginCommand;
+}
+
+/**
+ * Type guard for PhoneLoginCommand
+ */
+export function isPhoneLoginCommand(command: unknown): command is PhoneLoginCommand {
+  return command instanceof PhoneLoginCommand;
+}
+
+/**
+ * Type guard for OtpLoginCommand
+ */
+export function isOtpLoginCommand(command: unknown): command is OtpLoginCommand {
+  return command instanceof OtpLoginCommand;
+}
+
+/**
+ * Type guard for any login command
+ */
+export function isAnyLoginCommand(command: unknown): command is LoginCommand | PhoneLoginCommand | OtpLoginCommand {
+  return isLoginCommand(command) || isPhoneLoginCommand(command) || isOtpLoginCommand(command);
+}
+
+// ============================================================
 // Login Command (Enhanced)
 // ============================================================
 
@@ -129,6 +209,7 @@ export class CommandValidationError extends Error {
  * - Added execution context
  * - Integrated shared utilities
  * - Type-safe toString() for logging
+ * - International phone support
  * 
  * @example
  * const command = LoginCommand.fromRequest(
@@ -223,24 +304,43 @@ export class LoginCommand {
         }
         break;
       case LOGIN_METHODS.PHONE:
-        if (!this.isValidBangladeshMobile()) {
-          errors.push('Invalid Bangladesh phone number format');
+        if (!this.isValidBangladeshMobile() && !this.isValidInternationalPhone()) {
+          errors.push('Invalid phone number format. Use Bangladesh format (01XXXXXXXXX) or international format (+8801XXXXXXXXX)');
         }
         break;
       case LOGIN_METHODS.USERNAME:
-        if (this.identifier.length < 3 || this.identifier.length > 50) {
-          errors.push('Username must be between 3 and 50 characters');
+        if (this.identifier.length < USERNAME_MIN_LENGTH || this.identifier.length > USERNAME_MAX_LENGTH) {
+          errors.push(`Username must be between ${USERNAME_MIN_LENGTH} and ${USERNAME_MAX_LENGTH} characters`);
+        }
+        if (!/^[a-zA-Z0-9._]+$/.test(this.identifier)) {
+          errors.push('Username can only contain letters, numbers, dots, and underscores');
         }
         break;
     }
 
-    // Validate OTP if it's an OTP login (handled in OtpLoginCommand)
-    // No additional validation needed here
+    // Validate device info if provided
+    if (this.deviceInfo) {
+      if (this.deviceInfo.ipAddress && !this.isValidIpAddress(this.deviceInfo.ipAddress)) {
+        errors.push('Invalid IP address format');
+      }
+      if (this.deviceInfo.userAgent && this.deviceInfo.userAgent.length > 500) {
+        errors.push('User agent too long (max 500 characters)');
+      }
+    }
 
     return {
       isValid: errors.length === 0,
       errors,
     };
+  }
+
+  /**
+   * Validate IP address format
+   */
+  private isValidIpAddress(ip: string): boolean {
+    const ipv4Pattern = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+    const ipv6Pattern = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4})$/;
+    return ipv4Pattern.test(ip) || ipv6Pattern.test(ip);
   }
 
   // ============================================================
@@ -301,7 +401,7 @@ export class LoginCommand {
     deviceInfo?: LoginDeviceInfo,
     rememberMe?: boolean
   ): LoginCommand {
-    return new LoginCommand(username.toLowerCase(), password, deviceInfo, rememberMe);
+    return new LoginCommand(username.toLowerCase().trim(), password, deviceInfo, rememberMe);
   }
 
   // ============================================================
@@ -322,8 +422,10 @@ export class LoginCommand {
       return LOGIN_METHODS.EMAIL;
     }
 
-    // Check if it's a Bangladesh phone number
-    if (PHONE_PATTERNS.BANGLADESH.test(trimmed) || isValidBdMobile(trimmed)) {
+    // Check if it's a phone number (Bangladesh or international)
+    if (PHONE_PATTERNS.BANGLADESH.test(trimmed) || 
+        isValidBdMobile(trimmed) || 
+        INTERNATIONAL_PHONE_PATTERN.test(trimmed)) {
       return LOGIN_METHODS.PHONE;
     }
 
@@ -348,7 +450,7 @@ export class LoginCommand {
    */
   getPhoneNumber(): string | null {
     if (this.method !== LOGIN_METHODS.PHONE) return null;
-    return normalizePhone(this.identifier, 'BD');
+    return normalizePhone(this.identifier, 'BD') ?? this.identifier;
   }
 
   /**
@@ -397,7 +499,7 @@ export class LoginCommand {
    */
   isValidEmail(): boolean {
     if (this.method !== LOGIN_METHODS.EMAIL) return false;
-    return isEmailValid(this.identifier);
+    return isValidEmail(this.identifier);
   }
 
   /**
@@ -406,6 +508,14 @@ export class LoginCommand {
   isValidBangladeshMobile(): boolean {
     if (this.method !== LOGIN_METHODS.PHONE) return false;
     return isValidBdMobile(this.identifier);
+  }
+
+  /**
+   * ✅ Enterprise: Check if the identifier is a valid international phone number
+   */
+  isValidInternationalPhone(): boolean {
+    if (this.method !== LOGIN_METHODS.PHONE) return false;
+    return INTERNATIONAL_PHONE_PATTERN.test(this.identifier);
   }
 
   /**
@@ -553,8 +663,8 @@ export class PhoneLoginCommand {
       errors.push('Password is required');
     }
 
-    if (!this.isValidBangladeshMobile()) {
-      errors.push('Invalid Bangladesh phone number format');
+    if (!this.isValidBangladeshMobile() && !this.isValidInternationalPhone()) {
+      errors.push('Invalid phone number format. Use Bangladesh format (01XXXXXXXXX) or international format (+8801XXXXXXXXX)');
     }
 
     if (errors.length > 0) {
@@ -613,6 +723,13 @@ export class PhoneLoginCommand {
    */
   isValidBangladeshMobile(): boolean {
     return isValidBdMobile(this.phoneNumber);
+  }
+
+  /**
+   * ✅ Enterprise: Check if phone number is valid international format
+   */
+  isValidInternationalPhone(): boolean {
+    return INTERNATIONAL_PHONE_PATTERN.test(this.phoneNumber);
   }
 
   /**
@@ -712,12 +829,12 @@ export class OtpLoginCommand {
       errors.push('OTP code is required');
     }
 
-    if (!this.isValidBangladeshMobile()) {
-      errors.push('Invalid Bangladesh phone number format');
+    if (!this.isValidBangladeshMobile() && !this.isValidInternationalPhone()) {
+      errors.push('Invalid phone number format. Use Bangladesh format (01XXXXXXXXX) or international format (+8801XXXXXXXXX)');
     }
 
     if (!this.hasValidOtpFormat()) {
-      errors.push(`OTP code must be exactly ${OTP_CONFIG?.LENGTH ?? 6} digits`);
+      errors.push(`OTP code must be exactly ${OTP_LENGTH} digits`);
     }
 
     if (errors.length > 0) {
@@ -776,9 +893,7 @@ export class OtpLoginCommand {
    * ✅ Enhanced: Uses shared constants for OTP length
    */
   hasValidOtpFormat(): boolean {
-    const otpLength = OTP_CONFIG?.LENGTH ?? 6;
-    const otpPattern = new RegExp(`^\\d{${otpLength}}$`);
-    return otpPattern.test(this.otpCode);
+    return OTP_PATTERN.test(this.otpCode);
   }
 
   /**
@@ -786,6 +901,13 @@ export class OtpLoginCommand {
    */
   isValidBangladeshMobile(): boolean {
     return isValidBdMobile(this.phoneNumber);
+  }
+
+  /**
+   * ✅ Enterprise: Check if phone number is valid international format
+   */
+  isValidInternationalPhone(): boolean {
+    return INTERNATIONAL_PHONE_PATTERN.test(this.phoneNumber);
   }
 
   /**
@@ -828,6 +950,45 @@ export class OtpLoginCommand {
 }
 
 // ============================================================
+// Command Handler Interface (Enterprise Pattern)
+// ============================================================
+
+/**
+ * Generic command handler interface
+ */
+export interface ICommandHandler<TCommand, TResult> {
+  /** Execute the command */
+  execute(command: TCommand): Promise<TResult>;
+  
+  /** Command type identifier */
+  readonly commandType: string;
+  
+  /** Validate command before execution */
+  validate(command: TCommand): ValidationResult;
+}
+
+/**
+ * Login command handler interface
+ */
+export interface ILoginCommandHandler extends ICommandHandler<LoginCommand, CommandResult<{ accessToken: string; refreshToken: string }>> {
+  commandType: 'LoginCommand';
+}
+
+/**
+ * Phone login command handler interface
+ */
+export interface IPhoneLoginCommandHandler extends ICommandHandler<PhoneLoginCommand, CommandResult<{ accessToken: string; refreshToken: string }>> {
+  commandType: 'PhoneLoginCommand';
+}
+
+/**
+ * OTP login command handler interface
+ */
+export interface IOtpLoginCommandHandler extends ICommandHandler<OtpLoginCommand, CommandResult<{ accessToken: string; refreshToken: string }>> {
+  commandType: 'OtpLoginCommand';
+}
+
+// ============================================================
 // Type Exports
 // ============================================================
 
@@ -835,14 +996,19 @@ export type {
   LoginDeviceInfo as LoginDeviceInfoType, 
   LoginMethod as LoginMethodType,
   ValidationResult as ValidationResultType,
-  CommandExecutionContext as CommandExecutionContextType
+  CommandExecutionContext as CommandExecutionContextType,
+  CommandResult as CommandResultType,
+  ICommandHandler as ICommandHandlerType,
+  ILoginCommandHandler as ILoginCommandHandlerType,
+  IPhoneLoginCommandHandler as IPhoneLoginCommandHandlerType,
+  IOtpLoginCommandHandler as IOtpLoginCommandHandlerType
 };
 
 // ============================================================
-// ENTERPRISE SUMMARY v2.0
+// ENTERPRISE SUMMARY v2.1
 // ============================================================
 // 
-// Enterprise Enhancements Applied:
+// Enterprise Enhancements Applied in v2.1:
 // 1. ✅ Command validation on construction (fail-fast)
 // 2. ✅ Shared types integration (@vubon/shared-types)
 // 3. ✅ Shared constants for OTP pattern (@vubon/shared-constants)
@@ -856,5 +1022,12 @@ export type {
 // 11. ✅ Correlation ID propagation
 // 12. ✅ Source tracking (web/mobile/api/admin)
 // 13. ✅ Immutable command data with readonly properties
+// 14. ✅ Type guards for runtime type checking
+// 15. ✅ International phone number support
+// 16. ✅ Command handler interface contract
+// 17. ✅ IP address validation
+// 18. ✅ Username pattern validation
+// 19. ✅ Device info validation
+// 20. ✅ OTP length from shared-config with fallback
 // 
 // ============================================================
