@@ -1,5 +1,5 @@
 /**
- * Login Command - Pure Command Data Structure
+ * Login Command - Pure Command Data Structure (Enterprise Enhanced)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module application/commands/auth/login.command
@@ -8,25 +8,44 @@
  * Command for authenticating a user with email and password.
  * Contains all necessary data for login use case including device context.
  * 
- * Enterprise Rules:
- * ✅ Immutable command data
- * ✅ Self-contained use case data
- * ✅ No business logic
- * ✅ No validation (handled by handler)
- * ✅ Framework-free
- * ✅ Bangladesh specific - Network type and mobile operator tracking
+ * ✅ Enterprise Features:
+ * - Shared types integration (@vubon/shared-types)
+ * - Shared constants for patterns (@vubon/shared-constants)
+ * - Shared utilities for phone normalization (@vubon/shared-utils)
+ * - Bangladesh specific fields (district, upazila, mobileOperator, networkType)
+ * - Privacy-friendly masking methods
+ * - Immutable command data with readonly properties
+ * - Factory methods for specialized commands
  */
 
 import { randomUUID } from 'crypto';
 
+// ✅ Phase-1: Shared packages import (Enterprise enhancement)
+import type { 
+  DeviceInfo as SharedDeviceInfo,
+  LoginMethod as SharedLoginMethod,
+  MobileOperator as SharedMobileOperator,
+  NetworkType as SharedNetworkType
+} from '@vubon/shared-types';
+
+import { 
+  PHONE_PATTERNS,
+  LOGIN_METHODS,
+  MOBILE_OPERATORS,
+  NETWORK_TYPES
+} from '@vubon/shared-constants';
+
+import { normalizePhone, maskPhone, isValidBdMobile } from '@vubon/shared-utils';
+
 // ============================================================
-// Types
+// Types (using shared types for consistency)
 // ============================================================
 
 /**
  * Device information for login tracking (Bangladesh specific)
+ * ✅ Enhanced: Now extends SharedDeviceInfo for type safety
  */
-export interface LoginDeviceInfo {
+export interface LoginDeviceInfo extends Partial<SharedDeviceInfo> {
   /** IP address of the request */
   ipAddress?: string;
   
@@ -50,10 +69,10 @@ export interface LoginDeviceInfo {
   upazila?: string;
   
   /** Mobile operator (GP, Robi, Banglalink, Teletalk) */
-  mobileOperator?: 'gp' | 'robi' | 'banglalink' | 'teletalk' | 'unknown';
+  mobileOperator?: SharedMobileOperator;
   
   /** Network type (2G, 3G, 4G, 5G, WiFi) */
-  networkType?: '2g' | '3g' | '4g' | '5g' | 'wifi' | 'unknown';
+  networkType?: SharedNetworkType;
   
   /** Screen resolution for fingerprinting */
   screenResolution?: string;
@@ -66,33 +85,27 @@ export interface LoginDeviceInfo {
 }
 
 /**
- * Login method type
+ * Login method type (using shared constants)
  */
-export type LoginMethod = 'email' | 'phone' | 'username' | 'otp';
+export type LoginMethod = SharedLoginMethod;
 
 // ============================================================
-// Login Command
+// Login Command (Enhanced)
 // ============================================================
 
 /**
  * Login Command
  * 
+ * ✅ Enterprise Enhancement: 
+ * - Added factory method for creating from request
+ * - Added validation helpers
+ * - Integrated shared utilities
+ * 
  * @example
- * const command = new LoginCommand(
+ * const command = LoginCommand.fromRequest(
  *   'user@vubon.com.bd',
  *   'MyP@ssw0rd123',
- *   {
- *     ipAddress: '192.168.1.100',
- *     userAgent: 'Mozilla/5.0...',
- *     deviceId: 'device_456',
- *     sessionId: 'sess_abc123',
- *     district: 'Dhaka',
- *     mobileOperator: 'gp',
- *     networkType: '4g'
- *   },
- *   true,
- *   'captcha_token_123',
- *   'corr_abc123'
+ *   { ipAddress: '192.168.1.100', userAgent: 'Mozilla/5.0...' }
  * );
  */
 export class LoginCommand {
@@ -119,7 +132,7 @@ export class LoginCommand {
     /** Correlation ID for distributed tracing */
     public readonly correlationId?: string,
     
-    /** Login method (default: 'email') */
+    /** Login method (default: auto-detect) */
     method?: LoginMethod
   ) {
     this.commandId = randomUUID();
@@ -128,76 +141,151 @@ export class LoginCommand {
     this.rememberMe = rememberMe ?? false;
   }
   
+  // ============================================================
+  // Factory Methods (Enterprise Enhancement)
+  // ============================================================
+  
+  /**
+   * Create LoginCommand from request data (convenience factory)
+   */
+  public static fromRequest(
+    identifier: string,
+    password: string,
+    deviceInfo?: LoginDeviceInfo,
+    rememberMe?: boolean,
+    captchaToken?: string
+  ): LoginCommand {
+    return new LoginCommand(
+      identifier,
+      password,
+      deviceInfo,
+      rememberMe,
+      captchaToken,
+      deviceInfo?.correlationId
+    );
+  }
+  
+  /**
+   * Create LoginCommand for email login
+   */
+  public static forEmail(
+    email: string,
+    password: string,
+    deviceInfo?: LoginDeviceInfo,
+    rememberMe?: boolean
+  ): LoginCommand {
+    return new LoginCommand(email, password, deviceInfo, rememberMe);
+  }
+  
+  /**
+   * Create LoginCommand for phone login
+   */
+  public static forPhone(
+    phoneNumber: string,
+    password: string,
+    deviceInfo?: LoginDeviceInfo,
+    rememberMe?: boolean
+  ): LoginCommand {
+    const normalizedPhone = normalizePhone(phoneNumber, 'BD') ?? phoneNumber;
+    return new LoginCommand(normalizedPhone, password, deviceInfo, rememberMe);
+  }
+  
+  // ============================================================
+  // Detection Methods
+  // ============================================================
+  
   /**
    * Detect login method from identifier format
-   * @param identifier - Email, phone, or username
-   * @returns Detected login method
+   * ✅ Enhanced: Uses shared constants for patterns
    */
   private detectMethod(identifier: string): LoginMethod {
     // Check if it's an email
     if (identifier.includes('@') && identifier.includes('.')) {
-      return 'email';
+      return LOGIN_METHODS.EMAIL;
     }
     
-    // Check if it's a Bangladesh phone number (starts with +880 or 01)
-    if (/^(\+8801|01)[3-9]\d{8}$/.test(identifier)) {
-      return 'phone';
+    // Check if it's a Bangladesh phone number
+    if (PHONE_PATTERNS.BANGLADESH.test(identifier) || isValidBdMobile(identifier)) {
+      return LOGIN_METHODS.PHONE;
     }
     
     // Default to username
-    return 'username';
+    return LOGIN_METHODS.USERNAME;
   }
+  
+  // ============================================================
+  // Getters
+  // ============================================================
   
   /**
    * Get the email from identifier if it's an email login
    */
   getEmail(): string | null {
-    return this.method === 'email' ? this.identifier : null;
+    return this.method === LOGIN_METHODS.EMAIL ? this.identifier : null;
   }
   
   /**
    * Get the phone number from identifier if it's a phone login
+   * ✅ Enhanced: Uses shared utility for normalization
    */
   getPhoneNumber(): string | null {
-    if (this.method !== 'phone') return null;
-    
-    // Normalize phone number to E.164 format
-    let phone = this.identifier;
-    if (phone.startsWith('0')) {
-      phone = `+88${phone}`;
-    }
-    if (!phone.startsWith('+')) {
-      phone = `+${phone}`;
-    }
-    return phone;
+    if (this.method !== LOGIN_METHODS.PHONE) return null;
+    return normalizePhone(this.identifier, 'BD');
   }
   
   /**
    * Get the username from identifier if it's a username login
    */
   getUsername(): string | null {
-    return this.method === 'username' ? this.identifier : null;
+    return this.method === LOGIN_METHODS.USERNAME ? this.identifier : null;
   }
+  
+  // ============================================================
+  // Check Methods
+  // ============================================================
   
   /**
    * Check if this is an OTP login
    */
   isOtpLogin(): boolean {
-    return this.method === 'otp';
+    return this.method === LOGIN_METHODS.OTP;
   }
   
   /**
    * Check if this is a password-based login
    */
   isPasswordLogin(): boolean {
-    return this.method === 'email' || this.method === 'phone' || this.method === 'username';
+    return this.method === LOGIN_METHODS.EMAIL || 
+           this.method === LOGIN_METHODS.PHONE || 
+           this.method === LOGIN_METHODS.USERNAME;
   }
   
   /**
+   * Check if the identifier is a valid email format
+   */
+  isValidEmail(): boolean {
+    return this.method === LOGIN_METHODS.EMAIL && 
+           /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/.test(this.identifier);
+  }
+  
+  /**
+   * Check if the identifier is a valid Bangladesh mobile number
+   */
+  isValidBangladeshMobile(): boolean {
+    if (this.method !== LOGIN_METHODS.PHONE) return false;
+    return isValidBdMobile(this.identifier);
+  }
+  
+  // ============================================================
+  // Masking Methods (Privacy)
+  // ============================================================
+  
+  /**
    * Get masked identifier for logging (privacy)
+   * ✅ Enhanced: Uses shared utility for phone masking
    */
   getMaskedIdentifier(): string {
-    if (this.method === 'email') {
+    if (this.method === LOGIN_METHODS.EMAIL) {
       const [username, domain] = this.identifier.split('@');
       if (username && username.length > 2) {
         return `${username[0]}***${username[username.length - 1]}@${domain}`;
@@ -205,12 +293,8 @@ export class LoginCommand {
       return `${username?.substring(0, 2)}***@${domain}`;
     }
     
-    if (this.method === 'phone') {
-      const phone = this.identifier.replace(/\D/g, '');
-      if (phone.length >= 10) {
-        return phone.slice(0, -6) + '******' + phone.slice(-2);
-      }
-      return '***';
+    if (this.method === LOGIN_METHODS.PHONE) {
+      return maskPhone(this.identifier);
     }
     
     // Username - mask partially
@@ -222,24 +306,27 @@ export class LoginCommand {
 }
 
 // ============================================================
-// Phone Login Command (Bangladesh specific)
+// Phone Login Command (Specialized - Bangladesh specific)
 // ============================================================
 
 /**
  * Phone Login Command
  * Specialized command for phone-based authentication
  * 
+ * ✅ Enterprise Enhancement: Added factory method and validation
+ * 
  * @example
- * const command = new PhoneLoginCommand(
+ * const command = PhoneLoginCommand.fromRequest(
  *   '+8801712345678',
  *   'MyP@ssw0rd123',
- *   { ipAddress: '192.168.1.100', userAgent: 'Mozilla/5.0...' }
+ *   { ipAddress: '192.168.1.100' }
  * );
  */
 export class PhoneLoginCommand {
   public readonly commandId: string;
   public readonly timestamp: Date;
-  public readonly method: LoginMethod = 'phone';
+  public readonly method: LoginMethod = LOGIN_METHODS.PHONE;
+  public readonly normalizedPhone: string;
   
   constructor(
     public readonly phoneNumber: string,
@@ -252,53 +339,73 @@ export class PhoneLoginCommand {
     this.commandId = randomUUID();
     this.timestamp = new Date();
     this.rememberMe = rememberMe ?? false;
+    this.normalizedPhone = normalizePhone(phoneNumber, 'BD') ?? phoneNumber;
+  }
+  
+  /**
+   * Factory method for creating from request
+   */
+  public static fromRequest(
+    phoneNumber: string,
+    password: string,
+    deviceInfo?: LoginDeviceInfo,
+    rememberMe?: boolean
+  ): PhoneLoginCommand {
+    return new PhoneLoginCommand(
+      phoneNumber,
+      password,
+      deviceInfo,
+      rememberMe,
+      undefined,
+      deviceInfo?.correlationId
+    );
   }
   
   /**
    * Get normalized phone number in E.164 format
+   * ✅ Now returns cached value
    */
   getNormalizedPhone(): string {
-    let phone = this.phoneNumber;
-    if (phone.startsWith('0')) {
-      phone = `+88${phone}`;
-    }
-    if (!phone.startsWith('+')) {
-      phone = `+${phone}`;
-    }
-    return phone;
+    return this.normalizedPhone;
   }
   
   /**
    * Get masked phone number for logging
    */
   getMaskedPhone(): string {
-    const phone = this.getNormalizedPhone();
-    if (phone.length >= 13) {
-      return phone.slice(0, 6) + '******' + phone.slice(-2);
-    }
-    return '***';
+    return maskPhone(this.normalizedPhone);
+  }
+  
+  /**
+   * Check if phone number is valid Bangladesh mobile
+   */
+  isValidBangladeshMobile(): boolean {
+    return isValidBdMobile(this.phoneNumber);
   }
 }
 
 // ============================================================
-// OTP Login Command (Bangladesh specific - passwordless)
+// OTP Login Command (Passwordless - Bangladesh specific)
 // ============================================================
 
 /**
  * OTP Login Command
  * For passwordless authentication via SMS/WhatsApp OTP
  * 
+ * ✅ Enterprise Enhancement: Added OTP validation and factory method
+ * 
  * @example
- * const command = new OtpLoginCommand(
+ * const command = OtpLoginCommand.fromRequest(
  *   '+8801712345678',
  *   '123456',
- *   { ipAddress: '192.168.1.100', userAgent: 'Mozilla/5.0...' }
+ *   { ipAddress: '192.168.1.100' }
  * );
  */
 export class OtpLoginCommand {
   public readonly commandId: string;
   public readonly timestamp: Date;
-  public readonly method: LoginMethod = 'otp';
+  public readonly method: LoginMethod = LOGIN_METHODS.OTP;
+  public readonly normalizedPhone: string;
   
   constructor(
     public readonly phoneNumber: string,
@@ -311,31 +418,40 @@ export class OtpLoginCommand {
     this.commandId = randomUUID();
     this.timestamp = new Date();
     this.rememberMe = rememberMe ?? false;
+    this.normalizedPhone = normalizePhone(phoneNumber, 'BD') ?? phoneNumber;
+  }
+  
+  /**
+   * Factory method for creating from request
+   */
+  public static fromRequest(
+    phoneNumber: string,
+    otpCode: string,
+    deviceInfo?: LoginDeviceInfo,
+    rememberMe?: boolean
+  ): OtpLoginCommand {
+    return new OtpLoginCommand(
+      phoneNumber,
+      otpCode,
+      deviceInfo,
+      rememberMe,
+      undefined,
+      deviceInfo?.correlationId
+    );
   }
   
   /**
    * Get normalized phone number in E.164 format
    */
   getNormalizedPhone(): string {
-    let phone = this.phoneNumber;
-    if (phone.startsWith('0')) {
-      phone = `+88${phone}`;
-    }
-    if (!phone.startsWith('+')) {
-      phone = `+${phone}`;
-    }
-    return phone;
+    return this.normalizedPhone;
   }
   
   /**
    * Get masked phone number for logging
    */
   getMaskedPhone(): string {
-    const phone = this.getNormalizedPhone();
-    if (phone.length >= 13) {
-      return phone.slice(0, 6) + '******' + phone.slice(-2);
-    }
-    return '***';
+    return maskPhone(this.normalizedPhone);
   }
   
   /**
@@ -343,6 +459,13 @@ export class OtpLoginCommand {
    */
   hasValidOtpFormat(): boolean {
     return /^\d{6}$/.test(this.otpCode);
+  }
+  
+  /**
+   * Check if phone number is valid Bangladesh mobile
+   */
+  isValidBangladeshMobile(): boolean {
+    return isValidBdMobile(this.phoneNumber);
   }
 }
 
