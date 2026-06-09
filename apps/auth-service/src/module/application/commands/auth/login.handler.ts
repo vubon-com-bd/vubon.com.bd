@@ -1,631 +1,76 @@
-/**
- * Login Command Handler - Enterprise Grade v3.0
- * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
- * @module application/commands/auth/login.handler
- * 
- * @description
- * Handles the login command with enterprise-grade features including:
- * - Circuit breaker pattern for resilience
- * - Metrics collection for monitoring
- * - Distributed tracing support
- * - Rate limiting with bulk tracking
- * - Validation caching for performance
- * - Multi-language error messages
- * - Idempotency support
- * - Bulk operation tracking
- */
-
+/** * Login Command Handler - Application Layer 
+* Login Command Handler - Enterprise Grade v3.0 
+* Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce *  
+* @module application/commands/auth/login.handler *  
+* @description 
+* Handles the user login use case with security features including: 
+* - MFA support (TOTP, SMS, WhatsApp, bKash PIN, Nagad PIN, Rocket PIN) 
+* - Account lockout with progressive locking 
+* - Session management with device tracking 
+* - Device trust with fingerprinting 
+* - Suspicious activity detection (location, device, time-based) 
+* - Rate limiting with CAPTCHA 
+* - Audit logging with correlation IDs 
+* - Bangladesh specific - Mobile operator and district tracking 
+* Handles the login command with enterprise-grade features including: 
+* - Circuit breaker pattern for resilience 
+* - Metrics collection for monitoring 
+* - Distributed tracing support 
+* - Rate limiting with bulk tracking 
+* - Validation caching for performance 
+* - Multi-language error messages 
+* - Idempotency support * - Bulk operation tracking 
+*/import { Injectable, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
+import { LoginCommand, PhoneLoginCommand, OtpLoginCommand } from './login.command';
+import { UserRepository } from '../../../domain/repositories/user.repository.interface';
+import { SessionRepository } from '../../../domain/repositories/session.repository.interface';
+import { RefreshTokenRepository } from '../../../domain/repositories/refresh-token.repository.interface';
+import { AccountLockRepository } from '../../../domain/repositories/account-lock.repository.interface';
+import { DeviceRepository } from '../../../domain/repositories/device.repository.interface';
+import { User } from '../../../domain/entities/user.entity';
+import { Session } from '../../../domain/entities/session.entity';
+import { RefreshToken } from '../../../domain/entities/refresh-token.entity';
+import { AccountLock, AccountLockReason, LockLevel } from '../../../domain/entities/account-lock.entity';
+import { Device, DeviceTrustLevel } from '../../../domain/entities/device.entity';
+import { Email } from '../../../domain/value-objects/email.vo';
+import { Password } from '../../../domain/value-objects/password.vo';
+import { Token, TokenType } from '../../../domain/value-objects/token.vo';
+import { IpAddress, IpCategory } from '../../../domain/value-objects/ip-address.vo';
+import { UserAgent, DeviceType } from '../../../domain/value-objects/user-agent.vo';
+import { DeviceId } from '../../../domain/value-objects/device-id.vo';
+import { Phone } from '../../../domain/value-objects/phone.vo';
+import { UserLoggedInEvent, LoginMethod, LoginType } from '../../events/user-logged-in.event';
+import { LoginFailedEvent, LoginFailureReason } from '../../events/login-failed.event';
+import { AccountLockedEvent, AccountLockReason as LockReason, AccountLockMethod, AccountLockSource } from '../../events/account-locked.event';
+import { DeviceTrustedEvent } from '../../events/device-trusted.event';
+import { SuspiciousActivityEvent } from '../../events/suspicious-activity.event';
 import { Injectable, Logger, Inject, Scope } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { CircuitBreaker } from 'opossum';
 
-// DTOs
-import { 
-  LoginDto, 
-  LoginResponseDto, 
-  MFARequiredResponseDto 
-} from '../../dtos/auth/login.dto';
+// DTOsimport {   PasswordHasher,   TokenGenerator,   EventBus,   TransactionManager,  RateLimiter,  AuditService,  SecurityService,  CacheService,  IdGenerator,  MfaGenerator,  NotificationService} from './infrastructure.interface';  LoginDto,   LoginResponseDto,   MFARequiredResponseDto } from '../../dtos/auth/login.dto';// Servicesimport {   AuthService,   DeviceInfo,   LoginOptions,   ServiceResult } from '../../services/interfaces/auth.service.interface';// Infrastructureimport { ICommandHandler, CommandResult } from '../interfaces/command-handler.interface';import { LoginCommand } from './login.command';// Metrics & Monitoringimport { MetricsService } from '../../../infrastructure/metrics/metrics.service';import { TracerService } from '../../../infrastructure/tracing/tracer.service';import { CacheService } from '../../services/interfaces/cache.service.interface';// Rate Limitingimport { RateLimitService } from '../../../infrastructure/rate-limit/rate-limit.service';// Validationimport { ValidationCacheService } from '../../../infrastructure/cache/validation-cache.service';// Domain Errorsimport {   AccountLockedError,   MFASessionNotFoundError,  InvalidOTPError,  RateLimitExceededError} from '../../../domain/errors/domain-errors';// Shared Constantsimport {   RATE_LIMIT_CONFIG,  CIRCUIT_BREAKER_CONFIG,  METRICS_CONFIG,  VALIDATION_CACHE_CONFIG} from '@vubon/shared-constants';// Shared Typesimport type {   LoginMethod,  ServiceMetrics,  CircuitBreakerStatus,  BulkRateLimitInfo} from '@vubon/shared-types';// ============================================================// Constants// ============================================================const LOGIN_CONFIG = {  MAX_FAILED_ATTEMPTS: 5,  PROGRESSIVE_LOCKOUT: true,  SESSION_DURATION_REMEMBER_MS: 30 * 24 * 60 * 60 * 1000, // 30 days  SESSION_DURATION_DEFAULT_MS: 24 * 60 * 60 * 1000, // 24 hours  SESSION_DURATION_MOBILE_MS: 7 * 24 * 60 * 60 * 1000, // 7 days for mobile  ACCESS_TOKEN_EXPIRY_SECONDS: 900, // 15 minutes  REFRESH_TOKEN_EXPIRY_SECONDS: 7 * 24 * 60 * 60, // 7 days  RATE_LIMIT_MAX_ATTEMPTS: 10,  RATE_LIMIT_WINDOW_MINUTES: 15,  DEVICE_TRUST_DURATION_DAYS: 30,  MAX_CONCURRENT_SESSIONS: 5,  SUSPICIOUS_HOUR_START: 22, // 10 PM  SUSPICIOUS_HOUR_END: 6,    // 6 AM} as const;const DEFAULT_RETRY_ATTEMPTS = 3;const DEFAULT_RETRY_DELAY_MS = 100;const BULK_TRACKING_WINDOW_MS = 60000; // 1 minute// ============================================================// Custom Exceptions// Bulk Rate Limit Tracker (Enterprise Feature)// ============================================================export class AccountLockedException extends UnauthorizedException {  constructor(remainingMinutes: number, lockLevel: LockLevel) {    super(`Account is locked. Please try again in ${remainingMinutes} minutes.`);    this.name = 'AccountLockedException';  }interface BulkRateLimitEntry {  ipAddress: string;  attempts: number;  firstAttemptAt: Date;  lastAttemptAt: Date;  userIds: Set<string>;  isBlocked: boolean;  blockedUntil?: Date;}export class TooManyRequestsException extends UnauthorizedException {  constructor(message: string) {    super(message);    this.name = 'TooManyRequestsException';class BulkRateLimitTracker {  private static instances: Map<string, BulkRateLimitTracker> = new Map();  private rateLimitMap: Map<string, BulkRateLimitEntry> = new Map();  private readonly maxAttemptsPerWindow: number;  private readonly blockDurationMs: number;  private constructor(    private readonly identifier: string,    config: { maxAttempts: number; blockDurationMinutes: number }  ) {    this.maxAttemptsPerWindow = config.maxAttempts;    this.blockDurationMs = config.blockDurationMinutes * 60 * 1000;        // Cleanup expired entries periodically    setInterval(() => this.cleanup(), 60000);  }}export class MFASessionExpiredException extends UnauthorizedException {  constructor() {    super('MFA session has expired. Please login again.');    this.name = 'MFASessionExpiredException';  static getInstance(identifier: string, config?: { maxAttempts: number; blockDurationMinutes: number }): BulkRateLimitTracker {    if (!BulkRateLimitTracker.instances.has(identifier)) {      BulkRateLimitTracker.instances.set(        identifier,        new BulkRateLimitTracker(identifier, config || { maxAttempts: 100, blockDurationMinutes: 5 })      );    }    return BulkRateLimitTracker.instances.get(identifier)!;  }}// ============================================================// Login Handler// ============================================================  trackAttempt(ipAddress: string, userId?: string): { allowed: boolean; remaining: number; retryAfterSeconds?: number } {    const now = new Date();    let entry = this.rateLimitMap.get(ipAddress);@Injectable()export class LoginHandler {  constructor(    private readonly userRepository: UserRepository,    private readonly sessionRepository: SessionRepository,    private readonly refreshTokenRepository: RefreshTokenRepository,    private readonly accountLockRepository: AccountLockRepository,    private readonly deviceRepository: DeviceRepository,    private readonly passwordHasher: PasswordHasher,    private readonly tokenGenerator: TokenGenerator,    private readonly mfaGenerator: MfaGenerator,    private readonly eventBus: EventBus,    private readonly transactionManager: TransactionManager,    private readonly rateLimiter: RateLimiter,    private readonly auditService: AuditService,    private readonly securityService: SecurityService,    private readonly cacheService: CacheService,    private readonly notificationService: NotificationService,    private readonly idGenerator: IdGenerator  ) {}    if (!entry) {      entry = {        ipAddress,        attempts: 1,        firstAttemptAt: now,        lastAttemptAt: now,        userIds: userId ? new Set([userId]) : new Set(),        isBlocked: false,      };      this.rateLimitMap.set(ipAddress, entry);      return { allowed: true, remaining: this.maxAttemptsPerWindow - 1 };    }    // Check if currently blocked    if (entry.isBlocked && entry.blockedUntil && now < entry.blockedUntil) {      const retryAfterSeconds = Math.ceil((entry.blockedUntil.getTime() - now.getTime()) / 1000);      return { allowed: false, remaining: 0, retryAfterSeconds };    }    // Reset if window expired    if (now.getTime() - entry.lastAttemptAt.getTime() > BULK_TRACKING_WINDOW_MS) {      entry.attempts = 1;      entry.firstAttemptAt = now;      entry.userIds = userId ? new Set([userId]) : new Set();      entry.isBlocked = false;      entry.blockedUntil = undefined;      this.rateLimitMap.set(ipAddress, entry);      return { allowed: true, remaining: this.maxAttemptsPerWindow - 1 };    }    entry.attempts++;    entry.lastAttemptAt = now;    if (userId) entry.userIds.add(userId);    // Check if exceeded threshold    if (entry.attempts > this.maxAttemptsPerWindow) {      entry.isBlocked = true;      entry.blockedUntil = new Date(now.getTime() + this.blockDurationMs);      return { allowed: false, remaining: 0, retryAfterSeconds: this.blockDurationMs / 1000 };    }    this.rateLimitMap.set(ipAddress, entry);    return { allowed: true, remaining: this.maxAttemptsPerWindow - entry.attempts };  }  // ============================================================  // Main Execute Method  // ============================================================    async execute(command: LoginCommand | PhoneLoginCommand | OtpLoginCommand): Promise<{    accessToken: string;    refreshToken: string;    user: any;    mfaRequired?: boolean;    mfaSessionId?: string;    mfaMethods?: string[];  }> {    // Route to appropriate handler based on command type    if (command instanceof PhoneLoginCommand) {      return this.handlePhoneLogin(command);    }    if (command instanceof OtpLoginCommand) {      return this.handleOtpLogin(command);    }    return this.handleEmailLogin(command);  getStats(ipAddress: string): BulkRateLimitEntry | undefined {    return this.rateLimitMap.get(ipAddress);  }  // ============================================================  // Email Login Handler  // ============================================================    private async handleEmailLogin(command: LoginCommand): Promise<any> {    const { identifier, password, deviceInfo, rememberMe, captchaToken, correlationId } = command;    // 1. Rate limiting check by IP    await this.checkRateLimiting(deviceInfo?.ipAddress, identifier, correlationId);    // 2. CAPTCHA validation for suspicious attempts    if (captchaToken) {      const isValid = await this.securityService.validateCaptcha(captchaToken);      if (!isValid) {        throw new BadRequestException('Invalid CAPTCHA');  private cleanup(): void {    const now = Date.now();    for (const [ip, entry] of this.rateLimitMap.entries()) {      // Remove entries older than 2 windows      if (now - entry.lastAttemptAt.getTime() > BULK_TRACKING_WINDOW_MS * 2) {        this.rateLimitMap.delete(ip);      }    }  }    // 3. Validate email format    let email: Email;    try {      email = new Email(identifier);    } catch (error) {      await this.publishFailedLoginEvent(identifier, deviceInfo, LoginFailureReason.INVALID_EMAIL, correlationId);      throw new UnauthorizedException('Invalid credentials');    }    // 4. Find user    const user = await this.userRepository.findByEmail(email);        if (!user) {      await this.publishFailedLoginEvent(identifier, deviceInfo, LoginFailureReason.USER_NOT_FOUND, correlationId);      throw new UnauthorizedException('Invalid credentials');    }    return this.processLogin(user, password, deviceInfo, rememberMe, correlationId, 'email');  reset(ipAddress: string): void {    this.rateLimitMap.delete(ipAddress);  }}  // ============================================================  // Phone Login Handler (Bangladesh specific)  // ============================================================    private async handlePhoneLogin(command: PhoneLoginCommand): Promise<any> {    const { phoneNumber, password, deviceInfo, rememberMe, captchaToken, correlationId } = command;    // 1. Rate limiting check by IP    await this.checkRateLimiting(deviceInfo?.ipAddress, phoneNumber, correlationId);    // 2. CAPTCHA validation    if (captchaToken) {      const isValid = await this.securityService.validateCaptcha(captchaToken);      if (!isValid) {        throw new BadRequestException('Invalid CAPTCHA');      }    }// ============================================================// Idempotency Key Manager (Enterprise Feature)// ============================================================    // 3. Validate phone format    let phone: Phone;    try {      phone = new Phone(phoneNumber);    } catch (error) {      await this.publishFailedLoginEvent(phoneNumber, deviceInfo, LoginFailureReason.INVALID_PHONE, correlationId);      throw new UnauthorizedException('Invalid credentials');    }interface IdempotencyRecord {  key: string;  result: unknown;  expiresAt: Date;}    // 4. Find user by phone    const user = await this.userRepository.findByPhone(phone);        if (!user) {      await this.publishFailedLoginEvent(phoneNumber, deviceInfo, LoginFailureReason.USER_NOT_FOUND, correlationId);      throw new UnauthorizedException('Invalid credentials');    }class IdempotencyManager {  private static instance: IdempotencyManager;  private cache: Map<string, IdempotencyRecord> = new Map();  private readonly ttlMs: number = 3600000; // 1 hour    return this.processLogin(user, password, deviceInfo, rememberMe, correlationId, 'phone');  }  private constructor() {}  // ============================================================  // OTP Login Handler (Passwordless - Bangladesh specific)  // ============================================================    private async handleOtpLogin(command: OtpLoginCommand): Promise<any> {    const { phoneNumber, otpCode, deviceInfo, rememberMe, sessionId, correlationId } = command;    // 1. Rate limiting check    await this.checkRateLimiting(deviceInfo?.ipAddress, phoneNumber, correlationId);    // 2. Validate OTP    const isValidOtp = await this.mfaGenerator.verifySmsOtp(phoneNumber, otpCode, sessionId);    if (!isValidOtp) {      await this.publishFailedLoginEvent(phoneNumber, deviceInfo, LoginFailureReason.INVALID_OTP, correlationId);      throw new UnauthorizedException('Invalid or expired OTP');  static getInstance(): IdempotencyManager {    if (!IdempotencyManager.instance) {      IdempotencyManager.instance = new IdempotencyManager();    }    return IdempotencyManager.instance;  }    // 3. Find user by phone    let phone: Phone;    try {      phone = new Phone(phoneNumber);    } catch (error) {      throw new UnauthorizedException('Invalid phone number');    }  async getOrExecute<T>(    key: string,    executor: () => Promise<T>,    options?: { ttlMs?: number }  ): Promise<T> {    const existing = this.cache.get(key);    if (existing && existing.expiresAt > new Date()) {      return existing.result as T;    }    const result = await executor();    this.cache.set(key, {      key,      result,      expiresAt: new Date(Date.now() + (options?.ttlMs || this.ttlMs)),    });    const user = await this.userRepository.findByPhone(phone);        if (!user) {      // Auto-register for OTP login (optional feature)      throw new UnauthorizedException('No account found with this phone number');    }    // Auto cleanup after TTL    setTimeout(() => {      this.cache.delete(key);    }, options?.ttlMs || this.ttlMs);    // 4. Process login without password    return this.processLogin(user, undefined, deviceInfo, rememberMe, correlationId, 'otp');    return result;  }  // ============================================================  // Core Login Processing  // ============================================================    private async processLogin(    user: User,    password: string | undefined,    deviceInfo: any,    rememberMe: boolean,    correlationId: string | undefined,    loginMethod: 'email' | 'phone' | 'otp'  ): Promise<any> {    // 1. Check account lock status    const lockInfo = await this.checkAccountLock(user, deviceInfo, correlationId);    if (lockInfo.isLocked) {      throw new AccountLockedException(lockInfo.remainingMinutes, lockInfo.lockLevel);    }  invalidate(key: string): void {    this.cache.delete(key);  }    // 2. Check account status    this.validateAccountStatus(user);  clear(): void {    this.cache.clear();  }}    // 3. Verify password (skip for OTP login)    if (loginMethod !== 'otp' && password) {      const isValidPassword = await this.verifyPassword(user, password, deviceInfo, correlationId);      if (!isValidPassword) {        await this.handleFailedLogin(user, deviceInfo, correlationId);        throw new UnauthorizedException('Invalid credentials');      }    }// ============================================================// Error Message Mapper (Multi-language Support)// ============================================================    // 4. Reset failed attempts on successful login    await this.resetFailedAttempts(user, correlationId);interface ErrorMessageMap {  en: string;  bn: string;  errorCode: string;  httpStatus: number;}    // 5. Register or update device    const device = await this.registerOrUpdateDevice(user, deviceInfo, correlationId);const ERROR_MESSAGES: Record<string, ErrorMessageMap> = {  [AccountLockedError.name]: {    en: 'Account is locked due to multiple failed attempts.',    bn: 'একাধিক ব্যর্থ চেষ্টার কারণে অ্যাকাউন্টটি লক করা হয়েছে।',    errorCode: 'ACCOUNT_LOCKED',    httpStatus: 423,  },  [MFASessionNotFoundError.name]: {    en: 'MFA session expired or invalid. Please login again.',    bn: 'MFA সেশনের মেয়াদ শেষ বা অবৈধ। অনুগ্রহ করে আবার লগইন করুন।',    errorCode: 'MFA_SESSION_EXPIRED',    httpStatus: 401,  },  [InvalidOTPError.name]: {    en: 'Invalid or expired OTP code.',    bn: 'অবৈধ বা মেয়াদোত্তীর্ণ OTP কোড।',    errorCode: 'INVALID_OTP',    httpStatus: 401,  },  [RateLimitExceededError.name]: {    en: 'Too many login attempts. Please try again later.',    bn: 'অনেকবার লগইন চেষ্টা করা হয়েছে। পরে আবার চেষ্টা করুন।',    errorCode: 'RATE_LIMIT_EXCEEDED',    httpStatus: 429,  },};    // 6. MFA check    if (user.isMfaEnabled()) {      const isTrustedDevice = await this.isTrustedDevice(user.getId(), device?.getDeviceId()?.getValue());      if (!isTrustedDevice) {        const mfaSessionId = await this.createMfaSession(user.getId(), deviceInfo, correlationId);        const mfaMethods = await this.getAvailableMfaMethods(user);        return {          mfaRequired: true,          mfaSessionId,          mfaMethods,          accessToken: '',          refreshToken: '',          user: null,        };      }    }// ============================================================// Validation Cache Service Interface// ============================================================    // 7. Detect suspicious activity    const isSuspicious = await this.detectSuspiciousActivity(user, device, deviceInfo, correlationId);    const isNightTime = this.isNightTime();    const isWeekend = this.isWeekend();    // 8. Generate tokens    const sessionDuration = this.calculateSessionDuration(rememberMe, deviceInfo?.networkType);    const accessToken = await this.tokenGenerator.generateAccessToken(      user.getId(),      user.getEmail().getValue(),      user.getRole(),      { sessionId: this.idGenerator.generate() }    );    const refreshTokenValue = await this.tokenGenerator.generateRefreshToken(user.getId());    // 9. Create session and tokens (with transaction)    const { session, refreshToken } = await this.createUserSession(      user,      refreshTokenValue,      device,      deviceInfo,      rememberMe,      sessionDuration,      correlationId    );interface ValidationCacheEntry {  isValid: boolean;  timestamp: number;  errors?: string[];}    // 10. Update last login    user.recordLogin();    await this.userRepository.save(user);// ============================================================// Login Command Handler (Enterprise Enhanced v3.0)// ============================================================    // 11. Send login alert for suspicious activity    if (isSuspicious || (isNightTime && loginMethod !== 'otp')) {      await this.sendLoginAlert(user, device, deviceInfo, correlationId, isSuspicious);    }@Injectable({ scope: Scope.TRANSIENT })export class LoginCommandHandler implements ICommandHandler<LoginCommand, CommandResult<LoginResponseDto | MFARequiredResponseDto>> {  private readonly logger = new Logger(LoginCommandHandler.name);  private readonly commandType = 'LoginCommand';  private readonly circuitBreaker: CircuitBreaker;  private readonly bulkRateLimiter: BulkRateLimitTracker;  private readonly idempotencyManager: IdempotencyManager;  private readonly validationCache: ValidationCacheService;  // Metrics tracking  private metrics: ServiceMetrics = {    totalExecutions: 0,    successfulExecutions: 0,    failedExecutions: 0,    totalDurationMs: 0,    averageDurationMs: 0,    lastExecutionAt: undefined,    errorRate: 0,  };    // 12. Publish success event    await this.eventBus.publish(      new UserLoggedInEvent(        user.getId(),        loginMethod as LoginMethod,        LoginType.INITIAL,        correlationId,        undefined,        deviceInfo?.ipAddress,        device?.getDeviceId()?.getValue(),        deviceInfo?.userAgent,        session.getId(),        undefined,        isSuspicious,        isNightTime,        {          rememberMe,          sessionId: session.getId(),          deviceTrustLevel: device?.getTrustLevel(),          networkType: deviceInfo?.networkType,          mobileOperator: deviceInfo?.mobileOperator,          district: deviceInfo?.district,          isWeekend,        }      )  constructor(    private readonly authService: AuthService,    private readonly metricsService: MetricsService,    private readonly tracerService: TracerService,    private readonly cacheService: CacheService,    private readonly rateLimitService: RateLimitService,    validationCacheService: ValidationCacheService,    @Inject('VALIDATION_CACHE_CONFIG') validationConfig: typeof VALIDATION_CACHE_CONFIG  ) {    // Initialize circuit breaker    this.circuitBreaker = new CircuitBreaker(      async (command: LoginCommand, ipAddress: string, userAgent: string, options?: LoginOptions) => {        return this.authService.login(command, ipAddress, userAgent, options);      },      {        timeout: CIRCUIT_BREAKER_CONFIG.TIMEOUT_MS || 10000,        errorThresholdPercentage: CIRCUIT_BREAKER_CONFIG.ERROR_THRESHOLD_PERCENTAGE || 50,        resetTimeout: CIRCUIT_BREAKER_CONFIG.RESET_TIMEOUT_MS || 30000,        rollingCountTimeout: CIRCUIT_BREAKER_CONFIG.ROLLING_COUNT_TIMEOUT_MS || 10000,        rollingCountBuckets: 10,      }    );    // 13. Audit log    await this.auditService.log({      action: 'LOGIN_SUCCESS',      userId: user.getId(),      email: user.getEmail().getValue(),      phoneNumber: user.getPhone()?.getValue(),      ipAddress: deviceInfo?.ipAddress,      deviceId: device?.getDeviceId()?.getValue(),      userAgent: deviceInfo?.userAgent,      correlationId,      sessionId: session.getId(),      isSuspicious,      district: deviceInfo?.district,      mobileOperator: deviceInfo?.mobileOperator,      networkType: deviceInfo?.networkType,    // Initialize bulk rate limiter    this.bulkRateLimiter = BulkRateLimitTracker.getInstance('login', {      maxAttempts: RATE_LIMIT_CONFIG.BULK_MAX_ATTEMPTS || 100,      blockDurationMinutes: RATE_LIMIT_CONFIG.BULK_BLOCK_DURATION_MINUTES || 5,    });    // 14. Cache user session info    await this.cacheUserSession(user, session.getId());    // Initialize idempotency manager    this.idempotencyManager = IdempotencyManager.getInstance();    return {      accessToken,      refreshToken: refreshTokenValue,      user: {        id: user.getId(),        email: user.getEmail().getValue(),        phoneNumber: user.getPhone()?.getValue(),        fullName: user.getFullName(),        displayName: user.getDisplayName(),        role: user.getRole(),        tier: user.getTier(),        tierDiscount: user.getTierDiscount(),        isEmailVerified: user.isEmailVerified(),        isPhoneVerified: user.isPhoneVerified(),        mfaEnabled: user.isMfaEnabled(),        avatar: user.getAvatar(),      },    };    // Initialize validation cache    this.validationCache = validationCacheService;    // Setup circuit breaker event listeners    this.setupCircuitBreakerListeners();  }  // ============================================================  // Private Helper Methods  // Circuit Breaker Event Listeners  // ============================================================  private async checkRateLimiting(ipAddress: string | undefined, identifier: string, correlationId?: string): Promise<void> {    if (!ipAddress) return;    const key = `ratelimit:login:${ipAddress}`;    const attempts = await this.rateLimiter.getCount(key, LOGIN_CONFIG.RATE_LIMIT_WINDOW_MINUTES * 60);  private setupCircuitBreakerListeners(): void {    this.circuitBreaker.on('open', () => {      this.logger.warn('Circuit breaker opened for auth service');      this.metricsService.recordCircuitBreakerEvent('auth', 'open');    });    if (attempts >= LOGIN_CONFIG.RATE_LIMIT_MAX_ATTEMPTS) {      await this.auditService.log({        action: 'LOGIN_RATE_LIMIT_EXCEEDED',        ipAddress,        email: this.maskEmail(identifier),        correlationId,      });      throw new TooManyRequestsException('Too many login attempts. Please try again later.');    }    this.circuitBreaker.on('halfOpen', () => {      this.logger.log('Circuit breaker half-open for auth service');      this.metricsService.recordCircuitBreakerEvent('auth', 'halfOpen');    });    await this.rateLimiter.increment(key, LOGIN_CONFIG.RATE_LIMIT_WINDOW_MINUTES * 60);    this.circuitBreaker.on('close', () => {      this.logger.log('Circuit breaker closed for auth service');      this.metricsService.recordCircuitBreakerEvent('auth', 'close');    });  }  private async checkAccountLock(    user: User,    deviceInfo: any,    correlationId?: string  ): Promise<{ isLocked: boolean; remainingMinutes: number; lockLevel: LockLevel }> {    const accountLock = await this.accountLockRepository.findByUserId(user.getId());  // ============================================================  // Validation with Caching (Enterprise Feature)  // ============================================================  async validate(command: LoginCommand): Promise<{ isValid: boolean; errors: string[] }> {    const cacheKey = `login_validation_${command.identifier}_${command.method}`;    if (accountLock && accountLock.isLocked()) {      const remainingMinutes = Math.ceil(accountLock.getRemainingLockTime() / (60 * 1000));            await this.auditService.log({        action: 'LOGIN_BLOCKED_LOCKED',        userId: user.getId(),        email: user.getEmail().getValue(),        ipAddress: deviceInfo?.ipAddress,        deviceId: deviceInfo?.deviceId,        correlationId,        remainingMinutes,        lockLevel: accountLock.getLockLevel(),      });            return { isLocked: true, remainingMinutes, lockLevel: accountLock.getLockLevel() };    // Check cache first    const cached = await this.validationCache.get<ValidationCacheEntry>(cacheKey);    if (cached && (Date.now() - cached.timestamp) < VALIDATION_CACHE_CONFIG.TTL_MS) {      return { isValid: cached.isValid, errors: cached.errors || [] };    }        return { isLocked: false, remainingMinutes: 0, lockLevel: LockLevel.LEVEL_1 };  }  private validateAccountStatus(user: User): void {    if (user.isSuspended()) {      throw new UnauthorizedException('Account is suspended. Please contact support.');    }    // Perform validation    const validationResult = command.getValidationResult();    if (!user.isActive() && !user.isPendingVerification()) {      throw new UnauthorizedException('Account is inactive. Please verify your email or phone.');    }    // Cache the result    await this.validationCache.set(cacheKey, {      isValid: validationResult.isValid,      errors: validationResult.errors,      timestamp: Date.now(),    }, VALIDATION_CACHE_CONFIG.TTL_MS);    if (user.isDeleted()) {      throw new UnauthorizedException('Account no longer exists.');    }    return validationResult;  }  private async verifyPassword(user: User, password: string, deviceInfo: any, correlationId?: string): Promise<boolean> {    const isValid = await this.passwordHasher.compare(password, user.getPassword().getValue());    if (!isValid) {      await this.auditService.log({        action: 'LOGIN_FAILED_INVALID_PASSWORD',        userId: user.getId(),        email: user.getEmail().getValue(),        ipAddress: deviceInfo?.ipAddress,        deviceId: deviceInfo?.deviceId,        correlationId,      });    }    return isValid;  }  // ============================================================  // Main Execute Method with Distributed Tracing  // ============================================================  private async handleFailedLogin(user: User, deviceInfo: any, correlationId?: string): Promise<void> {    const accountLock = await this.accountLockRepository.findByUserId(user.getId()) ||       AccountLock.create(user.getId(), AccountLockReason.FAILED_LOGIN_ATTEMPTS);        const failureCount = await this.accountLockRepository.incrementFailureCountForUser(user.getId());        await this.publishFailedLoginEvent(      user.getEmail().getValue(),      deviceInfo,      LoginFailureReason.INVALID_CREDENTIALS,      correlationId,      user.getId()    );  async execute(command: LoginCommand): Promise<CommandResult<LoginResponseDto | MFARequiredResponseDto>> {    const startTime = Date.now();    const span = this.tracerService.startSpan('LoginCommandHandler.execute');    if (failureCount >= LOGIN_CONFIG.MAX_FAILED_ATTEMPTS && !accountLock.isLocked()) {      accountLock.lock(AccountLockReason.FAILED_LOGIN_ATTEMPTS);      await this.accountLockRepository.save(accountLock);    // Update metrics    this.metrics.totalExecutions++;    this.metrics.lastExecutionAt = new Date();    try {      // 1. Add trace attributes      span.setAttribute('command.id', command.commandId);      span.setAttribute('command.method', command.method);      span.setAttribute('command.source', command.source);      span.setAttribute('identifier.masked', command.getMaskedIdentifier());      span.setAttribute('has.captcha', command.hasCaptcha());      span.setAttribute('remember.me', command.isDeviceTrustRequested());      // 2. Validate command      const validation = await this.validate(command);      if (!validation.isValid) {        span.setAttribute('validation.failed', true);        span.setStatus({ code: 1, message: 'Validation failed' });                return {          success: false,          error: validation.errors.join(', '),          errorCode: 'VALIDATION_ERROR',        };      }      // 3. Check bulk rate limit (分布式攻击防护)      const ipAddress = command.deviceInfo?.ipAddress || 'unknown';      const rateLimitStatus = this.bulkRateLimiter.trackAttempt(ipAddress, command.getEmail() || undefined);      await this.eventBus.publish(        new AccountLockedEvent(          user.getId(),          LockReason.FAILED_LOGIN_ATTEMPTS,          AccountLockMethod.AUTOMATIC,          AccountLockSource.SYSTEM,          correlationId,          undefined,          deviceInfo?.ipAddress,          deviceInfo?.deviceId,          undefined,          failureCount,          accountLock.getRemainingLockTime() / 1000,          accountLock.getLockLevel(),          { maxAttempts: LOGIN_CONFIG.MAX_FAILED_ATTEMPTS }        )      if (!rateLimitStatus.allowed) {        span.setAttribute('rate.limited', true);        span.setAttribute('retry.after.seconds', rateLimitStatus.retryAfterSeconds || 0);                return {          success: false,          error: `Too many login attempts from this IP. Please try again in ${rateLimitStatus.retryAfterSeconds} seconds.`,          errorCode: 'BULK_RATE_LIMIT_EXCEEDED',        };      }      // 4. Check individual rate limit      const individualRateLimit = await this.rateLimitService.checkRateLimit(        command.identifier,        'login',        { windowMs: 3600000, maxAttempts: 5 }      );            // Send notification about account lock      await this.notificationService.sendAccountLockedNotification(        user.getId(),        user.getEmail().getValue(),        {          reason: 'Too many failed login attempts',          lockDurationMinutes: accountLock.getRemainingLockTime() / (60 * 1000),          lockedAt: new Date(),          remainingAttempts: 0,          unlockMethod: 'time',      if (!individualRateLimit.allowed) {        span.setAttribute('individual.rate.limited', true);        span.setAttribute('remaining.attempts', individualRateLimit.remaining);                return {          success: false,          error: `Too many login attempts. ${individualRateLimit.remaining} attempts remaining.`,          errorCode: 'RATE_LIMIT_EXCEEDED',        };      }      // 5. Check idempotency (prevent duplicate processing)      const idempotencyKey = `login_${command.identifier}_${command.deviceInfo?.deviceId || ''}_${command.correlationId}`;      const idempotentResult = await this.idempotencyManager.getOrExecute(        idempotencyKey,        async () => {          // 6. Execute with circuit breaker          const deviceInfo: DeviceInfo = {            ipAddress: command.deviceInfo?.ipAddress,            userAgent: command.deviceInfo?.userAgent,            deviceId: command.deviceInfo?.deviceId,            correlationId: command.correlationId,            district: command.deviceInfo?.district,            upazila: command.deviceInfo?.upazila,            mobileOperator: command.deviceInfo?.mobileOperator,            networkType: command.deviceInfo?.networkType,            screenResolution: command.deviceInfo?.screenResolution,            language: command.deviceInfo?.language,            timezone: command.deviceInfo?.timezone,          };          const options: LoginOptions = {            trustDevice: command.isDeviceTrustRequested(),            correlationId: command.correlationId,            preferredLanguage: 'en',            district: command.deviceInfo?.district,            networkType: command.deviceInfo?.networkType,            retryAttempt: command.deviceInfo?.retryAttempt,          };          // Execute via circuit breaker          const result = await this.circuitBreaker.fire(command, deviceInfo, deviceInfo.userAgent || 'unknown', options);                    // Record success metrics          await this.rateLimitService.recordSuccess(command.identifier, 'login');                    return result;        },        { correlationId }        { ttlMs: 60000 } // 1 minute idempotency window      );    }  }
+/** * Login Command Handler - Application Layer * Login Command Handler - Enterprise Grade v3.0 * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce *  * @module application/commands/auth/login.handler *  * @description * Handles the user login use case with security features including: * - MFA support (TOTP, SMS, WhatsApp, bKash PIN, Nagad PIN, Rocket PIN) * - Account lockout with progressive locking * - Session management with device tracking * - Device trust with fingerprinting * - Suspicious activity detection (location, device, time-based) * - Rate limiting with CAPTCHA * - Audit logging with correlation IDs * - Bangladesh specific - Mobile operator and district tracking * Handles the login command with enterprise-grade features including: * - Circuit breaker pattern for resilience * - Metrics collection for monitoring * - Distributed tracing support * - Rate limiting with bulk tracking * - Validation caching for performance * - Multi-language error messages * - Idempotency support * - Bulk operation tracking */import { Injectable, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';import { LoginCommand, PhoneLoginCommand, OtpLoginCommand } from './login.command';import { UserRepository } from '../../../domain/repositories/user.repository.interface';import { SessionRepository } from '../../../domain/repositories/session.repository.interface';import { RefreshTokenRepository } from '../../../domain/repositories/refresh-token.repository.interface';import { AccountLockRepository } from '../../../domain/repositories/account-lock.repository.interface';import { DeviceRepository } from '../../../domain/repositories/device.repository.interface';import { User } from '../../../domain/entities/user.entity';import { Session } from '../../../domain/entities/session.entity';import { RefreshToken } from '../../../domain/entities/refresh-token.entity';import { AccountLock, AccountLockReason, LockLevel } from '../../../domain/entities/account-lock.entity';import { Device, DeviceTrustLevel } from '../../../domain/entities/device.entity';import { Email } from '../../../domain/value-objects/email.vo';import { Password } from '../../../domain/value-objects/password.vo';import { Token, TokenType } from '../../../domain/value-objects/token.vo';import { IpAddress, IpCategory } from '../../../domain/value-objects/ip-address.vo';import { UserAgent, DeviceType } from '../../../domain/value-objects/user-agent.vo';import { DeviceId } from '../../../domain/value-objects/device-id.vo';import { Phone } from '../../../domain/value-objects/phone.vo';import { UserLoggedInEvent, LoginMethod, LoginType } from '../../events/user-logged-in.event';import { LoginFailedEvent, LoginFailureReason } from '../../events/login-failed.event';import { AccountLockedEvent, AccountLockReason as LockReason, AccountLockMethod, AccountLockSource } from '../../events/account-locked.event';import { DeviceTrustedEvent } from '../../events/device-trusted.event';import { SuspiciousActivityEvent } from '../../events/suspicious-activity.event';import { Injectable, Logger, Inject, Scope } from '@nestjs/common';import { v4 as uuidv4 } from 'uuid';import { CircuitBreaker } from 'opossum';// DTOsimport {   PasswordHasher,   TokenGenerator,   EventBus,   TransactionManager,  RateLimiter,  AuditService,  SecurityService,  CacheService,  IdGenerator,  MfaGenerator,  NotificationService} from './infrastructure.interface';  LoginDto,   LoginResponseDto,   MFARequiredResponseDto } from '../../dtos/auth/login.dto';// Servicesimport {   AuthService,   DeviceInfo,   LoginOptions,   ServiceResult } from '../../services/interfaces/auth.service.interface';// Infrastructureimport { ICommandHandler, CommandResult } from '../interfaces/command-handler.interface';import { LoginCommand } from './login.command';// Metrics & Monitoringimport { MetricsService } from '../../../infrastructure/metrics/metrics.service';import { TracerService } from '../../../infrastructure/tracing/tracer.service';import { CacheService } from '../../services/interfaces/cache.service.interface';// Rate Limitingimport { RateLimitService } from '../../../infrastructure/rate-limit/rate-limit.service';// Validationimport { ValidationCacheService } from '../../../infrastructure/cache/validation-cache.service';// Domain Errorsimport {   AccountLockedError,   MFASessionNotFoundError,  InvalidOTPError,  RateLimitExceededError} from '../../../domain/errors/domain-errors';// Shared Constantsimport {   RATE_LIMIT_CONFIG,  CIRCUIT_BREAKER_CONFIG,  METRICS_CONFIG,  VALIDATION_CACHE_CONFIG} from '@vubon/shared-constants';// Shared Typesimport type {   LoginMethod,  ServiceMetrics,  CircuitBreakerStatus,  BulkRateLimitInfo} from '@vubon/shared-types';// ============================================================// Constants// ============================================================const LOGIN_CONFIG = {  MAX_FAILED_ATTEMPTS: 5,  PROGRESSIVE_LOCKOUT: true,  SESSION_DURATION_REMEMBER_MS: 30 * 24 * 60 * 60 * 1000, // 30 days  SESSION_DURATION_DEFAULT_MS: 24 * 60 * 60 * 1000, // 24 hours  SESSION_DURATION_MOBILE_MS: 7 * 24 * 60 * 60 * 1000, // 7 days for mobile  ACCESS_TOKEN_EXPIRY_SECONDS: 900, // 15 minutes  REFRESH_TOKEN_EXPIRY_SECONDS: 7 * 24 * 60 * 60, // 7 days  RATE_LIMIT_MAX_ATTEMPTS: 10,  RATE_LIMIT_WINDOW_MINUTES: 15,  DEVICE_TRUST_DURATION_DAYS: 30,  MAX_CONCURRENT_SESSIONS: 5,  SUSPICIOUS_HOUR_START: 22, // 10 PM  SUSPICIOUS_HOUR_END: 6,    // 6 AM} as const;const DEFAULT_RETRY_ATTEMPTS = 3;const DEFAULT_RETRY_DELAY_MS = 100;const BULK_TRACKING_WINDOW_MS = 60000; // 1 minute// ============================================================// Custom Exceptions// Bulk Rate Limit Tracker (Enterprise Feature)// ============================================================export class AccountLockedException extends UnauthorizedException {  constructor(remainingMinutes: number, lockLevel: LockLevel) {    super(`Account is locked. Please try again in ${remainingMinutes} minutes.`);    this.name = 'AccountLockedException';  }interface BulkRateLimitEntry {  ipAddress: string;  attempts: number;  firstAttemptAt: Date;  lastAttemptAt: Date;  userIds: Set<string>;  isBlocked: boolean;  blockedUntil?: Date;}export class TooManyRequestsException extends UnauthorizedException {  constructor(message: string) {    super(message);    this.name = 'TooManyRequestsException';class BulkRateLimitTracker {  private static instances: Map<string, BulkRateLimitTracker> = new Map();  private rateLimitMap: Map<string, BulkRateLimitEntry> = new Map();  private readonly maxAttemptsPerWindow: number;  private readonly blockDurationMs: number;  private constructor(    private readonly identifier: string,    config: { maxAttempts: number; blockDurationMinutes: number }  ) {    this.maxAttemptsPerWindow = config.maxAttempts;    this.blockDurationMs = config.blockDurationMinutes * 60 * 1000;        // Cleanup expired entries periodically    setInterval(() => this.cleanup(), 60000);  }}export class MFASessionExpiredException extends UnauthorizedException {  constructor() {    super('MFA session has expired. Please login again.');    this.name = 'MFASessionExpiredException';  static getInstance(identifier: string, config?: { maxAttempts: number; blockDurationMinutes: number }): BulkRateLimitTracker {    if (!BulkRateLimitTracker.instances.has(identifier)) {      BulkRateLimitTracker.instances.set(        identifier,        new BulkRateLimitTracker(identifier, config || { maxAttempts: 100, blockDurationMinutes: 5 })      );    }    return BulkRateLimitTracker.instances.get(identifier)!;  }}// ============================================================// Login Handler// ============================================================  trackAttempt(ipAddress: string, userId?: string): { allowed: boolean; remaining: number; retryAfterSeconds?: number } {    const now = new Date();    let entry = this.rateLimitMap.get(ipAddress);@Injectable()export class LoginHandler {  constructor(    private readonly userRepository: UserRepository,    private readonly sessionRepository: SessionRepository,    private readonly refreshTokenRepository: RefreshTokenRepository,    private readonly accountLockRepository: AccountLockRepository,    private readonly deviceRepository: DeviceRepository,    private readonly passwordHasher: PasswordHasher,    private readonly tokenGenerator: TokenGenerator,    private readonly mfaGenerator: MfaGenerator,    private readonly eventBus: EventBus,    private readonly transactionManager: TransactionManager,    private readonly rateLimiter: RateLimiter,    private readonly auditService: AuditService,    private readonly securityService: SecurityService,    private readonly cacheService: CacheService,    private readonly notificationService: NotificationService,    private readonly idGenerator: IdGenerator  ) {}    if (!entry) {      entry = {        ipAddress,        attempts: 1,        firstAttemptAt: now,        lastAttemptAt: now,        userIds: userId ? new Set([userId]) : new Set(),        isBlocked: false,      };      this.rateLimitMap.set(ipAddress, entry);      return { allowed: true, remaining: this.maxAttemptsPerWindow - 1 };    }    // Check if currently blocked    if (entry.isBlocked && entry.blockedUntil && now < entry.blockedUntil) {      const retryAfterSeconds = Math.ceil((entry.blockedUntil.getTime() - now.getTime()) / 1000);      return { allowed: false, remaining: 0, retryAfterSeconds };    }    // Reset if window expired    if (now.getTime() - entry.lastAttemptAt.getTime() > BULK_TRACKING_WINDOW_MS) {      entry.attempts = 1;      entry.firstAttemptAt = now;      entry.userIds = userId ? new Set([userId]) : new Set();      entry.isBlocked = false;      entry.blockedUntil = undefined;      this.rateLimitMap.set(ipAddress, entry);      return { allowed: true, remaining: this.maxAttemptsPerWindow - 1 };    }    entry.attempts++;    entry.lastAttemptAt = now;    if (userId) entry.userIds.add(userId);    // Check if exceeded threshold    if (entry.attempts > this.maxAttemptsPerWindow) {      entry.isBlocked = true;      entry.blockedUntil = new Date(now.getTime() + this.blockDurationMs);      return { allowed: false, remaining: 0, retryAfterSeconds: this.blockDurationMs / 1000 };    }    this.rateLimitMap.set(ipAddress, entry);    return { allowed: true, remaining: this.maxAttemptsPerWindow - entry.attempts };  }  // ============================================================  // Main Execute Method  // ============================================================    async execute(command: LoginCommand | PhoneLoginCommand | OtpLoginCommand): Promise<{    accessToken: string;    refreshToken: string;    user: any;    mfaRequired?: boolean;    mfaSessionId?: string;    mfaMethods?: string[];  }> {    // Route to appropriate handler based on command type    if (command instanceof PhoneLoginCommand) {      return this.handlePhoneLogin(command);    }    if (command instanceof OtpLoginCommand) {      return this.handleOtpLogin(command);    }    return this.handleEmailLogin(command);  getStats(ipAddress: string): BulkRateLimitEntry | undefined {    return this.rateLimitMap.get(ipAddress);  }  // ============================================================  // Email Login Handler  // ============================================================    private async handleEmailLogin(command: LoginCommand): Promise<any> {    const { identifier, password, deviceInfo, rememberMe, captchaToken, correlationId } = command;    // 1. Rate limiting check by IP    await this.checkRateLimiting(deviceInfo?.ipAddress, identifier, correlationId);    // 2. CAPTCHA validation for suspicious attempts    if (captchaToken) {      const isValid = await this.securityService.validateCaptcha(captchaToken);      if (!isValid) {        throw new BadRequestException('Invalid CAPTCHA');  private cleanup(): void {    const now = Date.now();    for (const [ip, entry] of this.rateLimitMap.entries()) {      // Remove entries older than 2 windows      if (now - entry.lastAttemptAt.getTime() > BULK_TRACKING_WINDOW_MS * 2) {        this.rateLimitMap.delete(ip);      }    }  }    // 3. Validate email format    let email: Email;    try {      email = new Email(identifier);    } catch (error) {      await this.publishFailedLoginEvent(identifier, deviceInfo, LoginFailureReason.INVALID_EMAIL, correlationId);      throw new UnauthorizedException('Invalid credentials');    }    // 4. Find user    const user = await this.userRepository.findByEmail(email);        if (!user) {      await this.publishFailedLoginEvent(identifier, deviceInfo, LoginFailureReason.USER_NOT_FOUND, correlationId);      throw new UnauthorizedException('Invalid credentials');    }    return this.processLogin(user, password, deviceInfo, rememberMe, correlationId, 'email');  reset(ipAddress: string): void {    this.rateLimitMap.delete(ipAddress);  }}  // ============================================================  // Phone Login Handler (Bangladesh specific)  // ============================================================    private async handlePhoneLogin(command: PhoneLoginCommand): Promise<any> {    const { phoneNumber, password, deviceInfo, rememberMe, captchaToken, correlationId } = command;    // 1. Rate limiting check by IP    await this.checkRateLimiting(deviceInfo?.ipAddress, phoneNumber, correlationId);    // 2. CAPTCHA validation    if (captchaToken) {      const isValid = await this.securityService.validateCaptcha(captchaToken);      if (!isValid) {        throw new BadRequestException('Invalid CAPTCHA');      }    }// ============================================================// Idempotency Key Manager (Enterprise Feature)// ============================================================    // 3. Validate phone format    let phone: Phone;    try {      phone = new Phone(phoneNumber);    } catch (error) {      await this.publishFailedLoginEvent(phoneNumber, deviceInfo, LoginFailureReason.INVALID_PHONE, correlationId);      throw new UnauthorizedException('Invalid credentials');    }interface IdempotencyRecord {  key: string;  result: unknown;  expiresAt: Date;}    // 4. Find user by phone    const user = await this.userRepository.findByPhone(phone);        if (!user) {      await this.publishFailedLoginEvent(phoneNumber, deviceInfo, LoginFailureReason.USER_NOT_FOUND, correlationId);      throw new UnauthorizedException('Invalid credentials');    }class IdempotencyManager {  private static instance: IdempotencyManager;  private cache: Map<string, IdempotencyRecord> = new Map();  private readonly ttlMs: number = 3600000; // 1 hour    return this.processLogin(user, password, deviceInfo, rememberMe, correlationId, 'phone');  }  private constructor() {}  // ============================================================  // OTP Login Handler (Passwordless - Bangladesh specific)  // ============================================================    private async handleOtpLogin(command: OtpLoginCommand): Promise<any> {    const { phoneNumber, otpCode, deviceInfo, rememberMe, sessionId, correlationId } = command;    // 1. Rate limiting check    await this.checkRateLimiting(deviceInfo?.ipAddress, phoneNumber, correlationId);    // 2. Validate OTP    const isValidOtp = await this.mfaGenerator.verifySmsOtp(phoneNumber, otpCode, sessionId);    if (!isValidOtp) {      await this.publishFailedLoginEvent(phoneNumber, deviceInfo, LoginFailureReason.INVALID_OTP, correlationId);      throw new UnauthorizedException('Invalid or expired OTP');  static getInstance(): IdempotencyManager {    if (!IdempotencyManager.instance) {      IdempotencyManager.instance = new IdempotencyManager();    }    return IdempotencyManager.instance;  }    // 3. Find user by phone    let phone: Phone;    try {      phone = new Phone(phoneNumber);    } catch (error) {      throw new UnauthorizedException('Invalid phone number');    }  async getOrExecute<T>(    key: string,    executor: () => Promise<T>,    options?: { ttlMs?: number }  ): Promise<T> {    const existing = this.cache.get(key);    if (existing && existing.expiresAt > new Date()) {      return existing.result as T;    }    const result = await executor();    this.cache.set(key, {      key,      result,      expiresAt: new Date(Date.now() + (options?.ttlMs || this.ttlMs)),    });    const user = await this.userRepository.findByPhone(phone);        if (!user) {      // Auto-register for OTP login (optional feature)      throw new UnauthorizedException('No account found with this phone number');    }    // Auto cleanup after TTL    setTimeout(() => {      this.cache.delete(key);    }, options?.ttlMs || this.ttlMs);    // 4. Process login without password    return this.processLogin(user, undefined, deviceInfo, rememberMe, correlationId, 'otp');    return result;  }  // ============================================================  // Core Login Processing  // ============================================================    private async processLogin(    user: User,    password: string | undefined,    deviceInfo: any,    rememberMe: boolean,    correlationId: string | undefined,    loginMethod: 'email' | 'phone' | 'otp'  ): Promise<any> {    // 1. Check account lock status    const lockInfo = await this.checkAccountLock(user, deviceInfo, correlationId);    if (lockInfo.isLocked) {      throw new AccountLockedException(lockInfo.remainingMinutes, lockInfo.lockLevel);    }  invalidate(key: string): void {    this.cache.delete(key);  }    // 2. Check account status    this.validateAccountStatus(user);  clear(): void {    this.cache.clear();  }}    // 3. Verify password (skip for OTP login)    if (loginMethod !== 'otp' && password) {      const isValidPassword = await this.verifyPassword(user, password, deviceInfo, correlationId);      if (!isValidPassword) {        await this.handleFailedLogin(user, deviceInfo, correlationId);        throw new UnauthorizedException('Invalid credentials');      }    }// ============================================================// Error Message Mapper (Multi-language Support)// ============================================================    // 4. Reset failed attempts on successful login    await this.resetFailedAttempts(user, correlationId);interface ErrorMessageMap {  en: string;  bn: string;  errorCode: string;  httpStatus: number;}    // 5. Register or update device    const device = await this.registerOrUpdateDevice(user, deviceInfo, correlationId);const ERROR_MESSAGES: Record<string, ErrorMessageMap> = {  [AccountLockedError.name]: {    en: 'Account is locked due to multiple failed attempts.',    bn: 'একাধিক ব্যর্থ চেষ্টার কারণে অ্যাকাউন্টটি লক করা হয়েছে।',    errorCode: 'ACCOUNT_LOCKED',    httpStatus: 423,  },  [MFASessionNotFoundError.name]: {    en: 'MFA session expired or invalid. Please login again.',    bn: 'MFA সেশনের মেয়াদ শেষ বা অবৈধ। অনুগ্রহ করে আবার লগইন করুন।',    errorCode: 'MFA_SESSION_EXPIRED',    httpStatus: 401,  },  [InvalidOTPError.name]: {    en: 'Invalid or expired OTP code.',    bn: 'অবৈধ বা মেয়াদোত্তীর্ণ OTP কোড।',    errorCode: 'INVALID_OTP',    httpStatus: 401,  },  [RateLimitExceededError.name]: {    en: 'Too many login attempts. Please try again later.',    bn: 'অনেকবার লগইন চেষ্টা করা হয়েছে। পরে আবার চেষ্টা করুন।',    errorCode: 'RATE_LIMIT_EXCEEDED',    httpStatus: 429,  },};    // 6. MFA check    if (user.isMfaEnabled()) {      const isTrustedDevice = await this.isTrustedDevice(user.getId(), device?.getDeviceId()?.getValue());      if (!isTrustedDevice) {        const mfaSessionId = await this.createMfaSession(user.getId(), deviceInfo, correlationId);        const mfaMethods = await this.getAvailableMfaMethods(user);        return {          mfaRequired: true,          mfaSessionId,          mfaMethods,          accessToken: '',          refreshToken: '',          user: null,        };      }    }// ============================================================// Validation Cache Service Interface// ============================================================    // 7. Detect suspicious activity    const isSuspicious = await this.detectSuspiciousActivity(user, device, deviceInfo, correlationId);    const isNightTime = this.isNightTime();    const isWeekend = this.isWeekend();    // 8. Generate tokens    const sessionDuration = this.calculateSessionDuration(rememberMe, deviceInfo?.networkType);    const accessToken = await this.tokenGenerator.generateAccessToken(      user.getId(),      user.getEmail().getValue(),      user.getRole(),      { sessionId: this.idGenerator.generate() }    );    const refreshTokenValue = await this.tokenGenerator.generateRefreshToken(user.getId());    // 9. Create session and tokens (with transaction)    const { session, refreshToken } = await this.createUserSession(      user,      refreshTokenValue,      device,      deviceInfo,      rememberMe,      sessionDuration,      correlationId    );interface ValidationCacheEntry {  isValid: boolean;  timestamp: number;  errors?: string[];}    // 10. Update last login    user.recordLogin();    await this.userRepository.save(user);// ============================================================// Login Command Handler (Enterprise Enhanced v3.0)// ============================================================    // 11. Send login alert for suspicious activity    if (isSuspicious || (isNightTime && loginMethod !== 'otp')) {      await this.sendLoginAlert(user, device, deviceInfo, correlationId, isSuspicious);    }@Injectable({ scope: Scope.TRANSIENT })export class LoginCommandHandler implements ICommandHandler<LoginCommand, CommandResult<LoginResponseDto | MFARequiredResponseDto>> {  private readonly logger = new Logger(LoginCommandHandler.name);  private readonly commandType = 'LoginCommand';  private readonly circuitBreaker: CircuitBreaker;  private readonly bulkRateLimiter: BulkRateLimitTracker;  private readonly idempotencyManager: IdempotencyManager;  private readonly validationCache: ValidationCacheService;  // Metrics tracking  private metrics: ServiceMetrics = {    totalExecutions: 0,    successfulExecutions: 0,    failedExecutions: 0,    totalDurationMs: 0,    averageDurationMs: 0,    lastExecutionAt: undefined,    errorRate: 0,  };    // 12. Publish success event    await this.eventBus.publish(      new UserLoggedInEvent(        user.getId(),        loginMethod as LoginMethod,        LoginType.INITIAL,        correlationId,        undefined,        deviceInfo?.ipAddress,        device?.getDeviceId()?.getValue(),        deviceInfo?.userAgent,        session.getId(),        undefined,        isSuspicious,        isNightTime,        {          rememberMe,          sessionId: session.getId(),          deviceTrustLevel: device?.getTrustLevel(),          networkType: deviceInfo?.networkType,          mobileOperator: deviceInfo?.mobileOperator,          district: deviceInfo?.district,          isWeekend,        }      )  constructor(    private readonly authService: AuthService,    private readonly metricsService: MetricsService,    private readonly tracerService: TracerService,    private readonly cacheService: CacheService,    private readonly rateLimitService: RateLimitService,    validationCacheService: ValidationCacheService,    @Inject('VALIDATION_CACHE_CONFIG') validationConfig: typeof VALIDATION_CACHE_CONFIG  ) {    // Initialize circuit breaker    this.circuitBreaker = new CircuitBreaker(      async (command: LoginCommand, ipAddress: string, userAgent: string, options?: LoginOptions) => {        return this.authService.login(command, ipAddress, userAgent, options);      },      {        timeout: CIRCUIT_BREAKER_CONFIG.TIMEOUT_MS || 10000,        errorThresholdPercentage: CIRCUIT_BREAKER_CONFIG.ERROR_THRESHOLD_PERCENTAGE || 50,        resetTimeout: CIRCUIT_BREAKER_CONFIG.RESET_TIMEOUT_MS || 30000,        rollingCountTimeout: CIRCUIT_BREAKER_CONFIG.ROLLING_COUNT_TIMEOUT_MS || 10000,        rollingCountBuckets: 10,      }    );    // 13. Audit log    await this.auditService.log({      action: 'LOGIN_SUCCESS',      userId: user.getId(),      email: user.getEmail().getValue(),      phoneNumber: user.getPhone()?.getValue(),      ipAddress: deviceInfo?.ipAddress,      deviceId: device?.getDeviceId()?.getValue(),      userAgent: deviceInfo?.userAgent,      correlationId,      sessionId: session.getId(),      isSuspicious,      district: deviceInfo?.district,      mobileOperator: deviceInfo?.mobileOperator,      networkType: deviceInfo?.networkType,    // Initialize bulk rate limiter    this.bulkRateLimiter = BulkRateLimitTracker.getInstance('login', {      maxAttempts: RATE_LIMIT_CONFIG.BULK_MAX_ATTEMPTS || 100,      blockDurationMinutes: RATE_LIMIT_CONFIG.BULK_BLOCK_DURATION_MINUTES || 5,    });    // 14. Cache user session info    await this.cacheUserSession(user, session.getId());    // Initialize idempotency manager    this.idempotencyManager = IdempotencyManager.getInstance();    return {      accessToken,      refreshToken: refreshTokenValue,      user: {        id: user.getId(),        email: user.getEmail().getValue(),        phoneNumber: user.getPhone()?.getValue(),        fullName: user.getFullName(),        displayName: user.getDisplayName(),        role: user.getRole(),        tier: user.getTier(),        tierDiscount: user.getTierDiscount(),        isEmailVerified: user.isEmailVerified(),        isPhoneVerified: user.isPhoneVerified(),        mfaEnabled: user.isMfaEnabled(),        avatar: user.getAvatar(),      },    };    // Initialize validation cache    this.validationCache = validationCacheService;    // Setup circuit breaker event listeners    this.setupCircuitBreakerListeners();  }  // ============================================================  // Private Helper Methods  // Circuit Breaker Event Listeners  // ============================================================  private async checkRateLimiting(ipAddress: string | undefined, identifier: string, correlationId?: string): Promise<void> {    if (!ipAddress) return;    const key = `ratelimit:login:${ipAddress}`;    const attempts = await this.rateLimiter.getCount(key, LOGIN_CONFIG.RATE_LIMIT_WINDOW_MINUTES * 60);  private setupCircuitBreakerListeners(): void {    this.circuitBreaker.on('open', () => {      this.logger.warn('Circuit breaker opened for auth service');      this.metricsService.recordCircuitBreakerEvent('auth', 'open');    });    if (attempts >= LOGIN_CONFIG.RATE_LIMIT_MAX_ATTEMPTS) {      await this.auditService.log({        action: 'LOGIN_RATE_LIMIT_EXCEEDED',        ipAddress,        email: this.maskEmail(identifier),        correlationId,      });      throw new TooManyRequestsException('Too many login attempts. Please try again later.');    }    this.circuitBreaker.on('halfOpen', () => {      this.logger.log('Circuit breaker half-open for auth service');      this.metricsService.recordCircuitBreakerEvent('auth', 'halfOpen');    });    await this.rateLimiter.increment(key, LOGIN_CONFIG.RATE_LIMIT_WINDOW_MINUTES * 60);    this.circuitBreaker.on('close', () => {      this.logger.log('Circuit breaker closed for auth service');      this.metricsService.recordCircuitBreakerEvent('auth', 'close');    });  }  private async checkAccountLock(    user: User,    deviceInfo: any,    correlationId?: string  ): Promise<{ isLocked: boolean; remainingMinutes: number; lockLevel: LockLevel }> {    const accountLock = await this.accountLockRepository.findByUserId(user.getId());  // ============================================================  // Validation with Caching (Enterprise Feature)  // ============================================================  async validate(command: LoginCommand): Promise<{ isValid: boolean; errors: string[] }> {    const cacheKey = `login_validation_${command.identifier}_${command.method}`;    if (accountLock && accountLock.isLocked()) {      const remainingMinutes = Math.ceil(accountLock.getRemainingLockTime() / (60 * 1000));            await this.auditService.log({        action: 'LOGIN_BLOCKED_LOCKED',        userId: user.getId(),        email: user.getEmail().getValue(),        ipAddress: deviceInfo?.ipAddress,        deviceId: deviceInfo?.deviceId,        correlationId,        remainingMinutes,        lockLevel: accountLock.getLockLevel(),      });            return { isLocked: true, remainingMinutes, lockLevel: accountLock.getLockLevel() };    // Check cache first    const cached = await this.validationCache.get<ValidationCacheEntry>(cacheKey);    if (cached && (Date.now() - cached.timestamp) < VALIDATION_CACHE_CONFIG.TTL_MS) {      return { isValid: cached.isValid, errors: cached.errors || [] };    }        return { isLocked: false, remainingMinutes: 0, lockLevel: LockLevel.LEVEL_1 };  }  private validateAccountStatus(user: User): void {    if (user.isSuspended()) {      throw new UnauthorizedException('Account is suspended. Please contact support.');    }    // Perform validation    const validationResult = command.getValidationResult();    if (!user.isActive() && !user.isPendingVerification()) {      throw new UnauthorizedException('Account is inactive. Please verify your email or phone.');    }    // Cache the result    await this.validationCache.set(cacheKey, {      isValid: validationResult.isValid,      errors: validationResult.errors,      timestamp: Date.now(),    }, VALIDATION_CACHE_CONFIG.TTL_MS);    if (user.isDeleted()) {      throw new UnauthorizedException('Account no longer exists.');    }    return validationResult;  }  private async verifyPassword(user: User, password: string, deviceInfo: any, correlationId?: string): Promise<boolean> {    const isValid = await this.passwordHasher.compare(password, user.getPassword().getValue());    if (!isValid) {      await this.auditService.log({        action: 'LOGIN_FAILED_INVALID_PASSWORD',        userId: user.getId(),        email: user.getEmail().getValue(),        ipAddress: deviceInfo?.ipAddress,        deviceId: deviceInfo?.deviceId,        correlationId,      });    }    return isValid;  }  // ============================================================  // Main Execute Method with Distributed Tracing  // ============================================================  private async handleFailedLogin(user: User, deviceInfo: any, correlationId?: string): Promise<void> {    const accountLock = await this.accountLockRepository.findByUserId(user.getId()) ||       AccountLock.create(user.getId(), AccountLockReason.FAILED_LOGIN_ATTEMPTS);        const failureCount = await this.accountLockRepository.incrementFailureCountForUser(user.getId());        await this.publishFailedLoginEvent(      user.getEmail().getValue(),      deviceInfo,      LoginFailureReason.INVALID_CREDENTIALS,      correlationId,      user.getId()    );  async execute(command: LoginCommand): Promise<CommandResult<LoginResponseDto | MFARequiredResponseDto>> {    const startTime = Date.now();    const span = this.tracerService.startSpan('LoginCommandHandler.execute');    if (failureCount >= LOGIN_CONFIG.MAX_FAILED_ATTEMPTS && !accountLock.isLocked()) {      accountLock.lock(AccountLockReason.FAILED_LOGIN_ATTEMPTS);      await this.accountLockRepository.save(accountLock);    // Update metrics    this.metrics.totalExecutions++;    this.metrics.lastExecutionAt = new Date();    try {      // 1. Add trace attributes      span.setAttribute('command.id', command.commandId);      span.setAttribute('command.method', command.method);      span.setAttribute('command.source', command.source);      span.setAttribute('identifier.masked', command.getMaskedIdentifier());      span.setAttribute('has.captcha', command.hasCaptcha());      span.setAttribute('remember.me', command.isDeviceTrustRequested());      // 2. Validate command      const validation = await this.validate(command);      if (!validation.isValid) {        span.setAttribute('validation.failed', true);        span.setStatus({ code: 1, message: 'Validation failed' });                return {          success: false,          error: validation.errors.join(', '),          errorCode: 'VALIDATION_ERROR',        };      }      // 3. Check bulk rate limit (分布式攻击防护)      const ipAddress = command.deviceInfo?.ipAddress || 'unknown';      const rateLimitStatus = this.bulkRateLimiter.trackAttempt(ipAddress, command.getEmail() || undefined);      await this.eventBus.publish(        new AccountLockedEvent(          user.getId(),          LockReason.FAILED_LOGIN_ATTEMPTS,          AccountLockMethod.AUTOMATIC,          AccountLockSource.SYSTEM,          correlationId,          undefined,          deviceInfo?.ipAddress,          deviceInfo?.deviceId,          undefined,          failureCount,          accountLock.getRemainingLockTime() / 1000,          accountLock.getLockLevel(),          { maxAttempts: LOGIN_CONFIG.MAX_FAILED_ATTEMPTS }        )      if (!rateLimitStatus.allowed) {        span.setAttribute('rate.limited', true);        span.setAttribute('retry.after.seconds', rateLimitStatus.retryAfterSeconds || 0);                return {          success: false,          error: `Too many login attempts from this IP. Please try again in ${rateLimitStatus.retryAfterSeconds} seconds.`,          errorCode: 'BULK_RATE_LIMIT_EXCEEDED',        };      }      // 4. Check individual rate limit      const individualRateLimit = await this.rateLimitService.checkRateLimit(        command.identifier,        'login',        { windowMs: 3600000, maxAttempts: 5 }      );            // Send notification about account lock      await this.notificationService.sendAccountLockedNotification(        user.getId(),        user.getEmail().getValue(),        {          reason: 'Too many failed login attempts',          lockDurationMinutes: accountLock.getRemainingLockTime() / (60 * 1000),          lockedAt: new Date(),          remainingAttempts: 0,          unlockMethod: 'time',      if (!individualRateLimit.allowed) {        span.setAttribute('individual.rate.limited', true);        span.setAttribute('remaining.attempts', individualRateLimit.remaining);                return {          success: false,          error: `Too many login attempts. ${individualRateLimit.remaining} attempts remaining.`,          errorCode: 'RATE_LIMIT_EXCEEDED',        };      }      // 5. Check idempotency (prevent duplicate processing)      const idempotencyKey = `login_${command.identifier}_${command.deviceInfo?.deviceId || ''}_${command.correlationId}`;      const idempotentResult = await this.idempotencyManager.getOrExecute(        idempotencyKey,        async () => {          // 6. Execute with circuit breaker          const deviceInfo: DeviceInfo = {            ipAddress: command.deviceInfo?.ipAddress,            userAgent: command.deviceInfo?.userAgent,            deviceId: command.deviceInfo?.deviceId,            correlationId: command.correlationId,            district: command.deviceInfo?.district,            upazila: command.deviceInfo?.upazila,            mobileOperator: command.deviceInfo?.mobileOperator,            networkType: command.deviceInfo?.networkType,            screenResolution: command.deviceInfo?.screenResolution,            language: command.deviceInfo?.language,            timezone: command.deviceInfo?.timezone,          };          const options: LoginOptions = {            trustDevice: command.isDeviceTrustRequested(),            correlationId: command.correlationId,            preferredLanguage: 'en',            district: command.deviceInfo?.district,            networkType: command.deviceInfo?.networkType,            retryAttempt: command.deviceInfo?.retryAttempt,          };          // Execute via circuit breaker          const result = await this.circuitBreaker.fire(command, deviceInfo, deviceInfo.userAgent || 'unknown', options);                    // Record success metrics          await this.rateLimitService.recordSuccess(command.identifier, 'login');                    return result;        },        { correlationId }        { ttlMs: 60000 } // 1 minute idempotency window      );    }  }  private async resetFailedAttempts(user: User, correlationId?: string): Promise<void> {    await this.accountLockRepository.resetFailureCountForUser(user.getId());  }      // 7. Update success metrics      this.metrics.successfulExecutions++;      this.metrics.totalDurationMs += (Date.now() - startTime);      this.metrics.averageDurationMs = this.metrics.totalDurationMs / this.metrics.successfulExecutions;      this.metrics.errorRate = (this.metrics.failedExecutions / this.metrics.totalExecutions) * 100;      // 8. Record metrics to external service      await this.metricsService.recordLatency('login', Date.now() - startTime);      await this.metricsService.incrementCounter('login_success', {        method: command.method,        source: command.source,        hasMfa: idempotentResult.data?.requiresMfa ? 'true' : 'false',      });  private async registerOrUpdateDevice(user: User, deviceInfo: any, correlationId?: string): Promise<Device | null> {    if (!deviceInfo?.deviceId) return null;    const deviceId = new DeviceId(deviceInfo.deviceId);    let device = await this.deviceRepository.findByDeviceId(deviceId);    const userAgent = new UserAgent(deviceInfo.userAgent || 'Unknown');    const ipAddress = deviceInfo.ipAddress ? new IpAddress(deviceInfo.ipAddress) : undefined;    if (!device) {      // Register new device      device = Device.register(        user.getId(),        deviceId,        userAgent,        undefined,        ipAddress,        this.idGenerator      );      await this.deviceRepository.save(device);      // 9. Add trace attributes on success      span.setAttribute('success', true);      span.setAttribute('duration.ms', Date.now() - startTime);      span.setAttribute('requires.mfa', idempotentResult.data?.requiresMfa || false);      await this.auditService.log({        action: 'DEVICE_REGISTERED',        userId: user.getId(),        deviceId: deviceId.getValue(),        userAgent: deviceInfo.userAgent,        ipAddress: deviceInfo.ipAddress,        correlationId,      if (idempotentResult.data?.sessionId) {        span.setAttribute('session.id', idempotentResult.data.sessionId);      }      // 10. Return result      return {        success: true,        data: idempotentResult.data,      };    } catch (error) {      // Update failure metrics      this.metrics.failedExecutions++;      this.metrics.errorRate = (this.metrics.failedExecutions / this.metrics.totalExecutions) * 100;      // Record error metrics      await this.metricsService.incrementCounter('login_failure', {        error_type: error.name,        error_code: this.getErrorCode(error),        method: command.method,        source: command.source,      });    } else {      // Update existing device      device.recordUsage(ipAddress);      await this.deviceRepository.save(device);    }    return device;  }      // Record latency even on failure      await this.metricsService.recordLatency('login_failure', Date.now() - startTime);  private async isTrustedDevice(userId: string, deviceId?: string): Promise<boolean> {    if (!deviceId) return false;        const cacheKey = `trusted_devices:${userId}`;    let trustedDevices = await this.cacheService.get<string[]>(cacheKey);        if (!trustedDevices) {      const devices = await this.deviceRepository.findByUserId(userId);      trustedDevices = devices        .filter(d => d.isTrusted())        .map(d => d.getDeviceId().getValue());      await this.cacheService.set(cacheKey, trustedDevices, 3600);    }        return trustedDevices.includes(deviceId);  }      // Add trace attributes on error      span.setAttribute('success', false);      span.setAttribute('error.type', error.name);      span.setAttribute('error.message', error.message);      span.setStatus({ code: 2, message: error.message });  private async getAvailableMfaMethods(user: User): Promise<string[]> {    const methods: string[] = [];        if (user.isMfaEnabled()) {      methods.push('totp');      if (user.getPhone()) {        methods.push('sms');        methods.push('whatsapp');      // Map domain errors to user-friendly messages      const errorMapping = ERROR_MESSAGES[error.constructor.name];            if (errorMapping) {        // Return error with Bengali message support        const preferredLanguage = command.deviceInfo?.language === 'bn' ? 'bn' : 'en';                return {          success: false,          error: errorMapping.en,          errorCode: errorMapping.errorCode,          ...(preferredLanguage === 'bn' && { errorBn: errorMapping.bn }),        };      }      methods.push('backup_code');    }        return methods;  }  private async createMfaSession(userId: string, deviceInfo: any, correlationId?: string): Promise<string> {    const mfaSessionId = this.idGenerator.generate();        await this.cacheService.set(      `mfa:session:${mfaSessionId}`,      {        userId,        deviceInfo,        correlationId,        createdAt: new Date(),      },      300 // 5 minutes    );        return mfaSessionId;  }      // Handle rate limit exceeded specially      if (error.message?.includes('rate limit')) {        return {          success: false,          error: 'Too many login attempts. Please try again later.',          errorCode: 'RATE_LIMIT_EXCEEDED',        };      }  private async createUserSession(    user: User,    refreshTokenValue: string,    device: Device | null,    deviceInfo: any,    rememberMe: boolean,    sessionDurationMinutes: number,    correlationId?: string  ): Promise<{ session: Session; refreshToken: RefreshToken }> {    const deviceId = device?.getDeviceId() || new DeviceId(deviceInfo?.deviceId || this.idGenerator.generate());    const ipAddress = new IpAddress(deviceInfo?.ipAddress || '0.0.0.0');    const userAgent = new UserAgent(deviceInfo?.userAgent || 'Unknown');    const token = new Token(refreshTokenValue, TokenType.REFRESH);        const session = Session.create(      user.getId(),      token,      ipAddress,      userAgent,      deviceId,      sessionDurationMinutes,      device?.getDeviceType(),      deviceInfo?.location    );        const refreshToken = RefreshToken.create(      user.getId(),      token,      this.idGenerator,      deviceId,      ipAddress,      deviceInfo?.userAgent    );        // Enforce max concurrent sessions    await this.enforceMaxSessions(user.getId(), session.getId(), correlationId);        await this.transactionManager.runInTransaction(async () => {      await this.sessionRepository.save(session);      await this.refreshTokenRepository.save(refreshToken);    });        // Trust device if requested    if (rememberMe && device && !device.isTrusted()) {      device.trust(LOGIN_CONFIG.DEVICE_TRUST_DURATION_DAYS);      await this.deviceRepository.save(device);      // Generic error      this.logger.error(`Login failed: ${error.message}`, error.stack);      await this.eventBus.publish(        new DeviceTrustedEvent(          user.getId(),          device.getId(),          device.getDeviceId().getValue(),          device.getTrustLevel(),          correlationId,          deviceInfo?.ipAddress,          deviceInfo?.userAgent        )      );    }        return { session, refreshToken };  }  private async enforceMaxSessions(userId: string, currentSessionId: string, correlationId?: string): Promise<void> {    const activeSessions = await this.sessionRepository.findActiveSessions(userId);        if (activeSessions.length >= LOGIN_CONFIG.MAX_CONCURRENT_SESSIONS) {      // Sort by last activity (oldest first)      const sorted = [...activeSessions].sort((a, b) =>         a.getLastActivityAt().getTime() - b.getLastActivityAt().getTime()      );      return {        success: false,        error: 'An unexpected error occurred. Please try again later.',        errorCode: 'INTERNAL_SERVER_ERROR',      };    } finally {      // End trace span      span.end();      const sessionsToRevoke = sorted.slice(0, activeSessions.length - LOGIN_CONFIG.MAX_CONCURRENT_SESSIONS + 1);      // Update rate limit counters      await this.rateLimitService.recordAttempt(command.identifier, 'login');      for (const session of sessionsToRevoke) {        if (session.getId() !== currentSessionId) {          session.revoke('Max concurrent sessions reached');          await this.sessionRepository.save(session);                    await this.auditService.log({            action: 'SESSION_REVOKED_MAX_LIMIT',            userId,            sessionId: session.getId(),            correlationId,          });        }      // Log metrics periodically      if (this.metrics.totalExecutions % 100 === 0) {        this.logger.debug(`Login metrics: ${JSON.stringify(this.getMetrics())}`);      }    }  }  private calculateSessionDuration(rememberMe: boolean, networkType?: string): number {    if (rememberMe) {      return LOGIN_CONFIG.SESSION_DURATION_REMEMBER_MS / (60 * 1000);    }        // Longer sessions for mobile users (Bangladesh specific - poor network conditions)    if (networkType === '2g' || networkType === '3g') {      return LOGIN_CONFIG.SESSION_DURATION_MOBILE_MS / (60 * 1000);    }        return LOGIN_CONFIG.SESSION_DURATION_DEFAULT_MS / (60 * 1000);  }  // ============================================================  // Helper Methods  // ============================================================  private async detectSuspiciousActivity(    user: User,    device: Device | null,    deviceInfo: any,    correlationId?: string  ): Promise<boolean> {    const suspiciousFactors: string[] = [];    let isSuspicious = false;        // Check if device is new    if (device && !device.isTrusted()) {      suspiciousFactors.push('new_device');      isSuspicious = true;    }        // Check if IP is from suspicious category    if (deviceInfo?.ipAddress) {      const ip = new IpAddress(deviceInfo.ipAddress);      if (ip.isCloudProvider() || ip.getCategory() === IpCategory.CLOUD) {        suspiciousFactors.push('cloud_ip');        isSuspicious = true;      }    }        // Check if login time is unusual (night time)    if (this.isNightTime()) {      suspiciousFactors.push('unusual_hour');      isSuspicious = true;    }        // Check if from different district (Bangladesh specific)    if (deviceInfo?.district && user.getPreferredDistrict() &&         deviceInfo.district !== user.getPreferredDistrict()) {      suspiciousFactors.push('different_district');      isSuspicious = true;    }        if (isSuspicious) {      await this.eventBus.publish(        new SuspiciousActivityEvent(          user.getId(),          'login',          'Suspicious login attempt detected',          suspiciousFactors,          correlationId,          deviceInfo?.ipAddress,          device?.getDeviceId()?.getValue(),          deviceInfo?.userAgent,          deviceInfo?.district,          deviceInfo?.mobileOperator        )      );    }        return isSuspicious;  private getErrorCode(error: Error): string {    if (error.name === 'AccountLockedError') return 'ACCOUNT_LOCKED';    if (error.name === 'MFASessionNotFoundError') return 'MFA_SESSION_EXPIRED';    if (error.name === 'InvalidOTPError') return 'INVALID_OTP';    if (error.name === 'RateLimitExceededError') return 'RATE_LIMIT_EXCEEDED';    if (error.name === 'UnauthorizedException') return 'INVALID_CREDENTIALS';    if (error.name === 'NotFoundException') return 'USER_NOT_FOUND';    return 'UNKNOWN_ERROR';  }
 
-// Services
-import { 
-  AuthService, 
-  DeviceInfo, 
-  LoginOptions, 
-  ServiceResult 
-} from '../../services/interfaces/auth.service.interface';
-
-// Infrastructure
-import { ICommandHandler, CommandResult } from '../interfaces/command-handler.interface';
-import { LoginCommand } from './login.command';
-
-// Metrics & Monitoring
-import { MetricsService } from '../../../infrastructure/metrics/metrics.service';
-import { TracerService } from '../../../infrastructure/tracing/tracer.service';
-import { CacheService } from '../../services/interfaces/cache.service.interface';
-
-// Rate Limiting
-import { RateLimitService } from '../../../infrastructure/rate-limit/rate-limit.service';
-
-// Validation
-import { ValidationCacheService } from '../../../infrastructure/cache/validation-cache.service';
-
-// Domain Errors
-import { 
-  AccountLockedError, 
-  MFASessionNotFoundError,
-  InvalidOTPError,
-  RateLimitExceededError
-} from '../../../domain/errors/domain-errors';
-
-// Shared Constants
-import { 
-  RATE_LIMIT_CONFIG,
-  CIRCUIT_BREAKER_CONFIG,
-  METRICS_CONFIG,
-  VALIDATION_CACHE_CONFIG
-} from '@vubon/shared-constants';
-
-// Shared Types
-import type { 
-  LoginMethod,
-  ServiceMetrics,
-  CircuitBreakerStatus,
-  BulkRateLimitInfo
-} from '@vubon/shared-types';
-
-// ============================================================
-// Constants
-// ============================================================
-
-const DEFAULT_RETRY_ATTEMPTS = 3;
-const DEFAULT_RETRY_DELAY_MS = 100;
-const BULK_TRACKING_WINDOW_MS = 60000; // 1 minute
-
-// ============================================================
-// Bulk Rate Limit Tracker (Enterprise Feature)
-// ============================================================
-
-interface BulkRateLimitEntry {
-  ipAddress: string;
-  attempts: number;
-  firstAttemptAt: Date;
-  lastAttemptAt: Date;
-  userIds: Set<string>;
-  isBlocked: boolean;
-  blockedUntil?: Date;
-}
-
-class BulkRateLimitTracker {
-  private static instances: Map<string, BulkRateLimitTracker> = new Map();
-  private rateLimitMap: Map<string, BulkRateLimitEntry> = new Map();
-  private readonly maxAttemptsPerWindow: number;
-  private readonly blockDurationMs: number;
-
-  private constructor(
-    private readonly identifier: string,
-    config: { maxAttempts: number; blockDurationMinutes: number }
-  ) {
-    this.maxAttemptsPerWindow = config.maxAttempts;
-    this.blockDurationMs = config.blockDurationMinutes * 60 * 1000;
-    
-    // Cleanup expired entries periodically
-    setInterval(() => this.cleanup(), 60000);
-  }
-
-  static getInstance(identifier: string, config?: { maxAttempts: number; blockDurationMinutes: number }): BulkRateLimitTracker {
-    if (!BulkRateLimitTracker.instances.has(identifier)) {
-      BulkRateLimitTracker.instances.set(
-        identifier,
-        new BulkRateLimitTracker(identifier, config || { maxAttempts: 100, blockDurationMinutes: 5 })
-      );
-    }
-    return BulkRateLimitTracker.instances.get(identifier)!;
-  }
-
-  trackAttempt(ipAddress: string, userId?: string): { allowed: boolean; remaining: number; retryAfterSeconds?: number } {
-    const now = new Date();
-    let entry = this.rateLimitMap.get(ipAddress);
-
-    if (!entry) {
-      entry = {
-        ipAddress,
-        attempts: 1,
-        firstAttemptAt: now,
-        lastAttemptAt: now,
-        userIds: userId ? new Set([userId]) : new Set(),
-        isBlocked: false,
-      };
-      this.rateLimitMap.set(ipAddress, entry);
-      return { allowed: true, remaining: this.maxAttemptsPerWindow - 1 };
-    }
-
-    // Check if currently blocked
-    if (entry.isBlocked && entry.blockedUntil && now < entry.blockedUntil) {
-      const retryAfterSeconds = Math.ceil((entry.blockedUntil.getTime() - now.getTime()) / 1000);
-      return { allowed: false, remaining: 0, retryAfterSeconds };
-    }
-
-    // Reset if window expired
-    if (now.getTime() - entry.lastAttemptAt.getTime() > BULK_TRACKING_WINDOW_MS) {
-      entry.attempts = 1;
-      entry.firstAttemptAt = now;
-      entry.userIds = userId ? new Set([userId]) : new Set();
-      entry.isBlocked = false;
-      entry.blockedUntil = undefined;
-      this.rateLimitMap.set(ipAddress, entry);
-      return { allowed: true, remaining: this.maxAttemptsPerWindow - 1 };
-    }
-
-    entry.attempts++;
-    entry.lastAttemptAt = now;
-    if (userId) entry.userIds.add(userId);
-
-    // Check if exceeded threshold
-    if (entry.attempts > this.maxAttemptsPerWindow) {
-      entry.isBlocked = true;
-      entry.blockedUntil = new Date(now.getTime() + this.blockDurationMs);
-      return { allowed: false, remaining: 0, retryAfterSeconds: this.blockDurationMs / 1000 };
-    }
-
-    this.rateLimitMap.set(ipAddress, entry);
-    return { allowed: true, remaining: this.maxAttemptsPerWindow - entry.attempts };
-  }
-
-  getStats(ipAddress: string): BulkRateLimitEntry | undefined {
-    return this.rateLimitMap.get(ipAddress);
-  }
-
-  private cleanup(): void {
-    const now = Date.now();
-    for (const [ip, entry] of this.rateLimitMap.entries()) {
-      // Remove entries older than 2 windows
-      if (now - entry.lastAttemptAt.getTime() > BULK_TRACKING_WINDOW_MS * 2) {
-        this.rateLimitMap.delete(ip);
-      }
-    }
-  }
-
-  reset(ipAddress: string): void {
-    this.rateLimitMap.delete(ipAddress);
-  }
-}
-
-// ============================================================
-// Idempotency Key Manager (Enterprise Feature)
-// ============================================================
-
-interface IdempotencyRecord {
-  key: string;
-  result: unknown;
-  expiresAt: Date;
-}
-
-class IdempotencyManager {
-  private static instance: IdempotencyManager;
-  private cache: Map<string, IdempotencyRecord> = new Map();
-  private readonly ttlMs: number = 3600000; // 1 hour
-
-  private constructor() {}
-
-  static getInstance(): IdempotencyManager {
-    if (!IdempotencyManager.instance) {
-      IdempotencyManager.instance = new IdempotencyManager();
-    }
-    return IdempotencyManager.instance;
-  }
-
-  async getOrExecute<T>(
-    key: string,
-    executor: () => Promise<T>,
-    options?: { ttlMs?: number }
-  ): Promise<T> {
-    const existing = this.cache.get(key);
-    if (existing && existing.expiresAt > new Date()) {
-      return existing.result as T;
-    }
-
-    const result = await executor();
-    this.cache.set(key, {
-      key,
-      result,
-      expiresAt: new Date(Date.now() + (options?.ttlMs || this.ttlMs)),
-    });
-
-    // Auto cleanup after TTL
-    setTimeout(() => {
-      this.cache.delete(key);
-    }, options?.ttlMs || this.ttlMs);
-
-    return result;
-  }
-
-  invalidate(key: string): void {
-    this.cache.delete(key);
-  }
-
-  clear(): void {
-    this.cache.clear();
-  }
-}
-
-// ============================================================
-// Error Message Mapper (Multi-language Support)
-// ============================================================
-
-interface ErrorMessageMap {
-  en: string;
-  bn: string;
-  errorCode: string;
-  httpStatus: number;
-}
-
-const ERROR_MESSAGES: Record<string, ErrorMessageMap> = {
-  [AccountLockedError.name]: {
-    en: 'Account is locked due to multiple failed attempts.',
-    bn: 'একাধিক ব্যর্থ চেষ্টার কারণে অ্যাকাউন্টটি লক করা হয়েছে।',
-    errorCode: 'ACCOUNT_LOCKED',
-    httpStatus: 423,
-  },
-  [MFASessionNotFoundError.name]: {
-    en: 'MFA session expired or invalid. Please login again.',
-    bn: 'MFA সেশনের মেয়াদ শেষ বা অবৈধ। অনুগ্রহ করে আবার লগইন করুন।',
-    errorCode: 'MFA_SESSION_EXPIRED',
-    httpStatus: 401,
-  },
-  [InvalidOTPError.name]: {
-    en: 'Invalid or expired OTP code.',
-    bn: 'অবৈধ বা মেয়াদোত্তীর্ণ OTP কোড।',
-    errorCode: 'INVALID_OTP',
-    httpStatus: 401,
-  },
-  [RateLimitExceededError.name]: {
-    en: 'Too many login attempts. Please try again later.',
-    bn: 'অনেকবার লগইন চেষ্টা করা হয়েছে। পরে আবার চেষ্টা করুন।',
-    errorCode: 'RATE_LIMIT_EXCEEDED',
-    httpStatus: 429,
-  },
-};
-
-// ============================================================
-// Validation Cache Service Interface
-// ============================================================
-
-interface ValidationCacheEntry {
-  isValid: boolean;
-  timestamp: number;
-  errors?: string[];
-}
-
-// ============================================================
-// Login Command Handler (Enterprise Enhanced v3.0)
-// ============================================================
-
-@Injectable({ scope: Scope.TRANSIENT })
-export class LoginCommandHandler implements ICommandHandler<LoginCommand, CommandResult<LoginResponseDto | MFARequiredResponseDto>> {
-  private readonly logger = new Logger(LoginCommandHandler.name);
-  private readonly commandType = 'LoginCommand';
-  private readonly circuitBreaker: CircuitBreaker;
-  private readonly bulkRateLimiter: BulkRateLimitTracker;
-  private readonly idempotencyManager: IdempotencyManager;
-  private readonly validationCache: ValidationCacheService;
-
-  // Metrics tracking
-  private metrics: ServiceMetrics = {
-    totalExecutions: 0,
-    successfulExecutions: 0,
-    failedExecutions: 0,
-    totalDurationMs: 0,
-    averageDurationMs: 0,
-    lastExecutionAt: undefined,
-    errorRate: 0,
-  };
-
-  constructor(
-    private readonly authService: AuthService,
-    private readonly metricsService: MetricsService,
-    private readonly tracerService: TracerService,
-    private readonly cacheService: CacheService,
-    private readonly rateLimitService: RateLimitService,
-    validationCacheService: ValidationCacheService,
-    @Inject('VALIDATION_CACHE_CONFIG') validationConfig: typeof VALIDATION_CACHE_CONFIG
-  ) {
-    // Initialize circuit breaker
-    this.circuitBreaker = new CircuitBreaker(
-      async (command: LoginCommand, ipAddress: string, userAgent: string, options?: LoginOptions) => {
-        return this.authService.login(command, ipAddress, userAgent, options);
-      },
+private async sendLoginAlert(
+    user: User,
+    device: Device | null,
+    deviceInfo: any,
+    correlationId: string | undefined,
+    isSuspicious: boolean
+  ): Promise<void> {
+    await this.notificationService.sendLoginAlert(
+      user.getId(),
+      user.getEmail().getValue(),
       {
-        timeout: CIRCUIT_BREAKER_CONFIG.TIMEOUT_MS || 10000,
-        errorThresholdPercentage: CIRCUIT_BREAKER_CONFIG.ERROR_THRESHOLD_PERCENTAGE || 50,
-        resetTimeout: CIRCUIT_BREAKER_CONFIG.RESET_TIMEOUT_MS || 30000,
-        rollingCountTimeout: CIRCUIT_BREAKER_CONFIG.ROLLING_COUNT_TIMEOUT_MS || 10000,
-        rollingCountBuckets: 10,
-      }
-    );
-
-    // Initialize bulk rate limiter
-    this.bulkRateLimiter = BulkRateLimitTracker.getInstance('login', {
-      maxAttempts: RATE_LIMIT_CONFIG.BULK_MAX_ATTEMPTS || 100,
-      blockDurationMinutes: RATE_LIMIT_CONFIG.BULK_BLOCK_DURATION_MINUTES || 5,
-    });
-
-    // Initialize idempotency manager
-    this.idempotencyManager = IdempotencyManager.getInstance();
-
-    // Initialize validation cache
-    this.validationCache = validationCacheService;
-
-    // Setup circuit breaker event listeners
-    this.setupCircuitBreakerListeners();
-  }
-
-  // ============================================================
-  // Circuit Breaker Event Listeners
-  // ============================================================
-
-  private setupCircuitBreakerListeners(): void {
-    this.circuitBreaker.on('open', () => {
-      this.logger.warn('Circuit breaker opened for auth service');
-      this.metricsService.recordCircuitBreakerEvent('auth', 'open');
-    });
-
-    this.circuitBreaker.on('halfOpen', () => {
-      this.logger.log('Circuit breaker half-open for auth service');
-      this.metricsService.recordCircuitBreakerEvent('auth', 'halfOpen');
-    });
-
-    this.circuitBreaker.on('close', () => {
-      this.logger.log('Circuit breaker closed for auth service');
-      this.metricsService.recordCircuitBreakerEvent('auth', 'close');
-    });
-  }
-
-  // ============================================================
-  // Validation with Caching (Enterprise Feature)
-  // ============================================================
-
-  async validate(command: LoginCommand): Promise<{ isValid: boolean; errors: string[] }> {
-    const cacheKey = `login_validation_${command.identifier}_${command.method}`;
-    
-    // Check cache first
-    const cached = await this.validationCache.get<ValidationCacheEntry>(cacheKey);
-    if (cached && (Date.now() - cached.timestamp) < VALIDATION_CACHE_CONFIG.TTL_MS) {
-      return { isValid: cached.isValid, errors: cached.errors || [] };
-    }
-
-    // Perform validation
-    const validationResult = command.getValidationResult();
-    
-    // Cache the result
-    await this.validationCache.set(cacheKey, {
-      isValid: validationResult.isValid,
-      errors: validationResult.errors,
-      timestamp: Date.now(),
-    }, VALIDATION_CACHE_CONFIG.TTL_MS);
-
-    return validationResult;
-  }
-
-  // ============================================================
-  // Main Execute Method with Distributed Tracing
-  // ============================================================
-
-  async execute(command: LoginCommand): Promise<CommandResult<LoginResponseDto | MFARequiredResponseDto>> {
-    const startTime = Date.now();
-    const span = this.tracerService.startSpan('LoginCommandHandler.execute');
-    
-    // Update metrics
-    this.metrics.totalExecutions++;
-    this.metrics.lastExecutionAt = new Date();
-
-    try {
-      // 1. Add trace attributes
-      span.setAttribute('command.id', command.commandId);
-      span.setAttribute('command.method', command.method);
-      span.setAttribute('command.source', command.source);
-      span.setAttribute('identifier.masked', command.getMaskedIdentifier());
-      span.setAttribute('has.captcha', command.hasCaptcha());
-      span.setAttribute('remember.me', command.isDeviceTrustRequested());
-
-      // 2. Validate command
-      const validation = await this.validate(command);
-      if (!validation.isValid) {
-        span.setAttribute('validation.failed', true);
-        span.setStatus({ code: 1, message: 'Validation failed' });
-        
-        return {
-          success: false,
-          error: validation.errors.join(', '),
-          errorCode: 'VALIDATION_ERROR',
-        };
-      }
-
-      // 3. Check bulk rate limit (分布式攻击防护)
-      const ipAddress = command.deviceInfo?.ipAddress || 'unknown';
-      const rateLimitStatus = this.bulkRateLimiter.trackAttempt(ipAddress, command.getEmail() || undefined);
-      
-      if (!rateLimitStatus.allowed) {
-        span.setAttribute('rate.limited', true);
-        span.setAttribute('retry.after.seconds', rateLimitStatus.retryAfterSeconds || 0);
-        
-        return {
-          success: false,
-          error: `Too many login attempts from this IP. Please try again in ${rateLimitStatus.retryAfterSeconds} seconds.`,
-          errorCode: 'BULK_RATE_LIMIT_EXCEEDED',
-        };
-      }
-
-      // 4. Check individual rate limit
-      const individualRateLimit = await this.rateLimitService.checkRateLimit(
-        command.identifier,
-        'login',
-        { windowMs: 3600000, maxAttempts: 5 }
-      );
-
-      if (!individualRateLimit.allowed) {
-        span.setAttribute('individual.rate.limited', true);
-        span.setAttribute('remaining.attempts', individualRateLimit.remaining);
-        
-        return {
-          success: false,
-          error: `Too many login attempts. ${individualRateLimit.remaining} attempts remaining.`,
-          errorCode: 'RATE_LIMIT_EXCEEDED',
-        };
-      }
-
-      // 5. Check idempotency (prevent duplicate processing)
-      const idempotencyKey = `login_${command.identifier}_${command.deviceInfo?.deviceId || ''}_${command.correlationId}`;
-      const idempotentResult = await this.idempotencyManager.getOrExecute(
-        idempotencyKey,
-        async () => {
-          // 6. Execute with circuit breaker
-          const deviceInfo: DeviceInfo = {
-            ipAddress: command.deviceInfo?.ipAddress,
-            userAgent: command.deviceInfo?.userAgent,
-            deviceId: command.deviceInfo?.deviceId,
-            correlationId: command.correlationId,
-            district: command.deviceInfo?.district,
-            upazila: command.deviceInfo?.upazila,
-            mobileOperator: command.deviceInfo?.mobileOperator,
-            networkType: command.deviceInfo?.networkType,
-            screenResolution: command.deviceInfo?.screenResolution,
-            language: command.deviceInfo?.language,
-            timezone: command.deviceInfo?.timezone,
-          };
-
-          const options: LoginOptions = {
-            trustDevice: command.isDeviceTrustRequested(),
-            correlationId: command.correlationId,
-            preferredLanguage: 'en',
-            district: command.deviceInfo?.district,
-            networkType: command.deviceInfo?.networkType,
-            retryAttempt: command.deviceInfo?.retryAttempt,
-          };
-
-          // Execute via circuit breaker
-          const result = await this.circuitBreaker.fire(command, deviceInfo, deviceInfo.userAgent || 'unknown', options);
-          
-          // Record success metrics
-          await this.rateLimitService.recordSuccess(command.identifier, 'login');
-          
-          return result;
-        },
-        { ttlMs: 60000 } // 1 minute idempotency window
-      );
-
-      // 7. Update success metrics
-      this.metrics.successfulExecutions++;
-      this.metrics.totalDurationMs += (Date.now() - startTime);
-      this.metrics.averageDurationMs = this.metrics.totalDurationMs / this.metrics.successfulExecutions;
-      this.metrics.errorRate = (this.metrics.failedExecutions / this.metrics.totalExecutions) * 100;
-
-      // 8. Record metrics to external service
-      await this.metricsService.recordLatency('login', Date.now() - startTime);
-      await this.metricsService.incrementCounter('login_success', {
-        method: command.method,
-        source: command.source,
-        hasMfa: idempotentResult.data?.requiresMfa ? 'true' : 'false',
-      });
-
-      // 9. Add trace attributes on success
-      span.setAttribute('success', true);
-      span.setAttribute('duration.ms', Date.now() - startTime);
-      span.setAttribute('requires.mfa', idempotentResult.data?.requiresMfa || false);
-      
-      if (idempotentResult.data?.sessionId) {
-        span.setAttribute('session.id', idempotentResult.data.sessionId);
-      }
-
-      // 10. Return result
-      return {
-        success: true,
-        data: idempotentResult.data,
-      };
-
-    } catch (error) {
-      // Update failure metrics
-      this.metrics.failedExecutions++;
-      this.metrics.errorRate = (this.metrics.failedExecutions / this.metrics.totalExecutions) * 100;
-
-      // Record error metrics
-      await this.metricsService.incrementCounter('login_failure', {
-        error_type: error.name,
-        error_code: this.getErrorCode(error),
-        method: command.method,
-        source: command.source,
-      });
-
-      // Record latency even on failure
-      await this.metricsService.recordLatency('login_failure', Date.now() - startTime);
-
-      // Add trace attributes on error
-      span.setAttribute('success', false);
-      span.setAttribute('error.type', error.name);
-      span.setAttribute('error.message', error.message);
-      span.setStatus({ code: 2, message: error.message });
-
-      // Map domain errors to user-friendly messages
-      const errorMapping = ERROR_MESSAGES[error.constructor.name];
-      
-      if (errorMapping) {
-        // Return error with Bengali message support
-        const preferredLanguage = command.deviceInfo?.language === 'bn' ? 'bn' : 'en';
-        
-        return {
-          success: false,
-          error: errorMapping.en,
-          errorCode: errorMapping.errorCode,
-          ...(preferredLanguage === 'bn' && { errorBn: errorMapping.bn }),
-        };
-      }
-
-      // Handle rate limit exceeded specially
-      if (error.message?.includes('rate limit')) {
-        return {
-          success: false,
-          error: 'Too many login attempts. Please try again later.',
-          errorCode: 'RATE_LIMIT_EXCEEDED',
-        };
-      }
-
-      // Generic error
-      this.logger.error(`Login failed: ${error.message}`, error.stack);
-      
-      return {
-        success: false,
-        error: 'An unexpected error occurred. Please try again later.',
-        errorCode: 'INTERNAL_SERVER_ERROR',
-      };
-
-    } finally {
-      // End trace span
-      span.end();
-      
-      // Update rate limit counters
-      await this.rateLimitService.recordAttempt(command.identifier, 'login');
-      
-      // Log metrics periodically
-      if (this.metrics.totalExecutions % 100 === 0) {
-        this.logger.debug(`Login metrics: ${JSON.stringify(this.getMetrics())}`);
-      }
-    }
-  }
-
-  // ============================================================
-  // Helper Methods
-  // ============================================================
-
-  private getErrorCode(error: Error): string {
-    if (error.name === 'AccountLockedError') return 'ACCOUNT_LOCKED';
-    if (error.name === 'MFASessionNotFoundError') return 'MFA_SESSION_EXPIRED';
-    if (error.name === 'InvalidOTPError') return 'INVALID_OTP';
-    if (error.name === 'RateLimitExceededError') return 'RATE_LIMIT_EXCEEDED';
-    if (error.name === 'UnauthorizedException') return 'INVALID_CREDENTIALS';
-    if (error.name === 'NotFoundException') return 'USER_NOT_FOUND';
-    return 'UNKNOWN_ERROR';
-  }
-
+        ipAddress: deviceInfo?.ipAddress || 'unknown',
+        location: deviceInfo?.district,
+        deviceName: device?.getDeviceType(),
+        browser: deviceInfo?.userAgent?.split(' ')[0],
+        loginTime: new Date(),
+        isNewDevice: device ? !device.isTrusted() : true,
+        isNewLocation: true,
+        loginMethod: 'password',
+        isSuspicious,
   /**
    * Get circuit breaker status
    */
@@ -639,9 +84,23 @@ export class LoginCommandHandler implements ICommandHandler<LoginCommand, Comman
         average: this.circuitBreaker.stats?.latencyMean || 0,
         p95: this.circuitBreaker.stats?.latencyMs?.p95 || 0,
       },
+      { correlationId }
+    );
+  }
+
+  private async cacheUserSession(user: User, sessionId: string): Promise<void> {
+    const cacheKey = `user:session:${user.getId()}`;
+    const sessions = await this.cacheService.get<string[]>(cacheKey) || [];
+    if (!sessions.includes(sessionId)) {
+      sessions.push(sessionId);
+      await this.cacheService.set(cacheKey, sessions, 3600);
+    }
     };
   }
 
+  private isNightTime(): boolean {
+    const hour = new Date().getHours();
+    return hour >= LOGIN_CONFIG.SUSPICIOUS_HOUR_START || hour < LOGIN_CONFIG.SUSPICIOUS_HOUR_END;
   /**
    * Get bulk rate limit status for an IP
    */
@@ -660,6 +119,10 @@ export class LoginCommandHandler implements ICommandHandler<LoginCommand, Comman
     };
   }
 
+  private isWeekend(): boolean {
+    const day = new Date().getDay();
+    // Friday = 5, Saturday = 6 (Bangladesh weekend)
+    return day === 5 || day === 6;
   /**
    * Reset bulk rate limit for an IP (admin operation)
    */
@@ -668,6 +131,42 @@ export class LoginCommandHandler implements ICommandHandler<LoginCommand, Comman
     this.logger.warn(`Bulk rate limit reset for IP: ${ipAddress}`);
   }
 
+  private async publishFailedLoginEvent(
+    identifier: string,
+    deviceInfo: any,
+    reason: LoginFailureReason,
+    correlationId?: string,
+    userId?: string
+  ): Promise<void> {
+    await this.eventBus.publish(
+      new LoginFailedEvent(
+        identifier,
+        deviceInfo?.ipAddress || 'unknown',
+        reason,
+        correlationId,
+        undefined,
+        userId,
+        {
+          userAgent: deviceInfo?.userAgent,
+          deviceId: deviceInfo?.deviceId,
+          district: deviceInfo?.district,
+          mobileOperator: deviceInfo?.mobileOperator,
+        }
+      )
+    );
+    
+    await this.auditService.log({
+      action: 'LOGIN_FAILED',
+      userId,
+      email: this.maskEmail(identifier),
+      ipAddress: deviceInfo?.ipAddress,
+      deviceId: deviceInfo?.deviceId,
+      userAgent: deviceInfo?.userAgent,
+      correlationId,
+      reason,
+      district: deviceInfo?.district,
+      mobileOperator: deviceInfo?.mobileOperator,
+    });
   /**
    * Get handler metrics
    */
@@ -675,6 +174,13 @@ export class LoginCommandHandler implements ICommandHandler<LoginCommand, Comman
     return { ...this.metrics };
   }
 
+  private maskEmail(email: string): string {
+    const [local, domain] = email.split('@');
+    if (!local || !domain) return email;
+    const maskedLocal = local.length <= 2 
+      ? local[0] + '***' 
+      : local[0] + '***' + local[local.length - 1];
+    return `${maskedLocal}@${domain}`;
   /**
    * Reset metrics
    */
