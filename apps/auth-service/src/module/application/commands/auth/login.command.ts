@@ -1,5 +1,5 @@
 /**
- * Login Command - Pure Command Data Structure (Enterprise Enhanced v2.1)
+ * Login Command - Pure Command Data Structure (Enterprise Enhanced v3.0)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module application/commands/auth/login.command
@@ -8,7 +8,7 @@
  * Command for authenticating a user with email, phone, or username.
  * Contains all necessary data for login use case including device context.
  * 
- * ✅ Enterprise Features (v2.1):
+ * ✅ Enterprise Features (v3.0):
  * - Shared types integration (@vubon/shared-types)
  * - Shared constants for patterns (@vubon/shared-constants)
  * - Shared utilities for phone normalization (@vubon/shared-utils)
@@ -22,6 +22,12 @@
  * - Type guards for runtime type checking
  * - International phone number support
  * - Command handler interface contract
+ * - ✅ ENTERPRISE ENHANCEMENT: Centralized error messages with Bengali support
+ * - ✅ ENTERPRISE ENHANCEMENT: Validation result with detailed field info
+ * - ✅ ENTERPRISE ENHANCEMENT: Command metadata for auditing
+ * - ✅ ENTERPRISE ENHANCEMENT: Device fingerprint normalization
+ * - ✅ ENTERPRISE ENHANCEMENT: Command versioning for backward compatibility
+ * - ✅ ENTERPRISE ENHANCEMENT: Retry context for connection resilience
  */
 
 import { randomUUID } from 'crypto';
@@ -50,6 +56,37 @@ import {
 } from '@vubon/shared-utils';
 
 // ============================================================
+// ✅ ENTERPRISE ENHANCEMENT: Centralized Validation Messages
+// ============================================================
+
+export const VALIDATION_MESSAGES = {
+  en: {
+    identifierRequired: 'Identifier is required',
+    passwordRequired: 'Password is required for password-based login',
+    invalidEmail: 'Invalid email format',
+    invalidPhone: 'Invalid phone number format. Use Bangladesh format (01XXXXXXXXX) or international format (+8801XXXXXXXXX)',
+    invalidUsername: (min: number, max: number) => `Username must be between ${min} and ${max} characters`,
+    usernameInvalidChars: 'Username can only contain letters, numbers, dots, and underscores',
+    otpRequired: 'OTP code is required',
+    invalidOtpFormat: (length: number) => `OTP code must be exactly ${length} digits`,
+    invalidIp: 'Invalid IP address format',
+    userAgentTooLong: (max: number) => `User agent too long (max ${max} characters)`,
+  },
+  bn: {
+    identifierRequired: 'আইডেন্টিফায়ার প্রয়োজন',
+    passwordRequired: 'পাসওয়ার্ড ভিত্তিক লগইনের জন্য পাসওয়ার্ড প্রয়োজন',
+    invalidEmail: 'ভুল ইমেইল ফরম্যাট',
+    invalidPhone: 'ভুল ফোন নম্বর ফরম্যাট। বাংলাদেশ ফরম্যাট (01XXXXXXXXX) অথবা আন্তর্জাতিক ফরম্যাট (+8801XXXXXXXXX) ব্যবহার করুন',
+    invalidUsername: (min: number, max: number) => `ইউজারনাম ${min} থেকে ${max} অক্ষরের মধ্যে হতে হবে`,
+    usernameInvalidChars: 'ইউজারনামে শুধু অক্ষর, সংখ্যা, ডট এবং আন্ডারস্কোর থাকতে পারে',
+    otpRequired: 'OTP কোড প্রয়োজন',
+    invalidOtpFormat: (length: number) => `OTP কোড অবশ্যই ${length} ডিজিটের হতে হবে`,
+    invalidIp: 'ভুল আইপি অ্যাড্রেস ফরম্যাট',
+    userAgentTooLong: (max: number) => `ইউজার এজেন্ট সর্বোচ্চ ${max} অক্ষর হতে পারে`,
+  },
+};
+
+// ============================================================
 // Constants with Fallbacks (Enterprise Enhancement)
 // ============================================================
 
@@ -65,6 +102,9 @@ const INTERNATIONAL_PHONE_PATTERN = /^\+[1-9]\d{1,14}$/;
 /** Username length constraints */
 const USERNAME_MIN_LENGTH = 3;
 const USERNAME_MAX_LENGTH = 50;
+
+/** ✅ ENTERPRISE ENHANCEMENT: Command version */
+const COMMAND_VERSION = '1.0.0';
 
 // ============================================================
 // Types (using shared types for consistency)
@@ -98,6 +138,9 @@ export interface LoginDeviceInfo extends SharedDeviceInfo {
 
   /** Retry attempt number (for connection resilience) */
   retryAttempt?: number;
+  
+  /** ✅ ENTERPRISE ENHANCEMENT: Normalized device fingerprint */
+  normalizedFingerprint?: string;
 }
 
 /**
@@ -106,11 +149,21 @@ export interface LoginDeviceInfo extends SharedDeviceInfo {
 export type LoginMethod = SharedLoginMethod;
 
 /**
- * Validation result interface
+ * ✅ ENTERPRISE ENHANCEMENT: Enhanced validation result with field info
  */
 export interface ValidationResult {
   isValid: boolean;
-  errors: string[];
+  errors: ValidationErrorDetail[];
+}
+
+/**
+ * ✅ ENTERPRISE ENHANCEMENT: Detailed validation error
+ */
+export interface ValidationErrorDetail {
+  field: string;
+  message: string;
+  messageBn?: string;
+  code: string;
 }
 
 /**
@@ -122,6 +175,18 @@ export interface CommandExecutionContext {
   timestamp: Date;
   method: LoginMethod;
   source: 'web' | 'mobile' | 'api' | 'admin';
+  version: string;
+}
+
+/**
+ * ✅ ENTERPRISE ENHANCEMENT: Command metadata for auditing
+ */
+export interface CommandMetadata {
+  executedBy?: string;
+  executedAt?: Date;
+  durationMs?: number;
+  retryCount?: number;
+  environment?: 'development' | 'staging' | 'production';
 }
 
 /**
@@ -132,6 +197,8 @@ export interface CommandResult<T> {
   data?: T;
   error?: string;
   errorCode?: string;
+  errorBn?: string;
+  metadata?: CommandMetadata;
 }
 
 /**
@@ -153,14 +220,21 @@ export interface CommandHandler<TCommand, TResult> {
 // ============================================================
 
 export class CommandValidationError extends Error {
-  public readonly validationErrors: string[];
+  public readonly validationErrors: ValidationErrorDetail[];
   public readonly commandType: string;
+  public readonly commandVersion?: string;
   
-  constructor(message: string, validationErrors: string[], commandType: string) {
+  constructor(
+    message: string, 
+    validationErrors: ValidationErrorDetail[], 
+    commandType: string,
+    commandVersion?: string
+  ) {
     super(message);
     this.name = 'CommandValidationError';
     this.validationErrors = validationErrors;
     this.commandType = commandType;
+    this.commandVersion = commandVersion;
     Error.captureStackTrace(this, this.constructor);
   }
 }
@@ -198,6 +272,37 @@ export function isAnyLoginCommand(command: unknown): command is LoginCommand | P
 }
 
 // ============================================================
+// Helper Functions
+// ============================================================
+
+/**
+ * ✅ ENTERPRISE ENHANCEMENT: Create validation error detail
+ */
+function createValidationError(
+  field: string, 
+  code: string, 
+  messageKey: keyof typeof VALIDATION_MESSAGES.en,
+  args?: unknown[],
+  locale: 'en' | 'bn' = 'en'
+): ValidationErrorDetail {
+  const messageFn = VALIDATION_MESSAGES[locale][messageKey];
+  const message = typeof messageFn === 'function' 
+    ? (messageFn as (...args: unknown[]) => string)(...(args || []))
+    : messageFn as string;
+  
+  return {
+    field,
+    message,
+    messageBn: locale === 'en' && VALIDATION_MESSAGES.bn[messageKey] 
+      ? (typeof VALIDATION_MESSAGES.bn[messageKey] === 'function'
+        ? (VALIDATION_MESSAGES.bn[messageKey] as (...args: unknown[]) => string)(...(args || []))
+        : VALIDATION_MESSAGES.bn[messageKey] as string)
+      : undefined,
+    code,
+  };
+}
+
+// ============================================================
 // Login Command (Enhanced)
 // ============================================================
 
@@ -210,6 +315,9 @@ export function isAnyLoginCommand(command: unknown): command is LoginCommand | P
  * - Integrated shared utilities
  * - Type-safe toString() for logging
  * - International phone support
+ * - ✅ Added command versioning
+ * - ✅ Added retry context
+ * - ✅ Enhanced error messages with Bengali support
  * 
  * @example
  * const command = LoginCommand.fromRequest(
@@ -224,6 +332,8 @@ export class LoginCommand {
   public readonly method: LoginMethod;
   public readonly correlationId: string;
   public readonly source: CommandExecutionContext['source'];
+  public readonly version: string;
+  public readonly retryContext?: { attempt: number; maxRetries: number; previousError?: string };
 
   constructor(
     /** User identifier (email, phone, or username) */
@@ -248,7 +358,10 @@ export class LoginCommand {
     method?: LoginMethod,
     
     /** Request source */
-    source?: CommandExecutionContext['source']
+    source?: CommandExecutionContext['source'],
+    
+    /** ✅ ENTERPRISE ENHANCEMENT: Retry context for connection resilience */
+    retryContext?: { attempt: number; maxRetries: number; previousError?: string }
   ) {
     this.commandId = randomUUID();
     this.timestamp = new Date();
@@ -256,9 +369,27 @@ export class LoginCommand {
     this.source = source ?? 'web';
     this.method = method ?? this.detectMethod(identifier);
     this.rememberMe = rememberMe ?? false;
+    this.version = COMMAND_VERSION;
+    this.retryContext = retryContext;
     
     // ✅ Enterprise: Validate command on construction
     this.validate();
+    
+    // ✅ Enterprise: Normalize device fingerprint if provided
+    if (this.deviceInfo?.deviceFingerprint) {
+      this.deviceInfo.normalizedFingerprint = this.normalizeFingerprint(this.deviceInfo.deviceFingerprint);
+    }
+  }
+
+  // ============================================================
+  // ✅ ENTERPRISE ENHANCEMENT: Normalization Methods
+  // ============================================================
+
+  /**
+   * Normalize device fingerprint for consistent comparison
+   */
+  private normalizeFingerprint(fingerprint: string): string {
+    return fingerprint.trim().toLowerCase().replace(/\s+/g, '');
   }
 
   // ============================================================
@@ -275,45 +406,83 @@ export class LoginCommand {
       throw new CommandValidationError(
         'Login command validation failed',
         validation.errors,
-        'LoginCommand'
+        'LoginCommand',
+        this.version
       );
     }
   }
 
   /**
    * Get validation result without throwing
+   * ✅ ENTERPRISE ENHANCEMENT: Returns detailed field errors with Bengali support
    */
-  public getValidationResult(): ValidationResult {
-    const errors: string[] = [];
+  public getValidationResult(locale: 'en' | 'bn' = 'en'): ValidationResult {
+    const errors: ValidationErrorDetail[] = [];
 
     // Validate identifier
     if (!this.identifier || this.identifier.trim().length === 0) {
-      errors.push('Identifier is required');
+      errors.push(createValidationError(
+        'identifier', 
+        'REQUIRED', 
+        'identifierRequired', 
+        undefined, 
+        locale
+      ));
     }
 
     // Validate password for password-based login
     if (this.isPasswordLogin() && (!this.password || this.password.length === 0)) {
-      errors.push('Password is required for password-based login');
+      errors.push(createValidationError(
+        'password', 
+        'REQUIRED', 
+        'passwordRequired', 
+        undefined, 
+        locale
+      ));
     }
 
     // Validate based on login method
     switch (this.method) {
       case LOGIN_METHODS.EMAIL:
         if (!this.isValidEmail()) {
-          errors.push('Invalid email format');
+          errors.push(createValidationError(
+            'identifier', 
+            'INVALID_EMAIL', 
+            'invalidEmail', 
+            undefined, 
+            locale
+          ));
         }
         break;
       case LOGIN_METHODS.PHONE:
         if (!this.isValidBangladeshMobile() && !this.isValidInternationalPhone()) {
-          errors.push('Invalid phone number format. Use Bangladesh format (01XXXXXXXXX) or international format (+8801XXXXXXXXX)');
+          errors.push(createValidationError(
+            'identifier', 
+            'INVALID_PHONE', 
+            'invalidPhone', 
+            undefined, 
+            locale
+          ));
         }
         break;
       case LOGIN_METHODS.USERNAME:
         if (this.identifier.length < USERNAME_MIN_LENGTH || this.identifier.length > USERNAME_MAX_LENGTH) {
-          errors.push(`Username must be between ${USERNAME_MIN_LENGTH} and ${USERNAME_MAX_LENGTH} characters`);
+          errors.push(createValidationError(
+            'identifier', 
+            'INVALID_USERNAME_LENGTH', 
+            'invalidUsername', 
+            [USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH], 
+            locale
+          ));
         }
         if (!/^[a-zA-Z0-9._]+$/.test(this.identifier)) {
-          errors.push('Username can only contain letters, numbers, dots, and underscores');
+          errors.push(createValidationError(
+            'identifier', 
+            'INVALID_USERNAME_CHARS', 
+            'usernameInvalidChars', 
+            undefined, 
+            locale
+          ));
         }
         break;
     }
@@ -321,10 +490,22 @@ export class LoginCommand {
     // Validate device info if provided
     if (this.deviceInfo) {
       if (this.deviceInfo.ipAddress && !this.isValidIpAddress(this.deviceInfo.ipAddress)) {
-        errors.push('Invalid IP address format');
+        errors.push(createValidationError(
+          'deviceInfo.ipAddress', 
+          'INVALID_IP', 
+          'invalidIp', 
+          undefined, 
+          locale
+        ));
       }
       if (this.deviceInfo.userAgent && this.deviceInfo.userAgent.length > 500) {
-        errors.push('User agent too long (max 500 characters)');
+        errors.push(createValidationError(
+          'deviceInfo.userAgent', 
+          'TOO_LONG', 
+          'userAgentTooLong', 
+          [500], 
+          locale
+        ));
       }
     }
 
@@ -404,6 +585,30 @@ export class LoginCommand {
     return new LoginCommand(username.toLowerCase().trim(), password, deviceInfo, rememberMe);
   }
 
+  /**
+   * ✅ ENTERPRISE ENHANCEMENT: Create command with retry context
+   */
+  public static withRetry(
+    identifier: string,
+    password: string,
+    retryAttempt: number,
+    maxRetries: number = 3,
+    previousError?: string,
+    deviceInfo?: LoginDeviceInfo
+  ): LoginCommand {
+    return new LoginCommand(
+      identifier,
+      password,
+      deviceInfo,
+      false,
+      undefined,
+      deviceInfo?.correlationId,
+      undefined,
+      undefined,
+      { attempt: retryAttempt, maxRetries, previousError }
+    );
+  }
+
   // ============================================================
   // Detection Methods
   // ============================================================
@@ -470,6 +675,7 @@ export class LoginCommand {
       timestamp: this.timestamp,
       method: this.method,
       source: this.source,
+      version: this.version,
     };
   }
 
@@ -531,6 +737,13 @@ export class LoginCommand {
   isDeviceTrustRequested(): boolean {
     return this.rememberMe === true;
   }
+  
+  /**
+   * ✅ ENTERPRISE ENHANCEMENT: Check if this is a retry attempt
+   */
+  isRetry(): boolean {
+    return !!this.retryContext && this.retryContext.attempt > 1;
+  }
 
   // ============================================================
   // Masking Methods (Privacy)
@@ -576,7 +789,7 @@ export class LoginCommand {
    * Convert to string for logging (sensitive data masked)
    */
   public toString(): string {
-    return `LoginCommand(id=${this.commandId.slice(0, 8)}..., identifier=${this.getMaskedIdentifier()}, method=${this.method}, source=${this.source}, rememberMe=${this.rememberMe}, hasCaptcha=${this.hasCaptcha()}, timestamp=${this.timestamp.toISOString()})`;
+    return `LoginCommand(id=${this.commandId.slice(0, 8)}..., identifier=${this.getMaskedIdentifier()}, method=${this.method}, source=${this.source}, rememberMe=${this.rememberMe}, hasCaptcha=${this.hasCaptcha()}, isRetry=${this.isRetry()}, version=${this.version}, timestamp=${this.timestamp.toISOString()})`;
   }
 
   /**
@@ -591,7 +804,10 @@ export class LoginCommand {
       maskedIdentifier: this.getMaskedIdentifier(),
       rememberMe: this.rememberMe,
       hasCaptcha: this.hasCaptcha(),
+      isRetry: this.isRetry(),
+      version: this.version,
       timestamp: this.timestamp.toISOString(),
+      retryContext: this.retryContext,
       deviceInfo: this.deviceInfo ? {
         hasIp: !!this.deviceInfo.ipAddress,
         hasUserAgent: !!this.deviceInfo.userAgent,
@@ -599,6 +815,7 @@ export class LoginCommand {
         district: this.deviceInfo.district,
         mobileOperator: this.deviceInfo.mobileOperator,
         networkType: this.deviceInfo.networkType,
+        hasNormalizedFingerprint: !!this.deviceInfo.normalizedFingerprint,
       } : undefined,
     };
   }
@@ -628,6 +845,7 @@ export class PhoneLoginCommand {
   public readonly method: LoginMethod = LOGIN_METHODS.PHONE;
   public readonly normalizedPhone: string;
   public readonly source: CommandExecutionContext['source'];
+  public readonly version: string;
 
   constructor(
     public readonly phoneNumber: string,
@@ -643,6 +861,7 @@ export class PhoneLoginCommand {
     this.correlationId = correlationId ?? deviceInfo?.correlationId ?? randomUUID();
     this.source = source ?? 'web';
     this.rememberMe = rememberMe ?? false;
+    this.version = COMMAND_VERSION;
     this.normalizedPhone = normalizePhone(phoneNumber, 'BD') ?? phoneNumber;
     
     // ✅ Validate on construction
@@ -651,24 +870,48 @@ export class PhoneLoginCommand {
 
   /**
    * Validate command data
+   * ✅ ENTERPRISE ENHANCEMENT: Returns detailed field errors with Bengali support
    */
-  private validate(): void {
-    const errors: string[] = [];
+  private validate(locale: 'en' | 'bn' = 'en'): void {
+    const errors: ValidationErrorDetail[] = [];
 
     if (!this.phoneNumber || this.phoneNumber.trim().length === 0) {
-      errors.push('Phone number is required');
+      errors.push(createValidationError(
+        'phoneNumber', 
+        'REQUIRED', 
+        'identifierRequired', 
+        undefined, 
+        locale
+      ));
     }
 
     if (!this.password || this.password.length === 0) {
-      errors.push('Password is required');
+      errors.push(createValidationError(
+        'password', 
+        'REQUIRED', 
+        'passwordRequired', 
+        undefined, 
+        locale
+      ));
     }
 
     if (!this.isValidBangladeshMobile() && !this.isValidInternationalPhone()) {
-      errors.push('Invalid phone number format. Use Bangladesh format (01XXXXXXXXX) or international format (+8801XXXXXXXXX)');
+      errors.push(createValidationError(
+        'phoneNumber', 
+        'INVALID_PHONE', 
+        'invalidPhone', 
+        undefined, 
+        locale
+      ));
     }
 
     if (errors.length > 0) {
-      throw new CommandValidationError('Phone login command validation failed', errors, 'PhoneLoginCommand');
+      throw new CommandValidationError(
+        'Phone login command validation failed', 
+        errors, 
+        'PhoneLoginCommand',
+        this.version
+      );
     }
   }
 
@@ -701,6 +944,7 @@ export class PhoneLoginCommand {
       timestamp: this.timestamp,
       method: this.method,
       source: this.source,
+      version: this.version,
     };
   }
 
@@ -743,7 +987,7 @@ export class PhoneLoginCommand {
    * Convert to string for logging
    */
   public toString(): string {
-    return `PhoneLoginCommand(id=${this.commandId.slice(0, 8)}..., phone=${this.getMaskedPhone()}, rememberMe=${this.rememberMe}, hasCaptcha=${this.hasCaptcha()}, timestamp=${this.timestamp.toISOString()})`;
+    return `PhoneLoginCommand(id=${this.commandId.slice(0, 8)}..., phone=${this.getMaskedPhone()}, rememberMe=${this.rememberMe}, hasCaptcha=${this.hasCaptcha()}, version=${this.version}, timestamp=${this.timestamp.toISOString()})`;
   }
 
   /**
@@ -758,6 +1002,7 @@ export class PhoneLoginCommand {
       maskedPhone: this.getMaskedPhone(),
       rememberMe: this.rememberMe,
       hasCaptcha: this.hasCaptcha(),
+      version: this.version,
       timestamp: this.timestamp.toISOString(),
       deviceInfo: this.deviceInfo ? {
         hasIp: !!this.deviceInfo.ipAddress,
@@ -794,6 +1039,7 @@ export class OtpLoginCommand {
   public readonly method: LoginMethod = LOGIN_METHODS.OTP;
   public readonly normalizedPhone: string;
   public readonly source: CommandExecutionContext['source'];
+  public readonly version: string;
 
   constructor(
     public readonly phoneNumber: string,
@@ -809,6 +1055,7 @@ export class OtpLoginCommand {
     this.correlationId = correlationId ?? deviceInfo?.correlationId ?? randomUUID();
     this.source = source ?? 'web';
     this.rememberMe = rememberMe ?? false;
+    this.version = COMMAND_VERSION;
     this.normalizedPhone = normalizePhone(phoneNumber, 'BD') ?? phoneNumber;
     
     // ✅ Validate on construction
@@ -817,28 +1064,58 @@ export class OtpLoginCommand {
 
   /**
    * Validate command data
+   * ✅ ENTERPRISE ENHANCEMENT: Returns detailed field errors with Bengali support
    */
-  private validate(): void {
-    const errors: string[] = [];
+  private validate(locale: 'en' | 'bn' = 'en'): void {
+    const errors: ValidationErrorDetail[] = [];
 
     if (!this.phoneNumber || this.phoneNumber.trim().length === 0) {
-      errors.push('Phone number is required');
+      errors.push(createValidationError(
+        'phoneNumber', 
+        'REQUIRED', 
+        'identifierRequired', 
+        undefined, 
+        locale
+      ));
     }
 
     if (!this.otpCode || this.otpCode.length === 0) {
-      errors.push('OTP code is required');
+      errors.push(createValidationError(
+        'otpCode', 
+        'REQUIRED', 
+        'otpRequired', 
+        undefined, 
+        locale
+      ));
     }
 
     if (!this.isValidBangladeshMobile() && !this.isValidInternationalPhone()) {
-      errors.push('Invalid phone number format. Use Bangladesh format (01XXXXXXXXX) or international format (+8801XXXXXXXXX)');
+      errors.push(createValidationError(
+        'phoneNumber', 
+        'INVALID_PHONE', 
+        'invalidPhone', 
+        undefined, 
+        locale
+      ));
     }
 
     if (!this.hasValidOtpFormat()) {
-      errors.push(`OTP code must be exactly ${OTP_LENGTH} digits`);
+      errors.push(createValidationError(
+        'otpCode', 
+        'INVALID_OTP_FORMAT', 
+        'invalidOtpFormat', 
+        [OTP_LENGTH], 
+        locale
+      ));
     }
 
     if (errors.length > 0) {
-      throw new CommandValidationError('OTP login command validation failed', errors, 'OtpLoginCommand');
+      throw new CommandValidationError(
+        'OTP login command validation failed', 
+        errors, 
+        'OtpLoginCommand',
+        this.version
+      );
     }
   }
 
@@ -871,6 +1148,7 @@ export class OtpLoginCommand {
       timestamp: this.timestamp,
       method: this.method,
       source: this.source,
+      version: this.version,
     };
   }
 
@@ -921,7 +1199,7 @@ export class OtpLoginCommand {
    * Convert to string for logging
    */
   public toString(): string {
-    return `OtpLoginCommand(id=${this.commandId.slice(0, 8)}..., phone=${this.getMaskedPhone()}, otpLength=${this.otpCode?.length ?? 0}, rememberMe=${this.rememberMe}, timestamp=${this.timestamp.toISOString()})`;
+    return `OtpLoginCommand(id=${this.commandId.slice(0, 8)}..., phone=${this.getMaskedPhone()}, otpLength=${this.otpCode?.length ?? 0}, rememberMe=${this.rememberMe}, version=${this.version}, timestamp=${this.timestamp.toISOString()})`;
   }
 
   /**
@@ -937,6 +1215,7 @@ export class OtpLoginCommand {
       otpLength: this.otpCode?.length,
       rememberMe: this.rememberMe,
       hasSessionId: !!this.sessionId,
+      version: this.version,
       timestamp: this.timestamp.toISOString(),
       deviceInfo: this.deviceInfo ? {
         hasIp: !!this.deviceInfo.ipAddress,
@@ -996,8 +1275,10 @@ export type {
   LoginDeviceInfo as LoginDeviceInfoType, 
   LoginMethod as LoginMethodType,
   ValidationResult as ValidationResultType,
+  ValidationErrorDetail as ValidationErrorDetailType,
   CommandExecutionContext as CommandExecutionContextType,
   CommandResult as CommandResultType,
+  CommandMetadata as CommandMetadataType,
   ICommandHandler as ICommandHandlerType,
   ILoginCommandHandler as ILoginCommandHandlerType,
   IPhoneLoginCommandHandler as IPhoneLoginCommandHandlerType,
@@ -1005,10 +1286,10 @@ export type {
 };
 
 // ============================================================
-// ENTERPRISE SUMMARY v2.1
+// ENTERPRISE SUMMARY v3.0
 // ============================================================
 // 
-// Enterprise Enhancements Applied in v2.1:
+// Enterprise Enhancements Applied in v3.0:
 // 1. ✅ Command validation on construction (fail-fast)
 // 2. ✅ Shared types integration (@vubon/shared-types)
 // 3. ✅ Shared constants for OTP pattern (@vubon/shared-constants)
@@ -1029,5 +1310,13 @@ export type {
 // 18. ✅ Username pattern validation
 // 19. ✅ Device info validation
 // 20. ✅ OTP length from shared-config with fallback
+// 21. ✅ ENTERPRISE ENHANCEMENT: Centralized error messages with Bengali support
+// 22. ✅ ENTERPRISE ENHANCEMENT: Validation result with detailed field info
+// 23. ✅ ENTERPRISE ENHANCEMENT: Command metadata for auditing
+// 24. ✅ ENTERPRISE ENHANCEMENT: Device fingerprint normalization
+// 25. ✅ ENTERPRISE ENHANCEMENT: Command versioning for backward compatibility
+// 26. ✅ ENTERPRISE ENHANCEMENT: Retry context for connection resilience
+// 27. ✅ ENTERPRISE ENHANCEMENT: Is retry helper method
+// 28. ✅ ENTERPRISE ENHANCEMENT: createValidationError helper function
 // 
 // ============================================================
