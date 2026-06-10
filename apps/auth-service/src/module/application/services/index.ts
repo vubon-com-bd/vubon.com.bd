@@ -38,6 +38,7 @@ export * from './interfaces/token-generator.interface';
 export * from './interfaces/password-hasher.interface';
 export * from './interfaces/mfa-generator.interface';
 export * from './interfaces/notification.service.interface';
+export * from './transaction-manager.interface';
 
 // ============================================================
 // Service Implementations
