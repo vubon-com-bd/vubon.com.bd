@@ -44,6 +44,7 @@ export * from './mfa-setup-initiated.event';
 // Session Events
 // ============================================================
 export * from './session-expired.event';
+export * from './session-revoked.event';
 
 // ============================================================
 // Account Security Events
