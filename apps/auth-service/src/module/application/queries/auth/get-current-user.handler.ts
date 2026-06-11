@@ -42,7 +42,7 @@ import type { AuditSeverity, RequestContext } from '@vubon/shared-types';
 import { maskEmail, maskPhone } from '@vubon/shared-utils';
 
 // ✅ Enterprise: Import infrastructure interfaces
-import { AuditService, CacheService, EventBus } from '../../commands/infrastructure.interface';
+import { AuditService, CacheService, EventBus } from '../interfaces/infrastructure.interface';
 import { CacheKeyBuilder } from '../../services/interfaces/cache.service.interface';
 
 // ============================================================
