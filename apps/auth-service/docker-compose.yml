@@ -1,0 +1,238 @@
+version: '3.8'
+
+# ============================================================
+# Networks
+# ============================================================
+
+networks:
+  auth-network:
+    driver: bridge
+    name: auth-network
+
+# ============================================================
+# Volumes
+# ============================================================
+
+volumes:
+  postgres_data:
+    name: auth-postgres-data
+  redis_data:
+    name: auth-redis-data
+
+# ============================================================
+# Services
+# ============================================================
+
+services:
+  # ----------------------------------------
+  # PostgreSQL Database
+  # ----------------------------------------
+  auth-db:
+    image: postgres:16-alpine
+    container_name: auth-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-auth_db}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - auth-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-auth_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    profiles:
+      - dev
+      - prod
+
+  # ----------------------------------------
+  # Redis Cache
+  # ----------------------------------------
+  auth-redis:
+    image: redis:7-alpine
+    container_name: auth-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - auth-network
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    profiles:
+      - dev
+      - prod
+
+  # ----------------------------------------
+  # Auth Service (Development)
+  # ----------------------------------------
+  auth-service-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    container_name: auth-service-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@auth-db:5432/${DB_NAME:-auth_db}
+      REDIS_HOST: auth-redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-production}
+    ports:
+      - "${APP_PORT:-3000}:3000"
+      - "9229:9229"  # Debug port
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    command: npm run start:dev
+    depends_on:
+      auth-db:
+        condition: service_healthy
+      auth-redis:
+        condition: service_healthy
+    networks:
+      - auth-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    profiles:
+      - dev
+
+  # ----------------------------------------
+  # Auth Service (Production)
+  # ----------------------------------------
+  auth-service-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: auth-service-prod
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    depends_on:
+      auth-db:
+        condition: service_healthy
+      auth-redis:
+        condition: service_healthy
+    networks:
+      - auth-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    profiles:
+      - prod
+
+  # ----------------------------------------
+  # Database Migration Runner
+  # ----------------------------------------
+  auth-migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    container_name: auth-migrate
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@auth-db:5432/${DB_NAME:-auth_db}
+    command: npx prisma migrate deploy
+    depends_on:
+      auth-db:
+        condition: service_healthy
+    networks:
+      - auth-network
+    profiles:
+      - migrate
+    restart: "no"
+
+  # ----------------------------------------
+  # Database Seeder
+  # ----------------------------------------
+  auth-seed:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    container_name: auth-seed
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@auth-db:5432/${DB_NAME:-auth_db}
+    command: npm run prisma:seed
+    depends_on:
+      auth-db:
+        condition: service_healthy
+    networks:
+      - auth-network
+    profiles:
+      - seed
+    restart: "no"
