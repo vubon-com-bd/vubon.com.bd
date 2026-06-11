@@ -1,0 +1,292 @@
+# ============================================================
+# Dependencies
+# ============================================================
+
+# Node modules
+node_modules/
+jspm_packages/
+web_modules/
+
+# Lock files (keep for reproducibility)
+# package-lock.json is committed, yarn.lock is committed
+# But ignore npm-shrinkwrap.json if not using
+npm-shrinkwrap.json
+
+# ============================================================
+# Build outputs
+# ============================================================
+
+# NestJS build
+/dist
+/build
+/.dist
+/.build
+
+# TypeScript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Compiled output
+*.js.map
+*.d.ts.map
+*.js
+!jest.config.js
+!*.config.js
+!.*.js
+
+# ============================================================
+# Environment variables
+# ============================================================
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.staging.local
+
+# Keep examples
+!.env.example
+!.env.test.example
+!.env.development.example
+!.env.production.example
+
+# ============================================================
+# Database
+# ============================================================
+
+# Prisma
+/prisma/*.db
+/prisma/*.sqlite
+/prisma/*.sqlite-journal
+/prisma/migrations/*.lock
+/prisma/generated/
+*.db
+*.sqlite
+*.sqlite3
+
+# ============================================================
+# Logs
+# ============================================================
+
+# Application logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+pm2-*.log
+pm2.log
+pm2.pid
+
+# ============================================================
+# Operating System
+# ============================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+*.DS_Store
+
+# Linux
+*~
+.directory
+*.swp
+*.swo
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# ============================================================
+# IDE and Editor
+# ============================================================
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# IntelliJ IDEA / WebStorm / JetBrains
+.idea/
+*.iml
+*.iws
+*.ipr
+.idea_modules/
+.idea/inspectionProfiles/
+.idea/jsLibraryMappings.xml
+.idea/modules.xml
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+.sublime/
+
+# Vim
+*.swp
+*.swo
+*~
+.vim/
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# Eclipse
+.project
+.classpath
+.settings/
+.metadata/
+
+# ============================================================
+# Testing
+# ============================================================
+
+# Coverage
+coverage/
+.nyc_output/
+*.lcov
+*.coverage
+coverage.json
+
+# Test results
+/test-results/
+/junit.xml
+*.test-results.xml
+.overload-test-results/
+
+# Jest
+.jest-cache/
+.jest-cache-e2e/
+
+# ============================================================
+# Cache and Temp files
+# ============================================================
+
+# Cache
+.eslintcache
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.rollup.cache/
+.vite/
+
+# Temp files
+.tmp/
+.temp/
+.tmp_data/
+*.tmp
+*.temp
+
+# ============================================================
+# Secrets and Certificates
+# ============================================================
+
+# Security
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.p8
+*.cer
+*.der
+.secrets/
+.credentials/
+
+# ============================================================
+# Docker
+# ============================================================
+
+# Docker
+*.pid
+*.pid.lock
+*.dockerignore
+.docker/
+docker-compose.override.yml
+
+# ============================================================
+# Package Manager specific
+# ============================================================
+
+# NPM
+.npm/
+.npmrc
+
+# Yarn
+.yarn/
+.yarnrc
+.yarnrc.yml
+.yarn-integrity
+
+# PNPM
+.pnpm-store/
+
+# ============================================================
+# Miscellaneous
+# ============================================================
+
+# Uploads
+/uploads/
+/uploads_temp/
+
+# Backups
+*.bak
+*.backup
+*.old
+
+# Debug
+debug.log
+
+# Sentry
+.sentryclirc
+
+# Turborepo
+.turbo/
+
+# Rush
+.rush/
+
+# ============================================================
+# Project Specific
+# ============================================================
+
+# Application specific
+*.pid
+*.seed
+*.generated.*
+
+# Storybook
+storybook-static/
+
+# Next.js
+out/
+.next/
+
+# Nuxt
+.nuxt/
+.output/
+
+# Prisma
+prisma/generated/
