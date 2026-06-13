@@ -1,10 +1,10 @@
 // ============================================================
-// Generator
+// Generator Configuration
 // ============================================================
 
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["postgresqlExtensions"]
+  previewFeatures = ["postgresqlExtensions", "relationJoins"]
 }
 
 datasource db {
@@ -128,22 +128,22 @@ enum DeviceType {
 // ============================================================
 
 model User {
-  id                  String              @id @default(cuid())
-  email               String              @unique
-  password            String
-  fullName            String
-  phone               String?
-  role                UserRole            @default(USER)
-  status              UserStatus          @default(ACTIVE)
-  isEmailVerified     Boolean             @default(false)
-  isPhoneVerified     Boolean             @default(false)
-  mfaEnabled          Boolean             @default(false)
+  id                  String      @id @default(cuid())
+  email               String      @unique @db.VarChar(255)
+  password            String      @db.VarChar(128)
+  fullName            String      @db.VarChar(100)
+  phone               String?     @db.VarChar(15)
+  role                UserRole    @default(USER)
+  status              UserStatus  @default(ACTIVE)
+  isEmailVerified     Boolean     @default(false)
+  isPhoneVerified     Boolean     @default(false)
+  mfaEnabled          Boolean     @default(false)
   lastLoginAt         DateTime?
   deletedAt           DateTime?
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  version             Int                 @default(1)
-  metadata            Json?               // For future extensibility
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  version             Int         @default(1)
+  metadata            Json?
 
   // Relations
   sessions            Session[]
@@ -156,7 +156,6 @@ model User {
   loginAttempts       LoginAttempt[]
   devices             Device[]
 
-  // Indexes
   @@index([email])
   @@index([status])
   @@index([role])
@@ -175,8 +174,8 @@ model Session {
   status          SessionStatus  @default(ACTIVE)
   expiresAt       DateTime
   lastActivityAt  DateTime       @default(now())
-  location        String?        // City/Country from IP
-  sessionName     String?        // User-friendly name
+  location        String?
+  sessionName     String?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   version         Int            @default(1)
@@ -194,30 +193,32 @@ model Session {
 }
 
 model RefreshToken {
-  id              String             @id @default(cuid())
-  userId          String
-  token           String             @unique
-  status          RefreshTokenStatus @default(ACTIVE)
-  expiresAt       DateTime
-  revokedAt       DateTime?
-  usedAt          DateTime?
-  family          String
-  previousTokenId String?
-  rotationCount   Int                @default(0)
-  compromisedAt   DateTime?
-  compromisedReason String?
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
-  version         Int                @default(1)
-  metadata        Json?
+  id                  String             @id @default(cuid())
+  userId              String
+  token               String             @unique
+  status              RefreshTokenStatus @default(ACTIVE)
+  expiresAt           DateTime
+  revokedAt           DateTime?
+  usedAt              DateTime?
+  family              String
+  previousTokenId     String?
+  rotationCount       Int                @default(0)
+  compromisedAt       DateTime?
+  compromisedReason   String?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  version             Int                @default(1)
+  metadata            Json?
 
-  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  previousToken       RefreshToken?      @relation("TokenChain", fields: [previousTokenId], references: [id])
 
   @@index([userId])
   @@index([token])
   @@index([family])
   @@index([status])
   @@index([expiresAt])
+  @@index([createdAt])
   @@index([userId, status])
   @@index([family, status])
 }
@@ -322,24 +323,23 @@ model PasswordReset {
 }
 
 model AccountLock {
-  id                String            @id @default(cuid())
-  userId            String            @unique
-  reason            AccountLockReason
-  lockedAt          DateTime          @default(now())
-  unlockedAt        DateTime?
-  failureCount      Int               @default(0)
-  lockLevel         Int               @default(0)
-  lockedUntil       DateTime?
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  version           Int               @default(1)
-  metadata          Json?
+  id              String            @id @default(cuid())
+  userId          String            @unique
+  reason          AccountLockReason
+  lockedAt        DateTime          @default(now())
+  unlockedAt      DateTime?
+  failureCount    Int               @default(0)
+  lockLevel       Int               @default(0)
+  lockedUntil     DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  version         Int               @default(1)
+  metadata        Json?
 
-  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([lockedUntil])
-  @@index([isLocked])
 }
 
 model LoginAttempt {
@@ -365,10 +365,10 @@ model LoginAttempt {
   @@index([ipAddress])
   @@index([deviceId])
   @@index([result])
-  @@index([attemptedAt])
-  @@index([userId, attemptedAt])
-  @@index([email, attemptedAt])
-  @@index([ipAddress, attemptedAt])
+  @@index([attemptedAt(sort: Desc)])
+  @@index([userId, attemptedAt(sort: Desc)])
+  @@index([email, attemptedAt(sort: Desc)])
+  @@index([ipAddress, attemptedAt(sort: Desc)])
 }
 
 model Device {
@@ -398,7 +398,7 @@ model Device {
   @@index([userId])
   @@index([deviceId])
   @@index([isTrusted])
-  @@index([lastUsedAt])
+  @@index([lastUsedAt(sort: Desc)])
   @@index([userId, isTrusted])
   @@index([deviceType])
 }
