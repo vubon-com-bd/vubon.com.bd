@@ -1,21 +1,26 @@
 /**
- * Database Seeding Script
+ * Database Seeding Script - Enterprise Grade (v2.0)
  * 
  * @module prisma/seed
  * 
  * @description
  * Seeds the database with development/test data.
  * Safe to run multiple times (idempotent).
+ * Enhanced with missing functions and security fixes.
  * 
  * Usage:
  * npm run prisma:seed
  * npm run prisma:seed -- --dry-run
+ * npm run prisma:seed -- --verbose
  * 
  * Enterprise Rules:
  * ✅ Idempotent - Safe to run multiple times
  * ✅ Environment-aware - Never runs in production
  * ✅ Transaction-safe
  * ✅ Error handling
+ * ✅ Dry-run mode for validation
+ * ✅ Verbose mode for debugging
+ * ✅ Mock secrets for security
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -44,6 +49,9 @@ const config: SeedConfig = {
   verbose: process.argv.includes('--verbose'),
 };
 
+// Mock TOTP secret for development only (DO NOT use in production)
+const MOCK_TOTP_SECRET = 'DEV_MOCK_TOTP_SECRET_BASE32_1234567890';
+
 // ============================================================
 // Helper Functions
 // ============================================================
@@ -64,10 +72,12 @@ function generateMockToken(prefix: string): string {
 }
 
 async function hashPassword(password: string): Promise<string> {
+  // Development/test speed optimization (10 rounds is sufficient)
   return bcrypt.hash(password, 10);
 }
 
 async function clearDatabase(prisma: PrismaClient): Promise<void> {
+  // Order matters to avoid foreign key constraint violations
   const deleteOrder = [
     prisma.loginAttempt.deleteMany(),
     prisma.device.deleteMany(),
@@ -86,7 +96,7 @@ async function clearDatabase(prisma: PrismaClient): Promise<void> {
 }
 
 // ============================================================
-// Seed Functions
+// Seed Functions (All implemented)
 // ============================================================
 
 async function seedUsers(prisma: PrismaClient): Promise<void> {
@@ -218,7 +228,7 @@ async function seedMfaConfigs(prisma: PrismaClient): Promise<void> {
       id: 'mfa_user_001',
       userId: 'usr_moderator_001',
       type: 'TOTP',
-      secret: 'JBSWY3DPEHPK3PXP',
+      secret: MOCK_TOTP_SECRET, // Mock secret for development
       status: 'ENABLED',
       backupCodes: ['BACKUP_001', 'BACKUP_002', 'BACKUP_003'],
       verifiedAt: new Date(),
@@ -227,7 +237,7 @@ async function seedMfaConfigs(prisma: PrismaClient): Promise<void> {
       id: 'mfa_user_002',
       userId: 'usr_user_mfa_001',
       type: 'TOTP',
-      secret: 'JBSWY3DPEHPK3PXP',
+      secret: MOCK_TOTP_SECRET, // Mock secret for development
       status: 'ENABLED',
       backupCodes: ['BACKUP_004', 'BACKUP_005', 'BACKUP_006'],
       verifiedAt: new Date(),
@@ -297,6 +307,130 @@ async function seedSocialAccounts(prisma: PrismaClient): Promise<void> {
 }
 
 // ============================================================
+// NEW: Sessions Seeding (Previously missing)
+// ============================================================
+
+async function seedSessions(prisma: PrismaClient): Promise<void> {
+  log('🖥️ Seeding sessions...');
+
+  const sessions = [
+    {
+      id: 'sess_user_001',
+      userId: 'usr_user_001',
+      token: generateMockToken('session'),
+      status: 'ACTIVE',
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      lastActivityAt: new Date(),
+      deviceInfo: { deviceType: 'desktop', browser: 'Chrome', os: 'Windows' },
+    },
+    {
+      id: 'sess_admin_001',
+      userId: 'usr_admin_001',
+      token: generateMockToken('session'),
+      status: 'ACTIVE',
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      lastActivityAt: new Date(),
+      deviceInfo: { deviceType: 'laptop', browser: 'Firefox', os: 'macOS' },
+    },
+  ];
+
+  if (config.dryRun) {
+    log(`Would seed ${sessions.length} sessions (dry-run)`, 'info');
+    return;
+  }
+
+  for (const session of sessions) {
+    await prisma.session.upsert({
+      where: { id: session.id },
+      update: session,
+      create: session,
+    });
+  }
+
+  log(`✅ ${sessions.length} sessions seeded`);
+}
+
+// ============================================================
+// NEW: Devices Seeding (Previously missing)
+// ============================================================
+
+async function seedDevices(prisma: PrismaClient): Promise<void> {
+  log('📱 Seeding devices...');
+
+  const devices = [
+    {
+      id: 'dev_user_001',
+      userId: 'usr_user_001',
+      deviceId: 'device_chrome_desktop_001',
+      deviceType: 'DESKTOP',
+      status: 'ACTIVE',
+      trustLevel: 'STANDARD',
+      lastUsedAt: new Date(),
+    },
+    {
+      id: 'dev_admin_001',
+      userId: 'usr_admin_001',
+      deviceId: 'device_firefox_laptop_001',
+      deviceType: 'LAPTOP',
+      status: 'ACTIVE',
+      trustLevel: 'TRUSTED',
+      lastUsedAt: new Date(),
+    },
+  ];
+
+  if (config.dryRun) {
+    log(`Would seed ${devices.length} devices (dry-run)`, 'info');
+    return;
+  }
+
+  for (const device of devices) {
+    await prisma.device.upsert({
+      where: { id: device.id },
+      update: device,
+      create: device,
+    });
+  }
+
+  log(`✅ ${devices.length} devices seeded`);
+}
+
+// ============================================================
+// NEW: Email Verifications Seeding
+// ============================================================
+
+async function seedEmailVerifications(prisma: PrismaClient): Promise<void> {
+  log('📧 Seeding email verifications...');
+
+  const verifications = [
+    {
+      id: 'email_ver_001',
+      userId: 'usr_user_mfa_001',
+      email: 'mfa-user@vubon.com.bd',
+      token: generateMockToken('email_ver'),
+      status: 'VERIFIED',
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      createdAt: new Date(),
+      verifiedAt: new Date(),
+    },
+  ];
+
+  if (config.dryRun) {
+    log(`Would seed ${verifications.length} email verifications (dry-run)`, 'info');
+    return;
+  }
+
+  for (const verification of verifications) {
+    await prisma.emailVerification.upsert({
+      where: { id: verification.id },
+      update: verification,
+      create: verification,
+    });
+  }
+
+  log(`✅ ${verifications.length} email verifications seeded`);
+}
+
+// ============================================================
 // Main Function
 // ============================================================
 
@@ -329,14 +463,15 @@ async function main(): Promise<void> {
       log('Would clear database (dry-run)', 'info');
     }
 
-    // Seed data in transaction
+    // Seed data in transaction (all functions now defined)
     if (!config.dryRun) {
       await prisma.$transaction(async (tx) => {
         await seedUsers(tx);
         await seedMfaConfigs(tx);
         await seedSocialAccounts(tx);
-        await seedSessions(tx);
-        await seedDevices(tx);
+        await seedSessions(tx);        // ✅ Fixed: Now defined
+        await seedDevices(tx);         // ✅ Fixed: Now defined
+        await seedEmailVerifications(tx);
       });
     } else {
       log('Would seed data in transaction (dry-run)', 'info');
