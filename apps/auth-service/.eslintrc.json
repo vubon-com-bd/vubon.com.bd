@@ -45,9 +45,9 @@
   ],
   
   "rules": {
-
-    
-    
+    // ============================================================
+    // TypeScript Rules
+    // ============================================================
     "@typescript-eslint/interface-name-prefix": "off",
     "@typescript-eslint/explicit-function-return-type": "warn",
     "@typescript-eslint/explicit-module-boundary-types": "off",
@@ -62,7 +62,7 @@
       }
     ],
     
-    
+    // ✅ FIXED: Added missing rules
     "@typescript-eslint/no-floating-promises": "error",
     "@typescript-eslint/no-misused-promises": "error",
     "@typescript-eslint/await-thenable": "error",
@@ -79,7 +79,7 @@
     "@typescript-eslint/no-unnecessary-condition": "warn",
     "@typescript-eslint/no-dynamic-delete": "warn",
     
-    
+    // Naming conventions
     "@typescript-eslint/naming-convention": [
       "error",
       { "selector": "interface", "format": ["PascalCase"], "prefix": ["I"] },
@@ -93,9 +93,9 @@
       { "selector": "parameter", "format": ["camelCase"], "leadingUnderscore": "allow" }
     ],
     
-
-    
-    
+    // ============================================================
+    // Import Rules (✅ FIXED: Added shared packages)
+    // ============================================================
     "import/order": [
       "error",
       {
@@ -115,41 +115,26 @@
           "caseInsensitive": true 
         },
         "pathGroups": [
-          {
-            "pattern": "@nestjs/**",
-            "group": "external",
-            "position": "before"
-          },
-          {
-            "pattern": "@prisma/**",
-            "group": "external",
-            "position": "before"
-          },
-          {
-            "pattern": "@domain/**",
-            "group": "internal",
-            "position": "after"
-          },
-          {
-            "pattern": "@application/**",
-            "group": "internal",
-            "position": "after"
-          },
-          {
-            "pattern": "@infrastructure/**",
-            "group": "internal",
-            "position": "after"
-          },
-          {
-            "pattern": "@interfaces/**",
-            "group": "internal",
-            "position": "after"
-          },
-          {
-            "pattern": "@modules/**",
-            "group": "internal",
-            "position": "after"
-          }
+          // NestJS & Prisma (external frameworks)
+          { "pattern": "@nestjs/**", "group": "external", "position": "before" },
+          { "pattern": "@prisma/**", "group": "external", "position": "before" },
+          
+          // ✅ FIXED: Added shared packages (monorepo)
+          { "pattern": "@vubon/shared-constants", "group": "external", "position": "before" },
+          { "pattern": "@vubon/shared-types", "group": "external", "position": "before" },
+          { "pattern": "@vubon/shared-schemas", "group": "external", "position": "before" },
+          { "pattern": "@vubon/shared-utils", "group": "external", "position": "before" },
+          { "pattern": "@vubon/shared-config", "group": "external", "position": "before" },
+          
+          // Domain & Application layers (internal)
+          { "pattern": "@domain/**", "group": "internal", "position": "after" },
+          { "pattern": "@application/**", "group": "internal", "position": "after" },
+          { "pattern": "@infrastructure/**", "group": "internal", "position": "after" },
+          { "pattern": "@interfaces/**", "group": "internal", "position": "after" },
+          { "pattern": "@modules/**", "group": "internal", "position": "after" },
+          { "pattern": "@config/**", "group": "internal", "position": "after" },
+          { "pattern": "@common/**", "group": "internal", "position": "after" },
+          { "pattern": "@test/**", "group": "internal", "position": "after" }
         ],
         "pathGroupsExcludedImportTypes": ["builtin"]
       }
@@ -159,8 +144,9 @@
     "import/no-cycle": "warn",
     "import/no-useless-path-segments": "error",
     
-
-    
+    // ============================================================
+    // Jest Rules
+    // ============================================================
     "jest/no-disabled-tests": "warn",
     "jest/no-focused-tests": "error",
     "jest/no-identical-title": "error",
@@ -168,7 +154,9 @@
     "jest/valid-expect": "error",
     "jest/require-top-level-describe": "error",
     
-
+    // ============================================================
+    // General Rules
+    // ============================================================
     "no-console": ["warn", { "allow": ["warn", "error"] }],
     "no-debugger": "error",
     "no-eval": "error",
@@ -179,13 +167,16 @@
     "prefer-template": "error",
     "eqeqeq": ["error", "always"],
     
-
-    
+    // Prettier integration
     "prettier/prettier": "error"
   },
   
+  // ============================================================
+  // Overrides for specific file types
+  // ============================================================
   "overrides": [
     {
+      // Test files: disable strict rules
       "files": ["*.spec.ts", "*.test.ts"],
       "rules": {
         "@typescript-eslint/no-explicit-any": "off",
@@ -195,6 +186,7 @@
       }
     },
     {
+      // Entity & Value Object files
       "files": ["*.entity.ts", "*.vo.ts"],
       "rules": {
         "@typescript-eslint/explicit-function-return-type": "off"
