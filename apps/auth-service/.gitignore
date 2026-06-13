@@ -26,13 +26,15 @@ npm-shrinkwrap.json
 *.tsbuildinfo
 tsconfig.tsbuildinfo
 
-# Compiled output
+# Compiled output (✅ FIX: Keep source maps out of git)
 *.js.map
 *.d.ts.map
 *.js
 !jest.config.js
 !*.config.js
 !.*.js
+!test/jest-e2e.config.js    # ✅ ADDED: Keep E2E test config
+!test/jest-e2e.config.ts
 
 # ============================================================
 # Environment variables
@@ -53,6 +55,10 @@ tsconfig.tsbuildinfo
 !.env.development.example
 !.env.production.example
 
+# ✅ ADDED: Docker env files (never commit secrets)
+.env.docker
+*.env.docker
+
 # ============================================================
 # Database
 # ============================================================
@@ -63,9 +69,15 @@ tsconfig.tsbuildinfo
 /prisma/*.sqlite-journal
 /prisma/migrations/*.lock
 /prisma/generated/
+/prisma/client/   # ✅ ADDED: Prisma Client generated files
 *.db
 *.sqlite
 *.sqlite3
+
+# Database dumps (✅ ADDED)
+*.dump
+*.sql
+*.backup
 
 # ============================================================
 # Logs
@@ -83,6 +95,9 @@ pm2-*.log
 pm2.log
 pm2.pid
 
+# ✅ ADDED: Winston log files
+*.winston.log
+
 # ============================================================
 # Operating System
 # ============================================================
@@ -96,12 +111,15 @@ pm2.pid
 .Trashes
 .fseventsd
 *.DS_Store
+*.AppleDouble
 
 # Linux
 *~
 .directory
 *.swp
 *.swo
+.*.swp
+.*.swo
 
 # Windows
 Thumbs.db
@@ -113,6 +131,8 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 *.lnk
+*.exe
+*.dll
 
 # ============================================================
 # IDE and Editor
@@ -125,6 +145,7 @@ $RECYCLE.BIN/
 !.vscode/launch.json
 !.vscode/extensions.json
 *.code-workspace
+.history/          # ✅ ADDED: VS Code History extension
 
 # IntelliJ IDEA / WebStorm / JetBrains
 .idea/
@@ -135,6 +156,8 @@ $RECYCLE.BIN/
 .idea/inspectionProfiles/
 .idea/jsLibraryMappings.xml
 .idea/modules.xml
+.idea/workspace.xml   # ✅ ADDED
+.idea/tasks.xml       # ✅ ADDED
 
 # Sublime Text
 *.sublime-project
@@ -146,17 +169,21 @@ $RECYCLE.BIN/
 *.swo
 *~
 .vim/
+.vimrc
+.viminfo
 
 # Emacs
 *~
 \#*\#
 .\#*
+.emacs.d/
 
 # Eclipse
 .project
 .classpath
 .settings/
 .metadata/
+*.launch
 
 # ============================================================
 # Testing
@@ -168,6 +195,7 @@ coverage/
 *.lcov
 *.coverage
 coverage.json
+.coverage/
 
 # Test results
 /test-results/
@@ -178,6 +206,8 @@ coverage.json
 # Jest
 .jest-cache/
 .jest-cache-e2e/
+.jest-cache-e2e/     # ✅ ADDED: E2E cache
+.jest-cache-unit/    # ✅ ADDED: Unit test cache
 
 # ============================================================
 # Cache and Temp files
@@ -191,6 +221,7 @@ coverage.json
 .nuxt/
 .rollup.cache/
 .vite/
+.turbo/              # ✅ ADDED: Turborepo cache
 
 # Temp files
 .tmp/
@@ -198,12 +229,14 @@ coverage.json
 .tmp_data/
 *.tmp
 *.temp
+*.swp
+*.swo
 
 # ============================================================
 # Secrets and Certificates
 # ============================================================
 
-# Security
+# Security (✅ IMPROVED: More specific patterns)
 *.pem
 *.key
 *.crt
@@ -212,8 +245,21 @@ coverage.json
 *.p8
 *.cer
 *.der
+*.p7b
+*.p7c
 .secrets/
 .credentials/
+.secret/
+
+# ✅ ADDED: Key store files
+*.keystore
+*.jks
+*.truststore
+
+# ✅ ADDED: GPG keys
+*.gpg
+*.asc
+*.sig
 
 # ============================================================
 # Docker
@@ -225,6 +271,8 @@ coverage.json
 *.dockerignore
 .docker/
 docker-compose.override.yml
+docker-compose.*.yml    # ✅ ADDED: Avoid overriding compose files
+.dockerignore
 
 # ============================================================
 # Package Manager specific
@@ -233,15 +281,18 @@ docker-compose.override.yml
 # NPM
 .npm/
 .npmrc
+.npm-token
 
 # Yarn
 .yarn/
 .yarnrc
 .yarnrc.yml
 .yarn-integrity
+.yarn/install-state.gz   # ✅ ADDED
 
 # PNPM
 .pnpm-store/
+.pnpm-debug.log
 
 # ============================================================
 # Miscellaneous
@@ -255,6 +306,7 @@ docker-compose.override.yml
 *.bak
 *.backup
 *.old
+*.orig
 
 # Debug
 debug.log
@@ -268,8 +320,22 @@ debug.log
 # Rush
 .rush/
 
+# ✅ ADDED: System files
+*.pid
+*.seed
+*.lock
+
+# ✅ ADDED: Package version files (avoid committing)
+.vercel/
+.netlify/
+
+# ✅ ADDED: Local environment overrides
+*.local
+*.local.*
+!.env.local.example
+
 # ============================================================
-# Project Specific
+# Project Specific (✅ ADDED)
 # ============================================================
 
 # Application specific
@@ -288,5 +354,16 @@ out/
 .nuxt/
 .output/
 
-# Prisma
-prisma/generated/
+# Prisma (already covered)
+prisma/migrations/*.db
+prisma/seed.js   # if compiled
+
+# ✅ ADDED: NestJS specific
+nest-cli.json.backup
+tsconfig.build.tsbuildinfo
+
+# ✅ ADDED: OS Specific temp files
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
