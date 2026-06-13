@@ -1,12 +1,10 @@
 {
   "compilerOptions": {
-    
     "module": "ESNext",
     "moduleResolution": "bundler",
     "target": "ES2022",
     "lib": ["ES2022"],
     
-  
     "outDir": "./dist",
     "rootDir": "./src",
     "sourceMap": true,
@@ -15,7 +13,6 @@
     "removeComments": true,
     "incremental": true,
     
-  
     "strict": true,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
@@ -30,17 +27,14 @@
     "noUnusedParameters": true,
     "exactOptionalPropertyTypes": true,
     
-    
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    
     
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,  // ✅ FIXED
     
-  
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"],
@@ -51,9 +45,15 @@
       "@modules/*": ["src/module/modules/*"],
       "@config/*": ["src/config/*"],
       "@common/*": ["src/common/*"],
-      "@test/*": ["test/*"]
+      "@test/*": ["test/*"],
+      
+      // ✅ FIXED: Shared packages aliases
+      "@vubon/shared-constants": ["../../packages/shared-constants/src"],
+      "@vubon/shared-types": ["../../packages/shared-types/src"],
+      "@vubon/shared-schemas": ["../../packages/shared-schemas/src"],
+      "@vubon/shared-utils": ["../../packages/shared-utils/src"],
+      "@vubon/shared-config": ["../../packages/shared-config/src"]
     },
-    
     
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
