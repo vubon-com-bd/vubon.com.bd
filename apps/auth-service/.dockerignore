@@ -1,45 +1,205 @@
-# Dependencies
+# ============================================================
+# .dockerignore - Enterprise Grade for vubon.com.bd
+# Optimized for Node.js 20, Prisma, NestJS monorepo
+# ============================================================
+
+# ============================================================
+# Dependencies (let Dockerfile run `npm ci`)
+# ============================================================
 node_modules/
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
-# Build outputs
+# ============================================================
+# Build outputs (will be recreated)
+# ============================================================
 dist/
-coverage/
-.nyc_output/
+build/
+.next/
+.nuxt/
+.out/
+.vercel/
+*.tsbuildinfo
+*.js.map
+*.d.ts.map
 
-# Environment files
+# ============================================================
+# Environment files (secrets should never be in image)
+# ============================================================
 .env
 .env.*
 !.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.cer
+*.der
+.secrets/
+.credentials/
 
-# IDE files
+# ============================================================
+# Version control (not needed in runtime)
+# ============================================================
+.git/
+.gitignore
+.gitattributes
+.gitmodules
+.github/
+.gitlab/
+.ci/
+.jenkins/
+
+# ============================================================
+# IDE and Editor files
+# ============================================================
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# Git
-.git/
-.gitignore
-
-# Docker
-Dockerfile
-docker-compose*.yml
-
-# Test files
-test/
-__tests__/
-*.spec.ts
-*.test.ts
-
-# Logs
-logs/
-*.log
-
-# OS files
+*~
 .DS_Store
 Thumbs.db
+*.iml
+.project
+.classpath
+.settings/
 
-# Prisma
+# ============================================================
+# Test and coverage (no tests in production)
+# ============================================================
+coverage/
+.nyc_output/
+test/
+__tests__/
+*.test.ts
+*.spec.ts
+*.e2e-spec.ts
+.jest-cache/
+.jest-cache-e2e/
+test-reports/
+
+# ============================================================
+# Documentation (reduce image size, docs not needed)
+# ============================================================
+README.md
+CHANGELOG.md
+CONTRIBUTING.md
+LICENSE
+docs/
+*.md
+!README.md
+
+# ============================================================
+# Logs and temp files
+# ============================================================
+logs/
+*.log
+pm2-*.log
+pm2.log
+pm2.pid
+*.tmp
+.temp/
+.tmp_data/
+*.pid
+*.seed
+
+# ============================================================
+# Cache directories
+# ============================================================
+.cache/
+.eslintcache
+.parcel-cache/
+.rollup.cache/
+.vite/
+.turbo/
+.rush/
+.npm/
+.yarn/
+.pnpm-store/
+
+# ============================================================
+# Prisma (generated at build time)
+# ============================================================
 prisma/*.db
-prisma/*.db-journal
+prisma/*.sqlite
+prisma/*.sqlite-journal
+prisma/migrations/*.lock
+prisma/generated/
+
+# ============================================================
+# Docker specific (avoid copying docker files)
+# ============================================================
+Dockerfile
+.dockerignore
+docker-compose*.yml
+.docker/
+*.dockerignore
+
+# ============================================================
+# Monorepo specific (shared packages are copied separately)
+# ============================================================
+packages/*/node_modules/
+packages/*/dist/
+packages/*/.turbo/
+packages/*/.cache/
+
+# ============================================================
+# Temporary and OS files
+# ============================================================
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# ============================================================
+# Security (defense in depth - extra protection)
+# ============================================================
+*.secret
+*.token
+*.password
+.secrets/
+.credentials/
+.sentryclirc
+.terraform/
+*.tfstate
+
+# ============================================================
+# Performance & Monitoring (optional files)
+# ============================================================
+*.prof
+*.heapsnapshot
+*.cpuprofile
+
+# ============================================================
+# Storybook (if exists)
+# ============================================================
+storybook-static/
+
+# ============================================================
+# Backup files
+# ============================================================
+*.bak
+*.backup
+*.old
+
+# ============================================================
+# Debug files
+# ============================================================
+debug.log
+*.debug
