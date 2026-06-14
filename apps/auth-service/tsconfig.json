@@ -13,7 +13,6 @@
     "removeComments": true,
     "incremental": true,
 
-    // Strict mode (সব সক্রিয়)
     "strict": true,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
@@ -28,30 +27,26 @@
     "noUnusedParameters": true,
     "exactOptionalPropertyTypes": true,
 
-    // ✅ Forcing type-only imports (optional, but recommended)
-    "verbatimModuleSyntax": true,
-
-    // NestJS decorators
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
 
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
+    "verbatimModuleSyntax": false,
 
-    "baseUrl": "./",
+    // ✅ FIXED: Replace baseUrl + paths with a single strategy
     "paths": {
-      "@/*": ["src/*"],
-      "@domain/*": ["src/module/domain/*"],
-      "@application/*": ["src/module/application/*"],
-      "@infrastructure/*": ["src/module/infrastructure/*"],
-      "@interfaces/*": ["src/module/interfaces/*"],
-      "@modules/*": ["src/module/modules/*"],
-      "@config/*": ["src/config/*"],
-      "@common/*": ["src/common/*"],
-      "@test/*": ["test/*"],
+      "@/*": ["./src/*"],
+      "@domain/*": ["./src/module/domain/*"],
+      "@application/*": ["./src/module/application/*"],
+      "@infrastructure/*": ["./src/module/infrastructure/*"],
+      "@interfaces/*": ["./src/module/interfaces/*"],
+      "@modules/*": ["./src/module/modules/*"],
+      "@config/*": ["./src/config/*"],
+      "@common/*": ["./src/common/*"],
+      "@test/*": ["./test/*"],
 
-      // Shared packages
       "@vubon/shared-constants": ["../../packages/shared-constants/src"],
       "@vubon/shared-types": ["../../packages/shared-types/src"],
       "@vubon/shared-schemas": ["../../packages/shared-schemas/src"],
@@ -59,22 +54,22 @@
       "@vubon/shared-config": ["../../packages/shared-config/src"]
     },
 
-    // ✅ Add required types
-    "types": ["node", "jest"],
+    // ✅ Add rootDirs for proper resolution
+    "rootDirs": ["./src", "./test"],
 
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true
   },
   "include": [
-    "src/**/*",
-    "test/**/*"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
     "dist",
     "coverage",
     "**/*.spec.ts",
-    "**/*.test.ts"
+    "**/*.test.ts",
+    "test/**/*"  // ✅ Exclude test files from compilation
   ]
 }
