@@ -212,6 +212,7 @@ model RefreshToken {
 
   user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   previousToken       RefreshToken?      @relation("TokenChain", fields: [previousTokenId], references: [id])
+  nextTokens          RefreshToken[]     @relation("TokenChain")  // ✅ Fixed: Added missing opposite relation field
 
   @@index([userId])
   @@index([token])
