@@ -33,7 +33,7 @@
 // No external imports needed - pure Node.js environment
 
 // ============================================================
-// Constants
+// Types
 // ============================================================
 
 /**
@@ -69,9 +69,9 @@ const DEFAULT_ENV: Environment = 'development';
  * const env = getEnvironment(); // 'production'
  */
 export const getEnvironment = (): Environment => {
-  const nodeEnv = process.env[ENV_KEYS.NODE_ENV] as string;
-  const appEnv = process.env[ENV_KEYS.APP_ENV] as string;
-  const deployEnv = process.env[ENV_KEYS.DEPLOY_ENV] as string;
+  const nodeEnv = process.env[ENV_KEYS.NODE_ENV] as string | undefined;
+  const appEnv = process.env[ENV_KEYS.APP_ENV] as string | undefined;
+  const deployEnv = process.env[ENV_KEYS.DEPLOY_ENV] as string | undefined;
   
   // Priority: DEPLOY_ENV > APP_ENV > NODE_ENV
   const env = deployEnv || appEnv || nodeEnv || DEFAULT_ENV;
@@ -407,21 +407,3 @@ export const clearFeatureFlags = (): void => {
 
 // All functions are exported at the top level
 // No additional exports needed
-
-// ============================================================
-// ENTERPRISE SUMMARY
-// ============================================================
-// 
-// Enterprise Features Applied:
-// 1. ✅ Multiple environment detection (dev, test, staging, prod)
-// 2. ✅ Feature flag support with environment variables
-// 3. ✅ Cached environment checks for performance
-// 4. ✅ Type-safe environment checks
-// 5. ✅ Environment variable access with fallbacks
-// 6. ✅ Boolean and number parsing
-// 7. ✅ Array parsing for lists (e.g., CORS origins)
-// 8. ✅ Cache clearing for testing
-// 9. ✅ Cross-package compatibility
-// 10. ✅ Performance optimization with caching
-// 
-// ============================================================
