@@ -11,6 +11,56 @@
  */
 
 // ============================================================
+// Common Utility Types (Re-export all from common)
+// ============================================================
+export * from './common';
+
+// ============================================================
+// Auth Domain Types (Re-export all from auth)
+// ============================================================
+export * from './auth';
+
+// ============================================================
+// Value Object Types (Enterprise Grade)
+// ============================================================
+export type {
+  // Core Value Object Types
+  ValueObjectComparison,
+  TemporalEqualityConfig,
+  
+  // Metadata and Snapshot Types
+  ValueObjectMetadata,
+  ValueObjectSnapshot,
+  
+  // Validation Types
+  ValidationErrorCode,
+  ValidationResult,
+  
+  // Serialization Types
+  ValueObjectSerializationOptions,
+  ValueObjectDeserializationOptions,
+  
+  // Performance and Optimization Types
+  EqualityCacheConfig,
+  ValueObjectPerformanceMetrics,
+  
+  // Domain-Specific Value Object Types
+  EmailValueObject,
+  PhoneValueObject,
+  DeviceIdValueObject,
+  
+  // Utility Types
+  ValueObjectConstructor,
+  ValueObjectPredicate,
+  ValueObjectTransformer,
+  ValueObjectFactory,
+  
+  // Error Types
+  ValueObjectError,
+  ValueObjectErrorFactory,
+} from './common/value-object.types';
+
+// ============================================================
 // Auth Domain Types (Selective export to avoid conflicts)
 // ============================================================
 export {
