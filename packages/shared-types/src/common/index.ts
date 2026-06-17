@@ -30,6 +30,6 @@ export * from './audit.types';
 // ============================================================
 export * from './seo.types';
 
-// Location Info Types
+// value-object Types
 // ============================================================
-export * from './location.types';
+export * from './value-object.types';
