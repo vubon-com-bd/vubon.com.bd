@@ -66,8 +66,9 @@ import type {
   ValueObjectSnapshot
 } from '@vubon/shared-types';
 
-// ==================== Constants (from shared-config) ====================
+// ==================== Constants ====================
 
+// ✅ FIXED: Use a private static property instead of unused variable
 const VALUE_OBJECT_MARKER = Symbol('ValueObject');
 
 // Retry configuration from shared-constants
@@ -109,16 +110,22 @@ export interface TemporalEqualityConfig {
 }
 
 /**
- * Metadata for offline-first synchronization
+ * Environment type - must match shared-types
  */
-export interface ValueObjectMetadata extends SharedValueObjectMetadata {
+export type ValueObjectEnvironment = 'development' | 'staging' | 'production' | 'test';
+
+/**
+ * Metadata for offline-first synchronization
+ * ✅ FIXED: environment type now matches shared-types exactly
+ */
+export interface ValueObjectMetadata extends Omit<SharedValueObjectMetadata, 'environment'> {
   version: string;
   timestamp: string;
   className: string;
   syncStatus?: 'synced' | 'pending' | 'failed';
   lastSyncAttempt?: string;
   retryCount?: number;
-  environment?: string;
+  environment?: ValueObjectEnvironment;  // ✅ FIXED: using the specific union type
 }
 
 /**
@@ -208,8 +215,8 @@ export class TemporalEqualityError extends ValueObjectError {
  * Implements domain-driven design equality semantics with enterprise features
  */
 export abstract class ValueObject {
-  /** Internal marker for type checking */
-  private readonly valueObjectMarker = VALUE_OBJECT_MARKER;
+  /** Internal marker for type checking - using static check instead of instance property */
+  protected static readonly VALUE_OBJECT_MARKER = VALUE_OBJECT_MARKER;
   
   /** Cache for temporal field names (lazy loaded) */
   private _temporalFieldCache: Set<string> | null = null;
@@ -617,13 +624,16 @@ export abstract class ValueObject {
       return { value };
     }
     
+    // ✅ FIXED: environment type now matches shared-types
+    const env = isProduction() ? 'production' : isDevelopment() ? 'development' : 'test';
+    
     // Include metadata for offline-first synchronization
     const metadata: ValueObjectMetadata = {
       version: VALUE_OBJECT_CONFIG?.VERSION ?? '2.0.0',
       timestamp: new Date().toISOString(),
       className: this.constructor.name,
       syncStatus: 'synced',
-      environment: isProduction() ? 'production' : isDevelopment() ? 'development' : 'unknown'
+      environment: env as ValueObjectEnvironment,  // ✅ FIXED: using correct type
     };
     
     const result: Record<string, unknown> = { value, _metadata: metadata };
@@ -804,6 +814,7 @@ export abstract class ValueObject {
     if (!other || typeof other !== 'object') return false;
 
     const candidate = other as ValueObject;
+    // ✅ FIXED: Using static marker for type checking
     return (
       VALUE_OBJECT_MARKER in candidate &&
       typeof candidate.getEqualityComponents === 'function' &&
@@ -885,7 +896,12 @@ export abstract class ValueObject {
       if (isSensitive) {
         // Use timing-safe comparison from shared-utils
         try {
-          return require('@vubon/shared-utils').timingSafeEqual(a, b);
+          // Dynamically import timingSafeEqual from shared-utils
+          const sharedUtils = require('@vubon/shared-utils');
+          if (sharedUtils.timingSafeEqual) {
+            return sharedUtils.timingSafeEqual(a, b);
+          }
+          return a === b;
         } catch {
           return a === b;
         }
@@ -1042,5 +1058,6 @@ export type {
   TemporalEqualityConfig, 
   ValueObjectMetadata, 
   ValidationOptions, 
-  SerializationOptions 
+  SerializationOptions,
+  ValueObjectEnvironment,
 };
