@@ -303,3 +303,68 @@ export const configureLogger = (options: Partial<LoggerOptions>): void => {
  * console.log(config.minLevel); // 'info'
  */
 export const getLoggerConfig = (): Readonly<LoggerOptions> => {
+  return { ...DEFAULT_OPTIONS };
+};
+
+/**
+ * Set log level
+ * 
+ * @param level - Minimum log level
+ * 
+ * @example
+ * setLogLevel('warn'); // Only show warnings and above
+ */
+export const setLogLevel = (level: LogLevel): void => {
+  DEFAULT_OPTIONS.minLevel = level;
+};
+
+// ============================================================
+// Performance Logging
+// ============================================================
+
+/**
+ * Log performance metrics
+ * 
+ * @param operation - Operation name
+ * @param startTime - Start time in milliseconds
+ * @param metadata - Additional metadata
+ * 
+ * @example
+ * const start = performance.now();
+ * // ... operation ...
+ * logPerformance('api-call', start, { endpoint: '/users' });
+ */
+export const logPerformance = (
+  operation: string,
+  startTime: number,
+  metadata?: Record<string, unknown>
+): void => {
+  const duration = performance.now() - startTime;
+  
+  if (duration > 1000) {
+    logger.warn(`Performance: ${operation} took ${duration.toFixed(2)}ms`, {
+      operation,
+      duration,
+      threshold: 1000,
+      ...metadata,
+    });
+  } else if (duration > 100) {
+    logger.info(`Performance: ${operation} took ${duration.toFixed(2)}ms`, {
+      operation,
+      duration,
+      ...metadata,
+    });
+  } else if (isDevelopment()) {
+    logger.debug(`Performance: ${operation} took ${duration.toFixed(2)}ms`, {
+      operation,
+      duration,
+      ...metadata,
+    });
+  }
+};
+
+// ============================================================
+// Type Exports
+// ============================================================
+
+// All functions and types are exported at the top level
