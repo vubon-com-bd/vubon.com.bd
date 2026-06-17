@@ -32,20 +32,20 @@
       "import": "./dist/device/index.mjs",
       "require": "./dist/device/index.js"
     },
-    "./async": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+    "./sleep": {
+      "types": "./dist/async/sleep.util.d.ts",
+      "import": "./dist/async/sleep.util.mjs",
+      "require": "./dist/async/sleep.util.js"
     },
     "./env": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "types": "./dist/env.util.d.ts",
+      "import": "./dist/env.util.mjs",
+      "require": "./dist/env.util.js"
     },
 "./logger": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "types": "./dist/logger.util.d.ts",
+      "import": "./dist/logger.util.mjs",
+      "require": "./dist/logger.util.js"
     },
     "./token": {
       "types": "./dist/token/index.d.ts",
