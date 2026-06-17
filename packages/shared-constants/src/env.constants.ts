@@ -8,6 +8,7 @@
  * ✅ Connection configs for DB, Redis, Queue, Email
  * ✅ TLS/SSL support
  * ✅ Retry and timeout configurations
+ * ✅ Value Object & Retry Configurations (Enterprise)
  */
 
 // ============================================================
@@ -74,6 +75,60 @@ export interface SecurityConfig {
   SESSION_SECRET: string;
   BCRYPT_ROUNDS: number;
 }
+
+// ============================================================
+// Value Object & Retry Configuration (Enterprise)
+// ============================================================
+
+/**
+ * Value Object Configuration
+ * Centralized configuration for all Value Objects in the domain layer
+ */
+export interface ValueObjectConfig {
+  /** Default retry count for connection-aware operations */
+  DEFAULT_RETRY_COUNT: number;
+  /** Default retry delay in milliseconds */
+  DEFAULT_RETRY_DELAY_MS: number;
+  /** Default temporal tolerance for time-based equality checks */
+  DEFAULT_TEMPORAL_TOLERANCE_MS: number;
+  /** Allow degraded mode when external services are unavailable */
+  ALLOW_DEGRADED_MODE: boolean;
+  /** Current version of the Value Object implementation */
+  VERSION: string;
+}
+
+/**
+ * Retry Configuration
+ * Centralized retry strategy for all retryable operations
+ */
+export interface RetryConfig {
+  /** Default number of retry attempts */
+  DEFAULT_RETRY_COUNT: number;
+  /** Default delay between retries in milliseconds */
+  DEFAULT_RETRY_DELAY_MS: number;
+  /** Multiplier for exponential backoff */
+  DEFAULT_BACKOFF_MULTIPLIER: number;
+  /** Maximum delay allowed between retries */
+  MAX_RETRY_DELAY_MS: number;
+  /** Error patterns that should trigger a retry */
+  RETRYABLE_ERRORS: string[];
+}
+
+export const VALUE_OBJECT_CONFIG: ValueObjectConfig = {
+  DEFAULT_RETRY_COUNT: 3,
+  DEFAULT_RETRY_DELAY_MS: 100,
+  DEFAULT_TEMPORAL_TOLERANCE_MS: 1000,
+  ALLOW_DEGRADED_MODE: process.env['NODE_ENV'] !== 'production',
+  VERSION: '2.0.0',
+} as const;
+
+export const RETRY_CONFIG: RetryConfig = {
+  DEFAULT_RETRY_COUNT: 3,
+  DEFAULT_RETRY_DELAY_MS: 100,
+  DEFAULT_BACKOFF_MULTIPLIER: 2,
+  MAX_RETRY_DELAY_MS: 5000,
+  RETRYABLE_ERRORS: ['ECONNRESET', 'ETIMEDOUT', 'ECONNREFUSED'],
+} as const;
 
 // ============================================================
 // Validation Helpers
@@ -152,7 +207,6 @@ export const QUEUE_CONFIG: QueueConfig = {
   CONCURRENCY: validateNumber(process.env['QUEUE_CONCURRENCY'], 5, 1),
 };
 
-
 // Security Config
 export const SECURITY_CONFIG: SecurityConfig = {
   JWT_SECRET: validateRequired(process.env['JWT_SECRET'], 'JWT_SECRET'),
@@ -183,4 +237,4 @@ if (IS_PRODUCTION) {
 // ============================================================
 // Type Exports
 // ============================================================
-export type { NodeEnv };
+export type { NodeEnv, ValueObjectConfig, RetryConfig };
