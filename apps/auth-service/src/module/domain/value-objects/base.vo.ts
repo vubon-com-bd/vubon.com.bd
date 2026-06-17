@@ -48,13 +48,11 @@
 // Configuration from shared-constants
 import { 
   VALUE_OBJECT_CONFIG,
-  ENV_CONFIG,
-  RETRY_CONFIG
+  ENV_CONFIG
 } from '@vubon/shared-constants';
 
 // Utilities from shared-utils
 import { 
-  timingSafeEqual, 
   sleep,
   isDevelopment,
   isProduction,
@@ -211,7 +209,7 @@ export class TemporalEqualityError extends ValueObjectError {
  */
 export abstract class ValueObject {
   /** Internal marker for type checking */
-  private readonly [VALUE_OBJECT_MARKER] = true;
+  private readonly valueObjectMarker = VALUE_OBJECT_MARKER;
   
   /** Cache for temporal field names (lazy loaded) */
   private _temporalFieldCache: Set<string> | null = null;
@@ -228,7 +226,7 @@ export abstract class ValueObject {
    */
   constructor(protected readonly validationOptions?: ValidationOptions) {
     this.validateSync();
-    this.validateAsync().catch(err => {
+    this.validateAsync().catch((err: unknown) => {
       // Async validation errors are logged but don't block construction
       const shouldLog = this.validationOptions?.logFailures ?? true;
       if (shouldLog && !ALLOW_DEGRADED_MODE) {
@@ -313,8 +311,8 @@ export abstract class ValueObject {
     for (let i = 0; i <= retryCount; i++) {
       try {
         return await validationFn();
-      } catch (err) {
-        lastError = err as Error;
+      } catch (err: unknown) {
+        lastError = err instanceof Error ? err : new Error(String(err));
         
         // Check if this is a connection error
         const isConnectionError = this.isConnectionError(err);
@@ -332,10 +330,10 @@ export abstract class ValueObject {
         // If not a connection error or no retries left
         if (allowDegradedMode && isConnectionError) {
           logger.warn(`[${LOG_CONTEXT}] Validation degraded mode for ${this.constructor.name}:`, err);
-          throw new ConnectionAwareValidationError('External validation failed, using degraded mode', err);
+          throw new ConnectionAwareValidationError('External validation failed, using degraded mode', lastError);
         }
         
-        throw new ConnectionAwareValidationError(`Validation failed after ${i} retries`, err);
+        throw new ConnectionAwareValidationError(`Validation failed after ${i} retries`, lastError);
       }
     }
 
@@ -389,7 +387,6 @@ export abstract class ValueObject {
    * - Handles cross-module class instances
    * - Null-safe and type-safe
    * - Optimized for performance with early returns
-   * - Uses timing-safe comparison for sensitive strings
    * 
    * @param other - The value object to compare with
    * @returns true if both value objects have identical equality components
@@ -783,10 +780,7 @@ export abstract class ValueObject {
         timestamp: new Date().toISOString(),
         className: this.constructor.name,
         syncStatus: 'synced'
-      },
-      className: this.constructor.name,
-      timestamp: Date.now(),
-      createdAt: this._createdAt
+      }
     };
   }
 
@@ -883,9 +877,20 @@ export abstract class ValueObject {
       return this.areEqual(aArray, bArray);
     }
 
-    // Handle strings with timing-safe comparison (for sensitive data)
+    // Handle strings (use timing-safe comparison for sensitive data)
     if (typeof a === 'string' && typeof b === 'string') {
-      return timingSafeEqual(a, b);
+      // Use timing-safe comparison only for sensitive strings (like passwords, tokens)
+      // For regular strings, use normal comparison for performance
+      const isSensitive = this.isSensitiveString(a) || this.isSensitiveString(b);
+      if (isSensitive) {
+        // Use timing-safe comparison from shared-utils
+        try {
+          return require('@vubon/shared-utils').timingSafeEqual(a, b);
+        } catch {
+          return a === b;
+        }
+      }
+      return a === b;
     }
 
     // Handle objects (shallow comparison)
@@ -905,6 +910,17 @@ export abstract class ValueObject {
 
     // Default: strict equality
     return a === b;
+  }
+
+  /**
+   * Check if a string is sensitive (should use timing-safe comparison)
+   */
+  private isSensitiveString(str: string): boolean {
+    const sensitivePatterns = [
+      'password', 'token', 'secret', 'key', 'hash', 'salt', 'passphrase', 'jwt', 'access', 'refresh'
+    ];
+    const lowerStr = str.toLowerCase();
+    return sensitivePatterns.some(pattern => lowerStr.includes(pattern));
   }
 
   /**
