@@ -68,6 +68,7 @@ import type {
 
 // ==================== Constants ====================
 
+// ✅ FIXED: Use VALUE_OBJECT_MARKER directly instead of storing in variable
 const VALUE_OBJECT_MARKER = Symbol('ValueObject');
 
 // Retry configuration from shared-constants
@@ -90,11 +91,11 @@ export type ValueObjectConstructor<T = ValueObject> = new (...args: unknown[]) =
 
 /**
  * Value object comparison result
- * ✅ FIXED: differences is now mutable to allow assignment
+ * ✅ FIXED: differences is now optional and can be undefined
  */
 export interface ValueObjectComparison {
   readonly equal: boolean;
-  readonly differences?: string[];  // ✅ Changed from readonly string[] to string[]
+  readonly differences?: string[];  // ✅ Made optional
 }
 
 /**
@@ -116,7 +117,6 @@ export type ValueObjectEnvironment = 'development' | 'staging' | 'production' | 
 
 /**
  * Metadata for offline-first synchronization
- * ✅ FIXED: environment type now matches shared-types exactly
  */
 export interface ValueObjectMetadata extends Omit<SharedValueObjectMetadata, 'environment'> {
   version: string;
@@ -215,8 +215,7 @@ export class TemporalEqualityError extends ValueObjectError {
  * Implements domain-driven design equality semantics with enterprise features
  */
 export abstract class ValueObject {
-  /** Internal marker for type checking */
-  private readonly valueObjectMarker = VALUE_OBJECT_MARKER;
+  /** ✅ FIXED: Removed unused valueObjectMarker, using VALUE_OBJECT_MARKER directly */
   
   /** Cache for temporal field names (lazy loaded) */
   private _temporalFieldCache: Set<string> | null = null;
@@ -582,6 +581,7 @@ export abstract class ValueObject {
       }
     }
 
+    // ✅ FIXED: Return differences only if there are any
     return {
       equal: differences.length === 0,
       differences: differences.length > 0 ? differences : undefined,
@@ -807,14 +807,12 @@ export abstract class ValueObject {
   }
 
   /**
-   * ✅ FIXED: Type-safe check without accessing protected member
-   * Uses marker symbol instead of instanceof for cross-module compatibility
+   * ✅ FIXED: Type-safe check using VALUE_OBJECT_MARKER directly
    */
   private isValueObject(other: unknown): other is ValueObject {
     if (!other || typeof other !== 'object') return false;
 
     const candidate = other as ValueObject;
-    // ✅ Don't check protected getEqualityComponents
     return (
       VALUE_OBJECT_MARKER in candidate &&
       typeof candidate.equals === 'function'
