@@ -78,7 +78,7 @@ export interface LogEntry {
   timestamp: string;
   level: LogLevel;
   message: string;
-  namespace?: string;
+  namespace?: string;  // ✅ FIXED: Made optional
   metadata?: unknown;
   stack?: string;
   environment: string;
@@ -235,8 +235,9 @@ const formatLogEntry = (entry: LogEntry): string => {
   const metadataStr = entry.metadata 
     ? ` ${COLORS.dim}${JSON.stringify(entry.metadata)}${COLORS.reset}`
     : '';
+  const namespaceStr = entry.namespace ? ` [${entry.namespace}]` : '';
   
-  return `${COLORS.gray}${timestamp}${COLORS.reset} ${color}${levelLabel}${COLORS.reset} ${entry.message}${metadataStr}`;
+  return `${COLORS.gray}${timestamp}${COLORS.reset}${namespaceStr} ${color}${levelLabel}${COLORS.reset} ${entry.message}${metadataStr}`;
 };
 
 // ============================================================
@@ -246,33 +247,39 @@ const formatLogEntry = (entry: LogEntry): string => {
 /**
  * Create a namespaced logger
  * 
- * @param namespace - Namespace for the logger
+ * @param namespace - Namespace for the logger (must be a non-empty string)
  * @param _options - Logger options (reserved for future use)
  * @returns Namespaced logger instance
+ * @throws {Error} If namespace is empty
  * 
  * @example
  * const authLogger = createLogger('Auth');
  * authLogger.info('User logged in', { userId: '123' });
  */
 export const createLogger = (namespace: string, _options?: Partial<LoggerOptions>): Logger => {
+  // ✅ FIXED: Validate namespace
+  if (!namespace || namespace.trim().length === 0) {
+    throw new Error('Logger namespace must be a non-empty string');
+  }
+  
+  const trimmedNamespace = namespace.trim();
   // _options is reserved for future use
-  // Currently using global DEFAULT_OPTIONS
   
   return {
     debug: (message: string, ...args: unknown[]) => {
-      logger.debug(`[${namespace}] ${message}`, ...args);
+      logger.debug(`[${trimmedNamespace}] ${message}`, ...args);
     },
     info: (message: string, ...args: unknown[]) => {
-      logger.info(`[${namespace}] ${message}`, ...args);
+      logger.info(`[${trimmedNamespace}] ${message}`, ...args);
     },
     warn: (message: string, ...args: unknown[]) => {
-      logger.warn(`[${namespace}] ${message}`, ...args);
+      logger.warn(`[${trimmedNamespace}] ${message}`, ...args);
     },
     error: (message: string, ...args: unknown[]) => {
-      logger.error(`[${namespace}] ${message}`, ...args);
+      logger.error(`[${trimmedNamespace}] ${message}`, ...args);
     },
     fatal: (message: string, ...args: unknown[]) => {
-      logger.fatal(`[${namespace}] ${message}`, ...args);
+      logger.fatal(`[${trimmedNamespace}] ${message}`, ...args);
     },
   };
 };
@@ -367,4 +374,4 @@ export const logPerformance = (
 // Type Exports
 // ============================================================
 
-// All functions and types are exported at the top level
+export type { LogLevel, Logger, LoggerOptions, LogEntry };
