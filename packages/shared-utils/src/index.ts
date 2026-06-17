@@ -152,15 +152,73 @@ export * from './token';
 // ============================================================
 // Env Utilities
 // ============================================================
-export * from './env';
-
-// ============================================================
-// Logger Utilities
-// ============================================================
-export * from './logger';
+/**
+ * Shared Utils - Root Barrel Export
+ * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
+ * 
+ * @module shared-utils/index
+ * 
+ * RULES:
+ * ✅ ONLY re-exports - NO logic, NO initialization
+ * ✅ NO functions, NO side effects
+ * ✅ Pure utility exports only
+ */
 
 // ============================================================
 // Async Utilities
 // ============================================================
-export * from './async';
+export {
+  sleep,
+  sleepWithAbort,
+  sleepWithJitter,
+  sleepWithBackoff,
+  sleepWithTimeout,
+  sleepUntil,
+  sleepWithMonitor,
+  calculateBackoffDelay,
+} from './async/sleep.util';
+
+// ============================================================
+// Environment Utilities
+// ============================================================
+export {
+  getEnvironment,
+  isDevelopment,
+  isProduction,
+  isTest,
+  isStaging,
+  isNonDevelopment,
+  getCachedEnvironment,
+  isDevelopmentCached,
+  isProductionCached,
+  isTestCached,
+  isStagingCached,
+  isNonDevelopmentCached,
+  clearEnvironmentCache,
+  getEnvVar,
+  getEnvVarBoolean,
+  getEnvVarNumber,
+  getEnvVarArray,
+  isFeatureEnabled,
+  setFeatureFlag,
+  clearFeatureFlags,
+} from './env/env.util';
+
+// ============================================================
+// Logger Utilities
+// ============================================================
+export {
+  logger,
+  createLogger,
+  configureLogger,
+  getLoggerConfig,
+  setLogLevel,
+  logPerformance,
+} from './logger/logger.util';
+export type {
+  Logger,
+  LoggerOptions,
+  LogEntry,
+  LogLevel,
+} from './logger/logger.util';
 
