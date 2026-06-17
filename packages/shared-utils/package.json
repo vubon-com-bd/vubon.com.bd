@@ -38,14 +38,14 @@
       "require": "./dist/async/sleep.util.js"
     },
     "./env": {
-      "types": "./dist/env.util.d.ts",
-      "import": "./dist/env.util.mjs",
-      "require": "./dist/env.util.js"
+      "types": "./dist/env/env.util.d.ts",
+      "import": "./dist/env/env.util.mjs",
+      "require": "./dist/env/env.util.js"
     },
 "./logger": {
-      "types": "./dist/logger.util.d.ts",
-      "import": "./dist/logger.util.mjs",
-      "require": "./dist/logger.util.js"
+      "types": "./dist/logger/logger.util.d.ts",
+      "import": "./dist/logger/logger.util.mjs",
+      "require": "./dist/logger/logger.util.js"
     },
     "./token": {
       "types": "./dist/token/index.d.ts",
