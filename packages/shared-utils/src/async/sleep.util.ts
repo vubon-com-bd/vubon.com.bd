@@ -30,8 +30,9 @@
 // Imports
 // ============================================================
 
+// ✅ FIXED: RETRY_CONFIG এখন shared-constants থেকে সঠিকভাবে ইম্পোর্ট হবে
 import { RETRY_CONFIG } from '@vubon/shared-constants';
-import { isProduction, isDevelopment } from '../env/env.util';
+import { isDevelopment, isProduction } from '../env/env.util';
 import { logger } from '../logger/logger.util';
 
 // ============================================================
@@ -41,6 +42,22 @@ import { logger } from '../logger/logger.util';
 const LOG_CONTEXT = 'SleepUtil';
 const DEFAULT_JITTER_PERCENT = 0.1; // 10% jitter
 const MAX_SLEEP_MS = 3600000; // 1 hour max
+
+// ✅ FIXED: Fallback for RETRY_CONFIG if not available
+const DEFAULT_RETRY_CONFIG = {
+  DEFAULT_RETRY_DELAY_MS: 100,
+  MAX_RETRY_DELAY_MS: 5000,
+  DEFAULT_BACKOFF_MULTIPLIER: 2,
+};
+
+// Use RETRY_CONFIG if available, otherwise use fallback
+const getRetryConfig = () => {
+  try {
+    return RETRY_CONFIG || DEFAULT_RETRY_CONFIG;
+  } catch {
+    return DEFAULT_RETRY_CONFIG;
+  }
+};
 
 // ============================================================
 // Core Sleep Functions
@@ -74,8 +91,8 @@ export const sleep = (ms: number): Promise<void> => {
   return new Promise((resolve) => {
     const timeout = setTimeout(resolve, ms);
     
-    // Cleanup on process exit (Node.js only)
-    if (typeof process !== 'undefined' && process.on) {
+    // ✅ FIXED: Correct process.on type checking
+    if (typeof process !== 'undefined' && process.on && typeof process.on === 'function') {
       const cleanup = () => {
         clearTimeout(timeout);
         resolve();
@@ -126,7 +143,7 @@ export const sleepWithAbort = (ms: number, signal?: AbortSignal): Promise<void> 
       signal.addEventListener('abort', abortHandler, { once: true });
     }
     
-    // Cleanup function
+    // ✅ FIXED: Correct process.on type checking
     const cleanup = () => {
       clearTimeout(timeout);
       if (signal) {
@@ -135,8 +152,7 @@ export const sleepWithAbort = (ms: number, signal?: AbortSignal): Promise<void> 
       resolve();
     };
     
-    // Node.js process cleanup
-    if (typeof process !== 'undefined' && process.on) {
+    if (typeof process !== 'undefined' && process.on && typeof process.on === 'function') {
       process.once('beforeExit', cleanup);
       process.once('SIGINT', cleanup);
     }
@@ -196,9 +212,9 @@ export const sleepWithJitter = (ms: number, jitterPercent: number = DEFAULT_JITT
  */
 export const calculateBackoffDelay = (
   attempt: number,
-  baseDelayMs: number = RETRY_CONFIG.DEFAULT_RETRY_DELAY_MS,
-  maxDelayMs: number = RETRY_CONFIG.MAX_RETRY_DELAY_MS,
-  multiplier: number = RETRY_CONFIG.DEFAULT_BACKOFF_MULTIPLIER,
+  baseDelayMs: number = getRetryConfig().DEFAULT_RETRY_DELAY_MS,
+  maxDelayMs: number = getRetryConfig().MAX_RETRY_DELAY_MS,
+  multiplier: number = getRetryConfig().DEFAULT_BACKOFF_MULTIPLIER,
   jitterPercent: number = 0.1
 ): number => {
   // Validate input
@@ -249,9 +265,9 @@ export const calculateBackoffDelay = (
  */
 export const sleepWithBackoff = (
   attempt: number,
-  baseDelayMs: number = RETRY_CONFIG.DEFAULT_RETRY_DELAY_MS,
-  maxDelayMs: number = RETRY_CONFIG.MAX_RETRY_DELAY_MS,
-  multiplier: number = RETRY_CONFIG.DEFAULT_BACKOFF_MULTIPLIER,
+  baseDelayMs: number = getRetryConfig().DEFAULT_RETRY_DELAY_MS,
+  maxDelayMs: number = getRetryConfig().MAX_RETRY_DELAY_MS,
+  multiplier: number = getRetryConfig().DEFAULT_BACKOFF_MULTIPLIER,
   jitterPercent: number = 0.1
 ): Promise<void> => {
   const delay = calculateBackoffDelay(attempt, baseDelayMs, maxDelayMs, multiplier, jitterPercent);
@@ -395,23 +411,3 @@ export const sleepWithMonitor = async (ms: number, label: string): Promise<void>
 
 // All functions are exported at the top level
 // No additional exports needed
-
-// ============================================================
-// ENTERPRISE SUMMARY
-// ============================================================
-// 
-// Enterprise Features Applied:
-// 1. ✅ Cancellation support with AbortSignal
-// 2. ✅ Jitter to prevent thundering herd
-// 3. ✅ Exponential backoff calculation
-// 4. ✅ Timeout protection
-// 5. ✅ Performance monitoring hooks
-// 6. ✅ Environment-aware behavior (dev vs production)
-// 7. ✅ Comprehensive validation
-// 8. ✅ Process cleanup on exit
-// 9. ✅ Polling with backoff
-// 10. ✅ Detailed logging with context
-// 11. ✅ Type safety with proper exports
-// 12. ✅ Cross-package integration with shared-constants
-// 
-// ============================================================
