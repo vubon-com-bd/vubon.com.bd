@@ -80,7 +80,7 @@ export interface LogEntry {
   message: string;
   namespace?: string;
   metadata?: unknown;
-  stack?: string;  // ✅ Made optional
+  stack?: string;  // ✅ FIXED: Made optional with string type
   environment: string;
 }
 
@@ -198,7 +198,7 @@ const log = (level: LogLevel, message: string, ...args: unknown[]): void => {
     }
   }
   
-  // ✅ FIXED: Extract error stack safely
+  // ✅ FIXED: Extract error stack safely as optional string
   let stack: string | undefined;
   if (DEFAULT_OPTIONS.includeStack && metadata instanceof Error) {
     stack = metadata.stack;
@@ -207,14 +207,14 @@ const log = (level: LogLevel, message: string, ...args: unknown[]): void => {
     }
   }
   
-  // Build log entry
+  // Build log entry - stack is optional
   const entry: LogEntry = {
     timestamp: new Date().toISOString(),
     level,
     message,
     environment: getEnvironment(),
     metadata,
-    stack,  // ✅ Now stack is optional and properly typed
+    ...(stack && { stack }),  // ✅ FIXED: Only add stack if it exists
   };
   
   // Log to console
@@ -373,8 +373,3 @@ export const logPerformance = (
   }
 };
 
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { LogLevel, Logger, LoggerOptions, LogEntry };
