@@ -207,13 +207,25 @@ const log = (level: LogLevel, message: string, ...args: unknown[]): void => {
     metadata,
   };
   
-  // Add stack trace for errors
-  if (metadata instanceof Error && DEFAULT_OPTIONS.includeStack) {
+// Add stack trace for errors
+// ✅ FIXED: Type-safe error handling
+if (DEFAULT_OPTIONS.includeStack) {
+  // Check if metadata is an Error instance
+  if (metadata instanceof Error) {
     entry.stack = metadata.stack;
-    if (!entry.message.includes(metadata.message)) {
+    // Only add error message if it's not already in the message
+    if (metadata.message && !entry.message.includes(metadata.message)) {
       entry.message = `${entry.message}: ${metadata.message}`;
     }
+  } 
+  // Also handle cases where metadata might have a stack property
+  else if (metadata && typeof metadata === 'object' && 'stack' in metadata) {
+    const stack = (metadata as { stack?: string }).stack;
+    if (stack) {
+      entry.stack = stack;
+    }
   }
+}
   
   // Log to console
   if (DEFAULT_OPTIONS.jsonFormat) {
