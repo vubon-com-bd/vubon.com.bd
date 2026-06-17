@@ -234,7 +234,3 @@ if (IS_PRODUCTION) {
   console.log('✅ Environment validation passed for production');
 }
 
-// ============================================================
-// Type Exports
-// ============================================================
-export type { NodeEnv, ValueObjectConfig, RetryConfig };
