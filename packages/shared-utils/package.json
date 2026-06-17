@@ -32,6 +32,21 @@
       "import": "./dist/device/index.mjs",
       "require": "./dist/device/index.js"
     },
+    "./async": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./env": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+"./logger": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
     "./token": {
       "types": "./dist/token/index.d.ts",
       "import": "./dist/token/index.mjs",
@@ -117,6 +132,7 @@
       "import": "./dist/token/refresh-token.util.mjs",
       "require": "./dist/token/refresh-token.util.js"
     }
+
   },
   "files": [
     "dist/**/*"
