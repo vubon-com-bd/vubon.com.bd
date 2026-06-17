@@ -78,9 +78,9 @@ export interface LogEntry {
   timestamp: string;
   level: LogLevel;
   message: string;
-  namespace?: string;  // ✅ FIXED: Made optional
+  namespace?: string;
   metadata?: unknown;
-  stack?: string;
+  stack?: string;  // ✅ Made optional
   environment: string;
 }
 
@@ -198,6 +198,15 @@ const log = (level: LogLevel, message: string, ...args: unknown[]): void => {
     }
   }
   
+  // ✅ FIXED: Extract error stack safely
+  let stack: string | undefined;
+  if (DEFAULT_OPTIONS.includeStack && metadata instanceof Error) {
+    stack = metadata.stack;
+    if (!message.includes(metadata.message)) {
+      message = `${message}: ${metadata.message}`;
+    }
+  }
+  
   // Build log entry
   const entry: LogEntry = {
     timestamp: new Date().toISOString(),
@@ -205,27 +214,8 @@ const log = (level: LogLevel, message: string, ...args: unknown[]): void => {
     message,
     environment: getEnvironment(),
     metadata,
+    stack,  // ✅ Now stack is optional and properly typed
   };
-  
-// Add stack trace for errors
-// ✅ FIXED: Type-safe error handling
-if (DEFAULT_OPTIONS.includeStack) {
-  // Check if metadata is an Error instance
-  if (metadata instanceof Error) {
-    entry.stack = metadata.stack;
-    // Only add error message if it's not already in the message
-    if (metadata.message && !entry.message.includes(metadata.message)) {
-      entry.message = `${entry.message}: ${metadata.message}`;
-    }
-  } 
-  // Also handle cases where metadata might have a stack property
-  else if (metadata && typeof metadata === 'object' && 'stack' in metadata) {
-    const stack = (metadata as { stack?: string }).stack;
-    if (stack) {
-      entry.stack = stack;
-    }
-  }
-}
   
   // Log to console
   if (DEFAULT_OPTIONS.jsonFormat) {
@@ -248,8 +238,9 @@ const formatLogEntry = (entry: LogEntry): string => {
     ? ` ${COLORS.dim}${JSON.stringify(entry.metadata)}${COLORS.reset}`
     : '';
   const namespaceStr = entry.namespace ? ` [${entry.namespace}]` : '';
+  const stackStr = entry.stack ? `\n${COLORS.dim}${entry.stack}${COLORS.reset}` : '';
   
-  return `${COLORS.gray}${timestamp}${COLORS.reset}${namespaceStr} ${color}${levelLabel}${COLORS.reset} ${entry.message}${metadataStr}`;
+  return `${COLORS.gray}${timestamp}${COLORS.reset}${namespaceStr} ${color}${levelLabel}${COLORS.reset} ${entry.message}${metadataStr}${stackStr}`;
 };
 
 // ============================================================
