@@ -68,7 +68,6 @@ import type {
 
 // ==================== Constants ====================
 
-// ✅ FIXED: Use a private static property instead of unused variable
 const VALUE_OBJECT_MARKER = Symbol('ValueObject');
 
 // Retry configuration from shared-constants
@@ -91,10 +90,11 @@ export type ValueObjectConstructor<T = ValueObject> = new (...args: unknown[]) =
 
 /**
  * Value object comparison result
+ * ✅ FIXED: differences is now mutable to allow assignment
  */
 export interface ValueObjectComparison {
   readonly equal: boolean;
-  readonly differences?: readonly string[];
+  readonly differences?: string[];  // ✅ Changed from readonly string[] to string[]
 }
 
 /**
@@ -110,7 +110,7 @@ export interface TemporalEqualityConfig {
 }
 
 /**
- * Environment type - must match shared-types
+ * Environment type for value objects
  */
 export type ValueObjectEnvironment = 'development' | 'staging' | 'production' | 'test';
 
@@ -125,7 +125,7 @@ export interface ValueObjectMetadata extends Omit<SharedValueObjectMetadata, 'en
   syncStatus?: 'synced' | 'pending' | 'failed';
   lastSyncAttempt?: string;
   retryCount?: number;
-  environment?: ValueObjectEnvironment;  // ✅ FIXED: using the specific union type
+  environment?: ValueObjectEnvironment;
 }
 
 /**
@@ -215,8 +215,8 @@ export class TemporalEqualityError extends ValueObjectError {
  * Implements domain-driven design equality semantics with enterprise features
  */
 export abstract class ValueObject {
-  /** Internal marker for type checking - using static check instead of instance property */
-  protected static readonly VALUE_OBJECT_MARKER = VALUE_OBJECT_MARKER;
+  /** Internal marker for type checking */
+  private readonly valueObjectMarker = VALUE_OBJECT_MARKER;
   
   /** Cache for temporal field names (lazy loaded) */
   private _temporalFieldCache: Set<string> | null = null;
@@ -633,7 +633,7 @@ export abstract class ValueObject {
       timestamp: new Date().toISOString(),
       className: this.constructor.name,
       syncStatus: 'synced',
-      environment: env as ValueObjectEnvironment,  // ✅ FIXED: using correct type
+      environment: env as ValueObjectEnvironment,
     };
     
     const result: Record<string, unknown> = { value, _metadata: metadata };
@@ -807,17 +807,16 @@ export abstract class ValueObject {
   }
 
   /**
-   * Type-safe check if the other object is a ValueObject
+   * ✅ FIXED: Type-safe check without accessing protected member
    * Uses marker symbol instead of instanceof for cross-module compatibility
    */
   private isValueObject(other: unknown): other is ValueObject {
     if (!other || typeof other !== 'object') return false;
 
     const candidate = other as ValueObject;
-    // ✅ FIXED: Using static marker for type checking
+    // ✅ Don't check protected getEqualityComponents
     return (
       VALUE_OBJECT_MARKER in candidate &&
-      typeof candidate.getEqualityComponents === 'function' &&
       typeof candidate.equals === 'function'
     );
   }
@@ -979,7 +978,6 @@ export function isValueObject(value: unknown): value is ValueObject {
   const candidate = value as ValueObject;
   return (
     VALUE_OBJECT_MARKER in candidate &&
-    typeof candidate.getEqualityComponents === 'function' &&
     typeof candidate.equals === 'function'
   );
 }
@@ -1050,14 +1048,3 @@ export async function batchValidateValueObjects(
     errors
   };
 }
-
-// ==================== Type Exports ====================
-
-export type { 
-  ValueObjectComparison, 
-  TemporalEqualityConfig, 
-  ValueObjectMetadata, 
-  ValidationOptions, 
-  SerializationOptions,
-  ValueObjectEnvironment,
-};
