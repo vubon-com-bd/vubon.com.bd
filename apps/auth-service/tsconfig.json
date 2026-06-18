@@ -6,8 +6,8 @@
     "lib": ["ES2022"],
 
     "outDir": "./dist",
-    // ✅ FIXED: 'rootDir' সরানো হয়েছে (মনো-রিপোর জন্য)
-    // "rootDir": "./src",
+    // ✅ FIXED: 'rootDir' কে উপরের লেভেলে সেট করুন (যাতে shared প্যাকেজও আওতায় আসে)
+    "rootDir": "../..",  // 🔑 গুরুত্বপূর্ণ: প্রকল্পের রুট ডিরেক্টরি
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
@@ -55,15 +55,8 @@
       "@vubon/shared-config": ["../../packages/shared-config/src"]
     },
 
-    // ✅ FIXED: 'rootDirs' যোগ করা হয়েছে (shared প্যাকেজের জন্য)
-    "rootDirs": [
-      "./src",
-      "../../packages/shared-constants/src",
-      "../../packages/shared-types/src",
-      "../../packages/shared-schemas/src",
-      "../../packages/shared-utils/src",
-      "../../packages/shared-config/src"
-    ],
+    // ✅ rootDirs প্রয়োজন নেই যদি rootDir = "../.." সেট করা থাকে
+    // "rootDirs": [ ... ],
 
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -83,6 +76,9 @@
     "coverage",
     "**/*.spec.ts",
     "**/*.test.ts",
-    "test/**/*"
+    "test/**/*",
+    // ✅ shared প্যাকেজের node_modules ও dist বাদ দিন
+    "../../packages/*/node_modules",
+    "../../packages/*/dist"
   ]
 }
