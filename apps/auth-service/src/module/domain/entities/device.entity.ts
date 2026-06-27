@@ -28,6 +28,16 @@ import { IpAddress } from '../value-objects/ip-address.vo';
 // ✅ ENTERPRISE ENHANCEMENT: Import from shared-constants (Single Source of Truth)
 import { DEVICE_CONFIG } from '@vubon/shared-constants';
 
+// ==================== Types ====================
+
+/**
+ * Validation result interface (matching base entity)
+ */
+export interface DeviceValidationResult {
+  isValid: boolean;
+  errors: readonly string[];
+}
+
 // ==================== Enums ====================
 
 /**
@@ -86,8 +96,8 @@ export enum DeviceEventType {
   DEVICE_STATUS_CHANGED = 'device.status_changed',
   DEVICE_TYPE_CHANGED = 'device.type_changed',
   DEVICE_USAGE_RECORDED = 'device.usage_recorded',
-  DEVICE_OPERATOR_DETECTED = 'device.operator_detected',     // ✅ Enterprise: BD operator tracking
-  DEVICE_LIMIT_WARNING = 'device.limit_warning',             // ✅ Enterprise: Limit enforcement
+  DEVICE_OPERATOR_DETECTED = 'device.operator_detected',
+  DEVICE_LIMIT_WARNING = 'device.limit_warning',
 }
 
 // ==================== Types ====================
@@ -116,11 +126,11 @@ export class Device extends BaseEntity {
   private _trustedAt: Date | undefined;
   private _fingerprint: string | undefined;
   private _usageCount: number;
-  private _lastIpAddress?: IpAddress;
-  private _trustExpiresAt?: Date;
+  private _lastIpAddress: IpAddress | undefined;
+  private _trustExpiresAt: Date | undefined;
   
   // ✅ ENTERPRISE ENHANCEMENT: Bangladesh mobile operator tracking
-  private _mobileOperator?: BDMobileOperator;
+  private _mobileOperator: BDMobileOperator | undefined;
   
   // ✅ ENTERPRISE ENHANCEMENT: Device trust score (0-100)
   private _trustScore: number = 0;
@@ -164,28 +174,43 @@ export class Device extends BaseEntity {
     this._mobileOperator = mobileOperator;
     this._trustScore = trustScore;
     
-    this.validate();
+    // ✅ FIXED: Call validate and handle the result
+    const validationResult = this.validate();
+    if (!validationResult.isValid) {
+      throw new EntityValidationError(
+        'Device validation failed',
+        validationResult.errors,
+        this.constructor.name
+      );
+    }
   }
 
   /**
-   * Validate entity invariants
+   * ✅ FIXED: Validate entity invariants - returns ValidationResult
    */
-  protected validate(): void {
+  protected validate(): DeviceValidationResult {
+    const errors: string[] = [];
+    
     if (!this._userId) {
-      throw new EntityValidationError('Device requires a user ID');
+      errors.push('Device requires a user ID');
     }
     if (!this._deviceId) {
-      throw new EntityValidationError('Device requires a device ID');
+      errors.push('Device requires a device ID');
     }
     if (!this._userAgent) {
-      throw new EntityValidationError('Device requires a user agent');
+      errors.push('Device requires a user agent');
     }
     if (this._usageCount < 0) {
-      throw new EntityValidationError('Usage count cannot be negative');
+      errors.push('Usage count cannot be negative');
     }
     if (this._trustScore < 0 || this._trustScore > 100) {
-      throw new EntityValidationError('Trust score must be between 0 and 100');
+      errors.push('Trust score must be between 0 and 100');
     }
+    
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
   }
 
   // ============================================================
@@ -490,7 +515,7 @@ export class Device extends BaseEntity {
   }
 
   /**
-   * Revoke trust from this device
+   * ✅ FIXED: Revoke trust from this device
    */
   public revokeTrust(): void {
     if (this._status !== DeviceStatus.TRUSTED && this._trustLevel !== DeviceTrustLevel.TRUSTED) {
@@ -689,21 +714,28 @@ export class Device extends BaseEntity {
       return;
     }
     
-    const trustLevels = [
-      DeviceTrustLevel.UNTRUSTED,
-      DeviceTrustLevel.STANDARD,
-      DeviceTrustLevel.TRUSTED,
-      DeviceTrustLevel.HIGH_TRUST,
-      DeviceTrustLevel.MAXIMUM_TRUST,
-    ];
     
-    const currentIndex = trustLevels.indexOf(this._trustLevel);
-    if (currentIndex < trustLevels.length - 1) {
-      this._trustLevel = trustLevels[currentIndex + 1];
+  
+  const trustLevels: DeviceTrustLevel[] = [
+    DeviceTrustLevel.UNTRUSTED,
+    DeviceTrustLevel.STANDARD,
+    DeviceTrustLevel.TRUSTED,
+    DeviceTrustLevel.HIGH_TRUST,
+    DeviceTrustLevel.MAXIMUM_TRUST,
+  ];
+  
+  const currentIndex = trustLevels.indexOf(this._trustLevel);
+  
+  // ✅ টাইপ গার্ড ব্যবহার করে undefined চেক করুন
+  if (currentIndex >= 0 && currentIndex < trustLevels.length - 1) {
+    const nextLevel = trustLevels[currentIndex + 1];
+    if (nextLevel) {  // ✅ undefined চেক
+      this._trustLevel = nextLevel;
       this._trustScore = Math.min(100, this._trustScore + 15);
       this.touch();
     }
   }
+}
 
   // ============================================================
   // Status Check Methods
@@ -848,7 +880,14 @@ export class Device extends BaseEntity {
   public getDevicePlatform(): DevicePlatform { return this._devicePlatform; }
   public getUserAgent(): UserAgent { return this._userAgent; }
   public getStatus(): DeviceStatus { return this._status; }
-  public getTrustLevel(): DeviceTrustLevel { return this._trustLevel; }
+  
+  /**
+   * ✅ FIXED: Get trust level with default fallback
+   */
+  public getTrustLevel(): DeviceTrustLevel {
+    return this._trustLevel ?? DeviceTrustLevel.UNTRUSTED;
+  }
+  
   public getLastUsedAt(): Date { return new Date(this._lastUsedAt); }
   public getTrustedAt(): Date | undefined { return this._trustedAt ? new Date(this._trustedAt) : undefined; }
   public getFingerprint(): string | undefined { return this._fingerprint; }
@@ -863,7 +902,7 @@ export class Device extends BaseEntity {
   // ============================================================
 
   /**
-   * Convert to JSON serializable object
+   * ✅ FIXED: Convert to JSON serializable object with proper undefined handling
    */
   public toJSON(): Record<string, unknown> {
     return {
@@ -877,8 +916,8 @@ export class Device extends BaseEntity {
       trustLevel: this._trustLevel,
       trustScore: this._trustScore,
       lastUsedAt: this._lastUsedAt.toISOString(),
-      trustedAt: this._trustedAt?.toISOString(),
-      trustExpiresAt: this._trustExpiresAt?.toISOString(),
+      trustedAt: this._trustedAt ? this._trustedAt.toISOString() : undefined,
+      trustExpiresAt: this._trustExpiresAt ? this._trustExpiresAt.toISOString() : undefined,
       trustRemainingDays: this.getTrustRemainingDays(),
       fingerprint: this._fingerprint ? '[REDACTED]' : undefined,
       usageCount: this._usageCount,
@@ -910,9 +949,3 @@ function generateEventId(): string {
 namespace generateEventId {
   export let counter = 0;
 }
-
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { DeviceConfig, BDMobileOperator };
