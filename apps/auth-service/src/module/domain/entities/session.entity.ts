@@ -25,14 +25,19 @@
  * ACTIVE -> recordActivity() -> ACTIVE (reset idle timer)
  */
 
-import { BaseEntity, EntityValidationError, type IdGenerator } from './base.entity';
-import { IpAddress, type IpCategory } from '../value-objects/ip-address.vo';
-import { UserAgent, type DeviceType } from '../value-objects/user-agent.vo';
+import { BaseEntity, EntityValidationResult, EntityValidationError, type IdGenerator } from './base.entity';
+import { IpAddress } from '../value-objects/ip-address.vo';
+import { UserAgent } from '../value-objects/user-agent.vo';
 import { DeviceId } from '../value-objects/device-id.vo';
-import { Token, TokenType } from '../value-objects/token.vo';
+import { Token } from '../value-objects/token.vo';
 
 // ✅ FIXED: Import from shared-constants instead of local constants
 import { SESSION_CONFIG } from '@vubon/shared-constants';
+
+// ==================== Types ====================
+
+
+
 
 // ==================== Enums ====================
 
@@ -107,12 +112,11 @@ export class Session extends BaseEntity {
   private _absoluteTimeoutAt: Date;
   private _status: SessionStatus;
   private _lastActivityAt: Date;
-  private _lastActivityUrl?: string;
+  private _lastActivityUrl: string | undefined;
   private _extensionCount: number;
   private _sessionName: string | undefined;
   private _location: string | undefined;
-  private _metadata: SessionMetadata;
-  private _isCurrent: boolean;
+private _sessionMetadata: SessionMetadata;  private _isCurrent: boolean;
   private _terminationInfo: TerminationInfo | undefined;
 
   private constructor(
@@ -154,46 +158,59 @@ export class Session extends BaseEntity {
     this._extensionCount = extensionCount;
     this._sessionName = sessionName;
     this._location = location;
-    this._metadata = metadata;
+    this._sessionMetadata = metadata;
     this._isCurrent = isCurrent;
     this._terminationInfo = terminationInfo;
     
-    this.validate();
+    // ✅ FIXED: Call validate and handle the result
+    const validationResult = this.validate();
+    if (!validationResult.isValid) {
+      throw new EntityValidationError(
+        'Session validation failed',
+        validationResult.errors,
+        this.constructor.name
+      );
+    }
   }
 
   /**
-   * Validate entity invariants
+   * ✅ FIXED: Validate entity invariants - returns EntityValidationResult
    */
-  protected validate(): void {
+  protected validate(): EntityValidationResult {
+    const errors: string[] = [];
+    
     if (!this._userId) {
-      throw new EntityValidationError('Session requires a user ID');
+      errors.push('Session requires a user ID');
     }
     if (!this._token) {
-      throw new EntityValidationError('Session requires a token');
+      errors.push('Session requires a token');
     }
     if (!this._ipAddress) {
-      throw new EntityValidationError('Session requires an IP address');
+      errors.push('Session requires an IP address');
     }
     if (!this._userAgent) {
-      throw new EntityValidationError('Session requires a user agent');
+      errors.push('Session requires a user agent');
     }
     if (!this._deviceId) {
-      throw new EntityValidationError('Session requires a device ID');
+      errors.push('Session requires a device ID');
     }
     if (this._extensionCount < 0) {
-      throw new EntityValidationError('Extension count cannot be negative');
+      errors.push('Extension count cannot be negative');
     }
     if (this._extensionCount > SESSION_CONFIG.MAX_EXTENSIONS) {
-      throw new EntityValidationError(
-        `Extension count exceeds maximum of ${SESSION_CONFIG.MAX_EXTENSIONS}`
-      );
+      errors.push(`Extension count exceeds maximum of ${SESSION_CONFIG.MAX_EXTENSIONS}`);
     }
     if (this._expiresAt < this.createdAt) {
-      throw new EntityValidationError('ExpiresAt cannot be before CreatedAt');
+      errors.push('ExpiresAt cannot be before CreatedAt');
     }
     if (this._idleTimeoutAt < this._lastActivityAt) {
-      throw new EntityValidationError('IdleTimeoutAt cannot be before LastActivityAt');
+      errors.push('IdleTimeoutAt cannot be before LastActivityAt');
     }
+    
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
   }
 
   // ============================================================
@@ -599,12 +616,12 @@ export class Session extends BaseEntity {
    * Update trust level (for device fingerprinting)
    */
   public updateTrustLevel(trustLevel: 'untrusted' | 'standard' | 'trusted' | 'high_trust' | 'maximum_trust'): void {
-    const oldTrustLevel = this._metadata.trustLevel;
+    const oldTrustLevel = this._sessionMetadata.trustLevel;
     if (oldTrustLevel === trustLevel) {
       return;
     }
     
-    this._metadata.trustLevel = trustLevel;
+    this._sessionMetadata.trustLevel = trustLevel;
     this.touch();
     
     this.addDomainEvent({
@@ -623,13 +640,13 @@ export class Session extends BaseEntity {
   }
 
   /**
-   * Update session metadata
-   */
-  public updateMetadata(metadata: Partial<SessionMetadata>): void {
-    this._metadata = { ...this._metadata, ...metadata };
-    this.touch();
-  }
-
+ * Update session-specific metadata
+ * ✅ FIXED: Renamed to avoid conflict with base entity method
+ */
+public updateSessionMetadata(metadata: Partial<SessionMetadata>): void {
+  this._sessionMetadata = { ...this._sessionMetadata, ...metadata };
+  this.touch();
+}
   /**
    * Mark session as current (for current device)
    */
@@ -793,9 +810,9 @@ export class Session extends BaseEntity {
   public getExtensionCount(): number { return this._extensionCount; }
   public getSessionName(): string | undefined { return this._sessionName; }
   public getLocation(): string | undefined { return this._location; }
-  public getMetadata(): Readonly<SessionMetadata> { return { ...this._metadata }; }
+  public getMetadata(): Readonly<SessionMetadata> { return { ...this._sessionMetadata }; }
   public getTrustLevel(): 'untrusted' | 'standard' | 'trusted' | 'high_trust' | 'maximum_trust' {
-    return this._metadata.trustLevel || 'standard';
+    return this._sessionMetadata.trustLevel || 'standard';
   }
 
   // ============================================================
@@ -823,7 +840,7 @@ export class Session extends BaseEntity {
       extensionCount: this._extensionCount,
       sessionName: this._sessionName,
       location: this._location,
-      metadata: this._metadata,
+      metadata: this._sessionMetadata,
       trustLevel: this.getTrustLevel(),
       isActive: this.isActive(),
       isExpired: this.isExpired(),
@@ -858,9 +875,3 @@ function generateEventId(): string {
 namespace generateEventId {
   export let counter = 0;
 }
-
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { SessionMetadata, TerminationInfo };
