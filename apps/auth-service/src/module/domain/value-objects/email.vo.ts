@@ -5,9 +5,8 @@
  * @module domain/value-objects/email.vo
  * 
  * @description
- * Represents an email address with validation and normalization.
- * Uses shared utilities from @vubon/shared-* packages for validation,
- * avoiding code duplication.
+ * Represents a validated and normalized email address.
+ * Uses shared utilities for validation to avoid code duplication.
  * 
  * Enterprise Rules:
  * ✅ Immutable - Email never changes after creation
@@ -27,27 +26,25 @@
 
 import { ValueObject } from './base.vo';
 
-// ✅ FIXED: Import from shared packages instead of duplicating logic
+// ✅ FIXED: শুধু প্রয়োজনীয় ইউটিলিটি ইম্পোর্ট করা হয়েছে
 import { 
   isValidEmail, 
   normalizeEmail, 
   maskEmail as maskEmailUtil,
-  getEmailDomain,
-  getLocalPart,
   isCommonEmailDomain,
-  isBangladeshEmailDomain,
   isEducationalEmail,
   getEmailComponents,
   type EmailComponents as SharedEmailComponents
 } from '@vubon/shared-utils';
 
-import { REGEX_EMAIL } from '@vubon/shared-constants';
+// ✅ FIXED: EmailSchema from shared-schemas
 import { EmailSchema } from '@vubon/shared-schemas';
 
 // ==================== Types ====================
 
 /**
  * Email validation result
+ * ✅ FIXED: error and normalized are optional (exactOptionalPropertyTypes)
  */
 export interface EmailValidation {
   isValid: boolean;
@@ -65,11 +62,10 @@ export type EmailDomainCategory = 'free' | 'corporate' | 'bangladesh' | 'disposa
  */
 export type EmailProvider = 'google' | 'microsoft' | 'apple' | 'yahoo' | 'protonmail' | 'other';
 
-// ==================== Constants (Bangladesh Specific - Not in shared) ====================
+// ==================== Constants (Bangladesh Specific) ====================
 
 /**
- * Bangladesh specific email domains (Not in shared-utils)
- * These are unique to the domain layer and not generic enough for shared-utils
+ * Bangladesh specific email domains
  */
 export const BANGLADESH_SPECIFIC_DOMAINS = {
   // Disposable email domains (for fraud prevention)
@@ -122,7 +118,7 @@ export const BANGLADESH_SPECIFIC_DOMAINS = {
 } as const;
 
 /**
- * Email configuration constants (Only BD specific, rest from shared)
+ * Email configuration constants (Only BD specific)
  */
 export const EMAIL_CONFIG = {
   // Bangladesh specific patterns
@@ -186,17 +182,17 @@ export class Email extends ValueObject {
     // Parse components
     const [localPart, domain] = normalized.split('@');
     this._domain = domain || '';
-    
-    // Check for subaddress (tag) - domain specific, not in shared
-    const subaddressMatch = localPart?.match(/^(.+)\+(.+)$/);
-    if (subaddressMatch) {
-      this._localPart = subaddressMatch[1] || '';
-      this._subAddressTag = subaddressMatch[2];
-    } else {
-      this._localPart = localPart || '';
-      this._subAddressTag = undefined;
-    }
-    
+   // ✅ FIXED: সম্পূর্ণ টাইপ-সেইফ সমাধান
+const subaddressMatch = localPart?.match(/^(.+)\+(.+)$/);
+if (subaddressMatch && subaddressMatch.length >= 3) {
+  // TypeScript জানবে এখানে string আছে
+  const local = subaddressMatch[1] as string;
+  const tag = subaddressMatch[2] as string;
+  this._localPart = local;
+  this._subAddressTag = tag;
+} else {
+  this._localPart = localPart || '';
+}
     // Auto-validation
     this.validate();
   }
@@ -257,6 +253,7 @@ export class Email extends ValueObject {
    * 
    * @param email - The email to validate
    * @returns Validation result with normalized value if valid
+   * ✅ FIXED: error and normalized are optional
    */
   public static validate(email: string): EmailValidation {
     // Check type and emptiness
@@ -304,10 +301,10 @@ export class Email extends ValueObject {
     // ✅ FIXED: Use shared utility for normalization
     const normalized = normalizeEmail(trimmed);
 
+    // ✅ FIXED: error: undefined বাদ দেওয়া হয়েছে
     return {
       isValid: true,
       normalized,
-      error: undefined,
     };
   }
 
@@ -380,7 +377,7 @@ export class Email extends ValueObject {
   }
 
   // ============================================================
-  // Provider Detection (Domain Specific - Not in shared)
+  // Provider Detection (Domain Specific)
   // ============================================================
 
   /**
@@ -578,9 +575,3 @@ export function createEmailFromRequest(email: string | null | undefined): Email 
 export function isValidEmailFormat(email: string): boolean {
   return isValidEmail(email);
 }
-
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { EmailDomainCategory, EmailProvider };
