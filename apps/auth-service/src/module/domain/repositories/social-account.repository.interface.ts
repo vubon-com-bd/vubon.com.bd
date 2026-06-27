@@ -1042,28 +1042,6 @@ export interface SocialAccountRepository extends BaseRepository<SocialAccount> {
   batchUpdateLastSync(accountIds: string[]): Promise<number>;
 }
 
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { 
-  ProviderLinkingResult, 
-  ProviderStatistics, 
-  SocialAccountStatistics, 
-  BulkUnlinkResult,
-  SocialAccountFilters,
-  SocialAccountMergeResult,
-  SocialAnomalyDetectionResult,
-  // ✅ Enterprise: New type exports
-  TokenExpiryNotificationResult,
-  ProviderHealthStatus,
-  AccountConflictResolution,
-  ConsentRefreshReminder,
-  ProviderDeprecationPlan,
-  OAuthWebhookDelivery,
-  SocialAccountSyncRequest,
-  GeoLocationRecommendation,
-};
 
 // ============================================================
 // ENTERPRISE SUMMARY v2.0
