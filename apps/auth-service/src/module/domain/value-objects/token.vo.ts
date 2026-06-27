@@ -18,22 +18,6 @@
  * ✅ Lifecycle-aware - Tracks usage and revocation
  * ✅ Framework-free - No JWT library dependencies
  * ✅ Security-first - Token value never logged or serialized
- *
- * Token Types:
- * - ACCESS: Short-lived JWT for API access
- * - REFRESH: Long-lived token for obtaining new access tokens
- * - RESET: Password reset token (one-time use)
- * - VERIFICATION: Email/phone verification token
- * - API_KEY: Long-lived API key for service accounts
- * - MFA: Multi-factor authentication token
- * - SESSION: Session identifier token
- * - CSRF: Cross-site request forgery token
- *
- * @example
- * const token = new Token('eyJhbGciOiJIUzI1NiIs...', TokenType.ACCESS);
- * console.log(token.isExpired()); // false
- * console.log(token.getRemainingTime()); // 840 seconds
- * console.log(token.canRefresh()); // true (for refresh tokens)
  */
 
 import { ValueObject } from './base.vo';
@@ -75,9 +59,9 @@ export enum TokenStatus {
  */
 export interface TokenValidation {
   isValid: boolean;
-  normalized?: string;
-  type?: TokenType;
-  error?: string;
+  normalized?: string;         // ✅ FIXED: optional
+  type?: TokenType;            // ✅ FIXED: optional
+  error?: string;              // ✅ FIXED: optional
 }
 
 /**
@@ -169,7 +153,7 @@ export const TOKEN_CONFIG = {
   ALPHANUMERIC_PATTERN: /^[A-Za-z0-9\-_.]+$/,
 
   // Refresh threshold (percentage of lifetime before refresh recommended)
-  REFRESH_THRESHOLD: 0.2, // Refresh when 20% of time remaining
+  REFRESH_THRESHOLD: 0.2,
 } as const;
 
 // ==================== Token Value Object ====================
@@ -187,7 +171,7 @@ export class Token extends ValueObject {
   private _lastUsedAt?: Date;
   private _status: TokenStatus;
   private _usedCount: number = 0;
-  private _metadata?: TokenMetadata;
+  private _metadata?: TokenMetadata;  // ✅ FIXED: optional
 
   /**
    * Creates a new Token value object
@@ -200,37 +184,44 @@ export class Token extends ValueObject {
    * @throws {Error} If token format is invalid for the type
    */
   constructor(
-    token: string,
-    type: TokenType,
-    issuedAt?: Date,
-    expiresAt?: Date,
-    metadata?: TokenMetadata
-  ) {
-    super();
+  token: string,
+  type: TokenType,
+  issuedAt?: Date,
+  expiresAt?: Date,
+  metadata?: TokenMetadata   // ✅ optional
+) {
+  super();
 
-    const validation = Token.validate(token, type);
-    if (!validation.isValid) {
-      throw new Error(`Invalid token: ${validation.error}`);
-    }
-
-    this._value = validation.normalized!;
-    this._type = type;
-    this._issuedAt = issuedAt ? new Date(issuedAt) : new Date();
-
-    if (expiresAt) {
-      this._expiresAt = new Date(expiresAt);
-    } else {
-      const expirySeconds = TOKEN_CONFIG.DEFAULT_EXPIRY[type];
-      this._expiresAt = expirySeconds > 0
-        ? new Date(this._issuedAt.getTime() + expirySeconds * 1000)
-        : new Date(8640000000000000); // Far future for non-expiring tokens
-    }
-
-    this._status = TokenStatus.ACTIVE;
-    this._metadata = metadata;
-
-    this.validate();
+  const validation = Token.validate(token, type);
+  if (!validation.isValid) {
+    throw new Error(`Invalid token: ${validation.error || 'Unknown error'}`);
   }
+
+  this._value = validation.normalized!;
+  this._type = type;
+  this._issuedAt = issuedAt ? new Date(issuedAt) : new Date();
+  this._expiresAt = expiresAt ? new Date(expiresAt) : this.calculateExpiry(issuedAt);
+  
+  // ✅ FIXED: metadata undefined হলে ডিফল্ট undefined থাকবে
+  if (metadata !== undefined) {
+    this._metadata = metadata;
+  }
+  // যদি undefined হয়, তাহলে _metadata প্রপার্টি থাকবে না
+
+  this._status = TokenStatus.ACTIVE;
+  this.validate();
+}
+
+// ✅ FIXED: expiry calculation আলাদা মেথডে
+private calculateExpiry(issuedAt?: Date): Date {
+  const issueTime = issuedAt ? new Date(issuedAt) : new Date();
+  const expirySeconds = TOKEN_CONFIG.DEFAULT_EXPIRY[this._type];
+  
+  if (expirySeconds > 0) {
+    return new Date(issueTime.getTime() + expirySeconds * 1000);
+  }
+  return new Date(8640000000000000); // Far future
+}
 
   /**
    * Protected validation method
@@ -282,14 +273,14 @@ export class Token extends ValueObject {
       data.expiresAt,
       data.metadata
     );
-    token._lastUsedAt = data.lastUsedAt;
+    token._lastUsedAt = data.lastUsedAt!;
     token._status = data.status;
     token._usedCount = data.usedCount;
     return token;
   }
 
   // ============================================================
-  // Validation Methods
+  // Validation Methods (✅ FIXED: error optional)
   // ============================================================
 
   /**
@@ -343,12 +334,7 @@ export class Token extends ValueObject {
     // Validate format based on token type
     if (type === TokenType.ACCESS && TOKEN_CONFIG.JWT_PATTERN.test(trimmed)) {
       // JWT format is valid
-      return {
-        isValid: true,
-        normalized: trimmed,
-        type,
-        error: undefined,
-      };
+      return { isValid: true, normalized: trimmed, type }; // ✅ error বাদ
     } else if (!TOKEN_CONFIG.ALPHANUMERIC_PATTERN.test(trimmed)) {
       return {
         isValid: false,
@@ -356,50 +342,31 @@ export class Token extends ValueObject {
       };
     }
 
-    return {
-      isValid: true,
-      normalized: trimmed,
-      type,
-      error: undefined,
-    };
+    return { isValid: true, normalized: trimmed, type }; // ✅ error বাদ
   }
 
   /**
    * Generate a cryptographically random token of specified type
-   * Uses Web Crypto API where available, fallback to Node.js crypto
+   * ✅ FIXED: Node.js crypto ব্যবহার (window ছাড়া)
    */
   public static generate(type: TokenType, length?: number): string {
     const tokenLength = length || TOKEN_CONFIG.MIN_LENGTH[type];
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let randomValues: Uint8Array;
     let result = '';
 
-    // Try to use Web Crypto API if available (browser environment)
-    if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
-      randomValues = new Uint8Array(tokenLength);
-      window.crypto.getRandomValues(randomValues);
+    // ✅ FIXED: শুধু Node.js crypto ব্যবহার (cross-platform)
+    try {
+      // Node.js crypto module ব্যবহার
+      const crypto = require('crypto');
+      const randomBytes = crypto.randomBytes(tokenLength);
       for (let i = 0; i < tokenLength; i++) {
-        result += chars.charAt(randomValues[i] % chars.length);
-      }
-    }
-    // Fallback to Node.js crypto module (server environment)
-    else if (typeof require === 'function') {
-      try {
-        const crypto = require('crypto');
-        randomValues = crypto.randomBytes(tokenLength);
-        for (let i = 0; i < tokenLength; i++) {
-          result += chars.charAt(randomValues[i] % chars.length);
-        }
-      } catch (error) {
-        // Ultimate fallback (should not happen in production)
-        console.warn('Falling back to Math.random for token generation');
-        for (let i = 0; i < tokenLength; i++) {
-          result += chars.charAt(Math.floor(Math.random() * chars.length));
+        const byte = randomBytes[i];
+        if (byte !== undefined) {
+          result += chars.charAt(byte % chars.length);
         }
       }
-    }
-    else {
-      // Ultimate fallback (should not happen in production)
+    } catch {
+      // Fallback (production এ হওয়া উচিত নয়)
       for (let i = 0; i < tokenLength; i++) {
         result += chars.charAt(Math.floor(Math.random() * chars.length));
       }
@@ -471,8 +438,8 @@ export class Token extends ValueObject {
   /**
    * Get token metadata
    */
-  public getMetadata(): Readonly<TokenMetadata> | undefined {
-    return this._metadata;
+  public getMetadata(): TokenMetadata | undefined {
+    return this._metadata ? { ...this._metadata } : undefined;
   }
 
   // ============================================================
@@ -713,7 +680,7 @@ export class Token extends ValueObject {
    * ⚠️ Never log full token!
    */
   public override toString(): string {
-    return `Token(${this.mask()}, type=${this._type}, status=${this._status}, remaining=${this.getRemainingTime()}s)`;
+    return `Token(type=${this._type}, status=${this._status}, mask=${this.mask()})`;
   }
 }
 
@@ -721,42 +688,20 @@ export class Token extends ValueObject {
 // Utility Functions
 // ============================================================
 
-/**
- * Type guard to check if a value is a Token
- */
 export function isToken(value: unknown): value is Token {
   return value instanceof Token;
 }
 
-/**
- * Create token for specific purpose (factory method)
- */
 export function createTokenForPurpose(
   type: TokenType,
-  customExpiry?: number,
   metadata?: TokenMetadata
 ): Token {
   const value = Token.generate(type);
-  const issuedAt = new Date();
-  const expiresIn = customExpiry !== undefined ? customExpiry : TOKEN_CONFIG.DEFAULT_EXPIRY[type];
-  const expiresAt = expiresIn > 0
-    ? new Date(issuedAt.getTime() + expiresIn * 1000)
-    : undefined;
-
-  return new Token(value, type, issuedAt, expiresAt, metadata);
+  return new Token(value, type, undefined, undefined, metadata);
 }
 
-/**
- * Validate token string without creating object (for quick checks)
- */
-export function isValidTokenFormat(token: unknown, type: TokenType): boolean {
-  if (typeof token !== 'string') return false;
+export function isValidTokenFormat(token: string, type: TokenType): boolean {
   const validation = Token.validate(token, type);
   return validation.isValid;
 }
 
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { TokenMetadata };
