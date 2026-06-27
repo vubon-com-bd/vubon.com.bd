@@ -23,14 +23,14 @@
  * (IP2Location, MaxMind, etc.) and passed to domain entity.
  */
 
-import { BaseEntity, EntityValidationError, type IdGenerator } from './base.entity';
+import { BaseEntity, ValidationResult, EntityValidationError, type IdGenerator } from './base.entity';
 import { Email } from '../value-objects/email.vo';
 import { IpAddress } from '../value-objects/ip-address.vo';
 import { UserAgent } from '../value-objects/user-agent.vo';
 import { DeviceId } from '../value-objects/device-id.vo';
 
 // ✅ ENTERPRISE ENHANCEMENT: Import from shared-constants (Single Source of Truth)
-import { RISK_THRESHOLDS, LOGIN_ATTEMPT_CONFIG } from '@vubon/shared-constants';
+import { RISK_THRESHOLDS } from '@vubon/shared-constants';
 
 // ==================== Enums ====================
 
@@ -77,7 +77,6 @@ export enum LoginAttemptEventType {
   SUSPICIOUS_PATTERN_DETECTED = 'login_attempt.suspicious_pattern_detected',
   SUCCESSFUL_LOGIN = 'login_attempt.successful',
   FAILED_LOGIN = 'login_attempt.failed',
-  // ✅ ENTERPRISE ENHANCEMENT: Risk escalation event
   RISK_ESCALATED = 'login_attempt.risk_escalated',
   MFA_VERIFIED = 'login_attempt.mfa_verified',
   MFA_FAILED_VERIFICATION = 'login_attempt.mfa_failed',
@@ -86,19 +85,14 @@ export enum LoginAttemptEventType {
 // ==================== Types ====================
 
 /**
- * ✅ ENTERPRISE ENHANCEMENT: Use from shared-constants instead of local
- * No local thresholds - Single Source of Truth!
- */
-
-/**
  * Login attempt metadata interface (Bangladesh specific)
  */
 export interface LoginAttemptMetadata {
   location?: {
     country?: string;
     city?: string;
-    district?: string; // Bangladesh specific
-    upazila?: string; // Bangladesh specific
+    district?: string;
+    upazila?: string;
     latitude?: number;
     longitude?: number;
   };
@@ -106,7 +100,7 @@ export interface LoginAttemptMetadata {
   networkType?: '2g' | '3g' | '4g' | '5g' | 'wifi' | 'unknown';
   isWeekend?: boolean;
   isNightTime?: boolean;
-  attemptedViaMFS?: boolean; // bKash/Nagad/Rocket
+  attemptedViaMFS?: boolean;
   dataSaverEnabled?: boolean;
 }
 
@@ -121,13 +115,8 @@ const {
   MIN_RISK_SCORE,
 } = RISK_THRESHOLDS;
 
-const {
-  SUSPICIOUS_ACTIVITY_COOLDOWN_MINUTES,
-  MAX_RISK_ESCALATIONS_PER_HOUR,
-} = LOGIN_ATTEMPT_CONFIG || {
-  SUSPICIOUS_ACTIVITY_COOLDOWN_MINUTES: 5,
-  MAX_RISK_ESCALATIONS_PER_HOUR: 3,
-};
+const SUSPICIOUS_ACTIVITY_COOLDOWN_MINUTES = 5;
+const MAX_RISK_ESCALATIONS_PER_HOUR = 3;
 
 // ==================== Login Attempt Entity ====================
 
@@ -138,7 +127,7 @@ const {
  * ✅ ENTERPRISE ENHANCED: Risk history tracking, MFA method tracking
  */
 export class LoginAttempt extends BaseEntity {
-  private _userId: string | undefined;
+  private _userId: string | undefined;  // ✅ undefined allowed
   private _email: Email;
   private _ipAddress: IpAddress;
   private _userAgent: UserAgent;
@@ -147,13 +136,13 @@ export class LoginAttempt extends BaseEntity {
   private _attemptedAt: Date;
   private _riskScore: number;
   private _riskLevel: RiskLevel;
-  private _failureReason?: string;
-  private _metadata?: LoginAttemptMetadata;
+  private _failureReason: string | undefined;  // ✅ undefined allowed
+  private _attemptMetadata: LoginAttemptMetadata | undefined;
   private _isMfaVerified: boolean;
-  private _sessionId?: string;
+  private _sessionId: string | undefined;  // ✅ undefined allowed
   
   // ✅ ENTERPRISE ENHANCEMENT: Track MFA method used
-  private _mfaMethodUsed?: MFAMethod;
+  private _mfaMethodUsed: MFAMethod | undefined;  // ✅ undefined allowed
   
   // ✅ ENTERPRISE ENHANCEMENT: Track risk history for escalation detection
   private _riskHistory: Array<{
@@ -166,11 +155,11 @@ export class LoginAttempt extends BaseEntity {
   private _riskEscalationCount: number = 0;
   
   // ✅ ENTERPRISE ENHANCEMENT: Track last suspicious activity
-  private _lastSuspiciousActivityAt?: Date;
+  private _lastSuspiciousActivityAt: Date | undefined;  // ✅ undefined allowed
 
   private constructor(
     id: string,
-    userId: string | undefined,
+    userId: string | undefined,  // ✅ undefined allowed
     email: Email,
     ipAddress: IpAddress,
     userAgent: UserAgent,
@@ -179,14 +168,14 @@ export class LoginAttempt extends BaseEntity {
     attemptedAt: Date,
     riskScore: number,
     riskLevel: RiskLevel,
-    failureReason: string | undefined,
-    metadata: LoginAttemptMetadata | undefined,
+    failureReason: string | undefined,  // ✅ undefined allowed
+    metadata: LoginAttemptMetadata | undefined,  // ✅ undefined allowed
     isMfaVerified: boolean,
-    sessionId: string | undefined,
-    mfaMethodUsed: MFAMethod | undefined,
+    sessionId: string | undefined,  // ✅ undefined allowed
+    mfaMethodUsed: MFAMethod | undefined,  // ✅ undefined allowed
     riskHistory: Array<{ score: number; level: RiskLevel; timestamp: Date }>,
     riskEscalationCount: number,
-    lastSuspiciousActivityAt: Date | undefined,
+    lastSuspiciousActivityAt: Date | undefined,  // ✅ undefined allowed
     createdAt: Date,
     updatedAt: Date,
     version: number
@@ -203,7 +192,7 @@ export class LoginAttempt extends BaseEntity {
     this._riskScore = riskScore;
     this._riskLevel = riskLevel;
     this._failureReason = failureReason;
-    this._metadata = metadata;
+    this._attemptMetadata = metadata;
     this._isMfaVerified = isMfaVerified;
     this._sessionId = sessionId;
     this._mfaMethodUsed = mfaMethodUsed;
@@ -211,31 +200,46 @@ export class LoginAttempt extends BaseEntity {
     this._riskEscalationCount = riskEscalationCount;
     this._lastSuspiciousActivityAt = lastSuspiciousActivityAt;
     
-    this.validate();
+    // ✅ Call validate and handle the result
+    const validationResult = this.validate();
+    if (!validationResult.isValid) {
+      throw new EntityValidationError(
+        'Login attempt validation failed',
+        validationResult.errors,
+        this.constructor.name
+      );
+    }
   }
 
   /**
-   * Validate entity invariants
+   * ✅ FIXED: Validate entity invariants - returns ValidationResult
    */
-  protected validate(): void {
+  protected validate(): ValidationResult {
+    const errors: string[] = [];
+    
     if (!this._email) {
-      throw new EntityValidationError('Login attempt requires an email');
+      errors.push('Login attempt requires an email');
     }
     if (!this._ipAddress) {
-      throw new EntityValidationError('Login attempt requires an IP address');
+      errors.push('Login attempt requires an IP address');
     }
     if (!this._userAgent) {
-      throw new EntityValidationError('Login attempt requires a user agent');
+      errors.push('Login attempt requires a user agent');
     }
     if (!this._deviceId) {
-      throw new EntityValidationError('Login attempt requires a device ID');
+      errors.push('Login attempt requires a device ID');
     }
     if (this._riskScore < MIN_RISK_SCORE || this._riskScore > MAX_RISK_SCORE) {
-      throw new EntityValidationError(`Risk score must be between ${MIN_RISK_SCORE} and ${MAX_RISK_SCORE}`);
+      errors.push(`Risk score must be between ${MIN_RISK_SCORE} and ${MAX_RISK_SCORE}`);
     }
     if (this._riskEscalationCount < 0) {
-      throw new EntityValidationError('Risk escalation count cannot be negative');
+      errors.push('Risk escalation count cannot be negative');
     }
+    
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
   }
 
   // ============================================================
@@ -740,18 +744,34 @@ export class LoginAttempt extends BaseEntity {
     return this._riskEscalationCount > 0;
   }
   
-  /**
-   * Get the highest risk level observed in history
-   */
-  public getHighestRiskLevel(): RiskLevel {
-    let highest: RiskLevel = RiskLevel.LOW;
-    for (const entry of this._riskHistory) {
-      if (entry.level === RiskLevel.CRITICAL) return RiskLevel.CRITICAL;
-      if (entry.level === RiskLevel.HIGH && highest !== RiskLevel.CRITICAL) highest = RiskLevel.HIGH;
-      if (entry.level === RiskLevel.MEDIUM && highest === RiskLevel.LOW) highest = RiskLevel.MEDIUM;
+ /**
+ * Get the highest risk level observed in history
+ */
+public getHighestRiskLevel(): RiskLevel {
+  // ✅ সরাসরি RiskLevel.CRITICAL চেক করুন
+  for (const entry of this._riskHistory) {
+    if (entry.level === RiskLevel.CRITICAL) {
+      return RiskLevel.CRITICAL;
     }
-    return highest;
   }
+  
+  // ✅ HIGH চেক করুন
+  for (const entry of this._riskHistory) {
+    if (entry.level === RiskLevel.HIGH) {
+      return RiskLevel.HIGH;
+    }
+  }
+  
+  // ✅ MEDIUM চেক করুন
+  for (const entry of this._riskHistory) {
+    if (entry.level === RiskLevel.MEDIUM) {
+      return RiskLevel.MEDIUM;
+    }
+  }
+  
+  // ✅ কোনো HIGH/CRITICAL/MEDIUM না পেলে LOW
+  return RiskLevel.LOW;
+}
   
   /**
    * Get the risk score trend (increasing/decreasing/stable)
@@ -780,7 +800,7 @@ export class LoginAttempt extends BaseEntity {
   public getResult(): LoginResult { return this._result; }
   public getAttemptedAt(): Date { return new Date(this._attemptedAt); }
   public getFailureReason(): string | undefined { return this._failureReason; }
-  public getMetadata(): Readonly<LoginAttemptMetadata> | undefined { return this._metadata; }
+  public getMetadata(): Readonly<LoginAttemptMetadata> | undefined { return this._attemptMetadata; }
   public getSessionId(): string | undefined { return this._sessionId; }
   public getRiskScoreNumber(): number { return this._riskScore; }
 
@@ -804,7 +824,7 @@ export class LoginAttempt extends BaseEntity {
       riskScore: this._riskScore,
       riskLevel: this._riskLevel,
       failureReason: this._failureReason,
-      metadata: this._metadata,
+      metadata: this._attemptMetadata,
       isMfaVerified: this._isMfaVerified,
       sessionId: this._sessionId,
       mfaMethodUsed: this._mfaMethodUsed,
@@ -841,9 +861,3 @@ function generateEventId(): string {
 namespace generateEventId {
   export let counter = 0;
 }
-
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { LoginAttemptMetadata, MFAMethod };
