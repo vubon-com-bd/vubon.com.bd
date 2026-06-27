@@ -1068,27 +1068,7 @@ export interface SessionRepository extends BaseRepository<Session> {
   }>;
 }
 
-// ============================================================
-// Type Exports
-// ============================================================
 
-export type { 
-  SessionStatusResult, 
-  SessionStatistics, 
-  BulkRevokeResult, 
-  CleanupResult,
-  SessionFilters,
-  SessionExtensionResult,
-  SessionActivityResult,
-  // ✅ Enterprise: New type exports
-  SessionLockResult,
-  SessionBatchProgress,
-  ReplayDetectionResult,
-  GeographicDistribution,
-  SessionHealthReport,
-  AnomalyDetectionResult,
-  PredictiveExpiryResult,
-};
 
 // ============================================================
 // ENTERPRISE SUMMARY v2.0
