@@ -33,10 +33,12 @@
 
 // ✅ ENTERPRISE ENHANCEMENT: Shared types integration
 import type { 
-  PaginationOptions as SharedPaginationOptions,
-  PaginatedResult as SharedPaginatedResult,
+  PaginationParams as SharedPaginationOptions,
+  OffsetPaginationResponse as SharedPaginatedResult,
   DomainEvent,
 } from '@vubon/shared-types';
+
+
 
 // ==================== Types ====================
 
@@ -574,13 +576,22 @@ export interface BaseRepository<T> {
    * @param id - Entity ID
    * @returns Audit trail entries
    */
-  getAuditTrail(id: string): Promise<Array<{
-    timestamp: Date;
-    action: 'create' | 'update' | 'delete' | 'soft_delete' | 'restore';
-    changes?: Record<string, { old: unknown; new: unknown }>;
-    performedBy?: string;
-    ipAddress?: string;
-  }>>;
+  // base.repository.interface.ts
+/**
+ * Get audit trail for an entity
+ * @param id - Entity ID or filter criteria
+ * @returns Audit trail entries
+ */
+getAuditTrail(id: string | Record<string, unknown>): Promise<Array<{
+  timestamp: Date;
+  action: 'create' | 'update' | 'delete' | 'soft_delete' | 'restore';
+  changes?: Record<string, { old: unknown; new: unknown }>;
+  performedBy?: string;
+  ipAddress?: string;
+  entityId?: string;  // ✅ Add optional entityId for context
+  entityType?: string; // ✅ Add optional entityType for context
+}>>;
+
 }
 
 // ==================== Utility Types ====================
@@ -620,20 +631,6 @@ export interface RepositoryHealthStatus {
   activeConnections?: number;
 }
 
-// ==================== Type Exports ====================
-
-export type { 
-  CursorPaginationOptions, 
-  CursorPaginatedResult,
-  RepositoryOptions,
-  RepositoryHealthStatus,
-  BulkOperationProgress,
-  BulkProgressCallback,
-  CacheInvalidationHook,
-  EventDispatcher,
-  SharedPaginationOptions,
-  SharedPaginatedResult,
-};
 
 // ==================== ENTERPRISE SUMMARY ====================
 // 
