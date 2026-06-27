@@ -1009,28 +1009,6 @@ export const DEFAULT_SUSPICIOUS_THRESHOLDS: SuspiciousTokenThresholds = {
 };
 
 // ============================================================
-// Type Exports
-// ============================================================
-
-export type { 
-  TokenFamilyResult, 
-  RefreshTokenStatistics, 
-  BulkRevokeResult, 
-  CleanupResult,
-  SuspiciousTokenActivity,
-  TokenRotationBatchResult,
-  // ✅ Enterprise: New type exports
-  TokenHealthScore,
-  SuspiciousTokenThresholds,
-  TokenUsageAnomaly,
-  PredictiveTokenExpiry,
-  TokenReputationScore,
-  GeographicRotationPattern,
-  TokenQuarantineResult,
-  CrossDeviceTokenSyncRequest,
-};
-
-// ============================================================
 // ENTERPRISE SUMMARY v2.0
 // ============================================================
 // 
