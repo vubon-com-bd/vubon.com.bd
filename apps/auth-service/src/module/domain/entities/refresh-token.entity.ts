@@ -26,13 +26,14 @@
  * - Session linkage for complete session management
  */
 
-import { BaseEntity, EntityValidationError, type IdGenerator } from './base.entity';
+import { BaseEntity, EntityValidationResult, EntityValidationError, type IdGenerator } from './base.entity';
 import { Token, TokenType } from '../value-objects/token.vo';
 import { DeviceId } from '../value-objects/device-id.vo';
 import { IpAddress } from '../value-objects/ip-address.vo';
 
 // ✅ FIXED: Import from shared-constants instead of local constants
 import { REFRESH_TOKEN_CONFIG } from '@vubon/shared-constants';
+
 
 // ==================== Enums ====================
 
@@ -66,7 +67,6 @@ export enum RefreshTokenEventType {
 
 /**
  * Refresh token configuration (from shared-constants)
- * Now using REFRESH_TOKEN_CONFIG from @vubon/shared-constants
  */
 const REFRESH_CONFIG = {
   EXPIRY_DAYS: REFRESH_TOKEN_CONFIG.EXPIRY_DAYS,
@@ -113,19 +113,19 @@ export class RefreshToken extends BaseEntity {
   private _rotationCount: number;
   private _compromisedAt: Date | undefined;
   private _compromisedReason: string | undefined;
-  private _deviceId?: DeviceId;
-  private _ipAddress?: IpAddress;
-  private _userAgent?: string;
+  private _deviceId: DeviceId | undefined;
+  private _ipAddress: IpAddress | undefined;
+  private _userAgent: string | undefined;
   
-  // ✅ NEW: Session linking for complete audit trail
-  private _sessionId?: string;
-  private _sessionLinkedAt?: Date;
-  private _sessionLinkedBy?: string;
+  // Session linking for complete audit trail
+  private _sessionId: string | undefined;
+  private _sessionLinkedAt: Date | undefined;
+  private _sessionLinkedBy: string | undefined;
   
-  // ✅ NEW: QR Code support for feature phones (Bangladesh specific)
-  private _qrCodeToken?: string;
-  private _qrCodeExpiresAt?: Date;
-  private _qrCodeGeneratedAt?: Date;
+  // QR Code support for feature phones (Bangladesh specific)
+  private _qrCodeToken: string | undefined;
+  private _qrCodeExpiresAt: Date | undefined;
+  private _qrCodeGeneratedAt: Date | undefined;
 
   private constructor(
     id: string,
@@ -176,38 +176,78 @@ export class RefreshToken extends BaseEntity {
     this._qrCodeExpiresAt = qrCodeExpiresAt;
     this._qrCodeGeneratedAt = qrCodeGeneratedAt;
     
-    this.validate();
+    // ✅ Call validate after construction
+    const validationResult = this.validate();
+    if (!validationResult.isValid) {
+      throw new EntityValidationError(
+        'RefreshToken validation failed',
+        validationResult.errors,
+        this.constructor.name
+      );
+    }
   }
 
   /**
-   * Validate entity invariants
+   * ✅ FIXED: Validate entity invariants - returns EntityValidationResult
    */
-  protected validate(): void {
+  protected validate(): EntityValidationResult {
+    const errors: string[] = [];
+    
+    // Required fields
     if (!this._userId) {
-      throw new EntityValidationError('Refresh token requires a user ID');
+      errors.push('Refresh token requires a user ID');
     }
     if (!this._token) {
-      throw new EntityValidationError('Refresh token requires a token value');
+      errors.push('Refresh token requires a token value');
     }
     if (!this._family) {
-      throw new EntityValidationError('Refresh token requires a family ID');
-    }
-    if (this._rotationCount < 0) {
-      throw new EntityValidationError('Rotation count cannot be negative');
-    }
-    if (this._rotationCount > REFRESH_CONFIG.MAX_ROTATION_COUNT) {
-      throw new EntityValidationError(
-        `Rotation count exceeds maximum of ${REFRESH_CONFIG.MAX_ROTATION_COUNT}`
-      );
-    }
-    if (this._expiresAt < this.createdAt) {
-      throw new EntityValidationError('ExpiresAt cannot be before CreatedAt');
+      errors.push('Refresh token requires a family ID');
     }
     
-    // ✅ Validate QR code expiry if present
-    if (this._qrCodeExpiresAt && this._qrCodeExpiresAt < this._qrCodeGeneratedAt!) {
-      throw new EntityValidationError('QR code expiry cannot be before generation time');
+    // Numeric validation
+    if (this._rotationCount < 0) {
+      errors.push('Rotation count cannot be negative');
     }
+    if (this._rotationCount > REFRESH_CONFIG.MAX_ROTATION_COUNT) {
+      errors.push(`Rotation count exceeds maximum of ${REFRESH_CONFIG.MAX_ROTATION_COUNT}`);
+    }
+    
+    // Date validation
+    if (this._expiresAt < this.createdAt) {
+      errors.push('ExpiresAt cannot be before CreatedAt');
+    }
+    
+    // ✅ QR code expiry validation
+    if (this._qrCodeExpiresAt && this._qrCodeGeneratedAt && 
+        this._qrCodeExpiresAt < this._qrCodeGeneratedAt) {
+      errors.push('QR code expiry cannot be before generation time');
+    }
+    
+    // Status-specific validation
+    if (this._status === RefreshTokenStatus.COMPROMISED && !this._compromisedAt) {
+      errors.push('Compromised token must have a compromised timestamp');
+    }
+    if (this._status === RefreshTokenStatus.COMPROMISED && !this._compromisedReason) {
+      errors.push('Compromised token must have a compromised reason');
+    }
+    
+    // Session link validation
+    if (this._sessionId && !this._sessionLinkedAt) {
+      errors.push('Session link must have a linked timestamp');
+    }
+    if (this._sessionId && !this._sessionLinkedBy) {
+      errors.push('Session link must have a linked by reference');
+    }
+    
+    // QR code validation
+    if (this._qrCodeToken && !this._qrCodeGeneratedAt) {
+      errors.push('QR code must have a generation timestamp');
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
   }
 
   // ============================================================
@@ -410,7 +450,7 @@ export class RefreshToken extends BaseEntity {
       this._rotationCount + 1
     );
     
-    // ✅ Preserve session link if exists
+    // Preserve session link if exists
     if (this._sessionId) {
       rotatedToken.linkToSession(this._sessionId, 'rotation_preserved');
     }
@@ -537,7 +577,7 @@ export class RefreshToken extends BaseEntity {
   }
 
   // ============================================================
-  // ✅ NEW: Session Linking Methods
+  // Session Linking Methods
   // ============================================================
 
   /**
@@ -600,12 +640,11 @@ export class RefreshToken extends BaseEntity {
   }
 
   // ============================================================
-  // ✅ NEW: QR Code Support for Feature Phones (Bangladesh)
+  // QR Code Support for Feature Phones (Bangladesh)
   // ============================================================
 
   /**
    * Generate QR code token for feature phone authentication
-   * This allows users on feature phones to authenticate via QR code
    */
   public generateQrCodeToken(qrCodeValue?: string, expiresInMinutes: number = 5): QrCodeResult {
     if (!this.isActive()) {
@@ -614,7 +653,6 @@ export class RefreshToken extends BaseEntity {
       );
     }
     
-    // Generate QR code token (shorter for feature phone compatibility)
     const qrToken = qrCodeValue || Token.generate(TokenType.DEVICE, 16);
     const expiresAt = new Date(Date.now() + expiresInMinutes * 60 * 1000);
     
@@ -689,10 +727,11 @@ export class RefreshToken extends BaseEntity {
   }
 
   /**
-   * Check if token has exceeded absolute maximum lifetime
+   * ✅ FIXED: Check if token has exceeded absolute maximum lifetime
+   * Uses `this.createdAt` from BaseEntity instead of `getCreatedAt()`
    */
   public hasExceededAbsoluteLifetime(): boolean {
-    const createdAt = this.getCreatedAt();
+    const createdAt = this.createdAt;  // ✅ BaseEntity থেকে createdAt ব্যবহার
     const absoluteExpiry = new Date(createdAt.getTime() + REFRESH_CONFIG.MAX_ABSOLUTE_LIFETIME_MS);
     return new Date() > absoluteExpiry;
   }
@@ -758,10 +797,11 @@ export class RefreshToken extends BaseEntity {
   }
 
   /**
-   * Get token age in days
+   * ✅ FIXED: Get token age in days
+   * Uses `this.createdAt` from BaseEntity instead of `getCreatedAt()`
    */
   public getAgeInDays(): number {
-    const ageMs = Date.now() - this.getCreatedAt().getTime();
+    const ageMs = Date.now() - this.createdAt.getTime();  // ✅ BaseEntity থেকে createdAt ব্যবহার
     return Math.floor(ageMs / (24 * 60 * 60 * 1000));
   }
 
@@ -791,12 +831,12 @@ export class RefreshToken extends BaseEntity {
   public getIpAddress(): IpAddress | undefined { return this._ipAddress; }
   public getUserAgent(): string | undefined { return this._userAgent; }
   
-  // ✅ NEW: Session getters
+  // Session getters
   public getSessionId(): string | undefined { return this._sessionId; }
   public getSessionLinkedAt(): Date | undefined { return this._sessionLinkedAt ? new Date(this._sessionLinkedAt) : undefined; }
   public getSessionLinkedBy(): string | undefined { return this._sessionLinkedBy; }
   
-  // ✅ NEW: QR code getters
+  // QR code getters
   public getQrCodeToken(): string | undefined { return this._qrCodeToken; }
   public getQrCodeExpiresAt(): Date | undefined { return this._qrCodeExpiresAt ? new Date(this._qrCodeExpiresAt) : undefined; }
   public getQrCodeGeneratedAt(): Date | undefined { return this._qrCodeGeneratedAt ? new Date(this._qrCodeGeneratedAt) : undefined; }
@@ -862,9 +902,3 @@ function generateEventId(): string {
 namespace generateEventId {
   export let counter = 0;
 }
-
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { RefreshTokenConfig, QrCodeResult, SessionLinkInfo };
