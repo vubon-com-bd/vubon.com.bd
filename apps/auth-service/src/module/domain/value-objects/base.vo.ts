@@ -581,7 +581,7 @@ export abstract class ValueObject {
     // ✅ FIXED: Return undefined when no differences
     return {
       equal: differences.length === 0,
-      differences: differences.length > 0 ? differences : undefined,
+      differences: differences ,
     };
   }
 
@@ -1040,14 +1040,3 @@ export async function batchValidateValueObjects(
     errors
   };
 }
-
-// ==================== Type Exports ====================
-
-export type { 
-  ValueObjectComparison, 
-  TemporalEqualityConfig, 
-  ValueObjectMetadata, 
-  ValidationOptions, 
-  SerializationOptions,
-  ValueObjectEnvironment,
-};
