@@ -588,9 +588,3 @@ export async function isPasswordCompromised(
 ): Promise<boolean> {
   return checkCompromised(password);
 }
-
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { EntropyResult, PasswordCharacterSet, PasswordHasher };
