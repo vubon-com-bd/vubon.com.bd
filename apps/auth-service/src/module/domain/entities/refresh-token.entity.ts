@@ -1,186 +1,255 @@
 /**
- * Refresh Token Entity - Pure Domain Core (Enterprise Enhanced)
+ * User Entity - Pure Domain Core
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module domain/entities/refresh-token.entity
+ * @module domain/entities/user.entity
  * 
  * @description
- * Represents a refresh token for JWT authentication with rotation support.
- * Implements token family pattern for detecting token theft.
+ * Core user entity representing an authenticated user in the system.
+ * Manages user state, authentication, verification, and security.
  * 
  * Enterprise Rules:
- * ✅ Token rotation on each refresh (prevents replay attacks)
- * ✅ Family-based revocation (detect token theft)
- * ✅ Configurable expiry (7 days default)
- * ✅ Domain events for security audit
+ * ✅ Complete user lifecycle management
+ * ✅ Email and phone verification tracking
+ * ✅ Role-based access control
+ * ✅ MFA enable/disable
+ * ✅ Account lock/unlock
+ * ✅ Domain events for all state changes
  * ✅ Framework-free (no crypto dependency)
- * ✅ Absolute maximum lifetime (30 days max)
- * ✅ Session linking for complete audit trail
- * ✅ QR code support for feature phones (Bangladesh)
- * 
- * Security Features:
- * - If a rotated token is used, entire family is revoked (theft detection)
- * - Maximum absolute lifetime (30 days max)
- * - One-time use tokens (marked as used)
- * - Family tracking for audit
- * - Session linkage for complete session management
+ * ✅ Bangladesh specific - Phone verification support
+ * ✅ User tier/loyalty program support
  */
 
-import { BaseEntity, EntityValidationResult, EntityValidationError, type IdGenerator } from './base.entity';
-import { Token, TokenType } from '../value-objects/token.vo';
-import { DeviceId } from '../value-objects/device-id.vo';
-import { IpAddress } from '../value-objects/ip-address.vo';
+import { BaseEntity, ValidationResult, EntityValidationError, type IdGenerator } from './base.entity';
+import { Email } from '../value-objects/email.vo';
+import { Password } from '../value-objects/password.vo';
+import { Phone } from '../value-objects/phone.vo';
 
-// ✅ FIXED: Import from shared-constants instead of local constants
-import { REFRESH_TOKEN_CONFIG } from '@vubon/shared-constants';
+// ==================== Types ====================
 
 
 // ==================== Enums ====================
 
 /**
- * Refresh token status enumeration
+ * User status enumeration
  */
-export enum RefreshTokenStatus {
+export enum UserStatus {
   ACTIVE = 'ACTIVE',
-  REVOKED = 'REVOKED',
-  USED = 'USED',
-  EXPIRED = 'EXPIRED',
-  COMPROMISED = 'COMPROMISED', // Token theft detected
+  INACTIVE = 'INACTIVE',
+  LOCKED = 'LOCKED',
+  SUSPENDED = 'SUSPENDED',
+  DELETED = 'DELETED',
+  PENDING_VERIFICATION = 'PENDING_VERIFICATION',
 }
 
 /**
- * Refresh token event types
+ * User role enumeration
  */
-export enum RefreshTokenEventType {
-  REFRESH_TOKEN_CREATED = 'refresh_token.created',
-  REFRESH_TOKEN_ROTATED = 'refresh_token.rotated',
-  REFRESH_TOKEN_REVOKED = 'refresh_token.revoked',
-  REFRESH_TOKEN_USED = 'refresh_token.used',
-  REFRESH_TOKEN_EXPIRED = 'refresh_token.expired',
-  REFRESH_TOKEN_COMPROMISED = 'refresh_token.compromised',
-  REFRESH_TOKEN_FAMILY_REVOKED = 'refresh_token.family_revoked',
-  REFRESH_TOKEN_SESSION_LINKED = 'refresh_token.session_linked',
-  REFRESH_TOKEN_QR_GENERATED = 'refresh_token.qr_generated',
+export enum UserRole {
+  CUSTOMER = 'CUSTOMER',
+  PREMIUM_CUSTOMER = 'PREMIUM_CUSTOMER',
+  SELLER = 'SELLER',
+  VENDOR = 'VENDOR',
+  MODERATOR = 'MODERATOR',
+  ADMIN = 'ADMIN',
+  SUPER_ADMIN = 'SUPER_ADMIN',
+  SUPPORT = 'SUPPORT',
+  DELIVERY_AGENT = 'DELIVERY_AGENT',
+}
+
+/**
+ * User tier (Bangladesh specific loyalty program)
+ */
+export enum UserTier {
+  BRONZE = 'BRONZE',
+  SILVER = 'SILVER',
+  GOLD = 'GOLD',
+  PLATINUM = 'PLATINUM',
+  DIAMOND = 'DIAMOND',
+}
+
+/**
+ * User event types
+ */
+export enum UserEventType {
+  USER_CREATED = 'user.created',
+  USER_ACTIVATED = 'user.activated',
+  USER_DEACTIVATED = 'user.deactivated',
+  USER_SUSPENDED = 'user.suspended',
+  USER_REACTIVATED = 'user.reactivated',
+  USER_DELETED = 'user.deleted',
+  USER_RESTORED = 'user.restored',
+  
+  EMAIL_VERIFIED = 'user.email_verified',
+  PHONE_VERIFIED = 'user.phone_verified',
+  
+  PASSWORD_CHANGED = 'user.password_changed',
+  PASSWORD_RESET_INITIATED = 'user.password_reset_initiated',
+  
+  ACCOUNT_LOCKED = 'user.account_locked',
+  ACCOUNT_UNLOCKED = 'user.account_unlocked',
+  
+  MFA_ENABLED = 'user.mfa_enabled',
+  MFA_DISABLED = 'user.mfa_disabled',
+  
+  ROLE_CHANGED = 'user.role_changed',
+  PROFILE_UPDATED = 'user.profile_updated',
+  LOGIN_RECORDED = 'user.login_recorded',
+  TIER_UPGRADED = 'user.tier_upgraded',
 }
 
 // ==================== Types ====================
 
 /**
- * Refresh token configuration (from shared-constants)
+ * User configuration constants
  */
-const REFRESH_CONFIG = {
-  EXPIRY_DAYS: REFRESH_TOKEN_CONFIG.EXPIRY_DAYS,
-  EXPIRY_MS: REFRESH_TOKEN_CONFIG.EXPIRY_DAYS * 24 * 60 * 60 * 1000,
-  MAX_ABSOLUTE_LIFETIME_DAYS: REFRESH_TOKEN_CONFIG.MAX_ABSOLUTE_LIFETIME_DAYS,
-  MAX_ABSOLUTE_LIFETIME_MS: REFRESH_TOKEN_CONFIG.MAX_ABSOLUTE_LIFETIME_DAYS * 24 * 60 * 60 * 1000,
-  MAX_ROTATION_COUNT: REFRESH_TOKEN_CONFIG.MAX_ROTATION_COUNT,
+const USER_CONFIG = {
+  MIN_NAME_LENGTH: 2,
+  MAX_NAME_LENGTH: 100,
+  NAME_PATTERN: /^[a-zA-Z\u0980-\u09FF\s.'-]+$/, // Supports Bengali
+  
+  // Tier thresholds (order amount in BDT)
+  TIER_THRESHOLDS: {
+    [UserTier.BRONZE]: 0,
+    [UserTier.SILVER]: 5000,
+    [UserTier.GOLD]: 25000,
+    [UserTier.PLATINUM]: 100000,
+    [UserTier.DIAMOND]: 500000,
+  },
+  
+  // Tier benefits
+  TIER_BENEFITS: {
+    [UserTier.BRONZE]: {
+      discountPercentage: 0,
+      freeShipping: false,
+      prioritySupport: false,
+    },
+    [UserTier.SILVER]: {
+      discountPercentage: 5,
+      freeShipping: true,
+      prioritySupport: false,
+    },
+    [UserTier.GOLD]: {
+      discountPercentage: 10,
+      freeShipping: true,
+      prioritySupport: false,
+    },
+    [UserTier.PLATINUM]: {
+      discountPercentage: 15,
+      freeShipping: true,
+      prioritySupport: true,
+    },
+    [UserTier.DIAMOND]: {
+      discountPercentage: 20,
+      freeShipping: true,
+      prioritySupport: true,
+    },
+  },
 } as const;
 
 /**
- * QR Code generation result (Bangladesh specific - for feature phones)
+ * User Entity Props Interface
+ * ✅ FIXED: All optional fields should have explicit `| undefined` type
  */
-export interface QrCodeResult {
-  token: string;
-  expiresAt: Date;
-  qrDataUrl?: string;
+export interface UserProps {
+  email: Email;
+  password: Password;
+  phone: Phone | undefined;  // ✅ FIXED: Explicitly allow undefined
+  fullName: string;
+  displayName: string | undefined;
+  avatar: string | undefined;
+  status: UserStatus;
+  role: UserRole;
+  tier: UserTier;
+  isEmailVerified: boolean;
+  isPhoneVerified: boolean;
+  isKycVerified: boolean;
+  mfaEnabled: boolean;
+  totalSpent: number;
+  lastLoginAt: Date | undefined;
+  emailVerifiedAt: Date | undefined;
+  phoneVerifiedAt: Date | undefined;
+  kycVerifiedAt: Date | undefined;
+  mfaEnabledAt: Date | undefined;
+  deletedAt: Date | null | undefined;  // ✅ FIXED: Allow null (matches base entity)
+  suspendedAt: Date | undefined;
+  suspendedReason: string | undefined;
+  preferredLanguage: 'en' | 'bn' | undefined;
+  preferredDistrict: string | undefined;
+  preferredUpazila: string | undefined;
 }
 
-/**
- * Session link information
- */
-export interface SessionLinkInfo {
-  sessionId: string;
-  linkedAt: Date;
-  linkedBy: string;
-}
-
-// ==================== Refresh Token Entity ====================
+// ==================== User Entity ====================
 
 /**
- * Refresh Token Entity
- * 
- * Manages refresh tokens with rotation and family pattern
+ * User Entity - Core domain aggregate root
  */
-export class RefreshToken extends BaseEntity {
-  private _userId: string;
-  private _token: Token;
-  private _status: RefreshTokenStatus;
-  private _expiresAt: Date;
-  private _revokedAt: Date | undefined;
-  private _usedAt: Date | undefined;
-  private _family: string;
-  private _previousTokenId: string | undefined;
-  private _rotationCount: number;
-  private _compromisedAt: Date | undefined;
-  private _compromisedReason: string | undefined;
-  private _deviceId: DeviceId | undefined;
-  private _ipAddress: IpAddress | undefined;
-  private _userAgent: string | undefined;
-  
-  // Session linking for complete audit trail
-  private _sessionId: string | undefined;
-  private _sessionLinkedAt: Date | undefined;
-  private _sessionLinkedBy: string | undefined;
-  
-  // QR Code support for feature phones (Bangladesh specific)
-  private _qrCodeToken: string | undefined;
-  private _qrCodeExpiresAt: Date | undefined;
-  private _qrCodeGeneratedAt: Date | undefined;
+export class User extends BaseEntity {
+  private _email: Email;
+  private _password: Password;
+  private _phone: Phone | undefined;
+  private _fullName: string;
+  private _displayName: string | undefined;
+  private _avatar: string | undefined;
+  private _status: UserStatus;
+  private _role: UserRole;
+  private _tier: UserTier;
+  private _isEmailVerified: boolean;
+  private _isPhoneVerified: boolean;
+  private _isKycVerified: boolean;
+  private _mfaEnabled: boolean;
+  private _totalSpent: number;
+  private _lastLoginAt: Date | undefined;
+  private _emailVerifiedAt: Date | undefined;
+  private _phoneVerifiedAt: Date | undefined;
+  private _kycVerifiedAt: Date | undefined;
+  private _mfaEnabledAt: Date | undefined;
+  private _suspendedAt: Date | undefined;
+  private _suspendedReason: string | undefined;
+  private _preferredLanguage: 'en' | 'bn';
+  private _preferredDistrict: string | undefined;
+  private _preferredUpazila: string | undefined;
 
   private constructor(
     id: string,
-    userId: string,
-    token: Token,
-    status: RefreshTokenStatus,
-    expiresAt: Date,
-    revokedAt: Date | undefined,
-    usedAt: Date | undefined,
-    family: string,
-    previousTokenId: string | undefined,
-    rotationCount: number,
-    compromisedAt: Date | undefined,
-    compromisedReason: string | undefined,
-    deviceId: DeviceId | undefined,
-    ipAddress: IpAddress | undefined,
-    userAgent: string | undefined,
-    sessionId: string | undefined,
-    sessionLinkedAt: Date | undefined,
-    sessionLinkedBy: string | undefined,
-    qrCodeToken: string | undefined,
-    qrCodeExpiresAt: Date | undefined,
-    qrCodeGeneratedAt: Date | undefined,
     createdAt: Date,
     updatedAt: Date,
-    version: number
+    version: number,
+    props: UserProps
   ) {
     super({ id, createdAt, updatedAt, version });
     
-    this._userId = userId;
-    this._token = token;
-    this._status = status;
-    this._expiresAt = expiresAt;
-    this._revokedAt = revokedAt;
-    this._usedAt = usedAt;
-    this._family = family;
-    this._previousTokenId = previousTokenId;
-    this._rotationCount = rotationCount;
-    this._compromisedAt = compromisedAt;
-    this._compromisedReason = compromisedReason;
-    this._deviceId = deviceId;
-    this._ipAddress = ipAddress;
-    this._userAgent = userAgent;
-    this._sessionId = sessionId;
-    this._sessionLinkedAt = sessionLinkedAt;
-    this._sessionLinkedBy = sessionLinkedBy;
-    this._qrCodeToken = qrCodeToken;
-    this._qrCodeExpiresAt = qrCodeExpiresAt;
-    this._qrCodeGeneratedAt = qrCodeGeneratedAt;
+    this._email = props.email;
+    this._password = props.password;
+    this._phone = props.phone;
+    this._fullName = props.fullName;
+    this._displayName = props.displayName;
+    this._avatar = props.avatar;
+    this._status = props.status;
+    this._role = props.role;
+    this._tier = props.tier;
+    this._isEmailVerified = props.isEmailVerified;
+    this._isPhoneVerified = props.isPhoneVerified;
+    this._isKycVerified = props.isKycVerified;
+    this._mfaEnabled = props.mfaEnabled;
+    this._totalSpent = props.totalSpent;
+    this._lastLoginAt = props.lastLoginAt;
+    this._emailVerifiedAt = props.emailVerifiedAt;
+    this._phoneVerifiedAt = props.phoneVerifiedAt;
+    this._kycVerifiedAt = props.kycVerifiedAt;
+    this._mfaEnabledAt = props.mfaEnabledAt;
+    this._deletedAt = props.deletedAt ?? null;  // ✅ FIXED: Convert undefined to null
+    this._suspendedAt = props.suspendedAt;
+    this._suspendedReason = props.suspendedReason;
+    this._preferredLanguage = props.preferredLanguage || 'en';
+    this._preferredDistrict = props.preferredDistrict;
+    this._preferredUpazila = props.preferredUpazila;
     
-    // ✅ Call validate after construction
+    // ✅ FIXED: Call validate and handle the result
     const validationResult = this.validate();
     if (!validationResult.isValid) {
       throw new EntityValidationError(
-        'RefreshToken validation failed',
+        'User validation failed',
         validationResult.errors,
         this.constructor.name
       );
@@ -188,60 +257,31 @@ export class RefreshToken extends BaseEntity {
   }
 
   /**
-   * ✅ FIXED: Validate entity invariants - returns EntityValidationResult
+   * ✅ FIXED: Validate entity invariants - returns ValidationResult
    */
-  protected validate(): EntityValidationResult {
+  protected validate(): ValidationResult {
     const errors: string[] = [];
     
-    // Required fields
-    if (!this._userId) {
-      errors.push('Refresh token requires a user ID');
+    if (!this._email) {
+      errors.push('User requires an email');
     }
-    if (!this._token) {
-      errors.push('Refresh token requires a token value');
+    if (!this._password) {
+      errors.push('User requires a password');
     }
-    if (!this._family) {
-      errors.push('Refresh token requires a family ID');
+    if (!this._fullName || this._fullName.trim().length === 0) {
+      errors.push('User requires a full name');
     }
-    
-    // Numeric validation
-    if (this._rotationCount < 0) {
-      errors.push('Rotation count cannot be negative');
+    if (this._fullName.length < USER_CONFIG.MIN_NAME_LENGTH) {
+      errors.push(`Full name must be at least ${USER_CONFIG.MIN_NAME_LENGTH} characters`);
     }
-    if (this._rotationCount > REFRESH_CONFIG.MAX_ROTATION_COUNT) {
-      errors.push(`Rotation count exceeds maximum of ${REFRESH_CONFIG.MAX_ROTATION_COUNT}`);
+    if (this._fullName.length > USER_CONFIG.MAX_NAME_LENGTH) {
+      errors.push(`Full name cannot exceed ${USER_CONFIG.MAX_NAME_LENGTH} characters`);
     }
-    
-    // Date validation
-    if (this._expiresAt < this.createdAt) {
-      errors.push('ExpiresAt cannot be before CreatedAt');
+    if (!USER_CONFIG.NAME_PATTERN.test(this._fullName)) {
+      errors.push('Full name contains invalid characters (only letters, spaces, dots, hyphens, apostrophes allowed)');
     }
-    
-    // ✅ QR code expiry validation
-    if (this._qrCodeExpiresAt && this._qrCodeGeneratedAt && 
-        this._qrCodeExpiresAt < this._qrCodeGeneratedAt) {
-      errors.push('QR code expiry cannot be before generation time');
-    }
-    
-    // Status-specific validation
-    if (this._status === RefreshTokenStatus.COMPROMISED && !this._compromisedAt) {
-      errors.push('Compromised token must have a compromised timestamp');
-    }
-    if (this._status === RefreshTokenStatus.COMPROMISED && !this._compromisedReason) {
-      errors.push('Compromised token must have a compromised reason');
-    }
-    
-    // Session link validation
-    if (this._sessionId && !this._sessionLinkedAt) {
-      errors.push('Session link must have a linked timestamp');
-    }
-    if (this._sessionId && !this._sessionLinkedBy) {
-      errors.push('Session link must have a linked by reference');
-    }
-    
-    // QR code validation
-    if (this._qrCodeToken && !this._qrCodeGeneratedAt) {
-      errors.push('QR code must have a generation timestamp');
+    if (this._totalSpent < 0) {
+      errors.push('Total spent cannot be negative');
     }
     
     return {
@@ -255,122 +295,136 @@ export class RefreshToken extends BaseEntity {
   // ============================================================
 
   /**
-   * Create a new refresh token (factory method)
+   * Create a new user (factory method)
+   * ✅ FIXED: All optional fields explicitly passed as undefined
    */
   public static create(
-    userId: string,
-    token: Token,
+    email: Email,
+    password: Password,
+    fullName: string,
     idGenerator: IdGenerator,
-    deviceId?: DeviceId,
-    ipAddress?: IpAddress,
-    userAgent?: string,
-    family?: string,
-    previousTokenId?: string,
-    rotationCount: number = 0
-  ): RefreshToken {
+    phone?: Phone,
+    preferredLanguage?: 'en' | 'bn'
+  ): User {
     const now = new Date();
-    const expiresAt = new Date(now.getTime() + REFRESH_CONFIG.EXPIRY_MS);
-    const tokenFamily = family || idGenerator.generate();
     
-    const refreshToken = new RefreshToken(
+    const user = new User(
       idGenerator.generate(),
-      userId,
-      token,
-      RefreshTokenStatus.ACTIVE,
-      expiresAt,
-      undefined,
-      undefined,
-      tokenFamily,
-      previousTokenId,
-      rotationCount,
-      undefined,
-      undefined,
-      deviceId,
-      ipAddress,
-      userAgent,
-      undefined,  // sessionId
-      undefined,  // sessionLinkedAt
-      undefined,  // sessionLinkedBy
-      undefined,  // qrCodeToken
-      undefined,  // qrCodeExpiresAt
-      undefined,  // qrCodeGeneratedAt
       now,
       now,
-      1
+      1,
+      {
+        email,
+        password,
+        phone: phone ?? undefined,  // ✅ FIXED: Explicitly pass undefined if not provided
+        fullName: fullName.trim(),
+        displayName: fullName.trim().split(' ')[0] ?? undefined,
+        avatar: undefined,
+        status: UserStatus.PENDING_VERIFICATION,
+        role: UserRole.CUSTOMER,
+        tier: UserTier.BRONZE,
+        isEmailVerified: false,
+        isPhoneVerified: false,
+        isKycVerified: false,
+        mfaEnabled: false,
+        totalSpent: 0,
+        lastLoginAt: undefined,
+        emailVerifiedAt: undefined,
+        phoneVerifiedAt: undefined,
+        kycVerifiedAt: undefined,
+        mfaEnabledAt: undefined,
+        deletedAt: undefined,
+        suspendedAt: undefined,
+        suspendedReason: undefined,
+        preferredLanguage: preferredLanguage ?? undefined,
+        preferredDistrict: undefined,
+        preferredUpazila: undefined,
+      }
     );
     
-    refreshToken.addDomainEvent({
+    user.addDomainEvent({
       eventId: generateEventId(),
-      eventType: RefreshTokenEventType.REFRESH_TOKEN_CREATED,
-      aggregateId: refreshToken.id,
+      eventType: UserEventType.USER_CREATED,
+      aggregateId: user.id,
       occurredOn: now,
       version: 1,
       metadata: {
-        userId,
-        family: tokenFamily,
-        expiresAt: expiresAt.toISOString(),
-        deviceId: deviceId?.getValue(),
-        hasDeviceInfo: !!(deviceId || ipAddress || userAgent),
+        email: email.getValue(),
+        role: UserRole.CUSTOMER,
+        tier: UserTier.BRONZE,
       },
     });
     
-    return refreshToken;
+    return user;
   }
 
   /**
    * Reconstitute from persistence
+   * ✅ FIXED: All optional fields explicitly handled
    */
   public static reconstitute(data: {
     id: string;
-    userId: string;
-    token: Token;
-    status: RefreshTokenStatus;
-    expiresAt: Date;
-    revokedAt?: Date;
-    usedAt?: Date;
-    family: string;
-    previousTokenId?: string;
-    rotationCount: number;
-    compromisedAt?: Date;
-    compromisedReason?: string;
-    deviceId?: DeviceId;
-    ipAddress?: IpAddress;
-    userAgent?: string;
-    sessionId?: string;
-    sessionLinkedAt?: Date;
-    sessionLinkedBy?: string;
-    qrCodeToken?: string;
-    qrCodeExpiresAt?: Date;
-    qrCodeGeneratedAt?: Date;
+    email: Email;
+    password: Password;
+    phone?: Phone;
+    fullName: string;
+    displayName?: string;
+    avatar?: string;
+    status: UserStatus;
+    role: UserRole;
+    tier: UserTier;
+    isEmailVerified: boolean;
+    isPhoneVerified: boolean;
+    isKycVerified: boolean;
+    mfaEnabled: boolean;
+    totalSpent: number;
+    lastLoginAt?: Date;
+    emailVerifiedAt?: Date;
+    phoneVerifiedAt?: Date;
+    kycVerifiedAt?: Date;
+    mfaEnabledAt?: Date;
+    deletedAt?: Date | null;
+    suspendedAt?: Date;
+    suspendedReason?: string;
+    preferredLanguage?: 'en' | 'bn';
+    preferredDistrict?: string;
+    preferredUpazila?: string;
     createdAt: Date;
     updatedAt: Date;
     version: number;
-  }): RefreshToken {
-    return new RefreshToken(
+  }): User {
+    return new User(
       data.id,
-      data.userId,
-      data.token,
-      data.status,
-      data.expiresAt,
-      data.revokedAt,
-      data.usedAt,
-      data.family,
-      data.previousTokenId,
-      data.rotationCount,
-      data.compromisedAt,
-      data.compromisedReason,
-      data.deviceId,
-      data.ipAddress,
-      data.userAgent,
-      data.sessionId,
-      data.sessionLinkedAt,
-      data.sessionLinkedBy,
-      data.qrCodeToken,
-      data.qrCodeExpiresAt,
-      data.qrCodeGeneratedAt,
       data.createdAt,
       data.updatedAt,
-      data.version
+      data.version,
+      {
+        email: data.email,
+        password: data.password,
+        phone: data.phone ?? undefined,  // ✅ FIXED: Convert undefined to undefined
+        fullName: data.fullName,
+        displayName: data.displayName ?? undefined,
+        avatar: data.avatar ?? undefined,
+        status: data.status,
+        role: data.role,
+        tier: data.tier,
+        isEmailVerified: data.isEmailVerified,
+        isPhoneVerified: data.isPhoneVerified,
+        isKycVerified: data.isKycVerified,
+        mfaEnabled: data.mfaEnabled,
+        totalSpent: data.totalSpent,
+        lastLoginAt: data.lastLoginAt ?? undefined,
+        emailVerifiedAt: data.emailVerifiedAt ?? undefined,
+        phoneVerifiedAt: data.phoneVerifiedAt ?? undefined,
+        kycVerifiedAt: data.kycVerifiedAt ?? undefined,
+        mfaEnabledAt: data.mfaEnabledAt ?? undefined,
+        deletedAt: data.deletedAt ?? undefined,
+        suspendedAt: data.suspendedAt ?? undefined,
+        suspendedReason: data.suspendedReason ?? undefined,
+        preferredLanguage: data.preferredLanguage ?? undefined,
+        preferredDistrict: data.preferredDistrict ?? undefined,
+        preferredUpazila: data.preferredUpazila ?? undefined,
+      }
     );
   }
 
@@ -379,338 +433,530 @@ export class RefreshToken extends BaseEntity {
   // ============================================================
 
   /**
-   * Revoke this token
+   * Activate user account
    */
-  public revoke(reason?: string): void {
-    if (this._status !== RefreshTokenStatus.ACTIVE) {
-      throw new EntityValidationError(
-        `Can only revoke active tokens. Current status: ${this._status}`
-      );
+  public activate(): void {
+    if (this._status === UserStatus.SUSPENDED) {
+      throw new EntityValidationError('Cannot activate suspended user');
+    }
+    if (this._status === UserStatus.DELETED) {
+      throw new EntityValidationError('Cannot activate deleted user');
+    }
+    if (this._status === UserStatus.ACTIVE) {
+      return;
     }
     
-    this._status = RefreshTokenStatus.REVOKED;
-    this._revokedAt = new Date();
+    this._status = UserStatus.ACTIVE;
     this.touch();
     
     this.addDomainEvent({
       eventId: generateEventId(),
-      eventType: RefreshTokenEventType.REFRESH_TOKEN_REVOKED,
+      eventType: UserEventType.USER_ACTIVATED,
       aggregateId: this.id,
       occurredOn: new Date(),
       version: this.version,
       metadata: {
-        userId: this._userId,
-        family: this._family,
-        reason: reason || 'Manual revocation',
-        rotationCount: this._rotationCount,
+        userId: this.id,
       },
     });
   }
 
   /**
-   * Rotate token (create new token, revoke current)
-   * Implements token rotation pattern for security
+   * Deactivate user account
    */
-  public rotate(
-    newToken: Token,
-    idGenerator: IdGenerator,
-    newDeviceId?: DeviceId,
-    newIpAddress?: IpAddress,
-    newUserAgent?: string
-  ): RefreshToken {
-    if (!this.isValidForRotation()) {
-      throw new EntityValidationError('Cannot rotate invalid or expired token');
+  public deactivate(): void {
+    if (this._status === UserStatus.LOCKED) {
+      throw new EntityValidationError('Cannot deactivate locked user');
+    }
+    if (this._status === UserStatus.DELETED) {
+      throw new EntityValidationError('Cannot deactivate deleted user');
+    }
+    if (this._status === UserStatus.INACTIVE) {
+      return;
     }
     
-    // Check maximum absolute lifetime
-    if (this.hasExceededAbsoluteLifetime()) {
-      throw new EntityValidationError('Token has exceeded maximum absolute lifetime');
-    }
-    
-    // Check rotation limit
-    if (this._rotationCount >= REFRESH_CONFIG.MAX_ROTATION_COUNT) {
-      throw new EntityValidationError(
-        `Token has reached maximum rotation count of ${REFRESH_CONFIG.MAX_ROTATION_COUNT}`
-      );
-    }
-    
-    // Revoke current token
-    this.revoke('Rotated');
-    
-    // Create new token in same family, preserving session link
-    const rotatedToken = RefreshToken.create(
-      this._userId,
-      newToken,
-      idGenerator,
-      newDeviceId || this._deviceId,
-      newIpAddress || this._ipAddress,
-      newUserAgent || this._userAgent,
-      this._family,
-      this.id,
-      this._rotationCount + 1
-    );
-    
-    // Preserve session link if exists
-    if (this._sessionId) {
-      rotatedToken.linkToSession(this._sessionId, 'rotation_preserved');
-    }
-    
-    this.addDomainEvent({
-      eventId: generateEventId(),
-      eventType: RefreshTokenEventType.REFRESH_TOKEN_ROTATED,
-      aggregateId: this.id,
-      occurredOn: new Date(),
-      version: this.version,
-      metadata: {
-        userId: this._userId,
-        oldTokenId: this.id,
-        newTokenId: rotatedToken.id,
-        family: this._family,
-        rotationCount: this._rotationCount + 1,
-        preservedSession: !!this._sessionId,
-      },
-    });
-    
-    return rotatedToken;
-  }
-
-  /**
-   * Mark token as used (one-time use)
-   */
-  public markUsed(): void {
-    if (this._status !== RefreshTokenStatus.ACTIVE) {
-      throw new EntityValidationError(
-        `Cannot use inactive token. Current status: ${this._status}`
-      );
-    }
-    
-    if (this.isExpired()) {
-      this.markExpired();
-      throw new EntityValidationError('Cannot use expired token');
-    }
-    
-    this._status = RefreshTokenStatus.USED;
-    this._usedAt = new Date();
+    this._status = UserStatus.INACTIVE;
     this.touch();
     
     this.addDomainEvent({
       eventId: generateEventId(),
-      eventType: RefreshTokenEventType.REFRESH_TOKEN_USED,
+      eventType: UserEventType.USER_DEACTIVATED,
       aggregateId: this.id,
       occurredOn: new Date(),
       version: this.version,
       metadata: {
-        userId: this._userId,
-        sessionId: this._sessionId,
+        userId: this.id,
       },
     });
   }
 
   /**
-   * Mark token as compromised (token theft detected)
-   * This will revoke the entire token family
+   * Suspend user account (with reason)
    */
-  public markCompromised(reason: string, familyTokens: RefreshToken[]): void {
-    this._status = RefreshTokenStatus.COMPROMISED;
-    this._compromisedAt = new Date();
-    this._compromisedReason = reason;
+  public suspend(reason: string): void {
+    if (this._status === UserStatus.DELETED) {
+      throw new EntityValidationError('Cannot suspend deleted user');
+    }
+    if (this._status === UserStatus.SUSPENDED) {
+      return;
+    }
+    
+    this._status = UserStatus.SUSPENDED;
+    this._suspendedAt = new Date();
+    this._suspendedReason = reason;
     this.touch();
     
     this.addDomainEvent({
       eventId: generateEventId(),
-      eventType: RefreshTokenEventType.REFRESH_TOKEN_COMPROMISED,
+      eventType: UserEventType.USER_SUSPENDED,
       aggregateId: this.id,
       occurredOn: new Date(),
       version: this.version,
       metadata: {
-        userId: this._userId,
-        family: this._family,
+        userId: this.id,
         reason,
-        rotationCount: this._rotationCount,
       },
     });
+  }
+
+  /**
+   * Reactivate suspended user
+   */
+  public reactivate(): void {
+    if (this._status !== UserStatus.SUSPENDED) {
+      throw new EntityValidationError('Only suspended users can be reactivated');
+    }
     
-    // Revoke all tokens in the family
-    for (const token of familyTokens) {
-      if (token.id !== this.id && token._status === RefreshTokenStatus.ACTIVE) {
-        token.revoke(`Compromised - family ${this._family}`);
+    this._status = UserStatus.ACTIVE;
+    this._suspendedAt = undefined;
+    this._suspendedReason = undefined;
+    this.touch();
+    
+    this.addDomainEvent({
+      eventId: generateEventId(),
+      eventType: UserEventType.USER_REACTIVATED,
+      aggregateId: this.id,
+      occurredOn: new Date(),
+      version: this.version,
+      metadata: {
+        userId: this.id,
+      },
+    });
+  }
+
+  /**
+   * Soft delete user account
+   */
+  public delete(): void {
+    if (this._status === UserStatus.DELETED) {
+      throw new EntityValidationError('User already deleted');
+    }
+    
+    this._status = UserStatus.DELETED;
+    this._deletedAt = new Date();
+    this.touch();
+    
+    this.addDomainEvent({
+      eventId: generateEventId(),
+      eventType: UserEventType.USER_DELETED,
+      aggregateId: this.id,
+      occurredOn: new Date(),
+      version: this.version,
+      metadata: {
+        userId: this.id,
+      },
+    });
+  }
+
+  /**
+   * Restore soft-deleted user
+   */
+  public restore(): void {
+    if (this._status !== UserStatus.DELETED) {
+      throw new EntityValidationError('Only deleted users can be restored');
+    }
+    
+    this._status = UserStatus.ACTIVE;
+    this._deletedAt = null;
+    this.touch();
+    
+    this.addDomainEvent({
+      eventId: generateEventId(),
+      eventType: UserEventType.USER_RESTORED,
+      aggregateId: this.id,
+      occurredOn: new Date(),
+      version: this.version,
+      metadata: {
+        userId: this.id,
+      },
+    });
+  }
+
+  /**
+   * Verify email address
+   */
+  public verifyEmail(): void {
+    if (this._isEmailVerified) {
+      throw new EntityValidationError('Email already verified');
+    }
+    if (this._status === UserStatus.DELETED) {
+      throw new EntityValidationError('Cannot verify email for deleted user');
+    }
+    
+    this._isEmailVerified = true;
+    this._emailVerifiedAt = new Date();
+    
+    // Auto-activate if both email and phone are verified
+    if (this._isPhoneVerified && this._status === UserStatus.PENDING_VERIFICATION) {
+      this.activate();
+    }
+    
+    this.touch();
+    
+    this.addDomainEvent({
+      eventId: generateEventId(),
+      eventType: UserEventType.EMAIL_VERIFIED,
+      aggregateId: this.id,
+      occurredOn: new Date(),
+      version: this.version,
+      metadata: {
+        userId: this.id,
+        email: this._email.getValue(),
+      },
+    });
+  }
+
+  /**
+   * Verify phone number
+   */
+  public verifyPhone(): void {
+    if (!this._phone) {
+      throw new EntityValidationError('User does not have a phone number');
+    }
+    if (this._isPhoneVerified) {
+      throw new EntityValidationError('Phone already verified');
+    }
+    if (this._status === UserStatus.DELETED) {
+      throw new EntityValidationError('Cannot verify phone for deleted user');
+    }
+    
+    this._isPhoneVerified = true;
+    this._phoneVerifiedAt = new Date();
+    
+    // Auto-activate if both email and phone are verified
+    if (this._isEmailVerified && this._status === UserStatus.PENDING_VERIFICATION) {
+      this.activate();
+    }
+    
+    this.touch();
+    
+    this.addDomainEvent({
+      eventId: generateEventId(),
+      eventType: UserEventType.PHONE_VERIFIED,
+      aggregateId: this.id,
+      occurredOn: new Date(),
+      version: this.version,
+      metadata: {
+        userId: this.id,
+        phone: this._phone.getValue(),
+      },
+    });
+  }
+
+  /**
+   * Verify KYC (for sellers/vendors)
+   */
+  public verifyKyc(): void {
+    if (this._isKycVerified) {
+      throw new EntityValidationError('KYC already verified');
+    }
+    if (this._status === UserStatus.DELETED) {
+      throw new EntityValidationError('Cannot verify KYC for deleted user');
+    }
+    
+    this._isKycVerified = true;
+    this._kycVerifiedAt = new Date();
+    this.touch();
+  }
+
+  /**
+   * Change user password
+   */
+  public changePassword(newPassword: Password): void {
+    if (this._status === UserStatus.LOCKED) {
+      throw new EntityValidationError('Cannot change password for locked account');
+    }
+    if (this._status === UserStatus.DELETED) {
+      throw new EntityValidationError('Cannot change password for deleted user');
+    }
+    
+    this._password = newPassword;
+    this.touch();
+    
+    this.addDomainEvent({
+      eventId: generateEventId(),
+      eventType: UserEventType.PASSWORD_CHANGED,
+      aggregateId: this.id,
+      occurredOn: new Date(),
+      version: this.version,
+      metadata: {
+        userId: this.id,
+      },
+    });
+  }
+
+  /**
+   * Lock user account (after too many failed attempts)
+   */
+  public lockAccount(): void {
+    if (this._status === UserStatus.LOCKED) {
+      return;
+    }
+    if (this._status === UserStatus.DELETED) {
+      throw new EntityValidationError('Cannot lock deleted user');
+    }
+    
+    this._status = UserStatus.LOCKED;
+    this.touch();
+    
+    this.addDomainEvent({
+      eventId: generateEventId(),
+      eventType: UserEventType.ACCOUNT_LOCKED,
+      aggregateId: this.id,
+      occurredOn: new Date(),
+      version: this.version,
+      metadata: {
+        userId: this.id,
+      },
+    });
+  }
+
+  /**
+   * Unlock user account
+   */
+  public unlockAccount(): void {
+    if (this._status !== UserStatus.LOCKED) {
+      throw new EntityValidationError('Account is not locked');
+    }
+    
+    this._status = UserStatus.ACTIVE;
+    this.touch();
+    
+    this.addDomainEvent({
+      eventId: generateEventId(),
+      eventType: UserEventType.ACCOUNT_UNLOCKED,
+      aggregateId: this.id,
+      occurredOn: new Date(),
+      version: this.version,
+      metadata: {
+        userId: this.id,
+      },
+    });
+  }
+
+  /**
+   * Enable MFA for user
+   */
+  public enableMFA(): void {
+    if (this._mfaEnabled) {
+      throw new EntityValidationError('MFA already enabled');
+    }
+    if (this._status === UserStatus.DELETED) {
+      throw new EntityValidationError('Cannot enable MFA for deleted user');
+    }
+    
+    this._mfaEnabled = true;
+    this._mfaEnabledAt = new Date();
+    this.touch();
+    
+    this.addDomainEvent({
+      eventId: generateEventId(),
+      eventType: UserEventType.MFA_ENABLED,
+      aggregateId: this.id,
+      occurredOn: new Date(),
+      version: this.version,
+      metadata: {
+        userId: this.id,
+      },
+    });
+  }
+
+  /**
+   * Disable MFA for user
+   */
+  public disableMFA(): void {
+    if (!this._mfaEnabled) {
+      throw new EntityValidationError('MFA not enabled');
+    }
+    
+    this._mfaEnabled = false;
+    this.touch();
+    
+    this.addDomainEvent({
+      eventId: generateEventId(),
+      eventType: UserEventType.MFA_DISABLED,
+      aggregateId: this.id,
+      occurredOn: new Date(),
+      version: this.version,
+      metadata: {
+        userId: this.id,
+      },
+    });
+  }
+
+  /**
+   * Change user role (admin action)
+   */
+  public changeRole(newRole: UserRole, changedBy: string): void {
+    if (this._role === newRole) {
+      return;
+    }
+    if (this._status === UserStatus.DELETED) {
+      throw new EntityValidationError('Cannot change role for deleted user');
+    }
+    
+    const oldRole = this._role;
+    this._role = newRole;
+    this.touch();
+    
+    this.addDomainEvent({
+      eventId: generateEventId(),
+      eventType: UserEventType.ROLE_CHANGED,
+      aggregateId: this.id,
+      occurredOn: new Date(),
+      version: this.version,
+      metadata: {
+        userId: this.id,
+        oldRole,
+        newRole,
+        changedBy,
+      },
+    });
+  }
+
+  /**
+   * Update user profile information
+   */
+  public updateProfile(
+    fullName?: string,
+    displayName?: string,
+    avatar?: string,
+    phone?: Phone,
+    preferredLanguage?: 'en' | 'bn',
+    preferredDistrict?: string,
+    preferredUpazila?: string
+  ): void {
+    if (fullName) {
+      const trimmed = fullName.trim();
+      if (trimmed.length < USER_CONFIG.MIN_NAME_LENGTH) {
+        throw new EntityValidationError(
+          `Full name must be at least ${USER_CONFIG.MIN_NAME_LENGTH} characters`
+        );
+      }
+      if (trimmed.length > USER_CONFIG.MAX_NAME_LENGTH) {
+        throw new EntityValidationError(
+          `Full name cannot exceed ${USER_CONFIG.MAX_NAME_LENGTH} characters`
+        );
+      }
+      if (!USER_CONFIG.NAME_PATTERN.test(trimmed)) {
+        throw new EntityValidationError('Full name contains invalid characters');
+      }
+      this._fullName = trimmed;
+    }
+    
+    if (displayName) {
+      this._displayName = displayName.trim();
+    }
+    
+    if (avatar !== undefined) {
+      this._avatar = avatar;
+    }
+    
+    if (phone !== undefined) {
+      this._phone = phone;
+      // Reset phone verification when phone number changes
+      if (this._isPhoneVerified && this._phone !== phone) {
+        this._isPhoneVerified = false;
+        this._phoneVerifiedAt = undefined;
       }
     }
     
+    if (preferredLanguage) {
+      this._preferredLanguage = preferredLanguage;
+    }
+    
+    if (preferredDistrict) {
+      this._preferredDistrict = preferredDistrict;
+    }
+    
+    if (preferredUpazila) {
+      this._preferredUpazila = preferredUpazila;
+    }
+    
+    this.touch();
+    
     this.addDomainEvent({
       eventId: generateEventId(),
-      eventType: RefreshTokenEventType.REFRESH_TOKEN_FAMILY_REVOKED,
+      eventType: UserEventType.PROFILE_UPDATED,
       aggregateId: this.id,
       occurredOn: new Date(),
       version: this.version,
       metadata: {
-        userId: this._userId,
-        family: this._family,
-        tokenCount: familyTokens.length,
-        reason,
+        userId: this.id,
       },
     });
   }
 
   /**
-   * Mark token as expired
+   * Update total spent (for tier calculation)
    */
-  private markExpired(): void {
-    if (this._status !== RefreshTokenStatus.ACTIVE) {
-      return;
+  public updateTotalSpent(amount: number): void {
+    if (amount < 0) {
+      throw new EntityValidationError('Amount cannot be negative');
     }
     
-    this._status = RefreshTokenStatus.EXPIRED;
+    const oldTier = this._tier;
+    this._totalSpent += amount;
+    
+    // Recalculate tier
+    const newTier = this.calculateTier();
+    if (newTier !== oldTier) {
+      this._tier = newTier;
+      this.addDomainEvent({
+        eventId: generateEventId(),
+        eventType: UserEventType.TIER_UPGRADED,
+        aggregateId: this.id,
+        occurredOn: new Date(),
+        version: this.version,
+        metadata: {
+          userId: this.id,
+          oldTier,
+          newTier,
+          totalSpent: this._totalSpent,
+        },
+      });
+    }
+    
+    this.touch();
+  }
+
+  /**
+   * Record user login
+   */
+  public recordLogin(): void {
+    this._lastLoginAt = new Date();
     this.touch();
     
     this.addDomainEvent({
       eventId: generateEventId(),
-      eventType: RefreshTokenEventType.REFRESH_TOKEN_EXPIRED,
+      eventType: UserEventType.LOGIN_RECORDED,
       aggregateId: this.id,
       occurredOn: new Date(),
       version: this.version,
       metadata: {
-        userId: this._userId,
-        expiresAt: this._expiresAt.toISOString(),
+        userId: this.id,
       },
     });
-  }
-
-  // ============================================================
-  // Session Linking Methods
-  // ============================================================
-
-  /**
-   * Link refresh token to a session
-   */
-  public linkToSession(sessionId: string, linkedBy: string = 'system'): void {
-    if (!this.isActive()) {
-      throw new EntityValidationError(
-        `Cannot link inactive token to session. Current status: ${this._status}`
-      );
-    }
-    
-    this._sessionId = sessionId;
-    this._sessionLinkedAt = new Date();
-    this._sessionLinkedBy = linkedBy;
-    this.touch();
-    
-    this.addDomainEvent({
-      eventId: generateEventId(),
-      eventType: RefreshTokenEventType.REFRESH_TOKEN_SESSION_LINKED,
-      aggregateId: this.id,
-      occurredOn: new Date(),
-      version: this.version,
-      metadata: {
-        userId: this._userId,
-        sessionId,
-        linkedBy,
-        tokenFamily: this._family,
-      },
-    });
-  }
-
-  /**
-   * Unlink refresh token from session
-   */
-  public unlinkFromSession(): void {
-    if (!this._sessionId) {
-      return;
-    }
-    
-    this._sessionId = undefined;
-    this._sessionLinkedAt = undefined;
-    this._sessionLinkedBy = undefined;
-    this.touch();
-  }
-
-  /**
-   * Get session link information
-   */
-  public getSessionLinkInfo(): SessionLinkInfo | undefined {
-    if (!this._sessionId) {
-      return undefined;
-    }
-    
-    return {
-      sessionId: this._sessionId,
-      linkedAt: this._sessionLinkedAt!,
-      linkedBy: this._sessionLinkedBy!,
-    };
-  }
-
-  // ============================================================
-  // QR Code Support for Feature Phones (Bangladesh)
-  // ============================================================
-
-  /**
-   * Generate QR code token for feature phone authentication
-   */
-  public generateQrCodeToken(qrCodeValue?: string, expiresInMinutes: number = 5): QrCodeResult {
-    if (!this.isActive()) {
-      throw new EntityValidationError(
-        `Cannot generate QR code for inactive token. Current status: ${this._status}`
-      );
-    }
-    
-    const qrToken = qrCodeValue || Token.generate(TokenType.DEVICE, 16);
-    const expiresAt = new Date(Date.now() + expiresInMinutes * 60 * 1000);
-    
-    this._qrCodeToken = qrToken;
-    this._qrCodeExpiresAt = expiresAt;
-    this._qrCodeGeneratedAt = new Date();
-    this.touch();
-    
-    this.addDomainEvent({
-      eventId: generateEventId(),
-      eventType: RefreshTokenEventType.REFRESH_TOKEN_QR_GENERATED,
-      aggregateId: this.id,
-      occurredOn: new Date(),
-      version: this.version,
-      metadata: {
-        userId: this._userId,
-        expiresAt: expiresAt.toISOString(),
-        expiresInMinutes,
-      },
-    });
-    
-    return {
-      token: qrToken,
-      expiresAt,
-    };
-  }
-
-  /**
-   * Verify QR code token
-   */
-  public verifyQrCodeToken(qrToken: string): boolean {
-    if (!this._qrCodeToken) {
-      return false;
-    }
-    
-    if (this._qrCodeExpiresAt && new Date() > this._qrCodeExpiresAt) {
-      return false;
-    }
-    
-    return this._qrCodeToken === qrToken;
-  }
-
-  /**
-   * Invalidate QR code token (after use)
-   */
-  public invalidateQrCode(): void {
-    this._qrCodeToken = undefined;
-    this._qrCodeExpiresAt = undefined;
-    this._qrCodeGeneratedAt = undefined;
-    this.touch();
-  }
-
-  /**
-   * Check if QR code is still valid
-   */
-  public isQrCodeValid(): boolean {
-    return !!this._qrCodeToken && 
-           (!this._qrCodeExpiresAt || new Date() <= this._qrCodeExpiresAt);
   }
 
   // ============================================================
@@ -718,128 +964,148 @@ export class RefreshToken extends BaseEntity {
   // ============================================================
 
   /**
-   * Check if token is expired
+   * Calculate user tier based on total spent
    */
-  public isExpired(): boolean {
-    if (this._status === RefreshTokenStatus.EXPIRED) return true;
-    if (this._status !== RefreshTokenStatus.ACTIVE) return false;
-    return new Date() > this._expiresAt;
+  private calculateTier(): UserTier {
+    if (this._totalSpent >= USER_CONFIG.TIER_THRESHOLDS[UserTier.DIAMOND]) {
+      return UserTier.DIAMOND;
+    }
+    if (this._totalSpent >= USER_CONFIG.TIER_THRESHOLDS[UserTier.PLATINUM]) {
+      return UserTier.PLATINUM;
+    }
+    if (this._totalSpent >= USER_CONFIG.TIER_THRESHOLDS[UserTier.GOLD]) {
+      return UserTier.GOLD;
+    }
+    if (this._totalSpent >= USER_CONFIG.TIER_THRESHOLDS[UserTier.SILVER]) {
+      return UserTier.SILVER;
+    }
+    return UserTier.BRONZE;
   }
 
   /**
-   * ✅ FIXED: Check if token has exceeded absolute maximum lifetime
-   * Uses `this.createdAt` from BaseEntity instead of `getCreatedAt()`
-   */
-  public hasExceededAbsoluteLifetime(): boolean {
-    const createdAt = this.createdAt;  // ✅ BaseEntity থেকে createdAt ব্যবহার
-    const absoluteExpiry = new Date(createdAt.getTime() + REFRESH_CONFIG.MAX_ABSOLUTE_LIFETIME_MS);
-    return new Date() > absoluteExpiry;
-  }
-
-  /**
-   * Check if token is valid for rotation
-   */
-  public isValidForRotation(): boolean {
-    return this._status === RefreshTokenStatus.ACTIVE && 
-           !this.isExpired() && 
-           !this.hasExceededAbsoluteLifetime();
-  }
-
-  /**
-   * Check if token is revoked
-   */
-  public isRevoked(): boolean {
-    return this._status === RefreshTokenStatus.REVOKED;
-  }
-
-  /**
-   * Check if token is compromised
-   */
-  public isCompromised(): boolean {
-    return this._status === RefreshTokenStatus.COMPROMISED;
-  }
-
-  /**
-   * Check if token is active
+   * Check if user is active (can perform actions)
    */
   public isActive(): boolean {
-    return this._status === RefreshTokenStatus.ACTIVE && 
-           !this.isExpired() && 
-           !this.hasExceededAbsoluteLifetime();
+    return this._status === UserStatus.ACTIVE;
   }
 
   /**
-   * Get remaining time in days/hours/minutes
+   * Check if user is locked
    */
-  public getRemainingTime(): { days: number; hours: number; minutes: number } {
-    if (this.isExpired()) {
-      return { days: 0, hours: 0, minutes: 0 };
+  public isLocked(): boolean {
+    return this._status === UserStatus.LOCKED;
+  }
+
+  /**
+   * Check if user is suspended
+   */
+  public isSuspended(): boolean {
+    return this._status === UserStatus.SUSPENDED;
+  }
+
+  /**
+ * ✅ FIXED: Override BaseEntity's isDeleted property
+ * Combines soft-delete status with user status
+ */
+public override get isDeleted(): boolean {
+  // Check both soft-delete (from BaseEntity) and user status
+  return super.isDeleted || this._status === UserStatus.DELETED;
+}
+
+  /**
+   * Check if user is pending verification
+   */
+  public isPendingVerification(): boolean {
+    return this._status === UserStatus.PENDING_VERIFICATION;
+  }
+
+  /**
+   * Check if user is fully verified
+   */
+  public isFullyVerified(): boolean {
+    return this._isEmailVerified && this._isPhoneVerified;
+  }
+
+  /**
+   * Check if user has admin privileges
+   */
+  public isAdmin(): boolean {
+    return this._role === UserRole.ADMIN || this._role === UserRole.SUPER_ADMIN;
+  }
+
+  /**
+   * Check if user is super admin
+   */
+  public isSuperAdmin(): boolean {
+    return this._role === UserRole.SUPER_ADMIN;
+  }
+
+  /**
+   * Check if user is seller/vendor
+   */
+  public isSeller(): boolean {
+    return this._role === UserRole.SELLER || this._role === UserRole.VENDOR;
+  }
+
+  /**
+   * Get display name (prefer displayName, fallback to first name)
+   */
+  public getDisplayName(): string {
+    if (this._displayName) {
+      return this._displayName;
     }
-    
-    const remainingMs = this._expiresAt.getTime() - new Date().getTime();
-    const days = Math.floor(remainingMs / (24 * 60 * 60 * 1000));
-    const hours = Math.floor((remainingMs % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
-    const minutes = Math.floor((remainingMs % (60 * 60 * 1000)) / (60 * 1000));
-    
-    return { days, hours, minutes };
+    return this._fullName.split(' ')[0] || this._fullName;
   }
 
   /**
-   * Get remaining time formatted
+   * Get tier discount percentage
    */
-  public getRemainingTimeFormatted(): string {
-    const { days, hours, minutes } = this.getRemainingTime();
-    
-    if (days > 0) return `${days} day${days !== 1 ? 's' : ''}`;
-    if (hours > 0) return `${hours} hour${hours !== 1 ? 's' : ''}`;
-    if (minutes > 0) return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
-    return 'Expiring soon';
+  public getTierDiscount(): number {
+    return USER_CONFIG.TIER_BENEFITS[this._tier].discountPercentage;
   }
 
   /**
-   * ✅ FIXED: Get token age in days
-   * Uses `this.createdAt` from BaseEntity instead of `getCreatedAt()`
+   * Check if user gets free shipping
    */
-  public getAgeInDays(): number {
-    const ageMs = Date.now() - this.createdAt.getTime();  // ✅ BaseEntity থেকে createdAt ব্যবহার
-    return Math.floor(ageMs / (24 * 60 * 60 * 1000));
+  public hasFreeShipping(): boolean {
+    return USER_CONFIG.TIER_BENEFITS[this._tier].freeShipping;
   }
 
   /**
-   * Check if token can be refreshed (for this token)
+   * Check if user has priority support
    */
-  public canBeRefreshed(): boolean {
-    return this.isActive() && !this.hasExceededAbsoluteLifetime();
+  public hasPrioritySupport(): boolean {
+    return USER_CONFIG.TIER_BENEFITS[this._tier].prioritySupport;
   }
 
   // ============================================================
   // Getters
   // ============================================================
 
-  public getUserId(): string { return this._userId; }
-  public getToken(): Token { return this._token; }
-  public getStatus(): RefreshTokenStatus { return this._status; }
-  public getExpiresAt(): Date { return new Date(this._expiresAt); }
-  public getRevokedAt(): Date | undefined { return this._revokedAt ? new Date(this._revokedAt) : undefined; }
-  public getUsedAt(): Date | undefined { return this._usedAt ? new Date(this._usedAt) : undefined; }
-  public getFamily(): string { return this._family; }
-  public getPreviousTokenId(): string | undefined { return this._previousTokenId; }
-  public getRotationCount(): number { return this._rotationCount; }
-  public getCompromisedAt(): Date | undefined { return this._compromisedAt ? new Date(this._compromisedAt) : undefined; }
-  public getCompromisedReason(): string | undefined { return this._compromisedReason; }
-  public getDeviceId(): DeviceId | undefined { return this._deviceId; }
-  public getIpAddress(): IpAddress | undefined { return this._ipAddress; }
-  public getUserAgent(): string | undefined { return this._userAgent; }
-  
-  // Session getters
-  public getSessionId(): string | undefined { return this._sessionId; }
-  public getSessionLinkedAt(): Date | undefined { return this._sessionLinkedAt ? new Date(this._sessionLinkedAt) : undefined; }
-  public getSessionLinkedBy(): string | undefined { return this._sessionLinkedBy; }
-  
-  // QR code getters
-  public getQrCodeToken(): string | undefined { return this._qrCodeToken; }
-  public getQrCodeExpiresAt(): Date | undefined { return this._qrCodeExpiresAt ? new Date(this._qrCodeExpiresAt) : undefined; }
-  public getQrCodeGeneratedAt(): Date | undefined { return this._qrCodeGeneratedAt ? new Date(this._qrCodeGeneratedAt) : undefined; }
+  public getEmail(): Email { return this._email; }
+  public getPassword(): Password { return this._password; }
+  public getPhone(): Phone | undefined { return this._phone; }
+  public getFullName(): string { return this._fullName; }
+  public getAvatar(): string | undefined { return this._avatar; }
+  public getStatus(): UserStatus { return this._status; }
+  public getRole(): UserRole { return this._role; }
+  public getTier(): UserTier { return this._tier; }
+  public isEmailVerified(): boolean { return this._isEmailVerified; }
+  public isPhoneVerified(): boolean { return this._isPhoneVerified; }
+  public isKycVerified(): boolean { return this._isKycVerified; }
+  public isMfaEnabled(): boolean { return this._mfaEnabled; }
+  public getTotalSpent(): number { return this._totalSpent; }
+  public getLastLoginAt(): Date | undefined { return this._lastLoginAt ? new Date(this._lastLoginAt) : undefined; }
+  public getEmailVerifiedAt(): Date | undefined { return this._emailVerifiedAt ? new Date(this._emailVerifiedAt) : undefined; }
+  public getPhoneVerifiedAt(): Date | undefined { return this._phoneVerifiedAt ? new Date(this._phoneVerifiedAt) : undefined; }
+  public getKycVerifiedAt(): Date | undefined { return this._kycVerifiedAt ? new Date(this._kycVerifiedAt) : undefined; }
+  public getMfaEnabledAt(): Date | undefined { return this._mfaEnabledAt ? new Date(this._mfaEnabledAt) : undefined; }
+  public getDeletedAt(): Date | null { return this._deletedAt ? new Date(this._deletedAt) : null; }
+  public getSuspendedAt(): Date | undefined { return this._suspendedAt ? new Date(this._suspendedAt) : undefined; }
+  public getSuspendedReason(): string | undefined { return this._suspendedReason; }
+  public getPreferredLanguage(): 'en' | 'bn' { return this._preferredLanguage; }
+  public getPreferredDistrict(): string | undefined { return this._preferredDistrict; }
+  public getPreferredUpazila(): string | undefined { return this._preferredUpazila; }
 
   // ============================================================
   // JSON Serialization
@@ -849,38 +1115,43 @@ export class RefreshToken extends BaseEntity {
    * Convert to JSON serializable object
    */
   public toJSON(): Record<string, unknown> {
-    const remaining = this.getRemainingTime();
-    const sessionLink = this.getSessionLinkInfo();
-    
     return {
       ...super.toJSON(),
-      userId: this._userId,
+      email: this._email.getValue(),
+      phone: this._phone?.getValue(),
+      fullName: this._fullName,
+      displayName: this.getDisplayName(),
+      avatar: this._avatar,
       status: this._status,
-      expiresAt: this._expiresAt.toISOString(),
-      revokedAt: this._revokedAt?.toISOString(),
-      usedAt: this._usedAt?.toISOString(),
-      family: this._family,
-      rotationCount: this._rotationCount,
-      deviceId: this._deviceId?.getValue(),
-      ipAddress: this._ipAddress?.getValue(),
-      sessionId: this._sessionId,
-      sessionLink,
-      isExpired: this.isExpired(),
-      isRevoked: this.isRevoked(),
-      isCompromised: this.isCompromised(),
+      role: this._role,
+      tier: this._tier,
+      isEmailVerified: this._isEmailVerified,
+      isPhoneVerified: this._isPhoneVerified,
+      isKycVerified: this._isKycVerified,
+      mfaEnabled: this._mfaEnabled,
+      totalSpent: this._totalSpent,
+      tierDiscount: this.getTierDiscount(),
+      hasFreeShipping: this.hasFreeShipping(),
+      hasPrioritySupport: this.hasPrioritySupport(),
+      lastLoginAt: this._lastLoginAt?.toISOString(),
+      emailVerifiedAt: this._emailVerifiedAt?.toISOString(),
+      phoneVerifiedAt: this._phoneVerifiedAt?.toISOString(),
+      kycVerifiedAt: this._kycVerifiedAt?.toISOString(),
+      mfaEnabledAt: this._mfaEnabledAt?.toISOString(),
+      deletedAt: this._deletedAt?.toISOString() ?? null,
+      suspendedAt: this._suspendedAt?.toISOString(),
+      suspendedReason: this._suspendedReason,
+      preferredLanguage: this._preferredLanguage,
+      preferredDistrict: this._preferredDistrict,
+      preferredUpazila: this._preferredUpazila,
       isActive: this.isActive(),
-      isValidForRotation: this.isValidForRotation(),
-      hasExceededAbsoluteLifetime: this.hasExceededAbsoluteLifetime(),
-      remainingDays: remaining.days,
-      remainingHours: remaining.hours,
-      remainingMinutes: remaining.minutes,
-      remainingTimeFormatted: this.getRemainingTimeFormatted(),
-      ageInDays: this.getAgeInDays(),
-      canBeRefreshed: this.canBeRefreshed(),
-      hasQrCode: !!this._qrCodeToken,
-      isQrCodeValid: this.isQrCodeValid(),
-      qrCodeExpiresAt: this._qrCodeExpiresAt?.toISOString(),
-      // ⚠️ Token value and QR code token are intentionally excluded for security
+      isLocked: this.isLocked(),
+      isSuspended: this.isSuspended(),
+      isDeleted: this.isDeleted,
+      isAdmin: this.isAdmin(),
+      isSeller: this.isSeller(),
+      isFullyVerified: this.isFullyVerified(),
+      // ⚠️ Password is intentionally excluded from JSON
     };
   }
 }
