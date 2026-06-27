@@ -42,7 +42,6 @@
 // ✅ FIXED: Import from shared packages
 import { ID_PATTERNS, ID_CONFIG } from '@vubon/shared-constants';
 import type { DomainEvent as SharedDomainEvent, AuditMetadata } from '@vubon/shared-types';
-import { randomBytes } from 'crypto';
 
 // ==================== Types ====================
 
@@ -77,6 +76,15 @@ export interface EntityConstructorOptions {
 /**
  * Entity validation result
  */
+export interface EntityValidationResult {
+  isValid: boolean;
+  errors: readonly string[];
+}
+
+/**
+ * Validation result interface
+ * Used for entity validation results
+ */
 export interface ValidationResult {
   isValid: boolean;
   errors: readonly string[];
@@ -96,6 +104,9 @@ export interface ChangeEntry {
 /**
  * Entity metadata for audit trail
  */
+// apps/auth-service/src/module/domain/entities/base.entity.ts
+// ✅ EntityMetadata ইন্টারফেস আপডেট করুন (প্রায় লাইন 50-60)
+
 export interface EntityMetadata {
   createdBy?: string;
   createdByIp?: string;
@@ -105,6 +116,16 @@ export interface EntityMetadata {
   lastModifiedByUserAgent?: string;
   tags?: string[];
   custom?: Record<string, unknown>;
+}
+
+// ✅ ChangeEntry ইন্টারফেস আপডেট করুন (প্রায় লাইন 440-450)
+
+export interface ChangeEntry {
+  field: string;
+  oldValue: unknown;
+  newValue: unknown;
+  changedAt: Date;
+  changedBy?: string;  // ✅ optional করুন
 }
 
 // ==================== Constants ====================
@@ -131,15 +152,16 @@ const ID_VALIDATION_CONFIG = {
 /**
  * Entity validation error
  */
+// ✅ FIXED: ডিফল্ট ভ্যালু ব্যবহার করুন
 export class EntityValidationError extends Error {
   public readonly errors: readonly string[];
-  public readonly entityName?: string;
+  public readonly entityName: string;  // ✅ required রাখুন
   
   constructor(message: string, errors?: readonly string[], entityName?: string) {
     super(message);
     this.name = 'EntityValidationError';
     this.errors = errors || [message];
-    this.entityName = entityName;
+    this.entityName = entityName || 'Unknown';  // ✅ ডিফল্ট ভ্যালু
     Error.captureStackTrace(this, this.constructor);
   }
 }
@@ -206,7 +228,7 @@ export abstract class BaseEntity {
   // Entity metadata
   private _metadata: EntityMetadata;
   private _isDeleted: boolean = false;
-  private _deletedAt: Date | null = null;
+  protected _deletedAt: Date | null = null;
   
   // ✅ NEW: Change tracking for audit trail
   private _changes: Map<string, ChangeEntry> = new Map();
@@ -241,16 +263,17 @@ export abstract class BaseEntity {
     this._createdAt = options.createdAt ? new Date(options.createdAt) : new Date();
     this._updatedAt = options.updatedAt ? new Date(options.updatedAt) : new Date(this._createdAt);
     this._version = options.version ?? 1;
-    this._metadata = {
-      createdBy: options.metadata?.createdBy,
-      createdByIp: options.metadata?.createdByIp,
-      createdByUserAgent: options.metadata?.createdByUserAgent,
-      lastModifiedBy: options.metadata?.lastModifiedBy,
-      lastModifiedByIp: options.metadata?.lastModifiedByIp,
-      lastModifiedByUserAgent: options.metadata?.lastModifiedByUserAgent,
-      tags: options.metadata?.tags ? [...options.metadata.tags] : [],
-      custom: options.metadata?.custom ? { ...options.metadata.custom } : {},
-    };
+    // ✅ FIXED: স্প্রেড অপারেটর ব্যবহার করে শুধু existing প্রপার্টি assign করুন
+this._metadata = {
+  ...(options.metadata?.createdBy && { createdBy: options.metadata.createdBy }),
+  ...(options.metadata?.createdByIp && { createdByIp: options.metadata.createdByIp }),
+  ...(options.metadata?.createdByUserAgent && { createdByUserAgent: options.metadata.createdByUserAgent }),
+  ...(options.metadata?.lastModifiedBy && { lastModifiedBy: options.metadata.lastModifiedBy }),
+  ...(options.metadata?.lastModifiedByIp && { lastModifiedByIp: options.metadata.lastModifiedByIp }),
+  ...(options.metadata?.lastModifiedByUserAgent && { lastModifiedByUserAgent: options.metadata.lastModifiedByUserAgent }),
+  ...(options.metadata?.tags && { tags: [...options.metadata.tags] }),
+  ...(options.metadata?.custom && { custom: { ...options.metadata.custom } }),
+};
     
     // Validate version
     if (this._version < 1) {
@@ -405,7 +428,7 @@ export abstract class BaseEntity {
    * Validate entity invariants
    * Must be implemented by concrete entities
    */
-  protected abstract validate(): ValidationResult;
+ protected abstract validate(): EntityValidationResult;
 
   /**
    * Update timestamp and increment version
@@ -436,25 +459,24 @@ export abstract class BaseEntity {
    * Track a field change for audit trail
    */
   protected trackChange<T>(
-    field: string,
-    oldValue: T,
-    newValue: T,
-    changedBy?: string
-  ): void {
-    // Skip if values are equal
-    if (oldValue === newValue) return;
-    
-    const change: ChangeEntry = {
-      field,
-      oldValue: this.deepCopy(oldValue),
-      newValue: this.deepCopy(newValue),
-      changedAt: new Date(),
-      changedBy,
-    };
-    
-    this._changes.set(field, change);
-  }
-
+  field: string,
+  oldValue: T,
+  newValue: T,
+  changedBy?: string
+): void {
+  if (oldValue === newValue) return;
+  
+  // changedBy থাকলেই শুধু যোগ করুন
+  const change: ChangeEntry = {
+    field,
+    oldValue: this.deepCopy(oldValue),
+    newValue: this.deepCopy(newValue),
+    changedAt: new Date(),
+    ...(changedBy && { changedBy }),  // ✅ changedBy থাকলেই যোগ হবে
+  } as ChangeEntry;
+  
+  this._changes.set(field, change);
+}
   /**
    * Deep copy a value for change tracking
    */
@@ -633,7 +655,19 @@ export abstract class BaseEntity {
   /**
    * Get audit trail for this entity
    */
-  public getAuditTrail(): {
+  // ✅ FIXED: শুধু existing প্রপার্টি রিটার্ন করুন
+public getAuditTrail(): {
+  createdAt: Date;
+  createdBy?: string;
+  createdByIp?: string;
+  lastModifiedAt: Date;
+  lastModifiedBy?: string;
+  lastModifiedByIp?: string;
+  changes: ChangeEntry[];
+  deletedAt?: Date | null;
+  deletedBy?: string;
+} {
+  const result: {
     createdAt: Date;
     createdBy?: string;
     createdByIp?: string;
@@ -643,19 +677,22 @@ export abstract class BaseEntity {
     changes: ChangeEntry[];
     deletedAt?: Date | null;
     deletedBy?: string;
-  } {
-    return {
-      createdAt: this._createdAt,
-      createdBy: this._metadata.createdBy,
-      createdByIp: this._metadata.createdByIp,
-      lastModifiedAt: this._updatedAt,
-      lastModifiedBy: this._metadata.lastModifiedBy,
-      lastModifiedByIp: this._metadata.lastModifiedByIp,
-      changes: Array.from(this._changes.values()),
-      deletedAt: this._deletedAt,
-      deletedBy: this._metadata.lastModifiedBy,
-    };
-  }
+  } = {
+    createdAt: this._createdAt,
+    lastModifiedAt: this._updatedAt,
+    changes: Array.from(this._changes.values()),
+    deletedAt: this._deletedAt,
+  };
+
+  // ✅ শুধু existing প্রপার্টি যোগ করুন
+  if (this._metadata.createdBy) result.createdBy = this._metadata.createdBy;
+  if (this._metadata.createdByIp) result.createdByIp = this._metadata.createdByIp;
+  if (this._metadata.lastModifiedBy) result.lastModifiedBy = this._metadata.lastModifiedBy;
+  if (this._metadata.lastModifiedByIp) result.lastModifiedByIp = this._metadata.lastModifiedByIp;
+  if (this._metadata.lastModifiedBy) result.deletedBy = this._metadata.lastModifiedBy;
+
+  return result;
+}
 
   // ============================================================
   // JSON Serialization
@@ -739,13 +776,25 @@ export abstract class BaseEntity {
     this._deletedAt = other._deletedAt ? new Date(other._deletedAt) : null;
     
     // Merge metadata
-    this._metadata = {
-      ...this._metadata,
-      ...other._metadata,
-      tags: other._metadata.tags ? [...other._metadata.tags] : this._metadata.tags,
-      custom: other._metadata.custom ? { ...other._metadata.custom } : this._metadata.custom,
-    };
-    
+    // ✅ FIXED: স্প্রেড অপারেটর + কন্ডিশনাল প্রপার্টি ব্যবহার করুন
+this._metadata = {
+  ...(this._metadata.createdBy && { createdBy: this._metadata.createdBy }),
+  ...(this._metadata.createdByIp && { createdByIp: this._metadata.createdByIp }),
+  ...(this._metadata.createdByUserAgent && { createdByUserAgent: this._metadata.createdByUserAgent }),
+  ...(this._metadata.lastModifiedBy && { lastModifiedBy: this._metadata.lastModifiedBy }),
+  ...(this._metadata.lastModifiedByIp && { lastModifiedByIp: this._metadata.lastModifiedByIp }),
+  ...(this._metadata.lastModifiedByUserAgent && { lastModifiedByUserAgent: this._metadata.lastModifiedByUserAgent }),
+  ...(other._metadata.createdBy && { createdBy: other._metadata.createdBy }),
+  ...(other._metadata.createdByIp && { createdByIp: other._metadata.createdByIp }),
+  ...(other._metadata.createdByUserAgent && { createdByUserAgent: other._metadata.createdByUserAgent }),
+  ...(other._metadata.lastModifiedBy && { lastModifiedBy: other._metadata.lastModifiedBy }),
+  ...(other._metadata.lastModifiedByIp && { lastModifiedByIp: other._metadata.lastModifiedByIp }),
+  ...(other._metadata.lastModifiedByUserAgent && { lastModifiedByUserAgent: other._metadata.lastModifiedByUserAgent }),
+  ...(other._metadata.tags && { tags: [...other._metadata.tags] }),
+  ...(this._metadata.tags && !other._metadata.tags && { tags: [...this._metadata.tags] }),
+  ...(other._metadata.custom && { custom: { ...other._metadata.custom } }),
+  ...(this._metadata.custom && !other._metadata.custom && { custom: { ...this._metadata.custom } }),
+};
     // Merge tags
     this._tags = new Set([...this._tags, ...other._tags]);
     
@@ -849,10 +898,11 @@ export class TestIdGenerator implements IdGenerator {
 /**
  * Abstract base domain event
  */
+// ✅ FIXED: ডিফল্ট খালি অবজেক্ট ব্যবহার করুন
 export abstract class BaseDomainEvent implements DomainEvent {
   public readonly eventId: string;
   public readonly occurredOn: Date;
-  public readonly metadata?: Readonly<Record<string, unknown>>;
+  public readonly metadata: Readonly<Record<string, unknown>>;  // ✅ required রাখুন
   
   constructor(
     public readonly eventType: string,
@@ -862,7 +912,7 @@ export abstract class BaseDomainEvent implements DomainEvent {
   ) {
     this.eventId = generateEventId();
     this.occurredOn = new Date();
-    this.metadata = metadata ? Object.freeze({ ...metadata }) : undefined;
+    this.metadata = metadata ? Object.freeze({ ...metadata }) : Object.freeze({});  // ✅ ডিফল্ট খালি অবজেক্ট
   }
 }
 
@@ -889,7 +939,7 @@ namespace generateEventId {
 /**
  * Create a validation result
  */
-export function createValidationResult(isValid: boolean, errors?: string[]): ValidationResult {
+export function createValidationResult(isValid: boolean, errors?: string[]): EntityValidationResult {
   return {
     isValid,
     errors: errors || [],
@@ -899,7 +949,7 @@ export function createValidationResult(isValid: boolean, errors?: string[]): Val
 /**
  * Combine multiple validation results
  */
-export function combineValidationResults(results: readonly ValidationResult[]): ValidationResult {
+export function combineValidationResults(results: readonly EntityValidationResult[]): EntityValidationResult {
   const allErrors: string[] = [];
   let isValid = true;
   
@@ -915,9 +965,3 @@ export function combineValidationResults(results: readonly ValidationResult[]): 
     errors: allErrors,
   };
 }
-
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { EntityConstructorOptions, ValidationResult, ChangeEntry, EntityMetadata };
