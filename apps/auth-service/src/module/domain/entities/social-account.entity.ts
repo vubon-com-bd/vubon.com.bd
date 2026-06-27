@@ -24,7 +24,7 @@
  * This entity only stores the social account identity.
  */
 
-import { BaseEntity, EntityValidationError, type IdGenerator } from './base.entity';
+import { BaseEntity, ValidationResult, EntityValidationError, type IdGenerator } from './base.entity';
 import { Email } from '../value-objects/email.vo';
 import { Phone } from '../value-objects/phone.vo';
 
@@ -33,7 +33,6 @@ import {
   SOCIAL_CONFIG, 
   PROVIDER_DISPLAY_NAMES,
   PROVIDER_ICON_URLS,
-  type SocialProviderConfig,
   type ProviderEmailDomains,
 } from '@vubon/shared-constants';
 
@@ -86,12 +85,26 @@ export enum SocialAccountEventType {
   SOCIAL_ACCOUNT_INFO_UPDATED = 'social_account.info_updated',
   SOCIAL_ACCOUNT_PRIMARY_CHANGED = 'social_account.primary_changed',
   SOCIAL_ACCOUNT_MERGED = 'social_account.merged',
-  SOCIAL_ACCOUNT_TOKEN_EXPIRING = 'social_account.token_expiring',      // ✅ Enterprise: Token expiry warning
-  SOCIAL_ACCOUNT_SYNC_NEEDED = 'social_account.sync_needed',           // ✅ Enterprise: Profile sync reminder
-  SOCIAL_ACCOUNT_UNLINK_LIMIT_WARNING = 'social_account.unlink_limit_warning', // ✅ Enterprise: Rate limit warning
+  SOCIAL_ACCOUNT_TOKEN_EXPIRING = 'social_account.token_expiring',
+  SOCIAL_ACCOUNT_SYNC_NEEDED = 'social_account.sync_needed',
+  SOCIAL_ACCOUNT_UNLINK_LIMIT_WARNING = 'social_account.unlink_limit_warning',
 }
 
 // ==================== Types ====================
+
+/**
+ * Social account metadata interface (all properties optional)
+ */
+export interface SocialAccountMetadata {
+  linkedIp?: string;
+  linkedUserAgent?: string;
+  lastSyncIp?: string;
+  lastSyncUserAgent?: string;
+  unlinkReason?: string;
+  suspendReason?: string;
+  customData?: Record<string, unknown>;
+}
+
 
 /**
  * Token expiry tracking (Enterprise enhancement)
@@ -108,19 +121,6 @@ export interface TokenExpiryInfo {
  * Social account configuration (from shared-constants)
  */
 export type SocialConfig = typeof SOCIAL_CONFIG;
-
-/**
- * Social account metadata for audit
- */
-export interface SocialAccountMetadata {
-  linkedIp?: string;
-  linkedUserAgent?: string;
-  lastSyncIp?: string;
-  lastSyncUserAgent?: string;
-  unlinkReason?: string;
-  suspendReason?: string;
-  customData?: Record<string, unknown>;
-}
 
 // ==================== Social Account Entity ====================
 
@@ -154,7 +154,7 @@ export class SocialAccount extends BaseEntity {
   private _hasRefreshToken: boolean;
   
   // ✅ Enterprise: Metadata for audit
-  private _metadata: SocialAccountMetadata;
+  private _Socialmetadata: SocialAccountMetadata;
 
   private constructor(
     id: string,
@@ -205,38 +205,52 @@ export class SocialAccount extends BaseEntity {
     this._tokenExpiresAt = tokenExpiresAt;
     this._tokenLastRefreshedAt = tokenLastRefreshedAt;
     this._hasRefreshToken = hasRefreshToken;
-    this._metadata = metadata;
+    this._Socialmetadata = metadata;
     
-    this.validate();
+    const validationResult = this.validate();
+    if (!validationResult.isValid) {
+      throw new EntityValidationError(
+        'Social account validation failed',
+        validationResult.errors,
+        this.constructor.name
+      );
+    }
   }
 
   /**
-   * Validate entity invariants
+   * ✅ FIXED: Validate entity invariants - returns ValidationResult
    */
-  protected validate(): void {
+  protected validate(): ValidationResult {
+    const errors: string[] = [];
+    
     if (!this._userId) {
-      throw new EntityValidationError('Social account requires a user ID');
+      errors.push('Social account requires a user ID');
     }
     if (!this._provider) {
-      throw new EntityValidationError('Social account requires a provider');
+      errors.push('Social account requires a provider');
     }
     if (!this._providerUserId) {
-      throw new EntityValidationError('Social account requires a provider user ID');
+      errors.push('Social account requires a provider user ID');
     }
     if (!this._providerEmail && !this._providerPhone) {
-      throw new EntityValidationError('Social account requires either email or phone');
+      errors.push('Social account requires either email or phone');
     }
     if (this._unlinkCount < 0) {
-      throw new EntityValidationError('Unlink count cannot be negative');
+      errors.push('Unlink count cannot be negative');
     }
     if (this._unlinkCount > SOCIAL_CONFIG.MAX_UNLINK_PER_DAY) {
-      throw new EntityValidationError('Unlink count exceeds daily limit');
+      errors.push(`Unlink count exceeds daily limit of ${SOCIAL_CONFIG.MAX_UNLINK_PER_DAY}`);
     }
     
     // ✅ Enterprise: Validate token expiry
     if (this._tokenExpiresAt && this._tokenExpiresAt < this._linkedAt) {
-      throw new EntityValidationError('Token expiry cannot be before linked at');
+      errors.push('Token expiry cannot be before linked at');
     }
+    
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
   }
 
   // ============================================================
@@ -303,7 +317,7 @@ export class SocialAccount extends BaseEntity {
         linkedIp: options?.metadata?.linkedIp,
         linkedUserAgent: options?.metadata?.linkedUserAgent,
         customData: options?.metadata?.customData,
-      },
+      } as SocialAccountMetadata,
       now,
       now,
       1
@@ -405,17 +419,17 @@ export class SocialAccount extends BaseEntity {
     phone: Phone | null,
     providerUserId: string
   ): void {
-    // Check provider-specific email domain
-    const allowedDomains = SOCIAL_CONFIG.PROVIDER_EMAIL_DOMAINS[provider as keyof ProviderEmailDomains];
-    if (allowedDomains && email) {
-      const emailDomain = email.getDomain();
-      if (!allowedDomains.includes(emailDomain)) {
-        throw new EntityValidationError(
-          `Email domain ${emailDomain} is not valid for ${provider}`
-        );
-      }
-    }
-    
+   // Check provider-specific email domain
+const allowedDomains = SOCIAL_CONFIG.PROVIDER_EMAIL_DOMAINS[provider as keyof ProviderEmailDomains];
+if (allowedDomains && email) {
+  const emailDomain = email.getDomain();
+  // ✅ টাইপ গার্ড: নিশ্চিত করুন যে allowedDomains একটি array
+  if (Array.isArray(allowedDomains) && !allowedDomains.includes(emailDomain)) {
+    throw new EntityValidationError(
+      `Email domain ${emailDomain} is not valid for ${provider}`
+    );
+  }
+}
     // Provider-specific user ID validation
     switch (provider) {
       case SocialProvider.GOOGLE:
@@ -491,10 +505,10 @@ export class SocialAccount extends BaseEntity {
     this._unlinkedAt = new Date();
     this._unlinkCount++;
     this._isPrimary = false;
-    this._metadata = {
-      ...this._metadata,
-      unlinkReason: reason,
-    };
+    this._Socialmetadata = {
+      ...this._Socialmetadata,
+      unlinkReason: reason || undefined,
+    } as SocialAccountMetadata;
     this.touch();
     
     this.addDomainEvent({
@@ -525,10 +539,10 @@ export class SocialAccount extends BaseEntity {
     this._status = SocialAccountStatus.SUSPENDED;
     this._suspendedAt = new Date();
     this._suspendedReason = reason;
-    this._metadata = {
-      ...this._metadata,
+    this._Socialmetadata = {
+      ...this._Socialmetadata,
       suspendReason: reason,
-    };
+    } as SocialAccountMetadata;
     this.touch();
     
     this.addDomainEvent({
@@ -605,11 +619,11 @@ export class SocialAccount extends BaseEntity {
     }
     
     this._lastSyncAt = new Date();
-    this._metadata = {
-      ...this._metadata,
-      lastSyncIp: syncMetadata?.ipAddress,
-      lastSyncUserAgent: syncMetadata?.userAgent,
-    };
+    this._Socialmetadata = {
+      ...this._Socialmetadata,
+      lastSyncIp: syncMetadata?.ipAddress || undefined,
+      lastSyncUserAgent: syncMetadata?.userAgent || undefined,
+    } as SocialAccountMetadata;
     this.touch();
     
     this.addDomainEvent({
@@ -652,25 +666,26 @@ export class SocialAccount extends BaseEntity {
   }
 
   /**
-   * Merge another social account into this one
-   */
-  public mergeFrom(otherId: string): void {
-    this._mergedFrom = otherId;
-    this.touch();
-    
-    this.addDomainEvent({
-      eventId: generateEventId(),
-      eventType: SocialAccountEventType.SOCIAL_ACCOUNT_MERGED,
-      aggregateId: this.id,
-      occurredOn: new Date(),
-      version: this.version,
-      metadata: {
-        userId: this._userId,
-        provider: this._provider,
-        mergedFrom: otherId,
-      },
-    });
-  }
+ * Merge another social account into this one
+ * This is a domain-specific merge method, not overriding base mergeFrom
+ */
+public mergeWith(otherId: string): void {
+  this._mergedFrom = otherId;
+  this.touch();
+  
+  this.addDomainEvent({
+    eventId: generateEventId(),
+    eventType: SocialAccountEventType.SOCIAL_ACCOUNT_MERGED,
+    aggregateId: this.id,
+    occurredOn: new Date(),
+    version: this.version,
+    metadata: {
+      userId: this._userId,
+      provider: this._provider,
+      mergedFrom: otherId,
+    },
+  });
+}
 
   // ============================================================
   // ✅ Enterprise: Token Management Methods
@@ -680,7 +695,6 @@ export class SocialAccount extends BaseEntity {
    * Update token expiry information
    */
   public updateTokenExpiry(expiresAt: Date, hasRefreshToken: boolean = true): void {
-    const oldExpiry = this._tokenExpiresAt;
     this._tokenExpiresAt = expiresAt;
     this._tokenLastRefreshedAt = new Date();
     this._hasRefreshToken = hasRefreshToken;
@@ -809,16 +823,20 @@ export class SocialAccount extends BaseEntity {
 
   /**
    * Get display name for the provider (from shared-constants)
+   * ✅ FIXED: Using lowercase enum keys
    */
   public getProviderDisplayName(): string {
-    return PROVIDER_DISPLAY_NAMES[this._provider] || this._provider;
+    const providerKey = this._provider.toLowerCase() as keyof typeof PROVIDER_DISPLAY_NAMES;
+    return PROVIDER_DISPLAY_NAMES[providerKey] || this._provider;
   }
 
   /**
    * ✅ Enterprise: Get provider icon URL (from shared-constants)
+   * ✅ FIXED: Using lowercase enum keys
    */
   public getProviderIconUrl(): string {
-    return PROVIDER_ICON_URLS[this._provider] || '/icons/social/default.svg';
+    const providerKey = this._provider.toLowerCase() as keyof typeof PROVIDER_ICON_URLS;
+    return PROVIDER_ICON_URLS[providerKey] || '/icons/social/default.svg';
   }
 
   /**
@@ -862,7 +880,7 @@ export class SocialAccount extends BaseEntity {
   public getLastSyncAt(): Date | undefined { return this._lastSyncAt ? new Date(this._lastSyncAt) : undefined; }
   public getUnlinkCount(): number { return this._unlinkCount; }
   public getMergedFrom(): string | undefined { return this._mergedFrom; }
-  public getMetadata(): Readonly<SocialAccountMetadata> { return { ...this._metadata }; }
+  public getMetadata(): Readonly<SocialAccountMetadata> { return { ...this._Socialmetadata }; }
   public getHasRefreshToken(): boolean { return this._hasRefreshToken; }
   public getTokenExpiresAt(): Date | undefined { return this._tokenExpiresAt ? new Date(this._tokenExpiresAt) : undefined; }
 
@@ -915,10 +933,10 @@ export class SocialAccount extends BaseEntity {
       } : undefined,
       remainingUnlinkAttempts: this.getRemainingUnlinkAttempts(),
       metadata: {
-        linkedIp: this._metadata.linkedIp,
-        lastSyncIp: this._metadata.lastSyncIp,
-        unlinkReason: this._metadata.unlinkReason,
-        suspendReason: this._metadata.suspendReason,
+        linkedIp: this._Socialmetadata.linkedIp,
+        lastSyncIp: this._Socialmetadata.lastSyncIp,
+        unlinkReason: this._Socialmetadata.unlinkReason,
+        suspendReason: this._Socialmetadata.suspendReason,
       },
       // ⚠️ Tokens are NOT included - they are stored in infrastructure (secure vault)
     };
@@ -960,37 +978,3 @@ export function isSocialAccount(value: unknown): value is SocialAccount {
 export function isSocialProvider(value: unknown): value is SocialProvider {
   return typeof value === 'string' && Object.values(SocialProvider).includes(value as SocialProvider);
 }
-
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { SocialConfig, SocialAccountMetadata, TokenExpiryInfo };
-
-// ============================================================
-// ENTERPRISE SUMMARY
-// ============================================================
-// 
-// Enterprise Enhancements Applied (v2.0):
-// 1. ✅ SOCIAL_CONFIG, PROVIDER_DISPLAY_NAMES, PROVIDER_ICON_URLS from shared-constants
-// 2. ✅ Token expiry tracking with refresh reminders (7-day warning)
-// 3. ✅ Daily unlink rate limiting (5 per day)
-// 4. ✅ Profile sync tracking (7-day threshold)
-// 5. ✅ Provider icon URLs for UI consistency
-// 6. ✅ Token expiry info API for frontend
-// 7. ✅ Enhanced metadata for audit trail
-// 8. ✅ Remaining unlink attempts query
-// 9. ✅ Needs token refresh check (3-day threshold)
-// 10. ✅ Comprehensive domain events for token expiry and sync
-// 
-// Bangladesh Specific:
-// - WhatsApp, Imo, Telegram, Viber messaging apps
-// - bKash, Nagad, Rocket Mobile Financial Services
-// - Provider-specific validation for MFS accounts
-// 
-// Security Note:
-// - Actual tokens stored in infrastructure (secure vault)
-// - Domain only stores expiry and refresh capability flags
-// - No token values in domain or JSON serialization
-// 
-// ============================================================
