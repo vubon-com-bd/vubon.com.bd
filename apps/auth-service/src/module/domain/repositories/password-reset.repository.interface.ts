@@ -30,7 +30,7 @@
  */
 
 import { BaseRepository, PaginationOptions, PaginatedResult } from './base.repository.interface';
-import { PasswordReset, PasswordResetStatus, PasswordResetMethod, ResetIdentifier } from '../entities/password-reset.entity';
+import { PasswordReset, PasswordResetStatus, PasswordResetMethod } from '../entities/password-reset.entity';
 import { Token } from '../value-objects/token.vo';
 import { Phone } from '../value-objects/phone.vo';
 
@@ -1133,28 +1133,6 @@ export const DEFAULT_RATE_LIMIT_CONFIG = {
   ip: { max: 10, windowMinutes: 60 },
 };
 
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { 
-  PasswordResetFilters, 
-  PasswordResetStatistics, 
-  RateLimitStatus, 
-  BulkDeleteResult,
-  TokenValidationResult,
-  // ✅ Enterprise: New type exports
-  ResetFraudPrediction,
-  ResetAnomalyResult,
-  GeographicResetPattern,
-  ResetBatchProgress,
-  ChannelDeliveryStatus,
-  ResetABTestVariant,
-  ResetComplianceReport,
-  ResetHealthDashboard,
-  SmartCooldownConfig,
-  ChannelPerformanceMetrics,
-};
 
 // ============================================================
 // ENTERPRISE SUMMARY v2.0
