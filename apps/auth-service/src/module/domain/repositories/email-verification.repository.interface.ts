@@ -891,21 +891,27 @@ export interface EmailVerificationRepository extends BaseRepository<EmailVerific
    * @param userId - User ID
    * @returns Audit trail entries
    */
-  getAuditTrail(userId: string): Promise<Array<{
-    id: string;
-    email: string;
-    status: EmailVerificationStatus;
-    createdAt: Date;
-    verifiedAt?: Date;
-    expiredAt?: Date;
-    resendCount: number;
-    /** ✅ Enterprise: Additional audit fields */
-    ipAddress?: string;
-    userAgent?: string;
-    verificationMethod?: string;
-    timeToVerifySeconds?: number;
-  }>>;
-  
+  // email-verification.repository.interface.ts
+/**
+ * Get verification audit trail for user (Enterprise Enhanced)
+ * ✅ FIXED: Now matches BaseRepository signature
+ */
+getAuditTrail(
+  userId: string
+): Promise<Array<{
+  timestamp: Date;
+  action: 'create' | 'update' | 'delete' | 'soft_delete' | 'restore';
+  changes?: Record<string, { old: unknown; new: unknown }>;
+  performedBy?: string;
+  ipAddress?: string;
+  entityId?: string;
+  entityType?: string;
+  // ✅ Additional domain-specific fields
+  email?: string;
+  status?: EmailVerificationStatus;
+  verificationMethod?: string;
+  timeToVerifySeconds?: number;
+}>>;
   // ========== ✅ Enterprise: Alert Management ==========
   
   /**
@@ -938,25 +944,6 @@ export interface EmailVerificationRepository extends BaseRepository<EmailVerific
   acknowledgeAlert(alertId: string, acknowledgedBy: string): Promise<void>;
 }
 
-// ==================== Type Exports ====================
-
-export type { 
-  EmailVerificationStatistics, 
-  EmailVerificationFilters, 
-  BulkOperationResult,
-  VerificationRateResult,
-  // ✅ Enterprise: New type exports
-  VerificationDashboard,
-  RetryConfig,
-  RetryQueueItem,
-  SuspiciousPatternResult,
-  VerificationPrediction,
-  ReturnPathValidation,
-  QuarantineEntry,
-  PerformanceMetrics,
-  RateLimitStatus,
-  ABTestVariant,
-};
 
 // ============================================================
 // ENTERPRISE SUMMARY v3.0
