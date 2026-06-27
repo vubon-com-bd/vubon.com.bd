@@ -36,10 +36,12 @@
  * );
  */
 
-import { BaseEntity, EntityValidationError, type IdGenerator } from './base.entity';
+import { BaseEntity, EntityValidationResult, EntityValidationError, type IdGenerator } from './base.entity';
 
 // ✅ ENTERPRISE ENHANCEMENT: Import from shared-constants (Single Source of Truth)
 import { PASSWORD_HISTORY_CONFIG } from '@vubon/shared-constants';
+
+
 
 // ==================== Enums ====================
 
@@ -126,8 +128,6 @@ export interface ExpiryWarningResult {
 
 // ✅ ENTERPRISE ENHANCEMENT: Use from shared-constants
 const {
-  MAX_HISTORY_COUNT,
-  PREVENT_REUSE_COUNT,
   PASSWORD_EXPIRY_DAYS,
   EXPIRY_WARNING_DAYS,
 } = PASSWORD_HISTORY_CONFIG;
@@ -145,19 +145,19 @@ export class PasswordHistory extends BaseEntity {
   private readonly _passwordHash: string;
   private readonly _changedAt: Date;
   private readonly _changedBy: PasswordChangeContext;
-  private readonly _ipAddress?: string;
-  private readonly _userAgent?: string;
-  private readonly _deviceId?: string;
-  private readonly _sessionId?: string;
-  private readonly _adminId?: string;
-  private readonly _adminName?: string;
-  private readonly _reason?: string;
-  private readonly _breachSource?: string;
-  private readonly _previousHash?: string;
+  private readonly _ipAddress: string | undefined;  // ✅ FIXED: Allow undefined
+  private readonly _userAgent: string | undefined;  // ✅ FIXED: Allow undefined
+  private readonly _deviceId: string | undefined;   // ✅ FIXED: Allow undefined
+  private readonly _sessionId: string | undefined;  // ✅ FIXED: Allow undefined
+  private readonly _adminId: string | undefined;    // ✅ FIXED: Allow undefined
+  private readonly _adminName: string | undefined;  // ✅ FIXED: Allow undefined
+  private readonly _reason: string | undefined;     // ✅ FIXED: Allow undefined
+  private readonly _breachSource: string | undefined; // ✅ FIXED: Allow undefined
+  private readonly _previousHash: string | undefined; // ✅ FIXED: Allow undefined
   
-  // ✅ Enterprise: New fields
-  private readonly _breachSeverity?: BreachSeverity;
-  private readonly _multipleReasons?: PasswordChangeContext[];
+  // ✅ Enterprise: New fields with undefined allowed
+  private readonly _breachSeverity: BreachSeverity | undefined;  // ✅ FIXED: Allow undefined
+  private readonly _multipleReasons: PasswordChangeContext[] | undefined;  // ✅ FIXED: Allow undefined
 
   private constructor(
     id: string,
@@ -188,27 +188,37 @@ export class PasswordHistory extends BaseEntity {
     this._breachSeverity = metadata.breachSeverity;
     this._multipleReasons = metadata.multipleReasons;
     
-    this.validate();
+    // ✅ FIXED: Call validate and handle the result
+    const validationResult = this.validate();
+    if (!validationResult.isValid) {
+      throw new EntityValidationError(
+        'Password history validation failed',
+        validationResult.errors,
+        this.constructor.name
+      );
+    }
   }
 
   /**
-   * Validate entity invariants
+   * ✅ FIXED: Validate entity invariants - returns EntityValidationResult
    */
-  protected validate(): void {
+  protected validate(): EntityValidationResult {
+    const errors: string[] = [];
+    
     if (!this._userId) {
-      throw new EntityValidationError('Password history requires a user ID');
+      errors.push('Password history requires a user ID');
     }
     if (!this._passwordHash || this._passwordHash.length === 0) {
-      throw new EntityValidationError('Password history requires a password hash');
+      errors.push('Password history requires a password hash');
     }
     if (this._passwordHash.length < 32) {
-      throw new EntityValidationError('Password hash is too short (min 32 characters)');
+      errors.push('Password hash is too short (min 32 characters)');
     }
     if (!this._changedAt) {
-      throw new EntityValidationError('Password history requires a change timestamp');
+      errors.push('Password history requires a change timestamp');
     }
     if (this._changedAt > new Date()) {
-      throw new EntityValidationError('Change timestamp cannot be in the future');
+      errors.push('Change timestamp cannot be in the future');
     }
     
     // ✅ Enterprise: Validate breach severity if present
@@ -216,6 +226,11 @@ export class PasswordHistory extends BaseEntity {
       // Default to HIGH if not specified
       (this as any)._breachSeverity = BreachSeverity.HIGH;
     }
+    
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
   }
 
   // ============================================================
@@ -392,54 +407,57 @@ export class PasswordHistory extends BaseEntity {
   }
 
   /**
-   * Reconstitute from persistence
-   */
-  public static reconstitute(data: {
-    id: string;
-    userId: string;
-    passwordHash: string;
-    changedAt: Date;
-    changedBy: PasswordChangeContext;
-    ipAddress?: string;
-    userAgent?: string;
-    deviceId?: string;
-    sessionId?: string;
-    adminId?: string;
-    adminName?: string;
-    reason?: string;
-    breachSource?: string;
-    previousHash?: string;
-    breachSeverity?: BreachSeverity;
-    multipleReasons?: PasswordChangeContext[];
-    createdAt: Date;
-    updatedAt: Date;
-    version: number;
-  }): PasswordHistory {
-    return new PasswordHistory(
-      data.id,
-      data.userId,
-      data.passwordHash,
-      data.changedAt,
-      data.changedBy,
-      {
-        ipAddress: data.ipAddress,
-        userAgent: data.userAgent,
-        deviceId: data.deviceId,
-        sessionId: data.sessionId,
-        adminId: data.adminId,
-        adminName: data.adminName,
-        reason: data.reason,
-        breachSource: data.breachSource,
-        previousHash: data.previousHash,
-        breachSeverity: data.breachSeverity,
-        multipleReasons: data.multipleReasons,
-      },
-      data.createdAt,
-      data.updatedAt,
-      data.version
-    );
-  }
-
+ * Reconstitute from persistence
+ */
+public static reconstitute(data: {
+  id: string;
+  userId: string;
+  passwordHash: string;
+  changedAt: Date;
+  changedBy: PasswordChangeContext;
+  ipAddress?: string;
+  userAgent?: string;
+  deviceId?: string;
+  sessionId?: string;
+  adminId?: string;
+  adminName?: string;
+  reason?: string;
+  breachSource?: string;
+  previousHash?: string;
+  breachSeverity?: BreachSeverity;
+  multipleReasons?: PasswordChangeContext[];
+  createdAt: Date;
+  updatedAt: Date;
+  version: number;
+}): PasswordHistory {
+  // ✅ FIXED: শুধুমাত্র defined প্রপার্টি সহ অবজেক্ট তৈরি করুন
+  const metadata: PasswordChangeMetadata = {};
+  
+  // শুধুমাত্র defined প্রপার্টি যোগ করুন
+  if (data.ipAddress !== undefined) metadata.ipAddress = data.ipAddress;
+  if (data.userAgent !== undefined) metadata.userAgent = data.userAgent;
+  if (data.deviceId !== undefined) metadata.deviceId = data.deviceId;
+  if (data.sessionId !== undefined) metadata.sessionId = data.sessionId;
+  if (data.adminId !== undefined) metadata.adminId = data.adminId;
+  if (data.adminName !== undefined) metadata.adminName = data.adminName;
+  if (data.reason !== undefined) metadata.reason = data.reason;
+  if (data.breachSource !== undefined) metadata.breachSource = data.breachSource;
+  if (data.previousHash !== undefined) metadata.previousHash = data.previousHash;
+  if (data.breachSeverity !== undefined) metadata.breachSeverity = data.breachSeverity;
+  if (data.multipleReasons !== undefined) metadata.multipleReasons = data.multipleReasons;
+  
+  return new PasswordHistory(
+    data.id,
+    data.userId,
+    data.passwordHash,
+    data.changedAt,
+    data.changedBy,
+    metadata,
+    data.createdAt,
+    data.updatedAt,
+    data.version
+  );
+}
   // ============================================================
   // Getters
   // ============================================================
@@ -766,12 +784,6 @@ export function isPasswordHistory(value: unknown): value is PasswordHistory {
 export function isBreachSeverity(value: unknown): value is BreachSeverity {
   return typeof value === 'string' && Object.values(BreachSeverity).includes(value as BreachSeverity);
 }
-
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { PasswordChangeMetadata, PasswordHistoryConfigType, ExpiryWarningResult };
 
 // ============================================================
 // ENTERPRISE SUMMARY
