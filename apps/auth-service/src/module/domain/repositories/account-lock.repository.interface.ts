@@ -832,25 +832,6 @@ export interface AccountLockRepository extends BaseRepository<AccountLock> {
 }
 
 // ============================================================
-// Type Exports
-// ============================================================
-
-export type { 
-  LockStatusResult, 
-  FailureCountResult, 
-  BulkUnlockResult, 
-  AccountLockStatistics, 
-  AccountLockFilters,
-  LockHistoryEntry,
-  ProgressiveLockConfig,
-  EmergencyUnlockAudit,
-  LockAnomalyResult,
-  LockPredictionResult,
-  LockMonitoringAlert,
-  ComplianceReport,
-};
-
-// ============================================================
 // ENTERPRISE SUMMARY v2.0
 // ============================================================
 // 
