@@ -32,8 +32,6 @@ import {
   formatInternational,
   getPhoneComponents,
   type PhoneComponents as SharedPhoneComponents,
-  type PhoneNumber,
-  type CountryCode
 } from '@vubon/shared-utils';
 import { PhoneSchema } from '@vubon/shared-schemas';
 
@@ -376,11 +374,15 @@ export class Phone extends ValueObject {
     const type = mapPhoneType(sharedType);
     
     // Determine operator for Bangladesh
-    let operator: BDOperator | undefined;
-    if (countryCode === PHONE_CONFIG.BANGLADESH_CC && nationalNumber.length === 10) {
-      const prefix = nationalNumber.substring(0, 2);
-      operator = PHONE_CONFIG.OPERATOR_PREFIXES[prefix as keyof typeof PHONE_CONFIG.OPERATOR_PREFIXES];
+    let operator: BDOperator = BDOperator.UNKNOWN; // ✅ ডিফল্ট
+  
+  if (countryCode === PHONE_CONFIG.BANGLADESH_CC && nationalNumber.length === 10) {
+    const prefix = nationalNumber.substring(0, 2);
+    const detected = PHONE_CONFIG.OPERATOR_PREFIXES[prefix as keyof typeof PHONE_CONFIG.OPERATOR_PREFIXES];
+    if (detected) {
+      operator = detected;
     }
+  }
     
     return {
       isValid: true,
@@ -389,8 +391,7 @@ export class Phone extends ValueObject {
       countryCode,
       nationalNumber,
       type,
-      operator: operator !== BDOperator.UNKNOWN ? operator : undefined,
-      error: undefined,
+      operator
     };
   }
 
@@ -752,8 +753,3 @@ export function detectBangladeshOperator(phoneNumber: string): BDOperator {
   return phone.getOperator();
 }
 
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { PhoneComponents };
