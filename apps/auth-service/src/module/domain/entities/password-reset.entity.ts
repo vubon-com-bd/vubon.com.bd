@@ -20,8 +20,8 @@
  * ✅ Configurable notification templates
  */
 
-import { BaseEntity, EntityValidationError, type IdGenerator } from './base.entity';
-import { Token, TokenType } from '../value-objects/token.vo';
+import { BaseEntity, ValidationResult, EntityValidationError, type IdGenerator } from './base.entity';
+import { Token } from '../value-objects/token.vo';
 import { Email } from '../value-objects/email.vo';
 import { Phone } from '../value-objects/phone.vo';
 import { IpAddress } from '../value-objects/ip-address.vo';
@@ -107,7 +107,6 @@ const {
   EXPIRY_HOURS,
   EXPIRY_MS,
   MAX_REQUESTS_PER_DAY,
-  COOLDOWN_MINUTES,
   COOLDOWN_MS,
   MAX_VERIFICATION_ATTEMPTS,
   ALLOW_CONCURRENT_REQUESTS,
@@ -135,8 +134,8 @@ export class PasswordReset extends BaseEntity {
   private _requestCount: number;
   private _lastRequestAt: Date | undefined;
   private _verificationAttempts: number;
-  private _otpCode?: string;           // For phone-based reset (stored temporarily)
-  private _cancelReason?: string;       // ✅ Enterprise: Track cancellation reason
+  private _otpCode: string | undefined;
+  private _cancelReason: string | undefined;
 
   private constructor(
     id: string,
@@ -185,33 +184,41 @@ export class PasswordReset extends BaseEntity {
   /**
    * Validate entity invariants
    */
-  protected validate(): void {
-    if (!this._userId) {
-      throw new EntityValidationError('Password reset requires a user ID');
-    }
-    if (!this._token && this._method !== PasswordResetMethod.SMS && 
-        this._method !== PasswordResetMethod.WHATSAPP && this._method !== PasswordResetMethod.VOICE) {
-      throw new EntityValidationError('Password reset requires a token');
-    }
-    if (!this._ipAddress) {
-      throw new EntityValidationError('Password reset requires IP address');
-    }
-    if (!this._userAgent) {
-      throw new EntityValidationError('Password reset requires user agent');
-    }
-    if (!this._deviceId) {
-      throw new EntityValidationError('Password reset requires device ID');
-    }
-    if (this._requestCount < 0) {
-      throw new EntityValidationError('Request count cannot be negative');
-    }
-    if (this._requestCount > MAX_REQUESTS_PER_DAY) {
-      throw new EntityValidationError('Request count exceeds maximum allowed');
-    }
-    if (this._verificationAttempts > MAX_VERIFICATION_ATTEMPTS) {
-      throw new EntityValidationError('Verification attempts exceed maximum allowed');
-    }
+  protected validate(): ValidationResult {
+  const errors: string[] = [];
+  
+  if (!this._userId) {
+    errors.push('Password reset requires a user ID');
   }
+  if (!this._token && this._method !== PasswordResetMethod.SMS && 
+      this._method !== PasswordResetMethod.WHATSAPP && this._method !== PasswordResetMethod.VOICE) {
+    errors.push('Password reset requires a token');
+  }
+  if (!this._ipAddress) {
+    errors.push('Password reset requires IP address');
+  }
+  if (!this._userAgent) {
+    errors.push('Password reset requires user agent');
+  }
+  if (!this._deviceId) {
+    errors.push('Password reset requires device ID');
+  }
+  if (this._requestCount < 0) {
+    errors.push('Request count cannot be negative');
+  }
+  if (this._requestCount > MAX_REQUESTS_PER_DAY) {
+    errors.push(`Request count exceeds maximum of ${MAX_REQUESTS_PER_DAY}`);
+  }
+  if (this._verificationAttempts > MAX_VERIFICATION_ATTEMPTS) {
+    errors.push(`Verification attempts exceed maximum of ${MAX_VERIFICATION_ATTEMPTS}`);
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors,
+  };
+}
+
 
   // ============================================================
   // Factory Methods
@@ -826,9 +833,3 @@ function generateEventId(): string {
 namespace generateEventId {
   export let counter = 0;
 }
-
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { ResetIdentifier, RateLimitResult, NotificationTemplate, PasswordResetConfig };
