@@ -881,28 +881,6 @@ export interface AdvancedMFARepository extends MFARepository {
   }>;
 }
 
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { 
-  MFAStatusResult, 
-  BackupCodesResult, 
-  VerificationResult, 
-  MFAStatistics, 
-  MFAFilters,
-  BulkDisableResult,
-  MFAMethodInfo,
-  MFAMethodMetadata,
-  MFARecoveryConfig,
-  MFAMethodConfig,
-  MFAMethodCompatibility,
-  AdaptiveMFARequest,
-  MFAMethodRecommendation,
-  OfflineMFACode,
-  FailedAttemptAnomaly,
-  CrossDeviceMFASyncRequest,
-};
 
 // ============================================================
 // ENTERPRISE SUMMARY v2.0
