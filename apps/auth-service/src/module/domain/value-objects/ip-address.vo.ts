@@ -33,12 +33,13 @@ import { ValueObject } from './base.vo';
 
 /**
  * IP address validation result
+ * ✅ FIXED: error property is now optional
  */
 export interface IpValidation {
   isValid: boolean;
   normalized?: string;
   version?: 4 | 6;
-  error?: string;
+  error?: string;  // ✅ Optional
 }
 
 /**
@@ -228,7 +229,7 @@ export class IpAddress extends ValueObject {
   }
 
   // ============================================================
-  // Validation Methods
+  // Validation Methods (✅ FIXED: error optional)
   // ============================================================
 
   /**
@@ -257,22 +258,24 @@ export class IpAddress extends ValueObject {
 
     // Try IPv4
     if (IPV4_REGEX.test(trimmed)) {
+      // ✅ FIXED: error property removed from success case
       return {
         isValid: true,
         normalized: trimmed,
         version: 4,
-        error: undefined,
+        // error: undefined  // ← বাদ দেওয়া হয়েছে
       };
     }
 
     // Try IPv6
     if (IPV6_REGEX.test(trimmed)) {
       const normalized = IpAddress.normalizeIPv6(trimmed);
+      // ✅ FIXED: error property removed from success case
       return {
         isValid: true,
         normalized,
         version: 6,
-        error: undefined,
+        // error: undefined  // ← বাদ দেওয়া হয়েছে
       };
     }
 
@@ -552,6 +555,7 @@ export class IpAddress extends ValueObject {
     if (this._version !== 4) return null;
     
     const first = parseInt(this._value.split('.')[0]!, 10);
+    
     if (first >= 1 && first <= 126) return 'A';
     if (first >= 128 && first <= 191) return 'B';
     if (first >= 192 && first <= 223) return 'C';
@@ -561,25 +565,27 @@ export class IpAddress extends ValueObject {
   }
 
   /**
-   * Check if IP is empty/placeholder
+   * Get CIDR notation for this IP (/32 for IPv4, /128 for IPv6)
+   */
+  public toCIDR(): string {
+    const mask = this._version === 4 ? 32 : 128;
+    return `${this._normalized}/${mask}`;
+  }
+
+  /**
+   * Check if IP address is empty/placeholder
    */
   public override isEmpty(): boolean {
-    return this._value === '0.0.0.0' || 
-           this._value === '::' || 
-           this._value === '' ||
+    return this._value === '' || 
+           this._value === '0.0.0.0' ||
+           this._value === '::' ||
            this._value === 'unknown';
   }
 
-  /**
-   * Get CIDR notation (single IP)
-   */
-  public toCIDR(): string {
-    return `${this._value}/${this._version === 4 ? 32 : 128}`;
-  }
+  // ============================================================
+  // ValueObject Implementation
+  // ============================================================
 
-  /**
-   * Get equality components with caching for performance
-   */
   protected getEqualityComponents(): readonly unknown[] {
     if (!this._cachedEqualityComponents) {
       this._cachedEqualityComponents = [this._normalized, this._version];
@@ -588,15 +594,7 @@ export class IpAddress extends ValueObject {
   }
 
   /**
-   * Invalidate cache (useful for testing)
-   */
-  protected override invalidateCache(): void {
-    super.invalidateCache();
-    this._cachedEqualityComponents = null;
-  }
-
-  /**
-   * Convert to JSON
+   * Convert to JSON serializable object
    */
   public override toJSON(): Record<string, unknown> {
     return {
@@ -608,15 +606,16 @@ export class IpAddress extends ValueObject {
       isPublic: this.isPublic(),
       isLocalhost: this.isLocalhost(),
       isBangladeshISP: this.isBangladeshISP(),
+      isCloudProvider: this.isCloudProvider(),
       networkClass: this.getNetworkClass(),
     };
   }
 
   /**
-   * String representation
+   * String representation for debugging
    */
   public override toString(): string {
-    return `IpAddress(${this._value})`;
+    return `IpAddress(${this._normalized}, v${this._version}, ${this._category})`;
   }
 }
 
@@ -632,22 +631,9 @@ export function isIpAddress(value: unknown): value is IpAddress {
 }
 
 /**
- * Create IpAddress from request headers
+ * Create IP from request (handles various input sources)
  */
-export function createIpFromRequest(
-  forwardedFor: string | null | undefined,
-  realIp: string | null | undefined,
-  remoteAddress: string | null | undefined
-): IpAddress | null {
-  // Priority: X-Forwarded-For > X-Real-IP > remoteAddress
-  const ipString = forwardedFor?.split(',')[0]?.trim() || realIp || remoteAddress;
-  
-  if (!ipString) return null;
-  return IpAddress.tryCreate(ipString);
+export function createIpFromRequest(ip: string | null | undefined): IpAddress | null {
+  if (!ip) return null;
+  return IpAddress.tryCreate(ip);
 }
-
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { IpRange };
