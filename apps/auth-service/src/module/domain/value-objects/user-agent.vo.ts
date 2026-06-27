@@ -25,18 +25,28 @@
 
 import { ValueObject } from './base.vo';
 
-// ✅ FIXED: Import from shared-constants instead of duplicating patterns
+// ✅ FIXED: সঠিক ইমপোর্ট - shared-constants থেকে
 import {
   BROWSER_PATTERNS,
+  BANGLADESH_BROWSER_PATTERNS,
   OS_PATTERNS,
   DEVICE_PATTERNS,
+  FEATURE_PHONE_PATTERNS,
   BOT_PATTERNS,
   SUSPICIOUS_PATTERNS,
-  BrowserInfo as SharedBrowserInfo,
-  OSInfo as SharedOSInfo,
 } from '@vubon/shared-constants';
 
 // ==================== Types ====================
+
+/**
+ * User Agent validation result
+ * ✅ FIXED: error optional
+ */
+export interface UserAgentValidation {
+  isValid: boolean;
+  normalized?: string;
+  error?: string;
+}
 
 /**
  * Browser information (Domain-specific wrapper)
@@ -57,6 +67,8 @@ export interface OSInfo {
   platform: 'windows' | 'mac' | 'linux' | 'android' | 'ios' | 'other';
 }
 
+// ==================== Enums ====================
+
 /**
  * Device type enum
  */
@@ -76,10 +88,10 @@ export enum DeviceType {
  * Browser category enum
  */
 export enum BrowserCategory {
-  MODERN = 'modern',      // Supports modern web features
-  LEGACY = 'legacy',      // Older browser with limitations
-  BOT = 'bot',            // Search engine bot
-  HEADLESS = 'headless',  // Headless browser
+  MODERN = 'modern',
+  LEGACY = 'legacy',
+  BOT = 'bot',
+  HEADLESS = 'headless',
   UNKNOWN = 'unknown',
 }
 
@@ -96,55 +108,6 @@ export enum BotCategory {
   SCRAPER = 'scraper',
   UNKNOWN = 'unknown',
 }
-
-/**
- * User Agent validation result
- */
-export interface UserAgentValidation {
-  isValid: boolean;
-  normalized?: string;
-  error?: string;
-}
-
-// ==================== Domain-Specific Constants ====================
-
-/**
- * Bangladesh specific browser patterns (not in shared-constants)
- */
-const BANGLADESH_BROWSER_PATTERNS = [
-  { name: 'UC Browser', pattern: /UCBrowser\/(\d+\.\d+\.\d+)/i, engine: 'Blink' },
-  { name: 'Samsung Browser', pattern: /SamsungBrowser\/(\d+\.\d+)/i, engine: 'Blink' },
-  { name: 'Opera Mini', pattern: /Opera Mini\/(\d+\.\d+)/i, engine: 'Blink' },
-  { name: 'Mi Browser', pattern: /MiuiBrowser\/(\d+\.\d+)/i, engine: 'Blink' },
-  { name: 'Vivo Browser', pattern: /VivoBrowser\/(\d+\.\d+)/i, engine: 'Blink' },
-  { name: 'Oppo Browser', pattern: /OppoBrowser\/(\d+\.\d+)/i, engine: 'Blink' },
-];
-
-/**
- * Bangladesh specific OS patterns
- */
-const BANGLADESH_OS_PATTERNS = [
-  { name: 'HarmonyOS', pattern: /HarmonyOS/i, platform: 'other' as const },
-  { name: 'KaiOS', pattern: /KaiOS/i, platform: 'other' as const },
-];
-
-/**
- * Feature phone patterns (Bangladesh specific)
- */
-const FEATURE_PHONE_PATTERNS = [
-  /Feature Phone/i, /Nokia/i, /JioPhone/i, /KaiOS/i,
-];
-
-// ==================== Caching Helper ====================
-
-/**
- * WeakMap for caching parsed results (performance optimization)
- */
-const browserCache = new WeakMap<UserAgent, BrowserInfo>();
-const osCache = new WeakMap<UserAgent, OSInfo>();
-const deviceTypeCache = new WeakMap<UserAgent, DeviceType>();
-const categoryCache = new WeakMap<UserAgent, BrowserCategory>();
-const botCategoryCache = new WeakMap<UserAgent, BotCategory>();
 
 // ==================== User Agent Value Object ====================
 
@@ -236,39 +199,28 @@ export class UserAgent extends ValueObject {
 
   /**
    * Validates a user agent string
+   * ✅ FIXED: error optional
    */
   public static validate(userAgent: string): UserAgentValidation {
     if (!userAgent || typeof userAgent !== 'string') {
-      return {
-        isValid: false,
-        error: 'User agent cannot be null or undefined',
-      };
+      return { isValid: false, error: 'User agent cannot be null or undefined' };
     }
 
     const trimmed = userAgent.trim();
     
     if (trimmed.length === 0) {
-      return {
-        isValid: false,
-        error: 'User agent cannot be empty',
-      };
+      return { isValid: false, error: 'User agent cannot be empty' };
     }
     
     if (trimmed.length > 2000) {
-      return {
-        isValid: false,
-        error: 'User agent too long (max 2000 characters)',
-      };
+      return { isValid: false, error: 'User agent too long (max 2000 characters)' };
     }
 
     // Normalize: trim and replace multiple spaces
     const normalized = trimmed.replace(/\s+/g, ' ');
 
-    return {
-      isValid: true,
-      normalized,
-      error: undefined,
-    };
+    // ✅ error: undefined বাদ দেওয়া হয়েছে
+    return { isValid: true, normalized };
   }
 
   // ============================================================
@@ -328,19 +280,6 @@ export class UserAgent extends ValueObject {
     
     const ua = this._value;
     
-    // Try Bangladesh OS patterns first
-    for (const os of BANGLADESH_OS_PATTERNS) {
-      if (os.pattern.test(ua)) {
-        this._os = {
-          name: os.name,
-          version: 'unknown',
-          platform: os.platform,
-        };
-        return this._os;
-      }
-    }
-    
-    // Then try from shared-constants
     for (const os of OS_PATTERNS) {
       const match = ua.match(os.pattern);
       if (match) {
@@ -372,6 +311,7 @@ export class UserAgent extends ValueObject {
 
   /**
    * Parse device type from user agent (cached)
+   * ✅ FIXED: Type-safe conversion with fallback
    */
   private parseDeviceType(): DeviceType {
     if (this._deviceType) return this._deviceType;
@@ -379,7 +319,7 @@ export class UserAgent extends ValueObject {
     const ua = this._value;
     
     // Check feature phones first (Bangladesh specific)
-    if (FEATURE_PHONE_PATTERNS.some(pattern => pattern.test(ua))) {
+    if (FEATURE_PHONE_PATTERNS.some((pattern: RegExp) => pattern.test(ua))) {
       this._deviceType = DeviceType.FEATURE_PHONE;
       return this._deviceType;
     }
@@ -387,12 +327,32 @@ export class UserAgent extends ValueObject {
     // Check from shared-constants
     for (const device of DEVICE_PATTERNS) {
       if (device.pattern.test(ua)) {
-        this._deviceType = device.type;
+        // ✅ FIXED: Type-safe mapping with fallback
+        const typeMap: Record<string, DeviceType> = {
+          'mobile': DeviceType.MOBILE,
+          'tablet': DeviceType.TABLET,
+          'tv': DeviceType.TV,
+          'console': DeviceType.CONSOLE,
+          'wearable': DeviceType.WEARABLE,
+        };
+        this._deviceType = typeMap[device.type] || DeviceType.UNKNOWN;
         return this._deviceType;
       }
     }
     
-    this._deviceType = DeviceType.DESKTOP;
+    // Desktop detection (no mobile/tablet patterns)
+    // Check for laptop or desktop indicators
+    if (/Windows|Macintosh|Linux|X11/.test(ua) && !/Mobile|Tablet|iPad/.test(ua)) {
+      // Check for laptop-specific patterns
+      if (/Laptop|Notebook|Book/.test(ua)) {
+        this._deviceType = DeviceType.LAPTOP;
+        return this._deviceType;
+      }
+      this._deviceType = DeviceType.DESKTOP;
+      return this._deviceType;
+    }
+    
+    this._deviceType = DeviceType.UNKNOWN;
     return this._deviceType;
   }
 
@@ -412,7 +372,7 @@ export class UserAgent extends ValueObject {
     }
     
     const browser = this.getBrowser();
-    const legacyBrowsers = ['IE', 'Edge Legacy'];
+    const legacyBrowsers = ['IE', 'Edge Legacy', 'UC Browser', 'Opera Mini'];
     if (legacyBrowsers.includes(browser.name)) {
       this._category = BrowserCategory.LEGACY;
       return this._category;
@@ -489,7 +449,7 @@ export class UserAgent extends ValueObject {
    * Check if user agent is a bot/crawler
    */
   private isBotCheck(ua: string): boolean {
-    return BOT_PATTERNS.some(pattern => pattern.test(ua));
+    return BOT_PATTERNS.some((pattern: RegExp) => pattern.test(ua));
   }
 
   /**
@@ -499,7 +459,7 @@ export class UserAgent extends ValueObject {
     const headlessPatterns = [
       /Headless/i, /Puppeteer/i, /Playwright/i, /PhantomJS/i,
     ];
-    return headlessPatterns.some(pattern => pattern.test(ua));
+    return headlessPatterns.some((pattern: RegExp) => pattern.test(ua));
   }
 
   /**
@@ -509,7 +469,7 @@ export class UserAgent extends ValueObject {
     const automationPatterns = [
       /Selenium/i, /WebDriver/i, /Cypress/i, /TestCafe/i,
     ];
-    return automationPatterns.some(pattern => pattern.test(ua));
+    return automationPatterns.some((pattern: RegExp) => pattern.test(ua));
   }
 
   /**
@@ -517,7 +477,7 @@ export class UserAgent extends ValueObject {
    */
   private isSuspiciousCheck(ua: string): boolean {
     const lowerUA = ua.toLowerCase();
-    return SUSPICIOUS_PATTERNS.some(pattern => lowerUA.includes(pattern));
+    return SUSPICIOUS_PATTERNS.some((pattern: string) => lowerUA.includes(pattern));
   }
 
   // ============================================================
@@ -589,6 +549,7 @@ export class UserAgent extends ValueObject {
 
   /**
    * Get device type (cached)
+   * ✅ FIXED: Never returns null
    */
   public getDeviceType(): DeviceType {
     return this.parseDeviceType();
@@ -692,13 +653,14 @@ export class UserAgent extends ValueObject {
    * Check if browser supports WebAuthn (for biometric MFA)
    */
   public supportsWebAuthn(): boolean {
-    const modernBrowsers = ['Chrome', 'Firefox', 'Edge', 'Safari', 'Opera'];
+    const modernBrowsers = ['Chrome', 'Firefox', 'Edge', 'Safari', 'Opera', 'Brave'];
     const modernVersions: Record<string, number> = {
       'Chrome': 67,
       'Firefox': 60,
       'Edge': 79,
       'Safari': 13,
       'Opera': 54,
+      'Brave': 67,
     };
     
     const browser = this.getBrowser();
@@ -749,43 +711,37 @@ export class UserAgent extends ValueObject {
    * Check if user agent is empty/placeholder
    */
   public override isEmpty(): boolean {
-    return this._value === '' || 
-           this._value === 'unknown' ||
-           this._value === 'Mozilla/5.0';
+    return this._value === '' || this._value === 'unknown';
   }
 
   /**
    * Get equality components for parent class comparison
-   * Uses normalized value for consistent comparison
    */
   protected getEqualityComponents(): readonly unknown[] {
-    return [this._normalized];
+    return [this._normalized, this._isBot];
   }
 
   /**
    * Convert to JSON serializable object
    */
   public override toJSON(): Record<string, unknown> {
-    const browser = this.getBrowser();
-    const os = this.getOS();
     const deviceType = this.getDeviceType();
-    const category = this.getCategory();
-    const botCategory = this.getBotCategory();
     
     return {
+      value: this._value,
       normalized: this._normalized,
-      browser: browser,
-      os: os,
+      browser: this.getBrowser(),
+      os: this.getOS(),
       deviceType: deviceType,
       isBot: this._isBot,
       isHeadless: this._isHeadless,
       isAutomation: this._isAutomation,
       isSuspicious: this._isSuspicious,
       isRealUser: this.isRealUser(),
-      category: category,
-      botCategory: this._isBot ? botCategory : undefined,
+      category: this.getCategory(),
+      botCategory: this.getBotCategory(),
       supportsWebAuthn: this.supportsWebAuthn(),
-      fingerprintComponents: this.getFingerprintComponents(),
+      supportsModernFeatures: this.supportsModernFeatures(),
     };
   }
 
@@ -796,15 +752,7 @@ export class UserAgent extends ValueObject {
     const browser = this.getBrowser();
     const os = this.getOS();
     const deviceType = this.getDeviceType();
-    const category = this.getCategory();
-    
-    let details = `browser=${browser.name}, os=${os.name}, device=${deviceType}`;
-    
-    if (this._isBot) {
-      details += `, bot=${this.getBotCategory()}`;
-    }
-    
-    return `UserAgent(${details})`;
+    return `UserAgent(${browser.name} ${browser.version} on ${os.name}, device=${deviceType}, bot=${this._isBot})`;
   }
 }
 
@@ -820,11 +768,9 @@ export function isUserAgent(value: unknown): value is UserAgent {
 }
 
 /**
- * Create UserAgent from request headers
+ * Create UserAgent from request data (handles various input sources)
  */
-export function createUserAgentFromRequest(
-  userAgent: string | null | undefined
-): UserAgent | null {
+export function createUserAgentFromRequest(userAgent: string | null | undefined): UserAgent | null {
   if (!userAgent) return null;
   return UserAgent.tryCreate(userAgent);
 }
@@ -832,40 +778,27 @@ export function createUserAgentFromRequest(
 /**
  * Check if user agent should be blocked (security)
  */
-export function shouldBlockUserAgent(userAgent: UserAgent): boolean {
-  // Block suspicious activity or headless bots
-  return userAgent.isSuspicious() || 
-         (userAgent.isBot() && userAgent.isHeadless());
+export function shouldBlockUserAgent(userAgent: string): boolean {
+  const ua = UserAgent.tryCreate(userAgent);
+  if (!ua) return true;
+  return ua.isBot() || ua.isSuspicious();
 }
 
 /**
- * Get security severity level (Enterprise feature)
+ * Get user agent summary (short description)
  */
-export function getSecuritySeverity(userAgent: UserAgent): 'low' | 'medium' | 'high' | 'critical' {
-  if (userAgent.isSuspicious()) {
-    const suspiciousUA = userAgent.getValue().toLowerCase();
-    if (suspiciousUA.includes('sqlmap') || suspiciousUA.includes('nikto')) {
-      return 'critical';
-    }
-    if (suspiciousUA.includes('nmap') || suspiciousUA.includes('masscan')) {
-      return 'high';
-    }
-    return 'medium';
-  }
-  
-  if (userAgent.isBot() && userAgent.isHeadless()) {
-    return 'medium';
-  }
-  
-  if (userAgent.isAutomation()) {
-    return 'low';
-  }
-  
-  return 'low';
+export function getUserAgentSummary(userAgent: string): string {
+  const ua = UserAgent.tryCreate(userAgent);
+  if (!ua) return 'Unknown';
+  if (ua.isBot()) return `Bot: ${ua.getBrowserName()}`;
+  return `${ua.getBrowserName()} ${ua.getBrowserVersion()} on ${ua.getOSName()}`;
 }
 
 // ============================================================
-// Type Exports
+// Type Exports (✅ FIXED: ডুপ্লিকেট export সরানো হয়েছে)
 // ============================================================
 
-export type { BrowserInfo, OSInfo };
+
+
+// Note: BotCategory, BrowserCategory, DeviceType ইতিমধ্যে enum হিসেবে export করা হয়েছে
+// তাই আলাদা export প্রয়োজন নেই
