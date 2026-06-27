@@ -31,17 +31,13 @@
 
 // ✅ ENTERPRISE: Import shared types
 import type { 
-  PaginationOptions as SharedPaginationOptions,
-  PaginatedResult as SharedPaginatedResult,
+  PaginationParams as SharedPaginationOptions,
+  OffsetPaginationResponse as SharedPaginatedResult,
   DomainEvent,
-  CacheKey,
-  CacheOptions,
-  DistributedLock,
-  RateLimitResult,
-  BulkProgressCallback,
 } from '@vubon/shared-types';
 
-import { BaseRepository, RepositoryOptions } from './base.repository.interface';
+
+import { BaseRepository } from './base.repository.interface';
 import { User, UserStatus, UserRole, UserTier } from '../entities/user.entity';
 import { Email } from '../value-objects/email.vo';
 import { Phone } from '../value-objects/phone.vo';
@@ -92,6 +88,43 @@ export interface UserFilters {
   includeDeleted?: boolean;
   includeSoftDeleted?: boolean;
 }
+
+
+
+// ✅ Local type definitions (since they don't exist in shared-types)
+export interface CacheKey {
+  key: string;
+  version?: number;
+  ttl?: number;
+}
+
+export interface CacheOptions {
+  ttl?: number;
+  keyPrefix?: string;
+  skipCache?: boolean;
+}
+
+export interface DistributedLock {
+  lockId: string;
+  expiresAt: Date;
+  release: () => Promise<void>;
+}
+
+export interface RateLimitResult {
+  allowed: boolean;
+  remaining: number;
+  resetAt: Date;
+  retryAfterSeconds?: number;
+}
+
+export type BulkProgressCallback = (progress: {
+  total: number;
+  completed: number;
+  failed: number;
+  percentage: number;
+  estimatedRemainingMs?: number;
+}) => void;
+
 
 /**
  * ✅ ENTERPRISE: Cache configuration for query results
@@ -1097,26 +1130,6 @@ export interface AdvancedUserRepository extends UserRepository {
   ): Promise<number>;
 }
 
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { 
-  UserStatistics, 
-  UserFilters, 
-  BulkOperationResult, 
-  RegistrationTrend,
-  UserActivitySummary,
-  UserEngagementScore,
-  RetentionMetrics,
-  UserLifecycleStages,
-  // ✅ ENTERPRISE: New type exports
-  UserCacheConfig,
-  SoftDeleteCascadeOptions,
-  DataRetentionPolicy,
-  ShardConfig,
-  UserPerformanceMetrics,
-};
 
 // ============================================================
 // ENTERPRISE SUMMARY v3.0
