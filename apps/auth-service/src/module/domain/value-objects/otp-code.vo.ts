@@ -1,62 +1,44 @@
 /**
  * OTP Code Value Object - Pure Domain Core (Enterprise Grade)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
-
+ * 
  * @module domain/value-objects/otp-code.vo
-
+ * 
  * @description
  * Represents a One-Time Password (OTP) code with validation, expiry, and usage tracking.
  * Used for MFA, password reset, email verification, and transaction confirmation.
-
- * Enterprise Features (Applied):
- * ✅ Shared configuration from @vubon/shared-constants
+ * 
+ * Enterprise Features:
+ * ✅ Shared configuration from @vubon/shared-config
  * ✅ Rate limiting for OTP requests
  * ✅ Multi-language template support (English/Bengali)
  * ✅ SMS/Email/WhatsApp format variations
  * ✅ Security event auditing support
-
- * Enterprise Rules:
- * ✅ Immutable - OTP value never changes after creation
- * ✅ Self-validating - Validates format based on type
- * ✅ Time-aware - Tracks creation and expiry
- * ✅ Usage-aware - Tracks attempts and usage status
- * ✅ Framework-free - No external dependencies
- * ✅ Bangladesh specific - Mobile operator optimization ready
- * ✅ Secure - Uses crypto.randomInt for OTP generation
-
+ * 
  * @example
  * const otp = new OtpCode('123456', OtpType.SMS, OtpPurpose.LOGIN);
  * console.log(otp.isExpired()); // false
  * console.log(otp.verify('123456')); // true
  * console.log(otp.canResend()); // true
- * console.log(otp.getTemplateMessage('bn')); // 'আপনার লগইন OTP: 123456. বৈধতা ৫ মিনিট।'
  */
 
 import { ValueObject } from './base.vo';
-
-// ✅ FIXED: Import from shared-config instead of local constants
 import { OTP_CONFIG } from '@vubon/shared-config';
 
 // ==================== Enums ====================
 
-/**
- * OTP type enumeration
- */
 export enum OtpType {
-  SMS = 'sms',                 // 6 digits, 5 min expiry
-  EMAIL = 'email',             // 6-8 digits, 10 min expiry
-  TOTP = 'totp',               // 6 digits, 30 sec window
-  BACKUP = 'backup',           // 8-10 alphanumeric, one-time use
-  MAGIC_LINK = 'magic_link',   // Token-based, 5 min expiry
-  TRANSACTION = 'transaction', // For payment confirmation
+  SMS = 'sms',
+  EMAIL = 'email',
+  TOTP = 'totp',
+  BACKUP = 'backup',
+  MAGIC_LINK = 'magic_link',
+  TRANSACTION = 'transaction',
   DEVICE_VERIFICATION = 'device_verification',
-  WHATSAPP = 'whatsapp',       // Bangladesh specific
-  VOICE = 'voice',             // Voice call OTP
+  WHATSAPP = 'whatsapp',
+  VOICE = 'voice',
 }
 
-/**
- * OTP purpose (business context)
- */
 export enum OtpPurpose {
   LOGIN = 'login',
   REGISTRATION = 'registration',
@@ -69,28 +51,19 @@ export enum OtpPurpose {
   DEVICE_TRUST = 'device_trust',
   WITHDRAWAL = 'withdrawal',
   SENSITIVE_ACTION = 'sensitive_action',
-  /** Bangladesh specific: bKash payment confirmation */
   BKASH_PAYMENT = 'bkash_payment',
-  /** Bangladesh specific: Nagad payment confirmation */
   NAGAD_PAYMENT = 'nagad_payment',
-  /** Bangladesh specific: Rocket payment confirmation */
   ROCKET_PAYMENT = 'rocket_payment',
 }
 
 // ==================== Types ====================
 
-/**
- * OTP validation result
- */
 export interface OtpValidation {
   isValid: boolean;
   normalized?: string;
   error?: string;
 }
 
-/**
- * OTP status for domain events
- */
 export interface OtpStatus {
   isValid: boolean;
   isExpired: boolean;
@@ -99,9 +72,6 @@ export interface OtpStatus {
   remainingSeconds: number;
 }
 
-/**
- * Rate limit result for OTP requests
- */
 export interface RateLimitResult {
   allowed: boolean;
   remaining: number;
@@ -109,9 +79,6 @@ export interface RateLimitResult {
   reason?: string;
 }
 
-/**
- * OTP template message with localization
- */
 export interface OtpTemplateMessage {
   en: string;
   bn: string;
@@ -121,39 +88,33 @@ export interface OtpTemplateMessage {
 
 // ==================== Constants from Shared Config ====================
 
-// Use configuration from shared-config (single source of truth)
 const {
   LENGTHS,
   EXPIRY_SECONDS,
   MAX_VERIFICATION_ATTEMPTS,
   MAX_RESEND_ATTEMPTS,
   RESEND_COOLDOWN_SECONDS,
-  MAX_OTP_PER_PHONE_PER_HOUR,
-  MAX_OTP_PER_EMAIL_PER_HOUR,
-  MAX_OTP_PER_IP_PER_HOUR,
+  RATE_LIMITS,
   EXPIRY_BUFFER_SECONDS,
 } = OTP_CONFIG;
 
+const MAX_OTP_PER_PHONE_PER_HOUR = RATE_LIMITS.maxPerPhonePerHour;
+const MAX_OTP_PER_EMAIL_PER_HOUR = RATE_LIMITS.maxPerEmailPerHour;
+const MAX_OTP_PER_IP_PER_HOUR = RATE_LIMITS.maxPerIPPerHour;
+
 // ==================== Secure Random Generator ====================
 
-/**
- * Cryptographically secure random integer generator
- * Falls back to Math.random only if crypto is not available (e.g., React Native without polyfill)
- */
 function secureRandomInt(min: number, max: number): number {
   const range = max - min;
   
-  // Try Node.js crypto first
   if (typeof globalThis.crypto !== 'undefined' && globalThis.crypto.getRandomValues) {
-    // Web Crypto API (works in browsers, Node.js 19+, React Native with polyfill)
     const randomBuffer = new Uint32Array(1);
     globalThis.crypto.getRandomValues(randomBuffer);
-    const randomNumber = randomBuffer[0] / (0xffffffff + 1);
+   // সুরক্ষিত র্যান্ডম সংখ্যা
+const randomNumber = (randomBuffer[0] ?? 0) / (0xffffffff + 1);
     return min + Math.floor(randomNumber * range);
   }
   
-  // Fallback for environments without crypto (should not happen in production)
-  // Warning logged for development only
   if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
     console.warn('[SecureRandom] Falling back to Math.random - not secure for production!');
   }
@@ -162,9 +123,6 @@ function secureRandomInt(min: number, max: number): number {
 
 // ==================== OTP Template Messages ====================
 
-/**
- * OTP template messages for different purposes (English & Bengali)
- */
 const OTP_TEMPLATES: Record<OtpPurpose, OtpTemplateMessage> = {
   [OtpPurpose.LOGIN]: {
     en: `Your login OTP is: {code}. Valid for {expiry} minutes.`,
@@ -238,33 +196,18 @@ const OTP_TEMPLATES: Record<OtpPurpose, OtpTemplateMessage> = {
 
 // ==================== OTP Code Value Object ====================
 
-/**
- * OTP Code Value Object
-
- * Represents a validated OTP with lifecycle tracking
- */
 export class OtpCode extends ValueObject {
   private readonly _value: string;
   private readonly _type: OtpType;
   private readonly _purpose: OtpPurpose;
-  private readonly _createdAt: Date;
-  private readonly _expiresAt: Date;
-  private _verifiedAt?: Date;
-  private _attemptCount: number;
-  private _resendCount: number;
-  private _lastAttemptAt?: Date;
-  private _metadata?: Record<string, unknown>;
+  private readonly _otpCreatedAt: number;
+  private readonly _otpExpiresAt: number;
+  private _otpVerifiedAt?: number;
+  private _otpAttemptCount: number = 0;
+  private _otpResendCount: number = 0;
+  private _otpLastAttemptAt?: number;
+  private _otpMetadata: Record<string, unknown>;
 
-  /**
-   * Creates a new OTP Code value object
-
-   * @param code - Raw OTP code string
-   * @param type - Type of OTP
-   * @param purpose - Business purpose
-   * @param createdAt - Optional creation time (defaults to now)
-   * @param metadata - Optional metadata (amount, orderId, etc.)
-   * @throws {Error} If OTP format is invalid for the type
-   */
   constructor(
     code: string,
     type: OtpType,
@@ -282,29 +225,25 @@ export class OtpCode extends ValueObject {
     this._value = validation.normalized!;
     this._type = type;
     this._purpose = purpose;
-    this._createdAt = createdAt || new Date();
-    this._metadata = metadata;
+    this._otpCreatedAt = createdAt ? createdAt.getTime() : Date.now();
+    this._otpMetadata = metadata ? { ...metadata } : {};
 
-    const expirySeconds = EXPIRY_SECONDS[type];
-    this._expiresAt = expirySeconds > 0 
-      ? new Date(this._createdAt.getTime() + expirySeconds * 1000)
-      : new Date(8640000000000000); // Far future for backup codes
+    const expiryKey = type.toUpperCase() as keyof typeof EXPIRY_SECONDS;
+    const expirySeconds = EXPIRY_SECONDS[expiryKey] || EXPIRY_SECONDS.SMS;
+    this._otpExpiresAt = this._otpCreatedAt + (expirySeconds * 1000);
 
-    this._attemptCount = 0;
-    this._resendCount = 0;
+    this._otpAttemptCount = 0;
+    this._otpResendCount = 0;
 
     this.validate();
   }
 
-  /**
-   * Protected validation method
-   */
   protected validate(): void {
     if (this.isEmpty()) {
       throw new Error('OTP code cannot be empty');
     }
 
-    if (this._createdAt > this._expiresAt) {
+    if (this._otpCreatedAt > this._otpExpiresAt) {
       throw new Error('CreatedAt cannot be after ExpiresAt');
     }
   }
@@ -313,9 +252,6 @@ export class OtpCode extends ValueObject {
   // Factory Methods
   // ============================================================
 
-  /**
-   * Static factory method for creating OtpCode from known valid value
-   */
   public static fromValid(
     code: string,
     type: OtpType,
@@ -326,44 +262,37 @@ export class OtpCode extends ValueObject {
     return new OtpCode(code, type, purpose, createdAt, metadata);
   }
 
-  /**
-   * Creates an OtpCode from stored data (for persistence reconstruction)
-   */
   public static reconstitute(data: {
     value: string;
     type: OtpType;
     purpose: OtpPurpose;
-    createdAt: Date;
-    expiresAt: Date;
-    verifiedAt?: Date;
+    createdAt: number;
+    expiresAt: number;
+    verifiedAt?: number;
     attemptCount: number;
     resendCount: number;
-    lastAttemptAt?: Date;
+    lastAttemptAt?: number;
     metadata?: Record<string, unknown>;
   }): OtpCode {
-    const otp = new OtpCode(data.value, data.type, data.purpose, data.createdAt, data.metadata);
-    // Override expiry if needed (not recomputed)
-    Object.defineProperty(otp, '_expiresAt', { value: data.expiresAt });
-    otp._verifiedAt = data.verifiedAt;
-    otp._attemptCount = data.attemptCount;
-    otp._resendCount = data.resendCount;
-    otp._lastAttemptAt = data.lastAttemptAt;
+    const otp = new OtpCode(
+      data.value,
+      data.type,
+      data.purpose,
+      new Date(data.createdAt),
+      data.metadata
+    );
+    (otp as any)._otpExpiresAt = data.expiresAt;
+    (otp as any)._otpVerifiedAt = data.verifiedAt;
+    (otp as any)._otpAttemptCount = data.attemptCount;
+    (otp as any)._otpResendCount = data.resendCount;
+    (otp as any)._otpLastAttemptAt = data.lastAttemptAt;
     return otp;
   }
 
   // ============================================================
-  // Rate Limit Methods (Enterprise Feature)
+  // Rate Limit Methods
   // ============================================================
 
-  /**
-   * Check if OTP request is allowed for a target
-   * This is a domain method that requires infrastructure to track counts
-   * 
-   * @param target - Phone number, email, or IP address
-   * @param targetType - Type of target ('phone', 'email', 'ip')
-   * @param getCurrentCount - Function to get current request count (provided by infrastructure)
-   * @returns Rate limit result
-   */
   public static async checkRateLimit(
     target: string,
     targetType: 'phone' | 'email' | 'ip',
@@ -392,22 +321,16 @@ export class OtpCode extends ValueObject {
       allowed: currentCount < maxPerHour,
       remaining,
       resetAt,
-      reason: currentCount >= maxPerHour ? `Rate limit exceeded for ${targetType}. Max ${maxPerHour} per hour.` : undefined,
+      ...(currentCount >= maxPerHour ? {
+        reason: `Rate limit exceeded for ${targetType}. Max ${maxPerHour} per hour.`
+      } : {}),
     };
   }
 
   // ============================================================
-  // Template Message Methods (Enterprise Feature)
+  // Template Message Methods
   // ============================================================
 
-  /**
-   * Get template message for this OTP
-   * 
-   * @param locale - Language locale ('en' for English, 'bn' for Bengali)
-   * @param format - Message format ('default', 'sms', 'whatsapp')
-   * @param variables - Additional variables for template (e.g., amount)
-   * @returns Formatted message string
-   */
   public getTemplateMessage(
     locale: 'en' | 'bn' = 'en',
     format: 'default' | 'sms' | 'whatsapp' = 'default',
@@ -425,65 +348,51 @@ export class OtpCode extends ValueObject {
       message = template[locale];
     }
     
-    // Replace placeholders
-    const expiryMinutes = Math.floor(EXPIRY_SECONDS[this._type] / 60);
+    const expiryKey = this._type.toUpperCase() as keyof typeof EXPIRY_SECONDS;
+    const expirySeconds = EXPIRY_SECONDS[expiryKey] || EXPIRY_SECONDS.SMS;
+    const expiryMinutes = Math.floor(expirySeconds / 60);
     
     message = message
-      .replace('{code}', this.formatForSMS())
-      .replace('{expiry}', expiryMinutes.toString())
-      .replace('{expiryMinutes}', expiryMinutes.toString());
+      .replace(/\{code\}/g, this.formatForSMS())
+      .replace(/\{expiry\}/g, expiryMinutes.toString());
     
-    // Add variables if provided
     if (variables) {
       for (const [key, value] of Object.entries(variables)) {
-        message = message.replace(`{${key}}`, String(value));
+        message = message.replace(new RegExp(`\\{${key}\\}`, 'g'), String(value));
       }
     }
     
     return message;
   }
 
-  /**
-   * Get all available templates for this OTP purpose
-   */
   public getAvailableTemplates(): OtpTemplateMessage {
     return OTP_TEMPLATES[this._purpose];
   }
 
-  /**
-   * Generate security event data for audit logging
-   */
   public getSecurityEventData(): Record<string, unknown> {
     return {
       otpId: this.generateEventId(),
       type: this._type,
       purpose: this._purpose,
-      createdAt: this._createdAt.toISOString(),
-      expiresAt: this._expiresAt.toISOString(),
-      attemptCount: this._attemptCount,
-      resendCount: this._resendCount,
+      createdAt: new Date(this._otpCreatedAt).toISOString(),
+      expiresAt: new Date(this._otpExpiresAt).toISOString(),
+      attemptCount: this._otpAttemptCount,
+      resendCount: this._otpResendCount,
       isExpired: this.isExpired(),
       isUsed: this.isUsed(),
-      metadata: this._metadata,
+      metadata: this._otpMetadata,
     };
   }
 
-  /**
-   * Generate unique event ID for audit trail
-   */
   private generateEventId(): string {
-    return `otp_${this._createdAt.getTime()}_${this._value.slice(-4)}`;
+    return `otp_${this._otpCreatedAt}_${this._value.slice(-4)}`;
   }
 
   // ============================================================
   // Validation Methods
   // ============================================================
 
-  /**
-   * Validates an OTP code for a specific type
-   */
   public static validate(code: string, type: OtpType): OtpValidation {
-    // Check type and emptiness
     if (!code || typeof code !== 'string') {
       return {
         isValid: false,
@@ -500,7 +409,11 @@ export class OtpCode extends ValueObject {
       };
     }
 
-    const config = LENGTHS[type];
+    const typeKey = type.toUpperCase() as keyof typeof LENGTHS;
+    // ✅ FIXED: Safely access config with null check
+    const config = LENGTHS[typeKey] ?? LENGTHS.SMS;
+    
+    // Type guard to ensure config exists
     if (!config) {
       return {
         isValid: false,
@@ -508,7 +421,6 @@ export class OtpCode extends ValueObject {
       };
     }
 
-    // Check length
     if (trimmed.length < config.min || trimmed.length > config.max) {
       return {
         isValid: false,
@@ -516,7 +428,6 @@ export class OtpCode extends ValueObject {
       };
     }
 
-    // Check pattern
     if (!config.pattern.test(trimmed)) {
       const expectedFormat = type === OtpType.BACKUP ? 'alphanumeric' : 'numeric';
       return {
@@ -528,33 +439,27 @@ export class OtpCode extends ValueObject {
     return {
       isValid: true,
       normalized: trimmed,
-      error: undefined,
     };
   }
 
-  /**
-   * Generate a cryptographically secure random OTP code
-   */
   public static generate(type: OtpType): string {
-    const config = LENGTHS[type];
-    const length = config.max;
+    const typeKey = type.toUpperCase() as keyof typeof LENGTHS;
+    // ✅ FIXED: Safely access config with null check
+    const config = LENGTHS[typeKey] ?? LENGTHS.SMS;
+    const length = config?.max ?? 6;
 
     if (type === OtpType.BACKUP) {
-      // Generate alphanumeric backup code (no ambiguous characters)
-      // Removed: 0, O, I, l to avoid confusion
       const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
       let result = '';
       for (let i = 0; i < length; i++) {
         const randomIndex = secureRandomInt(0, chars.length);
         result += chars[randomIndex];
       }
-      // Format with hyphen for readability (e.g., "AB3F-9K2M")
       if (length === 8) {
         return result.slice(0, 4) + '-' + result.slice(4);
       }
       return result;
     } else {
-      // Generate numeric OTP with leading zeros preserved
       let result = '';
       for (let i = 0; i < length; i++) {
         const digit = secureRandomInt(0, 10);
@@ -564,12 +469,11 @@ export class OtpCode extends ValueObject {
     }
   }
 
-  /**
-   * Generate OTP with external random function (for dependency injection)
-   */
   public static generateWithRandom(type: OtpType, randomInt: (min: number, max: number) => number): string {
-    const config = LENGTHS[type];
-    const length = config.max;
+    const typeKey = type.toUpperCase() as keyof typeof LENGTHS;
+    // ✅ FIXED: Safely access config with null check
+    const config = LENGTHS[typeKey] ?? LENGTHS.SMS;
+    const length = config?.max ?? 6;
 
     if (type === OtpType.BACKUP) {
       const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -594,44 +498,21 @@ export class OtpCode extends ValueObject {
   // Getters
   // ============================================================
 
-  public getValue(): string {
-    return this._value;
-  }
-
-  public getType(): OtpType {
-    return this._type;
-  }
-
-  public getPurpose(): OtpPurpose {
-    return this._purpose;
-  }
-
-  public getCreatedAt(): Date {
-    return new Date(this._createdAt);
-  }
-
-  public getExpiresAt(): Date {
-    return new Date(this._expiresAt);
-  }
-
+  public getValue(): string { return this._value; }
+  public getType(): OtpType { return this._type; }
+  public getPurpose(): OtpPurpose { return this._purpose; }
+  public getCreatedAt(): Date { return new Date(this._otpCreatedAt); }
+  public getExpiresAt(): Date { return new Date(this._otpExpiresAt); }
   public getVerifiedAt(): Date | undefined {
-    return this._verifiedAt ? new Date(this._verifiedAt) : undefined;
+    return this._otpVerifiedAt ? new Date(this._otpVerifiedAt) : undefined;
   }
-
-  public getAttemptCount(): number {
-    return this._attemptCount;
-  }
-
-  public getResendCount(): number {
-    return this._resendCount;
-  }
-
+  public getAttemptCount(): number { return this._otpAttemptCount; }
+  public getResendCount(): number { return this._otpResendCount; }
   public getLastAttemptAt(): Date | undefined {
-    return this._lastAttemptAt ? new Date(this._lastAttemptAt) : undefined;
+    return this._otpLastAttemptAt ? new Date(this._otpLastAttemptAt) : undefined;
   }
-
-  public getMetadata(): Record<string, unknown> | undefined {
-    return this._metadata ? { ...this._metadata } : undefined;
+  public getMetadata(): Record<string, unknown> {
+    return { ...this._otpMetadata };
   }
 
   // ============================================================
@@ -642,17 +523,17 @@ export class OtpCode extends ValueObject {
     if (this._type === OtpType.BACKUP) {
       return false;
     }
-    if (this._verifiedAt) {
+    if (this._otpVerifiedAt) {
       return true;
     }
 
     const bufferMs = EXPIRY_BUFFER_SECONDS * 1000;
-    const effectiveExpiry = new Date(this._expiresAt.getTime() - bufferMs);
-    return new Date() > effectiveExpiry;
+    const effectiveExpiry = this._otpExpiresAt - bufferMs;
+    return Date.now() > effectiveExpiry;
   }
 
   public isUsed(): boolean {
-    return !!this._verifiedAt;
+    return !!this._otpVerifiedAt;
   }
 
   public isValid(): boolean {
@@ -673,7 +554,7 @@ export class OtpCode extends ValueObject {
     if (this.isExpired()) return 0;
     if (this._type === OtpType.BACKUP) return -1;
 
-    const remaining = Math.max(0, (this._expiresAt.getTime() - new Date().getTime()) / 1000);
+    const remaining = Math.max(0, (this._otpExpiresAt - Date.now()) / 1000);
     return Math.ceil(remaining);
   }
 
@@ -690,8 +571,8 @@ export class OtpCode extends ValueObject {
   // ============================================================
 
   public verify(inputCode: string): boolean {
-    this._attemptCount++;
-    this._lastAttemptAt = new Date();
+    this._otpAttemptCount++;
+    this._otpLastAttemptAt = Date.now();
 
     if (this.isUsed()) {
       return false;
@@ -706,26 +587,26 @@ export class OtpCode extends ValueObject {
     const isMatch = normalizedValue === normalizedInput;
 
     if (isMatch) {
-      this._verifiedAt = new Date();
+      this._otpVerifiedAt = Date.now();
     }
 
     return isMatch;
   }
 
   public isMaxAttemptsExceeded(): boolean {
-    return this._attemptCount >= MAX_VERIFICATION_ATTEMPTS;
+    return this._otpAttemptCount >= MAX_VERIFICATION_ATTEMPTS;
   }
 
   public getRemainingAttempts(): number {
-    return Math.max(0, MAX_VERIFICATION_ATTEMPTS - this._attemptCount);
+    return Math.max(0, MAX_VERIFICATION_ATTEMPTS - this._otpAttemptCount);
   }
 
   public incrementResend(): void {
-    this._resendCount++;
+    this._otpResendCount++;
   }
 
   public canResend(): boolean {
-    if (this._resendCount >= MAX_RESEND_ATTEMPTS) {
+    if (this._otpResendCount >= MAX_RESEND_ATTEMPTS) {
       return false;
     }
 
@@ -733,17 +614,16 @@ export class OtpCode extends ValueObject {
       return false;
     }
 
-    // Check cooldown
     const cooldownMs = RESEND_COOLDOWN_SECONDS * 1000;
-    const timeSinceCreation = new Date().getTime() - this._createdAt.getTime();
+    const timeSinceCreation = Date.now() - this._otpCreatedAt;
 
     return timeSinceCreation >= cooldownMs;
   }
 
   public createResend(): OtpCode {
     const newCode = OtpCode.generate(this._type);
-    const newOtp = new OtpCode(newCode, this._type, this._purpose, undefined, this._metadata);
-    newOtp._resendCount = this._resendCount + 1;
+    const newOtp = new OtpCode(newCode, this._type, this._purpose, undefined, this._otpMetadata);
+    newOtp._otpResendCount = this._otpResendCount + 1;
     return newOtp;
   }
 
@@ -752,27 +632,28 @@ export class OtpCode extends ValueObject {
   // ============================================================
 
   public formatForDisplay(mask: boolean = false): string {
-    if (!mask) {
-      return this._value;
-    }
-
-    const visibleChars = 2;
-    const maskedLength = this._value.length - visibleChars;
-    if (maskedLength <= 0) return this._value;
-
-    const maskedPart = '*'.repeat(maskedLength);
-    const visiblePart = this._value.slice(-visibleChars);
-
-    if (this._type === OtpType.BACKUP && this._value.includes('-')) {
-      const parts = this._value.split('-');
-      if (parts.length === 2) {
-        return `${'*'.repeat(parts[0].length)}-${'*'.repeat(parts[1].length)}`;
-      }
-    }
-
-    return maskedPart + visiblePart;
+  if (!mask) {
+    return this._value;
   }
 
+  const visibleChars = 2;
+  const maskedLength = this._value.length - visibleChars;
+  if (maskedLength <= 0) return this._value;
+
+  const maskedPart = '*'.repeat(maskedLength);
+  const visiblePart = this._value.slice(-visibleChars);
+
+  if (this._type === OtpType.BACKUP && this._value.includes('-')) {
+    const parts = this._value.split('-');
+    if (parts.length === 2) {
+      const firstPart = parts[0] ?? '';
+      const secondPart = parts[1] ?? '';
+      return `${'*'.repeat(firstPart.length)}-${'*'.repeat(secondPart.length)}`;
+    }
+  }
+
+  return maskedPart + visiblePart;
+}
   public getForSending(): string {
     return this._value;
   }
@@ -798,7 +679,7 @@ export class OtpCode extends ValueObject {
   }
 
   protected getEqualityComponents(): readonly unknown[] {
-    return [this._value, this._type, this._purpose, this._createdAt.getTime()];
+    return [this._value, this._type, this._purpose, this._otpCreatedAt];
   }
 
   public override toJSON(): Record<string, unknown> {
@@ -806,17 +687,17 @@ export class OtpCode extends ValueObject {
       value: this._value,
       type: this._type,
       purpose: this._purpose,
-      createdAt: this._createdAt.toISOString(),
-      expiresAt: this._expiresAt.toISOString(),
-      verifiedAt: this._verifiedAt?.toISOString(),
-      attemptCount: this._attemptCount,
-      resendCount: this._resendCount,
+      createdAt: new Date(this._otpCreatedAt).toISOString(),
+      expiresAt: new Date(this._otpExpiresAt).toISOString(),
+      verifiedAt: this._otpVerifiedAt ? new Date(this._otpVerifiedAt).toISOString() : undefined,
+      attemptCount: this._otpAttemptCount,
+      resendCount: this._otpResendCount,
       remainingAttempts: this.getRemainingAttempts(),
       remainingSeconds: this.getRemainingSeconds(),
       isValid: this.isValid(),
       isExpired: this.isExpired(),
       isUsed: this.isUsed(),
-      metadata: this._metadata,
+      metadata: this._otpMetadata,
     };
   }
 
@@ -921,8 +802,4 @@ export function createOtpForPurposeWithRandom(
   return new OtpCode(code, finalType, purpose, undefined, metadata);
 }
 
-// ============================================================
-// Type Exports
-// ============================================================
 
-export type { OtpStatus, OtpRequestConfig, RateLimitResult, OtpTemplateMessage };
