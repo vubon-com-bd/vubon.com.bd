@@ -898,28 +898,7 @@ export const DEFAULT_PASSWORD_POLICY = {
   },
 };
 
-// ============================================================
-// Type Exports
-// ============================================================
 
-export type { 
-  PasswordHistoryStatistics, 
-  PasswordHistoryFilters,
-  PasswordReuseResult,
-  PasswordExpiryStatus,
-  PasswordChangeRecommendation,
-  BulkDeleteResult,
-  // ✅ Enterprise: New type exports
-  PasswordHealthScore,
-  ExpiryNotification,
-  BatchImportResult,
-  BreachDetectionResult,
-  PasswordStrengthTrend,
-  UserExpirySegment,
-  PasswordChangeAnomaly,
-  ComplianceReport,
-  AuditExportResult,
-};
 
 // ============================================================
 // ENTERPRISE SUMMARY v2.0
