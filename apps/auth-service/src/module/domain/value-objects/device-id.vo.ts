@@ -33,10 +33,11 @@
 
 import { ValueObject } from './base.vo';
 
-// ✅ FIXED: Import shared patterns from shared-constants (Cross-service consistency)
-// Note: DEVICE_ID_PATTERNS needs to be added to shared-constants package
-// For now, using local constants with plan to migrate
-import { DEVICE_ID_PATTERNS } from '@vubon/shared-constants';
+// Import shared constants
+import {
+  DEVICE_ID_PATTERNS,
+  DEVICE_ID_CONFIG,
+} from '@vubon/shared-constants';
 
 // ==================== Types ====================
 
@@ -96,43 +97,16 @@ export interface GenerationOptions {
   timestamp?: Date;
 }
 
-/**
- * Cached equality components structure
- */
-interface EqualityComponentsCache {
-  baseValue: string;
-  platform: DevicePlatform;
-  combined: readonly unknown[];
-}
-
-// ==================== Local Constants (Fallback) ====================
+// ==================== Local Constants (with shared patterns) ====================
 
 /**
- * Local constants as fallback when shared-constants not available
+ * Local constants that extend shared patterns
  * Priority: shared-constants > local constants
  */
 const LOCAL_DEVICE_ID_CONSTANTS = {
-  MIN_LENGTH: 1,
-  MAX_LENGTH: 512,
-  DEFAULT_LENGTH: 64,
-
-  // Supported ID patterns
-  PATTERNS: {
-    UUID_V4: /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
-    UUID_V1: /^[0-9a-f]{8}-[0-9a-f]{4}-1[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
-    UUID: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
-    FINGERPRINT_HASH: /^[a-f0-9]{32,128}$/i,
-    BROWSER_FINGERPRINT: /^fp_[a-zA-Z0-9]{16,64}$/,
-    BROWSER_FINGERPRINT_RETRY: /^fp(_retry\d+)?(_[a-zA-Z0-9]{1,6})?_[a-z0-9]+_[a-z0-9]+_\d+$/i,
-    MOBILE_ANDROID: /^ANDROID_[a-zA-Z0-9]{16,64}$/i,
-    MOBILE_IOS: /^IOS_[a-zA-Z0-9]{16,64}$/i,
-    MOBILE_BD: /^BD_MOBILE_01[3-9][0-9]{8}$/i,
-    TABLET: /^TABLET_[a-zA-Z0-9]{16,64}$/i,
-    SMART_TV: /^TV_[a-zA-Z0-9]{16,64}$/i,
-    CONSOLE: /^CONSOLE_[a-zA-Z0-9]{16,64}$/i,
-    WEARABLE: /^WEARABLE_[a-zA-Z0-9]{16,64}$/i,
-    STANDARD: /^[a-zA-Z0-9\-_.:]{1,512}$/,
-  },
+  // Device ID configuration (using shared constants)
+  MIN_LENGTH: DEVICE_ID_CONFIG.MIN_LENGTH,
+  MAX_LENGTH: DEVICE_ID_CONFIG.MAX_LENGTH,
 
   // Ephemeral/private browsing indicators
   EPHEMERAL_PATTERNS: [
@@ -150,22 +124,10 @@ const LOCAL_DEVICE_ID_CONSTANTS = {
     CONSOLE: /^console_/i,
     WEARABLE: /^wearable_/i,
     FP: /^fp_/i,
+    SESS: /^sess_/i,
+    ANON: /^anon_/i,
   },
 } as const;
-
-// Use shared constants if available, otherwise fallback to local
-const DEVICE_ID_CONSTANTS = (() => {
-  if (DEVICE_ID_PATTERNS && typeof DEVICE_ID_PATTERNS === 'object') {
-    return {
-      ...LOCAL_DEVICE_ID_CONSTANTS,
-      PATTERNS: {
-        ...LOCAL_DEVICE_ID_CONSTANTS.PATTERNS,
-        ...(DEVICE_ID_PATTERNS as Record<string, RegExp>),
-      },
-    };
-  }
-  return LOCAL_DEVICE_ID_CONSTANTS;
-})();
 
 // ==================== Device ID Value Object ====================
 
@@ -183,13 +145,13 @@ const DEVICE_ID_CONSTANTS = (() => {
 export class DeviceId extends ValueObject {
   private readonly _value: string;
   private readonly _normalized: string;
-  private readonly _timestamp?: Date;
+  private readonly _timestamp: Date;
   private readonly _platform: DevicePlatform;
   private readonly _deviceType: DeviceIdType;
-  private readonly _retryAttempt?: number;
-  private readonly _correlationId?: string;
+  private readonly _retryAttempt: number;
+  private readonly _correlationId: string;
   
-  // ✅ Performance: Cached equality components
+  // Performance: Cached equality components
   private _cachedEqualityComponents: readonly unknown[] | null = null;
 
   /**
@@ -204,16 +166,14 @@ export class DeviceId extends ValueObject {
 
     const validation = DeviceId.validate(deviceId);
     if (!validation.isValid) {
-      throw new Error(`Invalid Device ID: ${validation.error}`);
+      throw new Error(`Invalid Device ID: ${validation.error || 'Unknown error'}`);
     }
 
     this._value = deviceId.trim();
     this._normalized = this.normalize(deviceId);
-    this._timestamp = timestamp;
+    this._timestamp = timestamp ? new Date(timestamp) : new Date();
     this._platform = this.detectPlatform(this._value);
     this._deviceType = this.detectType(this._value);
-    
-    // Extract retry metadata from the device ID
     this._retryAttempt = this.extractRetryAttempt(this._value);
     this._correlationId = this.extractCorrelationId(this._value);
 
@@ -229,8 +189,8 @@ export class DeviceId extends ValueObject {
       throw new Error('Device ID cannot be empty');
     }
 
-    if (this._value.length > DEVICE_ID_CONSTANTS.MAX_LENGTH) {
-      throw new Error(`Device ID too long (max ${DEVICE_ID_CONSTANTS.MAX_LENGTH} characters)`);
+    if (this._value.length > LOCAL_DEVICE_ID_CONSTANTS.MAX_LENGTH) {
+      throw new Error(`Device ID too long (max ${LOCAL_DEVICE_ID_CONSTANTS.MAX_LENGTH} characters)`);
     }
   }
 
@@ -271,9 +231,9 @@ export class DeviceId extends ValueObject {
   public static generateNew(options: GenerationOptions = {}): DeviceId {
     const { 
       platform = 'web', 
-      retryAttempt = 0, 
-      correlationId, 
-      previousDeviceId,
+      retryAttempt = 0,
+      correlationId = '',
+      previousDeviceId = '',
       timestamp = new Date() 
     } = options;
     
@@ -316,7 +276,7 @@ export class DeviceId extends ValueObject {
   public static continueFrom(previousDeviceId: DeviceId, retryAttempt: number): DeviceId {
     return DeviceId.generateNew({
       platform: previousDeviceId.getPlatform(),
-      retryAttempt,
+      retryAttempt: retryAttempt || 0,
       previousDeviceId: previousDeviceId.getValue(),
       correlationId: previousDeviceId.getCorrelationId(),
     });
@@ -325,43 +285,57 @@ export class DeviceId extends ValueObject {
   private static _counter = 0;
 
   // ============================================================
-  // Metadata Extraction Methods
+  // Metadata Extraction Methods (✅ FIXED: Type-safe extraction)
   // ============================================================
 
   /**
    * Extract retry attempt number from device ID string
+   * ✅ FIXED: Added proper null/undefined handling
    */
-  private static extractRetryAttempt(deviceId: string): number | undefined {
+  private static extractRetryAttempt(deviceId: string): number {
     const match = deviceId.match(/_retry(\d+)/);
-    return match ? parseInt(match[1], 10) : undefined;
+    // ✅ Fixed: Properly handle match result with null check
+    if (match && match[1]) {
+      const parsed = parseInt(match[1], 10);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+    return 0;
   }
 
   /**
    * Extract correlation ID from device ID string
+   * ✅ FIXED: Added proper null/undefined handling
    */
-  private static extractCorrelationId(deviceId: string): string | undefined {
+  private static extractCorrelationId(deviceId: string): string {
+    // Try standard pattern first
     const match = deviceId.match(/_([a-zA-Z0-9]{1,6})_(?:[a-z0-9]+_[a-z0-9]+_\d+$)/);
     if (match && match[1] && !match[1].startsWith('retry')) {
       return match[1];
     }
+    
+    // Try retry pattern
     const retryMatch = deviceId.match(/_retry\d+_([a-zA-Z0-9]{1,6})_/);
-    return retryMatch ? retryMatch[1] : undefined;
+    if (retryMatch && retryMatch[1]) {
+      return retryMatch[1];
+    }
+    
+    return '';
   }
 
-  private extractRetryAttempt(deviceId: string): number | undefined {
+  private extractRetryAttempt(deviceId: string): number {
     return DeviceId.extractRetryAttempt(deviceId);
   }
 
-  private extractCorrelationId(deviceId: string): string | undefined {
+  private extractCorrelationId(deviceId: string): string {
     return DeviceId.extractCorrelationId(deviceId);
   }
 
   // ============================================================
-  // Validation Methods
+  // Validation Methods (Using Shared Constants)
   // ============================================================
 
   /**
-   * Validates a device ID string
+   * Validates a device ID string using shared patterns
    */
   public static validate(deviceId: string): DeviceIdValidation {
     if (!deviceId || typeof deviceId !== 'string') {
@@ -374,12 +348,13 @@ export class DeviceId extends ValueObject {
       return { isValid: false, error: 'Device ID cannot be empty' };
     }
 
-    if (trimmed.length > DEVICE_ID_CONSTANTS.MAX_LENGTH) {
-      return { isValid: false, error: `Device ID too long (max ${DEVICE_ID_CONSTANTS.MAX_LENGTH} characters)` };
+    if (trimmed.length > LOCAL_DEVICE_ID_CONSTANTS.MAX_LENGTH) {
+      return { isValid: false, error: `Device ID too long (max ${LOCAL_DEVICE_ID_CONSTANTS.MAX_LENGTH} characters)` };
     }
 
+    // Use shared constants for validation
     let isValidFormat = false;
-    for (const pattern of Object.values(DEVICE_ID_CONSTANTS.PATTERNS)) {
+    for (const pattern of Object.values(DEVICE_ID_PATTERNS)) {
       if (pattern.test(trimmed)) {
         isValidFormat = true;
         break;
@@ -394,7 +369,7 @@ export class DeviceId extends ValueObject {
     }
 
     const normalized = DeviceId.normalize(trimmed);
-    return { isValid: true, normalized, error: undefined };
+    return { isValid: true, normalized };
   }
 
   /**
@@ -415,7 +390,7 @@ export class DeviceId extends ValueObject {
    */
   private detectPlatform(deviceId: string): DevicePlatform {
     const id = deviceId.toLowerCase();
-    const patterns = DEVICE_ID_CONSTANTS.PLATFORM_PATTERNS;
+    const patterns = LOCAL_DEVICE_ID_CONSTANTS.PLATFORM_PATTERNS;
 
     if (patterns.ANDROID.test(id)) return 'android';
     if (patterns.IOS.test(id)) return 'ios';
@@ -425,27 +400,28 @@ export class DeviceId extends ValueObject {
     if (patterns.CONSOLE.test(id)) return 'gaming_console';
     if (patterns.WEARABLE.test(id)) return 'wearable';
     if (patterns.FP.test(id)) return 'web';
-    if (DEVICE_ID_CONSTANTS.PATTERNS.MOBILE_ANDROID.test(id)) return 'android';
-    if (DEVICE_ID_CONSTANTS.PATTERNS.MOBILE_IOS.test(id)) return 'ios';
+    if (patterns.SESS.test(id)) return 'web';
+    if (patterns.ANON.test(id)) return 'web';
+    
+    // Check shared patterns
+    if (DEVICE_ID_PATTERNS.MOBILE_ANDROID.test(id)) return 'android';
+    if (DEVICE_ID_PATTERNS.MOBILE_IOS.test(id)) return 'ios';
+    if (DEVICE_ID_PATTERNS.TABLET.test(id)) return 'tablet';
 
     return 'unknown';
   }
 
   /**
-   * Detect device ID type (Enhanced)
+   * Detect device ID type (Enhanced using shared patterns)
    */
   private detectType(deviceId: string): DeviceIdType {
     const id = deviceId;
-    const patterns = DEVICE_ID_CONSTANTS.PATTERNS;
+    const patterns = DEVICE_ID_PATTERNS;
 
-    if (patterns.UUID_V4.test(id)) return 'uuid';
-    if (patterns.UUID.test(id)) return 'uuid';
-    if (patterns.BROWSER_FINGERPRINT.test(id)) return 'browser';
-    if (patterns.BROWSER_FINGERPRINT_RETRY.test(id)) return 'browser';
+    if (patterns.UUID_GENERIC.test(id)) return 'uuid';
+    if (patterns.BROWSER_FINGERPRINT.test(id) || patterns.BROWSER_FINGERPRINT_RETRY.test(id)) return 'browser';
     if (patterns.FINGERPRINT_HASH.test(id)) return 'fingerprint';
-    if (patterns.MOBILE_ANDROID.test(id)) return 'mobile';
-    if (patterns.MOBILE_IOS.test(id)) return 'mobile';
-    if (patterns.MOBILE_BD.test(id)) return 'mobile';
+    if (patterns.MOBILE_ANDROID.test(id) || patterns.MOBILE_IOS.test(id) || patterns.MOBILE_BD.test(id)) return 'mobile';
     if (patterns.TABLET.test(id)) return 'tablet';
     if (patterns.SMART_TV.test(id)) return 'smart_tv';
     if (patterns.CONSOLE.test(id)) return 'gaming_console';
@@ -479,8 +455,8 @@ export class DeviceId extends ValueObject {
   /**
    * Get the timestamp when device was first seen
    */
-  public getTimestamp(): Date | undefined {
-    return this._timestamp;
+  public getTimestamp(): Date {
+    return new Date(this._timestamp);
   }
 
   /**
@@ -498,16 +474,16 @@ export class DeviceId extends ValueObject {
   }
 
   /**
-   * Get retry attempt number (if this device was created during a retry)
+   * Get retry attempt number
    */
-  public getRetryAttempt(): number | undefined {
+  public getRetryAttempt(): number {
     return this._retryAttempt;
   }
 
   /**
    * Get correlation ID for tracking request chains
    */
-  public getCorrelationId(): string | undefined {
+  public getCorrelationId(): string {
     return this._correlationId;
   }
 
@@ -515,14 +491,14 @@ export class DeviceId extends ValueObject {
    * Check if this device ID was created during a connection retry
    */
   public isFromRetry(): boolean {
-    return (this._retryAttempt !== undefined && this._retryAttempt > 0);
+    return this._retryAttempt > 0;
   }
 
   /**
-   * Check if the device ID matches a specific pattern
+   * Check if the device ID matches a specific pattern using shared patterns
    */
-  public matchesPattern(pattern: keyof typeof DEVICE_ID_CONSTANTS.PATTERNS): boolean {
-    const regex = DEVICE_ID_CONSTANTS.PATTERNS[pattern];
+  public matchesPattern(pattern: keyof typeof DEVICE_ID_PATTERNS): boolean {
+    const regex = DEVICE_ID_PATTERNS[pattern];
     return regex?.test(this._value) ?? false;
   }
 
@@ -579,7 +555,7 @@ export class DeviceId extends ValueObject {
    * Check if this is a Bangladesh mobile device ID
    */
   public isBangladeshMobile(): boolean {
-    return DEVICE_ID_CONSTANTS.PATTERNS.MOBILE_BD.test(this._value);
+    return DEVICE_ID_PATTERNS.MOBILE_BD.test(this._value);
   }
 
   /**
@@ -601,7 +577,7 @@ export class DeviceId extends ValueObject {
     if (this.isFromRetry()) {
       return false;
     }
-    return !DEVICE_ID_CONSTANTS.EPHEMERAL_PATTERNS.some(pattern => lowerValue.includes(pattern));
+    return !LOCAL_DEVICE_ID_CONSTANTS.EPHEMERAL_PATTERNS.some(pattern => lowerValue.includes(pattern));
   }
 
   /**
@@ -617,7 +593,7 @@ export class DeviceId extends ValueObject {
   public forRetry(retryAttempt: number): DeviceId {
     return DeviceId.generateNew({
       platform: this._platform,
-      retryAttempt,
+      retryAttempt: retryAttempt || 0,
       correlationId: this._correlationId,
       previousDeviceId: this._value,
     });
@@ -629,25 +605,12 @@ export class DeviceId extends ValueObject {
 
   /**
    * Get equality components for parent class comparison
-   * ✅ Performance: Uses cached value
    */
   protected getEqualityComponents(): readonly unknown[] {
     if (!this._cachedEqualityComponents) {
-      const baseValue = this._normalized.replace(
-        /_(?:retry\d+|[a-zA-Z0-9]{1,6})_(?=[a-z0-9]+_)/, 
-        '_'
-      );
-      this._cachedEqualityComponents = [baseValue, this._platform];
+      this._cachedEqualityComponents = [this._normalized];
     }
     return this._cachedEqualityComponents;
-  }
-
-  /**
-   * Invalidate cache (useful for testing)
-   */
-  protected invalidateCache(): void {
-    super.invalidateCache();
-    this._cachedEqualityComponents = null;
   }
 
   /**
@@ -657,13 +620,14 @@ export class DeviceId extends ValueObject {
     return {
       value: this._value,
       normalized: this._normalized,
-      type: this._deviceType,
+      timestamp: this._timestamp.toISOString(),
       platform: this._platform,
+      deviceType: this._deviceType,
       isPersistent: this.isPersistent(),
+      isEphemeral: this.isEphemeral(),
       isFromRetry: this.isFromRetry(),
       retryAttempt: this._retryAttempt,
       correlationId: this._correlationId,
-      timestamp: this._timestamp,
     };
   }
 
@@ -671,9 +635,10 @@ export class DeviceId extends ValueObject {
    * String representation for debugging
    */
   public override toString(): string {
-    const retryInfo = this._retryAttempt ? ` retry:${this._retryAttempt}` : '';
-    const corrInfo = this._correlationId ? ` corr:${this._correlationId}` : '';
-    return `DeviceId(${this._deviceType}: ${this._value}${retryInfo}${corrInfo})`;
+    const masked = this._value.length > 8 
+      ? `${this._value.slice(0, 4)}...${this._value.slice(-4)}`
+      : '****';
+    return `DeviceId(${masked}, platform=${this._platform}, type=${this._deviceType})`;
   }
 }
 
@@ -689,87 +654,42 @@ export function isDeviceId(value: unknown): value is DeviceId {
 }
 
 /**
- * Create a DeviceId from a request context
- * Handles headers, params, and generates fallback if needed
- * Enhanced with retry context detection
+ * Create DeviceId from request (handles various input sources)
  */
 export function createDeviceIdFromRequest(
-  fingerprint: string | null | undefined,
-  userAgent: string | null | undefined,
-  ipAddress: string | null | undefined,
-  retryCount?: number,
-  correlationId?: string
-): DeviceId {
-  if (fingerprint && DeviceId.validate(fingerprint).isValid) {
-    try {
-      const existingId = new DeviceId(fingerprint);
-      if (retryCount && retryCount > 0 && !existingId.isFromRetry()) {
-        return existingId.forRetry(retryCount);
-      }
-      return existingId;
-    } catch {
-      // Fall through to generation
-    }
-  }
-
-  const components = [userAgent || '', ipAddress || ''].filter(Boolean);
-  if (components.length > 0) {
-    let hash = 0;
-    const input = components.join('|');
-    for (let i = 0; i < input.length; i++) {
-      const char = input.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash;
-    }
-    const hashHex = Math.abs(hash).toString(36);
-    const generatedId = `fp_${hashHex.substring(0, 32)}`;
-    return new DeviceId(generatedId);
-  }
-
-  return DeviceId.generateNew({
-    platform: 'web',
-    retryAttempt: retryCount,
-    correlationId,
-  });
+  deviceId: string | null | undefined,
+  timestamp?: Date
+): DeviceId | null {
+  if (!deviceId) return null;
+  return DeviceId.tryCreate(deviceId, timestamp);
 }
 
 /**
- * Create a DeviceId from localStorage or generate new one
- * Preserves retry context when possible
+ * Create or get a Device ID with fallback generation
  */
 export function createOrGetDeviceId(
-  storedId: string | null, 
-  retryContext?: { attempt?: number; correlationId?: string }
+  deviceId: string | null | undefined,
+  platform?: DevicePlatform,
+  timestamp?: Date
 ): DeviceId {
-  if (storedId && DeviceId.validate(storedId).isValid) {
-    try {
-      const existingId = new DeviceId(storedId);
-      if (retryContext?.attempt && retryContext.attempt > 0 && !existingId.isFromRetry()) {
-        return existingId.forRetry(retryContext.attempt);
-      }
-      return existingId;
-    } catch {
-      return DeviceId.generateNew({
-        retryAttempt: retryContext?.attempt,
-        correlationId: retryContext?.correlationId,
-      });
-    }
+  if (deviceId) {
+    const existing = DeviceId.tryCreate(deviceId, timestamp);
+    if (existing) return existing;
   }
-  return DeviceId.generateNew({
-    retryAttempt: retryContext?.attempt,
-    correlationId: retryContext?.correlationId,
+  
+  return DeviceId.generateNew({ 
+    platform: platform || 'web', 
+    timestamp: timestamp || new Date() 
   });
 }
 
-/**
- * Get device ID constant configuration (for debugging/testing)
- */
-export function getDeviceIdConstants(): typeof DEVICE_ID_CONSTANTS {
-  return { ...DEVICE_ID_CONSTANTS };
-}
-
 // ============================================================
-// Type Exports
+// Re-export constants for convenience
 // ============================================================
 
-export type { DeviceIdType, DevicePlatform, GenerationOptions, DeviceIdValidation };
+export const {
+  MIN_LENGTH: DEVICE_ID_MIN_LENGTH,
+  MAX_LENGTH: DEVICE_ID_MAX_LENGTH,
+  DEFAULT_FORMAT: DEVICE_ID_DEFAULT_FORMAT,
+  VERSION: DEVICE_ID_VERSION,
+} = DEVICE_ID_CONFIG;
