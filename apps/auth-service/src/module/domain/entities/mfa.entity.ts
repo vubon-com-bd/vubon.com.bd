@@ -28,13 +28,13 @@
  * the configuration and backup codes.
  */
 
-import { BaseEntity, EntityValidationError, type IdGenerator } from './base.entity';
-import { Phone } from '../value-objects/phone.vo';
-import { Email } from '../value-objects/email.vo';
+import { BaseEntity, ValidationResult, EntityValidationError, type IdGenerator } from './base.entity';
 
 // ✅ ENTERPRISE ENHANCEMENT: Import from shared-constants (Single Source of Truth)
 // Note: MFA_CONFIG needs to be added to @vubon/shared-constants
 import { MFA_CONFIG } from '@vubon/shared-constants';
+
+
 
 // ==================== Enums ====================
 
@@ -94,7 +94,7 @@ export enum MFAEventType {
 // ✅ ENTERPRISE ENHANCEMENT: MFA_CONFIG is now imported from shared-constants
 // No local constants - Single Source of Truth!
 
-// ✅ ENTERPRISE ENHANCEMENT: MFA method compatibility matrix
+// ✅ ENTERPRISE ENHANCEMENT: MFA method compatibility matrix (FULLY COMPLETED)
 export const MFA_METHOD_COMPATIBILITY: Record<MFAType, {
   requiresInternet: boolean;
   requiresSmartphone: boolean;
@@ -111,6 +111,7 @@ export const MFA_METHOD_COMPATIBILITY: Record<MFAType, {
     recommendedFor: ['mobile', 'desktop', 'tablet'],
     bangladeshSupport: 'full',
   },
+  
   [MFAType.SMS]: {
     requiresInternet: false,
     requiresSmartphone: false,
@@ -119,6 +120,43 @@ export const MFA_METHOD_COMPATIBILITY: Record<MFAType, {
     recommendedFor: ['mobile', 'feature_phone'],
     bangladeshSupport: 'full',
   },
+  
+  [MFAType.EMAIL]: {
+    requiresInternet: true,
+    requiresSmartphone: false,
+    requiresFeaturePhone: false,
+    requiresMFSAccount: false,
+    recommendedFor: ['mobile', 'desktop', 'tablet'],
+    bangladeshSupport: 'full',
+  },
+  
+  [MFAType.BACKUP_CODE]: {
+    requiresInternet: false,
+    requiresSmartphone: false,
+    requiresFeaturePhone: false,
+    requiresMFSAccount: false,
+    recommendedFor: ['mobile', 'desktop', 'tablet', 'feature_phone'],
+    bangladeshSupport: 'full',
+  },
+  
+  [MFAType.WEBAUTHN]: {
+    requiresInternet: true,
+    requiresSmartphone: true,
+    requiresFeaturePhone: false,
+    requiresMFSAccount: false,
+    recommendedFor: ['mobile', 'desktop', 'tablet'],
+    bangladeshSupport: 'full',
+  },
+  
+  [MFAType.PUSH]: {
+    requiresInternet: true,
+    requiresSmartphone: true,
+    requiresFeaturePhone: false,
+    requiresMFSAccount: false,
+    recommendedFor: ['mobile', 'desktop', 'tablet'],
+    bangladeshSupport: 'full',
+  },
+  
   [MFAType.WHATSAPP]: {
     requiresInternet: true,
     requiresSmartphone: true,
@@ -127,6 +165,16 @@ export const MFA_METHOD_COMPATIBILITY: Record<MFAType, {
     recommendedFor: ['mobile'],
     bangladeshSupport: 'full',
   },
+  
+  [MFAType.IMO]: {
+    requiresInternet: true,
+    requiresSmartphone: true,
+    requiresFeaturePhone: false,
+    requiresMFSAccount: false,
+    recommendedFor: ['mobile'],
+    bangladeshSupport: 'full',
+  },
+  
   [MFAType.BKASH_PIN]: {
     requiresInternet: true,
     requiresSmartphone: false,
@@ -135,6 +183,25 @@ export const MFA_METHOD_COMPATIBILITY: Record<MFAType, {
     recommendedFor: ['mobile', 'feature_phone'],
     bangladeshSupport: 'full',
   },
+  
+  [MFAType.NAGAD_PIN]: {
+    requiresInternet: true,
+    requiresSmartphone: false,
+    requiresFeaturePhone: true,
+    requiresMFSAccount: true,
+    recommendedFor: ['mobile', 'feature_phone'],
+    bangladeshSupport: 'full',
+  },
+  
+  [MFAType.ROCKET_PIN]: {
+    requiresInternet: true,
+    requiresSmartphone: false,
+    requiresFeaturePhone: true,
+    requiresMFSAccount: true,
+    recommendedFor: ['mobile', 'feature_phone'],
+    bangladeshSupport: 'full',
+  },
+  
   [MFAType.VOICE_CALL]: {
     requiresInternet: false,
     requiresSmartphone: false,
@@ -143,8 +210,7 @@ export const MFA_METHOD_COMPATIBILITY: Record<MFAType, {
     recommendedFor: ['feature_phone'],
     bangladeshSupport: 'full',
   },
-  // ... other methods
-};
+} as const;
 
 /**
  * MFA method priority for verification
@@ -235,67 +301,125 @@ export class MFA extends BaseEntity {
   }
 
   /**
-   * Validate entity invariants
-   */
-  protected validate(): void {
-    if (!this._userId) {
-      throw new EntityValidationError('MFA requires a user ID');
-    }
-    if (!this._type) {
-      throw new EntityValidationError('MFA requires a type');
-    }
-    if (!this._identifier && this._type !== MFAType.TOTP && this._type !== MFAType.BACKUP_CODE) {
-      throw new EntityValidationError(`MFA type ${this._type} requires an identifier`);
-    }
-    
-    // ✅ ENTERPRISE ENHANCEMENT: Validate identifier based on MFA type
-    this.validateIdentifierByType();
-    
-    if (this._status === MFAStatus.ENABLED && !this._verifiedAt) {
-      throw new EntityValidationError('Enabled MFA must have verification timestamp');
-    }
-    if (this._failedAttempts < 0) {
-      throw new EntityValidationError('Failed attempts cannot be negative');
-    }
-    if (this._priority < 1 || this._priority > 10) {
-      throw new EntityValidationError('Priority must be between 1 and 10');
+ * ✅ FIXED: Validate entity invariants - returns ValidationResult
+ */
+protected validate(): ValidationResult {
+  const errors: string[] = [];
+  
+  // Check required fields
+  if (!this._userId) {
+    errors.push('MFA requires a user ID');
+  }
+  if (!this._type) {
+    errors.push('MFA requires a type');
+  }
+  if (!this._identifier && this._type !== MFAType.TOTP && this._type !== MFAType.BACKUP_CODE) {
+    errors.push(`MFA type ${this._type} requires an identifier`);
+  }
+  
+  // ✅ ENTERPRISE ENHANCEMENT: Validate identifier based on MFA type
+  if (this._identifier) {
+    const identifierValidation = this.validateIdentifierByType();
+    if (!identifierValidation.isValid) {
+      errors.push(...identifierValidation.errors);
     }
   }
+  
+  // Check status consistency
+  if (this._status === MFAStatus.ENABLED && !this._verifiedAt) {
+    errors.push('Enabled MFA must have verification timestamp');
+  }
+  
+  // Check numeric ranges
+  if (this._failedAttempts < 0) {
+    errors.push('Failed attempts cannot be negative');
+  }
+  if (this._priority < 1 || this._priority > 10) {
+    errors.push('Priority must be between 1 and 10');
+  }
+  
+  // Check backup codes
+  if (this._backupCodes && this._backupCodes.length > 0) {
+    // Optional: validate backup code format
+    for (const code of this._backupCodes) {
+      if (code.length < 8) {
+        errors.push('Backup code must be at least 8 characters');
+        break;
+      }
+    }
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors,
+  };
+}
 
-  /**
-   * ✅ ENTERPRISE ENHANCEMENT: Validate identifier based on MFA type
-   */
-  private validateIdentifierByType(): void {
-    switch (this._type) {
-      case MFAType.SMS:
-      case MFAType.WHATSAPP:
-      case MFAType.IMO:
-      case MFAType.VOICE_CALL:
-        if (!Phone.isValidBdMobile(this._identifier)) {
-          throw new EntityValidationError(
-            `Invalid Bangladesh phone number for ${this._type} MFA. Use format: 01XXXXXXXXX`
-          );
-        }
-        break;
-      case MFAType.BKASH_PIN:
-      case MFAType.NAGAD_PIN:
-      case MFAType.ROCKET_PIN:
-        if (!this._identifier.match(/^01[3-9]\d{8}$/)) {
-          throw new EntityValidationError(
-            `Invalid ${this._type} account number. Must be a valid Bangladesh mobile number`
-          );
-        }
-        break;
-      case MFAType.EMAIL:
-        if (!this._identifier.includes('@')) {
-          throw new EntityValidationError(`Invalid email address for EMAIL MFA`);
-        }
-        break;
-      default:
-        // No specific validation needed
-        break;
-    }
+/**
+ * ✅ ENTERPRISE ENHANCEMENT: Validate identifier based on MFA type
+ */
+private validateIdentifierByType(): ValidationResult {
+  const errors: string[] = [];
+  
+  // Don't validate if no identifier or if type doesn't require identifier
+  if (!this._identifier) {
+    return { isValid: true, errors: [] };
   }
+  
+  switch (this._type) {
+    case MFAType.SMS:
+    case MFAType.WHATSAPP:
+    case MFAType.IMO:
+    case MFAType.VOICE_CALL:
+      // Validate Bangladesh mobile number
+      if (!MFA.isValidBdMobile(this._identifier)) {
+        errors.push(
+          `Invalid Bangladesh phone number for ${this._type} MFA. Use format: 01XXXXXXXXX`
+        );
+      }
+      break;
+      
+    case MFAType.BKASH_PIN:
+    case MFAType.NAGAD_PIN:
+    case MFAType.ROCKET_PIN:
+      if (!this._identifier.match(/^01[3-9]\d{8}$/)) {
+        errors.push(
+          `Invalid ${this._type} account number. Must be a valid Bangladesh mobile number`
+        );
+      }
+      break;
+      
+    case MFAType.EMAIL:
+      if (!this._identifier.includes('@')) {
+        errors.push(`Invalid email address for EMAIL MFA`);
+      }
+      break;
+      
+    case MFAType.TOTP:
+      // TOTP identifier is usually the account name (email)
+      if (this._identifier.length < 3) {
+        errors.push('TOTP account name must be at least 3 characters');
+      }
+      break;
+      
+    default:
+      // No specific validation needed for other types
+      break;
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors,
+  };
+}
+
+/**
+ * ✅ FIXED: Validate Bangladesh mobile number (static method)
+ */
+private static isValidBdMobile(phoneNumber: string): boolean {
+  // Bangladesh mobile number pattern: 01XXXXXXXXX or +8801XXXXXXXXX
+  return /^(?:\+880|0)1[3-9]\d{8}$/.test(phoneNumber);
+}
 
   // ============================================================
   // Factory Methods
@@ -916,11 +1040,6 @@ namespace generateEventId {
   export let counter = 0;
 }
 
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { MFAConfig };
 
 // ============================================================
 // ✅ ENTERPRISE SUMMARY
