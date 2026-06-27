@@ -22,7 +22,7 @@
  * ✅ Device tracking for security
  */
 
-import { BaseEntity, EntityValidationError, type IdGenerator } from './base.entity';
+import { BaseEntity, ValidationResult, EntityValidationError, type IdGenerator } from './base.entity';
 import { Email } from '../value-objects/email.vo';
 import { Phone } from '../value-objects/phone.vo';
 import { OtpCode, OtpType, OtpPurpose } from '../value-objects/otp-code.vo';
@@ -32,6 +32,7 @@ import { IpAddress } from '../value-objects/ip-address.vo';
 
 // ✅ ENTERPRISE ENHANCEMENT: Import from shared-constants
 import { EMAIL_VERIFICATION_CONFIG } from '@vubon/shared-constants';
+
 
 // ==================== Enums ====================
 
@@ -105,7 +106,6 @@ const {
   EXPIRY_HOURS,
   EXPIRY_MS,
   MAX_RESEND_COUNT,
-  RESEND_COOLDOWN_MINUTES,
   RESEND_COOLDOWN_MS,
   MAX_VERIFICATION_ATTEMPTS,
   ENABLE_MAGIC_LINK,
@@ -124,9 +124,9 @@ const {
 export class EmailVerification extends BaseEntity {
   private _userId: string;
   private _email: Email;
-  private _phone?: Phone;  // ✅ For WhatsApp notifications
+  private _phone: Phone | undefined;  // ✅ FIXED: Type allows undefined
   private _code: OtpCode;
-  private _magicLinkToken?: Token;  // ✅ Enterprise: Magic link support
+  private _magicLinkToken: Token | undefined;  // ✅ FIXED: Type allows undefined
   private _status: EmailVerificationStatus;
   private _expiresAt: Date;
   private _verifiedAt: Date | undefined;
@@ -140,16 +140,16 @@ export class EmailVerification extends BaseEntity {
   private _rateLimitResetAt: Date | undefined;
   
   // ✅ ENTERPRISE ENHANCEMENT: Device and IP tracking
-  private _deviceId?: DeviceId;
-  private _ipAddress?: IpAddress;
-  private _userAgent?: string;
+  private _deviceId: DeviceId | undefined;  // ✅ FIXED: Type allows undefined
+  private _ipAddress: IpAddress | undefined;  // ✅ FIXED: Type allows undefined
+  private _userAgent: string | undefined;  // ✅ FIXED: Type allows undefined
   
   // ✅ ENTERPRISE ENHANCEMENT: Verification method tracking
-  private _verificationMethod?: VerificationMethod;
+  private _verificationMethod: VerificationMethod | undefined;  // ✅ FIXED: Type allows undefined
   
   // ✅ ENTERPRISE ENHANCEMENT: Audit trail
-  private _lastNotificationChannel?: NotificationChannel;
-  private _lastNotificationSentAt?: Date;
+  private _lastNotificationChannel: NotificationChannel | undefined;  // ✅ FIXED: Type allows undefined
+  private _lastNotificationSentAt: Date | undefined;  // ✅ FIXED: Type allows undefined
 
   private constructor(
     id: string,
@@ -181,9 +181,9 @@ export class EmailVerification extends BaseEntity {
     
     this._userId = userId;
     this._email = email;
-    this._phone = phone;
+    this._phone = phone;  // ✅ FIXED: Now works with undefined
     this._code = code;
-    this._magicLinkToken = magicLinkToken;
+    this._magicLinkToken = magicLinkToken;  // ✅ FIXED: Now works with undefined
     this._status = status;
     this._expiresAt = expiresAt;
     this._verifiedAt = verifiedAt;
@@ -193,44 +193,59 @@ export class EmailVerification extends BaseEntity {
     this._lastVerificationAttemptAt = lastVerificationAttemptAt;
     this._rateLimitCount = rateLimitCount;
     this._rateLimitResetAt = rateLimitResetAt;
-    this._deviceId = deviceId;
-    this._ipAddress = ipAddress;
-    this._userAgent = userAgent;
-    this._verificationMethod = verificationMethod;
-    this._lastNotificationChannel = lastNotificationChannel;
-    this._lastNotificationSentAt = lastNotificationSentAt;
+    this._deviceId = deviceId;  // ✅ FIXED: Now works with undefined
+    this._ipAddress = ipAddress;  // ✅ FIXED: Now works with undefined
+    this._userAgent = userAgent;  // ✅ FIXED: Now works with undefined
+    this._verificationMethod = verificationMethod;  // ✅ FIXED: Now works with undefined
+    this._lastNotificationChannel = lastNotificationChannel;  // ✅ FIXED: Now works with undefined
+    this._lastNotificationSentAt = lastNotificationSentAt;  // ✅ FIXED: Now works with undefined
     
-    this.validate();
+    // ✅ FIXED: Call validate and handle the result
+    const validationResult = this.validate();
+    if (!validationResult.isValid) {
+      throw new EntityValidationError(
+        'Email verification validation failed',
+        validationResult.errors,
+        this.constructor.name
+      );
+    }
   }
 
   /**
-   * Validate entity invariants
+   * ✅ FIXED: Validate entity invariants - returns ValidationResult
    */
-  protected validate(): void {
+  protected validate(): ValidationResult {
+    const errors: string[] = [];
+    
     if (!this._userId) {
-      throw new EntityValidationError('Email verification requires a user ID');
+      errors.push('Email verification requires a user ID');
     }
     if (!this._email) {
-      throw new EntityValidationError('Email verification requires an email');
+      errors.push('Email verification requires an email');
     }
     if (!this._code) {
-      throw new EntityValidationError('Email verification requires a verification code');
+      errors.push('Email verification requires a verification code');
     }
     if (this._resendCount < 0) {
-      throw new EntityValidationError('Resend count cannot be negative');
+      errors.push('Resend count cannot be negative');
     }
     if (this._resendCount > MAX_RESEND_COUNT) {
-      throw new EntityValidationError(`Resend count exceeds maximum of ${MAX_RESEND_COUNT}`);
+      errors.push(`Resend count exceeds maximum of ${MAX_RESEND_COUNT}`);
     }
     if (this._verificationAttempts > MAX_VERIFICATION_ATTEMPTS) {
-      throw new EntityValidationError(`Verification attempts exceed maximum of ${MAX_VERIFICATION_ATTEMPTS}`);
+      errors.push(`Verification attempts exceed maximum of ${MAX_VERIFICATION_ATTEMPTS}`);
     }
     if (this._expiresAt < this.createdAt) {
-      throw new EntityValidationError('ExpiresAt cannot be before CreatedAt');
+      errors.push('ExpiresAt cannot be before CreatedAt');
     }
     if (this._rateLimitCount < 0) {
-      throw new EntityValidationError('Rate limit count cannot be negative');
+      errors.push('Rate limit count cannot be negative');
     }
+    
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
   }
 
   // ============================================================
@@ -1007,9 +1022,3 @@ function generateEventId(): string {
 namespace generateEventId {
   export let counter = 0;
 }
-
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { EmailVerificationConfig, VerificationMetadata };
