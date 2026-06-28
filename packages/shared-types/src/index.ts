@@ -659,6 +659,32 @@ export {
   DEFAULT_RATE_LIMITS,
 } from './common/rate-limit.types';
 
+
+// ============================================================
+// ✅ ENTERPRISE: Client Info Types (New - Centralized)
+// ============================================================
+export {
+  // Client Info Types
+  type authNetworkType,
+  type DevicePlatform,
+  type authDeviceTrustLevel,
+  type ClientInfo,
+  type ClientInfoWithContext,
+  type ClientInfoBuilder,
+  type ClientInfoValidation,
+  type ClientInfoValidator,
+  type ClientInfoFormatter,
+  type BangladeshDistrict,
+  
+  // Constants
+  DEFAULT_CLIENT_INFO,
+  BANGLADESH_DISTRICTS,
+  
+  // Type Guards
+  isClientInfo,
+  isNetworkType,
+  isDevicePlatform,
+} from './common/client-info.types';
 // ============================================================
 // Re-export all types from auth and common
 // ============================================================
