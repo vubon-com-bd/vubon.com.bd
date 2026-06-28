@@ -43,6 +43,8 @@ import {
   IsDate,
   Min,
   Max,
+  IsNumber,
+  IsEnum, 
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
@@ -55,9 +57,7 @@ import { Type } from 'class-transformer';
 import { 
   LOGOUT_SCOPE, 
   ERROR_CODES,
-  TOKEN_EXPIRY,
-  SESSION_TTL,
-  ENV_CONFIG,
+  ENV_CONFIG
 } from '@vubon/shared-constants';
 
 // ✅ Phase-1: shared-types থেকে টাইপ ইম্পোর্ট
