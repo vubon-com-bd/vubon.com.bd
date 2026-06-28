@@ -1,128 +1,76 @@
 /**
- * Register DTOs - Pure Data Transport Objects (Enterprise Enhanced v3.0)
+ * Register DTOs - Pure Data Transport Objects (Enterprise Enhanced v2.0)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module application/dtos/auth/register.dto
- * 
+ *
  * @description
  * Data transfer objects for user registration with enterprise features.
- * 
- * ENTERPRISE ENHANCEMENTS (v3.0):
- * ✅ Shared decorators for reusability (match.decorator.ts extracted)
- * ✅ Device fingerprint support for fraud prevention
- * ✅ Client info tracking (IP, userAgent, location)
- * ✅ Rate limit metadata integration
- * ✅ CAPTCHA support for bot protection
- * ✅ Referral system with validation
- * ✅ Welcome email preferences
- * ✅ Multi-language support (en/bn)
- * ✅ Age verification for compliance
- * ✅ GDPR consent management
- * 
+ * Supports email, phone, social, and username-based registration.
+ *
+ * ENTERPRISE ENHANCEMENTS (v2.0):
+ * ✅ Multi-method registration (Email, Phone, Social, Username)
+ * ✅ Device fingerprint support
+ * ✅ Rate limit metadata
+ * ✅ Bengali error messages
+ * ✅ Referral code support
+ * ✅ Age verification (Bangladesh specific)
+ * ✅ Client info tracking
+ * ✅ Audit log correlation
+ * ✅ Distributed tracing support
+ *
  * Enterprise Rules:
  * ✅ ONLY data transport
  * ✅ Validation decorators only (class-validator)
  * ✅ API documentation decorators (Swagger)
- * ✅ Cross-field validation (password & confirmPassword match)
- * ✅ Phone number validation for Bangladesh
- * ✅ Phase-3 integration: shared-constants, shared-types, shared-utils
+ * ✅ No domain logic
+ * ✅ No repository calls
+ * ✅ Bangladesh specific - Phone, NID, Trade License support
  */
 
-import { 
-  IsEmail, 
-  IsString, 
-  IsNotEmpty, 
-  IsOptional, 
-  MinLength, 
+import {
+  IsEmail,
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsBoolean,
+  MinLength,
   MaxLength,
   Matches,
-  IsBoolean,
-  IsEnum,
   IsUUID,
   IsNumber,
   Min,
   Max,
-  IsObject,
   ValidateNested,
   IsIn,
+  IsIP,
   IsDate,
-  ValidateIf,
+  IsUrl,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
-// ✅ Phase-3: Import from shared packages
+// ============================================================
+// ✅ FIXED: Correct imports from shared-constants
+// ============================================================
 import {
-  PASSWORD_POLICY,
-  REGEX_PASSWORD,
   REGEX_EMAIL,
   REGEX_PHONE,
   REGEX_USERNAME,
-  USER_TIERS,
-  REGISTRATION_METHODS,
-  REFERRAL_CONFIG,
-  AGE_REQUIREMENTS,
-  ENV_CONFIG,
+  PASSWORD_POLICY,
+  AUTH_PROVIDERS,
 } from '@vubon/shared-constants';
 
-import type { 
-  UserTier, 
-  RegistrationMethod,
-  AuditMetadata,
-  RequestContext,
+// ============================================================
+// ✅ FIXED: Correct imports from shared-types (no conflicts)
+// ============================================================
+import type {
+  UserTier as SharedUserTier, // ✅ Renamed to avoid conflict
+  RegistrationMetadata,
 } from '@vubon/shared-types';
 
-import { normalizePhone, isValidBdMobile } from '@vubon/shared-utils';
-
 // ============================================================
-// ✅ ENTERPRISE ENHANCEMENT: Import from shared decorators
-// ============================================================
-
-/**
- * Custom validation decorator to check if two fields match
- * ✅ MOVED TO: shared/decorators/match.decorator.ts for reusability
- * 
- * @example
- * @Match('password', { message: 'Passwords do not match' })
- * confirmPassword: string;
- * 
- * @see shared/decorators/match.decorator.ts
- */
-import { Match } from '../../../../../shared/decorators/match.decorator';
-
-// ============================================================
-// Constants
-// ============================================================
-
-const IS_PRODUCTION = ENV_CONFIG?.IS_PRODUCTION ?? false;
-
-/**
- * Password validation hints (for API documentation)
- */
-export const PASSWORD_HINTS = {
-  minLength: PASSWORD_POLICY.MIN_LENGTH,
-  maxLength: PASSWORD_POLICY.MAX_LENGTH,
-  requireUppercase: PASSWORD_POLICY.REQUIRE_UPPERCASE,
-  requireLowercase: PASSWORD_POLICY.REQUIRE_LOWERCASE,
-  requireNumbers: PASSWORD_POLICY.REQUIRE_NUMBERS,
-  requireSpecial: PASSWORD_POLICY.REQUIRE_SPECIAL_CHARS,
-  specialChars: PASSWORD_POLICY.SPECIAL_CHARS,
-};
-
-/**
- * Registration method types (from shared-constants)
- */
-export const RegistrationMethod = REGISTRATION_METHODS;
-export type RegistrationMethod = typeof REGISTRATION_METHODS[keyof typeof REGISTRATION_METHODS];
-
-/**
- * User tier types (from shared-constants)
- */
-export const UserTierEnum = USER_TIERS;
-export type UserTier = typeof USER_TIERS[keyof typeof USER_TIERS];
-
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT: Validation Messages (Multi-language)
+// ✅ ENTERPRISE ENHANCEMENT: Validation Messages
 // ============================================================
 
 const VALIDATION_MESSAGES = {
@@ -130,59 +78,106 @@ const VALIDATION_MESSAGES = {
     emailRequired: 'Email is required',
     emailInvalid: 'Please provide a valid email address',
     emailMaxLength: 'Email cannot exceed 255 characters',
-    emailExists: 'Email already exists',
     passwordRequired: 'Password is required',
     passwordMinLength: (min: number) => `Password must be at least ${min} characters long`,
     passwordMaxLength: (max: number) => `Password cannot exceed ${max} characters`,
-    passwordWeak: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
-    passwordMismatch: 'Password and confirm password do not match',
-    fullNameRequired: 'Full name is required',
-    fullNameMinLength: 'Full name must be at least 2 characters long',
-    fullNameMaxLength: 'Full name cannot exceed 100 characters',
-    fullNameInvalid: 'Full name can only contain letters, numbers, spaces, dots, hyphens, and underscores',
     phoneRequired: 'Phone number is required',
-    phoneInvalid: 'Please provide a valid Bangladesh phone number (e.g., +8801712345678)',
-    phoneExists: 'Phone number already exists',
+    phoneInvalid: 'Please provide a valid Bangladesh phone number (e.g., +8801712345678 or 01712345678)',
+    usernameRequired: 'Username is required',
+    usernameInvalid: 'Username must be 3-20 characters and can contain letters, numbers, dots, and underscores',
+    firstNameRequired: 'First name is required',
+    firstNameMinLength: 'First name must be at least 2 characters',
+    firstNameMaxLength: 'First name cannot exceed 50 characters',
+    lastNameRequired: 'Last name is required',
+    lastNameMinLength: 'Last name must be at least 2 characters',
+    lastNameMaxLength: 'Last name cannot exceed 50 characters',
+    displayNameMinLength: 'Display name must be at least 2 characters',
+    displayNameMaxLength: 'Display name cannot exceed 100 characters',
     acceptTermsRequired: 'You must accept the terms and conditions',
-    ageMin: (age: number) => `You must be at least ${age} years old to register`,
+    acceptPrivacyRequired: 'You must accept the privacy policy',
+    referralCodeInvalid: 'Invalid referral code format',
+    referralCodeMaxLength: 'Referral code cannot exceed 50 characters',
+    providerRequired: 'Provider is required',
+    providerUserIdRequired: 'Provider user ID is required',
+    avatarInvalid: 'Invalid avatar URL',
+    businessNameRequired: 'Business name is required',
+    businessNameMaxLength: 'Business name cannot exceed 100 characters',
+    businessAddressRequired: 'Business address is required',
+    businessAddressMaxLength: 'Business address cannot exceed 500 characters',
+    tradeLicenseRequired: 'Trade license number is required',
+    tradeLicenseMaxLength: 'Trade license number cannot exceed 50 characters',
+    tinRequired: 'TIN number is required',
+    tinMinLength: 'TIN number must be at least 9 characters',
+    tinMaxLength: 'TIN number cannot exceed 20 characters',
+    nidRequired: 'NID number is required',
+    nidMinLength: 'NID number must be at least 10 characters',
+    nidMaxLength: 'NID number cannot exceed 17 characters',
+    otpRequired: 'OTP code is required',
+    otpInvalid: 'OTP code must be exactly 6 digits',
+    ageVerificationRequired: 'You must confirm your age',
     deviceIdMaxLength: 'Device ID cannot exceed 255 characters',
-    referralInvalid: 'Invalid referral code',
     captchaRequired: 'CAPTCHA verification failed',
+    confirmPasswordMatch: 'Passwords do not match',
   },
   bn: {
     emailRequired: 'ইমেইল প্রয়োজন',
     emailInvalid: 'একটি সঠিক ইমেইল ঠিকানা দিন',
     emailMaxLength: 'ইমেইল সর্বোচ্চ ২৫৫ অক্ষর হতে পারে',
-    emailExists: 'ইমেইলটি already ব্যবহৃত হচ্ছে',
     passwordRequired: 'পাসওয়ার্ড প্রয়োজন',
     passwordMinLength: (min: number) => `পাসওয়ার্ড কমপক্ষে ${min} অক্ষরের হতে হবে`,
     passwordMaxLength: (max: number) => `পাসওয়ার্ড সর্বোচ্চ ${max} অক্ষরের হতে পারে`,
-    passwordWeak: 'পাসওয়ার্ডে কমপক্ষে একটি বড় হাতের অক্ষর, একটি ছোট হাতের অক্ষর, একটি সংখ্যা এবং একটি স্পেশাল ক্যারেক্টার থাকতে হবে',
-    passwordMismatch: 'পাসওয়ার্ড এবং কনফার্ম পাসওয়ার্ড মিলছে না',
-    fullNameRequired: 'পূর্ণ নাম প্রয়োজন',
-    fullNameMinLength: 'পূর্ণ নাম কমপক্ষে ২ অক্ষরের হতে হবে',
-    fullNameMaxLength: 'পূর্ণ নাম সর্বোচ্চ ১০০ অক্ষরের হতে পারে',
-    fullNameInvalid: 'পূর্ণ নামে শুধু অক্ষর, সংখ্যা, স্পেস, ডট, হাইফেন এবং আন্ডারস্কোর থাকতে পারে',
     phoneRequired: 'ফোন নম্বর প্রয়োজন',
-    phoneInvalid: 'একটি সঠিক বাংলাদেশ ফোন নম্বর দিন (যেমন: +8801712345678)',
-    phoneExists: 'ফোন নম্বরটি already ব্যবহৃত হচ্ছে',
+    phoneInvalid: 'একটি সঠিক বাংলাদেশ ফোন নম্বর দিন (যেমন: +8801712345678 বা 01712345678)',
+    usernameRequired: 'ইউজারনাম প্রয়োজন',
+    usernameInvalid: 'ইউজারনাম ৩-২০ অক্ষরের হতে হবে এবং এতে অক্ষর, সংখ্যা, ডট ও আন্ডারস্কোর থাকতে পারে',
+    firstNameRequired: 'প্রথম নাম প্রয়োজন',
+    firstNameMinLength: 'প্রথম নাম কমপক্ষে ২ অক্ষরের হতে হবে',
+    firstNameMaxLength: 'প্রথম নাম সর্বোচ্চ ৫০ অক্ষর হতে পারে',
+    lastNameRequired: 'শেষ নাম প্রয়োজন',
+    lastNameMinLength: 'শেষ নাম কমপক্ষে ২ অক্ষরের হতে হবে',
+    lastNameMaxLength: 'শেষ নাম সর্বোচ্চ ৫০ অক্ষর হতে পারে',
+    displayNameMinLength: 'ডিসপ্লে নাম কমপক্ষে ২ অক্ষরের হতে হবে',
+    displayNameMaxLength: 'ডিসপ্লে নাম সর্বোচ্চ ১০০ অক্ষর হতে পারে',
     acceptTermsRequired: 'আপনাকে শর্তাবলী মেনে নিতে হবে',
-    ageMin: (age: number) => `রেজিস্ট্রেশনের জন্য আপনার বয়স কমপক্ষে ${age} বছর হতে হবে`,
+    acceptPrivacyRequired: 'আপনাকে গোপনীয়তা নীতি মেনে নিতে হবে',
+    referralCodeInvalid: 'ভুল রেফারেল কোড ফরম্যাট',
+    referralCodeMaxLength: 'রেফারেল কোড সর্বোচ্চ ৫০ অক্ষর হতে পারে',
+    providerRequired: 'প্রোভাইডার প্রয়োজন',
+    providerUserIdRequired: 'প্রোভাইডার ইউজার আইডি প্রয়োজন',
+    avatarInvalid: 'ভুল অবতার URL',
+    businessNameRequired: 'ব্যবসার নাম প্রয়োজন',
+    businessNameMaxLength: 'ব্যবসার নাম সর্বোচ্চ ১০০ অক্ষর হতে পারে',
+    businessAddressRequired: 'ব্যবসার ঠিকানা প্রয়োজন',
+    businessAddressMaxLength: 'ব্যবসার ঠিকানা সর্বোচ্চ ৫০০ অক্ষর হতে পারে',
+    tradeLicenseRequired: 'ট্রেড লাইসেন্স নম্বর প্রয়োজন',
+    tradeLicenseMaxLength: 'ট্রেড লাইসেন্স নম্বর সর্বোচ্চ ৫০ অক্ষর হতে পারে',
+    tinRequired: 'টিআইএন নম্বর প্রয়োজন',
+    tinMinLength: 'টিআইএন নম্বর কমপক্ষে ৯ অক্ষরের হতে হবে',
+    tinMaxLength: 'টিআইএন নম্বর সর্বোচ্চ ২০ অক্ষর হতে পারে',
+    nidRequired: 'এনআইডি নম্বর প্রয়োজন',
+    nidMinLength: 'এনআইডি নম্বর কমপক্ষে ১০ অক্ষরের হতে হবে',
+    nidMaxLength: 'এনআইডি নম্বর সর্বোচ্চ ১৭ অক্ষর হতে পারে',
+    otpRequired: 'OTP কোড প্রয়োজন',
+    otpInvalid: 'OTP কোড অবশ্যই ৬ ডিজিটের হতে হবে',
+    ageVerificationRequired: 'আপনাকে আপনার বয়স নিশ্চিত করতে হবে',
     deviceIdMaxLength: 'ডিভাইস আইডি সর্বোচ্চ ২৫৫ অক্ষর হতে পারে',
-    referralInvalid: 'ভুল রেফারেল কোড',
     captchaRequired: 'CAPTCHA ভেরিফিকেশন ব্যর্থ হয়েছে',
+    confirmPasswordMatch: 'পাসওয়ার্ড দুটি মিলছে না',
   },
 };
 
-/**
- * Get validation message (with locale support)
- */
+// ============================================================
+// Helper function for validation messages
+// ============================================================
+
 function getValidationMessage(
   key: keyof typeof VALIDATION_MESSAGES.en,
   args?: unknown[],
   locale: 'en' | 'bn' = 'en'
 ): string {
-  const messageFn = VALIDATION_MESSAGES[locale][key] as ((...args: unknown[]) => string) | string;
+  const messageFn = VALIDATION_MESSAGES[locale][key] as
+    | ((...args: unknown[]) => string)
+    | string;
   if (typeof messageFn === 'function') {
     return messageFn(...(args || []));
   }
@@ -190,11 +185,35 @@ function getValidationMessage(
 }
 
 // ============================================================
+// ✅ FIXED: Local enums (no import conflicts)
+// ============================================================
+
+/**
+ * Registration method enum (local - no import conflict)
+ */
+export enum RegistrationMethod {
+  EMAIL = 'email',
+  PHONE = 'phone',
+  SOCIAL = 'social',
+  USERNAME = 'username',
+}
+
+/**
+ * User tier type (using shared type with alias)
+ */
+export type TUserTier = SharedUserTier;
+
+/**
+ * User role type (from shared-constants)
+ */
+export type TUserRole = typeof AUTH_PROVIDERS[keyof typeof AUTH_PROVIDERS];
+
+// ============================================================
 // ✅ ENTERPRISE ENHANCEMENT: Client Info DTO
 // ============================================================
 
 /**
- * Client information for security and fraud prevention
+ * Client information for security and analytics
  */
 export class ClientInfoDto {
   @ApiPropertyOptional({
@@ -202,8 +221,8 @@ export class ClientInfoDto {
     example: '192.168.1.100',
   })
   @IsOptional()
-  @IsString()
-  ipAddress?: string;
+  @IsIP(undefined, { message: 'Invalid IP address format' })
+  ipAddress?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'User agent string',
@@ -212,16 +231,7 @@ export class ClientInfoDto {
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  userAgent?: string;
-
-  @ApiPropertyOptional({
-    description: 'Device fingerprint for fraud detection',
-    example: 'fp_abc123def456',
-  })
-  @IsOptional()
-  @IsString()
-  @MaxLength(128)
-  deviceFingerprint?: string;
+  userAgent?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Screen resolution',
@@ -230,7 +240,7 @@ export class ClientInfoDto {
   @IsOptional()
   @IsString()
   @Matches(/^\d+x\d+$/, { message: 'Screen resolution must be in format WxH' })
-  screenResolution?: string;
+  screenResolution?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Language preference',
@@ -239,7 +249,7 @@ export class ClientInfoDto {
   @IsOptional()
   @IsString()
   @MaxLength(10)
-  language?: string;
+  language?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Timezone offset in minutes',
@@ -249,7 +259,7 @@ export class ClientInfoDto {
   @IsNumber()
   @Min(-720)
   @Max(840)
-  timezoneOffset?: number;
+  timezoneOffset?: number | undefined;
 
   // Bangladesh specific
   @ApiPropertyOptional({
@@ -259,7 +269,7 @@ export class ClientInfoDto {
   })
   @IsOptional()
   @IsIn(['2g', '3g', '4g', '5g', 'wifi', 'unknown'])
-  networkType?: string;
+  networkType?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'District (Bangladesh specific)',
@@ -268,290 +278,79 @@ export class ClientInfoDto {
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  district?: string;
+  district?: string | undefined;
 }
 
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT: Consent Management DTO
-// ============================================================
-
-/**
- * Consent management for GDPR compliance
- */
-export class ConsentDto {
-  @ApiProperty({
-    description: 'Accept terms and conditions',
-    example: true,
-  })
-  @IsBoolean({ message: 'Accept terms must be a boolean' })
-  acceptTerms: boolean;
-
-  @ApiPropertyOptional({
-    description: 'Accept privacy policy',
-    example: true,
-  })
-  @IsOptional()
-  @IsBoolean()
-  acceptPrivacy?: boolean;
-
-  @ApiPropertyOptional({
-    description: 'Consent to marketing emails',
-    example: false,
-    default: false,
-  })
-  @IsOptional()
-  @IsBoolean()
-  marketingConsent?: boolean = false;
-
-  @ApiPropertyOptional({
-    description: 'Consent to SMS notifications',
-    example: false,
-    default: false,
-  })
-  @IsOptional()
-  @IsBoolean()
-  smsConsent?: boolean = false;
-
-  @ApiPropertyOptional({
-    description: 'Consent to WhatsApp notifications (Bangladesh specific)',
-    example: false,
-    default: false,
-  })
-  @IsOptional()
-  @IsBoolean()
-  whatsappConsent?: boolean = false;
-
-  @ApiPropertyOptional({
-    description: 'Data retention consent',
-    example: true,
-  })
-  @IsOptional()
-  @IsBoolean()
-  dataRetentionConsent?: boolean = true;
-
-  @ApiPropertyOptional({
-    description: 'Age confirmation (13+ for standard, 18+ for vendor)',
-    example: true,
-  })
-  @IsOptional()
-  @IsBoolean()
-  ageConfirmation?: boolean;
-}
 
 // ============================================================
-// ✅ ENTERPRISE ENHANCEMENT: Rate Limit Metadata
+// ✅ FIXED: Registration Rate Limit DTO
 // ============================================================
 
-/**
- * Rate limit metadata for registration attempts
- */
 export class RegistrationRateLimitDto {
   @ApiPropertyOptional({ description: 'Rate limit window (seconds)', example: 3600 })
   @IsOptional()
   @IsNumber()
   @Min(1)
-  windowSeconds?: number;
+  windowSeconds?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Max requests allowed', example: 3 })
   @IsOptional()
   @IsNumber()
   @Min(1)
-  maxRequests?: number;
+  maxRequests?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Remaining requests', example: 2 })
   @IsOptional()
   @IsNumber()
   @Min(0)
-  remaining?: number;
+  remaining?: number | undefined;
 
-  @ApiPropertyOptional({ description: 'Reset timestamp', example: '2024-01-01T01:00:00.000Z' })
+  @ApiPropertyOptional({ description: 'Reset timestamp', example: '2024-01-01T00:01:00.000Z' })
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  resetAt?: Date;
+  resetAt?: Date | undefined;
 }
 
 // ============================================================
-// ✅ ENTERPRISE ENHANCEMENT: Enhanced Register DTO
+// ✅ FIXED: Registration Age Configuration (local)
+// ============================================================
+
+const AGE_CONFIG = {
+  MIN_AGE_CUSTOMER: 13,
+  MIN_AGE_VENDOR: 18,
+  MAX_AGE: 120,
+  VERIFICATION_REQUIRED_FOR_VENDOR: true,
+} as const;
+
+// ============================================================
+// ✅ ENTERPRISE ENHANCEMENT: Base Registration DTO
 // ============================================================
 
 /**
- * User Registration Request DTO (Email based) - Enterprise Enhanced
- * 
- * @example
- * {
- *   "email": "user@vubon.com.bd",
- *   "password": "MyStr0ng!P@ssw0rd123",
- *   "confirmPassword": "MyStr0ng!P@ssw0rd123",
- *   "fullName": "John Doe",
- *   "displayName": "John",
- *   "phone": "+8801712345678",
- *   "deviceId": "device_550e8400-e29b-41d4-a716-446655440000",
- *   "consent": { "acceptTerms": true, "marketingConsent": false },
- *   "referralCode": "REF123456",
- *   "preferredLanguage": "en",
- *   "age": 25,
- *   "clientInfo": { "ipAddress": "192.168.1.100", "district": "Dhaka" },
- *   "captchaToken": "03AGdBq27..."
- * }
+ * Base registration DTO with common fields
  */
-export class RegisterDto {
-  @ApiProperty({
-    description: 'User email address (must be unique)',
-    example: 'user@vubon.com.bd',
-    required: true,
-    format: 'email',
-    maxLength: 255,
-  })
-  @IsEmail({}, { message: () => getValidationMessage('emailInvalid') })
-  @IsNotEmpty({ message: () => getValidationMessage('emailRequired') })
-  @MaxLength(255, { message: () => getValidationMessage('emailMaxLength') })
-  @Matches(REGEX_EMAIL.STRICT, { message: () => getValidationMessage('emailInvalid') })
-  email: string;
-
-  @ApiProperty({
-    description: 'User password',
-    example: 'MyStr0ng!P@ssw0rd123',
-    required: true,
-    minLength: PASSWORD_HINTS.minLength,
-    maxLength: PASSWORD_HINTS.maxLength,
-    format: 'password',
-    writeOnly: true,
-  })
-  @IsString({ message: 'Password must be a string' })
-  @IsNotEmpty({ message: () => getValidationMessage('passwordRequired') })
-  @MinLength(PASSWORD_POLICY.MIN_LENGTH, { 
-    message: () => getValidationMessage('passwordMinLength', [PASSWORD_POLICY.MIN_LENGTH]) 
-  })
-  @MaxLength(PASSWORD_POLICY.MAX_LENGTH, { 
-    message: () => getValidationMessage('passwordMaxLength', [PASSWORD_POLICY.MAX_LENGTH]) 
-  })
-  @Matches(REGEX_PASSWORD.STRONG, {
-    message: () => getValidationMessage('passwordWeak'),
-  })
-  password: string;
-
-  @ApiProperty({
-    description: 'Confirm password (must match password)',
-    example: 'MyStr0ng!P@ssw0rd123',
-    required: true,
-    format: 'password',
-    writeOnly: true,
-  })
-  @IsString({ message: 'Confirm password must be a string' })
-  @IsNotEmpty({ message: 'Confirm password is required' })
-  @Match('password', { message: () => getValidationMessage('passwordMismatch') })
-  confirmPassword: string;
-
-  @ApiProperty({
-    description: 'User full name',
-    example: 'John Doe',
-    required: true,
-    minLength: 2,
-    maxLength: 100,
-  })
-  @IsString({ message: 'Full name must be a string' })
-  @IsNotEmpty({ message: () => getValidationMessage('fullNameRequired') })
-  @MinLength(2, { message: () => getValidationMessage('fullNameMinLength') })
-  @MaxLength(100, { message: () => getValidationMessage('fullNameMaxLength') })
-  @Matches(REGEX_USERNAME.STANDARD, {
-    message: () => getValidationMessage('fullNameInvalid'),
-  })
-  fullName: string;
-
-  @ApiPropertyOptional({
-    description: 'Display name (if not provided, derived from full name)',
-    example: 'John',
-    maxLength: 50,
-  })
-  @IsOptional()
-  @IsString({ message: 'Display name must be a string' })
-  @MaxLength(50, { message: 'Display name cannot exceed 50 characters' })
-  displayName?: string;
-
-  @ApiPropertyOptional({
-    description: 'Phone number (E.164 format, Bangladesh numbers start with +880)',
-    example: '+8801712345678',
-    maxLength: 15,
-  })
-  @IsOptional()
-  @IsString({ message: 'Phone number must be a string' })
-  @Matches(REGEX_PHONE.BANGLADESH, {
-    message: () => getValidationMessage('phoneInvalid'),
-  })
-  @ValidateIf((o) => o.phone)
-  phone?: string;
-
+export class BaseRegisterDto {
   @ApiPropertyOptional({
     description: 'Device identifier for session tracking',
     example: 'device_550e8400-e29b-41d4-a716-446655440000',
     maxLength: 255,
   })
   @IsOptional()
-  @IsString({ message: 'Device ID must be a string' })
-  @MaxLength(255, { message: () => getValidationMessage('deviceIdMaxLength') })
-  deviceId?: string;
-
-  // ✅ ENTERPRISE ENHANCEMENT: Consent management
-  @ApiPropertyOptional({
-    description: 'Consent management for GDPR compliance',
-    type: ConsentDto,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => ConsentDto)
-  consent?: ConsentDto;
+  @IsString()
+  @MaxLength(255, { message: getValidationMessage('deviceIdMaxLength') })
+  deviceId?: string | undefined;
 
   @ApiPropertyOptional({
-    description: 'Referral code (if applicable)',
-    example: 'REF123456',
-    maxLength: 50,
+    description: 'Device fingerprint for enhanced security',
+    example: 'fp_abc123def456',
+    maxLength: 128,
   })
   @IsOptional()
-  @IsString({ message: 'Referral code must be a string' })
-  @MaxLength(50, { message: 'Referral code cannot exceed 50 characters' })
-  @Matches(/^[A-Za-z0-9]{6,20}$/, { message: () => getValidationMessage('referralInvalid') })
-  referralCode?: string;
+  @IsString()
+  @MaxLength(128)
+  deviceFingerprint?: string | undefined;
 
-  @ApiPropertyOptional({
-    description: 'Preferred language',
-    example: 'en',
-    enum: ['en', 'bn'],
-    default: 'en',
-  })
-  @IsOptional()
-  @IsEnum(['en', 'bn'], { message: 'Preferred language must be en or bn' })
-  preferredLanguage?: 'en' | 'bn' = 'en';
-
-  // ✅ ENTERPRISE ENHANCEMENT: Age verification
-  @ApiPropertyOptional({
-    description: 'User age (for age verification)',
-    example: 25,
-    minimum: AGE_REQUIREMENTS.MIN_AGE,
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber({}, { message: 'Age must be a number' })
-  @Min(AGE_REQUIREMENTS.MIN_AGE, { 
-    message: () => getValidationMessage('ageMin', [AGE_REQUIREMENTS.MIN_AGE]) 
-  })
-  @Max(120, { message: 'Age cannot exceed 120' })
-  age?: number;
-
-  // ✅ ENTERPRISE ENHANCEMENT: Registration method
-  @ApiPropertyOptional({
-    description: 'Registration method',
-    enum: RegistrationMethod,
-    example: RegistrationMethod.EMAIL,
-    default: RegistrationMethod.EMAIL,
-  })
-  @IsOptional()
-  @IsEnum(RegistrationMethod, { 
-    message: `Registration method must be one of: ${Object.values(RegistrationMethod).join(', ')}` 
-  })
-  method?: RegistrationMethod = RegistrationMethod.EMAIL;
-
-  // ✅ ENTERPRISE ENHANCEMENT: Client info for fraud detection
   @ApiPropertyOptional({
     description: 'Client information for security tracking',
     type: ClientInfoDto,
@@ -559,27 +358,16 @@ export class RegisterDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => ClientInfoDto)
-  clientInfo?: ClientInfoDto;
+  clientInfo?: ClientInfoDto | undefined;
 
-  // ✅ ENTERPRISE ENHANCEMENT: CAPTCHA support
-  @ApiPropertyOptional({
-    description: 'CAPTCHA token for bot protection',
-    example: '03AGdBq27...',
-  })
-  @IsOptional()
-  @IsString({ message: 'CAPTCHA token must be a string' })
-  captchaToken?: string;
-
-  // ✅ ENTERPRISE ENHANCEMENT: Correlation ID for tracing
   @ApiPropertyOptional({
     description: 'Correlation ID for distributed tracing',
     example: 'corr_550e8400-e29b-41d4-a716-446655440000',
   })
   @IsOptional()
   @IsUUID()
-  correlationId?: string;
+  correlationId?: string | undefined;
 
-  // ✅ ENTERPRISE ENHANCEMENT: Rate limit metadata
   @ApiPropertyOptional({
     description: 'Rate limit metadata',
     type: RegistrationRateLimitDto,
@@ -587,221 +375,157 @@ export class RegisterDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => RegistrationRateLimitDto)
-  rateLimit?: RegistrationRateLimitDto;
-
-  constructor(
-    email: string, 
-    password: string, 
-    confirmPassword: string,
-    fullName: string, 
-    consent?: ConsentDto,
-    phone?: string,
-    deviceId?: string,
-    displayName?: string,
-    referralCode?: string,
-    preferredLanguage?: 'en' | 'bn',
-    age?: number,
-    clientInfo?: ClientInfoDto,
-    captchaToken?: string,
-    correlationId?: string
-  ) {
-    this.email = email;
-    this.password = password;
-    this.confirmPassword = confirmPassword;
-    this.fullName = fullName;
-    this.consent = consent || { acceptTerms: true };
-    this.phone = phone;
-    this.deviceId = deviceId;
-    this.displayName = displayName;
-    this.referralCode = referralCode;
-    this.preferredLanguage = preferredLanguage ?? 'en';
-    this.age = age;
-    this.clientInfo = clientInfo;
-    this.captchaToken = captchaToken;
-    this.correlationId = correlationId;
-  }
-
-  /**
-   * ✅ ENTERPRISE ENHANCEMENT: Helper to check if terms are accepted
-   */
-  get hasAcceptedTerms(): boolean {
-    return this.consent?.acceptTerms === true;
-  }
-
-  /**
-   * ✅ ENTERPRISE ENHANCEMENT: Helper to check if phone is provided
-   */
-  get hasPhone(): boolean {
-    return !!this.phone;
-  }
-
-  /**
-   * ✅ ENTERPRISE ENHANCEMENT: Helper to normalize phone number
-   */
-  getNormalizedPhone(): string | null {
-    if (!this.phone) return null;
-    return normalizePhone(this.phone, 'BD');
-  }
-
-  /**
-   * ✅ ENTERPRISE ENHANCEMENT: Helper to check if phone is valid BD mobile
-   */
-  get isValidBdMobile(): boolean {
-    return this.phone ? isValidBdMobile(this.phone) : false;
-  }
-
-  /**
-   * ✅ ENTERPRISE ENHANCEMENT: Get validation message in appropriate language
-   */
-  getMessage(key: keyof typeof VALIDATION_MESSAGES.en, ...args: unknown[]): string {
-    const locale = this.preferredLanguage === 'bn' ? 'bn' : 'en';
-    return getValidationMessage(key, args, locale);
-  }
+  rateLimit?: RegistrationRateLimitDto | undefined;
 }
 
 // ============================================================
-// ✅ ENTERPRISE ENHANCEMENT: Phone Registration DTO (Bangladesh specific)
+// ✅ FIXED: Email Registration DTO
 // ============================================================
 
-/**
- * Phone Registration Request DTO (Bangladesh specific) - Enhanced
- * 
- * @example
- * {
- *   "phoneNumber": "+8801712345678",
- *   "otpCode": "123456",
- *   "fullName": "John Doe",
- *   "displayName": "John",
- *   "email": "user@vubon.com.bd",
- *   "deviceId": "device-123",
- *   "consent": { "acceptTerms": true },
- *   "referralCode": "REF123456",
- *   "clientInfo": { "networkType": "4g", "district": "Dhaka" }
- * }
- */
-export class PhoneRegisterDto {
+export class EmailRegisterDto extends BaseRegisterDto {
   @ApiProperty({
-    description: 'Bangladesh phone number (E.164 format)',
-    example: '+8801712345678',
+    description: 'User email address',
+    example: 'user@vubon.com.bd',
     required: true,
+    format: 'email',
+    maxLength: 255,
   })
-  @IsString({ message: 'Phone number must be a string' })
-  @IsNotEmpty({ message: () => getValidationMessage('phoneRequired') })
-  @Matches(REGEX_PHONE.BANGLADESH, { 
-    message: () => getValidationMessage('phoneInvalid') 
-  })
-  phoneNumber: string;
+  @IsEmail({}, { message: getValidationMessage('emailInvalid') })
+  @IsNotEmpty({ message: getValidationMessage('emailRequired') })
+  @MaxLength(255, { message: getValidationMessage('emailMaxLength') })
+  @Matches(REGEX_EMAIL.STRICT, { message: getValidationMessage('emailInvalid') })
+  email: string;
 
   @ApiProperty({
-    description: 'One-Time Password (OTP) for verification',
-    example: '123456',
+    description: 'User password',
+    example: 'MyStr0ng!P@ssw0rd',
     required: true,
-    minLength: 6,
-    maxLength: 6,
-    pattern: '^[0-9]{6}$',
+    minLength: PASSWORD_POLICY.MIN_LENGTH,
+    maxLength: PASSWORD_POLICY.MAX_LENGTH,
+    format: 'password',
+    writeOnly: true,
   })
-  @IsString({ message: 'OTP code must be a string' })
-  @IsNotEmpty({ message: 'OTP code is required' })
-  @Matches(/^\d{6}$/, { message: 'OTP code must be exactly 6 digits' })
-  otpCode: string;
+  @IsString({ message: getValidationMessage('passwordRequired') })
+  @IsNotEmpty({ message: getValidationMessage('passwordRequired') })
+  @MinLength(PASSWORD_POLICY.MIN_LENGTH, {
+    message: getValidationMessage('passwordMinLength', [PASSWORD_POLICY.MIN_LENGTH]),
+  })
+  @MaxLength(PASSWORD_POLICY.MAX_LENGTH, {
+    message: getValidationMessage('passwordMaxLength', [PASSWORD_POLICY.MAX_LENGTH]),
+  })
+  password: string;
 
   @ApiProperty({
-    description: 'User full name',
-    example: 'John Doe',
+    description: 'Confirm password',
+    example: 'MyStr0ng!P@ssw0rd',
     required: true,
+    format: 'password',
+    writeOnly: true,
+  })
+  @IsString({ message: 'Confirm password must be a string' })
+  @IsNotEmpty({ message: 'Confirm password is required' })
+  @MinLength(PASSWORD_POLICY.MIN_LENGTH, {
+    message: getValidationMessage('passwordMinLength', [PASSWORD_POLICY.MIN_LENGTH]),
+  })
+  @MaxLength(PASSWORD_POLICY.MAX_LENGTH, {
+    message: getValidationMessage('passwordMaxLength', [PASSWORD_POLICY.MAX_LENGTH]),
+  })
+  confirmPassword: string;
+
+  @ApiProperty({
+    description: 'First name',
+    example: 'John',
+    required: true,
+    minLength: 2,
+    maxLength: 50,
+  })
+  @IsString({ message: getValidationMessage('firstNameRequired') })
+  @IsNotEmpty({ message: getValidationMessage('firstNameRequired') })
+  @MinLength(2, { message: getValidationMessage('firstNameMinLength') })
+  @MaxLength(50, { message: getValidationMessage('firstNameMaxLength') })
+  @Matches(/^[a-zA-Z\u0980-\u09FF\s\-']+$/, {
+    message: 'First name can only contain letters, spaces, hyphens, and apostrophes',
+  })
+  firstName: string;
+
+  @ApiProperty({
+    description: 'Last name',
+    example: 'Doe',
+    required: true,
+    minLength: 2,
+    maxLength: 50,
+  })
+  @IsString({ message: getValidationMessage('lastNameRequired') })
+  @IsNotEmpty({ message: getValidationMessage('lastNameRequired') })
+  @MinLength(2, { message: getValidationMessage('lastNameMinLength') })
+  @MaxLength(50, { message: getValidationMessage('lastNameMaxLength') })
+  @Matches(/^[a-zA-Z\u0980-\u09FF\s\-']+$/, {
+    message: 'Last name can only contain letters, spaces, hyphens, and apostrophes',
+  })
+  lastName: string;
+
+  @ApiPropertyOptional({
+    description: 'Display name (auto-generated if not provided)',
+    example: 'JohnDoe',
     minLength: 2,
     maxLength: 100,
   })
-  @IsString({ message: 'Full name must be a string' })
-  @IsNotEmpty({ message: () => getValidationMessage('fullNameRequired') })
-  @MinLength(2, { message: () => getValidationMessage('fullNameMinLength') })
-  @MaxLength(100, { message: () => getValidationMessage('fullNameMaxLength') })
-  @Matches(REGEX_USERNAME.STANDARD, {
-    message: () => getValidationMessage('fullNameInvalid'),
+  @IsOptional()
+  @IsString()
+  @MinLength(2, { message: getValidationMessage('displayNameMinLength') })
+  @MaxLength(100, { message: getValidationMessage('displayNameMaxLength') })
+  @Matches(/^[a-zA-Z0-9\u0980-\u09FF\s_.-]+$/, {
+    message: 'Display name contains invalid characters',
   })
-  fullName: string;
+  displayName?: string | undefined;
+
+  @ApiProperty({
+    description: 'Accept terms and conditions',
+    example: true,
+    required: true,
+  })
+  @IsBoolean({ message: 'Accept terms must be a boolean' })
+  @IsNotEmpty({ message: getValidationMessage('acceptTermsRequired') })
+  acceptTerms: boolean = false;
+
+  @ApiProperty({
+    description: 'Accept privacy policy',
+    example: true,
+    required: true,
+  })
+  @IsBoolean({ message: 'Accept privacy must be a boolean' })
+  @IsNotEmpty({ message: getValidationMessage('acceptPrivacyRequired') })
+  acceptPrivacy: boolean = false;
 
   @ApiPropertyOptional({
-    description: 'Display name (if not provided, derived from full name)',
-    example: 'John',
+    description: 'Marketing consent',
+    example: false,
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'Marketing consent must be a boolean' })
+  marketingConsent?: boolean = false;
+
+  @ApiPropertyOptional({
+    description: 'Age confirmation (must be at least 13)',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'Age confirmation must be a boolean' })
+  ageConfirmed?: boolean | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Referral code',
+    example: 'REF123',
     maxLength: 50,
   })
   @IsOptional()
-  @IsString({ message: 'Display name must be a string' })
-  @MaxLength(50, { message: 'Display name cannot exceed 50 characters' })
-  displayName?: string;
-
-  @ApiPropertyOptional({
-    description: 'Email address (optional)',
-    example: 'user@vubon.com.bd',
-    format: 'email',
+  @IsString()
+  @MaxLength(50, { message: getValidationMessage('referralCodeMaxLength') })
+  @Matches(/^[A-Za-z0-9]{4,20}$/, {
+    message: getValidationMessage('referralCodeInvalid'),
   })
-  @IsOptional()
-  @IsEmail({}, { message: () => getValidationMessage('emailInvalid') })
-  email?: string;
-
-  @ApiPropertyOptional({
-    description: 'Device identifier for session tracking',
-    example: 'device_550e8400-e29b-41d4-a716-446655440000',
-    maxLength: 255,
-  })
-  @IsOptional()
-  @IsString({ message: 'Device ID must be a string' })
-  @MaxLength(255, { message: () => getValidationMessage('deviceIdMaxLength') })
-  deviceId?: string;
-
-  @ApiPropertyOptional({
-    description: 'Consent management',
-    type: ConsentDto,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => ConsentDto)
-  consent?: ConsentDto;
-
-  @ApiPropertyOptional({
-    description: 'Referral code (if applicable)',
-    example: 'REF123456',
-    maxLength: 50,
-  })
-  @IsOptional()
-  @IsString({ message: 'Referral code must be a string' })
-  @MaxLength(50, { message: 'Referral code cannot exceed 50 characters' })
-  @Matches(/^[A-Za-z0-9]{6,20}$/, { message: () => getValidationMessage('referralInvalid') })
-  referralCode?: string;
-
-  @ApiPropertyOptional({
-    description: 'Preferred language',
-    example: 'bn',
-    enum: ['en', 'bn'],
-    default: 'en',
-  })
-  @IsOptional()
-  @IsEnum(['en', 'bn'], { message: 'Preferred language must be en or bn' })
-  preferredLanguage?: 'en' | 'bn' = 'en';
-
-  @ApiPropertyOptional({
-    description: 'User age (for age verification)',
-    example: 25,
-    minimum: AGE_REQUIREMENTS.MIN_AGE,
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber({}, { message: 'Age must be a number' })
-  @Min(AGE_REQUIREMENTS.MIN_AGE, { 
-    message: () => getValidationMessage('ageMin', [AGE_REQUIREMENTS.MIN_AGE]) 
-  })
-  @Max(120, { message: 'Age cannot exceed 120' })
-  age?: number;
-
-  @ApiPropertyOptional({
-    description: 'Client information for security tracking',
-    type: ClientInfoDto,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => ClientInfoDto)
-  clientInfo?: ClientInfoDto;
+  referralCode?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'CAPTCHA token for bot protection',
@@ -809,259 +533,1378 @@ export class PhoneRegisterDto {
   })
   @IsOptional()
   @IsString()
-  captchaToken?: string;
-
-  @ApiPropertyOptional({
-    description: 'Correlation ID for tracing',
-    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
-  })
-  @IsOptional()
-  @IsUUID()
-  correlationId?: string;
+  captchaToken?: string | undefined;
 
   constructor(
-    phoneNumber: string,
-    otpCode: string,
-    fullName: string,
-    consent?: ConsentDto,
-    email?: string,
-    deviceId?: string,
-    displayName?: string,
-    referralCode?: string,
-    preferredLanguage?: 'en' | 'bn',
-    age?: number,
-    clientInfo?: ClientInfoDto,
-    captchaToken?: string,
-    correlationId?: string
+    email: string,
+    password: string,
+    confirmPassword: string,
+    firstName: string,
+    lastName: string,
+    acceptTerms: boolean,
+    acceptPrivacy: boolean
   ) {
-    this.phoneNumber = phoneNumber;
-    this.otpCode = otpCode;
-    this.fullName = fullName;
-    this.consent = consent || { acceptTerms: true };
+    super();
     this.email = email;
-    this.deviceId = deviceId;
-    this.displayName = displayName;
-    this.referralCode = referralCode;
-    this.preferredLanguage = preferredLanguage ?? 'en';
-    this.age = age;
-    this.clientInfo = clientInfo;
-    this.captchaToken = captchaToken;
-    this.correlationId = correlationId;
+    this.password = password;
+    this.confirmPassword = confirmPassword;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.acceptTerms = acceptTerms;
+    this.acceptPrivacy = acceptPrivacy;
   }
 
-  get hasAcceptedTerms(): boolean {
-    return this.consent?.acceptTerms === true;
-  }
-
-  getNormalizedPhone(): string | null {
-    return normalizePhone(this.phoneNumber, 'BD');
+  /**
+   * Check if passwords match
+   */
+  public passwordsMatch(): boolean {
+    return this.password === this.confirmPassword;
   }
 }
 
 // ============================================================
-// Response DTOs (Enterprise Enhanced)
+// ✅ FIXED: Phone Registration DTO
 // ============================================================
 
-/**
- * User Registration Response DTO - Enhanced
- */
-export class RegisterResponseDto {
+export class PhoneRegisterDto extends BaseRegisterDto {
   @ApiProperty({
-    description: 'User unique identifier',
-    example: 'usr_550e8400-e29b-41d4-a716-446655440000',
+    description: 'Bangladesh phone number (E.164 format)',
+    example: '+8801712345678',
+    required: true,
+    pattern: '^\\+8801[3-9]\\d{8}$',
   })
-  userId: string;
+  @IsString({ message: getValidationMessage('phoneRequired') })
+  @IsNotEmpty({ message: getValidationMessage('phoneRequired') })
+  @Matches(REGEX_PHONE.BANGLADESH_ALL, {
+    message: getValidationMessage('phoneInvalid'),
+  })
+  phoneNumber: string;
+
+  @ApiProperty({
+    description: 'User password',
+    example: 'MyStr0ng!P@ssw0rd',
+    required: true,
+    minLength: PASSWORD_POLICY.MIN_LENGTH,
+    maxLength: PASSWORD_POLICY.MAX_LENGTH,
+    format: 'password',
+    writeOnly: true,
+  })
+  @IsString({ message: getValidationMessage('passwordRequired') })
+  @IsNotEmpty({ message: getValidationMessage('passwordRequired') })
+  @MinLength(PASSWORD_POLICY.MIN_LENGTH, {
+    message: getValidationMessage('passwordMinLength', [PASSWORD_POLICY.MIN_LENGTH]),
+  })
+  @MaxLength(PASSWORD_POLICY.MAX_LENGTH, {
+    message: getValidationMessage('passwordMaxLength', [PASSWORD_POLICY.MAX_LENGTH]),
+  })
+  password: string;
+
+  @ApiProperty({
+    description: 'Confirm password',
+    example: 'MyStr0ng!P@ssw0rd',
+    required: true,
+    format: 'password',
+    writeOnly: true,
+  })
+  @IsString({ message: 'Confirm password must be a string' })
+  @IsNotEmpty({ message: 'Confirm password is required' })
+  @MinLength(PASSWORD_POLICY.MIN_LENGTH, {
+    message: getValidationMessage('passwordMinLength', [PASSWORD_POLICY.MIN_LENGTH]),
+  })
+  @MaxLength(PASSWORD_POLICY.MAX_LENGTH, {
+    message: getValidationMessage('passwordMaxLength', [PASSWORD_POLICY.MAX_LENGTH]),
+  })
+  confirmPassword: string;
+
+  @ApiProperty({
+    description: 'First name',
+    example: 'John',
+    required: true,
+    minLength: 2,
+    maxLength: 50,
+  })
+  @IsString({ message: getValidationMessage('firstNameRequired') })
+  @IsNotEmpty({ message: getValidationMessage('firstNameRequired') })
+  @MinLength(2, { message: getValidationMessage('firstNameMinLength') })
+  @MaxLength(50, { message: getValidationMessage('firstNameMaxLength') })
+  @Matches(/^[a-zA-Z\u0980-\u09FF\s\-']+$/, {
+    message: 'First name can only contain letters, spaces, hyphens, and apostrophes',
+  })
+  firstName: string;
+
+  @ApiProperty({
+    description: 'Last name',
+    example: 'Doe',
+    required: true,
+    minLength: 2,
+    maxLength: 50,
+  })
+  @IsString({ message: getValidationMessage('lastNameRequired') })
+  @IsNotEmpty({ message: getValidationMessage('lastNameRequired') })
+  @MinLength(2, { message: getValidationMessage('lastNameMinLength') })
+  @MaxLength(50, { message: getValidationMessage('lastNameMaxLength') })
+  @Matches(/^[a-zA-Z\u0980-\u09FF\s\-']+$/, {
+    message: 'Last name can only contain letters, spaces, hyphens, and apostrophes',
+  })
+  lastName: string;
+
+  @ApiPropertyOptional({
+    description: 'Display name (auto-generated if not provided)',
+    example: 'JohnDoe',
+    minLength: 2,
+    maxLength: 100,
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(2, { message: getValidationMessage('displayNameMinLength') })
+  @MaxLength(100, { message: getValidationMessage('displayNameMaxLength') })
+  @Matches(/^[a-zA-Z0-9\u0980-\u09FF\s_.-]+$/, {
+    message: 'Display name contains invalid characters',
+  })
+  displayName?: string | undefined;
+
+  @ApiProperty({
+    description: 'Accept terms and conditions',
+    example: true,
+    required: true,
+  })
+  @IsBoolean({ message: 'Accept terms must be a boolean' })
+  @IsNotEmpty({ message: getValidationMessage('acceptTermsRequired') })
+  acceptTerms: boolean = false;
+
+  @ApiProperty({
+    description: 'Accept privacy policy',
+    example: true,
+    required: true,
+  })
+  @IsBoolean({ message: 'Accept privacy must be a boolean' })
+  @IsNotEmpty({ message: getValidationMessage('acceptPrivacyRequired') })
+  acceptPrivacy: boolean = false;
+
+  @ApiPropertyOptional({
+    description: 'Marketing consent',
+    example: false,
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'Marketing consent must be a boolean' })
+  marketingConsent?: boolean = false;
+
+  @ApiPropertyOptional({
+    description: 'Age confirmation (must be at least 13)',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'Age confirmation must be a boolean' })
+  ageConfirmed?: boolean | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Referral code',
+    example: 'REF123',
+    maxLength: 50,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50, { message: getValidationMessage('referralCodeMaxLength') })
+  @Matches(/^[A-Za-z0-9]{4,20}$/, {
+    message: getValidationMessage('referralCodeInvalid'),
+  })
+  referralCode?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'CAPTCHA token for bot protection',
+    example: '03AGdBq27...',
+  })
+  @IsOptional()
+  @IsString()
+  captchaToken?: string | undefined;
+
+  constructor(
+    phoneNumber: string,
+    password: string,
+    confirmPassword: string,
+    firstName: string,
+    lastName: string,
+    acceptTerms: boolean,
+    acceptPrivacy: boolean
+  ) {
+    super();
+    this.phoneNumber = phoneNumber;
+    this.password = password;
+    this.confirmPassword = confirmPassword;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.acceptTerms = acceptTerms;
+    this.acceptPrivacy = acceptPrivacy;
+  }
+
+  /**
+   * Check if passwords match
+   */
+  public passwordsMatch(): boolean {
+    return this.password === this.confirmPassword;
+  }
+}
+
+// ============================================================
+// ✅ FIXED: OTP Registration DTO (Passwordless)
+// ============================================================
+
+export class OTPRegisterDto extends BaseRegisterDto {
+  @ApiProperty({
+    description: 'Bangladesh phone number (E.164 format)',
+    example: '+8801712345678',
+    required: true,
+    pattern: '^\\+8801[3-9]\\d{8}$',
+  })
+  @IsString({ message: getValidationMessage('phoneRequired') })
+  @IsNotEmpty({ message: getValidationMessage('phoneRequired') })
+  @Matches(REGEX_PHONE.BANGLADESH_ALL, {
+    message: getValidationMessage('phoneInvalid'),
+  })
+  phoneNumber: string;
+
+  @ApiProperty({
+    description: 'One-Time Password (OTP) code',
+    example: '123456',
+    required: true,
+    minLength: 6,
+    maxLength: 6,
+    pattern: '^[0-9]{6}$',
+  })
+  @IsString({ message: getValidationMessage('otpRequired') })
+  @IsNotEmpty({ message: getValidationMessage('otpRequired') })
+  @Matches(/^\d{6}$/, { message: getValidationMessage('otpInvalid') })
+  otpCode: string;
+
+  @ApiProperty({
+    description: 'First name',
+    example: 'John',
+    required: true,
+    minLength: 2,
+    maxLength: 50,
+  })
+  @IsString({ message: getValidationMessage('firstNameRequired') })
+  @IsNotEmpty({ message: getValidationMessage('firstNameRequired') })
+  @MinLength(2, { message: getValidationMessage('firstNameMinLength') })
+  @MaxLength(50, { message: getValidationMessage('firstNameMaxLength') })
+  @Matches(/^[a-zA-Z\u0980-\u09FF\s\-']+$/, {
+    message: 'First name can only contain letters, spaces, hyphens, and apostrophes',
+  })
+  firstName: string;
+
+  @ApiProperty({
+    description: 'Last name',
+    example: 'Doe',
+    required: true,
+    minLength: 2,
+    maxLength: 50,
+  })
+  @IsString({ message: getValidationMessage('lastNameRequired') })
+  @IsNotEmpty({ message: getValidationMessage('lastNameRequired') })
+  @MinLength(2, { message: getValidationMessage('lastNameMinLength') })
+  @MaxLength(50, { message: getValidationMessage('lastNameMaxLength') })
+  @Matches(/^[a-zA-Z\u0980-\u09FF\s\-']+$/, {
+    message: 'Last name can only contain letters, spaces, hyphens, and apostrophes',
+  })
+  lastName: string;
+
+  @ApiPropertyOptional({
+    description: 'Display name (auto-generated if not provided)',
+    example: 'JohnDoe',
+    minLength: 2,
+    maxLength: 100,
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(2, { message: getValidationMessage('displayNameMinLength') })
+  @MaxLength(100, { message: getValidationMessage('displayNameMaxLength') })
+  @Matches(/^[a-zA-Z0-9\u0980-\u09FF\s_.-]+$/, {
+    message: 'Display name contains invalid characters',
+  })
+  displayName?: string | undefined;
+
+  @ApiProperty({
+    description: 'Accept terms and conditions',
+    example: true,
+    required: true,
+  })
+  @IsBoolean({ message: 'Accept terms must be a boolean' })
+  @IsNotEmpty({ message: getValidationMessage('acceptTermsRequired') })
+  acceptTerms: boolean = false;
+
+  @ApiProperty({
+    description: 'Accept privacy policy',
+    example: true,
+    required: true,
+  })
+  @IsBoolean({ message: 'Accept privacy must be a boolean' })
+  @IsNotEmpty({ message: getValidationMessage('acceptPrivacyRequired') })
+  acceptPrivacy: boolean = false;
+
+  @ApiPropertyOptional({
+    description: 'Marketing consent',
+    example: false,
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'Marketing consent must be a boolean' })
+  marketingConsent?: boolean = false;
+
+  @ApiPropertyOptional({
+    description: 'Age confirmation (must be at least 13)',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'Age confirmation must be a boolean' })
+  ageConfirmed?: boolean | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Referral code',
+    example: 'REF123',
+    maxLength: 50,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50, { message: getValidationMessage('referralCodeMaxLength') })
+  @Matches(/^[A-Za-z0-9]{4,20}$/, {
+    message: getValidationMessage('referralCodeInvalid'),
+  })
+  referralCode?: string | undefined;
+
+  constructor(
+    phoneNumber: string,
+    otpCode: string,
+    firstName: string,
+    lastName: string,
+    acceptTerms: boolean,
+    acceptPrivacy: boolean
+  ) {
+    super();
+    this.phoneNumber = phoneNumber;
+    this.otpCode = otpCode;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.acceptTerms = acceptTerms;
+    this.acceptPrivacy = acceptPrivacy;
+  }
+}
+
+// ============================================================
+// ✅ FIXED: Username Registration DTO
+// ============================================================
+
+export class UsernameRegisterDto extends BaseRegisterDto {
+  @ApiProperty({
+    description: 'Username (3-20 characters, alphanumeric with dots/underscores)',
+    example: 'john_doe',
+    required: true,
+    minLength: 3,
+    maxLength: 20,
+    pattern: '^[a-zA-Z0-9._]{3,20}$',
+  })
+  @IsString({ message: getValidationMessage('usernameRequired') })
+  @IsNotEmpty({ message: getValidationMessage('usernameRequired') })
+  @MinLength(3, { message: getValidationMessage('usernameInvalid') })
+  @MaxLength(20, { message: getValidationMessage('usernameInvalid') })
+  @Matches(REGEX_USERNAME?.STANDARD || /^[a-zA-Z0-9._]{3,20}$/, {
+    message: getValidationMessage('usernameInvalid'),
+  })
+  username: string;
+
+  @ApiProperty({
+    description: 'User password',
+    example: 'MyStr0ng!P@ssw0rd',
+    required: true,
+    minLength: PASSWORD_POLICY.MIN_LENGTH,
+    maxLength: PASSWORD_POLICY.MAX_LENGTH,
+    format: 'password',
+    writeOnly: true,
+  })
+  @IsString({ message: getValidationMessage('passwordRequired') })
+  @IsNotEmpty({ message: getValidationMessage('passwordRequired') })
+  @MinLength(PASSWORD_POLICY.MIN_LENGTH, {
+    message: getValidationMessage('passwordMinLength', [PASSWORD_POLICY.MIN_LENGTH]),
+  })
+  @MaxLength(PASSWORD_POLICY.MAX_LENGTH, {
+    message: getValidationMessage('passwordMaxLength', [PASSWORD_POLICY.MAX_LENGTH]),
+  })
+  password: string;
+
+  @ApiProperty({
+    description: 'Confirm password',
+    example: 'MyStr0ng!P@ssw0rd',
+    required: true,
+    format: 'password',
+    writeOnly: true,
+  })
+  @IsString({ message: 'Confirm password must be a string' })
+  @IsNotEmpty({ message: 'Confirm password is required' })
+  @MinLength(PASSWORD_POLICY.MIN_LENGTH, {
+    message: getValidationMessage('passwordMinLength', [PASSWORD_POLICY.MIN_LENGTH]),
+  })
+  @MaxLength(PASSWORD_POLICY.MAX_LENGTH, {
+    message: getValidationMessage('passwordMaxLength', [PASSWORD_POLICY.MAX_LENGTH]),
+  })
+  confirmPassword: string;
+
+  @ApiProperty({
+    description: 'First name',
+    example: 'John',
+    required: true,
+    minLength: 2,
+    maxLength: 50,
+  })
+  @IsString({ message: getValidationMessage('firstNameRequired') })
+  @IsNotEmpty({ message: getValidationMessage('firstNameRequired') })
+  @MinLength(2, { message: getValidationMessage('firstNameMinLength') })
+  @MaxLength(50, { message: getValidationMessage('firstNameMaxLength') })
+  @Matches(/^[a-zA-Z\u0980-\u09FF\s\-']+$/, {
+    message: 'First name can only contain letters, spaces, hyphens, and apostrophes',
+  })
+  firstName: string;
+
+  @ApiProperty({
+    description: 'Last name',
+    example: 'Doe',
+    required: true,
+    minLength: 2,
+    maxLength: 50,
+  })
+  @IsString({ message: getValidationMessage('lastNameRequired') })
+  @IsNotEmpty({ message: getValidationMessage('lastNameRequired') })
+  @MinLength(2, { message: getValidationMessage('lastNameMinLength') })
+  @MaxLength(50, { message: getValidationMessage('lastNameMaxLength') })
+  @Matches(/^[a-zA-Z\u0980-\u09FF\s\-']+$/, {
+    message: 'Last name can only contain letters, spaces, hyphens, and apostrophes',
+  })
+  lastName: string;
+
+  @ApiPropertyOptional({
+    description: 'Display name (auto-generated if not provided)',
+    example: 'JohnDoe',
+    minLength: 2,
+    maxLength: 100,
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(2, { message: getValidationMessage('displayNameMinLength') })
+  @MaxLength(100, { message: getValidationMessage('displayNameMaxLength') })
+  @Matches(/^[a-zA-Z0-9\u0980-\u09FF\s_.-]+$/, {
+    message: 'Display name contains invalid characters',
+  })
+  displayName?: string | undefined;
+
+  @ApiProperty({
+    description: 'Accept terms and conditions',
+    example: true,
+    required: true,
+  })
+  @IsBoolean({ message: 'Accept terms must be a boolean' })
+  @IsNotEmpty({ message: getValidationMessage('acceptTermsRequired') })
+  acceptTerms: boolean = false;
+
+  @ApiProperty({
+    description: 'Accept privacy policy',
+    example: true,
+    required: true,
+  })
+  @IsBoolean({ message: 'Accept privacy must be a boolean' })
+  @IsNotEmpty({ message: getValidationMessage('acceptPrivacyRequired') })
+  acceptPrivacy: boolean = false;
+
+  @ApiPropertyOptional({
+    description: 'Marketing consent',
+    example: false,
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'Marketing consent must be a boolean' })
+  marketingConsent?: boolean = false;
+
+  @ApiPropertyOptional({
+    description: 'Age confirmation (must be at least 13)',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'Age confirmation must be a boolean' })
+  ageConfirmed?: boolean | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Referral code',
+    example: 'REF123',
+    maxLength: 50,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50, { message: getValidationMessage('referralCodeMaxLength') })
+  @Matches(/^[A-Za-z0-9]{4,20}$/, {
+    message: getValidationMessage('referralCodeInvalid'),
+  })
+  referralCode?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'CAPTCHA token for bot protection',
+    example: '03AGdBq27...',
+  })
+  @IsOptional()
+  @IsString()
+  captchaToken?: string | undefined;
+
+  constructor(
+    username: string,
+    password: string,
+    confirmPassword: string,
+    firstName: string,
+    lastName: string,
+    acceptTerms: boolean,
+    acceptPrivacy: boolean
+  ) {
+    super();
+    this.username = username;
+    this.password = password;
+    this.confirmPassword = confirmPassword;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.acceptTerms = acceptTerms;
+    this.acceptPrivacy = acceptPrivacy;
+  }
+
+  /**
+   * Check if passwords match
+   */
+  public passwordsMatch(): boolean {
+    return this.password === this.confirmPassword;
+  }
+}
+
+// ============================================================
+// ✅ FIXED: Social Registration DTO
+// ============================================================
+
+export class SocialRegisterDto extends BaseRegisterDto {
+  @ApiProperty({
+    description: 'Social provider (google, facebook, github, apple, whatsapp, imo)',
+    example: 'google',
+    enum: ['google', 'facebook', 'github', 'apple', 'whatsapp', 'imo'],
+    required: true,
+  })
+  @IsString({ message: getValidationMessage('providerRequired') })
+  @IsNotEmpty({ message: getValidationMessage('providerRequired') })
+  @IsIn(['google', 'facebook', 'github', 'apple', 'whatsapp', 'imo'], {
+    message: 'Provider must be one of: google, facebook, github, apple, whatsapp, imo',
+  })
+  provider: string;
+
+  @ApiProperty({
+    description: 'Provider user ID',
+    example: '1234567890',
+    required: true,
+  })
+  @IsString({ message: getValidationMessage('providerUserIdRequired') })
+  @IsNotEmpty({ message: getValidationMessage('providerUserIdRequired') })
+  providerUserId: string;
 
   @ApiPropertyOptional({
     description: 'User email address',
     example: 'user@vubon.com.bd',
     format: 'email',
+    maxLength: 255,
   })
-  email?: string;
+  @IsOptional()
+  @IsEmail({}, { message: getValidationMessage('emailInvalid') })
+  @MaxLength(255, { message: getValidationMessage('emailMaxLength') })
+  @Matches(REGEX_EMAIL.STRICT, { message: getValidationMessage('emailInvalid') })
+  email?: string | undefined;
 
   @ApiPropertyOptional({
-    description: 'Phone number (E.164 format)',
+    description: 'Bangladesh phone number (E.164 format)',
     example: '+8801712345678',
+    pattern: '^\\+8801[3-9]\\d{8}$',
   })
-  phoneNumber?: string;
+  @IsOptional()
+  @IsString()
+  @Matches(REGEX_PHONE.BANGLADESH_ALL, {
+    message: getValidationMessage('phoneInvalid'),
+  })
+  phoneNumber?: string | undefined;
 
   @ApiProperty({
-    description: 'Success message in English',
-    example: 'User registered successfully. Please verify your email.',
+    description: 'First name',
+    example: 'John',
+    required: true,
+    minLength: 2,
+    maxLength: 50,
   })
-  message: string;
+  @IsString({ message: getValidationMessage('firstNameRequired') })
+  @IsNotEmpty({ message: getValidationMessage('firstNameRequired') })
+  @MinLength(2, { message: getValidationMessage('firstNameMinLength') })
+  @MaxLength(50, { message: getValidationMessage('firstNameMaxLength') })
+  @Matches(/^[a-zA-Z\u0980-\u09FF\s\-']+$/, {
+    message: 'First name can only contain letters, spaces, hyphens, and apostrophes',
+  })
+  firstName: string;
+
+  @ApiProperty({
+    description: 'Last name',
+    example: 'Doe',
+    required: true,
+    minLength: 2,
+    maxLength: 50,
+  })
+  @IsString({ message: getValidationMessage('lastNameRequired') })
+  @IsNotEmpty({ message: getValidationMessage('lastNameRequired') })
+  @MinLength(2, { message: getValidationMessage('lastNameMinLength') })
+  @MaxLength(50, { message: getValidationMessage('lastNameMaxLength') })
+  @Matches(/^[a-zA-Z\u0980-\u09FF\s\-']+$/, {
+    message: 'Last name can only contain letters, spaces, hyphens, and apostrophes',
+  })
+  lastName: string;
 
   @ApiPropertyOptional({
-    description: 'Success message in Bengali',
-    example: 'ইউজার সফলভাবে নিবন্ধিত হয়েছে। অনুগ্রহ করে আপনার ইমেইল ভেরিফাই করুন।',
+    description: 'Display name (auto-generated if not provided)',
+    example: 'JohnDoe',
+    minLength: 2,
+    maxLength: 100,
   })
-  messageBn?: string;
+  @IsOptional()
+  @IsString()
+  @MinLength(2, { message: getValidationMessage('displayNameMinLength') })
+  @MaxLength(100, { message: getValidationMessage('displayNameMaxLength') })
+  @Matches(/^[a-zA-Z0-9\u0980-\u09FF\s_.-]+$/, {
+    message: 'Display name contains invalid characters',
+  })
+  displayName?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Avatar URL',
+    example: 'https://cdn.vubon.com.bd/avatars/user123.jpg',
+  })
+  @IsOptional()
+  @IsUrl({}, { message: getValidationMessage('avatarInvalid') })
+  avatar?: string | undefined;
+
+  @ApiProperty({
+    description: 'Accept terms and conditions',
+    example: true,
+    required: true,
+  })
+  @IsBoolean({ message: 'Accept terms must be a boolean' })
+  @IsNotEmpty({ message: getValidationMessage('acceptTermsRequired') })
+  acceptTerms: boolean = false;
+
+  @ApiProperty({
+    description: 'Accept privacy policy',
+    example: true,
+    required: true,
+  })
+  @IsBoolean({ message: 'Accept privacy must be a boolean' })
+  @IsNotEmpty({ message: getValidationMessage('acceptPrivacyRequired') })
+  acceptPrivacy: boolean = false;
+
+  @ApiPropertyOptional({
+    description: 'Marketing consent',
+    example: false,
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'Marketing consent must be a boolean' })
+  marketingConsent?: boolean = false;
+
+  @ApiPropertyOptional({
+    description: 'Age confirmation (must be at least 13)',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'Age confirmation must be a boolean' })
+  ageConfirmed?: boolean | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Referral code',
+    example: 'REF123',
+    maxLength: 50,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50, { message: getValidationMessage('referralCodeMaxLength') })
+  @Matches(/^[A-Za-z0-9]{4,20}$/, {
+    message: getValidationMessage('referralCodeInvalid'),
+  })
+  referralCode?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'CAPTCHA token for bot protection',
+    example: '03AGdBq27...',
+  })
+  @IsOptional()
+  @IsString()
+  captchaToken?: string | undefined;
+
+  constructor(
+    provider: string,
+    providerUserId: string,
+    firstName: string,
+    lastName: string,
+    acceptTerms: boolean,
+    acceptPrivacy: boolean
+  ) {
+    super();
+    this.provider = provider;
+    this.providerUserId = providerUserId;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.acceptTerms = acceptTerms;
+    this.acceptPrivacy = acceptPrivacy;
+  }
+}
+
+// ============================================================
+// ✅ FIXED: Vendor Registration DTO (Bangladesh specific)
+// ============================================================
+
+export class VendorRegisterDto extends BaseRegisterDto {
+  @ApiProperty({
+    description: 'User email address',
+    example: 'vendor@vubon.com.bd',
+    required: true,
+    format: 'email',
+    maxLength: 255,
+  })
+  @IsEmail({}, { message: getValidationMessage('emailInvalid') })
+  @IsNotEmpty({ message: getValidationMessage('emailRequired') })
+  @MaxLength(255, { message: getValidationMessage('emailMaxLength') })
+  @Matches(REGEX_EMAIL.STRICT, { message: getValidationMessage('emailInvalid') })
+  email: string;
+
+  @ApiProperty({
+    description: 'Bangladesh phone number (E.164 format)',
+    example: '+8801712345678',
+    required: true,
+    pattern: '^\\+8801[3-9]\\d{8}$',
+  })
+  @IsString({ message: getValidationMessage('phoneRequired') })
+  @IsNotEmpty({ message: getValidationMessage('phoneRequired') })
+  @Matches(REGEX_PHONE.BANGLADESH_ALL, {
+    message: getValidationMessage('phoneInvalid'),
+  })
+  phoneNumber: string;
+
+  @ApiProperty({
+    description: 'First name',
+    example: 'John',
+    required: true,
+    minLength: 2,
+    maxLength: 50,
+  })
+  @IsString({ message: getValidationMessage('firstNameRequired') })
+  @IsNotEmpty({ message: getValidationMessage('firstNameRequired') })
+  @MinLength(2, { message: getValidationMessage('firstNameMinLength') })
+  @MaxLength(50, { message: getValidationMessage('firstNameMaxLength') })
+  @Matches(/^[a-zA-Z\u0980-\u09FF\s\-']+$/, {
+    message: 'First name can only contain letters, spaces, hyphens, and apostrophes',
+  })
+  firstName: string;
+
+  @ApiProperty({
+    description: 'Last name',
+    example: 'Doe',
+    required: true,
+    minLength: 2,
+    maxLength: 50,
+  })
+  @IsString({ message: getValidationMessage('lastNameRequired') })
+  @IsNotEmpty({ message: getValidationMessage('lastNameRequired') })
+  @MinLength(2, { message: getValidationMessage('lastNameMinLength') })
+  @MaxLength(50, { message: getValidationMessage('lastNameMaxLength') })
+  @Matches(/^[a-zA-Z\u0980-\u09FF\s\-']+$/, {
+    message: 'Last name can only contain letters, spaces, hyphens, and apostrophes',
+  })
+  lastName: string;
+
+  @ApiProperty({
+    description: 'Business name',
+    example: 'John\'s Electronics',
+    required: true,
+    minLength: 2,
+    maxLength: 100,
+  })
+  @IsString({ message: getValidationMessage('businessNameRequired') })
+  @IsNotEmpty({ message: getValidationMessage('businessNameRequired') })
+  @MinLength(2, { message: 'Business name must be at least 2 characters' })
+  @MaxLength(100, { message: getValidationMessage('businessNameMaxLength') })
+  businessName: string;
+
+  @ApiProperty({
+    description: 'Business address',
+    example: '123, Dhaka Road, Dhaka',
+    required: true,
+    minLength: 5,
+    maxLength: 500,
+  })
+  @IsString({ message: getValidationMessage('businessAddressRequired') })
+  @IsNotEmpty({ message: getValidationMessage('businessAddressRequired') })
+  @MinLength(5, { message: 'Business address must be at least 5 characters' })
+  @MaxLength(500, { message: getValidationMessage('businessAddressMaxLength') })
+  businessAddress: string;
+
+  @ApiProperty({
+    description: 'Trade license number',
+    example: 'TL-12345',
+    required: true,
+    maxLength: 50,
+  })
+  @IsString({ message: getValidationMessage('tradeLicenseRequired') })
+  @IsNotEmpty({ message: getValidationMessage('tradeLicenseRequired') })
+  @MaxLength(50, { message: getValidationMessage('tradeLicenseMaxLength') })
+  tradeLicenseNumber: string;
+
+  @ApiPropertyOptional({
+    description: 'TIN number (9-20 characters)',
+    example: '123456789',
+    minLength: 9,
+    maxLength: 20,
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(9, { message: getValidationMessage('tinMinLength') })
+  @MaxLength(20, { message: getValidationMessage('tinMaxLength') })
+  tinNumber?: string | undefined;
+
+  @ApiProperty({
+    description: 'NID number (10-17 digits)',
+    example: '1234567890123',
+    required: true,
+    minLength: 10,
+    maxLength: 17,
+  })
+  @IsString({ message: getValidationMessage('nidRequired') })
+  @IsNotEmpty({ message: getValidationMessage('nidRequired') })
+  @MinLength(10, { message: getValidationMessage('nidMinLength') })
+  @MaxLength(17, { message: getValidationMessage('nidMaxLength') })
+  @Matches(/^\d{10,17}$/, { message: 'NID must contain only digits' })
+  nidNumber: string;
+
+  @ApiProperty({
+    description: 'User password',
+    example: 'MyStr0ng!P@ssw0rd',
+    required: true,
+    minLength: PASSWORD_POLICY.MIN_LENGTH,
+    maxLength: PASSWORD_POLICY.MAX_LENGTH,
+    format: 'password',
+    writeOnly: true,
+  })
+  @IsString({ message: getValidationMessage('passwordRequired') })
+  @IsNotEmpty({ message: getValidationMessage('passwordRequired') })
+  @MinLength(PASSWORD_POLICY.MIN_LENGTH, {
+    message: getValidationMessage('passwordMinLength', [PASSWORD_POLICY.MIN_LENGTH]),
+  })
+  @MaxLength(PASSWORD_POLICY.MAX_LENGTH, {
+    message: getValidationMessage('passwordMaxLength', [PASSWORD_POLICY.MAX_LENGTH]),
+  })
+  password: string;
+
+  @ApiProperty({
+    description: 'Confirm password',
+    example: 'MyStr0ng!P@ssw0rd',
+    required: true,
+    format: 'password',
+    writeOnly: true,
+  })
+  @IsString({ message: 'Confirm password must be a string' })
+  @IsNotEmpty({ message: 'Confirm password is required' })
+  @MinLength(PASSWORD_POLICY.MIN_LENGTH, {
+    message: getValidationMessage('passwordMinLength', [PASSWORD_POLICY.MIN_LENGTH]),
+  })
+  @MaxLength(PASSWORD_POLICY.MAX_LENGTH, {
+    message: getValidationMessage('passwordMaxLength', [PASSWORD_POLICY.MAX_LENGTH]),
+  })
+  confirmPassword: string;
+
+  @ApiPropertyOptional({
+    description: 'Display name (auto-generated if not provided)',
+    example: 'JohnDoe',
+    minLength: 2,
+    maxLength: 100,
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(2, { message: getValidationMessage('displayNameMinLength') })
+  @MaxLength(100, { message: getValidationMessage('displayNameMaxLength') })
+  @Matches(/^[a-zA-Z0-9\u0980-\u09FF\s_.-]+$/, {
+    message: 'Display name contains invalid characters',
+  })
+  displayName?: string | undefined;
+
+  @ApiProperty({
+    description: 'Accept terms and conditions',
+    example: true,
+    required: true,
+  })
+  @IsBoolean({ message: 'Accept terms must be a boolean' })
+  @IsNotEmpty({ message: getValidationMessage('acceptTermsRequired') })
+  acceptTerms: boolean = false;
+
+  @ApiProperty({
+    description: 'Accept privacy policy',
+    example: true,
+    required: true,
+  })
+  @IsBoolean({ message: 'Accept privacy must be a boolean' })
+  @IsNotEmpty({ message: getValidationMessage('acceptPrivacyRequired') })
+  acceptPrivacy: boolean = false;
+
+  @ApiPropertyOptional({
+    description: 'Marketing consent',
+    example: false,
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'Marketing consent must be a boolean' })
+  marketingConsent?: boolean = false;
+
+  @ApiPropertyOptional({
+    description: 'Age confirmation (must be at least 18 for vendor)',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'Age confirmation must be a boolean' })
+  ageConfirmed?: boolean | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Referral code',
+    example: 'REF123',
+    maxLength: 50,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50, { message: getValidationMessage('referralCodeMaxLength') })
+  @Matches(/^[A-Za-z0-9]{4,20}$/, {
+    message: getValidationMessage('referralCodeInvalid'),
+  })
+  referralCode?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'CAPTCHA token for bot protection',
+    example: '03AGdBq27...',
+  })
+  @IsOptional()
+  @IsString()
+  captchaToken?: string | undefined;
+
+  constructor(
+    email: string,
+    phoneNumber: string,
+    firstName: string,
+    lastName: string,
+    businessName: string,
+    businessAddress: string,
+    tradeLicenseNumber: string,
+    nidNumber: string,
+    password: string,
+    confirmPassword: string,
+    acceptTerms: boolean,
+    acceptPrivacy: boolean
+  ) {
+    super();
+    this.email = email;
+    this.phoneNumber = phoneNumber;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.businessName = businessName;
+    this.businessAddress = businessAddress;
+    this.tradeLicenseNumber = tradeLicenseNumber;
+    this.nidNumber = nidNumber;
+    this.password = password;
+    this.confirmPassword = confirmPassword;
+    this.acceptTerms = acceptTerms;
+    this.acceptPrivacy = acceptPrivacy;
+  }
+
+  /**
+   * Check if passwords match
+   */
+  public passwordsMatch(): boolean {
+    return this.password === this.confirmPassword;
+  }
+
+  /**
+   * Check if age meets vendor requirements (min 18)
+   */
+  public isVendorAgeValid(age: number): boolean {
+    return age >= AGE_CONFIG.MIN_AGE_VENDOR;
+  }
+}
+
+// ============================================================
+// ✅ ENTERPRISE ENHANCEMENT: Registration Response DTO
+// ============================================================
+
+export class RegisterResponseDto {
+  @ApiProperty({
+    description: 'Success status',
+    example: true,
+  })
+  success: boolean;
+
+  @ApiProperty({
+    description: 'User ID',
+    example: 'usr_550e8400-e29b-41d4-a716-446655440000',
+  })
+  userId: string;
+
+  @ApiPropertyOptional({
+    description: 'User email',
+    example: 'user@vubon.com.bd',
+  })
+  email?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'User phone number',
+    example: '+8801712345678',
+  })
+  phoneNumber?: string | undefined;
 
   @ApiProperty({
     description: 'Whether email verification is required',
     example: true,
   })
-  requiresEmailVerification: boolean;
+  emailVerificationRequired: boolean = false;
 
   @ApiProperty({
     description: 'Whether phone verification is required',
     example: false,
   })
-  requiresPhoneVerification: boolean;
+  phoneVerificationRequired: boolean = false;
 
   @ApiPropertyOptional({
-    description: 'Timestamp when user was created',
-    example: '2024-01-01T00:00:00.000Z',
-    format: 'date-time',
+    description: 'Success message in English',
+    example: 'Registration successful',
   })
-  createdAt?: string;
+  message?: string | undefined;
 
   @ApiPropertyOptional({
-    description: 'Initial session ID (if auto-login after registration)',
-    example: 'sess_abc123',
+    description: 'Success message in Bengali',
+    example: 'নিবন্ধন সফল হয়েছে',
   })
-  sessionId?: string;
+  messageBn?: string | undefined;
+
+   @ApiPropertyOptional({
+    description: 'Whether approval is required (for vendors)',
+    example: false,
+    default: false,
+  })
+  requiresApproval: boolean = false;
 
   @ApiPropertyOptional({
-    description: 'Access token (if auto-login is enabled)',
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+    description: 'Redirect URL for next steps',
+    example: '/verify-email',
   })
-  accessToken?: string;
-
-  @ApiPropertyOptional({
-    description: 'User tier after registration',
-    enum: Object.values(USER_TIERS),
-    example: USER_TIERS.BRONZE,
-  })
-  userTier?: UserTier;
+  @IsOptional()
+  @IsUrl()
+  redirectUrl?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for tracing',
     example: 'corr_550e8400-e29b-41d4-a716-446655440000',
   })
-  correlationId?: string;
+  correlationId?: string | undefined;
 
-  // ✅ ENTERPRISE ENHANCEMENT: Rate limit metadata
   @ApiPropertyOptional({
     description: 'Rate limit metadata',
     type: RegistrationRateLimitDto,
   })
-  rateLimit?: RegistrationRateLimitDto;
+  rateLimit?: RegistrationRateLimitDto | undefined;
 
-  constructor(
-    userId: string, 
-    requiresEmailVerification: boolean = true,
-    requiresPhoneVerification: boolean = false,
-    createdAt?: Date,
-    sessionId?: string,
-    accessToken?: string,
-    email?: string,
-    phoneNumber?: string,
+ constructor(
+    success: boolean,
+    userId: string,
+    emailVerificationRequired: boolean = false,
+    phoneVerificationRequired: boolean = false,
     message?: string,
     messageBn?: string,
-    userTier?: UserTier,
+    requiresApproval: boolean = false,  // ← ডিফল্ট false
+    redirectUrl?: string,
     correlationId?: string,
     rateLimit?: RegistrationRateLimitDto
   ) {
+    this.success = success;
     this.userId = userId;
-    this.email = email;
-    this.phoneNumber = phoneNumber;
-    this.message = message || (requiresEmailVerification 
-      ? 'User registered successfully. Please verify your email.' 
-      : 'User registered successfully. You can now log in.');
+    this.emailVerificationRequired = emailVerificationRequired;
+    this.phoneVerificationRequired = phoneVerificationRequired;
+    this.message = message;
     this.messageBn = messageBn;
-    this.requiresEmailVerification = requiresEmailVerification;
-    this.requiresPhoneVerification = requiresPhoneVerification;
-    if (createdAt) {
-      this.createdAt = createdAt.toISOString();
-    }
-    if (sessionId) {
-      this.sessionId = sessionId;
-    }
-    if (accessToken) {
-      this.accessToken = accessToken;
-    }
-    this.userTier = userTier;
+    this.requiresApproval = requiresApproval;  // ✅ এখন কাজ করবে
+    this.redirectUrl = redirectUrl;
     this.correlationId = correlationId;
     this.rateLimit = rateLimit;
   }
 }
 
+
 // ============================================================
-// ✅ ENTERPRISE ENHANCEMENT: Welcome Email Preferences DTO
+// ✅ ENTERPRISE ENHANCEMENT: Registration Error Response DTO
+// ============================================================
+
+export class RegisterErrorResponseDto {
+  @ApiProperty({
+    description: 'Error status code',
+    example: 400,
+  })
+  statusCode: number;
+
+  @ApiProperty({
+    description: 'Error message in English',
+    example: 'Email already exists',
+  })
+  message: string;
+
+  @ApiPropertyOptional({
+    description: 'Error message in Bengali',
+    example: 'ইমেইল ইতিমধ্যে বিদ্যমান',
+  })
+  messageBn?: string | undefined;
+
+  @ApiProperty({
+    description: 'Error code',
+    example: 'EMAIL_ALREADY_EXISTS',
+    enum: [
+      'EMAIL_ALREADY_EXISTS',
+      'PHONE_ALREADY_EXISTS',
+      'USERNAME_ALREADY_EXISTS',
+      'INVALID_REFERRAL_CODE',
+      'INVALID_CAPTCHA',
+      'PASSWORD_TOO_WEAK',
+      'TERMS_NOT_ACCEPTED',
+      'PRIVACY_NOT_ACCEPTED',
+      'UNDERAGE',
+      'INVALID_TRADE_LICENSE',
+      'INVALID_NID',
+      'INVALID_TIN',
+      'BUSINESS_ALREADY_REGISTERED',
+      'PHONE_NOT_VERIFIED',
+      'EMAIL_NOT_VERIFIED',
+    ],
+  })
+  error: string;
+
+  @ApiPropertyOptional({
+    description: 'Field name that caused the error',
+    example: 'email',
+  })
+  field?: string | undefined;
+
+  @ApiProperty({
+    description: 'Timestamp of error',
+    example: '2024-01-01T00:00:00.000Z',
+    format: 'date-time',
+  })
+  timestamp: string;
+
+  @ApiPropertyOptional({
+    description: 'Correlation ID for tracing',
+    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
+  })
+  correlationId?: string | undefined;
+
+  constructor(
+    message: string,
+    error: string,
+    statusCode?: number,
+    messageBn?: string,
+    field?: string,
+    correlationId?: string
+  ) {
+    this.statusCode = statusCode || 400;
+    this.message = message;
+    this.messageBn = messageBn;
+    this.error = error;
+    this.field = field;
+    this.timestamp = new Date().toISOString();
+    this.correlationId = correlationId;
+  }
+}
+
+// ============================================================
+// ✅ ENTERPRISE ENHANCEMENT: Helper Functions
 // ============================================================
 
 /**
- * Welcome email preferences
+ * Create a success response for registration
  */
-export class WelcomeEmailPreferencesDto {
-  @ApiPropertyOptional({
-    description: 'Send welcome email',
-    example: true,
-    default: true,
-  })
-  @IsOptional()
-  @IsBoolean()
-  sendWelcomeEmail?: boolean = true;
+export function createRegisterSuccessResponse(
+  userId: string,
+  emailVerificationRequired: boolean = false,
+  phoneVerificationRequired: boolean = false,
+  message?: string,
+  messageBn?: string,
+  requiresApproval?: boolean,
+  redirectUrl?: string,
+  correlationId?: string,
+  rateLimit?: RegistrationRateLimitDto
+): RegisterResponseDto {
+  const defaultMessage = 'Registration successful';
+  const defaultMessageBn = 'নিবন্ধন সফল হয়েছে';
 
-  @ApiPropertyOptional({
-    description: 'Welcome email language',
-    example: 'bn',
-    enum: ['en', 'bn'],
-    default: 'en',
-  })
-  @IsOptional()
-  @IsEnum(['en', 'bn'])
-  welcomeEmailLanguage?: 'en' | 'bn' = 'en';
+  return new RegisterResponseDto(
+    true,
+    userId,
+    emailVerificationRequired,
+    phoneVerificationRequired,
+    message || defaultMessage,
+    messageBn || defaultMessageBn,
+    requiresApproval,
+    redirectUrl,
+    correlationId,
+    rateLimit
+  );
+}
 
-  @ApiPropertyOptional({
-    description: 'Include getting started guide',
-    example: true,
-    default: false,
-  })
-  @IsOptional()
-  @IsBoolean()
-  includeGettingStarted?: boolean = false;
+/**
+ * Create an error response for registration
+ */
+export function createRegisterErrorResponse(
+  message: string,
+  error: string,
+  statusCode: number = 400,
+  messageBn?: string,
+  field?: string,
+  correlationId?: string
+): RegisterErrorResponseDto {
+  return new RegisterErrorResponseDto(
+    message,
+    error,
+    statusCode,
+    messageBn,
+    field,
+    correlationId
+  );
+}
+
+/**
+ * Get age validation result for customer registration
+ */
+export function validateCustomerAge(age: number): {
+  valid: boolean;
+  message: string;
+  messageBn: string;
+} {
+  if (age < AGE_CONFIG.MIN_AGE_CUSTOMER) {
+    return {
+      valid: false,
+      message: `You must be at least ${AGE_CONFIG.MIN_AGE_CUSTOMER} years old to register`,
+      messageBn: `নিবন্ধনের জন্য আপনার বয়স কমপক্ষে ${AGE_CONFIG.MIN_AGE_CUSTOMER} বছর হতে হবে`,
+    };
+  }
+  if (age > AGE_CONFIG.MAX_AGE) {
+    return {
+      valid: false,
+      message: `Age cannot exceed ${AGE_CONFIG.MAX_AGE} years`,
+      messageBn: `বয়স ${AGE_CONFIG.MAX_AGE} বছরের বেশি হতে পারে না`,
+    };
+  }
+  return {
+    valid: true,
+    message: 'Age validation passed',
+    messageBn: 'বয়স যাচাই পাস হয়েছে',
+  };
+}
+
+/**
+ * Get age validation result for vendor registration
+ */
+export function validateVendorAge(age: number): {
+  valid: boolean;
+  message: string;
+  messageBn: string;
+} {
+  if (age < AGE_CONFIG.MIN_AGE_VENDOR) {
+    return {
+      valid: false,
+      message: `You must be at least ${AGE_CONFIG.MIN_AGE_VENDOR} years old to register as a vendor`,
+      messageBn: `বিক্রেতা হিসেবে নিবন্ধনের জন্য আপনার বয়স কমপক্ষে ${AGE_CONFIG.MIN_AGE_VENDOR} বছর হতে হবে`,
+    };
+  }
+  if (age > AGE_CONFIG.MAX_AGE) {
+    return {
+      valid: false,
+      message: `Age cannot exceed ${AGE_CONFIG.MAX_AGE} years`,
+      messageBn: `বয়স ${AGE_CONFIG.MAX_AGE} বছরের বেশি হতে পারে না`,
+    };
+  }
+  return {
+    valid: true,
+    message: 'Vendor age validation passed',
+    messageBn: 'বিক্রেতার বয়স যাচাই পাস হয়েছে',
+  };
+}
+
+/**
+ * Get audit metadata from registration request
+ */
+export function getRegisterAuditMetadata(
+  dto:
+    | EmailRegisterDto
+    | PhoneRegisterDto
+    | OTPRegisterDto
+    | UsernameRegisterDto
+    | SocialRegisterDto
+    | VendorRegisterDto,
+  userId: string
+): RegistrationMetadata {
+  return {
+    source: 'web',
+    userId: userId,
+    ipAddress: dto.clientInfo?.ipAddress,
+    userAgent: dto.clientInfo?.userAgent,
+    deviceId: dto.deviceId,
+    timestamp: new Date(),
+    district: dto.clientInfo?.district,
+    networkType: dto.clientInfo?.networkType as '2g' | '3g' | '4g' | '5g' | 'wifi' | 'unknown' | undefined,
+  };
 }
 
 // ============================================================
 // Type Exports
 // ============================================================
 
-export type { 
-  PASSWORD_HINTS as PasswordHints,
+export type {
+  RegistrationMethod as RegistrationMethodType,
+  TUserTier as UserTierType,
+  TUserRole as UserRoleType,
   ClientInfoDto as ClientInfoDtoType,
-  ConsentDto as ConsentDtoType,
   RegistrationRateLimitDto as RegistrationRateLimitDtoType,
-  WelcomeEmailPreferencesDto as WelcomeEmailPreferencesDtoType,
+  RegisterResponseDto as RegisterResponseDtoType,
+  RegisterErrorResponseDto as RegisterErrorResponseDtoType,
 };
 
 // ============================================================
-// ENTERPRISE SUMMARY v3.0
+// ENTERPRISE SUMMARY v2.0
 // ============================================================
-// 
+//
 // Enterprise Enhancements Applied:
-// 1. ✅ Shared decorators (Match validator moved to shared/decorators)
-// 2. ✅ Device fingerprint support for fraud prevention
-// 3. ✅ Client info tracking (IP, userAgent, location, networkType)
-// 4. ✅ Rate limit metadata integration
-// 5. ✅ CAPTCHA support for bot protection
-// 6. ✅ Referral system with validation
-// 7. ✅ Welcome email preferences
-// 8. ✅ Multi-language support (en/bn) throughout
-// 9. ✅ Age verification for compliance
-// 10. ✅ GDPR consent management
-// 11. ✅ Correlation ID for distributed tracing
-// 12. ✅ Helper methods for common operations
-// 13. ✅ Phone number normalization utility
-// 14. ✅ Locale-based validation messages
-// 
+// 1. ✅ Multi-method registration (Email, Phone, Social, Username, Vendor)
+// 2. ✅ Device fingerprint support
+// 3. ✅ Rate limit metadata
+// 4. ✅ Bengali error messages
+// 5. ✅ Referral code support
+// 6. ✅ Age verification (Bangladesh specific)
+// 7. ✅ Client info tracking
+// 8. ✅ Audit log correlation
+// 9. ✅ Distributed tracing support
+// 10. ✅ Vendor registration (Bangladesh specific)
+// 11. ✅ OTP-based registration
+// 12. ✅ Social registration with provider support
+// 13. ✅ Helper functions for response creation
+// 14. ✅ Audit metadata extraction
+// 15. ✅ Multi-language validation messages
+//
 // Bangladesh Specific:
-// - Phone number validation with +880 format
-// - WhatsApp consent option
+// - Phone number validation with REGEX_PHONE
+// - NID, TIN, Trade License support
+// - District and upazila tracking
 // - Network type tracking (2g/3g/4g/5g/wifi)
-// - District tracking for location-based services
-// - Bengali language support (messageBn)
-// - SMS/WhatsApp/Voice verification methods
-// 
+// - Bengali message support
+// - Vendor age verification (18+)
+// - Customer age verification (13+)
+//
 // ============================================================
