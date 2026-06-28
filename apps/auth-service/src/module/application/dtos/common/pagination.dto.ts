@@ -119,7 +119,6 @@ function getValidationMessage(
   // Fallback: return the key itself or a default message
   return String(args[0] ?? `Validation error for ${key}`);
 }
-  
 
 // ============================================================
 // Re-export for backward compatibility
@@ -332,15 +331,13 @@ export class PaginationQueryDto {
   }
 
   /**
- * ✅ Enterprise: Get validation message in appropriate language
- */
-getMessage(field: string, key: keyof typeof VALIDATION_MESSAGES.en, ...args: unknown[]): string {
-  const locale = this.locale || 'en';
-  // field ব্যবহার করে মেসেজে ফিল্ড নাম বসান
-  const message = getValidationMessage(key, locale, ...args);
-  // ফিল্ড নামটি মেসেজের সাথে রিপ্লেস করুন
-  return message.replace(/\{field\}/g, field);
-}
+   * ✅ Enterprise: Get validation message in appropriate language
+   */
+  getMessage(field: string, key: keyof typeof VALIDATION_MESSAGES.en, ...args: unknown[]): string {
+    const locale = this.locale || 'en';
+    const message = getValidationMessage(key, locale, ...args);
+    return message.replace(/\{field\}/g, field);
+  }
 
   /**
    * ✅ Enterprise: Check if request has tracing context
@@ -351,24 +348,21 @@ getMessage(field: string, key: keyof typeof VALIDATION_MESSAGES.en, ...args: unk
 
   /**
    * ✅ Enterprise: Get audit metadata for this request
-   * ✅ FIXED: Removed tenantId from Partial<AuditMetadata>
+   * ✅ FIXED: tenantId moved to metadata field
    */
-  /**
- * ✅ Enterprise: Get audit metadata for this request
- * ✅ FIXED: tenantId moved to metadata field
- */
-getAuditMetadata(): Record<string, unknown> {
-  return {
-    requestId: this.context?.correlationId,
-    userId: this.context?.userId,
-    timestamp: new Date(),
-    source: 'api',
-    metadata: {
-      tenantId: this.context?.tenantId,
-      district: this.context?.district,
-      division: this.context?.division,
-    },
-  };
+  getAuditMetadata(): Record<string, unknown> {
+    return {
+      requestId: this.context?.correlationId,
+      userId: this.context?.userId,
+      timestamp: new Date(),
+      source: 'api',
+      metadata: {
+        tenantId: this.context?.tenantId,
+        district: this.context?.district,
+        division: this.context?.division,
+      },
+    };
+  }
 }
 
 /**
@@ -382,7 +376,6 @@ getAuditMetadata(): Record<string, unknown> {
  *   "sortOrder": "DESC"
  * }
  */
-
 export class PaginationDto {
   @ApiProperty({
     description: 'Page number (1-indexed)',
@@ -476,6 +469,23 @@ export class PaginationDto {
  * - Added direction support (next/prev)
  * - Enhanced validation with locale support
  */
+/**
+ * Cursor-based Pagination Request DTO (Enhanced)
+ * For large datasets (better performance)
+ * 
+ * @example
+ * {
+ *   "cursor": "usr_550e8400-e29b-41d4-a716-446655440000",
+ *   "limit": 20,
+ *   "sortBy": "createdAt",
+ *   "sortOrder": "DESC"
+ * }
+ * 
+ * ✅ Enterprise Enhancement:
+ * - Added cursor encoding/decoding utilities
+ * - Added direction support (next/prev)
+ * - Enhanced validation with locale support
+ */
 export class CursorPaginationDto {
   @ApiPropertyOptional({
     description: 'Cursor ID for pagination (last item ID from previous page)',
@@ -484,7 +494,8 @@ export class CursorPaginationDto {
   })
   @IsOptional()
   @IsUUID('all', { message: () => getValidationMessage('cursorInvalid', 'en') })
-  cursor?: string;
+  // ✅ FIXED: Explicitly include undefined to satisfy exactOptionalPropertyTypes
+  cursor: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Number of items per page',
@@ -575,7 +586,6 @@ export class CursorPaginationDto {
 
   constructor(limit: number = PAGINATION.DEFAULT_LIMIT, cursor?: string) {
     this.limit = limit;
-    // ✅ FIXED: cursor property assigned (optional can be undefined)
     this.cursor = cursor;
   }
 }
@@ -584,6 +594,10 @@ export class CursorPaginationDto {
 // Response DTOs (Enhanced)
 // ============================================================
 
+/**
+ * Pagination Metadata DTO (Enhanced)
+ * ✅ Enterprise: Added performance metrics and audit info
+ */
 /**
  * Pagination Metadata DTO (Enhanced)
  * ✅ Enterprise: Added performance metrics and audit info
@@ -607,40 +621,42 @@ export class PaginationMetadataDto {
   @ApiProperty({ description: 'Whether there is a previous page', example: false })
   hasPreviousPage: boolean;
 
-  // ✅ Enterprise: Audit correlation
+  // ✅ FIXED: Explicitly include undefined to satisfy exactOptionalPropertyTypes
   @ApiPropertyOptional({ 
     description: 'Correlation ID for audit trail', 
     example: 'corr_550e8400-e29b-41d4-a716-446655440000' 
   })
-  correlationId?: string;
+  correlationId: string | undefined;
 
-  // ✅ Enterprise: Performance metrics
+  // ✅ FIXED: Explicitly include undefined to satisfy exactOptionalPropertyTypes
   @ApiPropertyOptional({ 
     description: 'Query execution time in milliseconds', 
     example: 45 
   })
-  queryTimeMs?: number;
+  queryTimeMs: number | undefined;
 
+  // ✅ FIXED: Explicitly include undefined to satisfy exactOptionalPropertyTypes
   @ApiPropertyOptional({ 
     description: 'Next cursor (for cursor-based pagination)', 
     example: 'usr_550e8400-e29b-41d4-a716-446655440000' 
   })
-  nextCursor?: string;
+  nextCursor: string | undefined;
 
+  // ✅ FIXED: Explicitly include undefined to satisfy exactOptionalPropertyTypes
   @ApiPropertyOptional({ 
     description: 'Previous cursor (for cursor-based pagination)', 
     example: 'usr_550e8400-e29b-41d4-a716-446655440000' 
   })
-  prevCursor?: string;
+  prevCursor: string | undefined;
 
   constructor(
     page: number, 
     limit: number, 
     total: number, 
-    nextCursor?: string, 
-    prevCursor?: string,
-    queryTimeMs?: number,
-    correlationId?: string
+    nextCursor?: string | undefined, 
+    prevCursor?: string | undefined,
+    queryTimeMs?: number | undefined,
+    correlationId?: string | undefined
   ) {
     this.page = page;
     this.limit = limit;
@@ -654,7 +670,6 @@ export class PaginationMetadataDto {
     this.correlationId = correlationId;
   }
 }
-
 /**
  * Paginated Response DTO (Offset/Limit based) - Enhanced
  */
@@ -670,10 +685,10 @@ export class PaginatedResponseDto<T> {
     total: number, 
     page: number, 
     limit: number, 
-    nextCursor?: string, 
-    prevCursor?: string,
-    queryTimeMs?: number,
-    correlationId?: string
+    nextCursor?: string | undefined, 
+    prevCursor?: string | undefined,
+    queryTimeMs?: number | undefined,
+    correlationId?: string | undefined
   ) {
     this.items = items;
     this.pagination = new PaginationMetadataDto(page, limit, total, nextCursor, prevCursor, queryTimeMs, correlationId);
@@ -744,6 +759,9 @@ export class PaginatedResponseDto<T> {
 /**
  * Cursor-based Paginated Response DTO (Enhanced)
  */
+/**
+ * Cursor-based Paginated Response DTO (Enhanced)
+ */
 export class CursorPaginatedResponseDto<T> {
   @ApiProperty({ description: 'List of items', isArray: true })
   items: T[];
@@ -757,21 +775,21 @@ export class CursorPaginatedResponseDto<T> {
   @ApiProperty({ description: 'Whether there are more items', example: true })
   hasMore: boolean;
 
-  // ✅ Enterprise: Performance metrics
+  // ✅ FIXED: Explicitly include undefined to satisfy exactOptionalPropertyTypes
   @ApiPropertyOptional({ description: 'Query execution time in milliseconds', example: 45 })
-  queryTimeMs?: number;
+  queryTimeMs: number | undefined;
 
-  // ✅ Enterprise: Audit correlation
+  // ✅ FIXED: Explicitly include undefined to satisfy exactOptionalPropertyTypes
   @ApiPropertyOptional({ description: 'Correlation ID for audit trail', example: 'corr_550e8400-e29b-41d4-a716-446655440000' })
-  correlationId?: string;
+  correlationId: string | undefined;
 
   constructor(
     items: T[], 
     nextCursor: string | null, 
     limit: number, 
     hasMore: boolean,
-    queryTimeMs?: number,
-    correlationId?: string
+    queryTimeMs?: number | undefined,
+    correlationId?: string | undefined
   ) {
     this.items = items;
     this.nextCursor = nextCursor;
