@@ -1,5 +1,5 @@
 /**
- * Logout DTOs - Pure Data Transport Objects (Enterprise Enhanced v2.0)
+ * Logout DTOs - Pure Data Transport Objects (Enterprise Enhanced v2.0) - FIXED
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module application/dtos/auth/logout.dto
@@ -37,47 +37,37 @@ import {
   IsUUID,
   IsArray,
   ArrayMaxSize,
-  IsObject,
   ValidateNested,
   IsIP,
   IsDate,
   Min,
-  Max,
   IsNumber,
-  IsEnum, 
+  IsEnum,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
 // ============================================================
-// Phase-1 Imports (shared-constants & shared-types)
+// Phase-1: shared-constants import (type-only for enums)
 // ============================================================
-
-// ✅ Phase-1: shared-constants থেকে ইম্পোর্ট
-import { 
-  LOGOUT_SCOPE, 
+import {
+  LOGOUT_SCOPE,
   ERROR_CODES,
-  ENV_CONFIG
 } from '@vubon/shared-constants';
 
-// ✅ Phase-1: shared-types থেকে টাইপ ইম্পোর্ট
-import type { 
-  LogoutScope as SharedLogoutScope, 
+// ============================================================
+// Phase-1: shared-types import (type-only for contracts)
+// ============================================================
+import type {
   ApiErrorCode,
-  BaseResponse,
   AuditMetadata,
   RequestContext,
 } from '@vubon/shared-types';
 
 // ============================================================
-// Environment detection
-// ============================================================
-
-const IS_PRODUCTION = ENV_CONFIG?.IS_PRODUCTION ?? false;
-
-// ============================================================
 // Types & Enums (Constants থেকে তৈরি)
 // ============================================================
+
 
 /**
  * Logout scope (based on shared-constants)
@@ -114,6 +104,25 @@ export enum SecurityEventCategory {
 // ============================================================
 
 /**
+ * Audit metadata DTO for Swagger documentation
+ */
+export class AuditMetadataDto {
+  @ApiPropertyOptional({ description: 'Request ID for tracing' })
+  requestId?: string;
+
+  @ApiPropertyOptional({ description: 'User ID who performed the action' })
+  userId?: string;
+
+  @ApiPropertyOptional({ description: 'Source of the request' })
+  source?: string;
+
+  @ApiPropertyOptional({ description: 'Timestamp of the action' })
+  timestamp?: Date;
+
+  @ApiPropertyOptional({ description: 'Additional metadata' })
+  metadata?: Record<string, unknown>;
+}
+/**
  * Audit context for logout operations
  */
 export class LogoutAuditContextDto {
@@ -123,7 +132,7 @@ export class LogoutAuditContextDto {
   })
   @IsOptional()
   @IsIP(undefined, { message: 'Invalid IP address format' })
-  ipAddress?: string;
+  ipAddress?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'User agent string',
@@ -132,7 +141,7 @@ export class LogoutAuditContextDto {
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  userAgent?: string;
+  userAgent?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for distributed tracing',
@@ -140,7 +149,7 @@ export class LogoutAuditContextDto {
   })
   @IsOptional()
   @IsUUID()
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'District (Bangladesh specific)',
@@ -149,7 +158,7 @@ export class LogoutAuditContextDto {
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  district?: string;
+  district?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Division (Bangladesh specific)',
@@ -158,7 +167,7 @@ export class LogoutAuditContextDto {
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  division?: string;
+  division?: string | undefined;
 
   constructor(partial?: Partial<LogoutAuditContextDto>) {
     if (partial) {
@@ -179,25 +188,25 @@ export class LogoutRateLimitDto {
   @IsOptional()
   @IsNumber()
   @Min(1)
-  windowSeconds?: number;
+  windowSeconds?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Max requests allowed', example: 10 })
   @IsOptional()
   @IsNumber()
   @Min(1)
-  maxRequests?: number;
+  maxRequests?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Remaining requests', example: 9 })
   @IsOptional()
   @IsNumber()
   @Min(0)
-  remaining?: number;
+  remaining?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Reset timestamp', example: '2024-01-01T00:01:00.000Z' })
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  resetAt?: Date;
+  resetAt?: Date | undefined;
 }
 
 // ============================================================
@@ -273,7 +282,7 @@ export class LogoutDto {
   })
   @IsOptional()
   @IsString({ message: 'Refresh token must be a string' })
-  refreshToken?: string;
+  refreshToken?: string | undefined;
   
   @ApiPropertyOptional({
     description: 'Logout scope',
@@ -285,7 +294,7 @@ export class LogoutDto {
   @IsIn(Object.values(LogoutScope), { 
     message: VALIDATION_MESSAGES.en.invalidScope
   })
-  scope?: LogoutScope = LogoutScope.CURRENT;
+  scope?: LogoutScope | undefined = LogoutScope.CURRENT;
   
   @ApiPropertyOptional({
     description: 'Specific session ID to revoke (used with scope="session")',
@@ -295,7 +304,7 @@ export class LogoutDto {
   @IsOptional()
   @IsUUID(4, { message: 'Session ID must be a valid UUID' })
   @MaxLength(255, { message: 'Session ID cannot exceed 255 characters' })
-  sessionId?: string;
+  sessionId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Device ID to revoke sessions from (used with scope="device")',
@@ -304,7 +313,7 @@ export class LogoutDto {
   @IsOptional()
   @IsString({ message: 'Device ID must be a string' })
   @MaxLength(255, { message: 'Device ID cannot exceed 255 characters' })
-  deviceId?: string;
+  deviceId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Reason for logout (for audit)',
@@ -314,7 +323,7 @@ export class LogoutDto {
   @IsOptional()
   @IsString({ message: 'Reason must be a string' })
   @MaxLength(500, { message: 'Reason cannot exceed 500 characters' })
-  reason?: string;
+  reason?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Whether to keep the current session when logging out from all devices',
@@ -323,7 +332,7 @@ export class LogoutDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Keep current must be a boolean' })
-  keepCurrent?: boolean = false;
+  keepCurrent?: boolean | undefined = false;
 
   // ✅ ENTERPRISE ENHANCEMENT: Logout source for audit
   @ApiPropertyOptional({
@@ -334,7 +343,7 @@ export class LogoutDto {
   })
   @IsOptional()
   @IsEnum(LogoutSource)
-  source?: LogoutSource = LogoutSource.USER_INITIATED;
+  source?: LogoutSource | undefined = LogoutSource.USER_INITIATED;
 
   // ✅ ENTERPRISE ENHANCEMENT: Audit context
   @ApiPropertyOptional({
@@ -344,7 +353,7 @@ export class LogoutDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => LogoutAuditContextDto)
-  auditContext?: LogoutAuditContextDto;
+  auditContext?: LogoutAuditContextDto | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Rate limit metadata
   @ApiPropertyOptional({
@@ -354,7 +363,7 @@ export class LogoutDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => LogoutRateLimitDto)
-  rateLimit?: LogoutRateLimitDto;
+  rateLimit?: LogoutRateLimitDto | undefined;
 
   constructor(
     refreshToken?: string, 
@@ -401,7 +410,7 @@ export class BulkLogoutDto {
     message: () => getValidationMessage('sessionIdsMax', [100]) 
   })
   @IsUUID(4, { each: true, message: 'Each session ID must be a valid UUID' })
-  sessionIds?: string[];
+  sessionIds?: string[] | undefined;
 
   @ApiPropertyOptional({
     description: 'Device IDs to revoke all sessions from (max 50)',
@@ -415,7 +424,7 @@ export class BulkLogoutDto {
     message: () => getValidationMessage('deviceIdsMax', [50]) 
   })
   @IsString({ each: true, message: 'Each device ID must be a string' })
-  deviceIds?: string[];
+  deviceIds?: string[] | undefined;
 
   @ApiPropertyOptional({
     description: 'Session IDs to exclude from revocation',
@@ -428,7 +437,7 @@ export class BulkLogoutDto {
     message: () => getValidationMessage('excludeCurrentMax') 
   })
   @IsUUID(4, { each: true, message: 'Each excluded session ID must be a valid UUID' })
-  excludeSessionIds?: string[];
+  excludeSessionIds?: string[] | undefined;
 
   @ApiPropertyOptional({
     description: 'Reason for bulk logout',
@@ -438,7 +447,7 @@ export class BulkLogoutDto {
   @IsOptional()
   @IsString({ message: 'Reason must be a string' })
   @MaxLength(500, { message: 'Reason cannot exceed 500 characters' })
-  reason?: string;
+  reason?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Logout source',
@@ -447,7 +456,7 @@ export class BulkLogoutDto {
   })
   @IsOptional()
   @IsEnum(LogoutSource)
-  source?: LogoutSource = LogoutSource.ADMIN_REVOKED;
+  source?: LogoutSource | undefined = LogoutSource.ADMIN_REVOKED;
 
   @ApiPropertyOptional({
     description: 'Audit context',
@@ -456,7 +465,7 @@ export class BulkLogoutDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => LogoutAuditContextDto)
-  auditContext?: LogoutAuditContextDto;
+  auditContext?: LogoutAuditContextDto | undefined;
 
   constructor(
     sessionIds?: string[],
@@ -515,7 +524,7 @@ export class LogoutAllDevicesDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Keep current must be a boolean' })
-  keepCurrent?: boolean = false;
+  keepCurrent?: boolean | undefined = false;
 
   @ApiPropertyOptional({
     description: 'Session IDs to exclude from revocation',
@@ -526,7 +535,7 @@ export class LogoutAllDevicesDto {
   @IsArray()
   @ArrayMaxSize(100)
   @IsUUID(4, { each: true })
-  excludeSessionIds?: string[];
+  excludeSessionIds?: string[] | undefined;
 
   @ApiPropertyOptional({
     description: 'Reason for logging out from all devices',
@@ -536,7 +545,7 @@ export class LogoutAllDevicesDto {
   @IsOptional()
   @IsString({ message: 'Reason must be a string' })
   @MaxLength(500, { message: 'Reason cannot exceed 500 characters' })
-  reason?: string;
+  reason?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Logout source',
@@ -545,7 +554,7 @@ export class LogoutAllDevicesDto {
   })
   @IsOptional()
   @IsEnum(LogoutSource)
-  source?: LogoutSource = LogoutSource.USER_INITIATED;
+  source?: LogoutSource | undefined = LogoutSource.USER_INITIATED;
   
   constructor(
     confirm: boolean, 
@@ -591,7 +600,7 @@ export class RevokeSessionDto {
   @IsOptional()
   @IsString({ message: 'Reason must be a string' })
   @MaxLength(500, { message: 'Reason cannot exceed 500 characters' })
-  reason?: string;
+  reason?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Revocation source for audit',
@@ -600,7 +609,7 @@ export class RevokeSessionDto {
   })
   @IsOptional()
   @IsEnum(LogoutSource)
-  source?: LogoutSource = LogoutSource.USER_INITIATED;
+  source?: LogoutSource | undefined = LogoutSource.USER_INITIATED;
   
   constructor(sessionId: string, reason?: string, source?: LogoutSource) {
     this.sessionId = sessionId;
@@ -637,7 +646,7 @@ export class RevokeDeviceSessionsDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Keep current must be a boolean' })
-  keepCurrent?: boolean = false;
+  keepCurrent?: boolean | undefined = false;
 
   @ApiPropertyOptional({
     description: 'Reason for revoking device sessions',
@@ -647,7 +656,7 @@ export class RevokeDeviceSessionsDto {
   @IsOptional()
   @IsString({ message: 'Reason must be a string' })
   @MaxLength(500, { message: 'Reason cannot exceed 500 characters' })
-  reason?: string;
+  reason?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Revocation source',
@@ -656,7 +665,7 @@ export class RevokeDeviceSessionsDto {
   })
   @IsOptional()
   @IsEnum(LogoutSource)
-  source?: LogoutSource = LogoutSource.USER_INITIATED;
+  source?: LogoutSource | undefined = LogoutSource.USER_INITIATED;
 
   constructor(deviceId: string, keepCurrent?: boolean, reason?: string, source?: LogoutSource) {
     this.deviceId = deviceId;
@@ -684,7 +693,7 @@ export class BaseLogoutResponseDto {
     description: 'Bengali success message (Bangladesh specific)',
     example: 'সফলভাবে লগআউট হয়েছে',
   })
-  messageBn?: string;
+  messageBn?: string | undefined;
   
   @ApiProperty({
     description: 'Timestamp of logout',
@@ -697,7 +706,7 @@ export class BaseLogoutResponseDto {
     description: 'Correlation ID for distributed tracing',
     example: 'corr_550e8400-e29b-41d4-a716-446655440000',
   })
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   constructor(message: string, messageBn?: string, correlationId?: string) {
     this.message = message;
@@ -723,36 +732,35 @@ export class LogoutResponseDto extends BaseLogoutResponseDto {
     example: 'current',
     enum: LogoutScope,
   })
-  scope?: LogoutScope;
+  scope?: LogoutScope | undefined;
   
   @ApiPropertyOptional({
     description: 'Revoked session IDs (for debugging)',
     example: ['sess_abc123', 'sess_def456'],
     isArray: true,
   })
-  revokedSessionIds?: string[];
+  revokedSessionIds?: string[] | undefined;
 
   @ApiPropertyOptional({
     description: 'Revoked device IDs (for debugging)',
     example: ['device_abc123'],
     isArray: true,
   })
-  revokedDeviceIds?: string[];
+  revokedDeviceIds?: string[] | undefined;
 
-  // ✅ ENTERPRISE ENHANCEMENT: Security event category
   @ApiPropertyOptional({
     description: 'Security event category for logging',
     enum: SecurityEventCategory,
     example: SecurityEventCategory.LOGOUT,
   })
-  securityCategory?: SecurityEventCategory;
+  securityCategory?: SecurityEventCategory | undefined;
 
-  // ✅ ENTERPRISE ENHANCEMENT: Audit metadata
+  // ✅ FIXED: Audit metadata with proper Swagger schema
   @ApiPropertyOptional({
     description: 'Audit metadata for the logout',
-    type: 'object',
+    type: () => AuditMetadataDto,  // ✅ Using the dummy DTO class
   })
-  auditMetadata?: AuditMetadata;
+  auditMetadata?: AuditMetadata | undefined;
 
   constructor(
     message: string, 
@@ -774,7 +782,6 @@ export class LogoutResponseDto extends BaseLogoutResponseDto {
     this.auditMetadata = auditMetadata;
   }
 }
-
 /**
  * Session Revoke Response DTO (Enhanced)
  */
@@ -789,14 +796,14 @@ export class RevokeSessionResponseDto extends BaseLogoutResponseDto {
     description: 'User ID whose session was revoked',
     example: 'usr_550e8400-e29b-41d4-a716-446655440000',
   })
-  userId?: string;
+  userId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Security event category',
     enum: SecurityEventCategory,
     example: SecurityEventCategory.SESSION_REVOCATION,
   })
-  securityCategory?: SecurityEventCategory;
+  securityCategory?: SecurityEventCategory | undefined;
 
   constructor(
     sessionId: string, 
@@ -828,20 +835,20 @@ export class LogoutAllDevicesResponseDto extends BaseLogoutResponseDto {
     description: 'Number of devices affected',
     example: 3,
   })
-  devicesAffected?: number;
+  devicesAffected?: number | undefined;
   
   @ApiPropertyOptional({
     description: 'Whether current session was kept',
     example: false,
   })
-  currentSessionKept?: boolean;
+  currentSessionKept?: boolean | undefined;
 
   @ApiPropertyOptional({
     description: 'Security event category',
     enum: SecurityEventCategory,
     example: SecurityEventCategory.MASS_LOGOUT,
   })
-  securityCategory?: SecurityEventCategory;
+  securityCategory?: SecurityEventCategory | undefined;
 
   constructor(
     sessionsRevoked: number, 
@@ -880,14 +887,14 @@ export class RevokeDeviceSessionsResponseDto extends BaseLogoutResponseDto {
     description: 'Whether current session was kept',
     example: true,
   })
-  currentSessionKept?: boolean;
+  currentSessionKept?: boolean | undefined;
 
   @ApiPropertyOptional({
     description: 'Security event category',
     enum: SecurityEventCategory,
     example: SecurityEventCategory.DEVICE_LOGOUT,
   })
-  securityCategory?: SecurityEventCategory;
+  securityCategory?: SecurityEventCategory | undefined;
 
   constructor(
     deviceId: string, 
@@ -933,25 +940,25 @@ export class BulkLogoutResponseDto extends BaseLogoutResponseDto {
     example: [{ sessionId: 'sess_failed', reason: 'Session not found' }],
     isArray: true,
   })
-  failures?: Array<{ sessionId?: string; deviceId?: string; reason: string }>;
+  failures?: Array<{ sessionId?: string | undefined; deviceId?: string | undefined; reason: string }> | undefined;
 
   @ApiPropertyOptional({
     description: 'Processing duration in milliseconds',
     example: 150,
   })
-  durationMs?: number;
+  durationMs?: number | undefined;
 
   @ApiPropertyOptional({
     description: 'Security event category',
     enum: SecurityEventCategory,
   })
-  securityCategory?: SecurityEventCategory;
+  securityCategory?: SecurityEventCategory | undefined;
 
   constructor(
     totalSessionsRevoked: number,
     successful: number,
     failed: number,
-    failures?: Array<{ sessionId?: string; deviceId?: string; reason: string }>,
+    failures?: Array<{ sessionId?: string | undefined; deviceId?: string | undefined; reason: string }>,
     message?: string,
     messageBn?: string,
     correlationId?: string,
@@ -988,14 +995,13 @@ export class LogoutErrorResponseDto {
     description: 'Bengali error message (Bangladesh specific)',
     example: 'অবৈধ রিফ্রেশ টোকেন প্রদান করা হয়েছে',
   })
-  messageBn?: string;
+  messageBn?: string | undefined;
   
   @ApiProperty({
     description: 'Error type (from shared-constants)',
     example: 'INVALID_TOKEN',
     enum: ERROR_CODES,
   })
-  // ✅ Phase-1: shared-types থেকে ইম্পোর্ট করা টাইপ
   error: ApiErrorCode;
   
   @ApiProperty({
@@ -1009,13 +1015,13 @@ export class LogoutErrorResponseDto {
     description: 'Correlation ID for tracing',
     example: 'corr_550e8400-e29b-41d4-a716-446655440000',
   })
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Retry after seconds (for rate limited responses)',
     example: 30,
   })
-  retryAfterSeconds?: number;
+  retryAfterSeconds?: number | undefined;
 
   constructor(
     message: string, 
@@ -1133,7 +1139,7 @@ export function createLogoutErrorResponse(
 export function createBulkLogoutResponse(
   total: number,
   successful: number,
-  failures?: Array<{ sessionId?: string; deviceId?: string; reason: string }>,
+  failures?: Array<{ sessionId?: string | undefined; deviceId?: string | undefined; reason: string }>,
   locale: 'en' | 'bn' = 'en',
   correlationId?: string,
   durationMs?: number
@@ -1176,11 +1182,12 @@ export function getLogoutAuditMetadata(
   const auditContext = 'auditContext' in dto ? dto.auditContext : undefined;
   
   return {
-    userId,
+    requestId: auditContext?.correlationId || '',
+    userId,  // ✅ userId সরাসরি
+    timestamp: new Date().toISOString(),  // ✅ timestamp সরাসরি
     source: 'api',
-    timestamp: new Date(),
-    requestId: auditContext?.correlationId,
-    metadata: {
+    // ✅ সব কাস্টম ডেটা additionalData এর ভিতরে রাখুন
+    additionalData: {
       reason: dto.reason,
       source: dto.source,
       scope: 'scope' in dto ? dto.scope : undefined,
@@ -1194,15 +1201,12 @@ export function getLogoutAuditMetadata(
     },
   };
 }
-
 // ============================================================
 // Type Exports
 // ============================================================
 
 export type { 
-  SharedLogoutScope, 
   ApiErrorCode, 
-  BaseResponse,
   AuditMetadata,
   RequestContext,
   LogoutAuditContextDto as LogoutAuditContextDtoType,
