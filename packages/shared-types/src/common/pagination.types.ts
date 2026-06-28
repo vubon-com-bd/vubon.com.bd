@@ -60,6 +60,42 @@ export interface PaginationSort {
   readonly priority?: number;      // For multi-column sorting
 }
 
+export type DateRange = 
+  | 'today' 
+  | 'yesterday' 
+  | 'last_7_days' 
+  | 'last_30_days' 
+  | 'last_90_days' 
+  | 'this_month' 
+  | 'last_month' 
+  | 'this_year' 
+  | 'custom';
+
+
+
+  export type FilterOperator = 
+  | 'eq' 
+  | 'ne' 
+  | 'gt' 
+  | 'gte' 
+  | 'lt' 
+  | 'lte' 
+  | 'contains' 
+  | 'startsWith' 
+  | 'endsWith' 
+  | 'in' 
+  | 'nin' 
+  | 'between';
+
+
+
+  export interface SearchConfig {
+  readonly minSearchLength: number;
+  readonly maxSearchLength: number;
+  readonly defaultSearchField: string;
+  readonly maxSearchResults: number;
+  readonly minSearchScore: number;
+}
 // ============================================================
 // Offset Pagination Response
 // ============================================================
@@ -68,6 +104,7 @@ export interface OffsetPaginationResponse<T> {
   readonly metadata: PaginationMetadata;
 }
 
+export type PaginationType = 'offset' | 'cursor';
 // ============================================================
 // Cursor-based Pagination Parameters
 // ============================================================
