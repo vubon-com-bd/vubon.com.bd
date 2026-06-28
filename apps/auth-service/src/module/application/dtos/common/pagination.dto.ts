@@ -45,7 +45,6 @@ import {
   IsArray,
   ArrayMaxSize,
   IsIn,
-  IsObject,
   IsNotEmpty,
   ValidateNested,
 } from 'class-validator';
@@ -60,20 +59,16 @@ import {
   SORT_DIRECTION,
   DATE_RANGE,
   SEARCH_CONFIG,
-  ENV_CONFIG,
 } from '@vubon/shared-constants';
 import type { 
   SortOrder as SharedSortOrder, 
   PaginationType as SharedPaginationType,
-  RequestContext,
   AuditMetadata,
 } from '@vubon/shared-types';
 
 // ============================================================
 // Constants (Enterprise Enhancement)
 // ============================================================
-
-const IS_PRODUCTION = ENV_CONFIG?.IS_PRODUCTION ?? false;
 
 /**
  * Validation messages in English and Bengali
