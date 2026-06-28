@@ -454,3 +454,40 @@ export interface UserWebhookPayload {
   readonly timestamp: Date;
   readonly metadata: Record<string, unknown>;
 }
+
+// ============================================================
+// Registration Method Types (Bangladesh specific)
+// ============================================================
+export type RegistrationMethod = 
+  | 'email'
+  | 'phone'
+  | 'social'
+  | 'username';
+
+// ============================================================
+// Registration Source Types
+// ============================================================
+export type RegistrationSource = 
+  | 'web'
+  | 'mobile_app'
+  | 'admin'
+  | 'social'
+  | 'api'
+  | 'vendor_platform';
+
+// ============================================================
+// Registration Metadata
+// ============================================================
+export interface RegistrationMetadata {
+  source?: RegistrationSource;
+  ipAddress?: string;
+  userAgent?: string;
+  deviceId?: string;
+  timestamp?: Date;
+  referrer?: string;
+  campaign?: string;
+  // Bangladesh specific
+  district?: string;
+  upazila?: string;
+  networkType?: '2g' | '3g' | '4g' | '5g' | 'wifi' | 'unknown';
+}
