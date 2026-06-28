@@ -37,12 +37,10 @@ import {
   IsBoolean,
   IsNumber,
   Min,
-  Max,
   ValidateIf,
   IsIn,
   IsArray,
   ArrayMaxSize,
-  IsObject,
   ValidateNested,
   IsDate,
 } from 'class-validator';
@@ -54,7 +52,6 @@ import {
   JWT_PATTERN, 
   TOKEN_TYPE,
   IPV4_PATTERN,
-  IPV6_PATTERN,
   ENV_CONFIG,
 } from '@vubon/shared-constants';
 
