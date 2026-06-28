@@ -28,6 +28,22 @@ export const AUTH_COOKIE_NAMES = {
   TRUSTED_DEVICE: 'trusted_device',
 } as const;
 
+
+// auth.constants.ts
+export const LOGOUT_SCOPE = {
+  CURRENT: 'current',
+  ALL: 'all',
+  SESSION: 'session',
+  DEVICE: 'device',
+  EXCEPT_CURRENT: 'except_current',
+} as const;
+
+export const ERROR_CODES = {
+  INVALID_TOKEN: 'INVALID_TOKEN',
+  SESSION_NOT_FOUND: 'SESSION_NOT_FOUND',
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  // ... অন্যান্য
+} as const;
 // ============================================================
 // HTTP Header names for authentication
 // ============================================================
