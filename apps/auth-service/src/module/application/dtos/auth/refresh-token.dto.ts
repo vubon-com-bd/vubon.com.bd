@@ -1,12 +1,12 @@
 /**
  * Refresh Token DTOs - Pure Data Transport Objects (Enterprise Enhanced v2.0)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module application/dtos/auth/refresh-token.dto
- * 
+ *
  * @description
  * Data transfer objects for token refresh functionality with enterprise features.
- * 
+ *
  * ENTERPRISE ENHANCEMENTS (v2.0):
  * ✅ Token rotation with family tracking
  * ✅ Device fingerprint validation
@@ -17,7 +17,7 @@
  * ✅ Token introspection (RFC 7662 compliant)
  * ✅ Bulk token revocation
  * ✅ Token usage analytics metadata
- * 
+ *
  * Enterprise Rules:
  * ✅ ONLY data transport
  * ✅ Validation decorators only (class-validator)
@@ -48,27 +48,19 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
 // ✅ Phase-1: shared-constants থেকে ইম্পোর্ট - এক জায়গায় সংরক্ষিত কনস্ট্যান্ট
-import { 
-  JWT_PATTERN, 
+import {
+  JWT_PATTERN,
   TOKEN_TYPE,
   IPV4_PATTERN,
-  ENV_CONFIG,
 } from '@vubon/shared-constants';
 
 // ✅ Phase-1: shared-types থেকে টাইপ ইম্পোর্ট - টাইপ সেফটি নিশ্চিতকরণ
-import type { 
-  UserRole, 
-  UserTier, 
+import type {
+  UserRole,
+  UserTier,
   TokenType,
-  PermissionString,
   AuditMetadata,
 } from '@vubon/shared-types';
-
-// ============================================================
-// Environment detection
-// ============================================================
-
-const IS_PRODUCTION = ENV_CONFIG?.IS_PRODUCTION ?? false;
 
 // ============================================================
 // ✅ ENTERPRISE ENHANCEMENT: Validation Messages (Multi-language)
@@ -130,25 +122,25 @@ export class TokenRefreshRateLimitDto {
   @IsOptional()
   @IsNumber()
   @Min(1)
-  windowSeconds?: number;
+  windowSeconds?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Max requests allowed', example: 50 })
   @IsOptional()
   @IsNumber()
   @Min(1)
-  maxRequests?: number;
+  maxRequests?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Remaining requests', example: 48 })
   @IsOptional()
   @IsNumber()
   @Min(0)
-  remaining?: number;
+  remaining?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Reset timestamp', example: '2024-01-01T00:01:00.000Z' })
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  resetAt?: Date;
+  resetAt?: Date | undefined;
 }
 
 // ============================================================
@@ -166,7 +158,7 @@ export class TokenRefreshClientInfoDto {
   @IsOptional()
   @IsString()
   @MaxLength(500, { message: () => getValidationMessage('userAgentMaxLength') })
-  userAgent?: string;
+  userAgent?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'IP address for security logging',
@@ -176,7 +168,7 @@ export class TokenRefreshClientInfoDto {
   @IsString()
   @ValidateIf(o => o.ipAddress !== undefined)
   @Matches(IPV4_PATTERN, { message: () => getValidationMessage('ipAddressInvalid') })
-  ipAddress?: string;
+  ipAddress?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Device fingerprint for validation',
@@ -186,7 +178,7 @@ export class TokenRefreshClientInfoDto {
   @IsOptional()
   @IsString()
   @MaxLength(128)
-  deviceFingerprint?: string;
+  deviceFingerprint?: string | undefined;
 
   // Bangladesh specific
   @ApiPropertyOptional({
@@ -196,7 +188,7 @@ export class TokenRefreshClientInfoDto {
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  district?: string;
+  district?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Network type (Bangladesh specific)',
@@ -205,7 +197,7 @@ export class TokenRefreshClientInfoDto {
   })
   @IsOptional()
   @IsIn(['2g', '3g', '4g', '5g', 'wifi', 'unknown'])
-  networkType?: string;
+  networkType?: string | undefined;
 }
 
 // ============================================================
@@ -214,7 +206,7 @@ export class TokenRefreshClientInfoDto {
 
 /**
  * Refresh Token Request DTO (Enterprise Enhanced)
- * 
+ *
  * @example
  * {
  *   "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -232,7 +224,8 @@ export class TokenRefreshClientInfoDto {
 export class RefreshTokenDto {
   @ApiProperty({
     description: 'Refresh token for obtaining new access token',
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidHlwZSI6InJlZnJlc2giLCJpYXQiOjE1MTYyMzkwMjJ9',
+    example:
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidHlwZSI6InJlZnJlc2giLCJpYXQiOjE1MTYyMzkwMjJ9',
     required: true,
     minLength: 20,
     maxLength: 2048,
@@ -251,7 +244,7 @@ export class RefreshTokenDto {
   @IsOptional()
   @IsString({ message: 'Device ID must be a string' })
   @MaxLength(255, { message: () => getValidationMessage('deviceIdMaxLength') })
-  deviceId?: string;
+  deviceId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Session ID for tracking',
@@ -259,7 +252,7 @@ export class RefreshTokenDto {
   })
   @IsOptional()
   @IsUUID(4, { message: () => getValidationMessage('sessionIdInvalid') })
-  sessionId?: string;
+  sessionId?: string | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Client info for security audit
   @ApiPropertyOptional({
@@ -269,7 +262,7 @@ export class RefreshTokenDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => TokenRefreshClientInfoDto)
-  clientInfo?: TokenRefreshClientInfoDto;
+  clientInfo?: TokenRefreshClientInfoDto | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Correlation ID for distributed tracing
   @ApiPropertyOptional({
@@ -278,7 +271,7 @@ export class RefreshTokenDto {
   })
   @IsOptional()
   @IsUUID()
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Rate limit metadata
   @ApiPropertyOptional({
@@ -288,12 +281,12 @@ export class RefreshTokenDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => TokenRefreshRateLimitDto)
-  rateLimit?: TokenRefreshRateLimitDto;
+  rateLimit?: TokenRefreshRateLimitDto | undefined;
 
   constructor(
-    refreshToken: string, 
-    deviceId?: string, 
-    sessionId?: string, 
+    refreshToken: string,
+    deviceId?: string,
+    sessionId?: string,
     clientInfo?: TokenRefreshClientInfoDto,
     correlationId?: string
   ) {
@@ -340,7 +333,8 @@ export class RefreshTokenDto {
 export class TokenRefreshResponseDto {
   @ApiProperty({
     description: 'New JWT access token',
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjQyNjIyfQ',
+    example:
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjQyNjIyfQ',
   })
   accessToken: string;
 
@@ -362,9 +356,10 @@ export class TokenRefreshResponseDto {
 
   @ApiPropertyOptional({
     description: 'New refresh token (if rotation is enabled)',
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidHlwZSI6InJlZnJlc2giLCJpYXQiOjE1MTYyMzkwMjJ9',
+    example:
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidHlwZSI6InJlZnJlc2giLCJpYXQiOjE1MTYyMzkwMjJ9',
   })
-  refreshToken?: string;
+  refreshToken?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Refresh token expiry time in seconds',
@@ -372,26 +367,26 @@ export class TokenRefreshResponseDto {
   })
   @IsNumber()
   @Min(1)
-  refreshExpiresIn?: number;
+  refreshExpiresIn?: number | undefined;
 
   @ApiPropertyOptional({
     description: 'Whether token rotation occurred',
     example: true,
   })
   @IsBoolean()
-  rotated?: boolean;
+  rotated?: boolean | undefined;
 
   @ApiPropertyOptional({
     description: 'New session ID (if session was rotated)',
     example: 'sess_550e8400-e29b-41d4-a716-446655440000',
   })
-  sessionId?: string;
+  sessionId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Token family ID',
     example: 'fam_550e8400-e29b-41d4-a716-446655440000',
   })
-  familyId?: string;
+  familyId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Rotation count for this token family',
@@ -399,19 +394,19 @@ export class TokenRefreshResponseDto {
   })
   @IsNumber()
   @Min(0)
-  rotationCount?: number;
+  rotationCount?: number | undefined;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for distributed tracing',
     example: 'corr_550e8400-e29b-41d4-a716-446655440000',
   })
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Rate limit metadata',
     type: TokenRefreshRateLimitDto,
   })
-  rateLimit?: TokenRefreshRateLimitDto;
+  rateLimit?: TokenRefreshRateLimitDto | undefined;
 
   constructor(
     accessToken: string,
@@ -456,7 +451,7 @@ export class TokenRevokeResponseDto {
     description: 'Bengali success message',
     example: 'টোকেন সফলভাবে রিভোক করা হয়েছে',
   })
-  messageBn?: string;
+  messageBn?: string | undefined;
 
   @ApiProperty({
     description: 'Revocation timestamp',
@@ -471,24 +466,24 @@ export class TokenRevokeResponseDto {
   })
   @IsNumber()
   @Min(0)
-  revokedCount?: number;
+  revokedCount?: number | undefined;
 
   @ApiPropertyOptional({
     description: 'Family ID if whole family was revoked',
     example: 'fam_550e8400-e29b-41d4-a716-446655440000',
   })
-  familyId?: string;
+  familyId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for distributed tracing',
     example: 'corr_550e8400-e29b-41d4-a716-446655440000',
   })
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   constructor(
-    message?: string, 
-    messageBn?: string, 
-    revokedCount?: number, 
+    message?: string,
+    messageBn?: string,
+    revokedCount?: number,
     familyId?: string,
     correlationId?: string
   ) {
@@ -516,89 +511,89 @@ export class TokenValidationResponseDto {
     description: 'User ID (if token is valid)',
     example: 'usr_550e8400-e29b-41d4-a716-446655440000',
   })
-  userId?: string;
+  userId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'User email (if token is valid)',
     example: 'user@vubon.com.bd',
   })
-  email?: string;
+  email?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'User role (if token is valid)',
     enum: ['SUPER_ADMIN', 'ADMIN', 'MODERATOR', 'USER', 'SELLER', 'VENDOR', 'DELIVERY_AGENT'],
     example: 'ADMIN',
   })
-  role?: UserRole;
+  role?: UserRole | undefined;
 
   @ApiPropertyOptional({
     description: 'User tier (loyalty program)',
     enum: ['BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'DIAMOND'],
     example: 'GOLD',
   })
-  tier?: UserTier;
+  tier?: UserTier | undefined;
 
   @ApiPropertyOptional({
     description: 'Token expiry timestamp (Unix timestamp)',
     example: 1704067200,
   })
-  exp?: number;
+  exp?: number | undefined;
 
   @ApiPropertyOptional({
     description: 'Token issued at timestamp (Unix timestamp)',
     example: 1704063600,
   })
-  iat?: number;
+  iat?: number | undefined;
 
   @ApiPropertyOptional({
     description: 'Token scopes/permissions',
     example: ['user:read', 'user:write'],
     isArray: true,
   })
-  scope?: string;
+  scope?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Client ID',
     example: 'vubon-web-app',
   })
-  client_id?: string;
+  client_id?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Token type (access or refresh)',
     enum: [TOKEN_TYPE.ACCESS, TOKEN_TYPE.REFRESH],
     example: TOKEN_TYPE.ACCESS,
   })
-  token_type?: TokenType;
+  token_type?: TokenType | undefined;
 
   @ApiPropertyOptional({
     description: 'Session ID associated with token',
     example: 'sess_550e8400-e29b-41d4-a716-446655440000',
   })
-  session_id?: string;
+  session_id?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Device ID associated with token',
     example: 'device_550e8400-e29b-41d4-a716-446655440000',
   })
-  device_id?: string;
+  device_id?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Token family ID',
     example: 'fam_550e8400-e29b-41d4-a716-446655440000',
   })
-  family_id?: string;
+  family_id?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Username',
     example: 'john_doe',
   })
-  username?: string;
+  username?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Active flag (RFC 7662)',
     example: true,
   })
-  active?: boolean;
+  active?: boolean | undefined;
 
   constructor(
     valid: boolean,
@@ -655,7 +650,7 @@ export class TokenFamilyRevokeDto {
   @IsOptional()
   @IsString({ message: 'Reason must be a string' })
   @MaxLength(500, { message: () => getValidationMessage('reasonMaxLength') })
-  reason?: string;
+  reason?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for distributed tracing',
@@ -663,7 +658,7 @@ export class TokenFamilyRevokeDto {
   })
   @IsOptional()
   @IsUUID()
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   constructor(familyId: string, reason?: string, correlationId?: string) {
     this.familyId = familyId;
@@ -686,7 +681,7 @@ export class TokenFamilyRevokeResponseDto {
     description: 'Bengali success message',
     example: 'টোকেন ফ্যামিলি সফলভাবে রিভোক করা হয়েছে',
   })
-  messageBn?: string;
+  messageBn?: string | undefined;
 
   @ApiProperty({
     description: 'Number of tokens revoked',
@@ -706,18 +701,18 @@ export class TokenFamilyRevokeResponseDto {
     example: ['usr_1', 'usr_2'],
     isArray: true,
   })
-  affectedUserIds?: string[];
+  affectedUserIds?: string[] | undefined;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for distributed tracing',
     example: 'corr_550e8400-e29b-41d4-a716-446655440000',
   })
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   constructor(
-    revokedCount: number, 
-    affectedUserIds?: string[], 
-    message?: string, 
+    revokedCount: number,
+    affectedUserIds?: string[],
+    message?: string,
     messageBn?: string,
     correlationId?: string
   ) {
@@ -753,7 +748,7 @@ export class BulkTokenRevokeDto {
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  reason?: string;
+  reason?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for distributed tracing',
@@ -761,7 +756,7 @@ export class BulkTokenRevokeDto {
   })
   @IsOptional()
   @IsUUID()
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   constructor(tokenIds: string[], reason?: string, correlationId?: string) {
     this.tokenIds = tokenIds;
@@ -803,20 +798,20 @@ export class BulkTokenRevokeResponseDto {
     example: [{ tokenId: 'token_1', reason: 'Token not found' }],
     isArray: true,
   })
-  failures?: Array<{ tokenId: string; reason: string }>;
+  failures?: Array<{ tokenId: string; reason: string }> | undefined;
 
   @ApiPropertyOptional({
     description: 'Revocation timestamp',
     example: '2024-01-01T00:00:00.000Z',
     format: 'date-time',
   })
-  revokedAt?: string;
+  revokedAt?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for distributed tracing',
     example: 'corr_550e8400-e29b-41d4-a716-446655440000',
   })
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   constructor(
     totalRequested: number,
@@ -855,12 +850,20 @@ export class TokenRefreshErrorResponseDto {
     description: 'Bengali error message',
     example: 'অবৈধ বা মেয়াদোত্তীর্ণ রিফ্রেশ টোকেন',
   })
-  messageBn?: string;
+  messageBn?: string | undefined;
 
   @ApiProperty({
     description: 'Error type',
     example: 'UNAUTHORIZED',
-    enum: ['UNAUTHORIZED', 'TOKEN_EXPIRED', 'TOKEN_REVOKED', 'TOKEN_MALFORMED', 'DEVICE_MISMATCH', 'SESSION_NOT_FOUND', 'FAMILY_COMPROMISED'],
+    enum: [
+      'UNAUTHORIZED',
+      'TOKEN_EXPIRED',
+      'TOKEN_REVOKED',
+      'TOKEN_MALFORMED',
+      'DEVICE_MISMATCH',
+      'SESSION_NOT_FOUND',
+      'FAMILY_COMPROMISED',
+    ],
   })
   error: string;
 
@@ -868,7 +871,7 @@ export class TokenRefreshErrorResponseDto {
     description: 'Error code for programmatic handling',
     example: 'TOKEN_EXPIRED',
   })
-  errorCode?: string;
+  errorCode?: string | undefined;
 
   @ApiProperty({
     description: 'Timestamp of error',
@@ -881,18 +884,18 @@ export class TokenRefreshErrorResponseDto {
     description: 'Correlation ID for tracing',
     example: 'corr_550e8400-e29b-41d4-a716-446655440000',
   })
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Retry after seconds (for rate limited responses)',
     example: 30,
   })
-  retryAfterSeconds?: number;
+  retryAfterSeconds?: number | undefined;
 
   constructor(
-    message: string, 
-    error: string, 
-    messageBn?: string, 
+    message: string,
+    error: string,
+    messageBn?: string,
     errorCode?: string,
     correlationId?: string,
     retryAfterSeconds?: number
@@ -986,7 +989,7 @@ export function createTokenIntrospectionResponse(
   if (!active || !payload) {
     return new TokenValidationResponseDto(false);
   }
-  
+
   return new TokenValidationResponseDto(
     true,
     payload.userId,
@@ -1013,11 +1016,11 @@ export function getRefreshTokenAuditMetadata(
   userId: string
 ): AuditMetadata {
   return {
+    requestId: dto.correlationId ?? `req_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
     userId,
     source: 'api',
     timestamp: new Date(),
-    requestId: dto.correlationId,
-    metadata: {
+    additionalData: {
       deviceId: dto.deviceId,
       sessionId: dto.sessionId,
       userAgent: dto.getUserAgent(),
@@ -1029,12 +1032,11 @@ export function getRefreshTokenAuditMetadata(
     },
   };
 }
-
 // ============================================================
 // Type Exports
 // ============================================================
 
-export type { 
+export type {
   TokenRefreshErrorResponseDto as TokenRefreshErrorResponse,
   TokenRefreshClientInfoDto as TokenRefreshClientInfoDtoType,
   TokenRefreshRateLimitDto as TokenRefreshRateLimitDtoType,
@@ -1043,7 +1045,7 @@ export type {
 // ============================================================
 // ENTERPRISE SUMMARY v2.0
 // ============================================================
-// 
+//
 // Enterprise Enhancements Applied:
 // 1. ✅ Token rotation with family tracking
 // 2. ✅ Device fingerprint validation
@@ -1060,11 +1062,11 @@ export type {
 // 13. ✅ Client info tracking for security audit
 // 14. ✅ Token family compromise detection
 // 15. ✅ Rotation count tracking
-// 
+//
 // Bangladesh Specific:
 // - District tracking for geolocation
 // - Network type tracking (2g/3g/4g/5g/wifi)
 // - Bengali message support (messageBn)
 // - Local timezone-aware timestamps
-// 
+//
 // ============================================================
