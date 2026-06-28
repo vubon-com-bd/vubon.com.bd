@@ -39,7 +39,6 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট - Single source of truth
 import type { ApiErrorCode as SharedErrorCode } from '@vubon/shared-types';
-
 // যেকোনো ফাইলে
 import { PAGINATION_CONFIG } from '@vubon/shared-config';
 
@@ -165,9 +164,16 @@ export class ValidationErrorDetail {
   ) {
     this.field = field;
     this.message = message;
-    this.messageBn = messageBn;
-    this.code = code;
-    this.rejectedValue = rejectedValue;
+    // ✅ FIXED: exactOptionalPropertyTypes-এর জন্য undefined check
+    if (messageBn !== undefined) {
+      this.messageBn = messageBn;
+    }
+    if (code !== undefined) {
+      this.code = code;
+    }
+    if (rejectedValue !== undefined) {
+      this.rejectedValue = rejectedValue;
+    }
   }
 }
 
@@ -232,14 +238,16 @@ export class ResponseMetadata {
   // ✅ Enterprise: Rate limit information
   @ApiPropertyOptional({ 
     description: 'Rate limit information for the request',
-    type: 'object'
+    type: 'object',
+    additionalProperties: true,
   })
   rateLimit?: RateLimitInfo;
 
   // ✅ Enterprise: Performance monitoring metrics
   @ApiPropertyOptional({ 
     description: 'Performance metrics for the request',
-    type: 'object'
+    type: 'object',
+    additionalProperties: true,
   })
   performance?: PerformanceMetrics;
 
@@ -255,15 +263,34 @@ export class ResponseMetadata {
     performance?: PerformanceMetrics
   ) {
     this.timestamp = new Date().toISOString();
-    this.path = path;
-    this.method = method;
-    this.durationMs = durationMs;
-    this.requestId = requestId;
-    this.correlationId = correlationId;
-    this.version = version;
-    this.environment = environment;
-    this.rateLimit = rateLimit;
-    this.performance = performance;
+    // ✅ FIXED: exactOptionalPropertyTypes-এর জন্য undefined check
+    if (path !== undefined) {
+      this.path = path;
+    }
+    if (method !== undefined) {
+      this.method = method;
+    }
+    if (durationMs !== undefined) {
+      this.durationMs = durationMs;
+    }
+    if (requestId !== undefined) {
+      this.requestId = requestId;
+    }
+    if (version !== undefined) {
+      this.version = version;
+    }
+    if (environment !== undefined) {
+      this.environment = environment;
+    }
+    if (correlationId !== undefined) {
+      this.correlationId = correlationId;
+    }
+    if (rateLimit !== undefined) {
+      this.rateLimit = rateLimit;
+    }
+    if (performance !== undefined) {
+      this.performance = performance;
+    }
   }
 }
 
@@ -313,7 +340,7 @@ export class BaseResponseDto<T> {
     description: 'Error code for programmatic handling', 
     enum: [
       'BAD_REQUEST', 'UNAUTHORIZED', 'FORBIDDEN', 'NOT_FOUND',
-      'CONFLICT', 'VALIDATION_ERROR', 'INTERNAL_ERROR', 
+      'CONFLICT', 'VALIDATION_ERROR', 'INTERNAL_SERVER_ERROR', 
       'TOO_MANY_REQUESTS', 'RATE_LIMITED', 'ACCOUNT_LOCKED',
       'ACCOUNT_SUSPENDED', 'EMAIL_NOT_VERIFIED', 'PHONE_NOT_VERIFIED',
       'MFA_REQUIRED', 'MFA_FAILED', 'TOKEN_EXPIRED', 'INVALID_CREDENTIALS'
@@ -366,13 +393,28 @@ export class BaseResponseDto<T> {
     this.success = success;
     this.statusCode = statusCode;
     this.message = message;
-    this.messageBn = messageBn;
-    this.errorCode = errorCode;
-    this.data = data;
-    this.errors = errors;
-    this.errorMessages = errorMessages;
-    this.errorMessagesBn = errorMessagesBn;
-    this.metadata = metadata;
+    // ✅ FIXED: exactOptionalPropertyTypes-এর জন্য undefined check
+    if (messageBn !== undefined) {
+      this.messageBn = messageBn;
+    }
+    if (errorCode !== undefined) {
+      this.errorCode = errorCode;
+    }
+    if (data !== undefined) {
+      this.data = data;
+    }
+    if (errors !== undefined) {
+      this.errors = errors;
+    }
+    if (errorMessages !== undefined) {
+      this.errorMessages = errorMessages;
+    }
+    if (errorMessagesBn !== undefined) {
+      this.errorMessagesBn = errorMessagesBn;
+    }
+    if (metadata !== undefined) {
+      this.metadata = metadata;
+    }
   }
 
   // ============================================================
@@ -575,23 +617,47 @@ export class BaseResponseDto<T> {
     messageBn?: string,
     rateLimitInfo?: Omit<RateLimitInfo, 'retryAfterSeconds'>
   ): BaseResponseDto<{ retryAfterSeconds: number; rateLimit?: RateLimitInfo }> {
-    // ✅ Enterprise: Add rate limit info to metadata if provided
-    const enhancedMetadata = metadata ? { ...metadata } : new ResponseMetadata();
-    if (rateLimitInfo) {
-      enhancedMetadata.rateLimit = {
+    // ✅ FIXED: exactOptionalPropertyTypes-এর জন্য explicit object creation
+    const dataObj: { retryAfterSeconds: number; rateLimit?: RateLimitInfo } = {
+      retryAfterSeconds,
+    };
+    if (rateLimitInfo !== undefined) {
+      dataObj.rateLimit = {
         ...rateLimitInfo,
         retryAfterSeconds,
       };
     }
 
+    let enhancedMetadata = metadata;
+    if (rateLimitInfo !== undefined && metadata !== undefined) {
+      // ✅ FIXED: নতুন মেটাডেটা অবজেক্ট তৈরি করা হয়েছে
+      const existingMetadata = metadata;
+      const rateLimitData: RateLimitInfo = {
+        ...rateLimitInfo,
+        retryAfterSeconds,
+      };
+      enhancedMetadata = new ResponseMetadata(
+        existingMetadata.path,
+        existingMetadata.method,
+        existingMetadata.durationMs,
+        existingMetadata.requestId,
+        existingMetadata.version,
+        existingMetadata.environment,
+        existingMetadata.correlationId,
+        rateLimitData,
+        existingMetadata.performance
+      );
+    }
+
     return new BaseResponseDto<{ retryAfterSeconds: number; rateLimit?: RateLimitInfo }>(
-      false, 429, message, { retryAfterSeconds, rateLimit: rateLimitInfo }, 
+      false, 429, message, dataObj, 
       undefined, undefined, enhancedMetadata, messageBn, 'TOO_MANY_REQUESTS'
     );
   }
 
   /**
    * Create a 500 Internal Server Error response
+   * ✅ FIXED: INTERNAL_SERVER_ERROR ব্যবহার করা হয়েছে
    * 
    * @param message - Error message in English
    * @param metadata - Optional response metadata
@@ -603,7 +669,7 @@ export class BaseResponseDto<T> {
     messageBn?: string
   ): BaseResponseDto<null> {
     return new BaseResponseDto<null>(
-      false, 500, message, null, undefined, undefined, metadata, messageBn, 'INTERNAL_ERROR'
+      false, 500, message, null, undefined, undefined, metadata, messageBn, 'INTERNAL_SERVER_ERROR'
     );
   }
 
@@ -656,8 +722,14 @@ export class BaseResponseDto<T> {
     messageBn?: string,
     mfaSessionId?: string
   ): BaseResponseDto<{ mfaMethods: string[]; mfaSessionId?: string }> {
+    // ✅ FIXED: exactOptionalPropertyTypes-এর জন্য explicit object creation
+    const dataObj: { mfaMethods: string[]; mfaSessionId?: string } = { mfaMethods };
+    if (mfaSessionId !== undefined) {
+      dataObj.mfaSessionId = mfaSessionId;
+    }
+
     return new BaseResponseDto<{ mfaMethods: string[]; mfaSessionId?: string }>(
-      false, 401, message, { mfaMethods, mfaSessionId }, 
+      false, 401, message, dataObj, 
       undefined, undefined, metadata, messageBn, 'MFA_REQUIRED'
     );
   }
@@ -697,6 +769,7 @@ export class BaseResponseDto<T> {
     messageBn?: string
   ): BaseResponseDto<T> {
     const metadata = new ResponseMetadata();
+    // ✅ FIXED: exactOptionalPropertyTypes-এর জন্য explicit assignment
     metadata.performance = performance;
     metadata.durationMs = performance.totalTimeMs;
     
@@ -796,10 +869,19 @@ export class PaginationMetadata {
     this.totalPages = Math.ceil(total / limit);
     this.hasNextPage = page < this.totalPages;
     this.hasPreviousPage = page > 1;
-    this.nextCursor = nextCursor;
-    this.prevCursor = prevCursor;
-    this.sortBy = sortBy;
-    this.sortOrder = sortOrder;
+    // ✅ FIXED: exactOptionalPropertyTypes-এর জন্য undefined check
+    if (nextCursor !== undefined) {
+      this.nextCursor = nextCursor;
+    }
+    if (prevCursor !== undefined) {
+      this.prevCursor = prevCursor;
+    }
+    if (sortBy !== undefined) {
+      this.sortBy = sortBy;
+    }
+    if (sortOrder !== undefined) {
+      this.sortOrder = sortOrder;
+    }
   }
 
   /**
@@ -927,7 +1009,10 @@ export class EmptyResponseDto {
 
   constructor(message: string = 'Operation completed successfully', messageBn?: string) {
     this.message = message;
-    this.messageBn = messageBn;
+    // ✅ FIXED: exactOptionalPropertyTypes-এর জন্য undefined check
+    if (messageBn !== undefined) {
+      this.messageBn = messageBn;
+    }
   }
 }
 
@@ -962,6 +1047,7 @@ export function createRateLimitedSuccessResponse<T>(
   message?: string
 ): BaseResponseDto<T> {
   const metadata = new ResponseMetadata();
+  // ✅ FIXED: exactOptionalPropertyTypes-এর জন্য explicit assignment
   metadata.rateLimit = rateLimitInfo;
   return BaseResponseDto.success(data, message ?? 'Operation successful', 200, metadata);
 }
@@ -970,7 +1056,8 @@ export function createRateLimitedSuccessResponse<T>(
 // Type Exports
 // ============================================================
 
-export type { ErrorCode, RateLimitInfo, PerformanceMetrics };
+// NOTE: ErrorCode, RateLimitInfo, PerformanceMetrics already exported as interfaces/types above
+// No need to re-export them here
 
 // ============================================================
 // ENTERPRISE SUMMARY v2.0
