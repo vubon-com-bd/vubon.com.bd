@@ -38,9 +38,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট - Single source of truth
-import type { ErrorCode as SharedErrorCode } from '@vubon/shared-types';
+import type { ApiErrorCode as SharedErrorCode } from '@vubon/shared-types';
 
-// ✅ Enterprise: Import pagination defaults from shared-config
+// যেকোনো ফাইলে
 import { PAGINATION_CONFIG } from '@vubon/shared-config';
 
 // ============================================================
