@@ -15,3 +15,4 @@ export * from './http-status.constants';
 export * from './regex.constants';
 export * from './cache.constants';
 export * from './queue.constants';
+export * from './validation-messages.constants';
