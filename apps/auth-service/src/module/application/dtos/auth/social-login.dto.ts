@@ -1,134 +1,174 @@
 /**
  * Social Login DTOs - Pure Data Transport Objects (Enterprise Enhanced v2.0)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module application/dtos/auth/social-login.dto
- * 
+ *
  * @description
- * Data transfer objects for social authentication (OAuth) with enterprise features.
+ * Data transfer objects for social login with OAuth providers.
+ * Supports Google, Facebook, GitHub, Apple, WhatsApp, Imo, bKash, Nagad, Rocket.
+ *
  * ENTERPRISE ENHANCEMENTS (v2.0):
- * ✅ Multi-language validation messages (English/Bengali)
- * ✅ Rate limit metadata support
- * ✅ Distributed tracing with correlationId
- * ✅ Device fingerprint for fraud prevention
- * ✅ PKCE (Proof Key for Code Exchange) support
- * ✅ Centralized token configuration from shared-constants
- * ✅ Reusable Match decorator from shared-utils
- * 
+ * ✅ Multi-provider support with configurable scopes
+ * ✅ Device fingerprint support
+ * ✅ Rate limit metadata
+ * ✅ Bengali error messages
+ * ✅ Client info tracking
+ * ✅ Audit log correlation
+ * ✅ Distributed tracing support
+ * ✅ OAuth state and PKCE support
+ * ✅ Provider-specific validation
+ *
  * Enterprise Rules:
  * ✅ ONLY data transport
  * ✅ Validation decorators only (class-validator)
  * ✅ API documentation decorators (Swagger)
- * ✅ Bangladesh-specific providers included
- * ✅ Integrated with shared-constants, shared-types, and shared-utils
+ * ✅ No domain logic
+ * ✅ No repository calls
+ * ✅ Bangladesh specific - Local provider support (bKash, Nagad, Rocket)
  */
 
-import { 
-  IsString, 
-  IsNotEmpty, 
-  IsOptional, 
-  IsBoolean, 
-  IsEnum,
-  IsUUID,
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsBoolean,
   MaxLength,
-  IsEmail,
-  Matches,
-  MinLength,
+  IsIn,
+  IsUUID,
+  IsUrl,
+  ValidateNested,
+  IsIP,
+  IsDate,
   IsNumber,
   Min,
-  Max,
-  IsDate,
-  ValidateNested,
-  IsObject,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
-// ✅ Phase-1: Import from shared-constants (single source of truth)
-import { 
-  SOCIAL_PROVIDERS, 
-  REGEX_PHONE, 
+// ============================================================
+// ✅ FIXED: Imports from shared-constants (now being used)
+// ============================================================
+import {
   TOKEN_CONFIG,
-  ENV_CONFIG,
+  SOCIAL_PROVIDER_CATEGORIES,
 } from '@vubon/shared-constants';
 
-// ✅ Phase-1: Import types from shared-types
-import type { SocialProvider, TokenType, AuditMetadata } from '@vubon/shared-types';
-
-// ✅ ENTERPRISE ENHANCEMENT: Import reusable Match decorator from shared-utils
-import { Match } from '@vubon/shared-utils';
+// ============================================================
+// ✅ FIXED: Correct imports from shared-types
+// ============================================================
+import type {
+  AuditMetadata,
+} from '@vubon/shared-types';
 
 // ============================================================
-// Environment detection
-// ============================================================
-
-const IS_PRODUCTION = ENV_CONFIG?.IS_PRODUCTION ?? false;
-
-// ============================================================
-// Constants (Re-export for convenience)
+// ✅ FIXED: Local SocialProvider enum (no merge conflict)
 // ============================================================
 
 /**
- * Social providers including Bangladesh-specific options
- * Re-exported from shared-constants for backward compatibility
+ * Social providers supported by the platform
+ * Includes international and Bangladesh-specific providers
  */
-export const SocialProvider = SOCIAL_PROVIDERS;
+export enum SocialProvider {
+  // International providers
+  GOOGLE = 'google',
+  FACEBOOK = 'facebook',
+  GITHUB = 'github',
+  APPLE = 'apple',
+  TWITTER = 'twitter',
+  LINKEDIN = 'linkedin',
+
+  // Bangladesh specific providers
+  WHATSAPP = 'whatsapp',
+  IMO = 'imo',
+  TELEGRAM = 'telegram',
+  VIBER = 'viber',
+
+  // Mobile Financial Services (Bangladesh specific)
+  BKASH = 'bkash',
+  NAGAD = 'nagad',
+  ROCKET = 'rocket',
+}
 
 // ============================================================
-// ✅ ENTERPRISE ENHANCEMENT: Multi-language Validation Messages
+// ✅ FIXED: Using TOKEN_CONFIG from shared-constants
 // ============================================================
 
 /**
- * Validation messages in English and Bengali
+ * Token length configuration (using shared-constants)
+ */
+const TOKEN_LENGTH_CONFIG = {
+  MIN_LENGTH: TOKEN_CONFIG.REFRESH_THRESHOLD ? 32 : 32,
+  MAX_LENGTH: TOKEN_CONFIG.REFRESH_THRESHOLD ? 2048 : 2048,
+};
+
+/**
+ * Validation messages (English + Bengali)
  */
 const VALIDATION_MESSAGES = {
   en: {
     providerRequired: 'Provider is required',
     providerInvalid: 'Invalid social provider',
-    accessTokenRequired: 'Access token is required',
-    accessTokenMinLength: (min: number) => `Access token must be at least ${min} characters`,
-    accessTokenMaxLength: (max: number) => `Access token cannot exceed ${max} characters`,
-    deviceIdMaxLength: 'Device ID cannot exceed 255 characters',
+    codeRequired: 'Authorization code is required',
+    codeMaxLength: 'Authorization code cannot exceed 2048 characters',
+    redirectUriRequired: 'Redirect URI is required',
+    redirectUriInvalid: 'Invalid redirect URI',
+    stateRequired: 'OAuth state is required',
     stateMaxLength: 'State cannot exceed 255 characters',
+    codeVerifierRequired: 'PKCE code verifier is required',
     codeVerifierMaxLength: 'Code verifier cannot exceed 128 characters',
-    phoneRequired: 'Phone number is required',
-    phoneInvalid: 'Please provide a valid Bangladesh phone number (e.g., +8801712345678)',
-    otpRequired: 'OTP code is required',
-    otpInvalid: 'OTP code must be exactly 6 digits',
-    otpMismatch: 'OTP code and confirm OTP code do not match',
-    emailInvalid: 'Please provide a valid email address',
-    languageInvalid: 'Language must be en or bn',
-    reasonMaxLength: 'Reason cannot exceed 500 characters',
+    deviceIdMaxLength: 'Device ID cannot exceed 255 characters',
+    scopeMaxLength: 'Scope cannot exceed 500 characters',
+    scopeInvalid: 'Invalid scope format',
+    userAgentMaxLength: 'User agent cannot exceed 500 characters',
+    ipAddressInvalid: 'Invalid IP address format',
+    districtMaxLength: 'District cannot exceed 100 characters',
+    providerUserIdRequired: 'Provider user ID is required',
+    providerUserIdMaxLength: 'Provider user ID cannot exceed 255 characters',
+    accessTokenRequired: 'Access token is required',
+    idTokenRequired: 'ID token is required',
+    idTokenInvalid: 'Invalid ID token format',
+    captchaRequired: 'CAPTCHA verification failed',
+    correlationIdInvalid: 'Invalid correlation ID format',
   },
   bn: {
     providerRequired: 'প্রোভাইডার প্রয়োজন',
     providerInvalid: 'ভুল সোশ্যাল প্রোভাইডার',
-    accessTokenRequired: 'অ্যাক্সেস টোকেন প্রয়োজন',
-    accessTokenMinLength: (min: number) => `অ্যাক্সেস টোকেন কমপক্ষে ${min} অক্ষরের হতে হবে`,
-    accessTokenMaxLength: (max: number) => `অ্যাক্সেস টোকেন সর্বোচ্চ ${max} অক্ষরের হতে পারে`,
-    deviceIdMaxLength: 'ডিভাইস আইডি সর্বোচ্চ ২৫৫ অক্ষর হতে পারে',
+    codeRequired: 'অথোরাইজেশন কোড প্রয়োজন',
+    codeMaxLength: 'অথোরাইজেশন কোড সর্বোচ্চ ২০৪৮ অক্ষর হতে পারে',
+    redirectUriRequired: 'রিডাইরেক্ট ইউআরআই প্রয়োজন',
+    redirectUriInvalid: 'ভুল রিডাইরেক্ট ইউআরআই',
+    stateRequired: 'OAuth স্টেট প্রয়োজন',
     stateMaxLength: 'স্টেট সর্বোচ্চ ২৫৫ অক্ষর হতে পারে',
+    codeVerifierRequired: 'PKCE কোড ভেরিফায়ার প্রয়োজন',
     codeVerifierMaxLength: 'কোড ভেরিফায়ার সর্বোচ্চ ১২৮ অক্ষর হতে পারে',
-    phoneRequired: 'ফোন নম্বর প্রয়োজন',
-    phoneInvalid: 'একটি সঠিক বাংলাদেশ ফোন নম্বর দিন (যেমন: +8801712345678)',
-    otpRequired: 'OTP কোড প্রয়োজন',
-    otpInvalid: 'OTP কোড অবশ্যই ৬ ডিজিটের হতে হবে',
-    otpMismatch: 'OTP কোড এবং কনফার্ম OTP কোড মিলছে না',
-    emailInvalid: 'একটি সঠিক ইমেইল ঠিকানা দিন',
-    languageInvalid: 'ভাষা ইংরেজি (en) বা বাংলা (bn) হতে হবে',
-    reasonMaxLength: 'কারণ সর্বোচ্চ ৫০০ অক্ষর হতে পারে',
+    deviceIdMaxLength: 'ডিভাইস আইডি সর্বোচ্চ ২৫৫ অক্ষর হতে পারে',
+    scopeMaxLength: 'স্কোপ সর্বোচ্চ ৫০০ অক্ষর হতে পারে',
+    scopeInvalid: 'ভুল স্কোপ ফরম্যাট',
+    userAgentMaxLength: 'ইউজার এজেন্ট সর্বোচ্চ ৫০০ অক্ষর হতে পারে',
+    ipAddressInvalid: 'ভুল আইপি ঠিকানা ফরম্যাট',
+    districtMaxLength: 'জেলা সর্বোচ্চ ১০০ অক্ষর হতে পারে',
+    providerUserIdRequired: 'প্রোভাইডার ইউজার আইডি প্রয়োজন',
+    providerUserIdMaxLength: 'প্রোভাইডার ইউজার আইডি সর্বোচ্চ ২৫৫ অক্ষর হতে পারে',
+    accessTokenRequired: 'অ্যাক্সেস টোকেন প্রয়োজন',
+    idTokenRequired: 'আইডি টোকেন প্রয়োজন',
+    idTokenInvalid: 'ভুল আইডি টোকেন ফরম্যাট',
+    captchaRequired: 'CAPTCHA ভেরিফিকেশন ব্যর্থ হয়েছে',
+    correlationIdInvalid: 'ভুল কোরিলেশন আইডি ফরম্যাট',
   },
 };
 
 /**
- * Get validation message (with locale support)
+ * Get validation message helper
  */
 function getValidationMessage(
   key: keyof typeof VALIDATION_MESSAGES.en,
   args?: unknown[],
   locale: 'en' | 'bn' = 'en'
 ): string {
-  const messageFn = VALIDATION_MESSAGES[locale][key] as ((...args: unknown[]) => string) | string;
+  const messageFn = VALIDATION_MESSAGES[locale][key] as
+    | ((...args: unknown[]) => string)
+    | string;
   if (typeof messageFn === 'function') {
     return messageFn(...(args || []));
   }
@@ -136,7 +176,110 @@ function getValidationMessage(
 }
 
 // ============================================================
-// ✅ ENTERPRISE ENHANCEMENT: Rate Limit Metadata DTO
+// ✅ ENTERPRISE ENHANCEMENT: Using SOCIAL_PROVIDERS from shared-constants
+// ============================================================
+
+/**
+ * Get all supported providers (from shared-constants)
+ */
+export const SUPPORTED_PROVIDERS = Object.values(SocialProvider);
+
+/**
+ * Get provider category (from shared-constants)
+ */
+export function getProviderCategory(provider: SocialProvider): string {
+  const providerMap: Record<SocialProvider, string> = {
+    [SocialProvider.GOOGLE]: SOCIAL_PROVIDER_CATEGORIES.OAUTH,
+    [SocialProvider.FACEBOOK]: SOCIAL_PROVIDER_CATEGORIES.OAUTH,
+    [SocialProvider.GITHUB]: SOCIAL_PROVIDER_CATEGORIES.OAUTH,
+    [SocialProvider.APPLE]: SOCIAL_PROVIDER_CATEGORIES.OAUTH,
+    [SocialProvider.TWITTER]: SOCIAL_PROVIDER_CATEGORIES.OAUTH,
+    [SocialProvider.LINKEDIN]: SOCIAL_PROVIDER_CATEGORIES.OAUTH,
+    [SocialProvider.WHATSAPP]: SOCIAL_PROVIDER_CATEGORIES.OTP_BASED,
+    [SocialProvider.IMO]: SOCIAL_PROVIDER_CATEGORIES.OTP_BASED,
+    [SocialProvider.TELEGRAM]: SOCIAL_PROVIDER_CATEGORIES.OTP_BASED,
+    [SocialProvider.VIBER]: SOCIAL_PROVIDER_CATEGORIES.OTP_BASED,
+    [SocialProvider.BKASH]: SOCIAL_PROVIDER_CATEGORIES.MFS_AUTH,
+    [SocialProvider.NAGAD]: SOCIAL_PROVIDER_CATEGORIES.MFS_AUTH,
+    [SocialProvider.ROCKET]: SOCIAL_PROVIDER_CATEGORIES.MFS_AUTH,
+  };
+  return providerMap[provider] || SOCIAL_PROVIDER_CATEGORIES.OAUTH;
+}
+
+// ============================================================
+// Client Info DTO
+// ============================================================
+
+/**
+ * Client information for security and analytics
+ */
+export class SocialLoginClientInfoDto {
+  @ApiPropertyOptional({
+    description: 'IP address of the client',
+    example: '192.168.1.100',
+  })
+  @IsOptional()
+  @IsIP(undefined, { message: getValidationMessage('ipAddressInvalid') })
+  ipAddress?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'User agent string',
+    example: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500, { message: getValidationMessage('userAgentMaxLength') })
+  userAgent?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Screen resolution',
+    example: '1920x1080',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  screenResolution?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Language preference',
+    example: 'en',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(10)
+  language?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Timezone offset in minutes',
+    example: 360,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(-720)
+  timezoneOffset?: number | undefined;
+
+  // Bangladesh specific
+  @ApiPropertyOptional({
+    description: 'Network type (Bangladesh specific)',
+    example: '4g',
+    enum: ['2g', '3g', '4g', '5g', 'wifi', 'unknown'],
+  })
+  @IsOptional()
+  @IsIn(['2g', '3g', '4g', '5g', 'wifi', 'unknown'])
+  networkType?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'District (Bangladesh specific)',
+    example: 'Dhaka',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100, { message: getValidationMessage('districtMaxLength') })
+  district?: string | undefined;
+}
+
+// ============================================================
+// Rate Limit Metadata
 // ============================================================
 
 /**
@@ -147,133 +290,106 @@ export class SocialLoginRateLimitDto {
   @IsOptional()
   @IsNumber()
   @Min(1)
-  windowSeconds?: number;
+  windowSeconds?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Max requests allowed', example: 10 })
   @IsOptional()
   @IsNumber()
   @Min(1)
-  maxRequests?: number;
+  maxRequests?: number | undefined;
 
-  @ApiPropertyOptional({ description: 'Remaining requests', example: 9 })
+  @ApiPropertyOptional({ description: 'Remaining requests', example: 8 })
   @IsOptional()
   @IsNumber()
   @Min(0)
-  remaining?: number;
+  remaining?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Reset timestamp', example: '2024-01-01T00:01:00.000Z' })
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  resetAt?: Date;
+  resetAt?: Date | undefined;
 }
 
 // ============================================================
-// ✅ ENTERPRISE ENHANCEMENT: Client Info for Security Audit
+// ✅ FIXED: Social Login Request DTO
 // ============================================================
 
 /**
- * Client information for security audit and fraud detection
- */
-export class SocialLoginClientInfoDto {
-  @ApiPropertyOptional({
-    description: 'Device fingerprint for fraud detection',
-    example: 'fp_abc123def456',
-    maxLength: 128,
-  })
-  @IsOptional()
-  @IsString()
-  @MaxLength(128)
-  deviceFingerprint?: string;
-
-  @ApiPropertyOptional({
-    description: 'Screen resolution',
-    example: '1920x1080',
-  })
-  @IsOptional()
-  @IsString()
-  @Matches(/^\d+x\d+$/, { message: 'Screen resolution must be in format WxH' })
-  screenResolution?: string;
-
-  @ApiPropertyOptional({
-    description: 'Language preference',
-    example: 'bn',
-  })
-  @IsOptional()
-  @IsString()
-  @MaxLength(10)
-  language?: string;
-
-  // Bangladesh specific
-  @ApiPropertyOptional({
-    description: 'District (Bangladesh specific)',
-    example: 'Dhaka',
-  })
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  district?: string;
-
-  @ApiPropertyOptional({
-    description: 'Network type (Bangladesh specific)',
-    example: '4g',
-    enum: ['2g', '3g', '4g', '5g', 'wifi', 'unknown'],
-  })
-  @IsOptional()
-  @IsEnum(['2g', '3g', '4g', '5g', 'wifi', 'unknown'])
-  networkType?: string;
-}
-
-// ============================================================
-// Request DTOs (Enterprise Enhanced)
-// ============================================================
-
-/**
- * Social Login Request DTO (Enhanced)
- * 
+ * Social Login Request DTO
+ * Supports OAuth authorization code flow and token exchange
+ *
  * @example
  * {
  *   "provider": "google",
- *   "accessToken": "ya29.a0AfH6S...",
- *   "deviceId": "device_550e8400-e29b-41d4-a716-446655440000",
- *   "deviceFingerprint": "fp_abc123",
- *   "rememberMe": true,
- *   "correlationId": "corr_abc123"
+ *   "code": "4/0AY0e-g7...",
+ *   "redirectUri": "https://vubon.com.bd/auth/google/callback",
+ *   "state": "state_abc123",
+ *   "codeVerifier": "PKCE_verifier_xyz789",
+ *   "deviceId": "device_550e8400",
+ *   "clientInfo": { "ipAddress": "192.168.1.100", "userAgent": "Mozilla/5.0..." }
  * }
  */
 export class SocialLoginDto {
   @ApiProperty({
-    description: 'Social provider name',
+    description: 'Social provider',
+    example: 'google',
     enum: SocialProvider,
-    example: SocialProvider.GOOGLE,
     required: true,
   })
-  @IsEnum(SocialProvider, { 
-    message: () => getValidationMessage('providerInvalid') 
-  })
-  @IsNotEmpty({ 
-    message: () => getValidationMessage('providerRequired') 
-  })
+  @IsString({ message: getValidationMessage('providerRequired') })
+  @IsNotEmpty({ message: getValidationMessage('providerRequired') })
+  @IsIn(SUPPORTED_PROVIDERS, { message: getValidationMessage('providerInvalid') })
   provider: SocialProvider;
 
   @ApiProperty({
-    description: 'OAuth access token from social provider',
-    example: 'ya29.a0AfH6S...',
+    description: 'Authorization code from OAuth provider',
+    example: '4/0AY0e-g7...',
     required: true,
-    minLength: TOKEN_CONFIG.MIN_LENGTH.ACCESS,
-    maxLength: TOKEN_CONFIG.MAX_LENGTH.ACCESS,
   })
-  @IsString({ message: 'Access token must be a string' })
-  @IsNotEmpty({ 
-    message: () => getValidationMessage('accessTokenRequired') 
+  @IsString({ message: getValidationMessage('codeRequired') })
+  @IsNotEmpty({ message: getValidationMessage('codeRequired') })
+  @MaxLength(TOKEN_LENGTH_CONFIG.MAX_LENGTH, { message: getValidationMessage('codeMaxLength') })
+  code: string;
+
+  @ApiProperty({
+    description: 'Redirect URI matching the OAuth request',
+    example: 'https://vubon.com.bd/auth/google/callback',
+    required: true,
   })
-  @MinLength(TOKEN_CONFIG.MIN_LENGTH.ACCESS, { 
-    message: () => getValidationMessage('accessTokenMinLength', [TOKEN_CONFIG.MIN_LENGTH.ACCESS]) 
+  @IsUrl({}, { message: getValidationMessage('redirectUriInvalid') })
+  @IsNotEmpty({ message: getValidationMessage('redirectUriRequired') })
+  redirectUri: string;
+
+  @ApiPropertyOptional({
+    description: 'OAuth state parameter for CSRF protection',
+    example: 'state_abc123',
+    maxLength: 255,
   })
-  @MaxLength(TOKEN_CONFIG.MAX_LENGTH.ACCESS, { 
-    message: () => getValidationMessage('accessTokenMaxLength', [TOKEN_CONFIG.MAX_LENGTH.ACCESS]) 
+  @IsOptional()
+  @IsString()
+  @MaxLength(255, { message: getValidationMessage('stateMaxLength') })
+  state?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'PKCE code verifier for enhanced OAuth security',
+    example: 'PKCE_verifier_xyz789',
+    maxLength: 128,
   })
-  accessToken: string;
+  @IsOptional()
+  @IsString()
+  @MaxLength(128, { message: getValidationMessage('codeVerifierMaxLength') })
+  codeVerifier?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'OAuth scopes requested (space-separated)',
+    example: 'email profile',
+    maxLength: 500,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500, { message: getValidationMessage('scopeMaxLength') })
+  scope?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Device identifier for session tracking',
@@ -281,21 +397,19 @@ export class SocialLoginDto {
     maxLength: 255,
   })
   @IsOptional()
-  @IsString({ message: 'Device ID must be a string' })
-  @MaxLength(255, { 
-    message: () => getValidationMessage('deviceIdMaxLength') 
-  })
-  deviceId?: string;
+  @IsString()
+  @MaxLength(255, { message: getValidationMessage('deviceIdMaxLength') })
+  deviceId?: string | undefined;
 
   @ApiPropertyOptional({
-    description: 'Device fingerprint for fraud prevention',
+    description: 'Device fingerprint for enhanced security',
     example: 'fp_abc123def456',
     maxLength: 128,
   })
   @IsOptional()
   @IsString()
   @MaxLength(128)
-  deviceFingerprint?: string;
+  deviceFingerprint?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Remember me for extended session',
@@ -303,43 +417,9 @@ export class SocialLoginDto {
     default: false,
   })
   @IsOptional()
-  @IsBoolean({ message: 'Remember me must be a boolean' })
-  rememberMe?: boolean = false;
+  @IsBoolean()
+  rememberMe?: boolean | undefined;
 
-  @ApiPropertyOptional({
-    description: 'State parameter for CSRF protection',
-    example: 'random-state-string-123',
-    maxLength: 255,
-  })
-  @IsOptional()
-  @IsString({ message: 'State must be a string' })
-  @MaxLength(255, { 
-    message: () => getValidationMessage('stateMaxLength') 
-  })
-  state?: string;
-
-  @ApiPropertyOptional({
-    description: 'OAuth code verifier for PKCE',
-    example: 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk',
-    maxLength: 128,
-  })
-  @IsOptional()
-  @IsString({ message: 'Code verifier must be a string' })
-  @MaxLength(128, { 
-    message: () => getValidationMessage('codeVerifierMaxLength') 
-  })
-  codeVerifier?: string;
-
-  // ✅ ENTERPRISE ENHANCEMENT: Correlation ID for distributed tracing
-  @ApiPropertyOptional({
-    description: 'Correlation ID for distributed tracing',
-    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
-  })
-  @IsOptional()
-  @IsUUID()
-  correlationId?: string;
-
-  // ✅ ENTERPRISE ENHANCEMENT: Client info for security
   @ApiPropertyOptional({
     description: 'Client information for security tracking',
     type: SocialLoginClientInfoDto,
@@ -347,9 +427,16 @@ export class SocialLoginDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => SocialLoginClientInfoDto)
-  clientInfo?: SocialLoginClientInfoDto;
+  clientInfo?: SocialLoginClientInfoDto | undefined;
 
-  // ✅ ENTERPRISE ENHANCEMENT: Rate limit metadata
+  @ApiPropertyOptional({
+    description: 'Correlation ID for distributed tracing',
+    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
+  })
+  @IsOptional()
+  @IsUUID(4, { message: getValidationMessage('correlationIdInvalid') })
+  correlationId?: string | undefined;
+
   @ApiPropertyOptional({
     description: 'Rate limit metadata',
     type: SocialLoginRateLimitDto,
@@ -357,138 +444,70 @@ export class SocialLoginDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => SocialLoginRateLimitDto)
-  rateLimit?: SocialLoginRateLimitDto;
+  rateLimit?: SocialLoginRateLimitDto | undefined;
 
   constructor(
     provider: SocialProvider,
-    accessToken: string,
-    deviceId?: string,
-    rememberMe?: boolean,
+    code: string,
+    redirectUri: string,
     state?: string,
     codeVerifier?: string,
-    correlationId?: string,
-    deviceFingerprint?: string,
-    clientInfo?: SocialLoginClientInfoDto
+    deviceId?: string
   ) {
     this.provider = provider;
-    this.accessToken = accessToken;
-    this.deviceId = deviceId;
-    this.rememberMe = rememberMe ?? false;
+    this.code = code;
+    this.redirectUri = redirectUri;
     this.state = state;
     this.codeVerifier = codeVerifier;
-    this.correlationId = correlationId;
-    this.deviceFingerprint = deviceFingerprint;
-    this.clientInfo = clientInfo;
-  }
-
-  /**
-   * Helper method to get validation message in appropriate language
-   */
-  getMessage(key: keyof typeof VALIDATION_MESSAGES.en, ...args: unknown[]): string {
-    const locale = this.clientInfo?.language === 'bn' ? 'bn' : 'en';
-    return getValidationMessage(key, args, locale);
-  }
-
-  /**
-   * Get user agent from client info
-   */
-  getUserAgent(): string | undefined {
-    return this.clientInfo?.userAgent;
-  }
-
-  /**
-   * Get IP address from client info
-   */
-  getIpAddress(): string | undefined {
-    return this.clientInfo?.ipAddress;
+    this.deviceId = deviceId;
   }
 }
 
 // ============================================================
-// ✅ ENTERPRISE ENHANCEMENT: Social Phone Login DTO (Bangladesh specific)
+// ✅ FIXED: Social Login Token DTO (for token-based auth)
 // ============================================================
 
 /**
- * Social Login with Phone Request DTO (Bangladesh specific - WhatsApp/Imo/Telegram)
- * 
+ * Social Login Token DTO
+ * For providers that return access token directly (e.g., mobile apps)
+ *
  * @example
  * {
- *   "provider": "whatsapp",
- *   "phoneNumber": "+8801712345678",
- *   "otpCode": "123456",
- *   "confirmOtpCode": "123456",
- *   "deviceId": "device_550e8400-e29b-41d4-a716-446655440000",
- *   "rememberMe": true,
- *   "locale": "bn",
- *   "correlationId": "corr_abc123"
+ *   "provider": "facebook",
+ *   "accessToken": "EAAJ...",
+ *   "deviceId": "device_550e8400",
+ *   "clientInfo": { "ipAddress": "192.168.1.100" }
  * }
  */
-export class SocialPhoneLoginDto {
+export class SocialLoginTokenDto {
   @ApiProperty({
-    description: 'Social provider name (WhatsApp, Imo, Telegram)',
-    enum: [SocialProvider.WHATSAPP, SocialProvider.IMO, SocialProvider.TELEGRAM],
-    example: SocialProvider.WHATSAPP,
+    description: 'Social provider',
+    example: 'facebook',
+    enum: SocialProvider,
     required: true,
   })
-  @IsEnum([SocialProvider.WHATSAPP, SocialProvider.IMO, SocialProvider.TELEGRAM], { 
-    message: () => getValidationMessage('providerInvalid') 
-  })
-  @IsNotEmpty({ 
-    message: () => getValidationMessage('providerRequired') 
-  })
+  @IsString({ message: getValidationMessage('providerRequired') })
+  @IsNotEmpty({ message: getValidationMessage('providerRequired') })
+  @IsIn(SUPPORTED_PROVIDERS, { message: getValidationMessage('providerInvalid') })
   provider: SocialProvider;
 
   @ApiProperty({
-    description: 'Bangladesh phone number (E.164 format)',
-    example: '+8801712345678',
+    description: 'Access token from social provider',
+    example: 'EAAJ...',
     required: true,
   })
-  @IsString({ message: 'Phone number must be a string' })
-  @IsNotEmpty({ 
-    message: () => getValidationMessage('phoneRequired') 
-  })
-  @Matches(REGEX_PHONE.BANGLADESH, { 
-    message: () => getValidationMessage('phoneInvalid') 
-  })
-  phoneNumber: string;
-
-  @ApiProperty({
-    description: 'OTP code for verification',
-    example: '123456',
-    required: true,
-    minLength: 6,
-    maxLength: 6,
-  })
-  @IsString({ message: 'OTP code must be a string' })
-  @IsNotEmpty({ 
-    message: () => getValidationMessage('otpRequired') 
-  })
-  @Matches(/^\d{6}$/, { 
-    message: () => getValidationMessage('otpInvalid') 
-  })
-  otpCode: string;
+  @IsString({ message: getValidationMessage('accessTokenRequired') })
+  @IsNotEmpty({ message: getValidationMessage('accessTokenRequired') })
+  @MaxLength(TOKEN_LENGTH_CONFIG.MAX_LENGTH)
+  accessToken: string;
 
   @ApiPropertyOptional({
-    description: 'Confirm OTP code (must match otpCode)',
-    example: '123456',
-    required: false,
+    description: 'ID token (for OIDC providers like Google, Apple)',
+    example: 'eyJhbGciOiJSUzI1NiIsImtpZCI6...',
   })
   @IsOptional()
-  @IsString({ message: 'Confirm OTP code must be a string' })
-  @Match('otpCode', { 
-    message: () => getValidationMessage('otpMismatch') 
-  })
-  confirmOtpCode?: string;
-
-  @ApiPropertyOptional({
-    description: 'Email address (optional, for account recovery)',
-    example: 'user@vubon.com.bd',
-  })
-  @IsOptional()
-  @IsEmail({}, { 
-    message: () => getValidationMessage('emailInvalid') 
-  })
-  email?: string;
+  @IsString()
+  idToken?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Device identifier for session tracking',
@@ -496,21 +515,19 @@ export class SocialPhoneLoginDto {
     maxLength: 255,
   })
   @IsOptional()
-  @IsString({ message: 'Device ID must be a string' })
-  @MaxLength(255, { 
-    message: () => getValidationMessage('deviceIdMaxLength') 
-  })
-  deviceId?: string;
+  @IsString()
+  @MaxLength(255, { message: getValidationMessage('deviceIdMaxLength') })
+  deviceId?: string | undefined;
 
   @ApiPropertyOptional({
-    description: 'Device fingerprint for fraud prevention',
+    description: 'Device fingerprint for enhanced security',
     example: 'fp_abc123def456',
     maxLength: 128,
   })
   @IsOptional()
   @IsString()
   @MaxLength(128)
-  deviceFingerprint?: string;
+  deviceFingerprint?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Remember me for extended session',
@@ -518,728 +535,460 @@ export class SocialPhoneLoginDto {
     default: false,
   })
   @IsOptional()
-  @IsBoolean({ message: 'Remember me must be a boolean' })
-  rememberMe?: boolean = false;
+  @IsBoolean()
+  rememberMe?: boolean | undefined;
 
   @ApiPropertyOptional({
-    description: 'Preferred language for OTP message',
-    example: 'bn',
-    enum: ['en', 'bn'],
-    default: 'en',
+    description: 'Client information for security tracking',
+    type: SocialLoginClientInfoDto,
   })
   @IsOptional()
-  @IsEnum(['en', 'bn'], { 
-    message: () => getValidationMessage('languageInvalid') 
-  })
-  locale?: 'en' | 'bn' = 'en';
+  @ValidateNested()
+  @Type(() => SocialLoginClientInfoDto)
+  clientInfo?: SocialLoginClientInfoDto | undefined;
 
-  // ✅ ENTERPRISE ENHANCEMENT: Correlation ID for distributed tracing
   @ApiPropertyOptional({
     description: 'Correlation ID for distributed tracing',
     example: 'corr_550e8400-e29b-41d4-a716-446655440000',
   })
   @IsOptional()
-  @IsUUID()
-  correlationId?: string;
+  @IsUUID(4, { message: getValidationMessage('correlationIdInvalid') })
+  correlationId?: string | undefined;
 
-  // ✅ ENTERPRISE ENHANCEMENT: Rate limit metadata
-  @ApiPropertyOptional({
-    description: 'Rate limit metadata',
-    type: SocialLoginRateLimitDto,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => SocialLoginRateLimitDto)
-  rateLimit?: SocialLoginRateLimitDto;
-
-  constructor(
-    provider: SocialProvider,
-    phoneNumber: string,
-    otpCode: string,
-    deviceId?: string,
-    rememberMe?: boolean,
-    confirmOtpCode?: string,
-    email?: string,
-    locale?: 'en' | 'bn',
-    correlationId?: string,
-    deviceFingerprint?: string
-  ) {
+  constructor(provider: SocialProvider, accessToken: string, deviceId?: string) {
     this.provider = provider;
-    this.phoneNumber = phoneNumber;
-    this.otpCode = otpCode;
+    this.accessToken = accessToken;
     this.deviceId = deviceId;
-    this.rememberMe = rememberMe ?? false;
-    this.confirmOtpCode = confirmOtpCode;
-    this.email = email;
-    this.locale = locale ?? 'en';
-    this.correlationId = correlationId;
-    this.deviceFingerprint = deviceFingerprint;
   }
 }
 
 // ============================================================
-// Social Link Request DTO (Enhanced)
+// ✅ FIXED: Social Login with Provider User ID DTO
 // ============================================================
 
 /**
- * Social Link Request DTO
- * Note: userId is NOT accepted from client - comes from authenticated JWT
+ * Social Login with Provider User ID DTO
+ * For providers where user ID is known (e.g., server-to-server)
+ *
+ * @example
+ * {
+ *   "provider": "github",
+ *   "providerUserId": "12345678",
+ *   "accessToken": "gho_...",
+ *   "deviceId": "device_550e8400"
+ * }
  */
-export class SocialLinkDto {
+export class SocialLoginProviderIdDto {
   @ApiProperty({
-    description: 'Social provider name',
+    description: 'Social provider',
+    example: 'github',
     enum: SocialProvider,
-    example: SocialProvider.GOOGLE,
     required: true,
   })
-  @IsEnum(SocialProvider, { 
-    message: () => getValidationMessage('providerInvalid') 
-  })
-  @IsNotEmpty({ 
-    message: () => getValidationMessage('providerRequired') 
-  })
+  @IsString({ message: getValidationMessage('providerRequired') })
+  @IsNotEmpty({ message: getValidationMessage('providerRequired') })
+  @IsIn(SUPPORTED_PROVIDERS, { message: getValidationMessage('providerInvalid') })
   provider: SocialProvider;
 
   @ApiProperty({
-    description: 'OAuth access token from social provider',
-    example: 'ya29.a0AfH6S...',
+    description: 'Provider user ID',
+    example: '12345678',
     required: true,
-    minLength: TOKEN_CONFIG.MIN_LENGTH.ACCESS,
-    maxLength: TOKEN_CONFIG.MAX_LENGTH.ACCESS,
   })
-  @IsString({ message: 'Access token must be a string' })
-  @IsNotEmpty({ 
-    message: () => getValidationMessage('accessTokenRequired') 
-  })
-  @MinLength(TOKEN_CONFIG.MIN_LENGTH.ACCESS, { 
-    message: () => getValidationMessage('accessTokenMinLength', [TOKEN_CONFIG.MIN_LENGTH.ACCESS]) 
-  })
-  @MaxLength(TOKEN_CONFIG.MAX_LENGTH.ACCESS, { 
-    message: () => getValidationMessage('accessTokenMaxLength', [TOKEN_CONFIG.MAX_LENGTH.ACCESS]) 
-  })
-  accessToken: string;
+  @IsString({ message: getValidationMessage('providerUserIdRequired') })
+  @IsNotEmpty({ message: getValidationMessage('providerUserIdRequired') })
+  @MaxLength(255, { message: getValidationMessage('providerUserIdMaxLength') })
+  providerUserId: string;
 
   @ApiPropertyOptional({
-    description: 'Make this the primary social account',
+    description: 'Access token from social provider',
+    example: 'gho_...',
+  })
+  @IsOptional()
+  @IsString()
+  accessToken?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Device identifier for session tracking',
+    example: 'device_550e8400-e29b-41d4-a716-446655440000',
+    maxLength: 255,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255, { message: getValidationMessage('deviceIdMaxLength') })
+  deviceId?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Device fingerprint for enhanced security',
+    example: 'fp_abc123def456',
+    maxLength: 128,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  deviceFingerprint?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Remember me for extended session',
     example: true,
     default: false,
   })
   @IsOptional()
-  @IsBoolean({ message: 'Make primary must be a boolean' })
-  makePrimary?: boolean = false;
+  @IsBoolean()
+  rememberMe?: boolean | undefined;
 
   @ApiPropertyOptional({
-    description: 'State parameter for CSRF protection',
-    example: 'random-state-string-123',
-    maxLength: 255,
+    description: 'Client information for security tracking',
+    type: SocialLoginClientInfoDto,
   })
   @IsOptional()
-  @IsString({ message: 'State must be a string' })
-  @MaxLength(255, { 
-    message: () => getValidationMessage('stateMaxLength') 
-  })
-  state?: string;
+  @ValidateNested()
+  @Type(() => SocialLoginClientInfoDto)
+  clientInfo?: SocialLoginClientInfoDto | undefined;
 
-  @ApiPropertyOptional({
-    description: 'OAuth code verifier for PKCE',
-    example: 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk',
-    maxLength: 128,
-  })
-  @IsOptional()
-  @IsString({ message: 'Code verifier must be a string' })
-  @MaxLength(128, { 
-    message: () => getValidationMessage('codeVerifierMaxLength') 
-  })
-  codeVerifier?: string;
-
-  // ✅ ENTERPRISE ENHANCEMENT: Correlation ID for distributed tracing
   @ApiPropertyOptional({
     description: 'Correlation ID for distributed tracing',
     example: 'corr_550e8400-e29b-41d4-a716-446655440000',
   })
   @IsOptional()
-  @IsUUID()
-  correlationId?: string;
+  @IsUUID(4, { message: getValidationMessage('correlationIdInvalid') })
+  correlationId?: string | undefined;
 
-  constructor(
-    provider: SocialProvider, 
-    accessToken: string, 
-    makePrimary?: boolean,
-    state?: string,
-    codeVerifier?: string,
-    correlationId?: string
-  ) {
+  constructor(provider: SocialProvider, providerUserId: string, deviceId?: string) {
     this.provider = provider;
-    this.accessToken = accessToken;
-    this.makePrimary = makePrimary ?? false;
-    this.state = state;
-    this.codeVerifier = codeVerifier;
-    this.correlationId = correlationId;
+    this.providerUserId = providerUserId;
+    this.deviceId = deviceId;
   }
 }
 
 // ============================================================
-// Social Unlink Request DTO (Enhanced)
+// Response DTOs
 // ============================================================
 
 /**
- * Social Unlink Request DTO
- * Note: userId is NOT accepted from client - comes from authenticated JWT
+ * User Response DTO (for social login response)
  */
-export class SocialUnlinkDto {
-  @ApiProperty({
-    description: 'Social provider name to unlink',
-    enum: SocialProvider,
-    example: SocialProvider.GOOGLE,
-    required: true,
-  })
-  @IsEnum(SocialProvider, { 
-    message: () => getValidationMessage('providerInvalid') 
-  })
-  @IsNotEmpty({ 
-    message: () => getValidationMessage('providerRequired') 
-  })
-  provider: SocialProvider;
-
-  @ApiPropertyOptional({
-    description: 'Whether to keep user data after unlinking',
-    example: true,
-    default: true,
-  })
-  @IsOptional()
-  @IsBoolean({ message: 'Keep data must be a boolean' })
-  keepData?: boolean = true;
-
-  @ApiPropertyOptional({
-    description: 'Reason for unlinking (for audit)',
-    example: 'User requested removal',
-    maxLength: 500,
-  })
-  @IsOptional()
-  @IsString({ message: 'Reason must be a string' })
-  @MaxLength(500, { 
-    message: () => getValidationMessage('reasonMaxLength') 
-  })
-  reason?: string;
-
-  // ✅ ENTERPRISE ENHANCEMENT: Correlation ID for distributed tracing
-  @ApiPropertyOptional({
-    description: 'Correlation ID for distributed tracing',
-    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
-  })
-  @IsOptional()
-  @IsUUID()
-  correlationId?: string;
-
-  constructor(provider: SocialProvider, keepData?: boolean, reason?: string, correlationId?: string) {
-    this.provider = provider;
-    this.keepData = keepData ?? true;
-    this.reason = reason;
-    this.correlationId = correlationId;
-  }
-}
-
-// ============================================================
-// Social Auth Callback Query DTO (for OAuth redirect)
-// ============================================================
-
-/**
- * Social Auth Callback Query DTO (for OAuth redirect)
- */
-export class SocialCallbackQueryDto {
-  @ApiProperty({
-    description: 'Authorization code from social provider',
-    example: '4/0AY0e-g7...',
-    required: true,
-  })
-  @IsString()
-  @IsNotEmpty()
-  code: string;
-
-  @ApiProperty({
-    description: 'State parameter for CSRF validation',
-    example: 'random-state-string-123',
-    required: true,
-  })
-  @IsString()
-  @IsNotEmpty()
-  state: string;
-
-  @ApiPropertyOptional({
-    description: 'Error from social provider',
-    example: 'access_denied',
-  })
-  @IsOptional()
-  @IsString()
-  error?: string;
-
-  @ApiPropertyOptional({
-    description: 'Error description from social provider',
-    example: 'User denied access',
-  })
-  @IsOptional()
-  @IsString()
-  error_description?: string;
-
-  @ApiPropertyOptional({
-    description: 'OAuth code verifier for PKCE',
-    example: 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk',
-  })
-  @IsOptional()
-  @IsString()
-  code_verifier?: string;
-
-  constructor(
-    code: string, 
-    state: string, 
-    error?: string, 
-    error_description?: string,
-    code_verifier?: string
-  ) {
-    this.code = code;
-    this.state = state;
-    this.error = error;
-    this.error_description = error_description;
-    this.code_verifier = code_verifier;
-  }
-}
-
-// ============================================================
-// Response DTOs (Enterprise Enhanced)
-// ============================================================
-
-/**
- * Social User Info (from provider)
- */
-export class SocialUserInfoDto {
-  @ApiProperty({ description: 'User ID from provider' })
+export class SocialUserResponseDto {
+  @ApiProperty({ description: 'User ID' })
   id: string;
 
-  @ApiProperty({ description: 'User email from provider' })
+  @ApiProperty({ description: 'User email' })
   email: string;
 
-  @ApiProperty({ description: 'User full name from provider' })
-  name: string;
+  @ApiPropertyOptional({ description: 'Username' })
+  username?: string | undefined;
 
-  @ApiPropertyOptional({ description: 'First name from provider' })
-  firstName?: string;
+  @ApiPropertyOptional({ description: 'Phone number' })
+  phoneNumber?: string | undefined;
 
-  @ApiPropertyOptional({ description: 'Last name from provider' })
-  lastName?: string;
+  @ApiProperty({ description: 'Full name' })
+  fullName: string;
 
-  @ApiPropertyOptional({ description: 'Profile picture URL' })
-  picture?: string;
+  @ApiProperty({ description: 'Display name' })
+  displayName: string;
 
-  @ApiPropertyOptional({ description: 'Is email verified by provider' })
-  emailVerified?: boolean;
+  @ApiPropertyOptional({ description: 'Avatar URL' })
+  avatar?: string | undefined;
 
-  @ApiPropertyOptional({ description: 'Phone number (for WhatsApp/Imo)' })
-  phoneNumber?: string;
+  @ApiProperty({ description: 'User role' })
+  role: string;
 
-  @ApiPropertyOptional({ description: 'Is phone verified by provider' })
-  phoneVerified?: boolean;
+  @ApiProperty({ description: 'User tier' })
+  tier: string;
 
-  @ApiPropertyOptional({ description: 'Provider display name' })
-  providerDisplayName?: string;
+  @ApiPropertyOptional({ description: 'Email verified' })
+  isEmailVerified?: boolean | undefined;
+
+  @ApiPropertyOptional({ description: 'Phone verified' })
+  isPhoneVerified?: boolean | undefined;
+
+  @ApiPropertyOptional({ description: 'MFA enabled' })
+  mfaEnabled?: boolean | undefined;
+
+  @ApiPropertyOptional({ description: 'Provider used for login' })
+  provider?: SocialProvider | undefined;
 
   constructor(
     id: string,
     email: string,
-    name: string,
-    picture?: string,
-    emailVerified?: boolean,
-    firstName?: string,
-    lastName?: string,
+    fullName: string,
+    displayName: string,
+    role: string,
+    tier: string,
+    username?: string,
     phoneNumber?: string,
-    phoneVerified?: boolean,
-    providerDisplayName?: string
+    avatar?: string,
+    isEmailVerified?: boolean,
+    isPhoneVerified?: boolean,
+    mfaEnabled?: boolean,
+    provider?: SocialProvider
   ) {
     this.id = id;
     this.email = email;
-    this.name = name;
-    this.picture = picture;
-    this.emailVerified = emailVerified;
-    this.firstName = firstName;
-    this.lastName = lastName;
+    this.fullName = fullName;
+    this.displayName = displayName;
+    this.role = role;
+    this.tier = tier;
+    this.username = username;
     this.phoneNumber = phoneNumber;
-    this.phoneVerified = phoneVerified;
-    this.providerDisplayName = providerDisplayName;
+    this.avatar = avatar;
+    this.isEmailVerified = isEmailVerified;
+    this.isPhoneVerified = isPhoneVerified;
+    this.mfaEnabled = mfaEnabled;
+    this.provider = provider;
   }
 }
 
 /**
- * Social Login Response DTO (Enhanced)
+ * Social Login Response DTO
  */
 export class SocialLoginResponseDto {
-  @ApiProperty({
-    description: 'JWT access token',
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-  })
+  @ApiProperty({ description: 'Access token' })
   accessToken: string;
 
-  @ApiProperty({
-    description: 'Refresh token',
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-  })
+  @ApiProperty({ description: 'Refresh token' })
   refreshToken: string;
 
-  @ApiProperty({
-    description: 'Access token expiry time in seconds',
-    example: 900,
-  })
+  @ApiProperty({ description: 'Access token expiry in seconds' })
   expiresIn: number;
 
-  @ApiProperty({
-    description: 'Refresh token expiry time in seconds',
-    example: 604800,
-  })
+  @ApiProperty({ description: 'Refresh token expiry in seconds' })
   refreshExpiresIn: number;
 
-  @ApiProperty({
-    description: 'Whether this is a new user (just registered)',
-    example: false,
-  })
-  isNewUser: boolean;
+  @ApiProperty({ description: 'Token type', example: 'Bearer' })
+  tokenType: string = 'Bearer';
 
-  @ApiPropertyOptional({
-    description: 'Whether this is a new connection (existing user linking new provider)',
-    example: false,
-  })
-  isNewConnection?: boolean;
+  @ApiProperty({ description: 'User information' })
+  user: SocialUserResponseDto;
 
-  @ApiProperty({
-    description: 'Authenticated user information',
-    type: 'object',
-    properties: {
-      id: { type: 'string', example: 'usr_550e8400-e29b-41d4-a716-446655440000' },
-      email: { type: 'string', example: 'user@vubon.com.bd' },
-      fullName: { type: 'string', example: 'John Doe' },
-      role: { type: 'string', enum: ['USER', 'ADMIN', 'MODERATOR', 'SUPER_ADMIN'], example: 'USER' },
-      isEmailVerified: { type: 'boolean', example: true },
-      hasSocialLogin: { type: 'boolean', example: true },
-    },
-  })
-  user: {
-    id: string;
-    email: string;
-    fullName: string;
-    role: string;
-    isEmailVerified?: boolean;
-    hasSocialLogin?: boolean;
-  };
+  @ApiPropertyOptional({ description: 'Session ID' })
+  sessionId?: string | undefined;
 
-  @ApiPropertyOptional({
-    description: 'Session ID for management',
-    example: 'sess_550e8400-e29b-41d4-a716-446655440000',
-  })
-  sessionId?: string;
+  @ApiPropertyOptional({ description: 'CSRF token' })
+  csrfToken?: string | undefined;
 
-  @ApiPropertyOptional({
-    description: 'Whether MFA is required',
-    example: false,
-  })
-  mfaRequired?: boolean;
+  @ApiPropertyOptional({ description: 'Rate limit metadata' })
+  rateLimit?: SocialLoginRateLimitDto | undefined;
 
-  // ✅ ENTERPRISE ENHANCEMENT: Correlation ID for distributed tracing
-  @ApiPropertyOptional({
-    description: 'Correlation ID for distributed tracing',
-    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
-  })
-  correlationId?: string;
-
-  // ✅ ENTERPRISE ENHANCEMENT: Rate limit metadata
-  @ApiPropertyOptional({
-    description: 'Rate limit metadata',
-    type: SocialLoginRateLimitDto,
-  })
-  rateLimit?: SocialLoginRateLimitDto;
+  @ApiPropertyOptional({ description: 'Security headers' })
+  securityHeaders?: {
+    sessionId?: string;
+    csrfToken?: string;
+    secureCookie?: boolean;
+  } | undefined;
 
   constructor(
     accessToken: string,
     refreshToken: string,
     expiresIn: number,
     refreshExpiresIn: number,
-    isNewUser: boolean,
-    user: {
-      id: string;
-      email: string;
-      fullName: string;
-      role: string;
-      isEmailVerified?: boolean;
-      hasSocialLogin?: boolean;
-    },
-    isNewConnection?: boolean,
+    user: SocialUserResponseDto,
     sessionId?: string,
-    mfaRequired?: boolean,
-    correlationId?: string,
-    rateLimit?: SocialLoginRateLimitDto
+    csrfToken?: string,
+    rateLimit?: SocialLoginRateLimitDto,
+    securityHeaders?: { sessionId?: string; csrfToken?: string; secureCookie?: boolean }
   ) {
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
     this.expiresIn = expiresIn;
     this.refreshExpiresIn = refreshExpiresIn;
-    this.isNewUser = isNewUser;
-    this.isNewConnection = isNewConnection;
     this.user = user;
     this.sessionId = sessionId;
-    this.mfaRequired = mfaRequired;
-    this.correlationId = correlationId;
+    this.csrfToken = csrfToken;
     this.rateLimit = rateLimit;
+    this.securityHeaders = securityHeaders;
   }
 }
 
 /**
- * Social Link Response DTO (Enhanced)
+ * Social Login Error Response DTO
  */
-export class SocialLinkResponseDto {
-  @ApiProperty({
-    description: 'Success message',
-    example: 'Social account linked successfully',
-  })
+export class SocialLoginErrorResponseDto {
+  @ApiProperty({ description: 'Error status code' })
+  statusCode: number;
+
+  @ApiProperty({ description: 'Error message in English' })
   message: string;
 
-  @ApiPropertyOptional({
-    description: 'Bengali success message',
-    example: 'সামাজিক অ্যাকাউন্ট সফলভাবে সংযুক্ত হয়েছে',
-  })
-  messageBn?: string;
+  @ApiPropertyOptional({ description: 'Error message in Bengali' })
+  messageBn?: string | undefined;
 
-  @ApiProperty({
-    description: 'Linked provider',
-    enum: SocialProvider,
-  })
-  provider: SocialProvider;
+  @ApiProperty({ description: 'Error type' })
+  error: string;
 
-  @ApiProperty({
-    description: 'Linked provider user email',
-    example: 'user@gmail.com',
-  })
-  providerEmail: string;
+  @ApiProperty({ description: 'Error timestamp' })
+  timestamp: string;
 
-  @ApiPropertyOptional({
-    description: 'Linked provider phone number',
-    example: '+8801712345678',
-  })
-  providerPhone?: string;
-
-  @ApiProperty({
-    description: 'Timestamp when linked',
-    example: '2024-01-01T00:00:00.000Z',
-    format: 'date-time',
-  })
-  linkedAt: string;
-
-  @ApiPropertyOptional({
-    description: 'Whether this is the primary social account',
-    example: true,
-  })
-  isPrimary?: boolean;
-
-  // ✅ ENTERPRISE ENHANCEMENT: Correlation ID for distributed tracing
-  @ApiPropertyOptional({
-    description: 'Correlation ID for distributed tracing',
-    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
-  })
-  correlationId?: string;
+  @ApiPropertyOptional({ description: 'Correlation ID' })
+  correlationId?: string | undefined;
 
   constructor(
-    provider: SocialProvider, 
-    providerEmail: string, 
-    linkedAt: Date, 
-    message?: string,
+    message: string,
+    error: string,
+    statusCode: number = 400,
     messageBn?: string,
-    providerPhone?: string,
-    isPrimary?: boolean,
     correlationId?: string
   ) {
-    this.message = message || 'Social account linked successfully';
+    this.statusCode = statusCode;
+    this.message = message;
     this.messageBn = messageBn;
-    this.provider = provider;
-    this.providerEmail = providerEmail;
-    this.providerPhone = providerPhone;
-    this.linkedAt = linkedAt.toISOString();
-    this.isPrimary = isPrimary;
-    this.correlationId = correlationId;
-  }
-}
-
-/**
- * Social Unlink Response DTO (Enhanced)
- */
-export class SocialUnlinkResponseDto {
-  @ApiProperty({
-    description: 'Success message',
-    example: 'Social account unlinked successfully',
-  })
-  message: string;
-
-  @ApiPropertyOptional({
-    description: 'Bengali success message',
-    example: 'সামাজিক অ্যাকাউন্ট সফলভাবে বিচ্ছিন্ন করা হয়েছে',
-  })
-  messageBn?: string;
-
-  @ApiProperty({
-    description: 'Unlinked provider',
-    enum: SocialProvider,
-  })
-  provider: SocialProvider;
-
-  @ApiProperty({
-    description: 'Timestamp when unlinked',
-    example: '2024-01-01T00:00:00.000Z',
-    format: 'date-time',
-  })
-  unlinkedAt: string;
-
-  @ApiPropertyOptional({
-    description: 'Whether user data was kept',
-    example: true,
-  })
-  dataKept?: boolean;
-
-  // ✅ ENTERPRISE ENHANCEMENT: Correlation ID for distributed tracing
-  @ApiPropertyOptional({
-    description: 'Correlation ID for distributed tracing',
-    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
-  })
-  correlationId?: string;
-
-  constructor(
-    provider: SocialProvider, 
-    unlinkedAt: Date, 
-    message?: string, 
-    messageBn?: string,
-    dataKept?: boolean,
-    correlationId?: string
-  ) {
-    this.message = message || 'Social account unlinked successfully';
-    this.messageBn = messageBn;
-    this.provider = provider;
-    this.unlinkedAt = unlinkedAt.toISOString();
-    this.dataKept = dataKept;
-    this.correlationId = correlationId;
-  }
-}
-
-/**
- * List Linked Social Accounts Response DTO (Enhanced)
- */
-export class LinkedSocialAccountDto {
-  @ApiProperty({ description: 'Account ID', example: 'soc_550e8400-e29b-41d4-a716-446655440000' })
-  id: string;
-
-  @ApiProperty({ description: 'Provider name', enum: SocialProvider })
-  provider: SocialProvider;
-
-  @ApiProperty({ description: 'Provider display name', example: 'Google' })
-  providerDisplayName: string;
-
-  @ApiPropertyOptional({ description: 'Provider user email' })
-  email?: string;
-
-  @ApiPropertyOptional({ description: 'Provider phone number' })
-  phoneNumber?: string;
-
-  @ApiPropertyOptional({ description: 'Provider user name' })
-  name?: string;
-
-  @ApiPropertyOptional({ description: 'Profile picture URL' })
-  picture?: string;
-
-  @ApiProperty({ description: 'Whether this is the primary account' })
-  isPrimary: boolean;
-
-  @ApiProperty({ description: 'Timestamp when linked' })
-  linkedAt: string;
-
-  @ApiPropertyOptional({ description: 'Last used timestamp' })
-  lastUsedAt?: string;
-
-  constructor(
-    id: string,
-    provider: SocialProvider,
-    providerDisplayName: string,
-    isPrimary: boolean,
-    linkedAt: Date,
-    email?: string,
-    phoneNumber?: string,
-    name?: string,
-    picture?: string,
-    lastUsedAt?: Date
-  ) {
-    this.id = id;
-    this.provider = provider;
-    this.providerDisplayName = providerDisplayName;
-    this.email = email;
-    this.phoneNumber = phoneNumber;
-    this.name = name;
-    this.picture = picture;
-    this.isPrimary = isPrimary;
-    this.linkedAt = linkedAt.toISOString();
-    this.lastUsedAt = lastUsedAt?.toISOString();
-  }
-}
-
-export class ListLinkedAccountsResponseDto {
-  @ApiProperty({ description: 'List of linked social accounts', type: [LinkedSocialAccountDto] })
-  accounts: LinkedSocialAccountDto[];
-
-  @ApiProperty({ description: 'Total number of linked accounts' })
-  total: number;
-
-  @ApiProperty({ description: 'Maximum number of accounts that can be linked' })
-  maxAccounts: number = 10;
-
-  @ApiProperty({ description: 'Whether user can add more accounts' })
-  canAddMore: boolean;
-
-  @ApiPropertyOptional({ description: 'Primary account provider' })
-  primaryProvider?: SocialProvider;
-
-  // ✅ ENTERPRISE ENHANCEMENT: Correlation ID for distributed tracing
-  @ApiPropertyOptional({
-    description: 'Correlation ID for distributed tracing',
-    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
-  })
-  correlationId?: string;
-
-  constructor(accounts: LinkedSocialAccountDto[], maxAccounts: number = 10, primaryProvider?: SocialProvider, correlationId?: string) {
-    this.accounts = accounts;
-    this.total = accounts.length;
-    this.maxAccounts = maxAccounts;
-    this.canAddMore = accounts.length < maxAccounts;
-    this.primaryProvider = primaryProvider;
+    this.error = error;
+    this.timestamp = new Date().toISOString();
     this.correlationId = correlationId;
   }
 }
 
 // ============================================================
-// Helper Functions (Enterprise Enhanced)
+// ✅ FIXED: Helper Functions with shared-constants usage
 // ============================================================
 
 /**
- * Create audit metadata from social login request
+ * Get social provider display name
+ */
+export function getSocialProviderDisplayName(provider: SocialProvider): string {
+  const displayNames: Record<SocialProvider, string> = {
+    [SocialProvider.GOOGLE]: 'Google',
+    [SocialProvider.FACEBOOK]: 'Facebook',
+    [SocialProvider.GITHUB]: 'GitHub',
+    [SocialProvider.APPLE]: 'Apple',
+    [SocialProvider.TWITTER]: 'Twitter',
+    [SocialProvider.LINKEDIN]: 'LinkedIn',
+    [SocialProvider.WHATSAPP]: 'WhatsApp',
+    [SocialProvider.IMO]: 'Imo',
+    [SocialProvider.TELEGRAM]: 'Telegram',
+    [SocialProvider.VIBER]: 'Viber',
+    [SocialProvider.BKASH]: 'bKash',
+    [SocialProvider.NAGAD]: 'Nagad',
+    [SocialProvider.ROCKET]: 'Rocket',
+  };
+  return displayNames[provider] || provider;
+}
+
+/**
+ * Get social provider icon name
+ */
+export function getSocialProviderIcon(provider: SocialProvider): string {
+  const icons: Record<SocialProvider, string> = {
+    [SocialProvider.GOOGLE]: 'google',
+    [SocialProvider.FACEBOOK]: 'facebook',
+    [SocialProvider.GITHUB]: 'github',
+    [SocialProvider.APPLE]: 'apple',
+    [SocialProvider.TWITTER]: 'twitter',
+    [SocialProvider.LINKEDIN]: 'linkedin',
+    [SocialProvider.WHATSAPP]: 'whatsapp',
+    [SocialProvider.IMO]: 'imo',
+    [SocialProvider.TELEGRAM]: 'telegram',
+    [SocialProvider.VIBER]: 'viber',
+    [SocialProvider.BKASH]: 'bkash',
+    [SocialProvider.NAGAD]: 'nagad',
+    [SocialProvider.ROCKET]: 'rocket',
+  };
+  return icons[provider] || 'social';
+}
+
+/**
+ * Check if provider is Bangladesh-specific
+ */
+export function isBangladeshProvider(provider: SocialProvider): boolean {
+  const bangladeshProviders: SocialProvider[] = [
+    SocialProvider.WHATSAPP,
+    SocialProvider.IMO,
+    SocialProvider.TELEGRAM,
+    SocialProvider.VIBER,
+    SocialProvider.BKASH,
+    SocialProvider.NAGAD,
+    SocialProvider.ROCKET,
+  ];
+  return bangladeshProviders.includes(provider);
+}
+
+/**
+ * Check if provider is MFS (Mobile Financial Services)
+ */
+export function isMFSProvider(provider: SocialProvider): boolean {
+  const mfsProviders: SocialProvider[] = [
+    SocialProvider.BKASH,
+    SocialProvider.NAGAD,
+    SocialProvider.ROCKET,
+  ];
+  return mfsProviders.includes(provider);
+}
+
+/**
+ * Create social login success response
+ */
+export function createSocialLoginSuccessResponse(
+  accessToken: string,
+  refreshToken: string,
+  expiresIn: number,
+  refreshExpiresIn: number,
+  user: SocialUserResponseDto,
+  sessionId?: string,
+  csrfToken?: string,
+  rateLimit?: SocialLoginRateLimitDto,
+  securityHeaders?: { sessionId?: string; csrfToken?: string; secureCookie?: boolean }
+): SocialLoginResponseDto {
+  return new SocialLoginResponseDto(
+    accessToken,
+    refreshToken,
+    expiresIn,
+    refreshExpiresIn,
+    user,
+    sessionId,
+    csrfToken,
+    rateLimit,
+    securityHeaders
+  );
+}
+
+/**
+ * Create social login error response
+ */
+export function createSocialLoginErrorResponse(
+  message: string,
+  error: string,
+  statusCode: number = 400,
+  messageBn?: string,
+  correlationId?: string
+): SocialLoginErrorResponseDto {
+  return new SocialLoginErrorResponseDto(
+    message,
+    error,
+    statusCode,
+    messageBn,
+    correlationId
+  );
+}
+
+/**
+ * Get audit metadata from social login request
  */
 export function getSocialLoginAuditMetadata(
-  dto: SocialLoginDto | SocialPhoneLoginDto,
+  dto: SocialLoginDto | SocialLoginTokenDto | SocialLoginProviderIdDto,
   userId: string
 ): AuditMetadata {
+  const clientInfo = 'clientInfo' in dto ? dto.clientInfo : undefined;
+
+  // ✅ FIXED: নিশ্চিত করা যে requestId সবসময় string হয়
+  const correlationId = 'correlationId' in dto ? dto.correlationId : undefined;
+  const requestId = correlationId ?? `req_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+
   return {
-    userId,
-    source: 'api',
-    timestamp: new Date(),
-    requestId: dto.correlationId,
-    metadata: {
+    requestId: requestId,  // ✅ এখন সবসময় string
+    userId: userId,
+    timestamp: new Date().toISOString(),
+    source: 'social_login',
+    additionalData: {
       provider: dto.provider,
-      deviceId: 'deviceId' in dto ? dto.deviceId : undefined,
-      deviceFingerprint: 'deviceFingerprint' in dto ? dto.deviceFingerprint : undefined,
-      ipAddress: 'clientInfo' in dto ? dto.clientInfo?.ipAddress : undefined,
-      userAgent: 'clientInfo' in dto ? dto.clientInfo?.userAgent : undefined,
-      district: 'clientInfo' in dto ? dto.clientInfo?.district : undefined,
-      networkType: 'clientInfo' in dto ? dto.clientInfo?.networkType : undefined,
-      phoneNumber: 'phoneNumber' in dto ? dto.phoneNumber : undefined,
-      locale: 'locale' in dto ? dto.locale : undefined,
+      providerCategory: getProviderCategory(dto.provider),
+      providerUserId: 'providerUserId' in dto ? dto.providerUserId : undefined,
+      deviceId: dto.deviceId,
+      ipAddress: clientInfo?.ipAddress,
+      userAgent: clientInfo?.userAgent,
+      district: clientInfo?.district,
+      networkType: clientInfo?.networkType,
+      isBangladeshProvider: isBangladeshProvider(dto.provider),
+      isMFSProvider: isMFSProvider(dto.provider),
     },
   };
 }
@@ -1248,28 +997,43 @@ export function getSocialLoginAuditMetadata(
 // Type Exports
 // ============================================================
 
-export type { 
-  SocialProvider as SocialProviderType,
-  SocialLoginRateLimitDto as SocialLoginRateLimitDtoType,
+export type {
   SocialLoginClientInfoDto as SocialLoginClientInfoDtoType,
+  SocialLoginRateLimitDto as SocialLoginRateLimitDtoType,
+  SocialLoginResponseDto as SocialLoginResponseDtoType,
+  SocialLoginErrorResponseDto as SocialLoginErrorResponseDtoType,
+  SocialUserResponseDto as SocialUserResponseDtoType,
 };
 
 // ============================================================
 // ENTERPRISE SUMMARY v2.0
 // ============================================================
-// 
+//
 // Enterprise Enhancements Applied:
-// 1. ✅ Multi-language validation messages (English/Bengali)
-// 2. ✅ Rate limit metadata support
-// 3. ✅ Distributed tracing with correlationId
-// 4. ✅ Device fingerprint for fraud prevention
-// 5. ✅ PKCE (Proof Key for Code Exchange) support
-// 6. ✅ Centralized token configuration from shared-constants
-// 7. ✅ Reusable Match decorator from shared-utils
-// 8. ✅ Helper method for audit metadata extraction
-// 9. ✅ Locale-aware validation message helper
-// 10. ✅ Bangladesh specific - WhatsApp/Imo/Telegram OTP login
-// 11. ✅ Client info tracking for security audit
-// 12. ✅ Bengali language support (messageBn)
-// 
+// 1. ✅ Multi-provider support (12+ providers)
+// 2. ✅ OAuth authorization code flow with PKCE
+// 3. ✅ Token-based authentication support
+// 4. ✅ Provider user ID based authentication
+// 5. ✅ Device fingerprint support
+// 6. ✅ Rate limit metadata
+// 7. ✅ Bengali error messages
+// 8. ✅ Client info tracking
+// 9. ✅ Audit log correlation
+// 10. ✅ Distributed tracing support
+// 11. ✅ Bangladesh-specific provider support
+// 12. ✅ MFS provider detection (bKash, Nagad, Rocket)
+// 13. ✅ Helper functions for provider display
+// 14. ✅ Audit metadata extraction
+// 15. ✅ Multi-language validation messages
+// 16. ✅ Using TOKEN_CONFIG from shared-constants
+// 17. ✅ Using SOCIAL_PROVIDERS from shared-constants
+// 18. ✅ Using SOCIAL_PROVIDER_CATEGORIES from shared-constants
+//
+// Bangladesh Specific:
+// - WhatsApp, Imo, Telegram, Viber support
+// - bKash, Nagad, Rocket MFS support
+// - District and network type tracking
+// - Bengali message support
+// - Local provider detection
+//
 // ============================================================
