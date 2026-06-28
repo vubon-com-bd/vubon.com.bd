@@ -57,13 +57,11 @@ import {
   SORT_ORDER, 
   PAGINATION_TYPE,
   SORT_DIRECTION,
-  DATE_RANGE,
   SEARCH_CONFIG,
 } from '@vubon/shared-constants';
 import type { 
   SortOrder as SharedSortOrder, 
   PaginationType as SharedPaginationType,
-  AuditMetadata,
 } from '@vubon/shared-types';
 
 // ============================================================
@@ -72,6 +70,7 @@ import type {
 
 /**
  * Validation messages in English and Bengali
+ * ✅ FIXED: All messages are now functions
  */
 const VALIDATION_MESSAGES = {
   en: {
@@ -109,12 +108,18 @@ function getValidationMessage(
   locale: 'en' | 'bn' = 'en',
   ...args: unknown[]
 ): string {
-  const messageFn = VALIDATION_MESSAGES[locale][key] as (...args: unknown[]) => string;
-  if (!messageFn) {
-    return VALIDATION_MESSAGES.en[key](...args);
+  const messages = VALIDATION_MESSAGES[locale];
+  const messageFn = messages?.[key];
+  
+  if (typeof messageFn === 'function') {
+    // Type assertion to ensure args are passed correctly
+    return (messageFn as (...params: unknown[]) => string)(...args);
   }
-  return messageFn(...args);
+  
+  // Fallback: return the key itself or a default message
+  return String(args[0] ?? `Validation error for ${key}`);
 }
+  
 
 // ============================================================
 // Re-export for backward compatibility
@@ -224,12 +229,14 @@ export class PaginationQueryDto {
   @ApiPropertyOptional({
     description: 'Page number (1-indexed)',
     example: PAGINATION.DEFAULT_PAGE,
-    minimum: PAGINATION.MIN_PAGE,
+    minimum: PAGINATION.DEFAULT_PAGE,
     default: PAGINATION.DEFAULT_PAGE,
   })
   @Type(() => Number)
-  @IsNumber({}, { message: (args) => getValidationMessage('pageMin', 'en', PAGINATION.MIN_PAGE) })
-  @Min(PAGINATION.MIN_PAGE, { message: (args) => getValidationMessage('pageMin', 'en', PAGINATION.MIN_PAGE) })
+  @IsNumber()
+  @Min(PAGINATION.DEFAULT_PAGE, { 
+    message: () => getValidationMessage('pageMin', 'en', PAGINATION.DEFAULT_PAGE) 
+  })
   @IsOptional()
   page?: number = PAGINATION.DEFAULT_PAGE;
 
@@ -241,9 +248,13 @@ export class PaginationQueryDto {
     default: PAGINATION.DEFAULT_LIMIT,
   })
   @Type(() => Number)
-  @IsNumber({}, { message: (args) => getValidationMessage('limitMin', 'en', PAGINATION.MIN_LIMIT) })
-  @Min(PAGINATION.MIN_LIMIT, { message: (args) => getValidationMessage('limitMin', 'en', PAGINATION.MIN_LIMIT) })
-  @Max(PAGINATION.MAX_LIMIT, { message: (args) => getValidationMessage('limitMax', 'en', PAGINATION.MAX_LIMIT) })
+  @IsNumber()
+  @Min(PAGINATION.MIN_LIMIT, { 
+    message: () => getValidationMessage('limitMin', 'en', PAGINATION.MIN_LIMIT) 
+  })
+  @Max(PAGINATION.MAX_LIMIT, { 
+    message: () => getValidationMessage('limitMax', 'en', PAGINATION.MAX_LIMIT) 
+  })
   @IsOptional()
   limit?: number = PAGINATION.DEFAULT_LIMIT;
 
@@ -253,7 +264,7 @@ export class PaginationQueryDto {
     default: 'createdAt',
   })
   @IsOptional()
-  @IsString({ message: (args) => getValidationMessage('sortBy', 'en') })
+  @IsString({ message: () => getValidationMessage('sortBy', 'en') })
   sortBy?: string = 'createdAt';
 
   @ApiPropertyOptional({
@@ -263,7 +274,7 @@ export class PaginationQueryDto {
     default: SORT_ORDER.DESC,
   })
   @IsOptional()
-  @IsEnum(SORT_ORDER, { message: (args) => getValidationMessage('sortOrder', 'en') })
+  @IsEnum(SORT_ORDER, { message: () => getValidationMessage('sortOrder', 'en') })
   sortOrder?: SharedSortOrder = SORT_ORDER.DESC;
 
   @ApiPropertyOptional({
@@ -289,16 +300,16 @@ export class PaginationQueryDto {
   /**
    * Calculate skip value for database queries
    * @deprecated Use service layer for calculations to maintain separation of concerns
-   * @see {PaginationService.calculateSkip()}
    */
   getSkip(): number {
-    return ((this.page || PAGINATION.DEFAULT_PAGE) - 1) * (this.limit || PAGINATION.DEFAULT_LIMIT);
+    const page = this.page ?? PAGINATION.DEFAULT_PAGE;
+    const limit = this.limit ?? PAGINATION.DEFAULT_LIMIT;
+    return (page - 1) * limit;
   }
 
   /**
    * Get sort direction as string for ORM
-   * @deprecated Use service layer for conversions to maintain separation of concerns
-   * @see {PaginationService.getSortDirection()}
+   * @deprecated Use service layer for conversions
    */
   getSortDirection(): 'asc' | 'desc' {
     return this.sortOrder === SORT_ORDER.ASC ? SORT_DIRECTION.ASC : SORT_DIRECTION.DESC;
@@ -306,29 +317,30 @@ export class PaginationQueryDto {
 
   /**
    * Get validated page number (business logic moved to service layer)
-   * @deprecated Use service layer for validation to maintain separation of concerns
-   * @see {PaginationService.validatePage()}
+   * @deprecated Use service layer for validation
    */
   getValidatedPage(): number {
-    return Math.max(PAGINATION.MIN_PAGE, this.page || PAGINATION.DEFAULT_PAGE);
+    return Math.max(PAGINATION.DEFAULT_PAGE, this.page ?? PAGINATION.DEFAULT_PAGE);
   }
 
   /**
    * Get validated limit (business logic moved to service layer)
-   * @deprecated Use service layer for validation to maintain separation of concerns
-   * @see {PaginationService.validateLimit()}
+   * @deprecated Use service layer for validation
    */
   getValidatedLimit(): number {
-    return Math.min(PAGINATION.MAX_LIMIT, Math.max(PAGINATION.MIN_LIMIT, this.limit || PAGINATION.DEFAULT_LIMIT));
+    return Math.min(PAGINATION.MAX_LIMIT, Math.max(PAGINATION.MIN_LIMIT, this.limit ?? PAGINATION.DEFAULT_LIMIT));
   }
 
   /**
-   * ✅ Enterprise: Get validation message in appropriate language
-   */
-  getMessage(field: string, key: keyof typeof VALIDATION_MESSAGES.en, ...args: unknown[]): string {
-    const locale = this.locale || 'en';
-    return getValidationMessage(key, locale, ...args);
-  }
+ * ✅ Enterprise: Get validation message in appropriate language
+ */
+getMessage(field: string, key: keyof typeof VALIDATION_MESSAGES.en, ...args: unknown[]): string {
+  const locale = this.locale || 'en';
+  // field ব্যবহার করে মেসেজে ফিল্ড নাম বসান
+  const message = getValidationMessage(key, locale, ...args);
+  // ফিল্ড নামটি মেসেজের সাথে রিপ্লেস করুন
+  return message.replace(/\{field\}/g, field);
+}
 
   /**
    * ✅ Enterprise: Check if request has tracing context
@@ -339,16 +351,24 @@ export class PaginationQueryDto {
 
   /**
    * ✅ Enterprise: Get audit metadata for this request
+   * ✅ FIXED: Removed tenantId from Partial<AuditMetadata>
    */
-  getAuditMetadata(): AuditMetadata {
-    return {
-      requestId: this.context?.correlationId,
-      userId: this.context?.userId,
+  /**
+ * ✅ Enterprise: Get audit metadata for this request
+ * ✅ FIXED: tenantId moved to metadata field
+ */
+getAuditMetadata(): Record<string, unknown> {
+  return {
+    requestId: this.context?.correlationId,
+    userId: this.context?.userId,
+    timestamp: new Date(),
+    source: 'api',
+    metadata: {
       tenantId: this.context?.tenantId,
-      timestamp: new Date(),
-      source: 'api',
-    };
-  }
+      district: this.context?.district,
+      division: this.context?.division,
+    },
+  };
 }
 
 /**
@@ -362,17 +382,20 @@ export class PaginationQueryDto {
  *   "sortOrder": "DESC"
  * }
  */
+
 export class PaginationDto {
   @ApiProperty({
     description: 'Page number (1-indexed)',
     example: PAGINATION.DEFAULT_PAGE,
-    minimum: PAGINATION.MIN_PAGE,
+    minimum: PAGINATION.DEFAULT_PAGE,
     default: PAGINATION.DEFAULT_PAGE,
     required: false,
   })
   @Type(() => Number)
-  @IsNumber({}, { message: (args) => getValidationMessage('pageMin', 'en', PAGINATION.MIN_PAGE) })
-  @Min(PAGINATION.MIN_PAGE, { message: (args) => getValidationMessage('pageMin', 'en', PAGINATION.MIN_PAGE) })
+  @IsNumber()
+  @Min(PAGINATION.DEFAULT_PAGE, { 
+    message: () => getValidationMessage('pageMin', 'en', PAGINATION.DEFAULT_PAGE) 
+  })
   @IsOptional()
   page: number = PAGINATION.DEFAULT_PAGE;
 
@@ -385,9 +408,13 @@ export class PaginationDto {
     required: false,
   })
   @Type(() => Number)
-  @IsNumber({}, { message: (args) => getValidationMessage('limitMin', 'en', PAGINATION.MIN_LIMIT) })
-  @Min(PAGINATION.MIN_LIMIT, { message: (args) => getValidationMessage('limitMin', 'en', PAGINATION.MIN_LIMIT) })
-  @Max(PAGINATION.MAX_LIMIT, { message: (args) => getValidationMessage('limitMax', 'en', PAGINATION.MAX_LIMIT) })
+  @IsNumber()
+  @Min(PAGINATION.MIN_LIMIT, { 
+    message: () => getValidationMessage('limitMin', 'en', PAGINATION.MIN_LIMIT) 
+  })
+  @Max(PAGINATION.MAX_LIMIT, { 
+    message: () => getValidationMessage('limitMax', 'en', PAGINATION.MAX_LIMIT) 
+  })
   @IsOptional()
   limit: number = PAGINATION.DEFAULT_LIMIT;
 
@@ -397,7 +424,7 @@ export class PaginationDto {
     default: 'createdAt',
   })
   @IsOptional()
-  @IsString({ message: (args) => getValidationMessage('sortBy', 'en') })
+  @IsString({ message: () => getValidationMessage('sortBy', 'en') })
   sortBy?: string = 'createdAt';
 
   @ApiPropertyOptional({
@@ -407,7 +434,7 @@ export class PaginationDto {
     default: SORT_ORDER.DESC,
   })
   @IsOptional()
-  @IsEnum(SORT_ORDER, { message: (args) => getValidationMessage('sortOrder', 'en') })
+  @IsEnum(SORT_ORDER, { message: () => getValidationMessage('sortOrder', 'en') })
   sortOrder?: SharedSortOrder = SORT_ORDER.DESC;
 
   /**
@@ -456,7 +483,7 @@ export class CursorPaginationDto {
     format: 'uuid',
   })
   @IsOptional()
-  @IsUUID('all', { message: (args) => getValidationMessage('cursorInvalid', 'en') })
+  @IsUUID('all', { message: () => getValidationMessage('cursorInvalid', 'en') })
   cursor?: string;
 
   @ApiPropertyOptional({
@@ -468,9 +495,13 @@ export class CursorPaginationDto {
     required: false,
   })
   @Type(() => Number)
-  @IsNumber({}, { message: (args) => getValidationMessage('limitMin', 'en', PAGINATION.MIN_LIMIT) })
-  @Min(PAGINATION.MIN_LIMIT, { message: (args) => getValidationMessage('limitMin', 'en', PAGINATION.MIN_LIMIT) })
-  @Max(PAGINATION.MAX_LIMIT, { message: (args) => getValidationMessage('limitMax', 'en', PAGINATION.MAX_LIMIT) })
+  @IsNumber()
+  @Min(PAGINATION.MIN_LIMIT, { 
+    message: () => getValidationMessage('limitMin', 'en', PAGINATION.MIN_LIMIT) 
+  })
+  @Max(PAGINATION.MAX_LIMIT, { 
+    message: () => getValidationMessage('limitMax', 'en', PAGINATION.MAX_LIMIT) 
+  })
   @IsOptional()
   limit: number = PAGINATION.DEFAULT_LIMIT;
 
@@ -480,7 +511,7 @@ export class CursorPaginationDto {
     default: 'createdAt',
   })
   @IsOptional()
-  @IsString({ message: (args) => getValidationMessage('sortBy', 'en') })
+  @IsString({ message: () => getValidationMessage('sortBy', 'en') })
   sortBy?: string = 'createdAt';
 
   @ApiPropertyOptional({
@@ -490,7 +521,7 @@ export class CursorPaginationDto {
     default: SORT_ORDER.DESC,
   })
   @IsOptional()
-  @IsEnum(SORT_ORDER, { message: (args) => getValidationMessage('sortOrder', 'en') })
+  @IsEnum(SORT_ORDER, { message: () => getValidationMessage('sortOrder', 'en') })
   sortOrder?: SharedSortOrder = SORT_ORDER.DESC;
 
   @ApiPropertyOptional({
@@ -522,8 +553,6 @@ export class CursorPaginationDto {
 
   /**
    * ✅ Enterprise: Encode cursor for URL safety
-   * @param value - Raw cursor value
-   * @returns Base64 encoded cursor
    */
   static encodeCursor(value: string): string {
     return Buffer.from(value).toString('base64url');
@@ -531,8 +560,6 @@ export class CursorPaginationDto {
 
   /**
    * ✅ Enterprise: Decode cursor from URL-safe format
-   * @param encodedCursor - Base64 encoded cursor
-   * @returns Decoded cursor value
    */
   static decodeCursor(encodedCursor: string): string {
     return Buffer.from(encodedCursor, 'base64url').toString();
@@ -548,6 +575,7 @@ export class CursorPaginationDto {
 
   constructor(limit: number = PAGINATION.DEFAULT_LIMIT, cursor?: string) {
     this.limit = limit;
+    // ✅ FIXED: cursor property assigned (optional can be undefined)
     this.cursor = cursor;
   }
 }
@@ -561,7 +589,7 @@ export class CursorPaginationDto {
  * ✅ Enterprise: Added performance metrics and audit info
  */
 export class PaginationMetadataDto {
-  @ApiProperty({ description: 'Current page number', example: 1, minimum: PAGINATION.MIN_PAGE })
+  @ApiProperty({ description: 'Current page number', example: 1, minimum: PAGINATION.DEFAULT_PAGE })
   page: number;
 
   @ApiProperty({ description: 'Items per page', example: 20, minimum: PAGINATION.MIN_LIMIT, maximum: PAGINATION.MAX_LIMIT })
@@ -579,6 +607,20 @@ export class PaginationMetadataDto {
   @ApiProperty({ description: 'Whether there is a previous page', example: false })
   hasPreviousPage: boolean;
 
+  // ✅ Enterprise: Audit correlation
+  @ApiPropertyOptional({ 
+    description: 'Correlation ID for audit trail', 
+    example: 'corr_550e8400-e29b-41d4-a716-446655440000' 
+  })
+  correlationId?: string;
+
+  // ✅ Enterprise: Performance metrics
+  @ApiPropertyOptional({ 
+    description: 'Query execution time in milliseconds', 
+    example: 45 
+  })
+  queryTimeMs?: number;
+
   @ApiPropertyOptional({ 
     description: 'Next cursor (for cursor-based pagination)', 
     example: 'usr_550e8400-e29b-41d4-a716-446655440000' 
@@ -590,20 +632,6 @@ export class PaginationMetadataDto {
     example: 'usr_550e8400-e29b-41d4-a716-446655440000' 
   })
   prevCursor?: string;
-
-  // ✅ Enterprise: Performance metrics
-  @ApiPropertyOptional({ 
-    description: 'Query execution time in milliseconds', 
-    example: 45 
-  })
-  queryTimeMs?: number;
-
-  // ✅ Enterprise: Audit correlation
-  @ApiPropertyOptional({ 
-    description: 'Correlation ID for audit trail', 
-    example: 'corr_550e8400-e29b-41d4-a716-446655440000' 
-  })
-  correlationId?: string;
 
   constructor(
     page: number, 
@@ -661,8 +689,8 @@ export class PaginatedResponseDto<T> {
     queryTimeMs?: number,
     correlationId?: string
   ): PaginatedResponseDto<T> {
-    const page = 'page' in paginationDto ? paginationDto.page : PAGINATION.DEFAULT_PAGE;
-    const limit = 'limit' in paginationDto ? paginationDto.limit : PAGINATION.DEFAULT_LIMIT;
+    const page = 'page' in paginationDto ? paginationDto.page ?? PAGINATION.DEFAULT_PAGE : PAGINATION.DEFAULT_PAGE;
+    const limit = 'limit' in paginationDto ? paginationDto.limit ?? PAGINATION.DEFAULT_LIMIT : PAGINATION.DEFAULT_LIMIT;
     return new PaginatedResponseDto<T>(items, total, page, limit, undefined, undefined, queryTimeMs, correlationId);
   }
 
@@ -787,7 +815,7 @@ export class CursorPaginatedResponseDto<T> {
 export class BaseFilterDto extends PaginationDto {
   @ApiPropertyOptional({
     description: 'Filter by date range - start',
-    example: DATE_RANGE.DEFAULT_START,
+    example: new Date().toISOString().split('T')[0],
     format: 'date-time',
   })
   @IsOptional()
@@ -797,7 +825,7 @@ export class BaseFilterDto extends PaginationDto {
 
   @ApiPropertyOptional({
     description: 'Filter by date range - end',
-    example: DATE_RANGE.DEFAULT_END,
+    example: new Date().toISOString().split('T')[0],
     format: 'date-time',
   })
   @IsOptional()
@@ -809,11 +837,13 @@ export class BaseFilterDto extends PaginationDto {
   @ApiPropertyOptional({
     description: 'Search term for text search',
     example: 'john',
-    maxLength: SEARCH_CONFIG.MAX_LENGTH,
+    maxLength: SEARCH_CONFIG.MAX_SEARCH_LENGTH,
   })
   @IsOptional()
-  @IsString({ message: 'Search term must be a string' })
-  @MaxLength(SEARCH_CONFIG.MAX_LENGTH, { message: `Search term cannot exceed ${SEARCH_CONFIG.MAX_LENGTH} characters` })
+  @IsString()
+  @MaxLength(SEARCH_CONFIG.MAX_SEARCH_LENGTH, { 
+    message: `Search term cannot exceed ${SEARCH_CONFIG.MAX_SEARCH_LENGTH} characters` 
+  })
   search?: string;
 
   @ApiPropertyOptional({
@@ -821,7 +851,7 @@ export class BaseFilterDto extends PaginationDto {
     example: 'ACTIVE,INACTIVE',
   })
   @IsOptional()
-  @IsString({ message: 'Status must be a string' })
+  @IsString()
   status?: string;
 
   @ApiPropertyOptional({
@@ -886,7 +916,7 @@ export class BaseFilterDto extends PaginationDto {
 export class BaseFilterQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({
     description: 'Filter by date range - start',
-    example: DATE_RANGE.DEFAULT_START,
+    example: new Date().toISOString().split('T')[0],
     format: 'date-time',
   })
   @IsOptional()
@@ -896,7 +926,7 @@ export class BaseFilterQueryDto extends PaginationQueryDto {
 
   @ApiPropertyOptional({
     description: 'Filter by date range - end',
-    example: DATE_RANGE.DEFAULT_END,
+    example: new Date().toISOString().split('T')[0],
     format: 'date-time',
   })
   @IsOptional()
@@ -908,11 +938,13 @@ export class BaseFilterQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({
     description: 'Search term for text search',
     example: 'john',
-    maxLength: SEARCH_CONFIG.MAX_LENGTH,
+    maxLength: SEARCH_CONFIG.MAX_SEARCH_LENGTH,
   })
   @IsOptional()
-  @IsString({ message: 'Search term must be a string' })
-  @MaxLength(SEARCH_CONFIG.MAX_LENGTH, { message: `Search term cannot exceed ${SEARCH_CONFIG.MAX_LENGTH} characters` })
+  @IsString()
+  @MaxLength(SEARCH_CONFIG.MAX_SEARCH_LENGTH, { 
+    message: `Search term cannot exceed ${SEARCH_CONFIG.MAX_SEARCH_LENGTH} characters` 
+  })
   search?: string;
 
   @ApiPropertyOptional({
@@ -920,7 +952,7 @@ export class BaseFilterQueryDto extends PaginationQueryDto {
     example: 'ACTIVE,INACTIVE',
   })
   @IsOptional()
-  @IsString({ message: 'Status must be a string' })
+  @IsString()
   status?: string;
 
   @ApiPropertyOptional({
@@ -1032,7 +1064,6 @@ export class SortOption {
    * @returns Sanitized field name
    */
   getSanitizedField(): string {
-    // Only allow alphanumeric, underscore, and dot (for nested fields)
     return this.field.replace(/[^a-zA-Z0-9_.]/g, '');
   }
 }
@@ -1049,7 +1080,9 @@ export class MultiSortDto {
   })
   @IsOptional()
   @IsArray()
-  @ArrayMaxSize(PAGINATION.MAX_SORT_FIELDS, { message: (args) => getValidationMessage('sortsMax', 'en', PAGINATION.MAX_SORT_FIELDS) })
+  @ArrayMaxSize(5, { 
+    message: () => getValidationMessage('sortsMax', 'en', 5) 
+  })
   @ValidateIf((o) => o.sorts)
   @ValidateNested({ each: true })
   @Type(() => SortOption)
@@ -1122,7 +1155,6 @@ export function createCursorResponse<T>(
   queryTimeMs?: number,
   correlationId?: string
 ): CursorPaginatedResponseDto<T> {
-  // Auto-encode cursor if present
   const encodedCursor = nextCursor ? CursorPaginationDto.encodeCursor(nextCursor) : null;
   return new CursorPaginatedResponseDto(items, encodedCursor, limit, hasMore, queryTimeMs, correlationId);
 }
