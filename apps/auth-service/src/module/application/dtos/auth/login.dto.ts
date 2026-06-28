@@ -39,13 +39,9 @@ import {
   Matches,
   IsUUID,
   IsEnum,
-  IsArray,
-  ArrayMaxSize,
-  ValidateIf,
   IsNumber,
   Min,
   Max,
-  IsObject,
   ValidateNested,
   IsIn,
   IsIP,
@@ -58,35 +54,22 @@ import { Type } from 'class-transformer';
 // Phase-1: shared-constants import (type-only for enums)
 // ============================================================
 import {
-  LOGIN_METHODS,
-  USER_ROLES,
-  USER_TIERS,
-  AUTH_COOKIE_NAMES,
+  LOGIN_TYPES,
+  USER_TIER,
+  AUTH_PROVIDERS,
   TOKEN_EXPIRY,
   REGEX_PHONE,
   REGEX_EMAIL,
   REGEX_USERNAME,
   PASSWORD_POLICY,
-  MFA_PROVIDERS,
-  ENV_CONFIG,
 } from '@vubon/shared-constants';
 
 // ============================================================
 // Phase-1: shared-types import (type-only for contracts)
 // ============================================================
 import type { 
-  UserRole, 
   UserTier,
-  ApiResponse,
-  PaginatedApiResponse,
-  AuditMetadata,
-  RequestContext,
 } from '@vubon/shared-types';
-
-// ============================================================
-// Environment detection
-// ============================================================
-const IS_PRODUCTION = ENV_CONFIG?.IS_PRODUCTION ?? false;
 
 // ============================================================
 // Validation Messages (English + Bengali)
@@ -156,25 +139,36 @@ function getValidationMessage(
 
 /**
  * Login method types (from shared-constants)
+ * LOGIN_TYPES এর প্রপার্টি নামগুলো:
+ * EMAIL_PASSWORD, PHONE_OTP, SOCIAL_OAUTH, MAGIC_LINK, QR_CODE, BKASH_LOGIN, 
+ * NAGAD_LOGIN, WHATSAPP_OTP, SSO, API_KEY, SERVICE_ACCOUNT
  */
-export const LoginMethod = LOGIN_METHODS;
-export type TLoginMethod = typeof LOGIN_METHODS[keyof typeof LOGIN_METHODS];
+export const LoginMethod = LOGIN_TYPES;
+export type TLoginMethod = typeof LOGIN_TYPES[keyof typeof LOGIN_TYPES];
 
 /**
  * User role types (from shared-constants)
+ * AUTH_PROVIDERS এর প্রপার্টি নামগুলো:
+ * LOCAL, EMAIL, GOOGLE, GITHUB, FACEBOOK, APPLE, PHONE, PHONE_OTP, 
+ * BKASH, NAGAD, ROCKET, MAGIC_LINK, QR_CODE, WHATSAPP
  */
-export const UserRoleEnum = USER_ROLES;
-export type TUserRole = UserRole;
+export const UserRoleEnum = AUTH_PROVIDERS;
+export type TUserRole = typeof AUTH_PROVIDERS[keyof typeof AUTH_PROVIDERS];
 
 /**
  * User tier types (from shared-constants)
+ * USER_TIER এর প্রপার্টি নামগুলো:
+ * BRONZE, SILVER, GOLD, PLATINUM, DIAMOND
  */
-export const UserTierEnum = USER_TIERS;
+export const UserTierEnum = USER_TIER;
 export type TUserTier = UserTier;
 
 /**
  * MFA provider types (from shared-constants)
+ * MFA_PROVIDERS এর প্রপার্টি নামগুলো ব্যবহার করতে হবে।
+ * কিন্তু যেহেতু AUTH_PROVIDERS-এ TOTP নেই, তাই MFA_PROVIDERS আলাদা ইম্পোর্ট করতে হবে।
  */
+import { MFA_PROVIDERS } from '@vubon/shared-constants';
 export const MFAProviderEnum = MFA_PROVIDERS;
 export type TMFAProvider = typeof MFA_PROVIDERS[keyof typeof MFA_PROVIDERS];
 
@@ -192,7 +186,7 @@ export class ClientInfoDto {
   })
   @IsOptional()
   @IsIP(undefined, { message: 'Invalid IP address format' })
-  ipAddress?: string;
+  ipAddress?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'User agent string',
@@ -201,7 +195,7 @@ export class ClientInfoDto {
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  userAgent?: string;
+  userAgent?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Screen resolution',
@@ -210,7 +204,7 @@ export class ClientInfoDto {
   @IsOptional()
   @IsString()
   @Matches(/^\d+x\d+$/, { message: 'Screen resolution must be in format WxH' })
-  screenResolution?: string;
+  screenResolution?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Language preference',
@@ -219,7 +213,7 @@ export class ClientInfoDto {
   @IsOptional()
   @IsString()
   @MaxLength(10)
-  language?: string;
+  language?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Timezone offset in minutes',
@@ -229,7 +223,7 @@ export class ClientInfoDto {
   @IsNumber()
   @Min(-720)
   @Max(840)
-  timezoneOffset?: number;
+  timezoneOffset?: number | undefined;
 
   // Bangladesh specific
   @ApiPropertyOptional({
@@ -239,7 +233,7 @@ export class ClientInfoDto {
   })
   @IsOptional()
   @IsIn(['2g', '3g', '4g', '5g', 'wifi', 'unknown'])
-  networkType?: string;
+  networkType?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'District (Bangladesh specific)',
@@ -248,7 +242,7 @@ export class ClientInfoDto {
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  district?: string;
+  district?: string | undefined;
 }
 
 /**
@@ -256,18 +250,18 @@ export class ClientInfoDto {
  */
 export class RateLimitMetadataDto {
   @ApiPropertyOptional({ description: 'Rate limit window (seconds)', example: 60 })
-  windowSeconds?: number;
+  windowSeconds?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Max requests allowed', example: 5 })
-  maxRequests?: number;
+  maxRequests?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Remaining requests', example: 4 })
-  remaining?: number;
+  remaining?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Reset timestamp', example: '2024-01-01T00:01:00.000Z' })
   @Type(() => Date)
   @IsDate()
-  resetAt?: Date;
+  resetAt?: Date | undefined;
 }
 
 /**
@@ -275,13 +269,13 @@ export class RateLimitMetadataDto {
  */
 export class SecurityHeadersDto {
   @ApiPropertyOptional({ description: 'Session ID for this login' })
-  sessionId?: string;
+  sessionId?: string | undefined;
 
   @ApiPropertyOptional({ description: 'CSRF token' })
-  csrfToken?: string;
+  csrfToken?: string | undefined;
 
   @ApiPropertyOptional({ description: 'Whether secure cookie is used' })
-  secureCookie?: boolean;
+  secureCookie?: boolean | undefined;
 }
 
 // ============================================================
@@ -345,7 +339,7 @@ export class UsernameLoginDto {
   @IsOptional()
   @IsString({ message: 'Device ID must be a string' })
   @MaxLength(255, { message: getValidationMessage('deviceIdMaxLength') })
-  deviceId?: string;
+  deviceId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Device fingerprint for enhanced security',
@@ -355,7 +349,7 @@ export class UsernameLoginDto {
   @IsOptional()
   @IsString()
   @MaxLength(128)
-  deviceFingerprint?: string;
+  deviceFingerprint?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Remember me for extended session',
@@ -364,7 +358,7 @@ export class UsernameLoginDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Remember me must be a boolean' })
-  rememberMe?: boolean = false;
+  rememberMe?: boolean | undefined;
 
   @ApiPropertyOptional({
     description: 'CAPTCHA token for bot protection',
@@ -372,7 +366,7 @@ export class UsernameLoginDto {
   })
   @IsOptional()
   @IsString({ message: 'CAPTCHA token must be a string' })
-  captchaToken?: string;
+  captchaToken?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Client information for security tracking',
@@ -381,7 +375,7 @@ export class UsernameLoginDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => ClientInfoDto)
-  clientInfo?: ClientInfoDto;
+  clientInfo?: ClientInfoDto | undefined;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for distributed tracing',
@@ -389,7 +383,7 @@ export class UsernameLoginDto {
   })
   @IsOptional()
   @IsUUID()
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   constructor(username: string, password: string, deviceId?: string, rememberMe?: boolean) {
     this.username = username;
@@ -457,7 +451,7 @@ export class LoginDto {
   @IsOptional()
   @IsString({ message: 'Device ID must be a string' })
   @MaxLength(255, { message: getValidationMessage('deviceIdMaxLength') })
-  deviceId?: string;
+  deviceId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Device fingerprint for enhanced security',
@@ -467,7 +461,7 @@ export class LoginDto {
   @IsOptional()
   @IsString()
   @MaxLength(128)
-  deviceFingerprint?: string;
+  deviceFingerprint?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Remember me for extended session',
@@ -476,19 +470,19 @@ export class LoginDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Remember me must be a boolean' })
-  rememberMe?: boolean = false;
+  rememberMe?: boolean | undefined;
 
   @ApiPropertyOptional({
     description: 'Login method',
     enum: LoginMethod,
-    example: LoginMethod.EMAIL,
-    default: LoginMethod.EMAIL,
+    example: LoginMethod.EMAIL_PASSWORD,
+    default: LoginMethod.EMAIL_PASSWORD,
   })
   @IsOptional()
   @IsEnum(LoginMethod, { 
     message: `Login method must be one of: ${Object.values(LoginMethod).join(', ')}` 
   })
-  method?: TLoginMethod = LoginMethod.EMAIL;
+  method?: TLoginMethod | undefined;
 
   @ApiPropertyOptional({
     description: 'CAPTCHA token for bot protection',
@@ -496,7 +490,7 @@ export class LoginDto {
   })
   @IsOptional()
   @IsString({ message: 'CAPTCHA token must be a string' })
-  captchaToken?: string;
+  captchaToken?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Client information for security tracking',
@@ -505,7 +499,7 @@ export class LoginDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => ClientInfoDto)
-  clientInfo?: ClientInfoDto;
+  clientInfo?: ClientInfoDto | undefined;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for distributed tracing',
@@ -513,7 +507,7 @@ export class LoginDto {
   })
   @IsOptional()
   @IsUUID()
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   constructor(email: string, password: string, deviceId?: string, rememberMe?: boolean) {
     this.email = email;
@@ -577,7 +571,7 @@ export class PhoneLoginDto {
   @IsOptional()
   @IsString({ message: 'Device ID must be a string' })
   @MaxLength(255, { message: getValidationMessage('deviceIdMaxLength') })
-  deviceId?: string;
+  deviceId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Device fingerprint for enhanced security',
@@ -587,7 +581,7 @@ export class PhoneLoginDto {
   @IsOptional()
   @IsString()
   @MaxLength(128)
-  deviceFingerprint?: string;
+  deviceFingerprint?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Remember me for extended session',
@@ -596,7 +590,7 @@ export class PhoneLoginDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Remember me must be a boolean' })
-  rememberMe?: boolean = false;
+  rememberMe?: boolean | undefined;
 
   @ApiPropertyOptional({
     description: 'CAPTCHA token for bot protection',
@@ -604,7 +598,7 @@ export class PhoneLoginDto {
   })
   @IsOptional()
   @IsString({ message: 'CAPTCHA token must be a string' })
-  captchaToken?: string;
+  captchaToken?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Client information for security tracking',
@@ -613,7 +607,7 @@ export class PhoneLoginDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => ClientInfoDto)
-  clientInfo?: ClientInfoDto;
+  clientInfo?: ClientInfoDto | undefined;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for distributed tracing',
@@ -621,7 +615,7 @@ export class PhoneLoginDto {
   })
   @IsOptional()
   @IsUUID()
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   constructor(phoneNumber: string, password: string, deviceId?: string, rememberMe?: boolean) {
     this.phoneNumber = phoneNumber;
@@ -679,7 +673,7 @@ export class OtpLoginDto {
   @IsOptional()
   @IsString({ message: 'Device ID must be a string' })
   @MaxLength(255, { message: getValidationMessage('deviceIdMaxLength') })
-  deviceId?: string;
+  deviceId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Device fingerprint for enhanced security',
@@ -689,7 +683,7 @@ export class OtpLoginDto {
   @IsOptional()
   @IsString()
   @MaxLength(128)
-  deviceFingerprint?: string;
+  deviceFingerprint?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Remember me for extended session',
@@ -698,7 +692,7 @@ export class OtpLoginDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Remember me must be a boolean' })
-  rememberMe?: boolean = false;
+  rememberMe?: boolean | undefined;
 
   @ApiPropertyOptional({
     description: 'Client information for security tracking',
@@ -707,7 +701,7 @@ export class OtpLoginDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => ClientInfoDto)
-  clientInfo?: ClientInfoDto;
+  clientInfo?: ClientInfoDto | undefined;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for distributed tracing',
@@ -715,7 +709,7 @@ export class OtpLoginDto {
   })
   @IsOptional()
   @IsUUID()
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   constructor(phoneNumber: string, otpCode: string, deviceId?: string, rememberMe?: boolean) {
     this.phoneNumber = phoneNumber;
@@ -744,7 +738,7 @@ export class RefreshTokenDto {
   })
   @IsOptional()
   @IsString({ message: 'Device ID must be a string' })
-  deviceId?: string;
+  deviceId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Device fingerprint for security validation',
@@ -752,7 +746,7 @@ export class RefreshTokenDto {
   })
   @IsOptional()
   @IsString()
-  deviceFingerprint?: string;
+  deviceFingerprint?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for distributed tracing',
@@ -760,7 +754,7 @@ export class RefreshTokenDto {
   })
   @IsOptional()
   @IsUUID()
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   constructor(refreshToken: string, deviceId?: string) {
     this.refreshToken = refreshToken;
@@ -779,7 +773,7 @@ export class LogoutDto {
   @IsOptional()
   @IsString({ message: 'Session ID must be a string' })
   @IsUUID(undefined, { message: getValidationMessage('sessionIdInvalid') })
-  sessionId?: string;
+  sessionId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Logout from all devices',
@@ -788,7 +782,7 @@ export class LogoutDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'All devices must be a boolean' })
-  allDevices?: boolean = false;
+  allDevices?: boolean | undefined;
 
   @ApiPropertyOptional({
     description: 'Refresh token to revoke',
@@ -796,7 +790,7 @@ export class LogoutDto {
   })
   @IsOptional()
   @IsString({ message: 'Refresh token must be a string' })
-  refreshToken?: string;
+  refreshToken?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for audit trail',
@@ -804,7 +798,7 @@ export class LogoutDto {
   })
   @IsOptional()
   @IsUUID()
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   constructor(sessionId?: string, allDevices?: boolean) {
     this.sessionId = sessionId;
@@ -845,7 +839,7 @@ export class MfaVerificationDto {
   })
   @IsOptional()
   @IsEnum(MFAProviderEnum, { message: getValidationMessage('mfaMethodInvalid') })
-  method?: TMFAProvider;
+  method?: TMFAProvider | undefined;
 
   @ApiPropertyOptional({
     description: 'Trust this device for future logins',
@@ -854,7 +848,7 @@ export class MfaVerificationDto {
   })
   @IsOptional()
   @IsBoolean()
-  trustDevice?: boolean = false;
+  trustDevice?: boolean | undefined;
 
   @ApiPropertyOptional({
     description: 'Device fingerprint for trusted device',
@@ -862,7 +856,7 @@ export class MfaVerificationDto {
   })
   @IsOptional()
   @IsString()
-  deviceFingerprint?: string;
+  deviceFingerprint?: string | undefined;
 
   constructor(mfaSessionId: string, code: string, method?: TMFAProvider, trustDevice?: boolean) {
     this.mfaSessionId = mfaSessionId;
@@ -898,13 +892,13 @@ export class UserResponseDto {
     description: 'Username',
     example: 'john_doe',
   })
-  username?: string;
+  username?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Phone number (E.164 format)',
     example: '+8801712345678',
   })
-  phoneNumber?: string;
+  phoneNumber?: string | undefined;
 
   @ApiProperty({
     description: 'User full name',
@@ -921,7 +915,7 @@ export class UserResponseDto {
   @ApiProperty({
     description: 'User role',
     enum: UserRoleEnum,
-    example: UserRoleEnum.CUSTOMER,
+    example: UserRoleEnum.EMAIL,
   })
   role: TUserRole;
 
@@ -936,25 +930,25 @@ export class UserResponseDto {
     description: 'Avatar URL',
     example: 'https://cdn.vubon.com.bd/avatars/user123.jpg',
   })
-  avatar?: string;
+  avatar?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Whether email is verified',
     example: true,
   })
-  isEmailVerified?: boolean;
+  isEmailVerified?: boolean | undefined;
 
   @ApiPropertyOptional({
     description: 'Whether phone is verified',
     example: true,
   })
-  isPhoneVerified?: boolean;
+  isPhoneVerified?: boolean | undefined;
 
   @ApiPropertyOptional({
     description: 'Whether MFA is enabled',
     example: false,
   })
-  mfaEnabled?: boolean;
+  mfaEnabled?: boolean | undefined;
 
   @ApiPropertyOptional({
     description: 'User tier discount percentage',
@@ -964,25 +958,25 @@ export class UserResponseDto {
   @IsNumber()
   @Min(0)
   @Max(100)
-  tierDiscount?: number;
+  tierDiscount?: number | undefined;
 
   @ApiPropertyOptional({
     description: 'Whether user gets free shipping',
     example: false,
   })
-  hasFreeShipping?: boolean;
+  hasFreeShipping?: boolean | undefined;
 
   @ApiPropertyOptional({
     description: 'Preferred language (Bangla/English)',
     example: 'en',
   })
-  preferredLanguage?: 'en' | 'bn';
+  preferredLanguage?: 'en' | 'bn' | undefined;
 
   @ApiPropertyOptional({
     description: 'Preferred district (Bangladesh)',
     example: 'Dhaka',
   })
-  preferredDistrict?: string;
+  preferredDistrict?: string | undefined;
 
   constructor(
     id: string,
@@ -1060,37 +1054,37 @@ export class LoginResponseDto {
     description: 'Whether MFA is required to complete login',
     example: false,
   })
-  mfaRequired?: boolean;
+  mfaRequired?: boolean | undefined;
 
   @ApiPropertyOptional({
     description: 'MFA session ID (if MFA required)',
     example: 'mfa_session_abc123',
   })
-  mfaSessionId?: string;
+  mfaSessionId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Session ID for management',
     example: 'session_abc123',
   })
-  sessionId?: string;
+  sessionId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'CSRF token for subsequent requests',
     example: 'csrf_token_abc123',
   })
-  csrfToken?: string;
+  csrfToken?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Rate limit metadata',
     type: RateLimitMetadataDto,
   })
-  rateLimit?: RateLimitMetadataDto;
+  rateLimit?: RateLimitMetadataDto | undefined;
 
   @ApiPropertyOptional({
     description: 'Security headers metadata',
     type: SecurityHeadersDto,
   })
-  securityHeaders?: SecurityHeadersDto;
+  securityHeaders?: SecurityHeadersDto | undefined;
 
   constructor(
     accessToken: string,
@@ -1157,7 +1151,7 @@ export class TokenRefreshResponseDto {
     description: 'Rate limit metadata',
     type: RateLimitMetadataDto,
   })
-  rateLimit?: RateLimitMetadataDto;
+  rateLimit?: RateLimitMetadataDto | undefined;
 
   constructor(
     accessToken: string, 
@@ -1188,7 +1182,7 @@ export class LogoutResponseDto {
     description: 'Bengali success message',
     example: 'সফলভাবে লগআউট হয়েছে',
   })
-  messageBn?: string;
+  messageBn?: string | undefined;
 
   @ApiProperty({
     description: 'Number of sessions affected',
@@ -1200,7 +1194,7 @@ export class LogoutResponseDto {
     description: 'Correlation ID for audit trail',
     example: 'corr_550e8400-e29b-41d4-a716-446655440000',
   })
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   constructor(message: string, sessionsAffected: number, messageBn?: string, correlationId?: string) {
     this.message = message;
@@ -1238,31 +1232,31 @@ export class MFARequiredResponseDto {
     description: 'Masked phone number for SMS MFA',
     example: '+88017******78',
   })
-  maskedPhone?: string;
+  maskedPhone?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Masked email for email MFA',
     example: 'u***r@example.com',
   })
-  maskedEmail?: string;
+  maskedEmail?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'WhatsApp number for WhatsApp MFA (Bangladesh specific)',
     example: '+88017******78',
   })
-  maskedWhatsApp?: string;
+  maskedWhatsApp?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Login session ID (partial login)',
     example: 'login_session_abc123',
   })
-  loginSessionId?: string;
+  loginSessionId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Rate limit metadata for MFA attempts',
     type: RateLimitMetadataDto,
   })
-  rateLimit?: RateLimitMetadataDto;
+  rateLimit?: RateLimitMetadataDto | undefined;
 
   constructor(
     mfaSessionId: string, 
@@ -1282,16 +1276,3 @@ export class MFARequiredResponseDto {
     this.rateLimit = rateLimit;
   }
 }
-
-// ============================================================
-// Type Exports
-// ============================================================
-
-export type { 
-  TUserRole, 
-  TUserTier, 
-  TMFAProvider,
-  ClientInfoDto as ClientInfoDtoType,
-  RateLimitMetadataDto as RateLimitMetadataDtoType,
-  SecurityHeadersDto as SecurityHeadersDtoType,
-};
