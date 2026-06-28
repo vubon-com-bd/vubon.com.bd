@@ -11,60 +11,13 @@
  */
 
 // ============================================================
-// Common Utility Types (Re-export all from common)
-// ============================================================
-export * from './common';
-
-// ============================================================
-// Auth Domain Types (Re-export all from auth)
-// ============================================================
-export * from './auth';
-
-// ============================================================
-// Value Object Types (Enterprise Grade)
-// ============================================================
-export type {
-  // Core Value Object Types
-  ValueObjectComparison,
-  TemporalEqualityConfig,
-  
-  // Metadata and Snapshot Types
-  ValueObjectMetadata,
-  ValueObjectSnapshot,
-  
-  // Validation Types
-  ValidationErrorCode,
-  ValidationResult,
-  
-  // Serialization Types
-  ValueObjectSerializationOptions,
-  ValueObjectDeserializationOptions,
-  
-  // Performance and Optimization Types
-  EqualityCacheConfig,
-  ValueObjectPerformanceMetrics,
-  
-  // Domain-Specific Value Object Types
-  EmailValueObject,
-  PhoneValueObject,
-  DeviceIdValueObject,
-  
-  // Utility Types
-  ValueObjectConstructor,
-  ValueObjectPredicate,
-  ValueObjectTransformer,
-  ValueObjectFactory,
-  
-  // Error Types
-  ValueObjectError,
-  ValueObjectErrorFactory,
-} from './common/value-object.types';
-
-// ============================================================
 // Auth Domain Types (Selective export to avoid conflicts)
 // ============================================================
 export {
   // User Types
+  type RegistrationMethod,
+  type RegistrationSource,
+  type RegistrationMetadata,
   type UserStatus,
   type UserVerificationStatus,
   type UserTier,
@@ -159,6 +112,7 @@ export {
   // Role Types
   type Role,
   type ExtendedRole,
+  type UserRole,
   type RoleHierarchyMap,
   type RoleHierarchyValue,
   type RoleCategory,
@@ -399,7 +353,6 @@ export {
   type DeviceSummary,
   type LoginAttemptStatistics,
   type LoginHistoryResponse,
-  type RateLimitStatus,
   type RateLimitEndpoint,
   type RateLimitConfig as AuthRateLimitConfig,
   type BlockedIP,
@@ -486,7 +439,6 @@ export {
   type HttpMethod,
   type ApiEndpoint,
   type RateLimitConfig as CommonRateLimitConfig,
-  type RateLimitHeaders,
   type ApiHealthStatus,
   type ApiMetrics,
   type WebSocketMessage,
@@ -504,7 +456,7 @@ export {
   type ApiRetryConfig,
   type ApiCircuitBreakerConfig,
   type ApiCircuitBreakerState,
-  
+  type LogoutScope,
   // Pagination Types
   type SortOrder,
   type PaginationMetadata,
@@ -607,3 +559,107 @@ export {
   type LocationFilterOptions,
   type IPGeolocationResponse,
 } from './common';
+
+// ============================================================
+// Value Object Types (Enterprise Grade)
+// ============================================================
+export type {
+  // Core Value Object Types
+  ValueObjectComparison,
+  TemporalEqualityConfig,
+  
+  // Metadata and Snapshot Types
+  ValueObjectMetadata,
+  ValueObjectSnapshot,
+  
+  // Validation Types
+  ValidationErrorCode,
+  ValidationResult,
+  
+  // Serialization Types
+  ValueObjectSerializationOptions,
+  ValueObjectDeserializationOptions,
+  
+  // Performance and Optimization Types
+  EqualityCacheConfig,
+  ValueObjectPerformanceMetrics,
+  
+  // Domain-Specific Value Object Types
+  EmailValueObject,
+  PhoneValueObject,
+  DeviceIdValueObject,
+  
+  // Utility Types
+  ValueObjectConstructor,
+  ValueObjectPredicate,
+  ValueObjectTransformer,
+  ValueObjectFactory,
+  
+  // Error Types
+  ValueObjectError,
+  ValueObjectErrorFactory,
+} from './common/value-object.types';
+
+// ============================================================
+// ✅ ENTERPRISE: Domain Event Types (Base)
+// ============================================================
+export {
+  // Core Domain Event Types
+  type DomainEvent,
+  type DomainEventHandler,
+  type DomainEventPublisher,
+  type EventStore,
+  type EventSourcingUtils,
+  type EventTypeRegistry,
+  type EventVersionMigration,
+  type EventVersionMigrator,
+  type EventEnvelope,
+  type EventType,  
+  // Event Constants
+  EVENT_TYPES,
+  
+  // Utility Functions
+  isValidEventType,
+  getEventCategory,
+  getEventAction,
+} from './common/domain-event.types';
+
+
+// ============================================================
+// ✅ ENTERPRISE: Rate Limit Types (New)
+// ============================================================
+export {
+  // Rate Limit Enums
+  RateLimitSeverity,
+  RateLimitScope,
+  RateLimitPolicy,
+  RateLimitViolationType,
+  RateLimitErrorCode,
+  
+  // Rate Limit Types
+  type RateLimitWindow,
+  type RateLimitConfig,
+  type EndpointRateLimitConfig,
+  type TierRateLimitConfig,
+  type DistrictRateLimitConfig,
+  type RateLimitStatus,
+  type DetailedRateLimitStatus,
+  type RateLimitHeaders,
+  type RateLimitResponse,
+  type RateLimitViolation,
+  type RateLimitAnalytics,
+  type ServiceRateLimitConfig,
+  
+  // Rate Limit DTOs
+  RateLimitMetadataDto,
+  RateLimitCheckDto,
+  RateLimitCheckResponseDto,
+  
+  // Default Configurations
+  DEFAULT_RATE_LIMITS,
+} from './common/rate-limit.types';
+
+// ============================================================
+// Re-export all types from auth and common
+// ============================================================
+// Note: Explicit exports above replace the need for export *
