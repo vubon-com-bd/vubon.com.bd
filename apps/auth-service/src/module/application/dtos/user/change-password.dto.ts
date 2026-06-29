@@ -41,11 +41,8 @@ import {
   IsEnum,
   IsNumber,
   Min,
-  Max,
   IsDate,
   ValidateNested,
-  IsObject,
-  IsIn,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
@@ -55,9 +52,8 @@ import {
   PASSWORD_POLICY, 
   ACCOUNT_LOCKOUT,
   PASSWORD_HISTORY_CONFIG,
-  ENV_CONFIG,
 } from '@vubon/shared-constants';
-import type { PasswordStrength, AuditMetadata } from '@vubon/shared-types';
+import type { AuditMetadata } from '@vubon/shared-types';
 
 // ============================================================
 // Enums
@@ -106,25 +102,25 @@ export class PasswordChangeRateLimitDto {
   @IsOptional()
   @IsNumber()
   @Min(1)
-  windowSeconds?: number;
+  windowSeconds?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Max attempts allowed', example: 5 })
   @IsOptional()
   @IsNumber()
   @Min(1)
-  maxAttempts?: number;
+  maxAttempts?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Remaining attempts', example: 4 })
   @IsOptional()
   @IsNumber()
   @Min(0)
-  remaining?: number;
+  remaining?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Time when limit resets', example: '2024-01-01T01:00:00.000Z' })
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  resetAt?: Date;
+  resetAt?: Date | undefined;
 }
 
 /**
@@ -134,36 +130,49 @@ export class PasswordChangeAuditContextDto {
   @ApiPropertyOptional({ description: 'IP address of the request', example: '192.168.1.100' })
   @IsOptional()
   @IsString()
-  ipAddress?: string;
+  ipAddress?: string | undefined;
 
   @ApiPropertyOptional({ description: 'User agent string' })
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  userAgent?: string;
+  userAgent?: string | undefined;
 
   @ApiPropertyOptional({ description: 'Current session ID' })
   @IsOptional()
   @IsUUID()
-  sessionId?: string;
+  sessionId?: string | undefined;
 
   @ApiPropertyOptional({ description: 'Device fingerprint' })
   @IsOptional()
   @IsString()
   @MaxLength(128)
-  deviceFingerprint?: string;
+  deviceFingerprint?: string | undefined;
 
   @ApiPropertyOptional({ description: 'Correlation ID for distributed tracing' })
   @IsOptional()
   @IsUUID()
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   @ApiPropertyOptional({ description: 'District (Bangladesh specific)' })
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  district?: string;
+  district?: string | undefined;
 }
+
+// ============================================================
+// ✅ LOCAL CONSTANTS (since they are not exported from shared-constants)
+// ============================================================
+
+const PASSWORD_REGEX_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+const PASSWORD_STRONG_REGEX_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/;
+const PASSWORD_VERY_STRONG_REGEX_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{16,}$/;
+const PASSWORD_SPECIAL_CHARS = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+const PASSWORD_ERROR_COMPLEXITY = 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character';
+const PASSWORD_ERROR_STRONG_COMPLEXITY = 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (minimum 12 characters)';
+const PASSWORD_STRONG_MIN_LENGTH = 12;
+const PASSWORD_VERY_STRONG_MIN_LENGTH = 16;
 
 // ============================================================
 // Request DTOs (Enterprise Enhanced)
@@ -215,7 +224,6 @@ export class ChangePasswordDto {
     writeOnly: true,
     minLength: PASSWORD_POLICY.MIN_LENGTH,
     maxLength: PASSWORD_POLICY.MAX_LENGTH,
-    pattern: PASSWORD_POLICY.REGEX_PATTERN,
   })
   @IsString({ message: 'New password must be a string' })
   @IsNotEmpty({ message: 'New password is required' })
@@ -225,8 +233,8 @@ export class ChangePasswordDto {
   @MaxLength(PASSWORD_POLICY.MAX_LENGTH, { 
     message: `New password cannot exceed ${PASSWORD_POLICY.MAX_LENGTH} characters` 
   })
-  @Matches(PASSWORD_POLICY.REGEX_PATTERN, {
-    message: PASSWORD_POLICY.ERROR_MESSAGES.COMPLEXITY,
+  @Matches(PASSWORD_REGEX_PATTERN, {
+    message: PASSWORD_ERROR_COMPLEXITY,
   })
   newPassword: string;
 
@@ -237,7 +245,7 @@ export class ChangePasswordDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Logout other devices must be a boolean' })
-  logoutOtherDevices?: boolean = true;
+  logoutOtherDevices?: boolean | undefined = true;
 
   // ✅ ENTERPRISE ENHANCEMENT: Password reuse prevention
   @ApiPropertyOptional({
@@ -247,7 +255,7 @@ export class ChangePasswordDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Prevent reuse must be a boolean' })
-  preventReuse?: boolean = true;
+  preventReuse?: boolean | undefined = true;
 
   @ApiPropertyOptional({
     description: 'Device ID (for audit)',
@@ -256,7 +264,7 @@ export class ChangePasswordDto {
   @IsOptional()
   @IsString({ message: 'Device ID must be a string' })
   @MaxLength(255, { message: 'Device ID cannot exceed 255 characters' })
-  deviceId?: string;
+  deviceId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Skip current password validation (for password reset flow)',
@@ -265,7 +273,7 @@ export class ChangePasswordDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Skip validation must be a boolean' })
-  skipCurrentPasswordValidation?: boolean = false;
+  skipCurrentPasswordValidation?: boolean | undefined = false;
 
   @ApiPropertyOptional({
     description: 'Password change flow type',
@@ -275,7 +283,7 @@ export class ChangePasswordDto {
   })
   @IsOptional()
   @IsEnum(PasswordChangeFlow, { message: 'Invalid change flow type' })
-  flow?: PasswordChangeFlow = PasswordChangeFlow.USER_INITIATED;
+  flow?: PasswordChangeFlow | undefined = PasswordChangeFlow.USER_INITIATED;
 
   @ApiPropertyOptional({
     description: 'Password strength level required',
@@ -285,7 +293,7 @@ export class ChangePasswordDto {
   })
   @IsOptional()
   @IsEnum(PasswordStrengthLevel, { message: 'Invalid strength level' })
-  strengthLevel?: PasswordStrengthLevel = PasswordStrengthLevel.STANDARD;
+  strengthLevel?: PasswordStrengthLevel | undefined = PasswordStrengthLevel.STANDARD;
 
   // ✅ ENTERPRISE ENHANCEMENT: Rate limit metadata
   @ApiPropertyOptional({
@@ -295,7 +303,7 @@ export class ChangePasswordDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => PasswordChangeRateLimitDto)
-  rateLimit?: PasswordChangeRateLimitDto;
+  rateLimit?: PasswordChangeRateLimitDto | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Audit context
   @ApiPropertyOptional({
@@ -305,7 +313,7 @@ export class ChangePasswordDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => PasswordChangeAuditContextDto)
-  auditContext?: PasswordChangeAuditContextDto;
+  auditContext?: PasswordChangeAuditContextDto | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Password expiry override (for admins)
   @ApiPropertyOptional({
@@ -315,19 +323,19 @@ export class ChangePasswordDto {
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  resetExpiryDate?: Date;
+  resetExpiryDate?: Date | undefined;
 
   constructor(
     currentPassword: string, 
     newPassword: string, 
-    logoutOtherDevices?: boolean,
-    deviceId?: string,
-    skipCurrentPasswordValidation?: boolean,
-    flow?: PasswordChangeFlow,
-    strengthLevel?: PasswordStrengthLevel,
-    preventReuse?: boolean,
-    auditContext?: PasswordChangeAuditContextDto,
-    resetExpiryDate?: Date
+    logoutOtherDevices?: boolean | undefined,
+    deviceId?: string | undefined,
+    skipCurrentPasswordValidation?: boolean | undefined,
+    flow?: PasswordChangeFlow | undefined,
+    strengthLevel?: PasswordStrengthLevel | undefined,
+    preventReuse?: boolean | undefined,
+    auditContext?: PasswordChangeAuditContextDto | undefined,
+    resetExpiryDate?: Date | undefined
   ) {
     this.currentPassword = currentPassword;
     this.newPassword = newPassword;
@@ -370,33 +378,32 @@ export class StrongChangePasswordDto extends ChangePasswordDto {
     required: true,
     format: 'password',
     writeOnly: true,
-    minLength: PASSWORD_POLICY.STRONG_MIN_LENGTH,
+    minLength: PASSWORD_STRONG_MIN_LENGTH,
     maxLength: PASSWORD_POLICY.MAX_LENGTH,
-    pattern: PASSWORD_POLICY.STRONG_REGEX_PATTERN,
   })
   @IsString({ message: 'New password must be a string' })
   @IsNotEmpty({ message: 'New password is required' })
-  @MinLength(PASSWORD_POLICY.STRONG_MIN_LENGTH, { 
-    message: `New password must be at least ${PASSWORD_POLICY.STRONG_MIN_LENGTH} characters long` 
+  @MinLength(PASSWORD_STRONG_MIN_LENGTH, { 
+    message: `New password must be at least ${PASSWORD_STRONG_MIN_LENGTH} characters long` 
   })
   @MaxLength(PASSWORD_POLICY.MAX_LENGTH, { 
     message: `New password cannot exceed ${PASSWORD_POLICY.MAX_LENGTH} characters` 
   })
-  @Matches(PASSWORD_POLICY.STRONG_REGEX_PATTERN, {
-    message: PASSWORD_POLICY.ERROR_MESSAGES.STRONG_COMPLEXITY,
+  @Matches(PASSWORD_STRONG_REGEX_PATTERN, {
+    message: PASSWORD_ERROR_STRONG_COMPLEXITY,
   })
-  newPassword: string;
+  declare newPassword: string;
 
   constructor(
     currentPassword: string, 
     newPassword: string, 
-    logoutOtherDevices?: boolean,
-    deviceId?: string,
-    skipCurrentPasswordValidation?: boolean,
-    flow?: PasswordChangeFlow,
-    preventReuse?: boolean,
-    auditContext?: PasswordChangeAuditContextDto,
-    resetExpiryDate?: Date
+    logoutOtherDevices?: boolean | undefined,
+    deviceId?: string | undefined,
+    skipCurrentPasswordValidation?: boolean | undefined,
+    flow?: PasswordChangeFlow | undefined,
+    preventReuse?: boolean | undefined,
+    auditContext?: PasswordChangeAuditContextDto | undefined,
+    resetExpiryDate?: Date | undefined
   ) {
     super(
       currentPassword, 
@@ -445,8 +452,8 @@ export class AdminForceChangePasswordDto {
   @MaxLength(PASSWORD_POLICY.MAX_LENGTH, { 
     message: `Password cannot exceed ${PASSWORD_POLICY.MAX_LENGTH} characters` 
   })
-  @Matches(PASSWORD_POLICY.REGEX_PATTERN, {
-    message: PASSWORD_POLICY.ERROR_MESSAGES.COMPLEXITY,
+  @Matches(PASSWORD_REGEX_PATTERN, {
+    message: PASSWORD_ERROR_COMPLEXITY,
   })
   newPassword: string;
 
@@ -457,7 +464,7 @@ export class AdminForceChangePasswordDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Require change on next login must be a boolean' })
-  requireChangeOnNextLogin?: boolean = true;
+  requireChangeOnNextLogin?: boolean | undefined = true;
 
   @ApiPropertyOptional({
     description: 'Reason for force change (for audit)',
@@ -467,7 +474,7 @@ export class AdminForceChangePasswordDto {
   @IsOptional()
   @IsString({ message: 'Reason must be a string' })
   @MaxLength(500, { message: 'Reason cannot exceed 500 characters' })
-  reason?: string;
+  reason?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Notify user via email',
@@ -476,7 +483,7 @@ export class AdminForceChangePasswordDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Notify user must be a boolean' })
-  notifyUser?: boolean = true;
+  notifyUser?: boolean | undefined = true;
 
   @ApiPropertyOptional({
     description: 'Notify user via SMS (Bangladesh specific)',
@@ -485,7 +492,7 @@ export class AdminForceChangePasswordDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Notify via SMS must be a boolean' })
-  notifySms?: boolean = false;
+  notifySms?: boolean | undefined = false;
 
   @ApiPropertyOptional({
     description: 'Revoke all existing sessions',
@@ -494,7 +501,7 @@ export class AdminForceChangePasswordDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Revoke sessions must be a boolean' })
-  revokeSessions?: boolean = true;
+  revokeSessions?: boolean | undefined = true;
 
   @ApiPropertyOptional({
     description: 'Force user to set a new password immediately',
@@ -503,7 +510,7 @@ export class AdminForceChangePasswordDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Force immediate change must be a boolean' })
-  forceImmediateChange?: boolean = false;
+  forceImmediateChange?: boolean | undefined = false;
 
   // ✅ ENTERPRISE ENHANCEMENT: Prevent reuse of recent passwords
   @ApiPropertyOptional({
@@ -513,7 +520,7 @@ export class AdminForceChangePasswordDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Prevent reuse must be a boolean' })
-  preventReuse?: boolean = true;
+  preventReuse?: boolean | undefined = true;
 
   @ApiPropertyOptional({
     description: 'Audit context for admin action',
@@ -522,19 +529,19 @@ export class AdminForceChangePasswordDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => PasswordChangeAuditContextDto)
-  auditContext?: PasswordChangeAuditContextDto;
+  auditContext?: PasswordChangeAuditContextDto | undefined;
 
   constructor(
     targetUserId: string,
     newPassword: string,
-    requireChangeOnNextLogin?: boolean,
-    reason?: string,
-    notifyUser?: boolean,
-    revokeSessions?: boolean,
-    notifySms?: boolean,
-    forceImmediateChange?: boolean,
-    preventReuse?: boolean,
-    auditContext?: PasswordChangeAuditContextDto
+    requireChangeOnNextLogin?: boolean | undefined,
+    reason?: string | undefined,
+    notifyUser?: boolean | undefined,
+    revokeSessions?: boolean | undefined,
+    notifySms?: boolean | undefined,
+    forceImmediateChange?: boolean | undefined,
+    preventReuse?: boolean | undefined,
+    auditContext?: PasswordChangeAuditContextDto | undefined
   ) {
     this.targetUserId = targetUserId;
     this.newPassword = newPassword;
@@ -573,13 +580,13 @@ export class ChangePasswordResponseDto {
     description: 'Bengali response message',
     example: 'পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে',
   })
-  messageBn?: string;
+  messageBn?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Number of sessions revoked (if logoutOtherDevices was true)',
     example: 3,
   })
-  sessionsRevoked?: number;
+  sessionsRevoked?: number | undefined;
 
   @ApiProperty({
     description: 'Timestamp when password was changed',
@@ -592,19 +599,19 @@ export class ChangePasswordResponseDto {
     description: 'Whether password requires change on next login',
     example: false,
   })
-  requiresChangeOnNextLogin?: boolean;
+  requiresChangeOnNextLogin?: boolean | undefined;
 
   @ApiPropertyOptional({
     description: 'New session ID (if current session was rotated)',
     example: 'sess_550e8400-e29b-41d4-a716-446655440000',
   })
-  newSessionId?: string;
+  newSessionId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Notification sent (email/SMS)',
     example: true,
   })
-  notificationSent?: boolean;
+  notificationSent?: boolean | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Password strength score
   @ApiPropertyOptional({
@@ -613,7 +620,7 @@ export class ChangePasswordResponseDto {
     minimum: 0,
     maximum: 100,
   })
-  newPasswordStrength?: number;
+  newPasswordStrength?: number | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Password expiry info
   @ApiPropertyOptional({
@@ -621,41 +628,41 @@ export class ChangePasswordResponseDto {
     enum: PasswordExpiryStatus,
     example: PasswordExpiryStatus.HEALTHY,
   })
-  expiryStatus?: PasswordExpiryStatus;
+  expiryStatus?: PasswordExpiryStatus | undefined;
 
   @ApiPropertyOptional({
     description: 'Days until password expires',
     example: 85,
   })
-  daysUntilExpiry?: number;
+  daysUntilExpiry?: number | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Rate limit info
   @ApiPropertyOptional({
     description: 'Rate limit remaining attempts',
     example: 4,
   })
-  remainingAttempts?: number;
+  remainingAttempts?: number | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Correlation ID
   @ApiPropertyOptional({
     description: 'Correlation ID for distributed tracing',
     example: 'corr_550e8400-e29b-41d4-a716-446655440000',
   })
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   constructor(
     success: boolean, 
     message: string, 
-    sessionsRevoked?: number,
-    requiresChangeOnNextLogin?: boolean,
-    messageBn?: string,
-    newSessionId?: string,
-    notificationSent?: boolean,
-    newPasswordStrength?: number,
-    expiryStatus?: PasswordExpiryStatus,
-    daysUntilExpiry?: number,
-    remainingAttempts?: number,
-    correlationId?: string
+    sessionsRevoked?: number | undefined,
+    requiresChangeOnNextLogin?: boolean | undefined,
+    messageBn?: string | undefined,
+    newSessionId?: string | undefined,
+    notificationSent?: boolean | undefined,
+    newPasswordStrength?: number | undefined,
+    expiryStatus?: PasswordExpiryStatus | undefined,
+    daysUntilExpiry?: number | undefined,
+    remainingAttempts?: number | undefined,
+    correlationId?: string | undefined
   ) {
     this.success = success;
     this.message = message;
@@ -676,16 +683,16 @@ export class ChangePasswordResponseDto {
    * Create success response
    */
   static success(
-    sessionsRevoked?: number,
-    requiresChangeOnNextLogin?: boolean,
-    messageBn?: string,
-    newSessionId?: string,
-    notificationSent?: boolean,
-    newPasswordStrength?: number,
-    expiryStatus?: PasswordExpiryStatus,
-    daysUntilExpiry?: number,
-    remainingAttempts?: number,
-    correlationId?: string
+    sessionsRevoked?: number | undefined,
+    requiresChangeOnNextLogin?: boolean | undefined,
+    messageBn?: string | undefined,
+    newSessionId?: string | undefined,
+    notificationSent?: boolean | undefined,
+    newPasswordStrength?: number | undefined,
+    expiryStatus?: PasswordExpiryStatus | undefined,
+    daysUntilExpiry?: number | undefined,
+    remainingAttempts?: number | undefined,
+    correlationId?: string | undefined
   ): ChangePasswordResponseDto {
     return new ChangePasswordResponseDto(
       true,
@@ -706,22 +713,39 @@ export class ChangePasswordResponseDto {
   /**
    * Create error response
    */
-  static error(message: string, messageBn?: string, correlationId?: string): ChangePasswordResponseDto {
+  static error(message: string, messageBn?: string | undefined, correlationId?: string | undefined): ChangePasswordResponseDto {
     return new ChangePasswordResponseDto(false, message, undefined, undefined, messageBn, undefined, undefined, undefined, undefined, undefined, undefined, correlationId);
   }
 
   /**
    * Create rate limited error response
    */
-  static rateLimited(
-    remainingAttempts: number, 
-    resetAt?: Date,
-    correlationId?: string
-  ): ChangePasswordResponseDto {
-    const message = `Too many password change attempts. ${remainingAttempts} attempts remaining.`;
-    const response = new ChangePasswordResponseDto(false, message, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, remainingAttempts, correlationId);
-    return response;
-  }
+  /**
+ * Create rate limited error response
+ */
+static rateLimited(
+  remainingAttempts: number, 
+  resetAt?: Date | undefined,
+  correlationId?: string | undefined
+): ChangePasswordResponseDto {
+  const resetTime = resetAt ? resetAt.toISOString() : 'unknown';
+  const message = `Too many password change attempts. ${remainingAttempts} attempts remaining. Reset at: ${resetTime}`;
+  const response = new ChangePasswordResponseDto(
+    false, 
+    message, 
+    undefined, 
+    undefined, 
+    undefined, 
+    undefined, 
+    undefined, 
+    undefined, 
+    undefined, 
+    undefined, 
+    remainingAttempts, 
+    correlationId
+  );
+  return response;
+}
 }
 
 /**
@@ -738,55 +762,55 @@ export class ValidateCurrentPasswordResponseDto {
     description: 'Bengali message',
     example: 'পাসওয়ার্ড বৈধ',
   })
-  messageBn?: string;
+  messageBn?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Remaining attempts before account lockout',
     example: 3,
     minimum: 0,
   })
-  remainingAttempts?: number;
+  remainingAttempts?: number | undefined;
 
   @ApiPropertyOptional({
     description: 'Maximum attempts before lockout',
     example: 5,
   })
-  maxAttempts?: number;
+  maxAttempts?: number | undefined;
 
   @ApiPropertyOptional({
     description: 'Whether account is locked',
     example: false,
   })
-  isLocked?: boolean;
+  isLocked?: boolean | undefined;
 
   @ApiPropertyOptional({
     description: 'Lockout expiry time',
     example: '2024-01-01T00:15:00.000Z',
     format: 'date-time',
   })
-  lockoutExpiresAt?: string;
+  lockoutExpiresAt?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Lockout duration in minutes',
     example: 15,
   })
-  lockoutDurationMinutes?: number;
+  lockoutDurationMinutes?: number | undefined;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for tracing',
     example: 'corr_550e8400-e29b-41d4-a716-446655440000',
   })
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   constructor(
     isValid: boolean, 
-    remainingAttempts?: number, 
-    isLocked?: boolean, 
-    lockoutExpiresAt?: Date,
-    messageBn?: string,
-    maxAttempts?: number,
-    lockoutDurationMinutes?: number,
-    correlationId?: string
+    remainingAttempts?: number | undefined, 
+    isLocked?: boolean | undefined, 
+    lockoutExpiresAt?: Date | undefined,
+    messageBn?: string | undefined,
+    maxAttempts?: number | undefined,
+    lockoutDurationMinutes?: number | undefined,
+    correlationId?: string | undefined
   ) {
     this.isValid = isValid;
     this.remainingAttempts = remainingAttempts;
@@ -887,42 +911,42 @@ export class PasswordRulesResponseDto {
     description: 'Bengali version of password rules',
     example: 'পাসওয়ার্ডে কমপক্ষে ৮টি অক্ষর থাকতে হবে, একটি বড় হাতের অক্ষর, একটি ছোট হাতের অক্ষর, একটি সংখ্যা এবং একটি বিশেষ অক্ষর থাকতে হবে',
   })
-  rulesBn?: string;
+  rulesBn?: string | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Password expiry rules
   @ApiPropertyOptional({
     description: 'Password expiry days (Bangladesh Bank guideline: 90 days)',
     example: 90,
   })
-  expiryDays?: number;
+  expiryDays?: number | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Password history count to prevent reuse
   @ApiPropertyOptional({
     description: 'Number of previous passwords to prevent reuse',
     example: 5,
   })
-  preventReuseCount?: number;
+  preventReuseCount?: number | undefined;
 
   constructor() {
     this.minLength = PASSWORD_POLICY.MIN_LENGTH;
     this.standardMinLength = PASSWORD_POLICY.MIN_LENGTH;
-    this.strongMinLength = PASSWORD_POLICY.STRONG_MIN_LENGTH;
-    this.veryStrongMinLength = PASSWORD_POLICY.VERY_STRONG_MIN_LENGTH;
+    this.strongMinLength = PASSWORD_STRONG_MIN_LENGTH;
+    this.veryStrongMinLength = PASSWORD_VERY_STRONG_MIN_LENGTH;
     this.maxLength = PASSWORD_POLICY.MAX_LENGTH;
     this.requireUppercase = PASSWORD_POLICY.REQUIRE_UPPERCASE;
     this.requireLowercase = PASSWORD_POLICY.REQUIRE_LOWERCASE;
     this.requireNumbers = PASSWORD_POLICY.REQUIRE_NUMBERS;
-    this.requireSpecial = PASSWORD_POLICY.REQUIRE_SPECIAL;
-    this.specialChars = PASSWORD_POLICY.SPECIAL_CHARS;
-    this.pattern = PASSWORD_POLICY.REGEX_PATTERN;
-    this.strongPattern = PASSWORD_POLICY.STRONG_REGEX_PATTERN;
-    this.veryStrongPattern = PASSWORD_POLICY.VERY_STRONG_REGEX_PATTERN;
+    this.requireSpecial = PASSWORD_POLICY.REQUIRE_SYMBOLS;
+    this.specialChars = PASSWORD_SPECIAL_CHARS;
+    this.pattern = PASSWORD_REGEX_PATTERN.source;
+    this.strongPattern = PASSWORD_STRONG_REGEX_PATTERN.source;
+    this.veryStrongPattern = PASSWORD_VERY_STRONG_REGEX_PATTERN.source;
     
     // ✅ ENTERPRISE: Bengali rules
     this.rulesBn = `পাসওয়ার্ডে কমপক্ষে ${PASSWORD_POLICY.MIN_LENGTH}টি অক্ষর থাকতে হবে। 
       একটি বড় হাতের অক্ষর (A-Z), একটি ছোট হাতের অক্ষর (a-z), একটি সংখ্যা (0-9) এবং 
-      একটি বিশেষ অক্ষর (${PASSWORD_POLICY.SPECIAL_CHARS}) থাকতে হবে। 
-      শক্তিশালী পাসওয়ার্ডের জন্য কমপক্ষে ${PASSWORD_POLICY.STRONG_MIN_LENGTH}টি অক্ষর প্রয়োজন।`;
+      একটি বিশেষ অক্ষর (${PASSWORD_SPECIAL_CHARS}) থাকতে হবে। 
+      শক্তিশালী পাসওয়ার্ডের জন্য কমপক্ষে ${PASSWORD_STRONG_MIN_LENGTH}টি অক্ষর প্রয়োজন।`;
     
     // ✅ ENTERPRISE: Bangladesh Bank guideline
     this.expiryDays = PASSWORD_HISTORY_CONFIG?.PASSWORD_EXPIRY_DAYS || 90;
@@ -950,7 +974,7 @@ export class PasswordChangeAuditDto {
     description: 'User phone (masked for privacy)',
     example: '+88017******78',
   })
-  userPhoneMasked?: string;
+  userPhoneMasked?: string | undefined;
 
   @ApiProperty({
     description: 'Changed by (user ID or admin ID)',
@@ -1002,14 +1026,14 @@ export class PasswordChangeAuditDto {
     description: 'Correlation ID for distributed tracing',
     example: 'corr_550e8400-e29b-41d4-a716-446655440000',
   })
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Change flow type',
     enum: PasswordChangeFlow,
     example: PasswordChangeFlow.USER_INITIATED,
   })
-  flow?: PasswordChangeFlow;
+  flow?: PasswordChangeFlow | undefined;
 
   constructor(
     userId: string,
@@ -1020,10 +1044,10 @@ export class PasswordChangeAuditDto {
     userAgent: string,
     deviceId: string,
     changedAt: Date,
-    newPasswordStrength?: number,
-    userPhoneMasked?: string,
-    correlationId?: string,
-    flow?: PasswordChangeFlow
+    newPasswordStrength?: number | undefined,
+    userPhoneMasked?: string | undefined,
+    correlationId?: string | undefined,
+    flow?: PasswordChangeFlow | undefined
   ) {
     this.userId = userId;
     this.userEmail = userEmail;
@@ -1054,26 +1078,32 @@ export function getPasswordChangeAuditMetadata(
 ): AuditMetadata {
   const auditContext = 'auditContext' in dto ? dto.auditContext : undefined;
 
+  const metadata: Record<string, unknown> = {
+    ipAddress: auditContext?.ipAddress,
+    userAgent: auditContext?.userAgent,
+    sessionId: auditContext?.sessionId,
+    deviceFingerprint: auditContext?.deviceFingerprint,
+    district: auditContext?.district,
+    flow: 'flow' in dto ? dto.flow : undefined,
+    strengthLevel: 'strengthLevel' in dto ? dto.strengthLevel : undefined,
+    preventReuse: 'preventReuse' in dto ? dto.preventReuse : undefined,
+    logoutOtherDevices: 'logoutOtherDevices' in dto ? dto.logoutOtherDevices : undefined,
+    skipCurrentPasswordValidation: 'skipCurrentPasswordValidation' in dto ? dto.skipCurrentPasswordValidation : undefined,
+    adminId: adminId,
+    reason: 'reason' in dto ? dto.reason : undefined,
+  };
+
+  // deviceId handling - 'deviceId' might not exist on all DTO types
+  if ('deviceId' in dto && dto.deviceId !== undefined) {
+    metadata.deviceId = dto.deviceId;
+  }
+
   return {
     userId,
     source: 'api',
     timestamp: new Date(),
     requestId: auditContext?.correlationId,
-    metadata: {
-      ipAddress: auditContext?.ipAddress,
-      userAgent: auditContext?.userAgent,
-      sessionId: auditContext?.sessionId,
-      deviceId: dto.deviceId,
-      deviceFingerprint: auditContext?.deviceFingerprint,
-      district: auditContext?.district,
-      flow: dto.flow,
-      strengthLevel: dto.strengthLevel,
-      preventReuse: dto.preventReuse,
-      logoutOtherDevices: dto.logoutOtherDevices,
-      skipCurrentPasswordValidation: dto.skipCurrentPasswordValidation,
-      adminId: adminId,
-      reason: 'reason' in dto ? dto.reason : undefined,
-    },
+    additionalData: metadata,
   };
 }
 
