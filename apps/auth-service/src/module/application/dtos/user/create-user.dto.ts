@@ -9,7 +9,6 @@
  * NO business logic, NO database queries, NO infrastructure imports.
  * 
  * ENTERPRISE ENHANCEMENTS:
- * ✅ Reusable @Match decorator from shared-utils
  * ✅ Centralized patterns from shared-constants (single source of truth)
  * ✅ Full TypeScript strict mode with shared-types
  * ✅ Bangladesh-specific validation (phone, district, language)
@@ -33,12 +32,12 @@ import {
   IsNotEmpty, 
   IsOptional, 
   IsBoolean,
-  IsEnum,
   MinLength, 
   MaxLength,
   Matches,
   IsIn,
   IsObject,
+  ValidateIf,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -47,14 +46,9 @@ import {
   PASSWORD_PATTERNS, 
   PHONE_PATTERNS, 
   PASSWORD_LENGTH,
-  USER_ROLES,
-  USER_TIERS,
   NAME_PATTERNS,
 } from '@vubon/shared-constants';
 import type { UserRole, UserTier } from '@vubon/shared-types';
-
-// ✅ ENTERPRISE ENHANCEMENT: Import reusable Match decorator from shared-utils
-import { Match } from '@vubon/shared-utils';
 
 // ============================================================
 // Types
@@ -141,8 +135,13 @@ export class CreateUserDto {
   })
   @IsString({ message: 'Confirm password must be a string' })
   @IsNotEmpty({ message: 'Confirm password is required' })
-  // ✅ ENTERPRISE ENHANCEMENT: Using shared-utils Match decorator instead of custom logic
-  @Match('password', { message: 'Password and confirm password do not match' })
+  @MinLength(PASSWORD_LENGTH.MIN, { 
+    message: `Confirm password must be at least ${PASSWORD_LENGTH.MIN} characters long` 
+  })
+  @MaxLength(PASSWORD_LENGTH.MAX, { 
+    message: `Confirm password cannot exceed ${PASSWORD_LENGTH.MAX} characters` 
+  })
+  @ValidateIf((o) => o.password !== undefined)
   confirmPassword: string;
 
   @ApiProperty({
@@ -169,7 +168,7 @@ export class CreateUserDto {
   @IsOptional()
   @IsString({ message: 'Display name must be a string' })
   @MaxLength(50, { message: 'Display name cannot exceed 50 characters' })
-  displayName?: string;
+  displayName?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Phone number (E.164 format, Bangladesh numbers start with +880)',
@@ -177,10 +176,10 @@ export class CreateUserDto {
   })
   @IsOptional()
   @IsString({ message: 'Phone number must be a string' })
-  @Matches(PHONE_PATTERNS.BANGLADESH_E164, {
-    message: 'Phone number must be in E.164 format (e.g., +8801712345678)',
+  @Matches(PHONE_PATTERNS.BANGLADESH_MOBILE, {
+    message: 'Phone number must be a valid Bangladesh number (e.g., +8801712345678 or 01712345678)',
   })
-  phone?: string;
+  phone?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Preferred language',
@@ -190,7 +189,7 @@ export class CreateUserDto {
   })
   @IsOptional()
   @IsIn(['en', 'bn'], { message: 'Preferred language must be en or bn' })
-  preferredLanguage?: 'en' | 'bn' = 'en';
+  preferredLanguage?: 'en' | 'bn' | undefined = 'en';
 
   @ApiPropertyOptional({
     description: 'Preferred district (Bangladesh)',
@@ -199,7 +198,7 @@ export class CreateUserDto {
   @IsOptional()
   @IsString({ message: 'Preferred district must be a string' })
   @MaxLength(50, { message: 'Preferred district cannot exceed 50 characters' })
-  preferredDistrict?: string;
+  preferredDistrict?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Preferred upazila (Bangladesh)',
@@ -208,7 +207,7 @@ export class CreateUserDto {
   @IsOptional()
   @IsString({ message: 'Preferred upazila must be a string' })
   @MaxLength(50, { message: 'Preferred upazila cannot exceed 50 characters' })
-  preferredUpazila?: string;
+  preferredUpazila?: string | undefined;
 
   @ApiProperty({
     description: 'Accept terms and conditions',
@@ -226,7 +225,7 @@ export class CreateUserDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Accept privacy policy must be a boolean' })
-  acceptPrivacy?: boolean = true;
+  acceptPrivacy?: boolean | undefined = true;
 
   @ApiPropertyOptional({
     description: 'Consent to marketing communications',
@@ -235,7 +234,7 @@ export class CreateUserDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Marketing consent must be a boolean' })
-  marketingConsent?: boolean = false;
+  marketingConsent?: boolean | undefined = false;
 
   @ApiPropertyOptional({
     description: 'Referral code (if applicable)',
@@ -245,7 +244,7 @@ export class CreateUserDto {
   @IsOptional()
   @IsString({ message: 'Referral code must be a string' })
   @MaxLength(50, { message: 'Referral code cannot exceed 50 characters' })
-  referralCode?: string;
+  referralCode?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'User preferences',
@@ -257,7 +256,15 @@ export class CreateUserDto {
   })
   @IsOptional()
   @IsObject({ message: 'Preferences must be an object' })
-  preferences?: UserPreferencesDto;
+  preferences?: UserPreferencesDto | undefined;
+
+  /**
+   * ✅ ENTERPRISE: Manual password confirmation validation
+   * This method should be called in the service layer
+   */
+  public validatePasswordMatch(): boolean {
+    return this.password === this.confirmPassword;
+  }
 
   constructor(
     email: string,
@@ -265,15 +272,15 @@ export class CreateUserDto {
     confirmPassword: string,
     fullName: string,
     acceptTerms: boolean,
-    phone?: string,
-    displayName?: string,
-    preferredLanguage?: 'en' | 'bn',
-    preferredDistrict?: string,
-    preferredUpazila?: string,
-    acceptPrivacy?: boolean,
-    marketingConsent?: boolean,
-    referralCode?: string,
-    preferences?: UserPreferencesDto
+    phone?: string | undefined,
+    displayName?: string | undefined,
+    preferredLanguage?: 'en' | 'bn' | undefined,
+    preferredDistrict?: string | undefined,
+    preferredUpazila?: string | undefined,
+    acceptPrivacy?: boolean | undefined,
+    marketingConsent?: boolean | undefined,
+    referralCode?: string | undefined,
+    preferences?: UserPreferencesDto | undefined
   ) {
     this.email = email;
     this.password = password;
@@ -308,8 +315,8 @@ export class CreateUserDto {
  *   "fullName": "Seller User",
  *   "displayName": "Seller",
  *   "phone": "+8801712345678",
- *   "role": "SELLER",
- *   "userTier": "BRONZE",
+ *   "role": "seller",
+ *   "userTier": "bronze",
  *   "preferredLanguage": "bn",
  *   "preferredDistrict": "Chittagong",
  *   "sendWelcomeEmail": true,
@@ -361,8 +368,12 @@ export class AdminCreateUserDto {
   })
   @IsString({ message: 'Confirm password must be a string' })
   @IsNotEmpty({ message: 'Confirm password is required' })
-  // ✅ ENTERPRISE ENHANCEMENT: Using shared-utils Match decorator
-  @Match('password', { message: 'Password and confirm password do not match' })
+  @MinLength(PASSWORD_LENGTH.MIN, { 
+    message: `Confirm password must be at least ${PASSWORD_LENGTH.MIN} characters long` 
+  })
+  @MaxLength(PASSWORD_LENGTH.MAX, { 
+    message: `Confirm password cannot exceed ${PASSWORD_LENGTH.MAX} characters` 
+  })
   confirmPassword: string;
 
   @ApiProperty({
@@ -387,7 +398,7 @@ export class AdminCreateUserDto {
   @IsOptional()
   @IsString({ message: 'Display name must be a string' })
   @MaxLength(50, { message: 'Display name cannot exceed 50 characters' })
-  displayName?: string;
+  displayName?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Phone number (E.164 format)',
@@ -395,31 +406,35 @@ export class AdminCreateUserDto {
   })
   @IsOptional()
   @IsString({ message: 'Phone number must be a string' })
-  @Matches(PHONE_PATTERNS.BANGLADESH_E164, {
-    message: 'Phone number must be in E.164 format (e.g., +8801712345678)',
+  @Matches(PHONE_PATTERNS.BANGLADESH_MOBILE, {
+    message: 'Phone number must be a valid Bangladesh number (e.g., +8801712345678 or 01712345678)',
   })
-  phone?: string;
+  phone?: string | undefined;
 
   @ApiProperty({
-    description: 'User role',
-    enum: USER_ROLES,
-    example: USER_ROLES.CUSTOMER,
-    default: USER_ROLES.CUSTOMER,
+    description: 'User role (lowercase)',
+    enum: ['customer', 'premium_customer', 'seller', 'vendor', 'moderator', 'admin', 'super_admin', 'support', 'delivery_agent'],
+    example: 'customer',
+    default: 'customer',
     required: false,
   })
   @IsOptional()
-  @IsEnum(USER_ROLES, { message: 'Invalid role' })
-  role?: UserRole = USER_ROLES.CUSTOMER;
+  @IsIn(['customer', 'premium_customer', 'seller', 'vendor', 'moderator', 'admin', 'super_admin', 'support', 'delivery_agent'], { 
+    message: 'Invalid role. Must be one of: customer, premium_customer, seller, vendor, moderator, admin, super_admin, support, delivery_agent' 
+  })
+  role?: UserRole | undefined = 'customer';
 
   @ApiPropertyOptional({
-    description: 'User tier (loyalty program)',
-    enum: USER_TIERS,
-    example: USER_TIERS.BRONZE,
-    default: USER_TIERS.BRONZE,
+    description: 'User tier (loyalty program) - lowercase',
+    enum: ['bronze', 'silver', 'gold', 'platinum', 'diamond'],
+    example: 'bronze',
+    default: 'bronze',
   })
   @IsOptional()
-  @IsEnum(USER_TIERS, { message: 'Invalid user tier' })
-  userTier?: UserTier = USER_TIERS.BRONZE;
+  @IsIn(['bronze', 'silver', 'gold', 'platinum', 'diamond'], { 
+    message: 'Invalid user tier. Must be one of: bronze, silver, gold, platinum, diamond' 
+  })
+  userTier?: UserTier | undefined = 'bronze';
 
   @ApiPropertyOptional({
     description: 'Preferred language',
@@ -429,7 +444,7 @@ export class AdminCreateUserDto {
   })
   @IsOptional()
   @IsIn(['en', 'bn'], { message: 'Preferred language must be en or bn' })
-  preferredLanguage?: 'en' | 'bn' = 'en';
+  preferredLanguage?: 'en' | 'bn' | undefined = 'en';
 
   @ApiPropertyOptional({
     description: 'Preferred district (Bangladesh)',
@@ -438,7 +453,7 @@ export class AdminCreateUserDto {
   @IsOptional()
   @IsString({ message: 'Preferred district must be a string' })
   @MaxLength(50, { message: 'Preferred district cannot exceed 50 characters' })
-  preferredDistrict?: string;
+  preferredDistrict?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Preferred upazila (Bangladesh)',
@@ -447,7 +462,7 @@ export class AdminCreateUserDto {
   @IsOptional()
   @IsString({ message: 'Preferred upazila must be a string' })
   @MaxLength(50, { message: 'Preferred upazila cannot exceed 50 characters' })
-  preferredUpazila?: string;
+  preferredUpazila?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Send welcome email',
@@ -456,7 +471,7 @@ export class AdminCreateUserDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Send welcome email must be a boolean' })
-  sendWelcomeEmail?: boolean = true;
+  sendWelcomeEmail?: boolean | undefined = true;
 
   @ApiPropertyOptional({
     description: 'Require password change on first login',
@@ -465,7 +480,7 @@ export class AdminCreateUserDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Require password change must be a boolean' })
-  requirePasswordChange?: boolean = false;
+  requirePasswordChange?: boolean | undefined = false;
 
   @ApiPropertyOptional({
     description: 'Mark email as verified (bypass verification)',
@@ -474,7 +489,7 @@ export class AdminCreateUserDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Is email verified must be a boolean' })
-  isEmailVerified?: boolean = false;
+  isEmailVerified?: boolean | undefined = false;
 
   @ApiPropertyOptional({
     description: 'Mark phone as verified (bypass verification)',
@@ -483,7 +498,7 @@ export class AdminCreateUserDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Is phone verified must be a boolean' })
-  isPhoneVerified?: boolean = false;
+  isPhoneVerified?: boolean | undefined = false;
 
   @ApiPropertyOptional({
     description: 'Business name (for seller/vendor accounts)',
@@ -493,7 +508,7 @@ export class AdminCreateUserDto {
   @IsOptional()
   @IsString({ message: 'Business name must be a string' })
   @MaxLength(200, { message: 'Business name cannot exceed 200 characters' })
-  businessName?: string;
+  businessName?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Trade license number (for seller/vendor accounts)',
@@ -503,10 +518,7 @@ export class AdminCreateUserDto {
   @IsOptional()
   @IsString({ message: 'Trade license number must be a string' })
   @MaxLength(50, { message: 'Trade license number cannot exceed 50 characters' })
-  tradeLicenseNumber?: string;
-
-  // ❌ REMOVED: createdBy property - this should never come from client
-  // createdBy will be set in the application service layer from authenticated admin
+  tradeLicenseNumber?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'User preferences',
@@ -514,35 +526,42 @@ export class AdminCreateUserDto {
   })
   @IsOptional()
   @IsObject({ message: 'Preferences must be an object' })
-  preferences?: UserPreferencesDto;
+  preferences?: UserPreferencesDto | undefined;
+
+  /**
+   * ✅ ENTERPRISE: Manual password confirmation validation
+   */
+  public validatePasswordMatch(): boolean {
+    return this.password === this.confirmPassword;
+  }
 
   constructor(
     email: string,
     password: string,
     confirmPassword: string,
     fullName: string,
-    phone?: string,
-    role?: UserRole,
-    userTier?: UserTier,
-    preferredLanguage?: 'en' | 'bn',
-    preferredDistrict?: string,
-    preferredUpazila?: string,
-    displayName?: string,
-    sendWelcomeEmail?: boolean,
-    requirePasswordChange?: boolean,
-    isEmailVerified?: boolean,
-    isPhoneVerified?: boolean,
-    businessName?: string,
-    tradeLicenseNumber?: string,
-    preferences?: UserPreferencesDto
+    phone?: string | undefined,
+    role?: UserRole | undefined,
+    userTier?: UserTier | undefined,
+    preferredLanguage?: 'en' | 'bn' | undefined,
+    preferredDistrict?: string | undefined,
+    preferredUpazila?: string | undefined,
+    displayName?: string | undefined,
+    sendWelcomeEmail?: boolean | undefined,
+    requirePasswordChange?: boolean | undefined,
+    isEmailVerified?: boolean | undefined,
+    isPhoneVerified?: boolean | undefined,
+    businessName?: string | undefined,
+    tradeLicenseNumber?: string | undefined,
+    preferences?: UserPreferencesDto | undefined
   ) {
     this.email = email;
     this.password = password;
     this.confirmPassword = confirmPassword;
     this.fullName = fullName;
     this.phone = phone;
-    this.role = role ?? USER_ROLES.CUSTOMER;
-    this.userTier = userTier ?? USER_TIERS.BRONZE;
+    this.role = role ?? 'customer';
+    this.userTier = userTier ?? 'bronze';
     this.preferredLanguage = preferredLanguage ?? 'en';
     this.preferredDistrict = preferredDistrict;
     this.preferredUpazila = preferredUpazila;
@@ -581,7 +600,7 @@ export class CreateUserResponseDto {
     description: 'Phone number (if provided)',
     example: '+8801712345678',
   })
-  phoneNumber?: string;
+  phoneNumber?: string | undefined;
 
   @ApiProperty({
     description: 'User full name',
@@ -608,37 +627,37 @@ export class CreateUserResponseDto {
   requiresPhoneVerification: boolean;
 
   @ApiPropertyOptional({
-    description: 'User role',
-    enum: USER_ROLES,
-    example: USER_ROLES.CUSTOMER,
+    description: 'User role (lowercase)',
+    enum: ['customer', 'premium_customer', 'seller', 'vendor', 'moderator', 'admin', 'super_admin', 'support', 'delivery_agent'],
+    example: 'customer',
   })
-  role?: UserRole;
+  role?: UserRole | undefined;
 
   @ApiPropertyOptional({
-    description: 'User tier',
-    enum: USER_TIERS,
-    example: USER_TIERS.BRONZE,
+    description: 'User tier (lowercase)',
+    enum: ['bronze', 'silver', 'gold', 'platinum', 'diamond'],
+    example: 'bronze',
   })
-  userTier?: UserTier;
+  userTier?: UserTier | undefined;
 
   @ApiPropertyOptional({
     description: 'Timestamp when user was created',
     example: '2024-01-01T00:00:00.000Z',
     format: 'date-time',
   })
-  createdAt?: string;
+  createdAt?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Session ID (if auto-login after registration)',
     example: 'sess_550e8400-e29b-41d4-a716-446655440000',
   })
-  sessionId?: string;
+  sessionId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Access token (if auto-login is enabled)',
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
   })
-  accessToken?: string;
+  accessToken?: string | undefined;
 
   constructor(
     userId: string,
@@ -646,12 +665,12 @@ export class CreateUserResponseDto {
     fullName: string,
     requiresEmailVerification: boolean = true,
     requiresPhoneVerification: boolean = false,
-    role?: UserRole,
-    userTier?: UserTier,
-    createdAt?: Date,
-    phoneNumber?: string,
-    sessionId?: string,
-    accessToken?: string
+    role?: UserRole | undefined,
+    userTier?: UserTier | undefined,
+    createdAt?: Date | undefined,
+    phoneNumber?: string | undefined,
+    sessionId?: string | undefined,
+    accessToken?: string | undefined
   ) {
     this.userId = userId;
     this.email = email;
@@ -678,31 +697,31 @@ export class AdminCreateUserResponseDto extends CreateUserResponseDto {
     description: 'Admin ID who created this user (auto-filled from JWT)',
     example: 'admin_550e8400-e29b-41d4-a716-446655440000',
   })
-  createdBy?: string;
+  createdBy?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Require password change on next login',
     example: true,
   })
-  requirePasswordChange?: boolean;
+  requirePasswordChange?: boolean | undefined;
 
   @ApiPropertyOptional({
     description: 'Whether email was pre-verified',
     example: true,
   })
-  emailPreVerified?: boolean;
+  emailPreVerified?: boolean | undefined;
 
   @ApiPropertyOptional({
     description: 'Whether phone was pre-verified',
     example: true,
   })
-  phonePreVerified?: boolean;
+  phonePreVerified?: boolean | undefined;
 
   @ApiPropertyOptional({
     description: 'Business name (for seller/vendor)',
     example: 'Seller Shop',
   })
-  businessName?: string;
+  businessName?: string | undefined;
 
   constructor(
     userId: string,
@@ -710,15 +729,15 @@ export class AdminCreateUserResponseDto extends CreateUserResponseDto {
     fullName: string,
     requiresEmailVerification: boolean,
     requiresPhoneVerification: boolean = false,
-    role?: UserRole,
-    userTier?: UserTier,
-    createdBy?: string,
-    requirePasswordChange?: boolean,
-    emailPreVerified?: boolean,
-    phonePreVerified?: boolean,
-    businessName?: string,
-    createdAt?: Date,
-    phoneNumber?: string
+    role?: UserRole | undefined,
+    userTier?: UserTier | undefined,
+    createdBy?: string | undefined,
+    requirePasswordChange?: boolean | undefined,
+    emailPreVerified?: boolean | undefined,
+    phonePreVerified?: boolean | undefined,
+    businessName?: string | undefined,
+    createdAt?: Date | undefined,
+    phoneNumber?: string | undefined
   ) {
     super(
       userId,
