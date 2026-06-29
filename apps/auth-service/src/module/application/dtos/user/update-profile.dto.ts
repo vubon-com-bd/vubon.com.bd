@@ -42,6 +42,7 @@ import {
   Max,
   IsDate,
   ValidateNested,
+  IsDefined,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
@@ -49,18 +50,14 @@ import { Type } from 'class-transformer';
 // ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট
 import { 
   PHONE_PATTERNS, 
-  PASSWORD_PATTERNS,
   SUPPORTED_LANGUAGES,
   NAME_PATTERNS,
-  RATE_LIMITS,
 } from '@vubon/shared-constants';
 
 // ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট
 import type { 
   UserPreferences, 
   SupportedLanguage,
-  District,
-  Upazila,
   AuditMetadata,
 } from '@vubon/shared-types';
 
@@ -77,25 +74,25 @@ export class SecurityOperationRateLimitDto {
   @IsOptional()
   @IsNumber()
   @Min(1)
-  windowSeconds?: number;
+  windowSeconds?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Max attempts allowed', example: 5 })
   @IsOptional()
   @IsNumber()
   @Min(1)
-  maxAttempts?: number;
+  maxAttempts?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Remaining attempts', example: 4 })
   @IsOptional()
   @IsNumber()
   @Min(0)
-  remaining?: number;
+  remaining?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Time when limit resets', example: '2024-01-01T01:00:00.000Z' })
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  resetAt?: Date;
+  resetAt?: Date | undefined;
 }
 
 /**
@@ -106,29 +103,29 @@ export class ProfileAuditContextDto {
   @ApiPropertyOptional({ description: 'IP address of the request', example: '192.168.1.100' })
   @IsOptional()
   @IsString()
-  ipAddress?: string;
+  ipAddress?: string | undefined;
 
   @ApiPropertyOptional({ description: 'User agent string' })
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  userAgent?: string;
+  userAgent?: string | undefined;
 
   @ApiPropertyOptional({ description: 'Current session ID being used' })
   @IsOptional()
   @IsUUID()
-  sessionId?: string;
+  sessionId?: string | undefined;
 
   @ApiPropertyOptional({ description: 'Device fingerprint for fraud detection' })
   @IsOptional()
   @IsString()
   @MaxLength(128)
-  deviceFingerprint?: string;
+  deviceFingerprint?: string | undefined;
 
   @ApiPropertyOptional({ description: 'Correlation ID for distributed tracing' })
   @IsOptional()
   @IsUUID()
-  correlationId?: string;
+  correlationId?: string | undefined;
 }
 
 // ============================================================
@@ -142,61 +139,61 @@ export type { SupportedLanguage, UserPreferences };
 // User Preferences DTO (using shared type)
 // ============================================================
 
-export class UserPreferencesDto implements UserPreferences {
+export class  UserPreferencesDto {
   @ApiPropertyOptional({ description: 'Email notifications enabled', example: true, default: true })
   @IsOptional()
   @IsBoolean()
-  emailNotifications?: boolean;
+  emailNotifications?: boolean | undefined;
 
   @ApiPropertyOptional({ description: 'SMS notifications enabled', example: true, default: true })
   @IsOptional()
   @IsBoolean()
-  smsNotifications?: boolean;
+  smsNotifications?: boolean | undefined;
 
   @ApiPropertyOptional({ description: 'Push notifications enabled', example: true, default: true })
   @IsOptional()
   @IsBoolean()
-  pushNotifications?: boolean;
+  pushNotifications?: boolean | undefined;
 
   @ApiPropertyOptional({ description: 'Marketing emails consent', example: false, default: false })
   @IsOptional()
   @IsBoolean()
-  marketingEmails?: boolean;
+  marketingEmails?: boolean | undefined;
 
   @ApiPropertyOptional({ description: 'Order updates notifications', example: true, default: true })
   @IsOptional()
   @IsBoolean()
-  orderUpdates?: boolean;
+  orderUpdates?: boolean | undefined;
 
   @ApiPropertyOptional({ description: 'Price drop alerts', example: false, default: false })
   @IsOptional()
   @IsBoolean()
-  priceDropAlerts?: boolean;
+  priceDropAlerts?: boolean | undefined;
 
   @ApiPropertyOptional({ description: 'Back in stock alerts', example: false, default: false })
   @IsOptional()
   @IsBoolean()
-  backInStockAlerts?: boolean;
+  backInStockAlerts?: boolean | undefined;
 
   @ApiPropertyOptional({ description: 'Newsletter subscription', example: false, default: false })
   @IsOptional()
   @IsBoolean()
-  newsletterSubscription?: boolean;
+  newsletterSubscription?: boolean | undefined;
 
   @ApiPropertyOptional({ description: 'Preferred delivery time', enum: ['morning', 'afternoon', 'evening', 'any'], default: 'any' })
   @IsOptional()
   @IsIn(['morning', 'afternoon', 'evening', 'any'])
-  preferredDeliveryTime?: 'morning' | 'afternoon' | 'evening' | 'any';
+  preferredDeliveryTime?: 'morning' | 'afternoon' | 'evening' | 'any' | undefined;
 
   @ApiPropertyOptional({ description: 'Save address history', example: true, default: true })
   @IsOptional()
   @IsBoolean()
-  saveAddressHistory?: boolean;
+  saveAddressHistory?: boolean | undefined;
 
   @ApiPropertyOptional({ description: 'Auto apply coupons', example: true, default: true })
   @IsOptional()
   @IsBoolean()
-  autoApplyCoupons?: boolean;
+  autoApplyCoupons?: boolean | undefined;
 }
 
 // ============================================================
@@ -224,7 +221,7 @@ export class UpdateProfileDto {
   @MinLength(2)
   @MaxLength(100)
   @Matches(NAME_PATTERNS.FULL_NAME)
-  fullName?: string;
+  fullName?: string | undefined;
 
   @ApiPropertyOptional({ description: 'Display name', minLength: 2, maxLength: 50 })
   @IsOptional()
@@ -232,49 +229,49 @@ export class UpdateProfileDto {
   @MinLength(2)
   @MaxLength(50)
   @Matches(NAME_PATTERNS.DISPLAY_NAME)
-  displayName?: string;
+  displayName?: string | undefined;
 
   @ApiPropertyOptional({ description: 'Profile picture URL', format: 'uri' })
   @IsOptional()
   @IsUrl()
   @MaxLength(500)
-  profilePicture?: string;
+  profilePicture?: string | undefined;
 
   @ApiPropertyOptional({ description: 'User timezone', default: 'Asia/Dhaka' })
   @IsOptional()
   @IsTimeZone()
-  timezone?: string;
+  timezone?: string | undefined;
 
   @ApiPropertyOptional({ description: 'User language preference', enum: SUPPORTED_LANGUAGES, default: 'en' })
   @IsOptional()
   @IsIn(SUPPORTED_LANGUAGES)
-  language?: SupportedLanguage;
+  language?: SupportedLanguage | undefined;
 
   @ApiPropertyOptional({ description: 'Preferred district (Bangladesh)', maxLength: 50 })
   @IsOptional()
   @IsString()
   @MaxLength(50)
-  preferredDistrict?: District;
+  preferredDistrict?: string | undefined;
 
   @ApiPropertyOptional({ description: 'Preferred upazila (Bangladesh)', maxLength: 50 })
   @IsOptional()
   @IsString()
   @MaxLength(50)
-  preferredUpazila?: Upazila;
+  preferredUpazila?: string | undefined;
 
   @ApiPropertyOptional({ description: 'User preferences', type: UserPreferencesDto })
   @IsOptional()
   @IsObject()
   @ValidateNested()
   @Type(() => UserPreferencesDto)
-  preferences?: UserPreferencesDto;
+  preferences?: UserPreferencesDto | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Audit context for tracking
   @ApiPropertyOptional({ description: 'Audit context for profile update', type: ProfileAuditContextDto })
   @IsOptional()
   @ValidateNested()
   @Type(() => ProfileAuditContextDto)
-  auditContext?: ProfileAuditContextDto;
+  auditContext?: ProfileAuditContextDto | undefined;
 }
 
 /**
@@ -291,13 +288,13 @@ export class UpdateProfileDto {
 export class UpdateEmailDto {
   @ApiProperty({ description: 'New email address', required: true, format: 'email' })
   @IsEmail()
-  @IsNotEmpty()
+  @IsDefined()
   @MaxLength(255)
   newEmail: string;
 
   @ApiProperty({ description: 'Current password for verification', required: true, writeOnly: true })
   @IsString()
-  @IsNotEmpty()
+  @IsDefined()
   @MinLength(8)
   currentPassword: string;
 
@@ -305,21 +302,21 @@ export class UpdateEmailDto {
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  reason?: string;
+  reason?: string | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Rate limit metadata (ป้องกัน brute force)
   @ApiPropertyOptional({ description: 'Rate limit metadata for this operation', type: SecurityOperationRateLimitDto })
   @IsOptional()
   @ValidateNested()
   @Type(() => SecurityOperationRateLimitDto)
-  rateLimit?: SecurityOperationRateLimitDto;
+  rateLimit?: SecurityOperationRateLimitDto | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Audit context
   @ApiPropertyOptional({ description: 'Audit context for email change', type: ProfileAuditContextDto })
   @IsOptional()
   @ValidateNested()
   @Type(() => ProfileAuditContextDto)
-  auditContext?: ProfileAuditContextDto;
+  auditContext?: ProfileAuditContextDto | undefined;
 
   constructor(newEmail: string, currentPassword: string, reason?: string) {
     this.newEmail = newEmail;
@@ -343,40 +340,40 @@ export class UpdateEmailDto {
 export class UpdatePhoneDto {
   @ApiProperty({ description: 'New phone number (E.164 format)', required: true, pattern: PHONE_PATTERNS.BANGLADESH_E164 })
   @IsString()
-  @IsNotEmpty()
+  @IsDefined()
   @Matches(PHONE_PATTERNS.BANGLADESH_E164)
   newPhone: string;
 
   @ApiProperty({ description: 'Current password for verification', required: true, writeOnly: true })
   @IsString()
-  @IsNotEmpty()
+  @IsDefined()
   @MinLength(8)
   currentPassword: string;
 
   @ApiPropertyOptional({ description: 'Verification method', enum: ['sms', 'whatsapp'], default: 'sms' })
   @IsOptional()
   @IsIn(['sms', 'whatsapp'])
-  method?: 'sms' | 'whatsapp' = 'sms';
+  method?: 'sms' | 'whatsapp' | undefined = 'sms';
 
   @ApiPropertyOptional({ description: 'Reason for phone change (for audit)', maxLength: 500 })
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  reason?: string;
+  reason?: string | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Rate limit metadata
   @ApiPropertyOptional({ description: 'Rate limit metadata for this operation', type: SecurityOperationRateLimitDto })
   @IsOptional()
   @ValidateNested()
   @Type(() => SecurityOperationRateLimitDto)
-  rateLimit?: SecurityOperationRateLimitDto;
+  rateLimit?: SecurityOperationRateLimitDto | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Audit context
   @ApiPropertyOptional({ description: 'Audit context for phone change', type: ProfileAuditContextDto })
   @IsOptional()
   @ValidateNested()
   @Type(() => ProfileAuditContextDto)
-  auditContext?: ProfileAuditContextDto;
+  auditContext?: ProfileAuditContextDto | undefined;
 
   constructor(newPhone: string, currentPassword: string, method?: 'sms' | 'whatsapp', reason?: string) {
     this.newPhone = newPhone;
@@ -405,32 +402,32 @@ export class UpdateProfileResponseDto {
   fullName: string;
 
   @ApiPropertyOptional({ description: 'Display name' })
-  displayName?: string;
+  displayName?: string | undefined;
 
   @ApiPropertyOptional({ description: 'User phone number' })
-  phone?: string;
+  phone?: string | undefined;
 
   @ApiPropertyOptional({ description: 'Profile picture URL' })
-  profilePicture?: string;
+  profilePicture?: string | undefined;
 
   @ApiPropertyOptional({ description: 'User timezone' })
-  timezone?: string;
+  timezone?: string | undefined;
 
   @ApiPropertyOptional({ description: 'User language preference' })
-  language?: string;
+  language?: string | undefined;
 
   @ApiPropertyOptional({ description: 'Preferred district' })
-  preferredDistrict?: string;
+  preferredDistrict?: string | undefined;
 
   @ApiPropertyOptional({ description: 'Preferred upazila' })
-  preferredUpazila?: string;
+  preferredUpazila?: string | undefined;
 
   @ApiProperty({ description: 'Timestamp when profile was updated', format: 'date-time' })
   updatedAt: string;
 
   // ✅ ENTERPRISE ENHANCEMENT: Correlation ID for distributed tracing
   @ApiPropertyOptional({ description: 'Correlation ID for request tracking' })
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   constructor(
     userId: string,
@@ -470,20 +467,20 @@ export class UpdateEmailResponseDto {
   message: string;
 
   @ApiPropertyOptional({ description: 'Bengali success message' })
-  messageBn?: string;
+  messageBn?: string | undefined;
 
   @ApiProperty({ description: 'Whether verification is required' })
   requiresVerification: boolean;
 
   @ApiPropertyOptional({ description: 'Masked email for display' })
-  maskedEmail?: string;
+  maskedEmail?: string | undefined;
 
   @ApiPropertyOptional({ description: 'Session ID for verification tracking' })
-  sessionId?: string;
+  sessionId?: string | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Return remaining rate limit info
   @ApiPropertyOptional({ description: 'Remaining verification attempts' })
-  remainingAttempts?: number;
+  remainingAttempts?: number | undefined;
 
   constructor(
     requiresVerification: boolean = true, 
@@ -513,23 +510,23 @@ export class UpdatePhoneResponseDto {
   message: string;
 
   @ApiPropertyOptional({ description: 'Bengali success message' })
-  messageBn?: string;
+  messageBn?: string | undefined;
 
   @ApiProperty({ description: 'Whether verification is required' })
   requiresVerification: boolean;
 
   @ApiPropertyOptional({ description: 'Masked phone number for display' })
-  maskedPhone?: string;
+  maskedPhone?: string | undefined;
 
   @ApiPropertyOptional({ description: 'Session ID for verification tracking' })
-  sessionId?: string;
+  sessionId?: string | undefined;
 
   @ApiPropertyOptional({ description: 'Verification method', enum: ['sms', 'whatsapp'] })
-  method?: 'sms' | 'whatsapp';
+  method?: 'sms' | 'whatsapp' | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Cooldown info to prevent spam
   @ApiPropertyOptional({ description: 'Cooldown seconds before next request' })
-  cooldownSeconds?: number;
+  cooldownSeconds?: number | undefined;
 
   constructor(
     requiresVerification: boolean = true, 
@@ -558,14 +555,14 @@ export class UpdatePhoneResponseDto {
 export class VerifyEmailChangeDto {
   @ApiProperty({ description: 'Verification token from email', required: true })
   @IsString()
-  @IsNotEmpty()
+  @IsDefined()
   token: string;
 
   // ✅ ENTERPRISE ENHANCEMENT: Context for verification
   @ApiPropertyOptional({ description: 'Correlation ID for tracing' })
   @IsOptional()
   @IsUUID()
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   constructor(token: string, correlationId?: string) {
     this.token = token;
@@ -581,7 +578,7 @@ export class VerifyEmailChangeResponseDto {
   message: string;
 
   @ApiPropertyOptional({ description: 'Bengali success message' })
-  messageBn?: string;
+  messageBn?: string | undefined;
 
   @ApiProperty({ description: 'New email address' })
   newEmail: string;
@@ -604,14 +601,14 @@ export class VerifyEmailChangeResponseDto {
 export class VerifyPhoneChangeDto {
   @ApiProperty({ description: 'OTP code sent to new phone number', required: true, minLength: 6, maxLength: 6 })
   @IsString()
-  @IsNotEmpty()
+  @IsDefined()
   @Matches(/^\d{6}$/)
   otp: string;
 
   @ApiPropertyOptional({ description: 'Session ID from update phone response' })
   @IsOptional()
   @IsUUID()
-  sessionId?: string;
+  sessionId?: string | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Track attempt number for security
   @ApiPropertyOptional({ description: 'Attempt number (for rate limiting)', minimum: 1, maximum: 5 })
@@ -619,7 +616,7 @@ export class VerifyPhoneChangeDto {
   @IsNumber()
   @Min(1)
   @Max(5)
-  attempt?: number;
+  attempt?: number | undefined;
 
   constructor(otp: string, sessionId?: string, attempt?: number) {
     this.otp = otp;
@@ -636,7 +633,7 @@ export class VerifyPhoneChangeResponseDto {
   message: string;
 
   @ApiPropertyOptional({ description: 'Bengali success message' })
-  messageBn?: string;
+  messageBn?: string | undefined;
 
   @ApiProperty({ description: 'New phone number' })
   newPhone: string;
@@ -662,26 +659,35 @@ export class VerifyPhoneChangeResponseDto {
  */
 export function getProfileAuditMetadata(
   dto: UpdateProfileDto | UpdateEmailDto | UpdatePhoneDto,
-  userId: string
+  userId: string,
+  requestId?: string
 ): AuditMetadata {
   const auditContext = 'auditContext' in dto ? dto.auditContext : undefined;
   
+  // ✅ সবসময় একটি স্ট্রিং রিটার্ন করুন
+  const finalRequestId = requestId || auditContext?.correlationId || `req_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+  
   return {
-    userId,
+    requestId: finalRequestId,
+    userId: userId,
     source: 'api',
     timestamp: new Date(),
-    requestId: auditContext?.correlationId,
-    metadata: {
-      ipAddress: auditContext?.ipAddress,
-      userAgent: auditContext?.userAgent,
-      sessionId: auditContext?.sessionId,
-      deviceFingerprint: auditContext?.deviceFingerprint,
-      reason: 'reason' in dto ? dto.reason : undefined,
-      updatedFields: Object.keys(dto).filter(k => dto[k as keyof typeof dto] !== undefined),
+    correlationId: auditContext?.correlationId,
+    // ✅ 'metadata' এর পরিবর্তে 'additionalData' ব্যবহার করুন
+    additionalData: {
+      ipAddress: auditContext?.ipAddress || null,
+      userAgent: auditContext?.userAgent || null,
+      sessionId: auditContext?.sessionId || null,
+      deviceFingerprint: auditContext?.deviceFingerprint || null,
+      reason: 'reason' in dto ? dto.reason : null,
+      updatedFields: Object.keys(dto).filter(k => 
+        dto[k as keyof typeof dto] !== undefined && 
+        k !== 'auditContext' && 
+        k !== 'currentPassword'
+      ),
     },
   };
 }
-
 // ============================================================
 // Type Exports
 // ============================================================
