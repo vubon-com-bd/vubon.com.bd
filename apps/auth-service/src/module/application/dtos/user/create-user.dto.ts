@@ -57,7 +57,7 @@ import type { UserRole, UserTier } from '@vubon/shared-types';
 /**
  * User preferences interface
  */
-export interface UserPreferencesDto {
+export interface UseUserPreferencesDto {
   language?: 'en' | 'bn';
   timezone?: string;
   currency?: 'BDT' | 'USD';
@@ -256,7 +256,7 @@ export class CreateUserDto {
   })
   @IsOptional()
   @IsObject({ message: 'Preferences must be an object' })
-  preferences?: UserPreferencesDto | undefined;
+  preferences?: UseUserPreferencesDto | undefined;
 
   /**
    * ✅ ENTERPRISE: Manual password confirmation validation
@@ -280,7 +280,7 @@ export class CreateUserDto {
     acceptPrivacy?: boolean | undefined,
     marketingConsent?: boolean | undefined,
     referralCode?: string | undefined,
-    preferences?: UserPreferencesDto | undefined
+    preferences?: UseUserPreferencesDto | undefined
   ) {
     this.email = email;
     this.password = password;
@@ -526,7 +526,7 @@ export class AdminCreateUserDto {
   })
   @IsOptional()
   @IsObject({ message: 'Preferences must be an object' })
-  preferences?: UserPreferencesDto | undefined;
+  preferences?: UseUserPreferencesDto | undefined;
 
   /**
    * ✅ ENTERPRISE: Manual password confirmation validation
@@ -553,7 +553,7 @@ export class AdminCreateUserDto {
     isPhoneVerified?: boolean | undefined,
     businessName?: string | undefined,
     tradeLicenseNumber?: string | undefined,
-    preferences?: UserPreferencesDto | undefined
+    preferences?: UseUserPreferencesDto | undefined
   ) {
     this.email = email;
     this.password = password;
@@ -762,4 +762,4 @@ export class AdminCreateUserResponseDto extends CreateUserResponseDto {
 // Type Exports
 // ============================================================
 
-export type { UserPreferencesDto as UserPreferencesDtoType };
+export type { UseUserPreferencesDto as UseUserPreferencesDtoType };
