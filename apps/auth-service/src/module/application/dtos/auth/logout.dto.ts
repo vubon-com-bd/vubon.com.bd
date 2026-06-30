@@ -580,7 +580,7 @@ export class LogoutAllDevicesDto {
  *   "reason": "User requested logout from this device"
  * }
  */
-export class RevokeSessionDto {
+export class LogoutRevokeSessionDto {
   @ApiProperty({
     description: 'Session ID to revoke',
     example: 'sess_550e8400-e29b-41d4-a716-446655440000',
@@ -628,7 +628,7 @@ export class RevokeSessionDto {
  *   "reason": "Device reported as lost/stolen"
  * }
  */
-export class RevokeDeviceSessionsDto {
+export class LoguotRevokeDeviceSessionsDto {
   @ApiProperty({
     description: 'Device ID to revoke all sessions from',
     example: 'device_550e8400-e29b-41d4-a716-446655440000',
@@ -785,7 +785,7 @@ export class LogoutResponseDto extends BaseLogoutResponseDto {
 /**
  * Session Revoke Response DTO (Enhanced)
  */
-export class RevokeSessionResponseDto extends BaseLogoutResponseDto {
+export class LoguotRevokeSessionResponseDto extends BaseLogoutResponseDto {
   @ApiProperty({
     description: 'Revoked session ID',
     example: 'sess_550e8400-e29b-41d4-a716-446655440000',
@@ -1176,7 +1176,7 @@ export function createBulkLogoutResponse(
  * @returns AuditMetadata object
  */
 export function getLogoutAuditMetadata(
-  dto: LogoutDto | LogoutAllDevicesDto | RevokeSessionDto | RevokeDeviceSessionsDto,
+  dto: LogoutDto | LogoutAllDevicesDto | LogoutRevokeSessionDto | LoguotRevokeDeviceSessionsDto,
   userId: string
 ): AuditMetadata {
   const auditContext = 'auditContext' in dto ? dto.auditContext : undefined;
