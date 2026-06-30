@@ -37,7 +37,6 @@
 
 import {
   IsString,
-  IsNotEmpty,
   IsOptional,
   IsUUID,
   MinLength,
@@ -47,13 +46,12 @@ import {
   IsIn,
   IsNumber,
   Min,
-  Max,
   IsDate,
   ValidateNested,
-  IsObject,
   IsArray,
   ArrayMaxSize,
   ValidateIf,
+  IsEmail,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
@@ -64,17 +62,9 @@ import {
   MFS_PIN_PATTERN,
   OTP_PATTERN,
   MFA_DISABLE_SCOPES,
-  MFA_CONFIG,
-  ENV_CONFIG,
 } from '@vubon/shared-constants';
 // ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট - টাইপ কনসিস্টেন্সি
 import type { MFADisableScope, AuditMetadata } from '@vubon/shared-types';
-
-// ============================================================
-// Environment detection
-// ============================================================
-
-const IS_PRODUCTION = ENV_CONFIG?.IS_PRODUCTION ?? false;
 
 // ============================================================
 // ✅ ENTERPRISE ENHANCEMENT 1: Rate Limit & Audit Context DTOs
@@ -89,25 +79,25 @@ export class MfaDisableRateLimitDto {
   @IsOptional()
   @IsNumber()
   @Min(1)
-  windowSeconds?: number;
+  windowSeconds?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Max attempts allowed', example: 5 })
   @IsOptional()
   @IsNumber()
   @Min(1)
-  maxAttempts?: number;
+  maxAttempts?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Remaining attempts', example: 3 })
   @IsOptional()
   @IsNumber()
   @Min(0)
-  remaining?: number;
+  remaining?: number | undefined;
 
   @ApiPropertyOptional({ description: 'Time when limit resets', example: '2024-01-01T01:00:00.000Z' })
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  resetAt?: Date;
+  resetAt?: Date | undefined;
 }
 
 /**
@@ -121,7 +111,7 @@ export class MfaDisableContextDto {
   })
   @IsOptional()
   @IsString()
-  ipAddress?: string;
+  ipAddress?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'User agent string',
@@ -130,7 +120,7 @@ export class MfaDisableContextDto {
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  userAgent?: string;
+  userAgent?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Current session ID',
@@ -138,7 +128,7 @@ export class MfaDisableContextDto {
   })
   @IsOptional()
   @IsUUID()
-  sessionId?: string;
+  sessionId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Device fingerprint for fraud detection',
@@ -148,7 +138,7 @@ export class MfaDisableContextDto {
   @IsOptional()
   @IsString()
   @MaxLength(128)
-  deviceFingerprint?: string;
+  deviceFingerprint?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for distributed tracing',
@@ -156,7 +146,7 @@ export class MfaDisableContextDto {
   })
   @IsOptional()
   @IsUUID()
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'District (Bangladesh specific)',
@@ -165,7 +155,7 @@ export class MfaDisableContextDto {
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  district?: string;
+  district?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Division (Bangladesh specific)',
@@ -174,7 +164,7 @@ export class MfaDisableContextDto {
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  division?: string;
+  division?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Network type (Bangladesh specific)',
@@ -183,7 +173,7 @@ export class MfaDisableContextDto {
   })
   @IsOptional()
   @IsIn(['2g', '3g', '4g', '5g', 'wifi', 'unknown'])
-  networkType?: string;
+  networkType?: string | undefined;
 
   /**
    * Check if context has tracing info
@@ -280,7 +270,7 @@ export class MfaDisableScheduleDto {
   @Type(() => Date)
   @IsDate({ message: 'Schedule date must be a valid date' })
   @ValidateIf(o => o.scheduleFor !== undefined)
-  scheduleFor?: Date;
+  scheduleFor?: Date | undefined;
 
   @ApiPropertyOptional({
     description: 'Recovery email for notification',
@@ -290,7 +280,7 @@ export class MfaDisableScheduleDto {
   @IsOptional()
   @IsEmail({}, { message: 'Recovery email must be valid' })
   @ValidateIf(o => o.scheduleFor !== undefined)
-  recoveryEmail?: string;
+  recoveryEmail?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Time zone for scheduled disable (IANA format)',
@@ -298,7 +288,7 @@ export class MfaDisableScheduleDto {
   })
   @IsOptional()
   @IsString()
-  timezone?: string = 'Asia/Dhaka';
+  timezone?: string | undefined = 'Asia/Dhaka';
 }
 
 // ============================================================
@@ -363,7 +353,7 @@ export class DisableMfaDto {
   @MaxLength(8, { message: 'Code cannot exceed 8 digits' })
   @Matches(OTP_PATTERN, { message: () => getValidationMessage('codeInvalid') })
   @ValidateIf(o => !o.backupCode && !o.bkashPin && !o.nagadPin && !o.rocketPin)
-  code?: string;
+  code?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Backup code (one-time use)',
@@ -378,7 +368,7 @@ export class DisableMfaDto {
     message: () => getValidationMessage('backupCodeInvalid'),
   })
   @ValidateIf(o => !o.code && !o.bkashPin && !o.nagadPin && !o.rocketPin)
-  backupCode?: string;
+  backupCode?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'bKash PIN (for disabling bKash MFA - Bangladesh specific)',
@@ -389,7 +379,7 @@ export class DisableMfaDto {
   @IsString({ message: 'bKash PIN must be a string' })
   @Matches(MFS_PIN_PATTERN, { message: () => getValidationMessage('bkashPinInvalid') })
   @ValidateIf(o => !o.code && !o.backupCode && !o.nagadPin && !o.rocketPin)
-  bkashPin?: string;
+  bkashPin?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Nagad PIN (for disabling Nagad MFA - Bangladesh specific)',
@@ -400,7 +390,7 @@ export class DisableMfaDto {
   @IsString({ message: 'Nagad PIN must be a string' })
   @Matches(MFS_PIN_PATTERN, { message: () => getValidationMessage('nagadPinInvalid') })
   @ValidateIf(o => !o.code && !o.backupCode && !o.bkashPin && !o.rocketPin)
-  nagadPin?: string;
+  nagadPin?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Rocket PIN (for disabling Rocket MFA - Bangladesh specific)',
@@ -411,7 +401,7 @@ export class DisableMfaDto {
   @IsString({ message: 'Rocket PIN must be a string' })
   @Matches(MFS_PIN_PATTERN, { message: () => getValidationMessage('rocketPinInvalid') })
   @ValidateIf(o => !o.code && !o.backupCode && !o.bkashPin && !o.nagadPin)
-  rocketPin?: string;
+  rocketPin?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Specific MFA method ID to disable (if user has multiple MFA methods)',
@@ -419,7 +409,7 @@ export class DisableMfaDto {
   })
   @IsOptional()
   @IsUUID(4, { message: () => getValidationMessage('methodIdInvalid') })
-  methodId?: string;
+  methodId?: string | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Bulk disable support
   @ApiPropertyOptional({
@@ -432,7 +422,7 @@ export class DisableMfaDto {
   @IsArray()
   @ArrayMaxSize(10, { message: () => getValidationMessage('methodIdsMax', [10]) })
   @IsUUID(4, { each: true, message: 'Each method ID must be a valid UUID' })
-  methodIds?: string[];
+  methodIds?: string[] | undefined;
 
   @ApiPropertyOptional({
     description: 'Disable scope - single method or all methods',
@@ -444,7 +434,7 @@ export class DisableMfaDto {
   @IsIn(Object.values(MFA_DISABLE_SCOPES), {
     message: () => getValidationMessage('scopeInvalid'),
   })
-  scope?: MFADisableScope = MFA_DISABLE_SCOPES.SINGLE;
+  scope?: MFADisableScope | undefined = MFA_DISABLE_SCOPES.SINGLE;
 
   @ApiPropertyOptional({
     description: 'Reason for disabling MFA (for audit logging)',
@@ -454,7 +444,7 @@ export class DisableMfaDto {
   @IsOptional()
   @IsString({ message: 'Reason must be a string' })
   @MaxLength(500, { message: () => getValidationMessage('reasonMaxLength') })
-  reason?: string;
+  reason?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Confirmation that user understands the security implications',
@@ -463,7 +453,7 @@ export class DisableMfaDto {
   @IsOptional()
   @IsBoolean({ message: 'Confirm must be a boolean' })
   @ValidateIf(o => o.confirm !== undefined)
-  confirm?: boolean;
+  confirm?: boolean | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Schedule support
   @ApiPropertyOptional({
@@ -473,7 +463,7 @@ export class DisableMfaDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => MfaDisableScheduleDto)
-  schedule?: MfaDisableScheduleDto;
+  schedule?: MfaDisableScheduleDto | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Admin bypass (for support/emergency)
   @ApiPropertyOptional({
@@ -483,7 +473,7 @@ export class DisableMfaDto {
   })
   @IsOptional()
   @IsString()
-  adminApprovalCode?: string;
+  adminApprovalCode?: string | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Rate limit metadata
   @ApiPropertyOptional({
@@ -493,7 +483,7 @@ export class DisableMfaDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => MfaDisableRateLimitDto)
-  rateLimit?: MfaDisableRateLimitDto;
+  rateLimit?: MfaDisableRateLimitDto | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Audit context
   @ApiPropertyOptional({
@@ -503,7 +493,7 @@ export class DisableMfaDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => MfaDisableContextDto)
-  context?: MfaDisableContextDto;
+  context?: MfaDisableContextDto | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Preferred language
   @ApiPropertyOptional({
@@ -514,23 +504,23 @@ export class DisableMfaDto {
   })
   @IsOptional()
   @IsIn(['en', 'bn'], { message: 'Language must be en or bn' })
-  preferredLanguage?: 'en' | 'bn' = 'en';
+  preferredLanguage?: 'en' | 'bn' | undefined = 'en';
 
   constructor(
-    code?: string,
-    backupCode?: string,
-    methodId?: string,
-    reason?: string,
-    scope?: MFADisableScope,
-    confirm?: boolean,
-    bkashPin?: string,
-    nagadPin?: string,
-    rocketPin?: string,
-    methodIds?: string[],
-    schedule?: MfaDisableScheduleDto,
-    context?: MfaDisableContextDto,
-    rateLimit?: MfaDisableRateLimitDto,
-    preferredLanguage?: 'en' | 'bn'
+    code?: string | undefined,
+    backupCode?: string | undefined,
+    methodId?: string | undefined,
+    reason?: string | undefined,
+    scope?: MFADisableScope | undefined,
+    confirm?: boolean | undefined,
+    bkashPin?: string | undefined,
+    nagadPin?: string | undefined,
+    rocketPin?: string | undefined,
+    methodIds?: string[] | undefined,
+    schedule?: MfaDisableScheduleDto | undefined,
+    context?: MfaDisableContextDto | undefined,
+    rateLimit?: MfaDisableRateLimitDto | undefined,
+    preferredLanguage?: 'en' | 'bn' | undefined
   ) {
     this.code = code;
     this.backupCode = backupCode;
@@ -655,7 +645,7 @@ export class DisableMfaResponseDto {
     description: 'Bengali response message',
     example: 'এমএফএ সফলভাবে নিষ্ক্রিয় করা হয়েছে',
   })
-  messageBn?: string;
+  messageBn?: string | undefined;
 
   @ApiProperty({
     description: 'User ID (who disabled MFA)',
@@ -674,68 +664,68 @@ export class DisableMfaResponseDto {
     description: 'Number of MFA methods disabled',
     example: 1,
   })
-  methodsDisabled?: number;
+  methodsDisabled?: number | undefined;
 
   @ApiPropertyOptional({
     description: 'Whether all MFA methods were disabled',
     example: true,
   })
-  allMethodsDisabled?: boolean;
+  allMethodsDisabled?: boolean | undefined;
 
   @ApiPropertyOptional({
     description: 'IDs of disabled MFA methods',
     example: ['mtd_550e8400-e29b-41d4-a716-446655440000'],
     isArray: true,
   })
-  disabledMethodIds?: string[];
+  disabledMethodIds?: string[] | undefined;
 
   @ApiPropertyOptional({
     description: 'Whether user still has other MFA methods enabled',
     example: false,
   })
-  hasOtherMethods?: boolean;
+  hasOtherMethods?: boolean | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Schedule info
   @ApiPropertyOptional({
     description: 'Whether disable is scheduled (not immediate)',
     example: true,
   })
-  isScheduled?: boolean;
+  isScheduled?: boolean | undefined;
 
   @ApiPropertyOptional({
     description: 'Scheduled disable date (if applicable)',
     example: '2024-01-15T10:00:00.000Z',
     format: 'date-time',
   })
-  scheduledFor?: string;
+  scheduledFor?: string | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Recovery email (masked)
   @ApiPropertyOptional({
     description: 'Masked recovery email (if notification will be sent)',
     example: 'r***y@example.com',
   })
-  maskedRecoveryEmail?: string;
+  maskedRecoveryEmail?: string | undefined;
 
   // ✅ ENTERPRISE ENHANCEMENT: Correlation ID for tracing
   @ApiPropertyOptional({
     description: 'Correlation ID for distributed tracing',
     example: 'corr_550e8400-e29b-41d4-a716-446655440000',
   })
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   constructor(
     success: boolean,
     userId: string,
-    message?: string,
-    messageBn?: string,
-    methodsDisabled?: number,
-    allMethodsDisabled?: boolean,
-    disabledMethodIds?: string[],
-    hasOtherMethods?: boolean,
-    isScheduled?: boolean,
-    scheduledFor?: Date,
-    maskedRecoveryEmail?: string,
-    correlationId?: string
+    message?: string | undefined,
+    messageBn?: string | undefined,
+    methodsDisabled?: number | undefined,
+    allMethodsDisabled?: boolean | undefined,
+    disabledMethodIds?: string[] | undefined,
+    hasOtherMethods?: boolean | undefined,
+    isScheduled?: boolean | undefined,
+    scheduledFor?: Date | undefined,
+    maskedRecoveryEmail?: string | undefined,
+    correlationId?: string | undefined
   ) {
     this.success = success;
     this.userId = userId;
@@ -758,11 +748,11 @@ export class DisableMfaResponseDto {
   static success(
     userId: string,
     methodsDisabled: number,
-    allMethodsDisabled?: boolean,
-    disabledMethodIds?: string[],
-    hasOtherMethods?: boolean,
-    messageBn?: string,
-    correlationId?: string
+    allMethodsDisabled?: boolean | undefined,
+    disabledMethodIds?: string[] | undefined,
+    hasOtherMethods?: boolean | undefined,
+    messageBn?: string | undefined,
+    correlationId?: string | undefined
   ): DisableMfaResponseDto {
     return new DisableMfaResponseDto(
       true,
@@ -787,8 +777,8 @@ export class DisableMfaResponseDto {
     userId: string,
     scheduledFor: Date,
     maskedRecoveryEmail: string,
-    correlationId?: string,
-    messageBn?: string
+    correlationId?: string | undefined,
+    messageBn?: string | undefined
   ): DisableMfaResponseDto {
     return new DisableMfaResponseDto(
       true,
@@ -812,8 +802,8 @@ export class DisableMfaResponseDto {
   static error(
     userId: string,
     message: string,
-    messageBn?: string,
-    correlationId?: string
+    messageBn?: string | undefined,
+    correlationId?: string | undefined
   ): DisableMfaResponseDto {
     return new DisableMfaResponseDto(
       false,
@@ -858,7 +848,7 @@ export class MFADisabledEventDto {
     description: 'Reason for disabling',
     example: 'User requested removal',
   })
-  reason?: string;
+  reason?: string | undefined;
 
   @ApiProperty({
     description: 'Timestamp when MFA was disabled',
@@ -871,37 +861,37 @@ export class MFADisabledEventDto {
     description: 'IP address of the request (for security audit)',
     example: '192.168.1.100',
   })
-  ipAddress?: string;
+  ipAddress?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'User agent of the request (for security audit)',
     example: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
   })
-  userAgent?: string;
+  userAgent?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Who disabled the MFA (user, admin, system)',
     example: 'user',
     enum: ['user', 'admin', 'system'],
   })
-  disabledBy?: string;
+  disabledBy?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for tracing',
     example: 'corr_550e8400-e29b-41d4-a716-446655440000',
   })
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   constructor(
     userId: string,
     userEmail: string,
     method: string,
     disabledAt: Date,
-    reason?: string,
-    ipAddress?: string,
-    userAgent?: string,
-    disabledBy?: string,
-    correlationId?: string
+    reason?: string | undefined,
+    ipAddress?: string | undefined,
+    userAgent?: string | undefined,
+    disabledBy?: string | undefined,
+    correlationId?: string | undefined
   ) {
     this.userId = userId;
     this.userEmail = userEmail;
@@ -935,7 +925,7 @@ export class DisableMfaErrorResponseDto {
     description: 'Bengali error message',
     example: 'অবৈধ ভেরিফিকেশন কোড',
   })
-  messageBn?: string;
+  messageBn?: string | undefined;
 
   @ApiProperty({
     description: 'Error type',
@@ -969,36 +959,36 @@ export class DisableMfaErrorResponseDto {
     description: 'Remaining attempts before lockout',
     example: 2,
   })
-  remainingAttempts?: number;
+  remainingAttempts?: number | undefined;
 
   @ApiPropertyOptional({
     description: 'Lockout duration in minutes',
     example: 15,
   })
-  lockoutMinutes?: number;
+  lockoutMinutes?: number | undefined;
 
   @ApiPropertyOptional({
     description: 'Rate limit reset time (if rate limited)',
     example: '2024-01-01T00:15:00.000Z',
     format: 'date-time',
   })
-  rateLimitResetAt?: Date;
+  rateLimitResetAt?: Date | undefined;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for tracing',
     example: 'corr_550e8400-e29b-41d4-a716-446655440000',
   })
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   constructor(
     message: string,
     error: string,
     statusCode: number = 400,
-    messageBn?: string,
-    remainingAttempts?: number,
-    lockoutMinutes?: number,
-    rateLimitResetAt?: Date,
-    correlationId?: string
+    messageBn?: string | undefined,
+    remainingAttempts?: number | undefined,
+    lockoutMinutes?: number | undefined,
+    rateLimitResetAt?: Date | undefined,
+    correlationId?: string | undefined
   ) {
     this.statusCode = statusCode;
     this.message = message;
@@ -1015,9 +1005,9 @@ export class DisableMfaErrorResponseDto {
    * Create invalid code error response
    */
   static invalidCode(
-    messageBn?: string,
-    remainingAttempts?: number,
-    correlationId?: string
+    messageBn?: string | undefined,
+    remainingAttempts?: number | undefined,
+    correlationId?: string | undefined
   ): DisableMfaErrorResponseDto {
     return new DisableMfaErrorResponseDto(
       'Invalid verification code',
@@ -1035,8 +1025,8 @@ export class DisableMfaErrorResponseDto {
    * Create expired code error response
    */
   static codeExpired(
-    messageBn?: string,
-    correlationId?: string
+    messageBn?: string | undefined,
+    correlationId?: string | undefined
   ): DisableMfaErrorResponseDto {
     return new DisableMfaErrorResponseDto(
       'Verification code has expired',
@@ -1054,9 +1044,9 @@ export class DisableMfaErrorResponseDto {
    * Create max attempts exceeded error response
    */
   static maxAttemptsExceeded(
-    messageBn?: string,
-    lockoutMinutes?: number,
-    correlationId?: string
+    messageBn?: string | undefined,
+    lockoutMinutes?: number | undefined,
+    correlationId?: string | undefined
   ): DisableMfaErrorResponseDto {
     return new DisableMfaErrorResponseDto(
       'Maximum verification attempts exceeded. Account temporarily locked.',
@@ -1074,8 +1064,8 @@ export class DisableMfaErrorResponseDto {
    * Create confirmation required error response
    */
   static confirmationRequired(
-    messageBn?: string,
-    correlationId?: string
+    messageBn?: string | undefined,
+    correlationId?: string | undefined
   ): DisableMfaErrorResponseDto {
     return new DisableMfaErrorResponseDto(
       'Please confirm that you understand the security implications of disabling MFA',
@@ -1094,7 +1084,7 @@ export class DisableMfaErrorResponseDto {
    */
   static rateLimited(
     retryAfterSeconds: number,
-    correlationId?: string
+    correlationId?: string | undefined
   ): DisableMfaErrorResponseDto {
     const message = `Too many MFA disable attempts. Please try again in ${retryAfterSeconds} seconds.`;
     const rateLimitResetAt = new Date(Date.now() + retryAfterSeconds * 1000);
@@ -1124,33 +1114,35 @@ export function getMfaDisableAuditMetadata(
   userId: string,
   adminId?: string
 ): AuditMetadata {
+  const metadata: Record<string, unknown> = {
+    mfaScope: dto.scope,
+    verificationMethod: dto.getVerificationMethod(),
+    methodId: dto.methodId,
+    methodIds: dto.methodIds,
+    isBulkDisable: dto.isBulkDisable(),
+    isScheduled: dto.isScheduled(),
+    isAdminBypass: dto.isAdminBypass(),
+    reason: dto.reason,
+    hasConfirm: !!dto.confirm,
+    scheduledFor: dto.schedule?.scheduleFor,
+    recoveryEmail: dto.schedule?.recoveryEmail,
+    ipAddress: dto.context?.ipAddress,
+    userAgent: dto.context?.userAgent,
+    sessionId: dto.context?.sessionId,
+    deviceFingerprint: dto.context?.deviceFingerprint,
+    district: dto.context?.district,
+    division: dto.context?.division,
+    networkType: dto.context?.networkType,
+    hasRateLimit: !!dto.rateLimit,
+    adminId,
+  };
+
   return {
     userId,
     source: dto.isAdminBypass() ? 'admin' : 'api',
     timestamp: new Date(),
     requestId: dto.getCorrelationId(),
-    metadata: {
-      mfaScope: dto.scope,
-      verificationMethod: dto.getVerificationMethod(),
-      methodId: dto.methodId,
-      methodIds: dto.methodIds,
-      isBulkDisable: dto.isBulkDisable(),
-      isScheduled: dto.isScheduled(),
-      isAdminBypass: dto.isAdminBypass(),
-      reason: dto.reason,
-      hasConfirm: !!dto.confirm,
-      scheduledFor: dto.schedule?.scheduleFor,
-      recoveryEmail: dto.schedule?.recoveryEmail,
-      ipAddress: dto.context?.ipAddress,
-      userAgent: dto.context?.userAgent,
-      sessionId: dto.context?.sessionId,
-      deviceFingerprint: dto.context?.deviceFingerprint,
-      district: dto.context?.district,
-      division: dto.context?.division,
-      networkType: dto.context?.networkType,
-      hasRateLimit: !!dto.rateLimit,
-      adminId,
-    },
+    additionalData: metadata,
   };
 }
 
