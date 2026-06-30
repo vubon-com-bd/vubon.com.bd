@@ -54,35 +54,14 @@ export * from './session/revoke-all-sessions.dto';
 // ============================================================
 // Re-export commonly used types from audit.dto for convenience
 // ============================================================
-export {
-  AuditDto,
-  ChangeDetail,
-  RateLimitMetadata,
-  AuditLogDto,
-  AuditLogQueryDto,
-  AuditStatisticsDto,
-  RateLimitAuditDto,
-  AuditAction,
-  AuditSource,
-  AuditSeverity,
-  AuditEntityType,
-} from './common/audit.dto';
+export * from './common/audit.dto';
 
 // ============================================================
 // Re-export Base Response DTO types for convenience
 // ============================================================
-export type {
-  BaseResponse,
-  SuccessResponse,
-  ErrorResponse,
-  PaginatedResponse,
-} from './common/base-response.dto';
+export * from './common/base-response.dto';
 
 // ============================================================
 // Re-export Pagination DTO types for convenience
 // ============================================================
-export type {
-  PaginationParams,
-  PaginatedResult,
-  PaginationMeta,
-} from './common/pagination.dto';
+export * from './common/pagination.dto';
