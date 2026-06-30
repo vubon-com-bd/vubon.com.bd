@@ -52,7 +52,7 @@ import {
   MFA_TYPES, 
   MFA_CONFIG as _MFA_CONFIG,
 } from '@vubon/shared-constants';
-import type { MFAType, AuditMetadata } from '@vubon/shared-types';
+import type { MFATypes, AuditMetadata } from '@vubon/shared-types';
 
 // ============================================================
 // MFA Type Enum (Bangladesh specific)
@@ -275,7 +275,7 @@ export class EnableMfaDto {
   })
   @IsEnum(MFA_TYPES, { message: VALIDATION_MESSAGES.en.typeInvalid })
   @IsNotEmpty({ message: VALIDATION_MESSAGES.en.typeRequired })
-  type: MFAType;
+  type: MFATypes;
 
   @ApiPropertyOptional({
     description: 'Phone number for SMS/WhatsApp/Voice MFA (required for these types)',
@@ -376,7 +376,7 @@ export class EnableMfaDto {
   rateLimit?: MFASetupRateLimitDto | undefined;
 
   constructor(
-    type: MFAType, 
+    type: MFATypes, 
     phone?: string | undefined, 
     deviceName?: string | undefined,
     makePrimary?: boolean | undefined,
@@ -404,8 +404,8 @@ export class EnableMfaDto {
     switch (this.type) {
       case MFA_TYPES.SMS:
       case MFA_TYPES.WHATSAPP:
-      case 'imo_otp' as MFAType:
-      case 'voice_call_otp' as MFAType:
+      case 'imo_otp' as MFATypes:
+      case 'voice_call_otp' as MFATypes:
         if (!this.phone) {
           return { valid: false, error: VALIDATION_MESSAGES.en.phoneRequired };
         }
@@ -444,8 +444,8 @@ export class EnableMfaDto {
     switch (this.type) {
       case MFA_TYPES.SMS:
       case MFA_TYPES.WHATSAPP:
-      case 'imo_otp' as MFAType:
-      case 'voice_call_otp' as MFAType:
+      case 'imo_otp' as MFATypes:
+      case 'voice_call_otp' as MFATypes:
         return this.phone;
       case MFA_TYPES.BKASH_PIN:
         return this.bkashAccount;
@@ -922,7 +922,7 @@ export class EnableMfaResponseDto {
     description: 'Type of MFA being set up',
     enum: MFA_TYPES,
   })
-  type: MFAType;
+  type: MFATypes;
 
   @ApiProperty({
     description: 'Setup data (type-specific)',
@@ -949,7 +949,7 @@ export class EnableMfaResponseDto {
   correlationId?: string | undefined;
 
   constructor(
-    type: MFAType,
+    type: MFATypes,
     setup: TOTPSetupResponseDto | PhoneSetupResponseDto | EmailSetupResponseDto | MFSPinSetupResponseDto | WebAuthnSetupResponseDto,
     correlationId?: string | undefined
   ) {
@@ -962,7 +962,7 @@ export class EnableMfaResponseDto {
    * Create success response with correlation ID
    */
   static success(
-    type: MFAType,
+    type: MFATypes,
     setup: TOTPSetupResponseDto | PhoneSetupResponseDto | EmailSetupResponseDto | MFSPinSetupResponseDto | WebAuthnSetupResponseDto,
     correlationId?: string | undefined
   ): EnableMfaResponseDto {
@@ -987,14 +987,14 @@ export class MFAStatusResponseDto {
     enum: MFA_TYPES,
     example: MFA_TYPES.TOTP,
   })
-  type?: MFAType | undefined;
+  type?: MFATypes | undefined;
 
   @ApiPropertyOptional({
     description: 'List of enabled MFA methods',
     example: ['TOTP', 'SMS'],
     isArray: true,
   })
-  methods?: MFAType[] | undefined;
+  methods?: MFATypes[] | undefined;
 
   @ApiPropertyOptional({
     description: 'Masked phone number (for SMS/WhatsApp MFA)',
@@ -1048,7 +1048,7 @@ export class MFAStatusResponseDto {
     description: 'Primary MFA method',
     enum: MFA_TYPES,
   })
-  primaryMethod?: MFAType | undefined;
+  primaryMethod?: MFATypes | undefined;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for tracing',
@@ -1058,15 +1058,15 @@ export class MFAStatusResponseDto {
 
   constructor(
     enabled: boolean,
-    type?: MFAType | undefined,
+    type?: MFATypes | undefined,
     maskedPhone?: string | undefined,
     maskedEmail?: string | undefined,
     isPending?: boolean | undefined,
     remainingBackupCodes?: number | undefined,
     areBackupCodesLow?: boolean | undefined,
-    methods?: MFAType[] | undefined,
+    methods?: MFATypes[] | undefined,
     maskedBkashAccount?: string | undefined,
-    primaryMethod?: MFAType | undefined,
+    primaryMethod?: MFATypes | undefined,
     correlationId?: string | undefined,
     maskedNagadAccount?: string | undefined,
     maskedRocketAccount?: string | undefined
@@ -1091,8 +1091,8 @@ export class MFAStatusResponseDto {
    */
   static fromMFA(data: {
     enabled: boolean;
-    type?: MFAType | undefined;
-    methods?: MFAType[] | undefined;
+    type?: MFATypes | undefined;
+    methods?: MFATypes[] | undefined;
     maskedPhone?: string | undefined;
     maskedEmail?: string | undefined;
     maskedBkashAccount?: string | undefined;
@@ -1100,7 +1100,7 @@ export class MFAStatusResponseDto {
     maskedRocketAccount?: string | undefined;
     isPending?: boolean | undefined;
     remainingBackupCodes?: number | undefined;
-    primaryMethod?: MFAType | undefined;
+    primaryMethod?: MFATypes | undefined;
     correlationId?: string | undefined;
   }): MFAStatusResponseDto {
     const areBackupCodesLow = data.remainingBackupCodes !== undefined && data.remainingBackupCodes < 3;
@@ -1248,7 +1248,7 @@ export function getMFASetupAuditMetadata(
  * Validate MFA provider configuration
  * চেক করে প্রদত্ত MFA টাইপের জন্য প্রয়োজনীয় কনফিগারেশন আছে কিনা
  */
-export function isMFAProviderConfigured(type: MFAType): boolean {
+export function isMFAProviderConfigured(type: MFATypes): boolean {
   const configuredProviders = [
     'TOTP', 'SMS', 'EMAIL', 'BACKUP_CODE', 'WEBAUTHN',
     'WHATSAPP', 'IMO', 'BKASH_PIN', 'NAGAD_PIN', 'ROCKET_PIN', 'VOICE_CALL'
@@ -1259,7 +1259,7 @@ export function isMFAProviderConfigured(type: MFAType): boolean {
 /**
  * Get MFA provider display name in English
  */
-export function getMFAProviderDisplayName(type: MFAType): string {
+export function getMFAProviderDisplayName(type: MFATypes): string {
   const displayNames: Record<string, string> = {
     TOTP: 'Authenticator App',
     SMS: 'SMS Verification',
@@ -1279,7 +1279,7 @@ export function getMFAProviderDisplayName(type: MFAType): string {
 /**
  * Get MFA provider display name in Bengali
  */
-export function getMFAProviderDisplayNameBn(type: MFAType): string {
+export function getMFAProviderDisplayNameBn(type: MFATypes): string {
   const displayNamesBn: Record<string, string> = {
     TOTP: 'অথেনটিকেটর অ্যাপ',
     SMS: 'এসএমএস ভেরিফিকেশন',
@@ -1301,7 +1301,7 @@ export function getMFAProviderDisplayNameBn(type: MFAType): string {
 // ============================================================
 
 export type { 
-  MFAType as MFATypeEnum,
+  MFATypes as EnableMFATypeEnum,
   MFASetupContextDto as MFASetupContextDtoType,
   MFASetupRateLimitDto as MFASetupRateLimitDtoType,
 };
