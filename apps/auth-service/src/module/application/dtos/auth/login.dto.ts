@@ -153,7 +153,7 @@ export type TLoginMethod = typeof LOGIN_TYPES[keyof typeof LOGIN_TYPES];
  * BKASH, NAGAD, ROCKET, MAGIC_LINK, QR_CODE, WHATSAPP
  */
 export const UserRoleEnum = AUTH_PROVIDERS;
-export type TUserRole = typeof AUTH_PROVIDERS[keyof typeof AUTH_PROVIDERS];
+export type LoginTUserRole = typeof AUTH_PROVIDERS[keyof typeof AUTH_PROVIDERS];
 
 /**
  * User tier types (from shared-constants)
@@ -161,7 +161,7 @@ export type TUserRole = typeof AUTH_PROVIDERS[keyof typeof AUTH_PROVIDERS];
  * BRONZE, SILVER, GOLD, PLATINUM, DIAMOND
  */
 export const UserTierEnum = USER_TIER;
-export type TUserTier = UserTier;
+export type LoginTUserTier = UserTier;
 
 /**
  * MFA provider types (from shared-constants)
@@ -722,7 +722,7 @@ export class OtpLoginDto {
 /**
  * Refresh Token Request DTO - Enhanced
  */
-export class RefreshTokenDto {
+export class LoginRefreshTokenDto {
   @ApiProperty({
     description: 'Refresh token for obtaining new access token',
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
@@ -765,7 +765,7 @@ export class RefreshTokenDto {
 /**
  * Logout Request DTO - Enhanced
  */
-export class LogoutDto {
+export class LiginLogoutDto {
   @ApiPropertyOptional({
     description: 'Session ID to logout (if not provided, current session)',
     example: 'session_abc123',
@@ -917,14 +917,14 @@ export class UserResponseDto {
     enum: UserRoleEnum,
     example: UserRoleEnum.EMAIL,
   })
-  role: TUserRole;
+  role: LoginTUserRole;
 
   @ApiProperty({
     description: 'User tier (loyalty program)',
     enum: UserTierEnum,
     example: UserTierEnum.BRONZE,
   })
-  tier: TUserTier;
+  tier: LoginTUserTier;
 
   @ApiPropertyOptional({
     description: 'Avatar URL',
@@ -983,8 +983,8 @@ export class UserResponseDto {
     email: string,
     fullName: string,
     displayName: string,
-    role: TUserRole,
-    tier: TUserTier,
+    role: LoginTUserRole,
+    tier: LoginTUserTier,
     isEmailVerified?: boolean,
     isPhoneVerified?: boolean,
     mfaEnabled?: boolean,
@@ -1116,7 +1116,7 @@ export class LoginResponseDto {
 /**
  * Token Refresh Response DTO - Enhanced
  */
-export class TokenRefreshResponseDto {
+export class LoginTokenRefreshResponseDto {
   @ApiProperty({
     description: 'New JWT access token',
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
@@ -1171,7 +1171,7 @@ export class TokenRefreshResponseDto {
 /**
  * Logout Response DTO - Enhanced
  */
-export class LogoutResponseDto {
+export class LoginLogoutResponseDto {
   @ApiProperty({
     description: 'Success message',
     example: 'Successfully logged out',
@@ -1207,7 +1207,7 @@ export class LogoutResponseDto {
 /**
  * MFA Required Response DTO (when MFA is needed after login) - Enhanced
  */
-export class MFARequiredResponseDto {
+export class LoginMFARequiredResponseDto {
   @ApiProperty({
     description: 'MFA required flag',
     example: true,
