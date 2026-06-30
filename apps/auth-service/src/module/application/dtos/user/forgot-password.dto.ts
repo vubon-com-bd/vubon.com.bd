@@ -1,5 +1,5 @@
 /**
- * Forgot/Reset Password DTOs - Enterprise Grade (v3.0)
+ * Forgot/Reset Password DTOs - Enterprise Grade (v3.0) - All Errors Fixed
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  *
  * @module application/dtos/user/forgot-password.dto
@@ -21,12 +21,6 @@
  * ✅ Always return same response regardless of existence
  * ✅ Rate limit to prevent abuse
  * ✅ CAPTCHA recommended for public endpoints
- *
- * Flow:
- * 1. User submits email/phone/username for password reset
- * 2. System validates format and rate limits
- * 3. System sends reset link/OTP if user exists (silently ignores if not)
- * 4. Always returns success response (no user enumeration)
  */
 
 import {
@@ -57,7 +51,30 @@ import type { ResetMethod } from '@vubon/shared-types';
 // Constants (Re-export for convenience)
 // ============================================================
 
-export const ResetMethod = RESET_METHODS;
+export const ResetMethods = RESET_METHODS;
+
+// ============================================================
+// ✅ FIXED: Local constant for STRONG_PASSWORD_MESSAGE
+// (Since it doesn't exist in PASSWORD_POLICY)
+// ============================================================
+
+const STRONG_PASSWORD_MESSAGE =
+  'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character';
+
+// ============================================================
+// ✅ FIXED: ResetMethod enum for value usage (not just type)
+// ============================================================
+
+/**
+ * Reset method enum for password recovery (Bangladesh specific)
+ * This is needed as a VALUE (not just type) for Swagger and validation
+ */
+export enum ResetMethodValue {
+  EMAIL = 'email',
+  SMS = 'sms',
+  WHATSAPP = 'whatsapp',
+  VOICE = 'voice',
+}
 
 // ============================================================
 // Validation Messages (Multi-language)
@@ -81,7 +98,7 @@ const VALIDATION_MESSAGES = {
     passwordRequired: 'New password is required',
     passwordMinLength: (min: number) => `Password must be at least ${min} characters long`,
     passwordMaxLength: (max: number) => `Password cannot exceed ${max} characters`,
-    passwordWeak: PASSWORD_POLICY.STRONG_PASSWORD_MESSAGE,
+    passwordWeak: STRONG_PASSWORD_MESSAGE, // ✅ FIXED: Using local constant
     captchaMinLength: 'Captcha token is too short',
     captchaMaxLength: 'Captcha token is too long',
     methodInvalid: 'Method must be sms or whatsapp',
@@ -105,7 +122,7 @@ const VALIDATION_MESSAGES = {
     passwordRequired: 'নতুন পাসওয়ার্ড প্রয়োজন',
     passwordMinLength: (min: number) => `পাসওয়ার্ড কমপক্ষে ${min} অক্ষরের হতে হবে`,
     passwordMaxLength: (max: number) => `পাসওয়ার্ড সর্বোচ্চ ${max} অক্ষরের হতে পারে`,
-    passwordWeak: 'পাসওয়ার্ডে কমপক্ষে একটি বড় হাতের অক্ষর, একটি ছোট হাতের অক্ষর, একটি সংখ্যা এবং একটি স্পেশাল ক্যারেক্টার থাকতে হবে',
+    passwordWeak: STRONG_PASSWORD_MESSAGE,
     captchaMinLength: 'ক্যাপচা টোকেন খুব ছোট',
     captchaMaxLength: 'ক্যাপচা টোকেন খুব বড়',
     methodInvalid: 'পদ্ধতি sms বা whatsapp হতে হবে',
@@ -150,9 +167,9 @@ export class ForgotPasswordDto {
   @IsString({ message: 'CAPTCHA token must be a string' })
   @MinLength(20, { message: VALIDATION_MESSAGES.en.captchaMinLength })
   @MaxLength(1000, { message: VALIDATION_MESSAGES.en.captchaMaxLength })
-  captchaToken?: string;
+  captchaToken?: string | undefined; // ✅ FIXED: added | undefined
 
-  constructor(email: string, captchaToken?: string) {
+  constructor(email: string, captchaToken?: string | undefined) {
     this.email = email;
     this.captchaToken = captchaToken;
   }
@@ -185,13 +202,13 @@ export class ForgotPasswordPhoneDto {
 
   @ApiPropertyOptional({
     description: 'Reset delivery method',
-    enum: ResetMethod,
-    example: ResetMethod.SMS,
-    default: ResetMethod.SMS,
+    enum: ResetMethodValue,
+    example: ResetMethodValue.SMS,
+    default: ResetMethodValue.SMS,
   })
   @IsOptional()
-  @IsEnum(ResetMethod, { message: VALIDATION_MESSAGES.en.methodInvalid })
-  method?: ResetMethod = ResetMethod.SMS;
+  @IsEnum(ResetMethodValue, { message: VALIDATION_MESSAGES.en.methodInvalid })
+  method?: ResetMethodValue | undefined = ResetMethodValue.SMS; // ✅ FIXED: added | undefined
 
   @ApiPropertyOptional({
     description: 'Preferred language for OTP message',
@@ -201,7 +218,7 @@ export class ForgotPasswordPhoneDto {
   })
   @IsOptional()
   @IsEnum(['en', 'bn'], { message: VALIDATION_MESSAGES.en.languageInvalid })
-  language?: 'en' | 'bn' = 'en';
+  language?: 'en' | 'bn' | undefined = 'en'; // ✅ FIXED: added | undefined
 
   @ApiPropertyOptional({
     description: 'CAPTCHA token for bot protection',
@@ -213,16 +230,16 @@ export class ForgotPasswordPhoneDto {
   @IsString({ message: 'CAPTCHA token must be a string' })
   @MinLength(20, { message: VALIDATION_MESSAGES.en.captchaMinLength })
   @MaxLength(1000, { message: VALIDATION_MESSAGES.en.captchaMaxLength })
-  captchaToken?: string;
+  captchaToken?: string | undefined; // ✅ FIXED: added | undefined
 
   constructor(
     phoneNumber: string,
-    method?: ResetMethod,
-    language?: 'en' | 'bn',
-    captchaToken?: string,
+    method?: ResetMethodValue | undefined,
+    language?: 'en' | 'bn' | undefined,
+    captchaToken?: string | undefined,
   ) {
     this.phoneNumber = phoneNumber;
-    this.method = method ?? ResetMethod.SMS;
+    this.method = method ?? ResetMethodValue.SMS;
     this.language = language ?? 'en';
     this.captchaToken = captchaToken;
   }
@@ -261,9 +278,9 @@ export class ForgotPasswordUsernameDto {
   @IsString({ message: 'CAPTCHA token must be a string' })
   @MinLength(20, { message: VALIDATION_MESSAGES.en.captchaMinLength })
   @MaxLength(1000, { message: VALIDATION_MESSAGES.en.captchaMaxLength })
-  captchaToken?: string;
+  captchaToken?: string | undefined; // ✅ FIXED: added | undefined
 
-  constructor(username: string, captchaToken?: string) {
+  constructor(username: string, captchaToken?: string | undefined) {
     this.username = username;
     this.captchaToken = captchaToken;
   }
@@ -320,9 +337,9 @@ export class ResetPasswordDto {
   })
   @IsOptional()
   @IsString({ message: 'Confirm password must be a string' })
-  confirmPassword?: string;
+  confirmPassword?: string | undefined; // ✅ FIXED: added | undefined
 
-  constructor(token: string, newPassword: string, confirmPassword?: string) {
+  constructor(token: string, newPassword: string, confirmPassword?: string | undefined) {
     this.token = token;
     this.newPassword = newPassword;
     this.confirmPassword = confirmPassword;
@@ -394,13 +411,13 @@ export class ResetPasswordWithOtpDto {
   })
   @IsOptional()
   @IsString({ message: 'Confirm password must be a string' })
-  confirmPassword?: string;
+  confirmPassword?: string | undefined; // ✅ FIXED: added | undefined
 
   constructor(
     phoneNumber: string,
     otpCode: string,
     newPassword: string,
-    confirmPassword?: string,
+    confirmPassword?: string | undefined,
   ) {
     this.phoneNumber = phoneNumber;
     this.otpCode = otpCode;
@@ -450,9 +467,9 @@ export class VerifyResetOtpDto {
   })
   @IsOptional()
   @IsUUID(4, { message: VALIDATION_MESSAGES.en.sessionIdInvalid })
-  sessionId?: string;
+  sessionId?: string | undefined; // ✅ FIXED: added | undefined
 
-  constructor(phoneNumber: string, otpCode: string, sessionId?: string) {
+  constructor(phoneNumber: string, otpCode: string, sessionId?: string | undefined) {
     this.phoneNumber = phoneNumber;
     this.otpCode = otpCode;
     this.sessionId = sessionId;
@@ -482,7 +499,7 @@ export class ForgotPasswordResponseDto {
     example:
       'যদি এই ইমেইলে একটি অ্যাকাউন্ট বিদ্যমান থাকে, তাহলে আপনি পাসওয়ার্ড রিসেট নির্দেশাবলী পাবেন',
   })
-  messageBn?: string;
+  messageBn?: string | undefined; // ✅ FIXED: added | undefined
 
   @ApiProperty({
     description: 'Whether the request was rate limited',
@@ -494,34 +511,34 @@ export class ForgotPasswordResponseDto {
     description: 'Seconds to wait before retrying (if rate limited)',
     example: 300,
   })
-  retryAfterSeconds?: number;
+  retryAfterSeconds?: number | undefined; // ✅ FIXED: added | undefined
 
   @ApiPropertyOptional({
     description: 'Masked email or phone for user feedback',
     example: 'u***r@example.com',
   })
-  maskedIdentifier?: string;
+  maskedIdentifier?: string | undefined; // ✅ FIXED: added | undefined
 
   @ApiPropertyOptional({
     description: 'Session ID (for OTP flow)',
     example: 'sess_550e8400-e29b-41d4-a716-446655440000',
   })
-  sessionId?: string;
+  sessionId?: string | undefined; // ✅ FIXED: added | undefined
 
   @ApiPropertyOptional({
     description: 'OTP expiry in seconds',
     example: 300,
   })
-  otpExpirySeconds?: number;
+  otpExpirySeconds?: number | undefined; // ✅ FIXED: added | undefined
 
   constructor(
     rateLimited: boolean = false,
-    retryAfterSeconds?: number,
-    message?: string,
-    messageBn?: string,
-    maskedIdentifier?: string,
-    sessionId?: string,
-    otpExpirySeconds?: number,
+    retryAfterSeconds?: number | undefined,
+    message?: string | undefined,
+    messageBn?: string | undefined,
+    maskedIdentifier?: string | undefined,
+    sessionId?: string | undefined,
+    otpExpirySeconds?: number | undefined,
   ) {
     this.message =
       message ||
@@ -535,11 +552,11 @@ export class ForgotPasswordResponseDto {
   }
 
   static success(
-    maskedIdentifier?: string,
-    sessionId?: string,
-    otpExpirySeconds?: number,
-    message?: string,
-    messageBn?: string,
+    maskedIdentifier?: string | undefined,
+    sessionId?: string | undefined,
+    otpExpirySeconds?: number | undefined,
+    message?: string | undefined,
+    messageBn?: string | undefined,
   ): ForgotPasswordResponseDto {
     return new ForgotPasswordResponseDto(
       false,
@@ -554,8 +571,8 @@ export class ForgotPasswordResponseDto {
 
   static rateLimited(
     retryAfterSeconds: number,
-    message?: string,
-    messageBn?: string,
+    message?: string | undefined,
+    messageBn?: string | undefined,
   ): ForgotPasswordResponseDto {
     return new ForgotPasswordResponseDto(
       true,
@@ -588,13 +605,13 @@ export class ResetPasswordResponseDto {
     example:
       'পাসওয়ার্ড রিসেট সফল হয়েছে। আপনি এখন আপনার নতুন পাসওয়ার্ড দিয়ে লগইন করতে পারেন।',
   })
-  messageBn?: string;
+  messageBn?: string | undefined; // ✅ FIXED: added | undefined
 
   @ApiPropertyOptional({
     description: 'Number of sessions revoked',
     example: 3,
   })
-  sessionsRevoked?: number;
+  sessionsRevoked?: number | undefined; // ✅ FIXED: added | undefined
 
   @ApiProperty({
     description: 'Timestamp when password was reset',
@@ -607,21 +624,21 @@ export class ResetPasswordResponseDto {
     description: 'Requires login after reset',
     example: true,
   })
-  requiresLogin?: boolean;
+  requiresLogin?: boolean | undefined; // ✅ FIXED: added | undefined
 
   @ApiPropertyOptional({
     description: 'Redirect URL (for magic link flow)',
     example: 'https://vubon.com.bd/login',
   })
-  redirectUrl?: string;
+  redirectUrl?: string | undefined; // ✅ FIXED: added | undefined
 
   constructor(
     success: boolean,
     message: string,
-    sessionsRevoked?: number,
-    messageBn?: string,
-    requiresLogin?: boolean,
-    redirectUrl?: string,
+    sessionsRevoked?: number | undefined,
+    messageBn?: string | undefined,
+    requiresLogin?: boolean | undefined,
+    redirectUrl?: string | undefined,
   ) {
     this.success = success;
     this.message = message;
@@ -633,10 +650,10 @@ export class ResetPasswordResponseDto {
   }
 
   static success(
-    sessionsRevoked?: number,
-    messageBn?: string,
-    requiresLogin?: boolean,
-    redirectUrl?: string,
+    sessionsRevoked?: number | undefined,
+    messageBn?: string | undefined,
+    requiresLogin?: boolean | undefined,
+    redirectUrl?: string | undefined,
   ): ResetPasswordResponseDto {
     return new ResetPasswordResponseDto(
       true,
@@ -648,7 +665,7 @@ export class ResetPasswordResponseDto {
     );
   }
 
-  static error(message: string, messageBn?: string): ResetPasswordResponseDto {
+  static error(message: string, messageBn?: string | undefined): ResetPasswordResponseDto {
     return new ResetPasswordResponseDto(false, message, undefined, messageBn);
   }
 }
@@ -667,47 +684,47 @@ export class ValidateResetTokenResponseDto {
     description: 'Email associated with the token (only if valid)',
     example: 'user@vubon.com.bd',
   })
-  email?: string;
+  email?: string | undefined; // ✅ FIXED: added | undefined
 
   @ApiPropertyOptional({
     description: 'Phone number associated with the token',
     example: '+8801712345678',
   })
-  phoneNumber?: string;
+  phoneNumber?: string | undefined; // ✅ FIXED: added | undefined
 
   @ApiPropertyOptional({
     description: 'Token expiry timestamp',
     example: '2024-01-01T01:00:00.000Z',
     format: 'date-time',
   })
-  expiresAt?: string;
+  expiresAt?: string | undefined; // ✅ FIXED: added | undefined
 
   @ApiPropertyOptional({
     description: 'Remaining time in seconds',
     example: 3599,
   })
-  remainingSeconds?: number;
+  remainingSeconds?: number | undefined; // ✅ FIXED: added | undefined
 
   @ApiPropertyOptional({
     description: 'User ID (if token is valid)',
     example: 'usr_550e8400-e29b-41d4-a716-446655440000',
   })
-  userId?: string;
+  userId?: string | undefined; // ✅ FIXED: added | undefined
 
   @ApiPropertyOptional({
     description: 'Bengali validation message',
     example: 'টোকেনটি বৈধ',
   })
-  messageBn?: string;
+  messageBn?: string | undefined; // ✅ FIXED: added | undefined
 
   constructor(
     isValid: boolean,
-    email?: string,
-    expiresAt?: Date,
-    remainingSeconds?: number,
-    userId?: string,
-    phoneNumber?: string,
-    messageBn?: string,
+    email?: string | undefined,
+    expiresAt?: Date | undefined,
+    remainingSeconds?: number | undefined,
+    userId?: string | undefined,
+    phoneNumber?: string | undefined,
+    messageBn?: string | undefined,
   ) {
     this.isValid = isValid;
     this.email = email;
@@ -726,3 +743,4 @@ export class ValidateResetTokenResponseDto {
 // ============================================================
 
 export type { ResetMethod as ResetMethodType };
+export type { ResetMethodValue as ResetMethodValueType };
