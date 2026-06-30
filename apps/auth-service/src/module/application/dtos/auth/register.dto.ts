@@ -215,7 +215,7 @@ export type TUserRole = typeof AUTH_PROVIDERS[keyof typeof AUTH_PROVIDERS];
 /**
  * Client information for security and analytics
  */
-export class ClientInfoDto {
+export class RegisterClientInfoDto {
   @ApiPropertyOptional({
     description: 'IP address of the client',
     example: '192.168.1.100',
@@ -353,12 +353,12 @@ export class BaseRegisterDto {
 
   @ApiPropertyOptional({
     description: 'Client information for security tracking',
-    type: ClientInfoDto,
+    type: RegisterClientInfoDto,
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => ClientInfoDto)
-  clientInfo?: ClientInfoDto | undefined;
+  @Type(() => RegisterClientInfoDto)
+  clientInfo?: RegisterClientInfoDto | undefined;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for distributed tracing',
@@ -1871,7 +1871,7 @@ export type {
   RegistrationMethod as RegistrationMethodType,
   TUserTier as UserTierType,
   TUserRole as UserRoleType,
-  ClientInfoDto as ClientInfoDtoType,
+  RegisterClientInfoDto as ClientInfoDtoType,
   RegistrationRateLimitDto as RegistrationRateLimitDtoType,
   RegisterResponseDto as RegisterResponseDtoType,
   RegisterErrorResponseDto as RegisterErrorResponseDtoType,
