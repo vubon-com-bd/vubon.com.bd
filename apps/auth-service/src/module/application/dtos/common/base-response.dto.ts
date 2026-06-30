@@ -311,7 +311,7 @@ export class ResponseMetadata {
  * // Error response with rate limit headers
  * const errorResponse = BaseResponseDto.rateLimited(30, 'Too many requests', metadata);
  */
-export class BaseResponseDto<T> {
+export class BaseResponse<T> {
   @ApiProperty({ 
     description: 'Whether the operation was successful', 
     example: true 
@@ -439,8 +439,8 @@ export class BaseResponseDto<T> {
     statusCode: number = 200,
     metadata?: ResponseMetadata,
     messageBn?: string
-  ): BaseResponseDto<T> {
-    return new BaseResponseDto<T>(
+  ): BaseResponse<T> {
+    return new BaseResponse<T>(
       true, statusCode, message, data, undefined, undefined, metadata, messageBn
     );
   }
@@ -458,8 +458,8 @@ export class BaseResponseDto<T> {
     message: string = 'Resource created successfully',
     metadata?: ResponseMetadata,
     messageBn?: string
-  ): BaseResponseDto<T> {
-    return new BaseResponseDto<T>(
+  ): BaseResponse<T> {
+    return new BaseResponse<T>(
       true, 201, message, data, undefined, undefined, metadata, messageBn
     );
   }
@@ -475,8 +475,8 @@ export class BaseResponseDto<T> {
     message: string = 'Operation successful',
     metadata?: ResponseMetadata,
     messageBn?: string
-  ): BaseResponseDto<null> {
-    return new BaseResponseDto<null>(
+  ): BaseResponse<null> {
+    return new BaseResponse<null>(
       true, 204, message, null, undefined, undefined, metadata, messageBn
     );
   }
@@ -506,8 +506,8 @@ export class BaseResponseDto<T> {
     messageBn?: string,
     errorCode?: ErrorCode,
     errorMessagesBn?: string[]
-  ): BaseResponseDto<null> {
-    return new BaseResponseDto<null>(
+  ): BaseResponse<null> {
+    return new BaseResponse<null>(
       false, statusCode, message, null, errors, errorMessages, metadata, 
       messageBn, errorCode, errorMessagesBn
     );
@@ -526,8 +526,8 @@ export class BaseResponseDto<T> {
     message: string = 'Validation failed',
     metadata?: ResponseMetadata,
     messageBn?: string
-  ): BaseResponseDto<null> {
-    return new BaseResponseDto<null>(
+  ): BaseResponse<null> {
+    return new BaseResponse<null>(
       false, 400, message, null, errors, undefined, metadata, messageBn, 'VALIDATION_ERROR'
     );
   }
@@ -543,8 +543,8 @@ export class BaseResponseDto<T> {
     message: string = 'Unauthorized',
     metadata?: ResponseMetadata,
     messageBn?: string
-  ): BaseResponseDto<null> {
-    return new BaseResponseDto<null>(
+  ): BaseResponse<null> {
+    return new BaseResponse<null>(
       false, 401, message, null, undefined, undefined, metadata, messageBn, 'UNAUTHORIZED'
     );
   }
@@ -560,8 +560,8 @@ export class BaseResponseDto<T> {
     message: string = 'Forbidden',
     metadata?: ResponseMetadata,
     messageBn?: string
-  ): BaseResponseDto<null> {
-    return new BaseResponseDto<null>(
+  ): BaseResponse<null> {
+    return new BaseResponse<null>(
       false, 403, message, null, undefined, undefined, metadata, messageBn, 'FORBIDDEN'
     );
   }
@@ -577,8 +577,8 @@ export class BaseResponseDto<T> {
     message: string = 'Resource not found',
     metadata?: ResponseMetadata,
     messageBn?: string
-  ): BaseResponseDto<null> {
-    return new BaseResponseDto<null>(
+  ): BaseResponse<null> {
+    return new BaseResponse<null>(
       false, 404, message, null, undefined, undefined, metadata, messageBn, 'NOT_FOUND'
     );
   }
@@ -594,8 +594,8 @@ export class BaseResponseDto<T> {
     message: string = 'Resource conflict',
     metadata?: ResponseMetadata,
     messageBn?: string
-  ): BaseResponseDto<null> {
-    return new BaseResponseDto<null>(
+  ): BaseResponse<null> {
+    return new BaseResponse<null>(
       false, 409, message, null, undefined, undefined, metadata, messageBn, 'CONFLICT'
     );
   }
@@ -616,7 +616,7 @@ export class BaseResponseDto<T> {
     metadata?: ResponseMetadata,
     messageBn?: string,
     rateLimitInfo?: Omit<RateLimitInfo, 'retryAfterSeconds'>
-  ): BaseResponseDto<{ retryAfterSeconds: number; rateLimit?: RateLimitInfo }> {
+  ): BaseResponse<{ retryAfterSeconds: number; rateLimit?: RateLimitInfo }> {
     // ✅ FIXED: exactOptionalPropertyTypes-এর জন্য explicit object creation
     const dataObj: { retryAfterSeconds: number; rateLimit?: RateLimitInfo } = {
       retryAfterSeconds,
@@ -649,7 +649,7 @@ export class BaseResponseDto<T> {
       );
     }
 
-    return new BaseResponseDto<{ retryAfterSeconds: number; rateLimit?: RateLimitInfo }>(
+    return new BaseResponse<{ retryAfterSeconds: number; rateLimit?: RateLimitInfo }>(
       false, 429, message, dataObj, 
       undefined, undefined, enhancedMetadata, messageBn, 'TOO_MANY_REQUESTS'
     );
@@ -667,8 +667,8 @@ export class BaseResponseDto<T> {
     message: string = 'Internal server error',
     metadata?: ResponseMetadata,
     messageBn?: string
-  ): BaseResponseDto<null> {
-    return new BaseResponseDto<null>(
+  ): BaseResponse<null> {
+    return new BaseResponse<null>(
       false, 500, message, null, undefined, undefined, metadata, messageBn, 'INTERNAL_SERVER_ERROR'
     );
   }
@@ -690,7 +690,7 @@ export class BaseResponseDto<T> {
     remainingLockTime?: number | { seconds: number; formatted: string },
     metadata?: ResponseMetadata,
     messageBn?: string
-  ): BaseResponseDto<{ remainingLockTime?: number; formattedLockTime?: string }> {
+  ): BaseResponse<{ remainingLockTime?: number; formattedLockTime?: string }> {
     const lockData: { remainingLockTime?: number; formattedLockTime?: string } = {};
     
     if (typeof remainingLockTime === 'number') {
@@ -700,7 +700,7 @@ export class BaseResponseDto<T> {
       lockData.formattedLockTime = remainingLockTime.formatted;
     }
 
-    return new BaseResponseDto<{ remainingLockTime?: number; formattedLockTime?: string }>(
+    return new BaseResponse<{ remainingLockTime?: number; formattedLockTime?: string }>(
       false, 423, message, Object.keys(lockData).length ? lockData : undefined, 
       undefined, undefined, metadata, messageBn, 'ACCOUNT_LOCKED'
     );
@@ -721,14 +721,14 @@ export class BaseResponseDto<T> {
     metadata?: ResponseMetadata,
     messageBn?: string,
     mfaSessionId?: string
-  ): BaseResponseDto<{ mfaMethods: string[]; mfaSessionId?: string }> {
+  ): BaseResponse<{ mfaMethods: string[]; mfaSessionId?: string }> {
     // ✅ FIXED: exactOptionalPropertyTypes-এর জন্য explicit object creation
     const dataObj: { mfaMethods: string[]; mfaSessionId?: string } = { mfaMethods };
     if (mfaSessionId !== undefined) {
       dataObj.mfaSessionId = mfaSessionId;
     }
 
-    return new BaseResponseDto<{ mfaMethods: string[]; mfaSessionId?: string }>(
+    return new BaseResponse<{ mfaMethods: string[]; mfaSessionId?: string }>(
       false, 401, message, dataObj, 
       undefined, undefined, metadata, messageBn, 'MFA_REQUIRED'
     );
@@ -750,8 +750,8 @@ export class BaseResponseDto<T> {
     metadata?: ResponseMetadata,
     messageBn?: string,
     rateLimitInfo?: Omit<RateLimitInfo, 'retryAfterSeconds'>
-  ): BaseResponseDto<{ retryAfterSeconds: number; rateLimit?: RateLimitInfo }> {
-    return BaseResponseDto.tooManyRequests(retryAfterSeconds, message, metadata, messageBn, rateLimitInfo);
+  ): BaseResponse<{ retryAfterSeconds: number; rateLimit?: RateLimitInfo }> {
+    return BaseResponse.tooManyRequests(retryAfterSeconds, message, metadata, messageBn, rateLimitInfo);
   }
 
   /**
@@ -767,13 +767,13 @@ export class BaseResponseDto<T> {
     performance: PerformanceMetrics,
     message: string = 'Operation successful',
     messageBn?: string
-  ): BaseResponseDto<T> {
+  ): BaseResponse<T> {
     const metadata = new ResponseMetadata();
     // ✅ FIXED: exactOptionalPropertyTypes-এর জন্য explicit assignment
     metadata.performance = performance;
     metadata.durationMs = performance.totalTimeMs;
     
-    return BaseResponseDto.success(data, message, 200, metadata, messageBn);
+    return BaseResponse.success(data, message, 200, metadata, messageBn);
   }
 }
 
@@ -786,7 +786,7 @@ export class BaseResponseDto<T> {
  * Supports both offset-based and cursor-based pagination
  * ✅ Enterprise: Configurable defaults
  */
-export class PaginationMetadata {
+export class BasePaginationMetadata {
   @ApiProperty({ 
     description: 'Current page number (1-indexed)', 
     example: 1, 
@@ -887,8 +887,8 @@ export class PaginationMetadata {
   /**
    * ✅ Enterprise: Get default pagination metadata
    */
-  static default(total: number): PaginationMetadata {
-    return new PaginationMetadata(
+  static default(total: number): BasePaginationMetadata {
+    return new BasePaginationMetadata(
       DEFAULT_PAGINATION.PAGE,
       DEFAULT_PAGINATION.LIMIT,
       total
@@ -921,7 +921,7 @@ export class PaginationMetadata {
  * const paginatedResponse = new PaginatedResponseDto(items, page, limit, total);
  * return paginatedResponse.toBaseResponse('Users fetched successfully');
  */
-export class PaginatedResponseDto<T> {
+export class basePaginatedResponseDto<T> {
   @ApiProperty({ 
     description: 'List of items', 
     isArray: true 
@@ -930,9 +930,9 @@ export class PaginatedResponseDto<T> {
 
   @ApiProperty({ 
     description: 'Pagination metadata', 
-    type: PaginationMetadata 
+    type: BasePaginationMetadata 
   })
-  pagination: PaginationMetadata;
+  pagination: BasePaginationMetadata;
 
   constructor(
     items: T[], 
@@ -945,7 +945,7 @@ export class PaginatedResponseDto<T> {
     sortOrder?: 'asc' | 'desc'
   ) {
     this.items = items;
-    this.pagination = new PaginationMetadata(page, limit, total, nextCursor, prevCursor, sortBy, sortOrder);
+    this.pagination = new BasePaginationMetadata(page, limit, total, nextCursor, prevCursor, sortBy, sortOrder);
   }
 
   /**
@@ -960,8 +960,8 @@ export class PaginatedResponseDto<T> {
     message: string = 'Operation successful',
     metadata?: ResponseMetadata,
     messageBn?: string
-  ): BaseResponseDto<PaginatedResponseDto<T>> {
-    return BaseResponseDto.success(this, message, 200, metadata, messageBn);
+  ): BaseResponse<basePaginatedResponseDto<T>> {
+    return BaseResponse.success(this, message, 200, metadata, messageBn);
   }
 
   /**
@@ -972,17 +972,17 @@ export class PaginatedResponseDto<T> {
     total: number,
     page?: number,
     limit?: number
-  ): PaginatedResponseDto<T> {
-    const { page: validPage, limit: validLimit } = PaginationMetadata.validate(page ?? DEFAULT_PAGINATION.PAGE, limit ?? DEFAULT_PAGINATION.LIMIT);
-    return new PaginatedResponseDto(items, validPage, validLimit, total);
+  ): basePaginatedResponseDto<T> {
+    const { page: validPage, limit: validLimit } = BasePaginationMetadata.validate(page ?? DEFAULT_PAGINATION.PAGE, limit ?? DEFAULT_PAGINATION.LIMIT);
+    return new basePaginatedResponseDto(items, validPage, validLimit, total);
   }
 
   /**
    * ✅ Enterprise: Create empty paginated response
    */
-  static empty<T>(page?: number, limit?: number): PaginatedResponseDto<T> {
-    const { page: validPage, limit: validLimit } = PaginationMetadata.validate(page ?? DEFAULT_PAGINATION.PAGE, limit ?? DEFAULT_PAGINATION.LIMIT);
-    return new PaginatedResponseDto<T>([], validPage, validLimit, 0);
+  static empty<T>(page?: number, limit?: number): basePaginatedResponseDto<T> {
+    const { page: validPage, limit: validLimit } = BasePaginationMetadata.validate(page ?? DEFAULT_PAGINATION.PAGE, limit ?? DEFAULT_PAGINATION.LIMIT);
+    return new basePaginatedResponseDto<T>([], validPage, validLimit, 0);
   }
 }
 
@@ -1031,8 +1031,8 @@ export function createPaginatedResponse<T>(
   total: number,
   page?: number,
   limit?: number
-): PaginatedResponseDto<T> {
-  return PaginatedResponseDto.fromItems(items, total, page, limit);
+): basePaginatedResponseDto<T> {
+  return basePaginatedResponseDto.fromItems(items, total, page, limit);
 }
 
 /**
@@ -1045,11 +1045,11 @@ export function createRateLimitedSuccessResponse<T>(
   data: T,
   rateLimitInfo: RateLimitInfo,
   message?: string
-): BaseResponseDto<T> {
+): BaseResponse<T> {
   const metadata = new ResponseMetadata();
   // ✅ FIXED: exactOptionalPropertyTypes-এর জন্য explicit assignment
   metadata.rateLimit = rateLimitInfo;
-  return BaseResponseDto.success(data, message ?? 'Operation successful', 200, metadata);
+  return BaseResponse.success(data, message ?? 'Operation successful', 200, metadata);
 }
 
 // ============================================================
