@@ -5,112 +5,114 @@
  * @module application/dtos/session/revoke-session.dto
  * 
  * @description
- * Data transfer objects for revoking user sessions with enterprise features.
+ * Data transfer objects for session revocation with enterprise features.
  * 
  * ENTERPRISE ENHANCEMENTS (v2.0):
- * ✅ Branded types (SessionId, DeviceId, UserId) for type safety
+ * ✅ Bulk session revocation support
+ * ✅ Device-specific revocation
  * ✅ Audit context tracking (ipAddress, userAgent, correlationId)
- * ✅ Rate limit metadata support for revocation attempts
+ * ✅ Rate limit metadata support
  * ✅ Distributed tracing with correlation ID
  * ✅ Geographic location tracking (Bangladesh districts)
  * ✅ Bengali language support in responses
- * ✅ Bulk revocation limits (min 1, max 100)
- * ✅ Admin revocation with audit trail
- * ✅ Device-based revocation (Bangladesh mobile specific)
+ * ✅ Session validation before revocation
+ * ✅ Device fingerprint tracking for security
+ * ✅ Cooldown tracking for revocation attempts
  * ✅ Multi-language validation messages (English/Bengali)
- * ✅ Helper methods for response creation
- * ✅ Audit metadata extraction
+ * ✅ Helper methods for bulk operations
  * 
  * Security Rules:
- * ✅ userId NEVER accepted from client (comes from JWT)
- * ✅ Session ownership validation in application layer
- * ✅ Optional reason for audit trail
- * ✅ Rate limiting for revocation attempts
- * 
- * Flow:
- * 1. User authenticates with JWT
- * 2. User requests to revoke a specific session
- * 3. Server validates session belongs to user and revokes it
+ * ✅ userId NEVER accepted from client (uses authenticated JWT)
+ * ✅ Either sessionId OR userId OR deviceId (mutually exclusive for target)
+ * ✅ Confirm flag required for bulk operations
+ * ✅ Rate limiting to prevent abuse
  */
 
 import { 
   IsString, 
-  IsNotEmpty, 
-  IsOptional,
-  IsUUID,
-  MaxLength,
-  IsArray,
-  ArrayMinSize,
-  ArrayMaxSize,
+  IsOptional, 
+  IsUUID, 
   IsBoolean,
+  IsArray,
+  ArrayMaxSize,
+  ArrayMinSize,
+  MaxLength,
+  ValidateNested,
   IsNumber,
   Min,
-  Max,
   IsDate,
-  ValidateNested,
   IsIn,
+  IsEnum,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
-// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট - Single source of truth
+// ✅ Import from shared packages
 import { 
-  SESSION_CONSTANTS, 
+  SESSION_CONSTANTS,
   DEVICE_ID_CONSTANTS,
-  ENV_CONFIG,
 } from '@vubon/shared-constants';
 
-// ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট - Type safety
+// ✅ Import types from shared-types
 import type { 
-  SessionId, 
-  DeviceId, 
-  UserId,
+  UserId, 
   AuditMetadata,
 } from '@vubon/shared-types';
 
 // ============================================================
-// Environment detection
+// ✅ Constants (using shared-constants with fallbacks)
 // ============================================================
 
-const IS_PRODUCTION = ENV_CONFIG?.IS_PRODUCTION ?? false;
+// SESSION_CONSTANTS থেকে প্রপার্টি নেওয়া
+const SESSION_CONFIG = {
+  MAX_REASON_LENGTH: 500,
+  MIN_BULK_REVOKE_SIZE: 1,
+  MAX_BULK_REVOKE_SIZE: 100,
+  MAX_CONCURRENT_SESSIONS: SESSION_CONSTANTS?.MAX_CONCURRENT_SESSIONS ?? 5,
+  SESSION_IDLE_TIMEOUT: SESSION_CONSTANTS?.SESSION_IDLE_TIMEOUT ?? 1800,
+  SESSION_ABSOLUTE_TIMEOUT: SESSION_CONSTANTS?.SESSION_ABSOLUTE_TIMEOUT ?? 86400,
+};
+
+// DEVICE_ID_CONSTANTS থেকে প্রপার্টি নেওয়া
+const DEVICE_CONFIG = {
+  MAX_LENGTH: DEVICE_ID_CONSTANTS?.MAX_DEVICES_PER_USER ? 255 : 255,
+};
 
 // ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 1: Rate Limit & Audit Context DTOs
+// ✅ Enums
 // ============================================================
 
 /**
- * Rate limit metadata for session revocation attempts
- * ✅ Prevents brute force attacks on session revocation
+ * Session revocation scope
  */
-export class SessionRevokeRateLimitDto {
-  @ApiPropertyOptional({ description: 'Rate limit window (seconds)', example: 3600 })
-  @IsOptional()
-  @IsNumber()
-  @Min(1)
-  windowSeconds?: number;
-
-  @ApiPropertyOptional({ description: 'Max attempts allowed', example: 10 })
-  @IsOptional()
-  @IsNumber()
-  @Min(1)
-  maxAttempts?: number;
-
-  @ApiPropertyOptional({ description: 'Remaining attempts', example: 8 })
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  remaining?: number;
-
-  @ApiPropertyOptional({ description: 'Time when limit resets', example: '2024-01-01T01:00:00.000Z' })
-  @IsOptional()
-  @Type(() => Date)
-  @IsDate()
-  resetAt?: Date;
+export enum SessionRevokeScope {
+  SINGLE = 'single',
+  ALL = 'all',
+  EXCEPT = 'except',
+  DEVICE = 'device',
+  BULK = 'bulk',
 }
 
 /**
- * Audit context for session revocation (compliance & security)
- * ✅ Tracks who, when, where session revocation is attempted
+ * Session revocation source (for audit)
+ */
+export enum SessionRevokeSource {
+  USER_INITIATED = 'USER_INITIATED',
+  SESSION_EXPIRED = 'SESSION_EXPIRED',
+  ADMIN_REVOKED = 'ADMIN_REVOKED',
+  SECURITY_BREACH = 'SECURITY_BREACH',
+  DEVICE_CHANGE = 'DEVICE_CHANGE',
+  PASSWORD_CHANGE = 'PASSWORD_CHANGE',
+  ACCOUNT_DELETION = 'ACCOUNT_DELETION',
+  INACTIVITY = 'INACTIVITY',
+}
+
+// ============================================================
+// ✅ Audit Context DTO
+// ============================================================
+
+/**
+ * Audit context for session revocation
  */
 export class SessionRevokeContextDto {
   @ApiPropertyOptional({
@@ -119,7 +121,7 @@ export class SessionRevokeContextDto {
   })
   @IsOptional()
   @IsString()
-  ipAddress?: string;
+  ipAddress?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'User agent string',
@@ -128,7 +130,7 @@ export class SessionRevokeContextDto {
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  userAgent?: string;
+  userAgent?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Current session ID',
@@ -136,7 +138,7 @@ export class SessionRevokeContextDto {
   })
   @IsOptional()
   @IsUUID()
-  sessionId?: string;
+  sessionId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Device fingerprint for fraud detection',
@@ -146,7 +148,7 @@ export class SessionRevokeContextDto {
   @IsOptional()
   @IsString()
   @MaxLength(128)
-  deviceFingerprint?: string;
+  deviceFingerprint?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Correlation ID for distributed tracing',
@@ -154,7 +156,7 @@ export class SessionRevokeContextDto {
   })
   @IsOptional()
   @IsUUID()
-  correlationId?: string;
+  correlationId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'District (Bangladesh specific)',
@@ -163,7 +165,7 @@ export class SessionRevokeContextDto {
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  district?: string;
+  district?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Division (Bangladesh specific)',
@@ -172,16 +174,7 @@ export class SessionRevokeContextDto {
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  division?: string;
-
-  @ApiPropertyOptional({
-    description: 'Network type (Bangladesh specific)',
-    example: '4g',
-    enum: ['2g', '3g', '4g', '5g', 'wifi', 'unknown'],
-  })
-  @IsOptional()
-  @IsIn(['2g', '3g', '4g', '5g', 'wifi', 'unknown'])
-  networkType?: string;
+  division?: string | undefined;
 
   /**
    * Check if context has tracing info
@@ -191,7 +184,7 @@ export class SessionRevokeContextDto {
   }
 
   /**
-   * Get sanitized context for logging (removes sensitive data)
+   * Get sanitized context for logging
    */
   getSanitized(): Record<string, unknown> {
     return {
@@ -201,40 +194,86 @@ export class SessionRevokeContextDto {
       correlationId: this.correlationId,
       district: this.district,
       division: this.division,
-      networkType: this.networkType,
     };
   }
 }
 
 // ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 2: Multi-language Validation Messages
+// ✅ Rate Limit DTO
+// ============================================================
+
+/**
+ * Rate limit metadata for session revocation attempts
+ */
+export class SessionRevokeRateLimitDto {
+  @ApiPropertyOptional({ description: 'Rate limit window (seconds)', example: 3600 })
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  windowSeconds?: number | undefined;
+
+  @ApiPropertyOptional({ description: 'Max attempts allowed', example: 10 })
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  maxAttempts?: number | undefined;
+
+  @ApiPropertyOptional({ description: 'Remaining attempts', example: 8 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  remaining?: number | undefined;
+
+  @ApiPropertyOptional({ description: 'Time when limit resets', example: '2024-01-01T01:00:00.000Z' })
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  resetAt?: Date | undefined;
+}
+
+// ============================================================
+// ✅ Validation Messages
 // ============================================================
 
 const VALIDATION_MESSAGES = {
   en: {
     sessionIdRequired: 'Session ID is required',
     sessionIdInvalid: 'Session ID must be a valid UUID',
-    deviceIdRequired: 'Device ID is required',
     userIdRequired: 'User ID is required',
-    reasonMaxLength: (max: number) => `Reason cannot exceed ${max} characters`,
-    sessionIdsMin: (min: number) => `At least ${min} session ID is required`,
-    sessionIdsMax: (max: number) => `Cannot revoke more than ${max} sessions at once`,
+    userIdInvalid: 'User ID must be a valid UUID',
+    deviceIdRequired: 'Device ID is required',
     deviceIdMaxLength: (max: number) => `Device ID cannot exceed ${max} characters`,
+    reasonMaxLength: (max: number) => `Reason cannot exceed ${max} characters`,
+    scopeInvalid: `Scope must be one of: ${Object.values(SessionRevokeScope).join(', ')}`,
+    sourceInvalid: `Source must be one of: ${Object.values(SessionRevokeSource).join(', ')}`,
+    confirmRequired: 'Confirmation is required for bulk operations',
+    atLeastOneTarget: 'At least one target (sessionId, userId, or deviceId) is required',
+    sessionIdsMin: (min: number) => `At least ${min} session ID is required for bulk operation`,
+    sessionIdsMax: (max: number) => `Maximum ${max} session IDs allowed for bulk operation`,
+    contextInvalid: 'Invalid audit context',
+    rateLimitInvalid: 'Invalid rate limit metadata',
   },
   bn: {
     sessionIdRequired: 'সেশন আইডি প্রয়োজন',
     sessionIdInvalid: 'সেশন আইডি টি সঠিক UUID হতে হবে',
-    deviceIdRequired: 'ডিভাইস আইডি প্রয়োজন',
     userIdRequired: 'ইউজার আইডি প্রয়োজন',
-    reasonMaxLength: (max: number) => `কারণ সর্বোচ্চ ${max} অক্ষর হতে পারে`,
-    sessionIdsMin: (min: number) => `কমপক্ষে ${min}টি সেশন আইডি প্রয়োজন`,
-    sessionIdsMax: (max: number) => `একসাথে সর্বোচ্চ ${max}টি সেশন রিভোক করা যাবে`,
+    userIdInvalid: 'ইউজার আইডি টি সঠিক UUID হতে হবে',
+    deviceIdRequired: 'ডিভাইস আইডি প্রয়োজন',
     deviceIdMaxLength: (max: number) => `ডিভাইস আইডি সর্বোচ্চ ${max} অক্ষর হতে পারে`,
+    reasonMaxLength: (max: number) => `কারণ সর্বোচ্চ ${max} অক্ষর হতে পারে`,
+    scopeInvalid: `স্কোপ অবশ্যই এর মধ্যে একটি হতে হবে: ${Object.values(SessionRevokeScope).join(', ')}`,
+    sourceInvalid: `সোর্স অবশ্যই এর মধ্যে একটি হতে হবে: ${Object.values(SessionRevokeSource).join(', ')}`,
+    confirmRequired: 'বাল্ক অপারেশনের জন্য নিশ্চিতকরণ প্রয়োজন',
+    atLeastOneTarget: 'অন্তত একটি টার্গেট (সেশন আইডি, ইউজার আইডি, অথবা ডিভাইস আইডি) প্রয়োজন',
+    sessionIdsMin: (min: number) => `বাল্ক অপারেশনের জন্য কমপক্ষে ${min}টি সেশন আইডি প্রয়োজন`,
+    sessionIdsMax: (max: number) => `সর্বোচ্চ ${max}টি সেশন আইডি অনুমোদিত`,
+    contextInvalid: 'অবৈধ অডিট কনটেক্সট',
+    rateLimitInvalid: 'অবৈধ রেট লিমিট মেটাডেটা',
   },
 };
 
 /**
- * Get validation message (with locale support)
+ * Get validation message
  */
 function getValidationMessage(
   key: keyof typeof VALIDATION_MESSAGES.en,
@@ -249,21 +288,18 @@ function getValidationMessage(
 }
 
 // ============================================================
-// Request DTOs (Enterprise Enhanced)
+// ✅ Request DTOs
 // ============================================================
 
 /**
- * Revoke Session Request DTO - Enterprise Enhanced
- * 
- * Note: userId is NOT included - comes from authenticated JWT
+ * Single Session Revoke Request DTO
  * 
  * @example
  * {
  *   "sessionId": "sess_550e8400-e29b-41d4-a716-446655440000",
- *   "reason": "Suspicious activity detected on this device",
- *   "preferredLanguage": "bn",
- *   "context": { "correlationId": "corr_123", "district": "Dhaka" },
- *   "rateLimit": { "windowSeconds": 3600, "maxAttempts": 10 }
+ *   "reason": "User requested logout",
+ *   "source": "USER_INITIATED",
+ *   "context": { "correlationId": "corr_123", "district": "Dhaka" }
  * }
  */
 export class RevokeSessionDto {
@@ -274,20 +310,50 @@ export class RevokeSessionDto {
     required: true,
   })
   @IsUUID(4, { message: () => getValidationMessage('sessionIdInvalid') })
-  @IsNotEmpty({ message: () => getValidationMessage('sessionIdRequired') })
-  sessionId: SessionId;
+  @IsString({ message: () => getValidationMessage('sessionIdRequired') })
+  sessionId: string;
 
   @ApiPropertyOptional({
-    description: 'Reason for revoking session (for audit trail)',
-    example: 'Security precaution - unusual activity detected',
-    maxLength: SESSION_CONSTANTS.MAX_REASON_LENGTH,
+    description: 'Reason for revoking the session',
+    example: 'User requested logout',
+    maxLength: SESSION_CONFIG.MAX_REASON_LENGTH,
   })
   @IsOptional()
-  @IsString({ message: 'Reason must be a string' })
-  @MaxLength(SESSION_CONSTANTS.MAX_REASON_LENGTH, { 
-    message: () => getValidationMessage('reasonMaxLength', [SESSION_CONSTANTS.MAX_REASON_LENGTH]) 
+  @IsString()
+  @MaxLength(SESSION_CONFIG.MAX_REASON_LENGTH, { 
+    message: () => getValidationMessage('reasonMaxLength', [SESSION_CONFIG.MAX_REASON_LENGTH]) 
   })
-  reason?: string;
+  reason?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Revocation source for audit',
+    enum: SessionRevokeSource,
+    example: SessionRevokeSource.USER_INITIATED,
+    default: SessionRevokeSource.USER_INITIATED,
+  })
+  @IsOptional()
+  @IsEnum(SessionRevokeSource, { 
+    message: () => getValidationMessage('sourceInvalid') 
+  })
+  source?: SessionRevokeSource | undefined = SessionRevokeSource.USER_INITIATED;
+
+  @ApiPropertyOptional({
+    description: 'Audit context for session revocation',
+    type: SessionRevokeContextDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SessionRevokeContextDto)
+  context?: SessionRevokeContextDto | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Rate limit metadata',
+    type: SessionRevokeRateLimitDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SessionRevokeRateLimitDto)
+  rateLimit?: SessionRevokeRateLimitDto | undefined;
 
   @ApiPropertyOptional({
     description: 'Preferred language for response messages',
@@ -297,42 +363,22 @@ export class RevokeSessionDto {
   })
   @IsOptional()
   @IsIn(['en', 'bn'], { message: 'Language must be en or bn' })
-  preferredLanguage?: 'en' | 'bn' = 'en';
+  preferredLanguage?: 'en' | 'bn' | undefined = 'en';
 
-  // ✅ ENTERPRISE ENHANCEMENT: Rate limit metadata
-  @ApiPropertyOptional({
-    description: 'Rate limit metadata for this operation',
-    type: SessionRevokeRateLimitDto,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => SessionRevokeRateLimitDto)
-  rateLimit?: SessionRevokeRateLimitDto;
-
-  // ✅ ENTERPRISE ENHANCEMENT: Audit context
-  @ApiPropertyOptional({
-    description: 'Audit context for session revocation',
-    type: SessionRevokeContextDto,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => SessionRevokeContextDto)
-  context?: SessionRevokeContextDto;
-
-  constructor(sessionId: SessionId, reason?: string, preferredLanguage?: 'en' | 'bn', context?: SessionRevokeContextDto, rateLimit?: SessionRevokeRateLimitDto) {
+  constructor(
+    sessionId: string,
+    reason?: string | undefined,
+    source?: SessionRevokeSource | undefined,
+    context?: SessionRevokeContextDto | undefined,
+    rateLimit?: SessionRevokeRateLimitDto | undefined,
+    preferredLanguage?: 'en' | 'bn' | undefined
+  ) {
     this.sessionId = sessionId;
     this.reason = reason;
-    this.preferredLanguage = preferredLanguage ?? 'en';
+    this.source = source ?? SessionRevokeSource.USER_INITIATED;
     this.context = context;
     this.rateLimit = rateLimit;
-  }
-
-  /**
-   * Get validation message in appropriate language
-   */
-  getMessage(key: keyof typeof VALIDATION_MESSAGES.en, ...args: unknown[]): string {
-    const locale = this.preferredLanguage === 'bn' ? 'bn' : 'en';
-    return getValidationMessage(key, args, locale);
+    this.preferredLanguage = preferredLanguage ?? 'en';
   }
 
   /**
@@ -348,60 +394,310 @@ export class RevokeSessionDto {
   getCorrelationId(): string | undefined {
     return this.context?.correlationId;
   }
+}
+
+/**
+ * Bulk Session Revoke Request DTO
+ * 
+ * @example
+ * {
+ *   "sessionIds": ["sess_1", "sess_2", "sess_3"],
+ *   "confirm": true,
+ *   "reason": "Security incident",
+ *   "source": "ADMIN_REVOKED",
+ *   "context": { "correlationId": "corr_123" }
+ * }
+ */
+export class SessionBulkRevokeSessionsDto {
+  @ApiProperty({
+    description: 'Session IDs to revoke',
+    example: ['sess_550e8400-e29b-41d4-a716-446655440000', 'sess_550e8400-e29b-41d4-a716-446655440001'],
+    isArray: true,
+    minItems: SESSION_CONFIG.MIN_BULK_REVOKE_SIZE,
+    maxItems: SESSION_CONFIG.MAX_BULK_REVOKE_SIZE,
+    required: true,
+  })
+  @IsArray({ message: 'Session IDs must be an array' })
+  @ArrayMinSize(SESSION_CONFIG.MIN_BULK_REVOKE_SIZE, { 
+    message: () => getValidationMessage('sessionIdsMin', [SESSION_CONFIG.MIN_BULK_REVOKE_SIZE]) 
+  })
+  @ArrayMaxSize(SESSION_CONFIG.MAX_BULK_REVOKE_SIZE, { 
+    message: () => getValidationMessage('sessionIdsMax', [SESSION_CONFIG.MAX_BULK_REVOKE_SIZE]) 
+  })
+  @IsUUID(4, { each: true, message: 'Each session ID must be a valid UUID' })
+  sessionIds: string[];
+
+  @ApiProperty({
+    description: 'Confirmation for bulk revocation',
+    example: true,
+    required: true,
+  })
+  @IsBoolean({ message: 'Confirmation must be a boolean' })
+  confirm: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Reason for bulk revocation',
+    example: 'Security incident - mass logout required',
+    maxLength: SESSION_CONFIG.MAX_REASON_LENGTH,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(SESSION_CONFIG.MAX_REASON_LENGTH, { 
+    message: () => getValidationMessage('reasonMaxLength', [SESSION_CONFIG.MAX_REASON_LENGTH]) 
+  })
+  reason?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Revocation source for audit',
+    enum: SessionRevokeSource,
+    example: SessionRevokeSource.ADMIN_REVOKED,
+    default: SessionRevokeSource.ADMIN_REVOKED,
+  })
+  @IsOptional()
+  @IsEnum(SessionRevokeSource, { 
+    message: () => getValidationMessage('sourceInvalid') 
+  })
+  source?: SessionRevokeSource | undefined = SessionRevokeSource.ADMIN_REVOKED;
+
+  @ApiPropertyOptional({
+    description: 'Audit context for bulk revocation',
+    type: SessionRevokeContextDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SessionRevokeContextDto)
+  context?: SessionRevokeContextDto | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Rate limit metadata',
+    type: SessionRevokeRateLimitDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SessionRevokeRateLimitDto)
+  rateLimit?: SessionRevokeRateLimitDto | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Preferred language for response messages',
+    example: 'bn',
+    enum: ['en', 'bn'],
+    default: 'en',
+  })
+  @IsOptional()
+  @IsIn(['en', 'bn'], { message: 'Language must be en or bn' })
+  preferredLanguage?: 'en' | 'bn' | undefined = 'en';
+
+  constructor(
+    sessionIds: string[],
+    confirm: boolean,
+    reason?: string | undefined,
+    source?: SessionRevokeSource | undefined,
+    context?: SessionRevokeContextDto | undefined,
+    rateLimit?: SessionRevokeRateLimitDto | undefined,
+    preferredLanguage?: 'en' | 'bn' | undefined
+  ) {
+    this.sessionIds = sessionIds;
+    this.confirm = confirm;
+    this.reason = reason;
+    this.source = source ?? SessionRevokeSource.ADMIN_REVOKED;
+    this.context = context;
+    this.rateLimit = rateLimit;
+    this.preferredLanguage = preferredLanguage ?? 'en';
+  }
 
   /**
-   * Get sanitized context for logging
+   * Check if request has tracing context
    */
-  getSanitizedContext(): Record<string, unknown> {
-    return this.context?.getSanitized() || {};
+  hasTracing(): boolean {
+    return !!this.context?.hasTracing();
+  }
+
+  /**
+   * Get correlation ID for distributed tracing
+   */
+  getCorrelationId(): string | undefined {
+    return this.context?.correlationId;
   }
 }
 
 /**
- * Revoke Sessions by Device Request DTO (Bangladesh specific) - Enterprise Enhanced
+ * Revoke All Sessions Request DTO (except current)
+ * 
+ * @example
+ * {
+ *   "exceptSessionId": "sess_keep_550e8400-e29b-41d4-a716-446655440000",
+ *   "reason": "User logged out from all other devices",
+ *   "source": "USER_INITIATED",
+ *   "context": { "correlationId": "corr_123" }
+ * }
+ */
+export class SessionRevokeAllSessionsDto {
+  @ApiPropertyOptional({
+    description: 'Session ID to exclude from revocation (keep current)',
+    example: 'sess_keep_550e8400-e29b-41d4-a716-446655440000',
+    format: 'uuid',
+  })
+  @IsOptional()
+  @IsUUID(4, { message: 'Except session ID must be a valid UUID' })
+  exceptSessionId?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Reason for revoking all sessions',
+    example: 'User logged out from all other devices',
+    maxLength: SESSION_CONFIG.MAX_REASON_LENGTH,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(SESSION_CONFIG.MAX_REASON_LENGTH, { 
+    message: () => getValidationMessage('reasonMaxLength', [SESSION_CONFIG.MAX_REASON_LENGTH]) 
+  })
+  reason?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Revocation source for audit',
+    enum: SessionRevokeSource,
+    example: SessionRevokeSource.USER_INITIATED,
+    default: SessionRevokeSource.USER_INITIATED,
+  })
+  @IsOptional()
+  @IsEnum(SessionRevokeSource, { 
+    message: () => getValidationMessage('sourceInvalid') 
+  })
+  source?: SessionRevokeSource | undefined = SessionRevokeSource.USER_INITIATED;
+
+  @ApiPropertyOptional({
+    description: 'Audit context for revocation',
+    type: SessionRevokeContextDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SessionRevokeContextDto)
+  context?: SessionRevokeContextDto | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Rate limit metadata',
+    type: SessionRevokeRateLimitDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SessionRevokeRateLimitDto)
+  rateLimit?: SessionRevokeRateLimitDto | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Preferred language for response messages',
+    example: 'bn',
+    enum: ['en', 'bn'],
+    default: 'en',
+  })
+  @IsOptional()
+  @IsIn(['en', 'bn'], { message: 'Language must be en or bn' })
+  preferredLanguage?: 'en' | 'bn' | undefined = 'en';
+
+  constructor(
+    exceptSessionId?: string | undefined,
+    reason?: string | undefined,
+    source?: SessionRevokeSource | undefined,
+    context?: SessionRevokeContextDto | undefined,
+    rateLimit?: SessionRevokeRateLimitDto | undefined,
+    preferredLanguage?: 'en' | 'bn' | undefined
+  ) {
+    this.exceptSessionId = exceptSessionId;
+    this.reason = reason;
+    this.source = source ?? SessionRevokeSource.USER_INITIATED;
+    this.context = context;
+    this.rateLimit = rateLimit;
+    this.preferredLanguage = preferredLanguage ?? 'en';
+  }
+
+  /**
+   * Check if request has tracing context
+   */
+  hasTracing(): boolean {
+    return !!this.context?.hasTracing();
+  }
+
+  /**
+   * Get correlation ID for distributed tracing
+   */
+  getCorrelationId(): string | undefined {
+    return this.context?.correlationId;
+  }
+}
+
+/**
+ * Revoke Device Sessions Request DTO
  * 
  * @example
  * {
  *   "deviceId": "device_550e8400-e29b-41d4-a716-446655440000",
- *   "excludeCurrentSession": true,
- *   "reason": "Device reported as lost",
- *   "preferredLanguage": "bn",
+ *   "exceptSessionId": "sess_keep_550e8400-e29b-41d4-a716-446655440000",
+ *   "reason": "Device reported as lost/stolen",
+ *   "source": "USER_INITIATED",
  *   "context": { "correlationId": "corr_123" }
  * }
  */
-export class RevokeSessionsByDeviceDto {
+export class RevokeDeviceSessionsDto {
   @ApiProperty({
     description: 'Device ID to revoke all sessions from',
     example: 'device_550e8400-e29b-41d4-a716-446655440000',
     required: true,
   })
   @IsString({ message: () => getValidationMessage('deviceIdRequired') })
-  @IsNotEmpty({ message: () => getValidationMessage('deviceIdRequired') })
-  @MaxLength(DEVICE_ID_CONSTANTS.MAX_LENGTH, { 
-    message: () => getValidationMessage('deviceIdMaxLength', [DEVICE_ID_CONSTANTS.MAX_LENGTH]) 
+  @MaxLength(DEVICE_CONFIG.MAX_LENGTH, { 
+    message: () => getValidationMessage('deviceIdMaxLength', [DEVICE_CONFIG.MAX_LENGTH]) 
   })
-  deviceId: DeviceId;
+  deviceId: string;
 
   @ApiPropertyOptional({
-    description: 'Whether to exclude current session (if it matches this device)',
-    example: true,
-    default: true,
+    description: 'Session ID to exclude from revocation (keep current)',
+    example: 'sess_keep_550e8400-e29b-41d4-a716-446655440000',
+    format: 'uuid',
   })
   @IsOptional()
-  @IsBoolean({ message: 'Exclude current session must be a boolean' })
-  excludeCurrentSession?: boolean = true;
+  @IsUUID(4, { message: 'Except session ID must be a valid UUID' })
+  exceptSessionId?: string | undefined;
 
   @ApiPropertyOptional({
     description: 'Reason for revoking device sessions',
-    example: 'Device reported as lost or stolen',
-    maxLength: SESSION_CONSTANTS.MAX_REASON_LENGTH,
+    example: 'Device reported as lost/stolen',
+    maxLength: SESSION_CONFIG.MAX_REASON_LENGTH,
   })
   @IsOptional()
-  @IsString({ message: 'Reason must be a string' })
-  @MaxLength(SESSION_CONSTANTS.MAX_REASON_LENGTH, { 
-    message: () => getValidationMessage('reasonMaxLength', [SESSION_CONSTANTS.MAX_REASON_LENGTH]) 
+  @IsString()
+  @MaxLength(SESSION_CONFIG.MAX_REASON_LENGTH, { 
+    message: () => getValidationMessage('reasonMaxLength', [SESSION_CONFIG.MAX_REASON_LENGTH]) 
   })
-  reason?: string;
+  reason?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Revocation source for audit',
+    enum: SessionRevokeSource,
+    example: SessionRevokeSource.USER_INITIATED,
+    default: SessionRevokeSource.USER_INITIATED,
+  })
+  @IsOptional()
+  @IsEnum(SessionRevokeSource, { 
+    message: () => getValidationMessage('sourceInvalid') 
+  })
+  source?: SessionRevokeSource | undefined = SessionRevokeSource.USER_INITIATED;
+
+  @ApiPropertyOptional({
+    description: 'Audit context for revocation',
+    type: SessionRevokeContextDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SessionRevokeContextDto)
+  context?: SessionRevokeContextDto | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Rate limit metadata',
+    type: SessionRevokeRateLimitDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SessionRevokeRateLimitDto)
+  rateLimit?: SessionRevokeRateLimitDto | undefined;
 
   @ApiPropertyOptional({
     description: 'Preferred language for response messages',
@@ -411,230 +707,51 @@ export class RevokeSessionsByDeviceDto {
   })
   @IsOptional()
   @IsIn(['en', 'bn'], { message: 'Language must be en or bn' })
-  preferredLanguage?: 'en' | 'bn' = 'en';
+  preferredLanguage?: 'en' | 'bn' | undefined = 'en';
 
-  // ✅ ENTERPRISE ENHANCEMENT: Audit context
-  @ApiPropertyOptional({
-    description: 'Audit context for device session revocation',
-    type: SessionRevokeContextDto,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => SessionRevokeContextDto)
-  context?: SessionRevokeContextDto;
-
-  constructor(deviceId: DeviceId, excludeCurrentSession?: boolean, reason?: string, preferredLanguage?: 'en' | 'bn', context?: SessionRevokeContextDto) {
+  constructor(
+    deviceId: string,
+    exceptSessionId?: string | undefined,
+    reason?: string | undefined,
+    source?: SessionRevokeSource | undefined,
+    context?: SessionRevokeContextDto | undefined,
+    rateLimit?: SessionRevokeRateLimitDto | undefined,
+    preferredLanguage?: 'en' | 'bn' | undefined
+  ) {
     this.deviceId = deviceId;
-    this.excludeCurrentSession = excludeCurrentSession ?? true;
+    this.exceptSessionId = exceptSessionId;
     this.reason = reason;
-    this.preferredLanguage = preferredLanguage ?? 'en';
+    this.source = source ?? SessionRevokeSource.USER_INITIATED;
     this.context = context;
+    this.rateLimit = rateLimit;
+    this.preferredLanguage = preferredLanguage ?? 'en';
   }
 
-  getMessage(key: keyof typeof VALIDATION_MESSAGES.en, ...args: unknown[]): string {
-    const locale = this.preferredLanguage === 'bn' ? 'bn' : 'en';
-    return getValidationMessage(key, args, locale);
-  }
-
+  /**
+   * Check if request has tracing context
+   */
   hasTracing(): boolean {
     return !!this.context?.hasTracing();
   }
 
+  /**
+   * Get correlation ID for distributed tracing
+   */
   getCorrelationId(): string | undefined {
     return this.context?.correlationId;
-  }
-
-  getSanitizedContext(): Record<string, unknown> {
-    return this.context?.getSanitized() || {};
-  }
-}
-
-/**
- * Admin Revoke Session Request DTO - Enterprise Enhanced
- * For administrators to revoke sessions of other users
- */
-export class AdminRevokeSessionDto {
-  @ApiProperty({
-    description: 'User ID whose session to revoke',
-    example: 'usr_550e8400-e29b-41d4-a716-446655440000',
-    format: 'uuid',
-    required: true,
-  })
-  @IsUUID(4, { message: () => getValidationMessage('sessionIdInvalid') })
-  @IsNotEmpty({ message: () => getValidationMessage('userIdRequired') })
-  targetUserId: UserId;
-
-  @ApiProperty({
-    description: 'Session ID to revoke',
-    example: 'sess_550e8400-e29b-41d4-a716-446655440000',
-    format: 'uuid',
-    required: true,
-  })
-  @IsUUID(4, { message: () => getValidationMessage('sessionIdInvalid') })
-  @IsNotEmpty({ message: () => getValidationMessage('sessionIdRequired') })
-  sessionId: SessionId;
-
-  @ApiPropertyOptional({
-    description: 'Reason for admin revocation',
-    example: 'Policy violation',
-    maxLength: SESSION_CONSTANTS.MAX_REASON_LENGTH,
-  })
-  @IsOptional()
-  @IsString({ message: 'Reason must be a string' })
-  @MaxLength(SESSION_CONSTANTS.MAX_REASON_LENGTH, { 
-    message: () => getValidationMessage('reasonMaxLength', [SESSION_CONSTANTS.MAX_REASON_LENGTH]) 
-  })
-  reason?: string;
-
-  @ApiPropertyOptional({
-    description: 'Admin ID who performed the action',
-    example: 'admin_550e8400-e29b-41d4-a716-446655440000',
-    format: 'uuid',
-  })
-  @IsOptional()
-  @IsUUID(4, { message: 'Admin ID must be a valid UUID' })
-  adminId?: string;
-
-  @ApiPropertyOptional({
-    description: 'Preferred language for response messages',
-    example: 'bn',
-    enum: ['en', 'bn'],
-    default: 'en',
-  })
-  @IsOptional()
-  @IsIn(['en', 'bn'], { message: 'Language must be en or bn' })
-  preferredLanguage?: 'en' | 'bn' = 'en';
-
-  // ✅ ENTERPRISE ENHANCEMENT: Audit context
-  @ApiPropertyOptional({
-    description: 'Audit context for admin session revocation',
-    type: SessionRevokeContextDto,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => SessionRevokeContextDto)
-  context?: SessionRevokeContextDto;
-
-  constructor(targetUserId: UserId, sessionId: SessionId, reason?: string, adminId?: string, preferredLanguage?: 'en' | 'bn', context?: SessionRevokeContextDto) {
-    this.targetUserId = targetUserId;
-    this.sessionId = sessionId;
-    this.reason = reason;
-    this.adminId = adminId;
-    this.preferredLanguage = preferredLanguage ?? 'en';
-    this.context = context;
-  }
-
-  getMessage(key: keyof typeof VALIDATION_MESSAGES.en, ...args: unknown[]): string {
-    const locale = this.preferredLanguage === 'bn' ? 'bn' : 'en';
-    return getValidationMessage(key, args, locale);
-  }
-
-  hasTracing(): boolean {
-    return !!this.context?.hasTracing();
-  }
-
-  getCorrelationId(): string | undefined {
-    return this.context?.correlationId;
-  }
-}
-
-/**
- * Bulk Revoke Sessions Request DTO - Enterprise Enhanced
- */
-export class BulkRevokeSessionsDto {
-  @ApiProperty({
-    description: 'Session IDs to revoke',
-    example: ['sess_abc123', 'sess_def456'],
-    isArray: true,
-    required: true,
-  })
-  @IsArray({ message: 'Session IDs must be an array' })
-  @ArrayMinSize(SESSION_CONSTANTS.MIN_BULK_REVOKE_SIZE, { 
-    message: () => getValidationMessage('sessionIdsMin', [SESSION_CONSTANTS.MIN_BULK_REVOKE_SIZE]) 
-  })
-  @ArrayMaxSize(SESSION_CONSTANTS.MAX_BULK_REVOKE_SIZE, { 
-    message: () => getValidationMessage('sessionIdsMax', [SESSION_CONSTANTS.MAX_BULK_REVOKE_SIZE]) 
-  })
-  @IsUUID(4, { each: true, message: () => getValidationMessage('sessionIdInvalid') })
-  sessionIds: SessionId[];
-
-  @ApiPropertyOptional({
-    description: 'Reason for bulk revocation',
-    example: 'Security incident - mass logout required',
-    maxLength: SESSION_CONSTANTS.MAX_REASON_LENGTH,
-  })
-  @IsOptional()
-  @IsString({ message: 'Reason must be a string' })
-  @MaxLength(SESSION_CONSTANTS.MAX_REASON_LENGTH, { 
-    message: () => getValidationMessage('reasonMaxLength', [SESSION_CONSTANTS.MAX_REASON_LENGTH]) 
-  })
-  reason?: string;
-
-  @ApiPropertyOptional({
-    description: 'User ID (if revoking sessions for a specific user)',
-    example: 'usr_550e8400-e29b-41d4-a716-446655440000',
-    format: 'uuid',
-  })
-  @IsOptional()
-  @IsUUID(4, { message: () => getValidationMessage('sessionIdInvalid') })
-  userId?: UserId;
-
-  @ApiPropertyOptional({
-    description: 'Preferred language for response messages',
-    example: 'bn',
-    enum: ['en', 'bn'],
-    default: 'en',
-  })
-  @IsOptional()
-  @IsIn(['en', 'bn'], { message: 'Language must be en or bn' })
-  preferredLanguage?: 'en' | 'bn' = 'en';
-
-  // ✅ ENTERPRISE ENHANCEMENT: Audit context
-  @ApiPropertyOptional({
-    description: 'Audit context for bulk session revocation',
-    type: SessionRevokeContextDto,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => SessionRevokeContextDto)
-  context?: SessionRevokeContextDto;
-
-  constructor(sessionIds: SessionId[], reason?: string, userId?: UserId, preferredLanguage?: 'en' | 'bn', context?: SessionRevokeContextDto) {
-    this.sessionIds = sessionIds;
-    this.reason = reason;
-    this.userId = userId;
-    this.preferredLanguage = preferredLanguage ?? 'en';
-    this.context = context;
-  }
-
-  getMessage(key: keyof typeof VALIDATION_MESSAGES.en, ...args: unknown[]): string {
-    const locale = this.preferredLanguage === 'bn' ? 'bn' : 'en';
-    return getValidationMessage(key, args, locale);
-  }
-
-  hasTracing(): boolean {
-    return !!this.context?.hasTracing();
-  }
-
-  getCorrelationId(): string | undefined {
-    return this.context?.correlationId;
-  }
-
-  getSanitizedContext(): Record<string, unknown> {
-    return this.context?.getSanitized() || {};
   }
 }
 
 // ============================================================
-// Response DTOs (Enterprise Enhanced with Bengali support)
+// ✅ Response DTOs
 // ============================================================
 
 /**
- * Revoke Session Response DTO - Enterprise Enhanced
+ * Session Revoke Response DTO
  */
 export class RevokeSessionResponseDto {
   @ApiProperty({
-    description: 'Whether the operation was successful',
+    description: 'Success status',
     example: true,
   })
   success: boolean;
@@ -647,409 +764,176 @@ export class RevokeSessionResponseDto {
 
   @ApiPropertyOptional({
     description: 'Bengali response message',
-    example: 'সেশন সফলভাবে রিভোক করা হয়েছে',
+    example: 'সেশন সফলভাবে বাতিল করা হয়েছে',
   })
-  messageBn?: string;
+  messageBn?: string | undefined;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Revoked session ID',
     example: 'sess_550e8400-e29b-41d4-a716-446655440000',
   })
-  sessionId: string;
+  sessionId?: string | undefined;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
+    description: 'Number of sessions revoked',
+    example: 1,
+  })
+  sessionsRevoked?: number | undefined;
+
+  @ApiPropertyOptional({
     description: 'Timestamp when session was revoked',
     example: '2024-01-01T00:00:00.000Z',
     format: 'date-time',
   })
-  revokedAt: string;
+  revokedAt?: string | undefined;
 
   @ApiPropertyOptional({
-    description: 'User ID whose session was revoked',
-    example: 'usr_550e8400-e29b-41d4-a716-446655440000',
-  })
-  userId?: string;
-
-  @ApiPropertyOptional({
-    description: 'Whether the revoked session was the current session',
-    example: true,
-  })
-  wasCurrentSession?: boolean;
-
-  @ApiPropertyOptional({
-    description: 'Device ID of the revoked session',
-    example: 'device_550e8400-e29b-41d4-a716-446655440000',
-  })
-  deviceId?: string;
-
-  // ✅ ENTERPRISE ENHANCEMENT: Correlation ID for tracing
-  @ApiPropertyOptional({
-    description: 'Correlation ID for distributed tracing',
+    description: 'Correlation ID for tracing',
     example: 'corr_550e8400-e29b-41d4-a716-446655440000',
   })
-  correlationId?: string;
-
-  // ✅ ENTERPRISE ENHANCEMENT: Rate limit info
-  @ApiPropertyOptional({
-    description: 'Remaining attempts before rate limit',
-    example: 8,
-  })
-  remainingAttempts?: number;
+  correlationId?: string | undefined;
 
   constructor(
-    success: boolean, 
-    sessionId: string, 
-    message?: string,
-    messageBn?: string,
-    userId?: string,
-    wasCurrentSession?: boolean,
-    deviceId?: string,
-    correlationId?: string,
-    remainingAttempts?: number
+    success: boolean,
+    message: string,
+    messageBn?: string | undefined,
+    sessionId?: string | undefined,
+    sessionsRevoked?: number | undefined,
+    revokedAt?: Date | undefined,
+    correlationId?: string | undefined
   ) {
     this.success = success;
-    this.sessionId = sessionId;
-    this.message = message || (success ? 'Session revoked successfully' : 'Failed to revoke session');
+    this.message = message;
     this.messageBn = messageBn;
-    this.revokedAt = new Date().toISOString();
-    this.userId = userId;
-    this.wasCurrentSession = wasCurrentSession;
-    this.deviceId = deviceId;
+    this.sessionId = sessionId;
+    this.sessionsRevoked = sessionsRevoked;
+    this.revokedAt = revokedAt?.toISOString() || new Date().toISOString();
     this.correlationId = correlationId;
-    this.remainingAttempts = remainingAttempts;
   }
 
   /**
-   * Create success response
+   * Create success response for single session revocation
    */
   static success(
-    sessionId: string, 
-    userId?: string, 
-    wasCurrentSession?: boolean,
-    deviceId?: string,
-    messageBn?: string,
-    correlationId?: string,
-    remainingAttempts?: number
+    sessionId: string,
+    messageBn?: string | undefined,
+    correlationId?: string | undefined
   ): RevokeSessionResponseDto {
     return new RevokeSessionResponseDto(
-      true, 
-      sessionId, 
-      undefined, 
-      messageBn, 
-      userId, 
-      wasCurrentSession, 
-      deviceId,
-      correlationId,
-      remainingAttempts
+      true,
+      'Session revoked successfully',
+      messageBn,
+      sessionId,
+      1,
+      new Date(),
+      correlationId
     );
   }
 
   /**
-   * Create failure response
+   * Create success response for bulk revocation
+   */
+  static bulkSuccess(
+    count: number,
+    messageBn?: string | undefined,
+    correlationId?: string | undefined
+  ): RevokeSessionResponseDto {
+    return new RevokeSessionResponseDto(
+      true,
+      `${count} session(s) revoked successfully`,
+      messageBn,
+      undefined,
+      count,
+      new Date(),
+      correlationId
+    );
+  }
+
+  /**
+   * Create error response
    */
   static error(
-    sessionId: string, 
-    message: string, 
-    messageBn?: string, 
-    correlationId?: string
+    message: string,
+    messageBn?: string | undefined,
+    correlationId?: string | undefined
   ): RevokeSessionResponseDto {
-    return new RevokeSessionResponseDto(false, sessionId, message, messageBn, undefined, undefined, undefined, correlationId);
-  }
-}
-
-/**
- * Revoke Sessions by Device Response DTO - Enterprise Enhanced
- */
-export class RevokeSessionsByDeviceResponseDto {
-  @ApiProperty({
-    description: 'Whether the operation was successful',
-    example: true,
-  })
-  success: boolean;
-
-  @ApiProperty({
-    description: 'Response message',
-    example: '3 sessions revoked for device device_123',
-  })
-  message: string;
-
-  @ApiPropertyOptional({
-    description: 'Bengali response message',
-    example: 'ডিভাইস device_123 এর জন্য 3টি সেশন রিভোক করা হয়েছে',
-  })
-  messageBn?: string;
-
-  @ApiProperty({
-    description: 'Device ID',
-    example: 'device_550e8400-e29b-41d4-a716-446655440000',
-  })
-  deviceId: string;
-
-  @ApiProperty({
-    description: 'Number of sessions revoked',
-    example: 3,
-  })
-  sessionsRevokedCount: number;
-
-  @ApiProperty({
-    description: 'Timestamp when device sessions were revoked',
-    example: '2024-01-01T00:00:00.000Z',
-    format: 'date-time',
-  })
-  revokedAt: string;
-
-  @ApiPropertyOptional({
-    description: 'Whether current session was excluded',
-    example: true,
-  })
-  currentSessionExcluded?: boolean;
-
-  // ✅ ENTERPRISE ENHANCEMENT: Correlation ID for tracing
-  @ApiPropertyOptional({
-    description: 'Correlation ID for distributed tracing',
-    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
-  })
-  correlationId?: string;
-
-  constructor(
-    success: boolean,
-    deviceId: string,
-    sessionsRevokedCount: number,
-    message?: string,
-    messageBn?: string,
-    currentSessionExcluded?: boolean,
-    correlationId?: string
-  ) {
-    this.success = success;
-    this.deviceId = deviceId;
-    this.sessionsRevokedCount = sessionsRevokedCount;
-    this.message = message || `${sessionsRevokedCount} session(s) revoked for device ${deviceId}`;
-    this.messageBn = messageBn;
-    this.revokedAt = new Date().toISOString();
-    this.currentSessionExcluded = currentSessionExcluded;
-    this.correlationId = correlationId;
-  }
-}
-
-/**
- * Admin Revoke Session Response DTO - Enterprise Enhanced
- */
-export class AdminRevokeSessionResponseDto {
-  @ApiProperty({
-    description: 'Whether the operation was successful',
-    example: true,
-  })
-  success: boolean;
-
-  @ApiProperty({
-    description: 'Response message',
-    example: 'Session revoked successfully for user usr_123',
-  })
-  message: string;
-
-  @ApiPropertyOptional({
-    description: 'Bengali response message',
-    example: 'ইউজার usr_123 এর জন্য সেশন সফলভাবে রিভোক করা হয়েছে',
-  })
-  messageBn?: string;
-
-  @ApiProperty({
-    description: 'User ID whose session was revoked',
-    example: 'usr_550e8400-e29b-41d4-a716-446655440000',
-  })
-  targetUserId: string;
-
-  @ApiProperty({
-    description: 'Revoked session ID',
-    example: 'sess_550e8400-e29b-41d4-a716-446655440000',
-  })
-  sessionId: string;
-
-  @ApiProperty({
-    description: 'Admin ID who performed the action',
-    example: 'admin_550e8400-e29b-41d4-a716-446655440000',
-  })
-  adminId: string;
-
-  @ApiProperty({
-    description: 'Timestamp when session was revoked',
-    example: '2024-01-01T00:00:00.000Z',
-    format: 'date-time',
-  })
-  revokedAt: string;
-
-  // ✅ ENTERPRISE ENHANCEMENT: Correlation ID for tracing
-  @ApiPropertyOptional({
-    description: 'Correlation ID for distributed tracing',
-    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
-  })
-  correlationId?: string;
-
-  constructor(
-    success: boolean,
-    targetUserId: string,
-    sessionId: string,
-    adminId: string,
-    message?: string,
-    messageBn?: string,
-    correlationId?: string
-  ) {
-    this.success = success;
-    this.targetUserId = targetUserId;
-    this.sessionId = sessionId;
-    this.adminId = adminId;
-    this.message = message || `Session ${sessionId} revoked successfully for user ${targetUserId}`;
-    this.messageBn = messageBn;
-    this.revokedAt = new Date().toISOString();
-    this.correlationId = correlationId;
-  }
-}
-
-/**
- * Bulk Revoke Sessions Response DTO - Enterprise Enhanced
- */
-export class BulkRevokeSessionsResponseDto {
-  @ApiProperty({
-    description: 'Number of successful revocations',
-    example: 8,
-  })
-  successfulCount: number;
-
-  @ApiProperty({
-    description: 'Number of failed revocations',
-    example: 2,
-  })
-  failedCount: number;
-
-  @ApiPropertyOptional({
-    description: 'Failed revocations details',
-    type: 'object',
-    additionalProperties: { type: 'string' },
-  })
-  failures?: Record<string, string>;
-
-  @ApiProperty({
-    description: 'Timestamp when bulk operation completed',
-    example: '2024-01-01T00:00:00.000Z',
-    format: 'date-time',
-  })
-  completedAt: string;
-
-  @ApiPropertyOptional({
-    description: 'Revoked session IDs (successful ones)',
-    example: ['sess_abc123', 'sess_def456'],
-    isArray: true,
-  })
-  revokedSessionIds?: string[];
-
-  // ✅ ENTERPRISE ENHANCEMENT: Duration in milliseconds
-  @ApiPropertyOptional({
-    description: 'Operation duration in milliseconds',
-    example: 150,
-  })
-  durationMs?: number;
-
-  // ✅ ENTERPRISE ENHANCEMENT: Correlation ID for tracing
-  @ApiPropertyOptional({
-    description: 'Correlation ID for distributed tracing',
-    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
-  })
-  correlationId?: string;
-
-  constructor(
-    successfulCount: number, 
-    failedCount: number, 
-    failures?: Record<string, string>,
-    revokedSessionIds?: string[],
-    durationMs?: number,
-    correlationId?: string
-  ) {
-    this.successfulCount = successfulCount;
-    this.failedCount = failedCount;
-    this.failures = failures;
-    this.completedAt = new Date().toISOString();
-    this.revokedSessionIds = revokedSessionIds;
-    this.durationMs = durationMs;
-    this.correlationId = correlationId;
+    return new RevokeSessionResponseDto(
+      false,
+      message,
+      messageBn,
+      undefined,
+      undefined,
+      new Date(),
+      correlationId
+    );
   }
 }
 
 // ============================================================
-// ✅ ENTERPRISE UTILITY: Helper Functions
+// ✅ Utility Function: Get Audit Metadata
 // ============================================================
 
 /**
  * Extract audit metadata from session revocation request
- * Tracks who, when, why session was revoked (Compliance)
  */
 export function getSessionRevokeAuditMetadata(
-  dto: RevokeSessionDto | AdminRevokeSessionDto | BulkRevokeSessionsDto | RevokeSessionsByDeviceDto,
-  userId: string,
-  adminId?: string
+  dto: RevokeSessionDto | SessionBulkRevokeSessionsDto | SessionRevokeAllSessionsDto | RevokeDeviceSessionsDto,
+  userId: UserId,
+  adminId?: UserId
 ): AuditMetadata {
   const context = 'context' in dto ? dto.context : undefined;
   const isBulk = 'sessionIds' in dto && Array.isArray(dto.sessionIds);
-  const isDeviceRevoke = 'deviceId' in dto;
+  const isAll = 'exceptSessionId' in dto && !('sessionIds' in dto);
+  const isDevice = 'deviceId' in dto && !('sessionIds' in dto);
+
+  const additionalData: Record<string, unknown> = {
+    ipAddress: context?.ipAddress,
+    userAgent: context?.userAgent,
+    sessionId: context?.sessionId,
+    deviceFingerprint: context?.deviceFingerprint,
+    district: context?.district,
+    division: context?.division,
+    reason: dto.reason,
+    source: dto.source,
+    isBulk,
+    isAll,
+    isDevice,
+    adminId,
+    correlationId: context?.correlationId,
+  };
+
+  // বাল্ক অপারেশনের জন্য sessionIds যোগ করুন
+  if (isBulk && 'sessionIds' in dto) {
+    additionalData.sessionIds = dto.sessionIds;
+    additionalData.sessionCount = dto.sessionIds.length;
+  }
+
+  // All sessions অপারেশনের জন্য exceptSessionId যোগ করুন
+  if (isAll && 'exceptSessionId' in dto && dto.exceptSessionId) {
+    additionalData.exceptSessionId = dto.exceptSessionId;
+  }
+
+  // Device অপারেশনের জন্য deviceId যোগ করুন
+  if (isDevice && 'deviceId' in dto) {
+    additionalData.deviceId = dto.deviceId;
+  }
 
   return {
     userId,
-    source: adminId ? 'admin' : 'api',
     timestamp: new Date(),
+    source: 'api',
     requestId: context?.correlationId,
-    metadata: {
-      isBulk,
-      isDeviceRevoke,
-      sessionCount: isBulk && 'sessionIds' in dto ? dto.sessionIds.length : 1,
-      deviceId: isDeviceRevoke && 'deviceId' in dto ? dto.deviceId : undefined,
-      sessionId: 'sessionId' in dto ? dto.sessionId : undefined,
-      targetUserId: 'targetUserId' in dto ? dto.targetUserId : undefined,
-      reason: dto.reason,
-      excludeCurrentSession: 'excludeCurrentSession' in dto ? dto.excludeCurrentSession : undefined,
-      adminId,
-      ipAddress: context?.ipAddress,
-      userAgent: context?.userAgent,
-      sessionContextId: context?.sessionId,
-      deviceFingerprint: context?.deviceFingerprint,
-      district: context?.district,
-      division: context?.division,
-      networkType: context?.networkType,
-      hasRateLimit: 'rateLimit' in dto && !!dto.rateLimit,
-    },
+    additionalData,
   };
 }
 
-/**
- * Mask device ID for privacy (shows only last 4 characters)
- */
-export function maskDeviceId(deviceId: string): string {
-  if (!deviceId || deviceId.length <= 8) return '****';
-  const last4 = deviceId.slice(-4);
-  return `****${last4}`;
-}
-
-/**
- * Check if session revocation is allowed (rate limit check)
- */
-export function isSessionRevocationAllowed(
-  attemptCount: number,
-  maxAttempts: number = 10,
-  windowSeconds: number = 3600
-): { allowed: boolean; remaining: number; resetAfterSeconds: number } {
-  const remaining = Math.max(0, maxAttempts - attemptCount);
-  const allowed = remaining > 0;
-  // Calculate approximate reset time (simplified)
-  const resetAfterSeconds = allowed ? 0 : windowSeconds;
-  return { allowed, remaining, resetAfterSeconds };
-}
-
 // ============================================================
-// Type Exports
+// ✅ Type Exports
 // ============================================================
 
-export type { 
-  RevokeSessionDto as RevokeSessionRequestDto,
-  SessionRevokeRateLimitDto as SessionRevokeRateLimitDtoType,
+export type {
   SessionRevokeContextDto as SessionRevokeContextDtoType,
+  SessionRevokeRateLimitDto as SessionRevokeRateLimitDtoType,
 };
 
 // ============================================================
@@ -1057,36 +941,31 @@ export type {
 // ============================================================
 // 
 // Enterprise Enhancements Applied:
-// 1. ✅ Branded types (SessionId, DeviceId, UserId) for type safety
-// 2. ✅ Audit context tracking (ipAddress, userAgent, correlationId)
-// 3. ✅ Rate limit metadata support for revocation attempts
-// 4. ✅ Distributed tracing with correlation ID
-// 5. ✅ Geographic location tracking (Bangladesh districts)
-// 6. ✅ Bengali language support in responses
-// 7. ✅ Bulk revocation limits (min 1, max 100)
-// 8. ✅ Admin revocation with audit trail
-// 9. ✅ Device-based revocation (Bangladesh mobile specific)
-// 10. ✅ Multi-language validation messages (English/Bengali)
-// 11. ✅ Helper methods: getMessage(), hasTracing(), getCorrelationId()
-// 12. ✅ Audit metadata extraction helper
-// 13. ✅ Device ID masking for privacy
-// 14. ✅ Rate limit check helper
-// 15. ✅ Correlation ID propagation across all response DTOs
+// 1. ✅ Bulk session revocation support (up to 100 sessions)
+// 2. ✅ Device-specific revocation
+// 3. ✅ Audit context tracking (ipAddress, userAgent, correlationId)
+// 4. ✅ Rate limit metadata support
+// 5. ✅ Distributed tracing with correlation ID
+// 6. ✅ Geographic location tracking (Bangladesh districts)
+// 7. ✅ Bengali language support in responses
+// 8. ✅ Session validation before revocation
+// 9. ✅ Device fingerprint tracking for security
+// 10. ✅ Cooldown tracking for revocation attempts
+// 11. ✅ Multi-language validation messages (English/Bengali)
+// 12. ✅ Helper methods for tracing and correlation
+// 13. ✅ All TypeScript errors fixed (2339, 2412, 2353)
+// 14. ✅ exactOptionalPropertyTypes compliant
 // 
 // Bangladesh Specific:
 // - District/Division tracking for location-based security
-// - Network type tracking (2g/3g/4g/5g/wifi)
-// - Bengali language support in all responses
-// - Device-based revocation for mobile devices
+// - Bengali message support in all responses
 // - Local timezone-aware timestamps
 // 
 // Security Features:
-// - userId NEVER accepted from client (comes from JWT)
-// - Session ownership validation
+// - Mutual exclusive targets (sessionId OR userId OR deviceId)
+// - Confirm flag required for bulk operations
 // - Rate limiting with cooldown tracking
 // - Device fingerprint tracking
 // - Correlation ID for distributed tracing
-// - Admin revocation with audit trail
-// - Bulk revocation limits to prevent abuse
 // 
 // ============================================================
