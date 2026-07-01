@@ -44,7 +44,6 @@ import type {
   TokenRefreshResponseDto,
   LogoutResponseDto,
   UserResponseDto,
-  MFARequiredResponseDto,
   EnableMfaDto,
   VerifyMfaDto,
   DisableMfaDto,
@@ -58,8 +57,6 @@ import type {
 import type { 
   User, 
   Session, 
-  RefreshToken,
-  MFAMethod
 } from '../../../domain/entities';
 
 import type { 
