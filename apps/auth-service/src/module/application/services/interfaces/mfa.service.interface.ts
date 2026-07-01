@@ -1,1432 +1,1300 @@
 /**
- * MFA Service Interface - Pure Domain Contract (Enterprise Enhanced v3.0)
+ * Verify MFA DTOs - Pure Data Transport Objects (Enterprise Enhanced v3.0)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module application/services/interfaces/mfa.service.interface
+ * @module application/dtos/mfa/verify-mfa.dto
  * 
  * @description
- * Service contract for Multi-Factor Authentication operations with enterprise features.
- * NO implementation - ONLY method signatures.
+ * Data transfer objects for verifying Multi-Factor Authentication with enterprise features.
  * 
  * ENTERPRISE ENHANCEMENTS (v3.0):
- * ✅ Risk-based adaptive MFA (risk score based method selection)
- * ✅ Offline MFA code support (for poor network areas in Bangladesh)
- * ✅ MFA method recommendation engine (based on user device/behavior)
- * ✅ Cross-device MFA sync with QR code (Bangladesh specific)
- * ✅ MFA method compatibility matrix (feature phone support)
- * ✅ Backup code regeneration reminder (auto-notification)
- * ✅ MFA adoption analytics with ML predictions
- * ✅ Geo-IP based MFA method suggestion (district/division level)
- * ✅ MFA health score and recommendations
- * ✅ Bulk MFA operations for enterprises
- * ✅ Real-time MFA monitoring dashboard
- * ✅ Compliance reporting (Bangladesh Bank guidelines)
+ * ✅ Rate limit metadata support
+ * ✅ Audit context tracking (ipAddress, userAgent, correlationId, deviceFingerprint)
+ * ✅ Distributed tracing with correlation ID
+ * ✅ Geographic location tracking (Bangladesh districts)
+ * ✅ Bengali language support in responses
+ * ✅ Session validation before verification
+ * ✅ Device fingerprint tracking for security
+ * ✅ Cooldown tracking for verification attempts
+ * ✅ Multi-language validation messages (English/Bengali)
+ * ✅ Helper methods for verification method detection
  * 
- * Enterprise Rules:
- * ✅ ONLY interface definitions
- * ✅ No business logic
- * ✅ No infrastructure imports
- * ✅ No framework decorators
- * ✅ Complete DTO-based contract
- * ✅ Bangladesh specific - WhatsApp, Imo, bKash, Nagad, Rocket MFA support
- * ✅ DeviceInfo from shared-types for consistency
+ * Security Rules:
+ * ✅ userId NEVER accepted from client (uses MFA session)
+ * ✅ MFA session ID for tracking verification attempts
+ * ✅ Either code OR backup code OR MFS PIN (mutually exclusive)
+ * ✅ Rate limiting prevention through session
+ * ✅ Bangladesh specific - WhatsApp, Imo, bKash, Nagad, Rocket PIN support
+ * 
+ * Flow:
+ * 1. User logs in with credentials -> gets MFA required response with mfaSessionId
+ * 2. User provides MFA code -> POST to /mfa/verify with mfaSessionId and code
+ * 3. Server validates and issues tokens on success
  */
 
 import { 
-  EnableMfaDto, 
-  EnableMfaResponseDto,
-  MFAStatusResponseDto 
-} from '../../dtos/mfa/enable-mfa.dto';
+  IsString, 
+  IsNotEmpty, 
+  IsOptional,
+  IsUUID,
+  IsBoolean,
+  IsEnum,
+  MaxLength,
+  Matches,
+  ValidateIf,
+  IsNumber,
+  Min,
+  IsDate,
+  ValidateNested,
+  IsIn,
+} from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+
+// ✅ ENTERPRISE: Import from shared packages (single source of truth)
 import { 
-  VerifyMfaDto, 
-  MfaVerifyResponseDto,
-  MfaVerificationResponseDto
-} from '../../dtos/mfa/verify-mfa.dto';
-import { 
-  DisableMfaDto, 
-  DisableMfaResponseDto 
-} from '../../dtos/mfa/disable-mfa.dto';
-import { MfaBackupCodesResponseDto } from '../../mappers/mfa.mapper';
-
-// ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট - DeviceInfo centralized
-import type { 
-  DeviceInfo as SharedDeviceInfo, 
-  MFAType, 
-  MFAStatus,
-  AuditMetadata,
-  RequestContext,
-  PaginationOptions,
-  PaginatedResult,
-  BulkOperationProgress
-} from '@vubon/shared-types';
+  OTP_CONFIG, 
+  MFA_TYPES,
+  DEVICE_ID_CONFIG,
+} from '@vubon/shared-constants';
+import type { MFATypes, AuditMetadata } from '@vubon/shared-types';
 
 // ============================================================
-// Types (Re-export shared types for convenience)
+// ✅ ENTERPRISE ENHANCEMENT 1: Rate Limit & Audit Context DTOs
 // ============================================================
 
 /**
- * Device information interface (Bangladesh specific)
- * Re-exported from shared-types for consistency across all services
+ * Rate limit metadata for MFA verification attempts
+ * ✅ Prevents brute force attacks on MFA verification
  */
-export type DeviceInfo = SharedDeviceInfo;
+export class MfaVerificationRateLimitDto {
+  @ApiPropertyOptional({ description: 'Rate limit window (seconds)', example: 900 })
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  windowSeconds?: number | undefined;
 
-/**
- * MFA type enum (Bangladesh specific)
- * Should be imported from shared-constants in implementation
- */
-export type { MFAType, MFAStatus };
+  @ApiPropertyOptional({ description: 'Max attempts allowed', example: 5 })
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  maxAttempts?: number | undefined;
 
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 1: Risk-Based Adaptive MFA
-// ============================================================
+  @ApiPropertyOptional({ description: 'Remaining attempts', example: 3 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  remaining?: number | undefined;
 
-/**
- * Risk assessment for adaptive MFA
- */
-export interface MFARiskAssessment {
-  /** Risk score (0-100) */
-  riskScore: number;
-  /** Risk level classification */
-  riskLevel: 'low' | 'medium' | 'high' | 'critical';
-  /** Whether MFA is required based on risk */
-  requiresMFA: boolean;
-  /** Recommended MFA methods based on risk */
-  recommendedMethods: MFAType[];
-  /** Why MFA is required (if required) */
-  reason?: string;
-  /** Reason in Bengali */
-  reasonBn?: string;
-  /** Risk factors contributing to the score */
-  riskFactors: Array<{
-    factor: string;
-    score: number;
-    weight: number;
-    description: string;
-  }>;
+  @ApiPropertyOptional({ description: 'Time when limit resets', example: '2024-01-01T00:15:00.000Z' })
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  resetAt?: Date | undefined;
 }
 
 /**
- * Adaptive MFA request context
+ * Audit context for MFA verification (compliance & security)
+ * ✅ Tracks who, when, where MFA verification is attempted
  */
-export interface AdaptiveMFARequest {
-  /** User ID */
-  userId: string;
-  /** Operation type (login, payment, sensitive_change) */
-  operationType: 'login' | 'payment' | 'sensitive_change' | 'high_value_order';
-  /** Transaction amount (for payment operations) */
-  amount?: number;
-  /** Device information */
-  deviceInfo: DeviceInfo;
-  /** IP address */
-  ipAddress: string;
-  /** User agent */
-  userAgent: string;
-  /** Timestamp of request */
-  timestamp: Date;
+export class MfaVerificationContextDto {
+  @ApiPropertyOptional({
+    description: 'IP address of the request',
+    example: '192.168.1.100',
+  })
+  @IsOptional()
+  @IsString()
+  ipAddress?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'User agent string',
+    example: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  userAgent?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Current session ID',
+    example: 'sess_550e8400-e29b-41d4-a716-446655440000',
+  })
+  @IsOptional()
+  @IsUUID()
+  sessionId?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Device fingerprint for fraud detection',
+    example: 'fp_abc123def456',
+    maxLength: 128,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  deviceFingerprint?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Correlation ID for distributed tracing',
+    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
+  })
+  @IsOptional()
+  @IsUUID()
+  correlationId?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'District (Bangladesh specific)',
+    example: 'Dhaka',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  district?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Division (Bangladesh specific)',
+    example: 'Dhaka',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  division?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Network type (Bangladesh specific)',
+    example: '4g',
+    enum: ['2g', '3g', '4g', '5g', 'wifi', 'unknown'],
+  })
+  @IsOptional()
+  @IsIn(['2g', '3g', '4g', '5g', 'wifi', 'unknown'])
+  networkType?: string | undefined;
+
+  /**
+   * Check if context has tracing info
+   */
+  hasTracing(): boolean {
+    return !!(this.correlationId || this.sessionId);
+  }
+
+  /**
+   * Get sanitized context for logging (removes sensitive data)
+   */
+  getSanitized(): Record<string, unknown> {
+    return {
+      hasIp: !!this.ipAddress,
+      hasUserAgent: !!this.userAgent,
+      sessionId: this.sessionId,
+      correlationId: this.correlationId,
+      district: this.district,
+      division: this.division,
+      networkType: this.networkType,
+    };
+  }
 }
 
 // ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 2: Offline MFA Support (Bangladesh)
+// ✅ ENTERPRISE ENHANCEMENT 2: Multi-language Validation Messages
+// ============================================================
+
+const VALIDATION_MESSAGES = {
+  en: {
+    mfaSessionIdRequired: 'MFA session ID is required',
+    mfaSessionIdInvalid: 'MFA session ID must be a valid UUID',
+    codeInvalid: (length: number) => `Code must be exactly ${length} digits`,
+    backupCodeInvalid: 'Backup code must be in format XXXX-XXXX or XXXXX-XXXXX',
+    bkashPinInvalid: 'bKash PIN must be exactly 4 digits',
+    nagadPinInvalid: 'Nagad PIN must be exactly 4 digits',
+    rocketPinInvalid: 'Rocket PIN must be exactly 4 digits',
+    deviceIdMaxLength: (max: number) => `Device ID cannot exceed ${max} characters`,
+    methodInvalid: 'Invalid MFA method',
+    atLeastOneRequired: 'Either code, backup code, or MFS PIN is required',
+  },
+  bn: {
+    mfaSessionIdRequired: 'MFA সেশন আইডি প্রয়োজন',
+    mfaSessionIdInvalid: 'MFA সেশন আইডি টি সঠিক UUID হতে হবে',
+    codeInvalid: (length: number) => `কোড টি ${length} ডিজিটের হতে হবে`,
+    backupCodeInvalid: 'ব্যাকআপ কোড টি সঠিক ফরম্যাটে হতে হবে',
+    bkashPinInvalid: 'বিকাশ পিন টি ৪ ডিজিটের হতে হবে',
+    nagadPinInvalid: 'নগদ পিন টি ৪ ডিজিটের হতে হবে',
+    rocketPinInvalid: 'রকেট পিন টি ৪ ডিজিটের হতে হবে',
+    deviceIdMaxLength: (max: number) => `ডিভাইস আইডি সর্বোচ্চ ${max} অক্ষর হতে পারে`,
+    methodInvalid: 'ভুল MFA পদ্ধতি',
+    atLeastOneRequired: 'কোড, ব্যাকআপ কোড অথবা MFS পিন প্রয়োজন',
+  },
+};
+
+/**
+ * Get validation message (with locale support)
+ */
+function getValidationMessage(
+  key: keyof typeof VALIDATION_MESSAGES.en,
+  args?: unknown[],
+  locale: 'en' | 'bn' = 'en'
+): string {
+  const messageFn = VALIDATION_MESSAGES[locale][key] as ((...args: unknown[]) => string) | string;
+  if (typeof messageFn === 'function') {
+    return messageFn(...(args || []));
+  }
+  return messageFn || VALIDATION_MESSAGES.en[key] as string;
+}
+
+// ============================================================
+// Request DTOs (Enterprise Enhanced)
 // ============================================================
 
 /**
- * Offline MFA code for poor network areas
+ * Verify MFA Request DTO - Enterprise Enhanced
+ * 
+ * Note: userId is NOT included - comes from MFA session
+ * Note: Either code OR backupCode OR MFS PIN should be provided (mutually exclusive)
+ * 
+ * @example (TOTP/SMS/Email/WhatsApp code):
+ * {
+ *   "mfaSessionId": "mfa_sess_550e8400-e29b-41d4-a716-446655440000",
+ *   "code": "123456",
+ *   "trustDevice": true,
+ *   "context": { "correlationId": "corr_123", "district": "Dhaka" }
+ * }
+ * 
+ * @example (Backup code):
+ * {
+ *   "mfaSessionId": "mfa_sess_550e8400-e29b-41d4-a716-446655440000",
+ *   "backupCode": "AB3F-9K2M"
+ * }
+ * 
+ * @example (bKash PIN - Bangladesh specific):
+ * {
+ *   "mfaSessionId": "mfa_sess_550e8400-e29b-41d4-a716-446655440000",
+ *   "bkashPin": "1234"
+ * }
  */
-export interface OfflineMFACode {
-  /** The offline code value */
+export class VerifyMfaDto {
+  @ApiProperty({
+    description: 'MFA session ID from login response',
+    example: 'mfa_sess_550e8400-e29b-41d4-a716-446655440000',
+    format: 'uuid',
+    required: true,
+  })
+  @IsString({ message: () => getValidationMessage('mfaSessionIdRequired') })
+  @IsNotEmpty({ message: () => getValidationMessage('mfaSessionIdRequired') })
+  @IsUUID(4, { message: () => getValidationMessage('mfaSessionIdInvalid') })
+  mfaSessionId: string;
+
+  @ApiPropertyOptional({
+    description: 'MFA verification code from authenticator app/SMS/email/WhatsApp/Imo',
+    example: '123456',
+    minLength: OTP_CONFIG.LENGTH,
+    maxLength: OTP_CONFIG.LENGTH,
+  })
+  @IsOptional()
+  @IsString({ message: 'Code must be a string' })
+  @Matches(new RegExp(`^\\d{${OTP_CONFIG.LENGTH}}$`), { 
+    message: () => getValidationMessage('codeInvalid', [OTP_CONFIG.LENGTH]) 
+  })
+  @ValidateIf(o => !o.backupCode && !o.bkashPin && !o.nagadPin && !o.rocketPin)
+  code?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Backup code (one of the recovery codes)',
+    example: 'AB3F-9K2M',
+    pattern: '^[A-Z0-9]{4,8}$',
+  })
+  @IsOptional()
+  @IsString({ message: 'Backup code must be a string' })
+  @Matches(/^[A-Z0-9]{4,8}$/, {
+    message: () => getValidationMessage('backupCodeInvalid'),
+  })
+  @ValidateIf(o => !o.code && !o.bkashPin && !o.nagadPin && !o.rocketPin)
+  backupCode?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'bKash PIN (for bKash MFA verification - Bangladesh specific)',
+    example: '1234',
+    minLength: 4,
+    maxLength: 4,
+  })
+  @IsOptional()
+  @IsString({ message: 'bKash PIN must be a string' })
+  @Matches(/^\d{4}$/, { message: () => getValidationMessage('bkashPinInvalid') })
+  @ValidateIf(o => !o.code && !o.backupCode && !o.nagadPin && !o.rocketPin)
+  bkashPin?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Nagad PIN (for Nagad MFA verification - Bangladesh specific)',
+    example: '1234',
+    minLength: 4,
+    maxLength: 4,
+  })
+  @IsOptional()
+  @IsString({ message: 'Nagad PIN must be a string' })
+  @Matches(/^\d{4}$/, { message: () => getValidationMessage('nagadPinInvalid') })
+  @ValidateIf(o => !o.code && !o.backupCode && !o.bkashPin && !o.rocketPin)
+  nagadPin?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Rocket PIN (for Rocket MFA verification - Bangladesh specific)',
+    example: '1234',
+    minLength: 4,
+    maxLength: 4,
+  })
+  @IsOptional()
+  @IsString({ message: 'Rocket PIN must be a string' })
+  @Matches(/^\d{4}$/, { message: () => getValidationMessage('rocketPinInvalid') })
+  @ValidateIf(o => !o.code && !o.backupCode && !o.bkashPin && !o.nagadPin)
+  rocketPin?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Device identifier for remembering this device',
+    example: 'device_550e8400-e29b-41d4-a716-446655440000',
+    maxLength: DEVICE_ID_CONFIG.MAX_LENGTH,
+  })
+  @IsOptional()
+  @IsString({ message: 'Device ID must be a string' })
+  @MaxLength(DEVICE_ID_CONFIG.MAX_LENGTH, { 
+    message: () => getValidationMessage('deviceIdMaxLength', [DEVICE_ID_CONFIG.MAX_LENGTH]) 
+  })
+  deviceId?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Trust this device for future logins (skip MFA)',
+    example: true,
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'Trust device must be a boolean' })
+  trustDevice?: boolean | undefined = false;
+
+  @ApiPropertyOptional({
+    description: 'Specific MFA method to use (if user has multiple)',
+    enum: MFA_TYPES,
+    example: MFA_TYPES.TOTP,
+  })
+  @IsOptional()
+  @IsEnum(MFA_TYPES, { message: () => getValidationMessage('methodInvalid') })
+  method?: MFATypes | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Preferred language for response messages',
+    example: 'bn',
+    enum: ['en', 'bn'],
+    default: 'en',
+  })
+  @IsOptional()
+  @IsIn(['en', 'bn'], { message: 'Language must be en or bn' })
+  preferredLanguage?: 'en' | 'bn' | undefined = 'en';
+
+  // ✅ ENTERPRISE ENHANCEMENT: Rate limit metadata
+  @ApiPropertyOptional({
+    description: 'Rate limit metadata for this operation',
+    type: MfaVerificationRateLimitDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => MfaVerificationRateLimitDto)
+  rateLimit?: MfaVerificationRateLimitDto | undefined;
+
+  // ✅ ENTERPRISE ENHANCEMENT: Audit context
+  @ApiPropertyOptional({
+    description: 'Audit context for MFA verification',
+    type: MfaVerificationContextDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => MfaVerificationContextDto)
+  context?: MfaVerificationContextDto | undefined;
+
+  constructor(
+    mfaSessionId: string,
+    code?: string | undefined,
+    backupCode?: string | undefined,
+    deviceId?: string | undefined,
+    trustDevice?: boolean | undefined,
+    method?: MFATypes | undefined,
+    bkashPin?: string | undefined,
+    nagadPin?: string | undefined,
+    rocketPin?: string | undefined,
+    preferredLanguage?: 'en' | 'bn' | undefined,
+    context?: MfaVerificationContextDto | undefined,
+    rateLimit?: MfaVerificationRateLimitDto | undefined
+  ) {
+    this.mfaSessionId = mfaSessionId;
+    this.code = code;
+    this.backupCode = backupCode;
+    this.deviceId = deviceId;
+    this.trustDevice = trustDevice ?? false;
+    this.method = method;
+    this.bkashPin = bkashPin;
+    this.nagadPin = nagadPin;
+    this.rocketPin = rocketPin;
+    this.preferredLanguage = preferredLanguage ?? 'en';
+    this.context = context;
+    this.rateLimit = rateLimit;
+  }
+
+  /**
+   * Get the verification method being used
+   */
+  getVerificationMethod(): 'code' | 'backup' | 'bkash_pin' | 'nagad_pin' | 'rocket_pin' | null {
+    if (this.code) return 'code';
+    if (this.backupCode) return 'backup';
+    if (this.bkashPin) return 'bkash_pin';
+    if (this.nagadPin) return 'nagad_pin';
+    if (this.rocketPin) return 'rocket_pin';
+    return null;
+  }
+
+  /**
+   * Check if at least one verification method is provided
+   */
+  hasVerificationMethod(): boolean {
+    return this.getVerificationMethod() !== null;
+  }
+
+  /**
+   * Get validation message in appropriate language
+   */
+  getMessage(key: keyof typeof VALIDATION_MESSAGES.en, ...args: unknown[]): string {
+    const locale = this.preferredLanguage === 'bn' ? 'bn' : 'en';
+    return getValidationMessage(key, args, locale);
+  }
+
+  /**
+   * Check if request has tracing context
+   */
+  hasTracing(): boolean {
+    return !!this.context?.hasTracing();
+  }
+
+  /**
+   * Get correlation ID for distributed tracing
+   */
+  getCorrelationId(): string | undefined {
+    return this.context?.correlationId;
+  }
+
+  /**
+   * Get sanitized context for logging
+   */
+  getSanitizedContext(): Record<string, unknown> {
+    return this.context?.getSanitized() || {};
+  }
+
+  /**
+   * Check if this is a backup code verification
+   */
+  isBackupCodeVerification(): boolean {
+    return !!this.backupCode;
+  }
+
+  /**
+   * Check if this is an MFS PIN verification (Bangladesh specific)
+   */
+  isMFSPinVerification(): boolean {
+    return !!(this.bkashPin || this.nagadPin || this.rocketPin);
+  }
+
+  /**
+   * Get the MFS provider being used (if any)
+   */
+  getMFSProvider(): 'bkash' | 'nagad' | 'rocket' | null {
+    if (this.bkashPin) return 'bkash';
+    if (this.nagadPin) return 'nagad';
+    if (this.rocketPin) return 'rocket';
+    return null;
+  }
+}
+
+/**
+ * Verify MFA Setup Request DTO (for initial setup verification)
+ * 
+ * Used when enabling MFA for the first time
+ */
+export class VerifyMfaSetupDto {
+  @ApiProperty({
+    description: 'MFA type being verified',
+    enum: MFA_TYPES,
+    example: MFA_TYPES.TOTP,
+    required: true,
+  })
+  @IsEnum(MFA_TYPES, { message: 'Invalid MFA type' })
+  @IsNotEmpty({ message: 'MFA type is required' })
+  type: MFATypes;
+
+  @ApiProperty({
+    description: 'Verification code',
+    example: '123456',
+    minLength: OTP_CONFIG.LENGTH,
+    maxLength: OTP_CONFIG.LENGTH,
+    required: true,
+  })
+  @IsString({ message: 'Code must be a string' })
+  @IsNotEmpty({ message: 'Verification code is required' })
+  @Matches(new RegExp(`^\\d{${OTP_CONFIG.LENGTH}}$`), { 
+    message: `Code must be ${OTP_CONFIG.LENGTH} digits` 
+  })
   code: string;
-  /** When the code was generated */
-  generatedAt: Date;
-  /** When the code expires */
-  expiresAt: Date;
-  /** Whether the code has been used */
-  used: boolean;
-  /** When the code was used (if used) */
-  usedAt?: Date;
-  /** Session ID associated with this code */
-  sessionId?: string;
-}
 
-/**
- * Generate offline MFA codes request
- */
-export interface GenerateOfflineCodesRequest {
-  /** User ID */
-  userId: string;
-  /** Number of codes to generate (default: 10, max: 20) */
-  count?: number;
-  /** Expiry in days (default: 30, max: 90) */
-  expiryDays?: number;
-  /** Device information for audit */
-  deviceInfo: DeviceInfo;
-}
+  @ApiPropertyOptional({
+    description: 'Method ID (if multiple methods are being set up)',
+    example: 'mtd_550e8400-e29b-41d4-a716-446655440000',
+  })
+  @IsOptional()
+  @IsUUID(4, { message: 'Method ID must be a valid UUID' })
+  methodId?: string | undefined;
 
-/**
- * Generate offline MFA codes response
- */
-export interface GenerateOfflineCodesResponse {
-  /** Generated offline codes (plain text - one-time display) */
-  codes: string[];
-  /** When codes expire */
-  expiresAt: Date;
-  /** Number of codes generated */
-  count: number;
-  /** Warning message about keeping codes secure */
-  warningMessage: string;
-  /** Warning message in Bengali */
-  warningMessageBn?: string;
-}
+  @ApiPropertyOptional({
+    description: 'Device name for this MFA method',
+    example: 'Google Authenticator',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  deviceName?: string | undefined;
 
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 3: MFA Method Recommendation Engine
-// ============================================================
+  @ApiPropertyOptional({
+    description: 'Make this the primary MFA method',
+    example: true,
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  makePrimary?: boolean | undefined = false;
 
-/**
- * MFA method recommendation result
- */
-export interface MFAMethodRecommendation {
-  /** Recommended MFA method */
-  recommendedMethod: MFAType;
-  /** Alternative methods (fallback options) */
-  alternativeMethods: MFAType[];
-  /** Confidence score (0-100) */
-  confidenceScore: number;
-  /** Reasons for recommendation */
-  reasons: string[];
-  /** Reasons in Bengali */
-  reasonsBn?: string[];
-  /** Whether user preference was matched */
-  userPreferenceMatched: boolean;
-  /** Whether device is compatible with recommended method */
-  deviceCompatible: boolean;
-  /** Setup instructions */
-  setupInstructions?: string;
-  /** Setup instructions in Bengali */
-  setupInstructionsBn?: string;
-}
+  @ApiPropertyOptional({
+    description: 'Correlation ID for distributed tracing',
+    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
+  })
+  @IsOptional()
+  @IsUUID()
+  correlationId?: string | undefined;
 
-/**
- * MFA method compatibility information
- */
-export interface MFAMethodCompatibility {
-  /** MFA method */
-  method: MFAType;
-  /** Compatible device types */
-  compatibleDevices: ('mobile' | 'desktop' | 'tablet' | 'feature_phone')[];
-  /** Requires internet connection */
-  requiresInternet: boolean;
-  /** Recommended network type */
-  networkRecommendation: '2g' | '3g' | '4g' | '5g' | 'wifi' | 'any';
-  /** Level of support in Bangladesh */
-  bangladeshSupport: 'full' | 'partial' | 'limited';
-  /** Popularity rank in Bangladesh (1 = most popular) */
-  popularityRank: number;
-  /** Security level (1-5) */
-  securityLevel: 1 | 2 | 3 | 4 | 5;
-  /** Ease of use (1-5) */
-  easeOfUse: 1 | 2 | 3 | 4 | 5;
+  constructor(
+    type: MFATypes, 
+    code: string, 
+    methodId?: string | undefined, 
+    deviceName?: string | undefined,
+    makePrimary?: boolean | undefined,
+    correlationId?: string | undefined
+  ) {
+    this.type = type;
+    this.code = code;
+    this.methodId = methodId;
+    this.deviceName = deviceName;
+    this.makePrimary = makePrimary ?? false;
+    this.correlationId = correlationId;
+  }
 }
 
 // ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 4: Cross-Device MFA Sync
+// Response DTOs (Enterprise Enhanced with Bengali support)
 // ============================================================
 
 /**
- * Cross-device MFA sync request
+ * MFA Verify Success Response DTO - Enterprise Enhanced
  */
-export interface CrossDeviceMFASyncRequest {
-  /** Source user ID (where MFA is already set up) */
-  sourceUserId: string;
-  /** Target user ID (where MFA needs to be synced) */
-  targetUserId: string;
-  /** MFA methods to sync */
-  methodsToSync: MFAType[];
-  /** QR code data for verification */
-  qrCodeData?: string;
-  /** Sync token for verification */
-  syncToken?: string;
-  /** Expiry time for the sync request */
-  expiresAt: Date;
-  /** Request status */
-  status: 'pending' | 'approved' | 'rejected' | 'expired' | 'completed';
-}
+export class MfaVerifyResponseDto {
+  @ApiProperty({
+    description: 'JWT access token',
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+  })
+  accessToken: string;
 
-/**
- * Cross-device MFA sync result
- */
-export interface CrossDeviceMFASyncResult {
-  /** Whether sync was successful */
-  success: boolean;
-  /** Synced method IDs */
-  syncedMethodIds: string[];
-  /** Failed methods with reasons */
-  failedMethods: Array<{ method: MFAType; reason: string }>;
-  /** New session ID if auto-login after sync */
-  newSessionId?: string;
-}
+  @ApiProperty({
+    description: 'Refresh token',
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+  })
+  refreshToken: string;
 
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 5: MFA Health Score
-// ============================================================
-
-/**
- * MFA health score for a user
- */
-export interface MFAHealthScore {
-  /** User ID */
-  userId: string;
-  /** Health score (0-100) */
-  score: number;
-  /** Health status classification */
-  status: 'excellent' | 'good' | 'fair' | 'poor' | 'critical';
-  /** Breakdown of factors */
-  factors: {
-    /** Having multiple MFA methods */
-    methodCount: { score: number; weight: number; description: string };
-    /** Using strong MFA methods (WebAuthn > TOTP > SMS) */
-    methodStrength: { score: number; weight: number; description: string };
-    /** Backup codes available and not expired */
-    backupCodes: { score: number; weight: number; description: string };
-    /** Recovery options configured */
-    recoveryOptions: { score: number; weight: number; description: string };
-    /** Recent verification success rate */
-    verificationSuccessRate: { score: number; weight: number; description: string };
-  };
-  /** Recommendations to improve score */
-  recommendations: string[];
-  /** Recommendations in Bengali */
-  recommendationsBn?: string[];
-  /** Requires user action */
-  requiresAction: boolean;
-  /** Suggested action type */
-  suggestedAction?: 'add_method' | 'regenerate_backup_codes' | 'setup_recovery' | 'verify_method';
-}
-
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 6: Bulk MFA Operations
-// ============================================================
-
-/**
- * Bulk MFA operation result
- */
-export interface BulkMFAResult {
-  /** Total users requested */
-  totalRequested: number;
-  /** Successful operations */
-  successful: number;
-  /** Failed operations */
-  failed: number;
-  /** Skipped operations */
-  skipped: number;
-  /** Failed details */
-  failures: Array<{ userId: string; error: string }>;
-  /** Operation progress */
-  progress: BulkOperationProgress;
-  /** Duration in milliseconds */
-  durationMs: number;
-  /** Operation type */
-  operationType: 'enable' | 'disable' | 'regenerate_codes' | 'reset_lock';
-}
-
-/**
- * Bulk MFA enable request
- */
-export interface BulkMFAEnableRequest {
-  /** User IDs to enable MFA for */
-  userIds: string[];
-  /** MFA method to enable */
-  method: MFAType;
-  /** Admin ID performing the operation */
-  adminId: string;
-  /** Reason for bulk enable */
-  reason: string;
-  /** Notify users after enable */
-  notifyUsers?: boolean;
-  /** Force enable even if user has existing MFA */
-  force?: boolean;
-}
-
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 7: MFA Monitoring Dashboard
-// ============================================================
-
-/**
- * Real-time MFA monitoring metrics
- */
-export interface MFAMonitoringMetrics {
-  /** Total number of MFA verifications in last hour */
-  verificationsLastHour: number;
-  /** Success rate in last hour (percentage) */
-  successRateLastHour: number;
-  /** Failed attempts in last hour */
-  failedAttemptsLastHour: number;
-  /** Locked accounts in last hour */
-  lockedAccountsLastHour: number;
-  /** Average verification time in milliseconds */
-  averageVerificationTimeMs: number;
-  /** P95 verification time */
-  p95VerificationTimeMs: number;
-  /** P99 verification time */
-  p99VerificationTimeMs: number;
-  /** Active MFA sessions */
-  activeSessions: number;
-  /** Methods distribution */
-  methodsDistribution: Record<MFAType, number>;
-  /** Top failure reasons */
-  topFailureReasons: Array<{ reason: string; count: number }>;
-  /** Alerts triggered */
-  activeAlerts: Array<{
-    id: string;
-    severity: 'info' | 'warning' | 'critical';
-    message: string;
-    timestamp: Date;
-  }>;
-}
-
-/**
- * MFA alert configuration
- */
-export interface MFAAlertConfig {
-  /** Alert when success rate drops below this threshold */
-  successRateThreshold: number;  // default: 90
-  /** Alert when failed attempts exceed this count */
-  failedAttemptsThreshold: number;  // default: 100
-  /** Alert when lockouts exceed this count */
-  lockoutThreshold: number;  // default: 50
-  /** Alert when verification time exceeds this (ms) */
-  latencyThresholdMs: number;  // default: 5000
-  /** Notification channels */
-  channels: ('email' | 'sms' | 'slack' | 'webhook')[];
-  /** Cooldown minutes between alerts */
-  cooldownMinutes: number;  // default: 5
-  /** Enable/disable alerting */
-  enabled: boolean;
-}
-
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 8: MFA Compliance Report
-// ============================================================
-
-/**
- * MFA compliance report (Bangladesh Bank guidelines)
- */
-export interface MFAComplianceReport {
-  /** Report ID */
-  reportId: string;
-  /** When report was generated */
-  generatedAt: Date;
-  /** Report period */
-  period: { from: Date; to: Date };
-  /** Summary statistics */
-  summary: {
-    totalUsers: number;
-    mfaEnabledUsers: number;
-    mfaEnabledPercentage: number;
-    usersWithStrongMFA: number;  // WebAuthn or TOTP
-    usersWithWeakMFA: number;    // SMS or Email only
-    compliantUsers: number;
-    complianceRate: number;
-  };
-  /** Breakdown by user tier */
-  byUserTier: Array<{
-    tier: string;
-    totalUsers: number;
-    mfaEnabled: number;
-    complianceRate: number;
-  }>;
-  /** Breakdown by district (Bangladesh) */
-  byDistrict: Array<{
-    district: string;
-    totalUsers: number;
-    mfaEnabled: number;
-    complianceRate: number;
-  }>;
-  /** Non-compliant users requiring action */
-  nonCompliantUsers: Array<{
-    userId: string;
-    email: string;
-    currentMFAMethod: MFAType | null;
-    recommendedAction: string;
-  }>;
-  /** Recommendations for improving compliance */
-  recommendations: string[];
-  /** Export URL for full report */
-  exportUrl: string;
-  /** Report expires at */
-  expiresAt: Date;
-}
-
-// ============================================================
-// Backup Code Verification Result
-// ============================================================
-
-export interface BackupCodeVerificationResult {
-  isValid: boolean;
-  remainingCodes: number;
-  warning?: string;
-  warningBn?: string;
-  isLow: boolean;
-}
-
-// ============================================================
-// MFA Method Info
-// ============================================================
-
-export interface MFAMethodInfo {
-  id: string;
-  type: string;
-  typeDisplayName: string;
-  typeDisplayNameBn?: string;
-  identifier: string;
-  maskedIdentifier: string;
-  isPrimary: boolean;
-  isVerified: boolean;
-  createdAt: Date;
-  lastUsedAt?: Date;
-}
-
-// ============================================================
-// MFA Lock Status
-// ============================================================
-
-export interface MFALockStatus {
-  isLocked: boolean;
-  remainingMinutes: number;
-  remainingSeconds: number;
-  lockedAt?: Date;
-  expiresAt?: Date;
-}
-
-// ============================================================
-// MFA Recovery Options
-// ============================================================
-
-export interface MFARecoveryOptions {
-  hasBackupCodes: boolean;
-  remainingBackupCodes: number;
-  hasRecoveryEmail: boolean;
-  recoveryEmail?: string;
-  maskedRecoveryEmail?: string;
-  hasRecoveryPhone: boolean;
-  recoveryPhone?: string;
-  maskedRecoveryPhone?: string;
-}
-
-// ============================================================
-// MFA Statistics
-// ============================================================
-
-export interface MFAStatistics {
-  totalUsers: number;
-  mfaEnabledCount: number;
-  mfaEnabledPercentage: number;
-  byType: Record<string, number>;
-  byStatus: Record<string, number>;
-  adoptionRate: number;
-  // Bangladesh specific
-  mfaByOperator?: Record<string, number>;
-  mfaByDistrict?: Array<{ district: string; count: number }>;
-  monthlyAdoptionTrend?: Array<{ month: string; count: number }>;
-}
-
-// ============================================================
-// Verify Code DTO
-// ============================================================
-
-export interface VerifyCodeDto {
-  code: string;
-  methodId?: string;
-  type?: string;
-}
-
-// ============================================================
-// Recovery Initiation Result
-// ============================================================
-
-export interface RecoveryInitiationResult {
-  recoverySessionId: string;
+  @ApiProperty({
+    description: 'Access token expiry time in seconds',
+    example: 900,
+  })
   expiresIn: number;
+
+  @ApiProperty({
+    description: 'Refresh token expiry time in seconds',
+    example: 604800,
+  })
+  refreshExpiresIn: number;
+
+  @ApiProperty({
+    description: 'Token type (always Bearer)',
+    example: 'Bearer',
+  })
+  tokenType: string = 'Bearer';
+
+  @ApiProperty({
+    description: 'Session ID for management',
+    example: 'sess_550e8400-e29b-41d4-a716-446655440000',
+  })
+  sessionId: string;
+
+  @ApiProperty({
+    description: 'Authenticated user information',
+    type: 'object',
+    properties: {
+      id: { type: 'string', example: 'usr_550e8400-e29b-41d4-a716-446655440000' },
+      email: { type: 'string', example: 'user@vubon.com.bd' },
+      fullName: { type: 'string', example: 'John Doe' },
+      role: { type: 'string', example: 'USER' },
+    },
+  })
+  user: {
+    id: string;
+    email: string;
+    fullName: string;
+    role: string;
+  };
+
+  @ApiPropertyOptional({
+    description: 'Whether the device was trusted',
+    example: true,
+  })
+  deviceTrusted?: boolean | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Correlation ID for distributed tracing',
+    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
+  })
+  correlationId?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Bengali success message',
+    example: 'সফলভাবে যাচাই করা হয়েছে',
+  })
+  messageBn?: string | undefined;
+
+  constructor(
+    accessToken: string,
+    refreshToken: string,
+    expiresIn: number,
+    refreshExpiresIn: number,
+    sessionId: string,
+    user: { id: string; email: string; fullName: string; role: string },
+    deviceTrusted?: boolean | undefined,
+    correlationId?: string | undefined,
+    messageBn?: string | undefined
+  ) {
+    this.accessToken = accessToken;
+    this.refreshToken = refreshToken;
+    this.expiresIn = expiresIn;
+    this.refreshExpiresIn = refreshExpiresIn;
+    this.sessionId = sessionId;
+    this.user = user;
+    this.deviceTrusted = deviceTrusted;
+    this.correlationId = correlationId;
+    this.messageBn = messageBn;
+  }
+}
+
+/**
+ * MFA Setup Verify Response DTO - Enterprise Enhanced
+ */
+export class MfaSetupVerifyResponseDto {
+  @ApiProperty({
+    description: 'Success message',
+    example: 'MFA enabled successfully',
+  })
+  message: string;
+
+  @ApiPropertyOptional({
+    description: 'Bengali success message',
+    example: 'এমএফএ সফলভাবে সক্রিয় করা হয়েছে',
+  })
+  messageBn?: string | undefined;
+
+  @ApiProperty({
+    description: 'Remaining backup codes count',
+    example: 10,
+  })
+  remainingBackupCodes: number;
+
+  @ApiProperty({
+    description: 'MFA method ID',
+    example: 'mtd_550e8400-e29b-41d4-a716-446655440000',
+  })
+  methodId: string;
+
+  @ApiPropertyOptional({
+    description: 'Whether this is the primary MFA method',
+    example: true,
+  })
+  isPrimary?: boolean | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Correlation ID for distributed tracing',
+    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
+  })
+  correlationId?: string | undefined;
+
+  constructor(
+    message: string, 
+    remainingBackupCodes: number, 
+    methodId: string,
+    isPrimary?: boolean | undefined,
+    messageBn?: string | undefined,
+    correlationId?: string | undefined
+  ) {
+    this.message = message;
+    this.messageBn = messageBn;
+    this.remainingBackupCodes = remainingBackupCodes;
+    this.methodId = methodId;
+    this.isPrimary = isPrimary;
+    this.correlationId = correlationId;
+  }
+}
+
+/**
+ * MFA Required Response DTO (after login) - Enterprise Enhanced
+ */
+export class MFARequiredResponseDto {
+  @ApiProperty({
+    description: 'MFA required flag',
+    example: true,
+  })
+  mfaRequired: boolean = true;
+
+  @ApiProperty({
+    description: 'MFA session ID for verification',
+    example: 'mfa_sess_550e8400-e29b-41d4-a716-446655440000',
+  })
+  mfaSessionId: string;
+
+  @ApiProperty({
+    description: 'Available MFA methods for this user',
+    enum: MFA_TYPES,
+    isArray: true,
+    example: ['TOTP', 'SMS', 'WHATSAPP', 'BKASH_PIN'],
+  })
+  availableMethods: MFATypes[];
+
+  @ApiPropertyOptional({
+    description: 'Masked phone number (if SMS/WhatsApp is available)',
+    example: '+88017******78',
+  })
+  maskedPhone?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Masked email (if email is available)',
+    example: 'u***r@example.com',
+  })
+  maskedEmail?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Masked bKash account (if bKash PIN is available)',
+    example: '+88017******78',
+  })
+  maskedBkashAccount?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Masked Nagad account (if Nagad PIN is available)',
+    example: '+88017******78',
+  })
+  maskedNagadAccount?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Masked Rocket account (if Rocket PIN is available)',
+    example: '+88017******78',
+  })
+  maskedRocketAccount?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Remaining verification attempts',
+    example: 3,
+  })
+  remainingAttempts?: number | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Login session ID (partial login)',
+    example: 'login_sess_550e8400-e29b-41d4-a716-446655440000',
+  })
+  loginSessionId?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Correlation ID for distributed tracing',
+    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
+  })
+  correlationId?: string | undefined;
+
+  constructor(
+    mfaSessionId: string,
+    availableMethods: MFATypes[],
+    maskedPhone?: string | undefined,
+    maskedEmail?: string | undefined,
+    remainingAttempts?: number | undefined,
+    maskedBkashAccount?: string | undefined,
+    loginSessionId?: string | undefined,
+    maskedNagadAccount?: string | undefined,
+    maskedRocketAccount?: string | undefined,
+    correlationId?: string | undefined
+  ) {
+    this.mfaSessionId = mfaSessionId;
+    this.availableMethods = availableMethods;
+    this.maskedPhone = maskedPhone;
+    this.maskedEmail = maskedEmail;
+    this.maskedBkashAccount = maskedBkashAccount;
+    this.maskedNagadAccount = maskedNagadAccount;
+    this.maskedRocketAccount = maskedRocketAccount;
+    this.remainingAttempts = remainingAttempts;
+    this.loginSessionId = loginSessionId;
+    this.correlationId = correlationId;
+  }
+}
+
+/**
+ * MFA Verification Failed Response DTO - Enterprise Enhanced
+ */
+export class MfaVerificationFailedResponseDto {
+  @ApiProperty({
+    description: 'Success flag (always false)',
+    example: false,
+  })
+  success: boolean = false;
+
+  @ApiProperty({
+    description: 'Error message',
+    example: 'Invalid verification code',
+  })
+  message: string;
+
+  @ApiPropertyOptional({
+    description: 'Bengali error message',
+    example: 'অবৈধ ভেরিফিকেশন কোড',
+  })
+  messageBn?: string | undefined;
+
+  @ApiProperty({
+    description: 'Remaining attempts before lockout',
+    example: 2,
+  })
   remainingAttempts: number;
-  maskedRecoveryEmail?: string;
-  maskedRecoveryPhone?: string;
+
+  @ApiPropertyOptional({
+    description: 'Whether the MFA method is now locked',
+    example: false,
+  })
+  isLocked?: boolean | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Lockout expiry time (if locked)',
+    example: '2024-01-01T00:15:00.000Z',
+    format: 'date-time',
+  })
+  lockoutExpiresAt?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Verification method that failed',
+    example: 'code',
+    enum: ['code', 'backup', 'bkash_pin', 'nagad_pin', 'rocket_pin'],
+  })
+  failedMethod?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Correlation ID for distributed tracing',
+    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
+  })
+  correlationId?: string | undefined;
+
+  constructor(
+    message: string, 
+    remainingAttempts: number,
+    messageBn?: string | undefined,
+    isLocked?: boolean | undefined,
+    lockoutExpiresAt?: Date | undefined,
+    failedMethod?: string | undefined,
+    correlationId?: string | undefined
+  ) {
+    this.message = message;
+    this.messageBn = messageBn;
+    this.remainingAttempts = remainingAttempts;
+    this.isLocked = isLocked;
+    this.lockoutExpiresAt = lockoutExpiresAt?.toISOString();
+    this.failedMethod = failedMethod;
+    this.correlationId = correlationId;
+  }
+}
+
+/**
+ * MFA Verification Error Response DTO
+ */
+export class MfaVerificationErrorResponseDto {
+  @ApiProperty({
+    description: 'Error status code',
+    example: 400,
+  })
+  statusCode: number;
+
+  @ApiProperty({
+    description: 'English error message',
+    example: 'MFA session not found or expired',
+  })
+  message: string;
+
+  @ApiPropertyOptional({
+    description: 'Bengali error message',
+    example: 'MFA সেশন পাওয়া যায়নি বা মেয়াদ শেষ হয়েছে',
+  })
+  messageBn?: string | undefined;
+
+  @ApiProperty({
+    description: 'Error type',
+    example: 'SESSION_NOT_FOUND',
+    enum: ['SESSION_NOT_FOUND', 'SESSION_EXPIRED', 'METHOD_NOT_AVAILABLE', 'ACCOUNT_LOCKED', 'RATE_LIMITED'],
+  })
+  error: string;
+
+  @ApiProperty({
+    description: 'Timestamp of error',
+    example: '2024-01-01T00:00:00.000Z',
+    format: 'date-time',
+  })
+  timestamp: string;
+
+  @ApiPropertyOptional({
+    description: 'Correlation ID for tracing',
+    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
+  })
+  correlationId?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Rate limit reset time (if rate limited)',
+    example: '2024-01-01T00:15:00.000Z',
+    format: 'date-time',
+  })
+  rateLimitResetAt?: Date | undefined;
+
+  constructor(
+    message: string,
+    error: string,
+    statusCode: number = 400,
+    messageBn?: string | undefined,
+    correlationId?: string | undefined,
+    rateLimitResetAt?: Date | undefined
+  ) {
+    this.statusCode = statusCode;
+    this.message = message;
+    this.messageBn = messageBn;
+    this.error = error;
+    this.timestamp = new Date().toISOString();
+    this.correlationId = correlationId;
+    this.rateLimitResetAt = rateLimitResetAt;
+  }
+
+  /**
+   * Create session not found error
+   */
+  static sessionNotFound(correlationId?: string | undefined): MfaVerificationErrorResponseDto {
+    return new MfaVerificationErrorResponseDto(
+      'MFA session not found or expired',
+      'SESSION_NOT_FOUND',
+      404,
+      undefined,
+      correlationId
+    );
+  }
+
+  /**
+   * Create rate limited error response
+   */
+  static rateLimited(retryAfterSeconds: number, correlationId?: string | undefined): MfaVerificationErrorResponseDto {
+    const message = `Too many MFA verification attempts. Please try again in ${retryAfterSeconds} seconds.`;
+    const rateLimitResetAt = new Date(Date.now() + retryAfterSeconds * 1000);
+    return new MfaVerificationErrorResponseDto(
+      message,
+      'RATE_LIMITED',
+      429,
+      undefined,
+      correlationId,
+      rateLimitResetAt
+    );
+  }
 }
 
 // ============================================================
-// Recovery Completion Result
+// ✅ ENTERPRISE UTILITY: Helper Functions
 // ============================================================
 
-export interface RecoveryCompletionResult {
+/**
+ * Extract audit metadata from MFA verification request
+ * Tracks who, when, where MFA verification is attempted (Compliance)
+ */
+export function getMfaVerificationAuditMetadata(
+  dto: VerifyMfaDto,
+  userId: string
+): AuditMetadata {
+  return {
+    userId,
+    source: 'api',
+    timestamp: new Date(),
+    requestId: dto.getCorrelationId(),
+    additionalData: {
+      mfaSessionId: dto.mfaSessionId,
+      verificationMethod: dto.getVerificationMethod(),
+      trustDevice: dto.trustDevice,
+      deviceId: dto.deviceId,
+      method: dto.method,
+      isBackupCode: dto.isBackupCodeVerification(),
+      isMFSPin: dto.isMFSPinVerification(),
+      mfsProvider: dto.getMFSProvider(),
+      preferredLanguage: dto.preferredLanguage,
+      ipAddress: dto.context?.ipAddress,
+      userAgent: dto.context?.userAgent,
+      sessionId: dto.context?.sessionId,
+      deviceFingerprint: dto.context?.deviceFingerprint,
+      district: dto.context?.district,
+      division: dto.context?.division,
+      networkType: dto.context?.networkType,
+      hasRateLimit: !!dto.rateLimit,
+      remainingRateLimit: dto.rateLimit?.remaining,
+    },
+  };
+}
+
+/**
+ * Get MFA method display name (for UI)
+ */
+export function getMFAMethodDisplayName(method: MFATypes, locale: 'en' | 'bn' = 'en'): string {
+  const displayNames: Record<MFATypes, { en: string; bn: string }> = {
+    totp: { en: 'Authenticator App', bn: 'অথেনটিকেটর অ্যাপ' },
+    sms: { en: 'SMS Verification', bn: 'এসএমএস ভেরিফিকেশন' },
+    email: { en: 'Email Verification', bn: 'ইমেইল ভেরিফিকেশন' },
+    backup_code: { en: 'Backup Codes', bn: 'ব্যাকআপ কোড' },
+    webauthn: { en: 'Biometric (Passkey)', bn: 'বায়োমেট্রিক (পাসকি)' },
+    whatsapp: { en: 'WhatsApp Verification', bn: 'হোয়াটসঅ্যাপ ভেরিফিকেশন' },
+    imo: { en: 'Imo Verification', bn: 'আইএমও ভেরিফিকেশন' },
+    bkash_pin: { en: 'bKash PIN', bn: 'বিকাশ পিন' },
+    nagad_pin: { en: 'Nagad PIN', bn: 'নগদ পিন' },
+    rocket_pin: { en: 'Rocket PIN', bn: 'রকেট পিন' },
+    voice_call: { en: 'Voice Call OTP', bn: 'ভয়েস কল ওটিপি' },
+    push: { en: 'Push Notification', bn: 'পুশ নোটিফিকেশন' },
+    sms_voice: { en: 'Voice Call OTP', bn: 'ভয়েস কল ওটিপি' },
+    email_magic: { en: 'Magic Link', bn: 'ম্যাজিক লিংক' },
+    hardware: { en: 'Hardware Token', bn: 'হার্ডওয়্যার টোকেন' },
+    offline_totp: { en: 'Offline TOTP', bn: 'অফলাইন টিওটিপি' },
+  };
+  const key = method.toLowerCase() as keyof typeof displayNames;
+  return displayNames[key]?.[locale] || method;
+}
+
+/**
+ * Check if MFA method is available for the user (based on configuration)
+ */
+export function isMFAMethodAvailable(method: MFATypes): boolean {
+  const availableMethods = [
+    'TOTP', 'SMS', 'EMAIL', 'BACKUP_CODE', 'WEBAUTHN',
+    'WHATSAPP', 'IMO', 'BKASH_PIN', 'NAGAD_PIN', 'ROCKET_PIN', 'VOICE_CALL'
+  ];
+  return availableMethods.includes(method);
+}
+
+/**
+ * Get priority order of MFA methods (for UI display)
+ */
+export function getMFAMethodPriority(method: MFATypes): number {
+  const priorities: Record<MFATypes, number> = {
+    webauthn: 1,
+    totp: 2,
+    push: 3,
+    whatsapp: 4,
+    bkash_pin: 5,
+    nagad_pin: 5,
+    rocket_pin: 5,
+    sms: 6,
+    imo: 6,
+    email: 8,
+    voice_call: 9,
+    backup_code: 10,
+    sms_voice: 6,
+    email_magic: 8,
+    hardware: 4,
+    offline_totp: 9,
+  };
+  const key = method.toLowerCase() as keyof typeof priorities;
+  return priorities[key] || 99;
+}
+
+/**
+ * Sort MFA methods by priority
+ */
+export function sortMFAMethodsByPriority(methods: MFATypes[]): MFATypes[] {
+  return [...methods].sort((a, b) => getMFAMethodPriority(a) - getMFAMethodPriority(b));
+}
+
+
+/**
+ * MFA Verification Response DTO - Generic Success Response
+ * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
+ * 
+ * @description
+ * Generic success response for MFA verification operations.
+ * Used when a simple success message is sufficient (not for token issuance).
+ * 
+ * @example
+ * {
+ *   "success": true,
+ *   "message": "MFA verified successfully",
+ *   "messageBn": "এমএফএ সফলভাবে যাচাই করা হয়েছে",
+ *   "verifiedAt": "2024-01-01T00:00:00.000Z",
+ *   "correlationId": "corr_550e8400-e29b-41d4-a716-446655440000",
+ *   "methodUsed": "TOTP",
+ *   "remainingBackupCodes": 8
+ * }
+ */
+export class MfaVerificationResponseDto {
+  @ApiProperty({
+    description: 'Whether the verification was successful',
+    example: true,
+  })
   success: boolean;
-  sessionId?: string;
-  accessToken?: string;
-  refreshToken?: string;
-  expiresIn?: number;
-  message?: string;
-  messageBn?: string;
+
+  @ApiProperty({
+    description: 'Success message in English',
+    example: 'MFA verified successfully',
+  })
+  message: string;
+
+  @ApiPropertyOptional({
+    description: 'Success message in Bengali (Bangladesh specific)',
+    example: 'এমএফএ সফলভাবে যাচাই করা হয়েছে',
+  })
+  messageBn?: string | undefined;
+
+  @ApiProperty({
+    description: 'Timestamp when verification was completed',
+    example: '2024-01-01T00:00:00.000Z',
+    format: 'date-time',
+  })
+  verifiedAt: string;
+
+  @ApiPropertyOptional({
+    description: 'MFA method that was used for verification',
+    enum: MFA_TYPES,
+    example: MFA_TYPES.TOTP,
+  })
+  methodUsed?: MFATypes | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Remaining backup codes count (if backup code was used)',
+    example: 8,
+  })
+  remainingBackupCodes?: number | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Correlation ID for distributed tracing',
+    example: 'corr_550e8400-e29b-41d4-a716-446655440000',
+  })
+  correlationId?: string | undefined;
+
+  @ApiPropertyOptional({
+    description: 'Whether the device was trusted for future logins',
+    example: true,
+  })
+  deviceTrusted?: boolean | undefined;
+
+  constructor(
+    success: boolean,
+    message: string,
+    verifiedAt: Date,
+    methodUsed?: MFATypes | undefined,
+    messageBn?: string | undefined,
+    remainingBackupCodes?: number | undefined,
+    correlationId?: string | undefined,
+    deviceTrusted?: boolean | undefined
+  ) {
+    this.success = success;
+    this.message = message;
+    this.messageBn = messageBn;
+    this.verifiedAt = verifiedAt.toISOString();
+    this.methodUsed = methodUsed;
+    this.remainingBackupCodes = remainingBackupCodes;
+    this.correlationId = correlationId;
+    this.deviceTrusted = deviceTrusted;
+  }
+
+  /**
+   * Static factory method for creating a success response
+   */
+  static success(
+    message: string = 'MFA verified successfully',
+    methodUsed?: MFATypes | undefined,
+    messageBn?: string | undefined,
+    remainingBackupCodes?: number | undefined,
+    correlationId?: string | undefined,
+    deviceTrusted?: boolean | undefined
+  ): MfaVerificationResponseDto {
+    return new MfaVerificationResponseDto(
+      true,
+      message,
+      new Date(),
+      methodUsed,
+      messageBn,
+      remainingBackupCodes,
+      correlationId,
+      deviceTrusted
+    );
+  }
+
+  /**
+   * Static factory method for creating a backup code usage response
+   */
+  static backupCodeUsed(
+    remainingBackupCodes: number,
+    correlationId?: string | undefined
+  ): MfaVerificationResponseDto {
+    return MfaVerificationResponseDto.success(
+      'MFA verified using backup code',
+      MFA_TYPES.BACKUP_CODE,
+      undefined,
+      remainingBackupCodes,
+      correlationId,
+      undefined
+    );
+  }
 }
-
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 9: Geo-IP Based MFA Suggestion
-// ============================================================
-
-/**
- * Geo-location based MFA method suggestion
- */
-export interface GeoMfaSuggestion {
-  /** User's district (from IP geolocation) */
-  district: string;
-  /** User's division */
-  division: string;
-  /** Recommended MFA method based on location */
-  recommendedMethod: MFAType;
-  /** Alternative methods popular in this area */
-  alternativeMethods: MFAType[];
-  /** Reason for recommendation */
-  reason: string;
-  /** Reason in Bengali */
-  reasonBn?: string;
-  /** Confidence score (0-100) */
-  confidenceScore: number;
-  /** Local popularity rank */
-  localPopularityRank: number;
-}
-
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 10: MFA Prediction Analytics
-// ============================================================
-
-/**
- * MFA adoption prediction
- */
-export interface MFAAdoptionPrediction {
-  /** Predicted MFA adoption rate in next month */
-  predictedAdoptionRate: number;
-  /** Confidence interval (lower bound) */
-  lowerBound: number;
-  /** Confidence interval (upper bound) */
-  upperBound: number;
-  /** Confidence level (0-100) */
-  confidenceLevel: number;
-  /** Contributing factors */
-  factors: Array<{
-    factor: string;
-    impact: number;  // positive or negative
-    description: string;
-  }>;
-  /** Recommended actions to improve adoption */
-  recommendations: string[];
-}
-
-// ============================================================
-// Main MFA Service Interface
-// ============================================================
-
-export interface MfaService {
-  // ============================================================
-  // MFA Setup
-  // ============================================================
-  
-  /**
-   * Enable MFA for user (initiate setup)
-   * @param userId - User ID from JWT
-   * @param dto - MFA configuration
-   * @param deviceInfo - Device context
-   * @returns Setup response with secret, QR code, backup codes
-   */
-  enableMfa(
-    userId: string,
-    dto: EnableMfaDto,
-    deviceInfo: DeviceInfo
-  ): Promise<EnableMfaResponseDto>;
-  
-  /**
-   * Verify and complete MFA setup
-   * @param userId - User ID from JWT
-   * @param dto - Verification data (improved: using VerifyCodeDto)
-   * @param deviceInfo - Device context
-   * @returns Verification response
-   */
-  verifyMfaSetup(
-    userId: string,
-    dto: VerifyCodeDto,
-    deviceInfo: DeviceInfo
-  ): Promise<MfaVerificationResponseDto>;
-  
-  /**
-   * Verify and complete MFA setup with method ID (simplified)
-   * @param userId - User ID from JWT
-   * @param methodId - MFA method ID
-   * @param code - Verification code
-   * @param deviceInfo - Device context
-   * @returns Verification response
-   */
-  verifyMfaSetupWithMethodId(
-    userId: string,
-    methodId: string,
-    code: string,
-    deviceInfo: DeviceInfo
-  ): Promise<MfaVerificationResponseDto>;
-  
-  // ============================================================
-  // MFA Verification
-  // ============================================================
-  
-  /**
-   * Verify MFA code during login
-   * @param userId - User ID from MFA session
-   * @param dto - Verification data
-   * @param deviceInfo - Device context
-   * @returns Verification response with login tokens on success
-   */
-  verifyMfa(
-    userId: string,
-    dto: VerifyMfaDto,
-    deviceInfo: DeviceInfo
-  ): Promise<MfaVerifyResponseDto>;
-  
-  /**
-   * Verify backup code
-   * @param userId - User ID
-   * @param backupCode - Backup code to verify
-   * @param deviceInfo - Device context
-   * @returns Verification result
-   */
-  verifyBackupCode(
-    userId: string,
-    backupCode: string,
-    deviceInfo: DeviceInfo
-  ): Promise<BackupCodeVerificationResult>;
-  
-  /**
-   * Verify recovery code (for account recovery)
-   * @param userId - User ID
-   * @param recoveryCode - Recovery code
-   * @param deviceInfo - Device context
-   * @returns Verification result with temporary access token
-   */
-  verifyRecoveryCode(
-    userId: string,
-    recoveryCode: string,
-    deviceInfo: DeviceInfo
-  ): Promise<{ isValid: boolean; temporaryAccessToken?: string; expiresIn?: number }>;
-  
-  // ============================================================
-  // MFA Management
-  // ============================================================
-  
-  /**
-   * Disable MFA for user
-   * @param userId - User ID from JWT
-   * @param dto - Disable request data
-   * @param deviceInfo - Device context
-   * @returns Disable response
-   */
-  disableMfa(
-    userId: string,
-    dto: DisableMfaDto,
-    deviceInfo: DeviceInfo
-  ): Promise<DisableMfaResponseDto>;
-  
-  /**
-   * Get MFA status for user
-   * @param userId - User ID
-   * @returns MFA status response
-   */
-  getMfaStatus(userId: string): Promise<MFAStatusResponseDto>;
-  
-  /**
-   * Get detailed MFA status for user (admin view)
-   * @param userId - User ID
-   * @param adminId - Admin ID requesting (for audit)
-   * @returns Detailed MFA status
-   */
-  getDetailedMfaStatus(
-    userId: string,
-    adminId: string
-  ): Promise<MFAStatusResponseDto>;
-  
-  /**
-   * Get all MFA methods for user
-   * @param userId - User ID
-   * @returns Array of MFA methods
-   */
-  getUserMfaMethods(userId: string): Promise<MFAMethodInfo[]>;
-  
-  /**
-   * Set primary MFA method
-   * @param userId - User ID
-   * @param methodId - Method ID to set as primary
-   * @param deviceInfo - Device context
-   * @returns void
-   */
-  setPrimaryMfaMethod(
-    userId: string,
-    methodId: string,
-    deviceInfo: DeviceInfo
-  ): Promise<void>;
-  
-  /**
-   * Remove MFA method
-   * @param userId - User ID
-   * @param methodId - Method ID to remove
-   * @param deviceInfo - Device context
-   * @returns void
-   */
-  removeMfaMethod(
-    userId: string,
-    methodId: string,
-    deviceInfo: DeviceInfo
-  ): Promise<void>;
-  
-  // ============================================================
-  // Backup Codes Management
-  // ============================================================
-  
-  /**
-   * Generate new backup codes
-   * @param userId - User ID
-   * @param deviceInfo - Device context
-   * @returns Backup codes response
-   */
-  generateBackupCodes(
-    userId: string,
-    deviceInfo: DeviceInfo
-  ): Promise<MfaBackupCodesResponseDto>;
-  
-  /**
-   * Regenerate backup codes (invalidate old ones)
-   * @param userId - User ID
-   * @param deviceInfo - Device context
-   * @returns New backup codes
-   */
-  regenerateBackupCodes(
-    userId: string,
-    deviceInfo: DeviceInfo
-  ): Promise<MfaBackupCodesResponseDto>;
-  
-  /**
-   * Get remaining backup codes count
-   * @param userId - User ID
-   * @returns Remaining count
-   */
-  getRemainingBackupCodesCount(userId: string): Promise<number>;
-  
-  /**
-   * Get backup codes (masked) for user
-   * @param userId - User ID
-   * @returns Masked backup codes for display
-   */
-  getMaskedBackupCodes(userId: string): Promise<{ codes: string[]; remainingCount: number }>;
-  
-  // ============================================================
-  // MFA Lock Management
-  // ============================================================
-  
-  /**
-   * Check if MFA is locked for user
-   * @param userId - User ID
-   * @returns Lock status and remaining lock time
-   */
-  isMfaLocked(userId: string): Promise<MFALockStatus>;
-  
-  /**
-   * Get remaining verification attempts
-   * @param userId - User ID
-   * @returns Remaining attempts
-   */
-  getRemainingVerificationAttempts(userId: string): Promise<number>;
-  
-  /**
-   * Reset MFA lock (admin action)
-   * @param userId - User ID
-   * @param adminId - Admin ID
-   * @param deviceInfo - Device context
-   * @param reason - Reason for reset (for audit)
-   * @returns void
-   */
-  resetMfaLock(
-    userId: string,
-    adminId: string,
-    deviceInfo: DeviceInfo,
-    reason?: string
-  ): Promise<void>;
-  
-  // ============================================================
-  // Recovery Options
-  // ============================================================
-  
-  /**
-   * Get MFA recovery options for user
-   * @param userId - User ID
-   * @returns Recovery options
-   */
-  getRecoveryOptions(userId: string): Promise<MFARecoveryOptions>;
-  
-  /**
-   * Initiate MFA recovery flow
-   * @param userId - User ID
-   * @param deviceInfo - Device context
-   * @returns Recovery session result with session ID
-   */
-  initiateRecovery(
-    userId: string,
-    deviceInfo: DeviceInfo
-  ): Promise<RecoveryInitiationResult>;
-  
-  /**
-   * Complete MFA recovery
-   * @param userId - User ID
-   * @param recoverySessionId - Recovery session ID
-   * @param recoveryCode - Recovery code
-   * @param newPassword - Optional new password
-   * @param deviceInfo - Device context
-   * @returns Recovery completion result
-   */
-  completeRecovery(
-    userId: string,
-    recoverySessionId: string,
-    recoveryCode: string,
-    newPassword?: string,
-    deviceInfo?: DeviceInfo
-  ): Promise<RecoveryCompletionResult>;
-  
-  // ============================================================
-  // Admin Operations
-  // ============================================================
-  
-  /**
-   * Force disable MFA for user (admin only)
-   * @param userId - User ID
-   * @param adminId - Admin ID
-   * @param reason - Reason for disable
-   * @param deviceInfo - Device context
-   * @returns void
-   */
-  forceDisableMfa(
-    userId: string,
-    adminId: string,
-    reason: string,
-    deviceInfo: DeviceInfo
-  ): Promise<void>;
-  
-  /**
-   * Force enable MFA for user (admin only)
-   * @param userId - User ID
-   * @param adminId - Admin ID
-   * @param type - MFA type to enable
-   * @param deviceInfo - Device context
-   * @returns Setup response
-   */
-  forceEnableMfa(
-    userId: string,
-    adminId: string,
-    type: MFAType,
-    deviceInfo: DeviceInfo
-  ): Promise<EnableMfaResponseDto>;
-  
-  /**
-   * Get MFA statistics (admin dashboard)
-   * @returns MFA statistics
-   */
-  getMfaStatistics(): Promise<MFAStatistics>;
-  
-  /**
-   * Get MFA adoption trend
-   * @param months - Number of months to analyze (default: 12)
-   * @returns Adoption trend data
-   */
-  getMfaAdoptionTrend(months?: number): Promise<Array<{ month: string; enabledCount: number; totalUsers: number; percentage: number }>>;
-  
-  /**
-   * Export MFA data for audit
-   * @param fromDate - Start date
-   * @param toDate - End date
-   * @param adminId - Admin ID
-   * @param format - Export format ('json' | 'csv' | 'xlsx')
-   * @returns MFA audit data (string for CSV/JSON, Buffer for XLSX)
-   */
-  exportMfaAuditData(
-    fromDate: Date,
-    toDate: Date,
-    adminId: string,
-    format?: 'json' | 'csv' | 'xlsx'
-  ): Promise<string | Buffer>;
-  
-  /**
-   * Get MFA audit trail for user
-   * @param userId - User ID
-   * @param limit - Maximum number of entries
-   * @param offset - Pagination offset
-   * @returns Audit trail entries
-   */
-  getMfaAuditTrail(
-    userId: string,
-    limit?: number,
-    offset?: number
-  ): Promise<{
-    items: Array<{
-      id: string;
-      action: 'enabled' | 'disabled' | 'verified' | 'failed' | 'locked' | 'unlocked' | 'backup_code_used';
-      timestamp: Date;
-      methodType?: string;
-      ipAddress?: string;
-      deviceId?: string;
-      details?: string;
-    }>;
-    total: number;
-  }>;
-  
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 1: Risk-Based Adaptive MFA
-  // ============================================================
-  
-  /**
-   * Assess risk for MFA requirement
-   * @param request - Adaptive MFA request context
-   * @returns Risk assessment result
-   */
-  assessMFARisk(request: AdaptiveMFARequest): Promise<MFARiskAssessment>;
-  
-  /**
-   * Get adaptive MFA requirement based on risk
-   * @param request - Adaptive MFA request
-   * @returns MFA requirement with recommended methods
-   */
-  getAdaptiveMFARequirement(request: AdaptiveMFARequest): Promise<MFARiskAssessment>;
-  
-  /**
-   * Calculate risk score for a login attempt
-   * @param userId - User ID
-   * @param deviceInfo - Device information
-   * @param ipAddress - IP address
-   * @returns Risk score (0-100)
-   */
-  calculateRiskScore(
-    userId: string,
-    deviceInfo: DeviceInfo,
-    ipAddress: string
-  ): Promise<number>;
-  
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 2: Offline MFA Support (Bangladesh)
-  // ============================================================
-  
-  /**
-   * Generate offline MFA codes for poor network areas
-   * @param request - Generate offline codes request
-   * @returns Generated offline codes
-   */
-  generateOfflineCodes(request: GenerateOfflineCodesRequest): Promise<GenerateOfflineCodesResponse>;
-  
-  /**
-   * Verify offline MFA code
-   * @param userId - User ID
-   * @param code - Offline code to verify
-   * @param deviceInfo - Device context
-   * @returns True if code is valid
-   */
-  verifyOfflineCode(
-    userId: string,
-    code: string,
-    deviceInfo: DeviceInfo
-  ): Promise<boolean>;
-  
-  /**
-   * Get unused offline MFA codes for user
-   * @param userId - User ID
-   * @returns Array of unused offline codes
-   */
-  getUnusedOfflineCodes(userId: string): Promise<OfflineMFACode[]>;
-  
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 3: MFA Method Recommendation
-  // ============================================================
-  
-  /**
-   * Recommend best MFA method for user
-   * @param userId - User ID
-   * @param deviceInfo - Device information
-   * @param userPreferences - Optional user preferences
-   * @returns Method recommendation
-   */
-  recommendMFAMethod(
-    userId: string,
-    deviceInfo: DeviceInfo,
-    userPreferences?: { preferredMethods?: MFAType[]; deviceType?: string }
-  ): Promise<MFAMethodRecommendation>;
-  
-  /**
-   * Get MFA method compatibility for device
-   * @param method - MFA method
-   * @param deviceType - Device type
-   * @returns Compatibility result
-   */
-  getMethodCompatibility(method: MFAType, deviceType: string): Promise<MFAMethodCompatibility>;
-  
-  /**
-   * Get all MFA method compatibilities
-   * @returns Array of method compatibilities
-   */
-  getAllMethodCompatibilities(): Promise<MFAMethodCompatibility[]>;
-  
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 4: Cross-Device MFA Sync
-  // ============================================================
-  
-  /**
-   * Create cross-device MFA sync request
-   * @param sourceUserId - Source user ID
-   * @param targetUserId - Target user ID
-   * @param methodsToSync - MFA methods to sync
-   * @param deviceInfo - Device context
-   * @returns Sync request ID
-   */
-  createCrossDeviceSyncRequest(
-    sourceUserId: string,
-    targetUserId: string,
-    methodsToSync: MFAType[],
-    deviceInfo: DeviceInfo
-  ): Promise<string>;
-  
-  /**
-   * Approve cross-device MFA sync
-   * @param requestId - Sync request ID
-   * @param approvedBy - User ID approving the sync
-   * @param deviceInfo - Device context
-   * @returns Sync result
-   */
-  approveCrossDeviceSync(
-    requestId: string,
-    approvedBy: string,
-    deviceInfo: DeviceInfo
-  ): Promise<CrossDeviceMFASyncResult>;
-  
-  /**
-   * Get pending cross-device sync requests for user
-   * @param userId - User ID
-   * @returns Array of pending sync requests
-   */
-  getPendingSyncRequests(userId: string): Promise<CrossDeviceMFASyncRequest[]>;
-  
-  /**
-   * Generate QR code for cross-device MFA sync
-   * @param requestId - Sync request ID
-   * @returns QR code data URL
-   */
-  generateSyncQRCode(requestId: string): Promise<{ qrCodeDataUrl: string; expiresAt: Date }>;
-  
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 5: MFA Health Score
-  // ============================================================
-  
-  /**
-   * Get MFA health score for a user
-   * @param userId - User ID
-   * @returns Health score with recommendations
-   */
-  getMFAHealthScore(userId: string): Promise<MFAHealthScore>;
-  
-  /**
-   * Batch get MFA health scores for multiple users
-   * @param userIds - Array of user IDs
-   * @returns Map of user ID to health score
-   */
-  batchGetMFAHealthScores(userIds: string[]): Promise<Map<string, MFAHealthScore>>;
-  
-  /**
-   * Get users with poor MFA health (score below threshold)
-   * @param threshold - Health score threshold (default: 50)
-   * @param options - Pagination options
-   * @returns Paginated users with poor health
-   */
-  getUsersWithPoorMFAHealth(
-    threshold?: number,
-    options?: PaginationOptions
-  ): Promise<PaginatedResult<{ userId: string; healthScore: MFAHealthScore }>>;
-  
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 6: Bulk MFA Operations
-  // ============================================================
-  
-  /**
-   * Bulk enable MFA for multiple users (enterprise feature)
-   * @param request - Bulk enable request
-   * @param onProgress - Progress callback
-   * @returns Bulk operation result
-   */
-  bulkEnableMFA(
-    request: BulkMFAEnableRequest,
-    onProgress?: (progress: BulkOperationProgress) => void
-  ): Promise<BulkMFAResult>;
-  
-  /**
-   * Bulk disable MFA for multiple users (admin only)
-   * @param userIds - Array of user IDs
-   * @param adminId - Admin ID
-   * @param reason - Reason for disable
-   * @param onProgress - Progress callback
-   * @returns Bulk operation result
-   */
-  bulkDisableMFA(
-    userIds: string[],
-    adminId: string,
-    reason: string,
-    onProgress?: (progress: BulkOperationProgress) => void
-  ): Promise<BulkMFAResult>;
-  
-  /**
-   * Bulk regenerate backup codes for multiple users
-   * @param userIds - Array of user IDs
-   * @param adminId - Admin ID
-   * @param onProgress - Progress callback
-   * @returns Bulk operation result
-   */
-  bulkRegenerateBackupCodes(
-    userIds: string[],
-    adminId: string,
-    onProgress?: (progress: BulkOperationProgress) => void
-  ): Promise<BulkMFAResult>;
-  
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 7: MFA Monitoring Dashboard
-  // ============================================================
-  
-  /**
-   * Get real-time MFA monitoring metrics
-   * @returns Monitoring metrics
-   */
-  getMFAMonitoringMetrics(): Promise<MFAMonitoringMetrics>;
-  
-  /**
-   * Get MFA alert configuration
-   * @returns Alert configuration
-   */
-  getMFAAlertConfig(): Promise<MFAAlertConfig>;
-  
-  /**
-   * Update MFA alert configuration
-   * @param config - Updated configuration
-   * @returns Updated configuration
-   */
-  updateMFAAlertConfig(config: Partial<MFAAlertConfig>): Promise<MFAAlertConfig>;
-  
-  /**
-   * Get MFA alerts (active and historical)
-   * @param activeOnly - Only active (not resolved) alerts
-   * @param limit - Maximum number of alerts
-   * @returns Alerts
-   */
-  getMFAAlerts(activeOnly?: boolean, limit?: number): Promise<{
-    items: Array<{
-      id: string;
-      severity: 'info' | 'warning' | 'critical';
-      message: string;
-      triggeredAt: Date;
-      resolvedAt?: Date;
-      resolvedBy?: string;
-    }>;
-    total: number;
-  }>;
-  
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 8: MFA Compliance Reporting
-  // ============================================================
-  
-  /**
-   * Generate compliance report (Bangladesh Bank guidelines)
-   * @param fromDate - Start date
-   * @param toDate - End date
-   * @param adminId - Admin ID requesting the report
-   * @returns Compliance report
-   */
-  generateComplianceReport(
-    fromDate: Date,
-    toDate: Date,
-    adminId: string
-  ): Promise<MFAComplianceReport>;
-  
-  /**
-   * Export compliance report for audit
-   * @param reportId - Report ID
-   * @param format - Export format
-   * @returns Export data
-   */
-  exportComplianceReport(
-    reportId: string,
-    format?: 'pdf' | 'csv' | 'xlsx'
-  ): Promise<Buffer>;
-  
-  /**
-   * Get compliance status summary
-   * @returns Compliance status
-   */
-  getComplianceStatus(): Promise<{
-    compliant: boolean;
-    issues: string[];
-    recommendations: string[];
-    lastComplianceCheck: Date;
-    nextRequiredCheck: Date;
-  }>;
-  
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 9: Geo-IP Based MFA Suggestion
-  // ============================================================
-  
-  /**
-   * Get geo-location based MFA method suggestion
-   * @param ipAddress - User's IP address
-   * @param deviceInfo - Device information
-   * @returns Suggested MFA methods based on location
-   */
-  getGeoSuggestion(
-    ipAddress: string,
-    deviceInfo: DeviceInfo
-  ): Promise<GeoMfaSuggestion>;
-  
-  /**
-   * Get popular MFA methods by district (Bangladesh)
-   * @param district - District name
-   * @returns Popular methods in the district
-   */
-  getPopularMethodsByDistrict(district: string): Promise<Array<{ method: MFAType; popularity: number }>>;
-  
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 10: MFA Prediction Analytics
-  // ============================================================
-  
-  /**
-   * Predict MFA adoption for next month
-   * @param options - Prediction options
-   * @returns Adoption prediction
-   */
-  predictMFAAdoption(options?: { includeFactors?: boolean }): Promise<MFAAdoptionPrediction>;
-  
-  /**
-   * Predict MFA method adoption for new users
-   * @param userSegment - User segment (e.g., 'mobile', 'desktop', 'feature_phone')
-   * @returns Predicted adoption by method
-   */
-  predictMethodAdoption(userSegment: string): Promise<Record<MFAType, number>>;
-  
-  /**
-   * Get MFA conversion funnel analytics
-   * @returns Funnel data (viewed → started → completed → active)
-   */
-  getMFAAnalytics(): Promise<{
-    viewed: number;
-    started: number;
-    completed: number;
-    active: number;
-    dropoffRates: Record<string, number>;
-    averageSetupTimeMinutes: number;
-    medianSetupTimeMinutes: number;
-  }>;
-  
-  // ============================================================
-  // Health & Monitoring
-  // ============================================================
-  
-  /**
-   * Health check for MFA service
-   * @returns Service health status
-   */
-  healthCheck(): Promise<{
-    status: 'healthy' | 'degraded' | 'unhealthy';
-    uptime: number;
-    version: string;
-    dependencies: {
-      redis: boolean;
-      database: boolean;
-      smsGateway: boolean;
-      whatsappGateway: boolean;
-    };
-    metrics: {
-      activeMFASessions: number;
-      pendingSetup: number;
-      lockedMethods: number;
-    };
-  }>;
-  
-  /**
-   * Invalidate MFA cache for user
-   * @param userId - User ID
-   * @returns Cache invalidation result
-   */
-  invalidateMFACache(userId: string): Promise<{ cacheInvalidated: boolean }>;
-}
-
 // ============================================================
 // Type Exports
 // ============================================================
 
 export type { 
-  DeviceInfo as DeviceInfoType,
-  BackupCodeVerificationResult as BackupCodeVerificationResultType,
-  MFAMethodInfo as MFAMethodInfoType,
-  MFALockStatus as MFALockStatusType,
-  MFARecoveryOptions as MFARecoveryOptionsType,
-  MFAStatistics as MFAStatisticsType,
-  VerifyCodeDto as VerifyCodeDtoType,
-  RecoveryInitiationResult as RecoveryInitiationResultType,
-  RecoveryCompletionResult as RecoveryCompletionResultType,
-  // New enterprise types
-  MFARiskAssessment as MFARiskAssessmentType,
-  AdaptiveMFARequest as AdaptiveMFARequestType,
-  OfflineMFACode as OfflineMFACodeType,
-  GenerateOfflineCodesRequest as GenerateOfflineCodesRequestType,
-  GenerateOfflineCodesResponse as GenerateOfflineCodesResponseType,
-  MFAMethodRecommendation as MFAMethodRecommendationType,
-  MFAMethodCompatibility as MFAMethodCompatibilityType,
-  CrossDeviceMFASyncRequest as CrossDeviceMFASyncRequestType,
-  CrossDeviceMFASyncResult as CrossDeviceMFASyncResultType,
-  MFAHealthScore as MFAHealthScoreType,
-  BulkMFAResult as BulkMFAResultType,
-  BulkMFAEnableRequest as BulkMFAEnableRequestType,
-  MFAMonitoringMetrics as MFAMonitoringMetricsType,
-  MFAAlertConfig as MFAAlertConfigType,
-  MFAComplianceReport as MFAComplianceReportType,
-  GeoMfaSuggestion as GeoMfaSuggestionType,
-  MFAAdoptionPrediction as MFAAdoptionPredictionType
+  MFATypes as MFATypeEnum,
+  MfaVerificationRateLimitDto as MfaVerificationRateLimitDtoType,
+  MfaVerificationContextDto as MfaVerificationContextDtoType,
 };
 
 // ============================================================
 // ENTERPRISE SUMMARY v3.0
 // ============================================================
 // 
-// Enterprise Enhancements Applied in v3.0:
-// 1. ✅ Risk-based adaptive MFA (risk score based method selection)
-// 2. ✅ Offline MFA code support (for poor network areas in Bangladesh)
-// 3. ✅ MFA method recommendation engine (based on user device/behavior)
-// 4. ✅ Cross-device MFA sync with QR code (Bangladesh specific)
-// 5. ✅ MFA method compatibility matrix (feature phone support)
-// 6. ✅ Backup code regeneration reminder (auto-notification)
-// 7. ✅ MFA adoption analytics with ML predictions
-// 8. ✅ Geo-IP based MFA method suggestion (district/division level)
-// 9. ✅ MFA health score and recommendations
-// 10. ✅ Bulk MFA operations for enterprises
-// 11. ✅ Real-time MFA monitoring dashboard
-// 12. ✅ Compliance reporting (Bangladesh Bank guidelines)
-// 13. ✅ MFA conversion funnel analytics
-// 14. ✅ Method popularity tracking by district
-// 15. ✅ Performance metrics with P95/P99 latency tracking
+// Enterprise Enhancements Applied:
+// 1. ✅ Rate limit metadata support for brute force protection
+// 2. ✅ Audit context tracking (ipAddress, userAgent, correlationId, deviceFingerprint)
+// 3. ✅ Distributed tracing with correlation ID
+// 4. ✅ Geographic location tracking (Bangladesh districts)
+// 5. ✅ Bengali language support in responses (messageBn)
+// 6. ✅ Session validation before verification
+// 7. ✅ Device fingerprint tracking for security
+// 8. ✅ Cooldown tracking for verification attempts
+// 9. ✅ Multi-language validation messages (English/Bengali)
+// 10. ✅ Helper methods: getVerificationMethod(), hasVerificationMethod(), isBackupCodeVerification()
+// 11. ✅ MFS provider detection: getMFSProvider(), isMFSPinVerification()
+// 12. ✅ Audit metadata extraction helper
+// 13. ✅ MFA method display names with Bengali support
+// 14. ✅ MFA method priority sorting for UI
+// 15. ✅ Error response DTOs with Bengali support
 // 
 // Bangladesh Specific:
-// - Offline MFA codes for 2G/3G areas
-// - Geo-IP based suggestions using Bangladeshi districts
-// - Feature phone compatible method recommendations
-// - Bengali language support throughout
-// - bKash/Nagad/Rocket PIN MFA support
-// - WhatsApp/Imo/Telegram MFA support
-// - Mobile operator and network type tracking
-// - District-level adoption analytics
+// - bKash, Nagad, Rocket PIN support
+// - WhatsApp, Imo MFA support
+// - District/Division tracking for location-based security
+// - Network type tracking (2g/3g/4g/5g/wifi)
+// - Bengali language support in all responses
+// - Local timezone-aware timestamps
 // 
 // Security Features:
-// - Risk-based adaptive MFA (higher risk = stronger MFA)
+// - Mutual exclusive verification methods (cannot submit multiple)
+// - Rate limiting with cooldown tracking
 // - Lockout mechanism for failed attempts
-// - Backup code regeneration reminders
-// - Cross-device sync with QR code verification
-// - Audit trail for all MFA operations
-// - Compliance reporting for regulatory requirements
-// - Real-time monitoring and alerting
+// - Device fingerprint tracking
+// - Session-based verification (no userId from client)
+// - Correlation ID for distributed tracing
 // 
 // ============================================================
