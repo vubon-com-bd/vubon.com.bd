@@ -34,8 +34,7 @@ import {
   UpdatePhoneDto,
   UpdatePhoneResponseDto,
   VerifyEmailChangeDto,
-  VerifyPhoneChangeDto,
-  UserPreferencesDto
+  VerifyPhoneChangeDto
 } from '../../dtos/user/update-profile.dto';
 import { 
   ChangePasswordDto, 
@@ -44,11 +43,9 @@ import {
   PasswordRulesResponseDto
 } from '../../dtos/user/change-password.dto';
 import { 
-  CreateUserDto, 
-  CreateUserResponseDto,
   AdminCreateUserDto,
   AdminCreateUserResponseDto,
-  UserPreferencesDto as UserPreferencesDtoType
+  UseUserPreferencesDto
 } from '../../dtos/user/create-user.dto';
 import { 
   PaginationDto, 
@@ -65,48 +62,67 @@ import { AuditDto } from '../../dtos/common/audit.dto';
 // ✅ ENTERPRISE: Import from shared packages (single source of truth)
 import type { 
   DeviceInfo as SharedDeviceInfo,
+  NetworkType as SharedNetworkType,
+  MobileOperator as SharedMobileOperator,
   UserTier as SharedUserTier,
   UserFilters as SharedUserFilters,
   UserStatistics as SharedUserStatistics,
   RegistrationTrend as SharedRegistrationTrend,
   DeleteAccountResponse as SharedDeleteAccountResponse,
   ReactivateAccountResponse as SharedReactivateAccountResponse,
-  AuditMetadata,
-  RequestContext,
-  PaginationOptions,
-  PaginatedResult,
-  ApiErrorCode,
   BulkOperationProgress,
   BulkOperationResult as SharedBulkOperationResult
 } from '@vubon/shared-types';
 
 import { 
-  USER_TIERS, 
-  USER_STATUSES, 
-  USER_ROLES,
-  BANGLADESH_DISTRICTS,
-  BANGLADESH_UPAZILAS,
-  MOBILE_OPERATORS,
-  NETWORK_TYPES,
-  ACCOUNT_DELETION_REASONS,
-  ACCOUNT_SUSPENSION_REASONS
+  USER_TIERS,              // ✅ ইউনিক
+  USER_STATUSES,           // ✅ ইউনিক
+  USER_ROLES,              // ✅ ইউনিক
+  BANGLADESH_DISTRICTS,    // ✅ ইউনিক
+  BANGLADESH_UPAZILAS,     // ✅ ইউনিক
+  USER_MOBILE_OPERATORS,   // ✅ নতুন ইউনিক নাম
+  USER_NETWORK_TYPES,      // ✅ নতুন ইউনিক নাম
+  USER_DELETION_REASONS,   // ✅ নতুন ইউনিক নাম
+  USER_SUSPENSION_REASONS  // ✅ নতুন ইউনিক নাম
 } from '@vubon/shared-constants';
 
 // ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 1: Extended Types
+// ✅ FIXED: Type-safe constants extraction (Error 2537)
 // ============================================================
+
+// Mobile operator type (extracted from USER_MOBILE_OPERATORS)
+export type MobileOperator = typeof USER_MOBILE_OPERATORS[keyof typeof USER_MOBILE_OPERATORS];
+// Network type (extracted from USER_NETWORK_TYPES)
+export type NetworkType = typeof USER_NETWORK_TYPES[keyof typeof USER_NETWORK_TYPES];
+// User role type (extracted from USER_ROLES)
+export type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES];
+// User status type (extracted from USER_STATUSES)
+export type UserStatus = typeof USER_STATUSES[keyof typeof USER_STATUSES];
+// User tier type (extracted from USER_TIERS)
+export type UserTier = typeof USER_TIERS[keyof typeof USER_TIERS];
+// Bangladesh district type (extracted from BANGLADESH_DISTRICTS)
+export type BangladeshDistrict = typeof BANGLADESH_DISTRICTS[number];
+// Bangladesh upazila type (extracted from BANGLADESH_UPAZILAS)
+export type BangladeshUpazila = typeof BANGLADESH_UPAZILAS[number];
+// Deletion reason type (extracted from USER_DELETION_REASONS)
+export type DeletionReason = typeof USER_DELETION_REASONS[keyof typeof USER_DELETION_REASONS];
+// Suspension reason type (extracted from USER_SUSPENSION_REASONS)
+export type SuspensionReason = typeof USER_SUSPENSION_REASONS[keyof typeof USER_SUSPENSION_REASONS];
 
 /**
  * Device information interface (Bangladesh specific)
  * Includes network type, mobile operator, district for security scoring
+ * 
+ * ✅ FIXED: Using shared types for networkType and mobileOperator
+ * to ensure compatibility with @vubon/shared-types
  */
 export interface DeviceInfo extends SharedDeviceInfo {
   /** Network type for connection quality (Bangladesh specific) */
-  networkType?: typeof NETWORK_TYPES[number];
+  networkType?: SharedNetworkType;
   /** Mobile operator for carrier-specific logic */
-  mobileOperator?: typeof MOBILE_OPERATORS[number];
+  mobileOperator?: SharedMobileOperator;
   /** Geographic district (Bangladesh) */
-  district?: typeof BANGLADESH_DISTRICTS[number];
+  district?: BangladeshDistrict;
   /** Geographic upazila/sub-district */
   upazila?: string;
   /** Device fingerprint hash for fraud detection */
@@ -114,19 +130,18 @@ export interface DeviceInfo extends SharedDeviceInfo {
   /** Whether data saver mode is enabled */
   dataSaverEnabled?: boolean;
 }
-
 /**
  * User filters with Bangladesh-specific fields
  */
 export interface UserFilters extends SharedUserFilters {
   /** Filter by district (Bangladesh specific) */
-  district?: typeof BANGLADESH_DISTRICTS[number];
+  district?: BangladeshDistrict;
   /** Filter by upazila/sub-district */
   upazila?: string;
   /** Filter by mobile operator */
-  mobileOperator?: typeof MOBILE_OPERATORS[number];
+  mobileOperator?: MobileOperator;
   /** Filter by network type */
-  networkType?: typeof NETWORK_TYPES[number];
+  networkType?: NetworkType;
   /** Filter by date range of last login */
   lastLoginFrom?: Date;
   lastLoginTo?: Date;
@@ -173,18 +188,26 @@ export interface ReactivateAccountResponseDto extends SharedReactivateAccountRes
   newSessionId?: string;
 }
 
+// ============================================================
+// ✅ FIXED: UserStatistics (Error 2430 - required vs optional mismatch)
+// ============================================================
+
 /**
  * User statistics with Bangladesh-specific breakdown
+ * ✅ FIXED: Extended with Bangladesh-specific fields
+ * ✅ FIXED: usersByDistrict is now required (matching shared type)
  */
-export interface UserStatistics extends SharedUserStatistics {
-  // Bangladesh specific breakdowns
-  usersByDistrict?: Array<{ district: typeof BANGLADESH_DISTRICTS[number]; count: number; percentage: number }>;
+export interface UserStatistics extends Omit<SharedUserStatistics, 'usersByStatus' | 'usersByRole' | 'usersByTier'> {
+  // Bangladesh specific breakdowns (✅ FIXED: removed ? to match shared type)
+  usersByDistrict: Array<{ district: BangladeshDistrict; count: number; percentage: number }>;
   usersByUpazila?: Array<{ upazila: string; district: string; count: number }>;
-  usersByMobileOperator?: Array<{ operator: typeof MOBILE_OPERATORS[number]; count: number; percentage: number }>;
-  usersByNetworkType?: Array<{ networkType: typeof NETWORK_TYPES[number]; count: number; percentage: number }>;
-  usersByTier: Record<SharedUserTier, number>;
-  usersByRole: Record<typeof USER_ROLES[keyof typeof USER_ROLES], number>;
-  usersByStatus: Record<typeof USER_STATUSES[keyof typeof USER_STATUSES], number>;
+  usersByMobileOperator?: Array<{ operator: MobileOperator; count: number; percentage: number }>;
+  usersByNetworkType?: Array<{ networkType: NetworkType; count: number; percentage: number }>;
+  
+  // ✅ FIXED: Using Record type for better compatibility
+  usersByTier: Record<string, number>;
+  usersByRole: Record<string, number>;
+  usersByStatus: Record<string, number>;
   
   // KYC & Verification stats
   kycVerifiedUsers: number;
@@ -216,9 +239,9 @@ export interface UserStatistics extends SharedUserStatistics {
  * Registration trend with enhanced analytics
  */
 export interface RegistrationTrend extends SharedRegistrationTrend {
-  byDistrict?: Record<typeof BANGLADESH_DISTRICTS[number], number>;
-  byMobileOperator?: Record<typeof MOBILE_OPERATORS[number], number>;
-  byNetworkType?: Record<typeof NETWORK_TYPES[number], number>;
+  byDistrict?: Record<string, number>;
+  byMobileOperator?: Record<string, number>;
+  byNetworkType?: Record<string, number>;
   byDeviceType?: Record<string, number>;
   byReferralSource?: Record<string, number>;
   conversionRate: number;
@@ -237,7 +260,7 @@ export interface RetentionMetrics {
     size: number;             // Number of users in cohort
     retained: number;         // Number still active
     retentionRate: number;    // Percentage retained
-    byTier?: Record<SharedUserTier, number>;
+    byTier?: Record<string, number>;
     byDistrict?: Record<string, number>;
     averageLTV?: number;      // Average lifetime value for cohort
   }>;
@@ -268,10 +291,14 @@ export interface UserTierBenefits {
   benefitsExpiry?: Date;
 }
 
+// ============================================================
+// ✅ FIXED: BulkUserOperationResult (Error 2430 - operationType mismatch)
+// ============================================================
+
 /**
- * ✅ ENTERPRISE ENHANCEMENT 3: Bulk Operation with Progress Tracking
+ * ✅ FIXED: Bulk operation result with compatible operation types
  */
-export interface BulkUserOperationResult extends SharedBulkOperationResult {
+export interface BulkUserOperationResult extends Omit<SharedBulkOperationResult, 'operationType'> {
   totalProcessed: number;
   successful: number;
   failed: number;
@@ -283,8 +310,12 @@ export interface BulkUserOperationResult extends SharedBulkOperationResult {
   metadata?: Record<string, unknown>;
 }
 
+// ============================================================
+// ✅ ENTERPRISE ENHANCEMENT 4: User Export Options
+// ============================================================
+
 /**
- * ✅ ENTERPRISE ENHANCEMENT 4: User Export Options
+ * ✅ FIXED: User export options with proper typing
  */
 export interface UserExportOptions {
   format: 'csv' | 'json' | 'xlsx';
@@ -309,7 +340,7 @@ export interface UserExportResult {
  * ✅ ENTERPRISE ENHANCEMENT 5: User Deletion Options
  */
 export interface UserDeletionOptions {
-  reason: typeof ACCOUNT_DELETION_REASONS[keyof typeof ACCOUNT_DELETION_REASONS];
+  reason: DeletionReason;
   customReason?: string;
   requestDataExport: boolean;
   deletePersonalData: boolean;
@@ -323,7 +354,7 @@ export interface UserDeletionOptions {
  * ✅ ENTERPRISE ENHANCEMENT 6: User Suspension Options
  */
 export interface UserSuspensionOptions {
-  reason: typeof ACCOUNT_SUSPENSION_REASONS[keyof typeof ACCOUNT_SUSPENSION_REASONS];
+  reason: SuspensionReason;
   customReason?: string;
   durationDays: number;
   notifyUser: boolean;
@@ -376,16 +407,16 @@ export interface UserService {
    */
   updatePreferences(
     userId: string,
-    preferences: UserPreferencesDtoType,
+    preferences: UseUserPreferencesDto,
     deviceInfo: DeviceInfo
-  ): Promise<UserPreferencesDtoType>;
+  ): Promise<UseUserPreferencesDto>;
   
   /**
    * Get user preferences with defaults
    * @param userId - User ID from JWT
    * @returns User preferences
    */
-  getPreferences(userId: string): Promise<UserPreferencesDtoType>;
+  getPreferences(userId: string): Promise<UseUserPreferencesDto>;
   
   /**
    * Update email address (requires verification)
@@ -618,7 +649,7 @@ export interface UserService {
    * List users with pagination and caching
    * @param options - Pagination options
    * @param filters - Optional filters
-   * @param options - Query options (useCache, includeDeleted)
+   * @param queryOptions - Query options (useCache, includeDeleted)
    * @returns Paginated users
    */
   listUsers(
@@ -645,7 +676,7 @@ export interface UserService {
    * @returns Paginated users
    */
   getUsersByRole(
-    role: typeof USER_ROLES[keyof typeof USER_ROLES],
+    role: UserRole,
     options: PaginationDto
   ): Promise<PaginatedResponseDto<BriefUserResponseDto>>;
   
@@ -656,7 +687,7 @@ export interface UserService {
    * @returns Paginated users
    */
   getUsersByStatus(
-    status: typeof USER_STATUSES[keyof typeof USER_STATUSES],
+    status: UserStatus,
     options: PaginationDto
   ): Promise<PaginatedResponseDto<BriefUserResponseDto>>;
   
@@ -667,7 +698,7 @@ export interface UserService {
    * @returns Paginated users
    */
   getUsersByTier(
-    tier: SharedUserTier,
+    tier: UserTier,
     options: PaginationDto
   ): Promise<PaginatedResponseDto<BriefUserResponseDto>>;
   
@@ -678,7 +709,7 @@ export interface UserService {
    * @returns Paginated users with district info
    */
   getUsersByDistrict(
-    district: typeof BANGLADESH_DISTRICTS[number],
+    district: BangladeshDistrict,
     options: PaginationDto
   ): Promise<PaginatedResponseDto<BriefUserResponseDto>>;
   
@@ -808,7 +839,7 @@ export interface UserService {
   changeUserRole(
     adminId: string,
     targetUserId: string,
-    newRole: typeof USER_ROLES[keyof typeof USER_ROLES],
+    newRole: UserRole,
     deviceInfo: DeviceInfo,
     reason?: string
   ): Promise<UserResponseDto>;
@@ -826,7 +857,7 @@ export interface UserService {
   changeUserTier(
     adminId: string,
     targetUserId: string,
-    newTier: SharedUserTier,
+    newTier: UserTier,
     reason: string,
     deviceInfo: DeviceInfo,
     options?: { notifyUser?: boolean; expiryDays?: number }
@@ -922,7 +953,7 @@ export interface UserService {
    */
   bulkAssignRole(
     userIds: string[],
-    role: typeof USER_ROLES[keyof typeof USER_ROLES],
+    role: UserRole,
     adminId: string,
     reason: string,
     onProgress?: (progress: BulkOperationProgress) => void
@@ -1107,10 +1138,10 @@ export {
   USER_ROLES,
   BANGLADESH_DISTRICTS,
   BANGLADESH_UPAZILAS,
-  MOBILE_OPERATORS,
-  NETWORK_TYPES,
-  ACCOUNT_DELETION_REASONS,
-  ACCOUNT_SUSPENSION_REASONS
+  USER_MOBILE_OPERATORS,
+  USER_NETWORK_TYPES,
+  USER_DELETION_REASONS,
+  USER_SUSPENSION_REASONS
 };
 
 // ============================================================
