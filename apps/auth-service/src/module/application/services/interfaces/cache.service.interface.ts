@@ -34,11 +34,10 @@ import type {
   CacheOptions as SharedCacheOptions,
   CacheSetOptions as SharedCacheSetOptions,
   CacheMultiGetResult as SharedCacheMultiGetResult,
-  CacheStatistics as SharedCacheStatistics,
+  CacheStatistics as BaseCacheStatistics,
 } from '@vubon/shared-types';
 
 import {
-  CACHE_CONFIG,
   CACHE_KEY_PREFIX,
   CACHE_VERSION,
   CACHE_DEFAULT_TTL,
@@ -47,70 +46,59 @@ import {
 } from '@vubon/shared-constants';
 
 // ============================================================
-// Enterprise Enhancement 1: Extended Cache Options
+// ✅ FIXED: Network Type Definition (removed wifi_secure)
 // ============================================================
 
 /**
- * Cache operation options (Enhanced)
+ * Network type for adaptive compression (Bangladesh specific)
  */
-export interface CacheOptions extends SharedCacheOptions {
+export type NetworkType = typeof NETWORK_TYPES[keyof typeof NETWORK_TYPES];
+
+// ✅ শেয়ার্ড CacheOptions থেকে networkType বাদ দিন
+export interface CacheOptions extends Omit<SharedCacheOptions, 'networkType'> {
   /**
    * Compress data for slow networks (Bangladesh specific)
-   * @description Reduces data size for 2G/3G networks in rural areas
-   * @default false for high-speed, true for mobile networks
    */
   compress?: boolean;
 
   /**
    * Enable early refresh (refresh TTL before expiry)
-   * @description Prevents cache stampede on high-traffic keys
-   * @default true for hot keys
    */
   earlyRefresh?: boolean;
 
   /**
    * Refresh threshold percentage (e.g., 80 = refresh at 80% of TTL)
-   * @description When to trigger background refresh
-   * @default 80
    */
   refreshThreshold?: number;
 
   /**
    * Enable circuit breaker for this operation
-   * @description Fallback to database when cache fails
-   * @default true
    */
   circuitBreaker?: boolean;
 
   /**
    * Circuit breaker timeout in milliseconds
-   * @description How long to wait before falling back
-   * @default 5000
    */
   circuitBreakerTimeoutMs?: number;
 
   /**
    * Enable distributed lock for this operation
-   * @description Prevents multiple instances from recomputing same value
-   * @default true for getOrSet operations
    */
   useDistributedLock?: boolean;
 
   /**
    * Lock TTL in seconds
-   * @default 5
    */
   lockTTLSeconds?: number;
 
   /**
    * Network type for adaptive compression (Bangladesh specific)
-   * @description Automatically compresses for 2G/3G networks
+   * ✅ কাস্টম NetworkType ব্যবহার করছে (শুধু NETWORK_TYPES থেকে)
    */
-  networkType?: typeof NETWORK_TYPES[number];
+  networkType?: typeof NETWORK_TYPES[keyof typeof NETWORK_TYPES];
 
   /**
    * Region for cache partitioning (Bangladesh specific)
-   * @description Routes requests to nearest cache node
    */
   region?: 'dhaka' | 'chattogram' | 'khulna' | 'rajshahi' | 'other';
 
@@ -121,24 +109,19 @@ export interface CacheOptions extends SharedCacheOptions {
 
   /**
    * Enable adaptive TTL based on data volatility
-   * @description Dynamically adjusts TTL based on access patterns
-   * @default false
    */
   adaptiveTTL?: boolean;
 
   /**
    * Tag-based cache invalidation (enterprise feature)
-   * @description Invalidate all keys with matching tags
    */
   tags?: string[];
 
   /**
    * Expected access pattern for cache warming
-   * @description Preloads likely-to-be-accessed keys
    */
   warmup?: boolean;
 }
-
 /**
  * Cache set options (Enhanced)
  */
@@ -170,17 +153,20 @@ export interface CacheSetOptions extends SharedCacheSetOptions {
 export type CacheMultiGetResult<T> = SharedCacheMultiGetResult<T>;
 
 // ============================================================
-// Enterprise Enhancement 2: Enhanced Cache Statistics
+// ✅ FIXED: Cache Statistics (extends BaseCacheStatistics properly)
 // ============================================================
 
-export interface CacheStatistics extends SharedCacheStatistics {
+/**
+ * Cache statistics (Enterprise Enhanced)
+ */
+export interface CacheStatistics extends BaseCacheStatistics {
   // Performance metrics
   /** Average latency in milliseconds */
-  averageLatencyMs?: number;
+  averageLatencyMs: number;
   /** 95th percentile latency */
-  p95LatencyMs?: number;
+  p95LatencyMs: number;
   /** 99th percentile latency */
-  p99LatencyMs?: number;
+  p99LatencyMs: number;
   /** Standard deviation of latency */
   latencyStdDev?: number;
 
@@ -909,7 +895,7 @@ export interface CacheService {
 export const CACHE_SERVICE = 'CACHE_SERVICE';
 
 // ============================================================
-// Cache Key Builder Utility (for consistent key generation)
+// ✅ FIXED: Cache Key Builder Utility (CACHE_CONFIG removed)
 // ============================================================
 
 /**
@@ -923,7 +909,7 @@ export const CACHE_SERVICE = 'CACHE_SERVICE';
  * ✅ Region-aware keys (Bangladesh region partitioning)
  */
 export class CacheKeyBuilder {
-  // Using constants from shared-constants
+  // Using constants from shared-constants (CACHE_CONFIG removed)
   private static readonly PREFIX = CACHE_KEY_PREFIX;
   private static readonly VERSION = CACHE_VERSION;
   private static readonly SEPARATOR = CACHE_KEY_SEPARATOR;
@@ -1193,8 +1179,7 @@ export class CacheKeyBuilder {
   }
 
   // ============================================================
-  // Device Cache Keys
-  // ============================================================
+  // Device Cache Keys  // ============================================================
 
   /**
    * Get cache key for trusted device
