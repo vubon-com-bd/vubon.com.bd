@@ -34,7 +34,6 @@ import type {
   AuditAction as SharedAuditAction, 
   AuditSeverity as SharedAuditSeverity,
   AuditExportFormat as SharedAuditExportFormat,
-  PaginationOptions,
   PaginatedResult,
   BulkOperationProgress
 } from '@vubon/shared-types';
@@ -701,13 +700,7 @@ export interface AuditService {
    */
   getStatistics(days?: number): Promise<AuditStatistics>;
   
-  /**
-   * Generate audit summary report
-   * @param fromDate - Start date
-   * @param toDate - End date
-   * @returns Audit summary report
-   */
-  generateSummaryReport(fromDate: Date, toDate: Date): Promise<AuditSummaryReport>;
+  
   
   /**
    * Get a single audit entry by ID
@@ -735,12 +728,6 @@ export interface AuditService {
   // ✅ Export Operations (Multi-format Support)
   // ============================================================
 
-  /**
-   * Export audit logs for compliance
-   * @param options - Export options
-   * @returns Export data (string for CSV/JSON, Buffer for XLSX/PDF)
-   */
-  export(options: AuditExportOptions): Promise<string | Buffer>;
   
   /**
    * Export compliance report (Bangladesh Bank format)
@@ -782,19 +769,8 @@ export interface AuditService {
    */
   restoreArchivedLogs(archivePath: string): Promise<number>;
   
-  /**
-   * Get current retention policy
-   * @returns Retention policy
-   */
-  getRetentionPolicy(): Promise<AuditRetentionPolicy>;
   
-  /**
-   * Update retention policy
-   * @param policy - New retention policy
-   * @returns Updated policy
-   */
-  updateRetentionPolicy(policy: Partial<AuditRetentionPolicy>): Promise<AuditRetentionPolicy>;
-
+  
   // ============================================================
   // ✅ Anomaly Detection (Enterprise Security Feature)
   // ============================================================
@@ -990,12 +966,9 @@ export interface AuditService {
 
 export type { 
   AuditContext as AuditContextType, 
-  AuditExportOptions as AuditExportOptionsType,
   AuditLogEntry as AuditLogEntryType,
   AuditQueryFilters as AuditQueryFiltersType,
   AuditStatistics as AuditStatisticsType,
-  AuditSummaryReport as AuditSummaryReportType,
-  AuditRetentionPolicy as AuditRetentionPolicyType,
   ChangeDetail as ChangeDetailType,
   AuditAnomalyResult as AuditAnomalyResultType,
   AuditDashboardMetrics as AuditDashboardMetricsType,
