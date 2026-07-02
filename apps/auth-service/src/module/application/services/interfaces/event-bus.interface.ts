@@ -3,39 +3,10 @@
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module application/services/interfaces/event-bus.interface
- * 
- * @description
- * Interface for event publishing and subscription with enterprise features.
- * Implementation resides in infrastructure layer.
- * 
- * ENTERPRISE ENHANCEMENTS (v2.0):
- * ✅ Event sourcing ready (aggregateVersion, eventVersion, replayEvents)
- * ✅ Dead Letter Queue with retry mechanism
- * ✅ Pattern-based subscription (wildcard matching)
- * ✅ Batch publishing with parallel/concurrent support
- * ✅ Correlation and Causation IDs for distributed tracing
- * ✅ Idempotent event processing support
- * ✅ Partition key support for event streaming
- * ✅ Priority-based handler execution
- * ✅ Circuit breaker pattern for handlers
- * ✅ Rate limiting for event handlers
- * ✅ Batch processing with progress tracking
- * ✅ Event schema validation
- * ✅ Event expiry and TTL support
- * ✅ Bangladesh specific events (WhatsApp, bKash, District tracking)
- * ✅ Performance metrics with P95/P99 latency
- * ✅ Real-time monitoring dashboard integration
- * 
- * Enterprise Rules:
- * ✅ Pure interface - No implementation
- * ✅ No business logic
- * ✅ Infrastructure-agnostic
- * ✅ Event sourcing ready
- * ✅ Type-safe event names using shared-constants
  */
 
 // ✅ Phase-1: Import from shared-constants for centralized event names
-import { EVENT_NAMES, EVENT_VERSIONS, DOMAIN_EVENTS } from '@vubon/shared-constants';
+import { EVENT_NAMES } from '@vubon/shared-constants';
 // ✅ Phase-1: Import from shared-types for type safety
 import type { EventMetadata, EventPayload, EventHandlerResult } from '@vubon/shared-types';
 
@@ -44,13 +15,9 @@ import type { EventMetadata, EventPayload, EventHandlerResult } from '@vubon/sha
 // ============================================================
 
 export interface CircuitBreakerConfig {
-  /** Failure threshold count before opening circuit */
   failureThreshold: number;
-  /** Timeout in milliseconds before attempting half-open */
   timeoutMs: number;
-  /** Success threshold in half-open state to close circuit */
   successThreshold: number;
-  /** Whether circuit breaker is enabled for this handler */
   enabled: boolean;
 }
 
@@ -59,11 +26,8 @@ export interface CircuitBreakerConfig {
 // ============================================================
 
 export interface HandlerRateLimitConfig {
-  /** Maximum number of events per time window */
   maxEvents: number;
-  /** Time window in seconds */
   windowSeconds: number;
-  /** Whether rate limiting is enabled */
   enabled: boolean;
 }
 
@@ -72,11 +36,8 @@ export interface HandlerRateLimitConfig {
 // ============================================================
 
 export interface EventSchemaValidation {
-  /** JSON Schema for event payload validation */
   schema: Record<string, unknown>;
-  /** Whether validation is required */
   required: boolean;
-  /** Version of the schema */
   version: number;
 }
 
@@ -85,9 +46,7 @@ export interface EventSchemaValidation {
 // ============================================================
 
 export interface EventTTLConfig {
-  /** Time to live in seconds for the event */
   ttlSeconds: number;
-  /** Whether event should be deleted after TTL */
   deleteAfterExpiry: boolean;
 }
 
@@ -96,84 +55,32 @@ export interface EventTTLConfig {
 // ============================================================
 
 export interface DomainEvent {
-  /** Unique event identifier (UUID v4) */
   readonly eventId: string;
-  
-  /** Event name/type - type-safe using EVENT_NAMES from shared-constants */
   readonly eventName: keyof typeof EVENT_NAMES;
-  
-  /** When the event occurred (ISO timestamp) */
   readonly occurredAt: Date;
-  
-  /** Aggregate root ID (e.g., userId, sessionId) */
   readonly aggregateId: string;
-  
-  /** Aggregate version for event sourcing */
   readonly aggregateVersion: number;
-  
-  /** Event version for schema evolution (from shared-constants) */
   readonly eventVersion: number;
-  
-  /** Correlation ID for distributed tracing */
-  readonly correlationId?: string;
-  
-  /** Causation ID (ID of event that caused this event) */
-  readonly causationId?: string;
-  
-  /** User ID who initiated the action (if applicable) */
-  readonly userId?: string;
-  
-  /** Email of the user who initiated the action */
-  readonly userEmail?: string;
-  
-  /** Phone number of the user (Bangladesh specific) */
-  readonly userPhone?: string;
-  
-  /** IP address of the request */
-  readonly ipAddress?: string;
-  
-  /** User agent of the request */
-  readonly userAgent?: string;
-  
-  /** Device ID of the request */
-  readonly deviceId?: string;
-  
-  /** Session ID of the request */
-  readonly sessionId?: string;
-  
-  /** Request ID for API tracing */
-  readonly requestId?: string;
-  
-  /** Additional event metadata with Bangladesh specific fields */
-  readonly metadata?: EventMetadata;
-  
-  /** Event payload containing business data */
-  readonly payload?: EventPayload;
-  
-  /** Whether the event is idempotent (can be processed multiple times) */
-  readonly isIdempotent?: boolean;
-  
-  /** Partition key for event streaming (e.g., userId) */
-  readonly partitionKey?: string;
-  
-  /** Source service that published the event */
-  readonly source?: string;
-  
-  // ✅ ENTERPRISE ENHANCEMENT: Expiry support
-  /** Time to live in seconds for the event */
-  readonly ttlSeconds?: number;
-  
-  /** When the event expires (events older than this should be ignored) */
-  readonly expiresAt?: Date;
-  
-  /** Priority of the event (higher numbers processed first) */
-  readonly priority?: number;
-  
-  /** District for geographic partitioning (Bangladesh specific) */
-  readonly district?: string;
-  
-  /** Division for geographic partitioning (Bangladesh specific) */
-  readonly division?: string;
+  readonly correlationId: string | undefined;
+  readonly causationId: string | undefined;
+  readonly userId: string | undefined;
+  readonly userEmail: string | undefined;
+  readonly userPhone: string | undefined;
+  readonly ipAddress: string | undefined;
+  readonly userAgent: string | undefined;
+  readonly deviceId: string | undefined;
+  readonly sessionId: string | undefined;
+  readonly requestId: string | undefined;
+  readonly metadata: EventMetadata | undefined;
+  readonly payload: EventPayload<unknown> | undefined;
+  readonly isIdempotent: boolean | undefined;
+  readonly partitionKey: string | undefined;
+  readonly source: string | undefined;
+  readonly ttlSeconds: number | undefined;
+  readonly expiresAt: Date | undefined;
+  readonly priority: number | undefined;
+  readonly district: string | undefined;
+  readonly division: string | undefined;
 }
 
 // ============================================================
@@ -187,17 +94,11 @@ export type EventHandler<T extends DomainEvent = DomainEvent> = (event: T) => Pr
 // ============================================================
 
 export interface BatchProgress {
-  /** Total events in batch */
   total: number;
-  /** Processed events count */
   processed: number;
-  /** Successfully processed events */
   succeeded: number;
-  /** Failed events */
   failed: number;
-  /** Progress percentage (0-100) */
   percentage: number;
-  /** Estimated remaining time in milliseconds */
   estimatedRemainingMs?: number;
 }
 
@@ -206,47 +107,18 @@ export interface BatchProgress {
 // ============================================================
 
 export interface EventHandlerOptions {
-  /** Whether handler should run only once (even with multiple subscriptions) */
   once?: boolean;
-  
-  /** Priority of the handler (higher numbers run first) */
   priority?: number;
-  
-  /** Timeout in milliseconds for handler execution */
   timeoutMs?: number;
-  
-  /** Whether to retry on failure */
   retryOnFailure?: boolean;
-  
-  /** Maximum retry attempts */
   maxRetries?: number;
-  
-  /** Delay between retries in milliseconds (with exponential backoff) */
   retryDelayMs?: number;
-  
-  /** Whether to use exponential backoff for retries */
   exponentialBackoff?: boolean;
-  
-  /** Filter function to conditionally execute handler */
   filter?: (event: DomainEvent) => boolean | Promise<boolean>;
-  
-  // ✅ ENTERPRISE ENHANCEMENT: Circuit breaker support
-  /** Circuit breaker configuration */
   circuitBreaker?: CircuitBreakerConfig;
-  
-  // ✅ ENTERPRISE ENHANCEMENT: Rate limiting support
-  /** Rate limit configuration */
   rateLimit?: HandlerRateLimitConfig;
-  
-  // ✅ ENTERPRISE ENHANCEMENT: Idempotency key extractor
-  /** Function to extract idempotency key from event */
   idempotencyKeyExtractor?: (event: DomainEvent) => string;
-  
-  // ✅ ENTERPRISE ENHANCEMENT: Dead letter queue configuration
-  /** Whether to send failed events to DLQ */
   sendToDLQ?: boolean;
-  
-  /** Maximum age for events in DLQ (seconds) */
   dlqMaxAgeSeconds?: number;
 }
 
@@ -255,35 +127,15 @@ export interface EventHandlerOptions {
 // ============================================================
 
 export interface EventSubscription {
-  /** Unsubscribe from the event */
   unsubscribe(): void;
-  
-  /** Subscription ID (UUID) */
   readonly id: string;
-  
-  /** Event name this subscription is for */
   readonly eventName: string;
-  
-  /** Whether the subscription is active */
   readonly isActive: boolean;
-  
-  /** Options for this subscription */
   readonly options?: EventHandlerOptions;
-  
-  /** Pause the subscription temporarily */
   pause(): void;
-  
-  /** Resume a paused subscription */
   resume(): void;
-  
-  /** Get statistics for this subscription */
   getStats(): SubscriptionStats;
-  
-  // ✅ ENTERPRISE ENHANCEMENT: Circuit breaker status
-  /** Get circuit breaker status for this subscription */
   getCircuitBreakerStatus(): { isOpen: boolean; failureCount: number; nextAttemptAt?: Date };
-  
-  /** Reset circuit breaker for this subscription */
   resetCircuitBreaker(): void;
 }
 
@@ -292,38 +144,16 @@ export interface EventSubscription {
 // ============================================================
 
 export interface SubscriptionStats {
-  /** Number of events processed */
   processedCount: number;
-  
-  /** Number of events that failed */
   failedCount: number;
-  
-  /** Last processed timestamp */
   lastProcessedAt?: Date;
-  
-  /** Last error message */
   lastError?: string;
-  
-  /** Average processing time in milliseconds */
   averageProcessingTimeMs: number;
-  
-  // ✅ ENTERPRISE ENHANCEMENT: Extended metrics
-  /** Minimum processing time in milliseconds */
   minProcessingTimeMs?: number;
-  
-  /** Maximum processing time in milliseconds */
   maxProcessingTimeMs?: number;
-  
-  /** P95 processing time in milliseconds */
   p95ProcessingTimeMs?: number;
-  
-  /** P99 processing time in milliseconds */
   p99ProcessingTimeMs?: number;
-  
-  /** Number of times circuit breaker opened */
   circuitBreakerOpenCount?: number;
-  
-  /** Number of times rate limit was hit */
   rateLimitHitCount?: number;
 }
 
@@ -332,26 +162,12 @@ export interface SubscriptionStats {
 // ============================================================
 
 export interface BatchPublishOptions {
-  /** Whether to stop on first error */
   stopOnError?: boolean;
-  
-  /** Whether to process events in parallel */
   parallel?: boolean;
-  
-  /** Maximum concurrency for parallel processing */
   maxConcurrency?: number;
-  
-  /** Timeout for entire batch in milliseconds */
   timeoutMs?: number;
-  
-  // ✅ ENTERPRISE ENHANCEMENT: Batch progress tracking
-  /** Progress callback for batch processing */
   onProgress?: (progress: BatchProgress) => void;
-  
-  /** Whether to preserve event order */
   preserveOrder?: boolean;
-  
-  /** Batch size for chunked processing */
   batchSize?: number;
 }
 
@@ -375,17 +191,11 @@ export interface EventBusStatistics {
     p95ExecutionTimeMs?: number;
     p99ExecutionTimeMs?: number;
   };
-  /** Bangladesh specific - events by district */
   eventsByDistrict?: Record<string, number>;
-  /** Bangladesh specific - events by mobile operator */
   eventsByMobileOperator?: Record<string, number>;
-  /** Events by hour of day (0-23) */
   eventsByHour?: Record<number, number>;
-  /** Events by priority level */
   eventsByPriority?: Record<number, number>;
-  /** Dead letter queue size */
   dlqSize?: number;
-  /** Circuit breaker open count */
   circuitBreakerOpenCount?: number;
 }
 
@@ -394,13 +204,8 @@ export interface EventBusStatistics {
 // ============================================================
 
 export interface EventSchemaRegistry {
-  /** Register schema for an event type */
   registerSchema(eventName: string, schema: EventSchemaValidation): void;
-  
-  /** Get schema for an event type */
   getSchema(eventName: string): EventSchemaValidation | undefined;
-  
-  /** Validate event against its schema */
   validateEvent(event: DomainEvent): { isValid: boolean; errors?: string[] };
 }
 
@@ -409,25 +214,15 @@ export interface EventSchemaRegistry {
 // ============================================================
 
 export interface EventStreamQueryOptions {
-  /** Start time for query */
   fromDate?: Date;
-  /** End time for query */
   toDate?: Date;
-  /** Aggregate ID filter */
   aggregateId?: string;
-  /** Event names filter */
   eventNames?: string[];
-  /** Limit number of events */
   limit?: number;
-  /** Offset for pagination */
   offset?: number;
-  /** Sort order */
   sortOrder?: 'asc' | 'desc';
-  /** Partition key filter */
   partitionKey?: string;
-  /** District filter (Bangladesh specific) */
   district?: string;
-  /** Mobile operator filter (Bangladesh specific) */
   mobileOperator?: string;
 }
 
@@ -436,288 +231,62 @@ export interface EventStreamQueryOptions {
 // ============================================================
 
 export interface EventBus {
-  /**
-   * Publish a single event
-   * 
-   * @param event - Domain event to publish
-   * @returns Promise that resolves when event is published
-   * 
-   * @example
-   * await eventBus.publish(new UserRegisteredEvent(userId, email));
-   */
   publish(event: DomainEvent): Promise<void>;
-  
-  /**
-   * Publish multiple events in order
-   * 
-   * @param events - Array of domain events
-   * @param options - Batch publishing options
-   * @returns Promise that resolves when all events are published
-   * 
-   * @example
-   * await eventBus.publishAll([event1, event2, event3]);
-   */
   publishAll(events: DomainEvent[], options?: BatchPublishOptions): Promise<void>;
-  
-  /**
-   * Publish event with retry on failure
-   * 
-   * @param event - Domain event to publish
-   * @param maxRetries - Maximum number of retries (default: 3)
-   * @param retryDelayMs - Delay between retries in milliseconds (default: 1000)
-   * @returns Promise that resolves when event is published
-   */
   publishWithRetry(
     event: DomainEvent,
     maxRetries?: number,
     retryDelayMs?: number
   ): Promise<void>;
-  
-  /**
-   * Publish event asynchronously (fire and forget)
-   * 
-   * @param event - Domain event to publish
-   * @returns void (does not wait for completion)
-   */
   publishAsync(event: DomainEvent): void;
-  
-  /**
-   * Subscribe to events
-   * 
-   * @param eventName - Name of the event to subscribe to (use '*' for all events)
-   * @param handler - Event handler function
-   * @param options - Handler options
-   * @returns Event subscription object for unsubscribing
-   * 
-   * @example
-   * const subscription = eventBus.subscribe(EVENT_NAMES.USER_REGISTERED, async (event) => {
-   *   await sendWelcomeEmail(event.userId);
-   * });
-   * 
-   * // Later: subscription.unsubscribe();
-   */
   subscribe(
     eventName: keyof typeof EVENT_NAMES | '*',
     handler: EventHandler,
     options?: EventHandlerOptions
   ): EventSubscription;
-  
-  /**
-   * Subscribe to events with filter
-   * 
-   * @param eventName - Name of the event to subscribe to
-   * @param filter - Filter function to determine if handler should be called
-   * @param handler - Event handler function
-   * @param options - Handler options
-   * @returns Event subscription object
-   */
   subscribeWithFilter(
     eventName: keyof typeof EVENT_NAMES,
     filter: (event: DomainEvent) => boolean | Promise<boolean>,
     handler: EventHandler,
     options?: EventHandlerOptions
   ): EventSubscription;
-  
-  /**
-   * Subscribe to events by pattern (wildcard matching)
-   * 
-   * @param pattern - Pattern to match event names (e.g., 'user.*', '*.payment.*')
-   * @param handler - Event handler function
-   * @param options - Handler options
-   * @returns Event subscription object
-   * 
-   * @example
-   * // Subscribe to all user-related events
-   * eventBus.subscribeByPattern('user.*', handler);
-   * 
-   * // Subscribe to all payment-related events
-   * eventBus.subscribeByPattern('*.payment.*', handler);
-   */
   subscribeByPattern(
     pattern: string,
     handler: EventHandler,
     options?: EventHandlerOptions
   ): EventSubscription;
-  
-  /**
-   * Subscribe to events once (auto-unsubscribe after first event)
-   * 
-   * @param eventName - Name of the event to subscribe to
-   * @param handler - Event handler function
-   * @param options - Handler options
-   * @returns Event subscription object
-   */
   subscribeOnce(
     eventName: keyof typeof EVENT_NAMES,
     handler: EventHandler,
     options?: Omit<EventHandlerOptions, 'once'>
   ): EventSubscription;
-  
-  /**
-   * Unsubscribe from events
-   * 
-   * @param subscriptionId - Subscription ID to remove
-   * @returns True if unsubscribed successfully
-   */
   unsubscribe(subscriptionId: string): Promise<boolean>;
-  
-  /**
-   * Get all active subscriptions
-   * 
-   * @returns Array of subscription IDs
-   */
   getSubscriptions(): string[];
-  
-  /**
-   * Get subscriptions by event name
-   * 
-   * @param eventName - Event name
-   * @returns Array of subscription IDs
-   */
   getSubscriptionsByEvent(eventName: string): string[];
-  
-  /**
-   * Check if event has subscribers
-   * 
-   * @param eventName - Event name to check
-   * @returns True if there are subscribers
-   */
   hasSubscribers(eventName: string): boolean;
-  
-  /**
-   * Clear all subscriptions (for testing)
-   */
   clearSubscriptions(): void;
-  
-  /**
-   * Get event processing statistics
-   * 
-   * @returns Enhanced event statistics
-   */
   getStatistics(): Promise<EventBusStatistics>;
-  
-  /**
-   * Reset statistics counters
-   */
   resetStatistics(): void;
-  
-  /**
-   * Health check for event bus
-   * 
-   * @returns True if event bus is healthy
-   */
   healthCheck(): Promise<boolean>;
-  
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT: Event Sourcing Methods
-  // ============================================================
-  
-  /**
-   * Replay events from a specific point (for event sourcing)
-   * 
-   * @param fromEventId - Event ID to start from
-   * @param toEventId - Event ID to end at (optional)
-   * @param handler - Handler to process replayed events
-   * @param options - Replay options (batch size, parallel)
-   */
   replayEvents(
     fromEventId: string,
     toEventId?: string,
     handler?: EventHandler,
     options?: { batchSize?: number; parallel?: boolean }
   ): Promise<void>;
-  
-  /**
-   * Replay events for a specific aggregate
-   * 
-   * @param aggregateId - Aggregate root ID
-   * @param fromVersion - Starting version
-   * @param toVersion - Ending version (optional)
-   * @param handler - Handler to process replayed events
-   */
   replayAggregateEvents(
     aggregateId: string,
     fromVersion: number,
     toVersion?: number,
     handler?: EventHandler
   ): Promise<void>;
-  
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT: Dead Letter Queue Methods
-  // ============================================================
-  
-  /**
-   * Get dead letter queue events (failed events)
-   * 
-   * @param limit - Maximum number of events to return
-   * @returns Array of failed events with error details
-   */
   getDeadLetterEvents(limit?: number): Promise<Array<{ event: DomainEvent; error: string; failedAt: Date; retryCount: number }>>;
-  
-  /**
-   * Retry failed events from dead letter queue
-   * 
-   * @param eventIds - Specific event IDs to retry (all if empty)
-   * @returns Number of events retried
-   */
   retryFailedEvents(eventIds?: string[]): Promise<number>;
-  
-  /**
-   * Clear dead letter queue
-   * 
-   * @param olderThan - Clear events older than this date (optional)
-   * @returns Number of events cleared
-   */
   clearDeadLetterQueue(olderThan?: Date): Promise<number>;
-  
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT: Event Query Methods
-  // ============================================================
-  
-  /**
-   * Query events from event store
-   * 
-   * @param options - Query options
-   * @returns Array of matching events
-   */
   queryEvents(options: EventStreamQueryOptions): Promise<DomainEvent[]>;
-  
-  /**
-   * Get event by ID
-   * 
-   * @param eventId - Event ID
-   * @returns Event or null
-   */
   getEventById(eventId: string): Promise<DomainEvent | null>;
-  
-  /**
-   * Get events by correlation ID (distributed tracing)
-   * 
-   * @param correlationId - Correlation ID
-   * @returns Array of events in the trace chain
-   */
   getEventsByCorrelationId(correlationId: string): Promise<DomainEvent[]>;
-  
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT: Schema Registry
-  // ============================================================
-  
-  /**
-   * Get event schema registry
-   * 
-   * @returns Schema registry instance
-   */
   getSchemaRegistry(): EventSchemaRegistry;
-  
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT: Monitoring & Alerting
-  // ============================================================
-  
-  /**
-   * Get real-time monitoring metrics
-   * 
-   * @returns Monitoring metrics
-   */
   getMonitoringMetrics(): Promise<{
     eventsPerSecond: number;
     averageLatencyMs: number;
@@ -726,12 +295,6 @@ export interface EventBus {
     dlqSize: number;
     circuitBreakersOpen: number;
   }>;
-  
-  /**
-   * Get alerts for event processing issues
-   * 
-   * @returns Active alerts
-   */
   getActiveAlerts(): Promise<Array<{
     id: string;
     severity: 'info' | 'warning' | 'critical';
@@ -749,26 +312,26 @@ export abstract class BaseDomainEvent implements DomainEvent {
   public readonly eventId: string;
   public readonly occurredAt: Date;
   public readonly eventVersion: number;
-  public readonly correlationId?: string;
-  public readonly causationId?: string;
-  public readonly userId?: string;
-  public readonly userEmail?: string;
-  public readonly userPhone?: string;
-  public readonly ipAddress?: string;
-  public readonly userAgent?: string;
-  public readonly deviceId?: string;
-  public readonly sessionId?: string;
-  public readonly requestId?: string;
-  public readonly metadata?: EventMetadata;
-  public readonly payload?: EventPayload;
-  public readonly isIdempotent: boolean;
-  public readonly partitionKey?: string;
-  public readonly source: string;
-  public readonly ttlSeconds?: number;
-  public readonly expiresAt?: Date;
-  public readonly priority?: number;
-  public readonly district?: string;
-  public readonly division?: string;
+  public readonly correlationId: string | undefined;
+  public readonly causationId: string | undefined;
+  public readonly userId: string | undefined;
+  public readonly userEmail: string | undefined;
+  public readonly userPhone: string | undefined;
+  public readonly ipAddress: string | undefined;
+  public readonly userAgent: string | undefined;
+  public readonly deviceId: string | undefined;
+  public readonly sessionId: string | undefined;
+  public readonly requestId: string | undefined;
+  public readonly metadata: EventMetadata | undefined;
+  public readonly payload: EventPayload<unknown> | undefined;
+  public readonly isIdempotent: boolean | undefined;
+  public readonly partitionKey: string | undefined;
+  public readonly source: string | undefined;
+  public readonly ttlSeconds: number | undefined;
+  public readonly expiresAt: Date | undefined;
+  public readonly priority: number | undefined;
+  public readonly district: string | undefined;
+  public readonly division: string | undefined;
 
   constructor(
     public readonly eventName: keyof typeof EVENT_NAMES,
@@ -786,7 +349,7 @@ export abstract class BaseDomainEvent implements DomainEvent {
       sessionId?: string;
       requestId?: string;
       metadata?: EventMetadata;
-      payload?: EventPayload;
+      payload?: EventPayload<unknown>;
       isIdempotent?: boolean;
       partitionKey?: string;
       source?: string;
@@ -800,7 +363,7 @@ export abstract class BaseDomainEvent implements DomainEvent {
   ) {
     this.eventId = generateEventId();
     this.occurredAt = new Date();
-    this.eventVersion = options?.eventVersion ?? EVENT_VERSIONS.V1;
+    this.eventVersion = options?.eventVersion ?? 1;
     this.correlationId = options?.correlationId;
     this.causationId = options?.causationId;
     this.userId = options?.userId;
@@ -823,9 +386,6 @@ export abstract class BaseDomainEvent implements DomainEvent {
     this.division = options?.division;
   }
   
-  /**
-   * Check if event has expired
-   */
   public isExpired(): boolean {
     if (!this.expiresAt) return false;
     return new Date() > this.expiresAt;
@@ -836,10 +396,6 @@ export abstract class BaseDomainEvent implements DomainEvent {
 // Utility Functions
 // ============================================================
 
-/**
- * Generate event ID (pure domain function)
- * Uses timestamp + random + counter for uniqueness without crypto dependency
- */
 function generateEventId(): string {
   const timestamp = Date.now().toString(36);
   const random = Math.random().toString(36).substring(2, 10);
@@ -852,194 +408,279 @@ namespace generateEventId {
 }
 
 // ============================================================
-// Example Events (Using shared-constants for event names)
+// Helper to create EventPayload
+// ============================================================
+
+function createEventPayload<T>(
+  data: T, 
+  metadata?: Partial<EventMetadata>,
+  version?: string,
+  timestamp?: string
+): EventPayload<T> {
+  return {
+    data,
+    metadata: {
+      correlationId: metadata?.correlationId || crypto.randomUUID?.() || 'unknown',
+      urgency: metadata?.urgency || 'normal',
+      priority: metadata?.priority || 0,
+      ...metadata,
+    },
+    version: version || '1.0',
+    timestamp: timestamp || new Date().toISOString(),
+  };
+}
+
+// ============================================================
+// Helper to create EventMetadata
+// ============================================================
+
+function createEventMetadata(
+  correlationId?: string,
+  urgency?: 'low' | 'normal' | 'high' | 'critical',
+  priority?: number,
+  customMetadata?: Record<string, unknown>
+): EventMetadata {
+  return {
+    correlationId: correlationId || crypto.randomUUID?.() || 'unknown',
+    urgency: urgency || 'normal',
+    priority: priority || 0,
+    ...customMetadata,
+  };
+}
+
+// ============================================================
+// Example Events - Using event name keys (not values)
 // ============================================================
 
 // User Registered Event
 export class UserRegisteredEvent extends BaseDomainEvent {
+  public readonly email: string;
+  public readonly fullName: string;
+  public readonly phoneNumber: string | undefined;
+
   constructor(
     aggregateId: string,
     aggregateVersion: number,
-    public readonly email: string,
-    public readonly fullName: string,
-    public readonly phoneNumber?: string,
-    public readonly district?: string,
+    email: string,
+    fullName: string,
+    phoneNumber?: string,
+    district?: string,
     options?: ConstructorParameters<typeof BaseDomainEvent>[3],
   ) {
-    super(EVENT_NAMES.USER_REGISTERED, aggregateId, aggregateVersion, {
+    const payloadData = { email, fullName, phoneNumber, district };
+    const metadata = createEventMetadata(
+      options?.correlationId,
+      'normal',
+      0,
+      { eventType: 'user.registered' }
+    );
+    const payload = createEventPayload(payloadData, metadata);
+    
+    // ✅ FIXED: Only include district if it's defined
+    const superOptions: ConstructorParameters<typeof BaseDomainEvent>[3] = {
       ...options,
-      payload: { email, fullName, phoneNumber, district },
-      district,
-    });
+      metadata,
+      payload,
+    };
+    
+    // Only add district if it's defined (not undefined)
+    if (district !== undefined) {
+      superOptions.district = district;
+    }
+    
+    super('DOMAIN_USER_REGISTERED' as keyof typeof EVENT_NAMES, aggregateId, aggregateVersion, superOptions);
+    this.email = email;
+    this.fullName = fullName;
+    this.phoneNumber = phoneNumber;
   }
 }
 
-// User Logged In Event
-export class UserLoggedInEvent extends BaseDomainEvent {
-  constructor(
-    aggregateId: string,
-    aggregateVersion: number,
-    public readonly email: string,
-    public readonly loginMethod: 'email' | 'phone' | 'social' | 'otp',
-    options?: ConstructorParameters<typeof BaseDomainEvent>[3],
-  ) {
-    super(EVENT_NAMES.USER_LOGIN, aggregateId, aggregateVersion, {
-      ...options,
-      payload: { email, loginMethod },
-      isIdempotent: true,
-    });
-  }
-}
+// User Verified Event
+export class UserVerifiedEvent extends BaseDomainEvent {
+  public readonly userId: string;
+  public readonly verificationType: 'email' | 'phone';
+  public readonly verifiedAt: Date;
 
-// WhatsApp Login Event (Bangladesh specific)
-export class WhatsAppLoginEvent extends BaseDomainEvent {
   constructor(
     aggregateId: string,
     aggregateVersion: number,
-    public readonly phoneNumber: string,
-    public readonly operator?: 'gp' | 'robi' | 'banglalink' | 'teletalk',
+    userId: string,
+    verificationType: 'email' | 'phone',
     options?: ConstructorParameters<typeof BaseDomainEvent>[3],
   ) {
-    super(EVENT_NAMES.WHATSAPP_LOGIN, aggregateId, aggregateVersion, {
-      ...options,
-      payload: { phoneNumber, operator },
-      metadata: { ...options?.metadata, loginProvider: 'whatsapp' },
-    });
-  }
-}
-
-// bKash Payment Success Event (Bangladesh specific)
-export class BkashPaymentSuccessEvent extends BaseDomainEvent {
-  constructor(
-    aggregateId: string,
-    aggregateVersion: number,
-    public readonly userId: string,
-    public readonly amount: number,
-    public readonly transactionId: string,
-    public readonly merchantInvoiceNumber: string,
-    public readonly phoneNumber?: string,
-    options?: ConstructorParameters<typeof BaseDomainEvent>[3],
-  ) {
-    super(EVENT_NAMES.BKASH_PAYMENT_SUCCESS, aggregateId, aggregateVersion, {
-      ...options,
-      userId,
-      payload: { amount, transactionId, merchantInvoiceNumber, phoneNumber },
-      isIdempotent: true,
-    });
-  }
-}
-
-// MFA Enabled Event
-export class MFAEnabledEvent extends BaseDomainEvent {
-  constructor(
-    aggregateId: string,
-    aggregateVersion: number,
-    public readonly userId: string,
-    public readonly mfaType: string,
-    public readonly methodId: string,
-    options?: ConstructorParameters<typeof BaseDomainEvent>[3],
-  ) {
-    super(EVENT_NAMES.MFA_ENABLED, aggregateId, aggregateVersion, {
+    const payloadData = { userId, verificationType, verifiedAt: new Date() };
+    const metadata = createEventMetadata(
+      options?.correlationId,
+      'normal',
+      0,
+      { securityEvent: true }
+    );
+    const payload = createEventPayload(payloadData, metadata);
+    
+    const superOptions: ConstructorParameters<typeof BaseDomainEvent>[3] = {
       ...options,
       userId,
-      payload: { mfaType, methodId },
-    });
+      metadata,
+      payload,
+    };
+    
+    super('DOMAIN_USER_VERIFIED' as keyof typeof EVENT_NAMES, aggregateId, aggregateVersion, superOptions);
+    this.userId = userId;
+    this.verificationType = verificationType;
+    this.verifiedAt = new Date();
   }
 }
 
-// Session Revoked Event
-export class SessionRevokedEvent extends BaseDomainEvent {
+// User Suspended Event
+export class UserSuspendedEvent extends BaseDomainEvent {
+  public readonly userId: string;
+  public readonly reason: string;
+  public readonly suspendedUntil: Date | undefined;
+
   constructor(
     aggregateId: string,
     aggregateVersion: number,
-    public readonly userId: string,
-    public readonly sessionId: string,
-    public readonly reason?: string,
+    userId: string,
+    reason: string,
+    suspendedUntil?: Date,
     options?: ConstructorParameters<typeof BaseDomainEvent>[3],
   ) {
-    super(EVENT_NAMES.SESSION_REVOKED, aggregateId, aggregateVersion, {
+    const payloadData = { userId, reason, suspendedUntil };
+    const metadata = createEventMetadata(
+      options?.correlationId,
+      'high',
+      5,
+      { securityEvent: true }
+    );
+    const payload = createEventPayload(payloadData, metadata);
+    
+    const superOptions: ConstructorParameters<typeof BaseDomainEvent>[3] = {
       ...options,
       userId,
-      payload: { sessionId, reason },
-    });
+      metadata,
+      payload,
+    };
+    
+    // Only add suspendedUntil if it's defined
+    if (suspendedUntil !== undefined) {
+      superOptions.expiresAt = suspendedUntil;
+    }
+    
+    super('DOMAIN_USER_SUSPENDED' as keyof typeof EVENT_NAMES, aggregateId, aggregateVersion, superOptions);
+    this.userId = userId;
+    this.reason = reason;
+    this.suspendedUntil = suspendedUntil;
   }
 }
 
-// Security Alert Event
-export class SecurityAlertEvent extends BaseDomainEvent {
-  constructor(
-    aggregateId: string,
-    aggregateVersion: number,
-    public readonly alertType: string,
-    public readonly severity: 'low' | 'medium' | 'high' | 'critical',
-    public readonly message: string,
-    public readonly details?: Record<string, unknown>,
-    options?: ConstructorParameters<typeof BaseDomainEvent>[3],
-  ) {
-    super(EVENT_NAMES.SECURITY_ALERT, aggregateId, aggregateVersion, {
-      ...options,
-      payload: { alertType, severity, message, details },
-      isIdempotent: true,
-    });
-  }
-}
+// User Activated Event
+export class UserActivatedEvent extends BaseDomainEvent {
+  public readonly userId: string;
+  public readonly activatedAt: Date;
 
-// Account Locked Event
-export class AccountLockedEvent extends BaseDomainEvent {
   constructor(
     aggregateId: string,
     aggregateVersion: number,
-    public readonly userId: string,
-    public readonly reason: string,
-    public readonly lockDurationMinutes: number,
+    userId: string,
     options?: ConstructorParameters<typeof BaseDomainEvent>[3],
   ) {
-    super(EVENT_NAMES.ACCOUNT_LOCKED, aggregateId, aggregateVersion, {
-      ...options,
-      userId,
-      payload: { reason, lockDurationMinutes },
-    });
-  }
-}
-
-// Phone Verified Event (Bangladesh specific)
-export class PhoneVerifiedEvent extends BaseDomainEvent {
-  constructor(
-    aggregateId: string,
-    aggregateVersion: number,
-    public readonly userId: string,
-    public readonly phoneNumber: string,
-    public readonly operator?: 'gp' | 'robi' | 'banglalink' | 'teletalk',
-    options?: ConstructorParameters<typeof BaseDomainEvent>[3],
-  ) {
-    super(EVENT_NAMES.USER_PHONE_VERIFIED, aggregateId, aggregateVersion, {
+    const payloadData = { userId, activatedAt: new Date() };
+    const metadata = createEventMetadata(
+      options?.correlationId,
+      'normal',
+      0,
+      {}
+    );
+    const payload = createEventPayload(payloadData, metadata);
+    
+    const superOptions: ConstructorParameters<typeof BaseDomainEvent>[3] = {
       ...options,
       userId,
-      payload: { phoneNumber, operator },
-      metadata: { ...options?.metadata, verificationMethod: 'otp' },
-    });
+      metadata,
+      payload,
+    };
+    
+    super('DOMAIN_USER_ACTIVATED' as keyof typeof EVENT_NAMES, aggregateId, aggregateVersion, superOptions);
+    this.userId = userId;
+    this.activatedAt = new Date();
   }
 }
 
-// District Changed Event (Bangladesh specific)
-export class DistrictChangedEvent extends BaseDomainEvent {
+// User Profile Updated Event
+export class UserProfileUpdatedEvent extends BaseDomainEvent {
+  public readonly userId: string;
+  public readonly updatedFields: string[];
+  public readonly oldData: Record<string, unknown> | undefined;
+  public readonly newData: Record<string, unknown> | undefined;
+
   constructor(
     aggregateId: string,
     aggregateVersion: number,
-    public readonly userId: string,
-    public readonly oldDistrict: string,
-    public readonly newDistrict: string,
+    userId: string,
+    updatedFields: string[],
+    oldData?: Record<string, unknown>,
+    newData?: Record<string, unknown>,
     options?: ConstructorParameters<typeof BaseDomainEvent>[3],
   ) {
-    super(EVENT_NAMES.DISTRICT_CHANGED, aggregateId, aggregateVersion, {
+    const payloadData = { userId, updatedFields, oldData, newData };
+    const metadata = createEventMetadata(
+      options?.correlationId,
+      'normal',
+      0,
+      {}
+    );
+    const payload = createEventPayload(payloadData, metadata);
+    
+    const superOptions: ConstructorParameters<typeof BaseDomainEvent>[3] = {
       ...options,
       userId,
-      payload: { oldDistrict, newDistrict },
-      district: newDistrict,
-    });
+      metadata,
+      payload,
+    };
+    
+    super('DOMAIN_USER_PROFILE_UPDATED' as keyof typeof EVENT_NAMES, aggregateId, aggregateVersion, superOptions);
+    this.userId = userId;
+    this.updatedFields = updatedFields;
+    this.oldData = oldData;
+    this.newData = newData;
   }
 }
 
+// User Password Changed Event
+export class UserPasswordChangedEvent extends BaseDomainEvent {
+  public readonly userId: string;
+  public readonly changedAt: Date;
+  public readonly isPasswordReset: boolean;
+
+  constructor(
+    aggregateId: string,
+    aggregateVersion: number,
+    userId: string,
+    isPasswordReset: boolean = false,
+    options?: ConstructorParameters<typeof BaseDomainEvent>[3],
+  ) {
+    const payloadData = { userId, changedAt: new Date(), isPasswordReset };
+    const metadata = createEventMetadata(
+      options?.correlationId,
+      'high',
+      3,
+      { securityEvent: true }
+    );
+    const payload = createEventPayload(payloadData, metadata);
+    
+    const superOptions: ConstructorParameters<typeof BaseDomainEvent>[3] = {
+      ...options,
+      userId,
+      metadata,
+      payload,
+    };
+    
+    super('DOMAIN_USER_PASSWORD_CHANGED' as keyof typeof EVENT_NAMES, aggregateId, aggregateVersion, superOptions);
+    this.userId = userId;
+    this.changedAt = new Date();
+    this.isPasswordReset = isPasswordReset;
+  }
+}
 // ============================================================
 // Type Exports
 // ============================================================
