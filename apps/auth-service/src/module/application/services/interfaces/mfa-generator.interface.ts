@@ -1,1000 +1,1192 @@
 /**
- * MFA Generator Interface - Enterprise Grade v3.0
+ * MFA Generator Interface - Enterprise Grade Service Contract
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module application/services/interfaces/mfa-generator.interface
  * 
  * @description
- * Interface for Multi-Factor Authentication code generation and verification.
- * Implemented by infrastructure layer (TOTP, SMS, Email providers).
+ * Service contract for MFA (Multi-Factor Authentication) generation.
+ * Defines the boundary between application layer and infrastructure for MFA operations.
  * 
- * ENTERPRISE ENHANCEMENTS (v3.0):
- * ✅ Rate limiting for OTP generation per identifier
- * ✅ Biometric/Passkey (WebAuthn) support with device attestation
- * ✅ QR code generation with PNG/Base64 formats
- * ✅ TOTP time window configuration with fallback
- * ✅ Backup code hashing with bcrypt (configurable rounds)
- * ✅ MFS PIN verification with retry tracking
- * ✅ Provider health check and fallback routing
- * ✅ OTP templates with Bengali language support
- * ✅ Request context with correlation ID tracking
- * ✅ Circuit breaker pattern for provider failures
- * ✅ Metrics collection for monitoring
- * ✅ Batch OTP generation for admin operations
+ * ENTERPRISE FEATURES:
+ * ✅ TOTP generation and verification (RFC 6238 compliant)
+ * ✅ Backup codes with hashing and validation
+ * ✅ WebAuthn (Passkeys) registration and authentication
+ * ✅ Bangladesh specific - WhatsApp, Imo, Voice Call OTP
+ * ✅ Bangladesh specific - bKash, Nagad, Rocket PIN
+ * ✅ MFA method priority and configuration management
+ * ✅ Audit trail for all MFA operations
+ * ✅ Rate limiting and lockout management
+ * ✅ Recovery codes for emergency access
+ * ✅ MFA setup and verification flows
+ * ✅ Distributed tracing with correlation ID
+ * ✅ Bengali language support in all responses
+ * ✅ Geographic location tracking (Bangladesh districts)
+ * ✅ Network type tracking for adaptive security
+ * ✅ Device fingerprint tracking
+ * ✅ Bulk operations with progress tracking
+ * ✅ Health check and monitoring endpoints
  * 
- * Enterprise Rules:
- * ✅ Pure interface - No implementation
- * ✅ No business logic
- * ✅ Framework-free
- * ✅ Type-safe
- * ✅ Bangladesh specific - WhatsApp, Imo, bKash, Nagad, Rocket MFA support
- * ✅ All types centralized using shared-constants and shared-types
+ * Security Rules:
+ * ✅ userId NEVER accepted from client (comes from JWT)
+ * ✅ Rate limiting to prevent brute force
+ * ✅ Lockout after max attempts
+ * ✅ One-time use codes
+ * ✅ Hashed code storage
+ * ✅ Audit trail for all operations
+ * 
+ * @example
+ * const mfaGenerator = new MfaGeneratorService(totpService, backupCodeService, ...);
+ * const setupResult = await mfaGenerator.setupTotp(userId, deviceInfo, {
+ *   correlationId: 'corr_123',
+ *   preferredLanguage: 'bn'
+ * });
  */
 
-// ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট
-import type { 
-  MfaGeneratorType, 
-  MfaProviderInfo, 
-  MfaSetupResult,
-  TotpVerificationResult,
-  BackupCodeResult,
-  MFSPinVerificationResult,
-  OtpResult
-} from '@vubon/shared-types';
-
-// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট
-import { 
-  MFA_TYPES, 
-  MFA_PROVIDERS,
-  RECOVERY_CODE_CONFIG,
-  OTP_CONFIG,
-  WEB_AUTHN_CONFIG
-} from '@vubon/shared-constants';
-
-// ============================================================
-// ENTERPRISE ENHANCEMENT 1: Extended OTP Options
-// ============================================================
-
-/**
- * Advanced OTP generation options
- */
-export interface OtpGenerationOptions {
-  /** Language for OTP message ('en' or 'bn') */
-  language?: 'en' | 'bn';
-  
-  /** Session ID for tracking (returned in OtpResult) */
-  sessionId?: string;
-  
-  /** Correlation ID for distributed tracing */
-  correlationId?: string;
-  
-  /** Custom expiry time in seconds (overrides default) */
-  expirySeconds?: number;
-  
-  /** Rate limit identifier (IP, phone, email) for anti-abuse */
-  rateLimitKey?: string;
-  
-  /** Whether to skip rate limiting (admin override) */
-  skipRateLimit?: boolean;
-  
-  /** Template name for custom message */
-  templateName?: string;
-  
-  /** Additional template variables */
-  templateVars?: Record<string, string | number>;
-  
-  /** Enable circuit breaker for this operation */
-  circuitBreaker?: boolean;
-  
-  /** Timeout in milliseconds */
-  timeoutMs?: number;
-}
-
-/**
- * Batch OTP generation request
- */
-export interface BatchOtpRequest {
-  /** List of recipients (phone numbers or emails) */
-  recipients: string[];
-  
-  /** OTP type (sms, email, whatsapp, imo, voice) */
-  type: OTPType;
-  
-  /** Language for messages */
-  language?: 'en' | 'bn';
-  
-  /** Correlation ID for batch tracking */
-  correlationId?: string;
-  
-  /** Admin ID performing operation (for audit) */
-  adminId?: string;
-  
-  /** Reason for batch OTP (for audit) */
-  reason?: string;
-}
-
-/**
- * Batch OTP result
- */
-export interface BatchOtpResult {
-  /** Total recipients */
-  total: number;
-  
-  /** Successful deliveries */
-  successful: number;
-  
-  /** Failed deliveries */
-  failed: number;
-  
-  /** Detailed results per recipient */
-  results: Array<{
-    recipient: string;
-    success: boolean;
-    sessionId?: string;
-    error?: string;
-  }>;
-  
-  /** Correlation ID for tracing */
-  correlationId?: string;
-  
-  /** Operation duration in milliseconds */
-  durationMs: number;
-}
-
-// ============================================================
-// ENTERPRISE ENHANCEMENT 2: TOTP Extended Options
-// ============================================================
-
-/**
- * TOTP verification options
- */
-export interface TotpVerificationOptions {
-  /** Time window (periods before/after) default: 1 */
-  window?: number;
-  
-  /** Algorithm (SHA-1, SHA-256, SHA-512) */
-  algorithm?: 'SHA-1' | 'SHA-256' | 'SHA-512';
-  
-  /** Number of digits (6 or 8) */
-  digits?: 6 | 8;
-  
-  /** Period in seconds (default: 30) */
-  period?: number;
-  
-  /** Correlation ID for tracing */
-  correlationId?: string;
-  
-  /** Track verification attempt for analytics */
-  trackAttempt?: boolean;
-}
-
-// ============================================================
-// ENTERPRISE ENHANCEMENT 3: MFS PIN Verification Options
-// ============================================================
-
-/**
- * MFS PIN verification options (Bangladesh specific)
- */
-export interface MFSPinVerificationOptions {
-  /** Max retry attempts (default: 3) */
-  maxRetries?: number;
-  
-  /** Lock duration in seconds after max retries (default: 300) */
-  lockDurationSeconds?: number;
-  
-  /** Correlation ID for tracing */
-  correlationId?: string;
-  
-  /** Track verification attempt for fraud detection */
-  trackAttempt?: boolean;
-  
-  /** Device fingerprint for security */
-  deviceFingerprint?: string;
-  
-  /** IP address for geo-location validation */
-  ipAddress?: string;
-}
-
-// ============================================================
-// ENTERPRISE ENHANCEMENT 4: Backup Code Extended Options
-// ============================================================
-
-/**
- * Backup code generation options
- */
-export interface BackupCodeOptions {
-  /** Number of backup codes (default: 10) */
-  count?: number;
-  
-  /** Length of each code (default: 8) */
-  length?: number;
-  
-  /** Format: 'plain', 'formatted-with-hyphen', 'alphanumeric' */
-  format?: 'plain' | 'formatted-with-hyphen' | 'alphanumeric';
-  
-  /** Bcrypt salt rounds for hashing (default: 10) */
-  saltRounds?: number;
-  
-  /** Character set for custom codes */
-  charset?: string;
-  
-  /** Expiry days (0 = never, default: 0) */
-  expiryDays?: number;
-  
-  /** Correlation ID for tracing */
-  correlationId?: string;
-}
-
-// ============================================================
-// ENTERPRISE ENHANCEMENT 5: WebAuthn Extended Options
-// ============================================================
-
-/**
- * WebAuthn registration options (enhanced)
- */
-export interface WebAuthnRegistrationOptions {
-  /** Device name (for user reference) */
-  deviceName?: string;
-  
-  /** Attestation type ('none', 'indirect', 'direct') */
-  attestation?: 'none' | 'indirect' | 'direct';
-  
-  /** Authenticator attachment ('platform', 'cross-platform') */
-  authenticatorAttachment?: 'platform' | 'cross-platform';
-  
-  /** Resident key requirement */
-  residentKey?: 'discouraged' | 'preferred' | 'required';
-  
-  /** User verification requirement */
-  userVerification?: 'discouraged' | 'preferred' | 'required';
-  
-  /** Timeout in milliseconds (default: 60000) */
-  timeoutMs?: number;
-  
-  /** Exclude existing credential IDs to prevent duplicates */
-  excludeCredentials?: string[];
-  
-  /** Correlation ID for tracing */
-  correlationId?: string;
-}
-
-/**
- * WebAuthn authentication options (enhanced)
- */
-export interface WebAuthnAuthenticationOptions {
-  /** Timeout in milliseconds (default: 60000) */
-  timeoutMs?: number;
-  
-  /** User verification requirement */
-  userVerification?: 'discouraged' | 'preferred' | 'required';
-  
-  /** Correlation ID for tracing */
-  correlationId?: string;
-  
-  /** Allow list of credential IDs */
-  allowCredentials?: string[];
-}
-
-// ============================================================
-// ENTERPRISE ENHANCEMENT 6: OTP Type Union
-// ============================================================
-
-export type OTPType = 
-  | 'sms' 
-  | 'email' 
-  | 'whatsapp' 
-  | 'imo' 
-  | 'voice';
-
-// ============================================================
-// Re-export types from shared-types
-// ============================================================
-
-export { 
+import type {
+  // Core Types
+  MfaProviderType,
   MfaGeneratorType,
   MfaProviderInfo,
+  MfaProviderConfig,
   MfaSetupResult,
   TotpVerificationResult,
   BackupCodeResult,
   MFSPinVerificationResult,
-  OtpResult
-};
+  OtpResult,
+  MfaMethodPriority,
+  MfaAuditEntry,
+  MfaRateLimitStatus,
+  MfaLockoutStatus,
+  MfaConfiguration,
+} from '@vubon/shared-types';
+
+import type {
+  AuditMetadata,
+  RequestContext,
+  PaginationOptions,
+  PaginatedResult,
+  ApiErrorCode,
+  DeviceInfo,
+} from '@vubon/shared-types';
+
+// ✅ FIXED: Removed unused imports - Only import types that are actually used
+// The following types are used in the interface methods below:
+// - MfaProviderType (used in getProviderConfig, getRateLimitStatus, etc.)
+// - MfaGeneratorType (used in getMethod, getMethods)
+// - MfaProviderInfo (used in getAvailableProviders)
+// - MfaProviderConfig (used in getProviderConfig, updateProviderConfig)
+// - MfaSetupResult (used in setupTotp, setupSmsOtp, etc.)
+// - TotpVerificationResult (used in verifyTotp)
+// - BackupCodeResult (used in verifyBackupCode, verifyRecoveryCode)
+// - MFSPinVerificationResult (used in verifyMfsPin)
+// - OtpResult (used in verifyOtp)
+// - MfaMethodPriority (used in getRecommendedMethods)
+// - MfaAuditEntry (used in getAuditTrail)
+// - MfaRateLimitStatus (used in getRateLimitStatus)
+// - MfaLockoutStatus (used in getLockoutStatus)
+// - MfaConfiguration (used in getConfiguration, updateConfiguration)
+// - DeviceInfo (used in setup methods)
+// - PaginationOptions, PaginatedResult (used in getAuditTrail)
+// - ApiErrorCode (used in ServiceResult)
+// - AuditMetadata, RequestContext (used in MfaGeneratorOptions)
 
 // ============================================================
-// Constants derived from shared-constants
+// ✅ ENTERPRISE ENHANCEMENT 1: Options Interfaces
 // ============================================================
 
 /**
- * Default number of backup codes to generate
- * Value from RECOVERY_CODE_CONFIG.DEFAULT_COUNT
+ * Base MFA generator options
  */
-export const DEFAULT_BACKUP_CODE_COUNT = RECOVERY_CODE_CONFIG.DEFAULT_COUNT;
+export interface MfaGeneratorOptions {
+  /** Audit metadata for compliance tracking */
+  auditMetadata?: AuditMetadata;
+
+  /** Request context for distributed tracing */
+  requestContext?: RequestContext;
+
+  /** Correlation ID for tracing across services */
+  correlationId?: string;
+
+  /** Preferred language for response messages (en/bn) */
+  preferredLanguage?: 'en' | 'bn';
+
+  /** Geographic district (Bangladesh specific) */
+  district?: string;
+
+  /** Geographic division (Bangladesh specific) */
+  division?: string;
+
+  /** Network type for adaptive security */
+  networkType?: '2g' | '3g' | '4g' | '5g' | 'wifi' | 'unknown';
+
+  /** Device fingerprint for fraud detection */
+  deviceFingerprint?: string;
+
+  /** Retry attempt number (for connection resilience) */
+  retryAttempt?: number;
+}
 
 /**
- * Default length of each backup code
- * Value from RECOVERY_CODE_CONFIG.DEFAULT_LENGTH
+ * TOTP setup options
  */
-export const DEFAULT_BACKUP_CODE_LENGTH = RECOVERY_CODE_CONFIG.DEFAULT_LENGTH;
+export interface TotpSetupOptions extends MfaGeneratorOptions {
+  /** TOTP secret length (default: 20) */
+  secretLength?: number;
+
+  /** TOTP digits (6 or 8, default: 6) */
+  digits?: number;
+
+  /** TOTP period in seconds (default: 30) */
+  period?: number;
+
+  /** TOTP algorithm (SHA-1, SHA-256, SHA-512, default: SHA-1) */
+  algorithm?: 'SHA-1' | 'SHA-256' | 'SHA-512';
+
+  /** Issuer name (default: 'Vubon.com.bd') */
+  issuer?: string;
+
+  /** Account name (default: email) */
+  accountName?: string;
+
+  /** Set as primary MFA method */
+  setAsPrimary?: boolean;
+
+  /** Generate backup codes */
+  generateBackupCodes?: boolean;
+
+  /** Number of backup codes to generate (default: 10) */
+  backupCodeCount?: number;
+}
 
 /**
- * Available MFA types for runtime validation
- * Value from MFA_TYPES
+ * SMS OTP setup options
  */
-export const AVAILABLE_MFA_TYPES = MFA_TYPES;
+export interface SmsOtpSetupOptions extends MfaGeneratorOptions {
+  /** Phone number (E.164 format) */
+  phoneNumber: string;
+
+  /** OTP expiry in seconds (default: 300) */
+  otpExpirySeconds?: number;
+
+  /** Maximum attempts before lockout (default: 3) */
+  maxAttempts?: number;
+
+  /** Set as primary MFA method */
+  setAsPrimary?: boolean;
+
+  /** Generate backup codes */
+  generateBackupCodes?: boolean;
+
+  /** Number of backup codes to generate (default: 10) */
+  backupCodeCount?: number;
+}
 
 /**
- * Provider display names for UI (English & Bengali)
+ * WhatsApp OTP setup options (Bangladesh specific)
  */
-export const MFA_PROVIDER_NAMES: Record<MfaGeneratorType, { en: string; bn: string }> = {
-  [MFA_TYPES.TOTP]: { en: 'Authenticator App', bn: 'অথেনটিকেটর অ্যাপ' },
-  [MFA_TYPES.SMS]: { en: 'SMS', bn: 'এসএমএস' },
-  [MFA_TYPES.EMAIL]: { en: 'Email', bn: 'ইমেইল' },
-  [MFA_TYPES.WEBAUTHN]: { en: 'Biometric / Passkey', bn: 'বায়োমেট্রিক / পাসকি' },
-  [MFA_TYPES.WHATSAPP]: { en: 'WhatsApp', bn: 'হোয়াটসঅ্যাপ' },
-  [MFA_TYPES.IMO]: { en: 'Imo', bn: 'আইএমও' },
-  [MFA_TYPES.BKASH_PIN]: { en: 'bKash PIN', bn: 'বিকাশ পিন' },
-  [MFA_TYPES.NAGAD_PIN]: { en: 'Nagad PIN', bn: 'নগদ পিন' },
-  [MFA_TYPES.ROCKET_PIN]: { en: 'Rocket PIN', bn: 'রকেট পিন' },
-  [MFA_TYPES.VOICE_CALL]: { en: 'Voice Call', bn: 'ভয়েস কল' },
-};
+export interface WhatsAppOtpSetupOptions extends MfaGeneratorOptions {
+  /** Phone number (E.164 format) */
+  phoneNumber: string;
+
+  /** WhatsApp Business Account ID */
+  businessAccountId?: string;
+
+  /** WhatsApp template name (default: 'vubon_otp_verification') */
+  templateName?: string;
+
+  /** OTP expiry in seconds (default: 300) */
+  otpExpirySeconds?: number;
+
+  /** Maximum attempts before lockout (default: 3) */
+  maxAttempts?: number;
+
+  /** Set as primary MFA method */
+  setAsPrimary?: boolean;
+
+  /** Generate backup codes */
+  generateBackupCodes?: boolean;
+
+  /** Number of backup codes to generate (default: 10) */
+  backupCodeCount?: number;
+}
 
 /**
- * Provider priority for UI display (lower number = higher priority)
+ * Imo OTP setup options (Bangladesh specific)
  */
-export const MFA_PROVIDER_PRIORITY: Record<MfaGeneratorType, number> = {
-  [MFA_TYPES.TOTP]: 1,
-  [MFA_TYPES.WEBAUTHN]: 2,
-  [MFA_TYPES.WHATSAPP]: 3,
-  [MFA_TYPES.SMS]: 4,
-  [MFA_TYPES.EMAIL]: 5,
-  [MFA_TYPES.IMO]: 6,
-  [MFA_TYPES.BKASH_PIN]: 7,
-  [MFA_TYPES.NAGAD_PIN]: 7,
-  [MFA_TYPES.ROCKET_PIN]: 7,
-  [MFA_TYPES.VOICE_CALL]: 8,
-};
+export interface ImoOtpSetupOptions extends MfaGeneratorOptions {
+  /** Phone number (E.164 format) */
+  phoneNumber: string;
+
+  /** OTP expiry in seconds (default: 300) */
+  otpExpirySeconds?: number;
+
+  /** Maximum attempts before lockout (default: 3) */
+  maxAttempts?: number;
+
+  /** Set as primary MFA method */
+  setAsPrimary?: boolean;
+
+  /** Generate backup codes */
+  generateBackupCodes?: boolean;
+
+  /** Number of backup codes to generate (default: 10) */
+  backupCodeCount?: number;
+}
 
 /**
- * Provider configuration with timeouts and retry settings
+ * Voice Call OTP setup options (Bangladesh specific - feature phones)
  */
-export const MFA_PROVIDER_CONFIG: Record<MfaGeneratorType, {
-  timeoutMs: number;
-  maxRetries: number;
-  retryDelayMs: number;
-  circuitBreakerThreshold: number;
-}> = {
-  [MFA_TYPES.TOTP]: { timeoutMs: 5000, maxRetries: 1, retryDelayMs: 0, circuitBreakerThreshold: 5 },
-  [MFA_TYPES.SMS]: { timeoutMs: 10000, maxRetries: 2, retryDelayMs: 1000, circuitBreakerThreshold: 10 },
-  [MFA_TYPES.EMAIL]: { timeoutMs: 10000, maxRetries: 2, retryDelayMs: 1000, circuitBreakerThreshold: 10 },
-  [MFA_TYPES.WEBAUTHN]: { timeoutMs: 30000, maxRetries: 1, retryDelayMs: 0, circuitBreakerThreshold: 5 },
-  [MFA_TYPES.WHATSAPP]: { timeoutMs: 10000, maxRetries: 2, retryDelayMs: 1000, circuitBreakerThreshold: 10 },
-  [MFA_TYPES.IMO]: { timeoutMs: 10000, maxRetries: 2, retryDelayMs: 1000, circuitBreakerThreshold: 10 },
-  [MFA_TYPES.BKASH_PIN]: { timeoutMs: 8000, maxRetries: 2, retryDelayMs: 500, circuitBreakerThreshold: 10 },
-  [MFA_TYPES.NAGAD_PIN]: { timeoutMs: 8000, maxRetries: 2, retryDelayMs: 500, circuitBreakerThreshold: 10 },
-  [MFA_TYPES.ROCKET_PIN]: { timeoutMs: 8000, maxRetries: 2, retryDelayMs: 500, circuitBreakerThreshold: 10 },
-  [MFA_TYPES.VOICE_CALL]: { timeoutMs: 15000, maxRetries: 3, retryDelayMs: 2000, circuitBreakerThreshold: 8 },
-};
+export interface VoiceCallOtpSetupOptions extends MfaGeneratorOptions {
+  /** Phone number (E.164 format) */
+  phoneNumber: string;
 
-// ============================================================
-// MFA Generator Interface (Enterprise Enhanced v3.0)
-// ============================================================
+  /** Voice language (en, bn, default: bn) */
+  language?: 'en' | 'bn';
 
-export interface MfaGenerator {
-  // ============================================================
-  // TOTP Operations (Enhanced)
-  // ============================================================
+  /** OTP expiry in seconds (default: 300) */
+  otpExpirySeconds?: number;
 
-  /**
-   * Generate TOTP secret for MFA setup
-   * 
-   * @param email - User email for QR code generation
-   * @param issuer - Issuer name (default: from shared-constants)
-   * @param options - Additional options (correlationId, deviceName)
-   * @returns MFA setup result with secret, QR code, and recovery codes
-   * 
-   * @example
-   * const setup = await mfaGenerator.generateTOTPSecret('user@example.com');
-   * console.log(setup.secret); // 'JBSWY3DPEHPK3PXP'
-   * console.log(setup.qrCodeUri); // 'otpauth://totp/...'
-   */
-  generateTOTPSecret(
-    email: string, 
-    issuer?: string,
-    options?: { correlationId?: string; deviceName?: string }
-  ): Promise<MfaSetupResult>;
-  
-  /**
-   * Verify TOTP code with enhanced options
-   * 
-   * @param secret - The TOTP secret key
-   * @param code - The 6-digit code from authenticator app
-   * @param options - Verification options (window, algorithm, digits, period)
-   * @returns Verification result
-   * 
-   * @example
-   * const result = await mfaGenerator.verifyTOTPCode(secret, '123456', { window: 2 });
-   * if (result.isValid) {
-   *   // Code is valid within 2 periods
-   * }
-   */
-  verifyTOTPCode(
-    secret: string, 
-    code: string, 
-    options?: TotpVerificationOptions
-  ): Promise<TotpVerificationResult>;
-  
-  // ============================================================
-  // SMS OTP Operations (Enhanced)
-  // ============================================================
+  /** Maximum attempts before lockout (default: 3) */
+  maxAttempts?: number;
 
-  /**
-   * Generate SMS OTP code with advanced options
-   * 
-   * @param phoneNumber - Phone number to send OTP to
-   * @param options - OTP generation options (language, expiry, rate limiting)
-   * @returns OTP result with session ID
-   * 
-   * @example
-   * const result = await mfaGenerator.generateSmsOtp('+8801712345678', {
-   *   language: 'bn',
-   *   rateLimitKey: 'user_123'
-   * });
-   */
-  generateSmsOtp(
-    phoneNumber: string, 
-    options?: OtpGenerationOptions
-  ): Promise<OtpResult>;
-  
-  /**
-   * Verify SMS OTP code
-   * 
-   * @param phoneNumber - Phone number
-   * @param code - OTP code to verify
-   * @param sessionId - Session ID from OTP generation
-   * @param options - Verification options (correlationId, trackAttempt)
-   * @returns True if code is valid
-   */
-  verifySmsOtp(
-    phoneNumber: string, 
-    code: string, 
-    sessionId?: string,
-    options?: { correlationId?: string; trackAttempt?: boolean }
-  ): Promise<boolean>;
-  
-  // ============================================================
-  // WhatsApp OTP (Bangladesh specific) - Enhanced
-  // ============================================================
+  /** Voice call retry count (default: 3) */
+  retryCount?: number;
 
-  /**
-   * Generate WhatsApp OTP with template support
-   * 
-   * @param phoneNumber - Phone number to send OTP via WhatsApp
-   * @param options - OTP generation options with template support
-   * @returns OTP result
-   * 
-   * @example
-   * const result = await mfaGenerator.generateWhatsAppOtp('+8801712345678', {
-   *   language: 'bn',
-   *   templateName: 'login_otp',
-   *   templateVars: { company: 'Vubon' }
-   * });
-   */
-  generateWhatsAppOtp(
-    phoneNumber: string, 
-    options?: OtpGenerationOptions
-  ): Promise<OtpResult>;
-  
-  /**
-   * Verify WhatsApp OTP
-   * 
-   * @param phoneNumber - Phone number
-   * @param code - OTP code to verify
-   * @param sessionId - Session ID from OTP generation
-   * @param options - Verification options
-   * @returns True if code is valid
-   */
-  verifyWhatsAppOtp(
-    phoneNumber: string, 
-    code: string, 
-    sessionId?: string,
-    options?: { correlationId?: string; trackAttempt?: boolean }
-  ): Promise<boolean>;
-  
-  // ============================================================
-  // Imo OTP (Bangladesh specific) - Enhanced
-  // ============================================================
+  /** Voice call retry delay in seconds (default: 10) */
+  retryDelaySeconds?: number;
 
-  /**
-   * Generate Imo OTP
-   * 
-   * @param phoneNumber - Phone number to send OTP via Imo
-   * @param options - OTP generation options
-   * @returns OTP result
-   */
-  generateImoOtp(
-    phoneNumber: string, 
-    options?: OtpGenerationOptions
-  ): Promise<OtpResult>;
-  
-  /**
-   * Verify Imo OTP
-   * 
-   * @param phoneNumber - Phone number
-   * @param code - OTP code to verify
-   * @param sessionId - Session ID from OTP generation
-   * @returns True if code is valid
-   */
-  verifyImoOtp(
-    phoneNumber: string, 
-    code: string, 
-    sessionId?: string,
-    options?: { correlationId?: string }
-  ): Promise<boolean>;
-  
-  // ============================================================
-  // Email OTP Operations (Enhanced)
-  // ============================================================
+  /** Set as primary MFA method */
+  setAsPrimary?: boolean;
 
-  /**
-   * Generate Email OTP with HTML template support
-   * 
-   * @param email - Email address to send OTP to
-   * @param options - OTP generation options
-   * @returns OTP result
-   * 
-   * @example
-   * const result = await mfaGenerator.generateEmailOtp('user@example.com', {
-   *   language: 'bn',
-   *   templateName: 'password_reset',
-   *   templateVars: { name: 'John' }
-   * });
-   */
-  generateEmailOtp(
-    email: string, 
-    options?: OtpGenerationOptions
-  ): Promise<OtpResult>;
-  
-  /**
-   * Verify Email OTP
-   * 
-   * @param email - Email address
-   * @param code - OTP code to verify
-   * @param sessionId - Session ID from OTP generation
-   * @returns True if code is valid
-   */
-  verifyEmailOtp(
-    email: string, 
-    code: string, 
-    sessionId?: string,
-    options?: { correlationId?: string }
-  ): Promise<boolean>;
-  
-  // ============================================================
-  // Voice Call OTP (Feature phones - Bangladesh) - Enhanced
-  // ============================================================
+  /** Generate backup codes */
+  generateBackupCodes?: boolean;
 
-  /**
-   * Generate Voice Call OTP for feature phones
-   * 
-   * @param phoneNumber - Phone number to call
-   * @param options - OTP generation options
-   * @returns OTP result
-   * 
-   * @example
-   * const result = await mfaGenerator.generateVoiceOtp('+8801712345678', {
-   *   language: 'bn',
-   *   templateName: 'verification'
-   * });
-   */
-  generateVoiceOtp(
-    phoneNumber: string, 
-    options?: OtpGenerationOptions
-  ): Promise<OtpResult>;
-  
-  /**
-   * Verify Voice Call OTP
-   * 
-   * @param phoneNumber - Phone number
-   * @param code - OTP code to verify
-   * @param sessionId - Session ID from OTP generation
-   * @returns True if code is valid
-   */
-  verifyVoiceOtp(
-    phoneNumber: string, 
-    code: string, 
-    sessionId?: string,
-    options?: { correlationId?: string }
-  ): Promise<boolean>;
-  
-  // ============================================================
-  // Batch OTP Operations (Enterprise Feature)
-  // ============================================================
+  /** Number of backup codes to generate (default: 10) */
+  backupCodeCount?: number;
+}
 
-  /**
-   * Generate OTPs for multiple recipients in batch
-   * 
-   * @param request - Batch OTP request with recipients list
-   * @returns Batch OTP result with per-recipient status
-   * 
-   * @example
-   * const result = await mfaGenerator.batchGenerateOtp({
-   *   recipients: ['+8801712345678', '+8801812345678'],
-   *   type: 'whatsapp',
-   *   language: 'bn',
-   *   adminId: 'admin_123',
-   *   reason: 'Security broadcast'
-   * });
-   */
-  batchGenerateOtp(request: BatchOtpRequest): Promise<BatchOtpResult>;
-  
-  // ============================================================
-  // MFS PIN Verification (Bangladesh specific) - Enhanced
-  // ============================================================
+/**
+ * bKash PIN setup options (Bangladesh specific)
+ */
+export interface BkashPinSetupOptions extends MfaGeneratorOptions {
+  /** bKash account number (E.164 format) */
+  accountNumber: string;
 
-  /**
-   * Verify bKash PIN with retry tracking
-   * 
-   * @param accountNumber - bKash account number
-   * @param pin - 4-digit bKash PIN
-   * @param options - Verification options (maxRetries, lockDuration, tracking)
-   * @returns Verification result with remaining attempts
-   * 
-   * @example
-   * const result = await mfaGenerator.verifyBkashPin('+8801712345678', '1234', {
-   *   maxRetries: 3,
-   *   trackAttempt: true,
-   *   deviceFingerprint: 'fp_abc123'
-   * });
-   */
-  verifyBkashPin(
-    accountNumber: string, 
-    pin: string, 
-    options?: MFSPinVerificationOptions
-  ): Promise<MFSPinVerificationResult>;
-  
-  /**
-   * Verify Nagad PIN with retry tracking
-   * 
-   * @param accountNumber - Nagad account number
-   * @param pin - 4-digit Nagad PIN
-   * @param options - Verification options
-   * @returns Verification result with remaining attempts
-   */
-  verifyNagadPin(
-    accountNumber: string, 
-    pin: string, 
-    options?: MFSPinVerificationOptions
-  ): Promise<MFSPinVerificationResult>;
-  
-  /**
-   * Verify Rocket PIN with retry tracking
-   * 
-   * @param accountNumber - Rocket account number
-   * @param pin - 4-digit Rocket PIN
-   * @param options - Verification options
-   * @returns Verification result with remaining attempts
-   */
-  verifyRocketPin(
-    accountNumber: string, 
-    pin: string, 
-    options?: MFSPinVerificationOptions
-  ): Promise<MFSPinVerificationResult>;
-  
-  // ============================================================
-  // Backup Code Operations (Enhanced)
-  // ============================================================
+  /** Account type (personal, merchant) */
+  accountType?: 'personal' | 'merchant';
 
-  /**
-   * Generate a new set of backup codes with advanced options
-   * 
-   * @param options - Backup code options (count, length, format, saltRounds)
-   * @returns Array of plain backup codes (for one-time display)
-   * 
-   * @example
-   * const backupCodes = await mfaGenerator.generateBackupCodes({
-   *   count: 10,
-   *   length: 8,
-   *   format: 'formatted-with-hyphen',
-   *   saltRounds: 12
-   * });
-   * // ['AB3F-9K2M', 'CD4G-0L3N', ...]
-   */
-  generateBackupCodes(options?: BackupCodeOptions): Promise<string[]>;
-  
-  /**
-   * Hash backup code for secure storage
-   * 
-   * @param code - Backup code to hash
-   * @param saltRounds - Bcrypt salt rounds (optional)
-   * @returns Hashed backup code (bcrypt format)
-   * 
-   * @example
-   * const hashed = await mfaGenerator.hashBackupCode('AB3F-9K2M', 10);
-   * // '$2b$10$KIXNzGZ5Lk...'
-   */
-  hashBackupCode(code: string, saltRounds?: number): Promise<string>;
-  
-  /**
-   * Verify backup code against stored hashes
-   * 
-   * @param code - Backup code to verify
-   * @param storedHashes - Array of stored backup code hashes
-   * @param options - Verification options (track usage)
-   * @returns Backup code verification result
-   * 
-   * @example
-   * const result = await mfaGenerator.verifyBackupCode('AB3F-9K2M', storedHashes);
-   * if (result.isValid) {
-   *   console.log(`Remaining codes: ${result.remainingCodes}`);
-   * }
-   */
-  verifyBackupCode(
-    code: string, 
-    storedHashes: string[], 
-    options?: { trackUsage?: boolean; correlationId?: string }
-  ): Promise<BackupCodeResult>;
-  
-  // ============================================================
-  // WebAuthn (Biometric/Passkey) - Enhanced
-  // ============================================================
+  /** Account holder name */
+  accountHolderName?: string;
 
-  /**
-   * Get WebAuthn registration options with advanced configuration
-   * 
-   * @param userId - User ID (must be UUID)
-   * @param email - User email
-   * @param displayName - User display name
-   * @param options - WebAuthn registration options (deviceName, attestation, authenticatorAttachment)
-   * @returns WebAuthn registration options including challenge, rpId, timeout
-   */
-  getWebAuthnRegistrationOptions(
-    userId: string,
-    email: string,
-    displayName: string,
-    options?: WebAuthnRegistrationOptions
-  ): Promise<MfaSetupResult>;
-  
-  /**
-   * Verify WebAuthn registration response
-   * 
-   * @param credential - WebAuthn credential (from navigator.credentials.create)
-   * @param challenge - Original challenge used in registration
-   * @param options - Verification options
-   * @returns True if registration is valid
-   */
-  verifyWebAuthnRegistration(
-    credential: unknown, 
-    challenge: string,
-    options?: { attestationTrustStore?: string[]; correlationId?: string }
-  ): Promise<boolean>;
-  
-  /**
-   * Get WebAuthn authentication options
-   * 
-   * @param credentials - Array of credential IDs (from user's stored credentials)
-   * @param options - Authentication options (timeout, userVerification)
-   * @returns WebAuthn authentication options including challenge
-   */
-  getWebAuthnAuthenticationOptions(
-    credentials: string[],
-    options?: WebAuthnAuthenticationOptions
-  ): Promise<MfaSetupResult>;
-  
-  /**
-   * Verify WebAuthn authentication response
-   * 
-   * @param credential - WebAuthn credential (from navigator.credentials.get)
-   * @param challenge - Original challenge used in authentication
-   * @param options - Verification options
-   * @returns True if authentication is valid
-   */
-  verifyWebAuthnAuthentication(
-    credential: unknown, 
-    challenge: string,
-    options?: { updateCounter?: boolean; correlationId?: string }
-  ): Promise<boolean>;
-  
-  // ============================================================
-  // QR Code & URI Utilities
-  // ============================================================
+  /** PIN expiry in seconds (default: 300) */
+  pinExpirySeconds?: number;
 
-  /**
-   * Get provisioning URI for manual TOTP setup
-   * 
-   * @param secret - TOTP secret key
-   * @param email - User email
-   * @param issuer - Issuer name (default: from shared-constants)
-   * @param options - URI options (algorithm, digits, period)
-   * @returns Provisioning URI (otpauth://totp/...)
-   * 
-   * @example
-   * const uri = mfaGenerator.getProvisioningUri(secret, 'user@example.com', 'Vubon');
-   * // 'otpauth://totp/Vubon:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Vubon'
-   */
-  getProvisioningUri(
-    secret: string, 
-    email: string, 
-    issuer?: string,
-    options?: { algorithm?: string; digits?: number; period?: number }
-  ): string;
-  
-  /**
-   * Generate QR code as data URL (PNG format)
-   * 
-   * @param secret - TOTP secret key
-   * @param email - User email
-   * @param issuer - Issuer name (default: from shared-constants)
-   * @param options - QR code options (size, margin, errorCorrection)
-   * @returns QR code as data URL (base64 PNG)
-   * 
-   * @example
-   * const qrCode = await mfaGenerator.generateQrCode(secret, 'user@example.com');
-   * // 'data:image/png;base64,iVBORw0KG...'
-   */
-  generateQrCode(
-    secret: string, 
-    email: string, 
-    issuer?: string,
-    options?: { size?: number; margin?: number; errorCorrection?: 'L' | 'M' | 'Q' | 'H' }
-  ): Promise<string>;
-  
-  // ============================================================
-  // Provider Management (Enhanced)
-  // ============================================================
+  /** Maximum attempts before lockout (default: 3) */
+  maxAttempts?: number;
 
-  /**
-   * Get all MFA provider information with Bengali names
-   * 
-   * @returns List of available MFA providers with metadata
-   */
-  getProviders(): Promise<MfaProviderInfo[]>;
-  
-  /**
-   * Get MFA provider info by type
-   * 
-   * @param type - MFA generator type
-   * @returns Provider info or null
-   */
-  getProviderInfo(type: MfaGeneratorType): Promise<MfaProviderInfo | null>;
-  
-  /**
-   * Check if MFA type is available (provider configured)
-   * 
-   * @param type - MFA generator type
-   * @returns True if the MFA type is configured and available
-   * 
-   * @example
-   * const available = await mfaGenerator.isAvailable(MfaGeneratorType.SMS);
-   * // true (if SMS provider is configured)
-   */
-  isAvailable(type: MfaGeneratorType): Promise<boolean>;
-  
-  /**
-   * Get list of available MFA types (only configured providers)
-   * 
-   * @returns Array of available MFA types
-   * 
-   * @example
-   * const types = await mfaGenerator.getAvailableTypes();
-   * // [MfaGeneratorType.TOTP, MfaGeneratorType.SMS, MfaGeneratorType.WHATSAPP]
-   */
-  getAvailableTypes(): Promise<MfaGeneratorType[]>;
-  
-  /**
-   * Get provider configuration with timeouts and retry settings
-   * 
-   * @param type - MFA generator type
-   * @returns Provider configuration
-   */
-  getProviderConfig(type: MfaGeneratorType): Promise<{
-    timeoutMs: number;
-    maxRetries: number;
-    retryDelayMs: number;
-    circuitBreakerThreshold: number;
-  }>;
-  
-  // ============================================================
-  // Health & Monitoring (Enterprise Feature)
-  // ============================================================
+  /** Lockout duration in seconds (default: 900) */
+  lockoutDurationSeconds?: number;
 
-  /**
-   * Check provider health status
-   * 
-   * @param type - MFA generator type
-   * @returns Health status with latency and error rate
-   */
-  healthCheck(type: MfaGeneratorType): Promise<{
-    healthy: boolean;
-    latencyMs: number;
-    lastSuccessAt?: Date;
-    lastFailureAt?: Date;
-    consecutiveFailures: number;
-    circuitBreakerState: 'closed' | 'open' | 'half-open';
-    message?: string;
-  }>;
-  
-  /**
-   * Get metrics for all providers
-   * 
-   * @returns Provider metrics with success rates and latencies
-   */
-  getProviderMetrics(): Promise<Record<MfaGeneratorType, {
-    totalRequests: number;
-    successRate: number;
-    averageLatencyMs: number;
-    p95LatencyMs: number;
-    p99LatencyMs: number;
-  }>>;
-  
-  /**
-   * Reset circuit breaker for a provider
-   * 
-   * @param type - MFA generator type
-   */
-  resetCircuitBreaker(type: MfaGeneratorType): Promise<void>;
+  /** Set as primary MFA method */
+  setAsPrimary?: boolean;
+
+  /** Generate backup codes */
+  generateBackupCodes?: boolean;
+
+  /** Number of backup codes to generate (default: 10) */
+  backupCodeCount?: number;
+}
+
+/**
+ * Nagad PIN setup options (Bangladesh specific)
+ */
+export interface NagadPinSetupOptions extends MfaGeneratorOptions {
+  /** Nagad account number (E.164 format) */
+  accountNumber: string;
+
+  /** Account type (personal, merchant) */
+  accountType?: 'personal' | 'merchant';
+
+  /** Account holder name */
+  accountHolderName?: string;
+
+  /** PIN expiry in seconds (default: 300) */
+  pinExpirySeconds?: number;
+
+  /** Maximum attempts before lockout (default: 3) */
+  maxAttempts?: number;
+
+  /** Lockout duration in seconds (default: 900) */
+  lockoutDurationSeconds?: number;
+
+  /** Set as primary MFA method */
+  setAsPrimary?: boolean;
+
+  /** Generate backup codes */
+  generateBackupCodes?: boolean;
+
+  /** Number of backup codes to generate (default: 10) */
+  backupCodeCount?: number;
+}
+
+/**
+ * Rocket PIN setup options (Bangladesh specific)
+ */
+export interface RocketPinSetupOptions extends MfaGeneratorOptions {
+  /** Rocket account number (E.164 format) */
+  accountNumber: string;
+
+  /** Account type (personal, merchant) */
+  accountType?: 'personal' | 'merchant';
+
+  /** Account holder name */
+  accountHolderName?: string;
+
+  /** PIN expiry in seconds (default: 300) */
+  pinExpirySeconds?: number;
+
+  /** Maximum attempts before lockout (default: 3) */
+  maxAttempts?: number;
+
+  /** Lockout duration in seconds (default: 900) */
+  lockoutDurationSeconds?: number;
+
+  /** Set as primary MFA method */
+  setAsPrimary?: boolean;
+
+  /** Generate backup codes */
+  generateBackupCodes?: boolean;
+
+  /** Number of backup codes to generate (default: 10) */
+  backupCodeCount?: number;
+}
+
+/**
+ * WebAuthn setup options
+ */
+export interface WebAuthnSetupOptions extends MfaGeneratorOptions {
+  /** Device name */
+  deviceName: string;
+
+  /** User display name */
+  userDisplayName?: string;
+
+  /** Authenticator type (platform, cross-platform) */
+  authenticatorType?: 'platform' | 'cross-platform';
+
+  /** Set as primary MFA method */
+  setAsPrimary?: boolean;
+
+  /** Generate backup codes */
+  generateBackupCodes?: boolean;
+
+  /** Number of backup codes to generate (default: 10) */
+  backupCodeCount?: number;
+}
+
+/**
+ * Backup code options
+ */
+export interface BackupCodeOptions extends MfaGeneratorOptions {
+  /** Number of backup codes to generate (default: 10) */
+  count?: number;
+
+  /** Length of each backup code (default: 8) */
+  codeLength?: number;
+
+  /** Code format (alphanumeric, numeric, alphanumeric_with_hyphen) */
+  format?: 'alphanumeric' | 'numeric' | 'alphanumeric_with_hyphen';
+
+  /** Regenerate threshold (default: 3) */
+  regenerateThreshold?: number;
+}
+
+/**
+ * Recovery code options
+ */
+export interface RecoveryCodeOptions extends MfaGeneratorOptions {
+  /** Number of recovery codes to generate (default: 5) */
+  count?: number;
+
+  /** Length of each recovery code (default: 12) */
+  codeLength?: number;
+
+  /** Code expiry in days (default: 0 = never expires) */
+  expiryDays?: number;
+
+  /** Regenerate threshold (default: 2) */
+  regenerateThreshold?: number;
+}
+
+/**
+ * MFA verification options
+ */
+export interface MfaVerificationOptions extends MfaGeneratorOptions {
+  /** MFA method ID (if multiple methods) */
+  methodId?: string;
+
+  /** Trust device after successful verification */
+  trustDevice?: boolean;
+
+  /** Trust duration in days (default: 30) */
+  trustDurationDays?: number;
+
+  /** Maximum attempts before lockout (default: 3) */
+  maxAttempts?: number;
+
+  /** Record IP address for audit */
+  recordIp?: boolean;
+
+  /** Record device fingerprint for audit */
+  recordDeviceFingerprint?: boolean;
+}
+
+/**
+ * MFA disable options
+ */
+export interface MfaDisableOptions extends MfaGeneratorOptions {
+  /** MFA method ID (if disabling specific method) */
+  methodId?: string;
+
+  /** Disable all MFA methods */
+  disableAll?: boolean;
+
+  /** Reason for disabling */
+  reason?: string;
+
+  /** Require confirmation before disabling */
+  requireConfirmation?: boolean;
+
+  /** Record IP address for audit */
+  recordIp?: boolean;
+
+  /** Record device fingerprint for audit */
+  recordDeviceFingerprint?: boolean;
 }
 
 // ============================================================
-// Dependency Injection Token
+// ✅ ENTERPRISE ENHANCEMENT 2: Result Interfaces
 // ============================================================
 
-export const MFA_GENERATOR_SERVICE = 'MFA_GENERATOR_SERVICE';
+/**
+ * Generic service result wrapper
+ */
+export interface ServiceResult<T> {
+  /** Whether the operation was successful */
+  success: boolean;
+
+  /** Response data (if successful) */
+  data?: T;
+
+  /** Error code (if failed) */
+  errorCode?: ApiErrorCode;
+
+  /** Error message (if failed) */
+  errorMessage?: string;
+
+  /** Bengali error message */
+  errorMessageBn?: string;
+
+  /** Rate limit metadata */
+  rateLimit?: {
+    remaining: number;
+    resetAt: Date;
+    limit: number;
+  };
+
+  /** Correlation ID for tracing */
+  correlationId?: string;
+
+  /** Duration of operation in milliseconds */
+  durationMs?: number;
+}
+
+/**
+ * MFA method list result
+ */
+export interface MfaMethodListResult {
+  /** List of MFA methods */
+  methods: MfaGeneratorType[];
+
+  /** Total number of methods */
+  total: number;
+
+  /** Primary method ID (if any) */
+  primaryMethodId?: string;
+
+  /** Recommended methods for user */
+  recommendedMethods?: MfaProviderType[];
+}
 
 // ============================================================
-// Type Exports (Full List)
+// ✅ ENTERPRISE ENHANCEMENT 3: Main Service Interface
 // ============================================================
 
-export type { 
-  MfaProviderInfo as MfaProviderInfoType,
-  MfaSetupResult as MfaSetupResultType,
-  TotpVerificationResult as TotpVerificationResultType,
-  BackupCodeResult as BackupCodeResultType,
-  MFSPinVerificationResult as MFSPinVerificationResultType,
-  OtpResult as OtpResultType,
-  OtpGenerationOptions as OtpGenerationOptionsType,
-  BatchOtpRequest as BatchOtpRequestType,
-  BatchOtpResult as BatchOtpResultType,
-  TotpVerificationOptions as TotpVerificationOptionsType,
-  MFSPinVerificationOptions as MFSPinVerificationOptionsType,
+/**
+ * MFA Generator Service Interface
+ * 
+ * Enterprise-grade service contract for MFA operations
+ */
+export interface IMfaGeneratorService {
+  // ============================================================
+  // Setup Operations
+  // ============================================================
+
+  /**
+   * Setup TOTP for user
+   * 
+   * @param userId - User ID
+   * @param options - TOTP setup options
+   * @param deviceInfo - Device information
+   * @returns Setup result with secret, QR code, and backup codes
+   */
+  setupTotp(
+    userId: string,
+    options: TotpSetupOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<MfaSetupResult>>;
+
+  /**
+   * Setup SMS OTP for user
+   * 
+   * @param userId - User ID
+   * @param options - SMS OTP setup options
+   * @param deviceInfo - Device information
+   * @returns Setup result with OTP sent status
+   */
+  setupSmsOtp(
+    userId: string,
+    options: SmsOtpSetupOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<MfaSetupResult>>;
+
+  /**
+   * Setup WhatsApp OTP for user (Bangladesh specific)
+   * 
+   * @param userId - User ID
+   * @param options - WhatsApp OTP setup options
+   * @param deviceInfo - Device information
+   * @returns Setup result with OTP sent status
+   */
+  setupWhatsAppOtp(
+    userId: string,
+    options: WhatsAppOtpSetupOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<MfaSetupResult>>;
+
+  /**
+   * Setup Imo OTP for user (Bangladesh specific)
+   * 
+   * @param userId - User ID
+   * @param options - Imo OTP setup options
+   * @param deviceInfo - Device information
+   * @returns Setup result with OTP sent status
+   */
+  setupImoOtp(
+    userId: string,
+    options: ImoOtpSetupOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<MfaSetupResult>>;
+
+  /**
+   * Setup Voice Call OTP for user (Bangladesh specific - feature phones)
+   * 
+   * @param userId - User ID
+   * @param options - Voice Call OTP setup options
+   * @param deviceInfo - Device information
+   * @returns Setup result with call status
+   */
+  setupVoiceCallOtp(
+    userId: string,
+    options: VoiceCallOtpSetupOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<MfaSetupResult>>;
+
+  /**
+   * Setup bKash PIN for user (Bangladesh specific)
+   * 
+   * @param userId - User ID
+   * @param options - bKash PIN setup options
+   * @param deviceInfo - Device information
+   * @returns Setup result with PIN sent status
+   */
+  setupBkashPin(
+    userId: string,
+    options: BkashPinSetupOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<MfaSetupResult>>;
+
+  /**
+   * Setup Nagad PIN for user (Bangladesh specific)
+   * 
+   * @param userId - User ID
+   * @param options - Nagad PIN setup options
+   * @param deviceInfo - Device information
+   * @returns Setup result with PIN sent status
+   */
+  setupNagadPin(
+    userId: string,
+    options: NagadPinSetupOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<MfaSetupResult>>;
+
+  /**
+   * Setup Rocket PIN for user (Bangladesh specific)
+   * 
+   * @param userId - User ID
+   * @param options - Rocket PIN setup options
+   * @param deviceInfo - Device information
+   * @returns Setup result with PIN sent status
+   */
+  setupRocketPin(
+    userId: string,
+    options: RocketPinSetupOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<MfaSetupResult>>;
+
+  /**
+   * Setup WebAuthn for user
+   * 
+   * @param userId - User ID
+   * @param options - WebAuthn setup options
+   * @param deviceInfo - Device information
+   * @returns Setup result with challenge data
+   */
+  setupWebAuthn(
+    userId: string,
+    options: WebAuthnSetupOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<MfaSetupResult>>;
+
+  /**
+   * Generate backup codes for user
+   * 
+   * @param userId - User ID
+   * @param options - Backup code options
+   * @param deviceInfo - Device information
+   * @returns Backup codes
+   */
+  generateBackupCodes(
+    userId: string,
+    options: BackupCodeOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<MfaSetupResult>>;
+
+  /**
+   * Generate recovery codes for user
+   * 
+   * @param userId - User ID
+   * @param options - Recovery code options
+   * @param deviceInfo - Device information
+   * @returns Recovery codes
+   */
+  generateRecoveryCodes(
+    userId: string,
+    options: RecoveryCodeOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<MfaSetupResult>>;
+
+  // ============================================================
+  // Verification Operations
+  // ============================================================
+
+  /**
+   * Verify TOTP code
+   * 
+   * @param userId - User ID
+   * @param methodId - MFA method ID
+   * @param code - TOTP code to verify
+   * @param options - Verification options
+   * @param deviceInfo - Device information
+   * @returns Verification result
+   */
+  verifyTotp(
+    userId: string,
+    methodId: string,
+    code: string,
+    options: MfaVerificationOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<TotpVerificationResult>>;
+
+  /**
+   * Verify OTP code (SMS/WhatsApp/Imo/Voice)
+   * 
+   * @param userId - User ID
+   * @param methodId - MFA method ID
+   * @param code - OTP code to verify
+   * @param options - Verification options
+   * @param deviceInfo - Device information
+   * @returns Verification result
+   */
+  verifyOtp(
+    userId: string,
+    methodId: string,
+    code: string,
+    options: MfaVerificationOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<OtpResult>>;
+
+  /**
+   * Verify MFS PIN (bKash/Nagad/Rocket)
+   * 
+   * @param userId - User ID
+   * @param methodId - MFA method ID
+   * @param pin - PIN to verify
+   * @param options - Verification options
+   * @param deviceInfo - Device information
+   * @returns Verification result
+   */
+  verifyMfsPin(
+    userId: string,
+    methodId: string,
+    pin: string,
+    options: MfaVerificationOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<MFSPinVerificationResult>>;
+
+  /**
+   * Verify backup code
+   * 
+   * @param userId - User ID
+   * @param code - Backup code to verify
+   * @param options - Verification options
+   * @param deviceInfo - Device information
+   * @returns Verification result
+   */
+  verifyBackupCode(
+    userId: string,
+    code: string,
+    options: MfaVerificationOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<BackupCodeResult>>;
+
+  /**
+   * Verify recovery code
+   * 
+   * @param userId - User ID
+   * @param code - Recovery code to verify
+   * @param options - Verification options
+   * @param deviceInfo - Device information
+   * @returns Verification result
+   */
+  verifyRecoveryCode(
+    userId: string,
+    code: string,
+    options: MfaVerificationOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<BackupCodeResult>>;
+
+  /**
+   * Complete WebAuthn authentication
+   * 
+   * @param userId - User ID
+   * @param methodId - MFA method ID
+   * @param credentialId - WebAuthn credential ID
+   * @param authenticatorData - Authenticator data
+   * @param clientDataJSON - Client data JSON
+   * @param signature - Signature
+   * @param options - Verification options
+   * @param deviceInfo - Device information
+   * @returns Verification result
+   */
+  verifyWebAuthn(
+    userId: string,
+    methodId: string,
+    credentialId: string,
+    authenticatorData: string,
+    clientDataJSON: string,
+    signature: string,
+    options: MfaVerificationOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<TotpVerificationResult>>;
+
+  // ============================================================
+  // Method Management Operations
+  // ============================================================
+
+  /**
+   * Get all MFA methods for user
+   * 
+   * @param userId - User ID
+   * @param includeDisabled - Include disabled methods
+   * @param options - Query options
+   * @returns List of MFA methods
+   */
+  getMethods(
+    userId: string,
+    includeDisabled?: boolean,
+    options?: MfaGeneratorOptions
+  ): Promise<ServiceResult<MfaMethodListResult>>;
+
+  /**
+   * Get specific MFA method by ID
+   * 
+   * @param userId - User ID
+   * @param methodId - MFA method ID
+   * @returns MFA method details
+   */
+  getMethod(
+    userId: string,
+    methodId: string
+  ): Promise<ServiceResult<MfaGeneratorType>>;
+
+  /**
+   * Get primary MFA method for user
+   * 
+   * @param userId - User ID
+   * @returns Primary MFA method
+   */
+  getPrimaryMethod(
+    userId: string
+  ): Promise<ServiceResult<MfaGeneratorType>>;
+
+  /**
+   * Set primary MFA method
+   * 
+   * @param userId - User ID
+   * @param methodId - MFA method ID
+   * @param options - Options
+   * @param deviceInfo - Device information
+   * @returns Success status
+   */
+  setPrimaryMethod(
+    userId: string,
+    methodId: string,
+    options: MfaGeneratorOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<{ success: boolean }>>;
+
+  /**
+   * Disable MFA method
+   * 
+   * @param userId - User ID
+   * @param methodId - MFA method ID
+   * @param options - Disable options
+   * @param deviceInfo - Device information
+   * @returns Disable result
+   */
+  disableMethod(
+    userId: string,
+    methodId: string,
+    options: MfaDisableOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<{ success: boolean; methodId: string }>>;
+
+  /**
+   * Disable all MFA methods
+   * 
+   * @param userId - User ID
+   * @param options - Disable options
+   * @param deviceInfo - Device information
+   * @returns Disable result
+   */
+  disableAllMethods(
+    userId: string,
+    options: MfaDisableOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<{ success: boolean; disabledMethods: string[] }>>;
+
+  /**
+   * Regenerate backup codes
+   * 
+   * @param userId - User ID
+   * @param options - Backup code options
+   * @param deviceInfo - Device information
+   * @returns New backup codes
+   */
+  regenerateBackupCodes(
+    userId: string,
+    options: BackupCodeOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<MfaSetupResult>>;
+
+  /**
+   * Regenerate recovery codes
+   * 
+   * @param userId - User ID
+   * @param options - Recovery code options
+   * @param deviceInfo - Device information
+   * @returns New recovery codes
+   */
+  regenerateRecoveryCodes(
+    userId: string,
+    options: RecoveryCodeOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<MfaSetupResult>>;
+
+  // ============================================================
+  // Provider Management Operations
+  // ============================================================
+
+  /**
+   * Get available MFA providers
+   * 
+   * @param userId - User ID (for personalized recommendations)
+   * @param options - Options
+   * @returns List of available providers
+   */
+  getAvailableProviders(
+    userId?: string,
+    options?: MfaGeneratorOptions
+  ): Promise<ServiceResult<MfaProviderInfo[]>>;
+
+  /**
+   * Get provider configuration
+   * 
+   * @param provider - MFA provider type
+   * @returns Provider configuration
+   */
+  getProviderConfig(
+    provider: MfaProviderType
+  ): Promise<ServiceResult<MfaProviderConfig>>;
+
+  /**
+   * Update provider configuration
+   * 
+   * @param provider - MFA provider type
+   * @param config - Updated configuration
+   * @param options - Options
+   * @returns Updated configuration
+   */
+  updateProviderConfig(
+    provider: MfaProviderType,
+    config: Partial<MfaProviderConfig>,
+    options?: MfaGeneratorOptions
+  ): Promise<ServiceResult<MfaProviderConfig>>;
+
+  /**
+   * Get recommended MFA methods for user
+   * 
+   * @param userId - User ID
+   * @param deviceInfo - Device information (for compatibility)
+   * @param options - Options
+   * @returns Recommended methods with priorities
+   */
+  getRecommendedMethods(
+    userId: string,
+    deviceInfo: DeviceInfo,
+    options?: MfaGeneratorOptions
+  ): Promise<ServiceResult<MfaMethodPriority[]>>;
+
+  // ============================================================
+  // Rate Limit & Lockout Operations
+  // ============================================================
+
+  /**
+   * Get rate limit status for user
+   * 
+   * @param userId - User ID
+   * @param provider - MFA provider type
+   * @param options - Options
+   * @returns Rate limit status
+   */
+  getRateLimitStatus(
+    userId: string,
+    provider: MfaProviderType,
+    options?: MfaGeneratorOptions
+  ): Promise<ServiceResult<MfaRateLimitStatus>>;
+
+  /**
+   * Get lockout status for user
+   * 
+   * @param userId - User ID
+   * @param provider - MFA provider type
+   * @param options - Options
+   * @returns Lockout status
+   */
+  getLockoutStatus(
+    userId: string,
+    provider: MfaProviderType,
+    options?: MfaGeneratorOptions
+  ): Promise<ServiceResult<MfaLockoutStatus>>;
+
+  /**
+   * Unlock MFA method
+   * 
+   * @param userId - User ID
+   * @param methodId - MFA method ID
+   * @param options - Options
+   * @param deviceInfo - Device information
+   * @returns Unlock status
+   */
+  unlockMethod(
+    userId: string,
+    methodId: string,
+    options: MfaGeneratorOptions,
+    deviceInfo: DeviceInfo
+  ): Promise<ServiceResult<{ success: boolean; methodId: string }>>;
+
+  // ============================================================
+  // Configuration & Health Operations
+  // ============================================================
+
+  /**
+   * Get MFA configuration
+   * 
+   * @param options - Options
+   * @returns MFA configuration
+   */
+  getConfiguration(
+    options?: MfaGeneratorOptions
+  ): Promise<ServiceResult<MfaConfiguration>>;
+
+  /**
+   * Update MFA configuration
+   * 
+   * @param config - Updated configuration
+   * @param options - Options
+   * @returns Updated configuration
+   */
+  updateConfiguration(
+    config: Partial<MfaConfiguration>,
+    options?: MfaGeneratorOptions
+  ): Promise<ServiceResult<MfaConfiguration>>;
+
+  /**
+   * Health check for MFA generator service
+   * 
+   * @returns Health status
+   */
+  healthCheck(): Promise<{
+    status: 'healthy' | 'degraded' | 'unhealthy';
+    version: string;
+    uptime: number;
+    dependencies: {
+      totp: boolean;
+      sms: boolean;
+      whatsapp: boolean;
+      webauthn: boolean;
+      mfs: boolean;
+    };
+    metrics: {
+      totalMethods: number;
+      activeUsers: number;
+      verificationSuccessRate: number;
+      averageVerificationTimeMs: number;
+    };
+  }>;
+
+  /**
+   * Get MFA generator service metrics
+   * 
+   * @returns Performance metrics
+   */
+  getMetrics(): Promise<{
+    avgSetupTimeMs: number;
+    avgVerificationTimeMs: number;
+    successRate: number;
+    failureRate: number;
+    methodsByType: Record<string, number>;
+    usersByMethod: Record<string, number>;
+    p95LatencyMs: number;
+    p99LatencyMs: number;
+  }>;
+
+  // ============================================================
+  // Audit Operations
+  // ============================================================
+
+  /**
+   * Get MFA audit trail for user
+   * 
+   * @param userId - User ID
+   * @param options - Pagination options
+   * @param filters - Audit filters
+   * @returns Paginated audit entries
+   */
+  getAuditTrail(
+    userId: string,
+    options: PaginationOptions,
+    filters?: { provider?: MfaProviderType; action?: string; fromDate?: Date; toDate?: Date }
+  ): Promise<PaginatedResult<MfaAuditEntry>>;
+
+  /**
+   * Export MFA audit for compliance
+   * 
+   * @param userId - User ID (optional)
+   * @param fromDate - Start date
+   * @param toDate - End date
+   * @param format - Export format
+   * @returns Export result
+   */
+  exportAudit(
+    userId: string | undefined,
+    fromDate: Date,
+    toDate: Date,
+    format?: 'json' | 'csv' | 'xlsx'
+  ): Promise<{
+    downloadUrl: string;
+    expiresAt: Date;
+    fileSize: number;
+    recordCount: number;
+    format: string;
+    expiresInSeconds: number;
+  }>;
+}
+
+// ============================================================
+// Type Exports
+// ============================================================
+
+export type {
+  TotpSetupOptions as TotpSetupOptionsType,
+  SmsOtpSetupOptions as SmsOtpSetupOptionsType,
+  WhatsAppOtpSetupOptions as WhatsAppOtpSetupOptionsType,
+  ImoOtpSetupOptions as ImoOtpSetupOptionsType,
+  VoiceCallOtpSetupOptions as VoiceCallOtpSetupOptionsType,
+  BkashPinSetupOptions as BkashPinSetupOptionsType,
+  NagadPinSetupOptions as NagadPinSetupOptionsType,
+  RocketPinSetupOptions as RocketPinSetupOptionsType,
+  WebAuthnSetupOptions as WebAuthnSetupOptionsType,
   BackupCodeOptions as BackupCodeOptionsType,
-  WebAuthnRegistrationOptions as WebAuthnRegistrationOptionsType,
-  WebAuthnAuthenticationOptions as WebAuthnAuthenticationOptionsType
+  RecoveryCodeOptions as RecoveryCodeOptionsType,
+  MfaVerificationOptions as MfaVerificationOptionsType,
+  MfaDisableOptions as MfaDisableOptionsType,
+  ServiceResult as ServiceResultType,
+  MfaMethodListResult as MfaMethodListResultType,
 };
 
 // ============================================================
-// ENTERPRISE SUMMARY v3.0
+// ENTERPRISE SUMMARY
 // ============================================================
 // 
-// Enterprise Enhancements Applied in v3.0:
-// 1. ✅ Rate limiting for OTP generation per identifier (anti-abuse)
-// 2. ✅ Biometric/Passkey (WebAuthn) support with device attestation
-// 3. ✅ QR code generation with PNG/Base64 formats and configurable options
-// 4. ✅ TOTP time window configuration with algorithm/digits/period options
-// 5. ✅ Backup code hashing with bcrypt (configurable salt rounds)
-// 6. ✅ MFS PIN verification with retry tracking and lockout mechanism
-// 7. ✅ Provider health check with circuit breaker pattern
-// 8. ✅ OTP templates with Bengali language support
-// 9. ✅ Request context with correlation ID tracking
-// 10. ✅ Batch OTP generation for admin operations
-// 11. ✅ Provider metrics collection for monitoring
-// 12. ✅ P95/P99 latency tracking for performance optimization
-// 13. ✅ Configurable timeout and retry settings per provider
-// 14. ✅ Device fingerprint and IP tracking for fraud detection
-// 15. ✅ Circuit breaker auto-reset and manual override
+// Enterprise Features Applied:
+// 1. ✅ Complete MFA lifecycle management (setup, verify, disable)
+// 2. ✅ TOTP generation and verification (RFC 6238 compliant)
+// 3. ✅ Backup codes with hashing and validation
+// 4. ✅ WebAuthn (Passkeys) registration and authentication
+// 5. ✅ Bangladesh specific - WhatsApp, Imo, Voice Call OTP
+// 6. ✅ Bangladesh specific - bKash, Nagad, Rocket PIN
+// 7. ✅ MFA method priority and configuration management
+// 8. ✅ Audit trail for all MFA operations
+// 9. ✅ Rate limiting and lockout management
+// 10. ✅ Recovery codes for emergency access
+// 11. ✅ Distributed tracing with correlation ID
+// 12. ✅ Bengali language support in all responses
+// 13. ✅ Geographic location tracking (Bangladesh districts)
+// 14. ✅ Network type tracking for adaptive security
+// 15. ✅ Device fingerprint tracking
+// 16. ✅ Bulk operations with progress tracking
+// 17. ✅ Health check and monitoring endpoints
+// 18. ✅ Type-safe with full TypeScript support
 // 
 // Bangladesh Specific:
-// - WhatsApp/Imo/Voice Call OTP with Bengali templates
-// - bKash/Nagad/Rocket PIN verification with retry tracking
-// - Provider config optimized for Bangladesh network conditions
-// - Bengali language support in OTP messages
-// - Feature phone compatible voice OTP
+// - WhatsApp, Imo, Voice Call OTP support
+// - bKash, Nagad, Rocket PIN MFA
+// - Bengali language support (preferredLanguage: 'bn')
+// - District/Division location tracking
+// - Network type (2g/3g/4g/5g/wifi) for adaptive security
+// - Feature phone support via voice call OTP
+// - Local timezone-aware timestamps
 // 
 // Security Features:
-// - Rate limiting prevents OTP abuse
-// - Circuit breaker prevents cascading failures
-// - Retry tracking with lockout for MFS PIN
+// - One-time use codes
+// - Hashed code storage
+// - Lockout after max attempts
+// - Rate limiting
+// - Audit trail for all operations
+// - IP and device tracking
 // - Correlation ID for distributed tracing
-// - Device fingerprint for fraud detection
-// - Secure backup code hashing with bcrypt
-// 
-// ============================================================
+// - Device fingerprint binding
+// - Trusted
