@@ -1,1010 +1,1869 @@
 /**
- * Token Generator Interface - Enterprise Enhanced v4.0
+ * Token Generator Service Interface - Enterprise Grade Service Contract
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module application/services/interfaces/token-generator.interface
  * 
  * @description
- * Interface for JWT token generation and verification with enterprise features.
- * Implementation resides in infrastructure layer (JwtTokenGenerator).
+ * Service contract for token generation operations across all token types.
+ * Defines the boundary between application layer and infrastructure for token operations.
  * 
- * ENTERPRISE ENHANCEMENTS (v4.0):
- * ✅ Token versioning for migration support
- * ✅ Token usage analytics and tracking
- * ✅ Batch token operations (generate, revoke)
- * ✅ Token health scoring and monitoring
- * ✅ Rate limiting for token generation
- * ✅ Geo-location binding for Bangladesh districts
- * ✅ Device fingerprint binding for security
- * ✅ Token usage pattern anomaly detection
- * ✅ Token expiry notification hooks
- * ✅ Token rotation with family tracking
+ * ENTERPRISE FEATURES:
+ * ✅ JWT generation, verification, and validation (RFC 7519)
+ * ✅ OTP generation and verification (TOTP RFC 6238)
+ * ✅ Backup and recovery codes management
+ * ✅ API key generation and validation
+ * ✅ Magic link generation and verification
+ * ✅ Session transfer tokens (QR/Magic Link/OTP)
+ * ✅ Device trust tokens
+ * ✅ WebAuthn (Passkey) registration and authentication
+ * ✅ Token rotation and family management
+ * ✅ Bangladesh Bank compliance
+ * ✅ Performance metrics and monitoring
+ * ✅ Audit logging for compliance
+ * ✅ Distributed tracing with correlation ID
+ * ✅ Bengali language support
+ * ✅ Bangladesh specific - 2G/3G/4G/5G/WiFi network awareness
+ * ✅ Rate limiting and quota management
+ * ✅ Health check and monitoring
+ * ✅ Type-safe with full TypeScript support
+ * 
+ * Security Rules:
+ * ✅ Token data NEVER logged or serialized
+ * ✅ Random generation using cryptographically secure methods
+ * ✅ Timing-safe comparison for verification
+ * ✅ Rate limiting for verification attempts
+ * ✅ Lockout after max attempts
+ * ✅ One-time use codes
+ * ✅ Hashed code storage
  * 
  * @example
- * const tokenGenerator = new JwtTokenGenerator(jwtService, config);
- * const tokens = await tokenGenerator.generateTokenPair(userId, email);
- * const isValid = await tokenGenerator.verifyToken(tokens.accessToken);
+ * const tokenGenerator = new TokenGeneratorService(
+ *   jwtService, otpService, backupCodeService, 
+ *   apiKeyService, magicLinkService, webauthnService,
+ *   cacheService, auditService
+ * );
+ * 
+ * const result = await tokenGenerator.generateAccessToken({
+ *   userId: 'usr_123',
+ *   email: 'user@example.com',
+ *   role: 'USER',
+ *   sessionId: 'sess_456'
+ * }, {
+ *   correlationId: 'corr_789',
+ *   expiresIn: 900
+ * });
  */
 
-// ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট
-import type { 
-  TokenType, 
-  TokenPayload as SharedTokenPayload,
-  UserTier,
-  TokenVerificationResult as SharedTokenVerificationResult,
-  TokenPairResponse as SharedTokenPairResponse,
-  TokenIntrospectionResponse as SharedTokenIntrospectionResponse,
-  TokenOptions as SharedTokenOptions,
-  BulkOperationProgress
+// ============================================================
+// ✅ ENTERPRISE: Import from shared-types (Single Source of Truth)
+// ============================================================
+import type {
+  // Core Token Types
+  TokenGenTokenType as TokenType,
+  TokenGenTokenStatus as TokenStatus,
+  TokenGenTokenAlgorithm as TokenAlgorithm,
+  TokenGenTokenFormat as TokenFormat,
+  
+  // JWT Types
+  JWTHeader,
+  VubonJWTClaims,
+  TokenGenAccessTokenPayload as AccessTokenPayload,
+  TokenGenRefreshTokenPayload as RefreshTokenPayload,
+  TokenGenResetTokenPayload as ResetTokenPayload,
+  TokenGenMFATokenPayload as MFATokenPayload,
+  VerificationTokenPayload,
+  
+  // API Key Types
+  TokenGenAPIKeyPayload as APIKeyPayload,
+  
+  // OTP Types
+  OTPChannel,
+  OTPPurpose,
+  
+  // Session Transfer Types
+  SessionTransferMethod,
+  TokenGenSessionTransferResult as SessionTransferResult,
+  
+  // Device Trust Types
+  TokenGenTrustLevel as TrustLevel,
+  DeviceTrustResult,
+  
+  // WebAuthn Types
+  AuthenticatorAttachment,
+  UserVerification,
+  ResidentKey,
+  AttestationConveyance,
+  WebAuthnAuthenticationRequest,
+  TokenGenWebAuthnRegistrationResponse as WebAuthnRegistrationResponse,
+
+  // Token Config Types
+  TokenGenTokenConfig as TokenConfig,
+  
+  // Environment Types
+  TokenGenEnvironment as Environment,
+  TokenGenEnvironmentTokenConfig as EnvironmentTokenConfig,
+  
+  // Bangladesh Bank Types
+  TokenGenBBankComplianceRequirements as BBankComplianceRequirements,
+  
+  // Shared Types
+  AuditMetadata,
+  RequestContext,
+  DeviceInfo,
+  PaginationOptions,
+  PaginatedResult,
+  ApiErrorCode,
 } from '@vubon/shared-types';
 
-// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট
-import { 
+// ============================================================
+// ✅ ENTERPRISE: Import from shared-constants (Single Source of Truth)
+// ============================================================
+// Constants are imported but used in default configurations and helper methods
+// They are referenced in the getConfig(), getEnvironmentConfig(), and compliance methods
+import {
+  JWT_CONFIG,
+  OTP_CONFIG as OTP_CONSTANTS,
+  RECOVERY_CODES_CONFIG,
+  API_KEY_CONFIG,
+  MAGIC_LINK_CONFIG,
+  SESSION_TRANSFER_CONFIG,
+  DEVICE_TRUST_CONFIG,
+  WEBAUTHN_CONFIG,
+  TOKEN_GENERATOR_CONFIG,
   TOKEN_CONFIG,
-  USER_TIERS,
-  TOKEN_TYPES,
-  JWT_ALGORITHMS,
-  BANGLADESH_DISTRICTS
+  ENVIRONMENT_TOKEN_CONFIG,
 } from '@vubon/shared-constants';
 
+// Re-export constants for use in implementation
+export {
+  JWT_CONFIG,
+  OTP_CONSTANTS,
+  RECOVERY_CODES_CONFIG,
+  API_KEY_CONFIG,
+  MAGIC_LINK_CONFIG,
+  SESSION_TRANSFER_CONFIG,
+  DEVICE_TRUST_CONFIG,
+  WEBAUTHN_CONFIG,
+  TOKEN_GENERATOR_CONFIG,
+  TOKEN_CONFIG,
+  ENVIRONMENT_TOKEN_CONFIG,
+};
+
 // ============================================================
-// Token Types (Re-exported from shared-constants for convenience)
+// ✅ ENTERPRISE ENHANCEMENT 1: Options Interfaces
 // ============================================================
 
 /**
- * Token types - Re-exported from shared-constants
- * 
- * @example
- * const type = TokenType.ACCESS; // 'access'
- * const type = TokenType.REFRESH; // 'refresh'
+ * Base token generator options
  */
-export { TOKEN_TYPES as TokenType };
-
-// ============================================================
-// User Tier Types (Re-exported from shared-constants)
-// ============================================================
-
-/**
- * User tier for loyalty program
- */
-export { USER_TIERS as UserTier };
-
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 1: Extended Token Options
-// ============================================================
-
-export interface TokenOptions extends SharedTokenOptions {
-  /** Token expiration (e.g., '15m', '1h', '7d') */
-  expiresIn?: string;
+export interface TokenGeneratorOptions {
+  /** Audit metadata for compliance tracking */
+  auditMetadata?: AuditMetadata;
   
-  /** Token issuer (default from config) */
-  issuer?: string;
+  /** Request context for distributed tracing */
+  requestContext?: RequestContext;
   
-  /** Token audience (default from config) */
-  audience?: string;
-  
-  /** JWT ID (if not provided, auto-generated) */
-  jwtId?: string;
-  
-  /** Session ID (for access/refresh tokens) */
-  sessionId?: string;
-  
-  /** Device ID (for security tracking) */
-  deviceId?: string;
-  
-  /** Token version (for rotation) - ✅ ENTERPRISE */
-  version?: number;
-  
-  /** Family ID (for refresh token families) - ✅ ENTERPRISE */
-  familyId?: string;
-  
-  /** Not before time (seconds from now) */
-  notBefore?: number;
-  
-  /** Algorithm to use for signing (default from config) */
-  algorithm?: typeof JWT_ALGORITHMS[keyof typeof JWT_ALGORITHMS];
-  
-  /** ✅ ENTERPRISE: Bind token to specific district (Bangladesh) */
-  district?: typeof BANGLADESH_DISTRICTS[number];
-  
-  /** ✅ ENTERPRISE: Bind token to device fingerprint */
-  deviceFingerprint?: string;
-  
-  /** ✅ ENTERPRISE: Bind token to IP range */
-  ipRange?: string;
-  
-  /** ✅ ENTERPRISE: Rate limit key for generation */
-  rateLimitKey?: string;
-  
-  /** ✅ ENTERPRISE: Skip rate limiting (admin override) */
-  skipRateLimit?: boolean;
-  
-  /** ✅ ENTERPRISE: Correlation ID for distributed tracing */
+  /** Correlation ID for tracing across services */
   correlationId?: string;
   
-  /** Additional custom claims */
-  [key: string]: unknown;
-}
-
-// ============================================================
-// Token Payload Interface (Extended with enterprise fields)
-// ============================================================
-
-export interface TokenPayload extends SharedTokenPayload {
-  /** User ID (standard JWT claim: subject) */
-  sub: string;
+  /** Preferred language for response messages (en/bn) */
+  preferredLanguage?: 'en' | 'bn';
   
-  /** User email */
-  email: string;
-  
-  /** User phone number (optional - for phone-based auth) */
-  phone?: string;
-  
-  /** User role (optional - for access tokens) */
-  role?: string;
-  
-  /** User tier (Bangladesh loyalty program) */
-  tier?: UserTier;
-  
-  /** Token type (access, refresh, reset, verification, email_change) */
-  type?: TokenType;
-  
-  /** JWT ID for token rotation and revocation tracking */
-  jti?: string;
-  
-  /** Session ID (for access/refresh tokens) */
-  sessionId?: string;
-  
-  /** Device ID (for security tracking) */
-  deviceId?: string;
-  
-  /** Token version (for rotation) - ✅ ENTERPRISE */
-  version?: number;
-  
-  /** Family ID (for refresh token families) - ✅ ENTERPRISE */
-  familyId?: string;
-  
-  /** ✅ ENTERPRISE: District where token was issued (Bangladesh) */
+  /** Geographic district (Bangladesh specific) */
   district?: string;
   
-  /** ✅ ENTERPRISE: Device fingerprint hash */
-  deviceFingerprintHash?: string;
+  /** Geographic division (Bangladesh specific) */
+  division?: string;
   
-  /** ✅ ENTERPRISE: Token health score (0-100) */
-  healthScore?: number;
+  /** Network type for adaptive security */
+  networkType?: '2g' | '3g' | '4g' | '5g' | 'wifi' | 'unknown';
   
-  /** ✅ ENTERPRISE: Last rotation timestamp */
-  lastRotatedAt?: number;
+  /** Device fingerprint for fraud detection */
+  deviceFingerprint?: string;
   
-  /** Issued at timestamp (standard JWT claim) */
-  iat?: number;
+  /** Retry attempt number (for connection resilience) */
+  retryAttempt?: number;
   
-  /** Expiration timestamp (standard JWT claim) */
-  exp?: number;
+  /** Override configuration (optional) */
+  configOverride?: Partial<TokenConfig>;
   
-  /** Not before timestamp (standard JWT claim) */
-  nbf?: number;
+  /** Skip performance monitoring */
+  skipPerformanceMonitoring?: boolean;
   
-  /** Issuer (standard JWT claim) */
-  iss?: string;
+  /** Skip audit logging */
+  skipAuditLogging?: boolean;
   
-  /** Audience (standard JWT claim) */
-  aud?: string;
+  /** Test mode - don't actually generate, just validate */
+  testMode?: boolean;
+}
+
+/**
+ * JWT generation options
+ */
+export interface JWTGenerationOptions extends TokenGeneratorOptions {
+  /** Token algorithm (default: from config) */
+  algorithm?: TokenAlgorithm;
   
-  /** Permissions (optional - for API keys) */
-  permissions?: string[];
+  /** Expiry in seconds (default: from config) */
+  expiresIn?: number;
   
-  /** Additional custom claims */
-  [key: string]: unknown;
+  /** Issuer (default: from config) */
+  issuer?: string;
+  
+  /** Audience (default: from config) */
+  audience?: string;
+  
+  /** Custom claims */
+  customClaims?: Record<string, unknown>;
+  
+  /** JWT ID (auto-generated if not provided) */
+  jwtId?: string;
+  
+  /** Not before time */
+  notBefore?: Date;
+  
+  /** Token version */
+  version?: number;
+}
+
+/**
+ * OTP generation options
+ */
+export interface OTPGenerationOptions extends TokenGeneratorOptions {
+  /** OTP length (default: from config) */
+  length?: number;
+  
+  /** OTP expiry in seconds (default: from config) */
+  expirySeconds?: number;
+  
+  /** OTP channel */
+  channel: OTPChannel;
+  
+  /** OTP purpose */
+  purpose: OTPPurpose;
+  
+  /** Identifier (phone/email) */
+  identifier: string;
+  
+  /** Maximum attempts (default: from config) */
+  maxAttempts?: number;
+  
+  /** Maximum resend attempts (default: from config) */
+  maxResendAttempts?: number;
+  
+  /** Resend cooldown in seconds (default: from config) */
+  resendCooldownSeconds?: number;
+  
+  /** Is numeric only (default: true for SMS/EMAIL) */
+  isNumeric?: boolean;
+}
+
+/**
+ * Backup code generation options
+ */
+export interface BackupCodeGenerationOptions extends TokenGeneratorOptions {
+  /** Number of codes (default: from config) */
+  count?: number;
+  
+  /** Code length (default: from config) */
+  codeLength?: number;
+  
+  /** Code format (default: from config) */
+  format?: TokenFormat;
+  
+  /** Regenerate threshold (default: from config) */
+  regenerateThreshold?: number;
+  
+  /** User ID (for binding) */
+  userId: string;
+}
+
+/**
+ * API key generation options
+ */
+export interface APIKeyGenerationOptions extends TokenGeneratorOptions {
+  /** Key name */
+  name: string;
+  
+  /** User ID */
+  userId: string;
+  
+  /** Permissions */
+  permissions: string[];
+  
+  /** Expiry in days (default: from config) */
+  expiryDays?: number;
+  
+  /** Allowed IPs */
+  allowedIps?: string[];
+  
+  /** Allowed referrers */
+  allowedReferrers?: string[];
+  
+  /** Rate limit per minute (default: from config) */
+  rateLimitPerMinute?: number;
+  
+  /** Allowed districts (Bangladesh specific) */
+  allowedDistricts?: string[];
+}
+
+/**
+ * Magic link generation options
+ */
+export interface MagicLinkGenerationOptions extends TokenGeneratorOptions {
+  /** Email address */
+  email: string;
+  
+  /** Redirect URL (default: from config) */
+  redirectUrl?: string;
+  
+  /** Action type */
+  action: 'login' | 'signup' | 'verify';
+  
+  /** Expiry in seconds (default: from config) */
+  expirySeconds?: number;
+  
+  /** User ID (if known) */
+  userId?: string;
+  
+  /** Device ID (for same device verification) */
+  deviceId?: string;
+}
+
+/**
+ * Session transfer generation options
+ */
+export interface SessionTransferGenerationOptions extends TokenGeneratorOptions {
+  /** Source session ID */
+  fromSessionId: string;
+  
+  /** Target device information */
+  toDeviceInfo: DeviceInfo;
+  
+  /** Transfer method (default: from config) */
+  transferMethod?: SessionTransferMethod;
+  
+  /** User ID */
+  userId: string;
+  
+  /** Expiry in seconds (default: from config) */
+  expirySeconds?: number;
+}
+
+/**
+ * Device trust generation options
+ */
+export interface DeviceTrustGenerationOptions extends TokenGeneratorOptions {
+  /** User ID */
+  userId: string;
+  
+  /** Device ID */
+  deviceId: string;
+  
+  /** Trust duration in days (default: from config) */
+  durationDays?: number;
+  
+  /** Trust level (default: STANDARD) */
+  trustLevel?: TrustLevel;
+  
+  /** Device name */
+  deviceName?: string;
+  
+  /** Device fingerprint */
+  deviceFingerprint?: string;
+}
+
+/**
+ * WebAuthn generation options
+ */
+export interface WebAuthnGenerationOptions extends TokenGeneratorOptions {
+  /** User ID */
+  userId: string;
+  
+  /** User name */
+  userName: string;
+  
+  /** User display name */
+  userDisplayName?: string;
+  
+  /** Device name */
+  deviceName: string;
+  
+  /** Authenticator type (default: cross-platform) */
+  authenticatorType?: AuthenticatorAttachment;
+  
+  /** Attestation (default: from config) */
+  attestation?: AttestationConveyance;
+  
+  /** User verification (default: from config) */
+  userVerification?: UserVerification;
 }
 
 // ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 2: Enhanced Verification Result
+// ✅ ENTERPRISE ENHANCEMENT 2: Result Interfaces
 // ============================================================
 
-export interface TokenVerificationResult extends SharedTokenVerificationResult {
-  /** Whether the token is valid */
+/**
+ * Generic service result wrapper
+ */
+export interface ServiceResult<T> {
+  /** Whether the operation was successful */
+  success: boolean;
+  
+  /** Response data (if successful) */
+  data?: T;
+  
+  /** Error code (if failed) */
+  errorCode?: ApiErrorCode;
+  
+  /** Error message (if failed) */
+  errorMessage?: string;
+  
+  /** Bengali error message */
+  errorMessageBn?: string;
+  
+  /** Performance metrics for the operation */
+  metrics?: {
+    generationTimeMs: number;
+    cacheHit?: boolean;
+    dbTimeMs?: number;
+  };
+  
+  /** Correlation ID for tracing */
+  correlationId?: string;
+  
+  /** Duration of operation in milliseconds */
+  durationMs?: number;
+}
+
+/**
+ * Token generation result
+ */
+export interface TokenGenerationResult<T = unknown> {
+  /** Generated token */
+  token: string;
+  
+  /** Token ID */
+  id: string;
+  
+  /** Token type */
+  type: TokenType;
+  
+  /** Expires at */
+  expiresAt: Date;
+  
+  /** Created at */
+  createdAt: Date;
+  
+  /** Payload */
+  payload: T;
+  
+  /** Metadata */
+  metadata?: Record<string, unknown>;
+  
+  /** Token version */
+  version: number;
+}
+
+/**
+ * Token validation result
+ */
+export interface TokenValidationResult<T = unknown> {
+  /** Is valid */
   isValid: boolean;
   
-  /** Decoded payload (if valid) */
-  payload?: TokenPayload;
+  /** Payload (if valid) */
+  payload?: T;
   
-  /** Error message (if invalid) */
+  /** Error (if invalid) */
   error?: string;
   
-  /** Error code for programmatic handling */
-  errorCode?: 'EXPIRED' | 'INVALID_SIGNATURE' | 'MALFORMED' | 'ISSUER_MISMATCH' | 'AUDIENCE_MISMATCH' | 'REVOKED' | 'BLACKLISTED' | 'DISTRICT_MISMATCH' | 'DEVICE_MISMATCH' | 'VERSION_MISMATCH';
+  /** Error code (if invalid) */
+  errorCode?: string;
   
-  /** Whether token needs refresh (if expiring soon) */
-  needsRefresh?: boolean;
+  /** Is expired */
+  isExpired?: boolean;
   
-  /** Remaining time in seconds */
+  /** Is revoked */
+  isRevoked?: boolean;
+  
+  /** Is compromised */
+  isCompromised?: boolean;
+  
+  /** Remaining seconds (if valid) */
   remainingSeconds?: number;
   
-  /** ✅ ENTERPRISE: Token health score */
-  healthScore?: number;
-  
-  /** ✅ ENTERPRISE: Whether token health is critical */
-  isHealthCritical?: boolean;
-  
-  /** ✅ ENTERPRISE: Recommended action */
-  recommendedAction?: 'allow' | 'refresh' | 'reauthenticate' | 'block';
-  
-  /** ✅ ENTERPRISE: Anomaly detected */
-  anomalyDetected?: boolean;
-  
-  /** ✅ ENTERPRISE: Anomaly reason */
-  anomalyReason?: string;
+  /** Suggested action */
+  suggestedAction?: 'allow' | 'refresh' | 'reauthenticate' | 'block';
 }
 
-// ============================================================
-// Token Pair Response (Using shared-types)
-// ============================================================
-
-export interface TokenPairResponse extends SharedTokenPairResponse {
-  /** Access token (short-lived) */
+/**
+ * Token refresh result
+ */
+export interface TokenRefreshResult {
+  /** New access token */
   accessToken: string;
   
-  /** Refresh token (long-lived, optional) */
+  /** New refresh token (if rotated) */
   refreshToken?: string;
   
   /** Access token expiry in seconds */
   expiresIn: number;
   
-  /** Refresh token expiry in seconds (if provided) */
+  /** Refresh token expiry in seconds (if rotated) */
   refreshExpiresIn?: number;
   
-  /** Token type (always 'Bearer') */
+  /** Token type */
   tokenType: 'Bearer';
   
-  /** ✅ ENTERPRISE: Token family ID */
+  /** Session ID */
+  sessionId: string;
+  
+  /** Token family ID */
   familyId?: string;
   
-  /** ✅ ENTERPRISE: Token version */
-  version?: number;
+  /** Rotation count */
+  rotationCount?: number;
   
-  /** ✅ ENTERPRISE: Session ID */
-  sessionId?: string;
+  /** Whether rotation occurred */
+  rotated: boolean;
+  
+  /** Old token revoked */
+  oldTokenRevoked: boolean;
 }
 
-// ============================================================
-// Token Introspection Response (OAuth2 compliant)
-// ============================================================
-
-export interface TokenIntrospectionResponse extends SharedTokenIntrospectionResponse {
-  /** Whether token is active */
-  active: boolean;
+/**
+ * OTP result (local interface - renamed to avoid conflict)
+ */
+export interface OTPResult {
+  /** OTP code */
+  code: string;
   
-  /** Token scope */
-  scope?: string;
+  /** OTP ID */
+  id: string;
   
-  /** Client ID */
-  clientId?: string;
+  /** Expires at */
+  expiresAt: Date;
   
-  /** Username (user ID) */
-  username?: string;
+  /** Created at */
+  createdAt: Date;
   
-  /** Token type */
-  tokenType?: string;
+  /** Remaining attempts */
+  remainingAttempts: number;
   
-  /** Expiration timestamp */
-  exp?: number;
+  /** Channel */
+  channel: OTPChannel;
   
-  /** Issued at timestamp */
-  iat?: number;
+  /** Purpose */
+  purpose: OTPPurpose;
   
-  /** Not before timestamp */
-  nbf?: number;
+  /** Is valid */
+  isValid: boolean;
   
-  /** Subject (user ID) */
-  sub?: string;
+  /** Is expired */
+  isExpired: boolean;
   
-  /** Audience */
-  aud?: string;
+  /** Is used */
+  isUsed: boolean;
   
-  /** Issuer */
-  iss?: string;
-  
-  /** JWT ID */
-  jti?: string;
-  
-  /** ✅ ENTERPRISE: Token version */
-  version?: number;
-  
-  /** ✅ ENTERPRISE: Token health score */
-  healthScore?: number;
+  /** Masked identifier (for display) */
+  maskedIdentifier: string;
 }
 
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 3: Token Health Score
-// ============================================================
-
-export interface TokenHealthScore {
-  /** Token ID */
-  tokenId: string;
+/**
+ * Backup code result
+ */
+export interface BackupCodeResult {
+  /** Backup codes (plain text - show once) */
+  codes: string[];
   
-  /** Health score (0-100) */
-  score: number;
+  /** Hashed codes (for storage) */
+  hashedCodes: string[];
   
-  /** Health status */
-  status: 'excellent' | 'good' | 'fair' | 'poor' | 'critical';
+  /** Remaining count */
+  remainingCount: number;
   
-  /** Factors contributing to score */
-  factors: {
-    age: { score: number; weight: number; description: string };
-    rotationCount: { score: number; weight: number; description: string };
-    usageFrequency: { score: number; weight: number; description: string };
-    locationStability: { score: number; weight: number; description: string };
-    deviceConsistency: { score: number; weight: number; description: string };
-  };
+  /** Total count */
+  totalCount: number;
   
-  /** Recommendations for improvement */
-  recommendations: string[];
+  /** Regenerated at */
+  regeneratedAt?: Date;
   
-  /** Requires user action */
-  requiresAction: boolean;
+  /** Expires at */
+  expiresAt?: Date;
   
-  /** Suggested action */
-  suggestedAction?: 'rotate' | 'reauthenticate' | 'revoke' | 'none';
+  /** Is low (needs regeneration) */
+  isLow: boolean;
+  
+  /** Needs regeneration reminder */
+  needsRegenerationReminder: boolean;
+  
+  /** Download URL (for PDF) */
+  downloadUrl?: string;
 }
 
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 4: Token Usage Stats
-// ============================================================
-
-export interface TokenUsageStats {
-  /** Token ID */
-  tokenId: string;
+/**
+ * API key result
+ */
+export interface APIKeyResult {
+  /** API key (full - show once) */
+  key: string;
   
-  /** Total usage count */
-  usageCount: number;
+  /** API key ID */
+  id: string;
   
-  /** Last used timestamp */
-  lastUsedAt?: Date;
+  /** Key preview (masked) */
+  keyPreview: string;
   
-  /** First used timestamp */
-  firstUsedAt: Date;
-  
-  /** Usage by hour distribution */
-  usageByHour: Record<number, number>;
-  
-  /** Usage by day of week */
-  usageByDayOfWeek: Record<number, number>;
-  
-  /** Unique IP addresses used */
-  uniqueIPs: string[];
-  
-  /** Unique devices used */
-  uniqueDevices: string[];
-  
-  /** Anomaly detection score (0-100) */
-  anomalyScore: number;
-  
-  /** Is usage pattern suspicious */
-  isSuspicious: boolean;
-}
-
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 5: Batch Token Operation Result
-// ============================================================
-
-export interface BatchTokenResult {
-  /** Total tokens requested */
-  total: number;
-  
-  /** Successful operations */
-  successful: number;
-  
-  /** Failed operations */
-  failed: number;
-  
-  /** Results for each token */
-  results: Array<{
-    tokenId?: string;
-    success: boolean;
-    error?: string;
-  }>;
-  
-  /** Duration in milliseconds */
-  durationMs: number;
-  
-  /** Correlation ID for tracing */
-  correlationId?: string;
-}
-
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 6: Token Rotation History
-// ============================================================
-
-export interface TokenRotationHistory {
-  /** Family ID */
-  familyId: string;
+  /** Key name */
+  name: string;
   
   /** User ID */
   userId: string;
   
-  /** Rotation chain */
-  rotations: Array<{
-    fromTokenId: string;
-    toTokenId: string;
-    rotatedAt: Date;
-    reason: string;
-    ipAddress?: string;
-    deviceId?: string;
-  }>;
+  /** Permissions */
+  permissions: string[];
   
-  /** Total rotation count */
-  totalRotations: number;
+  /** Expires at */
+  expiresAt: Date | null;
   
-  /** Current active token ID */
-  currentTokenId: string;
+  /** Created at */
+  createdAt: Date;
+  
+  /** Last used at */
+  lastUsedAt: Date | null;
+  
+  /** Is active */
+  isActive: boolean;
+  
+  /** Allowed IPs */
+  allowedIps?: string[];
+  
+  /** Allowed referrers */
+  allowedReferrers?: string[];
+  
+  /** Rate limit per minute */
+  rateLimitPerMinute?: number;
+  
+  /** Allowed districts */
+  allowedDistricts?: string[];
+}
+
+/**
+ * Magic link result
+ */
+export interface MagicLinkResult {
+  /** Magic link URL */
+  url: string;
+  
+  /** Token */
+  token: string;
+  
+  /** Expires at */
+  expiresAt: Date;
+  
+  /** Created at */
+  createdAt: Date;
+  
+  /** Is valid */
+  isValid: boolean;
+  
+  /** Is expired */
+  isExpired: boolean;
+  
+  /** Is used */
+  isUsed: boolean;
+  
+  /** Action type */
+  action: 'login' | 'signup' | 'verify';
+  
+  /** Email (masked) */
+  maskedEmail: string;
+}
+
+/**
+ * WebAuthn registration result
+ */
+export interface WebAuthnRegistrationResult {
+  /** Challenge */
+  challenge: string;
+  
+  /** Registration ID */
+  registrationId: string;
+  
+  /** Relying Party ID */
+  rpId: string;
+  
+  /** Relying Party Name */
+  rpName: string;
+  
+  /** User ID */
+  userId: string;
+  
+  /** User name */
+  userName: string;
+  
+  /** User display name */
+  userDisplayName: string;
+  
+  /** Timeout in milliseconds */
+  timeout: number;
+  
+  /** Attestation */
+  attestation: AttestationConveyance;
+  
+  /** Authenticator selection */
+  authenticatorSelection?: {
+    authenticatorAttachment?: AuthenticatorAttachment;
+    residentKey?: ResidentKey;
+    userVerification?: UserVerification;
+  };
+  
+  /** Expires at */
+  expiresAt: Date;
 }
 
 // ============================================================
-// Token Generator Interface (Enterprise Enhanced v4.0)
+// ✅ ENTERPRISE ENHANCEMENT 3: Main Service Interface
 // ============================================================
 
-export interface TokenGenerator {
+/**
+ * Token Generator Service Interface
+ * 
+ * Enterprise-grade service contract for token generation operations
+ */
+export interface ITokenGeneratorService {
   // ============================================================
-  // Token Generation (11 methods)
+  // JWT Operations
   // ============================================================
-  
+
   /**
-   * Generate access token (short-lived)
+   * Generate access token
    * 
-   * @param userId - User ID
-   * @param email - User email
-   * @param role - User role (optional)
-   * @param options - Additional token options (optional)
-   * @returns JWT access token
+   * @param payload - Access token payload
+   * @param options - JWT generation options
+   * @returns Generated token
    * 
    * @example
-   * const token = await tokenGenerator.generateAccessToken('usr_123', 'user@example.com', 'ADMIN');
+   * const result = await tokenGenerator.generateAccessToken({
+   *   userId: 'usr_123',
+   *   email: 'user@example.com',
+   *   role: 'USER',
+   *   sessionId: 'sess_456'
+   * }, { expiresIn: 900 });
    */
   generateAccessToken(
-    userId: string,
-    email: string,
-    role?: string,
-    options?: TokenOptions,
-  ): Promise<string>;
-  
+    payload: Omit<AccessTokenPayload, 'iat' | 'exp' | 'jti'>,
+    options?: JWTGenerationOptions
+  ): Promise<ServiceResult<TokenGenerationResult<AccessTokenPayload>>>;
+
   /**
-   * Generate refresh token (long-lived)
+   * Generate refresh token
    * 
-   * @param userId - User ID
-   * @param options - Additional token options (optional)
-   * @returns JWT refresh token with type: 'refresh'
+   * @param payload - Refresh token payload
+   * @param options - JWT generation options
+   * @returns Generated token
    */
   generateRefreshToken(
-    userId: string,
-    options?: TokenOptions,
-  ): Promise<string>;
-  
+    payload: Omit<RefreshTokenPayload, 'iat' | 'exp' | 'jti'>,
+    options?: JWTGenerationOptions
+  ): Promise<ServiceResult<TokenGenerationResult<RefreshTokenPayload>>>;
+
   /**
-   * Generate token pair (access + refresh)
+   * Generate reset token (password/email/phone reset)
    * 
-   * @param userId - User ID
-   * @param email - User email
-   * @param role - User role (optional)
-   * @param options - Additional token options (optional)
-   * @returns Token pair response
+   * @param payload - Reset token payload
+   * @param options - JWT generation options
+   * @returns Generated token
    */
-  generateTokenPair(
-    userId: string,
-    email: string,
-    role?: string,
-    options?: TokenOptions,
-  ): Promise<TokenPairResponse>;
-  
+  generateResetToken(
+    payload: Omit<ResetTokenPayload, 'iat' | 'exp' | 'jti'>,
+    options?: JWTGenerationOptions
+  ): Promise<ServiceResult<TokenGenerationResult<ResetTokenPayload>>>;
+
   /**
-   * Generate password reset token
+   * Generate verification token (email/phone verification)
    * 
-   * @param userId - User ID
-   * @param options - Additional token options (optional)
-   * @returns JWT reset token with type: 'reset'
+   * @param payload - Verification token payload
+   * @param options - JWT generation options
+   * @returns Generated token
    */
-  generatePasswordResetToken(
-    userId: string,
-    options?: TokenOptions,
-  ): Promise<string>;
-  
+  generateVerificationToken(
+    payload: Omit<VerificationTokenPayload, 'iat' | 'exp' | 'jti'>,
+    options?: JWTGenerationOptions
+  ): Promise<ServiceResult<TokenGenerationResult<VerificationTokenPayload>>>;
+
   /**
-   * Generate email verification token
+   * Generate MFA token
    * 
-   * @param userId - User ID
-   * @param email - User email
-   * @param options - Additional token options (optional)
-   * @returns JWT verification token with type: 'verification'
+   * @param payload - MFA token payload
+   * @param options - JWT generation options
+   * @returns Generated token
    */
-  generateEmailVerificationToken(
-    userId: string,
-    email: string,
-    options?: TokenOptions,
-  ): Promise<string>;
-  
+  generateMFAToken(
+    payload: Omit<MFATokenPayload, 'iat' | 'exp' | 'jti'>,
+    options?: JWTGenerationOptions
+  ): Promise<ServiceResult<TokenGenerationResult<MFATokenPayload>>>;
+
   /**
-   * Generate phone verification token (Bangladesh specific)
+   * Verify JWT token
    * 
-   * @param userId - User ID
-   * @param phone - User phone number
-   * @param options - Additional token options (optional)
-   * @returns JWT verification token with type: 'verification'
+   * @param token - JWT token to verify
+   * @param options - Verification options
+   * @returns Validation result
    */
-  generatePhoneVerificationToken(
-    userId: string,
-    phone: string,
-    options?: TokenOptions,
-  ): Promise<string>;
-  
-  /**
-   * Generate email change token
-   * 
-   * @param userId - User ID
-   * @param newEmail - New email address
-   * @param options - Additional token options (optional)
-   * @returns JWT email change token with type: 'email_change'
-   */
-  generateEmailChangeToken(
-    userId: string,
-    newEmail: string,
-    options?: TokenOptions,
-  ): Promise<string>;
-  
-  /**
-   * Generate phone change token (Bangladesh specific)
-   * 
-   * @param userId - User ID
-   * @param newPhone - New phone number
-   * @param options - Additional token options (optional)
-   * @returns JWT phone change token with type: 'phone_change'
-   */
-  generatePhoneChangeToken(
-    userId: string,
-    newPhone: string,
-    options?: TokenOptions,
-  ): Promise<string>;
-  
-  /**
-   * Generate magic link token (passwordless login)
-   * 
-   * @param userId - User ID
-   * @param email - User email
-   * @param options - Additional token options (optional)
-   * @returns JWT magic link token with type: 'magic_link'
-   */
-  generateMagicLinkToken(
-    userId: string,
-    email: string,
-    options?: TokenOptions,
-  ): Promise<string>;
-  
-  /**
-   * Generate MFA token (short-lived for MFA verification)
-   * 
-   * @param userId - User ID
-   * @param sessionId - MFA session ID
-   * @param options - Additional token options (optional)
-   * @returns JWT MFA token with type: 'mfa'
-   */
-  generateMfaToken(
-    userId: string,
-    sessionId: string,
-    options?: TokenOptions,
-  ): Promise<string>;
-  
-  /**
-   * Generate API key token (for service accounts)
-   * 
-   * @param userId - User ID
-   * @param name - API key name
-   * @param permissions - Permissions
-   * @param options - Additional token options (optional)
-   * @returns JWT API key token with type: 'api_key'
-   */
-  generateApiKeyToken(
-    userId: string,
-    name: string,
-    permissions: string[],
-    options?: TokenOptions,
-  ): Promise<string>;
-  
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 7: Batch Token Operations
-  // ============================================================
-  
-  /**
-   * Generate multiple token pairs in batch
-   * 
-   * @param requests - Array of token generation requests
-   * @param onProgress - Progress callback
-   * @returns Batch token result
-   */
-  batchGenerateTokenPairs(
-    requests: Array<{ userId: string; email: string; role?: string; options?: TokenOptions }>,
-    onProgress?: (progress: BulkOperationProgress) => void
-  ): Promise<BatchTokenResult>;
-  
-  /**
-   * Batch revoke tokens
-   * 
-   * @param tokens - Array of token strings to revoke
-   * @param reason - Revocation reason
-   * @param onProgress - Progress callback
-   * @returns Batch token result
-   */
-  batchRevokeTokens(
-    tokens: string[],
-    reason?: string,
-    onProgress?: (progress: BulkOperationProgress) => void
-  ): Promise<BatchTokenResult>;
-  
-  // ============================================================
-  // Token Verification
-  // ============================================================
-  
-  /**
-   * Verify and decode a JWT token
-   * 
-   * @param token - JWT token string
-   * @returns Decoded token payload
-   * @throws {UnauthorizedException} If token is invalid
-   */
-  verifyToken(token: string): Promise<TokenPayload>;
-  
-  /**
-   * Verify token without throwing exception
-   * 
-   * @param token - JWT token string
-   * @returns Verification result with payload
-   */
-  verifyTokenSafe(token: string): Promise<TokenVerificationResult>;
-  
-  /**
-   * Verify token with specific type
-   * 
-   * @param token - JWT token string
-   * @param expectedType - Expected token type
-   * @returns Verification result
-   */
-  verifyTokenByType(
+  verifyToken(
     token: string,
-    expectedType: TokenType
-  ): Promise<TokenVerificationResult>;
-  
+    options?: {
+      expectedType?: TokenType;
+      expectedIssuer?: string;
+      expectedAudience?: string;
+      checkRevocation?: boolean;
+      checkCompromise?: boolean;
+    }
+  ): Promise<TokenValidationResult>;
+
   /**
-   * Verify token with district binding (Bangladesh)
+   * Decode JWT token without verification (for debugging only)
    * 
-   * @param token - JWT token string
-   * @param currentDistrict - Current district of the request
-   * @returns Verification result
+   * @param token - JWT token to decode
+   * @returns Decoded payload
    */
-  verifyTokenWithDistrict(
-    token: string,
-    currentDistrict: string
-  ): Promise<TokenVerificationResult>;
-  
+  decodeToken(token: string): Promise<{
+    header: JWTHeader;
+    payload: VubonJWTClaims;
+    signature: string;
+  } | null>;
+
   /**
-   * Verify token with device fingerprint binding
+   * Check if token needs refresh
    * 
-   * @param token - JWT token string
-   * @param deviceFingerprint - Current device fingerprint
-   * @returns Verification result
+   * @param token - JWT token
+   * @param refreshThreshold - Threshold in seconds (default: 120)
+   * @returns Whether token needs refresh
    */
-  verifyTokenWithDevice(
-    token: string,
-    deviceFingerprint: string
-  ): Promise<TokenVerificationResult>;
-  
-  // ============================================================
-  // Token Decoding (No verification)
-  // ============================================================
-  
+  needsRefresh(token: string, refreshThreshold?: number): Promise<boolean>;
+
   /**
-   * Decode token without verification (for debugging only)
+   * Get token remaining time
    * 
-   * @param token - JWT token string
-   * @returns Decoded payload (unverified)
-   */
-  decodeToken(token: string): TokenPayload | null;
-  
-  /**
-   * Decode token header
-   * 
-   * @param token - JWT token string
-   * @returns Decoded header (algorithm, type)
-   */
-  decodeTokenHeader(token: string): { alg: string; typ: string } | null;
-  
-  // ============================================================
-  // Token Introspection (OAuth2)
-  // ============================================================
-  
-  /**
-   * Introspect token (OAuth2 compliant)
-   * 
-   * @param token - JWT token string
-   * @returns Token introspection response
-   */
-  introspectToken(token: string): Promise<TokenIntrospectionResponse>;
-  
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 8: Token Health & Monitoring
-  // ============================================================
-  
-  /**
-   * Get token health score
-   * 
-   * @param token - JWT token string
-   * @returns Token health score
-   */
-  getTokenHealth(token: string): Promise<TokenHealthScore>;
-  
-  /**
-   * Get token usage statistics
-   * 
-   * @param token - JWT token string
-   * @returns Token usage statistics
-   */
-  getTokenUsageStats(token: string): Promise<TokenUsageStats>;
-  
-  /**
-   * Detect token usage anomaly
-   * 
-   * @param token - JWT token string
-   * @param context - Request context (ip, device, location)
-   * @returns Anomaly detection result
-   */
-  detectTokenAnomaly(
-    token: string,
-    context: { ipAddress: string; deviceId: string; userAgent: string; district?: string }
-  ): Promise<{ isAnomaly: boolean; score: number; reason?: string }>;
-  
-  // ============================================================
-  // Token Utilities
-  // ============================================================
-  
-  /**
-   * Check if token is expired
-   * 
-   * @param token - JWT token string
-   * @returns True if token is expired
-   */
-  isTokenExpired(token: string): Promise<boolean>;
-  
-  /**
-   * Get remaining time of token in seconds
-   * 
-   * @param token - JWT token string
-   * @returns Remaining seconds (0 if expired)
+   * @param token - JWT token
+   * @returns Remaining time in seconds
    */
   getTokenRemainingTime(token: string): Promise<number>;
-  
+
   /**
-   * Get token age in seconds
+   * Refresh token
    * 
-   * @param token - JWT token string
-   * @returns Age in seconds
-   */
-  getTokenAge(token: string): Promise<number>;
-  
-  /**
-   * Extract token type from payload
-   * 
-   * @param token - JWT token string
-   * @returns Token type or null
-   */
-  getTokenType(token: string): Promise<TokenType | null>;
-  
-  /**
-   * Extract user ID from token (without full verification)
-   * 
-   * @param token - JWT token string
-   * @returns User ID or null
-   */
-  getUserIdFromToken(token: string): string | null;
-  
-  /**
-   * Rotate refresh token (generate new token, revoke old)
-   * 
-   * @param oldRefreshToken - Old refresh token
-   * @param options - Token options
+   * @param refreshToken - Refresh token
+   * @param options - Refresh options
    * @returns New token pair
    */
-  rotateRefreshToken(
-    oldRefreshToken: string,
-    options?: TokenOptions,
-  ): Promise<TokenPairResponse>;
-  
+  refreshToken(
+    refreshToken: string,
+    options?: {
+      rotateToken?: boolean;
+      extendSession?: boolean;
+      deviceInfo?: DeviceInfo;
+    }
+  ): Promise<ServiceResult<TokenRefreshResult>>;
+
   /**
-   * Get token rotation history
+   * Revoke token
    * 
-   * @param familyId - Token family ID
-   * @returns Rotation history
-   */
-  getRotationHistory(familyId: string): Promise<TokenRotationHistory>;
-  
-  /**
-   * Revoke token (add to blacklist)
-   * 
-   * @param token - JWT token string
+   * @param tokenId - Token ID (jti)
+   * @param userId - User ID
    * @param reason - Revocation reason
+   * @param options - Revocation options
+   * @returns Revocation result
    */
-  revokeToken(token: string, reason?: string): Promise<void>;
-  
+  revokeToken(
+    tokenId: string,
+    userId: string,
+    reason: string,
+    options?: {
+      revokeFamily?: boolean;
+      notifyUser?: boolean;
+    }
+  ): Promise<ServiceResult<{ revoked: boolean; familyRevoked?: boolean }>>;
+
   /**
-   * Revoke entire token family
-   * 
-   * @param familyId - Token family ID
-   * @param reason - Revocation reason
-   * @returns Number of tokens revoked
-   */
-  revokeTokenFamily(familyId: string, reason?: string): Promise<number>;
-  
-  /**
-   * Check if token is revoked (blacklisted)
-   * 
-   * @param token - JWT token string
-   * @returns True if token is revoked
-   */
-  isTokenRevoked(token: string): Promise<boolean>;
-  
-  /**
-   * Get token blacklist status
-   * 
-   * @param token - JWT token string
-   * @returns Blacklist status
-   */
-  getTokenBlacklistStatus(token: string): Promise<{ isBlacklisted: boolean; blacklistedAt?: Date; reason?: string }>;
-  
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 9: Rate Limiting
-  // ============================================================
-  
-  /**
-   * Check rate limit for token generation
+   * Revoke all tokens for user
    * 
    * @param userId - User ID
-   * @param tokenType - Type of token being generated
-   * @returns Rate limit status
+   * @param reason - Revocation reason
+   * @param options - Revocation options
+   * @returns Number of tokens revoked
    */
-  checkRateLimit(
+  revokeAllTokens(
     userId: string,
+    reason: string,
+    options?: {
+      excludeCurrentSession?: boolean;
+      sessionId?: string;
+      notifyUser?: boolean;
+    }
+  ): Promise<ServiceResult<{ revokedCount: number }>>;
+
+  // ============================================================
+  // OTP Operations
+  // ============================================================
+
+  /**
+   * Generate OTP
+   * 
+   * @param options - OTP generation options
+   * @returns Generated OTP
+   * 
+   * @example
+   * const result = await tokenGenerator.generateOTP({
+   *   channel: 'SMS',
+   *   purpose: 'LOGIN',
+   *   identifier: '+8801712345678'
+   * });
+   */
+  generateOTP(
+    options: OTPGenerationOptions
+  ): Promise<ServiceResult<OTPResult>>;
+
+  /**
+   * Verify OTP
+   * 
+   * @param otpId - OTP ID
+   * @param code - OTP code
+   * @param identifier - Identifier (phone/email)
+   * @param options - Verification options
+   * @returns Verification result
+   */
+  verifyOTP(
+    otpId: string,
+    code: string,
+    identifier: string,
+    options?: {
+      purpose?: OTPPurpose;
+      channel?: OTPChannel;
+      consumeOnSuccess?: boolean;
+    }
+  ): Promise<ServiceResult<{
+    verified: boolean;
+    remainingAttempts: number;
+    isLocked: boolean;
+    lockExpiresAt?: Date;
+    purpose: OTPPurpose;
+    channel: OTPChannel;
+  }>>;
+
+  /**
+   * Resend OTP
+   * 
+   * @param otpId - OTP ID
+   * @param options - Resend options
+   * @returns New OTP result
+   */
+  resendOTP(
+    otpId: string,
+    options?: {
+      newIdentifier?: string;
+      channel?: OTPChannel;
+      purpose?: OTPPurpose;
+    }
+  ): Promise<ServiceResult<OTPResult>>;
+
+  /**
+   * Get OTP status
+   * 
+   * @param otpId - OTP ID
+   * @returns OTP status
+   */
+  getOTPStatus(otpId: string): Promise<ServiceResult<{
+    exists: boolean;
+    isExpired: boolean;
+    isUsed: boolean;
+    remainingAttempts: number;
+    expiresAt: Date;
+    createdAt: Date;
+    channel: OTPChannel;
+    purpose: OTPPurpose;
+  }>>;
+
+  // ============================================================
+  // Backup Code Operations
+  // ============================================================
+
+  /**
+   * Generate backup codes
+   * 
+   * @param options - Backup code generation options
+   * @returns Generated backup codes
+   * 
+   * @example
+   * const result = await tokenGenerator.generateBackupCodes({
+   *   userId: 'usr_123',
+   *   count: 10
+   * });
+   */
+  generateBackupCodes(
+    options: BackupCodeGenerationOptions
+  ): Promise<ServiceResult<BackupCodeResult>>;
+
+  /**
+   * Verify backup code
+   * 
+   * @param userId - User ID
+   * @param code - Backup code
+   * @param options - Verification options
+   * @returns Verification result
+   */
+  verifyBackupCode(
+    userId: string,
+    code: string,
+    options?: {
+      consumeOnSuccess?: boolean;
+      regenerateIfLow?: boolean;
+    }
+  ): Promise<ServiceResult<{
+    verified: boolean;
+    remainingCount: number;
+    isLow: boolean;
+    needsRegeneration: boolean;
+  }>>;
+
+  /**
+   * Get remaining backup codes count
+   * 
+   * @param userId - User ID
+   * @returns Remaining count
+   */
+  getRemainingBackupCodes(userId: string): Promise<ServiceResult<{
+    remaining: number;
+    total: number;
+    isLow: boolean;
+  }>>;
+
+  /**
+   * Regenerate backup codes
+   * 
+   * @param userId - User ID
+   * @param options - Regeneration options
+   * @returns New backup codes
+   */
+  regenerateBackupCodes(
+    userId: string,
+    options?: {
+      count?: number;
+      invalidateOld?: boolean;
+    }
+  ): Promise<ServiceResult<BackupCodeResult>>;
+
+  // ============================================================
+  // API Key Operations
+  // ============================================================
+
+  /**
+   * Generate API key
+   * 
+   * @param options - API key generation options
+   * @returns Generated API key
+   * 
+   * @example
+   * const result = await tokenGenerator.generateAPIKey({
+   *   name: 'Mobile App',
+   *   userId: 'usr_123',
+   *   permissions: ['read', 'write']
+   * });
+   */
+  generateAPIKey(
+    options: APIKeyGenerationOptions
+  ): Promise<ServiceResult<APIKeyResult>>;
+
+  /**
+   * Validate API key
+   * 
+   * @param apiKey - API key
+   * @param requiredPermission - Required permission
+   * @param context - Request context (IP, referrer, district)
+   * @returns Validation result
+   */
+  validateAPIKey(
+    apiKey: string,
+    requiredPermission?: string,
+    context?: {
+      ipAddress?: string;
+      referrer?: string;
+      district?: string;
+    }
+  ): Promise<ServiceResult<{
+    valid: boolean;
+    keyData?: APIKeyPayload;
+    error?: string;
+    permissionGranted?: boolean;
+  }>>;
+
+  /**
+   * Revoke API key
+   * 
+   * @param keyId - API key ID
+   * @param userId - User ID
+   * @param reason - Revocation reason
+   * @returns Revocation result
+   */
+  revokeAPIKey(
+    keyId: string,
+    userId: string,
+    reason: string
+  ): Promise<ServiceResult<{ revoked: boolean }>>;
+
+  /**
+   * List API keys for user
+   * 
+   * @param userId - User ID
+   * @param options - Pagination options
+   * @returns List of API keys
+   */
+  listAPIKeys(
+    userId: string,
+    options?: PaginationOptions
+  ): Promise<PaginatedResult<APIKeyResult>>;
+
+  // ============================================================
+  // Magic Link Operations
+  // ============================================================
+
+  /**
+   * Generate magic link
+   * 
+   * @param options - Magic link generation options
+   * @returns Generated magic link
+   * 
+   * @example
+   * const result = await tokenGenerator.generateMagicLink({
+   *   email: 'user@example.com',
+   *   action: 'login',
+   *   redirectUrl: 'https://vubon.com.bd/dashboard'
+   * });
+   */
+  generateMagicLink(
+    options: MagicLinkGenerationOptions
+  ): Promise<ServiceResult<MagicLinkResult>>;
+
+  /**
+   * Verify magic link
+   * 
+   * @param token - Magic link token
+   * @param options - Verification options
+   * @returns Verification result
+   */
+  verifyMagicLink(
+    token: string,
+    options?: {
+      deviceId?: string;
+      ipAddress?: string;
+      consumeOnSuccess?: boolean;
+    }
+  ): Promise<ServiceResult<{
+    verified: boolean;
+    email: string;
+    userId?: string;
+    action: 'login' | 'signup' | 'verify';
+    redirectUrl?: string;
+    isUsed: boolean;
+    isExpired: boolean;
+  }>>;
+
+  /**
+   * Resend magic link
+   * 
+   * @param email - Email address
+   * @param options - Resend options
+   * @returns New magic link
+   */
+  resendMagicLink(
+    email: string,
+    options?: {
+      action?: 'login' | 'signup' | 'verify';
+      redirectUrl?: string;
+    }
+  ): Promise<ServiceResult<MagicLinkResult>>;
+
+  // ============================================================
+  // Session Transfer Operations
+  // ============================================================
+
+  /**
+   * Generate session transfer token
+   * 
+   * @param options - Session transfer generation options
+   * @returns Session transfer result
+   * 
+   * @example
+   * const result = await tokenGenerator.generateSessionTransfer({
+   *   fromSessionId: 'sess_123',
+   *   toDeviceInfo: { deviceId: 'dev_456', deviceType: 'MOBILE' },
+   *   userId: 'usr_123',
+   *   transferMethod: 'QR_CODE'
+   * });
+   */
+  generateSessionTransfer(
+    options: SessionTransferGenerationOptions
+  ): Promise<ServiceResult<SessionTransferResult>>;
+
+  /**
+   * Complete session transfer
+   * 
+   * @param transferId - Transfer ID
+   * @param verificationCode - Verification code (if OTP method)
+   * @param userId - User ID
+   * @param options - Completion options
+   * @returns Completion result
+   */
+  completeSessionTransfer(
+    transferId: string,
+    verificationCode: string | undefined,
+    userId: string,
+    options?: {
+      deviceInfo?: DeviceInfo;
+      createNewSession?: boolean;
+    }
+  ): Promise<ServiceResult<{
+    success: boolean;
+    newSessionId?: string;
+    accessToken?: string;
+    refreshToken?: string;
+    expiresIn?: number;
+    error?: string;
+  }>>;
+
+  // ============================================================
+  // Device Trust Operations
+  // ============================================================
+
+  /**
+   * Generate device trust token
+   * 
+   * @param options - Device trust generation options
+   * @returns Device trust result
+   * 
+   * @example
+   * const result = await tokenGenerator.generateDeviceTrust({
+   *   userId: 'usr_123',
+   *   deviceId: 'dev_456',
+   *   durationDays: 30
+   * });
+   */
+  generateDeviceTrust(
+    options: DeviceTrustGenerationOptions
+  ): Promise<ServiceResult<DeviceTrustResult>>;
+
+  /**
+   * Verify device trust
+   * 
+   * @param userId - User ID
+   * @param deviceId - Device ID
+   * @param options - Verification options
+   * @returns Verification result
+   */
+  verifyDeviceTrust(
+    userId: string,
+    deviceId: string,
+    options?: {
+      trustLevel?: TrustLevel;
+      checkExpiry?: boolean;
+    }
+  ): Promise<ServiceResult<{
+    trusted: boolean;
+    trustLevel: TrustLevel;
+    expiresAt: Date | null;
+    remainingDays: number;
+    isExpired: boolean;
+  }>>;
+
+  /**
+   * Revoke device trust
+   * 
+   * @param userId - User ID
+   * @param deviceId - Device ID
+   * @param reason - Revocation reason
+   * @returns Revocation result
+   */
+  revokeDeviceTrust(
+    userId: string,
+    deviceId: string,
+    reason: string
+  ): Promise<ServiceResult<{ revoked: boolean }>>;
+
+  // ============================================================
+  // WebAuthn (Passkey) Operations
+  // ============================================================
+
+  /**
+   * Generate WebAuthn registration challenge
+   * 
+   * @param options - WebAuthn generation options
+   * @returns Registration challenge
+   * 
+   * @example
+   * const result = await tokenGenerator.generateWebAuthnRegistration({
+   *   userId: 'usr_123',
+   *   userName: 'user@example.com',
+   *   deviceName: 'iPhone 15'
+   * });
+   */
+  generateWebAuthnRegistration(
+    options: WebAuthnGenerationOptions
+  ): Promise<ServiceResult<WebAuthnRegistrationResult>>;
+
+  /**
+   * Verify WebAuthn registration
+   * 
+   * @param registrationId - Registration ID
+   * @param response - Registration response from client
+   * @param userId - User ID
+   * @returns Verification result
+   */
+  verifyWebAuthnRegistration(
+    registrationId: string,
+    response: WebAuthnRegistrationResponse,
+    userId: string
+  ): Promise<ServiceResult<{
+    verified: boolean;
+    credentialId: string;
+    publicKey: string;
+    signCount: number;
+    deviceName: string;
+  }>>;
+
+  /**
+   * Generate WebAuthn authentication challenge
+   * 
+   * @param userId - User ID
+   * @param credentialIds - Allowed credential IDs (optional)
+   * @param options - Authentication options
+   * @returns Authentication challenge
+   */
+  generateWebAuthnAuthentication(
+    userId: string,
+    credentialIds?: string[],
+    options?: {
+      userVerification?: UserVerification;
+      timeoutMs?: number;
+    }
+  ): Promise<ServiceResult<WebAuthnAuthenticationRequest>>;
+
+  /**
+   * Verify WebAuthn authentication
+   * 
+   * @param challengeId - Challenge ID
+   * @param response - Authentication response from client
+   * @param userId - User ID
+   * @returns Verification result
+   */
+  verifyWebAuthnAuthentication(
+    challengeId: string,
+    response: {
+      id: string;
+      rawId: string;
+      response: {
+        authenticatorData: string;
+        clientDataJSON: string;
+        signature: string;
+        userHandle?: string;
+      };
+    },
+    userId: string
+  ): Promise<ServiceResult<{
+    verified: boolean;
+    credentialId: string;
+    signCount: number;
+    userId: string;
+  }>>;
+
+  // ============================================================
+  // Token Management Operations
+  // ============================================================
+
+  /**
+   * Get token status
+   * 
+   * @param tokenId - Token ID
+   * @param tokenType - Token type
+   * @returns Token status
+   */
+  getTokenStatus(
+    tokenId: string,
     tokenType: TokenType
-  ): Promise<{ allowed: boolean; remaining: number; resetAt: Date }>;
-  
+  ): Promise<ServiceResult<{
+    exists: boolean;
+    status: TokenStatus;
+    expiresAt?: Date;
+    createdAt?: Date;
+    userId?: string;
+    isExpired: boolean;
+    isRevoked: boolean;
+  }>>;
+
   /**
-   * Get rate limit configuration
+   * Blacklist token
    * 
-   * @returns Rate limit configuration
+   * @param tokenId - Token ID
+   * @param reason - Blacklist reason
+   * @param options - Blacklist options
+   * @returns Blacklist result
    */
-  getRateLimitConfig(): Promise<{
-    [key in TokenType]?: { maxPerHour: number; windowSeconds: number };
-  }>;
-  
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 10: Health Check
-  // ============================================================
-  
+  blacklistToken(
+    tokenId: string,
+    reason: string,
+    options?: {
+      userId?: string;
+      expiresIn?: number;
+      notifyUser?: boolean;
+    }
+  ): Promise<ServiceResult<{ blacklisted: boolean }>>;
+
   /**
-   * Health check for token generator service
+   * Check if token is blacklisted
    * 
-   * @returns Health status
+   * @param tokenId - Token ID
+   * @returns Whether token is blacklisted
    */
-  healthCheck(): Promise<{
-    status: 'healthy' | 'degraded' | 'unhealthy';
-    uptime: number;
-    version: string;
+  isTokenBlacklisted(tokenId: string): Promise<boolean>;
+
+  /**
+   * Cleanup expired tokens
+   * 
+   * @param olderThanDays - Cleanup tokens older than N days
+   * @param tokenType - Token type (optional)
+   * @returns Cleanup result
+   */
+  cleanupExpiredTokens(
+    olderThanDays: number,
+    tokenType?: TokenType
+  ): Promise<ServiceResult<{
+    deletedCount: number;
+    archivedCount: number;
+    failedCount: number;
+    durationMs: number;
+  }>>;
+
+  // ============================================================
+  // Configuration Operations
+  // ============================================================
+
+  /**
+   * Get token configuration
+   * 
+   * @param environment - Environment (auto-detected if not provided)
+   * @returns Token configuration
+   */
+  getConfig(environment?: Environment): Promise<TokenConfig>;
+
+  /**
+   * Get environment-specific configuration
+   * 
+   * @param environment - Environment name
+   * @returns Environment configuration
+   */
+  getEnvironmentConfig(environment: Environment): Promise<EnvironmentTokenConfig>;
+
+  /**
+   * Update token configuration
+   * 
+   * @param config - Updated configuration
+   * @param updatedBy - User ID performing update
+   * @param reason - Update reason
+   * @returns Updated configuration
+   */
+  updateConfig(
+    config: Partial<TokenConfig>,
+    updatedBy: string,
+    reason?: string
+  ): Promise<TokenConfig>;
+
+  /**
+   * Reset configuration to defaults
+   * 
+   * @param environment - Environment to reset
+   * @param resetBy - User ID performing reset
+   * @returns Reset configuration
+   */
+  resetConfig(
+    environment?: Environment,
+    resetBy?: string
+  ): Promise<TokenConfig>;
+
+  // ============================================================
+  // Bangladesh Bank Compliance Operations
+  // ============================================================
+
+  /**
+   * Get compliance status (Bangladesh Bank)
+   * 
+   * @param checkAll - Perform full compliance check
+   * @returns Compliance status
+   */
+  getComplianceStatus(
+    checkAll?: boolean
+  ): Promise<{
+    compliant: boolean;
+    issues: string[];
+    recommendations: string[];
+    lastCheck: Date;
+    nextCheck: Date;
     metrics: {
-      tokensGeneratedLastHour: number;
-      tokensVerifiedLastHour: number;
-      tokensRevokedLastHour: number;
-      averageVerificationTimeMs: number;
-      blacklistSize: number;
+      tokenExpiryCompliance: number;
+      algorithmCompliance: number;
+      rotationCompliance: number;
     };
   }>;
-  
+
   /**
-   * Get token generator metrics
+   * Get compliance requirements
    * 
+   * @returns Bangladesh Bank compliance requirements
+   */
+  getComplianceRequirements(): Promise<BBankComplianceRequirements>;
+
+  /**
+   * Run compliance check
+   * 
+   * @param fixIssues - Attempt to fix compliance issues
+   * @param fixedBy - User ID performing fixes
+   * @returns Compliance check result
+   */
+  runComplianceCheck(
+    fixIssues?: boolean,
+    fixedBy?: string
+  ): Promise<{
+    compliant: boolean;
+    issues: string[];
+    fixes: string[];
+    recommendations: string[];
+    checkCompletedAt: Date;
+  }>;
+
+  /**
+   * Generate compliance report
+   * 
+   * @param fromDate - Start date
+   * @param toDate - End date
+   * @param format - Export format (json, csv, pdf)
+   * @returns Compliance report
+   */
+  generateComplianceReport(
+    fromDate: Date,
+    toDate: Date,
+    format?: 'json' | 'csv' | 'pdf'
+  ): Promise<{
+    reportId: string;
+    generatedAt: Date;
+    summary: {
+      totalTokensGenerated: number;
+      totalTokensVerified: number;
+      successRate: number;
+      averageGenerationTimeMs: number;
+      averageVerificationTimeMs: number;
+      tokenTypeDistribution: Record<string, number>;
+    };
+    issues: Array<{
+      severity: 'low' | 'medium' | 'high' | 'critical';
+      description: string;
+      count: number;
+      recommendation: string;
+    }>;
+    recommendations: string[];
+    exportUrl: string;
+    expiresAt: Date;
+  }>;
+
+  // ============================================================
+  // Performance & Monitoring Operations
+  // ============================================================
+
+  /**
+   * Get performance metrics
+   * 
+   * @param reset - Whether to reset metrics after retrieval
+   * @param fromDate - Start date for metrics
+   * @param toDate - End date for metrics
    * @returns Performance metrics
    */
-  getMetrics(): Promise<{
-    totalTokensGenerated: number;
-    totalTokensVerified: number;
-    totalTokensRevoked: number;
+  getPerformanceMetrics(
+    reset?: boolean,
+    fromDate?: Date,
+    toDate?: Date
+  ): Promise<{
     averageGenerationTimeMs: number;
     p95GenerationTimeMs: number;
     p99GenerationTimeMs: number;
-    errorRate: number;
+    averageVerificationTimeMs: number;
+    p95VerificationTimeMs: number;
+    p99VerificationTimeMs: number;
+    successRate: number;
+    failureRate: number;
+    totalOperations: number;
+    byTokenType: Record<string, number>;
+    byAlgorithm: Record<string, number>;
+    byEnvironment: Record<string, number>;
   }>;
+
+  /**
+   * Get aggregated statistics
+   * 
+   * @param timeWindowHours - Time window for aggregation
+   * @returns Aggregated statistics
+   */
+  getAggregatedStats(
+    timeWindowHours?: number
+  ): Promise<{
+    totalTokens: number;
+    activeTokens: number;
+    expiredTokens: number;
+    revokedTokens: number;
+    byType: Record<string, number>;
+    byStatus: Record<string, number>;
+    averageTokenAge: number;
+  }>;
+
+  /**
+   * Reset performance metrics
+   * 
+   * @param resetBy - User ID performing reset
+   * @param reason - Reset reason
+   * @returns Reset result
+   */
+  resetPerformanceMetrics(
+    resetBy?: string,
+    reason?: string
+  ): Promise<{ reset: boolean; resetAt: Date }>;
+
+  // ============================================================
+  // Audit Operations
+  // ============================================================
+
+  /**
+   * Get audit trail for token operations
+   * 
+   * @param userId - User ID (optional)
+   * @param fromDate - Start date
+   * @param toDate - End date
+   * @param limit - Maximum number of entries
+   * @param offset - Pagination offset
+   * @returns Audit trail entries
+   */
+  getAuditTrail(
+    userId?: string,
+    fromDate?: Date,
+    toDate?: Date,
+    limit?: number,
+    offset?: number
+  ): Promise<{
+    items: Array<{
+      id: string;
+      action: 'generated' | 'verified' | 'revoked' | 'refreshed' | 'blacklisted' | 'expired' | 'compromised';
+      tokenType: TokenType;
+      tokenId: string;
+      userId: string;
+      timestamp: Date;
+      ipAddress?: string;
+      userAgent?: string;
+      deviceId?: string;
+      correlationId?: string;
+      details?: string;
+      success: boolean;
+      error?: string;
+    }>;
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }>;
+
+  /**
+   * Export audit trail for compliance
+   * 
+   * @param userId - User ID (optional)
+   * @param fromDate - Start date
+   * @param toDate - End date
+   * @param format - Export format (json, csv)
+   * @returns Export result
+   */
+  exportAuditTrail(
+    userId?: string,
+    fromDate?: Date,
+    toDate?: Date,
+    format?: 'json' | 'csv'
+  ): Promise<{
+    downloadUrl: string;
+    expiresAt: Date;
+    fileSize: number;
+    recordCount: number;
+    format: string;
+  }>;
+
+  // ============================================================
+  // Health & Monitoring Operations
+  // ============================================================
+
+  /**
+   * Health check for token generator service
+   * 
+   * @param includeDependencies - Include dependency health
+   * @param includePerformance - Include performance metrics
+   * @returns Health status
+   */
+  healthCheck(
+    includeDependencies?: boolean,
+    includePerformance?: boolean
+  ): Promise<{
+    status: 'healthy' | 'degraded' | 'unhealthy';
+    version: string;
+    uptime: number;
+    environment: string;
+    complianceStatus: 'compliant' | 'non_compliant' | 'unknown';
+    dependencies: {
+      randomGenerator: boolean;
+      jwt: boolean;
+      otp: boolean;
+      webauthn: boolean;
+      cache: boolean;
+      database: boolean;
+    };
+    performance: {
+      averageGenerationTimeMs: number;
+      averageVerificationTimeMs: number;
+      successRate: number;
+      errorRate: number;
+      p95GenerationTimeMs: number;
+      p99GenerationTimeMs: number;
+    };
+    metrics: {
+      totalTokens: number;
+      activeTokens: number;
+      revokedTokens: number;
+      expiredTokens: number;
+    };
+    lastError?: {
+      message: string;
+      timestamp: Date;
+    };
+    lastComplianceCheck?: {
+      passed: boolean;
+      timestamp: Date;
+    };
+  }>;
+
+  /**
+   * Get service metrics
+   * 
+   * @param period - Time period for metrics (1h, 24h, 7d, 30d)
+   * @returns Service metrics
+   */
+  getMetrics(
+    period?: '1h' | '24h' | '7d' | '30d'
+  ): Promise<{
+    operations: {
+      total: number;
+      jwt: number;
+      otp: number;
+      backupCode: number;
+      apiKey: number;
+      magicLink: number;
+      sessionTransfer: number;
+      deviceTrust: number;
+      webauthn: number;
+    };
+    successRate: number;
+    averageLatencyMs: number;
+    p95LatencyMs: number;
+    p99LatencyMs: number;
+    errorDistribution: Record<string, number>;
+    tokenTypeUsage: Record<string, number>;
+    complianceScore: number;
+  }>;
+
+  /**
+   * Clear all metrics
+   * 
+   * @param clearedBy - User ID performing clear
+   * @param reason - Clear reason
+   * @returns Clear result
+   */
+  clearMetrics(
+    clearedBy?: string,
+    reason?: string
+  ): Promise<{ cleared: boolean; clearedAt: Date }>;
 }
 
 // ============================================================
 // Type Exports
 // ============================================================
 
-export type { 
-  TokenOptions as TokenOptionsType,
-  TokenVerificationResult as TokenVerificationResultType,
-  TokenPairResponse as TokenPairResponseType,
-  TokenIntrospectionResponse as TokenIntrospectionResponseType,
-  TokenHealthScore as TokenHealthScoreType,
-  TokenUsageStats as TokenUsageStatsType,
-  BatchTokenResult as BatchTokenResultType,
-  TokenRotationHistory as TokenRotationHistoryType
+export type {
+  TokenGeneratorOptions as TokenGeneratorOptionsType,
+  JWTGenerationOptions as JWTGenerationOptionsType,
+  OTPGenerationOptions as OTPGenerationOptionsType,
+  BackupCodeGenerationOptions as BackupCodeGenerationOptionsType,
+  APIKeyGenerationOptions as APIKeyGenerationOptionsType,
+  MagicLinkGenerationOptions as MagicLinkGenerationOptionsType,
+  SessionTransferGenerationOptions as SessionTransferGenerationOptionsType,
+  DeviceTrustGenerationOptions as DeviceTrustGenerationOptionsType,
+  WebAuthnGenerationOptions as WebAuthnGenerationOptionsType,
+  ServiceResult as ServiceResultType,
+  TokenGenerationResult as TokenGenerationResultType,
+  TokenValidationResult as TokenValidationResultType,
+  TokenRefreshResult as TokenRefreshResultType,
+  OTPResult as OTPResultType,
+  BackupCodeResult as BackupCodeResultType,
+  APIKeyResult as APIKeyResultType,
+  MagicLinkResult as MagicLinkResultType,
+  WebAuthnRegistrationResult as WebAuthnRegistrationResultType,
 };
 
 // ============================================================
-// Helper Constants (From shared-config)
-// ============================================================
-
-/**
- * Default token expiry values (from shared-config)
- */
-export const DEFAULT_TOKEN_EXPIRY = {
-  ACCESS_TOKEN: TOKEN_CONFIG.ACCESS_TOKEN_EXPIRY,
-  REFRESH_TOKEN: TOKEN_CONFIG.REFRESH_TOKEN_EXPIRY,
-  RESET_TOKEN: TOKEN_CONFIG.RESET_TOKEN_EXPIRY,
-  VERIFICATION_TOKEN: TOKEN_CONFIG.VERIFICATION_TOKEN_EXPIRY,
-  MAGIC_LINK_TOKEN: TOKEN_CONFIG.MAGIC_LINK_TOKEN_EXPIRY,
-  MFA_TOKEN: TOKEN_CONFIG.MFA_TOKEN_EXPIRY,
-  API_KEY_TOKEN: TOKEN_CONFIG.API_KEY_TOKEN_EXPIRY,
-} as const;
-
-/**
- * Token health thresholds
- */
-export const TOKEN_HEALTH_THRESHOLDS = {
-  EXCELLENT: 80,
-  GOOD: 60,
-  FAIR: 40,
-  POOR: 20,
-  CRITICAL: 0,
-} as const;
-
-/**
- * Rate limit defaults
- */
-export const TOKEN_RATE_LIMITS = {
-  ACCESS_TOKEN: { maxPerHour: 100, windowSeconds: 3600 },
-  REFRESH_TOKEN: { maxPerHour: 50, windowSeconds: 3600 },
-  RESET_TOKEN: { maxPerHour: 10, windowSeconds: 3600 },
-  VERIFICATION_TOKEN: { maxPerHour: 20, windowSeconds: 3600 },
-  MFA_TOKEN: { maxPerHour: 30, windowSeconds: 3600 },
-} as const;
-
-// ============================================================
-// ENTERPRISE SUMMARY v4.0
+// ENTERPRISE SUMMARY
 // ============================================================
 // 
-// Enterprise Enhancements Applied in v4.0:
-// 1. ✅ Token versioning for migration support
-// 2. ✅ Token usage analytics and tracking
-// 3. ✅ Batch token operations (generate, revoke)
-// 4. ✅ Token health scoring and monitoring
-// 5. ✅ Rate limiting for token generation
-// 6. ✅ Geo-location binding for Bangladesh districts
-// 7. ✅ Device fingerprint binding for security
-// 8. ✅ Token usage pattern anomaly detection
-// 9. ✅ Token expiry notification hooks
-// 10. ✅ Token rotation with family tracking
-// 11. ✅ Token revocation reason tracking
-// 12. ✅ Token blacklist with expiry
-// 13. ✅ Performance metrics and monitoring
-// 14. ✅ Health check endpoint
-// 15. ✅ Distributed tracing support (correlationId)
+// Enterprise Features Applied:
+// 1. ✅ JWT generation, verification, and validation (RFC 7519)
+// 2. ✅ OTP generation and verification (TOTP RFC 6238)
+// 3. ✅ Backup and recovery codes management
+// 4. ✅ API key generation and validation
+// 5. ✅ Magic link generation and verification
+// 6. ✅ Session transfer tokens (QR/Magic Link/OTP)
+// 7. ✅ Device trust tokens
+// 8. ✅ WebAuthn (Passkey) registration and authentication
+// 9. ✅ Token rotation and family management
+// 10. ✅ Bangladesh Bank compliance
+// 11. ✅ Performance metrics and monitoring
+// 12. ✅ Audit logging for compliance
+// 13. ✅ Distributed tracing with correlation ID
+// 14. ✅ Bengali language support
+// 15. ✅ Bangladesh specific - 2G/3G/4G/5G/WiFi network awareness
+// 16. ✅ Rate limiting and quota management
+// 17. ✅ Health check and monitoring
+// 18. ✅ Type-safe with full TypeScript support
 // 
 // Bangladesh Specific:
-// - District binding for geo-location security
-// - Phone-based token generation
-// - Local timezone awareness
-// - Bengali error message support ready
+// - Bangladesh Bank compliance
+// - District/Division tracking
+// - Network type (2G/3G/4G/5G/WiFi) awareness
+// - Mobile operator tracking
+// - Bengali language support
+// - Local timezone-aware timestamps
+// - Compliance reporting ready
 // 
 // Security Features:
-// - Device fingerprint binding prevents token theft
-// - District binding prevents token replay from different locations
-// - Rate limiting prevents token generation abuse
-// - Token health scoring identifies compromised tokens
-// - Anomaly detection for unusual usage patterns
+// - Token data NEVER logged or serialized
+// - Random generation using cryptographically secure methods
+// - Timing-safe comparison for verification
+// - Rate limiting for verification attempts
+// - Lockout after max attempts
+// - One-time use codes
+// - Hashed code storage
+// - Token versioning
+// - Trust level system
+// - MFA verification tracking
+// - Device fingerprint tracking
+// - IP whitelist support
 // 
 // ============================================================
