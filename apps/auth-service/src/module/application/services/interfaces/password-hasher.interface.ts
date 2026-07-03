@@ -1,841 +1,1076 @@
 /**
- * Password Hasher Interface - Enterprise Enhanced v3.0
+ * Password Hasher Service Interface - Enterprise Grade Service Contract
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module application/services/interfaces/password-hasher.interface
  * 
  * @description
- * Interface for password hashing operations with enterprise security features.
- * Implementation resides in infrastructure layer (bcrypt, argon2, etc.)
+ * Service contract for password hashing operations.
+ * Defines the boundary between application layer and infrastructure for password hashing.
  * 
- * ENTERPRISE ENHANCEMENTS (v3.0):
- * ✅ Multi-algorithm support (bcrypt, argon2id, scrypt) with auto-upgrade
- * ✅ Adaptive cost factor based on hardware capability
- * ✅ Breach detection using k-anonymity (HaveIBeenPwned API ready)
- * ✅ Password history validation with customizable retention
- * ✅ Personal info detection (email, name, phone) for Bangladesh users
- * ✅ Bengali language support for error messages and suggestions
- * ✅ Timing-safe comparison for all operations
- * ✅ Secure random password generation with configurable character sets
- * ✅ Hash algorithm migration strategy
- * ✅ Performance benchmarking for cost factor selection
- * ✅ Circuit breaker for breach check API calls
- * ✅ Rate limiting for breach check to prevent abuse
- * ✅ Caching for breach check results
- * ✅ Comprehensive audit logging for security events
- * ✅ Health check for breach check service
- * ✅ Fallback mode when breach check service is unavailable
+ * ENTERPRISE FEATURES:
+ * ✅ Multiple hashing algorithms support (bcrypt, argon2id, scrypt, pbkdf2)
+ * ✅ Password strength validation and policy enforcement
+ * ✅ Bangladesh Bank compliance support
+ * ✅ Performance monitoring and metrics
+ * ✅ Fallback mechanism for degraded mode
+ * ✅ Audit logging for compliance
+ * ✅ Distributed tracing with correlation ID
+ * ✅ Bengali language support
+ * ✅ Geographic location tracking (Bangladesh districts)
+ * ✅ Device fingerprint tracking
+ * ✅ Health check and monitoring
+ * ✅ Type-safe with full TypeScript support
  * 
- * Enterprise Rules:
- * ✅ Pure interface - No implementation
- * ✅ No business logic
- * ✅ Infrastructure-agnostic
- * ✅ Support for algorithm upgrades
- * ✅ Support for password breach detection
+ * Security Rules:
+ * ✅ Password never logged or serialized
+ * ✅ Salt generated using secure random
+ * ✅ Timing-safe comparison for verification
+ * ✅ Rate limiting for verification attempts
+ * ✅ Lockout after max attempts
+ * 
+ * @example
+ * const passwordHasher = new BcryptPasswordHasher({
+ *   saltRounds: 12,
+ *   algorithm: 'bcrypt'
+ * });
+ * 
+ * const result = await passwordHasher.hash('MyStr0ng!P@ssw0rd', {
+ *   userId: 'usr_123',
+ *   correlationId: 'corr_456'
+ * });
+ * 
+ * if (result.success) {
+ *   console.log('Hash:', result.data);
+ *   console.log('Metrics:', result.metrics);
+ * }
  */
 
-// ✅ Phase-1 (shared-constants) থেকে ইম্পোর্ট - কেন্দ্রীভূত কনফিগারেশন
-import { 
-  PASSWORD_POLICY, 
-  HASHING_CONFIG, 
-  HASH_ALGORITHMS,
-  BCRYPT_DEFAULTS as SHARED_BCRYPT_DEFAULTS,
-  ARGON2ID_DEFAULTS as SHARED_ARGON2ID_DEFAULTS,
-  SCRYPT_DEFAULTS as SHARED_SCRYPT_DEFAULTS,
-  ENV_CONFIG
+// ✅ Import from shared-types (all types are used in the interface)
+import type {
+  HashingAlgorithm,
+  HasherConfig,
+  SaltOptions,
+  HashStringResult,
+  HashBufferResult,
+  HashVerifyResult,
+  HashErrorCode,
+  HashPerformanceMetrics,
+  HashAuditMetadata,
+  HashAuditEvent,
+  BBankComplianceRequirements,
+  BBankComplianceStatus,
+  HashFallbackConfig,
+  HashFallbackStatus,
+  HashingEnvironmentConfig,
+  HashingEnvironmentConfigMap,
+  PasswordPolicy,
+} from '@vubon/shared-types';
+
+// ✅ These imports are used to provide default configurations
+import {
+  DEFAULT_HASHING_ALGORITHM,
+  BCRYPT_CONFIG,
+  ARGON2ID_CONFIG,
+  SCRYPT_CONFIG,
+  PBKDF2_CONFIG,
+  ENVIRONMENT_HASHING_CONFIG,
+  BBANK_COMPLIANCE_CONFIG,
+  HASHING_PERFORMANCE_CONFIG,
+  HASHING_FALLBACK_CONFIG,
+  HASHING_AUDIT_CONFIG,
 } from '@vubon/shared-constants';
 
-// ✅ Phase-1 (shared-types) থেকে ইম্পোর্ট
-import type { HashAlgorithm, AuditMetadata } from '@vubon/shared-types';
-
 // ============================================================
-// Environment detection
-// ============================================================
-
-const IS_PRODUCTION = ENV_CONFIG?.IS_PRODUCTION ?? false;
-
-// ============================================================
-// Hash Algorithm Types (শেয়ার্ড কনস্ট্যান্ট থেকে রি-এক্সপোর্ট)
+// ✅ ENTERPRISE ENHANCEMENT 1: Options Interfaces
 // ============================================================
 
 /**
- * Supported hash algorithms
- * Values come from shared-constants for consistency
+ * Base hashing options
  */
-export type HashAlgorithm = typeof HASH_ALGORITHMS[keyof typeof HASH_ALGORITHMS];
-
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 1: Enhanced Hashing Options
-// ============================================================
-
 export interface HashingOptions {
-  /** Hash algorithm to use (default comes from shared-constants) */
-  algorithm?: HashAlgorithm;
+  /** Audit metadata for compliance tracking */
+  auditMetadata?: HashAuditMetadata;
   
-  /** Cost factor (bcrypt rounds or argon2 iterations) - default from shared-constants */
-  cost?: number;
-  
-  /** Memory usage (for argon2) - in KB - default from shared-constants */
-  memory?: number;
-  
-  /** Parallelism (for argon2) - default from shared-constants */
-  parallelism?: number;
-  
-  /** Key length (for argon2) - in bytes - default from shared-constants */
-  keyLength?: number;
-  
-  /** Salt length (for bcrypt/scrypt) - in bytes - default from shared-constants */
-  saltLength?: number;
-  
-  /** ✅ ENTERPRISE: Adaptive cost based on hardware */
-  adaptiveCost?: boolean;
-  
-  /** ✅ ENTERPRISE: Target time in milliseconds for hash operation */
-  targetTimeMs?: number;
-  
-  /** ✅ ENTERPRISE: Correlation ID for distributed tracing */
+  /** Correlation ID for tracing across services */
   correlationId?: string;
+  
+  /** Preferred language for response messages (en/bn) */
+  preferredLanguage?: 'en' | 'bn';
+  
+  /** Geographic district (Bangladesh specific) */
+  district?: string;
+  
+  /** Geographic division (Bangladesh specific) */
+  division?: string;
+  
+  /** Device fingerprint for fraud detection */
+  deviceFingerprint?: string;
+  
+  /** Retry attempt number (for connection resilience) */
+  retryAttempt?: number;
+  
+  /** Override configuration (optional) */
+  configOverride?: Partial<HasherConfig>;
+  
+  /** Skip performance monitoring */
+  skipPerformanceMonitoring?: boolean;
+  
+  /** Skip audit logging */
+  skipAuditLogging?: boolean;
 }
 
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 2: Enhanced Hash Info
-// ============================================================
-
-export interface HashInfo {
-  /** Hash algorithm used */
-  algorithm: HashAlgorithm;
+/**
+ * Hash operation options
+ */
+export interface HashOptions extends HashingOptions {
+  /** User ID (for audit) */
+  userId?: string;
   
-  /** Cost factor used */
-  cost: number;
+  /** Session ID (for audit) */
+  sessionId?: string;
   
-  /** Version of the hash format */
-  version: number;
+  /** Request ID (for audit) */
+  requestId?: string;
   
-  /** Whether the hash needs rehashing (for upgrades) */
-  needsRehash: boolean;
+  /** IP address (for audit) */
+  ipAddress?: string;
   
-  /** When the hash was created (if available) */
-  createdAt?: Date;
+  /** User agent (for audit) */
+  userAgent?: string;
   
-  /** Salt used (if available) */
+  /** Force specific algorithm (override config) */
+  forceAlgorithm?: HashingAlgorithm;
+  
+  /** Use fallback algorithm (degraded mode) */
+  useFallback?: boolean;
+  
+  /** Salt to use (auto-generated if not provided) */
   salt?: string;
+}
+
+/**
+ * Verify operation options
+ */
+export interface VerifyOptions extends HashingOptions {
+  /** User ID (for audit) */
+  userId?: string;
   
-  /** ✅ ENTERPRISE: Recommended new algorithm for upgrade */
-  recommendedAlgorithm?: HashAlgorithm;
+  /** Session ID (for audit) */
+  sessionId?: string;
   
-  /** ✅ ENTERPRISE: Recommended cost for upgrade */
-  recommendedCost?: number;
+  /** Request ID (for audit) */
+  requestId?: string;
   
-  /** ✅ ENTERPRISE: Security score of the hash (0-100) */
-  securityScore?: number;
+  /** IP address (for audit) */
+  ipAddress?: string;
+  
+  /** User agent (for audit) */
+  userAgent?: string;
+  
+  /** Expected algorithm (if known) */
+  expectedAlgorithm?: HashingAlgorithm;
+  
+  /** Maximum attempts before lockout (default: 5) */
+  maxAttempts?: number;
+  
+  /** Lockout duration in seconds (default: 900) */
+  lockoutDurationSeconds?: number;
+  
+  /** Whether to check password expiry */
+  checkExpiry?: boolean;
+  
+  /** Whether to check password reuse */
+  checkReuse?: boolean;
+}
+
+/**
+ * Password strength check options
+ */
+export interface PasswordStrengthOptions {
+  /** Minimum strength level required */
+  minStrength?: 'weak' | 'medium' | 'strong' | 'very_strong';
+  
+  /** Check against common passwords */
+  checkCommonPasswords?: boolean;
+  
+  /** Check against user personal info */
+  checkPersonalInfo?: boolean;
+  
+  /** Check against dictionary */
+  checkDictionary?: boolean;
+  
+  /** Custom blacklist */
+  customBlacklist?: string[];
+  
+  /** Preferred language for messages (en/bn) */
+  preferredLanguage?: 'en' | 'bn';
 }
 
 // ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 3: Enhanced Password Strength Result
+// ✅ ENTERPRISE ENHANCEMENT 2: Result Interfaces
 // ============================================================
 
-export interface PasswordStrengthResult {
-  /** Whether password meets minimum requirements (from PASSWORD_POLICY) */
-  isValid: boolean;
+/**
+ * Generic service result wrapper
+ */
+export interface ServiceResult<T> {
+  /** Whether the operation was successful */
+  success: boolean;
   
-  /** Strength score from 0-100 */
+  /** Response data (if successful) */
+  data?: T;
+  
+  /** Error code (if failed) */
+  errorCode?: HashErrorCode;
+  
+  /** Error message (if failed) */
+  errorMessage?: string;
+  
+  /** Bengali error message */
+  errorMessageBn?: string;
+  
+  /** Performance metrics for the operation */
+  metrics?: HashPerformanceMetrics;
+  
+  /** Correlation ID for tracing */
+  correlationId?: string;
+  
+  /** Duration of operation in milliseconds */
+  durationMs?: number;
+}
+
+/**
+ * Password strength result
+ */
+export interface PasswordStrengthResult {
+  /** Overall strength level */
+  strength: 'weak' | 'medium' | 'strong' | 'very_strong';
+  
+  /** Strength score (0-100) */
   score: number;
   
-  /** Password strength level */
-  level: 'very_weak' | 'weak' | 'medium' | 'strong' | 'very_strong';
+  /** Whether password meets minimum requirements */
+  meetsMinimum: boolean;
   
-  /** Estimated crack time (human readable) */
-  estimatedCrackTime: string;
+  /** Whether password is strong enough */
+  isStrong: boolean;
   
-  /** List of validation errors */
-  errors: string[];
+  /** Missing requirements (if any) */
+  missingRequirements: string[];
   
-  /** List of suggestions for improvement */
+  /** Missing requirements in Bengali */
+  missingRequirementsBn?: string[];
+  
+  /** Suggestions for improvement */
   suggestions: string[];
   
-  /** Which character types are present */
-  characterTypes: {
+  /** Suggestions in Bengali */
+  suggestionsBn?: string[];
+  
+  /** Estimated crack time */
+  estimatedCrackTime: string;
+  
+  /** Entropy bits */
+  entropyBits: number;
+  
+  /** Whether password is common */
+  isCommon: boolean;
+  
+  /** Whether password contains personal info */
+  containsPersonalInfo: boolean;
+  
+  /** Character set analysis */
+  characterSet: {
     hasUppercase: boolean;
     hasLowercase: boolean;
     hasNumbers: boolean;
     hasSpecial: boolean;
-  };
-  
-  /** Password length */
-  length: number;
-  
-  /** ✅ ENTERPRISE: বাংলা ভাষায় ত্রুটি ও পরামর্শ (বাংলাদেশ স্পেসিফিক) */
-  errorsBn?: string[];
-  suggestionsBn?: string[];
-  
-  /** ✅ ENTERPRISE: Contains personal information */
-  containsPersonalInfo?: boolean;
-  
-  /** ✅ ENTERPRISE: Personal info match details */
-  personalInfoMatches?: string[];
-  
-  /** ✅ ENTERPRISE: Is common password */
-  isCommonPassword?: boolean;
-  
-  /** ✅ ENTERPRISE: Entropy in bits */
-  entropy?: number;
-  
-  /** ✅ ENTERPRISE: Score breakdown by category */
-  breakdown?: {
-    length: number;
-    characterVariety: number;
-    noPatterns: number;
-    noPersonalInfo: number;
-    notCommon: number;
+    hasUnicode: boolean;
+    uniqueChars: number;
+    totalChars: number;
   };
 }
 
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 4: Enhanced Breach Check Result
-// ============================================================
-
-export interface BreachCheckResult {
-  /** Whether password has been found in data breaches */
-  isCompromised: boolean;
+/**
+ * Password expiry status
+ */
+export interface PasswordExpiryStatus {
+  /** Whether password is expired */
+  isExpired: boolean;
   
-  /** Number of times password appeared in breaches */
-  breachCount?: number;
+  /** When password was last changed */
+  lastChangedAt: Date;
   
-  /** List of breaches where password was found */
-  breachSources?: string[];
+  /** Days since last change */
+  daysSinceLastChange: number;
   
-  /** When the check was performed */
-  checkedAt: Date;
+  /** Days until expiry */
+  daysUntilExpiry: number;
   
-  /** ✅ ENTERPRISE: সুপারিশ (বাংলাদেশ স্পেসিফিক) */
-  recommendation?: string;
-  recommendationBn?: string;
+  /** Whether password is in grace period */
+  isInGracePeriod: boolean;
   
-  /** ✅ ENTERPRISE: Severity level */
-  severity?: 'low' | 'medium' | 'high' | 'critical';
+  /** Grace period remaining in days */
+  gracePeriodRemaining: number;
   
-  /** ✅ ENTERPRISE: Whether result is from cache */
-  fromCache?: boolean;
+  /** Expiry date */
+  expiryDate: Date;
   
-  /** ✅ ENTERPRISE: Cache expiry */
-  cacheExpiresAt?: Date;
+  /** Grace period end date */
+  gracePeriodEndDate: Date;
+  
+  /** Whether expiry warning should be sent */
+  sendWarning: boolean;
 }
 
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 5: Enhanced Password History Validation
-// ============================================================
-
-export interface PasswordHistoryValidation {
-  /** Whether password is new (not in history) */
-  isNew: boolean;
+/**
+ * Password reuse check result
+ */
+export interface PasswordReuseResult {
+  /** Whether password was reused */
+  isReused: boolean;
   
-  /** How many times this password has been used before */
-  reuseCount: number;
+  /** Number of previous passwords checked */
+  checkedCount: number;
   
-  /** When this password was last used */
-  lastUsedAt?: Date;
+  /** Matched history ID (if reused) */
+  matchedHistoryId?: string;
   
-  /** Position in history (1 = most recent) */
+  /** Matched timestamp (if reused) */
+  matchedAt?: Date;
+  
+  /** Position in history (if reused) */
   position?: number;
   
-  /** ✅ ENTERPRISE: Similarity score with historical passwords (0-100) */
-  similarityScore?: number;
-  
-  /** ✅ ENTERPRISE: Similar passwords found (for warning) */
-  similarPasswords?: Array<{
-    position: number;
-    similarity: number;
-    usedAt: Date;
-  }>;
+  /** Days since matched password was used */
+  daysSinceMatched?: number;
 }
 
 // ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 6: Enhanced Password Strength Options
+// ✅ ENTERPRISE ENHANCEMENT 3: Main Service Interface
 // ============================================================
 
-export interface PasswordStrengthOptions {
-  minLength?: number;
-  maxLength?: number;
-  requireUppercase?: boolean;
-  requireLowercase?: boolean;
-  requireNumbers?: boolean;
-  requireSpecial?: boolean;
-  
-  /** ✅ ENTERPRISE: কমন পাসওয়ার্ড চেক করা হবে কিনা */
-  checkCommonPasswords?: boolean;
-  
-  /** ✅ ENTERPRISE: ব্যক্তিগত তথ্য চেক করা হবে কিনা (নাম, ইমেইল, ফোন) */
-  checkPersonalInfo?: boolean;
-  
-  /** ✅ ENTERPRISE: User information for personal data check */
-  userInfo?: {
-    email?: string;
-    name?: string;
-    phone?: string;
-    username?: string;
-    birthDate?: Date;
-  };
-  
-  /** ✅ ENTERPRISE: Require minimum entropy (bits) */
-  minEntropy?: number;
-  
-  /** ✅ ENTERPRISE: Locale for messages (en/bn) */
-  locale?: 'en' | 'bn';
-}
-
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 7: Breach Check Options
-// ============================================================
-
-export interface BreachCheckOptions {
-  /** ✅ ENTERPRISE: Skip cache and force fresh check */
-  forceFresh?: boolean;
-  
-  /** ✅ ENTERPRISE: Cache TTL in seconds (default: 86400) */
-  cacheTtlSeconds?: number;
-  
-  /** ✅ ENTERPRISE: Timeout in milliseconds (default: 5000) */
-  timeoutMs?: number;
-  
-  /** ✅ ENTERPRISE: Circuit breaker timeout */
-  circuitBreakerTimeoutMs?: number;
-  
-  /** ✅ ENTERPRISE: Correlation ID for tracing */
-  correlationId?: string;
-  
-  /** ✅ ENTERPRISE: Audit metadata */
-  auditMetadata?: AuditMetadata;
-}
-
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 8: Benchmark Result
-// ============================================================
-
-export interface BenchmarkResult {
-  /** Algorithm benchmarked */
-  algorithm: HashAlgorithm;
-  
-  /** Cost tested */
-  cost: number;
-  
-  /** Average time in milliseconds */
-  averageTimeMs: number;
-  
-  /** Minimum time in milliseconds */
-  minTimeMs: number;
-  
-  /** Maximum time in milliseconds */
-  maxTimeMs: number;
-  
-  /** Number of iterations run */
-  iterations: number;
-  
-  /** Recommended for production */
-  recommended: boolean;
-  
-  /** Reason for recommendation */
-  reason?: string;
-}
-
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 9: Migration Plan
-// ============================================================
-
-export interface HashMigrationPlan {
-  /** Current algorithm */
-  fromAlgorithm: HashAlgorithm;
-  
-  /** Target algorithm */
-  toAlgorithm: HashAlgorithm;
-  
-  /** Current cost */
-  fromCost: number;
-  
-  /** Target cost */
-  toCost: number;
-  
-  /** Number of hashes to migrate */
-  hashCount: number;
-  
-  /** Estimated time for migration */
-  estimatedTimeMs: number;
-  
-  /** Migration strategy */
-  strategy: 'rehash_on_login' | 'batch_rehash' | 'dual_write';
-  
-  /** Priority (higher = migrate first) */
-  priority: number;
-}
-
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 10: Breach Check Status
-// ============================================================
-
-export interface BreachCheckStatus {
-  /** Whether breach check service is healthy */
-  healthy: boolean;
-  
-  /** Last successful check timestamp */
-  lastSuccessAt?: Date;
-  
-  /** Last failure timestamp */
-  lastFailureAt?: Date;
-  
-  /** Consecutive failures count */
-  consecutiveFailures: number;
-  
-  /** Circuit breaker state */
-  circuitBreakerState: 'closed' | 'open' | 'half-open';
-  
-  /** Cache hit rate */
-  cacheHitRate: number;
-  
-  /** Average latency in milliseconds */
-  averageLatencyMs: number;
-  
-  /** Whether in fallback mode */
-  fallbackMode: boolean;
-}
-
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 11: Password Pattern Detection
-// ============================================================
-
-export interface PasswordPatternResult {
-  /** Whether password contains sequential characters (abc, 123) */
-  hasSequential: boolean;
-  
-  /** Whether password contains repeated characters (aaa, 111) */
-  hasRepeated: boolean;
-  
-  /** Whether password contains keyboard patterns (qwerty, asdf) */
-  hasKeyboardPattern: boolean;
-  
-  /** Whether password contains common words */
-  hasCommonWords: boolean;
-  
-  /** Whether password contains date patterns (1990, 2024) */
-  hasDatePattern: boolean;
-  
-  /** List of detected patterns */
-  detectedPatterns: string[];
-  
-  /** List of pattern suggestions in Bengali */
-  suggestionsBn?: string[];
-}
-
-// ============================================================
-// Algorithm-specific default configurations (শেয়ার্ড কনস্ট্যান্ট থেকে রি-এক্সপোর্ট)
-// ============================================================
-
-export const BCRYPT_DEFAULTS = {
-  algorithm: SHARED_BCRYPT_DEFAULTS.algorithm,
-  cost: SHARED_BCRYPT_DEFAULTS.cost,
-  saltLength: SHARED_BCRYPT_DEFAULTS.saltLength,
-} as const;
-
-export const ARGON2ID_DEFAULTS = {
-  algorithm: SHARED_ARGON2ID_DEFAULTS.algorithm,
-  cost: SHARED_ARGON2ID_DEFAULTS.cost,
-  memory: SHARED_ARGON2ID_DEFAULTS.memory,
-  parallelism: SHARED_ARGON2ID_DEFAULTS.parallelism,
-  keyLength: SHARED_ARGON2ID_DEFAULTS.keyLength,
-} as const;
-
-export const SCRYPT_DEFAULTS = {
-  algorithm: SHARED_SCRYPT_DEFAULTS.algorithm,
-  cost: SHARED_SCRYPT_DEFAULTS.cost,
-  memory: SHARED_SCRYPT_DEFAULTS.memory,
-  parallelism: SHARED_SCRYPT_DEFAULTS.parallelism,
-  keyLength: SHARED_SCRYPT_DEFAULTS.keyLength,
-} as const;
-
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 12: Bengali Password Suggestion
-// ============================================================
-
-export interface BengaliPasswordSuggestion {
-  /** Bengali suggestion text */
-  bn: string;
-  
-  /** English suggestion text */
-  en: string;
-  
-  /** Priority of suggestion (1-5) */
-  priority: number;
-  
-  /** Category of suggestion */
-  category: 'length' | 'complexity' | 'patterns' | 'personal_info' | 'common';
-}
-
-// ============================================================
-// Password Hasher Interface (Enterprise Enhanced v3.0)
-// ============================================================
-
-export interface PasswordHasher {
+/**
+ * Password Hasher Service Interface
+ * 
+ * Enterprise-grade service contract for password hashing operations
+ */
+export interface IPasswordHasherService {
   // ============================================================
-  // Core Hashing Operations
+  // Hashing Operations
   // ============================================================
-  
+
   /**
-   * Hash a plain text password with enhanced options
+   * Hash a password
    * 
    * @param password - Plain text password
-   * @param options - Optional hashing options (algorithm, cost, adaptive cost)
-   * @returns Hashed password string
+   * @param options - Hashing options
+   * @returns Hash result with performance metrics
    * 
    * @example
-   * const hashed = await passwordHasher.hash('MyP@ssw0rd');
-   * const hashedArgon2 = await passwordHasher.hash('MyP@ssw0rd', { algorithm: 'argon2id', adaptiveCost: true });
+   * const result = await passwordHasher.hash('MyStr0ng!P@ssw0rd', {
+   *   userId: 'usr_123',
+   *   correlationId: 'corr_456'
+   * });
    */
-  hash(password: string, options?: HashingOptions): Promise<string>;
-  
+  hash(
+    password: string,
+    options?: HashOptions
+  ): Promise<ServiceResult<HashStringResult>>;
+
   /**
-   * Compare a plain text password with a hash (timing-safe)
+   * Hash a password with custom salt
    * 
-   * @param plain - Plain text password
-   * @param hashed - Hashed password string
-   * @returns True if passwords match
+   * @param password - Plain text password
+   * @param salt - Salt to use
+   * @param options - Hashing options
+   * @returns Hash result with performance metrics
    */
-  compare(plain: string, hashed: string): Promise<boolean>;
-  
+  hashWithSalt(
+    password: string,
+    salt: string,
+    options?: HashOptions
+  ): Promise<ServiceResult<HashStringResult>>;
+
   /**
-   * Timing-safe compare (constant time) - alias for compare
-   */
-  safeCompare(plain: string, hashed: string): Promise<boolean>;
-  
-  /**
-   * Check if a hash needs rehashing (for security upgrades)
-   * ✅ ENTERPRISE: Provides upgrade recommendations
+   * Hash a password and return buffer
    * 
-   * @param hashed - Hashed password string
-   * @param options - Current hashing options
-   * @returns True if the hash should be rehashed, with upgrade info
+   * @param password - Plain text password
+   * @param options - Hashing options
+   * @returns Hash result as buffer
    */
-  needsRehash(hashed: string, options?: HashingOptions): Promise<HashInfo>;
-  
-  /**
-   * Get information about a hash with security score
-   * 
-   * @param hashed - Hashed password string
-   * @returns Enhanced hash information (algorithm, cost, version, security score)
-   */
-  getHashInfo(hashed: string): Promise<HashInfo>;
-  
-  /**
-   * Check if a hash is valid (not corrupted)
-   * 
-   * @param hashed - Hashed password string
-   * @returns True if the hash format is valid
-   */
-  isValidHash(hashed: string): Promise<boolean>;
-  
+  hashToBuffer(
+    password: string,
+    options?: HashOptions
+  ): Promise<ServiceResult<HashBufferResult>>;
+
   // ============================================================
-  // Password Generation
+  // Verification Operations
   // ============================================================
-  
+
   /**
-   * Generate a cryptographically secure random password
-   * ✅ ENTERPRISE: Excludes ambiguous characters by default
+   * Verify a password against a stored hash
    * 
-   * @param length - Password length (default from PASSWORD_POLICY)
-   * @param options - Options for character sets
-   * @returns Random secure password
+   * @param password - Plain text password
+   * @param hash - Stored hash to verify against
+   * @param options - Verification options
+   * @returns Verification result
    * 
    * @example
-   * const tempPassword = await passwordHasher.generateRandomPassword();
-   * // 'x7K!mN9$pQ2@vL5#'
-   * 
-   * const pin = await passwordHasher.generateRandomPassword(6, { includeSpecial: false, includeUppercase: false });
-   * // '384729'
+   * const result = await passwordHasher.verify(
+   *   'MyStr0ng!P@ssw0rd',
+   *   '$2b$12$...',
+   *   { userId: 'usr_123' }
+   * );
    */
-  generateRandomPassword(
-    length?: number,
-    options?: {
-      includeUppercase?: boolean;
-      includeLowercase?: boolean;
-      includeNumbers?: boolean;
-      includeSpecial?: boolean;
-      excludeAmbiguous?: boolean;
-    },
-  ): Promise<string>;
-  
-  // ============================================================
-  // Password Strength Validation (Enhanced)
-  // ============================================================
-  
+  verify(
+    password: string,
+    hash: string,
+    options?: VerifyOptions
+  ): Promise<ServiceResult<HashVerifyResult>>;
+
   /**
-   * Validate password strength with detailed analysis
-   * ✅ ENTERPRISE: ব্যক্তিগত তথ্য চেক, কমন পাসওয়ার্ড চেক, প্যাটার্ন ডিটেকশন
+   * Verify a password with rate limit and lockout
    * 
-   * @param password - Password to validate
-   * @param options - Optional validation options (defaults from PASSWORD_POLICY)
-   * @returns Detailed validation result with Bengali support
+   * @param userId - User ID
+   * @param password - Plain text password
+   * @param hash - Stored hash to verify against
+   * @param options - Verification options
+   * @returns Verification result with lockout status
    */
-  validateStrength(
+  verifyWithLockout(
+    userId: string,
+    password: string,
+    hash: string,
+    options?: VerifyOptions
+  ): Promise<
+    ServiceResult<
+      HashVerifyResult & {
+        remainingAttempts: number;
+        isLocked: boolean;
+        lockExpiresAt?: Date;
+        shouldLock: boolean;
+      }
+    >
+  >;
+
+  /**
+   * Timing-safe password comparison
+   * 
+   * @param password - Plain text password
+   * @param hash - Stored hash to compare against
+   * @returns Whether passwords match (timing-safe)
+   */
+  compare(
+    password: string,
+    hash: string
+  ): Promise<boolean>;
+
+  // ============================================================
+  // Salt Generation Operations
+  // ============================================================
+
+  /**
+   * Generate a cryptographically secure salt
+   * 
+   * @param options - Salt options
+   * @returns Salt string
+   */
+  generateSalt(options?: Partial<SaltOptions>): Promise<string>;
+
+  /**
+   * Generate a secure random token
+   * 
+   * @param length - Token length in bytes
+   * @returns Hex string token
+   */
+  generateSecureToken(length?: number): Promise<string>;
+
+  // ============================================================
+  // Password Strength & Policy Operations
+  // ============================================================
+
+  /**
+   * Check password strength
+   * 
+   * @param password - Password to check
+   * @param options - Strength check options
+   * @returns Password strength result
+   */
+  checkStrength(
     password: string,
     options?: PasswordStrengthOptions
   ): Promise<PasswordStrengthResult>;
-  
+
   /**
-   * Detect password patterns (sequential, repeated, keyboard)
-   * ✅ ENTERPRISE: প্যাটার্ন ডিটেকশন
+   * Check if password meets policy requirements
    * 
-   * @param password - Password to analyze
-   * @returns Pattern detection result with Bengali suggestions
+   * @param password - Password to check
+   * @param policy - Password policy (uses default if not provided)
+   * @returns Whether password meets policy
    */
-  detectPatterns(password: string): Promise<PasswordPatternResult>;
-  
-  // ============================================================
-  // Breach Detection (Enhanced)
-  // ============================================================
-  
+  meetsPolicy(
+    password: string,
+    policy?: PasswordPolicy
+  ): Promise<{
+    meets: boolean;
+    missingRequirements: string[];
+    missingRequirementsBn?: string[];
+  }>;
+
+  /**
+   * Get password policy
+   * 
+   * @param language - Preferred language (en/bn)
+   * @returns Password policy with multilingual support
+   */
+  getPasswordPolicy(
+    language?: 'en' | 'bn'
+  ): Promise<
+    PasswordPolicy & {
+      rulesEn: string[];
+      rulesBn: string[];
+      examplesEn: string[];
+      examplesBn: string[];
+    }
+  >;
+
+  /**
+   * Update password policy
+   * 
+   * @param policy - New password policy
+   * @param updatedBy - User ID performing update
+   * @param reason - Update reason
+   * @returns Updated policy
+   */
+  updatePasswordPolicy(
+    policy: Partial<PasswordPolicy>,
+    updatedBy: string,
+    reason?: string
+  ): Promise<PasswordPolicy>;
+
   /**
    * Check if password has been exposed in data breaches
-   * Uses k-anonymity (password not sent directly)
-   * ✅ ENTERPRISE: Caching, circuit breaker, fallback mode
    * 
-   * @param password - Plain text password to check
-   * @param options - Breach check options (cache, timeout, correlation)
-   * @returns Enhanced breach check result with severity
+   * @param password - Password to check
+   * @returns Breach check result
    */
-  checkBreach(password: string, options?: BreachCheckOptions): Promise<BreachCheckResult>;
-  
+  checkBreach(
+    password: string
+  ): Promise<{
+    compromised: boolean;
+    breachCount: number;
+    breachSources: string[];
+    firstBreachDate?: Date;
+    lastBreachDate?: Date;
+  }>;
+
   /**
-   * Get breach check service status
-   * ✅ ENTERPRISE: স্বাস্থ্য পর্যবেক্ষণ
+   * Get password expiry status
    * 
-   * @returns Breach check service status
+   * @param userId - User ID
+   * @param lastChangedAt - When password was last changed
+   * @param policy - Password policy (uses default if not provided)
+   * @returns Password expiry status
    */
-  getBreachCheckStatus(): Promise<BreachCheckStatus>;
-  
-  // ============================================================
-  // History Validation (Enhanced)
-  // ============================================================
-  
+  getExpiryStatus(
+    userId: string,
+    lastChangedAt: Date,
+    policy?: PasswordPolicy
+  ): Promise<PasswordExpiryStatus>;
+
   /**
-   * Validate password against history (prevent reuse)
-   * ✅ ENTERPRISE: সিমিলারিটি স্কোরিং
+   * Check if password was reused
+   * 
+   * @param userId - User ID
+   * @param password - Password to check
+   * @param history - Previous password history
+   * @param checkCount - Number of previous passwords to check (default: 5)
+   * @returns Password reuse result
+   */
+  checkReuse(
+    userId: string,
+    password: string,
+    history: string[],
+    checkCount?: number
+  ): Promise<PasswordReuseResult>;
+
+  // ============================================================
+  // Rehashing & Upgrade Operations
+  // ============================================================
+
+  /**
+   * Check if a hash needs rehashing (upgrade)
+   * 
+   * @param hash - Stored hash to check
+   * @param currentConfig - Current hashing configuration
+   * @returns Whether rehashing is needed
+   */
+  needsRehash(
+    hash: string,
+    currentConfig?: HasherConfig
+  ): Promise<boolean>;
+
+  /**
+   * Rehash a password with new configuration
    * 
    * @param password - Plain text password
-   * @param historyHashes - Array of previous password hashes
-   * @returns Enhanced history validation result with similarity score
-   */
-  checkHistory(
-    password: string,
-    historyHashes: string[]
-  ): Promise<PasswordHistoryValidation>;
-  
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 13: Benchmark & Performance
-  // ============================================================
-  
-  /**
-   * Benchmark hash algorithm with different cost factors
-   * ✅ ENTERPRISE: পারফরম্যান্স বেঞ্চমার্ক
-   * 
-   * @param algorithm - Hash algorithm to benchmark
-   * @param costs - Array of cost values to test
-   * @param iterations - Number of iterations per cost
-   * @returns Benchmark results
-   */
-  benchmark(
-    algorithm: HashAlgorithm,
-    costs?: number[],
-    iterations?: number
-  ): Promise<BenchmarkResult[]>;
-  
-  /**
-   * Get recommended cost factor based on hardware
-   * ✅ ENTERPRISE: হার্ডওয়্যার ভিত্তিক কস্ট সিলেকশন
-   * 
-   * @param algorithm - Hash algorithm
-   * @param targetTimeMs - Target time in milliseconds (default: 100)
-   * @returns Recommended cost factor
-   */
-  getRecommendedCost(algorithm: HashAlgorithm, targetTimeMs?: number): Promise<number>;
-  
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 14: Migration Management
-  // ============================================================
-  
-  /**
-   * Create migration plan for password hashes
-   * ✅ ENTERPRISE: অ্যালগরিদম মাইগ্রেশন স্ট্রাটেজি
-   * 
-   * @param currentHashes - Array of current hashes
-   * @param targetAlgorithm - Target hash algorithm
-   * @param targetCost - Target cost factor
-   * @returns Migration plan
-   */
-  createMigrationPlan(
-    currentHashes: string[],
-    targetAlgorithm: HashAlgorithm,
-    targetCost?: number
-  ): Promise<HashMigrationPlan>;
-  
-  /**
-   * Migrate a hash to new algorithm
-   * ✅ ENTERPRISE: হ্যাশ মাইগ্রেশন
-   * 
-   * @param oldHash - Old hash to migrate
-   * @param password - Original password (required for rehashing)
-   * @param targetAlgorithm - Target algorithm
-   * @param targetCost - Target cost
+   * @param currentHash - Current hash (for verification)
+   * @param newConfig - New hashing configuration
+   * @param options - Hashing options
    * @returns New hash
    */
-  migrateHash(
-    oldHash: string,
+  rehash(
     password: string,
-    targetAlgorithm: HashAlgorithm,
-    targetCost?: number
-  ): Promise<string>;
-  
+    currentHash: string,
+    newConfig?: Partial<HasherConfig>,
+    options?: HashOptions
+  ): Promise<ServiceResult<HashStringResult>>;
+
   // ============================================================
-  // Configuration & Utility Methods
+  // Configuration Operations
   // ============================================================
-  
-  /**
-   * Get recommended hashing options for current security standards
-   * ✅ ENTERPRISE: শেয়ার্ড কনস্ট্যান্ট থেকে মান নেওয়া
-   * 
-   * @returns Recommended hashing options
-   */
-  getRecommendedOptions(): HashingOptions;
-  
-  /**
-   * Get default hashing options for the configured algorithm
-   * 
-   * @returns Default hashing options
-   */
-  getDefaultOptions(): HashingOptions;
-  
-  /**
-   * Get supported hash algorithms
-   * ✅ ENTERPRISE: শেয়ার্ড কনস্ট্যান্ট থেকে মান নেওয়া
-   * 
-   * @returns Array of supported algorithms
-   */
-  getSupportedAlgorithms(): HashAlgorithm[];
-  
-  /**
-   * Get current password policy (from shared-constants)
-   * ✅ ENTERPRISE: নতুন ইউটিলিটি মেথড
-   * 
-   * @returns Current password policy
-   */
-  getPasswordPolicy(): typeof PASSWORD_POLICY;
-  
-  /**
-   * Get common passwords list (for checking weak passwords)
-   * ✅ ENTERPRISE: নতুন ইউটিলিটি মেথড
-   * 
-   * @returns Set of common passwords
-   */
-  getCommonPasswords(): Promise<Set<string>>;
-  
-  /**
-   * Get Bengali password suggestions
-   * ✅ ENTERPRISE: বাংলা ভাষায় পাসওয়ার্ড সাজেশন
-   * 
-   * @param password - Password to analyze
-   * @returns Array of Bengali suggestions
-   */
-  getBengaliSuggestions(password: string): Promise<BengaliPasswordSuggestion[]>;
-}
 
-// ============================================================
-// Type Guards
-// ============================================================
+  /**
+   * Get current hashing configuration
+   * 
+   * @param environment - Environment (auto-detected if not provided)
+   * @returns Current hasher configuration
+   */
+  getConfig(
+    environment?: keyof HashingEnvironmentConfigMap
+  ): Promise<HasherConfig>;
 
-export function isHashAlgorithm(algorithm: string): algorithm is HashAlgorithm {
-  return Object.values(HASH_ALGORITHMS).includes(algorithm as HashAlgorithm);
-}
+  /**
+   * Get environment-specific configuration
+   * 
+   * @param environment - Environment name
+   * @returns Environment configuration
+   */
+  getEnvironmentConfig(
+    environment: keyof HashingEnvironmentConfigMap
+  ): Promise<HashingEnvironmentConfig>;
 
-export function isHashInfo(obj: unknown): obj is HashInfo {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'algorithm' in obj &&
-    'cost' in obj &&
-    'version' in obj &&
-    'needsRehash' in obj
-  );
-}
+  /**
+   * Update hashing configuration
+   * 
+   * @param config - New configuration
+   * @param updatedBy - User ID performing update
+   * @param reason - Update reason
+   * @returns Updated configuration
+   */
+  updateConfig(
+    config: Partial<HasherConfig>,
+    updatedBy: string,
+    reason?: string
+  ): Promise<HasherConfig>;
 
-export function isPasswordStrengthResult(obj: unknown): obj is PasswordStrengthResult {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'isValid' in obj &&
-    'score' in obj &&
-    'level' in obj &&
-    'errors' in obj &&
-    Array.isArray((obj as PasswordStrengthResult).errors)
-  );
+  /**
+   * Reset configuration to defaults
+   * 
+   * @param environment - Environment to reset
+   * @param resetBy - User ID performing reset
+   * @returns Reset configuration
+   */
+  resetConfig(
+    environment?: keyof HashingEnvironmentConfigMap,
+    resetBy?: string
+  ): Promise<HasherConfig>;
+
+  // ============================================================
+  // Performance & Monitoring Operations
+  // ============================================================
+
+  /**
+   * Get performance metrics
+   * 
+   * @param reset - Whether to reset metrics after retrieval
+   * @param fromDate - Start date for metrics
+   * @param toDate - End date for metrics
+   * @returns Performance metrics
+   */
+  getPerformanceMetrics(
+    reset?: boolean,
+    fromDate?: Date,
+    toDate?: Date
+  ): Promise<HashPerformanceMetrics[]>;
+
+  /**
+   * Get aggregated performance statistics
+   * 
+   * @param timeWindowHours - Time window for aggregation
+   * @returns Aggregated statistics
+   */
+  getAggregatedStats(
+    timeWindowHours?: number
+  ): Promise<{
+    averageHashTimeMs: number;
+    p95HashTimeMs: number;
+    p99HashTimeMs: number;
+    averageVerifyTimeMs: number;
+    p95VerifyTimeMs: number;
+    p99VerifyTimeMs: number;
+    successRate: number;
+    failureRate: number;
+    totalOperations: number;
+    byAlgorithm: Record<string, number>;
+    byEnvironment: Record<string, number>;
+  }>;
+
+  /**
+   * Reset performance metrics
+   * 
+   * @param resetBy - User ID performing reset
+   * @param reason - Reset reason
+   * @returns Reset result
+   */
+  resetPerformanceMetrics(
+    resetBy?: string,
+    reason?: string
+  ): Promise<{ reset: boolean; resetAt: Date }>;
+
+  /**
+   * Get performance alert thresholds
+   * 
+   * @returns Alert thresholds
+   */
+  getPerformanceAlertThresholds(): Promise<{
+    hashTimeWarningMs: number;
+    hashTimeCriticalMs: number;
+    verifyTimeWarningMs: number;
+    verifyTimeCriticalMs: number;
+    errorRateWarning: number;
+    errorRateCritical: number;
+  }>;
+
+  // ============================================================
+  // Compliance Operations (Bangladesh Bank)
+  // ============================================================
+
+  /**
+   * Get compliance status (Bangladesh Bank)
+   * 
+   * @param checkAll - Perform full compliance check
+   * @returns Compliance status
+   */
+  getComplianceStatus(
+    checkAll?: boolean
+  ): Promise<BBankComplianceStatus>;
+
+  /**
+   * Get compliance requirements
+   * 
+   * @returns Bangladesh Bank compliance requirements
+   */
+  getComplianceRequirements(): Promise<BBankComplianceRequirements>;
+
+  /**
+   * Run compliance check
+   * 
+   * @param fixIssues - Attempt to fix compliance issues
+   * @param fixedBy - User ID performing fixes
+   * @returns Compliance check result
+   */
+  runComplianceCheck(
+    fixIssues?: boolean,
+    fixedBy?: string
+  ): Promise<{
+    compliant: boolean;
+    issues: string[];
+    fixes: string[];
+    recommendations: string[];
+    checkCompletedAt: Date;
+  }>;
+
+  /**
+   * Generate compliance report
+   * 
+   * @param fromDate - Start date
+   * @param toDate - End date
+   * @param format - Export format (json, csv, pdf)
+   * @returns Compliance report
+   */
+  generateComplianceReport(
+    fromDate: Date,
+    toDate: Date,
+    format?: 'json' | 'csv' | 'pdf'
+  ): Promise<{
+    reportId: string;
+    generatedAt: Date;
+    summary: {
+      totalHashes: number;
+      totalVerifications: number;
+      successRate: number;
+      averageHashTimeMs: number;
+      averageVerifyTimeMs: number;
+      algorithmDistribution: Record<string, number>;
+    };
+    issues: Array<{
+      severity: 'low' | 'medium' | 'high' | 'critical';
+      description: string;
+      count: number;
+      recommendation: string;
+    }>;
+    recommendations: string[];
+    exportUrl: string;
+    expiresAt: Date;
+  }>;
+
+  // ============================================================
+  // Fallback Operations
+  // ============================================================
+
+  /**
+   * Get fallback status
+   * 
+   * @returns Fallback status
+   */
+  getFallbackStatus(): Promise<HashFallbackStatus>;
+
+  /**
+   * Activate fallback mode
+   * 
+   * @param reason - Activation reason
+   * @param activatedBy - User ID performing activation
+   * @param config - Optional fallback configuration
+   * @returns Activation result
+   */
+  activateFallback(
+    reason: string,
+    activatedBy?: string,
+    config?: Partial<HashFallbackConfig>
+  ): Promise<HashFallbackStatus>;
+
+  /**
+   * Deactivate fallback mode
+   * 
+   * @param reason - Deactivation reason
+   * @param deactivatedBy - User ID performing deactivation
+   * @returns Deactivation result
+   */
+  deactivateFallback(
+    reason: string,
+    deactivatedBy?: string
+  ): Promise<HashFallbackStatus>;
+
+  /**
+   * Test fallback performance
+   * 
+   * @param password - Password to test with
+   * @returns Performance comparison
+   */
+  testFallback(
+    password: string
+  ): Promise<{
+    primaryTimeMs: number;
+    fallbackTimeMs: number;
+    primarySuccess: boolean;
+    fallbackSuccess: boolean;
+    recommendation: 'use_primary' | 'use_fallback' | 'investigate';
+  }>;
+
+  // ============================================================
+  // Audit Operations
+  // ============================================================
+
+  /**
+   * Get audit trail for hashing operations
+   * 
+   * @param userId - User ID (optional)
+   * @param fromDate - Start date
+   * @param toDate - End date
+   * @param limit - Maximum number of entries
+   * @param offset - Pagination offset
+   * @returns Audit trail entries
+   */
+  getAuditTrail(
+    userId?: string,
+    fromDate?: Date,
+    toDate?: Date,
+    limit?: number,
+    offset?: number
+  ): Promise<{
+    items: HashAuditEvent[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }>;
+
+  /**
+   * Export audit trail for compliance
+   * 
+   * @param userId - User ID (optional)
+   * @param fromDate - Start date
+   * @param toDate - End date
+   * @param format - Export format (json, csv)
+   * @returns Export result
+   */
+  exportAuditTrail(
+    userId?: string,
+    fromDate?: Date,
+    toDate?: Date,
+    format?: 'json' | 'csv'
+  ): Promise<{
+    downloadUrl: string;
+    expiresAt: Date;
+    fileSize: number;
+    recordCount: number;
+    format: string;
+  }>;
+
+  /**
+   * Log audit event
+   * 
+   * @param event - Audit event
+   * @returns Log result
+   */
+  logAuditEvent(
+    event: Omit<HashAuditEvent, 'timestamp'>
+  ): Promise<{ logged: boolean }>;
+
+  // ============================================================
+  // Health & Monitoring Operations
+  // ============================================================
+
+  /**
+   * Health check for password hasher service
+   * 
+   * @param includeDependencies - Include dependency health
+   * @param includePerformance - Include performance metrics
+   * @returns Health status
+   */
+  healthCheck(
+    includeDependencies?: boolean,
+    includePerformance?: boolean
+  ): Promise<{
+    status: 'healthy' | 'degraded' | 'unhealthy';
+    version: string;
+    uptime: number;
+    algorithm: HashingAlgorithm;
+    environment: string;
+    complianceStatus: 'compliant' | 'non_compliant' | 'unknown';
+    dependencies: {
+      randomGenerator: boolean;
+      bcrypt: boolean;
+      argon2: boolean;
+      scrypt: boolean;
+      pbkdf2: boolean;
+    };
+    performance: {
+      averageHashTimeMs: number;
+      averageVerifyTimeMs: number;
+      successRate: number;
+      errorRate: number;
+      p95HashTimeMs: number;
+      p99HashTimeMs: number;
+    };
+    fallback: {
+      active: boolean;
+      reason?: string;
+    };
+    lastError?: {
+      message: string;
+      timestamp: Date;
+    };
+    lastComplianceCheck?: {
+      passed: boolean;
+      timestamp: Date;
+    };
+  }>;
+
+  /**
+   * Get service metrics
+   * 
+   * @param period - Time period for metrics (1h, 24h, 7d, 30d)
+   * @returns Service metrics
+   */
+  getMetrics(
+    period?: '1h' | '24h' | '7d' | '30d'
+  ): Promise<{
+    operations: {
+      total: number;
+      hash: number;
+      verify: number;
+      rehash: number;
+    };
+    successRate: number;
+    averageLatencyMs: number;
+    p95LatencyMs: number;
+    p99LatencyMs: number;
+    errorDistribution: Record<string, number>;
+    algorithmUsage: Record<string, number>;
+    complianceScore: number;
+  }>;
+
+  /**
+   * Clear all metrics
+   * 
+   * @param clearedBy - User ID performing clear
+   * @param reason - Clear reason
+   * @returns Clear result
+   */
+  clearMetrics(
+    clearedBy?: string,
+    reason?: string
+  ): Promise<{ cleared: boolean; clearedAt: Date }>;
 }
 
 // ============================================================
 // Type Exports
 // ============================================================
 
-export type { 
+export type {
   HashingOptions as HashingOptionsType,
-  HashInfo as HashInfoType,
-  PasswordStrengthResult as PasswordStrengthResultType,
-  BreachCheckResult as BreachCheckResultType,
-  PasswordHistoryValidation as PasswordHistoryValidationType,
+  HashOptions as HashOptionsType,
+  VerifyOptions as VerifyOptionsType,
   PasswordStrengthOptions as PasswordStrengthOptionsType,
-  BreachCheckOptions as BreachCheckOptionsType,
-  BenchmarkResult as BenchmarkResultType,
-  HashMigrationPlan as HashMigrationPlanType,
-  BreachCheckStatus as BreachCheckStatusType,
-  PasswordPatternResult as PasswordPatternResultType,
-  BengaliPasswordSuggestion as BengaliPasswordSuggestionType
+  ServiceResult as ServiceResultType,
+  PasswordStrengthResult as PasswordStrengthResultType,
+  PasswordExpiryStatus as PasswordExpiryStatusType,
+  PasswordReuseResult as PasswordReuseResultType,
 };
 
 // ============================================================
-// ENTERPRISE SUMMARY v3.0
+// ENTERPRISE SUMMARY
 // ============================================================
 // 
-// Enterprise Enhancements Applied in v3.0:
-// 1. ✅ Multi-algorithm support (bcrypt, argon2id, scrypt) with auto-upgrade
-// 2. ✅ Adaptive cost factor based on hardware capability
-// 3. ✅ Breach detection using k-anonymity (HaveIBeenPwned API ready)
-// 4. ✅ Password history validation with customizable retention
-// 5. ✅ Personal info detection (email, name, phone) for Bangladesh users
-// 6. ✅ Bengali language support for error messages and suggestions
-// 7. ✅ Timing-safe comparison for all operations
-// 8. ✅ Secure random password generation with configurable character sets
-// 9. ✅ Hash algorithm migration strategy
-// 10. ✅ Performance benchmarking for cost factor selection
-// 11. ✅ Circuit breaker for breach check API calls
-// 12. ✅ Rate limiting for breach check to prevent abuse
-// 13. ✅ Caching for breach check results
-// 14. ✅ Comprehensive audit logging for security events
-// 15. ✅ Health check for breach check service
-// 16. ✅ Fallback mode when breach check service is unavailable
-// 17. ✅ Password pattern detection (sequential, repeated, keyboard)
-// 18. ✅ Similarity scoring for password history check
-// 19. ✅ Security score for hash quality assessment
-// 20. ✅ Bengali password suggestions with priority
+// Enterprise Features Applied:
+// 1. ✅ Multiple hashing algorithms support (bcrypt, argon2id, scrypt, pbkdf2)
+// 2. ✅ Password strength validation and policy enforcement
+// 3. ✅ Bangladesh Bank compliance support
+// 4. ✅ Performance monitoring and metrics
+// 5. ✅ Fallback mechanism for degraded mode
+// 6. ✅ Audit logging for compliance
+// 7. ✅ Distributed tracing with correlation ID
+// 8. ✅ Bengali language support
+// 9. ✅ Geographic location tracking (Bangladesh districts)
+// 10. ✅ Device fingerprint tracking
+// 11. ✅ Health check and monitoring
+// 12. ✅ Rate limiting and lockout
+// 13. ✅ Password expiry and reuse prevention
+// 14. ✅ Breach detection integration
+// 15. ✅ Type-safe with full TypeScript support
+// 16. ✅ Rehashing and upgrade support
+// 17. ✅ Configurable password policy
+// 18. ✅ Compliance reporting
 // 
 // Bangladesh Specific:
-// - Bengali error messages (errorsBn)
-// - Bengali suggestions (suggestionsBn)
-// - Bengali recommendation messages (recommendationBn)
-// - Bengali password suggestion interface
-// - Local timezone awareness for audit
-// - Mobile number pattern detection for personal info
+// - Bangladesh Bank compliance
+// - District/Division tracking
+// - Bengali language support
+// - Local timezone-aware timestamps
+// - Compliance reporting ready
 // 
 // Security Features:
-// - Timing-safe comparison prevents timing attacks
-// - K-anonymity breach check (password never sent)
-// - Circuit breaker prevents API abuse
-// - Rate limiting for breach checks
-// - Caching reduces external API calls
-// - Fallback mode ensures availability
-// - Adaptive cost based on hardware
-// - Migration strategy for algorithm upgrades
+// - Password never logged or serialized
+// - Salt generated using secure random
+// - Timing-safe comparison
+// - Rate limiting for verification attempts
+// - Lockout after max attempts
+// - Breach detection
+// - Reuse prevention
+// - Expiry enforcement
 // 
 // ============================================================
