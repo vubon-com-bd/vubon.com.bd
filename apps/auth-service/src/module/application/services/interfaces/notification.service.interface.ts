@@ -1,1432 +1,1220 @@
 /**
- * Notification Service Interface - Enterprise Grade (v5.0)
+ * Notification Service Interface - Enterprise Grade
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module application/services/interfaces/notification.service.interface
  * 
  * @description
- * Service contract for sending notifications to users with enterprise features.
- * Supports email, SMS, push notifications, and Bangladesh-specific channels.
+ * Service contract for notification operations.
+ * Manages all notification delivery, templates, and user preferences.
  * 
- * ENTERPRISE ENHANCEMENTS (v5.0):
- * ✅ Batch notification processing with progress tracking
- * ✅ Template versioning and A/B testing support
- * ✅ Fallback channel routing (e.g., WhatsApp fallback to SMS)
- * ✅ Rate limiting per user/channel to prevent spam
- * ✅ Delivery receipt tracking with webhooks
- * ✅ Click/open tracking for email/WhatsApp
- * ✅ Opt-out/Unsubscribe management for compliance
- * ✅ Priority queue for critical notifications (OTP, Security alerts)
- * ✅ Attachment support for email notifications
- * ✅ Scheduled notifications with cron expressions
- * ✅ Bengali language support across all templates
- * ✅ Provider circuit breaker for resilience
- * ✅ Delivery analytics with P95/P99 latency
- * ✅ GDPR compliant data retention
- * ✅ Real-time notification status webhooks
- * ✅ Template dry-run for testing
+ * ENTERPRISE FEATURES:
+ * ✅ Multi-channel notification delivery (Email, SMS, WhatsApp, Push, In-App)
+ * ✅ Template-based content generation
+ * ✅ User preference management
+ * ✅ Bulk notification with progress tracking
+ * ✅ Delivery status tracking and reporting
+ * ✅ Bangladesh specific - SMS gateway selection, Bengali templates
+ * ✅ Rate limiting and quota management
+ * ✅ Audit trail for all notifications
+ * ✅ Health check and monitoring
+ * ✅ Analytics and statistics
  * 
- * Enterprise Rules:
- * ✅ ONLY interface definitions - NO implementation
- * ✅ No business logic
- * ✅ No infrastructure imports
- * ✅ Framework-free
- * ✅ Bangladesh specific - WhatsApp, Imo, Voice Call support
+ * @example
+ * const notificationService = new NotificationService(
+ *   emailProvider, smsProvider, whatsappProvider, 
+ *   pushProvider, inAppProvider, templateRepository,
+ *   preferenceRepository, notificationRepository
+ * );
+ * 
+ * const result = await notificationService.sendNotification({
+ *   userId: 'usr_123',
+ *   type: 'order_confirmation',
+ *   templateVariables: { orderId: 'ORD-123', amount: 1000 },
+ *   channels: ['email', 'sms']
+ * });
  */
 
 // ============================================================
-// Phase-1: Import from shared-constants and shared-types
+// ✅ Enterprise: Import from shared-types
 // ============================================================
-
-// ✅ Import from shared-constants
-import {
-  NOTIFICATION_TEMPLATES,
-  NOTIFICATION_TYPES,
-  NOTIFICATION_PRIORITIES,
-  NOTIFICATION_CHANNELS,
-  NOTIFICATION_RATE_LIMITS,
-  NOTIFICATION_RETRY_CONFIG,
-  NOTIFICATION_CIRCUIT_BREAKER,
-  LOCALES,
-} from '@vubon/shared-constants';
-
-// ✅ Import types from shared-types
 import type {
-  Locale,
-  NotificationType as SharedNotificationType,
-  NotificationPriority as SharedNotificationPriority,
-  NotificationChannel as SharedNotificationChannel,
-  BulkOperationProgress,
+  // Core Types
+  Notification,
+  NotificationType,
+  NotificationChannel,
+  NotificationStatus,
+  NotificationRecipient,
+  NotificationContent,
+  NotificationTemplateVariables,
+  NotificationMetadata,
+  NotificationFilter,
+  NotificationStatistics,
+  NotificationTemplate,
+  NotificationPreferences,
+  NotificationPreferencesUpdate,
+  BulkNotificationRequest,
+  BulkNotificationResult,
+  NotificationWebhookPayload,
+  
+  // Type Aliases
+  UserId,
+  NotificationId,
+  BulkId,
+  TemplateId,
+} from '@vubon/shared-types';
+
+import type {
+  AuditMetadata,
+  RequestContext,
+  PaginationOptions,
+  PaginatedResult,
+  ApiErrorCode,
 } from '@vubon/shared-types';
 
 // ============================================================
-// Notification Types (Re-export from shared-constants for convenience)
+// ✅ Import from shared-constants (for configuration)
 // ============================================================
-
-export enum NotificationType {
-  EMAIL = 'email',
-  SMS = 'sms',
-  PUSH = 'push',
-  IN_APP = 'in_app',
-  WHATSAPP = 'whatsapp',      // Bangladesh specific
-  IMO = 'imo',                // Bangladesh specific
-  VOICE = 'voice',            // Voice call for feature phones
-}
-
-export enum NotificationPriority {
-  LOW = 'low',           // Promotional, newsletters
-  NORMAL = 'normal',     // Order updates, general
-  HIGH = 'high',         // Password reset, MFA, OTP
-  CRITICAL = 'critical', // Security alerts, account lock
-}
-
-export enum NotificationChannel {
-  // Authentication
-  WELCOME = 'welcome',
-  VERIFICATION = 'verification',
-  PASSWORD_RESET = 'password_reset',
-  PASSWORD_CHANGED = 'password_changed',
-  MFA_ENABLED = 'mfa_enabled',
-  MFA_DISABLED = 'mfa_disabled',
-  MFA_CODE = 'mfa_code',
-  
-  // Account Changes
-  EMAIL_CHANGED = 'email_changed',
-  PHONE_CHANGED = 'phone_changed',
-  
-  // Security
-  ACCOUNT_LOCKED = 'account_locked',
-  ACCOUNT_UNLOCKED = 'account_unlocked',
-  LOGIN_ALERT = 'login_alert',
-  SUSPICIOUS_ACTIVITY = 'suspicious_activity',
-  ACCOUNT_DELETED = 'account_deleted',
-  
-  // Transactional (Bangladesh specific)
-  PAYMENT_SUCCESS = 'payment_success',
-  PAYMENT_FAILED = 'payment_failed',
-  ORDER_CONFIRMATION = 'order_confirmation',
-  ORDER_SHIPPED = 'order_shipped',
-  ORDER_DELIVERED = 'order_delivered',
-  REFUND_PROCESSED = 'refund_processed',
-  
-  // Promotional
-  PROMOTION = 'promotion',
-  NEWSLETTER = 'newsletter',
-  OFFER_AVAILABLE = 'offer_available',
-  
-  // OTP
-  OTP_SMS = 'otp_sms',
-  OTP_WHATSAPP = 'otp_whatsapp',    // Bangladesh specific
-  OTP_IMO = 'otp_imo',              // Bangladesh specific
-  OTP_VOICE = 'otp_voice',          // Voice OTP for feature phones
-}
+import {
+  NOTIFICATION_TYPES,
+  NOTIFICATION_PRIORITY,
+  NOTIFICATION_TTL,
+  NOTIFICATION_STATUS,
+  NOTIFICATION_CHANNELS,
+} from '@vubon/shared-constants';
 
 // ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 1: Enhanced Notification Options
+// ✅ ENTERPRISE ENHANCEMENT 1: Options Interfaces
 // ============================================================
 
+/**
+ * Base notification options
+ */
 export interface NotificationOptions {
-  type: SharedNotificationType;
-  priority?: SharedNotificationPriority;
-  channel: SharedNotificationChannel;
-  to: string;                           // Email address or phone number
-  subject?: string;
-  subjectBn?: string;                   // Bengali subject
-  template?: string;
-  templateVersion?: number;              // ✅ Template versioning
-  data: Record<string, unknown>;
-  locale?: Locale;                      // ✅ Using shared Locale type
-  metadata?: {
-    userId?: string;
-    correlationId?: string;
-    ipAddress?: string;
-    userAgent?: string;
-    deviceId?: string;
-    sessionId?: string;
-  };
-  retryCount?: number;
-  retryConfig?: {                       // ✅ Custom retry per notification
-    maxRetries: number;
-    delayMs: number;
-    backoffMultiplier: number;
-  };
-  delaySeconds?: number;                // ✅ Scheduled delay
-  scheduleFor?: Date;                   // ✅ Scheduled time (cron or specific time)
-  scheduleCron?: string;                // ✅ Cron expression for recurring
-  attachments?: Array<{
-    filename: string;
-    content: Buffer | string;
-    contentType?: string;
-  }>;
-  fallbackChannels?: SharedNotificationChannel[];  // ✅ Fallback routing
-  trackOpens?: boolean;                 // ✅ Email/WhatsApp open tracking
-  trackClicks?: boolean;                // ✅ Link click tracking
-  priorityQueue?: boolean;              // ✅ Use priority queue
-  bypassRateLimit?: boolean;            // ✅ Bypass rate limiting (admin override)
-  ttlSeconds?: number;                  // ✅ Time to live for notification
-  tags?: string[];                      // ✅ For categorization and analytics
+  /** Audit metadata for compliance tracking */
+  auditMetadata?: AuditMetadata;
+
+  /** Request context for distributed tracing */
+  requestContext?: RequestContext;
+
+  /** Correlation ID for tracing across services */
+  correlationId?: string;
+
+  /** Preferred language for response messages (en/bn) */
+  preferredLanguage?: 'en' | 'bn';
+
+  /** Geographic district (Bangladesh specific) */
+  district?: string;
+
+  /** Geographic division (Bangladesh specific) */
+  division?: string;
+
+  /** Network type for adaptive delivery (Bangladesh specific) */
+  networkType?: '2g' | '3g' | '4g' | '5g' | 'wifi' | 'unknown';
+
+  /** Mobile operator for carrier-specific delivery (Bangladesh specific) */
+  mobileOperator?: 'gp' | 'robi' | 'banglalink' | 'teletalk' | 'unknown';
+
+  /** Retry attempt number (for connection resilience) */
+  retryAttempt?: number;
+
+  /** Priority override (1-10, higher = more urgent) */
+  priorityOverride?: number;
+
+  /** Skip user preferences (force send) */
+  skipPreferences?: boolean;
+
+  /** Test mode - don't actually send, just validate */
+  testMode?: boolean;
 }
 
-export interface NotificationResult {
-  success: boolean;
-  messageId?: string;
-  error?: string;
-  errorBn?: string;
-  sentAt: Date;
-  channel: SharedNotificationChannel;
-  provider?: string;                    // 'sendgrid', 'twilio', 'whatsapp_business', etc.
-  deliveryStatus?: 'queued' | 'sent' | 'delivered' | 'failed' | 'read';
-  deliveredAt?: Date;
-  readAt?: Date;
-  clickedAt?: Date;                     // ✅ Link click tracking
-  fallbackUsed?: boolean;               // ✅ Whether fallback channel was used
-  fallbackChannel?: SharedNotificationChannel;
-  retryCount?: number;
-  queuePosition?: number;               // ✅ Position in priority queue
-  estimatedDeliveryMs?: number;
+/**
+ * Send notification options
+ */
+export interface SendNotificationOptions extends NotificationOptions {
+  /** Override recipient information */
+  recipientOverride?: Partial<NotificationRecipient>;
+
+  /** Override content */
+  contentOverride?: Partial<NotificationContent>;
+
+  /** Override metadata */
+  metadataOverride?: Partial<NotificationMetadata>;
+
+  /** Scheduled delivery time */
+  scheduledAt?: Date;
+
+  /** TTL override in seconds */
+  ttlOverride?: number;
+
+  /** Require confirmation delivery */
+  requireDeliveryConfirmation?: boolean;
+
+  /** Tags for categorization */
+  tags?: string[];
 }
 
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 2: Batch Processing
-// ============================================================
+/**
+ * Send bulk notification options
+ */
+export interface BulkSendOptions extends NotificationOptions {
+  /** Channel override (force specific channels) */
+  forceChannels?: NotificationChannel[];
 
-export interface BatchNotificationRequest {
-  notifications: NotificationOptions[];
-  parallel?: boolean;                   // ✅ Parallel processing
-  maxConcurrency?: number;              // ✅ Max concurrent sends
+  /** Template variables for all recipients (merged with per-recipient) */
+  baseTemplateVariables?: NotificationTemplateVariables;
+
+  /** Batch size for processing */
+  batchSize?: number;
+
+  /** Concurrency for processing */
+  concurrency?: number;
+
+  /** Stop on first error */
   stopOnError?: boolean;
-  onProgress?: (progress: BulkOperationProgress) => void;
+
+  /** Whether to use user preferences */
+  useUserPreferences?: boolean;
+
+  /** Enable throttling */
+  enableThrottling?: boolean;
+
+  /** Throttle rate per second */
+  throttleRatePerSecond?: number;
 }
 
-export interface BatchNotificationResult {
-  total: number;
-  successful: number;
-  failed: number;
-  results: NotificationResult[];
-  durationMs: number;
-  failedItems: Array<{ notification: NotificationOptions; error: string }>;
+/**
+ * Create template options
+ */
+export interface CreateTemplateOptions extends NotificationOptions {
+  /** Template ID (auto-generated if not provided) */
+  id?: TemplateId;
+
+  /** Template version */
+  version?: number;
+
+  /** Required variables (must be provided when sending) */
+  requiredVariables?: string[];
+
+  /** Optional variables (may be omitted) */
+  optionalVariables?: string[];
+
+  /** Whether template is active */
+  isActive?: boolean;
+
+  /** Created by user ID */
+  createdBy?: string;
 }
 
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 3: Rate Limit Management
-// ============================================================
+/**
+ * Update template options
+ */
+export interface UpdateTemplateOptions extends NotificationOptions {
+  /** Template version (increment automatically) */
+  version?: number;
 
-export interface RateLimitConfig {
-  maxPerMinute: number;
-  maxPerHour: number;
-  maxPerDay: number;
-  windowSeconds: number;
-  enabled: boolean;
-}
+  /** Updated by user ID */
+  updatedBy?: string;
 
-export interface RateLimitStatus {
-  isLimited: boolean;
-  remainingPerMinute: number;
-  remainingPerHour: number;
-  remainingPerDay: number;
-  resetAt: Date;
+  /** Reason for update */
   reason?: string;
 }
 
 // ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 4: Opt-Out/Unsubscribe Management
+// ✅ ENTERPRISE ENHANCEMENT 2: Result Interfaces
 // ============================================================
 
-export interface UnsubscribePreferences {
-  userId: string;
-  email?: string;
-  phone?: string;
-  channels: {
-    email: boolean;
-    sms: boolean;
-    whatsapp: boolean;
-    imo: boolean;
-    voice: boolean;
-    push: boolean;
+/**
+ * Generic service result wrapper
+ */
+export interface ServiceResult<T> {
+  /** Whether the operation was successful */
+  success: boolean;
+
+  /** Response data (if successful) */
+  data?: T;
+
+  /** Error code (if failed) */
+  errorCode?: ApiErrorCode;
+
+  /** Error message (if failed) */
+  errorMessage?: string;
+
+  /** Bengali error message */
+  errorMessageBn?: string;
+
+  /** Rate limit metadata */
+  rateLimit?: {
+    remaining: number;
+    resetAt: Date;
+    limit: number;
   };
-  categories: {
-    marketing: boolean;
-    transactional: boolean;
-    security: boolean;
-    promotional: boolean;
-  };
-  updatedAt: Date;
+
+  /** Correlation ID for tracing */
+  correlationId?: string;
+
+  /** Duration of operation in milliseconds */
+  durationMs?: number;
 }
 
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 5: Template Management
-// ============================================================
+/**
+ * Send notification result
+ */
+export interface SendNotificationResult extends ServiceResult<Notification> {
+  /** Notification ID */
+  notificationId?: NotificationId;
 
-export interface NotificationTemplate {
-  id: string;
-  name: string;
-  channel: SharedNotificationChannel;
-  subjectEn?: string;
-  subjectBn?: string;
-  bodyEn: string;
-  bodyBn?: string;
+  /** Delivery status per channel */
+  channelStatuses: Record<NotificationChannel, {
+    status: NotificationStatus;
+    sentAt?: Date;
+    deliveredAt?: Date;
+    error?: string;
+    providerMessageId?: string;
+  }>;
+
+  /** Whether user preferences were respected */
+  preferencesRespected: boolean;
+
+  /** Whether throttling was applied */
+  throttled: boolean;
+
+  /** Actual channels used (after preference filtering) */
+  channelsUsed: NotificationChannel[];
+}
+
+/**
+ * Bulk send notification result
+ */
+export interface BulkSendResult extends ServiceResult<BulkNotificationResult> {
+  /** Bulk ID */
+  bulkId: BulkId;
+
+  /** Total recipients processed */
+  total: number;
+
+  /** Successfully queued */
+  queued: number;
+
+  /** Failed */
+  failed: number;
+
+  /** Progress percentage */
+  progress: number;
+
+  /** Duration in milliseconds */
+  durationMs: number;
+
+  /** Errors for failed recipients */
+  errors: Array<{ recipientId: string; error: string; errorCode?: string }>;
+}
+
+/**
+ * Template result
+ */
+export interface TemplateResult extends ServiceResult<NotificationTemplate> {
+  /** Template ID */
+  templateId: TemplateId;
+
+  /** Template version */
   version: number;
-  isActive: boolean;
-  tags: string[];
-  createdAt: Date;
-  updatedAt: Date;
-  createdBy: string;
-  metadata?: Record<string, unknown>;
+
+  /** Required variables list */
+  requiredVariables: string[];
+
+  /** Optional variables list */
+  optionalVariables: string[];
 }
 
-export interface TemplateTestRequest {
-  templateId: string;
-  templateVersion?: number;
-  data: Record<string, unknown>;
-  locale?: Locale;
-}
-
-export interface TemplateTestResult {
-  subject?: string;
-  subjectBn?: string;
-  body: string;
-  bodyBn?: string;
-  variables: string[];
-  missingVariables: string[];
-  preview: string;
-}
-
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 6: Analytics & Metrics
-// ============================================================
-
-export interface NotificationAnalytics {
-  totalSent: number;
-  totalDelivered: number;
-  totalFailed: number;
-  totalOpened: number;
-  totalClicked: number;
-  deliveryRate: number;
-  openRate: number;
-  clickRate: number;
-  averageLatencyMs: number;
-  p95LatencyMs: number;
-  p99LatencyMs: number;
-  byChannel: Record<SharedNotificationChannel, {
-    sent: number;
-    delivered: number;
-    failed: number;
-    opened: number;
-    clicked: number;
-    averageLatencyMs: number;
-  }>;
-  byPriority: Record<NotificationPriority, {
-    sent: number;
-    delivered: number;
-    failed: number;
-  }>;
-  byHour: Array<{ hour: number; count: number }>;
-  topFailedReasons: Array<{ reason: string; count: number }>;
-}
-
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 7: Webhook Configuration
-// ============================================================
-
-export interface NotificationWebhookConfig {
-  id: string;
-  url: string;
-  events: ('sent' | 'delivered' | 'failed' | 'opened' | 'clicked')[];
-  secret: string;
-  isActive: boolean;
-  retryCount: number;
-  timeoutMs: number;
-}
-
-// ============================================================
-// Notification Data Interfaces
-// ============================================================
-
-export interface WelcomeEmailData {
-  name: string;
-  nameBn?: string;                    // Bengali name
-  appName?: string;
-  appNameBn?: string;
-  loginUrl?: string;
-  supportEmail?: string;
-  supportPhone?: string;              // Bangladesh specific
-  whatsappSupport?: string;           // Bangladesh specific
-}
-
-export interface VerificationEmailData {
-  code: string;
-  expiresInMinutes?: number;
-  appName?: string;
-  appNameBn?: string;
-}
-
-export interface PasswordResetEmailData {
-  resetLink: string;
-  expiresInHours?: number;
-  appName?: string;
-  appNameBn?: string;
-}
-
-export interface PasswordChangedData {
-  deviceName?: string;
-  location?: string;
-  locationBn?: string;                // Bengali location
-  time?: Date;
-  ipAddress?: string;
-}
-
-export interface MfaCodeData {
-  code: string;
-  expiresInMinutes?: number;
-  appName?: string;
-  appNameBn?: string;
-  method: 'sms' | 'whatsapp' | 'imo' | 'voice' | 'email';
-}
-
-export interface MfaEnabledData {
-  mfaType: string;
-  mfaTypeBn?: string;
-  deviceName?: string;
-  enabledAt: Date;
-  ipAddress?: string;
-}
-
-export interface MfaDisabledData {
-  mfaType: string;
-  mfaTypeBn?: string;
-  disabledBy: 'user' | 'admin';
-  disabledAt: Date;
-  ipAddress?: string;
-}
-
-export interface EmailChangedData {
-  oldEmail: string;
-  newEmail: string;
-  changedAt: Date;
-  ipAddress?: string;
-  deviceName?: string;
-}
-
-export interface PhoneChangedData {
-  oldPhone: string;
-  newPhone: string;
-  changedAt: Date;
-  ipAddress?: string;
-  deviceName?: string;
-}
-
-export interface AccountLockedData {
-  reason: string;
-  reasonBn?: string;
-  lockDurationMinutes: number;
-  lockedAt: Date;
-  remainingAttempts?: number;
-  unlockMethod: 'time' | 'email' | 'support';
-}
-
-export interface AccountUnlockedData {
-  unlockedAt: Date;
-  unlockedBy: 'user' | 'admin' | 'auto';
-  unlockMethod: string;
-}
-
-export interface LoginAlertData {
-  ipAddress: string;
-  location?: string;
-  locationBn?: string;
-  deviceName?: string;
-  browser?: string;
-  os?: string;
-  loginTime: Date;
-  isNewDevice: boolean;
-  isNewLocation: boolean;
-  loginMethod: 'email' | 'phone' | 'social' | 'otp';
-  isSuspicious: boolean;
-}
-
-export interface SuspiciousActivityData {
-  activityType: string;
-  activityTypeBn?: string;
-  description: string;
-  descriptionBn?: string;
-  ipAddress?: string;
-  deviceId?: string;
-  detectedAt: Date;
-  riskLevel: 'low' | 'medium' | 'high' | 'critical';
-  recommendedAction?: string;
-  recommendedActionBn?: string;
-  supportLink?: string;
-}
-
-export interface AccountDeletedData {
-  deletionTime: Date;
-  retentionDays: number;
-  reactivationDeadline: Date;
-  canReactivate: boolean;
-}
-
-// ============================================================
-// Payment Notification Data (Bangladesh specific)
-// ============================================================
-
-export interface PaymentSuccessData {
-  amount: number;
-  currency: string;
-  transactionId: string;
-  orderId: string;
-  paymentMethod: 'bkash' | 'nagad' | 'rocket' | 'card' | 'cod';
-  paymentTime: Date;
-  merchantName?: string;
-}
-
-export interface PaymentFailedData {
-  amount: number;
-  currency: string;
-  transactionId?: string;
-  orderId: string;
-  paymentMethod: string;
-  failureReason: string;
-  failureReasonBn?: string;
-  paymentTime: Date;
-  retryLink?: string;
-}
-
-export interface OrderConfirmationData {
-  orderId: string;
-  orderDate: Date;
-  totalAmount: number;
-  itemsCount: number;
-  estimatedDeliveryDate?: Date;
-  trackingUrl?: string;
-}
-
-export interface OrderShippedData {
-  orderId: string;
-  shippedAt: Date;
-  carrierName: string;
-  trackingNumber: string;
-  trackingUrl: string;
-  estimatedDeliveryDate: Date;
-}
-
-export interface OrderDeliveredData {
-  orderId: string;
-  deliveredAt: Date;
-  deliveredTo: string;
-  deliveredImage?: string;
-  feedbackLink?: string;
-}
-
-export interface RefundProcessedData {
-  orderId: string;
-  refundAmount: number;
-  refundMethod: string;
-  refundTime: Date;
-  estimatedTimeDays?: number;
-}
-
-// ============================================================
-// ✅ ENTERPRISE ENHANCEMENT 8: Notification Status Webhook Payload
-// ============================================================
-
-export interface NotificationWebhookPayload {
-  eventId: string;
-  eventType: 'sent' | 'delivered' | 'failed' | 'opened' | 'clicked';
-  messageId: string;
-  userId?: string;
-  channel: SharedNotificationChannel;
-  to: string;
-  timestamp: Date;
-  metadata?: {
-    userAgent?: string;
-    ipAddress?: string;
-    linkUrl?: string;  // For clicked events
-    error?: string;    // For failed events
+/**
+ * Notification statistics result
+ */
+export interface NotificationStatsResult extends ServiceResult<NotificationStatistics> {
+  /** Period of statistics */
+  period: {
+    from: Date;
+    to: Date;
   };
+
+  /** Generated at */
+  generatedAt: Date;
 }
 
-// ============================================================
-// Template Names (Using shared-constants)
-// ============================================================
+/**
+ * Delivery status result
+ */
+export interface DeliveryStatusResult {
+  /** Notification ID */
+  notificationId: NotificationId;
 
-export const NotificationTemplates = {
-  // Email templates
-  WELCOME_EMAIL: NOTIFICATION_TEMPLATES.WELCOME_EMAIL,
-  VERIFICATION_EMAIL: NOTIFICATION_TEMPLATES.VERIFICATION_EMAIL,
-  PASSWORD_RESET_EMAIL: NOTIFICATION_TEMPLATES.PASSWORD_RESET_EMAIL,
-  PASSWORD_CHANGED_EMAIL: NOTIFICATION_TEMPLATES.PASSWORD_CHANGED_EMAIL,
-  LOGIN_ALERT_EMAIL: NOTIFICATION_TEMPLATES.LOGIN_ALERT_EMAIL,
-  ACCOUNT_LOCKED_EMAIL: NOTIFICATION_TEMPLATES.ACCOUNT_LOCKED_EMAIL,
-  ACCOUNT_UNLOCKED_EMAIL: NOTIFICATION_TEMPLATES.ACCOUNT_UNLOCKED_EMAIL,
-  
-  // SMS templates
-  OTP_SMS: NOTIFICATION_TEMPLATES.OTP_SMS,
-  LOGIN_ALERT_SMS: NOTIFICATION_TEMPLATES.LOGIN_ALERT_SMS,
-  ACCOUNT_LOCKED_SMS: NOTIFICATION_TEMPLATES.ACCOUNT_LOCKED_SMS,
-  
-  // WhatsApp templates (Bangladesh specific)
-  OTP_WHATSAPP: NOTIFICATION_TEMPLATES.OTP_WHATSAPP,
-  ORDER_CONFIRMATION_WHATSAPP: NOTIFICATION_TEMPLATES.ORDER_CONFIRMATION_WHATSAPP,
-  PAYMENT_SUCCESS_WHATSAPP: NOTIFICATION_TEMPLATES.PAYMENT_SUCCESS_WHATSAPP,
-  
-  // Imo templates (Bangladesh specific)
-  OTP_IMO: NOTIFICATION_TEMPLATES.OTP_IMO,
-  
-  // Voice templates (Bangladesh specific - feature phones)
-  OTP_VOICE: NOTIFICATION_TEMPLATES.OTP_VOICE,
-} as const;
+  /** Current status */
+  status: NotificationStatus;
 
-// ============================================================
-// Notification Service Interface (Enterprise Enhanced v5.0)
-// ============================================================
+  /** Status timeline */
+  timeline: Array<{
+    status: NotificationStatus;
+    timestamp: Date;
+    details?: string;
+  }>;
 
-export interface NotificationService {
-  // ============================================================
-  // Basic Send Operations
-  // ============================================================
-  
-  /**
-   * Send a single notification
-   * @param options - Notification options
-   * @returns Notification result with delivery status
-   */
-  send(options: NotificationOptions): Promise<NotificationResult>;
-
-  /**
-   * Send notification with automatic retry on failure
-   * @param options - Notification options
-   * @param maxRetries - Maximum retry attempts
-   * @returns Notification result
-   */
-  sendWithRetry(options: NotificationOptions, maxRetries?: number): Promise<NotificationResult>;
-
-  /**
-   * Send notification with fallback channels
-   * @param options - Notification options (include fallbackChannels)
-   * @returns Notification result with fallback info
-   */
-  sendWithFallback(options: NotificationOptions): Promise<NotificationResult>;
-
-  /**
-   * Send notification asynchronously (fire and forget)
-   * @param options - Notification options
-   */
-  sendAsync(options: NotificationOptions): void;
-
-  // ============================================================
-  // Batch Operations
-  // ============================================================
-  
-  /**
-   * Send multiple notifications in batch
-   * @param request - Batch notification request
-   * @returns Batch result with per-notification status
-   */
-  sendBatch(request: BatchNotificationRequest): Promise<BatchNotificationResult>;
-
-  /**
-   * Send bulk notifications to multiple users (optimized)
-   * @param notifications - Array of notification options
-   * @returns Batch result
-   */
-  sendBulk(notifications: NotificationOptions[]): Promise<BatchNotificationResult>;
-
-  // ============================================================
-  // Authentication Notifications
-  // ============================================================
-  
-  /**
-   * Send welcome email to new user
-   */
-  sendWelcomeEmail(
-    userId: string,
-    email: string,
-    name: string,
-    nameBn?: string,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
-  ): Promise<void>;
-
-  /**
-   * Send email verification code
-   */
-  sendVerificationEmail(
-    userId: string,
-    email: string,
-    code: string,
-    expiresInMinutes?: number,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
-  ): Promise<void>;
-
-  /**
-   * Send password reset email
-   */
-  sendPasswordResetEmail(
-    userId: string,
-    email: string,
-    resetLink: string,
-    expiresInHours?: number,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
-  ): Promise<void>;
-
-  /**
-   * Send password changed notification
-   */
-  sendPasswordChangedNotification(
-    userId: string,
-    email: string,
-    data?: PasswordChangedData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
-  ): Promise<void>;
-
-  // ============================================================
-  // MFA Notifications
-  // ============================================================
-  
-  /**
-   * Send MFA code via specified channel
-   */
-  sendMfaCode(
-    userId: string,
-    destination: string,
-    code: string,
-    method: 'sms' | 'whatsapp' | 'imo' | 'voice' | 'email',
-    expiresInMinutes?: number,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
-  ): Promise<void>;
-
-  /**
-   * Send MFA enabled notification
-   */
-  sendMfaEnabledNotification(
-    userId: string,
-    email: string,
-    data: MfaEnabledData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
-  ): Promise<void>;
-
-  /**
-   * Send MFA disabled notification
-   */
-  sendMfaDisabledNotification(
-    userId: string,
-    email: string,
-    data: MfaDisabledData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
-  ): Promise<void>;
-
-  // ============================================================
-  // Account Change Notifications
-  // ============================================================
-  
-  /**
-   * Send email changed notification
-   */
-  sendEmailChangedNotification(
-    userId: string,
-    email: string,
-    data: EmailChangedData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
-  ): Promise<void>;
-
-  /**
-   * Send phone changed notification
-   */
-  sendPhoneChangedNotification(
-    userId: string,
-    email: string,
-    phone: string,
-    data: PhoneChangedData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
-  ): Promise<void>;
-
-  // ============================================================
-  // Security Notifications
-  // ============================================================
-  
-  /**
-   * Send account locked notification
-   */
-  sendAccountLockedNotification(
-    userId: string,
-    email: string,
-    data: AccountLockedData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
-  ): Promise<void>;
-
-  /**
-   * Send account unlocked notification
-   */
-  sendAccountUnlockedNotification(
-    userId: string,
-    email: string,
-    data: AccountUnlockedData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
-  ): Promise<void>;
-
-  /**
-   * Send login alert notification
-   */
-  sendLoginAlert(
-    userId: string,
-    email: string,
-    data: LoginAlertData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
-  ): Promise<void>;
-
-  /**
-   * Send suspicious activity alert
-   */
-  sendSuspiciousActivityAlert(
-    userId: string,
-    email: string,
-    data: SuspiciousActivityData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
-  ): Promise<void>;
-
-  /**
-   * Send account deleted notification
-   */
-  sendAccountDeletedNotification(
-    userId: string,
-    email: string,
-    data: AccountDeletedData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
-  ): Promise<void>;
-
-  // ============================================================
-  // Payment Notifications (Bangladesh specific)
-  // ============================================================
-  
-  /**
-   * Send payment success notification
-   */
-  sendPaymentSuccessNotification(
-    userId: string,
-    email: string,
-    phone: string,
-    data: PaymentSuccessData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
-  ): Promise<void>;
-
-  /**
-   * Send payment failed notification
-   */
-  sendPaymentFailedNotification(
-    userId: string,
-    email: string,
-    phone: string,
-    data: PaymentFailedData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
-  ): Promise<void>;
-
-  /**
-   * Send order confirmation notification
-   */
-  sendOrderConfirmation(
-    userId: string,
-    email: string,
-    data: OrderConfirmationData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
-  ): Promise<void>;
-
-  /**
-   * Send order shipped notification
-   */
-  sendOrderShipped(
-    userId: string,
-    email: string,
-    data: OrderShippedData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
-  ): Promise<void>;
-
-  /**
-   * Send order delivered notification
-   */
-  sendOrderDelivered(
-    userId: string,
-    email: string,
-    data: OrderDeliveredData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
-  ): Promise<void>;
-
-  /**
-   * Send refund processed notification
-   */
-  sendRefundProcessed(
-    userId: string,
-    email: string,
-    data: RefundProcessedData,
-    metadata?: { correlationId?: string; ipAddress?: string; locale?: Locale }
-  ): Promise<void>;
-
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 9: Scheduled Notifications
-  // ============================================================
-
-  /**
-   * Schedule a notification for future delivery
-   * @param options - Notification options (include scheduleFor)
-   * @returns Scheduled notification ID
-   */
-  schedule(options: NotificationOptions): Promise<string>;
-
-  /**
-   * Cancel a scheduled notification
-   * @param scheduledId - Scheduled notification ID
-   * @returns True if cancelled
-   */
-  cancelScheduled(scheduledId: string): Promise<boolean>;
-
-  /**
-   * Get list of scheduled notifications
-   * @param userId - Optional user filter
-   * @returns List of scheduled notifications
-   */
-  getScheduled(userId?: string): Promise<Array<{
-    id: string;
-    channel: SharedNotificationChannel;
-    type: SharedNotificationType;
-    scheduledFor: Date;
-    to: string;
-    subject?: string;
-  }>>;
-
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 10: Template Management
-  // ============================================================
-
-  /**
-   * Get all notification templates
-   * @param channel - Optional channel filter
-   * @param isActive - Filter by active status
-   * @returns List of templates
-   */
-  getTemplates(channel?: SharedNotificationChannel, isActive?: boolean): Promise<NotificationTemplate[]>;
-
-  /**
-   * Get template by ID and version
-   * @param templateId - Template ID
-   * @param version - Specific version (default: latest)
-   * @returns Template or null
-   */
-  getTemplate(templateId: string, version?: number): Promise<NotificationTemplate | null>;
-
-  /**
-   * Create a new notification template
-   * @param template - Template data
-   * @returns Created template
-   */
-  createTemplate(template: Omit<NotificationTemplate, 'id' | 'createdAt' | 'updatedAt'>): Promise<NotificationTemplate>;
-
-  /**
-   * Update an existing template (creates new version)
-   * @param templateId - Template ID
-   * @param data - Updated template data
-   * @returns Updated template with new version
-   */
-  updateTemplate(templateId: string, data: Partial<Omit<NotificationTemplate, 'id' | 'createdAt' | 'updatedAt'>>): Promise<NotificationTemplate>;
-
-  /**
-   * Test a template with sample data
-   * @param request - Template test request
-   * @returns Preview result
-   */
-  testTemplate(request: TemplateTestRequest): Promise<TemplateTestResult>;
-
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 11: Rate Limit Management
-  // ============================================================
-
-  /**
-   * Get rate limit configuration for a user/channel
-   * @param userId - User ID
-   * @param channel - Notification channel
-   * @returns Rate limit configuration
-   */
-  getRateLimitConfig(userId: string, channel: SharedNotificationChannel): Promise<RateLimitConfig>;
-
-  /**
-   * Update rate limit configuration
-   * @param userId - User ID
-   * @param channel - Notification channel
-   * @param config - New configuration
-   */
-  updateRateLimitConfig(userId: string, channel: SharedNotificationChannel, config: Partial<RateLimitConfig>): Promise<void>;
-
-  /**
-   * Check rate limit status for a user
-   * @param userId - User ID
-   * @param channel - Notification channel
-   * @returns Rate limit status
-   */
-  checkRateLimit(userId: string, channel: SharedNotificationChannel): Promise<RateLimitStatus>;
-
-  /**
-   * Reset rate limit counters for a user
-   * @param userId - User ID
-   * @param channel - Notification channel
-   */
-  resetRateLimit(userId: string, channel: SharedNotificationChannel): Promise<void>;
-
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 12: Opt-Out Management
-  // ============================================================
-
-  /**
-   * Get user's unsubscribe preferences
-   * @param userId - User ID
-   * @returns Unsubscribe preferences
-   */
-  getUnsubscribePreferences(userId: string): Promise<UnsubscribePreferences>;
-
-  /**
-   * Update user's unsubscribe preferences
-   * @param userId - User ID
-   * @param preferences - Updated preferences
-   * @returns Updated preferences
-   */
-  updateUnsubscribePreferences(userId: string, preferences: Partial<UnsubscribePreferences>): Promise<UnsubscribePreferences>;
-
-  /**
-   * Process unsubscribe request (from email link)
-   * @param token - Unsubscribe token (from email link)
-   * @returns Success status
-   */
-  unsubscribe(token: string): Promise<boolean>;
-
-  /**
-   * Check if user is unsubscribed from a channel
-   * @param userId - User ID
-   * @param channel - Notification channel
-   * @param category - Notification category
-   * @returns True if unsubscribed
-   */
-  isUnsubscribed(userId: string, channel: SharedNotificationChannel, category: 'marketing' | 'transactional' | 'security' | 'promotional'): Promise<boolean>;
-
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 13: Webhook Management
-  // ============================================================
-
-  /**
-   * Register a webhook for notification events
-   * @param config - Webhook configuration
-   * @returns Created webhook ID
-   */
-  registerWebhook(config: Omit<NotificationWebhookConfig, 'id'>): Promise<string>;
-
-  /**
-   * Unregister a webhook
-   * @param webhookId - Webhook ID
-   * @returns True if unregistered
-   */
-  unregisterWebhook(webhookId: string): Promise<boolean>;
-
-  /**
-   * Get all registered webhooks
-   * @returns List of webhook configurations
-   */
-  getWebhooks(): Promise<NotificationWebhookConfig[]>;
-
-  /**
-   * Test a webhook endpoint
-   * @param url - Webhook URL
-   * @returns Test result
-   */
-  testWebhook(url: string): Promise<{ success: boolean; latencyMs: number; error?: string }>;
-
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 14: Status & Tracking
-  // ============================================================
-
-  /**
-   * Get notification status by message ID
-   * @param messageId - Message ID
-   * @returns Detailed status with delivery tracking
-   */
-  getStatus(messageId: string): Promise<{
-    status: 'pending' | 'sent' | 'delivered' | 'failed' | 'read';
+  /** Channel-specific statuses */
+  channels: Record<NotificationChannel, {
+    status: NotificationStatus;
     sentAt?: Date;
     deliveredAt?: Date;
     readAt?: Date;
     clickedAt?: Date;
     error?: string;
-    provider?: string;
-    retryCount: number;
-    channel: SharedNotificationChannel;
+    providerMessageId?: string;
+    providerStatus?: string;
   }>;
 
-  /**
-   * Get notification history for a user
-   * @param userId - User ID
-   * @param options - Pagination and filter options
-   * @returns Notification history
-   */
-  getHistory(
-    userId: string,
-    options?: {
-      limit?: number;
-      offset?: number;
-      channel?: SharedNotificationChannel;
-      fromDate?: Date;
-      toDate?: Date;
-      status?: string;
-    }
-  ): Promise<{
-    notifications: Array<{
-      id: string;
-      channel: SharedNotificationChannel;
-      type: SharedNotificationType;
-      subject: string;
-      sentAt: Date;
-      status: string;
-      deliveredAt?: Date;
-      readAt?: Date;
-    }>;
+  /** Delivery attempts */
+  attempts: number;
+
+  /** Max attempts */
+  maxAttempts: number;
+
+  /** Error message (if failed) */
+  error?: string;
+
+  /** Correlation ID */
+  correlationId?: string;
+}
+
+// ============================================================
+// ✅ ENTERPRISE ENHANCEMENT 3: Quota & Rate Limit Types
+// ============================================================
+
+/**
+ * Quota status for a user
+ */
+export interface QuotaStatus {
+  /** User ID */
+  userId: UserId;
+
+  /** Current period (date) */
+  period: Date;
+
+  /** Remaining quota for the period */
+  remaining: number;
+
+  /** Total quota for the period */
+  total: number;
+
+  /** Reset time */
+  resetAt: Date;
+
+  /** Quota by channel */
+  byChannel: Record<NotificationChannel, {
+    remaining: number;
     total: number;
   }>;
 
-  /**
-   * Track notification open (for email/WhatsApp)
-   * @param messageId - Message ID
-   * @param metadata - Tracking metadata (userAgent, ipAddress)
-   */
-  trackOpen(messageId: string, metadata?: { userAgent?: string; ipAddress?: string }): Promise<void>;
-
-  /**
-   * Track notification click (for email/WhatsApp links)
-   * @param messageId - Message ID
-   * @param linkUrl - Clicked link URL
-   * @param metadata - Tracking metadata
-   */
-  trackClick(messageId: string, linkUrl: string, metadata?: { userAgent?: string; ipAddress?: string }): Promise<void>;
-
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 15: Analytics & Metrics
-  // ============================================================
-
-  /**
-   * Get notification analytics for a time period
-   * @param fromDate - Start date
-   * @param toDate - End date
-   * @param channel - Optional channel filter
-   * @returns Analytics data
-   */
-  getAnalytics(fromDate: Date, toDate: Date, channel?: SharedNotificationChannel): Promise<NotificationAnalytics>;
-
-  /**
-   * Get real-time notification metrics
-   * @returns Real-time metrics
-   */
-  getRealtimeMetrics(): Promise<{
-    sentLastMinute: number;
-    sentLastHour: number;
-    deliveredLastMinute: number;
-    failedLastMinute: number;
-    queueLength: number;
-    averageLatencyMs: number;
-    activeChannels: Record<SharedNotificationChannel, boolean>;
+  /** Quota by type */
+  byType: Record<NotificationType, {
+    remaining: number;
+    total: number;
   }>;
+}
 
-  /**
-   * Get notification performance report
-   * @param fromDate - Start date
-   * @param toDate - End date
-   * @returns Performance report
-   */
-  getPerformanceReport(fromDate: Date, toDate: Date): Promise<{
-    summary: {
-      totalSent: number;
-      totalDelivered: number;
-      deliveryRate: number;
-      averageLatencyMs: number;
-      p95LatencyMs: number;
-      p99LatencyMs: number;
-    };
-    byChannel: Record<SharedNotificationChannel, {
-      sent: number;
-      delivered: number;
-      deliveryRate: number;
-      averageLatencyMs: number;
-    }>;
-    byProvider: Record<string, {
-      sent: number;
-      successRate: number;
-      averageLatencyMs: number;
-    }>;
-  }>;
+/**
+ * Rate limit status
+ */
+export interface RateLimitStatus {
+  /** Whether currently rate limited */
+  limited: boolean;
 
+  /** Remaining requests in current window */
+  remaining: number;
+
+  /** Reset time */
+  resetAt: Date;
+
+  /** Limit per window */
+  limit: number;
+
+  /** Window size in seconds */
+  windowSeconds: number;
+
+  /** Reason for rate limit (if limited) */
+  reason?: string;
+
+  /** Retry after seconds (if limited) */
+  retryAfterSeconds?: number;
+}
+
+// ============================================================
+// ✅ ENTERPRISE ENHANCEMENT 4: Main Service Interface
+// ============================================================
+
+/**
+ * Notification Service Interface
+ * 
+ * Enterprise-grade service contract for notification operations
+ */
+export interface INotificationService {
   // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 16: Provider Management
-  // ============================================================
-
-  /**
-   * Get all configured notification providers
-   * @returns Provider information
-   */
-  getProviders(): Promise<Array<{
-    name: string;
-    channel: SharedNotificationChannel;
-    isConfigured: boolean;
-    isActive: boolean;
-    priority: number;
-    healthStatus: 'healthy' | 'degraded' | 'unhealthy';
-  }>>;
-
-  /**
-   * Get provider health status
-   * @param provider - Provider name
-   * @returns Health status
-   */
-  getProviderHealth(provider: string): Promise<{
-    healthy: boolean;
-    latencyMs: number;
-    lastSuccessAt?: Date;
-    lastFailureAt?: Date;
-    consecutiveFailures: number;
-    circuitBreakerState: 'closed' | 'open' | 'half-open';
-  }>;
-
-  /**
-   * Reset circuit breaker for a provider
-   * @param provider - Provider name
-   */
-  resetProviderCircuitBreaker(provider: string): Promise<void>;
-
-  /**
-   * Get provider metrics
-   * @param provider - Provider name
-   * @returns Provider metrics
-   */
-  getProviderMetrics(provider: string): Promise<{
-    totalRequests: number;
-    successRate: number;
-    averageLatencyMs: number;
-    p95LatencyMs: number;
-    p99LatencyMs: number;
-    errorRate: number;
-    topErrors: Array<{ error: string; count: number }>;
-  }>;
-
-  // ============================================================
-  // ✅ ENTERPRISE ENHANCEMENT 17: Test & Debug
+  // Send Operations (Core)
   // ============================================================
 
   /**
-   * Send a test notification (doesn't actually send, only validates)
-   * @param options - Notification options
-   * @returns Validation result
+   * Send a single notification
+   * 
+   * @param userId - User ID to send to
+   * @param type - Notification type
+   * @param templateVariables - Template variables for content
+   * @param channels - Channels to use (uses user preferences if not specified)
+   * @param options - Additional options
+   * @returns Send result with delivery status
+   * 
+   * @example
+   * const result = await notificationService.sendNotification(
+   *   'usr_123',
+   *   'order_confirmation',
+   *   { orderId: 'ORD-123', orderAmount: 1000 },
+   *   ['email', 'whatsapp'],
+   *   { priorityOverride: 8 }
+   * );
    */
-  dryRun(options: NotificationOptions): Promise<{
-    valid: boolean;
-    errors?: string[];
-    warnings?: string[];
-    preview?: {
-      subject?: string;
-      body: string;
-    };
-  }>;
+  sendNotification(
+    userId: UserId,
+    type: NotificationType,
+    templateVariables: NotificationTemplateVariables,
+    channels?: NotificationChannel[],
+    options?: SendNotificationOptions
+  ): Promise<SendNotificationResult>;
+
+  /**
+   * Send notification to a specific recipient (not necessarily a system user)
+   * 
+   * @param recipient - Recipient information
+   * @param type - Notification type
+   * @param templateVariables - Template variables
+   * @param channels - Channels to use
+   * @param options - Additional options
+   * @returns Send result
+   */
+  sendToRecipient(
+    recipient: NotificationRecipient,
+    type: NotificationType,
+    templateVariables: NotificationTemplateVariables,
+    channels?: NotificationChannel[],
+    options?: SendNotificationOptions
+  ): Promise<SendNotificationResult>;
+
+  /**
+   * Send bulk notifications to multiple recipients
+   * 
+   * @param request - Bulk notification request
+   * @param options - Bulk send options
+   * @param onProgress - Progress callback (optional)
+   * @returns Bulk send result
+   * 
+   * @example
+   * const result = await notificationService.sendBulk({
+   *   recipientIds: ['usr_1', 'usr_2', 'usr_3'],
+   *   type: 'promotional',
+   *   content: {
+   *     subject: 'Flash Sale!',
+   *     body: 'Get 50% off on all products!'
+   *   },
+   *   channels: ['email']
+   * }, {
+   *   batchSize: 50,
+   *   concurrency: 5
+   * });
+   */
+  sendBulk(
+    request: BulkNotificationRequest,
+    options?: BulkSendOptions,
+    onProgress?: (progress: { processed: number; total: number; percentage: number }) => void
+  ): Promise<BulkSendResult>;
+
+  /**
+   * Schedule a notification for future delivery
+   * 
+   * @param userId - User ID
+   * @param type - Notification type
+   * @param templateVariables - Template variables
+   * @param scheduledAt - Scheduled delivery time
+   * @param channels - Channels to use
+   * @param options - Additional options
+   * @returns Scheduled notification
+   */
+  scheduleNotification(
+    userId: UserId,
+    type: NotificationType,
+    templateVariables: NotificationTemplateVariables,
+    scheduledAt: Date,
+    channels?: NotificationChannel[],
+    options?: SendNotificationOptions
+  ): Promise<ServiceResult<Notification>>;
+
+  /**
+   * Cancel a scheduled notification
+   * 
+   * @param notificationId - Notification ID
+   * @param userId - User ID (for authorization)
+   * @param reason - Cancellation reason
+   * @returns Cancellation result
+   */
+  cancelScheduledNotification(
+    notificationId: NotificationId,
+    userId: UserId,
+    reason?: string
+  ): Promise<ServiceResult<{ cancelled: boolean }>>;
 
   /**
    * Resend a failed notification
-   * @param messageId - Original message ID
-   * @param options - Override options
-   * @returns New notification result
+   * 
+   * @param notificationId - Notification ID
+   * @param userId - User ID (for authorization)
+   * @param options - Resend options
+   * @returns Resend result
    */
-  resend(messageId: string, options?: Partial<NotificationOptions>): Promise<NotificationResult>;
+  resendNotification(
+    notificationId: NotificationId,
+    userId: UserId,
+    options?: SendNotificationOptions
+  ): Promise<SendNotificationResult>;
+
+  // ============================================================
+  // Delivery Status & Tracking
+  // ============================================================
 
   /**
-   * Cancel a pending notification
-   * @param messageId - Message ID
-   * @returns True if cancelled
+   * Get delivery status of a notification
+   * 
+   * @param notificationId - Notification ID
+   * @param userId - User ID (for authorization)
+   * @returns Delivery status result
    */
-  cancel(messageId: string): Promise<boolean>;
+  getDeliveryStatus(
+    notificationId: NotificationId,
+    userId: UserId
+  ): Promise<ServiceResult<DeliveryStatusResult>>;
+
+  /**
+   * Get delivery status by provider message ID
+   * 
+   * @param providerMessageId - Provider message ID (e.g., email message ID)
+   * @param channel - Notification channel
+   * @returns Delivery status result
+   */
+  getDeliveryStatusByProviderId(
+    providerMessageId: string,
+    channel: NotificationChannel
+  ): Promise<ServiceResult<DeliveryStatusResult>>;
+
+  /**
+   * Get all notifications for a user
+   * 
+   * @param userId - User ID
+   * @param filters - Notification filters
+   * @param options - Pagination options
+   * @returns Paginated notifications
+   */
+  getUserNotifications(
+    userId: UserId,
+    filters?: NotificationFilter,
+    options?: PaginationOptions
+  ): Promise<PaginatedResult<Notification>>;
+
+  /**
+   * Mark notification as read
+   * 
+   * @param notificationId - Notification ID
+   * @param userId - User ID
+   * @param readAt - Time when read (default: now)
+   * @returns Updated notification
+   */
+  markAsRead(
+    notificationId: NotificationId,
+    userId: UserId,
+    readAt?: Date
+  ): Promise<ServiceResult<Notification>>;
+
+  /**
+   * Mark all notifications as read for a user
+   * 
+   * @param userId - User ID
+   * @param readAt - Time when read (default: now)
+   * @returns Number of notifications marked as read
+   */
+  markAllAsRead(
+    userId: UserId,
+    readAt?: Date
+  ): Promise<ServiceResult<{ count: number }>>;
+
+  /**
+   * Track notification click
+   * 
+   * @param notificationId - Notification ID
+   * @param userId - User ID
+   * @param clickedAt - Time when clicked (default: now)
+   * @param clickUrl - URL that was clicked
+   * @returns Updated notification
+   */
+  trackClick(
+    notificationId: NotificationId,
+    userId: UserId,
+    clickedAt?: Date,
+    clickUrl?: string
+  ): Promise<ServiceResult<Notification>>;
+
+  // ============================================================
+  // Template Management
+  // ============================================================
+
+  /**
+   * Get notification template
+   * 
+   * @param type - Notification type
+   * @param channel - Notification channel
+   * @param version - Template version (default: latest)
+   * @returns Template
+   */
+  getTemplate(
+    type: NotificationType,
+    channel: NotificationChannel,
+    version?: number
+  ): Promise<TemplateResult>;
+
+  /**
+   * Create a new notification template
+   * 
+   * @param type - Notification type
+   * @param channel - Notification channel
+   * @param content - Template content
+   * @param options - Template options
+   * @returns Created template
+   */
+  createTemplate(
+    type: NotificationType,
+    channel: NotificationChannel,
+    content: Omit<NotificationTemplate, 'id' | 'type' | 'channel' | 'version' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy'>,
+    options: CreateTemplateOptions
+  ): Promise<TemplateResult>;
+
+  /**
+   * Update an existing template
+   * 
+   * @param type - Notification type
+   * @param channel - Notification channel
+   * @param content - Template content
+   * @param options - Update options
+   * @returns Updated template
+   */
+  updateTemplate(
+    type: NotificationType,
+    channel: NotificationChannel,
+    content: Partial<Omit<NotificationTemplate, 'id' | 'type' | 'channel' | 'version' | 'createdAt' | 'updatedAt'>>,
+    options: UpdateTemplateOptions
+  ): Promise<TemplateResult>;
+
+  /**
+   * Delete a template (soft delete)
+   * 
+   * @param type - Notification type
+   * @param channel - Notification channel
+   * @param deletedBy - User ID performing deletion
+   * @param reason - Deletion reason
+   * @returns Deletion result
+   */
+  deleteTemplate(
+    type: NotificationType,
+    channel: NotificationChannel,
+    deletedBy: string,
+    reason?: string
+  ): Promise<ServiceResult<{ deleted: boolean }>>;
+
+  /**
+   * Get all templates for a type
+   * 
+   * @param type - Notification type
+   * @param includeInactive - Include inactive templates
+   * @param options - Pagination options
+   * @returns Paginated templates
+   */
+  getTemplatesByType(
+    type: NotificationType,
+    includeInactive?: boolean,
+    options?: PaginationOptions
+  ): Promise<PaginatedResult<NotificationTemplate>>;
+
+  /**
+   * Get all templates for a channel
+   * 
+   * @param channel - Notification channel
+   * @param includeInactive - Include inactive templates
+   * @param options - Pagination options
+   * @returns Paginated templates
+   */
+  getTemplatesByChannel(
+    channel: NotificationChannel,
+    includeInactive?: boolean,
+    options?: PaginationOptions
+  ): Promise<PaginatedResult<NotificationTemplate>>;
+
+  // ============================================================
+  // User Preferences Management
+  // ============================================================
+
+  /**
+   * Get user notification preferences
+   * 
+   * @param userId - User ID
+   * @returns User preferences
+   */
+  getPreferences(
+    userId: UserId
+  ): Promise<ServiceResult<NotificationPreferences>>;
+
+  /**
+   * Update user notification preferences
+   * 
+   * @param userId - User ID
+   * @param update - Preferences update
+   * @param options - Additional options
+   * @returns Updated preferences
+   */
+  updatePreferences(
+    userId: UserId,
+    update: NotificationPreferencesUpdate,
+    options?: NotificationOptions
+  ): Promise<ServiceResult<NotificationPreferences>>;
+
+  /**
+   * Reset user notification preferences to defaults
+   * 
+   * @param userId - User ID
+   * @param resetBy - User ID performing reset
+   * @returns Reset result
+   */
+  resetPreferences(
+    userId: UserId,
+    resetBy: string
+  ): Promise<ServiceResult<{ reset: boolean }>>;
+
+  /**
+   * Check if user has opted out of a specific notification type
+   * 
+   * @param userId - User ID
+   * @param type - Notification type
+   * @param channel - Notification channel (optional)
+   * @returns Whether user has opted out
+   */
+  isOptedOut(
+    userId: UserId,
+    type: NotificationType,
+    channel?: NotificationChannel
+  ): Promise<boolean>;
+
+  // ============================================================
+  // Notification Management
+  // ============================================================
+
+  /**
+   * Get notification by ID
+   * 
+   * @param notificationId - Notification ID
+   * @param userId - User ID (for authorization)
+   * @returns Notification
+   */
+  getNotification(
+    notificationId: NotificationId,
+    userId: UserId
+  ): Promise<ServiceResult<Notification>>;
+
+  /**
+   * Delete notification (soft delete)
+   * 
+   * @param notificationId - Notification ID
+   * @param userId - User ID
+   * @param reason - Deletion reason
+   * @returns Deletion result
+   */
+  deleteNotification(
+    notificationId: NotificationId,
+    userId: UserId,
+    reason?: string
+  ): Promise<ServiceResult<{ deleted: boolean }>>;
+
+  /**
+   * Delete all notifications for a user
+   * 
+   * @param userId - User ID
+   * @param beforeDate - Delete only notifications before this date
+   * @returns Number of deleted notifications
+   */
+  deleteAllNotifications(
+    userId: UserId,
+    beforeDate?: Date
+  ): Promise<ServiceResult<{ count: number }>>;
+
+  /**
+   * Archive old notifications for a user
+   * 
+   * @param userId - User ID
+   * @param olderThanDays - Archive notifications older than N days
+   * @param options - Archive options
+   * @returns Archive result
+   */
+  archiveNotifications(
+    userId: UserId,
+    olderThanDays: number,
+    options?: { dryRun?: boolean }
+  ): Promise<ServiceResult<{ archived: number; deleted: number }>>;
+
+  // ============================================================
+  // Statistics & Analytics
+  // ============================================================
+
+  /**
+   * Get notification statistics for a user
+   * 
+   * @param userId - User ID
+   * @param fromDate - Start date
+   * @param toDate - End date
+   * @param options - Statistics options
+   * @returns Notification statistics
+   */
+  getUserStatistics(
+    userId: UserId,
+    fromDate: Date,
+    toDate: Date,
+    options?: { byChannel?: boolean; byType?: boolean }
+  ): Promise<NotificationStatsResult>;
+
+  /**
+   * Get global notification statistics (admin only)
+   * 
+   * @param fromDate - Start date
+   * @param toDate - End date
+   * @param options - Statistics options
+   * @returns Global notification statistics
+   */
+  getGlobalStatistics(
+    fromDate: Date,
+    toDate: Date,
+    options?: { byChannel?: boolean; byType?: boolean; byDistrict?: boolean }
+  ): Promise<NotificationStatsResult>;
+
+  /**
+   * Get notification delivery metrics
+   * 
+   * @param days - Number of days to analyze
+   * @param options - Analysis options
+   * @returns Delivery metrics
+   */
+  getDeliveryMetrics(
+    days: number,
+    options?: { byChannel?: boolean; byType?: boolean }
+  ): Promise<ServiceResult<{
+    totalSent: number;
+    totalDelivered: number;
+    totalRead: number;
+    totalClicked: number;
+    deliveryRate: number;
+    readRate: number;
+    clickRate: number;
+    byChannel: Record<NotificationChannel, {
+      sent: number;
+      delivered: number;
+      read: number;
+      clicked: number;
+      rates: { delivery: number; read: number; click: number };
+    }>;
+    timeSeries: Array<{
+      date: string;
+      sent: number;
+      delivered: number;
+      read: number;
+      clicked: number;
+    }>;
+  }>>;
+
+  // ============================================================
+  // Quota & Rate Limiting
+  // ============================================================
+
+  /**
+   * Get quota status for a user
+   * 
+   * @param userId - User ID
+   * @param period - Period to check (default: current day)
+   * @returns Quota status
+   */
+  getQuotaStatus(
+    userId: UserId,
+    period?: Date
+  ): Promise<ServiceResult<QuotaStatus>>;
+
+  /**
+   * Check if user is rate limited
+   * 
+   * @param userId - User ID
+   * @param type - Notification type
+   * @param channel - Notification channel
+   * @returns Rate limit status
+   */
+  checkRateLimit(
+    userId: UserId,
+    type: NotificationType,
+    channel: NotificationChannel
+  ): Promise<RateLimitStatus>;
+
+  /**
+   * Get global rate limit configuration
+   * 
+   * @returns Rate limit configuration
+   */
+  getRateLimitConfig(): Promise<{
+    global: {
+      maxPerSecond: number;
+      maxPerMinute: number;
+      maxPerHour: number;
+      maxPerDay: number;
+    };
+    byChannel: Record<NotificationChannel, {
+      maxPerSecond: number;
+      maxPerMinute: number;
+      maxPerHour: number;
+      maxPerDay: number;
+    }>;
+    byType: Record<NotificationType, {
+      maxPerDay: number;
+    }>;
+  }>;
+
+  // ============================================================
+  // Webhook Integration
+  // ============================================================
+
+  /**
+   * Process incoming webhook from notification provider
+   * 
+   * @param payload - Webhook payload
+   * @param headers - Request headers
+   * @param signature - Webhook signature for verification
+   * @returns Processing result
+   */
+  processWebhook(
+    payload: NotificationWebhookPayload,
+    headers: Record<string, string>,
+    signature?: string
+  ): Promise<ServiceResult<{ processed: boolean; notificationId?: NotificationId }>>;
+
+  /**
+   * Register webhook endpoint for notification delivery status
+   * 
+   * @param url - Webhook URL
+   * @param events - Events to listen for
+   * @param secret - Webhook secret for signing
+   * @param userId - User ID (for authorization)
+   * @returns Registration result
+   */
+  registerWebhook(
+    url: string,
+    events: string[],
+    secret?: string,
+    userId?: UserId
+  ): Promise<ServiceResult<{ webhookId: string; success: boolean }>>;
 
   // ============================================================
   // Health & Monitoring
   // ============================================================
 
   /**
-   * Check notification service health
-   * @returns Health status of all channels
+   * Health check for notification service
+   * 
+   * @returns Health status
    */
   healthCheck(): Promise<{
-    healthy: boolean;
-    services: {
-      email: boolean;
-      sms: boolean;
-      whatsapp: boolean;
-      imo: boolean;
-      voice: boolean;
-      push: boolean;
+    status: 'healthy' | 'degraded' | 'unhealthy';
+    version: string;
+    uptime: number;
+    dependencies: {
+      emailProvider: boolean;
+      smsProvider: boolean;
+      whatsappProvider: boolean;
+      pushProvider: boolean;
+      inAppProvider: boolean;
+      database: boolean;
+      cache: boolean;
+      queue: boolean;
     };
-    latency: {
-      email: number;
-      sms: number;
-      whatsapp: number;
-      imo: number;
-      voice: number;
+    queueMetrics: {
+      pending: number;
+      processing: number;
+      failed: number;
+      lastProcessedAt?: Date;
     };
-    queueSize: number;
-    lastErrorAt?: Date;
-    lastError?: string;
   }>;
 
   /**
-   * Get service configuration
-   * @returns Current configuration
+   * Get service performance metrics
+   * 
+   * @returns Performance metrics
    */
-  getConfig(): Promise<{
-    defaultPriority: NotificationPriority;
-    defaultRetryConfig: {
-      maxRetries: number;
-      delayMs: number;
-      backoffMultiplier: number;
-    };
-    rateLimits: Record<SharedNotificationChannel, RateLimitConfig>;
-    enabledChannels: SharedNotificationChannel[];
-    defaultLocale: Locale;
+  getPerformanceMetrics(): Promise<{
+    avgSendTimeMs: number;
+    p95SendTimeMs: number;
+    p99SendTimeMs: number;
+    successRate: number;
+    failureRate: number;
+    averageDeliveryTimeMs: number;
+    cacheHitRate: number;
+    activeConnections: number;
+    queueDepth: number;
   }>;
 
   /**
-   * Update service configuration dynamically
-   * @param config - Configuration updates
+   * Force sync of pending notifications (for maintenance)
+   * 
+   * @param userId - User ID (optional, all users if not provided)
+   * @param options - Sync options
+   * @returns Sync result
    */
-  updateConfig(config: Partial<{
-    defaultPriority: NotificationPriority;
-    defaultRetryConfig: { maxRetries: number; delayMs: number; backoffMultiplier: number };
-    defaultLocale: Locale;
-  }>): Promise<void>;
-}
+  forceSyncPendingNotifications(
+    userId?: UserId,
+    options?: { batchSize?: number; dryRun?: boolean }
+  ): Promise<ServiceResult<{ synced: number; failed: number }>>;
 
-// ============================================================
-// Type Guards
-// ============================================================
+  /**
+   * Retry failed notifications in the queue
+   * 
+   * @param olderThanMinutes - Retry notifications older than N minutes
+   * @param maxAttempts - Maximum retry attempts (default: 3)
+   * @param options - Retry options
+   * @returns Retry result
+   */
+  retryFailedNotifications(
+    olderThanMinutes: number,
+    maxAttempts?: number,
+    options?: { batchSize?: number; dryRun?: boolean }
+  ): Promise<ServiceResult<{ retried: number; failed: number }>>;
 
-export function isNotificationResult(obj: unknown): obj is NotificationResult {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'success' in obj &&
-    'sentAt' in obj &&
-    'channel' in obj
-  );
-}
+  // ============================================================
+  // Audit & Compliance
+  // ============================================================
 
-export function isBatchNotificationResult(obj: unknown): obj is BatchNotificationResult {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'total' in obj &&
-    'successful' in obj &&
-    'failed' in obj &&
-    'durationMs' in obj
-  );
-}
+  /**
+   * Get notification audit trail for a user
+   * 
+   * @param userId - User ID
+   * @param options - Pagination options
+   * @param filters - Audit filters
+   * @returns Paginated audit entries
+   */
+  getAuditTrail(
+    userId: UserId,
+    options: PaginationOptions,
+    filters?: { type?: NotificationType; channel?: NotificationChannel; status?: NotificationStatus; fromDate?: Date; toDate?: Date }
+  ): Promise<PaginatedResult<{
+    id: string;
+    action: 'sent' | 'delivered' | 'read' | 'clicked' | 'failed' | 'cancelled' | 'updated' | 'deleted';
+    timestamp: Date;
+    notificationId: string;
+    type: NotificationType;
+    channel: NotificationChannel;
+    details?: string;
+    performedBy?: string;
+    correlationId?: string;
+  }>>;
 
-// ============================================================
-// Factory function for creating notification options
-// ============================================================
-
-export function createNotificationOptions(
-  channel: SharedNotificationChannel,
-  to: string,
-  data: Record<string, unknown>,
-  options?: Partial<NotificationOptions>,
-): NotificationOptions {
-  return {
-    type: NotificationType.EMAIL,
-    priority: NotificationPriority.NORMAL,
-    channel,
-    to,
-    data,
-    ...options,
-  };
+  /**
+   * Export notification data for compliance audit
+   * 
+   * @param userId - User ID (optional)
+   * @param fromDate - Start date
+   * @param toDate - End date
+   * @param format - Export format
+   * @returns Export result
+   */
+  exportNotificationsForAudit(
+    userId: UserId | undefined,
+    fromDate: Date,
+    toDate: Date,
+    format?: 'json' | 'csv' | 'xlsx'
+  ): Promise<{
+    downloadUrl: string;
+    expiresAt: Date;
+    fileSize: number;
+    recordCount: number;
+    format: string;
+    expiresInSeconds: number;
+  }>;
 }
 
 // ============================================================
 // Type Exports
 // ============================================================
 
-export type { 
-  WelcomeEmailData as WelcomeEmailDataType,
-  VerificationEmailData as VerificationEmailDataType,
-  PasswordResetEmailData as PasswordResetEmailDataType,
-  PasswordChangedData as PasswordChangedDataType,
-  MfaCodeData as MfaCodeDataType,
-  MfaEnabledData as MfaEnabledDataType,
-  MfaDisabledData as MfaDisabledDataType,
-  EmailChangedData as EmailChangedDataType,
-  PhoneChangedData as PhoneChangedDataType,
-  AccountLockedData as AccountLockedDataType,
-  AccountUnlockedData as AccountUnlockedDataType,
-  LoginAlertData as LoginAlertDataType,
-  SuspiciousActivityData as SuspiciousActivityDataType,
-  AccountDeletedData as AccountDeletedDataType,
-  PaymentSuccessData as PaymentSuccessDataType,
-  PaymentFailedData as PaymentFailedDataType,
-  OrderConfirmationData as OrderConfirmationDataType,
-  OrderShippedData as OrderShippedDataType,
-  OrderDeliveredData as OrderDeliveredDataType,
-  RefundProcessedData as RefundProcessedDataType,
+export type {
   NotificationOptions as NotificationOptionsType,
-  NotificationResult as NotificationResultType,
-  BatchNotificationRequest as BatchNotificationRequestType,
-  BatchNotificationResult as BatchNotificationResultType,
-  RateLimitConfig as RateLimitConfigType,
+  SendNotificationOptions as SendNotificationOptionsType,
+  BulkSendOptions as BulkSendOptionsType,
+  CreateTemplateOptions as CreateTemplateOptionsType,
+  UpdateTemplateOptions as UpdateTemplateOptionsType,
+  SendNotificationResult as SendNotificationResultType,
+  BulkSendResult as BulkSendResultType,
+  TemplateResult as TemplateResultType,
+  NotificationStatsResult as NotificationStatsResultType,
+  DeliveryStatusResult as DeliveryStatusResultType,
+  QuotaStatus as QuotaStatusType,
   RateLimitStatus as RateLimitStatusType,
-  UnsubscribePreferences as UnsubscribePreferencesType,
-  NotificationTemplate as NotificationTemplateType,
-  TemplateTestRequest as TemplateTestRequestType,
-  TemplateTestResult as TemplateTestResultType,
-  NotificationAnalytics as NotificationAnalyticsType,
-  NotificationWebhookConfig as NotificationWebhookConfigType,
-  NotificationWebhookPayload as NotificationWebhookPayloadType,
 };
 
-// Re-export shared types for convenience
-export type { Locale, SharedNotificationType, SharedNotificationPriority, SharedNotificationChannel };
+// ============================================================
+// Constants Exports (For external use)
+// ============================================================
+
+export {
+  NOTIFICATION_TYPES,
+  NOTIFICATION_PRIORITY,
+  NOTIFICATION_TTL,
+  NOTIFICATION_STATUS,
+  NOTIFICATION_CHANNELS,
+};
 
 // ============================================================
-// ENTERPRISE SUMMARY v5.0
+// ENTERPRISE SUMMARY
 // ============================================================
 // 
-// Enterprise Enhancements Applied in v5.0:
-// 1. ✅ Batch notification processing with progress tracking
-// 2. ✅ Template versioning and A/B testing support
-// 3. ✅ Fallback channel routing (e.g., WhatsApp fallback to SMS)
-// 4. ✅ Rate limiting per user/channel to prevent spam
-// 5. ✅ Delivery receipt tracking with webhooks
-// 6. ✅ Click/open tracking for email/WhatsApp
-// 7. ✅ Opt-out/Unsubscribe management for compliance
-// 8. ✅ Priority queue for critical notifications (OTP, Security alerts)
-// 9. ✅ Attachment support for email notifications
-// 10. ✅ Scheduled notifications with cron expressions
-// 11. ✅ Bengali language support across all templates
-// 12. ✅ Provider circuit breaker for resilience
-// 13. ✅ Delivery analytics with P95/P99 latency
-// 14. ✅ GDPR compliant data retention
-// 15. ✅ Real-time notification status webhooks
-// 16. ✅ Template dry-run for testing
-// 17. ✅ Provider health monitoring and metrics
-// 18. ✅ Comprehensive performance reporting
-// 19. ✅ Dynamic configuration updates
-// 20. ✅ Real-time metrics dashboard
+// Enterprise Features Applied:
+// 1. ✅ Complete notification lifecycle (send, track, retry, cancel)
+// 2. ✅ Multi-channel support (email, sms, whatsapp, push, in_app, voice)
+// 3. ✅ Bulk notification with progress tracking
+// 4. ✅ Template management system
+// 5. ✅ User preference management
+// 6. ✅ Quota and rate limiting
+// 7. ✅ Webhook integration
+// 8. ✅ Analytics and statistics
+// 9. ✅ Audit trail for compliance
+// 10. ✅ Health check and monitoring
+// 11. ✅ Scheduled notifications
+// 12. ✅ Bangladesh specific - SMS gateway selection, Bengali templates
+// 13. ✅ Delivery status tracking and reporting
+// 14. ✅ Cache integration for performance
+// 15. ✅ Correlation ID for distributed tracing
 // 
 // Bangladesh Specific:
-// - WhatsApp/Imo/Voice OTP support
-// - bKash/Nagad/Rocket payment notifications
-// - Bengali language support across all templates
-// - Local timezone awareness (Asia/Dhaka)
-// - Feature phone compatible voice OTP
+// - District/Division location tracking
 // - Mobile operator detection for SMS routing
-// - Bangladesh Bank compliance ready
+// - Network type for adaptive content (2G/3G/4G/5G/WiFi)
+// - Bengali language support in templates
+// - Local timezone-aware scheduling
+// - National holiday awareness for promotional throttling
+// - SMS gateway priority based on operator
 // 
 // Security Features:
-// - Rate limiting per user/channel prevents spam
-// - Opt-out management for GDPR compliance
-// - Webhook secret verification
-// - Circuit breaker for provider failures
-// - Retry with exponential backoff
-// - Delivery tracking for suspicious activity detection
+// - User authorization checks
+// - Rate limiting to prevent abuse
+// - Quota management
+// - Audit trail for all operations
+// - Correlation ID for distributed tracing
+// - Webhook signature verification
 // 
 // ============================================================
