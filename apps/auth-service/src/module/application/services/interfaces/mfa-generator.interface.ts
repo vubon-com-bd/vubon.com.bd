@@ -43,6 +43,7 @@
  * });
  */
 
+// ✅ Import from shared-types
 import type {
   // Core Types
   MfaProviderType,
@@ -70,26 +71,229 @@ import type {
   DeviceInfo,
 } from '@vubon/shared-types';
 
-// ✅ FIXED: Removed unused imports - Only import types that are actually used
-// The following types are used in the interface methods below:
-// - MfaProviderType (used in getProviderConfig, getRateLimitStatus, etc.)
-// - MfaGeneratorType (used in getMethod, getMethods)
-// - MfaProviderInfo (used in getAvailableProviders)
-// - MfaProviderConfig (used in getProviderConfig, updateProviderConfig)
-// - MfaSetupResult (used in setupTotp, setupSmsOtp, etc.)
-// - TotpVerificationResult (used in verifyTotp)
-// - BackupCodeResult (used in verifyBackupCode, verifyRecoveryCode)
-// - MFSPinVerificationResult (used in verifyMfsPin)
-// - OtpResult (used in verifyOtp)
-// - MfaMethodPriority (used in getRecommendedMethods)
-// - MfaAuditEntry (used in getAuditTrail)
-// - MfaRateLimitStatus (used in getRateLimitStatus)
-// - MfaLockoutStatus (used in getLockoutStatus)
-// - MfaConfiguration (used in getConfiguration, updateConfiguration)
-// - DeviceInfo (used in setup methods)
-// - PaginationOptions, PaginatedResult (used in getAuditTrail)
-// - ApiErrorCode (used in ServiceResult)
-// - AuditMetadata, RequestContext (used in MfaGeneratorOptions)
+// ✅ Import from shared-constants (will be used in default configs)
+import {
+  MFA_GENERATOR_CONFIG,
+  TOTP_CONFIG,
+  BACKUP_CODES_CONFIG,
+  RECOVERY_CODES_CONFIG,
+  WEBAUTHN_CONFIG,
+  SMS_OTP_CONFIG,
+  WHATSAPP_OTP_CONFIG,
+  IMO_OTP_CONFIG,
+  VOICE_OTP_CONFIG,
+  BKASH_PIN_CONFIG,
+  NAGAD_PIN_CONFIG,
+  ROCKET_PIN_CONFIG,
+} from '@vubon/shared-constants';
+
+// ============================================================
+// ✅ Use constants in default configurations
+// ============================================================
+
+/**
+ * Default TOTP configuration (from shared-constants)
+ */
+export const DEFAULT_TOTP_CONFIG = {
+  SECRET_LENGTH: TOTP_CONFIG.SECRET_LENGTH,
+  DIGITS: TOTP_CONFIG.DIGITS,
+  PERIOD: TOTP_CONFIG.PERIOD,
+  ALGORITHM: TOTP_CONFIG.ALGORITHM,
+  ISSUER: TOTP_CONFIG.ISSUER,
+  ISSUER_BN: TOTP_CONFIG.ISSUER_BN,
+  QR_CODE_SIZE: TOTP_CONFIG.QR_CODE_SIZE,
+  QR_CODE_FORMAT: TOTP_CONFIG.QR_CODE_FORMAT,
+  ACCOUNT_NAME_FORMAT: TOTP_CONFIG.ACCOUNT_NAME_FORMAT,
+  ENABLED: TOTP_CONFIG.ENABLED,
+  MIN_SECRET_LENGTH: TOTP_CONFIG.MIN_SECRET_LENGTH,
+  MAX_SECRET_LENGTH: TOTP_CONFIG.MAX_SECRET_LENGTH,
+  SECRET_ENCODING: TOTP_CONFIG.SECRET_ENCODING,
+} as const;
+
+/**
+ * Default backup codes configuration (from shared-constants)
+ */
+export const DEFAULT_BACKUP_CODES_CONFIG = {
+  COUNT: BACKUP_CODES_CONFIG.COUNT,
+  CODE_LENGTH: BACKUP_CODES_CONFIG.CODE_LENGTH,
+  FORMAT: BACKUP_CODES_CONFIG.FORMAT,
+  CHARACTER_SET: BACKUP_CODES_CONFIG.CHARACTER_SET,
+  HASH_ALGORITHM: BACKUP_CODES_CONFIG.HASH_ALGORITHM,
+  SALT_ROUNDS: BACKUP_CODES_CONFIG.SALT_ROUNDS,
+  STORE_HASHED_ONLY: BACKUP_CODES_CONFIG.STORE_HASHED_ONLY,
+  ONE_TIME_USE: BACKUP_CODES_CONFIG.ONE_TIME_USE,
+  REGENERATE_ON_USAGE: BACKUP_CODES_CONFIG.REGENERATE_ON_USAGE,
+  REGENERATE_THRESHOLD: BACKUP_CODES_CONFIG.REGENERATE_THRESHOLD,
+  SHOW_AFTER_SETUP: BACKUP_CODES_CONFIG.SHOW_AFTER_SETUP,
+  FORCE_DOWNLOAD: BACKUP_CODES_CONFIG.FORCE_DOWNLOAD,
+  ALLOW_PRINT: BACKUP_CODES_CONFIG.ALLOW_PRINT,
+  SEPARATOR: BACKUP_CODES_CONFIG.SEPARATOR,
+  SECTIONS: BACKUP_CODES_CONFIG.SECTIONS,
+  ENABLED: BACKUP_CODES_CONFIG.ENABLED,
+} as const;
+
+/**
+ * Default recovery codes configuration (from shared-constants)
+ */
+export const DEFAULT_RECOVERY_CODES_CONFIG = {
+  COUNT: RECOVERY_CODES_CONFIG.COUNT,
+  CODE_LENGTH: RECOVERY_CODES_CONFIG.CODE_LENGTH,
+  FORMAT: RECOVERY_CODES_CONFIG.FORMAT,
+  CHARACTER_SET: RECOVERY_CODES_CONFIG.CHARACTER_SET,
+  HASH_ALGORITHM: RECOVERY_CODES_CONFIG.HASH_ALGORITHM,
+  SALT_ROUNDS: RECOVERY_CODES_CONFIG.SALT_ROUNDS,
+  STORE_HASHED_ONLY: RECOVERY_CODES_CONFIG.STORE_HASHED_ONLY,
+  ONE_TIME_USE: RECOVERY_CODES_CONFIG.ONE_TIME_USE,
+  REGENERATE_ON_USAGE: RECOVERY_CODES_CONFIG.REGENERATE_ON_USAGE,
+  REGENERATE_THRESHOLD: RECOVERY_CODES_CONFIG.REGENERATE_THRESHOLD,
+  SHOW_AFTER_SETUP: RECOVERY_CODES_CONFIG.SHOW_AFTER_SETUP,
+  EXPIRY_DAYS: RECOVERY_CODES_CONFIG.EXPIRY_DAYS,
+  ENABLED: RECOVERY_CODES_CONFIG.ENABLED,
+} as const;
+
+/**
+ * Default WebAuthn configuration (from shared-constants)
+ */
+export const DEFAULT_WEBAUTHN_CONFIG = {
+  RP_ID: WEBAUTHN_CONFIG.RP_ID,
+  RP_NAME: WEBAUTHN_CONFIG.RP_NAME,
+  RP_ICON: WEBAUTHN_CONFIG.RP_ICON,
+  TIMEOUT_MS: WEBAUTHN_CONFIG.TIMEOUT_MS,
+  ALLOWED_ALGORITHMS: WEBAUTHN_CONFIG.ALLOWED_ALGORITHMS,
+  ATTESTATION: WEBAUTHN_CONFIG.ATTESTATION,
+  USER_VERIFICATION: WEBAUTHN_CONFIG.USER_VERIFICATION,
+  AUTHENTICATOR_SELECTION: WEBAUTHN_CONFIG.AUTHENTICATOR_SELECTION,
+  ENABLED: WEBAUTHN_CONFIG.ENABLED,
+  MIN_BROWSER_VERSION: WEBAUTHN_CONFIG.MIN_BROWSER_VERSION,
+  SUPPORT_PASSKEYS: WEBAUTHN_CONFIG.SUPPORT_PASSKEYS,
+  ALLOW_CROSS_PLATFORM: WEBAUTHN_CONFIG.ALLOW_CROSS_PLATFORM,
+} as const;
+
+/**
+ * Default SMS OTP configuration (from shared-constants)
+ */
+export const DEFAULT_SMS_OTP_CONFIG = {
+  OTP_LENGTH: SMS_OTP_CONFIG.OTP_LENGTH,
+  OTP_EXPIRY_SECONDS: SMS_OTP_CONFIG.OTP_EXPIRY_SECONDS,
+  MAX_ATTEMPTS: SMS_OTP_CONFIG.MAX_ATTEMPTS,
+  RESEND_COOLDOWN_SECONDS: SMS_OTP_CONFIG.RESEND_COOLDOWN_SECONDS,
+  MAX_RESEND_PER_HOUR: SMS_OTP_CONFIG.MAX_RESEND_PER_HOUR,
+  ENABLED: SMS_OTP_CONFIG.ENABLED,
+  GATEWAY_PRIORITY: SMS_OTP_CONFIG.GATEWAY_PRIORITY,
+  TEMPLATE: SMS_OTP_CONFIG.TEMPLATE,
+  TEMPLATE_BN: SMS_OTP_CONFIG.TEMPLATE_BN,
+} as const;
+
+/**
+ * Default WhatsApp OTP configuration (from shared-constants)
+ */
+export const DEFAULT_WHATSAPP_OTP_CONFIG = {
+  OTP_LENGTH: WHATSAPP_OTP_CONFIG.OTP_LENGTH,
+  OTP_EXPIRY_SECONDS: WHATSAPP_OTP_CONFIG.OTP_EXPIRY_SECONDS,
+  MAX_ATTEMPTS: WHATSAPP_OTP_CONFIG.MAX_ATTEMPTS,
+  RESEND_COOLDOWN_SECONDS: WHATSAPP_OTP_CONFIG.RESEND_COOLDOWN_SECONDS,
+  MAX_RESEND_PER_HOUR: WHATSAPP_OTP_CONFIG.MAX_RESEND_PER_HOUR,
+  ENABLED: WHATSAPP_OTP_CONFIG.ENABLED,
+  API_VERSION: WHATSAPP_OTP_CONFIG.API_VERSION,
+  TEMPLATE_NAME: WHATSAPP_OTP_CONFIG.TEMPLATE_NAME,
+  TEMPLATE_LANGUAGE: WHATSAPP_OTP_CONFIG.TEMPLATE_LANGUAGE,
+  TEMPLATE_EN: WHATSAPP_OTP_CONFIG.TEMPLATE_EN,
+  TEMPLATE_BN: WHATSAPP_OTP_CONFIG.TEMPLATE_BN,
+} as const;
+
+/**
+ * Default Imo OTP configuration (from shared-constants)
+ */
+export const DEFAULT_IMO_OTP_CONFIG = {
+  OTP_LENGTH: IMO_OTP_CONFIG.OTP_LENGTH,
+  OTP_EXPIRY_SECONDS: IMO_OTP_CONFIG.OTP_EXPIRY_SECONDS,
+  MAX_ATTEMPTS: IMO_OTP_CONFIG.MAX_ATTEMPTS,
+  RESEND_COOLDOWN_SECONDS: IMO_OTP_CONFIG.RESEND_COOLDOWN_SECONDS,
+  MAX_RESEND_PER_HOUR: IMO_OTP_CONFIG.MAX_RESEND_PER_HOUR,
+  ENABLED: IMO_OTP_CONFIG.ENABLED,
+  API_VERSION: IMO_OTP_CONFIG.API_VERSION,
+  TEMPLATE_EN: IMO_OTP_CONFIG.TEMPLATE_EN,
+  TEMPLATE_BN: IMO_OTP_CONFIG.TEMPLATE_BN,
+} as const;
+
+/**
+ * Default Voice Call OTP configuration (from shared-constants)
+ */
+export const DEFAULT_VOICE_OTP_CONFIG = {
+  OTP_LENGTH: VOICE_OTP_CONFIG.OTP_LENGTH,
+  OTP_EXPIRY_SECONDS: VOICE_OTP_CONFIG.OTP_EXPIRY_SECONDS,
+  MAX_ATTEMPTS: VOICE_OTP_CONFIG.MAX_ATTEMPTS,
+  RESEND_COOLDOWN_SECONDS: VOICE_OTP_CONFIG.RESEND_COOLDOWN_SECONDS,
+  MAX_RESEND_PER_HOUR: VOICE_OTP_CONFIG.MAX_RESEND_PER_HOUR,
+  ENABLED: VOICE_OTP_CONFIG.ENABLED,
+  LANGUAGE: VOICE_OTP_CONFIG.LANGUAGE,
+  TEMPLATE_EN: VOICE_OTP_CONFIG.TEMPLATE_EN,
+  TEMPLATE_BN: VOICE_OTP_CONFIG.TEMPLATE_BN,
+  RETRY_COUNT: VOICE_OTP_CONFIG.RETRY_COUNT,
+  RETRY_DELAY_SECONDS: VOICE_OTP_CONFIG.RETRY_DELAY_SECONDS,
+} as const;
+
+/**
+ * Default bKash PIN configuration (from shared-constants)
+ */
+export const DEFAULT_BKASH_PIN_CONFIG = {
+  PIN_LENGTH: BKASH_PIN_CONFIG.PIN_LENGTH,
+  PIN_EXPIRY_SECONDS: BKASH_PIN_CONFIG.PIN_EXPIRY_SECONDS,
+  MAX_ATTEMPTS: BKASH_PIN_CONFIG.MAX_ATTEMPTS,
+  LOCKOUT_DURATION_SECONDS: BKASH_PIN_CONFIG.LOCKOUT_DURATION_SECONDS,
+  ENABLED: BKASH_PIN_CONFIG.ENABLED,
+  API_VERSION: BKASH_PIN_CONFIG.API_VERSION,
+  SANDBOX_MODE: BKASH_PIN_CONFIG.SANDBOX_MODE,
+} as const;
+
+/**
+ * Default Nagad PIN configuration (from shared-constants)
+ */
+export const DEFAULT_NAGAD_PIN_CONFIG = {
+  PIN_LENGTH: NAGAD_PIN_CONFIG.PIN_LENGTH,
+  PIN_EXPIRY_SECONDS: NAGAD_PIN_CONFIG.PIN_EXPIRY_SECONDS,
+  MAX_ATTEMPTS: NAGAD_PIN_CONFIG.MAX_ATTEMPTS,
+  LOCKOUT_DURATION_SECONDS: NAGAD_PIN_CONFIG.LOCKOUT_DURATION_SECONDS,
+  ENABLED: NAGAD_PIN_CONFIG.ENABLED,
+  API_VERSION: NAGAD_PIN_CONFIG.API_VERSION,
+  SANDBOX_MODE: NAGAD_PIN_CONFIG.SANDBOX_MODE,
+} as const;
+
+/**
+ * Default Rocket PIN configuration (from shared-constants)
+ */
+export const DEFAULT_ROCKET_PIN_CONFIG = {
+  PIN_LENGTH: ROCKET_PIN_CONFIG.PIN_LENGTH,
+  PIN_EXPIRY_SECONDS: ROCKET_PIN_CONFIG.PIN_EXPIRY_SECONDS,
+  MAX_ATTEMPTS: ROCKET_PIN_CONFIG.MAX_ATTEMPTS,
+  LOCKOUT_DURATION_SECONDS: ROCKET_PIN_CONFIG.LOCKOUT_DURATION_SECONDS,
+  ENABLED: ROCKET_PIN_CONFIG.ENABLED,
+  API_VERSION: ROCKET_PIN_CONFIG.API_VERSION,
+  SANDBOX_MODE: ROCKET_PIN_CONFIG.SANDBOX_MODE,
+} as const;
+
+/**
+ * Combined MFA configuration (from shared-constants)
+ */
+export const DEFAULT_MFA_CONFIG = {
+  TOTP: TOTP_CONFIG,
+  BACKUP_CODES: BACKUP_CODES_CONFIG,
+  RECOVERY_CODES: RECOVERY_CODES_CONFIG,
+  WEBAUTHN: WEBAUTHN_CONFIG,
+  SMS_OTP: SMS_OTP_CONFIG,
+  WHATSAPP_OTP: WHATSAPP_OTP_CONFIG,
+  IMO_OTP: IMO_OTP_CONFIG,
+  VOICE_OTP: VOICE_OTP_CONFIG,
+  BKASH_PIN: BKASH_PIN_CONFIG,
+  NAGAD_PIN: NAGAD_PIN_CONFIG,
+  ROCKET_PIN: ROCKET_PIN_CONFIG,
+  METHOD_PRIORITY: MFA_GENERATOR_CONFIG.METHOD_PRIORITY,
+  DEFAULT_METHOD: MFA_GENERATOR_CONFIG.DEFAULT_METHOD,
+  MAX_METHODS_PER_USER: MFA_GENERATOR_CONFIG.MAX_METHODS_PER_USER,
+  MIN_METHODS_FOR_HIGH_SECURITY: MFA_GENERATOR_CONFIG.MIN_METHODS_FOR_HIGH_SECURITY,
+  ENABLED: MFA_GENERATOR_CONFIG.ENABLED,
+  VERSION: MFA_GENERATOR_CONFIG.VERSION,
+} as const;
 
 // ============================================================
 // ✅ ENTERPRISE ENHANCEMENT 1: Options Interfaces
@@ -125,25 +329,28 @@ export interface MfaGeneratorOptions {
 
   /** Retry attempt number (for connection resilience) */
   retryAttempt?: number;
+
+  /** Override configuration (optional) */
+  configOverride?: Partial<typeof DEFAULT_MFA_CONFIG>;
 }
 
 /**
  * TOTP setup options
  */
 export interface TotpSetupOptions extends MfaGeneratorOptions {
-  /** TOTP secret length (default: 20) */
+  /** TOTP secret length (default: from config) */
   secretLength?: number;
 
-  /** TOTP digits (6 or 8, default: 6) */
+  /** TOTP digits (6 or 8, default: from config) */
   digits?: number;
 
-  /** TOTP period in seconds (default: 30) */
+  /** TOTP period in seconds (default: from config) */
   period?: number;
 
-  /** TOTP algorithm (SHA-1, SHA-256, SHA-512, default: SHA-1) */
+  /** TOTP algorithm (SHA-1, SHA-256, SHA-512, default: from config) */
   algorithm?: 'SHA-1' | 'SHA-256' | 'SHA-512';
 
-  /** Issuer name (default: 'Vubon.com.bd') */
+  /** Issuer name (default: from config) */
   issuer?: string;
 
   /** Account name (default: email) */
@@ -155,7 +362,7 @@ export interface TotpSetupOptions extends MfaGeneratorOptions {
   /** Generate backup codes */
   generateBackupCodes?: boolean;
 
-  /** Number of backup codes to generate (default: 10) */
+  /** Number of backup codes to generate (default: from config) */
   backupCodeCount?: number;
 }
 
@@ -166,10 +373,10 @@ export interface SmsOtpSetupOptions extends MfaGeneratorOptions {
   /** Phone number (E.164 format) */
   phoneNumber: string;
 
-  /** OTP expiry in seconds (default: 300) */
+  /** OTP expiry in seconds (default: from config) */
   otpExpirySeconds?: number;
 
-  /** Maximum attempts before lockout (default: 3) */
+  /** Maximum attempts before lockout (default: from config) */
   maxAttempts?: number;
 
   /** Set as primary MFA method */
@@ -178,7 +385,7 @@ export interface SmsOtpSetupOptions extends MfaGeneratorOptions {
   /** Generate backup codes */
   generateBackupCodes?: boolean;
 
-  /** Number of backup codes to generate (default: 10) */
+  /** Number of backup codes to generate (default: from config) */
   backupCodeCount?: number;
 }
 
@@ -192,13 +399,13 @@ export interface WhatsAppOtpSetupOptions extends MfaGeneratorOptions {
   /** WhatsApp Business Account ID */
   businessAccountId?: string;
 
-  /** WhatsApp template name (default: 'vubon_otp_verification') */
+  /** WhatsApp template name (default: from config) */
   templateName?: string;
 
-  /** OTP expiry in seconds (default: 300) */
+  /** OTP expiry in seconds (default: from config) */
   otpExpirySeconds?: number;
 
-  /** Maximum attempts before lockout (default: 3) */
+  /** Maximum attempts before lockout (default: from config) */
   maxAttempts?: number;
 
   /** Set as primary MFA method */
@@ -207,7 +414,7 @@ export interface WhatsAppOtpSetupOptions extends MfaGeneratorOptions {
   /** Generate backup codes */
   generateBackupCodes?: boolean;
 
-  /** Number of backup codes to generate (default: 10) */
+  /** Number of backup codes to generate (default: from config) */
   backupCodeCount?: number;
 }
 
@@ -218,10 +425,10 @@ export interface ImoOtpSetupOptions extends MfaGeneratorOptions {
   /** Phone number (E.164 format) */
   phoneNumber: string;
 
-  /** OTP expiry in seconds (default: 300) */
+  /** OTP expiry in seconds (default: from config) */
   otpExpirySeconds?: number;
 
-  /** Maximum attempts before lockout (default: 3) */
+  /** Maximum attempts before lockout (default: from config) */
   maxAttempts?: number;
 
   /** Set as primary MFA method */
@@ -230,7 +437,7 @@ export interface ImoOtpSetupOptions extends MfaGeneratorOptions {
   /** Generate backup codes */
   generateBackupCodes?: boolean;
 
-  /** Number of backup codes to generate (default: 10) */
+  /** Number of backup codes to generate (default: from config) */
   backupCodeCount?: number;
 }
 
@@ -241,19 +448,19 @@ export interface VoiceCallOtpSetupOptions extends MfaGeneratorOptions {
   /** Phone number (E.164 format) */
   phoneNumber: string;
 
-  /** Voice language (en, bn, default: bn) */
+  /** Voice language (en, bn, default: from config) */
   language?: 'en' | 'bn';
 
-  /** OTP expiry in seconds (default: 300) */
+  /** OTP expiry in seconds (default: from config) */
   otpExpirySeconds?: number;
 
-  /** Maximum attempts before lockout (default: 3) */
+  /** Maximum attempts before lockout (default: from config) */
   maxAttempts?: number;
 
-  /** Voice call retry count (default: 3) */
+  /** Voice call retry count (default: from config) */
   retryCount?: number;
 
-  /** Voice call retry delay in seconds (default: 10) */
+  /** Voice call retry delay in seconds (default: from config) */
   retryDelaySeconds?: number;
 
   /** Set as primary MFA method */
@@ -262,7 +469,7 @@ export interface VoiceCallOtpSetupOptions extends MfaGeneratorOptions {
   /** Generate backup codes */
   generateBackupCodes?: boolean;
 
-  /** Number of backup codes to generate (default: 10) */
+  /** Number of backup codes to generate (default: from config) */
   backupCodeCount?: number;
 }
 
@@ -279,13 +486,13 @@ export interface BkashPinSetupOptions extends MfaGeneratorOptions {
   /** Account holder name */
   accountHolderName?: string;
 
-  /** PIN expiry in seconds (default: 300) */
+  /** PIN expiry in seconds (default: from config) */
   pinExpirySeconds?: number;
 
-  /** Maximum attempts before lockout (default: 3) */
+  /** Maximum attempts before lockout (default: from config) */
   maxAttempts?: number;
 
-  /** Lockout duration in seconds (default: 900) */
+  /** Lockout duration in seconds (default: from config) */
   lockoutDurationSeconds?: number;
 
   /** Set as primary MFA method */
@@ -294,7 +501,7 @@ export interface BkashPinSetupOptions extends MfaGeneratorOptions {
   /** Generate backup codes */
   generateBackupCodes?: boolean;
 
-  /** Number of backup codes to generate (default: 10) */
+  /** Number of backup codes to generate (default: from config) */
   backupCodeCount?: number;
 }
 
@@ -311,13 +518,13 @@ export interface NagadPinSetupOptions extends MfaGeneratorOptions {
   /** Account holder name */
   accountHolderName?: string;
 
-  /** PIN expiry in seconds (default: 300) */
+  /** PIN expiry in seconds (default: from config) */
   pinExpirySeconds?: number;
 
-  /** Maximum attempts before lockout (default: 3) */
+  /** Maximum attempts before lockout (default: from config) */
   maxAttempts?: number;
 
-  /** Lockout duration in seconds (default: 900) */
+  /** Lockout duration in seconds (default: from config) */
   lockoutDurationSeconds?: number;
 
   /** Set as primary MFA method */
@@ -326,7 +533,7 @@ export interface NagadPinSetupOptions extends MfaGeneratorOptions {
   /** Generate backup codes */
   generateBackupCodes?: boolean;
 
-  /** Number of backup codes to generate (default: 10) */
+  /** Number of backup codes to generate (default: from config) */
   backupCodeCount?: number;
 }
 
@@ -343,13 +550,13 @@ export interface RocketPinSetupOptions extends MfaGeneratorOptions {
   /** Account holder name */
   accountHolderName?: string;
 
-  /** PIN expiry in seconds (default: 300) */
+  /** PIN expiry in seconds (default: from config) */
   pinExpirySeconds?: number;
 
-  /** Maximum attempts before lockout (default: 3) */
+  /** Maximum attempts before lockout (default: from config) */
   maxAttempts?: number;
 
-  /** Lockout duration in seconds (default: 900) */
+  /** Lockout duration in seconds (default: from config) */
   lockoutDurationSeconds?: number;
 
   /** Set as primary MFA method */
@@ -358,7 +565,7 @@ export interface RocketPinSetupOptions extends MfaGeneratorOptions {
   /** Generate backup codes */
   generateBackupCodes?: boolean;
 
-  /** Number of backup codes to generate (default: 10) */
+  /** Number of backup codes to generate (default: from config) */
   backupCodeCount?: number;
 }
 
@@ -381,7 +588,7 @@ export interface WebAuthnSetupOptions extends MfaGeneratorOptions {
   /** Generate backup codes */
   generateBackupCodes?: boolean;
 
-  /** Number of backup codes to generate (default: 10) */
+  /** Number of backup codes to generate (default: from config) */
   backupCodeCount?: number;
 }
 
@@ -389,16 +596,16 @@ export interface WebAuthnSetupOptions extends MfaGeneratorOptions {
  * Backup code options
  */
 export interface BackupCodeOptions extends MfaGeneratorOptions {
-  /** Number of backup codes to generate (default: 10) */
+  /** Number of backup codes to generate (default: from config) */
   count?: number;
 
-  /** Length of each backup code (default: 8) */
+  /** Length of each backup code (default: from config) */
   codeLength?: number;
 
-  /** Code format (alphanumeric, numeric, alphanumeric_with_hyphen) */
+  /** Code format (alphanumeric, numeric, alphanumeric_with_hyphen, default: from config) */
   format?: 'alphanumeric' | 'numeric' | 'alphanumeric_with_hyphen';
 
-  /** Regenerate threshold (default: 3) */
+  /** Regenerate threshold (default: from config) */
   regenerateThreshold?: number;
 }
 
@@ -406,16 +613,16 @@ export interface BackupCodeOptions extends MfaGeneratorOptions {
  * Recovery code options
  */
 export interface RecoveryCodeOptions extends MfaGeneratorOptions {
-  /** Number of recovery codes to generate (default: 5) */
+  /** Number of recovery codes to generate (default: from config) */
   count?: number;
 
-  /** Length of each recovery code (default: 12) */
+  /** Length of each recovery code (default: from config) */
   codeLength?: number;
 
-  /** Code expiry in days (default: 0 = never expires) */
+  /** Code expiry in days (default: from config) */
   expiryDays?: number;
 
-  /** Regenerate threshold (default: 2) */
+  /** Regenerate threshold (default: from config) */
   regenerateThreshold?: number;
 }
 
@@ -432,7 +639,7 @@ export interface MfaVerificationOptions extends MfaGeneratorOptions {
   /** Trust duration in days (default: 30) */
   trustDurationDays?: number;
 
-  /** Maximum attempts before lockout (default: 3) */
+  /** Maximum attempts before lockout (default: from config) */
   maxAttempts?: number;
 
   /** Record IP address for audit */
@@ -1170,6 +1377,8 @@ export type {
 // 16. ✅ Bulk operations with progress tracking
 // 17. ✅ Health check and monitoring endpoints
 // 18. ✅ Type-safe with full TypeScript support
+// 19. ✅ Constants integration from shared-constants
+// 20. ✅ Default configurations from shared-constants
 // 
 // Bangladesh Specific:
 // - WhatsApp, Imo, Voice Call OTP support
@@ -1189,4 +1398,6 @@ export type {
 // - IP and device tracking
 // - Correlation ID for distributed tracing
 // - Device fingerprint binding
-// - Trusted
+// - Trusted device tracking
+// 
+// ============================================================
