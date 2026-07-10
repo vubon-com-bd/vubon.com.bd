@@ -76,8 +76,6 @@ export default defineConfig({
     // Peer dependencies (সঠিক নাম)
     '@vubon/shared-constants',
     '@vubon/shared-types',
-    '@vubon/shared-schemas',
-    '@vubon/shared-utils',
   ],
   
   // Platform - neutral (works in Node.js)
