@@ -15,6 +15,23 @@
 // ============================================================
 export {
   // User Types
+  type RegistrationTrend,
+  type DeleteAccountResponse,
+  type ReactivateAccountResponse,
+  type BulkOperationProgress,
+  type BulkOperationResult,
+  type ExtendedUserFilters,
+  type ExtendedUserStatistics,
+  type BulkUserOperationRequest,
+  type RegistrationTrendType,
+  type DeleteAccountResponseType,
+  type ReactivateAccountResponseType,
+  type BulkOperationProgressType,
+  type BulkOperationResultType,
+  type UserActivitySummaryType,
+  type ExtendedUserFiltersType,
+  type ExtendedUserStatisticsType,
+  type BulkUserOperationRequestType,
   type RegistrationMethod,
   type RegistrationSource,
   type RegistrationMetadata,
@@ -77,6 +94,27 @@ export {
   type SessionHeartbeatRequest,
   type SessionHeartbeatResponse,
   type PublicDeviceWarning,
+  type UserId,
+  type SessionId,
+  type DeviceId,
+  type TokenId,
+  type RoleId,
+  type PermissionId,
+  // MFA IDs
+  type MFAMethodId,
+  // Verification IDs
+  type VerificationId,
+  type EmailVerificationId,
+  // Security IDs
+  type AccountLockId,
+  type LoginAttemptId,
+  // Token IDs
+  type RefreshTokenId,
+  // History IDs
+  type PasswordHistoryId,
+  type PasswordResetId,
+  // Social IDs
+  type SocialAccountId,
   
   // Token Types
   type TokenType,
@@ -185,6 +223,7 @@ export {
   type PermissionDependencyGraph,
   
   // MFA Types
+  type MFATypes,
   type MFAProvider,
   type ExtendedMFAProvider,
   type MFAStatus,
@@ -220,6 +259,7 @@ export {
   type MFATrustedDevice,
   type MFAEventType,
   type MFAEvent,
+  type MFADisableScope,
   type MFASettings,
   type MFAFilterOptions,
   type MFAStatistics,
@@ -273,6 +313,11 @@ export {
   type NetworkSecurityScore,
   type NetworkSecurityLevels,
   type DeviceMetrics,
+  type TrustLevel,
+  type TrustScore,
+  type TrustLevelConfig,
+  type RevocationScope,
+  type RevocationScopeContext,
   
   // Verification Types
   type VerificationType,
@@ -374,6 +419,19 @@ export {
   type LoginRecoveryResponse,
   type FailedAttemptSummary,
   
+type ResetMethod,
+  type ResetMethodDisplayName,
+  type ResetMethodCategory,
+  type ResetMethodConfig,
+  type ResetMethodValidation,
+  type ResetMethodConfigMap,
+  type BangladeshResetMethod,
+  type isResetMethod,
+  type isResetMethodCategory,
+  type isBangladeshResetMethod,
+  type RESET_METHODS,
+  type DEFAULT_RESET_METHOD,
+  
   // Social Types
   type SocialProvider,
   type ExtendedSocialProvider,
@@ -458,8 +516,14 @@ export {
   type ApiCircuitBreakerState,
   type LogoutScope,
   // Pagination Types
+  type PaginationOptions,
+  type PaginatedResult,
   type SortOrder,
   type PaginationMetadata,
+  type PaginationType,
+  type DateRange,
+  type FilterOperator,
+  type SearchConfig,
   type PaginationParams,
   type ExtendedPaginationParams,
   type PaginationSort,
@@ -489,10 +553,12 @@ export {
   type PaginationMetrics,
   
   // Audit Types
+  type AuditExportFormat,
   type AuditAction,
   type AuditSeverity,
   type AuditResource,
   type AuditLog,
+  type SupportedLanguage,
   type AuditChange,
   type AuditMetadata,
   type CreateAuditLogRequest,
@@ -506,6 +572,10 @@ export {
   type AuditWebhookEvent,
   type AuditSearchResult,
   type AuditComplianceReport,
+  type AuditSource, 
+  type AuditEntityType,
+  
+
   
   // SEO Types
   type MetaTag,
@@ -685,6 +755,434 @@ export {
   isNetworkType,
   isDevicePlatform,
 } from './common/client-info.types';
+
+// Core Cache Types
+ export {
+type CacheKey,
+  type CacheEntry,
+  type CacheStatus,
+  type CacheTier,
+  type CacheOperation,
+  type CacheResult,
+  type CacheSetResult,
+  type CacheDeleteResult,
+  type CacheClearResult,
+  type CacheMultiGetResult,
+  
+  // Cache Options
+  type CacheOptions,
+  type CacheGetOptions,
+  type CacheSetOptions,
+  type CacheDeleteOptions,
+  type CacheInvalidateOptions,
+  type CacheClearOptions,
+  type CacheBulkGetOptions,
+  type ReadThroughStrategy,
+  type WriteThroughStrategy,
+  type StaleWhileRevalidateConfig,
+  type StampedeProtectionConfig,
+  type CacheWarmingConfig,
+  type CacheCompressionConfig,
+  type CacheMetricsConfig,
+  
+  // Cache Statistics & Monitoring
+  type CacheStatistics,
+  type CacheHealthStatus,
+  type CachePerformanceMetrics,
+  type CacheEvent,
+  type CacheEventType,
+  type CacheServiceConfig,
+  
+  // Cache Dependency & Invalidation
+  type CacheDependency,
+  type InvalidationPattern,
+  
+  // Cache Builder & Factory
+  type CacheKeyBuilder,
+  type CacheValueTransformer,
+  type CacheKeyValidator,
+  type CacheHook,
+  type CacheInterceptor,
+  
+  // Cache Configuration
+  type CacheConfig,
+  type CacheTierConfig,
+  type CachePolicy,
+  type CacheEvictionPolicy,
+  type CacheWarmingPolicy,
+  type CacheInvalidationPolicy,
+  
+  // Cache Compression
+  type CompressionLevel,
+  type CompressionStrategy,
+  
+  // Cache Utilities
+  type CacheNamespace,
+  type CacheTag,
+  type CacheVersion,
+  
+  // Bangladesh Specific
+  type NetworkAwareCacheOptions,
+  type AdaptiveCacheConfig,
+} from './common/cache.types';
+
+
+// ============================================================
+// ✅ ENTERPRISE: Advanced Event Types (New)
+// ============================================================
+export {
+  // Core Event Types
+  type BaseEvent,
+  type EventMetadata,
+  type EventPayload,
+  type EventHandlerResult,
+  type EventHandler,
+  type EventMiddleware,
+  type EventSubscriber,
+  type EventPublisher,
+  type EventBus,
+  type EventValidator,
+  type StoredEvent,
+  type EventValidationResult,
+  
+  // Event Type Guards
+  isEventType,
+  isBaseEvent,
+  
+  // Domain Event Types
+  type UserRegisteredEvent,
+  type UserLoggedInEvent,
+  type UserLoggedOutEvent,
+  type PasswordChangedEvent,
+  type PasswordResetEvent,
+  type MFAEnabledEvent,
+  type MFAVerificationEvent,
+  type UserCreatedEvent,
+  type UserUpdatedEvent,
+  type UserRoleChangedEvent,
+  type UserTierUpgradedEvent,
+  type UserEmailChangedEvent,
+  type UserPhoneChangedEvent,
+  type UserKYCVerifiedEvent,
+  type SessionCreatedEvent,
+  type SessionExtendedEvent,
+  type SessionRevokedEvent,
+  type SessionExpiredEvent,
+  type SessionTransferredEvent,
+  type DeviceRegisteredEvent,
+  type DeviceTrustedEvent,
+  type DeviceBlockedEvent,
+  type PaymentInitiatedEvent,
+  type PaymentSuccessEvent,
+  type PaymentFailedEvent,
+  type BkashPaymentEvent,
+  type NagadPaymentEvent,
+  type RocketPaymentEvent,
+  type SSLCommerzPaymentEvent,
+  type WebhookReceivedEvent,
+  type SMSDeliveryEvent,
+  type SecurityBreachEvent,
+  type BruteForceDetectedEvent,
+  type SuspiciousActivityEvent,
+  type NotificationSentEvent,
+  type EmailDeliveredEvent,
+  type WhatsAppDeliveredEvent,
+  type SystemHealthEvent,
+  type ConfigUpdatedEvent,
+  type PageViewEvent,
+  type ProductViewEvent,
+  type CartEvent,
+  type CheckoutEvent,
+  type ConversionEvent,
+} from './common/event.types';
+
+
+// ============================================================
+// ✅ ENTERPRISE: MFA Generator Types (New)
+// ============================================================
+export {
+  // Core MFA Types
+  type MfaProviderType,
+  type MfaGeneratorType,
+  
+  // MFA Provider Metadata Types
+  type MfaProviderMetadata,
+  type TotpMetadata,
+  type SmsOtpMetadata,
+  type WhatsAppOtpMetadata,
+  type ImoOtpMetadata,
+  type VoiceCallOtpMetadata,
+  type BkashPinMetadata,
+  type NagadPinMetadata,
+  type RocketPinMetadata,
+  type BackupCodeMetadata,
+  type RecoveryCodeMetadata,
+  
+  // MFA Provider Info Types
+  type MfaProviderInfo,
+  type MfaProviderConfig,
+  
+  // MFA Setup Result Types
+  type MfaSetupResult,
+  type MfaSetupData,
+  type TotpSetupData,
+  type SmsSetupData,
+  type WhatsAppSetupData,
+  type ImoSetupData,
+  type VoiceCallSetupData,
+  type BkashPinSetupData,
+  type NagadPinSetupData,
+  type RocketPinSetupData,
+  type WebAuthnSetupData,
+  type WebAuthnAuthenticatorSelection,
+  type BackupCodeSetupData,
+  type RecoveryCodeSetupData,
+  
+  // Verification Result Types
+  type TotpVerificationResult,
+  type BackupCodeResult,
+  type MFSPinVerificationResult,
+  type OtpResult,
+  
+  // MFA Method Priority Types
+  type MfaMethodPriority,
+  
+  // MFA Audit Types
+  type MfaAuditEntry,
+  
+  // MFA Rate Limit Types
+  type MfaRateLimitStatus,
+  
+  // MFA Lockout Types
+  type MfaLockoutStatus,
+  
+  // MFA Configuration Types
+  type MfaConfiguration,
+} from './common/mfa-generator.types';
+
+
+// ============================================================
+// ✅ ENTERPRISE: Notification Types (New)
+// ============================================================
+export {
+  // Core Notification Types
+  type NotificationChannel,
+  type NotificationType,
+  type NotificationStatus,
+  type NotificationCategory,
+  type NotificationTypeInfo,
+  type NotificationStatusTimeline,
+  type Notification,
+  type NotificationRecipient,
+  type NotificationContent,
+  type NotificationTemplateVariables,
+  type NotificationMetadata,
+  type NotificationTracking,
+  type BulkNotificationRequest,
+  type BulkNotificationResult,
+  type NotificationPreferences,
+  type NotificationFilter,
+  type NotificationStatistics,
+  type NotificationTemplate,
+  type NotificationDeliveryReport,
+  type NotificationPreferencesUpdate,
+  type NotificationWebhookPayload,
+  
+  // Type Guards
+  isNotificationChannel,
+  isNotificationType,
+  isNotificationStatus,
+  
+  // Type Aliases
+  type NotificationId,
+  type BulkId,
+  type TemplateId,
+} from './common/notification.types';
+
+
+// ============================================================
+// ✅ ENTERPRISE: Password Hasher Types (Single Export)
+// ============================================================
+export {
+  // Core Hashing Types
+  type HashingAlgorithm,
+  type BcryptOptions,
+  type Argon2idOptions,
+  type ScryptOptions,
+  type Pbkdf2Options,
+  type HasherConfig,
+  type SaltOptions,
+  
+  // Result Types
+  type HashResult,
+  type HashStringResult,
+  type HashBufferResult,
+  type HashVerifyResult,
+  type HashErrorCode,
+  
+  // Performance Types
+  type HashPerformanceMetrics,
+  
+  // Audit Types
+  type HashAuditMetadata,
+  type HashAuditEventType,
+  type HashAuditEvent,
+  
+  // Compliance Types
+  type BBankComplianceRequirements,
+  type BBankComplianceStatus,
+  
+  // Fallback Types
+  type HashFallbackConfig,
+  type HashFallbackStatus,
+  
+  // Environment Types
+  type HashingEnvironmentConfig,
+  type HashingEnvironmentConfigMap,
+  
+  // Service Interface
+  type IPasswordHasher,
+  
+  // Password Policy
+  type PasswordPolicy,
+} from './common/password-hasher.types';
+
+
+// ============================================================
+// ✅ ENTERPRISE: Token Generator Types (New)
+// ============================================================
+export {
+  // Core Token Types
+  type TokenType as TokenGenTokenType,
+  type TokenStatus as TokenGenTokenStatus,
+  type TokenAlgorithm as TokenGenTokenAlgorithm,
+  type TokenFormat as TokenGenTokenFormat,
+  
+  // JWT Types
+  type JWTHeader,
+  type JWTStandardClaims,
+  type VubonJWTClaims,
+  type AccessTokenPayload as TokenGenAccessTokenPayload,
+  type RefreshTokenPayload as TokenGenRefreshTokenPayload,
+  type ResetTokenPayload as TokenGenResetTokenPayload,
+  type MFATokenPayload as TokenGenMFATokenPayload,
+  
+  // API Key Types
+  type APIKeyPayload as TokenGenAPIKeyPayload,
+  
+  // OTP Types
+  type OTPChannel,
+  type OTPPurpose,
+  type OTPConfig as TokenGenOTPConfig,
+  type OTPResult as TokenGenOTPResult,
+  
+  // Backup & Recovery Types
+  type BackupCodeConfig,
+  type BackupCodeResults as TokenGenBackupCodeResult,
+  
+  // Magic Link Types
+  type MagicLinkConfig,
+  type MagicLinkResult,
+  
+  // Session Transfer Types
+  type SessionTransferMethod,
+  type SessionTransferConfig,
+  type SessionTransferResult as TokenGenSessionTransferResult,
+  
+  // Device Trust Types
+  type TrustLevel as TokenGenTrustLevel,
+  type DeviceTrustConfig,
+  type DeviceTrustResult,
+  
+  // WebAuthn Types
+  type AuthenticatorAttachment,
+  type UserVerification,
+  type ResidentKey,
+  type AttestationConveyance,
+  type WebAuthnConfig,
+  type WebAuthnRegistrationRequest as TokenGenWebAuthnRegistrationRequest,
+  type WebAuthnAuthenticationRequest,
+  type WebAuthnRegistrationResponse as TokenGenWebAuthnRegistrationResponse,
+  
+  // Token Generator Types
+  type TokenGeneratorConfig as TokenGenTokenGeneratorConfig,
+  type TokenConfig as TokenGenTokenConfig,
+  type TokenGenerationResult as TokenGenTokenGenerationResult,
+  type TokenValidationResult as TokenGenTokenValidationResult,
+  type TokenRefreshResult as TokenGenTokenRefreshResult,
+  
+  // Environment Types
+  type Environment as TokenGenEnvironment,
+  type EnvironmentTokenConfig as TokenGenEnvironmentTokenConfig,
+  
+  // Bangladesh Bank Types
+  type BdBankComplianceRequirements as TokenGenBBankComplianceRequirements,
+  
+  // Helper Types
+  type TokenGeneratorOptions as TokenGenTokenGeneratorOptions,
+  type TokenGeneratorError as TokenGenTokenGeneratorError,
+} from './common/token-generator.types';
+
+
+// ============================================================
+// ✅ ENTERPRISE: Transaction Manager Types (New)
+// ============================================================
+export {
+  // Core Transaction Types
+  type TransactionContext,
+  type TransactionOptions,
+  type TransactionResult,
+  type TransactionError,
+  type TransactionErrorCode,
+  
+  // Nested Transaction Types
+  type NestedTransactionContext,
+  
+  // Distributed Transaction Types
+  type SagaParticipant,
+  type SagaContext,
+  type TCCTransaction,
+  
+  // Outbox Pattern Types
+  type OutboxMessage,
+  
+  // Compensation Pattern Types
+  type CompensationAction,
+  
+  // Lock Types
+  type LockInfo,
+  
+  // Transaction Metrics Types
+  type TransactionMetrics,
+  type TransactionMetricsByType,
+  
+  // Transaction Audit Types
+  type TransactionAuditEntry,
+  
+  // Transaction Alert Types
+  type TransactionAlert,
+  
+  // Transaction Monitor Types
+  type TransactionMonitorConfig,
+  
+  // Transaction Rollback Types
+  type RollbackInfo,
+  
+  // Transaction Savepoint Types
+  type SavepointInfo,
+  
+  // Bangladesh Bank Transaction Types
+  type BBankTransactionCheck,
+  type BBankTransactionReport,
+  
+  // Utility Types
+  type TransactionIdGenerator,
+  type TransactionFactory,
+  type TransactionCallback,
+  type TransactionInterceptor,
+  type TransactionEventListener,
+  type TransactionEvent,
+} from './common/transaction-manager.types';
 // ============================================================
 // Re-export all types from auth and common
 // ============================================================
