@@ -16,6 +16,19 @@ import validator from 'validator';
 // ✅ FIXED: Correct package name
 import { EMAIL_CONFIG } from '@vubon/shared-constants';
 
+// ✅ NEW: Import domain sets from shared-constants (SSOT)
+import {
+  FREE_EMAIL_DOMAINS_SET,
+  BANGLADESH_COMMERCIAL_DOMAINS_SET,
+  BANGLADESH_EDUCATIONAL_DOMAINS_SET,
+  BANGLADESH_GOVERNMENT_DOMAINS_SET,
+  BANGLADESH_CORPORATE_DOMAINS_SET,
+  INTERNATIONAL_EDUCATIONAL_DOMAINS_SET,
+  INTERNATIONAL_GOVERNMENT_DOMAINS_SET,
+  DISPOSABLE_DOMAINS_SET,
+  EMAIL_VALIDATION_PATTERNS,
+} from '@vubon/shared-constants';
+
 // ==================== Constants (from shared-constants) ====================
 
 // Email regex pattern from constants (with fallback)
@@ -39,7 +52,7 @@ const EDUCATIONAL_DOMAINS = EMAIL_CONFIG?.EDUCATIONAL_DOMAINS || [
   'northsouth.edu', 'bracu.ac.bd', 'aiub.edu', 'iub.edu.bd',
 ];
 
-// ✅ FIXED: Create Sets with explicit string type
+// ✅ NEW: Create Sets with explicit string type (from imported constants)
 const COMMON_EMAIL_DOMAINS_SET = new Set<string>(COMMON_EMAIL_DOMAINS);
 const BANGLADESH_EMAIL_DOMAINS_SET = new Set<string>(BANGLADESH_EMAIL_DOMAINS);
 const EDUCATIONAL_DOMAINS_SET = new Set<string>(EDUCATIONAL_DOMAINS);
@@ -202,7 +215,6 @@ export const getEmailDomain = (email: string): string | null => {
 export const isCommonEmailDomain = (email: string): boolean => {
   const domain = getEmailDomain(email);
   if (!domain) return false;
-  // ✅ FIXED: Using Set with explicit string type
   return COMMON_EMAIL_DOMAINS_SET.has(domain);
 };
 
@@ -215,7 +227,6 @@ export const isCommonEmailDomain = (email: string): boolean => {
 export const isBangladeshEmailDomain = (email: string): boolean => {
   const domain = getEmailDomain(email);
   if (!domain) return false;
-  // ✅ FIXED: Using Set with explicit string type
   return BANGLADESH_EMAIL_DOMAINS_SET.has(domain);
 };
 
@@ -234,7 +245,6 @@ export const isEducationalEmail = (email: string): boolean => {
     return true;
   }
 
-  // ✅ FIXED: Using Set with explicit string type
   return EDUCATIONAL_DOMAINS_SET.has(domain);
 };
 
@@ -292,3 +302,183 @@ export const getEmailComponents = (email: string): EmailComponents | null => {
     isBangladeshDomain: isBangladeshEmailDomain(email),
   };
 };
+
+// ============================================================
+// ✅ NEW: Extended Domain Checks (using imported constants)
+// ============================================================
+
+/**
+ * Check if email is from a disposable/temporary provider
+ * Uses SSOT from shared-constants
+ *
+ * @param email - Email address
+ * @returns True if from disposable provider
+ *
+ * @example
+ * isDisposableEmail('test@tempmail.com') // true
+ */
+export const isDisposableEmail = (email: string): boolean => {
+  const domain = getEmailDomain(email);
+  if (!domain) return false;
+  return DISPOSABLE_DOMAINS_SET.has(domain);
+};
+
+/**
+ * Check if email is from a Bangladesh commercial domain
+ *
+ * @param email - Email address
+ * @returns True if from Bangladesh commercial domain
+ */
+export const isBangladeshCommercialEmail = (email: string): boolean => {
+  const domain = getEmailDomain(email);
+  if (!domain) return false;
+  return BANGLADESH_COMMERCIAL_DOMAINS_SET.has(domain);
+};
+
+/**
+ * Check if email is from a Bangladesh government domain
+ *
+ * @param email - Email address
+ * @returns True if from Bangladesh government domain
+ */
+export const isBangladeshGovernmentEmail = (email: string): boolean => {
+  const domain = getEmailDomain(email);
+  if (!domain) return false;
+  return BANGLADESH_GOVERNMENT_DOMAINS_SET.has(domain);
+};
+
+/**
+ * Check if email is from a Bangladesh corporate domain
+ *
+ * @param email - Email address
+ * @returns True if from Bangladesh corporate domain
+ */
+export const isBangladeshCorporateEmail = (email: string): boolean => {
+  const domain = getEmailDomain(email);
+  if (!domain) return false;
+  return BANGLADESH_CORPORATE_DOMAINS_SET.has(domain);
+};
+
+/**
+ * Check if email is from an international educational domain
+ *
+ * @param email - Email address
+ * @returns True if from international educational domain
+ */
+export const isInternationalEducationalEmail = (email: string): boolean => {
+  const domain = getEmailDomain(email);
+  if (!domain) return false;
+  return INTERNATIONAL_EDUCATIONAL_DOMAINS_SET.has(domain);
+};
+
+/**
+ * Check if email is from an international government domain
+ *
+ * @param email - Email address
+ * @returns True if from international government domain
+ */
+export const isInternationalGovernmentEmail = (email: string): boolean => {
+  const domain = getEmailDomain(email);
+  if (!domain) return false;
+  return INTERNATIONAL_GOVERNMENT_DOMAINS_SET.has(domain);
+};
+
+/**
+ * Get detailed email category with priority
+ * Uses all domain sets from shared-constants
+ *
+ * @param email - Email address
+ * @returns Email category with priority order
+ */
+export const getEmailCategory = (email: string): {
+  category: string;
+  priority: number;
+  isDisposable: boolean;
+  isFree: boolean;
+  isBangladesh: boolean;
+  isEducational: boolean;
+  isGovernment: boolean;
+  isCorporate: boolean;
+} => {
+  const domain = getEmailDomain(email);
+  if (!domain) {
+    return {
+      category: 'unknown',
+      priority: 0,
+      isDisposable: false,
+      isFree: false,
+      isBangladesh: false,
+      isEducational: false,
+      isGovernment: false,
+      isCorporate: false,
+    };
+  }
+
+  const isDisposable = DISPOSABLE_DOMAINS_SET.has(domain);
+  const isFree = FREE_EMAIL_DOMAINS_SET.has(domain);
+  const isBangladeshCommercial = BANGLADESH_COMMERCIAL_DOMAINS_SET.has(domain);
+  const isBangladeshEducational = BANGLADESH_EDUCATIONAL_DOMAINS_SET.has(domain);
+  const isBangladeshGovernment = BANGLADESH_GOVERNMENT_DOMAINS_SET.has(domain);
+  const isBangladeshCorporate = BANGLADESH_CORPORATE_DOMAINS_SET.has(domain);
+  const isInternationalEducational = INTERNATIONAL_EDUCATIONAL_DOMAINS_SET.has(domain);
+  const isInternationalGovernment = INTERNATIONAL_GOVERNMENT_DOMAINS_SET.has(domain);
+
+  const isBangladesh = isBangladeshCommercial || isBangladeshEducational || isBangladeshGovernment || isBangladeshCorporate;
+  const isEducational = isBangladeshEducational || isInternationalEducational;
+  const isGovernment = isBangladeshGovernment || isInternationalGovernment;
+  const isCorporate = isBangladeshCorporate;
+
+  // Determine category with priority
+  let category = 'unknown';
+  let priority = 0;
+
+  if (isDisposable) {
+    category = 'disposable';
+    priority = 10;
+  } else if (isBangladeshGovernment) {
+    category = 'bangladesh_government';
+    priority = 9;
+  } else if (isBangladeshEducational) {
+    category = 'bangladesh_educational';
+    priority = 8;
+  } else if (isBangladeshCorporate) {
+    category = 'bangladesh_corporate';
+    priority = 7;
+  } else if (isBangladeshCommercial) {
+    category = 'bangladesh_commercial';
+    priority = 6;
+  } else if (isInternationalGovernment) {
+    category = 'international_government';
+    priority = 5;
+  } else if (isInternationalEducational) {
+    category = 'international_educational';
+    priority = 4;
+  } else if (isFree) {
+    category = 'free';
+    priority = 3;
+  } else if (isBangladesh) {
+    category = 'bangladesh';
+    priority = 2;
+  } else if (domain) {
+    category = 'common';
+    priority = 1;
+  }
+
+  return {
+    category,
+    priority,
+    isDisposable,
+    isFree,
+    isBangladesh,
+    isEducational,
+    isGovernment,
+    isCorporate,
+  };
+};
+
+// ============================================================
+// Type Exports
+// ============================================================
+
+// All functions and types are already exported above.
+// No additional exports needed.
