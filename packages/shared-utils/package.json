@@ -176,7 +176,5 @@
   },
   "peerDependencies": {
     "@vubon/shared-constants": "file:../shared-constants",
-    "@vubon/shared-types": "file:../shared-types",
-    "@vubon/shared-schemas": "file:../shared-schemas"
   }
 }
