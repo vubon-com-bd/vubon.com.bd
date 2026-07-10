@@ -1130,7 +1130,41 @@ export type {
 } from './security.constants';
 
 
+// ============================================================
+// Email Constants (New)
+// ============================================================
+export {
+  DISPOSABLE_DOMAINS,
+  DISPOSABLE_DOMAINS_SET,
+  FREE_EMAIL_DOMAINS,
+  FREE_EMAIL_DOMAINS_SET,
+  BANGLADESH_COMMERCIAL_DOMAINS,
+  BANGLADESH_COMMERCIAL_DOMAINS_SET,
+  BANGLADESH_EDUCATIONAL_DOMAINS,
+  BANGLADESH_EDUCATIONAL_DOMAINS_SET,
+  BANGLADESH_GOVERNMENT_DOMAINS,
+  BANGLADESH_GOVERNMENT_DOMAINS_SET,
+  BANGLADESH_CORPORATE_DOMAINS,
+  BANGLADESH_CORPORATE_DOMAINS_SET,
+  INTERNATIONAL_EDUCATIONAL_DOMAINS,
+  INTERNATIONAL_EDUCATIONAL_DOMAINS_SET,
+  INTERNATIONAL_GOVERNMENT_DOMAINS,
+  INTERNATIONAL_GOVERNMENT_DOMAINS_SET,
+  EMAIL_VALIDATION_PATTERNS,
+  EMAIL_CATEGORY,
+  EMAIL_CATEGORY_PRIORITY,
+  EMAIL_CONFIG,
+  ALL_EMAIL_DOMAINS,
+} from './email.constants';
 
+export type {
+  EmailDomainCategory,
+  EmailValidationPattern,
+  EmailValidationPatternKey,
+  EmailConfig,
+  EmailDomainCategoryType,
+  EmailValidationPatternType,
+} from './email.constants';
 
 // ============================================================
 // Type-safe Configuration Helpers (Re-exported from respective files)
