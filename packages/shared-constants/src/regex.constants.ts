@@ -40,6 +40,23 @@ export const REGEX_EMAIL = {
 
 export type RegexEmail = ValueOf<typeof REGEX_EMAIL>;
 
+
+// JWT Pattern for validation
+export const JWT_PATTERN = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
+
+// Token types
+export const TOKEN_TYPE = {
+  ACCESS: 'access',
+  REFRESH: 'refresh',
+  RESET: 'reset',
+  VERIFICATION: 'verification',
+  API_KEY: 'api_key',
+  MFA: 'mfa',
+} as const;
+
+// IP patterns
+export const IPV4_PATTERN = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+export const IPV6_PATTERN = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
 // ============================================================
 // Password Validation Regex
 // ============================================================
@@ -302,6 +319,7 @@ export const REGEX_USERNAME = {
 
 export type RegexUsername = ValueOf<typeof REGEX_USERNAME>;
 
+
 // ============================================================
 // Product SKU Validation
 // ============================================================
@@ -532,6 +550,56 @@ export const REGEX_COMPANY = {
 } as const;
 
 export type RegexCompany = ValueOf<typeof REGEX_COMPANY>;
+
+
+
+// ============================================================
+// Bangladesh Specific Patterns (For Password Validation)
+// ============================================================
+
+/**
+ * Bangladesh specific patterns to avoid in passwords
+ * Used for password validation to prevent common Bangladesh-related words
+ */
+export const BANGLADESH_PATTERNS = [
+  'bangladesh',
+  'dhaka',
+  'chittagong',
+  'rajshahi',
+  'khulna',
+  'barishal',
+  'sylhet',
+  'rangpur',
+  'mymensingh',
+  'bangla',
+  'bd',
+  'vubon',
+  'grameenphone',
+  'robi',
+  'banglalink',
+  'teletalk',
+  'bKash',
+  'nagad',
+  'rocket',
+  'bangladeshi',
+  'shopping',
+  'ecommerce',
+  'desh',
+  'bangabandhu',
+  'sheikh',
+  'hasina',
+  'zayed',
+  'mirpur',
+  'gulshan',
+  'banani',
+  'motijheel',
+  'dhanmondi',
+] as const;
+
+// ✅ Type export for BANGLADESH_PATTERNS
+export type BangladeshPatterns = typeof BANGLADESH_PATTERNS;
+
+
 
 // ============================================================
 // Type Exports
