@@ -29,7 +29,39 @@
  */
 
 import { z } from 'zod';
-
+// ============================================================
+// Imports from shared-constants (SSOT)
+// ============================================================
+import {
+  // Disposable email detection
+  DISPOSABLE_DOMAINS,
+  DISPOSABLE_DOMAINS_SET,
+  
+  // Free email providers
+  FREE_EMAIL_DOMAINS,
+  FREE_EMAIL_DOMAINS_SET,
+  
+  // Bangladesh specific
+  BANGLADESH_COMMERCIAL_DOMAINS,
+  BANGLADESH_COMMERCIAL_DOMAINS_SET,
+  BANGLADESH_EDUCATIONAL_DOMAINS,
+  BANGLADESH_EDUCATIONAL_DOMAINS_SET,
+  BANGLADESH_GOVERNMENT_DOMAINS,
+  BANGLADESH_GOVERNMENT_DOMAINS_SET,
+  BANGLADESH_CORPORATE_DOMAINS,
+  BANGLADESH_CORPORATE_DOMAINS_SET,
+  
+  // International domains
+  INTERNATIONAL_EDUCATIONAL_DOMAINS,
+  INTERNATIONAL_EDUCATIONAL_DOMAINS_SET,
+  INTERNATIONAL_GOVERNMENT_DOMAINS,
+  INTERNATIONAL_GOVERNMENT_DOMAINS_SET,
+  
+  // Patterns and utilities
+  EMAIL_VALIDATION_PATTERNS,
+  EMAIL_CATEGORY,
+  EMAIL_CONFIG,
+} from '@vubon/shared-constants';
 // ============================================================
 // Constants
 // ============================================================
