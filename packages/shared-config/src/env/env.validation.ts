@@ -15,10 +15,20 @@
 import dotenv from 'dotenv';
 import dotenvExpand from 'dotenv-expand';
 import { EnvSchema, type Env } from './env.schema';
+// ✅ NEW: Import rate limit constants from shared-constants (SSOT)
+import { RATE_LIMIT_CONFIG } from '@vubon/shared-constants';
 
 // ==================== Constants ====================
 
 const ENV_FILE_PATHS = ['.env', '.env.local', '.env.production', '.env.development'];
+
+// ✅ NEW: Derive default values from shared-constants instead of hardcoding
+// This eliminates duplication and ensures SSOT
+const DEFAULT_GLOBAL_LIMIT = RATE_LIMIT_CONFIG.API.PUBLIC.max;
+const DEFAULT_GLOBAL_WINDOW = RATE_LIMIT_CONFIG.API.PUBLIC.windowMs / 1000;
+const DEFAULT_LOGIN_LIMIT = RATE_LIMIT_CONFIG.AUTH.LOGIN.max;
+const DEFAULT_LOGIN_WINDOW = RATE_LIMIT_CONFIG.AUTH.LOGIN.windowMs / 1000;
+// ... অন্যান্য প্রয়োজনীয় ডিফল্ট মান
 
 // ==================== Load Environment ====================
 
@@ -167,7 +177,6 @@ export const isFeatureEnabled = (feature: keyof Env): boolean => {
  * Get CORS origins as array
  */
 export const getCorsOrigins = (): string[] => {
-  // ✅ FIXED: CORS_ORIGINS is already string[] from Zod transform
   const origins = env.CORS_ORIGINS;
   if (origins && Array.isArray(origins)) {
     return origins;
@@ -192,3 +201,11 @@ export const isDebugMode = (): boolean => {
 // ==================== Type Exports ====================
 
 export type ValidatedEnv = Env;
+
+// ✅ NEW: Re-export rate limit defaults (optional, for other modules)
+export {
+  DEFAULT_GLOBAL_LIMIT,
+  DEFAULT_GLOBAL_WINDOW,
+  DEFAULT_LOGIN_LIMIT,
+  DEFAULT_LOGIN_WINDOW,
+};
