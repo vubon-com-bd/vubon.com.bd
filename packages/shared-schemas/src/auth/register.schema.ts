@@ -387,6 +387,77 @@ export const RegisterErrorSchema = z
   .strict()
   .brand('RegisterError');
 
+  // ============================================================
+// Username Registration Schema (if not already present)
+// ============================================================
+export const UsernameRegisterSchema = z
+  .object({
+    username: UsernameSchema,
+    password: UserStrongPasswordSchema,
+    confirmPassword: UserPasswordSchema,
+    acceptTerms: AcceptTermsSchema,
+    acceptPrivacy: AcceptPrivacySchema,
+    marketingConsent: MarketingConsentSchema,
+    referrerCode: ReferralCodeSchema,
+  })
+  .strict()
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  })
+  .brand('UsernameRegisterRequest');
+
+// ============================================================
+// Registration Method Schema (for method-specific validation)
+// ============================================================
+export const RegistrationMethodSchema = z.enum([
+  'email',
+  'phone', 
+  'social',
+  'username',
+]);
+
+// ============================================================
+// Registration Metadata Schema
+// ============================================================
+export const RegistrationMetadataSchema = z
+  .object({
+    source: z.enum(['web', 'mobile_app', 'admin', 'social', 'api', 'vendor_platform']).optional(),
+    ipAddress: z.string().ip().optional(),
+    userAgent: z.string().max(500).optional(),
+    deviceId: z.string().max(255).optional(),
+    timestamp: z.date().optional(),
+    referrer: z.string().max(500).optional(),
+    campaign: z.string().max(100).optional(),
+    district: z.string().max(100).optional(),
+    upazila: z.string().max(100).optional(),
+    networkType: z.enum(['2g', '3g', '4g', '5g', 'wifi', 'unknown']).optional(),
+  })
+  .strict()
+  .brand('RegistrationMetadata');
+
+// ============================================================
+// Registration Rate Limit Schema
+// ============================================================
+export const RegistrationRateLimitSchema = z
+  .object({
+    maxAttemptsPerHour: z.number().int().positive().default(3),
+    maxAttemptsPerIPPerHour: z.number().int().positive().default(10),
+    cooldownSeconds: z.number().int().positive().default(60),
+    resendCooldownSeconds: z.number().int().positive().default(30),
+    maxResendAttempts: z.number().int().positive().default(3),
+  })
+  .strict()
+  .brand('RegistrationRateLimit');
+
+// ============================================================
+// Type exports for new schemas
+// ============================================================
+export type UsernameRegisterRequest = z.infer<typeof UsernameRegisterSchema>;
+export type RegistrationMethod = z.infer<typeof RegistrationMethodSchema>;
+export type RegistrationMetadata = z.infer<typeof RegistrationMetadataSchema>;
+export type RegistrationRateLimit = z.infer<typeof RegistrationRateLimitSchema>;
+
 // ==================== Type Exports ====================
 
 export type UserEmail = z.infer<typeof UserEmailSchema>;
