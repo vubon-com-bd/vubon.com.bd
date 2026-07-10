@@ -374,3 +374,65 @@ export const timingSafeEqual = (a: string, b: string): boolean => {
   }
 };
 
+
+// ============================================================
+// Password Entropy Calculation
+// ============================================================
+
+/**
+ * Character set sizes for entropy calculation
+ */
+const CHAR_SET_SIZES = {
+  LOWERCASE: 26,
+  UPPERCASE: 26,
+  NUMBERS: 10,
+  SPECIAL: 33,
+  UNICODE: 100000,
+} as const;
+
+/**
+ * Calculate password entropy in bits
+ * Entropy = log2(character_set_size) * password_length
+ * 
+ * @param password - Password to analyze
+ * @returns Entropy in bits
+ * 
+ * @example
+ * calculateEntropy('password') // ~37 bits
+ * calculateEntropy('MyStr0ng!P@ssw0rd') // ~85 bits
+ */
+export const calculateEntropy = (password: string): number => {
+  if (!password || typeof password !== 'string') {
+    return 0;
+  }
+
+  const hasLowercase = /[a-z]/.test(password);
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasNumbers = /[0-9]/.test(password);
+  const hasSpecial = /[^A-Za-z0-9]/.test(password);
+  const hasUnicode = /[^\x00-\x7F]/.test(password);
+
+  let charSetSize = 0;
+
+  if (hasLowercase) charSetSize += CHAR_SET_SIZES.LOWERCASE;
+  if (hasUppercase) charSetSize += CHAR_SET_SIZES.UPPERCASE;
+  if (hasNumbers) charSetSize += CHAR_SET_SIZES.NUMBERS;
+  if (hasSpecial) charSetSize += CHAR_SET_SIZES.SPECIAL;
+  if (hasUnicode) charSetSize += CHAR_SET_SIZES.UNICODE;
+
+  // If no character set detected, use minimal
+  if (charSetSize === 0) {
+    charSetSize = 1;
+  }
+
+  const entropy = Math.log2(charSetSize) * password.length;
+  return Math.round(entropy * 100) / 100;
+};
+
+// ✅ Export type for entropy result
+export interface EntropyResult {
+  bits: number;
+  strength: 'very_weak' | 'weak' | 'medium' | 'strong' | 'very_strong';
+  estimatedCrackTime: string;
+}
+
