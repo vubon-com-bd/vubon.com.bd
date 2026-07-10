@@ -463,6 +463,66 @@ export const AUTH_RATE_LIMITS = {
   PER_USER_WINDOW: 60,
 } as const;
 
+
+// ============================================================
+// Registration Methods (Bangladesh specific)
+// ============================================================
+export const REGISTRATION_METHODS = {
+  EMAIL: 'email',
+  PHONE: 'phone',
+  SOCIAL: 'social',
+  USERNAME: 'username',
+  OTP: 'otp',
+  VENDOR: 'vendor',
+} as const;
+
+// ============================================================
+// Registration Rate Limits
+// ============================================================
+export const REGISTRATION_RATE_LIMITS = {
+  MAX_ATTEMPTS_PER_IP: 10,
+  MAX_ATTEMPTS_PER_EMAIL: 3,
+  MAX_ATTEMPTS_PER_PHONE: 3,
+  WINDOW_SECONDS: 3600, // 1 hour
+  COOLDOWN_SECONDS: 300, // 5 minutes
+} as const;
+
+// ============================================================
+// Referral Configuration
+// ============================================================
+export const REFERRAL_CONFIG = {
+  CODE_LENGTH: 8,
+  MAX_LENGTH: 50,
+  PATTERN: /^[A-Za-z0-9]{4,20}$/,
+  EXPIRY_DAYS: 30,
+  MAX_USES_PER_REFERRAL: 10,
+} as const;
+
+// ============================================================
+// Age Requirements (Bangladesh specific)
+// ============================================================
+export const AGE_REQUIREMENTS = {
+  MIN_AGE_CUSTOMER: 13,
+  MIN_AGE_VENDOR: 18,
+  MAX_AGE: 120,
+  VERIFICATION_REQUIRED_FOR_VENDOR: true,
+} as const;
+
+// ============================================================
+// Registration Sources
+// ============================================================
+export const REGISTRATION_SOURCES = {
+  WEB: 'web',
+  MOBILE_APP: 'mobile_app',
+  ADMIN: 'admin',
+  SOCIAL: 'social',
+  API: 'api',
+  VENDOR_PLATFORM: 'vendor_platform',
+} as const;
+
+// auth.constants.ts এর শেষে
+export type RegistrationMethod = typeof REGISTRATION_METHODS[keyof typeof REGISTRATION_METHODS];
+export type RegistrationSource = typeof REGISTRATION_SOURCES[keyof typeof REGISTRATION_SOURCES];
 // ============================================================
 // Type exports
 // ============================================================
