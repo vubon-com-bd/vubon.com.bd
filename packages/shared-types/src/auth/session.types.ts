@@ -412,3 +412,124 @@ export interface PublicDeviceWarning {
   readonly clearDataOnLogoutMessage: string;
   readonly autoLogoutMinutes: number;
 }
+
+// packages/shared-types/src/auth/id.types.ts
+
+/**
+ * ID Types - Branded types for domain IDs
+ * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
+ * 
+ * @module shared-types/auth/id.types
+ * 
+ * @description
+ * Branded type aliases for domain IDs to prevent primitive obsession.
+ * These are compile-time only - they don't exist at runtime.
+ */
+
+// ============================================================
+// Branded ID Types
+// ============================================================
+
+/**
+ * User ID - UUID format
+ */
+export type UserId = string & { __brand: 'UserId' };
+
+/**
+ * Session ID - UUID format
+ */
+export type SessionId = string & { __brand: 'SessionId' };
+
+/**
+ * Device ID - UUID or fingerprint format
+ */
+export type DeviceId = string & { __brand: 'DeviceId' };
+
+/**
+ * MFA Method ID - UUID format
+ */
+export type MFAMethodId = string & { __brand: 'MFAMethodId' };
+
+/**
+ * Token ID - UUID format
+ */
+export type TokenId = string & { __brand: 'TokenId' };
+
+/**
+ * Role ID - UUID format
+ */
+export type RoleId = string & { __brand: 'RoleId' };
+
+/**
+ * Permission ID - UUID format
+ */
+export type PermissionId = string & { __brand: 'PermissionId' };
+
+/**
+ * Verification ID - UUID format
+ */
+export type VerificationId = string & { __brand: 'VerificationId' };
+
+/**
+ * Account Lock ID - UUID format
+ */
+export type AccountLockId = string & { __brand: 'AccountLockId' };
+
+/**
+ * Login Attempt ID - UUID format
+ */
+export type LoginAttemptId = string & { __brand: 'LoginAttemptId' };
+
+/**
+ * Refresh Token ID - UUID format
+ */
+export type RefreshTokenId = string & { __brand: 'RefreshTokenId' };
+
+/**
+ * Password History ID - UUID format
+ */
+export type PasswordHistoryId = string & { __brand: 'PasswordHistoryId' };
+
+/**
+ * Password Reset ID - UUID format
+ */
+export type PasswordResetId = string & { __brand: 'PasswordResetId' };
+
+/**
+ * Social Account ID - UUID format
+ */
+export type SocialAccountId = string & { __brand: 'SocialAccountId' };
+
+/**
+ * Email Verification ID - UUID format
+ */
+export type EmailVerificationId = string & { __brand: 'EmailVerificationId' };
+
+// ============================================================
+// Utility Types
+// ============================================================
+
+/**
+ * Type guard to check if a string is a UserId
+ */
+export function isUserId(value: string): value is UserId {
+  // UUID v4 validation
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
+/**
+ * Type guard to check if a string is a SessionId
+ */
+export function isSessionId(value: string): value is SessionId {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+}
+
+/**
+ * Type guard to check if a string is a DeviceId
+ */
+export function isDeviceId(value: string): value is DeviceId {
+  // Device IDs can be UUID or fingerprint format
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value) ||
+         /^[a-zA-Z0-9_\-]{16,}$/.test(value);
+}
+
