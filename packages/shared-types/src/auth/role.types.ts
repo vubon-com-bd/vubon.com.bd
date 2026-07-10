@@ -441,3 +441,14 @@ export interface AvailableRole {
   readonly disabled?: boolean;
   readonly disabledReason?: string;
 }
+
+export type UserRole = 
+  | 'customer'
+  | 'premium_customer'
+  | 'seller'
+  | 'vendor'
+  | 'moderator'
+  | 'admin'
+  | 'super_admin'
+  | 'support'
+  | 'delivery_agent';
