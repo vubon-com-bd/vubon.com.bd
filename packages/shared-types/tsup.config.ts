@@ -19,7 +19,7 @@ export default defineConfig({
   'auth/verification.types': 'src/auth/verification.types.ts',
   'auth/account-lock.types': 'src/auth/account-lock.types.ts',
   'auth/login-attempt.types': 'src/auth/login-attempt.types.ts',
-  'auth/reset-method.types': 'src/auth/reset-method.types.ts',        // ✅ যোগ করুন
+  'auth/reset-method.types': 'src/auth/reset-method.types.ts',        
   
   // Common individual type files
   'common/api.types': 'src/common/api.types.ts',
