@@ -90,7 +90,7 @@ export default defineConfig({
     'ua-parser-js',
     'validator',
     // Peer dependencies
-    '@vubon/auth-constants',
+    '@vubon/shared-constants',
   ],
   
   // Platform - neutral (works in Node.js)
