@@ -13,7 +13,7 @@
  */
 
 import { env } from '../env/env.validation';
-
+import { RATE_LIMIT_CONFIG } from '@vubon/shared-constants';
 // ==================== Constants ====================
 
 // Time constants (in milliseconds)
@@ -24,6 +24,12 @@ const FIFTEEN_MINUTES = 15 * ONE_MINUTE;
 // const THIRTY_MINUTES = 30 * ONE_MINUTE;
 const ONE_HOUR = 60 * ONE_MINUTE;
 // const ONE_DAY = 24 * ONE_HOUR;
+
+// ✅ NEW: Get default values from shared-constants (SSOT)
+const DEFAULT_GLOBAL_LIMIT = RATE_LIMIT_CONFIG.API.PUBLIC.max;
+const DEFAULT_GLOBAL_WINDOW = RATE_LIMIT_CONFIG.API.PUBLIC.windowMs / 1000;
+const DEFAULT_LOGIN_LIMIT = RATE_LIMIT_CONFIG.AUTH.LOGIN.max;
+const DEFAULT_LOGIN_WINDOW = RATE_LIMIT_CONFIG.AUTH.LOGIN.windowMs / 1000;
 
 // Default rate limits from environment
 const DEFAULT_GLOBAL_LIMIT = env.RATE_LIMIT_MAX_REQUESTS || 100;
