@@ -238,7 +238,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vubon/auth-constants.git"
+    "url": "git+https://github.com/vubon-com-bd/shared-constants.git"
   },
   "bugs": {
     "url": "https://github.com/vubon/auth-constants/issues"
