@@ -71,7 +71,6 @@ export {
   // Errors
   LoginErrorSchema,
   // Additional
-
   MagicLinkRequestSchema,
   MagicLinkVerifySchema,
 } from './login.schema';
@@ -246,7 +245,9 @@ export {
   SocialAuthErrorSchema,
 } from './social.schema';
 
-
+// ============================================================
+// Email Schemas
+// ============================================================
 export {
   // Core Email Schema
   EmailSchema,
@@ -335,4 +336,194 @@ export {
   type PhoneError,
   type BDMobilePrefix,
   type BDOperator,
+} from './phone.schema';
+
+// ============================================================
+// Core Types (Re-exported from schemas)
+// ============================================================
+export type {
+  // From user.schema
+  UserId,
+  UserEmail,
+  UserPhone,
+  UserPhoneRequired,
+  UserFirstName,
+  UserLastName,
+  UserDisplayName,
+  UserAvatar,
+  UserPassword,
+  UserStrongPassword,
+  UserStatus,
+  UserVerificationStatus,
+  UserRole,
+  UserTier,
+  UserMetadata,
+  User,
+  CreateUserRequest,
+  UpdateUserRequest,
+  UpdateUserProfileRequest,
+  UpdateUserRoleRequest,
+  UpdateUserStatusRequest,
+  UserFilters,
+  UserResponse,
+  UserProfileResponse,
+  UserListResponse,
+  UserActivitySummary,
+  UserPreferences,
+  UserError,
+  Password,
+} from './user.schema';
+
+export type {
+  // From mfa.schema
+  MFAProvider,
+  MFAVerificationType,
+  MFAStatus,
+  OTPCode,
+  BackupCode,
+  MFAMethodId,
+  MFAChallengeId,
+  TOTPSecret,
+  WebAuthnChallenge,
+  MFASetupRequest,
+  MFAVerifyRequest,
+  MFARecoveryRequest,
+  MFAChallengeRequest,
+  DisableMFARequest,
+  TOTPSetupRequest,
+  WebAuthnRegistrationRequest,
+  WebAuthnAuthRequest,
+  WhatsAppMFARequest,
+  MFSMFARequest,
+  MFASetupResponse,
+  MFAChallengeResponse,
+  MFAVerifyResponse,
+  MFARecoveryResponse,
+  MFAMethod,
+  MFAStatusResponse,
+  TOTPSetupResponse,
+  WebAuthnRegistrationResponse,
+  WebAuthnAuthResponse,
+} from './mfa.schema';
+
+export type {
+  // From verification.schema
+  VerificationType,
+  VerificationStatus,
+  VerificationMethod,
+  VerificationToken,
+  VerificationCode,
+  SessionId,
+  SendVerificationRequest,
+  VerifyEmailRequest,
+  VerifyCodeRequest,
+  ResendVerificationRequest,
+  MagicLinkRequest,
+  MagicLinkVerifyRequest,
+  EmailChangeRequest,
+  EmailChangeVerifyRequest,
+  PhoneChangeRequest,
+  PhoneChangeVerifyRequest,
+  SendOTPRequest,
+  ResendOTPRequest,
+  WhatsAppVerificationRequest,
+  VoiceVerificationRequest,
+  VerificationResponse,
+  ResendVerificationResponse,
+  VerificationStatusResponse,
+  MagicLinkResponse,
+  MagicLinkVerifyResponse,
+  SendOTPResponse,
+  EmailChangeResponse,
+  PhoneChangeResponse,
+  WhatsAppVerificationResponse,
+  VoiceVerificationResponse,
+  VerificationError,
+} from './verification.schema';
+
+export type {
+  // From password-reset.schema
+  ResetEmail,
+  ResetPhone,
+  ResetPassword,
+  ResetPasswordStrength,
+  ResetVerificationToken,
+  ResetUserId,
+  ResetSessionId,
+  ResetCaptchaToken,
+  ForgotPasswordRequest,
+  ForgotPasswordPhoneRequest,
+  ResetPasswordRequest,
+  StrongResetPasswordRequest,
+  ValidateResetTokenRequest,
+  RequestResetOTPRequest,
+  VerifyResetOTPRequest,
+  ForgotPasswordResponse,
+  ForgotPasswordPhoneResponse,
+  ResetPasswordResponse,
+  TokenValidationResponse,
+  RequestResetOTPResponse,
+  VerifyResetOTPResponse,
+  PasswordResetError,
+} from './password-reset.schema';
+
+export type {
+  // From social.schema
+  SocialProvider,
+  OAuthState,
+  OAuthCode,
+  OAuthScope,
+  RedirectUri,
+  PKCECodeVerifier,
+  PKCECodeChallenge,
+  GoogleOAuthData,
+  FacebookOAuthData,
+  GitHubOAuthData,
+  AppleOAuthData,
+  WhatsAppOAuthData,
+  BkashOAuthData,
+  NagadOAuthData,
+  RocketOAuthData,
+  SocialLoginRequest,
+  SocialLoginResponse,
+  SocialCallbackRequest,
+  SocialConnectRequest,
+  SocialDisconnectRequest,
+  SocialOTPRequest,
+  SocialOTPVerificationRequest,
+  MFSAuthRequest,
+  SocialUserInfo,
+  SocialCallbackResponse,
+  SocialAccount,
+  SocialAccountsResponse,
+  SocialOTPResponse,
+  MFSAuthResponse,
+  SocialAuthError,
+} from './social.schema';
+
+export type {
+  // From email.schema
+  EmailCategory,
+  EmailBranded,
+} from './email.schema';
+
+export type {
+  // From phone.schema
+  Phone as PhoneType,
+  LenientPhone,
+  PhoneWithOperator,
+  PhoneWithType,
+  PhoneVerificationRequest,
+  PhoneVerificationResponse,
+  PhoneChangeRequest,
+  PhoneChangeResponse,
+  PhoneList,
+  PhoneListWithOperator,
+  MFAPhone,
+  WhatsAppPhone,
+  VoiceCallPhone,
+  PhoneComponents,
+  PhoneError,
+  BDMobilePrefix,
+  BDOperator,
 } from './phone.schema';
