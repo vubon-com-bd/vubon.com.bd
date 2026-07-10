@@ -482,6 +482,92 @@ export const CACHE_NAMESPACES = {
   ANALYTICS: 'analytics',
 } as const;
 
+// packages/shared-constants/src/cache.constants.ts
+
+// ============================================================
+// Cache Configuration (Enterprise Grade)
+// ============================================================
+
+/**
+ * Master cache configuration object.
+ * Centralized settings for cache behavior across the application.
+ */
+export const CACHE_CONFIG = {
+  /** Default Time-To-Live for cache entries in seconds */
+  DEFAULT_TTL: 3600, // 1 hour
+  /** Maximum TTL allowed for any cache entry */
+  MAX_TTL: 86400, // 24 hours
+  /** Minimum TTL allowed for any cache entry */
+  MIN_TTL: 60, // 1 minute
+  /** Whether cache is enabled by default */
+  ENABLED: true,
+  /** Whether to use compression for large cache values */
+  COMPRESSION_ENABLED: true,
+  /** Minimum value size in bytes to trigger compression */
+  COMPRESSION_THRESHOLD: 1024, // 1KB
+  /** Maximum number of items in a cache batch */
+  BATCH_SIZE: 100,
+  /** Default cache namespace (for multi-tenancy) */
+  DEFAULT_NAMESPACE: 'vubon',
+} as const;
+
+/**
+ * Cache key prefix for different modules.
+ * Used to create namespaced cache keys and avoid collisions.
+ */
+export const CACHE_KEY_PREFIX = {
+  /** Authentication module */
+  AUTH: 'auth',
+  /** User module */
+  USER: 'user',
+  /** Session module */
+  SESSION: 'session',
+  /** MFA module */
+  MFA: 'mfa',
+  /** Product module */
+  PRODUCT: 'product',
+  /** Order module */
+  ORDER: 'order',
+  /** Payment module */
+  PAYMENT: 'payment',
+  /** Inventory module */
+  INVENTORY: 'inventory',
+  /** Configuration module */
+  CONFIG: 'config',
+  /** API response cache */
+  API_RESPONSE: 'api',
+  /** Rate limiting cache */
+  RATE_LIMIT: 'ratelimit',
+  /** Lock cache (for distributed locking) */
+  LOCK: 'lock',
+  /** Queue module */
+  QUEUE: 'queue',
+  /** SEO and sitemap cache */
+  SEO: 'seo',
+  /** Translation/Internationalization cache */
+  I18N: 'i18n',
+} as const;
+
+/**
+ * Current version of the cache schema.
+ * Increment this to invalidate all cache entries (for major changes).
+ */
+export const CACHE_VERSION = 'v2';
+
+/**
+ * Default Time-To-Live for cache entries in seconds.
+ * Used as a fallback when no specific TTL is provided.
+ */
+export const CACHE_DEFAULT_TTL = CACHE_CONFIG.DEFAULT_TTL;
+
+/**
+ * Separator character used to build hierarchical cache keys.
+ * Example: `auth:user:123:profile`
+ */
+export const CACHE_KEY_SEPARATOR = ':';
+
+
+
 export type CacheNamespace = ValueOf<typeof CACHE_NAMESPACES>;
 
 // ============================================================
