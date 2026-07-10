@@ -51,14 +51,6 @@ import {
   ENV_CONFIG
 } from '@vubon/shared-constants';
 
-// Utilities from shared-utils
-import { 
-  sleep,
-  isDevelopment,
-  isProduction,
-  logger
-} from '@vubon/shared-utils';
-
 // Types from shared-types
 import type { 
   ValueObjectMetadata as SharedValueObjectMetadata,
