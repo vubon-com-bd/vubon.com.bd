@@ -69,6 +69,24 @@ export const SESSION_TTL = {
   },
 } as const;
 
+
+
+/**
+ * Session Constants - Extended for Application Layer
+ */
+
+// ============================================================
+// Session Constants (New - for application layer)
+// ============================================================
+export const SESSION_CONSTANTS = {
+  MAX_CONCURRENT_SESSIONS: 5,
+  SESSION_IDLE_TIMEOUT: 1800, // 30 minutes in seconds
+  SESSION_ABSOLUTE_TIMEOUT: 86400, // 24 hours in seconds
+  SESSION_EXTENSION_GRACE_PERIOD: 300, // 5 minutes
+  MAX_SESSION_EXTENSIONS: 5,
+} as const;
+
+export type SessionConstants = typeof SESSION_CONSTANTS;
 // ============================================================
 // Session Idle Timeout (in seconds)
 // ============================================================
@@ -601,9 +619,359 @@ export const SESSION_METRICS = {
   DASHBOARD_REFRESH_INTERVAL: 30,
 } as const;
 
+
+// ============================================================
+// Refresh Token Configuration
+// ============================================================
+export const REFRESH_TOKEN_CONFIG = {
+  /** Expiry days for refresh token (7 days default) */
+  EXPIRY_DAYS: 7,
+  
+  /** Maximum absolute lifetime days (30 days) */
+  MAX_ABSOLUTE_LIFETIME_DAYS: 30,
+  
+  /** Maximum rotation count (5 rotations) */
+  MAX_ROTATION_COUNT: 5,
+  
+  /** Session link timeout minutes (5 minutes) */
+  SESSION_LINK_TIMEOUT_MINUTES: 5,
+  
+  /** QR code expiry minutes (5 minutes) */
+  QR_CODE_EXPIRY_MINUTES: 5,
+  
+  /** QR code token length (16 characters) */
+  QR_CODE_TOKEN_LENGTH: 16,
+  
+  /** Enable QR code support (Bangladesh specific - feature phones) */
+  ENABLE_QR_CODE: true,
+  
+  /** Enable session linking */
+  ENABLE_SESSION_LINKING: true,
+  
+  /** Enable family-based revocation */
+  ENABLE_FAMILY_REVOCATION: true,
+  
+  /** Enable compromised token detection */
+  ENABLE_COMPROMISE_DETECTION: true,
+  
+  /** Family ID length (32 characters) */
+  FAMILY_ID_LENGTH: 32,
+} as const;
+
+
+// packages/shared-constants/src/session.constants.ts
+// ✅ ফাইলের শেষে (Type Exports এর আগে) এই কোড যোগ করুন
+
+// ============================================================
+// Session Configuration (For Domain Entity)
+// ============================================================
+export const SESSION_CONFIG = {
+  /** Default session lifetime in hours */
+  DEFAULT_LIFETIME_HOURS: 8,
+  
+  /** Maximum session lifetime in milliseconds (30 days) */
+  MAX_ABSOLUTE_LIFETIME_MS: 30 * 24 * 60 * 60 * 1000,
+  
+  /** Idle timeout in minutes (desktop) */
+  IDLE_TIMEOUT_MINUTES: 30,
+  
+  /** Idle timeout in minutes (mobile) */
+  MOBILE_IDLE_TIMEOUT_MINUTES: 45,
+  
+  /** Maximum session extensions allowed */
+  MAX_EXTENSIONS: 3,
+  
+  /** Maximum extension minutes per extension */
+  MAX_EXTENSION_MINUTES: 60,
+  
+  /** Maximum concurrent sessions per user (default) */
+  MAX_CONCURRENT_SESSIONS: 5,
+} as const;
+
+// ============================================================
+// Type Exports (Existing)
+// ============================================================
+export type SessionConfig = typeof SESSION_CONFIG;
+// ... existing type exports
+// ============================================================
+// Type Exports
+// ============================================================
+export type RefreshTokenConfig = typeof REFRESH_TOKEN_CONFIG;
+
 // ============================================================
 // Type Exports
 // ============================================================
 export type SessionStatus = typeof SESSION_STATUS[keyof typeof SESSION_STATUS];
 export type TrustLevel = typeof TRUST_LEVELS[keyof typeof TRUST_LEVELS];
 export type SessionRevocationReason = typeof SESSION_REVOCATION_REASONS[keyof typeof SESSION_REVOCATION_REASONS];
+
+// packages/shared-constants/src/batch.constants.ts
+
+/**
+ * Batch Configuration Constants - Enterprise Grade
+ * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
+ * 
+ * @module shared-constants/batch.constants
+ * 
+ * @description
+ * Centralized batch operation configuration for all services.
+ * Used for bulk operations, pagination, and batch processing limits.
+ * 
+ * Enterprise Rules:
+ * ✅ Pure readonly constants - NO runtime logic
+ * ✅ Framework-agnostic
+ * ✅ Reusable across all services
+ * ✅ Single source of truth for batch limits
+ */
+
+// ============================================================
+// Batch Configuration
+// ============================================================
+
+export const BATCH_CONFIG = {
+  /** Default batch size for bulk operations */
+  DEFAULT_BATCH_SIZE: 100,
+  
+  /** Minimum batch size for bulk operations */
+  MIN_BATCH_SIZE: 1,
+  
+  /** Maximum batch size for bulk operations */
+  MAX_BATCH_SIZE: 1000,
+  
+  /** Maximum number of items in a single batch request */
+  MAX_BATCH_ITEMS: 1000,
+  
+  /** Default concurrency for parallel batch processing */
+  DEFAULT_CONCURRENCY: 5,
+  
+  /** Maximum concurrency for parallel batch processing */
+  MAX_CONCURRENCY: 20,
+  
+  /** Default timeout for batch operations in milliseconds */
+  DEFAULT_BATCH_TIMEOUT_MS: 30000,
+  
+  /** Maximum timeout for batch operations in milliseconds */
+  MAX_BATCH_TIMEOUT_MS: 120000,
+  
+  /** Retry count for failed batch items */
+  BATCH_RETRY_COUNT: 3,
+  
+  /** Retry delay in milliseconds */
+  BATCH_RETRY_DELAY_MS: 1000,
+} as const;
+
+export type BatchConfig = typeof BATCH_CONFIG;
+
+// ============================================================
+// Batch Error Handling
+// ============================================================
+
+export const BATCH_ERROR_CODES = {
+  BATCH_SIZE_EXCEEDED: 'BATCH_SIZE_EXCEEDED',
+  BATCH_ITEM_FAILED: 'BATCH_ITEM_FAILED',
+  BATCH_TIMEOUT: 'BATCH_TIMEOUT',
+  BATCH_PARTIAL_FAILURE: 'BATCH_PARTIAL_FAILURE',
+  BATCH_RATE_LIMITED: 'BATCH_RATE_LIMITED',
+  BATCH_CONCURRENCY_LIMIT: 'BATCH_CONCURRENCY_LIMIT',
+  BATCH_INVALID_ITEM: 'BATCH_INVALID_ITEM',
+  BATCH_DUPLICATE_ITEM: 'BATCH_DUPLICATE_ITEM',
+} as const;
+
+export type BatchErrorCode = typeof BATCH_ERROR_CODES[keyof typeof BATCH_ERROR_CODES];
+
+// ============================================================
+// Batch Operation Types
+// ============================================================
+
+export const BATCH_OPERATION_TYPES = {
+  CREATE: 'create',
+  UPDATE: 'update',
+  DELETE: 'delete',
+  ACTIVATE: 'activate',
+  DEACTIVATE: 'deactivate',
+  SUSPEND: 'suspend',
+  UNSUSPEND: 'unsuspend',
+  LOCK: 'lock',
+  UNLOCK: 'unlock',
+  ASSIGN_ROLE: 'assign_role',
+  REVOKE_ROLE: 'revoke_role',
+  UPDATE_STATUS: 'update_status',
+  UPDATE_TIER: 'update_tier',
+  EXPORT: 'export',
+  IMPORT: 'import',
+  SYNC: 'sync',
+} as const;
+
+export type BatchOperationType = typeof BATCH_OPERATION_TYPES[keyof typeof BATCH_OPERATION_TYPES];
+
+// ============================================================
+// Batch Status
+// ============================================================
+
+export const BATCH_STATUS = {
+  PENDING: 'pending',
+  PROCESSING: 'processing',
+  COMPLETED: 'completed',
+  FAILED: 'failed',
+  PARTIAL: 'partial',
+  CANCELLED: 'cancelled',
+  TIMEOUT: 'timeout',
+} as const;
+
+export type BatchStatus = typeof BATCH_STATUS[keyof typeof BATCH_STATUS];
+
+// ============================================================
+// Batch Progress
+// ============================================================
+
+export const BATCH_PROGRESS = {
+  MIN_PERCENTAGE: 0,
+  MAX_PERCENTAGE: 100,
+  UPDATE_INTERVAL_MS: 1000,
+} as const;
+
+
+
+// packages/shared-constants/src/revocation.constants.ts
+
+/**
+ * Revocation Constants - Enterprise Grade
+ * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
+ * 
+ * @module shared-constants/revocation.constants
+ * 
+ * @description
+ * Centralized revocation configuration for tokens, sessions, and devices.
+ * Used for revocation scopes, reasons, and policies.
+ * 
+ * Enterprise Rules:
+ * ✅ Pure readonly constants - NO runtime logic
+ * ✅ Framework-agnostic
+ * ✅ Reusable across all services
+ * ✅ Single source of truth for revocation policies
+ */
+
+// ============================================================
+// Revocation Scopes
+// ============================================================
+
+export const REVOCATION_SCOPES = {
+  /** Single session/token revocation */
+  SINGLE: 'single',
+  
+  /** All sessions/tokens revocation */
+  ALL: 'all',
+  
+  /** All except specified */
+  EXCEPT: 'except',
+  
+  /** Device-based revocation */
+  DEVICE: 'device',
+  
+  /** Bulk revocation (multiple IDs) */
+  BULK: 'bulk',
+} as const;
+
+export type RevocationScope = typeof REVOCATION_SCOPES[keyof typeof REVOCATION_SCOPES];
+
+// ============================================================
+// Revocation Reasons
+// ============================================================
+
+export const REVOCATION_REASONS = {
+  USER_LOGOUT: 'user_logout',
+  USER_LOGOUT_ALL: 'user_logout_all',
+  ADMIN_REVOKED: 'admin_revoked',
+  SESSION_EXPIRED: 'session_expired',
+  IDLE_TIMEOUT: 'idle_timeout',
+  SUSPICIOUS_ACTIVITY: 'suspicious_activity',
+  IP_CHANGE: 'ip_change',
+  USER_AGENT_CHANGE: 'user_agent_change',
+  MAX_CONCURRENT_EXCEEDED: 'max_concurrent_exceeded',
+  ACCOUNT_SUSPENDED: 'account_suspended',
+  ACCOUNT_DELETED: 'account_deleted',
+  SECURITY_BREACH: 'security_breach',
+  SIM_SWAP_DETECTED: 'sim_swap_detected',
+  PASSWORD_CHANGED: 'password_changed',
+  MFA_CHANGED: 'mfa_changed',
+  DEVICE_REMOVED: 'device_removed',
+  DEVICE_COMPROMISED: 'device_compromised',
+  TOKEN_COMPROMISED: 'token_compromised',
+  TOKEN_ROTATION: 'token_rotation',
+  POLICY_VIOLATION: 'policy_violation',
+  MAINTENANCE: 'maintenance',
+} as const;
+
+export type RevocationReason = typeof REVOCATION_REASONS[keyof typeof REVOCATION_REASONS];
+
+// ============================================================
+// Revocation Sources
+// ============================================================
+
+export const REVOCATION_SOURCES = {
+  USER_INITIATED: 'user_initiated',
+  ADMIN_INITIATED: 'admin_initiated',
+  SYSTEM_INITIATED: 'system_initiated',
+  AUTOMATED: 'automated',
+  SECURITY: 'security',
+  EXPIRY: 'expiry',
+  REVOKED: 'revoked',
+} as const;
+
+export type RevocationSource = typeof REVOCATION_SOURCES[keyof typeof REVOCATION_SOURCES];
+
+// ============================================================
+// Revocation Policies
+// ============================================================
+
+export const REVOCATION_POLICIES = {
+  /** Maximum number of concurrent sessions per user */
+  MAX_CONCURRENT_SESSIONS: 5,
+  
+  /** Maximum number of active tokens per user */
+  MAX_ACTIVE_TOKENS: 10,
+  
+  /** Maximum number of tokens per family */
+  MAX_TOKENS_PER_FAMILY: 5,
+  
+  /** Session idle timeout in seconds */
+  SESSION_IDLE_TIMEOUT: 1800,
+  
+  /** Session absolute timeout in seconds */
+  SESSION_ABSOLUTE_TIMEOUT: 86400,
+  
+  /** Maximum revocation attempts per hour */
+  MAX_REVOCATION_ATTEMPTS_PER_HOUR: 10,
+  
+  /** Maximum bulk revocation size */
+  MAX_BULK_REVOCATION_SIZE: 100,
+  
+  /** Minimum bulk revocation size */
+  MIN_BULK_REVOCATION_SIZE: 1,
+  
+  /** Whether to revoke on password change */
+  REVOKE_ON_PASSWORD_CHANGE: true,
+  
+  /** Whether to revoke on MFA change */
+  REVOKE_ON_MFA_CHANGE: true,
+  
+  /** Whether to revoke on role change */
+  REVOKE_ON_ROLE_CHANGE: true,
+} as const;
+
+export type RevocationPolicies = typeof REVOCATION_POLICIES;
+
+// ============================================================
+// Revocation Status
+// ============================================================
+
+export const REVOCATION_STATUS = {
+  PENDING: 'pending',
+  PROCESSING: 'processing',
+  COMPLETED: 'completed',
+  FAILED: 'failed',
+  PARTIAL: 'partial',
+  CANCELLED: 'cancelled',
+} as const;
+
+export type RevocationStatus = typeof REVOCATION_STATUS[keyof typeof REVOCATION_STATUS];
