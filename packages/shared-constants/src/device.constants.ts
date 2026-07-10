@@ -1,686 +1,778 @@
+// packages/shared-constants/src/device-patterns.constants.ts
+
 /**
- * Device Constants - Pure immutable device configuration
+ * Device ID Patterns - Enterprise Grade Shared Constants
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-constants/device.constants
+ * @module shared-constants/device-patterns.constants
  * 
- * RULES:
- * ✅ NO device fingerprint generation logic
- * ✅ NO business logic
- * ✅ NO side effects
- * ✅ ONLY pure readonly constants
+ * @description
+ * Centralized repository for all device identification patterns used across the ecosystem.
+ * Ensures consistent device ID validation across all services (auth, session, device, etc.)
+ * 
+ * Enterprise Features:
+ * ✅ Single Source of Truth for all device ID patterns
+ * ✅ Comprehensive pattern coverage (UUID, fingerprint, mobile, IoT)
+ * ✅ Bangladesh specific patterns (mobile operators, local formats)
+ * ✅ Type-safe with 'as const' for immutability
+ * ✅ Pattern versioning for future evolution
+ * ✅ Cross-service consistency
+ * 
+ * @example
+ * import { DEVICE_ID_PATTERNS, isValidDeviceId } from '@vubon/shared-constants';
+ * 
+ * if (DEVICE_ID_PATTERNS.UUID_V4.test(deviceId)) {
+ *   // Valid UUID v4 device ID
+ * }
+ * 
+ * if (isValidDeviceId(deviceId)) {
+ *   // Device ID matches any known pattern
+ * }
+ * 
+ * @see {@link https://vubon.com.bd/docs/device-id-standards} for documentation
  */
 
 // ============================================================
-// Type Utilities
+// Imports
 // ============================================================
-import type { ValueOf } from './common.types';
-// ============================================================
-// Device Types (Extended for Bangladesh market)
-// ============================================================
-export const DEVICE_TYPES = {
-  // Standard devices
-  DESKTOP: 'desktop',
-  LAPTOP: 'laptop',
-  TABLET: 'tablet',
-  MOBILE: 'mobile',
-  TV: 'tv',
-  CONSOLE: 'console',
-  WEARABLE: 'wearable',
 
-  // Bangladesh specific
-  FEATURE_PHONE: 'feature_phone',     // Keypad phones still used in BD
-  TABLET_PHONE: 'tablet_phone',       // Hybrid devices (e.g., Samsung Fold)
-  KIOSK: 'kiosk',                     // Public e-commerce kiosks
-  POS_DEVICE: 'pos_device',           // Payment terminals
-
-  OTHER: 'other',
-} as const;
-
-export type DeviceType = ValueOf<typeof DEVICE_TYPES>;
+// No external imports - pure constants
 
 // ============================================================
-// Device Categories (For policy enforcement)
+// Core Device ID Patterns
 // ============================================================
-export const DEVICE_CATEGORIES = {
-  HIGH_TRUST: 'high_trust',       // Desktop, Laptop (full features)
-  MEDIUM_TRUST: 'medium_trust',   // Tablet, Mobile (standard features)
-  LOW_TRUST: 'low_trust',         // Feature phone, Kiosk (limited features)
-  RESTRICTED: 'restricted',       // TV, Console, Wearable (view only)
-} as const;
 
-export type DeviceCategory = ValueOf<typeof DEVICE_CATEGORIES>;
-
-// ============================================================
-// Operating Systems (Full coverage)
-// ============================================================
-export const OS_TYPES = {
-  // Desktop OS
-  WINDOWS: 'windows',
-  MACOS: 'macos',
-  LINUX: 'linux',
-  CHROME_OS: 'chrome_os',
-
-  // Mobile OS
-  IOS: 'ios',
-  ANDROID: 'android',
-  HARMONY_OS: 'harmony_os',       // Huawei devices (used in BD)
-  KAI_OS: 'kai_os',               // Feature phone OS
-
-  // Bangladesh specific
-  SYMPHONY_OS: 'symphony_os',     // Local BD brand
-  WALTON_OS: 'walton_os',         // Local BD brand
-
-  OTHER: 'other',
-} as const;
-
-export type OsType = ValueOf<typeof OS_TYPES>;
-
-// ============================================================
-// Browser Types (Full coverage)
-// ============================================================
-export const BROWSER_TYPES = {
-  // Major browsers
-  CHROME: 'chrome',
-  FIREFOX: 'firefox',
-  SAFARI: 'safari',
-  EDGE: 'edge',
-  OPERA: 'opera',
-  BRAVE: 'brave',
-  VIVALDI: 'vivaldi',
-
-  // Mobile browsers
-  SAMSUNG: 'samsung_browser',
-  UC_BROWSER: 'uc_browser',       // Popular in BD
-  XIAOMI: 'xiaomi_browser',
-  HUAWEI: 'huawei_browser',
-
-  // Bangladesh specific
-  BANGLADESH_BROWSER: 'bd_browser', // Local browsers
-
-  // Mini browsers (data saving)
-  OPERA_MINI: 'opera_mini',       // Popular in BD for 2G/3G
-  UC_MINI: 'uc_mini',
-
-  // WebViews
-  WEBVIEW: 'webview',
-  CHROME_WEBVIEW: 'chrome_webview',
-
-  OTHER: 'other',
-} as const;
-
-export type BrowserType = ValueOf<typeof BROWSER_TYPES>;
-
-// ============================================================
-// Network Types (For security & experience)
-// ============================================================
-export const NETWORK_TYPES = {
-  // Mobile networks
-  MOBILE_2G: '2g',
-  MOBILE_3G: '3g',
-  MOBILE_4G: '4g',
-  MOBILE_5G: '5g',
-  MOBILE_UNKNOWN: 'mobile_unknown',
-
-  // WiFi
-  WIFI: 'wifi',
-  WIFI_PUBLIC: 'wifi_public',    // Public hotspots (higher risk)
-  WIFI_SECURE: 'wifi_secure',    // Home/Office
-
-  // Wired
-  ETHERNET: 'ethernet',
-
-  // Other
-  VPN: 'vpn',                     // Higher scrutiny
-  PROXY: 'proxy',                 // Higher scrutiny
-  TOR: 'tor',                     // Block or high scrutiny
-
-  UNKNOWN: 'unknown',
-} as const;
-
-export type NetworkType = ValueOf<typeof NETWORK_TYPES>;
-
-// ============================================================
-// Device Trust Duration (in days & seconds)
-// ============================================================
-export const DEVICE_TRUST_DURATION = {
-  // In days
-  NEVER: 0,
-  ONE_DAY: 1,
-  THREE_DAYS: 3,
-  SEVEN_DAYS: 7,
-  FOURTEEN_DAYS: 14,
-  THIRTY_DAYS: 30,
-  NINETY_DAYS: 90,
-  ONE_YEAR: 365,
-  FOREVER: -1,
-
-  // In seconds (for programmatic use)
-  IN_SECONDS: {
-    ONE_DAY: 86400,
-    THREE_DAYS: 259200,
-    SEVEN_DAYS: 604800,
-    FOURTEEN_DAYS: 1209600,
-    THIRTY_DAYS: 2592000,
-    NINETY_DAYS: 7776000,
-    ONE_YEAR: 31536000,
-  },
-} as const;
-
-export type DeviceTrustDuration = typeof DEVICE_TRUST_DURATION;
-
-// ============================================================
-// Device Fingerprint Headers (For passive fingerprinting)
-// ============================================================
-export const DEVICE_FINGERPRINT_HEADERS = {
-  // Standard HTTP headers
-  USER_AGENT: 'user-agent',
-  ACCEPT: 'accept',
-  ACCEPT_LANGUAGE: 'accept-language',
-  ACCEPT_ENCODING: 'accept-encoding',
-
-  // Modern client hints
-  SEC_CH_UA: 'sec-ch-ua',
-  SEC_CH_UA_PLATFORM: 'sec-ch-ua-platform',
-  SEC_CH_UA_MOBILE: 'sec-ch-ua-mobile',
-  SEC_CH_UA_ARCH: 'sec-ch-ua-arch',
-  SEC_CH_UA_BITNESS: 'sec-ch-ua-bitness',
-  SEC_CH_UA_FULL_VERSION: 'sec-ch-ua-full-version',
-
-  // Network hints
-  DOWNLINK: 'downlink',           // Effective connection speed
-  RTT: 'rtt',                     // Round trip time
-  ECT: 'ect',                     // Effective connection type
-  SAVE_DATA: 'save-data',         // Data saver mode
-
-  // Device specific
-  VIEWPORT_WIDTH: 'viewport-width',
-  DEVICE_MEMORY: 'device-memory',
-
-  // Platform specific
-  PLATFORM: 'sec-ch-ua-platform',
-} as const;
-
-export type DeviceFingerprintHeader = ValueOf<typeof DEVICE_FINGERPRINT_HEADERS>;
-
-// ============================================================
-// Device Risk Levels (With scoring)
-// ============================================================
-export const DEVICE_RISK_LEVEL = {
-  // Trust levels
-  TRUSTED: 'trusted',             // Known device, frequent use (score: 0)
-  NEUTRAL: 'neutral',             // New but normal device (score: 30)
-  SUSPICIOUS: 'suspicious',       // Unusual patterns (score: 60)
-  HIGH_RISK: 'high_risk',         // Known malicious indicators (score: 85)
-  BLOCKED: 'blocked',             // Explicitly blocked (score: 100)
-
-  // Risk scores (for programmatic use)
-  RISK_SCORES: {
-    TRUSTED: 0,
-    NEUTRAL: 30,
-    SUSPICIOUS: 60,
-    HIGH_RISK: 85,
-    BLOCKED: 100,
-  },
-} as const;
-
-export type DeviceRiskLevel = ValueOf<typeof DEVICE_RISK_LEVEL>;
-
-// ============================================================
-// Device Risk Indicators (What triggers risk escalation)
-// ============================================================
-export const DEVICE_RISK_INDICATORS = {
-  // High risk indicators
-  VPN_DETECTED: 'vpn_detected',
-  PROXY_DETECTED: 'proxy_detected',
-  TOR_DETECTED: 'tor_detected',
-  DATACENTER_IP: 'datacenter_ip',
-
-  // Medium risk indicators
-  FREQUENT_IP_CHANGE: 'frequent_ip_change',
-  FREQUENT_USER_AGENT_CHANGE: 'frequent_ua_change',
-  SUSPICIOUS_HEADERS: 'suspicious_headers',
-
-  // Low risk indicators
-  NEW_GEO_LOCATION: 'new_geo_location',
-  NEW_DEVICE_TYPE: 'new_device_type',
-  UNCOMMON_BROWSER: 'uncommon_browser',
-
-  // Fraud indicators
-  MULTIPLE_ACCOUNTS: 'multiple_accounts_same_device',
-  FAST_ACCOUNT_SWITCHING: 'fast_account_switching',
-  KNOWN_FRAUD_DEVICE: 'known_fraud_device',
-} as const;
-
-export type DeviceRiskIndicator = ValueOf<typeof DEVICE_RISK_INDICATORS>;
-
-// ============================================================
-// Device Activity Limits (Anti-fraud)
-// ============================================================
-export const DEVICE_ACTIVITY_LIMITS = {
-  // Max accounts per device
-  MAX_ACCOUNTS_PER_DEVICE: 5,
-
-  // Max devices per account
-  MAX_DEVICES_PER_ACCOUNT: 10,
-
-  // Time window for suspicious activity (seconds)
-  SUSPICIOUS_WINDOW_SECONDS: 3600, // 1 hour
-
-  // Max logins per device per hour
-  MAX_LOGINS_PER_DEVICE_PER_HOUR: 20,
-
-  // Max OTP requests per device per hour
-  MAX_OTP_PER_DEVICE_PER_HOUR: 10,
-} as const;
-
-export type DeviceActivityLimits = typeof DEVICE_ACTIVITY_LIMITS;
-
-// ============================================================
-// Unknown Device Handling Policy
-// ============================================================
-export const UNKNOWN_DEVICE_HANDLING = {
-  // Security requirements
-  REQUIRE_MFA: true,
-  REQUIRE_EMAIL_VERIFICATION: false,
-  REQUIRE_PHONE_VERIFICATION: true,
-  SEND_NOTIFICATION: true,
-
-  // Action limitations
-  LIMIT_SENSITIVE_ACTIONS: true,        // e.g., payment, password change
-  LIMIT_HIGH_VALUE_ACTIONS: true,       // e.g., high amount purchase
-
-  // What sensitive actions are restricted
-  RESTRICTED_ACTIONS: {
-    PAYMENT: true,
-    WITHDRAWAL: true,
-    PASSWORD_CHANGE: true,
-    EMAIL_CHANGE: true,
-    PHONE_CHANGE: true,
-    DEVICE_REMOVAL: true,
-  },
-
-  // Cooldown period before unknown device is trusted (seconds)
-  TRUST_COOLDOWN_SECONDS: 300,           // 5 minutes of normal activity
-
-  // Max failed attempts before blocking device
-  MAX_FAILED_ATTEMPTS_BEFORE_BLOCK: 10,
-} as const;
-
-export type UnknownDeviceHandling = typeof UNKNOWN_DEVICE_HANDLING;
-
-// ============================================================
-// Session Transfer (QR code based device login)
-// ============================================================
-export const SESSION_TRANSFER = {
-  ENABLED: true,
-
-  // QR code expiry (seconds)
-  QR_CODE_EXPIRY_SECONDS: 60,
-
-  // Max pending transfers per user
-  MAX_PENDING_TRANSFERS: 3,
-
-  // Allowed transfer types
-  ALLOWED_TRANSFERS: {
-    MOBILE_TO_DESKTOP: true,
-    DESKTOP_TO_MOBILE: true,
-    TABLET_TO_MOBILE: true,
-    FEATURE_PHONE_TO_SMART: false,    // Not supported
-  },
-
-  // Security
-  REQUIRE_CONFIRMATION: true,          // User must confirm on both devices
-} as const;
-
-export type SessionTransfer = typeof SESSION_TRANSFER;
-
-// ============================================================
-// Device Pairing (Family sharing)
-// ============================================================
-export const DEVICE_PAIRING = {
-  ENABLED: true,
-
-  // Max paired devices per account
-  MAX_PAIRED_DEVICES: 5,
-
-  // Trust level for paired devices
-  PAIRED_DEVICE_TRUST_LEVEL: 'trusted' as const,
-
-  // What can paired devices do
-  PAIRED_DEVICE_PERMISSIONS: {
-    VIEW_ORDER_HISTORY: true,
-    TRACK_ORDERS: true,
-    ADD_TO_CART: true,
-    MAKE_PAYMENT: false,              // Must be owner device
-    VIEW_PERSONAL_INFO: false,
-  },
-} as const;
-
-export type DevicePairing = typeof DEVICE_PAIRING;
-
-// ============================================================
-// Device Logging & Monitoring
-// ============================================================
-export const DEVICE_LOGGING = {
-  // What to log
-  LOG_LOGIN: true,
-  LOG_LOGOUT: true,
-  LOG_DEVICE_CHANGE: true,
-  LOG_IP_CHANGE: true,
-  LOG_RISK_ESCALATION: true,
-
-  // Log retention (days)
-  LOG_RETENTION_DAYS: 90,
-
-  // Send alert for suspicious device activity
-  ALERT_ON_SUSPICIOUS_DEVICE: true,
-  ALERT_ON_NEW_DEVICE_LOGIN: true,
-  ALERT_ON_RISK_ESCALATION: true,
-
-  // Alert channels
-  ALERT_CHANNELS: {
-    EMAIL: true,
-    SMS: true,
-    PUSH_NOTIFICATION: true,
-  },
-} as const;
-
-export type DeviceLogging = typeof DEVICE_LOGGING;
-
-// ============================================================
-// Device Fingerprint Components (What data is collected)
-// UPDATED: Added battery status
-// ============================================================
-export const FINGERPRINT_COMPONENTS = {
-  // Browser data
-  USER_AGENT: true,
-  ACCEPT_LANGUAGE: true,
-  ACCEPT_ENCODING: true,
-
-  // Hardware data
-  SCREEN_RESOLUTION: true,
-  COLOR_DEPTH: true,
-  DEVICE_MEMORY: true,
-  HARDWARE_CONCURRENCY: true,     // CPU cores
-  BATTERY_STATUS: true,            // Battery level, charging status (UPDATED)
-
-  // Software data
-  PLATFORM: true,
-  TIMEZONE: true,
-  SESSION_STORAGE: true,
-  LOCAL_STORAGE: true,
-  INDEXED_DB: true,
-
-  // Network data
-  IP_ADDRESS: true,
-  SUBNET_MASK: false,              // Privacy sensitive, optional
-
-  // Canvas & Audio (Browser fingerprinting)
-  CANVAS_FINGERPRINT: true,
-  AUDIO_FINGERPRINT: true,
-  WEBGL_FINGERPRINT: true,
-
-  // Bangladesh specific
-  MOBILE_NETWORK_OPERATOR: true,   // Detect GP, Robi, Banglalink, Teletalk
-} as const;
-
-export type FingerprintComponents = typeof FINGERPRINT_COMPONENTS;
-
-// ============================================================
-// Device Compliance (Privacy)
-// ============================================================
-export const DEVICE_COMPLIANCE = {
-  // GDPR, Bangladesh Data Protection Law
-  REQUIRE_CONSENT_FOR_FINGERPRINTING: true,
-
-  // Data minimization
-  MINIMIZE_DATA_COLLECTION: true,
-
-  // Retention policy
-  FINGERPRINT_RETENTION_DAYS: 30,
-
-  // Anonymize after
-  ANONYMIZE_AFTER_DAYS: 90,
-
-  // User right to delete device data
-  USER_CAN_DELETE_DEVICE_HISTORY: true,
-} as const;
-
-export type DeviceCompliance = typeof DEVICE_COMPLIANCE;
-
-// ============================================================
-// Device Performance (For poor networks)
-// ============================================================
-export const DEVICE_PERFORMANCE = {
-  // Feature detection for poor devices
-  FEATURE_PHONE_MODE: {
-    ENABLED: true,
-    SIMPLIFIED_UI: true,
-    DISABLE_ANIMATIONS: true,
-    SMALLER_IMAGES: true,
-  },
-
-  // Slow network optimization (Bangladesh 3G/2G)
-  SLOW_NETWORK_MODE: {
-    ENABLED: true,
-    COMPRESS_RESPONSES: true,
-    REDUCE_IMAGE_QUALITY: true,
-    INCREASE_TIMEOUTS: true,
-    DATA_SAVER_HINTS: true,
-  },
-
-  // Network threshold (Mbps)
-  SLOW_NETWORK_THRESHOLD_MBPS: 2,
-  VERY_SLOW_NETWORK_THRESHOLD_MBPS: 0.5,
-} as const;
-
-export type DevicePerformance = typeof DEVICE_PERFORMANCE;
-
-// ============================================================
-// Allowed Device Types by Role
-// UPDATED: Added DELIVERY_AGENT role
-// ============================================================
-export const ROLE_DEVICE_ALLOWANCE = {
-  CUSTOMER: {
-    allowed: [
-      DEVICE_TYPES.DESKTOP,
-      DEVICE_TYPES.LAPTOP,
-      DEVICE_TYPES.MOBILE,
-      DEVICE_TYPES.TABLET,
-      DEVICE_TYPES.FEATURE_PHONE,
-    ] as DeviceType[],
-    maxDevices: 10,
-  },
-  SELLER: {
-    allowed: [
-      DEVICE_TYPES.DESKTOP,
-      DEVICE_TYPES.LAPTOP,
-      DEVICE_TYPES.MOBILE,
-      DEVICE_TYPES.TABLET,
-    ] as DeviceType[],
-    maxDevices: 5,
-  },
-  ADMIN: {
-    allowed: [
-      DEVICE_TYPES.DESKTOP,
-      DEVICE_TYPES.LAPTOP,
-    ] as DeviceType[],
-    maxDevices: 3,
-  },
-  SUPER_ADMIN: {
-    allowed: [
-      DEVICE_TYPES.DESKTOP,
-    ] as DeviceType[],
-    maxDevices: 2,
-  },
-  // UPDATED: Added DELIVERY_AGENT role
-  DELIVERY_AGENT: {
-    allowed: [
-      DEVICE_TYPES.MOBILE,
-      DEVICE_TYPES.FEATURE_PHONE,
-    ] as DeviceType[],
-    maxDevices: 2,
-    description: 'Delivery agents need mobile access for order tracking and delivery confirmation',
-  },
-  // UPDATED: Added VENDOR role
-  VENDOR: {
-    allowed: [
-      DEVICE_TYPES.DESKTOP,
-      DEVICE_TYPES.LAPTOP,
-      DEVICE_TYPES.MOBILE,
-      DEVICE_TYPES.TABLET,
-    ] as DeviceType[],
-    maxDevices: 8,
-    description: 'Vendors manage their shops across multiple devices',
-  },
-  // UPDATED: Added SUPPORT_AGENT role
-  SUPPORT_AGENT: {
-    allowed: [
-      DEVICE_TYPES.DESKTOP,
-      DEVICE_TYPES.LAPTOP,
-    ] as DeviceType[],
-    maxDevices: 3,
-    description: 'Support agents need desktop/laptop for ticket management',
-  },
-} as const;
-
-export type RoleDeviceAllowance = typeof ROLE_DEVICE_ALLOWANCE;
-export type UserRole = keyof typeof ROLE_DEVICE_ALLOWANCE;
-
-// ============================================================
-// Device Type to Category Mapping
-// ============================================================
-export const DEVICE_TYPE_TO_CATEGORY = {
-  [DEVICE_TYPES.DESKTOP]: DEVICE_CATEGORIES.HIGH_TRUST,
-  [DEVICE_TYPES.LAPTOP]: DEVICE_CATEGORIES.HIGH_TRUST,
-  [DEVICE_TYPES.TABLET]: DEVICE_CATEGORIES.MEDIUM_TRUST,
-  [DEVICE_TYPES.MOBILE]: DEVICE_CATEGORIES.MEDIUM_TRUST,
-  [DEVICE_TYPES.TABLET_PHONE]: DEVICE_CATEGORIES.MEDIUM_TRUST,
-  [DEVICE_TYPES.FEATURE_PHONE]: DEVICE_CATEGORIES.LOW_TRUST,
-  [DEVICE_TYPES.KIOSK]: DEVICE_CATEGORIES.LOW_TRUST,
-  [DEVICE_TYPES.POS_DEVICE]: DEVICE_CATEGORIES.LOW_TRUST,
-  [DEVICE_TYPES.TV]: DEVICE_CATEGORIES.RESTRICTED,
-  [DEVICE_TYPES.CONSOLE]: DEVICE_CATEGORIES.RESTRICTED,
-  [DEVICE_TYPES.WEARABLE]: DEVICE_CATEGORIES.RESTRICTED,
-  [DEVICE_TYPES.OTHER]: DEVICE_CATEGORIES.LOW_TRUST,
-} as const;
-
-export type DeviceTypeToCategory = typeof DEVICE_TYPE_TO_CATEGORY;
-
-// ============================================================
-// Browser Trust Levels (Based on security features)
-// ============================================================
-export const BROWSER_TRUST_LEVELS = {
-  // High trust (Modern, secure browsers)
-  [BROWSER_TYPES.CHROME]: 90,
-  [BROWSER_TYPES.FIREFOX]: 90,
-  [BROWSER_TYPES.SAFARI]: 90,
-  [BROWSER_TYPES.EDGE]: 85,
-  [BROWSER_TYPES.BRAVE]: 85,
-  [BROWSER_TYPES.VIVALDI]: 80,
-  [BROWSER_TYPES.SAMSUNG]: 80,
+/**
+ * Comprehensive device ID patterns for the entire ecosystem.
+ * All patterns are immutable and readonly.
+ * 
+ * Pattern Categories:
+ * - UUID Standards (v1, v4, generic)
+ * - Fingerprint Formats (browser, hash-based)
+ * - Mobile Platforms (Android, iOS, Bangladesh mobile)
+ * - Device Types (tablet, TV, console, wearable)
+ * - Generic Formats (alphanumeric, custom)
+ */
+export const DEVICE_ID_PATTERNS = {
+  // ==========================================================
+  // UUID Standards (RFC 4122 compliant)
+  // ==========================================================
   
-  // Medium trust (Popular but limited security)
-  [BROWSER_TYPES.OPERA]: 70,
-  [BROWSER_TYPES.XIAOMI]: 65,
-  [BROWSER_TYPES.HUAWEI]: 65,
+  /**
+   * UUID v4 - Random UUID (most common)
+   * Format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+   * Example: 550e8400-e29b-41d4-a716-446655440000
+   */
+  UUID_V4: /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
   
-  // Low trust (Mini browsers, older browsers)
-  [BROWSER_TYPES.UC_BROWSER]: 40,
-  [BROWSER_TYPES.OPERA_MINI]: 35,
-  [BROWSER_TYPES.UC_MINI]: 35,
-  [BROWSER_TYPES.BANGLADESH_BROWSER]: 30,
+  /**
+   * UUID v1 - Time-based UUID
+   * Format: xxxxxxxx-xxxx-1xxx-yxxx-xxxxxxxxxxxx
+   * Example: 6ba7b810-9dad-11d1-80b4-00c04fd430c8
+   */
+  UUID_V1: /^[0-9a-f]{8}-[0-9a-f]{4}-1[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
   
-  // WebViews (Lower trust)
-  [BROWSER_TYPES.WEBVIEW]: 25,
-  [BROWSER_TYPES.CHROME_WEBVIEW]: 30,
+  /**
+   * UUID v6 - Ordered-Time UUID (draft)
+   * Format: xxxxxxxx-xxxx-6xxx-yxxx-xxxxxxxxxxxx
+   * Example: 1efc2f6e-9dad-6b11-80b4-00c04fd430c8
+   */
+  UUID_V6: /^[0-9a-f]{8}-[0-9a-f]{4}-6[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
   
-  // Unknown
-  [BROWSER_TYPES.OTHER]: 20,
+  /**
+   * UUID v7 - Unix Epoch time-based (draft)
+   * Format: xxxxxxxx-xxxx-7xxx-yxxx-xxxxxxxxxxxx
+   * Example: 018f4d1a-9dad-7b11-80b4-00c04fd430c8
+   */
+  UUID_V7: /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+  
+  /**
+   * Generic UUID (any version - v1, v4, v6, v7)
+   * Use this for backward compatibility
+   */
+  UUID_GENERIC: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+  
+  // ==========================================================
+  // ULID (Universally Unique Lexicographically Sortable Identifier)
+  // ==========================================================
+  
+  /**
+   * ULID - Sortable unique identifier
+   * Format: 26 character Crockford's Base32
+   * Example: 01ARZ3NDEKTSV4RRFFQ69G5FAV
+   * Features: Time-sortable, URL-safe, 128-bit entropy
+   */
+  ULID: /^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}$/i,
+  
+  // ==========================================================
+  // Snowflake ID (Twitter/Social Media)
+  // ==========================================================
+  
+  /**
+   * Snowflake ID - 64-bit integer with timestamp
+   * Format: 19 digits (Twitter snowflake)
+   * Example: 1234567890123456789
+   * Features: Time-sortable, distributed generation
+   */
+  SNOWFLAKE: /^\d{19}$/,
+  
+  // ==========================================================
+  // Fingerprint Formats
+  // ==========================================================
+  
+  /**
+   * Browser fingerprint (client-side generated)
+   * Format: fp_[a-zA-Z0-9]{16,64}
+   * Example: fp_aB3cD5eF7gH9iJ1kL3mN5oP7qR9sT1uV3wX5yZ7
+   */
+  BROWSER_FINGERPRINT: /^fp_[a-zA-Z0-9]{16,64}$/,
+  
+  /**
+   * Browser fingerprint with retry context
+   * Format: fp(_retry\d+)?(_[a-zA-Z0-9]{1,6})?_[a-z0-9]+_[a-z0-9]+_\d+
+   * Example: fp_retry2_abc123_a1b2c3d4_e5f6g7h8_123
+   * Features: Tracks retry attempts and correlation for connection resilience
+   */
+  BROWSER_FINGERPRINT_RETRY: /^fp(_retry\d+)?(_[a-zA-Z0-9]{1,6})?_[a-z0-9]+_[a-z0-9]+_\d+$/i,
+  
+  /**
+   * Secure hash-based fingerprint
+   * Format: 32-128 hex characters
+   * Example: a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6
+   * Use SHA-256 (64 chars) or SHA-512 (128 chars)
+   */
+  FINGERPRINT_HASH: /^[a-f0-9]{32,128}$/i,
+  
+  // ==========================================================
+  // Mobile Platform Patterns
+  // ==========================================================
+  
+  /**
+   * Android device ID
+   * Format: ANDROID_[a-zA-Z0-9]{16,64}
+   * Example: ANDROID_aB3cD5eF7gH9iJ1kL3mN5oP7qR9sT1u
+   */
+  MOBILE_ANDROID: /^ANDROID_[a-zA-Z0-9]{16,64}$/i,
+  
+  /**
+   * iOS device ID (Apple UDID or vendor ID)
+   * Format: IOS_[a-zA-Z0-9]{16,64}
+   * Example: IOS_aB3cD5eF7gH9iJ1kL3mN5oP7qR9sT1u
+   */
+  MOBILE_IOS: /^IOS_[a-zA-Z0-9]{16,64}$/i,
+  
+  /**
+   * Bangladesh mobile number based device ID
+   * Format: BD_MOBILE_01[3-9][0-9]{8}
+   * Example: BD_MOBILE_01712345678
+   * Features: Bangladesh specific mobile number format
+   */
+  MOBILE_BD: /^BD_MOBILE_01[3-9][0-9]{8}$/i,
+  
+  /**
+   * Feature phone device ID (Bangladesh specific)
+   * Format: FP_BD_[a-zA-Z0-9]{8,16}
+   * Example: FP_BD_aB3cD5eF7gH9iJ1k
+   * Features: Optimized for feature phones with limited storage
+   */
+  FEATURE_PHONE_BD: /^FP_BD_[a-zA-Z0-9]{8,16}$/i,
+  
+  // ==========================================================
+  // Device Type Patterns
+  // ==========================================================
+  
+  /**
+   * Tablet device ID
+   * Format: TABLET_[a-zA-Z0-9]{16,64}
+   * Example: TABLET_aB3cD5eF7gH9iJ1kL3mN5oP7qR9sT1u
+   */
+  TABLET: /^TABLET_[a-zA-Z0-9]{16,64}$/i,
+  
+  /**
+   * Smart TV device ID
+   * Format: TV_[a-zA-Z0-9]{16,64}
+   * Example: TV_aB3cD5eF7gH9iJ1kL3mN5oP7qR9sT1u
+   */
+  SMART_TV: /^TV_[a-zA-Z0-9]{16,64}$/i,
+  
+  /**
+   * Gaming console device ID
+   * Format: CONSOLE_[a-zA-Z0-9]{16,64}
+   * Example: CONSOLE_aB3cD5eF7gH9iJ1kL3mN5oP7qR9sT1u
+   */
+  CONSOLE: /^CONSOLE_[a-zA-Z0-9]{16,64}$/i,
+  
+  /**
+   * Wearable device ID (smartwatch, fitness tracker)
+   * Format: WEARABLE_[a-zA-Z0-9]{16,64}
+   * Example: WEARABLE_aB3cD5eF7gH9iJ1kL3mN5oP7qR9sT1u
+   */
+  WEARABLE: /^WEARABLE_[a-zA-Z0-9]{16,64}$/i,
+  
+  /**
+   * IoT device ID (smart home, sensors)
+   * Format: IOT_[a-zA-Z0-9]{16,64}
+   * Example: IOT_aB3cD5eF7gH9iJ1kL3mN5oP7qR9sT1u
+   */
+  IOT: /^IOT_[a-zA-Z0-9]{16,64}$/i,
+  
+  // ==========================================================
+  // POS / Kiosk Device Patterns (Bangladesh specific)
+  // ==========================================================
+  
+  /**
+   * POS (Point of Sale) device ID
+   * Format: POS_[a-zA-Z0-9]{12,32}
+   * Example: POS_aB3cD5eF7gH9iJ1kL3mN5oP7q
+   * Features: For retail/merchant POS terminals
+   */
+  POS_DEVICE: /^POS_[a-zA-Z0-9]{12,32}$/i,
+  
+  /**
+   * Kiosk device ID (public e-commerce kiosks)
+   * Format: KIOSK_[a-zA-Z0-9]{12,32}
+   * Example: KIOSK_aB3cD5eF7gH9iJ1kL3mN5oP7q
+   * Features: For public self-service kiosks in Bangladesh
+   */
+  KIOSK: /^KIOSK_[a-zA-Z0-9]{12,32}$/i,
+  
+  // ==========================================================
+  // Generic and Legacy Formats
+  // ==========================================================
+  
+  /**
+   * Standard alphanumeric device ID
+   * Format: Alphanumeric with hyphens, underscores, dots, colons
+   * Length: 1-512 characters
+   * Example: device_123-abc_def:ghi
+   * Features: Most permissive - for backward compatibility
+   */
+  STANDARD: /^[a-zA-Z0-9\-_.:]{1,512}$/,
+  
+  /**
+   * Sequential numeric device ID (legacy)
+   * Format: 1-20 digits
+   * Example: 123456789
+   * Features: For legacy systems, deprecated for new development
+   */
+  SEQUENTIAL_NUMERIC: /^\d{1,20}$/,
+  
+  /**
+   * Session-based ephemeral device ID
+   * Format: SESS_[a-zA-Z0-9]{16,32}
+   * Example: SESS_aB3cD5eF7gH9iJ1kL3mN5oP7q
+   * Features: Temporary device ID for guest/incognito sessions
+   */
+  SESSION_EPHEMERAL: /^SESS_[a-zA-Z0-9]{16,32}$/,
+  
+  /**
+   * Anonymous device ID (GDPR compliant)
+   * Format: ANON_[a-zA-Z0-9]{16,32}
+   * Example: ANON_aB3cD5eF7gH9iJ1kL3mN5oP7q
+   * Features: Non-identifiable device tracking
+   */
+  ANONYMOUS: /^ANON_[a-zA-Z0-9]{16,32}$/i,
+  
+  // ==========================================================
+  // Special Format: OAuth / Social Provider Device IDs
+  // ==========================================================
+  
+  /**
+   * OAuth provider device ID
+   * Format: OAUTH_[PROVIDER]_[TOKEN]
+   * Example: OAUTH_GOOGLE_aB3cD5eF7gH9iJ1kL3mN5oP7q
+   */
+  OAUTH_DEVICE: /^OAUTH_[A-Z]+_[a-zA-Z0-9]{16,64}$/i,
+  
+  /**
+   * Social provider device ID (Bangladesh specific)
+   * Format: SOCIAL_[PROVIDER]_[TOKEN]
+   * Example: SOCIAL_WHATSAPP_aB3cD5eF7gH9iJ1kL3mN5oP7q
+   */
+  SOCIAL_DEVICE: /^SOCIAL_[A-Z]+_[a-zA-Z0-9]{16,64}$/i,
 } as const;
 
-export type BrowserTrustLevels = typeof BROWSER_TRUST_LEVELS;
+// ============================================================
+// Type Definitions
+// ============================================================
+
+/**
+ * All available device ID pattern keys
+ */
+export type DeviceIdPatternKey = keyof typeof DEVICE_ID_PATTERNS;
+
+/**
+ * All available device ID patterns as a union type
+ */
+export type DeviceIdPattern = typeof DEVICE_ID_PATTERNS[DeviceIdPatternKey];
 
 // ============================================================
-// Network Security Levels
+// Pattern Metadata (for validation and documentation)
 // ============================================================
-export const NETWORK_SECURITY_LEVELS = {
-  // High security
-  [NETWORK_TYPES.WIFI_SECURE]: 90,
-  [NETWORK_TYPES.ETHERNET]: 90,
-  
-  // Medium security
-  [NETWORK_TYPES.WIFI]: 70,
-  [NETWORK_TYPES.MOBILE_5G]: 65,
-  [NETWORK_TYPES.MOBILE_4G]: 60,
-  
-  // Low security
-  [NETWORK_TYPES.MOBILE_3G]: 40,
-  [NETWORK_TYPES.WIFI_PUBLIC]: 35,
-  
-  // Very low security
-  [NETWORK_TYPES.MOBILE_2G]: 20,
-  [NETWORK_TYPES.MOBILE_UNKNOWN]: 15,
-  [NETWORK_TYPES.VPN]: 10,
-  [NETWORK_TYPES.PROXY]: 5,
-  [NETWORK_TYPES.TOR]: 0,
-  
-  [NETWORK_TYPES.UNKNOWN]: 25,
+
+/**
+ * Metadata for each device ID pattern
+ * Provides additional context for validation and error messages
+ */
+export const DEVICE_ID_PATTERN_METADATA = {
+  UUID_V4: {
+    description: 'UUID v4 - Random UUID (RFC 4122 compliant)',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+    category: 'uuid',
+    version: '4.0',
+  },
+  UUID_V1: {
+    description: 'UUID v1 - Time-based UUID (RFC 4122 compliant)',
+    example: '6ba7b810-9dad-11d1-80b4-00c04fd430c8',
+    category: 'uuid',
+    version: '1.0',
+  },
+  UUID_V6: {
+    description: 'UUID v6 - Ordered-Time UUID (draft)',
+    example: '1efc2f6e-9dad-6b11-80b4-00c04fd430c8',
+    category: 'uuid',
+    version: '6.0',
+  },
+  UUID_V7: {
+    description: 'UUID v7 - Unix Epoch time-based (draft)',
+    example: '018f4d1a-9dad-7b11-80b4-00c04fd430c8',
+    category: 'uuid',
+    version: '7.0',
+  },
+  UUID_GENERIC: {
+    description: 'Generic UUID (any version)',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+    category: 'uuid',
+    version: 'generic',
+  },
+  ULID: {
+    description: 'ULID - Universally Unique Lexicographically Sortable Identifier',
+    example: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+    category: 'sortable',
+    version: '1.0',
+  },
+  SNOWFLAKE: {
+    description: 'Snowflake ID - 64-bit timestamp-based (Twitter format)',
+    example: '1234567890123456789',
+    category: 'sortable',
+    version: '1.0',
+  },
+  BROWSER_FINGERPRINT: {
+    description: 'Browser fingerprint (client-side generated)',
+    example: 'fp_aB3cD5eF7gH9iJ1kL3mN5oP7qR9sT1uV3wX5yZ7',
+    category: 'fingerprint',
+    version: '1.0',
+  },
+  BROWSER_FINGERPRINT_RETRY: {
+    description: 'Browser fingerprint with retry context',
+    example: 'fp_retry2_abc123_a1b2c3d4_e5f6g7h8_123',
+    category: 'fingerprint',
+    version: '2.0',
+  },
+  FINGERPRINT_HASH: {
+    description: 'Secure hash-based fingerprint (SHA-256 or SHA-512)',
+    example: 'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6',
+    category: 'fingerprint',
+    version: '1.0',
+  },
+  MOBILE_ANDROID: {
+    description: 'Android device ID',
+    example: 'ANDROID_aB3cD5eF7gH9iJ1kL3mN5oP7qR9sT1u',
+    category: 'mobile',
+    version: '1.0',
+  },
+  MOBILE_IOS: {
+    description: 'iOS device ID (Apple UDID or vendor ID)',
+    example: 'IOS_aB3cD5eF7gH9iJ1kL3mN5oP7qR9sT1u',
+    category: 'mobile',
+    version: '1.0',
+  },
+  MOBILE_BD: {
+    description: 'Bangladesh mobile number based device ID',
+    example: 'BD_MOBILE_01712345678',
+    category: 'bangladesh',
+    version: '1.0',
+  },
+  FEATURE_PHONE_BD: {
+    description: 'Feature phone device ID (Bangladesh specific)',
+    example: 'FP_BD_aB3cD5eF7gH9iJ1k',
+    category: 'bangladesh',
+    version: '1.0',
+  },
+  TABLET: {
+    description: 'Tablet device ID',
+    example: 'TABLET_aB3cD5eF7gH9iJ1kL3mN5oP7qR9sT1u',
+    category: 'device',
+    version: '1.0',
+  },
+  SMART_TV: {
+    description: 'Smart TV device ID',
+    example: 'TV_aB3cD5eF7gH9iJ1kL3mN5oP7qR9sT1u',
+    category: 'device',
+    version: '1.0',
+  },
+  CONSOLE: {
+    description: 'Gaming console device ID',
+    example: 'CONSOLE_aB3cD5eF7gH9iJ1kL3mN5oP7qR9sT1u',
+    category: 'device',
+    version: '1.0',
+  },
+  WEARABLE: {
+    description: 'Wearable device ID (smartwatch, fitness tracker)',
+    example: 'WEARABLE_aB3cD5eF7gH9iJ1kL3mN5oP7qR9sT1u',
+    category: 'device',
+    version: '1.0',
+  },
+  IOT: {
+    description: 'IoT device ID (smart home, sensors)',
+    example: 'IOT_aB3cD5eF7gH9iJ1kL3mN5oP7qR9sT1u',
+    category: 'device',
+    version: '1.0',
+  },
+  POS_DEVICE: {
+    description: 'POS (Point of Sale) device ID (Bangladesh retail)',
+    example: 'POS_aB3cD5eF7gH9iJ1kL3mN5oP7q',
+    category: 'bangladesh',
+    version: '1.0',
+  },
+  KIOSK: {
+    description: 'Kiosk device ID (public e-commerce kiosks)',
+    example: 'KIOSK_aB3cD5eF7gH9iJ1kL3mN5oP7q',
+    category: 'bangladesh',
+    version: '1.0',
+  },
+  STANDARD: {
+    description: 'Standard alphanumeric device ID (legacy compatible)',
+    example: 'device_123-abc_def:ghi',
+    category: 'legacy',
+    version: '1.0',
+  },
+  SEQUENTIAL_NUMERIC: {
+    description: 'Sequential numeric device ID (legacy) - DEPRECATED',
+    example: '123456789',
+    category: 'legacy',
+    version: '1.0',
+  },
+  SESSION_EPHEMERAL: {
+    description: 'Session-based ephemeral device ID (guest/incognito)',
+    example: 'SESS_aB3cD5eF7gH9iJ1kL3mN5oP7q',
+    category: 'ephemeral',
+    version: '1.0',
+  },
+  ANONYMOUS: {
+    description: 'Anonymous device ID (GDPR compliant)',
+    example: 'ANON_aB3cD5eF7gH9iJ1kL3mN5oP7q',
+    category: 'anonymous',
+    version: '1.0',
+  },
+  OAUTH_DEVICE: {
+    description: 'OAuth provider device ID',
+    example: 'OAUTH_GOOGLE_aB3cD5eF7gH9iJ1kL3mN5oP7q',
+    category: 'oauth',
+    version: '1.0',
+  },
+  SOCIAL_DEVICE: {
+    description: 'Social provider device ID (Bangladesh specific)',
+    example: 'SOCIAL_WHATSAPP_aB3cD5eF7gH9iJ1kL3mN5oP7q',
+    category: 'social',
+    version: '1.0',
+  },
 } as const;
 
-export type NetworkSecurityLevels = typeof NETWORK_SECURITY_LEVELS;
+// ============================================================
+// Pattern Categories (for grouping)
+// ============================================================
+
+/**
+ * Device ID pattern categories for grouping and filtering
+ */
+export const DEVICE_ID_PATTERN_CATEGORIES = {
+  UUID: ['UUID_V4', 'UUID_V1', 'UUID_V6', 'UUID_V7', 'UUID_GENERIC'] as const,
+  SORTABLE: ['ULID', 'SNOWFLAKE'] as const,
+  FINGERPRINT: ['BROWSER_FINGERPRINT', 'BROWSER_FINGERPRINT_RETRY', 'FINGERPRINT_HASH'] as const,
+  MOBILE: ['MOBILE_ANDROID', 'MOBILE_IOS', 'MOBILE_BD', 'FEATURE_PHONE_BD'] as const,
+  DEVICE: ['TABLET', 'SMART_TV', 'CONSOLE', 'WEARABLE', 'IOT'] as const,
+  BANGLADESH: ['MOBILE_BD', 'FEATURE_PHONE_BD', 'POS_DEVICE', 'KIOSK'] as const,
+  LEGACY: ['STANDARD', 'SEQUENTIAL_NUMERIC'] as const,
+  EPHEMERAL: ['SESSION_EPHEMERAL', 'ANONYMOUS'] as const,
+  SOCIAL: ['OAUTH_DEVICE', 'SOCIAL_DEVICE'] as const,
+} as const;
 
 // ============================================================
-// Device Metrics (For monitoring)
+// Helper Functions
 // ============================================================
-export const DEVICE_METRICS = {
-  ENABLED: true,
+
+/**
+ * Check if a device ID matches any known pattern
+ * 
+ * @param deviceId - The device ID to validate
+ * @param options - Validation options
+ * @returns True if the device ID matches any pattern
+ * 
+ * @example
+ * isValidDeviceId('550e8400-e29b-41d4-a716-446655440000') // true
+ * isValidDeviceId('invalid-id') // false
+ */
+export const isValidDeviceId = (
+  deviceId: string,
+  options: {
+    /** Allow legacy/deprecated patterns (default: false) */
+    allowLegacy?: boolean;
+    /** Allow ephemeral/guest patterns (default: true) */
+    allowEphemeral?: boolean;
+    /** Specific categories to check (default: all) */
+    categories?: (keyof typeof DEVICE_ID_PATTERN_CATEGORIES)[];
+  } = {}
+): boolean => {
+  if (!deviceId || typeof deviceId !== 'string') {
+    return false;
+  }
+
+  const { allowLegacy = false, allowEphemeral = true, categories } = options;
+
+  // Get patterns to check
+  let patterns: DeviceIdPatternKey[] = Object.keys(DEVICE_ID_PATTERNS) as DeviceIdPatternKey[];
+
+  // Filter by categories if specified
+  if (categories && categories.length > 0) {
+    const categoryPatterns = categories.flatMap(
+      (cat) => DEVICE_ID_PATTERN_CATEGORIES[cat] as readonly DeviceIdPatternKey[]
+    );
+    patterns = patterns.filter((p) => categoryPatterns.includes(p));
+  }
+
+  // Remove legacy patterns if not allowed
+  if (!allowLegacy) {
+    patterns = patterns.filter((p) => !DEVICE_ID_PATTERN_CATEGORIES.LEGACY.includes(p as any));
+  }
+
+  // Remove ephemeral patterns if not allowed
+  if (!allowEphemeral) {
+    patterns = patterns.filter((p) => !DEVICE_ID_PATTERN_CATEGORIES.EPHEMERAL.includes(p as any));
+  }
+
+  return patterns.some((key) => DEVICE_ID_PATTERNS[key].test(deviceId));
+};
+
+/**
+ * Get the pattern key that matches a device ID
+ * 
+ * @param deviceId - The device ID to check
+ * @param options - Validation options
+ * @returns The matching pattern key or null
+ * 
+ * @example
+ * getDeviceIdPattern('550e8400-e29b-41d4-a716-446655440000') // 'UUID_V4'
+ */
+export const getDeviceIdPattern = (
+  deviceId: string,
+  options: {
+    allowLegacy?: boolean;
+    allowEphemeral?: boolean;
+  } = {}
+): DeviceIdPatternKey | null => {
+  if (!deviceId || typeof deviceId !== 'string') {
+    return null;
+  }
+
+  const { allowLegacy = false, allowEphemeral = true } = options;
+
+  let patterns = Object.keys(DEVICE_ID_PATTERNS) as DeviceIdPatternKey[];
+
+  if (!allowLegacy) {
+    patterns = patterns.filter((p) => !DEVICE_ID_PATTERN_CATEGORIES.LEGACY.includes(p as any));
+  }
+
+  if (!allowEphemeral) {
+    patterns = patterns.filter((p) => !DEVICE_ID_PATTERN_CATEGORIES.EPHEMERAL.includes(p as any));
+  }
+
+  for (const key of patterns) {
+    if (DEVICE_ID_PATTERNS[key].test(deviceId)) {
+      return key;
+    }
+  }
+
+  return null;
+};
+
+/**
+ * Get pattern metadata for a device ID
+ * 
+ * @param deviceId - The device ID to check
+ * @returns Pattern metadata or null
+ */
+export const getDeviceIdPatternMetadata = (
+  deviceId: string
+): (typeof DEVICE_ID_PATTERN_METADATA)[DeviceIdPatternKey] | null => {
+  const pattern = getDeviceIdPattern(deviceId);
+  if (!pattern) return null;
+  return DEVICE_ID_PATTERN_METADATA[pattern];
+};
+
+/**
+ * Get the category of a device ID
+ * 
+ * @param deviceId - The device ID to check
+ * @returns The category or null
+ */
+export const getDeviceIdCategory = (
+  deviceId: string
+): keyof typeof DEVICE_ID_PATTERN_CATEGORIES | null => {
+  const pattern = getDeviceIdPattern(deviceId);
+  if (!pattern) return null;
+
+  for (const [category, patterns] of Object.entries(DEVICE_ID_PATTERN_CATEGORIES)) {
+    if ((patterns as readonly string[]).includes(pattern)) {
+      return category as keyof typeof DEVICE_ID_PATTERN_CATEGORIES;
+    }
+  }
+
+  return null;
+};
+
+/**
+ * Check if a device ID is from Bangladesh specific format
+ */
+export const isBangladeshDeviceId = (deviceId: string): boolean => {
+  const category = getDeviceIdCategory(deviceId);
+  return category === 'BANGLADESH';
+};
+
+/**
+ * Check if a device ID is ephemeral/guest
+ */
+export const isEphemeralDeviceId = (deviceId: string): boolean => {
+  const category = getDeviceIdCategory(deviceId);
+  return category === 'EPHEMERAL';
+};
+
+/**
+ * Check if a device ID is a fingerprint
+ */
+export const isFingerprintDeviceId = (deviceId: string): boolean => {
+  const category = getDeviceIdCategory(deviceId);
+  return category === 'FINGERPRINT';
+};
+
+/**
+ * Check if a device ID is a UUID
+ */
+export const isUuidDeviceId = (deviceId: string): boolean => {
+  const category = getDeviceIdCategory(deviceId);
+  return category === 'UUID';
+};
+
+/**
+ * Check if a device ID is a mobile device ID
+ */
+export const isMobileDeviceId = (deviceId: string): boolean => {
+  const category = getDeviceIdCategory(deviceId);
+  return category === 'MOBILE';
+};
+
+// ============================================================
+// Export All Constants
+// ============================================================
+
+export const DEVICE_ID_CONFIG = {
+  /** All patterns */
+  PATTERNS: DEVICE_ID_PATTERNS,
+  /** Pattern metadata */
+  METADATA: DEVICE_ID_PATTERN_METADATA,
+  /** Pattern categories */
+  CATEGORIES: DEVICE_ID_PATTERN_CATEGORIES,
+  /** Current version of the device ID specification */
+  VERSION: '2.0.0',
+  /** Minimum length for device IDs */
+  MIN_LENGTH: 1,
+  /** Maximum length for device IDs */
+  MAX_LENGTH: 512,
+  /** Default device ID format for new devices */
+  DEFAULT_FORMAT: 'UUID_V4',
+  /** Bangladesh specific default format */
+  BANGLADESH_DEFAULT_FORMAT: 'MOBILE_BD',
+  /** Ephemeral/guest default format */
+  EPHEMERAL_DEFAULT_FORMAT: 'SESSION_EPHEMERAL',
+} as const;
+
+
+
+// packages/shared-constants/src/device-patterns.constants.ts
+// ✅ এই কোডের শেষে যোগ করুন
+
+// ============================================================
+// Device Configuration
+// ============================================================
+export const DEVICE_CONFIG = {
+  /** Maximum devices per user */
+  MAX_DEVICES_PER_USER: 10,
   
-  // Metrics to track
-  METRICS: {
-    ACTIVE_DEVICES: 'vubon_devices_active',
-    NEW_DEVICES_7_DAYS: 'vubon_devices_new_7d',
-    UNKNOWN_DEVICES: 'vubon_devices_unknown',
-    HIGH_RISK_DEVICES: 'vubon_devices_high_risk',
-    BLOCKED_DEVICES: 'vubon_devices_blocked',
-    DEVICE_TYPE_DISTRIBUTION: 'vubon_devices_by_type',
-    BROWSER_DISTRIBUTION: 'vubon_devices_by_browser',
-    OS_DISTRIBUTION: 'vubon_devices_by_os',
-    NETWORK_TYPE_DISTRIBUTION: 'vubon_devices_by_network',
-    DEVICE_MULTI_ACCOUNT: 'vubon_devices_multi_account',
+  /** Maximum trusted devices per user */
+  MAX_TRUSTED_DEVICES: 5,
+  
+  /** Fingerprint normalization enabled */
+  FINGERPRINT_NORMALIZATION: true,
+  
+  /** Device trust expiration days */
+  TRUST_EXPIRATION_DAYS: 30,
+  
+  /** ✅ NEW: Days after which device is considered stale */
+  STALE_DAYS_THRESHOLD: 30,
+  /** Device trust score thresholds */
+  TRUST_SCORE_THRESHOLDS: {
+    HIGH: 80,
+    MEDIUM: 50,
+    LOW: 30,
   },
   
-  // Alert thresholds
-  ALERT_THRESHOLDS: {
-    HIGH_RISK_DEVICE_PERCENTAGE: 10,  // Alert if >10% devices are high risk
-    MULTI_ACCOUNT_DEVICE_COUNT: 10,    // Alert if device used for >10 accounts
-    NEW_DEVICE_DAILY_SPIKE: 1000,      // Alert if >1000 new devices per day
-  },
+  /** Device types that can be trusted */
+  TRUSTABLE_DEVICE_TYPES: ['desktop', 'laptop', 'mobile', 'tablet'],
+  
+  /** Blocked device types (cannot be registered) */
+  BLOCKED_DEVICE_TYPES: ['bot', 'unknown'],
 } as const;
 
-export type DeviceMetrics = typeof DEVICE_METRICS;
+// ============================================================
+// Device Config Type
+// ============================================================
+export type DeviceConfig = typeof DEVICE_CONFIG;
 
 // ============================================================
 // Type Exports
 // ============================================================
-export type DeviceTypeValue = typeof DEVICE_TYPES;
-export type DeviceCategoryValue = typeof DEVICE_CATEGORIES;
-export type OsTypeValue = typeof OS_TYPES;
-export type BrowserTypeValue = typeof BROWSER_TYPES;
-export type NetworkTypeValue = typeof NETWORK_TYPES;
-export type DeviceRiskLevelValue = typeof DEVICE_RISK_LEVEL;
-export type DeviceRiskIndicatorValue = typeof DEVICE_RISK_INDICATORS;
-export type DeviceActivityLimitsValue = typeof DEVICE_ACTIVITY_LIMITS;
-export type UnknownDeviceHandlingValue = typeof UNKNOWN_DEVICE_HANDLING;
-export type SessionTransferValue = typeof SESSION_TRANSFER;
-export type DevicePairingValue = typeof DEVICE_PAIRING;
-export type DeviceLoggingValue = typeof DEVICE_LOGGING;
-export type FingerprintComponentsValue = typeof FINGERPRINT_COMPONENTS;
-export type DeviceComplianceValue = typeof DEVICE_COMPLIANCE;
-export type DevicePerformanceValue = typeof DEVICE_PERFORMANCE;
-export type RoleDeviceAllowanceValue = typeof ROLE_DEVICE_ALLOWANCE;
-export type DeviceTypeToCategoryValue = typeof DEVICE_TYPE_TO_CATEGORY;
-export type BrowserTrustLevelsValue = typeof BROWSER_TRUST_LEVELS;
-export type NetworkSecurityLevelsValue = typeof NETWORK_SECURITY_LEVELS;
-export type DeviceMetricsValue = typeof DEVICE_METRICS;
+
+export type DeviceIdConfig = typeof DEVICE_ID_CONFIG;
+export type DeviceIdPatternMetadata = typeof DEVICE_ID_PATTERN_METADATA;
+export type DeviceIdPatternCategory = keyof typeof DEVICE_ID_PATTERN_CATEGORIES;
+
+// ============================================================
+// ENTERPRISE SUMMARY
+// ============================================================
+// 
+// Enterprise Features Applied:
+// 1. ✅ Single Source of Truth for all device ID patterns
+// 2. ✅ Comprehensive pattern coverage (23+ patterns)
+// 3. ✅ Type-safe with 'as const' for immutability
+// 4. ✅ Bangladesh specific patterns (mobile, feature phone, POS, kiosk)
+// 5. ✅ Pattern versioning and metadata for documentation
+// 6. ✅ Pattern categories for grouping and filtering
+// 7. ✅ Helper functions for validation and detection
+// 8. ✅ Support for retry context (connection resilience)
+// 9. ✅ GDPR compliant anonymous device IDs
+// 10. ✅ OAuth and social provider device ID support
+// 11. ✅ Cross-service consistency and reusability
+// 12. ✅ Future-proof with draft UUID versions (v6, v7)
+// 
+// Bangladesh Specific Features:
+// - BD_MOBILE_* pattern for mobile number based IDs
+// - FEATURE_PHONE_BD for feature phone optimization
+// - POS_DEVICE for retail POS terminals
+// - KIOSK for public self-service kiosks
+// 
+// Performance Optimizations:
+// - Patterns are pre-compiled RegExp objects
+// - Helper functions use early returns for performance
+// - Category-based filtering reduces pattern checks
+// 
+// ============================================================
