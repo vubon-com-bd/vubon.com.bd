@@ -454,3 +454,44 @@ export const UserErrorSchema = z
   })
   .strict()
   .brand('UserError');
+
+  // ============================================================
+// Password Schema
+// ============================================================
+
+/**
+ * Zod schema for password validation
+ * Validates length, character types, and common patterns
+ */
+export const PasswordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters')
+  .max(128, 'Password cannot exceed 128 characters')
+  .refine(
+    (val) => /[a-z]/.test(val),
+    { message: 'Password must contain at least one lowercase letter' }
+  )
+  .refine(
+    (val) => /[A-Z]/.test(val),
+    { message: 'Password must contain at least one uppercase letter' }
+  )
+  .refine(
+    (val) => /[0-9]/.test(val),
+    { message: 'Password must contain at least one number' }
+  )
+  .refine(
+    (val) => /[^A-Za-z0-9]/.test(val),
+    { message: 'Password must contain at least one special character' }
+  )
+  .refine(
+    (val) => !/(.)\1{2,}/.test(val),
+    { message: 'Password should not contain repeated characters (e.g., "aaa")' }
+  )
+  .refine(
+    (val) => !/(?:abc|bcd|cde|def|efg|fgh|ghi|hij|ijk|jkl|klm|lmn|mno|nop|opq|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz|123|234|345|456|567|678|789)/i.test(val),
+    { message: 'Password should not contain sequential characters' }
+  )
+  .brand('Password');
+
+// ✅ Export type for PasswordSchema
+export type Password = z.infer<typeof PasswordSchema>;
