@@ -288,6 +288,7 @@ export type SocialIcons = typeof SOCIAL_ICONS;
 
 // ============================================================
 // Provider Priority (For UI display order in Bangladesh)
+// UPDATED: Added OTP variants
 // ============================================================
 export const SOCIAL_PROVIDER_PRIORITY = {
   // Bangladesh specific priority (Facebook first, then WhatsApp, then bKash)
@@ -297,9 +298,9 @@ export const SOCIAL_PROVIDER_PRIORITY = {
   [SOCIAL_PROVIDERS.BKASH]: 4,
   [SOCIAL_PROVIDERS.NAGAD]: 5,
   [SOCIAL_PROVIDERS.PHONE_OTP]: 6,
-  [SOCIAL_PROVIDERS.WHATSAPP_OTP]: 6.5,
+  [SOCIAL_PROVIDERS.WHATSAPP_OTP]: 6.5,      // UPDATED
   [SOCIAL_PROVIDERS.IMO]: 7,
-  [SOCIAL_PROVIDERS.IMO_OTP]: 7.5,
+  [SOCIAL_PROVIDERS.IMO_OTP]: 7.5,           // UPDATED
   [SOCIAL_PROVIDERS.TELEGRAM]: 8,
   [SOCIAL_PROVIDERS.APPLE]: 9,
   [SOCIAL_PROVIDERS.GITHUB]: 10,
@@ -628,7 +629,8 @@ export const SOCIAL_AUTH_METRICS = {
   },
 } as const;
 
-export type SocialAuthMetrics = typeof SOCIAL_AUTH_METRICS;
+// packages/shared-constants/src/social.constants.ts
+// ✅ ফাইলের শেষে (সব এক্সপোর্টের পরে) এই কোড যোগ করুন:
 
 // ============================================================
 // ✅ ENTERPRISE ENHANCEMENT: Social Provider Configuration
@@ -648,7 +650,7 @@ export const SOCIAL_CONFIG = {
     GOOGLE: ['gmail.com', 'googlemail.com'],
     MICROSOFT: ['outlook.com', 'hotmail.com', 'live.com', 'msn.com'],
     APPLE: ['icloud.com', 'me.com', 'mac.com'],
-    GITHUB: [] as string[], // GitHub doesn't have email domain restriction
+    GITHUB: [] as string[],
     LINKEDIN: ['linkedin.com'],
     FACEBOOK: ['facebook.com', 'fb.com'],
   },
@@ -720,6 +722,13 @@ export const PROVIDER_ICON_URLS = {
 
 export type ProviderIconUrls = typeof PROVIDER_ICON_URLS;
 
+/**
+ * Provider email domains type
+ */
+export type ProviderEmailDomains = typeof SOCIAL_CONFIG.PROVIDER_EMAIL_DOMAINS;
+
+export type SocialAuthMetrics = typeof SOCIAL_AUTH_METRICS;
+
 // ============================================================
 // Type Exports
 // ============================================================
@@ -733,4 +742,12 @@ export type SocialDisplayNamesBnValue = typeof SOCIAL_DISPLAY_NAMES_BN;
 export type SocialColorsValue = typeof SOCIAL_COLORS;
 export type SocialIconsValue = typeof SOCIAL_ICONS;
 export type SocialProviderPriorityValue = typeof SOCIAL_PROVIDER_PRIORITY;
-export type SocialProviderTrustLevelsValue = typeof SOCIAL
+export type SocialProviderTrustLevelsValue = typeof SOCIAL_PROVIDER_TRUST_LEVELS;
+export type SocialAuthRateLimitsValue = typeof SOCIAL_AUTH_RATE_LIMITS;
+export type SocialAccountLinkingValue = typeof SOCIAL_ACCOUNT_LINKING;
+export type OAuthStateConfigValue = typeof OAUTH_STATE_CONFIG;
+export type SocialProviderFeaturesValue = typeof SOCIAL_PROVIDER_FEATURES;
+export type SocialAuthEventsValue = typeof SOCIAL_AUTH_EVENTS;
+export type SocialProviderMetadataValue = typeof SOCIAL_PROVIDER_METADATA;
+export type SocialConsentScreenValue = typeof SOCIAL_CONSENT_SCREEN;
+export type SocialAuthMetricsValue = typeof SOCIAL_AUTH_METRICS;
