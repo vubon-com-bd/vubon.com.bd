@@ -75,7 +75,6 @@ export default defineConfig({
     'zod',
     // Peer dependencies (সঠিক নাম)
     '@vubon/shared-constants',
-    '@vubon/shared-types',
   ],
   
   // Platform - neutral (works in Node.js)
