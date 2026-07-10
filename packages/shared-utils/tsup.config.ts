@@ -35,6 +35,16 @@ export default defineConfig({
     'device/fingerprint.util': 'src/device/fingerprint.util.ts',
     'device/user-agent.util': 'src/device/user-agent.util.ts',
     'device/ip.util': 'src/device/ip.util.ts',
+
+    // Async utilities
+'async/sleep.util': 'src/async/sleep.util.ts',
+
+// Environment utilities
+'env/env.util': 'src/env/env.util.ts',
+
+// Logger utilities
+'logger/logger.util': 'src/logger/logger.util.ts',
+
     
     // Token
     'token/jwt.util': 'src/token/jwt.util.ts',
