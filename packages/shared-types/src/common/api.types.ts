@@ -54,6 +54,8 @@ export interface PaginatedApiResponse<T> extends ApiResponse<T[]> {
   readonly pagination: PaginationMetadata;
 }
 
+
+
 // ============================================================
 // API Error Codes (Extended for Bangladesh e-commerce)
 // ============================================================
@@ -202,6 +204,8 @@ export type HttpMethod =
   | 'OPTIONS'
   | 'TRACE';
 
+
+
 // ============================================================
 // API Endpoint Configuration
 // ============================================================
@@ -211,7 +215,6 @@ export interface ApiEndpoint {
   readonly version: string;
   readonly requiresAuth: boolean;
   readonly requiresMfa?: boolean;
-  readonly rateLimit?: RateLimitConfig;
   readonly cacheTtlSeconds?: number;             // For GET requests
   readonly deprecated?: boolean;
   readonly deprecatedAt?: string;
@@ -219,27 +222,7 @@ export interface ApiEndpoint {
   readonly alternative?: string;                 // Alternative endpoint
 }
 
-// ============================================================
-// Rate Limit Configuration
-// ============================================================
-export interface RateLimitConfig {
-  readonly windowMs: number;
-  readonly max: number;
-  readonly skipOnError?: boolean;
-  readonly keyPrefix?: string;
-  readonly statusCode?: number;                  // Custom status code when limited
-  readonly headersEnabled?: boolean;              // Include rate limit headers
-}
 
-// ============================================================
-// Rate Limit Headers (API Response headers)
-// ============================================================
-export interface RateLimitHeaders {
-  readonly 'x-rate-limit-limit': number;
-  readonly 'x-rate-limit-remaining': number;
-  readonly 'x-rate-limit-reset': number;         // Unix timestamp
-  readonly 'retry-after'?: number;               // Seconds
-}
 
 // ============================================================
 // API Health Status
@@ -464,4 +447,14 @@ export interface ApiCircuitBreakerState {
   readonly lastFailureAt: string | null;
   readonly opensAt: string | null;
   readonly closesAt: string | null;
+}
+
+// common/api.types.ts
+export type LogoutScope = 'current' | 'all' | 'session' | 'device' | 'except_current';
+
+export interface BaseResponse<T = unknown> {
+  success: boolean;
+  data: T;
+  message?: string;
+  timestamp: string;
 }
