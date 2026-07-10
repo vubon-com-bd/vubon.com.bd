@@ -1,27 +1,77 @@
 /**
  * Environment Configuration - Barrel Export
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
- * @module shared-config/src/env/index
- * 
+ *
+ * @module shared-config/env/index
+ *
+ * @description
+ * Central export point for all environment configuration.
+ * Provides type-safe access to validated environment variables.
+ *
  * RULES:
  * ✅ ONLY re-exports - NO logic, NO initialization
- * ✅ NO functions, NO side effects
- * ✅ Pure config exports only
+ * ✅ NO side effects
+ * ✅ Pure exports only
  */
 
 // ============================================================
-// Environment Schema
-// ============================================================
-export * from './env.schema';
-
-// ============================================================
-// Environment Validation
+// Environment Schema (env.schema.ts)
 // ============================================================
 export {
-  env,
+  // Core schemas
+  NodeEnvSchema,
+  ServerConfigSchema,
+  DatabaseConfigSchema,
+  RedisConfigSchema,
+  JWTConfigSchema,
+  OAuthConfigSchema,
+  SecurityConfigSchema,
+  EmailConfigSchema,
+  FeatureFlagsSchema,
+  EnvSchema,
+
+  // OAuth provider schemas
+  GoogleOAuthSchema,
+  GitHubOAuthSchema,
+  FacebookOAuthSchema,
+  AppleOAuthSchema,
+  LinkedInOAuthSchema,
+  WhatsAppOAuthSchema,
+  BkashOAuthSchema,
+  NagadOAuthSchema,
+  RequiredOAuthConfigSchema,
+  OptionalOAuthConfigSchema,
+} from './env.schema';
+
+export type {
+  // Core types
+  NodeEnv,
+  ServerConfig,
+  DatabaseConfig,
+  RedisConfig,
+  JWTConfig,
+  OAuthConfig,
+  SecurityConfig,
+  EmailConfig,
+  FeatureFlags,
+  Env,
+
+  // OAuth provider types
+  RequiredOAuthConfig,
+} from './env.schema';
+
+// ============================================================
+// Environment Validation (env.validation.ts)
+// ============================================================
+export {
+  // Core validation
   validateEnv,
   safeValidateEnv,
+
+  // Validated environment object (readonly & frozen)
+  env,
+
+  // Environment helpers
   isProduction,
   isDevelopment,
   isTest,
@@ -35,7 +85,6 @@ export {
   isDebugMode,
 } from './env.validation';
 
-// ============================================================
-// Type Exports (from validation)
-// ============================================================
-export type { ValidatedEnv } from './env.validation';
+export type {
+  ValidatedEnv,
+} from './env.validation';
