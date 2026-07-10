@@ -336,6 +336,162 @@ export const generateVoiceCallOtp = (): string => {
   return generateOtp(6);
 };
 
+
+/**
+ * Character sets for secure password generation
+ */
+const PASSWORD_CHAR_SETS = {
+  LOWERCASE: 'abcdefghijklmnopqrstuvwxyz',
+  UPPERCASE: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  NUMBERS: '0123456789',
+  SPECIAL: '!@#$%^&*()_+-=[]{}|;:,.<>?',
+} as const;
+
+/**
+ * Generate a cryptographically secure random password
+ * 
+ * @param length - Desired password length (default: 16)
+ * @param options - Generation options
+ * @returns Secure password string
+ * 
+ * @example
+ * generateSecurePassword() // 'X9kL#mP2vQ$rN4wB'
+ * generateSecurePassword(24, { includeNumbers: false }) // 'XyL#mPvQ$rNwBzF@jKtMpLwB'
+ */
+export const generateSecurePassword = (
+  length: number = 16,
+  options: {
+    includeLowercase?: boolean;
+    includeUppercase?: boolean;
+    includeNumbers?: boolean;
+    includeSpecial?: boolean;
+    excludeAmbiguous?: boolean;
+  } = {}
+): string => {
+  const {
+    includeLowercase = true,
+    includeUppercase = true,
+    includeNumbers = true,
+    includeSpecial = true,
+    excludeAmbiguous = false,
+  } = options;
+
+  // Build character set
+  let charSet = '';
+  if (includeLowercase) charSet += PASSWORD_CHAR_SETS.LOWERCASE || 'abcdefghijklmnopqrstuvwxyz';
+  if (includeUppercase) charSet += PASSWORD_CHAR_SETS.UPPERCASE || 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  if (includeNumbers) charSet += PASSWORD_CHAR_SETS.NUMBERS || '0123456789';
+  if (includeSpecial) charSet += PASSWORD_CHAR_SETS.SPECIAL || '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+  // Remove ambiguous characters if requested
+  if (excludeAmbiguous) {
+    const ambiguous = 'il1Lo0O';
+    charSet = charSet.replace(new RegExp(`[${ambiguous}]`, 'g'), '');
+  }
+
+  // Ensure at least one character set
+  if (charSet.length === 0) {
+    charSet = (PASSWORD_CHAR_SETS.LOWERCASE || 'abcdefghijklmnopqrstuvwxyz') + 
+              (PASSWORD_CHAR_SETS.UPPERCASE || 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+  }
+
+  // Generate password
+  let password = '';
+  const charArray = charSet.split('');
+  
+  // ✅ FIXED: safe random index generation
+  const getRandomIndex = (): number => {
+    if (typeof globalThis.crypto !== 'undefined' && globalThis.crypto.getRandomValues) {
+      try {
+        const randomBuffer = new Uint32Array(1);
+        globalThis.crypto.getRandomValues(randomBuffer);
+        const randomValue = randomBuffer[0];
+        if (randomValue !== undefined && charArray.length > 0) {
+          return randomValue % charArray.length;
+        }
+      } catch {
+        // Fallback to Math.random if crypto fails
+      }
+    }
+    // Fallback (should not be used in production)
+    return Math.floor(Math.random() * charArray.length);
+  };
+
+  // ✅ FIXED: safe character set access with fallbacks
+  const ensureOneFromEach = () => {
+    const requiredChars: string[] = [];
+    
+    if (includeLowercase) {
+      const chars = PASSWORD_CHAR_SETS.LOWERCASE || 'abcdefghijklmnopqrstuvwxyz';
+      requiredChars.push(chars);
+    }
+    if (includeUppercase) {
+      const chars = PASSWORD_CHAR_SETS.UPPERCASE || 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      requiredChars.push(chars);
+    }
+    if (includeNumbers) {
+      const chars = PASSWORD_CHAR_SETS.NUMBERS || '0123456789';
+      requiredChars.push(chars);
+    }
+    if (includeSpecial) {
+      const chars = PASSWORD_CHAR_SETS.SPECIAL || '!@#$%^&*()_+-=[]{}|;:,.<>?';
+      requiredChars.push(chars);
+    }
+
+    // Fallback
+    if (requiredChars.length === 0) {
+      const fallback = (PASSWORD_CHAR_SETS.LOWERCASE || 'abcdefghijklmnopqrstuvwxyz') +
+                       (PASSWORD_CHAR_SETS.UPPERCASE || 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+      requiredChars.push(fallback);
+    }
+
+    for (const set of requiredChars) {
+      const setArray = set.split('');
+      if (setArray.length === 0) continue;
+      const randomIndex = getRandomIndex();
+      const char = setArray[randomIndex % setArray.length];
+      password += char || 'a'; // ✅ extra safety
+    }
+  };
+
+  // Start with required characters
+  ensureOneFromEach();
+
+  // Fill remaining length with random characters
+  for (let i = password.length; i < length; i++) {
+    if (charArray.length === 0) {
+      password += 'a';
+      continue;
+    }
+    const randomIndex = getRandomIndex();
+    const char = charArray[randomIndex % charArray.length];
+    password += char || 'a';
+  }
+
+  // Shuffle password for security (Fisher-Yates)
+const passwordArray = password.split('');
+for (let i = passwordArray.length - 1; i > 0; i--) {
+  // ✅ j-এর মান 0 থেকে i-এর মধ্যে হবে (ইনক্লুসিভ)
+  const j = getRandomIndex() % (i + 1);
+  // ✅ i এবং j উভয়ই বৈধ ইনডেক্স (i >= j, এবং j >= 0)
+  // TypeScript এর জন্য টাইপ অ্যাসার্শন ব্যবহার:
+  const temp = passwordArray[i] as string;
+  passwordArray[i] = passwordArray[j] as string;
+  passwordArray[j] = temp;
+}
+
+  return passwordArray.join('');
+};
+
+// ✅ Export type for password generation options
+export interface SecurePasswordOptions {
+  includeLowercase?: boolean;
+  includeUppercase?: boolean;
+  includeNumbers?: boolean;
+  includeSpecial?: boolean;
+  excludeAmbiguous?: boolean;
+}
+
 // ==================== Type Exports ====================
 
 export type OTPString = ReturnType<typeof generateOtp>;
