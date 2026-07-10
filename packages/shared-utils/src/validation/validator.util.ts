@@ -466,3 +466,7 @@ export const createValidationResult = (
     ...(errors && errors.length > 0 ? { errors } : {}),
   };
 };
+
+export type Match<T> = {
+  [K in keyof T]: T[K];
+};
