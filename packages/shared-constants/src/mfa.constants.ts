@@ -21,6 +21,8 @@ import type { ValueOf } from './common.types';
 export const MFA_PROVIDERS = {
   // Standard TOTP (Google Authenticator, Microsoft Authenticator)
   TOTP: 'totp',
+  IMO: 'imo',                    // ✅ যোগ করুন
+  VOICE_CALL: 'voice_call',        // ✅ যোগ করুন
 
   // SMS OTP (Critical for Bangladesh - high mobile penetration)
   SMS: 'sms',
@@ -595,6 +597,7 @@ export const MFA_METRICS = {
 
 export type MfaMetrics = typeof MFA_METRICS;
 
+
 // ============================================================
 // Type Exports
 // ============================================================
@@ -604,3 +607,166 @@ export type MfaVerificationTypeValue = ValueOf<typeof MFA_VERIFICATION_TYPES>;
 export type MfaPriorityValue = ValueOf<typeof MFA_PRIORITY>;
 export type MfaPresetValue = ValueOf<typeof MFA_PRESETS>;
 export type MfaEventValue = ValueOf<typeof MFA_EVENTS>;
+
+
+// packages/shared-constants/src/mfa.constants.ts
+// ✅ ফাইলের শেষে (সব এক্সপোর্টের পরে) এই কোড যোগ করুন:
+
+// ============================================================
+// MFA Configuration (For entity validation)
+// ============================================================
+export const MFA_CONFIG = {
+  /** Maximum verification attempts before lock */
+  MAX_VERIFICATION_ATTEMPTS: MFA_TIMEOUTS.MAX_VERIFICATION_ATTEMPTS,
+  
+  /** Lockout duration in minutes */
+  LOCKOUT_DURATION_MINUTES: MFA_TIMEOUTS.LOCKOUT_DURATION_SECONDS / 60,
+  
+  /** Backup code count */
+  BACKUP_CODE_COUNT: RECOVERY_CODES.COUNT,
+  
+  /** Low backup code threshold (trigger regeneration reminder) */
+  LOW_BACKUP_CODE_THRESHOLD: 3,
+  
+  /** Maximum MFA methods per user */
+  MAX_METHODS_PER_USER: 5,
+  
+  /** Backup code length */
+  BACKUP_CODE_LENGTH: RECOVERY_CODES.CODE_LENGTH,
+  
+  /** TOTP secret length */
+  TOTP_SECRET_LENGTH: 32,
+  
+  /** WebAuthn challenge length */
+  WEBAUTHN_CHALLENGE_LENGTH: 32,
+} as const;
+
+
+/**
+ * MFA Constants - Pure immutable MFA configuration
+ * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
+ * 
+ * @module shared-constants/mfa.constants
+ * 
+ * RULES:
+ * ✅ ONLY pure readonly constants
+ * ✅ NO business logic
+ * ✅ NO side effects
+ */
+
+// ============================================================
+// MFA Types (Based on domain)
+// ============================================================
+export const MFA_TYPES = {
+  TOTP: 'totp',
+  SMS: 'sms',
+  EMAIL: 'email',
+  BACKUP_CODE: 'backup_code',
+  WEBAUTHN: 'webauthn',
+  PUSH: 'push',
+  WHATSAPP: 'whatsapp',
+  IMO: 'imo',
+  BKASH_PIN: 'bkash_pin',
+  NAGAD_PIN: 'nagad_pin',
+  ROCKET_PIN: 'rocket_pin',
+  VOICE_CALL: 'voice_call',
+} as const;
+
+// ============================================================
+// MFA Provider Names (Display)
+// ============================================================
+export const MFA_PROVIDER_NAMES = {
+  [MFA_TYPES.TOTP]: 'Authenticator App',
+  [MFA_TYPES.SMS]: 'SMS OTP',
+  [MFA_TYPES.EMAIL]: 'Email OTP',
+  [MFA_TYPES.BACKUP_CODE]: 'Backup Code',
+  [MFA_TYPES.WEBAUTHN]: 'Passkey/Biometric',
+  [MFA_TYPES.PUSH]: 'Push Notification',
+  [MFA_TYPES.WHATSAPP]: 'WhatsApp OTP',
+  [MFA_TYPES.IMO]: 'Imo OTP',
+  [MFA_TYPES.BKASH_PIN]: 'bKash PIN',
+  [MFA_TYPES.NAGAD_PIN]: 'Nagad PIN',
+  [MFA_TYPES.ROCKET_PIN]: 'Rocket PIN',
+  [MFA_TYPES.VOICE_CALL]: 'Voice Call OTP',
+} as const;
+
+// ============================================================
+// MFA Disable Scopes
+// ============================================================
+export const MFA_DISABLE_SCOPES = {
+  SINGLE: 'single',
+  ALL: 'all',
+  EXCEPT_PRIMARY: 'except_primary',
+} as const;
+
+// ============================================================
+// Backup Code Pattern
+// ============================================================
+export const BACKUP_CODE_PATTERN = /^[A-Z0-9]{4,8}$/;
+
+// ============================================================
+// MFS PIN Pattern (Bangladesh specific)
+// ============================================================
+export const MFS_PIN_PATTERN = /^\d{4,6}$/;
+
+// ============================================================
+// OTP Pattern
+// ============================================================
+export const OTP_PATTERN = /^\d{6,8}$/;
+
+
+// ============================================================
+// Backup Code Configuration
+// ============================================================
+export const BACKUP_CODE_CONFIG = {
+  /** Number of backup codes to generate */
+  CODE_COUNT: 10,
+  
+  /** Length of each backup code */
+  CODE_LENGTH: 8,
+  
+  /** Character set for backup codes (alphanumeric, excluding similar looking chars) */
+  CHARACTER_SET: 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789',
+  
+  /** Whether to group codes in pairs (e.g., AB3F-9K2M) */
+  GROUP_IN_PAIRS: true,
+  
+  /** Separator between groups */
+  GROUP_SEPARATOR: '-',
+  
+  /** Number of characters per group */
+  GROUP_SIZE: 4,
+  
+  /** Whether to store codes hashed (recommended) */
+  STORE_HASHED: true,
+  
+  /** Hashing algorithm for backup codes */
+  HASH_ALGORITHM: 'sha256',
+  
+  /** Whether codes expire after use */
+  ONE_TIME_USE: true,
+  
+  /** Maximum usage attempts before lockout */
+  MAX_ATTEMPTS: 3,
+  
+  /** Whether to regenerate codes when count is low */
+  AUTO_REGENERATE: true,
+  
+  /** Threshold for auto-regeneration (remaining codes count) */
+  REGENERATE_THRESHOLD: 3,
+  
+  /** Whether to notify user when codes are low */
+  NOTIFY_ON_LOW: true,
+  
+  /** Whether to show codes only once (after generation) */
+  SHOW_ONCE: true,
+  
+  /** Whether to allow downloading codes as text file */
+  ALLOW_DOWNLOAD: true,
+  
+  /** Whether to allow printing codes */
+  ALLOW_PRINT: true,
+  
+  /** Expiry days for backup codes (null = never expire) */
+  EXPIRY_DAYS: null,
+} as const;
