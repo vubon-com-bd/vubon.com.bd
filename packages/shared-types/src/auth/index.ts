@@ -32,7 +32,7 @@ export * from './login-attempt.types';
 // Social Auth Types
 // ============================================================
 export * from './social.types';
-
+export * from './reset-method.types';
 // ============================================================
 // Device Types (Selective export to avoid duplicate LocationInfo)
 // ============================================================
@@ -92,6 +92,11 @@ export {
   type DeviceStatisticsType,
   type DevicePairingType,
   type PublicDeviceSessionType,
+  type TrustLevel,
+  type TrustScore,
+  type TrustLevelConfig,
+  type RevocationScope,
+  type RevocationScopeContext,
 } from './device.types';
 
 // LocationInfo is already exported from common/location.types
