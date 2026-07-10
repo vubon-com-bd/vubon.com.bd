@@ -71,6 +71,13 @@ export {
   // Validated environment object (readonly & frozen)
   env,
 
+  
+  // ✅ NEW: Export default values from shared-constants
+  DEFAULT_GLOBAL_LIMIT,
+  DEFAULT_GLOBAL_WINDOW,
+  DEFAULT_LOGIN_LIMIT,
+  DEFAULT_LOGIN_WINDOW,
+  
   // Environment helpers
   isProduction,
   isDevelopment,
