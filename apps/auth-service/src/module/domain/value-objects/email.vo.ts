@@ -22,8 +22,30 @@
  */
 
 import { ValueObject } from './base.vo';
-import { isValidEmail, normalizeEmail } from '@vubon/shared-utils';
-import { EmailSchema } from '@vubon/shared-schemas';
+// domain/value-objects/email.vo.ts
+import { ValueObject } from './base.vo';
+import { IEmailValidator } from '../ports/email-validator.port';
+
+export class Email extends ValueObject {
+  private readonly _value: string;
+  private readonly _normalized: string;
+
+  constructor(
+    email: string,
+    private readonly validator: IEmailValidator // ডিপেন্ডেন্সি ইনজেকশন
+  ) {
+    super();
+
+    const result = validator.validate(email);
+    if (!result.isValid) {
+      throw new Error(result.error || 'Invalid email');
+    }
+
+    this._value = email.trim();
+    this._normalized = result.normalized!;
+    this.validate();
+  }
+}
 
 // ==================== Types ====================
 
