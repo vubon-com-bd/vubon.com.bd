@@ -365,3 +365,31 @@ export interface PaginationMetrics {
   readonly deepPaginationCount: number;   // Page > 50
   readonly cursorUsageCount: number;
 }
+
+// packages/shared-types/src/common/pagination.types.ts
+
+/**
+ * Pagination Options (Offset-based)
+ * @description Standard pagination parameters for list queries
+ */
+export interface PaginationOptions {
+  /** Page number (1-indexed) */
+  page?: number;
+  /** Number of items per page */
+  limit?: number;
+  /** Field to sort by */
+  sortBy?: string;
+  /** Sort order */
+  sortOrder?: 'asc' | 'desc';
+}
+
+/**
+ * Paginated Result (Offset-based)
+ * @description Standard paginated response wrapper
+ */
+export interface PaginatedResult<T> {
+  /** Array of items */
+  data: T[];
+  /** Pagination metadata */
+  metadata: PaginationMetadata;
+}
