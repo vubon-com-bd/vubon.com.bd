@@ -23,6 +23,8 @@ export interface EnvConfig {
   IS_TEST: boolean;
 }
 
+
+
 export interface DatabaseConfig {
   URL: string;
   PORT: number;
@@ -67,14 +69,7 @@ export interface EmailConfig {
   TIMEOUT_MS: number;
 }
 
-export interface SecurityConfig {
-  JWT_SECRET: string;
-  JWT_EXPIRES_IN: string;
-  JWT_REFRESH_EXPIRES_IN: string;
-  ENCRYPTION_KEY: string;
-  SESSION_SECRET: string;
-  BCRYPT_ROUNDS: number;
-}
+
 
 // ============================================================
 // Value Object & Retry Configuration (Enterprise)
@@ -128,6 +123,17 @@ export const RETRY_CONFIG: RetryConfig = {
   DEFAULT_BACKOFF_MULTIPLIER: 2,
   MAX_RETRY_DELAY_MS: 5000,
   RETRYABLE_ERRORS: ['ECONNRESET', 'ETIMEDOUT', 'ECONNREFUSED'],
+} as const;
+/**
+ * Token Constants - Pure immutable token configuration
+ * Enterprise Grade for vubon.com.bd
+ */
+
+export const TOKEN_CONFIG = {
+  REFRESH_THRESHOLD: 0.2,
+  MAX_REFRESH_COUNT: 10,
+  ROTATION_ENABLED: true,
+  FAMILY_TRACKING_ENABLED: true,
 } as const;
 
 // ============================================================
@@ -207,16 +213,6 @@ export const QUEUE_CONFIG: QueueConfig = {
   CONCURRENCY: validateNumber(process.env['QUEUE_CONCURRENCY'], 5, 1),
 };
 
-// Security Config
-export const SECURITY_CONFIG: SecurityConfig = {
-  JWT_SECRET: validateRequired(process.env['JWT_SECRET'], 'JWT_SECRET'),
-  JWT_EXPIRES_IN: process.env['JWT_EXPIRES_IN'] || '15m',
-  JWT_REFRESH_EXPIRES_IN: process.env['JWT_REFRESH_EXPIRES_IN'] || '7d',
-  ENCRYPTION_KEY: validateRequired(process.env['ENCRYPTION_KEY'], 'ENCRYPTION_KEY'),
-  SESSION_SECRET: validateRequired(process.env['SESSION_SECRET'], 'SESSION_SECRET'),
-  BCRYPT_ROUNDS: validateNumber(process.env['BCRYPT_ROUNDS'], 12, 8),
-};
-
 // ============================================================
 // Export Main Env Config
 // ============================================================
@@ -233,4 +229,3 @@ export const ENV_CONFIG: EnvConfig = {
 if (IS_PRODUCTION) {
   console.log('✅ Environment validation passed for production');
 }
-
