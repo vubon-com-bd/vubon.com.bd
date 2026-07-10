@@ -505,3 +505,26 @@ export interface MFAWebhookPayload {
   readonly success?: boolean;
   readonly metadata: Record<string, unknown>;
 }
+// ============================================================
+// MFA Provider Types (Based on constants - NO enums)
+// ============================================================
+export type MFATypes = typeof MFA_PROVIDERS[keyof typeof MFA_PROVIDERS];
+
+// Extended MFA providers for Bangladesh
+export type ExtendedMFAType = 
+  | MFATypes
+  | 'whatsapp_otp'      
+  | 'imo_otp'           
+  | 'bkash_pin'         
+  | 'nagad_pin'         
+  | 'rocket_pin'        
+  | 'voice_call_otp';
+
+
+  // ============================================================
+// MFA Disable Scope Type
+// ============================================================
+export type MFADisableScope = 
+  | 'single'      // Disable only one MFA method
+  | 'all'         // Disable all MFA methods
+  | 'except_primary'; // Disable all except primary
