@@ -15,6 +15,7 @@
 // ============================================================
 export {
   // User Schemas
+  PasswordSchema,
   UserIdSchema,
   UserEmailSchema,
   UserPhoneSchema,
@@ -103,6 +104,10 @@ export {
   EmailVerificationRequiredSchema,
   PhoneVerificationRequiredSchema,
   RegisterErrorSchema,
+  UsernameRegisterSchema,
+  RegistrationMethodSchema,
+  RegistrationMetadataSchema,
+  RegistrationRateLimitSchema
 } from './register.schema';
 
 // ============================================================
@@ -240,3 +245,94 @@ export {
   MFSAuthResponseSchema,
   SocialAuthErrorSchema,
 } from './social.schema';
+
+
+export {
+  // Core Email Schema
+  EmailSchema,
+  StrictEmailSchema,
+  BangladeshEmailSchema,
+  EducationalEmailSchema,
+  GovernmentEmailSchema,
+  CorporateEmailSchema,
+  EmailWithSubaddressSchema,
+  
+  // Contextual Email Schemas
+  LoginEmailSchema,
+  RegistrationEmailSchema,
+  ProfessionalEmailSchema,
+  
+  // Phone Schema (for WhatsApp/Imo OTP)
+  BangladeshPhoneSchema,
+  
+  // Utility Functions
+  getEmailCategory,
+  isValidEmail,
+  isFreeEmail,
+  isDisposableEmail,
+  isBangladeshEmail,
+  isEducationalEmail,
+  isGovernmentEmail,
+  normalizeEmail,
+  maskEmail,
+  
+  // Types
+  type EmailCategory,
+  type EmailBranded,
+} from './email.schema';
+
+// ============================================================
+// Phone Schemas (NEW - Enterprise Grade)
+// ============================================================
+export {
+  // Base Schemas
+  BasePhoneSchema,
+  PhoneSchema,
+  LenientPhoneSchema,
+  PhoneWithOperatorSchema,
+  PhoneWithTypeSchema,
+  
+  // Request/Response Schemas
+  PhoneVerificationRequestSchema,
+  PhoneVerificationResponseSchema,
+  
+  // Batch Schemas
+  PhoneListSchema,
+  PhoneListWithOperatorSchema,
+  
+  // MFA Phone Schemas
+  MFAPhoneSchema,
+  WhatsAppPhoneSchema,
+  VoiceCallPhoneSchema,
+  
+  // Components Schema
+  PhoneComponentsSchema,
+  
+  // Error Schema
+  PhoneErrorSchema,
+  
+  // Helper Functions
+  isValidBangladeshMobile,
+  getBangladeshOperator,
+  normalizeBangladeshPhone,
+  maskPhoneNumber,
+  
+  // Types
+  type Phone,
+  type LenientPhone,
+  type PhoneWithOperator,
+  type PhoneWithType,
+  type PhoneVerificationRequest,
+  type PhoneVerificationResponse,
+  type PhoneChangeRequest,
+  type PhoneChangeResponse,
+  type PhoneList,
+  type PhoneListWithOperator,
+  type MFAPhone,
+  type WhatsAppPhone,
+  type VoiceCallPhone,
+  type PhoneComponents,
+  type PhoneError,
+  type BDMobilePrefix,
+  type BDOperator,
+} from './phone.schema';
