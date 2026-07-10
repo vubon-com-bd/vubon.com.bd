@@ -6,101 +6,161 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
-    },
-    "./auth": {
-      "types": "./dist/auth/index.d.ts",
-      "import": "./dist/auth/index.mjs",
-      "require": "./dist/auth/index.js"
-    },
-    "./common": {
-      "types": "./dist/common/index.d.ts",
-      "import": "./dist/common/index.mjs",
-      "require": "./dist/common/index.js"
-    },
-    "./user": {
-      "types": "./dist/auth/user.types.d.ts",
-      "import": "./dist/auth/user.types.mjs",
-      "require": "./dist/auth/user.types.js"
-    },
-    "./session": {
-      "types": "./dist/auth/session.types.d.ts",
-      "import": "./dist/auth/session.types.mjs",
-      "require": "./dist/auth/session.types.js"
-    },
-    "./token": {
-      "types": "./dist/auth/token.types.d.ts",
-      "import": "./dist/auth/token.types.mjs",
-      "require": "./dist/auth/token.types.js"
-    },
-    "./role": {
-      "types": "./dist/auth/role.types.d.ts",
-      "import": "./dist/auth/role.types.mjs",
-      "require": "./dist/auth/role.types.js"
-    },
-    "./permission": {
-      "types": "./dist/auth/permission.types.d.ts",
-      "import": "./dist/auth/permission.types.mjs",
-      "require": "./dist/auth/permission.types.js"
-    },
-    "./mfa": {
-      "types": "./dist/auth/mfa.types.d.ts",
-      "import": "./dist/auth/mfa.types.mjs",
-      "require": "./dist/auth/mfa.types.js"
-    },
-    "./device": {
-      "types": "./dist/auth/device.types.d.ts",
-      "import": "./dist/auth/device.types.mjs",
-      "require": "./dist/auth/device.types.js"
-    },
-    "./verification": {
-      "types": "./dist/auth/verification.types.d.ts",
-      "import": "./dist/auth/verification.types.mjs",
-      "require": "./dist/auth/verification.types.js"
-    },
-    "./account-lock": {
-      "types": "./dist/auth/account-lock.types.d.ts",
-      "import": "./dist/auth/account-lock.types.mjs",
-      "require": "./dist/auth/account-lock.types.js"
-    },
-    "./login-attempt": {
-      "types": "./dist/auth/login-attempt.types.d.ts",
-      "import": "./dist/auth/login-attempt.types.mjs",
-      "require": "./dist/auth/login-attempt.types.js"
-    },
-    "./social": {
-      "types": "./dist/auth/social.types.d.ts",
-      "import": "./dist/auth/social.types.mjs",
-      "require": "./dist/auth/social.types.js"
-    },
-    "./api": {
-      "types": "./dist/common/api.types.d.ts",
-      "import": "./dist/common/api.types.mjs",
-      "require": "./dist/common/api.types.js"
-    },
-    "./pagination": {
-      "types": "./dist/common/pagination.types.d.ts",
-      "import": "./dist/common/pagination.types.mjs",
-      "require": "./dist/common/pagination.types.js"
-    },
-    "./audit": {
-      "types": "./dist/common/audit.types.d.ts",
-      "import": "./dist/common/audit.types.mjs",
-      "require": "./dist/common/audit.types.js"
-    },
-    "./seo": {
-      "types": "./dist/common/seo.types.d.ts",
-      "import": "./dist/common/seo.types.mjs",
-      "require": "./dist/common/seo.types.js"
-    },
-    "./location": {
-      "types": "./dist/common/location.types.d.ts",
-      "import": "./dist/common/location.types.mjs",
-      "require": "./dist/common/location.types.js"
-    }
+  ".": {
+    "types": "./dist/index.d.ts",
+    "import": "./dist/index.mjs",
+    "require": "./dist/index.js"
+  },
+  "./auth": {
+    "types": "./dist/auth/index.d.ts",
+    "import": "./dist/auth/index.mjs",
+    "require": "./dist/auth/index.js"
+  },
+  "./common": {
+    "types": "./dist/common/index.d.ts",
+    "import": "./dist/common/index.mjs",
+    "require": "./dist/common/index.js"
+  },
+  "./user": {
+    "types": "./dist/auth/user.types.d.ts",
+    "import": "./dist/auth/user.types.mjs",
+    "require": "./dist/auth/user.types.js"
+  },
+  "./session": {
+    "types": "./dist/auth/session.types.d.ts",
+    "import": "./dist/auth/session.types.mjs",
+    "require": "./dist/auth/session.types.js"
+  },
+  "./token": {
+    "types": "./dist/auth/token.types.d.ts",
+    "import": "./dist/auth/token.types.mjs",
+    "require": "./dist/auth/token.types.js"
+  },
+  "./role": {
+    "types": "./dist/auth/role.types.d.ts",
+    "import": "./dist/auth/role.types.mjs",
+    "require": "./dist/auth/role.types.js"
+  },
+  "./permission": {
+    "types": "./dist/auth/permission.types.d.ts",
+    "import": "./dist/auth/permission.types.mjs",
+    "require": "./dist/auth/permission.types.js"
+  },
+  "./mfa": {
+    "types": "./dist/auth/mfa.types.d.ts",
+    "import": "./dist/auth/mfa.types.mjs",
+    "require": "./dist/auth/mfa.types.js"
+  },
+  "./device": {
+    "types": "./dist/auth/device.types.d.ts",
+    "import": "./dist/auth/device.types.mjs",
+    "require": "./dist/auth/device.types.js"
+  },
+  "./verification": {
+    "types": "./dist/auth/verification.types.d.ts",
+    "import": "./dist/auth/verification.types.mjs",
+    "require": "./dist/auth/verification.types.js"
+  },
+  "./account-lock": {
+    "types": "./dist/auth/account-lock.types.d.ts",
+    "import": "./dist/auth/account-lock.types.mjs",
+    "require": "./dist/auth/account-lock.types.js"
+  },
+  "./login-attempt": {
+    "types": "./dist/auth/login-attempt.types.d.ts",
+    "import": "./dist/auth/login-attempt.types.mjs",
+    "require": "./dist/auth/login-attempt.types.js"
+  },
+  "./social": {
+    "types": "./dist/auth/social.types.d.ts",
+    "import": "./dist/auth/social.types.mjs",
+    "require": "./dist/auth/social.types.js"
+  },
+  "./reset-method": {
+    "types": "./dist/auth/reset-method.types.d.ts",
+    "import": "./dist/auth/reset-method.types.mjs",
+    "require": "./dist/auth/reset-method.types.js"
+  },
+  "./api": {
+    "types": "./dist/common/api.types.d.ts",
+    "import": "./dist/common/api.types.mjs",
+    "require": "./dist/common/api.types.js"
+  },
+  "./pagination": {
+    "types": "./dist/common/pagination.types.d.ts",
+    "import": "./dist/common/pagination.types.mjs",
+    "require": "./dist/common/pagination.types.js"
+  },
+  "./audit": {
+    "types": "./dist/common/audit.types.d.ts",
+    "import": "./dist/common/audit.types.mjs",
+    "require": "./dist/common/audit.types.js"
+  },
+  "./seo": {
+    "types": "./dist/common/seo.types.d.ts",
+    "import": "./dist/common/seo.types.mjs",
+    "require": "./dist/common/seo.types.js"
+  },
+  "./location": {
+    "types": "./dist/common/location.types.d.ts",
+    "import": "./dist/common/location.types.mjs",
+    "require": "./dist/common/location.types.js"
+  },
+  "./rate-limit": {
+    "types": "./dist/common/rate-limit.types.d.ts",
+    "import": "./dist/common/rate-limit.types.mjs",
+    "require": "./dist/common/rate-limit.types.js"
+  },
+  "./cache": {
+    "types": "./dist/common/cache.types.d.ts",
+    "import": "./dist/common/cache.types.mjs",
+    "require": "./dist/common/cache.types.js"
+  },
+  "./notification": {
+    "types": "./dist/common/notification.types.d.ts",
+    "import": "./dist/common/notification.types.mjs",
+    "require": "./dist/common/notification.types.js"
+  },
+  "./mfa-generator": {
+    "types": "./dist/common/mfa-generator.types.d.ts",
+    "import": "./dist/common/mfa-generator.types.mjs",
+    "require": "./dist/common/mfa-generator.types.js"
+  },
+  "./password-hasher": {
+    "types": "./dist/common/password-hasher.types.d.ts",
+    "import": "./dist/common/password-hasher.types.mjs",
+    "require": "./dist/common/password-hasher.types.js"
+  },
+  "./token-generator": {
+    "types": "./dist/common/token-generator.types.d.ts",
+    "import": "./dist/common/token-generator.types.mjs",
+    "require": "./dist/common/token-generator.types.js"
+  },
+  "./transaction-manager": {
+    "types": "./dist/common/transaction-manager.types.d.ts",
+    "import": "./dist/common/transaction-manager.types.mjs",
+    "require": "./dist/common/transaction-manager.types.js"
+  },
+  "./value-object": {
+    "types": "./dist/common/value-object.types.d.ts",
+    "import": "./dist/common/value-object.types.mjs",
+    "require": "./dist/common/value-object.types.js"
+  },
+  "./domain-event": {
+    "types": "./dist/common/domain-event.types.d.ts",
+    "import": "./dist/common/domain-event.types.mjs",
+    "require": "./dist/common/domain-event.types.js"
+  },
+  "./event": {
+    "types": "./dist/common/event.types.d.ts",
+    "import": "./dist/common/event.types.mjs",
+    "require": "./dist/common/event.types.js"
+  },
+  "./client-info": {
+    "types": "./dist/common/client-info.types.d.ts",
+    "import": "./dist/common/client-info.types.mjs",
+    "require": "./dist/common/client-info.types.js"
+  }
   },
   "files": [
     "dist/**/*",
