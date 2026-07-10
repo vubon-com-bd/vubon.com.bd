@@ -290,21 +290,35 @@ export interface AuditChange {
   readonly newValueDisplay?: string;      // Human readable
 }
 
-// ============================================================
-// Audit Metadata
-// ============================================================
+// packages/shared-types/src/common/audit.types.ts
+// ✅ এই কোড দিয়ে বিদ্যমান AuditMetadata রিপ্লেস করুন
+
 export interface AuditMetadata {
-  readonly requestId: string;
-  readonly sessionId?: string;
-  readonly correlationId?: string;
+  readonly requestId?: string | null | undefined;
+  readonly sessionId?: string | undefined;  // ✅ undefined যোগ করুন
+  readonly correlationId?: string | undefined;  // ✅ undefined যোগ করুন
   readonly traceId?: string;
+   readonly userId?: string;
   readonly reason?: string;
-  readonly source?: string;               // 'web', 'mobile', 'api', 'admin', 'cron'
+  readonly source?: string;
+  readonly tenantId?: string;
   readonly environment?: 'development' | 'staging' | 'production';
   readonly additionalData?: Record<string, unknown>;
   readonly beforeSnapshot?: Record<string, unknown>;
   readonly afterSnapshot?: Record<string, unknown>;
+  readonly timestamp?: Date | string;  // ✅ যোগ করুন
+  // ✅ নিচের ফিল্ডগুলো অ্যাড করুন (Base Entity এর জন্য)
+  readonly createdBy?: string;
+  readonly createdByIp?: string;
+  readonly createdByUserAgent?: string;
+  readonly lastModifiedBy?: string;
+  readonly lastModifiedByIp?: string;
+  readonly lastModifiedByUserAgent?: string;
+  readonly tags?: string[];
+  readonly custom?: Record<string, unknown>;
 }
+
+
 
 // ============================================================
 // Create Audit Log Request (Internal)
@@ -319,6 +333,7 @@ export interface CreateAuditLogRequest {
   readonly resource: AuditResource;
   readonly resourceId?: string;
   readonly resourceName?: string;
+  readonly timestamp?: Date | string;  // ✅ যোগ করুন
   readonly changes?: readonly AuditChange[];
   readonly metadata?: Partial<AuditMetadata>;
   readonly ipAddress?: string;
@@ -526,3 +541,65 @@ export interface AuditComplianceReport {
     readonly users: readonly string[];
   }>;
 }
+
+// packages/shared-types/src/common/audit.types.ts (আপডেট)
+
+/**
+ * Audit Source Type (Alias for backward compatibility)
+ * ✅ FIXED: Add this type to match the import in audit.dto.ts
+ */
+export type AuditSource = 
+  | 'API'
+  | 'WEB'
+  | 'MOBILE'
+  | 'ADMIN'
+  | 'SYSTEM'
+  | 'CRON'
+  | 'WEBHOOK'
+  | 'INTERNAL'
+  | 'THIRD_PARTY'
+  | 'BATCH'
+  | 'MIGRATION';
+
+/**
+ * Audit Entity Type (Alias for backward compatibility)
+ * ✅ FIXED: Add this type to match the import in audit.dto.ts
+ */
+export type AuditEntityType = 
+  | 'USER'
+  | 'SESSION'
+  | 'MFA'
+  | 'PRODUCT'
+  | 'ORDER'
+  | 'PAYMENT'
+  | 'INVENTORY'
+  | 'CATEGORY'
+  | 'BRAND'
+  | 'REVIEW'
+  | 'COUPON'
+  | 'OFFER'
+  | 'VENDOR'
+  | 'SHOP'
+  | 'DELIVERY'
+  | 'TICKET'
+  | 'NOTIFICATION'
+  | 'SYSTEM'
+  | 'CONFIG'
+  | 'CACHE'
+  | 'QUEUE'
+  | 'BACKUP'
+  | 'REPORT'
+  | 'EXPORT'
+  | 'IMPORT'
+  | 'SECURITY'
+  | 'KYC'
+  | 'DEVICE';
+
+  export type SupportedLanguage = 'en' | 'bn';
+
+  // packages/shared-types/src/common/audit.types.ts
+
+/**
+ * Audit export format types
+ */
+export type AuditExportFormat = 'json' | 'csv' | 'xlsx';
