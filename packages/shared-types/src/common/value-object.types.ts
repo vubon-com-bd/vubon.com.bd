@@ -378,51 +378,6 @@ export interface ValueObjectErrorFactory {
   createInvalidFormatError(message: string, field?: string): ValueObjectError;
 }
 
-// ============================================================
-// Export All Types
-// ============================================================
-
-// Core types
-export type {
-  ValueObjectComparison,
-  TemporalEqualityConfig,
-  ValueObjectMetadata,
-  ValueObjectSnapshot,
-  ValidationResult,
-};
-
-// Serialization types
-export type {
-  ValueObjectSerializationOptions,
-  ValueObjectDeserializationOptions,
-};
-
-// Performance types
-export type {
-  EqualityCacheConfig,
-  ValueObjectPerformanceMetrics,
-};
-
-// Domain-specific types
-export type {
-  EmailValueObject,
-  PhoneValueObject,
-  DeviceIdValueObject,
-};
-
-// Utility types
-export type {
-  ValueObjectConstructor,
-  ValueObjectPredicate,
-  ValueObjectTransformer,
-  ValueObjectFactory,
-};
-
-// Error types
-export type {
-  ValueObjectError,
-  ValueObjectErrorFactory,
-};
 
 // ============================================================
 // ENTERPRISE SUMMARY
