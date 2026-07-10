@@ -2,7 +2,7 @@
  * Session Schemas - Pure validation for session management
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
- * @module shared-schemas/src/session/session.schema
+ * @module shared-schemas/session/session.schema
  * 
  * RULES:
  * ✅ ONLY Zod schemas - NO business logic
