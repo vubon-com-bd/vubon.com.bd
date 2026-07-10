@@ -168,7 +168,6 @@
   },
   "peerDependencies": {
     "@vubon/shared-constants": "file:../shared-constants",
-    "@vubon/shared-types": "file:../shared-types",
   },
   "sideEffects": false,
   "publishConfig": {
