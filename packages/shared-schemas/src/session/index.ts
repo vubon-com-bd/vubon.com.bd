@@ -1,42 +1,139 @@
 /**
  * Session & Device Schemas - Barrel Export
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
- * @module shared-schemas/src/session/index
- * 
- * RULES:
+ *
+ * @module shared-schemas/session/index
+ *
+ * @description
+ * Central export point for all session and device management schemas.
+ * Includes session lifecycle, device registration, trust management,
+ * and Bangladesh-specific fields (district, upazila, mobile operator).
+ *
+ * Enterprise Rules:
  * ✅ ONLY re-exports - NO logic, NO initialization
  * ✅ NO functions, NO side effects
  * ✅ Pure Zod schema exports only
+ * ✅ Type-safe with complete type exports
  */
 
 // ============================================================
-// Session Schemas
+// Device Schemas & Types
 // ============================================================
-
-// Export from session.schema (Session-specific)
 export {
-  // Primitives
+  // Primitive Schemas
+  DeviceIdSchema,
+  UserIdSchema,
   SessionIdSchema,
+  DeviceTypeSchema,
+  OSTypeSchema,
+  BrowserTypeSchema,
+  DeviceTrustLevelSchema,
+  NetworkTypeSchema,
+  MobileOperatorSchema,
+
+  // Domain Schemas
+  DeviceInfoSchema,
+  DeviceFingerprintSchema,
+  TrustedDeviceSchema,
+  DeviceRiskAssessmentSchema,
+  DeviceActivitySchema,
+
+  // Request Schemas
+  RegisterDeviceSchema,
+  UpdateDeviceTrustSchema,
+  RemoveDeviceSchema,
+  DeviceSessionTransferSchema,
+  DevicePairingSchema,
+  DeviceUnpairSchema,
+  DeviceFilterSchema,
+
+  // Response Schemas
+  DeviceResponseSchema,
+  DeviceListResponseSchema,
+  DeviceSessionTransferResponseSchema,
+  DevicePairingResponseSchema,
+  DeviceStatisticsResponseSchema,
+
+  // Error Schema
+  DeviceErrorSchema,
+} from './device.schema';
+
+export type {
+  // Primitive Types
+  DeviceId,
+  UserId as DeviceUserId,
+  SessionId as DeviceSessionId,
+  DeviceType,
+  OSType,
+  BrowserType,
+  DeviceTrustLevel,
+  NetworkType as DeviceNetworkType,
+  MobileOperator,
+
+  // Domain Types
+  DeviceInfo,
+  DeviceFingerprint,
+  TrustedDevice,
+  DeviceRiskAssessment,
+  DeviceActivity,
+
+  // Request Types
+  RegisterDeviceRequest,
+  UpdateDeviceTrustRequest,
+  RemoveDeviceRequest,
+  DeviceSessionTransferRequest,
+  DevicePairingRequest,
+  DeviceUnpairRequest,
+  DeviceFilterRequest,
+
+  // Response Types
+  DeviceResponse,
+  DeviceListResponse,
+  DeviceSessionTransferResponse,
+  DevicePairingResponse,
+  DeviceStatisticsResponse,
+
+  // Error Type
+  DeviceError,
+
+  // Helper Types
+  DeviceRegistrationFormData,
+  DeviceTrustFormData,
+  DevicePairingFormData,
+} from './device.schema';
+
+// ============================================================
+// Session Schemas & Types
+// ============================================================
+export {
+  // Primitive Schemas
+  SessionIdSchema as SessionIdSchemaAlias,
   RefreshTokenSchema,
   AccessTokenSchema,
   TokenIdSchema,
+  UserIdSchema as SessionUserIdSchema,
   SessionStatusSchema,
   SessionTrustLevelSchema,
+  NetworkTypeSchema as SessionNetworkTypeSchema,
+  MobileOperatorSchema as SessionMobileOperatorSchema,
+
+  // Domain Schemas
   LocationInfoSchema,
   SessionTokensSchema,
-  // Domain
   SessionSchema,
-  // Requests
+
+  // Request Schemas
   CreateSessionSchema,
   RefreshSessionSchema,
   TerminateSessionSchema,
+  TerminateSessionsSchema,
   ValidateSessionSchema,
   SessionHeartbeatSchema,
   SessionTransferRequestSchema,
   SessionFilterSchema,
   SessionCleanupRequestSchema,
-  // Responses
+
+  // Response Schemas
   CreateSessionResponseSchema,
   RefreshSessionResponseSchema,
   TerminateSessionsResponseSchema,
@@ -46,108 +143,63 @@ export {
   SessionListResponseSchema,
   SessionStatisticsResponseSchema,
   SessionCleanupResponseSchema,
-  // Errors
+
+  // Error Schema
   SessionErrorSchema,
-  // Types
-  type SessionId,
-  type RefreshToken,
-  type AccessToken,
-  type TokenId,
-  type SessionStatus,
-  type SessionTrustLevel,
-  type LocationInfo,
-  type SessionTokens,
-  type Session,
-  type CreateSessionRequest,
-  type CreateSessionResponse,
-  type RefreshSessionRequest,
-  type RefreshSessionResponse,
-  type TerminateSessionRequest,
-  type TerminateSessionsRequest,
-  type TerminateSessionsResponse,
-  type ValidateSessionRequest,
-  type SessionValidationResponse,
-  type SessionHeartbeatRequest,
-  type SessionHeartbeatResponse,
-  type SessionTransferRequest,
-  type SessionTransferResponse,
-  type SessionFilterRequest,
-  type SessionListResponse,
-  type SessionStatisticsResponse,
-  type SessionCleanupRequest,
-  type SessionCleanupResponse,
-  type SessionError,
+} from './session.schema';
+
+export type {
+  // Primitive Types
+  SessionId,
+  RefreshToken,
+  AccessToken,
+  TokenId,
+  UserId as SessionUserId,
+  SessionStatus,
+  SessionTrustLevel,
+  NetworkType as SessionNetworkType,
+  MobileOperator as SessionMobileOperator,
+
+  // Domain Types
+  LocationInfo,
+  SessionTokens,
+  Session,
+
+  // Request Types
+  CreateSessionRequest,
+  RefreshSessionRequest,
+  TerminateSessionRequest,
+  TerminateSessionsRequest,
+  ValidateSessionRequest,
+  SessionHeartbeatRequest,
+  SessionTransferRequest,
+  SessionFilterRequest,
+  SessionCleanupRequest,
+
+  // Response Types
+  CreateSessionResponse,
+  RefreshSessionResponse,
+  TerminateSessionsResponse,
+  SessionValidationResponse,
+  SessionHeartbeatResponse,
+  SessionTransferResponse,
+  SessionListResponse,
+  SessionStatisticsResponse,
+  SessionCleanupResponse,
+
+  // Error Type
+  SessionError,
 } from './session.schema';
 
 // ============================================================
-// Device Schemas
+// Cross-Domain Types (Session & Device Combined)
 // ============================================================
-
-// Export from device.schema (Device-specific)
-// Note: Some types may conflict with session.schema, so we rename or selectively export
-export {
-  // Primitives
-  DeviceIdSchema,
-  DeviceTypeSchema,
-  OSTypeSchema,
-  BrowserTypeSchema,
-  DeviceTrustLevelSchema,
-  // Domain
-  DeviceInfoSchema,
-  DeviceFingerprintSchema,
-  TrustedDeviceSchema,
-  DeviceRiskAssessmentSchema,
-  DeviceActivitySchema,
-  // Requests
-  RegisterDeviceSchema,
-  UpdateDeviceTrustSchema,
-  RemoveDeviceSchema,
-  DeviceSessionTransferSchema,
-  DevicePairingSchema,
-  DeviceUnpairSchema,
-  DeviceFilterSchema,
-  // Responses
-  DeviceResponseSchema,
-  DeviceListResponseSchema,
-  DeviceSessionTransferResponseSchema,
-  DevicePairingResponseSchema,
-  DeviceStatisticsResponseSchema,
-  // Errors
-  DeviceErrorSchema,
-  // Types
-  type DeviceId,
-  type DeviceType,
-  type OSType,
-  type BrowserType,
-  type DeviceTrustLevel,
-  type DeviceInfo,
-  type DeviceFingerprint,
-  type TrustedDevice,
-  type DeviceRiskAssessment,
-  type DeviceActivity,
-  type RegisterDeviceRequest,
-  type UpdateDeviceTrustRequest,
-  type RemoveDeviceRequest,
-  type DeviceSessionTransferRequest,
-  type DevicePairingRequest,
-  type DeviceUnpairRequest,
-  type DeviceFilterRequest,
-  type DeviceResponse,
-  type DeviceListResponse,
-  type DeviceSessionTransferResponse,
-  type DevicePairingResponse,
-  type DeviceStatisticsResponse,
-  type DeviceError,
-} from './device.schema';
-
-// ============================================================
-// Shared Types (Re-export from device.schema with renamed exports if needed)
-// ============================================================
-
-// Re-export NetworkType and MobileOperator from device.schema with device prefix
-export {
-  NetworkTypeSchema as DeviceNetworkTypeSchema,
-  MobileOperatorSchema as DeviceMobileOperatorSchema,
-  type NetworkType as DeviceNetworkType,
-  type MobileOperator as DeviceMobileOperator,
+export type {
+  // Re-export commonly combined types
+  DeviceInfo as SessionDeviceInfo,
+  DeviceType as SessionDeviceType,
+  DeviceTrustLevel as SessionDeviceTrustLevel,
+  NetworkType as SessionNetwork,
+  MobileOperator as SessionMobileOperatorType,
+  LocationInfo as SessionLocation,
 } from './device.schema';
