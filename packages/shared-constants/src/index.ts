@@ -1092,6 +1092,47 @@ export {
 } from './transaction-manager.constants';
 
 // ============================================================
+// Security Constants
+// ============================================================
+export {
+  CSP_DIRECTIVES,
+  SECURITY_HEADERS,
+  SECURITY_HEADER_VALUES,
+  EMAIL_CONFIG as SECURITY_EMAIL_CONFIG,  // নামের দ্বন্দ্ব এড়াতে alias
+  DATE_CONFIG,
+  NUMBER_CONFIG,
+  CURRENCY_CONFIG,
+  STRING_CONFIG,
+  PHONE_CONFIG,
+  SANITIZE_CONFIG,
+  CORS_CONFIG,
+  RATE_LIMITS,
+  SESSION_SECURITY,
+  ENCRYPTION_CONFIG,
+  JWT_CONFIG as SECURITY_JWT_CONFIG,      // alias
+  API_KEY_CONFIG as SECURITY_API_KEY_CONFIG,
+  IP_BLACKLIST,
+  SECURITY_EVENTS,
+  SECURITY_ALERT_THRESHOLDS,
+  BD_SECURITY_SETTINGS,
+  PAYMENT_GATEWAY_SECURITY,
+  SECURITY_LOGGING,
+  SECURITY_TESTING,
+} from './security.constants';
+
+export type {
+  CSPDirectives,
+  CORSConfig,
+  RateLimits,
+  SessionSecurity,
+  EncryptionConfig,
+  JWTConfig,
+} from './security.constants';
+
+
+
+
+// ============================================================
 // Type-safe Configuration Helpers (Re-exported from respective files)
 // ============================================================
 // Note: Helper functions are re-exported from their source files above.
