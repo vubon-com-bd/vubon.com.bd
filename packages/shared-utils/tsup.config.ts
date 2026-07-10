@@ -91,8 +91,6 @@ export default defineConfig({
     'validator',
     // Peer dependencies
     '@vubon/auth-constants',
-    '@vubon/shared-types',
-    '@vubon/auth-schemas',
   ],
   
   // Platform - neutral (works in Node.js)
