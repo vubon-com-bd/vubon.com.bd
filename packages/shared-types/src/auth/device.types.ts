@@ -586,6 +586,282 @@ export interface DeviceMetrics {
   };
 }
 
+
+// packages/shared-types/src/common/trust-level.types.ts
+
+/**
+ * Trust Level Types - Enterprise Grade
+ * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
+ * 
+ * @module shared-types/common/trust-level.types
+ * 
+ * @description
+ * Trust level definitions for devices, sessions, and users.
+ * Used for security scoring and risk assessment.
+ * 
+ * Enterprise Rules:
+ * ✅ Pure TypeScript type declarations - NO runtime logic
+ * ✅ Framework-agnostic
+ * ✅ Reusable across all services
+ * ✅ Single source of truth for trust levels
+ */
+
+// ============================================================
+// Trust Level Types
+// ============================================================
+
+/**
+ * Trust level for devices and sessions
+ * Higher trust level = more privileged access
+ */
+export type TrustLevel = 
+  | 'untrusted'      // No trust - full verification required
+  | 'standard'       // Basic trust - standard verification
+  | 'trusted'        // Medium trust - reduced verification
+  | 'high_trust'     // High trust - minimal verification
+  | 'maximum_trust'; // Maximum trust - no additional verification
+
+/**
+ * Trust score range (0-100)
+ */
+export type TrustScore = number;
+
+/**
+ * Trust level configuration
+ */
+export interface TrustLevelConfig {
+  /** Trust level name */
+  level: TrustLevel;
+  
+  /** Numeric trust score (0-100) */
+  score: TrustScore;
+  
+  /** Whether MFA is required for this trust level */
+  requiresMfa: boolean;
+  
+  /** Whether additional verification is required */
+  requiresAdditionalVerification: boolean;
+  
+  /** Maximum session duration in seconds for this trust level */
+  maxSessionDurationSeconds: number;
+  
+  /** Maximum idle timeout in seconds for this trust level */
+  maxIdleTimeoutSeconds: number;
+  
+  /** Allowed actions for this trust level */
+  allowedActions: readonly string[];
+}
+
+// ============================================================
+// Trust Level Constants (Type-only)
+// ============================================================
+
+/**
+ * Trust level scores
+ */
+export const TRUST_LEVEL_SCORES: Record<TrustLevel, TrustScore> = {
+  untrusted: 0,
+  standard: 25,
+  trusted: 50,
+  high_trust: 75,
+  maximum_trust: 100,
+} as const;
+
+/**
+ * Trust level requirements
+ */
+export const TRUST_LEVEL_REQUIREMENTS: Record<TrustLevel, TrustLevelConfig> = {
+  untrusted: {
+    level: 'untrusted',
+    score: 0,
+    requiresMfa: true,
+    requiresAdditionalVerification: true,
+    maxSessionDurationSeconds: 300,
+    maxIdleTimeoutSeconds: 60,
+    allowedActions: ['read_public', 'view_pages'],
+  },
+  standard: {
+    level: 'standard',
+    score: 25,
+    requiresMfa: false,
+    requiresAdditionalVerification: false,
+    maxSessionDurationSeconds: 3600,
+    maxIdleTimeoutSeconds: 600,
+    allowedActions: ['read', 'view', 'profile'],
+  },
+  trusted: {
+    level: 'trusted',
+    score: 50,
+    requiresMfa: false,
+    requiresAdditionalVerification: false,
+    maxSessionDurationSeconds: 7200,
+    maxIdleTimeoutSeconds: 1200,
+    allowedActions: ['read', 'write', 'profile', 'orders'],
+  },
+  high_trust: {
+    level: 'high_trust',
+    score: 75,
+    requiresMfa: false,
+    requiresAdditionalVerification: false,
+    maxSessionDurationSeconds: 14400,
+    maxIdleTimeoutSeconds: 1800,
+    allowedActions: ['read', 'write', 'profile', 'orders', 'payments'],
+  },
+  maximum_trust: {
+    level: 'maximum_trust',
+    score: 100,
+    requiresMfa: false,
+    requiresAdditionalVerification: false,
+    maxSessionDurationSeconds: 86400,
+    maxIdleTimeoutSeconds: 3600,
+    allowedActions: ['read', 'write', 'profile', 'orders', 'payments', 'admin'],
+  },
+} as const;
+
+// ============================================================
+// Utility Types
+// ============================================================
+
+/**
+ * Check if a trust level is valid
+ */
+export function isValidTrustLevel(level: string): level is TrustLevel {
+  return ['untrusted', 'standard', 'trusted', 'high_trust', 'maximum_trust'].includes(level);
+}
+
+/**
+ * Get trust level score
+ */
+export function getTrustLevelScore(level: TrustLevel): TrustScore {
+  return TRUST_LEVEL_SCORES[level];
+}
+
+/**
+ * Get trust level config
+ */
+export function getTrustLevelConfig(level: TrustLevel): TrustLevelConfig {
+  return TRUST_LEVEL_REQUIREMENTS[level];
+}
+
+/**
+ * Check if a trust level meets a minimum requirement
+ */
+export function trustLevelMeetsMinimum(
+  level: TrustLevel, 
+  minimum: TrustLevel
+): boolean {
+  const levels: TrustLevel[] = ['untrusted', 'standard', 'trusted', 'high_trust', 'maximum_trust'];
+  return levels.indexOf(level) >= levels.indexOf(minimum);
+}
+
+
+
+// packages/shared-types/src/common/revocation-scope.types.ts
+
+/**
+ * Revocation Scope Types - Enterprise Grade
+ * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
+ * 
+ * @module shared-types/common/revocation-scope.types
+ * 
+ * @description
+ * Revocation scope definitions for tokens, sessions, and devices.
+ * Used for bulk operations and security policies.
+ * 
+ * Enterprise Rules:
+ * ✅ Pure TypeScript type declarations - NO runtime logic
+ * ✅ Framework-agnostic
+ * ✅ Reusable across all services
+ * ✅ Single source of truth for revocation scopes
+ */
+
+// ============================================================
+// Revocation Scope Types
+// ============================================================
+
+/**
+ * Revocation scope for session/token revocation
+ */
+export type RevocationScope = 
+  | 'single'   // Revoke a single session/token
+  | 'all'      // Revoke all sessions/tokens
+  | 'except'   // Revoke all except specified
+  | 'device'   // Revoke all sessions/tokens for a device
+  | 'bulk';    // Revoke multiple sessions/tokens
+
+/**
+ * Revocation scope with additional context
+ */
+export interface RevocationScopeContext {
+  /** Type of revocation scope */
+  scope: RevocationScope;
+  
+  /** Target ID (sessionId, tokenId, deviceId, etc.) */
+  targetId?: string;
+  
+  /** List of IDs for bulk operations */
+  targetIds?: readonly string[];
+  
+  /** IDs to exclude (for 'except' scope) */
+  excludeIds?: readonly string[];
+  
+  /** Additional metadata for the revocation */
+  metadata?: Record<string, unknown>;
+}
+
+// ============================================================
+// Revocation Scope Constants (Type-only)
+// ============================================================
+
+/**
+ * Valid revocation scope values
+ */
+export const REVOCATION_SCOPE_VALUES: readonly RevocationScope[] = [
+  'single',
+  'all',
+  'except',
+  'device',
+  'bulk',
+] as const;
+
+// ============================================================
+// Utility Types
+// ============================================================
+
+/**
+ * Check if a string is a valid revocation scope
+ */
+export function isValidRevocationScope(value: string): value is RevocationScope {
+  return REVOCATION_SCOPE_VALUES.includes(value as RevocationScope);
+}
+
+/**
+ * Check if a revocation scope is a bulk operation
+ */
+export function isBulkScope(scope: RevocationScope): boolean {
+  return scope === 'bulk' || scope === 'all' || scope === 'device';
+}
+
+/**
+ * Check if a revocation scope requires confirmation
+ */
+export function requiresConfirmation(scope: RevocationScope): boolean {
+  return scope === 'all' || scope === 'bulk' || scope === 'device';
+}
+
+/**
+ * Get scope display name
+ */
+export function getRevocationScopeDisplayName(scope: RevocationScope): string {
+  const names: Record<RevocationScope, string> = {
+    single: 'Single Session',
+    all: 'All Sessions',
+    except: 'All Except',
+    device: 'Device Sessions',
+    bulk: 'Bulk Sessions',
+  };
+  return names[scope] || scope;
+}
 // ============================================================
 // Type Exports
 // ============================================================
@@ -598,3 +874,4 @@ export type DeviceRiskAssessmentType = DeviceRiskAssessment;
 export type DeviceStatisticsType = DeviceStatistics;
 export type DevicePairingType = DevicePairing;
 export type PublicDeviceSessionType = PublicDeviceSession;
+
