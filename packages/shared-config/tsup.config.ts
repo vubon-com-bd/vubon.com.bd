@@ -3,37 +3,40 @@ import { defineConfig } from 'tsup';
 export default defineConfig({
   // Entry points - barrel files + individual configs for granular imports
   entry: {
-    // Root barrel
-    index: 'src/index.ts',
-    
-    // Folder barrels
-    'env/index': 'src/env/index.ts',
-    'oauth/index': 'src/oauth/index.ts',
-    'seo/index': 'src/seo/index.ts',
-    'security/index': 'src/security/index.ts',
-    
-    // Individual configs (for granular tree-shaking)
-    // Env
-    'env/schema': 'src/env/env.schema.ts',
-    'env/validation': 'src/env/env.validation.ts',
-    
-    // OAuth
-    'oauth/google': 'src/oauth/google.config.ts',
-    'oauth/facebook': 'src/oauth/facebook.config.ts',
-    'oauth/github': 'src/oauth/github.config.ts',
-    'oauth/apple': 'src/oauth/apple.config.ts',
-    'oauth/linkedin': 'src/oauth/linkedin.config.ts',
-    
-    // SEO
-    'seo/seo': 'src/seo/seo.config.ts',
-    'seo/robots': 'src/seo/robots.config.ts',
-    'seo/sitemap': 'src/seo/sitemap.config.ts',
-    
-    // Security
-    'security/cors': 'src/security/cors.config.ts',
-    'security/rate-limit': 'src/security/rate-limit.config.ts',
-    'security/helmet': 'src/security/helmet.config.ts',
-  },
+  // Root barrel
+  index: 'src/index.ts',
+  
+  // Folder barrels
+  'env/index': 'src/env/index.ts',
+  'oauth/index': 'src/oauth/index.ts',
+  'seo/index': 'src/seo/index.ts',
+  'security/index': 'src/security/index.ts',
+  
+  // Individual configs (for granular tree-shaking)
+  // Env
+  'env/schema': 'src/env/env.schema.ts',
+  'env/validation': 'src/env/env.validation.ts',
+  
+  // OAuth
+  'oauth/google': 'src/oauth/google.config.ts',
+  'oauth/facebook': 'src/oauth/facebook.config.ts',
+  'oauth/github': 'src/oauth/github.config.ts',
+  'oauth/apple': 'src/oauth/apple.config.ts',
+  'oauth/linkedin': 'src/oauth/linkedin.config.ts',
+  
+  // SEO
+  'seo/seo': 'src/seo/seo.config.ts',
+  'seo/robots': 'src/seo/robots.config.ts',
+  'seo/sitemap': 'src/seo/sitemap.config.ts',
+  
+  // Security
+  'security/cors': 'src/security/cors.config.ts',
+  'security/rate-limit': 'src/security/rate-limit.config.ts',
+  'security/helmet': 'src/security/helmet.config.ts',
+  
+  // OTP (যোগ করা হলো)
+  'otp/otp': 'src/otp/otp.config.ts',
+}
   
   // Output formats - both CommonJS and ESM
   format: ['cjs', 'esm'],
