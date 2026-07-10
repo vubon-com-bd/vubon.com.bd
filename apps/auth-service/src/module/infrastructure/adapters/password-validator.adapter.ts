@@ -422,4 +422,241 @@ export class PasswordValidatorAdapter implements IPasswordValidator {
   isStrongEnough(password: string, minStrength: PasswordStrength = PasswordStrength.MEDIUM): boolean {
     try {
       const result = this.validate(password);
-      const strength
+      const strengthOrder: Record<PasswordStrength, number> = {
+        [PasswordStrength.VERY_WEAK]: 0,
+        [PasswordStrength.WEAK]: 1,
+        [PasswordStrength.MEDIUM]: 2,
+        [PasswordStrength.STRONG]: 3,
+        [PasswordStrength.VERY_STRONG]: 4,
+      };
+
+      return strengthOrder[result.strength] >= strengthOrder[minStrength];
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Calculate password entropy
+   */
+  calculateEntropy(password: string): EntropyResult {
+    try {
+      const bits = calculateEntropy(password);
+
+      let strength: PasswordStrength;
+      let estimatedCrackTime: string;
+
+      if (bits >= 90) {
+        strength = PasswordStrength.VERY_STRONG;
+        estimatedCrackTime = 'centuries';
+      } else if (bits >= 70) {
+        strength = PasswordStrength.STRONG;
+        estimatedCrackTime = 'years';
+      } else if (bits >= 50) {
+        strength = PasswordStrength.MEDIUM;
+        estimatedCrackTime = 'hours';
+      } else if (bits >= 35) {
+        strength = PasswordStrength.WEAK;
+        estimatedCrackTime = 'minutes';
+      } else {
+        strength = PasswordStrength.VERY_WEAK;
+        estimatedCrackTime = 'seconds';
+      }
+
+      return { bits, strength, estimatedCrackTime };
+    } catch {
+      return { bits: 0, strength: PasswordStrength.VERY_WEAK, estimatedCrackTime: 'unknown' };
+    }
+  }
+
+  /**
+   * Check if password is commonly used
+   */
+  isCommonPassword(password: string): boolean {
+    try {
+      return COMMON_PASSWORDS.has(password.toLowerCase() as any);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Check if password contains personal information
+   */
+  containsPersonalInfo(
+    password: string,
+    personalInfo: {
+      email?: string;
+      name?: string;
+      phone?: string;
+      username?: string;
+      birthdate?: string;
+    }
+  ): boolean {
+    try {
+      const lowerPassword = password.toLowerCase();
+
+      // Check email local part
+      if (personalInfo.email && personalInfo.email.includes('@')) {
+        const emailLocal = personalInfo.email.split('@')[0]?.toLowerCase();
+        if (emailLocal && lowerPassword.includes(emailLocal)) {
+          return true;
+        }
+      }
+
+      // Check name
+      if (personalInfo.name && lowerPassword.includes(personalInfo.name.toLowerCase())) {
+        return true;
+      }
+
+      // Check username
+      if (personalInfo.username && lowerPassword.includes(personalInfo.username.toLowerCase())) {
+        return true;
+      }
+
+      // Check phone (last 4 digits)
+      if (personalInfo.phone && personalInfo.phone.length >= 4) {
+        const last4 = personalInfo.phone.slice(-4);
+        if (lowerPassword.includes(last4)) {
+          return true;
+        }
+      }
+
+      // Check birthdate (YYMMDD format)
+      if (personalInfo.birthdate) {
+        const cleaned = personalInfo.birthdate.replace(/-/g, '').replace(/\//g, '');
+        if (cleaned.length >= 6 && lowerPassword.includes(cleaned.slice(-6))) {
+          return true;
+        }
+      }
+
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Generate a secure random password
+   */
+  generateSecurePassword(
+    length: number = 16,
+    options?: {
+      includeLowercase?: boolean;
+      includeUppercase?: boolean;
+      includeNumbers?: boolean;
+      includeSpecial?: boolean;
+      excludeAmbiguous?: boolean;
+    }
+  ): string {
+    try {
+      return sharedGenerateSecurePassword(length, {
+        includeLowercase: options?.includeLowercase ?? true,
+        includeUppercase: options?.includeUppercase ?? true,
+        includeNumbers: options?.includeNumbers ?? true,
+        includeSpecial: options?.includeSpecial ?? true,
+        excludeAmbiguous: options?.excludeAmbiguous ?? false,
+      });
+    } catch {
+      // Fallback generation
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+      let result = '';
+      for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    }
+  }
+
+  /**
+   * Get strength description
+   */
+  getStrengthDescription(strength: PasswordStrength): string {
+    return STRENGTH_DESCRIPTIONS[strength] || 'Unknown';
+  }
+
+  /**
+   * Get recommended minimum length for a strength level
+   */
+  getRecommendedLength(strength: PasswordStrength): number {
+    return RECOMMENDED_LENGTHS[strength] || 8;
+  }
+
+  /**
+   * Get password requirements for UI display
+   */
+  getRequirements(
+    password: string,
+    minStrength: PasswordStrength = PasswordStrength.MEDIUM
+  ): Array<{ key: string; label: string; labelBn?: string; met: boolean }> {
+    const requirements = [
+      {
+        key: 'length',
+        label: `At least ${this.getRecommendedLength(minStrength)} characters`,
+        labelBn: `কমপক্ষে ${this.getRecommendedLength(minStrength)} অক্ষর`,
+        met: password.length >= this.getRecommendedLength(minStrength),
+      },
+      {
+        key: 'uppercase',
+        label: 'At least one uppercase letter (A-Z)',
+        labelBn: 'কমপক্ষে একটি বড় হাতের অক্ষর (A-Z)',
+        met: /[A-Z]/.test(password),
+      },
+      {
+        key: 'lowercase',
+        label: 'At least one lowercase letter (a-z)',
+        labelBn: 'কমপক্ষে একটি ছোট হাতের অক্ষর (a-z)',
+        met: /[a-z]/.test(password),
+      },
+      {
+        key: 'number',
+        label: 'At least one number (0-9)',
+        labelBn: 'কমপক্ষে একটি সংখ্যা (0-9)',
+        met: /[0-9]/.test(password),
+      },
+      {
+        key: 'special',
+        label: 'At least one special character (!@#$%^&*)',
+        labelBn: 'কমপক্ষে একটি বিশেষ অক্ষর (!@#$%^&*)',
+        met: /[^A-Za-z0-9]/.test(password),
+      },
+    ];
+
+    // Check common passwords
+    const isCommon = this.isCommonPassword(password);
+    if (isCommon) {
+      requirements.push({
+        key: 'common',
+        label: 'Not a common password',
+        labelBn: 'সাধারণ পাসওয়ার্ড নয়',
+        met: false,
+      });
+    }
+
+    return requirements;
+  }
+
+  /**
+   * Clear validation cache (useful for testing)
+   */
+  clearCache(): void {
+    this.cache.clear();
+  }
+
+  /**
+   * Get cache statistics (for monitoring)
+   */
+  getCacheStats(): { size: number; maxSize: number } {
+    return this.cache.getStats();
+  }
+}
+
+// ============================================================
+// Singleton Export (For dependency injection)
+// ============================================================
+
+/**
+ * Singleton instance of PasswordValidatorAdapter
+ * Use this for dependency injection in NestJS or other DI containers
+ */
+export const passwordValidatorAdapter = new PasswordValidatorAdapter();
