@@ -483,3 +483,4 @@ export type PermissionListResponse = z.infer<typeof PermissionListResponseSchema
 export type PermissionSyncResponse = z.infer<typeof PermissionSyncResponseSchema>;
 export type PermissionStatisticsResponse = z.infer<typeof PermissionStatisticsResponseSchema>;
 export type PermissionError = z.infer<typeof PermissionErrorSchema>;
+ 
