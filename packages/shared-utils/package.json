@@ -127,6 +127,21 @@
       "import": "./dist/token/jwt.util.mjs",
       "require": "./dist/token/jwt.util.js"
     },
+    "./async": {
+  "types": "./dist/async/index.d.ts",
+  "import": "./dist/async/index.mjs",
+  "require": "./dist/async/index.js"
+},
+"./env": {
+  "types": "./dist/env/index.d.ts",
+  "import": "./dist/env/index.mjs",
+  "require": "./dist/env/index.js"
+},
+"./logger": {
+  "types": "./dist/logger/index.d.ts",
+  "import": "./dist/logger/index.mjs",
+  "require": "./dist/logger/index.js"
+},
     "./refresh-token": {
       "types": "./dist/token/refresh-token.util.d.ts",
       "import": "./dist/token/refresh-token.util.mjs",
