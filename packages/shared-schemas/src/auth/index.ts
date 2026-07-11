@@ -150,7 +150,7 @@ export {
   VerificationTypeSchema,
   VerificationStatusSchema,
   VerificationMethodSchema,
-  VerificationTokenSchema as VerificationToken,
+  VerificationTokenSchema as Verification_Token,
   VerificationCodeSchema,
   UserIdSchema as VerificationUserIdSchema,
   SessionIdSchema,
@@ -276,10 +276,6 @@ export {
   isGovernmentEmail,
   normalizeEmail,
   maskEmail,
-  
-  // Types
-  type EmailCategory,
-  type EmailBranded,
 } from './email.schema';
 
 // ============================================================
@@ -317,62 +313,7 @@ export {
   getBangladeshOperator,
   normalizeBangladeshPhone,
   maskPhoneNumber,
-  
-  // Types
-  type Phone,
-  type LenientPhone,
-  type PhoneWithOperator,
-  type PhoneWithType,
-  type PhoneVerificationRequest,
-  type PhoneVerificationResponse,
-  type PhoneChangeRequest,
-  type PhoneChangeResponse,
-  type PhoneList,
-  type PhoneListWithOperator,
-  type MFAPhone,
-  type WhatsAppPhone,
-  type VoiceCallPhone,
-  type PhoneComponents,
-  type PhoneError,
-  type BDMobilePrefix,
-  type BDOperator,
 } from './phone.schema';
-
-// ============================================================
-// Core Types (Re-exported from schemas)
-// ============================================================
-export type {
-  // From user.schema
-  UserId,
-  UserEmail,
-  UserPhone,
-  UserPhoneRequired,
-  UserFirstName,
-  UserLastName,
-  UserDisplayName,
-  UserAvatar,
-  UserPassword,
-  UserStrongPassword,
-  UserStatus,
-  UserVerificationStatus,
-  UserRole,
-  UserTier,
-  UserMetadata,
-  User,
-  CreateUserRequest,
-  UpdateUserRequest,
-  UpdateUserProfileRequest,
-  UpdateUserRoleRequest,
-  UpdateUserStatusRequest,
-  UserFilters,
-  UserResponse,
-  UserProfileResponse,
-  UserListResponse,
-  UserActivitySummary,
-  UserPreferences,
-  UserError,
-  Password,
-} from './user.schema';
 
 export type {
   // From mfa.schema
@@ -515,8 +456,6 @@ export type {
   PhoneWithType,
   PhoneVerificationRequest,
   PhoneVerificationResponse,
-  PhoneChangeRequest,
-  PhoneChangeResponse,
   PhoneList,
   PhoneListWithOperator,
   MFAPhone,
