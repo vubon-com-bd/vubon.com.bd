@@ -44,7 +44,8 @@
     "noEmitOnError": true,
     "allowSyntheticDefaultImports": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@vubon/shared-constants": ["../shared-constants/src"]
     }
   },
   "include": ["src/**/*.ts"],
