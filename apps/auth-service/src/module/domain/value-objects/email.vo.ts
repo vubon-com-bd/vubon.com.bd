@@ -1,56 +1,41 @@
 /**
- * Email Value Object - Pure Domain Core
+ * Email Value Object - Pure Domain Core (Port-Based)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module domain/value-objects/email.vo
  * 
  * @description
  * Represents a validated and normalized email address.
- * Uses minimal shared utilities for core validation.
+ * Uses dependency injection (Port) for validation to keep domain layer pure.
  * 
  * Enterprise Rules:
  * ✅ Immutable - Email never changes after creation
- * ✅ Self-validating - Validates format and constraints
+ * ✅ Self-validating - Validates using injected validator port
  * ✅ Normalized - Standardized format for equality
- * ✅ Framework-free - No external dependencies
+ * ✅ Framework-free - No external dependencies (shared-*, @nestjs/*, etc.)
  * ✅ Bangladesh specific - Support for .com.bd, .edu.bd, etc.
+ * ✅ Dependency Inversion - Uses interface (IEmailValidator) not concrete implementation
+ * ✅ Testable - Easy to mock the validator
  * 
  * @example
- * const email = new Email('User@Example.COM');
- * console.log(email.getValue()); // 'user@example.com'
+ * // With DI container (production)
+ * const email = new Email('User@Example.COM', emailValidator);
+ * console.log(email.getValue()); // 'User@Example.COM'
+ * console.log(email.getNormalized()); // 'user@example.com'
  * console.log(email.getDomain()); // 'example.com'
+ * 
+ * // Without DI container (testing)
+ * const mockValidator = new MockEmailValidator();
+ * const email = new Email('test@example.com', mockValidator);
  */
 
 import { ValueObject } from './base.vo';
-// domain/value-objects/email.vo.ts
-import { ValueObject } from './base.vo';
-import { IEmailValidator } from '../ports/email-validator.port';
-
-export class Email extends ValueObject {
-  private readonly _value: string;
-  private readonly _normalized: string;
-
-  constructor(
-    email: string,
-    private readonly validator: IEmailValidator // ডিপেন্ডেন্সি ইনজেকশন
-  ) {
-    super();
-
-    const result = validator.validate(email);
-    if (!result.isValid) {
-      throw new Error(result.error || 'Invalid email');
-    }
-
-    this._value = email.trim();
-    this._normalized = result.normalized!;
-    this.validate();
-  }
-}
+import { IEmailValidator, EmailValidationResult } from '../ports/email-validator.port';
 
 // ==================== Types ====================
 
 /**
- * Email validation result
+ * Email validation result (domain-specific)
  */
 export interface EmailValidation {
   isValid: boolean;
@@ -58,64 +43,15 @@ export interface EmailValidation {
   error?: string;
 }
 
-// ==================== Constants (Bangladesh Specific) ====================
-
 /**
- * Bangladesh specific email domain patterns
+ * Email domain type (Bangladesh specific)
  */
-const BD_EMAIL_PATTERNS = {
-  BANGLADESH_DOMAIN: /\.(com\.bd|net\.bd|org\.bd|edu\.bd|gov\.bd|ac\.bd|mil\.bd)$/i,
-  EDUCATIONAL_DOMAIN: /\.(edu|ac\.bd|edu\.bd)$/i,
-  GOVERNMENT_DOMAIN: /\.(gov|gov\.bd)$/i,
-} as const;
-
-/**
- * Bangladesh specific email domain sets (for quick lookup)
- */
-const BD_EMAIL_SETS = {
-  GOVERNMENT: new Set([
-    'gov.bd',
-    'moi.gov.bd',
-    'bcc.gov.bd',
-    'a2i.gov.bd',
-    'dgdpr.gov.bd',
-  ]),
-  CORPORATE: new Set([
-    'bangla.net',
-    'agni.com',
-    'citechco.net',
-    'bdcom.com',
-    'bol-online.com',
-    'dhaka.net',
-    'link3.net',
-    'btcl.net.bd',
-  ]),
-  DISPOSABLE: new Set([
-    'tempmail.com',
-    '10minutemail.com',
-    'guerrillamail.com',
-    'mailinator.com',
-    'throwaway.com',
-    'temp-mail.org',
-    'fakeinbox.com',
-    'spamgourmet.com',
-    'guerrillamail.net',
-    'guerrillamail.biz',
-    'guerrillamail.org',
-    'guerrillamailblock.com',
-    'pokemail.net',
-    'spam4.me',
-    'bccto.me',
-    'chacuo.net',
-    'guerrillamail.info',
-    'tempinbox.co.uk',
-    'tempmail2.com',
-    'tempemail.net',
-    'wegwerfmail.de',
-    'wegwerfmail.net',
-    'wegwerfmail.org',
-  ]),
-} as const;
+export type EmailDomainType = 
+  | 'bangladesh' 
+  | 'educational' 
+  | 'government' 
+  | 'disposable' 
+  | 'other';
 
 // ==================== Email Value Object ====================
 
@@ -130,28 +66,31 @@ export class Email extends ValueObject {
   private readonly _localPart: string;
   private readonly _domain: string;
   private readonly _subAddressTag?: string;
+  private readonly _domainType: EmailDomainType;
 
   /**
    * Creates a new Email value object
    * 
    * @param email - Raw email address string
+   * @param validator - Injected email validator port (Dependency Injection)
    * @throws {Error} If email format is invalid
    */
-  constructor(email: string) {
+  constructor(
+    email: string,
+    private readonly validator: IEmailValidator
+  ) {
     super();
     
-    // Use shared schema for validation
-    const schemaResult = EmailSchema.safeParse(email);
-    if (!schemaResult.success) {
-      throw new Error(`Invalid email: ${schemaResult.error.errors[0]?.message || 'Invalid format'}`);
+    // ✅ Use injected validator for validation
+    const validation: EmailValidationResult = validator.validate(email);
+    if (!validation.isValid) {
+      throw new Error(`Invalid email: ${validation.error || 'Invalid format'}`);
     }
     
-    // Use shared utility for normalization
-    const normalized = normalizeEmail(email);
-    
-    // Final validation with shared utility
-    if (!isValidEmail(normalized)) {
-      throw new Error('Invalid email format');
+    // ✅ Use injected validator for normalization
+    const normalized = validator.normalize(email);
+    if (!normalized) {
+      throw new Error('Could not normalize email');
     }
     
     this._value = email.trim();
@@ -169,6 +108,9 @@ export class Email extends ValueObject {
     } else {
       this._localPart = localPart || '';
     }
+    
+    // Get domain type from validator
+    this._domainType = validator.getDomainType(this._domain) as EmailDomainType;
     
     this.validate();
   }
@@ -193,36 +135,46 @@ export class Email extends ValueObject {
   /**
    * Static factory method for creating Email from known valid value
    */
-  public static fromValid(email: string): Email {
-    return new Email(email);
+  public static fromValid(
+    email: string,
+    validator: IEmailValidator
+  ): Email {
+    return new Email(email, validator);
   }
 
   /**
    * Creates an Email from unknown input (safe parsing)
    */
-  public static tryCreate(email: unknown): Email | null {
+  public static tryCreate(
+    email: unknown,
+    validator: IEmailValidator
+  ): Email | null {
     if (typeof email !== 'string') {
       return null;
     }
     
     try {
-      return new Email(email);
+      return new Email(email, validator);
     } catch {
       return null;
     }
   }
 
   // ============================================================
-  // Validation Methods
+  // Static Validation Methods (Using Injected Validator)
   // ============================================================
 
   /**
-   * Validates an email address
+   * Validates an email address using the injected validator
    * 
-   * @param email - The email to validate
+   * @param email - Raw email address string
+   * @param validator - Injected email validator port
    * @returns Validation result with normalized value if valid
    */
-  public static validate(email: string): EmailValidation {
+  public static validate(
+    email: string,
+    validator: IEmailValidator
+  ): EmailValidation {
     // Check type and emptiness
     if (!email || typeof email !== 'string') {
       return {
@@ -248,25 +200,23 @@ export class Email extends ValueObject {
       };
     }
 
-    // Use shared schema validation
-    const schemaResult = EmailSchema.safeParse(trimmed);
-    if (!schemaResult.success) {
+    // ✅ Use injected validator for validation
+    const validationResult = validator.validate(trimmed);
+    if (!validationResult.isValid) {
       return {
         isValid: false,
-        error: schemaResult.error.errors[0]?.message || 'Invalid email format',
+        error: validationResult.error || 'Invalid email format',
       };
     }
 
-    // Use shared utility for validation
-    if (!isValidEmail(trimmed)) {
+    // ✅ Use injected validator for normalization
+    const normalized = validator.normalize(trimmed);
+    if (!normalized) {
       return {
         isValid: false,
-        error: 'Invalid email format',
+        error: 'Could not normalize email',
       };
     }
-
-    // Use shared utility for normalization
-    const normalized = normalizeEmail(trimmed);
 
     return {
       isValid: true,
@@ -275,17 +225,24 @@ export class Email extends ValueObject {
   }
 
   /**
-   * Normalize email to canonical form
-   * Uses shared utility
+   * Normalize email to canonical form using injected validator
    */
-  public static normalize(email: string, stripSubaddress: boolean = false): string {
-    let normalized = normalizeEmail(email);
+  public static normalize(
+    email: string,
+    validator: IEmailValidator,
+    stripSubaddress: boolean = false
+  ): string | null {
+    let normalized = validator.normalize(email);
+    if (!normalized) return null;
     
     if (stripSubaddress) {
       const [localPart, domain] = normalized.split('@');
       if (localPart) {
         const baseLocalPart = localPart.split('+')[0];
-        return `${baseLocalPart}@${domain}`;
+        if (domain) {
+          return `${baseLocalPart}@${domain}`;
+        }
+        return baseLocalPart;
       }
     }
     
@@ -344,14 +301,8 @@ export class Email extends ValueObject {
   /**
    * Get email domain type (Bangladesh specific)
    */
-  public getDomainType(): 'bangladesh' | 'educational' | 'government' | 'disposable' | 'other' {
-    if (BD_EMAIL_SETS.DISPOSABLE.has(this._domain)) return 'disposable';
-    if (BD_EMAIL_PATTERNS.BANGLADESH_DOMAIN.test(this._domain) || 
-        BD_EMAIL_SETS.CORPORATE.has(this._domain)) return 'bangladesh';
-    if (BD_EMAIL_PATTERNS.EDUCATIONAL_DOMAIN.test(this._domain)) return 'educational';
-    if (BD_EMAIL_PATTERNS.GOVERNMENT_DOMAIN.test(this._domain) || 
-        BD_EMAIL_SETS.GOVERNMENT.has(this._domain)) return 'government';
-    return 'other';
+  public getDomainType(): EmailDomainType {
+    return this._domainType;
   }
 
   /**
@@ -359,6 +310,34 @@ export class Email extends ValueObject {
    */
   public hasSubAddress(): boolean {
     return !!this._subAddressTag;
+  }
+
+  /**
+   * Check if email is from Bangladesh
+   */
+  public isBangladesh(): boolean {
+    return this._domainType === 'bangladesh';
+  }
+
+  /**
+   * Check if email is from educational institution
+   */
+  public isEducational(): boolean {
+    return this._domainType === 'educational';
+  }
+
+  /**
+   * Check if email is from government
+   */
+  public isGovernment(): boolean {
+    return this._domainType === 'government';
+  }
+
+  /**
+   * Check if email is from disposable provider
+   */
+  public isDisposable(): boolean {
+    return this._domainType === 'disposable';
   }
 
   /**
@@ -392,7 +371,11 @@ export class Email extends ValueObject {
       domain: this._domain,
       hasSubAddress: this.hasSubAddress(),
       subAddressTag: this._subAddressTag,
-      domainType: this.getDomainType(),
+      domainType: this._domainType,
+      isBangladesh: this.isBangladesh(),
+      isEducational: this.isEducational(),
+      isGovernment: this.isGovernment(),
+      isDisposable: this.isDisposable(),
     };
   }
 
@@ -400,7 +383,6 @@ export class Email extends ValueObject {
    * String representation for debugging
    */
   public override toString(): string {
-    // Show only for debugging - not for production display
     return `Email(${this._normalized})`;
   }
 }
@@ -419,15 +401,10 @@ export function isEmail(value: unknown): value is Email {
 /**
  * Create Email from request (handles various input sources)
  */
-export function createEmailFromRequest(email: string | null | undefined): Email | null {
+export function createEmailFromRequest(
+  email: string | null | undefined,
+  validator: IEmailValidator
+): Email | null {
   if (!email) return null;
-  return Email.tryCreate(email);
-}
-
-/**
- * Validate email format (simple boolean check)
- * Uses shared utility
- */
-export function isValidEmailFormat(email: string): boolean {
-  return isValidEmail(email);
+  return Email.tryCreate(email, validator);
 }
