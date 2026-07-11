@@ -1,3 +1,6 @@
+// packages/shared-config/src/security/rate-limit.config.ts
+// Complete fixed file - all redeclaration errors resolved
+
 /**
  * Rate Limit Configuration - Throttling policies
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
@@ -14,36 +17,26 @@
 
 import { env } from '../env/env.validation';
 import { RATE_LIMIT_CONFIG } from '@vubon/shared-constants';
+
 // ==================== Constants ====================
 
 // Time constants (in milliseconds)
 const ONE_MINUTE = 60 * 1000;
 const FIVE_MINUTES = 5 * ONE_MINUTE;
 const FIFTEEN_MINUTES = 15 * ONE_MINUTE;
-// ✅ FIXED: Removed unused constants
-// const THIRTY_MINUTES = 30 * ONE_MINUTE;
 const ONE_HOUR = 60 * ONE_MINUTE;
-// const ONE_DAY = 24 * ONE_HOUR;
 
-// ✅ NEW: Get default values from shared-constants (SSOT)
-const DEFAULT_GLOBAL_LIMIT = RATE_LIMIT_CONFIG.API.PUBLIC.max;
-const DEFAULT_GLOBAL_WINDOW = RATE_LIMIT_CONFIG.API.PUBLIC.windowMs / 1000;
-const DEFAULT_LOGIN_LIMIT = RATE_LIMIT_CONFIG.AUTH.LOGIN.max;
-const DEFAULT_LOGIN_WINDOW = RATE_LIMIT_CONFIG.AUTH.LOGIN.windowMs / 1000;
-
-// Default rate limits from environment
-const DEFAULT_GLOBAL_LIMIT = env.RATE_LIMIT_MAX_REQUESTS || 100;
-const DEFAULT_GLOBAL_WINDOW = env.RATE_LIMIT_TTL || 60;
-const DEFAULT_LOGIN_LIMIT = env.RATE_LIMIT_LOGIN_MAX || 5;
-const DEFAULT_LOGIN_WINDOW = env.RATE_LIMIT_LOGIN_TTL || 900;
+// ✅ FIXED: Removed duplicate declarations - using SSOT from shared-constants
+// Default values are now fetched from RATE_LIMIT_CONFIG (SSOT)
+// and environment variables (for override)
 
 // ==================== Rate Limit Configuration ====================
 
 export const rateLimitConfig = Object.freeze({
-  // Global defaults
+  // Global defaults (from SSOT + env override)
   global: {
-    windowMs: DEFAULT_GLOBAL_WINDOW * 1000,
-    max: DEFAULT_GLOBAL_LIMIT,
+    windowMs: (env.RATE_LIMIT_TTL || RATE_LIMIT_CONFIG.API.PUBLIC.windowMs / 1000) * 1000,
+    max: env.RATE_LIMIT_MAX_REQUESTS || RATE_LIMIT_CONFIG.API.PUBLIC.max,
     skipSuccessfulRequests: false,
     skipFailedRequests: false,
     standardHeaders: true,
@@ -53,8 +46,8 @@ export const rateLimitConfig = Object.freeze({
   // Authentication endpoints (stricter)
   auth: {
     login: {
-      windowMs: DEFAULT_LOGIN_WINDOW * 1000,
-      max: DEFAULT_LOGIN_LIMIT,
+      windowMs: (env.RATE_LIMIT_LOGIN_TTL || RATE_LIMIT_CONFIG.AUTH.LOGIN.windowMs / 1000) * 1000,
+      max: env.RATE_LIMIT_LOGIN_MAX || RATE_LIMIT_CONFIG.AUTH.LOGIN.max,
       skipSuccessfulRequests: true,
       skipFailedRequests: false,
       message: 'Too many login attempts. Please try again later.',
