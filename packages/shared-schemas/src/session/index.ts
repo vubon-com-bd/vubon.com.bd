@@ -201,5 +201,4 @@ export type {
   DeviceTrustLevel as SessionDeviceTrustLevel,
   NetworkType as SessionNetwork,
   MobileOperator as SessionMobileOperatorType,
-  LocationInfo as SessionLocation,
 } from './device.schema';
