@@ -49,12 +49,7 @@ export {
   // Validated environment object (readonly & frozen)
   env,
 
-  // Environment helpers
-  // ✅ NEW: Export default values from shared-constants
-  DEFAULT_GLOBAL_LIMIT,
-  DEFAULT_GLOBAL_WINDOW,
-  DEFAULT_LOGIN_LIMIT,
-  DEFAULT_LOGIN_WINDOW,
+  // Environment helper
   isProduction,
   isDevelopment,
   isTest,
@@ -76,7 +71,7 @@ export type {
   RedisConfig,
   JWTConfig,
   OAuthConfig,
-  SecurityConfig,
+  SecurityConfig as Security_Config,
   EmailConfig,
   FeatureFlags,
   Env,
@@ -208,12 +203,6 @@ export {
   getLinkedInRevokeUrl,
   getLinkedInUserInfoUrl,
   extractProfilePicture,
-
-  // Cross-OAuth utilities
-  OAUTH_CONFIG_CHECKS,
-  getConfiguredProviders,
-  isAnyOAuthConfigured,
-  getProviderLoginUrl,
 } from './oauth';
 
 export type {
@@ -258,10 +247,6 @@ export type {
   LinkedInOAuthConfig,
   ExtractedLinkedInUserInfo,
   LinkedInApiHeaders,
-
-  // Cross-OAuth types
-  OAuthProviderName,
-  OAuthConfigCheck,
 } from './oauth';
 
 // ============================================================
@@ -274,11 +259,6 @@ export {
   getCorsConfig,
   isOriginAllowed,
   getAllowedOrigins,
-  ALLOWED_METHODS,
-  ALLOWED_HEADERS,
-  EXPOSED_HEADERS,
-  DEVELOPMENT_ORIGINS,
-  TEST_ORIGINS,
 
   // Helmet/Security Headers
   cspConfig,
@@ -291,11 +271,6 @@ export {
   getCspNonce,
   isCspUnsafeInlineAllowed,
   getAllowedDomains,
-  PRODUCTION_DOMAINS,
-  CDN_DOMAINS,
-  PAYMENT_DOMAINS,
-  ANALYTICS_DOMAINS,
-  IS_PRODUCTION,
 
   // Rate Limit Configuration
   rateLimitConfig,
@@ -304,14 +279,6 @@ export {
   getMethodRateLimit,
   getUserTierRateLimit,
   isIpWhitelisted,
-  ONE_MINUTE,
-  FIVE_MINUTES,
-  FIFTEEN_MINUTES,
-  ONE_HOUR,
-  DEFAULT_GLOBAL_LIMIT,
-  DEFAULT_GLOBAL_WINDOW,
-  DEFAULT_LOGIN_LIMIT,
-  DEFAULT_LOGIN_WINDOW,
 
   // Cross-Security Utilities
   getSecurityConfig,
@@ -353,8 +320,6 @@ export {
   metaRobotsConfig,
   getRobotsTxtConfig,
   getMetaRobots,
-  DISALLOW_PATHS,
-  ALLOW_PATHS,
 
   // SEO Configuration
   seoConfig,
