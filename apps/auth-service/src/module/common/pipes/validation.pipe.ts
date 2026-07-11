@@ -30,8 +30,8 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
-import { ZodSchema, ZodError } from 'zod';
-import { env } from '@vubon/shared-config';
+// ✅ FIXED: Use 'import type' for ZodSchema and ZodError
+import type { ZodSchema, ZodError } from 'zod';
 
 // ============================================================
 // Types
@@ -78,10 +78,12 @@ export class ZodValidationPipe implements PipeTransform {
       const result = await this.schema.safeParseAsync(value);
 
       if (!result.success) {
+        // Cast result.error to ZodError type
+        const zodError = result.error as ZodError;
         throw new BadRequestException({
           message: 'Validation failed',
           messageBn: 'ভ্যালিডেশন ব্যর্থ হয়েছে',
-          errors: this.formatErrors(result.error),
+          errors: this.formatErrors(zodError),
         });
       }
 
