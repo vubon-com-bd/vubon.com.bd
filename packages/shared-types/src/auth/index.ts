@@ -54,7 +54,7 @@ export type {
   ProgressiveLockoutConfig,
   SmartLockDetectionResult,
   UnusualPattern,
-} from './auth/account-lock.types';
+} from './account-lock.types';
 
 // ============================================================
 // 2. Device Types
@@ -125,7 +125,7 @@ export type {
   TrustLevelConfig,
   RevocationScope,
   RevocationScopeContext,
-} from './auth/device.types';
+} from './device.types';
 
 // ============================================================
 // 3. Login Attempt Types
@@ -171,7 +171,7 @@ export type {
   LoginRecoveryRequest,
   LoginRecoveryResponse,
   FailedAttemptSummary,
-} from './auth/login-attempt.types';
+} from './login-attempt.types';
 
 // ============================================================
 // 4. MFA Types
@@ -231,7 +231,7 @@ export type {
   MFATypes,
   ExtendedMFAType,
   MFADisableScope,
-} from './auth/mfa.types';
+} from './mfa.types';
 
 // ============================================================
 // 5. Permission Types
@@ -288,7 +288,7 @@ export type {
   PermissionValidationResult,
   PermissionDependency,
   PermissionDependencyGraph,
-} from './auth/permission.types';
+} from './permission.types';
 
 // ============================================================
 // 6. Reset Method Types
@@ -304,7 +304,7 @@ export type {
 
   // Bangladesh Specific
   BangladeshResetMethod,
-} from './auth/reset-method.types';
+} from './reset-method.types';
 
 // ============================================================
 // 7. Role Types
@@ -346,7 +346,7 @@ export type {
   RoleImportResult,
   AvailableRole,
   UserRole,
-} from './auth/role.types';
+} from './role.types';
 
 // ============================================================
 // 8. Session Types
@@ -408,7 +408,7 @@ export type {
   PasswordResetId,
   SocialAccountId,
   EmailVerificationId,
-} from './auth/session.types';
+} from './session.types';
 
 // ============================================================
 // 9. Social Auth Types
@@ -476,7 +476,7 @@ export type {
   // UI Configuration
   SocialProviderPriority,
   SocialLoginButtonConfig,
-} from './auth/social.types';
+} from './social.types';
 
 // ============================================================
 // 10. Token Types
@@ -543,7 +543,7 @@ export type {
   // Passwordless Login
   PasswordlessLoginRequest,
   PasswordlessLoginResponse,
-} from './auth/token.types';
+} from './token.types';
 
 // ============================================================
 // 11. User Types
@@ -605,7 +605,7 @@ export type {
   ExtendedUserFilters,
   ExtendedUserStatistics,
   BulkUserOperationRequest,
-} from './auth/user.types';
+} from './user.types';
 
 // ============================================================
 // 12. Verification Types
@@ -662,26 +662,5 @@ export type {
   WhatsAppVerificationTemplate,
   VerificationAuditLog,
   VerificationHealthStatus,
-} from './auth/verification.types';
+} from './verification.types';
 
-// ============================================================
-// Cross-Domain Type Re-exports (For convenience)
-// ============================================================
-export type {
-  // Role & Permission Combined
-  PermissionString as RolePermissionString,
-  ExtendedRole as RoleDefinition,
-  PermissionCheckResult as AuthorizationCheckResult,
-
-  // User & Session Combined
-  UserSessionInfo as SessionUserInfo,
-  UserDTO as AuthUserDTO,
-
-  // Device & Location Combined
-  LocationInfo as DeviceLocation,
-  DeviceInfo as SessionDeviceInfo,
-
-  // Token & MFA Combined
-  AccessTokenPayload as AuthTokenPayload,
-  TokenResponse as AuthTokenResponse,
-} from './auth/session.types';
