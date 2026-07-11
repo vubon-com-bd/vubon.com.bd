@@ -10,14 +10,14 @@
  * change tracking, and audit metadata.
  * 
  * Enterprise Features:
- * ✅ Shared constants from @vubon/shared-constants (ID patterns)
- * ✅ Shared types from @vubon/shared-types (DomainEvent types)
+ * ✅ Pure TypeScript - NO external dependencies
+ * ✅ ID validation patterns (UUID v4, ULID, Snowflake, Alphanumeric)
  * ✅ Change tracking for audit trail
  * ✅ Metadata support for audit logging
  * ✅ Optimistic locking with version
  * ✅ Soft delete with restore
  * ✅ Domain event registry with pull pattern
- * ✅ ID generation strategy injection
+ * ✅ ID generation strategy injection (via interface)
  * ✅ Thread-safe with copy-on-write semantics
  * 
  * @example
@@ -26,7 +26,7 @@
  *     super(id, createdAt, updatedAt, version);
  *   }
  *   
- *   public static create(email: EmailVO, idGenerator: IdGenerator): User {
+ *   public static create(email: string, idGenerator: IdGenerator): User {
  *     const user = new User(
  *       idGenerator.generate(),
  *       new Date(),
@@ -39,16 +39,14 @@
  * }
  */
 
-// ✅ FIXED: Import from shared packages
-import { ID_PATTERNS, ID_CONFIG } from '@vubon/shared-constants';
-import type { DomainEvent as SharedDomainEvent, AuditMetadata } from '@vubon/shared-types';
-
-// ==================== Types ====================
+// ============================================================
+// Types
+// ============================================================
 
 /**
- * Domain event interface (extends shared type)
+ * Domain event interface
  */
-export interface DomainEvent extends SharedDomainEvent {
+export interface DomainEvent {
   readonly eventId: string;
   readonly eventType: string;
   readonly aggregateId: string;
@@ -70,7 +68,7 @@ export interface EntityConstructorOptions {
   createdAt?: Date;
   updatedAt?: Date;
   version?: number;
-  metadata?: AuditMetadata;
+  metadata?: EntityMetadata;
 }
 
 /**
@@ -104,9 +102,6 @@ export interface ChangeEntry {
 /**
  * Entity metadata for audit trail
  */
-// apps/auth-service/src/module/domain/entities/base.entity.ts
-// ✅ EntityMetadata ইন্টারফেস আপডেট করুন (প্রায় লাইন 50-60)
-
 export interface EntityMetadata {
   createdBy?: string;
   createdByIp?: string;
@@ -118,50 +113,52 @@ export interface EntityMetadata {
   custom?: Record<string, unknown>;
 }
 
-// ✅ ChangeEntry ইন্টারফেস আপডেট করুন (প্রায় লাইন 440-450)
-
-export interface ChangeEntry {
-  field: string;
-  oldValue: unknown;
-  newValue: unknown;
-  changedAt: Date;
-  changedBy?: string;  // ✅ optional করুন
-}
-
-// ==================== Constants ====================
+// ============================================================
+// Constants (Local - No external imports)
+// ============================================================
 
 /**
- * ID validation configuration (from shared-constants)
+ * ID validation patterns (RFC 4122 compliant)
  */
-const ID_VALIDATION_CONFIG = {
-  // Supported ID types
-  SUPPORTED_TYPES: ['uuid', 'ulid', 'snowflake', 'sequential'] as const,
+const ID_PATTERNS = {
+  /** UUID v4 pattern (RFC 4122) */
+  UUID_V4: /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
   
-  // Default ID type for new entities
-  DEFAULT_ID_TYPE: 'uuid' as const,
+  /** ULID pattern (26 characters, Crockford's Base32) */
+  ULID: /^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}$/i,
   
-  // Minimum ID length
-  MIN_LENGTH: ID_CONFIG?.MIN_LENGTH || 1,
+  /** Snowflake ID pattern (19 digits) */
+  SNOWFLAKE: /^\d{19}$/,
   
-  // Maximum ID length
-  MAX_LENGTH: ID_CONFIG?.MAX_LENGTH || 255,
+  /** Alphanumeric with special characters */
+  ALPHANUMERIC: /^[a-zA-Z0-9\-_.]{1,255}$/,
 } as const;
 
-// ==================== Domain Errors ====================
+/**
+ * ID validation configuration
+ */
+const ID_CONFIG = {
+  MIN_LENGTH: 1,
+  MAX_LENGTH: 255,
+  DEFAULT_ID_TYPE: 'uuid' as const,
+} as const;
+
+// ============================================================
+// Domain Errors
+// ============================================================
 
 /**
  * Entity validation error
  */
-// ✅ FIXED: ডিফল্ট ভ্যালু ব্যবহার করুন
 export class EntityValidationError extends Error {
   public readonly errors: readonly string[];
-  public readonly entityName: string;  // ✅ required রাখুন
+  public readonly entityName: string;
   
   constructor(message: string, errors?: readonly string[], entityName?: string) {
     super(message);
     this.name = 'EntityValidationError';
     this.errors = errors || [message];
-    this.entityName = entityName || 'Unknown';  // ✅ ডিফল্ট ভ্যালু
+    this.entityName = entityName || 'Unknown';
     Error.captureStackTrace(this, this.constructor);
   }
 }
@@ -210,7 +207,9 @@ export class InvalidIdFormatError extends Error {
   }
 }
 
-// ==================== Base Entity ====================
+// ============================================================
+// Base Entity
+// ============================================================
 
 /**
  * Abstract base entity class with enterprise features
@@ -230,30 +229,30 @@ export abstract class BaseEntity {
   private _isDeleted: boolean = false;
   protected _deletedAt: Date | null = null;
   
-  // ✅ NEW: Change tracking for audit trail
+  // Change tracking for audit trail
   private _changes: Map<string, ChangeEntry> = new Map();
   
-  // ✅ NEW: Entity tags for categorization
+  // Entity tags for categorization
   private _tags: Set<string> = new Set();
 
   /**
    * Protected constructor - entities should use factory methods
    */
   protected constructor(options: EntityConstructorOptions) {
-    // ✅ Validate ID with shared patterns
+    // Validate ID
     if (!options.id || options.id.trim().length === 0) {
       throw new EntityValidationError('Entity ID cannot be empty', [], this.constructor.name);
     }
     
-    // ✅ Validate ID format using shared constants
+    // Validate ID format
     if (!this.validateIdFormat(options.id)) {
       throw new InvalidIdFormatError(options.id, 'UUID v4, ULID, Snowflake, or alphanumeric string');
     }
     
     // Validate ID length
-    if (options.id.length > ID_VALIDATION_CONFIG.MAX_LENGTH) {
+    if (options.id.length > ID_CONFIG.MAX_LENGTH) {
       throw new EntityValidationError(
-        `Entity ID too long (max ${ID_VALIDATION_CONFIG.MAX_LENGTH} characters)`,
+        `Entity ID too long (max ${ID_CONFIG.MAX_LENGTH} characters)`,
         [],
         this.constructor.name
       );
@@ -263,17 +262,18 @@ export abstract class BaseEntity {
     this._createdAt = options.createdAt ? new Date(options.createdAt) : new Date();
     this._updatedAt = options.updatedAt ? new Date(options.updatedAt) : new Date(this._createdAt);
     this._version = options.version ?? 1;
-    // ✅ FIXED: স্প্রেড অপারেটর ব্যবহার করে শুধু existing প্রপার্টি assign করুন
-this._metadata = {
-  ...(options.metadata?.createdBy && { createdBy: options.metadata.createdBy }),
-  ...(options.metadata?.createdByIp && { createdByIp: options.metadata.createdByIp }),
-  ...(options.metadata?.createdByUserAgent && { createdByUserAgent: options.metadata.createdByUserAgent }),
-  ...(options.metadata?.lastModifiedBy && { lastModifiedBy: options.metadata.lastModifiedBy }),
-  ...(options.metadata?.lastModifiedByIp && { lastModifiedByIp: options.metadata.lastModifiedByIp }),
-  ...(options.metadata?.lastModifiedByUserAgent && { lastModifiedByUserAgent: options.metadata.lastModifiedByUserAgent }),
-  ...(options.metadata?.tags && { tags: [...options.metadata.tags] }),
-  ...(options.metadata?.custom && { custom: { ...options.metadata.custom } }),
-};
+    
+    // Initialize metadata
+    this._metadata = {
+      ...(options.metadata?.createdBy && { createdBy: options.metadata.createdBy }),
+      ...(options.metadata?.createdByIp && { createdByIp: options.metadata.createdByIp }),
+      ...(options.metadata?.createdByUserAgent && { createdByUserAgent: options.metadata.createdByUserAgent }),
+      ...(options.metadata?.lastModifiedBy && { lastModifiedBy: options.metadata.lastModifiedBy }),
+      ...(options.metadata?.lastModifiedByIp && { lastModifiedByIp: options.metadata.lastModifiedByIp }),
+      ...(options.metadata?.lastModifiedByUserAgent && { lastModifiedByUserAgent: options.metadata.lastModifiedByUserAgent }),
+      ...(options.metadata?.tags && { tags: [...options.metadata.tags] }),
+      ...(options.metadata?.custom && { custom: { ...options.metadata.custom } }),
+    };
     
     // Validate version
     if (this._version < 1) {
@@ -293,27 +293,26 @@ this._metadata = {
   }
 
   // ============================================================
-  // ID Validation (Using Shared Constants)
+  // ID Validation (Pure TypeScript - No external dependencies)
   // ============================================================
 
   /**
-   * Validate ID format using shared constants patterns
-   * ✅ Enterprise enhancement
+   * Validate ID format using local patterns
    */
   private validateIdFormat(id: string): boolean {
     // Check UUID v4
-    if (ID_PATTERNS?.UUID_V4?.test(id)) return true;
+    if (ID_PATTERNS.UUID_V4.test(id)) return true;
     
     // Check ULID format (10 characters timestamp + 16 random = 26 chars base32)
-    if (ID_PATTERNS?.ULID?.test(id)) return true;
+    if (ID_PATTERNS.ULID.test(id)) return true;
     
-    // Check Snowflake ID (19 digits, Twitter snowflake format)
-    if (ID_PATTERNS?.SNOWFLAKE?.test(id)) return true;
+    // Check Snowflake ID (19 digits)
+    if (ID_PATTERNS.SNOWFLAKE.test(id)) return true;
     
-    // Check sequential/alphanumeric ID (allowed for backward compatibility)
-    if (ID_PATTERNS?.ALPHANUMERIC?.test(id)) return true;
+    // Check alphanumeric ID
+    if (ID_PATTERNS.ALPHANUMERIC.test(id)) return true;
     
-    // Fallback: allow alphanumeric with hyphens/underscores (legacy support)
+    // Fallback: allow alphanumeric with hyphens/underscores
     return /^[a-zA-Z0-9\-_.]{1,255}$/.test(id);
   }
 
@@ -321,9 +320,9 @@ this._metadata = {
    * Get the ID type based on format
    */
   public getIdType(): 'uuid' | 'ulid' | 'snowflake' | 'sequential' | 'unknown' {
-    if (ID_PATTERNS?.UUID_V4?.test(this._id)) return 'uuid';
-    if (ID_PATTERNS?.ULID?.test(this._id)) return 'ulid';
-    if (ID_PATTERNS?.SNOWFLAKE?.test(this._id)) return 'snowflake';
+    if (ID_PATTERNS.UUID_V4.test(this._id)) return 'uuid';
+    if (ID_PATTERNS.ULID.test(this._id)) return 'ulid';
+    if (ID_PATTERNS.SNOWFLAKE.test(this._id)) return 'snowflake';
     if (/^\d+$/.test(this._id)) return 'sequential';
     return 'unknown';
   }
@@ -332,65 +331,38 @@ this._metadata = {
   // Getters
   // ============================================================
 
-  /**
-   * Get entity ID
-   */
   public get id(): string {
     return this._id;
   }
 
-  /**
-   * Get creation timestamp (immutable copy)
-   */
   public get createdAt(): Date {
     return new Date(this._createdAt);
   }
 
-  /**
-   * Get last update timestamp (immutable copy)
-   */
   public get updatedAt(): Date {
     return new Date(this._updatedAt);
   }
 
-  /**
-   * Get version (for optimistic locking)
-   */
   public get version(): number {
     return this._version;
   }
 
-  /**
-   * Check if entity is deleted (soft delete)
-   */
   public get isDeleted(): boolean {
     return this._isDeleted;
   }
 
-  /**
-   * Get deletion timestamp
-   */
   public get deletedAt(): Date | null {
     return this._deletedAt ? new Date(this._deletedAt) : null;
   }
 
-  /**
-   * Check if entity is newly created (not yet persisted)
-   */
   public get isNew(): boolean {
     return this._version === 1 && !this._isDeleted;
   }
 
-  /**
-   * Check if entity has been modified since load
-   */
   public get isDirty(): boolean {
     return this._version > 1 || this._changes.size > 0;
   }
 
-  /**
-   * Get entity metadata (readonly copy)
-   */
   public get metadata(): Readonly<EntityMetadata> {
     return {
       ...this._metadata,
@@ -399,23 +371,14 @@ this._metadata = {
     };
   }
 
-  /**
-   * Get all changes (for audit trail)
-   */
   public getChanges(): ReadonlyMap<string, ChangeEntry> {
     return new Map(this._changes);
   }
 
-  /**
-   * Get entity tags
-   */
   public getTags(): readonly string[] {
     return Array.from(this._tags);
   }
 
-  /**
-   * Check if entity has specific tag
-   */
   public hasTag(tag: string): boolean {
     return this._tags.has(tag);
   }
@@ -428,7 +391,7 @@ this._metadata = {
    * Validate entity invariants
    * Must be implemented by concrete entities
    */
- protected abstract validate(): EntityValidationResult;
+  protected abstract validate(): EntityValidationResult;
 
   /**
    * Update timestamp and increment version
@@ -438,7 +401,6 @@ this._metadata = {
     this._updatedAt = new Date();
     this._version++;
     
-    // Update metadata if provided
     if (modifiedBy) {
       this._metadata.lastModifiedBy = modifiedBy;
     }
@@ -449,7 +411,6 @@ this._metadata = {
 
   /**
    * Increment version without changing timestamp
-   * Used for version updates from persistence
    */
   protected incrementVersion(): void {
     this._version++;
@@ -458,25 +419,20 @@ this._metadata = {
   /**
    * Track a field change for audit trail
    */
-  protected trackChange<T>(
-  field: string,
-  oldValue: T,
-  newValue: T,
-  changedBy?: string
-): void {
-  if (oldValue === newValue) return;
-  
-  // changedBy থাকলেই শুধু যোগ করুন
-  const change: ChangeEntry = {
-    field,
-    oldValue: this.deepCopy(oldValue),
-    newValue: this.deepCopy(newValue),
-    changedAt: new Date(),
-    ...(changedBy && { changedBy }),  // ✅ changedBy থাকলেই যোগ হবে
-  } as ChangeEntry;
-  
-  this._changes.set(field, change);
-}
+  protected trackChange<T>(field: string, oldValue: T, newValue: T, changedBy?: string): void {
+    if (oldValue === newValue) return;
+    
+    const change: ChangeEntry = {
+      field,
+      oldValue: this.deepCopy(oldValue),
+      newValue: this.deepCopy(newValue),
+      changedAt: new Date(),
+      ...(changedBy && { changedBy }),
+    };
+    
+    this._changes.set(field, change);
+  }
+
   /**
    * Deep copy a value for change tracking
    */
@@ -507,16 +463,13 @@ this._metadata = {
    */
   protected addTag(tag: string): void {
     this._tags.add(tag);
-    this.trackChange('tags', Array.from(this._tags), Array.from(this._tags));
   }
 
   /**
    * Remove a tag from the entity
    */
   protected removeTag(tag: string): void {
-    if (this._tags.delete(tag)) {
-      this.trackChange('tags', Array.from(this._tags), Array.from(this._tags));
-    }
+    this._tags.delete(tag);
   }
 
   /**
@@ -561,7 +514,6 @@ this._metadata = {
 
   /**
    * Ensure entity is not deleted before operation
-   * @throws EntityValidationError if entity is deleted
    */
   protected ensureNotDeleted(): void {
     if (this._isDeleted) {
@@ -577,9 +529,6 @@ this._metadata = {
   // Equality Methods
   // ============================================================
 
-  /**
-   * Check if two entities are equal (by ID and type)
-   */
   public equals(other: BaseEntity | null | undefined): boolean {
     if (!other) return false;
     if (this === other) return true;
@@ -587,9 +536,6 @@ this._metadata = {
     return this._id === other._id;
   }
 
-  /**
-   * Check if entity has same identity (by ID only)
-   */
   public hasSameIdentity(other: BaseEntity | null | undefined): boolean {
     if (!other) return false;
     return this._id === other._id;
@@ -599,9 +545,6 @@ this._metadata = {
   // Domain Event Methods
   // ============================================================
 
-  /**
-   * Add a domain event
-   */
   protected addDomainEvent(event: DomainEvent): void {
     if (!event) {
       throw new EntityValidationError('Domain event cannot be null', [], this.constructor.name);
@@ -609,41 +552,26 @@ this._metadata = {
     this._domainEvents.push(event);
   }
 
-  /**
-   * Add multiple domain events
-   */
   protected addDomainEvents(events: readonly DomainEvent[]): void {
     for (const event of events) {
       this.addDomainEvent(event);
     }
   }
 
-  /**
-   * Get all domain events (read-only copy)
-   */
   public getDomainEvents(): readonly DomainEvent[] {
     return [...this._domainEvents];
   }
 
-  /**
-   * Clear all domain events
-   */
   public clearDomainEvents(): void {
     this._domainEvents = [];
   }
 
-  /**
-   * Get and clear domain events (for event dispatcher)
-   */
   public pullDomainEvents(): DomainEvent[] {
     const events = [...this._domainEvents];
     this.clearDomainEvents();
     return events;
   }
 
-  /**
-   * Check if entity has any domain events
-   */
   public hasDomainEvents(): boolean {
     return this._domainEvents.length > 0;
   }
@@ -652,22 +580,7 @@ this._metadata = {
   // Audit Trail Methods
   // ============================================================
 
-  /**
-   * Get audit trail for this entity
-   */
-  // ✅ FIXED: শুধু existing প্রপার্টি রিটার্ন করুন
-public getAuditTrail(): {
-  createdAt: Date;
-  createdBy?: string;
-  createdByIp?: string;
-  lastModifiedAt: Date;
-  lastModifiedBy?: string;
-  lastModifiedByIp?: string;
-  changes: ChangeEntry[];
-  deletedAt?: Date | null;
-  deletedBy?: string;
-} {
-  const result: {
+  public getAuditTrail(): {
     createdAt: Date;
     createdBy?: string;
     createdByIp?: string;
@@ -677,30 +590,37 @@ public getAuditTrail(): {
     changes: ChangeEntry[];
     deletedAt?: Date | null;
     deletedBy?: string;
-  } = {
-    createdAt: this._createdAt,
-    lastModifiedAt: this._updatedAt,
-    changes: Array.from(this._changes.values()),
-    deletedAt: this._deletedAt,
-  };
+  } {
+    const result: {
+      createdAt: Date;
+      createdBy?: string;
+      createdByIp?: string;
+      lastModifiedAt: Date;
+      lastModifiedBy?: string;
+      lastModifiedByIp?: string;
+      changes: ChangeEntry[];
+      deletedAt?: Date | null;
+      deletedBy?: string;
+    } = {
+      createdAt: this._createdAt,
+      lastModifiedAt: this._updatedAt,
+      changes: Array.from(this._changes.values()),
+      deletedAt: this._deletedAt,
+    };
 
-  // ✅ শুধু existing প্রপার্টি যোগ করুন
-  if (this._metadata.createdBy) result.createdBy = this._metadata.createdBy;
-  if (this._metadata.createdByIp) result.createdByIp = this._metadata.createdByIp;
-  if (this._metadata.lastModifiedBy) result.lastModifiedBy = this._metadata.lastModifiedBy;
-  if (this._metadata.lastModifiedByIp) result.lastModifiedByIp = this._metadata.lastModifiedByIp;
-  if (this._metadata.lastModifiedBy) result.deletedBy = this._metadata.lastModifiedBy;
+    if (this._metadata.createdBy) result.createdBy = this._metadata.createdBy;
+    if (this._metadata.createdByIp) result.createdByIp = this._metadata.createdByIp;
+    if (this._metadata.lastModifiedBy) result.lastModifiedBy = this._metadata.lastModifiedBy;
+    if (this._metadata.lastModifiedByIp) result.lastModifiedByIp = this._metadata.lastModifiedByIp;
+    if (this._metadata.lastModifiedBy) result.deletedBy = this._metadata.lastModifiedBy;
 
-  return result;
-}
+    return result;
+  }
 
   // ============================================================
   // JSON Serialization
   // ============================================================
 
-  /**
-   * Convert entity to plain object (for serialization)
-   */
   public toJSON(): Record<string, unknown> {
     return {
       id: this._id,
@@ -720,10 +640,6 @@ public getAuditTrail(): {
     };
   }
 
-  /**
-   * Convert entity to a plain object for persistence
-   * Override in child classes for custom persistence mapping
-   */
   public toPersistence(): Record<string, unknown> {
     return {
       ...this.toJSON(),
@@ -731,21 +647,14 @@ public getAuditTrail(): {
     };
   }
 
-  /**
-   * String representation for debugging
-   */
   public toString(): string {
     return `${this.constructor.name}(id=${this._id}, type=${this.getIdType()}, version=${this._version}, deleted=${this._isDeleted})`;
   }
 
   // ============================================================
-  // Comparison Methods
+  // Version Control Methods
   // ============================================================
 
-  /**
-   * Compare versions for optimistic locking
-   * @throws EntityConflictError if versions don't match
-   */
   public assertVersion(expectedVersion: number): void {
     if (this._version !== expectedVersion) {
       throw new EntityConflictError(
@@ -757,10 +666,6 @@ public getAuditTrail(): {
     }
   }
 
-  /**
-   * Merge changes from another entity instance
-   * Used for updating entity state after persistence
-   */
   protected mergeFrom(other: this): void {
     if (!this.hasSameIdentity(other)) {
       throw new EntityValidationError(
@@ -776,25 +681,25 @@ public getAuditTrail(): {
     this._deletedAt = other._deletedAt ? new Date(other._deletedAt) : null;
     
     // Merge metadata
-    // ✅ FIXED: স্প্রেড অপারেটর + কন্ডিশনাল প্রপার্টি ব্যবহার করুন
-this._metadata = {
-  ...(this._metadata.createdBy && { createdBy: this._metadata.createdBy }),
-  ...(this._metadata.createdByIp && { createdByIp: this._metadata.createdByIp }),
-  ...(this._metadata.createdByUserAgent && { createdByUserAgent: this._metadata.createdByUserAgent }),
-  ...(this._metadata.lastModifiedBy && { lastModifiedBy: this._metadata.lastModifiedBy }),
-  ...(this._metadata.lastModifiedByIp && { lastModifiedByIp: this._metadata.lastModifiedByIp }),
-  ...(this._metadata.lastModifiedByUserAgent && { lastModifiedByUserAgent: this._metadata.lastModifiedByUserAgent }),
-  ...(other._metadata.createdBy && { createdBy: other._metadata.createdBy }),
-  ...(other._metadata.createdByIp && { createdByIp: other._metadata.createdByIp }),
-  ...(other._metadata.createdByUserAgent && { createdByUserAgent: other._metadata.createdByUserAgent }),
-  ...(other._metadata.lastModifiedBy && { lastModifiedBy: other._metadata.lastModifiedBy }),
-  ...(other._metadata.lastModifiedByIp && { lastModifiedByIp: other._metadata.lastModifiedByIp }),
-  ...(other._metadata.lastModifiedByUserAgent && { lastModifiedByUserAgent: other._metadata.lastModifiedByUserAgent }),
-  ...(other._metadata.tags && { tags: [...other._metadata.tags] }),
-  ...(this._metadata.tags && !other._metadata.tags && { tags: [...this._metadata.tags] }),
-  ...(other._metadata.custom && { custom: { ...other._metadata.custom } }),
-  ...(this._metadata.custom && !other._metadata.custom && { custom: { ...this._metadata.custom } }),
-};
+    this._metadata = {
+      ...(this._metadata.createdBy && { createdBy: this._metadata.createdBy }),
+      ...(this._metadata.createdByIp && { createdByIp: this._metadata.createdByIp }),
+      ...(this._metadata.createdByUserAgent && { createdByUserAgent: this._metadata.createdByUserAgent }),
+      ...(this._metadata.lastModifiedBy && { lastModifiedBy: this._metadata.lastModifiedBy }),
+      ...(this._metadata.lastModifiedByIp && { lastModifiedByIp: this._metadata.lastModifiedByIp }),
+      ...(this._metadata.lastModifiedByUserAgent && { lastModifiedByUserAgent: this._metadata.lastModifiedByUserAgent }),
+      ...(other._metadata.createdBy && { createdBy: other._metadata.createdBy }),
+      ...(other._metadata.createdByIp && { createdByIp: other._metadata.createdByIp }),
+      ...(other._metadata.createdByUserAgent && { createdByUserAgent: other._metadata.createdByUserAgent }),
+      ...(other._metadata.lastModifiedBy && { lastModifiedBy: other._metadata.lastModifiedBy }),
+      ...(other._metadata.lastModifiedByIp && { lastModifiedByIp: other._metadata.lastModifiedByIp }),
+      ...(other._metadata.lastModifiedByUserAgent && { lastModifiedByUserAgent: other._metadata.lastModifiedByUserAgent }),
+      ...(other._metadata.tags && { tags: [...other._metadata.tags] }),
+      ...(this._metadata.tags && !other._metadata.tags && { tags: [...this._metadata.tags] }),
+      ...(other._metadata.custom && { custom: { ...other._metadata.custom } }),
+      ...(this._metadata.custom && !other._metadata.custom && { custom: { ...this._metadata.custom } }),
+    };
+    
     // Merge tags
     this._tags = new Set([...this._tags, ...other._tags]);
     
@@ -805,8 +710,6 @@ this._metadata = {
         this._domainEvents.push(event);
       }
     }
-    
-    // Note: Changes are NOT merged - they are specific to the instance
   }
 }
 
@@ -819,29 +722,10 @@ this._metadata = {
  * Implemented in infrastructure layer, injected via factory
  */
 export interface IdGenerator {
-  /**
-   * Generate a unique ID (UUID v4 compatible)
-   */
   generate(): string;
-  
-  /**
-   * Generate a ULID (sortable unique identifier)
-   */
   generateUlid(): string;
-  
-  /**
-   * Generate a Snowflake ID (Twitter snowflake)
-   */
   generateSnowflake(): string;
-  
-  /**
-   * Generate a sequential ID
-   */
   generateSequential(): string;
-  
-  /**
-   * Generate an ID of specific type
-   */
   generateOfType(type: 'uuid' | 'ulid' | 'snowflake' | 'sequential'): string;
 }
 
@@ -857,7 +741,6 @@ export class TestIdGenerator implements IdGenerator {
   }
   
   generateUlid(): string {
-    // Generate a ULID-compatible format (timestamp + random)
     const timestamp = Date.now().toString(36).padStart(10, '0');
     const random = Math.random().toString(36).substring(2, 18);
     return `${timestamp}${random}`.toUpperCase();
@@ -885,12 +768,6 @@ export class TestIdGenerator implements IdGenerator {
   }
 }
 
-/**
- * ⚠️ WARNING: Crypto-based ID generator removed from domain layer.
- * Crypto operations belong in infrastructure layer.
- * Use IdGenerator interface for injection instead.
- */
-
 // ============================================================
 // Abstract Domain Event Implementation
 // ============================================================
@@ -898,11 +775,10 @@ export class TestIdGenerator implements IdGenerator {
 /**
  * Abstract base domain event
  */
-// ✅ FIXED: ডিফল্ট খালি অবজেক্ট ব্যবহার করুন
 export abstract class BaseDomainEvent implements DomainEvent {
   public readonly eventId: string;
   public readonly occurredOn: Date;
-  public readonly metadata: Readonly<Record<string, unknown>>;  // ✅ required রাখুন
+  public readonly metadata: Readonly<Record<string, unknown>>;
   
   constructor(
     public readonly eventType: string,
@@ -912,7 +788,7 @@ export abstract class BaseDomainEvent implements DomainEvent {
   ) {
     this.eventId = generateEventId();
     this.occurredOn = new Date();
-    this.metadata = metadata ? Object.freeze({ ...metadata }) : Object.freeze({});  // ✅ ডিফল্ট খালি অবজেক্ট
+    this.metadata = metadata ? Object.freeze({ ...metadata }) : Object.freeze({});
   }
 }
 
@@ -927,7 +803,6 @@ function generateEventId(): string {
   return `evt_${timestamp}_${random}_${counter}`;
 }
 
-// Namespace for counter persistence
 namespace generateEventId {
   export let counter = 0;
 }
