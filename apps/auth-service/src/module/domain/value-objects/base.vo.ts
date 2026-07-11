@@ -236,7 +236,7 @@ export class TemporalEqualityError extends ValueObjectError {
  * Implements domain-driven design equality semantics with enterprise features
  */
 export abstract class ValueObject {
-  /** Marker for type checking */
+  /** ✅ FIXED: Marker is now used in isValueObject check */
   private readonly _valueObjectMarker: symbol = VALUE_OBJECT_MARKER;
   
   /** Cache for temporal field names (lazy loaded) */
@@ -601,7 +601,7 @@ export abstract class ValueObject {
     return {
       equal: differences.length === 0,
       differences: differences.length > 0 ? differences : undefined,
-    };
+    } as ValueObjectComparison;
   }
 
   /**
@@ -822,13 +822,14 @@ export abstract class ValueObject {
   /**
    * Type-safe check if the other object is a ValueObject
    * Uses marker symbol instead of instanceof for cross-module compatibility
+   * ✅ FIXED: Now uses the _valueObjectMarker property
    */
   private isValueObject(other: unknown): other is ValueObject {
     if (!other || typeof other !== 'object') return false;
 
     const candidate = other as ValueObject;
     return (
-      VALUE_OBJECT_MARKER in candidate &&
+      this._valueObjectMarker in candidate &&
       typeof candidate.equals === 'function'
     );
   }
@@ -966,6 +967,7 @@ export type PrimitiveOf<T extends ValueObject> =
 
 /**
  * Check if a value is a ValueObject instance
+ * ✅ FIXED: Now properly uses the VALUE_OBJECT_MARKER constant
  */
 export function isValueObject(value: unknown): value is ValueObject {
   if (!value || typeof value !== 'object') return false;
