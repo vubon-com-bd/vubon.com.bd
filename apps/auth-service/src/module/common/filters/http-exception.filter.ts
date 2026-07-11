@@ -44,19 +44,20 @@ import { env } from '@vubon/shared-config';
 
 /**
  * Standardized error response interface
+ * ✅ FIXED: All optional fields are explicitly `| undefined`
  */
 export interface ErrorResponse {
   success: false;
   error: {
     code: string;
     message: string;
-    messageBn?: string;
-    details?: unknown;
-    stack?: string;
-    requestId?: string;
+    messageBn: string | undefined;
+    details: unknown;
+    stack: string | undefined;
+    requestId: string | undefined;
     timestamp: string;
-    path?: string;
-    method?: string;
+    path: string | undefined;
+    method: string | undefined;
     statusCode: number;
   };
 }
@@ -70,6 +71,18 @@ export interface ErrorCodeMapping {
   messageBn?: string;
   statusCode: number;
 }
+
+// ============================================================
+// Custom HTTP Status Codes
+// ============================================================
+
+/**
+ * Extended HTTP status codes not available in NestJS
+ */
+export const HTTP_STATUS = {
+  ...HttpStatus,
+  LOCKED: 423, // 423 Locked (WebDAV)
+} as const;
 
 // ============================================================
 // Error Code Definitions
@@ -114,40 +127,6 @@ export const ERROR_CODES = {
 } as const;
 
 // ============================================================
-// Error Code to Status Mapping
-// ============================================================
-
-const ERROR_TO_STATUS: Record<string, number> = {
-  [ERROR_CODES.BAD_REQUEST]: HttpStatus.BAD_REQUEST,
-  [ERROR_CODES.UNAUTHORIZED]: HttpStatus.UNAUTHORIZED,
-  [ERROR_CODES.FORBIDDEN]: HttpStatus.FORBIDDEN,
-  [ERROR_CODES.NOT_FOUND]: HttpStatus.NOT_FOUND,
-  [ERROR_CODES.CONFLICT]: HttpStatus.CONFLICT,
-  [ERROR_CODES.UNPROCESSABLE_ENTITY]: HttpStatus.UNPROCESSABLE_ENTITY,
-  [ERROR_CODES.TOO_MANY_REQUESTS]: HttpStatus.TOO_MANY_REQUESTS,
-  [ERROR_CODES.VALIDATION_ERROR]: HttpStatus.BAD_REQUEST,
-  [ERROR_CODES.INTERNAL_SERVER_ERROR]: HttpStatus.INTERNAL_SERVER_ERROR,
-  [ERROR_CODES.NOT_IMPLEMENTED]: HttpStatus.NOT_IMPLEMENTED,
-  [ERROR_CODES.BAD_GATEWAY]: HttpStatus.BAD_GATEWAY,
-  [ERROR_CODES.SERVICE_UNAVAILABLE]: HttpStatus.SERVICE_UNAVAILABLE,
-  [ERROR_CODES.GATEWAY_TIMEOUT]: HttpStatus.GATEWAY_TIMEOUT,
-  [ERROR_CODES.INSUFFICIENT_PERMISSIONS]: HttpStatus.FORBIDDEN,
-  [ERROR_CODES.ACCOUNT_LOCKED]: HttpStatus.LOCKED,
-  [ERROR_CODES.ACCOUNT_SUSPENDED]: HttpStatus.FORBIDDEN,
-  [ERROR_CODES.INVALID_CREDENTIALS]: HttpStatus.UNAUTHORIZED,
-  [ERROR_CODES.TOKEN_EXPIRED]: HttpStatus.UNAUTHORIZED,
-  [ERROR_CODES.TOKEN_INVALID]: HttpStatus.UNAUTHORIZED,
-  [ERROR_CODES.SESSION_EXPIRED]: HttpStatus.UNAUTHORIZED,
-  [ERROR_CODES.MFA_REQUIRED]: HttpStatus.UNAUTHORIZED,
-  [ERROR_CODES.MFA_FAILED]: HttpStatus.UNAUTHORIZED,
-  [ERROR_CODES.EMAIL_NOT_VERIFIED]: HttpStatus.FORBIDDEN,
-  [ERROR_CODES.PHONE_NOT_VERIFIED]: HttpStatus.FORBIDDEN,
-  [ERROR_CODES.RESOURCE_NOT_FOUND]: HttpStatus.NOT_FOUND,
-  [ERROR_CODES.RESOURCE_ALREADY_EXISTS]: HttpStatus.CONFLICT,
-  [ERROR_CODES.BUSINESS_RULE_VIOLATION]: HttpStatus.UNPROCESSABLE_ENTITY,
-};
-
-// ============================================================
 // Filter Implementation
 // ============================================================
 
@@ -177,8 +156,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
       error: {
         code: errorCode,
         message,
-        messageBn,
-        details: this.sanitizeDetails(details),
+        messageBn: messageBn || undefined,
+        details: this.sanitizeDetails(details) || undefined,
         stack: this.shouldShowStack() ? stack : undefined,
         requestId,
         timestamp: new Date().toISOString(),
@@ -198,14 +177,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   /**
    * Parse exception and extract error details
+   * ✅ FIXED: Added explicit undefined handling
    */
   private parseException(exception: unknown): {
     statusCode: number;
     errorCode: string;
     message: string;
-    messageBn?: string;
-    details?: unknown;
-    stack?: string;
+    messageBn: string | undefined;
+    details: unknown;
+    stack: string | undefined;
   } {
     // Extract stack trace
     const stack = exception instanceof Error ? exception.stack : undefined;
@@ -218,7 +198,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       // Get error code and message
       let errorCode = this.getErrorCodeFromStatus(statusCode);
       let message = response.message || exception.message || 'An error occurred';
-      let messageBn = response.messageBn;
+      let messageBn: string | undefined = response.messageBn;
 
       // Handle validation errors (BadRequestException with validation details)
       if (exception instanceof BadRequestException) {
@@ -264,7 +244,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         statusCode,
         errorCode,
         message,
-        messageBn,
+        messageBn: messageBn || undefined,
         details: response.details || response.errors || undefined,
         stack: this.shouldShowStack() ? stack : undefined,
       };
@@ -279,12 +259,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
       statusCode,
       errorCode,
       message,
+      messageBn: undefined,
+      details: undefined,
       stack: this.shouldShowStack() ? stack : undefined,
     };
   }
 
   /**
    * Get default error code from HTTP status
+   * ✅ FIXED: Added LOCKED (423) support
    */
   private getErrorCodeFromStatus(status: number): string {
     const statusMap: Record<number, string> = {
@@ -300,6 +283,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       [HttpStatus.BAD_GATEWAY]: ERROR_CODES.BAD_GATEWAY,
       [HttpStatus.SERVICE_UNAVAILABLE]: ERROR_CODES.SERVICE_UNAVAILABLE,
       [HttpStatus.GATEWAY_TIMEOUT]: ERROR_CODES.GATEWAY_TIMEOUT,
+      [HTTP_STATUS.LOCKED]: ERROR_CODES.ACCOUNT_LOCKED,
     };
 
     return statusMap[status] || ERROR_CODES.INTERNAL_SERVER_ERROR;
