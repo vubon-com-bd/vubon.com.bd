@@ -356,68 +356,159 @@ export {
 // ============================================================
 // 11. Password Hasher Types
 // ============================================================
-export type {
-  HashingAlgorithm,
-  HashResult,
-  VerificationResult,
-  BcryptConfig,
-  Argon2idConfig,
-  ScryptConfig,
-  Pbkdf2Config,
-  SaltConfig,
-  PerformanceThresholds,
-  HashingPerformance,
-  FallbackConfig,
-  EnvironmentHashingConfig,
-  BBankCompliantConfig,
-  HashingAuditConfig,
-  HasherConfig,
-} from './password-hasher.types';
+// packages/shared-types/src/common/index.ts
+// অথবা packages/shared-types/src/index.ts
+// (যেখানে common exports আছে সেখানে যোগ করুন)
 
-// ✅ ADDED: Hashing algorithm constants
+// ============================================================
+// Password Hasher Types
+// ============================================================
 export {
-  HASHING_ALGORITHMS,
-  DEFAULT_ALGORITHM,
+  // Algorithm & Configuration Types
+  type HashingAlgorithm,
+  type BcryptOptions,
+  type Argon2idOptions,
+  type ScryptOptions,
+  type Pbkdf2Options,
+  type HasherConfig,
+  type SaltOptions,
+  
+  // Result Types
+  type HashResult,
+  type HashStringResult,
+  type HashBufferResult,
+  type HashVerifyResult,
+  type HashErrorCode,
+  
+  // Performance & Audit Types
+  type HashPerformanceMetrics,
+  type HashAuditMetadata,
+  type HashAuditEvent,
+  type HashAuditEventType,
+  
+  // Compliance Types (Bangladesh Bank)
+  type BBankComplianceRequirements,
+  type BBankComplianceStatus,
+  
+  // Fallback Types
+  type HashFallbackConfig,
+  type HashFallbackStatus,
+  
+  // Environment Types
+  type HashingEnvironmentConfig,
+  type HashingEnvironmentConfigMap,
+  
+  // Service Interface
+  type IPasswordHasher,
+  
+  // Policy Types
+  type PasswordPolicy,
 } from './password-hasher.types';
 
+// অথবা, যদি আলাদা ফাইল থেকে ইম্পোর্ট করতে চান:
+// export * from './password-hasher.types';
 // ============================================================
 // 12. Rate Limit Types
 // ============================================================
-export type {
-  RateLimitConfig,
-  RateLimitStatus,
-  RateLimitStrategy,
-  RateLimitStore,
-  RateLimitHeaders,
-  RateLimitByNetwork,
-  RateLimitWindow,
-  RateLimitResult,
-  RateLimitError,
-} from './rate-limit.types';
+// packages/shared-types/src/common/index.ts
+// অথবা packages/shared-types/src/index.ts
+// (যেখানে common exports আছে সেখানে যোগ করুন)
 
-// ✅ ADDED: Rate limit strategy constants
+// ============================================================
+// Rate Limit Types
+// ============================================================
 export {
-  RATE_LIMIT_STRATEGIES,
+  // Core Types
+  type RateLimitWindow,
+  type RateLimitConfig,
+  type EndpointRateLimitConfig,
+  type TierRateLimitConfig,
+  type DistrictRateLimitConfig,
+  type RateLimitStatus,
+  type DetailedRateLimitStatus,
+  type RateLimitHeaders,
+  type RateLimitResponse,
+  type RateLimitViolation,
+  type RateLimitAnalytics,
+  type ServiceRateLimitConfig,
+  
+  // DTO Classes
+  RateLimitMetadataDto,
+  RateLimitCheckDto,
+  RateLimitCheckResponseDto,
+  
+  // Enums
+  RateLimitSeverity,
+  RateLimitScope,
+  RateLimitPolicy,
+  RateLimitViolationType,
+  RateLimitErrorCode,
+  
+  // Default Configuration
+  DEFAULT_RATE_LIMITS,
 } from './rate-limit.types';
 
 // ============================================================
 // 13. SEO Types
 // ============================================================
-export type {
-  SeoMetadata,
-  OpenGraph,
-  TwitterCard,
-  JsonLd,
-  SitemapEntry,
-  RobotsTxt,
-  SeoAnalysis,
-  SeoAudit,
-  SeoConfig,
-} from './seo.types';
+// packages/shared-types/src/common/index.ts
+// অথবা packages/shared-types/src/index.ts
+// (যেখানে common exports আছে সেখানে যোগ করুন)
 
-// ✅ ADDED: Default SEO config constant
+// ============================================================
+// SEO Types
+// ============================================================
 export {
-  DEFAULT_SEO_CONFIG,
+  // Meta Tag Types
+  type MetaTag,
+  
+  // Open Graph Types
+  type OpenGraphTags,
+  type OgType,
+  
+  // Twitter Card Types
+  type TwitterCardTags,
+  type TwitterCardType,
+  
+  // Structured Data Types
+  type StructuredData,
+  type ProductStructuredData,
+  type OfferStructuredData,
+  type OfferAvailability,
+  type OfferItemCondition,
+  type ArticleStructuredData,
+  type BreadcrumbStructuredData,
+  type OrganizationStructuredData,
+  type PersonStructuredData,
+  type ReviewStructuredData,
+  type FAQStructuredData,
+  type HowToStructuredData,
+  type LocalBusinessStructuredData,
+  type MerchantStructuredData,
+  
+  // SEO Metadata Types
+  type SEOMetadata,
+  type RobotDirective,
+  
+  // Sitemap Types
+  type SitemapEntry,
+  type ChangeFrequency,
+  type SitemapVideo,
+  
+  // SEO Analysis Types
+  type SEOAnalysisResult,
+  type SEOIssue,
+  
+  // SEO Settings Types
+  type ProductSEOSettings,
+  type CategorySEOSettings,
+  type PageSEOSettings,
+  
+  // Robots.txt Types
+  type RobotsTxtConfig,
+  
+  // Performance Metrics
+  type SEOPerformanceMetrics,
 } from './seo.types';
 
 // ============================================================
@@ -467,10 +558,6 @@ export type {
   EnvironmentTokenConfig,
 } from './token-generator.types';
 
-// ✅ ADDED: Token types constants
-export {
-  TOKEN_TYPES,
-} from './token-generator.types';
 
 // ============================================================
 // 15. Transaction Manager Types
@@ -522,23 +609,3 @@ export type {
   ValueObjectErrorFactory,
 } from './value-object.types';
 
-// ✅ ADDED: Default temporal config constant
-export {
-  DEFAULT_TEMPORAL_CONFIG,
-} from './value-object.types';
-
-// ============================================================
-// Cross-Domain Type Re-exports (For convenience)
-// ============================================================
-export type {
-  PaginatedApiResponse as ApiPaginatedResponse,
-  PaginationMetadata as ApiPaginationMetadata,
-  ClientInfo as LocationAwareClientInfo,
-  LocationInfo as ClientLocationInfo,
-  TransactionAuditEntry as AuditableTransaction,
-  AuditLog as TransactionAuditLog,
-  Notification as EventNotification,
-  NotificationWebhookPayload as EventNotificationPayload,
-  CacheStatistics as PerformanceCacheStats,
-  CacheHealthStatus as CacheHealth,
-} from './api.types';
