@@ -103,8 +103,7 @@ export class LoggingInterceptor implements NestInterceptor {
     (request as any).id = requestId;
     response.setHeader('X-Request-ID', requestId);
 
-    const { method, url, ip, headers } = request;
-    const userAgent = headers['user-agent'] || 'unknown';
+    const { method, url } = request;
 
     // Check if path should be excluded
     if (this.shouldExclude(url)) {
@@ -170,8 +169,9 @@ export class LoggingInterceptor implements NestInterceptor {
    * Build request log object
    */
   private buildRequestLog(request: Request): Record<string, unknown> {
-    const { method, url, ip, headers, query, params } = request;
+    const { method, url, headers, query, params } = request;
     const userAgent = headers['user-agent'] || 'unknown';
+    const ip = request.ip || request.socket?.remoteAddress || 'unknown';
 
     const log: Record<string, unknown> = {
       method,
