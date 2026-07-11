@@ -33,6 +33,7 @@ import { env } from '@vubon/shared-config';
 
 /**
  * Redis TLS configuration
+ * ✅ FIXED: Using explicit `| undefined` instead of optional `?:`
  */
 export interface RedisTLSConfig {
   /** Enable TLS/SSL */
@@ -40,11 +41,11 @@ export interface RedisTLSConfig {
   /** Reject unauthorized certificates (production: true) */
   rejectUnauthorized: boolean;
   /** CA certificate path */
-  ca?: string;
+  ca: string | undefined;
   /** Client certificate path */
-  cert?: string;
+  cert: string | undefined;
   /** Client key path */
-  key?: string;
+  key: string | undefined;
 }
 
 /**
@@ -63,6 +64,7 @@ export interface RedisClusterConfig {
 
 /**
  * Redis sentinel configuration
+ * ✅ FIXED: password is now `string | undefined`
  */
 export interface RedisSentinelConfig {
   /** Enable sentinel mode */
@@ -72,7 +74,7 @@ export interface RedisSentinelConfig {
   /** Master name */
   masterName: string;
   /** Sentinel password (optional) */
-  password?: string;
+  password: string | undefined;
 }
 
 /**
@@ -155,6 +157,7 @@ export interface RedisTTLConfig {
 
 /**
  * Complete Redis configuration
+ * ✅ FIXED: password is now `string | undefined`
  */
 export interface RedisConfig {
   /** Redis host */
@@ -162,7 +165,7 @@ export interface RedisConfig {
   /** Redis port */
   port: number;
   /** Redis password */
-  password?: string;
+  password: string | undefined;
   /** Redis database index */
   db: number;
   /** Key prefix for all keys */
@@ -195,8 +198,6 @@ export interface RedisConfig {
 // ============================================================
 
 const isProduction = env.NODE_ENV === 'production';
-const isDevelopment = env.NODE_ENV === 'development';
-const isTest = env.NODE_ENV === 'test';
 
 // ============================================================
 // Configuration Builder
@@ -209,7 +210,7 @@ const buildRedisConfig = (): RedisConfig => {
   // Core connection settings
   const host = process.env.REDIS_HOST || 'localhost';
   const port = parseInt(process.env.REDIS_PORT || '6379', 10);
-  const password = process.env.REDIS_PASSWORD;
+  const password = process.env.REDIS_PASSWORD || undefined;
   const db = parseInt(process.env.REDIS_DB || '0', 10);
   const keyPrefix = process.env.REDIS_KEY_PREFIX || 'auth:';
 
@@ -221,9 +222,9 @@ const buildRedisConfig = (): RedisConfig => {
   const tls: RedisTLSConfig = {
     enabled: process.env.REDIS_TLS === 'true' || isProduction,
     rejectUnauthorized: isProduction,
-    ca: process.env.REDIS_TLS_CA,
-    cert: process.env.REDIS_TLS_CERT,
-    key: process.env.REDIS_TLS_KEY,
+    ca: process.env.REDIS_TLS_CA || undefined,
+    cert: process.env.REDIS_TLS_CERT || undefined,
+    key: process.env.REDIS_TLS_KEY || undefined,
   };
 
   // Cluster configuration
@@ -239,7 +240,7 @@ const buildRedisConfig = (): RedisConfig => {
     enabled: process.env.REDIS_SENTINEL_ENABLED === 'true',
     nodes: process.env.REDIS_SENTINEL_NODES?.split(',').map((n) => n.trim()) || [],
     masterName: process.env.REDIS_SENTINEL_MASTER_NAME || 'mymaster',
-    password: process.env.REDIS_SENTINEL_PASSWORD,
+    password: process.env.REDIS_SENTINEL_PASSWORD || undefined,
   };
 
   // Retry strategy
@@ -364,17 +365,34 @@ export const getTTL = (type: keyof RedisTTLConfig): number => {
 
 /**
  * Get Redis connection options for BullMQ
+ * ✅ FIXED: password is now properly typed as `string | undefined`
  */
 export const getBullMQConfig = (): {
   host: string;
   port: number;
-  password?: string;
+  password: string | undefined;
   db: number;
   keyPrefix: string;
   tls?: Record<string, unknown>;
-  sentinel?: { nodes: { host: string; port: number }[]; masterName: string };
+  sentinel?: { 
+    nodes: { host: string; port: number }[]; 
+    masterName: string; 
+    password: string | undefined; 
+  };
 } => {
-  const config = {
+  const config: {
+    host: string;
+    port: number;
+    password: string | undefined;
+    db: number;
+    keyPrefix: string;
+    tls?: Record<string, unknown>;
+    sentinel?: { 
+      nodes: { host: string; port: number }[]; 
+      masterName: string; 
+      password: string | undefined; 
+    };
+  } = {
     host: redisConfig.host,
     port: redisConfig.port,
     password: redisConfig.password,
@@ -383,7 +401,7 @@ export const getBullMQConfig = (): {
   };
 
   if (redisConfig.tls.enabled) {
-    (config as any).tls = {
+    config.tls = {
       rejectUnauthorized: redisConfig.tls.rejectUnauthorized,
       ca: redisConfig.tls.ca,
       cert: redisConfig.tls.cert,
@@ -392,11 +410,17 @@ export const getBullMQConfig = (): {
   }
 
   if (redisConfig.sentinel.enabled) {
-    (config as any).sentinel = {
-      nodes: redisConfig.sentinel.nodes.map((node) => {
-        const [host, port] = node.split(':');
-        return { host, port: parseInt(port || '26379', 10) };
-      }),
+    // Ensure host is always string type
+    const nodes = redisConfig.sentinel.nodes.map((node) => {
+      const [host, port] = node.split(':');
+      return { 
+        host: host || 'localhost',
+        port: parseInt(port || '26379', 10) 
+      };
+    });
+    
+    config.sentinel = {
+      nodes,
       masterName: redisConfig.sentinel.masterName,
       password: redisConfig.sentinel.password,
     };
