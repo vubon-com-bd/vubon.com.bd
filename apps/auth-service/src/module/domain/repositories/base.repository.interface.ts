@@ -14,8 +14,6 @@
  * ✅ Supports pagination, transactions, and specifications
  * ✅ Domain events handling contract
  * ✅ Optimistic locking support
- * ✅ Shared types integration for consistency
- * ✅ Event dispatcher injection pattern
  * ✅ Bulk operations with progress tracking
  * ✅ Audit logging support
  * ✅ Cache invalidation hooks
@@ -31,28 +29,34 @@
  * }
  */
 
-// ✅ ENTERPRISE ENHANCEMENT: Shared types integration
-import type { 
-  PaginationParams as SharedPaginationOptions,
-  OffsetPaginationResponse as SharedPaginatedResult,
-  DomainEvent,
-} from '@vubon/shared-types';
-
-
-
-// ==================== Types ====================
+// ============================================================
+// Types (Local - No external imports)
+// ============================================================
 
 /**
  * Pagination options for queries
- * ✅ ENTERPRISE ENHANCEMENT: Re-export from shared-types for consistency
  */
-export type PaginationOptions = SharedPaginationOptions;
+export interface PaginationOptions {
+  page: number;
+  limit: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  search?: string;
+  filters?: Record<string, unknown>;
+}
 
 /**
  * Paginated result
- * ✅ ENTERPRISE ENHANCEMENT: Re-export from shared-types for consistency
  */
-export type PaginatedResult<T> = SharedPaginatedResult<T>;
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
 
 /**
  * Cursor pagination options (for large datasets)
@@ -91,39 +95,34 @@ export interface TransactionContext {
   runInTransaction<R>(callback: () => Promise<R>): Promise<R>;
   commit(): Promise<void>;
   rollback(): Promise<void>;
-  /**
-   * ✅ ENTERPRISE ENHANCEMENT: Get transaction ID for audit logging
-   */
   getTransactionId(): string;
-  /**
-   * ✅ ENTERPRISE ENHANCEMENT: Check if transaction is active
-   */
   isActive(): boolean;
 }
 
 /**
- * ✅ ENTERPRISE ENHANCEMENT: Event dispatcher interface
+ * Domain event interface (local definition)
+ */
+export interface DomainEvent {
+  readonly eventId: string;
+  readonly eventType: string;
+  readonly aggregateId: string;
+  readonly occurredOn: Date;
+  readonly version: number;
+  readonly metadata?: Readonly<Record<string, unknown>>;
+}
+
+/**
+ * Event dispatcher interface
  * For handling domain events after persistence
  */
 export interface EventDispatcher {
-  /**
-   * Dispatch single domain event
-   */
   dispatch<T extends DomainEvent>(event: T): Promise<void>;
-  
-  /**
-   * Dispatch multiple domain events
-   */
   dispatchMany(events: DomainEvent[]): Promise<void>;
-  
-  /**
-   * Dispatch events from aggregate
-   */
   dispatchFromAggregate(entity: { pullDomainEvents(): DomainEvent[] }): Promise<void>;
 }
 
 /**
- * ✅ ENTERPRISE ENHANCEMENT: Bulk operation progress tracker
+ * Bulk operation progress tracker
  */
 export interface BulkOperationProgress {
   total: number;
@@ -135,35 +134,25 @@ export interface BulkOperationProgress {
 }
 
 /**
- * ✅ ENTERPRISE ENHANCEMENT: Bulk operation callback
+ * Bulk operation callback
  */
 export type BulkProgressCallback = (progress: BulkOperationProgress) => void;
 
 /**
- * ✅ ENTERPRISE ENHANCEMENT: Cache invalidation hook
+ * Cache invalidation hook
  */
 export interface CacheInvalidationHook {
-  /**
-   * Called when entities are modified (for cache invalidation)
-   */
   onModified(ids: string[]): Promise<void>;
-  
-  /**
-   * Called when entities are deleted
-   */
   onDeleted(ids: string[]): Promise<void>;
-  
-  /**
-   * Called when cache should be cleared
-   */
   onClear(): Promise<void>;
 }
 
-// ==================== Query Builder ====================
+// ============================================================
+// Query Builder Interface
+// ============================================================
 
 /**
  * Query Builder Interface for type-safe queries
- * ✅ ENTERPRISE ENHANCEMENT: Added audit logging and cache control
  */
 export interface QueryBuilder<T> {
   where(condition: Record<string, unknown>): QueryBuilder<T>;
@@ -175,29 +164,18 @@ export interface QueryBuilder<T> {
   offset(offset: number): QueryBuilder<T>;
   include(relations: string[]): QueryBuilder<T>;
   select(fields: string[]): QueryBuilder<T>;
-  
-  /**
-   * ✅ ENTERPRISE ENHANCEMENT: Skip cache for this query
-   */
   skipCache(): QueryBuilder<T>;
-  
-  /**
-   * ✅ ENTERPRISE ENHANCEMENT: Set cache TTL for this query
-   */
   cacheTtl(seconds: number): QueryBuilder<T>;
-  
-  /**
-   * ✅ ENTERPRISE ENHANCEMENT: Add audit context
-   */
   audit(context: Record<string, unknown>): QueryBuilder<T>;
-  
   execute(): Promise<T[]>;
   getOne(): Promise<T | null>;
   getCount(): Promise<number>;
   getPaginated(options: PaginationOptions): Promise<PaginatedResult<T>>;
 }
 
-// ==================== Errors ====================
+// ============================================================
+// Domain Errors
+// ============================================================
 
 /**
  * Optimistic Lock Error
@@ -262,7 +240,7 @@ export class DuplicateEntityError extends Error {
 }
 
 /**
- * ✅ ENTERPRISE ENHANCEMENT: Bulk Operation Error
+ * Bulk Operation Error
  */
 export class BulkOperationError extends Error {
   public readonly failedItems: Array<{ id: string; error: string }>;
@@ -282,15 +260,16 @@ export class BulkOperationError extends Error {
   }
 }
 
-// ==================== Base Repository Interface ====================
+// ============================================================
+// Base Repository Interface
+// ============================================================
 
 /**
  * Base Repository Interface
  * 
  * Generic contract for entity persistence operations
- * ✅ ENTERPRISE ENHANCEMENT: Added event dispatcher, cache hooks, bulk operations
  * 
- * @template T - Entity type (must extend BaseEntity)
+ * @template T - Entity type
  */
 export interface BaseRepository<T> {
   // ========== Basic CRUD Operations ==========
@@ -451,7 +430,7 @@ export interface BaseRepository<T> {
   // ========== Domain Events Operations ==========
   
   /**
-   * ✅ ENTERPRISE ENHANCEMENT: Save entity and dispatch domain events
+   * Save entity and dispatch domain events
    * @param entity - Domain entity to persist
    * @param eventDispatcher - Event dispatcher for domain events
    * @returns void
@@ -459,7 +438,7 @@ export interface BaseRepository<T> {
   saveAndDispatchEvents(entity: T, eventDispatcher?: EventDispatcher): Promise<void>;
   
   /**
-   * ✅ ENTERPRISE ENHANCEMENT: Save multiple entities and dispatch events
+   * Save multiple entities and dispatch events
    * @param entities - Array of entities to persist
    * @param eventDispatcher - Event dispatcher for domain events
    * @returns void
@@ -489,7 +468,7 @@ export interface BaseRepository<T> {
    */
   createQueryBuilder(): QueryBuilder<T>;
   
-  // ========== ✅ ENTERPRISE ENHANCEMENT: Bulk Operations ==========
+  // ========== Bulk Operations ==========
   
   /**
    * Bulk insert entities (optimized for large datasets)
@@ -544,7 +523,7 @@ export interface BaseRepository<T> {
     onProgress?: BulkProgressCallback
   ): Promise<{ successful: number; failed: Array<{ entity: T; error: string }> }>;
   
-  // ========== ✅ ENTERPRISE ENHANCEMENT: Cache Management ==========
+  // ========== Cache Management ==========
   
   /**
    * Register cache invalidation hook
@@ -563,7 +542,7 @@ export interface BaseRepository<T> {
    */
   invalidateCache(ids: string[]): Promise<void>;
   
-  // ========== ✅ ENTERPRISE ENHANCEMENT: Audit & Logging ==========
+  // ========== Audit & Logging ==========
   
   /**
    * Enable audit logging for this repository
@@ -573,32 +552,26 @@ export interface BaseRepository<T> {
   
   /**
    * Get audit trail for an entity
-   * @param id - Entity ID
+   * @param id - Entity ID or filter criteria
    * @returns Audit trail entries
    */
-  // base.repository.interface.ts
-/**
- * Get audit trail for an entity
- * @param id - Entity ID or filter criteria
- * @returns Audit trail entries
- */
-getAuditTrail(id: string | Record<string, unknown>): Promise<Array<{
-  timestamp: Date;
-  action: 'create' | 'update' | 'delete' | 'soft_delete' | 'restore';
-  changes?: Record<string, { old: unknown; new: unknown }>;
-  performedBy?: string;
-  ipAddress?: string;
-  entityId?: string;  // ✅ Add optional entityId for context
-  entityType?: string; // ✅ Add optional entityType for context
-}>>;
-
+  getAuditTrail(id: string | Record<string, unknown>): Promise<Array<{
+    timestamp: Date;
+    action: 'create' | 'update' | 'delete' | 'soft_delete' | 'restore';
+    changes?: Record<string, { old: unknown; new: unknown }>;
+    performedBy?: string;
+    ipAddress?: string;
+    entityId?: string;
+    entityType?: string;
+  }>>;
 }
 
-// ==================== Utility Types ====================
+// ============================================================
+// Repository Options
+// ============================================================
 
 /**
  * Repository options for configuration
- * ✅ ENTERPRISE ENHANCEMENT: Added advanced options
  */
 export interface RepositoryOptions {
   enableSoftDelete?: boolean;
@@ -607,8 +580,6 @@ export interface RepositoryOptions {
   maxPageSize?: number;
   enableCaching?: boolean;
   cacheTtlSeconds?: number;
-  
-  // ✅ ENTERPRISE ENHANCEMENT: New options
   enableAuditLogging?: boolean;
   bulkBatchSize?: number;
   enableReadReplica?: boolean;
@@ -620,7 +591,7 @@ export interface RepositoryOptions {
 }
 
 /**
- * ✅ ENTERPRISE ENHANCEMENT: Repository health status
+ * Repository health status
  */
 export interface RepositoryHealthStatus {
   isConnected: boolean;
@@ -630,22 +601,3 @@ export interface RepositoryHealthStatus {
   poolSize?: number;
   activeConnections?: number;
 }
-
-
-// ==================== ENTERPRISE SUMMARY ====================
-// 
-// Enterprise Enhancements Applied:
-// 1. ✅ Shared types integration (PaginationOptions, PaginatedResult from @vubon/shared-types)
-// 2. ✅ Event dispatcher injection pattern for domain events
-// 3. ✅ Bulk operations with progress tracking
-// 4. ✅ Cache invalidation hooks
-// 5. ✅ Audit logging support with getAuditTrail()
-// 6. ✅ Bulk insert/update/upsert with configurable batch sizes
-// 7. ✅ Repository health check interface
-// 8. ✅ Transaction context with ID and active status
-// 9. ✅ Query builder with cache control and audit context
-// 10. ✅ Enhanced error handling with BulkOperationError
-// 11. ✅ Read replica support configuration
-// 12. ✅ Connection retry configuration
-// 
-// ============================================================
