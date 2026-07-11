@@ -216,4 +216,27 @@ export class LoggingInterceptor implements NestInterceptor {
     const maskFields = this.options.maskSensitiveFields || [];
 
     // Handle arrays
-    if (Array.is
+    if (Array.isArray(data)) {
+      return data.map((item) => this.maskSensitiveData(item));
+    }
+
+    // Handle objects
+    if (typeof data === 'object' && data !== null) {
+      const masked = { ...(data as Record<string, unknown>) };
+      for (const field of maskFields) {
+        if (field in masked) {
+          masked[field] = '[REDACTED]';
+        }
+      }
+      // Recursively mask nested objects
+      for (const [key, value] of Object.entries(masked)) {
+        if (value && typeof value === 'object') {
+          masked[key] = this.maskSensitiveData(value);
+        }
+      }
+      return masked;
+    }
+
+    return data;
+  }
+}
