@@ -1,3 +1,6 @@
+// packages/shared-types/src/common/pagination.types.ts
+// সম্পূর্ণ ফাইল (যাতে সব এক্সপোর্ট রয়েছে)
+
 /**
  * Pagination Types - Pure TypeScript type contracts for Pagination
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
@@ -16,6 +19,22 @@
 // Sort Order
 // ============================================================
 export type SortOrder = 'asc' | 'desc';
+export type SortDirection = SortOrder;
+export const SORT_ORDERS = {
+  ASC: 'asc' as const,
+  DESC: 'desc' as const,
+} as const;
+
+
+// ============================================================
+// Pagination Types
+// ============================================================
+export type PaginationType = 'offset' | 'cursor';
+
+export const PAGINATION_TYPES = {
+  OFFSET: 'offset' as const,
+  CURSOR: 'cursor' as const,
+} as const;
 
 // ============================================================
 // Pagination Metadata (Offset-based)
@@ -71,9 +90,19 @@ export type DateRange =
   | 'this_year' 
   | 'custom';
 
+export const DATE_RANGES = {
+  TODAY: 'today' as const,
+  YESTERDAY: 'yesterday' as const,
+  LAST_7_DAYS: 'last_7_days' as const,
+  LAST_30_DAYS: 'last_30_days' as const,
+  LAST_90_DAYS: 'last_90_days' as const,
+  THIS_MONTH: 'this_month' as const,
+  LAST_MONTH: 'last_month' as const,
+  THIS_YEAR: 'this_year' as const,
+  CUSTOM: 'custom' as const,
+} as const;
 
-
-  export type FilterOperator = 
+export type FilterOperator = 
   | 'eq' 
   | 'ne' 
   | 'gt' 
@@ -87,15 +116,21 @@ export type DateRange =
   | 'nin' 
   | 'between';
 
+export const FILTER_OPERATORS = {
+  EQ: 'eq' as const,
+  NE: 'ne' as const,
+  GT: 'gt' as const,
+  GTE: 'gte' as const,
+  LT: 'lt' as const,
+  LTE: 'lte' as const,
+  CONTAINS: 'contains' as const,
+  STARTS_WITH: 'startsWith' as const,
+  ENDS_WITH: 'endsWith' as const,
+  IN: 'in' as const,
+  NIN: 'nin' as const,
+  BETWEEN: 'between' as const,
+} as const;
 
-
-  export interface SearchConfig {
-  readonly minSearchLength: number;
-  readonly maxSearchLength: number;
-  readonly defaultSearchField: string;
-  readonly maxSearchResults: number;
-  readonly minSearchScore: number;
-}
 // ============================================================
 // Offset Pagination Response
 // ============================================================
@@ -104,7 +139,6 @@ export interface OffsetPaginationResponse<T> {
   readonly metadata: PaginationMetadata;
 }
 
-export type PaginationType = 'offset' | 'cursor';
 // ============================================================
 // Cursor-based Pagination Parameters
 // ============================================================
@@ -241,7 +275,6 @@ export interface PaginationMetaWithLinks extends PaginationMetadata {
   readonly queryParams?: Record<string, unknown>;
 }
 
-
 // ============================================================
 // Full Paginated Response (With data + metadata + links)
 // ============================================================
@@ -263,6 +296,15 @@ export interface PaginationDefaults {
   readonly DEFAULT_SORT_ORDER: 'desc';
 }
 
+export const PAGINATION_DEFAULTS: PaginationDefaults = {
+  DEFAULT_PAGE: 1,
+  DEFAULT_LIMIT: 20,
+  MAX_LIMIT: 100,
+  MIN_LIMIT: 1,
+  MAX_LIMIT_ADMIN: 500,
+  DEFAULT_SORT_ORDER: 'desc',
+} as const;
+
 // ============================================================
 // Sortable Fields Configuration
 // ============================================================
@@ -278,6 +320,8 @@ export interface SortableFieldsConfig {
   readonly defaultField: string;
   readonly defaultOrder: SortOrder;
 }
+
+export type SortableFields = SortableField[];
 
 // ============================================================
 // Pagination Validation Result
@@ -366,12 +410,12 @@ export interface PaginationMetrics {
   readonly cursorUsageCount: number;
 }
 
-// packages/shared-types/src/common/pagination.types.ts
+export type PaginationPerformance = PaginationMetrics;
 
-/**
- * Pagination Options (Offset-based)
- * @description Standard pagination parameters for list queries
- */
+// ============================================================
+// Pagination Options (Offset-based)
+// @description Standard pagination parameters for list queries
+// ============================================================
 export interface PaginationOptions {
   /** Page number (1-indexed) */
   page?: number;
@@ -383,13 +427,53 @@ export interface PaginationOptions {
   sortOrder?: 'asc' | 'desc';
 }
 
-/**
- * Paginated Result (Offset-based)
- * @description Standard paginated response wrapper
- */
+// ============================================================
+// Paginated Result (Offset-based)
+// @description Standard paginated response wrapper
+// ============================================================
 export interface PaginatedResult<T> {
   /** Array of items */
   data: T[];
   /** Pagination metadata */
   metadata: PaginationMetadata;
 }
+
+export type PaginatedResponse<T> = PaginatedResult<T>;
+
+export type PaginationConfig = {
+  defaultPage: number;
+  defaultLimit: number;
+  maxLimit: number;
+  minLimit: number;
+  maxLimitAdmin: number;
+  defaultSortOrder: 'asc' | 'desc';
+  allowedSortFields: string[];
+};
+
+export const BANGLADESH_PAGINATION = {
+  defaultPage: 1,
+  defaultLimit: 15,
+  maxLimit: 100,
+  minLimit: 1,
+  maxLimitAdmin: 500,
+  defaultSortOrder: 'desc' as const,
+} as const;
+
+// ============================================================
+// Search Configuration (Bangladesh specific)
+// ============================================================
+export interface SearchConfig {
+  readonly minSearchLength: number;
+  readonly maxSearchLength: number;
+  readonly defaultSearchField: string;
+  readonly maxSearchResults: number;
+  readonly minSearchScore: number;
+}
+
+export const SEARCH_CONFIG: SearchConfig = {
+  minSearchLength: 2,
+  maxSearchLength: 100,
+  defaultSearchField: 'name',
+  maxSearchResults: 1000,
+  minSearchScore: 0.3,
+} as const;
