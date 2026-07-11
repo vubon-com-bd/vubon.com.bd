@@ -43,37 +43,50 @@
  * }
  */
 
-// ==================== Shared Package Imports (Enterprise) ====================
+// ============================================================
+// Constants (Local - No external imports)
+// ============================================================
 
-// Configuration from shared-constants
-import { 
-  VALUE_OBJECT_CONFIG,
-  ENV_CONFIG
-} from '@vubon/shared-constants';
-
-// Types from shared-types
-import type { 
-  ValueObjectMetadata as SharedValueObjectMetadata,
-  ValidationErrorCode,
-  ValueObjectSnapshot
-} from '@vubon/shared-types';
-
-// ==================== Constants ====================
-
+/**
+ * Value object marker symbol for cross-module type checking
+ */
 const VALUE_OBJECT_MARKER = Symbol('ValueObject');
 
-// Retry configuration from shared-constants
-const DEFAULT_RETRY_COUNT = VALUE_OBJECT_CONFIG?.DEFAULT_RETRY_COUNT ?? 3;
-const DEFAULT_RETRY_DELAY_MS = VALUE_OBJECT_CONFIG?.DEFAULT_RETRY_DELAY_MS ?? 100;
-const DEFAULT_TEMPORAL_TOLERANCE_MS = VALUE_OBJECT_CONFIG?.DEFAULT_TEMPORAL_TOLERANCE_MS ?? 1000;
+/**
+ * Retry configuration defaults
+ */
+const DEFAULT_RETRY_COUNT = 3;
+const DEFAULT_RETRY_DELAY_MS = 100;
+const DEFAULT_TEMPORAL_TOLERANCE_MS = 1000;
 
-// Environment-based degraded mode
-const ALLOW_DEGRADED_MODE = VALUE_OBJECT_CONFIG?.ALLOW_DEGRADED_MODE ?? !ENV_CONFIG?.IS_PRODUCTION;
+/**
+ * Environment detection (simple, no external dependencies)
+ */
+const isProduction = (): boolean => process.env.NODE_ENV === 'production';
+const isDevelopment = (): boolean => process.env.NODE_ENV === 'development';
 
-// Logger context
-const LOG_CONTEXT = 'ValueObject';
+/**
+ * Logger (simple console wrapper, no external dependencies)
+ */
+const logger = {
+  debug: (message: string, ...args: unknown[]) => {
+    if (isDevelopment()) console.debug(message, ...args);
+  },
+  info: (message: string, ...args: unknown[]) => console.info(message, ...args),
+  warn: (message: string, ...args: unknown[]) => console.warn(message, ...args),
+  error: (message: string, ...args: unknown[]) => console.error(message, ...args),
+};
 
-// ==================== Types ====================
+/**
+ * Simple sleep function for retry delays
+ */
+const sleep = (ms: number): Promise<void> => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+// ============================================================
+// Types
+// ============================================================
 
 /**
  * Type guard to check if a value is a ValueObject
@@ -82,11 +95,10 @@ export type ValueObjectConstructor<T = ValueObject> = new (...args: unknown[]) =
 
 /**
  * Value object comparison result
- * ✅ FIXED: differences is now optional (string[] | undefined)
  */
 export interface ValueObjectComparison {
   readonly equal: boolean;
-  readonly differences?: string[];  // ✅ Made optional with ?
+  readonly differences?: string[];
 }
 
 /**
@@ -109,7 +121,7 @@ export type ValueObjectEnvironment = 'development' | 'staging' | 'production' | 
 /**
  * Metadata for offline-first synchronization
  */
-export interface ValueObjectMetadata extends Omit<SharedValueObjectMetadata, 'environment'> {
+export interface ValueObjectMetadata {
   version: string;
   timestamp: string;
   className: string;
@@ -117,6 +129,7 @@ export interface ValueObjectMetadata extends Omit<SharedValueObjectMetadata, 'en
   lastSyncAttempt?: string;
   retryCount?: number;
   environment?: ValueObjectEnvironment;
+  custom?: Record<string, unknown>;
 }
 
 /**
@@ -149,7 +162,22 @@ export interface SerializationOptions {
   includeEnvironment?: boolean;
 }
 
-// ==================== Domain Errors ====================
+/**
+ * Snapshot for offline storage
+ */
+export interface ValueObjectSnapshot {
+  value: unknown;
+  metadata: ValueObjectMetadata;
+  validation?: {
+    valid: boolean;
+    errors?: string[];
+    validatedAt: string;
+  };
+}
+
+// ============================================================
+// Domain Errors
+// ============================================================
 
 /**
  * Base domain error for value object validation failures
@@ -157,7 +185,7 @@ export interface SerializationOptions {
 export abstract class ValueObjectError extends Error {
   constructor(
     message: string,
-    public readonly code: ValidationErrorCode | string,
+    public readonly code: string,
     public readonly field?: string,
     public readonly canRetry: boolean = true
   ) {
@@ -167,7 +195,7 @@ export abstract class ValueObjectError extends Error {
     
     // Log error in production
     if (isProduction()) {
-      logger.error(`[${LOG_CONTEXT}] ${this.name}: ${message}`, { code, field, canRetry });
+      logger.error(`[ValueObject] ${this.name}: ${message}`, { code, field, canRetry });
     }
   }
 }
@@ -199,13 +227,18 @@ export class TemporalEqualityError extends ValueObjectError {
   }
 }
 
-// ==================== Base Value Object ====================
+// ============================================================
+// Base Value Object
+// ============================================================
 
 /**
  * Abstract base class for all Value Objects
  * Implements domain-driven design equality semantics with enterprise features
  */
 export abstract class ValueObject {
+  /** Marker for type checking */
+  private readonly _valueObjectMarker: symbol = VALUE_OBJECT_MARKER;
+  
   /** Cache for temporal field names (lazy loaded) */
   private _temporalFieldCache: Set<string> | null = null;
   
@@ -224,8 +257,8 @@ export abstract class ValueObject {
     this.validateAsync().catch((err: unknown) => {
       // Async validation errors are logged but don't block construction
       const shouldLog = this.validationOptions?.logFailures ?? true;
-      if (shouldLog && !ALLOW_DEGRADED_MODE) {
-        logger.warn(`[${LOG_CONTEXT}] Async validation failed for ${this.constructor.name}:`, err);
+      if (shouldLog && !this.allowDegradedMode()) {
+        logger.warn(`[ValueObject] Async validation failed for ${this.constructor.name}:`, err);
       }
     });
   }
@@ -238,15 +271,17 @@ export abstract class ValueObject {
   }
 
   /**
+   * Check if degraded mode is allowed
+   */
+  private allowDegradedMode(): boolean {
+    return this.validationOptions?.allowDegradedMode ?? !isProduction();
+  }
+
+  /**
    * Get the components that determine equality for this value object.
    * Must be implemented by all concrete value objects.
    * 
    * @returns Array of property values that define uniqueness
-   * 
-   * @example
-   * protected getEqualityComponents(): unknown[] {
-   *   return [this.email, this.phone];
-   * }
    */
   protected abstract getEqualityComponents(): readonly unknown[];
 
@@ -273,13 +308,6 @@ export abstract class ValueObject {
   /**
    * Asynchronous validation for external dependencies (API calls, database checks)
    * Override in child classes for async validation.
-   * 
-   * @example
-   * protected async validateAsync(): Promise<void> {
-   *   if (this.needsExternalCheck()) {
-   *     await this.checkExternalService();
-   *   }
-   * }
    */
   protected async validateAsync(): Promise<void> {
     // Default: no async validation
@@ -299,7 +327,7 @@ export abstract class ValueObject {
   ): Promise<T> {
     const retryCount = options?.retryCount ?? this.validationOptions?.retryCount ?? DEFAULT_RETRY_COUNT;
     const retryDelayMs = options?.retryDelayMs ?? this.validationOptions?.retryDelayMs ?? DEFAULT_RETRY_DELAY_MS;
-    const allowDegradedMode = options?.allowDegradedMode ?? this.validationOptions?.allowDegradedMode ?? ALLOW_DEGRADED_MODE;
+    const allowDegradedMode = options?.allowDegradedMode ?? this.validationOptions?.allowDegradedMode ?? this.allowDegradedMode();
 
     let lastError: Error | undefined;
 
@@ -316,7 +344,7 @@ export abstract class ValueObject {
           // Exponential backoff: retryDelayMs * 2^i
           const delay = retryDelayMs * Math.pow(2, i);
           if (isDevelopment()) {
-            logger.debug(`[${LOG_CONTEXT}] Retry ${i + 1}/${retryCount} after ${delay}ms`, { className: this.constructor.name });
+            logger.debug(`[ValueObject] Retry ${i + 1}/${retryCount} after ${delay}ms`, { className: this.constructor.name });
           }
           await sleep(delay);
           continue;
@@ -324,7 +352,7 @@ export abstract class ValueObject {
         
         // If not a connection error or no retries left
         if (allowDegradedMode && isConnectionError) {
-          logger.warn(`[${LOG_CONTEXT}] Validation degraded mode for ${this.constructor.name}:`, err);
+          logger.warn(`[ValueObject] Validation degraded mode for ${this.constructor.name}:`, err);
           throw new ConnectionAwareValidationError('External validation failed, using degraded mode', lastError);
         }
         
@@ -570,10 +598,9 @@ export abstract class ValueObject {
       }
     }
 
-    // ✅ FIXED: Return undefined when no differences
     return {
       equal: differences.length === 0,
-      differences: differences ,
+      differences: differences.length > 0 ? differences : undefined,
     };
   }
 
@@ -615,7 +642,7 @@ export abstract class ValueObject {
     
     // Include metadata for offline-first synchronization
     const metadata: ValueObjectMetadata = {
-      version: VALUE_OBJECT_CONFIG?.VERSION ?? '2.0.0',
+      version: '2.0.0',
       timestamp: new Date().toISOString(),
       className: this.constructor.name,
       syncStatus: 'synced',
@@ -632,7 +659,7 @@ export abstract class ValueObject {
     // Include environment info if requested
     if (options?.includeEnvironment) {
       result._environment = {
-        nodeEnv: ENV_CONFIG?.NODE_ENV,
+        nodeEnv: process.env.NODE_ENV,
         isProduction: isProduction(),
         timestamp: Date.now()
       };
@@ -712,7 +739,7 @@ export abstract class ValueObject {
     
     // Deep clone components
     const clonedComponents = components.map(comp => {
-      if (isValueObject(comp)) return comp.clone();
+      if (this.isValueObject(comp)) return (comp as ValueObject).clone();
       if (Array.isArray(comp)) return this.cloneArray(comp);
       if (comp && typeof comp === 'object' && !(comp instanceof Date)) {
         return this.cloneObject(comp as Record<string, unknown>);
@@ -729,7 +756,7 @@ export abstract class ValueObject {
    */
   private cloneArray<T>(arr: T[]): T[] {
     return arr.map(item => {
-      if (isValueObject(item)) return item.clone();
+      if (this.isValueObject(item)) return (item as ValueObject).clone();
       if (Array.isArray(item)) return this.cloneArray(item);
       if (item && typeof item === 'object') return this.cloneObject(item as Record<string, unknown>);
       return item;
@@ -742,7 +769,7 @@ export abstract class ValueObject {
   private cloneObject(obj: Record<string, unknown>): Record<string, unknown> {
     const cloned: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(obj)) {
-      if (isValueObject(value)) cloned[key] = value.clone();
+      if (this.isValueObject(value)) cloned[key] = (value as ValueObject).clone();
       else if (Array.isArray(value)) cloned[key] = this.cloneArray(value);
       else if (value && typeof value === 'object' && !(value instanceof Date)) {
         cloned[key] = this.cloneObject(value as Record<string, unknown>);
@@ -772,7 +799,7 @@ export abstract class ValueObject {
         ? this.getCachedEqualityComponents()[0] 
         : [...this.getCachedEqualityComponents()],
       metadata: {
-        version: VALUE_OBJECT_CONFIG?.VERSION ?? '2.0.0',
+        version: '2.0.0',
         timestamp: new Date().toISOString(),
         className: this.constructor.name,
         syncStatus: 'synced'
@@ -829,7 +856,7 @@ export abstract class ValueObject {
     if (!a || !b) return false;
 
     // Handle nested ValueObjects
-    if (isValueObject(a) && isValueObject(b)) return a.equals(b);
+    if (this.isValueObject(a) && this.isValueObject(b)) return (a as ValueObject).equals(b as ValueObject);
 
     // Handle arrays
     if (Array.isArray(a) && Array.isArray(b)) {
@@ -872,22 +899,18 @@ export abstract class ValueObject {
       return this.areEqual(aArray, bArray);
     }
 
-    // Handle strings (use timing-safe comparison for sensitive data)
+    // Handle strings - use timing-safe comparison for sensitive data
     if (typeof a === 'string' && typeof b === 'string') {
       // Use timing-safe comparison only for sensitive strings (like passwords, tokens)
-      // For regular strings, use normal comparison for performance
       const isSensitive = this.isSensitiveString(a) || this.isSensitiveString(b);
       if (isSensitive) {
-        // Use timing-safe comparison from shared-utils
-        try {
-          const sharedUtils = require('@vubon/shared-utils');
-          if (sharedUtils.timingSafeEqual) {
-            return sharedUtils.timingSafeEqual(a, b);
-          }
-          return a === b;
-        } catch {
-          return a === b;
+        // Simple timing-safe comparison (constant time)
+        if (a.length !== b.length) return false;
+        let result = 0;
+        for (let i = 0; i < a.length; i++) {
+          result |= a.charCodeAt(i) ^ b.charCodeAt(i);
         }
+        return result === 0;
       }
       return a === b;
     }
@@ -931,22 +954,9 @@ export abstract class ValueObject {
   }
 }
 
-// ==================== Utility Functions ====================
-
-/**
- * Utility function to create a ValueObject from a plain value
- * Useful for testing and serialization
- * 
- * @param value - The primitive value
- * @param Constructor - The ValueObject constructor
- * @returns A value object instance
- */
-export function createValueObject<TValue, TVO extends ValueObject>(
-  value: TValue,
-  Constructor: new (value: TValue) => TVO
-): TVO {
-  return new Constructor(value);
-}
+// ============================================================
+// Utility Functions
+// ============================================================
 
 /**
  * Type helper to extract the primitive type from a ValueObject
@@ -964,36 +974,6 @@ export function isValueObject(value: unknown): value is ValueObject {
     VALUE_OBJECT_MARKER in candidate &&
     typeof candidate.equals === 'function'
   );
-}
-
-/**
- * Create a value object with temporal equality support
- * 
- * @param value - The value to wrap
- * @param Constructor - The ValueObject constructor
- * @param config - Temporal equality configuration
- * @returns Value object instance
- */
-export function createTemporalValueObject<TValue, TVO extends ValueObject>(
-  value: TValue,
-  Constructor: new (value: TValue) => TVO,
-  config?: TemporalEqualityConfig
-): TVO {
-  const instance = new Constructor(value);
-  
-  // Add temporal equality method if not already present
-  if (!('equalsTemporal' in instance)) {
-    Object.defineProperty(instance, 'equalsTemporal', {
-      value: function(other: ValueObject | null | undefined, cfg?: TemporalEqualityConfig) {
-        return (this as ValueObject).equalsTemporal(other, cfg ?? config);
-      },
-      configurable: true,
-      enumerable: false,
-      writable: true
-    });
-  }
-  
-  return instance;
 }
 
 /**
