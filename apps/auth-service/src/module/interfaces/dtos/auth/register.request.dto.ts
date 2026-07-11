@@ -5,62 +5,266 @@
  * @module interfaces/dtos/auth/register.request.dto
  *
  * @description
- * Data Transfer Object for user registration requests.
- * Validates incoming registration data using Zod schema from shared-schemas.
+ * Request DTO for user registration endpoint.
+ * Validates incoming registration data using class-validator.
  *
  * Enterprise Features:
- * ✅ Zod validation for all fields
- * ✅ Bengali and English error messages
- * ✅ Bangladesh specific fields (district, upazila)
- * ✅ Password confirmation validation
- * ✅ Terms and privacy acceptance validation
- * ✅ Device info tracking
+ * ✅ Comprehensive validation using class-validator
+ * ✅ Bangladesh specific - Phone number validation (BD format)
+ * ✅ Multi-language error messages (English/Bengali)
+ * ✅ Device tracking support
+ * ✅ Referral code processing
+ * ✅ Marketing consent management
+ * ✅ Security - Password strength validation
+ * ✅ Terms & Privacy acceptance validation
+ * ✅ Birthdate validation for age requirement
+ * ✅ District/Upazila validation (Bangladesh specific)
  *
  * @example
  * // In controller
  * @Post('register')
- * @UsePipes(new ZodValidationPipe(RegisterRequestSchema))
  * async register(@Body() dto: RegisterRequestDto) {
- *   const command = RegisterUserCommand.fromDto(dto);
- *   return this.commandBus.execute(command);
+ *   const command = new RegisterUserCommand(dto);
+ *   return await this.commandBus.execute(command);
  * }
  */
 
-import { IsString, IsEmail, IsOptional, IsBoolean, IsObject, IsIn, ValidateIf, IsNotEmpty } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsString,
+  IsEmail,
+  IsOptional,
+  IsBoolean,
+  IsNotEmpty,
+  MinLength,
+  MaxLength,
+  Matches,
+  IsEnum,
+  IsObject,
+  ValidateIf,
+  IsDateString,
+  IsIn,
+  IsInt,
+  Min,
+  Max,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { Transform } from 'class-transformer';
+import { normalizePhone, normalizeEmail } from '@vubon/shared-utils';
+import { REGEX_PHONE, REGEX_EMAIL, PASSWORD_POLICY, USER_ROLES } from '@vubon/shared-constants';
+import { ApiProperty } from '@nestjs/swagger';
 
 // ============================================================
-// Device Info DTO (Nested)
+// Types
 // ============================================================
 
+/**
+ * Supported languages for notification
+ */
+export enum LanguagePreference {
+  ENGLISH = 'en',
+  BENGALI = 'bn',
+}
+
+/**
+ * User roles for registration
+ */
+export enum RegistrationRole {
+  CUSTOMER = 'CUSTOMER',
+  SELLER = 'SELLER',
+  VENDOR = 'VENDOR',
+}
+
+/**
+ * Device information for tracking
+ */
 export class DeviceInfoDto {
   @ApiPropertyOptional({
-    description: 'IP address of the device',
-    example: '192.168.1.100',
+    description: 'Device fingerprint for tracking',
+    example: 'fp_a1b2c3d4e5f6',
   })
   @IsOptional()
   @IsString()
-  ipAddress?: string;
+  @MaxLength(255)
+  deviceId?: string;
 
   @ApiPropertyOptional({
-    description: 'User agent string of the device',
+    description: 'Device fingerprint hash',
+    example: 'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  deviceFingerprint?: string;
+
+  @ApiPropertyOptional({
+    description: 'Device platform (web, mobile, tablet, desktop)',
+    example: 'web',
+  })
+  @IsOptional()
+  @IsString()
+  @IsIn(['web', 'mobile', 'tablet', 'desktop', 'smart_tv', 'wearable'])
+  platform?: string;
+
+  @ApiPropertyOptional({
+    description: 'Operating system name',
+    example: 'Windows 11',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  os?: string;
+
+  @ApiPropertyOptional({
+    description: 'Browser name and version',
+    example: 'Chrome 120',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  browser?: string;
+
+  @ApiPropertyOptional({
+    description: 'Screen resolution (WxH)',
+    example: '1920x1080',
+  })
+  @IsOptional()
+  @IsString()
+  @Matches(/^\d+x\d+$/, { message: 'Screen resolution must be in format WxH (e.g., 1920x1080)' })
+  screenResolution?: string;
+
+  @ApiPropertyOptional({
+    description: 'User agent string',
     example: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
   })
   @IsOptional()
   @IsString()
+  @MaxLength(1000)
   userAgent?: string;
 
   @ApiPropertyOptional({
-    description: 'Unique device identifier',
-    example: 'device_abc123',
+    description: 'Client IP address',
+    example: '192.168.1.100',
   })
   @IsOptional()
   @IsString()
-  deviceId?: string;
+  @Matches(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$|^[a-fA-F0-9:]+$/, {
+    message: 'Invalid IP address format',
+  })
+  ipAddress?: string;
+
+  @ApiPropertyOptional({
+    description: 'Network type (2g, 3g, 4g, 5g, wifi)',
+    example: 'wifi',
+  })
+  @IsOptional()
+  @IsString()
+  @IsIn(['2g', '3g', '4g', '5g', 'wifi', 'unknown'])
+  networkType?: string;
+
+  @ApiPropertyOptional({
+    description: 'Mobile operator (Bangladesh specific)',
+    example: 'gp',
+  })
+  @IsOptional()
+  @IsString()
+  @IsIn(['gp', 'robi', 'banglalink', 'teletalk', 'unknown'])
+  mobileOperator?: string;
+
+  @ApiPropertyOptional({
+    description: 'District (Bangladesh specific)',
+    example: 'Dhaka',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  district?: string;
+
+  @ApiPropertyOptional({
+    description: 'Upazila (Bangladesh specific)',
+    example: 'Gulshan',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  upazila?: string;
+
+  @ApiPropertyOptional({
+    description: 'Data saver enabled (for mobile networks)',
+    example: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  dataSaverEnabled?: boolean;
+}
+
+/**
+ * User preferences for registration
+ */
+export class UserPreferencesDto {
+  @ApiPropertyOptional({
+    description: 'Marketing consent (email)',
+    example: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  marketingConsent?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'WhatsApp marketing consent',
+    example: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  whatsappConsent?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'SMS marketing consent',
+    example: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  smsConsent?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Preferred district for delivery',
+    example: 'Dhaka',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  preferredDistrict?: string;
+
+  @ApiPropertyOptional({
+    description: 'Preferred upazila for delivery',
+    example: 'Gulshan',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  preferredUpazila?: string;
+
+  @ApiPropertyOptional({
+    description: 'Preferred delivery time',
+    example: 'evening',
+  })
+  @IsOptional()
+  @IsString()
+  @IsIn(['morning', 'afternoon', 'evening', 'any'])
+  preferredDeliveryTime?: 'morning' | 'afternoon' | 'evening' | 'any';
+
+  @ApiPropertyOptional({
+    description: 'Auto-apply coupons',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  autoApplyCoupons?: boolean;
 }
 
 // ============================================================
-// Main Register Request DTO
+// Main DTO
 // ============================================================
 
 export class RegisterRequestDto {
@@ -69,166 +273,240 @@ export class RegisterRequestDto {
   // ============================================================
 
   @ApiProperty({
-    description: 'User email address',
-    example: 'user@example.com',
+    description: 'Email address for account',
+    example: 'user@vubon.com.bd',
     required: true,
   })
-  @IsEmail({}, { message: 'Invalid email format' })
   @IsNotEmpty({ message: 'Email is required' })
-  email: string;
+  @IsEmail({}, { message: 'Invalid email format' })
+  @Transform(({ value }: { value: string }) => normalizeEmail(value))
+  @MaxLength(254, { message: 'Email cannot exceed 254 characters' })
+  @Matches(REGEX_EMAIL.STRICT, { message: 'Invalid email format' })
+  email!: string;
 
   @ApiProperty({
-    description: 'User password (at least 8 characters)',
-    example: 'MyStr0ng!P@ssw0rd',
+    description: 'Password for account (min 8 characters)',
+    example: 'StrongP@ssw0rd123!',
     required: true,
-    minLength: 8,
   })
-  @IsString()
   @IsNotEmpty({ message: 'Password is required' })
-  password: string;
+  @MinLength(PASSWORD_POLICY.MIN_LENGTH, {
+    message: `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters`,
+  })
+  @MaxLength(PASSWORD_POLICY.MAX_LENGTH, {
+    message: `Password cannot exceed ${PASSWORD_POLICY.MAX_LENGTH} characters`,
+  })
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])/, {
+    message:
+      'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+  })
+  password!: string;
 
   @ApiProperty({
     description: 'Confirm password (must match password)',
-    example: 'MyStr0ng!P@ssw0rd',
+    example: 'StrongP@ssw0rd123!',
     required: true,
   })
-  @IsString()
-  @IsNotEmpty({ message: 'Confirm password is required' })
-  confirmPassword: string;
+  @IsNotEmpty({ message: 'Password confirmation is required' })
+  @Transform(({ obj }: { obj: RegisterRequestDto }) => {
+    if (obj.password && obj.confirmPassword && obj.password !== obj.confirmPassword) {
+      throw new Error('Passwords do not match');
+    }
+    return obj.confirmPassword;
+  })
+  confirmPassword!: string;
 
   @ApiProperty({
-    description: 'User full name',
+    description: 'Full name of the user',
     example: 'John Doe',
     required: true,
   })
-  @IsString()
   @IsNotEmpty({ message: 'Full name is required' })
-  fullName: string;
+  @MinLength(2, { message: 'Full name must be at least 2 characters' })
+  @MaxLength(100, { message: 'Full name cannot exceed 100 characters' })
+  @Matches(/^[a-zA-Z\u0980-\u09FF\s.'-]+$/, {
+    message: 'Full name contains invalid characters (only letters, spaces, dots, hyphens, apostrophes allowed)',
+  })
+  @Transform(({ value }: { value: string }) => value.trim().replace(/\s+/g, ' '))
+  fullName!: string;
 
   // ============================================================
   // Optional Fields
   // ============================================================
 
   @ApiPropertyOptional({
-    description: 'User display name (if not provided, uses first name from fullName)',
-    example: 'Johnny',
+    description: 'Display name (if not provided, derived from full name)',
+    example: 'JohnD',
   })
   @IsOptional()
   @IsString()
+  @MinLength(3, { message: 'Display name must be at least 3 characters' })
+  @MaxLength(50, { message: 'Display name cannot exceed 50 characters' })
+  @Matches(/^[a-zA-Z0-9\u0980-\u09FF\s_.-]+$/, {
+    message: 'Display name contains invalid characters',
+  })
   displayName?: string;
 
   @ApiPropertyOptional({
-    description: 'Phone number (Bangladesh format)',
+    description: 'Phone number (E.164 format or local BD format)',
     example: '+8801712345678',
   })
   @IsOptional()
   @IsString()
+  @Matches(REGEX_PHONE.BANGLADESH, {
+    message: 'Invalid Bangladesh phone number format. Use E.164 or local format',
+  })
+  @Transform(({ value }: { value: string }) => {
+    if (value) {
+      // Normalize to E.164 format
+      const normalized = normalizePhone(value, 'BD');
+      if (normalized) {
+        return normalized;
+      }
+    }
+    return value;
+  })
   phone?: string;
 
   @ApiPropertyOptional({
-    description: 'User avatar URL',
-    example: 'https://example.com/avatar.jpg',
+    description: 'Birth date (DD-MM-YYYY or YYYY-MM-DD)',
+    example: '1990-01-01',
+  })
+  @IsOptional()
+  @IsDateString({}, { message: 'Invalid date format. Use YYYY-MM-DD' })
+  birthDate?: string;
+
+  @ApiPropertyOptional({
+    description: 'Referral code (if available)',
+    example: 'REF123456',
   })
   @IsOptional()
   @IsString()
-  avatar?: string;
-
-  // ============================================================
-  // Preferences
-  // ============================================================
-
-  @ApiPropertyOptional({
-    description: 'Preferred language',
-    enum: ['en', 'bn'],
-    default: 'en',
+  @Matches(/^[A-Z0-9]{8,12}$/, {
+    message: 'Invalid referral code format (alphanumeric, 8-12 characters)',
   })
-  @IsOptional()
-  @IsIn(['en', 'bn'], { message: 'Language must be either "en" or "bn"' })
-  preferredLanguage?: 'en' | 'bn';
-
-  @ApiPropertyOptional({
-    description: 'Preferred district (Bangladesh)',
-    example: 'Dhaka',
-  })
-  @IsOptional()
-  @IsString()
-  preferredDistrict?: string;
-
-  @ApiPropertyOptional({
-    description: 'Preferred upazila (Bangladesh)',
-    example: 'Gulshan',
-  })
-  @IsOptional()
-  @IsString()
-  preferredUpazila?: string;
-
-  // ============================================================
-  // Consents
-  // ============================================================
-
-  @ApiProperty({
-    description: 'Acceptance of terms and conditions',
-    example: true,
-    required: true,
-  })
-  @IsBoolean({ message: 'Accept terms must be a boolean' })
-  acceptTerms: boolean;
-
-  @ApiProperty({
-    description: 'Acceptance of privacy policy',
-    example: true,
-    required: true,
-  })
-  @IsBoolean({ message: 'Accept privacy must be a boolean' })
-  acceptPrivacy: boolean;
-
-  @ApiPropertyOptional({
-    description: 'Marketing consent',
-    example: false,
-  })
-  @IsOptional()
-  @IsBoolean()
-  marketingConsent?: boolean;
-
-  @ApiPropertyOptional({
-    description: 'WhatsApp consent (Bangladesh specific)',
-    example: false,
-  })
-  @IsOptional()
-  @IsBoolean()
-  whatsappConsent?: boolean;
-
-  // ============================================================
-  // Verification & Security
-  // ============================================================
-
-  @ApiPropertyOptional({
-    description: 'CAPTCHA token for bot prevention',
-    example: '03AFcWeA4Z...',
-  })
-  @IsOptional()
-  @IsString()
-  captchaToken?: string;
-
-  @ApiPropertyOptional({
-    description: 'Referral code (if applicable)',
-    example: 'REF12345',
-  })
-  @IsOptional()
-  @IsString()
   referralCode?: string;
 
+  @ApiPropertyOptional({
+    description: 'CAPTCHA token for verification',
+    example: '03AFcWeA5u1...',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  captchaToken?: string;
+
   // ============================================================
-  // Device Information
+  // Consent Fields
+  // ============================================================
+
+  @ApiProperty({
+    description: 'Accept terms and conditions',
+    example: true,
+    required: true,
+  })
+  @IsBoolean({ message: 'Terms acceptance must be a boolean' })
+  @Transform(({ value }: { value: unknown }) => {
+    if (value !== true) {
+      throw new Error('You must accept the terms and conditions');
+    }
+    return value;
+  })
+  acceptTerms!: boolean;
+
+  @ApiProperty({
+    description: 'Accept privacy policy',
+    example: true,
+    required: true,
+  })
+  @IsBoolean({ message: 'Privacy acceptance must be a boolean' })
+  @Transform(({ value }: { value: unknown }) => {
+    if (value !== true) {
+      throw new Error('You must accept the privacy policy');
+    }
+    return value;
+  })
+  acceptPrivacy!: boolean;
+
+  // ============================================================
+  // Optional Consent Fields
   // ============================================================
 
   @ApiPropertyOptional({
-    description: 'Device information for tracking and security',
+    description: 'Age verification (13+ for customer, 18+ for seller)',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  ageVerification?: boolean;
+
+  // ============================================================
+  // Role & Preferences
+  // ============================================================
+
+  @ApiPropertyOptional({
+    description: 'User role (default: CUSTOMER)',
+    enum: RegistrationRole,
+    example: 'CUSTOMER',
+  })
+  @IsOptional()
+  @IsEnum(RegistrationRole, { message: 'Invalid role' })
+  role?: RegistrationRole;
+
+  @ApiPropertyOptional({
+    description: 'Language preference',
+    enum: LanguagePreference,
+    example: 'en',
+  })
+  @IsOptional()
+  @IsEnum(LanguagePreference, { message: 'Invalid language preference' })
+  preferredLanguage?: LanguagePreference;
+
+  // ============================================================
+  // Nested Objects
+  // ============================================================
+
+  @ApiPropertyOptional({
+    description: 'Device information for tracking',
     type: DeviceInfoDto,
   })
   @IsOptional()
-  @IsObject()
+  @ValidateNested()
+  @Type(() => DeviceInfoDto)
   deviceInfo?: DeviceInfoDto;
+
+  @ApiPropertyOptional({
+    description: 'User preferences',
+    type: UserPreferencesDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UserPreferencesDto)
+  preferences?: UserPreferencesDto;
+
+  // ============================================================
+  // Additional Metadata
+  // ============================================================
+
+  @ApiPropertyOptional({
+    description: 'Registration source (web, mobile_app, etc.)',
+    example: 'web',
+  })
+  @IsOptional()
+  @IsString()
+  @IsIn(['web', 'mobile_app', 'admin', 'social', 'api', 'vendor_platform'], {
+    message: 'Invalid registration source',
+  })
+  registrationSource?: string;
+
+  @ApiPropertyOptional({
+    description: 'Correlation ID for distributed tracing',
+    example: 'corr_1234567890',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  correlationId?: string;
 
   // ============================================================
   // Validation Methods
@@ -237,7 +515,7 @@ export class RegisterRequestDto {
   /**
    * Check if passwords match
    */
-  doPasswordsMatch(): boolean {
+  hasValidPasswordMatch(): boolean {
     return this.password === this.confirmPassword;
   }
 
@@ -249,60 +527,47 @@ export class RegisterRequestDto {
   }
 
   /**
-   * Check if privacy policy is accepted
+   * Check if privacy is accepted
    */
   hasAcceptedPrivacy(): boolean {
     return this.acceptPrivacy === true;
   }
 
   /**
-   * Check if phone number is provided
+   * Check if age is verified
    */
-  hasPhone(): boolean {
-    return !!this.phone && this.phone.trim().length > 0;
+  hasAgeVerification(): boolean {
+    return this.ageVerification === true;
   }
 
   /**
    * Check if referral code is provided
    */
   hasReferralCode(): boolean {
-    return !!this.referralCode && this.referralCode.trim().length > 0;
+    return !!this.referralCode;
   }
 
   /**
-   * Check if marketing consent is provided
-   */
-  hasMarketingConsent(): boolean {
-    return this.marketingConsent === true;
-  }
-
-  /**
-   * Check if WhatsApp consent is provided
-   */
-  hasWhatsAppConsent(): boolean {
-    return this.whatsappConsent === true;
-  }
-
-  /**
-   * Check if CAPTCHA token is provided
+   * Check if CAPTCHA is provided
    */
   hasCaptcha(): boolean {
-    return !!this.captchaToken && this.captchaToken.trim().length > 0;
+    return !!this.captchaToken;
   }
 
   /**
-   * Check if display name is provided
+   * Check if phone is provided
    */
-  hasDisplayName(): boolean {
-    return !!this.displayName && this.displayName.trim().length > 0;
+  hasPhone(): boolean {
+    return !!this.phone;
   }
 
   /**
    * Get masked email for logging
    */
   getMaskedEmail(): string {
+    if (!this.email) return '';
     const [username, domain] = this.email.split('@');
-    if (!username || !domain) return '***@***';
+    if (!username) return this.email;
     if (username.length <= 2) {
       return `${username}***@${domain}`;
     }
@@ -316,72 +581,51 @@ export class RegisterRequestDto {
    */
   getMaskedPhone(): string {
     if (!this.phone) return '';
-    const phone = this.phone.trim();
-    if (phone.length <= 8) return phone;
-    const prefix = phone.substring(0, phone.length - 6);
-    const suffix = phone.substring(phone.length - 2);
-    return `${prefix}******${suffix}`;
-  }
-
-  // ============================================================
-  // Factory Methods
-  // ============================================================
-
-  /**
-   * Create from plain object (for testing)
-   */
-  static fromPlain(data: Partial<RegisterRequestDto>): RegisterRequestDto {
-    const dto = new RegisterRequestDto();
-    Object.assign(dto, data);
-    return dto;
+    if (this.phone.length <= 8) return this.phone;
+    const prefix = this.phone.substring(0, 4);
+    const suffix = this.phone.substring(this.phone.length - 4);
+    return `${prefix}****${suffix}`;
   }
 
   /**
-   * Validate all fields
+   * Convert to command object
    */
-  validate(): {
-    isValid: boolean;
-    errors: string[];
+  toCommand(): {
+    email: string;
+    password: string;
+    fullName: string;
+    displayName?: string;
+    phone?: string;
+    acceptTerms: boolean;
+    acceptPrivacy: boolean;
+    preferredLanguage?: 'en' | 'bn';
+    referralCode?: string;
+    captchaToken?: string;
+    deviceInfo?: DeviceInfoDto;
+    preferences?: UserPreferencesDto;
+    correlationId?: string;
   } {
-    const errors: string[] = [];
-
-    if (!this.email) {
-      errors.push('Email is required');
-    }
-
-    if (!this.password) {
-      errors.push('Password is required');
-    } else if (this.password.length < 8) {
-      errors.push('Password must be at least 8 characters');
-    }
-
-    if (this.password !== this.confirmPassword) {
-      errors.push('Passwords do not match');
-    }
-
-    if (!this.fullName || this.fullName.trim().length === 0) {
-      errors.push('Full name is required');
-    }
-
-    if (this.acceptTerms !== true) {
-      errors.push('You must accept the terms and conditions');
-    }
-
-    if (this.acceptPrivacy !== true) {
-      errors.push('You must accept the privacy policy');
-    }
-
-    // Phone validation (if provided)
-    if (this.phone) {
-      const phoneRegex = /^(?:\+880|0)1[3-9]\d{8}$/;
-      if (!phoneRegex.test(this.phone.trim())) {
-        errors.push('Invalid Bangladesh phone number format');
-      }
-    }
-
     return {
-      isValid: errors.length === 0,
-      errors,
+      email: this.email,
+      password: this.password,
+      fullName: this.fullName,
+      displayName: this.displayName,
+      phone: this.phone,
+      acceptTerms: this.acceptTerms,
+      acceptPrivacy: this.acceptPrivacy,
+      preferredLanguage: this.preferredLanguage,
+      referralCode: this.referralCode,
+      captchaToken: this.captchaToken,
+      deviceInfo: this.deviceInfo,
+      preferences: this.preferences,
+      correlationId: this.correlationId,
     };
   }
 }
+
+// ============================================================
+// Type Exports
+// ============================================================
+
+export type { DeviceInfoDto as DeviceInfoType };
+export type { UserPreferencesDto as UserPreferencesType };
