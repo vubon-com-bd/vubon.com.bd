@@ -185,7 +185,6 @@ export {
   calculateDiscount,
   calculateTaxInclusive,
   calculateTaxAmount,
-  formatPercentage as formatCurrencyPercentage, // Alias
   getCurrencyInfo,
   getSupportedCurrencies,
   isCurrencySupported,
@@ -244,7 +243,6 @@ export {
   ceil,
   calculatePercentage,
   calculateValueFromPercentage,
-  formatPercentage as formatNumberPercentage, // Alias
   getPercentageResult,
   randomInt,
   randomFloat,
@@ -421,16 +419,16 @@ export {
   trimRight,
   normalizeWhitespace,
   removeWhitespace,
-  truncate as truncateString, // Alias
-  truncateWords as truncateStringWords, // Alias
+  truncate ,
+  truncateWords ,
   escapeSql,
   hasSqlInjectionPattern,
   normalizeUnicode,
   removeDiacritics,
   normalizeCase,
   toUpperCase,
-  capitalize as capitalizeString, // Alias
-  capitalizeWords as capitalizeStringWords, // Alias
+  capitalize ,
+  capitalizeWords ,
   sanitize,
   sanitizeBengaliText,
 
@@ -451,10 +449,10 @@ export {
   isValidIpV4,
   isValidIpV6,
   isValidNumber,
-  isInteger as isNumberInteger,
+  isInteger ,
   isPositiveInteger,
   isNonNegativeInteger,
-  isInRange as isNumberInRange,
+  isInRange ,
   parseBoolean,
   toBooleanString,
   isObject,
@@ -494,7 +492,7 @@ export {
   sleepWithTimeout,
   sleepUntil,
   sleepWithMonitor,
-} from './async';
+} from './async/sleep.util';
 
 // ============================================================
 // 7. Environment Utilities (env/index.ts)
@@ -522,11 +520,11 @@ export {
   setFeatureFlag,
   clearFeatureFlags,
   ENV_KEYS,
-} from './env';
+} from './env/env.util';
 
 export type {
   Environment,
-} from './env';
+} from './env/env.util';
 
 // ============================================================
 // 8. Logger Utilities (logger/index.ts)
@@ -539,14 +537,14 @@ export {
   getLoggerConfig,
   setLogLevel,
   logPerformance,
-} from './logger';
+} from './logger/logger.util';
 
 export type {
   LogLevel,
   Logger,
   LoggerOptions,
   LogEntry,
-} from './logger';
+} from './logger/logger.util';
 
 // ============================================================
 // Default Export (For convenience)
