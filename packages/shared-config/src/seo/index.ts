@@ -25,10 +25,6 @@ export {
   // Helper Functions
   getRobotsTxtConfig,
   getMetaRobots,
-
-  // Constants
-  DISALLOW_PATHS,
-  ALLOW_PATHS,
 } from './robots.config';
 
 export type {
@@ -81,8 +77,8 @@ export type {
 // ============================================================
 
 import { env } from '../env/env.validation';
-import { seoConfig, robotsConfig } from './seo.config';
-import { robotsTxtConfig, metaRobotsConfig } from './robots.config';
+import { seoConfig } from './seo.config';
+import { robotsTxtConfig, metaRobotsConfig, MetaRobots } from './robots.config';
 import { sitemapConfig } from './sitemap.config';
 
 /**
