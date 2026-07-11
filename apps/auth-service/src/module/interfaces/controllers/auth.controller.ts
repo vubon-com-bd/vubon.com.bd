@@ -1,5 +1,5 @@
 /**
- * Auth Controller - Interface Layer
+ * Auth Controller - Interface Layer (Enterprise Enhanced)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  *
  * @module interfaces/controllers/auth.controller
@@ -20,6 +20,9 @@
  * ✅ Bangladesh specific - Phone/Email verification
  * ✅ Device fingerprinting
  * ✅ Graceful error handling
+ * ✅ Unified login (email, phone, username, OTP)
+ * ✅ MFA support with session management
+ * ✅ Account lock detection
  *
  * @example
  * // Register endpoint
@@ -29,6 +32,13 @@
  *   "password": "StrongP@ssw0rd123!",
  *   "fullName": "John Doe",
  *   "acceptTerms": true
+ * }
+ *
+ * // Unified login
+ * POST /api/v1/auth/login
+ * {
+ *   "identifier": "user@vubon.com.bd",
+ *   "password": "StrongP@ssw0rd123!"
  * }
  */
 
@@ -82,7 +92,7 @@ import { GetCurrentUserQuery } from '../../application/queries/auth/get-current-
 
 // Application layer - DTOs
 import { RegisterRequestDto, RegisterResponseDto, RegistrationSuccessDto } from '../dtos/auth/register.request.dto';
-import { LoginRequestDto, LoginResponseDto } from '../dtos/auth/login.request.dto';
+import { UnifiedLoginRequestDto, LoginResponseDto } from '../dtos/auth/login.request.dto';
 import { RefreshTokenRequestDto, RefreshTokenResponseDto } from '../dtos/auth/refresh-token.request.dto';
 import { LogoutRequestDto, LogoutResponseDto } from '../dtos/auth/logout.request.dto';
 import { ForgotPasswordRequestDto, ForgotPasswordResponseDto } from '../dtos/auth/forgot-password.request.dto';
@@ -235,7 +245,7 @@ export class AuthController {
   }
 
   // ============================================================
-  // Login Endpoint
+  // Unified Login Endpoint (Enhanced)
   // ============================================================
 
   @Public()
@@ -250,9 +260,9 @@ export class AuthController {
   @UsePipes(new ZodValidationPipe(LoginSchema))
   @ApiOperation({
     summary: 'Login user',
-    description: 'Authenticate user with email/phone and password.',
+    description: 'Authenticate user with email, phone, or username. Supports OTP login.',
   })
-  @ApiBody({ type: LoginRequestDto })
+  @ApiBody({ type: UnifiedLoginRequestDto })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Login successful',
@@ -266,37 +276,89 @@ export class AuthController {
     status: HttpStatus.TOO_MANY_REQUESTS,
     description: 'Too many login attempts',
   })
+  @ApiResponse({
+    status: HttpStatus.LOCKED,
+    description: 'Account is locked',
+  })
   async login(
-    @Body() dto: LoginRequestDto,
+    @Body() dto: UnifiedLoginRequestDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<LoginResponseDto> {
     const correlationId = this.getCorrelationId(req);
+    const loginMethod = dto.detectLoginMethod();
 
-    this.logger.debug(`Login request received: ${dto.email}`, {
+    this.logger.debug(`Login request received via ${loginMethod}`, {
       correlationId,
-      method: dto.loginMethod,
+      method: loginMethod,
+      hasPassword: dto.hasPassword(),
+      hasOtp: dto.hasOtp(),
+      identifier: dto.identifier,
     });
 
     try {
+      // Validate login method
+      if (loginMethod === 'unknown') {
+        throw new BadRequestException({
+          message: 'Unable to determine login method. Please provide a valid email, phone, or username.',
+          messageBn: 'লগইন পদ্ধতি নির্ধারণ করা যায়নি। অনুগ্রহ করে একটি বৈধ ইমেইল, ফোন বা ইউজারনেম দিন।',
+          correlationId,
+        });
+      }
+
+      // For password-based login, password is required
+      if (dto.isPasswordLogin() && !dto.hasPassword()) {
+        throw new BadRequestException({
+          message: 'Password is required for this login method.',
+          messageBn: 'এই লগইন পদ্ধতির জন্য পাসওয়ার্ড প্রয়োজন।',
+          correlationId,
+        });
+      }
+
+      // For OTP login, OTP is required
+      if (dto.isOtpLogin() && !dto.hasOtp()) {
+        throw new BadRequestException({
+          message: 'OTP code is required for OTP login.',
+          messageBn: 'OTP লগইনের জন্য OTP কোড প্রয়োজন।',
+          correlationId,
+        });
+      }
+
       // Extract device information
       const deviceInfo = {
         ipAddress: this.getClientIp(req),
         userAgent: req.headers['user-agent'],
         platform: this.detectPlatform(req),
+        ...(dto.clientInfo || {}),
+        deviceId: dto.deviceId,
+        deviceFingerprint: dto.deviceFingerprint,
       };
 
+      // Create login command based on method
+      let command;
+      if (dto.isOtpLogin()) {
+        command = {
+          phoneNumber: dto.identifier,
+          otpCode: dto.otpCode,
+          deviceInfo,
+          correlationId,
+          rememberMe: dto.rememberMe,
+          captchaToken: dto.captchaToken,
+        };
+      } else {
+        command = {
+          identifier: dto.identifier,
+          password: dto.password,
+          loginMethod,
+          deviceInfo,
+          correlationId,
+          rememberMe: dto.rememberMe,
+          captchaToken: dto.captchaToken,
+        };
+      }
+
       // Execute login command
-      const result = await this.commandBus.execute({
-        email: dto.email,
-        password: dto.password,
-        phone: dto.phone,
-        loginMethod: dto.loginMethod,
-        deviceInfo,
-        correlationId,
-        rememberMe: dto.rememberMe,
-        captchaToken: dto.captchaToken,
-      });
+      const result = await this.commandBus.execute(command);
 
       // Set secure cookie for refresh token
       if (result.refreshToken) {
@@ -309,11 +371,108 @@ export class AuthController {
         });
       }
 
+      // Set response headers
       res.setHeader('X-Request-ID', correlationId);
       res.setHeader('X-User-ID', result.userId);
 
-      return result;
+      // If MFA required, return MFA response
+      if (result.mfaRequired) {
+        this.logger.debug(`MFA required for user: ${result.userId}`, {
+          correlationId,
+          userId: result.userId,
+        });
+
+        return LoginResponseDto.mfaRequired({
+          userId: result.userId,
+          sessionId: result.mfaSessionId,
+          availableMethods: result.availableMethods || ['totp', 'sms'],
+          message: 'MFA verification required',
+          messageBn: 'MFA যাচাই প্রয়োজন',
+          correlationId,
+        });
+      }
+
+      // Return success response
+      this.logger.debug(`Login successful for user: ${result.userId}`, {
+        correlationId,
+        userId: result.userId,
+        isNewDevice: result.isNewDevice,
+        isNewLocation: result.isNewLocation,
+      });
+
+      return LoginResponseDto.success({
+        userId: result.userId,
+        email: result.email,
+        phone: result.phone,
+        fullName: result.fullName,
+        displayName: result.displayName,
+        role: result.role,
+        tier: result.tier,
+        isEmailVerified: result.isEmailVerified,
+        isPhoneVerified: result.isPhoneVerified,
+        isMfaEnabled: result.isMfaEnabled,
+        preferredDistrict: result.preferredDistrict,
+        preferredUpazila: result.preferredUpazila,
+        preferredLanguage: result.preferredLanguage,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+        expiresIn: result.expiresIn,
+        refreshExpiresIn: result.refreshExpiresIn,
+        sessionId: result.sessionId,
+        isNewDevice: result.isNewDevice,
+        isNewLocation: result.isNewLocation,
+        trustLevel: result.trustLevel,
+        deviceInfo: result.deviceInfo,
+        correlationId,
+        message: 'Login successful',
+        messageBn: 'লগইন সফল হয়েছে',
+      });
     } catch (error) {
+      // Handle account locked error
+      if (error.message?.toLowerCase().includes('locked') || error.message?.toLowerCase().includes('account locked')) {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.LOCKED,
+            message: 'Account is locked due to multiple failed attempts. Please try again later or contact support.',
+            messageBn: 'একাধিক ব্যর্থ চেষ্টার কারণে অ্যাকাউন্টটি লক করা হয়েছে। পরে আবার চেষ্টা করুন অথবা সহায়তার জন্য যোগাযোগ করুন।',
+            errorCode: 'ACCOUNT_LOCKED',
+            correlationId,
+            timestamp: new Date().toISOString(),
+          },
+          HttpStatus.LOCKED,
+        );
+      }
+
+      // Handle account suspended error
+      if (error.message?.toLowerCase().includes('suspended') || error.message?.toLowerCase().includes('account suspended')) {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.FORBIDDEN,
+            message: 'Account has been suspended. Please contact support for assistance.',
+            messageBn: 'অ্যাকাউন্ট স্থগিত করা হয়েছে। সহায়তার জন্য যোগাযোগ করুন।',
+            errorCode: 'ACCOUNT_SUSPENDED',
+            correlationId,
+            timestamp: new Date().toISOString(),
+          },
+          HttpStatus.FORBIDDEN,
+        );
+      }
+
+      // Handle account not verified error
+      if (error.message?.toLowerCase().includes('email not verified') || error.message?.toLowerCase().includes('phone not verified')) {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.FORBIDDEN,
+            message: 'Please verify your email/phone before logging in.',
+            messageBn: 'লগইন করার আগে দয়া করে আপনার ইমেইল/ফোন যাচাই করুন।',
+            errorCode: 'ACCOUNT_NOT_VERIFIED',
+            correlationId,
+            timestamp: new Date().toISOString(),
+          },
+          HttpStatus.FORBIDDEN,
+        );
+      }
+
       this.handleError(error, correlationId);
     }
   }
@@ -357,7 +516,11 @@ export class AuthController {
       const refreshToken = dto.refreshToken || req.cookies?.refreshToken;
 
       if (!refreshToken) {
-        throw new BadRequestException('Refresh token is required');
+        throw new BadRequestException({
+          message: 'Refresh token is required',
+          messageBn: 'রিফ্রেশ টোকেন প্রয়োজন',
+          correlationId,
+        });
       }
 
       const result = await this.commandBus.execute({
@@ -486,7 +649,11 @@ export class AuthController {
     const userId = req.user?.id;
 
     if (!userId) {
-      throw new BadRequestException('User not authenticated');
+      throw new BadRequestException({
+        message: 'User not authenticated',
+        messageBn: 'ইউজার অথেন্টিকেটেড নয়',
+        correlationId,
+      });
     }
 
     try {
@@ -550,6 +717,7 @@ export class AuthController {
       return {
         success: true,
         message: 'If an account exists with this email, you will receive a password reset link.',
+        messageBn: 'যদি এই ইমেইলে একটি অ্যাকাউন্ট থাকে, তাহলে আপনি একটি পাসওয়ার্ড রিসেট লিংক পাবেন।',
         correlationId,
         timestamp: new Date().toISOString(),
       };
