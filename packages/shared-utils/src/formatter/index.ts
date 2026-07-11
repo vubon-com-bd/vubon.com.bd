@@ -209,10 +209,4 @@ export type {
   // Currency & Number combined
   CurrencyCode as FormatterCurrencyCode,
   CurrencyInfo as FormatterCurrencyInfo,
-  NumberFormat as FormatterNumberFormat,
-  PercentageResult as FormatterPercentageResult,
-
-  // Date & String combined
-  DateFormatString as FormatterDateFormat,
-  CaseFormat as FormatterCaseFormat,
 } from './currency.util';
