@@ -218,7 +218,7 @@
     "typescript": "^5.0.0"
   },
   "peerDependencies": {
-    "typescript": ">=5.0.0"
+    "@vubon/shared-constants": "file:../shared-constants"
   },
   "sideEffects": false,
   "publishConfig": {
