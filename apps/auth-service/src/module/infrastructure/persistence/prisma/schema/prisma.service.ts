@@ -32,9 +32,8 @@
  * }
  */
 
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger, Inject, Optional } from '@nestjs/common';
+import { Injectable, OnModuleInit, OnModuleDestroy, Logger, Optional } from '@nestjs/common';
 import { PrismaClient, Prisma } from '@prisma/client';
-import { PrismaClientOptions } from '@prisma/client/runtime/library';
 import { env } from '@vubon/shared-config';
 
 // ============================================================
@@ -96,10 +95,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       },
       log: logConfig,
       errorFormat: isProd ? 'minimal' : 'pretty',
-      // Connection pool configuration (environment-aware)
-      // This is the correct way to set connection pool limits
-      // Using connection limit directly in the PrismaClient constructor
-      // Environment-specific pool sizes are handled via DATABASE_URL
     });
 
     // Store options
@@ -146,6 +141,8 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 
     while (attempts < this.maxRetries) {
       attempts++;
+      this.connectionAttempts = attempts; // ✅ Now it's used
+      
       try {
         this.logger.log(`Connecting to database (attempt ${attempts}/${this.maxRetries})...`);
         await this.$connect();
@@ -210,6 +207,13 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     }
   }
 
+  /**
+   * Get connection attempt count
+   */
+  getConnectionAttempts(): number {
+    return this.connectionAttempts;
+  }
+
   // ============================================================
   // Query Interceptor / Extensions
   // ============================================================
@@ -218,59 +222,38 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
    * Apply Prisma extensions for soft delete, audit, and logging
    */
   private applyExtensions(): void {
-    // Extend Prisma client with custom methods
-    // Using $extends for query-level interceptors
-    // Note: $extends is available in Prisma 5+
-    // For Prisma 4, use middleware instead
-    try {
-      // Apply soft delete extension (if enabled)
-      if (true) { // Always apply for now, can be controlled via options
-        this.$use(async (params, next) => {
-          // If soft delete is enabled and model has deletedAt field
-          if (params.model && params.action === 'findMany') {
-            // Add deletedAt: null filter for all find operations (except explicitly excluded)
-            // This is handled at the repository level, but we can add a global interceptor
-            // For now, we'll handle at repository level
-          }
-          return next(params);
-        });
-      }
-
-      // Apply audit logging
-      if (this.enableAuditLogging) {
-        this.$use(async (params, next) => {
-          const start = Date.now();
-          try {
-            const result = await next(params);
-            const duration = Date.now() - start;
-            
-            // Log slow queries
-            if (duration > this.slowQueryThreshold) {
-              this.logger.warn(
-                `Slow query detected: ${params.model}.${params.action} took ${duration}ms`
-              );
-            }
-            
-            // Log query details in development
-            if (env.NODE_ENV === 'development') {
-              this.logger.debug(
-                `Query: ${params.model}.${params.action} completed in ${duration}ms`
-              );
-            }
-            
-            return result;
-          } catch (error) {
-            const duration = Date.now() - start;
-            this.logger.error(
-              `Query failed: ${params.model}.${params.action} (${duration}ms):`,
-              error
+    // Apply audit logging
+    if (this.enableAuditLogging) {
+      this.$use(async (params, next) => {
+        const start = Date.now();
+        try {
+          const result = await next(params);
+          const duration = Date.now() - start;
+          
+          // Log slow queries
+          if (duration > this.slowQueryThreshold) {
+            this.logger.warn(
+              `Slow query detected: ${params.model}.${params.action} took ${duration}ms`
             );
-            throw error;
           }
-        });
-      }
-    } catch (error) {
-      this.logger.warn('Failed to apply Prisma extensions:', error);
+          
+          // Log query details in development
+          if (env.NODE_ENV === 'development') {
+            this.logger.debug(
+              `Query: ${params.model}.${params.action} completed in ${duration}ms`
+            );
+          }
+          
+          return result;
+        } catch (error) {
+          const duration = Date.now() - start;
+          this.logger.error(
+            `Query failed: ${params.model}.${params.action} (${duration}ms):`,
+            error
+          );
+          throw error;
+        }
+      });
     }
   }
 
@@ -284,9 +267,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
    * @returns Result of callback
    */
   async runInTransaction<R>(callback: (tx: Prisma.TransactionClient) => Promise<R>): Promise<R> {
-    // Use the proper Prisma transaction API
-    // In Prisma 5+, we use $transaction with a callback
-    // The transaction client is passed to the callback
     try {
       return await this.$transaction(async (tx) => {
         return await callback(tx);
@@ -298,41 +278,54 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   }
 
   /**
-   * Create a transaction context for manual control
-   * @returns Transaction context with commit/rollback
+   * Execute in a transaction with automatic retry
+   * @param callback - Function to execute within transaction
+   * @param retries - Number of retries (default: 1)
+   * @returns Result of callback
    */
-  createTransactionContext(): {
-    client: Prisma.TransactionClient;
-    commit: () => Promise<void>;
-    rollback: () => Promise<void>;
-    isActive: () => boolean;
-  } {
-    // Implement manual transaction control
-    // This is a simplified version; for full control, use $transaction with callbacks
-    let active = false;
-    let transactionClient: Prisma.TransactionClient | null = null;
+  async transactional<R>(callback: (tx: Prisma.TransactionClient) => Promise<R>, retries: number = 1): Promise<R> {
+    let attempts = 0;
+    let lastError: Error | undefined;
 
-    return {
-      client: {} as Prisma.TransactionClient, // Placeholder
-      commit: async () => {
-        if (!active || !transactionClient) {
-          throw new Error('No active transaction to commit');
+    while (attempts <= retries) {
+      attempts++;
+      try {
+        return await this.$transaction(async (tx) => {
+          return await callback(tx);
+        });
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+        
+        // Check if error is retryable
+        if (this.isRetryableError(lastError) && attempts <= retries) {
+          const delay = 100 * Math.pow(2, attempts - 1);
+          this.logger.warn(`Transaction retry ${attempts}/${retries} after ${delay}ms: ${lastError.message}`);
+          await this.delay(delay);
+          continue;
         }
-        active = false;
-        // In Prisma, commit is implicit when the transaction callback completes
-        // For manual control, we would need to use a different approach
-        this.logger.warn('Manual commit not fully supported in Prisma; use $transaction callback');
-      },
-      rollback: async () => {
-        if (!active || !transactionClient) {
-          throw new Error('No active transaction to rollback');
-        }
-        active = false;
-        // Rollback is implicit when an error is thrown in the transaction callback
-        this.logger.warn('Manual rollback not fully supported in Prisma; use $transaction callback');
-      },
-      isActive: () => active,
-    };
+        throw lastError;
+      }
+    }
+
+    throw lastError || new Error('Transaction failed after retries');
+  }
+
+  /**
+   * Check if error is retryable
+   */
+  private isRetryableError(error: Error): boolean {
+    const retryableMessages = [
+      'deadlock',
+      'serialization',
+      'connection',
+      'timeout',
+      'lock',
+      'conflict',
+      'restart',
+    ];
+
+    const lowerMessage = error.message.toLowerCase();
+    return retryableMessages.some((msg) => lowerMessage.includes(msg));
   }
 
   // ============================================================
@@ -371,61 +364,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       this.logger.error(`Raw command failed: ${query.substring(0, 100)}...`, error);
       throw error;
     }
-  }
-
-  // ============================================================
-  // Transaction Helpers
-  // ============================================================
-
-  /**
-   * Execute in a transaction with automatic retry
-   * @param callback - Function to execute within transaction
-   * @param retries - Number of retries (default: 1)
-   * @returns Result of callback
-   */
-  async transactional<R>(callback: (tx: Prisma.TransactionClient) => Promise<R>, retries: number = 1): Promise<R> {
-    let attempts = 0;
-    let lastError: Error | undefined;
-
-    while (attempts <= retries) {
-      attempts++;
-      try {
-        return await this.$transaction(async (tx) => {
-          return await callback(tx);
-        });
-      } catch (error) {
-        lastError = error instanceof Error ? error : new Error(String(error));
-        
-        // Check if error is retryable (serialization failure, deadlock, connection error)
-        if (this.isRetryableError(lastError) && attempts <= retries) {
-          const delay = 100 * Math.pow(2, attempts - 1);
-          this.logger.warn(`Transaction retry ${attempts}/${retries} after ${delay}ms: ${lastError.message}`);
-          await this.delay(delay);
-          continue;
-        }
-        throw lastError;
-      }
-    }
-
-    throw lastError || new Error('Transaction failed after retries');
-  }
-
-  /**
-   * Check if error is retryable
-   */
-  private isRetryableError(error: Error): boolean {
-    const retryableMessages = [
-      'deadlock',
-      'serialization',
-      'connection',
-      'timeout',
-      'lock',
-      'conflict',
-      'restart',
-    ];
-
-    const lowerMessage = error.message.toLowerCase();
-    return retryableMessages.some((msg) => lowerMessage.includes(msg));
   }
 }
 
