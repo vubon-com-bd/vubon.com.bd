@@ -178,7 +178,6 @@ export type {
 export type {
   // Re-export commonly combined types
   PermissionString as RolePermissionString,
-  RoleName as RoleDefinitionName,
   PermissionId as RolePermissionId,
   RoleId as RoleDefinitionId,
 } from './permission.schema';
