@@ -35,14 +35,15 @@ export type JWTAlgorithm = 'HS256' | 'HS384' | 'HS512' | 'RS256' | 'RS384' | 'RS
 
 /**
  * JWT configuration interface
+ * ✅ FIXED: Using explicit `| undefined` instead of optional `?:` for `exactOptionalPropertyTypes`
  */
 export interface JWTConfig {
   /** JWT secret (for HS algorithms) */
   secret: string;
   /** Public key (for RS/ES algorithms) */
-  publicKey?: string;
+  publicKey: string | undefined;
   /** Private key (for RS/ES algorithms) */
-  privateKey?: string;
+  privateKey: string | undefined;
   /** Algorithm to use */
   algorithm: JWTAlgorithm;
   /** Access token expiry (e.g., '15m', '1h', '7d') */
@@ -87,9 +88,9 @@ const buildJWTConfig = (): JWTConfig => {
   // Get secret (required for HS algorithms)
   const secret = process.env.JWT_SECRET || '';
 
-  // Get public/private keys for RS/ES algorithms
-  const publicKey = process.env.JWT_PUBLIC_KEY;
-  const privateKey = process.env.JWT_PRIVATE_KEY;
+  // Get public/private keys for RS/ES algorithms (explicitly undefined if not set)
+  const publicKey: string | undefined = process.env.JWT_PUBLIC_KEY;
+  const privateKey: string | undefined = process.env.JWT_PRIVATE_KEY;
 
   // Validate secret for HS algorithms
   const isHS = algorithm.startsWith('HS');
