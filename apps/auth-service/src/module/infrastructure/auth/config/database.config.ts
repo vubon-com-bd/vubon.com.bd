@@ -31,6 +31,7 @@ import { env } from '@vubon/shared-config';
 
 /**
  * Database SSL configuration
+ * ✅ FIXED: Using explicit `| undefined` instead of optional `?:` for exactOptionalPropertyTypes
  */
 export interface DatabaseSSLConfig {
   /** Enable SSL/TLS connection */
@@ -38,11 +39,11 @@ export interface DatabaseSSLConfig {
   /** Reject unauthorized certificates (production: true) */
   rejectUnauthorized: boolean;
   /** CA certificate path */
-  ca?: string;
+  ca: string | undefined;
   /** Client certificate path */
-  cert?: string;
+  cert: string | undefined;
   /** Client key path */
-  key?: string;
+  key: string | undefined;
 }
 
 /**
@@ -58,7 +59,7 @@ export interface DatabasePoolConfig {
   /** Connection acquire timeout in milliseconds */
   acquireTimeoutMs: number;
   /** Connection creation timeout in milliseconds */
-  createTimeoutMs?: number;
+  createTimeoutMs: number | undefined;
 }
 
 /**
@@ -91,6 +92,7 @@ export interface DatabaseReadReplicaConfig {
 
 /**
  * Complete database configuration
+ * ✅ FIXED: readReplica is now optional (`?:`)
  */
 export interface DatabaseConfig {
   /** Database URL */
@@ -104,7 +106,7 @@ export interface DatabaseConfig {
   /** Retry configuration */
   retry: DatabaseRetryConfig;
   /** Read replica configuration */
-  readReplica?: DatabaseReadReplicaConfig;
+  readReplica?: DatabaseReadReplicaConfig | undefined;
   /** Query logging */
   logging: {
     /** Enable query logging */
@@ -142,7 +144,7 @@ export interface DatabaseConfig {
 
 const isProduction = env.NODE_ENV === 'production';
 const isDevelopment = env.NODE_ENV === 'development';
-const isTest = env.NODE_ENV === 'test';
+// ✅ FIXED: Removed unused isTest variable
 
 // ============================================================
 // Configuration Builder
@@ -175,8 +177,11 @@ const buildDatabaseConfig = (): DatabaseConfig => {
   };
 
   // SSL configuration
+  // ✅ FIXED: Use process.env.DB_SSL directly (not env.DB_SSL)
+  const sslEnabled = isProduction || process.env.DB_SSL === 'true';
+  
   const ssl: DatabaseSSLConfig = {
-    enabled: isProduction || env.DB_SSL === 'true',
+    enabled: sslEnabled,
     rejectUnauthorized: isProduction,
     ca: process.env.DB_SSL_CA || undefined,
     cert: process.env.DB_SSL_CERT || undefined,
@@ -192,6 +197,7 @@ const buildDatabaseConfig = (): DatabaseConfig => {
   };
 
   // Read replica configuration (if replica URL is provided)
+  // ✅ FIXED: Explicitly check and assign undefined if not present
   let readReplica: DatabaseReadReplicaConfig | undefined;
   const replicaUrl = process.env.DATABASE_REPLICA_URL;
   if (replicaUrl) {
@@ -201,6 +207,8 @@ const buildDatabaseConfig = (): DatabaseConfig => {
       weight: 0.7,
       healthCheckIntervalMs: 60000,
     };
+  } else {
+    readReplica = undefined;
   }
 
   // Logging configuration
