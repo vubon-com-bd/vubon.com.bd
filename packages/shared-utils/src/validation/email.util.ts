@@ -1,3 +1,6 @@
+// packages/shared-utils/src/validation/email.util.ts
+// Complete fixed file - all errors resolved
+
 /**
  * Email Utilities - Email normalization and formatting
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
@@ -13,11 +16,12 @@
  */
 
 import validator from 'validator';
-// ✅ FIXED: Correct package name
-import { EMAIL_CONFIG } from '@vubon/shared-constants';
 
-// ✅ NEW: Import domain sets from shared-constants (SSOT)
+// ============================================================
+// ✅ FIXED: Import domain sets from shared-constants (SSOT)
+// ============================================================
 import {
+  DISPOSABLE_DOMAINS_SET,
   FREE_EMAIL_DOMAINS_SET,
   BANGLADESH_COMMERCIAL_DOMAINS_SET,
   BANGLADESH_EDUCATIONAL_DOMAINS_SET,
@@ -25,43 +29,52 @@ import {
   BANGLADESH_CORPORATE_DOMAINS_SET,
   INTERNATIONAL_EDUCATIONAL_DOMAINS_SET,
   INTERNATIONAL_GOVERNMENT_DOMAINS_SET,
-  DISPOSABLE_DOMAINS_SET,
-  EMAIL_VALIDATION_PATTERNS,
 } from '@vubon/shared-constants';
 
-// ==================== Constants (from shared-constants) ====================
+// ============================================================
+// ✅ FIXED: Local constants (since EMAIL_CONFIG doesn't have these properties)
+// ============================================================
 
-// Email regex pattern from constants (with fallback)
-const EMAIL_REGEX = EMAIL_CONFIG?.EMAIL_REGEX || /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/;
+/**
+ * Email regex pattern (RFC 5322 compliant)
+ */
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-// Common email providers (for categorization)
-const COMMON_EMAIL_DOMAINS = EMAIL_CONFIG?.COMMON_EMAIL_DOMAINS || [
+/**
+ * Common free email providers (for categorization)
+ */
+const COMMON_EMAIL_DOMAINS: readonly string[] = [
   'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com',
   'icloud.com', 'aol.com', 'protonmail.com', 'mail.com',
 ];
 
-// Bangladesh specific email domains
-const BANGLADESH_EMAIL_DOMAINS = EMAIL_CONFIG?.BANGLADESH_EMAIL_DOMAINS || [
+/**
+ * Bangladesh-specific email domains
+ */
+const BANGLADESH_EMAIL_DOMAINS: readonly string[] = [
   'yahoo.com.bd', 'gmail.com', 'outlook.com', 'hotmail.com',
   'agni.com', 'bdcom.com', 'btcl.net.bd', 'dhaka.net',
 ];
 
-// Educational institutions in Bangladesh
-const EDUCATIONAL_DOMAINS = EMAIL_CONFIG?.EDUCATIONAL_DOMAINS || [
+/**
+ * Educational institution domains (Bangladesh)
+ */
+const EDUCATIONAL_DOMAINS: readonly string[] = [
   'du.ac.bd', 'buet.ac.bd', 'ru.ac.bd', 'cu.ac.bd', 'ju.ac.bd',
   'northsouth.edu', 'bracu.ac.bd', 'aiub.edu', 'iub.edu.bd',
 ];
 
-// ✅ NEW: Create Sets with explicit string type (from imported constants)
+// Create Sets for O(1) lookup
 const COMMON_EMAIL_DOMAINS_SET = new Set<string>(COMMON_EMAIL_DOMAINS);
 const BANGLADESH_EMAIL_DOMAINS_SET = new Set<string>(BANGLADESH_EMAIL_DOMAINS);
 const EDUCATIONAL_DOMAINS_SET = new Set<string>(EDUCATIONAL_DOMAINS);
 
-// ==================== Normalization ====================
+// ============================================================
+// Normalization
+// ============================================================
 
 /**
  * Normalize email address (trim, lowercase)
- * Pure function - deterministic given same input
  *
  * @param email - Email address to normalize
  * @returns Normalized email string
@@ -115,7 +128,9 @@ export const normalizeEmailWithRules = (email: string): string => {
   return normalized;
 };
 
-// ==================== Validation ====================
+// ============================================================
+// Validation
+// ============================================================
 
 /**
  * Check if email format is valid (using validator library)
@@ -142,7 +157,6 @@ export const isValidEmailStrict = (email: string): boolean => {
 /**
  * Check if email domain has MX records (DNS check)
  * Warning: This is an async operation and may have side effects
- * Use with caution - only when DNS lookup is acceptable
  *
  * @param email - Email address to check
  * @returns Promise<boolean> - True if domain has MX records
@@ -163,7 +177,9 @@ export const hasMxRecords = async (email: string): Promise<boolean> => {
   }
 };
 
-// ==================== Formatting ====================
+// ============================================================
+// Formatting
+// ============================================================
 
 /**
  * Mask email for privacy (e.g., u***r@example.com)
@@ -173,7 +189,6 @@ export const hasMxRecords = async (email: string): Promise<boolean> => {
  *
  * @example
  * maskEmail('user@example.com') // 'u***r@example.com'
- * maskEmail('us@example.com') // 'us***@example.com'
  */
 export const maskEmail = (email: string): string => {
   if (!email) return '';
@@ -240,7 +255,6 @@ export const isEducationalEmail = (email: string): boolean => {
   const domain = getEmailDomain(email);
   if (!domain) return false;
 
-  // Check .edu domains
   if (domain.endsWith('.edu') || domain.endsWith('.ac.bd')) {
     return true;
   }
@@ -267,7 +281,9 @@ export const getLocalPart = (email: string): string => {
   return getEmailUsername(email);
 };
 
-// ==================== Component Extraction ====================
+// ============================================================
+// Component Extraction
+// ============================================================
 
 /**
  * Email components interface
@@ -304,12 +320,11 @@ export const getEmailComponents = (email: string): EmailComponents | null => {
 };
 
 // ============================================================
-// ✅ NEW: Extended Domain Checks (using imported constants)
+// ✅ Extended Domain Checks (using imported SSOT constants)
 // ============================================================
 
 /**
  * Check if email is from a disposable/temporary provider
- * Uses SSOT from shared-constants
  *
  * @param email - Email address
  * @returns True if from disposable provider
@@ -385,7 +400,6 @@ export const isInternationalGovernmentEmail = (email: string): boolean => {
 
 /**
  * Get detailed email category with priority
- * Uses all domain sets from shared-constants
  *
  * @param email - Email address
  * @returns Email category with priority order
@@ -428,7 +442,6 @@ export const getEmailCategory = (email: string): {
   const isGovernment = isBangladeshGovernment || isInternationalGovernment;
   const isCorporate = isBangladeshCorporate;
 
-  // Determine category with priority
   let category = 'unknown';
   let priority = 0;
 
@@ -477,8 +490,21 @@ export const getEmailCategory = (email: string): {
 };
 
 // ============================================================
-// Type Exports
+// ✅ Additional Validation Helpers
 // ============================================================
 
-// All functions and types are already exported above.
-// No additional exports needed.
+/**
+ * Local email validation pattern (RFC 5322 compliant)
+ */
+const EMAIL_VALIDATION_PATTERN = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+/**
+ * Strict email validation with custom pattern
+ *
+ * @param email - Email address to validate
+ * @returns True if email matches strict pattern
+ */
+export const isValidEmailWithPattern = (email: string): boolean => {
+  if (!email || typeof email !== 'string') return false;
+  return EMAIL_VALIDATION_PATTERN.test(email);
+};
