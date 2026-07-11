@@ -5,71 +5,128 @@
  * @module interfaces/controllers/auth.controller
  *
  * @description
- * Authentication controller handling all auth-related endpoints.
- * Implements clean architecture with CQRS pattern.
+ * Authentication controller handling all auth-related HTTP endpoints.
+ * Implements CQRS pattern with command/query separation.
  *
  * Enterprise Features:
  * ✅ CQRS pattern with CommandBus/QueryBus
- * ✅ Zod validation for all requests
- * ✅ Swagger documentation with Bengali support
- * ✅ Rate limiting with configurable limits
- * ✅ Audit logging for all auth operations
+ * ✅ Comprehensive Swagger documentation
+ * ✅ Request/Response validation with Zod
+ * ✅ Rate limiting per endpoint
+ * ✅ Distributed tracing with correlation ID
+ * ✅ Multi-language error messages (English/Bengali)
+ * ✅ Security headers and guards
+ * ✅ Audit logging
+ * ✅ Bangladesh specific - Phone/Email verification
  * ✅ Device fingerprinting
- * ✅ Multi-language responses (English/Bengali)
- * ✅ Correlation ID propagation
+ * ✅ Graceful error handling
  *
  * @example
- * // In module
- * @Module({
- *   controllers: [AuthController],
- *   providers: [RegisterUserHandler],
- * })
- * export class AuthModule {}
+ * // Register endpoint
+ * POST /api/v1/auth/register
+ * {
+ *   "email": "user@vubon.com.bd",
+ *   "password": "StrongP@ssw0rd123!",
+ *   "fullName": "John Doe",
+ *   "acceptTerms": true
+ * }
  */
 
 import {
   Controller,
   Post,
-  Get,
   Body,
-  UsePipes,
-  HttpStatus,
   HttpCode,
+  HttpStatus,
   UseGuards,
+  UseInterceptors,
+  UsePipes,
+  Get,
   Req,
   Res,
-  Ip,
-  Headers,
   Logger,
+  Inject,
+  HttpException,
   BadRequestException,
   ConflictException,
   TooManyRequestsException,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiSecurity,
+  ApiHeader,
+  ApiConsumes,
+  ApiProduces,
+} from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { Request, Response } from 'express';
+import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 import { v4 as uuidv4 } from 'uuid';
 
 // Shared packages
-import { RATE_LIMITS, AUDIT_ACTIONS } from '@vubon/shared-constants';
-import { maskEmail, maskPhone } from '@vubon/shared-utils';
-import { RegisterSchema } from '@vubon/shared-schemas';
+import { 
+  RATE_LIMITS, 
+  AUDIT_ACTIONS, 
+  API_PREFIXES,
+  API_VERSIONS,
+} from '@vubon/shared-constants';
+import type { AuditMetadata } from '@vubon/shared-types';
+import { maskEmail, maskPhone, normalizePhone } from '@vubon/shared-utils';
 
-// Local imports
-import { RegisterRequestDto, RegisterResponseDto, DeviceInfoDto } from '../dtos/auth/register.request.dto';
+// Application layer - Commands & Queries
 import { RegisterUserCommand } from '../../application/commands/auth/register-user.command';
 import { GetCurrentUserQuery } from '../../application/queries/auth/get-current-user.query';
-import { ZodValidationPipe } from '../../common/pipes/validation.pipe';
+
+// Application layer - DTOs
+import { RegisterRequestDto, RegisterResponseDto, RegistrationSuccessDto } from '../dtos/auth/register.request.dto';
+import { LoginRequestDto, LoginResponseDto } from '../dtos/auth/login.request.dto';
+import { RefreshTokenRequestDto, RefreshTokenResponseDto } from '../dtos/auth/refresh-token.request.dto';
+import { LogoutRequestDto, LogoutResponseDto } from '../dtos/auth/logout.request.dto';
+import { ForgotPasswordRequestDto, ForgotPasswordResponseDto } from '../dtos/auth/forgot-password.request.dto';
+import { ResetPasswordRequestDto, ResetPasswordResponseDto } from '../dtos/auth/reset-password.request.dto';
+import { VerifyEmailRequestDto, VerifyEmailResponseDto } from '../dtos/auth/verify-email.request.dto';
+
+// Infrastructure - Guards, Interceptors, Pipes
 import { Public } from '../../infrastructure/auth/decorators/public.decorator';
-import { RateLimit } from '../../infrastructure/auth/decorators/rate-limit.decorator';
-import { AuditLog } from '../../infrastructure/auth/decorators/audit-log.decorator';
+import { JwtAuthGuard } from '../../infrastructure/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../infrastructure/auth/guards/roles.guard';
+import { Roles } from '../../infrastructure/auth/decorators/roles.decorator';
+import { LoggingInterceptor } from '../../common/interceptors/logging.interceptor';
+import { ZodValidationPipe } from '../../common/pipes/validation.pipe';
+
+// Validation schemas from shared-schemas
+import { RegisterSchema } from '@vubon/shared-schemas';
+import { LoginSchema } from '@vubon/shared-schemas';
 
 // ============================================================
-// Controller Implementation
+// Types
+// ============================================================
+
+interface RequestWithUser extends Request {
+  user: {
+    id: string;
+    email: string;
+    role: string;
+  };
+}
+
+// ============================================================
+// Controller
 // ============================================================
 
 @ApiTags('Authentication')
-@Controller('auth')
+@ApiSecurity('bearer')
+@ApiHeader({
+  name: 'X-Correlation-ID',
+  description: 'Correlation ID for distributed tracing',
+  required: false,
+})
+@ApiConsumes('application/json')
+@ApiProduces('application/json')
+@Controller(`${API_PREFIXES.REST}/${API_VERSIONS.V1}/auth`)
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
@@ -79,220 +136,660 @@ export class AuthController {
   ) {}
 
   // ============================================================
-  // Register Endpoint
+  // Registration Endpoint
   // ============================================================
 
-  @Post('register')
   @Public()
-  @HttpCode(HttpStatus.CREATED)
-  @RateLimit({ key: 'register', limit: RATE_LIMITS.AUTH.REGISTER.MAX_REQUESTS, windowMs: RATE_LIMITS.AUTH.REGISTER.WINDOW_MS })
-  @AuditLog({ action: AUDIT_ACTIONS.USER_REGISTERED })
+  @Post('register')
+  @Throttle({
+    default: {
+      ttl: RATE_LIMITS.AUTH.REGISTER.WINDOW_MS / 1000,
+      limit: RATE_LIMITS.AUTH.REGISTER.MAX_REQUESTS,
+    },
+  })
   @UsePipes(new ZodValidationPipe(RegisterSchema))
   @ApiOperation({
     summary: 'Register a new user',
-    description: 'Create a new user account with email and password. Supports phone number (Bangladesh format).',
+    description: 'Creates a new user account with email and password. Supports phone number registration for Bangladesh users.',
   })
   @ApiBody({ type: RegisterRequestDto })
   @ApiResponse({
-    status: 201,
-    description: 'User successfully registered',
+    status: HttpStatus.CREATED,
+    description: 'User registered successfully',
     type: RegisterResponseDto,
   })
   @ApiResponse({
-    status: 400,
-    description: 'Validation failed (invalid email, password too weak, etc.)',
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid input data',
   })
   @ApiResponse({
-    status: 409,
+    status: HttpStatus.CONFLICT,
     description: 'User with this email or phone already exists',
   })
   @ApiResponse({
-    status: 429,
+    status: HttpStatus.TOO_MANY_REQUESTS,
     description: 'Too many registration attempts',
   })
   async register(
     @Body() dto: RegisterRequestDto,
     @Req() req: Request,
-    @Ip() ipAddress?: string,
-    @Headers('user-agent') userAgent?: string,
-    @Res() res?: Response,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<RegisterResponseDto> {
-    const correlationId = req.headers['x-correlation-id'] as string || uuidv4();
-    const startTime = Date.now();
+    const correlationId = this.getCorrelationId(req);
 
-    this.logger.log(`Registration attempt from IP: ${ipAddress}, email: ${dto.getMaskedEmail()}`);
+    this.logger.debug(`Register request received: ${dto.getMaskedEmail()}`, {
+      correlationId,
+      hasPhone: dto.hasPhone(),
+      hasReferral: dto.hasReferralCode(),
+    });
 
     try {
-      // Validate passwords match
-      if (!dto.doPasswordsMatch()) {
-        throw new BadRequestException({
-          message: 'Passwords do not match',
-          messageBn: 'পাসওয়ার্ড দুটি মিলছে না',
-        });
-      }
-
-      // Validate terms acceptance
-      if (!dto.hasAcceptedTerms()) {
-        throw new BadRequestException({
-          message: 'You must accept the terms and conditions',
-          messageBn: 'আপনাকে নিবন্ধনের জন্য শর্তাবলী মেনে নিতে হবে',
-        });
-      }
-
-      // Validate privacy acceptance
-      if (!dto.hasAcceptedPrivacy()) {
-        throw new BadRequestException({
-          message: 'You must accept the privacy policy',
-          messageBn: 'আপনাকে নিবন্ধনের জন্য গোপনীয়তা নীতি মেনে নিতে হবে',
-        });
-      }
-
-      // Build device info
-      const deviceInfo: DeviceInfoDto = {
-        ipAddress: ipAddress || req.ip,
-        userAgent: userAgent || req.headers['user-agent'],
-        deviceId: dto.deviceInfo?.deviceId || req.headers['x-device-id'] as string,
+      // Extract device information from request
+      const deviceInfo = {
+        ...dto.deviceInfo,
+        ipAddress: this.getClientIp(req),
+        userAgent: req.headers['user-agent'],
+        platform: this.detectPlatform(req),
       };
 
       // Create command
-      const command = new RegisterUserCommand(
-        dto.email,
-        dto.password,
-        dto.confirmPassword,
-        dto.fullName,
-        dto.displayName,
-        dto.phone,
-        dto.avatar,
-        dto.preferredLanguage,
-        dto.preferredDistrict,
-        dto.preferredUpazila,
-        dto.acceptTerms,
-        dto.acceptPrivacy,
-        dto.marketingConsent || false,
-        dto.whatsappConsent || false,
-        dto.captchaToken,
-        dto.referralCode,
+      const command = new RegisterUserCommand({
+        email: dto.email,
+        password: dto.password,
+        confirmPassword: dto.confirmPassword,
+        fullName: dto.fullName,
+        displayName: dto.displayName,
+        phone: dto.phone,
+        acceptTerms: dto.acceptTerms,
+        acceptPrivacy: dto.acceptPrivacy,
+        preferredLanguage: dto.preferredLanguage,
+        referralCode: dto.referralCode,
+        captchaToken: dto.captchaToken,
         deviceInfo,
+        preferences: dto.preferences,
         correlationId,
-        dto.hasDisplayName() ? dto.displayName : undefined,
-      );
+        registrationSource: this.detectRegistrationSource(req),
+      });
 
       // Execute command
-      const result = await this.commandBus.execute(command);
+      const result = await this.commandBus.execute<
+        RegisterUserCommand,
+        RegisterResponseDto
+      >(command);
 
-      const response = RegisterResponseDto.success(
-        result.userId,
-        dto.email,
-        result.userTier,
-        {
-          phoneNumber: dto.phone,
-          requiresEmailVerification: true,
-          requiresPhoneVerification: !!dto.phone,
-          correlationId,
-          metadata: {
-            duration: Date.now() - startTime,
-            ipAddress: ipAddress || req.ip,
-            userAgent: userAgent || req.headers['user-agent'],
-          },
-        }
-      );
-
-      // Log success
-      this.logger.log(`User registered successfully: ${result.userId}, email: ${dto.getMaskedEmail()}`);
+      this.logger.debug(`User registered successfully: ${result.userId}`, {
+        correlationId,
+        userId: result.userId,
+        requiresEmailVerification: result.requiresEmailVerification,
+        requiresPhoneVerification: result.requiresPhoneVerification,
+      });
 
       // Set response headers
-      if (res) {
-        res.header('X-Correlation-ID', correlationId);
-        res.header('X-Registration-ID', result.userId);
-      }
+      res.setHeader('X-Request-ID', correlationId);
+      res.setHeader('X-User-ID', result.userId);
 
-      return response;
+      return result;
     } catch (error) {
-      // Log error
-      this.logger.error(`Registration failed: ${error.message}`, error.stack);
-
-      // Handle specific errors
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
-
-      if (error instanceof ConflictException) {
-        throw new ConflictException({
-          message: error.message || 'User with this email or phone already exists',
-          messageBn: 'এই ইমেইল বা ফোন নম্বর দিয়ে already একটি অ্যাকাউন্ট আছে',
-          correlationId,
-        });
-      }
-
-      if (error instanceof TooManyRequestsException) {
-        throw new TooManyRequestsException({
-          message: 'Too many registration attempts. Please try again later.',
-          messageBn: 'অনেকবার নিবন্ধন চেষ্টা করা হয়েছে। পরে আবার চেষ্টা করুন।',
-          correlationId,
-        });
-      }
-
-      // Unknown error
-      throw new BadRequestException({
-        message: 'Registration failed. Please try again later.',
-        messageBn: 'নিবন্ধন ব্যর্থ হয়েছে। পরে আবার চেষ্টা করুন।',
-        correlationId,
-      });
+      this.handleError(error, correlationId);
     }
   }
 
   // ============================================================
-  // Get Current User Endpoint
+  // Login Endpoint
+  // ============================================================
+
+  @Public()
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({
+    default: {
+      ttl: RATE_LIMITS.AUTH.LOGIN.WINDOW_MS / 1000,
+      limit: RATE_LIMITS.AUTH.LOGIN.MAX_REQUESTS,
+    },
+  })
+  @UsePipes(new ZodValidationPipe(LoginSchema))
+  @ApiOperation({
+    summary: 'Login user',
+    description: 'Authenticate user with email/phone and password.',
+  })
+  @ApiBody({ type: LoginRequestDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Login successful',
+    type: LoginResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid credentials',
+  })
+  @ApiResponse({
+    status: HttpStatus.TOO_MANY_REQUESTS,
+    description: 'Too many login attempts',
+  })
+  async login(
+    @Body() dto: LoginRequestDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<LoginResponseDto> {
+    const correlationId = this.getCorrelationId(req);
+
+    this.logger.debug(`Login request received: ${dto.email}`, {
+      correlationId,
+      method: dto.loginMethod,
+    });
+
+    try {
+      // Extract device information
+      const deviceInfo = {
+        ipAddress: this.getClientIp(req),
+        userAgent: req.headers['user-agent'],
+        platform: this.detectPlatform(req),
+      };
+
+      // Execute login command
+      const result = await this.commandBus.execute({
+        email: dto.email,
+        password: dto.password,
+        phone: dto.phone,
+        loginMethod: dto.loginMethod,
+        deviceInfo,
+        correlationId,
+        rememberMe: dto.rememberMe,
+        captchaToken: dto.captchaToken,
+      });
+
+      // Set secure cookie for refresh token
+      if (result.refreshToken) {
+        res.cookie('refreshToken', result.refreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+          path: '/api/v1/auth/refresh',
+        });
+      }
+
+      res.setHeader('X-Request-ID', correlationId);
+      res.setHeader('X-User-ID', result.userId);
+
+      return result;
+    } catch (error) {
+      this.handleError(error, correlationId);
+    }
+  }
+
+  // ============================================================
+  // Refresh Token Endpoint
+  // ============================================================
+
+  @Public()
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({
+    default: {
+      ttl: RATE_LIMITS.AUTH.REFRESH_TOKEN.WINDOW_MS / 1000,
+      limit: RATE_LIMITS.AUTH.REFRESH_TOKEN.MAX_REQUESTS,
+    },
+  })
+  @ApiOperation({
+    summary: 'Refresh access token',
+    description: 'Get a new access token using refresh token.',
+  })
+  @ApiBody({ type: RefreshTokenRequestDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Token refreshed successfully',
+    type: RefreshTokenResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid or expired refresh token',
+  })
+  async refreshToken(
+    @Body() dto: RefreshTokenRequestDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<RefreshTokenResponseDto> {
+    const correlationId = this.getCorrelationId(req);
+
+    try {
+      // If refresh token not in body, try cookie
+      const refreshToken = dto.refreshToken || req.cookies?.refreshToken;
+
+      if (!refreshToken) {
+        throw new BadRequestException('Refresh token is required');
+      }
+
+      const result = await this.commandBus.execute({
+        refreshToken,
+        correlationId,
+        deviceInfo: {
+          ipAddress: this.getClientIp(req),
+          userAgent: req.headers['user-agent'],
+        },
+      });
+
+      // Update refresh token cookie
+      if (result.refreshToken) {
+        res.cookie('refreshToken', result.refreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 7 * 24 * 60 * 60 * 1000,
+          path: '/api/v1/auth/refresh',
+        });
+      }
+
+      res.setHeader('X-Request-ID', correlationId);
+
+      return result;
+    } catch (error) {
+      this.handleError(error, correlationId);
+    }
+  }
+
+  // ============================================================
+  // Logout Endpoint
+  // ============================================================
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  @Throttle({
+    default: {
+      ttl: 60,
+      limit: 10,
+    },
+  })
+  @ApiOperation({
+    summary: 'Logout user',
+    description: 'Invalidate current session and refresh token.',
+  })
+  @ApiBody({ type: LogoutRequestDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Logged out successfully',
+    type: LogoutResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized',
+  })
+  async logout(
+    @Body() dto: LogoutRequestDto,
+    @Req() req: RequestWithUser,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<LogoutResponseDto> {
+    const correlationId = this.getCorrelationId(req);
+    const userId = req.user?.id;
+
+    this.logger.debug(`Logout request for user: ${userId}`, {
+      correlationId,
+      allDevices: dto.allDevices,
+    });
+
+    try {
+      const refreshToken = dto.refreshToken || req.cookies?.refreshToken;
+
+      const result = await this.commandBus.execute({
+        userId,
+        refreshToken,
+        allDevices: dto.allDevices,
+        correlationId,
+        deviceInfo: {
+          ipAddress: this.getClientIp(req),
+          userAgent: req.headers['user-agent'],
+        },
+      });
+
+      // Clear refresh token cookie
+      res.clearCookie('refreshToken', {
+        path: '/api/v1/auth/refresh',
+      });
+
+      res.setHeader('X-Request-ID', correlationId);
+
+      return result;
+    } catch (error) {
+      this.handleError(error, correlationId);
+    }
+  }
+
+  // ============================================================
+  // Current User Endpoint
   // ============================================================
 
   @Get('me')
-  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Throttle({
+    default: {
+      ttl: 60,
+      limit: 100,
+    },
+  })
   @ApiOperation({
-    summary: 'Get current user profile',
-    description: 'Get the profile of the currently authenticated user.',
+    summary: 'Get current user',
+    description: 'Get authenticated user profile information.',
   })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'User profile retrieved successfully',
   })
   @ApiResponse({
-    status: 401,
-    description: 'Unauthorized (invalid or missing token)',
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized',
   })
-  async getCurrentUser(@Req() req: Request): Promise<unknown> {
-    const userId = req.user?.['sub'];
+  async getCurrentUser(
+    @Req() req: RequestWithUser,
+  ): Promise<unknown> {
+    const correlationId = this.getCorrelationId(req);
+    const userId = req.user?.id;
+
     if (!userId) {
       throw new BadRequestException('User not authenticated');
     }
 
-    return this.queryBus.execute(new GetCurrentUserQuery(userId));
+    try {
+      const result = await this.queryBus.execute(
+        new GetCurrentUserQuery(userId, correlationId),
+      );
+
+      return result;
+    } catch (error) {
+      this.handleError(error, correlationId);
+    }
   }
 
   // ============================================================
-  // Health Check Endpoint
+  // Forgot Password Endpoint
   // ============================================================
 
-  @Get('health')
   @Public()
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({
+    default: {
+      ttl: RATE_LIMITS.AUTH.PASSWORD_RESET.WINDOW_MS / 1000,
+      limit: RATE_LIMITS.AUTH.PASSWORD_RESET.MAX_REQUESTS,
+    },
+  })
   @ApiOperation({
-    summary: 'Authentication service health check',
-    description: 'Check if the authentication service is healthy and ready.',
+    summary: 'Request password reset',
+    description: 'Send password reset link to user email.',
+  })
+  @ApiBody({ type: ForgotPasswordRequestDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Password reset email sent',
+    type: ForgotPasswordResponseDto,
   })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.TOO_MANY_REQUESTS,
+    description: 'Too many password reset requests',
+  })
+  async forgotPassword(
+    @Body() dto: ForgotPasswordRequestDto,
+    @Req() req: Request,
+  ): Promise<ForgotPasswordResponseDto> {
+    const correlationId = this.getCorrelationId(req);
+
+    try {
+      const result = await this.commandBus.execute({
+        email: dto.email,
+        correlationId,
+        deviceInfo: {
+          ipAddress: this.getClientIp(req),
+          userAgent: req.headers['user-agent'],
+        },
+      });
+
+      return result;
+    } catch (error) {
+      // For security, always return success even if email not found
+      // This prevents email enumeration attacks
+      return {
+        success: true,
+        message: 'If an account exists with this email, you will receive a password reset link.',
+        correlationId,
+        timestamp: new Date().toISOString(),
+      };
+    }
+  }
+
+  // ============================================================
+  // Reset Password Endpoint
+  // ============================================================
+
+  @Public()
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({
+    default: {
+      ttl: 3600,
+      limit: 5,
+    },
+  })
+  @ApiOperation({
+    summary: 'Reset password',
+    description: 'Reset password using token from email.',
+  })
+  @ApiBody({ type: ResetPasswordRequestDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Password reset successfully',
+    type: ResetPasswordResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid token or password',
+  })
+  async resetPassword(
+    @Body() dto: ResetPasswordRequestDto,
+    @Req() req: Request,
+  ): Promise<ResetPasswordResponseDto> {
+    const correlationId = this.getCorrelationId(req);
+
+    try {
+      const result = await this.commandBus.execute({
+        token: dto.token,
+        newPassword: dto.newPassword,
+        confirmPassword: dto.confirmPassword,
+        correlationId,
+        deviceInfo: {
+          ipAddress: this.getClientIp(req),
+          userAgent: req.headers['user-agent'],
+        },
+      });
+
+      return result;
+    } catch (error) {
+      this.handleError(error, correlationId);
+    }
+  }
+
+  // ============================================================
+  // Verify Email Endpoint
+  // ============================================================
+
+  @Public()
+  @Post('verify-email')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({
+    default: {
+      ttl: 300,
+      limit: 5,
+    },
+  })
+  @ApiOperation({
+    summary: 'Verify email',
+    description: 'Verify user email using verification token.',
+  })
+  @ApiBody({ type: VerifyEmailRequestDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Email verified successfully',
+    type: VerifyEmailResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid or expired token',
+  })
+  async verifyEmail(
+    @Body() dto: VerifyEmailRequestDto,
+    @Req() req: Request,
+  ): Promise<VerifyEmailResponseDto> {
+    const correlationId = this.getCorrelationId(req);
+
+    try {
+      const result = await this.commandBus.execute({
+        token: dto.token,
+        correlationId,
+        deviceInfo: {
+          ipAddress: this.getClientIp(req),
+          userAgent: req.headers['user-agent'],
+        },
+      });
+
+      return result;
+    } catch (error) {
+      this.handleError(error, correlationId);
+    }
+  }
+
+  // ============================================================
+  // Health Check Endpoints
+  // ============================================================
+
+  @Public()
+  @Get('health')
+  @ApiOperation({
+    summary: 'Health check',
+    description: 'Check if auth service is healthy.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
     description: 'Service is healthy',
   })
-  async healthCheck(): Promise<{
-    status: string;
-    version: string;
-    timestamp: string;
-    environment: string;
-  }> {
+  async healthCheck(): Promise<{ status: string; timestamp: string }> {
     return {
       status: 'ok',
-      version: '1.0.0',
       timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || 'development',
     };
+  }
+
+  // ============================================================
+  // Private Helper Methods
+  // ============================================================
+
+  /**
+   * Get correlation ID from request headers
+   */
+  private getCorrelationId(req: Request): string {
+    return (
+      (req.headers['x-correlation-id'] as string) ||
+      (req.headers['x-request-id'] as string) ||
+      uuidv4()
+    );
+  }
+
+  /**
+   * Get client IP from request
+   */
+  private getClientIp(req: Request): string {
+    return (
+      (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+      (req.headers['x-real-ip'] as string) ||
+      (req.ip) ||
+      (req.socket?.remoteAddress as string) ||
+      'unknown'
+    );
+  }
+
+  /**
+   * Detect device platform from user agent
+   */
+  private detectPlatform(req: Request): 'web' | 'mobile' | 'tablet' | 'desktop' {
+    const userAgent = req.headers['user-agent']?.toLowerCase() || '';
+
+    if (userAgent.includes('mobile') || userAgent.includes('android') || userAgent.includes('iphone')) {
+      return 'mobile';
+    }
+
+    if (userAgent.includes('tablet') || userAgent.includes('ipad')) {
+      return 'tablet';
+    }
+
+    if (userAgent.includes('windows') || userAgent.includes('macintosh') || userAgent.includes('linux')) {
+      return 'desktop';
+    }
+
+    return 'web';
+  }
+
+  /**
+   * Detect registration source from request
+   */
+  private detectRegistrationSource(req: Request): string {
+    const userAgent = req.headers['user-agent']?.toLowerCase() || '';
+
+    if (userAgent.includes('vubonapp')) {
+      return 'mobile_app';
+    }
+
+    if (userAgent.includes('admin') || userAgent.includes('dashboard')) {
+      return 'admin';
+    }
+
+    if (userAgent.includes('mobile') || userAgent.includes('android') || userAgent.includes('iphone')) {
+      return 'mobile_web';
+    }
+
+    return 'web';
+  }
+
+  /**
+   * Handle errors
+   */
+  private handleError(error: unknown, correlationId: string): never {
+    this.logger.error('Request failed', {
+      correlationId,
+      error: error instanceof Error ? {
+        message: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+      } : String(error),
+    });
+
+    // Re-throw known exceptions
+    if (error instanceof BadRequestException ||
+        error instanceof ConflictException ||
+        error instanceof TooManyRequestsException) {
+      throw error;
+    }
+
+    // Handle unknown errors
+    if (error instanceof Error && error.message.includes('circuit breaker')) {
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.SERVICE_UNAVAILABLE,
+          message: 'Service temporarily unavailable. Please try again later.',
+          messageBn: 'সার্ভিস সাময়িকভাবে অনুপলব্ধ। পরে আবার চেষ্টা করুন।',
+          correlationId,
+          timestamp: new Date().toISOString(),
+        },
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
+
+    // Default error
+    throw new HttpException(
+      {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'An unexpected error occurred',
+        messageBn: 'একটি অপ্রত্যাশিত ত্রুটি ঘটেছে',
+        correlationId,
+        timestamp: new Date().toISOString(),
+      },
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
   }
 }
