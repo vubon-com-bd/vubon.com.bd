@@ -1,41 +1,41 @@
 /**
  * Email Value Object - Pure Domain Core (Port-Based)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module domain/value-objects/email.vo
- * 
+ *
  * @description
- * Represents a validated and normalized email address.
- * Uses dependency injection (Port) for validation to keep domain layer pure.
- * 
+ * Represents a validated and normalized email address using dependency injection.
+ * Uses the Port-Adapter pattern to keep the domain layer infrastructure-agnostic.
+ *
  * Enterprise Rules:
  * ✅ Immutable - Email never changes after creation
  * ✅ Self-validating - Validates using injected validator port
  * ✅ Normalized - Standardized format for equality
- * ✅ Framework-free - No external dependencies (shared-*, @nestjs/*, etc.)
- * ✅ Bangladesh specific - Support for .com.bd, .edu.bd, etc.
+ * ✅ Framework-free - No external dependencies (no shared-* imports)
  * ✅ Dependency Inversion - Uses interface (IEmailValidator) not concrete implementation
+ * ✅ Bangladesh specific - Support for .com.bd, .edu.bd, etc.
  * ✅ Testable - Easy to mock the validator
- * 
+ *
  * @example
- * // With DI container (production)
+ * // With DI container
  * const email = new Email('User@Example.COM', emailValidator);
- * console.log(email.getValue()); // 'User@Example.COM'
- * console.log(email.getNormalized()); // 'user@example.com'
+ * console.log(email.getValue()); // 'user@example.com'
  * console.log(email.getDomain()); // 'example.com'
- * 
- * // Without DI container (testing)
+ * console.log(email.getDomainType()); // 'bangladesh'
+ *
+ * // Without DI container (for testing)
  * const mockValidator = new MockEmailValidator();
- * const email = new Email('test@example.com', mockValidator);
+ * const email = new Email('user@example.com', mockValidator);
  */
 
 import { ValueObject } from './base.vo';
-import { IEmailValidator, EmailValidationResult } from '../ports/email-validator.port';
+import { IEmailValidator } from '../ports/email-validator.port';
 
 // ==================== Types ====================
 
 /**
- * Email validation result (domain-specific)
+ * Email validation result (Domain-specific)
  */
 export interface EmailValidation {
   isValid: boolean;
@@ -44,33 +44,94 @@ export interface EmailValidation {
 }
 
 /**
- * Email domain type (Bangladesh specific)
+ * Email domain types (Bangladesh specific)
  */
-export type EmailDomainType = 
-  | 'bangladesh' 
-  | 'educational' 
-  | 'government' 
-  | 'disposable' 
+export type EmailDomainType =
+  | 'bangladesh'
+  | 'educational'
+  | 'government'
+  | 'disposable'
   | 'other';
 
-// ==================== Email Value Object ====================
+// ==================== Constants (Bangladesh Specific - Pure Domain) ====================
+
+/**
+ * Bangladesh specific email domain patterns
+ */
+const BD_EMAIL_PATTERNS = {
+  BANGLADESH_DOMAIN: /\.(com\.bd|net\.bd|org\.bd|edu\.bd|gov\.bd|ac\.bd|mil\.bd)$/i,
+  EDUCATIONAL_DOMAIN: /\.(edu|ac\.bd|edu\.bd)$/i,
+  GOVERNMENT_DOMAIN: /\.(gov|gov\.bd)$/i,
+} as const;
+
+/**
+ * Bangladesh specific email domain sets (for quick lookup)
+ * Pure domain data - no external imports
+ */
+const BD_EMAIL_SETS = {
+  GOVERNMENT: new Set([
+    'gov.bd',
+    'moi.gov.bd',
+    'bcc.gov.bd',
+    'a2i.gov.bd',
+    'dgdpr.gov.bd',
+  ]),
+  CORPORATE: new Set([
+    'bangla.net',
+    'agni.com',
+    'citechco.net',
+    'bdcom.com',
+    'bol-online.com',
+    'dhaka.net',
+    'link3.net',
+    'btcl.net.bd',
+  ]),
+  DISPOSABLE: new Set([
+    'tempmail.com',
+    '10minutemail.com',
+    'guerrillamail.com',
+    'mailinator.com',
+    'throwaway.com',
+    'temp-mail.org',
+    'fakeinbox.com',
+    'spamgourmet.com',
+    'guerrillamail.net',
+    'guerrillamail.biz',
+    'guerrillamail.org',
+    'guerrillamailblock.com',
+    'pokemail.net',
+    'spam4.me',
+    'bccto.me',
+    'chacuo.net',
+    'guerrillamail.info',
+    'tempinbox.co.uk',
+    'tempmail2.com',
+    'tempemail.net',
+    'wegwerfmail.de',
+    'wegwerfmail.net',
+    'wegwerfmail.org',
+  ]),
+} as const;
+
+// ============================================================
+// Email Value Object (Port-Based)
+// ============================================================
 
 /**
  * Email Value Object
- * 
- * Represents a validated and normalized email address
+ *
+ * Represents a validated and normalized email address using injected validator
  */
 export class Email extends ValueObject {
-  private readonly _value: string;
-  private readonly _normalized: string;
+  private readonly _value: string; // Raw input value (for reference)
+  private readonly _normalized: string; // Normalized email (canonical form)
   private readonly _localPart: string;
   private readonly _domain: string;
   private readonly _subAddressTag?: string;
-  private readonly _domainType: EmailDomainType;
 
   /**
    * Creates a new Email value object
-   * 
+   *
    * @param email - Raw email address string
    * @param validator - Injected email validator port (Dependency Injection)
    * @throws {Error} If email format is invalid
@@ -80,26 +141,26 @@ export class Email extends ValueObject {
     private readonly validator: IEmailValidator
   ) {
     super();
-    
+
     // ✅ Use injected validator for validation
-    const validation: EmailValidationResult = validator.validate(email);
-    if (!validation.isValid) {
-      throw new Error(`Invalid email: ${validation.error || 'Invalid format'}`);
+    const result = validator.validate(email);
+    if (!result.isValid) {
+      throw new Error(result.error || 'Invalid email');
     }
-    
+
     // ✅ Use injected validator for normalization
     const normalized = validator.normalize(email);
     if (!normalized) {
       throw new Error('Could not normalize email');
     }
-    
+
     this._value = email.trim();
     this._normalized = normalized;
-    
+
     // Parse components
     const [localPart, domain] = normalized.split('@');
     this._domain = domain || '';
-    
+
     // Parse subaddress tag (e.g., user+tag@example.com)
     const subaddressMatch = localPart?.match(/^(.+)\+(.+)$/);
     if (subaddressMatch && subaddressMatch.length >= 3) {
@@ -108,10 +169,7 @@ export class Email extends ValueObject {
     } else {
       this._localPart = localPart || '';
     }
-    
-    // Get domain type from validator
-    this._domainType = validator.getDomainType(this._domain) as EmailDomainType;
-    
+
     this.validate();
   }
 
@@ -122,7 +180,7 @@ export class Email extends ValueObject {
     if (this.isEmpty()) {
       throw new Error('Email cannot be empty');
     }
-    
+
     if (this._value.length > 254) {
       throw new Error('Email too long (max 254 characters)');
     }
@@ -135,10 +193,7 @@ export class Email extends ValueObject {
   /**
    * Static factory method for creating Email from known valid value
    */
-  public static fromValid(
-    email: string,
-    validator: IEmailValidator
-  ): Email {
+  public static fromValid(email: string, validator: IEmailValidator): Email {
     return new Email(email, validator);
   }
 
@@ -152,7 +207,7 @@ export class Email extends ValueObject {
     if (typeof email !== 'string') {
       return null;
     }
-    
+
     try {
       return new Email(email, validator);
     } catch {
@@ -160,16 +215,27 @@ export class Email extends ValueObject {
     }
   }
 
+  /**
+   * Creates an Email from a request object (convenience)
+   */
+  public static fromRequest(
+    email: string | null | undefined,
+    validator: IEmailValidator
+  ): Email | null {
+    if (!email) return null;
+    return Email.tryCreate(email, validator);
+  }
+
   // ============================================================
   // Static Validation Methods (Using Injected Validator)
   // ============================================================
 
   /**
-   * Validates an email address using the injected validator
-   * 
+   * Validates and normalizes an email address using the injected validator
+   *
    * @param email - Raw email address string
    * @param validator - Injected email validator port
-   * @returns Validation result with normalized value if valid
+   * @returns Validation result with normalized values
    */
   public static validate(
     email: string,
@@ -184,7 +250,7 @@ export class Email extends ValueObject {
     }
 
     const trimmed = email.trim();
-    
+
     // Check length constraints
     if (trimmed.length === 0) {
       return {
@@ -192,7 +258,7 @@ export class Email extends ValueObject {
         error: 'Email cannot be empty',
       };
     }
-    
+
     if (trimmed.length > 254) {
       return {
         isValid: false,
@@ -201,12 +267,9 @@ export class Email extends ValueObject {
     }
 
     // ✅ Use injected validator for validation
-    const validationResult = validator.validate(trimmed);
-    if (!validationResult.isValid) {
-      return {
-        isValid: false,
-        error: validationResult.error || 'Invalid email format',
-      };
+    const result = validator.validate(trimmed);
+    if (!result.isValid) {
+      return result;
     }
 
     // ✅ Use injected validator for normalization
@@ -229,24 +292,20 @@ export class Email extends ValueObject {
    */
   public static normalize(
     email: string,
-    validator: IEmailValidator,
-    stripSubaddress: boolean = false
+    validator: IEmailValidator
   ): string | null {
-    let normalized = validator.normalize(email);
-    if (!normalized) return null;
-    
-    if (stripSubaddress) {
-      const [localPart, domain] = normalized.split('@');
-      if (localPart) {
-        const baseLocalPart = localPart.split('+')[0];
-        if (domain) {
-          return `${baseLocalPart}@${domain}`;
-        }
-        return baseLocalPart;
-      }
-    }
-    
-    return normalized;
+    return validator.normalize(email);
+  }
+
+  /**
+   * Check if email format is valid (simple boolean check)
+   */
+  public static isValidFormat(
+    email: string,
+    validator: IEmailValidator
+  ): boolean {
+    const result = validator.validate(email);
+    return result.isValid;
   }
 
   // ============================================================
@@ -254,14 +313,14 @@ export class Email extends ValueObject {
   // ============================================================
 
   /**
-   * Get the original email value
+   * Get the original email value (as provided)
    */
   public getValue(): string {
     return this._value;
   }
 
   /**
-   * Get the normalized email address
+   * Get the normalized email address (canonical form)
    */
   public getNormalized(): string {
     return this._normalized;
@@ -302,7 +361,23 @@ export class Email extends ValueObject {
    * Get email domain type (Bangladesh specific)
    */
   public getDomainType(): EmailDomainType {
-    return this._domainType;
+    if (BD_EMAIL_SETS.DISPOSABLE.has(this._domain)) return 'disposable';
+    if (
+      BD_EMAIL_PATTERNS.BANGLADESH_DOMAIN.test(this._domain) ||
+      BD_EMAIL_SETS.CORPORATE.has(this._domain)
+    ) {
+      return 'bangladesh';
+    }
+    if (BD_EMAIL_PATTERNS.EDUCATIONAL_DOMAIN.test(this._domain)) {
+      return 'educational';
+    }
+    if (
+      BD_EMAIL_PATTERNS.GOVERNMENT_DOMAIN.test(this._domain) ||
+      BD_EMAIL_SETS.GOVERNMENT.has(this._domain)
+    ) {
+      return 'government';
+    }
+    return 'other';
   }
 
   /**
@@ -313,40 +388,14 @@ export class Email extends ValueObject {
   }
 
   /**
-   * Check if email is from Bangladesh
-   */
-  public isBangladesh(): boolean {
-    return this._domainType === 'bangladesh';
-  }
-
-  /**
-   * Check if email is from educational institution
-   */
-  public isEducational(): boolean {
-    return this._domainType === 'educational';
-  }
-
-  /**
-   * Check if email is from government
-   */
-  public isGovernment(): boolean {
-    return this._domainType === 'government';
-  }
-
-  /**
-   * Check if email is from disposable provider
-   */
-  public isDisposable(): boolean {
-    return this._domainType === 'disposable';
-  }
-
-  /**
    * Check if email is empty/placeholder
    */
   public override isEmpty(): boolean {
-    return this._value === '' || 
-           this._value === 'unknown@unknown.com' ||
-           this._value === 'placeholder@example.com';
+    return (
+      this._value === '' ||
+      this._value === 'unknown@unknown.com' ||
+      this._value === 'placeholder@example.com'
+    );
   }
 
   // ============================================================
@@ -371,11 +420,7 @@ export class Email extends ValueObject {
       domain: this._domain,
       hasSubAddress: this.hasSubAddress(),
       subAddressTag: this._subAddressTag,
-      domainType: this._domainType,
-      isBangladesh: this.isBangladesh(),
-      isEducational: this.isEducational(),
-      isGovernment: this.isGovernment(),
-      isDisposable: this.isDisposable(),
+      domainType: this.getDomainType(),
     };
   }
 
@@ -383,6 +428,7 @@ export class Email extends ValueObject {
    * String representation for debugging
    */
   public override toString(): string {
+    // Show only for debugging - not for production display
     return `Email(${this._normalized})`;
   }
 }
@@ -399,6 +445,17 @@ export function isEmail(value: unknown): value is Email {
 }
 
 /**
+ * Create Email from database value (normalized email)
+ */
+export function emailFromNormalized(
+  normalizedEmail: string | null | undefined,
+  validator: IEmailValidator
+): Email | null {
+  if (!normalizedEmail) return null;
+  return Email.tryCreate(normalizedEmail, validator);
+}
+
+/**
  * Create Email from request (handles various input sources)
  */
 export function createEmailFromRequest(
@@ -407,4 +464,14 @@ export function createEmailFromRequest(
 ): Email | null {
   if (!email) return null;
   return Email.tryCreate(email, validator);
+}
+
+/**
+ * Validate email format (simple boolean check)
+ */
+export function isValidEmailFormat(
+  email: string,
+  validator: IEmailValidator
+): boolean {
+  return Email.isValidFormat(email, validator);
 }
