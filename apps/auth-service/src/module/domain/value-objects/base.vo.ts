@@ -3,7 +3,7 @@
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module domain/value-objects/base.vo
- * @version 2.0.0
+ * @version 3.0.0
  * 
  * @description
  * Base class for all Value Objects in the domain layer.
@@ -18,16 +18,21 @@
  * ✅ Temporal equality - Time-tolerant comparisons for retry scenarios
  * ✅ Offline-first - Metadata for sync and caching
  * ✅ Degraded mode - Fallback validation when external services unavailable
+ * ✅ Port-based - Uses injected infrastructure ports (Logger, Environment)
  * ✅ Thread-safe - No shared mutable state
  * 
  * @example
  * class EmailVO extends ValueObject {
- *   constructor(private readonly value: string) {
- *     super();
- *     this.validate();
+ *   constructor(
+ *     private readonly value: string,
+ *     loggerPort?: LoggerPort,
+ *     envPort?: EnvironmentPort
+ *   ) {
+ *     super(loggerPort, envPort);
+ *     this.validateSync();
  *   }
  * 
- *   protected validate(): void {
+ *   protected validateSync(): void {
  *     if (!this.value.includes('@')) {
  *       throw new ValidationError('Invalid email', 'email');
  *     }
@@ -44,6 +49,72 @@
  */
 
 // ============================================================
+// Ports (Domain Contracts)
+// ============================================================
+
+/**
+ * Logger port - implemented in infrastructure layer
+ */
+export interface LoggerPort {
+  debug(message: string, ...args: unknown[]): void;
+  info(message: string, ...args: unknown[]): void;
+  warn(message: string, ...args: unknown[]): void;
+  error(message: string, ...args: unknown[]): void;
+}
+
+/**
+ * Environment port - implemented in infrastructure layer
+ */
+export interface EnvironmentPort {
+  isProduction(): boolean;
+  isDevelopment(): boolean;
+  isTest(): boolean;
+  getEnv(key: string): string | undefined;
+}
+
+// ============================================================
+// Default Adapters (For Testing/Demo - Replace in Infrastructure)
+// ============================================================
+
+/**
+ * Default logger adapter (console-based)
+ * ⚠️ FOR TESTING ONLY - Replace with proper logger in infrastructure
+ */
+export class ConsoleLoggerAdapter implements LoggerPort {
+  debug(message: string, ...args: unknown[]): void {
+    console.debug(message, ...args);
+  }
+  info(message: string, ...args: unknown[]): void {
+    console.info(message, ...args);
+  }
+  warn(message: string, ...args: unknown[]): void {
+    console.warn(message, ...args);
+  }
+  error(message: string, ...args: unknown[]): void {
+    console.error(message, ...args);
+  }
+}
+
+/**
+ * Default environment adapter (process.env-based)
+ * ⚠️ FOR TESTING ONLY - Replace with proper config in infrastructure
+ */
+export class DefaultEnvironmentAdapter implements EnvironmentPort {
+  isProduction(): boolean {
+    return process.env.NODE_ENV === 'production';
+  }
+  isDevelopment(): boolean {
+    return process.env.NODE_ENV === 'development';
+  }
+  isTest(): boolean {
+    return process.env.NODE_ENV === 'test';
+  }
+  getEnv(key: string): string | undefined {
+    return process.env[key];
+  }
+}
+
+// ============================================================
 // Constants (Local - No external imports)
 // ============================================================
 
@@ -58,24 +129,6 @@ const VALUE_OBJECT_MARKER = Symbol('ValueObject');
 const DEFAULT_RETRY_COUNT = 3;
 const DEFAULT_RETRY_DELAY_MS = 100;
 const DEFAULT_TEMPORAL_TOLERANCE_MS = 1000;
-
-/**
- * Environment detection (simple, no external dependencies)
- */
-const isProduction = (): boolean => process.env.NODE_ENV === 'production';
-const isDevelopment = (): boolean => process.env.NODE_ENV === 'development';
-
-/**
- * Logger (simple console wrapper, no external dependencies)
- */
-const logger = {
-  debug: (message: string, ...args: unknown[]) => {
-    if (isDevelopment()) console.debug(message, ...args);
-  },
-  info: (message: string, ...args: unknown[]) => console.info(message, ...args),
-  warn: (message: string, ...args: unknown[]) => console.warn(message, ...args),
-  error: (message: string, ...args: unknown[]) => console.error(message, ...args),
-};
 
 /**
  * Simple sleep function for retry delays
@@ -192,11 +245,6 @@ export abstract class ValueObjectError extends Error {
     super(message);
     this.name = this.constructor.name;
     Error.captureStackTrace(this, this.constructor);
-    
-    // Log error in production
-    if (isProduction()) {
-      logger.error(`[ValueObject] ${this.name}: ${message}`, { code, field, canRetry });
-    }
   }
 }
 
@@ -236,29 +284,46 @@ export class TemporalEqualityError extends ValueObjectError {
  * Implements domain-driven design equality semantics with enterprise features
  */
 export abstract class ValueObject {
-  /** ✅ FIXED: Marker is now used in isValueObject check */
+  /** Marker for type checking */
   private readonly _valueObjectMarker: symbol = VALUE_OBJECT_MARKER;
-  
+
   /** Cache for temporal field names (lazy loaded) */
   private _temporalFieldCache: Set<string> | null = null;
-  
+
   /** Cache for equality components (for performance) */
   private _equalityComponentsCache: readonly unknown[] | null = null;
 
   /** Creation timestamp for tracking */
   private readonly _createdAt: number = Date.now();
 
+  /** Injected ports */
+  protected readonly loggerPort: LoggerPort;
+  protected readonly envPort: EnvironmentPort;
+
   /**
    * Constructor with automatic validation
+   * @param loggerPort - Injected logger port (optional, defaults to console)
+   * @param envPort - Injected environment port (optional, defaults to process.env)
    * @param options - Validation options for external dependencies
    */
-  constructor(protected readonly validationOptions?: ValidationOptions) {
+  constructor(
+    loggerPort?: LoggerPort,
+    envPort?: EnvironmentPort,
+    protected readonly validationOptions?: ValidationOptions
+  ) {
+    // Use injected ports or fallback to defaults
+    this.loggerPort = loggerPort ?? new ConsoleLoggerAdapter();
+    this.envPort = envPort ?? new DefaultEnvironmentAdapter();
+
     this.validateSync();
     this.validateAsync().catch((err: unknown) => {
       // Async validation errors are logged but don't block construction
       const shouldLog = this.validationOptions?.logFailures ?? true;
       if (shouldLog && !this.allowDegradedMode()) {
-        logger.warn(`[ValueObject] Async validation failed for ${this.constructor.name}:`, err);
+        this.loggerPort.warn(
+          `[ValueObject] Async validation failed for ${this.constructor.name}:`,
+          err
+        );
       }
     });
   }
@@ -274,7 +339,7 @@ export abstract class ValueObject {
    * Check if degraded mode is allowed
    */
   private allowDegradedMode(): boolean {
-    return this.validationOptions?.allowDegradedMode ?? !isProduction();
+    return this.validationOptions?.allowDegradedMode ?? !this.envPort.isProduction();
   }
 
   /**
@@ -336,26 +401,32 @@ export abstract class ValueObject {
         return await validationFn();
       } catch (err: unknown) {
         lastError = err instanceof Error ? err : new Error(String(err));
-        
+
         // Check if this is a connection error
         const isConnectionError = this.isConnectionError(err);
-        
+
         if (isConnectionError && i < retryCount) {
           // Exponential backoff: retryDelayMs * 2^i
           const delay = retryDelayMs * Math.pow(2, i);
-          if (isDevelopment()) {
-            logger.debug(`[ValueObject] Retry ${i + 1}/${retryCount} after ${delay}ms`, { className: this.constructor.name });
+          if (this.envPort.isDevelopment()) {
+            this.loggerPort.debug(
+              `[ValueObject] Retry ${i + 1}/${retryCount} after ${delay}ms`,
+              { className: this.constructor.name }
+            );
           }
           await sleep(delay);
           continue;
         }
-        
+
         // If not a connection error or no retries left
         if (allowDegradedMode && isConnectionError) {
-          logger.warn(`[ValueObject] Validation degraded mode for ${this.constructor.name}:`, err);
+          this.loggerPort.warn(
+            `[ValueObject] Validation degraded mode for ${this.constructor.name}:`,
+            err
+          );
           throw new ConnectionAwareValidationError('External validation failed, using degraded mode', lastError);
         }
-        
+
         throw new ConnectionAwareValidationError(`Validation failed after ${i} retries`, lastError);
       }
     }
@@ -373,7 +444,7 @@ export abstract class ValueObject {
       'econnrefused', 'enotfound', 'socket', 'dns',
       'tls', 'ssl', 'certificate', 'econnreset'
     ];
-    
+
     return connectionErrorPatterns.some(pattern => errorMessage.includes(pattern));
   }
 
@@ -384,7 +455,7 @@ export abstract class ValueObject {
     if (!this._temporalFieldCache) {
       const components = this.getCachedEqualityComponents();
       this._temporalFieldCache = new Set();
-      
+
       for (let i = 0; i < components.length; i++) {
         const comp = components[i];
         if (comp instanceof Date) {
@@ -463,11 +534,11 @@ export abstract class ValueObject {
       // Try temporal comparison if standard equality fails
       const toleranceMs = config?.toleranceMs ?? DEFAULT_TEMPORAL_TOLERANCE_MS;
       const temporalFields = config?.temporalFields ?? this.getTemporalFieldNames();
-      
+
       if (temporalFields.length === 0 && !this.hasTemporalFields()) {
         return false;
       }
-      
+
       return this.compareTemporal(other as ValueObject, toleranceMs, temporalFields);
     }
     return true;
@@ -514,10 +585,10 @@ export abstract class ValueObject {
     if (temporalFields.some(field => field.includes(String(index)) || field === `component_${index}`)) {
       return true;
     }
-    
+
     // Check by type
     if (component instanceof Date) return true;
-    
+
     // Check by property name pattern
     if (typeof component === 'object' && component !== null) {
       const componentObj = component as Record<string, unknown>;
@@ -525,7 +596,7 @@ export abstract class ValueObject {
       if (componentObj.updatedAt instanceof Date) return true;
       if (componentObj.timestamp instanceof Date) return true;
     }
-    
+
     return false;
   }
 
@@ -535,11 +606,11 @@ export abstract class ValueObject {
   private areTemporallyEqual(a: unknown, b: unknown, toleranceMs: number): boolean {
     const timeA = this.extractTimeValue(a);
     const timeB = this.extractTimeValue(b);
-    
+
     if (timeA === null || timeB === null) {
       return this.areEqual(a, b);
     }
-    
+
     const difference = Math.abs(timeA - timeB);
     return difference <= toleranceMs;
   }
@@ -576,9 +647,9 @@ export abstract class ValueObject {
     }
 
     if (!this.hasSameConstructor(other)) {
-      return { 
-        equal: false, 
-        differences: [`Different types: ${this.constructor.name} vs ${other.constructor.name}`] 
+      return {
+        equal: false,
+        differences: [`Different types: ${this.constructor.name} vs ${other.constructor.name}`]
       };
     }
 
@@ -633,38 +704,38 @@ export abstract class ValueObject {
   public toJSON(options?: SerializationOptions): Record<string, unknown> {
     const components = this.getCachedEqualityComponents();
     const includeMetadata = options?.includeMetadata ?? false;
-    
+
     const value = components.length === 1 ? components[0] : [...components];
-    
+
     if (!includeMetadata) {
       return { value };
     }
-    
+
     // Include metadata for offline-first synchronization
     const metadata: ValueObjectMetadata = {
-      version: '2.0.0',
+      version: '3.0.0',
       timestamp: new Date().toISOString(),
       className: this.constructor.name,
       syncStatus: 'synced',
-      environment: isProduction() ? 'production' : isDevelopment() ? 'development' : 'test' as ValueObjectEnvironment,
+      environment: this.envPort.isProduction() ? 'production' : this.envPort.isDevelopment() ? 'development' : 'test',
     };
-    
+
     const result: Record<string, unknown> = { value, _metadata: metadata };
-    
+
     // Apply field exclusion if specified
     if (options?.excludeFields && options.excludeFields.length > 0) {
       this.excludeFieldsFromResult(result, options.excludeFields);
     }
-    
+
     // Include environment info if requested
     if (options?.includeEnvironment) {
       result._environment = {
-        nodeEnv: process.env.NODE_ENV,
-        isProduction: isProduction(),
+        nodeEnv: this.envPort.getEnv('NODE_ENV'),
+        isProduction: this.envPort.isProduction(),
         timestamp: Date.now()
       };
     }
-    
+
     return result;
   }
 
@@ -689,7 +760,7 @@ export abstract class ValueObject {
   public toString(pretty: boolean = false): string {
     const components = this.getCachedEqualityComponents();
     const values = components.map(comp => this.safeStringify(comp, pretty)).join(', ');
-    
+
     if (pretty) {
       return `${this.constructor.name}(\n  ${values.split(', ').join(',\n  ')}\n)`;
     }
@@ -708,7 +779,7 @@ export abstract class ValueObject {
     if (typeof value === 'symbol') return value.toString();
     if (value instanceof RegExp) return value.toString();
     if (value instanceof Error) return `${value.name}: ${value.message}`;
-    
+
     try {
       return pretty ? JSON.stringify(value, null, 2) : String(value);
     } catch {
@@ -726,17 +797,17 @@ export abstract class ValueObject {
   public clone(): this {
     // Check if we need deep cloning
     const components = this.getCachedEqualityComponents();
-    const needsDeepClone = components.some(comp => 
-      comp !== null && 
-      typeof comp === 'object' && 
+    const needsDeepClone = components.some(comp =>
+      comp !== null &&
+      typeof comp === 'object' &&
       !(comp instanceof Date) &&
       !(comp instanceof RegExp)
     );
-    
+
     if (!needsDeepClone) {
       return this; // Immutable, safe to return self
     }
-    
+
     // Deep clone components
     const clonedComponents = components.map(comp => {
       if (this.isValueObject(comp)) return (comp as ValueObject).clone();
@@ -746,7 +817,7 @@ export abstract class ValueObject {
       }
       return comp;
     });
-    
+
     // Reconstruct using the constructor
     return this.reconstruct(clonedComponents);
   }
@@ -795,11 +866,11 @@ export abstract class ValueObject {
    */
   public snapshot(): ValueObjectSnapshot {
     return {
-      value: this.getCachedEqualityComponents().length === 1 
-        ? this.getCachedEqualityComponents()[0] 
+      value: this.getCachedEqualityComponents().length === 1
+        ? this.getCachedEqualityComponents()[0]
         : [...this.getCachedEqualityComponents()],
       metadata: {
-        version: '2.0.0',
+        version: '3.0.0',
         timestamp: new Date().toISOString(),
         className: this.constructor.name,
         syncStatus: 'synced'
@@ -822,7 +893,6 @@ export abstract class ValueObject {
   /**
    * Type-safe check if the other object is a ValueObject
    * Uses marker symbol instead of instanceof for cross-module compatibility
-   * ✅ FIXED: Now uses the _valueObjectMarker property
    */
   private isValueObject(other: unknown): other is ValueObject {
     if (!other || typeof other !== 'object') return false;
@@ -967,7 +1037,6 @@ export type PrimitiveOf<T extends ValueObject> =
 
 /**
  * Check if a value is a ValueObject instance
- * ✅ FIXED: Now properly uses the VALUE_OBJECT_MARKER constant
  */
 export function isValueObject(value: unknown): value is ValueObject {
   if (!value || typeof value !== 'object') return false;
@@ -990,7 +1059,7 @@ export async function batchValidateValueObjects(
   options?: ValidationOptions
 ): Promise<{ success: boolean; errors: Error[] }> {
   const errors: Error[] = [];
-  
+
   await Promise.allSettled(
     valueObjects.map(async (vo) => {
       try {
@@ -1001,14 +1070,22 @@ export async function batchValidateValueObjects(
         }
       } catch (err) {
         errors.push(err as Error);
-        
+
         if (options?.logFailures !== false) {
-          logger.error(`[ValueObject] Batch validation failed for ${vo.constructor.name}:`, err);
+          // Use the injected logger if available
+          if ('loggerPort' in vo && vo.loggerPort) {
+            (vo as any).loggerPort.error(
+              `[ValueObject] Batch validation failed for ${vo.constructor.name}:`,
+              err
+            );
+          } else {
+            console.error(`[ValueObject] Batch validation failed for ${vo.constructor.name}:`, err);
+          }
         }
       }
     })
   );
-  
+
   return {
     success: errors.length === 0,
     errors
