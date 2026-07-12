@@ -1,5 +1,5 @@
 /**
- * HTTP Exception Filter - Enterprise Grade
+ * HTTP Exception Filter - Enterprise Grade (Enhanced)
  * 
  * @module common/filters/http-exception.filter
  * 
@@ -15,10 +15,12 @@
  * ✅ Custom error mapping
  * ✅ Security-aware (hides sensitive info in production)
  * ✅ Multi-language error messages (English/Bengali)
+ * ✅ Custom LoggerService injection for centralized logging
+ * ✅ Extended HTTP status codes (LOCKED, TOO_MANY_REQUESTS)
  * 
  * @example
  * // In main.ts
- * app.useGlobalFilters(new HttpExceptionFilter());
+ * app.useGlobalFilters(new HttpExceptionFilter(app.get(LoggerService)));
  */
 
 import {
@@ -27,37 +29,44 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
-  Logger,
   BadRequestException,
   UnauthorizedException,
   ForbiddenException,
   NotFoundException,
   ConflictException,
   InternalServerErrorException,
+  Inject,
+  Optional,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { env } from '@vubon/shared-config';
 
 // ============================================================
-// Types
+// Types & Interfaces
 // ============================================================
 
 /**
+ * Extended Request interface with request ID
+ */
+interface RequestWithId extends Request {
+  id?: string;
+}
+
+/**
  * Standardized error response interface
- * ✅ FIXED: All optional fields are explicitly `| undefined`
  */
 export interface ErrorResponse {
   success: false;
   error: {
     code: string;
     message: string;
-    messageBn: string | undefined;
-    details: unknown;
-    stack: string | undefined;
-    requestId: string | undefined;
+    messageBn?: string;
+    details?: unknown;
+    stack?: string;
+    requestId: string;
     timestamp: string;
-    path: string | undefined;
-    method: string | undefined;
+    path: string;
+    method: string;
     statusCode: number;
   };
 }
@@ -73,6 +82,44 @@ export interface ErrorCodeMapping {
 }
 
 // ============================================================
+// Logger Service Interface (for Dependency Injection)
+// ============================================================
+
+/**
+ * Abstract logger service interface for dependency injection
+ * Implementation will be provided by infrastructure layer
+ */
+export interface ILoggerService {
+  error(message: string, context?: string, trace?: string): void;
+  warn(message: string, context?: string): void;
+  info(message: string, context?: string): void;
+  debug(message: string, context?: string): void;
+}
+
+/**
+ * Default logger service (fallback if no injection)
+ */
+export class DefaultLoggerService implements ILoggerService {
+  private readonly console = console;
+
+  error(message: string, context?: string, trace?: string): void {
+    this.console.error(`[${context || 'App'}] ERROR: ${message}`, trace || '');
+  }
+
+  warn(message: string, context?: string): void {
+    this.console.warn(`[${context || 'App'}] WARN: ${message}`);
+  }
+
+  info(message: string, context?: string): void {
+    this.console.info(`[${context || 'App'}] INFO: ${message}`);
+  }
+
+  debug(message: string, context?: string): void {
+    this.console.debug(`[${context || 'App'}] DEBUG: ${message}`);
+  }
+}
+
+// ============================================================
 // Custom HTTP Status Codes
 // ============================================================
 
@@ -81,7 +128,8 @@ export interface ErrorCodeMapping {
  */
 export const HTTP_STATUS = {
   ...HttpStatus,
-  LOCKED: 423, // 423 Locked (WebDAV)
+  LOCKED: 423, // 423 Locked (WebDAV) - Can be used for account lockout
+  TOO_MANY_REQUESTS: 429, // 429 Too Many Requests - Rate limiting
 } as const;
 
 // ============================================================
@@ -132,14 +180,20 @@ export const ERROR_CODES = {
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
-  private readonly logger = new Logger(HttpExceptionFilter.name);
+  private readonly logger: ILoggerService;
+  private readonly contextName = HttpExceptionFilter.name;
+
+  constructor(@Optional() loggerService?: ILoggerService) {
+    // Use injected logger service or fallback to default
+    this.logger = loggerService || new DefaultLoggerService();
+  }
 
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
-    const request = ctx.getRequest<Request>();
+    const request = ctx.getRequest<RequestWithId>();
     const response = ctx.getResponse<Response>();
 
-    const requestId = (request as any).id || this.generateRequestId();
+    const requestId = request.id || this.generateRequestId();
     const path = request.url;
     const method = request.method;
 
@@ -148,7 +202,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       this.parseException(exception);
 
     // Log error (with stack in development)
-    this.logError(exception, requestId, path, method, statusCode, errorCode);
+    this.logError(exception, requestId, path, method, statusCode, errorCode, stack);
 
     // Build error response
     const errorResponse: ErrorResponse = {
@@ -177,15 +231,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   /**
    * Parse exception and extract error details
-   * ✅ FIXED: Added explicit undefined handling
    */
   private parseException(exception: unknown): {
     statusCode: number;
     errorCode: string;
     message: string;
-    messageBn: string | undefined;
-    details: unknown;
-    stack: string | undefined;
+    messageBn?: string;
+    details?: unknown;
+    stack?: string;
   } {
     // Extract stack trace
     const stack = exception instanceof Error ? exception.stack : undefined;
@@ -267,7 +320,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   /**
    * Get default error code from HTTP status
-   * ✅ FIXED: Added LOCKED (423) support
+   * Extended with LOCKED (423) and TOO_MANY_REQUESTS (429)
    */
   private getErrorCodeFromStatus(status: number): string {
     const statusMap: Record<number, string> = {
@@ -277,7 +330,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       [HttpStatus.NOT_FOUND]: ERROR_CODES.NOT_FOUND,
       [HttpStatus.CONFLICT]: ERROR_CODES.CONFLICT,
       [HttpStatus.UNPROCESSABLE_ENTITY]: ERROR_CODES.UNPROCESSABLE_ENTITY,
-      [HttpStatus.TOO_MANY_REQUESTS]: ERROR_CODES.TOO_MANY_REQUESTS,
+      [HTTP_STATUS.TOO_MANY_REQUESTS]: ERROR_CODES.TOO_MANY_REQUESTS,
       [HttpStatus.INTERNAL_SERVER_ERROR]: ERROR_CODES.INTERNAL_SERVER_ERROR,
       [HttpStatus.NOT_IMPLEMENTED]: ERROR_CODES.NOT_IMPLEMENTED,
       [HttpStatus.BAD_GATEWAY]: ERROR_CODES.BAD_GATEWAY,
@@ -299,7 +352,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
   }
 
   /**
-   * Log error with context
+   * Log error with context using injected logger service
    */
   private logError(
     exception: unknown,
@@ -307,29 +360,32 @@ export class HttpExceptionFilter implements ExceptionFilter {
     path: string,
     method: string,
     statusCode: number,
-    errorCode: string
+    errorCode: string,
+    stack?: string
   ): void {
     const isServerError = statusCode >= 500;
+    const logMessage = `[${requestId}] ${method} ${path} - ${statusCode} ${errorCode}`;
 
     if (isServerError) {
-      this.logger.error({
-        message: `[${requestId}] ${method} ${path} - ${statusCode} ${errorCode}`,
-        error: exception,
-        requestId,
-        path,
-        method,
-        statusCode,
-        errorCode,
-      });
+      // Log as error with stack trace
+      this.logger.error(
+        logMessage,
+        this.contextName,
+        exception instanceof Error ? exception.stack : stack
+      );
+      
+      // Additional debug details in development
+      if (this.shouldShowStack() && exception instanceof Error) {
+        this.logger.debug(`Exception details: ${exception.message}`, this.contextName);
+      }
     } else {
-      this.logger.warn({
-        message: `[${requestId}] ${method} ${path} - ${statusCode} ${errorCode}`,
-        requestId,
-        path,
-        method,
-        statusCode,
-        errorCode,
-      });
+      // Log as warning for client errors
+      this.logger.warn(logMessage, this.contextName);
+      
+      // Log additional details for validation errors in development
+      if (statusCode === HttpStatus.BAD_REQUEST && this.shouldShowStack()) {
+        this.logger.debug(`Request validation failed: ${path}`, this.contextName);
+      }
     }
   }
 
@@ -351,7 +407,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       // If details is an object, remove sensitive fields
       if (typeof details === 'object' && details !== null) {
         const sanitized = { ...(details as Record<string, unknown>) };
-        const sensitiveFields = ['password', 'token', 'secret', 'key', 'authorization'];
+        const sensitiveFields = ['password', 'token', 'secret', 'key', 'authorization', 'creditCard', 'cvv'];
         for (const field of sensitiveFields) {
           delete sanitized[field];
         }
