@@ -31,7 +31,6 @@ import {
   ExecutionContext,
   CallHandler,
   Logger,
-  Inject,
   Optional,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
@@ -424,20 +423,57 @@ export class LoggingInterceptor implements NestInterceptor {
   }
 
   /**
-   * Log with appropriate level
+   * Log with appropriate level - FIXED: Type-safe logging
    */
   private logWithLevel(level: LogLevel, message: string, data?: Record<string, unknown>): void {
-    const logFn = data
-      ? (msg: string) => this.logger[level](msg, data)
-      : (msg: string) => this.logger[level](msg);
-
-    // Skip if level is below configured level
+    // Skip if level is 'silent' or below configured level
     const levels: LogLevel[] = ['silent', 'error', 'warn', 'info', 'debug', 'verbose'];
     const currentIndex = levels.indexOf(this.options.logLevel);
     const targetIndex = levels.indexOf(level);
 
-    if (targetIndex <= currentIndex) {
-      logFn(message);
+    // If 'silent' or below current level, skip
+    if (level === 'silent' || targetIndex > currentIndex) {
+      return;
+    }
+
+    // Type-safe logging using switch statement
+    // This avoids the TypeScript indexing error
+    switch (level) {
+      case 'error':
+        if (data) {
+          this.logger.error(message, data);
+        } else {
+          this.logger.error(message);
+        }
+        break;
+      case 'warn':
+        if (data) {
+          this.logger.warn(message, data);
+        } else {
+          this.logger.warn(message);
+        }
+        break;
+      case 'info':
+        if (data) {
+          this.logger.log(message, data);
+        } else {
+          this.logger.log(message);
+        }
+        break;
+      case 'debug':
+        if (data) {
+          this.logger.debug(message, data);
+        } else {
+          this.logger.debug(message);
+        }
+        break;
+      case 'verbose':
+        if (data) {
+          this.logger.verbose(message, data);
+        } else {
+          this.logger.verbose(message);
+        }
+        break;
     }
   }
 
