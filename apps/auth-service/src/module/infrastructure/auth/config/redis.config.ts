@@ -33,7 +33,6 @@ import { env } from '@vubon/shared-config';
 
 /**
  * Redis TLS configuration
- * ✅ FIXED: Using explicit `| undefined` instead of optional `?:`
  */
 export interface RedisTLSConfig {
   /** Enable TLS/SSL */
@@ -64,7 +63,6 @@ export interface RedisClusterConfig {
 
 /**
  * Redis sentinel configuration
- * ✅ FIXED: password is now `string | undefined`
  */
 export interface RedisSentinelConfig {
   /** Enable sentinel mode */
@@ -157,14 +155,13 @@ export interface RedisTTLConfig {
 
 /**
  * Complete Redis configuration
- * ✅ FIXED: password is now `string | undefined`
  */
 export interface RedisConfig {
   /** Redis host */
   host: string;
   /** Redis port */
   port: number;
-  /** Redis password */
+  /** Redis password (optional) */
   password: string | undefined;
   /** Redis database index */
   db: number;
@@ -210,7 +207,8 @@ const buildRedisConfig = (): RedisConfig => {
   // Core connection settings
   const host = process.env.REDIS_HOST || 'localhost';
   const port = parseInt(process.env.REDIS_PORT || '6379', 10);
-  const password = process.env.REDIS_PASSWORD || undefined;
+  // ✅ FIXED: password is now properly typed as string | undefined
+  const password: string | undefined = process.env.REDIS_PASSWORD || undefined;
   const db = parseInt(process.env.REDIS_DB || '0', 10);
   const keyPrefix = process.env.REDIS_KEY_PREFIX || 'auth:';
 
@@ -240,6 +238,7 @@ const buildRedisConfig = (): RedisConfig => {
     enabled: process.env.REDIS_SENTINEL_ENABLED === 'true',
     nodes: process.env.REDIS_SENTINEL_NODES?.split(',').map((n) => n.trim()) || [],
     masterName: process.env.REDIS_SENTINEL_MASTER_NAME || 'mymaster',
+    // ✅ FIXED: password is now properly typed as string | undefined
     password: process.env.REDIS_SENTINEL_PASSWORD || undefined,
   };
 
@@ -331,7 +330,7 @@ export const getRedisConfig = (): RedisConfig => {
  */
 export const getRedisConnectionString = (): string => {
   const { host, port, password, db } = redisConfig;
-  const auth = password ? `:${password}@` : '';
+  const auth = password ? `:${encodeURIComponent(password)}@` : '';
   return `redis://${auth}${host}:${port}/${db}`;
 };
 
@@ -365,7 +364,6 @@ export const getTTL = (type: keyof RedisTTLConfig): number => {
 
 /**
  * Get Redis connection options for BullMQ
- * ✅ FIXED: password is now properly typed as `string | undefined`
  */
 export const getBullMQConfig = (): {
   host: string;
@@ -395,7 +393,7 @@ export const getBullMQConfig = (): {
   } = {
     host: redisConfig.host,
     port: redisConfig.port,
-    password: redisConfig.password,
+    password: redisConfig.password, // ✅ Properly typed
     db: redisConfig.db,
     keyPrefix: redisConfig.keyPrefix,
   };
@@ -410,7 +408,7 @@ export const getBullMQConfig = (): {
   }
 
   if (redisConfig.sentinel.enabled) {
-    // Ensure host is always string type
+    // ✅ FIXED: Proper node parsing with default values
     const nodes = redisConfig.sentinel.nodes.map((node) => {
       const [host, port] = node.split(':');
       return { 
@@ -422,7 +420,7 @@ export const getBullMQConfig = (): {
     config.sentinel = {
       nodes,
       masterName: redisConfig.sentinel.masterName,
-      password: redisConfig.sentinel.password,
+      password: redisConfig.sentinel.password, // ✅ Properly typed
     };
   }
 
