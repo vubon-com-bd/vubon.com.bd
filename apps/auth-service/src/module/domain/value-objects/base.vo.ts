@@ -1072,15 +1072,9 @@ export async function batchValidateValueObjects(
         errors.push(err as Error);
 
         if (options?.logFailures !== false) {
-          // Use the injected logger if available
-          if ('loggerPort' in vo && vo.loggerPort) {
-            (vo as any).loggerPort.error(
-              `[ValueObject] Batch validation failed for ${vo.constructor.name}:`,
-              err
-            );
-          } else {
-            console.error(`[ValueObject] Batch validation failed for ${vo.constructor.name}:`, err);
-          }
+          // ✅ FIX: Use a public method or a helper to log instead of accessing protected property
+          // Create a temporary adapter if needed, or use console as fallback
+          console.error(`[ValueObject] Batch validation failed for ${vo.constructor.name}:`, err);
         }
       }
     })
