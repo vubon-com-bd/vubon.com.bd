@@ -29,14 +29,6 @@
  * ✅ Framework-free, infrastructure-agnostic
  */
 
-// ✅ ENTERPRISE: Import shared types
-import type { 
-  PaginationParams as SharedPaginationOptions,
-  OffsetPaginationResponse as SharedPaginatedResult,
-  DomainEvent,
-} from '@vubon/shared-types';
-
-
 import { BaseRepository } from './base.repository.interface';
 import { User, UserStatus, UserRole, UserTier } from '../entities/user.entity';
 import { Email } from '../value-objects/email.vo';
