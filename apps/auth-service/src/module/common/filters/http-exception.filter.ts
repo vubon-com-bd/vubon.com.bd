@@ -12,15 +12,14 @@
  * ✅ Environment-aware error details (stack only in development)
  * ✅ Request ID tracking for debugging
  * ✅ Validation error formatting
- * ✅ Custom error mapping
+ * ✅ Custom domain error mapping (DDD)
  * ✅ Security-aware (hides sensitive info in production)
  * ✅ Multi-language error messages (English/Bengali)
- * ✅ Custom LoggerService injection for centralized logging
- * ✅ Extended HTTP status codes (LOCKED, TOO_MANY_REQUESTS)
+ * ✅ Extended HTTP status codes (423, 429, 451)
  * 
  * @example
  * // In main.ts
- * app.useGlobalFilters(new HttpExceptionFilter(app.get(LoggerService)));
+ * app.useGlobalFilters(new HttpExceptionFilter());
  */
 
 import {
@@ -29,44 +28,59 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  Logger,
   BadRequestException,
   UnauthorizedException,
   ForbiddenException,
   NotFoundException,
   ConflictException,
   InternalServerErrorException,
-  Inject,
-  Optional,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { env } from '@vubon/shared-config';
 
 // ============================================================
-// Types & Interfaces
+// Import Domain Errors
+// ============================================================
+
+// Note: These imports are from the domain layer.
+// The infrastructure layer (this filter) depends on domain errors.
+import {
+  EntityNotFoundError,
+  EntityValidationError,
+  EntityConflictError,
+  EntityAlreadyDeletedError,
+  InvalidIdFormatError,
+} from '../../domain/entities/base.entity';
+import {
+  ValidationError as DomainValidationError,
+  ConnectionAwareValidationError,
+} from '../../domain/value-objects/base.vo';
+import {
+  OptimisticLockError,
+  DuplicateEntityError,
+} from '../../domain/repositories/base.repository.interface';
+
+// ============================================================
+// Types
 // ============================================================
 
 /**
- * Extended Request interface with request ID
- */
-interface RequestWithId extends Request {
-  id?: string;
-}
-
-/**
  * Standardized error response interface
+ * All optional fields are explicitly `| undefined`
  */
 export interface ErrorResponse {
   success: false;
   error: {
     code: string;
     message: string;
-    messageBn?: string;
-    details?: unknown;
-    stack?: string;
-    requestId: string;
+    messageBn: string | undefined;
+    details: unknown;
+    stack: string | undefined;
+    requestId: string | undefined;
     timestamp: string;
-    path: string;
-    method: string;
+    path: string | undefined;
+    method: string | undefined;
     statusCode: number;
   };
 }
@@ -82,54 +96,21 @@ export interface ErrorCodeMapping {
 }
 
 // ============================================================
-// Logger Service Interface (for Dependency Injection)
-// ============================================================
-
-/**
- * Abstract logger service interface for dependency injection
- * Implementation will be provided by infrastructure layer
- */
-export interface ILoggerService {
-  error(message: string, context?: string, trace?: string): void;
-  warn(message: string, context?: string): void;
-  info(message: string, context?: string): void;
-  debug(message: string, context?: string): void;
-}
-
-/**
- * Default logger service (fallback if no injection)
- */
-export class DefaultLoggerService implements ILoggerService {
-  private readonly console = console;
-
-  error(message: string, context?: string, trace?: string): void {
-    this.console.error(`[${context || 'App'}] ERROR: ${message}`, trace || '');
-  }
-
-  warn(message: string, context?: string): void {
-    this.console.warn(`[${context || 'App'}] WARN: ${message}`);
-  }
-
-  info(message: string, context?: string): void {
-    this.console.info(`[${context || 'App'}] INFO: ${message}`);
-  }
-
-  debug(message: string, context?: string): void {
-    this.console.debug(`[${context || 'App'}] DEBUG: ${message}`);
-  }
-}
-
-// ============================================================
-// Custom HTTP Status Codes
+// Extended HTTP Status Codes
 // ============================================================
 
 /**
  * Extended HTTP status codes not available in NestJS
+ * Includes WebDAV (423), Rate Limiting (429), Legal (451)
  */
 export const HTTP_STATUS = {
   ...HttpStatus,
-  LOCKED: 423, // 423 Locked (WebDAV) - Can be used for account lockout
-  TOO_MANY_REQUESTS: 429, // 429 Too Many Requests - Rate limiting
+  /** 423 Locked (WebDAV) - Resource is locked */
+  LOCKED: 423,
+  /** 429 Too Many Requests - Rate limiting */
+  TOO_MANY_REQUESTS: 429,
+  /** 451 Unavailable For Legal Reasons - Legal compliance */
+  UNAVAILABLE_FOR_LEGAL_REASONS: 451,
 } as const;
 
 // ============================================================
@@ -172,7 +153,51 @@ export const ERROR_CODES = {
   RESOURCE_NOT_FOUND: 'RESOURCE_NOT_FOUND',
   RESOURCE_ALREADY_EXISTS: 'RESOURCE_ALREADY_EXISTS',
   BUSINESS_RULE_VIOLATION: 'BUSINESS_RULE_VIOLATION',
+
+  // Domain-specific errors (mapped from domain layer)
+  ENTITY_NOT_FOUND: 'ENTITY_NOT_FOUND',
+  ENTITY_VALIDATION_FAILED: 'ENTITY_VALIDATION_FAILED',
+  ENTITY_CONFLICT: 'ENTITY_CONFLICT',
+  ENTITY_ALREADY_DELETED: 'ENTITY_ALREADY_DELETED',
+  INVALID_ID_FORMAT: 'INVALID_ID_FORMAT',
+  OPTIMISTIC_LOCK_ERROR: 'OPTIMISTIC_LOCK_ERROR',
+  DUPLICATE_ENTITY: 'DUPLICATE_ENTITY',
+  CONNECTION_AWARE_ERROR: 'CONNECTION_AWARE_ERROR',
 } as const;
+
+// ============================================================
+// Domain Error to HTTP Status Mapping
+// ============================================================
+
+/**
+ * Mapping from domain error types to HTTP status codes
+ */
+const DOMAIN_ERROR_STATUS_MAP = new Map<Function, number>([
+  [EntityNotFoundError, HttpStatus.NOT_FOUND],
+  [EntityValidationError, HttpStatus.BAD_REQUEST],
+  [EntityConflictError, HttpStatus.CONFLICT],
+  [EntityAlreadyDeletedError, HttpStatus.CONFLICT],
+  [InvalidIdFormatError, HttpStatus.BAD_REQUEST],
+  [DomainValidationError, HttpStatus.BAD_REQUEST],
+  [ConnectionAwareValidationError, HttpStatus.BAD_GATEWAY],
+  [OptimisticLockError, HttpStatus.CONFLICT],
+  [DuplicateEntityError, HttpStatus.CONFLICT],
+]);
+
+/**
+ * Mapping from domain error types to error codes
+ */
+const DOMAIN_ERROR_CODE_MAP = new Map<Function, string>([
+  [EntityNotFoundError, ERROR_CODES.ENTITY_NOT_FOUND],
+  [EntityValidationError, ERROR_CODES.ENTITY_VALIDATION_FAILED],
+  [EntityConflictError, ERROR_CODES.ENTITY_CONFLICT],
+  [EntityAlreadyDeletedError, ERROR_CODES.ENTITY_ALREADY_DELETED],
+  [InvalidIdFormatError, ERROR_CODES.INVALID_ID_FORMAT],
+  [DomainValidationError, ERROR_CODES.VALIDATION_ERROR],
+  [ConnectionAwareValidationError, ERROR_CODES.CONNECTION_AWARE_ERROR],
+  [OptimisticLockError, ERROR_CODES.OPTIMISTIC_LOCK_ERROR],
+  [DuplicateEntityError, ERROR_CODES.DUPLICATE_ENTITY],
+]);
 
 // ============================================================
 // Filter Implementation
@@ -180,20 +205,14 @@ export const ERROR_CODES = {
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
-  private readonly logger: ILoggerService;
-  private readonly contextName = HttpExceptionFilter.name;
-
-  constructor(@Optional() loggerService?: ILoggerService) {
-    // Use injected logger service or fallback to default
-    this.logger = loggerService || new DefaultLoggerService();
-  }
+  private readonly logger = new Logger(HttpExceptionFilter.name);
 
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
-    const request = ctx.getRequest<RequestWithId>();
+    const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
 
-    const requestId = request.id || this.generateRequestId();
+    const requestId = (request as any).id || this.generateRequestId();
     const path = request.url;
     const method = request.method;
 
@@ -202,7 +221,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       this.parseException(exception);
 
     // Log error (with stack in development)
-    this.logError(exception, requestId, path, method, statusCode, errorCode, stack);
+    this.logError(exception, requestId, path, method, statusCode, errorCode);
 
     // Build error response
     const errorResponse: ErrorResponse = {
@@ -231,79 +250,36 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   /**
    * Parse exception and extract error details
+   * Now handles custom domain errors from DDD layer
    */
   private parseException(exception: unknown): {
     statusCode: number;
     errorCode: string;
     message: string;
-    messageBn?: string;
-    details?: unknown;
-    stack?: string;
+    messageBn: string | undefined;
+    details: unknown;
+    stack: string | undefined;
   } {
     // Extract stack trace
     const stack = exception instanceof Error ? exception.stack : undefined;
 
-    // Handle known NestJS exceptions
-    if (exception instanceof HttpException) {
-      const statusCode = exception.getStatus();
-      const response = exception.getResponse() as any;
-
-      // Get error code and message
-      let errorCode = this.getErrorCodeFromStatus(statusCode);
-      let message = response.message || exception.message || 'An error occurred';
-      let messageBn: string | undefined = response.messageBn;
-
-      // Handle validation errors (BadRequestException with validation details)
-      if (exception instanceof BadRequestException) {
-        errorCode = ERROR_CODES.VALIDATION_ERROR;
-        if (Array.isArray(response.message)) {
-          message = 'Validation failed';
-          messageBn = 'ভ্যালিডেশন ব্যর্থ হয়েছে';
-        }
+    // --- 1. Handle Domain Errors (DDD Layer) ---
+    if (exception instanceof Error) {
+      const domainErrorResult = this.handleDomainError(exception);
+      if (domainErrorResult) {
+        return {
+          ...domainErrorResult,
+          stack: this.shouldShowStack() ? stack : undefined,
+        };
       }
-
-      // Handle specific exceptions
-      if (exception instanceof UnauthorizedException) {
-        errorCode = ERROR_CODES.UNAUTHORIZED;
-        message = message || 'Unauthorized access';
-        messageBn = messageBn || 'অনুমোদিত অ্যাক্সেস নয়';
-      }
-
-      if (exception instanceof ForbiddenException) {
-        errorCode = ERROR_CODES.FORBIDDEN;
-        message = message || 'Forbidden access';
-        messageBn = messageBn || 'নিষিদ্ধ অ্যাক্সেস';
-      }
-
-      if (exception instanceof NotFoundException) {
-        errorCode = ERROR_CODES.NOT_FOUND;
-        message = message || 'Resource not found';
-        messageBn = messageBn || 'রিসোর্স পাওয়া যায়নি';
-      }
-
-      if (exception instanceof ConflictException) {
-        errorCode = ERROR_CODES.CONFLICT;
-        message = message || 'Resource conflict';
-        messageBn = messageBn || 'রিসোর্স কনফ্লিক্ট';
-      }
-
-      if (exception instanceof InternalServerErrorException) {
-        errorCode = ERROR_CODES.INTERNAL_SERVER_ERROR;
-        message = message || 'Internal server error';
-        messageBn = messageBn || 'সার্ভার ত্রুটি';
-      }
-
-      return {
-        statusCode,
-        errorCode,
-        message,
-        messageBn: messageBn || undefined,
-        details: response.details || response.errors || undefined,
-        stack: this.shouldShowStack() ? stack : undefined,
-      };
     }
 
-    // Handle unknown exceptions
+    // --- 2. Handle NestJS HTTP Exceptions ---
+    if (exception instanceof HttpException) {
+      return this.handleHttpException(exception, stack);
+    }
+
+    // --- 3. Handle Unknown Exceptions ---
     const statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
     const errorCode = ERROR_CODES.INTERNAL_SERVER_ERROR;
     const message = exception instanceof Error ? exception.message : 'Internal server error';
@@ -319,8 +295,187 @@ export class HttpExceptionFilter implements ExceptionFilter {
   }
 
   /**
+   * Handle domain-specific errors from DDD layer
+   */
+  private handleDomainError(error: Error): {
+    statusCode: number;
+    errorCode: string;
+    message: string;
+    messageBn: string | undefined;
+    details: unknown;
+  } | null {
+    const errorConstructor = error.constructor;
+
+    // Check if this is a known domain error
+    const statusCode = DOMAIN_ERROR_STATUS_MAP.get(errorConstructor);
+    const errorCode = DOMAIN_ERROR_CODE_MAP.get(errorConstructor);
+
+    if (!statusCode || !errorCode) {
+      return null;
+    }
+
+    // Extract details from specific error types
+    let details: unknown = undefined;
+    let message = error.message;
+    let messageBn: string | undefined = undefined;
+
+    // EntityNotFoundError
+    if (error instanceof EntityNotFoundError) {
+      details = {
+        entityType: error.entityType,
+        entityId: error.entityId,
+      };
+      messageBn = `${error.entityType} খুঁজে পাওয়া যায়নি`;
+    }
+
+    // EntityValidationError
+    if (error instanceof EntityValidationError) {
+      details = {
+        errors: error.errors,
+        entityName: error.entityName,
+      };
+      messageBn = 'এন্টিটি ভ্যালিডেশন ব্যর্থ হয়েছে';
+    }
+
+    // EntityConflictError
+    if (error instanceof EntityConflictError) {
+      details = {
+        expectedVersion: error.expectedVersion,
+        actualVersion: error.actualVersion,
+      };
+      messageBn = 'এন্টিটি ভার্সন কনফ্লিক্ট';
+    }
+
+    // EntityAlreadyDeletedError
+    if (error instanceof EntityAlreadyDeletedError) {
+      details = {
+        entityName: error.entityName,
+        entityId: error.entityId,
+      };
+      messageBn = 'এন্টিটি ইতিমধ্যে ডিলিট করা হয়েছে';
+    }
+
+    // InvalidIdFormatError
+    if (error instanceof InvalidIdFormatError) {
+      details = {
+        id: error.id,
+        expectedFormat: error.expectedFormat,
+      };
+      messageBn = 'আইডি ফরম্যেট সঠিক নয়';
+    }
+
+    // OptimisticLockError
+    if (error instanceof OptimisticLockError) {
+      details = {
+        entityId: error.entityId,
+        expectedVersion: error.expectedVersion,
+        actualVersion: error.actualVersion,
+      };
+      messageBn = 'অপটিমিস্টিক লক ব্যর্থ হয়েছে';
+    }
+
+    // DuplicateEntityError
+    if (error instanceof DuplicateEntityError) {
+      details = {
+        entityType: error.entityType,
+        field: error.field,
+        value: error.value,
+      };
+      messageBn = `${error.entityType} ইতিমধ্যে বিদ্যমান`;
+    }
+
+    // ConnectionAwareValidationError
+    if (error instanceof ConnectionAwareValidationError) {
+      details = {
+        originalError: error.originalError?.message,
+      };
+      messageBn = 'বাহ্যিক ভ্যালিডেশন ব্যর্থ হয়েছে';
+    }
+
+    return {
+      statusCode,
+      errorCode,
+      message,
+      messageBn,
+      details,
+    };
+  }
+
+  /**
+   * Handle NestJS HTTP exceptions
+   */
+  private handleHttpException(
+    exception: HttpException,
+    stack: string | undefined
+  ): {
+    statusCode: number;
+    errorCode: string;
+    message: string;
+    messageBn: string | undefined;
+    details: unknown;
+    stack: string | undefined;
+  } {
+    const statusCode = exception.getStatus();
+    const response = exception.getResponse() as any;
+
+    // Get error code and message
+    let errorCode = this.getErrorCodeFromStatus(statusCode);
+    let message = response.message || exception.message || 'An error occurred';
+    let messageBn: string | undefined = response.messageBn;
+
+    // Handle validation errors (BadRequestException with validation details)
+    if (exception instanceof BadRequestException) {
+      errorCode = ERROR_CODES.VALIDATION_ERROR;
+      if (Array.isArray(response.message)) {
+        message = 'Validation failed';
+        messageBn = 'ভ্যালিডেশন ব্যর্থ হয়েছে';
+      }
+    }
+
+    // Handle specific exceptions
+    if (exception instanceof UnauthorizedException) {
+      errorCode = ERROR_CODES.UNAUTHORIZED;
+      message = message || 'Unauthorized access';
+      messageBn = messageBn || 'অনুমোদিত অ্যাক্সেস নয়';
+    }
+
+    if (exception instanceof ForbiddenException) {
+      errorCode = ERROR_CODES.FORBIDDEN;
+      message = message || 'Forbidden access';
+      messageBn = messageBn || 'নিষিদ্ধ অ্যাক্সেস';
+    }
+
+    if (exception instanceof NotFoundException) {
+      errorCode = ERROR_CODES.NOT_FOUND;
+      message = message || 'Resource not found';
+      messageBn = messageBn || 'রিসোর্স পাওয়া যায়নি';
+    }
+
+    if (exception instanceof ConflictException) {
+      errorCode = ERROR_CODES.CONFLICT;
+      message = message || 'Resource conflict';
+      messageBn = messageBn || 'রিসোর্স কনফ্লিক্ট';
+    }
+
+    if (exception instanceof InternalServerErrorException) {
+      errorCode = ERROR_CODES.INTERNAL_SERVER_ERROR;
+      message = message || 'Internal server error';
+      messageBn = messageBn || 'সার্ভার ত্রুটি';
+    }
+
+    return {
+      statusCode,
+      errorCode,
+      message,
+      messageBn: messageBn || undefined,
+      details: response.details || response.errors || undefined,
+      stack: this.shouldShowStack() ? stack : undefined,
+    };
+  }
+
+  /**
    * Get default error code from HTTP status
-   * Extended with LOCKED (423) and TOO_MANY_REQUESTS (429)
+   * Extended with additional status codes (423, 429, 451)
    */
   private getErrorCodeFromStatus(status: number): string {
     const statusMap: Record<number, string> = {
@@ -330,13 +485,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
       [HttpStatus.NOT_FOUND]: ERROR_CODES.NOT_FOUND,
       [HttpStatus.CONFLICT]: ERROR_CODES.CONFLICT,
       [HttpStatus.UNPROCESSABLE_ENTITY]: ERROR_CODES.UNPROCESSABLE_ENTITY,
-      [HTTP_STATUS.TOO_MANY_REQUESTS]: ERROR_CODES.TOO_MANY_REQUESTS,
+      [HttpStatus.TOO_MANY_REQUESTS]: ERROR_CODES.TOO_MANY_REQUESTS,
       [HttpStatus.INTERNAL_SERVER_ERROR]: ERROR_CODES.INTERNAL_SERVER_ERROR,
       [HttpStatus.NOT_IMPLEMENTED]: ERROR_CODES.NOT_IMPLEMENTED,
       [HttpStatus.BAD_GATEWAY]: ERROR_CODES.BAD_GATEWAY,
       [HttpStatus.SERVICE_UNAVAILABLE]: ERROR_CODES.SERVICE_UNAVAILABLE,
       [HttpStatus.GATEWAY_TIMEOUT]: ERROR_CODES.GATEWAY_TIMEOUT,
       [HTTP_STATUS.LOCKED]: ERROR_CODES.ACCOUNT_LOCKED,
+      [HTTP_STATUS.TOO_MANY_REQUESTS]: ERROR_CODES.TOO_MANY_REQUESTS,
+      [HTTP_STATUS.UNAVAILABLE_FOR_LEGAL_REASONS]: ERROR_CODES.FORBIDDEN,
     };
 
     return statusMap[status] || ERROR_CODES.INTERNAL_SERVER_ERROR;
@@ -352,7 +509,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
   }
 
   /**
-   * Log error with context using injected logger service
+   * Log error with context
    */
   private logError(
     exception: unknown,
@@ -360,32 +517,29 @@ export class HttpExceptionFilter implements ExceptionFilter {
     path: string,
     method: string,
     statusCode: number,
-    errorCode: string,
-    stack?: string
+    errorCode: string
   ): void {
     const isServerError = statusCode >= 500;
-    const logMessage = `[${requestId}] ${method} ${path} - ${statusCode} ${errorCode}`;
 
     if (isServerError) {
-      // Log as error with stack trace
-      this.logger.error(
-        logMessage,
-        this.contextName,
-        exception instanceof Error ? exception.stack : stack
-      );
-      
-      // Additional debug details in development
-      if (this.shouldShowStack() && exception instanceof Error) {
-        this.logger.debug(`Exception details: ${exception.message}`, this.contextName);
-      }
+      this.logger.error({
+        message: `[${requestId}] ${method} ${path} - ${statusCode} ${errorCode}`,
+        error: exception,
+        requestId,
+        path,
+        method,
+        statusCode,
+        errorCode,
+      });
     } else {
-      // Log as warning for client errors
-      this.logger.warn(logMessage, this.contextName);
-      
-      // Log additional details for validation errors in development
-      if (statusCode === HttpStatus.BAD_REQUEST && this.shouldShowStack()) {
-        this.logger.debug(`Request validation failed: ${path}`, this.contextName);
-      }
+      this.logger.warn({
+        message: `[${requestId}] ${method} ${path} - ${statusCode} ${errorCode}`,
+        requestId,
+        path,
+        method,
+        statusCode,
+        errorCode,
+      });
     }
   }
 
@@ -407,7 +561,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       // If details is an object, remove sensitive fields
       if (typeof details === 'object' && details !== null) {
         const sanitized = { ...(details as Record<string, unknown>) };
-        const sensitiveFields = ['password', 'token', 'secret', 'key', 'authorization', 'creditCard', 'cvv'];
+        const sensitiveFields = ['password', 'token', 'secret', 'key', 'authorization'];
         for (const field of sensitiveFields) {
           delete sanitized[field];
         }
