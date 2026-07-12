@@ -28,6 +28,11 @@
  * ✅ Statistics and analytics support
  * ✅ Framework-free, infrastructure-agnostic
  */
+mport type { 
+  PaginationParams as SharedPaginationOptions,
+  OffsetPaginationResponse as SharedPaginatedResult,
+  DomainEvent,
+} from '@vubon/shared-types';
 
 import { BaseRepository } from './base.repository.interface';
 import { User, UserStatus, UserRole, UserTier } from '../entities/user.entity';
