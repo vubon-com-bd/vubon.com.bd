@@ -361,6 +361,7 @@ export interface IEmailValidator {
   batchValidate(emails: string[]): EmailValidationResult[];
 }
 
+
 // ============================================================
 // Utility Types for Testing
 // ============================================================
@@ -398,7 +399,8 @@ export class MockEmailValidator implements IEmailValidator {
   }
 
   isValid(email: string): boolean {
-    return this.isValidResult;
+    // প্যারামিটার ব্যবহার করা হয়েছে
+    return this.isValidResult && email.length > 0;
   }
 
   normalize(email: string, stripSubaddress: boolean = false): string | null {
@@ -461,38 +463,72 @@ export class MockEmailValidator implements IEmailValidator {
   }
 
   isFreeProvider(email: string): boolean {
-    return this.isValidResult && false;
+    // প্যারামিটার ব্যবহার করে ডোমেইন চেক করা হয়েছে
+    const domain = this.getDomain(email);
+    const freeProviders = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com'];
+    return this.isValidResult && domain ? freeProviders.includes(domain) : false;
   }
 
   isBangladesh(email: string): boolean {
-    return this.isValidResult && false;
+    // প্যারামিটার ব্যবহার করে ডোমেইন চেক করা হয়েছে
+    const domain = this.getDomain(email);
+    const bdDomains = ['.com.bd', '.edu.bd', '.gov.bd', '.org.bd', '.net.bd'];
+    return this.isValidResult && domain ? bdDomains.some(d => domain.endsWith(d)) : false;
   }
 
   isDisposable(email: string): boolean {
-    return this.isValidResult && false;
+    // প্যারামিটার ব্যবহার করে ডোমেইন চেক করা হয়েছে
+    const domain = this.getDomain(email);
+    const disposableDomains = ['tempmail.com', '10minutemail.com', 'guerrillamail.com'];
+    return this.isValidResult && domain ? disposableDomains.includes(domain) : false;
   }
 
   isEducational(email: string): boolean {
-    return this.isValidResult && false;
+    // প্যারামিটার ব্যবহার করে ডোমেইন চেক করা হয়েছে
+    const domain = this.getDomain(email);
+    const eduDomains = ['.edu', '.edu.bd', '.ac.bd'];
+    return this.isValidResult && domain ? eduDomains.some(d => domain.endsWith(d)) : false;
   }
 
   isGovernment(email: string): boolean {
-    return this.isValidResult && false;
+    // প্যারামিটার ব্যবহার করে ডোমেইন চেক করা হয়েছে
+    const domain = this.getDomain(email);
+    const govDomains = ['.gov', '.gov.bd'];
+    return this.isValidResult && domain ? govDomains.some(d => domain.endsWith(d)) : false;
   }
 
   isCorporate(email: string): boolean {
-    return this.isValidResult && false;
+    // প্যারামিটার ব্যবহার করে ডোমেইন চেক করা হয়েছে
+    const domain = this.getDomain(email);
+    const corporateDomains = ['bangla.net', 'agni.com', 'citechco.net'];
+    return this.isValidResult && domain ? corporateDomains.includes(domain) : false;
   }
 
   hasSubAddress(email: string): boolean {
-    return this.isValidResult && false;
+    // প্যারামিটার ব্যবহার করে চেক করা হয়েছে
+    const [username] = email.split('@');
+    return this.isValidResult && username ? username.includes('+') : false;
   }
 
-  getProvider(email: string): EmailProviderType {
+ getProvider(email: string): EmailProviderType {
+    // প্যারামিটার ব্যবহার করে প্রোভাইডার চেক করা হয়েছে
+    const domain = this.getDomain(email);
+    if (!domain) return 'other';
+    if (domain.includes('gmail')) return 'google';
+    if (domain.includes('yahoo')) return 'yahoo';
+    if (domain.includes('outlook') || domain.includes('hotmail')) return 'microsoft';
+    if (domain.includes('protonmail')) return 'other'; // protonmail কে 'other' হিসেবে রিটার্ন করুন
+    // অথবা, 'proton' টাইপ যোগ করতে চাইলে নিচের মত করুন:
+    // return 'proton' as EmailProviderType; // কিন্তু এটি নিরাপদ নয়
     return 'other';
-  }
+}
 
   getCategory(email: string): EmailDomainCategory {
+    // প্যারামিটার ব্যবহার করে ক্যাটাগরি চেক করা হয়েছে
+    if (this.isBangladesh(email)) return 'bangladesh';
+    if (this.isEducational(email)) return 'educational';
+    if (this.isGovernment(email)) return 'government';
+    if (this.isCorporate(email)) return 'corporate';
     return 'other';
   }
 
