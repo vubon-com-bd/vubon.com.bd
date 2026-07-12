@@ -47,7 +47,7 @@ export interface OAuthProviderConfig {
   readonly authUrl: string;
   readonly tokenUrl: string;
   readonly userInfoUrl: string;
-  readonly revokeUrl?: string;
+  readonly revokeUrl?: string; // অপশনাল প্রপার্টি
   readonly enablePKCE: boolean;
   readonly enableState: boolean;
   readonly icon: string;
@@ -124,6 +124,7 @@ const buildProviderUrls = (provider: OAuthProvider) => {
       auth: 'https://graph.facebook.com/v17.0/oauth/access_token',
       token: 'https://graph.facebook.com/v17.0/oauth/access_token',
       userInfo: `https://graph.facebook.com/v17.0/${process.env.WHATSAPP_BUSINESS_PHONE_ID}`,
+      // whatsapp-এর জন্য revoke URL নেই
     },
     bkash: {
       // উৎপাদন ও স্যান্ডবক্স আলাদা URL
@@ -136,6 +137,7 @@ const buildProviderUrls = (provider: OAuthProvider) => {
       userInfo: isProd
         ? 'https://tokenized.bka.sh/v1.2.0-beta/tokenized/checkout/user/info'
         : 'https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout/user/info',
+      // bkash-এর জন্য revoke URL নেই
     },
     nagad: {
       auth: isProd
@@ -147,6 +149,7 @@ const buildProviderUrls = (provider: OAuthProvider) => {
       userInfo: isProd
         ? 'https://api.mynagad.com/api/dfs/user/info'
         : 'https://sandbox.mynagad.com/api/dfs/user/info',
+      // nagad-এর জন্য revoke URL নেই
     },
     rocket: {
       auth: isProd
@@ -158,6 +161,7 @@ const buildProviderUrls = (provider: OAuthProvider) => {
       userInfo: isProd
         ? 'https://api.rocket.com.bd/v1/user/info'
         : 'https://api.rocket.com.bd/sandbox/v1/user/info',
+      // rocket-এর জন্য revoke URL নেই
     },
   };
 
@@ -165,12 +169,28 @@ const buildProviderUrls = (provider: OAuthProvider) => {
   const prefix = envPrefix;
 
   // process.env থেকে ওভাররাইড করার সুযোগ (ডিপ্লয়মেন্টের সময় নমনীয়তা)
-  return {
-    authUrl: process.env[`${prefix}_AUTH_URL`] || urls.auth,
-    tokenUrl: process.env[`${prefix}_TOKEN_URL`] || urls.token,
-    userInfoUrl: process.env[`${prefix}_USER_INFO_URL`] || urls.userInfo,
-    revokeUrl: process.env[`${prefix}_REVOKE_URL`] || urls.revoke,
+  const authUrl = process.env[`${prefix}_AUTH_URL`] || urls.auth;
+  const tokenUrl = process.env[`${prefix}_TOKEN_URL`] || urls.token;
+  const userInfoUrl = process.env[`${prefix}_USER_INFO_URL`] || urls.userInfo;
+  const revokeUrl = process.env[`${prefix}_REVOKE_URL`] || urls.revoke;
+
+  // ✅ শুধুমাত্র revokeUrl থাকলে তা অবজেক্টে যোগ করা হবে
+  const result: {
+    authUrl: string;
+    tokenUrl: string;
+    userInfoUrl: string;
+    revokeUrl?: string;
+  } = {
+    authUrl,
+    tokenUrl,
+    userInfoUrl,
   };
+
+  if (revokeUrl) {
+    result.revokeUrl = revokeUrl;
+  }
+
+  return result;
 };
 
 // ============================================================
@@ -186,7 +206,7 @@ const createProviderConfig = (
   const envPrefix = provider.toUpperCase();
 
   // প্রতিটি প্রোভাইডারের জন্য বেস কনফিগ
-  const baseConfig: Omit<OAuthProviderConfig, 'authUrl' | 'tokenUrl' | 'userInfoUrl' | 'revokeUrl'> = {
+  const baseConfig = {
     provider,
     displayName: overrides.displayName || provider.charAt(0).toUpperCase() + provider.slice(1),
     displayNameBn: overrides.displayNameBn || provider.charAt(0).toUpperCase() + provider.slice(1),
@@ -201,10 +221,13 @@ const createProviderConfig = (
     enabled: overrides.enabled ?? !!(process.env[`${envPrefix}_CLIENT_ID`] && process.env[`${envPrefix}_CLIENT_SECRET`]),
   };
 
-  // URL গুলো মিশিয়ে সম্পূর্ণ কনফিগ তৈরি
+  // ✅ শর্তসাপেক্ষে revokeUrl যোগ করা (readonly প্রপার্টি সমস্যা সমাধান)
   return {
     ...baseConfig,
-    ...urls,
+    authUrl: urls.authUrl,
+    tokenUrl: urls.tokenUrl,
+    userInfoUrl: urls.userInfoUrl,
+    ...(urls.revokeUrl ? { revokeUrl: urls.revokeUrl } : {}),
   };
 };
 
