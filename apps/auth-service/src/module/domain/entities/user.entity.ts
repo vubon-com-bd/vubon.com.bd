@@ -1,5 +1,5 @@
 /**
- * User Entity - Pure Domain Core
+ * User Entity - Pure Domain Core (SSOT & DDD Compliant)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
  * @module domain/entities/user.entity
@@ -8,65 +8,44 @@
  * Core user entity representing an authenticated user in the system.
  * Manages user state, authentication, verification, and security.
  * 
- * Enterprise Rules:
+ * SSOT Rules:
+ * ✅ All constants imported from @vubon/shared-constants
+ * ✅ No duplicate constants defined here
+ * ✅ Pure TypeScript - NO external dependencies
  * ✅ Complete user lifecycle management
- * ✅ Email and phone verification tracking
- * ✅ Role-based access control
- * ✅ MFA enable/disable
- * ✅ Account lock/unlock
  * ✅ Domain events for all state changes
- * ✅ Framework-free (no crypto dependency)
- * ✅ Bangladesh specific - Phone verification support
- * ✅ User tier/loyalty program support
+ * ✅ Bangladesh specific features
  */
 
-import { BaseEntity, EntityValidationError, type IdGenerator } from './base.entity';
+import { BaseEntity, EntityValidationError, type IdGenerator, type EntityValidationResult, createValidationResult } from './base.entity';
 import { Email } from '../value-objects/email.vo';
 import { Password } from '../value-objects/password.vo';
-import { Phone, BDOperator } from '../value-objects/phone.vo';
+import { Phone } from '../value-objects/phone.vo';
 
-// ==================== Enums ====================
+// ✅ SSOT: All constants imported from shared-constants
+import {
+  USER_ROLES,
+  USER_STATUSES,
+  USER_TIERS,
+  BANGLADESH_DISTRICTS,
+  BANGLADESH_UPAZILAS,
+  USER_MOBILE_OPERATORS,
+  USER_NETWORK_TYPES,
+  type UserRole,
+  type UserStatus,
+  type UserTier,
+  type BangladeshDistrict,
+  type BangladeshUpazila,
+  type UserMobileOperator,
+  type UserNetworkType,
+} from '@vubon/shared-constants';
 
-/**
- * User status enumeration
- */
-export enum UserStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-  LOCKED = 'LOCKED',
-  SUSPENDED = 'SUSPENDED',
-  DELETED = 'DELETED',
-  PENDING_VERIFICATION = 'PENDING_VERIFICATION',
-}
-
-/**
- * User role enumeration
- */
-export enum UserRole {
-  CUSTOMER = 'CUSTOMER',
-  PREMIUM_CUSTOMER = 'PREMIUM_CUSTOMER',
-  SELLER = 'SELLER',
-  VENDOR = 'VENDOR',
-  MODERATOR = 'MODERATOR',
-  ADMIN = 'ADMIN',
-  SUPER_ADMIN = 'SUPER_ADMIN',
-  SUPPORT = 'SUPPORT',
-  DELIVERY_AGENT = 'DELIVERY_AGENT',
-}
+// ============================================================
+// Domain-Specific Types (Not in shared-constants)
+// ============================================================
 
 /**
- * User tier (Bangladesh specific loyalty program)
- */
-export enum UserTier {
-  BRONZE = 'BRONZE',
-  SILVER = 'SILVER',
-  GOLD = 'GOLD',
-  PLATINUM = 'PLATINUM',
-  DIAMOND = 'DIAMOND',
-}
-
-/**
- * User event types
+ * User event types (Domain-specific)
  */
 export enum UserEventType {
   USER_CREATED = 'user.created',
@@ -95,48 +74,51 @@ export enum UserEventType {
   TIER_UPGRADED = 'user.tier_upgraded',
 }
 
-// ==================== Types ====================
+// ============================================================
+// Domain Configuration (SSOT-compliant)
+// ============================================================
 
 /**
- * User configuration constants
+ * User configuration constants (Domain-specific business rules)
+ * These are not in shared-constants because they are internal to this aggregate
  */
-const USER_CONFIG = {
+const USER_DOMAIN_CONFIG = {
   MIN_NAME_LENGTH: 2,
   MAX_NAME_LENGTH: 100,
   NAME_PATTERN: /^[a-zA-Z\u0980-\u09FF\s.'-]+$/, // Supports Bengali
   
-  // Tier thresholds (order amount in BDT)
+  // Tier thresholds (BDT) - These are domain business rules
   TIER_THRESHOLDS: {
-    [UserTier.BRONZE]: 0,
-    [UserTier.SILVER]: 5000,
-    [UserTier.GOLD]: 25000,
-    [UserTier.PLATINUM]: 100000,
-    [UserTier.DIAMOND]: 500000,
+    [USER_TIERS.BRONZE]: 0,
+    [USER_TIERS.SILVER]: 5000,
+    [USER_TIERS.GOLD]: 25000,
+    [USER_TIERS.PLATINUM]: 100000,
+    [USER_TIERS.DIAMOND]: 500000,
   },
   
-  // Tier benefits
+  // Tier benefits - Domain business rules
   TIER_BENEFITS: {
-    [UserTier.BRONZE]: {
+    [USER_TIERS.BRONZE]: {
       discountPercentage: 0,
       freeShipping: false,
       prioritySupport: false,
     },
-    [UserTier.SILVER]: {
+    [USER_TIERS.SILVER]: {
       discountPercentage: 5,
       freeShipping: true,
       prioritySupport: false,
     },
-    [UserTier.GOLD]: {
+    [USER_TIERS.GOLD]: {
       discountPercentage: 10,
       freeShipping: true,
       prioritySupport: false,
     },
-    [UserTier.PLATINUM]: {
+    [USER_TIERS.PLATINUM]: {
       discountPercentage: 15,
       freeShipping: true,
       prioritySupport: true,
     },
-    [UserTier.DIAMOND]: {
+    [USER_TIERS.DIAMOND]: {
       discountPercentage: 20,
       freeShipping: true,
       prioritySupport: true,
@@ -144,16 +126,21 @@ const USER_CONFIG = {
   },
 } as const;
 
+// ============================================================
+// User Entity Props Interface
+// ============================================================
+
 /**
- * User Entity Props Interface
+ * User Entity Properties Interface
+ * ✅ Fixed: All optional properties explicitly include `| undefined` for exactOptionalPropertyTypes
  */
 export interface UserProps {
   email: Email;
   password: Password;
-  phone?: Phone;
+  phone?: Phone | undefined;
   fullName: string;
-  displayName?: string;
-  avatar?: string;
+  displayName?: string | undefined;
+  avatar?: string | undefined;
   status: UserStatus;
   role: UserRole;
   tier: UserTier;
@@ -162,25 +149,36 @@ export interface UserProps {
   isKycVerified: boolean;
   mfaEnabled: boolean;
   totalSpent: number;
-  lastLoginAt?: Date;
-  emailVerifiedAt?: Date;
-  phoneVerifiedAt?: Date;
-  kycVerifiedAt?: Date;
-  mfaEnabledAt?: Date;
-  deletedAt?: Date;
-  suspendedAt?: Date;
-  suspendedReason?: string;
-  preferredLanguage?: 'en' | 'bn';
-  preferredDistrict?: string;
-  preferredUpazila?: string;
+  lastLoginAt?: Date | undefined;
+  emailVerifiedAt?: Date | undefined;
+  phoneVerifiedAt?: Date | undefined;
+  kycVerifiedAt?: Date | undefined;
+  mfaEnabledAt?: Date | undefined;
+  deletedAt?: Date | undefined;
+  suspendedAt?: Date | undefined;
+  suspendedReason?: string | undefined;
+  deletionReason?: string | undefined;
+  preferredLanguage?: 'en' | 'bn' | undefined;
+  preferredDistrict?: BangladeshDistrict | undefined;
+  preferredUpazila?: BangladeshUpazila | undefined;
+  preferredOperator?: UserMobileOperator | undefined;
+  mobileNetworkType?: UserNetworkType | undefined;
 }
 
-// ==================== User Entity ====================
+// ============================================================
+// User Entity
+// ============================================================
 
 /**
  * User Entity - Core domain aggregate root
+ * SSOT-compliant: All constants from shared-constants
  */
 export class User extends BaseEntity {
+  // ============================================================
+  // Private Properties
+  // ✅ Fixed: _deletedAt type matches BaseEntity (Date | null)
+  // ============================================================
+  
   private _email: Email;
   private _password: Password;
   private _phone: Phone | undefined;
@@ -200,13 +198,19 @@ export class User extends BaseEntity {
   private _phoneVerifiedAt: Date | undefined;
   private _kycVerifiedAt: Date | undefined;
   private _mfaEnabledAt: Date | undefined;
-  private _deletedAt: Date | undefined;
   private _suspendedAt: Date | undefined;
   private _suspendedReason: string | undefined;
+  private _deletionReason: string | undefined;
   private _preferredLanguage: 'en' | 'bn';
-  private _preferredDistrict: string | undefined;
-  private _preferredUpazila: string | undefined;
+  private _preferredDistrict: BangladeshDistrict | undefined;
+  private _preferredUpazila: BangladeshUpazila | undefined;
+  private _preferredOperator: UserMobileOperator | undefined;
+  private _mobileNetworkType: UserNetworkType | undefined;
 
+  // ============================================================
+  // Constructor
+  // ============================================================
+  
   private constructor(
     id: string,
     createdAt: Date,
@@ -235,47 +239,59 @@ export class User extends BaseEntity {
     this._phoneVerifiedAt = props.phoneVerifiedAt;
     this._kycVerifiedAt = props.kycVerifiedAt;
     this._mfaEnabledAt = props.mfaEnabledAt;
-    this._deletedAt = props.deletedAt;
+    this._deletedAt = props.deletedAt ?? null; // ✅ Fixed
     this._suspendedAt = props.suspendedAt;
     this._suspendedReason = props.suspendedReason;
+    this._deletionReason = props.deletionReason;
     this._preferredLanguage = props.preferredLanguage || 'en';
     this._preferredDistrict = props.preferredDistrict;
     this._preferredUpazila = props.preferredUpazila;
-    
-    this.validate();
+    this._preferredOperator = props.preferredOperator;
+    this._mobileNetworkType = props.mobileNetworkType;
   }
 
-  /**
-   * Validate entity invariants
-   */
-  protected validate(): void {
+  // ============================================================
+  // Validation (Invariants)
+  // ✅ Fixed: Returns EntityValidationResult
+  // ============================================================
+  
+  protected validate(): EntityValidationResult {
+    const errors: string[] = [];
+    
     if (!this._email) {
-      throw new EntityValidationError('User requires an email');
+      errors.push('User requires an email');
     }
     if (!this._password) {
-      throw new EntityValidationError('User requires a password');
+      errors.push('User requires a password');
     }
     if (!this._fullName || this._fullName.trim().length === 0) {
-      throw new EntityValidationError('User requires a full name');
+      errors.push('User requires a full name');
     }
-    if (this._fullName.length < USER_CONFIG.MIN_NAME_LENGTH) {
-      throw new EntityValidationError(
-        `Full name must be at least ${USER_CONFIG.MIN_NAME_LENGTH} characters`
-      );
+    if (this._fullName.length < USER_DOMAIN_CONFIG.MIN_NAME_LENGTH) {
+      errors.push(`Full name must be at least ${USER_DOMAIN_CONFIG.MIN_NAME_LENGTH} characters`);
     }
-    if (this._fullName.length > USER_CONFIG.MAX_NAME_LENGTH) {
-      throw new EntityValidationError(
-        `Full name cannot exceed ${USER_CONFIG.MAX_NAME_LENGTH} characters`
-      );
+    if (this._fullName.length > USER_DOMAIN_CONFIG.MAX_NAME_LENGTH) {
+      errors.push(`Full name cannot exceed ${USER_DOMAIN_CONFIG.MAX_NAME_LENGTH} characters`);
     }
-    if (!USER_CONFIG.NAME_PATTERN.test(this._fullName)) {
-      throw new EntityValidationError(
-        'Full name contains invalid characters (only letters, spaces, dots, hyphens, apostrophes allowed)'
-      );
+    if (!USER_DOMAIN_CONFIG.NAME_PATTERN.test(this._fullName)) {
+      errors.push('Full name contains invalid characters (only letters, spaces, dots, hyphens, apostrophes allowed)');
     }
     if (this._totalSpent < 0) {
-      throw new EntityValidationError('Total spent cannot be negative');
+      errors.push('Total spent cannot be negative');
     }
+    
+    // ✅ SSOT: Validate against shared-constants values
+    if (!Object.values(USER_STATUSES).includes(this._status)) {
+      errors.push(`Invalid user status: ${this._status}`);
+    }
+    if (!Object.values(USER_ROLES).includes(this._role)) {
+      errors.push(`Invalid user role: ${this._role}`);
+    }
+    if (!Object.values(USER_TIERS).includes(this._tier)) {
+      errors.push(`Invalid user tier: ${this._tier}`);
+    }
+    
+    return createValidationResult(errors.length === 0, errors);
   }
 
   // ============================================================
@@ -284,6 +300,7 @@ export class User extends BaseEntity {
 
   /**
    * Create a new user (factory method)
+   * ✅ Fixed: Optional props explicitly passed with proper typing
    */
   public static create(
     email: Email,
@@ -291,7 +308,8 @@ export class User extends BaseEntity {
     fullName: string,
     idGenerator: IdGenerator,
     phone?: Phone,
-    preferredLanguage?: 'en' | 'bn'
+    preferredLanguage?: 'en' | 'bn',
+    preferredOperator?: UserMobileOperator
   ): User {
     const now = new Date();
     
@@ -303,13 +321,13 @@ export class User extends BaseEntity {
       {
         email,
         password,
-        phone,
+        phone, // ✅ Now properly typed as Phone | undefined
         fullName: fullName.trim(),
         displayName: fullName.trim().split(' ')[0],
         avatar: undefined,
-        status: UserStatus.PENDING_VERIFICATION,
-        role: UserRole.CUSTOMER,
-        tier: UserTier.BRONZE,
+        status: USER_STATUSES.PENDING_VERIFICATION,
+        role: USER_ROLES.CUSTOMER,
+        tier: USER_TIERS.BRONZE,
         isEmailVerified: false,
         isPhoneVerified: false,
         isKycVerified: false,
@@ -323,9 +341,12 @@ export class User extends BaseEntity {
         deletedAt: undefined,
         suspendedAt: undefined,
         suspendedReason: undefined,
+        deletionReason: undefined,
         preferredLanguage,
         preferredDistrict: undefined,
         preferredUpazila: undefined,
+        preferredOperator,
+        mobileNetworkType: undefined,
       }
     );
     
@@ -337,8 +358,8 @@ export class User extends BaseEntity {
       version: 1,
       metadata: {
         email: email.getValue(),
-        role: UserRole.CUSTOMER,
-        tier: UserTier.BRONZE,
+        role: USER_ROLES.CUSTOMER,
+        tier: USER_TIERS.BRONZE,
       },
     });
     
@@ -347,15 +368,16 @@ export class User extends BaseEntity {
 
   /**
    * Reconstitute from persistence
+   * ✅ Fixed: Optional props with proper typing
    */
   public static reconstitute(data: {
     id: string;
     email: Email;
     password: Password;
-    phone?: Phone;
+    phone?: Phone | undefined;
     fullName: string;
-    displayName?: string;
-    avatar?: string;
+    displayName?: string | undefined;
+    avatar?: string | undefined;
     status: UserStatus;
     role: UserRole;
     tier: UserTier;
@@ -364,17 +386,20 @@ export class User extends BaseEntity {
     isKycVerified: boolean;
     mfaEnabled: boolean;
     totalSpent: number;
-    lastLoginAt?: Date;
-    emailVerifiedAt?: Date;
-    phoneVerifiedAt?: Date;
-    kycVerifiedAt?: Date;
-    mfaEnabledAt?: Date;
-    deletedAt?: Date;
-    suspendedAt?: Date;
-    suspendedReason?: string;
-    preferredLanguage?: 'en' | 'bn';
-    preferredDistrict?: string;
-    preferredUpazila?: string;
+    lastLoginAt?: Date | undefined;
+    emailVerifiedAt?: Date | undefined;
+    phoneVerifiedAt?: Date | undefined;
+    kycVerifiedAt?: Date | undefined;
+    mfaEnabledAt?: Date | undefined;
+    deletedAt?: Date | null | undefined;
+    suspendedAt?: Date | undefined;
+    suspendedReason?: string | undefined;
+    deletionReason?: string | undefined;
+    preferredLanguage?: 'en' | 'bn' | undefined;
+    preferredDistrict?: BangladeshDistrict | undefined;
+    preferredUpazila?: BangladeshUpazila | undefined;
+    preferredOperator?: UserMobileOperator | undefined;
+    mobileNetworkType?: UserNetworkType | undefined;
     createdAt: Date;
     updatedAt: Date;
     version: number;
@@ -404,35 +429,41 @@ export class User extends BaseEntity {
         phoneVerifiedAt: data.phoneVerifiedAt,
         kycVerifiedAt: data.kycVerifiedAt,
         mfaEnabledAt: data.mfaEnabledAt,
-        deletedAt: data.deletedAt,
+        deletedAt: data.deletedAt ?? undefined,
         suspendedAt: data.suspendedAt,
         suspendedReason: data.suspendedReason,
+        deletionReason: data.deletionReason,
         preferredLanguage: data.preferredLanguage,
         preferredDistrict: data.preferredDistrict,
         preferredUpazila: data.preferredUpazila,
+        preferredOperator: data.preferredOperator,
+        mobileNetworkType: data.mobileNetworkType,
       }
     );
   }
 
   // ============================================================
-  // Business Methods
+  // Business Methods (User Lifecycle)
   // ============================================================
 
   /**
    * Activate user account
    */
   public activate(): void {
-    if (this._status === UserStatus.SUSPENDED) {
+    if (this._status === USER_STATUSES.SUSPENDED) {
       throw new EntityValidationError('Cannot activate suspended user');
     }
-    if (this._status === UserStatus.DELETED) {
-      throw new EntityValidationError('Cannot activate deleted user');
+    if (this._status === USER_STATUSES.BANNED) {
+      throw new EntityValidationError('Cannot activate banned user');
     }
-    if (this._status === UserStatus.ACTIVE) {
+    if (this._status === USER_STATUSES.DEACTIVATED) {
+      throw new EntityValidationError('Cannot activate deactivated user');
+    }
+    if (this._status === USER_STATUSES.ACTIVE) {
       return;
     }
     
-    this._status = UserStatus.ACTIVE;
+    this._status = USER_STATUSES.ACTIVE;
     this.touch();
     
     this.addDomainEvent({
@@ -451,17 +482,17 @@ export class User extends BaseEntity {
    * Deactivate user account
    */
   public deactivate(): void {
-    if (this._status === UserStatus.LOCKED) {
+    if (this._status === USER_STATUSES.LOCKED) {
       throw new EntityValidationError('Cannot deactivate locked user');
     }
-    if (this._status === UserStatus.DELETED) {
-      throw new EntityValidationError('Cannot deactivate deleted user');
+    if (this._status === USER_STATUSES.BANNED) {
+      throw new EntityValidationError('Cannot deactivate banned user');
     }
-    if (this._status === UserStatus.INACTIVE) {
+    if (this._status === USER_STATUSES.DEACTIVATED) {
       return;
     }
     
-    this._status = UserStatus.INACTIVE;
+    this._status = USER_STATUSES.DEACTIVATED;
     this.touch();
     
     this.addDomainEvent({
@@ -480,14 +511,14 @@ export class User extends BaseEntity {
    * Suspend user account (with reason)
    */
   public suspend(reason: string): void {
-    if (this._status === UserStatus.DELETED) {
-      throw new EntityValidationError('Cannot suspend deleted user');
+    if (this._status === USER_STATUSES.BANNED) {
+      throw new EntityValidationError('Cannot suspend banned user');
     }
-    if (this._status === UserStatus.SUSPENDED) {
+    if (this._status === USER_STATUSES.SUSPENDED) {
       return;
     }
     
-    this._status = UserStatus.SUSPENDED;
+    this._status = USER_STATUSES.SUSPENDED;
     this._suspendedAt = new Date();
     this._suspendedReason = reason;
     this.touch();
@@ -509,11 +540,11 @@ export class User extends BaseEntity {
    * Reactivate suspended user
    */
   public reactivate(): void {
-    if (this._status !== UserStatus.SUSPENDED) {
+    if (this._status !== USER_STATUSES.SUSPENDED) {
       throw new EntityValidationError('Only suspended users can be reactivated');
     }
     
-    this._status = UserStatus.ACTIVE;
+    this._status = USER_STATUSES.ACTIVE;
     this._suspendedAt = undefined;
     this._suspendedReason = undefined;
     this.touch();
@@ -533,13 +564,14 @@ export class User extends BaseEntity {
   /**
    * Soft delete user account
    */
-  public delete(): void {
-    if (this._status === UserStatus.DELETED) {
-      throw new EntityValidationError('User already deleted');
+  public delete(reason: string): void {
+    if (this._status === USER_STATUSES.BANNED) {
+      throw new EntityValidationError('Cannot delete banned user');
     }
     
-    this._status = UserStatus.DELETED;
-    this._deletedAt = new Date();
+    this._status = USER_STATUSES.DEACTIVATED;
+    this._deletedAt = new Date(); // ✅ Fixed: Date, not Date | undefined
+    this._deletionReason = reason;
     this.touch();
     
     this.addDomainEvent({
@@ -550,6 +582,7 @@ export class User extends BaseEntity {
       version: this.version,
       metadata: {
         userId: this.id,
+        reason,
       },
     });
   }
@@ -558,12 +591,13 @@ export class User extends BaseEntity {
    * Restore soft-deleted user
    */
   public restore(): void {
-    if (this._status !== UserStatus.DELETED) {
+    if (this._deletedAt === null) { // ✅ Fixed: Check null, not undefined
       throw new EntityValidationError('Only deleted users can be restored');
     }
     
-    this._status = UserStatus.ACTIVE;
-    this._deletedAt = undefined;
+    this._status = USER_STATUSES.ACTIVE;
+    this._deletedAt = null; // ✅ Fixed: Set to null, not undefined
+    this._deletionReason = undefined;
     this.touch();
     
     this.addDomainEvent({
@@ -578,6 +612,10 @@ export class User extends BaseEntity {
     });
   }
 
+  // ============================================================
+  // Verification Methods
+  // ============================================================
+
   /**
    * Verify email address
    */
@@ -585,15 +623,15 @@ export class User extends BaseEntity {
     if (this._isEmailVerified) {
       throw new EntityValidationError('Email already verified');
     }
-    if (this._status === UserStatus.DELETED) {
-      throw new EntityValidationError('Cannot verify email for deleted user');
+    if (this._status === USER_STATUSES.BANNED || this._status === USER_STATUSES.DEACTIVATED) {
+      throw new EntityValidationError('Cannot verify email for inactive user');
     }
     
     this._isEmailVerified = true;
     this._emailVerifiedAt = new Date();
     
     // Auto-activate if both email and phone are verified
-    if (this._isPhoneVerified && this._status === UserStatus.PENDING_VERIFICATION) {
+    if (this._isPhoneVerified && this._status === USER_STATUSES.PENDING_VERIFICATION) {
       this.activate();
     }
     
@@ -622,15 +660,15 @@ export class User extends BaseEntity {
     if (this._isPhoneVerified) {
       throw new EntityValidationError('Phone already verified');
     }
-    if (this._status === UserStatus.DELETED) {
-      throw new EntityValidationError('Cannot verify phone for deleted user');
+    if (this._status === USER_STATUSES.BANNED || this._status === USER_STATUSES.DEACTIVATED) {
+      throw new EntityValidationError('Cannot verify phone for inactive user');
     }
     
     this._isPhoneVerified = true;
     this._phoneVerifiedAt = new Date();
     
     // Auto-activate if both email and phone are verified
-    if (this._isEmailVerified && this._status === UserStatus.PENDING_VERIFICATION) {
+    if (this._isEmailVerified && this._status === USER_STATUSES.PENDING_VERIFICATION) {
       this.activate();
     }
     
@@ -656,8 +694,8 @@ export class User extends BaseEntity {
     if (this._isKycVerified) {
       throw new EntityValidationError('KYC already verified');
     }
-    if (this._status === UserStatus.DELETED) {
-      throw new EntityValidationError('Cannot verify KYC for deleted user');
+    if (this._status === USER_STATUSES.BANNED || this._status === USER_STATUSES.DEACTIVATED) {
+      throw new EntityValidationError('Cannot verify KYC for inactive user');
     }
     
     this._isKycVerified = true;
@@ -665,15 +703,19 @@ export class User extends BaseEntity {
     this.touch();
   }
 
+  // ============================================================
+  // Security Methods
+  // ============================================================
+
   /**
    * Change user password
    */
   public changePassword(newPassword: Password): void {
-    if (this._status === UserStatus.LOCKED) {
+    if (this._status === USER_STATUSES.LOCKED) {
       throw new EntityValidationError('Cannot change password for locked account');
     }
-    if (this._status === UserStatus.DELETED) {
-      throw new EntityValidationError('Cannot change password for deleted user');
+    if (this._status === USER_STATUSES.BANNED || this._status === USER_STATUSES.DEACTIVATED) {
+      throw new EntityValidationError('Cannot change password for inactive user');
     }
     
     this._password = newPassword;
@@ -695,14 +737,14 @@ export class User extends BaseEntity {
    * Lock user account (after too many failed attempts)
    */
   public lockAccount(): void {
-    if (this._status === UserStatus.LOCKED) {
+    if (this._status === USER_STATUSES.LOCKED) {
       return;
     }
-    if (this._status === UserStatus.DELETED) {
-      throw new EntityValidationError('Cannot lock deleted user');
+    if (this._status === USER_STATUSES.BANNED || this._status === USER_STATUSES.DEACTIVATED) {
+      throw new EntityValidationError('Cannot lock inactive user');
     }
     
-    this._status = UserStatus.LOCKED;
+    this._status = USER_STATUSES.LOCKED;
     this.touch();
     
     this.addDomainEvent({
@@ -721,11 +763,11 @@ export class User extends BaseEntity {
    * Unlock user account
    */
   public unlockAccount(): void {
-    if (this._status !== UserStatus.LOCKED) {
+    if (this._status !== USER_STATUSES.LOCKED) {
       throw new EntityValidationError('Account is not locked');
     }
     
-    this._status = UserStatus.ACTIVE;
+    this._status = USER_STATUSES.ACTIVE;
     this.touch();
     
     this.addDomainEvent({
@@ -747,8 +789,8 @@ export class User extends BaseEntity {
     if (this._mfaEnabled) {
       throw new EntityValidationError('MFA already enabled');
     }
-    if (this._status === UserStatus.DELETED) {
-      throw new EntityValidationError('Cannot enable MFA for deleted user');
+    if (this._status === USER_STATUSES.BANNED || this._status === USER_STATUSES.DEACTIVATED) {
+      throw new EntityValidationError('Cannot enable MFA for inactive user');
     }
     
     this._mfaEnabled = true;
@@ -790,6 +832,10 @@ export class User extends BaseEntity {
     });
   }
 
+  // ============================================================
+  // Profile & Role Management
+  // ============================================================
+
   /**
    * Change user role (admin action)
    */
@@ -797,8 +843,8 @@ export class User extends BaseEntity {
     if (this._role === newRole) {
       return;
     }
-    if (this._status === UserStatus.DELETED) {
-      throw new EntityValidationError('Cannot change role for deleted user');
+    if (this._status === USER_STATUSES.BANNED || this._status === USER_STATUSES.DEACTIVATED) {
+      throw new EntityValidationError('Cannot change role for inactive user');
     }
     
     const oldRole = this._role;
@@ -829,22 +875,24 @@ export class User extends BaseEntity {
     avatar?: string,
     phone?: Phone,
     preferredLanguage?: 'en' | 'bn',
-    preferredDistrict?: string,
-    preferredUpazila?: string
+    preferredDistrict?: BangladeshDistrict,
+    preferredUpazila?: BangladeshUpazila,
+    preferredOperator?: UserMobileOperator,
+    mobileNetworkType?: UserNetworkType
   ): void {
     if (fullName) {
       const trimmed = fullName.trim();
-      if (trimmed.length < USER_CONFIG.MIN_NAME_LENGTH) {
+      if (trimmed.length < USER_DOMAIN_CONFIG.MIN_NAME_LENGTH) {
         throw new EntityValidationError(
-          `Full name must be at least ${USER_CONFIG.MIN_NAME_LENGTH} characters`
+          `Full name must be at least ${USER_DOMAIN_CONFIG.MIN_NAME_LENGTH} characters`
         );
       }
-      if (trimmed.length > USER_CONFIG.MAX_NAME_LENGTH) {
+      if (trimmed.length > USER_DOMAIN_CONFIG.MAX_NAME_LENGTH) {
         throw new EntityValidationError(
-          `Full name cannot exceed ${USER_CONFIG.MAX_NAME_LENGTH} characters`
+          `Full name cannot exceed ${USER_DOMAIN_CONFIG.MAX_NAME_LENGTH} characters`
         );
       }
-      if (!USER_CONFIG.NAME_PATTERN.test(trimmed)) {
+      if (!USER_DOMAIN_CONFIG.NAME_PATTERN.test(trimmed)) {
         throw new EntityValidationError('Full name contains invalid characters');
       }
       this._fullName = trimmed;
@@ -871,12 +919,20 @@ export class User extends BaseEntity {
       this._preferredLanguage = preferredLanguage;
     }
     
-    if (preferredDistrict) {
+    if (preferredDistrict && BANGLADESH_DISTRICTS.includes(preferredDistrict)) {
       this._preferredDistrict = preferredDistrict;
     }
     
-    if (preferredUpazila) {
+    if (preferredUpazila && BANGLADESH_UPAZILAS.includes(preferredUpazila)) {
       this._preferredUpazila = preferredUpazila;
+    }
+    
+    if (preferredOperator && Object.values(USER_MOBILE_OPERATORS).includes(preferredOperator)) {
+      this._preferredOperator = preferredOperator;
+    }
+    
+    if (mobileNetworkType && Object.values(USER_NETWORK_TYPES).includes(mobileNetworkType)) {
+      this._mobileNetworkType = mobileNetworkType;
     }
     
     this.touch();
@@ -946,61 +1002,69 @@ export class User extends BaseEntity {
   }
 
   // ============================================================
-  // Query Methods
+  // Query Methods (Read-Only)
   // ============================================================
 
   /**
    * Calculate user tier based on total spent
    */
   private calculateTier(): UserTier {
-    if (this._totalSpent >= USER_CONFIG.TIER_THRESHOLDS[UserTier.DIAMOND]) {
-      return UserTier.DIAMOND;
+    const thresholds = USER_DOMAIN_CONFIG.TIER_THRESHOLDS;
+    if (this._totalSpent >= thresholds[USER_TIERS.DIAMOND]) {
+      return USER_TIERS.DIAMOND;
     }
-    if (this._totalSpent >= USER_CONFIG.TIER_THRESHOLDS[UserTier.PLATINUM]) {
-      return UserTier.PLATINUM;
+    if (this._totalSpent >= thresholds[USER_TIERS.PLATINUM]) {
+      return USER_TIERS.PLATINUM;
     }
-    if (this._totalSpent >= USER_CONFIG.TIER_THRESHOLDS[UserTier.GOLD]) {
-      return UserTier.GOLD;
+    if (this._totalSpent >= thresholds[USER_TIERS.GOLD]) {
+      return USER_TIERS.GOLD;
     }
-    if (this._totalSpent >= USER_CONFIG.TIER_THRESHOLDS[UserTier.SILVER]) {
-      return UserTier.SILVER;
+    if (this._totalSpent >= thresholds[USER_TIERS.SILVER]) {
+      return USER_TIERS.SILVER;
     }
-    return UserTier.BRONZE;
+    return USER_TIERS.BRONZE;
   }
 
   /**
    * Check if user is active (can perform actions)
    */
   public isActive(): boolean {
-    return this._status === UserStatus.ACTIVE;
+    return this._status === USER_STATUSES.ACTIVE;
   }
 
   /**
    * Check if user is locked
    */
   public isLocked(): boolean {
-    return this._status === UserStatus.LOCKED;
+    return this._status === USER_STATUSES.LOCKED;
   }
 
   /**
    * Check if user is suspended
    */
   public isSuspended(): boolean {
-    return this._status === UserStatus.SUSPENDED;
+    return this._status === USER_STATUSES.SUSPENDED;
   }
 
   /**
-   * Check if user is deleted
+   * Check if user is banned
    */
-  public isDeleted(): boolean {
-    return this._status === UserStatus.DELETED;
+  public isBanned(): boolean {
+    return this._status === USER_STATUSES.BANNED;
+  }
+
+  /**
+   * Check if user is deactivated
+   */
+  public isDeactivated(): boolean {
+    return this._status === USER_STATUSES.DEACTIVATED;
   }
 
   /**
    * Check if user is pending verification
    */
   public isPendingVerification(): boolean {
-    return this._status === UserStatus.PENDING_VERIFICATION;
+    return this._status === USER_STATUSES.PENDING_VERIFICATION;
   }
 
   /**
@@ -1014,21 +1078,21 @@ export class User extends BaseEntity {
    * Check if user has admin privileges
    */
   public isAdmin(): boolean {
-    return this._role === UserRole.ADMIN || this._role === UserRole.SUPER_ADMIN;
+    return this._role === USER_ROLES.ADMIN || this._role === USER_ROLES.SUPER_ADMIN;
   }
 
   /**
    * Check if user is super admin
    */
   public isSuperAdmin(): boolean {
-    return this._role === UserRole.SUPER_ADMIN;
+    return this._role === USER_ROLES.SUPER_ADMIN;
   }
 
   /**
    * Check if user is seller/vendor
    */
   public isSeller(): boolean {
-    return this._role === UserRole.SELLER || this._role === UserRole.VENDOR;
+    return this._role === USER_ROLES.VENDOR || this._role === USER_ROLES.SHOP_MANAGER;
   }
 
   /**
@@ -1045,25 +1109,25 @@ export class User extends BaseEntity {
    * Get tier discount percentage
    */
   public getTierDiscount(): number {
-    return USER_CONFIG.TIER_BENEFITS[this._tier].discountPercentage;
+    return USER_DOMAIN_CONFIG.TIER_BENEFITS[this._tier].discountPercentage;
   }
 
   /**
    * Check if user gets free shipping
    */
   public hasFreeShipping(): boolean {
-    return USER_CONFIG.TIER_BENEFITS[this._tier].freeShipping;
+    return USER_DOMAIN_CONFIG.TIER_BENEFITS[this._tier].freeShipping;
   }
 
   /**
    * Check if user has priority support
    */
   public hasPrioritySupport(): boolean {
-    return USER_CONFIG.TIER_BENEFITS[this._tier].prioritySupport;
+    return USER_DOMAIN_CONFIG.TIER_BENEFITS[this._tier].prioritySupport;
   }
 
   // ============================================================
-  // Getters
+  // Getters (All Properties)
   // ============================================================
 
   public getEmail(): Email { return this._email; }
@@ -1084,12 +1148,15 @@ export class User extends BaseEntity {
   public getPhoneVerifiedAt(): Date | undefined { return this._phoneVerifiedAt ? new Date(this._phoneVerifiedAt) : undefined; }
   public getKycVerifiedAt(): Date | undefined { return this._kycVerifiedAt ? new Date(this._kycVerifiedAt) : undefined; }
   public getMfaEnabledAt(): Date | undefined { return this._mfaEnabledAt ? new Date(this._mfaEnabledAt) : undefined; }
-  public getDeletedAt(): Date | undefined { return this._deletedAt ? new Date(this._deletedAt) : undefined; }
+  public getDeletedAt(): Date | null { return this._deletedAt ? new Date(this._deletedAt) : null; }
   public getSuspendedAt(): Date | undefined { return this._suspendedAt ? new Date(this._suspendedAt) : undefined; }
   public getSuspendedReason(): string | undefined { return this._suspendedReason; }
+  public getDeletionReason(): string | undefined { return this._deletionReason; }
   public getPreferredLanguage(): 'en' | 'bn' { return this._preferredLanguage; }
-  public getPreferredDistrict(): string | undefined { return this._preferredDistrict; }
-  public getPreferredUpazila(): string | undefined { return this._preferredUpazila; }
+  public getPreferredDistrict(): BangladeshDistrict | undefined { return this._preferredDistrict; }
+  public getPreferredUpazila(): BangladeshUpazila | undefined { return this._preferredUpazila; }
+  public getPreferredOperator(): UserMobileOperator | undefined { return this._preferredOperator; }
+  public getMobileNetworkType(): UserNetworkType | undefined { return this._mobileNetworkType; }
 
   // ============================================================
   // JSON Serialization
@@ -1125,17 +1192,21 @@ export class User extends BaseEntity {
       deletedAt: this._deletedAt?.toISOString(),
       suspendedAt: this._suspendedAt?.toISOString(),
       suspendedReason: this._suspendedReason,
+      deletionReason: this._deletionReason,
       preferredLanguage: this._preferredLanguage,
       preferredDistrict: this._preferredDistrict,
       preferredUpazila: this._preferredUpazila,
+      preferredOperator: this._preferredOperator,
+      mobileNetworkType: this._mobileNetworkType,
       isActive: this.isActive(),
       isLocked: this.isLocked(),
       isSuspended: this.isSuspended(),
-      isDeleted: this.isDeleted(),
+      isBanned: this.isBanned(),
+      isDeactivated: this.isDeactivated(),
       isAdmin: this.isAdmin(),
       isSeller: this.isSeller(),
       isFullyVerified: this.isFullyVerified(),
-      // ⚠️ Password is intentionally excluded from JSON
+      // Password intentionally excluded from JSON
     };
   }
 }
@@ -1162,4 +1233,5 @@ namespace generateEventId {
 // Type Exports
 // ============================================================
 
-export type { UserProps };
+// ✅ Fixed: Only one UserProps export (already exported above)
+// UserEventType is already exported as enum
