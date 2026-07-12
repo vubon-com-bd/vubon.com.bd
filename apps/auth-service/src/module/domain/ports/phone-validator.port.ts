@@ -317,23 +317,34 @@ export interface IPhoneValidator {
   isMobile(phone: string, countryCode?: string): boolean;
 }
 
+
+
 // ============================================================
 // Utility Types for Testing
 // ============================================================
 
 /**
- * Mock phone validator for testing (optional)
+ * Mock phone validator for testing
  * Can be used in unit tests to avoid external dependencies
  */
 export class MockPhoneValidator implements IPhoneValidator {
-  constructor(private readonly isValidResult: boolean = true) {}
+  constructor(
+    private readonly isValidResult: boolean = true,
+    private readonly mockPhoneNumber: string = '+8801712345678'
+  ) {}
 
   validate(phone: string, countryCode?: string): PhoneValidationResult {
-    if (this.isValidResult) {
+    // প্যারামিটার ব্যবহার করে ভ্যালিডেশন সিমুলেট করা
+    const isValid = this.isValidResult && phone.length >= 10;
+    
+    if (isValid) {
+      const normalized = this.normalize(phone, countryCode) || this.mockPhoneNumber;
+      const components = this.getComponents(phone, countryCode);
+      
       return {
         isValid: true,
-        normalized: '+8801712345678',
-        components: {
+        normalized,
+        components: components || {
           countryCode: '880',
           nationalNumber: '1712345678',
           e164: '+8801712345678',
@@ -344,74 +355,210 @@ export class MockPhoneValidator implements IPhoneValidator {
         },
       };
     }
-    return { isValid: false, error: 'Invalid phone number' };
+    
+    return { 
+      isValid: false, 
+      error: `Invalid phone number: ${phone}` 
+    };
   }
 
   isValid(phone: string, countryCode?: string): boolean {
+    // প্যারামিটার ব্যবহার করে ভ্যালিডিটি চেক করা
+    if (!phone || phone.length < 10) return false;
+    
+    // কান্ট্রি কোড অনুযায়ী চেক
+    if (countryCode === '880' && !phone.startsWith('+880') && !phone.startsWith('01')) {
+      return false;
+    }
+    
     return this.isValidResult;
   }
 
   isBangladeshMobile(phone: string): boolean {
-    return this.isValidResult;
+    // বাংলাদেশি মোবাইল নম্বর চেক করা
+    const cleaned = phone.replace(/\D/g, '');
+    const bdPattern = /^(880|0)?1[3-9]\d{8}$/;
+    return this.isValidResult && bdPattern.test(cleaned);
   }
 
   formatToE164(phone: string, countryCode?: string): string | null {
-    return this.isValidResult ? '+8801712345678' : null;
+    if (!this.isValid(phone, countryCode)) return null;
+    
+    const cleaned = phone.replace(/\D/g, '');
+    let e164 = '';
+    
+    if (cleaned.startsWith('880')) {
+      e164 = `+${cleaned}`;
+    } else if (cleaned.startsWith('01')) {
+      e164 = `+880${cleaned.substring(1)}`;
+    } else if (countryCode) {
+      e164 = `+${countryCode}${cleaned}`;
+    } else {
+      e164 = `+880${cleaned}`;
+    }
+    
+    return e164;
   }
 
   formatInternational(phone: string, countryCode?: string): string | null {
-    return this.isValidResult ? '+880 1712-345678' : null;
+    const e164 = this.formatToE164(phone, countryCode);
+    if (!e164) return null;
+    
+    // আন্তর্জাতিক ফরম্যাটে কনভার্ট (যেমন: +880 1712-345678)
+    const parts = e164.match(/^(\+\d{3})(\d{4})(\d{6})$/);
+    if (parts) {
+      return `${parts[1]} ${parts[2]}-${parts[3]}`;
+    }
+    
+    return e164;
   }
 
   formatNational(phone: string, countryCode?: string): string | null {
-    return this.isValidResult ? '01712 345678' : null;
+    if (!this.isValid(phone, countryCode)) return null;
+    
+    const cleaned = phone.replace(/\D/g, '');
+    let national = cleaned;
+    
+    if (cleaned.startsWith('880')) {
+      national = `0${cleaned.substring(3)}`;
+    } else if (!cleaned.startsWith('0')) {
+      national = `0${cleaned}`;
+    }
+    
+    // ন্যাশনাল ফরম্যাটে কনভার্ট (যেমন: 01712-345678)
+    const parts = national.match(/^(0\d{4})(\d{6})$/);
+    if (parts) {
+      return `${parts[1]}-${parts[2]}`;
+    }
+    
+    return national;
   }
 
   getComponents(phone: string, countryCode?: string): PhoneComponents | null {
-    if (this.isValidResult) {
-      return {
-        countryCode: '880',
-        nationalNumber: '1712345678',
-        e164: '+8801712345678',
-        type: PhoneType.MOBILE,
-        operator: BDOperator.GP,
-        isBangladesh: true,
-        isMobile: true,
-      };
+    if (!this.isValid(phone, countryCode)) return null;
+    
+    const cleaned = phone.replace(/\D/g, '');
+    let countryCodeValue = '880';
+    let nationalNumber = cleaned;
+    
+    if (cleaned.startsWith('880')) {
+      countryCodeValue = '880';
+      nationalNumber = cleaned.substring(3);
+    } else if (cleaned.startsWith('0')) {
+      countryCodeValue = '880';
+      nationalNumber = cleaned.substring(1);
+    } else if (countryCode) {
+      countryCodeValue = countryCode;
+      nationalNumber = cleaned;
     }
-    return null;
+    
+    const e164 = `+${countryCodeValue}${nationalNumber}`;
+    const operator = this.detectOperator(phone);
+    const isBangladesh = countryCodeValue === '880';
+    const isMobile = isBangladesh && /^1[3-9]/.test(nationalNumber);
+    
+    return {
+      countryCode: countryCodeValue,
+      nationalNumber,
+      e164,
+      type: isMobile ? PhoneType.MOBILE : PhoneType.LANDLINE,
+      operator,
+      isBangladesh,
+      isMobile,
+    };
   }
 
   detectOperator(phone: string): BDOperator {
-    return this.isValidResult ? BDOperator.GP : BDOperator.UNKNOWN;
-  }
+    const cleaned = phone.replace(/\D/g, '');
+    // জাতীয় নম্বর বের করা
+    let national = cleaned;
+    if (cleaned.startsWith('880')) {
+      national = cleaned.substring(3);
+    } else if (cleaned.startsWith('0')) {
+      national = cleaned.substring(1);
+    }
+    
+    // অপারেটর ডিটেক্ট করার লজিক
+if (national.startsWith('17')) return BDOperator.GP;
+if (national.startsWith('18')) return BDOperator.ROBI;
+if (national.startsWith('19')) return BDOperator.BANGLALINK;
+if (national.startsWith('13')) return BDOperator.TELETALK;
+if (national.startsWith('14')) return BDOperator.ROBI; // AIRTEL-এর পরিবর্তে ROBI ব্যবহার করুন
+if (national.startsWith('15')) return BDOperator.TELETALK; // RADIANT-এর পরিবর্তে TELETALK ব্যবহার করুন
+if (national.startsWith('16')) return BDOperator.ROBI; // AIRTEL-এর পরিবর্তে ROBI ব্যবহার করুন
+
+return BDOperator.UNKNOWN;
+ }
 
   canReceiveSMS(phone: string, countryCode?: string): boolean {
-    return this.isValidResult;
+    // এসএমএস গ্রহণ করার ক্ষমতা চেক
+    const components = this.getComponents(phone, countryCode);
+    if (!components) return false;
+    
+    // মোবাইল নম্বর হলে এসএমএস নিতে পারে
+    return this.isValidResult && components.isMobile;
   }
 
   isWhatsAppCapable(phone: string, countryCode?: string): boolean {
-    return this.isValidResult;
+    // হোয়াটসঅ্যাপ ক্যাপাবিলিটি চেক
+    const components = this.getComponents(phone, countryCode);
+    if (!components) return false;
+    
+    // বাংলাদেশি মোবাইল নম্বর হলে হোয়াটসঅ্যাপ সাপোর্ট করে
+    return this.isValidResult && components.isBangladesh && components.isMobile;
   }
 
   isMFSCapable(phone: string): boolean {
-    return this.isValidResult;
+    // এমএফএস ক্যাপাবিলিটি চেক
+    const components = this.getComponents(phone);
+    if (!components) return false;
+    
+    // সব বাংলাদেশি মোবাইল নম্বর এমএফএস সাপোর্ট করে
+    return this.isValidResult && components.isBangladesh && components.isMobile;
   }
 
   normalize(phone: string, countryCode?: string): string | null {
-    return this.isValidResult ? '+8801712345678' : null;
+    if (!this.isValid(phone, countryCode)) return null;
+    
+    const cleaned = phone.replace(/\D/g, '');
+    let e164 = '';
+    
+    if (cleaned.startsWith('880')) {
+      e164 = `+${cleaned}`;
+    } else if (cleaned.startsWith('01') && cleaned.length === 11) {
+      e164 = `+880${cleaned.substring(1)}`;
+    } else if (countryCode) {
+      e164 = `+${countryCode}${cleaned}`;
+    } else {
+      e164 = `+880${cleaned}`;
+    }
+    
+    return e164;
   }
 
   mask(phone: string, countryCode?: string): string {
-    return this.isValidResult ? '+88017******78' : phone;
+    if (!this.isValid(phone, countryCode)) return phone;
+    
+    const e164 = this.formatToE164(phone, countryCode);
+    if (!e164) return phone;
+    
+    // মাস্কিং: +88017******78
+    const parts = e164.match(/^(\+\d{3}\d{2})(\d{4})(\d{2})$/);
+    if (parts) {
+      return `${parts[1]}******${parts[3]}`;
+    }
+    
+    return e164;
   }
 
   isBangladesh(phone: string): boolean {
-    return this.isValidResult;
+    const components = this.getComponents(phone);
+    return this.isValidResult && components?.isBangladesh === true;
   }
 
   isMobile(phone: string, countryCode?: string): boolean {
-    return this.isValidResult;
+    const components = this.getComponents(phone, countryCode);
+    return this.isValidResult && components?.isMobile === true;
   }
 }
 
