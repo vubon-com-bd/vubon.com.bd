@@ -1,20 +1,20 @@
 /**
  * Prisma Module - Enterprise Grade Database Module
- *
+ * 
  * @module infrastructure/persistence/prisma/prisma.module
- *
+ * 
  * @description
  * NestJS module for Prisma ORM integration.
  * Exports PrismaService for use across the application.
- *
+ * 
  * Enterprise Features:
  * ✅ Global module (available everywhere)
  * ✅ Configurable via forRoot/forRootAsync
  * ✅ Health check integration
- * ✅ Environment-aware configuration (powered by shared-config)
+ * ✅ Environment-aware configuration (SSOT with shared-config)
  * ✅ Graceful shutdown handling
  * ✅ Extensible with custom repositories
- *
+ * 
  * @example
  * // In your app.module.ts
  * @Module({
@@ -29,7 +29,7 @@
  * export class AppModule {}
  */
 
-import { Module, Global, DynamicModule, Provider, OnModuleDestroy, Logger } from '@nestjs/common';
+import { Module, Global, DynamicModule, Provider, OnModuleDestroy } from '@nestjs/common';
 import { PrismaService, PrismaServiceOptions } from './prisma.service';
 import { env } from '@vubon/shared-config';
 
@@ -43,8 +43,6 @@ import { env } from '@vubon/shared-config';
   exports: [PrismaService],
 })
 export class PrismaModule implements OnModuleDestroy {
-  private readonly logger = new Logger(PrismaModule.name);
-
   constructor(private readonly prismaService: PrismaService) {}
 
   /**
@@ -102,25 +100,16 @@ export class PrismaModule implements OnModuleDestroy {
 
   /**
    * Configure Prisma module with environment-based configuration
-   * Uses shared-config 'env' object as SSOT (Single Source of Truth)
+   * Uses shared-config (SSOT) for all environment variables
    * @returns Dynamic module
    */
   static forRootWithEnv(): DynamicModule {
     return this.forRoot({
-      // Log queries in non-production environments
       logQueries: env.NODE_ENV !== 'production',
-
-      // Slow query threshold (ms) - from env or default 100
-      slowQueryThreshold: env.DB_SLOW_QUERY_THRESHOLD ?? 100,
-
-      // Enable audit logging in non-production
+      slowQueryThreshold: Number(env.DB_SLOW_QUERY_THRESHOLD) || 100,
       enableAuditLogging: env.NODE_ENV !== 'production',
-
-      // Max retry attempts for database connection
-      maxRetries: env.DB_MAX_RETRIES ?? 3,
-
-      // Retry delay in milliseconds
-      retryDelayMs: env.DB_RETRY_DELAY_MS ?? 1000,
+      maxRetries: Number(env.DB_MAX_RETRIES) || 3,
+      retryDelayMs: Number(env.DB_RETRY_DELAY_MS) || 1000,
     });
   }
 
@@ -132,10 +121,8 @@ export class PrismaModule implements OnModuleDestroy {
     // This is just a safety net
     try {
       await this.prismaService.onModuleDestroy();
-      this.logger.log('PrismaModule destroyed successfully');
     } catch (error) {
-      this.logger.error('Error during PrismaModule destruction:', error);
-      // Don't throw to avoid breaking the shutdown process
+      // Ignore errors during shutdown
     }
   }
 }
