@@ -34,8 +34,17 @@ mport type {
   DomainEvent,
 } from '@vubon/shared-types';
 
+import { 
+  User, 
+  USER_ROLES,
+  USER_STATUSES,
+  USER_TIERS,
+  type User,
+  type UserRole,
+  type UserStatus,
+  type UserTier } from '@vubon/shared-constants';
+
 import { BaseRepository } from './base.repository.interface';
-import { User, UserStatus, UserRole, UserTier } from '../entities/user.entity';
 import { Email } from '../value-objects/email.vo';
 import { Phone } from '../value-objects/phone.vo';
 
