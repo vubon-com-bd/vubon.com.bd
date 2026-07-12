@@ -147,6 +147,10 @@ const ID_CONFIG = {
 // Domain Errors
 // ============================================================
 
+// ============================================================
+// Domain Errors - সম্পূর্ণ আপডেটেড ভার্সন
+// ============================================================
+
 /**
  * Entity validation error
  */
@@ -164,45 +168,69 @@ export class EntityValidationError extends Error {
 }
 
 /**
- * Entity not found error
+ * Entity not found error - FIXED: সব প্রপার্টি public readonly
  */
 export class EntityNotFoundError extends Error {
+  public readonly entityName: string;
+  public readonly entityId: string;
+
   constructor(entityName: string, id: string) {
     super(`${entityName} with id ${id} not found`);
     this.name = 'EntityNotFoundError';
+    this.entityName = entityName;
+    this.entityId = id;
     Error.captureStackTrace(this, this.constructor);
   }
 }
 
 /**
- * Entity conflict error (version mismatch)
+ * Entity conflict error (version mismatch) - FIXED
  */
 export class EntityConflictError extends Error {
+  public readonly entityName: string;
+  public readonly entityId: string;
+  public readonly expectedVersion: number;
+  public readonly actualVersion: number;
+
   constructor(entityName: string, id: string, expectedVersion: number, actualVersion: number) {
     super(`${entityName} ${id} version conflict: expected ${expectedVersion}, got ${actualVersion}`);
     this.name = 'EntityConflictError';
+    this.entityName = entityName;
+    this.entityId = id;
+    this.expectedVersion = expectedVersion;
+    this.actualVersion = actualVersion;
     Error.captureStackTrace(this, this.constructor);
   }
 }
 
 /**
- * Entity already deleted error
+ * Entity already deleted error - FIXED
  */
 export class EntityAlreadyDeletedError extends Error {
+  public readonly entityName: string;
+  public readonly entityId: string;
+
   constructor(entityName: string, id: string) {
     super(`${entityName} ${id} is already deleted`);
     this.name = 'EntityAlreadyDeletedError';
+    this.entityName = entityName;
+    this.entityId = id;
     Error.captureStackTrace(this, this.constructor);
   }
 }
 
 /**
- * Invalid ID format error
+ * Invalid ID format error - FIXED
  */
 export class InvalidIdFormatError extends Error {
+  public readonly id: string;
+  public readonly expectedFormat: string;
+
   constructor(id: string, expectedFormat: string) {
     super(`Invalid ID format: ${id}. Expected ${expectedFormat}`);
     this.name = 'InvalidIdFormatError';
+    this.id = id;
+    this.expectedFormat = expectedFormat;
     Error.captureStackTrace(this, this.constructor);
   }
 }
