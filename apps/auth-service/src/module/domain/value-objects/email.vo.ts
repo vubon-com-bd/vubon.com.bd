@@ -137,16 +137,15 @@ export class Email extends ValueObject {
    * @throws {Error} If email format is invalid
    */
   constructor(
-    email: string,
-    private readonly validator: IEmailValidator
-  ) {
-    super();
-
-    // ✅ Use injected validator for validation
-    const result = validator.validate(email);
-    if (!result.isValid) {
-      throw new Error(result.error || 'Invalid email');
-    }
+  email: string,
+  private readonly validator: IEmailValidator // <-- এখানে 'private readonly' যোগ করুন
+) {
+  super();
+  // এখন 'this.validator' ব্যবহার করুন
+  const result = this.validator.validate(email); 
+  if (!result.isValid) {
+    throw new Error(result.error || 'Invalid email');
+  }
 
     // ✅ Use injected validator for normalization
     const normalized = validator.normalize(email);
