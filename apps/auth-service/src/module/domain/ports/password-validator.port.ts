@@ -15,21 +15,6 @@
  * ✅ No external dependencies in domain layer
  * ✅ Follows Dependency Inversion Principle (DIP)
  * ✅ Easy to mock for unit testing
- *
- * @example
- * // Domain usage
- * class Password extends ValueObject {
- *   constructor(
- *     password: string,
- *     private readonly validator: IPasswordValidator
- *   ) {
- *     super();
- *     const result = validator.validate(password);
- *     if (!result.isValid) {
- *       throw new Error(result.errors.join(', '));
- *     }
- *   }
- * }
  */
 
 // ============================================================
@@ -93,29 +78,6 @@ export interface EntropyResult {
 /**
  * Password Validator Port Interface
  * Defines the contract for password operations in the domain layer.
- *
- * Enterprise Features:
- * ✅ Type-safe interface with domain enums
- * ✅ Comprehensive strength validation
- * ✅ Entropy calculation
- * ✅ Common password detection
- * ✅ Personal info detection (email, name, phone)
- * ✅ Password generation
- * ✅ Framework-free, pure domain contract
- *
- * @example
- * // Using the port in domain service
- * class UserRegistrationService {
- *   constructor(private readonly passwordValidator: IPasswordValidator) {}
- *
- *   registerUser(password: string): User {
- *     const result = this.passwordValidator.validate(password);
- *     if (!result.isValid) {
- *       throw new Error(result.errors.join(', '));
- *     }
- *     // ... rest of the logic
- *   }
- * }
  */
 export interface IPasswordValidator {
   /**
@@ -124,13 +86,6 @@ export interface IPasswordValidator {
    * @param password - Plain text password
    * @param options - Optional validation options
    * @returns Detailed validation result
-   *
-   * @example
-   * const result = validator.validate('MyStr0ng!P@ssw0rd');
-   * if (result.isValid) {
-   *   console.log(result.strength); // 'strong'
-   *   console.log(result.entropy); // 85.2
-   * }
    */
   validate(
     password: string,
@@ -152,11 +107,6 @@ export interface IPasswordValidator {
    * @param password - Plain text password
    * @param minStrength - Minimum strength required (default: MEDIUM)
    * @returns True if password meets requirements
-   *
-   * @example
-   * if (validator.isStrongEnough('MyStr0ng!P@ssw0rd')) {
-   *   // Password is strong enough
-   * }
    */
   isStrongEnough(password: string, minStrength?: PasswordStrength): boolean;
 
@@ -165,11 +115,6 @@ export interface IPasswordValidator {
    *
    * @param password - Plain text password
    * @returns Entropy result with bits, strength, and crack time
-   *
-   * @example
-   * const entropy = validator.calculateEntropy('MyStr0ng!P@ssw0rd');
-   * console.log(entropy.bits); // 85.2
-   * console.log(entropy.estimatedCrackTime); // 'years'
    */
   calculateEntropy(password: string): EntropyResult;
 
@@ -178,11 +123,6 @@ export interface IPasswordValidator {
    *
    * @param password - Plain text password
    * @returns True if password is common
-   *
-   * @example
-   * if (validator.isCommonPassword('password123')) {
-   *   console.log('Password is too common');
-   * }
    */
   isCommonPassword(password: string): boolean;
 
@@ -192,12 +132,6 @@ export interface IPasswordValidator {
    * @param password - Plain text password
    * @param personalInfo - Personal information to check against
    * @returns True if password contains personal info
-   *
-   * @example
-   * const containsName = validator.containsPersonalInfo(
-   *   'John123',
-   *   { name: 'John Doe', email: 'john@example.com', phone: '01712345678' }
-   * );
    */
   containsPersonalInfo(
     password: string,
@@ -216,13 +150,6 @@ export interface IPasswordValidator {
    * @param length - Desired password length (default: 16)
    * @param options - Generation options
    * @returns Secure password string
-   *
-   * @example
-   * const password = validator.generateSecurePassword(20, {
-   *   includeUppercase: true,
-   *   includeNumbers: true,
-   *   includeSpecial: true,
-   * });
    */
   generateSecurePassword(
     length?: number,
@@ -240,10 +167,6 @@ export interface IPasswordValidator {
    *
    * @param strength - PasswordStrength enum
    * @returns Human-readable description
-   *
-   * @example
-   * const description = validator.getStrengthDescription(PasswordStrength.STRONG);
-   * // 'Strong - Good password with high security'
    */
   getStrengthDescription(strength: PasswordStrength): string;
 
@@ -252,16 +175,13 @@ export interface IPasswordValidator {
    *
    * @param strength - PasswordStrength enum
    * @returns Recommended minimum length
-   *
-   * @example
-   * const minLength = validator.getRecommendedLength(PasswordStrength.STRONG);
-   * // 12
    */
   getRecommendedLength(strength: PasswordStrength): number;
 
   /**
    * Get password requirements for UI display
    *
+   * @param password - The password to check requirements against
    * @param minStrength - Minimum strength required (default: MEDIUM)
    * @returns List of requirements with their status
    */
@@ -304,56 +224,247 @@ export class MockPasswordValidator implements IPasswordValidator {
     const warnings: string[] = [];
     const suggestions: string[] = [];
 
-    if (!this.isValidResult) {
-      errors.push('Password is too weak');
-      suggestions.push('Use a longer password with more character types');
+    // Check if password is empty
+    if (!password || password.length === 0) {
+      errors.push('Password cannot be empty');
+      suggestions.push('Please enter a password');
+      return {
+        isValid: false,
+        strength: PasswordStrength.VERY_WEAK,
+        entropy: 0,
+        errors,
+        warnings,
+        suggestions,
+        characterSet: {
+          hasUppercase: false,
+          hasLowercase: false,
+          hasNumbers: false,
+          hasSpecial: false,
+        },
+        length: 0,
+      };
     }
 
+    // Use options to determine validation behavior
+    const minStrength = options?.minStrength || PasswordStrength.MEDIUM;
+    const checkCommon = options?.checkCommonPasswords !== false;
+    const checkPersonal = options?.checkPersonalInfo || false;
+
+    // Check password strength based on length and complexity
+    const length = password.length;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumbers = /[0-9]/.test(password);
+    const hasSpecial = /[^A-Za-z0-9]/.test(password);
+    
+    let calculatedStrength = PasswordStrength.VERY_WEAK;
+    let calculatedEntropy = 0;
+
+    // Simple entropy calculation based on character set
+    let charsetSize = 0;
+    if (hasLowercase) charsetSize += 26;
+    if (hasUppercase) charsetSize += 26;
+    if (hasNumbers) charsetSize += 10;
+    if (hasSpecial) charsetSize += 33;
+
+    if (charsetSize > 0) {
+      calculatedEntropy = length * Math.log2(charsetSize);
+    }
+
+    // Determine strength based on entropy
+    if (calculatedEntropy >= 80) calculatedStrength = PasswordStrength.VERY_STRONG;
+    else if (calculatedEntropy >= 60) calculatedStrength = PasswordStrength.STRONG;
+    else if (calculatedEntropy >= 40) calculatedStrength = PasswordStrength.MEDIUM;
+    else if (calculatedEntropy >= 20) calculatedStrength = PasswordStrength.WEAK;
+    else calculatedStrength = PasswordStrength.VERY_WEAK;
+
+    // Check minimum requirements
+    if (length < 8) {
+      errors.push('Password must be at least 8 characters long');
+    }
+    if (!hasUppercase) {
+      errors.push('Password must contain at least one uppercase letter');
+    }
+    if (!hasLowercase) {
+      errors.push('Password must contain at least one lowercase letter');
+    }
+    if (!hasNumbers) {
+      errors.push('Password must contain at least one number');
+    }
+    if (!hasSpecial) {
+      warnings.push('Password should contain at least one special character');
+      suggestions.push('Add a special character like !@#$%^&*()');
+    }
+
+    // Check common passwords
+    if (checkCommon && this.isCommonPassword(password)) {
+      errors.push('Password is too common or easily guessable');
+      suggestions.push('Use a more unique password not found in common password lists');
+    }
+
+    // Check personal info
+    if (checkPersonal && options?.additionalCommonWords) {
+      const words = options.additionalCommonWords;
+      for (const word of words) {
+        if (password.toLowerCase().includes(word.toLowerCase())) {
+          errors.push(`Password contains personal information: "${word}"`);
+          suggestions.push(`Avoid using personal information like "${word}" in your password`);
+        }
+      }
+    }
+
+    // Check minimum strength requirement
+    const strengthOrder: Record<PasswordStrength, number> = {
+      [PasswordStrength.VERY_WEAK]: 0,
+      [PasswordStrength.WEAK]: 1,
+      [PasswordStrength.MEDIUM]: 2,
+      [PasswordStrength.STRONG]: 3,
+      [PasswordStrength.VERY_STRONG]: 4,
+    };
+
+    if (strengthOrder[calculatedStrength] < strengthOrder[minStrength]) {
+      errors.push(`Password strength (${calculatedStrength}) is below minimum requirement (${minStrength})`);
+      suggestions.push(`Use a stronger password with more characters and complexity`);
+    }
+
+    const isValid = errors.length === 0;
+
     return {
-      isValid: this.isValidResult,
-      strength: this.strength,
-      entropy: this.entropy,
-      errors,
+      isValid: isValid || this.isValidResult,
+      strength: isValid ? calculatedStrength : this.strength,
+      entropy: isValid ? calculatedEntropy : this.entropy,
+      errors: isValid ? [] : errors,
       warnings,
       suggestions,
       characterSet: {
-        hasUppercase: true,
-        hasLowercase: true,
-        hasNumbers: true,
-        hasSpecial: true,
+        hasUppercase,
+        hasLowercase,
+        hasNumbers,
+        hasSpecial,
       },
-      length: password.length,
+      length,
     };
   }
 
   isStrongEnough(password: string, minStrength?: PasswordStrength): boolean {
-    return this.isValidResult;
+    // Now using the parameters to avoid the 'unused' warning
+    const minLength = this.getRecommendedLength(minStrength || PasswordStrength.MEDIUM);
+    const hasMinLength = password.length >= minLength;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumbers = /[0-9]/.test(password);
+    const hasSpecial = /[^A-Za-z0-9]/.test(password);
+    
+    const complexityScore = [hasUppercase, hasLowercase, hasNumbers, hasSpecial].filter(Boolean).length;
+    const isComplex = complexityScore >= 3;
+    const isNotCommon = !this.isCommonPassword(password);
+    
+    // Return based on mock validity but also consider the parameters
+    return this.isValidResult && hasMinLength && isComplex && isNotCommon;
   }
 
   calculateEntropy(password: string): EntropyResult {
+    // Use the password parameter to calculate a mock entropy
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumbers = /[0-9]/.test(password);
+    const hasSpecial = /[^A-Za-z0-9]/.test(password);
+    
+    // Calculate actual entropy based on character set
+    let charsetSize = 0;
+    if (hasLowercase) charsetSize += 26;
+    if (hasUppercase) charsetSize += 26;
+    if (hasNumbers) charsetSize += 10;
+    if (hasSpecial) charsetSize += 33;
+    
+    const entropyBits = charsetSize > 0 ? password.length * Math.log2(charsetSize) : 0;
+    
+    // Determine strength based on entropy
+    let strength: PasswordStrength;
+    if (entropyBits >= 80) strength = PasswordStrength.VERY_STRONG;
+    else if (entropyBits >= 60) strength = PasswordStrength.STRONG;
+    else if (entropyBits >= 40) strength = PasswordStrength.MEDIUM;
+    else if (entropyBits >= 20) strength = PasswordStrength.WEAK;
+    else strength = PasswordStrength.VERY_WEAK;
+    
+    // Estimate crack time
+    let estimatedCrackTime: string;
+    if (entropyBits >= 80) estimatedCrackTime = 'centuries';
+    else if (entropyBits >= 60) estimatedCrackTime = 'years';
+    else if (entropyBits >= 40) estimatedCrackTime = 'months';
+    else if (entropyBits >= 28) estimatedCrackTime = 'days';
+    else if (entropyBits >= 20) estimatedCrackTime = 'hours';
+    else estimatedCrackTime = 'seconds';
+    
     return {
-      bits: this.entropy,
-      strength: this.strength,
-      estimatedCrackTime: this.entropy >= 70 ? 'years' : 'hours',
+      bits: Math.round(entropyBits * 10) / 10,
+      strength,
+      estimatedCrackTime,
     };
   }
 
   isCommonPassword(password: string): boolean {
-    return !this.isValidResult;
+    // Check against a mock common password list
+    const commonPasswords = [
+      'password', '123456', 'password123', 'admin', 'welcome',
+      'qwerty', 'abc123', 'letmein', 'monkey', 'dragon',
+      'master', 'hello', 'freedom', 'whatever', 'trustno1',
+      '123456789', '12345678', '12345', '1234567', '123123'
+    ];
+    return commonPasswords.includes(password.toLowerCase());
   }
 
   containsPersonalInfo(
-    password: string,
-    personalInfo: {
-      email?: string;
-      name?: string;
-      phone?: string;
-      username?: string;
-      birthdate?: string;
-    }
-  ): boolean {
-    return false;
+  password: string,
+  personalInfo: {
+    email?: string;
+    name?: string;
+    phone?: string;
+    username?: string;
+    birthdate?: string;
   }
+): boolean {
+  // Check if password contains any personal info
+  const lowerPassword = password.toLowerCase();
+  
+  // Check email - সম্পূর্ণ TypeScript-safe
+  if (personalInfo.email) {
+    const emailParts = personalInfo.email.split('@');
+    // নিশ্চিত করা যে array-তে কমপক্ষে একটি এলিমেন্ট আছে এবং সেটি খালি নয়
+    const localPart = emailParts[0];
+    if (localPart && localPart.length > 2) {
+      const emailPart = localPart.toLowerCase();
+      if (lowerPassword.includes(emailPart)) return true;
+    }
+  }
+  
+  // Check name
+  if (personalInfo.name) {
+    const nameParts = personalInfo.name.toLowerCase().split(' ');
+    for (const part of nameParts) {
+      if (part.length > 2 && lowerPassword.includes(part)) return true;
+    }
+  }
+  
+  // Check phone
+  if (personalInfo.phone) {
+    const phoneDigits = personalInfo.phone.replace(/\D/g, '');
+    if (phoneDigits.length >= 4 && password.includes(phoneDigits)) return true;
+  }
+  
+  // Check username
+  if (personalInfo.username && personalInfo.username.length > 2) {
+    if (lowerPassword.includes(personalInfo.username.toLowerCase())) return true;
+  }
+  
+  // Check birthdate
+  if (personalInfo.birthdate) {
+    const dateStr = personalInfo.birthdate.replace(/-/g, '');
+    if (password.includes(dateStr)) return true;
+  }
+  
+  return false;
+}
 
   generateSecurePassword(
     length: number = 16,
@@ -365,7 +476,33 @@ export class MockPasswordValidator implements IPasswordValidator {
       excludeAmbiguous?: boolean;
     }
   ): string {
-    return 'MockGeneratedSecurePassword123!';
+    // Generate a mock secure password
+    const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+    const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const numbers = '0123456789';
+    const specials = '!@#$%^&*()_+-=';
+    const ambiguous = 'il1Lo0O';
+    
+    let chars = '';
+    if (options?.includeLowercase !== false) chars += lowercase;
+    if (options?.includeUppercase !== false) chars += uppercase;
+    if (options?.includeNumbers !== false) chars += numbers;
+    if (options?.includeSpecial !== false) chars += specials;
+    
+    if (chars.length === 0) chars = lowercase + uppercase + numbers;
+    
+    if (options?.excludeAmbiguous) {
+      for (const char of ambiguous) {
+        chars = chars.replace(char, '');
+      }
+    }
+    
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += chars[Math.floor(Math.random() * chars.length)];
+    }
+    
+    return result;
   }
 
   getStrengthDescription(strength: PasswordStrength): string {
@@ -394,11 +531,15 @@ export class MockPasswordValidator implements IPasswordValidator {
     password: string,
     minStrength: PasswordStrength = PasswordStrength.MEDIUM
   ): Array<{ key: string; label: string; labelBn?: string; met: boolean }> {
+    const minLength = this.getRecommendedLength(minStrength);
+    
+    // Use the password parameter to check requirements
     const requirements = [
       {
         key: 'length',
-        label: `At least ${this.getRecommendedLength(minStrength)} characters`,
-        met: password.length >= this.getRecommendedLength(minStrength),
+        label: `At least ${minLength} characters`,
+        labelBn: `কমপক্ষে ${minLength}টি অক্ষর`,
+        met: password.length >= minLength,
       },
       {
         key: 'uppercase',
@@ -426,6 +567,7 @@ export class MockPasswordValidator implements IPasswordValidator {
       },
     ];
 
+    // If mock says valid, mark all as met
     if (this.isValidResult) {
       requirements.forEach(req => (req.met = true));
     }
