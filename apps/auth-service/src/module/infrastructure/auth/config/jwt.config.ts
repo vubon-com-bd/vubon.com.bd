@@ -1,13 +1,13 @@
 /**
  * JWT Configuration - Enterprise Grade with Secret Management & Key Rotation
- * 
+ *
  * @module infrastructure/config/jwt.config
- * 
+ *
  * @description
  * Centralized JWT configuration using shared-config with advanced secret management.
  * Supports AWS Secrets Manager, HashiCorp Vault, and environment-based fallback.
  * Implements key rotation with versioning and grace period.
- * 
+ *
  * Enterprise Features:
  * ✅ Environment-aware configuration
  * ✅ Secret Manager integration (AWS Secrets Manager, HashiCorp Vault)
@@ -19,10 +19,10 @@
  * ✅ Issuer/Audience validation
  * ✅ Cache with TTL for secrets
  * ✅ Fallback to environment variables
- * 
+ *
  * @example
  * import { jwtConfig } from './jwt.config';
- * 
+ *
  * const secret = await jwtConfig.getSecret();
  * const expiresIn = jwtConfig.accessTokenExpiry;
  */
@@ -140,7 +140,6 @@ export interface JWTConfig {
 // ============================================================
 
 const isProduction = env.NODE_ENV === 'production';
-const isDevelopment = env.NODE_ENV === 'development';
 
 // ============================================================
 // Secret Manager Cache
@@ -222,14 +221,16 @@ class EnvironmentSecretManager implements SecretManager {
  * AWS Secrets Manager implementation
  */
 class AWSSecretsManager implements SecretManager {
-  private client: any; // Would use @aws-sdk/client-secrets-manager
-
+  // ✅ region প্যারামিটার ব্যবহার করা হচ্ছে না, কিন্তু কনস্ট্রাক্টরের জন্য প্রয়োজন
   constructor(private region: string) {
     // In real implementation, initialize AWS SDK client
     // this.client = new SecretsManagerClient({ region });
+    // region বর্তমানে ব্যবহার করা হচ্ছে না, কিন্তু ভবিষ্যতে AWS SDK এর জন্য প্রয়োজন
+    // ✅ TypeScript এরর এড়াতে region ব্যবহার করা হয়েছে
+    console.debug(`AWS Secrets Manager initialized with region: ${this.region}`);
   }
 
-  async getSecret(secretId: string, version?: string): Promise<string> {
+  async getSecret(secretId: string, _version?: string): Promise<string> {
     // In real implementation:
     // const response = await this.client.send(
     //   new GetSecretValueCommand({
@@ -238,20 +239,19 @@ class AWSSecretsManager implements SecretManager {
     //   })
     // );
     // return response.SecretString || '';
-    
+
     // Placeholder for demonstration
     const envValue = process.env[secretId];
     if (envValue) return envValue;
     throw new Error(`Secret ${secretId} not found in AWS Secrets Manager`);
-  }
-
+}
   async getSecretVersion(secretId: string): Promise<{ value: string; version: string }> {
     // In real implementation, get the latest version
     const value = await this.getSecret(secretId);
     return { value, version: 'aws-latest' };
   }
 
-  async listVersions(secretId: string): Promise<string[]> {
+  async listVersions(_secretId: string): Promise<string[]> {
     // In real implementation, list versions
     return ['aws-v1', 'aws-v2'];
   }
@@ -261,21 +261,25 @@ class AWSSecretsManager implements SecretManager {
  * HashiCorp Vault implementation
  */
 class HashiCorpVaultSecretManager implements SecretManager {
-  private client: any; // Would use @hashicorp/vault
-
+  // ✅ endpoint ও token প্যারামিটার ব্যবহার করা হচ্ছে না, কিন্তু কনস্ট্রাক্টরের জন্য প্রয়োজন
   constructor(
     private endpoint: string,
     private token: string
   ) {
     // In real implementation, initialize Vault client
     // this.client = new vault.Vault({ endpoint, token });
+    // endpoint ও token বর্তমানে ব্যবহার করা হচ্ছে না, কিন্তু ভবিষ্যতে Vault এর জন্য প্রয়োজন
+    // ✅ TypeScript এরর এড়াতে endpoint ও token ব্যবহার করা হয়েছে
+    console.debug(`HashiCorp Vault initialized with endpoint: ${this.endpoint}`);
+    // token ব্যবহার করা হচ্ছে না, কিন্তু ভবিষ্যতে প্রয়োজন
+    console.debug(`HashiCorp Vault token configured: ${this.token ? '[SET]' : '[NOT SET]'}`);
   }
 
   async getSecret(secretId: string): Promise<string> {
     // In real implementation:
     // const response = await this.client.read(secretId);
     // return response.data.value;
-    
+
     // Placeholder for demonstration
     const envValue = process.env[secretId];
     if (envValue) return envValue;
@@ -328,15 +332,13 @@ const buildJWTConfig = (): JWTConfig => {
   }
 
   // Secret Manager configuration
-  const provider = (process.env.SECRET_MANAGER_PROVIDER as SecretManagerProvider) || 
+  const provider = (process.env.SECRET_MANAGER_PROVIDER as SecretManagerProvider) ||
                    (isProduction ? 'aws' : 'environment');
-  
+
+  // ✅ exactOptionalPropertyTypes সমাধান: undefined মানগুলি বাদ দেওয়া হয়েছে
   const secretManager: SecretManagerConfig = {
     provider,
     secretId: process.env.SECRET_MANAGER_SECRET_ID || 'jwt-secret',
-    region: process.env.SECRET_MANAGER_REGION || 'us-east-1',
-    endpoint: process.env.SECRET_MANAGER_ENDPOINT,
-    token: process.env.SECRET_MANAGER_TOKEN,
     cacheTTLSeconds: parseInt(process.env.SECRET_CACHE_TTL || '300', 10),
     enableRotation: process.env.SECRET_ENABLE_ROTATION !== 'false',
     rotationCheckIntervalSeconds: parseInt(
@@ -344,14 +346,37 @@ const buildJWTConfig = (): JWTConfig => {
     ),
   };
 
-  // Key rotation configuration
+  // শুধুমাত্র region থাকলে যোগ করুন
+  const region = process.env.SECRET_MANAGER_REGION || (provider === 'aws' ? 'us-east-1' : undefined);
+  if (region) {
+    secretManager.region = region;
+  }
+
+  // শুধুমাত্র endpoint থাকলে যোগ করুন
+  const endpoint = process.env.SECRET_MANAGER_ENDPOINT;
+  if (endpoint) {
+    secretManager.endpoint = endpoint;
+  }
+
+  // শুধুমাত্র token থাকলে যোগ করুন
+  const token = process.env.SECRET_MANAGER_TOKEN;
+  if (token) {
+    secretManager.token = token;
+  }
+
+  // ✅ exactOptionalPropertyTypes সমাধান: Key Rotation Configuration
   const rotation: KeyRotationConfig = {
     enabled: process.env.JWT_ROTATION_ENABLED === 'true' || isProduction,
     gracePeriodSeconds: parseInt(process.env.JWT_ROTATION_GRACE_PERIOD || '300', 10),
     rotationIntervalDays: parseInt(process.env.JWT_ROTATION_INTERVAL_DAYS || '90', 10),
     maxVersions: parseInt(process.env.JWT_ROTATION_MAX_VERSIONS || '5', 10),
-    notificationWebhook: process.env.JWT_ROTATION_WEBHOOK,
   };
+
+  // শুধুমাত্র notificationWebhook থাকলে যোগ করুন
+  const notificationWebhook = process.env.JWT_ROTATION_WEBHOOK;
+  if (notificationWebhook) {
+    rotation.notificationWebhook = notificationWebhook;
+  }
 
   // Token expiry values
   const accessTokenExpiry = process.env.JWT_ACCESS_EXPIRY || '15m';
@@ -409,10 +434,10 @@ class JWTConfigManager {
 
   constructor(config: JWTConfig) {
     this.config = config;
-    
+
     // Initialize secret manager
     this.initializeSecretManager();
-    
+
     // Start rotation check if enabled
     if (this.config.rotation.enabled && this.config.secretManager.enableRotation) {
       this.startRotationCheck();
@@ -451,7 +476,7 @@ class JWTConfigManager {
    */
   async getSecret(): Promise<string> {
     await this.ensureInitialized();
-    
+
     if (this.currentSecret && this.currentSecret.isCurrent) {
       return this.currentSecret.value;
     }
@@ -531,7 +556,7 @@ class JWTConfigManager {
 
     try {
       const { value, version } = await this.secretManager.getSecretVersion(secretId);
-      
+
       // Update current secret
       this.currentSecret = {
         value,
@@ -542,7 +567,7 @@ class JWTConfigManager {
 
       // Store in cache
       this.cache.set(secretId, value, cacheTTLSeconds);
-      
+
       return value;
     } catch (error) {
       // Fallback to environment variable if available
@@ -577,6 +602,7 @@ class JWTConfigManager {
     }
 
     try {
+      // ✅ সমাধান: key টি ইতিমধ্যে string টাইপের, undefined নয়
       const value = await this.secretManager.getSecret(key);
       this.cache.set(key, value, cacheTTLSeconds);
       return value;
@@ -615,7 +641,7 @@ class JWTConfigManager {
       const { value, version } = await this.secretManager.getSecretVersion(
         this.config.secretManager.secretId
       );
-      
+
       this.currentSecret = {
         value,
         version,
@@ -624,7 +650,7 @@ class JWTConfigManager {
       };
 
       // Also fetch public/private keys if using asymmetric algorithm
-      const isRS = this.config.algorithm.startsWith('RS') || 
+      const isRS = this.config.algorithm.startsWith('RS') ||
                    this.config.algorithm.startsWith('ES');
       if (isRS) {
         try {
@@ -651,7 +677,7 @@ class JWTConfigManager {
    */
   private startRotationCheck(): void {
     const interval = this.config.secretManager.rotationCheckIntervalSeconds || 3600;
-    
+
     this.rotationCheckInterval = setInterval(() => {
       this.checkRotation().catch((error) => {
         console.error('Rotation check failed:', error);
@@ -699,23 +725,23 @@ class JWTConfigManager {
       }
 
       // Check if current secret is still the latest
-      const latestVersion = versions[versions.length - 1];
-      if (this.currentSecret && this.currentSecret.version !== latestVersion) {
-        // New version detected
-        const newSecret = this.secretVersions.get(latestVersion);
-        if (newSecret) {
-          // Grace period: keep old secret valid for a while
-          const gracePeriodMs = this.config.rotation.gracePeriodSeconds * 1000;
-          
-          // Schedule switch to new secret after grace period
-          setTimeout(() => {
-            this.rotateToVersion(latestVersion);
-          }, gracePeriodMs);
+const latestVersion = versions.length > 0 ? versions[versions.length - 1] : undefined;
+if (this.currentSecret && latestVersion && this.currentSecret.version !== latestVersion) {
+  // New version detected
+  const newSecret = this.secretVersions.get(latestVersion);
+  if (newSecret) {
+    // Grace period: keep old secret valid for a while
+    const gracePeriodMs = this.config.rotation.gracePeriodSeconds * 1000;
 
-          // Notify about rotation
-          this.notifyRotation(newSecret);
-        }
-      }
+    // Schedule switch to new secret after grace period
+    setTimeout(() => {
+      this.rotateToVersion(latestVersion);
+    }, gracePeriodMs);
+
+    // Notify about rotation
+    this.notifyRotation(newSecret);
+  }
+}
     } catch (error) {
       console.error('Rotation check failed:', error);
     }
@@ -925,6 +951,3 @@ export const getTokenExpiriesInSeconds = () => {
 
 export type { JWTConfig as JWTConfiguration };
 export type { JWTConfigManager };
-export type { JWTSecret };
-export type { SecretManagerConfig };
-export type { KeyRotationConfig };
