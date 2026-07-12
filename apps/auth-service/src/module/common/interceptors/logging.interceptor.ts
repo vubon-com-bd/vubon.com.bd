@@ -1,24 +1,26 @@
 /**
- * Logging Interceptor - Enterprise Grade
- * 
+ * Logging Interceptor - Enterprise Grade (Enhanced)
+ *
  * @module common/interceptors/logging.interceptor
- * 
+ *
  * @description
- * Global interceptor for request/response logging.
- * Logs incoming requests, outgoing responses, and execution time.
- * 
+ * Global interceptor for request/response logging with structured logging support.
+ * Uses Winston for JSON-formatted logs in production.
+ *
  * Enterprise Features:
- * ✅ Request/Response logging
- * ✅ Execution time tracking
- * ✅ Request ID propagation
- * ✅ Structured logging
- * ✅ Environment-aware verbosity
+ * ✅ Structured logging (JSON format in production)
+ * ✅ Request/Response logging with environment-aware verbosity
+ * ✅ Execution time tracking with slow request warnings
+ * ✅ Request ID propagation for distributed tracing
  * ✅ Sensitive data masking
  * ✅ Performance monitoring
- * 
+ * ✅ Configurable via options
+ *
  * @example
  * // In main.ts
- * app.useGlobalInterceptors(new LoggingInterceptor());
+ * app.useGlobalInterceptors(new LoggingInterceptor({
+ *   logResponseBody: env.NODE_ENV === 'development',
+ * }));
  */
 
 import {
@@ -32,6 +34,8 @@ import { Observable } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { Request, Response } from 'express';
 import { env } from '@vubon/shared-config';
+import * as winston from 'winston';
+import * as path from 'path';
 
 // ============================================================
 // Types
@@ -46,6 +50,8 @@ export interface LoggingOptions {
   maskSensitiveFields?: string[];
   /** Exclude paths from logging */
   excludePaths?: string[];
+  /** Enable structured logging (JSON format) */
+  structuredLogging?: boolean;
 }
 
 // ============================================================
@@ -75,6 +81,84 @@ const DEFAULT_EXCLUDE_PATHS = [
 ];
 
 // ============================================================
+// Winston Logger Configuration
+// ============================================================
+
+/**
+ * Create a Winston logger instance with structured logging support
+ */
+const createWinstonLogger = () => {
+  const isProd = env.NODE_ENV === 'production';
+  const logDir = path.join(process.cwd(), 'logs');
+
+  // Define log format
+  const logFormat = winston.format.combine(
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
+    winston.format.errors({ stack: true }),
+    winston.format.metadata({ fillExcept: ['message', 'level', 'timestamp', 'stack'] })
+  );
+
+  // JSON format for production (structured logging)
+  const jsonFormat = winston.format.combine(
+    logFormat,
+    winston.format.json()
+  );
+
+  // Pretty format for development
+  const prettyFormat = winston.format.combine(
+    logFormat,
+    winston.format.colorize(),
+    winston.format.printf(({ timestamp, level, message, metadata, stack }) => {
+      let log = `${timestamp} [${level}] ${message}`;
+      if (metadata && Object.keys(metadata).length > 0) {
+        log += ` ${JSON.stringify(metadata)}`;
+      }
+      if (stack) {
+        log += `\n${stack}`;
+      }
+      return log;
+    })
+  );
+
+  // Create transports
+  const transports: winston.transport[] = [
+    new winston.transports.Console({
+      format: isProd ? jsonFormat : prettyFormat,
+      level: isProd ? 'info' : 'debug',
+    }),
+  ];
+
+  // File transport for production (optional)
+  if (isProd) {
+    transports.push(
+      new winston.transports.File({
+        filename: path.join(logDir, 'error.log'),
+        level: 'error',
+        format: jsonFormat,
+        maxsize: 10485760, // 10MB
+        maxFiles: 5,
+      }),
+      new winston.transports.File({
+        filename: path.join(logDir, 'combined.log'),
+        format: jsonFormat,
+        maxsize: 10485760,
+        maxFiles: 5,
+      })
+    );
+  }
+
+  return winston.createLogger({
+    level: isProd ? 'info' : 'debug',
+    format: isProd ? jsonFormat : prettyFormat,
+    transports,
+    exitOnError: false,
+  });
+};
+
+// Create and export the logger instance
+const winstonLogger = createWinstonLogger();
+
+// ============================================================
 // Interceptor Implementation
 // ============================================================
 
@@ -87,9 +171,11 @@ export class LoggingInterceptor implements NestInterceptor {
     const isProd = env.NODE_ENV === 'production';
     this.options = {
       logRequestBody: options?.logRequestBody ?? !isProd,
+      // ✅ Response body logging: ডিফল্ট false, শুধুমাত্র ডেভেলপমেন্টে বা অনুরোধ করলে true
       logResponseBody: options?.logResponseBody ?? false,
       maskSensitiveFields: options?.maskSensitiveFields ?? DEFAULT_MASK_FIELDS,
       excludePaths: options?.excludePaths ?? DEFAULT_EXCLUDE_PATHS,
+      structuredLogging: options?.structuredLogging ?? isProd,
     };
   }
 
@@ -110,9 +196,15 @@ export class LoggingInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    // Log request
-    const requestLog = this.buildRequestLog(request);
-    this.logger.debug(`[${requestId}] Request: ${method} ${url}`, requestLog);
+    // Build request log data
+    const requestData = this.buildRequestLog(request);
+
+    // ✅ Structured logging: request log
+    this.logWithWinston('debug', `Incoming Request: ${method} ${url}`, {
+      requestId,
+      type: 'request',
+      ...requestData,
+    });
 
     return next.handle().pipe(
       tap({
@@ -120,22 +212,44 @@ export class LoggingInterceptor implements NestInterceptor {
           const duration = Date.now() - startTime;
           const statusCode = response.statusCode;
 
-          const responseLog = this.buildResponseLog(data, statusCode, duration);
-          this.logger.debug(`[${requestId}] Response: ${method} ${url} - ${statusCode} (${duration}ms)`, responseLog);
+          // Build response log data
+          const responseData = this.buildResponseLog(data, statusCode, duration);
+
+          // ✅ Structured logging: response log
+          this.logWithWinston('debug', `Outgoing Response: ${method} ${url} - ${statusCode} (${duration}ms)`, {
+            requestId,
+            type: 'response',
+            ...responseData,
+          });
 
           // Log slow requests
           if (duration > 1000) {
-            this.logger.warn(`[${requestId}] Slow request: ${method} ${url} took ${duration}ms`);
+            this.logWithWinston('warn', `Slow Request: ${method} ${url}`, {
+              requestId,
+              type: 'performance',
+              duration,
+              method,
+              url,
+              statusCode,
+            });
           }
         },
         error: (error) => {
           const duration = Date.now() - startTime;
           const statusCode = error.status || 500;
 
-          this.logger.error(
-            `[${requestId}] Error: ${method} ${url} - ${statusCode} (${duration}ms)`,
-            error.stack
-          );
+          // ✅ Structured logging: error log
+          this.logWithWinston('error', `Request Error: ${method} ${url}`, {
+            requestId,
+            type: 'error',
+            statusCode,
+            duration,
+            error: {
+              message: error.message,
+              stack: error.stack,
+              name: error.name,
+            },
+          });
         },
       }),
       catchError((error) => {
@@ -182,7 +296,7 @@ export class LoggingInterceptor implements NestInterceptor {
       params: this.maskSensitiveData(params),
     };
 
-    // Log request body (if enabled)
+    // ✅ Log request body (if enabled)
     if (this.options.logRequestBody && request.body) {
       log.body = this.maskSensitiveData(request.body);
     }
@@ -199,7 +313,7 @@ export class LoggingInterceptor implements NestInterceptor {
       duration,
     };
 
-    // Log response body (if enabled)
+    // ✅ Log response body (if enabled, default: false)
     if (this.options.logResponseBody && data) {
       log.body = this.maskSensitiveData(data);
     }
@@ -239,4 +353,25 @@ export class LoggingInterceptor implements NestInterceptor {
 
     return data;
   }
+
+  /**
+   * ✅ Structured logging with Winston
+   * Falls back to NestJS Logger if Winston is not available
+   */
+  private logWithWinston(level: string, message: string, metadata: Record<string, unknown>): void {
+    try {
+      // Use Winston for structured logging
+      winstonLogger.log(level, message, metadata);
+    } catch (error) {
+      // Fallback to NestJS Logger
+      const loggerMethod = this.logger[level] || this.logger.log;
+      loggerMethod.call(this.logger, message, metadata);
+    }
+  }
 }
+
+// ============================================================
+// Type Exports
+// ============================================================
+
+export type { LoggingOptions as InterceptorLoggingOptions };
