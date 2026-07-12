@@ -1,20 +1,21 @@
 /**
  * Prisma Module - Enterprise Grade Database Module
- * 
+ *
  * @module infrastructure/persistence/prisma/prisma.module
- * 
+ *
  * @description
  * NestJS module for Prisma ORM integration.
  * Exports PrismaService for use across the application.
- * 
+ *
  * Enterprise Features:
  * ✅ Global module (available everywhere)
  * ✅ Configurable via forRoot/forRootAsync
  * ✅ Health check integration
- * ✅ Environment-aware configuration
- * ✅ Graceful shutdown handling
+ * ✅ Environment-aware configuration (using shared-config)
+ * ✅ Graceful shutdown handling with enhanced error management
  * ✅ Extensible with custom repositories
- * 
+ * ✅ Type-safe configuration
+ *
  * @example
  * // In your app.module.ts
  * @Module({
@@ -29,8 +30,9 @@
  * export class AppModule {}
  */
 
-import { Module, Global, DynamicModule, Provider, OnModuleDestroy } from '@nestjs/common';
+import { Module, Global, DynamicModule, Provider, OnModuleDestroy, Logger } from '@nestjs/common';
 import { PrismaService, PrismaServiceOptions } from './prisma.service';
+import { env } from '@vubon/shared-config';
 
 // ============================================================
 // Module Configuration
@@ -42,6 +44,8 @@ import { PrismaService, PrismaServiceOptions } from './prisma.service';
   exports: [PrismaService],
 })
 export class PrismaModule implements OnModuleDestroy {
+  private readonly logger = new Logger(PrismaModule.name);
+
   constructor(private readonly prismaService: PrismaService) {}
 
   /**
@@ -98,29 +102,65 @@ export class PrismaModule implements OnModuleDestroy {
   }
 
   /**
-   * Configure Prisma module with environment-based configuration
+   * Configure Prisma module with environment-based configuration using shared-config
+   * This ensures SSOT (Single Source of Truth) and type-safety
    * @returns Dynamic module
    */
   static forRootWithEnv(): DynamicModule {
-    return this.forRoot({
-      logQueries: process.env.NODE_ENV !== 'production',
-      slowQueryThreshold: parseInt(process.env.DB_SLOW_QUERY_THRESHOLD || '100', 10),
-      enableAuditLogging: process.env.NODE_ENV !== 'production',
-      maxRetries: parseInt(process.env.DB_MAX_RETRIES || '3', 10),
-      retryDelayMs: parseInt(process.env.DB_RETRY_DELAY_MS || '1000', 10),
-    });
+    // All configuration values come from the validated shared-config env object
+    const options: PrismaServiceOptions = {
+      // Determine if query logging should be enabled (non-production environments by default)
+      logQueries: env.NODE_ENV !== 'production',
+      
+      // Slow query threshold in milliseconds (with fallback)
+      slowQueryThreshold: env.DB_SLOW_QUERY_THRESHOLD ?? 100,
+      
+      // Enable audit logging in non-production environments
+      enableAuditLogging: env.NODE_ENV !== 'production',
+      
+      // Database connection retry attempts (with fallback)
+      maxRetries: env.DB_MAX_RETRIES ?? 3,
+      
+      // Retry delay in milliseconds (with fallback)
+      retryDelayMs: env.DB_RETRY_DELAY_MS ?? 1000,
+    };
+
+    return this.forRoot(options);
   }
 
   /**
-   * On module destroy, ensure Prisma disconnects
+   * On module destroy, ensure Prisma disconnects gracefully
+   * Enhanced error handling to prevent crashes during shutdown
    */
   async onModuleDestroy(): Promise<void> {
-    // PrismaService handles disconnect via OnModuleDestroy
-    // This is just a safety net
+    this.logger.log('Initiating Prisma graceful shutdown...');
+    
     try {
-      await this.prismaService.onModuleDestroy();
+      // Set a timeout to prevent hanging during shutdown
+      const timeoutPromise = new Promise<void>((_, reject) => {
+        const timeoutId = setTimeout(() => {
+          clearTimeout(timeoutId);
+          reject(new Error('Prisma shutdown timeout after 5 seconds'));
+        }, 5000);
+      });
+
+      // Race between successful disconnect and timeout
+      await Promise.race([
+        this.prismaService.onModuleDestroy(),
+        timeoutPromise,
+      ]);
+
+      this.logger.log('Prisma disconnected successfully');
     } catch (error) {
-      // Ignore errors during shutdown
+      // Log the error but don't throw to prevent application crash during shutdown
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Prisma shutdown error: ${errorMessage}`);
+      
+      // In production, you might want to send this to a monitoring service
+      if (env.NODE_ENV === 'production') {
+        // You could integrate with your error tracking service here
+        // e.g., Sentry.captureException(error);
+      }
     }
   }
 }
