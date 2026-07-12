@@ -34,8 +34,8 @@ import {
   IPhoneValidator, 
   PhoneType as PortPhoneType, 
   BDOperator as PortBDOperator,
-  PhoneComponents as PortPhoneComponents 
-} from '../../ports/phone-validator.port';
+  PhoneComponents as Phone_Components 
+} from '../ports/phone-validator.port';
 
 // ==================== Re-export Enums from Port (Domain Consistency) ====================
 
@@ -85,18 +85,6 @@ export interface PhoneValidation {
   error?: string;
 }
 
-/**
- * Phone number components (Domain-specific)
- */
-export interface PhoneComponents {
-  countryCode: string;
-  nationalNumber: string;
-  e164: string;
-  type: PhoneType;
-  operator: BDOperator;
-  isBangladesh: boolean;
-  isMobile: boolean;
-}
 
 // ==================== Constants ====================
 
@@ -415,7 +403,7 @@ export class Phone extends ValueObject {
   /**
    * Get all components as an object
    */
-  public getComponents(): PhoneComponents {
+  public getComponents(): Phone_Components {
     return {
       countryCode: this._countryCode,
       nationalNumber: this._nationalNumber,
