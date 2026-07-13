@@ -839,32 +839,82 @@ export class User extends BaseEntity {
   /**
    * Change user role (admin action)
    */
-  public changeRole(newRole: UserRole, changedBy: string): void {
-    if (this._role === newRole) {
-      return;
-    }
-    if (this._status === USER_STATUSES.BANNED || this._status === USER_STATUSES.DEACTIVATED) {
-      throw new EntityValidationError('Cannot change role for inactive user');
-    }
-    
-    const oldRole = this._role;
-    this._role = newRole;
-    this.touch();
-    
-    this.addDomainEvent({
-      eventId: generateEventId(),
-      eventType: UserEventType.ROLE_CHANGED,
-      aggregateId: this.id,
-      occurredOn: new Date(),
-      version: this.version,
-      metadata: {
-        userId: this.id,
-        oldRole,
-        newRole,
-        changedBy,
-      },
-    });
-  }
+  // user.entity.ts
+
+public changeRole(newRole: UserRole, changedBy?: string): void {
+  if (this._role === newRole) return;
+  this._role = newRole;
+  this.touch(changedBy); // ✅ এখানে touch() কল করা বৈধ
+}
+
+public changeTier(newTier: UserTier, changedBy?: string): void {
+  if (this._tier === newTier) return;
+  this._tier = newTier;
+  this.touch(changedBy); // ✅ বৈধ
+}
+
+public changeStatus(newStatus: UserStatus, reason?: string, changedBy?: string): void {
+  if (this._status === newStatus) return;
+  this._status = newStatus;
+  if (reason) this._suspendedReason = reason;
+  this.touch(changedBy); // ✅ বৈধ
+}
+
+public updateFullName(newName: string, changedBy?: string): void {
+  if (this._fullName === newName) return;
+  this._fullName = newName;
+  this.touch(changedBy); // ✅ বৈধ
+}
+
+public updateDisplayName(newDisplayName?: string, changedBy?: string): void {
+  this._displayName = newDisplayName;
+  this.touch(changedBy); // ✅ বৈধ
+}
+
+public clearDisplayName(changedBy?: string): void {
+  this._displayName = undefined;
+  this.touch(changedBy); // ✅ বৈধ
+}
+
+public updateAvatar(newAvatar?: string, changedBy?: string): void {
+  this._avatar = newAvatar;
+  this.touch(changedBy); // ✅ বৈধ
+}
+
+public clearAvatar(changedBy?: string): void {
+  this._avatar = undefined;
+  this.touch(changedBy); // ✅ বৈধ
+}
+
+public setPreferredLanguage(language: 'en' | 'bn', changedBy?: string): void {
+  if (this._preferredLanguage === language) return;
+  this._preferredLanguage = language;
+  this.touch(changedBy); // ✅ বৈধ
+}
+
+public setPreferredDistrict(district: BangladeshDistrict, changedBy?: string): void {
+  if (this._preferredDistrict === district) return;
+  this._preferredDistrict = district;
+  this.touch(changedBy); // ✅ বৈধ
+}
+
+public setPreferredUpazila(upazila: BangladeshUpazila, changedBy?: string): void {
+  if (this._preferredUpazila === upazila) return;
+  this._preferredUpazila = upazila;
+  this.touch(changedBy); // ✅ বৈধ
+}
+
+public setPreferredOperator(operator: UserMobileOperator, changedBy?: string): void {
+  if (this._preferredOperator === operator) return;
+  this._preferredOperator = operator;
+  this.touch(changedBy); // ✅ বৈধ
+}
+
+public setMobileNetworkType(networkType: UserNetworkType, changedBy?: string): void {
+  if (this._mobileNetworkType === networkType) return;
+  this._mobileNetworkType = networkType;
+  this.touch(changedBy); // ✅ বৈধ
+}
 
   /**
    * Update user profile information
