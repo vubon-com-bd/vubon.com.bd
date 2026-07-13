@@ -1139,6 +1139,9 @@ export {
 // ============================================================
 export type {
   PaginatedResponse,
+  PaginationOptions,
+  PaginatedResult,
+  OffsetPaginationResponse,
   SortDirection,
   PaginationConfig,
   SortableFields,
