@@ -69,6 +69,8 @@ import type {
   RegistrationMetadata,
 } from '@vubon/shared-types';
 
+export { EmailRegisterDto as RegisterDto } from './register.dto';
+
 // ============================================================
 // ✅ ENTERPRISE ENHANCEMENT: Validation Messages
 // ============================================================
