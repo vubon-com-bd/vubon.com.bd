@@ -39,15 +39,11 @@ import { randomUUID } from 'crypto';
 
 import type { 
   DeviceInfo as SharedDeviceInfo,
-  UserPreferences as SharedUserPreferences,
-  MobileOperator as SharedMobileOperator,
-  NetworkType as SharedNetworkType,
-  RegistrationMethod as SharedRegistrationMethod,
-  RegistrationSource as SharedRegistrationSource
+  UserPreferences as SharedUserPreferences
 } from '@vubon/shared-types';
 
 import { 
-  MOBILE_OPERATORS, 
+  BD_MOBILE_OPERATORS,
   NETWORK_TYPES,
   REGISTRATION_SOURCES,
   REGISTRATION_METHODS,
@@ -91,7 +87,7 @@ export interface DeviceInfo extends SharedDeviceInfo {
   userAgent?: string;
 
   /** Device identifier for fingerprinting */
-  deviceId?: string;
+  deviceId: string;
 
   /** Device fingerprint hash */
   deviceFingerprint?: string;
@@ -113,7 +109,7 @@ export interface DeviceInfo extends SharedDeviceInfo {
   upazila?: string;
 
   /** Mobile operator - from shared-constants */
-  mobileOperator?: typeof MOBILE_OPERATORS[number];
+  mobileOperator?: typeof BD_MOBILE_OPERATORS[number];
 
   /** Network type - from shared-constants */
   networkType?: typeof NETWORK_TYPES[number];
