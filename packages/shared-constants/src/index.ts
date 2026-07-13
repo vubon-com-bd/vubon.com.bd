@@ -130,8 +130,8 @@ export type {
   AuthHeader,
   AuthProvider,
   AuthStatus,
-  UserStatus,
-  UserTier,
+  UserStatus as AUTH_USER_STATUS,
+  UserTier as AUTH_USER_TIER,
   AuthEvent,
   RegistrationMethod,
   RegistrationSource,
@@ -227,9 +227,8 @@ export type {
   DeviceTypeToCategory,
   BrowserTrustLevels,
   NetworkSecurityLevels,
-  DeviceMetrics,
   DeviceIdConstants,
-  UserRole,
+  UserRole as DEVICE_USER_ROLE,
 } from './device.constants';
 
 // ============================================================
@@ -303,13 +302,13 @@ export type {
 export {
   AUTH_EVENTS as DOMAIN_AUTH_EVENTS,
   USER_EVENTS,
-  SESSION_EVENTS,
+  SESSION_EVENTS as DOMAIN_SESSION_EVENT,
   DEVICE_EVENTS,
   ORDER_EVENTS,
   PAYMENT_EVENTS,
   PRODUCT_EVENTS,
   NOTIFICATION_EVENTS,
-  SECURITY_EVENTS,
+  SECURITY_EVENTS as DOMAIN_SECURITY_EVENT,
   SYSTEM_EVENTS,
   INTEGRATION_EVENTS,
   ANALYTICS_EVENTS,
@@ -370,7 +369,7 @@ export type {
   DeviceFingerprintConfig,
   SMSConfig,
   LockLevel,
-  NotificationChannel,
+  NotificationChannel as LOCK_NOTIFICATION_CHANNEL,
   LockRiskSeverity,
 } from './lock.constants';
 
@@ -444,7 +443,7 @@ export type {
 export {
   TOTP_CONFIG,
   BACKUP_CODES_CONFIG,
-  RECOVERY_CODES_CONFIG as MFA_RECOVERY_CODES_CONFIG,
+  RECOVERY_CODES_CONFIG as MFA_RECOVERY_CODESCONFIG,
   WEBAUTHN_CONFIG,
   SMS_OTP_CONFIG,
   WHATSAPP_OTP_CONFIG,
@@ -460,8 +459,8 @@ export {
 export type {
   TOTPConfig,
   BackupCodesConfig,
-  RecoveryCodesConfig,
-  WebAuthnConfig,
+  RecoveryCodesConfig as MFA_RECOVERY_CODES_CONFIG,
+  WebAuthnConfig as MFA_WEBAUTH_CONFIG,
   SMSOTPConfig,
   WhatsAppOTPConfig,
   ImoOTPConfig,
@@ -483,7 +482,7 @@ export {
   NOTIFICATION_TTL,
   SMS_GATEWAY_CONFIG,
   WHATSAPP_TEMPLATES,
-  EMAIL_CONFIG,
+  EMAIL_CONFIG as NOTIFICATION_MAIL_CONFIG,
   PUSH_CONFIG,
   IN_APP_CONFIG,
   NOTIFICATION_RATE_LIMITS,
@@ -668,6 +667,8 @@ export {
   ALL_PERMISSIONS,
   PERMISSION_CATEGORIES,
   PERMISSION_TO_CATEGORY,
+  PERMISSION_RESOURCES,
+  PERMISSION_ACTIONS,
 } from './permission.constants';
 
 export type {
@@ -675,6 +676,8 @@ export type {
   PermissionGroup,
   AllPermissions,
   PermissionCategory,
+  PermissionResource,
+  PermissionAction,
 } from './permission.constants';
 
 // ============================================================
@@ -821,18 +824,18 @@ export type {
 // Security Constants
 // ============================================================
 export {
-  CSP_DIRECTIVES,
-  SECURITY_HEADERS,
-  SECURITY_HEADER_VALUES,
-  EMAIL_CONFIG as SECURITY_EMAIL_CONFIG,
-  DATE_CONFIG,
-  NUMBER_CONFIG,
-  CURRENCY_CONFIG,
-  STRING_CONFIG,
-  PHONE_CONFIG,
-  SANITIZE_CONFIG,
-  CORS_CONFIG,
-  RATE_LIMITS,
+  CSP_DIRECTIVES as SECURITY_CSP_DIRECTIVES,
+  SECURITY_HEADERS as SECURITY_HEADER,
+  SECURITY_HEADER_VALUES as SECURITY_HEADERVALUES ,
+  EMAIL_CONFIG as SECURITY_EMAILCONFIG,
+  DATE_CONFIG as SECURITY_DATE_CONFIG,
+  NUMBER_CONFIG as ECURITY_NUMBER_CONFIG,
+  CURRENCY_CONFIG as SECURITY_CURRENCY_CONFIG,
+  STRING_CONFIG as SECURITY_STRING_CONFIG,
+  PHONE_CONFIG as SECURITY_PHONE_CONFIG,
+  SANITIZE_CONFIG as SECURITY_SANITIZE_CONFIG,
+  CORS_CONFIG as SECURITY_CORS_CONFIG,
+  RATE_LIMITS as SECURITY_RATE_LIMITS,
 } from './security.constants';
 
 export type {
@@ -928,7 +931,7 @@ export {
 } from './token-generator.constants';
 
 export type {
-  JWTConfig,
+  JWTConfig as TOKEN_JWTConfi,
   OTPConfig,
   RecoveryCodesConfig,
   APIKeyConfig,
@@ -1084,7 +1087,7 @@ export {
 } from './notification.constants';
 
 export {
-  BD_BANK_COMPLIANCE_CONFIG as BD_BANK_HASHING_CONFIG,
+  BBANK_COMPLIANCE_CONFIG as BD_BANK_HASHING_CONFIG,
 } from './password-hasher.constants';
 
 export {
