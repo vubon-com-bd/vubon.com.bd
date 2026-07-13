@@ -52,7 +52,7 @@ import type {
   MFSPinSetupResponseDto,
   WebAuthnSetupResponseDto,
   MFAStatusResponseDto
-} from '../../dtos';
+} from '@vubon/shared-types';
 
 import type { 
   User, 
@@ -60,7 +60,7 @@ import type {
 } from '../../../domain/entities';
 
 import type { 
-  AuditMetadata, 
+  AuditMetadata,
   RequestContext,
   PaginationOptions,
   PaginatedResult,
