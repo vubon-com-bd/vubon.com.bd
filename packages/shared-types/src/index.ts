@@ -1168,3 +1168,38 @@ export {
 // Re-export all types from auth and common
 // ============================================================
 // Note: Explicit exports above replace the need for export *
+
+
+export {
+  type ServiceResult,
+  // Login Types
+  type LoginDto,
+  type PhoneLoginDto,
+  type UsernameLoginDto,
+  type OtpLoginDto,
+  type LoginResponseDto,
+  type LoginResult,
+  // Registration Types
+  type RegisterDto,
+  type UserResponseDto,
+  // Token Types
+  type RefreshTokenDto,
+  type TokenRefreshResponseDto,
+  // Logout Types
+  type LogoutDto,
+  type LogoutResponseDto,
+  // MFA Types
+  type EnableMfaDto,
+  type VerifyMfaDto,
+  type DisableMfaDto,
+  type TOTPSetupResponseDto,
+  type PhoneSetupResponseDto,
+  type MFSPinSetupResponseDto,
+  type WebAuthnSetupResponseDto,
+  type MFAStatusResponseDto,
+
+  type SocialLoginDto,
+  type SocialPhoneLoginDto,
+  type SocialLoginResponseDto,
+  type SocialOAuthStateDto,
+} from './auth/auth.type';
