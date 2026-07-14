@@ -1,711 +1,623 @@
 /**
- * User Registered Event - Pure Domain/Application Event (Enterprise Enhanced v2.0)
+ * User Registered Event - Pure Domain Event (Enterprise Grade)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module application/events/user-registered.event
- * 
+ *
  * @description
- * Event emitted when a new user successfully registers.
- * Enhanced with shared-types integration, event versioning, TTL support,
- * Bangladesh specific fields (district, upazila, mobileOperator),
- * and priority-based processing.
- * 
+ * Domain event representing successful user registration.
+ * Contains all necessary data for downstream event handlers (welcome email, SMS, analytics, etc.).
+ * Follows DDD event patterns for loose coupling between bounded contexts.
+ *
  * Enterprise Rules:
- * ✅ Immutable event data with frozen objects
- * ✅ No business logic, no side effects
- * ✅ Event ID for distributed tracing
- * ✅ Correlation/Causation IDs for event sourcing
- * ✅ Aggregate version tracking for event sourcing
- * ✅ TTL support for event expiry
- * ✅ Priority support for critical events
- * ✅ Shared types from @vubon/shared-packages
- * ✅ Zod schema validation for runtime safety
- * 
+ * ✅ Immutable event data
+ * ✅ Extends BaseDomainEvent for consistency
+ * ✅ Contains all relevant registration context
+ * ✅ Bangladesh specific fields (phone, district, operator, etc.)
+ * ✅ Correlation ID for distributed tracing
+ * ✅ SSOT: Types from shared-types, Constants from shared-constants
+ * ✅ No infrastructure dependencies
+ * ✅ Event versioning for future evolution
+ *
  * @example
- * // Standard email registration
- * const event = new UserRegisteredEvent(
- *   'usr_123',
- *   1,
- *   'user@example.com',
- *   'John Doe',
- *   RegistrationMethod.EMAIL_PASSWORD,
- *   RegistrationSource.WEB,
- *   { correlationId: 'corr_abc123' }
- * );
+ * // Publishing the event
+ * const event = new UserRegisteredEvent({
+ *   userId: '123e4567-e89b-12d3-a456-426614174000',
+ *   email: 'user@vubon.com.bd',
+ *   fullName: 'John Doe',
+ *   phone: '+8801712345678',
+ *   registrationSource: 'WEB',
+ *   correlationId: 'corr_abc123',
+ *   metadata: { ipAddress: '192.168.1.100' }
+ * });
+ * await eventBus.publish(event);
+ *
+ * // Handling the event
+ * @EventHandler(UserRegisteredEvent)
+ * export class SendWelcomeEmailHandler {
+ *   async handle(event: UserRegisteredEvent): Promise<void> {
+ *     // Send welcome email
+ *   }
+ * }
  */
 
-import { randomUUID } from 'crypto';
-import { z } from 'zod';
+// ============================================================
+// Shared Packages Import (SSOT)
+// ============================================================
 
-// ✅ Enterprise: Import from shared-types and shared-constants
-import type { 
-  EventMetadata, 
-  EventPayload, 
-  DomainEvent as SharedDomainEvent,
-  EventPriority,
-  MFAType,
+import type {
   UserRole,
-  UserTier
+  UserStatus,
+  UserTier,
+  BangladeshDistrict,
+  BangladeshUpazila,
+  UserMobileOperator,
+  UserNetworkType,
+  RegistrationSource,
+  RegistrationMethod,
+} from '@vubon/shared-constants';
+import { USER_ROLES } from '@vubon/shared-constants';
+
+
+import type {
+  DomainEvent,
 } from '@vubon/shared-types';
 
-import {
-  EVENT_VERSIONS,
-  USER_ROLES,
-  USER_TIERS,
-  EVENT_NAMES,
-  MOBILE_OPERATORS,
-  NETWORK_TYPES
-} from '@vubon/shared-constants';
-
 // ============================================================
-// Domain Event Interface (Extends shared-types)
+// Base Domain Event (Local copy for domain purity)
 // ============================================================
 
-export interface DomainEvent extends SharedDomainEvent {
-  readonly eventId: string;
-  readonly eventName: string;
-  readonly occurredAt: Date;
-  readonly eventVersion: number;      // Schema version (not aggregate version)
-  readonly aggregateVersion: number;   // Aggregate root version (for event sourcing)
-  readonly correlationId?: string;
-  readonly causationId?: string;
-  readonly ttlSeconds?: number;        // Time to live for event (seconds)
-  readonly expiresAt?: Date;           // When event expires
-  readonly priority?: EventPriority;   // Priority for processing queue
-  readonly partitionKey?: string;      // For event streaming partitioning
+/**
+ * Abstract base domain event (matching BaseDomainEvent from domain layer)
+ * This ensures the event is self-contained and framework-free
+ */
+abstract class BaseDomainEvent implements DomainEvent {
+  public readonly eventId: string;
+  public readonly occurredOn: Date;
+  public readonly metadata: Readonly<Record<string, unknown>>;
+
+  constructor(
+    public readonly eventType: string,
+    public readonly aggregateId: string,
+    public readonly version: number,
+    metadata?: Record<string, unknown>,
+  ) {
+    this.eventId = this.generateEventId();
+    this.occurredOn = new Date();
+    this.metadata = metadata ? Object.freeze({ ...metadata }) : Object.freeze({});
+  }
+
+  private generateEventId(): string {
+    const timestamp = Date.now().toString(36);
+    const random = Math.random().toString(36).substring(2, 10);
+    const counter = (this.constructor as any).counter || 0;
+    (this.constructor as any).counter = counter + 1;
+    return `evt_${timestamp}_${random}_${counter}`;
+  }
 }
 
 // ============================================================
-// Registration Method Enum (Extended)
+// User Registered Event Data Interface
 // ============================================================
 
-export enum RegistrationMethod {
-  // Standard methods
-  EMAIL_PASSWORD = 'EMAIL_PASSWORD',
-  
-  // Social OAuth
-  SOCIAL_GOOGLE = 'SOCIAL_GOOGLE',
-  SOCIAL_FACEBOOK = 'SOCIAL_FACEBOOK',
-  SOCIAL_GITHUB = 'SOCIAL_GITHUB',
-  SOCIAL_APPLE = 'SOCIAL_APPLE',
-  SOCIAL_LINKEDIN = 'SOCIAL_LINKEDIN',
-  SOCIAL_MICROSOFT = 'SOCIAL_MICROSOFT',
-  
-  // Bangladesh specific OAuth
-  SOCIAL_WHATSAPP = 'SOCIAL_WHATSAPP',
-  SOCIAL_IMO = 'SOCIAL_IMO',
-  SOCIAL_TELEGRAM = 'SOCIAL_TELEGRAM',
-  
-  // Bangladesh specific MFS
-  MFS_BKASH = 'MFS_BKASH',
-  MFS_NAGAD = 'MFS_NAGAD',
-  MFS_ROCKET = 'MFS_ROCKET',
-  
-  // Admin/System
-  ADMIN_CREATED = 'ADMIN_CREATED',
-  API_CREATED = 'API_CREATED',
-  INVITE = 'INVITE',
-  MIGRATION = 'MIGRATION',
-}
+/**
+ * User registration data with Bangladesh-specific fields
+ */
+export interface UserRegisteredEventData {
+  /** User's unique identifier */
+  userId: string;
 
-// ============================================================
-// Registration Source Enum
-// ============================================================
-
-export enum RegistrationSource {
-  WEB = 'WEB',
-  MOBILE_APP = 'MOBILE_APP',
-  ADMIN_PORTAL = 'ADMIN_PORTAL',
-  API = 'API',
-  SOCIAL = 'SOCIAL',
-  MFS_APP = 'MFS_APP',      // bKash/Nagad/Rocket app
-  FEATURE_PHONE = 'FEATURE_PHONE',  // Bangladesh specific
-}
-
-// ============================================================
-// User Tier Enum (Re-export for convenience)
-// ============================================================
-
-export { USER_TIERS as UserTier };
-export type UserTier = typeof USER_TIERS[keyof typeof USER_TIERS];
-
-// ============================================================
-// User Role Enum (Re-export for convenience)
-// ============================================================
-
-export { USER_ROLES as UserRole };
-export type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES];
-
-// ============================================================
-// ✅ ENTERPRISE: Event Metadata Interface
-// ============================================================
-
-export interface UserRegisteredMetadata extends EventMetadata {
-  /** User's IP address for geolocation */
-  ipAddress?: string;
-  
-  /** Device ID for device fingerprinting */
-  deviceId?: string;
-  
-  /** User agent for browser/OS detection */
-  userAgent?: string;
-  
-  /** Session ID for tracking */
-  sessionId?: string;
-  
-  /** HTTP referrer for marketing attribution */
-  referrer?: string;
-  
-  /** UTM parameters for campaign tracking */
-  utmSource?: string;
-  utmMedium?: string;
-  utmCampaign?: string;
-  utmTerm?: string;
-  utmContent?: string;
-  
-  /** ✅ Enterprise: Bangladesh specific fields */
-  /** User's district (Bangladesh) */
-  district?: string;
-  
-  /** User's upazila/sub-district */
-  upazila?: string;
-  
-  /** Mobile operator for carrier-specific logic */
-  mobileOperator?: typeof MOBILE_OPERATORS[number];
-  
-  /** Network type for connectivity optimization */
-  networkType?: typeof NETWORK_TYPES[number];
-  
-  /** Whether data saver mode is enabled */
-  dataSaverEnabled?: boolean;
-  
-  /** Device type for responsive design */
-  deviceType?: 'desktop' | 'mobile' | 'tablet' | 'feature_phone';
-  
-  /** Screen resolution for analytics */
-  screenResolution?: string;
-  
-  /** Language preference */
-  language?: 'en' | 'bn';
-  
-  /** Timezone offset in minutes */
-  timezoneOffset?: number;
-  
-  /** Whether user accepted marketing consent */
-  marketingConsent?: boolean;
-  
-  /** Referral code used during registration */
-  referralCode?: string;
-  
-  /** Admin ID (if created by admin) */
-  createdBy?: string;
-}
-
-// ============================================================
-// ✅ ENTERPRISE: Event Payload Interface
-// ============================================================
-
-export interface UserRegisteredPayload extends EventPayload {
   /** User's email address */
   email: string;
-  
+
   /** User's full name */
   fullName: string;
-  
-  /** User's display name */
-  displayName?: string;
-  
-  /** User's phone number (Bangladesh specific) */
-  phone?: string;
-  
-  /** User's role */
+
+  /** User's phone number (E.164 format, if provided) */
+  phone?: string | undefined;
+
+  /** User's display name (if provided) */
+  displayName?: string | undefined;
+
+  /** User's role (CUSTOMER, VENDOR, etc.) */
   role: UserRole;
-  
-  /** User's loyalty tier */
-  userTier: UserTier;
-  
-  /** Whether email is verified */
+
+  /** User's tier (BRONZE, SILVER, etc.) */
+  tier: UserTier;
+
+  /** User's status (PENDING_VERIFICATION, ACTIVE, etc.) */
+  status: UserStatus;
+
+  /** Whether email is verified (always false on registration) */
   isEmailVerified: boolean;
-  
-  /** Whether phone is verified */
+
+  /** Whether phone is verified (always false on registration) */
   isPhoneVerified: boolean;
-  
-  /** Whether KYC is verified */
+
+  /** Whether KYC is verified (always false on registration) */
   isKycVerified: boolean;
-  
-  /** Whether MFA is enabled */
-  isMfaEnabled: boolean;
-  
-  /** User's preferred language */
-  preferredLanguage?: 'en' | 'bn';
-  
-  /** User's preferred district (Bangladesh) */
-  preferredDistrict?: string;
-  
-  /** User's preferred upazila (Bangladesh) */
-  preferredUpazila?: string;
-  
-  /** Total spent (for tier calculation) */
-  totalSpent?: number;
+
+  /** Whether MFA is enabled (always false on registration) */
+  mfaEnabled: boolean;
+
+  /** User's preferred language (en or bn) */
+  preferredLanguage: 'en' | 'bn';
+
+  /** Preferred district (Bangladesh specific) */
+  preferredDistrict?: BangladeshDistrict | undefined;
+
+  /** Preferred upazila (Bangladesh specific) */
+  preferredUpazila?: BangladeshUpazila | undefined;
+
+  /** Preferred mobile operator (Bangladesh specific) */
+  preferredOperator?: UserMobileOperator | undefined;
+
+  /** Mobile network type (Bangladesh specific) */
+  mobileNetworkType?: UserNetworkType | undefined;
+
+  /** Registration method (EMAIL, PHONE, SOCIAL, OTP, USERNAME) */
+  registrationMethod: RegistrationMethod;
+
+  /** Registration source (WEB, MOBILE_APP, API, ADMIN, SOCIAL, etc.) */
+  registrationSource: RegistrationSource;
+
+  /** Referral code used (if any) */
+  referralCode?: string | undefined;
+
+  /** User ID who referred this user (if any) */
+  referredBy?: string | undefined;
+
+  /** Whether marketing consent was given */
+  marketingConsent: boolean;
+
+  /** Whether WhatsApp consent was given (Bangladesh specific) */
+  whatsappConsent: boolean;
+
+  /** Whether SMS consent was given */
+  smsConsent: boolean;
+
+  /** Whether email consent was given */
+  emailConsent: boolean;
+
+  /** Whether user age was provided (for age verification) */
+  ageProvided: boolean;
+
+  /** User's age (if provided) */
+  age?: number | undefined;
+
+  /** Whether user accepted terms and conditions */
+  acceptedTerms: boolean;
+
+  /** Whether user accepted privacy policy */
+  acceptedPrivacy: boolean;
+
+  /** CAPTCHA verified (if applicable) */
+  captchaVerified: boolean;
+
+  /** Correlation ID for distributed tracing */
+  correlationId: string;
+
+  /** Client IP address */
+  ipAddress?: string | undefined;
+
+  /** User agent string */
+  userAgent?: string | undefined;
+
+  /** Device ID for fingerprinting */
+  deviceId?: string | undefined;
+
+  /** Device fingerprint */
+  deviceFingerprint?: string | undefined;
+
+  /** Additional metadata for event handlers */
+  metadata?: Record<string, unknown> | undefined;
+
+  /** Event version for future schema evolution */
+  eventVersion: number;
+
+  /** Timestamp when the event was created (ISO string) */
+  timestamp: string;
 }
 
 // ============================================================
-// ✅ ENTERPRISE: Zod Schema for Runtime Validation
+// User Registered Event Class
 // ============================================================
 
-export const UserRegisteredEventSchema = z.object({
-  eventId: z.string().uuid(),
-  eventName: z.literal('user.registered'),
-  occurredAt: z.date(),
-  eventVersion: z.number().int().min(1).default(EVENT_VERSIONS.V1),
-  aggregateVersion: z.number().int().min(1),
-  correlationId: z.string().uuid().optional(),
-  causationId: z.string().uuid().optional(),
-  userId: z.string().uuid(),
-  email: z.string().email(),
-  fullName: z.string().min(2).max(100),
-  displayName: z.string().max(50).optional(),
-  phone: z.string().regex(/^(?:\+880|0)1[3-9]\d{8}$/).optional(),
-  registrationMethod: z.nativeEnum(RegistrationMethod),
-  registrationSource: z.nativeEnum(RegistrationSource),
-  role: z.enum([USER_ROLES.CUSTOMER, USER_ROLES.VENDOR, USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN]),
-  userTier: z.enum([USER_TIERS.BRONZE, USER_TIERS.SILVER, USER_TIERS.GOLD, USER_TIERS.PLATINUM, USER_TIERS.DIAMOND]),
-  isEmailVerified: z.boolean().default(false),
-  isPhoneVerified: z.boolean().default(false),
-  isKycVerified: z.boolean().default(false),
-  isMfaEnabled: z.boolean().default(false),
-  preferredLanguage: z.enum(['en', 'bn']).optional(),
-  preferredDistrict: z.string().max(50).optional(),
-  preferredUpazila: z.string().max(50).optional(),
-  metadata: z.object({
-    ipAddress: z.string().ip().optional(),
-    deviceId: z.string().max(255).optional(),
-    userAgent: z.string().max(500).optional(),
-    sessionId: z.string().uuid().optional(),
-    referrer: z.string().max(500).optional(),
-    utmSource: z.string().max(100).optional(),
-    utmMedium: z.string().max(100).optional(),
-    utmCampaign: z.string().max(100).optional(),
-    utmTerm: z.string().max(100).optional(),
-    utmContent: z.string().max(100).optional(),
-    district: z.string().max(100).optional(),
-    upazila: z.string().max(100).optional(),
-    mobileOperator: z.enum(MOBILE_OPERATORS).optional(),
-    networkType: z.enum(NETWORK_TYPES).optional(),
-    dataSaverEnabled: z.boolean().optional(),
-    deviceType: z.enum(['desktop', 'mobile', 'tablet', 'feature_phone']).optional(),
-    screenResolution: z.string().regex(/^\d+x\d+$/).optional(),
-    language: z.enum(['en', 'bn']).optional(),
-    timezoneOffset: z.number().int().min(-720).max(840).optional(),
-    marketingConsent: z.boolean().optional(),
-    referralCode: z.string().max(50).optional(),
-    createdBy: z.string().uuid().optional(),
-  }).optional(),
-  ttlSeconds: z.number().int().positive().optional(),
-  expiresAt: z.date().optional(),
-  priority: z.enum(['low', 'normal', 'high', 'critical']).default('normal'),
-  partitionKey: z.string().optional(),
-});
+/**
+ * User Registered Domain Event
+ *
+ * Published when a new user successfully registers.
+ * Contains comprehensive data for all downstream handlers.
+ *
+ * @example
+ * // Creating the event
+ * const event = UserRegisteredEvent.fromUser(user, {
+ *   registrationSource: 'WEB',
+ *   correlationId: 'corr_abc123',
+ *   ipAddress: '192.168.1.100',
+ * });
+ */
+export class UserRegisteredEvent extends BaseDomainEvent {
+  public readonly eventType: string = 'user.registered';
+  public readonly eventVersion: number = 1;
 
-// ============================================================
-// ✅ ENTERPRISE: User Registered Event Class (v2.0)
-// ============================================================
+  // ============================================================
+  // Event Data
+  // ============================================================
 
-export class UserRegisteredEvent implements DomainEvent {
-  // DomainEvent interface properties
-  public readonly eventId: string;
-  public readonly eventName: string = EVENT_NAMES.USER_REGISTERED;
-  public readonly occurredAt: Date;
-  public readonly eventVersion: number;
-  public readonly aggregateVersion: number;
-  public readonly correlationId?: string;
-  public readonly causationId?: string;
-  public readonly ttlSeconds?: number;
-  public readonly expiresAt?: Date;
-  public readonly priority?: 'low' | 'normal' | 'high' | 'critical';
-  public readonly partitionKey?: string;
-
-  // Core user information
   public readonly userId: string;
   public readonly email: string;
   public readonly fullName: string;
-  public readonly displayName?: string;
-  public readonly phone?: string;
-
-  // Registration context
-  public readonly registrationMethod: RegistrationMethod;
-  public readonly registrationSource: RegistrationSource;
-
-  // Role and tier
+  public readonly phone?: string | undefined;
+  public readonly displayName?: string | undefined;
   public readonly role: UserRole;
-  public readonly userTier: UserTier;
-
-  // Verification status
+  public readonly tier: UserTier;
+  public readonly status: UserStatus;
   public readonly isEmailVerified: boolean;
   public readonly isPhoneVerified: boolean;
   public readonly isKycVerified: boolean;
-  public readonly isMfaEnabled: boolean;
+  public readonly mfaEnabled: boolean;
+  public readonly preferredLanguage: 'en' | 'bn';
+  public readonly preferredDistrict?: BangladeshDistrict | undefined;
+  public readonly preferredUpazila?: BangladeshUpazila | undefined;
+  public readonly preferredOperator?: UserMobileOperator | undefined;
+  public readonly mobileNetworkType?: UserNetworkType | undefined;
+  public readonly registrationMethod: RegistrationMethod;
+  public readonly registrationSource: RegistrationSource;
+  public readonly referralCode?: string | undefined;
+  public readonly referredBy?: string | undefined;
+  public readonly marketingConsent: boolean;
+  public readonly whatsappConsent: boolean;
+  public readonly smsConsent: boolean;
+  public readonly emailConsent: boolean;
+  public readonly ageProvided: boolean;
+  public readonly age?: number | undefined;
+  public readonly acceptedTerms: boolean;
+  public readonly acceptedPrivacy: boolean;
+  public readonly captchaVerified: boolean;
+  public readonly correlationId: string;
+  public readonly ipAddress?: string | undefined;
+  public readonly userAgent?: string | undefined;
+  public readonly deviceId?: string | undefined;
+  public readonly deviceFingerprint?: string | undefined;
+  public readonly eventMetadata: Readonly<Record<string, unknown>>;
+  public readonly timestamp: string;
 
-  // User preferences
-  public readonly preferredLanguage?: 'en' | 'bn';
-  public readonly preferredDistrict?: string;
-  public readonly preferredUpazila?: string;
+  constructor(data: UserRegisteredEventData) {
+    super(
+      'user.registered',
+      data.userId,
+      1,
+      {
+        correlationId: data.correlationId,
+        source: data.registrationSource,
+        ipAddress: data.ipAddress,
+        ...data.metadata,
+      },
+    );
 
-  // Event metadata
-  public readonly metadata?: UserRegisteredMetadata;
-
-  // ✅ Enterprise: Constructor with enhanced options
-  constructor(
-    userId: string,
-    aggregateVersion: number,
-    email: string,
-    fullName: string,
-    registrationMethod: RegistrationMethod,
-    registrationSource: RegistrationSource,
-    options?: {
-      // Core fields
-      displayName?: string;
-      phone?: string;
-      
-      // Role and tier (defaults: CUSTOMER, BRONZE)
-      role?: UserRole;
-      userTier?: UserTier;
-      
-      // Verification status
-      isEmailVerified?: boolean;
-      isPhoneVerified?: boolean;
-      isKycVerified?: boolean;
-      isMfaEnabled?: boolean;
-      
-      // Preferences
-      preferredLanguage?: 'en' | 'bn';
-      preferredDistrict?: string;
-      preferredUpazila?: string;
-      
-      // Event tracking
-      correlationId?: string;
-      causationId?: string;
-      ttlSeconds?: number;
-      expiresAt?: Date;
-      priority?: 'low' | 'normal' | 'high' | 'critical';
-      partitionKey?: string;
-      
-      // Metadata (Bangladesh specific)
-      metadata?: UserRegisteredMetadata;
-      
-      // Event version (default: from shared-constants)
-      eventVersion?: number;
-    }
-  ) {
-    this.eventId = randomUUID();
-    this.occurredAt = new Date();
-    this.eventVersion = options?.eventVersion ?? EVENT_VERSIONS.V1;
-    this.aggregateVersion = aggregateVersion;
-    this.correlationId = options?.correlationId;
-    this.causationId = options?.causationId;
-    this.ttlSeconds = options?.ttlSeconds;
-    this.expiresAt = options?.expiresAt;
-    this.priority = options?.priority ?? 'normal';
-    this.partitionKey = options?.partitionKey ?? userId; // Default partition by userId
-    
-    this.userId = userId;
-    this.email = email;
-    this.fullName = fullName;
-    this.displayName = options?.displayName;
-    this.phone = options?.phone;
-    
-    this.registrationMethod = registrationMethod;
-    this.registrationSource = registrationSource;
-    
-    this.role = options?.role ?? USER_ROLES.CUSTOMER;
-    this.userTier = options?.userTier ?? USER_TIERS.BRONZE;
-    
-    this.isEmailVerified = options?.isEmailVerified ?? false;
-    this.isPhoneVerified = options?.isPhoneVerified ?? false;
-    this.isKycVerified = options?.isKycVerified ?? false;
-    this.isMfaEnabled = options?.isMfaEnabled ?? false;
-    
-    this.preferredLanguage = options?.preferredLanguage;
-    this.preferredDistrict = options?.preferredDistrict;
-    this.preferredUpazila = options?.preferredUpazila;
-    
-    this.metadata = options?.metadata;
-    
-    // ✅ Enterprise: Auto-calculate partition key from district if not provided
-    if (!options?.partitionKey && this.metadata?.district) {
-      this.partitionKey = this.metadata.district;
-    }
-    
-    // ✅ Enterprise: Auto-calculate TTL if not provided (30 days default)
-    if (!this.ttlSeconds && !this.expiresAt) {
-      this.ttlSeconds = 30 * 24 * 60 * 60; // 30 days
-      this.expiresAt = new Date(Date.now() + this.ttlSeconds * 1000);
-    }
+    // Core fields
+    this.userId = data.userId;
+    this.email = data.email;
+    this.fullName = data.fullName;
+    this.phone = data.phone;
+    this.displayName = data.displayName;
+    this.role = data.role;
+    this.tier = data.tier;
+    this.status = data.status;
+    this.isEmailVerified = data.isEmailVerified;
+    this.isPhoneVerified = data.isPhoneVerified;
+    this.isKycVerified = data.isKycVerified;
+    this.mfaEnabled = data.mfaEnabled;
+    this.preferredLanguage = data.preferredLanguage;
+    this.preferredDistrict = data.preferredDistrict;
+    this.preferredUpazila = data.preferredUpazila;
+    this.preferredOperator = data.preferredOperator;
+    this.mobileNetworkType = data.mobileNetworkType;
+    this.registrationMethod = data.registrationMethod;
+    this.registrationSource = data.registrationSource;
+    this.referralCode = data.referralCode;
+    this.referredBy = data.referredBy;
+    this.marketingConsent = data.marketingConsent;
+    this.whatsappConsent = data.whatsappConsent;
+    this.smsConsent = data.smsConsent;
+    this.emailConsent = data.emailConsent;
+    this.ageProvided = data.ageProvided;
+    this.age = data.age;
+    this.acceptedTerms = data.acceptedTerms;
+    this.acceptedPrivacy = data.acceptedPrivacy;
+    this.captchaVerified = data.captchaVerified;
+    this.correlationId = data.correlationId;
+    this.ipAddress = data.ipAddress;
+    this.userAgent = data.userAgent;
+    this.deviceId = data.deviceId;
+    this.deviceFingerprint = data.deviceFingerprint;
+    this.eventMetadata = data.metadata ? Object.freeze({ ...data.metadata }) : Object.freeze({});
+    this.timestamp = data.timestamp || new Date().toISOString();
+    this.eventVersion = data.eventVersion || 1;
   }
 
   // ============================================================
-  // ✅ Enterprise: Helper Methods
+  // Factory Methods
   // ============================================================
 
   /**
-   * Check if event has expired
+   * Create event from User entity and registration context
    */
-  public isExpired(): boolean {
-    if (!this.expiresAt) return false;
-    return new Date() > this.expiresAt;
-  }
-
-  /**
-   * Check if event is critical priority
-   */
-  public isCritical(): boolean {
-    return this.priority === 'critical';
-  }
-
-  /**
-   * Get event summary for logging
-   */
-  public getSummary(): Record<string, unknown> {
-    return {
-      eventId: this.eventId,
-      eventName: this.eventName,
-      userId: this.userId,
-      email: this.email,
-      registrationMethod: this.registrationMethod,
-      registrationSource: this.registrationSource,
-      role: this.role,
-      userTier: this.userTier,
-      district: this.metadata?.district,
-      mobileOperator: this.metadata?.mobileOperator,
-      priority: this.priority,
-      partitionKey: this.partitionKey,
-      occurredAt: this.occurredAt.toISOString(),
+  public static fromUser(
+    user: any, // User entity (will be properly typed when entity is complete)
+    context: {
+      registrationMethod: RegistrationMethod;
+      registrationSource: RegistrationSource;
+      correlationId: string;
+      ipAddress?: string | undefined;
+      userAgent?: string | undefined;
+      deviceId?: string | undefined;
+      deviceFingerprint?: string | undefined;
+      referralCode?: string | undefined;
+      referredBy?: string | undefined;
+      captchaVerified?: boolean | undefined;
+      marketingConsent?: boolean | undefined;
+      whatsappConsent?: boolean | undefined;
+      smsConsent?: boolean | undefined;
+      emailConsent?: boolean | undefined;
+      metadata?: Record<string, unknown> | undefined;
+      acceptedTerms?: boolean | undefined;
+      acceptedPrivacy?: boolean | undefined;
+      age?: number | undefined;
+    },
+  ): UserRegisteredEvent {
+    const data: UserRegisteredEventData = {
+      userId: user.id,
+      email: user.getEmail().getValue(),
+      fullName: user.getFullName(),
+      phone: user.getPhone()?.getValue(),
+      displayName: user.getDisplayName(),
+      role: user.getRole(),
+      tier: user.getTier(),
+      status: user.getStatus(),
+      isEmailVerified: user.isEmailVerified(),
+      isPhoneVerified: user.isPhoneVerified(),
+      isKycVerified: user.isKycVerified(),
+      mfaEnabled: user.isMfaEnabled(),
+      preferredLanguage: user.getPreferredLanguage() || 'en',
+      preferredDistrict: user.getPreferredDistrict(),
+      preferredUpazila: user.getPreferredUpazila(),
+      preferredOperator: user.getPreferredOperator(),
+      mobileNetworkType: user.getMobileNetworkType(),
+      registrationMethod: context.registrationMethod,
+      registrationSource: context.registrationSource,
+      referralCode: context.referralCode,
+      referredBy: context.referredBy,
+      marketingConsent: context.marketingConsent || false,
+      whatsappConsent: context.whatsappConsent || false,
+      smsConsent: context.smsConsent || false,
+      emailConsent: context.emailConsent || false,
+      ageProvided: !!context.age,
+      age: context.age,
+      acceptedTerms: context.acceptedTerms || false,
+      acceptedPrivacy: context.acceptedPrivacy || false,
+      captchaVerified: context.captchaVerified || false,
+      correlationId: context.correlationId,
+      ipAddress: context.ipAddress,
+      userAgent: context.userAgent,
+      deviceId: context.deviceId,
+      deviceFingerprint: context.deviceFingerprint,
+      metadata: context.metadata,
+      eventVersion: 1,
+      timestamp: new Date().toISOString(),
     };
+
+    return new UserRegisteredEvent(data);
   }
 
   /**
-   * Convert to plain object for serialization
+   * Create event from registration command and user data
    */
-  public toJSON(): UserRegisteredEventData {
+  public static fromCommand(
+    command: any, // RegisterUserCommand (will be properly typed)
+    user: any, // User entity
+    correlationId: string,
+  ): UserRegisteredEvent {
+    const registrationMethod = command.registrationMethod || 'EMAIL';
+
+    return UserRegisteredEvent.fromUser(user, {
+      registrationMethod,
+      registrationSource: command.deviceInfo?.source || 'WEB',
+      correlationId,
+      ipAddress: command.getIpAddress(),
+      userAgent: command.getUserAgent(),
+      deviceId: command.getDeviceId(),
+      deviceFingerprint: command.getDeviceFingerprint(),
+      referralCode: command.getReferralCode(),
+      referredBy: undefined, // Will be set if referral service validates
+      captchaVerified: command.hasCaptcha(),
+      marketingConsent: command.hasMarketingConsent(),
+      whatsappConsent: command.hasWhatsAppConsent(),
+      smsConsent: command.preferences?.smsConsent,
+      emailConsent: command.preferences?.emailConsent,
+      acceptedTerms: command.hasAcceptedTerms(),
+      acceptedPrivacy: command.hasAcceptedPrivacy(),
+      age: command.preferences?.age,
+      metadata: {
+        deviceInfo: command.deviceInfo,
+        preferences: command.preferences,
+      },
+    });
+  }
+
+  // ============================================================
+  // Instance Methods
+  // ============================================================
+
+  /**
+   * Get masked email for logging/audit
+   */
+  public getMaskedEmail(): string {
+    return this.maskEmail(this.email);
+  }
+
+  /**
+   * Get masked phone for logging/audit
+   */
+  public getMaskedPhone(): string | undefined {
+    if (!this.phone) return undefined;
+    return this.maskPhone(this.phone);
+  }
+
+  /**
+   * Check if this event is for a Bangladesh user
+   */
+  public isBangladeshUser(): boolean {
+    return !!(
+      this.preferredDistrict ||
+      this.preferredOperator ||
+      this.phone?.startsWith('+880') ||
+      this.preferredLanguage === 'bn'
+    );
+  }
+
+  /**
+   * Get user's full name or fallback
+   */
+  public getDisplayName(): string {
+    return this.displayName || this.fullName.split(' ')[0] || 'User';
+  }
+
+ /**
+ * Check if user is a vendor (requires additional verification)
+ */
+public isVendor(): boolean {
+  // ✅ সঠিক উপায়: কনস্ট্যান্টের সাথে তুলনা করুন
+  return this.role === USER_ROLES.VENDOR || this.role === USER_ROLES.ADMIN;
+}
+
+  // ============================================================
+  // Private Helpers
+  // ============================================================
+
+  private maskEmail(email: string): string {
+    const [localPart, domain] = email.split('@');
+    if (!localPart || !domain) return email;
+    if (localPart.length <= 2) {
+      return `${localPart}***@${domain}`;
+    }
+    const first = localPart[0];
+    const last = localPart[localPart.length - 1];
+    return `${first}***${last}@${domain}`;
+  }
+
+  private maskPhone(phone: string): string {
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length < 8) return phone;
+    const prefix = cleaned.slice(0, 4);
+    const suffix = cleaned.slice(-2);
+    return `${prefix}******${suffix}`;
+  }
+
+  // ============================================================
+  // Serialization
+  // ============================================================
+
+  /**
+   * Convert event to plain object for storage/transport
+   */
+  public toJSON(): Record<string, unknown> {
     return {
-      eventId: this.eventId,
-      eventName: this.eventName,
-      occurredAt: this.occurredAt.toISOString(),
+      eventType: this.eventType,
       eventVersion: this.eventVersion,
-      aggregateVersion: this.aggregateVersion,
+      aggregateId: this.aggregateId,
+      eventId: this.eventId,
+      occurredOn: this.occurredOn.toISOString(),
+      timestamp: this.timestamp,
       correlationId: this.correlationId,
-      causationId: this.causationId,
       userId: this.userId,
       email: this.email,
       fullName: this.fullName,
-      displayName: this.displayName,
       phone: this.phone,
-      registrationMethod: this.registrationMethod,
-      registrationSource: this.registrationSource,
+      displayName: this.displayName,
       role: this.role,
-      userTier: this.userTier,
+      tier: this.tier,
+      status: this.status,
       isEmailVerified: this.isEmailVerified,
       isPhoneVerified: this.isPhoneVerified,
       isKycVerified: this.isKycVerified,
-      isMfaEnabled: this.isMfaEnabled,
+      mfaEnabled: this.mfaEnabled,
       preferredLanguage: this.preferredLanguage,
       preferredDistrict: this.preferredDistrict,
       preferredUpazila: this.preferredUpazila,
-      metadata: this.metadata,
-      ttlSeconds: this.ttlSeconds,
-      expiresAt: this.expiresAt?.toISOString(),
-      priority: this.priority,
-      partitionKey: this.partitionKey,
+      preferredOperator: this.preferredOperator,
+      mobileNetworkType: this.mobileNetworkType,
+      registrationMethod: this.registrationMethod,
+      registrationSource: this.registrationSource,
+      referralCode: this.referralCode,
+      referredBy: this.referredBy,
+      marketingConsent: this.marketingConsent,
+      whatsappConsent: this.whatsappConsent,
+      smsConsent: this.smsConsent,
+      emailConsent: this.emailConsent,
+      ageProvided: this.ageProvided,
+      age: this.age,
+      acceptedTerms: this.acceptedTerms,
+      acceptedPrivacy: this.acceptedPrivacy,
+      captchaVerified: this.captchaVerified,
+      ipAddress: this.ipAddress,
+      userAgent: this.userAgent,
+      deviceId: this.deviceId,
+      deviceFingerprint: this.deviceFingerprint,
+      metadata: this.eventMetadata,
     };
   }
 
   /**
-   * Static factory method to create from serialized data
+   * Reconstruct event from plain object
    */
-  public static fromJSON(data: UserRegisteredEventData): UserRegisteredEvent {
-    const event = new UserRegisteredEvent(
-      data.userId,
-      data.aggregateVersion,
-      data.email,
-      data.fullName,
-      data.registrationMethod,
-      data.registrationSource,
-      {
-        displayName: data.displayName,
-        phone: data.phone,
-        role: data.role,
-        userTier: data.userTier,
-        isEmailVerified: data.isEmailVerified,
-        isPhoneVerified: data.isPhoneVerified,
-        isKycVerified: data.isKycVerified,
-        isMfaEnabled: data.isMfaEnabled,
-        preferredLanguage: data.preferredLanguage,
-        preferredDistrict: data.preferredDistrict,
-        preferredUpazila: data.preferredUpazila,
-        correlationId: data.correlationId,
-        causationId: data.causationId,
-        ttlSeconds: data.ttlSeconds,
-        expiresAt: data.expiresAt ? new Date(data.expiresAt) : undefined,
-        priority: data.priority,
-        partitionKey: data.partitionKey,
-        metadata: data.metadata,
-        eventVersion: data.eventVersion,
-      }
-    );
-    // Override auto-generated fields with stored values
-    (event as any).eventId = data.eventId;
-    (event as any).occurredAt = new Date(data.occurredAt);
-    return event;
-  }
-
-  /**
-   * Validate event data using Zod schema
-   */
-  public validate(): boolean {
-    const result = UserRegisteredEventSchema.safeParse(this.toJSON());
-    return result.success;
-  }
-}
-
-// ============================================================
-// ✅ Enterprise: Event Data Interface (for serialization)
-// ============================================================
-
-export interface UserRegisteredEventData {
-  eventId: string;
-  eventName: string;
-  occurredAt: string;
-  eventVersion: number;
-  aggregateVersion: number;
-  correlationId?: string;
-  causationId?: string;
-  userId: string;
-  email: string;
-  fullName: string;
-  displayName?: string;
-  phone?: string;
-  registrationMethod: RegistrationMethod;
-  registrationSource: RegistrationSource;
-  role: UserRole;
-  userTier: UserTier;
-  isEmailVerified: boolean;
-  isPhoneVerified: boolean;
-  isKycVerified: boolean;
-  isMfaEnabled: boolean;
-  preferredLanguage?: 'en' | 'bn';
-  preferredDistrict?: string;
-  preferredUpazila?: string;
-  metadata?: UserRegisteredMetadata;
-  ttlSeconds?: number;
-  expiresAt?: string;
-  priority?: 'low' | 'normal' | 'high' | 'critical';
-  partitionKey?: string;
-}
-
-// ============================================================
-// ✅ Enterprise: Email Verified Event (v2.0)
-// ============================================================
-
-export class EmailVerifiedEvent implements DomainEvent {
-  public readonly eventId: string;
-  public readonly eventName: string = EVENT_NAMES.USER_EMAIL_VERIFIED;
-  public readonly occurredAt: Date;
-  public readonly eventVersion: number = EVENT_VERSIONS.V1;
-  public readonly aggregateVersion: number;
-  public readonly correlationId?: string;
-  public readonly causationId?: string;
-
-  public readonly userId: string;
-  public readonly email: string;
-  public readonly verifiedAt: Date;
-
-  constructor(
-    userId: string,
-    aggregateVersion: number,
-    email: string,
-    options?: {
-      correlationId?: string;
-      causationId?: string;
-      verifiedAt?: Date;
-    }
-  ) {
-    this.eventId = randomUUID();
-    this.occurredAt = new Date();
-    this.aggregateVersion = aggregateVersion;
-    this.correlationId = options?.correlationId;
-    this.causationId = options?.causationId;
-    this.userId = userId;
-    this.email = email;
-    this.verifiedAt = options?.verifiedAt ?? new Date();
+  public static fromJSON(data: Record<string, unknown>): UserRegisteredEvent {
+    return new UserRegisteredEvent({
+      userId: String(data.userId),
+      email: String(data.email),
+      fullName: String(data.fullName),
+      phone: data.phone ? String(data.phone) : undefined,
+      displayName: data.displayName ? String(data.displayName) : undefined,
+      role: data.role as UserRole,
+      tier: data.tier as UserTier,
+      status: data.status as UserStatus,
+      isEmailVerified: Boolean(data.isEmailVerified),
+      isPhoneVerified: Boolean(data.isPhoneVerified),
+      isKycVerified: Boolean(data.isKycVerified),
+      mfaEnabled: Boolean(data.mfaEnabled),
+      preferredLanguage: (data.preferredLanguage as 'en' | 'bn') || 'en',
+      preferredDistrict: data.preferredDistrict as BangladeshDistrict | undefined,
+      preferredUpazila: data.preferredUpazila as BangladeshUpazila | undefined,
+      preferredOperator: data.preferredOperator as UserMobileOperator | undefined,
+      mobileNetworkType: data.mobileNetworkType as UserNetworkType | undefined,
+      registrationMethod: data.registrationMethod as RegistrationMethod,
+      registrationSource: data.registrationSource as RegistrationSource,
+      referralCode: data.referralCode ? String(data.referralCode) : undefined,
+      referredBy: data.referredBy ? String(data.referredBy) : undefined,
+      marketingConsent: Boolean(data.marketingConsent),
+      whatsappConsent: Boolean(data.whatsappConsent),
+      smsConsent: Boolean(data.smsConsent),
+      emailConsent: Boolean(data.emailConsent),
+      ageProvided: Boolean(data.ageProvided),
+      age: data.age ? Number(data.age) : undefined,
+      acceptedTerms: Boolean(data.acceptedTerms),
+      acceptedPrivacy: Boolean(data.acceptedPrivacy),
+      captchaVerified: Boolean(data.captchaVerified),
+      correlationId: String(data.correlationId || data.eventId),
+      ipAddress: data.ipAddress ? String(data.ipAddress) : undefined,
+      userAgent: data.userAgent ? String(data.userAgent) : undefined,
+      deviceId: data.deviceId ? String(data.deviceId) : undefined,
+      deviceFingerprint: data.deviceFingerprint ? String(data.deviceFingerprint) : undefined,
+      metadata: data.metadata as Record<string, unknown> | undefined,
+      eventVersion: Number(data.eventVersion) || 1,
+      timestamp: String(data.timestamp || data.occurredOn || new Date().toISOString()),
+    });
   }
 }
 
 // ============================================================
-// ✅ Enterprise: Phone Verified Event (v2.0)
+// Type Exports
 // ============================================================
 
-export class PhoneVerifiedEvent implements DomainEvent {
-  public readonly eventId: string;
-  public readonly eventName: string = EVENT_NAMES.USER_PHONE_VERIFIED;
-  public readonly occurredAt: Date;
-  public readonly eventVersion: number = EVENT_VERSIONS.V1;
-  public readonly aggregateVersion: number;
-  public readonly correlationId?: string;
-  public readonly causationId?: string;
-
-  public readonly userId: string;
-  public readonly phone: string;
-  public readonly verifiedAt: Date;
-
-  constructor(
-    userId: string,
-    aggregateVersion: number,
-    phone: string,
-    options?: {
-      correlationId?: string;
-      causationId?: string;
-      verifiedAt?: Date;
-    }
-  ) {
-    this.eventId = randomUUID();
-    this.occurredAt = new Date();
-    this.aggregateVersion = aggregateVersion;
-    this.correlationId = options?.correlationId;
-    this.causationId = options?.causationId;
-    this.userId = userId;
-    this.phone = phone;
-    this.verifiedAt = options?.verifiedAt ?? new Date();
-  }
-}
-
-// ============================================================
-// ✅ Enterprise: Type Exports
-// ============================================================
-
-export type { 
-  UserRegisteredMetadata as UserRegisteredMetadataType,
-  UserRegisteredPayload as UserRegisteredPayloadType
-};
-
-// ============================================================
-// ENTERPRISE SUMMARY v2.0
-// ============================================================
-// 
-// Enterprise Enhancements Applied in v2.0:
-// 1. ✅ Shared-types integration (@vubon/shared-types)
-// 2. ✅ Event versioning with aggregateVersion tracking
-// 3. ✅ TTL support with expiresAt for event expiry
-// 4. ✅ Priority-based event processing (low/normal/high/critical)
-// 5. ✅ Partition key for event streaming optimization
-// 6. ✅ Bangladesh specific fields (district, upazila, mobileOperator, networkType)
-// 7. ✅ Feature phone support (deviceType: 'feature_phone')
-// 8. ✅ MFS registration methods (bKash, Nagad, Rocket)
-// 9. ✅ Zod schema for runtime validation
-// 10. ✅ Helper methods: isExpired(), isCritical(), getSummary()
-// 11. ✅ Serialization support (toJSON, fromJSON)
-// 12. ✅ Extended RegistrationMethod (MFS providers)
-// 13. ✅ Extended RegistrationSource (MFS_APP, FEATURE_PHONE)
-// 14. ✅ Bengali language support
-// 15. ✅ UTM parameter tracking for marketing attribution
-// 
-// ============================================================
+export type { UserRegisteredEventData as UserRegisteredEventDataType };
