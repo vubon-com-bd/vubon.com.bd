@@ -136,6 +136,18 @@ export interface UserResponseDto {
   mfaEnabled?: boolean | undefined;
   createdAt: Date;
   lastLoginAt?: Date | undefined;
+  phone?: string | undefined;
+  /** ✅ NEW: Requires email verification flag */
+  requiresEmailVerification?: boolean | undefined;
+
+  /** ✅ NEW: Requires phone verification flag */
+  requiresPhoneVerification?: boolean | undefined;
+
+  /** ✅ NEW: Success message (English) */
+  message?: string | undefined;
+
+  /** ✅ NEW: Success message (Bengali) */
+  messageBn?: string | undefined;
 }
 
 
