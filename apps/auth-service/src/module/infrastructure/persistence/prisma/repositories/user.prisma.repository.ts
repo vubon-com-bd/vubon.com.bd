@@ -7,59 +7,25 @@
  * @description
  * Prisma implementation of the UserRepository port.
  * Handles all database operations for User aggregate with enterprise-grade features.
- *
- * Enterprise Features:
- * ✅ Implements domain UserRepository interface
- * ✅ Complete CRUD operations with pagination and filtering
- * ✅ Caching strategy for hot data (Redis)
- * ✅ Soft delete support with filtering
- * ✅ Optimistic locking for concurrent updates
- * ✅ Audit trail for all operations
- * ✅ Performance optimized queries with indices
- * ✅ Connection pooling and retry logic
- * ✅ Error handling with domain-friendly exceptions
- * ✅ Bangladesh specific - District/Upazila filtering
- * ✅ Transaction support for complex operations
- *
- * @example
- * // In infrastructure module
- * @Module({
- *   providers: [
- *     PrismaService,
- *     {
- *       provide: 'UserRepository',
- *       useClass: UserPrismaRepository,
- *     },
- *   ],
- *   exports: ['UserRepository'],
- * })
- * export class DatabaseModule {}
  */
 
 import { Injectable, Logger, Inject, Optional } from '@nestjs/common';
-import { Prisma, User as PrismaUser, PrismaClient } from '@prisma/client';
-import { v4 as uuidv4 } from 'uuid';
+import { Prisma, User as PrismaUser } from '@prisma/client';
 
 // Shared packages for utilities and types
 import { 
   USER_STATUS, 
-  USER_ROLES, 
-  USER_TIERS,
   USER_DELETION_REASONS,
-  USER_SUSPENSION_REASONS,
 } from '@vubon/shared-constants';
-import type { UserStatus, UserRole, UserTier } from '@vubon/shared-types';
+import type { UserStatus as DomainUserStatus, UserRole as DomainUserRole, UserTier as DomainUserTier } from '@vubon/shared-types';
 import { 
-  maskEmail, 
-  maskPhone, 
   normalizePhone,
-  isValidEmail,
-  isValidBdMobile,
+  maskPhone,
 } from '@vubon/shared-utils';
 
 // Domain imports (ports and entities)
 import { UserRepository } from '../../../domain/repositories/user.repository.interface';
-import { User, UserStatus as DomainUserStatus, UserRole as DomainUserRole, UserTier as DomainUserTier } from '../../../domain/entities/user.entity';
+import { User, UserStatus as DomainUserStatusType, UserRole as DomainUserRoleType, UserTier as DomainUserTierType } from '../../../domain/entities/user.entity';
 import { Email } from '../../../domain/value-objects/email.vo';
 import { Password } from '../../../domain/value-objects/password.vo';
 import { Phone } from '../../../domain/value-objects/phone.vo';
@@ -77,9 +43,6 @@ import { LoggerService } from '../../logger/logger.service.interface';
 // Types and Constants
 // ============================================================
 
-/**
- * Find options for user queries
- */
 export interface FindOptions {
   includeDeleted?: boolean;
   includeSensitive?: boolean;
@@ -87,9 +50,6 @@ export interface FindOptions {
   cacheTTL?: number;
 }
 
-/**
- * Pagination options for list queries
- */
 export interface PaginationOptions {
   page?: number;
   limit?: number;
@@ -97,13 +57,10 @@ export interface PaginationOptions {
   sortOrder?: 'asc' | 'desc';
 }
 
-/**
- * Filter options for user search
- */
 export interface UserFilterOptions {
-  status?: DomainUserStatus | DomainUserStatus[];
-  role?: DomainUserRole | DomainUserRole[];
-  tier?: DomainUserTier | DomainUserTier[];
+  status?: DomainUserStatusType | DomainUserStatusType[];
+  role?: DomainUserRoleType | DomainUserRoleType[];
+  tier?: DomainUserTierType | DomainUserTierType[];
   isEmailVerified?: boolean;
   isPhoneVerified?: boolean;
   isKycVerified?: boolean;
@@ -121,18 +78,12 @@ export interface UserFilterOptions {
   maxTotalSpent?: number;
 }
 
-/**
- * Update options for user operations
- */
 export interface UpdateOptions {
   optimisticLocking?: boolean;
   skipAudit?: boolean;
   skipCache?: boolean;
 }
 
-/**
- * Prisma user with relations (for complex queries)
- */
 interface PrismaUserWithRelations extends PrismaUser {
   sessions?: unknown[];
   mfaConfigs?: unknown[];
@@ -149,9 +100,6 @@ interface PrismaUserWithRelations extends PrismaUser {
 // Cache Key Builder
 // ============================================================
 
-/**
- * Cache key generation for user entities
- */
 class UserCacheKey {
   private static readonly PREFIX = 'auth:user:';
   private static readonly EMAIL_PREFIX = 'auth:user:email:';
@@ -222,7 +170,6 @@ export class UserPrismaRepository implements UserRepository {
     const { includeDeleted = false, withCache = true, cacheTTL = this.defaultCacheTTL } = options;
 
     try {
-      // Check cache first
       if (withCache && this.cacheService) {
         const cacheKey = UserCacheKey.byId(id);
         const cached = await this.cacheService.get<User>(cacheKey);
@@ -233,16 +180,10 @@ export class UserPrismaRepository implements UserRepository {
         this.metricsService?.incrementCounter('user.repository.cache.miss');
       }
 
-      // Build query conditions
-      const where: Prisma.UserWhereInput = { id };
-      if (!includeDeleted) {
-        where.deletedAt = null;
-      }
-
-      // Execute query with retry logic
+      // Use unique lookup by id and then respect includeDeleted
       const prismaUser = await this.executeWithRetry(() =>
         this.prisma.user.findUnique({
-          where,
+          where: { id },
         })
       );
 
@@ -250,19 +191,17 @@ export class UserPrismaRepository implements UserRepository {
         return null;
       }
 
-      // Convert to domain entity
+      if (!includeDeleted && prismaUser.deletedAt) {
+        return null;
+      }
+
       const user = this.toDomain(prismaUser);
 
-      // Cache the result
       if (withCache && this.cacheService) {
         await this.cacheService.set(UserCacheKey.byId(id), user, cacheTTL);
       }
 
-      // Record metrics
-      this.metricsService?.recordHistogram(
-        'user.repository.findById.duration',
-        Date.now() - startTime
-      );
+      this.metricsService?.recordHistogram('user.repository.findById.duration', Date.now() - startTime);
 
       return user;
     } catch (error) {
@@ -281,7 +220,6 @@ export class UserPrismaRepository implements UserRepository {
     const emailValue = email.getValue().toLowerCase();
 
     try {
-      // Check cache first
       if (withCache && this.cacheService) {
         const cacheKey = UserCacheKey.byEmail(emailValue);
         const cached = await this.cacheService.get<User>(cacheKey);
@@ -292,14 +230,12 @@ export class UserPrismaRepository implements UserRepository {
         this.metricsService?.incrementCounter('user.repository.cache.miss');
       }
 
-      // Build query conditions
+      // Use findFirst so we can safely include deletedAt filter if needed
       const where: Prisma.UserWhereInput = { email: emailValue };
-      if (!includeDeleted) {
-        where.deletedAt = null;
-      }
+      if (!includeDeleted) where.deletedAt = null;
 
       const prismaUser = await this.executeWithRetry(() =>
-        this.prisma.user.findUnique({
+        this.prisma.user.findFirst({
           where,
         })
       );
@@ -310,15 +246,11 @@ export class UserPrismaRepository implements UserRepository {
 
       const user = this.toDomain(prismaUser);
 
-      // Cache the result
       if (withCache && this.cacheService) {
         await this.cacheService.set(UserCacheKey.byEmail(emailValue), user, cacheTTL);
       }
 
-      this.metricsService?.recordHistogram(
-        'user.repository.findByEmail.duration',
-        Date.now() - startTime
-      );
+      this.metricsService?.recordHistogram('user.repository.findByEmail.duration', Date.now() - startTime);
 
       return user;
     } catch (error) {
@@ -337,7 +269,6 @@ export class UserPrismaRepository implements UserRepository {
     const phoneValue = phone.getValue();
 
     try {
-      // Check cache first
       if (withCache && this.cacheService) {
         const cacheKey = UserCacheKey.byPhone(phoneValue);
         const cached = await this.cacheService.get<User>(cacheKey);
@@ -349,12 +280,10 @@ export class UserPrismaRepository implements UserRepository {
       }
 
       const where: Prisma.UserWhereInput = { phone: phoneValue };
-      if (!includeDeleted) {
-        where.deletedAt = null;
-      }
+      if (!includeDeleted) where.deletedAt = null;
 
       const prismaUser = await this.executeWithRetry(() =>
-        this.prisma.user.findUnique({
+        this.prisma.user.findFirst({
           where,
         })
       );
@@ -365,15 +294,11 @@ export class UserPrismaRepository implements UserRepository {
 
       const user = this.toDomain(prismaUser);
 
-      // Cache the result
       if (withCache && this.cacheService) {
         await this.cacheService.set(UserCacheKey.byPhone(phoneValue), user, cacheTTL);
       }
 
-      this.metricsService?.recordHistogram(
-        'user.repository.findByPhone.duration',
-        Date.now() - startTime
-      );
+      this.metricsService?.recordHistogram('user.repository.findByPhone.duration', Date.now() - startTime);
 
       return user;
     } catch (error) {
@@ -392,23 +317,22 @@ export class UserPrismaRepository implements UserRepository {
     options: FindOptions = {}
   ): Promise<{ users: User[]; total: number }> {
     const startTime = Date.now();
-    const { includeDeleted = false, withCache = false } = options;
+    const { includeDeleted = false } = options;
     const { page = 1, limit = 20, sortBy = 'createdAt', sortOrder = 'desc' } = pagination;
 
     try {
       const where = this.buildFilterConditions(filters, includeDeleted);
 
-      // Build sort conditions
-      const orderBy: Prisma.UserOrderByWithRelationInput = {};
+      // Build sort conditions safely
       const sortField = this.mapSortField(sortBy);
-      orderBy[sortField as keyof Prisma.UserOrderByWithRelationInput] = sortOrder;
+      const orderByInput: Record<string, 'asc' | 'desc'> = {};
+      orderByInput[sortField] = sortOrder;
 
-      // Execute count and find in parallel
       const [total, prismaUsers] = await Promise.all([
         this.prisma.user.count({ where }),
         this.prisma.user.findMany({
           where,
-          orderBy,
+          orderBy: orderByInput as Prisma.UserOrderByWithRelationInput,
           skip: (page - 1) * limit,
           take: limit,
         }),
@@ -416,10 +340,7 @@ export class UserPrismaRepository implements UserRepository {
 
       const users = prismaUsers.map((u: PrismaUser) => this.toDomain(u));
 
-      this.metricsService?.recordHistogram(
-        'user.repository.findMany.duration',
-        Date.now() - startTime
-      );
+      this.metricsService?.recordHistogram('user.repository.findMany.duration', Date.now() - startTime);
 
       return { users, total };
     } catch (error) {
@@ -467,39 +388,48 @@ export class UserPrismaRepository implements UserRepository {
     const { optimisticLocking = true, skipAudit = false, skipCache = false } = options;
 
     try {
-      const data = this.toPrisma(user);
+      // Prepare base data for update operations (no version/updatedAt here)
+      const updateData = this.toPrismaUpdate(user);
 
-      // Check if user exists
+      // Check if user exists by id (unique)
       const existingUser = await this.prisma.user.findUnique({
         where: { id: user.getId() },
       });
 
       if (existingUser) {
-        // Update existing user with optimistic locking
         if (optimisticLocking) {
-          const updateResult = await this.prisma.user.updateMany({
+          // Attempt optimistic update with version check
+          const result = await this.prisma.user.updateMany({
             where: {
               id: user.getId(),
               version: existingUser.version,
               deletedAt: null,
             },
-            data,
+            data: {
+              ...updateData,
+              version: { increment: 1 },
+              updatedAt: new Date(),
+            },
           });
 
-          if (updateResult.count === 0) {
+          if (result.count === 0) {
             throw new Error('Optimistic lock conflict: User was modified by another transaction');
           }
         } else {
+          // Non-optimistic single update - increment version atomically
           await this.prisma.user.update({
             where: { id: user.getId() },
-            data,
+            data: {
+              ...updateData,
+              version: { increment: 1 },
+              updatedAt: new Date(),
+            } as Prisma.UserUpdateInput,
           });
         }
       } else {
-        // Create new user
-        await this.prisma.user.create({
-          data,
-        });
+        // Create new user with explicit create shape
+        const createData = this.toPrismaCreate(user);
+        await this.prisma.user.create({ data: createData });
       }
 
       // Invalidate cache
@@ -520,13 +450,8 @@ export class UserPrismaRepository implements UserRepository {
         });
       }
 
-      this.metricsService?.recordHistogram(
-        'user.repository.save.duration',
-        Date.now() - startTime
-      );
-      this.metricsService?.incrementCounter(
-        existingUser ? 'user.repository.update' : 'user.repository.create'
-      );
+      this.metricsService?.recordHistogram('user.repository.save.duration', Date.now() - startTime);
+      this.metricsService?.incrementCounter(existingUser ? 'user.repository.update' : 'user.repository.create');
     } catch (error) {
       this.logger.error(`Failed to save user: ${user.getId()}`, error);
       this.metricsService?.incrementCounter('user.repository.error');
@@ -542,17 +467,17 @@ export class UserPrismaRepository implements UserRepository {
 
     try {
       await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        // Soft delete the user
         await tx.user.update({
           where: { id: user.getId() },
           data: {
             deletedAt: new Date(),
             status: USER_STATUS.DELETED,
-            // Invalidate sessions, tokens, etc.
+            updatedAt: new Date(),
+            version: { increment: 1 },
           },
         });
 
-        // Soft delete related entities
+        // Soft delete related entities (assumes these model names exist in schema)
         await tx.session.updateMany({
           where: { userId: user.getId(), status: 'ACTIVE' },
           data: { status: 'REVOKED', revokedAt: new Date() },
@@ -564,12 +489,10 @@ export class UserPrismaRepository implements UserRepository {
         });
       });
 
-      // Invalidate cache
       if (this.cacheService) {
         await this.invalidateCache(user);
       }
 
-      // Audit log
       if (this.auditService) {
         await this.auditService.log({
           action: 'USER_DELETED',
@@ -580,10 +503,7 @@ export class UserPrismaRepository implements UserRepository {
       }
 
       this.metricsService?.incrementCounter('user.repository.delete');
-      this.metricsService?.recordHistogram(
-        'user.repository.delete.duration',
-        Date.now() - startTime
-      );
+      this.metricsService?.recordHistogram('user.repository.delete.duration', Date.now() - startTime);
     } catch (error) {
       this.logger.error(`Failed to delete user: ${user.getId()}`, error);
       this.metricsService?.incrementCounter('user.repository.error');
@@ -610,12 +530,10 @@ export class UserPrismaRepository implements UserRepository {
 
       const user = this.toDomain(updatedUser);
 
-      // Invalidate cache
       if (this.cacheService) {
         await this.invalidateCache(user);
       }
 
-      // Audit log
       if (this.auditService) {
         await this.auditService.log({
           action: 'USER_RESTORED',
@@ -626,10 +544,7 @@ export class UserPrismaRepository implements UserRepository {
       }
 
       this.metricsService?.incrementCounter('user.repository.restore');
-      this.metricsService?.recordHistogram(
-        'user.repository.restore.duration',
-        Date.now() - startTime
-      );
+      this.metricsService?.recordHistogram('user.repository.restore.duration', Date.now() - startTime);
 
       return user;
     } catch (error) {
@@ -643,43 +558,19 @@ export class UserPrismaRepository implements UserRepository {
   // Advanced Queries
   // ============================================================
 
-  /**
-   * Find users by status
-   */
-  async findByStatus(
-    status: DomainUserStatus,
-    pagination: PaginationOptions = {}
-  ): Promise<{ users: User[]; total: number }> {
+  async findByStatus(status: DomainUserStatusType, pagination: PaginationOptions = {}) {
     return this.findMany({ status: [status] }, pagination);
   }
 
-  /**
-   * Find users by role
-   */
-  async findByRole(
-    role: DomainUserRole,
-    pagination: PaginationOptions = {}
-  ): Promise<{ users: User[]; total: number }> {
+  async findByRole(role: DomainUserRoleType, pagination: PaginationOptions = {}) {
     return this.findMany({ role: [role] }, pagination);
   }
 
-  /**
-   * Find users by tier
-   */
-  async findByTier(
-    tier: DomainUserTier,
-    pagination: PaginationOptions = {}
-  ): Promise<{ users: User[]; total: number }> {
+  async findByTier(tier: DomainUserTierType, pagination: PaginationOptions = {}) {
     return this.findMany({ tier: [tier] }, pagination);
   }
 
-  /**
-   * Search users by keyword (email, fullName, phone)
-   */
-  async search(
-    query: string,
-    pagination: PaginationOptions = {}
-  ): Promise<{ users: User[]; total: number }> {
+  async search(query: string, pagination: PaginationOptions = {}) {
     return this.findMany({ search: query }, pagination);
   }
 
@@ -687,14 +578,7 @@ export class UserPrismaRepository implements UserRepository {
   // Bulk Operations
   // ============================================================
 
-  /**
-   * Bulk update user status
-   */
-  async bulkUpdateStatus(
-    userIds: string[],
-    status: DomainUserStatus,
-    reason?: string
-  ): Promise<number> {
+  async bulkUpdateStatus(userIds: string[], status: DomainUserStatusType, reason?: string): Promise<number> {
     const startTime = Date.now();
 
     try {
@@ -707,14 +591,13 @@ export class UserPrismaRepository implements UserRepository {
         },
       });
 
-      // Invalidate cache for all users
       if (this.cacheService) {
         const cacheKeys = userIds.map((id) => UserCacheKey.byId(id));
         await this.cacheService.deleteMany(cacheKeys);
       }
 
-      // Audit log
       if (this.auditService) {
+        // keep sequential to preserve ordering for audit systems; consider batching if performance issue
         for (const userId of userIds) {
           await this.auditService.log({
             action: 'USER_STATUS_BULK_UPDATED',
@@ -724,10 +607,7 @@ export class UserPrismaRepository implements UserRepository {
         }
       }
 
-      this.metricsService?.recordHistogram(
-        'user.repository.bulkUpdateStatus.duration',
-        Date.now() - startTime
-      );
+      this.metricsService?.recordHistogram('user.repository.bulkUpdateStatus.duration', Date.now() - startTime);
 
       return result.count;
     } catch (error) {
@@ -737,9 +617,6 @@ export class UserPrismaRepository implements UserRepository {
     }
   }
 
-  /**
-   * Bulk delete users (soft delete)
-   */
   async bulkDelete(userIds: string[], reason: string = USER_DELETION_REASONS.ADMIN_ACTION): Promise<number> {
     const startTime = Date.now();
 
@@ -754,13 +631,11 @@ export class UserPrismaRepository implements UserRepository {
         },
       });
 
-      // Invalidate cache
       if (this.cacheService) {
         const cacheKeys = userIds.map((id) => UserCacheKey.byId(id));
         await this.cacheService.deleteMany(cacheKeys);
       }
 
-      // Audit log
       if (this.auditService) {
         for (const userId of userIds) {
           await this.auditService.log({
@@ -771,10 +646,7 @@ export class UserPrismaRepository implements UserRepository {
         }
       }
 
-      this.metricsService?.recordHistogram(
-        'user.repository.bulkDelete.duration',
-        Date.now() - startTime
-      );
+      this.metricsService?.recordHistogram('user.repository.bulkDelete.duration', Date.now() - startTime);
 
       return result.count;
     } catch (error) {
@@ -788,18 +660,7 @@ export class UserPrismaRepository implements UserRepository {
   // Stats & Analytics
   // ============================================================
 
-  /**
-   * Get user statistics by status, role, tier
-   */
-  async getStats(): Promise<{
-    total: number;
-    byStatus: Record<string, number>;
-    byRole: Record<string, number>;
-    byTier: Record<string, number>;
-    verified: { email: number; phone: number; kyc: number };
-    active7Days: number;
-    active30Days: number;
-  }> {
+  async getStats() {
     const startTime = Date.now();
 
     try {
@@ -848,24 +709,15 @@ export class UserPrismaRepository implements UserRepository {
       ]);
 
       const statusMap: Record<string, number> = {};
-      for (const item of byStatus) {
-        statusMap[item.status] = item._count;
-      }
+      for (const item of byStatus) statusMap[item.status] = item._count;
 
       const roleMap: Record<string, number> = {};
-      for (const item of byRole) {
-        roleMap[item.role] = item._count;
-      }
+      for (const item of byRole) roleMap[item.role] = item._count;
 
       const tierMap: Record<string, number> = {};
-      for (const item of byTier) {
-        tierMap[item.tier] = item._count;
-      }
+      for (const item of byTier) tierMap[item.tier] = item._count;
 
-      this.metricsService?.recordHistogram(
-        'user.repository.getStats.duration',
-        Date.now() - startTime
-      );
+      this.metricsService?.recordHistogram('user.repository.getStats.duration', Date.now() - startTime);
 
       return {
         total,
@@ -891,53 +743,31 @@ export class UserPrismaRepository implements UserRepository {
   // Private Helper Methods
   // ============================================================
 
-  /**
-   * Build filter conditions for Prisma queries
-   */
-  private buildFilterConditions(
-    filters: UserFilterOptions,
-    includeDeleted: boolean
-  ): Prisma.UserWhereInput {
+  private buildFilterConditions(filters: UserFilterOptions, includeDeleted: boolean): Prisma.UserWhereInput {
     const where: Prisma.UserWhereInput = {};
 
-    // Deleted filter
-    if (!includeDeleted) {
-      where.deletedAt = null;
-    }
+    if (!includeDeleted) where.deletedAt = null;
 
-    // Status filter
     if (filters.status) {
       const statuses = Array.isArray(filters.status) ? filters.status : [filters.status];
       where.status = { in: statuses.map((s) => s as string) };
     }
 
-    // Role filter
     if (filters.role) {
       const roles = Array.isArray(filters.role) ? filters.role : [filters.role];
       where.role = { in: roles.map((r) => r as string) };
     }
 
-    // Tier filter
     if (filters.tier) {
       const tiers = Array.isArray(filters.tier) ? filters.tier : [filters.tier];
       where.tier = { in: tiers.map((t) => t as string) };
     }
 
-    // Verification filters
-    if (filters.isEmailVerified !== undefined) {
-      where.isEmailVerified = filters.isEmailVerified;
-    }
-    if (filters.isPhoneVerified !== undefined) {
-      where.isPhoneVerified = filters.isPhoneVerified;
-    }
-    if (filters.isKycVerified !== undefined) {
-      where.isKycVerified = filters.isKycVerified;
-    }
-    if (filters.mfaEnabled !== undefined) {
-      where.mfaEnabled = filters.mfaEnabled;
-    }
+    if (filters.isEmailVerified !== undefined) where.isEmailVerified = filters.isEmailVerified;
+    if (filters.isPhoneVerified !== undefined) where.isPhoneVerified = filters.isPhoneVerified;
+    if (filters.isKycVerified !== undefined) where.isKycVerified = filters.isKycVerified;
+    if (filters.mfaEnabled !== undefined) where.mfaEnabled = filters.mfaEnabled;
 
-    // Search filter (email, fullName, phone)
     if (filters.search) {
       const searchTerm = filters.search.trim();
       where.OR = [
@@ -948,53 +778,29 @@ export class UserPrismaRepository implements UserRepository {
       ];
     }
 
-    // Exact email filter
-    if (filters.email) {
-      where.email = filters.email.toLowerCase();
-    }
+    if (filters.email) where.email = filters.email.toLowerCase();
+    if (filters.phone) where.phone = filters.phone;
+    if (filters.fullName) where.fullName = { contains: filters.fullName, mode: 'insensitive' };
+    if (filters.district) where.preferredDistrict = filters.district;
+    if (filters.upazila) where.preferredUpazila = filters.upazila;
 
-    // Exact phone filter
-    if (filters.phone) {
-      where.phone = filters.phone;
-    }
-
-    // Exact fullName filter
-    if (filters.fullName) {
-      where.fullName = { contains: filters.fullName, mode: 'insensitive' };
-    }
-
-    // District filter (Bangladesh specific)
-    if (filters.district) {
-      where.preferredDistrict = filters.district;
-    }
-
-    // Upazila filter (Bangladesh specific)
-    if (filters.upazila) {
-      where.preferredUpazila = filters.upazila;
-    }
-
-    // Date range filters
     if (filters.fromDate) {
-      where.createdAt = { ...where.createdAt, gte: filters.fromDate };
+      where.createdAt = { ...(where.createdAt as Prisma.DateTimeFilter) , gte: filters.fromDate } as any;
     }
     if (filters.toDate) {
-      where.createdAt = { ...where.createdAt, lte: filters.toDate };
+      where.createdAt = { ...(where.createdAt as Prisma.DateTimeFilter), lte: filters.toDate } as any;
     }
 
-    // Total spent range filters
     if (filters.minTotalSpent !== undefined) {
-      where.totalSpent = { ...where.totalSpent, gte: filters.minTotalSpent };
+      where.totalSpent = { ...(where.totalSpent as Prisma.FloatFilter), gte: filters.minTotalSpent } as any;
     }
     if (filters.maxTotalSpent !== undefined) {
-      where.totalSpent = { ...where.totalSpent, lte: filters.maxTotalSpent };
+      where.totalSpent = { ...(where.totalSpent as Prisma.FloatFilter), lte: filters.maxTotalSpent } as any;
     }
 
     return where;
   }
 
-  /**
-   * Map sort field for Prisma
-   */
   private mapSortField(field: string): string {
     const fieldMap: Record<string, string> = {
       id: 'id',
@@ -1014,20 +820,10 @@ export class UserPrismaRepository implements UserRepository {
     return fieldMap[field] || 'createdAt';
   }
 
-  /**
-   * Convert Prisma user to Domain User entity
-   */
   private toDomain(prismaUser: PrismaUser): User {
-    const emailValidator = this.emailValidator;
-    const phoneValidator = this.phoneValidator;
-
-    // Create value objects
-    const email = new Email(prismaUser.email, emailValidator);
-    const phone = prismaUser.phone ? new Phone(prismaUser.phone, phoneValidator) : undefined;
-
-    // Note: Password is stored as hash, domain entity expects Password VO
-    // For reconstitution, we need to create Password VO with the hash
-    const password = new Password(prismaUser.password); // This will treat hash as a valid password
+    const email = new Email(prismaUser.email, this.emailValidator);
+    const phone = prismaUser.phone ? new Phone(prismaUser.phone, this.phoneValidator) : undefined;
+    const password = new Password(prismaUser.password); // assumes Password VO can be reconstituted from hash
 
     return User.reconstitute({
       id: prismaUser.id,
@@ -1037,9 +833,9 @@ export class UserPrismaRepository implements UserRepository {
       fullName: prismaUser.fullName,
       displayName: prismaUser.displayName || undefined,
       avatar: prismaUser.avatar || undefined,
-      status: prismaUser.status as DomainUserStatus,
-      role: prismaUser.role as DomainUserRole,
-      tier: prismaUser.tier as DomainUserTier,
+      status: prismaUser.status as DomainUserStatusType,
+      role: prismaUser.role as DomainUserRoleType,
+      tier: prismaUser.tier as DomainUserTierType,
       isEmailVerified: prismaUser.isEmailVerified,
       isPhoneVerified: prismaUser.isPhoneVerified,
       isKycVerified: prismaUser.isKycVerified,
@@ -1063,9 +859,9 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   /**
-   * Convert Domain User to Prisma create/update data
+   * Prepare update shape (do NOT include version increment here)
    */
-  private toPrisma(user: User): Prisma.UserUpdateInput {
+  private toPrismaUpdate(user: User): Prisma.UserUpdateInput {
     return {
       email: user.getEmail().getValue().toLowerCase(),
       password: user.getPassword().getValue(), // Already hashed
@@ -1092,14 +888,47 @@ export class UserPrismaRepository implements UserRepository {
       preferredLanguage: user.getPreferredLanguage(),
       preferredDistrict: user.getPreferredDistrict(),
       preferredUpazila: user.getPreferredUpazila(),
-      version: user.getVersion() + 1,
-      updatedAt: new Date(),
+      // version + updatedAt will be handled by caller (atomic increment)
     };
   }
 
   /**
-   * Invalidate user cache
+   * Prepare create shape
    */
+  private toPrismaCreate(user: User): Prisma.UserCreateInput {
+    return {
+      id: user.getId(),
+      email: user.getEmail().getValue().toLowerCase(),
+      password: user.getPassword().getValue(),
+      phone: user.getPhone()?.getValue() || null,
+      fullName: user.getFullName(),
+      displayName: user.getDisplayName() || null,
+      avatar: user.getAvatar() || null,
+      status: user.getStatus() as string,
+      role: user.getRole() as string,
+      tier: user.getTier() as string,
+      isEmailVerified: user.isEmailVerified(),
+      isPhoneVerified: user.isPhoneVerified(),
+      isKycVerified: user.isKycVerified(),
+      mfaEnabled: user.isMfaEnabled(),
+      totalSpent: user.getTotalSpent() ?? 0,
+      lastLoginAt: user.getLastLoginAt() || null,
+      emailVerifiedAt: user.getEmailVerifiedAt() || null,
+      phoneVerifiedAt: user.getPhoneVerifiedAt() || null,
+      kycVerifiedAt: user.getKycVerifiedAt() || null,
+      mfaEnabledAt: user.getMfaEnabledAt() || null,
+      deletedAt: user.getDeletedAt() || null,
+      suspendedAt: user.getSuspendedAt() || null,
+      suspendedReason: user.getSuspendedReason() || null,
+      preferredLanguage: user.getPreferredLanguage() || 'en',
+      preferredDistrict: user.getPreferredDistrict() || null,
+      preferredUpazila: user.getPreferredUpazila() || null,
+      version: user.getVersion() || 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as Prisma.UserCreateInput;
+  }
+
   private async invalidateCache(user: User): Promise<void> {
     if (!this.cacheService) return;
 
@@ -1109,16 +938,11 @@ export class UserPrismaRepository implements UserRepository {
     ];
 
     const phone = user.getPhone();
-    if (phone) {
-      keys.push(UserCacheKey.byPhone(phone.getValue()));
-    }
+    if (phone) keys.push(UserCacheKey.byPhone(phone.getValue()));
 
     await this.cacheService.deleteMany(keys);
   }
 
-  /**
-   * Execute with retry logic
-   */
   private async executeWithRetry<T>(
     operation: () => Promise<T>,
     maxRetries: number = 3,
@@ -1130,14 +954,9 @@ export class UserPrismaRepository implements UserRepository {
       try {
         return await operation();
       } catch (error) {
-        lastError = error as Error;
-
-        // Only retry on connection/network errors
+        lastError = error instanceof Error ? error : new Error(String(error));
         const isRetryable = this.isRetryableError(error);
-        if (!isRetryable || attempt === maxRetries - 1) {
-          break;
-        }
-
+        if (!isRetryable || attempt === maxRetries - 1) break;
         const delay = initialDelay * Math.pow(2, attempt);
         await this.sleep(delay);
       }
@@ -1146,12 +965,8 @@ export class UserPrismaRepository implements UserRepository {
     throw lastError || new Error('Operation failed after retries');
   }
 
-  /**
-   * Check if error is retryable
-   */
   private isRetryableError(error: unknown): boolean {
     const errorMessage = error instanceof Error ? error.message : '';
-
     const retryablePatterns = [
       'ECONNRESET',
       'ETIMEDOUT',
@@ -1160,24 +975,14 @@ export class UserPrismaRepository implements UserRepository {
       'connection timeout',
       'pool timeout',
     ];
-
-    return retryablePatterns.some((pattern) =>
-      errorMessage.includes(pattern)
-    );
+    return retryablePatterns.some((pattern) => errorMessage.includes(pattern));
   }
 
-  /**
-   * Sleep helper
-   */
   private sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  /**
-   * Wrap Prisma errors to domain-friendly errors
-   */
   private wrapError(error: unknown): Error {
-    // Handle Prisma-specific errors
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       switch (error.code) {
         case 'P2002':
@@ -1191,10 +996,7 @@ export class UserPrismaRepository implements UserRepository {
       }
     }
 
-    if (error instanceof Error) {
-      return error;
-    }
-
+    if (error instanceof Error) return error;
     return new Error('An unexpected error occurred');
   }
 
@@ -1202,22 +1004,11 @@ export class UserPrismaRepository implements UserRepository {
   // Health Check
   // ============================================================
 
-  /**
-   * Check repository health
-   */
-  async healthCheck(): Promise<{
-    healthy: boolean;
-    latency: number;
-    error?: string;
-  }> {
+  async healthCheck(): Promise<{ healthy: boolean; latency: number; error?: string }> {
     const startTime = Date.now();
-
     try {
       await this.prisma.$queryRaw`SELECT 1`;
-      return {
-        healthy: true,
-        latency: Date.now() - startTime,
-      };
+      return { healthy: true, latency: Date.now() - startTime };
     } catch (error) {
       return {
         healthy: false,
