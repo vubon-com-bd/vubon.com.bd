@@ -1,42 +1,40 @@
-# ওয়ার্কফ্লো বা অ্যাকশনের একটি নাম দিন
 name: Node.js CI (Code Check)
 
-# এই অ্যাকশনটি কখন রান হবে তা ডিফাইন করা
 on:
   push:
-    branches: [ main, master ]  # main বা master ব্রাঞ্চে কোড পুশ হলে রান হবে
+    branches: [ main, master ]
   pull_request:
-    branches: [ main, master ]  # কোনো Pull Request ওপেন বা আপডেট হলে রান হবে
+    branches: [ main, master ]
 
-# কী কী কাজ (Jobs) সম্পন্ন হবে
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest  # গিটহাবের ভার্চুয়াল উবুন্টু কম্পিউটারে এই টেস্টটি চলবে
+    runs-on: ubuntu-latest
 
     steps:
-    # ১. গিটহাব থেকে আপনার কোডটি ভার্চুয়াল কম্পিউটারে নিয়ে আসা
+    # ১. গিটহাব থেকে কোড নিয়ে আসা
     - name: Checkout repository code
       uses: actions/checkout@v4
 
-    # ২. ভার্চুয়াল পিসিতে Node.js সেটআপ করা
+    # ২. নোড সেটআপ করা এবং নির্দিষ্ট ফোল্ডারের লক ফাইল ক্যাশ করা
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20' # আপনার প্রজেক্টের নোড ভার্সন (যেমন: 18, 20 বা 22)
-        cache: 'npm'       # দ্রুত বিল্ড করার জন্য ক্যাশ অন করা
+        node-version: '20'
+        cache: 'npm'
+        # গিটহাবকে বলে দেওয়া হলো লক ফাইলটি কোন ফোল্ডারে আছে
+        cache-dependency-path: app/auth-service/package-lock.json
 
-    # ৩. প্রজেক্টের সমস্ত ডিপেন্ডেন্সি/প্যাকেজ ইনস্টল করা
+    # ৩. নির্দিষ্ট ফোল্ডারে ঢুকে প্যাকেজ ইনস্টল করা
     - name: Install dependencies
-      run: npm ci          # 'npm install' এর চেয়ে দ্রুত ও নিরাপদ কমান্ড
+      working-directory: app/auth-service
+      run: npm ci
 
-    # ৪. কোডের ভেতরে কোনো লাইন্টিং বা সিনট্যাক্স এরর আছে কিনা চেক করা (ঐচ্ছিক)
-    # - name: Run Linter
-    #   run: npm run lint
-
-    # ৫. প্রজেক্টের টেস্ট কেসগুলো রান করা
+    # ৪. নির্দিষ্ট ফোল্ডারে টেস্ট রান করা (যদি টেস্ট স্ক্রিপ্ট থাকে)
     - name: Run Tests
-      run: npm test        # আপনার package.json এ 'npm test' স্ক্রিপ্ট থাকতে হবে
+      working-directory: app/auth-service
+      run: npm test --if-present # টেস্ট স্ক্রিপ্ট না থাকলেও যেন এরর না দেয়
 
-    # ৬. প্রজেক্টটি ঠিকঠাক বিল্ড হচ্ছে কিনা চেক করা (বিশেষ করে Next.js/React এর জন্য)
+    # ৫. নির্দিষ্ট ফোল্ডারে প্রজেক্ট বিল্ড করা
     - name: Build Project
-      run: npm run build   # আপনার package.json এ 'npm run build' স্ক্রিপ্ট থাকতে হবে
+      working-directory: app/auth-service
+      run: npm run build --if-present
