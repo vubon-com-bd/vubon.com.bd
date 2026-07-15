@@ -1,0 +1,42 @@
+# ওয়ার্কফ্লো বা অ্যাকশনের একটি নাম দিন
+name: Node.js CI (Code Check)
+
+# এই অ্যাকশনটি কখন রান হবে তা ডিফাইন করা
+on:
+  push:
+    branches: [ main, master ]  # main বা master ব্রাঞ্চে কোড পুশ হলে রান হবে
+  pull_request:
+    branches: [ main, master ]  # কোনো Pull Request ওপেন বা আপডেট হলে রান হবে
+
+# কী কী কাজ (Jobs) সম্পন্ন হবে
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest  # গিটহাবের ভার্চুয়াল উবুন্টু কম্পিউটারে এই টেস্টটি চলবে
+
+    steps:
+    # ১. গিটহাব থেকে আপনার কোডটি ভার্চুয়াল কম্পিউটারে নিয়ে আসা
+    - name: Checkout repository code
+      uses: actions/checkout@v4
+
+    # ২. ভার্চুয়াল পিসিতে Node.js সেটআপ করা
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20' # আপনার প্রজেক্টের নোড ভার্সন (যেমন: 18, 20 বা 22)
+        cache: 'npm'       # দ্রুত বিল্ড করার জন্য ক্যাশ অন করা
+
+    # ৩. প্রজেক্টের সমস্ত ডিপেন্ডেন্সি/প্যাকেজ ইনস্টল করা
+    - name: Install dependencies
+      run: npm ci          # 'npm install' এর চেয়ে দ্রুত ও নিরাপদ কমান্ড
+
+    # ৪. কোডের ভেতরে কোনো লাইন্টিং বা সিনট্যাক্স এরর আছে কিনা চেক করা (ঐচ্ছিক)
+    # - name: Run Linter
+    #   run: npm run lint
+
+    # ৫. প্রজেক্টের টেস্ট কেসগুলো রান করা
+    - name: Run Tests
+      run: npm test        # আপনার package.json এ 'npm test' স্ক্রিপ্ট থাকতে হবে
+
+    # ৬. প্রজেক্টটি ঠিকঠাক বিল্ড হচ্ছে কিনা চেক করা (বিশেষ করে Next.js/React এর জন্য)
+    - name: Build Project
+      run: npm run build   # আপনার package.json এ 'npm run build' স্ক্রিপ্ট থাকতে হবে
