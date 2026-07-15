@@ -65,6 +65,7 @@ export interface IDomainEvent {
   triggeredBy?: string | undefined;
   /** Additional metadata */
   metadata?: Record<string, unknown> | undefined;
+  
 }
 
 /**
@@ -361,6 +362,7 @@ export interface IEventBus {
    */
   cancelScheduled(scheduledId: string): Promise<boolean>;
 
+  
   // ============================================================
   // Subscription Operations
   // ============================================================
@@ -1218,6 +1220,27 @@ export class MockEventBus implements IEventBus {
   }
 }
 
+
+export interface IAuditService {
+  /**
+   * Log an audit event
+   * 
+   * @param data - Audit log data
+   * @returns Promise that resolves when audit is logged
+   */
+  log(data: {
+    action: string;
+    userId?: string;
+    email?: string;
+    phone?: string;
+    status: string;
+    reason?: string;
+    ipAddress?: string;
+    userAgent?: string;
+    correlationId?: string;
+    metadata?: Record<string, unknown>;
+  }): Promise<void>;
+}
 // ============================================================
 // Type Exports (for convenience)
 // ============================================================
