@@ -280,15 +280,20 @@ export class UserPrismaRepository implements UserRepository {
    * Find user by ID
    */
   async findById(id: string): Promise<User | null> {
-    const prismaUser = await this.prisma.user.findUnique({
-      where: { id },
-    });
+    try {
+      const prismaUser = await this.prisma.user.findUnique({
+        where: { id },
+      });
 
-    if (!prismaUser) {
-      return null;
+      if (!prismaUser) {
+        return null;
+      }
+
+      return this.mapToDomain(prismaUser);
+    } catch (error) {
+      this.logger.error(`Failed to find user by ID ${id}:`, error);
+      throw error;
     }
-
-    return this.mapToDomain(prismaUser);
   }
 
   /**
@@ -306,122 +311,167 @@ export class UserPrismaRepository implements UserRepository {
    * Find user by email
    */
   async findByEmail(email: Email, useCache: boolean = true): Promise<User | null> {
-    const prismaUser = await this.prisma.user.findUnique({
-      where: { email: email.getValue() },
-    });
+    try {
+      const prismaUser = await this.prisma.user.findUnique({
+        where: { email: email.getValue() },
+      });
 
-    if (!prismaUser) {
-      return null;
+      if (!prismaUser) {
+        return null;
+      }
+
+      return this.mapToDomain(prismaUser);
+    } catch (error) {
+      this.logger.error(`Failed to find user by email:`, error);
+      throw error;
     }
-
-    return this.mapToDomain(prismaUser);
   }
 
   /**
    * Find user by phone
    */
   async findByPhone(phone: Phone, useCache: boolean = true): Promise<User | null> {
-    const prismaUser = await this.prisma.user.findFirst({
-      where: { phone: phone.getValue() },
-    });
+    try {
+      const prismaUser = await this.prisma.user.findFirst({
+        where: { phone: phone.getValue() },
+      });
 
-    if (!prismaUser) {
-      return null;
+      if (!prismaUser) {
+        return null;
+      }
+
+      return this.mapToDomain(prismaUser);
+    } catch (error) {
+      this.logger.error(`Failed to find user by phone:`, error);
+      throw error;
     }
-
-    return this.mapToDomain(prismaUser);
   }
 
   /**
    * Find user by email or phone
    */
   async findByIdentifier(identifier: string): Promise<User | null> {
-    const prismaUser = await this.prisma.user.findFirst({
-      where: {
-        OR: [{ email: identifier }, { phone: identifier }],
-      },
-    });
+    try {
+      const prismaUser = await this.prisma.user.findFirst({
+        where: {
+          OR: [{ email: identifier }, { phone: identifier }],
+        },
+      });
 
-    if (!prismaUser) {
-      return null;
+      if (!prismaUser) {
+        return null;
+      }
+
+      return this.mapToDomain(prismaUser);
+    } catch (error) {
+      this.logger.error(`Failed to find user by identifier:`, error);
+      throw error;
     }
-
-    return this.mapToDomain(prismaUser);
   }
 
   /**
    * Find user by email (case-insensitive)
    */
   async findByEmailCaseInsensitive(email: string): Promise<User | null> {
-    const prismaUser = await this.prisma.user.findFirst({
-      where: {
-        email: { equals: email.toLowerCase(), mode: 'insensitive' },
-      },
-    });
+    try {
+      const prismaUser = await this.prisma.user.findFirst({
+        where: {
+          email: { equals: email.toLowerCase(), mode: 'insensitive' },
+        },
+      });
 
-    if (!prismaUser) {
-      return null;
+      if (!prismaUser) {
+        return null;
+      }
+
+      return this.mapToDomain(prismaUser);
+    } catch (error) {
+      this.logger.error(`Failed to find user by email (case-insensitive):`, error);
+      throw error;
     }
-
-    return this.mapToDomain(prismaUser);
   }
 
   /**
    * Check if user exists by email
    */
   async existsByEmail(email: Email): Promise<boolean> {
-    const count = await this.prisma.user.count({
-      where: { email: email.getValue() },
-    });
-    return count > 0;
+    try {
+      const count = await this.prisma.user.count({
+        where: { email: email.getValue() },
+      });
+      return count > 0;
+    } catch (error) {
+      this.logger.error(`Failed to check email existence:`, error);
+      throw error;
+    }
   }
 
   /**
    * Check if user exists by phone
    */
   async existsByPhone(phone: Phone): Promise<boolean> {
-    const count = await this.prisma.user.count({
-      where: { phone: phone.getValue() },
-    });
-    return count > 0;
+    try {
+      const count = await this.prisma.user.count({
+        where: { phone: phone.getValue() },
+      });
+      return count > 0;
+    } catch (error) {
+      this.logger.error(`Failed to check phone existence:`, error);
+      throw error;
+    }
   }
 
   /**
    * Check if email is taken by another user
    */
   async isEmailTaken(email: Email, excludeUserId?: string): Promise<boolean> {
-    const where: Prisma.UserWhereInput = {
-      email: email.getValue(),
-    };
-    if (excludeUserId) {
-      where.id = { not: excludeUserId };
+    try {
+      const where: Prisma.UserWhereInput = {
+        email: email.getValue(),
+      };
+      if (excludeUserId) {
+        where.id = { not: excludeUserId };
+      }
+      const count = await this.prisma.user.count({ where });
+      return count > 0;
+    } catch (error) {
+      this.logger.error(`Failed to check if email is taken:`, error);
+      throw error;
     }
-    const count = await this.prisma.user.count({ where });
-    return count > 0;
   }
 
   /**
    * Check if phone is taken by another user
    */
   async isPhoneTaken(phone: Phone, excludeUserId?: string): Promise<boolean> {
-    const where: Prisma.UserWhereInput = {
-      phone: phone.getValue(),
-    };
-    if (excludeUserId) {
-      where.id = { not: excludeUserId };
+    try {
+      const where: Prisma.UserWhereInput = {
+        phone: phone.getValue(),
+      };
+      if (excludeUserId) {
+        where.id = { not: excludeUserId };
+      }
+      const count = await this.prisma.user.count({ where });
+      return count > 0;
+    } catch (error) {
+      this.logger.error(`Failed to check if phone is taken:`, error);
+      throw error;
     }
-    const count = await this.prisma.user.count({ where });
-    return count > 0;
   }
 
   /**
    * Check if user exists by ID
    */
   async exists(id: string): Promise<boolean> {
-    const count = await this.prisma.user.count({
-      where: { id },
-    });
-    return count > 0;
+    try {
+      const count = await this.prisma.user.count({
+        where: { id },
+      });
+      return count > 0;
+    } catch (error) {
+      this.logger.error(`Failed to check user existence:`, error);
+      throw error;
+    }
   }
 
   // ============================================================
@@ -429,30 +479,35 @@ export class UserPrismaRepository implements UserRepository {
   // ============================================================
 
   async findByFilters(filters: UserFilters, options: PaginationOptions): Promise<PaginatedResult<User>> {
-    const where = this.buildWhereClause(filters);
-    const [users, total] = await Promise.all([
-      this.prisma.user.findMany({
-        where,
-        skip: (options.page - 1) * options.limit,
-        take: options.limit,
-        orderBy: options.sortBy
-          ? { [options.sortBy]: options.sortOrder || 'asc' }
-          : { createdAt: 'desc' },
-      }),
-      this.prisma.user.count({ where }),
-    ]);
+    try {
+      const where = this.buildWhereClause(filters);
+      const [users, total] = await Promise.all([
+        this.prisma.user.findMany({
+          where,
+          skip: (options.page - 1) * options.limit,
+          take: options.limit,
+          orderBy: options.sortBy
+            ? { [options.sortBy]: options.sortOrder || 'asc' }
+            : { createdAt: 'desc' },
+        }),
+        this.prisma.user.count({ where }),
+      ]);
 
-    const domainUsers = await Promise.all(users.map((u) => this.mapToDomain(u)));
+      const domainUsers = users.map((u) => this.mapToDomain(u));
 
-    return {
-      data: domainUsers,
-      total,
-      page: options.page,
-      limit: options.limit,
-      totalPages: Math.ceil(total / options.limit),
-      hasNext: options.page * options.limit < total,
-      hasPrevious: options.page > 1,
-    };
+      return {
+        data: domainUsers,
+        total,
+        page: options.page,
+        limit: options.limit,
+        totalPages: Math.ceil(total / options.limit),
+        hasNext: options.page * options.limit < total,
+        hasPrevious: options.page > 1,
+      };
+    } catch (error) {
+      this.logger.error(`Failed to find users by filters:`, error);
+      throw error;
+    }
   }
 
   // ============================================================
@@ -460,23 +515,33 @@ export class UserPrismaRepository implements UserRepository {
   // ============================================================
 
   async saveAndDispatchEvents(user: User, eventDispatcher?: any): Promise<void> {
-    await this.save(user);
-    const events = user.pullDomainEvents();
-    for (const event of events) {
-      if (eventDispatcher) {
-        await eventDispatcher.dispatch(event);
+    try {
+      await this.save(user);
+      const events = user.pullDomainEvents();
+      for (const event of events) {
+        if (eventDispatcher) {
+          await eventDispatcher.dispatch(event);
+        }
       }
+    } catch (error) {
+      this.logger.error(`Failed to save and dispatch events:`, error);
+      throw error;
     }
   }
 
   async saveManyAndDispatchEvents(users: User[], eventDispatcher?: any): Promise<void> {
-    for (const user of users) {
-      await this.saveAndDispatchEvents(user, eventDispatcher);
+    try {
+      for (const user of users) {
+        await this.saveAndDispatchEvents(user, eventDispatcher);
+      }
+    } catch (error) {
+      this.logger.error(`Failed to save many and dispatch events:`, error);
+      throw error;
     }
   }
 
   async runInTransaction<R>(callback: () => Promise<R>): Promise<R> {
-    return this.prisma.runInTransaction(async (tx) => {
+    return this.prisma.runInTransaction(async () => {
       return await callback();
     });
   }
@@ -500,19 +565,29 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   async updateLastLogin(userId: string): Promise<void> {
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { lastLoginAt: new Date() },
-    });
+    try {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { lastLoginAt: new Date() },
+      });
+    } catch (error) {
+      this.logger.error(`Failed to update last login for user ${userId}:`, error);
+      throw error;
+    }
   }
 
   async updateTotalSpent(userId: string, additionalAmount: number): Promise<void> {
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        totalSpent: { increment: additionalAmount },
-      },
-    });
+    try {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          totalSpent: { increment: additionalAmount },
+        },
+      });
+    } catch (error) {
+      this.logger.error(`Failed to update total spent for user ${userId}:`, error);
+      throw error;
+    }
   }
 
   // ============================================================
@@ -520,30 +595,45 @@ export class UserPrismaRepository implements UserRepository {
   // ============================================================
 
   async softDelete(userId: string, reason?: string): Promise<void> {
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        status: 'DELETED' as UserStatus,
-        deletedAt: new Date(),
-        metadata: reason ? { deletionReason: reason } : undefined,
-      },
-    });
+    try {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          status: USER_STATUSES.DELETED as UserStatus,
+          deletedAt: new Date(),
+          metadata: reason ? { deletionReason: reason } : undefined,
+        },
+      });
+    } catch (error) {
+      this.logger.error(`Failed to soft delete user ${userId}:`, error);
+      throw error;
+    }
   }
 
   async restore(userId: string): Promise<void> {
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        status: 'ACTIVE' as UserStatus,
-        deletedAt: null,
-      },
-    });
+    try {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          status: USER_STATUSES.ACTIVE as UserStatus,
+          deletedAt: null,
+        },
+      });
+    } catch (error) {
+      this.logger.error(`Failed to restore user ${userId}:`, error);
+      throw error;
+    }
   }
 
   async permanentDelete(userId: string): Promise<void> {
-    await this.prisma.user.delete({
-      where: { id: userId },
-    });
+    try {
+      await this.prisma.user.delete({
+        where: { id: userId },
+      });
+    } catch (error) {
+      this.logger.error(`Failed to permanently delete user ${userId}:`, error);
+      throw error;
+    }
   }
 
   // ============================================================
@@ -559,14 +649,19 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   async findByIds(ids: string[]): Promise<(User | null)[]> {
-    const users = await this.prisma.user.findMany({
-      where: { id: { in: ids } },
-    });
-    const userMap = new Map(users.map((u) => [u.id, u]));
-    return ids.map((id) => {
-      const user = userMap.get(id);
-      return user ? this.mapToDomain(user) : null;
-    });
+    try {
+      const users = await this.prisma.user.findMany({
+        where: { id: { in: ids } },
+      });
+      const userMap = new Map(users.map((u) => [u.id, u]));
+      return ids.map((id) => {
+        const user = userMap.get(id);
+        return user ? this.mapToDomain(user) : null;
+      });
+    } catch (error) {
+      this.logger.error(`Failed to find users by IDs:`, error);
+      throw error;
+    }
   }
 
   async findBySpecification(specification: any, options: PaginationOptions): Promise<PaginatedResult<User>> {
@@ -574,7 +669,12 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   async count(): Promise<number> {
-    return this.prisma.user.count();
+    try {
+      return this.prisma.user.count();
+    } catch (error) {
+      this.logger.error(`Failed to count users:`, error);
+      throw error;
+    }
   }
 
   async countBySpecification(specification: any): Promise<number> {
@@ -582,12 +682,17 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   // ============================================================
-  // ✅ Batch Operations (Placeholders)
+  // ✅ Batch Operations
   // ============================================================
 
   async saveMany(entities: User[]): Promise<void> {
-    for (const user of entities) {
-      await this.save(user);
+    try {
+      for (const user of entities) {
+        await this.save(user);
+      }
+    } catch (error) {
+      this.logger.error(`Failed to save multiple users:`, error);
+      throw error;
     }
   }
 
@@ -600,10 +705,15 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   async deleteMany(ids: string[]): Promise<number> {
-    const result = await this.prisma.user.deleteMany({
-      where: { id: { in: ids } },
-    });
-    return result.count;
+    try {
+      const result = await this.prisma.user.deleteMany({
+        where: { id: { in: ids } },
+      });
+      return result.count;
+    } catch (error) {
+      this.logger.error(`Failed to delete multiple users:`, error);
+      throw error;
+    }
   }
 
   async softDeleteWithCascade(
@@ -611,8 +721,13 @@ export class UserPrismaRepository implements UserRepository {
     reason?: string,
     cascadeOptions?: SoftDeleteCascadeOptions,
   ): Promise<void> {
-    await this.softDelete(userId, reason);
-    // Cascade operations would be implemented here
+    try {
+      await this.softDelete(userId, reason);
+      // Cascade operations would be implemented here
+    } catch (error) {
+      this.logger.error(`Failed to soft delete with cascade for user ${userId}:`, error);
+      throw error;
+    }
   }
 
   async restoreWithCascade(userId: string): Promise<void> {
@@ -624,41 +739,56 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   // ============================================================
-  // ✅ Bulk Operations (Placeholders)
+  // ✅ Bulk Operations
   // ============================================================
 
   async bulkInsert(entities: User[], options?: any): Promise<number> {
     let count = 0;
-    for (const user of entities) {
-      await this.insert(user);
-      count++;
+    try {
+      for (const user of entities) {
+        await this.insert(user);
+        count++;
+      }
+      return count;
+    } catch (error) {
+      this.logger.error(`Failed during bulk insert:`, error);
+      throw error;
     }
-    return count;
   }
 
   async bulkUpdate(entities: User[], options?: any): Promise<number> {
     let count = 0;
-    for (const user of entities) {
-      await this.update(user);
-      count++;
+    try {
+      for (const user of entities) {
+        await this.update(user);
+        count++;
+      }
+      return count;
+    } catch (error) {
+      this.logger.error(`Failed during bulk update:`, error);
+      throw error;
     }
-    return count;
   }
 
   async bulkUpsert(entities: User[], options?: any): Promise<{ inserted: number; updated: number }> {
     let inserted = 0;
     let updated = 0;
-    for (const user of entities) {
-      const exists = await this.exists(user.id);
-      if (exists) {
-        await this.update(user);
-        updated++;
-      } else {
-        await this.insert(user);
-        inserted++;
+    try {
+      for (const user of entities) {
+        const userExists = await this.exists(user.id);
+        if (userExists) {
+          await this.update(user);
+          updated++;
+        } else {
+          await this.insert(user);
+          inserted++;
+        }
       }
+      return { inserted, updated };
+    } catch (error) {
+      this.logger.error(`Failed during bulk upsert:`, error);
+      throw error;
     }
-    return { inserted, updated };
   }
 
   async bulkDelete(specification: any): Promise<number> {
@@ -673,25 +803,29 @@ export class UserPrismaRepository implements UserRepository {
     let successful = 0;
     const failed: Array<{ entity: User; error: string }> = [];
 
-    for (let i = 0; i < entities.length; i++) {
-      try {
-        await operation(entities[i]);
-        successful++;
-      } catch (error) {
-        failed.push({
-          entity: entities[i],
-          error: error instanceof Error ? error.message : 'Unknown error',
-        });
+    try {
+      for (let i = 0; i < entities.length; i++) {
+        try {
+          await operation(entities[i]);
+          successful++;
+        } catch (error) {
+          failed.push({
+            entity: entities[i],
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        }
+        if (onProgress) {
+          onProgress({
+            total: entities.length,
+            completed: i + 1,
+            failed: failed.length,
+            successful,
+            percentage: ((i + 1) / entities.length) * 100,
+          });
+        }
       }
-      if (onProgress) {
-        onProgress({
-          total: entities.length,
-          completed: i + 1,
-          failed: failed.length,
-          successful,
-          percentage: ((i + 1) / entities.length) * 100,
-        });
-      }
+    } catch (error) {
+      this.logger.error(`Failed during bulk operation with progress:`, error);
     }
 
     return { successful, failed };
@@ -818,8 +952,9 @@ export class UserPrismaRepository implements UserRepository {
     return [];
   }
 
-  async exportAsStream(filters?: UserFilters): Promise<AsyncGenerator<User, void, unknown>> {
-    throw new Error('Method not implemented.');
+  async *exportAsStream(filters?: UserFilters): AsyncGenerator<User, void, unknown> {
+    // Not implemented - placeholder
+    yield;
   }
 
   // ============================================================
@@ -831,56 +966,245 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   // ============================================================
-  // ✅ Bulk Status & Role Operations (Placeholders)
+  // ✅ Bulk Status & Role Operations
   // ============================================================
 
   async bulkActivate(userIds: string[], onProgress?: any): Promise<BulkOperationResult> {
-    const result = await this.bulkOperationWithProgress(
-      await Promise.all(userIds.map((id) => this.findById(id)).then((users) => users.filter((u) => u !== null) as User[])),
-      async (user) => {
-        user.activate();
-        await this.update(user);
-      },
-      onProgress,
-    );
-    return {
-      successCount: result.successful,
-      failedCount: result.failed.length,
-      skippedCount: userIds.length - result.successful - result.failed.length,
-      errors: result.failed.map((f) => ({ id: f.entity.id, error: f.error, timestamp: new Date() })),
-      successIds: [],
-      failedIds: [],
-      skippedIds: [],
-      startedAt: new Date(),
-      completedAt: new Date(),
-      durationMs: 0,
-      operationType: 'activate',
-    };
+    try {
+      const users = await Promise.all(userIds.map((id) => this.findById(id)));
+      const validUsers = users.filter((u) => u !== null) as User[];
+
+      const result = await this.bulkOperationWithProgress(
+        validUsers,
+        async (user) => {
+          user.activate();
+          await this.update(user);
+        },
+        onProgress,
+      );
+
+      return {
+        successCount: result.successful,
+        failedCount: result.failed.length,
+        skippedCount: userIds.length - result.successful - result.failed.length,
+        errors: result.failed.map((f) => ({ id: f.entity.id, error: f.error, timestamp: new Date() })),
+        successIds: [],
+        failedIds: [],
+        skippedIds: [],
+        startedAt: new Date(),
+        completedAt: new Date(),
+        durationMs: 0,
+        operationType: 'activate',
+      };
+    } catch (error) {
+      this.logger.error(`Failed to bulk activate users:`, error);
+      throw error;
+    }
   }
 
   async bulkDeactivate(userIds: string[], onProgress?: any): Promise<BulkOperationResult> {
-    return this.bulkActivate(userIds, onProgress);
+    try {
+      const users = await Promise.all(userIds.map((id) => this.findById(id)));
+      const validUsers = users.filter((u) => u !== null) as User[];
+
+      const result = await this.bulkOperationWithProgress(
+        validUsers,
+        async (user) => {
+          user.deactivate();
+          await this.update(user);
+        },
+        onProgress,
+      );
+
+      return {
+        successCount: result.successful,
+        failedCount: result.failed.length,
+        skippedCount: userIds.length - result.successful - result.failed.length,
+        errors: result.failed.map((f) => ({ id: f.entity.id, error: f.error, timestamp: new Date() })),
+        successIds: [],
+        failedIds: [],
+        skippedIds: [],
+        startedAt: new Date(),
+        completedAt: new Date(),
+        durationMs: 0,
+        operationType: 'deactivate',
+      };
+    } catch (error) {
+      this.logger.error(`Failed to bulk deactivate users:`, error);
+      throw error;
+    }
   }
 
   async bulkLock(userIds: string[], reason: string, onProgress?: any): Promise<BulkOperationResult> {
-    return this.bulkActivate(userIds, onProgress);
+    try {
+      const users = await Promise.all(userIds.map((id) => this.findById(id)));
+      const validUsers = users.filter((u) => u !== null) as User[];
+
+      const result = await this.bulkOperationWithProgress(
+        validUsers,
+        async (user) => {
+          user.lockAccount();
+          await this.update(user);
+        },
+        onProgress,
+      );
+
+      return {
+        successCount: result.successful,
+        failedCount: result.failed.length,
+        skippedCount: userIds.length - result.successful - result.failed.length,
+        errors: result.failed.map((f) => ({ id: f.entity.id, error: f.error, timestamp: new Date() })),
+        successIds: [],
+        failedIds: [],
+        skippedIds: [],
+        startedAt: new Date(),
+        completedAt: new Date(),
+        durationMs: 0,
+        operationType: 'lock',
+      };
+    } catch (error) {
+      this.logger.error(`Failed to bulk lock users:`, error);
+      throw error;
+    }
   }
 
   async bulkUnlock(userIds: string[], onProgress?: any): Promise<BulkOperationResult> {
-    return this.bulkActivate(userIds, onProgress);
+    try {
+      const users = await Promise.all(userIds.map((id) => this.findById(id)));
+      const validUsers = users.filter((u) => u !== null) as User[];
+
+      const result = await this.bulkOperationWithProgress(
+        validUsers,
+        async (user) => {
+          user.unlockAccount();
+          await this.update(user);
+        },
+        onProgress,
+      );
+
+      return {
+        successCount: result.successful,
+        failedCount: result.failed.length,
+        skippedCount: userIds.length - result.successful - result.failed.length,
+        errors: result.failed.map((f) => ({ id: f.entity.id, error: f.error, timestamp: new Date() })),
+        successIds: [],
+        failedIds: [],
+        skippedIds: [],
+        startedAt: new Date(),
+        completedAt: new Date(),
+        durationMs: 0,
+        operationType: 'unlock',
+      };
+    } catch (error) {
+      this.logger.error(`Failed to bulk unlock users:`, error);
+      throw error;
+    }
   }
 
   async bulkAssignRole(userIds: string[], role: UserRole, onProgress?: any): Promise<BulkOperationResult> {
-    return this.bulkActivate(userIds, onProgress);
+    try {
+      const users = await Promise.all(userIds.map((id) => this.findById(id)));
+      const validUsers = users.filter((u) => u !== null) as User[];
+
+      const result = await this.bulkOperationWithProgress(
+        validUsers,
+        async (user) => {
+          user.changeRole(role);
+          await this.update(user);
+        },
+        onProgress,
+      );
+
+      return {
+        successCount: result.successful,
+        failedCount: result.failed.length,
+        skippedCount: userIds.length - result.successful - result.failed.length,
+        errors: result.failed.map((f) => ({ id: f.entity.id, error: f.error, timestamp: new Date() })),
+        successIds: [],
+        failedIds: [],
+        skippedIds: [],
+        startedAt: new Date(),
+        completedAt: new Date(),
+        durationMs: 0,
+        operationType: 'assign_role',
+      };
+    } catch (error) {
+      this.logger.error(`Failed to bulk assign role:`, error);
+      throw error;
+    }
   }
 
   async bulkRecalculateTiers(userIds: string[], onProgress?: any): Promise<BulkOperationResult> {
-    return this.bulkActivate(userIds, onProgress);
+    try {
+      const users = await Promise.all(userIds.map((id) => this.findById(id)));
+      const validUsers = users.filter((u) => u !== null) as User[];
+
+      const result = await this.bulkOperationWithProgress(
+        validUsers,
+        async (user) => {
+          // Re-calculate tier based on current totalSpent
+          user.updateTotalSpent(0);
+          await this.update(user);
+        },
+        onProgress,
+      );
+
+      return {
+        successCount: result.successful,
+        failedCount: result.failed.length,
+        skippedCount: userIds.length - result.successful - result.failed.length,
+        errors: result.failed.map((f) => ({ id: f.entity.id, error: f.error, timestamp: new Date() })),
+        successIds: [],
+        failedIds: [],
+        skippedIds: [],
+        startedAt: new Date(),
+        completedAt: new Date(),
+        durationMs: 0,
+        operationType: 'update_tier',
+      };
+    } catch (error) {
+      this.logger.error(`Failed to bulk recalculate tiers:`, error);
+      throw error;
+    }
   }
 
   async batchUpdateStatus(updates: Map<string, UserStatus>, onProgress?: any): Promise<BulkOperationResult> {
-    const userIds = Array.from(updates.keys());
-    return this.bulkActivate(userIds, onProgress);
+    try {
+      const userIds = Array.from(updates.keys());
+      const users = await Promise.all(userIds.map((id) => this.findById(id)));
+      const validUsers = users.filter((u) => u !== null) as User[];
+
+      let idx = 0;
+      const result = await this.bulkOperationWithProgress(
+        validUsers,
+        async (user) => {
+          const newStatus = updates.get(user.id);
+          if (newStatus) {
+            user.changeStatus(newStatus);
+            await this.update(user);
+          }
+          idx++;
+        },
+        onProgress,
+      );
+
+      return {
+        successCount: result.successful,
+        failedCount: result.failed.length,
+        skippedCount: userIds.length - result.successful - result.failed.length,
+        errors: result.failed.map((f) => ({ id: f.entity.id, error: f.error, timestamp: new Date() })),
+        successIds: [],
+        failedIds: [],
+        skippedIds: [],
+        startedAt: new Date(),
+        completedAt: new Date(),
+        durationMs: 0,
+        operationType: 'activate',
+      };
+    } catch (error) {
+      this.logger.error(`Failed to batch update status:`, error);
+      throw error;
+    }
   }
 
   // ============================================================
@@ -968,11 +1292,16 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   async findByDistrict(district: string, options: PaginationOptions): Promise<PaginatedResult<User>> {
-    return this.findByFilters({ preferredDistrict: district as any }, options);
+    return this.findByFilters({ preferredDistrict: district }, options);
   }
 
-  async findByUpazila(upazila: string, district?: string, options?: PaginationOptions): Promise<PaginatedResult<User>> {
-    return this.findByFilters({ preferredUpazila: upazila as any }, options || { page: 1, limit: 10 });
+  async findByUpazila(
+    upazila: string,
+    district?: string,
+    options?: PaginationOptions,
+  ): Promise<PaginatedResult<User>> {
+    const paginationOptions = options || { page: 1, limit: 10 };
+    return this.findByFilters({ preferredUpazila: upazila }, paginationOptions);
   }
 
   async findRecentlyActive(days: number, options: PaginationOptions): Promise<PaginatedResult<User>> {
@@ -980,7 +1309,7 @@ export class UserPrismaRepository implements UserRepository {
     fromDate.setDate(fromDate.getDate() - days);
     return this.findByFilters(
       {
-        lastLoginAt: { start: fromDate, end: new Date() } as any,
+        lastLoginRange: { start: fromDate, end: new Date() },
       },
       options,
     );
@@ -991,7 +1320,7 @@ export class UserPrismaRepository implements UserRepository {
     beforeDate.setDate(beforeDate.getDate() - days);
     return this.findByFilters(
       {
-        lastLoginAt: { start: new Date(0), end: beforeDate } as any,
+        lastLoginRange: { start: new Date(0), end: beforeDate },
       },
       options,
     );
@@ -1012,49 +1341,89 @@ export class UserPrismaRepository implements UserRepository {
   // ============================================================
 
   async countByStatus(status: UserStatus): Promise<number> {
-    return this.prisma.user.count({ where: { status } });
+    try {
+      return this.prisma.user.count({ where: { status } });
+    } catch (error) {
+      this.logger.error(`Failed to count users by status:`, error);
+      throw error;
+    }
   }
 
   async countByRole(role: UserRole): Promise<number> {
-    return this.prisma.user.count({ where: { role } });
+    try {
+      return this.prisma.user.count({ where: { role } });
+    } catch (error) {
+      this.logger.error(`Failed to count users by role:`, error);
+      throw error;
+    }
   }
 
   async countByTier(tier: UserTier): Promise<number> {
-    return this.prisma.user.count({ where: { tier } });
+    try {
+      return this.prisma.user.count({ where: { tier } });
+    } catch (error) {
+      this.logger.error(`Failed to count users by tier:`, error);
+      throw error;
+    }
   }
 
   async countVerifiedUsers(): Promise<number> {
-    return this.prisma.user.count({ where: { isEmailVerified: true } });
+    try {
+      return this.prisma.user.count({ where: { isEmailVerified: true } });
+    } catch (error) {
+      this.logger.error(`Failed to count verified users:`, error);
+      throw error;
+    }
   }
 
   async countPhoneVerifiedUsers(): Promise<number> {
-    return this.prisma.user.count({ where: { isPhoneVerified: true } });
+    try {
+      return this.prisma.user.count({ where: { isPhoneVerified: true } });
+    } catch (error) {
+      this.logger.error(`Failed to count phone verified users:`, error);
+      throw error;
+    }
   }
 
   async countMFAEnabledUsers(): Promise<number> {
-    return this.prisma.user.count({ where: { mfaEnabled: true } });
+    try {
+      return this.prisma.user.count({ where: { mfaEnabled: true } });
+    } catch (error) {
+      this.logger.error(`Failed to count MFA enabled users:`, error);
+      throw error;
+    }
   }
 
   async countRegisteredBetween(fromDate: Date, toDate: Date): Promise<number> {
-    return this.prisma.user.count({
-      where: {
-        createdAt: {
-          gte: fromDate,
-          lte: toDate,
+    try {
+      return this.prisma.user.count({
+        where: {
+          createdAt: {
+            gte: fromDate,
+            lte: toDate,
+          },
         },
-      },
-    });
+      });
+    } catch (error) {
+      this.logger.error(`Failed to count registered users:`, error);
+      throw error;
+    }
   }
 
   async countActiveUsers(): Promise<number> {
-    const fromDate = new Date();
-    fromDate.setDate(fromDate.getDate() - 30);
-    return this.prisma.user.count({
-      where: {
-        lastLoginAt: { gte: fromDate },
-        status: USER_STATUSES.ACTIVE,
-      },
-    });
+    try {
+      const fromDate = new Date();
+      fromDate.setDate(fromDate.getDate() - 30);
+      return this.prisma.user.count({
+        where: {
+          lastLoginAt: { gte: fromDate },
+          status: USER_STATUSES.ACTIVE,
+        },
+      });
+    } catch (error) {
+      this.logger.error(`Failed to count active users:`, error);
+      throw error;
+    }
   }
 
   // ============================================================
@@ -1210,7 +1579,7 @@ export class UserPrismaRepository implements UserRepository {
     }
 
     if (filters.includeDeleted) {
-      where.status = { not: 'DELETED' };
+      where.status = { not: USER_STATUSES.DELETED };
     }
 
     return where;
