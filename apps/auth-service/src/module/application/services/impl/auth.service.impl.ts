@@ -52,7 +52,7 @@ import { Phone } from '../../../domain/value-objects/phone.vo';
 import type { IEmailValidator } from '../../../domain/ports/email-validator.port';
 import type { IPasswordValidator} from '../../../domain/ports/password-validator.port';
 import type { IPhoneValidator } from '../../../domain/ports/phone-validator.port';
-import type { IPasswordHasher } from '../../../domain/ports/password-hasher.port.ts';
+import type { IPasswordHasher } from '../../../domain/ports/password-hasher.port';
 import { PasswordStrength } from '../../../domain/ports/password-validator.port';
 // ============================================================
 // Application Imports
