@@ -13,19 +13,19 @@
  * Contains all necessary data for user registration with Bangladesh-specific fields.
  * 
  * ENTERPRISE ENHANCEMENTS (v3.2):
- * ✅ All TypeScript errors fixed
- * ✅ exactOptionalPropertyTypes compliance
- * ✅ Shared types integration with proper extension
- * ✅ Proper handling of optional properties
- * ✅ Bangladesh-specific validation with type safety
+ * All TypeScript errors fixed
+ * exactOptionalPropertyTypes compliance
+ * Shared types integration with proper extension
+ * Proper handling of optional properties
+ * Bangladesh-specific validation with type safety
  * 
  * Enterprise Rules:
- * ✅ Immutable command data
- * ✅ Self-contained use case data
- * ✅ Comprehensive validation on construction
- * ✅ No business logic
- * ✅ Framework-free
- * ✅ Bangladesh specific - District, Upazila, Mobile Operator, Network Type support
+ * Immutable command data
+ * Self-contained use case data
+ * Comprehensive validation on construction
+ * No business logic
+ * Framework-free
+ * Bangladesh specific - District, Upazila, Mobile Operator, Network Type support
  */
 
 import { randomUUID } from 'crypto';
@@ -69,17 +69,16 @@ export class CommandValidationError extends Error {
 
 /**
  * Device information for registration tracking (Bangladesh specific)
- * ✅ FIXED: All optional properties explicitly include `| undefined`
- * ✅ FIXED: Properly extends SharedDeviceInfo
+ * FIXED: All optional properties explicitly include `| undefined`
+ * FIXED: Properly extends SharedDeviceInfo
  */
-// ✅ সম্পূর্ণ ঠিক করা কোড - Partial বাদ দিয়ে নিজের মতো ডিফাইন করুন
 // ============================================================
 // Types (Enhanced with shared types)
 // ============================================================
 
 /**
  * Device information for registration tracking (Bangladesh specific)
- * ✅ FIXED: No Partial, explicit properties with undefined support
+ * FIXED: No Partial, explicit properties with undefined support
  */
 export interface DeviceInfo {
   /** IP address of the client */
@@ -125,7 +124,7 @@ export interface DeviceInfo {
 
 /**
  * User preferences for registration
- * ✅ FIXED: No Partial, explicit properties with undefined support
+ * FIXED: No Partial, explicit properties with undefined support
  */
 export interface UserPreferences {
   /** Preferred language (English/Bengali) */
@@ -320,7 +319,7 @@ function validatePasswordStrength(password: string): void {
     );
   }
 
-  // ✅ FIXED: Use REQUIRE_SYMBOLS instead of REQUIRE_SPECIAL_CHARS
+  // FIXED: Use REQUIRE_SYMBOLS instead of REQUIRE_SPECIAL_CHARS
   if (PASSWORD_POLICY.REQUIRE_SYMBOLS && !/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)) {
     throw new CommandValidationError(
       'Password must contain at least one special character',
@@ -418,7 +417,7 @@ function validateUpazila(upazila: string, district?: string): void {
 
   // If district is provided, check if upazila exists for that district
   if (district && BANGLADESH_UPAZILAS[district as keyof typeof BANGLADESH_UPAZILAS]) {
-    // ✅ FIXED: Properly handle the upazila array
+    // FIXED: Properly handle the upazila array
     const validUpazilas = BANGLADESH_UPAZILAS[district as keyof typeof BANGLADESH_UPAZILAS];
     if (validUpazilas && Array.isArray(validUpazilas) && !validUpazilas.includes(upazila)) {
       throw new CommandValidationError(
@@ -468,7 +467,7 @@ function validateAge(age: number | undefined, minAge: number = 13): void {
 
 /**
  * Register User Command Builder
- * ✅ Enterprise: Builder pattern for fluent command construction with validation
+ * Enterprise: Builder pattern for fluent command construction with validation
  * 
  * @example
  * const command = new RegisterUserCommandBuilder()
@@ -635,7 +634,7 @@ export class RegisterUserCommandBuilder {
     if (referralCode && !/^[A-Za-z0-9]{6,20}$/.test(referralCode)) {
       throw new CommandValidationError('Invalid referral code format', 'referralCode', 'format');
     }
-    // ✅ FIXED: Initialize preferences if needed
+    // FIXED: Initialize preferences if needed
     if (!this.options.preferences) {
       this.options.preferences = {} as UserPreferences;
     }
@@ -644,7 +643,7 @@ export class RegisterUserCommandBuilder {
   }
 
   setMarketingConsent(consent: boolean): this {
-    // ✅ FIXED: Initialize preferences if needed
+    // FIXED: Initialize preferences if needed
     if (!this.options.preferences) {
       this.options.preferences = {} as UserPreferences;
     }
@@ -653,7 +652,7 @@ export class RegisterUserCommandBuilder {
   }
 
   setWhatsAppConsent(consent: boolean): this {
-    // ✅ FIXED: Initialize preferences if needed
+    // FIXED: Initialize preferences if needed
     if (!this.options.preferences) {
       this.options.preferences = {} as UserPreferences;
     }
@@ -663,7 +662,7 @@ export class RegisterUserCommandBuilder {
 
   setPreferredDistrict(district: typeof BANGLADESH_DISTRICTS[number]): this {
     validateDistrict(district);
-    // ✅ FIXED: Initialize preferences if needed
+    // FIXED: Initialize preferences if needed
     if (!this.options.preferences) {
       this.options.preferences = {} as UserPreferences;
     }
@@ -673,7 +672,7 @@ export class RegisterUserCommandBuilder {
 
   setPreferredUpazila(upazila: string): this {
     validateUpazila(upazila, this.options.preferences?.preferredDistrict);
-    // ✅ FIXED: Initialize preferences if needed
+    // FIXED: Initialize preferences if needed
     if (!this.options.preferences) {
       this.options.preferences = {} as UserPreferences;
     }
@@ -683,7 +682,7 @@ export class RegisterUserCommandBuilder {
 
   setAge(age: number): this {
     validateAge(age);
-    // ✅ FIXED: Initialize preferences if needed
+    // FIXED: Initialize preferences if needed
     if (!this.options.preferences) {
       this.options.preferences = {} as UserPreferences;
     }
@@ -1055,7 +1054,7 @@ export class RegisterUserCommand {
    * Get registration source for analytics
    */
   public getRegistrationSource(): string {
-    // ✅ FIXED: Use proper access to REGISTRATION_SOURCES
+    // FIXED: Use proper access to REGISTRATION_SOURCES
     const userAgent = this.getUserAgent();
     if (!userAgent) return REGISTRATION_SOURCES.WEB;
 
