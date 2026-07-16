@@ -25,7 +25,6 @@
  */
 
 import { randomUUID } from 'crypto';
-// ✅ FIXED: No empty line within import group
 import type {
   USER_MOBILE_OPERATORS as MOBILE_OPERATORS,
   USER_NETWORK_TYPES as NETWORK_TYPES,
@@ -775,8 +774,7 @@ export class RegisterUserCommand {
   public readonly preferredLanguage: 'en' | 'bn';
   public readonly correlationId?: string | undefined;
   public readonly registrationMethod?:
-    | (typeof REGISTRATION_METHODS)[keyof typeof REGISTRATION_METHODS]
-    | undefined;
+    (typeof·REGISTRATION_METHODS)[keyof·typeof·REGISTRATION_METHODS];
   public readonly role?: string | undefined;
   public readonly tier?: string | undefined;
   public readonly autoLogin: boolean;
