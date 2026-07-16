@@ -255,7 +255,10 @@ const buildRedisConfig = (): RedisConfig => {
     enabled: isProduction,
     failureThreshold: parseInt(process.env.REDIS_CIRCUIT_BREAKER_FAILURE_THRESHOLD || '5', 10),
     resetTimeoutMs: parseInt(process.env.REDIS_CIRCUIT_BREAKER_RESET_TIMEOUT_MS || '30000', 10),
-    halfOpenMaxAttempts: parseInt(process.env.REDIS_CIRCUIT_BREAKER_HALF_OPEN_MAX_ATTEMPTS || '3', 10),
+    halfOpenMaxAttempts: parseInt(
+      process.env.REDIS_CIRCUIT_BREAKER_HALF_OPEN_MAX_ATTEMPTS || '3',
+      10,
+    ),
   };
 
   // Health check
@@ -372,10 +375,10 @@ export const getBullMQConfig = (): {
   db: number;
   keyPrefix: string;
   tls?: Record<string, unknown>;
-  sentinel?: { 
-    nodes: { host: string; port: number }[]; 
-    masterName: string; 
-    password: string | undefined; 
+  sentinel?: {
+    nodes: { host: string; port: number }[];
+    masterName: string;
+    password: string | undefined;
   };
 } => {
   const config: {
@@ -385,10 +388,10 @@ export const getBullMQConfig = (): {
     db: number;
     keyPrefix: string;
     tls?: Record<string, unknown>;
-    sentinel?: { 
-      nodes: { host: string; port: number }[]; 
-      masterName: string; 
-      password: string | undefined; 
+    sentinel?: {
+      nodes: { host: string; port: number }[];
+      masterName: string;
+      password: string | undefined;
     };
   } = {
     host: redisConfig.host,
@@ -411,12 +414,12 @@ export const getBullMQConfig = (): {
     // ✅ FIXED: Proper node parsing with default values
     const nodes = redisConfig.sentinel.nodes.map((node) => {
       const [host, port] = node.split(':');
-      return { 
+      return {
         host: host || 'localhost',
-        port: parseInt(port || '26379', 10) 
+        port: parseInt(port || '26379', 10),
       };
     });
-    
+
     config.sentinel = {
       nodes,
       masterName: redisConfig.sentinel.masterName,
