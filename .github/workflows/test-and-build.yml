@@ -1,44 +1,54 @@
-name: Node.js CI (Code Check)
+name: Node.js CI (Code Quality)
 
 on:
   push:
-    branches: [ main, master ]
+    branches:
+      - main
+      - master
+
   pull_request:
-    branches: [ main, master ]
+    branches:
+      - main
+      - master
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: apps/auth-service
+
     steps:
-    # ১. গিটহাব থেকে কোড নিয়ে আসা
-    - name: Checkout repository code
-      uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v5
 
-    # ২. নোড সেটআপ করা
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '24'
-        cache: 'npm'
-        cache-dependency-path: '**/package-lock.json'
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/auth-service/package-lock.json
 
-    # ৩. পোস্ট-ইনস্টল স্ক্রিপ্ট ইগনোর করে প্যাকেজ ইনস্টল করা (Prisma এরর এড়াতে)
-    - name: Install dependencies
-      working-directory: apps/auth-service
-      run: npm install --legacy-peer-deps --ignore-scripts
+      - name: Install Dependencies
+        run: npm install --legacy-peer-deps --ignore-scripts
 
-    # ৪. সঠিক পাথের স্কিমা ফাইলটি ব্যবহার করে প্রিজমা ক্লায়েন্ট জেনারেট করা
-    - name: Generate Prisma Client
-      working-directory: apps/auth-service
-      run: npx prisma generate --schema=src/module/infrastructure/persistence/prisma/schema/schema.prisma
+      - name: Generate Prisma Client
+        run: >
+          npx prisma generate
+          --schema=src/module/infrastructure/persistence/prisma/schema/schema.prisma
 
-    # ৫. টেস্ট রান করা
-    - name: Run Tests
-      working-directory: apps/auth-service
-      run: npm test --if-present
+      - name: Check Code Formatting
+        run: npm run format:check
 
-    # ৬. প্রজেক্ট বিল্ড করা
-    - name: Build Project
-      working-directory: apps/auth-service
-      run: npm run build --if-present|| true
+      - name: Run ESLint
+        run: npm run lint:check
+
+      - name: TypeScript Type Check
+        run: npm run type-check
+
+      - name: Run Tests
+        run: npm test --if-present
+
+      - name: Build Project
+        run: npm run build
