@@ -25,10 +25,12 @@
  */
 
 import { randomUUID } from 'crypto';
+
 import type {
   USER_MOBILE_OPERATORS as MOBILE_OPERATORS,
   USER_NETWORK_TYPES as NETWORK_TYPES,
 } from '@vubon/shared-constants';
+
 import {
   REGISTRATION_SOURCES,
   REGISTRATION_METHODS,
@@ -37,6 +39,7 @@ import {
   PASSWORD_POLICY,
 } from '@vubon/shared-constants';
 import {
+  
   maskEmail,
   maskPhone,
   normalizePhone,
@@ -875,16 +878,16 @@ export class RegisterUserCommand {
    * Check if referral code is provided
    * ✅ FIXED: Removed unnecessary optional chain (warning 572)
    */
-  public hasReferralCode(): boolean {
-    return !!this.preferences?.referralCode;
-  }
+    public hasReferralCode(): boolean {
+    return !!this.preferences.referralCode;
+    }
 
   /**
    * Check if marketing consent is given
    * ✅ FIXED: Simplified conditional (warning 577)
    */
   public hasMarketingConsent(): boolean {
-    return this.preferences?.marketingConsent === true;
+    return this.preferences.marketingConsent === true;
   }
 
   /**
@@ -1121,7 +1124,8 @@ export class RegisterUserCommand {
    * Convert to string for logging (sensitive data masked)
    */
   public toString(): string {
-    return `RegisterUserCommand(id=${this.commandId.slice(0, 8)}..., email=${this.getMaskedEmail()}, phone=${this.getMaskedPhone()}, hasPhone=${this.hasPhone()}, preferredLanguage=${this.preferredLanguage}, source=${this.getRegistrationSource()}, hasCaptcha=${this.hasCaptcha()}, timestamp=${this.timestamp.toISOString()})`;
+    return RegisterUserCommand(id=${this.commandId.slice(0, 8)} 
+    email=${this.getMaskedEmail()}, phone=${this.getMaskedPhone()}, hasPhone=${this.hasPhone()}, preferredLanguage=${this.preferredLanguage}, source=${this.getRegistrationSource()}, hasCaptcha=${this.hasCaptcha()}, timestamp=${this.timestamp.toISOString()})`;
   }
 
   /**
