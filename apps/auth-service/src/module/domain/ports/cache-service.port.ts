@@ -1,13 +1,13 @@
 /**
  * Cache Service Port - Domain Layer Interface (Enterprise Grade)
- * 
+ *
  * @module domain/ports/cache-service.port
- * 
+ *
  * @description
  * Port (interface) for cache operations.
  * Defines the contract that infrastructure adapters (Redis, Memcached, etc.) must implement.
  * This keeps the domain layer clean and infrastructure-agnostic.
- * 
+ *
  * Enterprise Rules:
  * ✅ Domain layer defines the interface (Port)
  * ✅ Infrastructure layer implements the interface (Adapter)
@@ -18,23 +18,23 @@
  * ✅ Supports batch operations
  * ✅ Supports cache tags and invalidation patterns
  * ✅ Bangladesh specific - supports district-based caching
- * 
+ *
  * @example
  * // Domain usage
  * class UserService {
  *   constructor(private readonly cacheService: ICacheService) {}
- *   
+ *
  *   async getUser(id: string): Promise<User> {
  *     const cacheKey = `user:${id}`;
  *     const cached = await this.cacheService.get<User>(cacheKey);
  *     if (cached) return cached;
- *     
+ *
  *     const user = await this.userRepository.findById(id);
  *     await this.cacheService.set(cacheKey, user, 3600);
  *     return user;
  *   }
  * }
- * 
+ *
  * // Infrastructure implementation
  * class RedisCacheService implements ICacheService {
  *   async get<T>(key: string): Promise<T | null> {
@@ -170,10 +170,10 @@ export interface CacheBatchResult<T = unknown> {
 
 /**
  * Cache Service Port Interface
- * 
+ *
  * Defines the contract for cache operations.
  * All caching should go through this interface.
- * 
+ *
  * Enterprise Features:
  * ✅ Get, set, delete operations with TTL
  * ✅ Batch operations (multi-get, multi-set)
@@ -183,17 +183,17 @@ export interface CacheBatchResult<T = unknown> {
  * ✅ Read-through caching strategy
  * ✅ Compression support
  * ✅ Bangladesh specific - district-based cache keys
- * 
+ *
  * @example
  * // Using the port in domain service
  * class OrderService {
  *   constructor(private readonly cacheService: ICacheService) {}
- * 
+ *
  *   async getOrder(id: string): Promise<Order> {
  *     const key = `order:${id}`;
  *     const cached = await this.cacheService.get<Order>(key);
  *     if (cached) return cached;
- * 
+ *
  *     const order = await this.orderRepository.findById(id);
  *     await this.cacheService.set(key, order, {
  *       ttl: 3600,
@@ -210,11 +210,11 @@ export interface ICacheService {
 
   /**
    * Get a value from cache
-   * 
+   *
    * @param key - Cache key
    * @param options - Cache options
    * @returns Cached value or null if not found
-   * 
+   *
    * @example
    * const user = await cacheService.get<User>('user:123');
    * if (user) {
@@ -225,11 +225,11 @@ export interface ICacheService {
 
   /**
    * Get a value with metadata
-   * 
+   *
    * @param key - Cache key
    * @param options - Cache options
    * @returns Cache result with metadata
-   * 
+   *
    * @example
    * const result = await cacheService.getWithMeta<User>('user:123');
    * if (result.found) {
@@ -240,12 +240,12 @@ export interface ICacheService {
 
   /**
    * Set a value in cache
-   * 
+   *
    * @param key - Cache key
    * @param value - Value to cache
    * @param options - Cache options (TTL, tags, etc.)
    * @returns Whether operation was successful
-   * 
+   *
    * @example
    * await cacheService.set('user:123', user, {
    *   ttl: 3600,
@@ -256,12 +256,12 @@ export interface ICacheService {
 
   /**
    * Set a value if it doesn't exist (SETNX)
-   * 
+   *
    * @param key - Cache key
    * @param value - Value to cache
    * @param options - Cache options
    * @returns Whether value was set
-   * 
+   *
    * @example
    * const locked = await cacheService.setIfNotExist('lock:order:123', true, { ttl: 10 });
    * if (locked) {
@@ -272,11 +272,11 @@ export interface ICacheService {
 
   /**
    * Delete a value from cache
-   * 
+   *
    * @param key - Cache key
    * @param options - Cache options
    * @returns Whether operation was successful
-   * 
+   *
    * @example
    * await cacheService.delete('user:123');
    */
@@ -284,11 +284,11 @@ export interface ICacheService {
 
   /**
    * Check if a key exists in cache
-   * 
+   *
    * @param key - Cache key
    * @param options - Cache options
    * @returns Whether key exists
-   * 
+   *
    * @example
    * const exists = await cacheService.exists('user:123');
    */
@@ -296,11 +296,11 @@ export interface ICacheService {
 
   /**
    * Get TTL for a key
-   * 
+   *
    * @param key - Cache key
    * @param options - Cache options
    * @returns TTL in seconds (-1 if no expiry, -2 if not found)
-   * 
+   *
    * @example
    * const ttl = await cacheService.getTTL('user:123');
    * console.log(`Key expires in ${ttl} seconds`);
@@ -309,12 +309,12 @@ export interface ICacheService {
 
   /**
    * Update TTL for a key
-   * 
+   *
    * @param key - Cache key
    * @param ttl - New TTL in seconds
    * @param options - Cache options
    * @returns Whether operation was successful
-   * 
+   *
    * @example
    * await cacheService.setTTL('user:123', 7200);
    */
@@ -326,11 +326,11 @@ export interface ICacheService {
 
   /**
    * Get multiple values from cache
-   * 
+   *
    * @param keys - Array of cache keys
    * @param options - Cache options
    * @returns Map of key to value
-   * 
+   *
    * @example
    * const users = await cacheService.getMany(['user:123', 'user:456']);
    * console.log(users.get('user:123')); // User object or null
@@ -339,20 +339,23 @@ export interface ICacheService {
 
   /**
    * Get multiple values with metadata
-   * 
+   *
    * @param keys - Array of cache keys
    * @param options - Cache options
    * @returns Map of key to cache result
    */
-  getManyWithMeta<T = unknown>(keys: string[], options?: CacheOptions): Promise<Map<string, CacheResult<T>>>;
+  getManyWithMeta<T = unknown>(
+    keys: string[],
+    options?: CacheOptions,
+  ): Promise<Map<string, CacheResult<T>>>;
 
   /**
    * Set multiple values in cache
-   * 
+   *
    * @param entries - Map of key to value
    * @param options - Cache options (applied to all)
    * @returns Batch operation result
-   * 
+   *
    * @example
    * await cacheService.setMany(new Map([
    *   ['user:123', user1],
@@ -363,11 +366,11 @@ export interface ICacheService {
 
   /**
    * Delete multiple values from cache
-   * 
+   *
    * @param keys - Array of cache keys
    * @param options - Cache options
    * @returns Number of keys deleted
-   * 
+   *
    * @example
    * const deleted = await cacheService.deleteMany(['user:123', 'user:456']);
    */
@@ -379,13 +382,13 @@ export interface ICacheService {
 
   /**
    * Set a value with tags
-   * 
+   *
    * @param key - Cache key
    * @param value - Value to cache
    * @param tags - Array of tags
    * @param options - Cache options
    * @returns Whether operation was successful
-   * 
+   *
    * @example
    * await cacheService.setWithTags('user:123', user, ['user:123', 'users']);
    */
@@ -393,11 +396,11 @@ export interface ICacheService {
 
   /**
    * Invalidate cache by tag
-   * 
+   *
    * @param tag - Cache tag
    * @param options - Cache options
    * @returns Number of keys invalidated
-   * 
+   *
    * @example
    * // Invalidate all user-related caches
    * const count = await cacheService.invalidateByTag('users');
@@ -406,11 +409,11 @@ export interface ICacheService {
 
   /**
    * Invalidate cache by multiple tags
-   * 
+   *
    * @param tags - Array of tags
    * @param options - Cache options
    * @returns Total number of keys invalidated
-   * 
+   *
    * @example
    * const count = await cacheService.invalidateByTags(['user:123', 'order:456']);
    */
@@ -418,11 +421,11 @@ export interface ICacheService {
 
   /**
    * Get all keys with a specific tag
-   * 
+   *
    * @param tag - Cache tag
    * @param options - Cache options
    * @returns Array of keys
-   * 
+   *
    * @example
    * const keys = await cacheService.getKeysByTag('users');
    */
@@ -434,11 +437,11 @@ export interface ICacheService {
 
   /**
    * Find keys matching a pattern
-   * 
+   *
    * @param pattern - Key pattern (e.g., 'user:*')
    * @param options - Cache options
    * @returns Array of matching keys
-   * 
+   *
    * @example
    * const keys = await cacheService.findKeys('user:*');
    */
@@ -446,11 +449,11 @@ export interface ICacheService {
 
   /**
    * Delete all keys matching a pattern
-   * 
+   *
    * @param pattern - Key pattern
    * @param options - Cache options
    * @returns Number of keys deleted
-   * 
+   *
    * @example
    * const count = await cacheService.deleteByPattern('session:*');
    */
@@ -458,11 +461,11 @@ export interface ICacheService {
 
   /**
    * Invalidate cache by pattern
-   * 
+   *
    * @param pattern - Invalidation pattern
    * @param options - Cache options
    * @returns Number of keys invalidated
-   * 
+   *
    * @example
    * const count = await cacheService.invalidateByPattern({
    *   pattern: 'user:*',
@@ -477,11 +480,11 @@ export interface ICacheService {
 
   /**
    * Increment cache version for a namespace
-   * 
+   *
    * @param namespace - Cache namespace
    * @param options - Cache options
    * @returns New version number
-   * 
+   *
    * @example
    * // Invalidate all caches in 'users' namespace
    * const version = await cacheService.incrementVersion('users');
@@ -490,11 +493,11 @@ export interface ICacheService {
 
   /**
    * Get current version for a namespace
-   * 
+   *
    * @param namespace - Cache namespace
    * @param options - Cache options
    * @returns Current version number
-   * 
+   *
    * @example
    * const version = await cacheService.getVersion('users');
    */
@@ -502,11 +505,11 @@ export interface ICacheService {
 
   /**
    * Clear entire namespace
-   * 
+   *
    * @param namespace - Cache namespace
    * @param options - Cache options
    * @returns Whether operation was successful
-   * 
+   *
    * @example
    * await cacheService.clearNamespace('users');
    */
@@ -518,10 +521,10 @@ export interface ICacheService {
 
   /**
    * Get cache statistics
-   * 
+   *
    * @param options - Cache options
    * @returns Cache statistics
-   * 
+   *
    * @example
    * const stats = await cacheService.getStatistics();
    * console.log(`Hit ratio: ${stats.hitRatio}`);
@@ -530,10 +533,10 @@ export interface ICacheService {
 
   /**
    * Get cache health status
-   * 
+   *
    * @param options - Cache options
    * @returns Health status
-   * 
+   *
    * @example
    * const health = await cacheService.getHealth();
    * if (health.status === 'unhealthy') {
@@ -544,10 +547,10 @@ export interface ICacheService {
 
   /**
    * Reset cache statistics
-   * 
+   *
    * @param options - Cache options
    * @returns Whether operation was successful
-   * 
+   *
    * @example
    * await cacheService.resetStatistics();
    */
@@ -555,10 +558,10 @@ export interface ICacheService {
 
   /**
    * Clear all cache
-   * 
+   *
    * @param options - Cache options
    * @returns Whether operation was successful
-   * 
+   *
    * @example
    * await cacheService.clear();
    */
@@ -570,12 +573,12 @@ export interface ICacheService {
 
   /**
    * Increment a numeric value
-   * 
+   *
    * @param key - Cache key
    * @param incrementBy - Amount to increment by (default: 1)
    * @param options - Cache options
    * @returns New value
-   * 
+   *
    * @example
    * const count = await cacheService.increment('counter', 1);
    */
@@ -583,12 +586,12 @@ export interface ICacheService {
 
   /**
    * Decrement a numeric value
-   * 
+   *
    * @param key - Cache key
    * @param decrementBy - Amount to decrement by (default: 1)
    * @param options - Cache options
    * @returns New value
-   * 
+   *
    * @example
    * const count = await cacheService.decrement('counter', 1);
    */
@@ -596,12 +599,12 @@ export interface ICacheService {
 
   /**
    * Get and set a value atomically
-   * 
+   *
    * @param key - Cache key
    * @param value - New value
    * @param options - Cache options
    * @returns Old value
-   * 
+   *
    * @example
    * const oldValue = await cacheService.getAndSet('user:123', newUser);
    */
@@ -613,11 +616,11 @@ export interface ICacheService {
 
   /**
    * Generate cache key for district (Bangladesh specific)
-   * 
+   *
    * @param district - District name
    * @param prefix - Optional prefix
    * @returns Cache key
-   * 
+   *
    * @example
    * const key = cacheService.generateDistrictKey('Dhaka', 'user');
    * // Returns: 'district:Dhaka:user'
@@ -626,11 +629,11 @@ export interface ICacheService {
 
   /**
    * Generate cache key for mobile operator (Bangladesh specific)
-   * 
+   *
    * @param operator - Mobile operator ('gp', 'robi', 'banglalink', 'teletalk')
    * @param prefix - Optional prefix
    * @returns Cache key
-   * 
+   *
    * @example
    * const key = cacheService.generateOperatorKey('gp', 'session');
    * // Returns: 'operator:gp:session'
@@ -639,17 +642,21 @@ export interface ICacheService {
 
   /**
    * Generate cache key for MFS (Bangladesh specific)
-   * 
+   *
    * @param provider - MFS provider ('bkash', 'nagad', 'rocket')
    * @param phoneNumber - Phone number
    * @param prefix - Optional prefix
    * @returns Cache key
-   * 
+   *
    * @example
    * const key = cacheService.generateMFSKey('bkash', '+8801712345678', 'otp');
    * // Returns: 'mfs:bkash:+8801712345678:otp'
    */
-  generateMFSKey(provider: 'bkash' | 'nagad' | 'rocket', phoneNumber: string, prefix?: string): string;
+  generateMFSKey(
+    provider: 'bkash' | 'nagad' | 'rocket',
+    phoneNumber: string,
+    prefix?: string,
+  ): string;
 
   // ============================================================
   // Utility Operations
@@ -657,11 +664,11 @@ export interface ICacheService {
 
   /**
    * Get cache key with proper prefix and namespace
-   * 
+   *
    * @param key - Cache key
    * @param options - Cache options
    * @returns Formatted cache key
-   * 
+   *
    * @example
    * const formattedKey = cacheService.formatKey('user:123', { namespace: 'auth' });
    * // Returns: 'auth:user:123'
@@ -670,10 +677,10 @@ export interface ICacheService {
 
   /**
    * Generate a cache key from parts
-   * 
+   *
    * @param parts - Key parts
    * @returns Joined key
-   * 
+   *
    * @example
    * const key = cacheService.joinKeys('user', '123', 'profile');
    * // Returns: 'user:123:profile'
@@ -682,10 +689,10 @@ export interface ICacheService {
 
   /**
    * Parse a cache key into parts
-   * 
+   *
    * @param key - Cache key
    * @returns Array of key parts
-   * 
+   *
    * @example
    * const parts = cacheService.splitKeys('user:123:profile');
    * // Returns: ['user', '123', 'profile']
@@ -817,22 +824,22 @@ export class MockCacheService implements ICacheService {
   }
 
   async getWithMeta<T = unknown>(key: string, options?: CacheOptions): Promise<CacheResult<T>> {
-  const value = await this.get<T>(key, options);
-  const formattedKey = this.formatKey(key, options);
-  const entry = this.cache.get(formattedKey);
-  const ttl = entry ? this.getRemainingSeconds(entry.expiresAt) : 0;
-  const tags = entry ? this.getTags(formattedKey) : []; // ✅ Now used
+    const value = await this.get<T>(key, options);
+    const formattedKey = this.formatKey(key, options);
+    const entry = this.cache.get(formattedKey);
+    const ttl = entry ? this.getRemainingSeconds(entry.expiresAt) : 0;
+    const tags = entry ? this.getTags(formattedKey) : []; // ✅ Now used
 
-  return {
-    found: value !== null,
-    value: value !== null ? value : undefined,
-    key: formattedKey,
-    ttl,
-    tags,
-    hitAt: entry ? new Date() : undefined,
-    expiresAt: entry ? entry.expiresAt : undefined,
-  };
-}
+    return {
+      found: value !== null,
+      value: value !== null ? value : undefined,
+      key: formattedKey,
+      ttl,
+      tags,
+      hitAt: entry ? new Date() : undefined,
+      expiresAt: entry ? entry.expiresAt : undefined,
+    };
+  }
 
   async set<T>(key: string, value: T, options?: CacheOptions): Promise<boolean> {
     await this.delay();
@@ -916,7 +923,10 @@ export class MockCacheService implements ICacheService {
     return true;
   }
 
-  async getMany<T = unknown>(keys: string[], options?: CacheOptions): Promise<Map<string, T | null>> {
+  async getMany<T = unknown>(
+    keys: string[],
+    options?: CacheOptions,
+  ): Promise<Map<string, T | null>> {
     const result = new Map<string, T | null>();
     for (const key of keys) {
       const value = await this.get<T>(key, options);
@@ -925,7 +935,10 @@ export class MockCacheService implements ICacheService {
     return result;
   }
 
-  async getManyWithMeta<T = unknown>(keys: string[], options?: CacheOptions): Promise<Map<string, CacheResult<T>>> {
+  async getManyWithMeta<T = unknown>(
+    keys: string[],
+    options?: CacheOptions,
+  ): Promise<Map<string, CacheResult<T>>> {
     const result = new Map<string, CacheResult<T>>();
     for (const key of keys) {
       const meta = await this.getWithMeta<T>(key, options);
@@ -960,7 +973,12 @@ export class MockCacheService implements ICacheService {
     return count;
   }
 
-  async setWithTags<T>(key: string, value: T, tags: string[], options?: CacheOptions): Promise<boolean> {
+  async setWithTags<T>(
+    key: string,
+    value: T,
+    tags: string[],
+    options?: CacheOptions,
+  ): Promise<boolean> {
     return this.set(key, value, { ...options, tags });
   }
 
@@ -1105,11 +1123,18 @@ export class MockCacheService implements ICacheService {
     return prefix ? `district:${district}:${prefix}` : `district:${district}`;
   }
 
-  generateOperatorKey(operator: 'gp' | 'robi' | 'banglalink' | 'teletalk', prefix?: string): string {
+  generateOperatorKey(
+    operator: 'gp' | 'robi' | 'banglalink' | 'teletalk',
+    prefix?: string,
+  ): string {
     return prefix ? `operator:${operator}:${prefix}` : `operator:${operator}`;
   }
 
-  generateMFSKey(provider: 'bkash' | 'nagad' | 'rocket', phoneNumber: string, prefix?: string): string {
+  generateMFSKey(
+    provider: 'bkash' | 'nagad' | 'rocket',
+    phoneNumber: string,
+    prefix?: string,
+  ): string {
     return prefix ? `mfs:${provider}:${phoneNumber}:${prefix}` : `mfs:${provider}:${phoneNumber}`;
   }
 
@@ -1128,7 +1153,7 @@ export class MockCacheService implements ICacheService {
   }
 
   joinKeys(...parts: string[]): string {
-    return parts.filter(part => part !== '').join(':');
+    return parts.filter((part) => part !== '').join(':');
   }
 
   splitKeys(key: string): string[] {
