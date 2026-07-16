@@ -52,13 +52,7 @@
 /**
  * Hashing algorithm types (Domain-specific)
  */
-export type HashingAlgorithm = 
-  | 'bcrypt' 
-  | 'argon2id' 
-  | 'scrypt' 
-  | 'pbkdf2' 
-  | 'sha256' 
-  | 'sha512';
+export type HashingAlgorithm = 'bcrypt' | 'argon2id' | 'scrypt' | 'pbkdf2' | 'sha256' | 'sha512';
 
 /**
  * Password hashing options
@@ -93,18 +87,20 @@ export interface HashResult {
   /** Version of the hashing algorithm */
   version?: string | undefined;
   /** Additional metadata for audit/compliance */
-  metadata?: {
-    /** Time taken to hash in milliseconds */
-    durationMs?: number | undefined;
-    /** Iterations/Salt rounds used */
-    rounds?: number | undefined;
-    /** Memory cost (for Argon2id) */
-    memoryCost?: number | undefined;
-    /** Time cost (for Argon2id) */
-    timeCost?: number | undefined;
-    /** Parallelism (for Argon2id) */
-    parallelism?: number | undefined;
-  } | undefined;
+  metadata?:
+    | {
+        /** Time taken to hash in milliseconds */
+        durationMs?: number | undefined;
+        /** Iterations/Salt rounds used */
+        rounds?: number | undefined;
+        /** Memory cost (for Argon2id) */
+        memoryCost?: number | undefined;
+        /** Time cost (for Argon2id) */
+        timeCost?: number | undefined;
+        /** Parallelism (for Argon2id) */
+        parallelism?: number | undefined;
+      }
+    | undefined;
 }
 
 /**
@@ -357,10 +353,12 @@ export interface IPasswordHasher {
     /** Error message (if unhealthy) */
     error?: string | undefined;
     /** Performance metrics */
-    metrics?: {
-      averageHashTimeMs: number;
-      averageVerifyTimeMs: number;
-    } | undefined;
+    metrics?:
+      | {
+          averageHashTimeMs: number;
+          averageVerifyTimeMs: number;
+        }
+      | undefined;
   }>;
 }
 
@@ -372,7 +370,8 @@ export interface IPasswordHasher {
  * Can be used in unit tests to avoid external dependencies
  */
 export class MockPasswordHasher implements IPasswordHasher {
-  private readonly defaultHash = '$2b$10$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  private readonly defaultHash =
+    '$2b$10$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   private readonly defaultAlgorithm: HashingAlgorithm = 'bcrypt';
   private readonly saltRounds = 10;
 
@@ -422,14 +421,16 @@ export class MockPasswordHasher implements IPasswordHasher {
     },
   ): Promise<boolean> {
     // ✅ FIXED: Properly handle undefined options with nullish coalescing
-    const minRounds = (options?.minSaltRounds !== undefined && options?.minSaltRounds !== null) 
-      ? options.minSaltRounds 
-      : 12;
-    
-    const preferred = (options?.preferredAlgorithm !== undefined && options?.preferredAlgorithm !== null)
-      ? options.preferredAlgorithm
-      : 'argon2id';
-    
+    const minRounds =
+      options?.minSaltRounds !== undefined && options?.minSaltRounds !== null
+        ? options.minSaltRounds
+        : 12;
+
+    const preferred =
+      options?.preferredAlgorithm !== undefined && options?.preferredAlgorithm !== null
+        ? options.preferredAlgorithm
+        : 'argon2id';
+
     const algorithm = await this.getAlgorithm(hash);
 
     const currentRounds = 10;
@@ -459,49 +460,49 @@ export class MockPasswordHasher implements IPasswordHasher {
   }
 
   async hashBatch(
-  passwords: string[],
-  options?: HashingOptions,
-): Promise<Array<HashResult & { passwordIndex: number }>> {
-  const results: Array<HashResult & { passwordIndex: number }> = [];
-  for (let i = 0; i < passwords.length; i++) {
-    const password = passwords[i];
-    // ✅ Type guard: check if password exists
-    if (!password) {
-      // Skip or handle undefined password
-      continue;
+    passwords: string[],
+    options?: HashingOptions,
+  ): Promise<Array<HashResult & { passwordIndex: number }>> {
+    const results: Array<HashResult & { passwordIndex: number }> = [];
+    for (let i = 0; i < passwords.length; i++) {
+      const password = passwords[i];
+      // ✅ Type guard: check if password exists
+      if (!password) {
+        // Skip or handle undefined password
+        continue;
+      }
+      const result = await this.hash(password, options);
+      results.push({
+        ...result,
+        passwordIndex: i,
+      });
     }
-    const result = await this.hash(password, options);
-    results.push({
-      ...result,
-      passwordIndex: i,
-    });
+    return results;
   }
-  return results;
-}
 
-async compareBatch(
-  pairs: Array<{ password: string; hash: string }>,
-): Promise<Array<HashVerificationResult & { pairIndex: number }>> {
-  const results: Array<HashVerificationResult & { pairIndex: number }> = [];
-  for (let i = 0; i < pairs.length; i++) {
-    const pair = pairs[i];
-    // ✅ Type guard: check if pair exists
-    if (!pair) {
-      continue;
+  async compareBatch(
+    pairs: Array<{ password: string; hash: string }>,
+  ): Promise<Array<HashVerificationResult & { pairIndex: number }>> {
+    const results: Array<HashVerificationResult & { pairIndex: number }> = [];
+    for (let i = 0; i < pairs.length; i++) {
+      const pair = pairs[i];
+      // ✅ Type guard: check if pair exists
+      if (!pair) {
+        continue;
+      }
+      const { password, hash } = pair;
+      // ✅ Type guard: check if password and hash exist
+      if (!password || !hash) {
+        continue;
+      }
+      const result = await this.compare(password, hash);
+      results.push({
+        ...result,
+        pairIndex: i,
+      });
     }
-    const { password, hash } = pair;
-    // ✅ Type guard: check if password and hash exist
-    if (!password || !hash) {
-      continue;
-    }
-    const result = await this.compare(password, hash);
-    results.push({
-      ...result,
-      pairIndex: i,
-    });
+    return results;
   }
-  return results;
-}
 
   async generateSalt(
     length: number = 16,
@@ -510,16 +511,15 @@ async compareBatch(
     },
   ): Promise<string> {
     // ✅ FIXED: Properly handle undefined options
-    const encoding = (options?.encoding !== undefined && options?.encoding !== null)
-      ? options.encoding
-      : 'base64';
-    
+    const encoding =
+      options?.encoding !== undefined && options?.encoding !== null ? options.encoding : 'base64';
+
     // Generate a deterministic salt based on length and encoding
     let salt = '';
     for (let i = 0; i < length; i++) {
       salt += String.fromCharCode(65 + (i % 26));
     }
-    
+
     // ✅ FIXED: Use proper conditional checks
     if (encoding === 'hex') {
       return Buffer.from(salt).toString('hex');
@@ -564,10 +564,12 @@ async compareBatch(
     supportedAlgorithms: HashingAlgorithm[];
     defaultAlgorithm: HashingAlgorithm;
     error?: string | undefined;
-    metrics?: {
-      averageHashTimeMs: number;
-      averageVerifyTimeMs: number;
-    } | undefined;
+    metrics?:
+      | {
+          averageHashTimeMs: number;
+          averageVerifyTimeMs: number;
+        }
+      | undefined;
   }> {
     return {
       healthy: true,
