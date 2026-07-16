@@ -225,39 +225,39 @@ const config: Config.InitialOptions = {
   // Reporters (CI/CD Integration)
   // ============================================================
   
-  reporters: [
-    'default',
-    [
-      'jest-junit',
-      {
-        outputDirectory: '<rootDir>/../test-reports',
-        outputName: 'junit.xml',
-        classNameTemplate: '{classname}',
-        titleTemplate: '{title}',
-        ancestorSeparator: ' › ',
-        usePathForSuiteName: 'true',
-      },
-    ],
-    [
-      'jest-html-reporter',
-      {
-        outputPath: '<rootDir>/../test-reports/test-report.html',
-        pageTitle: 'Auth Service Test Report',
-        includeFailureMsg: true,
-        includeConsoleLog: true,
-        sort: 'titleAsc',
-      },
-    ],
-    [
-      'jest-stare',
-      {
-        resultDir: '<rootDir>/../test-reports/jest-stare',
-        coverageLink: '../coverage/lcov-report/index.html',
-        reportTitle: 'Auth Service Test Report',
-        additionalResultsProcessors: ['jest-html-reporter'],
-      },
-    ],
-  ],
+//  reporters: [
+//    'default',
+//    [
+//      'jest-junit',
+//      {
+//        outputDirectory: '<rootDir>/../test-reports',
+//        outputName: 'junit.xml',
+//        classNameTemplate: '{classname}',
+//        titleTemplate: '{title}',
+//        ancestorSeparator: ' › ',
+//        usePathForSuiteName: 'true',
+//      },
+//    ],
+ //   [
+//      'jest-html-reporter',
+//      {
+ //       outputPath: '<rootDir>/../test-reports/test-report.html',
+  //      pageTitle: 'Auth Service Test Report',
+ //       includeFailureMsg: true,
+   //     includeConsoleLog: true,
+ //       sort: 'titleAsc',
+  //    },
+ //   ],
+ //   [
+  //    'jest-stare',
+   //   {
+//        resultDir: '<rootDir>/../test-reports/jest-stare',
+//        coverageLink: '../coverage/lcov-report/index.html',
+ //       reportTitle: 'Auth Service Test Report',
+ //       additionalResultsProcessors: ['jest-html-reporter'],
+ //     },
+//    ],
+//  ],
   
   // ============================================================
   // Miscellaneous
