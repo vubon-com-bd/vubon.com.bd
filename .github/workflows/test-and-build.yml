@@ -2,14 +2,9 @@ name: Node.js CI (Code Quality)
 
 on:
   push:
-    branches:
-      - main
-      - master
-
+    branches: [main, master]
   pull_request:
-    branches:
-      - main
-      - master
+    branches: [main, master]
 
 jobs:
   build-and-test:
@@ -20,35 +15,51 @@ jobs:
         working-directory: apps/auth-service
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: apps/auth-service/package-lock.json
 
       - name: Install Dependencies
-        run: npm install --legacy-peer-deps --ignore-scripts
+        run: npm ci --legacy-peer-deps --ignore-scripts
+
+      - name: Show Environment
+        run: |
+          node -v
+          npm -v
+          npx prettier --version
+          npx eslint --version
+          npx tsc --version
 
       - name: Generate Prisma Client
-        run: >
-          npx prisma generate
+        run: |
+          npx prisma generate \
           --schema=src/module/infrastructure/persistence/prisma/schema/schema.prisma
 
-      - name: Check Code Formatting
-        run: npm run format:check
+      - name: Prettier Check (Detailed)
+        run: |
+          npx prettier --check "src/**/*.ts"
+          echo "=============================="
+          echo "FILES DIFFERENT FROM PRETTIER:"
+          npx prettier --list-different "src/**/*.ts"
 
-      - name: Run ESLint
-        run: npm run lint:check
+      - name: ESLint
+        run: |
+          npx eslint src --ext .ts
 
-      - name: TypeScript Type Check
-        run: npm run type-check
+      - name: TypeScript
+        run: |
+          npx tsc --noEmit --pretty
 
-      - name: Run Tests
+      - name: Tests
         run: npm test --if-present
 
-      - name: Build Project
+      - name: Build
         run: npm run build
+
+      - name: ESLint (Line Numbers)
+        run: |
+              npx eslint src --ext .ts --format stylish
