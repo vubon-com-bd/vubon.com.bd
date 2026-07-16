@@ -25,17 +25,11 @@
  */
 
 import { randomUUID } from 'crypto';
-
-// ============================================================
-// Shared Packages Import (Enterprise Enhancement)
-// ============================================================
-
-// ✅ FIXED: Only import types as types
+// ✅ FIXED: No empty line within import group
 import type {
   USER_MOBILE_OPERATORS as MOBILE_OPERATORS,
   USER_NETWORK_TYPES as NETWORK_TYPES,
 } from '@vubon/shared-constants';
-
 import {
   REGISTRATION_SOURCES,
   REGISTRATION_METHODS,
@@ -43,7 +37,6 @@ import {
   BANGLADESH_UPAZILAS,
   PASSWORD_POLICY,
 } from '@vubon/shared-constants';
-
 import {
   maskEmail,
   maskPhone,
@@ -523,16 +516,14 @@ export class RegisterUserCommandBuilder {
     return this;
   }
 
+  // ✅ FIXED: Removed unnecessary conditional checks (warnings 297, 306, 315, 324)
   setDeviceInfo(deviceInfo: IDeviceInfo): this {
-    // ✅ FIXED: Removed unnecessary conditional checks (warnings 295, 304, 313, 322)
-    // Device info is validated directly without redundant truthy checks
     this.options.deviceInfo = deviceInfo;
     return this;
   }
 
+  // ✅ FIXED: Removed unnecessary conditional checks
   setPreferences(preferences: IUserPreferences): this {
-    // ✅ FIXED: Removed unnecessary conditional checks
-    // Preferences are set directly, validation happens in build() or by the handler
     this.options.preferences = preferences;
     return this;
   }
@@ -884,7 +875,7 @@ export class RegisterUserCommand {
 
   /**
    * Check if referral code is provided
-   * ✅ FIXED: Removed unnecessary optional chain (warning 583)
+   * ✅ FIXED: Removed unnecessary optional chain (warning 572)
    */
   public hasReferralCode(): boolean {
     return !!this.preferences?.referralCode;
@@ -892,7 +883,7 @@ export class RegisterUserCommand {
 
   /**
    * Check if marketing consent is given
-   * ✅ FIXED: Simplified conditional (warning 588)
+   * ✅ FIXED: Simplified conditional (warning 577)
    */
   public hasMarketingConsent(): boolean {
     return this.preferences?.marketingConsent === true;
