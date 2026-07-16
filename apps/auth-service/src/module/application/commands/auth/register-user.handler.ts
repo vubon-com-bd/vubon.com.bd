@@ -1,11 +1,6 @@
 /**
- * Register DTOs - Pure Data Transport Objects (Enterprise Enhanced v2.0)
- * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- */
-
-/**
  * Register User Command Handler - Pure Application Logic (Enterprise Grade)
- * 
+ *
  * @module application/commands/auth/register-user.handler
  */
 
@@ -16,10 +11,7 @@ import { randomUUID } from 'crypto';
 // Shared Packages Import (SSOT)
 // ============================================================
 
-import {
-  AUDIT_ACTIONS,
-  REGISTRATION_SOURCES,
-} from '@vubon/shared-constants';
+import { AUDIT_ACTIONS, REGISTRATION_SOURCES } from '@vubon/shared-constants';
 import { maskEmail } from '@vubon/shared-utils';
 import type { ApiErrorCode } from '@vubon/shared-types';
 
@@ -93,7 +85,7 @@ export class RegisterUserHandler {
     private readonly passwordValidator: IPasswordValidator,
     private readonly phoneValidator: IPhoneValidator,
     private readonly idGenerator: IdGenerator,
-    
+
     // Application Ports (from domain/ports)
     private readonly eventBus: IEventBus,
     private readonly auditService: IAuditService,
@@ -110,9 +102,7 @@ export class RegisterUserHandler {
   ): Promise<CommandResult<{ userId: string }>> {
     const correlationId = command.correlationId || randomUUID();
 
-    this.logger.debug(
-      `[${correlationId}] Processing registration for ${maskEmail(command.email)}`,
-    );
+    this.logger.debug(`[${correlationId}] Processing registration for ${maskEmail(command.email)}`);
 
     try {
       // STEP 1: Validate Input Data
@@ -126,13 +116,10 @@ export class RegisterUserHandler {
         );
       }
 
-      const passwordValidation = this.passwordValidator.validate(
-        command.password,
-        {
-          minStrength: PasswordStrength.MEDIUM,
-          checkCommonPasswords: true,
-        },
-      );
+      const passwordValidation = this.passwordValidator.validate(command.password, {
+        minStrength: PasswordStrength.MEDIUM,
+        checkCommonPasswords: true,
+      });
       if (!passwordValidation.isValid) {
         return this.createErrorResult(
           'WEAK_PASSWORD' as ApiErrorCode,
@@ -144,10 +131,7 @@ export class RegisterUserHandler {
 
       let phone: Phone | undefined;
       if (command.phone) {
-        const phoneValidation = this.phoneValidator.validate(
-          command.phone,
-          'BD',
-        );
+        const phoneValidation = this.phoneValidator.validate(command.phone, 'BD');
         if (!phoneValidation.isValid) {
           return this.createErrorResult(
             'INVALID_PHONE' as ApiErrorCode,
@@ -209,10 +193,7 @@ export class RegisterUserHandler {
         const hashResult = await this.passwordHasher.hash(command.password);
         hashedPassword = hashResult.hash;
       } catch (error) {
-        this.logger.error(
-          `[${correlationId}] Password hashing failed:`,
-          error,
-        );
+        this.logger.error(`[${correlationId}] Password hashing failed:`, error);
         return this.createErrorResult(
           'INTERNAL_ERROR' as ApiErrorCode,
           'Registration failed due to technical error',
@@ -270,9 +251,7 @@ export class RegisterUserHandler {
       // STEP 5: Save User
       try {
         await this.userRepository.save(user);
-        this.logger.debug(
-          `[${correlationId}] User saved successfully: ${user.id}`,
-        );
+        this.logger.debug(`[${correlationId}] User saved successfully: ${user.id}`);
       } catch (error) {
         this.logger.error(`[${correlationId}] Failed to save user:`, error);
         return this.createErrorResult(
@@ -362,7 +341,7 @@ export class RegisterUserHandler {
           preferences: command.preferences,
         },
       });
-      
+
       // ✅ IDomainEvent-এ কাস্ট করে পাবলিশ করুন
       await this.eventBus.publish(registeredEvent as unknown as IDomainEvent);
 
@@ -372,10 +351,7 @@ export class RegisterUserHandler {
         correlationId,
       };
     } catch (error) {
-      this.logger.error(
-        `[${correlationId}] Unexpected registration error:`,
-        error,
-      );
+      this.logger.error(`[${correlationId}] Unexpected registration error:`, error);
       return this.createErrorResult(
         'INTERNAL_ERROR' as ApiErrorCode,
         'Registration failed due to unexpected error',
@@ -406,11 +382,11 @@ export class RegisterUserHandler {
 
   private mapToRegistrationSource(source: string): any {
     const sourceMap: Record<string, any> = {
-      'WEB': REGISTRATION_SOURCES.WEB,
-      'MOBILE_APP': REGISTRATION_SOURCES.MOBILE_APP,
-      'API': REGISTRATION_SOURCES.API,
-      'ADMIN': REGISTRATION_SOURCES.ADMIN,
-      'SOCIAL': REGISTRATION_SOURCES.SOCIAL,
+      WEB: REGISTRATION_SOURCES.WEB,
+      MOBILE_APP: REGISTRATION_SOURCES.MOBILE_APP,
+      API: REGISTRATION_SOURCES.API,
+      ADMIN: REGISTRATION_SOURCES.ADMIN,
+      SOCIAL: REGISTRATION_SOURCES.SOCIAL,
     };
     return sourceMap[source] || REGISTRATION_SOURCES.WEB;
   }
