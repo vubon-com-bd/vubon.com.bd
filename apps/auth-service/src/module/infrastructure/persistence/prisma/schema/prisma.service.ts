@@ -1,12 +1,12 @@
 /**
  * Prisma Service - Enterprise Grade Database Connection
- * 
+ *
  * @module infrastructure/persistence/prisma/prisma.service
- * 
+ *
  * @description
  * Centralized Prisma ORM service for database operations.
  * Implements connection pooling, logging, health checks, and graceful shutdown.
- * 
+ *
  * Enterprise Features:
  * ✅ Connection pooling with environment-aware limits
  * ✅ Query logging with slow query detection
@@ -18,13 +18,13 @@
  * ✅ Read replica support (optional)
  * ✅ Query metrics for monitoring
  * ✅ Extension for soft delete, audit, and caching
- * 
+ *
  * @example
  * // In your repository
  * @Injectable()
  * export class UserPrismaRepository implements UserRepository {
  *   constructor(private readonly prisma: PrismaService) {}
- *   
+ *
  *   async findById(id: string): Promise<User | null> {
  *     const user = await this.prisma.user.findUnique({ where: { id } });
  *     return user ? UserMapper.toDomain(user) : null;
@@ -142,7 +142,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     while (attempts < this.maxRetries) {
       attempts++;
       this.connectionAttempts = attempts; // ✅ Now it's used
-      
+
       try {
         this.logger.log(`Connecting to database (attempt ${attempts}/${this.maxRetries})...`);
         await this.$connect();
@@ -229,27 +229,25 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         try {
           const result = await next(params);
           const duration = Date.now() - start;
-          
+
           // Log slow queries
           if (duration > this.slowQueryThreshold) {
             this.logger.warn(
-              `Slow query detected: ${params.model}.${params.action} took ${duration}ms`
+              `Slow query detected: ${params.model}.${params.action} took ${duration}ms`,
             );
           }
-          
+
           // Log query details in development
           if (env.NODE_ENV === 'development') {
-            this.logger.debug(
-              `Query: ${params.model}.${params.action} completed in ${duration}ms`
-            );
+            this.logger.debug(`Query: ${params.model}.${params.action} completed in ${duration}ms`);
           }
-          
+
           return result;
         } catch (error) {
           const duration = Date.now() - start;
           this.logger.error(
             `Query failed: ${params.model}.${params.action} (${duration}ms):`,
-            error
+            error,
           );
           throw error;
         }
@@ -283,7 +281,10 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
    * @param retries - Number of retries (default: 1)
    * @returns Result of callback
    */
-  async transactional<R>(callback: (tx: Prisma.TransactionClient) => Promise<R>, retries: number = 1): Promise<R> {
+  async transactional<R>(
+    callback: (tx: Prisma.TransactionClient) => Promise<R>,
+    retries: number = 1,
+  ): Promise<R> {
     let attempts = 0;
     let lastError: Error | undefined;
 
@@ -295,11 +296,13 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         });
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
-        
+
         // Check if error is retryable
         if (this.isRetryableError(lastError) && attempts <= retries) {
           const delay = 100 * Math.pow(2, attempts - 1);
-          this.logger.warn(`Transaction retry ${attempts}/${retries} after ${delay}ms: ${lastError.message}`);
+          this.logger.warn(
+            `Transaction retry ${attempts}/${retries} after ${delay}ms: ${lastError.message}`,
+          );
           await this.delay(delay);
           continue;
         }
