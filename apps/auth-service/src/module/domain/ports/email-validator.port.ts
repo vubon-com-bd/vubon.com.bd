@@ -58,13 +58,7 @@ export type EmailDomainCategory =
 /**
  * Email provider type (Domain-specific)
  */
-export type EmailProviderType =
-  | 'google'
-  | 'microsoft'
-  | 'apple'
-  | 'yahoo'
-  | 'protonmail'
-  | 'other';
+export type EmailProviderType = 'google' | 'microsoft' | 'apple' | 'yahoo' | 'protonmail' | 'other';
 
 /**
  * Email components (Domain-specific)
@@ -361,7 +355,6 @@ export interface IEmailValidator {
   batchValidate(emails: string[]): EmailValidationResult[];
 }
 
-
 // ============================================================
 // Utility Types for Testing
 // ============================================================
@@ -473,7 +466,7 @@ export class MockEmailValidator implements IEmailValidator {
     // প্যারামিটার ব্যবহার করে ডোমেইন চেক করা হয়েছে
     const domain = this.getDomain(email);
     const bdDomains = ['.com.bd', '.edu.bd', '.gov.bd', '.org.bd', '.net.bd'];
-    return this.isValidResult && domain ? bdDomains.some(d => domain.endsWith(d)) : false;
+    return this.isValidResult && domain ? bdDomains.some((d) => domain.endsWith(d)) : false;
   }
 
   isDisposable(email: string): boolean {
@@ -487,14 +480,14 @@ export class MockEmailValidator implements IEmailValidator {
     // প্যারামিটার ব্যবহার করে ডোমেইন চেক করা হয়েছে
     const domain = this.getDomain(email);
     const eduDomains = ['.edu', '.edu.bd', '.ac.bd'];
-    return this.isValidResult && domain ? eduDomains.some(d => domain.endsWith(d)) : false;
+    return this.isValidResult && domain ? eduDomains.some((d) => domain.endsWith(d)) : false;
   }
 
   isGovernment(email: string): boolean {
     // প্যারামিটার ব্যবহার করে ডোমেইন চেক করা হয়েছে
     const domain = this.getDomain(email);
     const govDomains = ['.gov', '.gov.bd'];
-    return this.isValidResult && domain ? govDomains.some(d => domain.endsWith(d)) : false;
+    return this.isValidResult && domain ? govDomains.some((d) => domain.endsWith(d)) : false;
   }
 
   isCorporate(email: string): boolean {
@@ -510,7 +503,7 @@ export class MockEmailValidator implements IEmailValidator {
     return this.isValidResult && username ? username.includes('+') : false;
   }
 
- getProvider(email: string): EmailProviderType {
+  getProvider(email: string): EmailProviderType {
     // প্যারামিটার ব্যবহার করে প্রোভাইডার চেক করা হয়েছে
     const domain = this.getDomain(email);
     if (!domain) return 'other';
@@ -521,7 +514,7 @@ export class MockEmailValidator implements IEmailValidator {
     // অথবা, 'proton' টাইপ যোগ করতে চাইলে নিচের মত করুন:
     // return 'proton' as EmailProviderType; // কিন্তু এটি নিরাপদ নয়
     return 'other';
-}
+  }
 
   getCategory(email: string): EmailDomainCategory {
     // প্যারামিটার ব্যবহার করে ক্যাটাগরি চেক করা হয়েছে
@@ -533,6 +526,6 @@ export class MockEmailValidator implements IEmailValidator {
   }
 
   batchValidate(emails: string[]): EmailValidationResult[] {
-    return emails.map(email => this.validate(email));
+    return emails.map((email) => this.validate(email));
   }
 }
