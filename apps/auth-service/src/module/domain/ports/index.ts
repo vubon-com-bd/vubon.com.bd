@@ -34,8 +34,6 @@ export type {
 
 export { MockCacheService } from './cache-service.port';
 
-
-
 // ============================================================
 // Type Exports for index
 // ============================================================
@@ -68,7 +66,6 @@ export type {
 
 export { MockEmailValidator } from './email-validator.port';
 
-
 // ============================================================
 // Type Exports for index
 // ============================================================
@@ -85,6 +82,7 @@ export type {
   EventBatch,
   EventProcessingResult,
   EventStatistics,
+  IAuditService,
 } from './event-bus.port';
 
 // Main Port Interface
@@ -112,8 +110,6 @@ export type {
 // ============================================================
 
 export { MockEventBus } from './event-bus.port';
-
-
 
 // ============================================================
 // Type Exports for index
@@ -169,7 +165,6 @@ export type {
 
 export { MockNotificationSender } from './notification-sender.port';
 
-
 // ============================================================
 // Type Exports for index
 // ============================================================
@@ -178,10 +173,7 @@ export { MockNotificationSender } from './notification-sender.port';
 export { PasswordStrength } from './password-validator.port';
 
 // Core Types
-export type {
-  PasswordValidationResult,
-  EntropyResult,
-} from './password-validator.port';
+export type { PasswordValidationResult, EntropyResult } from './password-validator.port';
 
 // Main Port Interface
 export type { IPasswordValidator } from './password-validator.port';
@@ -201,22 +193,15 @@ export type {
 
 export { MockPasswordValidator } from './password-validator.port';
 
-
 // ============================================================
 // Type Exports for index
 // ============================================================
 
 // Enums
-export {
-  PhoneType,
-  BDOperator,
-} from './phone-validator.port';
+export { PhoneType, BDOperator } from './phone-validator.port';
 
 // Core Types
-export type {
-  PhoneComponents,
-  PhoneValidationResult,
-} from './phone-validator.port';
+export type { PhoneComponents, PhoneValidationResult } from './phone-validator.port';
 
 // Main Port Interface
 export type { IPhoneValidator } from './phone-validator.port';
@@ -236,23 +221,15 @@ export type {
 
 export { MockPhoneValidator } from './phone-validator.port';
 
-
 // ============================================================
 // Type Exports for index
 // ============================================================
 
 // Enums
-export {
-  RateLimitStrategy,
-  RateLimitScope,
-} from './rate-limiter.port';
+export { RateLimitStrategy, RateLimitScope } from './rate-limiter.port';
 
 // Core Types
-export type {
-  RateLimitResult,
-  RateLimitConfig,
-  RateLimitViolation,
-} from './rate-limiter.port';
+export type { RateLimitResult, RateLimitConfig, RateLimitViolation } from './rate-limiter.port';
 
 // Main Port Interface
 export type { IRateLimiter } from './rate-limiter.port';
@@ -273,19 +250,12 @@ export type {
 
 export { MockRateLimiter } from './rate-limiter.port';
 
-
-
 // ============================================================
 // Type Exports for index
 // ============================================================
 
 // Enums
-export {
-  TokenType,
-  TokenAlgorithm,
-  OTPChannel,
-  OTPPurpose,
-} from './token-generator.port';
+export { TokenType, TokenAlgorithm, OTPChannel, OTPPurpose } from './token-generator.port';
 
 // Payload Types
 export type {
@@ -343,3 +313,35 @@ export type {
 // ============================================================
 
 export { MockTokenGenerator } from './token-generator.port';
+
+// ============================================================
+// Password Hasher Port Exports
+// ============================================================
+
+// Type Exports
+export {
+  type HashingAlgorithm,
+  type HashingOptions,
+  type HashResult,
+  type HashVerificationResult,
+} from './password-hasher.port';
+
+// Main Port Interface
+export type { IPasswordHasher } from './password-hasher.port.ts';
+
+// ============================================================
+// Type Alias Exports (for convenience)
+// ============================================================
+
+export type {
+  HashingAlgorithm as HashingAlgorithmType,
+  HashingOptions as HashingOptionsType,
+  HashResult as HashResultType,
+  HashVerificationResult as HashVerificationResultType,
+} from './password-hasher.port.ts';
+
+// ============================================================
+// Class Export (MockPasswordHasher for testing)
+// ============================================================
+
+export { MockPasswordHasher } from './password-hasher.port';
