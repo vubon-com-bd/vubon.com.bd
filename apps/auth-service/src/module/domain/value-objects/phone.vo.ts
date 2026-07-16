@@ -1,13 +1,13 @@
 /**
  * Phone Number Value Object - Pure Domain Core (Enterprise Grade)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module domain/value-objects/phone.vo
- * 
+ *
  * @description
  * Represents a validated and normalized phone number using dependency injection.
  * Uses the Port-Adapter pattern to keep the domain layer infrastructure-agnostic.
- * 
+ *
  * Enterprise Rules:
  * ✅ Immutable - Phone number never changes after creation
  * ✅ Self-validating - Validates using injected validator port
@@ -16,25 +16,25 @@
  * ✅ Bangladesh specific - Complete BD operator detection
  * ✅ Dependency Inversion - Uses interface (IPhoneValidator) not concrete implementation
  * ✅ Testable - Easy to mock the validator
- * 
+ *
  * @example
  * // With DI container
  * const phone = new Phone('01712345678', phoneValidator);
  * console.log(phone.getE164()); // '+8801712345678'
  * console.log(phone.getOperator()); // 'gp'
  * console.log(phone.isMobile()); // true
- * 
+ *
  * // Without DI container (for testing)
  * const mockValidator = new MockPhoneValidator();
  * const phone = new Phone('01712345678', mockValidator);
  */
 
 import { ValueObject } from './base.vo';
-import { 
-  IPhoneValidator, 
-  PhoneType as PortPhoneType, 
+import {
+  IPhoneValidator,
+  PhoneType as PortPhoneType,
   BDOperator as PortBDOperator,
-  PhoneComponents as Phone_Components 
+  PhoneComponents as Phone_Components,
 } from '../ports/phone-validator.port';
 
 // ==================== Re-export Enums from Port (Domain Consistency) ====================
@@ -62,8 +62,8 @@ export enum PhoneType {
  * Re-exported from port for domain layer consistency
  */
 export enum BDOperator {
-  GP = 'gp',           // Grameenphone
-  ROBI = 'robi',       // Robi (includes Airtel)
+  GP = 'gp', // Grameenphone
+  ROBI = 'robi', // Robi (includes Airtel)
   BANGLALINK = 'banglalink',
   TELETALK = 'teletalk',
   UNKNOWN = 'unknown',
@@ -85,7 +85,6 @@ export interface PhoneValidation {
   error?: string;
 }
 
-
 // ==================== Constants ====================
 
 /**
@@ -96,10 +95,10 @@ export const PHONE_CONFIG = {
   // E.164 constraints (RFC 3966)
   MAX_LENGTH: 15,
   MIN_LENGTH: 8,
-  
+
   // Country codes
   BANGLADESH_CC: '880',
-  
+
   // Bangladesh operator patterns (for display/UI only)
   OPERATOR_PREFIXES: {
     '13': BDOperator.GP,
@@ -110,7 +109,7 @@ export const PHONE_CONFIG = {
     '18': BDOperator.ROBI,
     '19': BDOperator.BANGLALINK,
   } as const,
-  
+
   // Operator display names
   OPERATOR_NAMES: {
     [BDOperator.GP]: 'Grameenphone',
@@ -119,7 +118,7 @@ export const PHONE_CONFIG = {
     [BDOperator.TELETALK]: 'Teletalk',
     [BDOperator.UNKNOWN]: 'Unknown',
   } as const,
-  
+
   // Local format patterns for Bangladesh
   LOCAL_FORMAT: {
     MOBILE: (num: string) => `${num.substring(0, 5)}-${num.substring(5)}`,
@@ -134,7 +133,7 @@ export const PHONE_CONFIG = {
  */
 const mapPhoneType = (type: PortPhoneType | undefined): PhoneType => {
   if (!type) return PhoneType.UNKNOWN;
-  
+
   // Direct mapping since enums are the same (re-exported from port)
   return type as unknown as PhoneType;
 };
@@ -151,12 +150,12 @@ const mapOperator = (operator: PortBDOperator | undefined): BDOperator => {
 
 /**
  * Phone Number Value Object
- * 
+ *
  * Represents a validated and normalized phone number using injected validator
  */
 export class Phone extends ValueObject {
-  private readonly _value: string;        // Raw input value (for reference)
-  private readonly _e164: string;         // E.164 format (canonical)
+  private readonly _value: string; // Raw input value (for reference)
+  private readonly _e164: string; // E.164 format (canonical)
   private readonly _countryCode: string;
   private readonly _nationalNumber: string;
   private readonly _type: PhoneType;
@@ -166,37 +165,37 @@ export class Phone extends ValueObject {
 
   /**
    * Creates a new Phone value object
-   * 
+   *
    * @param phone - Raw phone number string (any format)
    * @param validator - Injected phone validator port (Dependency Injection)
    * @throws {Error} If phone number is invalid
    */
   constructor(
     phone: string,
-    private readonly validator: IPhoneValidator
+    private readonly validator: IPhoneValidator,
   ) {
     super();
-    
+
     // ✅ Use injected validator for validation
     if (!validator.isValid(phone, 'BD')) {
       throw new Error('Invalid phone number format');
     }
-    
+
     // ✅ Use injected validator for formatting
     const e164 = validator.formatToE164(phone, 'BD');
     if (!e164) {
       throw new Error('Could not normalize phone number to E.164 format');
     }
-    
+
     this._value = phone.trim();
     this._e164 = e164;
-    
+
     // ✅ Use injected validator for components
     const components = validator.getComponents(phone, 'BD');
     if (!components) {
       throw new Error('Could not parse phone number components');
     }
-    
+
     // Map port components to domain components
     this._countryCode = components.countryCode;
     this._nationalNumber = components.nationalNumber;
@@ -204,7 +203,7 @@ export class Phone extends ValueObject {
     this._operator = mapOperator(components.operator);
     this._isBangladesh = components.isBangladesh;
     this._isMobile = components.isMobile;
-    
+
     this.validate();
   }
 
@@ -215,7 +214,7 @@ export class Phone extends ValueObject {
     if (this.isEmpty()) {
       throw new Error('Phone number cannot be empty');
     }
-    
+
     if (this._e164.length > PHONE_CONFIG.MAX_LENGTH) {
       throw new Error(`Phone number too long (max ${PHONE_CONFIG.MAX_LENGTH} digits)`);
     }
@@ -239,7 +238,7 @@ export class Phone extends ValueObject {
     if (typeof phone !== 'string') {
       return null;
     }
-    
+
     try {
       return new Phone(phone, validator);
     } catch {
@@ -251,7 +250,11 @@ export class Phone extends ValueObject {
    * Create a test phone number (for testing only)
    * NOT FOR PRODUCTION USE
    */
-  public static forTest(number: string, validator: IPhoneValidator, countryCode: string = PHONE_CONFIG.BANGLADESH_CC): Phone {
+  public static forTest(
+    number: string,
+    validator: IPhoneValidator,
+    countryCode: string = PHONE_CONFIG.BANGLADESH_CC,
+  ): Phone {
     let normalized = number.replace(/\D/g, '');
     if (normalized.startsWith(countryCode)) {
       return new Phone(`+${normalized}`, validator);
@@ -268,7 +271,7 @@ export class Phone extends ValueObject {
 
   /**
    * Validates and normalizes a phone number using the injected validator
-   * 
+   *
    * @param phone - Raw phone number string
    * @param validator - Injected phone validator port
    * @returns Validation result with normalized values
@@ -283,14 +286,14 @@ export class Phone extends ValueObject {
     }
 
     const trimmed = phone.trim();
-    
+
     if (trimmed.length === 0) {
       return {
         isValid: false,
         error: 'Phone number cannot be empty',
       };
     }
-    
+
     // ✅ Use injected validator for validation
     if (!validator.isValid(trimmed, 'BD')) {
       return {
@@ -298,7 +301,7 @@ export class Phone extends ValueObject {
         error: 'Invalid phone number format',
       };
     }
-    
+
     // ✅ Use injected validator for E.164
     const e164 = validator.formatToE164(trimmed, 'BD');
     if (!e164) {
@@ -307,7 +310,7 @@ export class Phone extends ValueObject {
         error: 'Could not normalize to E.164 format',
       };
     }
-    
+
     // ✅ Use injected validator for components
     const components = validator.getComponents(trimmed, 'BD');
     if (!components) {
@@ -316,12 +319,12 @@ export class Phone extends ValueObject {
         error: 'Could not parse phone components',
       };
     }
-    
+
     // Parse components
     const e164Match = e164.match(/^\+(\d{1,3})(\d+)$/);
     const countryCode = e164Match?.[1] || PHONE_CONFIG.BANGLADESH_CC;
     const nationalNumber = e164Match?.[2] || '';
-    
+
     return {
       isValid: true,
       normalized: trimmed,
@@ -488,7 +491,7 @@ export class Phone extends ValueObject {
     if (e164.length <= 8) {
       return e164;
     }
-    
+
     const prefix = e164.substring(0, e164.length - 6);
     const suffix = e164.substring(e164.length - 2);
     return `${prefix}******${suffix}`;
@@ -502,7 +505,7 @@ export class Phone extends ValueObject {
     if (!this._isBangladesh) {
       return this._e164;
     }
-    
+
     const national = this._nationalNumber;
     if (national.length === 10 && this._isMobile) {
       return PHONE_CONFIG.LOCAL_FORMAT.MOBILE(national);
@@ -510,7 +513,7 @@ export class Phone extends ValueObject {
     if (national.length >= 8) {
       return PHONE_CONFIG.LOCAL_FORMAT.LANDLINE(national);
     }
-    
+
     return national;
   }
 
@@ -596,9 +599,7 @@ export class Phone extends ValueObject {
    * Check if phone number is empty/placeholder
    */
   public override isEmpty(): boolean {
-    return this._value === '' || 
-           this._value === '+0000000000' ||
-           this._value === '+880000000000';
+    return this._value === '' || this._value === '+0000000000' || this._value === '+880000000000';
   }
 
   /**
@@ -658,7 +659,10 @@ export function isPhone(value: unknown): value is Phone {
 /**
  * Create Phone from database value (E.164 format)
  */
-export function phoneFromE164(e164: string | null | undefined, validator: IPhoneValidator): Phone | null {
+export function phoneFromE164(
+  e164: string | null | undefined,
+  validator: IPhoneValidator,
+): Phone | null {
   if (!e164) return null;
   return Phone.tryCreate(e164, validator);
 }
@@ -676,7 +680,10 @@ export function formatPhoneForSMS(phone: Phone): string {
 /**
  * Detect operator from Bangladesh phone number
  */
-export function detectBangladeshOperator(phoneNumber: string, validator: IPhoneValidator): BDOperator {
+export function detectBangladeshOperator(
+  phoneNumber: string,
+  validator: IPhoneValidator,
+): BDOperator {
   const phone = Phone.tryCreate(phoneNumber, validator);
   if (!phone || !phone.isBangladesh()) {
     return BDOperator.UNKNOWN;
