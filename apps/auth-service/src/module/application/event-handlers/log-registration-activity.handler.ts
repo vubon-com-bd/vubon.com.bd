@@ -1,12 +1,12 @@
 /**
  * Log Registration Activity Handler - Enterprise Grade Event Handler
- * 
+ *
  * @module application/event-handlers/log-registration-activity.handler
- * 
+ *
  * @description
  * Handles UserRegisteredEvent to log registration activity for audit trail,
  * security monitoring, and analytics purposes.
- * 
+ *
  * Enterprise Features:
  * ✅ Audit trail logging with before/after state
  * ✅ Security event detection (suspicious patterns)
@@ -17,7 +17,7 @@
  * ✅ Retry mechanism for resilience
  * ✅ GDPR compliant data masking
  * ✅ Bangladesh specific context logging
- * 
+ *
  * @example
  * // In your module
  * @Module({
@@ -52,15 +52,9 @@ import {
   type UserTier,
 } from '@vubon/shared-constants';
 
-import {
-  maskEmail,
-  maskPhone,
-  maskIPAddress,
-} from '@vubon/shared-utils';
+import { maskEmail, maskPhone, maskIPAddress } from '@vubon/shared-utils';
 
-import type {
-  AuditLog,
-} from '@vubon/shared-types';
+import type { AuditLog } from '@vubon/shared-types';
 
 // ============================================================
 // Domain/Application Imports
@@ -186,7 +180,10 @@ export interface IMetricsService {
  * Tracer Service Port
  */
 export interface ITracerService {
-  startSpan(name: string, context?: Record<string, unknown> | undefined): {
+  startSpan(
+    name: string,
+    context?: Record<string, unknown> | undefined,
+  ): {
     end: () => void;
     setAttribute: (key: string, value: unknown) => void;
     setStatus: (status: { code: number; message?: string | undefined }) => void;
@@ -282,7 +279,8 @@ export class CircuitBreaker {
     return {
       state: this.state.state,
       failures: this.state.failures,
-      nextAttemptAt: this.state.nextAttemptTime > 0 ? new Date(this.state.nextAttemptTime) : undefined,
+      nextAttemptAt:
+        this.state.nextAttemptTime > 0 ? new Date(this.state.nextAttemptTime) : undefined,
     };
   }
 
@@ -415,7 +413,9 @@ export class LogRegistrationActivityHandler {
 
   async handle(event: UserRegisteredEvent): Promise<void> {
     if (!this.options.enabled) {
-      this.logger.debug(`[${event.correlationId}] Registration activity logging disabled, skipping`);
+      this.logger.debug(
+        `[${event.correlationId}] Registration activity logging disabled, skipping`,
+      );
       return;
     }
 
@@ -443,7 +443,6 @@ export class LogRegistrationActivityHandler {
         correlationId: event.correlationId,
         role: event.role,
       });
-
 
       // Step 1: Create Audit Log
       await this.createAuditLog(event);
@@ -596,14 +595,9 @@ export class LogRegistrationActivityHandler {
         );
       }
 
-      this.logger.debug(
-        `[${event.correlationId}] Audit log created for user: ${event.userId}`,
-      );
+      this.logger.debug(`[${event.correlationId}] Audit log created for user: ${event.userId}`);
     } catch (error) {
-      this.logger.error(
-        `[${event.correlationId}] Audit log creation failed:`,
-        error,
-      );
+      this.logger.error(`[${event.correlationId}] Audit log creation failed:`, error);
       throw error;
     }
   }
@@ -611,7 +605,9 @@ export class LogRegistrationActivityHandler {
   /**
    * Build audit changes (before/after state)
    */
-  private buildAuditChanges(event: UserRegisteredEvent): Record<string, { old: unknown; new: unknown }> {
+  private buildAuditChanges(
+    event: UserRegisteredEvent,
+  ): Record<string, { old: unknown; new: unknown }> {
     const changes: Record<string, { old: unknown; new: unknown }> = {
       email: { old: null, new: maskEmail(event.email) },
       fullName: { old: null, new: event.fullName },
@@ -641,9 +637,7 @@ export class LogRegistrationActivityHandler {
   /**
    * Map registration source to audit source
    */
-  private mapRegistrationSourceToAuditSource(
-    source: string,
-  ): AuditSourceValue {
+  private mapRegistrationSourceToAuditSource(source: string): AuditSourceValue {
     const sourceMap: Record<string, AuditSourceValue> = {
       WEB: AUDIT_SOURCES.WEB,
       MOBILE_APP: AUDIT_SOURCES.MOBILE,
@@ -697,8 +691,7 @@ export class LogRegistrationActivityHandler {
 
       const detectionResult = await this.securityCircuitBreaker.call(async () =>
         withRetry(
-          () =>
-            this.securityEventDetector!.detectSuspiciousActivity(detectionParams),
+          () => this.securityEventDetector!.detectSuspiciousActivity(detectionParams),
           this.options.maxRetries,
           this.options.retryBaseDelayMs,
         ),
@@ -769,10 +762,7 @@ export class LogRegistrationActivityHandler {
         });
       }
     } catch (error) {
-      this.logger.warn(
-        `[${event.correlationId}] Security event detection failed:`,
-        error,
-      );
+      this.logger.warn(`[${event.correlationId}] Security event detection failed:`, error);
       // Do not throw - security detection is non-critical
     }
   }
@@ -862,14 +852,10 @@ export class LogRegistrationActivityHandler {
         `[${event.correlationId}] Analytics event published for user: ${event.userId}`,
       );
     } catch (error) {
-      this.logger.warn(
-        `[${event.correlationId}] Analytics event publishing failed:`,
-        error,
-      );
+      this.logger.warn(`[${event.correlationId}] Analytics event publishing failed:`, error);
       // Do not throw - analytics is non-critical
     }
   }
-
 
   // ============================================================
   // Public Helper Methods (for testing or manual triggers)
@@ -887,7 +873,8 @@ export class LogRegistrationActivityHandler {
     };
   } {
     return {
-       enabled: this.options.enabled ?? true,      circuitBreakers: {
+      enabled: this.options.enabled ?? true,
+      circuitBreakers: {
         audit: {
           state: this.auditCircuitBreaker.getStatus().state,
           failures: this.auditCircuitBreaker.getStatus().failures,
