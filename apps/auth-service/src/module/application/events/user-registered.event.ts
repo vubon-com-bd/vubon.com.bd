@@ -58,10 +58,7 @@ import type {
 } from '@vubon/shared-constants';
 import { USER_ROLES } from '@vubon/shared-constants';
 
-
-import type {
-  DomainEvent,
-} from '@vubon/shared-types';
+import type { DomainEvent } from '@vubon/shared-types';
 
 // ============================================================
 // Base Domain Event (Local copy for domain purity)
@@ -284,17 +281,12 @@ export class UserRegisteredEvent extends BaseDomainEvent {
   public readonly timestamp: string;
 
   constructor(data: UserRegisteredEventData) {
-    super(
-      'user.registered',
-      data.userId,
-      1,
-      {
-        correlationId: data.correlationId,
-        source: data.registrationSource,
-        ipAddress: data.ipAddress,
-        ...data.metadata,
-      },
-    );
+    super('user.registered', data.userId, 1, {
+      correlationId: data.correlationId,
+      source: data.registrationSource,
+      ipAddress: data.ipAddress,
+      ...data.metadata,
+    });
 
     // Core fields
     this.userId = data.userId;
@@ -484,13 +476,13 @@ export class UserRegisteredEvent extends BaseDomainEvent {
     return this.displayName || this.fullName.split(' ')[0] || 'User';
   }
 
- /**
- * Check if user is a vendor (requires additional verification)
- */
-public isVendor(): boolean {
-  // ✅ সঠিক উপায়: কনস্ট্যান্টের সাথে তুলনা করুন
-  return this.role === USER_ROLES.VENDOR || this.role === USER_ROLES.ADMIN;
-}
+  /**
+   * Check if user is a vendor (requires additional verification)
+   */
+  public isVendor(): boolean {
+    // ✅ সঠিক উপায়: কনস্ট্যান্টের সাথে তুলনা করুন
+    return this.role === USER_ROLES.VENDOR || this.role === USER_ROLES.ADMIN;
+  }
 
   // ============================================================
   // Private Helpers
