@@ -1,12 +1,12 @@
 /**
  * Database Configuration - Enterprise Grade
- * 
+ *
  * @module infrastructure/config/database.config
- * 
+ *
  * @description
  * Centralized database configuration using shared-config.
  * Provides type-safe database connection settings with environment support.
- * 
+ *
  * Enterprise Features:
  * ✅ Environment-aware configuration (dev/staging/prod)
  * ✅ Connection pool optimization
@@ -16,10 +16,10 @@
  * ✅ Connection retry settings
  * ✅ Health check configuration
  * ✅ Migration settings
- * 
+ *
  * @example
  * import { databaseConfig } from './database.config';
- * 
+ *
  * const poolSize = databaseConfig.pool.max;
  */
 
@@ -162,10 +162,15 @@ const buildDatabaseConfig = (): DatabaseConfig => {
   }
 
   // Determine database type from URL
-  const type = url.startsWith('postgresql') ? 'postgresql' :
-               url.startsWith('mysql') ? 'mysql' :
-               url.startsWith('mongodb') ? 'mongodb' :
-               url.startsWith('sqlite') ? 'sqlite' : 'postgresql';
+  const type = url.startsWith('postgresql')
+    ? 'postgresql'
+    : url.startsWith('mysql')
+      ? 'mysql'
+      : url.startsWith('mongodb')
+        ? 'mongodb'
+        : url.startsWith('sqlite')
+          ? 'sqlite'
+          : 'postgresql';
 
   // Pool configuration based on environment
   const pool: DatabasePoolConfig = {
@@ -179,7 +184,7 @@ const buildDatabaseConfig = (): DatabaseConfig => {
   // SSL configuration
   // ✅ FIXED: Use process.env.DB_SSL directly (not env.DB_SSL)
   const sslEnabled = isProduction || process.env.DB_SSL === 'true';
-  
+
   const ssl: DatabaseSSLConfig = {
     enabled: sslEnabled,
     rejectUnauthorized: isProduction,
