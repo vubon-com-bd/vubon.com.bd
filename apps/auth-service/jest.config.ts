@@ -1,10 +1,8 @@
 /**
  * Jest Configuration - Enterprise Grade
- * 
- * @description
+ * * @description
  * Unit test configuration for auth service with monorepo support.
- * 
- * Features:
+ * * Features:
  * ✅ SWC transformation for blazing fast tests
  * ✅ Shared packages (constants, types, utils, config, schemas) support
  * ✅ Coverage thresholds for quality gates (90%)
@@ -13,8 +11,7 @@
  * ✅ Global setup/teardown for test environment
  * ✅ Path aliases matching tsconfig.json
  * ✅ Watch mode plugins for better DX
- * 
- * @module jest.config
+ * * @module jest.config
  */
 
 import type { Config } from '@jest/types';
@@ -37,15 +34,16 @@ const config: Config.InitialOptions = {
   testEnvironment: 'node',
   
   // ============================================================
-  // Transformers (SWC for speed, ts-jest for type checking)
+  // Transformers (Optimized ts-jest configuration matching tsconfig)
   // ============================================================
   
   transform: {
     '^.+\\.(t|j)s$': [
       'ts-jest',
       {
-        isolatedModules: true,      // Faster compilation
-        diagnostics: false,          // Type checking handled by IDE/CI
+        isolatedModules: true,      // Faster compilation (Perfect for Monorepos)
+        diagnostics: false,         // Type checking handled by IDE/CI
+        tsconfig: '<rootDir>/../tsconfig.json', // Passed correctly here
       },
     ],
   },
@@ -260,20 +258,6 @@ const config: Config.InitialOptions = {
       },
     ],
   ],
-  
-  // ============================================================
-  // Global Variables
-  // ============================================================
-  
-transform: {
-  '^.+\\.(t|j)s$': [
-    'ts-jest',
-    {
-      isolatedModules: true,
-      tsconfig: '<rootDir>/../tsconfig.json',
-    },
-  ],
-},
   
   // ============================================================
   // Miscellaneous
