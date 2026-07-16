@@ -1,6 +1,6 @@
 /**
  * Send Welcome Email Handler - Enterprise Grade Event Handler
- * 
+ *
  * @module application/event-handlers/send-welcome-email.handler
  */
 
@@ -10,11 +10,7 @@ import { Injectable, Logger } from '@nestjs/common';
 // Shared Packages Import (SSOT)
 // ============================================================
 
-import {
-  EMAIL_CONFIG,
-  APP_NAME,
-  SUPPORT_EMAIL,
-} from '@vubon/shared-constants';
+import { EMAIL_CONFIG, APP_NAME, SUPPORT_EMAIL } from '@vubon/shared-constants';
 
 import { maskEmail, formatDisplayDate } from '@vubon/shared-utils';
 
@@ -51,9 +47,12 @@ export interface IMetricsService {
 }
 
 export interface ITracerService {
-  startSpan(name: string, context?: Record<string, unknown>): { 
-    end: () => void; 
-    setAttribute: (key: string, value: unknown) => void; 
+  startSpan(
+    name: string,
+    context?: Record<string, unknown>,
+  ): {
+    end: () => void;
+    setAttribute: (key: string, value: unknown) => void;
     setStatus: (status: { code: number; message?: string }) => void;
   };
 }
@@ -149,9 +148,8 @@ export class CircuitBreaker {
     return {
       state: this.state.state,
       failures: this.state.failures,
-      nextAttemptAt: this.state.nextAttemptTime > 0 
-        ? new Date(this.state.nextAttemptTime) 
-        : undefined,
+      nextAttemptAt:
+        this.state.nextAttemptTime > 0 ? new Date(this.state.nextAttemptTime) : undefined,
     };
   }
 
@@ -440,10 +438,7 @@ export class SendWelcomeEmailHandler {
    * Build fallback HTML template
    * ✅ FIXED: Removed unused event parameter
    */
-  private buildFallbackHtml(
-    locale: 'en' | 'bn',
-    data: Record<string, unknown>,
-  ): string {
+  private buildFallbackHtml(locale: 'en' | 'bn', data: Record<string, unknown>): string {
     const isBengali = locale === 'bn';
 
     if (isBengali) {
@@ -539,10 +534,7 @@ export class SendWelcomeEmailHandler {
    * Build fallback plain text template
    * ✅ FIXED: Removed unused event parameter
    */
-  private buildFallbackText(
-    locale: 'en' | 'bn',
-    data: Record<string, unknown>,
-  ): string {
+  private buildFallbackText(locale: 'en' | 'bn', data: Record<string, unknown>): string {
     const isBengali = locale === 'bn';
 
     if (isBengali) {
