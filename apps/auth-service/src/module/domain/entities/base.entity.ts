@@ -1,14 +1,14 @@
 /**
  * Base Entity - Pure Domain Core (Enterprise Enhanced)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module domain/entities/base.entity
- * 
+ *
  * @description
  * Abstract base class for all domain entities following DDD patterns.
  * Provides common functionality: ID, timestamps, versioning, equality, domain events,
  * change tracking, and audit metadata.
- * 
+ *
  * Enterprise Features:
  * ✅ Pure TypeScript - NO external dependencies
  * ✅ ID validation patterns (UUID v4, ULID, Snowflake, Alphanumeric)
@@ -19,13 +19,13 @@
  * ✅ Domain event registry with pull pattern
  * ✅ ID generation strategy injection (via interface)
  * ✅ Thread-safe with copy-on-write semantics
- * 
+ *
  * @example
  * class User extends BaseEntity {
  *   private constructor(id: string, createdAt: Date, updatedAt: Date, version: number) {
  *     super(id, createdAt, updatedAt, version);
  *   }
- *   
+ *
  *   public static create(email: string, idGenerator: IdGenerator): User {
  *     const user = new User(
  *       idGenerator.generate(),
@@ -58,7 +58,9 @@ export interface DomainEvent {
 /**
  * Domain event handler type
  */
-export type DomainEventHandler<T extends DomainEvent = DomainEvent> = (event: T) => void | Promise<void>;
+export type DomainEventHandler<T extends DomainEvent = DomainEvent> = (
+  event: T,
+) => void | Promise<void>;
 
 /**
  * Entity constructor options
@@ -123,13 +125,13 @@ export interface EntityMetadata {
 const ID_PATTERNS = {
   /** UUID v4 pattern (RFC 4122) */
   UUID_V4: /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
-  
+
   /** ULID pattern (26 characters, Crockford's Base32) */
   ULID: /^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}$/i,
-  
+
   /** Snowflake ID pattern (19 digits) */
   SNOWFLAKE: /^\d{19}$/,
-  
+
   /** Alphanumeric with special characters */
   ALPHANUMERIC: /^[a-zA-Z0-9\-_.]{1,255}$/,
 } as const;
@@ -157,7 +159,7 @@ const ID_CONFIG = {
 export class EntityValidationError extends Error {
   public readonly errors: readonly string[];
   public readonly entityName: string;
-  
+
   constructor(message: string, errors?: readonly string[], entityName?: string) {
     super(message);
     this.name = 'EntityValidationError';
@@ -193,7 +195,9 @@ export class EntityConflictError extends Error {
   public readonly actualVersion: number;
 
   constructor(entityName: string, id: string, expectedVersion: number, actualVersion: number) {
-    super(`${entityName} ${id} version conflict: expected ${expectedVersion}, got ${actualVersion}`);
+    super(
+      `${entityName} ${id} version conflict: expected ${expectedVersion}, got ${actualVersion}`,
+    );
     this.name = 'EntityConflictError';
     this.entityName = entityName;
     this.entityId = id;
@@ -248,18 +252,18 @@ export abstract class BaseEntity {
   private readonly _createdAt: Date;
   private _updatedAt: Date;
   private _version: number;
-  
+
   // Domain event registry
   private _domainEvents: DomainEvent[] = [];
-  
+
   // Entity metadata
   private _metadata: EntityMetadata;
   private _isDeleted: boolean = false;
   protected _deletedAt: Date | null = null;
-  
+
   // Change tracking for audit trail
   private _changes: Map<string, ChangeEntry> = new Map();
-  
+
   // Entity tags for categorization
   private _tags: Set<string> = new Set();
 
@@ -271,52 +275,69 @@ export abstract class BaseEntity {
     if (!options.id || options.id.trim().length === 0) {
       throw new EntityValidationError('Entity ID cannot be empty', [], this.constructor.name);
     }
-    
+
     // Validate ID format
     if (!this.validateIdFormat(options.id)) {
-      throw new InvalidIdFormatError(options.id, 'UUID v4, ULID, Snowflake, or alphanumeric string');
+      throw new InvalidIdFormatError(
+        options.id,
+        'UUID v4, ULID, Snowflake, or alphanumeric string',
+      );
     }
-    
+
     // Validate ID length
     if (options.id.length > ID_CONFIG.MAX_LENGTH) {
       throw new EntityValidationError(
         `Entity ID too long (max ${ID_CONFIG.MAX_LENGTH} characters)`,
         [],
-        this.constructor.name
+        this.constructor.name,
       );
     }
-    
+
     this._id = options.id;
     this._createdAt = options.createdAt ? new Date(options.createdAt) : new Date();
     this._updatedAt = options.updatedAt ? new Date(options.updatedAt) : new Date(this._createdAt);
     this._version = options.version ?? 1;
-    
+
     // Initialize metadata
     this._metadata = {
       ...(options.metadata?.createdBy && { createdBy: options.metadata.createdBy }),
       ...(options.metadata?.createdByIp && { createdByIp: options.metadata.createdByIp }),
-      ...(options.metadata?.createdByUserAgent && { createdByUserAgent: options.metadata.createdByUserAgent }),
+      ...(options.metadata?.createdByUserAgent && {
+        createdByUserAgent: options.metadata.createdByUserAgent,
+      }),
       ...(options.metadata?.lastModifiedBy && { lastModifiedBy: options.metadata.lastModifiedBy }),
-      ...(options.metadata?.lastModifiedByIp && { lastModifiedByIp: options.metadata.lastModifiedByIp }),
-      ...(options.metadata?.lastModifiedByUserAgent && { lastModifiedByUserAgent: options.metadata.lastModifiedByUserAgent }),
+      ...(options.metadata?.lastModifiedByIp && {
+        lastModifiedByIp: options.metadata.lastModifiedByIp,
+      }),
+      ...(options.metadata?.lastModifiedByUserAgent && {
+        lastModifiedByUserAgent: options.metadata.lastModifiedByUserAgent,
+      }),
       ...(options.metadata?.tags && { tags: [...options.metadata.tags] }),
       ...(options.metadata?.custom && { custom: { ...options.metadata.custom } }),
     };
-    
+
     // Validate version
     if (this._version < 1) {
       throw new EntityValidationError('Version must be at least 1', [], this.constructor.name);
     }
-    
+
     // Validate timestamps
     if (this._createdAt > this._updatedAt) {
-      throw new EntityValidationError('CreatedAt cannot be after UpdatedAt', [], this.constructor.name);
+      throw new EntityValidationError(
+        'CreatedAt cannot be after UpdatedAt',
+        [],
+        this.constructor.name,
+      );
     }
-    
+
     // Validate entity state after construction
     const validation = this.validate();
     if (!validation.isValid) {
-      throw new EntityValidationError('Entity validation failed', validation.errors, this.constructor.name);
+      throw new EntityValidationError(
+        'Entity validation failed',
+        validation.errors,
+        this.constructor.name,
+      );
     }
   }
 
@@ -330,16 +351,16 @@ export abstract class BaseEntity {
   private validateIdFormat(id: string): boolean {
     // Check UUID v4
     if (ID_PATTERNS.UUID_V4.test(id)) return true;
-    
+
     // Check ULID format (10 characters timestamp + 16 random = 26 chars base32)
     if (ID_PATTERNS.ULID.test(id)) return true;
-    
+
     // Check Snowflake ID (19 digits)
     if (ID_PATTERNS.SNOWFLAKE.test(id)) return true;
-    
+
     // Check alphanumeric ID
     if (ID_PATTERNS.ALPHANUMERIC.test(id)) return true;
-    
+
     // Fallback: allow alphanumeric with hyphens/underscores
     return /^[a-zA-Z0-9\-_.]{1,255}$/.test(id);
   }
@@ -428,7 +449,7 @@ export abstract class BaseEntity {
   protected touch(modifiedBy?: string, modifiedByIp?: string): void {
     this._updatedAt = new Date();
     this._version++;
-    
+
     if (modifiedBy) {
       this._metadata.lastModifiedBy = modifiedBy;
     }
@@ -449,7 +470,7 @@ export abstract class BaseEntity {
    */
   protected trackChange<T>(field: string, oldValue: T, newValue: T, changedBy?: string): void {
     if (oldValue === newValue) return;
-    
+
     const change: ChangeEntry = {
       field,
       oldValue: this.deepCopy(oldValue),
@@ -457,7 +478,7 @@ export abstract class BaseEntity {
       changedAt: new Date(),
       ...(changedBy && { changedBy }),
     };
-    
+
     this._changes.set(field, change);
   }
 
@@ -518,7 +539,7 @@ export abstract class BaseEntity {
     if (this._isDeleted) {
       throw new EntityAlreadyDeletedError(this.constructor.name, this._id);
     }
-    
+
     this._isDeleted = true;
     this._deletedAt = new Date();
     this.updateMetadata('lastModifiedBy', deletedBy);
@@ -533,7 +554,7 @@ export abstract class BaseEntity {
     if (!this._isDeleted) {
       return;
     }
-    
+
     this._isDeleted = false;
     this._deletedAt = null;
     this.updateMetadata('lastModifiedBy', restoredBy);
@@ -548,7 +569,7 @@ export abstract class BaseEntity {
       throw new EntityValidationError(
         `Cannot perform operation on deleted entity ${this.constructor.name} ${this._id}`,
         ['Entity is soft-deleted. Use restore() first if needed.'],
-        this.constructor.name
+        this.constructor.name,
       );
     }
   }
@@ -689,7 +710,7 @@ export abstract class BaseEntity {
         this.constructor.name,
         this._id,
         expectedVersion,
-        this._version
+        this._version,
       );
     }
   }
@@ -699,40 +720,51 @@ export abstract class BaseEntity {
       throw new EntityValidationError(
         'Cannot merge entities with different IDs',
         [`Source ID: ${this._id}, Target ID: ${other._id}`],
-        this.constructor.name
+        this.constructor.name,
       );
     }
-    
+
     this._updatedAt = new Date(other._updatedAt);
     this._version = other._version;
     this._isDeleted = other._isDeleted;
     this._deletedAt = other._deletedAt ? new Date(other._deletedAt) : null;
-    
+
     // Merge metadata
     this._metadata = {
       ...(this._metadata.createdBy && { createdBy: this._metadata.createdBy }),
       ...(this._metadata.createdByIp && { createdByIp: this._metadata.createdByIp }),
-      ...(this._metadata.createdByUserAgent && { createdByUserAgent: this._metadata.createdByUserAgent }),
+      ...(this._metadata.createdByUserAgent && {
+        createdByUserAgent: this._metadata.createdByUserAgent,
+      }),
       ...(this._metadata.lastModifiedBy && { lastModifiedBy: this._metadata.lastModifiedBy }),
       ...(this._metadata.lastModifiedByIp && { lastModifiedByIp: this._metadata.lastModifiedByIp }),
-      ...(this._metadata.lastModifiedByUserAgent && { lastModifiedByUserAgent: this._metadata.lastModifiedByUserAgent }),
+      ...(this._metadata.lastModifiedByUserAgent && {
+        lastModifiedByUserAgent: this._metadata.lastModifiedByUserAgent,
+      }),
       ...(other._metadata.createdBy && { createdBy: other._metadata.createdBy }),
       ...(other._metadata.createdByIp && { createdByIp: other._metadata.createdByIp }),
-      ...(other._metadata.createdByUserAgent && { createdByUserAgent: other._metadata.createdByUserAgent }),
+      ...(other._metadata.createdByUserAgent && {
+        createdByUserAgent: other._metadata.createdByUserAgent,
+      }),
       ...(other._metadata.lastModifiedBy && { lastModifiedBy: other._metadata.lastModifiedBy }),
-      ...(other._metadata.lastModifiedByIp && { lastModifiedByIp: other._metadata.lastModifiedByIp }),
-      ...(other._metadata.lastModifiedByUserAgent && { lastModifiedByUserAgent: other._metadata.lastModifiedByUserAgent }),
+      ...(other._metadata.lastModifiedByIp && {
+        lastModifiedByIp: other._metadata.lastModifiedByIp,
+      }),
+      ...(other._metadata.lastModifiedByUserAgent && {
+        lastModifiedByUserAgent: other._metadata.lastModifiedByUserAgent,
+      }),
       ...(other._metadata.tags && { tags: [...other._metadata.tags] }),
       ...(this._metadata.tags && !other._metadata.tags && { tags: [...this._metadata.tags] }),
       ...(other._metadata.custom && { custom: { ...other._metadata.custom } }),
-      ...(this._metadata.custom && !other._metadata.custom && { custom: { ...this._metadata.custom } }),
+      ...(this._metadata.custom &&
+        !other._metadata.custom && { custom: { ...this._metadata.custom } }),
     };
-    
+
     // Merge tags
     this._tags = new Set([...this._tags, ...other._tags]);
-    
+
     // Merge domain events without duplication
-    const existingEventIds = new Set(this._domainEvents.map(e => e.eventId));
+    const existingEventIds = new Set(this._domainEvents.map((e) => e.eventId));
     for (const event of other._domainEvents) {
       if (!existingEventIds.has(event.eventId)) {
         this._domainEvents.push(event);
@@ -763,17 +795,17 @@ export interface IdGenerator {
  */
 export class TestIdGenerator implements IdGenerator {
   private counter = 0;
-  
+
   generate(): string {
     return `test_${Date.now()}_${++this.counter}`;
   }
-  
+
   generateUlid(): string {
     const timestamp = Date.now().toString(36).padStart(10, '0');
     const random = Math.random().toString(36).substring(2, 18);
     return `${timestamp}${random}`.toUpperCase();
   }
-  
+
   generateSnowflake(): string {
     const timestamp = BigInt(Date.now()) - 1288834974657n;
     const machineId = 1n;
@@ -781,17 +813,21 @@ export class TestIdGenerator implements IdGenerator {
     const snowflake = (timestamp << 22n) | (machineId << 12n) | sequence;
     return snowflake.toString();
   }
-  
+
   generateSequential(): string {
     return `${++this.counter}`;
   }
-  
+
   generateOfType(type: 'uuid' | 'ulid' | 'snowflake' | 'sequential'): string {
     switch (type) {
-      case 'ulid': return this.generateUlid();
-      case 'snowflake': return this.generateSnowflake();
-      case 'sequential': return this.generateSequential();
-      default: return this.generate();
+      case 'ulid':
+        return this.generateUlid();
+      case 'snowflake':
+        return this.generateSnowflake();
+      case 'sequential':
+        return this.generateSequential();
+      default:
+        return this.generate();
     }
   }
 }
@@ -807,12 +843,12 @@ export abstract class BaseDomainEvent implements DomainEvent {
   public readonly eventId: string;
   public readonly occurredOn: Date;
   public readonly metadata: Readonly<Record<string, unknown>>;
-  
+
   constructor(
     public readonly eventType: string,
     public readonly aggregateId: string,
     public readonly version: number,
-    metadata?: Record<string, unknown>
+    metadata?: Record<string, unknown>,
   ) {
     this.eventId = generateEventId();
     this.occurredOn = new Date();
@@ -842,7 +878,10 @@ namespace generateEventId {
 /**
  * Create a validation result
  */
-export function createValidationResult(isValid: boolean, errors?: string[]): EntityValidationResult {
+export function createValidationResult(
+  isValid: boolean,
+  errors?: string[],
+): EntityValidationResult {
   return {
     isValid,
     errors: errors || [],
@@ -852,17 +891,19 @@ export function createValidationResult(isValid: boolean, errors?: string[]): Ent
 /**
  * Combine multiple validation results
  */
-export function combineValidationResults(results: readonly EntityValidationResult[]): EntityValidationResult {
+export function combineValidationResults(
+  results: readonly EntityValidationResult[],
+): EntityValidationResult {
   const allErrors: string[] = [];
   let isValid = true;
-  
+
   for (const result of results) {
     if (!result.isValid) {
       isValid = false;
       allErrors.push(...result.errors);
     }
   }
-  
+
   return {
     isValid,
     errors: allErrors,
