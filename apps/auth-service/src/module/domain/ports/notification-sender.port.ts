@@ -1,13 +1,13 @@
 /**
  * Notification Sender Port - Domain Layer Interface (Enterprise Grade)
- * 
+ *
  * @module domain/ports/notification-sender.port
- * 
+ *
  * @description
  * Port (interface) for sending notifications across multiple channels.
  * Defines the contract that infrastructure adapters (Email, SMS, WhatsApp, Push, etc.) must implement.
  * This keeps the domain layer clean and infrastructure-agnostic.
- * 
+ *
  * Enterprise Rules:
  * ✅ Domain layer defines the interface (Port)
  * ✅ Infrastructure layer implements the interface (Adapter)
@@ -16,12 +16,12 @@
  * ✅ Easy to mock for unit testing
  * ✅ Supports multiple channels (Email, SMS, WhatsApp, Push, In-App, Voice)
  * ✅ Bangladesh specific (bKash, Nagad, Rocket, WhatsApp Business)
- * 
+ *
  * @example
  * // Domain usage
  * class UserRegistrationService {
  *   constructor(private readonly notificationSender: INotificationSender) {}
- *   
+ *
  *   async registerUser(user: User): Promise<void> {
  *     // ... registration logic
  *     await this.notificationSender.sendWelcomeEmail({
@@ -31,7 +31,7 @@
  *     });
  *   }
  * }
- * 
+ *
  * // Infrastructure implementation
  * class NotificationSenderAdapter implements INotificationSender {
  *   async sendEmail(options: EmailOptions): Promise<NotificationResult> {
@@ -95,7 +95,7 @@ export enum NotificationType {
   LOGIN_ALERT = 'login_alert',
   MFA_CODE = 'mfa_code',
   BACKUP_CODE = 'backup_code',
-  
+
   // Account
   ACCOUNT_ACTIVATED = 'account_activated',
   ACCOUNT_SUSPENDED = 'account_suspended',
@@ -105,18 +105,18 @@ export enum NotificationType {
   EMAIL_CHANGED = 'email_changed',
   PHONE_CHANGED = 'phone_changed',
   PASSWORD_CHANGED = 'password_changed',
-  
+
   // Security
   SUSPICIOUS_LOGIN = 'suspicious_login',
   BRUTE_FORCE_ATTEMPT = 'brute_force_attempt',
   DEVICE_TRUSTED = 'device_trusted',
   DEVICE_UNTRUSTED = 'device_untrusted',
-  
+
   // MFA
   MFA_ENABLED = 'mfa_enabled',
   MFA_DISABLED = 'mfa_disabled',
   MFA_RECOVERY = 'mfa_recovery',
-  
+
   // E-commerce (Bangladesh specific)
   ORDER_CONFIRMATION = 'order_confirmation',
   ORDER_SHIPPED = 'order_shipped',
@@ -128,12 +128,12 @@ export enum NotificationType {
   PAYMENT_VERIFICATION = 'payment_verification',
   CASHBACK_CREDITED = 'cashback_credited',
   DISCOUNT_APPLIED = 'discount_applied',
-  
+
   // MFS (bKash, Nagad, Rocket)
   MFS_OTP = 'mfs_otp',
   MFS_PAYMENT_CONFIRMATION = 'mfs_payment_confirmation',
   MFS_CASHBACK = 'mfs_cashback',
-  
+
   // Promotional (Bangladesh specific)
   PROMOTIONAL = 'promotional',
   NEWSLETTER = 'newsletter',
@@ -201,12 +201,14 @@ export interface EmailOptions extends NotificationOptions {
   /** Template data */
   templateData?: Record<string, unknown> | undefined;
   /** Attachments */
-  attachments?: Array<{
-    filename: string;
-    content?: string | Buffer | undefined;
-    path?: string | undefined;
-    contentType?: string | undefined;
-  }> | undefined;
+  attachments?:
+    | Array<{
+        filename: string;
+        content?: string | Buffer | undefined;
+        path?: string | undefined;
+        contentType?: string | undefined;
+      }>
+    | undefined;
   /** Headers */
   headers?: Record<string, string> | undefined;
 }
@@ -256,17 +258,21 @@ export interface WhatsAppOptions extends NotificationOptions {
   /** Caption for media */
   caption?: string | undefined;
   /** Interactive buttons */
-  buttons?: Array<{
-    type: 'reply' | 'url' | 'call';
-    title: string;
-    value?: string | undefined;
-  }> | undefined;
+  buttons?:
+    | Array<{
+        type: 'reply' | 'url' | 'call';
+        title: string;
+        value?: string | undefined;
+      }>
+    | undefined;
   /** List items */
-  listItems?: Array<{
-    id: string;
-    title: string;
-    description?: string | undefined;
-  }> | undefined;
+  listItems?:
+    | Array<{
+        id: string;
+        title: string;
+        description?: string | undefined;
+      }>
+    | undefined;
   /** Footer text */
   footer?: string | undefined;
 }
@@ -295,17 +301,21 @@ export interface PushOptions extends NotificationOptions {
   apns?: Record<string, unknown> | undefined;
   fcm?: Record<string, unknown> | undefined;
   /** Android-specific options */
-  android?: {
-    channelId?: string | undefined;
-    priority?: 'high' | 'normal' | undefined;
-    ttl?: number | undefined;
-  } | undefined;
+  android?:
+    | {
+        channelId?: string | undefined;
+        priority?: 'high' | 'normal' | undefined;
+        ttl?: number | undefined;
+      }
+    | undefined;
   /** iOS-specific options */
-  ios?: {
-    priority?: 'high' | 'normal' | undefined;
-    threadId?: string | undefined;
-    interruptionLevel?: 'passive' | 'active' | 'time-sensitive' | 'critical' | undefined;
-  } | undefined;
+  ios?:
+    | {
+        priority?: 'high' | 'normal' | undefined;
+        threadId?: string | undefined;
+        interruptionLevel?: 'passive' | 'active' | 'time-sensitive' | 'critical' | undefined;
+      }
+    | undefined;
 }
 
 /**
@@ -413,10 +423,12 @@ export interface NotificationResult<T = unknown> {
   /** Provider message ID */
   providerMessageId?: string | undefined;
   /** Cost (if applicable) */
-  cost?: {
-    amount: number;
-    currency: string;
-  } | undefined;
+  cost?:
+    | {
+        amount: number;
+        currency: string;
+      }
+    | undefined;
   /** Metadata */
   metadata?: Record<string, unknown> | undefined;
 }
@@ -434,11 +446,13 @@ export interface BulkNotificationResult {
   /** Results for each notification */
   results: NotificationResult[];
   /** Error details for failed notifications */
-  errors?: Array<{
-    recipient: string;
-    error: string;
-    channel: NotificationChannel;
-  }> | undefined;
+  errors?:
+    | Array<{
+        recipient: string;
+        error: string;
+        channel: NotificationChannel;
+      }>
+    | undefined;
 }
 
 /**
@@ -485,10 +499,10 @@ export interface NotificationTemplate {
 
 /**
  * Notification Sender Port Interface
- * 
+ *
  * Defines the contract for sending notifications across multiple channels.
  * All notification sending should go through this interface.
- * 
+ *
  * Enterprise Features:
  * ✅ Multi-channel support (Email, SMS, WhatsApp, Push, In-App, Voice)
  * ✅ Template-based notifications
@@ -498,12 +512,12 @@ export interface NotificationTemplate {
  * ✅ Tracking and delivery status
  * ✅ Bangladesh specific (bKash, Nagad, Rocket)
  * ✅ Bengali language support
- * 
+ *
  * @example
  * // Using the port in domain service
  * class UserService {
  *   constructor(private readonly notificationSender: INotificationSender) {}
- * 
+ *
  *   async sendWelcomeEmail(user: User): Promise<void> {
  *     await this.notificationSender.sendEmail({
  *       to: user.getEmail().getValue(),
@@ -526,10 +540,10 @@ export interface INotificationSender {
 
   /**
    * Send an email notification
-   * 
+   *
    * @param options - Email options
    * @returns Notification result
-   * 
+   *
    * @example
    * const result = await notificationSender.sendEmail({
    *   to: 'user@example.com',
@@ -543,7 +557,7 @@ export interface INotificationSender {
 
   /**
    * Send email verification code
-   * 
+   *
    * @param to - Recipient email
    * @param code - Verification code
    * @param fullName - User's full name
@@ -561,7 +575,7 @@ export interface INotificationSender {
 
   /**
    * Send password reset email
-   * 
+   *
    * @param to - Recipient email
    * @param resetLink - Password reset link
    * @param fullName - User's full name
@@ -585,10 +599,10 @@ export interface INotificationSender {
 
   /**
    * Send an SMS notification
-   * 
+   *
    * @param options - SMS options
    * @returns Notification result
-   * 
+   *
    * @example
    * const result = await notificationSender.sendSMS({
    *   to: '+8801712345678',
@@ -600,7 +614,7 @@ export interface INotificationSender {
 
   /**
    * Send SMS verification code (Bangladesh specific)
-   * 
+   *
    * @param to - Recipient phone number (E.164 format)
    * @param code - Verification code (OTP)
    * @param fullName - User's full name
@@ -618,7 +632,7 @@ export interface INotificationSender {
 
   /**
    * Send welcome SMS (Bangladesh specific)
-   * 
+   *
    * @param to - Recipient phone number (E.164 format)
    * @param fullName - User's full name
    * @param language - Language preference ('en' | 'bn')
@@ -638,10 +652,10 @@ export interface INotificationSender {
 
   /**
    * Send a WhatsApp notification (via WhatsApp Business API)
-   * 
+   *
    * @param options - WhatsApp options
    * @returns Notification result
-   * 
+   *
    * @example
    * const result = await notificationSender.sendWhatsApp({
    *   to: '+8801712345678',
@@ -657,7 +671,7 @@ export interface INotificationSender {
 
   /**
    * Send WhatsApp verification code (Bangladesh specific)
-   * 
+   *
    * @param to - Recipient phone number (E.164 format)
    * @param code - Verification code (OTP)
    * @param fullName - User's full name
@@ -675,7 +689,7 @@ export interface INotificationSender {
 
   /**
    * Send WhatsApp MFS payment notification (bKash/Nagad/Rocket)
-   * 
+   *
    * @param options - MFS options
    * @returns Notification result
    */
@@ -687,10 +701,10 @@ export interface INotificationSender {
 
   /**
    * Send a push notification (FCM/APNS)
-   * 
+   *
    * @param options - Push options
    * @returns Notification result
-   * 
+   *
    * @example
    * const result = await notificationSender.sendPush({
    *   to: ['device_token_1', 'device_token_2'],
@@ -707,10 +721,10 @@ export interface INotificationSender {
 
   /**
    * Send an in-app notification
-   * 
+   *
    * @param options - In-app options
    * @returns Notification result
-   * 
+   *
    * @example
    * const result = await notificationSender.sendInApp({
    *   userId: 'user_123',
@@ -728,10 +742,10 @@ export interface INotificationSender {
 
   /**
    * Send a voice call notification (for OTP)
-   * 
+   *
    * @param options - Voice options
    * @returns Notification result
-   * 
+   *
    * @example
    * const result = await notificationSender.sendVoice({
    *   to: '+8801712345678',
@@ -747,10 +761,10 @@ export interface INotificationSender {
 
   /**
    * Send MFS (bKash/Nagad/Rocket) notification
-   * 
+   *
    * @param options - MFS options
    * @returns Notification result
-   * 
+   *
    * @example
    * const result = await notificationSender.sendMFS({
    *   to: '+8801712345678',
@@ -771,13 +785,13 @@ export interface INotificationSender {
 
   /**
    * Render a notification template
-   * 
+   *
    * @param templateName - Template name
    * @param data - Template data
    * @param language - Language preference ('en' | 'bn')
    * @param channel - Notification channel
    * @returns Rendered template
-   * 
+   *
    * @example
    * const rendered = await notificationSender.renderTemplate(
    *   'welcome',
@@ -801,7 +815,7 @@ export interface INotificationSender {
 
   /**
    * Get a notification template
-   * 
+   *
    * @param templateId - Template ID
    * @param language - Language preference ('en' | 'bn')
    * @param channel - Notification channel
@@ -819,12 +833,12 @@ export interface INotificationSender {
 
   /**
    * Send bulk notifications (multiple recipients)
-   * 
+   *
    * @param channel - Notification channel
    * @param recipients - Array of recipients with their options
    * @param options - Base notification options (applied to all)
    * @returns Bulk notification result
-   * 
+   *
    * @example
    * const result = await notificationSender.sendBulk(
    *   NotificationChannel.EMAIL,
@@ -843,11 +857,11 @@ export interface INotificationSender {
 
   /**
    * Send bulk SMS (Bangladesh specific)
-   * 
+   *
    * @param recipients - Array of phone numbers with their messages
    * @param options - SMS options (applied to all)
    * @returns Bulk notification result
-   * 
+   *
    * @example
    * const result = await notificationSender.sendBulkSMS(
    *   [
@@ -864,7 +878,7 @@ export interface INotificationSender {
 
   /**
    * Send bulk WhatsApp (Bangladesh specific)
-   * 
+   *
    * @param recipients - Array of recipients with their template data
    * @param template - Template name
    * @param options - WhatsApp options (applied to all)
@@ -882,7 +896,7 @@ export interface INotificationSender {
 
   /**
    * Get notification status by ID
-   * 
+   *
    * @param notificationId - Notification ID
    * @param channel - Notification channel
    * @returns Notification result
@@ -894,7 +908,7 @@ export interface INotificationSender {
 
   /**
    * Get delivery status by provider message ID
-   * 
+   *
    * @param providerMessageId - Provider message ID
    * @param channel - Notification channel
    * @returns Delivery status
@@ -911,7 +925,7 @@ export interface INotificationSender {
 
   /**
    * Track notification delivery (webhook handler)
-   * 
+   *
    * @param payload - Provider webhook payload
    * @param channel - Notification channel
    * @returns Processing result
@@ -931,7 +945,7 @@ export interface INotificationSender {
 
   /**
    * Check if a channel is available/enabled
-   * 
+   *
    * @param channel - Notification channel
    * @param options - Additional check options
    * @returns True if channel is available
@@ -947,7 +961,7 @@ export interface INotificationSender {
 
   /**
    * Get available channels for a recipient
-   * 
+   *
    * @param recipient - Email or phone number
    * @param type - Notification type
    * @param language - Language preference
@@ -957,26 +971,30 @@ export interface INotificationSender {
     recipient: string,
     type: NotificationType,
     language?: 'en' | 'bn',
-  ): Promise<Array<{
-    channel: NotificationChannel;
-    score: number;
-    reason: string;
-  }>>;
+  ): Promise<
+    Array<{
+      channel: NotificationChannel;
+      score: number;
+      reason: string;
+    }>
+  >;
 
   /**
    * Get channel-specific configuration
-   * 
+   *
    * @param channel - Notification channel
    * @returns Channel configuration
    */
   getChannelConfig(channel: NotificationChannel): Promise<{
     enabled: boolean;
     priority: number;
-    rateLimit?: {
-      perSecond: number;
-      perMinute: number;
-      perHour: number;
-    } | undefined;
+    rateLimit?:
+      | {
+          perSecond: number;
+          perMinute: number;
+          perHour: number;
+        }
+      | undefined;
     costPerUnit: number;
     maxLength?: number | undefined;
     supportedTypes: NotificationType[];
@@ -988,7 +1006,7 @@ export interface INotificationSender {
 
   /**
    * Get notification analytics
-   * 
+   *
    * @param from - Start date
    * @param to - End date
    * @param options - Filter options
@@ -1148,12 +1166,7 @@ export class MockNotificationSender implements INotificationSender {
 
   async sendEmail(options: EmailOptions): Promise<NotificationResult> {
     await this.delay();
-    return this.createResult(
-      NotificationChannel.EMAIL,
-      this.detectType(options),
-      options.to,
-      true,
-    );
+    return this.createResult(NotificationChannel.EMAIL, this.detectType(options), options.to, true);
   }
 
   async sendEmailVerification(
@@ -1222,10 +1235,11 @@ export class MockNotificationSender implements INotificationSender {
     options?: NotificationOptions,
   ): Promise<NotificationResult> {
     await this.delay();
-    const message = language === 'en'
-      ? `Hello ${fullName}, your verification code is: ${code}`
-      : `Hello ${fullName}, your verification code is: ${code}`;
-    
+    const message =
+      language === 'en'
+        ? `Hello ${fullName}, your verification code is: ${code}`
+        : `Hello ${fullName}, your verification code is: ${code}`;
+
     return this.sendSMS({
       ...options,
       to,
@@ -1243,10 +1257,9 @@ export class MockNotificationSender implements INotificationSender {
     options?: NotificationOptions,
   ): Promise<NotificationResult> {
     await this.delay();
-    const message = language === 'en'
-      ? `Welcome ${fullName} to Vubon!`
-      : `Welcome ${fullName} to Vubon!`;
-    
+    const message =
+      language === 'en' ? `Welcome ${fullName} to Vubon!` : `Welcome ${fullName} to Vubon!`;
+
     return this.sendSMS({
       ...options,
       to,
@@ -1280,7 +1293,10 @@ export class MockNotificationSender implements INotificationSender {
       to,
       template: 'whatsapp_verification',
       templateData: { code, fullName },
-      text: language === 'en' ? `Your verification code is: ${code}` : `Your verification code is: ${code}`,
+      text:
+        language === 'en'
+          ? `Your verification code is: ${code}`
+          : `Your verification code is: ${code}`,
       correlationId: options?.correlationId,
     });
   }
@@ -1348,7 +1364,7 @@ export class MockNotificationSender implements INotificationSender {
   }> {
     const key = `${templateName}:${language}`;
     const template = this.templates.get(key);
-    
+
     if (!template) {
       return {
         body: JSON.stringify(data),
@@ -1394,7 +1410,7 @@ export class MockNotificationSender implements INotificationSender {
     _options: NotificationOptions,
   ): Promise<BulkNotificationResult> {
     await this.delay();
-    
+
     const results: NotificationResult[] = [];
     const errors: Array<{ recipient: string; error: string; channel: NotificationChannel }> = [];
 
@@ -1430,7 +1446,7 @@ export class MockNotificationSender implements INotificationSender {
     _options?: NotificationOptions,
   ): Promise<BulkNotificationResult> {
     await this.delay();
-    
+
     const results: NotificationResult[] = [];
     const errors: Array<{ recipient: string; error: string; channel: NotificationChannel }> = [];
 
@@ -1467,7 +1483,7 @@ export class MockNotificationSender implements INotificationSender {
     _options?: NotificationOptions,
   ): Promise<BulkNotificationResult> {
     await this.delay();
-    
+
     const results: NotificationResult[] = [];
     const errors: Array<{ recipient: string; error: string; channel: NotificationChannel }> = [];
 
@@ -1561,11 +1577,13 @@ export class MockNotificationSender implements INotificationSender {
     _recipient: string,
     _type: NotificationType,
     _language: 'en' | 'bn' = 'en',
-  ): Promise<Array<{
-    channel: NotificationChannel;
-    score: number;
-    reason: string;
-  }>> {
+  ): Promise<
+    Array<{
+      channel: NotificationChannel;
+      score: number;
+      reason: string;
+    }>
+  > {
     return [
       { channel: NotificationChannel.EMAIL, score: 10, reason: 'Always available' },
       { channel: NotificationChannel.SMS, score: 9, reason: 'Always available' },
@@ -1577,11 +1595,13 @@ export class MockNotificationSender implements INotificationSender {
   async getChannelConfig(_channel: NotificationChannel): Promise<{
     enabled: boolean;
     priority: number;
-    rateLimit?: {
-      perSecond: number;
-      perMinute: number;
-      perHour: number;
-    } | undefined;
+    rateLimit?:
+      | {
+          perSecond: number;
+          perMinute: number;
+          perHour: number;
+        }
+      | undefined;
     costPerUnit: number;
     maxLength?: number | undefined;
     supportedTypes: NotificationType[];
@@ -1630,10 +1650,16 @@ export class MockNotificationSender implements INotificationSender {
     const allTypes = Object.values(NotificationType);
     const allStatuses = Object.values(NotificationStatus);
 
-    const byChannel: Record<NotificationChannel, number> = {} as Record<NotificationChannel, number>;
+    const byChannel: Record<NotificationChannel, number> = {} as Record<
+      NotificationChannel,
+      number
+    >;
     const byType: Record<NotificationType, number> = {} as Record<NotificationType, number>;
     const byStatus: Record<NotificationStatus, number> = {} as Record<NotificationStatus, number>;
-    const costsByChannel: Record<NotificationChannel, number> = {} as Record<NotificationChannel, number>;
+    const costsByChannel: Record<NotificationChannel, number> = {} as Record<
+      NotificationChannel,
+      number
+    >;
 
     for (const channel of allChannels) {
       byChannel[channel] = Math.floor(Math.random() * 100);
