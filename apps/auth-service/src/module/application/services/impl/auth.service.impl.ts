@@ -50,15 +50,19 @@ import { Phone } from '../../../domain/value-objects/phone.vo';
 // ============================================================
 
 import type { IEmailValidator } from '../../../domain/ports/email-validator.port';
-import type { IPasswordValidator} from '../../../domain/ports/password-validator.port';
+import type { IPasswordValidator } from '../../../domain/ports/password-validator.port';
 import type { IPhoneValidator } from '../../../domain/ports/phone-validator.port';
-import type { IPasswordHasher } from '../../../domain/ports/password-hasher.port';
+import type { IPasswordHasher } from '../../../domain/ports/password-hasher.port.ts';
 import { PasswordStrength } from '../../../domain/ports/password-validator.port';
 // ============================================================
 // Application Imports
 // ============================================================
 
-import type { IAuthService, ServiceResult, RegistrationOptions } from '../interfaces/auth.service.interface';
+import type {
+  IAuthService,
+  ServiceResult,
+  RegistrationOptions,
+} from '../interfaces/auth.service.interface';
 import type { RegisterDto } from '../../dtos/auth/register.dto';
 import { UserMapper } from '../../mappers/user.mapper';
 
@@ -79,7 +83,7 @@ export interface EmailService {
     email: string,
     fullName: string,
     language: string | undefined,
-    correlationId: string
+    correlationId: string,
   ): Promise<void>;
 }
 
@@ -88,7 +92,7 @@ export interface SmsService {
     phone: string,
     fullName: string,
     language: string,
-    correlationId: string
+    correlationId: string,
   ): Promise<void>;
 }
 
@@ -117,10 +121,14 @@ class UuidIdGenerator implements IdGenerator {
   }
   generateOfType(type: 'uuid' | 'ulid' | 'snowflake' | 'sequential'): string {
     switch (type) {
-      case 'ulid': return this.generateUlid();
-      case 'snowflake': return this.generateSnowflake();
-      case 'sequential': return this.generateSequential();
-      default: return this.generate();
+      case 'ulid':
+        return this.generateUlid();
+      case 'snowflake':
+        return this.generateSnowflake();
+      case 'sequential':
+        return this.generateSequential();
+      default:
+        return this.generate();
     }
   }
 }
@@ -160,7 +168,7 @@ export class AuthService implements IAuthService {
     dto: RegisterDto,
     ipAddress: string,
     userAgent: string,
-    options?: RegistrationOptions
+    options?: RegistrationOptions,
   ): Promise<ServiceResult<UserResponseDto>> {
     const correlationId = options?.correlationId || randomUUID();
     const preferredLanguage = options?.preferredLanguage || 'en';
@@ -179,7 +187,7 @@ export class AuthService implements IAuthService {
           'INVALID_EMAIL' as ApiErrorCode,
           'Invalid email format',
           'ভুল ইমেইল ফরম্যাট',
-          correlationId
+          correlationId,
         );
       }
 
@@ -193,7 +201,7 @@ export class AuthService implements IAuthService {
           'WEAK_PASSWORD' as ApiErrorCode,
           `Password is too weak: ${passwordValidation.errors.join(', ')}`,
           `পাসওয়ার্ড খুব দুর্বল: ${passwordValidation.errors.join(', ')}`,
-          correlationId
+          correlationId,
         );
       }
 
@@ -203,7 +211,7 @@ export class AuthService implements IAuthService {
           'PASSWORD_MISMATCH' as ApiErrorCode,
           'Passwords do not match',
           'পাসওয়ার্ড দুটি মিলছে না',
-          correlationId
+          correlationId,
         );
       }
 
@@ -217,7 +225,7 @@ export class AuthService implements IAuthService {
             'INVALID_PHONE' as ApiErrorCode,
             'Invalid Bangladesh phone number. Use format: +8801XXXXXXXXX',
             'ভুল বাংলাদেশ ফোন নম্বর। ফরম্যাট: +8801XXXXXXXXX',
-            correlationId
+            correlationId,
           );
         }
         phone = new Phone(dto.phoneNumber, this.phoneValidator);
@@ -230,7 +238,7 @@ export class AuthService implements IAuthService {
           'TERMS_NOT_ACCEPTED' as ApiErrorCode,
           'You must accept the terms and conditions',
           'আপনাকে শর্তাবলী মেনে নিতে হবে',
-          correlationId
+          correlationId,
         );
       }
 
@@ -256,7 +264,7 @@ export class AuthService implements IAuthService {
           'EMAIL_EXISTS' as ApiErrorCode,
           'User with this email already exists',
           'এই ইমেইল দিয়ে already একটি অ্যাকাউন্ট আছে',
-          correlationId
+          correlationId,
         );
       }
 
@@ -278,7 +286,7 @@ export class AuthService implements IAuthService {
             'PHONE_EXISTS' as ApiErrorCode,
             'User with this phone number already exists',
             'এই ফোন নম্বর দিয়ে already একটি অ্যাকাউন্ট আছে',
-            correlationId
+            correlationId,
           );
         }
       }
@@ -297,7 +305,7 @@ export class AuthService implements IAuthService {
           'INTERNAL_ERROR' as ApiErrorCode,
           'Registration failed due to technical error',
           'প্রযুক্তিগত ত্রুটির কারণে নিবন্ধন ব্যর্থ হয়েছে',
-          correlationId
+          correlationId,
         );
       }
 
@@ -320,7 +328,7 @@ export class AuthService implements IAuthService {
         this.idGenerator,
         phone,
         preferredLanguage,
-        undefined // preferredOperator - will be set later from device info
+        undefined, // preferredOperator - will be set later from device info
       );
 
       // Set role after creation (since User.create doesn't accept role)
@@ -342,7 +350,7 @@ export class AuthService implements IAuthService {
           'INTERNAL_ERROR' as ApiErrorCode,
           'Registration failed due to technical error',
           'প্রযুক্তিগত ত্রুটির কারণে নিবন্ধন ব্যর্থ হয়েছে',
-          correlationId
+          correlationId,
         );
       }
 
@@ -459,7 +467,7 @@ export class AuthService implements IAuthService {
         'INTERNAL_ERROR' as ApiErrorCode,
         'Registration failed due to unexpected error',
         'অপ্রত্যাশিত ত্রুটির কারণে নিবন্ধন ব্যর্থ হয়েছে',
-        correlationId
+        correlationId,
       );
     }
   }
@@ -472,7 +480,7 @@ export class AuthService implements IAuthService {
     operation: string,
     userId: string | undefined,
     error: Error,
-    correlationId: string
+    correlationId: string,
   ): Promise<void> {
     try {
       await this.auditService.log({
@@ -489,7 +497,7 @@ export class AuthService implements IAuthService {
     } catch (auditError) {
       this.logger.error(
         `[${correlationId}] Failed to record audit for operation ${operation}:`,
-        auditError
+        auditError,
       );
     }
   }
@@ -501,7 +509,7 @@ export class AuthService implements IAuthService {
   private async sendWelcomeEmail(
     user: User,
     preferredLanguage: string,
-    correlationId: string
+    correlationId: string,
   ): Promise<void> {
     const email = user.getEmail().getValue();
     const fullName = user.getFullName();
@@ -509,12 +517,7 @@ export class AuthService implements IAuthService {
 
     this.logger.debug(`[${correlationId}] Sending welcome email to ${maskEmail(email)}`);
 
-    await this.emailService.sendWelcomeEmail(
-      email,
-      fullName,
-      language,
-      correlationId
-    );
+    await this.emailService.sendWelcomeEmail(email, fullName, language, correlationId);
   }
 
   // ============================================================
@@ -524,7 +527,7 @@ export class AuthService implements IAuthService {
   private async sendWelcomeSms(
     user: User,
     preferredLanguage: string,
-    correlationId: string
+    correlationId: string,
   ): Promise<void> {
     const phone = user.getPhone();
     if (!phone) {
@@ -544,12 +547,7 @@ export class AuthService implements IAuthService {
 
     this.logger.debug(`[${correlationId}] Sending welcome SMS to ${maskPhone(phoneNumber)}`);
 
-    await this.smsService.sendWelcomeSms(
-      normalizedPhone,
-      fullName,
-      language,
-      correlationId
-    );
+    await this.smsService.sendWelcomeSms(normalizedPhone, fullName, language, correlationId);
   }
 
   // ============================================================
@@ -560,7 +558,7 @@ export class AuthService implements IAuthService {
     errorCode: ApiErrorCode,
     errorMessage: string,
     errorMessageBn: string,
-    correlationId: string
+    correlationId: string,
   ): ServiceResult<never> {
     return {
       success: false,
@@ -576,53 +574,119 @@ export class AuthService implements IAuthService {
   // ============================================================
 
   // Login methods
-  async login(): Promise<any> { throw new Error('Method not implemented.') }
-  async loginWithPhone(): Promise<any> { throw new Error('Method not implemented.') }
-  async loginWithUsername(): Promise<any> { throw new Error('Method not implemented.') }
-  async loginWithOtp(): Promise<any> { throw new Error('Method not implemented.') }
-  async socialLogin(): Promise<any> { throw new Error('Method not implemented.') }
-  async socialPhoneLogin(): Promise<any> { throw new Error('Method not implemented.') }
+  async login(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async loginWithPhone(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async loginWithUsername(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async loginWithOtp(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async socialLogin(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async socialPhoneLogin(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
 
   // MFA methods
-  async verifyMfa(): Promise<any> { throw new Error('Method not implemented.') }
-  async enableMfa(): Promise<any> { throw new Error('Method not implemented.') }
-  async verifyMfaSetup(): Promise<any> { throw new Error('Method not implemented.') }
-  async disableMfa(): Promise<any> { throw new Error('Method not implemented.') }
-  async getMfaStatus(): Promise<any> { throw new Error('Method not implemented.') }
-  async regenerateBackupCodes(): Promise<any> { throw new Error('Method not implemented.') }
+  async verifyMfa(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async enableMfa(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async verifyMfaSetup(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async disableMfa(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async getMfaStatus(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async regenerateBackupCodes(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
 
   // Verification methods
-  async verifyEmail(): Promise<any> { throw new Error('Method not implemented.') }
-  async verifyPhone(): Promise<any> { throw new Error('Method not implemented.') }
-  async resendVerificationEmail(): Promise<any> { throw new Error('Method not implemented.') }
-  async resendVerificationSms(): Promise<any> { throw new Error('Method not implemented.') }
+  async verifyEmail(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async verifyPhone(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async resendVerificationEmail(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async resendVerificationSms(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
 
   // Token methods
-  async refreshToken(): Promise<any> { throw new Error('Method not implemented.') }
-  async validateToken(): Promise<any> { throw new Error('Method not implemented.') }
-  async revokeRefreshToken(): Promise<any> { throw new Error('Method not implemented.') }
+  async refreshToken(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async validateToken(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async revokeRefreshToken(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
 
   // Session methods
-  async logout(): Promise<any> { throw new Error('Method not implemented.') }
-  async getCurrentUser(): Promise<any> { throw new Error('Method not implemented.') }
-  async getUserSessions(): Promise<any> { throw new Error('Method not implemented.') }
-  async revokeSession(): Promise<any> { throw new Error('Method not implemented.') }
-  async revokeAllSessions(): Promise<any> { throw new Error('Method not implemented.') }
+  async logout(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async getCurrentUser(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async getUserSessions(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async revokeSession(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async revokeAllSessions(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
 
   // Password methods
-  async forgotPassword(): Promise<any> { throw new Error('Method not implemented.') }
-  async forgotPasswordByPhone(): Promise<any> { throw new Error('Method not implemented.') }
-  async resetPassword(): Promise<any> { throw new Error('Method not implemented.') }
-  async resetPasswordWithOtp(): Promise<any> { throw new Error('Method not implemented.') }
-  async changePassword(): Promise<any> { throw new Error('Method not implemented.') }
+  async forgotPassword(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async forgotPasswordByPhone(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async resetPassword(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async resetPasswordWithOtp(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async changePassword(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
 
   // Bulk operations
-  async bulkLogout(): Promise<any> { throw new Error('Method not implemented.') }
-  async bulkForcePasswordReset(): Promise<any> { throw new Error('Method not implemented.') }
+  async bulkLogout(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async bulkForcePasswordReset(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
 
   // Health
-  async healthCheck(): Promise<any> { throw new Error('Method not implemented.') }
-  async getRateLimitStatus(): Promise<any> { throw new Error('Method not implemented.') }
+  async healthCheck(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+  async getRateLimitStatus(): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
 }
 
 // ============================================================
