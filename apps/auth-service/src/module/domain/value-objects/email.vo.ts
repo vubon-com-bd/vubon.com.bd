@@ -46,12 +46,7 @@ export interface EmailValidation {
 /**
  * Email domain types (Bangladesh specific)
  */
-export type EmailDomainType =
-  | 'bangladesh'
-  | 'educational'
-  | 'government'
-  | 'disposable'
-  | 'other';
+export type EmailDomainType = 'bangladesh' | 'educational' | 'government' | 'disposable' | 'other';
 
 // ==================== Constants (Bangladesh Specific - Pure Domain) ====================
 
@@ -69,13 +64,7 @@ const BD_EMAIL_PATTERNS = {
  * Pure domain data - no external imports
  */
 const BD_EMAIL_SETS = {
-  GOVERNMENT: new Set([
-    'gov.bd',
-    'moi.gov.bd',
-    'bcc.gov.bd',
-    'a2i.gov.bd',
-    'dgdpr.gov.bd',
-  ]),
+  GOVERNMENT: new Set(['gov.bd', 'moi.gov.bd', 'bcc.gov.bd', 'a2i.gov.bd', 'dgdpr.gov.bd']),
   CORPORATE: new Set([
     'bangla.net',
     'agni.com',
@@ -137,15 +126,15 @@ export class Email extends ValueObject {
    * @throws {Error} If email format is invalid
    */
   constructor(
-  email: string,
-  private readonly validator: IEmailValidator // <-- এখানে 'private readonly' যোগ করুন
-) {
-  super();
-  // এখন 'this.validator' ব্যবহার করুন
-  const result = this.validator.validate(email); 
-  if (!result.isValid) {
-    throw new Error(result.error || 'Invalid email');
-  }
+    email: string,
+    private readonly validator: IEmailValidator, // <-- এখানে 'private readonly' যোগ করুন
+  ) {
+    super();
+    // এখন 'this.validator' ব্যবহার করুন
+    const result = this.validator.validate(email);
+    if (!result.isValid) {
+      throw new Error(result.error || 'Invalid email');
+    }
 
     // ✅ Use injected validator for normalization
     const normalized = validator.normalize(email);
@@ -199,10 +188,7 @@ export class Email extends ValueObject {
   /**
    * Creates an Email from unknown input (safe parsing)
    */
-  public static tryCreate(
-    email: unknown,
-    validator: IEmailValidator
-  ): Email | null {
+  public static tryCreate(email: unknown, validator: IEmailValidator): Email | null {
     if (typeof email !== 'string') {
       return null;
     }
@@ -219,7 +205,7 @@ export class Email extends ValueObject {
    */
   public static fromRequest(
     email: string | null | undefined,
-    validator: IEmailValidator
+    validator: IEmailValidator,
   ): Email | null {
     if (!email) return null;
     return Email.tryCreate(email, validator);
@@ -236,10 +222,7 @@ export class Email extends ValueObject {
    * @param validator - Injected email validator port
    * @returns Validation result with normalized values
    */
-  public static validate(
-    email: string,
-    validator: IEmailValidator
-  ): EmailValidation {
+  public static validate(email: string, validator: IEmailValidator): EmailValidation {
     // Check type and emptiness
     if (!email || typeof email !== 'string') {
       return {
@@ -289,20 +272,14 @@ export class Email extends ValueObject {
   /**
    * Normalize email to canonical form using injected validator
    */
-  public static normalize(
-    email: string,
-    validator: IEmailValidator
-  ): string | null {
+  public static normalize(email: string, validator: IEmailValidator): string | null {
     return validator.normalize(email);
   }
 
   /**
    * Check if email format is valid (simple boolean check)
    */
-  public static isValidFormat(
-    email: string,
-    validator: IEmailValidator
-  ): boolean {
+  public static isValidFormat(email: string, validator: IEmailValidator): boolean {
     const result = validator.validate(email);
     return result.isValid;
   }
@@ -448,7 +425,7 @@ export function isEmail(value: unknown): value is Email {
  */
 export function emailFromNormalized(
   normalizedEmail: string | null | undefined,
-  validator: IEmailValidator
+  validator: IEmailValidator,
 ): Email | null {
   if (!normalizedEmail) return null;
   return Email.tryCreate(normalizedEmail, validator);
@@ -459,7 +436,7 @@ export function emailFromNormalized(
  */
 export function createEmailFromRequest(
   email: string | null | undefined,
-  validator: IEmailValidator
+  validator: IEmailValidator,
 ): Email | null {
   if (!email) return null;
   return Email.tryCreate(email, validator);
@@ -468,9 +445,6 @@ export function createEmailFromRequest(
 /**
  * Validate email format (simple boolean check)
  */
-export function isValidEmailFormat(
-  email: string,
-  validator: IEmailValidator
-): boolean {
+export function isValidEmailFormat(email: string, validator: IEmailValidator): boolean {
   return Email.isValidFormat(email, validator);
 }
