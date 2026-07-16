@@ -12,16 +12,14 @@
 
   "quoteProps": "as-needed",
   "jsxSingleQuote": false,
-  "jsxBracketSameLine": false,
   "proseWrap": "preserve",
   "htmlWhitespaceSensitivity": "css",
   "vueIndentScriptAndStyle": false,
   "embeddedLanguageFormatting": "auto",
 
-  "plugins": [
-    "prettier-plugin-organize-imports"
-  ],
-
+"plugins": [
+  "@trivago/prettier-plugin-sort-imports"
+],
   "importOrder": [
     "^(node:.*)$",
     "^(@nestjs/.*)$",
