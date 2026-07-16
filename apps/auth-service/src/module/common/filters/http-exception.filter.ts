@@ -356,7 +356,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   private handleHttpException(
     exception: HttpException,
-    stack: string | undefined
+    stack: string | undefined,
   ): {
     statusCode: number;
     errorCode: string;
@@ -454,7 +454,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     path: string,
     method: string,
     statusCode: number,
-    errorCode: string
+    errorCode: string,
   ): void {
     const isServerError = statusCode >= 500;
 
@@ -491,7 +491,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         return sanitized;
       }
       if (Array.isArray(details)) {
-        return details.map(item => this.sanitizeDetails(item));
+        return details.map((item) => this.sanitizeDetails(item));
       }
     }
 
