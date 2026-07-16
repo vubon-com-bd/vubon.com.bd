@@ -98,7 +98,7 @@ export interface IPasswordValidator {
       checkCommonPasswords?: boolean;
       /** Whether to check for personal info (default: false) */
       checkPersonalInfo?: boolean;
-    }
+    },
   ): PasswordValidationResult;
 
   /**
@@ -141,7 +141,7 @@ export interface IPasswordValidator {
       phone?: string;
       username?: string;
       birthdate?: string;
-    }
+    },
   ): boolean;
 
   /**
@@ -159,7 +159,7 @@ export interface IPasswordValidator {
       includeNumbers?: boolean;
       includeSpecial?: boolean;
       excludeAmbiguous?: boolean;
-    }
+    },
   ): string;
 
   /**
@@ -187,7 +187,7 @@ export interface IPasswordValidator {
    */
   getRequirements(
     password: string,
-    minStrength?: PasswordStrength
+    minStrength?: PasswordStrength,
   ): Array<{
     key: string;
     label: string;
@@ -208,7 +208,7 @@ export class MockPasswordValidator implements IPasswordValidator {
   constructor(
     private readonly isValidResult: boolean = true,
     private readonly strength: PasswordStrength = PasswordStrength.STRONG,
-    private readonly entropy: number = 70
+    private readonly entropy: number = 70,
   ) {}
 
   validate(
@@ -218,7 +218,7 @@ export class MockPasswordValidator implements IPasswordValidator {
       additionalCommonWords?: string[];
       checkCommonPasswords?: boolean;
       checkPersonalInfo?: boolean;
-    }
+    },
   ): PasswordValidationResult {
     const errors: string[] = [];
     const warnings: string[] = [];
@@ -256,7 +256,7 @@ export class MockPasswordValidator implements IPasswordValidator {
     const hasLowercase = /[a-z]/.test(password);
     const hasNumbers = /[0-9]/.test(password);
     const hasSpecial = /[^A-Za-z0-9]/.test(password);
-    
+
     let calculatedStrength = PasswordStrength.VERY_WEAK;
     let calculatedEntropy = 0;
 
@@ -323,7 +323,9 @@ export class MockPasswordValidator implements IPasswordValidator {
     };
 
     if (strengthOrder[calculatedStrength] < strengthOrder[minStrength]) {
-      errors.push(`Password strength (${calculatedStrength}) is below minimum requirement (${minStrength})`);
+      errors.push(
+        `Password strength (${calculatedStrength}) is below minimum requirement (${minStrength})`,
+      );
       suggestions.push(`Use a stronger password with more characters and complexity`);
     }
 
@@ -354,11 +356,13 @@ export class MockPasswordValidator implements IPasswordValidator {
     const hasLowercase = /[a-z]/.test(password);
     const hasNumbers = /[0-9]/.test(password);
     const hasSpecial = /[^A-Za-z0-9]/.test(password);
-    
-    const complexityScore = [hasUppercase, hasLowercase, hasNumbers, hasSpecial].filter(Boolean).length;
+
+    const complexityScore = [hasUppercase, hasLowercase, hasNumbers, hasSpecial].filter(
+      Boolean,
+    ).length;
     const isComplex = complexityScore >= 3;
     const isNotCommon = !this.isCommonPassword(password);
-    
+
     // Return based on mock validity but also consider the parameters
     return this.isValidResult && hasMinLength && isComplex && isNotCommon;
   }
@@ -369,16 +373,16 @@ export class MockPasswordValidator implements IPasswordValidator {
     const hasLowercase = /[a-z]/.test(password);
     const hasNumbers = /[0-9]/.test(password);
     const hasSpecial = /[^A-Za-z0-9]/.test(password);
-    
+
     // Calculate actual entropy based on character set
     let charsetSize = 0;
     if (hasLowercase) charsetSize += 26;
     if (hasUppercase) charsetSize += 26;
     if (hasNumbers) charsetSize += 10;
     if (hasSpecial) charsetSize += 33;
-    
+
     const entropyBits = charsetSize > 0 ? password.length * Math.log2(charsetSize) : 0;
-    
+
     // Determine strength based on entropy
     let strength: PasswordStrength;
     if (entropyBits >= 80) strength = PasswordStrength.VERY_STRONG;
@@ -386,7 +390,7 @@ export class MockPasswordValidator implements IPasswordValidator {
     else if (entropyBits >= 40) strength = PasswordStrength.MEDIUM;
     else if (entropyBits >= 20) strength = PasswordStrength.WEAK;
     else strength = PasswordStrength.VERY_WEAK;
-    
+
     // Estimate crack time
     let estimatedCrackTime: string;
     if (entropyBits >= 80) estimatedCrackTime = 'centuries';
@@ -395,7 +399,7 @@ export class MockPasswordValidator implements IPasswordValidator {
     else if (entropyBits >= 28) estimatedCrackTime = 'days';
     else if (entropyBits >= 20) estimatedCrackTime = 'hours';
     else estimatedCrackTime = 'seconds';
-    
+
     return {
       bits: Math.round(entropyBits * 10) / 10,
       strength,
@@ -406,65 +410,81 @@ export class MockPasswordValidator implements IPasswordValidator {
   isCommonPassword(password: string): boolean {
     // Check against a mock common password list
     const commonPasswords = [
-      'password', '123456', 'password123', 'admin', 'welcome',
-      'qwerty', 'abc123', 'letmein', 'monkey', 'dragon',
-      'master', 'hello', 'freedom', 'whatever', 'trustno1',
-      '123456789', '12345678', '12345', '1234567', '123123'
+      'password',
+      '123456',
+      'password123',
+      'admin',
+      'welcome',
+      'qwerty',
+      'abc123',
+      'letmein',
+      'monkey',
+      'dragon',
+      'master',
+      'hello',
+      'freedom',
+      'whatever',
+      'trustno1',
+      '123456789',
+      '12345678',
+      '12345',
+      '1234567',
+      '123123',
     ];
     return commonPasswords.includes(password.toLowerCase());
   }
 
   containsPersonalInfo(
-  password: string,
-  personalInfo: {
-    email?: string;
-    name?: string;
-    phone?: string;
-    username?: string;
-    birthdate?: string;
-  }
-): boolean {
-  // Check if password contains any personal info
-  const lowerPassword = password.toLowerCase();
-  
-  // Check email - সম্পূর্ণ TypeScript-safe
-  if (personalInfo.email) {
-    const emailParts = personalInfo.email.split('@');
-    // নিশ্চিত করা যে array-তে কমপক্ষে একটি এলিমেন্ট আছে এবং সেটি খালি নয়
-    const localPart = emailParts[0];
-    if (localPart && localPart.length > 2) {
-      const emailPart = localPart.toLowerCase();
-      if (lowerPassword.includes(emailPart)) return true;
+    password: string,
+    personalInfo: {
+      email?: string;
+      name?: string;
+      phone?: string;
+      username?: string;
+      birthdate?: string;
+    },
+  ): boolean {
+    // Check if password contains any personal info
+    const lowerPassword = password.toLowerCase();
+
+    // Check email - সম্পূর্ণ TypeScript-safe
+    if (personalInfo.email) {
+      const emailParts = personalInfo.email.split('@');
+      // নিশ্চিত করা যে array-তে কমপক্ষে একটি এলিমেন্ট আছে এবং সেটি খালি নয়
+      const localPart = emailParts[0];
+      if (localPart && localPart.length > 2) {
+        const emailPart = localPart.toLowerCase();
+        if (lowerPassword.includes(emailPart)) return true;
+      }
     }
-  }
-  
-  // Check name
-  if (personalInfo.name) {
-    const nameParts = personalInfo.name.toLowerCase().split(' ');
-    for (const part of nameParts) {
-      if (part.length > 2 && lowerPassword.includes(part)) return true;
+
+    // Check name
+    if (personalInfo.name) {
+      const nameParts = personalInfo.name.toLowerCase().split(' ');
+      for (const part of nameParts) {
+        if (part.length > 2 && lowerPassword.includes(part)) return true;
+      }
     }
+
+    // Check phone
+    if (personalInfo.phone) {
+      const phoneDigits = personalInfo.phone.replace(/\D/g, '');
+      if (phoneDigits.length >= 4 && password.includes(phoneDigits)) return true;
+    }
+
+    // Check username
+    if (personalInfo.username && personalInfo.username.length > 2) {
+      if (lowerPassword.includes(personalInfo.username.toLowerCase())) return true;
+    }
+
+    // Check birthdate
+    if (personalInfo.birthdate) {
+      const dateStr = personalInfo.birthdate.replace(/-/g, '');
+      if (password.includes(dateStr)) return true;
+    }
+
+    return false;
   }
-  
-  // Check phone
-  if (personalInfo.phone) {
-    const phoneDigits = personalInfo.phone.replace(/\D/g, '');
-    if (phoneDigits.length >= 4 && password.includes(phoneDigits)) return true;
-  }
-  
-  // Check username
-  if (personalInfo.username && personalInfo.username.length > 2) {
-    if (lowerPassword.includes(personalInfo.username.toLowerCase())) return true;
-  }
-  
-  // Check birthdate
-  if (personalInfo.birthdate) {
-    const dateStr = personalInfo.birthdate.replace(/-/g, '');
-    if (password.includes(dateStr)) return true;
-  }
-  
-  return false;
-}
 
   generateSecurePassword(
     length: number = 16,
@@ -474,7 +494,7 @@ export class MockPasswordValidator implements IPasswordValidator {
       includeNumbers?: boolean;
       includeSpecial?: boolean;
       excludeAmbiguous?: boolean;
-    }
+    },
   ): string {
     // Generate a mock secure password
     const lowercase = 'abcdefghijklmnopqrstuvwxyz';
@@ -482,26 +502,26 @@ export class MockPasswordValidator implements IPasswordValidator {
     const numbers = '0123456789';
     const specials = '!@#$%^&*()_+-=';
     const ambiguous = 'il1Lo0O';
-    
+
     let chars = '';
     if (options?.includeLowercase !== false) chars += lowercase;
     if (options?.includeUppercase !== false) chars += uppercase;
     if (options?.includeNumbers !== false) chars += numbers;
     if (options?.includeSpecial !== false) chars += specials;
-    
+
     if (chars.length === 0) chars = lowercase + uppercase + numbers;
-    
+
     if (options?.excludeAmbiguous) {
       for (const char of ambiguous) {
         chars = chars.replace(char, '');
       }
     }
-    
+
     let result = '';
     for (let i = 0; i < length; i++) {
       result += chars[Math.floor(Math.random() * chars.length)];
     }
-    
+
     return result;
   }
 
@@ -529,10 +549,10 @@ export class MockPasswordValidator implements IPasswordValidator {
 
   getRequirements(
     password: string,
-    minStrength: PasswordStrength = PasswordStrength.MEDIUM
+    minStrength: PasswordStrength = PasswordStrength.MEDIUM,
   ): Array<{ key: string; label: string; labelBn?: string; met: boolean }> {
     const minLength = this.getRecommendedLength(minStrength);
-    
+
     // Use the password parameter to check requirements
     const requirements = [
       {
@@ -569,7 +589,7 @@ export class MockPasswordValidator implements IPasswordValidator {
 
     // If mock says valid, mark all as met
     if (this.isValidResult) {
-      requirements.forEach(req => (req.met = true));
+      requirements.forEach((req) => (req.met = true));
     }
 
     return requirements;
