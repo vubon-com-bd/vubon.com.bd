@@ -33,22 +33,6 @@ jobs:
       - name: Install Dependencies
         run: npm install --legacy-peer-deps --ignore-scripts
 
-      - name: Auto-format with Prettier
-        # Run Prettier to fix formatting issues so format:check passes in CI.
-        # This step will commit and push changes back to the branch if any files are modified.
-        run: |
-          npx prettier --write .
-          # Configure git for the commit
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [ -n "$(git status --porcelain)" ]; then
-            git add -A
-            git commit -m "chore(format): apply Prettier fixes"
-            git push
-          else
-            echo "No formatting changes"
-          fi
-
       - name: Generate Prisma Client
         run: >
           npx prisma generate
