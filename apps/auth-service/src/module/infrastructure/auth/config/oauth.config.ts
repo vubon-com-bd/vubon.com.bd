@@ -89,7 +89,10 @@ const buildProviderUrls = (provider: OAuthProvider) => {
   const envPrefix = provider.toUpperCase();
 
   // ডিফল্ট URL (স্যান্ডবক্স/উৎপাদন)
-  const defaults: Record<OAuthProvider, { auth: string; token: string; userInfo: string; revoke?: string }> = {
+  const defaults: Record<
+    OAuthProvider,
+    { auth: string; token: string; userInfo: string; revoke?: string }
+  > = {
     google: {
       auth: 'https://accounts.google.com/o/oauth2/v2/auth',
       token: 'https://oauth2.googleapis.com/token',
@@ -200,7 +203,7 @@ const buildProviderUrls = (provider: OAuthProvider) => {
 const createProviderConfig = (
   provider: OAuthProvider,
   baseCallbackUrl: string,
-  overrides: Partial<OAuthProviderConfig> = {}
+  overrides: Partial<OAuthProviderConfig> = {},
 ): OAuthProviderConfig => {
   const urls = buildProviderUrls(provider);
   const envPrefix = provider.toUpperCase();
@@ -212,13 +215,18 @@ const createProviderConfig = (
     displayNameBn: overrides.displayNameBn || provider.charAt(0).toUpperCase() + provider.slice(1),
     clientId: process.env[`${envPrefix}_CLIENT_ID`] || '',
     clientSecret: process.env[`${envPrefix}_CLIENT_SECRET`] || '',
-    callbackUrl: process.env[`${envPrefix}_CALLBACK_URL`] || `${baseCallbackUrl}/auth/${provider}/callback`,
-    scopes: (process.env[`${envPrefix}_SCOPES`] || overrides.scopes?.join(',') || '').split(',').filter(Boolean),
+    callbackUrl:
+      process.env[`${envPrefix}_CALLBACK_URL`] || `${baseCallbackUrl}/auth/${provider}/callback`,
+    scopes: (process.env[`${envPrefix}_SCOPES`] || overrides.scopes?.join(',') || '')
+      .split(',')
+      .filter(Boolean),
     enablePKCE: overrides.enablePKCE ?? false,
     enableState: overrides.enableState ?? true,
     icon: overrides.icon || provider,
     color: overrides.color || '#000000',
-    enabled: overrides.enabled ?? !!(process.env[`${envPrefix}_CLIENT_ID`] && process.env[`${envPrefix}_CLIENT_SECRET`]),
+    enabled:
+      overrides.enabled ??
+      !!(process.env[`${envPrefix}_CLIENT_ID`] && process.env[`${envPrefix}_CLIENT_SECRET`]),
   };
 
   // ✅ শর্তসাপেক্ষে revokeUrl যোগ করা (readonly প্রপার্টি সমস্যা সমাধান)
@@ -236,7 +244,8 @@ const createProviderConfig = (
 // ============================================================
 
 const buildOAuthConfig = (): OAuthConfig => {
-  const baseCallbackUrl = process.env.OAUTH_BASE_CALLBACK_URL || env.APP_URL || 'http://localhost:3000';
+  const baseCallbackUrl =
+    process.env.OAUTH_BASE_CALLBACK_URL || env.APP_URL || 'http://localhost:3000';
 
   // প্রোভাইডার-নির্দিষ্ট ওভাররাইড (যদি প্রয়োজন হয়)
   const providerOverrides: Partial<Record<OAuthProvider, Partial<OAuthProviderConfig>>> = {
@@ -313,7 +322,7 @@ const buildOAuthConfig = (): OAuthConfig => {
     providers[provider] = createProviderConfig(
       provider,
       baseCallbackUrl,
-      providerOverrides[provider]
+      providerOverrides[provider],
     );
   }
 
@@ -343,7 +352,9 @@ export const oauthConfig: OAuthConfig = buildOAuthConfig();
 // Helper Functions (শুধুমাত্র ব্যাকএন্ডের জন্য)
 // ============================================================
 
-export const getOAuthProviderConfig = (provider: OAuthProvider): OAuthProviderConfig | undefined => {
+export const getOAuthProviderConfig = (
+  provider: OAuthProvider,
+): OAuthProviderConfig | undefined => {
   return oauthConfig.providers[provider];
 };
 
@@ -360,7 +371,11 @@ export const isOAuthProviderEnabled = (provider: OAuthProvider): boolean => {
 /**
  * OAuth লগইন URL তৈরি করে (PKCE ও State সহ)
  */
-export const getOAuthLoginUrl = (provider: OAuthProvider, state: string, codeVerifier?: string): string | null => {
+export const getOAuthLoginUrl = (
+  provider: OAuthProvider,
+  state: string,
+  codeVerifier?: string,
+): string | null => {
   const config = oauthConfig.providers[provider];
   if (!config || !config.enabled) return null;
 
@@ -394,7 +409,10 @@ const generateCodeChallenge = (verifier: string): string => {
  * ক্লায়েন্ট-সাইডের জন্য নিরাপদ OAuth কনফিগ (সিক্রেট বাদে)
  */
 export const getPublicOAuthConfig = (): Omit<OAuthConfig, 'providers'> & {
-  providers: Record<OAuthProvider, Omit<OAuthProviderConfig, 'clientSecret'> & { hasSecret: boolean }>;
+  providers: Record<
+    OAuthProvider,
+    Omit<OAuthProviderConfig, 'clientSecret'> & { hasSecret: boolean }
+  >;
 } => {
   const providers = {} as any;
   for (const [key, config] of Object.entries(oauthConfig.providers)) {
@@ -418,4 +436,7 @@ export const getPublicOAuthConfig = (): Omit<OAuthConfig, 'providers'> & {
 // Type Exports
 // ============================================================
 
-export type { OAuthConfig as OAuthConfiguration, OAuthProviderConfig as OAuthProviderConfiguration };
+export type {
+  OAuthConfig as OAuthConfiguration,
+  OAuthProviderConfig as OAuthProviderConfiguration,
+};
