@@ -30,15 +30,9 @@ import { randomUUID } from 'crypto';
 // Shared Packages Import (Enterprise Enhancement)
 // ============================================================
 
-import {
+import type { 
   USER_MOBILE_OPERATORS as MOBILE_OPERATORS,
-  USER_NETWORK_TYPES as NETWORK_TYPES,
-  REGISTRATION_SOURCES,
-  REGISTRATION_METHODS,
-  BANGLADESH_DISTRICTS,
-  BANGLADESH_UPAZILAS,
-  PASSWORD_POLICY,
-} from '@vubon/shared-constants';
+  USER_NETWORK_TYPES as NETWORK_TYPES } from '@vubon/shared-constants';
 
 import {
   maskEmail,
@@ -79,7 +73,7 @@ export class CommandValidationError extends Error {
  * Device information for registration tracking (Bangladesh specific)
  * ✅ FIXED: No Partial, explicit properties with undefined support
  */
-export interface DeviceInfo {
+export interface IDeviceInfo {
   /** IP address of the client */
   ipAddress?: string | undefined;
 
@@ -125,7 +119,7 @@ export interface DeviceInfo {
  * User preferences for registration
  * ✅ FIXED: No Partial, explicit properties with undefined support
  */
-export interface UserPreferences {
+export interface IUserPreferences {
   /** Preferred language (English/Bengali) */
   language?: 'en' | 'bn' | undefined;
 
@@ -199,7 +193,7 @@ export interface UserPreferences {
 /**
  * Command options interface (Builder pattern)
  */
-export interface RegisterUserCommandOptions {
+export interface IRegisterUserCommandOptions {
   /** User email address */
   email: string;
 
@@ -801,8 +795,9 @@ export class RegisterUserCommand {
   public readonly preferredLanguage: 'en' | 'bn';
   public readonly correlationId?: string | undefined;
   public readonly registrationMethod?:
-    | (typeof REGISTRATION_METHODS)[keyof typeof REGISTRATION_METHODS]
-    | undefined;
+      public readonly registrationMethod?:
+  | (typeof REGISTRATION_METHODS)[keyof typeof REGISTRATION_METHODS]
+  | undefined;
   public readonly role?: string | undefined;
   public readonly tier?: string | undefined;
   public readonly autoLogin: boolean;
