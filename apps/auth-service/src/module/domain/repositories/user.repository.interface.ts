@@ -44,7 +44,7 @@ import {
 } from '@vubon/shared-constants';
 
 import { BaseRepository } from './base.repository.interface';
-import { User } from '../entities/user.entity
+import { User } from '../entities/user.entity';
 import { Email } from '../value-objects/email.vo';
 import { Phone } from '../value-objects/phone.vo';
 
