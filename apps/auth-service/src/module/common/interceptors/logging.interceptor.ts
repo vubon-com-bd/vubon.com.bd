@@ -1,8 +1,8 @@
 /**
  * Logging Interceptor - Enterprise Grade (Enhanced)
- * 
+ *
  * @module common/interceptors/logging.interceptor
- * 
+ *
  * @description
  * Global interceptor for request/response logging with enterprise features:
  * - Environment-aware configuration (per environment)
@@ -11,11 +11,11 @@
  * - Sensitive data masking
  * - Request ID propagation
  * - Structured logging with context
- * 
+ *
  * @example
  * // Default (global)
  * app.useGlobalInterceptors(new LoggingInterceptor());
- * 
+ *
  * // With custom options
  * app.useGlobalInterceptors(new LoggingInterceptor({
  *   logLevel: 'verbose',
@@ -138,9 +138,7 @@ export class LoggingInterceptor implements NestInterceptor {
     } as Required<LoggingOptions>;
 
     // Initialize logger with module context
-    this.logger = new Logger(
-      this.options.moduleName || 'LoggingInterceptor'
-    );
+    this.logger = new Logger(this.options.moduleName || 'LoggingInterceptor');
   }
 
   /**
@@ -193,11 +191,7 @@ export class LoggingInterceptor implements NestInterceptor {
     const shouldLogRequest = this.shouldLogRequest(method, url);
 
     if (shouldLogRequest) {
-      this.logWithLevel(
-        'debug',
-        `[${requestId}] ➤ ${method} ${url}`,
-        requestLog
-      );
+      this.logWithLevel('debug', `[${requestId}] ➤ ${method} ${url}`, requestLog);
     }
 
     return next.handle().pipe(
@@ -215,7 +209,7 @@ export class LoggingInterceptor implements NestInterceptor {
           if (duration > this.options.slowRequestThreshold) {
             this.logger.warn(
               `[${requestId}] ⚠ Slow request: ${method} ${url} - ${duration}ms (threshold: ${this.options.slowRequestThreshold}ms)`,
-              { duration, threshold: this.options.slowRequestThreshold, url, method }
+              { duration, threshold: this.options.slowRequestThreshold, url, method },
             );
           }
 
@@ -223,7 +217,7 @@ export class LoggingInterceptor implements NestInterceptor {
           if (this.options.enablePerformanceMetrics && this.options.logLevel === 'verbose') {
             this.logger.debug(
               `[${requestId}] 📊 Performance: ${method} ${url} - ${duration}ms, Status: ${statusCode}`,
-              { duration, statusCode, method, url }
+              { duration, statusCode, method, url },
             );
           }
         },
@@ -242,14 +236,14 @@ export class LoggingInterceptor implements NestInterceptor {
               requestId,
               method,
               url,
-            }
+            },
           );
         },
       }),
       catchError((error) => {
         // Re-throw the error after logging
         throw error;
-      })
+      }),
     );
   }
 
@@ -350,7 +344,7 @@ export class LoggingInterceptor implements NestInterceptor {
     data: unknown,
     statusCode: number,
     duration: number,
-    requestId: string
+    requestId: string,
   ): Record<string, unknown> {
     const log: Record<string, unknown> = {
       requestId,
@@ -396,13 +390,14 @@ export class LoggingInterceptor implements NestInterceptor {
     statusCode: number,
     duration: number,
     requestId: string,
-    responseLog: Record<string, unknown>
+    responseLog: Record<string, unknown>,
   ): void {
     const logLevel = this.getResponseLogLevel(statusCode);
     const message = `[${requestId}] ← ${method} ${url} - ${statusCode} (${duration}ms)`;
 
     // Determine if we should log the full response details
-    const shouldLogDetails = this.options.logLevel === 'verbose' ||
+    const shouldLogDetails =
+      this.options.logLevel === 'verbose' ||
       (this.options.logLevel === 'debug' && statusCode >= 400);
 
     if (shouldLogDetails) {
