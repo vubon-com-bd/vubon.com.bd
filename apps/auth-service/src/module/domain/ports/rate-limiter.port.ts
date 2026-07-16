@@ -1,11 +1,11 @@
 /**
- * Rate Limiter Port - Domain Layer Interface (Enterprise Grade)
+ * Token Generator Port - Domain Layer Interface (Enterprise Grade - Fixed)
  *
- * @module domain/ports/rate-limiter.port
+ * @module domain/ports/token-generator.port
  *
  * @description
- * Port (interface) for rate limiting operations.
- * Defines the contract that infrastructure adapters (Redis, etc.) must implement.
+ * Port (interface) for token generation and management.
+ * Defines the contract that infrastructure adapters (JWT, OTP, etc.) must implement.
  * This keeps the domain layer clean and infrastructure-agnostic.
  *
  * Enterprise Rules:
@@ -14,33 +14,8 @@
  * ✅ No external dependencies in domain layer
  * ✅ Follows Dependency Inversion Principle (DIP)
  * ✅ Easy to mock for unit testing
- * ✅ Supports multiple rate limit strategies (fixed window, sliding window, token bucket, etc.)
- * ✅ Supports per-user, per-IP, per-endpoint, and custom rate limits
- * ✅ Bangladesh specific - supports district-based and operator-based rate limiting
- *
- * @example
- * // Domain usage
- * class AuthenticationService {
- *   constructor(private readonly rateLimiter: IRateLimiter) {}
- *
- *   async login(email: string, ipAddress: string): Promise<void> {
- *     const key = `login:${email}:${ipAddress}`;
- *     const allowed = await this.rateLimiter.allow(key, 5, 60);
- *     if (!allowed) {
- *       throw new Error('Too many login attempts');
- *     }
- *     // ... login logic
- *   }
- * }
- *
- * // Infrastructure implementation
- * class RedisRateLimiter implements IRateLimiter {
- *   async allow(key: string, limit: number, windowSeconds: number): Promise<boolean> {
- *     const current = await this.redis.incr(key);
- *     if (current === 1) await this.redis.expire(key, windowSeconds);
- *     return current <= limit;
- *   }
- * }
+ * ✅ Supports multiple token types (Access, Refresh, OTP, MFA, etc.)
+ * ✅ exactOptionalPropertyTypes compliant
  */
 
 // ============================================================
@@ -48,117 +23,508 @@
 // ============================================================
 
 /**
- * Rate limit result
+ * Token types supported by the system
  */
-export interface RateLimitResult {
-  /** Whether the request is allowed */
-  allowed: boolean;
-  /** Current count of requests */
-  current: number;
-  /** Maximum allowed requests */
-  limit: number;
-  /** Remaining requests in the window */
-  remaining: number;
-  /** Time when the rate limit resets (timestamp) */
-  resetAt: Date;
-  /** Time when the rate limit resets (in seconds from now) */
-  resetInSeconds: number;
-  /** Rate limit window in seconds */
-  windowSeconds: number;
-  /** Rate limit key */
-  key: string;
-  /** Whether the rate limit has been exceeded */
-  exceeded: boolean;
-  /** Time to wait before retrying (in seconds) */
-  retryAfterSeconds?: number | undefined;
-}
-
-/**
- * Rate limit configuration
- */
-export interface RateLimitConfig {
-  /** Maximum requests allowed in the window */
-  limit: number;
-  /** Window duration in seconds */
-  windowSeconds: number;
-  /** Rate limit strategy (fixed, sliding, token-bucket) */
-  strategy?: RateLimitStrategy | undefined;
-  /** Whether to block requests when limit is exceeded */
-  blockOnExceed?: boolean | undefined;
-  /** Custom error message when limit is exceeded */
-  errorMessage?: string | undefined;
-  /** Custom error message in Bengali */
-  errorMessageBn?: string | undefined;
-  /** Retry after seconds (default: windowSeconds) */
-  retryAfterSeconds?: number | undefined;
-}
-
-/**
- * Rate limit strategy enum
- */
-export enum RateLimitStrategy {
-  /** Fixed window - resets at fixed intervals */
-  FIXED_WINDOW = 'fixed_window',
-  /** Sliding window - smoother rate limiting */
-  SLIDING_WINDOW = 'sliding_window',
-  /** Token bucket - allows bursts */
-  TOKEN_BUCKET = 'token_bucket',
-  /** Leaky bucket - smooths out traffic */
-  LEAKY_BUCKET = 'leaky_bucket',
-}
-
-/**
- * Rate limit scope
- */
-export enum RateLimitScope {
-  /** Per user ID */
-  USER = 'user',
-  /** Per IP address */
-  IP = 'ip',
-  /** Per email address */
-  EMAIL = 'email',
-  /** Per phone number */
-  PHONE = 'phone',
-  /** Per API key */
+export enum TokenType {
+  ACCESS = 'access',
+  REFRESH = 'refresh',
+  OTP = 'otp',
+  MFA = 'mfa',
+  MAGIC_LINK = 'magic_link',
+  EMAIL_VERIFICATION = 'email_verification',
+  PHONE_VERIFICATION = 'phone_verification',
+  PASSWORD_RESET = 'password_reset',
+  SESSION_TRANSFER = 'session_transfer',
+  DEVICE_TRUST = 'device_trust',
   API_KEY = 'api_key',
-  /** Per device ID */
-  DEVICE = 'device',
-  /** Per session ID */
-  SESSION = 'session',
-  /** Per district (Bangladesh specific) */
-  DISTRICT = 'district',
-  /** Per mobile operator (Bangladesh specific) */
-  OPERATOR = 'operator',
-  /** Per endpoint */
-  ENDPOINT = 'endpoint',
-  /** Global */
-  GLOBAL = 'global',
-  /** Custom */
-  CUSTOM = 'custom',
+  BACKUP_CODE = 'backup_code',
 }
 
 /**
- * Rate limit violation details
+ * Token algorithms supported
  */
-export interface RateLimitViolation {
-  /** The key that was violated */
-  key: string;
-  /** Current count */
-  current: number;
-  /** Maximum allowed */
-  limit: number;
-  /** Window in seconds */
-  windowSeconds: number;
-  /** Timestamp of violation */
-  timestamp: Date;
-  /** IP address of the requester */
-  ipAddress?: string | undefined;
-  /** User ID if available */
+export enum TokenAlgorithm {
+  HS256 = 'HS256',
+  HS384 = 'HS384',
+  HS512 = 'HS512',
+  RS256 = 'RS256',
+  RS384 = 'RS384',
+  RS512 = 'RS512',
+  ES256 = 'ES256',
+  ES384 = 'ES384',
+  ES512 = 'ES512',
+}
+
+/**
+ * OTP channels supported (Bangladesh specific)
+ */
+export enum OTPChannel {
+  SMS = 'sms',
+  WHATSAPP = 'whatsapp',
+  IMO = 'imo',
+  VOICE = 'voice',
+  EMAIL = 'email',
+  TOTP = 'totp',
+  BACKUP_CODE = 'backup_code',
+}
+
+/**
+ * OTP purposes
+ */
+export enum OTPPurpose {
+  LOGIN = 'login',
+  REGISTRATION = 'registration',
+  PASSWORD_RESET = 'password_reset',
+  MFA_VERIFICATION = 'mfa_verification',
+  PHONE_VERIFICATION = 'phone_verification',
+  EMAIL_VERIFICATION = 'email_verification',
+  PAYMENT_CONFIRMATION = 'payment_confirmation',
+  TRANSACTION_VERIFICATION = 'transaction_verification',
+  DEVICE_PAIRING = 'device_pairing',
+  SOCIAL_LINKING = 'social_linking',
+}
+
+// ============================================================
+// Payload Types
+// ============================================================
+
+/**
+ * Base token payload with common fields
+ */
+export interface BaseTokenPayload {
+  /** Unique token ID */
+  tokenId?: string | undefined;
+  /** User ID (if authenticated) */
   userId?: string | undefined;
-  /** Endpoint that was called */
-  endpoint?: string | undefined;
-  /** Additional context */
-  context?: Record<string, unknown> | undefined;
+  /** Session ID (if session exists) */
+  sessionId?: string | undefined;
+  /** Token type */
+  type: TokenType;
+  /** Issued at timestamp */
+  iat?: number | undefined;
+  /** Expiration timestamp */
+  exp?: number | undefined;
+  /** Issuer */
+  iss?: string | undefined;
+  /** Audience */
+  aud?: string | undefined;
+  /** JWT ID (unique identifier) */
+  jti?: string | undefined;
+  /** Token version for rotation */
+  version?: number | undefined;
+  /** Correlation ID for distributed tracing */
+  correlationId?: string | undefined;
+}
+
+/**
+ * Access token payload
+ */
+export interface AccessTokenPayload extends BaseTokenPayload {
+  type: TokenType.ACCESS;
+  /** User ID (required) */
+  userId: string;
+  /** User role */
+  role: string;
+  /** User tier (BRONZE, SILVER, GOLD, etc.) */
+  tier: string;
+  /** Session ID */
+  sessionId: string;
+  /** Device ID (for device-specific tokens) */
+  deviceId?: string | undefined;
+  /** Permissions (optional, for fine-grained access control) */
+  permissions?: string[] | undefined;
+  /** User status (ACTIVE, SUSPENDED, etc.) */
+  status?: string | undefined;
+  /** MFA status (enabled/disabled) */
+  mfaEnabled?: boolean | undefined;
+  /** IP address (for IP binding) */
+  ipAddress?: string | undefined;
+  /** User agent (for device fingerprinting) */
+  userAgent?: string | undefined;
+  /** District (Bangladesh specific) */
+  district?: string | undefined;
+  /** Upazila (Bangladesh specific) */
+  upazila?: string | undefined;
+  /** Mobile operator (Bangladesh specific) */
+  operator?: string | undefined;
+  /** Network type (Bangladesh specific) */
+  networkType?: string | undefined;
+}
+
+/**
+ * Refresh token payload
+ */
+export interface RefreshTokenPayload extends BaseTokenPayload {
+  type: TokenType.REFRESH;
+  /** User ID (required) */
+  userId: string;
+  /** Session ID */
+  sessionId: string;
+  /** Token family ID (for rotation) */
+  familyId?: string | undefined;
+  /** Rotation count */
+  rotationCount?: number | undefined;
+  /** Previous token ID (for rotation tracking) */
+  previousTokenId?: string | undefined;
+}
+
+/**
+ * OTP token payload
+ */
+export interface OTPPayload extends BaseTokenPayload {
+  type: TokenType.OTP;
+  /** OTP code (plain text) */
+  code: string;
+  /** OTP purpose */
+  purpose: OTPPurpose;
+  /** OTP channel (SMS, WhatsApp, etc.) */
+  channel: OTPChannel;
+  /** User ID (if known) */
+  userId?: string | undefined;
+  /** Phone number (for SMS/WhatsApp) */
+  phoneNumber?: string | undefined;
+  /** Email address (for email OTP) */
+  email?: string | undefined;
+  /** Attempt count */
+  attempts?: number | undefined;
+  /** Max attempts allowed */
+  maxAttempts?: number | undefined;
+  /** Is OTP used */
+  isUsed?: boolean | undefined;
+  /** Used at timestamp */
+  usedAt?: Date | undefined;
+}
+
+/**
+ * MFA token payload (for MFA verification)
+ */
+export interface MFATokenPayload extends BaseTokenPayload {
+  type: TokenType.MFA;
+  /** User ID */
+  userId: string;
+  /** MFA method (TOTP, SMS, WHATSAPP, etc.) */
+  method: string;
+  /** MFA session ID */
+  mfaSessionId: string;
+  /** MFA challenge */
+  challenge?: string | undefined;
+  /** Is MFA verified */
+  isVerified?: boolean | undefined;
+  /** Verified at timestamp */
+  verifiedAt?: Date | undefined;
+}
+
+/**
+ * Magic link token payload
+ */
+export interface MagicLinkTokenPayload extends BaseTokenPayload {
+  type: TokenType.MAGIC_LINK;
+  /** User ID or email */
+  userId?: string | undefined;
+  /** Email address */
+  email: string;
+  /** Purpose (login, registration, etc.) */
+  purpose: 'login' | 'registration' | 'password_reset';
+  /** Redirect URL after verification */
+  redirectUrl?: string | undefined;
+  /** Is link used */
+  isUsed?: boolean | undefined;
+  /** Used at timestamp */
+  usedAt?: Date | undefined;
+}
+
+/**
+ * Email verification token payload
+ */
+export interface EmailVerificationTokenPayload extends BaseTokenPayload {
+  type: TokenType.EMAIL_VERIFICATION;
+  /** User ID */
+  userId: string;
+  /** Email address to verify */
+  email: string;
+  /** Is email verified */
+  isVerified?: boolean | undefined;
+  /** Verified at timestamp */
+  verifiedAt?: Date | undefined;
+  /** Resend count */
+  resendCount?: number | undefined;
+}
+
+/**
+ * Phone verification token payload
+ */
+export interface PhoneVerificationTokenPayload extends BaseTokenPayload {
+  type: TokenType.PHONE_VERIFICATION;
+  /** User ID */
+  userId: string;
+  /** Phone number to verify */
+  phoneNumber: string;
+  /** Is phone verified */
+  isVerified?: boolean | undefined;
+  /** Verified at timestamp */
+  verifiedAt?: Date | undefined;
+  /** Resend count */
+  resendCount?: number | undefined;
+}
+
+/**
+ * Password reset token payload
+ */
+export interface PasswordResetTokenPayload extends BaseTokenPayload {
+  type: TokenType.PASSWORD_RESET;
+  /** User ID */
+  userId: string;
+  /** Email or phone for reset */
+  identifier: string;
+  /** Is token used */
+  isUsed?: boolean | undefined;
+  /** Used at timestamp */
+  usedAt?: Date | undefined;
+  /** IP address of requester */
+  ipAddress?: string | undefined;
+  /** User agent of requester */
+  userAgent?: string | undefined;
+}
+
+/**
+ * Session transfer token payload
+ */
+export interface SessionTransferTokenPayload extends BaseTokenPayload {
+  type: TokenType.SESSION_TRANSFER;
+  /** Source session ID */
+  sourceSessionId: string;
+  /** Target device ID */
+  targetDeviceId: string;
+  /** User ID */
+  userId: string;
+  /** Is transfer completed */
+  isCompleted?: boolean | undefined;
+  /** Completed at timestamp */
+  completedAt?: Date | undefined;
+}
+
+/**
+ * Device trust token payload
+ */
+export interface DeviceTrustTokenPayload extends BaseTokenPayload {
+  type: TokenType.DEVICE_TRUST;
+  /** User ID */
+  userId: string;
+  /** Device ID */
+  deviceId: string;
+  /** Device name */
+  deviceName?: string | undefined;
+  /** Trust level (TRUSTED, UNTRUSTED, etc.) */
+  trustLevel: string;
+  /** Is device trusted */
+  isTrusted: boolean;
+  /** Trusted at timestamp */
+  trustedAt?: Date | undefined;
+}
+
+/**
+ * API key token payload
+ */
+export interface APIKeyTokenPayload extends BaseTokenPayload {
+  type: TokenType.API_KEY;
+  /** API key ID */
+  keyId: string;
+  /** User ID */
+  userId: string;
+  /** Key name */
+  name: string;
+  /** Permissions */
+  permissions: string[];
+  /** Last used at */
+  lastUsedAt?: Date | undefined;
+  /** Is key active */
+  isActive: boolean;
+  /** Revoked at */
+  revokedAt?: Date | undefined;
+}
+
+/**
+ * Backup code payload
+ */
+export interface BackupCodePayload extends BaseTokenPayload {
+  type: TokenType.BACKUP_CODE;
+  /** User ID */
+  userId: string;
+  /** Backup code (hashed) */
+  codeHash: string;
+  /** Is code used */
+  isUsed: boolean;
+  /** Used at timestamp */
+  usedAt?: Date | undefined;
+}
+
+// ============================================================
+// Options Types
+// ============================================================
+
+/**
+ * Token generation options
+ */
+export interface TokenGenerationOptions {
+  /** Token expiry in seconds (override default) */
+  expiresInSeconds?: number | undefined;
+  /** Token issuer (override default) */
+  issuer?: string | undefined;
+  /** Token audience (override default) */
+  audience?: string | undefined;
+  /** Additional claims */
+  additionalClaims?: Record<string, unknown> | undefined;
+  /** Correlation ID for tracing */
+  correlationId?: string | undefined;
+  /** Token version */
+  version?: number | undefined;
+  /** IP address for binding */
+  ipAddress?: string | undefined;
+  /** User agent for binding */
+  userAgent?: string | undefined;
+}
+
+/**
+ * OTP generation options
+ * ✅ FIXED: Added phoneNumber and email as optional properties
+ */
+export interface OTPGenerationOptions extends TokenGenerationOptions {
+  /** OTP length (default: 6) */
+  length?: number | undefined;
+  /** OTP expiry in seconds (default: 300) */
+  expiresInSeconds?: number | undefined;
+  /** OTP channel */
+  channel: OTPChannel;
+  /** OTP purpose */
+  purpose: OTPPurpose;
+  /** Max attempts allowed (default: 3) */
+  maxAttempts?: number | undefined;
+  /** Cooldown between attempts in seconds (default: 30) */
+  cooldownSeconds?: number | undefined;
+  /** Resend cooldown in seconds (default: 60) */
+  resendCooldownSeconds?: number | undefined;
+  /** Use alphanumeric OTP (default: false) */
+  alphanumeric?: boolean | undefined;
+  /** Phone number (for SMS/WhatsApp/Imo/Voice) */
+  phoneNumber?: string | undefined;
+  /** Email address (for email OTP) */
+  email?: string | undefined;
+}
+
+/**
+ * Token validation options
+ */
+export interface TokenValidationOptions {
+  /** Ignore expiration check (default: false) */
+  ignoreExpiration?: boolean | undefined;
+  /** Check issuer (default: true) */
+  checkIssuer?: boolean | undefined;
+  /** Check audience (default: true) */
+  checkAudience?: boolean | undefined;
+  /** Clock tolerance in seconds (default: 30) */
+  clockToleranceSeconds?: number | undefined;
+  /** Expected issuer */
+  expectedIssuer?: string | undefined;
+  /** Expected audience */
+  expectedAudience?: string | undefined;
+}
+
+/**
+ * Token refresh options
+ */
+export interface TokenRefreshOptions {
+  /** Rotate refresh token (default: true) */
+  rotateToken?: boolean | undefined;
+  /** Revoke old token family on compromise (default: false) */
+  revokeFamilyOnCompromise?: boolean | undefined;
+  /** Extend session expiry (default: false) */
+  extendSession?: boolean | undefined;
+  /** Session extension duration in seconds */
+  extensionSeconds?: number | undefined;
+  /** Refresh token expiry in seconds (default: 7 days) */
+  refreshTokenExpirySeconds?: number | undefined;
+}
+
+// ============================================================
+// Result Types
+// ============================================================
+
+/**
+ * Token validation result
+ */
+export interface TokenValidationResult<T extends BaseTokenPayload = BaseTokenPayload> {
+  /** Whether token is valid */
+  isValid: boolean;
+  /** Decoded payload (if valid) */
+  payload?: T | undefined;
+  /** Token type */
+  tokenType?: TokenType | undefined;
+  /** User ID (if available) */
+  userId?: string | undefined;
+  /** Session ID (if available) */
+  sessionId?: string | undefined;
+  /** Error message (if invalid) */
+  error?: string | undefined;
+  /** Error code (if invalid) */
+  errorCode?: string | undefined;
+  /** Expiration timestamp */
+  expiresAt?: Date | undefined;
+  /** Remaining time in seconds */
+  remainingSeconds?: number | undefined;
+  /** Token version */
+  version?: number | undefined;
+}
+
+/**
+ * Token generation result
+ */
+export interface TokenGenerationResult<T = string> {
+  /** Generated token */
+  token: T;
+  /** Token type */
+  type: TokenType;
+  /** Expiration timestamp */
+  expiresAt: Date;
+  /** Token ID (unique identifier) */
+  tokenId: string;
+  /** Token version */
+  version: number;
+  /** Additional metadata */
+  metadata?: Record<string, unknown> | undefined;
+}
+
+/**
+ * OTP generation result
+ */
+export interface OTPGenerationResult extends TokenGenerationResult<string> {
+  /** OTP code (plain text) */
+  code: string;
+  /** OTP channel */
+  channel: OTPChannel;
+  /** OTP purpose */
+  purpose: OTPPurpose;
+  /** Expiry in seconds */
+  expirySeconds: number;
+  /** Masked phone/email (for logging) */
+  maskedIdentifier?: string | undefined;
+}
+
+/**
+ * Token refresh result
+ */
+export interface TokenRefreshResult {
+  /** New access token */
+  accessToken: string;
+  /** New refresh token (if rotated) */
+  refreshToken?: string | undefined;
+  /** Old refresh token ID (if revoked) */
+  revokedTokenId?: string | undefined;
+  /** New refresh token ID */
+  newTokenId?: string | undefined;
+  /** Token family ID */
+  familyId?: string | undefined;
+  /** Rotation count */
+  rotationCount: number;
 }
 
 // ============================================================
@@ -166,1055 +532,642 @@ export interface RateLimitViolation {
 // ============================================================
 
 /**
- * Rate Limiter Port Interface
- *
- * Defines the contract for rate limiting operations.
- * All rate limiting should go through this interface.
- *
- * Enterprise Features:
- * ✅ Multiple rate limit strategies (fixed, sliding, token-bucket)
- * ✅ Per-user, per-IP, per-endpoint, and custom rate limits
- * ✅ Rate limit configuration and management
- * ✅ Rate limit violation tracking and blocking
- * ✅ Reset and clear rate limits
- * ✅ Batch rate limit checking
- * ✅ Bangladesh specific - district-based and operator-based rate limiting
- *
- * @example
- * // Using the port in domain service
- * class LoginService {
- *   constructor(private readonly rateLimiter: IRateLimiter) {}
- *
- *   async login(email: string, ipAddress: string): Promise<void> {
- *     // Check rate limit by email and IP
- *     const key = `login:${email}:${ipAddress}`;
- *     const result = await this.rateLimiter.check(key, 5, 60);
- *
- *     if (!result.allowed) {
- *       throw new Error(`Too many login attempts. Try again in ${result.retryAfterSeconds} seconds.`);
- *     }
- *
- *     // ... login logic
- *   }
- * }
+ * Token Generator Port Interface
  */
-export interface IRateLimiter {
+export interface ITokenGenerator {
   // ============================================================
-  // Basic Rate Limit Operations
+  // Access Token Operations
   // ============================================================
 
-  /**
-   * Check if a request is allowed under the rate limit
-   *
-   * @param key - Rate limit key (e.g., 'login:user@example.com')
-   * @param limit - Maximum requests allowed in the window
-   * @param windowSeconds - Window duration in seconds
-   * @param strategy - Rate limit strategy (optional)
-   * @returns Rate limit result
-   *
-   * @example
-   * const result = await rateLimiter.check('login:user@example.com', 5, 60);
-   * if (result.allowed) {
-   *   // Process request
-   * } else {
-   *   // Rate limited
-   * }
-   */
-  check(
-    key: string,
-    limit: number,
-    windowSeconds: number,
-    strategy?: RateLimitStrategy,
-  ): Promise<RateLimitResult>;
+  generateAccessToken(
+    payload: Omit<AccessTokenPayload, 'type' | 'iat' | 'exp'>,
+    options?: TokenGenerationOptions,
+  ): Promise<string>;
 
-  /**
-   * Allow a request (increment counter and check if allowed)
-   *
-   * @param key - Rate limit key
-   * @param limit - Maximum requests allowed in the window
-   * @param windowSeconds - Window duration in seconds
-   * @param strategy - Rate limit strategy (optional)
-   * @returns True if request is allowed
-   *
-   * @example
-   * const allowed = await rateLimiter.allow('login:user@example.com', 5, 60);
-   * if (allowed) {
-   *   // Process request
-   * }
-   */
-  allow(
-    key: string,
-    limit: number,
-    windowSeconds: number,
-    strategy?: RateLimitStrategy,
+  // ============================================================
+  // Refresh Token Operations
+  // ============================================================
+
+  generateRefreshToken(
+    payload: Omit<RefreshTokenPayload, 'type' | 'iat' | 'exp'>,
+    options?: TokenGenerationOptions,
+  ): Promise<string>;
+
+  rotateRefreshToken(
+    oldToken: string,
+    payload: Omit<RefreshTokenPayload, 'type' | 'iat' | 'exp'>,
+    options?: TokenRefreshOptions,
+  ): Promise<TokenRefreshResult>;
+
+  // ============================================================
+  // OTP Operations (Bangladesh Specific)
+  // ============================================================
+
+  generateOTP(options: OTPGenerationOptions): Promise<OTPGenerationResult>;
+
+  verifyOTP(
+    code: string,
+    identifier: string,
+    purpose: OTPPurpose,
+    options?: TokenValidationOptions,
   ): Promise<boolean>;
 
-  /**
-   * Increment the rate limit counter without checking
-   *
-   * @param key - Rate limit key
-   * @param windowSeconds - Window duration in seconds
-   * @param incrementBy - Amount to increment by (default: 1)
-   * @returns New count
-   *
-   * @example
-   * const count = await rateLimiter.increment('login:user@example.com', 60);
-   */
-  increment(key: string, windowSeconds: number, incrementBy?: number): Promise<number>;
-
-  /**
-   * Get the current count for a rate limit key
-   *
-   * @param key - Rate limit key
-   * @returns Current count
-   *
-   * @example
-   * const count = await rateLimiter.get('login:user@example.com');
-   */
-  get(key: string): Promise<number>;
-
-  /**
-   * Get the current count and remaining time for a rate limit key
-   *
-   * @param key - Rate limit key
-   * @param limit - Maximum requests allowed in the window
-   * @param windowSeconds - Window duration in seconds
-   * @returns Rate limit result
-   *
-   * @example
-   * const result = await rateLimiter.getStatus('login:user@example.com', 5, 60);
-   * console.log(`Remaining: ${result.remaining}, Reset in: ${result.resetInSeconds}s`);
-   */
-  getStatus(key: string, limit: number, windowSeconds: number): Promise<RateLimitResult>;
-
-  /**
-   * Reset a rate limit counter
-   *
-   * @param key - Rate limit key
-   * @returns True if reset was successful
-   *
-   * @example
-   * await rateLimiter.reset('login:user@example.com');
-   */
-  reset(key: string): Promise<boolean>;
-
-  /**
-   * Delete a rate limit counter
-   *
-   * @param key - Rate limit key
-   * @returns True if deletion was successful
-   *
-   * @example
-   * await rateLimiter.delete('login:user@example.com');
-   */
-  delete(key: string): Promise<boolean>;
-
-  // ============================================================
-  // Advanced Rate Limit Operations
-  // ============================================================
-
-  /**
-   * Check rate limit with configuration
-   *
-   * @param key - Rate limit key
-   * @param config - Rate limit configuration
-   * @returns Rate limit result
-   *
-   * @example
-   * const result = await rateLimiter.checkWithConfig('login:user@example.com', {
-   *   limit: 5,
-   *   windowSeconds: 60,
-   *   strategy: RateLimitStrategy.SLIDING_WINDOW,
-   *   blockOnExceed: true,
-   *   errorMessage: 'Too many login attempts',
-   * });
-   */
-  checkWithConfig(key: string, config: RateLimitConfig): Promise<RateLimitResult>;
-
-  /**
-   * Allow a request with configuration
-   *
-   * @param key - Rate limit key
-   * @param config - Rate limit configuration
-   * @returns True if request is allowed
-   */
-  allowWithConfig(key: string, config: RateLimitConfig): Promise<boolean>;
-
-  /**
-   * Check multiple rate limits at once
-   *
-   * @param keys - Array of rate limit keys
-   * @param limits - Array of limits for each key
-   * @param windowSeconds - Window duration in seconds
-   * @returns Array of rate limit results
-   *
-   * @example
-   * const results = await rateLimiter.checkBatch(
-   *   ['user:123', 'ip:192.168.1.1'],
-   *   [5, 10],
-   *   60
-   * );
-   */
-  checkBatch(keys: string[], limits: number[], windowSeconds: number): Promise<RateLimitResult[]>;
-
-  /**
-   * Allow multiple rate limits at once
-   *
-   * @param keys - Array of rate limit keys
-   * @param limits - Array of limits for each key
-   * @param windowSeconds - Window duration in seconds
-   * @returns Array of booleans indicating if each request is allowed
-   */
-  allowBatch(keys: string[], limits: number[], windowSeconds: number): Promise<boolean[]>;
-
-  /**
-   * Get remaining limit for a key
-   *
-   * @param key - Rate limit key
-   * @param limit - Maximum requests allowed in the window
-   * @param windowSeconds - Window duration in seconds
-   * @returns Remaining requests
-   *
-   * @example
-   * const remaining = await rateLimiter.getRemaining('login:user@example.com', 5, 60);
-   */
-  getRemaining(key: string, limit: number, windowSeconds: number): Promise<number>;
-
-  /**
-   * Get time until rate limit resets
-   *
-   * @param key - Rate limit key
-   * @param windowSeconds - Window duration in seconds
-   * @returns Seconds until reset
-   *
-   * @example
-   * const seconds = await rateLimiter.getResetTime('login:user@example.com', 60);
-   */
-  getResetTime(key: string, windowSeconds: number): Promise<number>;
-
-  // ============================================================
-  // Rate Limit Violation Operations
-  // ============================================================
-
-  /**
-   * Record a rate limit violation
-   *
-   * @param violation - Rate limit violation details
-   * @returns True if violation was recorded
-   *
-   * @example
-   * await rateLimiter.recordViolation({
-   *   key: 'login:user@example.com',
-   *   current: 6,
-   *   limit: 5,
-   *   windowSeconds: 60,
-   *   timestamp: new Date(),
-   *   ipAddress: '192.168.1.1',
-   *   endpoint: '/auth/login',
-   * });
-   */
-  recordViolation(violation: RateLimitViolation): Promise<boolean>;
-
-  /**
-   * Get violation history for a key
-   *
-   * @param key - Rate limit key
-   * @param limit - Maximum number of violations to return
-   * @param offset - Offset for pagination
-   * @returns Array of violations
-   *
-   * @example
-   * const violations = await rateLimiter.getViolations('login:user@example.com', 10, 0);
-   */
-  getViolations(key: string, limit?: number, offset?: number): Promise<RateLimitViolation[]>;
-
-  /**
-   * Get violation count for a key
-   *
-   * @param key - Rate limit key
-   * @param windowSeconds - Window duration in seconds
-   * @returns Number of violations
-   *
-   * @example
-   * const count = await rateLimiter.getViolationCount('login:user@example.com', 3600);
-   */
-  getViolationCount(key: string, windowSeconds: number): Promise<number>;
-
-  /**
-   * Check if a key is blocked
-   *
-   * @param key - Rate limit key
-   * @returns True if key is blocked
-   *
-   * @example
-   * const blocked = await rateLimiter.isBlocked('login:user@example.com');
-   */
-  isBlocked(key: string): Promise<boolean>;
-
-  /**
-   * Block a key (permanently or temporarily)
-   *
-   * @param key - Rate limit key
-   * @param durationSeconds - Duration to block (0 for permanent)
-   * @param reason - Block reason
-   * @returns True if key was blocked
-   *
-   * @example
-   * await rateLimiter.block('login:user@example.com', 3600, 'Too many violations');
-   */
-  block(key: string, durationSeconds?: number, reason?: string): Promise<boolean>;
-
-  /**
-   * Unblock a key
-   *
-   * @param key - Rate limit key
-   * @returns True if key was unblocked
-   *
-   * @example
-   * await rateLimiter.unblock('login:user@example.com');
-   */
-  unblock(key: string): Promise<boolean>;
-
-  // ============================================================
-  // Rate Limit Configuration Management
-  // ============================================================
-
-  /**
-   * Set rate limit configuration for a key pattern
-   *
-   * @param pattern - Key pattern (e.g., 'login:*')
-   * @param config - Rate limit configuration
-   * @returns True if configuration was set
-   *
-   * @example
-   * await rateLimiter.setConfig('login:*', {
-   *   limit: 5,
-   *   windowSeconds: 60,
-   *   strategy: RateLimitStrategy.SLIDING_WINDOW,
-   * });
-   */
-  setConfig(pattern: string, config: RateLimitConfig): Promise<boolean>;
-
-  /**
-   * Get rate limit configuration for a key pattern
-   *
-   * @param pattern - Key pattern
-   * @returns Rate limit configuration or null if not found
-   *
-   * @example
-   * const config = await rateLimiter.getConfig('login:*');
-   */
-  getConfig(pattern: string): Promise<RateLimitConfig | null>;
-
-  /**
-   * Delete rate limit configuration for a key pattern
-   *
-   * @param pattern - Key pattern
-   * @returns True if configuration was deleted
-   *
-   * @example
-   * await rateLimiter.deleteConfig('login:*');
-   */
-  deleteConfig(pattern: string): Promise<boolean>;
-
-  /**
-   * Get all rate limit configurations
-   *
-   * @returns Map of patterns to configurations
-   *
-   * @example
-   * const configs = await rateLimiter.getAllConfigs();
-   */
-  getAllConfigs(): Promise<Map<string, RateLimitConfig>>;
-
-  // ============================================================
-  // Rate Limit Statistics
-  // ============================================================
-
-  /**
-   * Get statistics for a rate limit key
-   *
-   * @param key - Rate limit key
-   * @param windowSeconds - Window duration in seconds
-   * @returns Rate limit statistics
-   *
-   * @example
-   * const stats = await rateLimiter.getStats('login:user@example.com', 3600);
-   * console.log(`Total requests: ${stats.totalRequests}, Violations: ${stats.violations}`);
-   */
-  getStats(
-    key: string,
-    windowSeconds: number,
+  resendOTP(
+    identifier: string,
+    purpose: OTPPurpose,
+    options?: { cooldownSeconds?: number | undefined },
   ): Promise<{
-    totalRequests: number;
-    allowedRequests: number;
-    deniedRequests: number;
-    violations: number;
-    averageRequestsPerSecond: number;
-    peakRequestsPerSecond: number;
-    lastRequestAt?: Date | undefined;
-    firstRequestAt?: Date | undefined;
+    canResend: boolean;
+    cooldownSeconds: number;
+    newOTP?: OTPGenerationResult | undefined;
   }>;
 
-  /**
-   * Get global rate limit statistics
-   *
-   * @param options - Filter options
-   * @returns Global statistics
-   *
-   * @example
-   * const stats = await rateLimiter.getGlobalStats({
-   *   from: new Date('2024-01-01'),
-   *   to: new Date('2024-01-31'),
-   * });
-   */
-  getGlobalStats(options?: {
-    from?: Date | undefined;
-    to?: Date | undefined;
-    scope?: RateLimitScope | undefined;
-    endpoint?: string | undefined;
-  }): Promise<{
-    totalRequests: number;
-    totalViolations: number;
-    totalBlockedKeys: number;
-    averageRequestsPerSecond: number;
-    peakRequestsPerSecond: number;
-    topKeys: Array<{ key: string; count: number }>;
-    topScopes: Array<{ scope: RateLimitScope; count: number }>;
+  // ============================================================
+  // Backup Code Operations
+  // ============================================================
+
+  generateBackupCodes(
+    userId: string,
+    count?: number,
+    options?: TokenGenerationOptions,
+  ): Promise<string[]>;
+
+  verifyBackupCode(userId: string, code: string): Promise<boolean>;
+
+  // ============================================================
+  // Magic Link Operations
+  // ============================================================
+
+  generateMagicLink(
+    email: string,
+    purpose: 'login' | 'registration' | 'password_reset',
+    options?: { redirectUrl?: string | undefined; expiresInSeconds?: number | undefined },
+  ): Promise<string>;
+
+  verifyMagicLink(
+    token: string,
+    options?: TokenValidationOptions,
+  ): Promise<{
+    isValid: boolean;
+    email?: string | undefined;
+    purpose?: string | undefined;
+    redirectUrl?: string | undefined;
+    error?: string | undefined;
   }>;
+
+  // ============================================================
+  // Token Validation Operations
+  // ============================================================
+
+  validateToken<T extends BaseTokenPayload = BaseTokenPayload>(
+    token: string,
+    options?: TokenValidationOptions,
+  ): Promise<TokenValidationResult<T>>;
+
+  validateAccessToken(
+    token: string,
+    options?: TokenValidationOptions,
+  ): Promise<TokenValidationResult<AccessTokenPayload>>;
+
+  validateRefreshToken(
+    token: string,
+    options?: TokenValidationOptions,
+  ): Promise<TokenValidationResult<RefreshTokenPayload>>;
+
+  introspectToken(
+    token: string,
+    options?: TokenValidationOptions,
+  ): Promise<{
+    active: boolean;
+    scope?: string | undefined;
+    clientId?: string | undefined;
+    username?: string | undefined;
+    tokenType?: string | undefined;
+    exp?: number | undefined;
+    iat?: number | undefined;
+    sub?: string | undefined;
+    aud?: string | undefined;
+    iss?: string | undefined;
+    jti?: string | undefined;
+    [key: string]: unknown;
+  }>;
+
+  // ============================================================
+  // Token Management Operations
+  // ============================================================
+
+  revokeToken(token: string, reason?: string): Promise<boolean>;
+
+  revokeAllUserTokens(userId: string, reason?: string): Promise<number>;
+
+  revokeAllSessionTokens(sessionId: string, reason?: string): Promise<number>;
+
+  isTokenRevoked(token: string): Promise<boolean>;
+
+  getTokenRemainingTime(token: string): Promise<number>;
+
+  getTokenType(token: string): Promise<TokenType | null>;
 
   // ============================================================
   // Bangladesh Specific Operations
   // ============================================================
 
-  /**
-   * Check rate limit by district (Bangladesh specific)
-   *
-   * @param district - District name
-   * @param limit - Maximum requests allowed
-   * @param windowSeconds - Window duration in seconds
-   * @returns Rate limit result
-   *
-   * @example
-   * const result = await rateLimiter.checkByDistrict('Dhaka', 100, 60);
-   */
-  checkByDistrict(district: string, limit: number, windowSeconds: number): Promise<RateLimitResult>;
+  generateBangladeshAccessToken(
+    payload: Omit<AccessTokenPayload, 'type' | 'iat' | 'exp'> & {
+      district?: string | undefined;
+      upazila?: string | undefined;
+      operator?: string | undefined;
+      networkType?: string | undefined;
+    },
+    options?: TokenGenerationOptions,
+  ): Promise<string>;
 
-  /**
-   * Check rate limit by mobile operator (Bangladesh specific)
-   *
-   * @param operator - Mobile operator ('gp', 'robi', 'banglalink', 'teletalk')
-   * @param limit - Maximum requests allowed
-   * @param windowSeconds - Window duration in seconds
-   * @returns Rate limit result
-   *
-   * @example
-   * const result = await rateLimiter.checkByOperator('gp', 50, 60);
-   */
-  checkByOperator(
-    operator: 'gp' | 'robi' | 'banglalink' | 'teletalk',
-    limit: number,
-    windowSeconds: number,
-  ): Promise<RateLimitResult>;
+  generateMFSOTP(
+    userId: string,
+    channel: 'BKASH' | 'NAGAD' | 'ROCKET',
+    options?: { purpose?: OTPPurpose | undefined; expiresInSeconds?: number | undefined },
+  ): Promise<{
+    pin: string;
+    expiresAt: Date;
+    transactionId: string;
+  }>;
 
-  /**
-   * Check rate limit by MFS (bKash/Nagad/Rocket) phone number
-   *
-   * @param phoneNumber - MFS phone number (E.164 format)
-   * @param provider - MFS provider
-   * @param limit - Maximum requests allowed
-   * @param windowSeconds - Window duration in seconds
-   * @returns Rate limit result
-   *
-   * @example
-   * const result = await rateLimiter.checkByMFS(
-   *   '+8801712345678',
-   *   'bkash',
-   *   10,
-   *   60
-   * );
-   */
-  checkByMFS(
-    phoneNumber: string,
-    provider: 'bkash' | 'nagad' | 'rocket',
-    limit: number,
-    windowSeconds: number,
-  ): Promise<RateLimitResult>;
+  verifyMFSOTP(
+    userId: string,
+    channel: 'BKASH' | 'NAGAD' | 'ROCKET',
+    pin: string,
+    transactionId: string,
+  ): Promise<boolean>;
 
   // ============================================================
   // Utility Operations
   // ============================================================
 
-  /**
-   * Clear all rate limits (for testing)
-   *
-   * @returns True if cleared successfully
-   *
-   * @example
-   * await rateLimiter.clearAll();
-   */
-  clearAll(): Promise<boolean>;
+  generateTokenId(prefix?: string): Promise<string>;
 
-  /**
-   * Get rate limiter health status
-   *
-   * @returns Health status
-   *
-   * @example
-   * const health = await rateLimiter.getHealth();
-   * console.log(health.status); // 'healthy' | 'degraded' | 'unhealthy'
-   */
-  getHealth(): Promise<{
-    status: 'healthy' | 'degraded' | 'unhealthy';
-    uptimeMs: number;
-    totalKeys: number;
-    totalViolations: number;
-    totalBlockedKeys: number;
-    error?: string | undefined;
+  getAlgorithm(): TokenAlgorithm;
+
+  getSupportedTokenTypes(): TokenType[];
+
+  getTokenConfig(tokenType: TokenType): Promise<{
+    expiresInSeconds: number;
+    algorithm: TokenAlgorithm;
+    issuer?: string | undefined;
+    audience?: string | undefined;
   }>;
-
-  /**
-   * Generate a rate limit key from context
-   *
-   * @param scope - Rate limit scope
-   * @param identifier - Identifier (user ID, IP, email, etc.)
-   * @param prefix - Optional prefix for the key
-   * @returns Rate limit key
-   *
-   * @example
-   * const key = rateLimiter.generateKey(
-   *   RateLimitScope.USER,
-   *   'user_123',
-   *   'login'
-   * );
-   * // Returns: 'login:user:user_123'
-   */
-  generateKey(scope: RateLimitScope, identifier: string, prefix?: string): string;
-
-  /**
-   * Parse a rate limit key to get its components
-   *
-   * @param key - Rate limit key
-   * @returns Key components
-   *
-   * @example
-   * const components = rateLimiter.parseKey('login:user:user_123');
-   * // Returns: { prefix: 'login', scope: 'user', identifier: 'user_123' }
-   */
-  parseKey(key: string): {
-    prefix?: string | undefined;
-    scope: RateLimitScope;
-    identifier: string;
-  };
 }
 
 // ============================================================
-// Mock Rate Limiter (for testing) - FULLY FIXED v3
+// Mock Token Generator (for testing)
 // ============================================================
 
-export class MockRateLimiter implements IRateLimiter {
-  private counters: Map<string, { count: number; expiresAt: Date }> = new Map();
-  private configs: Map<string, RateLimitConfig> = new Map();
-  private violations: Map<string, RateLimitViolation[]> = new Map();
-  private blockedKeys: Map<string, { expiresAt?: Date | undefined; reason?: string | undefined }> =
+export class MockTokenGenerator implements ITokenGenerator {
+  private tokens: Map<string, { payload: any; expiresAt: Date; revoked: boolean }> = new Map();
+  private otps: Map<string, { code: string; expiresAt: Date; used: boolean; attempts: number }> =
     new Map();
-  private startTime: Date = new Date();
+  private backupCodes: Map<string, { codes: string[]; used: Set<string> }> = new Map();
 
   constructor(
-    private readonly shouldFail: boolean = false,
-    private readonly failProbability: number = 0,
-    private readonly defaultLimit: number = 100,
+    private readonly defaultExpirySeconds: number = 3600,
+    private readonly algorithm: TokenAlgorithm = TokenAlgorithm.HS256,
   ) {}
 
-  private async delay(): Promise<void> {
-    // No delay in mock for speed
+  async generateAccessToken(
+    payload: Omit<AccessTokenPayload, 'type' | 'iat' | 'exp'>,
+    _options?: TokenGenerationOptions,
+  ): Promise<string> {
+    const token = `access_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    const expiresAt = new Date(Date.now() + this.defaultExpirySeconds * 1000);
+    this.tokens.set(token, {
+      payload: { ...payload, type: TokenType.ACCESS },
+      expiresAt,
+      revoked: false,
+    });
+    return token;
   }
 
-  private shouldThrowError(): boolean {
-    if (this.shouldFail) {
-      return Math.random() < this.failProbability;
-    }
-    return false;
+  async generateRefreshToken(
+    payload: Omit<RefreshTokenPayload, 'type' | 'iat' | 'exp'>,
+    _options?: TokenGenerationOptions,
+  ): Promise<string> {
+    const token = `refresh_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    const expiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000);
+    this.tokens.set(token, {
+      payload: { ...payload, type: TokenType.REFRESH },
+      expiresAt,
+      revoked: false,
+    });
+    return token;
   }
 
-  private getExpiresAt(windowSeconds: number): Date {
-    return new Date(Date.now() + windowSeconds * 1000);
-  }
-
-  private getRemainingSeconds(expiresAt: Date): number {
-    return Math.max(0, Math.floor((expiresAt.getTime() - Date.now()) / 1000));
-  }
-
-  private getCurrentCount(key: string): number {
-    const entry = this.counters.get(key);
-    if (!entry) return 0;
-    if (entry.expiresAt < new Date()) {
-      this.counters.delete(key);
-      return 0;
-    }
-    return entry.count;
-  }
-
-  private incrementCount(key: string, windowSeconds: number, incrementBy: number = 1): number {
-    const current = this.getCurrentCount(key);
-    const newCount = current + incrementBy;
-    let expiresAt = this.getExpiresAt(windowSeconds);
-
-    // If key exists, keep existing expiration
-    const existing = this.counters.get(key);
-    if (existing && existing.expiresAt > new Date()) {
-      expiresAt = existing.expiresAt;
-    }
-
-    this.counters.set(key, { count: newCount, expiresAt });
-    return newCount;
-  }
-
-  async check(
-    key: string,
-    limit: number,
-    windowSeconds: number,
-    _strategy?: RateLimitStrategy,
-  ): Promise<RateLimitResult> {
-    await this.delay();
-
-    if (this.shouldThrowError()) {
-      throw new Error('Mock rate limiter error');
-    }
-
-    // Check if key is blocked
-    const blocked = this.blockedKeys.get(key);
-    if (blocked) {
-      if (blocked.expiresAt && blocked.expiresAt > new Date()) {
-        return {
-          allowed: false,
-          current: 0,
-          limit,
-          remaining: 0,
-          resetAt: blocked.expiresAt,
-          resetInSeconds: this.getRemainingSeconds(blocked.expiresAt),
-          windowSeconds,
-          key,
-          exceeded: true,
-          retryAfterSeconds: this.getRemainingSeconds(blocked.expiresAt),
-        };
-      }
-      if (!blocked.expiresAt) {
-        // Permanent block
-        return {
-          allowed: false,
-          current: 0,
-          limit,
-          remaining: 0,
-          resetAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-          resetInSeconds: 365 * 24 * 60 * 60,
-          windowSeconds,
-          key,
-          exceeded: true,
-          retryAfterSeconds: 365 * 24 * 60 * 60,
-        };
-      }
-      // Block expired
-      this.blockedKeys.delete(key);
-    }
-
-    const current = this.getCurrentCount(key);
-    const allowed = current < limit;
-    const remaining = Math.max(0, limit - current);
-    const exceedsLimit = current >= limit;
-
-    const expiresAt = this.counters.get(key)?.expiresAt || this.getExpiresAt(windowSeconds);
-    const resetInSeconds = this.getRemainingSeconds(expiresAt);
-
+  async rotateRefreshToken(
+    oldToken: string,
+    payload: Omit<RefreshTokenPayload, 'type' | 'iat' | 'exp'>,
+    _options?: TokenRefreshOptions,
+  ): Promise<TokenRefreshResult> {
+    await this.revokeToken(oldToken);
+    const newToken = await this.generateRefreshToken(payload);
     return {
-      allowed,
-      current,
-      limit,
-      remaining,
-      resetAt: expiresAt,
-      resetInSeconds,
-      windowSeconds,
-      key,
-      exceeded: exceedsLimit,
-      retryAfterSeconds: exceedsLimit ? resetInSeconds : undefined,
+      accessToken: 'new_access_token',
+      refreshToken: newToken,
+      revokedTokenId: oldToken,
+      newTokenId: 'new_token_id',
+      familyId: 'family_123',
+      rotationCount: 1,
     };
   }
 
-  async allow(
-    key: string,
-    limit: number,
-    windowSeconds: number,
-    strategy?: RateLimitStrategy,
+  async generateOTP(options: OTPGenerationOptions): Promise<OTPGenerationResult> {
+    const code = options.alphanumeric
+      ? Math.random()
+          .toString(36)
+          .substring(2, 2 + (options.length || 6))
+          .toUpperCase()
+      : Math.random()
+          .toString(10)
+          .substring(2, 2 + (options.length || 6));
+
+    const identifier = options.phoneNumber || options.email || 'unknown';
+    const tokenId = await this.generateTokenId('otp');
+    const expiresAt = new Date(Date.now() + (options.expiresInSeconds || 300) * 1000);
+
+    this.otps.set(`${identifier}:${options.purpose}`, {
+      code,
+      expiresAt,
+      used: false,
+      attempts: 0,
+    });
+
+    return {
+      token: code,
+      type: TokenType.OTP,
+      expiresAt,
+      tokenId,
+      version: 1,
+      code,
+      channel: options.channel,
+      purpose: options.purpose,
+      expirySeconds: options.expiresInSeconds || 300,
+      maskedIdentifier: this.maskIdentifier(identifier),
+    };
+  }
+
+  async verifyOTP(
+    code: string,
+    identifier: string,
+    purpose: OTPPurpose,
+    _options?: TokenValidationOptions,
   ): Promise<boolean> {
-    const result = await this.check(key, limit, windowSeconds, strategy);
-    if (result.allowed) {
-      this.incrementCount(key, windowSeconds);
+    const key = `${identifier}:${purpose}`;
+    const otp = this.otps.get(key);
+
+    if (!otp) return false;
+    if (otp.used) return false;
+    if (otp.expiresAt < new Date()) return false;
+    if (otp.attempts >= 3) return false;
+
+    if (otp.code === code) {
+      otp.used = true;
+      this.otps.set(key, otp);
       return true;
     }
+
+    otp.attempts++;
+    this.otps.set(key, otp);
     return false;
   }
 
-  async increment(key: string, windowSeconds: number, incrementBy: number = 1): Promise<number> {
-    await this.delay();
-    if (this.shouldThrowError()) {
-      throw new Error('Mock rate limiter error');
-    }
-    return this.incrementCount(key, windowSeconds, incrementBy);
-  }
-
-  async get(key: string): Promise<number> {
-    await this.delay();
-    return this.getCurrentCount(key);
-  }
-
-  async getStatus(key: string, limit: number, windowSeconds: number): Promise<RateLimitResult> {
-    const current = this.getCurrentCount(key);
-    const expiresAt = this.counters.get(key)?.expiresAt || this.getExpiresAt(windowSeconds);
-
-    return {
-      allowed: current < limit,
-      current,
-      limit,
-      remaining: Math.max(0, limit - current),
-      resetAt: expiresAt,
-      resetInSeconds: this.getRemainingSeconds(expiresAt),
-      windowSeconds,
-      key,
-      exceeded: current >= limit,
-    };
-  }
-
-  async reset(key: string): Promise<boolean> {
-    await this.delay();
-    this.counters.delete(key);
-    this.blockedKeys.delete(key);
-    return true;
-  }
-
-  async delete(key: string): Promise<boolean> {
-    return this.reset(key);
-  }
-
-  async checkWithConfig(key: string, config: RateLimitConfig): Promise<RateLimitResult> {
-    return this.check(key, config.limit, config.windowSeconds, config.strategy);
-  }
-
-  async allowWithConfig(key: string, config: RateLimitConfig): Promise<boolean> {
-    return this.allow(key, config.limit, config.windowSeconds, config.strategy);
-  }
-
-  async checkBatch(
-    keys: string[],
-    limits: number[],
-    windowSeconds: number,
-  ): Promise<RateLimitResult[]> {
-    const results: RateLimitResult[] = [];
-    for (let i = 0; i < keys.length; i++) {
-      // ✅ FIXED: Properly handle undefined values with type guards
-      const key = keys[i];
-      const limit = limits[i];
-
-      // ✅ FIXED: Use type guard to ensure key and limit are defined
-      if (key && limit !== undefined) {
-        const result = await this.check(key, limit, windowSeconds);
-        results.push(result);
-      } else {
-        // Fallback for missing data
-        const fallbackKey = key || 'unknown';
-        const fallbackLimit = limit !== undefined ? limit : this.defaultLimit;
-        const result = await this.check(fallbackKey, fallbackLimit, windowSeconds);
-        results.push(result);
-      }
-    }
-    return results;
-  }
-
-  async allowBatch(keys: string[], limits: number[], windowSeconds: number): Promise<boolean[]> {
-    const results: boolean[] = [];
-    for (let i = 0; i < keys.length; i++) {
-      // ✅ FIXED: Properly handle undefined values with type guards
-      const key = keys[i];
-      const limit = limits[i];
-
-      // ✅ FIXED: Use type guard to ensure key and limit are defined
-      if (key && limit !== undefined) {
-        const allowed = await this.allow(key, limit, windowSeconds);
-        results.push(allowed);
-      } else {
-        // Fallback for missing data
-        const fallbackKey = key || 'unknown';
-        const fallbackLimit = limit !== undefined ? limit : this.defaultLimit;
-        const allowed = await this.allow(fallbackKey, fallbackLimit, windowSeconds);
-        results.push(allowed);
-      }
-    }
-    return results;
-  }
-
-  async getRemaining(key: string, limit: number, _windowSeconds: number): Promise<number> {
-    const current = this.getCurrentCount(key);
-    return Math.max(0, limit - current);
-  }
-
-  async getResetTime(key: string, _windowSeconds: number): Promise<number> {
-    const entry = this.counters.get(key);
-    if (!entry) return 0;
-    return this.getRemainingSeconds(entry.expiresAt);
-  }
-
-  async recordViolation(violation: RateLimitViolation): Promise<boolean> {
-    await this.delay();
-    if (!this.violations.has(violation.key)) {
-      this.violations.set(violation.key, []);
-    }
-    const violations = this.violations.get(violation.key);
-    if (violations) {
-      violations.push(violation);
-    }
-    return true;
-  }
-
-  async getViolations(
-    key: string,
-    limit: number = 10,
-    offset: number = 0,
-  ): Promise<RateLimitViolation[]> {
-    const violations = this.violations.get(key) || [];
-    return violations.slice(offset, offset + limit);
-  }
-
-  async getViolationCount(key: string, windowSeconds: number): Promise<number> {
-    const violations = this.violations.get(key) || [];
-    const cutoff = new Date(Date.now() - windowSeconds * 1000);
-    return violations.filter((v) => v.timestamp >= cutoff).length;
-  }
-
-  async isBlocked(key: string): Promise<boolean> {
-    const blocked = this.blockedKeys.get(key);
-    if (!blocked) return false;
-    if (blocked.expiresAt && blocked.expiresAt < new Date()) {
-      this.blockedKeys.delete(key);
-      return false;
-    }
-    return true;
-  }
-
-  async block(key: string, durationSeconds?: number, reason?: string): Promise<boolean> {
-    await this.delay();
-    const expiresAt = durationSeconds ? new Date(Date.now() + durationSeconds * 1000) : undefined;
-    this.blockedKeys.set(key, { expiresAt, reason });
-    return true;
-  }
-
-  async unblock(key: string): Promise<boolean> {
-    await this.delay();
-    this.blockedKeys.delete(key);
-    return true;
-  }
-
-  async setConfig(pattern: string, config: RateLimitConfig): Promise<boolean> {
-    await this.delay();
-    this.configs.set(pattern, config);
-    return true;
-  }
-
-  async getConfig(pattern: string): Promise<RateLimitConfig | null> {
-    return this.configs.get(pattern) || null;
-  }
-
-  async deleteConfig(pattern: string): Promise<boolean> {
-    await this.delay();
-    this.configs.delete(pattern);
-    return true;
-  }
-
-  async getAllConfigs(): Promise<Map<string, RateLimitConfig>> {
-    return new Map(this.configs);
-  }
-
-  async getStats(
-    key: string,
-    windowSeconds: number,
+  async resendOTP(
+    identifier: string,
+    purpose: OTPPurpose,
+    options?: { cooldownSeconds?: number | undefined },
   ): Promise<{
-    totalRequests: number;
-    allowedRequests: number;
-    deniedRequests: number;
-    violations: number;
-    averageRequestsPerSecond: number;
-    peakRequestsPerSecond: number;
-    lastRequestAt?: Date | undefined;
-    firstRequestAt?: Date | undefined;
+    canResend: boolean;
+    cooldownSeconds: number;
+    newOTP?: OTPGenerationResult | undefined;
   }> {
-    const current = this.getCurrentCount(key);
-    const violationCount = await this.getViolationCount(key, windowSeconds);
+    const key = `${identifier}:${purpose}`;
+    const existing = this.otps.get(key);
+    const cooldownSeconds = options?.cooldownSeconds || 60;
 
-    return {
-      totalRequests: current,
-      allowedRequests: Math.max(0, current - violationCount),
-      deniedRequests: violationCount,
-      violations: violationCount,
-      averageRequestsPerSecond: current / windowSeconds,
-      peakRequestsPerSecond: current,
-      lastRequestAt: new Date(),
-      firstRequestAt: new Date(Date.now() - windowSeconds * 1000),
-    };
-  }
-
-  async getGlobalStats(_options?: {
-    from?: Date | undefined;
-    to?: Date | undefined;
-    scope?: RateLimitScope | undefined;
-    endpoint?: string | undefined;
-  }): Promise<{
-    totalRequests: number;
-    totalViolations: number;
-    totalBlockedKeys: number;
-    averageRequestsPerSecond: number;
-    peakRequestsPerSecond: number;
-    topKeys: Array<{ key: string; count: number }>;
-    topScopes: Array<{ scope: RateLimitScope; count: number }>;
-  }> {
-    let totalRequests = 0;
-    let totalViolations = 0;
-
-    for (const [, entry] of this.counters) {
-      totalRequests += entry.count;
+    if (existing && !existing.used) {
+      return { canResend: false, cooldownSeconds };
     }
 
-    for (const [, violations] of this.violations) {
-      totalViolations += violations.length;
+    const newOTP = await this.generateOTP({
+      channel: OTPChannel.SMS,
+      purpose,
+      phoneNumber: identifier,
+      length: 6,
+      expiresInSeconds: 300,
+    });
+
+    return { canResend: true, cooldownSeconds, newOTP };
+  }
+
+  async generateBackupCodes(
+    userId: string,
+    count: number = 10,
+    _options?: TokenGenerationOptions,
+  ): Promise<string[]> {
+    const codes: string[] = [];
+    const used = new Set<string>();
+
+    for (let i = 0; i < count; i++) {
+      const code = `${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+      codes.push(code);
     }
 
-    return {
-      totalRequests,
-      totalViolations,
-      totalBlockedKeys: this.blockedKeys.size,
-      averageRequestsPerSecond: totalRequests / 60,
-      peakRequestsPerSecond: totalRequests,
-      topKeys: Array.from(this.counters.entries())
-        .map(([key, entry]) => ({ key, count: entry.count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10),
-      topScopes: [
-        { scope: RateLimitScope.IP, count: totalRequests },
-        { scope: RateLimitScope.USER, count: totalRequests / 2 },
-      ],
-    };
+    this.backupCodes.set(userId, { codes, used });
+    return codes;
   }
 
-  async checkByDistrict(
-    district: string,
-    limit: number,
-    windowSeconds: number,
-  ): Promise<RateLimitResult> {
-    const key = `district:${district}`;
-    return this.check(key, limit, windowSeconds);
-  }
+  async verifyBackupCode(userId: string, code: string): Promise<boolean> {
+    const backup = this.backupCodes.get(userId);
+    if (!backup) return false;
+    if (backup.used.has(code)) return false;
+    if (!backup.codes.includes(code)) return false;
 
-  async checkByOperator(
-    operator: 'gp' | 'robi' | 'banglalink' | 'teletalk',
-    limit: number,
-    windowSeconds: number,
-  ): Promise<RateLimitResult> {
-    const key = `operator:${operator}`;
-    return this.check(key, limit, windowSeconds);
-  }
-
-  async checkByMFS(
-    phoneNumber: string,
-    provider: 'bkash' | 'nagad' | 'rocket',
-    limit: number,
-    windowSeconds: number,
-  ): Promise<RateLimitResult> {
-    const key = `mfs:${provider}:${phoneNumber}`;
-    return this.check(key, limit, windowSeconds);
-  }
-
-  async clearAll(): Promise<boolean> {
-    this.counters.clear();
-    this.configs.clear();
-    this.violations.clear();
-    this.blockedKeys.clear();
+    backup.used.add(code);
+    this.backupCodes.set(userId, backup);
     return true;
   }
 
-  async getHealth(): Promise<{
-    status: 'healthy' | 'degraded' | 'unhealthy';
-    uptimeMs: number;
-    totalKeys: number;
-    totalViolations: number;
-    totalBlockedKeys: number;
+  // ============================================================
+  // Magic Link Operations - FIXED
+  // ============================================================
+
+  async generateMagicLink(
+    email: string,
+    purpose: 'login' | 'registration' | 'password_reset',
+    options?: { redirectUrl?: string | undefined; expiresInSeconds?: number | undefined },
+  ): Promise<string> {
+    const data = {
+      email,
+      purpose,
+      redirectUrl: options?.redirectUrl,
+    };
+    // ✅ FIXED: Ensure the input is always a string
+    const jsonString = JSON.stringify(data);
+    return `https://example.com/auth/magic/${Buffer.from(jsonString).toString('base64')}`;
+  }
+
+  async verifyMagicLink(
+    token: string,
+    _options?: TokenValidationOptions,
+  ): Promise<{
+    isValid: boolean;
+    email?: string | undefined;
+    purpose?: string | undefined;
+    redirectUrl?: string | undefined;
     error?: string | undefined;
   }> {
-    let totalViolations = 0;
-    for (const [, violations] of this.violations) {
-      totalViolations += violations.length;
+    try {
+      const parts = token.split('/');
+      const encoded = parts[parts.length - 1];
+      if (!encoded) {
+        return { isValid: false, error: 'Invalid token format' };
+      }
+      // ✅ FIXED: Ensure encoded is a string before decoding
+      const decoded = JSON.parse(Buffer.from(encoded, 'base64').toString('utf-8'));
+      return {
+        isValid: true,
+        email: decoded.email,
+        purpose: decoded.purpose,
+        redirectUrl: decoded.redirectUrl,
+      };
+    } catch (error) {
+      return { isValid: false, error: 'Invalid token' };
+    }
+  }
+
+  async validateToken<T extends BaseTokenPayload = BaseTokenPayload>(
+    token: string,
+    _options?: TokenValidationOptions,
+  ): Promise<TokenValidationResult<T>> {
+    const stored = this.tokens.get(token);
+    if (!stored) {
+      return { isValid: false, error: 'Token not found' };
+    }
+
+    if (stored.revoked) {
+      return { isValid: false, error: 'Token revoked' };
+    }
+
+    if (stored.expiresAt < new Date()) {
+      return { isValid: false, error: 'Token expired' };
     }
 
     return {
-      status: 'healthy',
-      uptimeMs: Date.now() - this.startTime.getTime(),
-      totalKeys: this.counters.size,
-      totalViolations,
-      totalBlockedKeys: this.blockedKeys.size,
+      isValid: true,
+      payload: stored.payload as T,
+      userId: stored.payload.userId,
+      sessionId: stored.payload.sessionId,
+      expiresAt: stored.expiresAt,
+      remainingSeconds: Math.max(0, (stored.expiresAt.getTime() - Date.now()) / 1000),
     };
   }
 
-  generateKey(scope: RateLimitScope, identifier: string, prefix?: string): string {
-    const parts: string[] = [];
-    if (prefix) parts.push(prefix);
-    parts.push(scope);
-    parts.push(identifier);
-    return parts.join(':');
+  async validateAccessToken(
+    token: string,
+    options?: TokenValidationOptions,
+  ): Promise<TokenValidationResult<AccessTokenPayload>> {
+    return this.validateToken<AccessTokenPayload>(token, options);
   }
 
-  parseKey(key: string): {
-    prefix?: string | undefined;
-    scope: RateLimitScope;
-    identifier: string;
-  } {
-    const parts = key.split(':');
+  async validateRefreshToken(
+    token: string,
+    options?: TokenValidationOptions,
+  ): Promise<TokenValidationResult<RefreshTokenPayload>> {
+    return this.validateToken<RefreshTokenPayload>(token, options);
+  }
 
-    // Check if first part is a prefix (not a known scope)
-    const scopeValues = Object.values(RateLimitScope) as string[];
-    let prefix: string | undefined;
-    let scopeIndex = 0;
+  async introspectToken(
+    token: string,
+    options?: TokenValidationOptions,
+  ): Promise<{
+    active: boolean;
+    scope?: string | undefined;
+    clientId?: string | undefined;
+    username?: string | undefined;
+    tokenType?: string | undefined;
+    exp?: number | undefined;
+    iat?: number | undefined;
+    sub?: string | undefined;
+    aud?: string | undefined;
+    iss?: string | undefined;
+    jti?: string | undefined;
+    [key: string]: unknown;
+  }> {
+    const result = await this.validateToken(token, options);
+    return {
+      active: result.isValid,
+      sub: result.userId,
+      exp: result.expiresAt ? Math.floor(result.expiresAt.getTime() / 1000) : undefined,
+      iat: Math.floor(Date.now() / 1000),
+      tokenType: result.payload?.type,
+    };
+  }
 
-    // ✅ FIXED: Use parts[i] instead of parts[1]
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
-      // ✅ FIXED: Ensure part is defined before checking
-      if (part && scopeValues.includes(part)) {
-        scopeIndex = i;
-        break;
+  async revokeToken(token: string, _reason?: string): Promise<boolean> {
+    const stored = this.tokens.get(token);
+    if (!stored) return false;
+    stored.revoked = true;
+    this.tokens.set(token, stored);
+    return true;
+  }
+
+  async revokeAllUserTokens(userId: string, _reason?: string): Promise<number> {
+    let count = 0;
+    for (const [token, stored] of this.tokens) {
+      if (stored.payload.userId === userId) {
+        stored.revoked = true;
+        this.tokens.set(token, stored);
+        count++;
       }
     }
+    return count;
+  }
 
-    // ✅ FIXED: Ensure scopeIndex is within bounds
-    if (scopeIndex > 0 && scopeIndex < parts.length) {
-      prefix = parts.slice(0, scopeIndex).join(':');
+  async revokeAllSessionTokens(sessionId: string, _reason?: string): Promise<number> {
+    let count = 0;
+    for (const [token, stored] of this.tokens) {
+      if (stored.payload.sessionId === sessionId) {
+        stored.revoked = true;
+        this.tokens.set(token, stored);
+        count++;
+      }
     }
+    return count;
+  }
 
-    // ✅ FIXED: Get the scope part safely
-    const scopePart = parts[scopeIndex];
-    // ✅ FIXED: Use fallback if scopePart is undefined
-    const scope =
-      scopePart && scopeValues.includes(scopePart)
-        ? (scopePart as RateLimitScope)
-        : RateLimitScope.CUSTOM;
+  async isTokenRevoked(token: string): Promise<boolean> {
+    const stored = this.tokens.get(token);
+    return stored ? stored.revoked : true;
+  }
 
-    // ✅ FIXED: Ensure identifier is never undefined
-    const identifier = parts.slice(scopeIndex + 1).join(':') || '';
+  async getTokenRemainingTime(token: string): Promise<number> {
+    const stored = this.tokens.get(token);
+    if (!stored) return 0;
+    if (stored.revoked) return 0;
+    return Math.max(0, (stored.expiresAt.getTime() - Date.now()) / 1000);
+  }
 
+  async getTokenType(token: string): Promise<TokenType | null> {
+    const stored = this.tokens.get(token);
+    return stored ? stored.payload.type : null;
+  }
+
+  async generateBangladeshAccessToken(
+    payload: Omit<AccessTokenPayload, 'type' | 'iat' | 'exp'> & {
+      district?: string | undefined;
+      upazila?: string | undefined;
+      operator?: string | undefined;
+      networkType?: string | undefined;
+    },
+    options?: TokenGenerationOptions,
+  ): Promise<string> {
+    return this.generateAccessToken(payload, options);
+  }
+
+  async generateMFSOTP(
+    _userId: string,
+    _channel: 'BKASH' | 'NAGAD' | 'ROCKET',
+    options?: { purpose?: OTPPurpose | undefined; expiresInSeconds?: number | undefined },
+  ): Promise<{
+    pin: string;
+    expiresAt: Date;
+    transactionId: string;
+  }> {
+    const pin = Math.random().toString(10).substring(2, 8);
     return {
-      prefix,
-      scope,
-      identifier,
+      pin,
+      expiresAt: new Date(Date.now() + (options?.expiresInSeconds || 300) * 1000),
+      transactionId: `txn_${Date.now()}`,
     };
   }
+
+  async verifyMFSOTP(
+    _userId: string,
+    _channel: 'BKASH' | 'NAGAD' | 'ROCKET',
+    pin: string,
+    _transactionId: string,
+  ): Promise<boolean> {
+    return pin.length === 6 && /^\d{6}$/.test(pin);
+  }
+
+  async generateTokenId(prefix?: string): Promise<string> {
+    const id = `${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+    return prefix ? `${prefix}_${id}` : id;
+  }
+
+  getAlgorithm(): TokenAlgorithm {
+    return this.algorithm;
+  }
+
+  getSupportedTokenTypes(): TokenType[] {
+    return [
+      TokenType.ACCESS,
+      TokenType.REFRESH,
+      TokenType.OTP,
+      TokenType.MFA,
+      TokenType.MAGIC_LINK,
+      TokenType.EMAIL_VERIFICATION,
+      TokenType.PHONE_VERIFICATION,
+      TokenType.PASSWORD_RESET,
+      TokenType.SESSION_TRANSFER,
+      TokenType.DEVICE_TRUST,
+      TokenType.API_KEY,
+      TokenType.BACKUP_CODE,
+    ];
+  }
+
+  async getTokenConfig(tokenType: TokenType): Promise<{
+    expiresInSeconds: number;
+    algorithm: TokenAlgorithm;
+    issuer?: string | undefined;
+    audience?: string | undefined;
+  }> {
+    const configs: Record<TokenType, { expiresInSeconds: number }> = {
+      [TokenType.ACCESS]: { expiresInSeconds: 900 },
+      [TokenType.REFRESH]: { expiresInSeconds: 604800 },
+      [TokenType.OTP]: { expiresInSeconds: 300 },
+      [TokenType.MFA]: { expiresInSeconds: 300 },
+      [TokenType.MAGIC_LINK]: { expiresInSeconds: 600 },
+      [TokenType.EMAIL_VERIFICATION]: { expiresInSeconds: 86400 },
+      [TokenType.PHONE_VERIFICATION]: { expiresInSeconds: 86400 },
+      [TokenType.PASSWORD_RESET]: { expiresInSeconds: 3600 },
+      [TokenType.SESSION_TRANSFER]: { expiresInSeconds: 120 },
+      [TokenType.DEVICE_TRUST]: { expiresInSeconds: 2592000 },
+      [TokenType.API_KEY]: { expiresInSeconds: 31536000 },
+      [TokenType.BACKUP_CODE]: { expiresInSeconds: 0 },
+    };
+
+    return {
+      expiresInSeconds: configs[tokenType]?.expiresInSeconds || 3600,
+      algorithm: this.algorithm,
+      issuer: 'vubon.com.bd',
+      audience: 'vubon-api',
+    };
+  }
+
+  private maskIdentifier(identifier: string): string {
+    if (identifier.includes('@')) {
+      const [local, domain] = identifier.split('@');
+      if (local && local.length > 2) {
+        return `${local[0]}***${local[local.length - 1]}@${domain}`;
+      }
+      return `${local}@${domain}`;
+    }
+    if (identifier.length > 6) {
+      return `${identifier.substring(0, 4)}****${identifier.substring(identifier.length - 2)}`;
+    }
+    return identifier;
+  }
 }
+
 // ============================================================
 // Type Exports (for convenience)
 // ============================================================
 
-export type { IRateLimiter as RateLimiterPort };
+export type { ITokenGenerator as TokenGeneratorPort };
