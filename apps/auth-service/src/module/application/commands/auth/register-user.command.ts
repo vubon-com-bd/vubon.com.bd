@@ -1,27 +1,27 @@
 /**
  * Register User Command - Pure Command Data Structure (Enterprise Enhanced v3.2)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- * 
+ *
  * @module application/commands/auth/register-user.command
- * 
+ *
  * @description
  * Command for registering a new user account with enterprise-grade features.
  * Contains all necessary data for user registration with Bangladesh-specific fields.
- * 
+ *
  * ENTERPRISE ENHANCEMENTS (v3.2):
- * All TypeScript errors fixed
- * exactOptionalPropertyTypes compliance
- * Shared types integration with proper extension
- * Proper handling of optional properties
- * Bangladesh-specific validation with type safety
- * 
+ * ✅ All TypeScript errors fixed
+ * ✅ exactOptionalPropertyTypes compliance
+ * ✅ Shared types integration with proper extension
+ * ✅ Proper handling of optional properties
+ * ✅ Bangladesh-specific validation with type safety
+ *
  * Enterprise Rules:
- * Immutable command data
- * Self-contained use case data
- * Comprehensive validation on construction
- * No business logic
- * Framework-free
- * Bangladesh specific - District, Upazila, Mobile Operator, Network Type support
+ * ✅ Immutable command data
+ * ✅ Self-contained use case data
+ * ✅ Comprehensive validation on construction
+ * ✅ No business logic
+ * ✅ Framework-free
+ * ✅ Bangladesh specific - District, Upazila, Mobile Operator, Network Type support
  */
 
 import { randomUUID } from 'crypto';
@@ -40,7 +40,13 @@ import {
   PASSWORD_POLICY,
 } from '@vubon/shared-constants';
 
-import { maskEmail, maskPhone, normalizePhone, isValidBdMobile, isValidEmail } from '@vubon/shared-utils';
+import {
+  maskEmail,
+  maskPhone,
+  normalizePhone,
+  isValidBdMobile,
+  isValidEmail,
+} from '@vubon/shared-utils';
 
 // ============================================================
 // Custom Validation Errors (Enterprise Enhancement)
@@ -65,7 +71,17 @@ export class CommandValidationError extends Error {
 
 /**
  * Device information for registration tracking (Bangladesh specific)
- * FIXED: No Partial, explicit properties with undefined support
+ * ✅ FIXED: All optional properties explicitly include `| undefined`
+ * ✅ FIXED: Properly extends SharedDeviceInfo
+ */
+// ✅ সম্পূর্ণ ঠিক করা কোড - Partial বাদ দিয়ে নিজের মতো ডিফাইন করুন
+// ============================================================
+// Types (Enhanced with shared types)
+// ============================================================
+
+/**
+ * Device information for registration tracking (Bangladesh specific)
+ * ✅ FIXED: No Partial, explicit properties with undefined support
  */
 export interface DeviceInfo {
   /** IP address of the client */
@@ -91,16 +107,16 @@ export interface DeviceInfo {
 
   // Bangladesh specific fields
   /** District (Bangladesh) - from shared-constants */
-  district?: typeof BANGLADESH_DISTRICTS[number] | undefined;
+  district?: (typeof BANGLADESH_DISTRICTS)[number] | undefined;
 
   /** Upazila/Sub-district (Bangladesh) */
   upazila?: string | undefined;
 
   /** Mobile operator - from shared-constants */
-  mobileOperator?: typeof MOBILE_OPERATORS[keyof typeof MOBILE_OPERATORS] | undefined;
+  mobileOperator?: (typeof MOBILE_OPERATORS)[keyof typeof MOBILE_OPERATORS] | undefined;
 
   /** Network type - from shared-constants */
-  networkType?: typeof NETWORK_TYPES[keyof typeof NETWORK_TYPES] | undefined;
+  networkType?: (typeof NETWORK_TYPES)[keyof typeof NETWORK_TYPES] | undefined;
 
   /** Data saver enabled status */
   dataSaverEnabled?: boolean | undefined;
@@ -111,7 +127,7 @@ export interface DeviceInfo {
 
 /**
  * User preferences for registration
- * FIXED: No Partial, explicit properties with undefined support
+ * ✅ FIXED: No Partial, explicit properties with undefined support
  */
 export interface UserPreferences {
   /** Preferred language (English/Bengali) */
@@ -164,7 +180,7 @@ export interface UserPreferences {
 
   // Bangladesh specific preferences
   /** Preferred district (Bangladesh) */
-  preferredDistrict?: typeof BANGLADESH_DISTRICTS[number] | undefined;
+  preferredDistrict?: (typeof BANGLADESH_DISTRICTS)[number] | undefined;
 
   /** Preferred upazila (Bangladesh) */
   preferredUpazila?: string | undefined;
@@ -184,7 +200,6 @@ export interface UserPreferences {
   /** Age for verification (18+ for vendor, 13+ for customer) */
   age?: number | undefined;
 }
-
 /**
  * Command options interface (Builder pattern)
  */
@@ -229,7 +244,7 @@ export interface RegisterUserCommandOptions {
   correlationId?: string | undefined;
 
   /** Registration method (email, phone, social, otp) */
-  registrationMethod?: typeof REGISTRATION_METHODS[keyof typeof REGISTRATION_METHODS] | undefined;
+  registrationMethod?: (typeof REGISTRATION_METHODS)[keyof typeof REGISTRATION_METHODS] | undefined;
 
   /** User role override (for admin creation, default: CUSTOMER) */
   role?: string | undefined;
@@ -267,7 +282,7 @@ function validatePasswordStrength(password: string): void {
     throw new CommandValidationError(
       `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters long`,
       'password',
-      'minLength'
+      'minLength',
     );
   }
 
@@ -276,7 +291,7 @@ function validatePasswordStrength(password: string): void {
     throw new CommandValidationError(
       `Password cannot exceed ${PASSWORD_POLICY.MAX_LENGTH} characters`,
       'password',
-      'maxLength'
+      'maxLength',
     );
   }
 
@@ -285,7 +300,7 @@ function validatePasswordStrength(password: string): void {
     throw new CommandValidationError(
       'Password must contain at least one uppercase letter',
       'password',
-      'uppercase'
+      'uppercase',
     );
   }
 
@@ -294,7 +309,7 @@ function validatePasswordStrength(password: string): void {
     throw new CommandValidationError(
       'Password must contain at least one lowercase letter',
       'password',
-      'lowercase'
+      'lowercase',
     );
   }
 
@@ -303,16 +318,16 @@ function validatePasswordStrength(password: string): void {
     throw new CommandValidationError(
       'Password must contain at least one number',
       'password',
-      'number'
+      'number',
     );
   }
 
-  // FIXED: Use REQUIRE_SYMBOLS instead of REQUIRE_SPECIAL_CHARS
+  // ✅ FIXED: Use REQUIRE_SYMBOLS instead of REQUIRE_SPECIAL_CHARS
   if (PASSWORD_POLICY.REQUIRE_SYMBOLS && !/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)) {
     throw new CommandValidationError(
       'Password must contain at least one special character',
       'password',
-      'specialChar'
+      'specialChar',
     );
   }
 }
@@ -360,7 +375,7 @@ function validateAndNormalizePhone(phone: string): string {
     throw new CommandValidationError(
       'Invalid Bangladesh phone number. Use format: 01XXXXXXXXX or +8801XXXXXXXXX',
       'phone',
-      'format'
+      'format',
     );
   }
 
@@ -381,11 +396,11 @@ function validateDistrict(district: string): void {
   }
 
   // Check if district exists in BANGLADESH_DISTRICTS
-  if (!BANGLADESH_DISTRICTS.includes(district as typeof BANGLADESH_DISTRICTS[number])) {
+  if (!BANGLADESH_DISTRICTS.includes(district as (typeof BANGLADESH_DISTRICTS)[number])) {
     throw new CommandValidationError(
       `Invalid district: ${district}. Must be one of: ${BANGLADESH_DISTRICTS.join(', ')}`,
       'district',
-      'invalid'
+      'invalid',
     );
   }
 }
@@ -405,13 +420,13 @@ function validateUpazila(upazila: string, district?: string): void {
 
   // If district is provided, check if upazila exists for that district
   if (district && BANGLADESH_UPAZILAS[district as keyof typeof BANGLADESH_UPAZILAS]) {
-    // FIXED: Properly handle the upazila array
+    // ✅ FIXED: Properly handle the upazila array
     const validUpazilas = BANGLADESH_UPAZILAS[district as keyof typeof BANGLADESH_UPAZILAS];
     if (validUpazilas && Array.isArray(validUpazilas) && !validUpazilas.includes(upazila)) {
       throw new CommandValidationError(
         `Invalid upazila: ${upazila} for district ${district}`,
         'upazila',
-        'invalid'
+        'invalid',
       );
     }
   }
@@ -436,16 +451,12 @@ function validateAge(age: number | undefined, minAge: number = 13): void {
     throw new CommandValidationError(
       `You must be at least ${minAge} years old to register`,
       'age',
-      'minAge'
+      'minAge',
     );
   }
 
   if (age > 120) {
-    throw new CommandValidationError(
-      'Age cannot exceed 120 years',
-      'age',
-      'maxAge'
-    );
+    throw new CommandValidationError('Age cannot exceed 120 years', 'age', 'maxAge');
   }
 }
 
@@ -455,8 +466,8 @@ function validateAge(age: number | undefined, minAge: number = 13): void {
 
 /**
  * Register User Command Builder
- * Enterprise: Builder pattern for fluent command construction with validation
- * 
+ * ✅ Enterprise: Builder pattern for fluent command construction with validation
+ *
  * @example
  * const command = new RegisterUserCommandBuilder()
  *   .setEmail('user@vubon.com.bd')
@@ -497,10 +508,18 @@ export class RegisterUserCommandBuilder {
       throw new CommandValidationError('Full name is required', 'fullName', 'required');
     }
     if (fullName.length < 2) {
-      throw new CommandValidationError('Full name must be at least 2 characters', 'fullName', 'minLength');
+      throw new CommandValidationError(
+        'Full name must be at least 2 characters',
+        'fullName',
+        'minLength',
+      );
     }
     if (fullName.length > 100) {
-      throw new CommandValidationError('Full name cannot exceed 100 characters', 'fullName', 'maxLength');
+      throw new CommandValidationError(
+        'Full name cannot exceed 100 characters',
+        'fullName',
+        'maxLength',
+      );
     }
     this.options.fullName = fullName.trim();
     return this;
@@ -559,7 +578,11 @@ export class RegisterUserCommandBuilder {
 
   setDisplayName(displayName: string): this {
     if (displayName && displayName.length > 50) {
-      throw new CommandValidationError('Display name cannot exceed 50 characters', 'displayName', 'maxLength');
+      throw new CommandValidationError(
+        'Display name cannot exceed 50 characters',
+        'displayName',
+        'maxLength',
+      );
     }
     this.options.displayName = displayName?.trim();
     return this;
@@ -578,7 +601,9 @@ export class RegisterUserCommandBuilder {
     return this;
   }
 
-  setRegistrationMethod(method: typeof REGISTRATION_METHODS[keyof typeof REGISTRATION_METHODS]): this {
+  setRegistrationMethod(
+    method: (typeof REGISTRATION_METHODS)[keyof typeof REGISTRATION_METHODS],
+  ): this {
     this.options.registrationMethod = method;
     return this;
   }
@@ -622,7 +647,7 @@ export class RegisterUserCommandBuilder {
     if (referralCode && !/^[A-Za-z0-9]{6,20}$/.test(referralCode)) {
       throw new CommandValidationError('Invalid referral code format', 'referralCode', 'format');
     }
-    // FIXED: Initialize preferences if needed
+    // ✅ FIXED: Initialize preferences if needed
     if (!this.options.preferences) {
       this.options.preferences = {} as UserPreferences;
     }
@@ -631,7 +656,7 @@ export class RegisterUserCommandBuilder {
   }
 
   setMarketingConsent(consent: boolean): this {
-    // FIXED: Initialize preferences if needed
+    // ✅ FIXED: Initialize preferences if needed
     if (!this.options.preferences) {
       this.options.preferences = {} as UserPreferences;
     }
@@ -640,7 +665,7 @@ export class RegisterUserCommandBuilder {
   }
 
   setWhatsAppConsent(consent: boolean): this {
-    // FIXED: Initialize preferences if needed
+    // ✅ FIXED: Initialize preferences if needed
     if (!this.options.preferences) {
       this.options.preferences = {} as UserPreferences;
     }
@@ -648,9 +673,9 @@ export class RegisterUserCommandBuilder {
     return this;
   }
 
-  setPreferredDistrict(district: typeof BANGLADESH_DISTRICTS[number]): this {
+  setPreferredDistrict(district: (typeof BANGLADESH_DISTRICTS)[number]): this {
     validateDistrict(district);
-    // FIXED: Initialize preferences if needed
+    // ✅ FIXED: Initialize preferences if needed
     if (!this.options.preferences) {
       this.options.preferences = {} as UserPreferences;
     }
@@ -660,7 +685,7 @@ export class RegisterUserCommandBuilder {
 
   setPreferredUpazila(upazila: string): this {
     validateUpazila(upazila, this.options.preferences?.preferredDistrict);
-    // FIXED: Initialize preferences if needed
+    // ✅ FIXED: Initialize preferences if needed
     if (!this.options.preferences) {
       this.options.preferences = {} as UserPreferences;
     }
@@ -670,7 +695,7 @@ export class RegisterUserCommandBuilder {
 
   setAge(age: number): this {
     validateAge(age);
-    // FIXED: Initialize preferences if needed
+    // ✅ FIXED: Initialize preferences if needed
     if (!this.options.preferences) {
       this.options.preferences = {} as UserPreferences;
     }
@@ -681,16 +706,32 @@ export class RegisterUserCommandBuilder {
   build(): RegisterUserCommand {
     // Validate required fields before building
     if (!this.options.email) {
-      throw new CommandValidationError('Email is required to build RegisterUserCommand', 'email', 'required');
+      throw new CommandValidationError(
+        'Email is required to build RegisterUserCommand',
+        'email',
+        'required',
+      );
     }
     if (!this.options.password) {
-      throw new CommandValidationError('Password is required to build RegisterUserCommand', 'password', 'required');
+      throw new CommandValidationError(
+        'Password is required to build RegisterUserCommand',
+        'password',
+        'required',
+      );
     }
     if (!this.options.confirmPassword) {
-      throw new CommandValidationError('Confirm password is required to build RegisterUserCommand', 'confirmPassword', 'required');
+      throw new CommandValidationError(
+        'Confirm password is required to build RegisterUserCommand',
+        'confirmPassword',
+        'required',
+      );
     }
     if (!this.options.fullName) {
-      throw new CommandValidationError('Full name is required to build RegisterUserCommand', 'fullName', 'required');
+      throw new CommandValidationError(
+        'Full name is required to build RegisterUserCommand',
+        'fullName',
+        'required',
+      );
     }
 
     // Validate passwords match
@@ -700,7 +741,11 @@ export class RegisterUserCommandBuilder {
 
     // Validate terms acceptance
     if (!this.options.acceptTerms) {
-      throw new CommandValidationError('You must accept the terms and conditions', 'acceptTerms', 'required');
+      throw new CommandValidationError(
+        'You must accept the terms and conditions',
+        'acceptTerms',
+        'required',
+      );
     }
 
     return new RegisterUserCommand(this.options as RegisterUserCommandOptions);
@@ -713,7 +758,7 @@ export class RegisterUserCommandBuilder {
 
 /**
  * Register User Command
- * 
+ *
  * @example
  * // Using constructor directly (with validation)
  * const command = new RegisterUserCommand({
@@ -727,7 +772,7 @@ export class RegisterUserCommandBuilder {
  *   phone: '+8801712345678',
  *   correlationId: 'corr_abc123'
  * });
- * 
+ *
  * // Using builder pattern (recommended)
  * const command = new RegisterUserCommandBuilder()
  *   .setEmail('user@vubon.com.bd')
@@ -759,7 +804,9 @@ export class RegisterUserCommand {
   public readonly displayName?: string | undefined;
   public readonly preferredLanguage: 'en' | 'bn';
   public readonly correlationId?: string | undefined;
-  public readonly registrationMethod?: typeof REGISTRATION_METHODS[keyof typeof REGISTRATION_METHODS] | undefined;
+  public readonly registrationMethod?:
+    | (typeof REGISTRATION_METHODS)[keyof typeof REGISTRATION_METHODS]
+    | undefined;
   public readonly role?: string | undefined;
   public readonly tier?: string | undefined;
   public readonly autoLogin: boolean;
@@ -983,7 +1030,7 @@ export class RegisterUserCommand {
   /**
    * Get preferred district (Bangladesh specific)
    */
-  public getPreferredDistrict(): typeof BANGLADESH_DISTRICTS[number] | undefined {
+  public getPreferredDistrict(): (typeof BANGLADESH_DISTRICTS)[number] | undefined {
     return this.preferences?.preferredDistrict;
   }
 
@@ -997,14 +1044,14 @@ export class RegisterUserCommand {
   /**
    * Get mobile operator (Bangladesh specific)
    */
-  public getMobileOperator(): typeof MOBILE_OPERATORS[keyof typeof MOBILE_OPERATORS] | undefined {
+  public getMobileOperator(): (typeof MOBILE_OPERATORS)[keyof typeof MOBILE_OPERATORS] | undefined {
     return this.deviceInfo?.mobileOperator;
   }
 
   /**
    * Get network type (Bangladesh specific)
    */
-  public getNetworkType(): typeof NETWORK_TYPES[keyof typeof NETWORK_TYPES] | undefined {
+  public getNetworkType(): (typeof NETWORK_TYPES)[keyof typeof NETWORK_TYPES] | undefined {
     return this.deviceInfo?.networkType;
   }
 
@@ -1042,14 +1089,18 @@ export class RegisterUserCommand {
    * Get registration source for analytics
    */
   public getRegistrationSource(): string {
-    // FIXED: Use proper access to REGISTRATION_SOURCES
+    // ✅ FIXED: Use proper access to REGISTRATION_SOURCES
     const userAgent = this.getUserAgent();
     if (!userAgent) return REGISTRATION_SOURCES.WEB;
 
     if (userAgent.includes('VubonApp')) {
       return REGISTRATION_SOURCES.MOBILE_APP;
     }
-    if (userAgent.includes('Mobile') || userAgent.includes('Android') || userAgent.includes('iPhone')) {
+    if (
+      userAgent.includes('Mobile') ||
+      userAgent.includes('Android') ||
+      userAgent.includes('iPhone')
+    ) {
       return REGISTRATION_SOURCES.MOBILE_APP;
     }
     return REGISTRATION_SOURCES.WEB;
@@ -1100,7 +1151,7 @@ export class RegisterUserCommand {
    * Convert to string for logging (sensitive data masked)
    */
   public toString(): string {
-  return `RegisterUserCommand(id=${this.commandId.slice(0, 8)}..., email=${this.getMaskedEmail()}, phone=${this.getMaskedPhone()}, hasPhone=${this.hasPhone()}, preferredLanguage=${this.preferredLanguage})`;
+    return `RegisterUserCommand(id=${this.commandId.slice(0, 8)}..., email=${this.getMaskedEmail()}, phone=${this.getMaskedPhone()}, hasPhone=${this.hasPhone()}, preferredLanguage=${this.preferredLanguage}, source=${this.getRegistrationSource()}, hasCaptcha=${this.hasCaptcha()}, timestamp=${this.timestamp.toISOString()})`;
   }
 
   /**
@@ -1130,24 +1181,28 @@ export class RegisterUserCommand {
       acceptTerms: this.acceptTerms,
       acceptPrivacy: this.acceptPrivacy,
       timestamp: this.timestamp.toISOString(),
-      deviceInfo: this.deviceInfo ? {
-        hasIp: !!this.deviceInfo.ipAddress,
-        hasUserAgent: !!this.deviceInfo.userAgent,
-        hasDeviceId: !!this.deviceInfo.deviceId,
-        hasDeviceFingerprint: !!this.deviceInfo.deviceFingerprint,
-        district: this.deviceInfo.district,
-        upazila: this.deviceInfo.upazila,
-        mobileOperator: this.deviceInfo.mobileOperator,
-        networkType: this.deviceInfo.networkType,
-      } : undefined,
-      preferences: this.preferences ? {
-        preferredDistrict: this.preferences.preferredDistrict,
-        preferredUpazila: this.preferences.preferredUpazila,
-        hasReferralCode: !!this.preferences.referralCode,
-        marketingConsent: this.preferences.marketingConsent,
-        whatsappConsent: this.preferences.whatsappConsent,
-        age: this.preferences.age,
-      } : undefined,
+      deviceInfo: this.deviceInfo
+        ? {
+            hasIp: !!this.deviceInfo.ipAddress,
+            hasUserAgent: !!this.deviceInfo.userAgent,
+            hasDeviceId: !!this.deviceInfo.deviceId,
+            hasDeviceFingerprint: !!this.deviceInfo.deviceFingerprint,
+            district: this.deviceInfo.district,
+            upazila: this.deviceInfo.upazila,
+            mobileOperator: this.deviceInfo.mobileOperator,
+            networkType: this.deviceInfo.networkType,
+          }
+        : undefined,
+      preferences: this.preferences
+        ? {
+            preferredDistrict: this.preferences.preferredDistrict,
+            preferredUpazila: this.preferences.preferredUpazila,
+            hasReferralCode: !!this.preferences.referralCode,
+            marketingConsent: this.preferences.marketingConsent,
+            whatsappConsent: this.preferences.whatsappConsent,
+            age: this.preferences.age,
+          }
+        : undefined,
     };
   }
 }
@@ -1159,5 +1214,5 @@ export class RegisterUserCommand {
 export type {
   DeviceInfo as DeviceInfoType,
   UserPreferences as UserPreferencesType,
-  RegisterUserCommandOptions as RegisterUserCommandOptionsType
+  RegisterUserCommandOptions as RegisterUserCommandOptionsType,
 };
