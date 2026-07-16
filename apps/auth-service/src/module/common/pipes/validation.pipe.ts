@@ -1,12 +1,12 @@
 /**
  * Validation Pipe - Enterprise Grade (Enhanced)
- * 
+ *
  * @module common/pipes/validation.pipe
- * 
+ *
  * @description
  * Global validation pipe with Zod schema support.
  * Validates incoming requests against Zod schemas.
- * 
+ *
  * Enterprise Features:
  * ✅ Zod schema validation
  * ✅ Custom error messages (English/Bengali)
@@ -15,7 +15,7 @@
  * ✅ Schema-specific options
  * ✅ Multi-language support
  * ✅ Environment-aware validation
- * 
+ *
  * @example
  * // In controller with groups
  * @Post('register')
@@ -83,23 +83,23 @@ export interface SchemaRegistry {
  * Bengali error messages for common Zod error codes
  */
 const DEFAULT_BN_MESSAGES: Record<string, string> = {
-  'invalid_type': 'টাইপ সঠিক নয়',
-  'invalid_literal': 'মান সঠিক নয়',
-  'unrecognized_keys': 'অস্বীকৃত কী',
-  'invalid_union': 'ইউনিয়ন সঠিক নয়',
-  'invalid_union_discriminator': 'ডিস্ক্রিমিনেটর সঠিক নয়',
-  'invalid_enum_value': 'এনাম মান সঠিক নয়',
-  'invalid_arguments': 'আর্গুমেন্ট সঠিক নয়',
-  'invalid_return_type': 'রিটার্ন টাইপ সঠিক নয়',
-  'invalid_date': 'তারিখ সঠিক নয়',
-  'custom': 'মান সঠিক নয়',
-  'invalid_intersection_types': 'ইন্টারসেকশন টাইপ সঠিক নয়',
-  'not_multiple_of': 'গুণিতক নয়',
-  'not_finite': 'অসীম সংখ্যা',
-  'invalid_string': 'স্ট্রিং সঠিক নয়',
-  'too_small': 'খুব ছোট',
-  'too_big': 'খুব বড়',
-  'invalid_checksum': 'চেকসাম সঠিক নয়',
+  invalid_type: 'টাইপ সঠিক নয়',
+  invalid_literal: 'মান সঠিক নয়',
+  unrecognized_keys: 'অস্বীকৃত কী',
+  invalid_union: 'ইউনিয়ন সঠিক নয়',
+  invalid_union_discriminator: 'ডিস্ক্রিমিনেটর সঠিক নয়',
+  invalid_enum_value: 'এনাম মান সঠিক নয়',
+  invalid_arguments: 'আর্গুমেন্ট সঠিক নয়',
+  invalid_return_type: 'রিটার্ন টাইপ সঠিক নয়',
+  invalid_date: 'তারিখ সঠিক নয়',
+  custom: 'মান সঠিক নয়',
+  invalid_intersection_types: 'ইন্টারসেকশন টাইপ সঠিক নয়',
+  not_multiple_of: 'গুণিতক নয়',
+  not_finite: 'অসীম সংখ্যা',
+  invalid_string: 'স্ট্রিং সঠিক নয়',
+  too_small: 'খুব ছোট',
+  too_big: 'খুব বড়',
+  invalid_checksum: 'চেকসাম সঠিক নয়',
 };
 
 // ============================================================
@@ -110,7 +110,7 @@ export class ValidationGroupError extends Error {
   constructor(
     message: string,
     public readonly group: string,
-    public readonly field?: string
+    public readonly field?: string,
   ) {
     super(message);
     this.name = 'ValidationGroupError';
@@ -144,7 +144,7 @@ export class ZodValidationPipe implements PipeTransform {
   constructor(
     schemaOrKey?: ZodSchema | string,
     options?: ValidationPipeOptions,
-    registry?: SchemaRegistry
+    registry?: SchemaRegistry,
   ) {
     this.options = options || {};
     this.registry = registry;
@@ -289,7 +289,7 @@ export class ZodValidationPipe implements PipeTransform {
   private validateGroupSpecificRules(
     data: unknown,
     groups: string[],
-    ctx: any // Using 'any' to avoid Zod v4 type conflicts
+    ctx: any, // Using 'any' to avoid Zod v4 type conflicts
   ): void {
     // For 'create' group, certain fields might be required
     if (groups.includes('create')) {
@@ -346,8 +346,10 @@ export class ZodValidationPipe implements PipeTransform {
       const message = issue.message;
 
       // Check for custom messages
-      const customMessage = this.options.customMessages?.[field] || this.options.customMessages?.[message];
-      const customMessageBn = this.options.customMessagesBn?.[field] || this.options.customMessagesBn?.[message];
+      const customMessage =
+        this.options.customMessages?.[field] || this.options.customMessages?.[message];
+      const customMessageBn =
+        this.options.customMessagesBn?.[field] || this.options.customMessagesBn?.[message];
 
       errors.push({
         field,
@@ -447,7 +449,7 @@ export class DefaultSchemaRegistry implements SchemaRegistry {
  */
 export const createValidationPipe = (
   schema: ZodSchema,
-  options?: ValidationPipeOptions
+  options?: ValidationPipeOptions,
 ): ZodValidationPipe => {
   return new ZodValidationPipe(schema, options);
 };
@@ -458,7 +460,7 @@ export const createValidationPipe = (
 export const createValidationPipeWithRegistry = (
   schemaKey: string,
   registry: SchemaRegistry,
-  options?: ValidationPipeOptions
+  options?: ValidationPipeOptions,
 ): ZodValidationPipe => {
   return new ZodValidationPipe(schemaKey, options, registry);
 };
