@@ -28,7 +28,7 @@
  * ✅ Statistics and analytics support
  * ✅ Framework-free, infrastructure-agnostic
  */
-mport type { 
+import type { 
   PaginationParams as SharedPaginationOptions,
   OffsetPaginationResponse as SharedPaginatedResult,
   DomainEvent,
