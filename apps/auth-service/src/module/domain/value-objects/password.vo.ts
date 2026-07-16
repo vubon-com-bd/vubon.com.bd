@@ -25,10 +25,7 @@
  */
 
 import { ValueObject } from './base.vo';
-import {
-  IPasswordValidator,
-  PasswordStrength,
-} from '../ports/password-validator.port';
+import { IPasswordValidator, PasswordStrength } from '../ports/password-validator.port';
 
 // ============================================================
 // Types (Re-exported for domain convenience)
@@ -86,7 +83,7 @@ export class Password extends ValueObject {
    */
   constructor(
     password: string,
-    private readonly validator: IPasswordValidator
+    private readonly validator: IPasswordValidator,
   ) {
     super();
 
@@ -137,20 +134,14 @@ export class Password extends ValueObject {
   /**
    * Static factory method for creating Password from known valid value
    */
-  public static fromValid(
-    password: string,
-    validator: IPasswordValidator
-  ): Password {
+  public static fromValid(password: string, validator: IPasswordValidator): Password {
     return new Password(password, validator);
   }
 
   /**
    * Creates a Password from unknown input (safe parsing)
    */
-  public static tryCreate(
-    password: unknown,
-    validator: IPasswordValidator
-  ): Password | null {
+  public static tryCreate(password: unknown, validator: IPasswordValidator): Password | null {
     if (typeof password !== 'string') {
       return null;
     }
@@ -238,9 +229,7 @@ export class Password extends ValueObject {
   /**
    * Check if password is strong enough for security requirements
    */
-  public isStrongEnough(
-    minStrength: PasswordStrength = PasswordStrength.MEDIUM
-  ): boolean {
+  public isStrongEnough(minStrength: PasswordStrength = PasswordStrength.MEDIUM): boolean {
     const strengthOrder: Record<PasswordStrength, number> = {
       [PasswordStrength.VERY_WEAK]: 0,
       [PasswordStrength.WEAK]: 1,
@@ -288,10 +277,12 @@ export class Password extends ValueObject {
    * Check if password is empty/placeholder
    */
   public override isEmpty(): boolean {
-    return this._value === '' ||
-           this._value === 'password' ||
-           this._value === 'Password123!' ||
-           this._value.length < 4;
+    return (
+      this._value === '' ||
+      this._value === 'password' ||
+      this._value === 'Password123!' ||
+      this._value.length < 4
+    );
   }
 
   /**
