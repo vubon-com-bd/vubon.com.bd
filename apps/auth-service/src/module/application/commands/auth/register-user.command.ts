@@ -1103,9 +1103,10 @@ export class RegisterUserCommand {
    * Convert to string for logging (sensitive data masked)
    */
 public toString(): string {
-  return `RegisterUserCommand(id=${this.commandId.slice(0, 8)}..., email=${this.getMaskedEmail()}, phone=${this.getMaskedPhone()}, hasPhone=${this.hasPhone()}, preferredLanguage=${this.preferredLanguage}, registrationMethod=${this.registrationMethod})`;
+    return `RegisterUserCommand(id=${this.commandId.slice(0, 8)}..., email=${this.getMaskedEmail()}, phone=${this.getMaskedPhone()}, hasPhone=${this.hasPhone()}, preferredLanguage=${this.preferr[...]
+    //                                                                                                                                                                                  ↑
+    //                                                                                                                                                                    String cut off!
 }
-
   /**
    * Get summary for logging
    */
