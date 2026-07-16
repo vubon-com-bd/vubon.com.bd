@@ -1,13 +1,13 @@
 /**
  * Event Bus Port - Domain Layer Interface (Enterprise Grade)
- * 
+ *
  * @module domain/ports/event-bus.port
- * 
+ *
  * @description
  * Port (interface) for domain event publishing and subscription.
  * Defines the contract that infrastructure adapters (NestJS EventEmitter, Kafka, RabbitMQ, etc.) must implement.
  * This keeps the domain layer clean and infrastructure-agnostic.
- * 
+ *
  * Enterprise Rules:
  * ✅ Domain layer defines the interface (Port)
  * ✅ Infrastructure layer implements the interface (Adapter)
@@ -16,18 +16,18 @@
  * ✅ Easy to mock for unit testing
  * ✅ Supports synchronous and asynchronous event handling
  * ✅ Supports event batching and retries
- * 
+ *
  * @example
  * // Domain usage
  * class UserRegistrationService {
  *   constructor(private readonly eventBus: IEventBus) {}
- *   
+ *
  *   async registerUser(user: User): Promise<void> {
  *     // ... registration logic
  *     await this.eventBus.publish(new UserRegisteredEvent(user));
  *   }
  * }
- * 
+ *
  * // Infrastructure implementation
  * class EventBusAdapter implements IEventBus {
  *   async publish<T extends IDomainEvent>(event: T): Promise<void> {
@@ -65,7 +65,6 @@ export interface IDomainEvent {
   triggeredBy?: string | undefined;
   /** Additional metadata */
   metadata?: Record<string, unknown> | undefined;
-  
 }
 
 /**
@@ -221,12 +220,14 @@ export interface EventProcessingResult {
   /** Number of events that failed */
   failedCount: number;
   /** Errors for failed events */
-  errors?: Array<{
-    eventId: string;
-    eventType: string;
-    error: string;
-    retryCount: number;
-  }> | undefined;
+  errors?:
+    | Array<{
+        eventId: string;
+        eventType: string;
+        error: string;
+        retryCount: number;
+      }>
+    | undefined;
   /** Processing duration in milliseconds */
   durationMs: number;
 }
@@ -259,10 +260,10 @@ export interface EventStatistics {
 
 /**
  * Event Bus Port Interface
- * 
+ *
  * Defines the contract for publishing and subscribing to domain events.
  * All event operations should go through this interface.
- * 
+ *
  * Enterprise Features:
  * ✅ Publish single or multiple events
  * ✅ Subscribe to events with handlers
@@ -274,12 +275,12 @@ export interface EventStatistics {
  * ✅ Distributed tracing (correlation ID)
  * ✅ Event versioning
  * ✅ Statistics and monitoring
- * 
+ *
  * @example
  * // Using the port in domain service
  * class OrderService {
  *   constructor(private readonly eventBus: IEventBus) {}
- * 
+ *
  *   async placeOrder(order: Order): Promise<void> {
  *     // ... business logic
  *     await this.eventBus.publish(
@@ -296,29 +297,26 @@ export interface IEventBus {
 
   /**
    * Publish a single domain event
-   * 
+   *
    * @param event - Domain event to publish
    * @param options - Publishing options
    * @returns Promise that resolves when event is published
-   * 
+   *
    * @example
    * await eventBus.publish(
    *   new UserRegisteredEvent(user.id, user.email, user.fullName),
    *   { correlationId: 'corr_123', source: 'auth-service' }
    * );
    */
-  publish<T extends IDomainEvent>(
-    event: T,
-    options?: EventPublishOptions,
-  ): Promise<void>;
+  publish<T extends IDomainEvent>(event: T, options?: EventPublishOptions): Promise<void>;
 
   /**
    * Publish multiple domain events as a batch
-   * 
+   *
    * @param events - Array of domain events to publish
    * @param options - Publishing options
    * @returns Event processing result
-   * 
+   *
    * @example
    * const result = await eventBus.publishBatch([
    *   new UserRegisteredEvent(user.id, user.email, user.fullName),
@@ -332,12 +330,12 @@ export interface IEventBus {
 
   /**
    * Publish an event with delayed execution
-   * 
+   *
    * @param event - Domain event to publish
    * @param delayMs - Delay in milliseconds
    * @param options - Publishing options
    * @returns Scheduled event ID
-   * 
+   *
    * @example
    * const scheduledId = await eventBus.publishDelayed(
    *   new SessionExpiredEvent(sessionId),
@@ -353,28 +351,27 @@ export interface IEventBus {
 
   /**
    * Cancel a scheduled event
-   * 
+   *
    * @param scheduledId - Scheduled event ID
    * @returns Whether event was cancelled
-   * 
+   *
    * @example
    * const cancelled = await eventBus.cancelScheduled('scheduled_123');
    */
   cancelScheduled(scheduledId: string): Promise<boolean>;
 
-  
   // ============================================================
   // Subscription Operations
   // ============================================================
 
   /**
    * Subscribe to a specific event type
-   * 
+   *
    * @param eventType - Event type to subscribe to
    * @param handler - Event handler function
    * @param options - Subscription options
    * @returns Subscription token for unsubscribing
-   * 
+   *
    * @example
    * const subscription = await eventBus.subscribe(
    *   'UserRegisteredEvent',
@@ -383,7 +380,7 @@ export interface IEventBus {
    *   },
    *   { priority: 1 }
    * );
-   * 
+   *
    * // Later...
    * subscription.unsubscribe();
    */
@@ -395,12 +392,12 @@ export interface IEventBus {
 
   /**
    * Subscribe to multiple event types with the same handler
-   * 
+   *
    * @param eventTypes - Array of event types to subscribe to
    * @param handler - Event handler function
    * @param options - Subscription options
    * @returns Array of subscription tokens
-   * 
+   *
    * @example
    * const subscriptions = await eventBus.subscribeAll(
    *   ['UserRegisteredEvent', 'OrderPlacedEvent'],
@@ -417,11 +414,11 @@ export interface IEventBus {
 
   /**
    * Subscribe to all events (catch-all handler)
-   * 
+   *
    * @param handler - Event handler function
    * @param options - Subscription options
    * @returns Subscription token
-   * 
+   *
    * @example
    * const subscription = await eventBus.subscribeAllEvents(
    *   async (event) => {
@@ -437,13 +434,13 @@ export interface IEventBus {
 
   /**
    * Subscribe with a filter predicate
-   * 
+   *
    * @param eventType - Event type to subscribe to
    * @param filter - Filter function
    * @param handler - Event handler function
    * @param options - Subscription options
    * @returns Subscription token
-   * 
+   *
    * @example
    * const subscription = await eventBus.subscribeWithFilter(
    *   'OrderPlacedEvent',
@@ -462,10 +459,10 @@ export interface IEventBus {
 
   /**
    * Unsubscribe from an event type
-   * 
+   *
    * @param subscriptionId - Subscription ID
    * @returns Whether unsubscription was successful
-   * 
+   *
    * @example
    * const unsubscribed = await eventBus.unsubscribe('sub_123');
    */
@@ -473,10 +470,10 @@ export interface IEventBus {
 
   /**
    * Unsubscribe all handlers for an event type
-   * 
+   *
    * @param eventType - Event type
    * @returns Number of handlers unsubscribed
-   * 
+   *
    * @example
    * const count = await eventBus.unsubscribeAll('UserRegisteredEvent');
    */
@@ -488,9 +485,9 @@ export interface IEventBus {
 
   /**
    * Get all event types with subscriptions
-   * 
+   *
    * @returns Array of event types
-   * 
+   *
    * @example
    * const types = await eventBus.getEventTypes();
    * console.log(types); // ['UserRegisteredEvent', 'OrderPlacedEvent', ...]
@@ -499,10 +496,10 @@ export interface IEventBus {
 
   /**
    * Get handlers for a specific event type
-   * 
+   *
    * @param eventType - Event type
    * @returns Array of handler metadata
-   * 
+   *
    * @example
    * const handlers = await eventBus.getEventHandlers('UserRegisteredEvent');
    * console.log(handlers); // [{ name: 'WelcomeEmailSender', priority: 1 }, ...]
@@ -511,10 +508,10 @@ export interface IEventBus {
 
   /**
    * Check if an event type has active subscriptions
-   * 
+   *
    * @param eventType - Event type
    * @returns True if event type has subscribers
-   * 
+   *
    * @example
    * const hasSubscribers = await eventBus.hasSubscribers('UserRegisteredEvent');
    */
@@ -526,11 +523,11 @@ export interface IEventBus {
 
   /**
    * Store an event in the event store
-   * 
+   *
    * @param event - Domain event to store
    * @param options - Storage options
    * @returns Stored event ID
-   * 
+   *
    * @example
    * const storedId = await eventBus.storeEvent(
    *   new UserRegisteredEvent(user.id, user.email, user.fullName),
@@ -548,12 +545,12 @@ export interface IEventBus {
 
   /**
    * Get events for an aggregate
-   * 
+   *
    * @param aggregateId - Aggregate ID
    * @param fromVersion - Starting version (optional)
    * @param toVersion - Ending version (optional)
    * @returns Array of stored events
-   * 
+   *
    * @example
    * const events = await eventBus.getAggregateEvents('user_123');
    * console.log(events); // [UserRegisteredEvent, UserVerifiedEvent, ...]
@@ -566,12 +563,12 @@ export interface IEventBus {
 
   /**
    * Replay events for an aggregate
-   * 
+   *
    * @param aggregateId - Aggregate ID
    * @param handler - Event handler for replay
    * @param options - Replay options
    * @returns Number of events replayed
-   * 
+   *
    * @example
    * const count = await eventBus.replayEvents(
    *   'user_123',
@@ -598,10 +595,10 @@ export interface IEventBus {
 
   /**
    * Pause event processing for a specific event type
-   * 
+   *
    * @param eventType - Event type to pause
    * @returns Whether pause was successful
-   * 
+   *
    * @example
    * await eventBus.pauseProcessing('UserRegisteredEvent');
    */
@@ -609,10 +606,10 @@ export interface IEventBus {
 
   /**
    * Resume event processing for a specific event type
-   * 
+   *
    * @param eventType - Event type to resume
    * @returns Whether resume was successful
-   * 
+   *
    * @example
    * await eventBus.resumeProcessing('UserRegisteredEvent');
    */
@@ -620,10 +617,10 @@ export interface IEventBus {
 
   /**
    * Check if event processing is paused
-   * 
+   *
    * @param eventType - Event type to check
    * @returns True if paused
-   * 
+   *
    * @example
    * const isPaused = await eventBus.isPaused('UserRegisteredEvent');
    */
@@ -635,9 +632,9 @@ export interface IEventBus {
 
   /**
    * Start the event bus
-   * 
+   *
    * @returns Promise that resolves when started
-   * 
+   *
    * @example
    * await eventBus.start();
    */
@@ -645,10 +642,10 @@ export interface IEventBus {
 
   /**
    * Stop the event bus
-   * 
+   *
    * @param graceful - Whether to stop gracefully (process remaining events)
    * @returns Promise that resolves when stopped
-   * 
+   *
    * @example
    * await eventBus.stop(true);
    */
@@ -656,9 +653,9 @@ export interface IEventBus {
 
   /**
    * Check if event bus is running
-   * 
+   *
    * @returns True if running
-   * 
+   *
    * @example
    * const isRunning = await eventBus.isRunning();
    */
@@ -666,9 +663,9 @@ export interface IEventBus {
 
   /**
    * Get event bus health status
-   * 
+   *
    * @returns Health status
-   * 
+   *
    * @example
    * const health = await eventBus.getHealth();
    * console.log(health.status); // 'healthy' | 'degraded' | 'unhealthy'
@@ -683,9 +680,9 @@ export interface IEventBus {
 
   /**
    * Get event bus statistics
-   * 
+   *
    * @returns Event statistics
-   * 
+   *
    * @example
    * const stats = await eventBus.getStatistics();
    * console.log(stats.totalPublished); // 12345
@@ -694,9 +691,9 @@ export interface IEventBus {
 
   /**
    * Clear all event bus state (for testing)
-   * 
+   *
    * @returns Promise that resolves when cleared
-   * 
+   *
    * @example
    * await eventBus.clear();
    */
@@ -728,7 +725,10 @@ export class MockEventBus implements IEventBus {
   private isStarted: boolean = false;
   private isStopped: boolean = false;
   private eventStore: Map<string, IDomainEvent[]> = new Map();
-  private scheduledEvents: Map<string, { event: IDomainEvent; delayMs: number; timeoutId: NodeJS.Timeout }> = new Map();
+  private scheduledEvents: Map<
+    string,
+    { event: IDomainEvent; delayMs: number; timeoutId: NodeJS.Timeout }
+  > = new Map();
   private statistics: EventStatistics = {
     totalPublished: 0,
     totalProcessed: 0,
@@ -763,10 +763,7 @@ export class MockEventBus implements IEventBus {
     return false;
   }
 
-  async publish<T extends IDomainEvent>(
-    event: T,
-    options?: EventPublishOptions,
-  ): Promise<void> {
+  async publish<T extends IDomainEvent>(event: T, options?: EventPublishOptions): Promise<void> {
     await this.delay();
 
     if (this.shouldThrowError()) {
@@ -778,7 +775,8 @@ export class MockEventBus implements IEventBus {
 
     // Update statistics
     this.statistics.totalPublished++;
-    this.statistics.eventsByType[event.eventType] = (this.statistics.eventsByType[event.eventType] || 0) + 1;
+    this.statistics.eventsByType[event.eventType] =
+      (this.statistics.eventsByType[event.eventType] || 0) + 1;
 
     // Process handlers
     const handlers = this.subscriptions.get(event.eventType) || [];
@@ -896,7 +894,7 @@ export class MockEventBus implements IEventBus {
     }
 
     const handlers = this.subscriptions.get(eventType)!;
-    
+
     // ✅ FIXED: Create entry with proper typing
     const handlerEntry: EventHandlerEntry = {
       id: subscriptionId,
@@ -908,7 +906,7 @@ export class MockEventBus implements IEventBus {
     // Insert according to priority
     const priority = options?.priority || 0;
     let inserted = false;
-    
+
     // ✅ FIXED: Added type guard to check handlers[i] exists
     for (let i = 0; i < handlers.length; i++) {
       const currentHandler = handlers[i];
@@ -921,13 +919,14 @@ export class MockEventBus implements IEventBus {
         }
       }
     }
-    
+
     if (!inserted) {
       handlers.push(handlerEntry);
     }
 
     // Update statistics
-    this.statistics.handlersByEventType[eventType] = (this.statistics.handlersByEventType[eventType] || 0) + 1;
+    this.statistics.handlersByEventType[eventType] =
+      (this.statistics.handlersByEventType[eventType] || 0) + 1;
 
     return {
       id: subscriptionId,
@@ -985,14 +984,10 @@ export class MockEventBus implements IEventBus {
     handler: (event: T) => Promise<void> | void,
     options?: EventSubscriptionOptions,
   ): Promise<EventSubscription> {
-    return this.subscribe(
-      eventType,
-      handler,
-      {
-        ...options,
-        filter: filter as (event: IDomainEvent) => boolean,
-      },
-    );
+    return this.subscribe(eventType, handler, {
+      ...options,
+      filter: filter as (event: IDomainEvent) => boolean,
+    });
   }
 
   async unsubscribe(subscriptionId: string): Promise<boolean> {
@@ -1056,13 +1051,13 @@ export class MockEventBus implements IEventBus {
     },
   ): Promise<string> {
     const aggregateId = options?.aggregateId || event.aggregateId;
-    
+
     if (!this.eventStore.has(aggregateId)) {
       this.eventStore.set(aggregateId, []);
     }
 
     const events = this.eventStore.get(aggregateId)!;
-    
+
     // Check version
     if (options?.expectedVersion !== undefined) {
       const currentVersion = events.length;
@@ -1075,7 +1070,7 @@ export class MockEventBus implements IEventBus {
 
     events.push(event);
     this.eventStore.set(aggregateId, events);
-    
+
     return event.eventId;
   }
 
@@ -1085,7 +1080,7 @@ export class MockEventBus implements IEventBus {
     toVersion?: number,
   ): Promise<IDomainEvent[]> {
     const events = this.eventStore.get(aggregateId) || [];
-    
+
     let filtered = events;
     if (fromVersion !== undefined) {
       filtered = filtered.filter((_, index) => index >= fromVersion);
@@ -1093,7 +1088,7 @@ export class MockEventBus implements IEventBus {
     if (toVersion !== undefined) {
       filtered = filtered.filter((_, index) => index <= toVersion);
     }
-    
+
     return filtered;
   }
 
@@ -1220,11 +1215,10 @@ export class MockEventBus implements IEventBus {
   }
 }
 
-
 export interface IAuditService {
   /**
    * Log an audit event
-   * 
+   *
    * @param data - Audit log data
    * @returns Promise that resolves when audit is logged
    */
