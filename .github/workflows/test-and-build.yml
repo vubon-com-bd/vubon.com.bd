@@ -23,17 +23,22 @@ jobs:
         cache: 'npm'
         cache-dependency-path: '**/package-lock.json'
 
-    # ৩. ভার্সন কনফ্লিক্ট এড়াতে --legacy-peer-deps সহ ইনস্টল করা
+    # ৩. পোস্ট-ইনস্টল স্ক্রিপ্ট ইগনোর করে প্যাকেজ ইনস্টল করা (Prisma এরর এড়াতে)
     - name: Install dependencies
       working-directory: apps/auth-service
-      run: npm install --legacy-peer-deps
+      run: npm install --legacy-peer-deps --ignore-scripts
 
-    # ৪. টেস্ট রান করা
+    # ৪. সঠিক পাথের স্কিমা ফাইলটি ব্যবহার করে প্রিজমা ক্লায়েন্ট জেনারেট করা
+    - name: Generate Prisma Client
+      working-directory: apps/auth-service
+      run: npx prisma generate --schema=src/module/infrastructure/persistence/prisma/schema/schema.prisma
+
+    # ৫. টেস্ট রান করা
     - name: Run Tests
       working-directory: apps/auth-service
       run: npm test --if-present
 
-    # ৫. প্রজেক্ট বিল্ড করা
+    # ৬. প্রজেক্ট বিল্ড করা
     - name: Build Project
       working-directory: apps/auth-service
       run: npm run build --if-present
