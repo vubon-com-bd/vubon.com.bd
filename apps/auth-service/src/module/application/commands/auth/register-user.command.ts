@@ -1,8 +1,4 @@
 /**
- * Register DTOs - Pure Data Transport Objects (Enterprise Enhanced v2.0)
- * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- */
-/**
  * Register User Command - Pure Command Data Structure (Enterprise Enhanced v3.2)
  * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
  * 
@@ -188,6 +184,7 @@ export interface UserPreferences {
   /** Age for verification (18+ for vendor, 13+ for customer) */
   age?: number | undefined;
 }
+
 /**
  * Command options interface (Builder pattern)
  */
@@ -1102,11 +1099,10 @@ export class RegisterUserCommand {
   /**
    * Convert to string for logging (sensitive data masked)
    */
-public toString(): string {
-    return `RegisterUserCommand(id=${this.commandId.slice(0, 8)}..., email=${this.getMaskedEmail()}, phone=${this.getMaskedPhone()}, hasPhone=${this.hasPhone()}, preferredLanguage=${this.preferr[...]
-    //                                                                                                                                                                                  ↑
-    //                                                                                                                                                                    String cut off!
-}
+  public toString(): string {
+    return `RegisterUserCommand(id=${this.commandId.slice(0, 8)}..., email=${this.getMaskedEmail()}, phone=${this.getMaskedPhone()}, hasPhone=${this.hasPhone()}, preferredLanguage=${this.preferredLanguage}, registrationMethod=${this.registrationMethod}, deviceInfo=${this.deviceInfo ? '{...}' : 'none'})`;
+  }
+
   /**
    * Get summary for logging
    */
