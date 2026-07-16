@@ -84,9 +84,11 @@ const VALIDATION_MESSAGES = {
     passwordMinLength: (min: number) => `Password must be at least ${min} characters long`,
     passwordMaxLength: (max: number) => `Password cannot exceed ${max} characters`,
     phoneRequired: 'Phone number is required',
-    phoneInvalid: 'Please provide a valid Bangladesh phone number (e.g., +8801712345678 or 01712345678)',
+    phoneInvalid:
+      'Please provide a valid Bangladesh phone number (e.g., +8801712345678 or 01712345678)',
     usernameRequired: 'Username is required',
-    usernameInvalid: 'Username must be 3-20 characters and can contain letters, numbers, dots, and underscores',
+    usernameInvalid:
+      'Username must be 3-20 characters and can contain letters, numbers, dots, and underscores',
     firstNameRequired: 'First name is required',
     firstNameMinLength: 'First name must be at least 2 characters',
     firstNameMaxLength: 'First name cannot exceed 50 characters',
@@ -131,7 +133,8 @@ const VALIDATION_MESSAGES = {
     phoneRequired: 'ফোন নম্বর প্রয়োজন',
     phoneInvalid: 'একটি সঠিক বাংলাদেশ ফোন নম্বর দিন (যেমন: +8801712345678 বা 01712345678)',
     usernameRequired: 'ইউজারনাম প্রয়োজন',
-    usernameInvalid: 'ইউজারনাম ৩-২০ অক্ষরের হতে হবে এবং এতে অক্ষর, সংখ্যা, ডট ও আন্ডারস্কোর থাকতে পারে',
+    usernameInvalid:
+      'ইউজারনাম ৩-২০ অক্ষরের হতে হবে এবং এতে অক্ষর, সংখ্যা, ডট ও আন্ডারস্কোর থাকতে পারে',
     firstNameRequired: 'প্রথম নাম প্রয়োজন',
     firstNameMinLength: 'প্রথম নাম কমপক্ষে ২ অক্ষরের হতে হবে',
     firstNameMaxLength: 'প্রথম নাম সর্বোচ্চ ৫০ অক্ষর হতে পারে',
@@ -175,15 +178,13 @@ const VALIDATION_MESSAGES = {
 function getValidationMessage(
   key: keyof typeof VALIDATION_MESSAGES.en,
   args?: unknown[],
-  locale: 'en' | 'bn' = 'en'
+  locale: 'en' | 'bn' = 'en',
 ): string {
-  const messageFn = VALIDATION_MESSAGES[locale][key] as
-    | ((...args: unknown[]) => string)
-    | string;
+  const messageFn = VALIDATION_MESSAGES[locale][key] as ((...args: unknown[]) => string) | string;
   if (typeof messageFn === 'function') {
     return messageFn(...(args || []));
   }
-  return messageFn || VALIDATION_MESSAGES.en[key] as string;
+  return messageFn || (VALIDATION_MESSAGES.en[key] as string);
 }
 
 // ============================================================
@@ -208,7 +209,7 @@ export type TUserTier = SharedUserTier;
 /**
  * User role type (from shared-constants)
  */
-export type TUserRole = typeof AUTH_PROVIDERS[keyof typeof AUTH_PROVIDERS];
+export type TUserRole = (typeof AUTH_PROVIDERS)[keyof typeof AUTH_PROVIDERS];
 
 // ============================================================
 // ✅ ENTERPRISE ENHANCEMENT: Client Info DTO
@@ -282,7 +283,6 @@ export class RegisterClientInfoDto {
   @MaxLength(100)
   district?: string | undefined;
 }
-
 
 // ============================================================
 // ✅ FIXED: Registration Rate Limit DTO
@@ -508,6 +508,19 @@ export class EmailRegisterDto extends BaseRegisterDto {
   @IsBoolean({ message: 'Marketing consent must be a boolean' })
   marketingConsent?: boolean = false;
 
+  // register.dto.ts - EmailRegisterDto ক্লাসের ভিতরে যোগ করুন
+
+  @ApiPropertyOptional({
+    description: 'Phone number (optional, for phone verification)',
+    example: '+8801712345678',
+  })
+  @IsOptional()
+  @IsString()
+  @Matches(REGEX_PHONE.BANGLADESH_ALL, {
+    message: 'Invalid Bangladesh phone number format',
+  })
+  phoneNumber?: string | undefined;
+
   @ApiPropertyOptional({
     description: 'Age confirmation (must be at least 13)',
     example: true,
@@ -544,7 +557,7 @@ export class EmailRegisterDto extends BaseRegisterDto {
     firstName: string,
     lastName: string,
     acceptTerms: boolean,
-    acceptPrivacy: boolean
+    acceptPrivacy: boolean,
   ) {
     super();
     this.email = email;
@@ -728,7 +741,7 @@ export class PhoneRegisterDto extends BaseRegisterDto {
     firstName: string,
     lastName: string,
     acceptTerms: boolean,
-    acceptPrivacy: boolean
+    acceptPrivacy: boolean,
   ) {
     super();
     this.phoneNumber = phoneNumber;
@@ -880,7 +893,7 @@ export class OTPRegisterDto extends BaseRegisterDto {
     firstName: string,
     lastName: string,
     acceptTerms: boolean,
-    acceptPrivacy: boolean
+    acceptPrivacy: boolean,
   ) {
     super();
     this.phoneNumber = phoneNumber;
@@ -1060,7 +1073,7 @@ export class UsernameRegisterDto extends BaseRegisterDto {
     firstName: string,
     lastName: string,
     acceptTerms: boolean,
-    acceptPrivacy: boolean
+    acceptPrivacy: boolean,
   ) {
     super();
     this.username = username;
@@ -1248,7 +1261,7 @@ export class SocialRegisterDto extends BaseRegisterDto {
     firstName: string,
     lastName: string,
     acceptTerms: boolean,
-    acceptPrivacy: boolean
+    acceptPrivacy: boolean,
   ) {
     super();
     this.provider = provider;
@@ -1325,7 +1338,7 @@ export class VendorRegisterDto extends BaseRegisterDto {
 
   @ApiProperty({
     description: 'Business name',
-    example: 'John\'s Electronics',
+    example: "John's Electronics",
     required: true,
     minLength: 2,
     maxLength: 100,
@@ -1505,7 +1518,7 @@ export class VendorRegisterDto extends BaseRegisterDto {
     password: string,
     confirmPassword: string,
     acceptTerms: boolean,
-    acceptPrivacy: boolean
+    acceptPrivacy: boolean,
   ) {
     super();
     this.email = email;
@@ -1590,7 +1603,7 @@ export class RegisterResponseDto {
   })
   messageBn?: string | undefined;
 
-   @ApiPropertyOptional({
+  @ApiPropertyOptional({
     description: 'Whether approval is required (for vendors)',
     example: false,
     default: false,
@@ -1617,17 +1630,17 @@ export class RegisterResponseDto {
   })
   rateLimit?: RegistrationRateLimitDto | undefined;
 
- constructor(
+  constructor(
     success: boolean,
     userId: string,
     emailVerificationRequired: boolean = false,
     phoneVerificationRequired: boolean = false,
     message?: string,
     messageBn?: string,
-    requiresApproval: boolean = false,  // ← ডিফল্ট false
+    requiresApproval: boolean = false, // ← ডিফল্ট false
     redirectUrl?: string,
     correlationId?: string,
-    rateLimit?: RegistrationRateLimitDto
+    rateLimit?: RegistrationRateLimitDto,
   ) {
     this.success = success;
     this.userId = userId;
@@ -1635,13 +1648,12 @@ export class RegisterResponseDto {
     this.phoneVerificationRequired = phoneVerificationRequired;
     this.message = message;
     this.messageBn = messageBn;
-    this.requiresApproval = requiresApproval;  // ✅ এখন কাজ করবে
+    this.requiresApproval = requiresApproval; // ✅ এখন কাজ করবে
     this.redirectUrl = redirectUrl;
     this.correlationId = correlationId;
     this.rateLimit = rateLimit;
   }
 }
-
 
 // ============================================================
 // ✅ ENTERPRISE ENHANCEMENT: Registration Error Response DTO
@@ -1714,7 +1726,7 @@ export class RegisterErrorResponseDto {
     statusCode?: number,
     messageBn?: string,
     field?: string,
-    correlationId?: string
+    correlationId?: string,
   ) {
     this.statusCode = statusCode || 400;
     this.message = message;
@@ -1742,7 +1754,7 @@ export function createRegisterSuccessResponse(
   requiresApproval?: boolean,
   redirectUrl?: string,
   correlationId?: string,
-  rateLimit?: RegistrationRateLimitDto
+  rateLimit?: RegistrationRateLimitDto,
 ): RegisterResponseDto {
   const defaultMessage = 'Registration successful';
   const defaultMessageBn = 'নিবন্ধন সফল হয়েছে';
@@ -1757,7 +1769,7 @@ export function createRegisterSuccessResponse(
     requiresApproval,
     redirectUrl,
     correlationId,
-    rateLimit
+    rateLimit,
   );
 }
 
@@ -1770,16 +1782,9 @@ export function createRegisterErrorResponse(
   statusCode: number = 400,
   messageBn?: string,
   field?: string,
-  correlationId?: string
+  correlationId?: string,
 ): RegisterErrorResponseDto {
-  return new RegisterErrorResponseDto(
-    message,
-    error,
-    statusCode,
-    messageBn,
-    field,
-    correlationId
-  );
+  return new RegisterErrorResponseDto(message, error, statusCode, messageBn, field, correlationId);
 }
 
 /**
@@ -1851,7 +1856,7 @@ export function getRegisterAuditMetadata(
     | UsernameRegisterDto
     | SocialRegisterDto
     | VendorRegisterDto,
-  userId: string
+  userId: string,
 ): RegistrationMetadata {
   return {
     source: 'web',
@@ -1861,7 +1866,14 @@ export function getRegisterAuditMetadata(
     deviceId: dto.deviceId,
     timestamp: new Date(),
     district: dto.clientInfo?.district,
-    networkType: dto.clientInfo?.networkType as '2g' | '3g' | '4g' | '5g' | 'wifi' | 'unknown' | undefined,
+    networkType: dto.clientInfo?.networkType as
+      | '2g'
+      | '3g'
+      | '4g'
+      | '5g'
+      | 'wifi'
+      | 'unknown'
+      | undefined,
   };
 }
 
