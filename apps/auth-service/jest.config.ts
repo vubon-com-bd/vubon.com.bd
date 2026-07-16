@@ -265,12 +265,15 @@ const config: Config.InitialOptions = {
   // Global Variables
   // ============================================================
   
-  globals: {
-    'ts-jest': {
+transform: {
+  '^.+\\.(t|j)s$': [
+    'ts-jest',
+    {
       isolatedModules: true,
       tsconfig: '<rootDir>/../tsconfig.json',
     },
-  },
+  ],
+},
   
   // ============================================================
   // Miscellaneous
