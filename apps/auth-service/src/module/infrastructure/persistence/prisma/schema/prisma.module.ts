@@ -1,12 +1,12 @@
 /**
  * Prisma Module - Enterprise Grade Database Module
- * 
+ *
  * @module infrastructure/persistence/prisma/prisma.module
- * 
+ *
  * @description
  * NestJS module for Prisma ORM integration.
  * Exports PrismaService for use across the application.
- * 
+ *
  * Enterprise Features:
  * ✅ Global module (available everywhere)
  * ✅ Configurable via forRoot/forRootAsync
@@ -14,7 +14,7 @@
  * ✅ Environment-aware configuration (SSOT with shared-config)
  * ✅ Graceful shutdown handling
  * ✅ Extensible with custom repositories
- * 
+ *
  * @example
  * // In your app.module.ts
  * @Module({
