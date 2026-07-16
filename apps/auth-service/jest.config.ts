@@ -141,10 +141,10 @@ const config: Config.InitialOptions = {
   setupFilesAfterEnv: ['<rootDir>/../test/jest.setup.ts'],
   
   /** Global setup runs once before all tests */
-  globalSetup: '<rootDir>/../test/global-setup.ts',
+ // globalSetup: '<rootDir>/../test/global-setup.ts',
   
   /** Global teardown runs once after all tests */
-  globalTeardown: '<rootDir>/../test/global-teardown.ts',
+ // globalTeardown: '<rootDir>/../test/global-teardown.ts',
   
   /** Test environment options */
   testEnvironmentOptions: {
