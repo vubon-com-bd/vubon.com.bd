@@ -15,18 +15,18 @@ jobs:
     - name: Checkout repository code
       uses: actions/checkout@v4
 
-    # ২. নোড সেটআপ করা এবং 'apps' ফোল্ডারের লক ফাইল ট্র্যাক করা
+    # ২. নোড সেটআপ করা
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
-        cache-dependency-path: apps/auth-service/package-lock.json # 'app' পরিবর্তন করে 'apps' করা হয়েছে
+        cache-dependency-path: '**/package-lock.json' # লক ফাইল যেখানেই থাকুক অটো-ডিটেক্ট করবে
 
-    # ৩. সঠিক ফোল্ডারে (apps) ঢুকে প্যাকেজ ইনস্টল করা
+    # ৩. 'npm ci' এর বদলে 'npm install' ব্যবহার করা
     - name: Install dependencies
-      working-directory: apps/auth-service # 'app' পরিবর্তন করে 'apps' করা হয়েছে
-      run: npm ci
+      working-directory: apps/auth-service
+      run: npm install
 
     # ৪. টেস্ট রান করা
     - name: Run Tests
