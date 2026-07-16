@@ -1,11 +1,6 @@
 /**
- * Register DTOs - Pure Data Transport Objects (Enterprise Enhanced v2.0)
- * Enterprise Grade for vubon.com.bd - Bangladesh's #1 E-commerce
- *
-
-/**
  * User Mapper - Application Layer (Enterprise Grade)
- * 
+ *
  * @module application/mappers/user.mapper
  */
 
@@ -238,7 +233,7 @@ export class UserMapper {
     idGenerator: IdGenerator,
     emailValidator: IEmailValidator,
     passwordValidator: IPasswordValidator,
-    phoneValidator: IPhoneValidator
+    phoneValidator: IPhoneValidator,
   ): User {
     const email = new Email(command.email, emailValidator);
     const password = new Password(hashedPassword, passwordValidator);
@@ -251,7 +246,7 @@ export class UserMapper {
       idGenerator,
       phone,
       command.preferredLanguage,
-      command.deviceInfo?.mobileOperator // DeviceInfo থেকে নিন
+      command.deviceInfo?.mobileOperator, // DeviceInfo থেকে নিন
     );
 
     // Role and Tier set করা (যদি কমান্ডে থাকে)
@@ -294,97 +289,81 @@ export class UserMapper {
   }
 
   // ============================================================
-// user.mapper.ts - সঠিক উপায়
-// ============================================================
+  // user.mapper.ts - সঠিক উপায়
+  // ============================================================
 
-/**
- * Update existing User from UpdateProfileDto
- */
-public static updateFromDto(
-  user: User,
-  dto: UpdateProfileDto,
-  updatedBy?: string
-): User {
-  // ✅ User এন্টিটির পাবলিক মেথড ব্যবহার করুন
-  // এই মেথডগুলোর ভিতরেই touch() কল হবে
-  if (dto.fullName) {
-    user.updateFullName(dto.fullName, updatedBy);
-  }
-
-  if (dto.displayName !== undefined) {
-    if (dto.displayName) {
-      user.updateDisplayName(dto.displayName, updatedBy);
-    } else {
-      user.clearDisplayName(updatedBy);
+  /**
+   * Update existing User from UpdateProfileDto
+   */
+  public static updateFromDto(user: User, dto: UpdateProfileDto, updatedBy?: string): User {
+    // ✅ User এন্টিটির পাবলিক মেথড ব্যবহার করুন
+    // এই মেথডগুলোর ভিতরেই touch() কল হবে
+    if (dto.fullName) {
+      user.updateFullName(dto.fullName, updatedBy);
     }
-  }
 
-  if (dto.avatar !== undefined) {
-    if (dto.avatar) {
-      user.updateAvatar(dto.avatar, updatedBy);
-    } else {
-      user.clearAvatar(updatedBy);
+    if (dto.displayName !== undefined) {
+      if (dto.displayName) {
+        user.updateDisplayName(dto.displayName, updatedBy);
+      } else {
+        user.clearDisplayName(updatedBy);
+      }
     }
+
+    if (dto.avatar !== undefined) {
+      if (dto.avatar) {
+        user.updateAvatar(dto.avatar, updatedBy);
+      } else {
+        user.clearAvatar(updatedBy);
+      }
+    }
+
+    if (dto.preferredLanguage) {
+      user.setPreferredLanguage(dto.preferredLanguage, updatedBy);
+    }
+
+    if (dto.preferredDistrict) {
+      user.setPreferredDistrict(dto.preferredDistrict, updatedBy);
+    }
+
+    if (dto.preferredUpazila) {
+      user.setPreferredUpazila(dto.preferredUpazila, updatedBy);
+    }
+
+    if (dto.preferredOperator) {
+      user.setPreferredOperator(dto.preferredOperator, updatedBy);
+    }
+
+    if (dto.mobileNetworkType) {
+      user.setMobileNetworkType(dto.mobileNetworkType, updatedBy);
+    }
+
+    return user;
   }
 
-  if (dto.preferredLanguage) {
-    user.setPreferredLanguage(dto.preferredLanguage, updatedBy);
+  /**
+   * Update User Role
+   */
+  public static updateRole(user: User, dto: UpdateRoleDto, updatedBy?: string): User {
+    user.changeRole(dto.role, updatedBy); // ✅ changeRole() এর ভিতর touch() কল হবে
+    return user;
   }
 
-  if (dto.preferredDistrict) {
-    user.setPreferredDistrict(dto.preferredDistrict, updatedBy);
+  /**
+   * Update User Tier
+   */
+  public static updateTier(user: User, dto: UpdateTierDto, updatedBy?: string): User {
+    user.changeTier(dto.tier, updatedBy); // ✅ changeTier() এর ভিতর touch() কল হবে
+    return user;
   }
 
-  if (dto.preferredUpazila) {
-    user.setPreferredUpazila(dto.preferredUpazila, updatedBy);
+  /**
+   * Update User Status
+   */
+  public static updateStatus(user: User, dto: UpdateStatusDto, updatedBy?: string): User {
+    user.changeStatus(dto.status, dto.reason, updatedBy); // ✅ changeStatus() এর ভিতর touch() কল হবে
+    return user;
   }
-
-  if (dto.preferredOperator) {
-    user.setPreferredOperator(dto.preferredOperator, updatedBy);
-  }
-
-  if (dto.mobileNetworkType) {
-    user.setMobileNetworkType(dto.mobileNetworkType, updatedBy);
-  }
-
-  return user;
-}
-
-/**
- * Update User Role
- */
-public static updateRole(
-  user: User,
-  dto: UpdateRoleDto,
-  updatedBy?: string
-): User {
-  user.changeRole(dto.role, updatedBy); // ✅ changeRole() এর ভিতর touch() কল হবে
-  return user;
-}
-
-/**
- * Update User Tier
- */
-public static updateTier(
-  user: User,
-  dto: UpdateTierDto,
-  updatedBy?: string
-): User {
-  user.changeTier(dto.tier, updatedBy); // ✅ changeTier() এর ভিতর touch() কল হবে
-  return user;
-}
-
-/**
- * Update User Status
- */
-public static updateStatus(
-  user: User,
-  dto: UpdateStatusDto,
-  updatedBy?: string
-): User {
-  user.changeStatus(dto.status, dto.reason, updatedBy); // ✅ changeStatus() এর ভিতর touch() কল হবে
-  return user;
-}
   /**
    * Convert User to persistence object
    */
@@ -467,7 +446,7 @@ public static updateStatus(
     },
     emailValidator: IEmailValidator,
     passwordValidator: IPasswordValidator,
-    phoneValidator: IPhoneValidator
+    phoneValidator: IPhoneValidator,
   ): User {
     const email = new Email(data.email, emailValidator);
     const password = new Password(data.password, passwordValidator);
