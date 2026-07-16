@@ -15,26 +15,25 @@ jobs:
     - name: Checkout repository code
       uses: actions/checkout@v4
 
-    # ২. নোড সেটআপ করা (ক্যাশিং পাথ অটোমেশন করে দেওয়া হলো)
+    # ২. নোড সেটআপ করা এবং 'apps' ফোল্ডারের লক ফাইল ট্র্যাক করা
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
-        # গিটহাব নিজে খুঁজে নেবে ফাইলটি যেখানেই থাকুক
-        cache-dependency-path: '**/package-lock.json' 
+        cache-dependency-path: apps/auth-service/package-lock.json # 'app' পরিবর্তন করে 'apps' করা হয়েছে
 
-    # ৩. auth-service ফোল্ডারে ঢুকে প্যাকেজ ইনস্টল করা
+    # ৩. সঠিক ফোল্ডারে (apps) ঢুকে প্যাকেজ ইনস্টল করা
     - name: Install dependencies
-      working-directory: app/auth-service
-      run: npm install # npm ci এর বদলে npm install দিলে লক ফাইল মিসিং হলেও এরর দেয় না
+      working-directory: apps/auth-service # 'app' পরিবর্তন করে 'apps' করা হয়েছে
+      run: npm ci
 
     # ৪. টেস্ট রান করা
     - name: Run Tests
-      working-directory: app/auth-service
+      working-directory: apps/auth-service
       run: npm test --if-present
 
     # ৫. প্রজেক্ট বিল্ড করা
     - name: Build Project
-      working-directory: app/auth-service
+      working-directory: apps/auth-service
       run: npm run build --if-present
