@@ -21,12 +21,12 @@ jobs:
       with:
         node-version: '20'
         cache: 'npm'
-        cache-dependency-path: '**/package-lock.json' # লক ফাইল যেখানেই থাকুক অটো-ডিটেক্ট করবে
+        cache-dependency-path: '**/package-lock.json'
 
-    # ৩. 'npm ci' এর বদলে 'npm install' ব্যবহার করা
+    # ৩. ভার্সন কনফ্লিক্ট এড়াতে --legacy-peer-deps সহ ইনস্টল করা
     - name: Install dependencies
       working-directory: apps/auth-service
-      run: npm install
+      run: npm install --legacy-peer-deps
 
     # ৪. টেস্ট রান করা
     - name: Run Tests
