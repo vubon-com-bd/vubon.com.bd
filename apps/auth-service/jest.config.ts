@@ -214,12 +214,12 @@ const config: Config.InitialOptions = {
   // Watch Mode Plugins (Better Developer Experience)
   // ============================================================
   
-  watchPlugins: [
-    'jest-watch-typeahead/filename',
-    'jest-watch-typeahead/testname',
-    'jest-watch-select-projects',
-    'jest-watch-suspend',
-  ],
+ // watchPlugins: [
+   // 'jest-watch-typeahead/filename',
+   // 'jest-watch-typeahead/testname',
+  //  'jest-watch-select-projects',
+  //  'jest-watch-suspend',
+//  ],
   
   // ============================================================
   // Reporters (CI/CD Integration)
