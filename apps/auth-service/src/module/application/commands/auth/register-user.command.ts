@@ -65,10 +65,6 @@ export class CommandValidationError extends Error {
   }
 }
 
-// ============================================================
-// Types (Enhanced with shared types)
-// ============================================================
-
 /**
  * Device information for registration tracking (Bangladesh specific)
  * ✅ FIXED: All optional properties explicitly include `| undefined`
