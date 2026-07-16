@@ -36,7 +36,16 @@ import { env } from '@vubon/shared-config';
 /**
  * JWT algorithm types
  */
-export type JWTAlgorithm = 'HS256' | 'HS384' | 'HS512' | 'RS256' | 'RS384' | 'RS512' | 'ES256' | 'ES384' | 'ES512';
+export type JWTAlgorithm =
+  | 'HS256'
+  | 'HS384'
+  | 'HS512'
+  | 'RS256'
+  | 'RS384'
+  | 'RS512'
+  | 'ES256'
+  | 'ES384'
+  | 'ES512';
 
 /**
  * Secret Manager provider types
@@ -244,7 +253,7 @@ class AWSSecretsManager implements SecretManager {
     const envValue = process.env[secretId];
     if (envValue) return envValue;
     throw new Error(`Secret ${secretId} not found in AWS Secrets Manager`);
-}
+  }
   async getSecretVersion(secretId: string): Promise<{ value: string; version: string }> {
     // In real implementation, get the latest version
     const value = await this.getSecret(secretId);
@@ -264,7 +273,7 @@ class HashiCorpVaultSecretManager implements SecretManager {
   // ✅ endpoint ও token প্যারামিটার ব্যবহার করা হচ্ছে না, কিন্তু কনস্ট্রাক্টরের জন্য প্রয়োজন
   constructor(
     private endpoint: string,
-    private token: string
+    private token: string,
   ) {
     // In real implementation, initialize Vault client
     // this.client = new vault.Vault({ endpoint, token });
@@ -305,7 +314,8 @@ class HashiCorpVaultSecretManager implements SecretManager {
  */
 const buildJWTConfig = (): JWTConfig => {
   // Determine algorithm (RS256 for production, HS256 for development)
-  const algorithm = (process.env.JWT_ALGORITHM as JWTAlgorithm) || (isProduction ? 'RS256' : 'HS256');
+  const algorithm =
+    (process.env.JWT_ALGORITHM as JWTAlgorithm) || (isProduction ? 'RS256' : 'HS256');
 
   // Get secret from environment (for fallback)
   const secret = process.env.JWT_SECRET || '';
@@ -319,21 +329,20 @@ const buildJWTConfig = (): JWTConfig => {
   if (isHS && (!secret || secret.length < 32)) {
     throw new Error(
       `JWT_SECRET must be at least 32 characters for ${algorithm} algorithm. ` +
-      `Current length: ${secret?.length || 0}`
+        `Current length: ${secret?.length || 0}`,
     );
   }
 
   // Validate keys for RS/ES algorithms
   const isRS = algorithm.startsWith('RS') || algorithm.startsWith('ES');
   if (isRS && (!publicKey || !privateKey)) {
-    throw new Error(
-      `JWT_PUBLIC_KEY and JWT_PRIVATE_KEY are required for ${algorithm} algorithm`
-    );
+    throw new Error(`JWT_PUBLIC_KEY and JWT_PRIVATE_KEY are required for ${algorithm} algorithm`);
   }
 
   // Secret Manager configuration
-  const provider = (process.env.SECRET_MANAGER_PROVIDER as SecretManagerProvider) ||
-                   (isProduction ? 'aws' : 'environment');
+  const provider =
+    (process.env.SECRET_MANAGER_PROVIDER as SecretManagerProvider) ||
+    (isProduction ? 'aws' : 'environment');
 
   // ✅ exactOptionalPropertyTypes সমাধান: undefined মানগুলি বাদ দেওয়া হয়েছে
   const secretManager: SecretManagerConfig = {
@@ -342,12 +351,14 @@ const buildJWTConfig = (): JWTConfig => {
     cacheTTLSeconds: parseInt(process.env.SECRET_CACHE_TTL || '300', 10),
     enableRotation: process.env.SECRET_ENABLE_ROTATION !== 'false',
     rotationCheckIntervalSeconds: parseInt(
-      process.env.SECRET_ROTATION_CHECK_INTERVAL || '3600', 10
+      process.env.SECRET_ROTATION_CHECK_INTERVAL || '3600',
+      10,
     ),
   };
 
   // শুধুমাত্র region থাকলে যোগ করুন
-  const region = process.env.SECRET_MANAGER_REGION || (provider === 'aws' ? 'us-east-1' : undefined);
+  const region =
+    process.env.SECRET_MANAGER_REGION || (provider === 'aws' ? 'us-east-1' : undefined);
   if (region) {
     secretManager.region = region;
   }
@@ -639,7 +650,7 @@ class JWTConfigManager {
 
     try {
       const { value, version } = await this.secretManager.getSecretVersion(
-        this.config.secretManager.secretId
+        this.config.secretManager.secretId,
       );
 
       this.currentSecret = {
@@ -650,8 +661,7 @@ class JWTConfigManager {
       };
 
       // Also fetch public/private keys if using asymmetric algorithm
-      const isRS = this.config.algorithm.startsWith('RS') ||
-                   this.config.algorithm.startsWith('ES');
+      const isRS = this.config.algorithm.startsWith('RS') || this.config.algorithm.startsWith('ES');
       if (isRS) {
         try {
           const publicKey = await this.secretManager.getSecret('JWT_PUBLIC_KEY');
@@ -668,7 +678,10 @@ class JWTConfigManager {
       }
     } catch (error) {
       // Use environment fallback
-      console.warn('Failed to fetch secrets from secret manager, using environment fallback:', error);
+      console.warn(
+        'Failed to fetch secrets from secret manager, using environment fallback:',
+        error,
+      );
     }
   }
 
@@ -704,16 +717,14 @@ class JWTConfigManager {
 
     try {
       // List available versions
-      const versions = await this.secretManager.listVersions(
-        this.config.secretManager.secretId
-      );
+      const versions = await this.secretManager.listVersions(this.config.secretManager.secretId);
 
       // Update version cache
       for (const version of versions) {
         if (!this.secretVersions.has(version)) {
           const value = await this.secretManager.getSecret(
             this.config.secretManager.secretId,
-            version
+            version,
           );
           this.secretVersions.set(version, {
             value,
@@ -725,23 +736,23 @@ class JWTConfigManager {
       }
 
       // Check if current secret is still the latest
-const latestVersion = versions.length > 0 ? versions[versions.length - 1] : undefined;
-if (this.currentSecret && latestVersion && this.currentSecret.version !== latestVersion) {
-  // New version detected
-  const newSecret = this.secretVersions.get(latestVersion);
-  if (newSecret) {
-    // Grace period: keep old secret valid for a while
-    const gracePeriodMs = this.config.rotation.gracePeriodSeconds * 1000;
+      const latestVersion = versions.length > 0 ? versions[versions.length - 1] : undefined;
+      if (this.currentSecret && latestVersion && this.currentSecret.version !== latestVersion) {
+        // New version detected
+        const newSecret = this.secretVersions.get(latestVersion);
+        if (newSecret) {
+          // Grace period: keep old secret valid for a while
+          const gracePeriodMs = this.config.rotation.gracePeriodSeconds * 1000;
 
-    // Schedule switch to new secret after grace period
-    setTimeout(() => {
-      this.rotateToVersion(latestVersion);
-    }, gracePeriodMs);
+          // Schedule switch to new secret after grace period
+          setTimeout(() => {
+            this.rotateToVersion(latestVersion);
+          }, gracePeriodMs);
 
-    // Notify about rotation
-    this.notifyRotation(newSecret);
-  }
-}
+          // Notify about rotation
+          this.notifyRotation(newSecret);
+        }
+      }
     } catch (error) {
       console.error('Rotation check failed:', error);
     }
@@ -760,7 +771,7 @@ if (this.currentSecret && latestVersion && this.currentSecret.version !== latest
     if (this.currentSecret) {
       this.currentSecret.isCurrent = false;
       this.currentSecret.expiresAt = new Date(
-        Date.now() + this.config.rotation.gracePeriodSeconds * 1000
+        Date.now() + this.config.rotation.gracePeriodSeconds * 1000,
       );
       this.secretVersions.set(this.currentSecret.version, this.currentSecret);
     }
@@ -775,7 +786,7 @@ if (this.currentSecret && latestVersion && this.currentSecret.version !== latest
     this.cache.set(
       this.config.secretManager.secretId,
       this.currentSecret.value,
-      this.config.secretManager.cacheTTLSeconds || 300
+      this.config.secretManager.cacheTTLSeconds || 300,
     );
 
     // Clean up old versions
@@ -787,12 +798,11 @@ if (this.currentSecret && latestVersion && this.currentSecret.version !== latest
    */
   private cleanupOldVersions(): void {
     const { maxVersions } = this.config.rotation;
-    const sortedVersions = Array.from(this.secretVersions.keys())
-      .sort((a, b) => {
-        const va = this.secretVersions.get(a);
-        const vb = this.secretVersions.get(b);
-        return (va?.activatedAt?.getTime() || 0) - (vb?.activatedAt?.getTime() || 0);
-      });
+    const sortedVersions = Array.from(this.secretVersions.keys()).sort((a, b) => {
+      const va = this.secretVersions.get(a);
+      const vb = this.secretVersions.get(b);
+      return (va?.activatedAt?.getTime() || 0) - (vb?.activatedAt?.getTime() || 0);
+    });
 
     while (sortedVersions.length > maxVersions) {
       const oldest = sortedVersions.shift();
@@ -922,12 +932,18 @@ export const getExpiryInSeconds = (expiry: string): number => {
   const value = parseInt(expiry.slice(0, -1), 10);
 
   switch (unit) {
-    case 's': return value;
-    case 'm': return value * 60;
-    case 'h': return value * 60 * 60;
-    case 'd': return value * 60 * 60 * 24;
-    case 'w': return value * 60 * 60 * 24 * 7;
-    default: return parseInt(expiry, 10);
+    case 's':
+      return value;
+    case 'm':
+      return value * 60;
+    case 'h':
+      return value * 60 * 60;
+    case 'd':
+      return value * 60 * 60 * 24;
+    case 'w':
+      return value * 60 * 60 * 24 * 7;
+    default:
+      return parseInt(expiry, 10);
   }
 };
 
