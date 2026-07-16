@@ -172,10 +172,10 @@ const config: Config.InitialOptions = {
   bail: false,
   
   /** Desktop notifications for test results */
-  notify: true,
+//  notify: true,
   
   /** Notification mode */
-  notifyMode: 'failure-change',
+ // notifyMode: 'failure-change',
   
   // ============================================================
   // Cache Settings (For CI/CD Performance)
