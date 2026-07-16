@@ -16,31 +16,6 @@
   "htmlWhitespaceSensitivity": "css",
   "vueIndentScriptAndStyle": false,
   "embeddedLanguageFormatting": "auto",
-
-"plugins": [
-  "@trivago/prettier-plugin-sort-imports"
-],
-  "importOrder": [
-    "^(node:.*)$",
-    "^(@nestjs/.*)$",
-    "^(@prisma/.*)$",
-    "^(reflect-metadata|rxjs|class-validator|class-transformer)$",
-    "^(@vubon/shared-constants)$",
-    "^(@vubon/shared-types)$",
-    "^(@vubon/shared-schemas)$",
-    "^(@vubon/shared-utils)$",
-    "^(@vubon/shared-config)$",
-    "^(@domain/.*)$",
-    "^(@application/.*)$",
-    "^(@infrastructure/.*)$",
-    "^(@interfaces/.*)$",
-    "^(@modules/.*)$",
-    "^(@config/.*)$",
-    "^(@common/.*)$",
-    "^(@test/.*)$",
-    "^@/(.*)$",
-    "^[./]"
-  ],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
   "importOrderGroupNamespaceSpecifiers": true,
