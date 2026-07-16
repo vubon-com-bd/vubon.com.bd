@@ -1,13 +1,13 @@
 /**
  * Rate Limiter Port - Domain Layer Interface (Enterprise Grade)
- * 
+ *
  * @module domain/ports/rate-limiter.port
- * 
+ *
  * @description
  * Port (interface) for rate limiting operations.
  * Defines the contract that infrastructure adapters (Redis, etc.) must implement.
  * This keeps the domain layer clean and infrastructure-agnostic.
- * 
+ *
  * Enterprise Rules:
  * ✅ Domain layer defines the interface (Port)
  * ✅ Infrastructure layer implements the interface (Adapter)
@@ -17,12 +17,12 @@
  * ✅ Supports multiple rate limit strategies (fixed window, sliding window, token bucket, etc.)
  * ✅ Supports per-user, per-IP, per-endpoint, and custom rate limits
  * ✅ Bangladesh specific - supports district-based and operator-based rate limiting
- * 
+ *
  * @example
  * // Domain usage
  * class AuthenticationService {
  *   constructor(private readonly rateLimiter: IRateLimiter) {}
- *   
+ *
  *   async login(email: string, ipAddress: string): Promise<void> {
  *     const key = `login:${email}:${ipAddress}`;
  *     const allowed = await this.rateLimiter.allow(key, 5, 60);
@@ -32,7 +32,7 @@
  *     // ... login logic
  *   }
  * }
- * 
+ *
  * // Infrastructure implementation
  * class RedisRateLimiter implements IRateLimiter {
  *   async allow(key: string, limit: number, windowSeconds: number): Promise<boolean> {
@@ -167,10 +167,10 @@ export interface RateLimitViolation {
 
 /**
  * Rate Limiter Port Interface
- * 
+ *
  * Defines the contract for rate limiting operations.
  * All rate limiting should go through this interface.
- * 
+ *
  * Enterprise Features:
  * ✅ Multiple rate limit strategies (fixed, sliding, token-bucket)
  * ✅ Per-user, per-IP, per-endpoint, and custom rate limits
@@ -179,21 +179,21 @@ export interface RateLimitViolation {
  * ✅ Reset and clear rate limits
  * ✅ Batch rate limit checking
  * ✅ Bangladesh specific - district-based and operator-based rate limiting
- * 
+ *
  * @example
  * // Using the port in domain service
  * class LoginService {
  *   constructor(private readonly rateLimiter: IRateLimiter) {}
- * 
+ *
  *   async login(email: string, ipAddress: string): Promise<void> {
  *     // Check rate limit by email and IP
  *     const key = `login:${email}:${ipAddress}`;
  *     const result = await this.rateLimiter.check(key, 5, 60);
- *     
+ *
  *     if (!result.allowed) {
  *       throw new Error(`Too many login attempts. Try again in ${result.retryAfterSeconds} seconds.`);
  *     }
- *     
+ *
  *     // ... login logic
  *   }
  * }
@@ -205,13 +205,13 @@ export interface IRateLimiter {
 
   /**
    * Check if a request is allowed under the rate limit
-   * 
+   *
    * @param key - Rate limit key (e.g., 'login:user@example.com')
    * @param limit - Maximum requests allowed in the window
    * @param windowSeconds - Window duration in seconds
    * @param strategy - Rate limit strategy (optional)
    * @returns Rate limit result
-   * 
+   *
    * @example
    * const result = await rateLimiter.check('login:user@example.com', 5, 60);
    * if (result.allowed) {
@@ -229,13 +229,13 @@ export interface IRateLimiter {
 
   /**
    * Allow a request (increment counter and check if allowed)
-   * 
+   *
    * @param key - Rate limit key
    * @param limit - Maximum requests allowed in the window
    * @param windowSeconds - Window duration in seconds
    * @param strategy - Rate limit strategy (optional)
    * @returns True if request is allowed
-   * 
+   *
    * @example
    * const allowed = await rateLimiter.allow('login:user@example.com', 5, 60);
    * if (allowed) {
@@ -251,27 +251,23 @@ export interface IRateLimiter {
 
   /**
    * Increment the rate limit counter without checking
-   * 
+   *
    * @param key - Rate limit key
    * @param windowSeconds - Window duration in seconds
    * @param incrementBy - Amount to increment by (default: 1)
    * @returns New count
-   * 
+   *
    * @example
    * const count = await rateLimiter.increment('login:user@example.com', 60);
    */
-  increment(
-    key: string,
-    windowSeconds: number,
-    incrementBy?: number,
-  ): Promise<number>;
+  increment(key: string, windowSeconds: number, incrementBy?: number): Promise<number>;
 
   /**
    * Get the current count for a rate limit key
-   * 
+   *
    * @param key - Rate limit key
    * @returns Current count
-   * 
+   *
    * @example
    * const count = await rateLimiter.get('login:user@example.com');
    */
@@ -279,28 +275,24 @@ export interface IRateLimiter {
 
   /**
    * Get the current count and remaining time for a rate limit key
-   * 
+   *
    * @param key - Rate limit key
    * @param limit - Maximum requests allowed in the window
    * @param windowSeconds - Window duration in seconds
    * @returns Rate limit result
-   * 
+   *
    * @example
    * const result = await rateLimiter.getStatus('login:user@example.com', 5, 60);
    * console.log(`Remaining: ${result.remaining}, Reset in: ${result.resetInSeconds}s`);
    */
-  getStatus(
-    key: string,
-    limit: number,
-    windowSeconds: number,
-  ): Promise<RateLimitResult>;
+  getStatus(key: string, limit: number, windowSeconds: number): Promise<RateLimitResult>;
 
   /**
    * Reset a rate limit counter
-   * 
+   *
    * @param key - Rate limit key
    * @returns True if reset was successful
-   * 
+   *
    * @example
    * await rateLimiter.reset('login:user@example.com');
    */
@@ -308,10 +300,10 @@ export interface IRateLimiter {
 
   /**
    * Delete a rate limit counter
-   * 
+   *
    * @param key - Rate limit key
    * @returns True if deletion was successful
-   * 
+   *
    * @example
    * await rateLimiter.delete('login:user@example.com');
    */
@@ -323,11 +315,11 @@ export interface IRateLimiter {
 
   /**
    * Check rate limit with configuration
-   * 
+   *
    * @param key - Rate limit key
    * @param config - Rate limit configuration
    * @returns Rate limit result
-   * 
+   *
    * @example
    * const result = await rateLimiter.checkWithConfig('login:user@example.com', {
    *   limit: 5,
@@ -341,7 +333,7 @@ export interface IRateLimiter {
 
   /**
    * Allow a request with configuration
-   * 
+   *
    * @param key - Rate limit key
    * @param config - Rate limit configuration
    * @returns True if request is allowed
@@ -350,12 +342,12 @@ export interface IRateLimiter {
 
   /**
    * Check multiple rate limits at once
-   * 
+   *
    * @param keys - Array of rate limit keys
    * @param limits - Array of limits for each key
    * @param windowSeconds - Window duration in seconds
    * @returns Array of rate limit results
-   * 
+   *
    * @example
    * const results = await rateLimiter.checkBatch(
    *   ['user:123', 'ip:192.168.1.1'],
@@ -363,50 +355,38 @@ export interface IRateLimiter {
    *   60
    * );
    */
-  checkBatch(
-    keys: string[],
-    limits: number[],
-    windowSeconds: number,
-  ): Promise<RateLimitResult[]>;
+  checkBatch(keys: string[], limits: number[], windowSeconds: number): Promise<RateLimitResult[]>;
 
   /**
    * Allow multiple rate limits at once
-   * 
+   *
    * @param keys - Array of rate limit keys
    * @param limits - Array of limits for each key
    * @param windowSeconds - Window duration in seconds
    * @returns Array of booleans indicating if each request is allowed
    */
-  allowBatch(
-    keys: string[],
-    limits: number[],
-    windowSeconds: number,
-  ): Promise<boolean[]>;
+  allowBatch(keys: string[], limits: number[], windowSeconds: number): Promise<boolean[]>;
 
   /**
    * Get remaining limit for a key
-   * 
+   *
    * @param key - Rate limit key
    * @param limit - Maximum requests allowed in the window
    * @param windowSeconds - Window duration in seconds
    * @returns Remaining requests
-   * 
+   *
    * @example
    * const remaining = await rateLimiter.getRemaining('login:user@example.com', 5, 60);
    */
-  getRemaining(
-    key: string,
-    limit: number,
-    windowSeconds: number,
-  ): Promise<number>;
+  getRemaining(key: string, limit: number, windowSeconds: number): Promise<number>;
 
   /**
    * Get time until rate limit resets
-   * 
+   *
    * @param key - Rate limit key
    * @param windowSeconds - Window duration in seconds
    * @returns Seconds until reset
-   * 
+   *
    * @example
    * const seconds = await rateLimiter.getResetTime('login:user@example.com', 60);
    */
@@ -418,10 +398,10 @@ export interface IRateLimiter {
 
   /**
    * Record a rate limit violation
-   * 
+   *
    * @param violation - Rate limit violation details
    * @returns True if violation was recorded
-   * 
+   *
    * @example
    * await rateLimiter.recordViolation({
    *   key: 'login:user@example.com',
@@ -437,28 +417,24 @@ export interface IRateLimiter {
 
   /**
    * Get violation history for a key
-   * 
+   *
    * @param key - Rate limit key
    * @param limit - Maximum number of violations to return
    * @param offset - Offset for pagination
    * @returns Array of violations
-   * 
+   *
    * @example
    * const violations = await rateLimiter.getViolations('login:user@example.com', 10, 0);
    */
-  getViolations(
-    key: string,
-    limit?: number,
-    offset?: number,
-  ): Promise<RateLimitViolation[]>;
+  getViolations(key: string, limit?: number, offset?: number): Promise<RateLimitViolation[]>;
 
   /**
    * Get violation count for a key
-   * 
+   *
    * @param key - Rate limit key
    * @param windowSeconds - Window duration in seconds
    * @returns Number of violations
-   * 
+   *
    * @example
    * const count = await rateLimiter.getViolationCount('login:user@example.com', 3600);
    */
@@ -466,10 +442,10 @@ export interface IRateLimiter {
 
   /**
    * Check if a key is blocked
-   * 
+   *
    * @param key - Rate limit key
    * @returns True if key is blocked
-   * 
+   *
    * @example
    * const blocked = await rateLimiter.isBlocked('login:user@example.com');
    */
@@ -477,27 +453,23 @@ export interface IRateLimiter {
 
   /**
    * Block a key (permanently or temporarily)
-   * 
+   *
    * @param key - Rate limit key
    * @param durationSeconds - Duration to block (0 for permanent)
    * @param reason - Block reason
    * @returns True if key was blocked
-   * 
+   *
    * @example
    * await rateLimiter.block('login:user@example.com', 3600, 'Too many violations');
    */
-  block(
-    key: string,
-    durationSeconds?: number,
-    reason?: string,
-  ): Promise<boolean>;
+  block(key: string, durationSeconds?: number, reason?: string): Promise<boolean>;
 
   /**
    * Unblock a key
-   * 
+   *
    * @param key - Rate limit key
    * @returns True if key was unblocked
-   * 
+   *
    * @example
    * await rateLimiter.unblock('login:user@example.com');
    */
@@ -509,11 +481,11 @@ export interface IRateLimiter {
 
   /**
    * Set rate limit configuration for a key pattern
-   * 
+   *
    * @param pattern - Key pattern (e.g., 'login:*')
    * @param config - Rate limit configuration
    * @returns True if configuration was set
-   * 
+   *
    * @example
    * await rateLimiter.setConfig('login:*', {
    *   limit: 5,
@@ -525,10 +497,10 @@ export interface IRateLimiter {
 
   /**
    * Get rate limit configuration for a key pattern
-   * 
+   *
    * @param pattern - Key pattern
    * @returns Rate limit configuration or null if not found
-   * 
+   *
    * @example
    * const config = await rateLimiter.getConfig('login:*');
    */
@@ -536,10 +508,10 @@ export interface IRateLimiter {
 
   /**
    * Delete rate limit configuration for a key pattern
-   * 
+   *
    * @param pattern - Key pattern
    * @returns True if configuration was deleted
-   * 
+   *
    * @example
    * await rateLimiter.deleteConfig('login:*');
    */
@@ -547,9 +519,9 @@ export interface IRateLimiter {
 
   /**
    * Get all rate limit configurations
-   * 
+   *
    * @returns Map of patterns to configurations
-   * 
+   *
    * @example
    * const configs = await rateLimiter.getAllConfigs();
    */
@@ -561,11 +533,11 @@ export interface IRateLimiter {
 
   /**
    * Get statistics for a rate limit key
-   * 
+   *
    * @param key - Rate limit key
    * @param windowSeconds - Window duration in seconds
    * @returns Rate limit statistics
-   * 
+   *
    * @example
    * const stats = await rateLimiter.getStats('login:user@example.com', 3600);
    * console.log(`Total requests: ${stats.totalRequests}, Violations: ${stats.violations}`);
@@ -586,10 +558,10 @@ export interface IRateLimiter {
 
   /**
    * Get global rate limit statistics
-   * 
+   *
    * @param options - Filter options
    * @returns Global statistics
-   * 
+   *
    * @example
    * const stats = await rateLimiter.getGlobalStats({
    *   from: new Date('2024-01-01'),
@@ -617,29 +589,25 @@ export interface IRateLimiter {
 
   /**
    * Check rate limit by district (Bangladesh specific)
-   * 
+   *
    * @param district - District name
    * @param limit - Maximum requests allowed
    * @param windowSeconds - Window duration in seconds
    * @returns Rate limit result
-   * 
+   *
    * @example
    * const result = await rateLimiter.checkByDistrict('Dhaka', 100, 60);
    */
-  checkByDistrict(
-    district: string,
-    limit: number,
-    windowSeconds: number,
-  ): Promise<RateLimitResult>;
+  checkByDistrict(district: string, limit: number, windowSeconds: number): Promise<RateLimitResult>;
 
   /**
    * Check rate limit by mobile operator (Bangladesh specific)
-   * 
+   *
    * @param operator - Mobile operator ('gp', 'robi', 'banglalink', 'teletalk')
    * @param limit - Maximum requests allowed
    * @param windowSeconds - Window duration in seconds
    * @returns Rate limit result
-   * 
+   *
    * @example
    * const result = await rateLimiter.checkByOperator('gp', 50, 60);
    */
@@ -651,13 +619,13 @@ export interface IRateLimiter {
 
   /**
    * Check rate limit by MFS (bKash/Nagad/Rocket) phone number
-   * 
+   *
    * @param phoneNumber - MFS phone number (E.164 format)
    * @param provider - MFS provider
    * @param limit - Maximum requests allowed
    * @param windowSeconds - Window duration in seconds
    * @returns Rate limit result
-   * 
+   *
    * @example
    * const result = await rateLimiter.checkByMFS(
    *   '+8801712345678',
@@ -679,9 +647,9 @@ export interface IRateLimiter {
 
   /**
    * Clear all rate limits (for testing)
-   * 
+   *
    * @returns True if cleared successfully
-   * 
+   *
    * @example
    * await rateLimiter.clearAll();
    */
@@ -689,9 +657,9 @@ export interface IRateLimiter {
 
   /**
    * Get rate limiter health status
-   * 
+   *
    * @returns Health status
-   * 
+   *
    * @example
    * const health = await rateLimiter.getHealth();
    * console.log(health.status); // 'healthy' | 'degraded' | 'unhealthy'
@@ -707,12 +675,12 @@ export interface IRateLimiter {
 
   /**
    * Generate a rate limit key from context
-   * 
+   *
    * @param scope - Rate limit scope
    * @param identifier - Identifier (user ID, IP, email, etc.)
    * @param prefix - Optional prefix for the key
    * @returns Rate limit key
-   * 
+   *
    * @example
    * const key = rateLimiter.generateKey(
    *   RateLimitScope.USER,
@@ -721,18 +689,14 @@ export interface IRateLimiter {
    * );
    * // Returns: 'login:user:user_123'
    */
-  generateKey(
-    scope: RateLimitScope,
-    identifier: string,
-    prefix?: string,
-  ): string;
+  generateKey(scope: RateLimitScope, identifier: string, prefix?: string): string;
 
   /**
    * Parse a rate limit key to get its components
-   * 
+   *
    * @param key - Rate limit key
    * @returns Key components
-   * 
+   *
    * @example
    * const components = rateLimiter.parseKey('login:user:user_123');
    * // Returns: { prefix: 'login', scope: 'user', identifier: 'user_123' }
@@ -752,7 +716,8 @@ export class MockRateLimiter implements IRateLimiter {
   private counters: Map<string, { count: number; expiresAt: Date }> = new Map();
   private configs: Map<string, RateLimitConfig> = new Map();
   private violations: Map<string, RateLimitViolation[]> = new Map();
-  private blockedKeys: Map<string, { expiresAt?: Date | undefined; reason?: string | undefined }> = new Map();
+  private blockedKeys: Map<string, { expiresAt?: Date | undefined; reason?: string | undefined }> =
+    new Map();
   private startTime: Date = new Date();
 
   constructor(
@@ -794,13 +759,13 @@ export class MockRateLimiter implements IRateLimiter {
     const current = this.getCurrentCount(key);
     const newCount = current + incrementBy;
     let expiresAt = this.getExpiresAt(windowSeconds);
-    
+
     // If key exists, keep existing expiration
     const existing = this.counters.get(key);
     if (existing && existing.expiresAt > new Date()) {
       expiresAt = existing.expiresAt;
     }
-    
+
     this.counters.set(key, { count: newCount, expiresAt });
     return newCount;
   }
@@ -857,7 +822,7 @@ export class MockRateLimiter implements IRateLimiter {
     const allowed = current < limit;
     const remaining = Math.max(0, limit - current);
     const exceedsLimit = current >= limit;
-    
+
     const expiresAt = this.counters.get(key)?.expiresAt || this.getExpiresAt(windowSeconds);
     const resetInSeconds = this.getRemainingSeconds(expiresAt);
 
@@ -889,11 +854,7 @@ export class MockRateLimiter implements IRateLimiter {
     return false;
   }
 
-  async increment(
-    key: string,
-    windowSeconds: number,
-    incrementBy: number = 1,
-  ): Promise<number> {
+  async increment(key: string, windowSeconds: number, incrementBy: number = 1): Promise<number> {
     await this.delay();
     if (this.shouldThrowError()) {
       throw new Error('Mock rate limiter error');
@@ -906,14 +867,10 @@ export class MockRateLimiter implements IRateLimiter {
     return this.getCurrentCount(key);
   }
 
-  async getStatus(
-    key: string,
-    limit: number,
-    windowSeconds: number,
-  ): Promise<RateLimitResult> {
+  async getStatus(key: string, limit: number, windowSeconds: number): Promise<RateLimitResult> {
     const current = this.getCurrentCount(key);
     const expiresAt = this.counters.get(key)?.expiresAt || this.getExpiresAt(windowSeconds);
-    
+
     return {
       allowed: current < limit,
       current,
@@ -939,21 +896,11 @@ export class MockRateLimiter implements IRateLimiter {
   }
 
   async checkWithConfig(key: string, config: RateLimitConfig): Promise<RateLimitResult> {
-    return this.check(
-      key,
-      config.limit,
-      config.windowSeconds,
-      config.strategy,
-    );
+    return this.check(key, config.limit, config.windowSeconds, config.strategy);
   }
 
   async allowWithConfig(key: string, config: RateLimitConfig): Promise<boolean> {
-    return this.allow(
-      key,
-      config.limit,
-      config.windowSeconds,
-      config.strategy,
-    );
+    return this.allow(key, config.limit, config.windowSeconds, config.strategy);
   }
 
   async checkBatch(
@@ -966,7 +913,7 @@ export class MockRateLimiter implements IRateLimiter {
       // ✅ FIXED: Properly handle undefined values with type guards
       const key = keys[i];
       const limit = limits[i];
-      
+
       // ✅ FIXED: Use type guard to ensure key and limit are defined
       if (key && limit !== undefined) {
         const result = await this.check(key, limit, windowSeconds);
@@ -982,17 +929,13 @@ export class MockRateLimiter implements IRateLimiter {
     return results;
   }
 
-  async allowBatch(
-    keys: string[],
-    limits: number[],
-    windowSeconds: number,
-  ): Promise<boolean[]> {
+  async allowBatch(keys: string[], limits: number[], windowSeconds: number): Promise<boolean[]> {
     const results: boolean[] = [];
     for (let i = 0; i < keys.length; i++) {
       // ✅ FIXED: Properly handle undefined values with type guards
       const key = keys[i];
       const limit = limits[i];
-      
+
       // ✅ FIXED: Use type guard to ensure key and limit are defined
       if (key && limit !== undefined) {
         const allowed = await this.allow(key, limit, windowSeconds);
@@ -1008,11 +951,7 @@ export class MockRateLimiter implements IRateLimiter {
     return results;
   }
 
-  async getRemaining(
-    key: string,
-    limit: number,
-    _windowSeconds: number,
-  ): Promise<number> {
+  async getRemaining(key: string, limit: number, _windowSeconds: number): Promise<number> {
     const current = this.getCurrentCount(key);
     return Math.max(0, limit - current);
   }
@@ -1047,7 +986,7 @@ export class MockRateLimiter implements IRateLimiter {
   async getViolationCount(key: string, windowSeconds: number): Promise<number> {
     const violations = this.violations.get(key) || [];
     const cutoff = new Date(Date.now() - windowSeconds * 1000);
-    return violations.filter(v => v.timestamp >= cutoff).length;
+    return violations.filter((v) => v.timestamp >= cutoff).length;
   }
 
   async isBlocked(key: string): Promise<boolean> {
@@ -1060,11 +999,7 @@ export class MockRateLimiter implements IRateLimiter {
     return true;
   }
 
-  async block(
-    key: string,
-    durationSeconds?: number,
-    reason?: string,
-  ): Promise<boolean> {
+  async block(key: string, durationSeconds?: number, reason?: string): Promise<boolean> {
     await this.delay();
     const expiresAt = durationSeconds ? new Date(Date.now() + durationSeconds * 1000) : undefined;
     this.blockedKeys.set(key, { expiresAt, reason });
@@ -1112,7 +1047,7 @@ export class MockRateLimiter implements IRateLimiter {
   }> {
     const current = this.getCurrentCount(key);
     const violationCount = await this.getViolationCount(key, windowSeconds);
-    
+
     return {
       totalRequests: current,
       allowedRequests: Math.max(0, current - violationCount),
@@ -1141,15 +1076,15 @@ export class MockRateLimiter implements IRateLimiter {
   }> {
     let totalRequests = 0;
     let totalViolations = 0;
-    
+
     for (const [, entry] of this.counters) {
       totalRequests += entry.count;
     }
-    
+
     for (const [, violations] of this.violations) {
       totalViolations += violations.length;
     }
-    
+
     return {
       totalRequests,
       totalViolations,
@@ -1225,11 +1160,7 @@ export class MockRateLimiter implements IRateLimiter {
     };
   }
 
-  generateKey(
-    scope: RateLimitScope,
-    identifier: string,
-    prefix?: string,
-  ): string {
+  generateKey(scope: RateLimitScope, identifier: string, prefix?: string): string {
     const parts: string[] = [];
     if (prefix) parts.push(prefix);
     parts.push(scope);
@@ -1237,50 +1168,50 @@ export class MockRateLimiter implements IRateLimiter {
     return parts.join(':');
   }
 
+  parseKey(key: string): {
+    prefix?: string | undefined;
+    scope: RateLimitScope;
+    identifier: string;
+  } {
+    const parts = key.split(':');
 
-parseKey(key: string): {
-  prefix?: string | undefined;
-  scope: RateLimitScope;
-  identifier: string;
-} {
-  const parts = key.split(':');
-  
-  // Check if first part is a prefix (not a known scope)
-  const scopeValues = Object.values(RateLimitScope) as string[];
-  let prefix: string | undefined;
-  let scopeIndex = 0;
-  
-  // ✅ FIXED: Use parts[i] instead of parts[1]
-  for (let i = 0; i < parts.length; i++) {
-    const part = parts[i];
-    // ✅ FIXED: Ensure part is defined before checking
-    if (part && scopeValues.includes(part)) {
-      scopeIndex = i;
-      break;
+    // Check if first part is a prefix (not a known scope)
+    const scopeValues = Object.values(RateLimitScope) as string[];
+    let prefix: string | undefined;
+    let scopeIndex = 0;
+
+    // ✅ FIXED: Use parts[i] instead of parts[1]
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      // ✅ FIXED: Ensure part is defined before checking
+      if (part && scopeValues.includes(part)) {
+        scopeIndex = i;
+        break;
+      }
     }
+
+    // ✅ FIXED: Ensure scopeIndex is within bounds
+    if (scopeIndex > 0 && scopeIndex < parts.length) {
+      prefix = parts.slice(0, scopeIndex).join(':');
+    }
+
+    // ✅ FIXED: Get the scope part safely
+    const scopePart = parts[scopeIndex];
+    // ✅ FIXED: Use fallback if scopePart is undefined
+    const scope =
+      scopePart && scopeValues.includes(scopePart)
+        ? (scopePart as RateLimitScope)
+        : RateLimitScope.CUSTOM;
+
+    // ✅ FIXED: Ensure identifier is never undefined
+    const identifier = parts.slice(scopeIndex + 1).join(':') || '';
+
+    return {
+      prefix,
+      scope,
+      identifier,
+    };
   }
-  
-  // ✅ FIXED: Ensure scopeIndex is within bounds
-  if (scopeIndex > 0 && scopeIndex < parts.length) {
-    prefix = parts.slice(0, scopeIndex).join(':');
-  }
-  
-  // ✅ FIXED: Get the scope part safely
-  const scopePart = parts[scopeIndex];
-  // ✅ FIXED: Use fallback if scopePart is undefined
-  const scope = (scopePart && scopeValues.includes(scopePart)) 
-    ? scopePart as RateLimitScope 
-    : RateLimitScope.CUSTOM;
-  
-  // ✅ FIXED: Ensure identifier is never undefined
-  const identifier = parts.slice(scopeIndex + 1).join(':') || '';
-  
-  return {
-    prefix,
-    scope,
-    identifier,
-  };
-}
 }
 // ============================================================
 // Type Exports (for convenience)
