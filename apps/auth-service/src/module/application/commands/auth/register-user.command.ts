@@ -25,7 +25,6 @@
  */
 
 import { randomUUID } from 'crypto';
-
 import type {
   USER_MOBILE_OPERATORS as MOBILE_OPERATORS,
   USER_NETWORK_TYPES as NETWORK_TYPES,
@@ -775,9 +774,9 @@ export class RegisterUserCommand {
   public readonly phone?: string | undefined;
   public readonly displayName?: string | undefined;
   public readonly preferredLanguage: 'en' | 'bn';
-  public readonly correlationId?: string | undefined;
-  public readonly registrationMethod?:
-    (typeof·REGISTRATION_METHODS)[keyof·typeof·REGISTRATION_METHODS];
+  public readonly correlationId?: string | undefined; 
+  public readonly registrationMethod?: 
+     (typeof REGISTRATION_METHODS)[keyof typeof REGISTRATION_METHODS];];
   public readonly role?: string | undefined;
   public readonly tier?: string | undefined;
   public readonly autoLogin: boolean;
@@ -879,17 +878,16 @@ export class RegisterUserCommand {
    * ✅ FIXED: Removed unnecessary optional chain (warning 572)
    */
     public hasReferralCode(): boolean {
-    return !!this.preferences.referralCode;
-    }
+    return !!this.preferences?.referralCode;
+  }
 
   /**
    * Check if marketing consent is given
    * ✅ FIXED: Simplified conditional (warning 577)
    */
   public hasMarketingConsent(): boolean {
-    return this.preferences.marketingConsent === true;
-  }
-
+  return this.preferences?.marketingConsent === true;
+}
   /**
    * Check if WhatsApp consent is given (Bangladesh specific)
    */
@@ -1049,7 +1047,7 @@ export class RegisterUserCommand {
       commandId: this.commandId,
       correlationId: this.correlationId,
       timestamp: this.timestamp,
-      registrationMethod: this.registrationMethod || 'email',
+      registrationMethod: (this.registrationMethod as string) || 'email',
       source: this.getRegistrationSource(),
     };
   }
@@ -1121,10 +1119,14 @@ export class RegisterUserCommand {
   // ============================================================
 
 public toString(): string {
-  return `RegisterUserCommand(id=${this.commandId.slice(0, 8)}, email=${this.getMaskedEmail()}, 
-  phone=${this.getMaskedPhone()}, hasPhone=${this.hasPhone()}, preferredLanguage=${this.preferredLanguage}, 
-  source=${this.getRegistrationSource()}, hasCaptcha=${this.hasCaptcha()}, timestamp=${this.timestamp.toISOString()})`;
-}
+    return `RegisterUserCommand(id=${this.commandId.slice(0, 8)}, 
+    email=${this.getMaskedEmail()}, phone=${this.getMaskedPhone()},
+    hasPhone=${this.hasPhone()}, 
+    preferredLanguage=${this.preferredLanguage}, 
+    source=${this.getRegistrationSource()}, 
+    hasCaptcha=${this.hasCaptcha()}, 
+    timestamp=${this.timestamp.toISOString()})`;
+  }
   /**
    * Get summary for logging
    */
