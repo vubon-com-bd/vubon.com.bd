@@ -1123,13 +1123,15 @@ export class RegisterUserCommand {
   /**
    * Convert to string for logging (sensitive data masked)
    */
-    * Convert to string for logging (sens itive data masked)
-
-*/
 
 public toString(): string {
-
-return RegisterUserCommand(id=${thi s.commandId.slice(0, 8)}, email=${thi s.getMaskedEmail()}, phone=${this.getMas kedPhone()}, hasPhone=${this.hasPhone ()}, preferredLanguage=${this.preferredL anguage}, source=${this.getRegistrationS ource()}, hasCaptcha=${this.hasCaptcha ()}, timestamp=${this.timestamp.toISOStr ing()})`;
+return RegisterUserCommand(id=${thi s.commandId.slice(0, 8)}, email=${thi s.getMaskedEmail()},
+      phone=${this.getMas kedPhone()},
+      hasPhone=${this.hasPhone ()},
+      preferredLanguage=${this.preferredL anguage}, 
+      source=${this.getRegistrationS ource()}, 
+      hasCaptcha=${this.hasCaptcha ()},
+      timestamp=${this.timestamp.toISOStr ing()});
 
 }
 
