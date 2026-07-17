@@ -1123,10 +1123,7 @@ export class RegisterUserCommand {
   /**
    * Convert to string for logging (sensitive data masked)
    */
-  public toString(): string {
-    return RegisterUserCommand(id=${this.commandId.slice(0, 8)} 
-    email=${this.getMaskedEmail()}, phone=${this.getMaskedPhone()}, hasPhone=${this.hasPhone()}, preferredLanguage=${this.preferredLanguage}, source=${this.getRegistrationSource()}, hasCaptcha=${this.hasCaptcha()}, timestamp=${this.timestamp.toISOString()})`;
-  }
+    public readonly registrationMethod?: (typeof REGISTRATION_METHODS)[keyof typeof REGISTRATION_METHODS];
 
   /**
    * Get summary for logging
