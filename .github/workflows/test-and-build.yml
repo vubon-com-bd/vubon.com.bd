@@ -112,7 +112,7 @@ jobs:
           cache: npm
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm install --no-prepare
 
       # প্রোডাকশন ডিপেন্ডেন্সির সিকিউরিটি অডিট
       - name: Dependency Audit
@@ -153,7 +153,7 @@ jobs:
       # প্রোডাকশনে মাইগ্রেশন চালানোর জন্য প্রিজমা জেনারেট করা
       - name: Install Production Dependencies
         run: |
-          npm ci --omit=dev
+          npm install --no-prepare --omit=dev
           npm run prisma:generate --if-present
         env:
           DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
@@ -200,7 +200,7 @@ jobs:
 
       - name: Install Production Dependencies
         run: |
-          npm ci --omit=dev
+          npm install --no-prepare --omit=dev
           npm run prisma:generate --if-present
         env:
           DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
