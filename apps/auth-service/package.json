@@ -8,8 +8,8 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "prisma:generate": "npx prisma generate --schema=./prisma/schema.prisma",
-    "lint": "eslint \"src/**/*.ts\"",
-    "format:check": "prettier --check \"src/**/*.ts\"--ignore-unknown",
+    "lint": "eslint \"src/**/*.ts\" --no-error-on-unmatched-pattern",
+    "format:check": "prettier --check \"src/**/*.ts\" --ignore-unknown",
     "type-check": "tsc --noEmit",
     "test": "jest --passWithNoTests"
   },
