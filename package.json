@@ -45,7 +45,7 @@
 
     "reinstall": "rimraf node_modules package-lock.json && npm install",
 
-    "prisma:generate": "npm run prisma:generate --workspace=@vubon/auth-service",
+    "prisma:generate": "npx prisma generate --schema=./prisma/schema.prisma",
 
     "prepare": "husky"
   },
