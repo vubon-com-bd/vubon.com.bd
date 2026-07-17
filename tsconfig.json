@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    // রুটের নিজস্ব আউটপুট ফোল্ডার (যদি কখনো রুট লেভেলে টাইপস্ক্রিপ্ট ফাইল রান করতে হয়)
+    "outDir": "./dist",
+    "rootDir": "."
+  },
+  "include": [
+    // রুটের নিচের যেকোনো টাইপস্ক্রিপ্ট বা কনফিগ ফাইল (যেমন eslint.config.mjs বা স্ক্রিপ্টস)
+    "**/*.ts",
+    "eslint.config.mjs"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/dist",
+    "**/coverage",
+    "**/build",
+    "**/.next"
+  ]
+}
