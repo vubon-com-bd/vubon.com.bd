@@ -4,16 +4,16 @@
  * @module application/commands/auth/register-user.handler
  */
 
-import { Injectable, Logger } from '@nestjs/common';
 import { randomUUID } from 'crypto';
+import { Injectable, Logger } from '@nestjs/common';
 
 // ============================================================
 // Shared Packages Import (SSOT)
 // ============================================================
 
 import { AUDIT_ACTIONS, REGISTRATION_SOURCES } from '@vubon/shared-constants';
-import { maskEmail } from '@vubon/shared-utils';
 import type { ApiErrorCode } from '@vubon/shared-types';
+import { maskEmail } from '@vubon/shared-utils';
 
 // ============================================================
 // Domain Imports
@@ -35,7 +35,7 @@ import type { IPasswordValidator } from '../../../domain/ports/password-validato
 import type { IPhoneValidator } from '../../../domain/ports/phone-validator.port';
 import type { IPasswordHasher } from '../../../domain/ports/password-hasher.port';
 import type { IEventBus, IDomainEvent } from '../../../domain/ports/event-bus.port';
-import type { IAuditService } from '../../../domain/ports/event-bus.port'; // ✅ IAuditService এখানে আছে
+import type { IAuditService } from '../../../domain/ports/event-bus.port';
 import { PasswordStrength } from '../../../domain/ports/password-validator.port';
 
 // ============================================================
@@ -263,17 +263,19 @@ export class RegisterUserHandler {
       }
 
       // ============================================================
-      // STEP 6: Publish Domain Events (✅ FIXED: IDomainEvent-এ কাস্ট)
+      // STEP 6: Publish Domain Events (✅ ফিক্সড: টাইপ কাস্টিং)
       // ============================================================
 
       const domainEvents = user.pullDomainEvents();
       for (const event of domainEvents) {
         try {
-          // ✅ DomainEvent-কে IDomainEvent-এ কাস্ট করুন (কারণ সঠিক ইন্টারফেস ইমপ্লিমেন্ট করে)
+          // ✅ DomainEvent-কে IDomainEvent হিসেবে কাস্ট করুন
           await this.eventBus.publish(event as unknown as IDomainEvent);
         } catch (error) {
+          // ✅ (event as any).eventType-এর বদলে সঠিক প্রপার্টি অ্যাক্সেস করুন
+          const eventType = (event as { eventType?: string }).eventType || 'UnknownEvent';
           this.logger.warn(
-            `[${correlationId}] Failed to publish event ${(event as any).eventType}:`,
+            `[${correlationId}] Failed to publish event ${eventType}:`,
             error,
           );
         }
@@ -316,8 +318,13 @@ export class RegisterUserHandler {
       await this.auditService.log(auditLogData);
 
       // ============================================================
-      // STEP 8: Publish Application Event (✅ FIXED: IDomainEvent-এ কাস্ট)
+      // STEP 8: Publish Application Event (✅ ফিক্সড: কনসেন্ট ডেটা)
       // ============================================================
+
+      // ✅ preferences থেকে কনসেন্ট ডেটা নিরাপদে বের করুন
+      const preferences = command.preferences || {};
+      const smsConsent = preferences.smsConsent ?? false;
+      const emailConsent = preferences.emailConsent ?? false;
 
       const registeredEvent = UserRegisteredEvent.fromUser(user, {
         registrationMethod: command.registrationMethod || 'email',
@@ -330,8 +337,8 @@ export class RegisterUserHandler {
         referralCode: command.getReferralCode(),
         marketingConsent: command.hasMarketingConsent(),
         whatsappConsent: command.hasWhatsAppConsent(),
-        smsConsent: (command.preferences as any)?.smsConsent || false,
-        emailConsent: (command.preferences as any)?.emailConsent || false,
+        smsConsent: smsConsent,
+        emailConsent: emailConsent,
         acceptedTerms: command.hasAcceptedTerms(),
         acceptedPrivacy: command.hasAcceptedPrivacy(),
         age: command.preferences?.age,
@@ -380,14 +387,18 @@ export class RegisterUserHandler {
     };
   }
 
-  private mapToRegistrationSource(source: string): any {
-    const sourceMap: Record<string, any> = {
-      WEB: REGISTRATION_SOURCES.WEB,
-      MOBILE_APP: REGISTRATION_SOURCES.MOBILE_APP,
-      API: REGISTRATION_SOURCES.API,
-      ADMIN: REGISTRATION_SOURCES.ADMIN,
-      SOCIAL: REGISTRATION_SOURCES.SOCIAL,
+  // ✅ ফিক্সড: রিটার্ন টাইপ নির্দিষ্ট করা হয়েছে (any-এর বদলে)
+  private mapToRegistrationSource(source: string): string {
+    // ✅ অবজেক্টের প্রপার্টির নাম ক্যামেলকেসে পরিবর্তন করা হয়েছে
+    const sourceMap: Record<string, string> = {
+      web: REGISTRATION_SOURCES.WEB,
+      mobileApp: REGISTRATION_SOURCES.MOBILE_APP,
+      api: REGISTRATION_SOURCES.API,
+      admin: REGISTRATION_SOURCES.ADMIN,
+      social: REGISTRATION_SOURCES.SOCIAL,
     };
-    return sourceMap[source] || REGISTRATION_SOURCES.WEB;
+    // ✅ সোর্সটিকে লোয়ারকেসে কনভার্ট করে ম্যাপ থেকে খোঁজা হচ্ছে
+    const normalizedSource = source.toLowerCase();
+    return sourceMap[normalizedSource] || REGISTRATION_SOURCES.WEB;
   }
 }
