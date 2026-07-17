@@ -1128,7 +1128,7 @@ public readonly registrationMethod?: (typeof REGISTRATION_METHODS)[keyof typeof 
   /**
    * Get summary for logging
    */
-    public toJSON(): Record < string, unknown > {
+  public toJSON(): Record<string, unknown> {
     return {
       commandId: this.commandId,
       correlationId: this.correlationId,
@@ -1152,30 +1152,32 @@ public readonly registrationMethod?: (typeof REGISTRATION_METHODS)[keyof typeof 
       acceptTerms: this.acceptTerms,
       acceptPrivacy: this.acceptPrivacy,
       timestamp: this.timestamp.toISOString(),
-      deviceInfo: this.deviceInfo ?
-        {
-          hasIp: !!this.deviceInfo.ipAddress,
-          hasUserAgent: !!this.deviceInfo.userAgent,
-          hasDeviceId: !!this.deviceInfo.deviceId,
-          hasDeviceFingerprint: !!this.deviceInfo.deviceFingerprint,
-          district: this.deviceInfo.district,
-          upazila: this.deviceInfo.upazila,
-          mobileOperator: this.deviceInfo.mobileOperator,
-          networkType: this.deviceInfo.networkType,
-        } :
-        undefined,
-      preferences: this.preferences ?
-        {
-          preferredDistrict: this.preferences.preferredDistrict,
-          preferredUpazila: this.preferences.preferredUpazila,
-          hasReferralCode: !!this.preferences.referralCode,
-          marketingConsent: this.preferences.marketingConsent,
-          whatsappConsent: this.preferences.whatsappConsent,
-          age: this.preferences.age,
-        } :
-        undefined,
+      deviceInfo: this.deviceInfo
+        ? {
+            hasIp: !!this.deviceInfo.ipAddress,
+            hasUserAgent: !!this.deviceInfo.userAgent,
+            hasDeviceId: !!this.deviceInfo.deviceId,
+            hasDeviceFingerprint: !!this.deviceInfo.deviceFingerprint,
+            district: this.deviceInfo.district,
+            upazila: this.deviceInfo.upazila,
+            mobileOperator: this.deviceInfo.mobileOperator,
+            networkType: this.deviceInfo.networkType,
+          }
+        : undefined,
+      preferences: this.preferences
+        ? {
+            preferredDistrict: this.preferences.preferredDistrict,
+            preferredUpazila: this.preferences.preferredUpazila,
+            hasReferralCode: !!this.preferences.referralCode,
+            marketingConsent: this.preferences.marketingConsent,
+            whatsappConsent: this.preferences.whatsappConsent,
+            age: this.preferences.age,
+          }
+        : undefined,
     };
   }
+}
+
 // ============================================================
 // Type Exports
 // ============================================================
