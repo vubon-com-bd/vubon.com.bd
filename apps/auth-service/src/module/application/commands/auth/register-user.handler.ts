@@ -22,17 +22,6 @@ import {
 } from '@vubon/shared-utils';
 
 // ============================================================
-// Domain Imports
-// ============================================================
-
-import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
-import type { IdGenerator } from '../../../domain/entities/base.entity';
-import { User } from '../../../domain/entities/user.entity';
-import { Email } from '../../../domain/value-objects/email.vo';
-import { Password } from '../../../domain/value-objects/password.vo';
-import { Phone } from '../../../domain/value-objects/phone.vo';
-
-// ============================================================
 // Domain Ports (Interfaces)
 // ============================================================
 
@@ -42,6 +31,17 @@ import type { IPhoneValidator } from '../../../domain/ports/phone-validator.port
 import type { IPasswordHasher } from '../../../domain/ports/password-hasher.port';
 import type { IEventBus, IDomainEvent, IAuditService } from '../../../domain/ports/event-bus.port';
 import { PasswordStrength } from '../../../domain/ports/password-validator.port';
+
+// ============================================================
+// Domain Imports
+// ============================================================
+
+import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
+import type { IdGenerator } from '../../../domain/entities/base.entity';
+import { User } from '../../../domain/entities/user.entity';
+import { Email } from '../../../domain/value-objects/email.vo';
+import { Password } from '../../../domain/value-objects/password.vo';
+import { Phone } from '../../../domain/value-objects/phone.vo';
 
 // ============================================================
 // Application Imports
@@ -207,7 +207,7 @@ export class RegisterUserHandler {
         command.deviceInfo?.mobileOperator,
       );
 
-      // Role handling with proper type checking
+      // Role handling with type-safe approach
       if (command.role) {
         const role = toUserRole(command.role);
         if (role) {
@@ -215,7 +215,7 @@ export class RegisterUserHandler {
         }
       }
 
-      // Tier handling with proper type checking
+      // Tier handling with type-safe approach
       if (command.tier) {
         const tier = toUserTier(command.tier);
         if (tier) {
@@ -227,7 +227,7 @@ export class RegisterUserHandler {
         user.updateDisplayName(command.displayName);
       }
 
-      // District handling with proper type checking
+      // District handling with type-safe approach
       if (command.preferences?.preferredDistrict) {
         const district = toBangladeshDistrict(command.preferences.preferredDistrict);
         if (district) {
@@ -235,7 +235,7 @@ export class RegisterUserHandler {
         }
       }
 
-      // Upazila handling with proper type checking
+      // Upazila handling with type-safe approach
       if (command.preferences?.preferredUpazila) {
         const upazila = toBangladeshUpazila(command.preferences.preferredUpazila);
         if (upazila) {
@@ -367,14 +367,22 @@ export class RegisterUserHandler {
   }
 
   private mapToRegistrationSource(source: string): string {
-    const sourceMap: Record<string, string> = {
-      web: REGISTRATION_SOURCES.WEB,
-      mobileApp: REGISTRATION_SOURCES.MOBILE_APP,
-      api: REGISTRATION_SOURCES.API,
-      admin: REGISTRATION_SOURCES.ADMIN,
-      social: REGISTRATION_SOURCES.SOCIAL,
-    };
-    const normalizedSource = source.toLowerCase();
-    return sourceMap[normalizedSource] || REGISTRATION_SOURCES.WEB;
+    // Using a properly typed map with explicit key-value pairs
+    if (source.toLowerCase() === 'web') {
+      return REGISTRATION_SOURCES.WEB;
+    }
+    if (source.toLowerCase() === 'mobileapp') {
+      return REGISTRATION_SOURCES.MOBILE_APP;
+    }
+    if (source.toLowerCase() === 'api') {
+      return REGISTRATION_SOURCES.API;
+    }
+    if (source.toLowerCase() === 'admin') {
+      return REGISTRATION_SOURCES.ADMIN;
+    }
+    if (source.toLowerCase() === 'social') {
+      return REGISTRATION_SOURCES.SOCIAL;
+    }
+    return REGISTRATION_SOURCES.WEB;
   }
 }
