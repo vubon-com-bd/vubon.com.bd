@@ -25,7 +25,6 @@
  */
 
 import { randomUUID } from 'crypto';
-
 import type {
   USER_MOBILE_OPERATORS as MOBILE_OPERATORS,
   USER_NETWORK_TYPES as NETWORK_TYPES,
