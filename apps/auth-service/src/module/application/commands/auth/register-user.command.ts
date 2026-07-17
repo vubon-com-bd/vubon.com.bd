@@ -776,7 +776,7 @@ export class RegisterUserCommand {
   public readonly preferredLanguage: 'en' | 'bn';
   public readonly correlationId?: string | undefined; 
   public readonly registrationMethod?: 
-     (typeof REGISTRATION_METHODS)[keyof typeof REGISTRATION_METHODS];];
+     (typeof REGISTRATION_METHODS)[keyof typeof REGISTRATION_METHODS];
   public readonly role?: string | undefined;
   public readonly tier?: string | undefined;
   public readonly autoLogin: boolean;
