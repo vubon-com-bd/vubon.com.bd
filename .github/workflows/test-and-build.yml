@@ -1,88 +1,218 @@
-name: Vubon Monorepo CI
+name: Vubon Monorepo CI/CD
 
 on:
   push:
     branches:
       - main
       - master
-
   pull_request:
     branches:
       - main
       - master
+  workflow_dispatch:
+
+# Security hardening (CodeQL এর জন্য security-events write পারমিশন আবশ্যক)
+permissions:
+  contents: read
+  security-events: write
+
+# Concurrency Control (নতুন পুশ হলে পুরানো ব্যাকডেটেড বিল্ড অটো ক্যানসেল হবে)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 24 # আপনার package.json এর engines ম্যাচ করে
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
 jobs:
-  build-and-test:
+
+# =====================================================
+# 1. INSTALL + QUALITY CHECK + BUDGET CONTROL
+# =====================================================
+  ci:
+    name: CI - Validate & Build
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
-      # Checkout Source Code
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      # Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          node-version: 24
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: package-lock.json # আপনার npm workspaces লক ফাইল
 
-      # Show Environment
       - name: Environment Information
         run: |
           node -v
           npm -v
 
-      # Install Dependencies
+      # cleaninstall: রুট এবং সমস্ত ওয়ার্কস্পেস ডিপেন্ডেন্সি একসাথে ইনস্টল করবে
       - name: Install Dependencies
         run: npm ci
 
-      # Generate Prisma Client
+      # Prisma Client জেনারেট (আপনার স্ক্রিপ্ট অনুযায়ী শুধুমাত্র auth-service এ চলবে)
       - name: Generate Prisma Client
-        run: npm run prisma:generate --if-present
+        run: npm run prisma:generate
+        env:
+          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
 
-      # Prettier
-      - name: Check Formatting
-        run: npm run format:check --if-present
+      # আপনার নিজের লেখা কাস্টম স্ক্রিপ্ট যা format, lint, type-check এবং test একসাথে রান করে
+      - name: Run Full Code Validation
+        run: npm run check
+        env:
+          NODE_ENV: test
+          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
 
-      # ESLint
-      - name: Run ESLint
-        run: npm run lint --if-present
-
-      # TypeScript
-      - name: Type Check
-        run: npm run type-check --if-present
-
-      # Test
-      - name: Run Tests
-        run: npm test --if-present
-
-      # Build
+      # অল ওয়ার্কস্পেস বিল্ড
       - name: Build Workspace
-        run: npm run build --if-present
+        run: npm run build
 
-      # Debug (Always Run)
-      - name: Debug Information
-        if: always()
+      # ডিপ্লয়মেন্টের জন্য প্রয়োজনীয় ফাইল সংরক্ষণ
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vubon-build
+          retention-days: 7
+          path: |
+            apps/**/.next
+            apps/**/dist
+            packages/**/dist
+            package.json
+            package-lock.json
+          if-no-files-found: ignore
+
+# =====================================================
+# 2. SECURITY SCAN (OWASP & CodeQL)
+# =====================================================
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      # প্রোডাকশন ডিপেন্ডেন্সির সিকিউরিটি অডিট
+      - name: Dependency Audit
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+# =====================================================
+# 3. STAGING DEPLOYMENT
+# =====================================================
+  deploy-staging:
+    name: Deploy Staging
+    needs: [ci]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.vubon.com.bd
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: vubon-build
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # প্রোডাকশনে মাইগ্রেশন চালানোর জন্য প্রিজমা জেনারেট করা
+      - name: Install Production Dependencies
         run: |
-          echo "========== NODE =========="
-          node -v
+          npm ci --omit=dev
+          npm run prisma:generate --if-present
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
 
-          echo "========== NPM =========="
-          npm -v
+      - name: Database Migration
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
 
-          echo "========== INSTALLED WORKSPACES =========="
-          npm ls --workspaces --depth=0 || true
+      - name: Deploy Staging
+        run: |
+          echo "Deploying to staging server..."
+          # এখানে আপনার rsync বা Docker/SSH কমান্ড বসবে
 
-          echo "========== PRETTIER =========="
-          npm run format:check --if-present || true
+      - name: Health Check
+        run: |
+          sleep 5
+          curl -f https://staging.vubon.com.bd/api/health
 
-          echo "========== ESLINT =========="
-          npm run lint --if-present || true
+# =====================================================
+# 4. PRODUCTION DEPLOYMENT
+# =====================================================
+  deploy-production:
+    name: Deploy Production
+    needs: [deploy-staging]
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://vubon.com.bd
 
-          echo "========== TYPESCRIPT =========="
-          npm run type-check --if-present || true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
 
-          echo "========== BUILD =========="
-          npm run build --if-present || true
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: vubon-build
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Production Dependencies
+        run: |
+          npm ci --omit=dev
+          npm run prisma:generate --if-present
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+
+      - name: Production Migration
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+
+      - name: Deploy Production
+        run: |
+          echo "Deploying Vubon Production..."
+          # এখানে প্রোডাকশন ডিপ্লয়মেন্ট কমান্ড বসবে
+
+      - name: Production Health Check
+        run: |
+          sleep 5
+          curl -f https://vubon.com.bd/api/health
