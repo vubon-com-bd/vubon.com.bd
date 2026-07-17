@@ -2,6 +2,7 @@
   "name": "@vubon/auth-service",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Vubon.com.bd Auth Service",
   "scripts": {
     "build": "nest build",
