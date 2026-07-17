@@ -13,7 +13,13 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import { AUDIT_ACTIONS, REGISTRATION_SOURCES } from '@vubon/shared-constants';
 import type { ApiErrorCode } from '@vubon/shared-types';
-import { maskEmail } from '@vubon/shared-utils';
+import {
+  maskEmail,
+  toUserRole,
+  toUserTier,
+  toBangladeshDistrict,
+  toBangladeshUpazila,
+} from '@vubon/shared-utils';
 
 // ============================================================
 // Domain Imports
@@ -34,8 +40,7 @@ import type { IEmailValidator } from '../../../domain/ports/email-validator.port
 import type { IPasswordValidator } from '../../../domain/ports/password-validator.port';
 import type { IPhoneValidator } from '../../../domain/ports/phone-validator.port';
 import type { IPasswordHasher } from '../../../domain/ports/password-hasher.port';
-import type { IEventBus, IDomainEvent } from '../../../domain/ports/event-bus.port';
-import type { IAuditService } from '../../../domain/ports/event-bus.port';
+import type { IEventBus, IDomainEvent, IAuditService } from '../../../domain/ports/event-bus.port';
 import { PasswordStrength } from '../../../domain/ports/password-validator.port';
 
 // ============================================================
@@ -44,17 +49,6 @@ import { PasswordStrength } from '../../../domain/ports/password-validator.port'
 
 import { RegisterUserCommand } from './register-user.command';
 import { UserRegisteredEvent } from '../../events/user-registered.event';
-
-// ============================================================
-// Type Converters
-// ============================================================
-
-import {
-  toUserRole,
-  toUserTier,
-  toBangladeshDistrict,
-  toBangladeshUpazila,
-} from '@vubon/shared-utils';
 
 // ============================================================
 // Result Type
@@ -78,15 +72,12 @@ export class RegisterUserHandler {
   private readonly logger = new Logger(RegisterUserHandler.name);
 
   constructor(
-    // Domain Ports
     private readonly userRepository: UserRepository,
     private readonly passwordHasher: IPasswordHasher,
     private readonly emailValidator: IEmailValidator,
     private readonly passwordValidator: IPasswordValidator,
     private readonly phoneValidator: IPhoneValidator,
     private readonly idGenerator: IdGenerator,
-
-    // Application Ports (from domain/ports)
     private readonly eventBus: IEventBus,
     private readonly auditService: IAuditService,
   ) {}
@@ -216,6 +207,7 @@ export class RegisterUserHandler {
         command.deviceInfo?.mobileOperator,
       );
 
+      // Role handling with proper type checking
       if (command.role) {
         const role = toUserRole(command.role);
         if (role) {
@@ -223,6 +215,7 @@ export class RegisterUserHandler {
         }
       }
 
+      // Tier handling with proper type checking
       if (command.tier) {
         const tier = toUserTier(command.tier);
         if (tier) {
@@ -234,6 +227,7 @@ export class RegisterUserHandler {
         user.updateDisplayName(command.displayName);
       }
 
+      // District handling with proper type checking
       if (command.preferences?.preferredDistrict) {
         const district = toBangladeshDistrict(command.preferences.preferredDistrict);
         if (district) {
@@ -241,6 +235,7 @@ export class RegisterUserHandler {
         }
       }
 
+      // Upazila handling with proper type checking
       if (command.preferences?.preferredUpazila) {
         const upazila = toBangladeshUpazila(command.preferences.preferredUpazila);
         if (upazila) {
@@ -262,29 +257,18 @@ export class RegisterUserHandler {
         );
       }
 
-      // ============================================================
-      // STEP 6: Publish Domain Events (✅ ফিক্সড: টাইপ কাস্টিং)
-      // ============================================================
-
+      // STEP 6: Publish Domain Events
       const domainEvents = user.pullDomainEvents();
       for (const event of domainEvents) {
         try {
-          // ✅ DomainEvent-কে IDomainEvent হিসেবে কাস্ট করুন
           await this.eventBus.publish(event as unknown as IDomainEvent);
         } catch (error) {
-          // ✅ (event as any).eventType-এর বদলে সঠিক প্রপার্টি অ্যাক্সেস করুন
           const eventType = (event as { eventType?: string }).eventType || 'UnknownEvent';
-          this.logger.warn(
-            `[${correlationId}] Failed to publish event ${eventType}:`,
-            error,
-          );
+          this.logger.warn(`[${correlationId}] Failed to publish event ${eventType}:`, error);
         }
       }
 
-      // ============================================================
       // STEP 7: Audit Log
-      // ============================================================
-
       const auditLogData: {
         action: string;
         userId: string;
@@ -317,11 +301,7 @@ export class RegisterUserHandler {
 
       await this.auditService.log(auditLogData);
 
-      // ============================================================
-      // STEP 8: Publish Application Event (✅ ফিক্সড: কনসেন্ট ডেটা)
-      // ============================================================
-
-      // ✅ preferences থেকে কনসেন্ট ডেটা নিরাপদে বের করুন
+      // STEP 8: Publish Application Event
       const preferences = command.preferences || {};
       const smsConsent = preferences.smsConsent ?? false;
       const emailConsent = preferences.emailConsent ?? false;
@@ -337,8 +317,8 @@ export class RegisterUserHandler {
         referralCode: command.getReferralCode(),
         marketingConsent: command.hasMarketingConsent(),
         whatsappConsent: command.hasWhatsAppConsent(),
-        smsConsent: smsConsent,
-        emailConsent: emailConsent,
+        smsConsent,
+        emailConsent,
         acceptedTerms: command.hasAcceptedTerms(),
         acceptedPrivacy: command.hasAcceptedPrivacy(),
         age: command.preferences?.age,
@@ -349,7 +329,6 @@ export class RegisterUserHandler {
         },
       });
 
-      // ✅ IDomainEvent-এ কাস্ট করে পাবলিশ করুন
       await this.eventBus.publish(registeredEvent as unknown as IDomainEvent);
 
       return {
@@ -387,9 +366,7 @@ export class RegisterUserHandler {
     };
   }
 
-  // ✅ ফিক্সড: রিটার্ন টাইপ নির্দিষ্ট করা হয়েছে (any-এর বদলে)
   private mapToRegistrationSource(source: string): string {
-    // ✅ অবজেক্টের প্রপার্টির নাম ক্যামেলকেসে পরিবর্তন করা হয়েছে
     const sourceMap: Record<string, string> = {
       web: REGISTRATION_SOURCES.WEB,
       mobileApp: REGISTRATION_SOURCES.MOBILE_APP,
@@ -397,7 +374,6 @@ export class RegisterUserHandler {
       admin: REGISTRATION_SOURCES.ADMIN,
       social: REGISTRATION_SOURCES.SOCIAL,
     };
-    // ✅ সোর্সটিকে লোয়ারকেসে কনভার্ট করে ম্যাপ থেকে খোঁজা হচ্ছে
     const normalizedSource = source.toLowerCase();
     return sourceMap[normalizedSource] || REGISTRATION_SOURCES.WEB;
   }
