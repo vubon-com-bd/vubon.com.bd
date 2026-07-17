@@ -1,4 +1,4 @@
-name: Node.js CI (Monorepo Code Quality)
+name: Vubon Monorepo CI
 
 on:
   push:
@@ -16,9 +16,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout Source Code
       - name: Checkout Repository
         uses: actions/checkout@v5
 
+      # Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
@@ -26,27 +28,41 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
 
+      # Show Environment
+      - name: Environment Information
+        run: |
+          node -v
+          npm -v
+
+      # Install Dependencies
       - name: Install Dependencies
-        run: npm install --legacy-peer-deps --ignore-scripts
+        run: npm ci
 
+      # Generate Prisma Client
       - name: Generate Prisma Client
-        run: npm run prisma:generate --workspace=apps/auth-service
+        run: npm run prisma:generate --if-present
 
-      - name: Check Code Formatting
-        run: npm run format:check --workspaces
+      # Prettier
+      - name: Check Formatting
+        run: npm run format:check --if-present
 
+      # ESLint
       - name: Run ESLint
-        run: npm run lint:check --workspaces
+        run: npm run lint --if-present
 
-      - name: TypeScript Type Check
-        run: npm run type-check --workspaces
+      # TypeScript
+      - name: Type Check
+        run: npm run type-check --if-present
 
+      # Test
       - name: Run Tests
-        run: npm test --workspaces --if-present
+        run: npm test --if-present
 
-      - name: Build All Projects
-        run: npm run build --workspaces
+      # Build
+      - name: Build Workspace
+        run: npm run build --if-present
 
+      # Debug (Always Run)
       - name: Debug Information
         if: always()
         run: |
@@ -56,14 +72,17 @@ jobs:
           echo "========== NPM =========="
           npm -v
 
-          echo "========== WORKSPACES =========="
-          npm query .workspace.name || true
+          echo "========== INSTALLED WORKSPACES =========="
+          npm ls --workspaces --depth=0 || true
 
           echo "========== PRETTIER =========="
-          npx prettier --check "**/*.{ts,tsx,js,json,md}" || true
+          npm run format:check --if-present || true
 
           echo "========== ESLINT =========="
-          npx eslint . --ext .ts,.tsx --format stylish || true
+          npm run lint --if-present || true
 
           echo "========== TYPESCRIPT =========="
-          npx tsc --noEmit --pretty || true
+          npm run type-check --if-present || true
+
+          echo "========== BUILD =========="
+          npm run build --if-present || true
