@@ -1,12 +1,12 @@
 /**
  * ============================================================================
- * Vubon.com.bd - Enterprise Monorepo Prettier Configuration
+ * Vubon.com.bd - Enterprise Monorepo Prettier Configuration (ESM)
  * ============================================================================
  */
 
-module.exports = {
+export default {
   // --------------------------------------------------------------------------
-  // General
+  // General Formatter Settings
   // --------------------------------------------------------------------------
   printWidth: 100,
   tabWidth: 2,
@@ -26,27 +26,19 @@ module.exports = {
   endOfLine: 'lf',
 
   // --------------------------------------------------------------------------
-  // Markdown
+  // Markdown & HTML Styling
   // --------------------------------------------------------------------------
   proseWrap: 'preserve',
-
-  // --------------------------------------------------------------------------
-  // HTML
-  // --------------------------------------------------------------------------
   htmlWhitespaceSensitivity: 'css',
-
-  // --------------------------------------------------------------------------
-  // Embedded Languages
-  // --------------------------------------------------------------------------
   embeddedLanguageFormatting: 'auto',
 
   // --------------------------------------------------------------------------
-  // Plugins
+  // Plugins (ESM-compatible import resolution)
   // --------------------------------------------------------------------------
   plugins: ['@trivago/prettier-plugin-sort-imports'],
 
   // --------------------------------------------------------------------------
-  // Import Sorting
+  // Import Sorting Rules
   // --------------------------------------------------------------------------
   importOrder: [
     '^node:(.*)$',
@@ -69,8 +61,6 @@ module.exports = {
   ],
 
   importOrderSeparation: true,
-
   importOrderSortSpecifiers: true,
-
   importOrderCaseInsensitive: true
 };
