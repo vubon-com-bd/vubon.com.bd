@@ -12,6 +12,7 @@ import { Injectable, Logger } from '@nestjs/common';
 // ============================================================
 
 import { AUDIT_ACTIONS, REGISTRATION_SOURCES } from '@vubon/shared-constants';
+
 import type { ApiErrorCode } from '@vubon/shared-types';
 import {
   maskEmail,
@@ -20,17 +21,6 @@ import {
   toBangladeshDistrict,
   toBangladeshUpazila,
 } from '@vubon/shared-utils';
-
-// ============================================================
-// Domain Ports (Interfaces)
-// ============================================================
-
-import type { IEmailValidator } from '../../../domain/ports/email-validator.port';
-import type { IPasswordValidator } from '../../../domain/ports/password-validator.port';
-import type { IPhoneValidator } from '../../../domain/ports/phone-validator.port';
-import type { IPasswordHasher } from '../../../domain/ports/password-hasher.port';
-import type { IEventBus, IDomainEvent, IAuditService } from '../../../domain/ports/event-bus.port';
-import { PasswordStrength } from '../../../domain/ports/password-validator.port';
 
 // ============================================================
 // Domain Imports
@@ -49,6 +39,17 @@ import { Phone } from '../../../domain/value-objects/phone.vo';
 
 import { RegisterUserCommand } from './register-user.command';
 import { UserRegisteredEvent } from '../../events/user-registered.event';
+
+// ============================================================
+// Domain Ports (Interfaces)
+// ============================================================
+
+import type { IEmailValidator } from '../../../domain/ports/email-validator.port';
+import type { IPasswordValidator } from '../../../domain/ports/password-validator.port';
+import type { IPhoneValidator } from '../../../domain/ports/phone-validator.port';
+import type { IPasswordHasher } from '../../../domain/ports/password-hasher.port';
+import type { IEventBus, IDomainEvent, IAuditService } from '../../../domain/ports/event-bus.port';
+import { PasswordStrength } from '../../../domain/ports/password-validator.port';
 
 // ============================================================
 // Result Type
