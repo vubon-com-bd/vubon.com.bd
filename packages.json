@@ -4,6 +4,8 @@
   "private": true,
   "description": "Vubon.com.bd Enterprise Monorepo",
 
+  "license": "UNLICENSED",
+
   "packageManager": "npm@11.16.0",
 
   "engines": {
@@ -20,24 +22,38 @@
     "install:all": "npm install",
 
     "build": "npm run build --workspaces",
-
     "build:auth": "npm run build --workspace=@vubon/auth-service",
 
-    "lint": "npm run lint:check --workspaces",
+    "dev": "npm run start:dev --workspaces",
 
+    "lint": "npm run lint --workspaces",
     "lint:fix": "npm run lint:fix --workspaces",
 
     "format": "npm run format --workspaces",
-
     "format:check": "npm run format:check --workspaces",
 
     "type-check": "npm run type-check --workspaces",
 
     "test": "npm run test --workspaces",
+    "test:coverage": "npm run test:cov --workspaces",
 
-    "clean": "npm run clean --workspaces && rimraf node_modules package-lock.json",
+    "check": "npm run format:check && npm run lint && npm run type-check && npm test",
 
-    "prisma:generate": "npm run prisma:generate --workspace=@vubon/auth-service"
+    "ci": "npm ci && npm run check",
+
+    "clean": "npm run clean --workspaces && rimraf node_modules",
+
+    "reinstall": "rimraf node_modules package-lock.json && npm install",
+
+    "prisma:generate": "npm run prisma:generate --workspace=@vubon/auth-service",
+
+    "prepare": "husky"
+  },
+
+  "overrides": {
+    "typescript": "^5.9.2",
+    "eslint": "^9.32.0",
+    "prettier": "^3.6.2"
   },
 
   "devDependencies": {
@@ -47,6 +63,8 @@
 
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
+
+    "typescript-eslint": "^8.38.0",
 
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.8",
@@ -64,6 +82,8 @@
 
     "rimraf": "^6.0.1",
 
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+
+    "husky": "^9.1.7"
   }
 }
