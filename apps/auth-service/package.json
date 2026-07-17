@@ -1,0 +1,18 @@
+{
+  "name": "@vubon/auth-service",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vubon.com.bd Auth Service",
+  "scripts": {
+    "build": "nest build",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "prisma:generate": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.10.2"
+  },
+  "devDependencies": {
+    "prisma": "^5.10.2"
+  }
+}
