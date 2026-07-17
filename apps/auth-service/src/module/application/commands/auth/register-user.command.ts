@@ -518,16 +518,17 @@ export class RegisterUserCommandBuilder {
   }
 
   // ✅ FIXED: Removed unnecessary conditional checks (warnings 297, 306, 315, 324)
-  setDeviceInfo(deviceInfo: IDeviceInfo): this {
+    setDeviceInfo(deviceInfo: IDeviceInfo): this {
     this.options.deviceInfo = deviceInfo;
     return this;
   }
-
-  // ✅ FIXED: Removed unnecessary conditional checks
+  
   setPreferences(preferences: IUserPreferences): this {
     this.options.preferences = preferences;
     return this;
   }
+
+ 
 
   setCaptchaToken(captchaToken: string): this {
     if (captchaToken && captchaToken.length < 20) {
@@ -775,8 +776,7 @@ export class RegisterUserCommand {
   public readonly displayName?: string | undefined;
   public readonly preferredLanguage: 'en' | 'bn';
   public readonly correlationId?: string | undefined; 
-  public readonly registrationMethod?: 
-     (typeof REGISTRATION_METHODS)[keyof typeof REGISTRATION_METHODS];
+public readonly registrationMethod?: (typeof REGISTRATION_METHODS)[keyof typeof REGISTRATION_METHODS];
   public readonly role?: string | undefined;
   public readonly tier?: string | undefined;
   public readonly autoLogin: boolean;
@@ -877,8 +877,12 @@ export class RegisterUserCommand {
    * Check if referral code is provided
    * ✅ FIXED: Removed unnecessary optional chain (warning 572)
    */
-    public hasReferralCode(): boolean {
-    return !!this.preferences?.referralCode;
+      public hasReferralCode(): boolean {
+    return !!this.preferences.referralCode;
+  }
+  
+  public hasMarketingConsent(): boolean {
+    return this.preferences.marketingConsent === true;
   }
 
   /**
@@ -1118,19 +1122,13 @@ export class RegisterUserCommand {
   // Logging Methods (Enterprise Enhancement)
   // ============================================================
 
-public toString(): string {
-    return `RegisterUserCommand(id=${this.commandId.slice(0, 8)}, 
-    email=${this.getMaskedEmail()}, phone=${this.getMaskedPhone()},
-    hasPhone=${this.hasPhone()}, 
-    preferredLanguage=${this.preferredLanguage}, 
-    source=${this.getRegistrationSource()}, 
-    hasCaptcha=${this.hasCaptcha()}, 
-    timestamp=${this.timestamp.toISOString()})`;
+  public toString(): string {
+    return `RegisterUserCommand(id=${this.commandId.slice(0, 8)}, email=${this.getMaskedEmail()}, phone=${this.getMaskedPhone()}, hasPhone=${this.hasPhone()}, preferredLanguage=${this.preferredLanguage}, source=${this.getRegistrationSource()}, hasCaptcha=${this.hasCaptcha()}, timestamp=${this.timestamp.toISOString()})`;
   }
   /**
    * Get summary for logging
    */
-  public toJSON(): Record<string, unknown> {
+    public toJSON(): Record < string, unknown > {
     return {
       commandId: this.commandId,
       correlationId: this.correlationId,
@@ -1154,32 +1152,30 @@ public toString(): string {
       acceptTerms: this.acceptTerms,
       acceptPrivacy: this.acceptPrivacy,
       timestamp: this.timestamp.toISOString(),
-      deviceInfo: this.deviceInfo
-        ? {
-            hasIp: !!this.deviceInfo.ipAddress,
-            hasUserAgent: !!this.deviceInfo.userAgent,
-            hasDeviceId: !!this.deviceInfo.deviceId,
-            hasDeviceFingerprint: !!this.deviceInfo.deviceFingerprint,
-            district: this.deviceInfo.district,
-            upazila: this.deviceInfo.upazila,
-            mobileOperator: this.deviceInfo.mobileOperator,
-            networkType: this.deviceInfo.networkType,
-          }
-        : undefined,
-      preferences: this.preferences
-        ? {
-            preferredDistrict: this.preferences.preferredDistrict,
-            preferredUpazila: this.preferences.preferredUpazila,
-            hasReferralCode: !!this.preferences.referralCode,
-            marketingConsent: this.preferences.marketingConsent,
-            whatsappConsent: this.preferences.whatsappConsent,
-            age: this.preferences.age,
-          }
-        : undefined,
+      deviceInfo: this.deviceInfo ?
+        {
+          hasIp: !!this.deviceInfo.ipAddress,
+          hasUserAgent: !!this.deviceInfo.userAgent,
+          hasDeviceId: !!this.deviceInfo.deviceId,
+          hasDeviceFingerprint: !!this.deviceInfo.deviceFingerprint,
+          district: this.deviceInfo.district,
+          upazila: this.deviceInfo.upazila,
+          mobileOperator: this.deviceInfo.mobileOperator,
+          networkType: this.deviceInfo.networkType,
+        } :
+        undefined,
+      preferences: this.preferences ?
+        {
+          preferredDistrict: this.preferences.preferredDistrict,
+          preferredUpazila: this.preferences.preferredUpazila,
+          hasReferralCode: !!this.preferences.referralCode,
+          marketingConsent: this.preferences.marketingConsent,
+          whatsappConsent: this.preferences.whatsappConsent,
+          age: this.preferences.age,
+        } :
+        undefined,
     };
   }
-}
-
 // ============================================================
 // Type Exports
 // ============================================================
