@@ -22,7 +22,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: 24 # আপনার package.json এর engines ম্যাচ করে
+  NODE_VERSION: 22 # আপনার package.json এর engines ম্যাচ করে
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
 jobs:
@@ -52,8 +52,8 @@ jobs:
           npm -v
 
       # cleaninstall: রুট এবং সমস্ত ওয়ার্কস্পেস ডিপেন্ডেন্সি একসাথে ইনস্টল করবে
-      - name: Install Dependencies
-        run: npm ci
+      - name: Install dependencies
+        run: npm install
 
       # Prisma Client জেনারেট (আপনার স্ক্রিপ্ট অনুযায়ী শুধুমাত্র auth-service এ চলবে)
       - name: Generate Prisma Client
