@@ -1125,7 +1125,7 @@ export class RegisterUserCommand {
    */
 
 public toString(): string {
-  return RegisterUserCommand(id=${this.commandId.slice(0, 8)}...
+  return RegisterUserCommand(id=${this.commandId.slice(0, 8)}...,
   email=${this.getMaskedEmail()},
   phone=${this.getMaskedPhone()}, 
   hasPhone=${this.hasPhone()}, 
