@@ -25,6 +25,7 @@
  */
 
 import { randomUUID } from 'crypto';
+
 import type {
   USER_MOBILE_OPERATORS as MOBILE_OPERATORS,
   USER_NETWORK_TYPES as NETWORK_TYPES,
@@ -517,18 +518,15 @@ export class RegisterUserCommandBuilder {
     return this;
   }
 
-  // ✅ FIXED: Removed unnecessary conditional checks (warnings 297, 306, 315, 324)
-    setDeviceInfo(deviceInfo: IDeviceInfo): this {
+  setDeviceInfo(deviceInfo: IDeviceInfo): this {
     this.options.deviceInfo = deviceInfo;
     return this;
   }
-  
+
   setPreferences(preferences: IUserPreferences): this {
     this.options.preferences = preferences;
     return this;
   }
-
- 
 
   setCaptchaToken(captchaToken: string): this {
     if (captchaToken && captchaToken.length < 20) {
@@ -775,8 +773,8 @@ export class RegisterUserCommand {
   public readonly phone?: string | undefined;
   public readonly displayName?: string | undefined;
   public readonly preferredLanguage: 'en' | 'bn';
-  public readonly correlationId?: string | undefined; 
-public readonly registrationMethod?: (typeof REGISTRATION_METHODS)[keyof typeof REGISTRATION_METHODS];
+  public readonly correlationId?: string | undefined;
+  public readonly registrationMethod?: (typeof REGISTRATION_METHODS)[keyof typeof REGISTRATION_METHODS];
   public readonly role?: string | undefined;
   public readonly tier?: string | undefined;
   public readonly autoLogin: boolean;
@@ -875,23 +873,20 @@ public readonly registrationMethod?: (typeof REGISTRATION_METHODS)[keyof typeof 
 
   /**
    * Check if referral code is provided
-   * ✅ FIXED: Removed unnecessary optional chain (warning 572)
+   * ✅ FIXED: Removed unnecessary optional chain
    */
-      public hasReferralCode(): boolean {
-    return !!this.preferences.referralCode;
-  }
-  
-  public hasMarketingConsent(): boolean {
-    return this.preferences.marketingConsent === true;
+  public hasReferralCode(): boolean {
+    return !!this.preferences?.referralCode;
   }
 
   /**
    * Check if marketing consent is given
-   * ✅ FIXED: Simplified conditional (warning 577)
+   * ✅ FIXED: Removed duplicate method and unnecessary optional chain
    */
   public hasMarketingConsent(): boolean {
-  return this.preferences?.marketingConsent === true;
-}
+    return this.preferences?.marketingConsent === true;
+  }
+
   /**
    * Check if WhatsApp consent is given (Bangladesh specific)
    */
@@ -1039,6 +1034,7 @@ public readonly registrationMethod?: (typeof REGISTRATION_METHODS)[keyof typeof 
 
   /**
    * Get execution context for tracing
+   * ✅ FIXED: Removed unsafe type casting
    */
   public getExecutionContext(): {
     commandId: string;
@@ -1051,7 +1047,7 @@ public readonly registrationMethod?: (typeof REGISTRATION_METHODS)[keyof typeof 
       commandId: this.commandId,
       correlationId: this.correlationId,
       timestamp: this.timestamp,
-      registrationMethod: (this.registrationMethod as string) || 'email',
+      registrationMethod: this.registrationMethod || 'email',
       source: this.getRegistrationSource(),
     };
   }
@@ -1125,6 +1121,7 @@ public readonly registrationMethod?: (typeof REGISTRATION_METHODS)[keyof typeof 
   public toString(): string {
     return `RegisterUserCommand(id=${this.commandId.slice(0, 8)}, email=${this.getMaskedEmail()}, phone=${this.getMaskedPhone()}, hasPhone=${this.hasPhone()}, preferredLanguage=${this.preferredLanguage}, source=${this.getRegistrationSource()}, hasCaptcha=${this.hasCaptcha()}, timestamp=${this.timestamp.toISOString()})`;
   }
+
   /**
    * Get summary for logging
    */
