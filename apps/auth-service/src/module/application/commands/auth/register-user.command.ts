@@ -1125,16 +1125,15 @@ export class RegisterUserCommand {
    */
 
 public toString(): string {
-return RegisterUserCommand(id=${thi s.commandId.slice(0, 8)}, email=${thi s.getMaskedEmail()},
-      phone=${this.getMas kedPhone()},
-      hasPhone=${this.hasPhone ()},
-      preferredLanguage=${this.preferredL anguage}, 
-      source=${this.getRegistrationS ource()}, 
-      hasCaptcha=${this.hasCaptcha ()},
-      timestamp=${this.timestamp.toISOStr ing()});
-
+  return RegisterUserCommand(id=${this.commandId.slice(0, 8)}...
+  email=${this.getMaskedEmail()},
+  phone=${this.getMaskedPhone()}, 
+  hasPhone=${this.hasPhone()}, 
+  preferredLanguage=${this.preferredLanguage}, 
+  source=${this.getRegistrationSource()}, 
+  hasCaptcha=${this.hasCaptcha()}, 
+  timestamp=${this.timestamp.toISOString()});
 }
-
   /**
    * Get summary for logging
    */
