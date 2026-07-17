@@ -1,4 +1,5 @@
-// Dummy file to satisfy Prettier and ESLint until real code is written
-export const init = () => {
-  console.log('Auth service initializing...');
+// Simple valid TypeScript code to satisfy ESLint and Prettier
+export const init = (): string => {
+  const message = 'Auth service ready';
+  return message;
 };
