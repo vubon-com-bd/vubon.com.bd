@@ -1,4 +1,4 @@
-name: Node.js CI (Code Quality)
+name: Node.js CI (Monorepo Code Quality)
 
 on:
   push:
@@ -15,10 +15,6 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: apps/auth-service
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
@@ -28,30 +24,28 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: apps/auth-service/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install Dependencies
         run: npm install --legacy-peer-deps --ignore-scripts
 
       - name: Generate Prisma Client
-        run: >
-          npx prisma generate
-          --schema=src/module/infrastructure/persistence/prisma/schema/schema.prisma
+        run: npm run prisma:generate --workspace=apps/auth-service
 
       - name: Check Code Formatting
-        run: npm run format:check
+        run: npm run format:check --workspaces
 
       - name: Run ESLint
-        run: npm run lint:check
+        run: npm run lint:check --workspaces
 
       - name: TypeScript Type Check
-        run: npm run type-check
+        run: npm run type-check --workspaces
 
       - name: Run Tests
-        run: npm test --if-present
+        run: npm test --workspaces --if-present
 
-      - name: Build Project
-        run: npm run build
+      - name: Build All Projects
+        run: npm run build --workspaces
 
       - name: Debug Information
         if: always()
@@ -62,11 +56,14 @@ jobs:
           echo "========== NPM =========="
           npm -v
 
+          echo "========== WORKSPACES =========="
+          npm query .workspace.name || true
+
           echo "========== PRETTIER =========="
-          npx prettier --list-different "src/**/*.ts" || true
+          npx prettier --check "**/*.{ts,tsx,js,json,md}" || true
 
           echo "========== ESLINT =========="
-          npx eslint src --ext .ts --format stylish || true
+          npx eslint . --ext .ts,.tsx --format stylish || true
 
           echo "========== TYPESCRIPT =========="
           npx tsc --noEmit --pretty || true
