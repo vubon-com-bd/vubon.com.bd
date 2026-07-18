@@ -206,7 +206,7 @@ jobs:
           DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
 
       - name: Production Migration
-        run: npx prisma migrate deploy
+        run:  npx prisma migrate deploy --schema=./apps/auth-service/prisma/schema.prisma
         env:
           DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
 
