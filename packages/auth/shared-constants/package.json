@@ -6,8 +6,14 @@
   "private": true,
   "scripts": {
     "build": "tsc",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "format:write": "prettier --write \"src/**/*.ts\"",
+    "lint": "echo 'No lint script for now'",
+    "type-check": "tsc --noEmit",
+    "test": "echo 'No tests specified for constants' && exit 0"
   },
+
   "devDependencies": {
     "typescript": "^5.0.0"
   }
