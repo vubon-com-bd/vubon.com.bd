@@ -1,5 +1,5 @@
 {
-  "name": "@vubon/auth-shared-constants",
+  "name": "@vubon/auth-shared-hooks",
   "version": "1.0.0",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
@@ -8,5 +8,8 @@
   },
   "devDependencies": {
     "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "react": "^18.x.x || ^19.x.x"
   }
 }
