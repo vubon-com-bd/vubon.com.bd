@@ -7,7 +7,8 @@
     "type-check": "tsc --noEmit",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\"",
-    "test": "echo \"No tests specified for this shared package\" && exit 0"
+    "test": "echo \"No tests specified for this shared package\" && exit 0",
+    "build": "echo \"No build required for this shared package\" && exit 0"
   },
   "devDependencies": {
     "typescript": "^5.0.0"
