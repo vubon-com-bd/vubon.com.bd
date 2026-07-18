@@ -23,6 +23,10 @@ env:
   NODE_VERSION: 22
 
 jobs:
+
+# =====================================================
+# 1. QUALITY CHECK & BUILD
+# =====================================================
   ci:
     name: CI - Validate & Build
     runs-on: ubuntu-latest
@@ -72,11 +76,51 @@ jobs:
             package-lock.json
           if-no-files-found: ignore
 
+# =====================================================
+# 2. SECURITY SCAN (CodeQL & Audit)
+# =====================================================
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm install --no-prepare
+
+      - name: Dependency Audit
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+# =====================================================
+# 3. STAGING DEPLOYMENT
+# =====================================================
   deploy-staging:
     name: Deploy Staging
     needs: [ci]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.vubon.com.bd
 
     steps:
       - name: Checkout
@@ -108,10 +152,16 @@ jobs:
         run: |
           echo "Deploying to staging server..."
 
+# =====================================================
+# 4. PRODUCTION DEPLOYMENT
+# =====================================================
   deploy-production:
     name: Deploy Production
     needs: [deploy-staging]
     runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://vubon.com.bd
 
     steps:
       - name: Checkout
