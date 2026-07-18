@@ -54,11 +54,11 @@ jobs:
           node -v
           npm -v
 
-      # cleaninstall: রুট এবং সমস্ত ওয়ার্কস্পেস ডিপেন্ডেন্সি একসাথে ইনস্টল করবে
+      # cleaninstall: রুট এবং সমস্ত ওয়ার্কস্পেস ডিপেন্ডেন্সি একসাথে ইনস্টল করবে
       - name: Install dependencies
         run: npm install
 
-      # Prisma Client জেনারেট (আপনার স্ক্রিপ্ট অনুযায়ী শুধুমাত্র auth-service এ চলবে)
+      # Prisma Client জেনারেট (আপনার স্ক্রিপ্ট অনুযায়ী শুধুমাত্র auth-service এ চলবে)
       - name: Generate Prisma Client
         run: npx prisma generate --schema=./apps/auth-service/prisma/schema.prisma
         env:
@@ -71,11 +71,11 @@ jobs:
           NODE_ENV: test
           DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
 
-      # অল ওয়ার্কস্পেস বিল্ড
+      # অল ওয়ার্কস্পেস বিল্ড
       - name: Build Workspace
         run: npm run build
 
-      # ডিপ্লয়মেন্টের জন্য প্রয়োজনীয় ফাইল সংরক্ষণ
+      # ডিপ্লয়মেন্টের জন্য প্রয়োজনীয় ফাইল সংরক্ষণ
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -159,8 +159,8 @@ jobs:
           DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
 
       - name: Database Migration
-        run: npx prisma migrate deploy --schema=./apps/auth-service/prisma/schema.prisma
-env:
+        run: cd apps/auth-service && npx prisma migrate deploy
+        env:
           DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
 
       - name: Deploy Staging
@@ -206,14 +206,14 @@ env:
           DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
 
       - name: Production Migration
-        run:  npx prisma migrate deploy --schema=./apps/auth-service/prisma/schema.prisma
+        run: cd apps/auth-service && npx prisma migrate deploy
         env:
           DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
 
       - name: Deploy Production
         run: |
           echo "Deploying Vubon Production..."
-          # এখানে প্রোডাকশন ডিপ্লয়মেন্ট কমান্ড বসবে
+          # এখানে প্রোডাকশন ডিপ্লয়মেন্ট কমান্ড বসবে
 
       - name: Production Health Check
         run: |
