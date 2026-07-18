@@ -5,6 +5,7 @@
   "types": "./src/index.ts",
   "scripts": {
     "type-check": "tsc --noEmit",
+    "lint": "eslint \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\""
   },
   "devDependencies": {
