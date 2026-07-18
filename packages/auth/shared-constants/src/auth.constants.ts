@@ -6,7 +6,7 @@ export const AUTH_ROLES = {
   MERCHANT: 'MERCHANT',
 } as const;
 
-export type AuthRole = typeof AUTH_ROLES[keyof typeof AUTH_ROLES];
+export type AuthRole = (typeof AUTH_ROLES)[keyof typeof AUTH_ROLES];
 
 // ভ্যালিডেশন কনস্ট্যান্টস
 export const AUTH_VALIDATION = {
@@ -18,8 +18,8 @@ export const AUTH_VALIDATION = {
 
 // টোকেন এক্সপায়ারি টাইম
 export const TOKEN_EXPIRY = {
-  ACCESS_TOKEN: '15m',     // ১৫ মিনিট
-  REFRESH_TOKEN: '7d',     // ৭ দিন
+  ACCESS_TOKEN: '15m', // ১৫ মিনিট
+  REFRESH_TOKEN: '7d', // ৭ দিন
   COOKIE_MAX_AGE: 7 * 24 * 60 * 60 * 1000, // ৭ দিন (মিলিসেকেন্ডে)
 };
 
