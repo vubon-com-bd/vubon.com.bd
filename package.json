@@ -30,7 +30,6 @@
     "clean": "npm run clean --workspaces && rimraf node_modules",
     "reinstall": "rimraf node_modules package-lock.json && npm install",
     "prisma:generate": "npm run prisma:generate --workspace=@vubon/auth-service",
-    "prepare": "husky"
   },
   "overrides": {
     "typescript": "^5.9.2",
