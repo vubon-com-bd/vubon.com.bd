@@ -1,6 +1,7 @@
 {
   "name": "@vubon/workspace",
   "version": "1.0.1",
+  "type": "module",
   "private": true,
   "description": "Vubon.com.bd Enterprise Monorepo",
   "license": "UNLICENSED",
