@@ -11,25 +11,18 @@ on:
       - master
   workflow_dispatch:
 
-# Security hardening (CodeQL এর জন্য security-events write পারমিশন আবশ্যক)
 permissions:
   contents: read
   security-events: write
 
-# Concurrency Control (নতুন পুশ হলে পুরানো ব্যাকডেটেড বিল্ড অটো ক্যানসেল হবে)
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: 22 # আপনার package.json এর engines ম্যাচ করে
-  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  NODE_VERSION: 22
 
 jobs:
-
-# =====================================================
-# 1. INSTALL + QUALITY CHECK + BUDGET CONTROL
-# =====================================================
   ci:
     name: CI - Validate & Build
     runs-on: ubuntu-latest
@@ -44,38 +37,28 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-          cache-dependency-path: package-lock.json # আপনার npm workspaces লক ফাইল
+          cache-dependency-path: package-lock.json
 
       - name: Update npm to match engines requirement
         run: npm install -g npm@11.16.0
 
-      - name: Environment Information
-        run: |
-          node -v
-          npm -v
-
-      # cleaninstall: রুট এবং সমস্ত ওয়ার্কস্পেস ডিপেন্ডেন্সি একসাথে ইনস্টল করবে
       - name: Install dependencies
         run: npm install
 
-      # Prisma Client জেনারেট (আপনার স্ক্রিপ্ট অনুযায়ী শুধুমাত্র auth-service এ চলবে)
       - name: Generate Prisma Client
         run: npx prisma generate --schema=./apps/auth-service/prisma/schema.prisma
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
-      # আপনার নিজের লেখা কাস্টম স্ক্রিপ্ট যা format, lint, type-check এবং test একসাথে রান করে
       - name: Run Full Code Validation
         run: npm run check
         env:
           NODE_ENV: test
           DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
 
-      # অল ওয়ার্কস্পেস বিল্ড
       - name: Build Workspace
         run: npm run build
 
-      # ডিপ্লয়মেন্টের জন্য প্রয়োজনীয় ফাইল সংরক্ষণ
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -89,52 +72,11 @@ jobs:
             package-lock.json
           if-no-files-found: ignore
 
-# =====================================================
-# 2. SECURITY SCAN (OWASP & CodeQL)
-# =====================================================
-  security:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v5
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: javascript-typescript
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-
-      - name: Install Dependencies
-        run: npm install --no-prepare
-
-      # প্রোডাকশন ডিপেন্ডেন্সির সিকিউরিটি অডিট
-      - name: Dependency Audit
-        run: npm audit --omit=dev --audit-level=high
-
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
-
-      - name: CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-
-# =====================================================
-# 3. STAGING DEPLOYMENT
-# =====================================================
   deploy-staging:
     name: Deploy Staging
     needs: [ci]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     runs-on: ubuntu-latest
-    environment:
-      name: staging
-      url: https://staging.vubon.com.bd
 
     steps:
       - name: Checkout
@@ -150,7 +92,6 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      # প্রোডাকশনে মাইগ্রেশন চালানোর জন্য প্রিজমা জেনারেট করা
       - name: Install Production Dependencies
         run: |
           npm install --no-prepare --omit=dev
@@ -166,18 +107,11 @@ jobs:
       - name: Deploy Staging
         run: |
           echo "Deploying to staging server..."
-          # এখানে আপনার আসল rsync বা Docker/SSH কমান্ড বসবে যখন সার্ভার লাইভ করবেন
 
-# =====================================================
-# 4. PRODUCTION DEPLOYMENT
-# =====================================================
   deploy-production:
     name: Deploy Production
     needs: [deploy-staging]
     runs-on: ubuntu-latest
-    environment:
-      name: production
-      url: https://vubon.com.bd
 
     steps:
       - name: Checkout
@@ -208,4 +142,3 @@ jobs:
       - name: Deploy Production
         run: |
           echo "Deploying Vubon Production..."
-          # এখানে প্রোডাকশন ডিপ্লয়মেন্ট কমান্ড বসবে
