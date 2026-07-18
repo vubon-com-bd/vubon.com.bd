@@ -11,7 +11,8 @@
   },
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "packages/auth/*"
   ],
   "scripts": {
     "install:all": "npm install",
