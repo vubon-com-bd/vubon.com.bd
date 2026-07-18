@@ -135,6 +135,8 @@ jobs:
     environment:
       name: staging
       url: https://staging.vubon.com.bd
+    env:
+      DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }} # জব লেভেলে গ্লোবাল স্কোপ দেওয়া হলো
 
     steps:
       - name: Checkout
@@ -155,13 +157,9 @@ jobs:
         run: |
           npm install --no-prepare --omit=dev
           npm run prisma:generate --if-present
-        env:
-          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
 
       - name: Database Migration
         run: cd apps/auth-service && npx prisma migrate deploy
-        env:
-          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
 
       - name: Deploy Staging
         run: |
@@ -183,6 +181,8 @@ jobs:
     environment:
       name: production
       url: https://vubon.com.bd
+    env:
+      DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }} # জব লেভেলে গ্লোবাল স্কোপ দেওয়া হলো
 
     steps:
       - name: Checkout
@@ -202,13 +202,9 @@ jobs:
         run: |
           npm install --no-prepare --omit=dev
           npm run prisma:generate --if-present
-        env:
-          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
 
       - name: Production Migration
         run: cd apps/auth-service && npx prisma migrate deploy
-        env:
-          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
 
       - name: Deploy Production
         run: |
