@@ -62,7 +62,7 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate --schema=./apps/auth-service/prisma/schema.prisma
         env:
-          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       # আপনার নিজের লেখা কাস্টম স্ক্রিপ্ট যা format, lint, type-check এবং test একসাথে রান করে
       - name: Run Full Code Validation
@@ -135,8 +135,6 @@ jobs:
     environment:
       name: staging
       url: https://staging.vubon.com.bd
-    env:
-      DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }} # জব লেভেলে গ্লোবাল স্কোপ দেওয়া হলো
 
     steps:
       - name: Checkout
@@ -157,19 +155,18 @@ jobs:
         run: |
           npm install --no-prepare --omit=dev
           npm run prisma:generate --if-present
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
 
       - name: Database Migration
         run: cd apps/auth-service && npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
 
       - name: Deploy Staging
         run: |
           echo "Deploying to staging server..."
-          # এখানে আপনার rsync বা Docker/SSH কমান্ড বসবে
-
-      - name: Health Check
-        run: |
-          sleep 5
-          curl -f https://staging.vubon.com.bd/api/health
+          # এখানে আপনার আসল rsync বা Docker/SSH কমান্ড বসবে যখন সার্ভার লাইভ করবেন
 
 # =====================================================
 # 4. PRODUCTION DEPLOYMENT
@@ -181,8 +178,6 @@ jobs:
     environment:
       name: production
       url: https://vubon.com.bd
-    env:
-      DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }} # জব লেভেলে গ্লোবাল স্কোপ দেওয়া হলো
 
     steps:
       - name: Checkout
@@ -196,22 +191,21 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: ${{ env.VERSION }}
 
       - name: Install Production Dependencies
         run: |
           npm install --no-prepare --omit=dev
           npm run prisma:generate --if-present
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
 
       - name: Production Migration
         run: cd apps/auth-service && npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
 
       - name: Deploy Production
         run: |
           echo "Deploying Vubon Production..."
           # এখানে প্রোডাকশন ডিপ্লয়মেন্ট কমান্ড বসবে
-
-      - name: Production Health Check
-        run: |
-          sleep 5
-          curl -f https://vubon.com.bd/api/health
