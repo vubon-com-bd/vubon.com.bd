@@ -35,6 +35,7 @@ export class UserEntity extends BaseAggregateRoot {
     this._role = params.role ?? DEFAULT_ROLES.CUSTOMER;
     this._status = USER_STATUS.PENDING_VERIFICATION;
     this._isVerified = false;
+    // লিন্টার সেফটি: অবজেক্ট কপি করার সময় টাইপ নিশ্চিত করা
     this._metadata = params.metadata ? { ...params.metadata } : {};
   }
 
@@ -48,17 +49,20 @@ export class UserEntity extends BaseAggregateRoot {
     return [this._firstName, this._lastName].filter(Boolean).join(' ') || null;
   }
 
-  // লিন্টার এরর এড়াতে মেটাডেটা হ্যান্ডলিং টাইপ-সেফ করা হয়েছে
   public updateMetadata(key: string, value: unknown): void {
-    const safeKey = String(key);
-    this._metadata[safeKey] = value;
-    this.setUpdatedAt();
+    // সিকিউরিটি: শুধুমাত্র আলফানিউমেরিক কি গ্রহণ করা
+    const safeKey = key.replace(/[^a-z0-9]/gi, '');
+    if (safeKey) {
+      this._metadata[safeKey] = value;
+      this.setUpdatedAt();
+    }
   }
 
   public removeMetadata(key: string): void {
-    if (Object.prototype.hasOwnProperty.call(this._metadata, key)) {
+    const safeKey = key.replace(/[^a-z0-9]/gi, '');
+    if (safeKey && Object.prototype.hasOwnProperty.call(this._metadata, safeKey)) {
       // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-      delete this._metadata[key];
+      delete this._metadata[safeKey];
       this.setUpdatedAt();
     }
   }
