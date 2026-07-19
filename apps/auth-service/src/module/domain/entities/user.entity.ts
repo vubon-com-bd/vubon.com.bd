@@ -1,5 +1,5 @@
-import { DEFAULT_ROLES, USER_STATUS } from '@repo/auth-constants';
-import type { UserRole, UserStatus } from '@repo/auth-types';
+import { DEFAULT_ROLES, USER_STATUS } from '@vubon/auth-shared-constants';
+import type { UserRole, UserStatus } from '@vubon/auth-shared-types';
 
 import { BaseEntity, type BaseEntityProps } from './base.entity';
 
@@ -100,9 +100,8 @@ export class User extends BaseEntity {
 
   public static reconstitute(props: UserProps): User {
     return new User(props);
-  }
+  } // Getters
 
-  // Getters
   get email(): string {
     return this._email;
   }
@@ -159,9 +158,8 @@ export class User extends BaseEntity {
   }
   get refreshTokenExpiresAt(): Date | null {
     return this._refreshTokenExpiresAt;
-  }
+  } // Business Methods
 
-  // Business Methods
   public changeEmail(email: string): void {
     if (!email) throw new Error('Email is required');
     this._email = email;
@@ -180,9 +178,8 @@ export class User extends BaseEntity {
   public softDelete(): void {
     this._status = USER_STATUS.DELETED;
     super.softDelete();
-  }
+  } // toJSON Override
 
-  // toJSON Override
   public override toJSON(): Required<BaseEntityProps> & Record<string, unknown> {
     return {
       ...super.toJSON(),
