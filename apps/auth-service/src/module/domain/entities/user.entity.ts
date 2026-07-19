@@ -102,7 +102,7 @@ export class User extends BaseEntity {
     return new User(props);
   }
 
-  // Getters & Methods (আপনার দেওয়া লজিক অনুযায়ী অপরিবর্তিত)
+  // Getters
   get email(): string {
     return this._email;
   }
@@ -118,10 +118,72 @@ export class User extends BaseEntity {
   get fullName(): string {
     return [this._firstName, this._lastName].filter(Boolean).join(' ') || this._username;
   }
+  get passwordHash(): string {
+    return this._passwordHash;
+  }
+  get salt(): string {
+    return this._salt;
+  }
+  get role(): UserRole {
+    return this._role;
+  }
+  get status(): UserStatus {
+    return this._status;
+  }
+  get isVerified(): boolean {
+    return this._isVerified;
+  }
+  get lastLoginAt(): Date | null {
+    return this._lastLoginAt;
+  }
+  get loginAttempts(): number {
+    return this._loginAttempts;
+  }
+  get lockedUntil(): Date | null {
+    return this._lockedUntil;
+  }
+  get verificationToken(): string | null {
+    return this._verificationToken;
+  }
+  get verificationTokenExpiresAt(): Date | null {
+    return this._verificationTokenExpiresAt;
+  }
+  get passwordResetToken(): string | null {
+    return this._passwordResetToken;
+  }
+  get passwordResetTokenExpiresAt(): Date | null {
+    return this._passwordResetTokenExpiresAt;
+  }
+  get refreshToken(): string | null {
+    return this._refreshToken;
+  }
+  get refreshTokenExpiresAt(): Date | null {
+    return this._refreshTokenExpiresAt;
+  }
 
-  // ... অন্যান্য গেটার এবং ডোমেইন মেথড এখানে থাকবে ...
+  // Business Methods
+  public changeEmail(email: string): void {
+    if (!email) throw new Error('Email is required');
+    this._email = email;
+    this._isVerified = false;
+    this.setUpdatedAt();
+  }
 
-  public override toJSON(): Record<string, unknown> {
+  public verify(): void {
+    this._isVerified = true;
+    this._verificationToken = null;
+    this._verificationTokenExpiresAt = null;
+    if (this._status === USER_STATUS.PENDING_VERIFICATION) this._status = USER_STATUS.ACTIVE;
+    this.setUpdatedAt();
+  }
+
+  public softDelete(): void {
+    this._status = USER_STATUS.DELETED;
+    super.softDelete();
+  }
+
+  // toJSON Override
+  public override toJSON(): Required<BaseEntityProps> & Record<string, unknown> {
     return {
       ...super.toJSON(),
       email: this._email,
@@ -132,6 +194,20 @@ export class User extends BaseEntity {
       role: this._role,
       status: this._status,
       isVerified: this._isVerified,
+      lastLoginAt: this._lastLoginAt,
+      loginAttempts: this._loginAttempts,
+      lockedUntil: this._lockedUntil,
+    };
+  }
+
+  public toJSONWithSensitive(): Record<string, unknown> {
+    return {
+      ...this.toJSON(),
+      passwordHash: this._passwordHash,
+      salt: this._salt,
+      verificationToken: this._verificationToken,
+      passwordResetToken: this._passwordResetToken,
+      refreshToken: this._refreshToken,
     };
   }
 }
