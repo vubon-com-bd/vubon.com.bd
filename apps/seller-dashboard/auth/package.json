@@ -1,0 +1,11 @@
+{
+  "name": "@vubon/seller-auth",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "type-check": "echo \"Auth scaffolding: no type-check needed\" && exit 0",
+    "format:check": "echo \"Auth scaffolding: no format check needed\" && exit 0",
+    "lint": "echo \"Auth scaffolding: no lint needed\" && exit 0",
+    "build": "echo \"Auth scaffolding: no build needed\" && exit 0"
+  }
+}
