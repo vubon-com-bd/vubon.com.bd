@@ -3,3 +3,4 @@
  */
 
 export * from './hash.util';
+export * from './random.util';
