@@ -24,7 +24,6 @@ export class UserEntity extends BaseAggregateRoot {
   private _role: UserRole;
   private _status: UserStatus;
   private _isVerified: boolean;
-  // লিন্টার এরর এড়াতে Map ব্যবহার করছি
   private _metadata: Map<string, unknown>;
 
   private constructor(params: CreateUserParams) {
@@ -37,8 +36,13 @@ export class UserEntity extends BaseAggregateRoot {
     this._status = USER_STATUS.PENDING_VERIFICATION;
     this._isVerified = false;
 
-    // Map ব্যবহার করায় লিন্টার ইনজেকশন ওয়ার্নিং দিবে না
-    this._metadata = new Map(Object.entries(params.metadata ?? {}));
+    // লিন্টারকে খুশি করার জন্য সরাসরি এন্ট্রি লুপ ব্যবহার করছি
+    this._metadata = new Map<string, unknown>();
+    if (params.metadata) {
+      Object.entries(params.metadata).forEach(([key, value]) => {
+        this._metadata.set(key, value);
+      });
+    }
   }
 
   public static create(params: CreateUserParams): UserEntity {
@@ -69,7 +73,6 @@ export class UserEntity extends BaseAggregateRoot {
       fullName: this.fullName,
       role: this._role,
       status: this._status,
-      // JSON এ কনভার্ট করার সময় Map কে অবজেক্টে নিচ্ছি
       metadata: Object.fromEntries(this._metadata),
     };
   }
