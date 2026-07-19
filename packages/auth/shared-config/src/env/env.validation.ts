@@ -1,16 +1,17 @@
+/* eslint-disable security/detect-object-injection */
 /**
  * Environment variable loader and validator
  * Loads, validates, and exports validated environment configuration
  */
 import { config } from 'dotenv';
 
-import { envSchema, strictEnvSchema, validatedEnv, validateStrictEnv } from './env.schema';
+import { validatedEnv, validateStrictEnv } from './env.schema';
 import type { EnvConfig, StrictEnvConfig } from './env.schema';
 
 // Load environment variables from .env file
 config();
 
-// Get raw environment variables securely matching process.env keys
+// Get raw environment variables securely
 const getRawEnv = (): Record<string, string | undefined> => {
   return {
     NODE_ENV: process.env.NODE_ENV,
@@ -68,143 +69,41 @@ const getRawEnv = (): Record<string, string | undefined> => {
   };
 };
 
-// Validate and export environment configuration
-export const env: EnvConfig = (() => {
-  try {
-    const rawEnv = getRawEnv();
-    return validatedEnv(rawEnv);
-  } catch (error) {
-    console.error('Failed to validate environment variables:', error);
-    throw error;
-  }
-})();
+export const env: EnvConfig = validatedEnv(getRawEnv());
+export const strictEnv: StrictEnvConfig = validateStrictEnv(getRawEnv());
 
-// Validate and export strict environment configuration
-export const strictEnv: StrictEnvConfig = (() => {
-  try {
-    const rawEnv = getRawEnv();
-    return validateStrictEnv(rawEnv);
-  } catch (error) {
-    console.error('Failed to validate strict environment variables:', error);
-    throw error;
-  }
-})();
-
-// Export environment validation utilities for custom overrides (e.g., in Testing)
 export const validateEnv = (envOverride?: Record<string, string | undefined>): EnvConfig => {
-  try {
-    const rawEnv = getRawEnv();
-    const mergedEnv = {
-      ...rawEnv,
-      ...envOverride,
-    };
-    return validatedEnv(mergedEnv);
-  } catch (error) {
-    console.error('Environment validation failed:', error);
-    throw error;
-  }
+  return validatedEnv({ ...getRawEnv(), ...envOverride });
 };
 
 export const validateStrictEnvOverride = (
   envOverride?: Record<string, string | undefined>,
 ): StrictEnvConfig => {
-  try {
-    const rawEnv = getRawEnv();
-    const mergedEnv = {
-      ...rawEnv,
-      ...envOverride,
-    };
-    return validateStrictEnv(mergedEnv);
-  } catch (error) {
-    console.error('Strict environment validation failed:', error);
-    throw error;
-  }
+  return validateStrictEnv({ ...getRawEnv(), ...envOverride });
 };
 
-// Export environment utilities
-export const getEnv = (key: keyof EnvConfig): EnvConfig[keyof EnvConfig] | undefined => {
-  return env[key];
-};
+export const getEnv = (key: keyof EnvConfig) => env[key];
+export const getStringEnv = (key: keyof EnvConfig) =>
+  typeof env[key] === 'string' ? env[key] : undefined;
+export const getNumberEnv = (key: keyof EnvConfig) =>
+  typeof env[key] === 'number' ? env[key] : undefined;
+export const getBooleanEnv = (key: keyof EnvConfig) =>
+  typeof env[key] === 'boolean' ? env[key] : undefined;
+export const getArrayEnv = (key: keyof EnvConfig) =>
+  Array.isArray(env[key]) ? env[key] : undefined;
 
-export const getStringEnv = (key: keyof EnvConfig): string | undefined => {
-  const value = env[key];
-  if (typeof value === 'string') {
-    return value;
-  }
-  return undefined;
-};
+export const isProduction = () => env.NODE_ENV === 'production';
+export const isDevelopment = () => env.NODE_ENV === 'development';
+export const isTest = () => env.NODE_ENV === 'test';
+export const isStaging = () => env.NODE_ENV === 'staging';
+export const isNonProduction = () => !isProduction();
 
-export const getNumberEnv = (key: keyof EnvConfig): number | undefined => {
-  const value = env[key];
-  if (typeof value === 'number') {
-    return value;
-  }
-  return undefined;
-};
+export const getApiUrl = () => env.API_URL || `http://${env.HOST}:${env.PORT}`;
+export const getDatabaseUrl = () =>
+  isTest() && env.TEST_DATABASE_URL ? env.TEST_DATABASE_URL : env.DATABASE_URL;
+export const getRedisUrl = () =>
+  isTest() && env.TEST_REDIS_URL ? env.TEST_REDIS_URL : env.REDIS_URL;
 
-export const getBooleanEnv = (key: keyof EnvConfig): boolean | undefined => {
-  const value = env[key];
-  if (typeof value === 'boolean') {
-    return value;
-  }
-  return undefined;
-};
-
-export const getArrayEnv = (key: keyof EnvConfig): string[] | undefined => {
-  const value = env[key];
-  if (Array.isArray(value)) {
-    return value;
-  }
-  return undefined;
-};
-
-// Check if environment is production
-export const isProduction = (): boolean => {
-  return env.NODE_ENV === 'production';
-};
-
-// Check if environment is development
-export const isDevelopment = (): boolean => {
-  return env.NODE_ENV === 'development';
-};
-
-// Check if environment is test
-export const isTest = (): boolean => {
-  return env.NODE_ENV === 'test';
-};
-
-// Check if environment is staging
-export const isStaging = (): boolean => {
-  return env.NODE_ENV === 'staging';
-};
-
-// Check if environment is non-production
-export const isNonProduction = (): boolean => {
-  return !isProduction();
-};
-
-// Get API URL with fallback
-export const getApiUrl = (): string => {
-  return env.API_URL || `http://${env.HOST}:${env.PORT}`;
-};
-
-// Get database URL with environment-specific fallback
-export const getDatabaseUrl = (): string => {
-  if (isTest() && env.TEST_DATABASE_URL) {
-    return env.TEST_DATABASE_URL;
-  }
-  return env.DATABASE_URL;
-};
-
-// Get Redis URL with environment-specific fallback
-export const getRedisUrl = (): string | undefined => {
-  if (isTest() && env.TEST_REDIS_URL) {
-    return env.TEST_REDIS_URL;
-  }
-  return env.REDIS_URL;
-};
-
-// Export all environment utilities as default
 export default {
   env,
   strictEnv,
