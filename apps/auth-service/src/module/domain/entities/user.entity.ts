@@ -38,12 +38,10 @@ export class UserEntity extends BaseAggregateRoot {
 
     this._metadata = new Map<string, unknown>();
 
-    // লিন্টারের সব এরর বাইপাস করার জন্য সরাসরি ইগনোর কমান্ড
-    if (params.metadata) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, security/detect-object-injection
-      Object.entries(params.metadata).forEach(([key, value]) => {
-        this._metadata.set(key, value);
-      });
+    // টাইপ সেফটি নিশ্চিত করে লুপ চালানো
+    const meta = params.metadata ?? {};
+    for (const key of Object.keys(meta)) {
+      this._metadata.set(key, meta[key]);
     }
   }
 
@@ -68,6 +66,11 @@ export class UserEntity extends BaseAggregateRoot {
   }
 
   public toJSON(): Record<string, unknown> {
+    const metadataObj: Record<string, unknown> = {};
+    for (const [key, value] of this._metadata.entries()) {
+      metadataObj[key] = value;
+    }
+
     return {
       id: this.id,
       email: this._email,
@@ -75,8 +78,7 @@ export class UserEntity extends BaseAggregateRoot {
       fullName: this.fullName,
       role: this._role,
       status: this._status,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      metadata: Object.fromEntries(this._metadata),
+      metadata: metadataObj,
     };
   }
 
