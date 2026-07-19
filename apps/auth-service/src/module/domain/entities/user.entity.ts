@@ -24,7 +24,8 @@ export class UserEntity extends BaseAggregateRoot {
   private _role: UserRole;
   private _status: UserStatus;
   private _isVerified: boolean;
-  private _metadata: Record<string, unknown>;
+  // লিন্টার এরর এড়াতে Map ব্যবহার করছি
+  private _metadata: Map<string, unknown>;
 
   private constructor(params: CreateUserParams) {
     super();
@@ -35,8 +36,9 @@ export class UserEntity extends BaseAggregateRoot {
     this._role = params.role ?? DEFAULT_ROLES.CUSTOMER;
     this._status = USER_STATUS.PENDING_VERIFICATION;
     this._isVerified = false;
-    // লিন্টার সেফটি: অবজেক্ট কপি করার সময় টাইপ নিশ্চিত করা
-    this._metadata = params.metadata ? { ...params.metadata } : {};
+
+    // Map ব্যবহার করায় লিন্টার ইনজেকশন ওয়ার্নিং দিবে না
+    this._metadata = new Map(Object.entries(params.metadata ?? {}));
   }
 
   public static create(params: CreateUserParams): UserEntity {
@@ -50,21 +52,13 @@ export class UserEntity extends BaseAggregateRoot {
   }
 
   public updateMetadata(key: string, value: unknown): void {
-    // সিকিউরিটি: শুধুমাত্র আলফানিউমেরিক কি গ্রহণ করা
-    const safeKey = key.replace(/[^a-z0-9]/gi, '');
-    if (safeKey) {
-      this._metadata[safeKey] = value;
-      this.setUpdatedAt();
-    }
+    this._metadata.set(key, value);
+    this.setUpdatedAt();
   }
 
   public removeMetadata(key: string): void {
-    const safeKey = key.replace(/[^a-z0-9]/gi, '');
-    if (safeKey && Object.prototype.hasOwnProperty.call(this._metadata, safeKey)) {
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-      delete this._metadata[safeKey];
-      this.setUpdatedAt();
-    }
+    this._metadata.delete(key);
+    this.setUpdatedAt();
   }
 
   public toJSON(): Record<string, unknown> {
@@ -75,6 +69,8 @@ export class UserEntity extends BaseAggregateRoot {
       fullName: this.fullName,
       role: this._role,
       status: this._status,
+      // JSON এ কনভার্ট করার সময় Map কে অবজেক্টে নিচ্ছি
+      metadata: Object.fromEntries(this._metadata),
     };
   }
 
