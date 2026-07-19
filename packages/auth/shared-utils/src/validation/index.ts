@@ -3,3 +3,4 @@
  */
 
 export * from './email.util';
+export * from './validator.util';
