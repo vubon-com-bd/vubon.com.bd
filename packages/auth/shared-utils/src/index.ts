@@ -4,3 +4,4 @@
  */
 
 export * from './validation/index';
+export * from './crypto/index';
