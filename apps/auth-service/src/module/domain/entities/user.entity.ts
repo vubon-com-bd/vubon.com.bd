@@ -1,3 +1,7 @@
+/**
+ * User entity representing the core user domain model
+ * Contains all user properties and domain logic
+ */
 import {
   DEFAULT_ROLES,
   USER_STATUS,
@@ -7,30 +11,13 @@ import {
 
 import { BaseAggregateRoot } from './base.entity';
 
-export interface UserProps {
-  email: string;
-  username: string;
-  firstName: string | null;
-  lastName: string | null;
-  passwordHash: string | null;
-  passwordSalt: string | null;
-  role: UserRole;
-  status: UserStatus;
-  isVerified: boolean;
-  isActive: boolean;
-  lastLoginAt: Date | null;
-  emailVerificationToken: string | null;
-  emailVerificationTokenExpiry: Date | null;
-  passwordResetToken: string | null;
-  passwordResetTokenExpiry: Date | null;
-  failedLoginAttempts: number;
-  lockedUntil: Date | null;
-  metadata: Record<string, unknown>;
-  avatar: string | null;
-  phoneNumber: string | null;
-  twoFactorEnabled: boolean;
-  twoFactorSecret: string | null;
-  backupCodes: string[] | null;
+// BaseAggregateRoot এর প্রপস টাইপ ধরে রিটার্ন টাইপ ঠিক করা হলো
+export interface BaseEntityProps {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date | null;
+  version: number;
 }
 
 export interface CreateUserParams {
@@ -72,6 +59,7 @@ export class UserEntity extends BaseAggregateRoot {
 
   private constructor(params: CreateUserParams) {
     super();
+
     this._email = params.email.toLowerCase();
     this._username = params.username.toLowerCase();
     this._firstName = params.firstName || null;
@@ -138,6 +126,9 @@ export class UserEntity extends BaseAggregateRoot {
   }
   get isVerified(): boolean {
     return this._isVerified;
+  }
+  get isActive(): boolean {
+    return this._isActive;
   }
   get lastLoginAt(): Date | null {
     return this._lastLoginAt;
@@ -273,7 +264,7 @@ export class UserEntity extends BaseAggregateRoot {
   public activateUser(): void {
     if (this.isActive) throw new Error('User is already active');
     if (this._status === USER_STATUS.DELETED) throw new Error('Cannot activate a deleted user');
-    this.activate(); // Calls BaseEntity's activate
+    this.activate();
     this._status = USER_STATUS.ACTIVE;
   }
 
@@ -281,13 +272,13 @@ export class UserEntity extends BaseAggregateRoot {
     if (this._status === USER_STATUS.SUSPENDED) throw new Error('User is already suspended');
     if (this._status === USER_STATUS.DELETED) throw new Error('Cannot suspend a deleted user');
     this._status = USER_STATUS.SUSPENDED;
-    this.deactivate(); // Calls BaseEntity's deactivate
+    this.deactivate();
   }
 
   public deleteUser(): void {
     if (this._status === USER_STATUS.DELETED) throw new Error('User is already deleted');
     this._status = USER_STATUS.DELETED;
-    this.softDelete(); // Calls BaseEntity's softDelete
+    this.softDelete();
   }
 
   public recordLogin(): void {
@@ -399,9 +390,14 @@ export class UserEntity extends BaseAggregateRoot {
     }
   }
 
-  public override toJSON(): Record<string, unknown> {
+  // ফিক্স: রিটার্ন টাইপ BaseEntityProps এর সাথে সামঞ্জস্যপূর্ণ করা হলো
+  public override toJSON(): Record<string, unknown> & BaseEntityProps {
     return {
       id: this.id,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+      deletedAt: this.deletedAt,
+      version: this.version,
       email: this._email,
       username: this._username,
       firstName: this._firstName,
@@ -412,10 +408,6 @@ export class UserEntity extends BaseAggregateRoot {
       isVerified: this._isVerified,
       isActive: this.isActive,
       lastLoginAt: this._lastLoginAt,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
-      deletedAt: this.deletedAt,
-      version: this.version,
       avatar: this._avatar,
       phoneNumber: this._phoneNumber,
       twoFactorEnabled: this._twoFactorEnabled,
@@ -423,7 +415,7 @@ export class UserEntity extends BaseAggregateRoot {
   }
 
   public toSafeJSON(): Record<string, unknown> {
-    const json = this.toJSON();
+    const json = this.toJSON() as Record<string, unknown>;
     delete json.passwordHash;
     delete json.passwordSalt;
     delete json.emailVerificationToken;
