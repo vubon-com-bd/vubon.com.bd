@@ -36,11 +36,12 @@ export class UserEntity extends BaseAggregateRoot {
     this._status = USER_STATUS.PENDING_VERIFICATION;
     this._isVerified = false;
 
-    // লিন্টারকে খুশি করার জন্য সরাসরি এন্ট্রি লুপ ব্যবহার করছি
+    // লিন্টারের অহেতুক এরর এড়াতে টাইপ কনফার্মেশন দিচ্ছি
     this._metadata = new Map<string, unknown>();
-    if (params.metadata) {
-      Object.entries(params.metadata).forEach(([key, value]) => {
-        this._metadata.set(key, value);
+    const meta = params.metadata as Record<string, unknown> | undefined;
+    if (meta) {
+      Object.keys(meta).forEach((key) => {
+        this._metadata.set(key, meta[key]);
       });
     }
   }
