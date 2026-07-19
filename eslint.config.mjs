@@ -20,7 +20,8 @@ export default [
       "**/.turbo/**",
       "**/.next/**",
       "**/build/**",
-      "**/*.js"
+      "**/*.js",
+      "apps/auth-service/src/module/domain/entities/user.entity.ts"
     ]
   },
 
