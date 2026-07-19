@@ -215,10 +215,16 @@ export const sanitizeEmail = (email: string): string => {
     return '';
   }
 
-  // Remove whitespace and control characters
-  let sanitized = email.replace(/[\x00-\x1F\x7F]/g, '');
+  // Safe split & clean without relying on unsafe control characters in regex
+  let sanitized = email
+    .split('')
+    .filter((char) => {
+      const code = char.charCodeAt(0);
+      return code >= 32 && code !== 127; // Exclude control characters safely
+    })
+    .join('');
 
-  // Remove potential XSS patterns
+  // Remove potential HTML tags
   sanitized = sanitized.replace(/<[^>]*>/g, '');
 
   // Normalize

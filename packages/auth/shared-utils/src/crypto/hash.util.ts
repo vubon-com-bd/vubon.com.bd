@@ -53,7 +53,7 @@ export const hashPassword = async (
         keyLength,
       });
     } catch (error) {
-      reject(error);
+      reject(error instanceof Error ? error : new Error(String(error)));
     }
   });
 };
@@ -70,25 +70,25 @@ export const comparePassword = async (
     return false;
   }
 
-  const { hash, salt, iterations, keyLength } = hashedPassword;
+  return Promise.resolve().then(() => {
+    try {
+      const computedHash = scryptSync(password, hashedPassword.salt, hashedPassword.keyLength, {
+        N: hashedPassword.iterations,
+        r: 8,
+        p: 1,
+      });
 
-  try {
-    const computedHash = scryptSync(password, salt, keyLength, {
-      N: iterations,
-      r: 8,
-      p: 1,
-    });
+      const storedHashBuffer = Buffer.from(hashedPassword.hash, 'hex');
 
-    const storedHashBuffer = Buffer.from(hash, 'hex');
+      if (computedHash.length !== storedHashBuffer.length) {
+        return false;
+      }
 
-    if (computedHash.length !== storedHashBuffer.length) {
+      return timingSafeEqual(computedHash, storedHashBuffer);
+    } catch {
       return false;
     }
-
-    return timingSafeEqual(computedHash, storedHashBuffer);
-  } catch {
-    return false;
-  }
+  });
 };
 
 export const hashPasswordSync = (password: string, options?: HashOptions): HashedPassword => {
@@ -125,16 +125,14 @@ export const comparePasswordSync = (password: string, hashedPassword: HashedPass
     return false;
   }
 
-  const { hash, salt, iterations, keyLength } = hashedPassword;
-
   try {
-    const computedHash = scryptSync(password, salt, keyLength, {
-      N: iterations,
+    const computedHash = scryptSync(password, hashedPassword.salt, hashedPassword.keyLength, {
+      N: hashedPassword.iterations,
       r: 8,
       p: 1,
     });
 
-    const storedHashBuffer = Buffer.from(hash, 'hex');
+    const storedHashBuffer = Buffer.from(hashedPassword.hash, 'hex');
 
     if (computedHash.length !== storedHashBuffer.length) {
       return false;
@@ -260,73 +258,4 @@ export const comparePasswordSyncWithPepper = (
 
   const passwordWithPepper = password + pepper;
   return comparePasswordSync(passwordWithPepper, hashedPassword);
-};
-
-export const generatePasswordResetToken = (length: number = 32): string => {
-  if (length < 16) {
-    throw new Error('Token length must be at least 16 bytes');
-  }
-
-  return randomBytes(length).toString('hex');
-};
-
-export const generateVerificationCode = (length: number = 6): string => {
-  if (length < 4 || length > 10) {
-    throw new Error('Verification code length must be between 4 and 10');
-  }
-
-  const digits = '0123456789';
-  let code = '';
-
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * digits.length);
-    code += digits[randomIndex];
-  }
-
-  return code;
-};
-
-export const generateSecureToken = (length: number = 64): string => {
-  if (length < 32) {
-    throw new Error('Token length must be at least 32 bytes');
-  }
-
-  return randomBytes(length).toString('base64url');
-};
-
-export const generateSessionId = (): string => {
-  return randomBytes(16).toString('hex');
-};
-
-export const generateRefreshToken = (): string => {
-  return randomBytes(32).toString('base64url');
-};
-
-export const generateApiKey = (): string => {
-  const prefix = 'pk_';
-  const random = randomBytes(24).toString('base64url');
-  return prefix + random;
-};
-
-export const generateSecretKey = (): string => {
-  return randomBytes(32).toString('base64url');
-};
-
-export const generateRandomString = (
-  length: number = 16,
-  characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-): string => {
-  if (length < 1) {
-    throw new Error('Length must be at least 1');
-  }
-
-  let result = '';
-  const bytes = randomBytes(length);
-
-  for (let i = 0; i < length; i++) {
-    const randomIndex = bytes[i] % characters.length;
-    result += characters[randomIndex];
-  }
-
-  return result;
 };

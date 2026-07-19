@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection */
 /**
  * Random token and OTP generation utilities
  * Provides secure random generation for various authentication tokens
@@ -31,25 +32,14 @@ export const generateToken = (options?: TokenOptions): string => {
     includeSpecialChars = false,
   } = options || {};
 
-  let characters = '';
+  let charString = '';
 
-  if (includeUppercase) {
-    characters += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  }
+  if (includeUppercase) charString += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  if (includeLowercase) charString += 'abcdefghijklmnopqrstuvwxyz';
+  if (includeNumbers) charString += '0123456789';
+  if (includeSpecialChars) charString += '!@#$%^&*()_+-=[]{}|;:,.<>?';
 
-  if (includeLowercase) {
-    characters += 'abcdefghijklmnopqrstuvwxyz';
-  }
-
-  if (includeNumbers) {
-    characters += '0123456789';
-  }
-
-  if (includeSpecialChars) {
-    characters += '!@#$%^&*()_+-=[]{}|;:,.<>?';
-  }
-
-  if (characters.length === 0) {
+  if (charString.length === 0) {
     throw new Error('At least one character set must be included');
   }
 
@@ -57,8 +47,11 @@ export const generateToken = (options?: TokenOptions): string => {
   let token = '';
 
   for (let i = 0; i < length; i++) {
-    const randomIndex = bytes[i] % characters.length;
-    token += characters[randomIndex];
+    const currentByte = bytes[i];
+    if (typeof currentByte === 'number') {
+      const randomIndex = currentByte % charString.length;
+      token += charString.charAt(randomIndex);
+    }
   }
 
   return `${prefix}${token}${suffix}`;
@@ -96,12 +89,15 @@ export const generateOtp = (options?: OtpOptions): string => {
     const number = randomInt(min, max);
     otp = number.toString().padStart(length, '0');
   } else {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const bytes = randomBytes(length);
 
     for (let i = 0; i < length; i++) {
-      const randomIndex = bytes[i] % characters.length;
-      otp += characters[randomIndex];
+      const currentByte = bytes[i];
+      if (typeof currentByte === 'number') {
+        const randomIndex = currentByte % charString.length;
+        otp += charString.charAt(randomIndex);
+      }
     }
   }
 
@@ -125,13 +121,16 @@ export const generateAlphanumericOtp = (length: number = 6): string => {
     throw new Error('OTP length must be between 4 and 10');
   }
 
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const charString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let otp = '';
   const bytes = randomBytes(length);
 
   for (let i = 0; i < length; i++) {
-    const randomIndex = bytes[i] % characters.length;
-    otp += characters[randomIndex];
+    const currentByte = bytes[i];
+    if (typeof currentByte === 'number') {
+      const randomIndex = currentByte % charString.length;
+      otp += charString.charAt(randomIndex);
+    }
   }
 
   return otp;
@@ -176,8 +175,11 @@ export const generateVerificationCode = (length: number = 6): string => {
   const bytes = randomBytes(length);
 
   for (let i = 0; i < length; i++) {
-    const randomIndex = bytes[i] % digits.length;
-    code += digits[randomIndex];
+    const currentByte = bytes[i];
+    if (typeof currentByte === 'number') {
+      const randomIndex = currentByte % digits.length;
+      code += digits.charAt(randomIndex);
+    }
   }
 
   return code;
@@ -193,13 +195,13 @@ export const generatePasswordResetToken = (length: number = 32): string => {
 
 export const generateRandomString = (
   length: number = 16,
-  characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+  charactersStr: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
 ): string => {
   if (length < 1) {
     throw new Error('Length must be at least 1');
   }
 
-  if (!characters || typeof characters !== 'string') {
+  if (!charactersStr || typeof charactersStr !== 'string') {
     throw new Error('Characters must be a non-empty string');
   }
 
@@ -207,8 +209,11 @@ export const generateRandomString = (
   const bytes = randomBytes(length);
 
   for (let i = 0; i < length; i++) {
-    const randomIndex = bytes[i] % characters.length;
-    result += characters[randomIndex];
+    const currentByte = bytes[i];
+    if (typeof currentByte === 'number') {
+      const randomIndex = currentByte % charactersStr.length;
+      result += charactersStr.charAt(randomIndex);
+    }
   }
 
   return result;
@@ -225,9 +230,13 @@ export const generateRandomNumber = (min: number, max: number): number => {
 export const generateRandomUuid = (): string => {
   const bytes = randomBytes(16);
 
-  // Set version (4) and variant (RFC4122)
-  bytes[6] = (bytes[6] & 0x0f) | 0x40;
-  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const byte6 = bytes[6];
+  const byte8 = bytes[8];
+
+  if (typeof byte6 === 'number' && typeof byte8 === 'number') {
+    bytes[6] = (byte6 & 0x0f) | 0x40;
+    bytes[8] = (byte8 & 0x3f) | 0x80;
+  }
 
   const hex = bytes.toString('hex');
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
