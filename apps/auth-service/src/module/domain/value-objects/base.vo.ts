@@ -128,7 +128,7 @@ export abstract class ValueObject<T extends ValueObjectProps = ValueObjectProps>
     return clone as this;
   }
 
-  public toJSON(): ValueObjectProps {
+  public toJSON(): T {
     return this.props;
   }
 
