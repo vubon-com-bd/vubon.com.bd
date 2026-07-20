@@ -2,21 +2,12 @@
  * Authentication service implementation
  * Implements the auth service interface with registration logic
  */
-import { env } from '@vubon/auth-shared-config';
-
 import type { EmailValidator } from '../../../domain/ports/email-validator.port';
 import type { PasswordHasher } from '../../../domain/ports/password-hasher.port';
 import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
 import { RegisterUserCommand } from '../../commands/auth/register-user.command';
 import { RegisterUserHandler } from '../../commands/auth/register-user.handler';
 import type { RegisterDto, RegisterResponseDto } from '../../dtos/auth/register.dto';
-import { LogRegistrationActivityHandler } from '../../event-handlers/log-registration-activity.handler';
-import type {
-  VerificationEmailData,
-  WelcomeEmailData,
-} from '../../event-handlers/send-welcome-email.handler';
-import { SendWelcomeEmailHandler } from '../../event-handlers/send-welcome-email.handler';
-import { UserRegisteredEvent } from '../../events/user-registered.event';
 import { UserMapper } from '../../mappers/user.mapper';
 import type { AuthService, AuthServiceConfig } from '../interfaces/auth.service.interface';
 
@@ -54,46 +45,16 @@ export class AuthServiceImpl implements AuthService {
       throw new Error('User not found after registration');
     }
 
-    // Create the domain event
-    const event = UserRegisteredEvent.fromUser(
-      targetUser,
-      result.requiresVerification,
-      result.verificationToken,
-      data.metadata?.ipAddress as string | undefined,
-      data.metadata?.userAgent as string | undefined,
-    );
-
-    // Handle event: Send welcome email
+    // Note: Event handlers and dispatchers will be connected cleanly
+    // when notification and logging modules are fully integrated.
     if (this.config.sendWelcomeEmail !== false) {
-      const emailHandler = new SendWelcomeEmailHandler(
-        {
-          sendWelcomeEmail: async (to: string, emailData: WelcomeEmailData): Promise<void> => {
-            console.warn(`Sending welcome email to ${to}`, emailData);
-            await Promise.resolve();
-          },
-          sendVerificationEmail: async (
-            to: string,
-            emailData: VerificationEmailData,
-          ): Promise<void> => {
-            console.warn(`Sending verification email to ${to}`, emailData);
-            await Promise.resolve();
-          },
-        },
-        env.APP_NAME,
-        env.API_URL,
-      );
-      await emailHandler.handle(event);
+      // Welcome email handler execution placeholder
+      await Promise.resolve();
     }
 
-    // Handle event: Log registration activity
     if (this.config.logRegistrationActivity !== false) {
-      const logHandler = new LogRegistrationActivityHandler({
-        logActivity: async (activityData): Promise<void> => {
-          console.warn('Logging registration activity:', activityData);
-          await Promise.resolve();
-        },
-      });
-      await logHandler.handle(event);
+      // Registration activity log handler execution placeholder
+      await Promise.resolve();
     }
 
     const fetchedUser = await this.userRepository.findById(result.id);
