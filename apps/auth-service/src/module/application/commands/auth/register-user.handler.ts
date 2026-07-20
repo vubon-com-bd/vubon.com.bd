@@ -3,24 +3,25 @@
  * Handles the registration of new users
  */
 
-import { DEFAULT_ROLES } from '@vubon/auth-shared-constants';
 import * as crypto from 'node:crypto';
+
+import { DEFAULT_ROLES } from '@vubon/auth-shared-constants';
 
 import { User } from '../../../domain/entities/user.entity';
 import type { EmailValidator } from '../../../domain/ports/email-validator.port';
 import type { PasswordHasher } from '../../../domain/ports/password-hasher.port';
 import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
-import type {
+import {
   RegisterUserCommand,
+  RegisterUserCommandResult,
   RegisterUserWithSocialCommand,
 } from './register-user.command';
-import { RegisterUserCommandResult } from './register-user.command';
 
 export class RegisterUserHandler {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly passwordHasher: PasswordHasher,
-    private readonly emailValidator: EmailValidator
+    private readonly emailValidator: EmailValidator,
   ) {}
 
   public async execute(
@@ -129,7 +130,7 @@ export class RegisterUserWithSocialHandler {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly passwordHasher: PasswordHasher,
-    private readonly emailValidator: EmailValidator
+    private readonly emailValidator: EmailValidator,
   ) {}
 
   public async execute(
