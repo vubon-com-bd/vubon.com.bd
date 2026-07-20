@@ -119,11 +119,8 @@ export abstract class ValueObject<T extends ValueObjectProps = ValueObjectProps>
   }
 
   public clone(): this {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return
     const prototype = Object.getPrototypeOf(this) as object;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const clone = Object.create(prototype);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     Object.assign(clone, this);
     return clone as this;
   }
@@ -143,7 +140,7 @@ export abstract class SingleValueObject<T> extends ValueObject<{ value: T }> {
   }
 
   public override get value(): T {
-    return this.props.value as T;
+    return this.props.value as unknown as T;
   }
 
   public override equals(other: ValueObject<ValueObjectProps>): boolean {
@@ -211,11 +208,11 @@ export abstract class CollectionValueObject<T> extends ValueObject<{
   items: readonly T[];
 }> {
   protected constructor(items: T[]) {
-    super({ items: Object.freeze([...items]) as ValueObjectProps[string] });
+    super({ items: Object.freeze([...items]) as unknown as ValueObjectProps[string] });
   }
 
   public get items(): readonly T[] {
-    return this.props.items as readonly T[];
+    return this.props.items as unknown as readonly T[];
   }
 
   public get length(): number {
@@ -248,10 +245,10 @@ export abstract class CollectionValueObject<T> extends ValueObject<{
     }
 
     for (let i = 0; i < this.items.length; i++) {
-      // eslint-disable-next-line security/detect-object-injection, @typescript-eslint/no-unsafe-assignment
-      const currentItem = this.items[i];
       // eslint-disable-next-line security/detect-object-injection
-      const otherItem = other.items[i];
+      const currentItem = this.items[i] as T;
+      // eslint-disable-next-line security/detect-object-injection
+      const otherItem = (other as CollectionValueObject<T>).items[i] as T;
       if (currentItem !== otherItem) {
         return false;
       }
