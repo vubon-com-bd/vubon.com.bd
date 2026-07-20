@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
 /**
  * Prisma service for database connection management
  * Wraps Prisma client as a NestJS service for the authentication module
