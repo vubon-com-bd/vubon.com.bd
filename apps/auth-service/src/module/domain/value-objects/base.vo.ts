@@ -138,7 +138,7 @@ export abstract class ValueObject<T extends ValueObjectProps = ValueObjectProps>
 
 export abstract class SingleValueObject<T> extends ValueObject<{ value: T }> {
   protected constructor(value: T) {
-    super({ value } as unknown as { value: T });
+    super({ value });
   }
 
   public override get value(): T {
@@ -210,7 +210,7 @@ export abstract class CollectionValueObject<T> extends ValueObject<{
   items: readonly T[];
 }> {
   protected constructor(items: T[]) {
-    super({ items: Object.freeze([...items]) } as unknown as { items: readonly T[] });
+    super({ items: Object.freeze([...items]) });
   }
 
   public get items(): readonly T[] {
