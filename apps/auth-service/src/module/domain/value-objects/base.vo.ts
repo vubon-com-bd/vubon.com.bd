@@ -119,7 +119,9 @@ export abstract class ValueObject<T extends ValueObjectProps = ValueObjectProps>
   }
 
   public clone(): this {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const prototype = Object.getPrototypeOf(this);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
     const clone = Object.create(prototype);
     Object.assign(clone, this);
     return clone as this;
