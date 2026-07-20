@@ -52,6 +52,10 @@ export abstract class ValueObject<T extends ValueObjectProps = ValueObjectProps>
 
     for (const key of keys1) {
       const safeKey = key as keyof T;
+      const keyStr = String(safeKey);
+      if (keyStr === '__proto__' || keyStr === 'constructor' || keyStr === 'prototype') {
+        continue;
+      }
       // eslint-disable-next-line security/detect-object-injection
       const val1 = obj1[safeKey];
       // eslint-disable-next-line security/detect-object-injection
