@@ -10,7 +10,6 @@ import type { UserRepository } from '../../../domain/repositories/user.repositor
 import { RegisterUserCommand } from '../../commands/auth/register-user.command';
 import { RegisterUserHandler } from '../../commands/auth/register-user.handler';
 import type { RegisterDto, RegisterResponseDto } from '../../dtos/auth/register.dto';
-import type { ActivityLogData } from '../../event-handlers/log-registration-activity.handler';
 import { LogRegistrationActivityHandler } from '../../event-handlers/log-registration-activity.handler';
 import type {
   VerificationEmailData,
@@ -89,9 +88,8 @@ export class AuthServiceImpl implements AuthService {
     // Handle event: Log registration activity
     if (this.config.logRegistrationActivity !== false) {
       const logHandler = new LogRegistrationActivityHandler({
-        logActivity: async (activityData: ActivityLogData): Promise<void> => {
-          const userIdStr = String((activityData as Record<string, unknown>).userId ?? '');
-          console.warn(`Logging registration activity for user ${userIdStr}`, activityData);
+        logActivity: async (activityData): Promise<void> => {
+          console.warn('Logging registration activity:', activityData);
           await Promise.resolve();
         },
       });
