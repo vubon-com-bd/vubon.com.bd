@@ -51,9 +51,8 @@ export abstract class ValueObject<T extends ValueObjectProps = ValueObjectProps>
     }
 
     for (const key of keys1) {
-      const safeKey = key as keyof T;
-      const val1 = obj1[safeKey];
-      const val2 = obj2[safeKey];
+      const val1 = obj1[key as keyof T];
+      const val2 = obj2[key as keyof T];
 
       if (this.isValueObject(val1) && this.isValueObject(val2)) {
         if (!val1.equals(val2)) {
@@ -117,11 +116,8 @@ export abstract class ValueObject<T extends ValueObjectProps = ValueObjectProps>
   }
 
   public clone(): this {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return
     const prototype = Object.getPrototypeOf(this) as object;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const clone = Object.create(prototype);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     Object.assign(clone, this);
     return clone as this;
   }
@@ -137,11 +133,11 @@ export abstract class ValueObject<T extends ValueObjectProps = ValueObjectProps>
 
 export abstract class SingleValueObject<T> extends ValueObject<{ value: T }> {
   protected constructor(value: T) {
-    super({ value: value as unknown as ValueObjectProps[string] });
+    super({ value: value as ValueObjectProps[string] });
   }
 
   public override get value(): T {
-    return this.props.value as unknown as T;
+    return this.props.value as T;
   }
 
   public override equals(other: ValueObject<ValueObjectProps>): boolean {
@@ -209,11 +205,11 @@ export abstract class CollectionValueObject<T> extends ValueObject<{
   items: readonly T[];
 }> {
   protected constructor(items: T[]) {
-    super({ items: Object.freeze([...items]) as unknown as ValueObjectProps[string] });
+    super({ items: Object.freeze([...items]) as ValueObjectProps[string] });
   }
 
   public get items(): readonly T[] {
-    return this.props.items as unknown as readonly T[];
+    return this.props.items as readonly T[];
   }
 
   public get length(): number {
