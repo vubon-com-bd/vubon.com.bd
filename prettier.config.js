@@ -62,5 +62,17 @@ export default {
 
   importOrderSeparation: true,
   importOrderSortSpecifiers: true,
-  importOrderCaseInsensitive: true
+  importOrderCaseInsensitive: true,
+
+  // --------------------------------------------------------------------------
+  // Parser Overrides for Decorator Support
+  // --------------------------------------------------------------------------
+  overrides: [
+    {
+      files: ['*.ts', '*.tsx'],
+      options: {
+        parser: 'typescript',
+      },
+    },
+  ],
 };
