@@ -1,4 +1,3 @@
-/* eslint-disable */
 /**
  * Prisma service for database connection management
  * Wraps Prisma client as a NestJS service for the authentication module
