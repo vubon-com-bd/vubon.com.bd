@@ -3,19 +3,17 @@
  * Handles the registration of new users
  */
 
-import * as crypto from 'node:crypto';
-
 import { DEFAULT_ROLES } from '@vubon/auth-shared-constants';
 
 import { User } from '../../../domain/entities/user.entity';
 import type { EmailValidator } from '../../../domain/ports/email-validator.port';
 import type { PasswordHasher } from '../../../domain/ports/password-hasher.port';
 import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
-import {
+import type {
   RegisterUserCommand,
-  RegisterUserCommandResult,
   RegisterUserWithSocialCommand,
 } from './register-user.command';
+import { RegisterUserCommandResult } from './register-user.command';
 
 export class RegisterUserHandler {
   constructor(
@@ -122,6 +120,8 @@ export class RegisterUserHandler {
   }
 
   private generateVerificationToken(): string {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const crypto = require('node:crypto');
     return crypto.randomBytes(32).toString('hex');
   }
 }
@@ -202,6 +202,8 @@ export class RegisterUserWithSocialHandler {
   }
 
   private generateRandomPassword(): string {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const crypto = require('node:crypto');
     return crypto.randomBytes(32).toString('base64');
   }
 
