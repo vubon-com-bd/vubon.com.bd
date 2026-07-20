@@ -20,15 +20,15 @@ export const registerSchema = z.object({
     .min(1, 'Password is required')
     .min(
       PASSWORD_POLICY.MIN_LENGTH,
-      `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters`,
+      `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters`
     )
     .max(
       PASSWORD_POLICY.MAX_LENGTH,
-      `Password must be less than ${PASSWORD_POLICY.MAX_LENGTH} characters`,
+      `Password must be less than ${PASSWORD_POLICY.MAX_LENGTH} characters`
     )
     .regex(
       PASSWORD_REGEX,
-      'Password must contain uppercase, lowercase, number, and special character',
+      'Password must contain uppercase, lowercase, number, and special character'
     ),
 
   confirmPassword: z.string().min(1, 'Confirm password is required'),
@@ -39,7 +39,7 @@ export const registerSchema = z.object({
     .max(50, 'First name must be less than 50 characters')
     .regex(
       /^[a-zA-Z\s'-]+$/,
-      'First name can only contain letters, spaces, apostrophes, and hyphens',
+      'First name can only contain letters, spaces, apostrophes, and hyphens'
     )
     .trim()
     .optional(),
@@ -50,7 +50,7 @@ export const registerSchema = z.object({
     .max(50, 'Last name must be less than 50 characters')
     .regex(
       /^[a-zA-Z\s'-]+$/,
-      'Last name can only contain letters, spaces, apostrophes, and hyphens',
+      'Last name can only contain letters, spaces, apostrophes, and hyphens'
     )
     .trim()
     .optional(),
@@ -61,7 +61,7 @@ export const registerSchema = z.object({
     .max(30, 'Username must be less than 30 characters')
     .regex(
       /^[a-zA-Z0-9_-]+$/,
-      'Username can only contain letters, numbers, underscores, and hyphens',
+      'Username can only contain letters, numbers, underscores, and hyphens'
     )
     .toLowerCase()
     .trim()
@@ -113,7 +113,7 @@ export const registerStrictSchema: z.ZodType<unknown, z.ZodTypeDef, unknown> = r
     {
       message: "Passwords don't match",
       path: ['confirmPassword'],
-    },
+    }
   );
 
 export type RegisterStrictRequest = z.infer<typeof registerStrictSchema>;
@@ -127,7 +127,7 @@ export const registerWithUsernameSchema = registerSchema
       .max(30, 'Username must be less than 30 characters')
       .regex(
         /^[a-zA-Z0-9_-]+$/,
-        'Username can only contain letters, numbers, underscores, and hyphens',
+        'Username can only contain letters, numbers, underscores, and hyphens'
       )
       .toLowerCase()
       .trim(),
@@ -145,7 +145,7 @@ export const registerWithUsernameSchema = registerSchema
     {
       message: "Passwords don't match",
       path: ['confirmPassword'],
-    },
+    }
   );
 
 export type RegisterWithUsernameRequest = z.infer<typeof registerWithUsernameSchema>;
@@ -168,7 +168,7 @@ export const registerWithoutTermsSchema = registerSchema
     {
       message: "Passwords don't match",
       path: ['confirmPassword'],
-    },
+    }
   );
 
 export type RegisterWithoutTermsRequest = z.infer<typeof registerWithoutTermsSchema>;
@@ -254,7 +254,7 @@ export const registerErrorSchema = z.object({
         message: z.string(),
         code: z.string(),
         value: z.unknown().optional(),
-      }),
+      })
     )
     .optional(),
 });

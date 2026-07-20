@@ -25,7 +25,7 @@ const DEFAULT_OPTIONS: Required<HashOptions> = {
 
 export const hashPassword = async (
   password: string,
-  options?: HashOptions,
+  options?: HashOptions
 ): Promise<HashedPassword> => {
   if (!password || typeof password !== 'string') {
     throw new Error('Password is required');
@@ -60,7 +60,7 @@ export const hashPassword = async (
 
 export const comparePassword = async (
   password: string,
-  hashedPassword: HashedPassword,
+  hashedPassword: HashedPassword
 ): Promise<boolean> => {
   if (!password || typeof password !== 'string') {
     return false;
@@ -155,7 +155,7 @@ export const generateRandomSalt = (length: number = DEFAULT_OPTIONS.saltLength):
 export const generateHashFromSalt = (
   password: string,
   salt: string,
-  options?: Pick<HashOptions, 'iterations' | 'keyLength'>,
+  options?: Pick<HashOptions, 'iterations' | 'keyLength'>
 ): string => {
   if (!password || typeof password !== 'string') {
     throw new Error('Password is required');
@@ -199,7 +199,7 @@ export const getHashLength = (hash: string): number => {
 
 export const isHashValid = (
   hash: string,
-  expectedLength: number = DEFAULT_OPTIONS.keyLength,
+  expectedLength: number = DEFAULT_OPTIONS.keyLength
 ): boolean => {
   if (!validateHashFormat(hash)) {
     return false;
@@ -211,7 +211,7 @@ export const isHashValid = (
 export const hashPasswordWithPepper = async (
   password: string,
   pepper: string,
-  options?: HashOptions,
+  options?: HashOptions
 ): Promise<HashedPassword> => {
   if (!pepper || typeof pepper !== 'string') {
     throw new Error('Pepper is required');
@@ -224,7 +224,7 @@ export const hashPasswordWithPepper = async (
 export const comparePasswordWithPepper = async (
   password: string,
   pepper: string,
-  hashedPassword: HashedPassword,
+  hashedPassword: HashedPassword
 ): Promise<boolean> => {
   if (!pepper || typeof pepper !== 'string') {
     return false;
@@ -237,7 +237,7 @@ export const comparePasswordWithPepper = async (
 export const hashPasswordSyncWithPepper = (
   password: string,
   pepper: string,
-  options?: HashOptions,
+  options?: HashOptions
 ): HashedPassword => {
   if (!pepper || typeof pepper !== 'string') {
     throw new Error('Pepper is required');
@@ -250,7 +250,7 @@ export const hashPasswordSyncWithPepper = (
 export const comparePasswordSyncWithPepper = (
   password: string,
   pepper: string,
-  hashedPassword: HashedPassword,
+  hashedPassword: HashedPassword
 ): boolean => {
   if (!pepper || typeof pepper !== 'string') {
     return false;

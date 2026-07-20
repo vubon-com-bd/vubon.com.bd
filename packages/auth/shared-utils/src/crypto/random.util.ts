@@ -195,7 +195,7 @@ export const generatePasswordResetToken = (length: number = 32): string => {
 
 export const generateRandomString = (
   length: number = 16,
-  charactersStr: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+  charactersStr: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 ): string => {
   if (length < 1) {
     throw new Error('Length must be at least 1');

@@ -77,7 +77,7 @@ export const validateEnv = (envOverride?: Record<string, string | undefined>): E
 };
 
 export const validateStrictEnvOverride = (
-  envOverride?: Record<string, string | undefined>,
+  envOverride?: Record<string, string | undefined>
 ): StrictEnvConfig => {
   return validateStrictEnv({ ...getRawEnv(), ...envOverride });
 };

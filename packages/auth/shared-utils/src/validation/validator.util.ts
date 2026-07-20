@@ -186,7 +186,7 @@ export const getPasswordErrors = (password: string): string[] => {
 export const isStrongPassword = isPasswordStrong;
 
 export const validatePassword = (
-  password: string,
+  password: string
 ): { isValid: boolean; errors: string[]; strength: 'weak' | 'medium' | 'strong' } => {
   const errors = getPasswordErrors(password);
   const strength = getPasswordStrength(password);
@@ -262,7 +262,7 @@ export const getPhoneNumberErrors = (phoneNumber: string): string[] => {
 };
 
 export const validatePhoneNumber = (
-  phoneNumber: string,
+  phoneNumber: string
 ): { isValid: boolean; errors: string[] } => {
   const errors = getPhoneNumberErrors(phoneNumber);
 

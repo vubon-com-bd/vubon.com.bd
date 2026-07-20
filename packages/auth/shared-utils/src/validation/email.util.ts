@@ -50,7 +50,7 @@ export const normalizeEmail = (email: string): string => {
 };
 
 export const validateAndNormalizeEmail = (
-  email: string,
+  email: string
 ): { isValid: boolean; normalizedEmail: string; errors: string[] } => {
   const errors: string[] = [];
 

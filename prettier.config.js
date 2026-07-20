@@ -57,7 +57,7 @@ export default {
     '^@/(.*)$',
 
     '^\\.{2}/(.*)$',
-    '^\\./(.*)$'
+    '^\\./(.*)$',
   ],
 
   importOrderSeparation: true,

@@ -363,7 +363,7 @@ export const maskString = (
   str: string,
   visibleStart: number = 4,
   visibleEnd: number = 4,
-  maskChar: string = '*',
+  maskChar: string = '*'
 ): string => {
   if (!str || typeof str !== 'string') {
     return '';

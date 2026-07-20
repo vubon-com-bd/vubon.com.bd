@@ -236,7 +236,7 @@ export const strictEnvSchema = envSchema
     {
       message: 'JWT_SECRET must be at least 32 characters in production',
       path: ['JWT_SECRET'],
-    },
+    }
   )
   .refine(
     (data) => {
@@ -248,7 +248,7 @@ export const strictEnvSchema = envSchema
     {
       message: 'SESSION_SECRET must be at least 32 characters in production',
       path: ['SESSION_SECRET'],
-    },
+    }
   )
   .refine(
     (data) => {
@@ -260,7 +260,7 @@ export const strictEnvSchema = envSchema
     {
       message: 'SMTP configuration is required when email verification is enabled',
       path: ['SMTP_HOST'],
-    },
+    }
   );
 
 export type StrictEnvConfig = z.infer<typeof strictEnvSchema>;
