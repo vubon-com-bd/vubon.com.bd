@@ -18,7 +18,7 @@ export abstract class ValueObject<T extends ValueObjectProps = ValueObjectProps>
     return this.props;
   }
 
-  public equals(other: ValueObject<T>): boolean {
+  public equals(other: ValueObject<ValueObjectProps>): boolean {
     if (other === null || other === undefined) {
       return false;
     }
@@ -31,7 +31,7 @@ export abstract class ValueObject<T extends ValueObjectProps = ValueObjectProps>
       return false;
     }
 
-    return this.deepEquals(this.props, other.props);
+    return this.deepEquals(this.props, other.props as T);
   }
 
   protected deepEquals(obj1: T, obj2: T): boolean {
@@ -126,7 +126,7 @@ export abstract class ValueObject<T extends ValueObjectProps = ValueObjectProps>
     return clone as this;
   }
 
-  public toJSON(): T {
+  public toJSON(): ValueObjectProps {
     return this.props;
   }
 
@@ -137,14 +137,14 @@ export abstract class ValueObject<T extends ValueObjectProps = ValueObjectProps>
 
 export abstract class SingleValueObject<T> extends ValueObject<{ value: T }> {
   protected constructor(value: T) {
-    super({ value });
+    super({ value: value as unknown as ValueObjectProps[string] });
   }
 
-  public get value(): T {
-    return this.props.value;
+  public override get value(): T {
+    return this.props.value as unknown as T;
   }
 
-  public equals(other: SingleValueObject<T>): boolean {
+  public override equals(other: ValueObject<ValueObjectProps>): boolean {
     if (other === null || other === undefined) {
       return false;
     }
@@ -160,11 +160,11 @@ export abstract class SingleValueObject<T> extends ValueObject<{ value: T }> {
     return this.value === other.value;
   }
 
-  public toJSON(): T {
+  public override toJSON(): T {
     return this.value;
   }
 
-  public toString(): string {
+  public override toString(): string {
     return String(this.value);
   }
 }
@@ -209,11 +209,11 @@ export abstract class CollectionValueObject<T> extends ValueObject<{
   items: readonly T[];
 }> {
   protected constructor(items: T[]) {
-    super({ items: Object.freeze([...items]) });
+    super({ items: Object.freeze([...items]) as unknown as ValueObjectProps[string] });
   }
 
   public get items(): readonly T[] {
-    return this.props.items;
+    return this.props.items as unknown as readonly T[];
   }
 
   public get length(): number {
@@ -228,7 +228,7 @@ export abstract class CollectionValueObject<T> extends ValueObject<{
     return this.items.includes(item);
   }
 
-  public equals(other: CollectionValueObject<T>): boolean {
+  public override equals(other: ValueObject<ValueObjectProps>): boolean {
     if (other === null || other === undefined) {
       return false;
     }
@@ -260,15 +260,15 @@ export abstract class CollectionValueObject<T> extends ValueObject<{
     return [...this.items];
   }
 
-  public toJSON(): T[] {
+  public override toJSON(): readonly T[] {
     return this.toArray();
   }
 }
 
 export abstract class ValueObjectFactory<T extends ValueObject<ValueObjectProps>> {
-  public abstract create(props: T['props']): T;
-  public abstract reconstitute(props: T['props']): T;
-  public abstract isValid(props: T['props']): boolean;
+  public abstract create(props: ValueObjectProps): T;
+  public abstract reconstitute(props: ValueObjectProps): T;
+  public abstract isValid(props: ValueObjectProps): boolean;
 }
 
 export const isValueObject = (value: unknown): value is ValueObject<ValueObjectProps> => {
@@ -287,7 +287,7 @@ export const isCollectionValueObject = <T>(value: unknown): value is CollectionV
   return value instanceof CollectionValueObject;
 };
 
-export abstract class ValidatedValueObject<T> extends ValueObject<T> {
+export abstract class ValidatedValueObject<T extends ValueObjectProps> extends ValueObject<T> {
   protected constructor(props: T) {
     super(props);
     this.validate();
