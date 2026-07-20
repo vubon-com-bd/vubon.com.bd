@@ -127,7 +127,7 @@ export abstract class ValueObject<T extends ValueObjectProps = ValueObjectProps>
     return clone as this;
   }
 
-  public toJSON(): T {
+  public toJSON(): ValueObjectProps {
     return this.props;
   }
 
@@ -138,7 +138,7 @@ export abstract class ValueObject<T extends ValueObjectProps = ValueObjectProps>
 
 export abstract class SingleValueObject<T> extends ValueObject<{ value: T }> {
   protected constructor(value: T) {
-    super({ value: value as ValueObjectProps[string] });
+    super({ value } as unknown as { value: T });
   }
 
   public override get value(): T {
@@ -161,8 +161,8 @@ export abstract class SingleValueObject<T> extends ValueObject<{ value: T }> {
     return this.value === other.value;
   }
 
-  public override toJSON(): T {
-    return this.value;
+  public override toJSON(): ValueObjectProps {
+    return { value: this.value as unknown as ValueObjectProps[string] };
   }
 
   public override toString(): string {
@@ -210,7 +210,7 @@ export abstract class CollectionValueObject<T> extends ValueObject<{
   items: readonly T[];
 }> {
   protected constructor(items: T[]) {
-    super({ items: Object.freeze([...items]) as ValueObjectProps[string] });
+    super({ items: Object.freeze([...items]) } as unknown as { items: readonly T[] });
   }
 
   public get items(): readonly T[] {
@@ -263,8 +263,8 @@ export abstract class CollectionValueObject<T> extends ValueObject<{
     return [...this.items];
   }
 
-  public override toJSON(): readonly T[] {
-    return this.toArray();
+  public override toJSON(): ValueObjectProps {
+    return { items: this.toArray() as unknown as ValueObjectProps[string] };
   }
 }
 
