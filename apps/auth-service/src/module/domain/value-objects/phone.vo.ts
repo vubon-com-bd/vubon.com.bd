@@ -2,8 +2,8 @@
  * Phone number value object
  * Validates and encapsulates phone number logic for user registration and authentication
  */
-import { ValidatedValueObject, ValueObject } from './base.vo';
-import type { ValueObjectProps } from './base.vo';
+import { ValidatedValueObject } from './base.vo';
+import type { ValueObject, ValueObjectProps } from './base.vo';
 
 export interface PhoneProps extends ValueObjectProps {
   value: string;
