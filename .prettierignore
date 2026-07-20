@@ -65,3 +65,4 @@ temp/
 *.zip
 *.tar
 *.gz
+apps/auth-service/src/module/infrastructure/persistence/prisma/prisma.service.ts
