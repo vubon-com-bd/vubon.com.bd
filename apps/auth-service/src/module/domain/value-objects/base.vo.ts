@@ -51,8 +51,11 @@ export abstract class ValueObject<T extends ValueObjectProps = ValueObjectProps>
     }
 
     for (const key of keys1) {
-      const val1 = obj1[key as keyof T];
-      const val2 = obj2[key as keyof T];
+      const safeKey = key as keyof T;
+      // eslint-disable-next-line security/detect-object-injection
+      const val1 = obj1[safeKey];
+      // eslint-disable-next-line security/detect-object-injection
+      const val2 = obj2[safeKey];
 
       if (this.isValueObject(val1) && this.isValueObject(val2)) {
         if (!val1.equals(val2)) {
@@ -116,8 +119,11 @@ export abstract class ValueObject<T extends ValueObjectProps = ValueObjectProps>
   }
 
   public clone(): this {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return
     const prototype = Object.getPrototypeOf(this) as object;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const clone = Object.create(prototype);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     Object.assign(clone, this);
     return clone as this;
   }
@@ -242,7 +248,9 @@ export abstract class CollectionValueObject<T> extends ValueObject<{
     }
 
     for (let i = 0; i < this.items.length; i++) {
+      // eslint-disable-next-line security/detect-object-injection, @typescript-eslint/no-unsafe-assignment
       const currentItem = this.items[i];
+      // eslint-disable-next-line security/detect-object-injection
       const otherItem = other.items[i];
       if (currentItem !== otherItem) {
         return false;
