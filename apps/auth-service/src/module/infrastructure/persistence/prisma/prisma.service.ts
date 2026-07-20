@@ -1,4 +1,3 @@
-/* eslint-disable */
 /**
  * Prisma service for database connection management
  * Wraps Prisma client as a NestJS service for the authentication module
@@ -6,7 +5,6 @@
 
 import { Injectable, type OnModuleInit, type OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-
 import { databaseConfig } from '../../config/database.config';
 
 @Injectable()
@@ -18,9 +16,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
           url: databaseConfig.url,
         },
       },
-      log: process.env.NODE_ENV === 'development' 
-        ? ['query', 'info', 'warn', 'error']
-        : ['error'],
+      log: process.env.NODE_ENV === 'development' ? ['query', 'info', 'warn', 'error'] : ['error'],
       errorFormat: 'pretty',
     });
   }
