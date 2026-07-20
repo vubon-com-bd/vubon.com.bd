@@ -51,8 +51,9 @@ export abstract class ValueObject<T extends ValueObjectProps = ValueObjectProps>
     }
 
     for (const key of keys1) {
-      const val1 = obj1[key as keyof T];
-      const val2 = obj2[key as keyof T];
+      const safeKey = key as keyof T;
+      const val1 = obj1[safeKey];
+      const val2 = obj2[safeKey];
 
       if (this.isValueObject(val1) && this.isValueObject(val2)) {
         if (!val1.equals(val2)) {
@@ -116,9 +117,13 @@ export abstract class ValueObject<T extends ValueObjectProps = ValueObjectProps>
   }
 
   public clone(): this {
-    const clone = Object.create(Object.getPrototypeOf(this));
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return
+    const prototype = Object.getPrototypeOf(this) as object;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const clone = Object.create(prototype);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     Object.assign(clone, this);
-    return clone;
+    return clone as this;
   }
 
   public toJSON(): T {
@@ -241,7 +246,9 @@ export abstract class CollectionValueObject<T> extends ValueObject<{
     }
 
     for (let i = 0; i < this.items.length; i++) {
-      if (this.items[i] !== other.items[i]) {
+      const currentItem = this.items[i];
+      const otherItem = other.items[i];
+      if (currentItem !== otherItem) {
         return false;
       }
     }
