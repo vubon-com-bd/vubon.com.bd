@@ -3,9 +3,7 @@
  * Implements the auth service interface with registration logic
  */
 import { env } from '@vubon/auth-shared-config';
-import { DEFAULT_ROLES } from '@vubon/auth-shared-constants';
 
-import type { User } from '../../../domain/entities/user.entity';
 import type { EmailValidator } from '../../../domain/ports/email-validator.port';
 import type { PasswordHasher } from '../../../domain/ports/password-hasher.port';
 import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
@@ -72,12 +70,14 @@ export class AuthServiceImpl implements AuthService {
         {
           sendWelcomeEmail: async (to: string, emailData: WelcomeEmailData): Promise<void> => {
             console.warn(`Sending welcome email to ${to}`, emailData);
+            await Promise.resolve();
           },
           sendVerificationEmail: async (
             to: string,
             emailData: VerificationEmailData,
           ): Promise<void> => {
             console.warn(`Sending verification email to ${to}`, emailData);
+            await Promise.resolve();
           },
         },
         env.APP_NAME,
@@ -94,6 +94,7 @@ export class AuthServiceImpl implements AuthService {
             `Logging registration activity for user ${activityData.userId}`,
             activityData,
           );
+          await Promise.resolve();
         },
       });
       await logHandler.handle(event);
