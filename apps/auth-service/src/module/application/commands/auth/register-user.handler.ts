@@ -89,7 +89,7 @@ export class RegisterUserHandler {
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + 24);
 
-      savedUser.updateVerificationToken(token, expiresAt);
+      savedUser.assignVerificationToken(token, expiresAt);
       await this.userRepository.save(savedUser);
       verificationToken = token;
     } else {
