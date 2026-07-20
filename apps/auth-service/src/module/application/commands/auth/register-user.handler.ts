@@ -3,9 +3,8 @@
  * Handles the registration of new users
  */
 
-import { randomBytes } from 'node:crypto';
-
 import { DEFAULT_ROLES } from '@vubon/auth-shared-constants';
+import { randomBytes } from 'node:crypto';
 
 import { User } from '../../../domain/entities/user.entity';
 import type { EmailValidator } from '../../../domain/ports/email-validator.port';
