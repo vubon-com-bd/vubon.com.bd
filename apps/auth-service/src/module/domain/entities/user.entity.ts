@@ -100,7 +100,7 @@ export class User extends BaseEntity {
 
   public static reconstitute(props: UserProps): User {
     return new User(props);
-  } // Getters
+  }
 
   get email(): string {
     return this._email;
@@ -158,12 +158,18 @@ export class User extends BaseEntity {
   }
   get refreshTokenExpiresAt(): Date | null {
     return this._refreshTokenExpiresAt;
-  } // Business Methods
+  }
 
   public changeEmail(email: string): void {
     if (!email) throw new Error('Email is required');
     this._email = email;
     this._isVerified = false;
+    this.setUpdatedAt();
+  }
+
+  public assignVerificationToken(token: string, expiresAt: Date): void {
+    this._verificationToken = token;
+    this._verificationTokenExpiresAt = expiresAt;
     this.setUpdatedAt();
   }
 
@@ -178,7 +184,7 @@ export class User extends BaseEntity {
   public softDelete(): void {
     this._status = USER_STATUS.DELETED;
     super.softDelete();
-  } // toJSON Override
+  }
 
   public override toJSON(): Required<BaseEntityProps> & Record<string, unknown> {
     return {
