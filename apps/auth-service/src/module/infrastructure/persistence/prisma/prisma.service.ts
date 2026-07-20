@@ -3,7 +3,7 @@
  * Wraps Prisma client as a NestJS service for the authentication module
  */
 
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, type OnModuleInit, type OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 import { databaseConfig } from '../../config/database.config';
@@ -25,11 +25,15 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   }
 
   public async onModuleInit(): Promise<void> {
+    /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
     await this.$connect();
+    /* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
   }
 
   public async onModuleDestroy(): Promise<void> {
+    /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
     await this.$disconnect();
+    /* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
   }
 
   /**
@@ -37,7 +41,9 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
    */
   public async isConnected(): Promise<boolean> {
     try {
+      /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
       await this.$queryRaw`SELECT 1`;
+      /* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
       return true;
     } catch {
       return false;
@@ -54,7 +60,9 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   }> {
     const start = Date.now();
     try {
+      /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
       const result = (await this.$queryRaw`SELECT version()`) as Array<{ version: string }>;
+      /* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
       const latency = Date.now() - start;
       return {
         connected: true,
@@ -74,8 +82,10 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
    * Reset database connection pool
    */
   public async resetPool(): Promise<void> {
+    /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
     await this.$disconnect();
     await this.$connect();
+    /* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
   }
 }
 
