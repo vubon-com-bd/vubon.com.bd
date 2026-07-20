@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 /**
  * Prisma service for database connection management
  * Wraps Prisma client as a NestJS service for the authentication module
@@ -47,12 +46,13 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   }> {
     const start = Date.now();
     try {
-      const result = (await this.$queryRaw`SELECT version()`) as Array<{ version: string }>;
+      const result = await this.$queryRaw`SELECT version()`;
       const latency = Date.now() - start;
+      const versionResult = result as Array<{ version: string }>;
       return {
         connected: true,
         latency,
-        version: result[0]?.version ?? null,
+        version: versionResult[0]?.version ?? null,
       };
     } catch {
       return {
