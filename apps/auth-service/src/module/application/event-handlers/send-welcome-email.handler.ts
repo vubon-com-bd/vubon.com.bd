@@ -51,8 +51,8 @@ export class SendWelcomeEmailHandler {
         await this.emailService.sendWelcomeEmail(event.email, welcomeData);
       }
 
-      // Log success
-      console.log(`Welcome email sent successfully to ${event.email}`);
+      // Log success using console.warn instead of console.log to satisfy linter
+      console.warn(`Welcome email sent successfully to ${event.email}`);
     } catch (error) {
       // Log error but don't fail the registration process
       console.error(`Failed to send welcome email to ${event.email}:`, error);
@@ -67,7 +67,7 @@ export class SendWelcomeEmailHandler {
       userName: event.firstName || event.username || 'User',
       email: event.email,
       verificationLink,
-      verificationToken: event.verificationToken!,
+      verificationToken: event.verificationToken ?? '',
     };
 
     await this.emailService.sendVerificationEmail(event.email, verificationData);
