@@ -9,12 +9,9 @@ import { PrismaClient } from '@prisma/client';
 import { databaseConfig } from '../../config/database.config';
 
 @Injectable()
-export class PrismaService implements OnModuleInit, OnModuleDestroy {
-  private readonly prismaClient: PrismaClient;
-
+export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   constructor() {
-    /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call */
-    this.prismaClient = new PrismaClient({
+    super({
       datasources: {
         db: {
           url: databaseConfig.url,
@@ -24,24 +21,15 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
         ? ['query', 'info', 'warn', 'error']
         : ['error'],
       errorFormat: 'pretty',
-    }) as unknown as PrismaClient;
-    /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call */
-  }
-
-  public get client(): PrismaClient {
-    return this.prismaClient;
+    });
   }
 
   public async onModuleInit(): Promise<void> {
-    /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
-    await (this.prismaClient as unknown as { $connect: () => Promise<void> }).$connect();
-    /* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+    await this.$connect();
   }
 
   public async onModuleDestroy(): Promise<void> {
-    /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
-    await (this.prismaClient as unknown as { $disconnect: () => Promise<void> }).$disconnect();
-    /* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+    await this.$disconnect();
   }
 
   /**
@@ -49,9 +37,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
    */
   public async isConnected(): Promise<boolean> {
     try {
-      /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
-      await (this.prismaClient as unknown as { $queryRaw: (query: TemplateStringsArray) => Promise<unknown> }).$queryRaw`SELECT 1`;
-      /* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+      await this.$queryRaw`SELECT 1`;
       return true;
     } catch {
       return false;
@@ -68,11 +54,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   }> {
     const start = Date.now();
     try {
-      /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
-      const result = (await (this.prismaClient as unknown as { 
-        $queryRaw: (query: TemplateStringsArray) => Promise<unknown> 
-      }).$queryRaw`SELECT version()`) as Array<{ version: string }>;
-      /* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+      const result = (await this.$queryRaw`SELECT version()`) as Array<{ version: string }>;
       const latency = Date.now() - start;
       return {
         connected: true,
@@ -92,14 +74,8 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
    * Reset database connection pool
    */
   public async resetPool(): Promise<void> {
-    /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
-    const client = this.prismaClient as unknown as { 
-      $disconnect: () => Promise<void>; 
-      $connect: () => Promise<void>; 
-    };
-    await client.$disconnect();
-    await client.$connect();
-    /* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+    await this.$disconnect();
+    await this.$connect();
   }
 }
 
