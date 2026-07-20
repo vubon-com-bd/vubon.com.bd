@@ -10,7 +10,10 @@ import type { UserRepository } from '../../../domain/repositories/user.repositor
 import { RegisterUserCommand } from '../../commands/auth/register-user.command';
 import { RegisterUserHandler } from '../../commands/auth/register-user.handler';
 import type { RegisterDto, RegisterResponseDto } from '../../dtos/auth/register.dto';
-import type { ActivityLogger } from '../../event-handlers/log-registration-activity.handler';
+import type {
+  ActivityLogData,
+  ActivityLogger,
+} from '../../event-handlers/log-registration-activity.handler';
 import { LogRegistrationActivityHandler } from '../../event-handlers/log-registration-activity.handler';
 import type {
   VerificationEmailData,
@@ -89,9 +92,8 @@ export class AuthServiceImpl implements AuthService {
     // Handle event: Log registration activity
     if (this.config.logRegistrationActivity !== false) {
       const activityLogger: ActivityLogger = {
-        logActivity: async (activityData: unknown): Promise<void> => {
-          const rawData = activityData as { userId?: unknown };
-          const safeUserId = String(rawData.userId ?? '');
+        logActivity: async (activityData: ActivityLogData): Promise<void> => {
+          const safeUserId = typeof activityData.userId === 'string' ? activityData.userId : '';
           console.warn(`Logging registration activity for user ${safeUserId}`, activityData);
           await Promise.resolve();
         },
