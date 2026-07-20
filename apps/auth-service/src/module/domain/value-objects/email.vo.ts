@@ -7,12 +7,14 @@ import {
   isEducationalEmail,
   isValidEmail,
   normalizeEmail,
-} from '@repo/auth-utils';
+} from '@vubon/shared-auth-utils';
 
-import { ValidatedValueObject, ValueObject, ValueObjectProps } from './base.vo';
+import type { ValueObjectProps } from './base.vo';
+import { ValidatedValueObject, ValueObject } from './base.vo';
 
-export interface EmailProps {
+export interface EmailProps extends ValueObjectProps {
   value: string;
+  [key: string]: unknown;
 }
 
 export class Email extends ValidatedValueObject<EmailProps> {
@@ -55,7 +57,11 @@ export class Email extends ValidatedValueObject<EmailProps> {
     return new Email(value);
   }
 
-  public override get value(): string {
+  public override get value(): EmailProps {
+    return this.props;
+  }
+
+  public get emailString(): string {
     return this.props.value;
   }
 
@@ -76,12 +82,12 @@ export class Email extends ValidatedValueObject<EmailProps> {
   }
 
   public getDomain(): string {
-    const parts = this.value.split('@');
+    const parts = this.emailString.split('@');
     return parts[1] || '';
   }
 
   public getLocalPart(): string {
-    const parts = this.value.split('@');
+    const parts = this.emailString.split('@');
     return parts[0] || '';
   }
 
@@ -98,15 +104,15 @@ export class Email extends ValidatedValueObject<EmailProps> {
   }
 
   public isDisposable(): boolean {
-    return isDisposableEmail(this.value, []);
+    return isDisposableEmail(this.emailString, []);
   }
 
   public isEducational(): boolean {
-    return isEducationalEmail(this.value);
+    return isEducationalEmail(this.emailString);
   }
 
   public obfuscate(): string {
-    const [localPart, domain] = this.value.split('@');
+    const [localPart, domain] = this.emailString.split('@');
     const obfuscatedLocal =
       localPart.length <= 2
         ? localPart[0] + '*'
@@ -126,14 +132,14 @@ export class Email extends ValidatedValueObject<EmailProps> {
       return this;
     }
 
-    const [localPart, domain] = this.value.split('@');
+    const [localPart, domain] = this.emailString.split('@');
     const strippedLocal = localPart.includes('+') ? localPart.split('+')[0] : localPart;
 
     return new Email(`${strippedLocal}@${domain}`);
   }
 
   public normalize(): Email {
-    return new Email(normalizeEmail(this.value));
+    return new Email(normalizeEmail(this.emailString));
   }
 
   public override equals(other: ValueObject<ValueObjectProps>): boolean {
@@ -149,15 +155,15 @@ export class Email extends ValidatedValueObject<EmailProps> {
       return false;
     }
 
-    return this.value.toLowerCase() === other.value.toLowerCase();
+    return this.emailString.toLowerCase() === other.emailString.toLowerCase();
   }
 
   public override toString(): string {
-    return this.value;
+    return this.emailString;
   }
 
-  public override toJSON(): string {
-    return this.value;
+  public override toJSON(): ValueObjectProps {
+    return { value: this.emailString };
   }
 }
 
