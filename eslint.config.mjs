@@ -21,7 +21,8 @@ export default [
       "**/.next/**",
       "**/build/**",
       "**/*.js",
-      "apps/auth-service/src/module/domain/entities/user.entity.ts"
+      "apps/auth-service/src/module/domain/entities/user.entity.ts",
+      "apps/auth-service/src/module/domain/value-objects/base.vo.ts"
     ]
   },
 
