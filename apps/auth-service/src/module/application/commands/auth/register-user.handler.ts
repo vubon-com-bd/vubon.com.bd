@@ -3,9 +3,8 @@
  * Handles the registration of new users
  */
 
-import * as crypto from 'node:crypto';
-
 import { DEFAULT_ROLES } from '@vubon/auth-shared-constants';
+import * as crypto from 'node:crypto';
 
 import { User } from '../../../domain/entities/user.entity';
 import type { EmailValidator } from '../../../domain/ports/email-validator.port';
@@ -25,7 +24,7 @@ export class RegisterUserHandler {
   ) {}
 
   public async execute(
-    command: RegisterUserCommand
+    command: RegisterUserCommand,
   ): Promise<RegisterUserCommandResult> {
     // Validate the command
     command.validate();
@@ -134,7 +133,7 @@ export class RegisterUserWithSocialHandler {
   ) {}
 
   public async execute(
-    command: RegisterUserWithSocialCommand
+    command: RegisterUserWithSocialCommand,
   ): Promise<RegisterUserCommandResult> {
     // Validate the command
     command.validate();
