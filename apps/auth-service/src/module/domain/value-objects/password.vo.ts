@@ -9,11 +9,13 @@ import {
   getPasswordStrengthScore,
   getPasswordStrengthText,
   isPasswordStrong,
-  PASSWORD_POLICY,
 } from '@vubon/auth-shared-utils';
 
-import { ValidatedValueObject, ValueObject } from './base.vo';
-import type { ValueObjectProps } from './base.vo';
+import { ValidatedValueObject } from './base.vo';
+import type { ValueObject, ValueObjectProps } from './base.vo';
+
+const MIN_PASSWORD_LENGTH = 8;
+const MAX_PASSWORD_LENGTH = 128;
 
 export interface PasswordProps extends ValueObjectProps {
   value: string;
@@ -31,16 +33,18 @@ export class Password extends ValidatedValueObject<PasswordProps> {
       throw new Error('Password is required');
     }
 
-    if (password.length < PASSWORD_POLICY.MIN_LENGTH) {
-      throw new Error(`Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters`);
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      throw new Error(`Password must be at least ${MIN_PASSWORD_LENGTH} characters`);
     }
 
-    if (password.length > PASSWORD_POLICY.MAX_LENGTH) {
-      throw new Error(`Password must be less than ${PASSWORD_POLICY.MAX_LENGTH} characters`);
+    if (password.length > MAX_PASSWORD_LENGTH) {
+      throw new Error(`Password must be less than ${MAX_PASSWORD_LENGTH} characters`);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     if (!isPasswordStrong(password)) {
-      const errors = getPasswordErrors(password);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
+      const errors = getPasswordErrors(password) as string[];
       throw new Error(`Password is not strong enough: ${errors.join(', ')}`);
     }
 
@@ -64,8 +68,8 @@ export class Password extends ValidatedValueObject<PasswordProps> {
       throw new Error('Password is required');
     }
 
-    if (password.length < PASSWORD_POLICY.MIN_LENGTH) {
-      throw new Error(`Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters`);
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      throw new Error(`Password must be at least ${MIN_PASSWORD_LENGTH} characters`);
     }
 
     return new Password(password);
@@ -95,16 +99,18 @@ export class Password extends ValidatedValueObject<PasswordProps> {
     }
 
     if (!hashed) {
-      if (value.length < PASSWORD_POLICY.MIN_LENGTH) {
-        throw new Error(`Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters`);
+      if (value.length < MIN_PASSWORD_LENGTH) {
+        throw new Error(`Password must be at least ${MIN_PASSWORD_LENGTH} characters`);
       }
 
-      if (value.length > PASSWORD_POLICY.MAX_LENGTH) {
-        throw new Error(`Password must be less than ${PASSWORD_POLICY.MAX_LENGTH} characters`);
+      if (value.length > MAX_PASSWORD_LENGTH) {
+        throw new Error(`Password must be less than ${MAX_PASSWORD_LENGTH} characters`);
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       if (!isPasswordStrong(value)) {
-        const errors = getPasswordErrors(value);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
+        const errors = getPasswordErrors(value) as string[];
         throw new Error(`Password is not strong enough: ${errors.join(', ')}`);
       }
     }
@@ -114,35 +120,40 @@ export class Password extends ValidatedValueObject<PasswordProps> {
     if (this.isHashed()) {
       return 'strong';
     }
-    return getPasswordStrength(this.passwordString);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    return getPasswordStrength(this.passwordString) as 'weak' | 'medium' | 'strong';
   }
 
   public getStrengthScore(): number {
     if (this.isHashed()) {
       return 6;
     }
-    return getPasswordStrengthScore(this.passwordString);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    return getPasswordStrengthScore(this.passwordString) as number;
   }
 
   public getStrengthText(): string {
     if (this.isHashed()) {
       return 'Hashed';
     }
-    return getPasswordStrengthText(this.passwordString);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    return getPasswordStrengthText(this.passwordString) as string;
   }
 
   public getStrengthColor(): string {
     if (this.isHashed()) {
       return '#00FF00';
     }
-    return getPasswordStrengthColor(this.passwordString);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    return getPasswordStrengthColor(this.passwordString) as string;
   }
 
   public getErrors(): string[] {
     if (this.isHashed()) {
       return [];
     }
-    return getPasswordErrors(this.passwordString);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    return getPasswordErrors(this.passwordString) as string[];
   }
 
   public override isValid(): boolean {
@@ -158,7 +169,8 @@ export class Password extends ValidatedValueObject<PasswordProps> {
     if (this.isHashed()) {
       return true;
     }
-    return isPasswordStrong(this.passwordString);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    return isPasswordStrong(this.passwordString) as boolean;
   }
 
   public hasUppercase(): boolean {
@@ -194,11 +206,11 @@ export class Password extends ValidatedValueObject<PasswordProps> {
   }
 
   public meetsMinLength(): boolean {
-    return this.passwordString.length >= PASSWORD_POLICY.MIN_LENGTH;
+    return this.passwordString.length >= MIN_PASSWORD_LENGTH;
   }
 
   public meetsMaxLength(): boolean {
-    return this.passwordString.length <= PASSWORD_POLICY.MAX_LENGTH;
+    return this.passwordString.length <= MAX_PASSWORD_LENGTH;
   }
 
   public override equals(other: ValueObject<ValueObjectProps>): boolean {
