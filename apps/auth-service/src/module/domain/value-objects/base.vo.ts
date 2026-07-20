@@ -119,8 +119,11 @@ export abstract class ValueObject<T extends ValueObjectProps = ValueObjectProps>
   }
 
   public clone(): this {
-    const prototype = Object.getPrototypeOf(this) as object;
-    const clone = Object.create(prototype);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any
+    const prototype = Object.getPrototypeOf(this) as any;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+    const clone = Object.create(prototype as object) as any;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     Object.assign(clone, this);
     return clone as this;
   }
@@ -140,7 +143,7 @@ export abstract class SingleValueObject<T> extends ValueObject<{ value: T }> {
   }
 
   public override get value(): T {
-    return this.props.value as unknown as T;
+    return this.props.value as T;
   }
 
   public override equals(other: ValueObject<ValueObjectProps>): boolean {
@@ -208,11 +211,11 @@ export abstract class CollectionValueObject<T> extends ValueObject<{
   items: readonly T[];
 }> {
   protected constructor(items: T[]) {
-    super({ items: Object.freeze([...items]) as unknown as ValueObjectProps[string] });
+    super({ items: Object.freeze([...items]) as ValueObjectProps[string] });
   }
 
   public get items(): readonly T[] {
-    return this.props.items as unknown as readonly T[];
+    return this.props.items as readonly T[];
   }
 
   public get length(): number {
@@ -246,9 +249,9 @@ export abstract class CollectionValueObject<T> extends ValueObject<{
 
     for (let i = 0; i < this.items.length; i++) {
       // eslint-disable-next-line security/detect-object-injection
-      const currentItem = this.items[i] as T;
+      const currentItem = this.items[i];
       // eslint-disable-next-line security/detect-object-injection
-      const otherItem = (other as CollectionValueObject<T>).items[i] as T;
+      const otherItem = (other as CollectionValueObject<T>).items[i];
       if (currentItem !== otherItem) {
         return false;
       }
