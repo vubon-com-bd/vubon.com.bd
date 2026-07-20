@@ -143,7 +143,7 @@ export abstract class SingleValueObject<T> extends ValueObject<{ value: T }> {
   }
 
   public override get value(): T {
-    return this.props.value as T;
+    return this.props.value;
   }
 
   public override equals(other: ValueObject<ValueObjectProps>): boolean {
@@ -215,7 +215,7 @@ export abstract class CollectionValueObject<T> extends ValueObject<{
   }
 
   public get items(): readonly T[] {
-    return this.props.items as readonly T[];
+    return this.props.items;
   }
 
   public get length(): number {
