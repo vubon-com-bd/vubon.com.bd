@@ -90,10 +90,8 @@ export class AuthServiceImpl implements AuthService {
     if (this.config.logRegistrationActivity !== false) {
       const logHandler = new LogRegistrationActivityHandler({
         logActivity: async (activityData: ActivityLogData): Promise<void> => {
-          console.warn(
-            `Logging registration activity for user ${activityData.userId}`,
-            activityData,
-          );
+          const safeUserId = String(activityData.userId);
+          console.warn(`Logging registration activity for user ${safeUserId}`, activityData);
           await Promise.resolve();
         },
       });
