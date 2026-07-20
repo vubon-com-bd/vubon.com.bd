@@ -2,16 +2,18 @@
  * Command handler for user registration
  * Handles the registration of new users
  */
-import { DEFAULT_ROLES } from '@vubon/auth-shared-constants';
 
+import { DEFAULT_ROLES } from '@vubon/auth-shared-constants';
 import { randomBytes } from 'node:crypto';
 
 import { User } from '../../../domain/entities/user.entity';
 import type { EmailValidator } from '../../../domain/ports/email-validator.port';
 import type { PasswordHasher } from '../../../domain/ports/password-hasher.port';
 import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
-
-import type { RegisterUserCommand, RegisterUserWithSocialCommand } from './register-user.command';
+import type {
+  RegisterUserCommand,
+  RegisterUserWithSocialCommand,
+} from './register-user.command';
 import { RegisterUserCommandResult } from './register-user.command';
 
 export class RegisterUserHandler {
@@ -21,7 +23,9 @@ export class RegisterUserHandler {
     private readonly emailValidator: EmailValidator,
   ) {}
 
-  public async execute(command: RegisterUserCommand): Promise<RegisterUserCommandResult> {
+  public async execute(
+    command: RegisterUserCommand,
+  ): Promise<RegisterUserCommandResult> {
     command.validate();
 
     if (!this.emailValidator.isValid(command.email)) {
@@ -110,7 +114,9 @@ export class RegisterUserWithSocialHandler {
     private readonly emailValidator: EmailValidator,
   ) {}
 
-  public async execute(command: RegisterUserWithSocialCommand): Promise<RegisterUserCommandResult> {
+  public async execute(
+    command: RegisterUserWithSocialCommand,
+  ): Promise<RegisterUserCommandResult> {
     command.validate();
 
     if (!this.emailValidator.isValid(command.email)) {
