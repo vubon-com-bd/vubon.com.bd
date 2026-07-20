@@ -3,9 +3,9 @@
  * Handles the registration of new users
  */
 
-import { DEFAULT_ROLES } from '@vubon/auth-shared-constants';
+/* eslint-disable import/order */
 import { randomBytes } from 'node:crypto';
-
+import { DEFAULT_ROLES } from '@vubon/auth-shared-constants';
 import { User } from '../../../domain/entities/user.entity';
 import type { EmailValidator } from '../../../domain/ports/email-validator.port';
 import type { PasswordHasher } from '../../../domain/ports/password-hasher.port';
@@ -15,6 +15,7 @@ import type {
   RegisterUserWithSocialCommand,
 } from './register-user.command';
 import { RegisterUserCommandResult } from './register-user.command';
+/* eslint-enable import/order */
 
 export class RegisterUserHandler {
   constructor(
