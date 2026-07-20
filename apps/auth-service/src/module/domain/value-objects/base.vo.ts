@@ -141,7 +141,7 @@ export abstract class SingleValueObject<T> extends ValueObject<{ value: T }> {
     super({ value });
   }
 
-  public override get value(): T {
+  public get extractedValue(): T {
     return this.props.value;
   }
 
@@ -158,15 +158,15 @@ export abstract class SingleValueObject<T> extends ValueObject<{ value: T }> {
       return false;
     }
 
-    return this.value === other.value;
+    return this.extractedValue === other.extractedValue;
   }
 
   public override toJSON(): ValueObjectProps {
-    return { value: this.value as unknown as ValueObjectProps[string] };
+    return { value: this.extractedValue };
   }
 
   public override toString(): string {
-    return String(this.value);
+    return String(this.extractedValue);
   }
 }
 
@@ -176,10 +176,10 @@ export abstract class ComparableValueObject<T> extends SingleValueObject<T> {
   }
 
   public compareTo(other: ComparableValueObject<T>): number {
-    if (this.value < other.value) {
+    if (this.extractedValue < other.extractedValue) {
       return -1;
     }
-    if (this.value > other.value) {
+    if (this.extractedValue > other.extractedValue) {
       return 1;
     }
     return 0;
@@ -264,7 +264,7 @@ export abstract class CollectionValueObject<T> extends ValueObject<{
   }
 
   public override toJSON(): ValueObjectProps {
-    return { items: this.toArray() as unknown as ValueObjectProps[string] };
+    return { items: this.toArray() };
   }
 }
 
