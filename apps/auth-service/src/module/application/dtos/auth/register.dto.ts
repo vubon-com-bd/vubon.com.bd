@@ -2,7 +2,6 @@
  * Authentication DTOs for data transfer between layers
  * Defines the structure of registration and authentication data
  */
-import { DEFAULT_ROLES } from '@vubon/auth-shared-constants';
 import type { UserRole } from '@vubon/auth-shared-types';
 
 export interface RegisterDto {
