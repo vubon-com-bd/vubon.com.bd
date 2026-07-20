@@ -2,7 +2,6 @@
  * Email value object
  * Validates and encapsulates email address logic
  */
-// আপনার প্রজেক্টের মনোরেপো স্ট্রাকচার অনুযায়ী সঠিক ইমপোর্ট পাথ দিন (যেমন রিলেটিভ পাথ অথবা সঠিক প্যাকেজ নেম)
 import {
   isDisposableEmail,
   isEducationalEmail,
@@ -10,9 +9,8 @@ import {
   normalizeEmail,
 } from '@vubon/auth-shared-utils';
 
-import type { ValueObjectProps } from './base.vo';
 import { ValidatedValueObject } from './base.vo';
-import type { ValueObject } from './base.vo';
+import type { ValueObject, ValueObjectProps } from './base.vo';
 
 export interface EmailProps extends ValueObjectProps {
   value: string;
@@ -30,19 +28,19 @@ export class Email extends ValidatedValueObject<EmailProps> {
   ): Email {
     if (!email || typeof email !== 'string') {
       throw new Error('Email is required');
-    } // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
+    }
 
-    const normalizedEmail = normalizeEmail(email) as string; // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    const normalizedEmail = normalizeEmail(email);
 
     if (!isValidEmail(normalizedEmail)) {
       throw new Error('Invalid email format');
     }
 
-    const { allowDisposable = false, allowEducational = false } = options || {}; // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    const { allowDisposable = false, allowEducational = false } = options || {};
 
     if (!allowDisposable && isDisposableEmail(normalizedEmail, [])) {
       throw new Error('Disposable email addresses are not allowed');
-    } // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    }
 
     if (!allowEducational && isEducationalEmail(normalizedEmail)) {
       throw new Error('Educational email addresses are not allowed');
@@ -76,7 +74,7 @@ export class Email extends ValidatedValueObject<EmailProps> {
 
     if (value.length > 255) {
       throw new Error('Email must be less than 255 characters');
-    } // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    }
 
     if (!isValidEmail(value)) {
       throw new Error('Invalid email format');
@@ -106,13 +104,11 @@ export class Email extends ValidatedValueObject<EmailProps> {
   }
 
   public isDisposable(): boolean {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    return isDisposableEmail(this.emailString, []) as boolean;
+    return isDisposableEmail(this.emailString, []);
   }
 
   public isEducational(): boolean {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    return isEducationalEmail(this.emailString) as boolean;
+    return isEducationalEmail(this.emailString);
   }
 
   public obfuscate(): string {
@@ -143,8 +139,7 @@ export class Email extends ValidatedValueObject<EmailProps> {
   }
 
   public normalize(): Email {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
-    const norm = normalizeEmail(this.emailString) as string;
+    const norm = normalizeEmail(this.emailString);
     return new Email(norm);
   }
 
@@ -284,7 +279,8 @@ export class EmailCollection {
 
     for (let i = 0; i < this.length; i++) {
       // eslint-disable-next-line security/detect-object-injection
-      const currentEmail = this.emails[i]; // eslint-disable-next-line security/detect-object-injection
+      const currentEmail = this.emails[i];
+      // eslint-disable-next-line security/detect-object-injection
       const otherEmail = other.emails[i];
       if (!currentEmail || !otherEmail || !currentEmail.equals(otherEmail)) {
         return false;
