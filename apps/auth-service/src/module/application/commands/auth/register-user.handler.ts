@@ -10,11 +10,8 @@ import type { EmailValidator } from '../../../domain/ports/email-validator.port'
 import type { PasswordHasher } from '../../../domain/ports/password-hasher.port';
 import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
 
-import {
-  RegisterUserCommand,
-  RegisterUserCommandResult,
-  RegisterUserWithSocialCommand,
-} from './register-user.command';
+import type { RegisterUserCommand, RegisterUserWithSocialCommand } from './register-user.command';
+import { RegisterUserCommandResult } from './register-user.command';
 
 export class RegisterUserHandler {
   constructor(
@@ -92,7 +89,7 @@ export class RegisterUserHandler {
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + 24);
 
-      savedUser.setVerificationToken(token, expiresAt);
+      savedUser.updateVerificationToken(token, expiresAt);
       await this.userRepository.save(savedUser);
       verificationToken = token;
     } else {
@@ -120,12 +117,6 @@ export class RegisterUserHandler {
 
   private generateVerificationToken(): string {
     return crypto.randomBytes(32).toString('hex');
-  }
-
-  private generateUsername(email: string): string {
-    const localPart = email.split('@')[0];
-    const sanitized = localPart.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-    return sanitized.slice(0, 20);
   }
 }
 
