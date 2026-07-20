@@ -45,16 +45,19 @@ export interface DatabaseConnectionConfig {
 
 export class DatabaseConfigLoader {
   public static load(): DatabaseConfig {
-    const databaseUrl = env.DATABASE_URL;
+    const databaseUrl =
+      typeof env.DATABASE_URL === 'string'
+        ? env.DATABASE_URL
+        : 'postgresql://postgres:postgres@localhost:5432/auth_db';
     const parsedUrl = this.parseDatabaseUrl(databaseUrl);
 
     return {
       url: databaseUrl,
-      host: parsedUrl.host || 'localhost',
-      port: parsedUrl.port || 5432,
-      user: parsedUrl.user || 'postgres',
-      password: parsedUrl.password || '',
-      database: parsedUrl.database || 'auth_db',
+      host: parsedUrl.host,
+      port: parsedUrl.port,
+      user: parsedUrl.user,
+      password: parsedUrl.password,
+      database: parsedUrl.database,
       schema: 'public',
       ssl: this.getSslConfig(),
       pool: this.getPoolConfig(),
@@ -90,69 +93,172 @@ export class DatabaseConfigLoader {
   }
 
   private static getSslConfig(): boolean | DatabaseSslConfig {
-    const sslMode = env.DATABASE_SSL || 'false';
+    const rawSsl = (env as Record<string, unknown>).DATABASE_SSL;
+    const sslMode = typeof rawSsl === 'string' ? rawSsl : 'false';
     const ssl = sslMode === 'true' || sslMode === '1';
 
     if (!ssl) {
       return false;
     }
 
+    const rawReject = (env as Record<string, unknown>).DATABASE_SSL_REJECT_UNAUTHORIZED;
+    const rejectUnauthorized = typeof rawReject === 'string' ? rawReject !== 'false' : true;
+
     return {
-      rejectUnauthorized: env.DATABASE_SSL_REJECT_UNAUTHORIZED !== 'false',
-      ca: env.DATABASE_SSL_CA,
-      key: env.DATABASE_SSL_KEY,
-      cert: env.DATABASE_SSL_CERT,
+      rejectUnauthorized,
+      ca:
+        typeof (env as Record<string, unknown>).DATABASE_SSL_CA === 'string'
+          ? ((env as Record<string, unknown>).DATABASE_SSL_CA as string)
+          : undefined,
+      key:
+        typeof (env as Record<string, unknown>).DATABASE_SSL_KEY === 'string'
+          ? ((env as Record<string, unknown>).DATABASE_SSL_KEY as string)
+          : undefined,
+      cert:
+        typeof (env as Record<string, unknown>).DATABASE_SSL_CERT === 'string'
+          ? ((env as Record<string, unknown>).DATABASE_SSL_CERT as string)
+          : undefined,
     };
   }
 
   private static getPoolConfig(): DatabasePoolConfig {
+    const envObj = env as Record<string, unknown>;
+    const minVal =
+      typeof envObj.DATABASE_POOL_MIN === 'number'
+        ? envObj.DATABASE_POOL_MIN
+        : parseInt(
+            typeof envObj.DATABASE_POOL_MIN === 'string' ? envObj.DATABASE_POOL_MIN : '2',
+            10,
+          );
+    const maxVal =
+      typeof env.DATABASE_MAX_CONNECTIONS === 'number'
+        ? env.DATABASE_MAX_CONNECTIONS
+        : parseInt(
+            typeof env.DATABASE_MAX_CONNECTIONS === 'string' ? env.DATABASE_MAX_CONNECTIONS : '20',
+            10,
+          );
+    const idleVal =
+      typeof env.DATABASE_IDLE_TIMEOUT === 'number'
+        ? env.DATABASE_IDLE_TIMEOUT
+        : parseInt(
+            typeof env.DATABASE_IDLE_TIMEOUT === 'string' ? env.DATABASE_IDLE_TIMEOUT : '30000',
+            10,
+          );
+    const connTimeoutVal =
+      typeof env.DATABASE_CONNECTION_TIMEOUT === 'number'
+        ? env.DATABASE_CONNECTION_TIMEOUT
+        : parseInt(
+            typeof env.DATABASE_CONNECTION_TIMEOUT === 'string'
+              ? env.DATABASE_CONNECTION_TIMEOUT
+              : '5000',
+            10,
+          );
+
+    const acquireVal =
+      typeof envObj.DATABASE_ACQUIRE_TIMEOUT === 'string'
+        ? parseInt(envObj.DATABASE_ACQUIRE_TIMEOUT, 10)
+        : typeof envObj.DATABASE_ACQUIRE_TIMEOUT === 'number'
+          ? envObj.DATABASE_ACQUIRE_TIMEOUT
+          : 10000;
+    const evictionVal =
+      typeof envObj.DATABASE_EVICTION_INTERVAL === 'string'
+        ? parseInt(envObj.DATABASE_EVICTION_INTERVAL, 10)
+        : typeof envObj.DATABASE_EVICTION_INTERVAL === 'number'
+          ? envObj.DATABASE_EVICTION_INTERVAL
+          : 60000;
+    const maxLifeVal =
+      typeof envObj.DATABASE_MAX_LIFETIME === 'string'
+        ? parseInt(envObj.DATABASE_MAX_LIFETIME, 10)
+        : typeof envObj.DATABASE_MAX_LIFETIME === 'number'
+          ? envObj.DATABASE_MAX_LIFETIME
+          : 3600000;
+
     return {
-      min: parseInt(env.DATABASE_POOL_MIN || '2', 10),
-      max: parseInt(env.DATABASE_MAX_CONNECTIONS || '20', 10),
-      idleTimeoutMillis: parseInt(env.DATABASE_IDLE_TIMEOUT || '30000', 10),
-      connectionTimeoutMillis: parseInt(env.DATABASE_CONNECTION_TIMEOUT || '5000', 10),
-      acquireTimeoutMillis: parseInt(env.DATABASE_ACQUIRE_TIMEOUT || '10000', 10),
-      evictionRunIntervalMillis: parseInt(env.DATABASE_EVICTION_INTERVAL || '60000', 10),
-      maxLifetimeMillis: parseInt(env.DATABASE_MAX_LIFETIME || '3600000', 10),
+      min: minVal,
+      max: maxVal,
+      idleTimeoutMillis: idleVal,
+      connectionTimeoutMillis: connTimeoutVal,
+      acquireTimeoutMillis: acquireVal,
+      evictionRunIntervalMillis: evictionVal,
+      maxLifetimeMillis: maxLifeVal,
     };
   }
 
   private static getConnectionConfig(): DatabaseConnectionConfig {
+    const envObj = env as Record<string, unknown>;
+    const timeoutVal =
+      typeof envObj.DATABASE_QUERY_TIMEOUT === 'string'
+        ? parseInt(envObj.DATABASE_QUERY_TIMEOUT, 10)
+        : typeof envObj.DATABASE_QUERY_TIMEOUT === 'number'
+          ? envObj.DATABASE_QUERY_TIMEOUT
+          : 30000;
+    const keepAliveVal =
+      typeof envObj.DATABASE_KEEP_ALIVE === 'string'
+        ? envObj.DATABASE_KEEP_ALIVE !== 'false'
+        : true;
+    const delayVal =
+      typeof envObj.DATABASE_KEEP_ALIVE_DELAY === 'string'
+        ? parseInt(envObj.DATABASE_KEEP_ALIVE_DELAY, 10)
+        : 10000;
+    const stmtTimeoutVal =
+      typeof envObj.DATABASE_STATEMENT_TIMEOUT === 'string'
+        ? parseInt(envObj.DATABASE_STATEMENT_TIMEOUT, 10)
+        : 30000;
+
     return {
-      timeout: parseInt(env.DATABASE_QUERY_TIMEOUT || '30000', 10),
-      keepAlive: env.DATABASE_KEEP_ALIVE !== 'false',
-      keepAliveInitialDelayMillis: parseInt(env.DATABASE_KEEP_ALIVE_DELAY || '10000', 10),
-      statementTimeout: parseInt(env.DATABASE_STATEMENT_TIMEOUT || '30000', 10),
-      queryTimeout: parseInt(env.DATABASE_QUERY_TIMEOUT || '30000', 10),
-      applicationName: env.APP_NAME || 'auth-service',
+      timeout: timeoutVal,
+      keepAlive: keepAliveVal,
+      keepAliveInitialDelayMillis: delayVal,
+      statementTimeout: stmtTimeoutVal,
+      queryTimeout: timeoutVal,
+      applicationName: typeof env.APP_NAME === 'string' ? env.APP_NAME : 'auth-service',
     };
   }
 
   public static getConnectionString(): string {
-    return env.DATABASE_URL;
+    return typeof env.DATABASE_URL === 'string' ? env.DATABASE_URL : '';
   }
 
   public static getPoolSize(): number {
-    return parseInt(env.DATABASE_MAX_CONNECTIONS || '20', 10);
+    return typeof env.DATABASE_MAX_CONNECTIONS === 'number'
+      ? env.DATABASE_MAX_CONNECTIONS
+      : parseInt(
+          typeof env.DATABASE_MAX_CONNECTIONS === 'string' ? env.DATABASE_MAX_CONNECTIONS : '20',
+          10,
+        );
   }
 
   public static getConnectionTimeout(): number {
-    return parseInt(env.DATABASE_CONNECTION_TIMEOUT || '5000', 10);
+    return typeof env.DATABASE_CONNECTION_TIMEOUT === 'number'
+      ? env.DATABASE_CONNECTION_TIMEOUT
+      : parseInt(
+          typeof env.DATABASE_CONNECTION_TIMEOUT === 'string'
+            ? env.DATABASE_CONNECTION_TIMEOUT
+            : '5000',
+          10,
+        );
   }
 
   public static getIdleTimeout(): number {
-    return parseInt(env.DATABASE_IDLE_TIMEOUT || '30000', 10);
+    return typeof env.DATABASE_IDLE_TIMEOUT === 'number'
+      ? env.DATABASE_IDLE_TIMEOUT
+      : parseInt(
+          typeof env.DATABASE_IDLE_TIMEOUT === 'string' ? env.DATABASE_IDLE_TIMEOUT : '30000',
+          10,
+        );
   }
 
   public static isSslEnabled(): boolean {
-    const ssl = env.DATABASE_SSL || 'false';
+    const rawSsl = (env as Record<string, unknown>).DATABASE_SSL;
+    const ssl = typeof rawSsl === 'string' ? rawSsl : 'false';
     return ssl === 'true' || ssl === '1';
   }
 
   public static getDatabaseName(): string {
     try {
-      const url = new URL(env.DATABASE_URL);
-      return url.pathname.replace(/^\//, '');
+      const urlStr = typeof env.DATABASE_URL === 'string' ? env.DATABASE_URL : '';
+      const url = new URL(urlStr);
+      return url.pathname.replace(/^\//, '') || 'auth_db';
     } catch {
       return 'auth_db';
     }
@@ -160,8 +266,9 @@ export class DatabaseConfigLoader {
 
   public static getHost(): string {
     try {
-      const url = new URL(env.DATABASE_URL);
-      return url.hostname;
+      const urlStr = typeof env.DATABASE_URL === 'string' ? env.DATABASE_URL : '';
+      const url = new URL(urlStr);
+      return url.hostname || 'localhost';
     } catch {
       return 'localhost';
     }
@@ -169,7 +276,8 @@ export class DatabaseConfigLoader {
 
   public static getPort(): number {
     try {
-      const url = new URL(env.DATABASE_URL);
+      const urlStr = typeof env.DATABASE_URL === 'string' ? env.DATABASE_URL : '';
+      const url = new URL(urlStr);
       return parseInt(url.port, 10) || 5432;
     } catch {
       return 5432;
@@ -178,8 +286,9 @@ export class DatabaseConfigLoader {
 
   public static getUsername(): string {
     try {
-      const url = new URL(env.DATABASE_URL);
-      return url.username;
+      const urlStr = typeof env.DATABASE_URL === 'string' ? env.DATABASE_URL : '';
+      const url = new URL(urlStr);
+      return url.username || 'postgres';
     } catch {
       return 'postgres';
     }
@@ -187,7 +296,8 @@ export class DatabaseConfigLoader {
 
   public static getPassword(): string {
     try {
-      const url = new URL(env.DATABASE_URL);
+      const urlStr = typeof env.DATABASE_URL === 'string' ? env.DATABASE_URL : '';
+      const url = new URL(urlStr);
       return url.password || '';
     } catch {
       return '';
