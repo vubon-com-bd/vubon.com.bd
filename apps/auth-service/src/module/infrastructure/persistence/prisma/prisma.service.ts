@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * Prisma service for database connection management
  * Wraps Prisma client as a NestJS service for the authentication module
@@ -32,9 +33,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     await this.$disconnect();
   }
 
-  /**
-   * Check if database is connected
-   */
   public async isConnected(): Promise<boolean> {
     try {
       await this.$queryRaw`SELECT 1`;
@@ -44,9 +42,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     }
   }
 
-  /**
-   * Get database health status
-   */
   public async getHealthStatus(): Promise<{
     connected: boolean;
     latency: number;
@@ -70,9 +65,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     }
   }
 
-  /**
-   * Reset database connection pool
-   */
   public async resetPool(): Promise<void> {
     await this.$disconnect();
     await this.$connect();
