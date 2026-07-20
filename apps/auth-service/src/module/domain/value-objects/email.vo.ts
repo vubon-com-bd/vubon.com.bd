@@ -24,7 +24,7 @@ export class Email extends ValidatedValueObject<EmailProps> {
 
   public static create(
     email: string,
-    options?: { allowDisposable?: boolean; allowEducational?: boolean },
+    options?: { allowDisposable?: boolean; allowEducational?: boolean }
   ): Email {
     if (!email || typeof email !== 'string') {
       throw new Error('Email is required');
@@ -177,7 +177,7 @@ export class EmailCollection {
 
   public static create(
     emails: string[],
-    options?: { allowDisposable?: boolean; allowEducational?: boolean },
+    options?: { allowDisposable?: boolean; allowEducational?: boolean }
   ): EmailCollection {
     if (!emails || !Array.isArray(emails)) {
       return new EmailCollection([]);
@@ -225,7 +225,7 @@ export class EmailCollection {
 
   public addString(
     email: string,
-    options?: { allowDisposable?: boolean; allowEducational?: boolean },
+    options?: { allowDisposable?: boolean; allowEducational?: boolean }
   ): EmailCollection {
     const emailObj = Email.create(email, options);
     return this.add(emailObj);

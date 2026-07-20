@@ -324,7 +324,7 @@ export class PasswordCollection {
         }
         return current.getStrengthScore() > strongest.getStrengthScore() ? current : strongest;
       },
-      null as Password | null,
+      null as Password | null
     );
   }
 
@@ -340,7 +340,7 @@ export class PasswordCollection {
         }
         return current.getStrengthScore() < weakest.getStrengthScore() ? current : weakest;
       },
-      null as Password | null,
+      null as Password | null
     );
   }
 

@@ -27,7 +27,7 @@ export class SendWelcomeEmailHandler {
   constructor(
     private readonly emailService: EmailService,
     private readonly appName: string = 'Auth Service',
-    private readonly baseUrl: string = process.env.API_URL || 'http://localhost:3000',
+    private readonly baseUrl: string = process.env.API_URL || 'http://localhost:3000'
   ) {}
 
   public async handle(event: UserRegisteredEvent): Promise<void> {
@@ -61,7 +61,7 @@ export class SendWelcomeEmailHandler {
 
   private async sendVerificationEmail(
     event: UserRegisteredEvent,
-    verificationLink: string,
+    verificationLink: string
   ): Promise<void> {
     const verificationData: VerificationEmailData = {
       userName: event.firstName || event.username || 'User',
@@ -221,7 +221,7 @@ export class SendWelcomeEmailHandlerFactory {
   public static create(
     emailService: EmailService,
     appName?: string,
-    baseUrl?: string,
+    baseUrl?: string
   ): SendWelcomeEmailHandler {
     return new SendWelcomeEmailHandler(emailService, appName, baseUrl);
   }

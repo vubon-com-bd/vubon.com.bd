@@ -16,7 +16,7 @@ export class AuthServiceImpl implements AuthService {
     private readonly userRepository: UserRepository,
     private readonly passwordHasher: PasswordHasher,
     private readonly emailValidator: EmailValidator,
-    private readonly config: AuthServiceConfig = {},
+    private readonly config: AuthServiceConfig = {}
   ) {}
 
   /**
@@ -34,7 +34,7 @@ export class AuthServiceImpl implements AuthService {
     const handler = new RegisterUserHandler(
       this.userRepository,
       this.passwordHasher,
-      this.emailValidator,
+      this.emailValidator
     );
 
     // Execute the command
@@ -66,7 +66,7 @@ export class AuthServiceImpl implements AuthService {
     const response = UserMapper.toRegisterResponse(
       fetchedUser,
       result.requiresVerification,
-      result.verificationToken,
+      result.verificationToken
     );
 
     return response;
@@ -179,7 +179,7 @@ export class AuthServiceImpl implements AuthService {
 
     // Check if user already exists
     const existingUser = await this.userRepository.findByEmail(
-      this.emailValidator.normalize(email),
+      this.emailValidator.normalize(email)
     );
     if (existingUser) {
       throw new Error('User with this email already exists');
@@ -212,7 +212,7 @@ export class AuthServiceImplFactory {
     userRepository: UserRepository,
     passwordHasher: PasswordHasher,
     emailValidator: EmailValidator,
-    config?: AuthServiceConfig,
+    config?: AuthServiceConfig
   ): AuthServiceImpl {
     return new AuthServiceImpl(userRepository, passwordHasher, emailValidator, config);
   }

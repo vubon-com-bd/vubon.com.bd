@@ -40,7 +40,7 @@ export interface UserActivity {
 export class LogRegistrationActivityHandler {
   constructor(
     private readonly activityLogger: ActivityLogger,
-    private readonly activityRepository?: UserActivityRepository,
+    private readonly activityRepository?: UserActivityRepository
   ) {}
 
   public async handle(event: UserRegisteredEvent): Promise<void> {

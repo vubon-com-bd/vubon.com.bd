@@ -5,6 +5,7 @@
 
 import { Injectable, type OnModuleInit, type OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
+
 import { databaseConfig } from '../../config/database.config';
 
 @Injectable()

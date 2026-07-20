@@ -54,7 +54,7 @@ export class UserRegisteredEvent {
     requiresVerification: boolean,
     verificationToken?: string,
     ipAddress?: string,
-    userAgent?: string,
+    userAgent?: string
   ): UserRegisteredEvent {
     return new UserRegisteredEvent({
       userId: user.id,

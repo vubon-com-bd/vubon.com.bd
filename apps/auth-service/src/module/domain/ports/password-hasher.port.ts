@@ -219,7 +219,7 @@ export abstract class PasswordHasherPort implements PasswordHasher {
    */
   public validatePassword(
     password: string,
-    options?: PasswordValidationOptions,
+    options?: PasswordValidationOptions
   ): PasswordValidationResult {
     const {
       minLength = 8,

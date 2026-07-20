@@ -128,21 +128,21 @@ export class DatabaseConfigLoader {
         ? envObj.DATABASE_POOL_MIN
         : parseInt(
             typeof envObj.DATABASE_POOL_MIN === 'string' ? envObj.DATABASE_POOL_MIN : '2',
-            10,
+            10
           );
     const maxVal =
       typeof env.DATABASE_MAX_CONNECTIONS === 'number'
         ? env.DATABASE_MAX_CONNECTIONS
         : parseInt(
             typeof env.DATABASE_MAX_CONNECTIONS === 'string' ? env.DATABASE_MAX_CONNECTIONS : '20',
-            10,
+            10
           );
     const idleVal =
       typeof env.DATABASE_IDLE_TIMEOUT === 'number'
         ? env.DATABASE_IDLE_TIMEOUT
         : parseInt(
             typeof env.DATABASE_IDLE_TIMEOUT === 'string' ? env.DATABASE_IDLE_TIMEOUT : '30000',
-            10,
+            10
           );
     const connTimeoutVal =
       typeof env.DATABASE_CONNECTION_TIMEOUT === 'number'
@@ -151,7 +151,7 @@ export class DatabaseConfigLoader {
             typeof env.DATABASE_CONNECTION_TIMEOUT === 'string'
               ? env.DATABASE_CONNECTION_TIMEOUT
               : '5000',
-            10,
+            10
           );
 
     const acquireVal =
@@ -224,7 +224,7 @@ export class DatabaseConfigLoader {
       ? env.DATABASE_MAX_CONNECTIONS
       : parseInt(
           typeof env.DATABASE_MAX_CONNECTIONS === 'string' ? env.DATABASE_MAX_CONNECTIONS : '20',
-          10,
+          10
         );
   }
 
@@ -235,7 +235,7 @@ export class DatabaseConfigLoader {
           typeof env.DATABASE_CONNECTION_TIMEOUT === 'string'
             ? env.DATABASE_CONNECTION_TIMEOUT
             : '5000',
-          10,
+          10
         );
   }
 
@@ -244,7 +244,7 @@ export class DatabaseConfigLoader {
       ? env.DATABASE_IDLE_TIMEOUT
       : parseInt(
           typeof env.DATABASE_IDLE_TIMEOUT === 'string' ? env.DATABASE_IDLE_TIMEOUT : '30000',
-          10,
+          10
         );
   }
 

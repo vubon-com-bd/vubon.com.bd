@@ -21,7 +21,7 @@ export class RegisterUserHandler {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly passwordHasher: PasswordHasher,
-    private readonly emailValidator: EmailValidator,
+    private readonly emailValidator: EmailValidator
   ) {}
 
   public async execute(command: RegisterUserCommand): Promise<RegisterUserCommandResult> {
@@ -110,7 +110,7 @@ export class RegisterUserWithSocialHandler {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly passwordHasher: PasswordHasher,
-    private readonly emailValidator: EmailValidator,
+    private readonly emailValidator: EmailValidator
   ) {}
 
   public async execute(command: RegisterUserWithSocialCommand): Promise<RegisterUserCommandResult> {

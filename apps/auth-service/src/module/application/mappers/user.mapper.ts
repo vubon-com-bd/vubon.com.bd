@@ -18,7 +18,7 @@ export class UserMapper {
   public static toRegisterResponse(
     user: User,
     requiresVerification: boolean,
-    verificationToken?: string,
+    verificationToken?: string
   ): RegisterResponseDto {
     return {
       id: user.id,
@@ -61,7 +61,7 @@ export class UserMapper {
     accessToken: string,
     refreshToken: string,
     sessionId: string,
-    expiresIn: number,
+    expiresIn: number
   ): LoginResponseDto {
     return {
       user: this.toLoginUserResponse(user),
