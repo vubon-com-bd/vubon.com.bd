@@ -41,10 +41,8 @@ export class Password extends ValidatedValueObject<PasswordProps> {
       throw new Error(`Password must be less than ${MAX_PASSWORD_LENGTH} characters`);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     if (!isPasswordStrong(password)) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
-      const errors = getPasswordErrors(password) as string[];
+      const errors = getPasswordErrors(password);
       throw new Error(`Password is not strong enough: ${errors.join(', ')}`);
     }
 
@@ -107,10 +105,8 @@ export class Password extends ValidatedValueObject<PasswordProps> {
         throw new Error(`Password must be less than ${MAX_PASSWORD_LENGTH} characters`);
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       if (!isPasswordStrong(value)) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
-        const errors = getPasswordErrors(value) as string[];
+        const errors = getPasswordErrors(value);
         throw new Error(`Password is not strong enough: ${errors.join(', ')}`);
       }
     }
@@ -120,40 +116,35 @@ export class Password extends ValidatedValueObject<PasswordProps> {
     if (this.isHashed()) {
       return 'strong';
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    return getPasswordStrength(this.passwordString) as 'weak' | 'medium' | 'strong';
+    return getPasswordStrength(this.passwordString);
   }
 
   public getStrengthScore(): number {
     if (this.isHashed()) {
       return 6;
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    return getPasswordStrengthScore(this.passwordString) as number;
+    return getPasswordStrengthScore(this.passwordString);
   }
 
   public getStrengthText(): string {
     if (this.isHashed()) {
       return 'Hashed';
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    return getPasswordStrengthText(this.passwordString) as string;
+    return getPasswordStrengthText(this.passwordString);
   }
 
   public getStrengthColor(): string {
     if (this.isHashed()) {
       return '#00FF00';
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    return getPasswordStrengthColor(this.passwordString) as string;
+    return getPasswordStrengthColor(this.passwordString);
   }
 
   public getErrors(): string[] {
     if (this.isHashed()) {
       return [];
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    return getPasswordErrors(this.passwordString) as string[];
+    return getPasswordErrors(this.passwordString);
   }
 
   public override isValid(): boolean {
@@ -169,8 +160,7 @@ export class Password extends ValidatedValueObject<PasswordProps> {
     if (this.isHashed()) {
       return true;
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    return isPasswordStrong(this.passwordString) as boolean;
+    return isPasswordStrong(this.passwordString);
   }
 
   public hasUppercase(): boolean {
