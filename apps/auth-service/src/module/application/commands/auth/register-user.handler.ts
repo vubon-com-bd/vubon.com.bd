@@ -2,7 +2,6 @@
  * Command handler for user registration
  * Handles the registration of new users
  */
-
 import { DEFAULT_ROLES } from '@vubon/auth-shared-constants';
 import * as crypto from 'crypto';
 
@@ -10,22 +9,18 @@ import { User } from '../../../domain/entities/user.entity';
 import type { EmailValidator } from '../../../domain/ports/email-validator.port';
 import type { PasswordHasher } from '../../../domain/ports/password-hasher.port';
 import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
-import type {
-  RegisterUserCommand,
-  RegisterUserWithSocialCommand,
-} from './register-user.command';
+
+import type { RegisterUserCommand, RegisterUserWithSocialCommand } from './register-user.command';
 import { RegisterUserCommandResult } from './register-user.command';
 
 export class RegisterUserHandler {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly passwordHasher: PasswordHasher,
-    private readonly emailValidator: EmailValidator
+    private readonly emailValidator: EmailValidator,
   ) {}
 
-  public async execute(
-    command: RegisterUserCommand
-  ): Promise<RegisterUserCommandResult> {
+  public async execute(command: RegisterUserCommand): Promise<RegisterUserCommandResult> {
     // Validate the command
     command.validate();
 
@@ -129,12 +124,10 @@ export class RegisterUserWithSocialHandler {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly passwordHasher: PasswordHasher,
-    private readonly emailValidator: EmailValidator
+    private readonly emailValidator: EmailValidator,
   ) {}
 
-  public async execute(
-    command: RegisterUserWithSocialCommand
-  ): Promise<RegisterUserCommandResult> {
+  public async execute(command: RegisterUserWithSocialCommand): Promise<RegisterUserCommandResult> {
     // Validate the command
     command.validate();
 
