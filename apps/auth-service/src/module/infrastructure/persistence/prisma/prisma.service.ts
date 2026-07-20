@@ -1,6 +1,6 @@
 /**
  * Prisma service for database connection management
- * Wraps Prisma client as a NestJS service for the authentication module
+ * Wraps Prisma client as a NestJS service for the authentication module using composition
  */
 
 import { Injectable, type OnModuleInit, type OnModuleDestroy } from '@nestjs/common';
@@ -9,9 +9,11 @@ import { PrismaClient } from '@prisma/client';
 import { databaseConfig } from '../../config/database.config';
 
 @Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+export class PrismaService implements OnModuleInit, OnModuleDestroy {
+  private readonly prismaClient: PrismaClient;
+
   constructor() {
-    super({
+    this.prismaClient = new PrismaClient({
       datasources: {
         db: {
           url: databaseConfig.url,
@@ -24,12 +26,16 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     });
   }
 
+  public get client(): PrismaClient {
+    return this.prismaClient;
+  }
+
   public async onModuleInit(): Promise<void> {
-    await this.$connect();
+    await this.prismaClient.$connect();
   }
 
   public async onModuleDestroy(): Promise<void> {
-    await this.$disconnect();
+    await this.prismaClient.$disconnect();
   }
 
   /**
@@ -37,7 +43,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
    */
   public async isConnected(): Promise<boolean> {
     try {
-      await this.$queryRaw`SELECT 1`;
+      await this.prismaClient.$queryRaw`SELECT 1`;
       return true;
     } catch {
       return false;
@@ -54,7 +60,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   }> {
     const start = Date.now();
     try {
-      const result = (await this.$queryRaw`SELECT version()`) as Array<{ version: string }>;
+      const result = (await this.prismaClient.$queryRaw`SELECT version()`) as Array<{ version: string }>;
       const latency = Date.now() - start;
       return {
         connected: true,
@@ -74,8 +80,8 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
    * Reset database connection pool
    */
   public async resetPool(): Promise<void> {
-    await this.$disconnect();
-    await this.$connect();
+    await this.prismaClient.$disconnect();
+    await this.prismaClient.$connect();
   }
 }
 
