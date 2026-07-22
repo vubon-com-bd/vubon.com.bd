@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable security/detect-object-injection */
 /**
  * Environment variable loader and validator
