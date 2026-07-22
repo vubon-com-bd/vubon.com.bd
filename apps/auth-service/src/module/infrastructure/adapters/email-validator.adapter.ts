@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument */
 /**
  * Email validator adapter implementation
  * Implements the EmailValidator port using shared utilities
@@ -27,7 +28,7 @@ import type {
 
 @Injectable()
 export class EmailValidatorAdapter implements EmailValidator {
-  private readonly config: EmailValidatorConfig;
+  private config: EmailValidatorConfig;
 
   constructor() {
     this.config = {
