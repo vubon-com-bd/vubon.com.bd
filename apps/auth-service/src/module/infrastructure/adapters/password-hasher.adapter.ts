@@ -1,4 +1,3 @@
-/* eslint-disable */
 /**
  * Password hasher adapter implementation using bcrypt
  * Implements the PasswordHasher port for password hashing operations
