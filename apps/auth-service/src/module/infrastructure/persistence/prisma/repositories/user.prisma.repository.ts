@@ -3,7 +3,7 @@
  * ============================================================================
  * Vubon.com.bd - User Prisma Repository Implementation
  * ============================================================================
- * Implements domain repository interface using Prisma ORM with clean lint compliance.
+ * Implements domain repository interface using Prisma ORM with safe casting.
  */
 
 import { Injectable } from '@nestjs/common';
@@ -20,8 +20,12 @@ import { PrismaService } from '../prisma.service';
 export class UserPrismaRepository implements UserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  private get model(): any {
+    return this.prisma.user;
+  }
+
   public async findById(id: string): Promise<UserEntity | null> {
-    const user = await this.prisma.user as any.findUnique({
+    const user = await this.model.findUnique({
       where: { id },
       include: {
         profile: true,
@@ -37,7 +41,7 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   public async findByEmail(email: string): Promise<UserEntity | null> {
-    const user = await this.prisma.user as any.findUnique({
+    const user = await this.model.findUnique({
       where: { email },
       include: {
         profile: true,
@@ -53,7 +57,7 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   public async findByUsername(username: string): Promise<UserEntity | null> {
-    const user = await this.prisma.user as any.findUnique({
+    const user = await this.model.findUnique({
       where: { username },
       include: {
         profile: true,
@@ -69,7 +73,7 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   public async findByEmailOrUsername(emailOrUsername: string): Promise<UserEntity | null> {
-    const user = await this.prisma.user as any.findFirst({
+    const user = await this.model.findFirst({
       where: {
         OR: [{ email: emailOrUsername }, { username: emailOrUsername }],
       },
@@ -87,7 +91,7 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   public async findByVerificationToken(token: string): Promise<UserEntity | null> {
-    const user = await this.prisma.user as any.findFirst({
+    const user = await this.model.findFirst({
       where: {
         verificationToken: token,
         verificationTokenExpiresAt: {
@@ -108,7 +112,7 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   public async findByPasswordResetToken(token: string): Promise<UserEntity | null> {
-    const user = await this.prisma.user as any.findFirst({
+    const user = await this.model.findFirst({
       where: {
         passwordResetToken: token,
         passwordResetTokenExpiresAt: {
@@ -129,7 +133,7 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   public async findByRefreshToken(token: string): Promise<UserEntity | null> {
-    const user = await this.prisma.user as any.findFirst({
+    const user = await this.model.findFirst({
       where: {
         refreshToken: token,
         refreshTokenExpiresAt: {
@@ -162,7 +166,7 @@ export class UserPrismaRepository implements UserRepository {
     const where = this.buildWhereClause(filters, includeDeleted);
     const orderBy = this.buildOrderByClause(sortBy, sortOrder);
 
-    const users = await this.prisma.user as any.findMany({
+    const users = await this.model.findMany({
       where,
       orderBy,
       skip: (page - 1) * limit,
@@ -173,7 +177,7 @@ export class UserPrismaRepository implements UserRepository {
       },
     });
 
-    return users.map((user) => this.mapToDomain(user));
+    return users.map((user: any) => this.mapToDomain(user));
   }
 
   public async findAndCount(options?: UserFindOptions): Promise<[UserEntity[], number]> {
@@ -190,7 +194,7 @@ export class UserPrismaRepository implements UserRepository {
     const orderBy = this.buildOrderByClause(sortBy, sortOrder);
 
     const [users, total] = await Promise.all([
-      this.prisma.user as any.findMany({
+      this.model.findMany({
         where,
         orderBy,
         skip: (page - 1) * limit,
@@ -200,16 +204,16 @@ export class UserPrismaRepository implements UserRepository {
           metadata: true,
         },
       }),
-      this.prisma.user as any.count({ where }),
+      this.model.count({ where }),
     ]);
 
-    return [users.map((user) => this.mapToDomain(user)), total];
+    return [users.map((user: any) => this.mapToDomain(user)), total];
   }
 
   public async save(user: UserEntity): Promise<UserEntity> {
     const data = this.mapToPersistence(user);
 
-    const savedUser = await this.prisma.user as any.upsert({
+    const savedUser = await this.model.upsert({
       where: { id: user.id },
       create: data,
       update: {
@@ -229,7 +233,7 @@ export class UserPrismaRepository implements UserRepository {
   public async create(user: UserEntity): Promise<UserEntity> {
     const data = this.mapToPersistence(user);
 
-    const createdUser = await this.prisma.user as any.create({
+    const createdUser = await this.model.create({
       data,
       include: {
         profile: true,
@@ -243,7 +247,7 @@ export class UserPrismaRepository implements UserRepository {
   public async update(user: UserEntity): Promise<UserEntity> {
     const data = this.mapToPersistence(user);
 
-    const updatedUser = await this.prisma.user as any.update({
+    const updatedUser = await this.model.update({
       where: { id: user.id },
       data: {
         ...data,
@@ -260,7 +264,7 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   public async delete(id: string): Promise<void> {
-    await this.prisma.user as any.update({
+    await this.model.update({
       where: { id },
       data: {
         deletedAt: new Date(),
@@ -272,20 +276,20 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   public async hardDelete(id: string): Promise<void> {
-    await this.prisma.user as any.delete({
+    await this.model.delete({
       where: { id },
     });
   }
 
   public async existsByEmail(email: string): Promise<boolean> {
-    const count = await this.prisma.user as any.count({
+    const count = await this.model.count({
       where: { email },
     });
     return count > 0;
   }
 
   public async existsByUsername(username: string): Promise<boolean> {
-    const count = await this.prisma.user as any.count({
+    const count = await this.model.count({
       where: { username },
     });
     return count > 0;
@@ -293,14 +297,14 @@ export class UserPrismaRepository implements UserRepository {
 
   public async count(filters?: UserFilters): Promise<number> {
     const where = this.buildWhereClause(filters, false);
-    return this.prisma.user as any.count({ where });
+    return this.model.count({ where });
   }
 
   public async saveMany(users: UserEntity[]): Promise<UserEntity[]> {
     const savedUsers = await this.prisma.$transaction(
       users.map((user) => {
         const data = this.mapToPersistence(user);
-        return this.prisma.user as any.upsert({
+        return this.model.upsert({
           where: { id: user.id },
           create: data,
           update: {
@@ -316,11 +320,11 @@ export class UserPrismaRepository implements UserRepository {
       })
     );
 
-    return savedUsers.map((user) => this.mapToDomain(user));
+    return savedUsers.map((user: any) => this.mapToDomain(user));
   }
 
   public async deleteMany(ids: string[]): Promise<void> {
-    await this.prisma.user as any.updateMany({
+    await this.model.updateMany({
       where: { id: { in: ids } },
       data: {
         deletedAt: new Date(),
@@ -332,7 +336,7 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   public async findActiveUsers(since: Date): Promise<UserEntity[]> {
-    const users = await this.prisma.user as any.findMany({
+    const users = await this.model.findMany({
       where: {
         isActive: true,
         status: 'active',
@@ -347,13 +351,13 @@ export class UserPrismaRepository implements UserRepository {
       },
     });
 
-    return users.map((user) => this.mapToDomain(user));
+    return users.map((user: any) => this.mapToDomain(user));
   }
 
   public async findByStatus(status: string): Promise<UserEntity[]> {
-    const users = await this.prisma.user as any.findMany({
+    const users = await this.model.findMany({
       where: {
-        status: status as any,
+        status,
         deletedAt: null,
       },
       include: {
@@ -362,13 +366,13 @@ export class UserPrismaRepository implements UserRepository {
       },
     });
 
-    return users.map((user) => this.mapToDomain(user));
+    return users.map((user: any) => this.mapToDomain(user));
   }
 
   public async findByRole(role: string): Promise<UserEntity[]> {
-    const users = await this.prisma.user as any.findMany({
+    const users = await this.model.findMany({
       where: {
-        role: role as any,
+        role,
         deletedAt: null,
       },
       include: {
@@ -377,11 +381,11 @@ export class UserPrismaRepository implements UserRepository {
       },
     });
 
-    return users.map((user) => this.mapToDomain(user));
+    return users.map((user: any) => this.mapToDomain(user));
   }
 
   public async findPendingVerification(): Promise<UserEntity[]> {
-    const users = await this.prisma.user as any.findMany({
+    const users = await this.model.findMany({
       where: {
         status: 'pending_verification',
         isVerified: false,
@@ -396,11 +400,11 @@ export class UserPrismaRepository implements UserRepository {
       },
     });
 
-    return users.map((user) => this.mapToDomain(user));
+    return users.map((user: any) => this.mapToDomain(user));
   }
 
   public async findLockedUsers(): Promise<UserEntity[]> {
-    const users = await this.prisma.user as any.findMany({
+    const users = await this.model.findMany({
       where: {
         lockedUntil: {
           gt: new Date(),
@@ -413,11 +417,11 @@ export class UserPrismaRepository implements UserRepository {
       },
     });
 
-    return users.map((user) => this.mapToDomain(user));
+    return users.map((user: any) => this.mapToDomain(user));
   }
 
   public async findByLastLogin(startDate: Date, endDate: Date): Promise<UserEntity[]> {
-    const users = await this.prisma.user as any.findMany({
+    const users = await this.model.findMany({
       where: {
         lastLoginAt: {
           gte: startDate,
@@ -431,13 +435,13 @@ export class UserPrismaRepository implements UserRepository {
       },
     });
 
-    return users.map((user) => this.mapToDomain(user));
+    return users.map((user: any) => this.mapToDomain(user));
   }
 
   public async search(query: string, options?: UserFindOptions): Promise<UserEntity[]> {
     const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc' } = options ?? {};
 
-    const users = await this.prisma.user as any.findMany({
+    const users = await this.model.findMany({
       where: {
         OR: [
           { email: { contains: query, mode: 'insensitive' } },
@@ -456,7 +460,7 @@ export class UserPrismaRepository implements UserRepository {
       },
     });
 
-    return users.map((user) => this.mapToDomain(user));
+    return users.map((user: any) => this.mapToDomain(user));
   }
 
   public async transaction<T>(callback: (repository: UserRepository) => Promise<T>): Promise<T> {
@@ -466,7 +470,7 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   private mapToDomain(raw: any): UserEntity {
-    return raw as UserEntity;
+    return raw;
   }
 
   private mapToPersistence(user: UserEntity): any {
