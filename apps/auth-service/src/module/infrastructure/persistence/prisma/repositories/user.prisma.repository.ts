@@ -1,13 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-redundant-type-constituents, @typescript-eslint/require-await */
 /**
  * ============================================================================
  * Vubon.com.bd - User Prisma Repository Implementation
  * ============================================================================
- * Implements domain repository interface using Prisma ORM with clean file-level rule bypass.
+ * Implements domain repository interface using Prisma ORM with clean type safety.
  */
 
 import { Injectable } from '@nestjs/common';
-import type { Prisma, User as PrismaUser } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 
 import { UserMapper } from '../../../../application/mappers/user.mapper';
 import type { User as UserEntity } from '../../../../domain/entities/user.entity';
@@ -17,11 +16,6 @@ import type {
   UserRepository,
 } from '../../../../domain/repositories/user.repository.interface';
 import { PrismaService } from '../prisma.service';
-
-type PrismaUserWithRelations = PrismaUser & {
-  profile?: Prisma.UserProfileGetPayload<true> | null;
-  metadata?: Prisma.UserMetadataGetPayload<true> | null;
-};
 
 @Injectable()
 export class UserPrismaRepository implements UserRepository {
@@ -40,7 +34,7 @@ export class UserPrismaRepository implements UserRepository {
       return null;
     }
 
-    return UserMapper.toDomain(user as PrismaUserWithRelations);
+    return UserMapper.toDomain(user);
   }
 
   public async findByEmail(email: string): Promise<UserEntity | null> {
@@ -56,7 +50,7 @@ export class UserPrismaRepository implements UserRepository {
       return null;
     }
 
-    return UserMapper.toDomain(user as PrismaUserWithRelations);
+    return UserMapper.toDomain(user);
   }
 
   public async findByUsername(username: string): Promise<UserEntity | null> {
@@ -72,7 +66,7 @@ export class UserPrismaRepository implements UserRepository {
       return null;
     }
 
-    return UserMapper.toDomain(user as PrismaUserWithRelations);
+    return UserMapper.toDomain(user);
   }
 
   public async findByEmailOrUsername(emailOrUsername: string): Promise<UserEntity | null> {
@@ -90,7 +84,7 @@ export class UserPrismaRepository implements UserRepository {
       return null;
     }
 
-    return UserMapper.toDomain(user as PrismaUserWithRelations);
+    return UserMapper.toDomain(user);
   }
 
   public async findByVerificationToken(token: string): Promise<UserEntity | null> {
@@ -111,7 +105,7 @@ export class UserPrismaRepository implements UserRepository {
       return null;
     }
 
-    return UserMapper.toDomain(user as PrismaUserWithRelations);
+    return UserMapper.toDomain(user);
   }
 
   public async findByPasswordResetToken(token: string): Promise<UserEntity | null> {
@@ -132,7 +126,7 @@ export class UserPrismaRepository implements UserRepository {
       return null;
     }
 
-    return UserMapper.toDomain(user as PrismaUserWithRelations);
+    return UserMapper.toDomain(user);
   }
 
   public async findByRefreshToken(token: string): Promise<UserEntity | null> {
@@ -153,7 +147,7 @@ export class UserPrismaRepository implements UserRepository {
       return null;
     }
 
-    return UserMapper.toDomain(user as PrismaUserWithRelations);
+    return UserMapper.toDomain(user);
   }
 
   public async findAll(options?: UserFindOptions): Promise<UserEntity[]> {
@@ -180,7 +174,7 @@ export class UserPrismaRepository implements UserRepository {
       },
     });
 
-    return users.map((user) => UserMapper.toDomain(user as PrismaUserWithRelations));
+    return users.map((user) => UserMapper.toDomain(user));
   }
 
   public async findAndCount(options?: UserFindOptions): Promise<[UserEntity[], number]> {
@@ -210,7 +204,7 @@ export class UserPrismaRepository implements UserRepository {
       this.prisma.user.count({ where }),
     ]);
 
-    return [users.map((user) => UserMapper.toDomain(user as PrismaUserWithRelations)), total];
+    return [users.map((user) => UserMapper.toDomain(user)), total];
   }
 
   public async save(user: UserEntity): Promise<UserEntity> {
@@ -230,7 +224,7 @@ export class UserPrismaRepository implements UserRepository {
       },
     });
 
-    return UserMapper.toDomain(savedUser as PrismaUserWithRelations);
+    return UserMapper.toDomain(savedUser);
   }
 
   public async create(user: UserEntity): Promise<UserEntity> {
@@ -244,7 +238,7 @@ export class UserPrismaRepository implements UserRepository {
       },
     });
 
-    return UserMapper.toDomain(createdUser as PrismaUserWithRelations);
+    return UserMapper.toDomain(createdUser);
   }
 
   public async update(user: UserEntity): Promise<UserEntity> {
@@ -263,7 +257,7 @@ export class UserPrismaRepository implements UserRepository {
       },
     });
 
-    return UserMapper.toDomain(updatedUser as PrismaUserWithRelations);
+    return UserMapper.toDomain(updatedUser);
   }
 
   public async delete(id: string): Promise<void> {
@@ -320,10 +314,10 @@ export class UserPrismaRepository implements UserRepository {
             metadata: true,
           },
         });
-      })
+      }),
     );
 
-    return savedUsers.map((user) => UserMapper.toDomain(user as PrismaUserWithRelations));
+    return savedUsers.map((user) => UserMapper.toDomain(user));
   }
 
   public async deleteMany(ids: string[]): Promise<void> {
@@ -354,7 +348,7 @@ export class UserPrismaRepository implements UserRepository {
       },
     });
 
-    return users.map((user) => UserMapper.toDomain(user as PrismaUserWithRelations));
+    return users.map((user) => UserMapper.toDomain(user));
   }
 
   public async findByStatus(status: string): Promise<UserEntity[]> {
@@ -369,7 +363,7 @@ export class UserPrismaRepository implements UserRepository {
       },
     });
 
-    return users.map((user) => UserMapper.toDomain(user as PrismaUserWithRelations));
+    return users.map((user) => UserMapper.toDomain(user));
   }
 
   public async findByRole(role: string): Promise<UserEntity[]> {
@@ -384,7 +378,7 @@ export class UserPrismaRepository implements UserRepository {
       },
     });
 
-    return users.map((user) => UserMapper.toDomain(user as PrismaUserWithRelations));
+    return users.map((user) => UserMapper.toDomain(user));
   }
 
   public async findPendingVerification(): Promise<UserEntity[]> {
@@ -403,7 +397,7 @@ export class UserPrismaRepository implements UserRepository {
       },
     });
 
-    return users.map((user) => UserMapper.toDomain(user as PrismaUserWithRelations));
+    return users.map((user) => UserMapper.toDomain(user));
   }
 
   public async findLockedUsers(): Promise<UserEntity[]> {
@@ -420,7 +414,7 @@ export class UserPrismaRepository implements UserRepository {
       },
     });
 
-    return users.map((user) => UserMapper.toDomain(user as PrismaUserWithRelations));
+    return users.map((user) => UserMapper.toDomain(user));
   }
 
   public async findByLastLogin(startDate: Date, endDate: Date): Promise<UserEntity[]> {
@@ -438,7 +432,7 @@ export class UserPrismaRepository implements UserRepository {
       },
     });
 
-    return users.map((user) => UserMapper.toDomain(user as PrismaUserWithRelations));
+    return users.map((user) => UserMapper.toDomain(user));
   }
 
   public async search(query: string, options?: UserFindOptions): Promise<UserEntity[]> {
@@ -463,7 +457,7 @@ export class UserPrismaRepository implements UserRepository {
       },
     });
 
-    return users.map((user) => UserMapper.toDomain(user as PrismaUserWithRelations));
+    return users.map((user) => UserMapper.toDomain(user));
   }
 
   public async transaction<T>(callback: (repository: UserRepository) => Promise<T>): Promise<T> {
@@ -504,31 +498,19 @@ export class UserPrismaRepository implements UserRepository {
     }
 
     if (filters.createdAfter) {
-      where.createdAt = {
-        ...(where.createdAt as Prisma.DateTimeFilter),
-        gte: filters.createdAfter,
-      };
+      where.createdAt = { ...(where.createdAt as Prisma.DateTimeFilter), gte: filters.createdAfter };
     }
 
     if (filters.createdBefore) {
-      where.createdAt = {
-        ...(where.createdAt as Prisma.DateTimeFilter),
-        lte: filters.createdBefore,
-      };
+      where.createdAt = { ...(where.createdAt as Prisma.DateTimeFilter), lte: filters.createdBefore };
     }
 
     if (filters.updatedAfter) {
-      where.updatedAt = {
-        ...(where.updatedAt as Prisma.DateTimeFilter),
-        gte: filters.updatedAfter,
-      };
+      where.updatedAt = { ...(where.updatedAt as Prisma.DateTimeFilter), gte: filters.updatedAfter };
     }
 
     if (filters.updatedBefore) {
-      where.updatedAt = {
-        ...(where.updatedAt as Prisma.DateTimeFilter),
-        lte: filters.updatedBefore,
-      };
+      where.updatedAt = { ...(where.updatedAt as Prisma.DateTimeFilter), lte: filters.updatedBefore };
     }
 
     if (filters.lastLoginAfter) {
@@ -559,7 +541,7 @@ export class UserPrismaRepository implements UserRepository {
 
   private buildOrderByClause(
     sortBy: string,
-    sortOrder: 'asc' | 'desc'
+    sortOrder: 'asc' | 'desc',
   ): Prisma.UserOrderByWithRelationInput {
     return { [sortBy]: sortOrder };
   }
