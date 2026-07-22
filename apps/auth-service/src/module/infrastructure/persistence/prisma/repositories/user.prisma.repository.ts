@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any */
 /**
  * ============================================================================
  * Vubon.com.bd - User Prisma Repository Implementation
  * ============================================================================
- * Implements domain repository interface using Prisma ORM with proper mapping fallback.
+ * Implements domain repository interface using Prisma ORM with clean lint compliance.
  */
 
 import { Injectable } from '@nestjs/common';
@@ -466,11 +466,11 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   private mapToDomain(raw: any): UserEntity {
-    return raw as unknown as UserEntity;
+    return raw as UserEntity;
   }
 
   private mapToPersistence(user: UserEntity): any {
-    return user as unknown as any;
+    return user;
   }
 
   private buildWhereClause(filters?: UserFilters, includeDeleted = false): any {
