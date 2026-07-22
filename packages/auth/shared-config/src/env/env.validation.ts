@@ -1,1 +1,3 @@
-import { config } from 'dotenv';\nconfig();
+import { config } from 'dotenv';
+
+config();
