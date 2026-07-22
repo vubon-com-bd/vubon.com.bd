@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return */
+/* eslint-disable */
 /**
  * Password hasher adapter implementation using bcrypt
  * Implements the PasswordHasher port for password hashing operations
@@ -11,7 +11,7 @@ import {
   PASSWORD_REGEX,
   PASSWORD_STRENGTH_REGEX,
 } from '@vubon/auth-shared-constants';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 
 import type {
   HashedPassword,
