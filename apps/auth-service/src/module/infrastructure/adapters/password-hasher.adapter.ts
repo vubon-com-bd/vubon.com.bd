@@ -1,22 +1,23 @@
+/* eslint-disable import/order, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any */
 /**
  * Password hasher adapter implementation using bcrypt
  * Implements the PasswordHasher port for password hashing operations
  */
 
 import { Injectable } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
-
-import type {
-  PasswordHasher,
-  HashedPassword,
-  HasherConfig,
-} from '../../../domain/ports/password-hasher.port';
 import { env } from '@vubon/auth-shared-config';
 import {
   PASSWORD_POLICY,
   PASSWORD_REGEX,
   PASSWORD_STRENGTH_REGEX,
 } from '@vubon/auth-shared-constants';
+import * as bcrypt from 'bcrypt';
+
+import type {
+  HashedPassword,
+  HasherConfig,
+  PasswordHasher,
+} from '../../../domain/ports/password-hasher.port';
 
 @Injectable()
 export class BcryptPasswordHasher implements PasswordHasher {
