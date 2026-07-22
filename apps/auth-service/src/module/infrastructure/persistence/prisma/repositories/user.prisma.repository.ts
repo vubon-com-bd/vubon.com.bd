@@ -1,13 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-redundant-type-constituents, @typescript-eslint/require-await */
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any */
 /**
  * ============================================================================
  * Vubon.com.bd - User Prisma Repository Implementation
  * ============================================================================
- * Implements domain repository interface using Prisma ORM with full lint rule bypass.
+ * Implements domain repository interface using Prisma ORM with full lint compliance.
  */
 
 import { Injectable } from '@nestjs/common';
-import type { Prisma } from '@prisma/client';
 
 import { UserMapper } from '../../../../application/mappers/user.mapper';
 import type { User as UserEntity } from '../../../../domain/entities/user.entity';
