@@ -314,7 +314,7 @@ export class UserPrismaRepository implements UserRepository {
             metadata: true,
           },
         });
-      }),
+      })
     );
 
     return savedUsers.map((user) => UserMapper.toDomain(user));
@@ -498,19 +498,31 @@ export class UserPrismaRepository implements UserRepository {
     }
 
     if (filters.createdAfter) {
-      where.createdAt = { ...(where.createdAt as Prisma.DateTimeFilter), gte: filters.createdAfter };
+      where.createdAt = {
+        ...(where.createdAt as Prisma.DateTimeFilter),
+        gte: filters.createdAfter,
+      };
     }
 
     if (filters.createdBefore) {
-      where.createdAt = { ...(where.createdAt as Prisma.DateTimeFilter), lte: filters.createdBefore };
+      where.createdAt = {
+        ...(where.createdAt as Prisma.DateTimeFilter),
+        lte: filters.createdBefore,
+      };
     }
 
     if (filters.updatedAfter) {
-      where.updatedAt = { ...(where.updatedAt as Prisma.DateTimeFilter), gte: filters.updatedAfter };
+      where.updatedAt = {
+        ...(where.updatedAt as Prisma.DateTimeFilter),
+        gte: filters.updatedAfter,
+      };
     }
 
     if (filters.updatedBefore) {
-      where.updatedAt = { ...(where.updatedAt as Prisma.DateTimeFilter), lte: filters.updatedBefore };
+      where.updatedAt = {
+        ...(where.updatedAt as Prisma.DateTimeFilter),
+        lte: filters.updatedBefore,
+      };
     }
 
     if (filters.lastLoginAfter) {
@@ -541,7 +553,7 @@ export class UserPrismaRepository implements UserRepository {
 
   private buildOrderByClause(
     sortBy: string,
-    sortOrder: 'asc' | 'desc',
+    sortOrder: 'asc' | 'desc'
   ): Prisma.UserOrderByWithRelationInput {
     return { [sortBy]: sortOrder };
   }
