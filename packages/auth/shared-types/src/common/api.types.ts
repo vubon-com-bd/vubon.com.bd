@@ -67,7 +67,7 @@ export type RegisterResponse = ApiResponse<{
  * Type guard to check if response is successful
  */
 export function isSuccessResponse<T>(
-  response: ApiResponse<T> | ApiErrorResponse
+  response: ApiResponse<T> | ApiErrorResponse,
 ): response is ApiResponse<T> {
   return response.success === true;
 }

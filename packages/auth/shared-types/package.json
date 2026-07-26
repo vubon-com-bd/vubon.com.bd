@@ -18,6 +18,9 @@
     "format:check": "prettier --check \"src/**/*.ts\"",
     "test": "echo \"No tests yet\" && exit 0"
   },
+  "dependencies": {
+    "@vubon/auth-shared-constants": "workspace:*"
+  },
   "devDependencies": {
     "typescript": "^5.0.0"
   }
