@@ -1,3 +1,4 @@
+/* global process */
 /**
  * Environment variables validation and loading
  * Loads and validates environment variables using Zod

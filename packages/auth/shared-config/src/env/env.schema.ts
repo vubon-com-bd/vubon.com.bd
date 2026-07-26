@@ -1,3 +1,4 @@
+/* global process */
 /**
  * Environment variables schema validation using Zod
  * Defines all required and optional environment variables
