@@ -30,6 +30,6 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'error',
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'no-console': ['warn', { allow: ['warn', 'error'] }],
-    'no-undef': 'off',
+    'no-undef': 'off',  // ← এই লাইনটি থাকতে হবে
   },
 };

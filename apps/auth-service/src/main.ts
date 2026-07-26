@@ -48,6 +48,7 @@ async function bootstrap(): Promise<void> {
 
 // Bootstrap the application
 void bootstrap().catch((error: unknown) => {
+  // eslint-disable-next-line no-console
   console.error('Failed to start Auth Service:', error);
   process.exit(1);
 });
