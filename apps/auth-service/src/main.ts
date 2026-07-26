@@ -9,7 +9,11 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { getEnv } from '@vubon/auth-shared-config';
 import { AppModule } from './module/modules/app.module.js';
 
-async function bootstrap() {
+/**
+ * Bootstrap the NestJS application
+ * @returns Promise<void>
+ */
+async function bootstrap(): Promise<void> {
   const logger = new Logger('AuthService');
   const env = getEnv();
 
@@ -42,7 +46,8 @@ async function bootstrap() {
   logger.log(`📚 Environment: ${env.NODE_ENV}`);
 }
 
-bootstrap().catch((error) => {
+// Bootstrap the application
+void bootstrap().catch((error: unknown) => {
   console.error('Failed to start Auth Service:', error);
   process.exit(1);
 });
