@@ -7,7 +7,7 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { getEnv } from '@vubon/auth-shared-config';
-import { AppModule } from './module/modules/app.module.js';
+import { AppModule } from './app.module.js';
 
 /**
  * Bootstrap the NestJS application
