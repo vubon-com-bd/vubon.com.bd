@@ -58,6 +58,24 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # 🔥 নতুন ধাপ: সঠিক ক্রমে শেয়ার্ড প্যাকেজ বিল্ড করুন
+      - name: Build Shared Packages in Correct Order
+        run: |
+          echo "🔨 Building shared-constants..."
+          pnpm run --filter "@vubon/auth-shared-constants" build
+          
+          echo "🔨 Building shared-types..."
+          pnpm run --filter "@vubon/auth-shared-types" build
+          
+          echo "🔨 Building shared-schemas..."
+          pnpm run --filter "@vubon/auth-shared-schemas" build
+          
+          echo "🔨 Building shared-utils..."
+          pnpm run --filter "@vubon/auth-shared-utils" build
+          
+          echo "🔨 Building shared-config..."
+          pnpm run --filter "@vubon/auth-shared-config" build
+
       - name: Run Full Code Validation
         run: pnpm run check
         env:
