@@ -1,0 +1,31 @@
+{
+  "name": "@vubon/auth-shared-config",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint .",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "dependencies": {
+    "@vubon/auth-shared-constants": "workspace:*",
+    "@vubon/auth-shared-types": "workspace:*",
+    "dotenv": "^16.3.1",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "typescript": "^5.0.0"
+  }
+}
