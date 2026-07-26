@@ -1,6 +1,6 @@
 /**
  * Authentication related constants for the registration feature
- * All constants are immutable and exported as const assertions for strict type safety
+ * All constants are immutable and exported for strict type safety
  */
 
 /**
@@ -14,7 +14,7 @@ export const PASSWORD_MAX_LENGTH = 72 as const;
  * one lowercase letter, one number, and one special character
  * Uses positive lookahead for complexity validation
  */
-export const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,72}$/ as const;
+export const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,72}$/;
 
 /**
  * User status enumeration
