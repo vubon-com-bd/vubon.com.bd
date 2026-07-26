@@ -1,0 +1,40 @@
+{
+  "name": "@vubon/auth-shared-utils",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./validation": {
+      "import": "./dist/validation/index.js",
+      "types": "./dist/validation/index.d.ts"
+    },
+    "./crypto": {
+      "import": "./dist/crypto/index.js",
+      "types": "./dist/crypto/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint .",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "dependencies": {
+    "@vubon/auth-shared-constants": "workspace:*",
+    "@vubon/auth-shared-types": "workspace:*",
+    "bcrypt": "^5.1.0",
+    "validator": "^13.11.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.0",
+    "@types/validator": "^13.11.0",
+    "typescript": "^5.0.0"
+  }
+}
