@@ -62,7 +62,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build all packages
-        run: pnpm run build
+        run: pnpm -r run build
 
       - name: Generate Prisma Client
         run: pnpm --filter @vubon/auth-service prisma generate || true
@@ -114,7 +114,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build all packages
-        run: pnpm run build
+        run: pnpm -r run build
 
       - name: Dependency Audit
         run: pnpm audit --prod --audit-level=high || true

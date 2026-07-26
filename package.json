@@ -4,12 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "pnpm run build --workspaces",
-    "type-check": "pnpm run type-check --workspaces",
-    "lint": "pnpm run lint --workspaces",
-    "format": "pnpm run format --workspaces",
-    "format:check": "pnpm run format:check --workspaces",
-    "test": "pnpm run test --workspaces",
+    "build": "pnpm -r run build",
+    "type-check": "pnpm -r run type-check",
+    "lint": "pnpm -r run lint",
+    "format": "pnpm -r run format",
+    "format:check": "pnpm -r run format:check",
+    "test": "pnpm -r run test",
     "check": "pnpm run format:check && pnpm run lint && pnpm run type-check && pnpm run test",
     "prisma:generate": "pnpm --filter @vubon/auth-service prisma generate"
   },
