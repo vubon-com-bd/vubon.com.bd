@@ -14,7 +14,8 @@ export const PASSWORD_MAX_LENGTH = 72 as const;
  * one lowercase letter, one number, and one special character
  * Uses positive lookahead for complexity validation
  */
-export const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,72}$/;
+export const PASSWORD_PATTERN =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,72}$/;
 
 /**
  * User status enumeration
@@ -31,7 +32,7 @@ export const USER_STATUS = {
  * Type inference for UserStatus union type
  * Can be used with typeof USER_STATUS[keyof typeof USER_STATUS]
  */
-export type UserStatus = typeof USER_STATUS[keyof typeof USER_STATUS];
+export type UserStatus = (typeof USER_STATUS)[keyof typeof USER_STATUS];
 
 /**
  * Default role assigned to newly registered users
@@ -45,4 +46,4 @@ export const USER_ROLES = {
   SUPER_ADMIN: 'SUPER_ADMIN',
 } as const;
 
-export type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES];
+export type UserRole = (typeof USER_ROLES)[keyof typeof USER_ROLES];
