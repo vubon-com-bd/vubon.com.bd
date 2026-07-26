@@ -12,7 +12,11 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@vubon/auth-shared-*": ["../../packages/auth/shared-*/src"]
+    }
   },
   "include": [
     "src/**/*"
