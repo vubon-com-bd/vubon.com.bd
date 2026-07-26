@@ -65,7 +65,10 @@ export function generateAlphanumeric(length: number = 16): string {
 
   let result = '';
   for (let i = 0; i < length; i++) {
-    result += chars[bytes[i] % chars.length];
+    const byte = bytes[i];
+    if (byte !== undefined) {
+      result += chars[byte % chars.length];
+    }
   }
 
   return result;
@@ -93,7 +96,10 @@ export function generateCustomRandom(
     const bytes = randomBytes(length);
     let result = '';
     for (let i = 0; i < length; i++) {
-      result += chars[bytes[i] % chars.length];
+      const byte = bytes[i];
+      if (byte !== undefined) {
+        result += chars[byte % chars.length];
+      }
     }
     return result;
   } catch (error) {
@@ -111,9 +117,9 @@ export function generateUUID(): string {
   const bytes = randomBytes(16);
 
   // Set version to 4 (0100)
-  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[6] = ((bytes[6] ?? 0) & 0x0f) | 0x40;
   // Set variant to RFC 4122 (10xx)
-  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  bytes[8] = ((bytes[8] ?? 0) & 0x3f) | 0x80;
 
   return bytes.toString('hex').replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, '$1-$2-$3-$4-$5');
 }
