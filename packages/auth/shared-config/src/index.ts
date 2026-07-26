@@ -1,7 +1,24 @@
 /**
  * Shared configuration for authentication module
- * This is a placeholder file. Actual config will be added later.
+ * Exports environment validation and configuration utilities
  */
 
-// Export will be added when env.schema.ts and env.validation.ts are created
-export {};
+// Export environment schema
+export {
+  EnvSchema,
+  DevEnvSchema,
+  ProdEnvSchema,
+  TestEnvSchema,
+  type Env,
+} from './env/env.schema.js';
+
+// Export environment validation utilities
+export {
+  validateEnv,
+  getEnv,
+  isDevelopment,
+  isProduction,
+  isTest,
+  getEnvVar,
+  reloadEnv,
+} from './env/env.validation.js';
