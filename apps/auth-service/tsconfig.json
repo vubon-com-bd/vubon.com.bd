@@ -15,7 +15,12 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@vubon/auth-shared-*": ["../../packages/auth/shared-*/src"]
+      "@nestjs/*": ["node_modules/@nestjs/*"],
+      "@vubon/auth-shared-constants": ["../../packages/auth/shared-constants/src"],
+      "@vubon/auth-shared-types": ["../../packages/auth/shared-types/src"],
+      "@vubon/auth-shared-schemas": ["../../packages/auth/shared-schemas/src"],
+      "@vubon/auth-shared-utils": ["../../packages/auth/shared-utils/src"],
+      "@vubon/auth-shared-config": ["../../packages/auth/shared-config/src"]
     }
   },
   "include": [

@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "NODE_PATH=../../node_modules:./node_modules tsc",
-    "type-check": "NODE_PATH=../../node_modules:./node_modules tsc --noEmit",
+    "build": "tsc",
+    "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "start": "node dist/main.js",
