@@ -39,27 +39,41 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
 
-      - name: Update npm
-        run: npm install -g npm@11.16.0
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.0
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma Client
-        run: npx prisma generate --schema=./apps/auth-service/prisma/schema.prisma
+        run: pnpm --filter @vubon/auth-service prisma generate
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Run Full Code Validation
-        run: npm run check
+        run: pnpm run check
         env:
           NODE_ENV: test
           DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
 
       - name: Build Workspace
-        run: npm run build
+        run: pnpm run build
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4.6.0
@@ -71,7 +85,7 @@ jobs:
             apps/**/dist
             packages/**/dist
             package.json
-            package-lock.json
+            pnpm-lock.yaml
 
 # =====================================================
 # 2. SECURITY SCAN (CodeQL & Audit)
@@ -93,13 +107,17 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.0
 
       - name: Install Dependencies
-        run: npm install --no-prepare
+        run: pnpm install --frozen-lockfile --no-prepare
 
       - name: Dependency Audit
-        run: npm audit --omit=dev --audit-level=high
+        run: pnpm audit --prod --audit-level=high
 
       - name: Autobuild
         uses: github/codeql-action/autobuild@v4
@@ -133,15 +151,20 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.0
+
       - name: Install Production Dependencies
         run: |
-          npm install --no-prepare --omit=dev
-          npm run prisma:generate --if-present
+          pnpm install --frozen-lockfile --prod --no-prepare
+          pnpm --filter @vubon/auth-service prisma generate
         env:
           DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
 
       - name: Database Migration
-        run: cd apps/auth-service && npx prisma migrate deploy
+        run: pnpm --filter @vubon/auth-service prisma migrate deploy
         env:
           DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
 
@@ -173,15 +196,20 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.0
+
       - name: Install Production Dependencies
         run: |
-          npm install --no-prepare --omit=dev
-          npm run prisma:generate --if-present
+          pnpm install --frozen-lockfile --prod --no-prepare
+          pnpm --filter @vubon/auth-service prisma generate
         env:
           DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
 
       - name: Production Migration
-        run: cd apps/auth-service && npx prisma migrate deploy
+        run: pnpm --filter @vubon/auth-service prisma migrate deploy
         env:
           DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
 
