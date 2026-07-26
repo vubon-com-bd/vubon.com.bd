@@ -28,8 +28,12 @@ export function validateEnv(): Env {
     const result = EnvSchema.safeParse(process.env);
 
     if (!result.success) {
-      const errors = result.error.errors.map((err) => `${err.path.join('.')}: ${err.message}`);
-      throw new Error(`Environment validation failed:\n${errors.join('\n')}`);
+      const errors = result.error.errors.map(
+        (err) => `${err.path.join('.')}: ${err.message}`
+      );
+      throw new Error(
+        `Environment validation failed:\n${errors.join('\n')}`
+      );
     }
 
     // Freeze the object to prevent mutations
