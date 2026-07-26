@@ -36,6 +36,16 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
+  packages/auth/shared-types:
+    dependencies:
+      '@vubon/auth-shared-constants':
+        specifier: workspace:*
+        version: link:../shared-constants
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
 packages:
 
   '@eslint-community/eslint-utils@4.10.1':
