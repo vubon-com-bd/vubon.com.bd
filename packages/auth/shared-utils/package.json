@@ -29,11 +29,11 @@
   "dependencies": {
     "@vubon/auth-shared-constants": "workspace:*",
     "@vubon/auth-shared-types": "workspace:*",
-    "bcrypt": "^5.1.0",
+    "bcryptjs": "^2.4.3",
     "validator": "^13.11.0"
   },
   "devDependencies": {
-    "@types/bcrypt": "^5.0.0",
+    "@types/bcryptjs": "^2.4.6",
     "@types/validator": "^13.11.0",
     "typescript": "^5.0.0"
   }
