@@ -2,3 +2,7 @@ packages:
   - 'apps/*'
   - 'packages/*'
   - 'packages/auth/*'
+allowBuilds:
+  '@nestjs/core': true
+  '@swc/core': true
+  esbuild: false

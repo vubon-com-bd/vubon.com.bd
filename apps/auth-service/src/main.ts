@@ -47,9 +47,7 @@ async function bootstrap(): Promise<void> {
 }
 
 // Bootstrap the application
-/* eslint-disable no-undef */
 void bootstrap().catch((error: unknown) => {
   console.error('Failed to start Auth Service:', error);
   process.exit(1);
 });
-/* eslint-enable no-undef */
