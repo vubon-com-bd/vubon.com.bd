@@ -1,0 +1,4 @@
+# Prisma Generated Files
+apps/auth-service/src/generated/
+**/generated/
+*.generated.ts
