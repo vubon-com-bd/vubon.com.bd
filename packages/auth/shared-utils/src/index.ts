@@ -1,7 +1,25 @@
 /**
  * Shared utilities for authentication module
- * This is a placeholder file. Actual utilities will be added later.
+ * Exports all utility functions
  */
 
-// Export will be added when utility files are created
-export {};
+// Export validation utilities
+export {
+  isValidEmail,
+  normalizeEmail,
+  isDisposableEmail,
+  validateEmailWithDetails,
+} from './validation/email.util.js';
+
+// Export crypto utilities
+export {
+  hashPassword,
+  comparePassword,
+  hashPasswordSync,
+  comparePasswordSync,
+  generateToken,
+  generateOTP,
+  generateAlphanumeric,
+  generateCustomRandom,
+  generateUUID,
+} from './crypto/index.js';
