@@ -20,15 +20,10 @@
       "@vubon/auth-shared-types": ["../../packages/auth/shared-types/src"],
       "@vubon/auth-shared-schemas": ["../../packages/auth/shared-schemas/src"],
       "@vubon/auth-shared-utils": ["../../packages/auth/shared-utils/src"],
-      "@vubon/auth-shared-config": ["../../packages/auth/shared-config/src"]
+      "@vubon/auth-shared-config": ["../../packages/auth/shared-config/src"],
+      "@prisma/client": ["./src/generated/prisma/index"]
     }
   },
   "include": ["src/**/*"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "prisma",
-    "src/generated",
-    "src/generated/**/*"
-  ]
+  "exclude": ["node_modules", "dist", "prisma"]
 }
