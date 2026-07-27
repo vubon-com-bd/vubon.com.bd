@@ -62,7 +62,7 @@ jobs:
       - name: Generate Prisma Client
         run: |
           cd apps/auth-service
-          npx prisma generate
+          pnpm --filter @vubon/auth-service exec prisma generate
 
       - name: Build Shared Packages in Correct Order
         run: |
