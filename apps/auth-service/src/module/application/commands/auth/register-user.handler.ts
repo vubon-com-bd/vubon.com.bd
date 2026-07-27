@@ -5,6 +5,7 @@
  */
 
 import { Injectable, Inject, Logger } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { RegisterUserCommand } from './register-user.command.js';
 import { User } from '../../../domain/entities/user.entity.js';
 import { IUserRepository } from '../../../domain/repositories/user.repository.interface.js';
@@ -12,7 +13,6 @@ import { IPasswordHasher } from '../../../domain/ports/password-hasher.port.js';
 import { IEmailValidator } from '../../../domain/ports/email-validator.port.js';
 import { ITokenGenerator } from '../../../domain/ports/token-generator.port.js';
 import { AuthResponseDto } from '../../dtos/auth/auth-response.dto.js';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UserRegisteredEvent } from '../../events/user-registered.event.js';
 
 @Injectable()
@@ -28,7 +28,7 @@ export class RegisterUserHandler {
     private readonly emailValidator: IEmailValidator,
     @Inject('ITokenGenerator')
     private readonly tokenGenerator: ITokenGenerator,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter2
   ) {}
 
   /**
@@ -69,13 +69,7 @@ export class RegisterUserHandler {
       this.logger.debug('Password hashed successfully');
 
       // Step 5: Create User entity using factory method
-      const user = User.register(
-        email,
-        passwordHash,
-        firstName,
-        lastName,
-        phone,
-      );
+      const user = User.register(email, passwordHash, firstName, lastName, phone);
       this.logger.debug(`User entity created with ID: ${user.id}`);
 
       // Step 6: Save user to repository
@@ -89,12 +83,10 @@ export class RegisterUserHandler {
           email: savedUser.email,
           role: savedUser.role,
         },
-        '7d',
+        '7d'
       );
 
-      const refreshToken = this.tokenGenerator.generateRefreshToken(
-        savedUser.id,
-      );
+      const refreshToken = this.tokenGenerator.generateRefreshToken(savedUser.id);
 
       // Step 8: Publish UserRegisteredEvent
       const event = new UserRegisteredEvent(
@@ -102,7 +94,7 @@ export class RegisterUserHandler {
         savedUser.email,
         savedUser.firstName,
         savedUser.lastName,
-        savedUser.phone,
+        savedUser.phone
       );
       await this.eventEmitter.emitAsync('user.registered', event);
       this.logger.debug(`UserRegisteredEvent published for ID: ${savedUser.id}`);
@@ -130,7 +122,7 @@ export class RegisterUserHandler {
       return response;
     } catch (error) {
       this.logger.error(
-        `Registration failed for ${email}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Registration failed for ${email}: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
       throw error;
     }
