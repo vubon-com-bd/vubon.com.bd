@@ -20,11 +20,11 @@
     "@nestjs/platform-express": "^10.3.0",
     "@vubon/auth-shared-config": "workspace:*",
     "@vubon/auth-shared-constants": "workspace:*",
+    "@vubon/auth-shared-schemas": "workspace:*",
     "@vubon/auth-shared-types": "workspace:*",
     "@vubon/auth-shared-utils": "workspace:*",
-    "@vubon/auth-shared-schemas": "workspace:*",
     "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.0",
+    "class-validator": "^0.14.4",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0"
   },
