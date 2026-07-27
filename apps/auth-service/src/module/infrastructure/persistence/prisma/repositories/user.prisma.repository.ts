@@ -8,7 +8,6 @@ import { PrismaService } from '../prisma.service.js';
 import { IUserRepository } from '../../../../domain/repositories/user.repository.interface.js';
 import { User } from '../../../../domain/entities/user.entity.js';
 import type { UserStatus } from '@vubon/auth-shared-constants';
-import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class UserPrismaRepository implements IUserRepository {
@@ -381,7 +380,8 @@ export class UserPrismaRepository implements IUserRepository {
     );
   }
 
-  private toPrismaCreateInput(user: User): Prisma.UserCreateInput {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private toPrismaCreateInput(user: User): any {
     return {
       id: user.id,
       email: user.email,
@@ -393,7 +393,7 @@ export class UserPrismaRepository implements IUserRepository {
       status: user.status,
       isEmailVerified: user.isEmailVerified,
       isPhoneVerified: user.isPhoneVerified,
-      metadata: user.metadata as Prisma.JsonValue || Prisma.JsonNull,
+      metadata: user.metadata ?? null,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
