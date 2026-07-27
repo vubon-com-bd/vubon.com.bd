@@ -12,7 +12,8 @@
     "start:dev": "tsx watch src/main.ts",
     "start:debug": "tsx --inspect-brk watch src/main.ts",
     "start:prod": "node dist/main.js",
-    "test": "echo \"No tests yet\" && exit 0"
+    "test": "echo \"No tests yet\" && exit 0",
+    "prisma:generate": "prisma generate"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.0",
