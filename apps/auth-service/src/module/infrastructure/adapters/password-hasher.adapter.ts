@@ -4,7 +4,7 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { IPasswordHasher } from "@domain/ports/password-hasher.port.js";
+import { IPasswordHasher } from '@domain/ports/password-hasher.port.js';
 import {
   hashPassword,
   comparePassword,
