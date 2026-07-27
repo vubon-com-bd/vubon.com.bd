@@ -4,8 +4,8 @@
  */
 
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
-// ✅ প্যাকেজ থেকে ইমপোর্ট করুন (path alias ব্যবহার করবে)
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../../../../generated/prisma/index.js';
+// ✅ সঠিক রিলেটিভ পাথ (একই infrastructure ফোল্ডারের ভেতর config ফোল্ডার)
 import { getDatabaseConfig } from '../../config/database.config.js';
 
 @Injectable()
