@@ -4,5 +4,6 @@ packages:
   - 'packages/auth/*'
 allowBuilds:
   '@nestjs/core': true
+  '@prisma/client': true
   '@swc/core': true
   esbuild: false
