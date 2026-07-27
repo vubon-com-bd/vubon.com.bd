@@ -5,7 +5,7 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import { INotificationSender } from '../../../domain/ports/notification-sender.js';
+import { INotificationSender } from "@domain/ports/notification-sender.port.js";
 import { getEnv } from '@vubon/auth-shared-config';
 
 @Injectable()

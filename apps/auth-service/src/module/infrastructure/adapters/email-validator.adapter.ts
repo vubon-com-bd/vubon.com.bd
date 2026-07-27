@@ -4,7 +4,7 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { IEmailValidator } from '../../../domain/ports/email-validator.js';
+import { IEmailValidator } from "@domain/ports/email-validator.port.js";
 import {
   isValidEmail,
   normalizeEmail,
