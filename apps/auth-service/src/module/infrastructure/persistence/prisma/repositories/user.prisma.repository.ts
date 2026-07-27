@@ -374,7 +374,7 @@ export class UserPrismaRepository implements IUserRepository {
         status: prismaUser.status as any,
         isEmailVerified: prismaUser.isEmailVerified,
         isPhoneVerified: prismaUser.isPhoneVerified,
-        metadata: prismaUser.metadata as Record<string, unknown> | null || null,
+        metadata: (prismaUser.metadata as Record<string, unknown> | null) || null,
       },
       prismaUser.id
     );
