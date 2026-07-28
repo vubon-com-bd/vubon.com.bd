@@ -1,4 +1,3 @@
-/* eslint-disable no-control-regex */
 /**
  * Regular expression constants for validation
  * All regex patterns are immutable and exported as const for strict type safety
