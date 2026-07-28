@@ -123,6 +123,9 @@ importers:
 
   packages/auth/shared-api:
     dependencies:
+      '@vubon/auth-shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       axios:
         specifier: ^1.6.0
         version: 1.18.1(debug@4.4.3(supports-color@7.2.0))(supports-color@7.2.0)

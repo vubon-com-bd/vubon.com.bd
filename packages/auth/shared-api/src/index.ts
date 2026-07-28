@@ -1,7 +1,34 @@
 /**
  * Shared API for authentication module
- * This is a placeholder file. Actual API client will be added later.
+ * Exports API client and endpoints
  */
 
-// Export will be added when client and endpoints are created
-export {};
+// Export client
+export {
+  createApiClient,
+  apiClient,
+  createAuthApiClient,
+  setApiBaseUrl,
+  setApiHeaders,
+  setupAuthInterceptor,
+  setupErrorInterceptor,
+  setupDataExtractionInterceptor,
+  setupLoggingInterceptor,
+  setupAllInterceptors,
+} from './client/index.js';
+
+// Export endpoints
+export {
+  register,
+  login,
+  logout,
+  refreshToken,
+  verifyEmail,
+  forgotPassword,
+  resetPassword,
+  getProfile,
+  type RegisterRequest,
+  type RegisterResponse,
+  type LoginRequest,
+  type LoginResponse,
+} from './endpoints/index.js';
