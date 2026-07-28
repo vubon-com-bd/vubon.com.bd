@@ -106,9 +106,9 @@ export class AuthClient {
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to refresh token');
       }
-      this._token = response.data.accessToken;
-      this._refreshToken = response.data.refreshToken;
-      return this._token;
+      this._token = response.data.accessToken || null;
+      this._refreshToken = response.data.refreshToken || null;
+      return this._token || '';
     } catch (error) {
       this.clearSession();
       this.config?.onUnauthorized?.();

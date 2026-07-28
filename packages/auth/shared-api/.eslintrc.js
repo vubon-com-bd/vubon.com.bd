@@ -12,11 +12,17 @@ module.exports = {
   ],
   root: true,
   env: {
-    node: true,      // Node.js গ্লোবাল (process, Buffer)
-    browser: true,   // ব্রাউজার গ্লোবাল (console, window)
+    node: true,
+    browser: true,
     es2022: true,
   },
-  ignorePatterns: ['.eslintrc.js', 'dist/', 'node_modules/'],
+  ignorePatterns: [
+    '.eslintrc.js',
+    'dist/',
+    'node_modules/',
+    '*.d.ts',      // যোগ করুন
+    '*.d.ts.map',  // যোগ করুন
+  ],
   rules: {
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',

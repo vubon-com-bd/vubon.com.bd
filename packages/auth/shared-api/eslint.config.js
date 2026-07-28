@@ -5,7 +5,12 @@ import prettier from 'eslint-plugin-prettier';
 
 export default [
   {
-    ignores: ['dist/**', 'node_modules/**'],
+    ignores: [
+      'dist/**',
+      'node_modules/**',
+      '**/*.d.ts',      // যোগ করুন
+      '**/*.d.ts.map',  // যোগ করুন
+    ],
   },
   {
     files: ['**/*.ts'],

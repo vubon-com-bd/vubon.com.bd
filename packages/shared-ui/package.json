@@ -35,7 +35,7 @@
     "@vubon/auth-shared-auth": "workspace:*",
     "@vubon/auth-shared-hooks": "workspace:*",
     "@vubon/auth-shared-types": "workspace:*",
-    "react-hook-form": "^7.83.0"
+    "react-hook-form": "^7.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",

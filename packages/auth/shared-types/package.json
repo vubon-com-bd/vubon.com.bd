@@ -16,12 +16,18 @@
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "format:check": "prettier --check \"src/**/*.ts\"",
+    "format:write": "prettier --write \"src/**/*.ts\"",
     "test": "echo \"No tests yet\" && exit 0"
   },
   "dependencies": {
     "@vubon/auth-shared-constants": "workspace:*"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "globals": "^17.8.0",
+    "prettier": "^3.9.6",
     "typescript": "^5.0.0"
   }
 }
