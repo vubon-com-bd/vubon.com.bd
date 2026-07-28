@@ -14,9 +14,4 @@ export {
 } from './components/ui/index.js';
 
 // Export Form components
-export {
-  Form,
-  FormInput,
-  type FormProps,
-  type FormInputProps,
-} from './components/forms/index.js';
+export { Form, FormInput, type FormProps, type FormInputProps } from './components/forms/index.js';
