@@ -154,6 +154,9 @@ importers:
       '@vubon/auth-shared-api':
         specifier: workspace:*
         version: link:../shared-api
+      '@vubon/auth-shared-constants':
+        specifier: workspace:*
+        version: link:../shared-constants
       '@vubon/auth-shared-types':
         specifier: workspace:*
         version: link:../shared-types

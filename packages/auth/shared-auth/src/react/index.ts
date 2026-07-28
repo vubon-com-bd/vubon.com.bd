@@ -1,6 +1,12 @@
 /**
- * Auth React exports
- * Will be implemented in next steps
+ * React exports
  */
 
-export {};
+export {
+  AuthContext,
+  useAuthContext,
+  defaultAuthContextValue,
+  type AuthContextValue,
+} from './AuthContext.js';
+export { AuthProvider, type AuthProviderProps } from './AuthProvider.js';
+export { useAuth } from './useAuth.js';

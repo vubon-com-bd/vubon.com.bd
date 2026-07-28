@@ -1,6 +1,5 @@
 /**
- * Auth client exports
- * Will be implemented in next steps
+ * Client exports
  */
 
-export {};
+export { AuthClient, createAuthClient, type AuthClientConfig } from './auth.client.js';
