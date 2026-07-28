@@ -6,14 +6,14 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "types": ["react", "react-dom"],
-    "skipLibCheck": true
+    "types": ["react", "react-dom", "node"],
+    "skipLibCheck": true,
+    "paths": {
+      "@vubon/auth-shared-auth": ["../shared-auth/src"],
+      "@vubon/auth-shared-api": ["../shared-api/src"],
+      "@vubon/auth-shared-types": ["../shared-types/src"]
+    }
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
