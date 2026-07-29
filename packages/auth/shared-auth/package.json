@@ -33,7 +33,8 @@
   },
   "dependencies": {
     "@vubon/auth-shared-api": "workspace:*",
-    "@vubon/auth-shared-types": "workspace:*"
+    "@vubon/auth-shared-types": "workspace:*",
+    "@vubon/auth-shared-constants": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",
