@@ -56,42 +56,51 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
-      - name: Build shared packages in correct order
+      - name: Generate Prisma Client
+        run: |
+          cd apps/auth-service
+          pnpm --filter @vubon/auth-service prisma:generate || true
+
+      # ✅ অতি গুরুত্বপূর্ণ: কোড চেক (type-check) রান করার আগেই সব শেয়ার্ড প্যাকেজ আগে বিল্ড করতে হবে
+      - name: Build All Shared Packages in Order
         run: |
           echo "🔨 Building shared-constants..."
-          pnpm --filter @vubon/auth-shared-constants build
+          pnpm run --filter "@vubon/auth-shared-constants" build
           
           echo "🔨 Building shared-types..."
-          pnpm --filter @vubon/auth-shared-types build
+          pnpm run --filter "@vubon/auth-shared-types" build
           
           echo "🔨 Building shared-schemas..."
-          pnpm --filter @vubon/auth-shared-schemas build
+          pnpm run --filter "@vubon/auth-shared-schemas" build
           
           echo "🔨 Building shared-utils..."
-          pnpm --filter @vubon/auth-shared-utils build
+          pnpm run --filter "@vubon/auth-shared-utils" build
           
           echo "🔨 Building shared-config..."
-          pnpm --filter @vubon/auth-shared-config build
+          pnpm run --filter "@vubon/auth-shared-config" build
           
           echo "🔨 Building shared-api..."
-          pnpm --filter @vubon/auth-shared-api build
+          pnpm run --filter "@vubon/auth-shared-api" build
           
           echo "🔨 Building shared-auth..."
-          pnpm --filter @vubon/auth-shared-auth build
+          pnpm run --filter "@vubon/auth-shared-auth" build
           
           echo "🔨 Building shared-hooks..."
-          pnpm --filter @vubon/auth-shared-hooks build
-          
+          pnpm run --filter "@vubon/auth-shared-hooks" build
+
+      - name: Build All UI Packages
+        run: |
           echo "🔨 Building shared-ui..."
-          pnpm --filter @vubon/shared-ui build
+          pnpm run --filter "@vubon/shared-ui" build
 
-      - name: Build all packages
-        run: pnpm -r run build
-
+      # 🚀 এখন টাইপ-চেক ও ভ্যালিডেশন রান করুন (যেহেতু শেয়ার্ড প্যাকেজগুলোর dist তৈরি হয়ে গেছে)
       - name: Run Full Code Validation
         run: pnpm run check
         env:
           NODE_ENV: test
+
+      - name: Build Workspace
+        run: pnpm -r run build
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4.6.0
@@ -104,3 +113,126 @@ jobs:
             packages/**/dist
             package.json
             pnpm-lock.yaml
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.0
+
+      - name: Install Dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm -r run build
+
+      - name: Dependency Audit
+        run: pnpm audit --prod --audit-level=high || true
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v4
+
+      - name: CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
+
+  deploy-staging:
+    name: Deploy Staging
+    needs: [ci]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.vubon.com.bd
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v4.1.9
+        with:
+          name: vubon-build
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.0
+
+      - name: Install Production Dependencies
+        run: |
+          pnpm install --frozen-lockfile --prod
+          pnpm --filter @vubon/auth-service prisma generate || true
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+
+      - name: Database Migration
+        run: pnpm --filter @vubon/auth-service prisma migrate deploy || true
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+
+      - name: Deploy Staging
+        run: echo "Deploying to staging server..."
+
+  deploy-production:
+    name: Deploy Production
+    needs: [deploy-staging]
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://vubon.com.bd
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v4.1.9
+        with:
+          name: vubon-build
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.0
+
+      - name: Install Production Dependencies
+        run: |
+          pnpm install --frozen-lockfile --prod
+          pnpm --filter @vubon/auth-service prisma generate || true
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+
+      - name: Production Migration
+        run: pnpm --filter @vubon/auth-service prisma migrate deploy || true
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+
+      - name: Deploy Production
+        run: echo "Deploying Vubon Production..."
