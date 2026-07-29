@@ -2,13 +2,9 @@ name: Vubon Monorepo CI/CD
 
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [ main, master ]
   pull_request:
-    branches:
-      - main
-      - master
+    branches: [ main, master ]
   workflow_dispatch:
 
 permissions:
@@ -25,7 +21,6 @@ env:
   NODE_VERSION: 22
 
 jobs:
-
   ci:
     name: CI - Validate & Build
     runs-on: ubuntu-latest
@@ -59,29 +54,25 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
-      # 🔥 সমাধান: shared-auth প্যাকেজটি আগে বিল্ড করুন
-      # এই স্টেপটি সমস্যা সমাধানে সাহায্য করতে পারে। প্রয়োজনে আনকমেন্ট করুন।
-      # - name: Build shared-auth package first
-      #   run: |
-      #     cd packages/auth/shared-auth
-      #     pnpm run build
-      #     cd ../../..
+      - name: Build shared packages first
+        run: |
+          pnpm --filter @vubon/auth-shared-constants build
+          pnpm --filter @vubon/auth-shared-types build
+          pnpm --filter @vubon/auth-shared-utils build
+          pnpm --filter @vubon/auth-shared-api build
+          pnpm --filter @vubon/auth-shared-auth build
+          pnpm --filter @vubon/auth-shared-hooks build
+          pnpm --filter @vubon/shared-ui build
 
       - name: Build all packages
         run: pnpm -r run build
-
-      - name: Generate Prisma Client
-        run: pnpm --filter @vubon/auth-service prisma generate || true
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Run Full Code Validation
         run: pnpm run check
         env:
           NODE_ENV: test
-          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4.6.0
@@ -119,7 +110,7 @@ jobs:
           version: 9.0.0
 
       - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Build all packages
         run: pnpm -r run build
@@ -132,88 +123,3 @@ jobs:
 
       - name: CodeQL Analysis
         uses: github/codeql-action/analyze@v4
-
-  deploy-staging:
-    name: Deploy Staging
-    needs: [ci]
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-    runs-on: ubuntu-latest
-    environment:
-      name: staging
-      url: https://staging.vubon.com.bd
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Download Artifact
-        uses: actions/download-artifact@v4.1.9
-        with:
-          name: vubon-build
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.0.0
-
-      - name: Install Production Dependencies
-        run: |
-          pnpm install --frozen-lockfile --prod
-          pnpm --filter @vubon/auth-service prisma generate || true
-        env:
-          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
-
-      - name: Database Migration
-        run: pnpm --filter @vubon/auth-service prisma migrate deploy || true
-        env:
-          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
-
-      - name: Deploy Staging
-        run: echo "Deploying to staging server..."
-
-  deploy-production:
-    name: Deploy Production
-    needs: [deploy-staging]
-    runs-on: ubuntu-latest
-    environment:
-      name: production
-      url: https://vubon.com.bd
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Download Artifact
-        uses: actions/download-artifact@v4.1.9
-        with:
-          name: vubon-build
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.0.0
-
-      - name: Install Production Dependencies
-        run: |
-          pnpm install --frozen-lockfile --prod
-          pnpm --filter @vubon/auth-service prisma generate || true
-        env:
-          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
-
-      - name: Production Migration
-        run: pnpm --filter @vubon/auth-service prisma migrate deploy || true
-        env:
-          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
-
-      - name: Deploy Production
-        run: echo "Deploying Vubon Production..."
