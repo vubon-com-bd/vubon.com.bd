@@ -7,6 +7,10 @@ const nextConfig = {
     '@vubon/auth-shared-hooks',
     '@vubon/auth-shared-types',
     '@vubon/auth-shared-api',
+    '@vubon/auth-shared-utils',
+    '@vubon/auth-shared-schemas',
+    '@vubon/auth-shared-config',
+    '@vubon/auth-shared-constants',
   ],
 };
 
