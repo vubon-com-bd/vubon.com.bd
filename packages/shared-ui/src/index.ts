@@ -1,6 +1,6 @@
 /**
  * Shared UI Package
- * Exports reusable UI components, form components, layout components, and seller components
+ * Exports reusable UI components, form components, layout components, and admin components
  */
 
 // Export UI components
@@ -39,3 +39,19 @@ export {
   type StatsCardProps,
   type RecentActivityProps,
 } from './components/seller/index.js';
+
+// Export Admin components
+export {
+  AdminLayout,
+  AdminHeader,
+  AdminSidebar,
+  AdminStatsCard,
+  AdminDataTable,
+  type AdminLayoutProps,
+  type AdminHeaderProps,
+  type AdminSidebarProps,
+  type AdminStatsCardProps,
+  type AdminDataTableProps,
+  type Column,
+  type StatsColor,
+} from './components/admin-layout/index.js';
