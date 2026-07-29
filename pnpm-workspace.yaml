@@ -1,11 +1,16 @@
 packages:
-  - 'apps/*'
-  - 'packages/*'
-  - 'packages/auth/*'
+  - "apps/*"
+  - "apps/customer-dashboard/*"
+  - "apps/admin-dashboard/*"
+  - "apps/seller-dashboard/*"
+  - "packages/*"
+  - "packages/auth/*"
 allowBuilds:
   '@nestjs/core': true
   '@prisma/client': true
   '@prisma/engines': true
   '@swc/core': true
-  esbuild: false
+  esbuild: true
   prisma: true
+  sharp: true
+  unrs-resolver: true
