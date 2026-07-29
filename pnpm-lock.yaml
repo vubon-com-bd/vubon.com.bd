@@ -129,21 +129,6 @@ importers:
 
   apps/customer-dashboard/auth:
     dependencies:
-      '@vubon/auth-shared-api':
-        specifier: workspace:*
-        version: link:../../../packages/auth/shared-api
-      '@vubon/auth-shared-auth':
-        specifier: workspace:*
-        version: link:../../../packages/auth/shared-auth
-      '@vubon/auth-shared-hooks':
-        specifier: workspace:*
-        version: link:../../../packages/auth/shared-hooks
-      '@vubon/auth-shared-types':
-        specifier: workspace:*
-        version: link:../../../packages/auth/shared-types
-      '@vubon/shared-ui':
-        specifier: workspace:*
-        version: link:../../../packages/shared-ui
       next:
         specifier: 15.5.22
         version: 15.5.22(@babel/core@7.29.7(supports-color@7.2.0))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -153,9 +138,6 @@ importers:
       react-dom:
         specifier: ^19.2.8
         version: 19.2.8(react@19.2.8)
-      react-hook-form:
-        specifier: ^7.0.0
-        version: 7.83.0(react@19.2.8)
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
