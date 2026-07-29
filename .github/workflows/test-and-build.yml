@@ -54,9 +54,9 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --no-frozen-lockfile --no-strict-peer-dependencies
 
-      - name: Build All Shared Packages
+      - name: Build shared packages
         run: |
           pnpm --filter @vubon/auth-shared-constants build
           pnpm --filter @vubon/auth-shared-types build
@@ -66,42 +66,25 @@ jobs:
           pnpm --filter @vubon/auth-shared-hooks build
           pnpm --filter @vubon/shared-ui build
 
-      - name: Fix tsconfig.json for CI
+      - name: Copy shared packages to customer app node_modules
         run: |
-          cat > apps/customer-dashboard/auth/tsconfig.json << 'TS_CONFIG'
-          {
-            "extends": "../../../tsconfig.base.json",
-            "compilerOptions": {
-              "target": "ES2022",
-              "lib": ["DOM", "DOM.Iterable", "ES2022"],
-              "allowJs": true,
-              "skipLibCheck": true,
-              "strict": true,
-              "noEmit": true,
-              "esModuleInterop": true,
-              "module": "ESNext",
-              "moduleResolution": "node",
-              "resolveJsonModule": true,
-              "isolatedModules": true,
-              "jsx": "preserve",
-              "incremental": true,
-              "plugins": [{ "name": "next" }],
-              "baseUrl": ".",
-              "paths": {
-                "@/*": ["./src/*"],
-                "@vubon/auth-shared-constants": ["../../packages/auth/shared-constants/src"],
-                "@vubon/auth-shared-types": ["../../packages/auth/shared-types/src"],
-                "@vubon/auth-shared-utils": ["../../packages/auth/shared-utils/src"],
-                "@vubon/auth-shared-api": ["../../packages/auth/shared-api/src"],
-                "@vubon/auth-shared-auth": ["../../packages/auth/shared-auth/src"],
-                "@vubon/auth-shared-hooks": ["../../packages/auth/shared-hooks/src"],
-                "@vubon/shared-ui": ["../../packages/shared-ui/src"]
-              }
-            },
-            "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-            "exclude": ["node_modules", "dist", ".next"]
-          }
-          TS_CONFIG
+          mkdir -p apps/customer-dashboard/auth/node_modules/@vubon
+          cp -r packages/auth/shared-constants/dist apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-constants
+          cp -r packages/auth/shared-types/dist apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-types
+          cp -r packages/auth/shared-utils/dist apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-utils
+          cp -r packages/auth/shared-api/dist apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-api
+          cp -r packages/auth/shared-auth/dist apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-auth
+          cp -r packages/auth/shared-hooks/dist apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-hooks
+          cp -r packages/shared-ui/dist apps/customer-dashboard/auth/node_modules/@vubon/shared-ui
+          # copy package.json files too
+          cp packages/auth/shared-auth/package.json apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-auth/
+          cp packages/auth/shared-constants/package.json apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-constants/
+          cp packages/auth/shared-types/package.json apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-types/
+
+      - name: Verify files exist
+        run: |
+          ls -la apps/customer-dashboard/auth/node_modules/@vubon/
+          ls -la apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-auth/
 
       - name: Run Full Code Validation
         run: pnpm run check
