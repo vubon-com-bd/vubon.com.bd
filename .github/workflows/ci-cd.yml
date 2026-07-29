@@ -64,7 +64,7 @@ jobs:
           cd apps/auth-service
           pnpm --filter @vubon/auth-service prisma:generate
 
-      - name: Build Shared Packages in Correct Order
+      - name: Build All Shared Packages
         run: |
           echo "🔨 Building shared-constants..."
           pnpm run --filter "@vubon/auth-shared-constants" build
@@ -80,6 +80,20 @@ jobs:
           
           echo "🔨 Building shared-config..."
           pnpm run --filter "@vubon/auth-shared-config" build
+          
+          echo "🔨 Building shared-api..."
+          pnpm run --filter "@vubon/auth-shared-api" build
+          
+          echo "🔨 Building shared-auth..."
+          pnpm run --filter "@vubon/auth-shared-auth" build
+          
+          echo "🔨 Building shared-hooks..."
+          pnpm run --filter "@vubon/auth-shared-hooks" build
+
+      - name: Build All UI Packages
+        run: |
+          echo "🔨 Building shared-ui..."
+          pnpm run --filter "@vubon/shared-ui" build
 
       - name: Run Full Code Validation
         run: pnpm run check
