@@ -12,6 +12,10 @@
     "format:write": "prettier --write \"src/**/*.{ts,tsx}\""
   },
   "dependencies": {
+    "@vubon/auth-shared-api": "workspace:*",
+    "@vubon/auth-shared-auth": "workspace:*",
+    "@vubon/auth-shared-hooks": "workspace:*",
+    "@vubon/auth-shared-types": "workspace:*",
     "next": "15.5.22",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"

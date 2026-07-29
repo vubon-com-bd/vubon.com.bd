@@ -129,6 +129,18 @@ importers:
 
   apps/customer-dashboard/auth:
     dependencies:
+      '@vubon/auth-shared-api':
+        specifier: workspace:*
+        version: link:../../../packages/auth/shared-api
+      '@vubon/auth-shared-auth':
+        specifier: workspace:*
+        version: link:../../../packages/auth/shared-auth
+      '@vubon/auth-shared-hooks':
+        specifier: workspace:*
+        version: link:../../../packages/auth/shared-hooks
+      '@vubon/auth-shared-types':
+        specifier: workspace:*
+        version: link:../../../packages/auth/shared-types
       next:
         specifier: 15.5.22
         version: 15.5.22(@babel/core@7.29.7(supports-color@7.2.0))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
