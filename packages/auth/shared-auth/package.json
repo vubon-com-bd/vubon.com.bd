@@ -27,14 +27,12 @@
     "format:write": "prettier --write \"src/**/*.ts\"",
     "test": "echo \"No tests yet\" && exit 0"
   },
-  "peerDependencies": {
-    "react": "^18.0.0 || ^19.0.0",
-    "react-dom": "^18.0.0 || ^19.0.0"
-  },
   "dependencies": {
     "@vubon/auth-shared-api": "workspace:*",
     "@vubon/auth-shared-types": "workspace:*",
-    "@vubon/auth-shared-constants": "workspace:*"
+    "@vubon/auth-shared-constants": "workspace:*",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",
