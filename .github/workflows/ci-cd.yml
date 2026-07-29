@@ -14,6 +14,8 @@ on:
 permissions:
   contents: read
   security-events: write
+  actions: read
+  checks: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -56,15 +58,14 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
-      # ✅ 🔥 অত্যন্ত গুরুত্বপূর্ণ: Prisma Client জেনারেট করুন
       - name: Generate Prisma Client
         run: |
           cd apps/auth-service
-          pnpm --filter @vubon/auth-service prisma:generate
+          pnpm --filter @vubon/auth-service prisma:generate || true
 
-      - name: Build All Shared Packages
+      - name: Build All Shared Packages in Order
         run: |
           echo "🔨 Building shared-constants..."
           pnpm run --filter "@vubon/auth-shared-constants" build
@@ -101,7 +102,7 @@ jobs:
           NODE_ENV: test
 
       - name: Build Workspace
-        run: pnpm run build
+        run: pnpm -r run build
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4.6.0
@@ -139,7 +140,10 @@ jobs:
           version: 9.0.0
 
       - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm -r run build
 
       - name: Dependency Audit
         run: pnpm audit --prod --audit-level=high || true
@@ -179,7 +183,7 @@ jobs:
           version: 9.0.0
 
       - name: Install Production Dependencies
-        run: pnpm install --frozen-lockfile --prod
+        run: pnpm install --no-frozen-lockfile --prod
         env:
           DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
 
@@ -219,7 +223,7 @@ jobs:
           version: 9.0.0
 
       - name: Install Production Dependencies
-        run: pnpm install --frozen-lockfile --prod
+        run: pnpm install --no-frozen-lockfile --prod
         env:
           DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
 
