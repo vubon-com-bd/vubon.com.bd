@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { Button, Input } from '@vubon/shared-ui';
 import { useRegister } from '@vubon/auth-shared-hooks';
-import { customerAuthClient } from '../../contexts/auth.context.js';
+import { customerAuthClient } from '../../contexts/auth.context';
 
 interface RegisterFormData {
   email: string;
