@@ -1,8 +1,3 @@
-/**
- * Registration Form Component for Customer App
- * Uses React Hook Form and shared UI components
- */
-
 'use client';
 
 import React, { useState } from 'react';
@@ -55,7 +50,7 @@ export function RegisterForm({
         router.push(redirectTo);
       }
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       setFormError(error.message || 'Registration failed. Please try again.');
     },
   });

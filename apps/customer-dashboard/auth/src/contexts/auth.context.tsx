@@ -1,8 +1,3 @@
-/**
- * Auth Context for Customer App
- * Extends shared-auth context with app-specific configuration
- */
-
 'use client';
 
 import React from 'react';
@@ -23,7 +18,7 @@ export function createCustomerAuthClient(): AuthClient {
         window.location.href = '/auth/login';
       }
     },
-    onError: (error) => {
+    onError: (error: unknown) => {
       console.error('Customer app auth error:', error);
     },
   });
