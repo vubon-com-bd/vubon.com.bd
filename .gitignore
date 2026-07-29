@@ -32,3 +32,5 @@ coverage/
 **/*.js.map
 **/*.d.ts.map
 **/*.bak
+.next/
+tsconfig.tsbuildinfo
