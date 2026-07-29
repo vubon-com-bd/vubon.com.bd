@@ -1,6 +1,6 @@
 /**
  * Shared UI Package
- * Exports reusable UI components and form components
+ * Exports reusable UI components, form components, and layout components
  */
 
 // Export UI components
@@ -15,3 +15,13 @@ export {
 
 // Export Form components
 export { Form, FormInput, type FormProps, type FormInputProps } from './components/forms/index.js';
+
+// Export Layout components
+export {
+  Layout,
+  Header,
+  Footer,
+  type LayoutProps,
+  type HeaderProps,
+  type FooterProps,
+} from './components/layout/index.js';
