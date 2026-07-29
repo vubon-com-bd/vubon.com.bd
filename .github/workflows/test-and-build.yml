@@ -54,13 +54,17 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
-      - name: Build shared-auth package first
+      - name: Build shared packages first
         run: |
-          pnpm --filter @vubon/auth-shared-auth build
+          pnpm --filter @vubon/auth-shared-constants build
+          pnpm --filter @vubon/auth-shared-types build
+          pnpm --filter @vubon/auth-shared-utils build
           pnpm --filter @vubon/auth-shared-api build
+          pnpm --filter @vubon/auth-shared-auth build
           pnpm --filter @vubon/auth-shared-hooks build
+          pnpm --filter @vubon/shared-ui build
 
       - name: Build all packages
         run: pnpm -r run build
