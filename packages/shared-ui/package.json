@@ -17,15 +17,11 @@
     "./forms": {
       "import": "./dist/forms/index.js",
       "types": "./dist/forms/index.d.ts"
-    },
-    "./styles": {
-      "import": "./dist/styles/tailwind.css"
     }
   },
   "scripts": {
     "build": "tsc && pnpm run build:css",
     "build:css": "tailwindcss -i ./src/styles/tailwind.css -o ./dist/styles/tailwind.css",
-    "build:css:watch": "tailwindcss -i ./src/styles/tailwind.css -o ./dist/styles/tailwind.css --watch",
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "format:check": "prettier --check \"src/**/*.ts\"",
@@ -37,7 +33,6 @@
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "dependencies": {
-    "@vubon/auth-shared-auth": "workspace:*",
     "@vubon/auth-shared-hooks": "workspace:*",
     "@vubon/auth-shared-types": "workspace:*",
     "react-hook-form": "^7.0.0"
