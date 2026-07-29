@@ -1,8 +1,0 @@
-dist/
-node_modules/
-.next/
-out/
-*.d.ts
-*.d.ts.map
-*.js
-*.js.map
