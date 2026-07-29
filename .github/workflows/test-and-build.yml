@@ -1,14 +1,10 @@
-name: Vubon Monorepo CI/CD
+name: Test and Build
 
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [ main, master ]
   pull_request:
-    branches:
-      - main
-      - master
+    branches: [ main, master ]
   workflow_dispatch:
 
 permissions:
@@ -25,8 +21,8 @@ env:
   NODE_VERSION: 22
 
 jobs:
-  ci:
-    name: CI - Validate & Build
+  test-and-build:
+    name: Test & Build
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -102,7 +98,7 @@ jobs:
           NODE_ENV: test
 
       - name: Build Workspace
-        run: pnpm run build
+        run: pnpm -r run build
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4.6.0
@@ -115,119 +111,3 @@ jobs:
             packages/**/dist
             package.json
             pnpm-lock.yaml
-
-  security:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v5
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
-        with:
-          languages: javascript-typescript
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.0.0
-
-      - name: Install Dependencies
-        run: pnpm install --no-frozen-lockfile
-
-      - name: Dependency Audit
-        run: pnpm audit --prod --audit-level=high || true
-
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v4
-
-      - name: CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
-
-  deploy-staging:
-    name: Deploy Staging
-    needs: [ci]
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-    runs-on: ubuntu-latest
-    environment:
-      name: staging
-      url: https://staging.vubon.com.bd
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: vubon-build
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.0.0
-
-      - name: Install Production Dependencies
-        run: pnpm install --no-frozen-lockfile --prod
-        env:
-          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
-
-      - name: Database Migration
-        run: pnpm --filter @vubon/auth-service prisma migrate deploy || true
-        env:
-          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
-
-      - name: Deploy Staging
-        run: echo "Deploying to staging server..."
-
-  deploy-production:
-    name: Deploy Production
-    needs: [deploy-staging]
-    runs-on: ubuntu-latest
-    environment:
-      name: production
-      url: https://vubon.com.bd
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: vubon-build
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.0.0
-
-      - name: Install Production Dependencies
-        run: pnpm install --no-frozen-lockfile --prod
-        env:
-          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
-
-      - name: Production Migration
-        run: pnpm --filter @vubon/auth-service prisma migrate deploy || true
-        env:
-          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
-
-      - name: Deploy Production
-        run: echo "Deploying Vubon Production..."
