@@ -1,40 +1,35 @@
-/**
- * Root Provider
- * Wraps the entire application with required providers
- */
-
 'use client';
 
-import React, { ReactNode } from 'react';
+import React from 'react';
 import { AuthProvider } from '@vubon/auth-shared-auth';
-import { AuthClient, createAuthClient } from '@vubon/auth-shared-auth';
-import { apiClient } from '../lib/api-client.js';
+import { AuthClient } from '@vubon/auth-shared-auth';
+import { getToken, setToken, removeToken } from '../lib/auth-token.js';
 
-// Create AuthClient instance with API client
-const authClient = createAuthClient({
+// Create AuthClient instance with custom config
+const authClient = new AuthClient({
   onUnauthorized: () => {
-    // Handle unauthorized access
+    removeToken();
     if (typeof window !== 'undefined') {
       window.location.href = '/auth/login';
     }
   },
-  onError: (error) => {
+  onError: (error: unknown) => {
     console.error('Auth error:', error);
   },
 });
 
-// Restore session on initialization
+// Restore session if token exists
 if (typeof window !== 'undefined') {
-  authClient.restoreSession();
+  const token = getToken();
+  if (token) {
+    authClient.restoreSession();
+  }
 }
 
 interface RootProviderProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export function RootProvider({ children }: RootProviderProps): React.ReactElement {
   return <AuthProvider authClient={authClient}>{children}</AuthProvider>;
 }
-
-// Export authClient for use in other parts of the app
-export { authClient };
