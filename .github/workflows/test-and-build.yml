@@ -66,11 +66,42 @@ jobs:
           pnpm --filter @vubon/auth-shared-hooks build
           pnpm --filter @vubon/shared-ui build
 
-      - name: Copy shared-auth to customer app node_modules
+      - name: Fix tsconfig.json for CI
         run: |
-          mkdir -p apps/customer-dashboard/auth/node_modules/@vubon
-          cp -r packages/auth/shared-auth/dist apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-auth
-          cp packages/auth/shared-auth/package.json apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-auth/
+          cat > apps/customer-dashboard/auth/tsconfig.json << 'TS_CONFIG'
+          {
+            "extends": "../../../tsconfig.base.json",
+            "compilerOptions": {
+              "target": "ES2022",
+              "lib": ["DOM", "DOM.Iterable", "ES2022"],
+              "allowJs": true,
+              "skipLibCheck": true,
+              "strict": true,
+              "noEmit": true,
+              "esModuleInterop": true,
+              "module": "ESNext",
+              "moduleResolution": "node",
+              "resolveJsonModule": true,
+              "isolatedModules": true,
+              "jsx": "preserve",
+              "incremental": true,
+              "plugins": [{ "name": "next" }],
+              "baseUrl": ".",
+              "paths": {
+                "@/*": ["./src/*"],
+                "@vubon/auth-shared-constants": ["../../packages/auth/shared-constants/src"],
+                "@vubon/auth-shared-types": ["../../packages/auth/shared-types/src"],
+                "@vubon/auth-shared-utils": ["../../packages/auth/shared-utils/src"],
+                "@vubon/auth-shared-api": ["../../packages/auth/shared-api/src"],
+                "@vubon/auth-shared-auth": ["../../packages/auth/shared-auth/src"],
+                "@vubon/auth-shared-hooks": ["../../packages/auth/shared-hooks/src"],
+                "@vubon/shared-ui": ["../../packages/shared-ui/src"]
+              }
+            },
+            "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+            "exclude": ["node_modules", "dist", ".next"]
+          }
+          TS_CONFIG
 
       - name: Run Full Code Validation
         run: pnpm run check
