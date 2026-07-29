@@ -1,12 +1,7 @@
-/**
- * Registration Page
- * Customer registration page with layout
- */
-
 import React from 'react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { RegisterForm } from '../../components/auth/register-form.js';
+import { RegisterForm } from '../../components/auth/register-form';
 
 const RegisterPage: NextPage = () => {
   return (
@@ -18,7 +13,6 @@ const RegisterPage: NextPage = () => {
       </Head>
 
       <div className="min-h-screen bg-gray-50">
-        {/* Header */}
         <header className="border-b border-gray-200 bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 items-center justify-between">
@@ -39,14 +33,12 @@ const RegisterPage: NextPage = () => {
           </div>
         </header>
 
-        {/* Main Content */}
         <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
           <div className="w-full max-w-md">
             <RegisterForm redirectTo="/dashboard" />
           </div>
         </main>
 
-        {/* Footer */}
         <footer className="border-t border-gray-200 bg-white">
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <p className="text-center text-sm text-gray-500">

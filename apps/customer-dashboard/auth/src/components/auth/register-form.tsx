@@ -1,167 +1,83 @@
-/**
- * Registration Form Component
- * Handles user registration with validation
- */
-
-'use client';
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
 import { useRegister } from '@vubon/auth-shared-hooks';
-import { Button, FormInput } from '@vubon/shared-ui';
-import { authClient } from '../../providers/root-provider.js';
+import { useAuth } from '@vubon/auth-shared-auth';
+import { Button, Input } from '@vubon/shared-ui';
 
-export interface RegisterFormData {
+interface RegisterFormData {
   email: string;
   password: string;
   firstName: string;
   lastName: string;
-  phone?: string | null;
+  phone?: string;
 }
 
 interface RegisterFormProps {
   redirectTo?: string;
-  onSuccess?: (data: RegisterFormData) => void;
 }
 
-export function RegisterForm({
-  redirectTo = '/dashboard',
-  onSuccess,
-}: RegisterFormProps): React.ReactElement {
-  const router = useRouter();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    getValues,
-  } = useForm<RegisterFormData>({
-    defaultValues: {
-      email: '',
-      password: '',
-      firstName: '',
-      lastName: '',
-      phone: '',
-    },
-  });
+export const RegisterForm: React.FC<RegisterFormProps> = ({ redirectTo = '/dashboard' }) => {
+  const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormData>();
+  const auth = useAuth();
+  const { register: registerUser, loading, error } = useRegister(auth.client);
 
-  const {
-    register: registerUser,
-    loading,
-    error,
-  } = useRegister(authClient, {
-    onSuccess: (response) => {
-      console.log('Registration successful:', response);
-      if (onSuccess) {
-        onSuccess(getValues());
-      }
-      router.push(redirectTo);
-    },
-    onError: (error) => {
-      console.error('Registration error:', error);
-    },
-  });
-
-  const onSubmit = async (formData: RegisterFormData): Promise<void> => {
+  const onSubmit = async (data: RegisterFormData) => {
     try {
-      await registerUser(formData);
+      await registerUser(data);
+      if (redirectTo) {
+        window.location.href = redirectTo;
+      }
     } catch (err) {
-      console.error('Form submission error:', err);
+      console.error('Registration failed:', err);
     }
-  };
-
-  // Helper to get error message for a field
-  const getErrorMessage = (fieldName: keyof RegisterFormData): string | undefined => {
-    const error = errors[fieldName];
-    if (error) {
-      return error.message;
-    }
-    return undefined;
   };
 
   return (
-    <div className="w-full max-w-md space-y-6">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900">Create Account</h1>
-        <p className="mt-2 text-sm text-gray-600">Join us today and start your journey</p>
-      </div>
-
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {error && (
-        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-800" role="alert">
-          <p className="font-medium">Registration failed</p>
-          <p>{error.message}</p>
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {error.message}
         </div>
       )}
-
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <FormInput
-            name="firstName"
-            label="First Name"
-            type="text"
-            placeholder="John"
-            required
-            register={register}
-            error={getErrorMessage('firstName')}
-          />
-          <FormInput
-            name="lastName"
-            label="Last Name"
-            type="text"
-            placeholder="Doe"
-            required
-            register={register}
-            error={getErrorMessage('lastName')}
-          />
-        </div>
-
-        <FormInput
-          name="email"
-          label="Email Address"
-          type="email"
-          placeholder="you@example.com"
-          required
-          register={register}
-          error={getErrorMessage('email')}
-        />
-
-        <FormInput
-          name="password"
-          label="Password"
-          type="password"
-          placeholder="••••••••"
-          required
-          register={register}
-          error={getErrorMessage('password')}
-        />
-
-        <FormInput
-          name="phone"
-          label="Phone Number (Optional)"
-          type="tel"
-          placeholder="01712345678"
-          register={register}
-          error={getErrorMessage('phone')}
-        />
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-lg bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-        >
-          {loading ? 'Creating account...' : 'Create Account'}
-        </button>
-
-        <p className="text-center text-sm text-gray-600">
-          Already have an account?{' '}
-          <a
-            href="/auth/login"
-            className="text-blue-600 hover:text-blue-700 font-medium hover:underline"
-          >
-            Sign in
-          </a>
-        </p>
-      </form>
-    </div>
+      <Input
+        label="First Name"
+        {...register('firstName', { required: 'First name is required' })}
+        error={errors.firstName?.message}
+      />
+      <Input
+        label="Last Name"
+        {...register('lastName', { required: 'Last name is required' })}
+        error={errors.lastName?.message}
+      />
+      <Input
+        label="Email"
+        type="email"
+        {...register('email', { 
+          required: 'Email is required',
+          pattern: {
+            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+            message: 'Invalid email address'
+          }
+        })}
+        error={errors.email?.message}
+      />
+      <Input
+        label="Password"
+        type="password"
+        {...register('password', { 
+          required: 'Password is required',
+          minLength: { value: 8, message: 'Password must be at least 8 characters' }
+        })}
+        error={errors.password?.message}
+      />
+      <Input
+        label="Phone (Optional)"
+        {...register('phone')}
+        error={errors.phone?.message}
+      />
+      <Button type="submit" loading={loading} fullWidth>
+        Create Account
+      </Button>
+    </form>
   );
-}
+};
