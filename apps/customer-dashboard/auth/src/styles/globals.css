@@ -11,14 +11,16 @@
   }
 }
 
-@layer components {
-  .auth-container {
-    @apply min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8;
+/* Custom border color */
+@layer base {
+  :root {
+    --border: 214.3 31.8% 91.4%;
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
   }
-  .auth-card {
-    @apply mt-8 sm:mx-auto sm:w-full sm:max-w-md;
-  }
-  .auth-card-content {
-    @apply bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10;
+  .dark {
+    --border: 217.2 32.6% 17.5%;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
   }
 }

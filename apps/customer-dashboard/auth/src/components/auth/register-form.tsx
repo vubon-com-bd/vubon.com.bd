@@ -1,8 +1,16 @@
-import React from 'react';
+/**
+ * Registration Form Component for Customer App
+ * Uses React Hook Form and shared UI components
+ */
+
+'use client';
+
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { useRegister } from '@vubon/auth-shared-hooks';
-import { useAuth } from '@vubon/auth-shared-auth';
 import { Button, Input } from '@vubon/shared-ui';
+import { useRegister } from '@vubon/auth-shared-hooks';
+import { customerAuthClient } from '../../contexts/auth.context.js';
 
 interface RegisterFormData {
   email: string;
@@ -13,71 +21,174 @@ interface RegisterFormData {
 }
 
 interface RegisterFormProps {
+  onSuccess?: () => void;
   redirectTo?: string;
 }
 
-export const RegisterForm: React.FC<RegisterFormProps> = ({ redirectTo = '/dashboard' }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormData>();
-  const auth = useAuth();
-  const { register: registerUser, loading, error } = useRegister(auth.client);
+export function RegisterForm({
+  onSuccess,
+  redirectTo = '/dashboard',
+}: RegisterFormProps): React.ReactElement {
+  const router = useRouter();
+  const [formError, setFormError] = useState<string | null>(null);
 
-  const onSubmit = async (data: RegisterFormData) => {
-    try {
-      await registerUser(data);
-      if (redirectTo) {
-        window.location.href = redirectTo;
+  const {
+    register: registerField,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterFormData>({
+    defaultValues: {
+      email: '',
+      password: '',
+      firstName: '',
+      lastName: '',
+      phone: '',
+    },
+  });
+
+  const { register: registerUser, loading } = useRegister(customerAuthClient, {
+    onSuccess: () => {
+      setFormError(null);
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push(redirectTo);
       }
-    } catch (err) {
-      console.error('Registration failed:', err);
+    },
+    onError: (error) => {
+      setFormError(error.message || 'Registration failed. Please try again.');
+    },
+  });
+
+  const onSubmit = async (data: RegisterFormData): Promise<void> => {
+    setFormError(null);
+    try {
+      await registerUser({
+        email: data.email,
+        password: data.password,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone || null,
+      });
+    } catch {
+      // Error is handled by useRegister hook
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-          {error.message}
+    <div className="w-full max-w-md space-y-6">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-gray-900">Create Your Account</h2>
+        <p className="mt-2 text-sm text-gray-600">Join Vubon and start your journey</p>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {formError && (
+          <div className="rounded-md bg-red-50 p-3 text-sm text-red-600" role="alert">
+            {formError}
+          </div>
+        )}
+
+        <div className="grid grid-cols-2 gap-4">
+          <Input
+            label="First Name"
+            type="text"
+            placeholder="John"
+            {...registerField('firstName', {
+              required: 'First name is required',
+              minLength: { value: 1, message: 'First name is required' },
+              maxLength: { value: 50, message: 'First name must not exceed 50 characters' },
+              pattern: {
+                value: /^[a-zA-Z\s\-']+$/,
+                message: 'First name can only contain letters, spaces, hyphens, and apostrophes',
+              },
+            })}
+            error={errors.firstName?.message}
+            required
+          />
+
+          <Input
+            label="Last Name"
+            type="text"
+            placeholder="Doe"
+            {...registerField('lastName', {
+              required: 'Last name is required',
+              minLength: { value: 1, message: 'Last name is required' },
+              maxLength: { value: 50, message: 'Last name must not exceed 50 characters' },
+              pattern: {
+                value: /^[a-zA-Z\s\-']+$/,
+                message: 'Last name can only contain letters, spaces, hyphens, and apostrophes',
+              },
+            })}
+            error={errors.lastName?.message}
+            required
+          />
         </div>
-      )}
-      <Input
-        label="First Name"
-        {...register('firstName', { required: 'First name is required' })}
-        error={errors.firstName?.message}
-      />
-      <Input
-        label="Last Name"
-        {...register('lastName', { required: 'Last name is required' })}
-        error={errors.lastName?.message}
-      />
-      <Input
-        label="Email"
-        type="email"
-        {...register('email', { 
-          required: 'Email is required',
-          pattern: {
-            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-            message: 'Invalid email address'
-          }
-        })}
-        error={errors.email?.message}
-      />
-      <Input
-        label="Password"
-        type="password"
-        {...register('password', { 
-          required: 'Password is required',
-          minLength: { value: 8, message: 'Password must be at least 8 characters' }
-        })}
-        error={errors.password?.message}
-      />
-      <Input
-        label="Phone (Optional)"
-        {...register('phone')}
-        error={errors.phone?.message}
-      />
-      <Button type="submit" loading={loading} fullWidth>
-        Create Account
-      </Button>
-    </form>
+
+        <Input
+          label="Email Address"
+          type="email"
+          placeholder="you@example.com"
+          {...registerField('email', {
+            required: 'Email is required',
+            pattern: {
+              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              message: 'Please enter a valid email address',
+            },
+          })}
+          error={errors.email?.message}
+          required
+        />
+
+        <Input
+          label="Password"
+          type="password"
+          placeholder="••••••••"
+          {...registerField('password', {
+            required: 'Password is required',
+            minLength: { value: 8, message: 'Password must be at least 8 characters' },
+            maxLength: { value: 72, message: 'Password must not exceed 72 characters' },
+            pattern: {
+              value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,72}$/,
+              message:
+                'Password must contain uppercase, lowercase, number, and special character (@$!%*?&)',
+            },
+          })}
+          error={errors.password?.message}
+          required
+        />
+
+        <Input
+          label="Phone Number (Optional)"
+          type="tel"
+          placeholder="017XXXXXXXX"
+          {...registerField('phone', {
+            pattern: {
+              value: /^01[3-9]\d{8}$/,
+              message: 'Please enter a valid Bangladeshi phone number (format: 01XXXXXXXXX)',
+            },
+          })}
+          error={errors.phone?.message}
+        />
+
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          fullWidth
+          loading={loading}
+          disabled={loading}
+        >
+          {loading ? 'Creating Account...' : 'Create Account'}
+        </Button>
+
+        <div className="text-center text-sm">
+          <span className="text-gray-600">Already have an account? </span>
+          <a href="/auth/login" className="text-blue-600 hover:text-blue-800 hover:underline">
+            Sign In
+          </a>
+        </div>
+      </form>
+    </div>
   );
-};
+}
