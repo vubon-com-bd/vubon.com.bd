@@ -21,8 +21,6 @@
       "@vubon/auth-shared-constants": ["../../packages/auth/shared-constants/src"],
       "@vubon/auth-shared-types": ["../../packages/auth/shared-types/src"],
       "@vubon/auth-shared-utils": ["../../packages/auth/shared-utils/src"],
-      "@vubon/auth-shared-schemas": ["../../packages/auth/shared-schemas/src"],
-      "@vubon/auth-shared-config": ["../../packages/auth/shared-config/src"],
       "@vubon/auth-shared-api": ["../../packages/auth/shared-api/src"],
       "@vubon/auth-shared-auth": ["../../packages/auth/shared-auth/src"],
       "@vubon/auth-shared-hooks": ["../../packages/auth/shared-hooks/src"],

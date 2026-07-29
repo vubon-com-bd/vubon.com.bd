@@ -54,7 +54,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile --no-strict-peer-dependencies
+        run: pnpm install --no-frozen-lockfile
 
       - name: Build shared packages
         run: |
@@ -66,7 +66,7 @@ jobs:
           pnpm --filter @vubon/auth-shared-hooks build
           pnpm --filter @vubon/shared-ui build
 
-      - name: Copy shared packages to customer app node_modules
+      - name: Copy shared packages
         run: |
           mkdir -p apps/customer-dashboard/auth/node_modules/@vubon
           cp -r packages/auth/shared-constants/dist apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-constants
@@ -76,15 +76,7 @@ jobs:
           cp -r packages/auth/shared-auth/dist apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-auth
           cp -r packages/auth/shared-hooks/dist apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-hooks
           cp -r packages/shared-ui/dist apps/customer-dashboard/auth/node_modules/@vubon/shared-ui
-          # copy package.json files too
           cp packages/auth/shared-auth/package.json apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-auth/
-          cp packages/auth/shared-constants/package.json apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-constants/
-          cp packages/auth/shared-types/package.json apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-types/
-
-      - name: Verify files exist
-        run: |
-          ls -la apps/customer-dashboard/auth/node_modules/@vubon/
-          ls -la apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-auth/
 
       - name: Run Full Code Validation
         run: pnpm run check
