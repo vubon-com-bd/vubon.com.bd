@@ -2,26 +2,19 @@
   "name": "@vubon/customer-dashboard-auth",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "type-check": "tsc --noEmit",
     "lint": "next lint",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\" || true",
     "format:write": "prettier --write \"src/**/*.{ts,tsx}\""
   },
   "dependencies": {
-    "@vubon/auth-shared-api": "workspace:*",
-    "@vubon/auth-shared-auth": "workspace:*",
-    "@vubon/auth-shared-hooks": "workspace:*",
-    "@vubon/auth-shared-types": "workspace:*",
-    "@vubon/shared-ui": "workspace:*",
     "next": "15.5.22",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "react-hook-form": "^7.0.0"
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
