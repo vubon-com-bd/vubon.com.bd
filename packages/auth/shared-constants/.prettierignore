@@ -4,3 +4,6 @@ node_modules/
 *.d.ts.map
 *.js
 *.js.map
+coverage/
+*.log
+.DS_Store
