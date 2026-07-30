@@ -1,36 +1,51 @@
+# Dependencies
 node_modules/
+.pnpm-store/
+
+# Build outputs
 dist/
 build/
-coverage/
-.env
-.env.*
-*.log
-*.tsbuildinfo
-.DS_Store
-.npm/
-
-# Build outputs
-**/dist/
-**/*.js
-**/*.d.ts
-**/*.js.map
-**/*.d.ts.map
-**/*.bak
-
-# Build outputs
-**/dist/
-**/*.js
-**/*.d.ts
-**/*.js.map
-**/*.d.ts.map
-**/*.bak
-
-# Build outputs
-**/dist/
-**/*.js
-**/*.d.ts
-**/*.js.map
-**/*.d.ts.map
-**/*.bak
 .next/
-tsconfig.tsbuildinfo
+out/
+coverage/
+
+# TypeScript
+*.tsbuildinfo
+*.d.ts
+*.d.ts.map
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.production
+.env.development
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+tmp/
+temp/
+.cache/
+
+# Test coverage
+.nyc_output/
+
+# Misc
+*.tgz
+*.gz

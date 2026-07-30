@@ -1,9 +1,0 @@
-dist/
-node_modules/
-*.d.ts
-*.d.ts.map
-*.js
-*.js.map
-coverage/
-*.log
-.DS_Store

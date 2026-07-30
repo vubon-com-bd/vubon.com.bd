@@ -1,0 +1,143 @@
+name: Test and Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+  checks: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 22
+
+jobs:
+  test-and-build:
+    name: Test & Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.0
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build all shared packages
+        run: |
+          echo "🔨 Building shared-constants..."
+          cd packages/auth/shared-constants && pnpm run build && cd ../../..
+          
+          echo "🔨 Building shared-types..."
+          cd packages/auth/shared-types && pnpm run build && cd ../../..
+          
+          echo "🔨 Building shared-utils..."
+          cd packages/auth/shared-utils && pnpm run build && cd ../../..
+          
+          echo "🔨 Building shared-api..."
+          cd packages/auth/shared-api && pnpm run build && cd ../../..
+          
+          echo "🔨 Building shared-auth..."
+          cd packages/auth/shared-auth && pnpm run build && cd ../../..
+          
+          echo "🔨 Building shared-hooks..."
+          cd packages/auth/shared-hooks && pnpm run build && cd ../../..
+          
+          echo "🔨 Building shared-ui..."
+          cd packages/shared-ui && pnpm run build && cd ../..
+
+      - name: Copy shared packages to customer app node_modules
+        run: |
+          # Create @vubon folder if not exists
+          mkdir -p apps/customer-dashboard/auth/node_modules/@vubon
+          
+          # Copy all shared packages
+          echo "📦 Copying shared-constants..."
+          cp -r packages/auth/shared-constants/dist apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-constants
+          cp packages/auth/shared-constants/package.json apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-constants/
+          
+          echo "📦 Copying shared-types..."
+          cp -r packages/auth/shared-types/dist apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-types
+          cp packages/auth/shared-types/package.json apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-types/
+          
+          echo "📦 Copying shared-utils..."
+          cp -r packages/auth/shared-utils/dist apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-utils
+          cp packages/auth/shared-utils/package.json apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-utils/
+          
+          echo "📦 Copying shared-api..."
+          cp -r packages/auth/shared-api/dist apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-api
+          cp packages/auth/shared-api/package.json apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-api/
+          
+          echo "📦 Copying shared-auth..."
+          cp -r packages/auth/shared-auth/dist apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-auth
+          cp packages/auth/shared-auth/package.json apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-auth/
+          
+          echo "📦 Copying shared-hooks..."
+          cp -r packages/auth/shared-hooks/dist apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-hooks
+          cp packages/auth/shared-hooks/package.json apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-hooks/
+          
+          echo "📦 Copying shared-ui..."
+          cp -r packages/shared-ui/dist apps/customer-dashboard/auth/node_modules/@vubon/shared-ui
+          cp packages/shared-ui/package.json apps/customer-dashboard/auth/node_modules/@vubon/shared-ui/
+
+      - name: Verify copied files
+        run: |
+          echo "=== Files in @vubon ==="
+          ls -la apps/customer-dashboard/auth/node_modules/@vubon/
+          echo "=== shared-auth dist contents ==="
+          ls -la apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-auth/
+          echo "=== shared-auth package.json ==="
+          cat apps/customer-dashboard/auth/node_modules/@vubon/auth-shared-auth/package.json
+
+      - name: Run Full Code Validation
+        run: pnpm run check
+        env:
+          NODE_ENV: test
+
+      - name: Build Workspace
+        run: pnpm -r run build
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4.6.0
+        with:
+          name: vubon-build
+          retention-days: 7
+          path: |
+            apps/**/.next
+            apps/**/dist
+            packages/**/dist
+            package.json
+            pnpm-lock.yaml

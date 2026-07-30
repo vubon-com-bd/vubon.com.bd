@@ -1,0 +1,30 @@
+{
+  "name": "vubon-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "type-check": "pnpm --filter ./packages/... build && pnpm -r run type-check",
+    "lint": "pnpm -r run lint",
+    "format": "pnpm -r run format",
+    "format:check": "pnpm -r run format:check",
+    "test": "pnpm -r run test",
+    "check": "pnpm run format:check && pnpm run lint && pnpm run type-check && pnpm run test",
+    "prisma:generate": "pnpm --filter @vubon/auth-service prisma generate"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@next/swc-linux-arm64-gnu": "^16.2.12",
+    "@types/node": "^22.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
+    "eslint": "^9.32.0",
+    "globals": "^17.8.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
