@@ -2,6 +2,7 @@
   "name": "vubon-monorepo",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "check": "pnpm run format:check && pnpm run lint && pnpm run type-check && pnpm run test",
     "format:check": "pnpm -r run format:check",
@@ -14,6 +15,11 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "globals": "^15.0.0",
     "prettier": "^3.0.0",
     "typescript": "^5.0.0"
   },
