@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   security:
-    name: Security Scan
+    name: 🔒 Security Scan
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -28,15 +28,15 @@ jobs:
         with:
           languages: javascript-typescript
 
+      # ✅ pnpm ইনস্টল করুন (setup-node এর আগে)
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version: 22
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.0.0
+          package-manager-cache: true
 
       - name: Install Dependencies
         run: pnpm install --no-frozen-lockfile
