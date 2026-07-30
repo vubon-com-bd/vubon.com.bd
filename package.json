@@ -1,0 +1,24 @@
+{
+  "name": "vubon-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "check": "pnpm run format:check && pnpm run lint && pnpm run type-check && pnpm run test",
+    "format:check": "pnpm -r run format:check",
+    "format:write": "pnpm -r run format:write",
+    "lint": "pnpm -r run lint",
+    "type-check": "pnpm -r run type-check",
+    "test": "pnpm -r run test",
+    "build": "pnpm -r run build",
+    "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "packageManager": "pnpm@9.0.0"
+}

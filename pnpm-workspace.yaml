@@ -1,0 +1,6 @@
+packages:
+  - "apps/*"
+  - "apps/customer-dashboard/*"
+  - "apps/admin-dashboard/*"
+  - "apps/seller-dashboard/*"
+  - "packages/*"
