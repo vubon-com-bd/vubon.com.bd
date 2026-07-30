@@ -30,11 +30,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      # ✅ pnpm ইনস্টল করার সঠিক স্টেপ (actions/setup-node এর আগে)
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
+        # ✅ version সরিয়ে দিন - package.json থেকে read করবে
 
       - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v5
@@ -63,8 +61,6 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v5
@@ -90,8 +86,6 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v5
@@ -129,8 +123,6 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v5
@@ -166,8 +158,6 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v5
