@@ -21,9 +21,6 @@ env:
   NODE_VERSION: 22
 
 jobs:
-  # ============================================
-  # 1. লিন্ট ও ফরম্যাট চেক
-  # ============================================
   lint:
     name: 🧹 Lint & Format
     runs-on: ubuntu-latest
@@ -33,31 +30,27 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Node.js
+      # ✅ pnpm ইনস্টল করার সঠিক স্টেপ (actions/setup-node এর আগে)
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install pnpm
-        run: |
-          npm install -g pnpm@9
-          echo "$(npm root -g)/bin" >> $GITHUB_PATH
-
-      - name: Verify pnpm
-        run: pnpm --version
+          package-manager-cache: true
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
       - name: Run Prettier check
-        run: pnpm run format:check || true
+        run: pnpm run format:check
 
       - name: Run ESLint
-        run: pnpm run lint || true
+        run: pnpm run lint
 
-  # ============================================
-  # 2. টাইপ চেক
-  # ============================================
   type-check:
     name: 🔍 Type Check
     runs-on: ubuntu-latest
@@ -68,28 +61,23 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Node.js
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install pnpm
-        run: |
-          npm install -g pnpm@9
-          echo "$(npm root -g)/bin" >> $GITHUB_PATH
-
-      - name: Verify pnpm
-        run: pnpm --version
+          package-manager-cache: true
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
       - name: Run TypeScript type check
-        run: pnpm run type-check || true
+        run: pnpm run type-check
 
-  # ============================================
-  # 3. বিল্ড
-  # ============================================
   build:
     name: 🏗️ Build
     runs-on: ubuntu-latest
@@ -100,24 +88,22 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Node.js
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install pnpm
-        run: |
-          npm install -g pnpm@9
-          echo "$(npm root -g)/bin" >> $GITHUB_PATH
-
-      - name: Verify pnpm
-        run: pnpm --version
+          package-manager-cache: true
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
       - name: Build all packages
-        run: pnpm -r run build || true
+        run: pnpm -r run build
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4.6.0
@@ -131,9 +117,6 @@ jobs:
             package.json
             pnpm-lock.yaml
 
-  # ============================================
-  # 4. টেস্ট
-  # ============================================
   test:
     name: 🧪 Test
     runs-on: ubuntu-latest
@@ -144,18 +127,16 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Node.js
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install pnpm
-        run: |
-          npm install -g pnpm@9
-          echo "$(npm root -g)/bin" >> $GITHUB_PATH
-
-      - name: Verify pnpm
-        run: pnpm --version
+          package-manager-cache: true
 
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4.1.9
@@ -166,11 +147,8 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Run tests
-        run: pnpm run test || true
+        run: pnpm run test
 
-  # ============================================
-  # 5. সিকিউরিটি স্ক্যান
-  # ============================================
   security:
     name: 🔒 Security Scan
     runs-on: ubuntu-latest
@@ -186,18 +164,16 @@ jobs:
         with:
           languages: javascript-typescript
 
-      - name: Setup Node.js
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install pnpm
-        run: |
-          npm install -g pnpm@9
-          echo "$(npm root -g)/bin" >> $GITHUB_PATH
-
-      - name: Verify pnpm
-        run: pnpm --version
+          package-manager-cache: true
 
       - name: Install Dependencies
         run: pnpm install --no-frozen-lockfile
@@ -211,9 +187,6 @@ jobs:
       - name: CodeQL Analysis
         uses: github/codeql-action/analyze@v4
 
-  # ============================================
-  # 6. স্ট্যাটাস চেক
-  # ============================================
   status:
     name: ✅ Status Check
     runs-on: ubuntu-latest
