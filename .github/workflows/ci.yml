@@ -2,7 +2,7 @@ name: CI/CD
 
 on:
   push:
-    branches: [ main, master, develop ]
+    branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
@@ -38,11 +38,10 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      # ✅ pnpm ইনস্টল করার সঠিক স্টেপ
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.0.0
+          version: 9
 
       - name: Get pnpm store directory
         shell: bash
@@ -73,6 +72,7 @@ jobs:
     name: 🔍 Type Check
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    needs: lint
 
     steps:
       - name: Checkout Repository
@@ -86,7 +86,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.0.0
+          version: 9
 
       - name: Get pnpm store directory
         shell: bash
@@ -114,6 +114,7 @@ jobs:
     name: 🏗️ Build
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    needs: type-check
 
     steps:
       - name: Checkout Repository
@@ -127,7 +128,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.0.0
+          version: 9
 
       - name: Get pnpm store directory
         shell: bash
@@ -146,7 +147,7 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Build all packages
-        run: pnpm -r run build || true
+        run: pnpm -r run build
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4.6.0
@@ -181,7 +182,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.0.0
+          version: 9
 
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4.1.9
@@ -192,7 +193,7 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Run tests
-        run: pnpm run test || true
+        run: pnpm run test
 
   # ============================================
   # 5. সিকিউরিটি স্ক্যান
@@ -220,7 +221,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.0.0
+          version: 9
 
       - name: Install Dependencies
         run: pnpm install --no-frozen-lockfile
@@ -235,7 +236,7 @@ jobs:
         uses: github/codeql-action/analyze@v4
 
   # ============================================
-  # 6. স্ট্যাটাস চেক (সব জব পাস হলে)
+  # 6. স্ট্যাটাস চেক
   # ============================================
   status:
     name: ✅ Status Check
