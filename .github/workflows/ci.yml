@@ -21,9 +21,6 @@ env:
   NODE_VERSION: 22
 
 jobs:
-  # ============================================
-  # 1. লিন্ট ও ফরম্যাট চেক
-  # ============================================
   lint:
     name: 🧹 Lint & Format
     runs-on: ubuntu-latest
@@ -38,10 +35,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
+      - name: Install pnpm
+        run: npm install -g pnpm@9
 
       - name: Get pnpm store directory
         shell: bash
@@ -65,9 +60,6 @@ jobs:
       - name: Run ESLint
         run: pnpm run lint
 
-  # ============================================
-  # 2. টাইপ চেক
-  # ============================================
   type-check:
     name: 🔍 Type Check
     runs-on: ubuntu-latest
@@ -83,10 +75,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
+      - name: Install pnpm
+        run: npm install -g pnpm@9
 
       - name: Get pnpm store directory
         shell: bash
@@ -107,9 +97,6 @@ jobs:
       - name: Run TypeScript type check
         run: pnpm run type-check
 
-  # ============================================
-  # 3. বিল্ড
-  # ============================================
   build:
     name: 🏗️ Build
     runs-on: ubuntu-latest
@@ -125,10 +112,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
+      - name: Install pnpm
+        run: npm install -g pnpm@9
 
       - name: Get pnpm store directory
         shell: bash
@@ -161,9 +146,6 @@ jobs:
             package.json
             pnpm-lock.yaml
 
-  # ============================================
-  # 4. টেস্ট
-  # ============================================
   test:
     name: 🧪 Test
     runs-on: ubuntu-latest
@@ -179,10 +161,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
+      - name: Install pnpm
+        run: npm install -g pnpm@9
 
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4.1.9
@@ -195,9 +175,6 @@ jobs:
       - name: Run tests
         run: pnpm run test
 
-  # ============================================
-  # 5. সিকিউরিটি স্ক্যান
-  # ============================================
   security:
     name: 🔒 Security Scan
     runs-on: ubuntu-latest
@@ -218,10 +195,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
+      - name: Install pnpm
+        run: npm install -g pnpm@9
 
       - name: Install Dependencies
         run: pnpm install --no-frozen-lockfile
@@ -235,9 +210,6 @@ jobs:
       - name: CodeQL Analysis
         uses: github/codeql-action/analyze@v4
 
-  # ============================================
-  # 6. স্ট্যাটাস চেক
-  # ============================================
   status:
     name: ✅ Status Check
     runs-on: ubuntu-latest
