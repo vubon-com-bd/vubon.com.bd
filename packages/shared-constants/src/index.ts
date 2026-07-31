@@ -137,6 +137,43 @@ export {
   SESSION_UTILS,
   SESSION_CONSTANTS,
   ALL_SESSION_CONSTANTS,
+
+  // Provider constants
+  SOCIAL_PROVIDERS,
+  SOCIAL_PROVIDER_NAMES,
+  SOCIAL_CALLBACK_URLS,
+  SOCIAL_AUTH_URLS,
+  SOCIAL_TOKEN_URLS,
+  SOCIAL_USER_INFO_URLS,
+
+  // Configuration
+  SOCIAL_CONFIG,
+
+  // UI constants
+  SOCIAL_PROVIDER_ICONS,
+  SOCIAL_PROVIDER_COLORS,
+  SOCIAL_PROVIDER_BUTTON_TEXT,
+
+  // Messages
+  SOCIAL_ERROR_MESSAGES,
+  SOCIAL_SUCCESS_MESSAGES,
+
+  // Events
+  SOCIAL_EVENTS,
+
+  // Helper functions
+  getProviderDisplayName,
+  getProviderCallbackUrl,
+  getProviderIcon,
+  getProviderColor,
+  getProviderButtonText,
+  getProviderScopes,
+  isProviderSupported,
+  getEnabledProviders,
+
+  // Grouped constants
+  SOCIAL_CONSTANTS,
+  ALL_SOCIAL_CONSTANTS,
 } from './auth';
 
 // Export all types
@@ -235,4 +272,22 @@ export type {
   SessionEvent,
   SessionErrorMessage,
   SessionSuccessMessage,
+
+  // Type exports
+  SocialProvider,
+  SocialProviderName,
+  SocialCallbackUrl,
+  SocialAuthUrl,
+  SocialTokenUrl,
+  SocialUserInfoUrl,
+  SocialProviderIcon,
+  SocialProviderColor,
+  SocialProviderButtonText,
+  SocialErrorMessage,
+  SocialSuccessMessage,
+  SocialEvent,
+  SocialProviderConfig,
+  SocialUserProfile,
+  SocialAccountLink,
+  SocialScopes,
 } from './auth';
