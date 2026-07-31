@@ -596,8 +596,7 @@ export const PERMISSION_CATEGORY_LABELS = {
   support: 'Support',
 } as const;
 
-export type PermissionCategoryLabel =
-  (typeof PERMISSION_CATEGORY_LABELS)[keyof typeof PERMISSION_CATEGORY_LABELS];
+export type PermissionCategoryLabel = (typeof PERMISSION_CATEGORY_LABELS)[keyof typeof PERMISSION_CATEGORY_LABELS];
 
 /**
  * Permission description mapping
@@ -615,7 +614,7 @@ export const PERMISSION_DESCRIPTIONS = {
   'user:session:manage': 'Manage user sessions and force logout',
   'user:export': 'Export user data in various formats',
   'user:import': 'Import user data from external sources',
-
+  
   'role:manage': 'Full management of roles including creation, updates, and deletion',
   'role:view': 'View role definitions and assignments',
   'role:create': 'Create new role definitions',
@@ -623,14 +622,14 @@ export const PERMISSION_DESCRIPTIONS = {
   'role:delete': 'Delete role definitions',
   'role:assign': 'Assign roles to users',
   'role:permission:manage': 'Manage role permissions',
-
+  
   'permission:manage': 'Full management of permissions',
   'permission:view': 'View permission definitions',
   'permission:create': 'Create new permission definitions',
   'permission:update': 'Update permission definitions',
   'permission:delete': 'Delete permission definitions',
   'permission:assign': 'Assign permissions to roles',
-
+  
   'system:view': 'View system information and status',
   'system:manage': 'Manage system configurations and settings',
   'system:maintenance': 'Perform system maintenance tasks',
@@ -640,7 +639,7 @@ export const PERMISSION_DESCRIPTIONS = {
   'system:logs': 'View and manage system logs',
   'system:monitoring': 'Monitor system performance and health',
   'system:alerts': 'Manage system alerts and notifications',
-
+  
   'content:manage': 'Full management of content',
   'content:view': 'View content and content lists',
   'content:create': 'Create new content',
@@ -650,7 +649,7 @@ export const PERMISSION_DESCRIPTIONS = {
   'content:archive': 'Archive content',
   'content:approve': 'Approve content before publishing',
   'content:category:manage': 'Manage content categories',
-
+  
   'product:manage': 'Full management of products',
   'product:view': 'View products and product lists',
   'product:create': 'Create new products',
@@ -662,7 +661,7 @@ export const PERMISSION_DESCRIPTIONS = {
   'product:review:manage': 'Manage product reviews',
   'product:import': 'Import products in bulk',
   'product:export': 'Export product data',
-
+  
   'order:manage': 'Full management of orders',
   'order:view': 'View orders and order lists',
   'order:create': 'Create new orders',
@@ -673,7 +672,7 @@ export const PERMISSION_DESCRIPTIONS = {
   'order:refund': 'Process order refunds',
   'order:shipping:manage': 'Manage order shipping',
   'order:tracking:manage': 'Manage order tracking information',
-
+  
   'payment:manage': 'Full management of payments',
   'payment:view': 'View payments and payment lists',
   'payment:process': 'Process payment transactions',
@@ -681,13 +680,13 @@ export const PERMISSION_DESCRIPTIONS = {
   'payment:gateway:manage': 'Manage payment gateways',
   'payment:reconciliation': 'Perform payment reconciliation',
   'payment:export': 'Export payment data',
-
+  
   'analytics:manage': 'Manage analytics configurations',
   'analytics:view': 'View analytics data and dashboards',
   'analytics:export': 'Export analytics data',
   'analytics:reports': 'Generate analytics reports',
   'analytics:dashboard:manage': 'Manage analytics dashboards',
-
+  
   'settings:manage': 'Full management of system settings',
   'settings:view': 'View system settings',
   'settings:app': 'Manage application settings',
@@ -695,13 +694,13 @@ export const PERMISSION_DESCRIPTIONS = {
   'settings:integration': 'Manage integration settings',
   'settings:email': 'Manage email settings',
   'settings:notification': 'Manage notification settings',
-
+  
   'notification:manage': 'Full management of notifications',
   'notification:view': 'View notifications',
   'notification:send': 'Send notifications',
   'notification:template:manage': 'Manage notification templates',
   'notification:channel:manage': 'Manage notification channels',
-
+  
   'support:manage': 'Full management of support tickets',
   'support:view': 'View support tickets',
   'support:create': 'Create support tickets',
@@ -711,8 +710,7 @@ export const PERMISSION_DESCRIPTIONS = {
   'support:kb:manage': 'Manage support knowledge base',
 } as const;
 
-export type PermissionDescription =
-  (typeof PERMISSION_DESCRIPTIONS)[keyof typeof PERMISSION_DESCRIPTIONS];
+export type PermissionDescription = (typeof PERMISSION_DESCRIPTIONS)[keyof typeof PERMISSION_DESCRIPTIONS];
 
 /**
  * Permission interface
@@ -765,8 +763,7 @@ export const createPermissionDefinition = (
   return {
     key,
     name,
-    description:
-      description || PERMISSION_DESCRIPTIONS[key as keyof typeof PERMISSION_DESCRIPTIONS] || key,
+    description: description || PERMISSION_DESCRIPTIONS[key as keyof typeof PERMISSION_DESCRIPTIONS] || key,
     category,
     isSystem: true,
     enabledByDefault: false,
@@ -799,7 +796,7 @@ export const isPermissionValid = (permission: string): permission is Permission 
  */
 export const getPermissionsByCategory = (category: PermissionCategory): Permission[] => {
   const permissions: Permission[] = [];
-  for (const [key, value] of Object.entries(PERMISSIONS)) {
+  for (const [_key, value] of Object.entries(PERMISSIONS)) {
     const permCategory = getPermissionCategory(value);
     if (permCategory === category) {
       permissions.push(value);
