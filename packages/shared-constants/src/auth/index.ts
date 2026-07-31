@@ -214,10 +214,10 @@ export type {
   MFATOTPConfig,
   MFABackupCodes,
   MFAVerificationAttempt,
-  MFAErrorMessage as MFATypeErrorMessage,
+  MFAErrorMessage,
   MFASuccessMessage,
   MFAEvent,
   MFAMethodType,
-  MFAStatus as MFATypeStatus,
+  MFAStatus,
   MFAVerificationStatus,
 } from './mfa.constants';
