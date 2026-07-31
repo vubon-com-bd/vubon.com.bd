@@ -183,3 +183,41 @@ export type {
   HttpMethod,
   HttpHeader,
 } from './http-status.constants';
+
+// MFA constants
+export {
+  MFA_TOTP,
+  MFA_BACKUP_CODES,
+  MFA_VERIFICATION,
+  MFA_RECOVERY,
+  MFA_METHODS,
+  MFA_SESSION,
+  MFA_SECURITY,
+  DEFAULT_MFA_CONFIG,
+  MFA_ERROR_MESSAGES,
+  MFA_SUCCESS_MESSAGES,
+  MFA_EVENTS,
+  MFA_METHOD_TYPES,
+  MFA_STATUS,
+  MFA_VERIFICATION_STATUS,
+  MFA_CONSTANTS,
+  ALL_MFA_CONSTANTS,
+} from './mfa.constants';
+
+// MFA types
+export type {
+  MFAConfig,
+  MFAUserData,
+  TrustedDevice,
+  MFAVerificationSession,
+  MFARecoverySession,
+  MFATOTPConfig,
+  MFABackupCodes,
+  MFAVerificationAttempt,
+  MFAErrorMessage as MFATypeErrorMessage,
+  MFASuccessMessage,
+  MFAEvent,
+  MFAMethodType,
+  MFAStatus as MFATypeStatus,
+  MFAVerificationStatus,
+} from './mfa.constants';
