@@ -192,6 +192,24 @@ export {
   PERMISSION_DESCRIPTIONS,
   PERMISSION_CONSTANTS,
   ALL_PERMISSIONS,
+
+  // Device constants exports
+  DEVICE_TYPES,
+  DEVICE_TRUST_LEVELS,
+  DEVICE_FINGERPRINT_COMPONENTS,
+  DEVICE_OS,
+  DEVICE_BROWSERS,
+  DEVICE_VENDORS,
+  DEVICE_ORIENTATIONS,
+  DEVICE_CONNECTION_TYPES,
+  DEVICE_CONFIG,
+  DEVICE_STATUS,
+  DEVICE_EVENTS,
+  DEVICE_ERROR_MESSAGES,
+  DEVICE_SUCCESS_MESSAGES,
+  DEVICE_UTILS,
+  DEVICE_CONSTANTS,
+  ALL_DEVICE_CONSTANTS,
 } from './auth';
 
 // Export all types
@@ -313,4 +331,22 @@ export type {
   PermissionCategoryLabel,
   PermissionDescription,
   PermissionDefinition,
+
+  // Device types
+  DeviceType,
+  DeviceTrustLevel,
+  DeviceFingerprintComponent,
+  DeviceOS,
+  DeviceBrowser,
+  DeviceVendor,
+  DeviceOrientation,
+  DeviceConnectionType,
+  DeviceStatus,
+  Device,
+  DeviceMetadata,
+  DeviceLocation,
+  DeviceCapabilities,
+  DeviceEvent,
+  DeviceErrorMessage,
+  DeviceSuccessMessage,
 } from './auth';
