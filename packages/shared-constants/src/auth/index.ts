@@ -76,9 +76,7 @@ export type {
   AdminRole,
   UserStatus as RoleUserStatus,
   UserStatusMessage,
-  PermissionCategory,
   PermissionOperation,
-  Permission,
   Role,
   UserRoleAssignment,
   PermissionCheck,
@@ -320,7 +318,6 @@ export type {
 //Permission constants exports
 export {
   USER_PERMISSIONS,
-  ROLE_PERMISSIONS,
   PERMISSION_MANAGEMENT_PERMISSIONS,
   SYSTEM_PERMISSIONS,
   CONTENT_PERMISSIONS,
@@ -331,7 +328,6 @@ export {
   SETTINGS_PERMISSIONS,
   NOTIFICATION_PERMISSIONS,
   SUPPORT_PERMISSIONS,
-  PERMISSIONS as ALL_PERMISSIONS,
   PERMISSION_CATEGORIES as PERMISSION_CATEGORIES_LIST,
   PERMISSION_CATEGORY_LABELS,
   PERMISSION_DESCRIPTIONS,
