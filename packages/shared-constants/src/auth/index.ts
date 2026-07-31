@@ -86,3 +86,40 @@ export type {
   RoleEvent,
   RoleErrorMessage,
 } from './role.constants';
+
+// Export regex constants
+export {
+  EMAIL_REGEX,
+  PASSWORD_REGEX,
+  USERNAME_REGEX,
+  PHONE_REGEX,
+  URL_REGEX,
+  IP_REGEX,
+  DATE_REGEX,
+  CREDIT_CARD_REGEX,
+  VALIDATION_REGEX,
+  SLUG_REGEX,
+  FILE_EXTENSION_REGEX,
+  SPECIAL_CHARS_REGEX,
+  TEXT_REGEX,
+  REGEX_UTILS,
+  REGEX,
+  ALL_REGEX,
+} from './regex.constants';
+
+// Export regex types
+export type {
+  EmailRegexPattern,
+  PasswordRegexPattern,
+  UsernameRegexPattern,
+  PhoneRegexPattern,
+  UrlRegexPattern,
+  IpRegexPattern,
+  DateRegexPattern,
+  CreditCardRegexPattern,
+  ValidationRegexPattern,
+  SlugRegexPattern,
+  FileExtensionRegexPattern,
+  SpecialCharsRegexPattern,
+  TextRegexPattern,
+} from './regex.constants';

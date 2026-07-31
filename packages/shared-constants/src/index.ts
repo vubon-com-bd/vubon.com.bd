@@ -1,4 +1,5 @@
 /**
+/**
  * Shared constants module entry point
  * Exports all constants from all sub-modules
  */
@@ -47,6 +48,24 @@ export {
   PERMISSION_VALIDATION,
   ROLE_EVENTS,
   ROLE_ERROR_MESSAGES,
+
+  // Export regex constants
+  EMAIL_REGEX,
+  PASSWORD_REGEX,
+  USERNAME_REGEX,
+  PHONE_REGEX,
+  URL_REGEX,
+  IP_REGEX,
+  DATE_REGEX,
+  CREDIT_CARD_REGEX,
+  VALIDATION_REGEX,
+  SLUG_REGEX,
+  FILE_EXTENSION_REGEX,
+  SPECIAL_CHARS_REGEX,
+  TEXT_REGEX,
+  REGEX_UTILS,
+  REGEX,
+  ALL_REGEX,
 } from './auth';
 
 // Export all types
@@ -83,4 +102,19 @@ export type {
   RoleStatus,
   RoleEvent,
   RoleErrorMessage,
+
+  // Export regex types
+  EmailRegexPattern,
+  PasswordRegexPattern,
+  UsernameRegexPattern,
+  PhoneRegexPattern,
+  UrlRegexPattern,
+  IpRegexPattern,
+  DateRegexPattern,
+  CreditCardRegexPattern,
+  ValidationRegexPattern,
+  SlugRegexPattern,
+  FileExtensionRegexPattern,
+  SpecialCharsRegexPattern,
+  TextRegexPattern,
 } from './auth';
