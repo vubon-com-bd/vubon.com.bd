@@ -342,3 +342,43 @@ export type {
   PermissionDescription,
   PermissionDefinition,
 } from './permission.constants';
+
+// Device constants exports
+export {
+  DEVICE_TYPES,
+  DEVICE_TRUST_LEVELS,
+  DEVICE_FINGERPRINT_COMPONENTS,
+  DEVICE_OS,
+  DEVICE_BROWSERS,
+  DEVICE_VENDORS,
+  DEVICE_ORIENTATIONS,
+  DEVICE_CONNECTION_TYPES,
+  DEVICE_CONFIG,
+  DEVICE_STATUS,
+  DEVICE_EVENTS,
+  DEVICE_ERROR_MESSAGES,
+  DEVICE_SUCCESS_MESSAGES,
+  DEVICE_UTILS,
+  DEVICE_CONSTANTS,
+  ALL_DEVICE_CONSTANTS,
+} from './device.constants';
+
+// Device types
+export type {
+  DeviceType,
+  DeviceTrustLevel,
+  DeviceFingerprintComponent,
+  DeviceOS,
+  DeviceBrowser,
+  DeviceVendor,
+  DeviceOrientation,
+  DeviceConnectionType,
+  DeviceStatus,
+  Device,
+  DeviceMetadata,
+  DeviceLocation,
+  DeviceCapabilities,
+  DeviceEvent,
+  DeviceErrorMessage,
+  DeviceSuccessMessage,
+} from './device.constants';
