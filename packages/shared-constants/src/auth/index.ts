@@ -1,8 +1,9 @@
 /**
- * Authentication constants exports
+ * Auth constants module exports
  * Central export point for all authentication-related constants
  */
 
+// Export all auth constants
 export {
   AUTH_COOKIE_NAMES,
   TOKEN_EXPIRY,
@@ -24,13 +25,11 @@ export {
   AUTH_ROUTES,
   AUTH_STATUS_CODES,
   AUTH_CONFIG_DEFAULTS,
-  PERMISSIONS,
-  ROLES,
-  ROLE_PERMISSIONS,
   AUTH_SECURITY_HEADERS,
   AUTH_EVENTS,
 } from './auth.constants';
 
+// Export types
 export type {
   UserStatus,
   LogoutSessionType,
@@ -47,7 +46,43 @@ export type {
   EmailVerificationData,
   PasswordResetData,
   AuthConfig,
-  Permission,
-  Role,
   AuthEvent,
 } from './auth.constants';
+
+// Export role constants
+export {
+  DEFAULT_ROLES,
+  ADMIN_ROLES,
+  USER_STATUS as ROLE_USER_STATUS,
+  USER_STATUS_MESSAGES,
+  PERMISSION_CATEGORIES,
+  PERMISSION_OPERATIONS,
+  PERMISSIONS,
+  ROLE_PERMISSIONS,
+  ROLE_HIERARCHY,
+  ROLE_DESCRIPTIONS,
+  ROLE_COLORS,
+  ROLE_PRIORITY,
+  ROLE_VALIDATION,
+  ROLE_STATUS,
+  PERMISSION_VALIDATION,
+  ROLE_EVENTS,
+  ROLE_ERROR_MESSAGES,
+} from './role.constants';
+
+// Export role types
+export type {
+  DefaultRole,
+  AdminRole,
+  UserStatus as RoleUserStatus,
+  UserStatusMessage,
+  PermissionCategory,
+  PermissionOperation,
+  Permission,
+  Role,
+  UserRoleAssignment,
+  PermissionCheck,
+  RoleStatus,
+  RoleEvent,
+  RoleErrorMessage,
+} from './role.constants';
