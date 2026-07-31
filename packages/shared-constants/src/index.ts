@@ -66,6 +66,27 @@ export {
   REGEX_UTILS,
   REGEX,
   ALL_REGEX,
+
+  // security constants
+  LOGIN_SECURITY,
+  PASSWORD_SECURITY,
+  TWO_FACTOR_SECURITY,
+  CSRF_SECURITY,
+  RATE_LIMIT_SECURITY,
+  IP_SECURITY,
+  SESSION_SECURITY,
+  JWT_SECURITY,
+  SECURITY_HEADERS,
+  SECURITY_EVENTS,
+  SECURITY_LEVELS,
+  SECURITY_LEVEL_REQUIREMENTS,
+  SECURITY_BREACH_RESPONSE,
+  ENCRYPTION_SECURITY,
+  AUDIT_SECURITY,
+  DEFAULT_SECURITY_CONFIG,
+  SECURITY_ERROR_MESSAGES,
+  SECURITY_WARNING_MESSAGES,
+  SECURITY_NOTIFICATIONS,
 } from './auth';
 
 // Export all types
@@ -117,4 +138,11 @@ export type {
   FileExtensionRegexPattern,
   SpecialCharsRegexPattern,
   TextRegexPattern,
+
+  // Security types
+  SecurityLevel,
+  SecurityConfig,
+  SecurityErrorMessage,
+  SecurityWarningMessage,
+  SecurityNotification,
 } from './auth';
