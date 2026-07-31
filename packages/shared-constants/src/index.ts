@@ -87,6 +87,22 @@ export {
   SECURITY_ERROR_MESSAGES,
   SECURITY_WARNING_MESSAGES,
   SECURITY_NOTIFICATIONS,
+
+  // HTTP Status constants
+  HTTP_STATUS_INFO,
+  HTTP_STATUS_SUCCESS,
+  HTTP_STATUS_REDIRECTION,
+  HTTP_STATUS_CLIENT_ERROR,
+  HTTP_STATUS_SERVER_ERROR,
+  HTTP_STATUS,
+  HTTP_STATUS_CATEGORIES,
+  HTTP_STATUS_MESSAGES,
+  AUTH_STATUS_CODES as AUTH_HTTP_STATUS_CODES,
+  API_STATUS_CODES,
+  HTTP_STATUS_UTILS,
+  ALL_STATUS_CODES,
+  HTTP_METHODS,
+  HTTP_HEADERS,
 } from './auth';
 
 // Export all types
@@ -145,4 +161,12 @@ export type {
   SecurityErrorMessage,
   SecurityWarningMessage,
   SecurityNotification,
+
+  // HTTP Status types
+  HttpStatusCode,
+  HttpStatusMessage,
+  HttpStatusCategory,
+  HttpStatus,
+  HttpMethod,
+  HttpHeader,
 } from './auth';

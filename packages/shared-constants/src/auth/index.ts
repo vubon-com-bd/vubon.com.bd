@@ -155,3 +155,31 @@ export type {
   SecurityWarningMessage,
   SecurityNotification,
 } from './security.constants';
+
+// HTTP Status constants
+export {
+  HTTP_STATUS_INFO,
+  HTTP_STATUS_SUCCESS,
+  HTTP_STATUS_REDIRECTION,
+  HTTP_STATUS_CLIENT_ERROR,
+  HTTP_STATUS_SERVER_ERROR,
+  HTTP_STATUS,
+  HTTP_STATUS_CATEGORIES,
+  HTTP_STATUS_MESSAGES,
+  AUTH_STATUS_CODES as AUTH_HTTP_STATUS_CODES,
+  API_STATUS_CODES,
+  HTTP_STATUS_UTILS,
+  ALL_STATUS_CODES,
+  HTTP_METHODS,
+  HTTP_HEADERS,
+} from './http-status.constants';
+
+// HTTP Status types
+export type {
+  HttpStatusCode,
+  HttpStatusMessage,
+  HttpStatusCategory,
+  HttpStatus,
+  HttpMethod,
+  HttpHeader,
+} from './http-status.constants';
