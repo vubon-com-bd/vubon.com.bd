@@ -1,7 +1,7 @@
 /**
- * Shared constants for authentication module
- * Exports all constants from the shared-constants package
+ * Shared Constants Package
+ * Central export point for all shared constants across the monorepo
  */
 
-// Export auth constants
-export * from './auth/index';
+// Export all auth constants
+export * from './auth';
