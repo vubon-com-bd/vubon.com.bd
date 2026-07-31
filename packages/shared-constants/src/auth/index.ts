@@ -316,3 +316,33 @@ export type {
   SocialAccountLink,
   SocialScopes,
 } from './social.constants';
+
+//Permission constants exports
+export {
+  USER_PERMISSIONS,
+  ROLE_PERMISSIONS,
+  PERMISSION_MANAGEMENT_PERMISSIONS,
+  SYSTEM_PERMISSIONS,
+  CONTENT_PERMISSIONS,
+  PRODUCT_PERMISSIONS,
+  ORDER_PERMISSIONS,
+  PAYMENT_PERMISSIONS,
+  ANALYTICS_PERMISSIONS,
+  SETTINGS_PERMISSIONS,
+  NOTIFICATION_PERMISSIONS,
+  SUPPORT_PERMISSIONS,
+  PERMISSIONS as ALL_PERMISSIONS,
+  PERMISSION_CATEGORIES as PERMISSION_CATEGORIES_LIST,
+  PERMISSION_CATEGORY_LABELS,
+  PERMISSION_DESCRIPTIONS,
+  PERMISSION_CONSTANTS,
+  ALL_PERMISSIONS,
+} from './permission.constants';
+
+export type {
+  Permission,
+  PermissionCategory,
+  PermissionCategoryLabel,
+  PermissionDescription,
+  PermissionDefinition,
+} from './permission.constants';
