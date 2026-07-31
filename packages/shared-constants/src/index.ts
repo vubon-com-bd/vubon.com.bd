@@ -121,6 +121,22 @@ export {
   MFA_VERIFICATION_STATUS,
   MFA_CONSTANTS,
   ALL_MFA_CONSTANTS,
+
+  // Session Constants
+  SESSION_STATUS,
+  SESSION_DEVICE_TYPES,
+  SESSION_OS_TYPES,
+  SESSION_BROWSER_TYPES,
+  SESSION_CONFIG as SESSION_CONFIG_DETAILS,
+  SESSION_VALIDATION,
+  SESSION_CLEANUP,
+  SESSION_REVOCATION_REASONS,
+  SESSION_EVENTS,
+  SESSION_ERROR_MESSAGES,
+  SESSION_SUCCESS_MESSAGES,
+  SESSION_UTILS,
+  SESSION_CONSTANTS,
+  ALL_SESSION_CONSTANTS,
 } from './auth';
 
 // Export all types
@@ -203,4 +219,20 @@ export type {
   MFAMethodType,
   MFAStatus,
   MFAVerificationStatus,
+
+  // Session types
+  SessionStatus,
+  SessionDeviceType,
+  SessionOSType,
+  SessionBrowserType,
+  Session,
+  SessionMetadata,
+  SessionDeviceInfo,
+  SessionLocation,
+  SessionConnection,
+  SessionContext,
+  SessionRevocationReason,
+  SessionEvent,
+  SessionErrorMessage,
+  SessionSuccessMessage,
 } from './auth';
