@@ -5,7 +5,11 @@
     "rootDir": "./src",
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "composite": true,
+    "paths": {
+      "@vubon/shared-constants": ["./src/index.ts"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
