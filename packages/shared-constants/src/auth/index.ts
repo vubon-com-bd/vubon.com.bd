@@ -437,3 +437,42 @@ export type {
   APIEvent,
   APIConfig,
 } from './api.constants';
+
+// Cache Constants
+// ============================================================================
+export {
+  CACHE_KEY_PREFIXES,
+  CACHE_TTL,
+  ADAPTIVE_CACHE_TTL,
+  CACHE_INVALIDATION_PATTERNS,
+  CACHE_INVALIDATION_EVENTS,
+  CACHE_INVALIDATION_MAPPING,
+  CACHING_STRATEGIES,
+  CACHE_STRATEGY_CONFIG,
+  CACHE_METRICS,
+  CACHE_ERROR_MESSAGES,
+  CACHE_SUCCESS_MESSAGES,
+  DEFAULT_CACHE_CONFIGS,
+  buildCacheKey,
+  buildCacheKeyWithNamespace,
+  getAdaptiveTTL,
+  getTTLForDataType,
+  getCachePrefixForDataType,
+  getInvalidationPatterns,
+  generateInvalidationKeys,
+  CACHE_CONSTANTS,
+  ALL_CACHE_CONSTANTS,
+} from './cache.constants';
+
+export type {
+  CacheKeyPrefix,
+  CacheTTL,
+  AdaptiveCacheTTL,
+  CacheInvalidationPattern,
+  CacheInvalidationEvent,
+  CachingStrategy,
+  CacheMetric,
+  CacheErrorMessage,
+  CacheSuccessMessage,
+  CacheConfig,
+} from './cache.constants';
