@@ -19,6 +19,9 @@
     "format:write": "prettier --write \"src/**/*.ts\"",
     "test": "echo \"No tests yet\" && exit 0"
   },
+  "dependencies": {
+    "@vubon/shared-constants": "workspace:*"
+  },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
@@ -29,4 +32,4 @@
     "prettier": "^3.0.0",
     "typescript": "^5.0.0"
   }
-}
+} 
