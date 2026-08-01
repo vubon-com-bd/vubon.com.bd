@@ -1,8 +1,12 @@
+
 /**
- * User-related TypeScript types for the monorepo
+ * User-related TypeScript types for the monorope
  * All user types are centralized here for consistent usage across packages
  */
 
+import type { UserStatus as ConstUserStatus, UserRole as ConstUserRole } from "@vubon/shared-constants";
+
+/**
 /**
  * User status types
  */
