@@ -141,6 +141,11 @@ export const CACHE_KEY_PREFIXES = {
    * Cache for cache invalidation patterns
    */
   INVALIDATION: 'invalidation:',
+
+  /**
+   * Default cache prefix (fallback)
+   */
+  DEFAULT: 'cache:',
 } as const;
 
 export type CacheKeyPrefix = (typeof CACHE_KEY_PREFIXES)[keyof typeof CACHE_KEY_PREFIXES];
@@ -865,11 +870,11 @@ export const generateInvalidationKeys = (
   pattern: CacheInvalidationPattern,
   placeholders: Record<string, string>
 ): string => {
-  let key = pattern;
+  let result: string = pattern;
   for (const [placeholder, value] of Object.entries(placeholders)) {
-    key = key.replace(`{${placeholder}}`, value);
+    result = result.replace(`{${placeholder}}`, value);
   }
-  return key;
+  return result;
 };
 
 /**
