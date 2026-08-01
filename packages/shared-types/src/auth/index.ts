@@ -1,15 +1,14 @@
-// packages/shared-types/src/auth/index.ts
 /**
  * Auth types module exports
  * Central export point for all authentication-related types
  */
 
-// Export all user types
+// Export user types
 export type {
   UserStatus,
   UserRole,
-  UserPreferences,
   User,
+  UserPreferences,
   CreateUserRequest,
   UpdateProfileRequest,
   DeleteAccountRequest,
@@ -17,26 +16,16 @@ export type {
   AdminUserFilters,
   AdminUserUpdateRequest,
   AdminCreateUserRequest,
-  UserAuthContext,
   UserSession,
   UserActivity,
-  UserNotificationSettings,
-  UserSecuritySettings,
-  UserApiKey,
-  UserSearchParams,
-  UserBulkOperation,
-  UserExportOptions,
-  UserImportResult,
-  UserId,
-  UserEmail,
-  UserPhone,
-  UserUpdateData,
-  UserRegistrationData,
-  UserLoginData,
-  UserPasswordResetData,
-  UserEmailVerificationData,
-  UserPublicData,
+  UserPasswordReset,
+  UserEmailVerification,
+  UserDevice,
+  UserStatistics,
+  UserRoleAssignment,
+  UserPermissions,
+  UserToken,
 } from './user.types';
 
-// Export utility functions
-export { isUserActive, isUserAdmin, hasUserRole, hasAnyUserRole } from './user.types';
+// Re-export shared constants types
+export type { DefaultRole } from '@vubon/shared-constants';

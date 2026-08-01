@@ -1,30 +1,40 @@
 /**
- * User-related TypeScript types for the monorope
+ * User-related type definitions for the monorepo
  * All user types are centralized here for consistent usage across packages
  */
 
-import type { DefultRole, UserStatus as ConstUserStatus } from '@vubon/shared-constants';
+import type { DefaultRole } from '@vubon/shared-constants';
 
-/**
 /**
  * User status types
  */
-export type UserStatus =
-  'active' | 'inactive' | 'suspended' | 'banned' | 'pending' | 'deleted' | 'pending_verification';
+export type UserStatus = 'active' | 'inactive' | 'suspended' | 'banned' | 'pending' | 'deleted';
 
 /**
- * User role types
+ * User role types (extending from shared-constants)
  */
-export type UserRole =
-  | 'guest'
-  | 'customer'
-  | 'user'
-  | 'support'
-  | 'moderator'
-  | 'manager'
-  | 'admin'
-  | 'developer'
-  | 'super_admin';
+export type UserRole = DefaultRole;
+
+/**
+ * Base User interface
+ */
+export interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  avatar?: string;
+  role: UserRole;
+  status: UserStatus;
+  isEmailVerified: boolean;
+  isPhoneVerified: boolean;
+  lastLoginAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt?: Date;
+  preferences?: UserPreferences;
+}
 
 /**
  * User preferences interface
@@ -39,46 +49,20 @@ export interface UserPreferences {
 }
 
 /**
- * Base user interface
- */
-export interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  fullName: string;
-  phone?: string;
-  avatar?: string;
-  status: UserStatus;
-  role: UserRole;
-  isEmailVerified: boolean;
-  isPhoneVerified: boolean;
-  isActive: boolean;
-  isDeleted: boolean;
-  lastLoginAt?: Date;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt?: Date;
-  preferences: UserPreferences;
-  metadata: Record<string, unknown>;
-}
-
-/**
- * Request to create a new user
+ * Create user request interface
  */
 export interface CreateUserRequest {
   email: string;
   password: string;
   firstName: string;
   lastName: string;
-  role?: UserRole;
   phone?: string;
-  avatar?: string;
+  role?: UserRole;
   preferences?: Partial<UserPreferences>;
 }
 
 /**
- * Request to update user profile
+ * Update user profile request interface
  */
 export interface UpdateProfileRequest {
   firstName?: string;
@@ -90,7 +74,7 @@ export interface UpdateProfileRequest {
 }
 
 /**
- * Request to delete user account
+ * Delete account request interface
  */
 export interface DeleteAccountRequest {
   password?: string;
@@ -99,7 +83,7 @@ export interface DeleteAccountRequest {
 }
 
 /**
- * Admin user list response
+ * Admin user list response interface
  */
 export interface AdminUserListResponse {
   users: User[];
@@ -109,7 +93,7 @@ export interface AdminUserListResponse {
 }
 
 /**
- * Admin user filters
+ * Admin user filters interface
  */
 export interface AdminUserFilters {
   status?: UserStatus;
@@ -120,7 +104,7 @@ export interface AdminUserFilters {
 }
 
 /**
- * Admin user update request
+ * Admin user update request interface
  */
 export interface AdminUserUpdateRequest {
   status?: UserStatus;
@@ -130,7 +114,7 @@ export interface AdminUserUpdateRequest {
 }
 
 /**
- * Admin create user request
+ * Admin create user request interface
  */
 export interface AdminCreateUserRequest {
   email: string;
@@ -142,43 +126,36 @@ export interface AdminCreateUserRequest {
 }
 
 /**
- * User authentication context
- */
-export interface UserAuthContext {
-  userId: string;
-  email: string;
-  roles: UserRole[];
-  permissions: string[];
-  sessionId: string;
-  deviceId?: string;
-}
-
-/**
- * User session information
+ * User session interface
  */
 export interface UserSession {
   id: string;
   userId: string;
   deviceInfo: {
-    type: string;
-    os: string;
-    browser: string;
-    ipAddress: string;
+    deviceId: string;
+    deviceType: 'mobile' | 'tablet' | 'desktop' | 'other';
+    osName: string;
+    osVersion: string;
+    browserName: string;
+    browserVersion: string;
   };
+  ipAddress: string;
+  userAgent: string;
   createdAt: Date;
-  lastActivityAt: Date;
   expiresAt: Date;
-  isActive: boolean;
+  lastActivityAt: Date;
+  isRevoked: boolean;
 }
 
 /**
- * User activity log
+ * User activity log interface
  */
 export interface UserActivity {
   id: string;
   userId: string;
   action: string;
   resource: string;
+  resourceId?: string;
   metadata: Record<string, unknown>;
   ipAddress: string;
   userAgent: string;
@@ -186,206 +163,102 @@ export interface UserActivity {
 }
 
 /**
- * User notification settings
+ * User password reset interface
  */
-export interface UserNotificationSettings {
-  email: {
-    marketing: boolean;
-    transactional: boolean;
-    newsletter: boolean;
-  };
-  sms: {
-    otp: boolean;
-    alerts: boolean;
-    promotional: boolean;
-  };
-  push: {
-    enabled: boolean;
-    browser: boolean;
-    mobile: boolean;
-  };
-  inApp: {
-    enabled: boolean;
-    sound: boolean;
-    desktop: boolean;
-  };
-}
-
-/**
- * User security settings
- */
-export interface UserSecuritySettings {
-  twoFactorEnabled: boolean;
-  twoFactorMethod?: 'authenticator' | 'sms' | 'email';
-  backupCodesCount: number;
-  lastPasswordChange: Date;
-  passwordExpiryDays: number;
-  trustedDevices: Array<{
-    id: string;
-    name: string;
-    type: string;
-    lastUsedAt: Date;
-  }>;
-}
-
-/**
- * User API key
- */
-export interface UserApiKey {
-  id: string;
-  userId: string;
-  name: string;
-  key: string;
-  permissions: string[];
-  expiresAt?: Date;
-  lastUsedAt?: Date;
-  createdAt: Date;
-  isActive: boolean;
-}
-
-/**
- * User search parameters
- */
-export interface UserSearchParams {
-  query?: string;
-  status?: UserStatus[];
-  role?: UserRole[];
-  fromDate?: Date;
-  toDate?: Date;
-  sortBy?: 'createdAt' | 'lastLoginAt' | 'email';
-  sortOrder?: 'asc' | 'desc';
-  page?: number;
-  limit?: number;
-}
-
-/**
- * User bulk operation
- */
-export interface UserBulkOperation {
-  userIds: string[];
-  action: 'activate' | 'suspend' | 'delete' | 'role_update';
-  data?: Record<string, unknown>;
-  reason?: string;
-}
-
-/**
- * User export options
- */
-export interface UserExportOptions {
-  format: 'csv' | 'json' | 'excel';
-  fields: Array<keyof User>;
-  filters?: AdminUserFilters;
-  includeMetadata?: boolean;
-}
-
-/**
- * User import result
- */
-export interface UserImportResult {
-  total: number;
-  success: number;
-  failed: number;
-  errors: Array<{
-    row: number;
-    email: string;
-    error: string;
-  }>;
-  importedUsers: User[];
-}
-
-/**
- * Helper type for user ID
- */
-export type UserId = string;
-
-/**
- * Helper type for user email
- */
-export type UserEmail = string;
-
-/**
- * Helper type for user phone number
- */
-export type UserPhone = string;
-
-/**
- * User update data (partial user)
- */
-export type UserUpdateData = Partial<Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>>;
-
-/**
- * User registration data
- */
-export type UserRegistrationData = CreateUserRequest & {
-  acceptTerms: boolean;
-  acceptPrivacyPolicy: boolean;
-};
-
-/**
- * User login data
- */
-export interface UserLoginData {
-  email: string;
-  password: string;
-  rememberMe?: boolean;
-  deviceInfo?: {
-    type: string;
-    name?: string;
-  };
-}
-
-/**
- * User password reset data
- */
-export interface UserPasswordResetData {
-  email: string;
-  token: string;
-  newPassword: string;
-  confirmPassword: string;
-}
-
-/**
- * User email verification data
- */
-export interface UserEmailVerificationData {
+export interface UserPasswordReset {
   userId: string;
   email: string;
   token: string;
   expiresAt: Date;
+  createdAt: Date;
+  usedAt?: Date;
+  revokedAt?: Date;
 }
 
 /**
- * User response without sensitive data
+ * User email verification interface
  */
-export type UserPublicData = Omit<
-  User,
-  'isDeleted' | 'deletedAt' | 'metadata' | 'preferences' | 'isPhoneVerified' | 'isEmailVerified'
->;
-
-/**
- * Type guard to check if user is active
- */
-export function isUserActive(user: User): boolean {
-  return user.isActive && user.status === 'active' && !user.isDeleted;
+export interface UserEmailVerification {
+  userId: string;
+  email: string;
+  token: string;
+  expiresAt: Date;
+  attempts: number;
+  lastResendAt?: Date;
+  verifiedAt?: Date;
 }
 
 /**
- * Type guard to check if user is admin
+ * User device interface
  */
-export function isUserAdmin(user: User): boolean {
-  return user.role === 'admin' || user.role === 'super_admin';
+export interface UserDevice {
+  id: string;
+  userId: string;
+  deviceType: 'mobile' | 'tablet' | 'desktop' | 'other';
+  deviceName?: string;
+  deviceId: string;
+  osName: string;
+  osVersion: string;
+  browserName: string;
+  browserVersion: string;
+  ipAddress: string;
+  location?: {
+    countryCode?: string;
+    city?: string;
+    region?: string;
+  };
+  isTrusted: boolean;
+  isVerified: boolean;
+  lastUsedAt: Date;
+  createdAt: Date;
 }
 
 /**
- * Type guard to check if user has specific role
+ * User statistics interface
  */
-export function hasUserRole(user: User, role: UserRole): boolean {
-  return user.role === role;
+export interface UserStatistics {
+  userId: string;
+  totalLogins: number;
+  totalSessions: number;
+  totalOrders: number;
+  totalPayments: number;
+  lastLoginAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /**
- * Type guard to check if user has any of the specified roles
+ * User role assignment interface
  */
-export function hasAnyUserRole(user: User, roles: UserRole[]): boolean {
-  return roles.includes(user.role);
+export interface UserRoleAssignment {
+  userId: string;
+  role: UserRole;
+  assignedBy: string;
+  assignedAt: Date;
+  expiresAt?: Date;
+  isActive: boolean;
+}
+
+/**
+ * User permissions interface
+ */
+export interface UserPermissions {
+  userId: string;
+  permissions: string[];
+  roles: UserRole[];
+  updatedAt: Date;
+}
+
+/**
+ * User token interface (for JWT and other tokens)
+ */
+export interface UserToken {
+  id: string;
+  userId: string;
+  type: 'access' | 'refresh' | 'email_verification' | 'password_reset' | 'api_key';
+  token: string;
+  expiresAt: Date;
+  createdAt: Date;
+  revokedAt?: Date;
+  metadata?: Record<string, unknown>;
 }
