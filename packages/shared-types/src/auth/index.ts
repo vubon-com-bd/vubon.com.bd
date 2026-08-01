@@ -45,5 +45,23 @@ export type {
   SessionFilter,
 } from './session.types';
 
+// Export token types
+export type {
+  AccessTokenPayload,
+  RefreshTokenPayload,
+  TokenResponse,
+  TokenRefreshRequest,
+  TokenRefreshResponse,
+  TokenRotationResult,
+  TokenFamily,
+  TokenVerificationResult,
+  TokenMetadata,
+  TokenBlacklistEntry,
+  TokenGenerationOptions,
+  TokenConfig,
+  TokenStatistics,
+  TokenValidationContext,
+} from './token.types';
+
 // Re-export shared constants types
 export type { DefaultRole } from '@vubon/shared-constants';
