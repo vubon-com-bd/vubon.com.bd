@@ -378,7 +378,23 @@ export const ROUTING_KEYS = {
 } as const;
 
 export type RoutingKey =
-  (typeof ROUTING_KEYS)[keyof typeof ROUTING_KEYS][keyof (typeof ROUTING_KEYS)[keyof typeof ROUTING_KEYS]];
+  | (typeof ROUTING_KEYS.EMAIL)[keyof typeof ROUTING_KEYS.EMAIL]
+  | (typeof ROUTING_KEYS.SMS)[keyof typeof ROUTING_KEYS.SMS]
+  | (typeof ROUTING_KEYS.PAYMENT)[keyof typeof ROUTING_KEYS.PAYMENT]
+  | (typeof ROUTING_KEYS.BD_PAYMENT.BKASH)[keyof typeof ROUTING_KEYS.BD_PAYMENT.BKASH]
+  | (typeof ROUTING_KEYS.BD_PAYMENT.NAGAD)[keyof typeof ROUTING_KEYS.BD_PAYMENT.NAGAD]
+  | (typeof ROUTING_KEYS.BD_PAYMENT.ROCKET)[keyof typeof ROUTING_KEYS.BD_PAYMENT.ROCKET]
+  | (typeof ROUTING_KEYS.BD_PAYMENT.SSL_COMMERZ)[keyof typeof ROUTING_KEYS.BD_PAYMENT.SSL_COMMERZ]
+  | (typeof ROUTING_KEYS.WEBHOOK)[keyof typeof ROUTING_KEYS.WEBHOOK]
+  | (typeof ROUTING_KEYS.COURIER)[keyof typeof ROUTING_KEYS.COURIER]
+  | (typeof ROUTING_KEYS.COURIER_BD.SAHAAJ)[keyof typeof ROUTING_KEYS.COURIER_BD.SAHAAJ]
+  | (typeof ROUTING_KEYS.COURIER_BD.PAPERFLY)[keyof typeof ROUTING_KEYS.COURIER_BD.PAPERFLY]
+  | (typeof ROUTING_KEYS.COURIER_BD.REDX)[keyof typeof ROUTING_KEYS.COURIER_BD.REDX]
+  | (typeof ROUTING_KEYS.NOTIFICATION)[keyof typeof ROUTING_KEYS.NOTIFICATION]
+  | (typeof ROUTING_KEYS.ANALYTICS)[keyof typeof ROUTING_KEYS.ANALYTICS]
+  | (typeof ROUTING_KEYS.SYSTEM)[keyof typeof ROUTING_KEYS.SYSTEM]
+  | (typeof ROUTING_KEYS.FILE)[keyof typeof ROUTING_KEYS.FILE]
+  | (typeof ROUTING_KEYS.DEAD_LETTER)[keyof typeof ROUTING_KEYS.DEAD_LETTER];
 
 /**
  * Queue configuration for each queue
@@ -982,7 +998,8 @@ export const getRoutingKey = (
   category: keyof typeof ROUTING_KEYS,
   key: keyof (typeof ROUTING_KEYS)[typeof category]
 ): string => {
-  return (ROUTING_KEYS[category] as any)[key];
+  const routingKeys = ROUTING_KEYS[category];
+  return routingKeys[key as keyof typeof routingKeys];
 };
 
 /**
