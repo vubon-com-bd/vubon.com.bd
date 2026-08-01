@@ -13,7 +13,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "type-check": "tsc --noEmit",
+    "type-check": "pnpm --filter @vubon/shared-constants build && tsc --noEmit",
     "lint": "eslint .",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "format:write": "prettier --write \"src/**/*.ts\"",
