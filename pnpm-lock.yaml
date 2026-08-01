@@ -61,6 +61,10 @@ importers:
         version: 5.9.3
 
   packages/shared-types:
+    dependencies:
+      '@vubon/shared-constants':
+        specifier: workspace:*
+        version: link:../shared-constants
     devDependencies:
       '@types/node':
         specifier: ^20.0.0

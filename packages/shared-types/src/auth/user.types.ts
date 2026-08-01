@@ -3,10 +3,7 @@
  * All user types are centralized here for consistent usage across packages
  */
 
-import type {
-  UserStatus as ConstUserStatus,
-  UserRole as ConstUserRole,
-} from '@vubon/shared-constants';
+import type { DefultRole, UserStatus as ConstUserStatus } from '@vubon/shared-constants';
 
 /**
 /**
