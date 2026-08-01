@@ -41,8 +41,16 @@ export interface ResponseMetadata {
 /**
  * Paginated API response
  */
-export interface PaginatedApiResponse<T> extends ApiResponse<T[]> {
-  metadata: Required<Pick<ResponseMetadata, 'page' | 'limit' | 'total' | 'totalPages'>>;
+export interface PaginatedApiResponse<T> {
+  success: boolean;
+  data: T[];
+  message?: string;
+  errors?: ApiError[];
+  metadata: Required<Pick<ResponseMetadata, 'page' | 'limit' | 'total' | 'totalPages'>> & {
+    timestamp?: string;
+    requestId?: string;
+    version?: string;
+  };
 }
 
 /**
@@ -352,15 +360,27 @@ export function createSuccessResponse<T>(
   message?: string,
   metadata?: ResponseMetadata
 ): ApiResponse<T> {
-  return {
+  const response: ApiResponse<T> = {
     success: true,
     data,
-    message,
-    metadata: {
+  };
+
+  if (message) {
+    response.message = message;
+  }
+
+  if (metadata) {
+    response.metadata = {
       timestamp: new Date().toISOString(),
       ...metadata,
-    },
-  };
+    };
+  } else {
+    response.metadata = {
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  return response;
 }
 
 /**
@@ -373,19 +393,34 @@ export function createErrorResponse(
   details?: Record<string, unknown>,
   metadata?: ResponseMetadata
 ): ApiErrorResponse {
-  return {
+  const errorResponse: ApiErrorResponse = {
     success: false,
     error: {
       code,
       message,
-      field,
-      details,
-    },
-    metadata: {
-      timestamp: new Date().toISOString(),
-      ...metadata,
     },
   };
+
+  if (field) {
+    errorResponse.error.field = field;
+  }
+
+  if (details) {
+    errorResponse.error.details = details;
+  }
+
+  if (metadata) {
+    errorResponse.metadata = {
+      timestamp: new Date().toISOString(),
+      ...metadata,
+    };
+  } else {
+    errorResponse.metadata = {
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  return errorResponse;
 }
 
 /**
@@ -399,10 +434,9 @@ export function createPaginatedResponse<T>(
   message?: string
 ): PaginatedApiResponse<T> {
   const totalPages = Math.ceil(total / limit);
-  return {
+  const response: PaginatedApiResponse<T> = {
     success: true,
     data,
-    message,
     metadata: {
       page,
       limit,
@@ -411,31 +445,40 @@ export function createPaginatedResponse<T>(
       timestamp: new Date().toISOString(),
     },
   };
+
+  if (message) {
+    response.message = message;
+  }
+
+  return response;
 }
 
 /**
  * API response wrapper class for type-safe operations
  */
 export class ApiResponseWrapper<T> {
-  private readonly _response: ApiResponse<T> | ApiErrorResponse;
+  private readonly _response: ApiResponse<T> | ApiErrorResponse | PaginatedApiResponse<T>;
 
-  constructor(response: ApiResponse<T> | ApiErrorResponse) {
+  constructor(response: ApiResponse<T> | ApiErrorResponse | PaginatedApiResponse<T>) {
     this._response = response;
   }
 
-  get response(): ApiResponse<T> | ApiErrorResponse {
+  get response(): ApiResponse<T> | ApiErrorResponse | PaginatedApiResponse<T> {
     return this._response;
   }
 
-  get data(): T | undefined {
+  get data(): T | T[] | undefined {
     if (!this._response.success) {
       return undefined;
     }
-    return (this._response as ApiResponse<T>).data;
+    return (this._response as ApiResponse<T> | PaginatedApiResponse<T>).data;
   }
 
   get message(): string | undefined {
-    return this._response.message;
+    if (!this._response.success && 'error' in this._response) {
+      return this._response.error.message;
+    }
+    return (this._response as ApiResponse<T> | PaginatedApiResponse<T>).message;
   }
 
   get errors(): ApiError[] | undefined {
@@ -461,12 +504,12 @@ export class ApiResponseWrapper<T> {
     return this._response.success === false;
   }
 
-  getDataOrThrow(): T {
+  getDataOrThrow(): T | T[] {
     if (!this._response.success || !('data' in this._response)) {
       const error = this.errors?.[0];
       throw new Error(error?.message || 'API request failed');
     }
-    return (this._response as ApiResponse<T>).data;
+    return (this._response as ApiResponse<T> | PaginatedApiResponse<T>).data;
   }
 
   getErrorOrThrow(): ApiError {
@@ -480,6 +523,15 @@ export class ApiResponseWrapper<T> {
       code: 'UNKNOWN_ERROR',
       message: 'An unknown error occurred',
     };
+  }
+
+  isPaginated(): this is ApiResponseWrapper<ApiResponse<T>> {
+    return (
+      this._response.success === true &&
+      'metadata' in this._response &&
+      this._response.metadata?.page !== undefined &&
+      this._response.metadata?.totalPages !== undefined
+    );
   }
 }
 
