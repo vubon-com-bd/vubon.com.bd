@@ -243,6 +243,29 @@ export {
   getWebhookEndpoint,
   API_CONSTANTS,
   ALL_API_CONSTANTS,
+
+  //Cache constants
+  CACHE_KEY_PREFIXES,
+  CACHE_TTL,
+  ADAPTIVE_CACHE_TTL,
+  CACHE_INVALIDATION_PATTERNS,
+  CACHE_INVALIDATION_EVENTS,
+  CACHE_INVALIDATION_MAPPING,
+  CACHING_STRATEGIES,
+  CACHE_STRATEGY_CONFIG,
+  CACHE_METRICS,
+  CACHE_ERROR_MESSAGES,
+  CACHE_SUCCESS_MESSAGES,
+  DEFAULT_CACHE_CONFIGS,
+  buildCacheKey,
+  buildCacheKeyWithNamespace,
+  getAdaptiveTTL,
+  getTTLForDataType,
+  getCachePrefixForDataType,
+  getInvalidationPatterns,
+  generateInvalidationKeys,
+  CACHE_CONSTANTS,
+  ALL_CACHE_CONSTANTS,
 } from './auth';
 
 // Export all types
@@ -400,4 +423,16 @@ export type {
   APIErrorCode,
   APIEvent,
   APIConfig,
+
+  //Cache types
+  CacheKeyPrefix,
+  CacheTTL,
+  AdaptiveCacheTTL,
+  CacheInvalidationPattern,
+  CacheInvalidationEvent,
+  CachingStrategy,
+  CacheMetric,
+  CacheErrorMessage,
+  CacheSuccessMessage,
+  CacheConfig,
 } from './auth';
