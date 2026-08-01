@@ -2,20 +2,19 @@
 node_modules/
 .pnpm-store/
 
-# Build output
+# Build outputs
 dist/
 .next/
 out/
 build/
+*.tsbuildinfo
 
 # Environment files
-.env.local
+.env*
 .env.*.local
 
 # Logs
 *.log
-npm-debug.log*
-pnpm-debug.log*
 
 # OS files
 .DS_Store
@@ -24,12 +23,3 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
-*.swp
-*.swo
-
-# Testing
-coverage/
-
-# Temporary files
-*.tmp
-*.temp
