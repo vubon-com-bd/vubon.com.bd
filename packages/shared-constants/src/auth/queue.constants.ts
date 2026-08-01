@@ -397,9 +397,32 @@ export type RoutingKey =
   | (typeof ROUTING_KEYS.DEAD_LETTER)[keyof typeof ROUTING_KEYS.DEAD_LETTER];
 
 /**
+ * Base queue configuration type
+ */
+export interface QueueConfigItem {
+  concurrency: number;
+  maxAttempts: number;
+  backoff: {
+    type: 'exponential' | 'fixed';
+    delay: number;
+  };
+  removeOnComplete: {
+    age: number;
+    count: number;
+  };
+  removeOnFail: {
+    age: number;
+    count: number;
+  };
+  stalledInterval: number;
+  maxStalledCount: number;
+  lockDuration: number;
+}
+
+/**
  * Queue configuration for each queue
  */
-export const QUEUE_CONFIG = {
+export const QUEUE_CONFIG: Record<QueueName, QueueConfigItem> = {
   /**
    * Email queue configuration
    */
@@ -608,6 +631,29 @@ export const QUEUE_CONFIG = {
   },
 
   /**
+   * Courier BD queue configuration
+   */
+  [QUEUE_NAMES.COURIER_BD]: {
+    concurrency: 3,
+    maxAttempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 10000, // 10 seconds initial delay
+    },
+    removeOnComplete: {
+      age: 86400, // 24 hours
+      count: 1000,
+    },
+    removeOnFail: {
+      age: 259200, // 3 days
+      count: 10000,
+    },
+    stalledInterval: 60000, // 60 seconds
+    maxStalledCount: 3,
+    lockDuration: 90000, // 90 seconds
+  },
+
+  /**
    * Notification queue configuration
    */
   [QUEUE_NAMES.NOTIFICATION]: {
@@ -654,6 +700,29 @@ export const QUEUE_CONFIG = {
   },
 
   /**
+   * Report queue configuration
+   */
+  [QUEUE_NAMES.REPORT]: {
+    concurrency: 2,
+    maxAttempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 10000, // 10 seconds initial delay
+    },
+    removeOnComplete: {
+      age: 86400, // 24 hours
+      count: 500,
+    },
+    removeOnFail: {
+      age: 259200, // 3 days
+      count: 5000,
+    },
+    stalledInterval: 60000, // 60 seconds
+    maxStalledCount: 3,
+    lockDuration: 120000, // 120 seconds
+  },
+
+  /**
    * File processing queue configuration
    */
   [QUEUE_NAMES.FILE_PROCESSING]: {
@@ -674,6 +743,167 @@ export const QUEUE_CONFIG = {
     stalledInterval: 120000, // 120 seconds
     maxStalledCount: 2,
     lockDuration: 180000, // 180 seconds
+  },
+
+  /**
+   * Image processing queue configuration
+   */
+  [QUEUE_NAMES.IMAGE_PROCESSING]: {
+    concurrency: 2,
+    maxAttempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 15000, // 15 seconds initial delay
+    },
+    removeOnComplete: {
+      age: 3600, // 1 hour
+      count: 200,
+    },
+    removeOnFail: {
+      age: 86400, // 24 hours
+      count: 2000,
+    },
+    stalledInterval: 60000, // 60 seconds
+    maxStalledCount: 2,
+    lockDuration: 120000, // 120 seconds
+  },
+
+  /**
+   * Video processing queue configuration
+   */
+  [QUEUE_NAMES.VIDEO_PROCESSING]: {
+    concurrency: 1,
+    maxAttempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 60000, // 60 seconds initial delay
+    },
+    removeOnComplete: {
+      age: 86400, // 24 hours
+      count: 100,
+    },
+    removeOnFail: {
+      age: 259200, // 3 days
+      count: 1000,
+    },
+    stalledInterval: 180000, // 180 seconds
+    maxStalledCount: 2,
+    lockDuration: 300000, // 300 seconds
+  },
+
+  /**
+   * Data import queue configuration
+   */
+  [QUEUE_NAMES.DATA_IMPORT]: {
+    concurrency: 2,
+    maxAttempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 15000, // 15 seconds initial delay
+    },
+    removeOnComplete: {
+      age: 86400, // 24 hours
+      count: 500,
+    },
+    removeOnFail: {
+      age: 259200, // 3 days
+      count: 5000,
+    },
+    stalledInterval: 60000, // 60 seconds
+    maxStalledCount: 3,
+    lockDuration: 120000, // 120 seconds
+  },
+
+  /**
+   * Data export queue configuration
+   */
+  [QUEUE_NAMES.DATA_EXPORT]: {
+    concurrency: 2,
+    maxAttempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 10000, // 10 seconds initial delay
+    },
+    removeOnComplete: {
+      age: 86400, // 24 hours
+      count: 500,
+    },
+    removeOnFail: {
+      age: 259200, // 3 days
+      count: 5000,
+    },
+    stalledInterval: 60000, // 60 seconds
+    maxStalledCount: 3,
+    lockDuration: 120000, // 120 seconds
+  },
+
+  /**
+   * Backup queue configuration
+   */
+  [QUEUE_NAMES.BACKUP]: {
+    concurrency: 1,
+    maxAttempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 30000, // 30 seconds initial delay
+    },
+    removeOnComplete: {
+      age: 86400, // 24 hours
+      count: 100,
+    },
+    removeOnFail: {
+      age: 259200, // 3 days
+      count: 1000,
+    },
+    stalledInterval: 120000, // 120 seconds
+    maxStalledCount: 2,
+    lockDuration: 180000, // 180 seconds
+  },
+
+  /**
+   * Sync queue configuration
+   */
+  [QUEUE_NAMES.SYNC]: {
+    concurrency: 3,
+    maxAttempts: 5,
+    backoff: {
+      type: 'exponential',
+      delay: 10000, // 10 seconds initial delay
+    },
+    removeOnComplete: {
+      age: 86400, // 24 hours
+      count: 1000,
+    },
+    removeOnFail: {
+      age: 259200, // 3 days
+      count: 10000,
+    },
+    stalledInterval: 60000, // 60 seconds
+    maxStalledCount: 5,
+    lockDuration: 120000, // 120 seconds
+  },
+
+  /**
+   * Audit log queue configuration
+   */
+  [QUEUE_NAMES.AUDIT_LOG]: {
+    concurrency: 5,
+    maxAttempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 2000, // 2 seconds initial delay
+    },
+    removeOnComplete: {
+      age: 3600, // 1 hour
+      count: 1000,
+    },
+    removeOnFail: {
+      age: 86400, // 24 hours
+      count: 10000,
+    },
+    stalledInterval: 20000, // 20 seconds
+    maxStalledCount: 2,
+    lockDuration: 30000, // 30 seconds
   },
 
   /**
@@ -898,82 +1128,10 @@ export type QueueSuccessMessage =
   (typeof QUEUE_SUCCESS_MESSAGES)[keyof typeof QUEUE_SUCCESS_MESSAGES];
 
 /**
- * Queue configuration interface
- */
-export interface QueueConfig {
-  /**
-   * Queue name
-   */
-  name: QueueName;
-
-  /**
-   * Concurrency level
-   */
-  concurrency: number;
-
-  /**
-   * Maximum retry attempts
-   */
-  maxAttempts: number;
-
-  /**
-   * Backoff configuration
-   */
-  backoff: {
-    type: 'exponential' | 'fixed';
-    delay: number;
-  };
-
-  /**
-   * Remove on complete configuration
-   */
-  removeOnComplete: {
-    age: number;
-    count: number;
-  };
-
-  /**
-   * Remove on fail configuration
-   */
-  removeOnFail: {
-    age: number;
-    count: number;
-  };
-
-  /**
-   * Stalled interval in milliseconds
-   */
-  stalledInterval: number;
-
-  /**
-   * Maximum stalled count
-   */
-  maxStalledCount: number;
-
-  /**
-   * Lock duration in milliseconds
-   */
-  lockDuration: number;
-
-  /**
-   * Dead Letter Queue configuration
-   */
-  deadLetterQueue: {
-    enabled: boolean;
-    queueName: string;
-    maxRetries: number;
-  };
-}
-
-/**
  * Helper function to get queue config
  */
-export const getQueueConfig = (queueName: QueueName): QueueConfig => {
-  const config = QUEUE_CONFIG[queueName];
-  if (!config) {
-    return QUEUE_CONFIG[QUEUE_NAMES.DEFAULT] as QueueConfig;
-  }
-  return config as QueueConfig;
+export const getQueueConfig = (queueName: QueueName): QueueConfigItem => {
+  return QUEUE_CONFIG[queueName];
 };
 
 /**
@@ -986,9 +1144,8 @@ export const getDLQQueueName = (queueName: QueueName): string => {
 /**
  * Helper function to check if queue has DLQ enabled
  */
-export const isDLQEnabled = (queueName: QueueName): boolean => {
-  const config = getQueueConfig(queueName);
-  return config.deadLetterQueue?.enabled ?? DLQ_CONFIG.ENABLED;
+export const isDLQEnabled = (_queueName: QueueName): boolean => {
+  return DLQ_CONFIG.ENABLED;
 };
 
 /**
