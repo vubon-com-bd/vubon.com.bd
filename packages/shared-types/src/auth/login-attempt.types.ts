@@ -1,125 +1,122 @@
 /**
- * Login attempt and account lock type definitions for the monorepo
- * All login attempt and account lock types are centralized here for consistent usage across packages
+ * Login attempt-related type definitions for the monorepo
+ * All login attempt types are centralized here for consistent usage across packages
  */
 
 /**
  * Login attempt status types
- * Represents the status of a login attempt
+ * Represents the outcome of a login attempt
  */
-export type LoginAttemptStatus = 'SUCCESS' | 'FAILED' | 'BLOCKED' | 'PENDING';
+export type LoginAttemptStatus = 'SUCCESS' | 'FAILURE' | 'LOCKED' | 'RATE_LIMITED' | 'PENDING';
 
 /**
- * Lock level types
- * Represents the severity level of an account lock
+ * Login failure reason types
+ * Specific reasons for failed login attempts
  */
-export type LockLevel = 'LEVEL_1' | 'LEVEL_2' | 'LEVEL_3' | 'PERMANENT';
-
-/**
- * Lock reason types
- * Represents the reason for an account lock
- */
-export type LockReason =
-  'TOO_MANY_ATTEMPTS' | 'SUSPICIOUS_ACTIVITY' | 'ADMIN_ACTION' | 'SECURITY_BREACH';
+export type LoginFailureReason =
+  | 'INVALID_CREDENTIALS'
+  | 'ACCOUNT_LOCKED'
+  | 'RATE_LIMITED'
+  | 'ACCOUNT_SUSPENDED'
+  | 'ACCOUNT_DEACTIVATED'
+  | 'EMAIL_NOT_VERIFIED'
+  | 'MFA_REQUIRED'
+  | 'MFA_FAILED'
+  | 'IP_BLOCKED'
+  | 'DEVICE_UNTRUSTED'
+  | 'PASSWORD_EXPIRED'
+  | 'TOO_MANY_ATTEMPTS'
+  | 'SESSION_LIMIT_EXCEEDED'
+  | 'MAINTENANCE_MODE'
+  | 'UNKNOWN_ERROR';
 
 /**
  * Login attempt interface
- * Tracks individual login attempts for security monitoring
+ * Represents a single login attempt by a user
  */
 export interface LoginAttempt {
   /** Unique identifier for the login attempt */
   id: string;
-  /** User ID if known, null for unknown users */
-  userId?: string;
-  /** Email or username used for login */
-  identifier: string;
-  /** Status of the login attempt */
-  status: LoginAttemptStatus;
+  /** User ID if the user exists (null for non-existent users) */
+  userId: string | null;
+  /** Email address used for the login attempt */
+  email: string;
   /** IP address of the client */
   ipAddress: string;
-  /** User agent string from the client */
+  /** User agent string of the client */
   userAgent: string;
+  /** Status of the login attempt */
+  status: LoginAttemptStatus;
+  /** Failure reason if the attempt failed */
+  failureReason?: LoginFailureReason;
   /** Timestamp of the login attempt */
   timestamp: Date;
-  /** Failure reason if the attempt failed */
-  failureReason?: string;
-  /** Additional metadata */
-  metadata?: Record<string, unknown>;
+  /** Whether MFA was required for this attempt */
+  mfaRequired?: boolean;
+  /** Whether MFA was successfully verified */
+  mfaVerified?: boolean;
+  /** Session ID created if login was successful */
+  sessionId?: string;
 }
 
 /**
- * Account lock interface
- * Represents a locked account state
+ * Login attempt request interface
+ * Used when a user attempts to login
  */
-export interface AccountLock {
-  /** Unique identifier for the lock */
-  id: string;
-  /** User ID associated with the lock */
-  userId: string;
-  /** Reason for the lock */
-  reason: LockReason;
-  /** Severity level of the lock */
-  lockLevel: LockLevel;
-  /** Timestamp when the account was locked */
-  lockedAt: Date;
-  /** Timestamp when the lock expires */
-  expiresAt: Date;
-  /** Timestamp when the account was unlocked (null if still locked) */
-  unlockedAt?: Date;
-  /** Additional details about the lock */
-  details?: Record<string, unknown>;
-}
-
-/**
- * Security event interface
- * Tracks security-related events for auditing
- */
-export interface SecurityEvent {
-  /** Unique identifier for the event */
-  id: string;
-  /** User ID associated with the event */
-  userId: string;
-  /** Type of security event */
-  eventType:
-    | 'LOGIN_SUCCESS'
-    | 'LOGIN_FAILURE'
-    | 'ACCOUNT_LOCKED'
-    | 'ACCOUNT_UNLOCKED'
-    | 'PASSWORD_CHANGED'
-    | 'PASSWORD_RESET'
-    | 'MFA_VERIFIED'
-    | 'MFA_FAILED'
-    | 'SESSION_CREATED'
-    | 'SESSION_REVOKED'
-    | 'IP_BLOCKED'
-    | 'SUSPICIOUS_ACTIVITY';
-  /** IP address where the event originated */
+export interface LoginAttemptRequest {
+  /** Email address of the user */
+  email: string;
+  /** Password of the user */
+  password: string;
+  /** IP address of the client */
   ipAddress: string;
-  /** User agent string */
+  /** User agent string of the client */
   userAgent: string;
-  /** Timestamp of the event */
-  timestamp: Date;
-  /** Additional details about the event */
-  details?: Record<string, unknown>;
+  /** Device fingerprint if available */
+  deviceFingerprint?: string;
+  /** Whether to remember the user */
+  rememberMe?: boolean;
+  /** MFA code if required */
+  mfaCode?: string;
+  /** MFA recovery code if used */
+  mfaRecoveryCode?: string;
 }
 
 /**
- * Login attempt filter interface
- * Used for filtering login attempts in lists
+ * Login attempt response interface
+ * Response returned after a login attempt
  */
-export interface LoginAttemptFilter {
-  /** Filter by user ID */
-  userId?: string;
-  /** Filter by identifier (email/username) */
-  identifier?: string;
-  /** Filter by status */
-  status?: LoginAttemptStatus;
-  /** Filter by IP address */
-  ipAddress?: string;
-  /** Filter by date range - from */
-  fromDate?: Date;
-  /** Filter by date range - to */
-  toDate?: Date;
+export interface LoginAttemptResponse {
+  /** Whether the login was successful */
+  success: boolean;
+  /** Status of the login attempt */
+  status: LoginAttemptStatus;
+  /** Failure reason if the attempt failed */
+  failureReason?: LoginFailureReason;
+  /** Access token if login was successful */
+  accessToken?: string;
+  /** Refresh token if login was successful */
+  refreshToken?: string;
+  /** Token expiry in seconds */
+  expiresIn?: number;
+  /** User information if login was successful */
+  user?: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+  };
+  /** Whether MFA is required to complete login */
+  mfaRequired?: boolean;
+  /** Available MFA methods for the user */
+  mfaMethods?: string[];
+  /** Message for the user */
+  message?: string;
+  /** Number of remaining attempts before lockout */
+  remainingAttempts?: number;
+  /** Time until account unlock (in seconds) */
+  lockDuration?: number;
 }
 
 /**
@@ -129,154 +126,149 @@ export interface LoginAttemptFilter {
 export interface LoginAttemptStatistics {
   /** Total number of login attempts */
   totalAttempts: number;
-  /** Number of successful attempts */
+  /** Number of successful login attempts */
   successfulAttempts: number;
-  /** Number of failed attempts */
+  /** Number of failed login attempts */
   failedAttempts: number;
-  /** Number of blocked attempts */
-  blockedAttempts: number;
-  /** Success rate percentage */
+  /** Success rate as a percentage */
   successRate: number;
-  /** Failed attempts by IP address */
-  attemptsByIp: Record<string, number>;
-  /** Failed attempts by identifier (email/username) */
-  attemptsByIdentifier: Record<string, number>;
+  /** Recent attempts (last 24 hours) */
+  recentAttempts: {
+    total: number;
+    success: number;
+    failure: number;
+  };
+  /** Attempts by IP address (top 10) */
+  topIpAddresses: Array<{
+    ipAddress: string;
+    attempts: number;
+    successRate: number;
+  }>;
+  /** Attempts by failure reason */
+  failuresByReason: Record<LoginFailureReason, number>;
   /** Timestamp when statistics were calculated */
   calculatedAt: Date;
 }
 
 /**
- * Account lock filter interface
- * Used for filtering account locks in lists
+ * Login attempt filter interface
+ * Used for filtering login attempts in lists
  */
-export interface AccountLockFilter {
+export interface LoginAttemptFilter {
+  /** Filter by email address */
+  email?: string;
   /** Filter by user ID */
   userId?: string;
-  /** Filter by lock reason */
-  reason?: LockReason;
-  /** Filter by lock level */
-  lockLevel?: LockLevel;
-  /** Filter by lock status (active/expired/unlocked) */
-  status?: 'ACTIVE' | 'EXPIRED' | 'UNLOCKED';
-  /** Filter by date range - from */
-  fromDate?: Date;
-  /** Filter by date range - to */
-  toDate?: Date;
-}
-
-/**
- * Account unlock request interface
- * Used when unlocking an account
- */
-export interface AccountUnlockRequest {
-  /** User ID of the account to unlock */
-  userId: string;
-  /** Reason for unlocking */
-  reason: string;
-  /** Admin ID who is performing the unlock */
-  adminId?: string;
-  /** Additional notes */
-  notes?: string;
-}
-
-/**
- * Account lock request interface
- * Used when manually locking an account
- */
-export interface AccountLockRequest {
-  /** User ID of the account to lock */
-  userId: string;
-  /** Reason for locking */
-  reason: LockReason;
-  /** Lock level */
-  lockLevel: LockLevel;
-  /** Duration of lock in minutes (null for permanent) */
-  durationMinutes?: number;
-  /** Admin ID who is performing the lock */
-  adminId?: string;
-  /** Additional notes */
-  notes?: string;
-}
-
-/**
- * Security event filter interface
- * Used for filtering security events in lists
- */
-export interface SecurityEventFilter {
-  /** Filter by user ID */
-  userId?: string;
-  /** Filter by event type */
-  eventType?: SecurityEvent['eventType'];
+  /** Filter by status */
+  status?: LoginAttemptStatus;
+  /** Filter by failure reason */
+  failureReason?: LoginFailureReason;
   /** Filter by IP address */
   ipAddress?: string;
   /** Filter by date range - from */
   fromDate?: Date;
   /** Filter by date range - to */
   toDate?: Date;
+  /** Filter by MFA requirement */
+  mfaRequired?: boolean;
+  /** Filter by MFA verification status */
+  mfaVerified?: boolean;
 }
 
 /**
- * Login attempt response interface
- * Response when querying login attempts
+ * Login attempt list response interface
+ * Paginated list of login attempts
  */
-export interface LoginAttemptResponse {
-  /** List of login attempts */
+export interface LoginAttemptListResponse {
+  /** Array of login attempts */
   attempts: LoginAttempt[];
-  /** Total number of attempts matching the query */
+  /** Total number of attempts */
   total: number;
   /** Current page number */
   page: number;
   /** Number of attempts per page */
   limit: number;
+  /** Total number of pages */
+  totalPages: number;
 }
 
 /**
- * Account lock response interface
- * Response when querying account locks
+ * Login attempt summary interface
+ * Summary of login attempts for a user
  */
-export interface AccountLockResponse {
-  /** List of account locks */
-  locks: AccountLock[];
-  /** Total number of locks matching the query */
-  total: number;
-  /** Current page number */
-  page: number;
-  /** Number of locks per page */
-  limit: number;
+export interface LoginAttemptSummary {
+  /** User ID */
+  userId: string;
+  /** Email address */
+  email: string;
+  /** Total attempts */
+  totalAttempts: number;
+  /** Successful attempts */
+  successfulAttempts: number;
+  /** Failed attempts */
+  failedAttempts: number;
+  /** Last attempt timestamp */
+  lastAttemptAt?: Date;
+  /** Last successful attempt timestamp */
+  lastSuccessAt?: Date;
+  /** Last failed attempt timestamp */
+  lastFailureAt?: Date;
+  /** Current consecutive failures */
+  consecutiveFailures: number;
+  /** Whether the account is currently locked */
+  isLocked: boolean;
+  /** Account lock expiry timestamp */
+  lockExpiresAt?: Date;
+  /** Whether the account is rate limited */
+  isRateLimited: boolean;
+  /** Rate limit expiry timestamp */
+  rateLimitExpiresAt?: Date;
 }
 
 /**
- * Security event response interface
- * Response when querying security events
+ * Login attempt configuration interface
+ * Configuration for login attempt management
  */
-export interface SecurityEventResponse {
-  /** List of security events */
-  events: SecurityEvent[];
-  /** Total number of events matching the query */
-  total: number;
-  /** Current page number */
-  page: number;
-  /** Number of events per page */
-  limit: number;
-}
-
-/**
- * Login attempt rate limit interface
- * Used for tracking rate limiting for login attempts
- */
-export interface LoginRateLimit {
-  /** User ID or identifier being rate limited */
-  identifier: string;
-  /** Number of attempts in the current window */
-  attemptCount: number;
-  /** Maximum allowed attempts in the window */
+export interface LoginAttemptConfig {
+  /** Maximum login attempts before lockout */
   maxAttempts: number;
-  /** Window start timestamp */
-  windowStart: Date;
-  /** Window end timestamp */
-  windowEnd: Date;
-  /** Whether the identifier is currently blocked */
-  isBlocked: boolean;
-  /** Block expiry timestamp if blocked */
-  blockExpiry?: Date;
+  /** Lockout duration in minutes */
+  lockoutDurationMinutes: number;
+  /** Rate limit window in minutes */
+  rateLimitWindowMinutes: number;
+  /** Maximum attempts in rate limit window */
+  maxAttemptsInWindow: number;
+  /** Time window for resetting attempts in minutes */
+  resetAttemptsAfterMinutes: number;
+  /** Whether to enable IP-based blocking */
+  enableIpBlocking: boolean;
+  /** Maximum attempts from an IP before blocking */
+  maxAttemptsFromIp: number;
+  /** IP block duration in minutes */
+  ipBlockDurationMinutes: number;
+  /** Whether to enable device fingerprint tracking */
+  enableDeviceFingerprinting: boolean;
+  /** Whether to log all attempts */
+  logAllAttempts: boolean;
+  /** Whether to notify on suspicious activity */
+  notifyOnSuspiciousActivity: boolean;
+}
+
+/**
+ * Account lock status interface
+ * Represents the lock status of a user account
+ */
+export interface AccountLockStatus {
+  /** Whether the account is locked */
+  isLocked: boolean;
+  /** Reason for the lock */
+  reason: LoginFailureReason;
+  /** Lock expiry timestamp */
+  expiresAt?: Date;
+  /** Time remaining in seconds */
+  remainingSeconds?: number;
+  /** Number of failed attempts that caused the lock */
+  failedAttempts: number;
+  /** Whether the lock can be manually overridden */
+  canBeOverridden: boolean;
 }
