@@ -169,5 +169,29 @@ export type {
   MFAMethodStatus,
 } from './mfa.types';
 
+// Export social types
+export type {
+  SocialProvider,
+  SocialLoginRequest,
+  SocialLoginResponse,
+  SocialAccount,
+  LinkSocialAccountRequest,
+  LinkSocialAccountResponse,
+  UnlinkSocialAccountRequest,
+  UnlinkSocialAccountResponse,
+  SocialAccountListResponse,
+  SocialProviderConfig,
+  SocialUserProfile,
+  SocialAuthTokenResponse,
+  SocialAuthState,
+  SocialLoginParams,
+  SocialLoginUrlResponse,
+  SocialAccountFilter,
+  SocialEvent,
+  SocialErrorType,
+  SocialErrorResponse,
+  SocialConfig,
+} from './social.types';
+
 // Re-export shared constants types
 export type { DefaultRole } from '@vubon/shared-constants';
