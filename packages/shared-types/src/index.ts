@@ -1,14 +1,13 @@
-// Shared types for authentication
-export interface User {
-  id: string;
-  email: string;
-  name?: string;
-}
+/**
+ * Shared types module entry point
+ * Exports all types from all sub-modules
+ */
 
-export interface AuthToken {
-  accessToken: string;
-  refreshToken: string;
-  expiresIn: number;
-}
+// Export all auth types
+export * from './auth';
 
-export type UserRole = 'user' | 'admin' | 'super_admin';
+// Export all common types
+export * from './common';
+
+// Re-export specific types/constants from shared-constants if needed
+export { DefaultRole } from '@vubon/shared-constants';
