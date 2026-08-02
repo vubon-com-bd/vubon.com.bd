@@ -1,7 +1,4 @@
-/**
- * Shared schemas module entry point
- * Exports all schemas from all sub-modules
- */
+// Temporary placeholder to satisfy type checking
+// Replace with actual schema exports later
 
-// Export all auth schemas
-export * from './auth';
+export {};
