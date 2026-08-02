@@ -142,5 +142,32 @@ export type {
   ChangePasswordResponse,
 } from './password-reset.types';
 
+// Export MFA types
+export type {
+  MFAStatus,
+  MFAType,
+  MFA,
+  MFAMethod,
+  EnableMFARequest,
+  VerifyMFARequest,
+  VerifyMFAResponse,
+  MFAStatusResponse,
+  DisableMFARequest,
+  DisableMFAResponse,
+  GenerateBackupCodesRequest,
+  GenerateBackupCodesResponse,
+  MFAConfig,
+  MFAVerificationAttempt,
+  MFAEvent,
+  MFAChallengeRequest,
+  MFAChallengeResponse,
+  MFARecoveryRequest,
+  MFARecoveryResponse,
+  MFALockStatus,
+  MFATrustDeviceRequest,
+  MFATrustDeviceResponse,
+  MFAMethodStatus,
+} from './mfa.types';
+
 // Re-export shared constants types
 export type { DefaultRole } from '@vubon/shared-constants';
