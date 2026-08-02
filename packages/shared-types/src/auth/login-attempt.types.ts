@@ -20,10 +20,7 @@ export type LockLevel = 'LEVEL_1' | 'LEVEL_2' | 'LEVEL_3' | 'PERMANENT';
  * Represents the reason for an account lock
  */
 export type LockReason =
-  | 'TOO_MANY_ATTEMPTS'
-  | 'SUSPICIOUS_ACTIVITY'
-  | 'ADMIN_ACTION'
-  | 'SECURITY_BREACH';
+  'TOO_MANY_ATTEMPTS' | 'SUSPICIOUS_ACTIVITY' | 'ADMIN_ACTION' | 'SECURITY_BREACH';
 
 /**
  * Login attempt interface
