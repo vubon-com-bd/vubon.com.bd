@@ -1,4 +1,3 @@
-// packages/shared-types/src/common/index.ts
 /**
  * Common types module exports
  * Central export point for all common types
@@ -49,3 +48,29 @@ export {
   ApiResponseWrapper,
   ApiRequestBuilder,
 } from './api.types';
+
+// Export all pagination types
+export type {
+  PaginationMetadata,
+  PaginationParams as PaginationRequestParams,
+  PaginatedResponse,
+  PagePaginationRequest,
+  CursorPaginationRequest,
+  CursorPaginationMetadata,
+  CursorPaginatedResponse,
+  OffsetPaginationRequest,
+  OffsetPaginationMetadata,
+  OffsetPaginatedResponse,
+  PaginationSortOption,
+  PaginationFilterOption,
+  PaginationConfig,
+  PaginationError,
+  PaginationValidationResult,
+  PaginationStats,
+  PaginationState,
+  PaginationDataSource,
+  PaginationStateChange,
+  PaginationBuilderOptions,
+  PaginationUIConfig,
+  PaginationStore,
+} from './pagination.types';
