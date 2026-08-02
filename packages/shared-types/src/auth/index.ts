@@ -117,5 +117,30 @@ export type {
   EmailVerificationValidationResult,
 } from './verification.types';
 
+// Export password reset types
+export type {
+  PasswordResetStatus,
+  PasswordReset,
+  ForgotPasswordRequest,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
+  ValidateResetTokenRequest,
+  ValidateResetTokenResponse,
+  ResendResetEmailRequest,
+  ResendResetEmailResponse,
+  PasswordResetStatusResponse,
+  PasswordResetConfig,
+  PasswordResetStatistics,
+  PasswordResetFilter,
+  PasswordResetListResponse,
+  PasswordResetEvent,
+  PasswordResetWebhookPayload,
+  PasswordResetTokenGeneration,
+  PasswordResetValidationResult,
+  PasswordResetSecurityCheck,
+  ChangePasswordRequest,
+  ChangePasswordResponse,
+} from './password-reset.types';
+
 // Re-export shared constants types
 export type { DefaultRole } from '@vubon/shared-constants';
