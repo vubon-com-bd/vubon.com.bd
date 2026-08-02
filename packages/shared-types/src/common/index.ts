@@ -52,7 +52,7 @@ export {
 // Export all pagination types
 export type {
   PaginationMetadata,
-  PaginationParams as PaginationRequestParams,
+  PaginationRequestParams,
   PaginatedResponse,
   PagePaginationRequest,
   CursorPaginationRequest,
@@ -74,3 +74,23 @@ export type {
   PaginationUIConfig,
   PaginationStore,
 } from './pagination.types';
+
+// Export all audit types
+export type {
+  AuditAction,
+  AuditSeverity,
+  AuditStatus,
+  AuditLogEntry,
+  AuditDetails,
+  AuditFilter,
+  AuditListResponse,
+  AuditStatistics,
+  AuditConfig,
+  AuditEvent,
+  AuditSummary,
+  AuditRetentionPolicy,
+  AuditSearchRequest,
+  AuditExportRequest,
+  AuditExportResponse,
+  AuditAlertRule,
+} from './audit.types';
