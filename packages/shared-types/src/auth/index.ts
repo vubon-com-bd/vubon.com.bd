@@ -193,5 +193,33 @@ export type {
   SocialConfig,
 } from './social.types';
 
+// Export role types
+export type {
+  BaseRole,
+  Role,
+  RoleAssignment,
+  CreateRoleRequest,
+  UpdateRoleRequest,
+  AssignRoleRequest,
+  AssignRoleResponse,
+  RemoveRoleRequest,
+  RemoveRoleResponse,
+  RoleListResponse,
+  UserRoleResponse,
+  RoleHierarchy,
+  PermissionCheck,
+  RoleFilter,
+  RoleValidationResult,
+  RoleStatistics,
+  RoleEvent,
+  RoleInheritanceTree,
+  RolePermissionsResponse,
+  BulkRoleAssignmentRequest,
+  BulkRoleAssignmentResponse,
+  RolePermissionsCheckRequest,
+  RolePermissionsCheckResponse,
+  RoleConfig,
+} from './role.types';
+
 // Re-export shared constants types
 export type { DefaultRole } from '@vubon/shared-constants';
