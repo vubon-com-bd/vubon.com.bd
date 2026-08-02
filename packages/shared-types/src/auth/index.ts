@@ -249,5 +249,37 @@ export type {
   PermissionSetRequest,
 } from './permission.types';
 
+// Export device types
+export type {
+  DeviceType,
+  DeviceOS,
+  DeviceBrowser,
+  DeviceVendor,
+  DeviceTrustLevel,
+  DeviceOrientation,
+  DeviceConnectionType,
+  MobileNetworkOperator,
+  Device,
+  DeviceMetadata,
+  DeviceLocation,
+  DeviceCapabilities,
+  DeviceStatus,
+  DeviceTrustScore,
+  DeviceFingerprint,
+  DeviceRegistrationRequest,
+  DeviceRegistrationResponse,
+  DeviceVerificationRequest,
+  DeviceVerificationResponse,
+  DeviceTrustRequest,
+  DeviceTrustResponse,
+  DeviceListResponse,
+  DeviceFilter,
+  DeviceStatistics,
+  DeviceConfig,
+  DeviceEvent,
+  DeviceSessionInfo,
+  DeviceNetworkInfo,
+} from './device.types';
+
 // Re-export shared constants types
 export type { DefaultRole } from '@vubon/shared-constants';
