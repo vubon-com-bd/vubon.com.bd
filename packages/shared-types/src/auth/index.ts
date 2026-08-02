@@ -97,5 +97,25 @@ export type {
   AccountLockAudit,
 } from './account-lock.types';
 
+// Export verification types
+export type {
+  EmailVerificationStatus,
+  EmailVerification,
+  SendVerificationEmailRequest,
+  VerifyEmailRequest,
+  VerifyEmailResponse,
+  ResendVerificationEmailRequest,
+  ResendVerificationEmailResponse,
+  EmailVerificationStatusResponse,
+  EmailVerificationConfig,
+  EmailVerificationStatistics,
+  EmailVerificationFilter,
+  EmailVerificationListResponse,
+  EmailVerificationEvent,
+  EmailVerificationWebhookPayload,
+  EmailVerificationTokenGeneration,
+  EmailVerificationValidationResult,
+} from './verification.types';
+
 // Re-export shared constants types
 export type { DefaultRole } from '@vubon/shared-constants';
