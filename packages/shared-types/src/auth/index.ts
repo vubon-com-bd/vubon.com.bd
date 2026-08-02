@@ -78,5 +78,24 @@ export type {
   AccountLockStatus,
 } from './login-attempt.types';
 
+// Export account lock types
+export type {
+  LockLevel,
+  LockReason,
+  AccountLock,
+  AccountLockRequest,
+  AccountUnlockRequest,
+  AccountLockResponse,
+  AccountLockStatus as AccountLockStatusType,
+  SecurityEventType,
+  SecurityEvent,
+  SecurityEventFilter,
+  SecurityEventListResponse,
+  SecurityEventStatistics,
+  AccountLockConfig,
+  AccountLockHistory,
+  AccountLockAudit,
+} from './account-lock.types';
+
 // Re-export shared constants types
 export type { DefaultRole } from '@vubon/shared-constants';
