@@ -63,5 +63,20 @@ export type {
   TokenValidationContext,
 } from './token.types';
 
+// Export login attempt types
+export type {
+  LoginAttemptStatus,
+  LoginFailureReason,
+  LoginAttempt,
+  LoginAttemptRequest,
+  LoginAttemptResponse,
+  LoginAttemptStatistics,
+  LoginAttemptFilter,
+  LoginAttemptListResponse,
+  LoginAttemptSummary,
+  LoginAttemptConfig,
+  AccountLockStatus,
+} from './login-attempt.types';
+
 // Re-export shared constants types
 export type { DefaultRole } from '@vubon/shared-constants';
