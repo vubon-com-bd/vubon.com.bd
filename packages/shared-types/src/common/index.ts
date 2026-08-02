@@ -94,3 +94,26 @@ export type {
   AuditExportResponse,
   AuditAlertRule,
 } from './audit.types';
+
+// Export all SEO types
+export type {
+  MetaTag,
+  OpenGraphTags,
+  OpenGraphImage,
+  OpenGraphAudio,
+  OpenGraphVideo,
+  TwitterCardTags,
+  JsonLdData,
+  SeoData,
+  RobotsDirectives,
+  AlternateLink,
+  VerificationTags,
+  BreadcrumbItem,
+  SitemapConfig,
+  SitemapImage,
+  SeoMetadata,
+  SeoConfig,
+  SeoAnalysisResult,
+  SeoIssue,
+  SeoEvent,
+} from './seo.types';
