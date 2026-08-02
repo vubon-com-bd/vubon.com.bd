@@ -66,16 +66,21 @@ export type {
 // Export login attempt types
 export type {
   LoginAttemptStatus,
-  LoginFailureReason,
+  LockLevel,
+  LockReason,
   LoginAttempt,
-  LoginAttemptRequest,
-  LoginAttemptResponse,
-  LoginAttemptStatistics,
+  AccountLock,
+  SecurityEvent,
   LoginAttemptFilter,
-  LoginAttemptListResponse,
-  LoginAttemptSummary,
-  LoginAttemptConfig,
-  AccountLockStatus,
+  LoginAttemptStatistics,
+  AccountLockFilter,
+  AccountUnlockRequest,
+  AccountLockRequest,
+  SecurityEventFilter,
+  LoginAttemptResponse,
+  AccountLockResponse,
+  SecurityEventResponse,
+  LoginRateLimit,
 } from './login-attempt.types';
 
 // Re-export shared constants types

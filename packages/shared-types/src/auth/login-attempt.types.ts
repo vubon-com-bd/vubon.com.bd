@@ -19,7 +19,11 @@ export type LockLevel = 'LEVEL_1' | 'LEVEL_2' | 'LEVEL_3' | 'PERMANENT';
  * Lock reason types
  * Represents the reason for an account lock
  */
-export type LockReason = 'TOO_MANY_ATTEMPTS' | 'SUSPICIOUS_ACTIVITY' | 'ADMIN_ACTION' | 'SECURITY_BREACH';
+export type LockReason =
+  | 'TOO_MANY_ATTEMPTS'
+  | 'SUSPICIOUS_ACTIVITY'
+  | 'ADMIN_ACTION'
+  | 'SECURITY_BREACH';
 
 /**
  * Login attempt interface
@@ -79,9 +83,19 @@ export interface SecurityEvent {
   /** User ID associated with the event */
   userId: string;
   /** Type of security event */
-  eventType: 'LOGIN_SUCCESS' | 'LOGIN_FAILURE' | 'ACCOUNT_LOCKED' | 'ACCOUNT_UNLOCKED' | 
-    'PASSWORD_CHANGED' | 'PASSWORD_RESET' | 'MFA_VERIFIED' | 'MFA_FAILED' | 
-    'SESSION_CREATED' | 'SESSION_REVOKED' | 'IP_BLOCKED' | 'SUSPICIOUS_ACTIVITY';
+  eventType:
+    | 'LOGIN_SUCCESS'
+    | 'LOGIN_FAILURE'
+    | 'ACCOUNT_LOCKED'
+    | 'ACCOUNT_UNLOCKED'
+    | 'PASSWORD_CHANGED'
+    | 'PASSWORD_RESET'
+    | 'MFA_VERIFIED'
+    | 'MFA_FAILED'
+    | 'SESSION_CREATED'
+    | 'SESSION_REVOKED'
+    | 'IP_BLOCKED'
+    | 'SUSPICIOUS_ACTIVITY';
   /** IP address where the event originated */
   ipAddress: string;
   /** User agent string */
