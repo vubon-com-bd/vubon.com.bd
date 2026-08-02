@@ -259,7 +259,15 @@ export interface MFAVerificationAttempt {
  */
 export interface MFAEvent {
   /** Type of MFA event */
-  type: 'ENABLED' | 'DISABLED' | 'VERIFIED' | 'FAILED' | 'LOCKED' | 'UNLOCKED' | 'BACKUP_USED' | 'BACKUP_GENERATED';
+  type:
+    | 'ENABLED'
+    | 'DISABLED'
+    | 'VERIFIED'
+    | 'FAILED'
+    | 'LOCKED'
+    | 'UNLOCKED'
+    | 'BACKUP_USED'
+    | 'BACKUP_GENERATED';
   /** User ID */
   userId: string;
   /** Type of MFA method */
