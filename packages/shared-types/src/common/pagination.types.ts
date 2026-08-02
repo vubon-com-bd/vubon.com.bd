@@ -32,7 +32,7 @@ export interface PaginationMetadata {
  * Pagination request parameters interface
  * Used when requesting paginated data
  */
-export interface PaginationParams {
+export interface PaginationRequestParams {
   /** Page number (default: 1) */
   page?: number;
   /** Number of items per page (default: 10) */
@@ -62,7 +62,7 @@ export interface PaginatedResponse<T> {
  * Page-based pagination request interface
  * Request using page and limit parameters
  */
-export interface PagePaginationRequest extends PaginationParams {
+export interface PagePaginationRequest extends PaginationRequestParams {
   /** Page number (1-indexed) */
   page: number;
   /** Number of items per page */
@@ -248,7 +248,7 @@ export interface PaginationValidationResult {
   /** Whether the parameters are valid */
   isValid: boolean;
   /** Validated and normalized parameters */
-  params?: PaginationParams;
+  params?: PaginationRequestParams;
   /** Errors if validation failed */
   errors?: PaginationError[];
 }
