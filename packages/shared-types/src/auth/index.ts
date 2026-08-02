@@ -221,5 +221,33 @@ export type {
   RoleConfig,
 } from './role.types';
 
+// Export permission types
+export type {
+  PermissionResource,
+  PermissionAction,
+  Permission,
+  PermissionDefinition,
+  PermissionCheckRequest,
+  PermissionCheckResponse,
+  BulkPermissionCheckRequest,
+  BulkPermissionCheckResponse,
+  GrantPermissionRequest,
+  GrantPermissionResponse,
+  RevokePermissionRequest,
+  RevokePermissionResponse,
+  PermissionListResponse,
+  PermissionFilter,
+  UserPermissionResponse,
+  PermissionStatistics,
+  PermissionValidationResult,
+  PermissionEvent,
+  PermissionConfig,
+  PermissionHierarchy,
+  PermissionAssignment,
+  PermissionCheckOptions,
+  PermissionSet,
+  PermissionSetRequest,
+} from './permission.types';
+
 // Re-export shared constants types
 export type { DefaultRole } from '@vubon/shared-constants';
