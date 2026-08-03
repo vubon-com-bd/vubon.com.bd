@@ -19,7 +19,7 @@ export {
   UsernameLoginSchema,
   RefreshTokenSchema,
   LogoutSchema,
-  RevokeAllSessionsSchema,
+  RevokeAllSessionsSchema as LogoutRevokeAllSessionsSchema,
   validateLogin,
   safeValidateLogin,
   validatePhoneLogin,
@@ -30,14 +30,14 @@ export {
   safeValidateRefreshToken,
   validateLogout,
   safeValidateLogout,
-  validateRevokeAllSessions,
-  safeValidateRevokeAllSessions,
+  validateRevokeAllSessions as validateLogoutRevokeAllSessions,
+  safeValidateRevokeAllSessions as safeValidateLogoutRevokeAllSessions,
   type LoginSchemaType,
   type PhoneLoginSchemaType,
   type UsernameLoginSchemaType,
   type RefreshTokenSchemaType,
   type LogoutSchemaType,
-  type RevokeAllSessionsSchemaType,
+  type RevokeAllSessionsSchemaType as LogoutRevokeAllSessionsSchemaType,
 } from './login.schema';
 
 // Export verification schemas
@@ -151,3 +151,15 @@ export {
   type UpdateProfileSchemaType,
   type DeleteAccountSchemaType,
 } from './user.schema';
+
+// Export session schemas
+export {
+  SessionIdSchema,
+  RevokeAllSessionsSchema as SessionRevokeAllSessionsSchema,
+  validateSessionId,
+  safeValidateSessionId,
+  validateRevokeAllSessions as validateSessionRevokeAllSessions,
+  safeValidateRevokeAllSessions as safeValidateSessionRevokeAllSessions,
+  type SessionIdSchemaType,
+  type RevokeAllSessionsSchemaType as SessionRevokeAllSessionsSchemaType,
+} from './session.schema';
