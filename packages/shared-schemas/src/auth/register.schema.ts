@@ -1,156 +1,169 @@
 import { z } from 'zod';
-import { PASSWORD_REGEX, PASSWORD_POLICY } from '@vubon/shared-constants';
+import { PASSWORD_POLICY, PHONE_REGEX, EMAIL_REGEX } from '@vubon/shared-constants';
+import type { CreateUserRequest } from '@vubon/shared-types';
 
 /**
- * Registration schema for validating user registration requests
+ * Schema for validating user registration requests
+ * Uses Zod for runtime validation with comprehensive rules
  */
 export const RegisterSchema = z
   .object({
     /**
-     * User's email address
-     * - Must be a valid email format
-     * - Will be normalized to lowercase
+     * Email address - must be valid format and will be normalized
      */
     email: z
-      .string()
+      .string({
+        required_error: 'Email is required',
+        invalid_type_error: 'Email must be a string',
+      })
+      .trim()
       .min(1, 'Email is required')
       .email('Please provide a valid email address')
-      .transform((val) => val.toLowerCase().trim()),
+      .regex(EMAIL_REGEX.STANDARD, 'Email format is invalid')
+      .transform((val) => val.toLowerCase()),
 
     /**
-     * User's password
-     * - Uses PASSWORD_POLICY from shared-constants
-     * - Validates complexity via PASSWORD_REGEX
+     * Password - must meet complexity requirements
+     * - Minimum length: 8 characters
+     * - Maximum length: 128 characters
+     * - At least one uppercase letter
+     * - At least one lowercase letter
+     * - At least one number
+     * - At least one special character
      */
     password: z
-      .string()
+      .string({
+        required_error: 'Password is required',
+        invalid_type_error: 'Password must be a string',
+      })
       .min(
         PASSWORD_POLICY.MIN_LENGTH,
-        `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters long`
+        `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters`
       )
       .max(
         PASSWORD_POLICY.MAX_LENGTH,
-        `Password must not exceed ${PASSWORD_POLICY.MAX_LENGTH} characters`
+        `Password cannot exceed ${PASSWORD_POLICY.MAX_LENGTH} characters`
       )
-      .regex(
-        PASSWORD_REGEX.STRONG,
-        'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
+      .refine(
+        (val) => (PASSWORD_POLICY.REQUIRE_UPPERCASE ? /[A-Z]/.test(val) : true),
+        'Password must contain at least one uppercase letter'
+      )
+      .refine(
+        (val) => (PASSWORD_POLICY.REQUIRE_LOWERCASE ? /[a-z]/.test(val) : true),
+        'Password must contain at least one lowercase letter'
+      )
+      .refine(
+        (val) => (PASSWORD_POLICY.REQUIRE_NUMBER ? /\d/.test(val) : true),
+        'Password must contain at least one number'
+      )
+      .refine(
+        (val) =>
+          PASSWORD_POLICY.REQUIRE_SPECIAL_CHAR
+            ? /[!@#$%^&*()_+\-=\[\]{};:'",.<>?/\\|`~]/.test(val)
+            : true,
+        'Password must contain at least one special character'
       ),
 
     /**
-     * User's first name
-     * - Must be at least 1 character
-     * - Will be trimmed
+     * User's first name - required field
      */
     firstName: z
-      .string()
+      .string({
+        required_error: 'First name is required',
+        invalid_type_error: 'First name must be a string',
+      })
+      .trim()
       .min(1, 'First name is required')
-      .max(50, 'First name must not exceed 50 characters')
-      .transform((val) => val.trim()),
+      .max(50, 'First name cannot exceed 50 characters')
+      .regex(
+        /^[a-zA-Z\s\-']+$/,
+        'First name can only contain letters, spaces, hyphens, and apostrophes'
+      )
+      .transform((val) =>
+        val
+          .trim()
+          .split(/\s+/)
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+          .join(' ')
+      ),
 
     /**
-     * User's last name
-     * - Must be at least 1 character
-     * - Will be trimmed
+     * User's last name - required field
      */
     lastName: z
-      .string()
+      .string({
+        required_error: 'Last name is required',
+        invalid_type_error: 'Last name must be a string',
+      })
+      .trim()
       .min(1, 'Last name is required')
-      .max(50, 'Last name must not exceed 50 characters')
-      .transform((val) => val.trim()),
+      .max(50, 'Last name cannot exceed 50 characters')
+      .regex(
+        /^[a-zA-Z\s\-']+$/,
+        'Last name can only contain letters, spaces, hyphens, and apostrophes'
+      )
+      .transform((val) =>
+        val
+          .trim()
+          .split(/\s+/)
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+          .join(' ')
+      ),
 
     /**
-     * User's phone number (optional)
-     * - Must be a valid Bangladeshi phone number
+     * Phone number - optional field with Bangladeshi format validation
+     * Valid formats: 01XXXXXXXXX, +8801XXXXXXXXX, 8801XXXXXXXXX
      */
     phone: z
       .string()
       .optional()
-      .refine((val) => !val || /^(?:\+8801|01)[3-9]\d{8}$/.test(val), {
-        message:
-          'Please provide a valid Bangladeshi phone number (e.g., 01XXXXXXXXX or +8801XXXXXXXXX)',
-      }),
-
-    /**
-     * Accept terms and conditions
-     * - Must be true
-     */
-    acceptTerms: z.boolean().refine((val) => val === true, {
-      message: 'You must accept the terms and conditions',
-    }),
-
-    /**
-     * Accept privacy policy (optional)
-     */
-    acceptPrivacy: z.boolean().optional().default(false),
+      .refine(
+        (val) => {
+          if (!val) return true;
+          // Check if phone matches Bangladeshi format
+          return (
+            PHONE_REGEX.INTERNATIONAL.test(val) ||
+            PHONE_REGEX.WITH_COUNTRY_CODE.test(val) ||
+            /^01[3-9]\d{8}$/.test(val) // Bangladeshi mobile format
+          );
+        },
+        {
+          message:
+            'Please provide a valid phone number. Supported formats: 01XXXXXXXXX, +8801XXXXXXXXX, 8801XXXXXXXXX',
+        }
+      ),
   })
-  .strict();
+  .strict(); // Prevent extra fields
 
 /**
- * Type inference for RegisterSchema
+ * Type inference for registration schema
  */
 export type RegisterSchemaType = z.infer<typeof RegisterSchema>;
 
 /**
- * Partial registration schema for updates
+ * Type for validated and typed registration data
+ * This matches the CreateUserRequest from shared-types
  */
-export const UpdateRegisterSchema = RegisterSchema.partial();
+export type ValidatedRegisterData = RegisterSchemaType;
 
 /**
- * Type inference for UpdateRegisterSchema
+ * Validates registration data and returns typed result
  */
-export type UpdateRegisterSchemaType = z.infer<typeof UpdateRegisterSchema>;
+export function validateRegistration(data: unknown): ValidatedRegisterData {
+  return RegisterSchema.parse(data);
+}
 
 /**
- * Registration response schema
+ * Safely validates registration data without throwing
  */
-export const RegisterResponseSchema = z.object({
-  success: z.boolean(),
-  message: z.string(),
-  userId: z.string().uuid().optional(),
-  requiresEmailVerification: z.boolean().optional(),
-});
-
-/**
- * Type inference for RegisterResponseSchema
- */
-export type RegisterResponseSchemaType = z.infer<typeof RegisterResponseSchema>;
-
-/**
- * Registration validation utility
- */
-export const RegistrationValidator = {
-  /**
-   * Validate a registration request
-   */
-  validate: (data: unknown) => RegisterSchema.safeParse(data),
-
-  /**
-   * Validate a registration request and throw if invalid
-   */
-  validateOrThrow: (data: unknown) => RegisterSchema.parse(data),
-
-  /**
-   * Partially validate a registration request
-   */
-  validatePartial: (data: unknown) => UpdateRegisterSchema.safeParse(data),
-};
-
-/**
- * Custom error messages for registration validation
- */
-export const REGISTRATION_ERROR_MESSAGES = {
-  EMAIL_REQUIRED: 'Email is required',
-  EMAIL_INVALID: 'Please provide a valid email address',
-  PASSWORD_REQUIRED: 'Password is required',
-  PASSWORD_MIN_LENGTH: `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters long`,
-  PASSWORD_MAX_LENGTH: `Password must not exceed ${PASSWORD_POLICY.MAX_LENGTH} characters`,
-  PASSWORD_COMPLEXITY:
-    'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
-  FIRST_NAME_REQUIRED: 'First name is required',
-  FIRST_NAME_MAX_LENGTH: 'First name must not exceed 50 characters',
-  LAST_NAME_REQUIRED: 'Last name is required',
-  LAST_NAME_MAX_LENGTH: 'Last name must not exceed 50 characters',
-  PHONE_INVALID: 'Please provide a valid Bangladeshi phone number',
-  TERMS_REQUIRED: 'You must accept the terms and conditions',
-};
+export function safeValidateRegistration(data: unknown): {
+  success: boolean;
+  data?: ValidatedRegisterData;
+  error?: z.ZodError;
+} {
+  const result = RegisterSchema.safeParse(data);
+  if (result.success) {
+    return { success: true, data: result.data };
+  }
+  return { success: false, error: result.error };
+}

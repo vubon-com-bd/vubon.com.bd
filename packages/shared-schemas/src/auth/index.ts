@@ -1,88 +1,13 @@
-export {
-  LoginSchema,
-  PhoneLoginSchema,
-  UsernameLoginSchema,
-  FlexibleLoginSchema,
-  RefreshTokenSchema,
-  LogoutSchema,
-  RevokeAllSessionsSchema,
-  LoginValidator,
-  LOGIN_ERROR_MESSAGES,
-  type LoginSchemaType,
-  type PhoneLoginSchemaType,
-  type UsernameLoginSchemaType,
-  type FlexibleLoginSchemaType,
-  type RefreshTokenSchemaType,
-  type LogoutSchemaType,
-  type RevokeAllSessionsSchemaType,
-} from './login.schema';
+/**
+ * Auth schemas module exports
+ * Central export point for all authentication-related validation schemas
+ */
 
-// Export from register.schema
+// Export register schemas
 export {
   RegisterSchema,
-  UpdateRegisterSchema,
-  RegisterResponseSchema,
-  RegistrationValidator,
-  REGISTRATION_ERROR_MESSAGES,
+  validateRegistration,
+  safeValidateRegistration,
   type RegisterSchemaType,
-  type UpdateRegisterSchemaType,
-  type RegisterResponseSchemaType,
+  type ValidatedRegisterData,
 } from './register.schema';
-
-// Export from verification.schema
-export {
-  SendVerificationEmailSchema,
-  VerifyEmailSchema,
-  ResendVerificationEmailSchema,
-  VerifyEmailResponseSchema,
-  EmailVerificationStatusSchema,
-  ResendVerificationEmailResponseSchema,
-  VerificationTokenSchema,
-  VerificationValidator,
-  VERIFICATION_ERROR_MESSAGES,
-  type SendVerificationEmailSchemaType,
-  type VerifyEmailSchemaType,
-  type ResendVerificationEmailSchemaType,
-  type VerifyEmailResponseSchemaType,
-  type EmailVerificationStatusSchemaType,
-  type ResendVerificationEmailResponseSchemaType,
-  type VerificationTokenSchemaType,
-} from './verification.schema';
-
-// Export from mfa.schema
-export {
-  EnableMFASchema,
-  VerifyMFASchema,
-  DisableMFASchema,
-  GenerateBackupCodesSchema,
-  VerifyMFAResponseSchema,
-  MFAStatusResponseSchema,
-  GenerateBackupCodesResponseSchema,
-  DisableMFAResponseSchema,
-  MFAChallengeRequestSchema,
-  MFAChallengeResponseSchema,
-  MFATrustDeviceSchema,
-  MFARecoveryRequestSchema,
-  MFARecoveryResponseSchema,
-  MFALockStatusSchema,
-  MFATypeSchema,
-  MFAMethodSchema,
-  MFAValidator,
-  MFA_ERROR_MESSAGES,
-  type EnableMFASchemaType,
-  type VerifyMFASchemaType,
-  type DisableMFASchemaType,
-  type GenerateBackupCodesSchemaType,
-  type VerifyMFAResponseSchemaType,
-  type MFAStatusResponseSchemaType,
-  type GenerateBackupCodesResponseSchemaType,
-  type DisableMFAResponseSchemaType,
-  type MFAChallengeRequestSchemaType,
-  type MFAChallengeResponseSchemaType,
-  type MFATrustDeviceSchemaType,
-  type MFARecoveryRequestSchemaType,
-  type MFARecoveryResponseSchemaType,
-  type MFALockStatusSchemaType,
-  type MFATypeSchemaType,
-  type MFAMethodSchemaType,
-} from './mfa.schema';
