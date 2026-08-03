@@ -185,3 +185,29 @@ export {
   type AssignRoleSchemaType,
   type RoleFilterSchemaType,
 } from './role.schema';
+
+// Export permission schemas
+export {
+  PermissionStringSchema,
+  CreatePermissionSchema,
+  CheckPermissionSchema,
+  BulkCheckPermissionSchema,
+  GrantPermissionSchema,
+  RevokePermissionSchema,
+  validateCreatePermission,
+  safeValidateCreatePermission,
+  validateCheckPermission,
+  safeValidateCheckPermission,
+  validateBulkCheckPermission,
+  safeValidateBulkCheckPermission,
+  validateGrantPermission,
+  safeValidateGrantPermission,
+  validateRevokePermission,
+  safeValidateRevokePermission,
+  type PermissionString,
+  type CreatePermissionSchemaType,
+  type CheckPermissionSchemaType,
+  type BulkCheckPermissionSchemaType,
+  type GrantPermissionSchemaType,
+  type RevokePermissionSchemaType,
+} from './permission.schema';
