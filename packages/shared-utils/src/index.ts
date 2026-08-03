@@ -32,6 +32,18 @@ export {
   type PhoneValidationResult,
 } from './validation/phone.util.js';
 
+// Export sanitization utilities
+export {
+  sanitizeHtml,
+  escapeHtml,
+  removeScripts,
+  removeEventHandlers,
+  hasSqlInjectionPattern,
+  sanitize,
+  sanitizeUrl,
+  sanitizeFileName,
+} from './validation/sanitize.util.js';
+
 // Export crypto utilities
 export { hashPassword, comparePassword, hashPasswordSync } from './crypto/hash.util.js';
 
