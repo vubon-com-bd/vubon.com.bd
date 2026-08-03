@@ -37,3 +37,15 @@ export {
   toCamelCase,
   toSnakeCase,
 } from './formatter/string.util.js';
+
+// Export JWT utilities
+export {
+  signToken,
+  verifyToken,
+  decodeToken,
+  verifyRefreshToken,
+  getTokenVersion,
+  isTokenExpired,
+  addToBlacklist,
+  isBlacklisted,
+} from './token/jwt.util.js';
