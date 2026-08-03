@@ -14,3 +14,6 @@ export {
   isValidUUID,
   isValidURL,
 } from './validation/validator.util.js';
+
+// Export crypto utilities
+export { hashPassword, comparePassword, hashPasswordSync } from './crypto/hash.util.js';
