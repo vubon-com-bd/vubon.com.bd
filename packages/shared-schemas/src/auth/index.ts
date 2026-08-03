@@ -163,3 +163,25 @@ export {
   type SessionIdSchemaType,
   type RevokeAllSessionsSchemaType as SessionRevokeAllSessionsSchemaType,
 } from './session.schema';
+
+// Export role schemas
+export {
+  RoleNameSchema,
+  CreateRoleSchema,
+  UpdateRoleSchema,
+  AssignRoleSchema,
+  RoleFilterSchema,
+  validateCreateRole,
+  safeValidateCreateRole,
+  validateUpdateRole,
+  safeValidateUpdateRole,
+  validateAssignRole,
+  safeValidateAssignRole,
+  validateRoleFilter,
+  safeValidateRoleFilter,
+  type RoleName,
+  type CreateRoleSchemaType,
+  type UpdateRoleSchemaType,
+  type AssignRoleSchemaType,
+  type RoleFilterSchemaType,
+} from './role.schema';
