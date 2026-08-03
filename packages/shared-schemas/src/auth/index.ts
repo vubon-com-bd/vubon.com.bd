@@ -139,3 +139,15 @@ export {
   type LinkSocialAccountSchemaType,
   type UnlinkSocialAccountSchemaType,
 } from './social.schema';
+
+// Export user schemas
+export {
+  UpdateProfileSchema,
+  DeleteAccountSchema,
+  validateUpdateProfile,
+  safeValidateUpdateProfile,
+  validateDeleteAccount,
+  safeValidateDeleteAccount,
+  type UpdateProfileSchemaType,
+  type DeleteAccountSchemaType,
+} from './user.schema';
