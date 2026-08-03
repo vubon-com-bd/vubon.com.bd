@@ -82,6 +82,34 @@ export {
   toSnakeCase,
 } from './formatter/string.util.js';
 
+// Export date formatter utilities
+export {
+  formatDate,
+  formatRelativeTime,
+  diffDays,
+  diffHours,
+  diffMinutes,
+  diffSeconds,
+  diffMonths,
+  diffYears,
+  calculateAge,
+  getStartOfDay,
+  getStartOfMonth,
+  getEndOfMonth,
+  isDateToday,
+  isSameDay,
+  isSameMonth,
+  isSameYear,
+  addDaysToDate,
+  subtractDays,
+  addMonthsToDate,
+  subtractMonths,
+  parseDate,
+  formatDateDifference,
+  type DateFormat,
+  type DateFormatOptions,
+} from './formatter/date.util.js';
+
 // Export JWT utilities
 export {
   signToken,
