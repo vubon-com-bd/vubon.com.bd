@@ -28,3 +28,23 @@ export {
   type UpdateRegisterSchemaType,
   type RegisterResponseSchemaType,
 } from './register.schema';
+
+// Export from verification.schema
+export {
+  SendVerificationEmailSchema,
+  VerifyEmailSchema,
+  ResendVerificationEmailSchema,
+  VerifyEmailResponseSchema,
+  EmailVerificationStatusSchema,
+  ResendVerificationEmailResponseSchema,
+  VerificationTokenSchema,
+  VerificationValidator,
+  VERIFICATION_ERROR_MESSAGES,
+  type SendVerificationEmailSchemaType,
+  type VerifyEmailSchemaType,
+  type ResendVerificationEmailSchemaType,
+  type VerifyEmailResponseSchemaType,
+  type EmailVerificationStatusSchemaType,
+  type ResendVerificationEmailResponseSchemaType,
+  type VerificationTokenSchemaType,
+} from './verification.schema';
