@@ -27,6 +27,21 @@ export {
   generateBackupCodes,
 } from './crypto/random.util.js';
 
+// Export encryption utilities
+export {
+  encryptGCM,
+  decryptGCM,
+  encryptCBC,
+  decryptCBC,
+  encrypt,
+  decrypt,
+  generateEncryptionKey,
+  generateIV,
+  type EncryptionAlgorithm,
+  type EncryptionResult,
+  type DecryptionResult,
+} from './crypto/encrypt.util.js';
+
 // Export string formatter utilities
 export {
   capitalize,
