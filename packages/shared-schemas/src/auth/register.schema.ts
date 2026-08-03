@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { PASSWORD_POLICY, PHONE_REGEX, EMAIL_REGEX } from '@vubon/shared-constants';
-import type { CreateUserRequest } from '@vubon/shared-types';
 
 /**
  * Schema for validating user registration requests

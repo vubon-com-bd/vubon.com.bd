@@ -1,205 +1,180 @@
 import { z } from 'zod';
-import { EMAIL_REGEX, USERNAME_REGEX, PASSWORD_POLICY } from '@vubon/shared-constants';
+import { EMAIL_REGEX, PHONE_REGEX } from '@vubon/shared-constants';
+import type { LoginAttemptRequest } from '@vubon/shared-types';
 
 /**
- * Login schema for validating login requests
+ * Schema for validating standard email-based login requests
  */
 export const LoginSchema = z.object({
   /**
-   * User's email address
-   * - Uses EMAIL_REGEX from shared-constants
-   * - Will be normalized to lowercase
+   * Email address - must be valid format and will be normalized
    */
   email: z
-    .string()
+    .string({
+      required_error: 'Email is required',
+      invalid_type_error: 'Email must be a string',
+    })
+    .trim()
     .min(1, 'Email is required')
-    .regex(EMAIL_REGEX.STANDARD, 'Please provide a valid email address')
-    .transform((val) => val.toLowerCase().trim()),
+    .email('Please provide a valid email address')
+    .regex(EMAIL_REGEX.STANDARD, 'Email format is invalid')
+    .transform((val) => val.toLowerCase()),
 
   /**
-   * User's password
-   * - Uses PASSWORD_POLICY from shared-constants
+   * Password - required field
    */
   password: z
-    .string()
-    .min(
-      PASSWORD_POLICY.MIN_LENGTH,
-      `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters long`
-    )
-    .max(
-      PASSWORD_POLICY.MAX_LENGTH,
-      `Password must not exceed ${PASSWORD_POLICY.MAX_LENGTH} characters`
-    ),
+    .string({
+      required_error: 'Password is required',
+      invalid_type_error: 'Password must be a string',
+    })
+    .min(1, 'Password is required'),
 
   /**
-   * Remember me option
-   * - Extends session duration
+   * Remember me option - optional boolean
    */
   rememberMe: z.boolean().optional().default(false),
 });
 
 /**
- * Phone login schema for validating phone-based login requests
+ * Schema for validating phone number-based login requests
  */
 export const PhoneLoginSchema = z.object({
   /**
-   * User's phone number
-   * - Must be a valid Bangladeshi phone number
+   * Phone number - must be valid Bangladeshi format
+   * Valid formats: 01XXXXXXXXX, +8801XXXXXXXXX, 8801XXXXXXXXX
    */
   phoneNumber: z
-    .string()
+    .string({
+      required_error: 'Phone number is required',
+      invalid_type_error: 'Phone number must be a string',
+    })
+    .trim()
     .min(1, 'Phone number is required')
-    .regex(/^(?:\+8801|01)[3-9]\d{8}$/, 'Please provide a valid Bangladeshi phone number'),
-
-  /**
-   * User's password
-   */
-  password: z
-    .string()
-    .min(
-      PASSWORD_POLICY.MIN_LENGTH,
-      `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters long`
-    )
-    .max(
-      PASSWORD_POLICY.MAX_LENGTH,
-      `Password must not exceed ${PASSWORD_POLICY.MAX_LENGTH} characters`
+    .refine(
+      (val) => {
+        // Check if phone matches Bangladeshi format
+        return (
+          PHONE_REGEX.INTERNATIONAL.test(val) ||
+          PHONE_REGEX.WITH_COUNTRY_CODE.test(val) ||
+          /^01[3-9]\d{8}$/.test(val) // Bangladeshi mobile format
+        );
+      },
+      {
+        message:
+          'Please provide a valid phone number. Supported formats: 01XXXXXXXXX, +8801XXXXXXXXX, 8801XXXXXXXXX',
+      }
     ),
 
   /**
-   * Remember me option
+   * Password - required field
+   */
+  password: z
+    .string({
+      required_error: 'Password is required',
+      invalid_type_error: 'Password must be a string',
+    })
+    .min(1, 'Password is required'),
+
+  /**
+   * Remember me option - optional boolean
    */
   rememberMe: z.boolean().optional().default(false),
 });
 
 /**
- * Username login schema for validating username-based login requests
+ * Schema for validating username-based login requests
  */
 export const UsernameLoginSchema = z.object({
   /**
-   * User's username
-   * - Uses USERNAME_REGEX from shared-constants
-   * - 3-20 characters
+   * Username - must be valid format
    */
   username: z
-    .string()
-    .min(1, 'Username is required')
+    .string({
+      required_error: 'Username is required',
+      invalid_type_error: 'Username must be a string',
+    })
+    .trim()
+    .min(3, 'Username must be at least 3 characters')
+    .max(30, 'Username cannot exceed 30 characters')
     .regex(
-      USERNAME_REGEX.STANDARD,
+      /^[a-zA-Z0-9_-]+$/,
       'Username can only contain letters, numbers, underscores, and hyphens'
-    )
-    .transform((val) => val.toLowerCase().trim()),
-
-  /**
-   * User's password
-   */
-  password: z
-    .string()
-    .min(
-      PASSWORD_POLICY.MIN_LENGTH,
-      `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters long`
-    )
-    .max(
-      PASSWORD_POLICY.MAX_LENGTH,
-      `Password must not exceed ${PASSWORD_POLICY.MAX_LENGTH} characters`
     ),
 
   /**
-   * Remember me option
+   * Password - required field
+   */
+  password: z
+    .string({
+      required_error: 'Password is required',
+      invalid_type_error: 'Password must be a string',
+    })
+    .min(1, 'Password is required'),
+
+  /**
+   * Remember me option - optional boolean
    */
   rememberMe: z.boolean().optional().default(false),
 });
 
 /**
- * Refresh token schema for validating token refresh requests
+ * Schema for validating token refresh requests
  */
 export const RefreshTokenSchema = z.object({
   /**
-   * Refresh token
-   * - Must be a valid JWT refresh token
-   * - Required field
+   * Refresh token - required string
    */
   refreshToken: z
-    .string()
-    .min(1, 'Refresh token is required')
-    .regex(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/, 'Invalid refresh token format'),
+    .string({
+      required_error: 'Refresh token is required',
+      invalid_type_error: 'Refresh token must be a string',
+    })
+    .min(1, 'Refresh token is required'),
 });
 
 /**
- * Logout schema for validating logout requests
+ * Schema for validating logout requests
  */
 export const LogoutSchema = z.object({
   /**
    * Session ID to logout from
-   * - Optional, if not provided, current session will be used
    */
-  sessionId: z.string().uuid('Invalid session ID format').optional(),
+  sessionId: z
+    .string({
+      required_error: 'Session ID is required',
+      invalid_type_error: 'Session ID must be a string',
+    })
+    .min(1, 'Session ID is required'),
 
   /**
-   * Whether to logout from all devices
-   * - Default: false
+   * Whether to logout from all devices - optional boolean
    */
   allDevices: z.boolean().optional().default(false),
-
-  /**
-   * Reason for logout
-   */
-  reason: z
-    .enum(['user_initiated', 'session_expired', 'admin_revoked', 'password_changed'])
-    .optional()
-    .default('user_initiated'),
 });
 
 /**
- * Revoke all sessions schema for validating session revocation requests
+ * Schema for validating revoke all sessions requests
  */
 export const RevokeAllSessionsSchema = z.object({
   /**
-   * Confirm the revocation
-   * - Must be true to proceed
+   * Confirmation flag - required
    */
-  confirm: z.boolean().refine((val) => val === true, {
-    message: 'You must confirm to revoke all sessions',
-  }),
+  confirm: z
+    .boolean({
+      required_error: 'Confirmation is required',
+      invalid_type_error: 'Confirmation must be a boolean',
+    })
+    .refine((val) => val === true, 'You must confirm to revoke all sessions'),
 
   /**
-   * Whether to exclude the current session
-   * - Default: false
+   * Whether to exclude current session - optional boolean
    */
   excludeCurrent: z.boolean().optional().default(false),
 });
 
 /**
- * Combined login schema for flexible login
- */
-export const FlexibleLoginSchema = z.object({
-  /**
-   * User's email or username or phone number
-   * - Will be validated dynamically based on format
-   */
-  identifier: z.string().min(1, 'Email, username, or phone number is required'),
-
-  /**
-   * User's password
-   */
-  password: z
-    .string()
-    .min(
-      PASSWORD_POLICY.MIN_LENGTH,
-      `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters long`
-    )
-    .max(
-      PASSWORD_POLICY.MAX_LENGTH,
-      `Password must not exceed ${PASSWORD_POLICY.MAX_LENGTH} characters`
-    ),
-
-  /**
-   * Remember me option
-   */
-  rememberMe: z.boolean().optional().default(false),
-});
-
-/**
- * Type inference for all schemas
+ * Type inference for login schemas
  */
 export type LoginSchemaType = z.infer<typeof LoginSchema>;
 export type PhoneLoginSchemaType = z.infer<typeof PhoneLoginSchema>;
@@ -207,120 +182,135 @@ export type UsernameLoginSchemaType = z.infer<typeof UsernameLoginSchema>;
 export type RefreshTokenSchemaType = z.infer<typeof RefreshTokenSchema>;
 export type LogoutSchemaType = z.infer<typeof LogoutSchema>;
 export type RevokeAllSessionsSchemaType = z.infer<typeof RevokeAllSessionsSchema>;
-export type FlexibleLoginSchemaType = z.infer<typeof FlexibleLoginSchema>;
 
 /**
- * Login validation utilities
+ * Validates login data and returns typed result
  */
-export const LoginValidator = {
-  /**
-   * Validate an email-based login request
-   */
-  validateEmailLogin: (data: unknown) => LoginSchema.safeParse(data),
-
-  /**
-   * Validate a phone-based login request
-   */
-  validatePhoneLogin: (data: unknown) => PhoneLoginSchema.safeParse(data),
-
-  /**
-   * Validate a username-based login request
-   */
-  validateUsernameLogin: (data: unknown) => UsernameLoginSchema.safeParse(data),
-
-  /**
-   * Validate a flexible login request
-   */
-  validateFlexibleLogin: (data: unknown) => FlexibleLoginSchema.safeParse(data),
-
-  /**
-   * Validate a refresh token request
-   */
-  validateRefreshToken: (data: unknown) => RefreshTokenSchema.safeParse(data),
-
-  /**
-   * Validate a logout request
-   */
-  validateLogout: (data: unknown) => LogoutSchema.safeParse(data),
-
-  /**
-   * Validate a revoke all sessions request
-   */
-  validateRevokeAllSessions: (data: unknown) => RevokeAllSessionsSchema.safeParse(data),
-
-  /**
-   * Validate and throw for email login
-   */
-  validateEmailLoginOrThrow: (data: unknown) => LoginSchema.parse(data),
-
-  /**
-   * Validate and throw for phone login
-   */
-  validatePhoneLoginOrThrow: (data: unknown) => PhoneLoginSchema.parse(data),
-
-  /**
-   * Validate and throw for username login
-   */
-  validateUsernameLoginOrThrow: (data: unknown) => UsernameLoginSchema.parse(data),
-
-  /**
-   * Validate and throw for flexible login
-   */
-  validateFlexibleLoginOrThrow: (data: unknown) => FlexibleLoginSchema.parse(data),
-
-  /**
-   * Validate and throw for refresh token
-   */
-  validateRefreshTokenOrThrow: (data: unknown) => RefreshTokenSchema.parse(data),
-
-  /**
-   * Validate and throw for logout
-   */
-  validateLogoutOrThrow: (data: unknown) => LogoutSchema.parse(data),
-
-  /**
-   * Validate and throw for revoke all sessions
-   */
-  validateRevokeAllSessionsOrThrow: (data: unknown) => RevokeAllSessionsSchema.parse(data),
-
-  /**
-   * Check if identifier is email
-   */
-  isEmail: (identifier: string): boolean => {
-    return EMAIL_REGEX.STANDARD.test(identifier);
-  },
-
-  /**
-   * Check if identifier is phone number
-   */
-  isPhone: (identifier: string): boolean => {
-    return /^(?:\+8801|01)[3-9]\d{8}$/.test(identifier);
-  },
-
-  /**
-   * Check if identifier is username
-   */
-  isUsername: (identifier: string): boolean => {
-    return USERNAME_REGEX.STANDARD.test(identifier);
-  },
-};
+export function validateLogin(data: unknown): LoginSchemaType {
+  return LoginSchema.parse(data);
+}
 
 /**
- * Custom error messages for login validation
+ * Safely validates login data without throwing
  */
-export const LOGIN_ERROR_MESSAGES = {
-  EMAIL_REQUIRED: 'Email is required',
-  EMAIL_INVALID: 'Please provide a valid email address',
-  PHONE_REQUIRED: 'Phone number is required',
-  PHONE_INVALID: 'Please provide a valid Bangladeshi phone number',
-  USERNAME_REQUIRED: 'Username is required',
-  USERNAME_INVALID_CHARS: 'Username can only contain letters, numbers, underscores, and hyphens',
-  IDENTIFIER_REQUIRED: 'Email, username, or phone number is required',
-  PASSWORD_REQUIRED: 'Password is required',
-  PASSWORD_MIN_LENGTH: `Password must be at least ${PASSWORD_POLICY.MIN_LENGTH} characters long`,
-  PASSWORD_MAX_LENGTH: `Password must not exceed ${PASSWORD_POLICY.MAX_LENGTH} characters`,
-  REFRESH_TOKEN_REQUIRED: 'Refresh token is required',
-  REFRESH_TOKEN_INVALID: 'Invalid refresh token format',
-  SESSION_ID_INVALID: 'Invalid session ID format',
-  CONFIRM_REQUIRED: 'You must confirm to revoke all sessions',
-};
+export function safeValidateLogin(data: unknown): {
+  success: boolean;
+  data?: LoginSchemaType;
+  error?: z.ZodError;
+} {
+  const result = LoginSchema.safeParse(data);
+  if (result.success) {
+    return { success: true, data: result.data };
+  }
+  return { success: false, error: result.error };
+}
+
+/**
+ * Validates phone login data and returns typed result
+ */
+export function validatePhoneLogin(data: unknown): PhoneLoginSchemaType {
+  return PhoneLoginSchema.parse(data);
+}
+
+/**
+ * Safely validates phone login data without throwing
+ */
+export function safeValidatePhoneLogin(data: unknown): {
+  success: boolean;
+  data?: PhoneLoginSchemaType;
+  error?: z.ZodError;
+} {
+  const result = PhoneLoginSchema.safeParse(data);
+  if (result.success) {
+    return { success: true, data: result.data };
+  }
+  return { success: false, error: result.error };
+}
+
+/**
+ * Validates username login data and returns typed result
+ */
+export function validateUsernameLogin(data: unknown): UsernameLoginSchemaType {
+  return UsernameLoginSchema.parse(data);
+}
+
+/**
+ * Safely validates username login data without throwing
+ */
+export function safeValidateUsernameLogin(data: unknown): {
+  success: boolean;
+  data?: UsernameLoginSchemaType;
+  error?: z.ZodError;
+} {
+  const result = UsernameLoginSchema.safeParse(data);
+  if (result.success) {
+    return { success: true, data: result.data };
+  }
+  return { success: false, error: result.error };
+}
+
+/**
+ * Validates refresh token data and returns typed result
+ */
+export function validateRefreshToken(data: unknown): RefreshTokenSchemaType {
+  return RefreshTokenSchema.parse(data);
+}
+
+/**
+ * Safely validates refresh token data without throwing
+ */
+export function safeValidateRefreshToken(data: unknown): {
+  success: boolean;
+  data?: RefreshTokenSchemaType;
+  error?: z.ZodError;
+} {
+  const result = RefreshTokenSchema.safeParse(data);
+  if (result.success) {
+    return { success: true, data: result.data };
+  }
+  return { success: false, error: result.error };
+}
+
+/**
+ * Validates logout data and returns typed result
+ */
+export function validateLogout(data: unknown): LogoutSchemaType {
+  return LogoutSchema.parse(data);
+}
+
+/**
+ * Safely validates logout data without throwing
+ */
+export function safeValidateLogout(data: unknown): {
+  success: boolean;
+  data?: LogoutSchemaType;
+  error?: z.ZodError;
+} {
+  const result = LogoutSchema.safeParse(data);
+  if (result.success) {
+    return { success: true, data: result.data };
+  }
+  return { success: false, error: result.error };
+}
+
+/**
+ * Validates revoke all sessions data and returns typed result
+ */
+export function validateRevokeAllSessions(data: unknown): RevokeAllSessionsSchemaType {
+  return RevokeAllSessionsSchema.parse(data);
+}
+
+/**
+ * Safely validates revoke all sessions data without throwing
+ */
+export function safeValidateRevokeAllSessions(data: unknown): {
+  success: boolean;
+  data?: RevokeAllSessionsSchemaType;
+  error?: z.ZodError;
+} {
+  const result = RevokeAllSessionsSchema.safeParse(data);
+  if (result.success) {
+    return { success: true, data: result.data };
+  }
+  return { success: false, error: result.error };
+}
