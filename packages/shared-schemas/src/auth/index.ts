@@ -71,3 +71,19 @@ export {
   type VerifyMFASchemaType,
   type DisableMFASchemaType,
 } from './mfa.schema';
+
+// Export password reset schemas
+export {
+  ForgotPasswordSchema,
+  ResetPasswordSchema,
+  ResendResetLinkSchema,
+  validateForgotPassword,
+  safeValidateForgotPassword,
+  validateResetPassword,
+  safeValidateResetPassword,
+  validateResendResetLink,
+  safeValidateResendResetLink,
+  type ForgotPasswordSchemaType,
+  type ResetPasswordSchemaType,
+  type ResendResetLinkSchemaType,
+} from './password-reset.schema';
