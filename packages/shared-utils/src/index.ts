@@ -17,3 +17,12 @@ export {
 
 // Export crypto utilities
 export { hashPassword, comparePassword, hashPasswordSync } from './crypto/hash.util.js';
+
+// Export random token utilities
+export {
+  generateToken,
+  generateOTP,
+  generateVerificationToken,
+  generateTOTPSecret,
+  generateBackupCodes,
+} from './crypto/random.util.js';
