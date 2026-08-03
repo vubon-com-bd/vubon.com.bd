@@ -103,9 +103,9 @@ export function signToken(
 
   try {
     return jwt.sign(finalPayload, secret, signOptions);
-  } catch (error) {
+  } catch (err) {
     throw new Error(
-      `Failed to sign token: ${error instanceof Error ? error.message : 'Unknown error'}`
+      `Failed to sign token: ${err instanceof Error ? err.message : 'Unknown error'}`
     );
   }
 }
@@ -156,7 +156,7 @@ export function verifyToken(
     }
 
     return null;
-  } catch (error) {
+  } catch {
     // Token is invalid or expired
     return null;
   }
@@ -188,7 +188,7 @@ export function decodeToken(token: string): DecodedToken | null {
     }
 
     return null;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
