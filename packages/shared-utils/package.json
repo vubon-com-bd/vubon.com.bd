@@ -25,10 +25,12 @@
     "@vubon/shared-schemas": "workspace:*",
     "@vubon/shared-types": "workspace:*",
     "bcryptjs": "3.0.3",
-    "hi-base32": "0.5.1"
+    "hi-base32": "0.5.1",
+    "jsonwebtoken": "9.0.3"
   },
   "devDependencies": {
     "@types/bcryptjs": "3.0.0",
+    "@types/jsonwebtoken": "9.0.10",
     "@types/node": "^20.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
