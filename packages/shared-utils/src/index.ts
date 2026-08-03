@@ -5,3 +5,12 @@
 
 // Export email validation utilities
 export { isValidEmail, normalizeEmail, isDisposableEmail } from './validation/email.util.js';
+
+// Export validator utilities
+export {
+  isPasswordStrong,
+  isValidPhone,
+  isValidUsername,
+  isValidUUID,
+  isValidURL,
+} from './validation/validator.util.js';
