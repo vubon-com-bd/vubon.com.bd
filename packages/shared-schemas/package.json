@@ -22,7 +22,8 @@
   },
   "dependencies": {
     "@vubon/shared-constants": "workspace:*",
-    "@vubon/shared-types": "workspace:*"
+    "@vubon/shared-types": "workspace:*",
+    "zod": "^3.22.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
