@@ -49,3 +49,19 @@ export {
   addToBlacklist,
   isBlacklisted,
 } from './token/jwt.util.js';
+
+// Export refresh token utilities
+export {
+  generateRefreshToken,
+  rotateRefreshToken,
+  generateTokenFamily,
+  isTokenFamilyValid,
+  getRefreshTokenVersion,
+  createRefreshTokenData,
+  revokeRefreshToken,
+  revokeTokenFamily,
+  isRefreshTokenExpired,
+  isValidRefreshToken,
+  type RefreshTokenData,
+  type TokenRotationResult,
+} from './token/refresh-token.util.js';
