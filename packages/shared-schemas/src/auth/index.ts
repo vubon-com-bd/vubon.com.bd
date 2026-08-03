@@ -103,3 +103,19 @@ export {
   type AdminUpdateUserSchemaType,
   type AdminCreateUserSchemaType,
 } from './admin.schema';
+
+// Export security schemas
+export {
+  UnlockAccountSchema,
+  BlockIPSchema,
+  UnblockIPSchema,
+  validateUnlockAccount,
+  safeValidateUnlockAccount,
+  validateBlockIP,
+  safeValidateBlockIP,
+  validateUnblockIP,
+  safeValidateUnblockIP,
+  type UnlockAccountSchemaType,
+  type BlockIPSchemaType,
+  type UnblockIPSchemaType,
+} from './security.schema';
