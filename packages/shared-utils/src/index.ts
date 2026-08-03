@@ -131,6 +131,27 @@ export {
   type CurrencyFormatOptions,
 } from './formatter/currency.util.js';
 
+// Export number formatter utilities
+export {
+  formatNumber,
+  formatWithCommasBD,
+  formatCompactNumber as formatCompactNumberUtil,
+  round,
+  floor,
+  ceil,
+  calculatePercentage as calculatePercentageUtil,
+  clamp,
+  toOrdinal,
+  getOrdinalSuffix,
+  isInRange,
+  toNumber,
+  toPercentage,
+  fromPercentage,
+  toFixed,
+  randomNumber,
+  type NumberFormatOptions,
+} from './formatter/number.util.js';
+
 // Export JWT utilities
 export {
   signToken,
