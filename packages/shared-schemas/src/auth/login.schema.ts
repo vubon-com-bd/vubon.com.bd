@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { EMAIL_REGEX, PHONE_REGEX } from '@vubon/shared-constants';
-import type { LoginAttemptRequest } from '@vubon/shared-types';
 
 /**
  * Schema for validating standard email-based login requests
