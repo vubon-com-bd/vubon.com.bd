@@ -1,8 +1,8 @@
 import {
   parsePhoneNumber,
   isValidPhoneNumber,
-  formatPhoneNumber,
   getCountryCallingCode,
+  type CountryCode,
 } from 'libphonenumber-js';
 
 /**
@@ -26,7 +26,7 @@ export interface PhoneValidationResult {
   /** Whether the phone number is a fixed line */
   isFixedLine?: boolean;
   /** Country code of the phone number */
-  countryCode?: string;
+  countryCode?: CountryCode;
   /** National number without country code */
   nationalNumber?: string;
   /** International formatted number */
@@ -50,7 +50,7 @@ export interface PhoneValidationResult {
  */
 export function parseAndValidatePhone(
   phoneNumber: string,
-  countryCode: string = 'BD'
+  countryCode: CountryCode = 'BD'
 ): PhoneValidationResult {
   if (!phoneNumber || typeof phoneNumber !== 'string') {
     return { isValid: false };
@@ -95,7 +95,7 @@ export function parseAndValidatePhone(
  * const isValid = isValidPhoneNumber('+8801712345678');
  * // true
  */
-export function validatePhone(phoneNumber: string, countryCode: string = 'BD'): boolean {
+export function validatePhone(phoneNumber: string, countryCode: CountryCode = 'BD'): boolean {
   if (!phoneNumber || typeof phoneNumber !== 'string') {
     return false;
   }
@@ -122,7 +122,7 @@ export function validatePhone(phoneNumber: string, countryCode: string = 'BD'): 
 export function formatPhone(
   phoneNumber: string,
   format: PhoneFormat = 'international',
-  countryCode: string = 'BD'
+  countryCode: CountryCode = 'BD'
 ): string {
   if (!phoneNumber || typeof phoneNumber !== 'string') {
     return phoneNumber;
@@ -160,7 +160,7 @@ export function formatPhone(
  * const formatted = formatInternational('01712345678', 'BD');
  * // '+8801712345678'
  */
-export function formatInternational(phoneNumber: string, countryCode: string = 'BD'): string {
+export function formatInternational(phoneNumber: string, countryCode: CountryCode = 'BD'): string {
   return formatPhone(phoneNumber, 'international', countryCode);
 }
 
@@ -175,7 +175,7 @@ export function formatInternational(phoneNumber: string, countryCode: string = '
  * const formatted = formatNational('01712345678', 'BD');
  * // '01712345678'
  */
-export function formatNational(phoneNumber: string, countryCode: string = 'BD'): string {
+export function formatNational(phoneNumber: string, countryCode: CountryCode = 'BD'): string {
   return formatPhone(phoneNumber, 'national', countryCode);
 }
 
@@ -190,7 +190,7 @@ export function formatNational(phoneNumber: string, countryCode: string = 'BD'):
  * const normalized = normalizePhone('01712345678', 'BD');
  * // '+8801712345678'
  */
-export function normalizePhone(phoneNumber: string, countryCode: string = 'BD'): string {
+export function normalizePhone(phoneNumber: string, countryCode: CountryCode = 'BD'): string {
   return formatPhone(phoneNumber, 'e164', countryCode);
 }
 
@@ -257,7 +257,7 @@ export function detectBDOperator(nationalNumber: string): BDPhoneOperator {
  * const isMobile = isMobilePhone('01712345678', 'BD');
  * // true
  */
-export function isMobilePhone(phoneNumber: string, countryCode: string = 'BD'): boolean {
+export function isMobilePhone(phoneNumber: string, countryCode: CountryCode = 'BD'): boolean {
   if (!phoneNumber || typeof phoneNumber !== 'string') {
     return false;
   }
@@ -281,7 +281,7 @@ export function isMobilePhone(phoneNumber: string, countryCode: string = 'BD'): 
  * const isFixed = isFixedLinePhone('02-1234567', 'BD');
  * // true
  */
-export function isFixedLinePhone(phoneNumber: string, countryCode: string = 'BD'): boolean {
+export function isFixedLinePhone(phoneNumber: string, countryCode: CountryCode = 'BD'): boolean {
   if (!phoneNumber || typeof phoneNumber !== 'string') {
     return false;
   }
@@ -307,7 +307,7 @@ export function isFixedLinePhone(phoneNumber: string, countryCode: string = 'BD'
  */
 export function getCountryCallingCodeFromPhone(
   phoneNumber: string,
-  countryCode: string = 'BD'
+  countryCode: CountryCode = 'BD'
 ): string | null {
   if (!phoneNumber || typeof phoneNumber !== 'string') {
     return null;
