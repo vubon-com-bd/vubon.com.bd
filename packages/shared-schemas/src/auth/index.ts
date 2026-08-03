@@ -87,3 +87,19 @@ export {
   type ResetPasswordSchemaType,
   type ResendResetLinkSchemaType,
 } from './password-reset.schema';
+
+// Export admin schemas
+export {
+  AdminUserListSchema,
+  AdminUpdateUserSchema,
+  AdminCreateUserSchema,
+  validateAdminUserList,
+  safeValidateAdminUserList,
+  validateAdminUpdateUser,
+  safeValidateAdminUpdateUser,
+  validateAdminCreateUser,
+  safeValidateAdminCreateUser,
+  type AdminUserListSchemaType,
+  type AdminUpdateUserSchemaType,
+  type AdminCreateUserSchemaType,
+} from './admin.schema';
