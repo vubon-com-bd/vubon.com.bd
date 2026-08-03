@@ -1,4 +1,7 @@
-// Temporary placeholder to satisfy type checking
-// Replace with actual schema exports later
+/**
+ * Shared schemas module entry point
+ * Exports all validation schemas from all sub-modules
+ */
 
-export {};
+// Export all auth schemas
+export * from './auth';
