@@ -211,3 +211,23 @@ export {
   type GrantPermissionSchemaType,
   type RevokePermissionSchemaType,
 } from './permission.schema';
+
+// Export device schemas
+export {
+  DeviceTypeSchema,
+  DeviceTrustLevelSchema,
+  RegisterDeviceSchema,
+  UpdateDeviceTrustSchema,
+  DeviceFilterSchema,
+  validateRegisterDevice,
+  safeValidateRegisterDevice,
+  validateUpdateDeviceTrust,
+  safeValidateUpdateDeviceTrust,
+  validateDeviceFilter,
+  safeValidateDeviceFilter,
+  type DeviceType,
+  type DeviceTrustLevel,
+  type RegisterDeviceSchemaType,
+  type UpdateDeviceTrustSchemaType,
+  type DeviceFilterSchemaType,
+} from './device.schema';
