@@ -1,13 +1,5 @@
-// packages/shared-schemas/src/auth/login.schema.ts
 import { z } from 'zod';
-import {
-  PASSWORD_REGEX,
-  PHONE_REGEX,
-  EMAIL_REGEX,
-  USERNAME_REGEX,
-  PASSWORD_POLICY,
-} from '@vubon/shared-constants';
-import type { UserRole } from '@vubon/shared-types';
+import { EMAIL_REGEX, USERNAME_REGEX, PASSWORD_POLICY } from '@vubon/shared-constants';
 
 /**
  * Login schema for validating login requests
@@ -27,7 +19,6 @@ export const LoginSchema = z.object({
   /**
    * User's password
    * - Uses PASSWORD_POLICY from shared-constants
-   * - Validates complexity via PASSWORD_REGEX
    */
   password: z
     .string()
@@ -53,13 +44,12 @@ export const LoginSchema = z.object({
 export const PhoneLoginSchema = z.object({
   /**
    * User's phone number
-   * - Uses PHONE_REGEX from shared-constants
    * - Must be a valid Bangladeshi phone number
    */
   phoneNumber: z
     .string()
     .min(1, 'Phone number is required')
-    .regex(PHONE_REGEX.BANGLADESH, 'Please provide a valid Bangladeshi phone number'),
+    .regex(/^(?:\+8801|01)[3-9]\d{8}$/, 'Please provide a valid Bangladeshi phone number'),
 
   /**
    * User's password
@@ -93,7 +83,10 @@ export const UsernameLoginSchema = z.object({
   username: z
     .string()
     .min(1, 'Username is required')
-    .regex(USERNAME_REGEX.STANDARD, 'Username can only contain letters, numbers, underscores, and hyphens')
+    .regex(
+      USERNAME_REGEX.STANDARD,
+      'Username can only contain letters, numbers, underscores, and hyphens'
+    )
     .transform((val) => val.toLowerCase().trim()),
 
   /**
@@ -128,10 +121,7 @@ export const RefreshTokenSchema = z.object({
   refreshToken: z
     .string()
     .min(1, 'Refresh token is required')
-    .regex(
-      /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/,
-      'Invalid refresh token format'
-    ),
+    .regex(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/, 'Invalid refresh token format'),
 });
 
 /**
@@ -167,11 +157,9 @@ export const RevokeAllSessionsSchema = z.object({
    * Confirm the revocation
    * - Must be true to proceed
    */
-  confirm: z
-    .boolean()
-    .refine((val) => val === true, {
-      message: 'You must confirm to revoke all sessions',
-    }),
+  confirm: z.boolean().refine((val) => val === true, {
+    message: 'You must confirm to revoke all sessions',
+  }),
 
   /**
    * Whether to exclude the current session
@@ -306,7 +294,7 @@ export const LoginValidator = {
    * Check if identifier is phone number
    */
   isPhone: (identifier: string): boolean => {
-    return PHONE_REGEX.BANGLADESH.test(identifier);
+    return /^(?:\+8801|01)[3-9]\d{8}$/.test(identifier);
   },
 
   /**
