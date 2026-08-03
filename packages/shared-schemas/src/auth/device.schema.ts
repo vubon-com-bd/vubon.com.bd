@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { DEVICE_TYPES, DEVICE_OS, DEVICE_BROWSERS } from '@vubon/shared-constants';
+import { DEVICE_TYPES } from '@vubon/shared-constants';
 
 /**
  * Device type enum from shared-constants
