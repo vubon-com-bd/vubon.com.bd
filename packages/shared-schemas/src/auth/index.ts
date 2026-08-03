@@ -55,3 +55,19 @@ export {
   type VerifyEmailSchemaType,
   type ResendVerificationEmailSchemaType,
 } from './verification.schema';
+
+// Export MFA schemas
+export {
+  EnableMFASchema,
+  VerifyMFASchema,
+  DisableMFASchema,
+  validateEnableMFA,
+  safeValidateEnableMFA,
+  validateVerifyMFA,
+  safeValidateVerifyMFA,
+  validateDisableMFA,
+  safeValidateDisableMFA,
+  type EnableMFASchemaType,
+  type VerifyMFASchemaType,
+  type DisableMFASchemaType,
+} from './mfa.schema';
