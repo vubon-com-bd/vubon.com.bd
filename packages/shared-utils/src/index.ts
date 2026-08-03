@@ -110,6 +110,27 @@ export {
   type DateFormatOptions,
 } from './formatter/date.util.js';
 
+// Export currency formatter utilities
+export {
+  formatCurrency,
+  formatBDT,
+  getCurrencySymbol,
+  getCurrencyConfig,
+  formatCompactNumber,
+  applyDiscount,
+  calculateDiscount,
+  calculateTax,
+  calculateTotalWithTax,
+  calculateFinalPrice,
+  convertCurrency,
+  roundCurrency,
+  formatBDTBengali,
+  calculatePercentage,
+  type CurrencyCode,
+  type CurrencyConfig,
+  type CurrencyFormatOptions,
+} from './formatter/currency.util.js';
+
 // Export JWT utilities
 export {
   signToken,
