@@ -39,3 +39,19 @@ export {
   type LogoutSchemaType,
   type RevokeAllSessionsSchemaType,
 } from './login.schema';
+
+// Export verification schemas
+export {
+  SendVerificationEmailSchema,
+  VerifyEmailSchema,
+  ResendVerificationEmailSchema,
+  validateSendVerificationEmail,
+  safeValidateSendVerificationEmail,
+  validateVerifyEmail,
+  safeValidateVerifyEmail,
+  validateResendVerificationEmail,
+  safeValidateResendVerificationEmail,
+  type SendVerificationEmailSchemaType,
+  type VerifyEmailSchemaType,
+  type ResendVerificationEmailSchemaType,
+} from './verification.schema';
