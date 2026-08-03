@@ -1,7 +1,6 @@
 import {
   format,
   formatDistanceToNow,
-  formatRelative,
   differenceInDays,
   differenceInHours,
   differenceInMonths,
@@ -16,9 +15,9 @@ import {
   subMonths,
   startOfMonth,
   endOfMonth,
-  isSameDay,
-  isSameMonth,
-  isSameYear,
+  isSameDay as isSameDayFns,
+  isSameMonth as isSameMonthFns,
+  isSameYear as isSameYearFns,
   formatDistance,
   differenceInMinutes,
   differenceInSeconds,
@@ -345,7 +344,7 @@ export function isSameDay(date1: Date | string | number, date2: Date | string | 
   if (!d1 || !d2) {
     throw new Error('Invalid date provided');
   }
-  return isSameDay(d1, d2);
+  return isSameDayFns(d1, d2);
 }
 
 /**
@@ -361,7 +360,7 @@ export function isSameMonth(date1: Date | string | number, date2: Date | string 
   if (!d1 || !d2) {
     throw new Error('Invalid date provided');
   }
-  return isSameMonth(d1, d2);
+  return isSameMonthFns(d1, d2);
 }
 
 /**
@@ -377,7 +376,7 @@ export function isSameYear(date1: Date | string | number, date2: Date | string |
   if (!d1 || !d2) {
     throw new Error('Invalid date provided');
   }
-  return isSameYear(d1, d2);
+  return isSameYearFns(d1, d2);
 }
 
 /**
