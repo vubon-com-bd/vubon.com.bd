@@ -15,6 +15,23 @@ export {
   isValidURL,
 } from './validation/validator.util.js';
 
+// Export phone validation utilities
+export {
+  parseAndValidatePhone,
+  validatePhone,
+  formatPhone,
+  formatInternational,
+  formatNational,
+  normalizePhone,
+  detectBDOperator,
+  isMobilePhone,
+  isFixedLinePhone,
+  getCountryCallingCodeFromPhone,
+  type PhoneFormat,
+  type BDPhoneOperator,
+  type PhoneValidationResult,
+} from './validation/phone.util.js';
+
 // Export crypto utilities
 export { hashPassword, comparePassword, hashPasswordSync } from './crypto/hash.util.js';
 
