@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 
 /**
  * Stores blacklisted tokens in memory (for development)
@@ -11,7 +11,7 @@ const tokenBlacklist: Map<string, { expiresAt: number }> = new Map();
  */
 interface SignTokenOptions {
   /** Token expiry time (e.g., '15m', '1h', '7d' or seconds) */
-  expiresIn: string | number;
+  expiresIn: jwt.SignOptions['expiresIn'];
   /** Audience claim (optional) */
   audience?: string;
   /** Issuer claim (optional) */
@@ -69,8 +69,8 @@ interface DecodedToken {
 export function signToken(
   payload: Record<string, unknown>,
   secret: string,
-  expiresIn: string | number,
-  options: Partial<SignTokenOptions> = {}
+  expiresIn: jwt.SignOptions['expiresIn'],
+  options: Partial<Omit<SignTokenOptions, 'expiresIn'>> = {}
 ): string {
   if (!payload || typeof payload !== 'object') {
     throw new Error('Payload must be a non-empty object');
@@ -84,7 +84,7 @@ export function signToken(
     throw new Error('expiresIn is required');
   }
 
-  const signOptions: jwt.SignOptions = {
+  const signOptions: SignOptions = {
     expiresIn,
   };
 
