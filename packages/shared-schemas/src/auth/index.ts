@@ -119,3 +119,23 @@ export {
   type BlockIPSchemaType,
   type UnblockIPSchemaType,
 } from './security.schema';
+
+// Export social schemas
+export {
+  SocialLoginSchema,
+  SocialCallbackSchema,
+  LinkSocialAccountSchema,
+  UnlinkSocialAccountSchema,
+  validateSocialLogin,
+  safeValidateSocialLogin,
+  validateSocialCallback,
+  safeValidateSocialCallback,
+  validateLinkSocialAccount,
+  safeValidateLinkSocialAccount,
+  validateUnlinkSocialAccount,
+  safeValidateUnlinkSocialAccount,
+  type SocialLoginSchemaType,
+  type SocialCallbackSchemaType,
+  type LinkSocialAccountSchemaType,
+  type UnlinkSocialAccountSchemaType,
+} from './social.schema';
