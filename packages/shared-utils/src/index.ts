@@ -26,3 +26,14 @@ export {
   generateTOTPSecret,
   generateBackupCodes,
 } from './crypto/random.util.js';
+
+// Export string formatter utilities
+export {
+  capitalize,
+  capitalizeName,
+  slugify,
+  truncate,
+  toTitleCase,
+  toCamelCase,
+  toSnakeCase,
+} from './formatter/string.util.js';
