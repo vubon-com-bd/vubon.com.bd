@@ -1,13 +1,5 @@
 // packages/shared-config/src/env/env.validation.ts
 import dotenv from 'dotenv';
-import { z } from 'zod';
-import type { EnvConfig, NodeEnv } from './env.schema';
-import { EnvSchema, safeParseEnv } from './env.schema';
-
-/**
- * Environment validation and loading module
- * Loads .env file, validates all environment variables, and exports typed config
- */
 
 // ============================================================================
 // Load Environment Variables
@@ -43,26 +35,33 @@ function loadEnvFile(): void {
  * Validates and exports the environment configuration
  * Throws an error if validation fails
  */
-function validateAndExportEnv(): EnvConfig {
+function validateAndExportEnv() {
   // Load .env file
   loadEnvFile();
+
+  // Import EnvSchema dynamically to avoid circular dependency
+  const { safeParseEnv } = require('./env.schema');
 
   // Validate environment variables
   const result = safeParseEnv(process.env as Record<string, string | undefined>);
 
   if (!result.success) {
-    const errors = result.error?.errors.map((err) => ({
-      path: err.path.join('.'),
-      message: err.message,
-    }));
+    const errors = result.error?.errors.map(
+      (err: { path: (string | number)[]; message: string }) => ({
+        path: err.path.join('.'),
+        message: err.message,
+      })
+    );
 
     console.error('❌ Environment validation failed:');
+
     console.error(JSON.stringify(errors, null, 2));
 
     throw new Error(`Environment validation failed: ${result.error?.message || 'Unknown error'}`);
   }
 
   // Log validation success
+  // eslint-disable-next-line no-console
   console.log('✅ Environment validation passed');
 
   return result.data;
@@ -72,17 +71,21 @@ function validateAndExportEnv(): EnvConfig {
  * Validated environment configuration object
  * Frozen to prevent accidental mutations
  */
-export const env = Object.freeze(validateAndExportEnv()) as EnvConfig;
+export const env = Object.freeze(validateAndExportEnv());
 
 /**
  * Validates the environment configuration
  * Useful for manual validation or testing
  * @returns The validated environment configuration
- * @throws ZodError if validation fails
+ * @throws Error if validation fails
  */
-export function validateEnv(): EnvConfig {
+export function validateEnv() {
   // Reload and validate
   loadEnvFile();
+
+  // Import EnvSchema dynamically to avoid circular dependency
+  const { safeParseEnv } = require('./env.schema');
+
   const result = safeParseEnv(process.env as Record<string, string | undefined>);
 
   if (!result.success) {
@@ -132,7 +135,7 @@ export function isTest(): boolean {
  * Gets the current node environment
  * @returns The current node environment
  */
-export function getNodeEnv(): NodeEnv {
+export function getNodeEnv() {
   return env.server.NODE_ENV;
 }
 
@@ -212,11 +215,7 @@ export function isOAuthProviderConfigured(
     apple: env.oauth.APPLE_PRIVATE_KEY,
   };
 
-  return (
-    enabledMap[provider] === true &&
-    !!clientIdMap[provider] &&
-    !!clientSecretMap[provider]
-  );
+  return enabledMap[provider] === true && !!clientIdMap[provider] && !!clientSecretMap[provider];
 }
 
 /**
@@ -258,9 +257,7 @@ export function getEnabledOAuthProviders(): Array<'google' | 'facebook' | 'githu
  * @param feature - The feature name
  * @returns True if the feature is enabled
  */
-export function isFeatureEnabled<K extends keyof typeof env.features>(
-  feature: K
-): boolean {
+export function isFeatureEnabled<K extends keyof typeof env.features>(feature: K): boolean {
   return env.features[feature] === true;
 }
 
