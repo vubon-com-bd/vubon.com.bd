@@ -225,6 +225,43 @@ export type {
   AppleIDTokenPayload,
 } from './oauth/apple.config';
 
+// Export LinkedIn OAuth configuration
+export {
+  // Constants
+  LINKEDIN_API_VERSION,
+  LINKEDIN_AUTH_ENDPOINT,
+  LINKEDIN_TOKEN_ENDPOINT,
+  LINKEDIN_USER_INFO_ENDPOINT,
+  LINKEDIN_SCOPES,
+  LINKEDIN_RESPONSE_TYPE,
+  LINKEDIN_GRANT_TYPE,
+  LINKEDIN_OAUTH_ERRORS,
+  LINKEDIN_OAUTH_ERROR_MESSAGES,
+
+  // Configuration
+  linkedinOAuthConfig,
+  createLinkedInOAuthConfig,
+
+  // Helper functions
+  isLinkedInOAuthConfigured,
+  getLinkedInLoginUrl,
+  getLinkedInTokenExchangeBody,
+  getLinkedInUserInfoUrl,
+  extractLinkedInUserInfo,
+  isValidLinkedInTokenResponse,
+
+  // Error handling
+  getLinkedInOAuthErrorMessage,
+  isLinkedInOAuthAccessDenied,
+} from './oauth/linkedin.config';
+
+// Export LinkedIn OAuth types
+export type {
+  LinkedInOAuthConfig,
+  LinkedInLoginUrlOptions,
+  LinkedInUserInfo,
+} from './oauth/linkedin.config';
+
 // Export types
 export type {
   NodeEnv,
