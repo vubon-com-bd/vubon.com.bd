@@ -1,25 +1,45 @@
+// packages/shared-config/src/index.ts
 /**
  * Shared configuration module entry point
- * Exports all configuration utilities
+ * Exports all configuration schemas and types
  */
 
-// Export configuration schemas and utilities will be added here
-export const VERSION = '1.0.0';
+// Export environment schemas
+export {
+  // Base schemas
+  NodeEnvSchema,
+  ServerConfigSchema,
+  DatabaseConfigSchema,
+  RedisConfigSchema,
+  JWTConfigSchema,
+  OAuthConfigSchema,
+  SecurityConfigSchema,
+  EmailConfigSchema,
+  FeatureFlagSchema,
 
-/**
- * Environment variable configuration
- */
-export interface EnvConfig {
-  NODE_ENV: string;
-  PORT: number;
-  API_URL: string;
-}
+  // Complete environment schema
+  EnvSchema,
 
-/**
- * Default configuration
- */
-export const defaultConfig: Partial<EnvConfig> = {
-  NODE_ENV: 'development',
-  PORT: 3000,
-  API_URL: 'http://localhost:3000',
-};
+  // Validation functions
+  parseEnv,
+  safeParseEnv,
+  validateEnvVar,
+  hasEnvVar,
+
+  // Utility functions
+  maskSensitiveEnv,
+} from './env/env.schema';
+
+// Export types
+export type {
+  NodeEnv,
+  ServerConfig,
+  DatabaseConfig,
+  RedisConfig,
+  JWTConfig,
+  OAuthConfig,
+  SecurityConfig,
+  EmailConfig,
+  FeatureFlags,
+  EnvConfig,
+} from './env/env.schema';
