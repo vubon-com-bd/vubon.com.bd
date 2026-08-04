@@ -107,6 +107,43 @@ export {
 // Export Google OAuth types
 export type { GoogleOAuthConfig, GoogleLoginUrlOptions } from './oauth/google.config';
 
+// Export Facebook OAuth configuration
+export {
+  // Constants
+  FACEBOOK_API_VERSION,
+  FACEBOOK_AUTH_ENDPOINT,
+  FACEBOOK_TOKEN_ENDPOINT,
+  FACEBOOK_USER_INFO_ENDPOINT,
+  FACEBOOK_SCOPES,
+  FACEBOOK_RESPONSE_TYPE,
+  FACEBOOK_GRANT_TYPE,
+  FACEBOOK_OAUTH_ERRORS,
+  FACEBOOK_OAUTH_ERROR_MESSAGES,
+
+  // Configuration
+  facebookOAuthConfig,
+  createFacebookOAuthConfig,
+
+  // Helper functions
+  isFacebookOAuthConfigured,
+  getFacebookLoginUrl,
+  getFacebookTokenExchangeBody,
+  getFacebookUserInfoUrl,
+  extractFacebookUserInfo,
+  isValidFacebookTokenResponse,
+
+  // Error handling
+  getFacebookOAuthErrorMessage,
+  isFacebookOAuthAccessDenied,
+} from './oauth/facebook.config';
+
+// Export Facebook OAuth types
+export type {
+  FacebookOAuthConfig,
+  FacebookLoginUrlOptions,
+  FacebookUserInfo,
+} from './oauth/facebook.config';
+
 // Export types
 export type {
   NodeEnv,
