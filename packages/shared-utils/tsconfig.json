@@ -7,6 +7,10 @@
     "declarationMap": true,
     "sourceMap": true,
     "composite": false,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "paths": {
       "@vubon/shared-constants": ["../shared-constants/src/index.ts"],
       "@vubon/shared-types": ["../shared-types/src/index.ts"],
