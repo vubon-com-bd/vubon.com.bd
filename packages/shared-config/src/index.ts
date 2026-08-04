@@ -372,6 +372,39 @@ export type {
   MetaRobotDirectives,
 } from './seo/robots.config';
 
+// Export CORS configuration
+export {
+  // Constants
+  DEFAULT_ALLOWED_METHODS,
+  DEFAULT_ALLOWED_HEADERS,
+  DEFAULT_EXPOSED_HEADERS,
+  DEFAULT_MAX_AGE,
+  DEVELOPMENT_ORIGINS,
+
+  // Configuration
+  corsConfig,
+
+  // Factory function
+  createCorsConfig,
+
+  // Helper functions
+  getCorsConfig,
+  isOriginAllowed,
+  getAllowedOrigins,
+  getCorsForRoute,
+  getCorsMiddlewareOptions,
+  addOrigin,
+  removeOrigin,
+  addMethod,
+  removeMethod,
+  addHeader,
+  removeHeader,
+  validateCorsConfig,
+} from './security/cors.config';
+
+// Export CORS types
+export type { CorsConfig, CorsRouteOptions } from './security/cors.config';
+
 // Export types
 export type {
   NodeEnv,
