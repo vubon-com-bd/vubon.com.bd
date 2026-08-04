@@ -1,7 +1,7 @@
 // packages/shared-config/src/index.ts
 /**
  * Shared configuration module entry point
- * Exports all configuration schemas and types
+ * Exports all configuration schemas, types, and validation utilities
  */
 
 // Export environment schemas
@@ -29,6 +29,44 @@ export {
   // Utility functions
   maskSensitiveEnv,
 } from './env/env.schema';
+
+// Export environment validation and utilities
+export {
+  // Core exports
+  env,
+  validateEnv,
+
+  // Environment checks
+  isProduction,
+  isDevelopment,
+  isStaging,
+  isTest,
+  getNodeEnv,
+
+  // Configuration getters
+  getEnv,
+  getEnvOrDefault,
+
+  // OAuth utilities
+  isOAuthProviderConfigured,
+  isOAuthConfigured,
+  getEnabledOAuthProviders,
+
+  // Feature flags
+  isFeatureEnabled,
+  getFeatureFlags,
+
+  // Database utilities
+  getDatabaseUrl,
+  getRedisUrl,
+
+  // Security utilities
+  getJWTConfig,
+  isSessionEncryptionConfigured,
+
+  // Environment info
+  getEnvironmentInfo,
+} from './env/env.validation';
 
 // Export types
 export type {
