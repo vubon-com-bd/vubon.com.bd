@@ -294,6 +294,45 @@ export {
 // Export SEO types
 export type { SeoConfig, OpenGraphConfig, RobotsConfig, JsonLdConfig } from './seo/seo.config';
 
+// Export Sitemap configuration
+export {
+  // Constants
+  MAX_URLS_PER_SITEMAP,
+  MAX_SITEMAP_INDEX_FILES,
+  DEFAULT_CHANGE_FREQUENCY,
+  DEFAULT_PRIORITY,
+
+  // Configuration
+  sitemapConfig,
+  createSitemapConfig,
+
+  // Helper functions
+  getFullUrl,
+  getChangeFrequency,
+  getPriority,
+  createSitemapEntry,
+  createSitemapEntries,
+  splitSitemapEntries,
+  createSitemapIndexEntries,
+  createSitemapEntriesForTypes,
+  validateSitemapEntry,
+  validateSitemapEntries,
+  generateSitemapXml,
+  generateSitemapIndexXml,
+} from './seo/sitemap.config';
+
+// Export Sitemap types
+export type {
+  SitemapConfig,
+  ChangeFrequency,
+  SitemapEntry,
+  SitemapImage,
+  SitemapVideo,
+  SitemapNews,
+  SitemapAlternate,
+  SitemapIndexEntry,
+} from './seo/sitemap.config';
+
 // Export types
 export type {
   NodeEnv,
