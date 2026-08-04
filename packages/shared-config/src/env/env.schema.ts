@@ -231,6 +231,18 @@ export const OAuthConfigSchema = z.object({
   APPLE_ENABLED: z.coerce.boolean().default(false),
 
   // ============================================================================
+  // LinkedIn OAuth
+  // ============================================================================
+  /** LinkedIn OAuth client ID */
+  LINKEDIN_CLIENT_ID: z.string().optional(),
+  /** LinkedIn OAuth client secret */
+  LINKEDIN_CLIENT_SECRET: z.string().optional(),
+  /** LinkedIn OAuth callback URL */
+  LINKEDIN_CALLBACK_URL: z.string().url().optional(),
+  /** Whether LinkedIn OAuth is enabled */
+  LINKEDIN_ENABLED: z.coerce.boolean().default(false),
+
+  // ============================================================================
   // General OAuth Settings
   // ============================================================================
   /** Whether OAuth is enabled globally */
@@ -444,12 +456,7 @@ export function safeParseEnv(env: Record<string, string | undefined>): {
  * @throws ZodError if validation fails
  */
 export function validateEnvVar<T>(key: string, value: string | undefined, schema: z.ZodType<T>): T {
-  // Create a properly typed object for parsing
-  const obj: Record<string, string | undefined> = { [key]: value };
-  // Parse the object and extract the value with type assertion
-  const result = schema.parse(obj);
-  // Use type assertion to tell TypeScript that result has the key
-  return (result as Record<string, T>)[key];
+  return schema.parse({ [key]: value })[key];
 }
 
 /**
