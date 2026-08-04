@@ -354,10 +354,6 @@ export function compareVersionedFingerprint(
   const differedComponents: string[] = [];
 
   // Compare each component of the fingerprint data
-  const currentData = versionedFingerprint.data;
-  const currentFingerprint = generateFingerprint(currentData);
-
-  // Simple component comparison based on string similarity
   const components = [
     'userAgent',
     'acceptLanguage',
