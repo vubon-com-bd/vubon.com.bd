@@ -237,6 +237,20 @@ export {
   type FeatureFlagConfig,
 } from './env/env.util.js';
 
+// Export logger utilities
+export {
+  createLogger,
+  logger,
+  logPerformance,
+  createPerformanceLogger,
+  createChildLogger,
+  type LogLevel,
+  type LogEntry,
+  type LoggerConfig,
+  type Logger,
+  type PerformanceLog,
+} from './logger/logger.util.js';
+
 // Export JWT utilities
 export {
   signToken,
