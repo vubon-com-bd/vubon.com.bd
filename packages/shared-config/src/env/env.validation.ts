@@ -1,5 +1,7 @@
 // packages/shared-config/src/env/env.validation.ts
 import dotenv from 'dotenv';
+import type { EnvConfig } from './env.schema';
+import { safeParseEnv } from './env.schema';
 
 // ============================================================================
 // Load Environment Variables
@@ -35,23 +37,18 @@ function loadEnvFile(): void {
  * Validates and exports the environment configuration
  * Throws an error if validation fails
  */
-function validateAndExportEnv() {
+function validateAndExportEnv(): EnvConfig {
   // Load .env file
   loadEnvFile();
-
-  // Import EnvSchema dynamically to avoid circular dependency
-  const { safeParseEnv } = require('./env.schema');
 
   // Validate environment variables
   const result = safeParseEnv(process.env as Record<string, string | undefined>);
 
   if (!result.success) {
-    const errors = result.error?.errors.map(
-      (err: { path: (string | number)[]; message: string }) => ({
-        path: err.path.join('.'),
-        message: err.message,
-      })
-    );
+    const errors = result.error?.errors.map((err) => ({
+      path: err.path.join('.'),
+      message: err.message,
+    }));
 
     console.error('❌ Environment validation failed:');
 
@@ -71,7 +68,7 @@ function validateAndExportEnv() {
  * Validated environment configuration object
  * Frozen to prevent accidental mutations
  */
-export const env = Object.freeze(validateAndExportEnv());
+export const env: EnvConfig = Object.freeze(validateAndExportEnv());
 
 /**
  * Validates the environment configuration
@@ -79,12 +76,9 @@ export const env = Object.freeze(validateAndExportEnv());
  * @returns The validated environment configuration
  * @throws Error if validation fails
  */
-export function validateEnv() {
+export function validateEnv(): EnvConfig {
   // Reload and validate
   loadEnvFile();
-
-  // Import EnvSchema dynamically to avoid circular dependency
-  const { safeParseEnv } = require('./env.schema');
 
   const result = safeParseEnv(process.env as Record<string, string | undefined>);
 
@@ -135,7 +129,7 @@ export function isTest(): boolean {
  * Gets the current node environment
  * @returns The current node environment
  */
-export function getNodeEnv() {
+export function getNodeEnv(): string {
   return env.server.NODE_ENV;
 }
 
@@ -354,7 +348,20 @@ export function isSessionEncryptionConfigured(): boolean {
  * Gets environment information for logging and debugging
  * @returns Environment information object
  */
-export function getEnvironmentInfo() {
+export function getEnvironmentInfo(): {
+  nodeEnv: string;
+  appName: string;
+  appVersion: string;
+  isProduction: boolean;
+  isDevelopment: boolean;
+  isStaging: boolean;
+  isTest: boolean;
+  isOAuthConfigured: boolean;
+  enabledOAuthProviders: Array<'google' | 'facebook' | 'github' | 'apple'>;
+  databaseUrlMasked: string;
+  redisUrlMasked: string;
+  features: typeof env.features;
+} {
   return {
     nodeEnv: env.server.NODE_ENV,
     appName: env.server.APP_NAME,
