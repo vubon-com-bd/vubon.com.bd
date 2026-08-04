@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "composite": false,
+    "paths": {
+      "@vubon/shared-constants": ["../shared-constants/src/index.ts"],
+      "@vubon/shared-types": ["../shared-types/src/index.ts"],
+      "@vubon/shared-config": ["./src/index.ts"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
