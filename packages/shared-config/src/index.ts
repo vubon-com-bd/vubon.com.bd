@@ -262,6 +262,38 @@ export type {
   LinkedInUserInfo,
 } from './oauth/linkedin.config';
 
+// Export SEO configuration
+export {
+  // Default configurations
+  DEFAULT_SEO_CONFIG,
+  DEFAULT_OPEN_GRAPH_CONFIG,
+  DEFAULT_ROBOTS_CONFIG,
+
+  // Configuration instances
+  seoConfig,
+  openGraphConfig,
+  robotsConfig,
+  jsonLdConfig,
+
+  // Factory functions
+  createSeoConfig,
+  createOpenGraphConfig,
+  createRobotsConfig,
+  createJsonLdConfig,
+
+  // Helper functions
+  getTitle,
+  getOpenGraphConfig,
+  getRobotsTag,
+  getOrganizationJsonLd,
+  getWebSiteJsonLd,
+  getBreadcrumbJsonLd,
+  getMetaTags,
+} from './seo/seo.config';
+
+// Export SEO types
+export type { SeoConfig, OpenGraphConfig, RobotsConfig, JsonLdConfig } from './seo/seo.config';
+
 // Export types
 export type {
   NodeEnv,
