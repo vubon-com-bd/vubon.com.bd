@@ -186,6 +186,45 @@ export type {
   GitHubEmailInfo,
 } from './oauth/github.config';
 
+// Export Apple OAuth configuration
+export {
+  // Constants
+  APPLE_AUTH_ENDPOINT,
+  APPLE_TOKEN_ENDPOINT,
+  APPLE_USER_INFO_ENDPOINT,
+  APPLE_SCOPES,
+  APPLE_RESPONSE_TYPE,
+  APPLE_RESPONSE_MODE,
+  APPLE_GRANT_TYPE,
+  APPLE_OAUTH_ERRORS,
+  APPLE_OAUTH_ERROR_MESSAGES,
+
+  // Configuration
+  appleOAuthConfig,
+  createAppleOAuthConfig,
+
+  // Helper functions
+  isAppleOAuthConfigured,
+  getAppleLoginUrl,
+  getAppleTokenExchangeBody,
+  extractAppleUserInfo,
+  isValidAppleTokenResponse,
+  validateAppleIDToken,
+  getAppleClientSecret,
+
+  // Error handling
+  getAppleOAuthErrorMessage,
+  isAppleOAuthAccessDenied,
+} from './oauth/apple.config';
+
+// Export Apple OAuth types
+export type {
+  AppleOAuthConfig,
+  AppleLoginUrlOptions,
+  AppleUserInfo,
+  AppleIDTokenPayload,
+} from './oauth/apple.config';
+
 // Export types
 export type {
   NodeEnv,
