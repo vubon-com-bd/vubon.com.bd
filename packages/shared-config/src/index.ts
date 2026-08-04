@@ -405,6 +405,41 @@ export {
 // Export CORS types
 export type { CorsConfig, CorsRouteOptions } from './security/cors.config';
 
+// Export Rate Limit configuration
+export {
+  // Constants
+  RATE_LIMIT_MESSAGES,
+  TIME_WINDOWS,
+
+  // Configuration
+  rateLimitConfig,
+
+  // Factory function
+  createRateLimitConfig,
+
+  // Helper functions
+  getEndpointRateLimit,
+  getMethodRateLimit,
+  getUserTierRateLimit,
+  addEndpointRateLimit,
+  removeEndpointRateLimit,
+  generateRateLimitKey,
+  formatRateLimitMessage,
+  validateRateLimitConfig,
+} from './security/rate-limit.config';
+
+// Export Rate Limit types
+export type {
+  RateLimitConfig,
+  RateLimitRule,
+  AuthRateLimit,
+  ApiRateLimit,
+  UserTierRateLimit,
+  TierRateLimit,
+  EndpointRateLimit,
+  UserTier,
+} from './security/rate-limit.config';
+
 // Export types
 export type {
   NodeEnv,
