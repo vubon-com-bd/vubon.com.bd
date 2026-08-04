@@ -182,6 +182,21 @@ export {
   type DeviceType,
 } from './device/user-agent.util.js';
 
+// Export IP utilities
+export {
+  isIP,
+  getIPType,
+  maskIP,
+  isPrivateIP,
+  isPublicIP,
+  isIPInCIDR,
+  parseCIDR,
+  extractIPFromHeaders,
+  type IPType,
+  type IPMaskOptions,
+  type CIDRInfo,
+} from './device/ip.util.js';
+
 // Export JWT utilities
 export {
   signToken,
