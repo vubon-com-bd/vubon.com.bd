@@ -44,7 +44,7 @@ function validateAndExportEnv(): EnvConfig {
   // Validate environment variables
   const result = safeParseEnv(process.env as Record<string, string | undefined>);
 
-  if (!result.success) {
+  if (!result.success || !result.data) {
     const errors = result.error?.errors.map((err) => ({
       path: err.path.join('.'),
       message: err.message,
@@ -82,7 +82,7 @@ export function validateEnv(): EnvConfig {
 
   const result = safeParseEnv(process.env as Record<string, string | undefined>);
 
-  if (!result.success) {
+  if (!result.success || !result.data) {
     throw new Error(`Environment validation failed: ${result.error?.message || 'Unknown error'}`);
   }
 
