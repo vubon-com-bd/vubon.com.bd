@@ -165,6 +165,23 @@ export {
   type VersionedFingerprint,
 } from './device/fingerprint.util.js';
 
+// Export user agent utilities
+export {
+  parseUserAgent,
+  isMobile,
+  isBot,
+  isFeaturePhone,
+  isDesktop,
+  isTablet,
+  getDeviceInfo,
+  getOS,
+  getBrowser,
+  getVendor,
+  getModel,
+  type DeviceInfo,
+  type DeviceType,
+} from './device/user-agent.util.js';
+
 // Export JWT utilities
 export {
   signToken,
