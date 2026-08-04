@@ -523,16 +523,12 @@ export function validateSitemapEntries(entries: SitemapEntry[]): SitemapEntry[] 
 /**
  * Generates a sitemap XML string from entries
  * @param entries - The sitemap entries
- * @param urlSetAttributes - Additional attributes for the urlset tag
  * @returns XML string
  *
  * @example
  * const xml = generateSitemapXml(entries);
  */
-export function generateSitemapXml(
-  entries: SitemapEntry[],
-  urlSetAttributes: Record<string, string> = {}
-): string {
+export function generateSitemapXml(entries: SitemapEntry[]): string {
   const validEntries = validateSitemapEntries(entries);
 
   if (validEntries.length === 0) {
