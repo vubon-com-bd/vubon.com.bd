@@ -440,6 +440,43 @@ export type {
   UserTier,
 } from './security/rate-limit.config';
 
+// Export Helmet configuration
+export {
+  // Constants
+  DEFAULT_ALLOWED_DOMAINS,
+  DEFAULT_HSTS_MAX_AGE,
+  DEFAULT_REFERRER_POLICY,
+  DEFAULT_PERMISSIONS_POLICY,
+
+  // Configuration
+  helmetConfig,
+
+  // Factory function
+  createHelmetConfig,
+
+  // Helper functions
+  getAllowedDomains,
+  isCspReportOnly,
+  getCspConfig,
+  getSecurityHeadersConfig,
+  getHelmetConfig,
+  addCspDomain,
+  removeCspDomain,
+  validateHelmetConfig,
+} from './security/helmet.config';
+
+// Export Helmet types
+export type {
+  HelmetConfig,
+  CSPConfig,
+  CSPDirectives,
+  HSTSConfig,
+  XFrameOptionsConfig,
+  ReferrerPolicyConfig,
+  PermissionsPolicyConfig,
+  OtherHeadersConfig,
+} from './security/helmet.config';
+
 // Export types
 export type {
   NodeEnv,
