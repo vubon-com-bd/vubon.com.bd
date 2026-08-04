@@ -333,6 +333,45 @@ export type {
   SitemapIndexEntry,
 } from './seo/sitemap.config';
 
+// Export Robots configuration
+export {
+  // Constants
+  ROBOTS_USER_AGENTS,
+  DEFAULT_DISALLOW_PATHS,
+  DEFAULT_ALLOW_PATHS,
+  BOT_SPECIFIC_DISALLOW,
+  DEFAULT_CLEAN_PARAMS,
+
+  // Configuration
+  robotsTxtConfig,
+  metaRobotsConfig,
+
+  // Factory functions
+  createRobotsTxtConfig,
+  createMetaRobotsConfig,
+
+  // Helper functions
+  getRobotsTxtConfig,
+  getMetaRobotsForPath,
+  generateRobotsTxt,
+  generateMetaRobotsTag,
+  generateMetaRobotsHtml,
+  addCleanParam,
+  removeCleanParam,
+  addDisallow,
+  removeDisallow,
+  validateRobotsTxtConfig,
+} from './seo/robots.config';
+
+// Export Robots types
+export type {
+  RobotsTxtConfig,
+  RobotsUserAgent,
+  CleanParamRule,
+  MetaRobotsConfig,
+  MetaRobotDirectives,
+} from './seo/robots.config';
+
 // Export types
 export type {
   NodeEnv,
