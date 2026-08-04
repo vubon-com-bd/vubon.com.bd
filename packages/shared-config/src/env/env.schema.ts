@@ -449,6 +449,7 @@ export function safeParseEnv(env: Record<string, string | undefined>): {
 
 /**
  * Validates a single environment variable
+ * This function is kept for backward compatibility but uses a simpler implementation
  * @param key - The environment variable key
  * @param value - The environment variable value
  * @param schema - The Zod schema to validate against
@@ -456,7 +457,12 @@ export function safeParseEnv(env: Record<string, string | undefined>): {
  * @throws ZodError if validation fails
  */
 export function validateEnvVar<T>(key: string, value: string | undefined, schema: z.ZodType<T>): T {
-  return schema.parse({ [key]: value })[key];
+  // Create a simple object with the key and value
+  const obj: Record<string, string | undefined> = {};
+  obj[key] = value;
+  // Parse and return the result
+  const result = schema.parse(obj);
+  return result;
 }
 
 /**
