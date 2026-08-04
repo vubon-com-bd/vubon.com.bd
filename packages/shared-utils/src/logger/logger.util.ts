@@ -4,132 +4,66 @@
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 
 /**
- * Log entry interface
+ * Log context interface
  */
-export interface LogEntry {
-  /** Log level */
-  level: LogLevel;
-  /** Log message */
-  message: string;
-  /** Timestamp of the log */
-  timestamp: Date;
-  /** Namespace/context of the log */
-  namespace?: string;
+export interface LogContext {
   /** Additional metadata */
-  metadata?: Record<string, unknown>;
-  /** Error stack trace (if applicable) */
-  stack?: string;
+  [key: string]: unknown;
 }
 
 /**
  * Logger configuration
  */
 export interface LoggerConfig {
-  /** Minimum log level to output (default: 'info') */
-  minLevel?: LogLevel;
-  /** Whether to output in JSON format (default: false) */
+  /** Log level (default: 'info') */
+  level?: LogLevel;
+  /** Whether to enable colors (default: true in development) */
+  colors?: boolean;
+  /** Whether to output as JSON (default: true in production) */
   json?: boolean;
-  /** Whether to include timestamps (default: true) */
-  includeTimestamp?: boolean;
-  /** Whether to include log level (default: true) */
-  includeLevel?: boolean;
-  /** Whether to include namespace (default: true) */
-  includeNamespace?: boolean;
-  /** Custom log formatter */
-  formatter?: (entry: LogEntry) => string;
-  /** Whether to output to console (default: true) */
-  consoleOutput?: boolean;
+  /** Namespace for the logger */
+  namespace?: string;
+  /** Custom timestamp format */
+  timestampFormat?: string;
+  /** Additional default context */
+  defaultContext?: LogContext;
 }
 
 /**
  * Logger interface
  */
 export interface Logger {
-  /** Log at debug level */
-  debug: (message: string, metadata?: Record<string, unknown>) => void;
-  /** Log at info level */
-  info: (message: string, metadata?: Record<string, unknown>) => void;
-  /** Log at warn level */
-  warn: (message: string, metadata?: Record<string, unknown>) => void;
-  /** Log at error level */
-  error: (message: string, metadata?: Record<string, unknown>) => void;
-  /** Log at fatal level */
-  fatal: (message: string, metadata?: Record<string, unknown>) => void;
-  /** Create a child logger with namespace */
-  child: (namespace: string) => Logger;
-  /** Set minimum log level */
-  setMinLevel: (level: LogLevel) => void;
-  /** Get current configuration */
-  getConfig: () => LoggerConfig;
+  /** Log debug message */
+  debug(message: string, context?: LogContext): void;
+  /** Log info message */
+  info(message: string, context?: LogContext): void;
+  /** Log warn message */
+  warn(message: string, context?: LogContext): void;
+  /** Log error message */
+  error(message: string, context?: LogContext): void;
+  /** Log fatal message */
+  fatal(message: string, context?: LogContext): void;
+  /** Create child logger with namespace */
+  child(namespace: string): Logger;
+  /** Set log level */
+  setLevel(level: LogLevel): void;
 }
 
 /**
- * Performance log entry
+ * Color codes for different log levels
  */
-export interface PerformanceLog {
-  /** Operation name */
-  operation: string;
-  /** Start timestamp */
-  startTime: Date;
-  /** End timestamp */
-  endTime: Date;
-  /** Duration in milliseconds */
-  durationMs: number;
-  /** Additional metadata */
-  metadata?: Record<string, unknown>;
-}
-
-/**
- * ANSI color codes for console output
- */
-const COLORS = {
-  reset: '\x1b[0m',
-  bright: '\x1b[1m',
-  dim: '\x1b[2m',
-  underscore: '\x1b[4m',
-  blink: '\x1b[5m',
-  reverse: '\x1b[7m',
-  hidden: '\x1b[8m',
-
-  fg: {
-    black: '\x1b[30m',
-    red: '\x1b[31m',
-    green: '\x1b[32m',
-    yellow: '\x1b[33m',
-    blue: '\x1b[34m',
-    magenta: '\x1b[35m',
-    cyan: '\x1b[36m',
-    white: '\x1b[37m',
-    crimson: '\x1b[38m',
-  },
-  bg: {
-    black: '\x1b[40m',
-    red: '\x1b[41m',
-    green: '\x1b[42m',
-    yellow: '\x1b[43m',
-    blue: '\x1b[44m',
-    magenta: '\x1b[45m',
-    cyan: '\x1b[46m',
-    white: '\x1b[47m',
-    crimson: '\x1b[48m',
-  },
+const COLORS: Record<LogLevel, string> = {
+  debug: '\x1b[36m', // Cyan
+  info: '\x1b[32m', // Green
+  warn: '\x1b[33m', // Yellow
+  error: '\x1b[31m', // Red
+  fatal: '\x1b[41m\x1b[37m', // Red background, white text
 };
 
 /**
- * Level color mapping
+ * Level weights for comparison
  */
-const LEVEL_COLORS: Record<LogLevel, string> = {
-  debug: COLORS.fg.cyan,
-  info: COLORS.fg.green,
-  warn: COLORS.fg.yellow,
-  error: COLORS.fg.red,
-  fatal: COLORS.fg.crimson + COLORS.bright,
-};
-
-/**
- * Level priority mapping
- */
-const LEVEL_PRIORITY: Record<LogLevel, number> = {
+const LEVEL_WEIGHTS: Record<LogLevel, number> = {
   debug: 0,
   info: 1,
   warn: 2,
@@ -138,234 +72,207 @@ const LEVEL_PRIORITY: Record<LogLevel, number> = {
 };
 
 /**
- * Default logger configuration
- */
-const DEFAULT_CONFIG: LoggerConfig = {
-  minLevel: 'info',
-  json: false,
-  includeTimestamp: true,
-  includeLevel: true,
-  includeNamespace: true,
-  consoleOutput: true,
-};
-
-/**
- * Creates a logger instance with the specified configuration
+ * Creates a new logger instance
  *
  * @param config - Logger configuration
- * @param namespace - Optional namespace for the logger
  * @returns Logger instance
  *
  * @example
- * const logger = createLogger({ minLevel: 'debug' });
+ * const logger = createLogger({ namespace: 'app', level: 'debug' });
  * logger.info('Application started');
  */
-export function createLogger(config: LoggerConfig = {}, namespace: string = 'app'): Logger {
-  const finalConfig = { ...DEFAULT_CONFIG, ...config };
-  const isProduction = process.env.NODE_ENV === 'production';
+export function createLogger(config: LoggerConfig = {}): Logger {
+  const env = process.env.NODE_ENV || 'development';
+  const isProduction = env === 'production';
+  const isTest = env === 'test';
 
-  // In production, force JSON output if not specified
-  if (isProduction && finalConfig.json === undefined) {
-    finalConfig.json = true;
+  const level = config.level || (isTest ? 'warn' : isProduction ? 'info' : 'debug');
+  const colors = config.colors ?? (!isProduction && !isTest);
+  const json = config.json ?? isProduction;
+  const namespace = config.namespace || '';
+  const defaultContext = config.defaultContext || {};
+
+  let currentLevel = level;
+
+  /**
+   * Formats a log entry
+   */
+  function formatLogEntry(
+    level: LogLevel,
+    message: string,
+    context?: LogContext
+  ): string | Record<string, unknown> {
+    const timestamp = new Date().toISOString();
+    const mergedContext = { ...defaultContext, ...context };
+
+    if (json) {
+      return {
+        timestamp,
+        level,
+        namespace,
+        message,
+        ...mergedContext,
+      };
+    }
+
+    const color = colors ? COLORS[level] : '';
+    const reset = colors ? '\x1b[0m' : '';
+    const levelColor = colors ? color : '';
+    const namespaceStr = namespace ? `[${namespace}] ` : '';
+    const contextStr =
+      Object.keys(mergedContext).length > 0 ? ` ${JSON.stringify(mergedContext)}` : '';
+
+    return `${timestamp} ${levelColor}${level.toUpperCase()}${reset} ${namespaceStr}${message}${contextStr}`;
   }
 
-  let currentMinLevel = finalConfig.minLevel || 'info';
-
-  const shouldLog = (level: LogLevel): boolean => {
-    return LEVEL_PRIORITY[level] >= LEVEL_PRIORITY[currentMinLevel];
-  };
-
-  const formatLog = (entry: LogEntry): string => {
-    if (finalConfig.formatter) {
-      return finalConfig.formatter(entry);
-    }
-
-    if (finalConfig.json) {
-      return JSON.stringify({
-        level: entry.level,
-        message: entry.message,
-        timestamp: entry.timestamp.toISOString(),
-        namespace: entry.namespace,
-        ...(entry.metadata && { metadata: entry.metadata }),
-        ...(entry.stack && { stack: entry.stack }),
-      });
-    }
-
-    // Colorful console output
-    const parts: string[] = [];
-
-    if (finalConfig.includeTimestamp) {
-      const time = entry.timestamp.toLocaleTimeString();
-      parts.push(`${COLORS.dim}${time}${COLORS.reset}`);
-    }
-
-    if (finalConfig.includeLevel) {
-      const color = LEVEL_COLORS[entry.level] || COLORS.fg.white;
-      const levelLabel = entry.level.toUpperCase().padStart(5);
-      parts.push(`${color}${levelLabel}${COLORS.reset}`);
-    }
-
-    if (finalConfig.includeNamespace && entry.namespace) {
-      parts.push(`${COLORS.fg.blue}[${entry.namespace}]${COLORS.reset}`);
-    }
-
-    parts.push(entry.message);
-
-    if (entry.metadata && Object.keys(entry.metadata).length > 0) {
-      parts.push(COLORS.dim + JSON.stringify(entry.metadata) + COLORS.reset);
-    }
-
-    if (entry.stack) {
-      parts.push(COLORS.dim + entry.stack + COLORS.reset);
-    }
-
-    return parts.join(' ');
-  };
-
-  const log = (level: LogLevel, message: string, metadata?: Record<string, unknown>): void => {
-    if (!shouldLog(level)) {
+  /**
+   * Outputs a log entry
+   */
+  function log(level: LogLevel, message: string, context?: LogContext): void {
+    // Check if log level is enabled
+    if (LEVEL_WEIGHTS[level] < LEVEL_WEIGHTS[currentLevel]) {
       return;
     }
 
-    const entry: LogEntry = {
-      level,
-      message,
-      timestamp: new Date(),
-      namespace,
-      metadata,
+    const entry = formatLogEntry(level, message, context);
+
+    if (json) {
+      const consoleMethod = level === 'fatal' ? 'error' : level;
+      // eslint-disable-next-line no-console
+      console[consoleMethod](JSON.stringify(entry));
+      return;
+    }
+
+    const consoleMethod = level === 'fatal' ? 'error' : level;
+    // eslint-disable-next-line no-console
+    console[consoleMethod](entry);
+  }
+
+  /**
+   * Creates a child logger with a namespace
+   */
+  function child(childNamespace: string): Logger {
+    const childConfig = {
+      ...config,
+      namespace: namespace ? `${namespace}:${childNamespace}` : childNamespace,
     };
+    return createLogger(childConfig);
+  }
 
-    // Capture stack trace for errors
-    if (level === 'error' || level === 'fatal') {
-      const stack = new Error().stack;
-      if (stack) {
-        entry.stack = stack.split('\n').slice(2).join('\n');
-      }
+  /**
+   * Sets the log level
+   */
+  function setLevel(newLevel: LogLevel): void {
+    if (newLevel && LEVEL_WEIGHTS[newLevel] !== undefined) {
+      currentLevel = newLevel;
     }
-
-    if (finalConfig.consoleOutput) {
-      const formatted = formatLog(entry);
-
-      switch (level) {
-        case 'debug':
-          console.debug(formatted);
-          break;
-        case 'info':
-          console.info(formatted);
-          break;
-        case 'warn':
-          console.warn(formatted);
-          break;
-        case 'error':
-          console.error(formatted);
-          break;
-        case 'fatal':
-          console.error(formatted);
-          break;
-      }
-    }
-  };
-
-  const child = (childNamespace: string): Logger => {
-    const childConfig = { ...finalConfig };
-    return createLogger(childConfig, `${namespace}:${childNamespace}`);
-  };
-
-  const setMinLevel = (level: LogLevel): void => {
-    currentMinLevel = level;
-  };
-
-  const getConfig = (): LoggerConfig => {
-    return { ...finalConfig };
-  };
+  }
 
   return {
-    debug: (message: string, metadata?: Record<string, unknown>) => {
-      log('debug', message, metadata);
-    },
-    info: (message: string, metadata?: Record<string, unknown>) => {
-      log('info', message, metadata);
-    },
-    warn: (message: string, metadata?: Record<string, unknown>) => {
-      log('warn', message, metadata);
-    },
-    error: (message: string, metadata?: Record<string, unknown>) => {
-      log('error', message, metadata);
-    },
-    fatal: (message: string, metadata?: Record<string, unknown>) => {
-      log('fatal', message, metadata);
-    },
+    debug: (message: string, context?: LogContext) => log('debug', message, context),
+    info: (message: string, context?: LogContext) => log('info', message, context),
+    warn: (message: string, context?: LogContext) => log('warn', message, context),
+    error: (message: string, context?: LogContext) => log('error', message, context),
+    fatal: (message: string, context?: LogContext) => log('fatal', message, context),
     child,
-    setMinLevel,
-    getConfig,
+    setLevel,
   };
 }
 
 /**
- * Default application logger instance
+ * Default logger instance
  */
 export const logger = createLogger();
+
+/**
+ * Logs a message at debug level
+ *
+ * @param message - The message to log
+ * @param context - Additional context
+ */
+export function debug(message: string, context?: LogContext): void {
+  logger.debug(message, context);
+}
+
+/**
+ * Logs a message at info level
+ *
+ * @param message - The message to log
+ * @param context - Additional context
+ */
+export function info(message: string, context?: LogContext): void {
+  logger.info(message, context);
+}
+
+/**
+ * Logs a message at warn level
+ *
+ * @param message - The message to log
+ * @param context - Additional context
+ */
+export function warn(message: string, context?: LogContext): void {
+  logger.warn(message, context);
+}
+
+/**
+ * Logs a message at error level
+ *
+ * @param message - The message to log
+ * @param context - Additional context
+ */
+export function error(message: string, context?: LogContext): void {
+  logger.error(message, context);
+}
+
+/**
+ * Logs a message at fatal level
+ *
+ * @param message - The message to log
+ * @param context - Additional context
+ */
+export function fatal(message: string, context?: LogContext): void {
+  logger.fatal(message, context);
+}
 
 /**
  * Logs performance metrics for an operation
  *
  * @param operation - Name of the operation
  * @param fn - The function to measure
- * @param metadata - Additional metadata
- * @param loggerInstance - Logger instance to use (default: default logger)
+ * @param context - Additional context
  * @returns The result of the function
  *
  * @example
- * const result = await logPerformance('database-query', async () => {
- *   return await db.query('SELECT * FROM users');
+ * const result = await logPerformance('api-call', async () => {
+ *   return await fetchData();
  * });
  */
 export async function logPerformance<T>(
   operation: string,
-  fn: () => Promise<T> | T,
-  metadata?: Record<string, unknown>,
-  loggerInstance: Logger = logger
+  fn: () => T | Promise<T>,
+  context?: LogContext
 ): Promise<T> {
-  const startTime = Date.now();
+  const start = performance.now();
 
   try {
     const result = await fn();
-    const endTime = Date.now();
-    const durationMs = endTime - startTime;
+    const duration = performance.now() - start;
 
-    const perfLog: PerformanceLog = {
+    logger.debug(`Performance: ${operation} completed`, {
       operation,
-      startTime: new Date(startTime),
-      endTime: new Date(endTime),
-      durationMs,
-      metadata,
-    };
-
-    loggerInstance.debug(`Performance: ${operation}`, {
-      performance: perfLog,
-      ...metadata,
+      duration,
+      ...context,
     });
 
     return result;
   } catch (error) {
-    const endTime = Date.now();
-    const durationMs = endTime - startTime;
+    const duration = performance.now() - start;
 
-    const perfLog: PerformanceLog = {
+    logger.error(`Performance: ${operation} failed`, {
       operation,
-      startTime: new Date(startTime),
-      endTime: new Date(endTime),
-      durationMs,
-      metadata: {
-        ...metadata,
-        error: error instanceof Error ? error.message : String(error),
-      },
-    };
-
-    loggerInstance.error(`Performance error: ${operation}`, {
-      performance: perfLog,
+      duration,
       error: error instanceof Error ? error.message : String(error),
-      ...metadata,
+      ...context,
     });
 
     throw error;
@@ -373,98 +280,49 @@ export async function logPerformance<T>(
 }
 
 /**
- * Creates a performance logger that can be reused
+ * Creates a performance logger for measuring multiple operations
  *
- * @param operation - Name of the operation
- * @param loggerInstance - Logger instance to use (default: default logger)
- * @returns Performance logger object with start and end methods
+ * @param prefix - Prefix for operation names
+ * @param _loggerInstance - Logger instance to use (optional, defaults to global logger)
+ * @returns Performance logger object
  *
  * @example
- * const perf = createPerformanceLogger('api-call');
- * perf.start();
- * // ... do work ...
- * perf.end({ result: 'success' });
+ * const perf = createPerformanceLogger('api');
+ * await perf.measure('users', () => fetchUsers());
+ * await perf.measure('posts', () => fetchPosts());
  */
-export function createPerformanceLogger(
-  operation: string,
-  loggerInstance: Logger = logger
-): {
-  start: () => void;
-  end: (metadata?: Record<string, unknown>) => void;
-  abort: (error?: Error) => void;
-} {
-  let startTime: number | null = null;
-
+export function createPerformanceLogger(prefix: string, _loggerInstance: Logger = logger) {
   return {
-    start: () => {
-      startTime = Date.now();
-      loggerInstance.debug(`Performance start: ${operation}`);
+    /**
+     * Measures and logs the performance of an operation
+     */
+    measure: async <T>(
+      operation: string,
+      fn: () => T | Promise<T>,
+      context?: LogContext
+    ): Promise<T> => {
+      const fullOperation = `${prefix}:${operation}`;
+      return logPerformance(fullOperation, fn, context);
     },
-    end: (metadata?: Record<string, unknown>) => {
-      if (startTime === null) {
-        loggerInstance.warn(`Performance end called without start: ${operation}`);
-        return;
-      }
 
-      const endTime = Date.now();
-      const durationMs = endTime - startTime;
+    /**
+     * Measures multiple operations in parallel
+     */
+    measureAll: async <T>(
+      operations: Record<string, () => T | Promise<T>>,
+      context?: LogContext
+    ): Promise<Record<string, T>> => {
+      const entries = Object.entries(operations);
+      const results: Record<string, T> = {};
 
-      const perfLog: PerformanceLog = {
-        operation,
-        startTime: new Date(startTime),
-        endTime: new Date(endTime),
-        durationMs,
-        metadata,
-      };
+      await Promise.all(
+        entries.map(async ([name, fn]) => {
+          const fullOperation = `${prefix}:${name}`;
+          results[name] = await logPerformance(fullOperation, fn, context);
+        })
+      );
 
-      loggerInstance.debug(`Performance end: ${operation}`, {
-        performance: perfLog,
-        ...metadata,
-      });
-
-      startTime = null;
-    },
-    abort: (error?: Error) => {
-      if (startTime === null) {
-        loggerInstance.warn(`Performance abort called without start: ${operation}`);
-        return;
-      }
-
-      const endTime = Date.now();
-      const durationMs = endTime - startTime;
-
-      const perfLog: PerformanceLog = {
-        operation,
-        startTime: new Date(startTime),
-        endTime: new Date(endTime),
-        durationMs,
-        metadata: {
-          aborted: true,
-          ...(error && { error: error.message }),
-        },
-      };
-
-      loggerInstance.warn(`Performance aborted: ${operation}`, {
-        performance: perfLog,
-        ...(error && { error: error.message }),
-      });
-
-      startTime = null;
+      return results;
     },
   };
-}
-
-/**
- * Creates a child logger with a namespace
- *
- * @param namespace - Namespace for the child logger
- * @param config - Logger configuration (optional)
- * @returns Child logger instance
- *
- * @example
- * const dbLogger = createChildLogger('database');
- * dbLogger.info('Connected to database');
- */
-export function createChildLogger(namespace: string, config?: LoggerConfig): Logger {
-  return createLogger(config, namespace);
 }
