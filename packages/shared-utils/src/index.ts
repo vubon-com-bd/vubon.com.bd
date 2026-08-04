@@ -4,7 +4,7 @@
  */
 
 // Export email validation utilities
-export { isValidEmail, normalizeEmail, isDisposableEmail } from './validation/email.util.js';
+export { isValidEmail, normalizeEmail, isDisposableEmail } from './validation/email.util';
 
 // Export validator utilities
 export {
@@ -13,7 +13,7 @@ export {
   isValidUsername,
   isValidUUID,
   isValidURL,
-} from './validation/validator.util.js';
+} from './validation/validator.util';
 
 // Export phone validation utilities
 export {
@@ -30,7 +30,7 @@ export {
   type PhoneFormat,
   type BDPhoneOperator,
   type PhoneValidationResult,
-} from './validation/phone.util.js';
+} from './validation/phone.util';
 
 // Export sanitization utilities
 export {
@@ -42,10 +42,10 @@ export {
   sanitize,
   sanitizeUrl,
   sanitizeFileName,
-} from './validation/sanitize.util.js';
+} from './validation/sanitize.util';
 
 // Export crypto utilities
-export { hashPassword, comparePassword, hashPasswordSync } from './crypto/hash.util.js';
+export { hashPassword, comparePassword, hashPasswordSync } from './crypto/hash.util';
 
 // Export random token utilities
 export {
@@ -54,7 +54,7 @@ export {
   generateVerificationToken,
   generateTOTPSecret,
   generateBackupCodes,
-} from './crypto/random.util.js';
+} from './crypto/random.util';
 
 // Export encryption utilities
 export {
@@ -69,7 +69,7 @@ export {
   type EncryptionAlgorithm,
   type EncryptionResult,
   type DecryptionResult,
-} from './crypto/encrypt.util.js';
+} from './crypto/encrypt.util';
 
 // Export string formatter utilities
 export {
@@ -80,7 +80,7 @@ export {
   toTitleCase,
   toCamelCase,
   toSnakeCase,
-} from './formatter/string.util.js';
+} from './formatter/string.util';
 
 // Export date formatter utilities
 export {
@@ -108,7 +108,7 @@ export {
   formatDateDifference,
   type DateFormat,
   type DateFormatOptions,
-} from './formatter/date.util.js';
+} from './formatter/date.util';
 
 // Export currency formatter utilities
 export {
@@ -129,7 +129,7 @@ export {
   type CurrencyCode,
   type CurrencyConfig,
   type CurrencyFormatOptions,
-} from './formatter/currency.util.js';
+} from './formatter/currency.util';
 
 // Export number formatter utilities
 export {
@@ -150,7 +150,7 @@ export {
   toFixed,
   randomNumber,
   type NumberFormatOptions,
-} from './formatter/number.util.js';
+} from './formatter/number.util';
 
 // Export device fingerprint utilities
 export {
@@ -163,7 +163,7 @@ export {
   type DeviceFingerprintData,
   type FingerprintComparisonResult,
   type VersionedFingerprint,
-} from './device/fingerprint.util.js';
+} from './device/fingerprint.util';
 
 // Export user agent utilities
 export {
@@ -180,7 +180,7 @@ export {
   getModel,
   type DeviceInfo,
   type DeviceType,
-} from './device/user-agent.util.js';
+} from './device/user-agent.util';
 
 // Export IP utilities
 export {
@@ -195,7 +195,7 @@ export {
   type IPType,
   type IPMaskOptions,
   type CIDRInfo,
-} from './device/ip.util.js';
+} from './device/ip.util';
 
 // Export async utilities
 export {
@@ -208,7 +208,7 @@ export {
   type SleepOptions,
   type BackoffOptions,
   type SleepCondition,
-} from './async/sleep.util.js';
+} from './async/sleep.util';
 
 // Export environment utilities
 export {
@@ -235,21 +235,24 @@ export {
   type EnvironmentInfo,
   type FeatureFlags,
   type FeatureFlagConfig,
-} from './env/env.util.js';
+} from './env/env.util';
 
 // Export logger utilities
 export {
   createLogger,
   logger,
+  debug,
+  info,
+  warn,
+  error,
+  fatal,
   logPerformance,
   createPerformanceLogger,
-  createChildLogger,
   type LogLevel,
-  type LogEntry,
+  type LogContext,
   type LoggerConfig,
   type Logger,
-  type PerformanceLog,
-} from './logger/logger.util.js';
+} from './logger/logger.util';
 
 // Export JWT utilities
 export {
@@ -261,7 +264,7 @@ export {
   isTokenExpired,
   addToBlacklist,
   isBlacklisted,
-} from './token/jwt.util.js';
+} from './token/jwt.util';
 
 // Export refresh token utilities
 export {
@@ -277,4 +280,4 @@ export {
   isValidRefreshToken,
   type RefreshTokenData,
   type TokenRotationResult,
-} from './token/refresh-token.util.js';
+} from './token/refresh-token.util';
