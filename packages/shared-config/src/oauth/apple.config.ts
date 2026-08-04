@@ -337,15 +337,7 @@ export function extractAppleUserInfo(
     lastName: '',
   };
 
-  // Extract name from payload or nameData
-  let name = '';
-
-  // Check if name is in payload (Apple may include it in the ID token)
-  if (payload.name && typeof payload.name === 'string') {
-    name = payload.name;
-  }
-
-  // Check if name is in the user info request data
+  // Extract name from nameData (Apple sends name in a separate request)
   if (nameData && typeof nameData === 'object') {
     const userData = nameData as Record<string, unknown>;
 
@@ -357,6 +349,7 @@ export function extractAppleUserInfo(
       if (nameObj.lastName) {
         userInfo.lastName = nameObj.lastName;
       }
+      // Apple sometimes sends fullName directly
       if (nameObj.fullName) {
         userInfo.name = nameObj.fullName;
       }
