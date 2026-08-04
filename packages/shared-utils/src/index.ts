@@ -197,6 +197,19 @@ export {
   type CIDRInfo,
 } from './device/ip.util.js';
 
+// Export async utilities
+export {
+  sleep,
+  sleepWithAbort,
+  sleepWithJitter,
+  calculateBackoffDelay,
+  sleepUntil,
+  backoffSleep,
+  type SleepOptions,
+  type BackoffOptions,
+  type SleepCondition,
+} from './async/sleep.util.js';
+
 // Export JWT utilities
 export {
   signToken,
