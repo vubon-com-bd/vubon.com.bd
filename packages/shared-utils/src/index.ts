@@ -152,6 +152,19 @@ export {
   type NumberFormatOptions,
 } from './formatter/number.util.js';
 
+// Export device fingerprint utilities
+export {
+  generateFingerprint,
+  compareFingerprints,
+  fingerprintSimilarity,
+  generateVersionedFingerprint,
+  compareVersionedFingerprint,
+  extractFingerprintData,
+  type DeviceFingerprintData,
+  type FingerprintComparisonResult,
+  type VersionedFingerprint,
+} from './device/fingerprint.util.js';
+
 // Export JWT utilities
 export {
   signToken,
