@@ -144,6 +144,48 @@ export type {
   FacebookUserInfo,
 } from './oauth/facebook.config';
 
+// Export GitHub OAuth configuration
+export {
+  // Constants
+  GITHUB_API_VERSION,
+  GITHUB_AUTH_ENDPOINT,
+  GITHUB_TOKEN_ENDPOINT,
+  GITHUB_USER_INFO_ENDPOINT,
+  GITHUB_USER_EMAILS_ENDPOINT,
+  GITHUB_SCOPES,
+  GITHUB_RESPONSE_TYPE,
+  GITHUB_GRANT_TYPE,
+  GITHUB_OAUTH_ERRORS,
+  GITHUB_OAUTH_ERROR_MESSAGES,
+
+  // Configuration
+  githubOAuthConfig,
+  createGitHubOAuthConfig,
+
+  // Helper functions
+  isGitHubOAuthConfigured,
+  getGitHubLoginUrl,
+  getGitHubTokenExchangeBody,
+  getGitHubUserInfoUrl,
+  getGitHubUserEmailsUrl,
+  extractGitHubUserInfo,
+  extractGitHubPrimaryEmail,
+  extractGitHubAllEmails,
+  isValidGitHubTokenResponse,
+
+  // Error handling
+  getGitHubOAuthErrorMessage,
+  isGitHubOAuthAccessDenied,
+} from './oauth/github.config';
+
+// Export GitHub OAuth types
+export type {
+  GitHubOAuthConfig,
+  GitHubLoginUrlOptions,
+  GitHubUserInfo,
+  GitHubEmailInfo,
+} from './oauth/github.config';
+
 // Export types
 export type {
   NodeEnv,
