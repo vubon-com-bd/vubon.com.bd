@@ -210,6 +210,33 @@ export {
   type SleepCondition,
 } from './async/sleep.util.js';
 
+// Export environment utilities
+export {
+  getEnvironment,
+  getEnvironmentInfo,
+  isProduction,
+  isDevelopment,
+  isStaging,
+  isTest,
+  isLocal,
+  getEnvVar,
+  getEnvVarBoolean,
+  getEnvVarNumber,
+  getEnvVarArray,
+  loadFeatureFlags,
+  isFeatureEnabled,
+  getFeatureFlags,
+  isServer,
+  isBrowser,
+  getAppName,
+  getAppVersion,
+  getApiUrl,
+  type Environment,
+  type EnvironmentInfo,
+  type FeatureFlags,
+  type FeatureFlagConfig,
+} from './env/env.util.js';
+
 // Export JWT utilities
 export {
   signToken,
