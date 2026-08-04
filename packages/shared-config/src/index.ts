@@ -1,7 +1,7 @@
 // packages/shared-config/src/index.ts
 /**
  * Shared configuration module entry point
- * Exports all configuration schemas, types, and validation utilities
+ * Exports all configuration schemas, types, and utilities
  */
 
 // Export environment schemas
@@ -67,6 +67,45 @@ export {
   // Environment info
   getEnvironmentInfo,
 } from './env/env.validation';
+
+// Export Google OAuth configuration
+export {
+  // Constants
+  GOOGLE_AUTH_ENDPOINT,
+  GOOGLE_TOKEN_ENDPOINT,
+  GOOGLE_USER_INFO_ENDPOINT,
+  GOOGLE_REVOKE_ENDPOINT,
+  GOOGLE_SCOPES,
+  GOOGLE_RESPONSE_TYPE,
+  GOOGLE_GRANT_TYPE,
+  GOOGLE_ACCESS_TYPE,
+  GOOGLE_OAUTH_ERRORS,
+  GOOGLE_OAUTH_ERROR_MESSAGES,
+
+  // Configuration
+  googleOAuthConfig,
+  createGoogleOAuthConfig,
+
+  // Helper functions
+  isGoogleOAuthConfigured,
+  getGoogleLoginUrl,
+  getGoogleTokenExchangeBody,
+  getGoogleRevokeBody,
+  getGoogleUserInfoUrl,
+  getGoogleRevokeUrl,
+
+  // Error handling
+  isGoogleOAuthAccessDenied,
+  isGoogleOAuthConfigError,
+  getGoogleOAuthErrorMessage,
+
+  // Token validation
+  isValidGoogleTokenResponse,
+  isValidGoogleUserInfo,
+} from './oauth/google.config';
+
+// Export Google OAuth types
+export type { GoogleOAuthConfig, GoogleLoginUrlOptions } from './oauth/google.config';
 
 // Export types
 export type {
