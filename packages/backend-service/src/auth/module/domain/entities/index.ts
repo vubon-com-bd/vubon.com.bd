@@ -1,4 +1,3 @@
-// packages/backend-service/src/auth/module/domain/entities/index.ts
 /**
  * Entities Exports
  * Central export point for all entities in the auth domain
@@ -22,6 +21,9 @@ export { MFA } from './mfa.entity';
 // Export refresh token entity
 export { RefreshToken } from './refresh-token.entity';
 
+// Export email verification entity
+export { EmailVerification } from './email-verification.entity';
+
 // Export user types
 export type { UserStatus, UserMetadata } from './user.entity';
 
@@ -33,6 +35,9 @@ export type { SocialProvider } from './social-account.entity';
 
 // Export MFA types
 export type { MFAType, MFAStatus } from './mfa.entity';
+
+// Export email verification types
+export type { EmailVerificationStatus } from './email-verification.entity';
 
 // Note: Import and export other entities as they are created
 // export { Token } from './token.entity';
