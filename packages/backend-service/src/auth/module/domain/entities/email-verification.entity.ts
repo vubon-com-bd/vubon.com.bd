@@ -176,7 +176,11 @@ export class EmailVerification extends BaseEntity {
     return this._status === 'PENDING';
   }
 
-  get isExpired(): boolean {
+  /**
+   * Check if the verification is expired
+   * Returns true if status is EXPIRED or current time is past expiry
+   */
+  isExpired(): boolean {
     if (this._status === 'EXPIRED') {
       return true;
     }
