@@ -1,0 +1,29 @@
+# ডিস্ট্রিবিউশন ফোল্ডার
+/dist
+/build
+
+# নোড মডিউলস
+/node_modules
+
+# টেস্ট কভারেজ
+/coverage
+/coverage-e2e
+
+# লগ ফাইল
+*.log
+logs/
+
+# এনভায়রনমেন্ট ফাইল
+.env
+.env.local
+.env.*.local
+
+# IDE ফাইল
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS ফাইল
+.DS_Store
+Thumbs.db
