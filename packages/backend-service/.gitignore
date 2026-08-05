@@ -10,7 +10,6 @@
 /coverage-e2e
 
 # লগ ফাইল
-*.log
 logs/
 
 # এনভায়রনমেন্ট ফাইল
@@ -27,3 +26,6 @@ logs/
 # OS ফাইল
 .DS_Store
 Thumbs.db
+.env
+.env.local
+.env.*.local
