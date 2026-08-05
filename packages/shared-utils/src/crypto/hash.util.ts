@@ -1,3 +1,4 @@
+// @ts-ignore - bcryptjs এর নিজস্ব টাইপ ডিফিনেশন আছে
 import bcrypt from 'bcryptjs';
 
 /**
