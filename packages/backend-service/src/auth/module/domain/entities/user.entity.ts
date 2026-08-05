@@ -1,6 +1,6 @@
 // packages/backend-service/src/auth/module/domain/entities/user.entity.ts
 import { randomUUID } from 'crypto';
-import { Password, Email, Phone } from '../value-objects';
+import { Email, Phone } from '../value-objects';
 import { BaseEntity } from './base.entity';
 import { DEFAULT_ROLES } from '@vubon/shared-constants';
 import type { DefaultRole } from '@vubon/shared-constants';
@@ -136,6 +136,11 @@ export class User extends BaseEntity {
       }
     );
 
+    // Set phone if provided
+    if (phone) {
+      user._phone = phone;
+    }
+
     return user;
   }
 
@@ -157,7 +162,7 @@ export class User extends BaseEntity {
     createdAt?: Date,
     updatedAt?: Date
   ): User {
-    return new User(
+    const user = new User(
       id,
       email,
       passwordHash,
@@ -171,6 +176,8 @@ export class User extends BaseEntity {
       createdAt,
       updatedAt
     );
+
+    return user;
   }
 
   // ============================================================================
@@ -625,7 +632,8 @@ export class User extends BaseEntity {
       return false;
     }
 
-    return super.equals(other);
+    // Use base entity equality by ID
+    return this.id === other.id;
   }
 
   /**
