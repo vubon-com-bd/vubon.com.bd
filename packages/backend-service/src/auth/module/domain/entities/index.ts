@@ -24,6 +24,9 @@ export { RefreshToken } from './refresh-token.entity';
 // Export email verification entity
 export { EmailVerification } from './email-verification.entity';
 
+// Export password reset entity
+export { PasswordReset } from './password-reset.entity';
+
 // Export user types
 export type { UserStatus, UserMetadata } from './user.entity';
 
@@ -38,6 +41,9 @@ export type { MFAType, MFAStatus } from './mfa.entity';
 
 // Export email verification types
 export type { EmailVerificationStatus } from './email-verification.entity';
+
+// Export password reset types
+export type { PasswordResetStatus } from './password-reset.entity';
 
 // Note: Import and export other entities as they are created
 // export { Token } from './token.entity';
