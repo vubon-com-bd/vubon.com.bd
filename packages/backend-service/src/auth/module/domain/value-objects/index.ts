@@ -15,6 +15,9 @@ export { Password } from './password.vo';
 // Export phone value object
 export { Phone } from './phone.vo';
 
+// Export OTP code value object
+export { OtpCode } from './otp-code.vo';
+
 // Note: Import and export other value objects as they are created
 // export { UserId } from './user-id.vo';
 // export { Token } from './token.vo';
