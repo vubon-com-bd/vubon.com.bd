@@ -33,6 +33,9 @@ export { AccountLock } from './account-lock.entity';
 // Export login attempt entity
 export { LoginAttempt } from './login-attempt.entity';
 
+// Export device entity
+export { Device } from './device.entity';
+
 // Export user types
 export type { UserStatus, UserMetadata } from './user.entity';
 
@@ -56,6 +59,9 @@ export type { LockLevel, LockReason } from './account-lock.entity';
 
 // Export login attempt types
 export type { LoginAttemptStatus, LoginFailureReason } from './login-attempt.entity';
+
+// Export device types
+export type { DeviceType, DeviceTrustLevel, DeviceStatus } from './device.entity';
 
 // Note: Import and export other entities as they are created
 // export { Token } from './token.entity';
