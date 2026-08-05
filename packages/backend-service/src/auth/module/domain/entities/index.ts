@@ -12,10 +12,10 @@ export { User } from './user.entity';
 // Export session entity
 export { Session } from './session.entity';
 
-// Export social account entity - commented out until file is complete
+// Export social account entity
 export { SocialAccount } from './social-account.entity';
 
-// Export MFA entity - commented out until file is complete
+// Export MFA entity
 export { MFA } from './mfa.entity';
 
 // Export user types
@@ -24,10 +24,10 @@ export type { UserStatus, UserMetadata } from './user.entity';
 // Export session types
 export type { SessionStatus, SessionDeviceInfo } from './session.entity';
 
-// Export social account types - commented out until file is complete
+// Export social account types
 export type { SocialProvider } from './social-account.entity';
 
-// Export MFA types - commented out until file is complete
+// Export MFA types
 export type { MFAType, MFAStatus } from './mfa.entity';
 
 // Note: Import and export other entities as they are created
