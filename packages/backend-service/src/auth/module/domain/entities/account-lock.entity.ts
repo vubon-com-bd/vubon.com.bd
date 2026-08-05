@@ -1,3 +1,4 @@
+// packages/backend-service/src/auth/module/domain/entities/account-lock.entity.ts
 import { randomUUID } from 'crypto';
 import { BaseEntity } from './base.entity';
 
@@ -118,7 +119,12 @@ export class AccountLock extends BaseEntity {
       now,
       finalExpiresAt,
       failedAttempts,
-      appliedByAdminId
+      appliedByAdminId,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      details
     );
   }
 
