@@ -1,7 +1,6 @@
 // packages/backend-service/src/auth/module/domain/entities/mfa.entity.ts
 import { randomUUID } from 'crypto';
 import { BaseEntity } from './base.entity';
-import { Token, OtpCode } from '../value-objects';
 import { generateBackupCodes } from '@vubon/shared-utils';
 
 /**
@@ -192,7 +191,11 @@ export class MFA extends BaseEntity {
     return this._status === 'DISABLED';
   }
 
-  get isLocked(): boolean {
+  /**
+   * Check if the MFA is currently locked
+   * Returns true if status is LOCKED and lock hasn't expired
+   */
+  isLocked(): boolean {
     if (this._status !== 'LOCKED') {
       return false;
     }
