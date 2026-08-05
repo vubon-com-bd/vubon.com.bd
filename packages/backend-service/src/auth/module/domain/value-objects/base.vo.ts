@@ -70,12 +70,4 @@ export abstract class BaseValueObject<T> {
 
     return false;
   }
-
-  /**
-   * Create a new instance with the given value
-   * Useful for transforming value objects while preserving immutability
-   */
-  protected static create<T, V extends BaseValueObject<T>>(this: new (value: T) => V, value: T): V {
-    return new this(value);
-  }
 }
