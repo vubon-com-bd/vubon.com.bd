@@ -24,6 +24,9 @@ export { DeviceId } from './device-id.vo';
 // Export IP address value object
 export { IpAddress } from './ip-address.vo';
 
+// Export user agent value object
+export { UserAgent } from './user-agent.vo';
+
 // Note: Import and export other value objects as they are created
 // export { UserId } from './user-id.vo';
 // export { Token } from './token.vo';
