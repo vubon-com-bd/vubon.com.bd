@@ -36,6 +36,9 @@ export { LoginAttempt } from './login-attempt.entity';
 // Export device entity
 export { Device } from './device.entity';
 
+// Export security event entity
+export { SecurityEvent } from './security-event.entity';
+
 // Export user types
 export type { UserStatus, UserMetadata } from './user.entity';
 
@@ -62,6 +65,9 @@ export type { LoginAttemptStatus, LoginFailureReason } from './login-attempt.ent
 
 // Export device types
 export type { DeviceType, DeviceTrustLevel, DeviceStatus } from './device.entity';
+
+// Export security event types
+export type { SecurityEventType, SecuritySeverity } from './security-event.entity';
 
 // Note: Import and export other entities as they are created
 // export { Token } from './token.entity';
