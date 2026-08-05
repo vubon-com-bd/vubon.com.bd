@@ -13,7 +13,7 @@ export { User } from './user.entity';
 export { Session } from './session.entity';
 
 // Export social account entity - commented out until file is complete
-/export { SocialAccount } from './social-account.entity';
+export { SocialAccount } from './social-account.entity';
 
 // Export MFA entity - commented out until file is complete
 export { MFA } from './mfa.entity';
