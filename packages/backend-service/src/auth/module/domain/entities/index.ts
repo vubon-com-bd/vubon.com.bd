@@ -27,6 +27,9 @@ export { EmailVerification } from './email-verification.entity';
 // Export password reset entity
 export { PasswordReset } from './password-reset.entity';
 
+// Export account lock entity
+export { AccountLock } from './account-lock.entity';
+
 // Export user types
 export type { UserStatus, UserMetadata } from './user.entity';
 
@@ -44,6 +47,9 @@ export type { EmailVerificationStatus } from './email-verification.entity';
 
 // Export password reset types
 export type { PasswordResetStatus } from './password-reset.entity';
+
+// Export account lock types
+export type { LockLevel, LockReason } from './account-lock.entity';
 
 // Note: Import and export other entities as they are created
 // export { Token } from './token.entity';
