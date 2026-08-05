@@ -12,6 +12,9 @@ export { User } from './user.entity';
 // Export session entity
 export { Session } from './session.entity';
 
+// Export social account entity
+export { SocialAccount } from './social-account.entity';
+
 // Export MFA entity - commented out until mfa.entity.ts is complete
 // export { MFA } from './mfa.entity';
 
@@ -20,6 +23,9 @@ export type { UserStatus, UserMetadata } from './user.entity';
 
 // Export session types
 export type { SessionStatus, SessionDeviceInfo } from './session.entity';
+
+// Export social account types
+export type { SocialProvider } from './social-account.entity';
 
 // Export MFA types - commented out until mfa.entity.ts is complete
 // export type { MFAType, MFAStatus } from './mfa.entity';
