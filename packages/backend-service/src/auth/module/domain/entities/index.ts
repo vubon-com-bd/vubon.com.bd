@@ -30,6 +30,9 @@ export { PasswordReset } from './password-reset.entity';
 // Export account lock entity
 export { AccountLock } from './account-lock.entity';
 
+// Export login attempt entity
+export { LoginAttempt } from './login-attempt.entity';
+
 // Export user types
 export type { UserStatus, UserMetadata } from './user.entity';
 
@@ -50,6 +53,9 @@ export type { PasswordResetStatus } from './password-reset.entity';
 
 // Export account lock types
 export type { LockLevel, LockReason } from './account-lock.entity';
+
+// Export login attempt types
+export type { LoginAttemptStatus, LoginFailureReason } from './login-attempt.entity';
 
 // Note: Import and export other entities as they are created
 // export { Token } from './token.entity';
