@@ -27,3 +27,6 @@ export { type IAccountLockRepository } from './account-lock.repository.interface
 
 // Export social account repository interface
 export { type ISocialAccountRepository } from './social-account.repository.interface';
+
+// Export login attempt repository interface
+export { type ILoginAttemptRepository } from './login-attempt.repository.interface';
