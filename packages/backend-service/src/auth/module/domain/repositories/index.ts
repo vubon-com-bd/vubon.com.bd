@@ -15,3 +15,6 @@ export { type IUserRepository } from './user.repository.interface';
 
 // Export session repository interface
 export { type ISessionRepository } from './session.repository.interface';
+
+// Export MFA repository interface
+export { type IMfaRepository } from './mfa.repository.interface';
