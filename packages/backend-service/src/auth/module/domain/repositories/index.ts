@@ -33,3 +33,6 @@ export { type ILoginAttemptRepository } from './login-attempt.repository.interfa
 
 // Export email verification repository interface
 export { type IEmailVerificationRepository } from './email-verification.repository.interface';
+
+// Export password reset repository interface
+export { type IPasswordResetRepository } from './password-reset.repository.interface';
