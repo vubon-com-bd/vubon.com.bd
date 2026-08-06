@@ -12,3 +12,6 @@ export {
 
 // Export user repository interface
 export { type IUserRepository } from './user.repository.interface';
+
+// Export session repository interface
+export { type ISessionRepository } from './session.repository.interface';

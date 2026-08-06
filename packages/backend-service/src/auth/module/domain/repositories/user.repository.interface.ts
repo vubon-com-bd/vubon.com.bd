@@ -2,6 +2,7 @@ import type { User } from '../entities/user.entity';
 import type { IBaseRepository } from './base.repository.interface';
 import type { DefaultRole } from '@vubon/shared-constants';
 import type { UserStatus } from '../entities/user.entity';
+import type { Email, Phone } from '../value-objects';
 
 /**
  * User Repository Interface
@@ -10,18 +11,18 @@ import type { UserStatus } from '../entities/user.entity';
  */
 export interface IUserRepository extends IBaseRepository<User> {
   /**
-   * Find a user by their email address
-   * @param email - The email address to search for
+   * Find a user by their email address (Value Object)
+   * @param email - The Email value object to search for
    * @returns The found user or null if not found
    */
-  findByEmail(email: string): Promise<User | null>;
+  findByEmail(email: Email): Promise<User | null>;
 
   /**
-   * Find a user by their phone number
-   * @param phone - The phone number to search for
+   * Find a user by their phone number (Value Object)
+   * @param phone - The Phone value object to search for
    * @returns The found user or null if not found
    */
-  findByPhone(phone: string): Promise<User | null>;
+  findByPhone(phone: Phone): Promise<User | null>;
 
   /**
    * Find users by their status
@@ -71,18 +72,18 @@ export interface IUserRepository extends IBaseRepository<User> {
   restore(id: string): Promise<boolean>;
 
   /**
-   * Check if a user exists by email
-   * @param email - The email address to check
+   * Check if a user exists by email (Value Object)
+   * @param email - The Email value object to check
    * @returns True if a user with the email exists, false otherwise
    */
-  existsByEmail(email: string): Promise<boolean>;
+  existsByEmail(email: Email): Promise<boolean>;
 
   /**
-   * Check if a user exists by phone
-   * @param phone - The phone number to check
+   * Check if a user exists by phone (Value Object)
+   * @param phone - The Phone value object to check
    * @returns True if a user with the phone exists, false otherwise
    */
-  existsByPhone(phone: string): Promise<boolean>;
+  existsByPhone(phone: Phone): Promise<boolean>;
 
   /**
    * Update a user's login metadata (last login time, IP, user agent)
