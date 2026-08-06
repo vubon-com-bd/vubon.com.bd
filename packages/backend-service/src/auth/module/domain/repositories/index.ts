@@ -24,3 +24,6 @@ export { type IRefreshTokenRepository } from './refresh-token.repository.interfa
 
 // Export account lock repository interface
 export { type IAccountLockRepository } from './account-lock.repository.interface';
+
+// Export social account repository interface
+export { type ISocialAccountRepository } from './social-account.repository.interface';
