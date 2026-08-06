@@ -53,3 +53,4 @@ pnpm --filter @vubon/auth-service start:dev
 ## License
 
 MIT
+# force trigger Fri Aug  7 01:43:29 +06 2026
