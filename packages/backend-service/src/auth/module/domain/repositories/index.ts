@@ -21,3 +21,6 @@ export { type IMfaRepository } from './mfa.repository.interface';
 
 // Export refresh token repository interface
 export { type IRefreshTokenRepository } from './refresh-token.repository.interface';
+
+// Export account lock repository interface
+export { type IAccountLockRepository } from './account-lock.repository.interface';
