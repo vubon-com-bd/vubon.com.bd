@@ -30,5 +30,8 @@ export { UserAgent } from './user-agent.vo';
 // Export token value object
 export { Token } from './token.vo';
 
+// Export user ID value object
+export { UserId } from './user-id.vo';
+
 // Note: Import and export other value objects as they are created
 // export { UserId } from './user-id.vo';
