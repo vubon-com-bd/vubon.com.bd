@@ -1,0 +1,204 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+  checks: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 22
+
+jobs:
+  lint:
+    name: 🧹 Lint & Format
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        # ✅ version সরিয়ে দিন - package.json থেকে read করবে
+
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          package-manager-cache: true
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Run Prettier check
+        run: pnpm run format:check
+
+      - name: Run ESLint
+        run: pnpm run lint
+
+  type-check:
+    name: 🔍 Type Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: lint
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          package-manager-cache: true
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Run TypeScript type check
+        run: pnpm run type-check
+
+  build:
+    name: 🏗️ Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: type-check
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          package-manager-cache: true
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm -r run build
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4.6.0
+        with:
+          name: vubon-build-${{ github.sha }}
+          retention-days: 7
+          path: |
+            apps/**/.next
+            apps/**/dist
+            packages/**/dist
+            package.json
+            pnpm-lock.yaml
+
+  test:
+    name: 🧪 Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: build
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          package-manager-cache: true
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4.1.9
+        with:
+          name: vubon-build-${{ github.sha }}
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Run tests
+        run: pnpm run test
+
+  security:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: build
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          package-manager-cache: true
+
+      - name: Install Dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Dependency Audit
+        run: pnpm audit --prod --audit-level=high || true
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v4
+
+      - name: CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
+
+  status:
+    name: ✅ Status Check
+    runs-on: ubuntu-latest
+    needs: [lint, type-check, build, test, security]
+    if: always()
+
+    steps:
+      - name: Check status
+        run: |
+          echo "✅ Lint: ${{ needs.lint.result }}"
+          echo "✅ Type Check: ${{ needs.type-check.result }}"
+          echo "✅ Build: ${{ needs.build.result }}"
+          echo "✅ Test: ${{ needs.test.result }}"
+          echo "✅ Security: ${{ needs.security.result }}"
+
+          if [ "${{ needs.lint.result }}" != "success" ] || \
+             [ "${{ needs.type-check.result }}" != "success" ] || \
+             [ "${{ needs.build.result }}" != "success" ] || \
+             [ "${{ needs.test.result }}" != "success" ] || \
+             [ "${{ needs.security.result }}" != "success" ]; then
+            echo "❌ Some checks failed!"
+            exit 1
+          fi
+
+          echo "🎉 All checks passed!"
