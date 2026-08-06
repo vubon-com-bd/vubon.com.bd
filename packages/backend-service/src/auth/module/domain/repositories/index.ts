@@ -18,3 +18,6 @@ export { type ISessionRepository } from './session.repository.interface';
 
 // Export MFA repository interface
 export { type IMfaRepository } from './mfa.repository.interface';
+
+// Export refresh token repository interface
+export { type IRefreshTokenRepository } from './refresh-token.repository.interface';
