@@ -36,3 +36,6 @@ export { type IEmailVerificationRepository } from './email-verification.reposito
 
 // Export password reset repository interface
 export { type IPasswordResetRepository } from './password-reset.repository.interface';
+
+// Export security event repository interface
+export { type ISecurityEventRepository } from './security-event.repository.interface';
