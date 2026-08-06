@@ -1,7 +1,7 @@
 import type { MFA } from '../entities/mfa.entity';
 import type { IBaseRepository } from './base.repository.interface';
 import type { MFAType, MFAStatus } from '../entities/mfa.entity';
-import type { UserId } from '../value-objects';
+import type { Token } from '../value-objects';
 
 /**
  * MFA Repository Interface
@@ -10,105 +10,83 @@ import type { UserId } from '../value-objects';
  */
 export interface IMfaRepository extends IBaseRepository<MFA> {
   /**
-   * Find all MFA configurations for a specific user (Value Object)
-   * @param userId - The UserId value object of the user
-   * @param page - Page number for pagination (1-indexed)
-   * @param limit - Number of items per page
-   * @returns A paginated result containing MFA configurations and total count
+   * Find MFA configuration by user ID
+   * @param userId - The unique identifier of the user
+   * @returns The found MFA configuration or null if not found
    */
-  findByUserId(
-    userId: UserId,
-    page: number,
-    limit: number
-  ): Promise<{
-    items: MFA[];
-    total: number;
-  }>;
+  findByUserId(userId: string): Promise<MFA | null>;
 
   /**
-   * Find an MFA configuration by user ID and MFA type (Value Object)
-   * @param userId - The UserId value object of the user
+   * Find MFA configuration by user ID and MFA type
+   * @param userId - The unique identifier of the user
    * @param type - The MFA type (TOTP, SMS, EMAIL)
    * @returns The found MFA configuration or null if not found
    */
-  findByUserIdAndType(userId: UserId, type: MFAType): Promise<MFA | null>;
+  findByUserIdAndType(userId: string, type: MFAType): Promise<MFA | null>;
 
   /**
-   * Find all MFA configurations by status
-   * @param status - The MFA status to filter by
-   * @param page - Page number for pagination (1-indexed)
-   * @param limit - Number of items per page
-   * @returns A paginated result containing MFA configurations and total count
+   * Find all MFA configurations for a user
+   * @param userId - The unique identifier of the user
+   * @returns An array of MFA configurations
    */
-  findByStatus(
-    status: MFAStatus,
-    page: number,
-    limit: number
-  ): Promise<{
-    items: MFA[];
-    total: number;
-  }>;
+  findAllByUserId(userId: string): Promise<MFA[]>;
 
   /**
-   * Find all enabled MFA configurations for a user (Value Object)
-   * @param userId - The UserId value object of the user
-   * @param page - Page number for pagination (1-indexed)
-   * @param limit - Number of items per page
-   * @returns A paginated result containing enabled MFA configurations and total count
-   */
-  findEnabledByUserId(
-    userId: UserId,
-    page: number,
-    limit: number
-  ): Promise<{
-    items: MFA[];
-    total: number;
-  }>;
-
-  /**
-   * Update the status of an MFA configuration
+   * Update MFA status
    * @param id - The unique identifier of the MFA configuration
-   * @param status - The new status to set
-   * @returns True if update was successful, false if MFA configuration not found
+   * @param status - The new status (PENDING, ENABLED, DISABLED, LOCKED)
+   * @returns True if update was successful, false if not found
    */
   updateStatus(id: string, status: MFAStatus): Promise<boolean>;
 
   /**
-   * Increment the failed attempts counter for an MFA configuration
+   * Increment failed attempts counter
    * @param id - The unique identifier of the MFA configuration
-   * @returns True if update was successful, false if MFA configuration not found
+   * @param maxFailedAttempts - Maximum allowed failed attempts before lockout
+   * @param lockoutDurationMinutes - Lockout duration in minutes
+   * @returns True if increment was successful, false if not found
    */
-  incrementFailedAttempts(id: string): Promise<boolean>;
+  incrementFailedAttempts(
+    id: string,
+    maxFailedAttempts: number,
+    lockoutDurationMinutes: number
+  ): Promise<boolean>;
 
   /**
-   * Reset the failed attempts counter for an MFA configuration
+   * Reset failed attempts counter
    * @param id - The unique identifier of the MFA configuration
-   * @returns True if update was successful, false if MFA configuration not found
+   * @returns True if reset was successful, false if not found
    */
   resetFailedAttempts(id: string): Promise<boolean>;
 
   /**
-   * Update the backup codes for an MFA configuration
+   * Update backup codes
    * @param id - The unique identifier of the MFA configuration
-   * @param backupCodes - Array of new backup codes
-   * @returns True if update was successful, false if MFA configuration not found
+   * @param backupCodes - Array of backup code strings
+   * @returns True if update was successful, false if not found
    */
   updateBackupCodes(id: string, backupCodes: string[]): Promise<boolean>;
 
   /**
-   * Check if a user has any MFA configuration
-   * @param userId - The UserId value object of the user
-   * @returns True if the user has any MFA configuration, false otherwise
+   * Find MFA by secret (for verification)
+   * @param secret - The secret string to search for
+   * @returns The found MFA configuration or null if not found
    */
-  userHasMFA(userId: UserId): Promise<boolean>;
+  findBySecret(secret: string): Promise<MFA | null>;
 
   /**
-   * Check if a user has a specific MFA type
-   * @param userId - The UserId value object of the user
-   * @param type - The MFA type to check
-   * @returns True if the user has the specified MFA type, false otherwise
+   * Find enabled MFA configurations by user ID
+   * @param userId - The unique identifier of the user
+   * @returns An array of enabled MFA configurations
    */
-  userHasMFAType(userId: UserId, type: MFAType): Promise<boolean>;
+  findEnabledByUserId(userId: string): Promise<MFA[]>;
+
+  /**
+   * Check if user has MFA enabled
+   * @param userId - The unique identifier of the user
+   * @returns True if user has at least one enabled MFA method
+   */
+  hasEnabledMFA(userId: string): Promise<boolean>;
 
   /**
    * Find all locked MFA configurations
@@ -125,8 +103,24 @@ export interface IMfaRepository extends IBaseRepository<MFA> {
   }>;
 
   /**
-   * Unlock all MFA configurations that have passed their lock duration
-   * @returns Number of MFA configurations unlocked
+   * Find all expired MFA configurations (where verification expired)
+   * @param page - Page number for pagination (1-indexed)
+   * @param limit - Number of items per page
+   * @returns A paginated result containing expired MFA configurations and total count
    */
-  unlockExpiredLocked(): Promise<number>;
+  findExpired(
+    page: number,
+    limit: number
+  ): Promise<{
+    items: MFA[];
+    total: number;
+  }>;
+
+  /**
+   * Update MFA verification timestamp
+   * @param id - The unique identifier of the MFA configuration
+   * @param verifiedAt - The verification timestamp
+   * @returns True if update was successful, false if not found
+   */
+  updateVerifiedAt(id: string, verifiedAt: Date): Promise<boolean>;
 }
