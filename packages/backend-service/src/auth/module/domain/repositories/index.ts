@@ -30,3 +30,6 @@ export { type ISocialAccountRepository } from './social-account.repository.inter
 
 // Export login attempt repository interface
 export { type ILoginAttemptRepository } from './login-attempt.repository.interface';
+
+// Export email verification repository interface
+export { type IEmailVerificationRepository } from './email-verification.repository.interface';
