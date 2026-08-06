@@ -9,3 +9,6 @@ export {
   type PaginationOptions,
   type PaginatedResult,
 } from './base.repository.interface';
+
+// Export user repository interface
+export { type IUserRepository } from './user.repository.interface';
