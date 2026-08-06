@@ -3,7 +3,7 @@ import { BaseEntity } from '../entities/base.entity';
 /**
  * Pagination options for findAll method
  */
-export interface PaginationOptions<TEntity = any> {
+export interface PaginationOptions<TEntity extends BaseEntity = BaseEntity> {
   /** Page number (1-indexed) */
   page?: number;
   /** Number of items per page */
@@ -17,7 +17,7 @@ export interface PaginationOptions<TEntity = any> {
 /**
  * Paginated result wrapper
  */
-export interface PaginatedResult<TEntity> {
+export interface PaginatedResult<TEntity extends BaseEntity> {
   /** Array of entities for the current page */
   items: TEntity[];
   /** Total number of entities available */
