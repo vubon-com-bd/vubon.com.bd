@@ -25,5 +25,8 @@ export {
   type EmailAttachment,
 } from './notification-sender.port';
 
+// Export IP geolocation port
+export { type IIpGeolocation, type LocationInfo } from './ip-geolocation.port';
+
 // Note: Import and export other ports as they are created
 // export { type IIdGenerator } from './id-generator.port';
