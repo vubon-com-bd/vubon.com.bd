@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
 
 env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
 jobs:
   lint:
@@ -25,8 +26,6 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
-        with:
-          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -53,8 +52,6 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
-        with:
-          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -86,8 +83,6 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
-        with:
-          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -104,7 +99,7 @@ jobs:
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: vubon-build-\${{ github.sha }}
+          name: vubon-build-${{ github.sha }}
           retention-days: 7
           path: |
             packages/**/dist
@@ -127,8 +122,6 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
-        with:
-          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -152,8 +145,6 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
-        with:
-          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -180,17 +171,17 @@ jobs:
     steps:
       - name: Check status
         run: |
-          echo "✅ Lint: \${{ needs.lint.result }}"
-          echo "✅ Type Check: \${{ needs.type-check.result }}"
-          echo "✅ Build: \${{ needs.build.result }}"
-          echo "✅ Test: \${{ needs.test.result }}"
-          echo "✅ Security: \${{ needs.security.result }}"
+          echo "✅ Lint: ${{ needs.lint.result }}"
+          echo "✅ Type Check: ${{ needs.type-check.result }}"
+          echo "✅ Build: ${{ needs.build.result }}"
+          echo "✅ Test: ${{ needs.test.result }}"
+          echo "✅ Security: ${{ needs.security.result }}"
 
-          if [ "\${{ needs.lint.result }}" != "success" ] || \
-             [ "\${{ needs.type-check.result }}" != "success" ] || \
-             [ "\${{ needs.build.result }}" != "success" ] || \
-             [ "\${{ needs.test.result }}" != "success" ] || \
-             [ "\${{ needs.security.result }}" != "success" ]; then
+          if [ "${{ needs.lint.result }}" != "success" ] || \
+             [ "${{ needs.type-check.result }}" != "success" ] || \
+             [ "${{ needs.build.result }}" != "success" ] || \
+             [ "${{ needs.test.result }}" != "success" ] || \
+             [ "${{ needs.security.result }}" != "success" ]; then
             echo "❌ Some checks failed!"
             exit 1
           else
