@@ -28,5 +28,8 @@ export {
 // Export IP geolocation port
 export { type IIpGeolocation, type LocationInfo } from './ip-geolocation.port';
 
+// Export cache port
+export { type ICache } from './cache.port';
+
 // Note: Import and export other ports as they are created
 // export { type IIdGenerator } from './id-generator.port';
