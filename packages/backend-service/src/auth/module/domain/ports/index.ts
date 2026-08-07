@@ -18,6 +18,12 @@ export { type ITokenGenerator, type TokenPayload } from './token-generator.port'
 // Export OTP generator port
 export { type IOtpGenerator } from './otp-generator.port';
 
+// Export notification sender port
+export {
+  type INotificationSender,
+  type EmailOptions,
+  type EmailAttachment,
+} from './notification-sender.port';
+
 // Note: Import and export other ports as they are created
-// export { type IEmailService } from './email-service.port';
 // export { type IIdGenerator } from './id-generator.port';
