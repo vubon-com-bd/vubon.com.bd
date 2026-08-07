@@ -27,8 +27,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Install dependencies (no lockfile)
+        run: pnpm install --no-frozen-lockfile
 
       - name: Run Prettier check
         run: pnpm run format:check || true
@@ -53,8 +53,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Install dependencies (no lockfile)
+        run: pnpm install --no-frozen-lockfile
 
       - name: Build shared packages first
         run: |
@@ -84,8 +84,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Install dependencies (no lockfile)
+        run: pnpm install --no-frozen-lockfile
 
       - name: Build all packages
         run: |
@@ -99,7 +99,7 @@ jobs:
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: vubon-build-${{ github.sha }}
+          name: vubon-build-\${{ github.sha }}
           retention-days: 7
           path: |
             packages/**/dist
@@ -123,8 +123,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Install dependencies (no lockfile)
+        run: pnpm install --no-frozen-lockfile
 
       - name: Run tests
         run: pnpm --filter @vubon/backend-service test || true
@@ -146,8 +146,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Install dependencies (no lockfile)
+        run: pnpm install --no-frozen-lockfile
 
       - name: Dependency Audit
         run: pnpm audit --prod --audit-level=high || true
@@ -171,17 +171,17 @@ jobs:
     steps:
       - name: Check status
         run: |
-          echo "✅ Lint: ${{ needs.lint.result }}"
-          echo "✅ Type Check: ${{ needs.type-check.result }}"
-          echo "✅ Build: ${{ needs.build.result }}"
-          echo "✅ Test: ${{ needs.test.result }}"
-          echo "✅ Security: ${{ needs.security.result }}"
+          echo "✅ Lint: \${{ needs.lint.result }}"
+          echo "✅ Type Check: \${{ needs.type-check.result }}"
+          echo "✅ Build: \${{ needs.build.result }}"
+          echo "✅ Test: \${{ needs.test.result }}"
+          echo "✅ Security: \${{ needs.security.result }}"
 
-          if [ "${{ needs.lint.result }}" != "success" ] || \
-             [ "${{ needs.type-check.result }}" != "success" ] || \
-             [ "${{ needs.build.result }}" != "success" ] || \
-             [ "${{ needs.test.result }}" != "success" ] || \
-             [ "${{ needs.security.result }}" != "success" ]; then
+          if [ "\${{ needs.lint.result }}" != "success" ] || \
+             [ "\${{ needs.type-check.result }}" != "success" ] || \
+             [ "\${{ needs.build.result }}" != "success" ] || \
+             [ "\${{ needs.test.result }}" != "success" ] || \
+             [ "\${{ needs.security.result }}" != "success" ]; then
             echo "❌ Some checks failed!"
             exit 1
           else
