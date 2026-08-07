@@ -14,6 +14,7 @@ export {
   DEFAULT_PAGINATION,
   normalizePaginationParams,
 } from './common/pagination.dto';
+export { AuditDto, SoftDeleteAuditDto, type AuditFields } from './common/audit.dto';
 
 // Export authentication DTOs (to be added)
 // export { RegisterDto } from './auth/register.dto';
