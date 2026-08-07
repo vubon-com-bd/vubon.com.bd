@@ -15,6 +15,9 @@ export { type IPhoneValidator } from './phone-validator.port';
 // Export token generator port
 export { type ITokenGenerator, type TokenPayload } from './token-generator.port';
 
+// Export OTP generator port
+export { type IOtpGenerator } from './otp-generator.port';
+
 // Note: Import and export other ports as they are created
 // export { type IEmailService } from './email-service.port';
 // export { type IIdGenerator } from './id-generator.port';
