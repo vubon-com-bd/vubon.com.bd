@@ -7,6 +7,13 @@
 
 // Export common DTOs
 export { BaseResponseDto } from './common/base-response.dto';
+export {
+  type PaginationRequestDto,
+  type PaginationMetadataDto,
+  PaginatedResponseDto,
+  DEFAULT_PAGINATION,
+  normalizePaginationParams,
+} from './common/pagination.dto';
 
 // Export authentication DTOs (to be added)
 // export { RegisterDto } from './auth/register.dto';
