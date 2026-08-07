@@ -4,7 +4,6 @@ import { EMAIL_REGEX } from '@vubon/shared-constants';
 /**
  * Email Value Object
  * Represents a validated and normalized email address
- * Immutable and identified by its value
  */
 export class Email extends BaseValueObject<string> {
   private constructor(value: string) {
@@ -33,64 +32,17 @@ export class Email extends BaseValueObject<string> {
     if (!EMAIL_REGEX.STANDARD.test(value)) {
       throw new Error(`Invalid email format: ${value}`);
     }
+
+    if (value.length > 255) {
+      throw new Error('Email cannot exceed 255 characters');
+    }
   }
 
   /**
-   * Normalize email: trim and convert to lowercase
+   * Normalize email: trim whitespace and convert to lowercase
    */
   private static normalize(value: string): string {
     return value.trim().toLowerCase();
-  }
-
-  /**
-   * Check if the email is from a disposable/temporary service
-   */
-  isDisposable(): boolean {
-    const domain = this._value.split('@')[1];
-    if (!domain) {
-      return false;
-    }
-
-    const disposableDomains = new Set([
-      'tempmail.com',
-      'throwaway.com',
-      '10minutemail.com',
-      'guerrillamail.com',
-      'mailinator.com',
-      'yopmail.com',
-      'getnada.com',
-      'dropmail.me',
-      'mailnesia.com',
-      'spamgourmet.com',
-      'trashmail.com',
-      'temp-mail.org',
-      'fakeinbox.com',
-      'throwawaymail.com',
-      'guerrillamail.net',
-      'guerrillamail.org',
-      'guerrillamail.biz',
-      'maildrop.cc',
-      'mailcatch.com',
-      'spambox.us',
-      'tempinbox.com',
-      'trash2009.com',
-      'trashmail.net',
-      'trashmail.me',
-      'spamfree24.com',
-      'spamfree24.net',
-      'spamfree24.org',
-      'spamfree24.de',
-      'spamspot.com',
-      'wegwerfmail.de',
-      'wegwerfmail.net',
-      'wegwerfmail.org',
-      'mytemp.email',
-      'temp-mail.net',
-      'tempinbox.co',
-      'temp-mail.io',
-    ]);
-
-    return disposableDomains.has(domain);
   }
 
   /**
@@ -110,48 +62,26 @@ export class Email extends BaseValueObject<string> {
   }
 
   /**
-   * Check if the email has a specific domain
+   * Check if the email is from a specific domain
    */
-  hasDomain(domain: string): boolean {
+  isFromDomain(domain: string): boolean {
     return this.getDomain() === domain.toLowerCase();
   }
 
   /**
-   * Check if the email is from a specific email provider
-   */
-  isFromProvider(provider: string): boolean {
-    const providerDomains: Record<string, string[]> = {
-      gmail: ['gmail.com', 'googlemail.com'],
-      outlook: ['outlook.com', 'hotmail.com', 'live.com', 'msn.com'],
-      yahoo: ['yahoo.com', 'yahoo.co.uk', 'yahoo.fr', 'yahoo.de'],
-      icloud: ['icloud.com', 'me.com', 'mac.com'],
-      proton: ['protonmail.com', 'proton.me', 'pm.me'],
-    };
-
-    const domains = providerDomains[provider.toLowerCase()];
-    if (!domains) {
-      return false;
-    }
-
-    return domains.includes(this.getDomain());
-  }
-
-  /**
-   * Create a masked version of the email for privacy
+   * Mask the email for privacy
    * Example: john.doe@example.com -> j***e@example.com
    */
   mask(): string {
-    const [local, domain] = this._value.split('@');
-    if (!local || !domain) {
-      return this._value;
+    const localPart = this.getLocalPart();
+    const domain = this.getDomain();
+
+    if (localPart.length <= 2) {
+      return `${localPart}***@${domain}`;
     }
 
-    if (local.length <= 2) {
-      return `${local[0] || ''}***@${domain}`;
-    }
-
-    const first = local[0];
-    const last = local[local.length - 1];
+    const first = localPart.charAt(0);
+    const last = localPart.charAt(localPart.length - 1);
     return `${first}***${last}@${domain}`;
   }
 
@@ -162,11 +92,9 @@ export class Email extends BaseValueObject<string> {
     if (other === null || other === undefined) {
       return false;
     }
-
     if (!(other instanceof Email)) {
       return false;
     }
-
     return this._value === other._value;
   }
 
@@ -178,7 +106,7 @@ export class Email extends BaseValueObject<string> {
   }
 
   /**
-   * Get the raw value (alias for toString)
+   * Get the raw value
    */
   getValue(): string {
     return this._value;

@@ -1,3 +1,4 @@
+// packages/shared-constants/src/auth/session.constants.ts
 /**
  * Session management constants for the monorepo
  * All session-related constants are centralized here for consistent session handling
