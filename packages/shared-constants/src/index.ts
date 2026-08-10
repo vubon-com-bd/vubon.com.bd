@@ -3,8 +3,5 @@
  * Exports all constants from all sub-modules
  */
 
-// Re-export everything from auth module
-export * from './auth';
-
-// Re-export everything from user module
+// Re-export everything from authentication module
 export * from './authentication';
