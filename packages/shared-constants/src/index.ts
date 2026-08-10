@@ -5,3 +5,6 @@
 
 // Re-export everything from auth module
 export * from './auth';
+
+// Re-export everything from user module
+export * from './authentication';
