@@ -1,0 +1,325 @@
+/**
+ * SEO কন্টেন্ট টাইপ এনাম
+ */
+export const SEO_CONTENT_TYPE = {
+  BLOG: 'blog',
+  ARTICLE: 'article',
+  PRODUCT_DESCRIPTION: 'product-description',
+  CATEGORY_DESCRIPTION: 'category-description',
+  LANDING_PAGE: 'landing-page',
+  ABOUT_PAGE: 'about-page',
+  CONTACT_PAGE: 'contact-page',
+  FAQ: 'faq',
+  GUIDE: 'guide',
+  REVIEW: 'review',
+} as const;
+
+/**
+ * SEO_CONTENT_TYPE থেকে টাইপ
+ */
+export type SEOContentType = (typeof SEO_CONTENT_TYPE)[keyof typeof SEO_CONTENT_TYPE];
+
+/**
+ * SEO কন্টেন্ট টাইপ লেবেল
+ */
+export const SEO_CONTENT_TYPE_LABELS: Record<SEOContentType, string> = {
+  [SEO_CONTENT_TYPE.BLOG]: 'Blog Post',
+  [SEO_CONTENT_TYPE.ARTICLE]: 'Article',
+  [SEO_CONTENT_TYPE.PRODUCT_DESCRIPTION]: 'Product Description',
+  [SEO_CONTENT_TYPE.CATEGORY_DESCRIPTION]: 'Category Description',
+  [SEO_CONTENT_TYPE.LANDING_PAGE]: 'Landing Page',
+  [SEO_CONTENT_TYPE.ABOUT_PAGE]: 'About Page',
+  [SEO_CONTENT_TYPE.CONTACT_PAGE]: 'Contact Page',
+  [SEO_CONTENT_TYPE.FAQ]: 'FAQ Page',
+  [SEO_CONTENT_TYPE.GUIDE]: 'Guide',
+  [SEO_CONTENT_TYPE.REVIEW]: 'Review',
+} as const;
+
+/**
+ * SEO কন্টেন্ট টাইপ বিবরণ
+ */
+export const SEO_CONTENT_TYPE_DESCRIPTIONS: Record<SEOContentType, string> = {
+  [SEO_CONTENT_TYPE.BLOG]: 'Regular blog posts for content marketing and engagement',
+  [SEO_CONTENT_TYPE.ARTICLE]: 'In-depth articles on specific topics for authority building',
+  [SEO_CONTENT_TYPE.PRODUCT_DESCRIPTION]: 'Product page descriptions for e-commerce conversion',
+  [SEO_CONTENT_TYPE.CATEGORY_DESCRIPTION]: 'Category page descriptions for product listing pages',
+  [SEO_CONTENT_TYPE.LANDING_PAGE]: 'Dedicated landing pages for marketing campaigns',
+  [SEO_CONTENT_TYPE.ABOUT_PAGE]: 'About page for brand storytelling and trust building',
+  [SEO_CONTENT_TYPE.CONTACT_PAGE]: 'Contact page with location and contact information',
+  [SEO_CONTENT_TYPE.FAQ]: 'Frequently Asked Questions page for user queries',
+  [SEO_CONTENT_TYPE.GUIDE]: 'Comprehensive guides for user education and engagement',
+  [SEO_CONTENT_TYPE.REVIEW]: 'Product or service reviews for social proof',
+} as const;
+
+/**
+ * SEO কন্টেন্ট টাইপ আইকন
+ */
+export const SEO_CONTENT_TYPE_ICONS: Record<SEOContentType, string> = {
+  [SEO_CONTENT_TYPE.BLOG]: '📝',
+  [SEO_CONTENT_TYPE.ARTICLE]: '📄',
+  [SEO_CONTENT_TYPE.PRODUCT_DESCRIPTION]: '🛍️',
+  [SEO_CONTENT_TYPE.CATEGORY_DESCRIPTION]: '📂',
+  [SEO_CONTENT_TYPE.LANDING_PAGE]: '🎯',
+  [SEO_CONTENT_TYPE.ABOUT_PAGE]: '👤',
+  [SEO_CONTENT_TYPE.CONTACT_PAGE]: '📞',
+  [SEO_CONTENT_TYPE.FAQ]: '❓',
+  [SEO_CONTENT_TYPE.GUIDE]: '📖',
+  [SEO_CONTENT_TYPE.REVIEW]: '⭐',
+} as const;
+
+/**
+ * SEO কন্টেন্ট টাইপ কালার (হেক্স কোড)
+ */
+export const SEO_CONTENT_TYPE_COLORS: Record<SEOContentType, string> = {
+  [SEO_CONTENT_TYPE.BLOG]: '#3b82f6', // Blue-500
+  [SEO_CONTENT_TYPE.ARTICLE]: '#8b5cf6', // Violet-500
+  [SEO_CONTENT_TYPE.PRODUCT_DESCRIPTION]: '#f59e0b', // Amber-500
+  [SEO_CONTENT_TYPE.CATEGORY_DESCRIPTION]: '#22c55e', // Green-500
+  [SEO_CONTENT_TYPE.LANDING_PAGE]: '#ec4899', // Pink-500
+  [SEO_CONTENT_TYPE.ABOUT_PAGE]: '#06b6d4', // Cyan-500
+  [SEO_CONTENT_TYPE.CONTACT_PAGE]: '#f97316', // Orange-500
+  [SEO_CONTENT_TYPE.FAQ]: '#94a3b8', // Slate-400
+  [SEO_CONTENT_TYPE.GUIDE]: '#6366f1', // Indigo-500
+  [SEO_CONTENT_TYPE.REVIEW]: '#22d3ee', // Cyan-400
+} as const;
+
+/**
+ * SEO কন্টেন্ট টাইপ আদর্শ শব্দ সংখ্যা
+ */
+export const SEO_CONTENT_TYPE_OPTIMAL_WORDS: Record<SEOContentType, number> = {
+  [SEO_CONTENT_TYPE.BLOG]: 1500,
+  [SEO_CONTENT_TYPE.ARTICLE]: 2500,
+  [SEO_CONTENT_TYPE.PRODUCT_DESCRIPTION]: 500,
+  [SEO_CONTENT_TYPE.CATEGORY_DESCRIPTION]: 800,
+  [SEO_CONTENT_TYPE.LANDING_PAGE]: 1200,
+  [SEO_CONTENT_TYPE.ABOUT_PAGE]: 600,
+  [SEO_CONTENT_TYPE.CONTACT_PAGE]: 200,
+  [SEO_CONTENT_TYPE.FAQ]: 300,
+  [SEO_CONTENT_TYPE.GUIDE]: 3000,
+  [SEO_CONTENT_TYPE.REVIEW]: 800,
+} as const;
+
+/**
+ * SEO কন্টেন্ট টাইপ ন্যূনতম শব্দ সংখ্যা
+ */
+export const SEO_CONTENT_TYPE_MIN_WORDS: Record<SEOContentType, number> = {
+  [SEO_CONTENT_TYPE.BLOG]: 300,
+  [SEO_CONTENT_TYPE.ARTICLE]: 500,
+  [SEO_CONTENT_TYPE.PRODUCT_DESCRIPTION]: 100,
+  [SEO_CONTENT_TYPE.CATEGORY_DESCRIPTION]: 200,
+  [SEO_CONTENT_TYPE.LANDING_PAGE]: 400,
+  [SEO_CONTENT_TYPE.ABOUT_PAGE]: 200,
+  [SEO_CONTENT_TYPE.CONTACT_PAGE]: 50,
+  [SEO_CONTENT_TYPE.FAQ]: 100,
+  [SEO_CONTENT_TYPE.GUIDE]: 800,
+  [SEO_CONTENT_TYPE.REVIEW]: 300,
+} as const;
+
+/**
+ * SEO কন্টেন্ট টাইপ কনভার্সন সম্ভাবনা (০-১০০)
+ */
+export const SEO_CONTENT_TYPE_CONVERSION: Record<SEOContentType, number> = {
+  [SEO_CONTENT_TYPE.BLOG]: 40,
+  [SEO_CONTENT_TYPE.ARTICLE]: 50,
+  [SEO_CONTENT_TYPE.PRODUCT_DESCRIPTION]: 80,
+  [SEO_CONTENT_TYPE.CATEGORY_DESCRIPTION]: 60,
+  [SEO_CONTENT_TYPE.LANDING_PAGE]: 90,
+  [SEO_CONTENT_TYPE.ABOUT_PAGE]: 30,
+  [SEO_CONTENT_TYPE.CONTACT_PAGE]: 70,
+  [SEO_CONTENT_TYPE.FAQ]: 30,
+  [SEO_CONTENT_TYPE.GUIDE]: 45,
+  [SEO_CONTENT_TYPE.REVIEW]: 65,
+} as const;
+
+/**
+ * SEO কন্টেন্ট টাইপ কনফিগারেশন
+ */
+export interface SEOContentTypeConfig {
+  type: SEOContentType;
+  label: string;
+  description: string;
+  icon: string;
+  color: string;
+  optimalWords: number;
+  minWords: number;
+  conversionPotential: number;
+  isCommercial: boolean;
+  isInformational: boolean;
+  order: number;
+}
+
+/**
+ * SEO কন্টেন্ট টাইপ মেটাডেটা
+ */
+export const SEO_CONTENT_TYPE_METADATA: Record<SEOContentType, SEOContentTypeConfig> = {
+  [SEO_CONTENT_TYPE.BLOG]: {
+    type: SEO_CONTENT_TYPE.BLOG,
+    label: SEO_CONTENT_TYPE_LABELS[SEO_CONTENT_TYPE.BLOG],
+    description: SEO_CONTENT_TYPE_DESCRIPTIONS[SEO_CONTENT_TYPE.BLOG],
+    icon: SEO_CONTENT_TYPE_ICONS[SEO_CONTENT_TYPE.BLOG],
+    color: SEO_CONTENT_TYPE_COLORS[SEO_CONTENT_TYPE.BLOG],
+    optimalWords: SEO_CONTENT_TYPE_OPTIMAL_WORDS[SEO_CONTENT_TYPE.BLOG],
+    minWords: SEO_CONTENT_TYPE_MIN_WORDS[SEO_CONTENT_TYPE.BLOG],
+    conversionPotential: SEO_CONTENT_TYPE_CONVERSION[SEO_CONTENT_TYPE.BLOG],
+    isCommercial: false,
+    isInformational: true,
+    order: 0,
+  },
+  [SEO_CONTENT_TYPE.ARTICLE]: {
+    type: SEO_CONTENT_TYPE.ARTICLE,
+    label: SEO_CONTENT_TYPE_LABELS[SEO_CONTENT_TYPE.ARTICLE],
+    description: SEO_CONTENT_TYPE_DESCRIPTIONS[SEO_CONTENT_TYPE.ARTICLE],
+    icon: SEO_CONTENT_TYPE_ICONS[SEO_CONTENT_TYPE.ARTICLE],
+    color: SEO_CONTENT_TYPE_COLORS[SEO_CONTENT_TYPE.ARTICLE],
+    optimalWords: SEO_CONTENT_TYPE_OPTIMAL_WORDS[SEO_CONTENT_TYPE.ARTICLE],
+    minWords: SEO_CONTENT_TYPE_MIN_WORDS[SEO_CONTENT_TYPE.ARTICLE],
+    conversionPotential: SEO_CONTENT_TYPE_CONVERSION[SEO_CONTENT_TYPE.ARTICLE],
+    isCommercial: false,
+    isInformational: true,
+    order: 1,
+  },
+  [SEO_CONTENT_TYPE.PRODUCT_DESCRIPTION]: {
+    type: SEO_CONTENT_TYPE.PRODUCT_DESCRIPTION,
+    label: SEO_CONTENT_TYPE_LABELS[SEO_CONTENT_TYPE.PRODUCT_DESCRIPTION],
+    description: SEO_CONTENT_TYPE_DESCRIPTIONS[SEO_CONTENT_TYPE.PRODUCT_DESCRIPTION],
+    icon: SEO_CONTENT_TYPE_ICONS[SEO_CONTENT_TYPE.PRODUCT_DESCRIPTION],
+    color: SEO_CONTENT_TYPE_COLORS[SEO_CONTENT_TYPE.PRODUCT_DESCRIPTION],
+    optimalWords: SEO_CONTENT_TYPE_OPTIMAL_WORDS[SEO_CONTENT_TYPE.PRODUCT_DESCRIPTION],
+    minWords: SEO_CONTENT_TYPE_MIN_WORDS[SEO_CONTENT_TYPE.PRODUCT_DESCRIPTION],
+    conversionPotential: SEO_CONTENT_TYPE_CONVERSION[SEO_CONTENT_TYPE.PRODUCT_DESCRIPTION],
+    isCommercial: true,
+    isInformational: false,
+    order: 2,
+  },
+  [SEO_CONTENT_TYPE.CATEGORY_DESCRIPTION]: {
+    type: SEO_CONTENT_TYPE.CATEGORY_DESCRIPTION,
+    label: SEO_CONTENT_TYPE_LABELS[SEO_CONTENT_TYPE.CATEGORY_DESCRIPTION],
+    description: SEO_CONTENT_TYPE_DESCRIPTIONS[SEO_CONTENT_TYPE.CATEGORY_DESCRIPTION],
+    icon: SEO_CONTENT_TYPE_ICONS[SEO_CONTENT_TYPE.CATEGORY_DESCRIPTION],
+    color: SEO_CONTENT_TYPE_COLORS[SEO_CONTENT_TYPE.CATEGORY_DESCRIPTION],
+    optimalWords: SEO_CONTENT_TYPE_OPTIMAL_WORDS[SEO_CONTENT_TYPE.CATEGORY_DESCRIPTION],
+    minWords: SEO_CONTENT_TYPE_MIN_WORDS[SEO_CONTENT_TYPE.CATEGORY_DESCRIPTION],
+    conversionPotential: SEO_CONTENT_TYPE_CONVERSION[SEO_CONTENT_TYPE.CATEGORY_DESCRIPTION],
+    isCommercial: true,
+    isInformational: false,
+    order: 3,
+  },
+  [SEO_CONTENT_TYPE.LANDING_PAGE]: {
+    type: SEO_CONTENT_TYPE.LANDING_PAGE,
+    label: SEO_CONTENT_TYPE_LABELS[SEO_CONTENT_TYPE.LANDING_PAGE],
+    description: SEO_CONTENT_TYPE_DESCRIPTIONS[SEO_CONTENT_TYPE.LANDING_PAGE],
+    icon: SEO_CONTENT_TYPE_ICONS[SEO_CONTENT_TYPE.LANDING_PAGE],
+    color: SEO_CONTENT_TYPE_COLORS[SEO_CONTENT_TYPE.LANDING_PAGE],
+    optimalWords: SEO_CONTENT_TYPE_OPTIMAL_WORDS[SEO_CONTENT_TYPE.LANDING_PAGE],
+    minWords: SEO_CONTENT_TYPE_MIN_WORDS[SEO_CONTENT_TYPE.LANDING_PAGE],
+    conversionPotential: SEO_CONTENT_TYPE_CONVERSION[SEO_CONTENT_TYPE.LANDING_PAGE],
+    isCommercial: true,
+    isInformational: false,
+    order: 4,
+  },
+  [SEO_CONTENT_TYPE.ABOUT_PAGE]: {
+    type: SEO_CONTENT_TYPE.ABOUT_PAGE,
+    label: SEO_CONTENT_TYPE_LABELS[SEO_CONTENT_TYPE.ABOUT_PAGE],
+    description: SEO_CONTENT_TYPE_DESCRIPTIONS[SEO_CONTENT_TYPE.ABOUT_PAGE],
+    icon: SEO_CONTENT_TYPE_ICONS[SEO_CONTENT_TYPE.ABOUT_PAGE],
+    color: SEO_CONTENT_TYPE_COLORS[SEO_CONTENT_TYPE.ABOUT_PAGE],
+    optimalWords: SEO_CONTENT_TYPE_OPTIMAL_WORDS[SEO_CONTENT_TYPE.ABOUT_PAGE],
+    minWords: SEO_CONTENT_TYPE_MIN_WORDS[SEO_CONTENT_TYPE.ABOUT_PAGE],
+    conversionPotential: SEO_CONTENT_TYPE_CONVERSION[SEO_CONTENT_TYPE.ABOUT_PAGE],
+    isCommercial: false,
+    isInformational: true,
+    order: 5,
+  },
+  [SEO_CONTENT_TYPE.CONTACT_PAGE]: {
+    type: SEO_CONTENT_TYPE.CONTACT_PAGE,
+    label: SEO_CONTENT_TYPE_LABELS[SEO_CONTENT_TYPE.CONTACT_PAGE],
+    description: SEO_CONTENT_TYPE_DESCRIPTIONS[SEO_CONTENT_TYPE.CONTACT_PAGE],
+    icon: SEO_CONTENT_TYPE_ICONS[SEO_CONTENT_TYPE.CONTACT_PAGE],
+    color: SEO_CONTENT_TYPE_COLORS[SEO_CONTENT_TYPE.CONTACT_PAGE],
+    optimalWords: SEO_CONTENT_TYPE_OPTIMAL_WORDS[SEO_CONTENT_TYPE.CONTACT_PAGE],
+    minWords: SEO_CONTENT_TYPE_MIN_WORDS[SEO_CONTENT_TYPE.CONTACT_PAGE],
+    conversionPotential: SEO_CONTENT_TYPE_CONVERSION[SEO_CONTENT_TYPE.CONTACT_PAGE],
+    isCommercial: false,
+    isInformational: false,
+    order: 6,
+  },
+  [SEO_CONTENT_TYPE.FAQ]: {
+    type: SEO_CONTENT_TYPE.FAQ,
+    label: SEO_CONTENT_TYPE_LABELS[SEO_CONTENT_TYPE.FAQ],
+    description: SEO_CONTENT_TYPE_DESCRIPTIONS[SEO_CONTENT_TYPE.FAQ],
+    icon: SEO_CONTENT_TYPE_ICONS[SEO_CONTENT_TYPE.FAQ],
+    color: SEO_CONTENT_TYPE_COLORS[SEO_CONTENT_TYPE.FAQ],
+    optimalWords: SEO_CONTENT_TYPE_OPTIMAL_WORDS[SEO_CONTENT_TYPE.FAQ],
+    minWords: SEO_CONTENT_TYPE_MIN_WORDS[SEO_CONTENT_TYPE.FAQ],
+    conversionPotential: SEO_CONTENT_TYPE_CONVERSION[SEO_CONTENT_TYPE.FAQ],
+    isCommercial: false,
+    isInformational: true,
+    order: 7,
+  },
+  [SEO_CONTENT_TYPE.GUIDE]: {
+    type: SEO_CONTENT_TYPE.GUIDE,
+    label: SEO_CONTENT_TYPE_LABELS[SEO_CONTENT_TYPE.GUIDE],
+    description: SEO_CONTENT_TYPE_DESCRIPTIONS[SEO_CONTENT_TYPE.GUIDE],
+    icon: SEO_CONTENT_TYPE_ICONS[SEO_CONTENT_TYPE.GUIDE],
+    color: SEO_CONTENT_TYPE_COLORS[SEO_CONTENT_TYPE.GUIDE],
+    optimalWords: SEO_CONTENT_TYPE_OPTIMAL_WORDS[SEO_CONTENT_TYPE.GUIDE],
+    minWords: SEO_CONTENT_TYPE_MIN_WORDS[SEO_CONTENT_TYPE.GUIDE],
+    conversionPotential: SEO_CONTENT_TYPE_CONVERSION[SEO_CONTENT_TYPE.GUIDE],
+    isCommercial: false,
+    isInformational: true,
+    order: 8,
+  },
+  [SEO_CONTENT_TYPE.REVIEW]: {
+    type: SEO_CONTENT_TYPE.REVIEW,
+    label: SEO_CONTENT_TYPE_LABELS[SEO_CONTENT_TYPE.REVIEW],
+    description: SEO_CONTENT_TYPE_DESCRIPTIONS[SEO_CONTENT_TYPE.REVIEW],
+    icon: SEO_CONTENT_TYPE_ICONS[SEO_CONTENT_TYPE.REVIEW],
+    color: SEO_CONTENT_TYPE_COLORS[SEO_CONTENT_TYPE.REVIEW],
+    optimalWords: SEO_CONTENT_TYPE_OPTIMAL_WORDS[SEO_CONTENT_TYPE.REVIEW],
+    minWords: SEO_CONTENT_TYPE_MIN_WORDS[SEO_CONTENT_TYPE.REVIEW],
+    conversionPotential: SEO_CONTENT_TYPE_CONVERSION[SEO_CONTENT_TYPE.REVIEW],
+    isCommercial: true,
+    isInformational: false,
+    order: 9,
+  },
+} as const;
+
+/**
+ * SEO কন্টেন্ট টাইপ গ্রুপ
+ */
+export const SEO_CONTENT_TYPE_GROUPS = {
+  COMMERCIAL: [
+    SEO_CONTENT_TYPE.PRODUCT_DESCRIPTION,
+    SEO_CONTENT_TYPE.CATEGORY_DESCRIPTION,
+    SEO_CONTENT_TYPE.LANDING_PAGE,
+  ] as const,
+  INFORMATIONAL: [
+    SEO_CONTENT_TYPE.BLOG,
+    SEO_CONTENT_TYPE.ARTICLE,
+    SEO_CONTENT_TYPE.GUIDE,
+    SEO_CONTENT_TYPE.FAQ,
+  ] as const,
+  BRANDING: [
+    SEO_CONTENT_TYPE.ABOUT_PAGE,
+    SEO_CONTENT_TYPE.CONTACT_PAGE,
+    SEO_CONTENT_TYPE.REVIEW,
+  ] as const,
+} as const;
+
+/**
+ * SEO কন্টেন্ট টাইপ গ্রুপ লেবেল
+ */
+export const SEO_CONTENT_TYPE_GROUP_LABELS = {
+  COMMERCIAL: 'Commercial Content',
+  INFORMATIONAL: 'Informational Content',
+  BRANDING: 'Branding Content',
+} as const;
+
+/**
+ * SEO কন্টেন্ট টাইপ গ্রুপ কালার
+ */
+export const SEO_CONTENT_TYPE_GROUP_COLORS = {
+  COMMERCIAL: '#f59e0b',
+  INFORMATIONAL: '#3b82f6',
+  BRANDING: '#ec4899',
+} as const;
