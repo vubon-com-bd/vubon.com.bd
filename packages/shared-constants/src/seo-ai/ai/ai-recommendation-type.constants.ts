@@ -1,0 +1,240 @@
+/**
+ * AI রেকমেন্ডেশন টাইপ এনাম
+ */
+export const AI_RECOMMENDATION_TYPE = {
+  PERSONALIZED: 'personalized',
+  TRENDING: 'trending',
+  SIMILAR: 'similar',
+  POPULAR: 'popular',
+  RECENT: 'recent',
+  SEASONAL: 'seasonal',
+  RELATED: 'related',
+  BEST_SELLER: 'best-seller',
+  NEW_ARRIVAL: 'new-arrival',
+  TOP_RATED: 'top-rated',
+} as const;
+
+/**
+ * AI_RECOMMENDATION_TYPE থেকে টাইপ
+ */
+export type AIRecommendationType =
+  (typeof AI_RECOMMENDATION_TYPE)[keyof typeof AI_RECOMMENDATION_TYPE];
+
+/**
+ * রেকমেন্ডেশন টাইপ লেবেল
+ */
+export const AI_RECOMMENDATION_TYPE_LABELS: Record<AIRecommendationType, string> = {
+  [AI_RECOMMENDATION_TYPE.PERSONALIZED]: 'Personalized',
+  [AI_RECOMMENDATION_TYPE.TRENDING]: 'Trending',
+  [AI_RECOMMENDATION_TYPE.SIMILAR]: 'Similar',
+  [AI_RECOMMENDATION_TYPE.POPULAR]: 'Popular',
+  [AI_RECOMMENDATION_TYPE.RECENT]: 'Recent',
+  [AI_RECOMMENDATION_TYPE.SEASONAL]: 'Seasonal',
+  [AI_RECOMMENDATION_TYPE.RELATED]: 'Related',
+  [AI_RECOMMENDATION_TYPE.BEST_SELLER]: 'Best Seller',
+  [AI_RECOMMENDATION_TYPE.NEW_ARRIVAL]: 'New Arrival',
+  [AI_RECOMMENDATION_TYPE.TOP_RATED]: 'Top Rated',
+} as const;
+
+/**
+ * রেকমেন্ডেশন টাইপ বিবরণ
+ */
+export const AI_RECOMMENDATION_TYPE_DESCRIPTIONS: Record<AIRecommendationType, string> = {
+  [AI_RECOMMENDATION_TYPE.PERSONALIZED]:
+    'Recommendations tailored to individual user preferences and behavior',
+  [AI_RECOMMENDATION_TYPE.TRENDING]: 'Items that are currently gaining popularity and attention',
+  [AI_RECOMMENDATION_TYPE.SIMILAR]:
+    'Items similar to what the user is currently viewing or interested in',
+  [AI_RECOMMENDATION_TYPE.POPULAR]: 'Most popular items based on overall user engagement',
+  [AI_RECOMMENDATION_TYPE.RECENT]: 'Recently added or updated items',
+  [AI_RECOMMENDATION_TYPE.SEASONAL]: 'Items relevant to current season or time of year',
+  [AI_RECOMMENDATION_TYPE.RELATED]: "Items related to the user's current context or query",
+  [AI_RECOMMENDATION_TYPE.BEST_SELLER]: 'Top selling items based on sales data',
+  [AI_RECOMMENDATION_TYPE.NEW_ARRIVAL]: 'Newest items available in the catalog',
+  [AI_RECOMMENDATION_TYPE.TOP_RATED]: 'Highest rated items based on user reviews and feedback',
+} as const;
+
+/**
+ * রেকমেন্ডেশন টাইপ আইকন
+ */
+export const AI_RECOMMENDATION_TYPE_ICONS: Record<AIRecommendationType, string> = {
+  [AI_RECOMMENDATION_TYPE.PERSONALIZED]: '👤',
+  [AI_RECOMMENDATION_TYPE.TRENDING]: '📈',
+  [AI_RECOMMENDATION_TYPE.SIMILAR]: '🔍',
+  [AI_RECOMMENDATION_TYPE.POPULAR]: '⭐',
+  [AI_RECOMMENDATION_TYPE.RECENT]: '🕐',
+  [AI_RECOMMENDATION_TYPE.SEASONAL]: '🌸',
+  [AI_RECOMMENDATION_TYPE.RELATED]: '🔗',
+  [AI_RECOMMENDATION_TYPE.BEST_SELLER]: '🏆',
+  [AI_RECOMMENDATION_TYPE.NEW_ARRIVAL]: '✨',
+  [AI_RECOMMENDATION_TYPE.TOP_RATED]: '💎',
+} as const;
+
+/**
+ * রেকমেন্ডেশন টাইপ অগ্রাধিকার (১ = সর্বোচ্চ)
+ */
+export const AI_RECOMMENDATION_TYPE_PRIORITY: Record<AIRecommendationType, number> = {
+  [AI_RECOMMENDATION_TYPE.PERSONALIZED]: 1,
+  [AI_RECOMMENDATION_TYPE.TRENDING]: 3,
+  [AI_RECOMMENDATION_TYPE.SIMILAR]: 2,
+  [AI_RECOMMENDATION_TYPE.POPULAR]: 4,
+  [AI_RECOMMENDATION_TYPE.RECENT]: 6,
+  [AI_RECOMMENDATION_TYPE.SEASONAL]: 7,
+  [AI_RECOMMENDATION_TYPE.RELATED]: 5,
+  [AI_RECOMMENDATION_TYPE.BEST_SELLER]: 8,
+  [AI_RECOMMENDATION_TYPE.NEW_ARRIVAL]: 9,
+  [AI_RECOMMENDATION_TYPE.TOP_RATED]: 10,
+} as const;
+
+/**
+ * রেকমেন্ডেশন টাইপ কনফিগারেশন
+ */
+export interface AIRecommendationTypeConfig {
+  type: AIRecommendationType;
+  label: string;
+  description: string;
+  icon: string;
+  priority: number;
+  requiresUserContext: boolean;
+  requiresItemContext: boolean;
+  requiresTimeContext: boolean;
+}
+
+/**
+ * রেকমেন্ডেশন টাইপ মেটাডেটা
+ */
+export const AI_RECOMMENDATION_TYPE_METADATA: Record<
+  AIRecommendationType,
+  AIRecommendationTypeConfig
+> = {
+  [AI_RECOMMENDATION_TYPE.PERSONALIZED]: {
+    type: AI_RECOMMENDATION_TYPE.PERSONALIZED,
+    label: AI_RECOMMENDATION_TYPE_LABELS[AI_RECOMMENDATION_TYPE.PERSONALIZED],
+    description: AI_RECOMMENDATION_TYPE_DESCRIPTIONS[AI_RECOMMENDATION_TYPE.PERSONALIZED],
+    icon: AI_RECOMMENDATION_TYPE_ICONS[AI_RECOMMENDATION_TYPE.PERSONALIZED],
+    priority: AI_RECOMMENDATION_TYPE_PRIORITY[AI_RECOMMENDATION_TYPE.PERSONALIZED],
+    requiresUserContext: true,
+    requiresItemContext: false,
+    requiresTimeContext: false,
+  },
+  [AI_RECOMMENDATION_TYPE.TRENDING]: {
+    type: AI_RECOMMENDATION_TYPE.TRENDING,
+    label: AI_RECOMMENDATION_TYPE_LABELS[AI_RECOMMENDATION_TYPE.TRENDING],
+    description: AI_RECOMMENDATION_TYPE_DESCRIPTIONS[AI_RECOMMENDATION_TYPE.TRENDING],
+    icon: AI_RECOMMENDATION_TYPE_ICONS[AI_RECOMMENDATION_TYPE.TRENDING],
+    priority: AI_RECOMMENDATION_TYPE_PRIORITY[AI_RECOMMENDATION_TYPE.TRENDING],
+    requiresUserContext: false,
+    requiresItemContext: false,
+    requiresTimeContext: true,
+  },
+  [AI_RECOMMENDATION_TYPE.SIMILAR]: {
+    type: AI_RECOMMENDATION_TYPE.SIMILAR,
+    label: AI_RECOMMENDATION_TYPE_LABELS[AI_RECOMMENDATION_TYPE.SIMILAR],
+    description: AI_RECOMMENDATION_TYPE_DESCRIPTIONS[AI_RECOMMENDATION_TYPE.SIMILAR],
+    icon: AI_RECOMMENDATION_TYPE_ICONS[AI_RECOMMENDATION_TYPE.SIMILAR],
+    priority: AI_RECOMMENDATION_TYPE_PRIORITY[AI_RECOMMENDATION_TYPE.SIMILAR],
+    requiresUserContext: false,
+    requiresItemContext: true,
+    requiresTimeContext: false,
+  },
+  [AI_RECOMMENDATION_TYPE.POPULAR]: {
+    type: AI_RECOMMENDATION_TYPE.POPULAR,
+    label: AI_RECOMMENDATION_TYPE_LABELS[AI_RECOMMENDATION_TYPE.POPULAR],
+    description: AI_RECOMMENDATION_TYPE_DESCRIPTIONS[AI_RECOMMENDATION_TYPE.POPULAR],
+    icon: AI_RECOMMENDATION_TYPE_ICONS[AI_RECOMMENDATION_TYPE.POPULAR],
+    priority: AI_RECOMMENDATION_TYPE_PRIORITY[AI_RECOMMENDATION_TYPE.POPULAR],
+    requiresUserContext: false,
+    requiresItemContext: false,
+    requiresTimeContext: false,
+  },
+  [AI_RECOMMENDATION_TYPE.RECENT]: {
+    type: AI_RECOMMENDATION_TYPE.RECENT,
+    label: AI_RECOMMENDATION_TYPE_LABELS[AI_RECOMMENDATION_TYPE.RECENT],
+    description: AI_RECOMMENDATION_TYPE_DESCRIPTIONS[AI_RECOMMENDATION_TYPE.RECENT],
+    icon: AI_RECOMMENDATION_TYPE_ICONS[AI_RECOMMENDATION_TYPE.RECENT],
+    priority: AI_RECOMMENDATION_TYPE_PRIORITY[AI_RECOMMENDATION_TYPE.RECENT],
+    requiresUserContext: false,
+    requiresItemContext: false,
+    requiresTimeContext: true,
+  },
+  [AI_RECOMMENDATION_TYPE.SEASONAL]: {
+    type: AI_RECOMMENDATION_TYPE.SEASONAL,
+    label: AI_RECOMMENDATION_TYPE_LABELS[AI_RECOMMENDATION_TYPE.SEASONAL],
+    description: AI_RECOMMENDATION_TYPE_DESCRIPTIONS[AI_RECOMMENDATION_TYPE.SEASONAL],
+    icon: AI_RECOMMENDATION_TYPE_ICONS[AI_RECOMMENDATION_TYPE.SEASONAL],
+    priority: AI_RECOMMENDATION_TYPE_PRIORITY[AI_RECOMMENDATION_TYPE.SEASONAL],
+    requiresUserContext: false,
+    requiresItemContext: false,
+    requiresTimeContext: true,
+  },
+  [AI_RECOMMENDATION_TYPE.RELATED]: {
+    type: AI_RECOMMENDATION_TYPE.RELATED,
+    label: AI_RECOMMENDATION_TYPE_LABELS[AI_RECOMMENDATION_TYPE.RELATED],
+    description: AI_RECOMMENDATION_TYPE_DESCRIPTIONS[AI_RECOMMENDATION_TYPE.RELATED],
+    icon: AI_RECOMMENDATION_TYPE_ICONS[AI_RECOMMENDATION_TYPE.RELATED],
+    priority: AI_RECOMMENDATION_TYPE_PRIORITY[AI_RECOMMENDATION_TYPE.RELATED],
+    requiresUserContext: false,
+    requiresItemContext: true,
+    requiresTimeContext: false,
+  },
+  [AI_RECOMMENDATION_TYPE.BEST_SELLER]: {
+    type: AI_RECOMMENDATION_TYPE.BEST_SELLER,
+    label: AI_RECOMMENDATION_TYPE_LABELS[AI_RECOMMENDATION_TYPE.BEST_SELLER],
+    description: AI_RECOMMENDATION_TYPE_DESCRIPTIONS[AI_RECOMMENDATION_TYPE.BEST_SELLER],
+    icon: AI_RECOMMENDATION_TYPE_ICONS[AI_RECOMMENDATION_TYPE.BEST_SELLER],
+    priority: AI_RECOMMENDATION_TYPE_PRIORITY[AI_RECOMMENDATION_TYPE.BEST_SELLER],
+    requiresUserContext: false,
+    requiresItemContext: false,
+    requiresTimeContext: false,
+  },
+  [AI_RECOMMENDATION_TYPE.NEW_ARRIVAL]: {
+    type: AI_RECOMMENDATION_TYPE.NEW_ARRIVAL,
+    label: AI_RECOMMENDATION_TYPE_LABELS[AI_RECOMMENDATION_TYPE.NEW_ARRIVAL],
+    description: AI_RECOMMENDATION_TYPE_DESCRIPTIONS[AI_RECOMMENDATION_TYPE.NEW_ARRIVAL],
+    icon: AI_RECOMMENDATION_TYPE_ICONS[AI_RECOMMENDATION_TYPE.NEW_ARRIVAL],
+    priority: AI_RECOMMENDATION_TYPE_PRIORITY[AI_RECOMMENDATION_TYPE.NEW_ARRIVAL],
+    requiresUserContext: false,
+    requiresItemContext: false,
+    requiresTimeContext: true,
+  },
+  [AI_RECOMMENDATION_TYPE.TOP_RATED]: {
+    type: AI_RECOMMENDATION_TYPE.TOP_RATED,
+    label: AI_RECOMMENDATION_TYPE_LABELS[AI_RECOMMENDATION_TYPE.TOP_RATED],
+    description: AI_RECOMMENDATION_TYPE_DESCRIPTIONS[AI_RECOMMENDATION_TYPE.TOP_RATED],
+    icon: AI_RECOMMENDATION_TYPE_ICONS[AI_RECOMMENDATION_TYPE.TOP_RATED],
+    priority: AI_RECOMMENDATION_TYPE_PRIORITY[AI_RECOMMENDATION_TYPE.TOP_RATED],
+    requiresUserContext: false,
+    requiresItemContext: false,
+    requiresTimeContext: false,
+  },
+} as const;
+
+/**
+ * রেকমেন্ডেশন টাইপ গ্রুপ
+ */
+export const AI_RECOMMENDATION_TYPE_GROUPS = {
+  PERSONAL: [AI_RECOMMENDATION_TYPE.PERSONALIZED] as const,
+  CONTEXTUAL: [AI_RECOMMENDATION_TYPE.SIMILAR, AI_RECOMMENDATION_TYPE.RELATED] as const,
+  POPULARITY: [
+    AI_RECOMMENDATION_TYPE.POPULAR,
+    AI_RECOMMENDATION_TYPE.TRENDING,
+    AI_RECOMMENDATION_TYPE.BEST_SELLER,
+  ] as const,
+  TEMPORAL: [
+    AI_RECOMMENDATION_TYPE.RECENT,
+    AI_RECOMMENDATION_TYPE.NEW_ARRIVAL,
+    AI_RECOMMENDATION_TYPE.SEASONAL,
+  ] as const,
+  QUALITY: [AI_RECOMMENDATION_TYPE.TOP_RATED] as const,
+} as const;
+
+/**
+ * রেকমেন্ডেশন টাইপ গ্রুপ লেবেল
+ */
+export const AI_RECOMMENDATION_TYPE_GROUP_LABELS = {
+  PERSONAL: 'Personal',
+  CONTEXTUAL: 'Contextual',
+  POPULARITY: 'Popularity',
+  TEMPORAL: 'Temporal',
+  QUALITY: 'Quality',
+} as const;
