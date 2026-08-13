@@ -1427,7 +1427,6 @@ export {
   REPORT_ERROR_CONFIG,
   REPORT_PERMISSION_CATEGORY_MAP,
   REPORT_PERMISSION_CONFIG,
-  DEFAULT_ROLE_PERMISSIONS,
   EMAIL_STATUS_CATEGORY_MAP,
   EMAIL_STATUS_CONFIG,
   EMAIL_STATUS_GROUPS,
@@ -1623,8 +1622,6 @@ export {
   getPermissionLabel as getReportPermissionLabel,
   getPermissionDescription as getReportPermissionDescription,
   getPermissionCategory as getReportPermissionCategory,
-  getPermissionsByCategory as getReportPermissionsByCategory,
-  getReportPermissions,
   getTemplatePermissions,
   getDashboardPermissions as getReportDashboardPermissions,
   getWidgetPermissions as getReportWidgetPermissions,
@@ -2015,12 +2012,7 @@ export {
   getReportStatusIcon as getReportStatusTypeIcon,
   getReportStatusesByCategory,
   getDraftStatuses,
-  getProcessingStatuses,
-  getCompletedStatuses,
-  getErrorStatuses,
-  getReviewStatuses,
   getPublicationStatuses,
-  getArchivalStatuses,
   getDeliveryStatuses,
   getActionStatuses,
   isReportStatusTerminal as isReportStatusTypeTerminal,
@@ -2030,11 +2022,7 @@ export {
   getReportStatusPriority as getReportStatusTypePriority,
   getHighPriorityStatuses,
   canTransitionTo as canReportStatusTransitionTo,
-  getAllowedNextStatuses,
   getReportExportFormatLabel,
-  getReportExportFormatDescription,
-  getReportExportFormatCategory,
-  getReportExportFormatMimeType,
   getReportExportFormatFileExtension,
   getReportExportFormatsByCategory,
   getDocumentFormats,
@@ -2157,12 +2145,8 @@ export type {
   FilterConfig,
   FilterValidationRules,
   FilterDependency,
-  FilterGroup,
-  FilterSanitizationSettings,
-  FilterPermissionSettings as FilterPermissionType,
   FilterCacheSettings,
   FilterIndexingSettings,
-  FilterTypeConfig,
   FilterStatusConfig,
   ExportFormatSettings,
   ExportMaxRecordsSettings,
@@ -2481,13 +2465,9 @@ export {
   DEFAULT_SUPPORT_AGENT_PERFORMANCE_BENCHMARK,
   DEFAULT_TICKET_ESCALATION_RULES,
   DEFAULT_SUPPORT_KNOWLEDGE_BASE_SETTINGS,
-  DEFAULT_CUSTOMER_SATISFACTION_SURVEY_SETTINGS,
   DEFAULT_SUPPORT_AUTOMATION_SETTINGS,
   DEFAULT_SUPPORT_REPORTING_THRESHOLDS,
   SUPPORT_CATEGORY_CONFIG,
-  SUPPORT_ANALYTICS_CONFIG,
-} from './support-analytics';
-
 // -------------------- Functions --------------------
 export {
   getSupportMetricCategory,
@@ -2528,14 +2508,10 @@ export type {
   SupportAgentPerformanceBenchmark,
   TicketEscalationRules,
   SupportKnowledgeBaseSettings,
-  CustomerSatisfactionSurveySettings,
   SupportAutomationSettings,
   SupportReportingThresholds,
   SupportAnalyticsTypeConfig,
   SupportAnalyticsMetricConfig,
-} from './support-analytics';
-
-// ============================================================
 // Traffic Analytics - All Exports
 // ============================================================
 
