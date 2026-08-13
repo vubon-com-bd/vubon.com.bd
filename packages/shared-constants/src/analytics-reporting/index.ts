@@ -1,11 +1,8 @@
-/**
- * @fileoverview Analytics Reporting - Central Exports
- * @package @vubun/shared-constants
- */
+// ============================================================
+// Acquisition Analytics - All Exports
+// ============================================================
 
-// ------------------------------------------------------------------------
-// Acquisition Analytics
-// ------------------------------------------------------------------------
+// -------------------- Enums --------------------
 export {
   AcquisitionAnalyticsMetric,
   AcquisitionAnalyticsMetricType,
@@ -16,6 +13,10 @@ export {
   AcquisitionAnalyticsSubCategory,
   AcquisitionChannelPriority,
   AcquisitionChannel,
+} from './acquisition-analytics';
+
+// -------------------- Constants --------------------
+export {
   ACQUISITION_ANALYTICS_METRIC_CATEGORY_MAP,
   ACQUISITION_ANALYTICS_METRIC_CONFIG,
   ACQUISITION_DASHBOARD_METRICS,
@@ -38,6 +39,10 @@ export {
   DEFAULT_LEAD_SCORING_SETTINGS,
   DEFAULT_ACQUISITION_ROI_THRESHOLDS,
   ACQUISITION_ANALYTICS_CONFIG,
+} from './acquisition-analytics';
+
+// -------------------- Functions --------------------
+export {
   getAcquisitionMetricCategory,
   getAcquisitionMetricLabel,
   getAcquisitionMetricDescription,
@@ -68,6 +73,7 @@ export {
   getAcquisitionChannelCAC,
 } from './acquisition-analytics';
 
+// -------------------- Types --------------------
 export type {
   ConversionFunnelThresholds,
   LeadQualificationSettings,
@@ -82,9 +88,11 @@ export type {
   AcquisitionAnalyticsMetricConfig,
 } from './acquisition-analytics';
 
-// ------------------------------------------------------------------------
-// Analytics (Core)
-// ------------------------------------------------------------------------
+// ============================================================
+// Analytics (Core) - All Exports
+// ============================================================
+
+// -------------------- Enums --------------------
 export {
   AnalyticsPermission,
   AnalyticsPermissionCategory,
@@ -148,6 +156,10 @@ export {
   AnalyticsReportFormat,
   AnalyticsStorageType,
   AnalyticsWidgetType,
+} from './analytics';
+
+// -------------------- Constants --------------------
+export {
   ANALYTICS_PERMISSION_CATEGORY_MAP,
   ANALYTICS_PERMISSION_CONFIG,
   DEFAULT_ROLE_PERMISSIONS,
@@ -235,6 +247,10 @@ export {
   ANALYTICS_DASHBOARD_REFRESH_INTERVALS,
   ANALYTICS_DATE_RANGE_PRESETS,
   ANALYTICS_DEFAULT_DATE_RANGE_PRESET,
+} from './analytics';
+
+// -------------------- Functions --------------------
+export {
   getPermissionCategory,
   getPermissionLabel,
   getPermissionDescription,
@@ -243,9 +259,9 @@ export {
   getPermissionsByCategory,
   getViewPermissions,
   getManagePermissions,
-  getReportPermissions as getCoreReportPermissions,
-  getDashboardPermissions as getCoreDashboardPermissions,
-  getWidgetPermissions as getCoreWidgetPermissions,
+  getReportPermissions,
+  getDashboardPermissions,
+  getWidgetPermissions,
   getFilterPermissions,
   getMetricPermissions,
   getDimensionPermissions,
@@ -473,7 +489,7 @@ export {
   getPriorityLevel,
   getAnalyticsTypeLabel,
   getAnalyticsTypeDescription,
-  getAnalyticsTypeCategory,
+  getAnalyticsCategory as getAnalyticsTypeCategory,
   isAnalyticsTypeEnabledByDefault,
   isAnalyticsTypeRealTime,
   supportsHistoricalData,
@@ -485,6 +501,7 @@ export {
   setAnalyticsTypeStatus,
 } from './analytics';
 
+// -------------------- Types --------------------
 export type {
   AnalyticsTimezone,
   AnalyticsExportFormat,
@@ -518,9 +535,11 @@ export type {
   AnalyticsPermissionConfig,
 } from './analytics';
 
-// ------------------------------------------------------------------------
-// Channel Analytics
-// ------------------------------------------------------------------------
+// ============================================================
+// Channel Analytics - All Exports
+// ============================================================
+
+// -------------------- Enums --------------------
 export {
   ChannelAnalyticsMetric,
   ChannelAnalyticsMetricType,
@@ -529,28 +548,37 @@ export {
   ChannelAnalyticsCategory,
   ChannelAnalyticsTypeStatus,
   ChannelAnalyticsSubCategory,
-  ChannelType,
-  ChannelStatus,
+  ChannelCategory,
+} from './channel-analytics';
+
+// -------------------- Constants --------------------
+export {
   CHANNEL_ANALYTICS_METRIC_CATEGORY_MAP,
   CHANNEL_ANALYTICS_METRIC_CONFIG,
   CHANNEL_DASHBOARD_METRICS,
-  CHANNEL_PERFORMANCE_METRICS,
   CHANNEL_REVENUE_METRICS,
-  CHANNEL_EFFICIENCY_METRICS,
+  CHANNEL_CUSTOMER_METRICS,
+  CHANNEL_ENGAGEMENT_METRICS,
+  CHANNEL_PERFORMANCE_METRICS,
   CHANNEL_ANALYTICS_TYPE_CATEGORY_MAP,
   CHANNEL_ANALYTICS_TYPE_CONFIG,
   CHANNEL_ANALYTICS_TYPE_DEFAULT_STATUS,
   CHANNEL_ANALYTICS_PRIORITY_LEVELS,
   CHANNEL_ANALYTICS_TYPE_SUB_CATEGORY_MAP,
-  CHANNEL_TYPE_CONFIG,
-  DEFAULT_CHANNEL_PERFORMANCE_THRESHOLDS,
-  DEFAULT_CHANNEL_ATTRIBUTION_SETTINGS,
+  DEFAULT_CHANNEL_PERFORMANCE_BENCHMARK,
+  DEFAULT_CHANNEL_ATTRIBUTION_MODEL_SETTINGS,
   DEFAULT_CHANNEL_COST_ALLOCATION_SETTINGS,
-  DEFAULT_CHANNEL_REVENUE_SHARING_SETTINGS,
-  DEFAULT_CHANNEL_COMMISSION_SETTINGS,
-  DEFAULT_CHANNEL_INCENTIVE_SETTINGS,
-  DEFAULT_CHANNEL_CONFLICT_RESOLUTION_SETTINGS,
+  DEFAULT_CHANNEL_CONVERSION_THRESHOLDS,
+  DEFAULT_CHANNEL_ROI_CALCULATION_SETTINGS,
+  DEFAULT_CHANNEL_SYNERGY_SETTINGS,
+  DEFAULT_CHANNEL_COMPETITION_SETTINGS,
+  DEFAULT_CHANNEL_CUSTOMER_PREFERENCE_TRACKING,
+  DEFAULT_CHANNEL_TREND_DETECTION_SETTINGS,
   CHANNEL_ANALYTICS_CONFIG,
+} from './channel-analytics';
+
+// -------------------- Functions --------------------
+export {
   getChannelMetricCategory,
   getChannelMetricLabel,
   getChannelMetricDescription,
@@ -575,27 +603,29 @@ export {
   getCriticalChannelAnalyticsTypes,
   getChannelAnalyticsTypeSubCategory,
   getChannelAnalyticsTypesBySubCategory,
-  getChannelTypeLabel,
-  getChannelTypeColor,
-  getChannelTypeCommissionRate,
-  getChannelTypeDescription,
+  getChannelCategoryLabel,
 } from './channel-analytics';
 
+// -------------------- Types --------------------
 export type {
-  ChannelPerformanceThresholds,
-  ChannelAttributionSettings,
+  ChannelPerformanceBenchmark,
+  ChannelAttributionModelSettings,
   ChannelCostAllocationSettings,
-  ChannelRevenueSharingSettings,
-  ChannelCommissionSettings,
-  ChannelIncentiveSettings,
-  ChannelConflictResolutionSettings,
+  ChannelConversionThresholds,
+  ChannelROICalculationSettings,
+  ChannelSynergySettings,
+  ChannelCompetitionSettings,
+  ChannelCustomerPreferenceTracking,
+  ChannelTrendDetectionSettings,
   ChannelAnalyticsTypeConfig,
   ChannelAnalyticsMetricConfig,
 } from './channel-analytics';
 
-// ------------------------------------------------------------------------
-// Customer Analytics
-// ------------------------------------------------------------------------
+// ============================================================
+// Customer Analytics - All Exports
+// ============================================================
+
+// -------------------- Enums --------------------
 export {
   CustomerAnalyticsMetric,
   CustomerAnalyticsMetricType,
@@ -604,32 +634,38 @@ export {
   CustomerAnalyticsCategory,
   CustomerAnalyticsTypeStatus,
   CustomerAnalyticsSubCategory,
-  CustomerSegment,
-  CustomerTier,
   CustomerStatus,
+} from './customer-analytics';
+
+// -------------------- Constants --------------------
+export {
   CUSTOMER_ANALYTICS_METRIC_CATEGORY_MAP,
   CUSTOMER_ANALYTICS_METRIC_CONFIG,
   CUSTOMER_DASHBOARD_METRICS,
   CUSTOMER_VALUE_METRICS,
-  CUSTOMER_BEHAVIOR_METRICS,
   CUSTOMER_SATISFACTION_METRICS,
-  CUSTOMER_LOYALTY_METRICS,
+  CUSTOMER_ENGAGEMENT_METRICS,
+  CUSTOMER_DISTRIBUTION_METRICS,
   CUSTOMER_ANALYTICS_TYPE_CATEGORY_MAP,
   CUSTOMER_ANALYTICS_TYPE_CONFIG,
   CUSTOMER_ANALYTICS_TYPE_DEFAULT_STATUS,
   CUSTOMER_ANALYTICS_PRIORITY_LEVELS,
   CUSTOMER_ANALYTICS_TYPE_SUB_CATEGORY_MAP,
-  CUSTOMER_SEGMENT_CONFIG,
-  CUSTOMER_TIER_CONFIG,
   DEFAULT_CUSTOMER_SEGMENTATION_THRESHOLDS,
-  DEFAULT_CUSTOMER_LIFETIME_VALUE_SETTINGS,
-  DEFAULT_CUSTOMER_CHURN_PREDICTION_SETTINGS,
+  DEFAULT_CLV_CALCULATION_SETTINGS,
+  DEFAULT_CUSTOMER_CHURN_ALERT_SETTINGS,
   DEFAULT_CUSTOMER_SATISFACTION_SURVEY_SETTINGS,
   DEFAULT_CUSTOMER_LOYALTY_PROGRAM_SETTINGS,
-  DEFAULT_CUSTOMER_FEEDBACK_SETTINGS,
-  DEFAULT_CUSTOMER_SUPPORT_SETTINGS,
-  DEFAULT_CUSTOMER_ONBOARDING_SETTINGS,
+  DEFAULT_CUSTOMER_CAMPAIGN_TARGETING_SETTINGS,
+  DEFAULT_CUSTOMER_DATA_PRIVACY_SETTINGS,
+  DEFAULT_CUSTOMER_PREFERENCE_TRACKING_SETTINGS,
+  DEFAULT_CUSTOMER_SUPPORT_TIER_SETTINGS,
+  DEFAULT_CUSTOMER_ONBOARDING_MILESTONES,
   CUSTOMER_ANALYTICS_CONFIG,
+} from './customer-analytics';
+
+// -------------------- Functions --------------------
+export {
   getCustomerMetricCategory,
   getCustomerMetricLabel,
   getCustomerMetricDescription,
@@ -654,32 +690,30 @@ export {
   getCriticalCustomerAnalyticsTypes,
   getCustomerAnalyticsTypeSubCategory,
   getCustomerAnalyticsTypesBySubCategory,
-  getCustomerSegmentLabel,
-  getCustomerSegmentDescription,
-  getCustomerSegmentColor,
-  getCustomerTierLabel,
-  getCustomerTierThreshold,
-  getCustomerTierBenefits,
   getCustomerStatusLabel,
-  getCustomerStatusColor,
 } from './customer-analytics';
 
+// -------------------- Types --------------------
 export type {
   CustomerSegmentationThresholds,
-  CustomerLifetimeValueSettings,
-  CustomerChurnPredictionSettings,
+  CLVCalculationSettings,
+  CustomerChurnAlertSettings,
   CustomerSatisfactionSurveySettings,
   CustomerLoyaltyProgramSettings,
-  CustomerFeedbackSettings,
-  CustomerSupportSettings,
-  CustomerOnboardingSettings,
+  CustomerCampaignTargetingSettings,
+  CustomerDataPrivacySettings,
+  CustomerPreferenceTrackingSettings,
+  CustomerSupportTierSettings,
+  CustomerOnboardingMilestones,
   CustomerAnalyticsTypeConfig,
   CustomerAnalyticsMetricConfig,
 } from './customer-analytics';
 
-// ------------------------------------------------------------------------
-// Engagement Analytics
-// ------------------------------------------------------------------------
+// ============================================================
+// Engagement Analytics - All Exports
+// ============================================================
+
+// -------------------- Enums --------------------
 export {
   EngagementAnalyticsMetric,
   EngagementAnalyticsMetricType,
@@ -688,28 +722,36 @@ export {
   EngagementAnalyticsCategory,
   EngagementAnalyticsTypeStatus,
   EngagementAnalyticsSubCategory,
-  EngagementLevel,
-  EngagementActionType,
+} from './engagement-analytics';
+
+// -------------------- Constants --------------------
+export {
   ENGAGEMENT_ANALYTICS_METRIC_CATEGORY_MAP,
   ENGAGEMENT_ANALYTICS_METRIC_CONFIG,
   ENGAGEMENT_DASHBOARD_METRICS,
-  ENGAGEMENT_ACTION_METRICS,
-  ENGAGEMENT_TIME_METRICS,
-  ENGAGEMENT_QUALITY_METRICS,
-  ENGAGEMENT_RECENCY_METRICS,
+  ENGAGEMENT_CHANNEL_METRICS,
+  ENGAGEMENT_SOCIAL_METRICS,
+  ENGAGEMENT_BEHAVIORAL_METRICS,
   ENGAGEMENT_ANALYTICS_TYPE_CATEGORY_MAP,
   ENGAGEMENT_ANALYTICS_TYPE_CONFIG,
   ENGAGEMENT_ANALYTICS_TYPE_DEFAULT_STATUS,
   ENGAGEMENT_ANALYTICS_PRIORITY_LEVELS,
   ENGAGEMENT_ANALYTICS_TYPE_SUB_CATEGORY_MAP,
-  ENGAGEMENT_LEVEL_CONFIG,
-  ENGAGEMENT_ACTION_CONFIG,
-  DEFAULT_ENGAGEMENT_SCORING_SETTINGS,
-  DEFAULT_ENGAGEMENT_THRESHOLDS,
-  DEFAULT_ENGAGEMENT_TRACKING_SETTINGS,
-  DEFAULT_ENGAGEMENT_NOTIFICATION_SETTINGS,
-  DEFAULT_ENGAGEMENT_REWARD_SETTINGS,
-  DEFAULT_ENGAGEMENT_ANALYTICS_CONFIG,
+  DEFAULT_ENGAGEMENT_SCORE_SETTINGS,
+  DEFAULT_INTERACTION_WEIGHT_SETTINGS,
+  DEFAULT_SESSION_THRESHOLD_SETTINGS,
+  DEFAULT_CONTENT_ENGAGEMENT_SETTINGS,
+  DEFAULT_SOCIAL_ENGAGEMENT_SETTINGS,
+  DEFAULT_EMAIL_ENGAGEMENT_SETTINGS,
+  DEFAULT_NOTIFICATION_ENGAGEMENT_SETTINGS,
+  DEFAULT_GAMIFICATION_SETTINGS,
+  DEFAULT_LOYALTY_POINT_SYSTEM,
+  DEFAULT_ENGAGEMENT_TRIGGER_SETTINGS,
+  ENGAGEMENT_ANALYTICS_CONFIG,
+} from './engagement-analytics';
+
+// -------------------- Functions --------------------
+export {
   getEngagementMetricCategory,
   getEngagementMetricLabel,
   getEngagementMetricDescription,
@@ -734,27 +776,30 @@ export {
   getCriticalEngagementAnalyticsTypes,
   getEngagementAnalyticsTypeSubCategory,
   getEngagementAnalyticsTypesBySubCategory,
-  getEngagementLevelLabel,
-  getEngagementLevelColor,
-  getEngagementLevelScoreRange,
-  getEngagementActionTypeLabel,
-  getEngagementActionTypeWeight,
+  calculateEngagementScore,
 } from './engagement-analytics';
 
+// -------------------- Types --------------------
 export type {
-  EngagementScoringSettings,
-  EngagementThresholds,
-  EngagementTrackingSettings,
-  EngagementNotificationSettings,
-  EngagementRewardSettings,
-  EngagementAnalyticsConfig,
+  EngagementScoreSettings,
+  InteractionWeightSettings,
+  SessionThresholdSettings,
+  ContentEngagementSettings,
+  SocialEngagementSettings,
+  EmailEngagementSettings,
+  NotificationEngagementSettings,
+  GamificationSettings,
+  LoyaltyPointSystem,
+  EngagementTriggerSettings,
   EngagementAnalyticsTypeConfig,
   EngagementAnalyticsMetricConfig,
 } from './engagement-analytics';
 
-// ------------------------------------------------------------------------
-// Financial Analytics
-// ------------------------------------------------------------------------
+// ============================================================
+// Financial Analytics - All Exports
+// ============================================================
+
+// -------------------- Enums --------------------
 export {
   FinancialAnalyticsMetric,
   FinancialAnalyticsMetricType,
@@ -765,6 +810,10 @@ export {
   FinancialAnalyticsSubCategory,
   FinancialReportingPeriod,
   BudgetCategory,
+} from './financial-analytics';
+
+// -------------------- Constants --------------------
+export {
   FINANCIAL_ANALYTICS_METRIC_CATEGORY_MAP,
   FINANCIAL_ANALYTICS_METRIC_CONFIG,
   FINANCIAL_DASHBOARD_METRICS,
@@ -786,6 +835,10 @@ export {
   DEFAULT_INVOICING_CYCLE_SETTINGS,
   DEFAULT_PAYMENT_TERMS_SETTINGS,
   FINANCIAL_ANALYTICS_CONFIG,
+} from './financial-analytics';
+
+// -------------------- Functions --------------------
+export {
   getFinancialMetricCategory,
   getFinancialMetricLabel,
   getFinancialMetricDescription,
@@ -815,6 +868,7 @@ export {
   getBudgetCategoryTypicalPercentage,
 } from './financial-analytics';
 
+// -------------------- Types --------------------
 export type {
   CurrencySettings,
   TaxCalculationSettings,
@@ -828,9 +882,11 @@ export type {
   FinancialAnalyticsMetricConfig,
 } from './financial-analytics';
 
-// ------------------------------------------------------------------------
-// Inventory Analytics
-// ------------------------------------------------------------------------
+// ============================================================
+// Inventory Analytics - All Exports
+// ============================================================
+
+// -------------------- Enums --------------------
 export {
   InventoryAnalyticsMetric,
   InventoryAnalyticsMetricType,
@@ -841,6 +897,10 @@ export {
   InventoryAnalyticsSubCategory,
   InventoryCategoryClass,
   InventoryAuditFrequency,
+} from './inventory-analytics';
+
+// -------------------- Constants --------------------
+export {
   INVENTORY_ANALYTICS_METRIC_CATEGORY_MAP,
   INVENTORY_ANALYTICS_METRIC_CONFIG,
   INVENTORY_DASHBOARD_METRICS,
@@ -863,6 +923,10 @@ export {
   DEFAULT_INVENTORY_RESERVE_SETTINGS,
   DEFAULT_INVENTORY_AUDIT_SETTINGS,
   INVENTORY_ANALYTICS_CONFIG,
+} from './inventory-analytics';
+
+// -------------------- Functions --------------------
+export {
   getInventoryMetricCategory,
   getInventoryMetricLabel,
   getInventoryMetricDescription,
@@ -891,6 +955,7 @@ export {
   getAuditFrequencyLabel,
 } from './inventory-analytics';
 
+// -------------------- Types --------------------
 export type {
   ReorderPointSettings,
   SafetyStockLevels,
@@ -906,9 +971,11 @@ export type {
   InventoryAnalyticsMetricConfig,
 } from './inventory-analytics';
 
-// ------------------------------------------------------------------------
-// Marketing Analytics
-// ------------------------------------------------------------------------
+// ============================================================
+// Marketing Analytics - All Exports
+// ============================================================
+
+// -------------------- Enums --------------------
 export {
   MarketingAnalyticsMetric,
   MarketingAnalyticsMetricType,
@@ -920,6 +987,10 @@ export {
   MarketingChannelPriority,
   MarketingChannel,
   ConversionFunnelStage,
+} from './marketing-analytics';
+
+// -------------------- Constants --------------------
+export {
   MARKETING_ANALYTICS_METRIC_CATEGORY_MAP,
   MARKETING_ANALYTICS_METRIC_CONFIG,
   MARKETING_DASHBOARD_METRICS,
@@ -944,6 +1015,10 @@ export {
   DEFAULT_MARKETING_ROI_THRESHOLDS,
   DEFAULT_BRAND_AWARENESS_METRICS,
   MARKETING_ANALYTICS_CONFIG,
+} from './marketing-analytics';
+
+// -------------------- Functions --------------------
+export {
   getMarketingMetricCategory,
   getMarketingMetricLabel,
   getMarketingMetricDescription,
@@ -976,6 +1051,7 @@ export {
   getFunnelStageConversionRate,
 } from './marketing-analytics';
 
+// -------------------- Types --------------------
 export type {
   CampaignBudgetThresholds,
   MarketingAutomationSettings,
@@ -989,9 +1065,11 @@ export type {
   MarketingAnalyticsMetricConfig,
 } from './marketing-analytics';
 
-// ------------------------------------------------------------------------
-// Order Analytics
-// ------------------------------------------------------------------------
+// ============================================================
+// Order Analytics - All Exports
+// ============================================================
+
+// -------------------- Enums --------------------
 export {
   OrderAnalyticsMetric,
   OrderAnalyticsMetricType,
@@ -1002,6 +1080,10 @@ export {
   OrderAnalyticsSubCategory,
   OrderStatus,
   OrderEventType,
+} from './order-analytics';
+
+// -------------------- Constants --------------------
+export {
   ORDER_ANALYTICS_METRIC_CATEGORY_MAP,
   ORDER_ANALYTICS_METRIC_CONFIG,
   ORDER_DASHBOARD_METRICS,
@@ -1025,6 +1107,10 @@ export {
   DEFAULT_ORDER_DUPLICATE_CHECK_SETTINGS,
   ORDER_ANALYTICS_CONFIG,
   ORDER_EVENT_CONFIG,
+} from './order-analytics';
+
+// -------------------- Functions --------------------
+export {
   getOrderMetricCategory,
   getOrderMetricLabel,
   getOrderMetricDescription,
@@ -1058,6 +1144,7 @@ export {
   canReturnOrder,
 } from './order-analytics';
 
+// -------------------- Types --------------------
 export type {
   OrderProcessingTimeline,
   OrderCancellationPolicy,
@@ -1072,9 +1159,11 @@ export type {
   OrderAnalyticsMetricConfig,
 } from './order-analytics';
 
-// ------------------------------------------------------------------------
-// Performance Analytics
-// ------------------------------------------------------------------------
+// ============================================================
+// Performance Analytics - All Exports
+// ============================================================
+
+// -------------------- Enums --------------------
 export {
   PerformanceAnalyticsMetric,
   PerformanceAnalyticsMetricType,
@@ -1083,27 +1172,38 @@ export {
   PerformanceAnalyticsCategory,
   PerformanceAnalyticsTypeStatus,
   PerformanceAnalyticsSubCategory,
-  PerformanceMetricType,
-  PerformanceGoalStatus,
+  PerformanceEventType,
+} from './performance-analytics';
+
+// -------------------- Constants --------------------
+export {
   PERFORMANCE_ANALYTICS_METRIC_CATEGORY_MAP,
   PERFORMANCE_ANALYTICS_METRIC_CONFIG,
   PERFORMANCE_DASHBOARD_METRICS,
-  PERFORMANCE_SYSTEM_METRICS,
-  PERFORMANCE_BUSINESS_METRICS,
-  PERFORMANCE_OPERATIONAL_METRICS,
+  WEB_PERFORMANCE_METRICS,
+  SERVER_PERFORMANCE_METRICS,
+  INFRASTRUCTURE_PERFORMANCE_METRICS,
   PERFORMANCE_ANALYTICS_TYPE_CATEGORY_MAP,
   PERFORMANCE_ANALYTICS_TYPE_CONFIG,
   PERFORMANCE_ANALYTICS_TYPE_DEFAULT_STATUS,
   PERFORMANCE_ANALYTICS_PRIORITY_LEVELS,
   PERFORMANCE_ANALYTICS_TYPE_SUB_CATEGORY_MAP,
-  PERFORMANCE_METRIC_TYPE_CONFIG,
-  DEFAULT_PERFORMANCE_GOAL_SETTINGS,
-  DEFAULT_PERFORMANCE_ALERT_THRESHOLDS,
-  DEFAULT_PERFORMANCE_BENCHMARK_SETTINGS,
-  DEFAULT_PERFORMANCE_FORECASTING_SETTINGS,
-  DEFAULT_PERFORMANCE_REPORTING_SETTINGS,
-  DEFAULT_PERFORMANCE_DASHBOARD_CONFIG,
+  DEFAULT_PERFORMANCE_THRESHOLDS,
+  DEFAULT_RESPONSE_TIME_ALERT_SETTINGS,
+  DEFAULT_SYSTEM_UPTIME_TARGETS,
+  DEFAULT_ERROR_RATE_THRESHOLDS,
+  DEFAULT_RESOURCE_UTILIZATION_LIMITS,
+  DEFAULT_CACHE_HIT_RATE_TARGETS,
+  DEFAULT_DATABASE_QUERY_TIMEOUT_SETTINGS,
+  DEFAULT_API_RATE_LIMIT_SETTINGS,
+  DEFAULT_SERVER_CAPACITY_PLANNING_SETTINGS,
+  DEFAULT_LOAD_BALANCING_SETTINGS,
   PERFORMANCE_ANALYTICS_CONFIG,
+  PERFORMANCE_EVENT_CONFIG,
+} from './performance-analytics';
+
+// -------------------- Functions --------------------
+export {
   getPerformanceMetricCategory,
   getPerformanceMetricLabel,
   getPerformanceMetricDescription,
@@ -1119,7 +1219,7 @@ export {
   getPerformanceAnalyticsTypeDescription,
   getPerformanceAnalyticsTypeCategory,
   getPerformanceAnalyticsTypesByCategory,
-  performanceAnalyticsTypeRequiresMetricId,
+  performanceAnalyticsTypeRequiresServiceId,
   isPerformanceAnalyticsTypeRealtime,
   getPerformanceAnalyticsTypePriority,
   getPerformanceAnalyticsTypeStatus,
@@ -1128,25 +1228,31 @@ export {
   getCriticalPerformanceAnalyticsTypes,
   getPerformanceAnalyticsTypeSubCategory,
   getPerformanceAnalyticsTypesBySubCategory,
-  getPerformanceMetricTypeLabel,
-  getPerformanceGoalStatusLabel,
-  getPerformanceGoalStatusColor,
+  getPerformanceEventLabel,
+  isPerformanceEventCritical,
 } from './performance-analytics';
 
+// -------------------- Types --------------------
 export type {
-  PerformanceGoalSettings,
-  PerformanceAlertThresholds,
-  PerformanceBenchmarkSettings,
-  PerformanceForecastingSettings,
-  PerformanceReportingSettings,
-  PerformanceDashboardConfig,
+  PerformanceThresholds,
+  ResponseTimeAlertSettings,
+  SystemUptimeTargets,
+  ErrorRateThresholds,
+  ResourceUtilizationLimits,
+  CacheHitRateTargets,
+  DatabaseQueryTimeoutSettings,
+  APIRateLimitSettings,
+  ServerCapacityPlanningSettings,
+  LoadBalancingSettings,
   PerformanceAnalyticsTypeConfig,
   PerformanceAnalyticsMetricConfig,
 } from './performance-analytics';
 
-// ------------------------------------------------------------------------
-// Product Analytics
-// ------------------------------------------------------------------------
+// ============================================================
+// Product Analytics - All Exports
+// ============================================================
+
+// -------------------- Enums --------------------
 export {
   ProductAnalyticsMetric,
   ProductAnalyticsMetricType,
@@ -1158,6 +1264,10 @@ export {
   ProductCategory,
   ProductStatus,
   ProductEventType,
+} from './product-analytics';
+
+// -------------------- Constants --------------------
+export {
   PRODUCT_ANALYTICS_METRIC_CATEGORY_MAP,
   PRODUCT_ANALYTICS_METRIC_CONFIG,
   PRODUCT_DASHBOARD_METRICS,
@@ -1183,6 +1293,10 @@ export {
   PRODUCT_CATEGORY_CONFIG,
   PRODUCT_ANALYTICS_CONFIG,
   PRODUCT_EVENT_CONFIG,
+} from './product-analytics';
+
+// -------------------- Functions --------------------
+export {
   getProductMetricCategory,
   getProductMetricLabel,
   getProductMetricDescription,
@@ -1213,6 +1327,7 @@ export {
   isProductEventCritical,
 } from './product-analytics';
 
+// -------------------- Types --------------------
 export type {
   ProductTrackingSettings,
   ProductViewThresholds,
@@ -1227,9 +1342,11 @@ export type {
   ProductAnalyticsMetricConfig,
 } from './product-analytics';
 
-// ------------------------------------------------------------------------
-// Reporting Analytics
-// ------------------------------------------------------------------------
+// ============================================================
+// Reporting Analytics - All Exports
+// ============================================================
+
+// -------------------- Enums --------------------
 export {
   ReportErrorCode,
   ReportErrorSeverity,
@@ -1303,6 +1420,10 @@ export {
   ReportFormat,
   ReportDeliveryMethod,
   ReportStatus,
+} from './reporting-analytics';
+
+// -------------------- Constants --------------------
+export {
   REPORT_ERROR_CONFIG,
   REPORT_PERMISSION_CATEGORY_MAP,
   REPORT_PERMISSION_CONFIG,
@@ -1481,6 +1602,10 @@ export {
   DEFAULT_REPORT_RETRY_SETTINGS,
   DEFAULT_REPORT_DEPENDENCY_RESOLUTION,
   REPORT_CONFIG,
+} from './reporting-analytics';
+
+// -------------------- Functions --------------------
+export {
   getReportErrorConfig,
   getReportErrorMessage,
   getReportErrorDescription,
@@ -1959,6 +2084,7 @@ export {
   isValidReportStatus as isValidReportBaseStatus,
 } from './reporting-analytics';
 
+// -------------------- Types --------------------
 export type {
   ReportArchivePolicy,
   ReportCacheSettings,
@@ -2085,11 +2211,17 @@ export type {
   ReportError,
 } from './reporting-analytics';
 
-// ------------------------------------------------------------------------
-// Retention Analytics
-// ------------------------------------------------------------------------
+// ============================================================
+// Retention Analytics - All Exports
+// ============================================================
+
+// -------------------- Enums --------------------
 export {
   CustomerLifecycleStage,
+} from './retention-analytics';
+
+// -------------------- Constants --------------------
+export {
   DEFAULT_RETENTION_PERIOD_SETTINGS,
   DEFAULT_CHURN_DETECTION_THRESHOLDS,
   DEFAULT_REENGAGEMENT_CAMPAIGN_SETTINGS,
@@ -2101,10 +2233,15 @@ export {
   DEFAULT_RETENTION_PLAN_TRACKING_SETTINGS,
   DEFAULT_CHURN_PREDICTION_SETTINGS,
   RETENTION_ANALYTICS_CONFIG,
+} from './retention-analytics';
+
+// -------------------- Functions --------------------
+export {
   getLifecycleStageLabel,
   getRetentionPeriodLabel,
 } from './retention-analytics';
 
+// -------------------- Types --------------------
 export type {
   RetentionPeriodSettings,
   ChurnDetectionThresholds,
@@ -2118,9 +2255,11 @@ export type {
   ChurnPredictionSettings,
 } from './retention-analytics';
 
-// ------------------------------------------------------------------------
-// Sales Analytics
-// ------------------------------------------------------------------------
+// ============================================================
+// Sales Analytics - All Exports
+// ============================================================
+
+// -------------------- Enums --------------------
 export {
   SalesAnalyticsMetric,
   SalesAnalyticsMetricType,
@@ -2134,6 +2273,10 @@ export {
   SalesChannel,
   SalesEventType,
   SalesStatus,
+} from './sales-analytics';
+
+// -------------------- Constants --------------------
+export {
   SALES_ANALYTICS_METRIC_CATEGORY_MAP,
   SALES_ANALYTICS_METRIC_CONFIG,
   SALES_DASHBOARD_METRICS,
@@ -2155,6 +2298,10 @@ export {
   SALES_CHANNEL_CONFIG,
   SALES_ANALYTICS_CONFIG,
   SALES_EVENT_CONFIG,
+} from './sales-analytics';
+
+// -------------------- Functions --------------------
+export {
   getSalesMetricCategory,
   getSalesMetricLabel,
   getSalesMetricDescription,
@@ -2188,6 +2335,7 @@ export {
   isSalesEventCritical,
 } from './sales-analytics';
 
+// -------------------- Types --------------------
 export type {
   SalesTargetSettings,
   SalesCommissionSettings,
@@ -2201,9 +2349,11 @@ export type {
   SalesAnalyticsMetricConfig,
 } from './sales-analytics';
 
-// ------------------------------------------------------------------------
-// Seller Analytics
-// ------------------------------------------------------------------------
+// ============================================================
+// Seller Analytics - All Exports
+// ============================================================
+
+// -------------------- Enums --------------------
 export {
   SellerAnalyticsMetric,
   SellerAnalyticsMetricType,
@@ -2215,6 +2365,10 @@ export {
   SellerTier,
   SellerPaymentCycle,
   SellerStatus,
+} from './seller-analytics';
+
+// -------------------- Constants --------------------
+export {
   SELLER_ANALYTICS_METRIC_CATEGORY_MAP,
   SELLER_ANALYTICS_METRIC_CONFIG,
   SELLER_DASHBOARD_METRICS,
@@ -2239,6 +2393,10 @@ export {
   DEFAULT_SELLER_DELIVERY_TIME_THRESHOLDS,
   DEFAULT_SELLER_INVENTORY_SYNC_SETTINGS,
   SELLER_ANALYTICS_CONFIG,
+} from './seller-analytics';
+
+// -------------------- Functions --------------------
+export {
   getSellerMetricCategory,
   getSellerMetricLabel,
   getSellerMetricDescription,
@@ -2269,6 +2427,7 @@ export {
   calculateSellerQualityScore,
 } from './seller-analytics';
 
+// -------------------- Types --------------------
 export type {
   SellerTierRequirements,
   SellerTierBenefits,
@@ -2285,9 +2444,11 @@ export type {
   SellerAnalyticsMetricConfig,
 } from './seller-analytics';
 
-// ------------------------------------------------------------------------
-// Support Analytics
-// ------------------------------------------------------------------------
+// ============================================================
+// Support Analytics - All Exports
+// ============================================================
+
+// -------------------- Enums --------------------
 export {
   SupportAnalyticsMetric,
   SupportAnalyticsMetricType,
@@ -2299,6 +2460,10 @@ export {
   SupportTicketPriority,
   SupportCategory,
   SupportTicketStatus,
+} from './support-analytics';
+
+// -------------------- Constants --------------------
+export {
   SUPPORT_ANALYTICS_METRIC_CATEGORY_MAP,
   SUPPORT_ANALYTICS_METRIC_CONFIG,
   SUPPORT_DASHBOARD_METRICS,
@@ -2321,6 +2486,10 @@ export {
   DEFAULT_SUPPORT_REPORTING_THRESHOLDS,
   SUPPORT_CATEGORY_CONFIG,
   SUPPORT_ANALYTICS_CONFIG,
+} from './support-analytics';
+
+// -------------------- Functions --------------------
+export {
   getSupportMetricCategory,
   getSupportMetricLabel,
   getSupportMetricDescription,
@@ -2352,6 +2521,7 @@ export {
   getSupportTicketPriorityLabel,
 } from './support-analytics';
 
+// -------------------- Types --------------------
 export type {
   SLATimelineSettings,
   SupportChannelSettings,
@@ -2365,9 +2535,11 @@ export type {
   SupportAnalyticsMetricConfig,
 } from './support-analytics';
 
-// ------------------------------------------------------------------------
-// Traffic Analytics
-// ------------------------------------------------------------------------
+// ============================================================
+// Traffic Analytics - All Exports
+// ============================================================
+
+// -------------------- Enums --------------------
 export {
   TrafficAnalyticsMetric,
   TrafficAnalyticsMetricType,
@@ -2378,6 +2550,10 @@ export {
   TrafficAnalyticsSubCategory,
   TrafficSourceCategory,
   TrafficEventType,
+} from './traffic-analytics';
+
+// -------------------- Constants --------------------
+export {
   TRAFFIC_ANALYTICS_METRIC_CATEGORY_MAP,
   TRAFFIC_ANALYTICS_METRIC_CONFIG,
   TRAFFIC_DASHBOARD_METRICS,
@@ -2401,6 +2577,10 @@ export {
   DEFAULT_TRAFFIC_FILTERING_RULES,
   DEFAULT_BOT_TRAFFIC_DETECTION_SETTINGS,
   TRAFFIC_ANALYTICS_CONFIG,
+} from './traffic-analytics';
+
+// -------------------- Functions --------------------
+export {
   getTrafficMetricCategory,
   getTrafficMetricLabel,
   getTrafficMetricDescription,
@@ -2431,6 +2611,7 @@ export {
   getTrafficSourceDescription,
 } from './traffic-analytics';
 
+// -------------------- Types --------------------
 export type {
   TrafficMonitoringSettings,
   TrafficThresholdAlerts,
@@ -2445,9 +2626,11 @@ export type {
   TrafficAnalyticsMetricConfig,
 } from './traffic-analytics';
 
-// ------------------------------------------------------------------------
-// User Analytics
-// ------------------------------------------------------------------------
+// ============================================================
+// User Analytics - All Exports
+// ============================================================
+
+// -------------------- Enums --------------------
 export {
   UserAnalyticsMetric,
   UserAnalyticsMetricType,
@@ -2463,6 +2646,10 @@ export {
   UserSegmentType,
   UserAnalyticsEventType,
   UserActionWeight,
+} from './user-analytics';
+
+// -------------------- Constants --------------------
+export {
   USER_ANALYTICS_METRIC_CATEGORY_MAP,
   USER_ANALYTICS_METRIC_CONFIG,
   USER_DASHBOARD_METRICS,
@@ -2488,6 +2675,10 @@ export {
   USER_SEGMENT_CONFIG,
   DEFAULT_USER_ANALYTICS_PERIOD,
   USER_ANALYTICS_EVENT_CONFIG,
+} from './user-analytics';
+
+// -------------------- Functions --------------------
+export {
   getUserMetricCategory,
   getUserMetricLabel,
   getUserMetricDescription,
@@ -2527,6 +2718,7 @@ export {
   calculateUserEngagementScore,
 } from './user-analytics';
 
+// -------------------- Types --------------------
 export type {
   UserSegmentationThresholds,
   UserDataRetentionPolicy,
