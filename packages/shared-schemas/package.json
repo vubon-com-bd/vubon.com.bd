@@ -13,8 +13,6 @@
     "test": "echo \"No tests yet\" && exit 0"
   },
   "dependencies": {
-    "@vubon/shared-constants": "workspace:*",
-    "@vubon/shared-types": "workspace:*",
     "zod": "^3.25.76"
   },
   "devDependencies": {

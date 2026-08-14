@@ -6,7 +6,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "type-check": "pnpm --filter @vubon/shared-types build && tsc --noEmit",
+    "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format:check": "prettier --check \"src/**/*.ts\"",
@@ -14,8 +14,6 @@
     "test": "echo \"No tests yet\" && exit 0"
   },
   "dependencies": {
-    "@vubon/shared-constants": "workspace:*",
-    "@vubon/shared-types": "workspace:*",
     "dotenv": "^16.0.0",
     "zod": "^3.25.76"
   },

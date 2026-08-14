@@ -1,9 +1,20 @@
 {
-  "name": "@vubon/shared-constants",
   "version": "1.0.0",
   "private": true,
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./Content-Marketing/content": {
+      "import": "./dist/Content-Marketing/content/index.js",
+      "require": "./dist/Content-Marketing/content/index.js",
+      "types": "./dist/Content-Marketing/content/index.d.ts"
+    }
+  },
   "scripts": {
     "build": "tsc",
     "type-check": "tsc --noEmit",
