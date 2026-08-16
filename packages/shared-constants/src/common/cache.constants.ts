@@ -1,5 +1,5 @@
 /**
- * @fileoverview Cache constants and configurations
+ * @fileoverview Cache configuration and constants
  * @package @vubun/shared-constants
  */
 
@@ -19,208 +19,212 @@ export enum CacheStorageType {
   REDIS = 'REDIS',
   /** Memcached cache */
   MEMCACHED = 'MEMCACHED',
-  /** File-based cache */
+  /** File system cache */
   FILE = 'FILE',
   /** Database cache */
   DATABASE = 'DATABASE',
-  /** LocalStorage cache (browser) */
-  LOCAL_STORAGE = 'LOCAL_STORAGE',
-  /** SessionStorage cache (browser) */
-  SESSION_STORAGE = 'SESSION_STORAGE',
-  /** Custom cache */
-  CUSTOM = 'CUSTOM',
+  /** Multi-level cache */
+  MULTI_LEVEL = 'MULTI_LEVEL',
 }
 
 /**
- * Cache eviction strategies
+ * Cache eviction strategy
  */
 export enum CacheEvictionStrategy {
-  /** Time To Live based eviction */
-  TTL_BASED = 'TTL_BASED',
-  /** Least Recently Used eviction */
+  /** Least Recently Used */
   LRU = 'LRU',
-  /** Least Frequently Used eviction */
+  /** Least Frequently Used */
   LFU = 'LFU',
-  /** First In First Out eviction */
+  /** First In First Out */
   FIFO = 'FIFO',
-  /** Random eviction */
+  /** Time To Live */
+  TTL = 'TTL',
+  /** Random Replacement */
   RANDOM = 'RANDOM',
-  /** Size-based eviction */
-  SIZE_BASED = 'SIZE_BASED',
-  /** Custom eviction */
-  CUSTOM = 'CUSTOM',
+  /** Most Recently Used */
+  MRU = 'MRU',
 }
 
 /**
- * Cache refresh policies
+ * Cache refresh policy
  */
 export enum CacheRefreshPolicy {
-  /** Lazy refresh - refresh on access */
-  LAZY = 'LAZY',
-  /** Eager refresh - refresh proactively */
-  EAGER = 'EAGER',
-  /** Scheduled refresh - refresh on schedule */
-  SCHEDULED = 'SCHEDULED',
-  /** On-demand refresh - refresh on demand */
+  /** Never refresh */
+  NEVER = 'NEVER',
+  /** Refresh on read */
+  ON_READ = 'ON_READ',
+  /** Refresh on write */
+  ON_WRITE = 'ON_WRITE',
+  /** Refresh periodically */
+  PERIODIC = 'PERIODIC',
+  /** Refresh on expiry */
+  ON_EXPIRY = 'ON_EXPIRY',
+  /** Refresh on demand */
   ON_DEMAND = 'ON_DEMAND',
-  /** Hybrid refresh - combination of strategies */
-  HYBRID = 'HYBRID',
+  /** Refresh asynchronously */
+  ASYNC = 'ASYNC',
 }
 
 /**
- * Cache read strategies
+ * Cache read strategy
  */
 export enum CacheReadStrategy {
-  /** Cache-Aside (Lazy Loading) */
-  CACHE_ASIDE = 'CACHE_ASIDE',
-  /** Read-Through */
-  READ_THROUGH = 'READ_THROUGH',
-  /** Write-Through */
-  WRITE_THROUGH = 'WRITE_THROUGH',
-  /** Write-Behind (Write-Back) */
-  WRITE_BEHIND = 'WRITE_BEHIND',
-  /** Refresh-Ahead */
-  REFRESH_AHEAD = 'REFRESH_AHEAD',
+  /** Read from cache first, then database */
+  CACHE_THEN_DB = 'CACHE_THEN_DB',
+  /** Read from database first, then cache */
+  DB_THEN_CACHE = 'DB_THEN_CACHE',
+  /** Read from cache only */
+  CACHE_ONLY = 'CACHE_ONLY',
+  /** Read from database only */
+  DB_ONLY = 'DB_ONLY',
+  /** Read from both and compare */
+  BOTH_COMPARE = 'BOTH_COMPARE',
+  /** Read from nearest available */
+  NEAREST = 'NEAREST',
 }
 
 /**
- * Cache write strategies
+ * Cache write strategy
  */
 export enum CacheWriteStrategy {
-  /** Write-Through */
+  /** Write to cache then database */
+  CACHE_THEN_DB = 'CACHE_THEN_DB',
+  /** Write to database then cache */
+  DB_THEN_CACHE = 'DB_THEN_CACHE',
+  /** Write to cache only */
+  CACHE_ONLY = 'CACHE_ONLY',
+  /** Write to database only */
+  DB_ONLY = 'DB_ONLY',
+  /** Write to both */
+  WRITE_BOTH = 'WRITE_BOTH',
+  /** Write to nearest available */
+  NEAREST = 'NEAREST',
+  /** Write through */
   WRITE_THROUGH = 'WRITE_THROUGH',
-  /** Write-Behind (Write-Back) */
+  /** Write behind */
   WRITE_BEHIND = 'WRITE_BEHIND',
-  /** Write-Around */
-  WRITE_AROUND = 'WRITE_AROUND',
-  /** Write-Only */
-  WRITE_ONLY = 'WRITE_ONLY',
-  /** Cache-Aside Write */
-  CACHE_ASIDE_WRITE = 'CACHE_ASIDE_WRITE',
 }
 
 /**
  * Cache configuration
  */
 export interface CacheConfig {
+  /** Cache name */
+  name: string;
   /** Storage type */
-  storage: CacheStorageType;
-  /** Max size in MB */
-  maxSizeMB: number;
-  /** Default TTL in seconds */
-  defaultTTLSeconds: number;
+  storageType: CacheStorageType;
   /** Eviction strategy */
   evictionStrategy: CacheEvictionStrategy;
-  /** Refresh policy */
-  refreshPolicy: CacheRefreshPolicy;
   /** Read strategy */
   readStrategy: CacheReadStrategy;
   /** Write strategy */
   writeStrategy: CacheWriteStrategy;
+  /** Refresh policy */
+  refreshPolicy: CacheRefreshPolicy;
+  /** Default TTL in seconds */
+  defaultTTLSeconds: number;
+  /** Max size */
+  maxSize: number;
   /** Enable compression */
-  enableCompression: boolean;
+  compression: boolean;
   /** Enable encryption */
-  enableEncryption: boolean;
-  /** Enable monitoring */
-  enableMonitoring: boolean;
+  encryption: boolean;
 }
 
 /**
  * Default cache configuration
  */
 export const DEFAULT_CACHE_CONFIG: CacheConfig = {
-  storage: CacheStorageType.MEMORY,
-  maxSizeMB: 1024,
-  defaultTTLSeconds: 300, // 5 minutes
+  name: 'default',
+  storageType: CacheStorageType.MEMORY,
   evictionStrategy: CacheEvictionStrategy.LRU,
-  refreshPolicy: CacheRefreshPolicy.LAZY,
-  readStrategy: CacheReadStrategy.CACHE_ASIDE,
-  writeStrategy: CacheWriteStrategy.WRITE_THROUGH,
-  enableCompression: true,
-  enableEncryption: false,
-  enableMonitoring: true,
+  readStrategy: CacheReadStrategy.CACHE_THEN_DB,
+  writeStrategy: CacheWriteStrategy.WRITE_BOTH,
+  refreshPolicy: CacheRefreshPolicy.ON_EXPIRY,
+  defaultTTLSeconds: 3600,
+  maxSize: 1000,
+  compression: false,
+  encryption: false,
 };
 
 /**
- * Cache TTL presets in seconds
+ * Cache TTL presets (in seconds)
  */
 export const CACHE_TTL_PRESETS = {
-  /** 1 second */
-  ONE_SECOND: 1,
-  /** 5 seconds */
-  FIVE_SECONDS: 5,
-  /** 10 seconds */
-  TEN_SECONDS: 10,
-  /** 30 seconds */
-  THIRTY_SECONDS: 30,
-  /** 1 minute */
-  ONE_MINUTE: 60,
-  /** 5 minutes */
-  FIVE_MINUTES: 300,
-  /** 10 minutes */
-  TEN_MINUTES: 600,
-  /** 15 minutes */
-  FIFTEEN_MINUTES: 900,
-  /** 30 minutes */
-  THIRTY_MINUTES: 1800,
-  /** 1 hour */
-  ONE_HOUR: 3600,
-  /** 6 hours */
-  SIX_HOURS: 21600,
-  /** 12 hours */
-  TWELVE_HOURS: 43200,
-  /** 24 hours (1 day) */
-  ONE_DAY: 86400,
-  /** 7 days (1 week) */
-  ONE_WEEK: 604800,
-  /** 30 days (1 month) */
-  ONE_MONTH: 2592000,
-  /** 365 days (1 year) */
-  ONE_YEAR: 31536000,
+  /** Very short: 1 minute */
+  VERY_SHORT: 60,
+  /** Short: 5 minutes */
+  SHORT: 300,
+  /** Medium: 15 minutes */
+  MEDIUM: 900,
+  /** Long: 1 hour */
+  LONG: 3600,
+  /** Very long: 6 hours */
+  VERY_LONG: 21600,
+  /** Day: 24 hours */
+  DAY: 86400,
+  /** Week: 7 days */
+  WEEK: 604800,
+  /** Month: 30 days */
+  MONTH: 2592000,
+  /** Year: 365 days */
+  YEAR: 31536000,
+  /** Forever (never expires) */
+  FOREVER: -1,
 } as const;
 
 /**
  * Cache key prefixes
  */
 export const CACHE_KEY_PREFIXES = {
-  /** User cache prefix */
-  USER: 'user:',
-  /** Session cache prefix */
-  SESSION: 'session:',
-  /** Report cache prefix */
-  REPORT: 'report:',
-  /** Dashboard cache prefix */
-  DASHBOARD: 'dashboard:',
-  /** Widget cache prefix */
-  WIDGET: 'widget:',
-  /** Filter cache prefix */
-  FILTER: 'filter:',
-  /** Export cache prefix */
-  EXPORT: 'export:',
-  /** Template cache prefix */
-  TEMPLATE: 'template:',
-  /** Settings cache prefix */
-  SETTINGS: 'settings:',
-  /** Config cache prefix */
-  CONFIG: 'config:',
-  /** Data cache prefix */
-  DATA: 'data:',
-  /** API cache prefix */
-  API: 'api:',
-  /** Auth cache prefix */
+  /** Authentication cache */
   AUTH: 'auth:',
-  /** Cache prefix for lists */
-  LIST: 'list:',
-  /** Cache prefix for single items */
-  ITEM: 'item:',
-  /** Cache prefix for search results */
-  SEARCH: 'search:',
-  /** Cache prefix for aggregation results */
-  AGGREGATION: 'agg:',
+  /** User cache */
+  USER: 'user:',
+  /** Session cache */
+  SESSION: 'session:',
+  /** Product cache */
+  PRODUCT: 'product:',
+  /** Category cache */
+  CATEGORY: 'category:',
+  /** Cart cache */
+  CART: 'cart:',
+  /** Order cache */
+  ORDER: 'order:',
+  /** Payment cache */
+  PAYMENT: 'payment:',
+  /** Notification cache */
+  NOTIFICATION: 'notification:',
+  /** Settings cache */
+  SETTINGS: 'settings:',
+  /** API cache */
+  API: 'api:',
+  /** View cache */
+  VIEW: 'view:',
+  /** Fragment cache */
+  FRAGMENT: 'fragment:',
+  /** Page cache */
+  PAGE: 'page:',
+  /** Widget cache */
+  WIDGET: 'widget:',
+  /** Menu cache */
+  MENU: 'menu:',
+  /** Translation cache */
+  TRANSLATION: 'translation:',
+  /** Asset cache */
+  ASSET: 'asset:',
+  /** Cache for computed values */
+  COMPUTED: 'computed:',
+  /** Cache for queries */
+  QUERY: 'query:',
+  /** Cache for API responses */
+  RESPONSE: 'response:',
+  /** Default cache prefix */
+  DEFAULT: 'default:',
 } as const;
 
 /**
- * Cache partition settings
+ * Cache partitioning settings
  */
 export interface CachePartitionSettings {
   /** Enable partitioning */
@@ -252,8 +256,6 @@ export interface CacheReplicationSettings {
   replicationFactor: number;
   /** Sync strategy */
   syncStrategy: 'SYNC' | 'ASYNC' | 'SEMI_SYNC';
-  /** Read preference */
-  readPreference: 'PRIMARY' | 'SECONDARY' | 'NEAREST';
 }
 
 export const DEFAULT_CACHE_REPLICATION_SETTINGS: CacheReplicationSettings = {
@@ -261,7 +263,6 @@ export const DEFAULT_CACHE_REPLICATION_SETTINGS: CacheReplicationSettings = {
   replicaCount: 1,
   replicationFactor: 1,
   syncStrategy: 'ASYNC',
-  readPreference: 'PRIMARY',
 };
 
 /**
@@ -273,7 +274,7 @@ export interface CacheClusteringSettings {
   /** Cluster size */
   clusterSize: number;
   /** Cluster strategy */
-  strategy: 'STANDALONE' | 'SENTINEL' | 'CLUSTER';
+  strategy: 'STANDALONE' | 'CLUSTER' | 'SENTINEL';
   /** Auto-discovery */
   enableAutoDiscovery: boolean;
   /** Heartbeat interval in seconds */
@@ -298,12 +299,12 @@ export interface CacheMonitoringSettings {
   collectMetrics: boolean;
   /** Collect hit rate */
   collectHitRate: boolean;
+  /** Collect miss rate */
+  collectMissRate: boolean;
   /** Collect latency */
   collectLatency: boolean;
-  /** Collect size */
-  collectSize: boolean;
-  /** Collect eviction count */
-  collectEvictionCount: boolean;
+  /** Collect error count */
+  collectErrorCount: boolean;
   /** Metrics retention in seconds */
   metricsRetentionSeconds: number;
 }
@@ -312,9 +313,9 @@ export const DEFAULT_CACHE_MONITORING_SETTINGS: CacheMonitoringSettings = {
   enableMonitoring: true,
   collectMetrics: true,
   collectHitRate: true,
+  collectMissRate: true,
   collectLatency: true,
-  collectSize: true,
-  collectEvictionCount: true,
+  collectErrorCount: true,
   metricsRetentionSeconds: 3600,
 };
 
@@ -328,21 +329,18 @@ export interface CacheAlertThresholds {
   missRateThreshold: number;
   /** Latency threshold in milliseconds */
   latencyThresholdMs: number;
-  /** Eviction rate threshold (per minute) */
-  evictionRateThreshold: number;
-  /** Memory usage threshold (percentage) */
-  memoryUsageThreshold: number;
   /** Error rate threshold (percentage) */
   errorRateThreshold: number;
+  /** Memory usage threshold (percentage) */
+  memoryUsageThreshold: number;
 }
 
 export const DEFAULT_CACHE_ALERT_THRESHOLDS: CacheAlertThresholds = {
   hitRateThreshold: 80,
   missRateThreshold: 20,
-  latencyThresholdMs: 100,
-  evictionRateThreshold: 10,
+  latencyThresholdMs: 10,
+  errorRateThreshold: 1,
   memoryUsageThreshold: 80,
-  errorRateThreshold: 5,
 };
 
 /**
@@ -357,20 +355,17 @@ export interface CacheMetricsCollectionSettings {
   metrics: (
     | 'HIT_COUNT'
     | 'MISS_COUNT'
-    | 'GET_COUNT'
-    | 'SET_COUNT'
-    | 'DELETE_COUNT'
-    | 'EVICTION_COUNT'
     | 'HIT_RATE'
     | 'MISS_RATE'
     | 'AVG_LATENCY'
-    | 'MAX_LATENCY'
-    | 'MIN_LATENCY'
-    | 'CURRENT_SIZE'
-    | 'MAX_SIZE'
-    | 'USAGE_PERCENTAGE'
+    | 'P95_LATENCY'
+    | 'P99_LATENCY'
     | 'ERROR_COUNT'
-    | 'ERROR_RATE'
+    | 'SIZE'
+    | 'ITEM_COUNT'
+    | 'MEMORY_USAGE'
+    | 'EVICTION_COUNT'
+    | 'EXPIRATION_COUNT'
   )[];
   /** Export metrics */
   exportMetrics: boolean;
@@ -381,7 +376,7 @@ export interface CacheMetricsCollectionSettings {
 export const DEFAULT_CACHE_METRICS_COLLECTION: CacheMetricsCollectionSettings = {
   enableCollection: true,
   collectionIntervalSeconds: 60,
-  metrics: ['HIT_RATE', 'MISS_RATE', 'AVG_LATENCY', 'USAGE_PERCENTAGE', 'ERROR_RATE'],
+  metrics: ['HIT_COUNT', 'MISS_COUNT', 'HIT_RATE', 'MISS_RATE', 'AVG_LATENCY', 'ERROR_COUNT'],
   exportMetrics: false,
   exportFormat: 'JSON',
 };
@@ -390,108 +385,94 @@ export const DEFAULT_CACHE_METRICS_COLLECTION: CacheMetricsCollectionSettings = 
  * Cache hit/miss thresholds
  */
 export interface CacheHitMissThresholds {
-  /** Critical hit rate (below this is critical) */
+  /** Optimal hit rate */
+  optimalHitRate: number;
+  /** Critical hit rate */
   criticalHitRate: number;
-  /** Warning hit rate (below this is warning) */
-  warningHitRate: number;
-  /** Critical miss rate (above this is critical) */
+  /** Optimal miss rate */
+  optimalMissRate: number;
+  /** Critical miss rate */
   criticalMissRate: number;
-  /** Warning miss rate (above this is warning) */
-  warningMissRate: number;
 }
 
 export const DEFAULT_CACHE_HIT_MISS_THRESHOLDS: CacheHitMissThresholds = {
-  criticalHitRate: 50,
-  warningHitRate: 70,
-  criticalMissRate: 50,
-  warningMissRate: 30,
+  optimalHitRate: 90,
+  criticalHitRate: 70,
+  optimalMissRate: 10,
+  criticalMissRate: 30,
 };
 
 /**
- * Cache penetration protection settings
+ * Cache penetration settings
  */
 export interface CachePenetrationSettings {
   /** Enable protection */
   enableProtection: boolean;
-  /** Empty result TTL in seconds */
-  emptyResultTTLSeconds: number;
-  /** Bloom filter enabled */
-  enableBloomFilter: boolean;
-  /** Bloom filter size */
-  bloomFilterSize: number;
-  /** Bloom filter hash functions */
-  bloomFilterHashFunctions: number;
+  /** Empty value TTL in seconds */
+  emptyValueTTLSeconds: number;
+  /** Max empty values per key */
+  maxEmptyValuesPerKey: number;
+  /** Empty value cooldown in seconds */
+  emptyValueCooldownSeconds: number;
 }
 
 export const DEFAULT_CACHE_PENETRATION_SETTINGS: CachePenetrationSettings = {
   enableProtection: true,
-  emptyResultTTLSeconds: 60,
-  enableBloomFilter: false,
-  bloomFilterSize: 100000,
-  bloomFilterHashFunctions: 3,
+  emptyValueTTLSeconds: 60,
+  maxEmptyValuesPerKey: 10,
+  emptyValueCooldownSeconds: 300,
 };
 
 /**
- * Cache avalanche protection settings
+ * Cache avalanche settings
  */
 export interface CacheAvalancheSettings {
   /** Enable protection */
   enableProtection: boolean;
-  /** TTL jitter range in seconds */
+  /** TTL jitter in seconds */
   ttlJitterSeconds: number;
-  /** Use random TTL */
-  useRandomTTL: boolean;
+  /** TTL jitter percentage */
+  ttlJitterPercentage: number;
   /** Random TTL range in seconds */
   randomTTLRangeSeconds: number;
 }
 
 export const DEFAULT_CACHE_AVALANCHE_SETTINGS: CacheAvalancheSettings = {
   enableProtection: true,
-  ttlJitterSeconds: 30,
-  useRandomTTL: false,
-  randomTTLRangeSeconds: 60,
+  ttlJitterSeconds: 300,
+  ttlJitterPercentage: 10,
+  randomTTLRangeSeconds: 600,
 };
 
 /**
- * Cache breakdown protection settings
+ * Cache breakdown settings
  */
 export interface CacheBreakdownSettings {
   /** Enable protection */
   enableProtection: boolean;
   /** Mutex timeout in seconds */
   mutexTimeoutSeconds: number;
-  /** Use distributed lock */
-  useDistributedLock: boolean;
-  /** Lock timeout in seconds */
-  lockTimeoutSeconds: number;
-  /** Retry attempts */
-  retryAttempts: number;
+  /** Mutex retry delay in milliseconds */
+  mutexRetryDelayMs: number;
+  /** Max mutex retries */
+  maxMutexRetries: number;
 }
 
 export const DEFAULT_CACHE_BREAKDOWN_SETTINGS: CacheBreakdownSettings = {
   enableProtection: true,
   mutexTimeoutSeconds: 5,
-  useDistributedLock: true,
-  lockTimeoutSeconds: 10,
-  retryAttempts: 3,
+  mutexRetryDelayMs: 100,
+  maxMutexRetries: 3,
 };
 
 /**
  * Cache constants
  */
 export const CACHE_CONSTANTS = {
+  /** Default max size */
+  DEFAULT_MAX_SIZE: 1000,
   /** Default TTL in seconds */
-  DEFAULT_TTL_SECONDS: 300,
-  /** Default max size in MB */
-  DEFAULT_MAX_SIZE_MB: 1024,
-  /** Default eviction strategy */
-  DEFAULT_EVICTION_STRATEGY: CacheEvictionStrategy.LRU,
-  /** Default refresh policy */
-  DEFAULT_REFRESH_POLICY: CacheRefreshPolicy.LAZY,
-  /** Default read strategy */
-  DEFAULT_READ_STRATEGY: CacheReadStrategy.CACHE_ASIDE,
-  /** Default write strategy */
-  DEFAULT_WRITE_STRATEGY: CacheWriteStrategy.WRITE_THROUGH,
+  DEFAULT_TTL_SECONDS: 3600,
   /** Default partition count */
   DEFAULT_PARTITION_COUNT: 1,
   /** Default replica count */
@@ -502,12 +483,16 @@ export const CACHE_CONSTANTS = {
   DEFAULT_METRICS_RETENTION: 3600,
   /** Default collection interval in seconds */
   DEFAULT_COLLECTION_INTERVAL: 60,
-  /** Default hit rate threshold */
-  DEFAULT_HIT_RATE_THRESHOLD: 80,
-  /** Default miss rate threshold */
-  DEFAULT_MISS_RATE_THRESHOLD: 20,
-  /** Default latency threshold in milliseconds */
-  DEFAULT_LATENCY_THRESHOLD_MS: 100,
+  /** Default optimal hit rate */
+  DEFAULT_OPTIMAL_HIT_RATE: 90,
+  /** Default critical hit rate */
+  DEFAULT_CRITICAL_HIT_RATE: 70,
+  /** Default empty value TTL in seconds */
+  DEFAULT_EMPTY_VALUE_TTL: 60,
+  /** Default TTL jitter in seconds */
+  DEFAULT_TTL_JITTER: 300,
+  /** Default mutex timeout in seconds */
+  DEFAULT_MUTEX_TIMEOUT: 5,
 } as const;
 
 /**
@@ -518,11 +503,9 @@ export function getCacheStorageTypeLabel(type: CacheStorageType): string {
     [CacheStorageType.MEMORY]: 'Memory',
     [CacheStorageType.REDIS]: 'Redis',
     [CacheStorageType.MEMCACHED]: 'Memcached',
-    [CacheStorageType.FILE]: 'File',
+    [CacheStorageType.FILE]: 'File System',
     [CacheStorageType.DATABASE]: 'Database',
-    [CacheStorageType.LOCAL_STORAGE]: 'Local Storage',
-    [CacheStorageType.SESSION_STORAGE]: 'Session Storage',
-    [CacheStorageType.CUSTOM]: 'Custom',
+    [CacheStorageType.MULTI_LEVEL]: 'Multi-Level',
   };
   return labels[type] || type;
 }
@@ -532,13 +515,12 @@ export function getCacheStorageTypeLabel(type: CacheStorageType): string {
  */
 export function getCacheEvictionStrategyLabel(strategy: CacheEvictionStrategy): string {
   const labels: Record<CacheEvictionStrategy, string> = {
-    [CacheEvictionStrategy.TTL_BASED]: 'TTL Based',
-    [CacheEvictionStrategy.LRU]: 'Least Recently Used (LRU)',
-    [CacheEvictionStrategy.LFU]: 'Least Frequently Used (LFU)',
-    [CacheEvictionStrategy.FIFO]: 'First In First Out (FIFO)',
+    [CacheEvictionStrategy.LRU]: 'LRU',
+    [CacheEvictionStrategy.LFU]: 'LFU',
+    [CacheEvictionStrategy.FIFO]: 'FIFO',
+    [CacheEvictionStrategy.TTL]: 'TTL',
     [CacheEvictionStrategy.RANDOM]: 'Random',
-    [CacheEvictionStrategy.SIZE_BASED]: 'Size Based',
-    [CacheEvictionStrategy.CUSTOM]: 'Custom',
+    [CacheEvictionStrategy.MRU]: 'MRU',
   };
   return labels[strategy] || strategy;
 }
@@ -548,11 +530,13 @@ export function getCacheEvictionStrategyLabel(strategy: CacheEvictionStrategy): 
  */
 export function getCacheRefreshPolicyLabel(policy: CacheRefreshPolicy): string {
   const labels: Record<CacheRefreshPolicy, string> = {
-    [CacheRefreshPolicy.LAZY]: 'Lazy',
-    [CacheRefreshPolicy.EAGER]: 'Eager',
-    [CacheRefreshPolicy.SCHEDULED]: 'Scheduled',
-    [CacheRefreshPolicy.ON_DEMAND]: 'On-Demand',
-    [CacheRefreshPolicy.HYBRID]: 'Hybrid',
+    [CacheRefreshPolicy.NEVER]: 'Never',
+    [CacheRefreshPolicy.ON_READ]: 'On Read',
+    [CacheRefreshPolicy.ON_WRITE]: 'On Write',
+    [CacheRefreshPolicy.PERIODIC]: 'Periodic',
+    [CacheRefreshPolicy.ON_EXPIRY]: 'On Expiry',
+    [CacheRefreshPolicy.ON_DEMAND]: 'On Demand',
+    [CacheRefreshPolicy.ASYNC]: 'Async',
   };
   return labels[policy] || policy;
 }
@@ -562,11 +546,12 @@ export function getCacheRefreshPolicyLabel(policy: CacheRefreshPolicy): string {
  */
 export function getCacheReadStrategyLabel(strategy: CacheReadStrategy): string {
   const labels: Record<CacheReadStrategy, string> = {
-    [CacheReadStrategy.CACHE_ASIDE]: 'Cache-Aside',
-    [CacheReadStrategy.READ_THROUGH]: 'Read-Through',
-    [CacheReadStrategy.WRITE_THROUGH]: 'Write-Through',
-    [CacheReadStrategy.WRITE_BEHIND]: 'Write-Behind',
-    [CacheReadStrategy.REFRESH_AHEAD]: 'Refresh-Ahead',
+    [CacheReadStrategy.CACHE_THEN_DB]: 'Cache Then DB',
+    [CacheReadStrategy.DB_THEN_CACHE]: 'DB Then Cache',
+    [CacheReadStrategy.CACHE_ONLY]: 'Cache Only',
+    [CacheReadStrategy.DB_ONLY]: 'DB Only',
+    [CacheReadStrategy.BOTH_COMPARE]: 'Both Compare',
+    [CacheReadStrategy.NEAREST]: 'Nearest',
   };
   return labels[strategy] || strategy;
 }
@@ -576,11 +561,14 @@ export function getCacheReadStrategyLabel(strategy: CacheReadStrategy): string {
  */
 export function getCacheWriteStrategyLabel(strategy: CacheWriteStrategy): string {
   const labels: Record<CacheWriteStrategy, string> = {
-    [CacheWriteStrategy.WRITE_THROUGH]: 'Write-Through',
-    [CacheWriteStrategy.WRITE_BEHIND]: 'Write-Behind',
-    [CacheWriteStrategy.WRITE_AROUND]: 'Write-Around',
-    [CacheWriteStrategy.WRITE_ONLY]: 'Write-Only',
-    [CacheWriteStrategy.CACHE_ASIDE_WRITE]: 'Cache-Aside Write',
+    [CacheWriteStrategy.CACHE_THEN_DB]: 'Cache Then DB',
+    [CacheWriteStrategy.DB_THEN_CACHE]: 'DB Then Cache',
+    [CacheWriteStrategy.CACHE_ONLY]: 'Cache Only',
+    [CacheWriteStrategy.DB_ONLY]: 'DB Only',
+    [CacheWriteStrategy.WRITE_BOTH]: 'Write Both',
+    [CacheWriteStrategy.NEAREST]: 'Nearest',
+    [CacheWriteStrategy.WRITE_THROUGH]: 'Write Through',
+    [CacheWriteStrategy.WRITE_BEHIND]: 'Write Behind',
   };
   return labels[strategy] || strategy;
 }
@@ -589,30 +577,23 @@ export function getCacheWriteStrategyLabel(strategy: CacheWriteStrategy): string
  * Get TTL preset label
  */
 export function getTTLPresetLabel(preset: keyof typeof CACHE_TTL_PRESETS): string {
-  const seconds = CACHE_TTL_PRESETS[preset];
-  const labels: Record<string, string> = {
-    ONE_SECOND: '1 Second',
-    FIVE_SECONDS: '5 Seconds',
-    TEN_SECONDS: '10 Seconds',
-    THIRTY_SECONDS: '30 Seconds',
-    ONE_MINUTE: '1 Minute',
-    FIVE_MINUTES: '5 Minutes',
-    TEN_MINUTES: '10 Minutes',
-    FIFTEEN_MINUTES: '15 Minutes',
-    THIRTY_MINUTES: '30 Minutes',
-    ONE_HOUR: '1 Hour',
-    SIX_HOURS: '6 Hours',
-    TWELVE_HOURS: '12 Hours',
-    ONE_DAY: '1 Day',
-    ONE_WEEK: '1 Week',
-    ONE_MONTH: '1 Month',
-    ONE_YEAR: '1 Year',
+  const labels: Record<keyof typeof CACHE_TTL_PRESETS, string> = {
+    VERY_SHORT: 'Very Short (1m)',
+    SHORT: 'Short (5m)',
+    MEDIUM: 'Medium (15m)',
+    LONG: 'Long (1h)',
+    VERY_LONG: 'Very Long (6h)',
+    DAY: 'Day (24h)',
+    WEEK: 'Week (7d)',
+    MONTH: 'Month (30d)',
+    YEAR: 'Year (365d)',
+    FOREVER: 'Forever',
   };
-  return labels[preset] || `${seconds}s`;
+  return labels[preset] || preset;
 }
 
 /**
- * Get TTL in seconds from preset
+ * Get TTL value from preset
  */
 export function getTTLFromPreset(preset: keyof typeof CACHE_TTL_PRESETS): number {
   return CACHE_TTL_PRESETS[preset];
@@ -626,7 +607,7 @@ export function buildCacheKey(prefix: keyof typeof CACHE_KEY_PREFIXES, key: stri
 }
 
 /**
- * Build cache key with multiple parts
+ * Build cache key from parts
  */
 export function buildCacheKeyFromParts(
   prefix: keyof typeof CACHE_KEY_PREFIXES,

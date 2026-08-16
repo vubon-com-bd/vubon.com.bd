@@ -37,7 +37,6 @@ export {
   getAllContentStatuses,
   isValidContentStatus,
   isPublishedStatus,
-  isEditableStatus,
   isDeletedStatus,
   type ContentStatus,
   type ContentStatusColor,
@@ -328,6 +327,28 @@ export {
   getDefaultPageLayout,
   type PageLayout,
 } from './page-layout.constants';
+
+// SEO কনস্ট্যান্টসমূহ
+export {
+  SEO_MODULE_NAME,
+  DEFAULT_SEO_TITLE_LENGTH,
+  DEFAULT_SEO_DESCRIPTION_LENGTH,
+  MAX_SEO_TITLE_LENGTH,
+  MAX_SEO_DESCRIPTION_LENGTH,
+  MAX_SEO_KEYWORDS,
+  DEFAULT_OG_IMAGE,
+  isValidSeoTitle,
+  isValidSeoDescription,
+  isValidSeoKeywords,
+  truncateSeoTitle,
+  truncateSeoDescription,
+  formatSeoTitle,
+  generateSeoMetaTags,
+  getDefaultSeoData,
+  isValidSeoData,
+  type SeoData,
+  type SeoMetaTags,
+} from './seo.constants';
 
 // সাধারণ টাইপসমূহ
 export type { Language as SharedLanguage } from './content-status.constants';
