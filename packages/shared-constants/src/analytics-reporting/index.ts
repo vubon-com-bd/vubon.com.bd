@@ -2207,9 +2207,7 @@ export type {
 // ============================================================
 
 // -------------------- Enums --------------------
-export {
-  CustomerLifecycleStage,
-} from './retention-analytics';
+export { CustomerLifecycleStage } from './retention-analytics';
 
 // -------------------- Constants --------------------
 export {
@@ -2227,10 +2225,7 @@ export {
 } from './retention-analytics';
 
 // -------------------- Functions --------------------
-export {
-  getLifecycleStageLabel,
-  getRetentionPeriodLabel,
-} from './retention-analytics';
+export { getLifecycleStageLabel, getRetentionPeriodLabel } from './retention-analytics';
 
 // -------------------- Types --------------------
 export type {
@@ -2633,7 +2628,6 @@ export {
   UserLifecycleStage,
   UserEngagementLevel,
   UserAnalyticsPeriod,
-  
   UserSegmentType,
   UserAnalyticsEventType,
   UserActionWeight,

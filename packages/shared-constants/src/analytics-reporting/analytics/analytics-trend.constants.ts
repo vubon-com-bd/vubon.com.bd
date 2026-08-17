@@ -128,10 +128,7 @@ export interface AnalyticsTrendConfig {
   priority: number;
 }
 
-export const ANALYTICS_TREND_CONFIG: Record<
-  AnalyticsTrendDirection,
-  AnalyticsTrendConfig
-> = {
+export const ANALYTICS_TREND_CONFIG: Record<AnalyticsTrendDirection, AnalyticsTrendConfig> = {
   [AnalyticsTrendDirection.UPWARD]: {
     label: 'Upward Trend',
     description: 'Values are consistently increasing over time',
@@ -428,36 +425,28 @@ export const ANALYTICS_TREND_METHOD_CONFIG: Record<
 /**
  * Get trend direction label
  */
-export function getTrendDirectionLabel(
-  direction: AnalyticsTrendDirection,
-): string {
+export function getTrendDirectionLabel(direction: AnalyticsTrendDirection): string {
   return ANALYTICS_TREND_CONFIG[direction]?.label || direction;
 }
 
 /**
  * Get trend direction description
  */
-export function getTrendDirectionDescription(
-  direction: AnalyticsTrendDirection,
-): string {
+export function getTrendDirectionDescription(direction: AnalyticsTrendDirection): string {
   return ANALYTICS_TREND_CONFIG[direction]?.description || '';
 }
 
 /**
  * Get trend direction color
  */
-export function getTrendDirectionColor(
-  direction: AnalyticsTrendDirection,
-): string {
+export function getTrendDirectionColor(direction: AnalyticsTrendDirection): string {
   return ANALYTICS_TREND_CONFIG[direction]?.color || '#6B7280';
 }
 
 /**
  * Get trend direction icon
  */
-export function getTrendDirectionIcon(
-  direction: AnalyticsTrendDirection,
-): string {
+export function getTrendDirectionIcon(direction: AnalyticsTrendDirection): string {
   return ANALYTICS_TREND_CONFIG[direction]?.icon || 'Activity';
 }
 
@@ -479,28 +468,33 @@ export function getTrendMethodDescription(method: AnalyticsTrendMethod): string 
  * Check if trend is positive (upward)
  */
 export function isPositiveTrend(direction: AnalyticsTrendDirection): boolean {
-  return direction === AnalyticsTrendDirection.UPWARD || 
-         direction === AnalyticsTrendDirection.EXPONENTIAL ||
-         direction === AnalyticsTrendDirection.LINEAR ||
-         direction === AnalyticsTrendDirection.RAMP ||
-         direction === AnalyticsTrendDirection.EMERGING;
+  return (
+    direction === AnalyticsTrendDirection.UPWARD ||
+    direction === AnalyticsTrendDirection.EXPONENTIAL ||
+    direction === AnalyticsTrendDirection.LINEAR ||
+    direction === AnalyticsTrendDirection.RAMP ||
+    direction === AnalyticsTrendDirection.EMERGING
+  );
 }
 
 /**
  * Check if trend is negative (downward)
  */
 export function isNegativeTrend(direction: AnalyticsTrendDirection): boolean {
-  return direction === AnalyticsTrendDirection.DOWNWARD ||
-         direction === AnalyticsTrendDirection.DECAYING ||
-         direction === AnalyticsTrendDirection.FADING;
+  return (
+    direction === AnalyticsTrendDirection.DOWNWARD ||
+    direction === AnalyticsTrendDirection.DECAYING ||
+    direction === AnalyticsTrendDirection.FADING
+  );
 }
 
 /**
  * Check if trend is neutral (stable)
  */
 export function isNeutralTrend(direction: AnalyticsTrendDirection): boolean {
-  return direction === AnalyticsTrendDirection.STABLE ||
-         direction === AnalyticsTrendDirection.PLATEAU;
+  return (
+    direction === AnalyticsTrendDirection.STABLE || direction === AnalyticsTrendDirection.PLATEAU
+  );
 }
 
 /**
@@ -522,10 +516,10 @@ export interface TrendAnalysisResult {
  */
 export function calculateTrendStrength(
   slope: number,
-  rSquared: number,
+  rSquared: number
 ): 'weak' | 'moderate' | 'strong' | 'very_strong' {
   const absSlope = Math.abs(slope);
-  
+
   if (rSquared >= 0.9 && absSlope > 0.5) {
     return 'very_strong';
   }
@@ -556,7 +550,7 @@ export function determineTrendDirection(slope: number): AnalyticsTrendDirection 
  */
 export function getRecommendedTrendMethods(
   dataPoints: number,
-  hasSeasonality: boolean,
+  hasSeasonality: boolean
 ): AnalyticsTrendMethod[] {
   const methods: AnalyticsTrendMethod[] = [];
 
@@ -596,11 +590,16 @@ export function getRecommendedTrendMethods(
 /**
  * Trend interpretation helpers - only for defined trend directions
  */
-export const TREND_INTERPRETATIONS: Partial<Record<AnalyticsTrendDirection, {
-  positive: string;
-  negative: string;
-  neutral: string;
-}>> = {
+export const TREND_INTERPRETATIONS: Partial<
+  Record<
+    AnalyticsTrendDirection,
+    {
+      positive: string;
+      negative: string;
+      neutral: string;
+    }
+  >
+> = {
   [AnalyticsTrendDirection.UPWARD]: {
     positive: 'Growth is accelerating. Business is expanding.',
     negative: 'Growth may be unsustainable. Monitor for exhaustion.',
@@ -663,7 +662,7 @@ export const TREND_INTERPRETATIONS: Partial<Record<AnalyticsTrendDirection, {
  */
 export function getTrendInterpretation(
   direction: AnalyticsTrendDirection,
-  sentiment: 'positive' | 'negative' | 'neutral',
+  sentiment: 'positive' | 'negative' | 'neutral'
 ): string {
   const interpretation = TREND_INTERPRETATIONS[direction];
   if (!interpretation) {

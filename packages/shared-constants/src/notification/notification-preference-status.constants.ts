@@ -1,0 +1,508 @@
+// ============================================
+// নোটিফিকেশন প্রেফারেন্স স্ট্যাটাস সংক্রান্ত কনস্ট্যান্টসমূহ
+// ============================================
+
+// ============================================
+// ১. প্রেফারেন্স স্ট্যাটাস
+// ============================================
+
+/**
+ * নোটিফিকেশন প্রেফারেন্স স্ট্যাটাস
+ * প্রেফারেন্সের বর্তমান অবস্থা নির্দেশ করে
+ */
+export type NotificationPreferenceStatus =
+  | typeof NOTIFICATION_PREFERENCE_STATUS_DEFAULT
+  | typeof NOTIFICATION_PREFERENCE_STATUS_CUSTOM
+  | typeof NOTIFICATION_PREFERENCE_STATUS_INHERITED
+  | typeof NOTIFICATION_PREFERENCE_STATUS_OVERRIDDEN
+  | typeof NOTIFICATION_PREFERENCE_STATUS_LOCKED
+  | typeof NOTIFICATION_PREFERENCE_STATUS_PENDING
+  | typeof NOTIFICATION_PREFERENCE_STATUS_ACTIVE
+  | typeof NOTIFICATION_PREFERENCE_STATUS_INACTIVE
+  | typeof NOTIFICATION_PREFERENCE_STATUS_ARCHIVED
+  | typeof NOTIFICATION_PREFERENCE_STATUS_DELETED
+  | typeof NOTIFICATION_PREFERENCE_STATUS_DRAFT
+  | typeof NOTIFICATION_PREFERENCE_STATUS_SYNCED
+  | typeof NOTIFICATION_PREFERENCE_STATUS_CONFLICT
+  | typeof NOTIFICATION_PREFERENCE_STATUS_MIGRATING
+  | typeof NOTIFICATION_PREFERENCE_STATUS_DEPRECATED;
+
+/**
+ * ডিফল্ট স্ট্যাটাস
+ * @description সিস্টেম-নির্ধারিত ডিফল্ট প্রেফারেন্স
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_DEFAULT = 'DEFAULT';
+
+/**
+ * কাস্টম স্ট্যাটাস
+ * @description ইউজার-নির্ধারিত কাস্টম প্রেফারেন্স
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_CUSTOM = 'CUSTOM';
+
+/**
+ * ইনহেরিটেড স্ট্যাটাস
+ * @description প্যারেন্ট থেকে উত্তরাধিকারসূত্রে প্রাপ্ত
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_INHERITED = 'INHERITED';
+
+/**
+ * ওভাররাইডেন স্ট্যাটাস
+ * @description ডিফল্ট বা ইনহেরিটেড প্রেফারেন্স ওভাররাইড করা হয়েছে
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_OVERRIDDEN = 'OVERRIDDEN';
+
+/**
+ * লকড স্ট্যাটাস
+ * @description প্রেফারেন্স লক করা হয়েছে, পরিবর্তন করা যাবে না
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_LOCKED = 'LOCKED';
+
+/**
+ * পেন্ডিং স্ট্যাটাস
+ * @description প্রেফারেন্স পরিবর্তন অপেক্ষমান
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_PENDING = 'PENDING';
+
+/**
+ * অ্যাক্টিভ স্ট্যাটাস
+ * @description প্রেফারেন্স সক্রিয়
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_ACTIVE = 'ACTIVE';
+
+/**
+ * ইনঅ্যাক্টিভ স্ট্যাটাস
+ * @description প্রেফারেন্স নিষ্ক্রিয়
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_INACTIVE = 'INACTIVE';
+
+/**
+ * আর্কাইভড স্ট্যাটাস
+ * @description প্রেফারেন্স আর্কাইভ করা হয়েছে
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_ARCHIVED = 'ARCHIVED';
+
+/**
+ * ডিলিটেড স্ট্যাটাস
+ * @description প্রেফারেন্স মুছে ফেলা হয়েছে
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_DELETED = 'DELETED';
+
+/**
+ * ড্রাফট স্ট্যাটাস
+ * @description প্রেফারেন্স খসড়া হিসেবে সংরক্ষিত
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_DRAFT = 'DRAFT';
+
+/**
+ * সিনকড স্ট্যাটাস
+ * @description প্রেফারেন্স সিঙ্ক্রোনাইজ করা হয়েছে
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_SYNCED = 'SYNCED';
+
+/**
+ * কনফ্লিক্ট স্ট্যাটাস
+ * @description প্রেফারেন্সে কনফ্লিক্ট রয়েছে
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_CONFLICT = 'CONFLICT';
+
+/**
+ * মাইগ্রেটিং স্ট্যাটাস
+ * @description প্রেফারেন্স মাইগ্রেশন চলছে
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_MIGRATING = 'MIGRATING';
+
+/**
+ * ডিপ্রিকেটেড স্ট্যাটাস
+ * @description প্রেফারেন্স অপ্রচলিত
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_DEPRECATED = 'DEPRECATED';
+
+// ============================================
+// ২. প্রেফারেন্স স্ট্যাটাস গ্রুপ
+// ============================================
+
+/**
+ * প্রেফারেন্স স্ট্যাটাস গ্রুপ
+ */
+export type NotificationPreferenceStatusGroup =
+  | typeof NOTIFICATION_PREFERENCE_STATUS_GROUP_ACTIVE
+  | typeof NOTIFICATION_PREFERENCE_STATUS_GROUP_INACTIVE
+  | typeof NOTIFICATION_PREFERENCE_STATUS_GROUP_PENDING
+  | typeof NOTIFICATION_PREFERENCE_STATUS_GROUP_TERMINAL
+  | typeof NOTIFICATION_PREFERENCE_STATUS_GROUP_SOURCE;
+
+/**
+ * অ্যাক্টিভ গ্রুপ
+ * @description সক্রিয় স্ট্যাটাস
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_GROUP_ACTIVE = 'ACTIVE';
+
+/**
+ * ইনঅ্যাক্টিভ গ্রুপ
+ * @description নিষ্ক্রিয় স্ট্যাটাস
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_GROUP_INACTIVE = 'INACTIVE';
+
+/**
+ * পেন্ডিং গ্রুপ
+ * @description অপেক্ষমান স্ট্যাটাস
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_GROUP_PENDING = 'PENDING';
+
+/**
+ * টার্মিনাল গ্রুপ
+ * @description চূড়ান্ত অবস্থা
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_GROUP_TERMINAL = 'TERMINAL';
+
+/**
+ * সোর্স গ্রুপ
+ * @description উৎস নির্দেশক স্ট্যাটাস
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_GROUP_SOURCE = 'SOURCE';
+
+// ============================================
+// ৩. প্রেফারেন্স স্ট্যাটাস থেকে গ্রুপ ম্যাপিং
+// ============================================
+
+/**
+ * প্রেফারেন্স স্ট্যাটাস থেকে গ্রুপ ম্যাপিং
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_TO_GROUP: Record<
+  NotificationPreferenceStatus,
+  NotificationPreferenceStatusGroup
+> = {
+  [NOTIFICATION_PREFERENCE_STATUS_DEFAULT]: NOTIFICATION_PREFERENCE_STATUS_GROUP_SOURCE,
+  [NOTIFICATION_PREFERENCE_STATUS_CUSTOM]: NOTIFICATION_PREFERENCE_STATUS_GROUP_SOURCE,
+  [NOTIFICATION_PREFERENCE_STATUS_INHERITED]: NOTIFICATION_PREFERENCE_STATUS_GROUP_SOURCE,
+  [NOTIFICATION_PREFERENCE_STATUS_OVERRIDDEN]: NOTIFICATION_PREFERENCE_STATUS_GROUP_ACTIVE,
+  [NOTIFICATION_PREFERENCE_STATUS_LOCKED]: NOTIFICATION_PREFERENCE_STATUS_GROUP_ACTIVE,
+  [NOTIFICATION_PREFERENCE_STATUS_PENDING]: NOTIFICATION_PREFERENCE_STATUS_GROUP_PENDING,
+  [NOTIFICATION_PREFERENCE_STATUS_ACTIVE]: NOTIFICATION_PREFERENCE_STATUS_GROUP_ACTIVE,
+  [NOTIFICATION_PREFERENCE_STATUS_INACTIVE]: NOTIFICATION_PREFERENCE_STATUS_GROUP_INACTIVE,
+  [NOTIFICATION_PREFERENCE_STATUS_ARCHIVED]: NOTIFICATION_PREFERENCE_STATUS_GROUP_TERMINAL,
+  [NOTIFICATION_PREFERENCE_STATUS_DELETED]: NOTIFICATION_PREFERENCE_STATUS_GROUP_TERMINAL,
+  [NOTIFICATION_PREFERENCE_STATUS_DRAFT]: NOTIFICATION_PREFERENCE_STATUS_GROUP_PENDING,
+  [NOTIFICATION_PREFERENCE_STATUS_SYNCED]: NOTIFICATION_PREFERENCE_STATUS_GROUP_ACTIVE,
+  [NOTIFICATION_PREFERENCE_STATUS_CONFLICT]: NOTIFICATION_PREFERENCE_STATUS_GROUP_PENDING,
+  [NOTIFICATION_PREFERENCE_STATUS_MIGRATING]: NOTIFICATION_PREFERENCE_STATUS_GROUP_PENDING,
+  [NOTIFICATION_PREFERENCE_STATUS_DEPRECATED]: NOTIFICATION_PREFERENCE_STATUS_GROUP_TERMINAL,
+};
+
+// ============================================
+// ৪. প্রেফারেন্স স্ট্যাটাস লেবেল
+// ============================================
+
+/**
+ * প্রেফারেন্স স্ট্যাটাস লেবেল
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_LABELS: Record<NotificationPreferenceStatus, string> = {
+  [NOTIFICATION_PREFERENCE_STATUS_DEFAULT]: 'ডিফল্ট',
+  [NOTIFICATION_PREFERENCE_STATUS_CUSTOM]: 'কাস্টম',
+  [NOTIFICATION_PREFERENCE_STATUS_INHERITED]: 'উত্তরাধিকারসূত্রে প্রাপ্ত',
+  [NOTIFICATION_PREFERENCE_STATUS_OVERRIDDEN]: 'ওভাররাইড',
+  [NOTIFICATION_PREFERENCE_STATUS_LOCKED]: 'লক',
+  [NOTIFICATION_PREFERENCE_STATUS_PENDING]: 'অপেক্ষমান',
+  [NOTIFICATION_PREFERENCE_STATUS_ACTIVE]: 'সক্রিয়',
+  [NOTIFICATION_PREFERENCE_STATUS_INACTIVE]: 'নিষ্ক্রিয়',
+  [NOTIFICATION_PREFERENCE_STATUS_ARCHIVED]: 'আর্কাইভ',
+  [NOTIFICATION_PREFERENCE_STATUS_DELETED]: 'মুছে ফেলা',
+  [NOTIFICATION_PREFERENCE_STATUS_DRAFT]: 'খসড়া',
+  [NOTIFICATION_PREFERENCE_STATUS_SYNCED]: 'সিঙ্ক',
+  [NOTIFICATION_PREFERENCE_STATUS_CONFLICT]: 'কনফ্লিক্ট',
+  [NOTIFICATION_PREFERENCE_STATUS_MIGRATING]: 'মাইগ্রেটিং',
+  [NOTIFICATION_PREFERENCE_STATUS_DEPRECATED]: 'অপ্রচলিত',
+};
+
+// ============================================
+// ৫. প্রেফারেন্স স্ট্যাটাস আইকন
+// ============================================
+
+/**
+ * প্রেফারেন্স স্ট্যাটাস আইকন
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_ICONS: Record<NotificationPreferenceStatus, string> = {
+  [NOTIFICATION_PREFERENCE_STATUS_DEFAULT]: 'default',
+  [NOTIFICATION_PREFERENCE_STATUS_CUSTOM]: 'custom',
+  [NOTIFICATION_PREFERENCE_STATUS_INHERITED]: 'family_tree',
+  [NOTIFICATION_PREFERENCE_STATUS_OVERRIDDEN]: 'override',
+  [NOTIFICATION_PREFERENCE_STATUS_LOCKED]: 'lock',
+  [NOTIFICATION_PREFERENCE_STATUS_PENDING]: 'pending',
+  [NOTIFICATION_PREFERENCE_STATUS_ACTIVE]: 'check_circle',
+  [NOTIFICATION_PREFERENCE_STATUS_INACTIVE]: 'cancel',
+  [NOTIFICATION_PREFERENCE_STATUS_ARCHIVED]: 'archive',
+  [NOTIFICATION_PREFERENCE_STATUS_DELETED]: 'delete',
+  [NOTIFICATION_PREFERENCE_STATUS_DRAFT]: 'draft',
+  [NOTIFICATION_PREFERENCE_STATUS_SYNCED]: 'sync',
+  [NOTIFICATION_PREFERENCE_STATUS_CONFLICT]: 'conflict',
+  [NOTIFICATION_PREFERENCE_STATUS_MIGRATING]: 'migration',
+  [NOTIFICATION_PREFERENCE_STATUS_DEPRECATED]: 'warning',
+};
+
+// ============================================
+// ৬. প্রেফারেন্স স্ট্যাটাস কালার
+// ============================================
+
+/**
+ * প্রেফারেন্স স্ট্যাটাস কালার
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_COLORS: Record<NotificationPreferenceStatus, string> = {
+  [NOTIFICATION_PREFERENCE_STATUS_DEFAULT]: '#9E9E9E', // Grey
+  [NOTIFICATION_PREFERENCE_STATUS_CUSTOM]: '#9C27B0', // Purple
+  [NOTIFICATION_PREFERENCE_STATUS_INHERITED]: '#607D8B', // Blue Grey
+  [NOTIFICATION_PREFERENCE_STATUS_OVERRIDDEN]: '#FF9800', // Orange
+  [NOTIFICATION_PREFERENCE_STATUS_LOCKED]: '#F44336', // Red
+  [NOTIFICATION_PREFERENCE_STATUS_PENDING]: '#FFC107', // Amber
+  [NOTIFICATION_PREFERENCE_STATUS_ACTIVE]: '#4CAF50', // Green
+  [NOTIFICATION_PREFERENCE_STATUS_INACTIVE]: '#9E9E9E', // Grey
+  [NOTIFICATION_PREFERENCE_STATUS_ARCHIVED]: '#607D8B', // Blue Grey
+  [NOTIFICATION_PREFERENCE_STATUS_DELETED]: '#757575', // Dark Grey
+  [NOTIFICATION_PREFERENCE_STATUS_DRAFT]: '#FFC107', // Amber
+  [NOTIFICATION_PREFERENCE_STATUS_SYNCED]: '#2196F3', // Blue
+  [NOTIFICATION_PREFERENCE_STATUS_CONFLICT]: '#D32F2F', // Dark Red
+  [NOTIFICATION_PREFERENCE_STATUS_MIGRATING]: '#00BCD4', // Cyan
+  [NOTIFICATION_PREFERENCE_STATUS_DEPRECATED]: '#FF5722', // Deep Orange
+};
+
+// ============================================
+// ৭. টার্মিনাল প্রেফারেন্স স্ট্যাটাসসমূহ
+// ============================================
+
+/**
+ * টার্মিনাল প্রেফারেন্স স্ট্যাটাসসমূহ
+ * যে স্ট্যাটাসগুলো চূড়ান্ত এবং আর পরিবর্তন হয় না
+ */
+export const NOTIFICATION_PREFERENCE_TERMINAL_STATUSES: NotificationPreferenceStatus[] = [
+  NOTIFICATION_PREFERENCE_STATUS_ARCHIVED,
+  NOTIFICATION_PREFERENCE_STATUS_DELETED,
+  NOTIFICATION_PREFERENCE_STATUS_DEPRECATED,
+];
+
+// ============================================
+// ৮. অ্যাক্টিভ প্রেফারেন্স স্ট্যাটাসসমূহ
+// ============================================
+
+/**
+ * অ্যাক্টিভ প্রেফারেন্স স্ট্যাটাসসমূহ
+ * যে স্ট্যাটাসগুলো সক্রিয়
+ */
+export const NOTIFICATION_PREFERENCE_ACTIVE_STATUSES: NotificationPreferenceStatus[] = [
+  NOTIFICATION_PREFERENCE_STATUS_ACTIVE,
+  NOTIFICATION_PREFERENCE_STATUS_OVERRIDDEN,
+  NOTIFICATION_PREFERENCE_STATUS_LOCKED,
+  NOTIFICATION_PREFERENCE_STATUS_SYNCED,
+];
+
+// ============================================
+// ৯. পেন্ডিং প্রেফারেন্স স্ট্যাটাসসমূহ
+// ============================================
+
+/**
+ * পেন্ডিং প্রেফারেন্স স্ট্যাটাসসমূহ
+ * যে স্ট্যাটাসগুলো অপেক্ষমান
+ */
+export const NOTIFICATION_PREFERENCE_PENDING_STATUSES: NotificationPreferenceStatus[] = [
+  NOTIFICATION_PREFERENCE_STATUS_PENDING,
+  NOTIFICATION_PREFERENCE_STATUS_DRAFT,
+  NOTIFICATION_PREFERENCE_STATUS_CONFLICT,
+  NOTIFICATION_PREFERENCE_STATUS_MIGRATING,
+];
+
+// ============================================
+// ১০. প্রেফারেন্স স্ট্যাটাস কনফিগারেশন
+// ============================================
+
+/**
+ * প্রেফারেন্স স্ট্যাটাস কনফিগারেশন
+ */
+export interface NotificationPreferenceStatusConfig {
+  /** স্ট্যাটাসের নাম */
+  status: NotificationPreferenceStatus;
+  /** স্ট্যাটাসের লেবেল */
+  label: string;
+  /** স্ট্যাটাসের আইকন */
+  icon: string;
+  /** স্ট্যাটাসের কালার */
+  color: string;
+  /** স্ট্যাটাসের গ্রুপ */
+  group: NotificationPreferenceStatusGroup;
+  /** টার্মিনাল স্ট্যাটাস কিনা */
+  isTerminal: boolean;
+  /** অ্যাক্টিভ স্ট্যাটাস কিনা */
+  isActive: boolean;
+  /** পেন্ডিং স্ট্যাটাস কিনা */
+  isPending: boolean;
+  /** সোর্স স্ট্যাটাস কিনা */
+  isSource: boolean;
+}
+
+/**
+ * সব প্রেফারেন্স স্ট্যাটাসের কনফিগারেশন
+ */
+export const NOTIFICATION_PREFERENCE_STATUS_CONFIGS: NotificationPreferenceStatusConfig[] = [
+  {
+    status: NOTIFICATION_PREFERENCE_STATUS_DEFAULT,
+    label: NOTIFICATION_PREFERENCE_STATUS_LABELS[NOTIFICATION_PREFERENCE_STATUS_DEFAULT],
+    icon: NOTIFICATION_PREFERENCE_STATUS_ICONS[NOTIFICATION_PREFERENCE_STATUS_DEFAULT],
+    color: NOTIFICATION_PREFERENCE_STATUS_COLORS[NOTIFICATION_PREFERENCE_STATUS_DEFAULT],
+    group: NOTIFICATION_PREFERENCE_STATUS_TO_GROUP[NOTIFICATION_PREFERENCE_STATUS_DEFAULT],
+    isTerminal: false,
+    isActive: false,
+    isPending: false,
+    isSource: true,
+  },
+  {
+    status: NOTIFICATION_PREFERENCE_STATUS_CUSTOM,
+    label: NOTIFICATION_PREFERENCE_STATUS_LABELS[NOTIFICATION_PREFERENCE_STATUS_CUSTOM],
+    icon: NOTIFICATION_PREFERENCE_STATUS_ICONS[NOTIFICATION_PREFERENCE_STATUS_CUSTOM],
+    color: NOTIFICATION_PREFERENCE_STATUS_COLORS[NOTIFICATION_PREFERENCE_STATUS_CUSTOM],
+    group: NOTIFICATION_PREFERENCE_STATUS_TO_GROUP[NOTIFICATION_PREFERENCE_STATUS_CUSTOM],
+    isTerminal: false,
+    isActive: false,
+    isPending: false,
+    isSource: true,
+  },
+  {
+    status: NOTIFICATION_PREFERENCE_STATUS_INHERITED,
+    label: NOTIFICATION_PREFERENCE_STATUS_LABELS[NOTIFICATION_PREFERENCE_STATUS_INHERITED],
+    icon: NOTIFICATION_PREFERENCE_STATUS_ICONS[NOTIFICATION_PREFERENCE_STATUS_INHERITED],
+    color: NOTIFICATION_PREFERENCE_STATUS_COLORS[NOTIFICATION_PREFERENCE_STATUS_INHERITED],
+    group: NOTIFICATION_PREFERENCE_STATUS_TO_GROUP[NOTIFICATION_PREFERENCE_STATUS_INHERITED],
+    isTerminal: false,
+    isActive: false,
+    isPending: false,
+    isSource: true,
+  },
+  {
+    status: NOTIFICATION_PREFERENCE_STATUS_OVERRIDDEN,
+    label: NOTIFICATION_PREFERENCE_STATUS_LABELS[NOTIFICATION_PREFERENCE_STATUS_OVERRIDDEN],
+    icon: NOTIFICATION_PREFERENCE_STATUS_ICONS[NOTIFICATION_PREFERENCE_STATUS_OVERRIDDEN],
+    color: NOTIFICATION_PREFERENCE_STATUS_COLORS[NOTIFICATION_PREFERENCE_STATUS_OVERRIDDEN],
+    group: NOTIFICATION_PREFERENCE_STATUS_TO_GROUP[NOTIFICATION_PREFERENCE_STATUS_OVERRIDDEN],
+    isTerminal: false,
+    isActive: true,
+    isPending: false,
+    isSource: false,
+  },
+  {
+    status: NOTIFICATION_PREFERENCE_STATUS_LOCKED,
+    label: NOTIFICATION_PREFERENCE_STATUS_LABELS[NOTIFICATION_PREFERENCE_STATUS_LOCKED],
+    icon: NOTIFICATION_PREFERENCE_STATUS_ICONS[NOTIFICATION_PREFERENCE_STATUS_LOCKED],
+    color: NOTIFICATION_PREFERENCE_STATUS_COLORS[NOTIFICATION_PREFERENCE_STATUS_LOCKED],
+    group: NOTIFICATION_PREFERENCE_STATUS_TO_GROUP[NOTIFICATION_PREFERENCE_STATUS_LOCKED],
+    isTerminal: false,
+    isActive: true,
+    isPending: false,
+    isSource: false,
+  },
+  {
+    status: NOTIFICATION_PREFERENCE_STATUS_PENDING,
+    label: NOTIFICATION_PREFERENCE_STATUS_LABELS[NOTIFICATION_PREFERENCE_STATUS_PENDING],
+    icon: NOTIFICATION_PREFERENCE_STATUS_ICONS[NOTIFICATION_PREFERENCE_STATUS_PENDING],
+    color: NOTIFICATION_PREFERENCE_STATUS_COLORS[NOTIFICATION_PREFERENCE_STATUS_PENDING],
+    group: NOTIFICATION_PREFERENCE_STATUS_TO_GROUP[NOTIFICATION_PREFERENCE_STATUS_PENDING],
+    isTerminal: false,
+    isActive: false,
+    isPending: true,
+    isSource: false,
+  },
+  {
+    status: NOTIFICATION_PREFERENCE_STATUS_ACTIVE,
+    label: NOTIFICATION_PREFERENCE_STATUS_LABELS[NOTIFICATION_PREFERENCE_STATUS_ACTIVE],
+    icon: NOTIFICATION_PREFERENCE_STATUS_ICONS[NOTIFICATION_PREFERENCE_STATUS_ACTIVE],
+    color: NOTIFICATION_PREFERENCE_STATUS_COLORS[NOTIFICATION_PREFERENCE_STATUS_ACTIVE],
+    group: NOTIFICATION_PREFERENCE_STATUS_TO_GROUP[NOTIFICATION_PREFERENCE_STATUS_ACTIVE],
+    isTerminal: false,
+    isActive: true,
+    isPending: false,
+    isSource: false,
+  },
+  {
+    status: NOTIFICATION_PREFERENCE_STATUS_INACTIVE,
+    label: NOTIFICATION_PREFERENCE_STATUS_LABELS[NOTIFICATION_PREFERENCE_STATUS_INACTIVE],
+    icon: NOTIFICATION_PREFERENCE_STATUS_ICONS[NOTIFICATION_PREFERENCE_STATUS_INACTIVE],
+    color: NOTIFICATION_PREFERENCE_STATUS_COLORS[NOTIFICATION_PREFERENCE_STATUS_INACTIVE],
+    group: NOTIFICATION_PREFERENCE_STATUS_TO_GROUP[NOTIFICATION_PREFERENCE_STATUS_INACTIVE],
+    isTerminal: false,
+    isActive: false,
+    isPending: false,
+    isSource: false,
+  },
+  {
+    status: NOTIFICATION_PREFERENCE_STATUS_ARCHIVED,
+    label: NOTIFICATION_PREFERENCE_STATUS_LABELS[NOTIFICATION_PREFERENCE_STATUS_ARCHIVED],
+    icon: NOTIFICATION_PREFERENCE_STATUS_ICONS[NOTIFICATION_PREFERENCE_STATUS_ARCHIVED],
+    color: NOTIFICATION_PREFERENCE_STATUS_COLORS[NOTIFICATION_PREFERENCE_STATUS_ARCHIVED],
+    group: NOTIFICATION_PREFERENCE_STATUS_TO_GROUP[NOTIFICATION_PREFERENCE_STATUS_ARCHIVED],
+    isTerminal: true,
+    isActive: false,
+    isPending: false,
+    isSource: false,
+  },
+  {
+    status: NOTIFICATION_PREFERENCE_STATUS_DELETED,
+    label: NOTIFICATION_PREFERENCE_STATUS_LABELS[NOTIFICATION_PREFERENCE_STATUS_DELETED],
+    icon: NOTIFICATION_PREFERENCE_STATUS_ICONS[NOTIFICATION_PREFERENCE_STATUS_DELETED],
+    color: NOTIFICATION_PREFERENCE_STATUS_COLORS[NOTIFICATION_PREFERENCE_STATUS_DELETED],
+    group: NOTIFICATION_PREFERENCE_STATUS_TO_GROUP[NOTIFICATION_PREFERENCE_STATUS_DELETED],
+    isTerminal: true,
+    isActive: false,
+    isPending: false,
+    isSource: false,
+  },
+  {
+    status: NOTIFICATION_PREFERENCE_STATUS_DRAFT,
+    label: NOTIFICATION_PREFERENCE_STATUS_LABELS[NOTIFICATION_PREFERENCE_STATUS_DRAFT],
+    icon: NOTIFICATION_PREFERENCE_STATUS_ICONS[NOTIFICATION_PREFERENCE_STATUS_DRAFT],
+    color: NOTIFICATION_PREFERENCE_STATUS_COLORS[NOTIFICATION_PREFERENCE_STATUS_DRAFT],
+    group: NOTIFICATION_PREFERENCE_STATUS_TO_GROUP[NOTIFICATION_PREFERENCE_STATUS_DRAFT],
+    isTerminal: false,
+    isActive: false,
+    isPending: true,
+    isSource: false,
+  },
+  {
+    status: NOTIFICATION_PREFERENCE_STATUS_SYNCED,
+    label: NOTIFICATION_PREFERENCE_STATUS_LABELS[NOTIFICATION_PREFERENCE_STATUS_SYNCED],
+    icon: NOTIFICATION_PREFERENCE_STATUS_ICONS[NOTIFICATION_PREFERENCE_STATUS_SYNCED],
+    color: NOTIFICATION_PREFERENCE_STATUS_COLORS[NOTIFICATION_PREFERENCE_STATUS_SYNCED],
+    group: NOTIFICATION_PREFERENCE_STATUS_TO_GROUP[NOTIFICATION_PREFERENCE_STATUS_SYNCED],
+    isTerminal: false,
+    isActive: true,
+    isPending: false,
+    isSource: false,
+  },
+  {
+    status: NOTIFICATION_PREFERENCE_STATUS_CONFLICT,
+    label: NOTIFICATION_PREFERENCE_STATUS_LABELS[NOTIFICATION_PREFERENCE_STATUS_CONFLICT],
+    icon: NOTIFICATION_PREFERENCE_STATUS_ICONS[NOTIFICATION_PREFERENCE_STATUS_CONFLICT],
+    color: NOTIFICATION_PREFERENCE_STATUS_COLORS[NOTIFICATION_PREFERENCE_STATUS_CONFLICT],
+    group: NOTIFICATION_PREFERENCE_STATUS_TO_GROUP[NOTIFICATION_PREFERENCE_STATUS_CONFLICT],
+    isTerminal: false,
+    isActive: false,
+    isPending: true,
+    isSource: false,
+  },
+  {
+    status: NOTIFICATION_PREFERENCE_STATUS_MIGRATING,
+    label: NOTIFICATION_PREFERENCE_STATUS_LABELS[NOTIFICATION_PREFERENCE_STATUS_MIGRATING],
+    icon: NOTIFICATION_PREFERENCE_STATUS_ICONS[NOTIFICATION_PREFERENCE_STATUS_MIGRATING],
+    color: NOTIFICATION_PREFERENCE_STATUS_COLORS[NOTIFICATION_PREFERENCE_STATUS_MIGRATING],
+    group: NOTIFICATION_PREFERENCE_STATUS_TO_GROUP[NOTIFICATION_PREFERENCE_STATUS_MIGRATING],
+    isTerminal: false,
+    isActive: false,
+    isPending: true,
+    isSource: false,
+  },
+  {
+    status: NOTIFICATION_PREFERENCE_STATUS_DEPRECATED,
+    label: NOTIFICATION_PREFERENCE_STATUS_LABELS[NOTIFICATION_PREFERENCE_STATUS_DEPRECATED],
+    icon: NOTIFICATION_PREFERENCE_STATUS_ICONS[NOTIFICATION_PREFERENCE_STATUS_DEPRECATED],
+    color: NOTIFICATION_PREFERENCE_STATUS_COLORS[NOTIFICATION_PREFERENCE_STATUS_DEPRECATED],
+    group: NOTIFICATION_PREFERENCE_STATUS_TO_GROUP[NOTIFICATION_PREFERENCE_STATUS_DEPRECATED],
+    isTerminal: true,
+    isActive: false,
+    isPending: false,
+    isSource: false,
+  },
+];

@@ -1,0 +1,499 @@
+// ============================================
+// রিপোর্ট টাইপ সংক্রান্ত কনস্ট্যান্টসমূহ
+// ============================================
+
+// ============================================
+// ১. রিপোর্ট টাইপ
+// ============================================
+
+/**
+ * রিপোর্ট টাইপ
+ * রিপোর্টের উদ্দেশ্য ও কনটেন্টের ধরন নির্দেশ করে
+ */
+export type NotificationReportType =
+  | typeof NOTIFICATION_REPORT_TYPE_SUMMARY
+  | typeof NOTIFICATION_REPORT_TYPE_DETAILED
+  | typeof NOTIFICATION_REPORT_TYPE_EXECUTIVE
+  | typeof NOTIFICATION_REPORT_TYPE_OPERATIONAL
+  | typeof NOTIFICATION_REPORT_TYPE_ANALYTICAL
+  | typeof NOTIFICATION_REPORT_TYPE_CUSTOM
+  | typeof NOTIFICATION_REPORT_TYPE_SCHEDULED
+  | typeof NOTIFICATION_REPORT_TYPE_ON_DEMAND
+  | typeof NOTIFICATION_REPORT_TYPE_COMPARATIVE
+  | typeof NOTIFICATION_REPORT_TYPE_TREND
+  | typeof NOTIFICATION_REPORT_TYPE_FORECAST
+  | typeof NOTIFICATION_REPORT_TYPE_PERFORMANCE
+  | typeof NOTIFICATION_REPORT_TYPE_DELIVERY
+  | typeof NOTIFICATION_REPORT_TYPE_ENGAGEMENT
+  | typeof NOTIFICATION_REPORT_TYPE_REVENUE;
+
+/**
+ * সামারি রিপোর্ট
+ * @description সারাংশ রিপোর্ট
+ */
+export const NOTIFICATION_REPORT_TYPE_SUMMARY = 'SUMMARY';
+
+/**
+ * ডিটেইলড রিপোর্ট
+ * @description বিস্তারিত রিপোর্ট
+ */
+export const NOTIFICATION_REPORT_TYPE_DETAILED = 'DETAILED';
+
+/**
+ * এক্সিকিউটিভ রিপোর্ট
+ * @description নির্বাহীদের জন্য রিপোর্ট
+ */
+export const NOTIFICATION_REPORT_TYPE_EXECUTIVE = 'EXECUTIVE';
+
+/**
+ * অপারেশনাল রিপোর্ট
+ * @description দৈনন্দিন কার্যক্রমের রিপোর্ট
+ */
+export const NOTIFICATION_REPORT_TYPE_OPERATIONAL = 'OPERATIONAL';
+
+/**
+ * অ্যানালিটিক্যাল রিপোর্ট
+ * @description বিশ্লেষণমূলক রিপোর্ট
+ */
+export const NOTIFICATION_REPORT_TYPE_ANALYTICAL = 'ANALYTICAL';
+
+/**
+ * কাস্টম রিপোর্ট
+ * @description কাস্টমাইজড রিপোর্ট
+ */
+export const NOTIFICATION_REPORT_TYPE_CUSTOM = 'CUSTOM';
+
+/**
+ * শিডিউলড রিপোর্ট
+ * @description নির্ধারিত সময়ে জেনারেট হওয়া রিপোর্ট
+ */
+export const NOTIFICATION_REPORT_TYPE_SCHEDULED = 'SCHEDULED';
+
+/**
+ * অন-ডিমান্ড রিপোর্ট
+ * @description চাহিদা অনুযায়ী জেনারেট হওয়া রিপোর্ট
+ */
+export const NOTIFICATION_REPORT_TYPE_ON_DEMAND = 'ON_DEMAND';
+
+/**
+ * কম্পারেটিভ রিপোর্ট
+ * @description তুলনামূলক রিপোর্ট
+ */
+export const NOTIFICATION_REPORT_TYPE_COMPARATIVE = 'COMPARATIVE';
+
+/**
+ * ট্রেন্ড রিপোর্ট
+ * @description প্রবণতা বিশ্লেষণ রিপোর্ট
+ */
+export const NOTIFICATION_REPORT_TYPE_TREND = 'TREND';
+
+/**
+ * ফোরকাস্ট রিপোর্ট
+ * @description পূর্বাভাস রিপোর্ট
+ */
+export const NOTIFICATION_REPORT_TYPE_FORECAST = 'FORECAST';
+
+/**
+ * পারফরম্যান্স রিপোর্ট
+ * @description কার্যক্ষমতা রিপোর্ট
+ */
+export const NOTIFICATION_REPORT_TYPE_PERFORMANCE = 'PERFORMANCE';
+
+/**
+ * ডেলিভারি রিপোর্ট
+ * @description ডেলিভারি সংক্রান্ত রিপোর্ট
+ */
+export const NOTIFICATION_REPORT_TYPE_DELIVERY = 'DELIVERY';
+
+/**
+ * এঙ্গেজমেন্ট রিপোর্ট
+ * @description এঙ্গেজমেন্ট সংক্রান্ত রিপোর্ট
+ */
+export const NOTIFICATION_REPORT_TYPE_ENGAGEMENT = 'ENGAGEMENT';
+
+/**
+ * রেভিনিউ রিপোর্ট
+ * @description আয় সংক্রান্ত রিপোর্ট
+ */
+export const NOTIFICATION_REPORT_TYPE_REVENUE = 'REVENUE';
+
+// ============================================
+// ২. রিপোর্ট টাইপ গ্রুপ
+// ============================================
+
+/**
+ * রিপোর্ট টাইপ গ্রুপ
+ */
+export type NotificationReportTypeGroup =
+  | typeof NOTIFICATION_REPORT_TYPE_GROUP_SUMMARY
+  | typeof NOTIFICATION_REPORT_TYPE_GROUP_ANALYTICAL
+  | typeof NOTIFICATION_REPORT_TYPE_GROUP_OPERATIONAL
+  | typeof NOTIFICATION_REPORT_TYPE_GROUP_STRATEGIC;
+
+/**
+ * সামারি গ্রুপ
+ * @description সারাংশভিত্তিক রিপোর্ট
+ */
+export const NOTIFICATION_REPORT_TYPE_GROUP_SUMMARY = 'SUMMARY';
+
+/**
+ * অ্যানালিটিক্যাল গ্রুপ
+ * @description বিশ্লেষণভিত্তিক রিপোর্ট
+ */
+export const NOTIFICATION_REPORT_TYPE_GROUP_ANALYTICAL = 'ANALYTICAL';
+
+/**
+ * অপারেশনাল গ্রুপ
+ * @description কার্যক্রমভিত্তিক রিপোর্ট
+ */
+export const NOTIFICATION_REPORT_TYPE_GROUP_OPERATIONAL = 'OPERATIONAL';
+
+/**
+ * স্ট্র্যাটেজিক গ্রুপ
+ * @description কৌশলগত রিপোর্ট
+ */
+export const NOTIFICATION_REPORT_TYPE_GROUP_STRATEGIC = 'STRATEGIC';
+
+// ============================================
+// ৩. রিপোর্ট টাইপ থেকে গ্রুপ ম্যাপিং
+// ============================================
+
+/**
+ * রিপোর্ট টাইপ থেকে গ্রুপ ম্যাপিং
+ */
+export const NOTIFICATION_REPORT_TYPE_TO_GROUP: Record<
+  NotificationReportType,
+  NotificationReportTypeGroup
+> = {
+  [NOTIFICATION_REPORT_TYPE_SUMMARY]: NOTIFICATION_REPORT_TYPE_GROUP_SUMMARY,
+  [NOTIFICATION_REPORT_TYPE_DETAILED]: NOTIFICATION_REPORT_TYPE_GROUP_ANALYTICAL,
+  [NOTIFICATION_REPORT_TYPE_EXECUTIVE]: NOTIFICATION_REPORT_TYPE_GROUP_STRATEGIC,
+  [NOTIFICATION_REPORT_TYPE_OPERATIONAL]: NOTIFICATION_REPORT_TYPE_GROUP_OPERATIONAL,
+  [NOTIFICATION_REPORT_TYPE_ANALYTICAL]: NOTIFICATION_REPORT_TYPE_GROUP_ANALYTICAL,
+  [NOTIFICATION_REPORT_TYPE_CUSTOM]: NOTIFICATION_REPORT_TYPE_GROUP_ANALYTICAL,
+  [NOTIFICATION_REPORT_TYPE_SCHEDULED]: NOTIFICATION_REPORT_TYPE_GROUP_OPERATIONAL,
+  [NOTIFICATION_REPORT_TYPE_ON_DEMAND]: NOTIFICATION_REPORT_TYPE_GROUP_OPERATIONAL,
+  [NOTIFICATION_REPORT_TYPE_COMPARATIVE]: NOTIFICATION_REPORT_TYPE_GROUP_ANALYTICAL,
+  [NOTIFICATION_REPORT_TYPE_TREND]: NOTIFICATION_REPORT_TYPE_GROUP_ANALYTICAL,
+  [NOTIFICATION_REPORT_TYPE_FORECAST]: NOTIFICATION_REPORT_TYPE_GROUP_STRATEGIC,
+  [NOTIFICATION_REPORT_TYPE_PERFORMANCE]: NOTIFICATION_REPORT_TYPE_GROUP_ANALYTICAL,
+  [NOTIFICATION_REPORT_TYPE_DELIVERY]: NOTIFICATION_REPORT_TYPE_GROUP_OPERATIONAL,
+  [NOTIFICATION_REPORT_TYPE_ENGAGEMENT]: NOTIFICATION_REPORT_TYPE_GROUP_ANALYTICAL,
+  [NOTIFICATION_REPORT_TYPE_REVENUE]: NOTIFICATION_REPORT_TYPE_GROUP_STRATEGIC,
+};
+
+// ============================================
+// ৪. রিপোর্ট টাইপ লেবেল
+// ============================================
+
+/**
+ * রিপোর্ট টাইপ লেবেল
+ */
+export const NOTIFICATION_REPORT_TYPE_LABELS: Record<NotificationReportType, string> = {
+  [NOTIFICATION_REPORT_TYPE_SUMMARY]: 'সারাংশ',
+  [NOTIFICATION_REPORT_TYPE_DETAILED]: 'বিস্তারিত',
+  [NOTIFICATION_REPORT_TYPE_EXECUTIVE]: 'নির্বাহী',
+  [NOTIFICATION_REPORT_TYPE_OPERATIONAL]: 'অপারেশনাল',
+  [NOTIFICATION_REPORT_TYPE_ANALYTICAL]: 'বিশ্লেষণমূলক',
+  [NOTIFICATION_REPORT_TYPE_CUSTOM]: 'কাস্টম',
+  [NOTIFICATION_REPORT_TYPE_SCHEDULED]: 'নির্ধারিত',
+  [NOTIFICATION_REPORT_TYPE_ON_DEMAND]: 'অন-ডিমান্ড',
+  [NOTIFICATION_REPORT_TYPE_COMPARATIVE]: 'তুলনামূলক',
+  [NOTIFICATION_REPORT_TYPE_TREND]: 'প্রবণতা',
+  [NOTIFICATION_REPORT_TYPE_FORECAST]: 'পূর্বাভাস',
+  [NOTIFICATION_REPORT_TYPE_PERFORMANCE]: 'কার্যক্ষমতা',
+  [NOTIFICATION_REPORT_TYPE_DELIVERY]: 'ডেলিভারি',
+  [NOTIFICATION_REPORT_TYPE_ENGAGEMENT]: 'এঙ্গেজমেন্ট',
+  [NOTIFICATION_REPORT_TYPE_REVENUE]: 'রেভিনিউ',
+};
+
+// ============================================
+// ৫. রিপোর্ট টাইপ আইকন
+// ============================================
+
+/**
+ * রিপোর্ট টাইপ আইকন
+ */
+export const NOTIFICATION_REPORT_TYPE_ICONS: Record<NotificationReportType, string> = {
+  [NOTIFICATION_REPORT_TYPE_SUMMARY]: 'summarize',
+  [NOTIFICATION_REPORT_TYPE_DETAILED]: 'description',
+  [NOTIFICATION_REPORT_TYPE_EXECUTIVE]: 'dashboard',
+  [NOTIFICATION_REPORT_TYPE_OPERATIONAL]: 'settings',
+  [NOTIFICATION_REPORT_TYPE_ANALYTICAL]: 'analytics',
+  [NOTIFICATION_REPORT_TYPE_CUSTOM]: 'custom',
+  [NOTIFICATION_REPORT_TYPE_SCHEDULED]: 'schedule',
+  [NOTIFICATION_REPORT_TYPE_ON_DEMAND]: 'bolt',
+  [NOTIFICATION_REPORT_TYPE_COMPARATIVE]: 'compare',
+  [NOTIFICATION_REPORT_TYPE_TREND]: 'trending_up',
+  [NOTIFICATION_REPORT_TYPE_FORECAST]: 'forecast',
+  [NOTIFICATION_REPORT_TYPE_PERFORMANCE]: 'speed',
+  [NOTIFICATION_REPORT_TYPE_DELIVERY]: 'delivery',
+  [NOTIFICATION_REPORT_TYPE_ENGAGEMENT]: 'engagement',
+  [NOTIFICATION_REPORT_TYPE_REVENUE]: 'revenue',
+};
+
+// ============================================
+// ৬. রিপোর্ট টাইপ কালার
+// ============================================
+
+/**
+ * রিপোর্ট টাইপ কালার
+ */
+export const NOTIFICATION_REPORT_TYPE_COLORS: Record<NotificationReportType, string> = {
+  [NOTIFICATION_REPORT_TYPE_SUMMARY]: '#4CAF50', // Green
+  [NOTIFICATION_REPORT_TYPE_DETAILED]: '#2196F3', // Blue
+  [NOTIFICATION_REPORT_TYPE_EXECUTIVE]: '#9C27B0', // Purple
+  [NOTIFICATION_REPORT_TYPE_OPERATIONAL]: '#FF9800', // Orange
+  [NOTIFICATION_REPORT_TYPE_ANALYTICAL]: '#00BCD4', // Cyan
+  [NOTIFICATION_REPORT_TYPE_CUSTOM]: '#607D8B', // Blue Grey
+  [NOTIFICATION_REPORT_TYPE_SCHEDULED]: '#3F51B5', // Indigo
+  [NOTIFICATION_REPORT_TYPE_ON_DEMAND]: '#FF5722', // Deep Orange
+  [NOTIFICATION_REPORT_TYPE_COMPARATIVE]: '#E91E63', // Pink
+  [NOTIFICATION_REPORT_TYPE_TREND]: '#8BC34A', // Light Green
+  [NOTIFICATION_REPORT_TYPE_FORECAST]: '#FF6F00', // Dark Amber
+  [NOTIFICATION_REPORT_TYPE_PERFORMANCE]: '#D32F2F', // Dark Red
+  [NOTIFICATION_REPORT_TYPE_DELIVERY]: '#4CAF50', // Green
+  [NOTIFICATION_REPORT_TYPE_ENGAGEMENT]: '#FF9800', // Orange
+  [NOTIFICATION_REPORT_TYPE_REVENUE]: '#1A237E', // Dark Indigo
+};
+
+// ============================================
+// ৭. রিপোর্ট টাইপ প্রায়োরিটি
+// ============================================
+
+/**
+ * রিপোর্ট টাইপ প্রায়োরিটি (১-১০)
+ */
+export const NOTIFICATION_REPORT_TYPE_PRIORITY: Record<NotificationReportType, number> = {
+  [NOTIFICATION_REPORT_TYPE_SUMMARY]: 8,
+  [NOTIFICATION_REPORT_TYPE_DETAILED]: 7,
+  [NOTIFICATION_REPORT_TYPE_EXECUTIVE]: 9,
+  [NOTIFICATION_REPORT_TYPE_OPERATIONAL]: 6,
+  [NOTIFICATION_REPORT_TYPE_ANALYTICAL]: 7,
+  [NOTIFICATION_REPORT_TYPE_CUSTOM]: 5,
+  [NOTIFICATION_REPORT_TYPE_SCHEDULED]: 6,
+  [NOTIFICATION_REPORT_TYPE_ON_DEMAND]: 8,
+  [NOTIFICATION_REPORT_TYPE_COMPARATIVE]: 6,
+  [NOTIFICATION_REPORT_TYPE_TREND]: 7,
+  [NOTIFICATION_REPORT_TYPE_FORECAST]: 8,
+  [NOTIFICATION_REPORT_TYPE_PERFORMANCE]: 7,
+  [NOTIFICATION_REPORT_TYPE_DELIVERY]: 8,
+  [NOTIFICATION_REPORT_TYPE_ENGAGEMENT]: 7,
+  [NOTIFICATION_REPORT_TYPE_REVENUE]: 9,
+};
+
+// ============================================
+// ৮. রিপোর্ট টাইপ কনফিগারেশন
+// ============================================
+
+/**
+ * রিপোর্ট টাইপ কনফিগারেশন
+ */
+export interface NotificationReportTypeConfig {
+  /** টাইপের নাম */
+  type: NotificationReportType;
+  /** টাইপের লেবেল */
+  label: string;
+  /** টাইপের আইকন */
+  icon: string;
+  /** টাইপের কালার */
+  color: string;
+  /** টাইপের প্রায়োরিটি */
+  priority: number;
+  /** টাইপের গ্রুপ */
+  group: NotificationReportTypeGroup;
+  /** সামারি টাইপ কিনা */
+  isSummary: boolean;
+  /** অ্যানালিটিক্যাল টাইপ কিনা */
+  isAnalytical: boolean;
+  /** অপারেশনাল টাইপ কিনা */
+  isOperational: boolean;
+  /** স্ট্র্যাটেজিক টাইপ কিনা */
+  isStrategic: boolean;
+}
+
+/**
+ * সব রিপোর্ট টাইপের কনফিগারেশন
+ */
+export const NOTIFICATION_REPORT_TYPE_CONFIGS: NotificationReportTypeConfig[] = [
+  {
+    type: NOTIFICATION_REPORT_TYPE_SUMMARY,
+    label: NOTIFICATION_REPORT_TYPE_LABELS[NOTIFICATION_REPORT_TYPE_SUMMARY],
+    icon: NOTIFICATION_REPORT_TYPE_ICONS[NOTIFICATION_REPORT_TYPE_SUMMARY],
+    color: NOTIFICATION_REPORT_TYPE_COLORS[NOTIFICATION_REPORT_TYPE_SUMMARY],
+    priority: NOTIFICATION_REPORT_TYPE_PRIORITY[NOTIFICATION_REPORT_TYPE_SUMMARY],
+    group: NOTIFICATION_REPORT_TYPE_TO_GROUP[NOTIFICATION_REPORT_TYPE_SUMMARY],
+    isSummary: true,
+    isAnalytical: false,
+    isOperational: false,
+    isStrategic: false,
+  },
+  {
+    type: NOTIFICATION_REPORT_TYPE_DETAILED,
+    label: NOTIFICATION_REPORT_TYPE_LABELS[NOTIFICATION_REPORT_TYPE_DETAILED],
+    icon: NOTIFICATION_REPORT_TYPE_ICONS[NOTIFICATION_REPORT_TYPE_DETAILED],
+    color: NOTIFICATION_REPORT_TYPE_COLORS[NOTIFICATION_REPORT_TYPE_DETAILED],
+    priority: NOTIFICATION_REPORT_TYPE_PRIORITY[NOTIFICATION_REPORT_TYPE_DETAILED],
+    group: NOTIFICATION_REPORT_TYPE_TO_GROUP[NOTIFICATION_REPORT_TYPE_DETAILED],
+    isSummary: false,
+    isAnalytical: true,
+    isOperational: false,
+    isStrategic: false,
+  },
+  {
+    type: NOTIFICATION_REPORT_TYPE_EXECUTIVE,
+    label: NOTIFICATION_REPORT_TYPE_LABELS[NOTIFICATION_REPORT_TYPE_EXECUTIVE],
+    icon: NOTIFICATION_REPORT_TYPE_ICONS[NOTIFICATION_REPORT_TYPE_EXECUTIVE],
+    color: NOTIFICATION_REPORT_TYPE_COLORS[NOTIFICATION_REPORT_TYPE_EXECUTIVE],
+    priority: NOTIFICATION_REPORT_TYPE_PRIORITY[NOTIFICATION_REPORT_TYPE_EXECUTIVE],
+    group: NOTIFICATION_REPORT_TYPE_TO_GROUP[NOTIFICATION_REPORT_TYPE_EXECUTIVE],
+    isSummary: false,
+    isAnalytical: false,
+    isOperational: false,
+    isStrategic: true,
+  },
+  {
+    type: NOTIFICATION_REPORT_TYPE_OPERATIONAL,
+    label: NOTIFICATION_REPORT_TYPE_LABELS[NOTIFICATION_REPORT_TYPE_OPERATIONAL],
+    icon: NOTIFICATION_REPORT_TYPE_ICONS[NOTIFICATION_REPORT_TYPE_OPERATIONAL],
+    color: NOTIFICATION_REPORT_TYPE_COLORS[NOTIFICATION_REPORT_TYPE_OPERATIONAL],
+    priority: NOTIFICATION_REPORT_TYPE_PRIORITY[NOTIFICATION_REPORT_TYPE_OPERATIONAL],
+    group: NOTIFICATION_REPORT_TYPE_TO_GROUP[NOTIFICATION_REPORT_TYPE_OPERATIONAL],
+    isSummary: false,
+    isAnalytical: false,
+    isOperational: true,
+    isStrategic: false,
+  },
+  {
+    type: NOTIFICATION_REPORT_TYPE_ANALYTICAL,
+    label: NOTIFICATION_REPORT_TYPE_LABELS[NOTIFICATION_REPORT_TYPE_ANALYTICAL],
+    icon: NOTIFICATION_REPORT_TYPE_ICONS[NOTIFICATION_REPORT_TYPE_ANALYTICAL],
+    color: NOTIFICATION_REPORT_TYPE_COLORS[NOTIFICATION_REPORT_TYPE_ANALYTICAL],
+    priority: NOTIFICATION_REPORT_TYPE_PRIORITY[NOTIFICATION_REPORT_TYPE_ANALYTICAL],
+    group: NOTIFICATION_REPORT_TYPE_TO_GROUP[NOTIFICATION_REPORT_TYPE_ANALYTICAL],
+    isSummary: false,
+    isAnalytical: true,
+    isOperational: false,
+    isStrategic: false,
+  },
+  {
+    type: NOTIFICATION_REPORT_TYPE_CUSTOM,
+    label: NOTIFICATION_REPORT_TYPE_LABELS[NOTIFICATION_REPORT_TYPE_CUSTOM],
+    icon: NOTIFICATION_REPORT_TYPE_ICONS[NOTIFICATION_REPORT_TYPE_CUSTOM],
+    color: NOTIFICATION_REPORT_TYPE_COLORS[NOTIFICATION_REPORT_TYPE_CUSTOM],
+    priority: NOTIFICATION_REPORT_TYPE_PRIORITY[NOTIFICATION_REPORT_TYPE_CUSTOM],
+    group: NOTIFICATION_REPORT_TYPE_TO_GROUP[NOTIFICATION_REPORT_TYPE_CUSTOM],
+    isSummary: false,
+    isAnalytical: true,
+    isOperational: false,
+    isStrategic: false,
+  },
+  {
+    type: NOTIFICATION_REPORT_TYPE_SCHEDULED,
+    label: NOTIFICATION_REPORT_TYPE_LABELS[NOTIFICATION_REPORT_TYPE_SCHEDULED],
+    icon: NOTIFICATION_REPORT_TYPE_ICONS[NOTIFICATION_REPORT_TYPE_SCHEDULED],
+    color: NOTIFICATION_REPORT_TYPE_COLORS[NOTIFICATION_REPORT_TYPE_SCHEDULED],
+    priority: NOTIFICATION_REPORT_TYPE_PRIORITY[NOTIFICATION_REPORT_TYPE_SCHEDULED],
+    group: NOTIFICATION_REPORT_TYPE_TO_GROUP[NOTIFICATION_REPORT_TYPE_SCHEDULED],
+    isSummary: false,
+    isAnalytical: false,
+    isOperational: true,
+    isStrategic: false,
+  },
+  {
+    type: NOTIFICATION_REPORT_TYPE_ON_DEMAND,
+    label: NOTIFICATION_REPORT_TYPE_LABELS[NOTIFICATION_REPORT_TYPE_ON_DEMAND],
+    icon: NOTIFICATION_REPORT_TYPE_ICONS[NOTIFICATION_REPORT_TYPE_ON_DEMAND],
+    color: NOTIFICATION_REPORT_TYPE_COLORS[NOTIFICATION_REPORT_TYPE_ON_DEMAND],
+    priority: NOTIFICATION_REPORT_TYPE_PRIORITY[NOTIFICATION_REPORT_TYPE_ON_DEMAND],
+    group: NOTIFICATION_REPORT_TYPE_TO_GROUP[NOTIFICATION_REPORT_TYPE_ON_DEMAND],
+    isSummary: false,
+    isAnalytical: false,
+    isOperational: true,
+    isStrategic: false,
+  },
+  {
+    type: NOTIFICATION_REPORT_TYPE_COMPARATIVE,
+    label: NOTIFICATION_REPORT_TYPE_LABELS[NOTIFICATION_REPORT_TYPE_COMPARATIVE],
+    icon: NOTIFICATION_REPORT_TYPE_ICONS[NOTIFICATION_REPORT_TYPE_COMPARATIVE],
+    color: NOTIFICATION_REPORT_TYPE_COLORS[NOTIFICATION_REPORT_TYPE_COMPARATIVE],
+    priority: NOTIFICATION_REPORT_TYPE_PRIORITY[NOTIFICATION_REPORT_TYPE_COMPARATIVE],
+    group: NOTIFICATION_REPORT_TYPE_TO_GROUP[NOTIFICATION_REPORT_TYPE_COMPARATIVE],
+    isSummary: false,
+    isAnalytical: true,
+    isOperational: false,
+    isStrategic: false,
+  },
+  {
+    type: NOTIFICATION_REPORT_TYPE_TREND,
+    label: NOTIFICATION_REPORT_TYPE_LABELS[NOTIFICATION_REPORT_TYPE_TREND],
+    icon: NOTIFICATION_REPORT_TYPE_ICONS[NOTIFICATION_REPORT_TYPE_TREND],
+    color: NOTIFICATION_REPORT_TYPE_COLORS[NOTIFICATION_REPORT_TYPE_TREND],
+    priority: NOTIFICATION_REPORT_TYPE_PRIORITY[NOTIFICATION_REPORT_TYPE_TREND],
+    group: NOTIFICATION_REPORT_TYPE_TO_GROUP[NOTIFICATION_REPORT_TYPE_TREND],
+    isSummary: false,
+    isAnalytical: true,
+    isOperational: false,
+    isStrategic: false,
+  },
+  {
+    type: NOTIFICATION_REPORT_TYPE_FORECAST,
+    label: NOTIFICATION_REPORT_TYPE_LABELS[NOTIFICATION_REPORT_TYPE_FORECAST],
+    icon: NOTIFICATION_REPORT_TYPE_ICONS[NOTIFICATION_REPORT_TYPE_FORECAST],
+    color: NOTIFICATION_REPORT_TYPE_COLORS[NOTIFICATION_REPORT_TYPE_FORECAST],
+    priority: NOTIFICATION_REPORT_TYPE_PRIORITY[NOTIFICATION_REPORT_TYPE_FORECAST],
+    group: NOTIFICATION_REPORT_TYPE_TO_GROUP[NOTIFICATION_REPORT_TYPE_FORECAST],
+    isSummary: false,
+    isAnalytical: false,
+    isOperational: false,
+    isStrategic: true,
+  },
+  {
+    type: NOTIFICATION_REPORT_TYPE_PERFORMANCE,
+    label: NOTIFICATION_REPORT_TYPE_LABELS[NOTIFICATION_REPORT_TYPE_PERFORMANCE],
+    icon: NOTIFICATION_REPORT_TYPE_ICONS[NOTIFICATION_REPORT_TYPE_PERFORMANCE],
+    color: NOTIFICATION_REPORT_TYPE_COLORS[NOTIFICATION_REPORT_TYPE_PERFORMANCE],
+    priority: NOTIFICATION_REPORT_TYPE_PRIORITY[NOTIFICATION_REPORT_TYPE_PERFORMANCE],
+    group: NOTIFICATION_REPORT_TYPE_TO_GROUP[NOTIFICATION_REPORT_TYPE_PERFORMANCE],
+    isSummary: false,
+    isAnalytical: true,
+    isOperational: false,
+    isStrategic: false,
+  },
+  {
+    type: NOTIFICATION_REPORT_TYPE_DELIVERY,
+    label: NOTIFICATION_REPORT_TYPE_LABELS[NOTIFICATION_REPORT_TYPE_DELIVERY],
+    icon: NOTIFICATION_REPORT_TYPE_ICONS[NOTIFICATION_REPORT_TYPE_DELIVERY],
+    color: NOTIFICATION_REPORT_TYPE_COLORS[NOTIFICATION_REPORT_TYPE_DELIVERY],
+    priority: NOTIFICATION_REPORT_TYPE_PRIORITY[NOTIFICATION_REPORT_TYPE_DELIVERY],
+    group: NOTIFICATION_REPORT_TYPE_TO_GROUP[NOTIFICATION_REPORT_TYPE_DELIVERY],
+    isSummary: false,
+    isAnalytical: false,
+    isOperational: true,
+    isStrategic: false,
+  },
+  {
+    type: NOTIFICATION_REPORT_TYPE_ENGAGEMENT,
+    label: NOTIFICATION_REPORT_TYPE_LABELS[NOTIFICATION_REPORT_TYPE_ENGAGEMENT],
+    icon: NOTIFICATION_REPORT_TYPE_ICONS[NOTIFICATION_REPORT_TYPE_ENGAGEMENT],
+    color: NOTIFICATION_REPORT_TYPE_COLORS[NOTIFICATION_REPORT_TYPE_ENGAGEMENT],
+    priority: NOTIFICATION_REPORT_TYPE_PRIORITY[NOTIFICATION_REPORT_TYPE_ENGAGEMENT],
+    group: NOTIFICATION_REPORT_TYPE_TO_GROUP[NOTIFICATION_REPORT_TYPE_ENGAGEMENT],
+    isSummary: false,
+    isAnalytical: true,
+    isOperational: false,
+    isStrategic: false,
+  },
+  {
+    type: NOTIFICATION_REPORT_TYPE_REVENUE,
+    label: NOTIFICATION_REPORT_TYPE_LABELS[NOTIFICATION_REPORT_TYPE_REVENUE],
+    icon: NOTIFICATION_REPORT_TYPE_ICONS[NOTIFICATION_REPORT_TYPE_REVENUE],
+    color: NOTIFICATION_REPORT_TYPE_COLORS[NOTIFICATION_REPORT_TYPE_REVENUE],
+    priority: NOTIFICATION_REPORT_TYPE_PRIORITY[NOTIFICATION_REPORT_TYPE_REVENUE],
+    group: NOTIFICATION_REPORT_TYPE_TO_GROUP[NOTIFICATION_REPORT_TYPE_REVENUE],
+    isSummary: false,
+    isAnalytical: false,
+    isOperational: false,
+    isStrategic: true,
+  },
+];

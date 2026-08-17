@@ -1,0 +1,477 @@
+// ============================================
+// ব্রডকাস্ট নোটিফিকেশন স্ট্যাটাস সংক্রান্ত কনস্ট্যান্টসমূহ
+// ============================================
+
+// ============================================
+// ১. ব্রডকাস্ট স্ট্যাটাস
+// ============================================
+
+/**
+ * ব্রডকাস্ট নোটিফিকেশন স্ট্যাটাস
+ * ব্রডকাস্টের বর্তমান অবস্থা নির্দেশ করে
+ */
+export type NotificationBroadcastStatus =
+  | typeof NOTIFICATION_BROADCAST_STATUS_DRAFT
+  | typeof NOTIFICATION_BROADCAST_STATUS_PENDING
+  | typeof NOTIFICATION_BROADCAST_STATUS_PROCESSING
+  | typeof NOTIFICATION_BROADCAST_STATUS_COMPLETED
+  | typeof NOTIFICATION_BROADCAST_STATUS_PARTIAL
+  | typeof NOTIFICATION_BROADCAST_STATUS_FAILED
+  | typeof NOTIFICATION_BROADCAST_STATUS_CANCELLED
+  | typeof NOTIFICATION_BROADCAST_STATUS_SCHEDULED
+  | typeof NOTIFICATION_BROADCAST_STATUS_PAUSED
+  | typeof NOTIFICATION_BROADCAST_STATUS_QUEUED
+  | typeof NOTIFICATION_BROADCAST_STATUS_RUNNING
+  | typeof NOTIFICATION_BROADCAST_STATUS_TRIGGERED
+  | typeof NOTIFICATION_BROADCAST_STATUS_EXPIRED
+  | typeof NOTIFICATION_BROADCAST_STATUS_ARCHIVED;
+
+/**
+ * ড্রাফট স্ট্যাটাস
+ * @description ব্রডকাস্ট খসড়া হিসেবে সংরক্ষিত
+ */
+export const NOTIFICATION_BROADCAST_STATUS_DRAFT = 'DRAFT';
+
+/**
+ * পেন্ডিং স্ট্যাটাস
+ * @description ব্রডকাস্ট প্রক্রিয়াকরণের অপেক্ষায়
+ */
+export const NOTIFICATION_BROADCAST_STATUS_PENDING = 'PENDING';
+
+/**
+ * প্রসেসিং স্ট্যাটাস
+ * @description ব্রডকাস্ট প্রক্রিয়াকরণ চলছে
+ */
+export const NOTIFICATION_BROADCAST_STATUS_PROCESSING = 'PROCESSING';
+
+/**
+ * কমপ্লিটেড স্ট্যাটাস
+ * @description ব্রডকাস্ট সম্পন্ন হয়েছে
+ */
+export const NOTIFICATION_BROADCAST_STATUS_COMPLETED = 'COMPLETED';
+
+/**
+ * পার্শিয়াল স্ট্যাটাস
+ * @description ব্রডকাস্ট আংশিকভাবে সফল হয়েছে
+ */
+export const NOTIFICATION_BROADCAST_STATUS_PARTIAL = 'PARTIAL';
+
+/**
+ * ফেইলড স্ট্যাটাস
+ * @description ব্রডকাস্ট ব্যর্থ হয়েছে
+ */
+export const NOTIFICATION_BROADCAST_STATUS_FAILED = 'FAILED';
+
+/**
+ * ক্যান্সেলড স্ট্যাটাস
+ * @description ব্রডকাস্ট বাতিল করা হয়েছে
+ */
+export const NOTIFICATION_BROADCAST_STATUS_CANCELLED = 'CANCELLED';
+
+/**
+ * স্কেডিউলড স্ট্যাটাস
+ * @description ব্রডকাস্ট নির্ধারিত সময়ে পাঠানোর জন্য
+ */
+export const NOTIFICATION_BROADCAST_STATUS_SCHEDULED = 'SCHEDULED';
+
+/**
+ * পজড স্ট্যাটাস
+ * @description ব্রডকাস্ট স্থগিত করা হয়েছে
+ */
+export const NOTIFICATION_BROADCAST_STATUS_PAUSED = 'PAUSED';
+
+/**
+ * কিউড স্ট্যাটাস
+ * @description ব্রডকাস্ট সারিবদ্ধ করা হয়েছে
+ */
+export const NOTIFICATION_BROADCAST_STATUS_QUEUED = 'QUEUED';
+
+/**
+ * রানিং স্ট্যাটাস
+ * @description ব্রডকাস্ট চলমান
+ */
+export const NOTIFICATION_BROADCAST_STATUS_RUNNING = 'RUNNING';
+
+/**
+ * ট্রিগারড স্ট্যাটাস
+ * @description ব্রডকাস্ট ট্রিগার হয়েছে
+ */
+export const NOTIFICATION_BROADCAST_STATUS_TRIGGERED = 'TRIGGERED';
+
+/**
+ * এক্সপাইরড স্ট্যাটাস
+ * @description ব্রডকাস্টের মেয়াদ শেষ
+ */
+export const NOTIFICATION_BROADCAST_STATUS_EXPIRED = 'EXPIRED';
+
+/**
+ * আর্কাইভড স্ট্যাটাস
+ * @description ব্রডকাস্ট আর্কাইভ করা হয়েছে
+ */
+export const NOTIFICATION_BROADCAST_STATUS_ARCHIVED = 'ARCHIVED';
+
+// ============================================
+// ২. ব্রডকাস্ট স্ট্যাটাস গ্রুপ
+// ============================================
+
+/**
+ * ব্রডকাস্ট স্ট্যাটাস গ্রুপ
+ */
+export type NotificationBroadcastStatusGroup =
+  | typeof NOTIFICATION_BROADCAST_STATUS_GROUP_DRAFT
+  | typeof NOTIFICATION_BROADCAST_STATUS_GROUP_PENDING
+  | typeof NOTIFICATION_BROADCAST_STATUS_GROUP_ACTIVE
+  | typeof NOTIFICATION_BROADCAST_STATUS_GROUP_COMPLETED
+  | typeof NOTIFICATION_BROADCAST_STATUS_GROUP_FAILED
+  | typeof NOTIFICATION_BROADCAST_STATUS_GROUP_TERMINAL;
+
+/**
+ * ড্রাফট গ্রুপ
+ * @description খসড়া স্ট্যাটাস
+ */
+export const NOTIFICATION_BROADCAST_STATUS_GROUP_DRAFT = 'DRAFT';
+
+/**
+ * পেন্ডিং গ্রুপ
+ * @description অপেক্ষমান স্ট্যাটাস
+ */
+export const NOTIFICATION_BROADCAST_STATUS_GROUP_PENDING = 'PENDING';
+
+/**
+ * অ্যাক্টিভ গ্রুপ
+ * @description সক্রিয় স্ট্যাটাস
+ */
+export const NOTIFICATION_BROADCAST_STATUS_GROUP_ACTIVE = 'ACTIVE';
+
+/**
+ * কমপ্লিটেড গ্রুপ
+ * @description সম্পন্ন স্ট্যাটাস
+ */
+export const NOTIFICATION_BROADCAST_STATUS_GROUP_COMPLETED = 'COMPLETED';
+
+/**
+ * ফেইলড গ্রুপ
+ * @description ব্যর্থ স্ট্যাটাস
+ */
+export const NOTIFICATION_BROADCAST_STATUS_GROUP_FAILED = 'FAILED';
+
+/**
+ * টার্মিনাল গ্রুপ
+ * @description চূড়ান্ত অবস্থা
+ */
+export const NOTIFICATION_BROADCAST_STATUS_GROUP_TERMINAL = 'TERMINAL';
+
+// ============================================
+// ৩. ব্রডকাস্ট স্ট্যাটাস থেকে গ্রুপ ম্যাপিং
+// ============================================
+
+/**
+ * ব্রডকাস্ট স্ট্যাটাস থেকে গ্রুপ ম্যাপিং
+ */
+export const NOTIFICATION_BROADCAST_STATUS_TO_GROUP: Record<
+  NotificationBroadcastStatus,
+  NotificationBroadcastStatusGroup
+> = {
+  [NOTIFICATION_BROADCAST_STATUS_DRAFT]: NOTIFICATION_BROADCAST_STATUS_GROUP_DRAFT,
+  [NOTIFICATION_BROADCAST_STATUS_PENDING]: NOTIFICATION_BROADCAST_STATUS_GROUP_PENDING,
+  [NOTIFICATION_BROADCAST_STATUS_PROCESSING]: NOTIFICATION_BROADCAST_STATUS_GROUP_ACTIVE,
+  [NOTIFICATION_BROADCAST_STATUS_COMPLETED]: NOTIFICATION_BROADCAST_STATUS_GROUP_COMPLETED,
+  [NOTIFICATION_BROADCAST_STATUS_PARTIAL]: NOTIFICATION_BROADCAST_STATUS_GROUP_FAILED,
+  [NOTIFICATION_BROADCAST_STATUS_FAILED]: NOTIFICATION_BROADCAST_STATUS_GROUP_FAILED,
+  [NOTIFICATION_BROADCAST_STATUS_CANCELLED]: NOTIFICATION_BROADCAST_STATUS_GROUP_TERMINAL,
+  [NOTIFICATION_BROADCAST_STATUS_SCHEDULED]: NOTIFICATION_BROADCAST_STATUS_GROUP_PENDING,
+  [NOTIFICATION_BROADCAST_STATUS_PAUSED]: NOTIFICATION_BROADCAST_STATUS_GROUP_PENDING,
+  [NOTIFICATION_BROADCAST_STATUS_QUEUED]: NOTIFICATION_BROADCAST_STATUS_GROUP_PENDING,
+  [NOTIFICATION_BROADCAST_STATUS_RUNNING]: NOTIFICATION_BROADCAST_STATUS_GROUP_ACTIVE,
+  [NOTIFICATION_BROADCAST_STATUS_TRIGGERED]: NOTIFICATION_BROADCAST_STATUS_GROUP_COMPLETED,
+  [NOTIFICATION_BROADCAST_STATUS_EXPIRED]: NOTIFICATION_BROADCAST_STATUS_GROUP_TERMINAL,
+  [NOTIFICATION_BROADCAST_STATUS_ARCHIVED]: NOTIFICATION_BROADCAST_STATUS_GROUP_TERMINAL,
+};
+
+// ============================================
+// ৪. ব্রডকাস্ট স্ট্যাটাস লেবেল
+// ============================================
+
+/**
+ * ব্রডকাস্ট স্ট্যাটাস লেবেল
+ */
+export const NOTIFICATION_BROADCAST_STATUS_LABELS: Record<NotificationBroadcastStatus, string> = {
+  [NOTIFICATION_BROADCAST_STATUS_DRAFT]: 'খসড়া',
+  [NOTIFICATION_BROADCAST_STATUS_PENDING]: 'অপেক্ষমান',
+  [NOTIFICATION_BROADCAST_STATUS_PROCESSING]: 'প্রক্রিয়াকরণ',
+  [NOTIFICATION_BROADCAST_STATUS_COMPLETED]: 'সম্পন্ন',
+  [NOTIFICATION_BROADCAST_STATUS_PARTIAL]: 'আংশিক',
+  [NOTIFICATION_BROADCAST_STATUS_FAILED]: 'ব্যর্থ',
+  [NOTIFICATION_BROADCAST_STATUS_CANCELLED]: 'বাতিল',
+  [NOTIFICATION_BROADCAST_STATUS_SCHEDULED]: 'নির্ধারিত',
+  [NOTIFICATION_BROADCAST_STATUS_PAUSED]: 'স্থগিত',
+  [NOTIFICATION_BROADCAST_STATUS_QUEUED]: 'সারিবদ্ধ',
+  [NOTIFICATION_BROADCAST_STATUS_RUNNING]: 'চলমান',
+  [NOTIFICATION_BROADCAST_STATUS_TRIGGERED]: 'ট্রিগার হয়েছে',
+  [NOTIFICATION_BROADCAST_STATUS_EXPIRED]: 'মেয়াদোত্তীর্ণ',
+  [NOTIFICATION_BROADCAST_STATUS_ARCHIVED]: 'আর্কাইভ',
+};
+
+// ============================================
+// ৫. ব্রডকাস্ট স্ট্যাটাস আইকন
+// ============================================
+
+/**
+ * ব্রডকাস্ট স্ট্যাটাস আইকন
+ */
+export const NOTIFICATION_BROADCAST_STATUS_ICONS: Record<NotificationBroadcastStatus, string> = {
+  [NOTIFICATION_BROADCAST_STATUS_DRAFT]: 'draft',
+  [NOTIFICATION_BROADCAST_STATUS_PENDING]: 'pending',
+  [NOTIFICATION_BROADCAST_STATUS_PROCESSING]: 'processing',
+  [NOTIFICATION_BROADCAST_STATUS_COMPLETED]: 'done_all',
+  [NOTIFICATION_BROADCAST_STATUS_PARTIAL]: 'partial',
+  [NOTIFICATION_BROADCAST_STATUS_FAILED]: 'error',
+  [NOTIFICATION_BROADCAST_STATUS_CANCELLED]: 'block',
+  [NOTIFICATION_BROADCAST_STATUS_SCHEDULED]: 'schedule',
+  [NOTIFICATION_BROADCAST_STATUS_PAUSED]: 'pause_circle',
+  [NOTIFICATION_BROADCAST_STATUS_QUEUED]: 'queue',
+  [NOTIFICATION_BROADCAST_STATUS_RUNNING]: 'play_circle',
+  [NOTIFICATION_BROADCAST_STATUS_TRIGGERED]: 'bolt',
+  [NOTIFICATION_BROADCAST_STATUS_EXPIRED]: 'timer',
+  [NOTIFICATION_BROADCAST_STATUS_ARCHIVED]: 'archive',
+};
+
+// ============================================
+// ৬. ব্রডকাস্ট স্ট্যাটাস কালার
+// ============================================
+
+/**
+ * ব্রডকাস্ট স্ট্যাটাস কালার
+ */
+export const NOTIFICATION_BROADCAST_STATUS_COLORS: Record<NotificationBroadcastStatus, string> = {
+  [NOTIFICATION_BROADCAST_STATUS_DRAFT]: '#9E9E9E', // Grey
+  [NOTIFICATION_BROADCAST_STATUS_PENDING]: '#FFC107', // Amber
+  [NOTIFICATION_BROADCAST_STATUS_PROCESSING]: '#2196F3', // Blue
+  [NOTIFICATION_BROADCAST_STATUS_COMPLETED]: '#4CAF50', // Green
+  [NOTIFICATION_BROADCAST_STATUS_PARTIAL]: '#FFAB00', // Yellow
+  [NOTIFICATION_BROADCAST_STATUS_FAILED]: '#F44336', // Red
+  [NOTIFICATION_BROADCAST_STATUS_CANCELLED]: '#757575', // Dark Grey
+  [NOTIFICATION_BROADCAST_STATUS_SCHEDULED]: '#FF9800', // Orange
+  [NOTIFICATION_BROADCAST_STATUS_PAUSED]: '#607D8B', // Blue Grey
+  [NOTIFICATION_BROADCAST_STATUS_QUEUED]: '#FF6F00', // Dark Amber
+  [NOTIFICATION_BROADCAST_STATUS_RUNNING]: '#00BCD4', // Cyan
+  [NOTIFICATION_BROADCAST_STATUS_TRIGGERED]: '#FF6F00', // Dark Amber
+  [NOTIFICATION_BROADCAST_STATUS_EXPIRED]: '#795548', // Brown
+  [NOTIFICATION_BROADCAST_STATUS_ARCHIVED]: '#607D8B', // Blue Grey
+};
+
+// ============================================
+// ৭. টার্মিনাল ব্রডকাস্ট স্ট্যাটাসসমূহ
+// ============================================
+
+/**
+ * টার্মিনাল ব্রডকাস্ট স্ট্যাটাসসমূহ
+ * যে স্ট্যাটাসগুলো চূড়ান্ত এবং আর পরিবর্তন হয় না
+ */
+export const NOTIFICATION_BROADCAST_TERMINAL_STATUSES: NotificationBroadcastStatus[] = [
+  NOTIFICATION_BROADCAST_STATUS_COMPLETED,
+  NOTIFICATION_BROADCAST_STATUS_FAILED,
+  NOTIFICATION_BROADCAST_STATUS_CANCELLED,
+  NOTIFICATION_BROADCAST_STATUS_EXPIRED,
+  NOTIFICATION_BROADCAST_STATUS_ARCHIVED,
+];
+
+// ============================================
+// ৮. অ্যাক্টিভ ব্রডকাস্ট স্ট্যাটাসসমূহ
+// ============================================
+
+/**
+ * অ্যাক্টিভ ব্রডকাস্ট স্ট্যাটাসসমূহ
+ * যে স্ট্যাটাসগুলো সক্রিয় বা চলমান
+ */
+export const NOTIFICATION_BROADCAST_ACTIVE_STATUSES: NotificationBroadcastStatus[] = [
+  NOTIFICATION_BROADCAST_STATUS_PROCESSING,
+  NOTIFICATION_BROADCAST_STATUS_RUNNING,
+  NOTIFICATION_BROADCAST_STATUS_QUEUED,
+];
+
+// ============================================
+// ৯. পেন্ডিং ব্রডকাস্ট স্ট্যাটাসসমূহ
+// ============================================
+
+/**
+ * পেন্ডিং ব্রডকাস্ট স্ট্যাটাসসমূহ
+ * যে স্ট্যাটাসগুলো অপেক্ষমান
+ */
+export const NOTIFICATION_BROADCAST_PENDING_STATUSES: NotificationBroadcastStatus[] = [
+  NOTIFICATION_BROADCAST_STATUS_PENDING,
+  NOTIFICATION_BROADCAST_STATUS_SCHEDULED,
+  NOTIFICATION_BROADCAST_STATUS_PAUSED,
+];
+
+// ============================================
+// ১০. ব্রডকাস্ট স্ট্যাটাস কনফিগারেশন
+// ============================================
+
+/**
+ * ব্রডকাস্ট স্ট্যাটাস কনফিগারেশন
+ */
+export interface NotificationBroadcastStatusConfig {
+  /** স্ট্যাটাসের নাম */
+  status: NotificationBroadcastStatus;
+  /** স্ট্যাটাসের লেবেল */
+  label: string;
+  /** স্ট্যাটাসের আইকন */
+  icon: string;
+  /** স্ট্যাটাসের কালার */
+  color: string;
+  /** স্ট্যাটাসের গ্রুপ */
+  group: NotificationBroadcastStatusGroup;
+  /** টার্মিনাল স্ট্যাটাস কিনা */
+  isTerminal: boolean;
+  /** অ্যাক্টিভ স্ট্যাটাস কিনা */
+  isActive: boolean;
+  /** পেন্ডিং স্ট্যাটাস কিনা */
+  isPending: boolean;
+}
+
+/**
+ * সব ব্রডকাস্ট স্ট্যাটাসের কনফিগারেশন
+ */
+export const NOTIFICATION_BROADCAST_STATUS_CONFIGS: NotificationBroadcastStatusConfig[] = [
+  {
+    status: NOTIFICATION_BROADCAST_STATUS_DRAFT,
+    label: NOTIFICATION_BROADCAST_STATUS_LABELS[NOTIFICATION_BROADCAST_STATUS_DRAFT],
+    icon: NOTIFICATION_BROADCAST_STATUS_ICONS[NOTIFICATION_BROADCAST_STATUS_DRAFT],
+    color: NOTIFICATION_BROADCAST_STATUS_COLORS[NOTIFICATION_BROADCAST_STATUS_DRAFT],
+    group: NOTIFICATION_BROADCAST_STATUS_TO_GROUP[NOTIFICATION_BROADCAST_STATUS_DRAFT],
+    isTerminal: false,
+    isActive: false,
+    isPending: false,
+  },
+  {
+    status: NOTIFICATION_BROADCAST_STATUS_PENDING,
+    label: NOTIFICATION_BROADCAST_STATUS_LABELS[NOTIFICATION_BROADCAST_STATUS_PENDING],
+    icon: NOTIFICATION_BROADCAST_STATUS_ICONS[NOTIFICATION_BROADCAST_STATUS_PENDING],
+    color: NOTIFICATION_BROADCAST_STATUS_COLORS[NOTIFICATION_BROADCAST_STATUS_PENDING],
+    group: NOTIFICATION_BROADCAST_STATUS_TO_GROUP[NOTIFICATION_BROADCAST_STATUS_PENDING],
+    isTerminal: false,
+    isActive: false,
+    isPending: true,
+  },
+  {
+    status: NOTIFICATION_BROADCAST_STATUS_PROCESSING,
+    label: NOTIFICATION_BROADCAST_STATUS_LABELS[NOTIFICATION_BROADCAST_STATUS_PROCESSING],
+    icon: NOTIFICATION_BROADCAST_STATUS_ICONS[NOTIFICATION_BROADCAST_STATUS_PROCESSING],
+    color: NOTIFICATION_BROADCAST_STATUS_COLORS[NOTIFICATION_BROADCAST_STATUS_PROCESSING],
+    group: NOTIFICATION_BROADCAST_STATUS_TO_GROUP[NOTIFICATION_BROADCAST_STATUS_PROCESSING],
+    isTerminal: false,
+    isActive: true,
+    isPending: false,
+  },
+  {
+    status: NOTIFICATION_BROADCAST_STATUS_COMPLETED,
+    label: NOTIFICATION_BROADCAST_STATUS_LABELS[NOTIFICATION_BROADCAST_STATUS_COMPLETED],
+    icon: NOTIFICATION_BROADCAST_STATUS_ICONS[NOTIFICATION_BROADCAST_STATUS_COMPLETED],
+    color: NOTIFICATION_BROADCAST_STATUS_COLORS[NOTIFICATION_BROADCAST_STATUS_COMPLETED],
+    group: NOTIFICATION_BROADCAST_STATUS_TO_GROUP[NOTIFICATION_BROADCAST_STATUS_COMPLETED],
+    isTerminal: true,
+    isActive: false,
+    isPending: false,
+  },
+  {
+    status: NOTIFICATION_BROADCAST_STATUS_PARTIAL,
+    label: NOTIFICATION_BROADCAST_STATUS_LABELS[NOTIFICATION_BROADCAST_STATUS_PARTIAL],
+    icon: NOTIFICATION_BROADCAST_STATUS_ICONS[NOTIFICATION_BROADCAST_STATUS_PARTIAL],
+    color: NOTIFICATION_BROADCAST_STATUS_COLORS[NOTIFICATION_BROADCAST_STATUS_PARTIAL],
+    group: NOTIFICATION_BROADCAST_STATUS_TO_GROUP[NOTIFICATION_BROADCAST_STATUS_PARTIAL],
+    isTerminal: false,
+    isActive: false,
+    isPending: false,
+  },
+  {
+    status: NOTIFICATION_BROADCAST_STATUS_FAILED,
+    label: NOTIFICATION_BROADCAST_STATUS_LABELS[NOTIFICATION_BROADCAST_STATUS_FAILED],
+    icon: NOTIFICATION_BROADCAST_STATUS_ICONS[NOTIFICATION_BROADCAST_STATUS_FAILED],
+    color: NOTIFICATION_BROADCAST_STATUS_COLORS[NOTIFICATION_BROADCAST_STATUS_FAILED],
+    group: NOTIFICATION_BROADCAST_STATUS_TO_GROUP[NOTIFICATION_BROADCAST_STATUS_FAILED],
+    isTerminal: true,
+    isActive: false,
+    isPending: false,
+  },
+  {
+    status: NOTIFICATION_BROADCAST_STATUS_CANCELLED,
+    label: NOTIFICATION_BROADCAST_STATUS_LABELS[NOTIFICATION_BROADCAST_STATUS_CANCELLED],
+    icon: NOTIFICATION_BROADCAST_STATUS_ICONS[NOTIFICATION_BROADCAST_STATUS_CANCELLED],
+    color: NOTIFICATION_BROADCAST_STATUS_COLORS[NOTIFICATION_BROADCAST_STATUS_CANCELLED],
+    group: NOTIFICATION_BROADCAST_STATUS_TO_GROUP[NOTIFICATION_BROADCAST_STATUS_CANCELLED],
+    isTerminal: true,
+    isActive: false,
+    isPending: false,
+  },
+  {
+    status: NOTIFICATION_BROADCAST_STATUS_SCHEDULED,
+    label: NOTIFICATION_BROADCAST_STATUS_LABELS[NOTIFICATION_BROADCAST_STATUS_SCHEDULED],
+    icon: NOTIFICATION_BROADCAST_STATUS_ICONS[NOTIFICATION_BROADCAST_STATUS_SCHEDULED],
+    color: NOTIFICATION_BROADCAST_STATUS_COLORS[NOTIFICATION_BROADCAST_STATUS_SCHEDULED],
+    group: NOTIFICATION_BROADCAST_STATUS_TO_GROUP[NOTIFICATION_BROADCAST_STATUS_SCHEDULED],
+    isTerminal: false,
+    isActive: false,
+    isPending: true,
+  },
+  {
+    status: NOTIFICATION_BROADCAST_STATUS_PAUSED,
+    label: NOTIFICATION_BROADCAST_STATUS_LABELS[NOTIFICATION_BROADCAST_STATUS_PAUSED],
+    icon: NOTIFICATION_BROADCAST_STATUS_ICONS[NOTIFICATION_BROADCAST_STATUS_PAUSED],
+    color: NOTIFICATION_BROADCAST_STATUS_COLORS[NOTIFICATION_BROADCAST_STATUS_PAUSED],
+    group: NOTIFICATION_BROADCAST_STATUS_TO_GROUP[NOTIFICATION_BROADCAST_STATUS_PAUSED],
+    isTerminal: false,
+    isActive: false,
+    isPending: true,
+  },
+  {
+    status: NOTIFICATION_BROADCAST_STATUS_QUEUED,
+    label: NOTIFICATION_BROADCAST_STATUS_LABELS[NOTIFICATION_BROADCAST_STATUS_QUEUED],
+    icon: NOTIFICATION_BROADCAST_STATUS_ICONS[NOTIFICATION_BROADCAST_STATUS_QUEUED],
+    color: NOTIFICATION_BROADCAST_STATUS_COLORS[NOTIFICATION_BROADCAST_STATUS_QUEUED],
+    group: NOTIFICATION_BROADCAST_STATUS_TO_GROUP[NOTIFICATION_BROADCAST_STATUS_QUEUED],
+    isTerminal: false,
+    isActive: true,
+    isPending: false,
+  },
+  {
+    status: NOTIFICATION_BROADCAST_STATUS_RUNNING,
+    label: NOTIFICATION_BROADCAST_STATUS_LABELS[NOTIFICATION_BROADCAST_STATUS_RUNNING],
+    icon: NOTIFICATION_BROADCAST_STATUS_ICONS[NOTIFICATION_BROADCAST_STATUS_RUNNING],
+    color: NOTIFICATION_BROADCAST_STATUS_COLORS[NOTIFICATION_BROADCAST_STATUS_RUNNING],
+    group: NOTIFICATION_BROADCAST_STATUS_TO_GROUP[NOTIFICATION_BROADCAST_STATUS_RUNNING],
+    isTerminal: false,
+    isActive: true,
+    isPending: false,
+  },
+  {
+    status: NOTIFICATION_BROADCAST_STATUS_TRIGGERED,
+    label: NOTIFICATION_BROADCAST_STATUS_LABELS[NOTIFICATION_BROADCAST_STATUS_TRIGGERED],
+    icon: NOTIFICATION_BROADCAST_STATUS_ICONS[NOTIFICATION_BROADCAST_STATUS_TRIGGERED],
+    color: NOTIFICATION_BROADCAST_STATUS_COLORS[NOTIFICATION_BROADCAST_STATUS_TRIGGERED],
+    group: NOTIFICATION_BROADCAST_STATUS_TO_GROUP[NOTIFICATION_BROADCAST_STATUS_TRIGGERED],
+    isTerminal: false,
+    isActive: false,
+    isPending: false,
+  },
+  {
+    status: NOTIFICATION_BROADCAST_STATUS_EXPIRED,
+    label: NOTIFICATION_BROADCAST_STATUS_LABELS[NOTIFICATION_BROADCAST_STATUS_EXPIRED],
+    icon: NOTIFICATION_BROADCAST_STATUS_ICONS[NOTIFICATION_BROADCAST_STATUS_EXPIRED],
+    color: NOTIFICATION_BROADCAST_STATUS_COLORS[NOTIFICATION_BROADCAST_STATUS_EXPIRED],
+    group: NOTIFICATION_BROADCAST_STATUS_TO_GROUP[NOTIFICATION_BROADCAST_STATUS_EXPIRED],
+    isTerminal: true,
+    isActive: false,
+    isPending: false,
+  },
+  {
+    status: NOTIFICATION_BROADCAST_STATUS_ARCHIVED,
+    label: NOTIFICATION_BROADCAST_STATUS_LABELS[NOTIFICATION_BROADCAST_STATUS_ARCHIVED],
+    icon: NOTIFICATION_BROADCAST_STATUS_ICONS[NOTIFICATION_BROADCAST_STATUS_ARCHIVED],
+    color: NOTIFICATION_BROADCAST_STATUS_COLORS[NOTIFICATION_BROADCAST_STATUS_ARCHIVED],
+    group: NOTIFICATION_BROADCAST_STATUS_TO_GROUP[NOTIFICATION_BROADCAST_STATUS_ARCHIVED],
+    isTerminal: true,
+    isActive: false,
+    isPending: false,
+  },
+];

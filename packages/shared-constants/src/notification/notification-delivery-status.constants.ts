@@ -1,0 +1,545 @@
+// ============================================
+// নোটিফিকেশন ডেলিভারি স্ট্যাটাস সংক্রান্ত কনস্ট্যান্টসমূহ
+// ============================================
+
+// ============================================
+// ১. নোটিফিকেশন ডেলিভারি স্ট্যাটাস
+// ============================================
+
+/**
+ * নোটিফিকেশন ডেলিভারি স্ট্যাটাস
+ * নোটিফিকেশন ডেলিভারির বিভিন্ন অবস্থা নির্দেশ করে
+ */
+export type NotificationDeliveryStatus =
+  | typeof NOTIFICATION_DELIVERY_STATUS_QUEUED
+  | typeof NOTIFICATION_DELIVERY_STATUS_SENDING
+  | typeof NOTIFICATION_DELIVERY_STATUS_SENT
+  | typeof NOTIFICATION_DELIVERY_STATUS_DELIVERED
+  | typeof NOTIFICATION_DELIVERY_STATUS_BOUNCED
+  | typeof NOTIFICATION_DELIVERY_STATUS_DROPPED
+  | typeof NOTIFICATION_DELIVERY_STATUS_DEFERRED
+  | typeof NOTIFICATION_DELIVERY_STATUS_REJECTED
+  | typeof NOTIFICATION_DELIVERY_STATUS_CLICKED
+  | typeof NOTIFICATION_DELIVERY_STATUS_OPENED
+  | typeof NOTIFICATION_DELIVERY_STATUS_UNSUBSCRIBED
+  | typeof NOTIFICATION_DELIVERY_STATUS_COMPLAINED
+  | typeof NOTIFICATION_DELIVERY_STATUS_BLOCKED
+  | typeof NOTIFICATION_DELIVERY_STATUS_EXPIRED
+  | typeof NOTIFICATION_DELIVERY_STATUS_QUEUE_FULL
+  | typeof NOTIFICATION_DELIVERY_STATUS_RATE_LIMITED;
+
+/**
+ * কিউড স্ট্যাটাস
+ * @description ডেলিভারি কিউতে অপেক্ষমান
+ */
+export const NOTIFICATION_DELIVERY_STATUS_QUEUED = 'QUEUED';
+
+/**
+ * সেন্ডিং স্ট্যাটাস
+ * @description ডেলিভারি প্রক্রিয়া চলছে
+ */
+export const NOTIFICATION_DELIVERY_STATUS_SENDING = 'SENDING';
+
+/**
+ * সেন্ট স্ট্যাটাস
+ * @description ডেলিভারির জন্য পাঠানো হয়েছে
+ */
+export const NOTIFICATION_DELIVERY_STATUS_SENT = 'SENT';
+
+/**
+ * ডেলিভারড স্ট্যাটাস
+ * @description সফলভাবে ডেলিভারি হয়েছে
+ */
+export const NOTIFICATION_DELIVERY_STATUS_DELIVERED = 'DELIVERED';
+
+/**
+ * বাউন্সড স্ট্যাটাস
+ * @description ডেলিভারি বাউন্স হয়েছে
+ */
+export const NOTIFICATION_DELIVERY_STATUS_BOUNCED = 'BOUNCED';
+
+/**
+ * ড্রপড স্ট্যাটাস
+ * @description ডেলিভারি ড্রপ করা হয়েছে
+ */
+export const NOTIFICATION_DELIVERY_STATUS_DROPPED = 'DROPPED';
+
+/**
+ * ডিফারড স্ট্যাটাস
+ * @description ডেলিভারি স্থগিত করা হয়েছে
+ */
+export const NOTIFICATION_DELIVERY_STATUS_DEFERRED = 'DEFERRED';
+
+/**
+ * রিজেক্টেড স্ট্যাটাস
+ * @description ডেলিভারি প্রত্যাখ্যান করা হয়েছে
+ */
+export const NOTIFICATION_DELIVERY_STATUS_REJECTED = 'REJECTED';
+
+/**
+ * ক্লিকড স্ট্যাটাস
+ * @description নোটিফিকেশনে ক্লিক করা হয়েছে
+ */
+export const NOTIFICATION_DELIVERY_STATUS_CLICKED = 'CLICKED';
+
+/**
+ * ওপেনড স্ট্যাটাস
+ * @description নোটিফিকেশন খোলা হয়েছে
+ */
+export const NOTIFICATION_DELIVERY_STATUS_OPENED = 'OPENED';
+
+/**
+ * আনসাবস্ক্রাইবড স্ট্যাটাস
+ * @description ইউজার আনসাবস্ক্রাইব করেছে
+ */
+export const NOTIFICATION_DELIVERY_STATUS_UNSUBSCRIBED = 'UNSUBSCRIBED';
+
+/**
+ * কমপ্লেইনড স্ট্যাটাস
+ * @description ইউজার কমপ্লেইন করেছে
+ */
+export const NOTIFICATION_DELIVERY_STATUS_COMPLAINED = 'COMPLAINED';
+
+/**
+ * ব্লকড স্ট্যাটাস
+ * @description ডেলিভারি ব্লক করা হয়েছে
+ */
+export const NOTIFICATION_DELIVERY_STATUS_BLOCKED = 'BLOCKED';
+
+/**
+ * এক্সপাইরড স্ট্যাটাস
+ * @description ডেলিভারির মেয়াদ শেষ
+ */
+export const NOTIFICATION_DELIVERY_STATUS_EXPIRED = 'EXPIRED';
+
+/**
+ * কিউ ফুল স্ট্যাটাস
+ * @description কিউ পূর্ণ থাকায় ডেলিভারি হয়নি
+ */
+export const NOTIFICATION_DELIVERY_STATUS_QUEUE_FULL = 'QUEUE_FULL';
+
+/**
+ * রেট লিমিটেড স্ট্যাটাস
+ * @description রেট লিমিট অতিক্রমের কারণে ডেলিভারি হয়নি
+ */
+export const NOTIFICATION_DELIVERY_STATUS_RATE_LIMITED = 'RATE_LIMITED';
+
+// ============================================
+// ২. ডেলিভারি স্ট্যাটাস গ্রুপ
+// ============================================
+
+/**
+ * ডেলিভারি স্ট্যাটাস গ্রুপ
+ */
+export type NotificationDeliveryStatusGroup =
+  | typeof NOTIFICATION_DELIVERY_STATUS_GROUP_PENDING
+  | typeof NOTIFICATION_DELIVERY_STATUS_GROUP_IN_PROGRESS
+  | typeof NOTIFICATION_DELIVERY_STATUS_GROUP_SUCCESS
+  | typeof NOTIFICATION_DELIVERY_STATUS_GROUP_FAILURE
+  | typeof NOTIFICATION_DELIVERY_STATUS_GROUP_USER_ACTION
+  | typeof NOTIFICATION_DELIVERY_STATUS_GROUP_BLOCKED;
+
+/**
+ * পেন্ডিং গ্রুপ
+ * @description অপেক্ষমান স্ট্যাটাস
+ */
+export const NOTIFICATION_DELIVERY_STATUS_GROUP_PENDING = 'PENDING';
+
+/**
+ * ইন-প্রোগ্রেস গ্রুপ
+ * @description চলমান স্ট্যাটাস
+ */
+export const NOTIFICATION_DELIVERY_STATUS_GROUP_IN_PROGRESS = 'IN_PROGRESS';
+
+/**
+ * সাকসেস গ্রুপ
+ * @description সফল স্ট্যাটাস
+ */
+export const NOTIFICATION_DELIVERY_STATUS_GROUP_SUCCESS = 'SUCCESS';
+
+/**
+ * ফেইল্যুর গ্রুপ
+ * @description ব্যর্থ স্ট্যাটাস
+ */
+export const NOTIFICATION_DELIVERY_STATUS_GROUP_FAILURE = 'FAILURE';
+
+/**
+ * ইউজার অ্যাকশন গ্রুপ
+ * @description ইউজারের কর্মকাণ্ড সংক্রান্ত স্ট্যাটাস
+ */
+export const NOTIFICATION_DELIVERY_STATUS_GROUP_USER_ACTION = 'USER_ACTION';
+
+/**
+ * ব্লকড গ্রুপ
+ * @description ব্লক বা নিষিদ্ধ স্ট্যাটাস
+ */
+export const NOTIFICATION_DELIVERY_STATUS_GROUP_BLOCKED = 'BLOCKED';
+
+// ============================================
+// ৩. ডেলিভারি স্ট্যাটাস থেকে গ্রুপ ম্যাপিং
+// ============================================
+
+/**
+ * ডেলিভারি স্ট্যাটাস থেকে গ্রুপ ম্যাপিং
+ */
+export const NOTIFICATION_DELIVERY_STATUS_TO_GROUP: Record<
+  NotificationDeliveryStatus,
+  NotificationDeliveryStatusGroup
+> = {
+  [NOTIFICATION_DELIVERY_STATUS_QUEUED]: NOTIFICATION_DELIVERY_STATUS_GROUP_PENDING,
+  [NOTIFICATION_DELIVERY_STATUS_SENDING]: NOTIFICATION_DELIVERY_STATUS_GROUP_IN_PROGRESS,
+  [NOTIFICATION_DELIVERY_STATUS_SENT]: NOTIFICATION_DELIVERY_STATUS_GROUP_SUCCESS,
+  [NOTIFICATION_DELIVERY_STATUS_DELIVERED]: NOTIFICATION_DELIVERY_STATUS_GROUP_SUCCESS,
+  [NOTIFICATION_DELIVERY_STATUS_BOUNCED]: NOTIFICATION_DELIVERY_STATUS_GROUP_FAILURE,
+  [NOTIFICATION_DELIVERY_STATUS_DROPPED]: NOTIFICATION_DELIVERY_STATUS_GROUP_FAILURE,
+  [NOTIFICATION_DELIVERY_STATUS_DEFERRED]: NOTIFICATION_DELIVERY_STATUS_GROUP_PENDING,
+  [NOTIFICATION_DELIVERY_STATUS_REJECTED]: NOTIFICATION_DELIVERY_STATUS_GROUP_FAILURE,
+  [NOTIFICATION_DELIVERY_STATUS_CLICKED]: NOTIFICATION_DELIVERY_STATUS_GROUP_USER_ACTION,
+  [NOTIFICATION_DELIVERY_STATUS_OPENED]: NOTIFICATION_DELIVERY_STATUS_GROUP_USER_ACTION,
+  [NOTIFICATION_DELIVERY_STATUS_UNSUBSCRIBED]: NOTIFICATION_DELIVERY_STATUS_GROUP_USER_ACTION,
+  [NOTIFICATION_DELIVERY_STATUS_COMPLAINED]: NOTIFICATION_DELIVERY_STATUS_GROUP_USER_ACTION,
+  [NOTIFICATION_DELIVERY_STATUS_BLOCKED]: NOTIFICATION_DELIVERY_STATUS_GROUP_BLOCKED,
+  [NOTIFICATION_DELIVERY_STATUS_EXPIRED]: NOTIFICATION_DELIVERY_STATUS_GROUP_FAILURE,
+  [NOTIFICATION_DELIVERY_STATUS_QUEUE_FULL]: NOTIFICATION_DELIVERY_STATUS_GROUP_FAILURE,
+  [NOTIFICATION_DELIVERY_STATUS_RATE_LIMITED]: NOTIFICATION_DELIVERY_STATUS_GROUP_FAILURE,
+};
+
+// ============================================
+// ৪. ডেলিভারি স্ট্যাটাস লেবেল
+// ============================================
+
+/**
+ * ডেলিভারি স্ট্যাটাস লেবেল
+ */
+export const NOTIFICATION_DELIVERY_STATUS_LABELS: Record<NotificationDeliveryStatus, string> = {
+  [NOTIFICATION_DELIVERY_STATUS_QUEUED]: 'কিউতে রয়েছে',
+  [NOTIFICATION_DELIVERY_STATUS_SENDING]: 'পাঠানো হচ্ছে',
+  [NOTIFICATION_DELIVERY_STATUS_SENT]: 'পাঠানো হয়েছে',
+  [NOTIFICATION_DELIVERY_STATUS_DELIVERED]: 'পৌঁছেছে',
+  [NOTIFICATION_DELIVERY_STATUS_BOUNCED]: 'বাউন্স হয়েছে',
+  [NOTIFICATION_DELIVERY_STATUS_DROPPED]: 'ড্রপ করা হয়েছে',
+  [NOTIFICATION_DELIVERY_STATUS_DEFERRED]: 'স্থগিত',
+  [NOTIFICATION_DELIVERY_STATUS_REJECTED]: 'প্রত্যাখ্যান',
+  [NOTIFICATION_DELIVERY_STATUS_CLICKED]: 'ক্লিক করা হয়েছে',
+  [NOTIFICATION_DELIVERY_STATUS_OPENED]: 'খোলা হয়েছে',
+  [NOTIFICATION_DELIVERY_STATUS_UNSUBSCRIBED]: 'আনসাবস্ক্রাইব',
+  [NOTIFICATION_DELIVERY_STATUS_COMPLAINED]: 'অভিযোগ',
+  [NOTIFICATION_DELIVERY_STATUS_BLOCKED]: 'ব্লক',
+  [NOTIFICATION_DELIVERY_STATUS_EXPIRED]: 'মেয়াদোত্তীর্ণ',
+  [NOTIFICATION_DELIVERY_STATUS_QUEUE_FULL]: 'কিউ পূর্ণ',
+  [NOTIFICATION_DELIVERY_STATUS_RATE_LIMITED]: 'রেট লিমিট',
+};
+
+// ============================================
+// ৫. ডেলিভারি স্ট্যাটাস আইকন
+// ============================================
+
+/**
+ * ডেলিভারি স্ট্যাটাস আইকন
+ */
+export const NOTIFICATION_DELIVERY_STATUS_ICONS: Record<NotificationDeliveryStatus, string> = {
+  [NOTIFICATION_DELIVERY_STATUS_QUEUED]: 'queue',
+  [NOTIFICATION_DELIVERY_STATUS_SENDING]: 'send',
+  [NOTIFICATION_DELIVERY_STATUS_SENT]: 'check',
+  [NOTIFICATION_DELIVERY_STATUS_DELIVERED]: 'check-circle',
+  [NOTIFICATION_DELIVERY_STATUS_BOUNCED]: 'bounce',
+  [NOTIFICATION_DELIVERY_STATUS_DROPPED]: 'delete',
+  [NOTIFICATION_DELIVERY_STATUS_DEFERRED]: 'pause',
+  [NOTIFICATION_DELIVERY_STATUS_REJECTED]: 'block',
+  [NOTIFICATION_DELIVERY_STATUS_CLICKED]: 'mouse',
+  [NOTIFICATION_DELIVERY_STATUS_OPENED]: 'visibility',
+  [NOTIFICATION_DELIVERY_STATUS_UNSUBSCRIBED]: 'unsubscribe',
+  [NOTIFICATION_DELIVERY_STATUS_COMPLAINED]: 'report',
+  [NOTIFICATION_DELIVERY_STATUS_BLOCKED]: 'block',
+  [NOTIFICATION_DELIVERY_STATUS_EXPIRED]: 'timer',
+  [NOTIFICATION_DELIVERY_STATUS_QUEUE_FULL]: 'queue',
+  [NOTIFICATION_DELIVERY_STATUS_RATE_LIMITED]: 'speed',
+};
+
+// ============================================
+// ৬. ডেলিভারি স্ট্যাটাস কালার
+// ============================================
+
+/**
+ * ডেলিভারি স্ট্যাটাস কালার
+ */
+export const NOTIFICATION_DELIVERY_STATUS_COLORS: Record<NotificationDeliveryStatus, string> = {
+  [NOTIFICATION_DELIVERY_STATUS_QUEUED]: '#FFC107', // Amber
+  [NOTIFICATION_DELIVERY_STATUS_SENDING]: '#2196F3', // Blue
+  [NOTIFICATION_DELIVERY_STATUS_SENT]: '#00BCD4', // Cyan
+  [NOTIFICATION_DELIVERY_STATUS_DELIVERED]: '#4CAF50', // Green
+  [NOTIFICATION_DELIVERY_STATUS_BOUNCED]: '#F44336', // Red
+  [NOTIFICATION_DELIVERY_STATUS_DROPPED]: '#9E9E9E', // Grey
+  [NOTIFICATION_DELIVERY_STATUS_DEFERRED]: '#FF9800', // Orange
+  [NOTIFICATION_DELIVERY_STATUS_REJECTED]: '#D32F2F', // Dark Red
+  [NOTIFICATION_DELIVERY_STATUS_CLICKED]: '#8BC34A', // Light Green
+  [NOTIFICATION_DELIVERY_STATUS_OPENED]: '#4CAF50', // Green
+  [NOTIFICATION_DELIVERY_STATUS_UNSUBSCRIBED]: '#795548', // Brown
+  [NOTIFICATION_DELIVERY_STATUS_COMPLAINED]: '#E91E63', // Pink
+  [NOTIFICATION_DELIVERY_STATUS_BLOCKED]: '#424242', // Dark Grey
+  [NOTIFICATION_DELIVERY_STATUS_EXPIRED]: '#9E9E9E', // Grey
+  [NOTIFICATION_DELIVERY_STATUS_QUEUE_FULL]: '#FF5722', // Deep Orange
+  [NOTIFICATION_DELIVERY_STATUS_RATE_LIMITED]: '#FF6F00', // Dark Amber
+};
+
+// ============================================
+// ৭. টার্মিনাল ডেলিভারি স্ট্যাটাসসমূহ
+// ============================================
+
+/**
+ * টার্মিনাল ডেলিভারি স্ট্যাটাসসমূহ
+ * যে স্ট্যাটাসগুলো চূড়ান্ত এবং আর পরিবর্তন হয় না
+ */
+export const NOTIFICATION_DELIVERY_TERMINAL_STATUSES: NotificationDeliveryStatus[] = [
+  NOTIFICATION_DELIVERY_STATUS_DELIVERED,
+  NOTIFICATION_DELIVERY_STATUS_BOUNCED,
+  NOTIFICATION_DELIVERY_STATUS_DROPPED,
+  NOTIFICATION_DELIVERY_STATUS_REJECTED,
+  NOTIFICATION_DELIVERY_STATUS_UNSUBSCRIBED,
+  NOTIFICATION_DELIVERY_STATUS_COMPLAINED,
+  NOTIFICATION_DELIVERY_STATUS_BLOCKED,
+  NOTIFICATION_DELIVERY_STATUS_EXPIRED,
+  NOTIFICATION_DELIVERY_STATUS_QUEUE_FULL,
+  NOTIFICATION_DELIVERY_STATUS_RATE_LIMITED,
+];
+
+// ============================================
+// ৮. সফল ডেলিভারি স্ট্যাটাসসমূহ
+// ============================================
+
+/**
+ * সফল ডেলিভারি স্ট্যাটাসসমূহ
+ */
+export const NOTIFICATION_DELIVERY_SUCCESS_STATUSES: NotificationDeliveryStatus[] = [
+  NOTIFICATION_DELIVERY_STATUS_SENT,
+  NOTIFICATION_DELIVERY_STATUS_DELIVERED,
+  NOTIFICATION_DELIVERY_STATUS_CLICKED,
+  NOTIFICATION_DELIVERY_STATUS_OPENED,
+];
+
+// ============================================
+// ৯. ব্যর্থ ডেলিভারি স্ট্যাটাসসমূহ
+// ============================================
+
+/**
+ * ব্যর্থ ডেলিভারি স্ট্যাটাসসমূহ
+ */
+export const NOTIFICATION_DELIVERY_FAILURE_STATUSES: NotificationDeliveryStatus[] = [
+  NOTIFICATION_DELIVERY_STATUS_BOUNCED,
+  NOTIFICATION_DELIVERY_STATUS_DROPPED,
+  NOTIFICATION_DELIVERY_STATUS_REJECTED,
+  NOTIFICATION_DELIVERY_STATUS_BLOCKED,
+  NOTIFICATION_DELIVERY_STATUS_EXPIRED,
+  NOTIFICATION_DELIVERY_STATUS_QUEUE_FULL,
+  NOTIFICATION_DELIVERY_STATUS_RATE_LIMITED,
+];
+
+// ============================================
+// ১০. ডেলিভারি স্ট্যাটাস কনফিগারেশন
+// ============================================
+
+/**
+ * নোটিফিকেশন ডেলিভারি স্ট্যাটাস কনফিগারেশন
+ */
+export interface NotificationDeliveryStatusConfig {
+  /** ডেলিভারি স্ট্যাটাসের নাম */
+  status: NotificationDeliveryStatus;
+  /** ডেলিভারি স্ট্যাটাসের লেবেল */
+  label: string;
+  /** ডেলিভারি স্ট্যাটাসের আইকন */
+  icon: string;
+  /** ডেলিভারি স্ট্যাটাসের কালার */
+  color: string;
+  /** ডেলিভারি স্ট্যাটাসের গ্রুপ */
+  group: NotificationDeliveryStatusGroup;
+  /** টার্মিনাল স্ট্যাটাস কিনা */
+  isTerminal: boolean;
+  /** সফল স্ট্যাটাস কিনা */
+  isSuccess: boolean;
+  /** ব্যর্থ স্ট্যাটাস কিনা */
+  isFailure: boolean;
+  /** রেট্রাই করা যাবে কিনা */
+  isRetryable: boolean;
+}
+
+/**
+ * সব ডেলিভারি স্ট্যাটাসের কনফিগারেশন
+ */
+export const NOTIFICATION_DELIVERY_STATUS_CONFIGS: NotificationDeliveryStatusConfig[] = [
+  {
+    status: NOTIFICATION_DELIVERY_STATUS_QUEUED,
+    label: NOTIFICATION_DELIVERY_STATUS_LABELS[NOTIFICATION_DELIVERY_STATUS_QUEUED],
+    icon: NOTIFICATION_DELIVERY_STATUS_ICONS[NOTIFICATION_DELIVERY_STATUS_QUEUED],
+    color: NOTIFICATION_DELIVERY_STATUS_COLORS[NOTIFICATION_DELIVERY_STATUS_QUEUED],
+    group: NOTIFICATION_DELIVERY_STATUS_TO_GROUP[NOTIFICATION_DELIVERY_STATUS_QUEUED],
+    isTerminal: false,
+    isSuccess: false,
+    isFailure: false,
+    isRetryable: true,
+  },
+  {
+    status: NOTIFICATION_DELIVERY_STATUS_SENDING,
+    label: NOTIFICATION_DELIVERY_STATUS_LABELS[NOTIFICATION_DELIVERY_STATUS_SENDING],
+    icon: NOTIFICATION_DELIVERY_STATUS_ICONS[NOTIFICATION_DELIVERY_STATUS_SENDING],
+    color: NOTIFICATION_DELIVERY_STATUS_COLORS[NOTIFICATION_DELIVERY_STATUS_SENDING],
+    group: NOTIFICATION_DELIVERY_STATUS_TO_GROUP[NOTIFICATION_DELIVERY_STATUS_SENDING],
+    isTerminal: false,
+    isSuccess: false,
+    isFailure: false,
+    isRetryable: false,
+  },
+  {
+    status: NOTIFICATION_DELIVERY_STATUS_SENT,
+    label: NOTIFICATION_DELIVERY_STATUS_LABELS[NOTIFICATION_DELIVERY_STATUS_SENT],
+    icon: NOTIFICATION_DELIVERY_STATUS_ICONS[NOTIFICATION_DELIVERY_STATUS_SENT],
+    color: NOTIFICATION_DELIVERY_STATUS_COLORS[NOTIFICATION_DELIVERY_STATUS_SENT],
+    group: NOTIFICATION_DELIVERY_STATUS_TO_GROUP[NOTIFICATION_DELIVERY_STATUS_SENT],
+    isTerminal: false,
+    isSuccess: true,
+    isFailure: false,
+    isRetryable: false,
+  },
+  {
+    status: NOTIFICATION_DELIVERY_STATUS_DELIVERED,
+    label: NOTIFICATION_DELIVERY_STATUS_LABELS[NOTIFICATION_DELIVERY_STATUS_DELIVERED],
+    icon: NOTIFICATION_DELIVERY_STATUS_ICONS[NOTIFICATION_DELIVERY_STATUS_DELIVERED],
+    color: NOTIFICATION_DELIVERY_STATUS_COLORS[NOTIFICATION_DELIVERY_STATUS_DELIVERED],
+    group: NOTIFICATION_DELIVERY_STATUS_TO_GROUP[NOTIFICATION_DELIVERY_STATUS_DELIVERED],
+    isTerminal: true,
+    isSuccess: true,
+    isFailure: false,
+    isRetryable: false,
+  },
+  {
+    status: NOTIFICATION_DELIVERY_STATUS_BOUNCED,
+    label: NOTIFICATION_DELIVERY_STATUS_LABELS[NOTIFICATION_DELIVERY_STATUS_BOUNCED],
+    icon: NOTIFICATION_DELIVERY_STATUS_ICONS[NOTIFICATION_DELIVERY_STATUS_BOUNCED],
+    color: NOTIFICATION_DELIVERY_STATUS_COLORS[NOTIFICATION_DELIVERY_STATUS_BOUNCED],
+    group: NOTIFICATION_DELIVERY_STATUS_TO_GROUP[NOTIFICATION_DELIVERY_STATUS_BOUNCED],
+    isTerminal: true,
+    isSuccess: false,
+    isFailure: true,
+    isRetryable: true,
+  },
+  {
+    status: NOTIFICATION_DELIVERY_STATUS_DROPPED,
+    label: NOTIFICATION_DELIVERY_STATUS_LABELS[NOTIFICATION_DELIVERY_STATUS_DROPPED],
+    icon: NOTIFICATION_DELIVERY_STATUS_ICONS[NOTIFICATION_DELIVERY_STATUS_DROPPED],
+    color: NOTIFICATION_DELIVERY_STATUS_COLORS[NOTIFICATION_DELIVERY_STATUS_DROPPED],
+    group: NOTIFICATION_DELIVERY_STATUS_TO_GROUP[NOTIFICATION_DELIVERY_STATUS_DROPPED],
+    isTerminal: true,
+    isSuccess: false,
+    isFailure: true,
+    isRetryable: false,
+  },
+  {
+    status: NOTIFICATION_DELIVERY_STATUS_DEFERRED,
+    label: NOTIFICATION_DELIVERY_STATUS_LABELS[NOTIFICATION_DELIVERY_STATUS_DEFERRED],
+    icon: NOTIFICATION_DELIVERY_STATUS_ICONS[NOTIFICATION_DELIVERY_STATUS_DEFERRED],
+    color: NOTIFICATION_DELIVERY_STATUS_COLORS[NOTIFICATION_DELIVERY_STATUS_DEFERRED],
+    group: NOTIFICATION_DELIVERY_STATUS_TO_GROUP[NOTIFICATION_DELIVERY_STATUS_DEFERRED],
+    isTerminal: false,
+    isSuccess: false,
+    isFailure: false,
+    isRetryable: true,
+  },
+  {
+    status: NOTIFICATION_DELIVERY_STATUS_REJECTED,
+    label: NOTIFICATION_DELIVERY_STATUS_LABELS[NOTIFICATION_DELIVERY_STATUS_REJECTED],
+    icon: NOTIFICATION_DELIVERY_STATUS_ICONS[NOTIFICATION_DELIVERY_STATUS_REJECTED],
+    color: NOTIFICATION_DELIVERY_STATUS_COLORS[NOTIFICATION_DELIVERY_STATUS_REJECTED],
+    group: NOTIFICATION_DELIVERY_STATUS_TO_GROUP[NOTIFICATION_DELIVERY_STATUS_REJECTED],
+    isTerminal: true,
+    isSuccess: false,
+    isFailure: true,
+    isRetryable: false,
+  },
+  {
+    status: NOTIFICATION_DELIVERY_STATUS_CLICKED,
+    label: NOTIFICATION_DELIVERY_STATUS_LABELS[NOTIFICATION_DELIVERY_STATUS_CLICKED],
+    icon: NOTIFICATION_DELIVERY_STATUS_ICONS[NOTIFICATION_DELIVERY_STATUS_CLICKED],
+    color: NOTIFICATION_DELIVERY_STATUS_COLORS[NOTIFICATION_DELIVERY_STATUS_CLICKED],
+    group: NOTIFICATION_DELIVERY_STATUS_TO_GROUP[NOTIFICATION_DELIVERY_STATUS_CLICKED],
+    isTerminal: false,
+    isSuccess: true,
+    isFailure: false,
+    isRetryable: false,
+  },
+  {
+    status: NOTIFICATION_DELIVERY_STATUS_OPENED,
+    label: NOTIFICATION_DELIVERY_STATUS_LABELS[NOTIFICATION_DELIVERY_STATUS_OPENED],
+    icon: NOTIFICATION_DELIVERY_STATUS_ICONS[NOTIFICATION_DELIVERY_STATUS_OPENED],
+    color: NOTIFICATION_DELIVERY_STATUS_COLORS[NOTIFICATION_DELIVERY_STATUS_OPENED],
+    group: NOTIFICATION_DELIVERY_STATUS_TO_GROUP[NOTIFICATION_DELIVERY_STATUS_OPENED],
+    isTerminal: false,
+    isSuccess: true,
+    isFailure: false,
+    isRetryable: false,
+  },
+  {
+    status: NOTIFICATION_DELIVERY_STATUS_UNSUBSCRIBED,
+    label: NOTIFICATION_DELIVERY_STATUS_LABELS[NOTIFICATION_DELIVERY_STATUS_UNSUBSCRIBED],
+    icon: NOTIFICATION_DELIVERY_STATUS_ICONS[NOTIFICATION_DELIVERY_STATUS_UNSUBSCRIBED],
+    color: NOTIFICATION_DELIVERY_STATUS_COLORS[NOTIFICATION_DELIVERY_STATUS_UNSUBSCRIBED],
+    group: NOTIFICATION_DELIVERY_STATUS_TO_GROUP[NOTIFICATION_DELIVERY_STATUS_UNSUBSCRIBED],
+    isTerminal: true,
+    isSuccess: false,
+    isFailure: false,
+    isRetryable: false,
+  },
+  {
+    status: NOTIFICATION_DELIVERY_STATUS_COMPLAINED,
+    label: NOTIFICATION_DELIVERY_STATUS_LABELS[NOTIFICATION_DELIVERY_STATUS_COMPLAINED],
+    icon: NOTIFICATION_DELIVERY_STATUS_ICONS[NOTIFICATION_DELIVERY_STATUS_COMPLAINED],
+    color: NOTIFICATION_DELIVERY_STATUS_COLORS[NOTIFICATION_DELIVERY_STATUS_COMPLAINED],
+    group: NOTIFICATION_DELIVERY_STATUS_TO_GROUP[NOTIFICATION_DELIVERY_STATUS_COMPLAINED],
+    isTerminal: true,
+    isSuccess: false,
+    isFailure: false,
+    isRetryable: false,
+  },
+  {
+    status: NOTIFICATION_DELIVERY_STATUS_BLOCKED,
+    label: NOTIFICATION_DELIVERY_STATUS_LABELS[NOTIFICATION_DELIVERY_STATUS_BLOCKED],
+    icon: NOTIFICATION_DELIVERY_STATUS_ICONS[NOTIFICATION_DELIVERY_STATUS_BLOCKED],
+    color: NOTIFICATION_DELIVERY_STATUS_COLORS[NOTIFICATION_DELIVERY_STATUS_BLOCKED],
+    group: NOTIFICATION_DELIVERY_STATUS_TO_GROUP[NOTIFICATION_DELIVERY_STATUS_BLOCKED],
+    isTerminal: true,
+    isSuccess: false,
+    isFailure: true,
+    isRetryable: false,
+  },
+  {
+    status: NOTIFICATION_DELIVERY_STATUS_EXPIRED,
+    label: NOTIFICATION_DELIVERY_STATUS_LABELS[NOTIFICATION_DELIVERY_STATUS_EXPIRED],
+    icon: NOTIFICATION_DELIVERY_STATUS_ICONS[NOTIFICATION_DELIVERY_STATUS_EXPIRED],
+    color: NOTIFICATION_DELIVERY_STATUS_COLORS[NOTIFICATION_DELIVERY_STATUS_EXPIRED],
+    group: NOTIFICATION_DELIVERY_STATUS_TO_GROUP[NOTIFICATION_DELIVERY_STATUS_EXPIRED],
+    isTerminal: true,
+    isSuccess: false,
+    isFailure: true,
+    isRetryable: false,
+  },
+  {
+    status: NOTIFICATION_DELIVERY_STATUS_QUEUE_FULL,
+    label: NOTIFICATION_DELIVERY_STATUS_LABELS[NOTIFICATION_DELIVERY_STATUS_QUEUE_FULL],
+    icon: NOTIFICATION_DELIVERY_STATUS_ICONS[NOTIFICATION_DELIVERY_STATUS_QUEUE_FULL],
+    color: NOTIFICATION_DELIVERY_STATUS_COLORS[NOTIFICATION_DELIVERY_STATUS_QUEUE_FULL],
+    group: NOTIFICATION_DELIVERY_STATUS_TO_GROUP[NOTIFICATION_DELIVERY_STATUS_QUEUE_FULL],
+    isTerminal: true,
+    isSuccess: false,
+    isFailure: true,
+    isRetryable: true,
+  },
+  {
+    status: NOTIFICATION_DELIVERY_STATUS_RATE_LIMITED,
+    label: NOTIFICATION_DELIVERY_STATUS_LABELS[NOTIFICATION_DELIVERY_STATUS_RATE_LIMITED],
+    icon: NOTIFICATION_DELIVERY_STATUS_ICONS[NOTIFICATION_DELIVERY_STATUS_RATE_LIMITED],
+    color: NOTIFICATION_DELIVERY_STATUS_COLORS[NOTIFICATION_DELIVERY_STATUS_RATE_LIMITED],
+    group: NOTIFICATION_DELIVERY_STATUS_TO_GROUP[NOTIFICATION_DELIVERY_STATUS_RATE_LIMITED],
+    isTerminal: true,
+    isSuccess: false,
+    isFailure: true,
+    isRetryable: true,
+  },
+];

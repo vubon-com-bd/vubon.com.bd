@@ -1,0 +1,500 @@
+// ============================================
+// নোটিফিকেশন শিডিউল স্ট্যাটাস সংক্রান্ত কনস্ট্যান্টসমূহ
+// ============================================
+
+// ============================================
+// ১. শিডিউল স্ট্যাটাস
+// ============================================
+
+/**
+ * নোটিফিকেশন শিডিউল স্ট্যাটাস
+ * শিডিউলের বর্তমান অবস্থা নির্দেশ করে
+ */
+export type NotificationScheduleStatus =
+  | typeof NOTIFICATION_SCHEDULE_STATUS_ACTIVE
+  | typeof NOTIFICATION_SCHEDULE_STATUS_INACTIVE
+  | typeof NOTIFICATION_SCHEDULE_STATUS_COMPLETED
+  | typeof NOTIFICATION_SCHEDULE_STATUS_FAILED
+  | typeof NOTIFICATION_SCHEDULE_STATUS_CANCELLED
+  | typeof NOTIFICATION_SCHEDULE_STATUS_PAUSED
+  | typeof NOTIFICATION_SCHEDULE_STATUS_PENDING
+  | typeof NOTIFICATION_SCHEDULE_STATUS_TRIGGERED
+  | typeof NOTIFICATION_SCHEDULE_STATUS_EXPIRED
+  | typeof NOTIFICATION_SCHEDULE_STATUS_RUNNING
+  | typeof NOTIFICATION_SCHEDULE_STATUS_SCHEDULED
+  | typeof NOTIFICATION_SCHEDULE_STATUS_SKIPPED
+  | typeof NOTIFICATION_SCHEDULE_STATUS_RETRYING
+  | typeof NOTIFICATION_SCHEDULE_STATUS_TIMEOUT
+  | typeof NOTIFICATION_SCHEDULE_STATUS_ARCHIVED;
+
+/**
+ * অ্যাক্টিভ স্ট্যাটাস
+ * @description শিডিউল সক্রিয় এবং চলমান
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_ACTIVE = 'ACTIVE';
+
+/**
+ * ইনঅ্যাক্টিভ স্ট্যাটাস
+ * @description শিডিউল নিষ্ক্রিয়
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_INACTIVE = 'INACTIVE';
+
+/**
+ * কমপ্লিটেড স্ট্যাটাস
+ * @description শিডিউল সম্পন্ন হয়েছে
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_COMPLETED = 'COMPLETED';
+
+/**
+ * ফেইলড স্ট্যাটাস
+ * @description শিডিউল ব্যর্থ হয়েছে
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_FAILED = 'FAILED';
+
+/**
+ * ক্যান্সেলড স্ট্যাটাস
+ * @description শিডিউল বাতিল করা হয়েছে
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_CANCELLED = 'CANCELLED';
+
+/**
+ * পজড স্ট্যাটাস
+ * @description শিডিউল স্থগিত করা হয়েছে
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_PAUSED = 'PAUSED';
+
+/**
+ * পেন্ডিং স্ট্যাটাস
+ * @description শিডিউল অপেক্ষমান
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_PENDING = 'PENDING';
+
+/**
+ * ট্রিগারড স্ট্যাটাস
+ * @description শিডিউল ট্রিগার হয়েছে
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_TRIGGERED = 'TRIGGERED';
+
+/**
+ * এক্সপাইরড স্ট্যাটাস
+ * @description শিডিউলের মেয়াদ শেষ
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_EXPIRED = 'EXPIRED';
+
+/**
+ * রানিং স্ট্যাটাস
+ * @description শিডিউল চলমান
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_RUNNING = 'RUNNING';
+
+/**
+ * স্কেডিউলড স্ট্যাটাস
+ * @description শিডিউল নির্ধারিত হয়েছে
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_SCHEDULED = 'SCHEDULED';
+
+/**
+ * স্কিপড স্ট্যাটাস
+ * @description শিডিউল স্কিপ করা হয়েছে
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_SKIPPED = 'SKIPPED';
+
+/**
+ * রিট্রাইং স্ট্যাটাস
+ * @description শিডিউল পুনরায় চেষ্টা করছে
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_RETRYING = 'RETRYING';
+
+/**
+ * টাইমআউট স্ট্যাটাস
+ * @description শিডিউল টাইমআউট হয়েছে
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_TIMEOUT = 'TIMEOUT';
+
+/**
+ * আর্কাইভড স্ট্যাটাস
+ * @description শিডিউল আর্কাইভ করা হয়েছে
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_ARCHIVED = 'ARCHIVED';
+
+// ============================================
+// ২. শিডিউল স্ট্যাটাস গ্রুপ
+// ============================================
+
+/**
+ * শিডিউল স্ট্যাটাস গ্রুপ
+ */
+export type NotificationScheduleStatusGroup =
+  | typeof NOTIFICATION_SCHEDULE_STATUS_GROUP_ACTIVE
+  | typeof NOTIFICATION_SCHEDULE_STATUS_GROUP_INACTIVE
+  | typeof NOTIFICATION_SCHEDULE_STATUS_GROUP_COMPLETED
+  | typeof NOTIFICATION_SCHEDULE_STATUS_GROUP_FAILED
+  | typeof NOTIFICATION_SCHEDULE_STATUS_GROUP_PENDING
+  | typeof NOTIFICATION_SCHEDULE_STATUS_GROUP_TERMINAL;
+
+/**
+ * অ্যাক্টিভ গ্রুপ
+ * @description সক্রিয় স্ট্যাটাস
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_GROUP_ACTIVE = 'ACTIVE';
+
+/**
+ * ইনঅ্যাক্টিভ গ্রুপ
+ * @description নিষ্ক্রিয় স্ট্যাটাস
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_GROUP_INACTIVE = 'INACTIVE';
+
+/**
+ * কমপ্লিটেড গ্রুপ
+ * @description সম্পন্ন স্ট্যাটাস
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_GROUP_COMPLETED = 'COMPLETED';
+
+/**
+ * ফেইলড গ্রুপ
+ * @description ব্যর্থ স্ট্যাটাস
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_GROUP_FAILED = 'FAILED';
+
+/**
+ * পেন্ডিং গ্রুপ
+ * @description অপেক্ষমান স্ট্যাটাস
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_GROUP_PENDING = 'PENDING';
+
+/**
+ * টার্মিনাল গ্রুপ
+ * @description চূড়ান্ত অবস্থা
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_GROUP_TERMINAL = 'TERMINAL';
+
+// ============================================
+// ৩. শিডিউল স্ট্যাটাস থেকে গ্রুপ ম্যাপিং
+// ============================================
+
+/**
+ * শিডিউল স্ট্যাটাস থেকে গ্রুপ ম্যাপিং
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_TO_GROUP: Record<
+  NotificationScheduleStatus,
+  NotificationScheduleStatusGroup
+> = {
+  [NOTIFICATION_SCHEDULE_STATUS_ACTIVE]: NOTIFICATION_SCHEDULE_STATUS_GROUP_ACTIVE,
+  [NOTIFICATION_SCHEDULE_STATUS_INACTIVE]: NOTIFICATION_SCHEDULE_STATUS_GROUP_INACTIVE,
+  [NOTIFICATION_SCHEDULE_STATUS_COMPLETED]: NOTIFICATION_SCHEDULE_STATUS_GROUP_COMPLETED,
+  [NOTIFICATION_SCHEDULE_STATUS_FAILED]: NOTIFICATION_SCHEDULE_STATUS_GROUP_FAILED,
+  [NOTIFICATION_SCHEDULE_STATUS_CANCELLED]: NOTIFICATION_SCHEDULE_STATUS_GROUP_TERMINAL,
+  [NOTIFICATION_SCHEDULE_STATUS_PAUSED]: NOTIFICATION_SCHEDULE_STATUS_GROUP_INACTIVE,
+  [NOTIFICATION_SCHEDULE_STATUS_PENDING]: NOTIFICATION_SCHEDULE_STATUS_GROUP_PENDING,
+  [NOTIFICATION_SCHEDULE_STATUS_TRIGGERED]: NOTIFICATION_SCHEDULE_STATUS_GROUP_COMPLETED,
+  [NOTIFICATION_SCHEDULE_STATUS_EXPIRED]: NOTIFICATION_SCHEDULE_STATUS_GROUP_TERMINAL,
+  [NOTIFICATION_SCHEDULE_STATUS_RUNNING]: NOTIFICATION_SCHEDULE_STATUS_GROUP_ACTIVE,
+  [NOTIFICATION_SCHEDULE_STATUS_SCHEDULED]: NOTIFICATION_SCHEDULE_STATUS_GROUP_PENDING,
+  [NOTIFICATION_SCHEDULE_STATUS_SKIPPED]: NOTIFICATION_SCHEDULE_STATUS_GROUP_COMPLETED,
+  [NOTIFICATION_SCHEDULE_STATUS_RETRYING]: NOTIFICATION_SCHEDULE_STATUS_GROUP_PENDING,
+  [NOTIFICATION_SCHEDULE_STATUS_TIMEOUT]: NOTIFICATION_SCHEDULE_STATUS_GROUP_FAILED,
+  [NOTIFICATION_SCHEDULE_STATUS_ARCHIVED]: NOTIFICATION_SCHEDULE_STATUS_GROUP_TERMINAL,
+};
+
+// ============================================
+// ৪. শিডিউল স্ট্যাটাস লেবেল
+// ============================================
+
+/**
+ * শিডিউল স্ট্যাটাস লেবেল
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_LABELS: Record<NotificationScheduleStatus, string> = {
+  [NOTIFICATION_SCHEDULE_STATUS_ACTIVE]: 'সক্রিয়',
+  [NOTIFICATION_SCHEDULE_STATUS_INACTIVE]: 'নিষ্ক্রিয়',
+  [NOTIFICATION_SCHEDULE_STATUS_COMPLETED]: 'সম্পন্ন',
+  [NOTIFICATION_SCHEDULE_STATUS_FAILED]: 'ব্যর্থ',
+  [NOTIFICATION_SCHEDULE_STATUS_CANCELLED]: 'বাতিল',
+  [NOTIFICATION_SCHEDULE_STATUS_PAUSED]: 'স্থগিত',
+  [NOTIFICATION_SCHEDULE_STATUS_PENDING]: 'অপেক্ষমান',
+  [NOTIFICATION_SCHEDULE_STATUS_TRIGGERED]: 'ট্রিগার হয়েছে',
+  [NOTIFICATION_SCHEDULE_STATUS_EXPIRED]: 'মেয়াদোত্তীর্ণ',
+  [NOTIFICATION_SCHEDULE_STATUS_RUNNING]: 'চলমান',
+  [NOTIFICATION_SCHEDULE_STATUS_SCHEDULED]: 'নির্ধারিত',
+  [NOTIFICATION_SCHEDULE_STATUS_SKIPPED]: 'স্কিপ',
+  [NOTIFICATION_SCHEDULE_STATUS_RETRYING]: 'পুনরায় চেষ্টা',
+  [NOTIFICATION_SCHEDULE_STATUS_TIMEOUT]: 'টাইমআউট',
+  [NOTIFICATION_SCHEDULE_STATUS_ARCHIVED]: 'আর্কাইভ',
+};
+
+// ============================================
+// ৫. শিডিউল স্ট্যাটাস আইকন
+// ============================================
+
+/**
+ * শিডিউল স্ট্যাটাস আইকন
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_ICONS: Record<NotificationScheduleStatus, string> = {
+  [NOTIFICATION_SCHEDULE_STATUS_ACTIVE]: 'check_circle',
+  [NOTIFICATION_SCHEDULE_STATUS_INACTIVE]: 'cancel',
+  [NOTIFICATION_SCHEDULE_STATUS_COMPLETED]: 'done_all',
+  [NOTIFICATION_SCHEDULE_STATUS_FAILED]: 'error',
+  [NOTIFICATION_SCHEDULE_STATUS_CANCELLED]: 'block',
+  [NOTIFICATION_SCHEDULE_STATUS_PAUSED]: 'pause_circle',
+  [NOTIFICATION_SCHEDULE_STATUS_PENDING]: 'pending',
+  [NOTIFICATION_SCHEDULE_STATUS_TRIGGERED]: 'bolt',
+  [NOTIFICATION_SCHEDULE_STATUS_EXPIRED]: 'timer',
+  [NOTIFICATION_SCHEDULE_STATUS_RUNNING]: 'play_circle',
+  [NOTIFICATION_SCHEDULE_STATUS_SCHEDULED]: 'schedule',
+  [NOTIFICATION_SCHEDULE_STATUS_SKIPPED]: 'skip_next',
+  [NOTIFICATION_SCHEDULE_STATUS_RETRYING]: 'retry',
+  [NOTIFICATION_SCHEDULE_STATUS_TIMEOUT]: 'hourglass_empty',
+  [NOTIFICATION_SCHEDULE_STATUS_ARCHIVED]: 'archive',
+};
+
+// ============================================
+// ৬. শিডিউল স্ট্যাটাস কালার
+// ============================================
+
+/**
+ * শিডিউল স্ট্যাটাস কালার
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_COLORS: Record<NotificationScheduleStatus, string> = {
+  [NOTIFICATION_SCHEDULE_STATUS_ACTIVE]: '#4CAF50', // Green
+  [NOTIFICATION_SCHEDULE_STATUS_INACTIVE]: '#9E9E9E', // Grey
+  [NOTIFICATION_SCHEDULE_STATUS_COMPLETED]: '#2196F3', // Blue
+  [NOTIFICATION_SCHEDULE_STATUS_FAILED]: '#F44336', // Red
+  [NOTIFICATION_SCHEDULE_STATUS_CANCELLED]: '#757575', // Dark Grey
+  [NOTIFICATION_SCHEDULE_STATUS_PAUSED]: '#FF9800', // Orange
+  [NOTIFICATION_SCHEDULE_STATUS_PENDING]: '#FFC107', // Amber
+  [NOTIFICATION_SCHEDULE_STATUS_TRIGGERED]: '#FF6F00', // Dark Amber
+  [NOTIFICATION_SCHEDULE_STATUS_EXPIRED]: '#607D8B', // Blue Grey
+  [NOTIFICATION_SCHEDULE_STATUS_RUNNING]: '#00BCD4', // Cyan
+  [NOTIFICATION_SCHEDULE_STATUS_SCHEDULED]: '#3F51B5', // Indigo
+  [NOTIFICATION_SCHEDULE_STATUS_SKIPPED]: '#795548', // Brown
+  [NOTIFICATION_SCHEDULE_STATUS_RETRYING]: '#FF6F00', // Dark Amber
+  [NOTIFICATION_SCHEDULE_STATUS_TIMEOUT]: '#D32F2F', // Dark Red
+  [NOTIFICATION_SCHEDULE_STATUS_ARCHIVED]: '#607D8B', // Blue Grey
+};
+
+// ============================================
+// ৭. টার্মিনাল শিডিউল স্ট্যাটাসসমূহ
+// ============================================
+
+/**
+ * টার্মিনাল শিডিউল স্ট্যাটাসসমূহ
+ * যে স্ট্যাটাসগুলো চূড়ান্ত এবং আর পরিবর্তন হয় না
+ */
+export const NOTIFICATION_SCHEDULE_TERMINAL_STATUSES: NotificationScheduleStatus[] = [
+  NOTIFICATION_SCHEDULE_STATUS_COMPLETED,
+  NOTIFICATION_SCHEDULE_STATUS_FAILED,
+  NOTIFICATION_SCHEDULE_STATUS_CANCELLED,
+  NOTIFICATION_SCHEDULE_STATUS_EXPIRED,
+  NOTIFICATION_SCHEDULE_STATUS_TIMEOUT,
+  NOTIFICATION_SCHEDULE_STATUS_ARCHIVED,
+];
+
+// ============================================
+// ৮. অ্যাক্টিভ শিডিউল স্ট্যাটাসসমূহ
+// ============================================
+
+/**
+ * অ্যাক্টিভ শিডিউল স্ট্যাটাসসমূহ
+ * যে স্ট্যাটাসগুলো সক্রিয় বা চলমান
+ */
+export const NOTIFICATION_SCHEDULE_ACTIVE_STATUSES: NotificationScheduleStatus[] = [
+  NOTIFICATION_SCHEDULE_STATUS_ACTIVE,
+  NOTIFICATION_SCHEDULE_STATUS_RUNNING,
+  NOTIFICATION_SCHEDULE_STATUS_SCHEDULED,
+  NOTIFICATION_SCHEDULE_STATUS_RETRYING,
+];
+
+// ============================================
+// ৯. পেন্ডিং শিডিউল স্ট্যাটাসসমূহ
+// ============================================
+
+/**
+ * পেন্ডিং শিডিউল স্ট্যাটাসসমূহ
+ * যে স্ট্যাটাসগুলো অপেক্ষমান
+ */
+export const NOTIFICATION_SCHEDULE_PENDING_STATUSES: NotificationScheduleStatus[] = [
+  NOTIFICATION_SCHEDULE_STATUS_PENDING,
+  NOTIFICATION_SCHEDULE_STATUS_SCHEDULED,
+  NOTIFICATION_SCHEDULE_STATUS_RETRYING,
+];
+
+// ============================================
+// ১০. শিডিউল স্ট্যাটাস কনফিগারেশন
+// ============================================
+
+/**
+ * শিডিউল স্ট্যাটাস কনফিগারেশন
+ */
+export interface NotificationScheduleStatusConfig {
+  /** স্ট্যাটাসের নাম */
+  status: NotificationScheduleStatus;
+  /** স্ট্যাটাসের লেবেল */
+  label: string;
+  /** স্ট্যাটাসের আইকন */
+  icon: string;
+  /** স্ট্যাটাসের কালার */
+  color: string;
+  /** স্ট্যাটাসের গ্রুপ */
+  group: NotificationScheduleStatusGroup;
+  /** টার্মিনাল স্ট্যাটাস কিনা */
+  isTerminal: boolean;
+  /** অ্যাক্টিভ স্ট্যাটাস কিনা */
+  isActive: boolean;
+  /** পেন্ডিং স্ট্যাটাস কিনা */
+  isPending: boolean;
+}
+
+/**
+ * সব শিডিউল স্ট্যাটাসের কনফিগারেশন
+ */
+export const NOTIFICATION_SCHEDULE_STATUS_CONFIGS: NotificationScheduleStatusConfig[] = [
+  {
+    status: NOTIFICATION_SCHEDULE_STATUS_ACTIVE,
+    label: NOTIFICATION_SCHEDULE_STATUS_LABELS[NOTIFICATION_SCHEDULE_STATUS_ACTIVE],
+    icon: NOTIFICATION_SCHEDULE_STATUS_ICONS[NOTIFICATION_SCHEDULE_STATUS_ACTIVE],
+    color: NOTIFICATION_SCHEDULE_STATUS_COLORS[NOTIFICATION_SCHEDULE_STATUS_ACTIVE],
+    group: NOTIFICATION_SCHEDULE_STATUS_TO_GROUP[NOTIFICATION_SCHEDULE_STATUS_ACTIVE],
+    isTerminal: false,
+    isActive: true,
+    isPending: false,
+  },
+  {
+    status: NOTIFICATION_SCHEDULE_STATUS_INACTIVE,
+    label: NOTIFICATION_SCHEDULE_STATUS_LABELS[NOTIFICATION_SCHEDULE_STATUS_INACTIVE],
+    icon: NOTIFICATION_SCHEDULE_STATUS_ICONS[NOTIFICATION_SCHEDULE_STATUS_INACTIVE],
+    color: NOTIFICATION_SCHEDULE_STATUS_COLORS[NOTIFICATION_SCHEDULE_STATUS_INACTIVE],
+    group: NOTIFICATION_SCHEDULE_STATUS_TO_GROUP[NOTIFICATION_SCHEDULE_STATUS_INACTIVE],
+    isTerminal: false,
+    isActive: false,
+    isPending: false,
+  },
+  {
+    status: NOTIFICATION_SCHEDULE_STATUS_COMPLETED,
+    label: NOTIFICATION_SCHEDULE_STATUS_LABELS[NOTIFICATION_SCHEDULE_STATUS_COMPLETED],
+    icon: NOTIFICATION_SCHEDULE_STATUS_ICONS[NOTIFICATION_SCHEDULE_STATUS_COMPLETED],
+    color: NOTIFICATION_SCHEDULE_STATUS_COLORS[NOTIFICATION_SCHEDULE_STATUS_COMPLETED],
+    group: NOTIFICATION_SCHEDULE_STATUS_TO_GROUP[NOTIFICATION_SCHEDULE_STATUS_COMPLETED],
+    isTerminal: true,
+    isActive: false,
+    isPending: false,
+  },
+  {
+    status: NOTIFICATION_SCHEDULE_STATUS_FAILED,
+    label: NOTIFICATION_SCHEDULE_STATUS_LABELS[NOTIFICATION_SCHEDULE_STATUS_FAILED],
+    icon: NOTIFICATION_SCHEDULE_STATUS_ICONS[NOTIFICATION_SCHEDULE_STATUS_FAILED],
+    color: NOTIFICATION_SCHEDULE_STATUS_COLORS[NOTIFICATION_SCHEDULE_STATUS_FAILED],
+    group: NOTIFICATION_SCHEDULE_STATUS_TO_GROUP[NOTIFICATION_SCHEDULE_STATUS_FAILED],
+    isTerminal: true,
+    isActive: false,
+    isPending: false,
+  },
+  {
+    status: NOTIFICATION_SCHEDULE_STATUS_CANCELLED,
+    label: NOTIFICATION_SCHEDULE_STATUS_LABELS[NOTIFICATION_SCHEDULE_STATUS_CANCELLED],
+    icon: NOTIFICATION_SCHEDULE_STATUS_ICONS[NOTIFICATION_SCHEDULE_STATUS_CANCELLED],
+    color: NOTIFICATION_SCHEDULE_STATUS_COLORS[NOTIFICATION_SCHEDULE_STATUS_CANCELLED],
+    group: NOTIFICATION_SCHEDULE_STATUS_TO_GROUP[NOTIFICATION_SCHEDULE_STATUS_CANCELLED],
+    isTerminal: true,
+    isActive: false,
+    isPending: false,
+  },
+  {
+    status: NOTIFICATION_SCHEDULE_STATUS_PAUSED,
+    label: NOTIFICATION_SCHEDULE_STATUS_LABELS[NOTIFICATION_SCHEDULE_STATUS_PAUSED],
+    icon: NOTIFICATION_SCHEDULE_STATUS_ICONS[NOTIFICATION_SCHEDULE_STATUS_PAUSED],
+    color: NOTIFICATION_SCHEDULE_STATUS_COLORS[NOTIFICATION_SCHEDULE_STATUS_PAUSED],
+    group: NOTIFICATION_SCHEDULE_STATUS_TO_GROUP[NOTIFICATION_SCHEDULE_STATUS_PAUSED],
+    isTerminal: false,
+    isActive: false,
+    isPending: false,
+  },
+  {
+    status: NOTIFICATION_SCHEDULE_STATUS_PENDING,
+    label: NOTIFICATION_SCHEDULE_STATUS_LABELS[NOTIFICATION_SCHEDULE_STATUS_PENDING],
+    icon: NOTIFICATION_SCHEDULE_STATUS_ICONS[NOTIFICATION_SCHEDULE_STATUS_PENDING],
+    color: NOTIFICATION_SCHEDULE_STATUS_COLORS[NOTIFICATION_SCHEDULE_STATUS_PENDING],
+    group: NOTIFICATION_SCHEDULE_STATUS_TO_GROUP[NOTIFICATION_SCHEDULE_STATUS_PENDING],
+    isTerminal: false,
+    isActive: false,
+    isPending: true,
+  },
+  {
+    status: NOTIFICATION_SCHEDULE_STATUS_TRIGGERED,
+    label: NOTIFICATION_SCHEDULE_STATUS_LABELS[NOTIFICATION_SCHEDULE_STATUS_TRIGGERED],
+    icon: NOTIFICATION_SCHEDULE_STATUS_ICONS[NOTIFICATION_SCHEDULE_STATUS_TRIGGERED],
+    color: NOTIFICATION_SCHEDULE_STATUS_COLORS[NOTIFICATION_SCHEDULE_STATUS_TRIGGERED],
+    group: NOTIFICATION_SCHEDULE_STATUS_TO_GROUP[NOTIFICATION_SCHEDULE_STATUS_TRIGGERED],
+    isTerminal: false,
+    isActive: false,
+    isPending: false,
+  },
+  {
+    status: NOTIFICATION_SCHEDULE_STATUS_EXPIRED,
+    label: NOTIFICATION_SCHEDULE_STATUS_LABELS[NOTIFICATION_SCHEDULE_STATUS_EXPIRED],
+    icon: NOTIFICATION_SCHEDULE_STATUS_ICONS[NOTIFICATION_SCHEDULE_STATUS_EXPIRED],
+    color: NOTIFICATION_SCHEDULE_STATUS_COLORS[NOTIFICATION_SCHEDULE_STATUS_EXPIRED],
+    group: NOTIFICATION_SCHEDULE_STATUS_TO_GROUP[NOTIFICATION_SCHEDULE_STATUS_EXPIRED],
+    isTerminal: true,
+    isActive: false,
+    isPending: false,
+  },
+  {
+    status: NOTIFICATION_SCHEDULE_STATUS_RUNNING,
+    label: NOTIFICATION_SCHEDULE_STATUS_LABELS[NOTIFICATION_SCHEDULE_STATUS_RUNNING],
+    icon: NOTIFICATION_SCHEDULE_STATUS_ICONS[NOTIFICATION_SCHEDULE_STATUS_RUNNING],
+    color: NOTIFICATION_SCHEDULE_STATUS_COLORS[NOTIFICATION_SCHEDULE_STATUS_RUNNING],
+    group: NOTIFICATION_SCHEDULE_STATUS_TO_GROUP[NOTIFICATION_SCHEDULE_STATUS_RUNNING],
+    isTerminal: false,
+    isActive: true,
+    isPending: false,
+  },
+  {
+    status: NOTIFICATION_SCHEDULE_STATUS_SCHEDULED,
+    label: NOTIFICATION_SCHEDULE_STATUS_LABELS[NOTIFICATION_SCHEDULE_STATUS_SCHEDULED],
+    icon: NOTIFICATION_SCHEDULE_STATUS_ICONS[NOTIFICATION_SCHEDULE_STATUS_SCHEDULED],
+    color: NOTIFICATION_SCHEDULE_STATUS_COLORS[NOTIFICATION_SCHEDULE_STATUS_SCHEDULED],
+    group: NOTIFICATION_SCHEDULE_STATUS_TO_GROUP[NOTIFICATION_SCHEDULE_STATUS_SCHEDULED],
+    isTerminal: false,
+    isActive: true,
+    isPending: true,
+  },
+  {
+    status: NOTIFICATION_SCHEDULE_STATUS_SKIPPED,
+    label: NOTIFICATION_SCHEDULE_STATUS_LABELS[NOTIFICATION_SCHEDULE_STATUS_SKIPPED],
+    icon: NOTIFICATION_SCHEDULE_STATUS_ICONS[NOTIFICATION_SCHEDULE_STATUS_SKIPPED],
+    color: NOTIFICATION_SCHEDULE_STATUS_COLORS[NOTIFICATION_SCHEDULE_STATUS_SKIPPED],
+    group: NOTIFICATION_SCHEDULE_STATUS_TO_GROUP[NOTIFICATION_SCHEDULE_STATUS_SKIPPED],
+    isTerminal: false,
+    isActive: false,
+    isPending: false,
+  },
+  {
+    status: NOTIFICATION_SCHEDULE_STATUS_RETRYING,
+    label: NOTIFICATION_SCHEDULE_STATUS_LABELS[NOTIFICATION_SCHEDULE_STATUS_RETRYING],
+    icon: NOTIFICATION_SCHEDULE_STATUS_ICONS[NOTIFICATION_SCHEDULE_STATUS_RETRYING],
+    color: NOTIFICATION_SCHEDULE_STATUS_COLORS[NOTIFICATION_SCHEDULE_STATUS_RETRYING],
+    group: NOTIFICATION_SCHEDULE_STATUS_TO_GROUP[NOTIFICATION_SCHEDULE_STATUS_RETRYING],
+    isTerminal: false,
+    isActive: true,
+    isPending: true,
+  },
+  {
+    status: NOTIFICATION_SCHEDULE_STATUS_TIMEOUT,
+    label: NOTIFICATION_SCHEDULE_STATUS_LABELS[NOTIFICATION_SCHEDULE_STATUS_TIMEOUT],
+    icon: NOTIFICATION_SCHEDULE_STATUS_ICONS[NOTIFICATION_SCHEDULE_STATUS_TIMEOUT],
+    color: NOTIFICATION_SCHEDULE_STATUS_COLORS[NOTIFICATION_SCHEDULE_STATUS_TIMEOUT],
+    group: NOTIFICATION_SCHEDULE_STATUS_TO_GROUP[NOTIFICATION_SCHEDULE_STATUS_TIMEOUT],
+    isTerminal: true,
+    isActive: false,
+    isPending: false,
+  },
+  {
+    status: NOTIFICATION_SCHEDULE_STATUS_ARCHIVED,
+    label: NOTIFICATION_SCHEDULE_STATUS_LABELS[NOTIFICATION_SCHEDULE_STATUS_ARCHIVED],
+    icon: NOTIFICATION_SCHEDULE_STATUS_ICONS[NOTIFICATION_SCHEDULE_STATUS_ARCHIVED],
+    color: NOTIFICATION_SCHEDULE_STATUS_COLORS[NOTIFICATION_SCHEDULE_STATUS_ARCHIVED],
+    group: NOTIFICATION_SCHEDULE_STATUS_TO_GROUP[NOTIFICATION_SCHEDULE_STATUS_ARCHIVED],
+    isTerminal: true,
+    isActive: false,
+    isPending: false,
+  },
+];
