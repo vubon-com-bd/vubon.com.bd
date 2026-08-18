@@ -4,7 +4,7 @@
 // ============================================
 
 // 1. নোটিফিকেশন মডিউল (কোন কনফ্লিক্ট নেই)
-export * from './notification';
+export * as Notification from './notification';
 
 // 2. অথেনটিকেশন মডিউল (কোন কনফ্লিক্ট নেই)
 export * from './authentication';
@@ -23,3 +23,6 @@ export * as FlashSalesDeals from './Flash-Sales-Deals';
 
 // 7. Content Marketing মডিউল (নেমস্পেসে)
 export * as ContentMarketing from './Content-Marketing';
+
+// সাপোর্ট কনস্ট্যান্টস
+export * from './support';
