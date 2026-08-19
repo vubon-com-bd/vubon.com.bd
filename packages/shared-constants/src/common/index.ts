@@ -343,6 +343,60 @@ export {
 // সম্পূর্ণ কমন কনফিগারেশন
 export { LOGISTICS_COMMON, type LogisticsCommon } from './logistics-common.constants';
 
+// ============================================
+// ✅ ভেন্ডার কমন কনস্ট্যান্টসমূহ
+// ============================================
+
+// ভেন্ডার আইডি ও ডিফল্ট স্ট্যাটাস
+export { VENDOR_ID_PREFIX, DEFAULT_VENDOR_STATUS } from './vendor-common.constants';
+
+// ভেন্ডার স্ট্যাটাস লিস্ট
+export {
+  VENDOR_STATUSES,
+  VENDOR_STATUS_LABELS,
+  type VendorStatusType,
+} from './vendor-common.constants';
+
+// ভেন্ডার টায়ার লিস্ট
+export {
+  VENDOR_TIERS,
+  VENDOR_TIER_LABELS,
+  VENDOR_TIER_ORDER,
+  type VendorTierType,
+} from './vendor-common.constants';
+
+// ভেন্ডার কমিশন টাইপ
+export {
+  VENDOR_COMMISSION_TYPES,
+  VENDOR_COMMISSION_TYPE_LABELS,
+  type VendorCommissionType,
+} from './vendor-common.constants';
+
+// ভেন্ডার পেআউট স্ট্যাটাস
+export {
+  VENDOR_PAYOUT_STATUSES,
+  VENDOR_PAYOUT_STATUS_LABELS,
+  type VendorPayoutStatusType,
+} from './vendor-common.constants';
+
+// ভেন্ডার ডকুমেন্ট টাইপ
+export {
+  VENDOR_DOCUMENT_TYPES,
+  VENDOR_DOCUMENT_TYPE_LABELS,
+  type VendorDocumentType,
+} from './vendor-common.constants';
+
+// ভেন্ডার সাবস্ক্রিপশন প্ল্যান
+export {
+  VENDOR_SUBSCRIPTION_PLANS,
+  VENDOR_SUBSCRIPTION_PLAN_LABELS,
+  VENDOR_SUBSCRIPTION_PLAN_ORDER,
+  type VendorSubscriptionPlanType,
+} from './vendor-common.constants';
+
+// ভেন্ডার ডিফল্ট সেটিংস
+export { VENDOR_DEFAULT_SETTINGS } from './vendor-common.constants';
+
 // ⚠️ ইউটিলিটি ফাংশনগুলি logistics মডিউল থেকে export করা হবে
 // generateTrackingNumber, isValidTrackingNumber
 // convertWeight, convertDistance
