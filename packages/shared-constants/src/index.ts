@@ -24,7 +24,8 @@ export * as FlashSalesDeals from './Flash-Sales-Deals';
 // 7. Content Marketing মডিউল (নেমস্পেসে)
 export * as ContentMarketing from './Content-Marketing';
 
-// 8. Logistics মডিউল - সমস্ত logistics কনস্ট্যান্ট এখান থেকে
-// NOTE: support মডিউলের কনস্ট্যান্টগুলোর সাথে কোনো কনফ্লিক্ট নেই
-// কারণ support মডিউল আলাদাভাবে export করা হচ্ছে না
+// 8. Logistics মডিউল
 export * as logistics from './logistics';
+
+// ভেন্ডার মডিউল
+export * as vebdor from './vendor';
