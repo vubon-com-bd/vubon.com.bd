@@ -1,0 +1,278 @@
+/**
+ * লজিস্টিকস সিস্টেমের এরর কোড ও মেসেজ সম্পর্কিত কনস্ট্যান্টসমূহ
+ */
+
+/**
+ * লজিস্টিকস এরর কোড
+ */
+export const LOGISTICS_ERROR_CODES = {
+  // শিপমেন্ট সম্পর্কিত এরর
+  SHIPMENT_NOT_FOUND: 'SHIPMENT_NOT_FOUND',
+  SHIPMENT_ALREADY_EXISTS: 'SHIPMENT_ALREADY_EXISTS',
+  SHIPMENT_CANCELLED: 'SHIPMENT_CANCELLED',
+  SHIPMENT_EXPIRED: 'SHIPMENT_EXPIRED',
+
+  // ট্র্যাকিং সম্পর্কিত এরর
+  INVALID_TRACKING_NUMBER: 'INVALID_TRACKING_NUMBER',
+  TRACKING_NOT_FOUND: 'TRACKING_NOT_FOUND',
+  TRACKING_UPDATE_FAILED: 'TRACKING_UPDATE_FAILED',
+
+  // ডেলিভারি সম্পর্কিত এরর
+  DELIVERY_FAILED: 'DELIVERY_FAILED',
+  DELIVERY_TIMEOUT: 'DELIVERY_TIMEOUT',
+  DELIVERY_ADDRESS_INVALID: 'DELIVERY_ADDRESS_INVALID',
+  DELIVERY_ATTEMPT_EXCEEDED: 'DELIVERY_ATTEMPT_EXCEEDED',
+
+  // কুরিয়ার সম্পর্কিত এরর
+  COURIER_UNAVAILABLE: 'COURIER_UNAVAILABLE',
+  COURIER_NOT_FOUND: 'COURIER_NOT_FOUND',
+  COURIER_OFFLINE: 'COURIER_OFFLINE',
+  COURIER_ALREADY_ASSIGNED: 'COURIER_ALREADY_ASSIGNED',
+
+  // গুদাম সম্পর্কিত এরর
+  WAREHOUSE_FULL: 'WAREHOUSE_FULL',
+  WAREHOUSE_NOT_FOUND: 'WAREHOUSE_NOT_FOUND',
+  WAREHOUSE_MAINTENANCE: 'WAREHOUSE_MAINTENANCE',
+
+  // ইনভেন্টরি সম্পর্কিত এরর
+  INSUFFICIENT_STOCK: 'INSUFFICIENT_STOCK',
+  INVENTORY_NOT_FOUND: 'INVENTORY_NOT_FOUND',
+  INVENTORY_LOCKED: 'INVENTORY_LOCKED',
+
+  // রুট সম্পর্কিত এরর
+  ROUTE_NOT_FOUND: 'ROUTE_NOT_FOUND',
+  ROUTE_OPTIMIZATION_FAILED: 'ROUTE_OPTIMIZATION_FAILED',
+  ROUTE_BLOCKED: 'ROUTE_BLOCKED',
+
+  // ড্রাইভার সম্পর্কিত এরর
+  DRIVER_NOT_AVAILABLE: 'DRIVER_NOT_AVAILABLE',
+  DRIVER_NOT_FOUND: 'DRIVER_NOT_FOUND',
+  DRIVER_LICENSE_EXPIRED: 'DRIVER_LICENSE_EXPIRED',
+  DRIVER_ON_BREAK: 'DRIVER_ON_BREAK',
+
+  // পেমেন্ট সম্পর্কিত এরর
+  PAYMENT_FAILED: 'PAYMENT_FAILED',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  PAYMENT_REFUND_FAILED: 'PAYMENT_REFUND_FAILED',
+
+  // বীমা সম্পর্কিত এরর
+  INSURANCE_NOT_FOUND: 'INSURANCE_NOT_FOUND',
+  INSURANCE_EXPIRED: 'INSURANCE_EXPIRED',
+  INSURANCE_CLAIM_FAILED: 'INSURANCE_CLAIM_FAILED',
+
+  // অন্যান্য এরর
+  PERMISSION_DENIED: 'PERMISSION_DENIED',
+  INVALID_REQUEST: 'INVALID_REQUEST',
+  RATE_LIMIT_EXCEEDED: 'RATE_LIMIT_EXCEEDED',
+  SYSTEM_ERROR: 'SYSTEM_ERROR',
+  DATABASE_ERROR: 'DATABASE_ERROR',
+  NETWORK_ERROR: 'NETWORK_ERROR',
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  FORBIDDEN: 'FORBIDDEN',
+} as const;
+
+/**
+ * লজিস্টিকস এরর কোড টাইপ
+ */
+export type LogisticsErrorCode = (typeof LOGISTICS_ERROR_CODES)[keyof typeof LOGISTICS_ERROR_CODES];
+
+/**
+ * লজিস্টিকস এরর মেসেজ
+ */
+export const LOGISTICS_ERROR_MESSAGES: Record<LogisticsErrorCode, string> = {
+  // শিপমেন্ট সম্পর্কিত এরর
+  [LOGISTICS_ERROR_CODES.SHIPMENT_NOT_FOUND]: 'শিপমেন্ট পাওয়া যায়নি',
+  [LOGISTICS_ERROR_CODES.SHIPMENT_ALREADY_EXISTS]: 'শিপমেন্ট ইতিমধ্যে বিদ্যমান',
+  [LOGISTICS_ERROR_CODES.SHIPMENT_CANCELLED]: 'শিপমেন্ট বাতিল করা হয়েছে',
+  [LOGISTICS_ERROR_CODES.SHIPMENT_EXPIRED]: 'শিপমেন্টের মেয়াদ শেষ হয়েছে',
+
+  // ট্র্যাকিং সম্পর্কিত এরর
+  [LOGISTICS_ERROR_CODES.INVALID_TRACKING_NUMBER]: 'অবৈধ ট্র্যাকিং নম্বর',
+  [LOGISTICS_ERROR_CODES.TRACKING_NOT_FOUND]: 'ট্র্যাকিং তথ্য পাওয়া যায়নি',
+  [LOGISTICS_ERROR_CODES.TRACKING_UPDATE_FAILED]: 'ট্র্যাকিং আপডেট ব্যর্থ হয়েছে',
+
+  // ডেলিভারি সম্পর্কিত এরর
+  [LOGISTICS_ERROR_CODES.DELIVERY_FAILED]: 'ডেলিভারি ব্যর্থ হয়েছে',
+  [LOGISTICS_ERROR_CODES.DELIVERY_TIMEOUT]: 'ডেলিভারি সময় শেষ হয়েছে',
+  [LOGISTICS_ERROR_CODES.DELIVERY_ADDRESS_INVALID]: 'অবৈধ ডেলিভারি ঠিকানা',
+  [LOGISTICS_ERROR_CODES.DELIVERY_ATTEMPT_EXCEEDED]: 'ডেলিভারি প্রচেষ্টা সীমা অতিক্রম করেছে',
+
+  // কুরিয়ার সম্পর্কিত এরর
+  [LOGISTICS_ERROR_CODES.COURIER_UNAVAILABLE]: 'কুরিয়ার উপলব্ধ নয়',
+  [LOGISTICS_ERROR_CODES.COURIER_NOT_FOUND]: 'কুরিয়ার পাওয়া যায়নি',
+  [LOGISTICS_ERROR_CODES.COURIER_OFFLINE]: 'কুরিয়ার অফলাইনে রয়েছে',
+  [LOGISTICS_ERROR_CODES.COURIER_ALREADY_ASSIGNED]: 'কুরিয়ার ইতিমধ্যে নিয়োগ করা হয়েছে',
+
+  // গুদাম সম্পর্কিত এরর
+  [LOGISTICS_ERROR_CODES.WAREHOUSE_FULL]: 'গুদাম পূর্ণ',
+  [LOGISTICS_ERROR_CODES.WAREHOUSE_NOT_FOUND]: 'গুদাম পাওয়া যায়নি',
+  [LOGISTICS_ERROR_CODES.WAREHOUSE_MAINTENANCE]: 'গুদাম রক্ষণাবেক্ষণে রয়েছে',
+
+  // ইনভেন্টরি সম্পর্কিত এরর
+  [LOGISTICS_ERROR_CODES.INSUFFICIENT_STOCK]: 'পর্যাপ্ত স্টক নেই',
+  [LOGISTICS_ERROR_CODES.INVENTORY_NOT_FOUND]: 'ইনভেন্টরি পাওয়া যায়নি',
+  [LOGISTICS_ERROR_CODES.INVENTORY_LOCKED]: 'ইনভেন্টরি লক করা আছে',
+
+  // রুট সম্পর্কিত এরর
+  [LOGISTICS_ERROR_CODES.ROUTE_NOT_FOUND]: 'রুট পাওয়া যায়নি',
+  [LOGISTICS_ERROR_CODES.ROUTE_OPTIMIZATION_FAILED]: 'রুট অপ্টিমাইজেশন ব্যর্থ হয়েছে',
+  [LOGISTICS_ERROR_CODES.ROUTE_BLOCKED]: 'রুট ব্লক করা হয়েছে',
+
+  // ড্রাইভার সম্পর্কিত এরর
+  [LOGISTICS_ERROR_CODES.DRIVER_NOT_AVAILABLE]: 'ড্রাইভার উপলব্ধ নয়',
+  [LOGISTICS_ERROR_CODES.DRIVER_NOT_FOUND]: 'ড্রাইভার পাওয়া যায়নি',
+  [LOGISTICS_ERROR_CODES.DRIVER_LICENSE_EXPIRED]: 'ড্রাইভারের লাইসেন্সের মেয়াদ শেষ হয়েছে',
+  [LOGISTICS_ERROR_CODES.DRIVER_ON_BREAK]: 'ড্রাইভার বিরতিতে রয়েছে',
+
+  // পেমেন্ট সম্পর্কিত এরর
+  [LOGISTICS_ERROR_CODES.PAYMENT_FAILED]: 'পেমেন্ট ব্যর্থ হয়েছে',
+  [LOGISTICS_ERROR_CODES.PAYMENT_PENDING]: 'পেমেন্ট পেন্ডিং',
+  [LOGISTICS_ERROR_CODES.PAYMENT_REFUND_FAILED]: 'রিফান্ড ব্যর্থ হয়েছে',
+
+  // বীমা সম্পর্কিত এরর
+  [LOGISTICS_ERROR_CODES.INSURANCE_NOT_FOUND]: 'বীমা পাওয়া যায়নি',
+  [LOGISTICS_ERROR_CODES.INSURANCE_EXPIRED]: 'বীমার মেয়াদ শেষ হয়েছে',
+  [LOGISTICS_ERROR_CODES.INSURANCE_CLAIM_FAILED]: 'বীমা দাবি ব্যর্থ হয়েছে',
+
+  // অন্যান্য এরর
+  [LOGISTICS_ERROR_CODES.PERMISSION_DENIED]: 'অনুমতি প্রত্যাখ্যান',
+  [LOGISTICS_ERROR_CODES.INVALID_REQUEST]: 'অবৈধ অনুরোধ',
+  [LOGISTICS_ERROR_CODES.RATE_LIMIT_EXCEEDED]: 'রেট লিমিট অতিক্রম করেছে',
+  [LOGISTICS_ERROR_CODES.SYSTEM_ERROR]: 'সিস্টেম ত্রুটি',
+  [LOGISTICS_ERROR_CODES.DATABASE_ERROR]: 'ডেটাবেস ত্রুটি',
+  [LOGISTICS_ERROR_CODES.NETWORK_ERROR]: 'নেটওয়ার্ক ত্রুটি',
+  [LOGISTICS_ERROR_CODES.VALIDATION_ERROR]: 'ভ্যালিডেশন ত্রুটি',
+  [LOGISTICS_ERROR_CODES.UNAUTHORIZED]: 'অননুমোদিত',
+  [LOGISTICS_ERROR_CODES.FORBIDDEN]: 'নিষিদ্ধ',
+};
+
+/**
+ * লজিস্টিকস এরর গ্রুপ
+ */
+export const LOGISTICS_ERROR_GROUPS = {
+  SHIPMENT: [
+    LOGISTICS_ERROR_CODES.SHIPMENT_NOT_FOUND,
+    LOGISTICS_ERROR_CODES.SHIPMENT_ALREADY_EXISTS,
+    LOGISTICS_ERROR_CODES.SHIPMENT_CANCELLED,
+    LOGISTICS_ERROR_CODES.SHIPMENT_EXPIRED,
+  ] as const,
+  TRACKING: [
+    LOGISTICS_ERROR_CODES.INVALID_TRACKING_NUMBER,
+    LOGISTICS_ERROR_CODES.TRACKING_NOT_FOUND,
+    LOGISTICS_ERROR_CODES.TRACKING_UPDATE_FAILED,
+  ] as const,
+  DELIVERY: [
+    LOGISTICS_ERROR_CODES.DELIVERY_FAILED,
+    LOGISTICS_ERROR_CODES.DELIVERY_TIMEOUT,
+    LOGISTICS_ERROR_CODES.DELIVERY_ADDRESS_INVALID,
+    LOGISTICS_ERROR_CODES.DELIVERY_ATTEMPT_EXCEEDED,
+  ] as const,
+  COURIER: [
+    LOGISTICS_ERROR_CODES.COURIER_UNAVAILABLE,
+    LOGISTICS_ERROR_CODES.COURIER_NOT_FOUND,
+    LOGISTICS_ERROR_CODES.COURIER_OFFLINE,
+    LOGISTICS_ERROR_CODES.COURIER_ALREADY_ASSIGNED,
+  ] as const,
+  WAREHOUSE: [
+    LOGISTICS_ERROR_CODES.WAREHOUSE_FULL,
+    LOGISTICS_ERROR_CODES.WAREHOUSE_NOT_FOUND,
+    LOGISTICS_ERROR_CODES.WAREHOUSE_MAINTENANCE,
+  ] as const,
+  INVENTORY: [
+    LOGISTICS_ERROR_CODES.INSUFFICIENT_STOCK,
+    LOGISTICS_ERROR_CODES.INVENTORY_NOT_FOUND,
+    LOGISTICS_ERROR_CODES.INVENTORY_LOCKED,
+  ] as const,
+  ROUTE: [
+    LOGISTICS_ERROR_CODES.ROUTE_NOT_FOUND,
+    LOGISTICS_ERROR_CODES.ROUTE_OPTIMIZATION_FAILED,
+    LOGISTICS_ERROR_CODES.ROUTE_BLOCKED,
+  ] as const,
+  DRIVER: [
+    LOGISTICS_ERROR_CODES.DRIVER_NOT_AVAILABLE,
+    LOGISTICS_ERROR_CODES.DRIVER_NOT_FOUND,
+    LOGISTICS_ERROR_CODES.DRIVER_LICENSE_EXPIRED,
+    LOGISTICS_ERROR_CODES.DRIVER_ON_BREAK,
+  ] as const,
+  PAYMENT: [
+    LOGISTICS_ERROR_CODES.PAYMENT_FAILED,
+    LOGISTICS_ERROR_CODES.PAYMENT_PENDING,
+    LOGISTICS_ERROR_CODES.PAYMENT_REFUND_FAILED,
+  ] as const,
+  INSURANCE: [
+    LOGISTICS_ERROR_CODES.INSURANCE_NOT_FOUND,
+    LOGISTICS_ERROR_CODES.INSURANCE_EXPIRED,
+    LOGISTICS_ERROR_CODES.INSURANCE_CLAIM_FAILED,
+  ] as const,
+  SYSTEM: [
+    LOGISTICS_ERROR_CODES.PERMISSION_DENIED,
+    LOGISTICS_ERROR_CODES.INVALID_REQUEST,
+    LOGISTICS_ERROR_CODES.RATE_LIMIT_EXCEEDED,
+    LOGISTICS_ERROR_CODES.SYSTEM_ERROR,
+    LOGISTICS_ERROR_CODES.DATABASE_ERROR,
+    LOGISTICS_ERROR_CODES.NETWORK_ERROR,
+    LOGISTICS_ERROR_CODES.VALIDATION_ERROR,
+    LOGISTICS_ERROR_CODES.UNAUTHORIZED,
+    LOGISTICS_ERROR_CODES.FORBIDDEN,
+  ] as const,
+} as const;
+
+/**
+ * লজিস্টিকস এরর গ্রুপ টাইপ
+ */
+export type LogisticsErrorGroup = typeof LOGISTICS_ERROR_GROUPS;
+
+/**
+ * লজিস্টিকস এরর কনফিগারেশন
+ */
+export const LOGISTICS_ERROR_CONFIG = {
+  CODES: LOGISTICS_ERROR_CODES,
+  MESSAGES: LOGISTICS_ERROR_MESSAGES,
+  GROUPS: LOGISTICS_ERROR_GROUPS,
+} as const;
+
+/**
+ * লজিস্টিকস এরর কনফিগারেশন টাইপ
+ */
+export type LogisticsErrorConfig = typeof LOGISTICS_ERROR_CONFIG;
+
+/**
+ * এরর কোডের মেসেজ পাওয়া
+ */
+export function getLogisticsErrorMessage(code: LogisticsErrorCode): string {
+  return LOGISTICS_ERROR_MESSAGES[code] || 'অজানা ত্রুটি';
+}
+
+/**
+ * এরর কোডের গ্রুপ পাওয়া
+ */
+export function getLogisticsErrorGroup(code: LogisticsErrorCode): string | null {
+  for (const [group, codes] of Object.entries(LOGISTICS_ERROR_GROUPS)) {
+    if ((codes as readonly string[]).includes(code)) {
+      return group;
+    }
+  }
+  return null;
+}
+
+/**
+ * চেক করে যে এরর কোডটি শিপমেন্ট সম্পর্কিত কিনা
+ */
+export function isShipmentError(code: LogisticsErrorCode): boolean {
+  return (LOGISTICS_ERROR_GROUPS.SHIPMENT as readonly string[]).includes(code);
+}
+
+/**
+ * চেক করে যে এরর কোডটি ডেলিভারি সম্পর্কিত কিনা
+ */
+export function isDeliveryError(code: LogisticsErrorCode): boolean {
+  return (LOGISTICS_ERROR_GROUPS.DELIVERY as readonly string[]).includes(code);
+}
+
+/**
+ * চেক করে যে এরর কোডটি সিস্টেম সম্পর্কিত কিনা
+ */
+export function isSystemError(code: LogisticsErrorCode): boolean {
+  return (LOGISTICS_ERROR_GROUPS.SYSTEM as readonly string[]).includes(code);
+}

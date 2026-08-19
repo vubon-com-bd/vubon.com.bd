@@ -12,7 +12,7 @@ export * from './authentication';
 // 3. SEO AI মডিউল (কোন কনফ্লিক্ট নেই)
 export * from './seo-ai';
 
-// 4. কমন মডিউল (কোন কনফ্লিক্ট নেই)
+// 4. কমন মডিউল (শুধুমাত্র non-conflicting items)
 export * from './common';
 
 // 5. Analytics Reporting মডিউল (নেমস্পেসে)
@@ -24,5 +24,7 @@ export * as FlashSalesDeals from './Flash-Sales-Deals';
 // 7. Content Marketing মডিউল (নেমস্পেসে)
 export * as ContentMarketing from './Content-Marketing';
 
-// সাপোর্ট কনস্ট্যান্টস
-export * from './support';
+// 8. Logistics মডিউল - সমস্ত logistics কনস্ট্যান্ট এখান থেকে
+// NOTE: support মডিউলের কনস্ট্যান্টগুলোর সাথে কোনো কনফ্লিক্ট নেই
+// কারণ support মডিউল আলাদাভাবে export করা হচ্ছে না
+export * as logistics from './logistics';

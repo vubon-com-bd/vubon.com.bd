@@ -161,7 +161,7 @@ export {
 } from './http-status.constants';
 
 // ============================================
-// ✅ নোটিফিকেশন কমন কনস্ট্যান্টসমূহ (নতুন সংযোজন)
+// ✅ নোটিফিকেশন কমন কনস্ট্যান্টসমূহ
 // ============================================
 
 // ডিফল্ট কনফিগারেশন
@@ -296,3 +296,55 @@ export type {
   CommonSortOrder,
   CommonLogLevel,
 } from './notification-common.constants';
+
+// ============================================
+// ✅ লজিস্টিকস কমন কনস্ট্যান্টসমূহ
+// ⚠️ শুধুমাত্র non-conflicting items export করা হয়েছে
+// ============================================
+
+// কোর কনফিগারেশন (কোন কনফ্লিক্ট নেই)
+export {
+  LOGISTICS_DEFAULT_CURRENCY,
+  LOGISTICS_TIMEZONE,
+  LOGISTICS_DEFAULT_LOCALE,
+  LOGISTICS_GEOCODING_PROVIDER,
+  LOGISTICS_WEIGHT_UNIT,
+  LOGISTICS_DISTANCE_UNIT,
+  LOGISTICS_VOLUME_UNIT,
+  LOGISTICS_TIME_UNIT,
+  LOGISTICS_SYSTEM_NAME,
+  LOGISTICS_SYSTEM_VERSION,
+  LOGISTICS_COMPANY_NAME,
+  LOGISTICS_WEBSITE_URL,
+  LOGISTICS_SUPPORT_EMAIL,
+  LOGISTICS_SUPPORT_PHONE,
+  LOGISTICS_COMMON_CONFIG,
+  type LogisticsCommonConfig,
+} from './logistics-common.constants';
+
+// ⚠️ TRACKING_* কনস্ট্যান্টগুলি logistics মডিউল থেকে export করা হবে
+// তাই এখানে export করা হচ্ছে না
+
+// শিপিং ও ডেলিভারি কনস্ট্যান্ট (কোন কনফ্লিক্ট নেই)
+export {
+  DEFAULT_SHIPPING_METHOD,
+  DEFAULT_DELIVERY_TIME_LIMIT_HOURS,
+  DEFAULT_DELIVERY_WINDOW_MINUTES,
+  DEFAULT_REORDER_POINT,
+  DEFAULT_SAFETY_STOCK_LEVEL,
+  DEFAULT_DELIVERY_CONFIRMATION_TIMEOUT_MINUTES,
+  SHIPPING_DELIVERY_CONFIG,
+  type ShippingDeliveryConfig,
+} from './logistics-common.constants';
+
+// ⚠️ MAX_SHIPMENT_WEIGHT_KG, MAX_DELIVERY_ATTEMPTS, DEFAULT_SHIPMENT_TIMEOUT_HOURS
+// logistics মডিউল থেকে export করা হবে
+
+// সম্পূর্ণ কমন কনফিগারেশন
+export { LOGISTICS_COMMON, type LogisticsCommon } from './logistics-common.constants';
+
+// ⚠️ ইউটিলিটি ফাংশনগুলি logistics মডিউল থেকে export করা হবে
+// generateTrackingNumber, isValidTrackingNumber
+// convertWeight, convertDistance
+// getLogisticsCurrentTime, getLogisticsTimeInTimezone
+// formatLogisticsDate, formatLogisticsTime, formatLogisticsDateTime
