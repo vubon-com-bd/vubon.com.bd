@@ -28,10 +28,13 @@ export * as ContentMarketing from './Content-Marketing';
 export * as logistics from './logistics';
 
 // ভেন্ডার মডিউল
-export * as vebdor from './vendor';
+export * as vendor from './vendor';
 
-// 2. search-discovery  মডিউল (কোন কনফ্লিক্ট নেই)
+// 9. search-discovery  মডিউল (কোন কনফ্লিক্ট নেই)
 export * as searchdiscovery from './search-discovery';
 
-// 2. অথেনটিকেশন মডিউল (কোন কনফ্লিক্ট নেই)
+// 10. checkout মডিউল (কোন কনফ্লিক্ট নেই)
 export * from './checkout';
+
+// 11. cart মডিউল (কোন কনফ্লিক্ট নেই)
+export * from './cart';
