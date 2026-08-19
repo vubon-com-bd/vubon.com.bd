@@ -30,7 +30,7 @@ export * as logistics from './logistics';
 // ভেন্ডার মডিউল
 export * as vendor from './vendor';
 
-// 9. search-discovery  মডিউল (কোন কনফ্লিক্ট নেই)
+// 9. search-discovery মডিউল (কোন কনফ্লিক্ট নেই)
 export * as searchdiscovery from './search-discovery';
 
 // 10. checkout মডিউল (কোন কনফ্লিক্ট নেই)
@@ -38,3 +38,6 @@ export * from './checkout';
 
 // 11. cart মডিউল (কোন কনফ্লিক্ট নেই)
 export * from './cart';
+
+// 12. product মডিউল (কোন কনফ্লিক্ট নেই)
+export * from './product';
