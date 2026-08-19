@@ -29,3 +29,9 @@ export * as logistics from './logistics';
 
 // ভেন্ডার মডিউল
 export * as vebdor from './vendor';
+
+// 2. search-discovery  মডিউল (কোন কনফ্লিক্ট নেই)
+export * as searchdiscovery from './search-discovery';
+
+// 2. অথেনটিকেশন মডিউল (কোন কনফ্লিক্ট নেই)
+export * from './checkout';

@@ -322,9 +322,6 @@ export {
   type LogisticsCommonConfig,
 } from './logistics-common.constants';
 
-// ⚠️ TRACKING_* কনস্ট্যান্টগুলি logistics মডিউল থেকে export করা হবে
-// তাই এখানে export করা হচ্ছে না
-
 // শিপিং ও ডেলিভারি কনস্ট্যান্ট (কোন কনফ্লিক্ট নেই)
 export {
   DEFAULT_SHIPPING_METHOD,
@@ -336,9 +333,6 @@ export {
   SHIPPING_DELIVERY_CONFIG,
   type ShippingDeliveryConfig,
 } from './logistics-common.constants';
-
-// ⚠️ MAX_SHIPMENT_WEIGHT_KG, MAX_DELIVERY_ATTEMPTS, DEFAULT_SHIPMENT_TIMEOUT_HOURS
-// logistics মডিউল থেকে export করা হবে
 
 // সম্পূর্ণ কমন কনফিগারেশন
 export { LOGISTICS_COMMON, type LogisticsCommon } from './logistics-common.constants';
@@ -397,8 +391,114 @@ export {
 // ভেন্ডার ডিফল্ট সেটিংস
 export { VENDOR_DEFAULT_SETTINGS } from './vendor-common.constants';
 
-// ⚠️ ইউটিলিটি ফাংশনগুলি logistics মডিউল থেকে export করা হবে
-// generateTrackingNumber, isValidTrackingNumber
-// convertWeight, convertDistance
-// getLogisticsCurrentTime, getLogisticsTimeInTimezone
-// formatLogisticsDate, formatLogisticsTime, formatLogisticsDateTime
+// ============================================
+// ✅ সার্চ-কমন কনস্ট্যান্টসমূহ
+// ============================================
+
+// ১. সার্চ ও পেজিনেশনের ডিফল্ট মান
+export {
+  DEFAULT_PAGE_SIZE,
+  MAX_PAGE_SIZE,
+  DEFAULT_SEARCH_RESULTS,
+  MIN_SEARCH_QUERY_LENGTH,
+  MAX_SEARCH_QUERY_LENGTH,
+  DEFAULT_PAGE,
+} from './search-common.constants';
+
+// ২. সার্চ টাইপ ও অপারেটর সংক্রান্ত এনাম
+export {
+  SearchType,
+  DEFAULT_SEARCH_TYPE,
+  SEARCH_TYPE_LABELS_BN,
+  SEARCH_TYPE_LABELS_EN,
+  SearchOperator,
+  SEARCH_OPERATOR_LABELS_BN,
+  SEARCH_OPERATOR_LABELS_EN,
+  SearchMatchType,
+  SEARCH_MATCH_TYPE_LABELS_BN,
+  SEARCH_MATCH_TYPE_LABELS_EN,
+} from './search-common.constants';
+
+// ৩. বুস্টিং ও রিলেভেন্স কনফিগারেশন
+export {
+  SEARCH_BOOST_FACTORS,
+  DEFAULT_BOOST,
+  RELEVANCE_THRESHOLD,
+  DEFAULT_RELEVANCE_THRESHOLD,
+  RELEVANCE_THRESHOLD_LABELS_BN,
+  RELEVANCE_THRESHOLD_LABELS_EN,
+} from './search-common.constants';
+
+// ৪. ফ্যাসেট, ফিল্টার ও সর্ট কনফিগারেশন
+export {
+  FACET_FIELDS,
+  DEFAULT_FACET_SIZE,
+  MAX_FACET_SIZE,
+  SORT_FIELDS,
+  DEFAULT_SORT_FIELD,
+  SortOrder,
+  DEFAULT_SORT_ORDER,
+  FilterUIType,
+  FILTER_UI_TYPE_LABELS_BN,
+  FILTER_UI_TYPE_LABELS_EN,
+} from './search-common.constants';
+
+// ৫. রেকমেন্ডেশন ও ডিসকভারি কনফিগারেশন
+export {
+  RecommendationType,
+  RECOMMENDATION_TYPE_LABELS_BN,
+  RECOMMENDATION_TYPE_LABELS_EN,
+  RecommendationStrategy,
+  RECOMMENDATION_STRATEGY_LABELS_BN,
+  RECOMMENDATION_STRATEGY_LABELS_EN,
+  DEFAULT_RECOMMENDATION_COUNT,
+  MAX_RECOMMENDATION_COUNT,
+  PersonalizationType,
+  PERSONALIZATION_TYPE_LABELS_BN,
+  PERSONALIZATION_TYPE_LABELS_EN,
+} from './search-common.constants';
+
+// ৬. সাজেশন ও অটোকমপ্লিট কনফিগারেশন
+export {
+  SuggestionType,
+  SUGGESTION_TYPE_LABELS_BN,
+  SUGGESTION_TYPE_LABELS_EN,
+  DEFAULT_SUGGESTION_COUNT,
+  AUTOCOMPLETE_MIN_CHARS,
+  AUTOCOMPLETE_MAX_CHARS,
+  AUTOCOMPLETE_CACHE_TTL_SECONDS,
+} from './search-common.constants';
+
+// ৭. সিনোনিম ও স্টপওয়ার্ড কনফিগারেশন
+export {
+  SynonymType,
+  SYNONYM_TYPE_LABELS_BN,
+  SYNONYM_TYPE_LABELS_EN,
+  DEFAULT_SYNONYM_FILE_PATH,
+  StopwordLanguage,
+  STOPWORD_LANGUAGE_LABELS_BN,
+  STOPWORD_LANGUAGE_LABELS_EN,
+} from './search-common.constants';
+
+// ৮. ডোমেইন-নির্দিষ্ট এরর কোড
+export {
+  SearchErrorCode,
+  SEARCH_ERROR_MESSAGES_BN,
+  SEARCH_ERROR_MESSAGES_EN,
+  DiscoveryErrorCode,
+  DISCOVERY_ERROR_MESSAGES_BN,
+  DISCOVERY_ERROR_MESSAGES_EN,
+} from './search-common.constants';
+
+// ৯. সার্চ-নির্দিষ্ট টাইমআউট
+export { SEARCH_TIMEOUT_MS, DISCOVERY_TIMEOUT_MS } from './search-common.constants';
+
+// ১০. সার্চ ফিল্ডের তালিকা
+export {
+  SEARCH_FIELDS,
+  SEARCH_FIELD_LABELS_BN,
+  SEARCH_FIELD_LABELS_EN,
+} from './search-common.constants';
+
+// ১১. সার্চ ক্যোয়ারী ভ্যালিডেশন
+export { SEARCH_QUERY_VALIDATION_ERRORS, type SearchQuery } from './search-common.constants';
