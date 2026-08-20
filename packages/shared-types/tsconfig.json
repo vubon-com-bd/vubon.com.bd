@@ -18,11 +18,9 @@
     "baseUrl": ".",
     "paths": {
       "@vubon/shared-types": ["./src/index.ts"],
-      "@vubon/shared-types/*": ["./src/*"],
-      "@vubon/shared-constants": ["../shared-constants/src/index.ts"],
-      "@vubon/shared-constants/*": ["../shared-constants/src/*"]
+      "@vubon/shared-types/*": ["./src/*"]
     }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "../shared-constants", "../shared-constants/**/*"]
 }
