@@ -27,17 +27,20 @@ export * as ContentMarketing from './Content-Marketing';
 // 8. Logistics মডিউল
 export * as logistics from './logistics';
 
-// ভেন্ডার মডিউল
+// 9. vendor  ভেন্ডার মডিউল
 export * as vendor from './vendor';
 
-// 9. search-discovery মডিউল (কোন কনফ্লিক্ট নেই)
+// 10. search-discovery মডিউল (কোন কনফ্লিক্ট নেই)
 export * as searchdiscovery from './search-discovery';
 
-// 10. checkout মডিউল (কোন কনফ্লিক্ট নেই)
+// 11. checkout মডিউল (কোন কনফ্লিক্ট নেই)
 export * from './checkout';
 
-// 11. cart মডিউল (কোন কনফ্লিক্ট নেই)
+// 12. cart মডিউল (কোন কনফ্লিক্ট নেই)
 export * from './cart';
 
-// 12. product মডিউল (কোন কনফ্লিক্ট নেই)
+// 13. product মডিউল (কোন কনফ্লিক্ট নেই)
 export * from './product';
+
+// 14. admin মডিউল (কোন কনফ্লিক্ট নেই)
+export * as admin from './admin';
