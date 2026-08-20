@@ -40,7 +40,7 @@ export * as checkout from './checkout';
 export * as cart from './cart';
 
 // 13. product মডিউল (কোন কনফ্লিক্ট নেই)
-export * product from './product';
+export * as product from './product';
 
 // 14. admin মডিউল (কোন কনফ্লিক্ট নেই)
 export * as admin from './admin';
