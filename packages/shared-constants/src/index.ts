@@ -7,13 +7,13 @@
 export * as Notification from './notification';
 
 // 2. অথেনটিকেশন মডিউল (কোন কনফ্লিক্ট নেই)
-export * from './authentication';
+export * as authentication from './authentication';
 
 // 3. SEO AI মডিউল (কোন কনফ্লিক্ট নেই)
-export * from './seo-ai';
+export * as seoai from './seo-ai';
 
 // 4. কমন মডিউল (শুধুমাত্র non-conflicting items)
-export * from './common';
+export * as common from './common';
 
 // 5. Analytics Reporting মডিউল (নেমস্পেসে)
 export * as AnalyticsReporting from './analytics-reporting';
@@ -34,13 +34,13 @@ export * as vendor from './vendor';
 export * as searchdiscovery from './search-discovery';
 
 // 11. checkout মডিউল (কোন কনফ্লিক্ট নেই)
-export * from './checkout';
+export * as checkout from './checkout';
 
 // 12. cart মডিউল (কোন কনফ্লিক্ট নেই)
-export * from './cart';
+export * as cart from './cart';
 
 // 13. product মডিউল (কোন কনফ্লিক্ট নেই)
-export * from './product';
+export * product from './product';
 
 // 14. admin মডিউল (কোন কনফ্লিক্ট নেই)
 export * as admin from './admin';
