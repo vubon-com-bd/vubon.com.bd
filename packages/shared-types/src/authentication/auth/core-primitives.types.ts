@@ -1,276 +1,386 @@
 /**
- * Core primitives types for authentication module
- * These types define the fundamental data structures used across the authentication system
- * Based on shared constants from @vubon/shared-constants
+ * Core Primitive Types Module
+ * Fundamental type definitions used across the authentication system
+ * These are the building blocks for all authentication-related types
  */
-
-import { authentication } from '@vubon/shared-constants';
 
 /**
- * Authentication status type
- * Represents the current state of a user's authentication
- * Values: 'ACTIVE', 'INACTIVE', 'PENDING', 'SUSPENDED', 'DELETED'
+ * Email Address
+ * Validated email string
  */
-export type AuthStatus =
-  (typeof authentication.AUTH_STATUS)[keyof typeof authentication.AUTH_STATUS];
+export type Email = string;
 
 /**
- * Authentication method type
- * Defines the supported authentication methods
- * Values: 'EMAIL_PASSWORD', 'PHONE_PASSWORD', 'OAUTH', 'MAGIC_LINK', 'OTP'
+ * Password
+ * Validated password string (follows security policies)
  */
-export type AuthMethod =
-  (typeof authentication.AUTH_METHOD)[keyof typeof authentication.AUTH_METHOD];
+export type Password = string;
 
 /**
- * Authentication provider type
- * Represents the identity provider for OAuth authentication
- * Values: 'GOOGLE', 'FACEBOOK', 'APPLE', 'GITHUB'
+ * User ID
+ * Unique identifier for a user
  */
-export type AuthProvider =
-  (typeof authentication.AUTH_PROVIDER)[keyof typeof authentication.AUTH_PROVIDER];
+export type UserId = string;
 
 /**
- * Token type
- * Defines the different types of tokens used in authentication
- * Values: 'ACCESS_TOKEN', 'REFRESH_TOKEN', 'RESET_TOKEN', 'VERIFICATION_TOKEN'
+ * Session ID
+ * Unique identifier for a session
  */
-export type TokenType = (typeof authentication.TOKEN_TYPE)[keyof typeof authentication.TOKEN_TYPE];
+export type SessionId = string;
 
 /**
- * Authentication session status type
- * Represents the status of a user session
+ * Timestamp
+ * ISO datetime string or Unix timestamp
  */
-export type SessionStatus = 'ACTIVE' | 'EXPIRED' | 'INVALID' | 'REVOKED';
+export type Timestamp = string | number;
 
 /**
- * Authentication event type
- * Defines authentication-related events for logging and auditing
+ * Authentication Token
+ * JWT or similar authentication token
  */
-export type AuthEvent =
-  | 'LOGIN'
-  | 'LOGOUT'
-  | 'REGISTER'
-  | 'PASSWORD_RESET'
-  | 'EMAIL_VERIFICATION'
-  | 'TWO_FACTOR_AUTH'
-  | 'SESSION_REFRESH';
+export type Token = string;
 
 /**
- * Authentication level type
- * Represents the level of authentication assurance
+ * Refresh Token
+ * Token used to obtain new access tokens
  */
-export type AuthLevel = 'NONE' | 'BASIC' | 'TWO_FACTOR' | 'PASSWORDLESS';
+export type RefreshToken = string;
 
 /**
- * Core authentication primitive
- * Base interface for authentication data
+ * User Role
+ * User role types for authorization
  */
-export interface AuthPrimitive {
-  /** Unique identifier for the authentication session */
-  sessionId: string;
+export type UserRole = 'admin' | 'vendor' | 'customer' | 'guest' | 'manager' | 'support';
 
-  /** User identifier */
-  userId: string;
+/**
+ * Authentication Status
+ * Current status of authentication
+ */
+export type AuthStatus = 'active' | 'inactive' | 'suspended' | 'banned' | 'pending_verification';
 
-  /** Current authentication status */
+/**
+ * Authentication Provider
+ * Supported authentication providers
+ */
+export type AuthProvider = 'local' | 'google' | 'facebook' | 'github' | 'apple' | 'microsoft';
+
+/**
+ * Multi-Factor Authentication Method
+ * Supported MFA methods
+ */
+export type MfaMethod = 'authenticator' | 'sms' | 'email' | 'backup-codes' | 'security-keys';
+
+/**
+ * Permission
+ * System permission types
+ */
+export type Permission = string;
+
+/**
+ * Base ID
+ * Generic identifier type
+ */
+export type ID = string;
+
+/**
+ * UUID
+ * Universally unique identifier
+ */
+export type UUID = string;
+
+/**
+ * URL
+ * Valid URL string
+ */
+export type URL = string;
+
+/**
+ * Phone Number
+ * Validated phone number (E.164 format)
+ */
+export type PhoneNumber = string;
+
+/**
+ * Country Code
+ * ISO 3166-1 alpha-2 country code
+ */
+export type CountryCode = string;
+
+/**
+ * Currency Code
+ * ISO 4217 currency code
+ */
+export type CurrencyCode = string;
+
+/**
+ * Language Code
+ * ISO 639-1 language code
+ */
+export type LanguageCode = string;
+
+/**
+ * Timezone
+ * IANA timezone string
+ */
+export type Timezone = string;
+
+/**
+ * JSON Object
+ * Generic JSON object type
+ */
+export type JSONObject = Record<string, unknown>;
+
+/**
+ * JSON Array
+ * Array of JSON values
+ */
+export type JSONArray = unknown[];
+
+/**
+ * JSON Value
+ * Any valid JSON value
+ */
+export type JSONValue = string | number | boolean | null | JSONObject | JSONArray;
+
+/**
+ * Sort Direction
+ * Sorting order
+ */
+export type SortDirection = 'asc' | 'desc';
+
+/**
+ * Pagination Parameters
+ * Common pagination options
+ */
+export interface PaginationParams {
+  page: number;
+  limit: number;
+  sortBy?: string;
+  sortDirection?: SortDirection;
+}
+
+/**
+ * Filter Parameters
+ * Generic filtering options
+ */
+export interface FilterParams {
+  search?: string;
+  fromDate?: Timestamp;
+  toDate?: Timestamp;
+  status?: string[];
+  [key: string]: unknown;
+}
+
+/**
+ * API Response Base
+ * Base structure for all API responses
+ */
+export interface APIResponse<T = unknown> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+  timestamp: Timestamp;
+  requestId?: string;
+}
+
+/**
+ * API Paginated Response
+ * Paginated API response wrapper
+ */
+export interface APIPaginatedResponse<T = unknown> extends APIResponse<T[]> {
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+}
+
+/**
+ * Metadata
+ * Generic metadata type
+ */
+export interface Metadata {
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  createdBy?: UserId;
+  updatedBy?: UserId;
+  version?: number;
+}
+
+/**
+ * Soft Delete
+ * Soft deletion fields
+ */
+export interface SoftDelete {
+  deletedAt?: Timestamp;
+  deletedBy?: UserId;
+  isDeleted: boolean;
+}
+
+/**
+ * Audit Trail
+ * Audit logging fields
+ */
+export interface AuditTrail {
+  createdAt: Timestamp;
+  createdBy: UserId;
+  updatedAt: Timestamp;
+  updatedBy: UserId;
+  lastAccessedAt?: Timestamp;
+  accessedBy?: UserId;
+}
+
+/**
+ * Status Base
+ * Base status tracking
+ */
+export interface StatusBase {
   status: AuthStatus;
-
-  /** Authentication method used */
-  method: AuthMethod;
-
-  /** Timestamp when the authentication was initiated */
-  initiatedAt: Date;
-
-  /** Timestamp when the authentication expires */
-  expiresAt: Date;
-
-  /** IP address from which authentication was requested */
-  ipAddress?: string;
-
-  /** User agent string of the client */
-  userAgent?: string;
+  statusChangedAt?: Timestamp;
+  statusChangedBy?: UserId;
+  statusReason?: string;
 }
 
 /**
- * Token primitive
- * Base interface for authentication tokens
+ * Name
+ * Person or entity name
  */
-export interface TokenPrimitive {
-  /** Token value */
-  token: string;
-
-  /** Type of the token */
-  type: TokenType;
-
-  /** User identifier associated with the token */
-  userId: string;
-
-  /** Timestamp when the token was created */
-  createdAt: Date;
-
-  /** Timestamp when the token expires */
-  expiresAt: Date;
-
-  /** Whether the token has been revoked */
-  isRevoked: boolean;
-
-  /** Optional metadata associated with the token */
-  metadata?: Record<string, unknown>;
+export interface Name {
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  fullName: string;
 }
 
 /**
- * Credential primitive
- * Base interface for user credentials
+ * Address
+ * Physical address
  */
-export interface CredentialPrimitive {
-  /** User identifier (email, phone, or username) */
-  identifier: string;
-
-  /** Hashed password or other credential data */
-  credentialData: string;
-
-  /** Authentication method associated with these credentials */
-  method: AuthMethod;
-
-  /** Timestamp when the credential was created */
-  createdAt: Date;
-
-  /** Timestamp when the credential was last updated */
-  updatedAt: Date;
-
-  /** Whether the credential is active */
-  isActive: boolean;
-
-  /** Additional authentication factors */
-  factors?: AuthFactor[];
+export interface Address {
+  street: string;
+  city: string;
+  state?: string;
+  postalCode: string;
+  country: CountryCode;
+  isPrimary: boolean;
+  addressType: 'billing' | 'shipping' | 'both';
 }
 
 /**
- * Authentication factor primitive
- * Represents a single authentication factor
+ * Contact Information
+ * User contact details
  */
-export interface AuthFactor {
-  /** Type of the factor */
-  type: 'TOTP' | 'SMS' | 'EMAIL' | 'BACKUP_CODE' | 'BIOMETRIC';
-
-  /** Whether the factor is verified */
-  isVerified: boolean;
-
-  /** Timestamp when the factor was added */
-  addedAt: Date;
-
-  /** Additional data specific to the factor type */
-  data?: Record<string, unknown>;
+export interface ContactInfo {
+  email: Email;
+  phone?: PhoneNumber;
+  alternateEmail?: Email;
+  alternatePhone?: PhoneNumber;
 }
 
 /**
- * Session primitive
- * Represents an authenticated user session
+ * Social Media Links
+ * Social media profiles
  */
-export interface SessionPrimitive {
-  /** Session identifier */
+export interface SocialLinks {
+  facebook?: URL;
+  twitter?: URL;
+  instagram?: URL;
+  linkedin?: URL;
+  youtube?: URL;
+  website?: URL;
+}
+
+/**
+ * Image
+ * Image information
+ */
+export interface Image {
   id: string;
-
-  /** User identifier */
-  userId: string;
-
-  /** Current session status */
-  status: SessionStatus;
-
-  /** Authentication level of the session */
-  authLevel: AuthLevel;
-
-  /** Session creation timestamp */
-  createdAt: Date;
-
-  /** Last activity timestamp */
-  lastActivityAt: Date;
-
-  /** Session expiration timestamp */
-  expiresAt: Date;
-
-  /** Device information */
-  deviceInfo?: DeviceInfo;
+  url: URL;
+  alt: string;
+  width: number;
+  height: number;
+  fileSize: number;
+  mimeType: string;
 }
 
 /**
- * Device information primitive
- * Represents device data associated with authentication
+ * Money
+ * Currency amount
+ */
+export interface Money {
+  amount: number;
+  currency: CurrencyCode;
+  formatted?: string;
+}
+
+/**
+ * DateTime Range
+ * Date and time range
+ */
+export interface DateTimeRange {
+  start: Timestamp;
+  end: Timestamp;
+}
+
+/**
+ * Geo Location
+ * Geographic coordinates
+ */
+export interface GeoLocation {
+  latitude: number;
+  longitude: number;
+  accuracy?: number;
+  altitude?: number;
+}
+
+/**
+ * IP Address
+ * IP address (v4 or v6)
+ */
+export type IPAddress = string;
+
+/**
+ * User Agent
+ * Browser/device user agent string
+ */
+export type UserAgent = string;
+
+/**
+ * Device Info
+ * Device identification information
  */
 export interface DeviceInfo {
-  /** Device identifier */
-  deviceId?: string;
-
-  /** Device type */
-  type: 'MOBILE' | 'DESKTOP' | 'TABLET' | 'OTHER';
-
-  /** Device operating system */
-  os?: string;
-
-  /** Device browser */
-  browser?: string;
-
-  /** Device model */
-  model?: string;
+  deviceId: string;
+  deviceName: string;
+  deviceType: 'desktop' | 'mobile' | 'tablet' | 'tv' | 'other';
+  os: string;
+  osVersion: string;
+  browser: string;
+  browserVersion: string;
+  isMobile: boolean;
+  isDesktop: boolean;
+  isTablet: boolean;
+  screenSize?: string;
+  pixelRatio?: number;
+  language: string;
+  timezone: Timezone;
 }
 
 /**
- * Authentication result primitive
- * Represents the result of an authentication attempt
+ * Validation Rule
+ * Validation rule definition
  */
-export interface AuthResultPrimitive {
-  /** Whether authentication was successful */
-  success: boolean;
-
-  /** Authentication status */
-  status: AuthStatus;
-
-  /** Authentication method used */
-  method: AuthMethod;
-
-  /** User identifier if authentication was successful */
-  userId?: string;
-
-  /** Session data if authentication was successful */
-  session?: SessionPrimitive;
-
-  /** Error information if authentication failed */
-  error?: AuthError;
-
-  /** Additional data from the authentication attempt */
-  data?: Record<string, unknown>;
-}
-
-/**
- * Authentication error primitive
- * Represents authentication error details
- */
-export interface AuthError {
-  /** Error code */
-  code: string;
-
-  /** Human-readable error message */
-  message: string;
-
-  /** Additional error details */
-  details?: Record<string, unknown>;
-
-  /** Timestamp when the error occurred */
-  timestamp: Date;
-}
-
-/**
- * Validation result primitive
- * Represents the result of validating authentication data
- */
-export interface ValidationResult {
-  /** Whether validation passed */
-  isValid: boolean;
-
-  /** Validation errors if any */
-  errors?: string[];
-
-  /** Validated data */
-  data?: unknown;
+export interface ValidationRule {
+  field: string;
+  type: string;
+  required?: boolean;
+  min?: number;
+  max?: number;
+  pattern?: string;
+  message?: string;
 }
