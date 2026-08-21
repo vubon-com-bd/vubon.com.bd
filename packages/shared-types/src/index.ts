@@ -1,9 +1,8 @@
-// 1. বাহ্যিক লাইব্রেরি
-// (কোনটি প্রয়োজন নেই)
-export * as common from './common';
+/**
+ * Shared Types for vubon.com.bd
+ * This package contains all TypeScript type definitions used across the monorepo
+ */
 
-// 2. শেয়ার্ড প্যাকেজ
-// (কোনটি প্রয়োজন নেই)
-
-// 3. প্রকল্পের অন্য ফাইল
+// Authentication module exports
+export * as authentication from './authentication';
 export * as admin from './admin';
