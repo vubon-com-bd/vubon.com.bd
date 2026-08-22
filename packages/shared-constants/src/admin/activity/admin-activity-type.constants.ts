@@ -1,0 +1,640 @@
+/**
+ * Admin Activity Type Constants
+ * Detailed activity type definitions for admin actions
+ */
+
+export const ADMIN_ACTIVITY_TYPE = {
+  // Authentication
+  LOGIN: 'login',
+  LOGOUT: 'logout',
+  LOGIN_FAILED: 'login_failed',
+  LOGOUT_FAILED: 'logout_failed',
+  PASSWORD_RESET: 'password_reset',
+  PASSWORD_CHANGE: 'password_change',
+  PASSWORD_RESET_REQUEST: 'password_reset_request',
+  TWO_FA_ENABLE: 'two_fa_enable',
+  TWO_FA_DISABLE: 'two_fa_disable',
+  TWO_FA_VERIFY: 'two_fa_verify',
+  TWO_FA_FAILED: 'two_fa_failed',
+  SESSION_CREATE: 'session_create',
+  SESSION_DESTROY: 'session_destroy',
+  SESSION_EXPIRE: 'session_expire',
+  SESSION_REFRESH: 'session_refresh',
+
+  // User Management
+  USER_CREATE: 'user_create',
+  USER_UPDATE: 'user_update',
+  USER_DELETE: 'user_delete',
+  USER_VIEW: 'user_view',
+  USER_LIST: 'user_list',
+  USER_SEARCH: 'user_search',
+  USER_BAN: 'user_ban',
+  USER_UNBAN: 'user_unban',
+  USER_SUSPEND: 'user_suspend',
+  USER_UNSUSPEND: 'user_unsuspend',
+  USER_VERIFY: 'user_verify',
+  USER_UNVERIFY: 'user_unverify',
+  USER_ACTIVATE: 'user_activate',
+  USER_DEACTIVATE: 'user_deactivate',
+  USER_ROLE_CHANGE: 'user_role_change',
+  USER_PERMISSION_CHANGE: 'user_permission_change',
+  USER_PASSWORD_RESET: 'user_password_reset',
+  USER_PASSWORD_CHANGE: 'user_password_change',
+  USER_PROFILE_UPDATE: 'user_profile_update',
+  USER_PREFERENCES_UPDATE: 'user_preferences_update',
+  USER_SETTINGS_UPDATE: 'user_settings_update',
+
+  // Admin Management
+  ADMIN_CREATE: 'admin_create',
+  ADMIN_UPDATE: 'admin_update',
+  ADMIN_DELETE: 'admin_delete',
+  ADMIN_VIEW: 'admin_view',
+  ADMIN_LIST: 'admin_list',
+  ADMIN_SUSPEND: 'admin_suspend',
+  ADMIN_UNSUSPEND: 'admin_unsuspend',
+  ADMIN_ACTIVATE: 'admin_activate',
+  ADMIN_DEACTIVATE: 'admin_deactivate',
+  ADMIN_ROLE_CHANGE: 'admin_role_change',
+  ADMIN_PERMISSION_CHANGE: 'admin_permission_change',
+  ADMIN_LEVEL_CHANGE: 'admin_level_change',
+  ADMIN_DEPARTMENT_CHANGE: 'admin_department_change',
+  ADMIN_TEAM_CHANGE: 'admin_team_change',
+
+  // Content Management
+  CONTENT_CREATE: 'content_create',
+  CONTENT_UPDATE: 'content_update',
+  CONTENT_DELETE: 'content_delete',
+  CONTENT_VIEW: 'content_view',
+  CONTENT_LIST: 'content_list',
+  CONTENT_SEARCH: 'content_search',
+  CONTENT_PUBLISH: 'content_publish',
+  CONTENT_UNPUBLISH: 'content_unpublish',
+  CONTENT_ARCHIVE: 'content_archive',
+  CONTENT_RESTORE: 'content_restore',
+  CONTENT_APPROVE: 'content_approve',
+  CONTENT_REJECT: 'content_reject',
+  CONTENT_REVIEW: 'content_review',
+  CONTENT_RATING: 'content_rating',
+  CONTENT_COMMENT: 'content_comment',
+  CONTENT_SHARE: 'content_share',
+
+  // Product Management
+  PRODUCT_CREATE: 'product_create',
+  PRODUCT_UPDATE: 'product_update',
+  PRODUCT_DELETE: 'product_delete',
+  PRODUCT_VIEW: 'product_view',
+  PRODUCT_LIST: 'product_list',
+  PRODUCT_SEARCH: 'product_search',
+  PRODUCT_APPROVE: 'product_approve',
+  PRODUCT_REJECT: 'product_reject',
+  PRODUCT_FEATURE: 'product_feature',
+  PRODUCT_UNFEATURE: 'product_unfeature',
+  PRODUCT_ARCHIVE: 'product_archive',
+  PRODUCT_RESTORE: 'product_restore',
+  PRODUCT_INVENTORY_UPDATE: 'product_inventory_update',
+  PRODUCT_PRICE_UPDATE: 'product_price_update',
+  PRODUCT_CATEGORY_CHANGE: 'product_category_change',
+  PRODUCT_BRAND_CHANGE: 'product_brand_change',
+  PRODUCT_REVIEW_UPDATE: 'product_review_update',
+
+  // Order Management
+  ORDER_CREATE: 'order_create',
+  ORDER_UPDATE: 'order_update',
+  ORDER_DELETE: 'order_delete',
+  ORDER_VIEW: 'order_view',
+  ORDER_LIST: 'order_list',
+  ORDER_SEARCH: 'order_search',
+  ORDER_CANCEL: 'order_cancel',
+  ORDER_REFUND: 'order_refund',
+  ORDER_SHIP: 'order_ship',
+  ORDER_DELIVER: 'order_deliver',
+  ORDER_RETURN: 'order_return',
+  ORDER_ARCHIVE: 'order_archive',
+  ORDER_STATUS_CHANGE: 'order_status_change',
+  ORDER_PAYMENT_UPDATE: 'order_payment_update',
+  ORDER_SHIPPING_UPDATE: 'order_shipping_update',
+
+  // Payment Management
+  PAYMENT_PROCESS: 'payment_process',
+  PAYMENT_VERIFY: 'payment_verify',
+  PAYMENT_REFUND: 'payment_refund',
+  PAYMENT_CAPTURE: 'payment_capture',
+  PAYMENT_VOID: 'payment_void',
+  PAYMENT_VIEW: 'payment_view',
+  PAYMENT_LIST: 'payment_list',
+  PAYMENT_RECONCILE: 'payment_reconcile',
+  PAYMENT_SETTLEMENT: 'payment_settlement',
+
+  // System Management
+  SYSTEM_BACKUP: 'system_backup',
+  SYSTEM_RESTORE: 'system_restore',
+  SYSTEM_UPDATE: 'system_update',
+  SYSTEM_UPGRADE: 'system_upgrade',
+  SYSTEM_MAINTENANCE: 'system_maintenance',
+  SYSTEM_CONFIG_UPDATE: 'system_config_update',
+  SYSTEM_CACHE_CLEAR: 'system_cache_clear',
+  SYSTEM_QUEUE_PROCESS: 'system_queue_process',
+  SYSTEM_DB_MIGRATE: 'system_db_migrate',
+  SYSTEM_DB_SEED: 'system_db_seed',
+  SYSTEM_LOG_CLEAR: 'system_log_clear',
+  SYSTEM_REPORT_GENERATE: 'system_report_generate',
+
+  // Security
+  SECURITY_AUDIT: 'security_audit',
+  SECURITY_SCAN: 'security_scan',
+  SECURITY_ALERT: 'security_alert',
+  SECURITY_IP_BLOCK: 'security_ip_block',
+  SECURITY_IP_UNBLOCK: 'security_ip_unblock',
+  SECURITY_RATE_LIMIT: 'security_rate_limit',
+  SECURITY_FIREWALL_UPDATE: 'security_firewall_update',
+  SECURITY_SSL_UPDATE: 'security_ssl_update',
+
+  // Analytics
+  ANALYTICS_VIEW: 'analytics_view',
+  ANALYTICS_EXPORT: 'analytics_export',
+  ANALYTICS_REPORT: 'analytics_report',
+  ANALYTICS_DASHBOARD: 'analytics_dashboard',
+
+  // Support
+  TICKET_CREATE: 'ticket_create',
+  TICKET_UPDATE: 'ticket_update',
+  TICKET_DELETE: 'ticket_delete',
+  TICKET_VIEW: 'ticket_view',
+  TICKET_LIST: 'ticket_list',
+  TICKET_ASSIGN: 'ticket_assign',
+  TICKET_UNASSIGN: 'ticket_unassign',
+  TICKET_ESCALATE: 'ticket_escalate',
+  TICKET_RESOLVE: 'ticket_resolve',
+  TICKET_CLOSE: 'ticket_close',
+  TICKET_REOPEN: 'ticket_reopen',
+
+  // Logistics
+  SHIPMENT_CREATE: 'shipment_create',
+  SHIPMENT_UPDATE: 'shipment_update',
+  SHIPMENT_DELETE: 'shipment_delete',
+  SHIPMENT_VIEW: 'shipment_view',
+  SHIPMENT_TRACK: 'shipment_track',
+  SHIPMENT_DELIVER: 'shipment_deliver',
+  SHIPMENT_RETURN: 'shipment_return',
+
+  // Vendor Management
+  VENDOR_CREATE: 'vendor_create',
+  VENDOR_UPDATE: 'vendor_update',
+  VENDOR_DELETE: 'vendor_delete',
+  VENDOR_VIEW: 'vendor_view',
+  VENDOR_APPROVE: 'vendor_approve',
+  VENDOR_REJECT: 'vendor_reject',
+  VENDOR_SUSPEND: 'vendor_suspend',
+  VENDOR_UNSUSPEND: 'vendor_unsuspend',
+  VENDOR_VERIFY: 'vendor_verify',
+  VENDOR_PAYOUT: 'vendor_payout',
+
+  // Marketing
+  CAMPAIGN_CREATE: 'campaign_create',
+  CAMPAIGN_UPDATE: 'campaign_update',
+  CAMPAIGN_DELETE: 'campaign_delete',
+  CAMPAIGN_VIEW: 'campaign_view',
+  CAMPAIGN_START: 'campaign_start',
+  CAMPAIGN_STOP: 'campaign_stop',
+  CAMPAIGN_PAUSE: 'campaign_pause',
+  CAMPAIGN_RESUME: 'campaign_resume',
+
+  // Notification
+  NOTIFICATION_SEND: 'notification_send',
+  NOTIFICATION_VIEW: 'notification_view',
+  NOTIFICATION_DELETE: 'notification_delete',
+  NOTIFICATION_BROADCAST: 'notification_broadcast',
+} as const;
+
+export type AdminActivityTypeDetail =
+  (typeof ADMIN_ACTIVITY_TYPE)[keyof typeof ADMIN_ACTIVITY_TYPE];
+
+export const ADMIN_ACTIVITY_TYPE_CATEGORIES: Record<AdminActivityTypeDetail, string> = {
+  // Authentication
+  [ADMIN_ACTIVITY_TYPE.LOGIN]: 'authentication',
+  [ADMIN_ACTIVITY_TYPE.LOGOUT]: 'authentication',
+  [ADMIN_ACTIVITY_TYPE.LOGIN_FAILED]: 'authentication',
+  [ADMIN_ACTIVITY_TYPE.LOGOUT_FAILED]: 'authentication',
+  [ADMIN_ACTIVITY_TYPE.PASSWORD_RESET]: 'authentication',
+  [ADMIN_ACTIVITY_TYPE.PASSWORD_CHANGE]: 'authentication',
+  [ADMIN_ACTIVITY_TYPE.PASSWORD_RESET_REQUEST]: 'authentication',
+  [ADMIN_ACTIVITY_TYPE.TWO_FA_ENABLE]: 'authentication',
+  [ADMIN_ACTIVITY_TYPE.TWO_FA_DISABLE]: 'authentication',
+  [ADMIN_ACTIVITY_TYPE.TWO_FA_VERIFY]: 'authentication',
+  [ADMIN_ACTIVITY_TYPE.TWO_FA_FAILED]: 'authentication',
+  [ADMIN_ACTIVITY_TYPE.SESSION_CREATE]: 'authentication',
+  [ADMIN_ACTIVITY_TYPE.SESSION_DESTROY]: 'authentication',
+  [ADMIN_ACTIVITY_TYPE.SESSION_EXPIRE]: 'authentication',
+  [ADMIN_ACTIVITY_TYPE.SESSION_REFRESH]: 'authentication',
+
+  // User Management
+  [ADMIN_ACTIVITY_TYPE.USER_CREATE]: 'user_management',
+  [ADMIN_ACTIVITY_TYPE.USER_UPDATE]: 'user_management',
+  [ADMIN_ACTIVITY_TYPE.USER_DELETE]: 'user_management',
+  [ADMIN_ACTIVITY_TYPE.USER_VIEW]: 'user_management',
+  [ADMIN_ACTIVITY_TYPE.USER_LIST]: 'user_management',
+  [ADMIN_ACTIVITY_TYPE.USER_SEARCH]: 'user_management',
+  [ADMIN_ACTIVITY_TYPE.USER_BAN]: 'user_management',
+  [ADMIN_ACTIVITY_TYPE.USER_UNBAN]: 'user_management',
+  [ADMIN_ACTIVITY_TYPE.USER_SUSPEND]: 'user_management',
+  [ADMIN_ACTIVITY_TYPE.USER_UNSUSPEND]: 'user_management',
+  [ADMIN_ACTIVITY_TYPE.USER_VERIFY]: 'user_management',
+  [ADMIN_ACTIVITY_TYPE.USER_UNVERIFY]: 'user_management',
+  [ADMIN_ACTIVITY_TYPE.USER_ACTIVATE]: 'user_management',
+  [ADMIN_ACTIVITY_TYPE.USER_DEACTIVATE]: 'user_management',
+  [ADMIN_ACTIVITY_TYPE.USER_ROLE_CHANGE]: 'user_management',
+  [ADMIN_ACTIVITY_TYPE.USER_PERMISSION_CHANGE]: 'user_management',
+  [ADMIN_ACTIVITY_TYPE.USER_PASSWORD_RESET]: 'user_management',
+  [ADMIN_ACTIVITY_TYPE.USER_PASSWORD_CHANGE]: 'user_management',
+  [ADMIN_ACTIVITY_TYPE.USER_PROFILE_UPDATE]: 'user_management',
+  [ADMIN_ACTIVITY_TYPE.USER_PREFERENCES_UPDATE]: 'user_management',
+  [ADMIN_ACTIVITY_TYPE.USER_SETTINGS_UPDATE]: 'user_management',
+
+  // Admin Management
+  [ADMIN_ACTIVITY_TYPE.ADMIN_CREATE]: 'admin_management',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_UPDATE]: 'admin_management',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_DELETE]: 'admin_management',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_VIEW]: 'admin_management',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_LIST]: 'admin_management',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_SUSPEND]: 'admin_management',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_UNSUSPEND]: 'admin_management',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_ACTIVATE]: 'admin_management',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_DEACTIVATE]: 'admin_management',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_ROLE_CHANGE]: 'admin_management',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_PERMISSION_CHANGE]: 'admin_management',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_LEVEL_CHANGE]: 'admin_management',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_DEPARTMENT_CHANGE]: 'admin_management',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_TEAM_CHANGE]: 'admin_management',
+
+  // Content Management
+  [ADMIN_ACTIVITY_TYPE.CONTENT_CREATE]: 'content_management',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_UPDATE]: 'content_management',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_DELETE]: 'content_management',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_VIEW]: 'content_management',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_LIST]: 'content_management',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_SEARCH]: 'content_management',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_PUBLISH]: 'content_management',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_UNPUBLISH]: 'content_management',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_ARCHIVE]: 'content_management',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_RESTORE]: 'content_management',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_APPROVE]: 'content_management',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_REJECT]: 'content_management',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_REVIEW]: 'content_management',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_RATING]: 'content_management',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_COMMENT]: 'content_management',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_SHARE]: 'content_management',
+
+  // Product Management
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_CREATE]: 'product_management',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_UPDATE]: 'product_management',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_DELETE]: 'product_management',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_VIEW]: 'product_management',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_LIST]: 'product_management',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_SEARCH]: 'product_management',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_APPROVE]: 'product_management',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_REJECT]: 'product_management',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_FEATURE]: 'product_management',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_UNFEATURE]: 'product_management',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_ARCHIVE]: 'product_management',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_RESTORE]: 'product_management',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_INVENTORY_UPDATE]: 'product_management',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_PRICE_UPDATE]: 'product_management',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_CATEGORY_CHANGE]: 'product_management',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_BRAND_CHANGE]: 'product_management',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_REVIEW_UPDATE]: 'product_management',
+
+  // Order Management
+  [ADMIN_ACTIVITY_TYPE.ORDER_CREATE]: 'order_management',
+  [ADMIN_ACTIVITY_TYPE.ORDER_UPDATE]: 'order_management',
+  [ADMIN_ACTIVITY_TYPE.ORDER_DELETE]: 'order_management',
+  [ADMIN_ACTIVITY_TYPE.ORDER_VIEW]: 'order_management',
+  [ADMIN_ACTIVITY_TYPE.ORDER_LIST]: 'order_management',
+  [ADMIN_ACTIVITY_TYPE.ORDER_SEARCH]: 'order_management',
+  [ADMIN_ACTIVITY_TYPE.ORDER_CANCEL]: 'order_management',
+  [ADMIN_ACTIVITY_TYPE.ORDER_REFUND]: 'order_management',
+  [ADMIN_ACTIVITY_TYPE.ORDER_SHIP]: 'order_management',
+  [ADMIN_ACTIVITY_TYPE.ORDER_DELIVER]: 'order_management',
+  [ADMIN_ACTIVITY_TYPE.ORDER_RETURN]: 'order_management',
+  [ADMIN_ACTIVITY_TYPE.ORDER_ARCHIVE]: 'order_management',
+  [ADMIN_ACTIVITY_TYPE.ORDER_STATUS_CHANGE]: 'order_management',
+  [ADMIN_ACTIVITY_TYPE.ORDER_PAYMENT_UPDATE]: 'order_management',
+  [ADMIN_ACTIVITY_TYPE.ORDER_SHIPPING_UPDATE]: 'order_management',
+
+  // Payment Management
+  [ADMIN_ACTIVITY_TYPE.PAYMENT_PROCESS]: 'payment_management',
+  [ADMIN_ACTIVITY_TYPE.PAYMENT_VERIFY]: 'payment_management',
+  [ADMIN_ACTIVITY_TYPE.PAYMENT_REFUND]: 'payment_management',
+  [ADMIN_ACTIVITY_TYPE.PAYMENT_CAPTURE]: 'payment_management',
+  [ADMIN_ACTIVITY_TYPE.PAYMENT_VOID]: 'payment_management',
+  [ADMIN_ACTIVITY_TYPE.PAYMENT_VIEW]: 'payment_management',
+  [ADMIN_ACTIVITY_TYPE.PAYMENT_LIST]: 'payment_management',
+  [ADMIN_ACTIVITY_TYPE.PAYMENT_RECONCILE]: 'payment_management',
+  [ADMIN_ACTIVITY_TYPE.PAYMENT_SETTLEMENT]: 'payment_management',
+
+  // System Management
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_BACKUP]: 'system_management',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_RESTORE]: 'system_management',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_UPDATE]: 'system_management',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_UPGRADE]: 'system_management',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_MAINTENANCE]: 'system_management',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_CONFIG_UPDATE]: 'system_management',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_CACHE_CLEAR]: 'system_management',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_QUEUE_PROCESS]: 'system_management',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_DB_MIGRATE]: 'system_management',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_DB_SEED]: 'system_management',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_LOG_CLEAR]: 'system_management',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_REPORT_GENERATE]: 'system_management',
+
+  // Security
+  [ADMIN_ACTIVITY_TYPE.SECURITY_AUDIT]: 'security',
+  [ADMIN_ACTIVITY_TYPE.SECURITY_SCAN]: 'security',
+  [ADMIN_ACTIVITY_TYPE.SECURITY_ALERT]: 'security',
+  [ADMIN_ACTIVITY_TYPE.SECURITY_IP_BLOCK]: 'security',
+  [ADMIN_ACTIVITY_TYPE.SECURITY_IP_UNBLOCK]: 'security',
+  [ADMIN_ACTIVITY_TYPE.SECURITY_RATE_LIMIT]: 'security',
+  [ADMIN_ACTIVITY_TYPE.SECURITY_FIREWALL_UPDATE]: 'security',
+  [ADMIN_ACTIVITY_TYPE.SECURITY_SSL_UPDATE]: 'security',
+
+  // Analytics
+  [ADMIN_ACTIVITY_TYPE.ANALYTICS_VIEW]: 'analytics',
+  [ADMIN_ACTIVITY_TYPE.ANALYTICS_EXPORT]: 'analytics',
+  [ADMIN_ACTIVITY_TYPE.ANALYTICS_REPORT]: 'analytics',
+  [ADMIN_ACTIVITY_TYPE.ANALYTICS_DASHBOARD]: 'analytics',
+
+  // Support
+  [ADMIN_ACTIVITY_TYPE.TICKET_CREATE]: 'support',
+  [ADMIN_ACTIVITY_TYPE.TICKET_UPDATE]: 'support',
+  [ADMIN_ACTIVITY_TYPE.TICKET_DELETE]: 'support',
+  [ADMIN_ACTIVITY_TYPE.TICKET_VIEW]: 'support',
+  [ADMIN_ACTIVITY_TYPE.TICKET_LIST]: 'support',
+  [ADMIN_ACTIVITY_TYPE.TICKET_ASSIGN]: 'support',
+  [ADMIN_ACTIVITY_TYPE.TICKET_UNASSIGN]: 'support',
+  [ADMIN_ACTIVITY_TYPE.TICKET_ESCALATE]: 'support',
+  [ADMIN_ACTIVITY_TYPE.TICKET_RESOLVE]: 'support',
+  [ADMIN_ACTIVITY_TYPE.TICKET_CLOSE]: 'support',
+  [ADMIN_ACTIVITY_TYPE.TICKET_REOPEN]: 'support',
+
+  // Logistics
+  [ADMIN_ACTIVITY_TYPE.SHIPMENT_CREATE]: 'logistics',
+  [ADMIN_ACTIVITY_TYPE.SHIPMENT_UPDATE]: 'logistics',
+  [ADMIN_ACTIVITY_TYPE.SHIPMENT_DELETE]: 'logistics',
+  [ADMIN_ACTIVITY_TYPE.SHIPMENT_VIEW]: 'logistics',
+  [ADMIN_ACTIVITY_TYPE.SHIPMENT_TRACK]: 'logistics',
+  [ADMIN_ACTIVITY_TYPE.SHIPMENT_DELIVER]: 'logistics',
+  [ADMIN_ACTIVITY_TYPE.SHIPMENT_RETURN]: 'logistics',
+
+  // Vendor Management
+  [ADMIN_ACTIVITY_TYPE.VENDOR_CREATE]: 'vendor_management',
+  [ADMIN_ACTIVITY_TYPE.VENDOR_UPDATE]: 'vendor_management',
+  [ADMIN_ACTIVITY_TYPE.VENDOR_DELETE]: 'vendor_management',
+  [ADMIN_ACTIVITY_TYPE.VENDOR_VIEW]: 'vendor_management',
+  [ADMIN_ACTIVITY_TYPE.VENDOR_APPROVE]: 'vendor_management',
+  [ADMIN_ACTIVITY_TYPE.VENDOR_REJECT]: 'vendor_management',
+  [ADMIN_ACTIVITY_TYPE.VENDOR_SUSPEND]: 'vendor_management',
+  [ADMIN_ACTIVITY_TYPE.VENDOR_UNSUSPEND]: 'vendor_management',
+  [ADMIN_ACTIVITY_TYPE.VENDOR_VERIFY]: 'vendor_management',
+  [ADMIN_ACTIVITY_TYPE.VENDOR_PAYOUT]: 'vendor_management',
+
+  // Marketing
+  [ADMIN_ACTIVITY_TYPE.CAMPAIGN_CREATE]: 'marketing',
+  [ADMIN_ACTIVITY_TYPE.CAMPAIGN_UPDATE]: 'marketing',
+  [ADMIN_ACTIVITY_TYPE.CAMPAIGN_DELETE]: 'marketing',
+  [ADMIN_ACTIVITY_TYPE.CAMPAIGN_VIEW]: 'marketing',
+  [ADMIN_ACTIVITY_TYPE.CAMPAIGN_START]: 'marketing',
+  [ADMIN_ACTIVITY_TYPE.CAMPAIGN_STOP]: 'marketing',
+  [ADMIN_ACTIVITY_TYPE.CAMPAIGN_PAUSE]: 'marketing',
+  [ADMIN_ACTIVITY_TYPE.CAMPAIGN_RESUME]: 'marketing',
+
+  // Notification
+  [ADMIN_ACTIVITY_TYPE.NOTIFICATION_SEND]: 'notification',
+  [ADMIN_ACTIVITY_TYPE.NOTIFICATION_VIEW]: 'notification',
+  [ADMIN_ACTIVITY_TYPE.NOTIFICATION_DELETE]: 'notification',
+  [ADMIN_ACTIVITY_TYPE.NOTIFICATION_BROADCAST]: 'notification',
+};
+
+export const ADMIN_ACTIVITY_TYPE_LABELS_DETAIL: Record<AdminActivityTypeDetail, string> = {
+  // Authentication
+  [ADMIN_ACTIVITY_TYPE.LOGIN]: 'User Login',
+  [ADMIN_ACTIVITY_TYPE.LOGOUT]: 'User Logout',
+  [ADMIN_ACTIVITY_TYPE.LOGIN_FAILED]: 'Login Failed',
+  [ADMIN_ACTIVITY_TYPE.LOGOUT_FAILED]: 'Logout Failed',
+  [ADMIN_ACTIVITY_TYPE.PASSWORD_RESET]: 'Password Reset',
+  [ADMIN_ACTIVITY_TYPE.PASSWORD_CHANGE]: 'Password Change',
+  [ADMIN_ACTIVITY_TYPE.PASSWORD_RESET_REQUEST]: 'Password Reset Request',
+  [ADMIN_ACTIVITY_TYPE.TWO_FA_ENABLE]: '2FA Enabled',
+  [ADMIN_ACTIVITY_TYPE.TWO_FA_DISABLE]: '2FA Disabled',
+  [ADMIN_ACTIVITY_TYPE.TWO_FA_VERIFY]: '2FA Verified',
+  [ADMIN_ACTIVITY_TYPE.TWO_FA_FAILED]: '2FA Failed',
+  [ADMIN_ACTIVITY_TYPE.SESSION_CREATE]: 'Session Created',
+  [ADMIN_ACTIVITY_TYPE.SESSION_DESTROY]: 'Session Destroyed',
+  [ADMIN_ACTIVITY_TYPE.SESSION_EXPIRE]: 'Session Expired',
+  [ADMIN_ACTIVITY_TYPE.SESSION_REFRESH]: 'Session Refreshed',
+
+  // User Management
+  [ADMIN_ACTIVITY_TYPE.USER_CREATE]: 'User Created',
+  [ADMIN_ACTIVITY_TYPE.USER_UPDATE]: 'User Updated',
+  [ADMIN_ACTIVITY_TYPE.USER_DELETE]: 'User Deleted',
+  [ADMIN_ACTIVITY_TYPE.USER_VIEW]: 'User Viewed',
+  [ADMIN_ACTIVITY_TYPE.USER_LIST]: 'User List Viewed',
+  [ADMIN_ACTIVITY_TYPE.USER_SEARCH]: 'User Search Performed',
+  [ADMIN_ACTIVITY_TYPE.USER_BAN]: 'User Banned',
+  [ADMIN_ACTIVITY_TYPE.USER_UNBAN]: 'User Unbanned',
+  [ADMIN_ACTIVITY_TYPE.USER_SUSPEND]: 'User Suspended',
+  [ADMIN_ACTIVITY_TYPE.USER_UNSUSPEND]: 'User Unsuspended',
+  [ADMIN_ACTIVITY_TYPE.USER_VERIFY]: 'User Verified',
+  [ADMIN_ACTIVITY_TYPE.USER_UNVERIFY]: 'User Unverified',
+  [ADMIN_ACTIVITY_TYPE.USER_ACTIVATE]: 'User Activated',
+  [ADMIN_ACTIVITY_TYPE.USER_DEACTIVATE]: 'User Deactivated',
+  [ADMIN_ACTIVITY_TYPE.USER_ROLE_CHANGE]: 'User Role Changed',
+  [ADMIN_ACTIVITY_TYPE.USER_PERMISSION_CHANGE]: 'User Permissions Changed',
+  [ADMIN_ACTIVITY_TYPE.USER_PASSWORD_RESET]: 'User Password Reset',
+  [ADMIN_ACTIVITY_TYPE.USER_PASSWORD_CHANGE]: 'User Password Changed',
+  [ADMIN_ACTIVITY_TYPE.USER_PROFILE_UPDATE]: 'User Profile Updated',
+  [ADMIN_ACTIVITY_TYPE.USER_PREFERENCES_UPDATE]: 'User Preferences Updated',
+  [ADMIN_ACTIVITY_TYPE.USER_SETTINGS_UPDATE]: 'User Settings Updated',
+
+  // Admin Management
+  [ADMIN_ACTIVITY_TYPE.ADMIN_CREATE]: 'Admin Created',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_UPDATE]: 'Admin Updated',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_DELETE]: 'Admin Deleted',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_VIEW]: 'Admin Viewed',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_LIST]: 'Admin List Viewed',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_SUSPEND]: 'Admin Suspended',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_UNSUSPEND]: 'Admin Unsuspended',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_ACTIVATE]: 'Admin Activated',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_DEACTIVATE]: 'Admin Deactivated',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_ROLE_CHANGE]: 'Admin Role Changed',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_PERMISSION_CHANGE]: 'Admin Permissions Changed',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_LEVEL_CHANGE]: 'Admin Level Changed',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_DEPARTMENT_CHANGE]: 'Admin Department Changed',
+  [ADMIN_ACTIVITY_TYPE.ADMIN_TEAM_CHANGE]: 'Admin Team Changed',
+
+  // Content Management
+  [ADMIN_ACTIVITY_TYPE.CONTENT_CREATE]: 'Content Created',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_UPDATE]: 'Content Updated',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_DELETE]: 'Content Deleted',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_VIEW]: 'Content Viewed',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_LIST]: 'Content List Viewed',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_SEARCH]: 'Content Search Performed',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_PUBLISH]: 'Content Published',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_UNPUBLISH]: 'Content Unpublished',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_ARCHIVE]: 'Content Archived',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_RESTORE]: 'Content Restored',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_APPROVE]: 'Content Approved',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_REJECT]: 'Content Rejected',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_REVIEW]: 'Content Reviewed',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_RATING]: 'Content Rated',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_COMMENT]: 'Content Commented',
+  [ADMIN_ACTIVITY_TYPE.CONTENT_SHARE]: 'Content Shared',
+
+  // Product Management
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_CREATE]: 'Product Created',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_UPDATE]: 'Product Updated',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_DELETE]: 'Product Deleted',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_VIEW]: 'Product Viewed',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_LIST]: 'Product List Viewed',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_SEARCH]: 'Product Search Performed',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_APPROVE]: 'Product Approved',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_REJECT]: 'Product Rejected',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_FEATURE]: 'Product Featured',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_UNFEATURE]: 'Product Unfeatured',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_ARCHIVE]: 'Product Archived',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_RESTORE]: 'Product Restored',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_INVENTORY_UPDATE]: 'Product Inventory Updated',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_PRICE_UPDATE]: 'Product Price Updated',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_CATEGORY_CHANGE]: 'Product Category Changed',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_BRAND_CHANGE]: 'Product Brand Changed',
+  [ADMIN_ACTIVITY_TYPE.PRODUCT_REVIEW_UPDATE]: 'Product Review Updated',
+
+  // Order Management
+  [ADMIN_ACTIVITY_TYPE.ORDER_CREATE]: 'Order Created',
+  [ADMIN_ACTIVITY_TYPE.ORDER_UPDATE]: 'Order Updated',
+  [ADMIN_ACTIVITY_TYPE.ORDER_DELETE]: 'Order Deleted',
+  [ADMIN_ACTIVITY_TYPE.ORDER_VIEW]: 'Order Viewed',
+  [ADMIN_ACTIVITY_TYPE.ORDER_LIST]: 'Order List Viewed',
+  [ADMIN_ACTIVITY_TYPE.ORDER_SEARCH]: 'Order Search Performed',
+  [ADMIN_ACTIVITY_TYPE.ORDER_CANCEL]: 'Order Cancelled',
+  [ADMIN_ACTIVITY_TYPE.ORDER_REFUND]: 'Order Refunded',
+  [ADMIN_ACTIVITY_TYPE.ORDER_SHIP]: 'Order Shipped',
+  [ADMIN_ACTIVITY_TYPE.ORDER_DELIVER]: 'Order Delivered',
+  [ADMIN_ACTIVITY_TYPE.ORDER_RETURN]: 'Order Returned',
+  [ADMIN_ACTIVITY_TYPE.ORDER_ARCHIVE]: 'Order Archived',
+  [ADMIN_ACTIVITY_TYPE.ORDER_STATUS_CHANGE]: 'Order Status Changed',
+  [ADMIN_ACTIVITY_TYPE.ORDER_PAYMENT_UPDATE]: 'Order Payment Updated',
+  [ADMIN_ACTIVITY_TYPE.ORDER_SHIPPING_UPDATE]: 'Order Shipping Updated',
+
+  // Payment Management
+  [ADMIN_ACTIVITY_TYPE.PAYMENT_PROCESS]: 'Payment Processed',
+  [ADMIN_ACTIVITY_TYPE.PAYMENT_VERIFY]: 'Payment Verified',
+  [ADMIN_ACTIVITY_TYPE.PAYMENT_REFUND]: 'Payment Refunded',
+  [ADMIN_ACTIVITY_TYPE.PAYMENT_CAPTURE]: 'Payment Captured',
+  [ADMIN_ACTIVITY_TYPE.PAYMENT_VOID]: 'Payment Voided',
+  [ADMIN_ACTIVITY_TYPE.PAYMENT_VIEW]: 'Payment Viewed',
+  [ADMIN_ACTIVITY_TYPE.PAYMENT_LIST]: 'Payment List Viewed',
+  [ADMIN_ACTIVITY_TYPE.PAYMENT_RECONCILE]: 'Payment Reconciled',
+  [ADMIN_ACTIVITY_TYPE.PAYMENT_SETTLEMENT]: 'Payment Settled',
+
+  // System Management
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_BACKUP]: 'System Backup Created',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_RESTORE]: 'System Restored',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_UPDATE]: 'System Updated',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_UPGRADE]: 'System Upgraded',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_MAINTENANCE]: 'System Maintenance Performed',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_CONFIG_UPDATE]: 'System Config Updated',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_CACHE_CLEAR]: 'System Cache Cleared',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_QUEUE_PROCESS]: 'System Queue Processed',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_DB_MIGRATE]: 'Database Migration Run',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_DB_SEED]: 'Database Seeded',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_LOG_CLEAR]: 'System Logs Cleared',
+  [ADMIN_ACTIVITY_TYPE.SYSTEM_REPORT_GENERATE]: 'System Report Generated',
+
+  // Security
+  [ADMIN_ACTIVITY_TYPE.SECURITY_AUDIT]: 'Security Audit Performed',
+  [ADMIN_ACTIVITY_TYPE.SECURITY_SCAN]: 'Security Scan Performed',
+  [ADMIN_ACTIVITY_TYPE.SECURITY_ALERT]: 'Security Alert Triggered',
+  [ADMIN_ACTIVITY_TYPE.SECURITY_IP_BLOCK]: 'IP Blocked',
+  [ADMIN_ACTIVITY_TYPE.SECURITY_IP_UNBLOCK]: 'IP Unblocked',
+  [ADMIN_ACTIVITY_TYPE.SECURITY_RATE_LIMIT]: 'Rate Limit Applied',
+  [ADMIN_ACTIVITY_TYPE.SECURITY_FIREWALL_UPDATE]: 'Firewall Updated',
+  [ADMIN_ACTIVITY_TYPE.SECURITY_SSL_UPDATE]: 'SSL Certificate Updated',
+
+  // Analytics
+  [ADMIN_ACTIVITY_TYPE.ANALYTICS_VIEW]: 'Analytics Viewed',
+  [ADMIN_ACTIVITY_TYPE.ANALYTICS_EXPORT]: 'Analytics Exported',
+  [ADMIN_ACTIVITY_TYPE.ANALYTICS_REPORT]: 'Analytics Report Generated',
+  [ADMIN_ACTIVITY_TYPE.ANALYTICS_DASHBOARD]: 'Analytics Dashboard Viewed',
+
+  // Support
+  [ADMIN_ACTIVITY_TYPE.TICKET_CREATE]: 'Support Ticket Created',
+  [ADMIN_ACTIVITY_TYPE.TICKET_UPDATE]: 'Support Ticket Updated',
+  [ADMIN_ACTIVITY_TYPE.TICKET_DELETE]: 'Support Ticket Deleted',
+  [ADMIN_ACTIVITY_TYPE.TICKET_VIEW]: 'Support Ticket Viewed',
+  [ADMIN_ACTIVITY_TYPE.TICKET_LIST]: 'Support Ticket List Viewed',
+  [ADMIN_ACTIVITY_TYPE.TICKET_ASSIGN]: 'Support Ticket Assigned',
+  [ADMIN_ACTIVITY_TYPE.TICKET_UNASSIGN]: 'Support Ticket Unassigned',
+  [ADMIN_ACTIVITY_TYPE.TICKET_ESCALATE]: 'Support Ticket Escalated',
+  [ADMIN_ACTIVITY_TYPE.TICKET_RESOLVE]: 'Support Ticket Resolved',
+  [ADMIN_ACTIVITY_TYPE.TICKET_CLOSE]: 'Support Ticket Closed',
+  [ADMIN_ACTIVITY_TYPE.TICKET_REOPEN]: 'Support Ticket Reopened',
+
+  // Logistics
+  [ADMIN_ACTIVITY_TYPE.SHIPMENT_CREATE]: 'Shipment Created',
+  [ADMIN_ACTIVITY_TYPE.SHIPMENT_UPDATE]: 'Shipment Updated',
+  [ADMIN_ACTIVITY_TYPE.SHIPMENT_DELETE]: 'Shipment Deleted',
+  [ADMIN_ACTIVITY_TYPE.SHIPMENT_VIEW]: 'Shipment Viewed',
+  [ADMIN_ACTIVITY_TYPE.SHIPMENT_TRACK]: 'Shipment Tracked',
+  [ADMIN_ACTIVITY_TYPE.SHIPMENT_DELIVER]: 'Shipment Delivered',
+  [ADMIN_ACTIVITY_TYPE.SHIPMENT_RETURN]: 'Shipment Returned',
+
+  // Vendor Management
+  [ADMIN_ACTIVITY_TYPE.VENDOR_CREATE]: 'Vendor Created',
+  [ADMIN_ACTIVITY_TYPE.VENDOR_UPDATE]: 'Vendor Updated',
+  [ADMIN_ACTIVITY_TYPE.VENDOR_DELETE]: 'Vendor Deleted',
+  [ADMIN_ACTIVITY_TYPE.VENDOR_VIEW]: 'Vendor Viewed',
+  [ADMIN_ACTIVITY_TYPE.VENDOR_APPROVE]: 'Vendor Approved',
+  [ADMIN_ACTIVITY_TYPE.VENDOR_REJECT]: 'Vendor Rejected',
+  [ADMIN_ACTIVITY_TYPE.VENDOR_SUSPEND]: 'Vendor Suspended',
+  [ADMIN_ACTIVITY_TYPE.VENDOR_UNSUSPEND]: 'Vendor Unsuspended',
+  [ADMIN_ACTIVITY_TYPE.VENDOR_VERIFY]: 'Vendor Verified',
+  [ADMIN_ACTIVITY_TYPE.VENDOR_PAYOUT]: 'Vendor Payout Processed',
+
+  // Marketing
+  [ADMIN_ACTIVITY_TYPE.CAMPAIGN_CREATE]: 'Campaign Created',
+  [ADMIN_ACTIVITY_TYPE.CAMPAIGN_UPDATE]: 'Campaign Updated',
+  [ADMIN_ACTIVITY_TYPE.CAMPAIGN_DELETE]: 'Campaign Deleted',
+  [ADMIN_ACTIVITY_TYPE.CAMPAIGN_VIEW]: 'Campaign Viewed',
+  [ADMIN_ACTIVITY_TYPE.CAMPAIGN_START]: 'Campaign Started',
+  [ADMIN_ACTIVITY_TYPE.CAMPAIGN_STOP]: 'Campaign Stopped',
+  [ADMIN_ACTIVITY_TYPE.CAMPAIGN_PAUSE]: 'Campaign Paused',
+  [ADMIN_ACTIVITY_TYPE.CAMPAIGN_RESUME]: 'Campaign Resumed',
+
+  // Notification
+  [ADMIN_ACTIVITY_TYPE.NOTIFICATION_SEND]: 'Notification Sent',
+  [ADMIN_ACTIVITY_TYPE.NOTIFICATION_VIEW]: 'Notification Viewed',
+  [ADMIN_ACTIVITY_TYPE.NOTIFICATION_DELETE]: 'Notification Deleted',
+  [ADMIN_ACTIVITY_TYPE.NOTIFICATION_BROADCAST]: 'Notification Broadcasted',
+};
+
+export function getAdminActivityTypeCategory(type: AdminActivityTypeDetail): string {
+  return ADMIN_ACTIVITY_TYPE_CATEGORIES[type] || 'other';
+}
+
+export function getAdminActivityTypeLabel(type: AdminActivityTypeDetail): string {
+  return ADMIN_ACTIVITY_TYPE_LABELS_DETAIL[type] || 'Unknown Activity';
+}
+
+export function isAuthActivity(type: AdminActivityTypeDetail): boolean {
+  return getAdminActivityTypeCategory(type) === 'authentication';
+}
+
+export function isUserManagementActivity(type: AdminActivityTypeDetail): boolean {
+  return getAdminActivityTypeCategory(type) === 'user_management';
+}
+
+export function isSystemActivity(type: AdminActivityTypeDetail): boolean {
+  return getAdminActivityTypeCategory(type) === 'system_management';
+}
+
+export function isSecurityActivity(type: AdminActivityTypeDetail): boolean {
+  return getAdminActivityTypeCategory(type) === 'security';
+}

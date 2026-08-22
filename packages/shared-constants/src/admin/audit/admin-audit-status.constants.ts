@@ -1,0 +1,315 @@
+/**
+ * Admin Audit Status Constants
+ * Detailed audit status definitions
+ */
+
+export const ADMIN_AUDIT_STATUS = {
+  // Basic statuses
+  SUCCESS: 'success',
+  FAILED: 'failed',
+  PENDING: 'pending',
+  PROCESSING: 'processing',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled',
+  ERROR: 'error',
+  TIMEOUT: 'timeout',
+  RETRY: 'retry',
+  SKIPPED: 'skipped',
+  ABORTED: 'aborted',
+
+  // Extended statuses
+  INITIATED: 'initiated',
+  QUEUED: 'queued',
+  RUNNING: 'running',
+  PAUSED: 'paused',
+  RESUMED: 'resumed',
+  STOPPED: 'stopped',
+  EXPIRED: 'expired',
+  REJECTED: 'rejected',
+  APPROVED: 'approved',
+  VERIFIED: 'verified',
+  VALIDATED: 'validated',
+  AUTHENTICATED: 'authenticated',
+  AUTHORIZED: 'authorized',
+  DECLINED: 'declined',
+  ACCEPTED: 'accepted',
+  RECEIVED: 'received',
+  PROCESSED: 'processed',
+
+  // Audit specific statuses
+  REVIEWED: 'reviewed',
+  AUDITED: 'audited',
+  COMPLIANT: 'compliant',
+  NON_COMPLIANT: 'non_compliant',
+  RESOLVED: 'resolved',
+  UNRESOLVED: 'unresolved',
+  ESCALATED: 'escalated',
+  DE_ESCALATED: 'de_escalated',
+  ACKNOWLEDGED: 'acknowledged',
+  UNADDRESSED: 'unaddressed',
+  MITIGATED: 'mitigated',
+  REMEDIATED: 'remediated',
+  CLOSED: 'closed',
+  REOPENED: 'reopened',
+} as const;
+
+export type AdminAuditStatusDetail = (typeof ADMIN_AUDIT_STATUS)[keyof typeof ADMIN_AUDIT_STATUS];
+
+export const ADMIN_AUDIT_STATUS_LABELS_DETAIL: Record<AdminAuditStatusDetail, string> = {
+  [ADMIN_AUDIT_STATUS.SUCCESS]: 'Success',
+  [ADMIN_AUDIT_STATUS.FAILED]: 'Failed',
+  [ADMIN_AUDIT_STATUS.PENDING]: 'Pending',
+  [ADMIN_AUDIT_STATUS.PROCESSING]: 'Processing',
+  [ADMIN_AUDIT_STATUS.COMPLETED]: 'Completed',
+  [ADMIN_AUDIT_STATUS.CANCELLED]: 'Cancelled',
+  [ADMIN_AUDIT_STATUS.ERROR]: 'Error',
+  [ADMIN_AUDIT_STATUS.TIMEOUT]: 'Timeout',
+  [ADMIN_AUDIT_STATUS.RETRY]: 'Retry',
+  [ADMIN_AUDIT_STATUS.SKIPPED]: 'Skipped',
+  [ADMIN_AUDIT_STATUS.ABORTED]: 'Aborted',
+  [ADMIN_AUDIT_STATUS.INITIATED]: 'Initiated',
+  [ADMIN_AUDIT_STATUS.QUEUED]: 'Queued',
+  [ADMIN_AUDIT_STATUS.RUNNING]: 'Running',
+  [ADMIN_AUDIT_STATUS.PAUSED]: 'Paused',
+  [ADMIN_AUDIT_STATUS.RESUMED]: 'Resumed',
+  [ADMIN_AUDIT_STATUS.STOPPED]: 'Stopped',
+  [ADMIN_AUDIT_STATUS.EXPIRED]: 'Expired',
+  [ADMIN_AUDIT_STATUS.REJECTED]: 'Rejected',
+  [ADMIN_AUDIT_STATUS.APPROVED]: 'Approved',
+  [ADMIN_AUDIT_STATUS.VERIFIED]: 'Verified',
+  [ADMIN_AUDIT_STATUS.VALIDATED]: 'Validated',
+  [ADMIN_AUDIT_STATUS.AUTHENTICATED]: 'Authenticated',
+  [ADMIN_AUDIT_STATUS.AUTHORIZED]: 'Authorized',
+  [ADMIN_AUDIT_STATUS.DECLINED]: 'Declined',
+  [ADMIN_AUDIT_STATUS.ACCEPTED]: 'Accepted',
+  [ADMIN_AUDIT_STATUS.RECEIVED]: 'Received',
+  [ADMIN_AUDIT_STATUS.PROCESSED]: 'Processed',
+  [ADMIN_AUDIT_STATUS.REVIEWED]: 'Reviewed',
+  [ADMIN_AUDIT_STATUS.AUDITED]: 'Audited',
+  [ADMIN_AUDIT_STATUS.COMPLIANT]: 'Compliant',
+  [ADMIN_AUDIT_STATUS.NON_COMPLIANT]: 'Non-Compliant',
+  [ADMIN_AUDIT_STATUS.RESOLVED]: 'Resolved',
+  [ADMIN_AUDIT_STATUS.UNRESOLVED]: 'Unresolved',
+  [ADMIN_AUDIT_STATUS.ESCALATED]: 'Escalated',
+  [ADMIN_AUDIT_STATUS.DE_ESCALATED]: 'De-escalated',
+  [ADMIN_AUDIT_STATUS.ACKNOWLEDGED]: 'Acknowledged',
+  [ADMIN_AUDIT_STATUS.UNADDRESSED]: 'Unaddressed',
+  [ADMIN_AUDIT_STATUS.MITIGATED]: 'Mitigated',
+  [ADMIN_AUDIT_STATUS.REMEDIATED]: 'Remediated',
+  [ADMIN_AUDIT_STATUS.CLOSED]: 'Closed',
+  [ADMIN_AUDIT_STATUS.REOPENED]: 'Reopened',
+};
+
+export const ADMIN_AUDIT_STATUS_COLORS_DETAIL: Record<AdminAuditStatusDetail, string> = {
+  [ADMIN_AUDIT_STATUS.SUCCESS]: '#10B981',
+  [ADMIN_AUDIT_STATUS.FAILED]: '#EF4444',
+  [ADMIN_AUDIT_STATUS.PENDING]: '#F59E0B',
+  [ADMIN_AUDIT_STATUS.PROCESSING]: '#3B82F6',
+  [ADMIN_AUDIT_STATUS.COMPLETED]: '#34D399',
+  [ADMIN_AUDIT_STATUS.CANCELLED]: '#6B7280',
+  [ADMIN_AUDIT_STATUS.ERROR]: '#DC2626',
+  [ADMIN_AUDIT_STATUS.TIMEOUT]: '#F97316',
+  [ADMIN_AUDIT_STATUS.RETRY]: '#8B5CF6',
+  [ADMIN_AUDIT_STATUS.SKIPPED]: '#9CA3AF',
+  [ADMIN_AUDIT_STATUS.ABORTED]: '#7F1D1D',
+  [ADMIN_AUDIT_STATUS.INITIATED]: '#93C5FD',
+  [ADMIN_AUDIT_STATUS.QUEUED]: '#A7F3D0',
+  [ADMIN_AUDIT_STATUS.RUNNING]: '#34D399',
+  [ADMIN_AUDIT_STATUS.PAUSED]: '#FCD34D',
+  [ADMIN_AUDIT_STATUS.RESUMED]: '#6EE7B7',
+  [ADMIN_AUDIT_STATUS.STOPPED]: '#D1D5DB',
+  [ADMIN_AUDIT_STATUS.EXPIRED]: '#9CA3AF',
+  [ADMIN_AUDIT_STATUS.REJECTED]: '#EF4444',
+  [ADMIN_AUDIT_STATUS.APPROVED]: '#10B981',
+  [ADMIN_AUDIT_STATUS.VERIFIED]: '#34D399',
+  [ADMIN_AUDIT_STATUS.VALIDATED]: '#60A5FA',
+  [ADMIN_AUDIT_STATUS.AUTHENTICATED]: '#818CF8',
+  [ADMIN_AUDIT_STATUS.AUTHORIZED]: '#A78BFA',
+  [ADMIN_AUDIT_STATUS.DECLINED]: '#F87171',
+  [ADMIN_AUDIT_STATUS.ACCEPTED]: '#6EE7B7',
+  [ADMIN_AUDIT_STATUS.RECEIVED]: '#93C5FD',
+  [ADMIN_AUDIT_STATUS.PROCESSED]: '#34D399',
+  [ADMIN_AUDIT_STATUS.REVIEWED]: '#60A5FA',
+  [ADMIN_AUDIT_STATUS.AUDITED]: '#818CF8',
+  [ADMIN_AUDIT_STATUS.COMPLIANT]: '#10B981',
+  [ADMIN_AUDIT_STATUS.NON_COMPLIANT]: '#EF4444',
+  [ADMIN_AUDIT_STATUS.RESOLVED]: '#34D399',
+  [ADMIN_AUDIT_STATUS.UNRESOLVED]: '#F59E0B',
+  [ADMIN_AUDIT_STATUS.ESCALATED]: '#F97316',
+  [ADMIN_AUDIT_STATUS.DE_ESCALATED]: '#6EE7B7',
+  [ADMIN_AUDIT_STATUS.ACKNOWLEDGED]: '#93C5FD',
+  [ADMIN_AUDIT_STATUS.UNADDRESSED]: '#9CA3AF',
+  [ADMIN_AUDIT_STATUS.MITIGATED]: '#34D399',
+  [ADMIN_AUDIT_STATUS.REMEDIATED]: '#10B981',
+  [ADMIN_AUDIT_STATUS.CLOSED]: '#6B7280',
+  [ADMIN_AUDIT_STATUS.REOPENED]: '#F59E0B',
+};
+
+export const ADMIN_AUDIT_STATUS_GROUPS = {
+  SUCCESS: [
+    ADMIN_AUDIT_STATUS.SUCCESS,
+    ADMIN_AUDIT_STATUS.COMPLETED,
+    ADMIN_AUDIT_STATUS.APPROVED,
+    ADMIN_AUDIT_STATUS.VERIFIED,
+    ADMIN_AUDIT_STATUS.VALIDATED,
+    ADMIN_AUDIT_STATUS.AUTHENTICATED,
+    ADMIN_AUDIT_STATUS.AUTHORIZED,
+    ADMIN_AUDIT_STATUS.ACCEPTED,
+    ADMIN_AUDIT_STATUS.RECEIVED,
+    ADMIN_AUDIT_STATUS.PROCESSED,
+    ADMIN_AUDIT_STATUS.REVIEWED,
+    ADMIN_AUDIT_STATUS.AUDITED,
+    ADMIN_AUDIT_STATUS.COMPLIANT,
+    ADMIN_AUDIT_STATUS.RESOLVED,
+    ADMIN_AUDIT_STATUS.MITIGATED,
+    ADMIN_AUDIT_STATUS.REMEDIATED,
+    ADMIN_AUDIT_STATUS.CLOSED,
+  ] as AdminAuditStatusDetail[],
+  FAILURE: [
+    ADMIN_AUDIT_STATUS.FAILED,
+    ADMIN_AUDIT_STATUS.ERROR,
+    ADMIN_AUDIT_STATUS.TIMEOUT,
+    ADMIN_AUDIT_STATUS.CANCELLED,
+    ADMIN_AUDIT_STATUS.ABORTED,
+    ADMIN_AUDIT_STATUS.REJECTED,
+    ADMIN_AUDIT_STATUS.DECLINED,
+    ADMIN_AUDIT_STATUS.EXPIRED,
+    ADMIN_AUDIT_STATUS.NON_COMPLIANT,
+    ADMIN_AUDIT_STATUS.UNRESOLVED,
+    ADMIN_AUDIT_STATUS.UNADDRESSED,
+  ] as AdminAuditStatusDetail[],
+  PENDING: [
+    ADMIN_AUDIT_STATUS.PENDING,
+    ADMIN_AUDIT_STATUS.PROCESSING,
+    ADMIN_AUDIT_STATUS.INITIATED,
+    ADMIN_AUDIT_STATUS.QUEUED,
+    ADMIN_AUDIT_STATUS.RUNNING,
+    ADMIN_AUDIT_STATUS.ESCALATED,
+    ADMIN_AUDIT_STATUS.ACKNOWLEDGED,
+    ADMIN_AUDIT_STATUS.REOPENED,
+  ] as AdminAuditStatusDetail[],
+  INTERMEDIATE: [
+    ADMIN_AUDIT_STATUS.RETRY,
+    ADMIN_AUDIT_STATUS.PAUSED,
+    ADMIN_AUDIT_STATUS.RESUMED,
+    ADMIN_AUDIT_STATUS.STOPPED,
+    ADMIN_AUDIT_STATUS.SKIPPED,
+    ADMIN_AUDIT_STATUS.DE_ESCALATED,
+  ] as AdminAuditStatusDetail[],
+};
+
+export function getAdminAuditStatusLabel(status: AdminAuditStatusDetail): string {
+  return ADMIN_AUDIT_STATUS_LABELS_DETAIL[status] || 'Unknown Status';
+}
+
+export function getAdminAuditStatusColor(status: AdminAuditStatusDetail): string {
+  return ADMIN_AUDIT_STATUS_COLORS_DETAIL[status] || '#6B7280';
+}
+
+export function isSuccessStatus(status: AdminAuditStatusDetail): boolean {
+  return ADMIN_AUDIT_STATUS_GROUPS.SUCCESS.includes(status);
+}
+
+export function isFailureStatus(status: AdminAuditStatusDetail): boolean {
+  return ADMIN_AUDIT_STATUS_GROUPS.FAILURE.includes(status);
+}
+
+export function isPendingStatus(status: AdminAuditStatusDetail): boolean {
+  return ADMIN_AUDIT_STATUS_GROUPS.PENDING.includes(status);
+}
+
+export function isIntermediateStatus(status: AdminAuditStatusDetail): boolean {
+  return ADMIN_AUDIT_STATUS_GROUPS.INTERMEDIATE.includes(status);
+}
+
+export function isTerminalStatus(status: AdminAuditStatusDetail): boolean {
+  return isSuccessStatus(status) || isFailureStatus(status);
+}
+
+export function isActiveStatus(status: AdminAuditStatusDetail): boolean {
+  return isPendingStatus(status) || isIntermediateStatus(status);
+}
+
+export function isCompliantStatus(status: AdminAuditStatusDetail): boolean {
+  return (
+    status === ADMIN_AUDIT_STATUS.COMPLIANT ||
+    status === ADMIN_AUDIT_STATUS.APPROVED ||
+    status === ADMIN_AUDIT_STATUS.VERIFIED
+  );
+}
+
+export function isNonCompliantStatus(status: AdminAuditStatusDetail): boolean {
+  return (
+    status === ADMIN_AUDIT_STATUS.NON_COMPLIANT ||
+    status === ADMIN_AUDIT_STATUS.REJECTED ||
+    status === ADMIN_AUDIT_STATUS.DECLINED
+  );
+}
+
+export function getStatusPriority(status: AdminAuditStatusDetail): number {
+  const priorityMap: Record<AdminAuditStatusDetail, number> = {
+    [ADMIN_AUDIT_STATUS.SUCCESS]: 1,
+    [ADMIN_AUDIT_STATUS.COMPLETED]: 1,
+    [ADMIN_AUDIT_STATUS.APPROVED]: 1,
+    [ADMIN_AUDIT_STATUS.VERIFIED]: 1,
+    [ADMIN_AUDIT_STATUS.VALIDATED]: 1,
+    [ADMIN_AUDIT_STATUS.AUTHENTICATED]: 1,
+    [ADMIN_AUDIT_STATUS.AUTHORIZED]: 1,
+    [ADMIN_AUDIT_STATUS.ACCEPTED]: 1,
+    [ADMIN_AUDIT_STATUS.RECEIVED]: 1,
+    [ADMIN_AUDIT_STATUS.PROCESSED]: 1,
+    [ADMIN_AUDIT_STATUS.REVIEWED]: 1,
+    [ADMIN_AUDIT_STATUS.AUDITED]: 1,
+    [ADMIN_AUDIT_STATUS.COMPLIANT]: 1,
+    [ADMIN_AUDIT_STATUS.RESOLVED]: 1,
+    [ADMIN_AUDIT_STATUS.MITIGATED]: 1,
+    [ADMIN_AUDIT_STATUS.REMEDIATED]: 1,
+    [ADMIN_AUDIT_STATUS.CLOSED]: 1,
+    [ADMIN_AUDIT_STATUS.FAILED]: 5,
+    [ADMIN_AUDIT_STATUS.ERROR]: 5,
+    [ADMIN_AUDIT_STATUS.TIMEOUT]: 4,
+    [ADMIN_AUDIT_STATUS.CANCELLED]: 3,
+    [ADMIN_AUDIT_STATUS.ABORTED]: 4,
+    [ADMIN_AUDIT_STATUS.REJECTED]: 5,
+    [ADMIN_AUDIT_STATUS.DECLINED]: 5,
+    [ADMIN_AUDIT_STATUS.EXPIRED]: 3,
+    [ADMIN_AUDIT_STATUS.NON_COMPLIANT]: 5,
+    [ADMIN_AUDIT_STATUS.UNRESOLVED]: 4,
+    [ADMIN_AUDIT_STATUS.UNADDRESSED]: 4,
+    [ADMIN_AUDIT_STATUS.PENDING]: 2,
+    [ADMIN_AUDIT_STATUS.PROCESSING]: 2,
+    [ADMIN_AUDIT_STATUS.INITIATED]: 2,
+    [ADMIN_AUDIT_STATUS.QUEUED]: 2,
+    [ADMIN_AUDIT_STATUS.RUNNING]: 2,
+    [ADMIN_AUDIT_STATUS.ESCALATED]: 3,
+    [ADMIN_AUDIT_STATUS.ACKNOWLEDGED]: 2,
+    [ADMIN_AUDIT_STATUS.REOPENED]: 2,
+    [ADMIN_AUDIT_STATUS.RETRY]: 3,
+    [ADMIN_AUDIT_STATUS.PAUSED]: 3,
+    [ADMIN_AUDIT_STATUS.RESUMED]: 2,
+    [ADMIN_AUDIT_STATUS.STOPPED]: 3,
+    [ADMIN_AUDIT_STATUS.SKIPPED]: 3,
+    [ADMIN_AUDIT_STATUS.DE_ESCALATED]: 2,
+  };
+  return priorityMap[status] || 3;
+}
+
+export function getAdminAuditStatuses(): AdminAuditStatusDetail[] {
+  return Object.values(ADMIN_AUDIT_STATUS);
+}
+
+export function getSuccessStatuses(): AdminAuditStatusDetail[] {
+  return ADMIN_AUDIT_STATUS_GROUPS.SUCCESS;
+}
+
+export function getFailureStatuses(): AdminAuditStatusDetail[] {
+  return ADMIN_AUDIT_STATUS_GROUPS.FAILURE;
+}
+
+export function getPendingStatuses(): AdminAuditStatusDetail[] {
+  return ADMIN_AUDIT_STATUS_GROUPS.PENDING;
+}
+
+export function getIntermediateStatuses(): AdminAuditStatusDetail[] {
+  return ADMIN_AUDIT_STATUS_GROUPS.INTERMEDIATE;
+}

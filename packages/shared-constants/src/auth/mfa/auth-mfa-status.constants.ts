@@ -1,0 +1,235 @@
+/**
+ * Multi-Factor Authentication Status Constants
+ * Status values for MFA states
+ */
+
+export const AUTH_MFA_STATUS = {
+  // Primary status
+  ENABLED: 'enabled',
+  DISABLED: 'disabled',
+  PENDING: 'pending',
+  VERIFIED: 'verified',
+  FAILED: 'failed',
+  EXPIRED: 'expired',
+  REVOKED: 'revoked',
+  LOCKED: 'locked',
+  BLOCKED: 'blocked',
+
+  // Setup status
+  SETUP_INITIATED: 'setup_initiated',
+  SETUP_COMPLETED: 'setup_completed',
+  SETUP_FAILED: 'setup_failed',
+
+  // Verification status
+  VERIFICATION_PENDING: 'verification_pending',
+  VERIFICATION_SUCCESS: 'verification_success',
+  VERIFICATION_FAILED: 'verification_failed',
+  VERIFICATION_EXPIRED: 'verification_expired',
+  VERIFICATION_BLOCKED: 'verification_blocked',
+
+  // Recovery status
+  RECOVERY_INITIATED: 'recovery_initiated',
+  RECOVERY_COMPLETED: 'recovery_completed',
+  RECOVERY_FAILED: 'recovery_failed',
+  RECOVERY_EXPIRED: 'recovery_expired',
+
+  // Backup code status
+  BACKUP_CODE_ACTIVE: 'backup_code_active',
+  BACKUP_CODE_USED: 'backup_code_used',
+  BACKUP_CODE_EXPIRED: 'backup_code_expired',
+  BACKUP_CODE_REVOKED: 'backup_code_revoked',
+
+  // Device status
+  DEVICE_REGISTERED: 'device_registered',
+  DEVICE_ACTIVE: 'device_active',
+  DEVICE_INACTIVE: 'device_inactive',
+  DEVICE_REMOVED: 'device_removed',
+  DEVICE_BLOCKED: 'device_blocked',
+} as const;
+
+export type AuthMFAStatus = (typeof AUTH_MFA_STATUS)[keyof typeof AUTH_MFA_STATUS];
+
+export const ACTIVE_MFA_STATUSES: AuthMFAStatus[] = [
+  AUTH_MFA_STATUS.ENABLED,
+  AUTH_MFA_STATUS.VERIFIED,
+  AUTH_MFA_STATUS.SETUP_COMPLETED,
+  AUTH_MFA_STATUS.VERIFICATION_SUCCESS,
+  AUTH_MFA_STATUS.DEVICE_ACTIVE,
+  AUTH_MFA_STATUS.DEVICE_REGISTERED,
+  AUTH_MFA_STATUS.BACKUP_CODE_ACTIVE,
+];
+
+export const INACTIVE_MFA_STATUSES: AuthMFAStatus[] = [
+  AUTH_MFA_STATUS.DISABLED,
+  AUTH_MFA_STATUS.EXPIRED,
+  AUTH_MFA_STATUS.REVOKED,
+  AUTH_MFA_STATUS.DEVICE_INACTIVE,
+  AUTH_MFA_STATUS.DEVICE_REMOVED,
+  AUTH_MFA_STATUS.BACKUP_CODE_EXPIRED,
+  AUTH_MFA_STATUS.BACKUP_CODE_REVOKED,
+];
+
+export const PENDING_MFA_STATUSES: AuthMFAStatus[] = [
+  AUTH_MFA_STATUS.PENDING,
+  AUTH_MFA_STATUS.SETUP_INITIATED,
+  AUTH_MFA_STATUS.VERIFICATION_PENDING,
+  AUTH_MFA_STATUS.RECOVERY_INITIATED,
+];
+
+export const FAILED_MFA_STATUSES: AuthMFAStatus[] = [
+  AUTH_MFA_STATUS.FAILED,
+  AUTH_MFA_STATUS.SETUP_FAILED,
+  AUTH_MFA_STATUS.VERIFICATION_FAILED,
+  AUTH_MFA_STATUS.RECOVERY_FAILED,
+  AUTH_MFA_STATUS.VERIFICATION_BLOCKED,
+  AUTH_MFA_STATUS.DEVICE_BLOCKED,
+];
+
+export const BLOCKED_MFA_STATUSES: AuthMFAStatus[] = [
+  AUTH_MFA_STATUS.LOCKED,
+  AUTH_MFA_STATUS.BLOCKED,
+  AUTH_MFA_STATUS.VERIFICATION_BLOCKED,
+  AUTH_MFA_STATUS.DEVICE_BLOCKED,
+];
+
+export const BACKUP_CODE_STATUSES: AuthMFAStatus[] = [
+  AUTH_MFA_STATUS.BACKUP_CODE_ACTIVE,
+  AUTH_MFA_STATUS.BACKUP_CODE_USED,
+  AUTH_MFA_STATUS.BACKUP_CODE_EXPIRED,
+  AUTH_MFA_STATUS.BACKUP_CODE_REVOKED,
+];
+
+export function isMFAActive(status: AuthMFAStatus): boolean {
+  return ACTIVE_MFA_STATUSES.includes(status);
+}
+
+export function isMFAInactive(status: AuthMFAStatus): boolean {
+  return INACTIVE_MFA_STATUSES.includes(status);
+}
+
+export function isMFAPending(status: AuthMFAStatus): boolean {
+  return PENDING_MFA_STATUSES.includes(status);
+}
+
+export function isMFAFailed(status: AuthMFAStatus): boolean {
+  return FAILED_MFA_STATUSES.includes(status);
+}
+
+export function isMFABlocked(status: AuthMFAStatus): boolean {
+  return BLOCKED_MFA_STATUSES.includes(status);
+}
+
+export function isBackupCodeStatus(status: AuthMFAStatus): boolean {
+  return BACKUP_CODE_STATUSES.includes(status);
+}
+
+export function getMFAStatusLabel(status: AuthMFAStatus): string {
+  const labels: Record<AuthMFAStatus, string> = {
+    [AUTH_MFA_STATUS.ENABLED]: 'Enabled',
+    [AUTH_MFA_STATUS.DISABLED]: 'Disabled',
+    [AUTH_MFA_STATUS.PENDING]: 'Pending',
+    [AUTH_MFA_STATUS.VERIFIED]: 'Verified',
+    [AUTH_MFA_STATUS.FAILED]: 'Failed',
+    [AUTH_MFA_STATUS.EXPIRED]: 'Expired',
+    [AUTH_MFA_STATUS.REVOKED]: 'Revoked',
+    [AUTH_MFA_STATUS.LOCKED]: 'Locked',
+    [AUTH_MFA_STATUS.BLOCKED]: 'Blocked',
+    [AUTH_MFA_STATUS.SETUP_INITIATED]: 'Setup Initiated',
+    [AUTH_MFA_STATUS.SETUP_COMPLETED]: 'Setup Completed',
+    [AUTH_MFA_STATUS.SETUP_FAILED]: 'Setup Failed',
+    [AUTH_MFA_STATUS.VERIFICATION_PENDING]: 'Verification Pending',
+    [AUTH_MFA_STATUS.VERIFICATION_SUCCESS]: 'Verification Success',
+    [AUTH_MFA_STATUS.VERIFICATION_FAILED]: 'Verification Failed',
+    [AUTH_MFA_STATUS.VERIFICATION_EXPIRED]: 'Verification Expired',
+    [AUTH_MFA_STATUS.VERIFICATION_BLOCKED]: 'Verification Blocked',
+    [AUTH_MFA_STATUS.RECOVERY_INITIATED]: 'Recovery Initiated',
+    [AUTH_MFA_STATUS.RECOVERY_COMPLETED]: 'Recovery Completed',
+    [AUTH_MFA_STATUS.RECOVERY_FAILED]: 'Recovery Failed',
+    [AUTH_MFA_STATUS.RECOVERY_EXPIRED]: 'Recovery Expired',
+    [AUTH_MFA_STATUS.BACKUP_CODE_ACTIVE]: 'Backup Code Active',
+    [AUTH_MFA_STATUS.BACKUP_CODE_USED]: 'Backup Code Used',
+    [AUTH_MFA_STATUS.BACKUP_CODE_EXPIRED]: 'Backup Code Expired',
+    [AUTH_MFA_STATUS.BACKUP_CODE_REVOKED]: 'Backup Code Revoked',
+    [AUTH_MFA_STATUS.DEVICE_REGISTERED]: 'Device Registered',
+    [AUTH_MFA_STATUS.DEVICE_ACTIVE]: 'Device Active',
+    [AUTH_MFA_STATUS.DEVICE_INACTIVE]: 'Device Inactive',
+    [AUTH_MFA_STATUS.DEVICE_REMOVED]: 'Device Removed',
+    [AUTH_MFA_STATUS.DEVICE_BLOCKED]: 'Device Blocked',
+  };
+
+  return labels[status] || 'Unknown Status';
+}
+
+export function getMFAStatusColor(status: AuthMFAStatus): string {
+  const colors: Record<AuthMFAStatus, string> = {
+    [AUTH_MFA_STATUS.ENABLED]: '#10B981',
+    [AUTH_MFA_STATUS.DISABLED]: '#6B7280',
+    [AUTH_MFA_STATUS.PENDING]: '#F59E0B',
+    [AUTH_MFA_STATUS.VERIFIED]: '#10B981',
+    [AUTH_MFA_STATUS.FAILED]: '#EF4444',
+    [AUTH_MFA_STATUS.EXPIRED]: '#6B7280',
+    [AUTH_MFA_STATUS.REVOKED]: '#6B7280',
+    [AUTH_MFA_STATUS.LOCKED]: '#EF4444',
+    [AUTH_MFA_STATUS.BLOCKED]: '#DC2626',
+    [AUTH_MFA_STATUS.SETUP_INITIATED]: '#3B82F6',
+    [AUTH_MFA_STATUS.SETUP_COMPLETED]: '#10B981',
+    [AUTH_MFA_STATUS.SETUP_FAILED]: '#EF4444',
+    [AUTH_MFA_STATUS.VERIFICATION_PENDING]: '#F59E0B',
+    [AUTH_MFA_STATUS.VERIFICATION_SUCCESS]: '#10B981',
+    [AUTH_MFA_STATUS.VERIFICATION_FAILED]: '#EF4444',
+    [AUTH_MFA_STATUS.VERIFICATION_EXPIRED]: '#6B7280',
+    [AUTH_MFA_STATUS.VERIFICATION_BLOCKED]: '#DC2626',
+    [AUTH_MFA_STATUS.RECOVERY_INITIATED]: '#3B82F6',
+    [AUTH_MFA_STATUS.RECOVERY_COMPLETED]: '#10B981',
+    [AUTH_MFA_STATUS.RECOVERY_FAILED]: '#EF4444',
+    [AUTH_MFA_STATUS.RECOVERY_EXPIRED]: '#6B7280',
+    [AUTH_MFA_STATUS.BACKUP_CODE_ACTIVE]: '#10B981',
+    [AUTH_MFA_STATUS.BACKUP_CODE_USED]: '#F59E0B',
+    [AUTH_MFA_STATUS.BACKUP_CODE_EXPIRED]: '#6B7280',
+    [AUTH_MFA_STATUS.BACKUP_CODE_REVOKED]: '#6B7280',
+    [AUTH_MFA_STATUS.DEVICE_REGISTERED]: '#3B82F6',
+    [AUTH_MFA_STATUS.DEVICE_ACTIVE]: '#10B981',
+    [AUTH_MFA_STATUS.DEVICE_INACTIVE]: '#6B7280',
+    [AUTH_MFA_STATUS.DEVICE_REMOVED]: '#6B7280',
+    [AUTH_MFA_STATUS.DEVICE_BLOCKED]: '#DC2626',
+  };
+
+  return colors[status] || '#6B7280';
+}
+
+export function getMFAStatusPriority(status: AuthMFAStatus): number {
+  const priorities: Record<AuthMFAStatus, number> = {
+    [AUTH_MFA_STATUS.ENABLED]: 10,
+    [AUTH_MFA_STATUS.DISABLED]: 5,
+    [AUTH_MFA_STATUS.PENDING]: 7,
+    [AUTH_MFA_STATUS.VERIFIED]: 10,
+    [AUTH_MFA_STATUS.FAILED]: 3,
+    [AUTH_MFA_STATUS.EXPIRED]: 4,
+    [AUTH_MFA_STATUS.REVOKED]: 4,
+    [AUTH_MFA_STATUS.LOCKED]: 1,
+    [AUTH_MFA_STATUS.BLOCKED]: 1,
+    [AUTH_MFA_STATUS.SETUP_INITIATED]: 6,
+    [AUTH_MFA_STATUS.SETUP_COMPLETED]: 8,
+    [AUTH_MFA_STATUS.SETUP_FAILED]: 2,
+    [AUTH_MFA_STATUS.VERIFICATION_PENDING]: 7,
+    [AUTH_MFA_STATUS.VERIFICATION_SUCCESS]: 9,
+    [AUTH_MFA_STATUS.VERIFICATION_FAILED]: 3,
+    [AUTH_MFA_STATUS.VERIFICATION_EXPIRED]: 4,
+    [AUTH_MFA_STATUS.VERIFICATION_BLOCKED]: 1,
+    [AUTH_MFA_STATUS.RECOVERY_INITIATED]: 6,
+    [AUTH_MFA_STATUS.RECOVERY_COMPLETED]: 8,
+    [AUTH_MFA_STATUS.RECOVERY_FAILED]: 3,
+    [AUTH_MFA_STATUS.RECOVERY_EXPIRED]: 4,
+    [AUTH_MFA_STATUS.BACKUP_CODE_ACTIVE]: 8,
+    [AUTH_MFA_STATUS.BACKUP_CODE_USED]: 7,
+    [AUTH_MFA_STATUS.BACKUP_CODE_EXPIRED]: 4,
+    [AUTH_MFA_STATUS.BACKUP_CODE_REVOKED]: 4,
+    [AUTH_MFA_STATUS.DEVICE_REGISTERED]: 6,
+    [AUTH_MFA_STATUS.DEVICE_ACTIVE]: 8,
+    [AUTH_MFA_STATUS.DEVICE_INACTIVE]: 4,
+    [AUTH_MFA_STATUS.DEVICE_REMOVED]: 4,
+    [AUTH_MFA_STATUS.DEVICE_BLOCKED]: 1,
+  };
+
+  return priorities[status] || 5;
+}

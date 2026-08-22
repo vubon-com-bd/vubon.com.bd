@@ -1,162 +1,144 @@
 /**
- * অ্যাডমিনের স্ট্যাটাস সম্পর্কিত কনস্ট্যান্টসমূহ
+ * Admin Status Constants
+ * Admin account status definitions
  */
 
-// অ্যাডমিনের স্ট্যাটাস
 export const ADMIN_STATUS = {
   ACTIVE: 'active',
   INACTIVE: 'inactive',
-  SUSPENDED: 'suspended',
   PENDING: 'pending',
-  LOCKED: 'locked',
+  SUSPENDED: 'suspended',
+  BANNED: 'banned',
   DELETED: 'deleted',
+  LOCKED: 'locked',
+  EXPIRED: 'expired',
+  DEACTIVATED: 'deactivated',
+  ARCHIVED: 'archived',
 } as const;
 
-// স্ট্যাটাসের কালার কোড
+export type AdminStatusType = (typeof ADMIN_STATUS)[keyof typeof ADMIN_STATUS];
+
+export const ADMIN_STATUS_LABELS = {
+  [ADMIN_STATUS.ACTIVE]: 'Active',
+  [ADMIN_STATUS.INACTIVE]: 'Inactive',
+  [ADMIN_STATUS.PENDING]: 'Pending Approval',
+  [ADMIN_STATUS.SUSPENDED]: 'Suspended',
+  [ADMIN_STATUS.BANNED]: 'Banned',
+  [ADMIN_STATUS.DELETED]: 'Deleted',
+  [ADMIN_STATUS.LOCKED]: 'Locked',
+  [ADMIN_STATUS.EXPIRED]: 'Expired',
+  [ADMIN_STATUS.DEACTIVATED]: 'Deactivated',
+  [ADMIN_STATUS.ARCHIVED]: 'Archived',
+} as const;
+
+export type AdminStatusLabel = (typeof ADMIN_STATUS_LABELS)[keyof typeof ADMIN_STATUS_LABELS];
+
 export const ADMIN_STATUS_COLORS = {
-  ACTIVE: '#22C55E', // সবুজ
-  INACTIVE: '#94A3B8', // ধূসর
-  SUSPENDED: '#F59E0B', // কমলা
-  PENDING: '#3B82F6', // নীল
-  LOCKED: '#EF4444', // লাল
-  DELETED: '#6B7280', // গাঢ় ধূসর
+  [ADMIN_STATUS.ACTIVE]: '#10B981',
+  [ADMIN_STATUS.INACTIVE]: '#6B7280',
+  [ADMIN_STATUS.PENDING]: '#F59E0B',
+  [ADMIN_STATUS.SUSPENDED]: '#F97316',
+  [ADMIN_STATUS.BANNED]: '#EF4444',
+  [ADMIN_STATUS.DELETED]: '#6B7280',
+  [ADMIN_STATUS.LOCKED]: '#DC2626',
+  [ADMIN_STATUS.EXPIRED]: '#9CA3AF',
+  [ADMIN_STATUS.DEACTIVATED]: '#8B5CF6',
+  [ADMIN_STATUS.ARCHIVED]: '#9CA3AF',
 } as const;
 
-// স্ট্যাটাসের আইকন
+export type AdminStatusColor = (typeof ADMIN_STATUS_COLORS)[keyof typeof ADMIN_STATUS_COLORS];
+
 export const ADMIN_STATUS_ICONS = {
-  ACTIVE: '✅',
-  INACTIVE: '⭕',
-  SUSPENDED: '⚠️',
-  PENDING: '⏳',
-  LOCKED: '🔒',
-  DELETED: '🗑️',
+  [ADMIN_STATUS.ACTIVE]: 'check-circle',
+  [ADMIN_STATUS.INACTIVE]: 'minus-circle',
+  [ADMIN_STATUS.PENDING]: 'clock',
+  [ADMIN_STATUS.SUSPENDED]: 'pause-circle',
+  [ADMIN_STATUS.BANNED]: 'ban',
+  [ADMIN_STATUS.DELETED]: 'trash',
+  [ADMIN_STATUS.LOCKED]: 'lock',
+  [ADMIN_STATUS.EXPIRED]: 'clock',
+  [ADMIN_STATUS.DEACTIVATED]: 'x-circle',
+  [ADMIN_STATUS.ARCHIVED]: 'archive',
 } as const;
 
-// স্ট্যাটাস পরিবর্তনের অনুমতি
-export const ADMIN_STATUS_TRANSITIONS = {
-  ACTIVE: ['inactive', 'suspended', 'deleted'],
-  INACTIVE: ['active', 'deleted'],
-  SUSPENDED: ['active', 'inactive', 'deleted'],
-  PENDING: ['active', 'inactive', 'deleted'],
-  LOCKED: ['active', 'inactive', 'deleted'],
-  DELETED: [],
+export type AdminStatusIcon = (typeof ADMIN_STATUS_ICONS)[keyof typeof ADMIN_STATUS_ICONS];
+
+export const ADMIN_STATUS_ORDER = {
+  [ADMIN_STATUS.ACTIVE]: 1,
+  [ADMIN_STATUS.PENDING]: 2,
+  [ADMIN_STATUS.INACTIVE]: 3,
+  [ADMIN_STATUS.SUSPENDED]: 4,
+  [ADMIN_STATUS.LOCKED]: 5,
+  [ADMIN_STATUS.BANNED]: 6,
+  [ADMIN_STATUS.DEACTIVATED]: 7,
+  [ADMIN_STATUS.EXPIRED]: 8,
+  [ADMIN_STATUS.ARCHIVED]: 9,
+  [ADMIN_STATUS.DELETED]: 10,
 } as const;
 
-// ডিফল্ট স্ট্যাটাস
-export const DEFAULT_ADMIN_STATUS = 'pending';
+export type AdminStatusOrder = (typeof ADMIN_STATUS_ORDER)[keyof typeof ADMIN_STATUS_ORDER];
 
-// স্ট্যাটাসের প্রায়োরিটি লেভেল (১ = সর্বোচ্চ)
-export const ADMIN_STATUS_PRIORITY = {
-  ACTIVE: 1,
-  PENDING: 2,
-  SUSPENDED: 3,
-  LOCKED: 4,
-  INACTIVE: 5,
-  DELETED: 6,
-} as const;
+export const ACTIVE_ADMIN_STATUSES: AdminStatusType[] = [ADMIN_STATUS.ACTIVE, ADMIN_STATUS.PENDING];
 
-// স্ট্যাটাসের টাইমআউট (সাসপেন্ডের জন্য) - ৩০ দিন
-export const ADMIN_SUSPEND_TIMEOUT = 30 * 24 * 60 * 60 * 1000;
+export const INACTIVE_ADMIN_STATUSES: AdminStatusType[] = [
+  ADMIN_STATUS.INACTIVE,
+  ADMIN_STATUS.SUSPENDED,
+  ADMIN_STATUS.BANNED,
+  ADMIN_STATUS.LOCKED,
+  ADMIN_STATUS.DEACTIVATED,
+];
 
-// স্ট্যাটাসের টাইমআউট (লকের জন্য) - ১৫ মিনিট
-export const ADMIN_LOCK_TIMEOUT = 15 * 60 * 1000;
+export const ARCHIVED_ADMIN_STATUSES: AdminStatusType[] = [
+  ADMIN_STATUS.ARCHIVED,
+  ADMIN_STATUS.DELETED,
+  ADMIN_STATUS.EXPIRED,
+];
 
-// স্ট্যাটাসের টাইমআউট (পেন্ডিংয়ের জন্য) - ৭ দিন
-export const ADMIN_PENDING_TIMEOUT = 7 * 24 * 60 * 60 * 1000;
+export function getAdminStatusLabel(status: AdminStatusType): string {
+  return ADMIN_STATUS_LABELS[status] || 'Unknown Status';
+}
 
-// স্ট্যাটাস লেবেল (বাংলা)
-export const ADMIN_STATUS_LABELS_BN = {
-  ACTIVE: 'সক্রিয়',
-  INACTIVE: 'নিষ্ক্রিয়',
-  SUSPENDED: 'স্থগিত',
-  PENDING: 'মুলতুবি',
-  LOCKED: 'লককৃত',
-  DELETED: 'মুছে ফেলা',
-} as const;
+export function getAdminStatusColor(status: AdminStatusType): string {
+  return ADMIN_STATUS_COLORS[status] || '#6B7280';
+}
 
-// স্ট্যাটাস লেবেল (ইংরেজি)
-export const ADMIN_STATUS_LABELS_EN = {
-  ACTIVE: 'Active',
-  INACTIVE: 'Inactive',
-  SUSPENDED: 'Suspended',
-  PENDING: 'Pending',
-  LOCKED: 'Locked',
-  DELETED: 'Deleted',
-} as const;
+export function getAdminStatusIcon(status: AdminStatusType): string {
+  return ADMIN_STATUS_ICONS[status] || 'circle';
+}
 
-// স্ট্যাটাসের জন্য CSS ক্লাস
-export const ADMIN_STATUS_CSS_CLASSES = {
-  ACTIVE: 'badge-success',
-  INACTIVE: 'badge-secondary',
-  SUSPENDED: 'badge-warning',
-  PENDING: 'badge-info',
-  LOCKED: 'badge-danger',
-  DELETED: 'badge-dark',
-} as const;
+export function getAdminStatusOrder(status: AdminStatusType): number {
+  return ADMIN_STATUS_ORDER[status] || 0;
+}
 
-// স্ট্যাটাস অনুযায়ী অ্যাকশন
-export const ADMIN_STATUS_ACTIONS = {
-  ACTIVE: ['deactivate', 'suspend', 'delete'],
-  INACTIVE: ['activate', 'delete'],
-  SUSPENDED: ['activate', 'deactivate', 'delete'],
-  PENDING: ['activate', 'deactivate', 'delete'],
-  LOCKED: ['activate', 'deactivate', 'delete'],
-  DELETED: [],
-} as const;
+export function isActiveAdminStatus(status: AdminStatusType): boolean {
+  return ACTIVE_ADMIN_STATUSES.includes(status);
+}
 
-// স্ট্যাটাস ভ্যালিডেশন রুলস
-export const ADMIN_STATUS_VALIDATION = {
-  ACTIVE: {
-    canLogin: true,
-    canAccess: true,
-    canModify: true,
-    canDelete: true,
-  },
-  INACTIVE: {
-    canLogin: false,
-    canAccess: false,
-    canModify: true,
-    canDelete: true,
-  },
-  SUSPENDED: {
-    canLogin: false,
-    canAccess: false,
-    canModify: true,
-    canDelete: true,
-  },
-  PENDING: {
-    canLogin: false,
-    canAccess: false,
-    canModify: true,
-    canDelete: true,
-  },
-  LOCKED: {
-    canLogin: false,
-    canAccess: false,
-    canModify: true,
-    canDelete: true,
-  },
-  DELETED: {
-    canLogin: false,
-    canAccess: false,
-    canModify: false,
-    canDelete: false,
-  },
-} as const;
+export function isInactiveAdminStatus(status: AdminStatusType): boolean {
+  return INACTIVE_ADMIN_STATUSES.includes(status);
+}
 
-// স্ট্যাটাস গ্রুপ
-export const ADMIN_STATUS_GROUPS = {
-  ACTIVE_STATUSES: ['active', 'pending'],
-  INACTIVE_STATUSES: ['inactive', 'suspended', 'locked'],
-  DELETED_STATUSES: ['deleted'],
-} as const;
+export function isArchivedAdminStatus(status: AdminStatusType): boolean {
+  return ARCHIVED_ADMIN_STATUSES.includes(status);
+}
 
-// স্ট্যাটাসের জন্য ইমোজি
-export const ADMIN_STATUS_EMOJIS = {
-  ACTIVE: '🟢',
-  INACTIVE: '⚪',
-  SUSPENDED: '🟡',
-  PENDING: '🔵',
-  LOCKED: '🔴',
-  DELETED: '⚫',
-} as const;
+export function canAdminLogin(status: AdminStatusType): boolean {
+  return status === ADMIN_STATUS.ACTIVE;
+}
+
+export function canAdminAccessDashboard(status: AdminStatusType): boolean {
+  return status === ADMIN_STATUS.ACTIVE || status === ADMIN_STATUS.PENDING;
+}
+
+export function isAdminBannedOrSuspended(status: AdminStatusType): boolean {
+  return status === ADMIN_STATUS.BANNED || status === ADMIN_STATUS.SUSPENDED;
+}
+
+export function getAdminStatusByLabel(label: string): AdminStatusType | undefined {
+  const entry = Object.entries(ADMIN_STATUS_LABELS).find(([, value]) => value === label);
+  return entry ? (entry[0] as AdminStatusType) : undefined;
+}
+
+export function getAllAdminStatuses(): AdminStatusType[] {
+  return Object.values(ADMIN_STATUS);
+}

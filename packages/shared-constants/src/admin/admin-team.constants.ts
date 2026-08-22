@@ -1,161 +1,204 @@
 /**
- * অ্যাডমিন টিম সম্পর্কিত কনস্ট্যান্টসমূহ
+ * Admin Team Constants
+ * Admin team and group definitions
  */
 
-// টিম আইডি প্রিফিক্স
-export const TEAM_ID_PREFIX = 'TEAM';
-
-// টিমের সর্বোচ্চ সদস্য সংখ্যা
-export const MAX_TEAM_MEMBERS = 20;
-
-// টিমের ডিফল্ট সেটিংস
-export const DEFAULT_TEAM_SETTINGS = {
-  maxMembers: 20,
-  allowExternal: false,
-  requireApproval: true,
-  autoArchive: 30, // দিন
-  defaultRole: 'member',
-  communicationChannel: 'slack',
-  meetingSchedule: 'weekly',
-} as const;
-
-// টিমের কালার কোড
-export const TEAM_COLORS = {
-  CORE: '#DC2626',
-  PROJECT: '#3B82F6',
-  SUPPORT: '#22C55E',
-  TEMPORARY: '#F59E0B',
-} as const;
-
-// টিমের আইকন
-export const TEAM_ICONS = {
-  CORE: '🎯',
-  PROJECT: '📋',
-  SUPPORT: '🤝',
-  TEMPORARY: '⏳',
-} as const;
-
-// টিমের টাইপ
-export const TEAM_TYPES = {
+export const ADMIN_TEAM = {
   CORE: 'core',
-  PROJECT: 'project',
-  SUPPORT: 'support',
-  TEMPORARY: 'temporary',
+  FRONTEND: 'frontend',
+  BACKEND: 'backend',
+  DEVOPS: 'devops',
+  QA: 'qa',
+  DESIGN: 'design',
+  PRODUCT: 'product',
+  DATA: 'data',
+  SECURITY: 'security',
+  INFRASTRUCTURE: 'infrastructure',
+  MOBILE: 'mobile',
+  AI: 'ai',
+  ML: 'ml',
+  CLOUD: 'cloud',
+  DATABASE: 'database',
+  API: 'api',
+  MICROSERVICES: 'microservices',
+  MONITORING: 'monitoring',
+  AUTOMATION: 'automation',
+  RELEASE: 'release',
+  TRAINING: 'training',
+  DOCUMENTATION: 'documentation',
+  COMMUNITY: 'community',
+  ADVOCACY: 'advocacy',
 } as const;
 
-// টিমের স্ট্যাটাস
-export const TEAM_STATUS = {
-  ACTIVE: 'active',
-  INACTIVE: 'inactive',
-  ARCHIVED: 'archived',
-} as const;
+export type AdminTeamType = (typeof ADMIN_TEAM)[keyof typeof ADMIN_TEAM];
 
-// টিম লিডার রোল
-export const TEAM_LEADER_ROLE = 'team_leader';
+export const ADMIN_TEAM_LABELS: Record<AdminTeamType, string> = {
+  [ADMIN_TEAM.CORE]: 'Core Team',
+  [ADMIN_TEAM.FRONTEND]: 'Frontend Team',
+  [ADMIN_TEAM.BACKEND]: 'Backend Team',
+  [ADMIN_TEAM.DEVOPS]: 'DevOps Team',
+  [ADMIN_TEAM.QA]: 'Quality Assurance Team',
+  [ADMIN_TEAM.DESIGN]: 'Design Team',
+  [ADMIN_TEAM.PRODUCT]: 'Product Team',
+  [ADMIN_TEAM.DATA]: 'Data Team',
+  [ADMIN_TEAM.SECURITY]: 'Security Team',
+  [ADMIN_TEAM.INFRASTRUCTURE]: 'Infrastructure Team',
+  [ADMIN_TEAM.MOBILE]: 'Mobile Development Team',
+  [ADMIN_TEAM.AI]: 'AI Development Team',
+  [ADMIN_TEAM.ML]: 'Machine Learning Team',
+  [ADMIN_TEAM.CLOUD]: 'Cloud Architecture Team',
+  [ADMIN_TEAM.DATABASE]: 'Database Management Team',
+  [ADMIN_TEAM.API]: 'API Development Team',
+  [ADMIN_TEAM.MICROSERVICES]: 'Microservices Team',
+  [ADMIN_TEAM.MONITORING]: 'Monitoring Team',
+  [ADMIN_TEAM.AUTOMATION]: 'Automation Team',
+  [ADMIN_TEAM.RELEASE]: 'Release Management Team',
+  [ADMIN_TEAM.TRAINING]: 'Training Team',
+  [ADMIN_TEAM.DOCUMENTATION]: 'Documentation Team',
+  [ADMIN_TEAM.COMMUNITY]: 'Community Management Team',
+  [ADMIN_TEAM.ADVOCACY]: 'Developer Advocacy Team',
+};
 
-// ডিফল্ট টিম পারমিশন
-export const DEFAULT_TEAM_PERMISSIONS = {
-  CORE: {
-    canManageMembers: true,
-    canCreateProjects: true,
-    canModifySettings: true,
-    canDeleteTeam: false,
-  },
-  PROJECT: {
-    canManageMembers: true,
-    canCreateProjects: false,
-    canModifySettings: false,
-    canDeleteTeam: false,
-  },
-  SUPPORT: {
-    canManageMembers: true,
-    canCreateProjects: false,
-    canModifySettings: false,
-    canDeleteTeam: false,
-  },
-  TEMPORARY: {
-    canManageMembers: false,
-    canCreateProjects: false,
-    canModifySettings: false,
-    canDeleteTeam: false,
-  },
-} as const;
+export type AdminTeamLabel = (typeof ADMIN_TEAM_LABELS)[keyof typeof ADMIN_TEAM_LABELS];
 
-// টিমের ডেসক্রিপশন
-export const TEAM_DESCRIPTIONS = {
-  CORE: 'Core team responsible for main operations',
-  PROJECT: 'Project-based team for specific initiatives',
-  SUPPORT: 'Support team for customer and technical assistance',
-  TEMPORARY: 'Temporary team for short-term projects',
-} as const;
+export const ADMIN_TEAM_DESCRIPTIONS: Record<AdminTeamType, string> = {
+  [ADMIN_TEAM.CORE]: 'Core platform and architecture',
+  [ADMIN_TEAM.FRONTEND]: 'User interface and experience',
+  [ADMIN_TEAM.BACKEND]: 'Server-side logic and APIs',
+  [ADMIN_TEAM.DEVOPS]: 'Development operations and CI/CD',
+  [ADMIN_TEAM.QA]: 'Testing and quality assurance',
+  [ADMIN_TEAM.DESIGN]: 'User experience and visual design',
+  [ADMIN_TEAM.PRODUCT]: 'Product strategy and roadmap',
+  [ADMIN_TEAM.DATA]: 'Data management and analytics',
+  [ADMIN_TEAM.SECURITY]: 'Security monitoring and incident response',
+  [ADMIN_TEAM.INFRASTRUCTURE]: 'Infrastructure and networking',
+  [ADMIN_TEAM.MOBILE]: 'Mobile application development',
+  [ADMIN_TEAM.AI]: 'Artificial intelligence solutions',
+  [ADMIN_TEAM.ML]: 'Machine learning models and research',
+  [ADMIN_TEAM.CLOUD]: 'Cloud architecture and services',
+  [ADMIN_TEAM.DATABASE]: 'Database design and optimization',
+  [ADMIN_TEAM.API]: 'API design and integration',
+  [ADMIN_TEAM.MICROSERVICES]: 'Microservices architecture',
+  [ADMIN_TEAM.MONITORING]: 'System and application monitoring',
+  [ADMIN_TEAM.AUTOMATION]: 'Process automation and tools',
+  [ADMIN_TEAM.RELEASE]: 'Release coordination and deployment',
+  [ADMIN_TEAM.TRAINING]: 'Training and knowledge management',
+  [ADMIN_TEAM.DOCUMENTATION]: 'Technical documentation and guides',
+  [ADMIN_TEAM.COMMUNITY]: 'Community engagement and support',
+  [ADMIN_TEAM.ADVOCACY]: 'Developer relations and advocacy',
+};
 
-// টিমের লেবেল (বাংলা)
-export const TEAM_LABELS_BN = {
-  CORE: 'মূল টিম',
-  PROJECT: 'প্রজেক্ট টিম',
-  SUPPORT: 'সাপোর্ট টিম',
-  TEMPORARY: 'অস্থায়ী টিম',
-} as const;
+export type AdminTeamDescription =
+  (typeof ADMIN_TEAM_DESCRIPTIONS)[keyof typeof ADMIN_TEAM_DESCRIPTIONS];
 
-// টিমের লেবেল (ইংরেজি)
-export const TEAM_LABELS_EN = {
-  CORE: 'Core Team',
-  PROJECT: 'Project Team',
-  SUPPORT: 'Support Team',
-  TEMPORARY: 'Temporary Team',
-} as const;
+export const ADMIN_TEAM_MEMBERS: Record<AdminTeamType, number> = {
+  [ADMIN_TEAM.CORE]: 12,
+  [ADMIN_TEAM.FRONTEND]: 8,
+  [ADMIN_TEAM.BACKEND]: 10,
+  [ADMIN_TEAM.DEVOPS]: 6,
+  [ADMIN_TEAM.QA]: 5,
+  [ADMIN_TEAM.DESIGN]: 4,
+  [ADMIN_TEAM.PRODUCT]: 3,
+  [ADMIN_TEAM.DATA]: 5,
+  [ADMIN_TEAM.SECURITY]: 4,
+  [ADMIN_TEAM.INFRASTRUCTURE]: 6,
+  [ADMIN_TEAM.MOBILE]: 4,
+  [ADMIN_TEAM.AI]: 3,
+  [ADMIN_TEAM.ML]: 3,
+  [ADMIN_TEAM.CLOUD]: 4,
+  [ADMIN_TEAM.DATABASE]: 3,
+  [ADMIN_TEAM.API]: 4,
+  [ADMIN_TEAM.MICROSERVICES]: 3,
+  [ADMIN_TEAM.MONITORING]: 3,
+  [ADMIN_TEAM.AUTOMATION]: 3,
+  [ADMIN_TEAM.RELEASE]: 2,
+  [ADMIN_TEAM.TRAINING]: 2,
+  [ADMIN_TEAM.DOCUMENTATION]: 2,
+  [ADMIN_TEAM.COMMUNITY]: 3,
+  [ADMIN_TEAM.ADVOCACY]: 2,
+};
 
-// টিমের CSS ক্লাস
-export const TEAM_CSS_CLASSES = {
-  CORE: 'team-core',
-  PROJECT: 'team-project',
-  SUPPORT: 'team-support',
-  TEMPORARY: 'team-temporary',
-} as const;
+export type AdminTeamMembers = (typeof ADMIN_TEAM_MEMBERS)[keyof typeof ADMIN_TEAM_MEMBERS];
 
-// টিম গ্রুপ
-export const TEAM_GROUPS = {
-  PERMANENT_TEAMS: ['core', 'support'],
-  TEMPORARY_TEAMS: ['project', 'temporary'],
-} as const;
+export const ADMIN_TEAM_SKILLS: Record<AdminTeamType, string[]> = {
+  [ADMIN_TEAM.CORE]: ['architecture', 'leadership', 'strategy'],
+  [ADMIN_TEAM.FRONTEND]: ['react', 'vue', 'html', 'css', 'javascript'],
+  [ADMIN_TEAM.BACKEND]: ['nodejs', 'python', 'java', 'sql'],
+  [ADMIN_TEAM.DEVOPS]: ['docker', 'kubernetes', 'cicd', 'terraform'],
+  [ADMIN_TEAM.QA]: ['testing', 'automation', 'selenium', 'cypress'],
+  [ADMIN_TEAM.DESIGN]: ['ui', 'ux', 'figma', 'adobe', 'prototyping'],
+  [ADMIN_TEAM.PRODUCT]: ['product_management', 'agile', 'scrum', 'analytics'],
+  [ADMIN_TEAM.DATA]: ['sql', 'python', 'etl', 'data_warehousing'],
+  [ADMIN_TEAM.SECURITY]: ['cybersecurity', 'penetration_testing', 'security_audit'],
+  [ADMIN_TEAM.INFRASTRUCTURE]: ['networking', 'servers', 'linux', 'monitoring'],
+  [ADMIN_TEAM.MOBILE]: ['react_native', 'flutter', 'android', 'ios'],
+  [ADMIN_TEAM.AI]: ['python', 'tensorflow', 'pytorch', 'nlp'],
+  [ADMIN_TEAM.ML]: ['machine_learning', 'data_science', 'model_training'],
+  [ADMIN_TEAM.CLOUD]: ['aws', 'azure', 'gcp', 'cloud_architecture'],
+  [ADMIN_TEAM.DATABASE]: ['sql', 'nosql', 'mongodb', 'postgres'],
+  [ADMIN_TEAM.API]: ['rest', 'graphql', 'api_design', 'openapi'],
+  [ADMIN_TEAM.MICROSERVICES]: ['microservices', 'docker', 'kubernetes', 'grpc'],
+  [ADMIN_TEAM.MONITORING]: ['prometheus', 'grafana', 'elk', 'monitoring'],
+  [ADMIN_TEAM.AUTOMATION]: ['python', 'bash', 'automation_tools'],
+  [ADMIN_TEAM.RELEASE]: ['release_management', 'ci_cd', 'versioning'],
+  [ADMIN_TEAM.TRAINING]: ['training', 'facilitation', 'materials'],
+  [ADMIN_TEAM.DOCUMENTATION]: ['technical_writing', 'documentation_tools'],
+  [ADMIN_TEAM.COMMUNITY]: ['community_management', 'communication'],
+  [ADMIN_TEAM.ADVOCACY]: ['developer_relations', 'public_speaking'],
+};
 
-// টিম মেম্বার রোল
-export const TEAM_MEMBER_ROLES = {
-  LEADER: 'leader',
-  MEMBER: 'member',
-  OBSERVER: 'observer',
-} as const;
+export type AdminTeamSkills = (typeof ADMIN_TEAM_SKILLS)[keyof typeof ADMIN_TEAM_SKILLS];
 
-// টিমের জন্য ইমোজি
-export const TEAM_EMOJIS = {
-  CORE: '💪',
-  PROJECT: '🚀',
-  SUPPORT: '🛡️',
-  TEMPORARY: '🔄',
-} as const;
+export const ENGINEERING_TEAMS: AdminTeamType[] = [
+  ADMIN_TEAM.FRONTEND,
+  ADMIN_TEAM.BACKEND,
+  ADMIN_TEAM.MOBILE,
+  ADMIN_TEAM.DEVOPS,
+  ADMIN_TEAM.QA,
+];
 
-// টিমের অ্যাকশন
-export const TEAM_ACTIONS = {
-  CREATE: 'create',
-  UPDATE: 'update',
-  DELETE: 'delete',
-  ADD_MEMBER: 'add_member',
-  REMOVE_MEMBER: 'remove_member',
-  UPDATE_MEMBER_ROLE: 'update_member_role',
-  ARCHIVE: 'archive',
-  RESTORE: 'restore',
-} as const;
+export const DATA_TEAMS: AdminTeamType[] = [ADMIN_TEAM.DATA, ADMIN_TEAM.AI, ADMIN_TEAM.ML];
 
-// টিমের ম্যাক্স সদস্য সংখ্যা (টাইপ অনুযায়ী)
-export const TEAM_MAX_MEMBERS_BY_TYPE = {
-  CORE: 20,
-  PROJECT: 15,
-  SUPPORT: 25,
-  TEMPORARY: 10,
-} as const;
+export const INFRASTRUCTURE_TEAMS: AdminTeamType[] = [
+  ADMIN_TEAM.INFRASTRUCTURE,
+  ADMIN_TEAM.CLOUD,
+  ADMIN_TEAM.DATABASE,
+  ADMIN_TEAM.SECURITY,
+];
 
-// টিমের ডিফল্ট স্ট্যাটাস
-export const DEFAULT_TEAM_STATUS = 'active';
+export function getAdminTeamLabel(team: AdminTeamType): string {
+  return ADMIN_TEAM_LABELS[team] || 'Unknown Team';
+}
 
-// টিমের ডিফল্ট টাইপ
-export const DEFAULT_TEAM_TYPE = 'project';
+export function getAdminTeamDescription(team: AdminTeamType): string {
+  return ADMIN_TEAM_DESCRIPTIONS[team] || 'No description available';
+}
+
+export function getAdminTeamMembers(team: AdminTeamType): number {
+  return ADMIN_TEAM_MEMBERS[team] || 0;
+}
+
+export function getAdminTeamSkills(team: AdminTeamType): string[] {
+  return ADMIN_TEAM_SKILLS[team] || [];
+}
+
+export function isEngineeringTeam(team: AdminTeamType): boolean {
+  return ENGINEERING_TEAMS.includes(team);
+}
+
+export function isDataTeam(team: AdminTeamType): boolean {
+  return DATA_TEAMS.includes(team);
+}
+
+export function isInfrastructureTeam(team: AdminTeamType): boolean {
+  return INFRASTRUCTURE_TEAMS.includes(team);
+}
+
+export function getAdminTeams(): AdminTeamType[] {
+  return Object.values(ADMIN_TEAM);
+}
+
+export function getTeamSkillsList(teams: AdminTeamType[]): string[] {
+  const allSkills = teams.flatMap((team) => getAdminTeamSkills(team));
+  return Array.from(new Set(allSkills));
+}

@@ -1,0 +1,245 @@
+/**
+ * Authentication Account Lock Status Constants
+ * Status values for account locks
+ */
+
+export const AUTH_ACCOUNT_LOCK_STATUS = {
+  // Primary status
+  LOCKED: 'locked',
+  UNLOCKED: 'unlocked',
+  PENDING: 'pending',
+  PARTIAL: 'partial',
+  PERMANENT: 'permanent',
+  TEMPORARY: 'temporary',
+
+  // Lock states
+  ACTIVE: 'active',
+  EXPIRED: 'expired',
+  REMOVED: 'removed',
+  ESCALATED: 'escalated',
+  DEESCALATED: 'deescalated',
+
+  // Security status
+  SECURE: 'secure',
+  COMPROMISED: 'compromised',
+  SUSPICIOUS: 'suspicious',
+  INVESTIGATING: 'investigating',
+
+  // Action status
+  MANUAL_LOCK: 'manual_lock',
+  AUTO_LOCK: 'auto_lock',
+  ADMIN_LOCK: 'admin_lock',
+  SYSTEM_LOCK: 'system_lock',
+  IP_LOCK: 'ip_lock',
+  DEVICE_LOCK: 'device_lock',
+  GEO_LOCK: 'geo_lock',
+
+  // Recovery status
+  RECOVERY_IN_PROGRESS: 'recovery_in_progress',
+  RECOVERY_COMPLETED: 'recovery_completed',
+  RECOVERY_FAILED: 'recovery_failed',
+} as const;
+
+export type AuthAccountLockStatus =
+  (typeof AUTH_ACCOUNT_LOCK_STATUS)[keyof typeof AUTH_ACCOUNT_LOCK_STATUS];
+
+export const LOCKED_STATUSES: AuthAccountLockStatus[] = [
+  AUTH_ACCOUNT_LOCK_STATUS.LOCKED,
+  AUTH_ACCOUNT_LOCK_STATUS.PERMANENT,
+  AUTH_ACCOUNT_LOCK_STATUS.TEMPORARY,
+  AUTH_ACCOUNT_LOCK_STATUS.ACTIVE,
+  AUTH_ACCOUNT_LOCK_STATUS.ESCALATED,
+  AUTH_ACCOUNT_LOCK_STATUS.MANUAL_LOCK,
+  AUTH_ACCOUNT_LOCK_STATUS.AUTO_LOCK,
+  AUTH_ACCOUNT_LOCK_STATUS.ADMIN_LOCK,
+  AUTH_ACCOUNT_LOCK_STATUS.SYSTEM_LOCK,
+  AUTH_ACCOUNT_LOCK_STATUS.IP_LOCK,
+  AUTH_ACCOUNT_LOCK_STATUS.DEVICE_LOCK,
+  AUTH_ACCOUNT_LOCK_STATUS.GEO_LOCK,
+];
+
+export const UNLOCKED_STATUSES: AuthAccountLockStatus[] = [
+  AUTH_ACCOUNT_LOCK_STATUS.UNLOCKED,
+  AUTH_ACCOUNT_LOCK_STATUS.REMOVED,
+  AUTH_ACCOUNT_LOCK_STATUS.DEESCALATED,
+  AUTH_ACCOUNT_LOCK_STATUS.SECURE,
+  AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_COMPLETED,
+];
+
+export const PENDING_STATUSES: AuthAccountLockStatus[] = [
+  AUTH_ACCOUNT_LOCK_STATUS.PENDING,
+  AUTH_ACCOUNT_LOCK_STATUS.INVESTIGATING,
+  AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_IN_PROGRESS,
+];
+
+export const EXPIRED_STATUSES: AuthAccountLockStatus[] = [
+  AUTH_ACCOUNT_LOCK_STATUS.EXPIRED,
+  AUTH_ACCOUNT_LOCK_STATUS.REMOVED,
+];
+
+export const SECURITY_STATUSES: AuthAccountLockStatus[] = [
+  AUTH_ACCOUNT_LOCK_STATUS.COMPROMISED,
+  AUTH_ACCOUNT_LOCK_STATUS.SUSPICIOUS,
+  AUTH_ACCOUNT_LOCK_STATUS.INVESTIGATING,
+];
+
+export const RECOVERY_STATUSES: AuthAccountLockStatus[] = [
+  AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_IN_PROGRESS,
+  AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_COMPLETED,
+  AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_FAILED,
+];
+
+export function isAccountLocked(status: AuthAccountLockStatus): boolean {
+  return LOCKED_STATUSES.includes(status);
+}
+
+export function isAccountUnlocked(status: AuthAccountLockStatus): boolean {
+  return UNLOCKED_STATUSES.includes(status);
+}
+
+export function isAccountPending(status: AuthAccountLockStatus): boolean {
+  return PENDING_STATUSES.includes(status);
+}
+
+export function isAccountExpired(status: AuthAccountLockStatus): boolean {
+  return EXPIRED_STATUSES.includes(status);
+}
+
+export function isAccountSecurityIssue(status: AuthAccountLockStatus): boolean {
+  return SECURITY_STATUSES.includes(status);
+}
+
+export function isAccountRecovery(status: AuthAccountLockStatus): boolean {
+  return RECOVERY_STATUSES.includes(status);
+}
+
+export function getAccountLockStatusLabel(status: AuthAccountLockStatus): string {
+  const labels: Record<AuthAccountLockStatus, string> = {
+    [AUTH_ACCOUNT_LOCK_STATUS.LOCKED]: 'Locked',
+    [AUTH_ACCOUNT_LOCK_STATUS.UNLOCKED]: 'Unlocked',
+    [AUTH_ACCOUNT_LOCK_STATUS.PENDING]: 'Pending',
+    [AUTH_ACCOUNT_LOCK_STATUS.PARTIAL]: 'Partially Locked',
+    [AUTH_ACCOUNT_LOCK_STATUS.PERMANENT]: 'Permanently Locked',
+    [AUTH_ACCOUNT_LOCK_STATUS.TEMPORARY]: 'Temporarily Locked',
+    [AUTH_ACCOUNT_LOCK_STATUS.ACTIVE]: 'Lock Active',
+    [AUTH_ACCOUNT_LOCK_STATUS.EXPIRED]: 'Lock Expired',
+    [AUTH_ACCOUNT_LOCK_STATUS.REMOVED]: 'Lock Removed',
+    [AUTH_ACCOUNT_LOCK_STATUS.ESCALATED]: 'Lock Escalated',
+    [AUTH_ACCOUNT_LOCK_STATUS.DEESCALATED]: 'Lock Deescalated',
+    [AUTH_ACCOUNT_LOCK_STATUS.SECURE]: 'Secure',
+    [AUTH_ACCOUNT_LOCK_STATUS.COMPROMISED]: 'Compromised',
+    [AUTH_ACCOUNT_LOCK_STATUS.SUSPICIOUS]: 'Suspicious',
+    [AUTH_ACCOUNT_LOCK_STATUS.INVESTIGATING]: 'Investigating',
+    [AUTH_ACCOUNT_LOCK_STATUS.MANUAL_LOCK]: 'Manual Lock',
+    [AUTH_ACCOUNT_LOCK_STATUS.AUTO_LOCK]: 'Auto Lock',
+    [AUTH_ACCOUNT_LOCK_STATUS.ADMIN_LOCK]: 'Admin Lock',
+    [AUTH_ACCOUNT_LOCK_STATUS.SYSTEM_LOCK]: 'System Lock',
+    [AUTH_ACCOUNT_LOCK_STATUS.IP_LOCK]: 'IP Lock',
+    [AUTH_ACCOUNT_LOCK_STATUS.DEVICE_LOCK]: 'Device Lock',
+    [AUTH_ACCOUNT_LOCK_STATUS.GEO_LOCK]: 'Geographic Lock',
+    [AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_IN_PROGRESS]: 'Recovery In Progress',
+    [AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_COMPLETED]: 'Recovery Completed',
+    [AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_FAILED]: 'Recovery Failed',
+  };
+
+  return labels[status] || 'Unknown Status';
+}
+
+export function getAccountLockStatusColor(status: AuthAccountLockStatus): string {
+  const colors: Record<AuthAccountLockStatus, string> = {
+    [AUTH_ACCOUNT_LOCK_STATUS.LOCKED]: '#DC2626',
+    [AUTH_ACCOUNT_LOCK_STATUS.UNLOCKED]: '#10B981',
+    [AUTH_ACCOUNT_LOCK_STATUS.PENDING]: '#F59E0B',
+    [AUTH_ACCOUNT_LOCK_STATUS.PARTIAL]: '#F97316',
+    [AUTH_ACCOUNT_LOCK_STATUS.PERMANENT]: '#991B1B',
+    [AUTH_ACCOUNT_LOCK_STATUS.TEMPORARY]: '#EF4444',
+    [AUTH_ACCOUNT_LOCK_STATUS.ACTIVE]: '#DC2626',
+    [AUTH_ACCOUNT_LOCK_STATUS.EXPIRED]: '#6B7280',
+    [AUTH_ACCOUNT_LOCK_STATUS.REMOVED]: '#6B7280',
+    [AUTH_ACCOUNT_LOCK_STATUS.ESCALATED]: '#DC2626',
+    [AUTH_ACCOUNT_LOCK_STATUS.DEESCALATED]: '#F59E0B',
+    [AUTH_ACCOUNT_LOCK_STATUS.SECURE]: '#10B981',
+    [AUTH_ACCOUNT_LOCK_STATUS.COMPROMISED]: '#DC2626',
+    [AUTH_ACCOUNT_LOCK_STATUS.SUSPICIOUS]: '#F59E0B',
+    [AUTH_ACCOUNT_LOCK_STATUS.INVESTIGATING]: '#F97316',
+    [AUTH_ACCOUNT_LOCK_STATUS.MANUAL_LOCK]: '#8B5CF6',
+    [AUTH_ACCOUNT_LOCK_STATUS.AUTO_LOCK]: '#EC4899',
+    [AUTH_ACCOUNT_LOCK_STATUS.ADMIN_LOCK]: '#6366F1',
+    [AUTH_ACCOUNT_LOCK_STATUS.SYSTEM_LOCK]: '#8B5CF6',
+    [AUTH_ACCOUNT_LOCK_STATUS.IP_LOCK]: '#3B82F6',
+    [AUTH_ACCOUNT_LOCK_STATUS.DEVICE_LOCK]: '#8B5CF6',
+    [AUTH_ACCOUNT_LOCK_STATUS.GEO_LOCK]: '#F59E0B',
+    [AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_IN_PROGRESS]: '#F59E0B',
+    [AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_COMPLETED]: '#10B981',
+    [AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_FAILED]: '#EF4444',
+  };
+
+  return colors[status] || '#6B7280';
+}
+
+export function getAccountLockStatusPriority(status: AuthAccountLockStatus): number {
+  const priorities: Record<AuthAccountLockStatus, number> = {
+    [AUTH_ACCOUNT_LOCK_STATUS.LOCKED]: 10,
+    [AUTH_ACCOUNT_LOCK_STATUS.UNLOCKED]: 0,
+    [AUTH_ACCOUNT_LOCK_STATUS.PENDING]: 5,
+    [AUTH_ACCOUNT_LOCK_STATUS.PARTIAL]: 6,
+    [AUTH_ACCOUNT_LOCK_STATUS.PERMANENT]: 10,
+    [AUTH_ACCOUNT_LOCK_STATUS.TEMPORARY]: 7,
+    [AUTH_ACCOUNT_LOCK_STATUS.ACTIVE]: 8,
+    [AUTH_ACCOUNT_LOCK_STATUS.EXPIRED]: 3,
+    [AUTH_ACCOUNT_LOCK_STATUS.REMOVED]: 2,
+    [AUTH_ACCOUNT_LOCK_STATUS.ESCALATED]: 9,
+    [AUTH_ACCOUNT_LOCK_STATUS.DEESCALATED]: 4,
+    [AUTH_ACCOUNT_LOCK_STATUS.SECURE]: 0,
+    [AUTH_ACCOUNT_LOCK_STATUS.COMPROMISED]: 10,
+    [AUTH_ACCOUNT_LOCK_STATUS.SUSPICIOUS]: 7,
+    [AUTH_ACCOUNT_LOCK_STATUS.INVESTIGATING]: 6,
+    [AUTH_ACCOUNT_LOCK_STATUS.MANUAL_LOCK]: 8,
+    [AUTH_ACCOUNT_LOCK_STATUS.AUTO_LOCK]: 7,
+    [AUTH_ACCOUNT_LOCK_STATUS.ADMIN_LOCK]: 8,
+    [AUTH_ACCOUNT_LOCK_STATUS.SYSTEM_LOCK]: 8,
+    [AUTH_ACCOUNT_LOCK_STATUS.IP_LOCK]: 7,
+    [AUTH_ACCOUNT_LOCK_STATUS.DEVICE_LOCK]: 7,
+    [AUTH_ACCOUNT_LOCK_STATUS.GEO_LOCK]: 7,
+    [AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_IN_PROGRESS]: 6,
+    [AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_COMPLETED]: 4,
+    [AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_FAILED]: 8,
+  };
+
+  return priorities[status] || 5;
+}
+
+export function getAccountLockStatusBadgeType(
+  status: AuthAccountLockStatus
+): 'success' | 'warning' | 'error' | 'info' | 'default' {
+  const types: Record<AuthAccountLockStatus, 'success' | 'warning' | 'error' | 'info' | 'default'> =
+    {
+      [AUTH_ACCOUNT_LOCK_STATUS.LOCKED]: 'error',
+      [AUTH_ACCOUNT_LOCK_STATUS.UNLOCKED]: 'success',
+      [AUTH_ACCOUNT_LOCK_STATUS.PENDING]: 'warning',
+      [AUTH_ACCOUNT_LOCK_STATUS.PARTIAL]: 'warning',
+      [AUTH_ACCOUNT_LOCK_STATUS.PERMANENT]: 'error',
+      [AUTH_ACCOUNT_LOCK_STATUS.TEMPORARY]: 'warning',
+      [AUTH_ACCOUNT_LOCK_STATUS.ACTIVE]: 'error',
+      [AUTH_ACCOUNT_LOCK_STATUS.EXPIRED]: 'default',
+      [AUTH_ACCOUNT_LOCK_STATUS.REMOVED]: 'default',
+      [AUTH_ACCOUNT_LOCK_STATUS.ESCALATED]: 'error',
+      [AUTH_ACCOUNT_LOCK_STATUS.DEESCALATED]: 'warning',
+      [AUTH_ACCOUNT_LOCK_STATUS.SECURE]: 'success',
+      [AUTH_ACCOUNT_LOCK_STATUS.COMPROMISED]: 'error',
+      [AUTH_ACCOUNT_LOCK_STATUS.SUSPICIOUS]: 'warning',
+      [AUTH_ACCOUNT_LOCK_STATUS.INVESTIGATING]: 'info',
+      [AUTH_ACCOUNT_LOCK_STATUS.MANUAL_LOCK]: 'error',
+      [AUTH_ACCOUNT_LOCK_STATUS.AUTO_LOCK]: 'warning',
+      [AUTH_ACCOUNT_LOCK_STATUS.ADMIN_LOCK]: 'error',
+      [AUTH_ACCOUNT_LOCK_STATUS.SYSTEM_LOCK]: 'error',
+      [AUTH_ACCOUNT_LOCK_STATUS.IP_LOCK]: 'warning',
+      [AUTH_ACCOUNT_LOCK_STATUS.DEVICE_LOCK]: 'warning',
+      [AUTH_ACCOUNT_LOCK_STATUS.GEO_LOCK]: 'warning',
+      [AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_IN_PROGRESS]: 'info',
+      [AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_COMPLETED]: 'success',
+      [AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_FAILED]: 'error',
+    };
+
+  return types[status] || 'default';
+}

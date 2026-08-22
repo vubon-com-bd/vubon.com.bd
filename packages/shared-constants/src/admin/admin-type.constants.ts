@@ -1,185 +1,203 @@
 /**
- * অ্যাডমিনের টাইপ সম্পর্কিত কনস্ট্যান্টসমূহ
+ * Admin Type Constants
+ * Admin account type definitions
  */
 
-// অ্যাডমিন টাইপ
-export const ADMIN_TYPES = {
-  SUPER_ADMIN: 'super_admin',
-  SYSTEM_ADMIN: 'system_admin',
-  CONTENT_ADMIN: 'content_admin',
-  SUPPORT_ADMIN: 'support_admin',
-  SALES_ADMIN: 'sales_admin',
-  MARKETING_ADMIN: 'marketing_admin',
+export const ADMIN_TYPE = {
+  SYSTEM: 'system',
+  USER: 'user',
+  VENDOR: 'vendor',
+  PARTNER: 'partner',
+  CONSULTANT: 'consultant',
+  CONTRACTOR: 'contractor',
+  INTERN: 'intern',
+  TEMPORARY: 'temporary',
+  PERMANENT: 'permanent',
+  EXTERNAL: 'external',
+  INTERNAL: 'internal',
 } as const;
 
-// টাইপের ডেসক্রিপশন
-export const ADMIN_TYPE_DESCRIPTIONS = {
-  SUPER_ADMIN: 'Full system access and control over all features',
-  SYSTEM_ADMIN: 'Manage system settings and technical configurations',
-  CONTENT_ADMIN: 'Manage content, media, and publications',
-  SUPPORT_ADMIN: 'Handle support tickets and customer queries',
-  SALES_ADMIN: 'Manage sales, orders, and payment systems',
-  MARKETING_ADMIN: 'Manage marketing campaigns and promotions',
-} as const;
+export type AdminTypeType = (typeof ADMIN_TYPE)[keyof typeof ADMIN_TYPE];
 
-// টাইপের আইকন
-export const ADMIN_TYPE_ICONS = {
-  SUPER_ADMIN: '👑',
-  SYSTEM_ADMIN: '⚙️',
-  CONTENT_ADMIN: '📝',
-  SUPPORT_ADMIN: '🎧',
-  SALES_ADMIN: '💰',
-  MARKETING_ADMIN: '📢',
-} as const;
+export const ADMIN_TYPE_LABELS: Record<AdminTypeType, string> = {
+  [ADMIN_TYPE.SYSTEM]: 'System Administrator',
+  [ADMIN_TYPE.USER]: 'User Administrator',
+  [ADMIN_TYPE.VENDOR]: 'Vendor Administrator',
+  [ADMIN_TYPE.PARTNER]: 'Partner Administrator',
+  [ADMIN_TYPE.CONSULTANT]: 'Consultant',
+  [ADMIN_TYPE.CONTRACTOR]: 'Contractor',
+  [ADMIN_TYPE.INTERN]: 'Intern',
+  [ADMIN_TYPE.TEMPORARY]: 'Temporary Staff',
+  [ADMIN_TYPE.PERMANENT]: 'Permanent Staff',
+  [ADMIN_TYPE.EXTERNAL]: 'External User',
+  [ADMIN_TYPE.INTERNAL]: 'Internal User',
+};
 
-// টাইপের কালার কোড
-export const ADMIN_TYPE_COLORS = {
-  SUPER_ADMIN: '#DC2626', // লাল
-  SYSTEM_ADMIN: '#2563EB', // নীল
-  CONTENT_ADMIN: '#16A34A', // সবুজ
-  SUPPORT_ADMIN: '#F59E0B', // কমলা
-  SALES_ADMIN: '#8B5CF6', // বেগুনি
-  MARKETING_ADMIN: '#EC4899', // গোলাপি
-} as const;
+export type AdminTypeLabel = (typeof ADMIN_TYPE_LABELS)[keyof typeof ADMIN_TYPE_LABELS];
 
-// ডিফল্ট টাইপ
-export const DEFAULT_ADMIN_TYPE = 'content_admin';
+export const ADMIN_TYPE_DESCRIPTIONS: Record<AdminTypeType, string> = {
+  [ADMIN_TYPE.SYSTEM]: 'System-level administrator with full access',
+  [ADMIN_TYPE.USER]: 'User management administrator',
+  [ADMIN_TYPE.VENDOR]: 'Vendor management administrator',
+  [ADMIN_TYPE.PARTNER]: 'Partner management administrator',
+  [ADMIN_TYPE.CONSULTANT]: 'External consultant with limited access',
+  [ADMIN_TYPE.CONTRACTOR]: 'Contractor with temporary access',
+  [ADMIN_TYPE.INTERN]: 'Intern with supervised access',
+  [ADMIN_TYPE.TEMPORARY]: 'Temporary staff with time-limited access',
+  [ADMIN_TYPE.PERMANENT]: 'Permanent staff with full access',
+  [ADMIN_TYPE.EXTERNAL]: 'External user with restricted access',
+  [ADMIN_TYPE.INTERNAL]: 'Internal user with standard access',
+};
 
-// টাইপের পারমিশন সেট
-export const ADMIN_TYPE_PERMISSIONS = {
-  SUPER_ADMIN: ['*'], // সর্বোচ্চ পারমিশন
-  SYSTEM_ADMIN: [
-    'system_settings.*',
-    'user_management.view',
-    'role_management.view',
-    'analytics.view',
-    'audit_logs.view',
-  ],
-  CONTENT_ADMIN: ['content_management.*', 'media_management.*', 'analytics.view', 'dashboard.view'],
-  SUPPORT_ADMIN: ['support.*', 'user_management.view', 'ticket_management.*', 'analytics.view'],
-  SALES_ADMIN: ['sales.*', 'payment_management.view', 'order_management.*', 'analytics.view'],
-  MARKETING_ADMIN: ['marketing.*', 'campaign_management.*', 'analytics.view', 'dashboard.view'],
-} as const;
+export type AdminTypeDescription =
+  (typeof ADMIN_TYPE_DESCRIPTIONS)[keyof typeof ADMIN_TYPE_DESCRIPTIONS];
 
-// টাইপের প্রায়োরিটি লেভেল (১ = সর্বোচ্চ)
-export const ADMIN_TYPE_PRIORITY = {
-  SUPER_ADMIN: 1,
-  SYSTEM_ADMIN: 2,
-  CONTENT_ADMIN: 3,
-  SUPPORT_ADMIN: 4,
-  SALES_ADMIN: 5,
-  MARKETING_ADMIN: 6,
-} as const;
-
-// টাইপের সেশান টাইমআউট (মিনিটে)
-export const ADMIN_TYPE_SESSION_TIMEOUT = {
-  SUPER_ADMIN: 120, // ২ ঘন্টা
-  SYSTEM_ADMIN: 90, // ১.৫ ঘন্টা
-  CONTENT_ADMIN: 60, // ১ ঘন্টা
-  SUPPORT_ADMIN: 60, // ১ ঘন্টা
-  SALES_ADMIN: 45, // ৪৫ মিনিট
-  MARKETING_ADMIN: 45, // ৪৫ মিনিট
-} as const;
-
-// টাইপের লেবেল (বাংলা)
-export const ADMIN_TYPE_LABELS_BN = {
-  SUPER_ADMIN: 'সুপার অ্যাডমিন',
-  SYSTEM_ADMIN: 'সিস্টেম অ্যাডমিন',
-  CONTENT_ADMIN: 'কন্টেন্ট অ্যাডমিন',
-  SUPPORT_ADMIN: 'সাপোর্ট অ্যাডমিন',
-  SALES_ADMIN: 'সেলস অ্যাডমিন',
-  MARKETING_ADMIN: 'মার্কেটিং অ্যাডমিন',
-} as const;
-
-// টাইপের লেবেল (ইংরেজি)
-export const ADMIN_TYPE_LABELS_EN = {
-  SUPER_ADMIN: 'Super Admin',
-  SYSTEM_ADMIN: 'System Admin',
-  CONTENT_ADMIN: 'Content Admin',
-  SUPPORT_ADMIN: 'Support Admin',
-  SALES_ADMIN: 'Sales Admin',
-  MARKETING_ADMIN: 'Marketing Admin',
-} as const;
-
-// টাইপের CSS ক্লাস
-export const ADMIN_TYPE_CSS_CLASSES = {
-  SUPER_ADMIN: 'badge-danger',
-  SYSTEM_ADMIN: 'badge-primary',
-  CONTENT_ADMIN: 'badge-success',
-  SUPPORT_ADMIN: 'badge-warning',
-  SALES_ADMIN: 'badge-purple',
-  MARKETING_ADMIN: 'badge-pink',
-} as const;
-
-// টাইপ গ্রুপ
-export const ADMIN_TYPE_GROUPS = {
-  SYSTEM_ADMINS: ['super_admin', 'system_admin'],
-  OPERATIONAL_ADMINS: ['content_admin', 'support_admin'],
-  BUSINESS_ADMINS: ['sales_admin', 'marketing_admin'],
-} as const;
-
-// টাইপ ভ্যালিডেশন রুলস
-export const ADMIN_TYPE_VALIDATION = {
-  SUPER_ADMIN: {
-    canCreateAdmin: true,
-    canDeleteAdmin: true,
-    canModifySystem: true,
-    canAccessAll: true,
-    maxAdmins: 2,
+export const ADMIN_TYPE_REQUIREMENTS: Record<
+  AdminTypeType,
+  {
+    minAge: number;
+    requiredDocuments: string[];
+    trainingRequired: boolean;
+    certificationRequired: boolean;
+  }
+> = {
+  [ADMIN_TYPE.SYSTEM]: {
+    minAge: 18,
+    requiredDocuments: ['nid', 'passport', 'background_check'],
+    trainingRequired: true,
+    certificationRequired: true,
   },
-  SYSTEM_ADMIN: {
-    canCreateAdmin: false,
-    canDeleteAdmin: false,
-    canModifySystem: true,
-    canAccessAll: false,
-    maxAdmins: 5,
+  [ADMIN_TYPE.USER]: {
+    minAge: 18,
+    requiredDocuments: ['nid', 'background_check'],
+    trainingRequired: true,
+    certificationRequired: false,
   },
-  CONTENT_ADMIN: {
-    canCreateAdmin: false,
-    canDeleteAdmin: false,
-    canModifySystem: false,
-    canAccessAll: false,
-    maxAdmins: 10,
+  [ADMIN_TYPE.VENDOR]: {
+    minAge: 21,
+    requiredDocuments: ['nid', 'tin', 'trade_license'],
+    trainingRequired: true,
+    certificationRequired: true,
   },
-  SUPPORT_ADMIN: {
-    canCreateAdmin: false,
-    canDeleteAdmin: false,
-    canModifySystem: false,
-    canAccessAll: false,
-    maxAdmins: 10,
+  [ADMIN_TYPE.PARTNER]: {
+    minAge: 21,
+    requiredDocuments: ['nid', 'tin', 'partnership_deed'],
+    trainingRequired: true,
+    certificationRequired: true,
   },
-  SALES_ADMIN: {
-    canCreateAdmin: false,
-    canDeleteAdmin: false,
-    canModifySystem: false,
-    canAccessAll: false,
-    maxAdmins: 8,
+  [ADMIN_TYPE.CONSULTANT]: {
+    minAge: 25,
+    requiredDocuments: ['nid', 'cv', 'reference_letters'],
+    trainingRequired: false,
+    certificationRequired: true,
   },
-  MARKETING_ADMIN: {
-    canCreateAdmin: false,
-    canDeleteAdmin: false,
-    canModifySystem: false,
-    canAccessAll: false,
-    maxAdmins: 8,
+  [ADMIN_TYPE.CONTRACTOR]: {
+    minAge: 18,
+    requiredDocuments: ['nid', 'contract_agreement'],
+    trainingRequired: false,
+    certificationRequired: false,
   },
-} as const;
+  [ADMIN_TYPE.INTERN]: {
+    minAge: 16,
+    requiredDocuments: ['nid', 'student_id'],
+    trainingRequired: true,
+    certificationRequired: false,
+  },
+  [ADMIN_TYPE.TEMPORARY]: {
+    minAge: 18,
+    requiredDocuments: ['nid'],
+    trainingRequired: true,
+    certificationRequired: false,
+  },
+  [ADMIN_TYPE.PERMANENT]: {
+    minAge: 18,
+    requiredDocuments: ['nid', 'background_check'],
+    trainingRequired: true,
+    certificationRequired: false,
+  },
+  [ADMIN_TYPE.EXTERNAL]: {
+    minAge: 18,
+    requiredDocuments: ['nid', 'verification_letter'],
+    trainingRequired: false,
+    certificationRequired: false,
+  },
+  [ADMIN_TYPE.INTERNAL]: {
+    minAge: 18,
+    requiredDocuments: ['nid'],
+    trainingRequired: true,
+    certificationRequired: false,
+  },
+};
 
-// টাইপের জন্য ইমোজি
-export const ADMIN_TYPE_EMOJIS = {
-  SUPER_ADMIN: '⭐',
-  SYSTEM_ADMIN: '🔧',
-  CONTENT_ADMIN: '📄',
-  SUPPORT_ADMIN: '💬',
-  SALES_ADMIN: '💎',
-  MARKETING_ADMIN: '📊',
-} as const;
+export type AdminTypeRequirement =
+  (typeof ADMIN_TYPE_REQUIREMENTS)[keyof typeof ADMIN_TYPE_REQUIREMENTS];
 
-// টাইপ অনুযায়ী ডিফল্ট রোল
-export const ADMIN_TYPE_DEFAULT_ROLES = {
-  SUPER_ADMIN: 'super_admin',
-  SYSTEM_ADMIN: 'system_admin',
-  CONTENT_ADMIN: 'editor',
-  SUPPORT_ADMIN: 'support',
-  SALES_ADMIN: 'sales',
-  MARKETING_ADMIN: 'marketing',
-} as const;
+export const INTERNAL_ADMIN_TYPES: AdminTypeType[] = [
+  ADMIN_TYPE.SYSTEM,
+  ADMIN_TYPE.USER,
+  ADMIN_TYPE.VENDOR,
+  ADMIN_TYPE.PARTNER,
+  ADMIN_TYPE.PERMANENT,
+  ADMIN_TYPE.INTERNAL,
+];
+
+export const EXTERNAL_ADMIN_TYPES: AdminTypeType[] = [
+  ADMIN_TYPE.CONSULTANT,
+  ADMIN_TYPE.CONTRACTOR,
+  ADMIN_TYPE.INTERN,
+  ADMIN_TYPE.TEMPORARY,
+  ADMIN_TYPE.EXTERNAL,
+];
+
+export const EMPLOYMENT_ADMIN_TYPES: AdminTypeType[] = [
+  ADMIN_TYPE.PERMANENT,
+  ADMIN_TYPE.TEMPORARY,
+  ADMIN_TYPE.CONTRACTOR,
+  ADMIN_TYPE.INTERN,
+];
+
+export const MANAGEMENT_ADMIN_TYPES: AdminTypeType[] = [
+  ADMIN_TYPE.SYSTEM,
+  ADMIN_TYPE.USER,
+  ADMIN_TYPE.VENDOR,
+  ADMIN_TYPE.PARTNER,
+];
+
+export function getAdminTypeLabel(type: AdminTypeType): string {
+  return ADMIN_TYPE_LABELS[type] || 'Unknown Type';
+}
+
+export function getAdminTypeDescription(type: AdminTypeType): string {
+  return ADMIN_TYPE_DESCRIPTIONS[type] || 'No description available';
+}
+
+export function getAdminTypeRequirements(type: AdminTypeType): AdminTypeRequirement {
+  return (
+    ADMIN_TYPE_REQUIREMENTS[type] || {
+      minAge: 18,
+      requiredDocuments: ['nid'],
+      trainingRequired: false,
+      certificationRequired: false,
+    }
+  );
+}
+
+export function isInternalAdminType(type: AdminTypeType): boolean {
+  return INTERNAL_ADMIN_TYPES.includes(type);
+}
+
+export function isExternalAdminType(type: AdminTypeType): boolean {
+  return EXTERNAL_ADMIN_TYPES.includes(type);
+}
+
+export function isEmploymentAdminType(type: AdminTypeType): boolean {
+  return EMPLOYMENT_ADMIN_TYPES.includes(type);
+}
+
+export function isManagementAdminType(type: AdminTypeType): boolean {
+  return MANAGEMENT_ADMIN_TYPES.includes(type);
+}
+
+export function getAdminTypes(): AdminTypeType[] {
+  return Object.values(ADMIN_TYPE);
+}

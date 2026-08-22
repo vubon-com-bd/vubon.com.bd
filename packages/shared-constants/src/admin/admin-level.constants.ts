@@ -1,215 +1,205 @@
 /**
- * অ্যাডমিনের লেভেল সম্পর্কিত কনস্ট্যান্টসমূহ
+ * Admin Level Constants
+ * Admin level and seniority definitions
  */
 
-// অ্যাডমিন লেভেল
-export const ADMIN_LEVELS = {
-  LEVEL_1: 'level_1',
-  LEVEL_2: 'level_2',
-  LEVEL_3: 'level_3',
-  LEVEL_4: 'level_4',
-  LEVEL_5: 'level_5',
-} as const;
-
-// লেভেলের নাম
-export const ADMIN_LEVEL_NAMES = {
-  LEVEL_1: 'Entry Level',
-  LEVEL_2: 'Junior Level',
-  LEVEL_3: 'Mid Level',
-  LEVEL_4: 'Senior Level',
-  LEVEL_5: 'Executive Level',
-} as const;
-
-// লেভেলের কর্তৃত্ব সীমা
-export const ADMIN_LEVEL_AUTHORITY_LIMITS = {
-  LEVEL_1: {
-    maxUsers: 10,
-    maxRoles: 1,
-    maxPermissions: 5,
-    canCreateContent: false,
-    canModifySettings: false,
-  },
-  LEVEL_2: {
-    maxUsers: 50,
-    maxRoles: 3,
-    maxPermissions: 15,
-    canCreateContent: true,
-    canModifySettings: false,
-  },
-  LEVEL_3: {
-    maxUsers: 200,
-    maxRoles: 5,
-    maxPermissions: 30,
-    canCreateContent: true,
-    canModifySettings: true,
-  },
-  LEVEL_4: {
-    maxUsers: 500,
-    maxRoles: 10,
-    maxPermissions: 50,
-    canCreateContent: true,
-    canModifySettings: true,
-  },
-  LEVEL_5: {
-    maxUsers: 1000,
-    maxRoles: 20,
-    maxPermissions: 100,
-    canCreateContent: true,
-    canModifySettings: true,
-  },
-} as const;
-
-// লেভেলের পারমিশন স্কোপ
-export const ADMIN_LEVEL_PERMISSION_SCOPES = {
-  LEVEL_1: ['basic', 'read'],
-  LEVEL_2: ['basic', 'read', 'write'],
-  LEVEL_3: ['basic', 'read', 'write', 'modify'],
-  LEVEL_4: ['basic', 'read', 'write', 'modify', 'manage'],
-  LEVEL_5: ['basic', 'read', 'write', 'modify', 'manage', 'admin'],
-} as const;
-
-// লেভেলের প্রায়োরিটি (১ = সর্বোচ্চ)
-export const ADMIN_LEVEL_PRIORITY = {
-  LEVEL_1: 5,
-  LEVEL_2: 4,
+export const ADMIN_LEVEL = {
+  LEVEL_1: 1,
+  LEVEL_2: 2,
   LEVEL_3: 3,
-  LEVEL_4: 2,
-  LEVEL_5: 1,
+  LEVEL_4: 4,
+  LEVEL_5: 5,
+  LEVEL_6: 6,
+  LEVEL_7: 7,
+  LEVEL_8: 8,
+  LEVEL_9: 9,
+  LEVEL_10: 10,
+  LEVEL_11: 11,
+  LEVEL_12: 12,
+  LEVEL_13: 13,
+  LEVEL_14: 14,
+  LEVEL_15: 15,
 } as const;
 
-// ডিফল্ট লেভেল
-export const DEFAULT_ADMIN_LEVEL = 'level_1';
+export type AdminLevelType = (typeof ADMIN_LEVEL)[keyof typeof ADMIN_LEVEL];
 
-// লেভেল আপগ্রেডের শর্তাবলী
-export const ADMIN_LEVEL_UPGRADE_CONDITIONS = {
-  LEVEL_1_TO_LEVEL_2: {
-    minExperience: 6, // মাস
-    minRating: 3.5,
-    requiredTraining: ['basic_training'],
-    requiredProjects: 2,
+export const ADMIN_LEVEL_NAMES: Record<AdminLevelType, string> = {
+  [ADMIN_LEVEL.LEVEL_1]: 'Junior Trainee',
+  [ADMIN_LEVEL.LEVEL_2]: 'Trainee',
+  [ADMIN_LEVEL.LEVEL_3]: 'Junior Associate',
+  [ADMIN_LEVEL.LEVEL_4]: 'Associate',
+  [ADMIN_LEVEL.LEVEL_5]: 'Senior Associate',
+  [ADMIN_LEVEL.LEVEL_6]: 'Junior Executive',
+  [ADMIN_LEVEL.LEVEL_7]: 'Executive',
+  [ADMIN_LEVEL.LEVEL_8]: 'Senior Executive',
+  [ADMIN_LEVEL.LEVEL_9]: 'Assistant Manager',
+  [ADMIN_LEVEL.LEVEL_10]: 'Deputy Manager',
+  [ADMIN_LEVEL.LEVEL_11]: 'Manager',
+  [ADMIN_LEVEL.LEVEL_12]: 'Senior Manager',
+  [ADMIN_LEVEL.LEVEL_13]: 'Assistant Director',
+  [ADMIN_LEVEL.LEVEL_14]: 'Deputy Director',
+  [ADMIN_LEVEL.LEVEL_15]: 'Director',
+};
+
+export type AdminLevelName = (typeof ADMIN_LEVEL_NAMES)[keyof typeof ADMIN_LEVEL_NAMES];
+
+export const ADMIN_LEVEL_REQUIREMENTS: Record<
+  AdminLevelType,
+  {
+    minExperience: number;
+    minEducation: string;
+    trainingRequired: boolean;
+  }
+> = {
+  [ADMIN_LEVEL.LEVEL_1]: {
+    minExperience: 0,
+    minEducation: 'high_school',
+    trainingRequired: true,
   },
-  LEVEL_2_TO_LEVEL_3: {
+  [ADMIN_LEVEL.LEVEL_2]: {
+    minExperience: 0,
+    minEducation: 'high_school',
+    trainingRequired: true,
+  },
+  [ADMIN_LEVEL.LEVEL_3]: {
+    minExperience: 0,
+    minEducation: 'bachelor',
+    trainingRequired: true,
+  },
+  [ADMIN_LEVEL.LEVEL_4]: {
+    minExperience: 1,
+    minEducation: 'bachelor',
+    trainingRequired: true,
+  },
+  [ADMIN_LEVEL.LEVEL_5]: {
+    minExperience: 2,
+    minEducation: 'bachelor',
+    trainingRequired: false,
+  },
+  [ADMIN_LEVEL.LEVEL_6]: {
+    minExperience: 2,
+    minEducation: 'bachelor',
+    trainingRequired: false,
+  },
+  [ADMIN_LEVEL.LEVEL_7]: {
+    minExperience: 3,
+    minEducation: 'bachelor',
+    trainingRequired: false,
+  },
+  [ADMIN_LEVEL.LEVEL_8]: {
+    minExperience: 4,
+    minEducation: 'bachelor',
+    trainingRequired: false,
+  },
+  [ADMIN_LEVEL.LEVEL_9]: {
+    minExperience: 4,
+    minEducation: 'bachelor',
+    trainingRequired: false,
+  },
+  [ADMIN_LEVEL.LEVEL_10]: {
+    minExperience: 5,
+    minEducation: 'bachelor',
+    trainingRequired: false,
+  },
+  [ADMIN_LEVEL.LEVEL_11]: {
+    minExperience: 6,
+    minEducation: 'master',
+    trainingRequired: false,
+  },
+  [ADMIN_LEVEL.LEVEL_12]: {
+    minExperience: 8,
+    minEducation: 'master',
+    trainingRequired: false,
+  },
+  [ADMIN_LEVEL.LEVEL_13]: {
+    minExperience: 10,
+    minEducation: 'master',
+    trainingRequired: false,
+  },
+  [ADMIN_LEVEL.LEVEL_14]: {
     minExperience: 12,
-    minRating: 4.0,
-    requiredTraining: ['basic_training', 'advanced_training'],
-    requiredProjects: 5,
+    minEducation: 'master',
+    trainingRequired: false,
   },
-  LEVEL_3_TO_LEVEL_4: {
-    minExperience: 24,
-    minRating: 4.5,
-    requiredTraining: ['basic_training', 'advanced_training', 'leadership_training'],
-    requiredProjects: 10,
+  [ADMIN_LEVEL.LEVEL_15]: {
+    minExperience: 15,
+    minEducation: 'master',
+    trainingRequired: false,
   },
-  LEVEL_4_TO_LEVEL_5: {
-    minExperience: 48,
-    minRating: 4.8,
-    requiredTraining: [
-      'basic_training',
-      'advanced_training',
-      'leadership_training',
-      'executive_training',
-    ],
-    requiredProjects: 20,
-  },
-} as const;
+};
 
-// লেভেলের অনুমোদিত অ্যাকশন লিস্ট
-export const ADMIN_LEVEL_ALLOWED_ACTIONS = {
-  LEVEL_1: ['view_dashboard', 'view_profile', 'edit_profile', 'view_content'],
-  LEVEL_2: [
-    'view_dashboard',
-    'view_profile',
-    'edit_profile',
-    'view_content',
-    'create_content',
-    'edit_content',
-  ],
-  LEVEL_3: [
-    'view_dashboard',
-    'view_profile',
-    'edit_profile',
-    'view_content',
-    'create_content',
-    'edit_content',
-    'delete_content',
-    'modify_settings',
-  ],
-  LEVEL_4: [
-    'view_dashboard',
-    'view_profile',
-    'edit_profile',
-    'view_content',
-    'create_content',
-    'edit_content',
-    'delete_content',
-    'modify_settings',
-    'manage_users',
-    'manage_roles',
-  ],
-  LEVEL_5: [
-    'view_dashboard',
-    'view_profile',
-    'edit_profile',
-    'view_content',
-    'create_content',
-    'edit_content',
-    'delete_content',
-    'modify_settings',
-    'manage_users',
-    'manage_roles',
-    'manage_permissions',
-    'system_admin',
-  ],
-} as const;
+export type AdminLevelRequirement =
+  (typeof ADMIN_LEVEL_REQUIREMENTS)[keyof typeof ADMIN_LEVEL_REQUIREMENTS];
 
-// লেভেলের কালার কোড
-export const ADMIN_LEVEL_COLORS = {
-  LEVEL_1: '#94A3B8', // ধূসর
-  LEVEL_2: '#3B82F6', // নীল
-  LEVEL_3: '#22C55E', // সবুজ
-  LEVEL_4: '#F59E0B', // কমলা
-  LEVEL_5: '#DC2626', // লাল
-} as const;
+export const ADMIN_LEVEL_PERMISSIONS: Record<AdminLevelType, string[]> = {
+  [ADMIN_LEVEL.LEVEL_1]: ['view_basic', 'read_only'],
+  [ADMIN_LEVEL.LEVEL_2]: ['view_basic', 'view_limited'],
+  [ADMIN_LEVEL.LEVEL_3]: ['view_all', 'create_basic'],
+  [ADMIN_LEVEL.LEVEL_4]: ['view_all', 'create_all', 'edit_basic'],
+  [ADMIN_LEVEL.LEVEL_5]: ['view_all', 'create_all', 'edit_all'],
+  [ADMIN_LEVEL.LEVEL_6]: ['manage_basic', 'approve_basic'],
+  [ADMIN_LEVEL.LEVEL_7]: ['manage_all', 'approve_limited'],
+  [ADMIN_LEVEL.LEVEL_8]: ['manage_all', 'approve_all'],
+  [ADMIN_LEVEL.LEVEL_9]: ['manage_team', 'supervise'],
+  [ADMIN_LEVEL.LEVEL_10]: ['manage_department', 'strategic'],
+  [ADMIN_LEVEL.LEVEL_11]: ['manage_division', 'decisions'],
+  [ADMIN_LEVEL.LEVEL_12]: ['manage_region', 'policy_making'],
+  [ADMIN_LEVEL.LEVEL_13]: ['manage_operations', 'executive'],
+  [ADMIN_LEVEL.LEVEL_14]: ['manage_strategy', 'leadership'],
+  [ADMIN_LEVEL.LEVEL_15]: ['full_authority', 'board_level'],
+};
 
-// লেভেলের আইকন
-export const ADMIN_LEVEL_ICONS = {
-  LEVEL_1: '⭐',
-  LEVEL_2: '🌟🌟',
-  LEVEL_3: '🌟🌟🌟',
-  LEVEL_4: '🌟🌟🌟🌟',
-  LEVEL_5: '🌟🌟🌟🌟🌟',
-} as const;
+export type AdminLevelPermissions =
+  (typeof ADMIN_LEVEL_PERMISSIONS)[keyof typeof ADMIN_LEVEL_PERMISSIONS];
 
-// লেভেলের লেবেল (বাংলা)
-export const ADMIN_LEVEL_LABELS_BN = {
-  LEVEL_1: 'প্রবেশ স্তর',
-  LEVEL_2: 'জুনিয়র স্তর',
-  LEVEL_3: 'মিড স্তর',
-  LEVEL_4: 'সিনিয়র স্তর',
-  LEVEL_5: 'এক্সিকিউটিভ স্তর',
-} as const;
+export function getAdminLevelName(level: AdminLevelType): string {
+  return ADMIN_LEVEL_NAMES[level] || 'Unknown Level';
+}
 
-// লেভেলের CSS ক্লাস
-export const ADMIN_LEVEL_CSS_CLASSES = {
-  LEVEL_1: 'level-basic',
-  LEVEL_2: 'level-junior',
-  LEVEL_3: 'level-mid',
-  LEVEL_4: 'level-senior',
-  LEVEL_5: 'level-executive',
-} as const;
+export function getAdminLevelRequirements(level: AdminLevelType): AdminLevelRequirement {
+  return (
+    ADMIN_LEVEL_REQUIREMENTS[level] || {
+      minExperience: 0,
+      minEducation: 'high_school',
+      trainingRequired: true,
+    }
+  );
+}
 
-// লেভেল গ্রুপ
-export const ADMIN_LEVEL_GROUPS = {
-  BASIC_LEVELS: ['level_1', 'level_2'],
-  MID_LEVELS: ['level_3'],
-  SENIOR_LEVELS: ['level_4', 'level_5'],
-} as const;
+export function getAdminLevelPermissions(level: AdminLevelType): string[] {
+  return ADMIN_LEVEL_PERMISSIONS[level] || [];
+}
 
-// লেভেলের জন্য ইমোজি
-export const ADMIN_LEVEL_EMOJIS = {
-  LEVEL_1: '🌱',
-  LEVEL_2: '🌿',
-  LEVEL_3: '🌳',
-  LEVEL_4: '🏆',
-  LEVEL_5: '👑',
-} as const;
+export function isEntryLevel(level: AdminLevelType): boolean {
+  return level <= ADMIN_LEVEL.LEVEL_4;
+}
+
+export function isMidLevel(level: AdminLevelType): boolean {
+  return level >= ADMIN_LEVEL.LEVEL_5 && level <= ADMIN_LEVEL.LEVEL_8;
+}
+
+export function isSeniorLevel(level: AdminLevelType): boolean {
+  return level >= ADMIN_LEVEL.LEVEL_9 && level <= ADMIN_LEVEL.LEVEL_11;
+}
+
+export function isExecutiveLevel(level: AdminLevelType): boolean {
+  return level >= ADMIN_LEVEL.LEVEL_12 && level <= ADMIN_LEVEL.LEVEL_15;
+}
+
+export function getAdminLevelByExperience(experienceYears: number): AdminLevelType {
+  if (experienceYears >= 15) return ADMIN_LEVEL.LEVEL_15;
+  if (experienceYears >= 12) return ADMIN_LEVEL.LEVEL_14;
+  if (experienceYears >= 10) return ADMIN_LEVEL.LEVEL_13;
+  if (experienceYears >= 8) return ADMIN_LEVEL.LEVEL_12;
+  if (experienceYears >= 6) return ADMIN_LEVEL.LEVEL_11;
+  if (experienceYears >= 5) return ADMIN_LEVEL.LEVEL_10;
+  if (experienceYears >= 4) return ADMIN_LEVEL.LEVEL_9;
+  if (experienceYears >= 3) return ADMIN_LEVEL.LEVEL_8;
+  if (experienceYears >= 2) return ADMIN_LEVEL.LEVEL_7;
+  if (experienceYears >= 1) return ADMIN_LEVEL.LEVEL_6;
+  return ADMIN_LEVEL.LEVEL_1;
+}
+
+export function getAdminLevels(): AdminLevelType[] {
+  return Object.values(ADMIN_LEVEL);
+}

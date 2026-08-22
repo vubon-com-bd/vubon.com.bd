@@ -1,156 +1,203 @@
 /**
- * অ্যাডমিন ডিপার্টমেন্ট সম্পর্কিত কনস্ট্যান্টসমূহ
+ * Admin Department Constants
+ * Admin department and division definitions
  */
 
-// ডিপার্টমেন্ট আইডি প্রিফিক্স
-export const DEPARTMENT_ID_PREFIX = 'DEPT';
-
-// ডিফল্ট ডিপার্টমেন্ট
-export const DEFAULT_DEPARTMENTS = {
-  ENGINEERING: 'engineering',
+export const ADMIN_DEPARTMENT = {
+  IT: 'it',
+  HR: 'hr',
+  FINANCE: 'finance',
   MARKETING: 'marketing',
   SALES: 'sales',
   SUPPORT: 'support',
-  FINANCE: 'finance',
-  HR: 'hr',
+  OPERATIONS: 'operations',
+  LOGISTICS: 'logistics',
+  PRODUCT: 'product',
+  CONTENT: 'content',
+  LEGAL: 'legal',
+  COMPLIANCE: 'compliance',
+  SECURITY: 'security',
+  DATA: 'data',
+  ANALYTICS: 'analytics',
+  RESEARCH: 'research',
+  DEVELOPMENT: 'development',
+  DESIGN: 'design',
+  PROCUREMENT: 'procurement',
+  QUALITY: 'quality',
+  TRAINING: 'training',
+  COMMUNICATION: 'communication',
+  ADMINISTRATION: 'administration',
 } as const;
 
-// ডিপার্টমেন্টের কালার কোড
-export const DEPARTMENT_COLORS = {
-  ENGINEERING: '#2563EB', // নীল
-  MARKETING: '#EC4899', // গোলাপি
-  SALES: '#F59E0B', // কমলা
-  SUPPORT: '#22C55E', // সবুজ
-  FINANCE: '#8B5CF6', // বেগুনি
-  HR: '#DC2626', // লাল
-} as const;
+export type AdminDepartmentType = (typeof ADMIN_DEPARTMENT)[keyof typeof ADMIN_DEPARTMENT];
 
-// ডিপার্টমেন্টের আইকন
-export const DEPARTMENT_ICONS = {
-  ENGINEERING: '⚙️',
-  MARKETING: '📢',
-  SALES: '💰',
-  SUPPORT: '🎧',
-  FINANCE: '📊',
-  HR: '👥',
-} as const;
+export const ADMIN_DEPARTMENT_LABELS: Record<AdminDepartmentType, string> = {
+  [ADMIN_DEPARTMENT.IT]: 'Information Technology',
+  [ADMIN_DEPARTMENT.HR]: 'Human Resources',
+  [ADMIN_DEPARTMENT.FINANCE]: 'Finance',
+  [ADMIN_DEPARTMENT.MARKETING]: 'Marketing',
+  [ADMIN_DEPARTMENT.SALES]: 'Sales',
+  [ADMIN_DEPARTMENT.SUPPORT]: 'Customer Support',
+  [ADMIN_DEPARTMENT.OPERATIONS]: 'Operations',
+  [ADMIN_DEPARTMENT.LOGISTICS]: 'Logistics',
+  [ADMIN_DEPARTMENT.PRODUCT]: 'Product Management',
+  [ADMIN_DEPARTMENT.CONTENT]: 'Content Management',
+  [ADMIN_DEPARTMENT.LEGAL]: 'Legal',
+  [ADMIN_DEPARTMENT.COMPLIANCE]: 'Compliance',
+  [ADMIN_DEPARTMENT.SECURITY]: 'Security',
+  [ADMIN_DEPARTMENT.DATA]: 'Data Management',
+  [ADMIN_DEPARTMENT.ANALYTICS]: 'Analytics',
+  [ADMIN_DEPARTMENT.RESEARCH]: 'Research & Development',
+  [ADMIN_DEPARTMENT.DEVELOPMENT]: 'Development',
+  [ADMIN_DEPARTMENT.DESIGN]: 'Design',
+  [ADMIN_DEPARTMENT.PROCUREMENT]: 'Procurement',
+  [ADMIN_DEPARTMENT.QUALITY]: 'Quality Assurance',
+  [ADMIN_DEPARTMENT.TRAINING]: 'Training & Development',
+  [ADMIN_DEPARTMENT.COMMUNICATION]: 'Communication',
+  [ADMIN_DEPARTMENT.ADMINISTRATION]: 'Administration',
+};
 
-// ডিপার্টমেন্টের ডেসক্রিপশন
-export const DEPARTMENT_DESCRIPTIONS = {
-  ENGINEERING: 'Software development and technical operations',
-  MARKETING: 'Marketing campaigns and brand management',
-  SALES: 'Sales operations and customer acquisition',
-  SUPPORT: 'Customer support and technical assistance',
-  FINANCE: 'Financial management and accounting',
-  HR: 'Human resources and talent management',
-} as const;
+export type AdminDepartmentLabel =
+  (typeof ADMIN_DEPARTMENT_LABELS)[keyof typeof ADMIN_DEPARTMENT_LABELS];
 
-// ডিপার্টমেন্টের অনুমোদিত রোল লিস্ট
-export const DEPARTMENT_ALLOWED_ROLES = {
-  ENGINEERING: ['developer', 'engineer', 'architect', 'devops', 'manager'],
-  MARKETING: ['marketing_manager', 'content_writer', 'seo_specialist', 'social_media', 'analyst'],
-  SALES: ['sales_manager', 'sales_rep', 'account_executive', 'business_development'],
-  SUPPORT: ['support_manager', 'support_agent', 'technical_support', 'customer_success'],
-  FINANCE: ['finance_manager', 'accountant', 'analyst', 'controller'],
-  HR: ['hr_manager', 'recruiter', 'training_specialist', 'payroll'],
-} as const;
+export const ADMIN_DEPARTMENT_DESCRIPTIONS: Record<AdminDepartmentType, string> = {
+  [ADMIN_DEPARTMENT.IT]: 'Technology infrastructure and systems management',
+  [ADMIN_DEPARTMENT.HR]: 'Human resources, recruitment, and employee management',
+  [ADMIN_DEPARTMENT.FINANCE]: 'Financial management, accounting, and budgeting',
+  [ADMIN_DEPARTMENT.MARKETING]: 'Marketing strategy, campaigns, and brand management',
+  [ADMIN_DEPARTMENT.SALES]: 'Sales operations, client management, and revenue',
+  [ADMIN_DEPARTMENT.SUPPORT]: 'Customer service, support tickets, and satisfaction',
+  [ADMIN_DEPARTMENT.OPERATIONS]: 'Business operations, process improvement, and efficiency',
+  [ADMIN_DEPARTMENT.LOGISTICS]: 'Supply chain, shipping, and delivery management',
+  [ADMIN_DEPARTMENT.PRODUCT]: 'Product strategy, roadmap, and development',
+  [ADMIN_DEPARTMENT.CONTENT]: 'Content creation, curation, and management',
+  [ADMIN_DEPARTMENT.LEGAL]: 'Legal affairs, contracts, and compliance',
+  [ADMIN_DEPARTMENT.COMPLIANCE]: 'Regulatory compliance, audits, and policies',
+  [ADMIN_DEPARTMENT.SECURITY]: 'Security management, threat detection, and prevention',
+  [ADMIN_DEPARTMENT.DATA]: 'Data governance, quality, and management',
+  [ADMIN_DEPARTMENT.ANALYTICS]: 'Data analytics, insights, and reporting',
+  [ADMIN_DEPARTMENT.RESEARCH]: 'Research, innovation, and development',
+  [ADMIN_DEPARTMENT.DEVELOPMENT]: 'Software development and engineering',
+  [ADMIN_DEPARTMENT.DESIGN]: 'Design, UX, and creative services',
+  [ADMIN_DEPARTMENT.PROCUREMENT]: 'Purchasing, vendor management, and sourcing',
+  [ADMIN_DEPARTMENT.QUALITY]: 'Quality assurance, testing, and standards',
+  [ADMIN_DEPARTMENT.TRAINING]: 'Training, development, and learning',
+  [ADMIN_DEPARTMENT.COMMUNICATION]: 'Internal communication, PR, and outreach',
+  [ADMIN_DEPARTMENT.ADMINISTRATION]: 'Administrative services and office management',
+};
 
-// ডিফল্ট ডিপার্টমেন্ট সেটিংস
-export const DEFAULT_DEPARTMENT_SETTINGS = {
-  ENGINEERING: {
-    timezone: 'UTC',
-    workingHours: '9-5',
-    holidayPolicy: 'standard',
-    budget: 100000,
-    maxEmployees: 100,
-  },
-  MARKETING: {
-    timezone: 'UTC',
-    workingHours: '9-5',
-    holidayPolicy: 'standard',
-    budget: 50000,
-    maxEmployees: 50,
-  },
-  SALES: {
-    timezone: 'UTC',
-    workingHours: '9-5',
-    holidayPolicy: 'standard',
-    budget: 75000,
-    maxEmployees: 75,
-  },
-  SUPPORT: {
-    timezone: 'UTC',
-    workingHours: '24/7',
-    holidayPolicy: 'rotational',
-    budget: 40000,
-    maxEmployees: 60,
-  },
-  FINANCE: {
-    timezone: 'UTC',
-    workingHours: '9-5',
-    holidayPolicy: 'standard',
-    budget: 30000,
-    maxEmployees: 30,
-  },
-  HR: {
-    timezone: 'UTC',
-    workingHours: '9-5',
-    holidayPolicy: 'standard',
-    budget: 25000,
-    maxEmployees: 25,
-  },
-} as const;
+export type AdminDepartmentDescription =
+  (typeof ADMIN_DEPARTMENT_DESCRIPTIONS)[keyof typeof ADMIN_DEPARTMENT_DESCRIPTIONS];
 
-// ডিপার্টমেন্টের লেবেল (বাংলা)
-export const DEPARTMENT_LABELS_BN = {
-  ENGINEERING: 'ইঞ্জিনিয়ারিং',
-  MARKETING: 'মার্কেটিং',
-  SALES: 'সেলস',
-  SUPPORT: 'সাপোর্ট',
-  FINANCE: 'ফাইন্যান্স',
-  HR: 'এইচআর',
-} as const;
+export const ADMIN_DEPARTMENT_HEAD_COUNT: Record<AdminDepartmentType, number> = {
+  [ADMIN_DEPARTMENT.IT]: 50,
+  [ADMIN_DEPARTMENT.HR]: 20,
+  [ADMIN_DEPARTMENT.FINANCE]: 25,
+  [ADMIN_DEPARTMENT.MARKETING]: 30,
+  [ADMIN_DEPARTMENT.SALES]: 40,
+  [ADMIN_DEPARTMENT.SUPPORT]: 35,
+  [ADMIN_DEPARTMENT.OPERATIONS]: 45,
+  [ADMIN_DEPARTMENT.LOGISTICS]: 30,
+  [ADMIN_DEPARTMENT.PRODUCT]: 20,
+  [ADMIN_DEPARTMENT.CONTENT]: 15,
+  [ADMIN_DEPARTMENT.LEGAL]: 10,
+  [ADMIN_DEPARTMENT.COMPLIANCE]: 12,
+  [ADMIN_DEPARTMENT.SECURITY]: 15,
+  [ADMIN_DEPARTMENT.DATA]: 18,
+  [ADMIN_DEPARTMENT.ANALYTICS]: 12,
+  [ADMIN_DEPARTMENT.RESEARCH]: 10,
+  [ADMIN_DEPARTMENT.DEVELOPMENT]: 25,
+  [ADMIN_DEPARTMENT.DESIGN]: 15,
+  [ADMIN_DEPARTMENT.PROCUREMENT]: 8,
+  [ADMIN_DEPARTMENT.QUALITY]: 10,
+  [ADMIN_DEPARTMENT.TRAINING]: 8,
+  [ADMIN_DEPARTMENT.COMMUNICATION]: 6,
+  [ADMIN_DEPARTMENT.ADMINISTRATION]: 10,
+};
 
-// ডিপার্টমেন্টের লেবেল (ইংরেজি)
-export const DEPARTMENT_LABELS_EN = {
-  ENGINEERING: 'Engineering',
-  MARKETING: 'Marketing',
-  SALES: 'Sales',
-  SUPPORT: 'Support',
-  FINANCE: 'Finance',
-  HR: 'HR',
-} as const;
+export type AdminDepartmentHeadCount =
+  (typeof ADMIN_DEPARTMENT_HEAD_COUNT)[keyof typeof ADMIN_DEPARTMENT_HEAD_COUNT];
 
-// ডিপার্টমেন্টের CSS ক্লাস
-export const DEPARTMENT_CSS_CLASSES = {
-  ENGINEERING: 'dept-engineering',
-  MARKETING: 'dept-marketing',
-  SALES: 'dept-sales',
-  SUPPORT: 'dept-support',
-  FINANCE: 'dept-finance',
-  HR: 'dept-hr',
-} as const;
+export const ADMIN_DEPARTMENT_BUDGET: Record<AdminDepartmentType, number> = {
+  [ADMIN_DEPARTMENT.IT]: 1000000,
+  [ADMIN_DEPARTMENT.HR]: 500000,
+  [ADMIN_DEPARTMENT.FINANCE]: 750000,
+  [ADMIN_DEPARTMENT.MARKETING]: 1500000,
+  [ADMIN_DEPARTMENT.SALES]: 1200000,
+  [ADMIN_DEPARTMENT.SUPPORT]: 800000,
+  [ADMIN_DEPARTMENT.OPERATIONS]: 900000,
+  [ADMIN_DEPARTMENT.LOGISTICS]: 1100000,
+  [ADMIN_DEPARTMENT.PRODUCT]: 1000000,
+  [ADMIN_DEPARTMENT.CONTENT]: 600000,
+  [ADMIN_DEPARTMENT.LEGAL]: 400000,
+  [ADMIN_DEPARTMENT.COMPLIANCE]: 350000,
+  [ADMIN_DEPARTMENT.SECURITY]: 700000,
+  [ADMIN_DEPARTMENT.DATA]: 650000,
+  [ADMIN_DEPARTMENT.ANALYTICS]: 450000,
+  [ADMIN_DEPARTMENT.RESEARCH]: 800000,
+  [ADMIN_DEPARTMENT.DEVELOPMENT]: 1200000,
+  [ADMIN_DEPARTMENT.DESIGN]: 500000,
+  [ADMIN_DEPARTMENT.PROCUREMENT]: 300000,
+  [ADMIN_DEPARTMENT.QUALITY]: 400000,
+  [ADMIN_DEPARTMENT.TRAINING]: 350000,
+  [ADMIN_DEPARTMENT.COMMUNICATION]: 250000,
+  [ADMIN_DEPARTMENT.ADMINISTRATION]: 300000,
+};
 
-// ডিপার্টমেন্ট গ্রুপ
-export const DEPARTMENT_GROUPS = {
-  TECHNICAL: ['engineering'],
-  COMMERCIAL: ['marketing', 'sales'],
-  OPERATIONAL: ['support', 'finance', 'hr'],
-} as const;
+export type AdminDepartmentBudget =
+  (typeof ADMIN_DEPARTMENT_BUDGET)[keyof typeof ADMIN_DEPARTMENT_BUDGET];
 
-// ডিপার্টমেন্ট স্ট্যাটাস
-export const DEPARTMENT_STATUS = {
-  ACTIVE: 'active',
-  INACTIVE: 'inactive',
-  ARCHIVED: 'archived',
-} as const;
+export const TECH_DEPARTMENTS: AdminDepartmentType[] = [
+  ADMIN_DEPARTMENT.IT,
+  ADMIN_DEPARTMENT.DEVELOPMENT,
+  ADMIN_DEPARTMENT.DATA,
+  ADMIN_DEPARTMENT.ANALYTICS,
+  ADMIN_DEPARTMENT.SECURITY,
+];
 
-// ডিপার্টমেন্টের জন্য ইমোজি
-export const DEPARTMENT_EMOJIS = {
-  ENGINEERING: '🛠️',
-  MARKETING: '📣',
-  SALES: '💵',
-  SUPPORT: '🆘',
-  FINANCE: '📈',
-  HR: '🤝',
-} as const;
+export const BUSINESS_DEPARTMENTS: AdminDepartmentType[] = [
+  ADMIN_DEPARTMENT.MARKETING,
+  ADMIN_DEPARTMENT.SALES,
+  ADMIN_DEPARTMENT.FINANCE,
+  ADMIN_DEPARTMENT.OPERATIONS,
+  ADMIN_DEPARTMENT.PROCUREMENT,
+];
+
+export const SUPPORT_DEPARTMENTS: AdminDepartmentType[] = [
+  ADMIN_DEPARTMENT.SUPPORT,
+  ADMIN_DEPARTMENT.HR,
+  ADMIN_DEPARTMENT.ADMINISTRATION,
+  ADMIN_DEPARTMENT.COMMUNICATION,
+];
+
+export function getAdminDepartmentLabel(department: AdminDepartmentType): string {
+  return ADMIN_DEPARTMENT_LABELS[department] || 'Unknown Department';
+}
+
+export function getAdminDepartmentDescription(department: AdminDepartmentType): string {
+  return ADMIN_DEPARTMENT_DESCRIPTIONS[department] || 'No description available';
+}
+
+export function getAdminDepartmentHeadCount(department: AdminDepartmentType): number {
+  return ADMIN_DEPARTMENT_HEAD_COUNT[department] || 0;
+}
+
+export function getAdminDepartmentBudget(department: AdminDepartmentType): number {
+  return ADMIN_DEPARTMENT_BUDGET[department] || 0;
+}
+
+export function isTechDepartment(department: AdminDepartmentType): boolean {
+  return TECH_DEPARTMENTS.includes(department);
+}
+
+export function isBusinessDepartment(department: AdminDepartmentType): boolean {
+  return BUSINESS_DEPARTMENTS.includes(department);
+}
+
+export function isSupportDepartment(department: AdminDepartmentType): boolean {
+  return SUPPORT_DEPARTMENTS.includes(department);
+}
+
+export function getAdminDepartments(): AdminDepartmentType[] {
+  return Object.values(ADMIN_DEPARTMENT);
+}
