@@ -290,48 +290,49 @@ export const USER_ERROR = {
   CATEGORY_MAP: USER_ERROR_CATEGORY_MAP,
 } as const;
 
-export function getErrorMessage(code: UserErrorCode): string {
+// রিনেম করা ফাংশন (User প্রিফিক্স যোগ করা হয়েছে)
+export function getUserErrorMessage(code: UserErrorCode): string {
   return USER_ERROR.MESSAGES[code] || 'Unknown error occurred';
 }
 
-export function getErrorCategory(code: UserErrorCode): UserErrorCategory {
+export function getUserErrorCategory(code: UserErrorCode): UserErrorCategory {
   return USER_ERROR.CATEGORY_MAP[code] || USER_ERROR_CATEGORIES.UNKNOWN;
 }
 
-export function getHttpStatusForError(code: UserErrorCode): number {
+export function getHttpStatusForUserError(code: UserErrorCode): number {
   return USER_ERROR.HTTP_STATUS[code] || 500;
 }
 
-export function getErrorSeverity(code: UserErrorCode): string {
+export function getUserErrorSeverity(code: UserErrorCode): string {
   return USER_ERROR.SEVERITY[code] || 'medium';
 }
 
-export function getErrorRecoverySuggestion(code: UserErrorCode): string {
+export function getUserErrorRecoverySuggestion(code: UserErrorCode): string {
   return USER_ERROR.RECOVERY[code] || 'Contact support for assistance';
 }
 
 export function isClientError(code: UserErrorCode): boolean {
-  const status = getHttpStatusForError(code);
+  const status = getHttpStatusForUserError(code);
   return status >= 400 && status < 500;
 }
 
 export function isServerError(code: UserErrorCode): boolean {
-  const status = getHttpStatusForError(code);
+  const status = getHttpStatusForUserError(code);
   return status >= 500;
 }
 
 export function isValidationError(code: UserErrorCode): boolean {
-  return getErrorCategory(code) === USER_ERROR_CATEGORIES.VALIDATION;
+  return getUserErrorCategory(code) === USER_ERROR_CATEGORIES.VALIDATION;
 }
 
 export function isAuthenticationError(code: UserErrorCode): boolean {
-  return getErrorCategory(code) === USER_ERROR_CATEGORIES.AUTHENTICATION;
+  return getUserErrorCategory(code) === USER_ERROR_CATEGORIES.AUTHENTICATION;
 }
 
 export function isAuthorizationError(code: UserErrorCode): boolean {
-  return getErrorCategory(code) === USER_ERROR_CATEGORIES.AUTHORIZATION;
+  return getUserErrorCategory(code) === USER_ERROR_CATEGORIES.AUTHORIZATION;
 }
 
 export function isBusinessError(code: UserErrorCode): boolean {
-  return getErrorCategory(code) === USER_ERROR_CATEGORIES.BUSINESS;
+  return getUserErrorCategory(code) === USER_ERROR_CATEGORIES.BUSINESS;
 }

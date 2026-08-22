@@ -3,19 +3,19 @@
  * Export all common constants and types for easy importing
  */
 
-// HTTP Status Constants
+// HTTP Status Constants (রিনেম করা নাম ব্যবহার করা হয়েছে)
 export {
   HTTP_STATUS,
   HTTP_STATUS_MESSAGES,
-  SUCCESS_STATUSES,
-  CLIENT_ERROR_STATUSES,
-  SERVER_ERROR_STATUSES,
-  REDIRECT_STATUSES,
-  isSuccessStatus,
-  isClientErrorStatus,
-  isServerErrorStatus,
-  isRedirectStatus,
-  getStatusMessage,
+  HTTP_SUCCESS_STATUSES,
+  HTTP_CLIENT_ERROR_STATUSES,
+  HTTP_SERVER_ERROR_STATUSES,
+  HTTP_REDIRECT_STATUSES,
+  isHttpSuccessStatus,
+  isHttpClientErrorStatus,
+  isHttpServerErrorStatus,
+  isHttpRedirectStatus,
+  getHttpStatusMessage,
 } from './http-status.constants';
 
 export type { HttpStatus, HttpStatusMessage } from './http-status.constants';

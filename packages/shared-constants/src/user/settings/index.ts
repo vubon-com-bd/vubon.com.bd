@@ -20,6 +20,10 @@ export {
   getThemeOptions,
   getFrequencyOptions,
   isSecurePassword,
+  // রিনেম করা ফাংশন
+  isUserSettingsActive,
+  isUserSettingsRestricted,
+  canUserModifySettings,
 } from './user-settings.constants';
 
 export type {

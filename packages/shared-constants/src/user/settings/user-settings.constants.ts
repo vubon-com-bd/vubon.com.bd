@@ -255,3 +255,17 @@ export function isSecurePassword(password: string): boolean {
   const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
   return hasMinLength && hasUpperCase && hasLowerCase && hasNumber && hasSpecial;
 }
+
+// রিনেম করা ফাংশন (User প্রিফিক্স যোগ করা হয়েছে)
+export function isUserSettingsActive(status: string): boolean {
+  return status === USER_SETTINGS_STATUS.ACTIVE;
+}
+
+export function isUserSettingsRestricted(status: string): boolean {
+  // RESTRICTED না থাকায় SUSPENDED চেক করা হচ্ছে
+  return status === USER_SETTINGS_STATUS.SUSPENDED;
+}
+
+export function canUserModifySettings(status: string): boolean {
+  return status === USER_SETTINGS_STATUS.ACTIVE || status === USER_SETTINGS_STATUS.INACTIVE;
+}

@@ -188,11 +188,12 @@ export const AUTH_ERROR_HTTP_STATUS: Record<AuthError, number> = {
   [AUTH_ERROR.CONFIGURATION_ERROR]: 500,
 };
 
-export function getErrorMessage(error: AuthError): string {
+// রিনেম করা ফাংশন (Auth প্রিফিক্স যোগ করা হয়েছে)
+export function getAuthErrorMessage(error: AuthError): string {
   return AUTH_ERROR_MESSAGES[error] || 'An unknown error occurred';
 }
 
-export function getErrorHttpStatus(error: AuthError): number {
+export function getAuthErrorHttpStatus(error: AuthError): number {
   return AUTH_ERROR_HTTP_STATUS[error] || 500;
 }
 

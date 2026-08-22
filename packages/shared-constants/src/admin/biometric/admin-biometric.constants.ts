@@ -157,6 +157,8 @@ export type AdminBiometricQualityLevel =
 export type AdminBiometricCaptureMethod =
   (typeof ADMIN_BIOMETRIC.CAPTURE_METHODS)[keyof typeof ADMIN_BIOMETRIC.CAPTURE_METHODS];
 
+// ... (লেবেল অবজেক্টগুলো আগের মতোই থাকবে, শুধু ফাংশনের নাম পরিবর্তন করা হবে)
+
 export const ADMIN_BIOMETRIC_TYPE_LABELS: Record<AdminBiometricType, string> = {
   [ADMIN_BIOMETRIC.TYPES.FINGERPRINT]: 'Fingerprint',
   [ADMIN_BIOMETRIC.TYPES.FACE]: 'Face Recognition',
@@ -301,6 +303,7 @@ export const ADMIN_BIOMETRIC_CAPTURE_METHOD_LABELS: Record<AdminBiometricCapture
   [ADMIN_BIOMETRIC.CAPTURE_METHODS.HOLD]: 'Hold',
 };
 
+// সব ফাংশনের নামে Admin প্রিফিক্স যোগ করা হলো
 export function getAdminBiometricTypeLabel(type: AdminBiometricType): string {
   return ADMIN_BIOMETRIC_TYPE_LABELS[type] || 'Unknown Type';
 }
@@ -353,7 +356,8 @@ export function getAdminBiometricCaptureMethodLabel(method: AdminBiometricCaptur
   return ADMIN_BIOMETRIC_CAPTURE_METHOD_LABELS[method] || 'Unknown Method';
 }
 
-export function isBiometricActive(status: AdminBiometricStatus): boolean {
+// কনফ্লিক্ট এড়াতে ফাংশনের নামে Admin প্রিফিক্স যোগ করা হলো
+export function isAdminBiometricActive(status: AdminBiometricStatus): boolean {
   return (
     status === ADMIN_BIOMETRIC.STATUSES.ACTIVE ||
     status === ADMIN_BIOMETRIC.STATUSES.VERIFIED ||
@@ -361,7 +365,7 @@ export function isBiometricActive(status: AdminBiometricStatus): boolean {
   );
 }
 
-export function isBiometricInactive(status: AdminBiometricStatus): boolean {
+export function isAdminBiometricInactive(status: AdminBiometricStatus): boolean {
   return (
     status === ADMIN_BIOMETRIC.STATUSES.INACTIVE ||
     status === ADMIN_BIOMETRIC.STATUSES.EXPIRED ||
@@ -369,17 +373,17 @@ export function isBiometricInactive(status: AdminBiometricStatus): boolean {
   );
 }
 
-export function isBiometricLocked(status: AdminBiometricStatus): boolean {
+export function isAdminBiometricLocked(status: AdminBiometricStatus): boolean {
   return (
     status === ADMIN_BIOMETRIC.STATUSES.LOCKED || status === ADMIN_BIOMETRIC.STATUSES.SUSPENDED
   );
 }
 
-export function isBiometricFailed(status: AdminBiometricStatus): boolean {
+export function isAdminBiometricFailed(status: AdminBiometricStatus): boolean {
   return status === ADMIN_BIOMETRIC.STATUSES.FAILED || status === ADMIN_BIOMETRIC.STATUSES.REJECTED;
 }
 
-export function getBiometricTimeout(type: AdminBiometricType): number {
+export function getAdminBiometricTimeout(type: AdminBiometricType): number {
   const timeoutMap: Record<AdminBiometricType, number> = {
     [ADMIN_BIOMETRIC.TYPES.FINGERPRINT]: ADMIN_BIOMETRIC.TIMEOUTS.FINGERPRINT,
     [ADMIN_BIOMETRIC.TYPES.FACE]: ADMIN_BIOMETRIC.TIMEOUTS.FACE,
@@ -400,7 +404,9 @@ export function getBiometricTimeout(type: AdminBiometricType): number {
   return timeoutMap[type] || 30;
 }
 
-export function getBiometricSecurityLevel(type: AdminBiometricType): AdminBiometricSecurityLevel {
+export function getAdminBiometricSecurityLevel(
+  type: AdminBiometricType
+): AdminBiometricSecurityLevel {
   const levelMap: Record<AdminBiometricType, AdminBiometricSecurityLevel> = {
     [ADMIN_BIOMETRIC.TYPES.FINGERPRINT]: ADMIN_BIOMETRIC.SECURITY_LEVELS.HIGH,
     [ADMIN_BIOMETRIC.TYPES.FACE]: ADMIN_BIOMETRIC.SECURITY_LEVELS.MEDIUM,
@@ -421,7 +427,9 @@ export function getBiometricSecurityLevel(type: AdminBiometricType): AdminBiomet
   return levelMap[type] || ADMIN_BIOMETRIC.SECURITY_LEVELS.MEDIUM;
 }
 
-export function getBiometricAccuracyLevel(type: AdminBiometricType): AdminBiometricAccuracyLevel {
+export function getAdminBiometricAccuracyLevel(
+  type: AdminBiometricType
+): AdminBiometricAccuracyLevel {
   const accuracyMap: Record<AdminBiometricType, AdminBiometricAccuracyLevel> = {
     [ADMIN_BIOMETRIC.TYPES.FINGERPRINT]: ADMIN_BIOMETRIC.ACCURACY_LEVELS.HIGH,
     [ADMIN_BIOMETRIC.TYPES.FACE]: ADMIN_BIOMETRIC.ACCURACY_LEVELS.STANDARD,

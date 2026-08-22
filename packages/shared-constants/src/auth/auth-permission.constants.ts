@@ -162,7 +162,8 @@ export function isTokenPermission(permission: AuthPermission): boolean {
   return TOKEN_PERMISSIONS.includes(permission);
 }
 
-export function isAdminPermission(permission: AuthPermission): boolean {
+// রিনেম করা ফাংশন (Auth প্রিফিক্স যোগ করা হয়েছে)
+export function isAuthAdminPermission(permission: AuthPermission): boolean {
   return ADMIN_PERMISSIONS.includes(permission);
 }
 
@@ -233,7 +234,7 @@ export function getPermissionCategory(
   if (isTwoFAPermission(permission)) return '2fa';
   if (isSessionPermission(permission)) return 'session';
   if (isTokenPermission(permission)) return 'token';
-  if (isAdminPermission(permission)) return 'admin';
+  if (isAuthAdminPermission(permission)) return 'admin';
   if (isRolePermission(permission)) return 'role';
   return 'permission';
 }

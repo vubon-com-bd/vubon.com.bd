@@ -79,19 +79,3 @@ export function getLogTypesByCategory(category: UserLogCategory): readonly UserL
 export function isOperationalLog(type: UserLogType): boolean {
   return getLogCategory(type) === 'OPERATIONAL';
 }
-
-export function isSecurityLog(type: UserLogType): boolean {
-  return getLogCategory(type) === 'SECURITY';
-}
-
-export function isPerformanceLog(type: UserLogType): boolean {
-  return getLogCategory(type) === 'PERFORMANCE';
-}
-
-export function isAuditLog(type: UserLogType): boolean {
-  return getLogCategory(type) === 'AUDIT';
-}
-
-export function isSystemLog(type: UserLogType): boolean {
-  return getLogCategory(type) === 'SYSTEM';
-}

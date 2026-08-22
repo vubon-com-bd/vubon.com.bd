@@ -232,7 +232,8 @@ export function getAdminDeviceTrustLevelPriority(level: AdminDeviceTrustLevel): 
   return ADMIN_DEVICE_TRUST_LEVEL_PRIORITY[level] || 0;
 }
 
-export function isDeviceActive(status: AdminDeviceStatus): boolean {
+// রিনেম করা ফাংশনগুলো (Admin প্রিফিক্স যোগ করা হয়েছে)
+export function isAdminDeviceActive(status: AdminDeviceStatus): boolean {
   return (
     status === ADMIN_DEVICE.STATUSES.ACTIVE ||
     status === ADMIN_DEVICE.STATUSES.VERIFIED ||
@@ -240,7 +241,7 @@ export function isDeviceActive(status: AdminDeviceStatus): boolean {
   );
 }
 
-export function isDeviceInactive(status: AdminDeviceStatus): boolean {
+export function isAdminDeviceInactive(status: AdminDeviceStatus): boolean {
   return (
     status === ADMIN_DEVICE.STATUSES.INACTIVE ||
     status === ADMIN_DEVICE.STATUSES.UNREGISTERED ||
@@ -249,7 +250,7 @@ export function isDeviceInactive(status: AdminDeviceStatus): boolean {
   );
 }
 
-export function isDeviceBlocked(status: AdminDeviceStatus): boolean {
+export function isAdminDeviceBlocked(status: AdminDeviceStatus): boolean {
   return (
     status === ADMIN_DEVICE.STATUSES.BLOCKED ||
     status === ADMIN_DEVICE.STATUSES.SUSPENDED ||
@@ -257,11 +258,11 @@ export function isDeviceBlocked(status: AdminDeviceStatus): boolean {
   );
 }
 
-export function isDeviceLostOrStolen(status: AdminDeviceStatus): boolean {
+export function isAdminDeviceLostOrStolen(status: AdminDeviceStatus): boolean {
   return status === ADMIN_DEVICE.STATUSES.LOST || status === ADMIN_DEVICE.STATUSES.STOLEN;
 }
 
-export function isDeviceVerifiable(status: AdminDeviceStatus): boolean {
+export function isAdminDeviceVerifiable(status: AdminDeviceStatus): boolean {
   return (
     status === ADMIN_DEVICE.STATUSES.PENDING ||
     status === ADMIN_DEVICE.STATUSES.UNVERIFIED ||
@@ -269,7 +270,7 @@ export function isDeviceVerifiable(status: AdminDeviceStatus): boolean {
   );
 }
 
-export function isTrustedDevice(level: AdminDeviceTrustLevel): boolean {
+export function isAdminTrustedDevice(level: AdminDeviceTrustLevel): boolean {
   return (
     level === ADMIN_DEVICE.TRUST_LEVELS.TRUSTED ||
     level === ADMIN_DEVICE.TRUST_LEVELS.VERIFIED ||
@@ -277,7 +278,7 @@ export function isTrustedDevice(level: AdminDeviceTrustLevel): boolean {
   );
 }
 
-export function isMobileDevice(type: AdminDeviceType): boolean {
+export function isAdminMobileDevice(type: AdminDeviceType): boolean {
   return (
     type === ADMIN_DEVICE.TYPES.MOBILE ||
     type === ADMIN_DEVICE.TYPES.TABLET ||
@@ -285,11 +286,11 @@ export function isMobileDevice(type: AdminDeviceType): boolean {
   );
 }
 
-export function isDesktopDevice(type: AdminDeviceType): boolean {
+export function isAdminDesktopDevice(type: AdminDeviceType): boolean {
   return type === ADMIN_DEVICE.TYPES.DESKTOP || type === ADMIN_DEVICE.TYPES.LAPTOP;
 }
 
-export function getDeviceTypeFromPlatform(platform: AdminDevicePlatform): AdminDeviceType {
+export function getAdminDeviceTypeFromPlatform(platform: AdminDevicePlatform): AdminDeviceType {
   const platformMap: Record<AdminDevicePlatform, AdminDeviceType> = {
     [ADMIN_DEVICE.PLATFORMS.WINDOWS]: ADMIN_DEVICE.TYPES.DESKTOP,
     [ADMIN_DEVICE.PLATFORMS.MACOS]: ADMIN_DEVICE.TYPES.DESKTOP,

@@ -15,6 +15,7 @@ export {
   getAdminDepartmentLabel as getAdminDepartmentLabelCore,
   getAdminTeamLabel as getAdminTeamLabelCore,
   getAdminPermissionLabel as getAdminPermissionLabelCore,
+  isAdminUser,
 } from './admin.constants';
 
 export type {
@@ -235,46 +236,7 @@ export type {
   AdminActivityAction,
 } from './activity/admin-activity.constants';
 
-// Admin Activity Type
-export {
-  ADMIN_ACTIVITY_TYPE,
-  ADMIN_ACTIVITY_TYPE_CATEGORIES,
-  ADMIN_ACTIVITY_TYPE_LABELS_DETAIL,
-  getAdminActivityTypeCategory,
-  getAdminActivityTypeLabel as getAdminActivityTypeLabelDetail,
-  isAuthActivity,
-  isUserManagementActivity,
-  isSystemActivity,
-  isSecurityActivity,
-} from './activity/admin-activity-type.constants';
-
-export type { AdminActivityTypeDetail } from './activity/admin-activity-type.constants';
-
-// Admin Activity Status
-export {
-  ADMIN_ACTIVITY_STATUS,
-  ADMIN_ACTIVITY_STATUS_LABELS_DETAIL,
-  ADMIN_ACTIVITY_STATUS_COLORS_DETAIL,
-  ADMIN_ACTIVITY_STATUS_GROUPS,
-  getAdminActivityStatusLabel as getAdminActivityStatusLabelDetail,
-  getAdminActivityStatusColor,
-  isSuccessStatus as isActivitySuccessStatus,
-  isFailureStatus as isActivityFailureStatus,
-  isPendingStatus as isActivityPendingStatus,
-  isIntermediateStatus,
-  isTerminalStatus as isActivityTerminalStatus,
-  isActiveStatus as isActivityActiveStatus,
-  getStatusPriority as getActivityStatusPriority,
-  getAdminActivityStatuses,
-  getSuccessStatuses as getActivitySuccessStatuses,
-  getFailureStatuses as getActivityFailureStatuses,
-  getPendingStatuses as getActivityPendingStatuses,
-  getIntermediateStatuses as getActivityIntermediateStatuses,
-} from './activity/admin-activity-status.constants';
-
-export type { AdminActivityStatusDetail } from './activity/admin-activity-status.constants';
-
-// Admin Log
+// Admin Log - রিনেম করা ফাংশন
 export {
   ADMIN_LOG,
   ADMIN_LOG_LEVEL_LABELS,
@@ -294,6 +256,10 @@ export {
   getLogRetentionDays,
   getLogSizeLimit,
   getLogRotationLabel,
+  isAdminAuditLog,
+  isAdminPerformanceLog,
+  isAdminSecurityLog,
+  isAdminSystemLog,
 } from './log/admin-log.constants';
 
 export type {
@@ -381,48 +347,6 @@ export type {
   AdminAuditRetention,
 } from './audit/admin-audit.constants';
 
-// Admin Audit Type
-export {
-  ADMIN_AUDIT_TYPE,
-  ADMIN_AUDIT_TYPE_CATEGORIES,
-  ADMIN_AUDIT_TYPE_LABELS_DETAIL,
-  getAdminAuditTypeCategory,
-  getAdminAuditTypeLabel,
-  isSecurityAudit,
-  isComplianceAudit,
-  isFinancialAudit,
-  isUserAudit,
-  isSystemAudit,
-} from './audit/admin-audit-type.constants';
-
-export type { AdminAuditTypeDetail } from './audit/admin-audit-type.constants';
-
-// Admin Audit Status
-export {
-  ADMIN_AUDIT_STATUS,
-  ADMIN_AUDIT_STATUS_LABELS_DETAIL,
-  ADMIN_AUDIT_STATUS_COLORS_DETAIL,
-  ADMIN_AUDIT_STATUS_GROUPS,
-  getAdminAuditStatusLabel as getAdminAuditStatusLabelDetail,
-  getAdminAuditStatusColor as getAdminAuditStatusColorDetail,
-  isSuccessStatus as isAuditSuccessStatusDetail,
-  isFailureStatus as isAuditFailureStatusDetail,
-  isPendingStatus as isAuditPendingStatusDetail,
-  isIntermediateStatus as isAuditIntermediateStatus,
-  isTerminalStatus as isAuditTerminalStatus,
-  isActiveStatus as isAuditActiveStatus,
-  isCompliantStatus,
-  isNonCompliantStatus,
-  getStatusPriority as getAuditStatusPriority,
-  getAdminAuditStatuses,
-  getSuccessStatuses as getAuditSuccessStatuses,
-  getFailureStatuses as getAuditFailureStatuses,
-  getPendingStatuses as getAuditPendingStatuses,
-  getIntermediateStatuses as getAuditIntermediateStatuses,
-} from './audit/admin-audit-status.constants';
-
-export type { AdminAuditStatusDetail } from './audit/admin-audit-status.constants';
-
 // Admin Session
 export {
   ADMIN_SESSION,
@@ -458,40 +382,7 @@ export type {
   AdminSessionFlag,
 } from './session/admin-session.constants';
 
-// Admin Session Status
-export {
-  ADMIN_SESSION_STATUS,
-  ADMIN_SESSION_STATUS_LABELS_DETAIL,
-  ADMIN_SESSION_STATUS_COLORS_DETAIL,
-  ADMIN_SESSION_STATUS_GROUPS,
-  getAdminSessionStatusLabel as getAdminSessionStatusLabelDetail,
-  getAdminSessionStatusColor as getAdminSessionStatusColorDetail,
-  isActiveStatus as isSessionActiveStatus,
-  isInactiveStatus as isSessionInactiveStatus,
-  isExpiredStatus as isSessionExpiredStatus,
-  isTerminatedStatus as isSessionTerminatedStatus,
-  isPendingStatus as isSessionPendingStatus,
-  isVerificationStatus,
-  isSecurityStatus as isSessionSecurityStatus,
-  isUsableSessionStatus,
-  isValidSessionStatus,
-  isCompromisedSession,
-  isSuspiciousSession,
-  shouldRevokeSession,
-  getStatusPriority as getSessionStatusPriority,
-  getAdminSessionStatuses,
-  getActiveStatuses as getSessionActiveStatuses,
-  getInactiveStatuses as getSessionInactiveStatuses,
-  getExpiredStatuses as getSessionExpiredStatuses,
-  getTerminatedStatuses as getSessionTerminatedStatuses,
-  getPendingStatuses as getSessionPendingStatuses,
-  getVerificationStatuses,
-  getSecurityStatuses as getSessionSecurityStatuses,
-} from './session/admin-session-status.constants';
-
-export type { AdminSessionStatusDetail } from './session/admin-session-status.constants';
-
-// Admin Device
+// Admin Device - রিনেম করা ফাংশন
 export {
   ADMIN_DEVICE,
   ADMIN_DEVICE_TYPE_LABELS,
@@ -508,16 +399,16 @@ export {
   getAdminDevicePlatformLabel,
   getAdminDeviceTrustLevelLabel,
   getAdminDeviceTrustLevelPriority,
-  isDeviceActive,
-  isDeviceInactive,
-  isDeviceBlocked,
-  isDeviceLostOrStolen,
-  isDeviceVerifiable,
-  isTrustedDevice,
-  isMobileDevice,
-  isDesktopDevice,
-  getDeviceTypeFromPlatform,
-} from './device/admin-device.constants';
+  isAdminDeviceActive,
+  isAdminDeviceInactive,
+  isAdminDeviceBlocked,
+  isAdminDeviceLostOrStolen,
+  isAdminDeviceVerifiable,
+  isAdminTrustedDevice,
+  isAdminMobileDevice,
+  isAdminDesktopDevice,
+  getAdminDeviceTypeFromPlatform,
+} from './device';
 
 export type {
   AdminDeviceType,
@@ -526,60 +417,9 @@ export type {
   AdminDeviceTrustLevel,
   AdminDeviceVerificationMethod,
   AdminDeviceFeature,
-} from './device/admin-device.constants';
+} from './device';
 
-// Admin Device Type
-export {
-  ADMIN_DEVICE_TYPE,
-  ADMIN_DEVICE_TYPE_CATEGORIES,
-  ADMIN_DEVICE_TYPE_LABELS_DETAIL,
-  getAdminDeviceTypeCategory,
-  getAdminDeviceTypeLabel as getAdminDeviceTypeLabelDetail,
-  isMobileDeviceType,
-  isComputerType,
-  isWearableType,
-  isIoTType,
-  isVirtualType,
-  isNetworkType,
-  isGamingType,
-  getDeviceCategoryForType,
-} from './device/admin-device-type.constants';
-
-export type { AdminDeviceTypeDetail } from './device/admin-device-type.constants';
-
-// Admin Device Status
-export {
-  ADMIN_DEVICE_STATUS,
-  ADMIN_DEVICE_STATUS_LABELS_DETAIL,
-  ADMIN_DEVICE_STATUS_COLORS_DETAIL,
-  ADMIN_DEVICE_STATUS_GROUPS,
-  getAdminDeviceStatusLabel as getAdminDeviceStatusLabelDetail,
-  getAdminDeviceStatusColor as getAdminDeviceStatusColorDetail,
-  isActiveStatus as isDeviceActiveStatus,
-  isInactiveStatus as isDeviceInactiveStatus,
-  isProblemStatus,
-  isSecurityStatus as isDeviceSecurityStatus,
-  isAdministrativeStatus,
-  isEndOfLifeStatus,
-  isPhysicalStatus,
-  isUsableStatus,
-  isAvailableStatus,
-  isUnavailableStatus,
-  isBlockedStatus,
-  getStatusPriority as getDeviceStatusPriority,
-  getAdminDeviceStatuses,
-  getActiveStatuses as getDeviceActiveStatuses,
-  getInactiveStatuses as getDeviceInactiveStatuses,
-  getProblemStatuses,
-  getSecurityStatuses as getDeviceSecurityStatuses,
-  getAdministrativeStatuses,
-  getEndOfLifeStatuses,
-  getPhysicalStatuses,
-} from './device/admin-device-status.constants';
-
-export type { AdminDeviceStatusDetail } from './device/admin-device-status.constants';
-
-// Admin Verification
+// Admin Verification - রিনেম করা ফাংশন
 export {
   ADMIN_VERIFICATION,
   ADMIN_VERIFICATION_TYPE_LABELS,
@@ -600,14 +440,14 @@ export {
   getAdminVerificationLevelPriority,
   getAdminVerificationPurposeLabel,
   getAdminVerificationChannelLabel,
-  isVerificationComplete,
-  isVerificationFailed,
-  isVerificationPending,
-  isVerificationExpired,
-  isVerificationTerminal,
-  getVerificationLevelForType,
-  getVerificationMethodsForType,
-} from './verification/admin-verification.constants';
+  isAdminVerificationComplete,
+  isAdminVerificationFailed,
+  isAdminVerificationPending,
+  isAdminVerificationExpired,
+  isAdminVerificationTerminal,
+  getAdminVerificationLevelForType,
+  getAdminVerificationMethodsForType,
+} from './verification';
 
 export type {
   AdminVerificationType,
@@ -616,65 +456,7 @@ export type {
   AdminVerificationLevel,
   AdminVerificationPurpose,
   AdminVerificationChannel,
-} from './verification/admin-verification.constants';
-
-// Admin Verification Type
-export {
-  ADMIN_VERIFICATION_TYPE,
-  ADMIN_VERIFICATION_TYPE_CATEGORIES,
-  ADMIN_VERIFICATION_TYPE_LABELS_DETAIL,
-  getAdminVerificationTypeCategory,
-  getAdminVerificationTypeLabel as getAdminVerificationTypeLabelDetail,
-  isBiometricType as isVerificationBiometricType,
-  isIdentityType,
-  isSecurityType as isVerificationSecurityType,
-  isFinancialType as isVerificationFinancialType,
-  isDocumentType as isVerificationDocumentType,
-  isSocialType,
-  isGovernmentType,
-  getVerificationTypeCategory,
-} from './verification/admin-verification-type.constants';
-
-export type { AdminVerificationTypeDetail } from './verification/admin-verification-type.constants';
-
-// Admin Verification Status
-export {
-  ADMIN_VERIFICATION_STATUS,
-  ADMIN_VERIFICATION_STATUS_LABELS_DETAIL,
-  ADMIN_VERIFICATION_STATUS_COLORS_DETAIL,
-  ADMIN_VERIFICATION_STATUS_GROUPS,
-  getAdminVerificationStatusLabel as getAdminVerificationStatusLabelDetail,
-  getAdminVerificationStatusColor as getAdminVerificationStatusColorDetail,
-  isInitialStatus,
-  isPendingStatus as isVerificationPendingStatus,
-  isProcessingStatus as isVerificationProcessingStatus,
-  isReviewStatus,
-  isSuccessStatus as isVerificationSuccessStatus,
-  isFailureStatus as isVerificationFailureStatus,
-  isExpiredStatus as isVerificationExpiredStatus,
-  isCancelledStatus,
-  isProblemStatus as isVerificationProblemStatus,
-  isSpecialStatus,
-  isFinalStatus as isVerificationFinalStatus,
-  isActiveStatus as isVerificationActiveStatus,
-  isTerminalStatus as isVerificationTerminalStatusDetail,
-  isResolvableStatus,
-  getStatusPriority as getVerificationStatusPriority,
-  getAdminVerificationStatuses,
-  getInitialStatuses,
-  getPendingStatuses as getVerificationPendingStatuses,
-  getProcessingStatuses,
-  getReviewStatuses,
-  getSuccessStatuses as getVerificationSuccessStatuses,
-  getFailureStatuses as getVerificationFailureStatuses,
-  getExpiredStatuses as getVerificationExpiredStatuses,
-  getCancelledStatuses,
-  getProblemStatuses as getVerificationProblemStatuses,
-  getSpecialStatuses,
-  getFinalStatuses as getVerificationFinalStatuses,
-} from './verification/admin-verification-status.constants';
-
-export type { AdminVerificationStatusDetail } from './verification/admin-verification-status.constants';
+} from './verification';
 
 // Admin 2FA
 export {
@@ -716,62 +498,7 @@ export type {
   Admin2FATokenFormat,
 } from './2fa/admin-2fa.constants';
 
-// Admin 2FA Type
-export {
-  ADMIN_2FA_TYPE,
-  ADMIN_2FA_TYPE_CATEGORIES,
-  ADMIN_2FA_TYPE_LABELS_DETAIL,
-  getAdmin2FATypeCategory,
-  getAdmin2FATypeLabel,
-  isTOTPType,
-  isHOTPType,
-  isAuthenticatorType,
-  isHardwareType,
-  isBiometricType as is2FABiometricType,
-  isBackupType,
-  isSMSBased,
-  isEmailBased,
-  isPushBased,
-  isQRBased,
-  get2FATypeCategory,
-} from './2fa/admin-2fa-type.constants';
-
-export type { Admin2FATypeDetail } from './2fa/admin-2fa-type.constants';
-
-// Admin 2FA Status
-export {
-  ADMIN_2FA_STATUS,
-  ADMIN_2FA_STATUS_LABELS_DETAIL,
-  ADMIN_2FA_STATUS_COLORS_DETAIL,
-  ADMIN_2FA_STATUS_GROUPS,
-  getAdmin2FAStatusLabel as getAdmin2FAStatusLabelDetail,
-  getAdmin2FAStatusColor as getAdmin2FAStatusColorDetail,
-  isActiveStatus as is2FAActiveStatus,
-  isInactiveStatus as is2FAInactiveStatus,
-  isPendingStatus as is2FAPendingStatus,
-  isSecurityStatus as is2FASecurityStatus,
-  isExpiredStatus as is2FAExpiredStatus,
-  isBackupStatus,
-  isFinalStatus as is2FAFinalStatus,
-  isRecoveryStatus,
-  isTerminalStatus as is2FATerminalStatus,
-  isUsableStatus as is2FAUsableStatus,
-  isRequiringAction,
-  getStatusPriority as get2FAStatusPriority,
-  getAdmin2FAStatuses,
-  getActiveStatuses as get2FAActiveStatuses,
-  getInactiveStatuses as get2FAInactiveStatuses,
-  getPendingStatuses as get2FAPendingStatuses,
-  getSecurityStatuses as get2FASecurityStatuses,
-  getExpiredStatuses as get2FAExpiredStatuses,
-  getBackupStatuses,
-  getFinalStatuses as get2FAFinalStatuses,
-  getRecoveryStatuses,
-} from './2fa/admin-2fa-status.constants';
-
-export type { Admin2FAStatusDetail } from './2fa/admin-2fa-status.constants';
-
-// Admin Biometric
+// Admin Biometric - রিনেম করা ফাংশন
 export {
   ADMIN_BIOMETRIC,
   ADMIN_BIOMETRIC_TYPE_LABELS,
@@ -798,14 +525,14 @@ export {
   getAdminBiometricSensorLabel,
   getAdminBiometricQualityLevelLabel,
   getAdminBiometricCaptureMethodLabel,
-  isBiometricActive,
-  isBiometricInactive,
-  isBiometricLocked,
-  isBiometricFailed,
-  getBiometricTimeout,
-  getBiometricSecurityLevel,
-  getBiometricAccuracyLevel,
-} from './biometric/admin-biometric.constants';
+  isAdminBiometricActive,
+  isAdminBiometricInactive,
+  isAdminBiometricLocked,
+  isAdminBiometricFailed,
+  getAdminBiometricTimeout,
+  getAdminBiometricSecurityLevel,
+  getAdminBiometricAccuracyLevel,
+} from './biometric';
 
 export type {
   AdminBiometricType,
@@ -817,70 +544,9 @@ export type {
   AdminBiometricSensor,
   AdminBiometricQualityLevel,
   AdminBiometricCaptureMethod,
-} from './biometric/admin-biometric.constants';
+} from './biometric';
 
-// Admin Biometric Type
-export {
-  ADMIN_BIOMETRIC_TYPE,
-  ADMIN_BIOMETRIC_TYPE_CATEGORIES,
-  ADMIN_BIOMETRIC_TYPE_LABELS_DETAIL,
-  getAdminBiometricTypeCategory,
-  getAdminBiometricTypeLabel as getAdminBiometricTypeLabelDetail,
-  isFingerprintType,
-  isFaceType,
-  isEyeType,
-  isVoiceType as isBiometricVoiceType,
-  isHandType,
-  isBehavioralType,
-  isPhysiologicalType,
-  isElectroPhysiologicalType,
-  isMultimodalType,
-  getBiometricTypeCategory,
-} from './biometric/admin-biometric-type.constants';
-
-export type { AdminBiometricTypeDetail } from './biometric/admin-biometric-type.constants';
-
-// Admin Biometric Status
-export {
-  ADMIN_BIOMETRIC_STATUS,
-  ADMIN_BIOMETRIC_STATUS_LABELS_DETAIL,
-  ADMIN_BIOMETRIC_STATUS_COLORS_DETAIL,
-  ADMIN_BIOMETRIC_STATUS_GROUPS,
-  getAdminBiometricStatusLabel as getAdminBiometricStatusLabelDetail,
-  getAdminBiometricStatusColor as getAdminBiometricStatusColorDetail,
-  isRegisteredStatus,
-  isUnregisteredStatus,
-  isVerifiedStatus as isBiometricVerifiedStatus,
-  isUnverifiedStatus,
-  isPendingStatus as isBiometricPendingStatus,
-  isActiveStatus as isBiometricActiveStatus,
-  isInactiveStatus as isBiometricInactiveStatus,
-  isSecurityStatus as isBiometricSecurityStatus,
-  isExpiredStatus as isBiometricExpiredStatus,
-  isQualityStatus,
-  isErrorStatus as isBiometricErrorStatus,
-  isFinalStatus as isBiometricFinalStatus,
-  isUsableStatus as isBiometricUsableStatus,
-  isTerminalStatus as isBiometricTerminalStatus,
-  getStatusPriority as getBiometricStatusPriority,
-  getAdminBiometricStatuses,
-  getRegisteredStatuses,
-  getUnregisteredStatuses,
-  getVerifiedStatuses,
-  getUnverifiedStatuses,
-  getPendingStatuses as getBiometricPendingStatuses,
-  getActiveStatuses as getBiometricActiveStatuses,
-  getInactiveStatuses as getBiometricInactiveStatuses,
-  getSecurityStatuses as getBiometricSecurityStatuses,
-  getExpiredStatuses as getBiometricExpiredStatuses,
-  getQualityStatuses,
-  getErrorStatuses as getBiometricErrorStatuses,
-  getFinalStatuses as getBiometricFinalStatuses,
-} from './biometric/admin-biometric-status.constants';
-
-export type { AdminBiometricStatusDetail } from './biometric/admin-biometric-status.constants';
-
-// Admin Settings
+// Admin Settings - শুধু ম্যান্ডেটরি এক্সপোর্ট
 export {
   ADMIN_SETTINGS,
   ADMIN_SETTINGS_CATEGORY_LABELS,
@@ -905,15 +571,14 @@ export {
   getAdminSettingsSensitivityColor,
   getAdminSettingsPriorityLabel,
   getAdminSettingsGroupLabel,
-  isSettingsActive,
-  isSettingsInactive,
-  isSettingsLocked,
-  isSettingsSynced,
-  isHighSensitivity as isSettingsHighSensitivity,
+  isAdminSettingsActive,
+  isAdminSettingsInactive,
+  isAdminSettingsLocked,
+  isAdminSettingsSynced,
   isVisibleSettings,
   getSettingsModification,
   getSettingsSourceLabel,
-} from './settings/admin-settings.constants';
+} from './settings';
 
 export type {
   AdminSettingsCategory,
@@ -922,178 +587,9 @@ export type {
   AdminSettingsScope,
   AdminSettingsVisibility,
   AdminSettingsSensitivity,
-  AdminSettingsValidation,
-  AdminSettingsModification,
-  AdminSettingsSource,
   AdminSettingsPriority,
   AdminSettingsGroup,
-} from './settings/admin-settings.constants';
-
-// Admin Settings Type
-export {
-  ADMIN_SETTINGS_TYPE,
-  ADMIN_SETTINGS_TYPE_CATEGORIES,
-  ADMIN_SETTINGS_TYPE_LABELS_DETAIL,
-  getAdminSettingsTypeCategory,
-  getAdminSettingsTypeLabel as getAdminSettingsTypeLabelDetail,
-  isBasicType,
-  isComplexType,
-  isTextType,
-  isNumericType,
-  isDateTimeType,
-  isContactType,
-  isSelectionType,
-  isRangeType,
-  isFileType,
-  isSecurityType as isSettingsSecurityType,
-  isIntegrationType,
-  isSystemType as isSettingsSystemType,
-  isUIType,
-  getSettingsTypeCategory,
-} from './settings/admin-settings-type.constants';
-
-export type { AdminSettingsTypeDetail } from './settings/admin-settings-type.constants';
-
-// Admin Settings Status
-export {
-  ADMIN_SETTINGS_STATUS,
-  ADMIN_SETTINGS_STATUS_LABELS_DETAIL,
-  ADMIN_SETTINGS_STATUS_COLORS_DETAIL,
-  ADMIN_SETTINGS_STATUS_GROUPS,
-  getAdminSettingsStatusLabel as getAdminSettingsStatusLabelDetail,
-  getAdminSettingsStatusColor as getAdminSettingsStatusColorDetail,
-  isLifecycleStatus as isSettingsLifecycleStatus,
-  isValidationStatus as isSettingsValidationStatus,
-  isSyncStatus as isSettingsSyncStatus,
-  isStateStatus as isSettingsStateStatus,
-  isSecurityStatus as isSettingsSecurityStatus,
-  isApplicationStatus,
-  isVersionStatus as isSettingsVersionStatus,
-  isConflictStatus as isSettingsConflictStatus,
-  isPriorityStatus as isSettingsPriorityStatus,
-  isModificationStatus,
-  isActiveStatus as isSettingsActiveStatus,
-  isInactiveStatus as isSettingsInactiveStatus,
-  isPendingStatus as isSettingsPendingStatus,
-  isTerminalStatus as isSettingsTerminalStatus,
-  isConflictStatusType,
-  getStatusPriority as getSettingsStatusPriority,
-  getAdminSettingsStatuses,
-  getLifecycleStatuses as getSettingsLifecycleStatuses,
-  getValidationStatuses as getSettingsValidationStatuses,
-  getSyncStatuses as getSettingsSyncStatuses,
-  getStateStatuses as getSettingsStateStatuses,
-  getSecurityStatuses as getSettingsSecurityStatuses,
-  getApplicationStatuses,
-  getVersionStatuses as getSettingsVersionStatuses,
-  getConflictStatuses as getSettingsConflictStatuses,
-  getPriorityStatuses as getSettingsPriorityStatuses,
-  getModificationStatuses,
-} from './settings/admin-settings-status.constants';
-
-export type { AdminSettingsStatusDetail } from './settings/admin-settings-status.constants';
-
-// Admin Preferences
-export {
-  ADMIN_PREFERENCES,
-  ADMIN_PREFERENCES_CATEGORY_LABELS,
-  ADMIN_PREFERENCES_CATEGORY_ICONS,
-  ADMIN_PREFERENCES_TYPE_LABELS,
-  ADMIN_PREFERENCES_STATUS_LABELS,
-  ADMIN_PREFERENCES_STATUS_COLORS,
-  ADMIN_PREFERENCES_SCOPE_LABELS,
-  ADMIN_PREFERENCES_VISIBILITY_LABELS,
-  ADMIN_PREFERENCES_SENSITIVITY_LABELS,
-  ADMIN_PREFERENCES_SENSITIVITY_COLORS,
-  ADMIN_PREFERENCES_GROUP_LABELS,
-  getAdminPreferenceCategoryLabel,
-  getAdminPreferenceCategoryIcon,
-  getAdminPreferenceTypeLabel,
-  getAdminPreferenceStatusLabel,
-  getAdminPreferenceStatusColor,
-  getAdminPreferenceScopeLabel,
-  getAdminPreferenceVisibilityLabel,
-  getAdminPreferenceSensitivityLabel,
-  getAdminPreferenceSensitivityColor,
-  getAdminPreferenceGroupLabel,
-  isPreferenceActive,
-  isPreferenceInactive,
-  isPreferenceLocked,
-  isPreferenceDefault,
-  isPreferenceCustom,
-  getPreferenceSourceLabel,
-} from './preferences/admin-preferences.constants';
-
-export type {
-  AdminPreferenceCategory,
-  AdminPreferenceType,
-  AdminPreferenceStatus,
-  AdminPreferenceScope,
-  AdminPreferenceVisibility,
-  AdminPreferenceSensitivity,
-  AdminPreferenceSource,
-  AdminPreferenceGroup,
-} from './preferences/admin-preferences.constants';
-
-// Admin Preferences Type
-export {
-  ADMIN_PREFERENCES_TYPE,
-  ADMIN_PREFERENCES_TYPE_CATEGORIES,
-  ADMIN_PREFERENCES_TYPE_LABELS_DETAIL,
-  getAdminPreferenceTypeCategory,
-  getAdminPreferenceTypeLabel as getAdminPreferenceTypeLabelDetail,
-  isDisplayPreference,
-  isLanguagePreference,
-  isNotificationPreference,
-  isAccessibilityPreference,
-  isDashboardPreference,
-  isReportingPreference,
-  isAnalyticsPreference,
-  isWorkflowPreference,
-  isTeamPreference,
-  isSecurityPreference as isPrefSecurityPreference,
-  isPrivacyPreference,
-  isPerformancePreference,
-  isShortcutPreference,
-  getPreferenceTypeCategory,
-} from './preferences/admin-preferences-type.constants';
-
-export type { AdminPreferenceTypeDetail } from './preferences/admin-preferences-type.constants';
-
-// Admin Preferences Status
-export {
-  ADMIN_PREFERENCES_STATUS,
-  ADMIN_PREFERENCES_STATUS_LABELS_DETAIL,
-  ADMIN_PREFERENCES_STATUS_COLORS_DETAIL,
-  ADMIN_PREFERENCES_STATUS_GROUPS,
-  getAdminPreferenceStatusLabel as getAdminPreferenceStatusLabelDetail,
-  getAdminPreferenceStatusColor as getAdminPreferenceStatusColorDetail,
-  isLifecycleStatus as isPrefLifecycleStatus,
-  isStateStatus as isPrefStateStatus,
-  isConfigurationStatus,
-  isSecurityStatus as isPrefSecurityStatus,
-  isSyncStatus as isPrefSyncStatus,
-  isValidationStatus as isPrefValidationStatus,
-  isApplicationStatus as isPrefApplicationStatus,
-  isVersionStatus as isPrefVersionStatus,
-  isActiveStatus as isPrefActiveStatus,
-  isInactiveStatus as isPrefInactiveStatus,
-  isPendingStatus as isPrefPendingStatus,
-  isTerminalStatus as isPrefTerminalStatus,
-  isConfigurationStatusType,
-  getStatusPriority as getPrefStatusPriority,
-  getAdminPreferenceStatuses,
-  getLifecycleStatuses as getPrefLifecycleStatuses,
-  getStateStatuses as getPrefStateStatuses,
-  getConfigurationStatuses,
-  getSecurityStatuses as getPrefSecurityStatuses,
-  getSyncStatuses as getPrefSyncStatuses,
-  getValidationStatuses as getPrefValidationStatuses,
-  getApplicationStatuses as getPrefApplicationStatuses,
-  getVersionStatuses as getPrefVersionStatuses,
-} from './preferences/admin-preferences-status.constants';
-
-export type { AdminPreferenceStatusDetail } from './preferences/admin-preferences-status.constants';
+} from './settings';
 
 // Admin Notification
 export {
@@ -1139,59 +635,6 @@ export type {
   AdminNotificationAction,
 } from './notification/admin-notification.constants';
 
-// Admin Notification Type
-export {
-  ADMIN_NOTIFICATION_TYPE,
-  ADMIN_NOTIFICATION_TYPE_CATEGORIES,
-  ADMIN_NOTIFICATION_TYPE_LABELS_DETAIL,
-  getAdminNotificationTypeCategory,
-  getAdminNotificationTypeLabel as getAdminNotificationTypeLabelDetail,
-  isSystemNotification,
-  isSecurityNotification,
-  isUserNotification,
-  isBusinessNotification,
-  isPaymentNotification,
-  isProductNotification,
-  isReportNotification,
-  isApprovalNotification,
-  isAlertNotification,
-  isReminderNotification,
-  isMarketingNotification,
-  isCollaborationNotification,
-} from './notification/admin-notification-type.constants';
-
-export type { AdminNotificationTypeDetail } from './notification/admin-notification-type.constants';
-
-// Admin Notification Status
-export {
-  ADMIN_NOTIFICATION_STATUS,
-  ADMIN_NOTIFICATION_STATUS_LABELS_DETAIL,
-  ADMIN_NOTIFICATION_STATUS_COLORS_DETAIL,
-  ADMIN_NOTIFICATION_STATUS_GROUPS,
-  getAdminNotificationStatusLabel as getAdminNotificationStatusLabelDetail,
-  getAdminNotificationStatusColor as getAdminNotificationStatusColorDetail,
-  isLifecycleStatus as isNotifLifecycleStatus,
-  isDeliveryStatus,
-  isReadStatus as isNotifReadStatus,
-  isFinalStatus as isNotifFinalStatus,
-  isErrorStatus as isNotifErrorStatus,
-  isDeliveredStatus,
-  isFailedStatus as isNotifFailedStatus,
-  isPendingStatus as isNotifPendingStatus,
-  isUnreadStatus,
-  isReadStatusType,
-  isTerminalStatus as isNotifTerminalStatus,
-  getStatusPriority as getNotifStatusPriority,
-  getAdminNotificationStatuses,
-  getLifecycleStatuses as getNotifLifecycleStatuses,
-  getDeliveryStatuses,
-  getReadStatuses as getNotifReadStatuses,
-  getFinalStatuses as getNotifFinalStatuses,
-  getErrorStatuses as getNotifErrorStatuses,
-} from './notification/admin-notification-status.constants';
-
-export type { AdminNotificationStatusDetail } from './notification/admin-notification-status.constants';
-
 // Admin Report
 export {
   ADMIN_REPORT,
@@ -1236,61 +679,6 @@ export type {
   AdminReportDelivery,
   AdminReportTimeframe,
 } from './report/admin-report.constants';
-
-// Admin Report Type
-export {
-  ADMIN_REPORT_TYPE,
-  ADMIN_REPORT_TYPE_CATEGORIES,
-  ADMIN_REPORT_TYPE_LABELS_DETAIL,
-  getAdminReportTypeCategory,
-  getAdminReportTypeLabel as getAdminReportTypeLabelDetail,
-  isSummaryReport,
-  isPerformanceReport,
-  isFinancialReport,
-  isSalesReport,
-  isProductReport,
-  isOrderReport,
-  isPaymentReport,
-  isUserReport,
-  isSecurityReport,
-  isMarketingReport,
-  isSupportReport,
-  isLogisticsReport,
-  isAnalyticsReport,
-  isCustomReport,
-} from './report/admin-report-type.constants';
-
-export type { AdminReportTypeDetail } from './report/admin-report-type.constants';
-
-// Admin Report Status
-export {
-  ADMIN_REPORT_STATUS,
-  ADMIN_REPORT_STATUS_LABELS_DETAIL,
-  ADMIN_REPORT_STATUS_COLORS_DETAIL,
-  ADMIN_REPORT_STATUS_GROUPS,
-  getAdminReportStatusLabel as getAdminReportStatusLabelDetail,
-  getAdminReportStatusColor as getAdminReportStatusColorDetail,
-  isLifecycleStatus as isReportLifecycleStatus,
-  isGenerationStatus,
-  isDeliveryStatus as isReportDeliveryStatus,
-  isViewStatus,
-  isErrorStatus as isReportErrorStatus,
-  isFinalStatus as isReportFinalStatus,
-  isReportReady,
-  isReportProcessing as isReportProcessingDetail,
-  isReportFailed as isReportFailedDetail,
-  isReportTerminal as isReportTerminalDetail,
-  getStatusPriority as getReportStatusPriority,
-  getAdminReportStatuses,
-  getLifecycleStatuses as getReportLifecycleStatuses,
-  getGenerationStatuses,
-  getDeliveryStatuses as getReportDeliveryStatuses,
-  getViewStatuses,
-  getErrorStatuses as getReportErrorStatuses,
-  getFinalStatuses as getReportFinalStatuses,
-} from './report/admin-report-status.constants';
-
-export type { AdminReportStatusDetail } from './report/admin-report-status.constants';
 
 // Admin Error
 export {

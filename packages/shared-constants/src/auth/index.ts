@@ -108,8 +108,8 @@ export {
   AUTH_ERROR,
   AUTH_ERROR_MESSAGES,
   AUTH_ERROR_HTTP_STATUS,
-  getErrorMessage,
-  getErrorHttpStatus,
+  getAuthErrorMessage,
+  getAuthErrorHttpStatus,
   isAuthError,
 } from './auth-error.constants';
 
@@ -133,7 +133,7 @@ export {
   isTwoFAPermission,
   isSessionPermission,
   isTokenPermission,
-  isAdminPermission,
+  isAuthAdminPermission,
   isRolePermission,
   isPermissionManagement,
   getPermissionLabel,
@@ -145,29 +145,29 @@ export type { AuthPermission } from './auth-permission.constants';
 // Auth Roles
 export {
   AUTH_ROLE,
-  ADMIN_ROLES,
-  USER_ROLES,
-  VENDOR_ROLES,
-  SUPPORT_ROLES,
-  MARKETING_ROLES,
-  ANALYTICS_ROLES,
-  GUEST_ROLES,
-  SYSTEM_ROLES,
-  PRIVILEGED_ROLES,
-  PUBLIC_ROLES,
-  isAdminRole,
-  isUserRole,
-  isVendorRole,
-  isSupportRole,
-  isMarketingRole,
-  isAnalyticsRole,
-  isGuestRole,
-  isSystemRole,
-  isPrivilegedRole,
-  isPublicRole,
-  getRoleLabel,
-  getRoleLevel,
-  hasSufficientRole,
+  AUTH_ADMIN_ROLES,
+  AUTH_USER_ROLES,
+  AUTH_VENDOR_ROLES,
+  AUTH_SUPPORT_ROLES,
+  AUTH_MARKETING_ROLES,
+  AUTH_ANALYTICS_ROLES,
+  AUTH_GUEST_ROLES,
+  AUTH_SYSTEM_ROLES,
+  AUTH_PRIVILEGED_ROLES,
+  AUTH_PUBLIC_ROLES,
+  isAuthAdminRole,
+  isAuthUserRole,
+  isAuthVendorRole,
+  isAuthSupportRole,
+  isAuthMarketingRole,
+  isAuthAnalyticsRole,
+  isAuthGuestRole,
+  isAuthSystemRole,
+  isAuthPrivilegedRole,
+  isAuthPublicRole,
+  getAuthRoleLabel,
+  getAuthRoleLevel,
+  hasAuthSufficientRole,
 } from './auth-role.constants';
 
 export type { AuthRole } from './auth-role.constants';
@@ -224,23 +224,23 @@ export type {
 // Auth Verifications
 export {
   AUTH_VERIFICATION,
-  IDENTITY_VERIFICATION_TYPES,
-  DOCUMENT_VERIFICATION_TYPES,
-  CONTACT_VERIFICATION_TYPES,
-  COMPLETED_VERIFICATION_STATUSES,
-  IN_PROGRESS_VERIFICATION_STATUSES,
-  FAILED_VERIFICATION_STATUSES,
-  isVerificationComplete,
-  isVerificationInProgress,
-  isVerificationFailed,
-  isIdentityVerification,
-  isDocumentVerification,
-  isContactVerification,
-  getVerificationExpiry as getVerificationExpiryTime,
-  getVerificationTypeLabel,
-  getVerificationStatusLabel,
-  getVerificationChannelLabel,
-  getVerificationLevel,
+  AUTH_IDENTITY_VERIFICATION_TYPES,
+  AUTH_DOCUMENT_VERIFICATION_TYPES,
+  AUTH_CONTACT_VERIFICATION_TYPES,
+  AUTH_COMPLETED_VERIFICATION_STATUSES,
+  AUTH_IN_PROGRESS_VERIFICATION_STATUSES,
+  AUTH_FAILED_VERIFICATION_STATUSES,
+  isAuthVerificationComplete,
+  isAuthVerificationInProgress,
+  isAuthVerificationFailed,
+  isAuthIdentityVerification,
+  isAuthDocumentVerification,
+  isAuthContactVerification,
+  getAuthVerificationExpiry,
+  getAuthVerificationTypeLabel,
+  getAuthVerificationStatusLabel,
+  getAuthVerificationChannelLabel,
+  getAuthVerificationLevel,
 } from './auth-verification.constants';
 
 export type {
@@ -647,7 +647,7 @@ export {
 
 export type { AuthDeviceStatus } from './device/auth-device-status.constants';
 
-// Auth Social
+// Auth Social - রিনেম করা নাম ব্যবহার করা হয়েছে
 export {
   AUTH_SOCIAL,
   SOCIAL_CONFIG,
@@ -660,9 +660,9 @@ export {
   getSocialAuthUrl,
   isSocialProviderSupported,
   getSupportedProviders,
-  getSocialProviderLabel,
-  getSocialProviderIcon,
-  getSocialProviderColor,
+  getAuthSocialProviderLabel,
+  getAuthSocialProviderIcon,
+  getAuthSocialProviderColor,
   getSocialAuthStateExpiry,
   getSocialCodeExpiry,
   getSocialTokenExpiry,
@@ -671,14 +671,14 @@ export {
   isSocialCodeValid,
   isSocialTokenValid,
   shouldRefreshToken,
-} from './social/auth-social.constants';
+} from './social';
 
 export type {
   AuthSocialConfig,
   AuthSocialEvent,
   AuthSocialDefaults,
   SocialProviderConfig,
-} from './social/auth-social.constants';
+} from './social';
 
 // Auth Social Providers
 export {
@@ -699,9 +699,9 @@ export {
   isOIDCProvider as isSocialOIDCProvider,
   isSocialOnlyProvider,
   getSocialProviderType,
-} from './social/auth-social-provider.constants';
+} from './social';
 
-export type { AuthSocialProvider } from './social/auth-social-provider.constants';
+export type { AuthSocialProvider } from './social';
 
 // Auth Social Status
 export {
@@ -724,9 +724,9 @@ export {
   getSocialStatusColor,
   getSocialStatusPriority,
   getSocialStatusBadgeType,
-} from './social/auth-social-status.constants';
+} from './social';
 
-export type { AuthSocialStatus } from './social/auth-social-status.constants';
+export type { AuthSocialStatus } from './social';
 
 // Auth OAuth
 export {
@@ -1048,7 +1048,7 @@ export {
 
 export type { AuthBiometricStatus } from './biometric/auth-biometric-status.constants';
 
-// Re-export all from auth.constants with unique names to avoid conflicts
+// Re-export with unique names
 export {
   getSessionMaxAge as getSessionMaxAgeValue,
   getVerificationExpiry as getVerificationExpiryValue,

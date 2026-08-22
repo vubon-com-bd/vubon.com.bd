@@ -5,114 +5,50 @@
 
 export const ADMIN_SETTINGS = {
   // Settings categories
-  CATEGORIES: {
+  CATEGORY: {
     GENERAL: 'general',
     SECURITY: 'security',
     NOTIFICATION: 'notification',
-    PREFERENCE: 'preference',
-    APPEARANCE: 'appearance',
-    LANGUAGE: 'language',
-    TIMEZONE: 'timezone',
-    INTEGRATION: 'integration',
-    ADVANCED: 'advanced',
     PRIVACY: 'privacy',
-    ACCESSIBILITY: 'accessibility',
+    INTEGRATION: 'integration',
     PERFORMANCE: 'performance',
-    MAINTENANCE: 'maintenance',
-    BACKUP: 'backup',
-    LOGGING: 'logging',
-    MONITORING: 'monitoring',
-    ALERTING: 'alerting',
-    REPORTING: 'reporting',
-    ANALYTICS: 'analytics',
-    API: 'api',
-    WEBHOOK: 'webhook',
-    EMAIL: 'email',
-    SMS: 'sms',
-    PUSH: 'push',
-    SOCIAL: 'social',
-    PAYMENT: 'payment',
-    SHIPPING: 'shipping',
-    TAX: 'tax',
-    INVENTORY: 'inventory',
-    ORDER: 'order',
-    USER: 'user',
-    ROLE: 'role',
-    PERMISSION: 'permission',
+    CUSTOMIZATION: 'customization',
   },
 
   // Settings types
-  TYPES: {
+  TYPE: {
     BOOLEAN: 'boolean',
     STRING: 'string',
     NUMBER: 'number',
     ARRAY: 'array',
     OBJECT: 'object',
-    JSON: 'json',
     ENUM: 'enum',
-    DATE: 'date',
-    TIME: 'time',
-    DATETIME: 'datetime',
-    EMAIL: 'email',
-    URL: 'url',
-    PHONE: 'phone',
-    COLOR: 'color',
-    PASSWORD: 'password',
-    FILE: 'file',
-    IMAGE: 'image',
-    HTML: 'html',
-    MARKDOWN: 'markdown',
-    TEXT: 'text',
-    TEXTAREA: 'textarea',
-    SELECT: 'select',
-    MULTI_SELECT: 'multi_select',
-    RADIO: 'radio',
-    CHECKBOX: 'checkbox',
-    TOGGLE: 'toggle',
-    SLIDER: 'slider',
-    RANGE: 'range',
+    JSON: 'json',
   },
 
-  // Settings statuses
-  STATUSES: {
+  // Settings status
+  STATUS: {
     ACTIVE: 'active',
     INACTIVE: 'inactive',
     PENDING: 'pending',
-    DRAFT: 'draft',
-    PUBLISHED: 'published',
-    ARCHIVED: 'archived',
-    DELETED: 'deleted',
     LOCKED: 'locked',
-    UNLOCKED: 'unlocked',
-    CONFIGURED: 'configured',
-    UNCONFIGURED: 'unconfigured',
-    VALID: 'valid',
-    INVALID: 'invalid',
-    SYNCED: 'synced',
-    UNSYNCED: 'unsynced',
+    ARCHIVED: 'archived',
   },
 
-  // Settings scopes
-  SCOPES: {
-    SYSTEM: 'system',
-    ADMIN: 'admin',
+  // Settings scope
+  SCOPE: {
+    GLOBAL: 'global',
     USER: 'user',
     ROLE: 'role',
     DEPARTMENT: 'department',
     TEAM: 'team',
-    GLOBAL: 'global',
-    LOCAL: 'local',
-    INSTANCE: 'instance',
-    ORGANIZATION: 'organization',
   },
 
   // Settings visibility
   VISIBILITY: {
     PUBLIC: 'public',
     PRIVATE: 'private',
-    PROTECTED: 'protected',
-    INTERNAL: 'internal',
-    HIDDEN: 'hidden',
+    RESTRICTED: 'restricted',
   },
 
   // Settings sensitivity
@@ -121,245 +57,113 @@ export const ADMIN_SETTINGS = {
     MEDIUM: 'medium',
     HIGH: 'high',
     CRITICAL: 'critical',
-    SECRET: 'secret',
   },
 
-  // Settings validation
-  VALIDATION: {
-    REQUIRED: 'required',
-    OPTIONAL: 'optional',
-    CONDITIONAL: 'conditional',
-    DEPENDENT: 'dependent',
-    MUTUALLY_EXCLUSIVE: 'mutually_exclusive',
-    MUTUALLY_INCLUSIVE: 'mutually_inclusive',
-  },
-
-  // Settings modification
-  MODIFICATION: {
-    ALLOWED: 'allowed',
-    RESTRICTED: 'restricted',
-    READ_ONLY: 'read_only',
-    WRITE_ONCE: 'write_once',
-    IMMUTABLE: 'immutable',
-    DEPRECATED: 'deprecated',
-  },
-
-  // Settings sources
-  SOURCES: {
-    DEFAULT: 'default',
-    USER: 'user',
-    SYSTEM: 'system',
-    ENVIRONMENT: 'environment',
-    CONFIG_FILE: 'config_file',
-    DATABASE: 'database',
-    API: 'api',
-    CLI: 'cli',
-    UI: 'ui',
-    IMPORT: 'import',
-    MIGRATION: 'migration',
-  },
-
-  // Settings priorities
-  PRIORITIES: {
+  // Settings priority
+  PRIORITY: {
     LOW: 'low',
     MEDIUM: 'medium',
     HIGH: 'high',
     CRITICAL: 'critical',
-    URGENT: 'urgent',
   },
 
-  // Settings groups
-  GROUPS: {
+  // Settings group
+  GROUP: {
     SYSTEM: 'system',
-    SECURITY: 'security',
-    BUSINESS: 'business',
-    TECHNICAL: 'technical',
     USER_INTERFACE: 'user_interface',
-    COMMUNICATION: 'communication',
+    SECURITY: 'security',
     INTEGRATION: 'integration',
-    DATA: 'data',
-    OPERATIONS: 'operations',
+    NOTIFICATION: 'notification',
+    REPORTING: 'reporting',
+  },
+
+  // Default values
+  DEFAULTS: {
+    CATEGORY: 'general',
+    TYPE: 'string',
+    STATUS: 'active',
+    SCOPE: 'global',
+    VISIBILITY: 'public',
+    SENSITIVITY: 'low',
+    PRIORITY: 'medium',
+    GROUP: 'system',
   },
 } as const;
 
 export type AdminSettingsCategory =
-  (typeof ADMIN_SETTINGS.CATEGORIES)[keyof typeof ADMIN_SETTINGS.CATEGORIES];
-export type AdminSettingsType = (typeof ADMIN_SETTINGS.TYPES)[keyof typeof ADMIN_SETTINGS.TYPES];
-export type AdminSettingsStatus =
-  (typeof ADMIN_SETTINGS.STATUSES)[keyof typeof ADMIN_SETTINGS.STATUSES];
-export type AdminSettingsScope = (typeof ADMIN_SETTINGS.SCOPES)[keyof typeof ADMIN_SETTINGS.SCOPES];
+  (typeof ADMIN_SETTINGS.CATEGORY)[keyof typeof ADMIN_SETTINGS.CATEGORY];
+export type AdminSettingsType = (typeof ADMIN_SETTINGS.TYPE)[keyof typeof ADMIN_SETTINGS.TYPE];
+export type AdminSettingsStatus = (typeof ADMIN_SETTINGS.STATUS)[keyof typeof ADMIN_SETTINGS.STATUS];
+export type AdminSettingsScope = (typeof ADMIN_SETTINGS.SCOPE)[keyof typeof ADMIN_SETTINGS.SCOPE];
 export type AdminSettingsVisibility =
   (typeof ADMIN_SETTINGS.VISIBILITY)[keyof typeof ADMIN_SETTINGS.VISIBILITY];
 export type AdminSettingsSensitivity =
   (typeof ADMIN_SETTINGS.SENSITIVITY)[keyof typeof ADMIN_SETTINGS.SENSITIVITY];
-export type AdminSettingsValidation =
-  (typeof ADMIN_SETTINGS.VALIDATION)[keyof typeof ADMIN_SETTINGS.VALIDATION];
-export type AdminSettingsModification =
-  (typeof ADMIN_SETTINGS.MODIFICATION)[keyof typeof ADMIN_SETTINGS.MODIFICATION];
-export type AdminSettingsSource =
-  (typeof ADMIN_SETTINGS.SOURCES)[keyof typeof ADMIN_SETTINGS.SOURCES];
 export type AdminSettingsPriority =
-  (typeof ADMIN_SETTINGS.PRIORITIES)[keyof typeof ADMIN_SETTINGS.PRIORITIES];
-export type AdminSettingsGroup = (typeof ADMIN_SETTINGS.GROUPS)[keyof typeof ADMIN_SETTINGS.GROUPS];
+  (typeof ADMIN_SETTINGS.PRIORITY)[keyof typeof ADMIN_SETTINGS.PRIORITY];
+export type AdminSettingsGroup = (typeof ADMIN_SETTINGS.GROUP)[keyof typeof ADMIN_SETTINGS.GROUP];
+export type AdminSettingsValidation = 'required' | 'optional' | 'conditional';
+export type AdminSettingsModification = 'system' | 'user' | 'admin' | 'api' | 'import';
+export type AdminSettingsSource = 'system' | 'user' | 'admin' | 'api' | 'import';
 
 export const ADMIN_SETTINGS_CATEGORY_LABELS: Record<AdminSettingsCategory, string> = {
-  [ADMIN_SETTINGS.CATEGORIES.GENERAL]: 'General',
-  [ADMIN_SETTINGS.CATEGORIES.SECURITY]: 'Security',
-  [ADMIN_SETTINGS.CATEGORIES.NOTIFICATION]: 'Notification',
-  [ADMIN_SETTINGS.CATEGORIES.PREFERENCE]: 'Preference',
-  [ADMIN_SETTINGS.CATEGORIES.APPEARANCE]: 'Appearance',
-  [ADMIN_SETTINGS.CATEGORIES.LANGUAGE]: 'Language',
-  [ADMIN_SETTINGS.CATEGORIES.TIMEZONE]: 'Timezone',
-  [ADMIN_SETTINGS.CATEGORIES.INTEGRATION]: 'Integration',
-  [ADMIN_SETTINGS.CATEGORIES.ADVANCED]: 'Advanced',
-  [ADMIN_SETTINGS.CATEGORIES.PRIVACY]: 'Privacy',
-  [ADMIN_SETTINGS.CATEGORIES.ACCESSIBILITY]: 'Accessibility',
-  [ADMIN_SETTINGS.CATEGORIES.PERFORMANCE]: 'Performance',
-  [ADMIN_SETTINGS.CATEGORIES.MAINTENANCE]: 'Maintenance',
-  [ADMIN_SETTINGS.CATEGORIES.BACKUP]: 'Backup',
-  [ADMIN_SETTINGS.CATEGORIES.LOGGING]: 'Logging',
-  [ADMIN_SETTINGS.CATEGORIES.MONITORING]: 'Monitoring',
-  [ADMIN_SETTINGS.CATEGORIES.ALERTING]: 'Alerting',
-  [ADMIN_SETTINGS.CATEGORIES.REPORTING]: 'Reporting',
-  [ADMIN_SETTINGS.CATEGORIES.ANALYTICS]: 'Analytics',
-  [ADMIN_SETTINGS.CATEGORIES.API]: 'API',
-  [ADMIN_SETTINGS.CATEGORIES.WEBHOOK]: 'Webhook',
-  [ADMIN_SETTINGS.CATEGORIES.EMAIL]: 'Email',
-  [ADMIN_SETTINGS.CATEGORIES.SMS]: 'SMS',
-  [ADMIN_SETTINGS.CATEGORIES.PUSH]: 'Push',
-  [ADMIN_SETTINGS.CATEGORIES.SOCIAL]: 'Social',
-  [ADMIN_SETTINGS.CATEGORIES.PAYMENT]: 'Payment',
-  [ADMIN_SETTINGS.CATEGORIES.SHIPPING]: 'Shipping',
-  [ADMIN_SETTINGS.CATEGORIES.TAX]: 'Tax',
-  [ADMIN_SETTINGS.CATEGORIES.INVENTORY]: 'Inventory',
-  [ADMIN_SETTINGS.CATEGORIES.ORDER]: 'Order',
-  [ADMIN_SETTINGS.CATEGORIES.USER]: 'User',
-  [ADMIN_SETTINGS.CATEGORIES.ROLE]: 'Role',
-  [ADMIN_SETTINGS.CATEGORIES.PERMISSION]: 'Permission',
+  [ADMIN_SETTINGS.CATEGORY.GENERAL]: 'General',
+  [ADMIN_SETTINGS.CATEGORY.SECURITY]: 'Security',
+  [ADMIN_SETTINGS.CATEGORY.NOTIFICATION]: 'Notification',
+  [ADMIN_SETTINGS.CATEGORY.PRIVACY]: 'Privacy',
+  [ADMIN_SETTINGS.CATEGORY.INTEGRATION]: 'Integration',
+  [ADMIN_SETTINGS.CATEGORY.PERFORMANCE]: 'Performance',
+  [ADMIN_SETTINGS.CATEGORY.CUSTOMIZATION]: 'Customization',
 };
 
 export const ADMIN_SETTINGS_CATEGORY_ICONS: Record<AdminSettingsCategory, string> = {
-  [ADMIN_SETTINGS.CATEGORIES.GENERAL]: '⚙️',
-  [ADMIN_SETTINGS.CATEGORIES.SECURITY]: '🔐',
-  [ADMIN_SETTINGS.CATEGORIES.NOTIFICATION]: '🔔',
-  [ADMIN_SETTINGS.CATEGORIES.PREFERENCE]: '🎯',
-  [ADMIN_SETTINGS.CATEGORIES.APPEARANCE]: '🎨',
-  [ADMIN_SETTINGS.CATEGORIES.LANGUAGE]: '🌐',
-  [ADMIN_SETTINGS.CATEGORIES.TIMEZONE]: '🕐',
-  [ADMIN_SETTINGS.CATEGORIES.INTEGRATION]: '🔌',
-  [ADMIN_SETTINGS.CATEGORIES.ADVANCED]: '🚀',
-  [ADMIN_SETTINGS.CATEGORIES.PRIVACY]: '🛡️',
-  [ADMIN_SETTINGS.CATEGORIES.ACCESSIBILITY]: '♿',
-  [ADMIN_SETTINGS.CATEGORIES.PERFORMANCE]: '⚡',
-  [ADMIN_SETTINGS.CATEGORIES.MAINTENANCE]: '🔧',
-  [ADMIN_SETTINGS.CATEGORIES.BACKUP]: '💾',
-  [ADMIN_SETTINGS.CATEGORIES.LOGGING]: '📝',
-  [ADMIN_SETTINGS.CATEGORIES.MONITORING]: '📊',
-  [ADMIN_SETTINGS.CATEGORIES.ALERTING]: '🚨',
-  [ADMIN_SETTINGS.CATEGORIES.REPORTING]: '📈',
-  [ADMIN_SETTINGS.CATEGORIES.ANALYTICS]: '📉',
-  [ADMIN_SETTINGS.CATEGORIES.API]: '🔌',
-  [ADMIN_SETTINGS.CATEGORIES.WEBHOOK]: '🔗',
-  [ADMIN_SETTINGS.CATEGORIES.EMAIL]: '✉️',
-  [ADMIN_SETTINGS.CATEGORIES.SMS]: '💬',
-  [ADMIN_SETTINGS.CATEGORIES.PUSH]: '📱',
-  [ADMIN_SETTINGS.CATEGORIES.SOCIAL]: '👥',
-  [ADMIN_SETTINGS.CATEGORIES.PAYMENT]: '💳',
-  [ADMIN_SETTINGS.CATEGORIES.SHIPPING]: '🚚',
-  [ADMIN_SETTINGS.CATEGORIES.TAX]: '💰',
-  [ADMIN_SETTINGS.CATEGORIES.INVENTORY]: '📦',
-  [ADMIN_SETTINGS.CATEGORIES.ORDER]: '📋',
-  [ADMIN_SETTINGS.CATEGORIES.USER]: '👤',
-  [ADMIN_SETTINGS.CATEGORIES.ROLE]: '🎭',
-  [ADMIN_SETTINGS.CATEGORIES.PERMISSION]: '🔑',
+  [ADMIN_SETTINGS.CATEGORY.GENERAL]: '⚙️',
+  [ADMIN_SETTINGS.CATEGORY.SECURITY]: '🔒',
+  [ADMIN_SETTINGS.CATEGORY.NOTIFICATION]: '🔔',
+  [ADMIN_SETTINGS.CATEGORY.PRIVACY]: '🛡️',
+  [ADMIN_SETTINGS.CATEGORY.INTEGRATION]: '🔗',
+  [ADMIN_SETTINGS.CATEGORY.PERFORMANCE]: '⚡',
+  [ADMIN_SETTINGS.CATEGORY.CUSTOMIZATION]: '🎨',
 };
 
 export const ADMIN_SETTINGS_TYPE_LABELS: Record<AdminSettingsType, string> = {
-  [ADMIN_SETTINGS.TYPES.BOOLEAN]: 'Boolean',
-  [ADMIN_SETTINGS.TYPES.STRING]: 'String',
-  [ADMIN_SETTINGS.TYPES.NUMBER]: 'Number',
-  [ADMIN_SETTINGS.TYPES.ARRAY]: 'Array',
-  [ADMIN_SETTINGS.TYPES.OBJECT]: 'Object',
-  [ADMIN_SETTINGS.TYPES.JSON]: 'JSON',
-  [ADMIN_SETTINGS.TYPES.ENUM]: 'Enum',
-  [ADMIN_SETTINGS.TYPES.DATE]: 'Date',
-  [ADMIN_SETTINGS.TYPES.TIME]: 'Time',
-  [ADMIN_SETTINGS.TYPES.DATETIME]: 'DateTime',
-  [ADMIN_SETTINGS.TYPES.EMAIL]: 'Email',
-  [ADMIN_SETTINGS.TYPES.URL]: 'URL',
-  [ADMIN_SETTINGS.TYPES.PHONE]: 'Phone',
-  [ADMIN_SETTINGS.TYPES.COLOR]: 'Color',
-  [ADMIN_SETTINGS.TYPES.PASSWORD]: 'Password',
-  [ADMIN_SETTINGS.TYPES.FILE]: 'File',
-  [ADMIN_SETTINGS.TYPES.IMAGE]: 'Image',
-  [ADMIN_SETTINGS.TYPES.HTML]: 'HTML',
-  [ADMIN_SETTINGS.TYPES.MARKDOWN]: 'Markdown',
-  [ADMIN_SETTINGS.TYPES.TEXT]: 'Text',
-  [ADMIN_SETTINGS.TYPES.TEXTAREA]: 'Textarea',
-  [ADMIN_SETTINGS.TYPES.SELECT]: 'Select',
-  [ADMIN_SETTINGS.TYPES.MULTI_SELECT]: 'Multi-Select',
-  [ADMIN_SETTINGS.TYPES.RADIO]: 'Radio',
-  [ADMIN_SETTINGS.TYPES.CHECKBOX]: 'Checkbox',
-  [ADMIN_SETTINGS.TYPES.TOGGLE]: 'Toggle',
-  [ADMIN_SETTINGS.TYPES.SLIDER]: 'Slider',
-  [ADMIN_SETTINGS.TYPES.RANGE]: 'Range',
+  [ADMIN_SETTINGS.TYPE.BOOLEAN]: 'Boolean',
+  [ADMIN_SETTINGS.TYPE.STRING]: 'String',
+  [ADMIN_SETTINGS.TYPE.NUMBER]: 'Number',
+  [ADMIN_SETTINGS.TYPE.ARRAY]: 'Array',
+  [ADMIN_SETTINGS.TYPE.OBJECT]: 'Object',
+  [ADMIN_SETTINGS.TYPE.ENUM]: 'Enum',
+  [ADMIN_SETTINGS.TYPE.JSON]: 'JSON',
 };
 
 export const ADMIN_SETTINGS_STATUS_LABELS: Record<AdminSettingsStatus, string> = {
-  [ADMIN_SETTINGS.STATUSES.ACTIVE]: 'Active',
-  [ADMIN_SETTINGS.STATUSES.INACTIVE]: 'Inactive',
-  [ADMIN_SETTINGS.STATUSES.PENDING]: 'Pending',
-  [ADMIN_SETTINGS.STATUSES.DRAFT]: 'Draft',
-  [ADMIN_SETTINGS.STATUSES.PUBLISHED]: 'Published',
-  [ADMIN_SETTINGS.STATUSES.ARCHIVED]: 'Archived',
-  [ADMIN_SETTINGS.STATUSES.DELETED]: 'Deleted',
-  [ADMIN_SETTINGS.STATUSES.LOCKED]: 'Locked',
-  [ADMIN_SETTINGS.STATUSES.UNLOCKED]: 'Unlocked',
-  [ADMIN_SETTINGS.STATUSES.CONFIGURED]: 'Configured',
-  [ADMIN_SETTINGS.STATUSES.UNCONFIGURED]: 'Unconfigured',
-  [ADMIN_SETTINGS.STATUSES.VALID]: 'Valid',
-  [ADMIN_SETTINGS.STATUSES.INVALID]: 'Invalid',
-  [ADMIN_SETTINGS.STATUSES.SYNCED]: 'Synced',
-  [ADMIN_SETTINGS.STATUSES.UNSYNCED]: 'Unsynced',
+  [ADMIN_SETTINGS.STATUS.ACTIVE]: 'Active',
+  [ADMIN_SETTINGS.STATUS.INACTIVE]: 'Inactive',
+  [ADMIN_SETTINGS.STATUS.PENDING]: 'Pending',
+  [ADMIN_SETTINGS.STATUS.LOCKED]: 'Locked',
+  [ADMIN_SETTINGS.STATUS.ARCHIVED]: 'Archived',
 };
 
 export const ADMIN_SETTINGS_STATUS_COLORS: Record<AdminSettingsStatus, string> = {
-  [ADMIN_SETTINGS.STATUSES.ACTIVE]: '#10B981',
-  [ADMIN_SETTINGS.STATUSES.INACTIVE]: '#6B7280',
-  [ADMIN_SETTINGS.STATUSES.PENDING]: '#F59E0B',
-  [ADMIN_SETTINGS.STATUSES.DRAFT]: '#9CA3AF',
-  [ADMIN_SETTINGS.STATUSES.PUBLISHED]: '#34D399',
-  [ADMIN_SETTINGS.STATUSES.ARCHIVED]: '#6B7280',
-  [ADMIN_SETTINGS.STATUSES.DELETED]: '#DC2626',
-  [ADMIN_SETTINGS.STATUSES.LOCKED]: '#EF4444',
-  [ADMIN_SETTINGS.STATUSES.UNLOCKED]: '#10B981',
-  [ADMIN_SETTINGS.STATUSES.CONFIGURED]: '#3B82F6',
-  [ADMIN_SETTINGS.STATUSES.UNCONFIGURED]: '#9CA3AF',
-  [ADMIN_SETTINGS.STATUSES.VALID]: '#10B981',
-  [ADMIN_SETTINGS.STATUSES.INVALID]: '#EF4444',
-  [ADMIN_SETTINGS.STATUSES.SYNCED]: '#34D399',
-  [ADMIN_SETTINGS.STATUSES.UNSYNCED]: '#F59E0B',
+  [ADMIN_SETTINGS.STATUS.ACTIVE]: '#10B981',
+  [ADMIN_SETTINGS.STATUS.INACTIVE]: '#6B7280',
+  [ADMIN_SETTINGS.STATUS.PENDING]: '#F59E0B',
+  [ADMIN_SETTINGS.STATUS.LOCKED]: '#EF4444',
+  [ADMIN_SETTINGS.STATUS.ARCHIVED]: '#9CA3AF',
 };
 
 export const ADMIN_SETTINGS_SCOPE_LABELS: Record<AdminSettingsScope, string> = {
-  [ADMIN_SETTINGS.SCOPES.SYSTEM]: 'System',
-  [ADMIN_SETTINGS.SCOPES.ADMIN]: 'Admin',
-  [ADMIN_SETTINGS.SCOPES.USER]: 'User',
-  [ADMIN_SETTINGS.SCOPES.ROLE]: 'Role',
-  [ADMIN_SETTINGS.SCOPES.DEPARTMENT]: 'Department',
-  [ADMIN_SETTINGS.SCOPES.TEAM]: 'Team',
-  [ADMIN_SETTINGS.SCOPES.GLOBAL]: 'Global',
-  [ADMIN_SETTINGS.SCOPES.LOCAL]: 'Local',
-  [ADMIN_SETTINGS.SCOPES.INSTANCE]: 'Instance',
-  [ADMIN_SETTINGS.SCOPES.ORGANIZATION]: 'Organization',
+  [ADMIN_SETTINGS.SCOPE.GLOBAL]: 'Global',
+  [ADMIN_SETTINGS.SCOPE.USER]: 'User',
+  [ADMIN_SETTINGS.SCOPE.ROLE]: 'Role',
+  [ADMIN_SETTINGS.SCOPE.DEPARTMENT]: 'Department',
+  [ADMIN_SETTINGS.SCOPE.TEAM]: 'Team',
 };
 
 export const ADMIN_SETTINGS_VISIBILITY_LABELS: Record<AdminSettingsVisibility, string> = {
   [ADMIN_SETTINGS.VISIBILITY.PUBLIC]: 'Public',
   [ADMIN_SETTINGS.VISIBILITY.PRIVATE]: 'Private',
-  [ADMIN_SETTINGS.VISIBILITY.PROTECTED]: 'Protected',
-  [ADMIN_SETTINGS.VISIBILITY.INTERNAL]: 'Internal',
-  [ADMIN_SETTINGS.VISIBILITY.HIDDEN]: 'Hidden',
+  [ADMIN_SETTINGS.VISIBILITY.RESTRICTED]: 'Restricted',
 };
 
 export const ADMIN_SETTINGS_SENSITIVITY_LABELS: Record<AdminSettingsSensitivity, string> = {
@@ -367,7 +171,6 @@ export const ADMIN_SETTINGS_SENSITIVITY_LABELS: Record<AdminSettingsSensitivity,
   [ADMIN_SETTINGS.SENSITIVITY.MEDIUM]: 'Medium',
   [ADMIN_SETTINGS.SENSITIVITY.HIGH]: 'High',
   [ADMIN_SETTINGS.SENSITIVITY.CRITICAL]: 'Critical',
-  [ADMIN_SETTINGS.SENSITIVITY.SECRET]: 'Secret',
 };
 
 export const ADMIN_SETTINGS_SENSITIVITY_COLORS: Record<AdminSettingsSensitivity, string> = {
@@ -375,27 +178,22 @@ export const ADMIN_SETTINGS_SENSITIVITY_COLORS: Record<AdminSettingsSensitivity,
   [ADMIN_SETTINGS.SENSITIVITY.MEDIUM]: '#F59E0B',
   [ADMIN_SETTINGS.SENSITIVITY.HIGH]: '#F97316',
   [ADMIN_SETTINGS.SENSITIVITY.CRITICAL]: '#EF4444',
-  [ADMIN_SETTINGS.SENSITIVITY.SECRET]: '#DC2626',
 };
 
 export const ADMIN_SETTINGS_PRIORITY_LABELS: Record<AdminSettingsPriority, string> = {
-  [ADMIN_SETTINGS.PRIORITIES.LOW]: 'Low',
-  [ADMIN_SETTINGS.PRIORITIES.MEDIUM]: 'Medium',
-  [ADMIN_SETTINGS.PRIORITIES.HIGH]: 'High',
-  [ADMIN_SETTINGS.PRIORITIES.CRITICAL]: 'Critical',
-  [ADMIN_SETTINGS.PRIORITIES.URGENT]: 'Urgent',
+  [ADMIN_SETTINGS.PRIORITY.LOW]: 'Low',
+  [ADMIN_SETTINGS.PRIORITY.MEDIUM]: 'Medium',
+  [ADMIN_SETTINGS.PRIORITY.HIGH]: 'High',
+  [ADMIN_SETTINGS.PRIORITY.CRITICAL]: 'Critical',
 };
 
 export const ADMIN_SETTINGS_GROUP_LABELS: Record<AdminSettingsGroup, string> = {
-  [ADMIN_SETTINGS.GROUPS.SYSTEM]: 'System',
-  [ADMIN_SETTINGS.GROUPS.SECURITY]: 'Security',
-  [ADMIN_SETTINGS.GROUPS.BUSINESS]: 'Business',
-  [ADMIN_SETTINGS.GROUPS.TECHNICAL]: 'Technical',
-  [ADMIN_SETTINGS.GROUPS.USER_INTERFACE]: 'User Interface',
-  [ADMIN_SETTINGS.GROUPS.COMMUNICATION]: 'Communication',
-  [ADMIN_SETTINGS.GROUPS.INTEGRATION]: 'Integration',
-  [ADMIN_SETTINGS.GROUPS.DATA]: 'Data',
-  [ADMIN_SETTINGS.GROUPS.OPERATIONS]: 'Operations',
+  [ADMIN_SETTINGS.GROUP.SYSTEM]: 'System',
+  [ADMIN_SETTINGS.GROUP.USER_INTERFACE]: 'User Interface',
+  [ADMIN_SETTINGS.GROUP.SECURITY]: 'Security',
+  [ADMIN_SETTINGS.GROUP.INTEGRATION]: 'Integration',
+  [ADMIN_SETTINGS.GROUP.NOTIFICATION]: 'Notification',
+  [ADMIN_SETTINGS.GROUP.REPORTING]: 'Reporting',
 };
 
 export function getAdminSettingsCategoryLabel(category: AdminSettingsCategory): string {
@@ -442,74 +240,43 @@ export function getAdminSettingsGroupLabel(group: AdminSettingsGroup): string {
   return ADMIN_SETTINGS_GROUP_LABELS[group] || 'Unknown Group';
 }
 
-export function isSettingsActive(status: AdminSettingsStatus): boolean {
-  return (
-    status === ADMIN_SETTINGS.STATUSES.ACTIVE ||
-    status === ADMIN_SETTINGS.STATUSES.PUBLISHED ||
-    status === ADMIN_SETTINGS.STATUSES.CONFIGURED ||
-    status === ADMIN_SETTINGS.STATUSES.VALID
-  );
+// রিনেম করা ফাংশন (Admin প্রিফিক্স যোগ করা হয়েছে)
+export function isAdminSettingsActive(status: AdminSettingsStatus): boolean {
+  return status === ADMIN_SETTINGS.STATUS.ACTIVE;
 }
 
-export function isSettingsInactive(status: AdminSettingsStatus): boolean {
-  return (
-    status === ADMIN_SETTINGS.STATUSES.INACTIVE ||
-    status === ADMIN_SETTINGS.STATUSES.ARCHIVED ||
-    status === ADMIN_SETTINGS.STATUSES.DELETED ||
-    status === ADMIN_SETTINGS.STATUSES.UNCONFIGURED ||
-    status === ADMIN_SETTINGS.STATUSES.INVALID
-  );
+export function isAdminSettingsInactive(status: AdminSettingsStatus): boolean {
+  return status === ADMIN_SETTINGS.STATUS.INACTIVE;
 }
 
-export function isSettingsLocked(status: AdminSettingsStatus): boolean {
-  return status === ADMIN_SETTINGS.STATUSES.LOCKED;
+export function isAdminSettingsLocked(status: AdminSettingsStatus): boolean {
+  return status === ADMIN_SETTINGS.STATUS.LOCKED;
 }
 
-export function isSettingsSynced(status: AdminSettingsStatus): boolean {
-  return status === ADMIN_SETTINGS.STATUSES.SYNCED;
+export function isAdminSettingsSynced(status: AdminSettingsStatus): boolean {
+  return status === ADMIN_SETTINGS.STATUS.ACTIVE || status === ADMIN_SETTINGS.STATUS.INACTIVE;
 }
 
 export function isHighSensitivity(sensitivity: AdminSettingsSensitivity): boolean {
-  return (
-    sensitivity === ADMIN_SETTINGS.SENSITIVITY.HIGH ||
-    sensitivity === ADMIN_SETTINGS.SENSITIVITY.CRITICAL ||
-    sensitivity === ADMIN_SETTINGS.SENSITIVITY.SECRET
-  );
+  return sensitivity === ADMIN_SETTINGS.SENSITIVITY.HIGH || 
+         sensitivity === ADMIN_SETTINGS.SENSITIVITY.CRITICAL;
 }
 
 export function isVisibleSettings(visibility: AdminSettingsVisibility): boolean {
-  return (
-    visibility === ADMIN_SETTINGS.VISIBILITY.PUBLIC ||
-    visibility === ADMIN_SETTINGS.VISIBILITY.PROTECTED ||
-    visibility === ADMIN_SETTINGS.VISIBILITY.INTERNAL
-  );
+  return visibility === ADMIN_SETTINGS.VISIBILITY.PUBLIC;
 }
 
-export function getSettingsModification(modification: AdminSettingsModification): string {
-  const labels: Record<AdminSettingsModification, string> = {
-    [ADMIN_SETTINGS.MODIFICATION.ALLOWED]: 'Allowed',
-    [ADMIN_SETTINGS.MODIFICATION.RESTRICTED]: 'Restricted',
-    [ADMIN_SETTINGS.MODIFICATION.READ_ONLY]: 'Read Only',
-    [ADMIN_SETTINGS.MODIFICATION.WRITE_ONCE]: 'Write Once',
-    [ADMIN_SETTINGS.MODIFICATION.IMMUTABLE]: 'Immutable',
-    [ADMIN_SETTINGS.MODIFICATION.DEPRECATED]: 'Deprecated',
-  };
-  return labels[modification] || 'Unknown';
+export function getSettingsModification(source: string): string {
+  return `Modified from ${source}`;
 }
 
 export function getSettingsSourceLabel(source: AdminSettingsSource): string {
   const labels: Record<AdminSettingsSource, string> = {
-    [ADMIN_SETTINGS.SOURCES.DEFAULT]: 'Default',
-    [ADMIN_SETTINGS.SOURCES.USER]: 'User',
-    [ADMIN_SETTINGS.SOURCES.SYSTEM]: 'System',
-    [ADMIN_SETTINGS.SOURCES.ENVIRONMENT]: 'Environment',
-    [ADMIN_SETTINGS.SOURCES.CONFIG_FILE]: 'Config File',
-    [ADMIN_SETTINGS.SOURCES.DATABASE]: 'Database',
-    [ADMIN_SETTINGS.SOURCES.API]: 'API',
-    [ADMIN_SETTINGS.SOURCES.CLI]: 'CLI',
-    [ADMIN_SETTINGS.SOURCES.UI]: 'UI',
-    [ADMIN_SETTINGS.SOURCES.IMPORT]: 'Import',
-    [ADMIN_SETTINGS.SOURCES.MIGRATION]: 'Migration',
+    'system': 'System',
+    'user': 'User',
+    'admin': 'Administrator',
+    'api': 'API',
+    'import': 'Import',
   };
-  return labels[source] || 'Unknown';
+  return labels[source] || 'Unknown Source';
 }

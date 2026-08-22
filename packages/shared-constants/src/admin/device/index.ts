@@ -20,15 +20,16 @@ export {
   getAdminDevicePlatformLabel,
   getAdminDeviceTrustLevelLabel,
   getAdminDeviceTrustLevelPriority,
-  isDeviceActive,
-  isDeviceInactive,
-  isDeviceBlocked,
-  isDeviceLostOrStolen,
-  isDeviceVerifiable,
-  isTrustedDevice,
-  isMobileDevice,
-  isDesktopDevice,
-  getDeviceTypeFromPlatform,
+  // রিনেম করা ফাংশনগুলো এক্সপোর্ট করা হলো
+  isAdminDeviceActive,
+  isAdminDeviceInactive,
+  isAdminDeviceBlocked,
+  isAdminDeviceLostOrStolen,
+  isAdminDeviceVerifiable,
+  isAdminTrustedDevice,
+  isAdminMobileDevice,
+  isAdminDesktopDevice,
+  getAdminDeviceTypeFromPlatform,
 } from './admin-device.constants';
 
 export type {

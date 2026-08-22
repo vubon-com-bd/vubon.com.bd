@@ -30,13 +30,14 @@ export {
   getAdminBiometricSensorLabel,
   getAdminBiometricQualityLevelLabel,
   getAdminBiometricCaptureMethodLabel,
-  isBiometricActive,
-  isBiometricInactive,
-  isBiometricLocked,
-  isBiometricFailed,
-  getBiometricTimeout,
-  getBiometricSecurityLevel,
-  getBiometricAccuracyLevel,
+  // রিনেম করা ফাংশনগুলো এক্সপোর্ট করা হলো
+  isAdminBiometricActive,
+  isAdminBiometricInactive,
+  isAdminBiometricLocked,
+  isAdminBiometricFailed,
+  getAdminBiometricTimeout,
+  getAdminBiometricSecurityLevel,
+  getAdminBiometricAccuracyLevel,
 } from './admin-biometric.constants';
 
 export type {

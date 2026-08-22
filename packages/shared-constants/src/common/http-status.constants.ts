@@ -156,14 +156,15 @@ export const HTTP_STATUS_MESSAGES: Record<HttpStatus, string> = {
 
 export type HttpStatusMessage = (typeof HTTP_STATUS_MESSAGES)[keyof typeof HTTP_STATUS_MESSAGES];
 
-export const SUCCESS_STATUSES: HttpStatus[] = [
+// রিনেম করা নামগুলো (HTTP_ প্রিফিক্স যোগ করা হয়েছে)
+export const HTTP_SUCCESS_STATUSES: HttpStatus[] = [
   HTTP_STATUS.OK,
   HTTP_STATUS.CREATED,
   HTTP_STATUS.ACCEPTED,
   HTTP_STATUS.NO_CONTENT,
 ];
 
-export const CLIENT_ERROR_STATUSES: HttpStatus[] = [
+export const HTTP_CLIENT_ERROR_STATUSES: HttpStatus[] = [
   HTTP_STATUS.BAD_REQUEST,
   HTTP_STATUS.UNAUTHORIZED,
   HTTP_STATUS.FORBIDDEN,
@@ -174,7 +175,7 @@ export const CLIENT_ERROR_STATUSES: HttpStatus[] = [
   HTTP_STATUS.TOO_MANY_REQUESTS,
 ];
 
-export const SERVER_ERROR_STATUSES: HttpStatus[] = [
+export const HTTP_SERVER_ERROR_STATUSES: HttpStatus[] = [
   HTTP_STATUS.INTERNAL_SERVER_ERROR,
   HTTP_STATUS.NOT_IMPLEMENTED,
   HTTP_STATUS.BAD_GATEWAY,
@@ -182,7 +183,7 @@ export const SERVER_ERROR_STATUSES: HttpStatus[] = [
   HTTP_STATUS.GATEWAY_TIMEOUT,
 ];
 
-export const REDIRECT_STATUSES: HttpStatus[] = [
+export const HTTP_REDIRECT_STATUSES: HttpStatus[] = [
   HTTP_STATUS.MOVED_PERMANENTLY,
   HTTP_STATUS.FOUND,
   HTTP_STATUS.SEE_OTHER,
@@ -190,23 +191,24 @@ export const REDIRECT_STATUSES: HttpStatus[] = [
   HTTP_STATUS.PERMANENT_REDIRECT,
 ];
 
-export function isSuccessStatus(status: number): boolean {
+// ফাংশনগুলোর নামেও HTTP_ প্রিফিক্স যোগ করা হয়েছে
+export function isHttpSuccessStatus(status: number): boolean {
   return status >= 200 && status < 300;
 }
 
-export function isClientErrorStatus(status: number): boolean {
+export function isHttpClientErrorStatus(status: number): boolean {
   return status >= 400 && status < 500;
 }
 
-export function isServerErrorStatus(status: number): boolean {
+export function isHttpServerErrorStatus(status: number): boolean {
   return status >= 500 && status < 600;
 }
 
-export function isRedirectStatus(status: number): boolean {
+export function isHttpRedirectStatus(status: number): boolean {
   return status >= 300 && status < 400;
 }
 
-export function getStatusMessage(status: number): string {
+export function getHttpStatusMessage(status: number): string {
   const statusKey = Object.keys(HTTP_STATUS).find(
     (key) => HTTP_STATUS[key as keyof typeof HTTP_STATUS] === status
   ) as keyof typeof HTTP_STATUS | undefined;

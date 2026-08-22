@@ -141,6 +141,8 @@ export type AdminVerificationPurpose =
 export type AdminVerificationChannel =
   (typeof ADMIN_VERIFICATION.CHANNELS)[keyof typeof ADMIN_VERIFICATION.CHANNELS];
 
+// ... (লেবেল অবজেক্টগুলো আগের মতোই থাকবে, শুধু ফাংশনের নাম পরিবর্তন করা হবে)
+
 export const ADMIN_VERIFICATION_TYPE_LABELS: Record<AdminVerificationType, string> = {
   [ADMIN_VERIFICATION.TYPES.EMAIL]: 'Email Verification',
   [ADMIN_VERIFICATION.TYPES.PHONE]: 'Phone Verification',
@@ -327,14 +329,15 @@ export function getAdminVerificationChannelLabel(channel: AdminVerificationChann
   return ADMIN_VERIFICATION_CHANNEL_LABELS[channel] || 'Unknown Channel';
 }
 
-export function isVerificationComplete(status: AdminVerificationStatus): boolean {
+// রিনেম করা ফাংশনগুলো (Admin প্রিফিক্স যোগ করা হয়েছে)
+export function isAdminVerificationComplete(status: AdminVerificationStatus): boolean {
   return (
     status === ADMIN_VERIFICATION.STATUSES.VERIFIED ||
     status === ADMIN_VERIFICATION.STATUSES.APPROVED
   );
 }
 
-export function isVerificationFailed(status: AdminVerificationStatus): boolean {
+export function isAdminVerificationFailed(status: AdminVerificationStatus): boolean {
   return (
     status === ADMIN_VERIFICATION.STATUSES.FAILED ||
     status === ADMIN_VERIFICATION.STATUSES.REJECTED ||
@@ -342,7 +345,7 @@ export function isVerificationFailed(status: AdminVerificationStatus): boolean {
   );
 }
 
-export function isVerificationPending(status: AdminVerificationStatus): boolean {
+export function isAdminVerificationPending(status: AdminVerificationStatus): boolean {
   return (
     status === ADMIN_VERIFICATION.STATUSES.PENDING ||
     status === ADMIN_VERIFICATION.STATUSES.PROCESSING ||
@@ -350,23 +353,25 @@ export function isVerificationPending(status: AdminVerificationStatus): boolean 
   );
 }
 
-export function isVerificationExpired(status: AdminVerificationStatus): boolean {
+export function isAdminVerificationExpired(status: AdminVerificationStatus): boolean {
   return (
     status === ADMIN_VERIFICATION.STATUSES.EXPIRED || status === ADMIN_VERIFICATION.STATUSES.TIMEOUT
   );
 }
 
-export function isVerificationTerminal(status: AdminVerificationStatus): boolean {
+export function isAdminVerificationTerminal(status: AdminVerificationStatus): boolean {
   return (
-    isVerificationComplete(status) ||
-    isVerificationFailed(status) ||
-    isVerificationExpired(status) ||
+    isAdminVerificationComplete(status) ||
+    isAdminVerificationFailed(status) ||
+    isAdminVerificationExpired(status) ||
     status === ADMIN_VERIFICATION.STATUSES.CANCELLED ||
     status === ADMIN_VERIFICATION.STATUSES.SKIPPED
   );
 }
 
-export function getVerificationLevelForType(type: AdminVerificationType): AdminVerificationLevel {
+export function getAdminVerificationLevelForType(
+  type: AdminVerificationType
+): AdminVerificationLevel {
   const levelMap: Record<AdminVerificationType, AdminVerificationLevel> = {
     [ADMIN_VERIFICATION.TYPES.EMAIL]: ADMIN_VERIFICATION.LEVELS.BASIC,
     [ADMIN_VERIFICATION.TYPES.PHONE]: ADMIN_VERIFICATION.LEVELS.BASIC,
@@ -394,7 +399,7 @@ export function getVerificationLevelForType(type: AdminVerificationType): AdminV
   return levelMap[type] || ADMIN_VERIFICATION.LEVELS.BASIC;
 }
 
-export function getVerificationMethodsForType(
+export function getAdminVerificationMethodsForType(
   type: AdminVerificationType
 ): AdminVerificationMethod[] {
   const methodMap: Record<AdminVerificationType, AdminVerificationMethod[]> = {

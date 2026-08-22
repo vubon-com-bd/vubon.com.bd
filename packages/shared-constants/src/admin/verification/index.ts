@@ -24,13 +24,14 @@ export {
   getAdminVerificationLevelPriority,
   getAdminVerificationPurposeLabel,
   getAdminVerificationChannelLabel,
-  isVerificationComplete,
-  isVerificationFailed,
-  isVerificationPending,
-  isVerificationExpired,
-  isVerificationTerminal,
-  getVerificationLevelForType,
-  getVerificationMethodsForType,
+  // রিনেম করা ফাংশনগুলো এক্সপোর্ট করা হলো
+  isAdminVerificationComplete,
+  isAdminVerificationFailed,
+  isAdminVerificationPending,
+  isAdminVerificationExpired,
+  isAdminVerificationTerminal,
+  getAdminVerificationLevelForType,
+  getAdminVerificationMethodsForType,
 } from './admin-verification.constants';
 
 export type {

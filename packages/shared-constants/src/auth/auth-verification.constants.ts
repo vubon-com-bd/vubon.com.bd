@@ -87,7 +87,7 @@ export type AuthVerificationChannel =
 export type AuthVerificationLevel =
   (typeof AUTH_VERIFICATION.LEVEL)[keyof typeof AUTH_VERIFICATION.LEVEL];
 
-export const IDENTITY_VERIFICATION_TYPES: AuthVerificationType[] = [
+export const AUTH_IDENTITY_VERIFICATION_TYPES: AuthVerificationType[] = [
   AUTH_VERIFICATION.TYPE.IDENTITY,
   AUTH_VERIFICATION.TYPE.NATIONAL_ID,
   AUTH_VERIFICATION.TYPE.PASSPORT,
@@ -95,61 +95,62 @@ export const IDENTITY_VERIFICATION_TYPES: AuthVerificationType[] = [
   AUTH_VERIFICATION.TYPE.TAX_ID,
 ];
 
-export const DOCUMENT_VERIFICATION_TYPES: AuthVerificationType[] = [
+export const AUTH_DOCUMENT_VERIFICATION_TYPES: AuthVerificationType[] = [
   AUTH_VERIFICATION.TYPE.DOCUMENT,
   AUTH_VERIFICATION.TYPE.BUSINESS_LICENSE,
   AUTH_VERIFICATION.TYPE.TRADE_LICENSE,
   AUTH_VERIFICATION.TYPE.BANK_ACCOUNT,
 ];
 
-export const CONTACT_VERIFICATION_TYPES: AuthVerificationType[] = [
+export const AUTH_CONTACT_VERIFICATION_TYPES: AuthVerificationType[] = [
   AUTH_VERIFICATION.TYPE.EMAIL,
   AUTH_VERIFICATION.TYPE.PHONE,
   AUTH_VERIFICATION.TYPE.ADDRESS,
 ];
 
-export const COMPLETED_VERIFICATION_STATUSES: AuthVerificationStatus[] = [
+export const AUTH_COMPLETED_VERIFICATION_STATUSES: AuthVerificationStatus[] = [
   AUTH_VERIFICATION.STATUS.VERIFIED,
   AUTH_VERIFICATION.STATUS.REJECTED,
   AUTH_VERIFICATION.STATUS.CANCELLED,
 ];
 
-export const IN_PROGRESS_VERIFICATION_STATUSES: AuthVerificationStatus[] = [
+export const AUTH_IN_PROGRESS_VERIFICATION_STATUSES: AuthVerificationStatus[] = [
   AUTH_VERIFICATION.STATUS.PENDING,
   AUTH_VERIFICATION.STATUS.IN_PROGRESS,
   AUTH_VERIFICATION.STATUS.REQUIRES_INFO,
 ];
 
-export const FAILED_VERIFICATION_STATUSES: AuthVerificationStatus[] = [
+export const AUTH_FAILED_VERIFICATION_STATUSES: AuthVerificationStatus[] = [
   AUTH_VERIFICATION.STATUS.FAILED,
   AUTH_VERIFICATION.STATUS.EXPIRED,
 ];
 
-export function isVerificationComplete(status: AuthVerificationStatus): boolean {
-  return COMPLETED_VERIFICATION_STATUSES.includes(status);
+// রিনেম করা ফাংশনগুলো (Auth প্রিফিক্স যোগ করা হয়েছে)
+export function isAuthVerificationComplete(status: AuthVerificationStatus): boolean {
+  return AUTH_COMPLETED_VERIFICATION_STATUSES.includes(status);
 }
 
-export function isVerificationInProgress(status: AuthVerificationStatus): boolean {
-  return IN_PROGRESS_VERIFICATION_STATUSES.includes(status);
+export function isAuthVerificationInProgress(status: AuthVerificationStatus): boolean {
+  return AUTH_IN_PROGRESS_VERIFICATION_STATUSES.includes(status);
 }
 
-export function isVerificationFailed(status: AuthVerificationStatus): boolean {
-  return FAILED_VERIFICATION_STATUSES.includes(status);
+export function isAuthVerificationFailed(status: AuthVerificationStatus): boolean {
+  return AUTH_FAILED_VERIFICATION_STATUSES.includes(status);
 }
 
-export function isIdentityVerification(type: AuthVerificationType): boolean {
-  return IDENTITY_VERIFICATION_TYPES.includes(type);
+export function isAuthIdentityVerification(type: AuthVerificationType): boolean {
+  return AUTH_IDENTITY_VERIFICATION_TYPES.includes(type);
 }
 
-export function isDocumentVerification(type: AuthVerificationType): boolean {
-  return DOCUMENT_VERIFICATION_TYPES.includes(type);
+export function isAuthDocumentVerification(type: AuthVerificationType): boolean {
+  return AUTH_DOCUMENT_VERIFICATION_TYPES.includes(type);
 }
 
-export function isContactVerification(type: AuthVerificationType): boolean {
-  return CONTACT_VERIFICATION_TYPES.includes(type);
+export function isAuthContactVerification(type: AuthVerificationType): boolean {
+  return AUTH_CONTACT_VERIFICATION_TYPES.includes(type);
 }
 
-export function getVerificationExpiry(type: AuthVerificationType): number {
+export function getAuthVerificationExpiry(type: AuthVerificationType): number {
   const expiryMap: Record<AuthVerificationType, number> = {
     [AUTH_VERIFICATION.TYPE.EMAIL]: AUTH_VERIFICATION.CONFIG.EMAIL_VERIFICATION_EXPIRY,
     [AUTH_VERIFICATION.TYPE.PHONE]: AUTH_VERIFICATION.CONFIG.PHONE_VERIFICATION_EXPIRY,
@@ -170,7 +171,7 @@ export function getVerificationExpiry(type: AuthVerificationType): number {
   return expiryMap[type] || AUTH_VERIFICATION.CONFIG.EMAIL_VERIFICATION_EXPIRY;
 }
 
-export function getVerificationTypeLabel(type: AuthVerificationType): string {
+export function getAuthVerificationTypeLabel(type: AuthVerificationType): string {
   const labels: Record<AuthVerificationType, string> = {
     [AUTH_VERIFICATION.TYPE.EMAIL]: 'Email Verification',
     [AUTH_VERIFICATION.TYPE.PHONE]: 'Phone Verification',
@@ -190,7 +191,7 @@ export function getVerificationTypeLabel(type: AuthVerificationType): string {
   return labels[type] || 'Unknown Verification Type';
 }
 
-export function getVerificationStatusLabel(status: AuthVerificationStatus): string {
+export function getAuthVerificationStatusLabel(status: AuthVerificationStatus): string {
   const labels: Record<AuthVerificationStatus, string> = {
     [AUTH_VERIFICATION.STATUS.PENDING]: 'Pending',
     [AUTH_VERIFICATION.STATUS.VERIFIED]: 'Verified',
@@ -205,7 +206,7 @@ export function getVerificationStatusLabel(status: AuthVerificationStatus): stri
   return labels[status] || 'Unknown Status';
 }
 
-export function getVerificationChannelLabel(channel: AuthVerificationChannel): string {
+export function getAuthVerificationChannelLabel(channel: AuthVerificationChannel): string {
   const labels: Record<AuthVerificationChannel, string> = {
     [AUTH_VERIFICATION.CHANNEL.EMAIL]: 'Email',
     [AUTH_VERIFICATION.CHANNEL.SMS]: 'SMS',
@@ -218,7 +219,7 @@ export function getVerificationChannelLabel(channel: AuthVerificationChannel): s
   return labels[channel] || 'Unknown Channel';
 }
 
-export function getVerificationLevel(level: AuthVerificationLevel): number {
+export function getAuthVerificationLevel(level: AuthVerificationLevel): number {
   const levels: Record<AuthVerificationLevel, number> = {
     [AUTH_VERIFICATION.LEVEL.BASIC]: 1,
     [AUTH_VERIFICATION.LEVEL.MEDIUM]: 2,

@@ -16,9 +16,10 @@ export {
   getSocialAuthUrl,
   isSocialProviderSupported,
   getSupportedProviders,
-  getSocialProviderLabel,
-  getSocialProviderIcon,
-  getSocialProviderColor,
+  // রিনেম করা ফাংশন
+  getAuthSocialProviderLabel,
+  getAuthSocialProviderIcon,
+  getAuthSocialProviderColor,
   getSocialAuthStateExpiry,
   getSocialCodeExpiry,
   getSocialTokenExpiry,

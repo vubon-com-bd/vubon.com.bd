@@ -120,7 +120,7 @@ export function isStaff(role: UserRole): boolean {
   return STAFF_ROLES.includes(role);
 }
 
-export function isAdmin(role: UserRole): boolean {
+export function isAdminRole(role: UserRole): boolean {
   return ADMIN_ROLES.includes(role);
 }
 

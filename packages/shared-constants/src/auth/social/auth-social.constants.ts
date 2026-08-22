@@ -205,7 +205,8 @@ export function getSupportedProviders(): (keyof typeof SOCIAL_PROVIDER_CONFIGS)[
   return Object.keys(SOCIAL_PROVIDER_CONFIGS) as (keyof typeof SOCIAL_PROVIDER_CONFIGS)[];
 }
 
-export function getSocialProviderLabel(provider: keyof typeof SOCIAL_PROVIDER_CONFIGS): string {
+// রিনেম করা ফাংশন (Auth প্রিফিক্স যোগ করা হয়েছে)
+export function getAuthSocialProviderLabel(provider: keyof typeof SOCIAL_PROVIDER_CONFIGS): string {
   const labels: Record<string, string> = {
     google: 'Google',
     facebook: 'Facebook',
@@ -219,7 +220,7 @@ export function getSocialProviderLabel(provider: keyof typeof SOCIAL_PROVIDER_CO
   return labels[String(provider)] || 'Unknown Provider';
 }
 
-export function getSocialProviderIcon(provider: keyof typeof SOCIAL_PROVIDER_CONFIGS): string {
+export function getAuthSocialProviderIcon(provider: keyof typeof SOCIAL_PROVIDER_CONFIGS): string {
   const icons: Record<string, string> = {
     google: '🅶',
     facebook: '📘',
@@ -233,7 +234,7 @@ export function getSocialProviderIcon(provider: keyof typeof SOCIAL_PROVIDER_CON
   return icons[String(provider)] || '🔑';
 }
 
-export function getSocialProviderColor(provider: keyof typeof SOCIAL_PROVIDER_CONFIGS): string {
+export function getAuthSocialProviderColor(provider: keyof typeof SOCIAL_PROVIDER_CONFIGS): string {
   const colors: Record<string, string> = {
     google: '#4285F4',
     facebook: '#1877F2',

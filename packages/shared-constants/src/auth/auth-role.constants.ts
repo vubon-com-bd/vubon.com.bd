@@ -46,7 +46,8 @@ export const AUTH_ROLE = {
 
 export type AuthRole = (typeof AUTH_ROLE)[keyof typeof AUTH_ROLE];
 
-export const ADMIN_ROLES: AuthRole[] = [
+// রিনেম করা কনস্ট্যান্ট (AUTH_ প্রিফিক্স যোগ করা হয়েছে)
+export const AUTH_ADMIN_ROLES: AuthRole[] = [
   AUTH_ROLE.SYSTEM_ADMIN,
   AUTH_ROLE.SYSTEM_DEVELOPER,
   AUTH_ROLE.SUPER_ADMIN,
@@ -56,86 +57,87 @@ export const ADMIN_ROLES: AuthRole[] = [
   AUTH_ROLE.CATEGORY_MANAGER,
 ];
 
-export const USER_ROLES: AuthRole[] = [
+export const AUTH_USER_ROLES: AuthRole[] = [
   AUTH_ROLE.USER,
   AUTH_ROLE.VERIFIED_USER,
   AUTH_ROLE.PREMIUM_USER,
   AUTH_ROLE.VIP_USER,
 ];
 
-export const VENDOR_ROLES: AuthRole[] = [
+export const AUTH_VENDOR_ROLES: AuthRole[] = [
   AUTH_ROLE.VENDOR,
   AUTH_ROLE.PREMIUM_VENDOR,
   AUTH_ROLE.VERIFIED_VENDOR,
 ];
 
-export const SUPPORT_ROLES: AuthRole[] = [
+export const AUTH_SUPPORT_ROLES: AuthRole[] = [
   AUTH_ROLE.SUPPORT_AGENT,
   AUTH_ROLE.SUPPORT_SUPERVISOR,
   AUTH_ROLE.SUPPORT_MANAGER,
 ];
 
-export const MARKETING_ROLES: AuthRole[] = [AUTH_ROLE.MARKETING_AGENT, AUTH_ROLE.MARKETING_MANAGER];
+export const AUTH_MARKETING_ROLES: AuthRole[] = [AUTH_ROLE.MARKETING_AGENT, AUTH_ROLE.MARKETING_MANAGER];
 
-export const ANALYTICS_ROLES: AuthRole[] = [
+export const AUTH_ANALYTICS_ROLES: AuthRole[] = [
   AUTH_ROLE.ANALYTICS_VIEWER,
   AUTH_ROLE.ANALYTICS_MANAGER,
 ];
 
-export const GUEST_ROLES: AuthRole[] = [AUTH_ROLE.GUEST, AUTH_ROLE.UNVERIFIED_USER];
+export const AUTH_GUEST_ROLES: AuthRole[] = [AUTH_ROLE.GUEST, AUTH_ROLE.UNVERIFIED_USER];
 
-export const SYSTEM_ROLES: AuthRole[] = [AUTH_ROLE.SYSTEM_ADMIN, AUTH_ROLE.SYSTEM_DEVELOPER];
+export const AUTH_SYSTEM_ROLES: AuthRole[] = [AUTH_ROLE.SYSTEM_ADMIN, AUTH_ROLE.SYSTEM_DEVELOPER];
 
-export const PRIVILEGED_ROLES: AuthRole[] = [
-  ...ADMIN_ROLES,
-  ...SUPPORT_ROLES,
-  ...MARKETING_ROLES,
-  ...ANALYTICS_ROLES,
+export const AUTH_PRIVILEGED_ROLES: AuthRole[] = [
+  ...AUTH_ADMIN_ROLES,
+  ...AUTH_SUPPORT_ROLES,
+  ...AUTH_MARKETING_ROLES,
+  ...AUTH_ANALYTICS_ROLES,
 ];
 
-export const PUBLIC_ROLES: AuthRole[] = [...USER_ROLES, ...GUEST_ROLES];
+export const AUTH_PUBLIC_ROLES: AuthRole[] = [...AUTH_USER_ROLES, ...AUTH_GUEST_ROLES];
 
-export function isAdminRole(role: AuthRole): boolean {
-  return ADMIN_ROLES.includes(role);
+// ফাংশনগুলোর নামে Auth প্রিফিক্স যোগ করা হয়েছে
+export function isAuthAdminRole(role: AuthRole): boolean {
+  return AUTH_ADMIN_ROLES.includes(role);
 }
 
-export function isUserRole(role: AuthRole): boolean {
-  return USER_ROLES.includes(role);
+export function isAuthUserRole(role: AuthRole): boolean {
+  return AUTH_USER_ROLES.includes(role);
 }
 
-export function isVendorRole(role: AuthRole): boolean {
-  return VENDOR_ROLES.includes(role);
+export function isAuthVendorRole(role: AuthRole): boolean {
+  return AUTH_VENDOR_ROLES.includes(role);
 }
 
-export function isSupportRole(role: AuthRole): boolean {
-  return SUPPORT_ROLES.includes(role);
+export function isAuthSupportRole(role: AuthRole): boolean {
+  return AUTH_SUPPORT_ROLES.includes(role);
 }
 
-export function isMarketingRole(role: AuthRole): boolean {
-  return MARKETING_ROLES.includes(role);
+export function isAuthMarketingRole(role: AuthRole): boolean {
+  return AUTH_MARKETING_ROLES.includes(role);
 }
 
-export function isAnalyticsRole(role: AuthRole): boolean {
-  return ANALYTICS_ROLES.includes(role);
+export function isAuthAnalyticsRole(role: AuthRole): boolean {
+  return AUTH_ANALYTICS_ROLES.includes(role);
 }
 
-export function isGuestRole(role: AuthRole): boolean {
-  return GUEST_ROLES.includes(role);
+export function isAuthGuestRole(role: AuthRole): boolean {
+  return AUTH_GUEST_ROLES.includes(role);
 }
 
-export function isSystemRole(role: AuthRole): boolean {
-  return SYSTEM_ROLES.includes(role);
+export function isAuthSystemRole(role: AuthRole): boolean {
+  return AUTH_SYSTEM_ROLES.includes(role);
 }
 
-export function isPrivilegedRole(role: AuthRole): boolean {
-  return PRIVILEGED_ROLES.includes(role);
+export function isAuthPrivilegedRole(role: AuthRole): boolean {
+  return AUTH_PRIVILEGED_ROLES.includes(role);
 }
 
-export function isPublicRole(role: AuthRole): boolean {
-  return PUBLIC_ROLES.includes(role);
+export function isAuthPublicRole(role: AuthRole): boolean {
+  return AUTH_PUBLIC_ROLES.includes(role);
 }
 
-export function getRoleLabel(role: AuthRole): string {
+export function getAuthRoleLabel(role: AuthRole): string {
   const labels: Record<AuthRole, string> = {
     [AUTH_ROLE.SYSTEM_ADMIN]: 'System Administrator',
     [AUTH_ROLE.SYSTEM_DEVELOPER]: 'System Developer',
@@ -165,7 +167,7 @@ export function getRoleLabel(role: AuthRole): string {
   return labels[role] || 'Unknown Role';
 }
 
-export function getRoleLevel(role: AuthRole): number {
+export function getAuthRoleLevel(role: AuthRole): number {
   const levels: Record<AuthRole, number> = {
     [AUTH_ROLE.SYSTEM_ADMIN]: 100,
     [AUTH_ROLE.SYSTEM_DEVELOPER]: 95,
@@ -195,6 +197,6 @@ export function getRoleLevel(role: AuthRole): number {
   return levels[role] || 0;
 }
 
-export function hasSufficientRole(userRole: AuthRole, requiredRole: AuthRole): boolean {
-  return getRoleLevel(userRole) >= getRoleLevel(requiredRole);
+export function hasAuthSufficientRole(userRole: AuthRole, requiredRole: AuthRole): boolean {
+  return getAuthRoleLevel(userRole) >= getAuthRoleLevel(requiredRole);
 }

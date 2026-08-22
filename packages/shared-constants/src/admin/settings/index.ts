@@ -3,7 +3,7 @@
  * Export all admin settings constants for easy importing
  */
 
-// Admin Settings Core Constants
+// Core Settings Constants
 export {
   ADMIN_SETTINGS,
   ADMIN_SETTINGS_CATEGORY_LABELS,
@@ -28,11 +28,12 @@ export {
   getAdminSettingsSensitivityColor,
   getAdminSettingsPriorityLabel,
   getAdminSettingsGroupLabel,
-  isSettingsActive,
-  isSettingsInactive,
-  isSettingsLocked,
-  isSettingsSynced,
-  isHighSensitivity,
+  // রিনেম করা ফাংশন
+  isAdminSettingsActive,
+  isAdminSettingsInactive,
+  isAdminSettingsLocked,
+  isAdminSettingsSynced,
+  isHighSensitivity as isSettingsHighSensitivity,
   isVisibleSettings,
   getSettingsModification,
   getSettingsSourceLabel,
@@ -52,7 +53,7 @@ export type {
   AdminSettingsGroup,
 } from './admin-settings.constants';
 
-// Admin Settings Type Constants
+// Settings Type Constants
 export {
   ADMIN_SETTINGS_TYPE,
   ADMIN_SETTINGS_TYPE_CATEGORIES,
@@ -68,16 +69,16 @@ export {
   isSelectionType,
   isRangeType,
   isFileType,
-  isSecurityType,
+  isSecurityType as isSettingsSecurityType,
   isIntegrationType,
-  isSystemType,
+  isSystemType as isSettingsSystemType,
   isUIType,
   getSettingsTypeCategory,
 } from './admin-settings-type.constants';
 
 export type { AdminSettingsTypeDetail } from './admin-settings-type.constants';
 
-// Admin Settings Status Constants
+// Settings Status Constants
 export {
   ADMIN_SETTINGS_STATUS,
   ADMIN_SETTINGS_STATUS_LABELS_DETAIL,
@@ -85,32 +86,32 @@ export {
   ADMIN_SETTINGS_STATUS_GROUPS,
   getAdminSettingsStatusLabel as getAdminSettingsStatusLabelDetail,
   getAdminSettingsStatusColor as getAdminSettingsStatusColorDetail,
-  isLifecycleStatus,
-  isValidationStatus,
-  isSyncStatus,
-  isStateStatus,
-  isSecurityStatus,
+  isLifecycleStatus as isSettingsLifecycleStatus,
+  isValidationStatus as isSettingsValidationStatus,
+  isSyncStatus as isSettingsSyncStatus,
+  isStateStatus as isSettingsStateStatus,
+  isSecurityStatus as isSettingsSecurityStatus,
   isApplicationStatus,
-  isVersionStatus,
-  isConflictStatus,
-  isPriorityStatus,
+  isVersionStatus as isSettingsVersionStatus,
+  isConflictStatus as isSettingsConflictStatus,
+  isPriorityStatus as isSettingsPriorityStatus,
   isModificationStatus,
-  isActiveStatus,
-  isInactiveStatus,
-  isPendingStatus,
-  isTerminalStatus,
+  isActiveStatus as isSettingsActiveStatus,
+  isInactiveStatus as isSettingsInactiveStatus,
+  isPendingStatus as isSettingsPendingStatus,
+  isTerminalStatus as isSettingsTerminalStatus,
   isConflictStatusType,
-  getStatusPriority,
+  getStatusPriority as getSettingsStatusPriority,
   getAdminSettingsStatuses,
-  getLifecycleStatuses,
-  getValidationStatuses,
-  getSyncStatuses,
-  getStateStatuses,
-  getSecurityStatuses,
+  getLifecycleStatuses as getSettingsLifecycleStatuses,
+  getValidationStatuses as getSettingsValidationStatuses,
+  getSyncStatuses as getSettingsSyncStatuses,
+  getStateStatuses as getSettingsStateStatuses,
+  getSecurityStatuses as getSettingsSecurityStatuses,
   getApplicationStatuses,
-  getVersionStatuses,
-  getConflictStatuses,
-  getPriorityStatuses,
+  getVersionStatuses as getSettingsVersionStatuses,
+  getConflictStatuses as getSettingsConflictStatuses,
+  getPriorityStatuses as getSettingsPriorityStatuses,
   getModificationStatuses,
 } from './admin-settings-status.constants';
 

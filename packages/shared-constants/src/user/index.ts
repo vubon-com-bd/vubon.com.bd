@@ -66,7 +66,7 @@ export {
   MANAGEMENT_ROLES,
   isCustomer,
   isStaff,
-  isAdmin,
+  isAdminRole,
   isVendor,
   isManagement,
   getRolePriority,
@@ -529,7 +529,7 @@ export type {
   UserActivityStatus,
 } from './activity';
 
-// User Log Constants
+// User Log Constants - শুধু সঠিক নামগুলো এক্সপোর্ট করা হচ্ছে
 export {
   USER_LOG,
   getLogSeverityLabel,
@@ -566,25 +566,30 @@ export {
   COMPLETED_LOG_STATUSES,
   FAILED_LOG_STATUSES,
   ARCHIVED_LOG_STATUSES,
-  isLogStatusActive,
-  isLogStatusProcessed,
-  isLogStatusFailed,
-  isLogStatusArchived,
+  isLogActive as isLogStatusActive,
+  isLogProcessed as isLogStatusProcessed,
+  isLogFailed as isLogStatusFailed,
+  isLogArchived as isLogStatusArchived,
   isLogFinished,
   getLogStatusLabel,
   getLogStatusColor,
   USER_ERROR,
-  getErrorMessage,
-  getErrorCategory,
-  getHttpStatusForError,
-  getErrorSeverity,
-  getErrorRecoverySuggestion,
-  isClientError,
-  isServerError,
-  isValidationError,
-  isAuthenticationError,
-  isAuthorizationError,
-  isBusinessError,
+  getUserErrorMessage,
+  getUserErrorCategory,
+  getHttpStatusForUserError,
+  getUserErrorSeverity,
+  getUserErrorRecoverySuggestion,
+  // রিনেম করা ফাংশন - সঠিক নাম ব্যবহার করা হয়েছে
+  isUserClientError,
+  isUserServerError,
+  isUserValidationError,
+  isUserAuthenticationError,
+  isUserAuthorizationError,
+  isUserBusinessError,
+  isUserAuditLog,
+  isUserPerformanceLog,
+  isUserSecurityLog,
+  isUserSystemLog,
 } from './log';
 
 export type {

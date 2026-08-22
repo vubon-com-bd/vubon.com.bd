@@ -20,6 +20,11 @@ export {
   getLogMessageForType,
   shouldArchiveLog,
   getLogSeverityFromType,
+  // রিনেম করা ফাংশন
+  isUserAuditLog,
+  isUserPerformanceLog,
+  isUserSecurityLog,
+  isUserSystemLog,
 } from './user-log.constants';
 
 export type { UserLogSeverity, UserLogMetadataKey } from './user-log.constants';
@@ -35,10 +40,6 @@ export {
   getLogCategory,
   getLogTypesByCategory,
   isOperationalLog,
-  isSecurityLog,
-  isPerformanceLog,
-  isAuditLog,
-  isSystemLog,
 } from './user-log-type.constants';
 
 export type { UserLogType, UserLogCategory } from './user-log-type.constants';
@@ -73,17 +74,18 @@ export {
   USER_ERROR_SEVERITY,
   USER_ERROR_RECOVERY,
   USER_ERROR_CATEGORY_MAP,
-  getErrorMessage,
-  getErrorCategory,
-  getHttpStatusForError,
-  getErrorSeverity,
-  getErrorRecoverySuggestion,
-  isClientError,
-  isServerError,
-  isValidationError,
-  isAuthenticationError,
-  isAuthorizationError,
-  isBusinessError,
+  // রিনেম করা ফাংশন
+  getUserErrorMessage,
+  getUserErrorCategory,
+  getHttpStatusForUserError,
+  getUserErrorSeverity,
+  getUserErrorRecoverySuggestion,
+  isClientError as isUserClientError,
+  isServerError as isUserServerError,
+  isValidationError as isUserValidationError,
+  isAuthenticationError as isUserAuthenticationError,
+  isAuthorizationError as isUserAuthorizationError,
+  isBusinessError as isUserBusinessError,
 } from './user-error.constants';
 
 export type { UserErrorCategory, UserErrorCode } from './user-error.constants';

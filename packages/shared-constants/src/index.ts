@@ -1,19 +1,19 @@
 /**
- * Shared Constants - Main Entry Point
- * Export all constants from all domains
+ * Shared Constants Entry Point
+ * Export all constants from all modules
  */
 
 // Common Constants
 export * from './common';
 
+// Admin Constants
+export * from './admin';
+
+// Auth Constants
+export * from './auth';
+
 // User Constants
 export * from './user';
 
-// Admin Constants
-// export * from './admin';
-
-// Auth Constants
-// export * from './auth';
-
-// Ai Constants
-// export * from './ai';
+// AI Constants
+export * from './ai';
