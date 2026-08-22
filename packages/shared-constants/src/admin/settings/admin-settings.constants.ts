@@ -93,7 +93,8 @@ export const ADMIN_SETTINGS = {
 export type AdminSettingsCategory =
   (typeof ADMIN_SETTINGS.CATEGORY)[keyof typeof ADMIN_SETTINGS.CATEGORY];
 export type AdminSettingsType = (typeof ADMIN_SETTINGS.TYPE)[keyof typeof ADMIN_SETTINGS.TYPE];
-export type AdminSettingsStatus = (typeof ADMIN_SETTINGS.STATUS)[keyof typeof ADMIN_SETTINGS.STATUS];
+export type AdminSettingsStatus =
+  (typeof ADMIN_SETTINGS.STATUS)[keyof typeof ADMIN_SETTINGS.STATUS];
 export type AdminSettingsScope = (typeof ADMIN_SETTINGS.SCOPE)[keyof typeof ADMIN_SETTINGS.SCOPE];
 export type AdminSettingsVisibility =
   (typeof ADMIN_SETTINGS.VISIBILITY)[keyof typeof ADMIN_SETTINGS.VISIBILITY];
@@ -258,8 +259,10 @@ export function isAdminSettingsSynced(status: AdminSettingsStatus): boolean {
 }
 
 export function isHighSensitivity(sensitivity: AdminSettingsSensitivity): boolean {
-  return sensitivity === ADMIN_SETTINGS.SENSITIVITY.HIGH || 
-         sensitivity === ADMIN_SETTINGS.SENSITIVITY.CRITICAL;
+  return (
+    sensitivity === ADMIN_SETTINGS.SENSITIVITY.HIGH ||
+    sensitivity === ADMIN_SETTINGS.SENSITIVITY.CRITICAL
+  );
 }
 
 export function isVisibleSettings(visibility: AdminSettingsVisibility): boolean {
@@ -272,11 +275,11 @@ export function getSettingsModification(source: string): string {
 
 export function getSettingsSourceLabel(source: AdminSettingsSource): string {
   const labels: Record<AdminSettingsSource, string> = {
-    'system': 'System',
-    'user': 'User',
-    'admin': 'Administrator',
-    'api': 'API',
-    'import': 'Import',
+    system: 'System',
+    user: 'User',
+    admin: 'Administrator',
+    api: 'API',
+    import: 'Import',
   };
   return labels[source] || 'Unknown Source';
 }

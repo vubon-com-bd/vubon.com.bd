@@ -192,7 +192,7 @@ export function getLogSeverityFromType(type: string): UserLogSeverity {
   return USER_LOG.SEVERITY.INFO;
 }
 
-// রিনেম করা ফাংশন (User প্রিফিক্স যোগ করা হয়েছে)
+// ইউজার লগ টাইপ চেক করার ফাংশন
 export function isUserAuditLog(type: string): boolean {
   return type === USER_LOG_TYPE.AUDIT;
 }
@@ -206,5 +206,5 @@ export function isUserSecurityLog(type: string): boolean {
 }
 
 export function isUserSystemLog(type: string): boolean {
-  return type === USER_LOG_TYPE.SYSTEM || type === USER_LOG_TYPE.ACCESS;
+  return type === USER_LOG_TYPE.SYSTEM || type === USER_LOG_TYPE.APPLICATION;
 }

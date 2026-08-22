@@ -529,7 +529,7 @@ export type {
   UserActivityStatus,
 } from './activity';
 
-// User Log Constants - শুধু সঠিক নামগুলো এক্সপোর্ট করা হচ্ছে
+// User Log Constants - রিনেম করা ফাংশন ব্যবহার করা হয়েছে
 export {
   USER_LOG,
   getLogSeverityLabel,
@@ -555,10 +555,6 @@ export {
   getLogCategory,
   getLogTypesByCategory,
   isOperationalLog,
-  isSecurityLog,
-  isPerformanceLog,
-  isAuditLog,
-  isSystemLog,
   USER_LOG_STATUS,
   USER_LOG_STATUS_LABELS,
   USER_LOG_STATUS_COLORS,
@@ -579,7 +575,6 @@ export {
   getHttpStatusForUserError,
   getUserErrorSeverity,
   getUserErrorRecoverySuggestion,
-  // রিনেম করা ফাংশন - সঠিক নাম ব্যবহার করা হয়েছে
   isUserClientError,
   isUserServerError,
   isUserValidationError,

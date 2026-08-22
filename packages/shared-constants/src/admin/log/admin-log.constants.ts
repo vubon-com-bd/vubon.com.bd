@@ -181,7 +181,7 @@ export function getLogRotationLabel(rotation: AdminLogRotation): string {
   return labels[rotation] || 'Unknown';
 }
 
-// রিনেম করা ফাংশন (Admin প্রিফিক্স যোগ করা হয়েছে)
+// অ্যাডমিন স্পেসিফিক লগ ফাংশন (ইউজারের সাথে কনফ্লিক্ট করবে না)
 export function isAdminAuditLog(category: AdminLogCategory): boolean {
   return category === ADMIN_LOG.CATEGORY.AUDIT;
 }

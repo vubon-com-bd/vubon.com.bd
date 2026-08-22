@@ -236,7 +236,7 @@ export type {
   AdminActivityAction,
 } from './activity/admin-activity.constants';
 
-// Admin Log - রিনেম করা ফাংশন
+// Admin Log - শুধু অ্যাডমিন স্পেসিফিক ফাংশন
 export {
   ADMIN_LOG,
   ADMIN_LOG_LEVEL_LABELS,

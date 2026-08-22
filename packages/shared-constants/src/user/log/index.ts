@@ -20,7 +20,6 @@ export {
   getLogMessageForType,
   shouldArchiveLog,
   getLogSeverityFromType,
-  // রিনেম করা ফাংশন
   isUserAuditLog,
   isUserPerformanceLog,
   isUserSecurityLog,
@@ -74,7 +73,6 @@ export {
   USER_ERROR_SEVERITY,
   USER_ERROR_RECOVERY,
   USER_ERROR_CATEGORY_MAP,
-  // রিনেম করা ফাংশন
   getUserErrorMessage,
   getUserErrorCategory,
   getHttpStatusForUserError,

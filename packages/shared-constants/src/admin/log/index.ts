@@ -23,6 +23,10 @@ export {
   getLogRetentionDays,
   getLogSizeLimit,
   getLogRotationLabel,
+  isAdminAuditLog,
+  isAdminPerformanceLog,
+  isAdminSecurityLog,
+  isAdminSystemLog,
 } from './admin-log.constants';
 
 export type {
