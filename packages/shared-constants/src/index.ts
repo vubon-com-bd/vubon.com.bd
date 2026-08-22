@@ -17,3 +17,6 @@ export * from './user';
 
 // AI Constants
 export * from './ai';
+
+// seo Constants
+export * from './seo';
