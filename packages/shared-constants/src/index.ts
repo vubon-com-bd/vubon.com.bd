@@ -26,3 +26,6 @@ export * from './analytics';
 
 // Reporting Constants
 export * from './reporting';
+
+// flash-sales Constants
+export * from './flash-sales';
