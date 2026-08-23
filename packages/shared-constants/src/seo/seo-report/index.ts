@@ -14,8 +14,8 @@ export {
   getSEOReportDeliveryLabel,
   getSEOReportSectionLabel,
   getSEOReportErrorLabel,
-  getReportStatusColor,
-  isReportComplete,
+  seoReportGetStatusColor,
+  isSEOReportComplete,
   isSEOReportProcessing,
 } from './seo-report.constants';
 

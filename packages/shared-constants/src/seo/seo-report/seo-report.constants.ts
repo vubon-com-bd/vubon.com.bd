@@ -304,7 +304,7 @@ export function getSEOReportErrorLabel(errorType: SEOReportErrorType): string {
   return labels[errorType] || 'Unknown Error';
 }
 
-export function getReportStatusColor(status: SEOReportStatus): string {
+export function seoReportGetStatusColor(status: SEOReportStatus): string {
   const colors: Record<SEOReportStatus, string> = {
     [SEO_REPORT.STATUS.PENDING]: '#9E9E9E',
     [SEO_REPORT.STATUS.GENERATING]: '#FFC107',
@@ -322,7 +322,7 @@ export function getReportStatusColor(status: SEOReportStatus): string {
   return colors[status] || '#9E9E9E';
 }
 
-export function isReportComplete(status: SEOReportStatus): boolean {
+export function isSEOReportComplete(status: SEOReportStatus): boolean {
   const completeStatuses: SEOReportStatus[] = [
     SEO_REPORT.STATUS.COMPLETED,
     SEO_REPORT.STATUS.DELIVERED,
