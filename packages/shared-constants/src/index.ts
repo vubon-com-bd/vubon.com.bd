@@ -32,3 +32,6 @@ export * from './flash-sales';
 
 // content Constants
 export * from './content';
+
+// marketing Constants
+export * from './marketing';
