@@ -35,3 +35,6 @@ export * from './content';
 
 // marketing Constants
 export * from './marketing';
+
+// notification Constants
+export * from './notification';
