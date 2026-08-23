@@ -1,0 +1,391 @@
+/**
+ * Video Status Constants
+ * Status definitions for video lifecycle
+ */
+
+export const CONTENT_VIDEO_STATUS = {
+  // Statuses
+  STATUSES: {
+    DRAFT: 'draft',
+    PENDING_REVIEW: 'pending_review',
+    IN_REVIEW: 'in_review',
+    REVIEWED: 'reviewed',
+    PENDING_APPROVAL: 'pending_approval',
+    APPROVED: 'approved',
+    REJECTED: 'rejected',
+    PUBLISHED: 'published',
+    SCHEDULED: 'scheduled',
+    PRIVATE: 'private',
+    UNLISTED: 'unlisted',
+    ARCHIVED: 'archived',
+    DEPRECATED: 'deprecated',
+    DELETED: 'deleted',
+    PROCESSING: 'processing',
+    UPLOADING: 'uploading',
+    TRANSCODING: 'transcoding',
+    READY: 'ready',
+    FAILED: 'failed',
+  } as const,
+
+  // Status Categories
+  CATEGORIES: {
+    CREATION: 'creation',
+    REVIEW: 'review',
+    APPROVAL: 'approval',
+    UPLOAD: 'upload',
+    PROCESSING: 'processing',
+    PUBLISHED: 'published',
+    UNPUBLISHED: 'unpublished',
+    ARCHIVED: 'archived',
+  } as const,
+
+  // Status Colors (for UI)
+  COLORS: {
+    DRAFT: '#6B7280',
+    PENDING_REVIEW: '#F59E0B',
+    IN_REVIEW: '#3B82F6',
+    REVIEWED: '#8B5CF6',
+    PENDING_APPROVAL: '#F59E0B',
+    APPROVED: '#10B981',
+    REJECTED: '#EF4444',
+    PUBLISHED: '#10B981',
+    SCHEDULED: '#06B6D4',
+    PRIVATE: '#6B7280',
+    UNLISTED: '#6B7280',
+    ARCHIVED: '#6B7280',
+    DEPRECATED: '#6B7280',
+    DELETED: '#EF4444',
+    PROCESSING: '#3B82F6',
+    UPLOADING: '#3B82F6',
+    TRANSCODING: '#8B5CF6',
+    READY: '#10B981',
+    FAILED: '#EF4444',
+  } as const,
+
+  // Status Priority (for sorting)
+  PRIORITY: {
+    DRAFT: 0,
+    PENDING_REVIEW: 1,
+    IN_REVIEW: 2,
+    REVIEWED: 3,
+    PENDING_APPROVAL: 4,
+    APPROVED: 5,
+    REJECTED: 6,
+    PUBLISHED: 7,
+    SCHEDULED: 8,
+    PRIVATE: 9,
+    UNLISTED: 10,
+    ARCHIVED: 11,
+    DEPRECATED: 12,
+    DELETED: 13,
+    UPLOADING: 14,
+    PROCESSING: 15,
+    TRANSCODING: 16,
+    READY: 17,
+    FAILED: 18,
+  } as const,
+
+  // Status Transitions
+  TRANSITIONS: {
+    DRAFT: ['pending_review', 'private', 'deleted'],
+    PENDING_REVIEW: ['in_review', 'deleted'],
+    IN_REVIEW: ['reviewed', 'deleted'],
+    REVIEWED: ['pending_approval', 'deleted'],
+    PENDING_APPROVAL: ['approved', 'rejected', 'deleted'],
+    APPROVED: ['uploading', 'published', 'scheduled', 'private', 'deleted'],
+    REJECTED: ['draft', 'deleted'],
+    UPLOADING: ['processing', 'failed', 'deleted'],
+    PROCESSING: ['transcoding', 'failed', 'deleted'],
+    TRANSCODING: ['ready', 'failed', 'deleted'],
+    READY: ['published', 'private', 'deleted'],
+    PUBLISHED: ['archived', 'deprecated', 'deleted'],
+    SCHEDULED: ['published', 'draft', 'deleted'],
+    PRIVATE: ['published', 'unlisted', 'draft', 'deleted'],
+    UNLISTED: ['published', 'private', 'draft', 'deleted'],
+    ARCHIVED: ['deleted'],
+    DEPRECATED: ['archived', 'deleted'],
+    FAILED: ['draft', 'deleted'],
+    DELETED: [],
+  } as const,
+
+  // Video State
+  STATE: {
+    LOADING: 'loading',
+    LOADED: 'loaded',
+    SAVING: 'saving',
+    SAVED: 'saved',
+    PUBLISHING: 'publishing',
+    DELETING: 'deleting',
+    UPLOADING: 'uploading',
+    PROCESSING: 'processing',
+    ERROR: 'error',
+  } as const,
+
+  // Video Action Types
+  ACTIONS: {
+    CREATE: 'create',
+    UPDATE: 'update',
+    UPLOAD: 'upload',
+    PROCESS: 'process',
+    PUBLISH: 'publish',
+    UNPUBLISH: 'unpublish',
+    DELETE: 'delete',
+    RESTORE: 'restore',
+    ARCHIVE: 'archive',
+    REVIEW: 'review',
+    APPROVE: 'approve',
+    REJECT: 'reject',
+    SCHEDULE: 'schedule',
+    TRANSCODE: 'transcode',
+  } as const,
+} as const;
+
+// Video Statuses
+export type ContentVideoStatusType =
+  (typeof CONTENT_VIDEO_STATUS.STATUSES)[keyof typeof CONTENT_VIDEO_STATUS.STATUSES];
+
+// Status Categories
+export type ContentVideoStatusCategory =
+  (typeof CONTENT_VIDEO_STATUS.CATEGORIES)[keyof typeof CONTENT_VIDEO_STATUS.CATEGORIES];
+
+// Status Colors
+export type ContentVideoStatusColor =
+  (typeof CONTENT_VIDEO_STATUS.COLORS)[keyof typeof CONTENT_VIDEO_STATUS.COLORS];
+
+// Status Priority
+export type ContentVideoStatusPriority =
+  (typeof CONTENT_VIDEO_STATUS.PRIORITY)[keyof typeof CONTENT_VIDEO_STATUS.PRIORITY];
+
+// Video State
+export type ContentVideoState =
+  (typeof CONTENT_VIDEO_STATUS.STATE)[keyof typeof CONTENT_VIDEO_STATUS.STATE];
+
+// Video Actions
+export type ContentVideoAction =
+  (typeof CONTENT_VIDEO_STATUS.ACTIONS)[keyof typeof CONTENT_VIDEO_STATUS.ACTIONS];
+
+// Utility Functions
+export function contentVideoStatusGetLabel(status: ContentVideoStatusType): string {
+  const labels: Record<ContentVideoStatusType, string> = {
+    [CONTENT_VIDEO_STATUS.STATUSES.DRAFT]: 'Draft',
+    [CONTENT_VIDEO_STATUS.STATUSES.PENDING_REVIEW]: 'Pending Review',
+    [CONTENT_VIDEO_STATUS.STATUSES.IN_REVIEW]: 'In Review',
+    [CONTENT_VIDEO_STATUS.STATUSES.REVIEWED]: 'Reviewed',
+    [CONTENT_VIDEO_STATUS.STATUSES.PENDING_APPROVAL]: 'Pending Approval',
+    [CONTENT_VIDEO_STATUS.STATUSES.APPROVED]: 'Approved',
+    [CONTENT_VIDEO_STATUS.STATUSES.REJECTED]: 'Rejected',
+    [CONTENT_VIDEO_STATUS.STATUSES.PUBLISHED]: 'Published',
+    [CONTENT_VIDEO_STATUS.STATUSES.SCHEDULED]: 'Scheduled',
+    [CONTENT_VIDEO_STATUS.STATUSES.PRIVATE]: 'Private',
+    [CONTENT_VIDEO_STATUS.STATUSES.UNLISTED]: 'Unlisted',
+    [CONTENT_VIDEO_STATUS.STATUSES.ARCHIVED]: 'Archived',
+    [CONTENT_VIDEO_STATUS.STATUSES.DEPRECATED]: 'Deprecated',
+    [CONTENT_VIDEO_STATUS.STATUSES.DELETED]: 'Deleted',
+    [CONTENT_VIDEO_STATUS.STATUSES.PROCESSING]: 'Processing',
+    [CONTENT_VIDEO_STATUS.STATUSES.UPLOADING]: 'Uploading',
+    [CONTENT_VIDEO_STATUS.STATUSES.TRANSCODING]: 'Transcoding',
+    [CONTENT_VIDEO_STATUS.STATUSES.READY]: 'Ready',
+    [CONTENT_VIDEO_STATUS.STATUSES.FAILED]: 'Failed',
+  };
+  return labels[status] || 'Unknown Status';
+}
+
+export function contentVideoStatusGetCategory(
+  status: ContentVideoStatusType
+): ContentVideoStatusCategory {
+  const categories: Record<ContentVideoStatusType, ContentVideoStatusCategory> = {
+    [CONTENT_VIDEO_STATUS.STATUSES.DRAFT]: CONTENT_VIDEO_STATUS.CATEGORIES.CREATION,
+    [CONTENT_VIDEO_STATUS.STATUSES.PENDING_REVIEW]: CONTENT_VIDEO_STATUS.CATEGORIES.REVIEW,
+    [CONTENT_VIDEO_STATUS.STATUSES.IN_REVIEW]: CONTENT_VIDEO_STATUS.CATEGORIES.REVIEW,
+    [CONTENT_VIDEO_STATUS.STATUSES.REVIEWED]: CONTENT_VIDEO_STATUS.CATEGORIES.REVIEW,
+    [CONTENT_VIDEO_STATUS.STATUSES.PENDING_APPROVAL]: CONTENT_VIDEO_STATUS.CATEGORIES.APPROVAL,
+    [CONTENT_VIDEO_STATUS.STATUSES.APPROVED]: CONTENT_VIDEO_STATUS.CATEGORIES.APPROVAL,
+    [CONTENT_VIDEO_STATUS.STATUSES.REJECTED]: CONTENT_VIDEO_STATUS.CATEGORIES.APPROVAL,
+    [CONTENT_VIDEO_STATUS.STATUSES.UPLOADING]: CONTENT_VIDEO_STATUS.CATEGORIES.UPLOAD,
+    [CONTENT_VIDEO_STATUS.STATUSES.PROCESSING]: CONTENT_VIDEO_STATUS.CATEGORIES.PROCESSING,
+    [CONTENT_VIDEO_STATUS.STATUSES.TRANSCODING]: CONTENT_VIDEO_STATUS.CATEGORIES.PROCESSING,
+    [CONTENT_VIDEO_STATUS.STATUSES.READY]: CONTENT_VIDEO_STATUS.CATEGORIES.PROCESSING,
+    [CONTENT_VIDEO_STATUS.STATUSES.PUBLISHED]: CONTENT_VIDEO_STATUS.CATEGORIES.PUBLISHED,
+    [CONTENT_VIDEO_STATUS.STATUSES.SCHEDULED]: CONTENT_VIDEO_STATUS.CATEGORIES.PUBLISHED,
+    [CONTENT_VIDEO_STATUS.STATUSES.PRIVATE]: CONTENT_VIDEO_STATUS.CATEGORIES.UNPUBLISHED,
+    [CONTENT_VIDEO_STATUS.STATUSES.UNLISTED]: CONTENT_VIDEO_STATUS.CATEGORIES.UNPUBLISHED,
+    [CONTENT_VIDEO_STATUS.STATUSES.ARCHIVED]: CONTENT_VIDEO_STATUS.CATEGORIES.ARCHIVED,
+    [CONTENT_VIDEO_STATUS.STATUSES.DEPRECATED]: CONTENT_VIDEO_STATUS.CATEGORIES.ARCHIVED,
+    [CONTENT_VIDEO_STATUS.STATUSES.DELETED]: CONTENT_VIDEO_STATUS.CATEGORIES.ARCHIVED,
+    [CONTENT_VIDEO_STATUS.STATUSES.FAILED]: CONTENT_VIDEO_STATUS.CATEGORIES.ARCHIVED,
+  };
+  return categories[status] || CONTENT_VIDEO_STATUS.CATEGORIES.CREATION;
+}
+
+export function contentVideoStatusGetColor(
+  status: ContentVideoStatusType
+): ContentVideoStatusColor {
+  const colorMap: Record<ContentVideoStatusType, ContentVideoStatusColor> = {
+    [CONTENT_VIDEO_STATUS.STATUSES.DRAFT]: CONTENT_VIDEO_STATUS.COLORS.DRAFT,
+    [CONTENT_VIDEO_STATUS.STATUSES.PENDING_REVIEW]: CONTENT_VIDEO_STATUS.COLORS.PENDING_REVIEW,
+    [CONTENT_VIDEO_STATUS.STATUSES.IN_REVIEW]: CONTENT_VIDEO_STATUS.COLORS.IN_REVIEW,
+    [CONTENT_VIDEO_STATUS.STATUSES.REVIEWED]: CONTENT_VIDEO_STATUS.COLORS.REVIEWED,
+    [CONTENT_VIDEO_STATUS.STATUSES.PENDING_APPROVAL]: CONTENT_VIDEO_STATUS.COLORS.PENDING_APPROVAL,
+    [CONTENT_VIDEO_STATUS.STATUSES.APPROVED]: CONTENT_VIDEO_STATUS.COLORS.APPROVED,
+    [CONTENT_VIDEO_STATUS.STATUSES.REJECTED]: CONTENT_VIDEO_STATUS.COLORS.REJECTED,
+    [CONTENT_VIDEO_STATUS.STATUSES.PUBLISHED]: CONTENT_VIDEO_STATUS.COLORS.PUBLISHED,
+    [CONTENT_VIDEO_STATUS.STATUSES.SCHEDULED]: CONTENT_VIDEO_STATUS.COLORS.SCHEDULED,
+    [CONTENT_VIDEO_STATUS.STATUSES.PRIVATE]: CONTENT_VIDEO_STATUS.COLORS.PRIVATE,
+    [CONTENT_VIDEO_STATUS.STATUSES.UNLISTED]: CONTENT_VIDEO_STATUS.COLORS.UNLISTED,
+    [CONTENT_VIDEO_STATUS.STATUSES.ARCHIVED]: CONTENT_VIDEO_STATUS.COLORS.ARCHIVED,
+    [CONTENT_VIDEO_STATUS.STATUSES.DEPRECATED]: CONTENT_VIDEO_STATUS.COLORS.DEPRECATED,
+    [CONTENT_VIDEO_STATUS.STATUSES.DELETED]: CONTENT_VIDEO_STATUS.COLORS.DELETED,
+    [CONTENT_VIDEO_STATUS.STATUSES.PROCESSING]: CONTENT_VIDEO_STATUS.COLORS.PROCESSING,
+    [CONTENT_VIDEO_STATUS.STATUSES.UPLOADING]: CONTENT_VIDEO_STATUS.COLORS.UPLOADING,
+    [CONTENT_VIDEO_STATUS.STATUSES.TRANSCODING]: CONTENT_VIDEO_STATUS.COLORS.TRANSCODING,
+    [CONTENT_VIDEO_STATUS.STATUSES.READY]: CONTENT_VIDEO_STATUS.COLORS.READY,
+    [CONTENT_VIDEO_STATUS.STATUSES.FAILED]: CONTENT_VIDEO_STATUS.COLORS.FAILED,
+  };
+  return colorMap[status] || '#6B7280';
+}
+
+export function contentVideoStatusGetPriority(
+  status: ContentVideoStatusType
+): ContentVideoStatusPriority {
+  const priorityMap: Record<ContentVideoStatusType, ContentVideoStatusPriority> = {
+    [CONTENT_VIDEO_STATUS.STATUSES.DRAFT]: CONTENT_VIDEO_STATUS.PRIORITY.DRAFT,
+    [CONTENT_VIDEO_STATUS.STATUSES.PENDING_REVIEW]: CONTENT_VIDEO_STATUS.PRIORITY.PENDING_REVIEW,
+    [CONTENT_VIDEO_STATUS.STATUSES.IN_REVIEW]: CONTENT_VIDEO_STATUS.PRIORITY.IN_REVIEW,
+    [CONTENT_VIDEO_STATUS.STATUSES.REVIEWED]: CONTENT_VIDEO_STATUS.PRIORITY.REVIEWED,
+    [CONTENT_VIDEO_STATUS.STATUSES.PENDING_APPROVAL]:
+      CONTENT_VIDEO_STATUS.PRIORITY.PENDING_APPROVAL,
+    [CONTENT_VIDEO_STATUS.STATUSES.APPROVED]: CONTENT_VIDEO_STATUS.PRIORITY.APPROVED,
+    [CONTENT_VIDEO_STATUS.STATUSES.REJECTED]: CONTENT_VIDEO_STATUS.PRIORITY.REJECTED,
+    [CONTENT_VIDEO_STATUS.STATUSES.PUBLISHED]: CONTENT_VIDEO_STATUS.PRIORITY.PUBLISHED,
+    [CONTENT_VIDEO_STATUS.STATUSES.SCHEDULED]: CONTENT_VIDEO_STATUS.PRIORITY.SCHEDULED,
+    [CONTENT_VIDEO_STATUS.STATUSES.PRIVATE]: CONTENT_VIDEO_STATUS.PRIORITY.PRIVATE,
+    [CONTENT_VIDEO_STATUS.STATUSES.UNLISTED]: CONTENT_VIDEO_STATUS.PRIORITY.UNLISTED,
+    [CONTENT_VIDEO_STATUS.STATUSES.ARCHIVED]: CONTENT_VIDEO_STATUS.PRIORITY.ARCHIVED,
+    [CONTENT_VIDEO_STATUS.STATUSES.DEPRECATED]: CONTENT_VIDEO_STATUS.PRIORITY.DEPRECATED,
+    [CONTENT_VIDEO_STATUS.STATUSES.DELETED]: CONTENT_VIDEO_STATUS.PRIORITY.DELETED,
+    [CONTENT_VIDEO_STATUS.STATUSES.UPLOADING]: CONTENT_VIDEO_STATUS.PRIORITY.UPLOADING,
+    [CONTENT_VIDEO_STATUS.STATUSES.PROCESSING]: CONTENT_VIDEO_STATUS.PRIORITY.PROCESSING,
+    [CONTENT_VIDEO_STATUS.STATUSES.TRANSCODING]: CONTENT_VIDEO_STATUS.PRIORITY.TRANSCODING,
+    [CONTENT_VIDEO_STATUS.STATUSES.READY]: CONTENT_VIDEO_STATUS.PRIORITY.READY,
+    [CONTENT_VIDEO_STATUS.STATUSES.FAILED]: CONTENT_VIDEO_STATUS.PRIORITY.FAILED,
+  };
+  return priorityMap[status] || 0;
+}
+
+export function contentVideoStatusIsPublished(status: ContentVideoStatusType): boolean {
+  const publishedStatuses: ContentVideoStatusType[] = [
+    CONTENT_VIDEO_STATUS.STATUSES.PUBLISHED,
+    CONTENT_VIDEO_STATUS.STATUSES.SCHEDULED,
+  ];
+  return publishedStatuses.includes(status);
+}
+
+export function contentVideoStatusIsEditable(status: ContentVideoStatusType): boolean {
+  const editableStatuses: ContentVideoStatusType[] = [
+    CONTENT_VIDEO_STATUS.STATUSES.DRAFT,
+    CONTENT_VIDEO_STATUS.STATUSES.PENDING_REVIEW,
+    CONTENT_VIDEO_STATUS.STATUSES.IN_REVIEW,
+    CONTENT_VIDEO_STATUS.STATUSES.REVIEWED,
+    CONTENT_VIDEO_STATUS.STATUSES.PENDING_APPROVAL,
+    CONTENT_VIDEO_STATUS.STATUSES.REJECTED,
+    CONTENT_VIDEO_STATUS.STATUSES.PRIVATE,
+    CONTENT_VIDEO_STATUS.STATUSES.UNLISTED,
+    CONTENT_VIDEO_STATUS.STATUSES.PROCESSING,
+    CONTENT_VIDEO_STATUS.STATUSES.READY,
+  ];
+  return editableStatuses.includes(status);
+}
+
+export function contentVideoStatusIsProcessing(status: ContentVideoStatusType): boolean {
+  const processingStatuses: ContentVideoStatusType[] = [
+    CONTENT_VIDEO_STATUS.STATUSES.UPLOADING,
+    CONTENT_VIDEO_STATUS.STATUSES.PROCESSING,
+    CONTENT_VIDEO_STATUS.STATUSES.TRANSCODING,
+  ];
+  return processingStatuses.includes(status);
+}
+
+export function contentVideoStatusIsArchived(status: ContentVideoStatusType): boolean {
+  const archivedStatuses: ContentVideoStatusType[] = [
+    CONTENT_VIDEO_STATUS.STATUSES.ARCHIVED,
+    CONTENT_VIDEO_STATUS.STATUSES.DEPRECATED,
+    CONTENT_VIDEO_STATUS.STATUSES.DELETED,
+  ];
+  return archivedStatuses.includes(status);
+}
+
+export function contentVideoStatusCanTransitionTo(
+  currentStatus: ContentVideoStatusType,
+  targetStatus: ContentVideoStatusType
+): boolean {
+  const transitions: Record<string, readonly string[]> = CONTENT_VIDEO_STATUS.TRANSITIONS;
+  const allowedTransitions = transitions[currentStatus] || [];
+  return allowedTransitions.includes(targetStatus);
+}
+
+export function contentVideoStatusGetAvailableTransitions(
+  currentStatus: ContentVideoStatusType
+): ContentVideoStatusType[] {
+  const transitions: Record<string, readonly string[]> = CONTENT_VIDEO_STATUS.TRANSITIONS;
+  const available = transitions[currentStatus] || [];
+  return [...available] as ContentVideoStatusType[];
+}
+
+export function contentVideoStatusGetSequence(): ContentVideoStatusType[] {
+  return [
+    CONTENT_VIDEO_STATUS.STATUSES.DRAFT,
+    CONTENT_VIDEO_STATUS.STATUSES.PENDING_REVIEW,
+    CONTENT_VIDEO_STATUS.STATUSES.IN_REVIEW,
+    CONTENT_VIDEO_STATUS.STATUSES.REVIEWED,
+    CONTENT_VIDEO_STATUS.STATUSES.PENDING_APPROVAL,
+    CONTENT_VIDEO_STATUS.STATUSES.APPROVED,
+    CONTENT_VIDEO_STATUS.STATUSES.UPLOADING,
+    CONTENT_VIDEO_STATUS.STATUSES.PROCESSING,
+    CONTENT_VIDEO_STATUS.STATUSES.TRANSCODING,
+    CONTENT_VIDEO_STATUS.STATUSES.READY,
+    CONTENT_VIDEO_STATUS.STATUSES.PUBLISHED,
+  ];
+}
+
+export function contentVideoStatusGetStateLabel(state: ContentVideoState): string {
+  const labels: Record<ContentVideoState, string> = {
+    [CONTENT_VIDEO_STATUS.STATE.LOADING]: 'Loading',
+    [CONTENT_VIDEO_STATUS.STATE.LOADED]: 'Loaded',
+    [CONTENT_VIDEO_STATUS.STATE.SAVING]: 'Saving',
+    [CONTENT_VIDEO_STATUS.STATE.SAVED]: 'Saved',
+    [CONTENT_VIDEO_STATUS.STATE.PUBLISHING]: 'Publishing',
+    [CONTENT_VIDEO_STATUS.STATE.DELETING]: 'Deleting',
+    [CONTENT_VIDEO_STATUS.STATE.UPLOADING]: 'Uploading',
+    [CONTENT_VIDEO_STATUS.STATE.PROCESSING]: 'Processing',
+    [CONTENT_VIDEO_STATUS.STATE.ERROR]: 'Error',
+  };
+  return labels[state] || 'Unknown State';
+}
+
+export function contentVideoStatusGetActionLabel(action: ContentVideoAction): string {
+  const labels: Record<ContentVideoAction, string> = {
+    [CONTENT_VIDEO_STATUS.ACTIONS.CREATE]: 'Create Video',
+    [CONTENT_VIDEO_STATUS.ACTIONS.UPDATE]: 'Update Video',
+    [CONTENT_VIDEO_STATUS.ACTIONS.UPLOAD]: 'Upload Video',
+    [CONTENT_VIDEO_STATUS.ACTIONS.PROCESS]: 'Process Video',
+    [CONTENT_VIDEO_STATUS.ACTIONS.PUBLISH]: 'Publish Video',
+    [CONTENT_VIDEO_STATUS.ACTIONS.UNPUBLISH]: 'Unpublish Video',
+    [CONTENT_VIDEO_STATUS.ACTIONS.DELETE]: 'Delete Video',
+    [CONTENT_VIDEO_STATUS.ACTIONS.RESTORE]: 'Restore Video',
+    [CONTENT_VIDEO_STATUS.ACTIONS.ARCHIVE]: 'Archive Video',
+    [CONTENT_VIDEO_STATUS.ACTIONS.REVIEW]: 'Review Video',
+    [CONTENT_VIDEO_STATUS.ACTIONS.APPROVE]: 'Approve Video',
+    [CONTENT_VIDEO_STATUS.ACTIONS.REJECT]: 'Reject Video',
+    [CONTENT_VIDEO_STATUS.ACTIONS.SCHEDULE]: 'Schedule Video',
+    [CONTENT_VIDEO_STATUS.ACTIONS.TRANSCODE]: 'Transcode Video',
+  };
+  return labels[action] || 'Unknown Action';
+}
+
+export function contentVideoStatusIsValid(status: string): status is ContentVideoStatusType {
+  return Object.values(CONTENT_VIDEO_STATUS.STATUSES).includes(status as ContentVideoStatusType);
+}
+
+export function contentVideoStatusIsValidState(state: string): state is ContentVideoState {
+  return Object.values(CONTENT_VIDEO_STATUS.STATE).includes(state as ContentVideoState);
+}

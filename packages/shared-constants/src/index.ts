@@ -29,3 +29,6 @@ export * from './reporting';
 
 // flash-sales Constants
 export * from './flash-sales';
+
+// content Constants
+export * from './content';

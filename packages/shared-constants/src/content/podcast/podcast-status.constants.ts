@@ -1,0 +1,383 @@
+/**
+ * Podcast Status Constants
+ * Status definitions for podcast lifecycle
+ */
+
+export const CONTENT_PODCAST_STATUS = {
+  // Statuses
+  STATUSES: {
+    DRAFT: 'draft',
+    PENDING_REVIEW: 'pending_review',
+    IN_REVIEW: 'in_review',
+    REVIEWED: 'reviewed',
+    PENDING_APPROVAL: 'pending_approval',
+    APPROVED: 'approved',
+    REJECTED: 'rejected',
+    PUBLISHED: 'published',
+    SCHEDULED: 'scheduled',
+    PRIVATE: 'private',
+    UNLISTED: 'unlisted',
+    ARCHIVED: 'archived',
+    DEPRECATED: 'deprecated',
+    DELETED: 'deleted',
+    PROCESSING: 'processing',
+    UPLOADING: 'uploading',
+    READY: 'ready',
+    FAILED: 'failed',
+  } as const,
+
+  // Status Categories
+  CATEGORIES: {
+    CREATION: 'creation',
+    REVIEW: 'review',
+    APPROVAL: 'approval',
+    UPLOAD: 'upload',
+    PROCESSING: 'processing',
+    PUBLISHED: 'published',
+    UNPUBLISHED: 'unpublished',
+    ARCHIVED: 'archived',
+  } as const,
+
+  // Status Colors (for UI)
+  COLORS: {
+    DRAFT: '#6B7280',
+    PENDING_REVIEW: '#F59E0B',
+    IN_REVIEW: '#3B82F6',
+    REVIEWED: '#8B5CF6',
+    PENDING_APPROVAL: '#F59E0B',
+    APPROVED: '#10B981',
+    REJECTED: '#EF4444',
+    PUBLISHED: '#10B981',
+    SCHEDULED: '#06B6D4',
+    PRIVATE: '#6B7280',
+    UNLISTED: '#6B7280',
+    ARCHIVED: '#6B7280',
+    DEPRECATED: '#6B7280',
+    DELETED: '#EF4444',
+    PROCESSING: '#3B82F6',
+    UPLOADING: '#3B82F6',
+    READY: '#10B981',
+    FAILED: '#EF4444',
+  } as const,
+
+  // Status Priority (for sorting)
+  PRIORITY: {
+    DRAFT: 0,
+    PENDING_REVIEW: 1,
+    IN_REVIEW: 2,
+    REVIEWED: 3,
+    PENDING_APPROVAL: 4,
+    APPROVED: 5,
+    REJECTED: 6,
+    PUBLISHED: 7,
+    SCHEDULED: 8,
+    PRIVATE: 9,
+    UNLISTED: 10,
+    ARCHIVED: 11,
+    DEPRECATED: 12,
+    DELETED: 13,
+    UPLOADING: 14,
+    PROCESSING: 15,
+    READY: 16,
+    FAILED: 17,
+  } as const,
+
+  // Status Transitions
+  TRANSITIONS: {
+    DRAFT: ['pending_review', 'private', 'deleted'],
+    PENDING_REVIEW: ['in_review', 'deleted'],
+    IN_REVIEW: ['reviewed', 'deleted'],
+    REVIEWED: ['pending_approval', 'deleted'],
+    PENDING_APPROVAL: ['approved', 'rejected', 'deleted'],
+    APPROVED: ['uploading', 'published', 'scheduled', 'private', 'deleted'],
+    REJECTED: ['draft', 'deleted'],
+    UPLOADING: ['processing', 'failed', 'deleted'],
+    PROCESSING: ['ready', 'failed', 'deleted'],
+    READY: ['published', 'private', 'deleted'],
+    PUBLISHED: ['archived', 'deprecated', 'deleted'],
+    SCHEDULED: ['published', 'draft', 'deleted'],
+    PRIVATE: ['published', 'unlisted', 'draft', 'deleted'],
+    UNLISTED: ['published', 'private', 'draft', 'deleted'],
+    ARCHIVED: ['deleted'],
+    DEPRECATED: ['archived', 'deleted'],
+    FAILED: ['draft', 'deleted'],
+    DELETED: [],
+  } as const,
+
+  // Podcast State
+  STATE: {
+    LOADING: 'loading',
+    LOADED: 'loaded',
+    SAVING: 'saving',
+    SAVED: 'saved',
+    PUBLISHING: 'publishing',
+    DELETING: 'deleting',
+    UPLOADING: 'uploading',
+    PROCESSING: 'processing',
+    ERROR: 'error',
+  } as const,
+
+  // Podcast Action Types
+  ACTIONS: {
+    CREATE: 'create',
+    UPDATE: 'update',
+    UPLOAD: 'upload',
+    PROCESS: 'process',
+    PUBLISH: 'publish',
+    UNPUBLISH: 'unpublish',
+    DELETE: 'delete',
+    RESTORE: 'restore',
+    ARCHIVE: 'archive',
+    REVIEW: 'review',
+    APPROVE: 'approve',
+    REJECT: 'reject',
+    SCHEDULE: 'schedule',
+  } as const,
+} as const;
+
+// Podcast Statuses
+export type ContentPodcastStatusType =
+  (typeof CONTENT_PODCAST_STATUS.STATUSES)[keyof typeof CONTENT_PODCAST_STATUS.STATUSES];
+
+// Status Categories
+export type ContentPodcastStatusCategory =
+  (typeof CONTENT_PODCAST_STATUS.CATEGORIES)[keyof typeof CONTENT_PODCAST_STATUS.CATEGORIES];
+
+// Status Colors
+export type ContentPodcastStatusColor =
+  (typeof CONTENT_PODCAST_STATUS.COLORS)[keyof typeof CONTENT_PODCAST_STATUS.COLORS];
+
+// Status Priority
+export type ContentPodcastStatusPriority =
+  (typeof CONTENT_PODCAST_STATUS.PRIORITY)[keyof typeof CONTENT_PODCAST_STATUS.PRIORITY];
+
+// Podcast State
+export type ContentPodcastState =
+  (typeof CONTENT_PODCAST_STATUS.STATE)[keyof typeof CONTENT_PODCAST_STATUS.STATE];
+
+// Podcast Actions
+export type ContentPodcastAction =
+  (typeof CONTENT_PODCAST_STATUS.ACTIONS)[keyof typeof CONTENT_PODCAST_STATUS.ACTIONS];
+
+// Utility Functions
+export function contentPodcastStatusGetLabel(status: ContentPodcastStatusType): string {
+  const labels: Record<ContentPodcastStatusType, string> = {
+    [CONTENT_PODCAST_STATUS.STATUSES.DRAFT]: 'Draft',
+    [CONTENT_PODCAST_STATUS.STATUSES.PENDING_REVIEW]: 'Pending Review',
+    [CONTENT_PODCAST_STATUS.STATUSES.IN_REVIEW]: 'In Review',
+    [CONTENT_PODCAST_STATUS.STATUSES.REVIEWED]: 'Reviewed',
+    [CONTENT_PODCAST_STATUS.STATUSES.PENDING_APPROVAL]: 'Pending Approval',
+    [CONTENT_PODCAST_STATUS.STATUSES.APPROVED]: 'Approved',
+    [CONTENT_PODCAST_STATUS.STATUSES.REJECTED]: 'Rejected',
+    [CONTENT_PODCAST_STATUS.STATUSES.PUBLISHED]: 'Published',
+    [CONTENT_PODCAST_STATUS.STATUSES.SCHEDULED]: 'Scheduled',
+    [CONTENT_PODCAST_STATUS.STATUSES.PRIVATE]: 'Private',
+    [CONTENT_PODCAST_STATUS.STATUSES.UNLISTED]: 'Unlisted',
+    [CONTENT_PODCAST_STATUS.STATUSES.ARCHIVED]: 'Archived',
+    [CONTENT_PODCAST_STATUS.STATUSES.DEPRECATED]: 'Deprecated',
+    [CONTENT_PODCAST_STATUS.STATUSES.DELETED]: 'Deleted',
+    [CONTENT_PODCAST_STATUS.STATUSES.PROCESSING]: 'Processing',
+    [CONTENT_PODCAST_STATUS.STATUSES.UPLOADING]: 'Uploading',
+    [CONTENT_PODCAST_STATUS.STATUSES.READY]: 'Ready',
+    [CONTENT_PODCAST_STATUS.STATUSES.FAILED]: 'Failed',
+  };
+  return labels[status] || 'Unknown Status';
+}
+
+export function contentPodcastStatusGetCategory(
+  status: ContentPodcastStatusType
+): ContentPodcastStatusCategory {
+  const categories: Record<ContentPodcastStatusType, ContentPodcastStatusCategory> = {
+    [CONTENT_PODCAST_STATUS.STATUSES.DRAFT]: CONTENT_PODCAST_STATUS.CATEGORIES.CREATION,
+    [CONTENT_PODCAST_STATUS.STATUSES.PENDING_REVIEW]: CONTENT_PODCAST_STATUS.CATEGORIES.REVIEW,
+    [CONTENT_PODCAST_STATUS.STATUSES.IN_REVIEW]: CONTENT_PODCAST_STATUS.CATEGORIES.REVIEW,
+    [CONTENT_PODCAST_STATUS.STATUSES.REVIEWED]: CONTENT_PODCAST_STATUS.CATEGORIES.REVIEW,
+    [CONTENT_PODCAST_STATUS.STATUSES.PENDING_APPROVAL]: CONTENT_PODCAST_STATUS.CATEGORIES.APPROVAL,
+    [CONTENT_PODCAST_STATUS.STATUSES.APPROVED]: CONTENT_PODCAST_STATUS.CATEGORIES.APPROVAL,
+    [CONTENT_PODCAST_STATUS.STATUSES.REJECTED]: CONTENT_PODCAST_STATUS.CATEGORIES.APPROVAL,
+    [CONTENT_PODCAST_STATUS.STATUSES.UPLOADING]: CONTENT_PODCAST_STATUS.CATEGORIES.UPLOAD,
+    [CONTENT_PODCAST_STATUS.STATUSES.PROCESSING]: CONTENT_PODCAST_STATUS.CATEGORIES.PROCESSING,
+    [CONTENT_PODCAST_STATUS.STATUSES.READY]: CONTENT_PODCAST_STATUS.CATEGORIES.PROCESSING,
+    [CONTENT_PODCAST_STATUS.STATUSES.PUBLISHED]: CONTENT_PODCAST_STATUS.CATEGORIES.PUBLISHED,
+    [CONTENT_PODCAST_STATUS.STATUSES.SCHEDULED]: CONTENT_PODCAST_STATUS.CATEGORIES.PUBLISHED,
+    [CONTENT_PODCAST_STATUS.STATUSES.PRIVATE]: CONTENT_PODCAST_STATUS.CATEGORIES.UNPUBLISHED,
+    [CONTENT_PODCAST_STATUS.STATUSES.UNLISTED]: CONTENT_PODCAST_STATUS.CATEGORIES.UNPUBLISHED,
+    [CONTENT_PODCAST_STATUS.STATUSES.ARCHIVED]: CONTENT_PODCAST_STATUS.CATEGORIES.ARCHIVED,
+    [CONTENT_PODCAST_STATUS.STATUSES.DEPRECATED]: CONTENT_PODCAST_STATUS.CATEGORIES.ARCHIVED,
+    [CONTENT_PODCAST_STATUS.STATUSES.DELETED]: CONTENT_PODCAST_STATUS.CATEGORIES.ARCHIVED,
+    [CONTENT_PODCAST_STATUS.STATUSES.FAILED]: CONTENT_PODCAST_STATUS.CATEGORIES.ARCHIVED,
+  };
+  return categories[status] || CONTENT_PODCAST_STATUS.CATEGORIES.CREATION;
+}
+
+export function contentPodcastStatusGetColor(
+  status: ContentPodcastStatusType
+): ContentPodcastStatusColor {
+  const colorMap: Record<ContentPodcastStatusType, ContentPodcastStatusColor> = {
+    [CONTENT_PODCAST_STATUS.STATUSES.DRAFT]: CONTENT_PODCAST_STATUS.COLORS.DRAFT,
+    [CONTENT_PODCAST_STATUS.STATUSES.PENDING_REVIEW]: CONTENT_PODCAST_STATUS.COLORS.PENDING_REVIEW,
+    [CONTENT_PODCAST_STATUS.STATUSES.IN_REVIEW]: CONTENT_PODCAST_STATUS.COLORS.IN_REVIEW,
+    [CONTENT_PODCAST_STATUS.STATUSES.REVIEWED]: CONTENT_PODCAST_STATUS.COLORS.REVIEWED,
+    [CONTENT_PODCAST_STATUS.STATUSES.PENDING_APPROVAL]:
+      CONTENT_PODCAST_STATUS.COLORS.PENDING_APPROVAL,
+    [CONTENT_PODCAST_STATUS.STATUSES.APPROVED]: CONTENT_PODCAST_STATUS.COLORS.APPROVED,
+    [CONTENT_PODCAST_STATUS.STATUSES.REJECTED]: CONTENT_PODCAST_STATUS.COLORS.REJECTED,
+    [CONTENT_PODCAST_STATUS.STATUSES.PUBLISHED]: CONTENT_PODCAST_STATUS.COLORS.PUBLISHED,
+    [CONTENT_PODCAST_STATUS.STATUSES.SCHEDULED]: CONTENT_PODCAST_STATUS.COLORS.SCHEDULED,
+    [CONTENT_PODCAST_STATUS.STATUSES.PRIVATE]: CONTENT_PODCAST_STATUS.COLORS.PRIVATE,
+    [CONTENT_PODCAST_STATUS.STATUSES.UNLISTED]: CONTENT_PODCAST_STATUS.COLORS.UNLISTED,
+    [CONTENT_PODCAST_STATUS.STATUSES.ARCHIVED]: CONTENT_PODCAST_STATUS.COLORS.ARCHIVED,
+    [CONTENT_PODCAST_STATUS.STATUSES.DEPRECATED]: CONTENT_PODCAST_STATUS.COLORS.DEPRECATED,
+    [CONTENT_PODCAST_STATUS.STATUSES.DELETED]: CONTENT_PODCAST_STATUS.COLORS.DELETED,
+    [CONTENT_PODCAST_STATUS.STATUSES.PROCESSING]: CONTENT_PODCAST_STATUS.COLORS.PROCESSING,
+    [CONTENT_PODCAST_STATUS.STATUSES.UPLOADING]: CONTENT_PODCAST_STATUS.COLORS.UPLOADING,
+    [CONTENT_PODCAST_STATUS.STATUSES.READY]: CONTENT_PODCAST_STATUS.COLORS.READY,
+    [CONTENT_PODCAST_STATUS.STATUSES.FAILED]: CONTENT_PODCAST_STATUS.COLORS.FAILED,
+  };
+  return colorMap[status] || '#6B7280';
+}
+
+export function contentPodcastStatusGetPriority(
+  status: ContentPodcastStatusType
+): ContentPodcastStatusPriority {
+  const priorityMap: Record<ContentPodcastStatusType, ContentPodcastStatusPriority> = {
+    [CONTENT_PODCAST_STATUS.STATUSES.DRAFT]: CONTENT_PODCAST_STATUS.PRIORITY.DRAFT,
+    [CONTENT_PODCAST_STATUS.STATUSES.PENDING_REVIEW]:
+      CONTENT_PODCAST_STATUS.PRIORITY.PENDING_REVIEW,
+    [CONTENT_PODCAST_STATUS.STATUSES.IN_REVIEW]: CONTENT_PODCAST_STATUS.PRIORITY.IN_REVIEW,
+    [CONTENT_PODCAST_STATUS.STATUSES.REVIEWED]: CONTENT_PODCAST_STATUS.PRIORITY.REVIEWED,
+    [CONTENT_PODCAST_STATUS.STATUSES.PENDING_APPROVAL]:
+      CONTENT_PODCAST_STATUS.PRIORITY.PENDING_APPROVAL,
+    [CONTENT_PODCAST_STATUS.STATUSES.APPROVED]: CONTENT_PODCAST_STATUS.PRIORITY.APPROVED,
+    [CONTENT_PODCAST_STATUS.STATUSES.REJECTED]: CONTENT_PODCAST_STATUS.PRIORITY.REJECTED,
+    [CONTENT_PODCAST_STATUS.STATUSES.PUBLISHED]: CONTENT_PODCAST_STATUS.PRIORITY.PUBLISHED,
+    [CONTENT_PODCAST_STATUS.STATUSES.SCHEDULED]: CONTENT_PODCAST_STATUS.PRIORITY.SCHEDULED,
+    [CONTENT_PODCAST_STATUS.STATUSES.PRIVATE]: CONTENT_PODCAST_STATUS.PRIORITY.PRIVATE,
+    [CONTENT_PODCAST_STATUS.STATUSES.UNLISTED]: CONTENT_PODCAST_STATUS.PRIORITY.UNLISTED,
+    [CONTENT_PODCAST_STATUS.STATUSES.ARCHIVED]: CONTENT_PODCAST_STATUS.PRIORITY.ARCHIVED,
+    [CONTENT_PODCAST_STATUS.STATUSES.DEPRECATED]: CONTENT_PODCAST_STATUS.PRIORITY.DEPRECATED,
+    [CONTENT_PODCAST_STATUS.STATUSES.DELETED]: CONTENT_PODCAST_STATUS.PRIORITY.DELETED,
+    [CONTENT_PODCAST_STATUS.STATUSES.UPLOADING]: CONTENT_PODCAST_STATUS.PRIORITY.UPLOADING,
+    [CONTENT_PODCAST_STATUS.STATUSES.PROCESSING]: CONTENT_PODCAST_STATUS.PRIORITY.PROCESSING,
+    [CONTENT_PODCAST_STATUS.STATUSES.READY]: CONTENT_PODCAST_STATUS.PRIORITY.READY,
+    [CONTENT_PODCAST_STATUS.STATUSES.FAILED]: CONTENT_PODCAST_STATUS.PRIORITY.FAILED,
+  };
+  return priorityMap[status] || 0;
+}
+
+export function contentPodcastStatusIsPublished(status: ContentPodcastStatusType): boolean {
+  const publishedStatuses: ContentPodcastStatusType[] = [
+    CONTENT_PODCAST_STATUS.STATUSES.PUBLISHED,
+    CONTENT_PODCAST_STATUS.STATUSES.SCHEDULED,
+  ];
+  return publishedStatuses.includes(status);
+}
+
+export function contentPodcastStatusIsEditable(status: ContentPodcastStatusType): boolean {
+  const editableStatuses: ContentPodcastStatusType[] = [
+    CONTENT_PODCAST_STATUS.STATUSES.DRAFT,
+    CONTENT_PODCAST_STATUS.STATUSES.PENDING_REVIEW,
+    CONTENT_PODCAST_STATUS.STATUSES.IN_REVIEW,
+    CONTENT_PODCAST_STATUS.STATUSES.REVIEWED,
+    CONTENT_PODCAST_STATUS.STATUSES.PENDING_APPROVAL,
+    CONTENT_PODCAST_STATUS.STATUSES.REJECTED,
+    CONTENT_PODCAST_STATUS.STATUSES.PRIVATE,
+    CONTENT_PODCAST_STATUS.STATUSES.UNLISTED,
+    CONTENT_PODCAST_STATUS.STATUSES.PROCESSING,
+    CONTENT_PODCAST_STATUS.STATUSES.READY,
+  ];
+  return editableStatuses.includes(status);
+}
+
+export function contentPodcastStatusIsProcessing(status: ContentPodcastStatusType): boolean {
+  const processingStatuses: ContentPodcastStatusType[] = [
+    CONTENT_PODCAST_STATUS.STATUSES.UPLOADING,
+    CONTENT_PODCAST_STATUS.STATUSES.PROCESSING,
+  ];
+  return processingStatuses.includes(status);
+}
+
+export function contentPodcastStatusIsArchived(status: ContentPodcastStatusType): boolean {
+  const archivedStatuses: ContentPodcastStatusType[] = [
+    CONTENT_PODCAST_STATUS.STATUSES.ARCHIVED,
+    CONTENT_PODCAST_STATUS.STATUSES.DEPRECATED,
+    CONTENT_PODCAST_STATUS.STATUSES.DELETED,
+  ];
+  return archivedStatuses.includes(status);
+}
+
+export function contentPodcastStatusCanTransitionTo(
+  currentStatus: ContentPodcastStatusType,
+  targetStatus: ContentPodcastStatusType
+): boolean {
+  const transitions: Record<string, readonly string[]> = CONTENT_PODCAST_STATUS.TRANSITIONS;
+  const allowedTransitions = transitions[currentStatus] || [];
+  return allowedTransitions.includes(targetStatus);
+}
+
+export function contentPodcastStatusGetAvailableTransitions(
+  currentStatus: ContentPodcastStatusType
+): ContentPodcastStatusType[] {
+  const transitions: Record<string, readonly string[]> = CONTENT_PODCAST_STATUS.TRANSITIONS;
+  const available = transitions[currentStatus] || [];
+  return [...available] as ContentPodcastStatusType[];
+}
+
+export function contentPodcastStatusGetSequence(): ContentPodcastStatusType[] {
+  return [
+    CONTENT_PODCAST_STATUS.STATUSES.DRAFT,
+    CONTENT_PODCAST_STATUS.STATUSES.PENDING_REVIEW,
+    CONTENT_PODCAST_STATUS.STATUSES.IN_REVIEW,
+    CONTENT_PODCAST_STATUS.STATUSES.REVIEWED,
+    CONTENT_PODCAST_STATUS.STATUSES.PENDING_APPROVAL,
+    CONTENT_PODCAST_STATUS.STATUSES.APPROVED,
+    CONTENT_PODCAST_STATUS.STATUSES.UPLOADING,
+    CONTENT_PODCAST_STATUS.STATUSES.PROCESSING,
+    CONTENT_PODCAST_STATUS.STATUSES.READY,
+    CONTENT_PODCAST_STATUS.STATUSES.PUBLISHED,
+  ];
+}
+
+export function contentPodcastStatusGetStateLabel(state: ContentPodcastState): string {
+  const labels: Record<ContentPodcastState, string> = {
+    [CONTENT_PODCAST_STATUS.STATE.LOADING]: 'Loading',
+    [CONTENT_PODCAST_STATUS.STATE.LOADED]: 'Loaded',
+    [CONTENT_PODCAST_STATUS.STATE.SAVING]: 'Saving',
+    [CONTENT_PODCAST_STATUS.STATE.SAVED]: 'Saved',
+    [CONTENT_PODCAST_STATUS.STATE.PUBLISHING]: 'Publishing',
+    [CONTENT_PODCAST_STATUS.STATE.DELETING]: 'Deleting',
+    [CONTENT_PODCAST_STATUS.STATE.UPLOADING]: 'Uploading',
+    [CONTENT_PODCAST_STATUS.STATE.PROCESSING]: 'Processing',
+    [CONTENT_PODCAST_STATUS.STATE.ERROR]: 'Error',
+  };
+  return labels[state] || 'Unknown State';
+}
+
+export function contentPodcastStatusGetActionLabel(action: ContentPodcastAction): string {
+  const labels: Record<ContentPodcastAction, string> = {
+    [CONTENT_PODCAST_STATUS.ACTIONS.CREATE]: 'Create Podcast',
+    [CONTENT_PODCAST_STATUS.ACTIONS.UPDATE]: 'Update Podcast',
+    [CONTENT_PODCAST_STATUS.ACTIONS.UPLOAD]: 'Upload Podcast',
+    [CONTENT_PODCAST_STATUS.ACTIONS.PROCESS]: 'Process Podcast',
+    [CONTENT_PODCAST_STATUS.ACTIONS.PUBLISH]: 'Publish Podcast',
+    [CONTENT_PODCAST_STATUS.ACTIONS.UNPUBLISH]: 'Unpublish Podcast',
+    [CONTENT_PODCAST_STATUS.ACTIONS.DELETE]: 'Delete Podcast',
+    [CONTENT_PODCAST_STATUS.ACTIONS.RESTORE]: 'Restore Podcast',
+    [CONTENT_PODCAST_STATUS.ACTIONS.ARCHIVE]: 'Archive Podcast',
+    [CONTENT_PODCAST_STATUS.ACTIONS.REVIEW]: 'Review Podcast',
+    [CONTENT_PODCAST_STATUS.ACTIONS.APPROVE]: 'Approve Podcast',
+    [CONTENT_PODCAST_STATUS.ACTIONS.REJECT]: 'Reject Podcast',
+    [CONTENT_PODCAST_STATUS.ACTIONS.SCHEDULE]: 'Schedule Podcast',
+  };
+  return labels[action] || 'Unknown Action';
+}
+
+export function contentPodcastStatusIsValid(status: string): status is ContentPodcastStatusType {
+  return Object.values(CONTENT_PODCAST_STATUS.STATUSES).includes(
+    status as ContentPodcastStatusType
+  );
+}
+
+export function contentPodcastStatusIsValidState(state: string): state is ContentPodcastState {
+  return Object.values(CONTENT_PODCAST_STATUS.STATE).includes(state as ContentPodcastState);
+}
