@@ -20,3 +20,6 @@ export * from './ai';
 
 // seo Constants
 export * from './seo';
+
+// Analytics Constants
+export * from './analytics';

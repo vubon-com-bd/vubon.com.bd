@@ -100,8 +100,8 @@ export type AIAnalyticsMetricThreshold =
 export type AIAnalyticsMetricColor =
   (typeof AI_ANALYTICS_METRIC.COLORS)[keyof typeof AI_ANALYTICS_METRIC.COLORS];
 
-// Utility Functions
-export function getMetricCategoryLabel(category: AIAnalyticsMetricCategory): string {
+// Utility Functions - সব নামে AI যোগ করা হয়েছে
+export function getAIMetricCategoryLabel(category: AIAnalyticsMetricCategory): string {
   const labels: Record<AIAnalyticsMetricCategory, string> = {
     [AI_ANALYTICS_METRIC.CATEGORIES.ENGAGEMENT]: 'Engagement',
     [AI_ANALYTICS_METRIC.CATEGORIES.CONVERSION]: 'Conversion',
@@ -117,7 +117,7 @@ export function getMetricCategoryLabel(category: AIAnalyticsMetricCategory): str
   return labels[category] || 'Unknown';
 }
 
-export function getMetricTypeLabel(type: AIAnalyticsMetricType): string {
+export function getAIMetricTypeLabel(type: AIAnalyticsMetricType): string {
   const labels: Record<AIAnalyticsMetricType, string> = {
     [AI_ANALYTICS_METRIC.TYPES.COUNT]: 'Count',
     [AI_ANALYTICS_METRIC.TYPES.RATE]: 'Rate',
@@ -134,7 +134,7 @@ export function getMetricTypeLabel(type: AIAnalyticsMetricType): string {
   return labels[type] || 'Unknown';
 }
 
-export function getMetricPriorityLabel(priority: AIAnalyticsMetricPriority): string {
+export function getAIMetricPriorityLabel(priority: AIAnalyticsMetricPriority): string {
   const labels: Record<AIAnalyticsMetricPriority, string> = {
     [AI_ANALYTICS_METRIC.PRIORITIES.CRITICAL]: 'Critical',
     [AI_ANALYTICS_METRIC.PRIORITIES.HIGH]: 'High',
@@ -145,12 +145,12 @@ export function getMetricPriorityLabel(priority: AIAnalyticsMetricPriority): str
   return labels[priority] || 'Unknown';
 }
 
-export function getMetricFormula(formulaName: string): string {
+export function getAIMetricFormula(formulaName: string): string {
   const formulas: Record<string, string> = AI_ANALYTICS_METRIC.FORMULAS;
   return formulas[formulaName] || 'Formula not found';
 }
 
-export function getMetricColor(score: number): AIAnalyticsMetricColor {
+export function getAIMetricColor(score: number): AIAnalyticsMetricColor {
   if (score >= 90) return AI_ANALYTICS_METRIC.COLORS.EXCELLENT;
   if (score >= 70) return AI_ANALYTICS_METRIC.COLORS.GOOD;
   if (score >= 50) return AI_ANALYTICS_METRIC.COLORS.AVERAGE;
@@ -158,7 +158,7 @@ export function getMetricColor(score: number): AIAnalyticsMetricColor {
   return AI_ANALYTICS_METRIC.COLORS.CRITICAL;
 }
 
-export function getMetricStatus(
+export function getAIMetricStatus(
   score: number,
   threshold: AIAnalyticsMetricThreshold
 ): 'excellent' | 'good' | 'average' | 'poor' | 'critical' {
@@ -169,7 +169,7 @@ export function getMetricStatus(
   return 'critical';
 }
 
-export function getMetricColorByStatus(
+export function getAIMetricColorByStatus(
   status: 'excellent' | 'good' | 'average' | 'poor' | 'critical'
 ): AIAnalyticsMetricColor {
   const colorMap: Record<string, AIAnalyticsMetricColor> = {

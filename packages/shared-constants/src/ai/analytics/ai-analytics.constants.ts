@@ -250,8 +250,8 @@ export type AIAnalyticsFormat = (typeof AI_ANALYTICS.FORMATS)[keyof typeof AI_AN
 export type AIAnalyticsGranularity =
   (typeof AI_ANALYTICS.GRANULARITY)[keyof typeof AI_ANALYTICS.GRANULARITY];
 
-// Utility Functions
-export function getAnalyticsTypeLabel(type: AIAnalyticsType): string {
+// Utility Functions - সব নামে AI যোগ করা হয়েছে
+export function getAIAnalyticsTypeLabel(type: AIAnalyticsType): string {
   const labels: Record<AIAnalyticsType, string> = {
     [AI_ANALYTICS.TYPES.DESCRIPTIVE]: 'Descriptive',
     [AI_ANALYTICS.TYPES.DIAGNOSTIC]: 'Diagnostic',
@@ -269,7 +269,7 @@ export function getAnalyticsTypeLabel(type: AIAnalyticsType): string {
   return labels[type] || 'Unknown';
 }
 
-export function getAnalyticsStatusLabel(status: AIAnalyticsStatus): string {
+export function getAIAnalyticsStatusLabel(status: AIAnalyticsStatus): string {
   const labels: Record<AIAnalyticsStatus, string> = {
     [AI_ANALYTICS.STATUSES.PENDING]: 'Pending',
     [AI_ANALYTICS.STATUSES.INITIALIZING]: 'Initializing',
@@ -288,7 +288,7 @@ export function getAnalyticsStatusLabel(status: AIAnalyticsStatus): string {
   return labels[status] || 'Unknown';
 }
 
-export function getAnalyticsCategoryLabel(category: AIAnalyticsCategory): string {
+export function getAIAnalyticsCategoryLabel(category: AIAnalyticsCategory): string {
   const labels: Record<AIAnalyticsCategory, string> = {
     [AI_ANALYTICS.CATEGORIES.USER]: 'User',
     [AI_ANALYTICS.CATEGORIES.PRODUCT]: 'Product',
@@ -310,7 +310,7 @@ export function getAnalyticsCategoryLabel(category: AIAnalyticsCategory): string
   return labels[category] || 'Unknown';
 }
 
-export function getAnalyticsMetricLabel(metric: AIAnalyticsMetric): string {
+export function getAIAnalyticsMetricLabel(metric: AIAnalyticsMetric): string {
   const labels: Record<AIAnalyticsMetric, string> = {
     // User Metrics
     [AI_ANALYTICS.METRICS.USERS]: 'Users',
@@ -352,7 +352,7 @@ export function getAnalyticsMetricLabel(metric: AIAnalyticsMetric): string {
   return labels[metric] || 'Unknown';
 }
 
-export function getAnalyticsAggregationLabel(aggregation: AIAnalyticsAggregation): string {
+export function getAIAnalyticsAggregationLabel(aggregation: AIAnalyticsAggregation): string {
   const labels: Record<AIAnalyticsAggregation, string> = {
     [AI_ANALYTICS.AGGREGATIONS.SUM]: 'Sum',
     [AI_ANALYTICS.AGGREGATIONS.AVG]: 'Average',
@@ -372,7 +372,7 @@ export function getAnalyticsAggregationLabel(aggregation: AIAnalyticsAggregation
   return labels[aggregation] || 'Unknown';
 }
 
-export function getAnalyticsPeriodLabel(period: AIAnalyticsPeriod): string {
+export function getAIAnalyticsPeriodLabel(period: AIAnalyticsPeriod): string {
   const labels: Record<AIAnalyticsPeriod, string> = {
     [AI_ANALYTICS.PERIODS.HOURLY]: 'Hourly',
     [AI_ANALYTICS.PERIODS.DAILY]: 'Daily',
@@ -385,7 +385,7 @@ export function getAnalyticsPeriodLabel(period: AIAnalyticsPeriod): string {
   return labels[period] || 'Unknown';
 }
 
-export function getAnalyticsFormatLabel(format: AIAnalyticsFormat): string {
+export function getAIAnalyticsFormatLabel(format: AIAnalyticsFormat): string {
   const labels: Record<AIAnalyticsFormat, string> = {
     [AI_ANALYTICS.FORMATS.JSON]: 'JSON',
     [AI_ANALYTICS.FORMATS.CSV]: 'CSV',
@@ -399,7 +399,7 @@ export function getAnalyticsFormatLabel(format: AIAnalyticsFormat): string {
   return labels[format] || 'Unknown';
 }
 
-export function getAnalyticsGranularityLabel(granularity: AIAnalyticsGranularity): string {
+export function getAIAnalyticsGranularityLabel(granularity: AIAnalyticsGranularity): string {
   const labels: Record<AIAnalyticsGranularity, string> = {
     [AI_ANALYTICS.GRANULARITY.SECOND]: 'Second',
     [AI_ANALYTICS.GRANULARITY.MINUTE]: 'Minute',
@@ -413,7 +413,7 @@ export function getAnalyticsGranularityLabel(granularity: AIAnalyticsGranularity
   return labels[granularity] || 'Unknown';
 }
 
-export function isAnalyticsActive(status: AIAnalyticsStatus): boolean {
+export function isAIAnalyticsActive(status: AIAnalyticsStatus): boolean {
   const activeStatuses: AIAnalyticsStatus[] = [
     AI_ANALYTICS.STATUSES.PENDING,
     AI_ANALYTICS.STATUSES.INITIALIZING,
@@ -426,7 +426,7 @@ export function isAnalyticsActive(status: AIAnalyticsStatus): boolean {
   return activeStatuses.includes(status);
 }
 
-export function isAnalyticsComplete(status: AIAnalyticsStatus): boolean {
+export function isAIAnalyticsComplete(status: AIAnalyticsStatus): boolean {
   const completeStatuses: AIAnalyticsStatus[] = [
     AI_ANALYTICS.STATUSES.COMPLETED,
     AI_ANALYTICS.STATUSES.DELIVERED,
@@ -436,14 +436,14 @@ export function isAnalyticsComplete(status: AIAnalyticsStatus): boolean {
   return completeStatuses.includes(status);
 }
 
-export function isAnalyticsFailed(status: AIAnalyticsStatus): boolean {
+export function isAIAnalyticsFailed(status: AIAnalyticsStatus): boolean {
   return status === AI_ANALYTICS.STATUSES.FAILED;
 }
 
-export function getDefaultAnalyticsLimit(): number {
+export function getAIDefaultAnalyticsLimit(): number {
   return AI_ANALYTICS.LIMITS.DEFAULT;
 }
 
-export function getMaxAnalyticsLimit(): number {
+export function getAIMaxAnalyticsLimit(): number {
   return AI_ANALYTICS.LIMITS.MAX;
 }

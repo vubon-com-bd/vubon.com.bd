@@ -100,8 +100,8 @@ export type AIAnalyticsScope =
 export type AIAnalyticsLevel =
   (typeof AI_ANALYTICS_TYPE.LEVELS)[keyof typeof AI_ANALYTICS_TYPE.LEVELS];
 
-// Utility Functions
-export function getAnalyticsAnalysisTypeLabel(type: AIAnalyticsAnalysisType): string {
+// Utility Functions - সব নামে AI যোগ করা হয়েছে
+export function getAIAnalyticsAnalysisTypeLabel(type: AIAnalyticsAnalysisType): string {
   const labels: Record<AIAnalyticsAnalysisType, string> = {
     [AI_ANALYTICS_TYPE.ANALYSIS_TYPES.TREND]: 'Trend Analysis',
     [AI_ANALYTICS_TYPE.ANALYSIS_TYPES.PATTERN]: 'Pattern Analysis',
@@ -119,7 +119,7 @@ export function getAnalyticsAnalysisTypeLabel(type: AIAnalyticsAnalysisType): st
   return labels[type] || 'Unknown';
 }
 
-export function getAnalyticsDataTypeLabel(dataType: AIAnalyticsDataType): string {
+export function getAIAnalyticsDataTypeLabel(dataType: AIAnalyticsDataType): string {
   const labels: Record<AIAnalyticsDataType, string> = {
     [AI_ANALYTICS_TYPE.DATA_TYPES.NUMERICAL]: 'Numerical',
     [AI_ANALYTICS_TYPE.DATA_TYPES.CATEGORICAL]: 'Categorical',
@@ -135,7 +135,7 @@ export function getAnalyticsDataTypeLabel(dataType: AIAnalyticsDataType): string
   return labels[dataType] || 'Unknown';
 }
 
-export function getAnalyticsMethodLabel(method: AIAnalyticsMethod): string {
+export function getAIAnalyticsMethodLabel(method: AIAnalyticsMethod): string {
   const labels: Record<AIAnalyticsMethod, string> = {
     [AI_ANALYTICS_TYPE.METHODS.STATISTICAL]: 'Statistical',
     [AI_ANALYTICS_TYPE.METHODS.MACHINE_LEARNING]: 'Machine Learning',
@@ -147,7 +147,7 @@ export function getAnalyticsMethodLabel(method: AIAnalyticsMethod): string {
   return labels[method] || 'Unknown';
 }
 
-export function getAnalyticsDataSourceLabel(source: AIAnalyticsDataSource): string {
+export function getAIAnalyticsDataSourceLabel(source: AIAnalyticsDataSource): string {
   const labels: Record<AIAnalyticsDataSource, string> = {
     [AI_ANALYTICS_TYPE.SOURCES.DATABASE]: 'Database',
     [AI_ANALYTICS_TYPE.SOURCES.DATA_WAREHOUSE]: 'Data Warehouse',
@@ -161,7 +161,7 @@ export function getAnalyticsDataSourceLabel(source: AIAnalyticsDataSource): stri
   return labels[source] || 'Unknown';
 }
 
-export function getAnalyticsScopeLabel(scope: AIAnalyticsScope): string {
+export function getAIAnalyticsScopeLabel(scope: AIAnalyticsScope): string {
   const labels: Record<AIAnalyticsScope, string> = {
     [AI_ANALYTICS_TYPE.SCOPES.GLOBAL]: 'Global',
     [AI_ANALYTICS_TYPE.SCOPES.REGIONAL]: 'Regional',
@@ -173,7 +173,7 @@ export function getAnalyticsScopeLabel(scope: AIAnalyticsScope): string {
   return labels[scope] || 'Unknown';
 }
 
-export function getAnalyticsLevelLabel(level: AIAnalyticsLevel): string {
+export function getAIAnalyticsLevelLabel(level: AIAnalyticsLevel): string {
   const labels: Record<AIAnalyticsLevel, string> = {
     [AI_ANALYTICS_TYPE.LEVELS.SUMMARY]: 'Summary',
     [AI_ANALYTICS_TYPE.LEVELS.DETAILED]: 'Detailed',

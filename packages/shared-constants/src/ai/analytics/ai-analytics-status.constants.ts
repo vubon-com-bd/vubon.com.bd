@@ -103,8 +103,8 @@ export type AIAnalyticsStatusSeverity =
 export type AIAnalyticsStatusColor =
   (typeof AI_ANALYTICS_STATUS.COLORS)[keyof typeof AI_ANALYTICS_STATUS.COLORS];
 
-// Utility Functions
-export function getAnalyticsStatusLabel(status: AIAnalyticsStatusType): string {
+// Utility Functions - সব নামে AI যোগ করা হয়েছে
+export function getAIAnalyticsStatusLabel(status: AIAnalyticsStatusType): string {
   const labels: Record<AIAnalyticsStatusType, string> = {
     [AI_ANALYTICS_STATUS_TYPES.CREATED]: 'Created',
     [AI_ANALYTICS_STATUS_TYPES.QUEUED]: 'Queued',
@@ -133,7 +133,7 @@ export function getAnalyticsStatusLabel(status: AIAnalyticsStatusType): string {
   return labels[status] || 'Unknown';
 }
 
-export function getAnalyticsStatusCategory(
+export function getAIAnalyticsStatusCategory(
   status: AIAnalyticsStatusType
 ): AIAnalyticsStatusCategory {
   const categories: Record<AIAnalyticsStatusType, AIAnalyticsStatusCategory> = {
@@ -164,7 +164,7 @@ export function getAnalyticsStatusCategory(
   return categories[status] || AI_ANALYTICS_STATUS.CATEGORIES.PENDING;
 }
 
-export function getAnalyticsStatusSeverity(
+export function getAIAnalyticsStatusSeverity(
   status: AIAnalyticsStatusType
 ): AIAnalyticsStatusSeverity {
   const severities: Record<AIAnalyticsStatusType, AIAnalyticsStatusSeverity> = {
@@ -195,11 +195,11 @@ export function getAnalyticsStatusSeverity(
   return severities[status] || AI_ANALYTICS_STATUS.SEVERITY.INFO;
 }
 
-export function getAnalyticsStatusColor(status: AIAnalyticsStatusType): AIAnalyticsStatusColor {
+export function getAIAnalyticsStatusColor(status: AIAnalyticsStatusType): AIAnalyticsStatusColor {
   return AI_ANALYTICS_STATUS.COLORS[status] || '#gray';
 }
 
-export function isAnalyticsActive(status: AIAnalyticsStatusType): boolean {
+export function isAIAnalyticsActive(status: AIAnalyticsStatusType): boolean {
   const activeStatuses: AIAnalyticsStatusType[] = [
     AI_ANALYTICS_STATUS_TYPES.CREATED,
     AI_ANALYTICS_STATUS_TYPES.QUEUED,
@@ -221,7 +221,7 @@ export function isAnalyticsActive(status: AIAnalyticsStatusType): boolean {
   return activeStatuses.includes(status);
 }
 
-export function isAnalyticsDelivered(status: AIAnalyticsStatusType): boolean {
+export function isAIAnalyticsDelivered(status: AIAnalyticsStatusType): boolean {
   const deliveredStatuses: AIAnalyticsStatusType[] = [
     AI_ANALYTICS_STATUS_TYPES.DELIVERED,
     AI_ANALYTICS_STATUS_TYPES.CACHED,
@@ -229,7 +229,7 @@ export function isAnalyticsDelivered(status: AIAnalyticsStatusType): boolean {
   return deliveredStatuses.includes(status);
 }
 
-export function isAnalyticsComplete(status: AIAnalyticsStatusType): boolean {
+export function isAIAnalyticsComplete(status: AIAnalyticsStatusType): boolean {
   const completeStatuses: AIAnalyticsStatusType[] = [
     AI_ANALYTICS_STATUS_TYPES.COMPLETED,
     AI_ANALYTICS_STATUS_TYPES.ARCHIVED,
@@ -238,7 +238,7 @@ export function isAnalyticsComplete(status: AIAnalyticsStatusType): boolean {
   return completeStatuses.includes(status);
 }
 
-export function isAnalyticsFailed(status: AIAnalyticsStatusType): boolean {
+export function isAIAnalyticsFailed(status: AIAnalyticsStatusType): boolean {
   const failedStatuses: AIAnalyticsStatusType[] = [
     AI_ANALYTICS_STATUS_TYPES.FAILED,
     AI_ANALYTICS_STATUS_TYPES.EXPIRED,

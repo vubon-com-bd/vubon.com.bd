@@ -333,25 +333,26 @@ export {
   calculateCombinedScore,
 } from './ranking';
 
-// AI Analytics Constants
+// AI Analytics Constants - আপডেট করা অংশ
 export {
   AI_ANALYTICS,
   AI_ANALYTICS_TYPE,
   AI_ANALYTICS_METRIC,
   AI_ANALYTICS_STATUS,
-  getAnalyticsTypeLabel,
-  getAnalyticsStatusLabel,
-  getAnalyticsCategoryLabel,
-  getAnalyticsMetricLabel,
-  getAnalyticsAggregationLabel,
-  getAnalyticsPeriodLabel,
-  getAnalyticsFormatLabel,
-  getAnalyticsGranularityLabel,
-  isAnalyticsActive,
-  isAnalyticsComplete,
-  isAnalyticsFailed,
-  getDefaultAnalyticsLimit,
-  getMaxAnalyticsLimit,
+  // সব ফাংশনের নামে AI যোগ করা হয়েছে
+  getAIAnalyticsTypeLabel,
+  getAIAnalyticsStatusLabel,
+  getAIAnalyticsCategoryLabel,
+  getAIAnalyticsMetricLabel,
+  getAIAnalyticsAggregationLabel,
+  getAIAnalyticsPeriodLabel,
+  getAIAnalyticsFormatLabel,
+  getAIAnalyticsGranularityLabel,
+  isAIAnalyticsActive,
+  isAIAnalyticsComplete,
+  isAIAnalyticsFailed,
+  getAIDefaultAnalyticsLimit,
+  getAIMaxAnalyticsLimit,
 } from './analytics';
 
 // AI Training Constants
