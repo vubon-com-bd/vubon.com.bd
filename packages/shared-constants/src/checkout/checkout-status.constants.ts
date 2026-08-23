@@ -1,0 +1,237 @@
+/**
+ * Checkout Status Constants
+ * Status definitions for checkout process
+ */
+
+export const CHECKOUT_STATUS = {
+  // Checkout Statuses
+  STATUSES: {
+    PENDING: 'pending',
+    IN_PROGRESS: 'in_progress',
+    COMPLETED: 'completed',
+    FAILED: 'failed',
+    CANCELLED: 'cancelled',
+    EXPIRED: 'expired',
+    ABANDONED: 'abandoned',
+    SUSPENDED: 'suspended',
+    REVIEWING: 'reviewing',
+    APPROVED: 'approved',
+    REJECTED: 'rejected',
+    PROCESSING: 'processing',
+  } as const,
+
+  // Status Colors (for UI)
+  COLORS: {
+    PENDING: '#F59E0B',
+    IN_PROGRESS: '#3B82F6',
+    COMPLETED: '#10B981',
+    FAILED: '#EF4444',
+    CANCELLED: '#6B7280',
+    EXPIRED: '#6B7280',
+    ABANDONED: '#6B7280',
+    SUSPENDED: '#F59E0B',
+    REVIEWING: '#8B5CF6',
+    APPROVED: '#10B981',
+    REJECTED: '#EF4444',
+    PROCESSING: '#3B82F6',
+  } as const,
+
+  // Status Categories
+  CATEGORIES: {
+    PENDING: 'pending',
+    ACTIVE: 'active',
+    COMPLETED: 'completed',
+    FAILED: 'failed',
+    CANCELLED: 'cancelled',
+  } as const,
+
+  // Status Priority Order
+  ORDER: {
+    PENDING: 0,
+    REVIEWING: 1,
+    APPROVED: 2,
+    REJECTED: 3,
+    IN_PROGRESS: 4,
+    PROCESSING: 5,
+    SUSPENDED: 6,
+    COMPLETED: 7,
+    FAILED: 8,
+    EXPIRED: 9,
+    CANCELLED: 10,
+    ABANDONED: 11,
+  } as const,
+
+  // Status Transitions
+  TRANSITIONS: {
+    PENDING_TO_IN_PROGRESS: 'pending_to_in_progress',
+    PENDING_TO_REVIEWING: 'pending_to_reviewing',
+    PENDING_TO_CANCELLED: 'pending_to_cancelled',
+    PENDING_TO_ABANDONED: 'pending_to_abandoned',
+    REVIEWING_TO_APPROVED: 'reviewing_to_approved',
+    REVIEWING_TO_REJECTED: 'reviewing_to_rejected',
+    REVIEWING_TO_SUSPENDED: 'reviewing_to_suspended',
+    APPROVED_TO_IN_PROGRESS: 'approved_to_in_progress',
+    APPROVED_TO_PROCESSING: 'approved_to_processing',
+    APPROVED_TO_CANCELLED: 'approved_to_cancelled',
+    REJECTED_TO_CANCELLED: 'rejected_to_cancelled',
+    IN_PROGRESS_TO_PROCESSING: 'in_progress_to_processing',
+    IN_PROGRESS_TO_SUSPENDED: 'in_progress_to_suspended',
+    IN_PROGRESS_TO_FAILED: 'in_progress_to_failed',
+    IN_PROGRESS_TO_CANCELLED: 'in_progress_to_cancelled',
+    PROCESSING_TO_COMPLETED: 'processing_to_completed',
+    PROCESSING_TO_FAILED: 'processing_to_failed',
+    PROCESSING_TO_SUSPENDED: 'processing_to_suspended',
+    SUSPENDED_TO_IN_PROGRESS: 'suspended_to_in_progress',
+    SUSPENDED_TO_PROCESSING: 'suspended_to_processing',
+    SUSPENDED_TO_CANCELLED: 'suspended_to_cancelled',
+    COMPLETED_TO_ARCHIVED: 'completed_to_archived',
+    FAILED_TO_CANCELLED: 'failed_to_cancelled',
+    EXPIRED_TO_CANCELLED: 'expired_to_cancelled',
+    ABANDONED_TO_CANCELLED: 'abandoned_to_cancelled',
+  } as const,
+} as const;
+
+// Checkout Statuses
+export type CheckoutStatusType =
+  (typeof CHECKOUT_STATUS.STATUSES)[keyof typeof CHECKOUT_STATUS.STATUSES];
+
+// Status Colors
+export type CheckoutStatusColor =
+  (typeof CHECKOUT_STATUS.COLORS)[keyof typeof CHECKOUT_STATUS.COLORS];
+
+// Status Categories
+export type CheckoutStatusCategory =
+  (typeof CHECKOUT_STATUS.CATEGORIES)[keyof typeof CHECKOUT_STATUS.CATEGORIES];
+
+// Status Priority Order
+export type CheckoutStatusOrder =
+  (typeof CHECKOUT_STATUS.ORDER)[keyof typeof CHECKOUT_STATUS.ORDER];
+
+// Status Transitions
+export type CheckoutStatusTransition =
+  (typeof CHECKOUT_STATUS.TRANSITIONS)[keyof typeof CHECKOUT_STATUS.TRANSITIONS];
+
+// Utility Functions
+export function checkoutGetStatusLabel(status: CheckoutStatusType): string {
+  const labels: Record<CheckoutStatusType, string> = {
+    [CHECKOUT_STATUS.STATUSES.PENDING]: 'Pending',
+    [CHECKOUT_STATUS.STATUSES.IN_PROGRESS]: 'In Progress',
+    [CHECKOUT_STATUS.STATUSES.COMPLETED]: 'Completed',
+    [CHECKOUT_STATUS.STATUSES.FAILED]: 'Failed',
+    [CHECKOUT_STATUS.STATUSES.CANCELLED]: 'Cancelled',
+    [CHECKOUT_STATUS.STATUSES.EXPIRED]: 'Expired',
+    [CHECKOUT_STATUS.STATUSES.ABANDONED]: 'Abandoned',
+    [CHECKOUT_STATUS.STATUSES.SUSPENDED]: 'Suspended',
+    [CHECKOUT_STATUS.STATUSES.REVIEWING]: 'Reviewing',
+    [CHECKOUT_STATUS.STATUSES.APPROVED]: 'Approved',
+    [CHECKOUT_STATUS.STATUSES.REJECTED]: 'Rejected',
+    [CHECKOUT_STATUS.STATUSES.PROCESSING]: 'Processing',
+  };
+  return labels[status] || 'Unknown Status';
+}
+
+export function checkoutGetStatusColor(status: CheckoutStatusType): CheckoutStatusColor {
+  const colors: Record<CheckoutStatusType, CheckoutStatusColor> = {
+    [CHECKOUT_STATUS.STATUSES.PENDING]: CHECKOUT_STATUS.COLORS.PENDING,
+    [CHECKOUT_STATUS.STATUSES.IN_PROGRESS]: CHECKOUT_STATUS.COLORS.IN_PROGRESS,
+    [CHECKOUT_STATUS.STATUSES.COMPLETED]: CHECKOUT_STATUS.COLORS.COMPLETED,
+    [CHECKOUT_STATUS.STATUSES.FAILED]: CHECKOUT_STATUS.COLORS.FAILED,
+    [CHECKOUT_STATUS.STATUSES.CANCELLED]: CHECKOUT_STATUS.COLORS.CANCELLED,
+    [CHECKOUT_STATUS.STATUSES.EXPIRED]: CHECKOUT_STATUS.COLORS.EXPIRED,
+    [CHECKOUT_STATUS.STATUSES.ABANDONED]: CHECKOUT_STATUS.COLORS.ABANDONED,
+    [CHECKOUT_STATUS.STATUSES.SUSPENDED]: CHECKOUT_STATUS.COLORS.SUSPENDED,
+    [CHECKOUT_STATUS.STATUSES.REVIEWING]: CHECKOUT_STATUS.COLORS.REVIEWING,
+    [CHECKOUT_STATUS.STATUSES.APPROVED]: CHECKOUT_STATUS.COLORS.APPROVED,
+    [CHECKOUT_STATUS.STATUSES.REJECTED]: CHECKOUT_STATUS.COLORS.REJECTED,
+    [CHECKOUT_STATUS.STATUSES.PROCESSING]: CHECKOUT_STATUS.COLORS.PROCESSING,
+  };
+  return colors[status] || CHECKOUT_STATUS.COLORS.PENDING;
+}
+
+export function checkoutGetStatusCategory(status: CheckoutStatusType): CheckoutStatusCategory {
+  const categories: Record<CheckoutStatusType, CheckoutStatusCategory> = {
+    [CHECKOUT_STATUS.STATUSES.PENDING]: CHECKOUT_STATUS.CATEGORIES.PENDING,
+    [CHECKOUT_STATUS.STATUSES.REVIEWING]: CHECKOUT_STATUS.CATEGORIES.PENDING,
+    [CHECKOUT_STATUS.STATUSES.APPROVED]: CHECKOUT_STATUS.CATEGORIES.PENDING,
+    [CHECKOUT_STATUS.STATUSES.REJECTED]: CHECKOUT_STATUS.CATEGORIES.FAILED,
+    [CHECKOUT_STATUS.STATUSES.IN_PROGRESS]: CHECKOUT_STATUS.CATEGORIES.ACTIVE,
+    [CHECKOUT_STATUS.STATUSES.PROCESSING]: CHECKOUT_STATUS.CATEGORIES.ACTIVE,
+    [CHECKOUT_STATUS.STATUSES.SUSPENDED]: CHECKOUT_STATUS.CATEGORIES.ACTIVE,
+    [CHECKOUT_STATUS.STATUSES.COMPLETED]: CHECKOUT_STATUS.CATEGORIES.COMPLETED,
+    [CHECKOUT_STATUS.STATUSES.FAILED]: CHECKOUT_STATUS.CATEGORIES.FAILED,
+    [CHECKOUT_STATUS.STATUSES.EXPIRED]: CHECKOUT_STATUS.CATEGORIES.CANCELLED,
+    [CHECKOUT_STATUS.STATUSES.CANCELLED]: CHECKOUT_STATUS.CATEGORIES.CANCELLED,
+    [CHECKOUT_STATUS.STATUSES.ABANDONED]: CHECKOUT_STATUS.CATEGORIES.CANCELLED,
+  };
+  return categories[status] || CHECKOUT_STATUS.CATEGORIES.PENDING;
+}
+
+export function checkoutIsActive(status: CheckoutStatusType): boolean {
+  const activeStatuses: CheckoutStatusType[] = [
+    CHECKOUT_STATUS.STATUSES.IN_PROGRESS,
+    CHECKOUT_STATUS.STATUSES.PROCESSING,
+    CHECKOUT_STATUS.STATUSES.PENDING,
+    CHECKOUT_STATUS.STATUSES.REVIEWING,
+    CHECKOUT_STATUS.STATUSES.APPROVED,
+  ];
+  return activeStatuses.includes(status);
+}
+
+export function checkoutIsCompleted(status: CheckoutStatusType): boolean {
+  const completedStatuses: CheckoutStatusType[] = [
+    CHECKOUT_STATUS.STATUSES.COMPLETED,
+    CHECKOUT_STATUS.STATUSES.FAILED,
+    CHECKOUT_STATUS.STATUSES.CANCELLED,
+    CHECKOUT_STATUS.STATUSES.EXPIRED,
+    CHECKOUT_STATUS.STATUSES.ABANDONED,
+  ];
+  return completedStatuses.includes(status);
+}
+
+export function checkoutCanTransition(
+  currentStatus: CheckoutStatusType,
+  targetStatus: CheckoutStatusType
+): boolean {
+  const validTransitions: Record<CheckoutStatusType, CheckoutStatusType[]> = {
+    [CHECKOUT_STATUS.STATUSES.PENDING]: [
+      CHECKOUT_STATUS.STATUSES.IN_PROGRESS,
+      CHECKOUT_STATUS.STATUSES.REVIEWING,
+      CHECKOUT_STATUS.STATUSES.CANCELLED,
+      CHECKOUT_STATUS.STATUSES.ABANDONED,
+    ],
+    [CHECKOUT_STATUS.STATUSES.REVIEWING]: [
+      CHECKOUT_STATUS.STATUSES.APPROVED,
+      CHECKOUT_STATUS.STATUSES.REJECTED,
+      CHECKOUT_STATUS.STATUSES.SUSPENDED,
+    ],
+    [CHECKOUT_STATUS.STATUSES.APPROVED]: [
+      CHECKOUT_STATUS.STATUSES.IN_PROGRESS,
+      CHECKOUT_STATUS.STATUSES.PROCESSING,
+      CHECKOUT_STATUS.STATUSES.CANCELLED,
+    ],
+    [CHECKOUT_STATUS.STATUSES.REJECTED]: [CHECKOUT_STATUS.STATUSES.CANCELLED],
+    [CHECKOUT_STATUS.STATUSES.IN_PROGRESS]: [
+      CHECKOUT_STATUS.STATUSES.PROCESSING,
+      CHECKOUT_STATUS.STATUSES.SUSPENDED,
+      CHECKOUT_STATUS.STATUSES.FAILED,
+      CHECKOUT_STATUS.STATUSES.CANCELLED,
+    ],
+    [CHECKOUT_STATUS.STATUSES.PROCESSING]: [
+      CHECKOUT_STATUS.STATUSES.COMPLETED,
+      CHECKOUT_STATUS.STATUSES.FAILED,
+      CHECKOUT_STATUS.STATUSES.SUSPENDED,
+    ],
+    [CHECKOUT_STATUS.STATUSES.SUSPENDED]: [
+      CHECKOUT_STATUS.STATUSES.IN_PROGRESS,
+      CHECKOUT_STATUS.STATUSES.PROCESSING,
+      CHECKOUT_STATUS.STATUSES.CANCELLED,
+    ],
+    [CHECKOUT_STATUS.STATUSES.COMPLETED]: [],
+    [CHECKOUT_STATUS.STATUSES.FAILED]: [CHECKOUT_STATUS.STATUSES.CANCELLED],
+    [CHECKOUT_STATUS.STATUSES.EXPIRED]: [CHECKOUT_STATUS.STATUSES.CANCELLED],
+    [CHECKOUT_STATUS.STATUSES.CANCELLED]: [],
+    [CHECKOUT_STATUS.STATUSES.ABANDONED]: [CHECKOUT_STATUS.STATUSES.CANCELLED],
+  };
+
+  return validTransitions[currentStatus]?.includes(targetStatus) || false;
+}

@@ -1,0 +1,312 @@
+/**
+ * Cart Status Constants
+ * Status definitions for cart lifecycle
+ */
+
+export const CART_STATUS = {
+  // Cart Statuses
+  STATUSES: {
+    ACTIVE: 'active',
+    INACTIVE: 'inactive',
+    ABANDONED: 'abandoned',
+    CONVERTED: 'converted',
+    EXPIRED: 'expired',
+    MERGED: 'merged',
+    SPLIT: 'split',
+    SUSPENDED: 'suspended',
+    RECOVERED: 'recovered',
+    CANCELLED: 'cancelled',
+    ARCHIVED: 'archived',
+    PENDING: 'pending',
+    PROCESSING: 'processing',
+    COMPLETED: 'completed',
+    FAILED: 'failed',
+    ON_HOLD: 'on_hold',
+    REVIEW: 'review',
+    APPROVED: 'approved',
+    REJECTED: 'rejected',
+  } as const,
+
+  // Status Colors (for UI)
+  COLORS: {
+    ACTIVE: '#10B981',
+    INACTIVE: '#6B7280',
+    ABANDONED: '#F59E0B',
+    CONVERTED: '#10B981',
+    EXPIRED: '#6B7280',
+    MERGED: '#8B5CF6',
+    SPLIT: '#8B5CF6',
+    SUSPENDED: '#EF4444',
+    RECOVERED: '#10B981',
+    CANCELLED: '#6B7280',
+    ARCHIVED: '#6B7280',
+    PENDING: '#F59E0B',
+    PROCESSING: '#3B82F6',
+    COMPLETED: '#10B981',
+    FAILED: '#EF4444',
+    ON_HOLD: '#F59E0B',
+    REVIEW: '#8B5CF6',
+    APPROVED: '#10B981',
+    REJECTED: '#EF4444',
+  } as const,
+
+  // Status Categories
+  CATEGORIES: {
+    ACTIVE: 'active',
+    INACTIVE: 'inactive',
+    ABANDONED: 'abandoned',
+    CONVERTED: 'converted',
+    FAILED: 'failed',
+    CANCELLED: 'cancelled',
+    ARCHIVED: 'archived',
+    PENDING: 'pending',
+  } as const,
+
+  // Status Priority Order
+  ORDER: {
+    ACTIVE: 0,
+    PENDING: 1,
+    PROCESSING: 2,
+    ON_HOLD: 3,
+    REVIEW: 4,
+    APPROVED: 5,
+    REJECTED: 6,
+    RECOVERED: 7,
+    SUSPENDED: 8,
+    INACTIVE: 9,
+    ABANDONED: 10,
+    CONVERTED: 11,
+    COMPLETED: 12,
+    MERGED: 13,
+    SPLIT: 14,
+    EXPIRED: 15,
+    FAILED: 16,
+    CANCELLED: 17,
+    ARCHIVED: 18,
+  } as const,
+
+  // Status Transitions
+  TRANSITIONS: {
+    ACTIVE_TO_ABANDONED: 'active_to_abandoned',
+    ACTIVE_TO_CONVERTED: 'active_to_converted',
+    ACTIVE_TO_EXPIRED: 'active_to_expired',
+    ACTIVE_TO_INACTIVE: 'active_to_inactive',
+    ACTIVE_TO_SUSPENDED: 'active_to_suspended',
+    ACTIVE_TO_PENDING: 'active_to_pending',
+    PENDING_TO_PROCESSING: 'pending_to_processing',
+    PENDING_TO_APPROVED: 'pending_to_approved',
+    PENDING_TO_REJECTED: 'pending_to_rejected',
+    PENDING_TO_CANCELLED: 'pending_to_cancelled',
+    PROCESSING_TO_COMPLETED: 'processing_to_completed',
+    PROCESSING_TO_FAILED: 'processing_to_failed',
+    PROCESSING_TO_ON_HOLD: 'processing_to_on_hold',
+    ON_HOLD_TO_PROCESSING: 'on_hold_to_processing',
+    ON_HOLD_TO_CANCELLED: 'on_hold_to_cancelled',
+    REVIEW_TO_APPROVED: 'review_to_approved',
+    REVIEW_TO_REJECTED: 'review_to_rejected',
+    REVIEW_TO_CANCELLED: 'review_to_cancelled',
+    APPROVED_TO_PROCESSING: 'approved_to_processing',
+    APPROVED_TO_CANCELLED: 'approved_to_cancelled',
+    REJECTED_TO_ARCHIVED: 'rejected_to_archived',
+    COMPLETED_TO_ARCHIVED: 'completed_to_archived',
+    ABANDONED_TO_RECOVERED: 'abandoned_to_recovered',
+    ABANDONED_TO_EXPIRED: 'abandoned_to_expired',
+    ABANDONED_TO_CANCELLED: 'abandoned_to_cancelled',
+    RECOVERED_TO_ACTIVE: 'recovered_to_active',
+    RECOVERED_TO_CONVERTED: 'recovered_to_converted',
+    SUSPENDED_TO_ACTIVE: 'suspended_to_active',
+    SUSPENDED_TO_CANCELLED: 'suspended_to_cancelled',
+    INACTIVE_TO_ACTIVE: 'inactive_to_active',
+    INACTIVE_TO_ARCHIVED: 'inactive_to_archived',
+    EXPIRED_TO_ARCHIVED: 'expired_to_archived',
+    FAILED_TO_ARCHIVED: 'failed_to_archived',
+    CANCELLED_TO_ARCHIVED: 'cancelled_to_archived',
+    MERGED_TO_ARCHIVED: 'merged_to_archived',
+    SPLIT_TO_ARCHIVED: 'split_to_archived',
+    CONVERTED_TO_ARCHIVED: 'converted_to_archived',
+  } as const,
+} as const;
+
+// Cart Statuses
+export type CartStatusType = (typeof CART_STATUS.STATUSES)[keyof typeof CART_STATUS.STATUSES];
+
+// Status Colors
+export type CartStatusColor = (typeof CART_STATUS.COLORS)[keyof typeof CART_STATUS.COLORS];
+
+// Status Categories
+export type CartStatusCategory =
+  (typeof CART_STATUS.CATEGORIES)[keyof typeof CART_STATUS.CATEGORIES];
+
+// Status Priority Order
+export type CartStatusOrder = (typeof CART_STATUS.ORDER)[keyof typeof CART_STATUS.ORDER];
+
+// Status Transitions
+export type CartStatusTransition =
+  (typeof CART_STATUS.TRANSITIONS)[keyof typeof CART_STATUS.TRANSITIONS];
+
+// Utility Functions
+export function cartGetStatusLabel(status: CartStatusType): string {
+  const labels: Record<CartStatusType, string> = {
+    [CART_STATUS.STATUSES.ACTIVE]: 'Active',
+    [CART_STATUS.STATUSES.INACTIVE]: 'Inactive',
+    [CART_STATUS.STATUSES.ABANDONED]: 'Abandoned',
+    [CART_STATUS.STATUSES.CONVERTED]: 'Converted',
+    [CART_STATUS.STATUSES.EXPIRED]: 'Expired',
+    [CART_STATUS.STATUSES.MERGED]: 'Merged',
+    [CART_STATUS.STATUSES.SPLIT]: 'Split',
+    [CART_STATUS.STATUSES.SUSPENDED]: 'Suspended',
+    [CART_STATUS.STATUSES.RECOVERED]: 'Recovered',
+    [CART_STATUS.STATUSES.CANCELLED]: 'Cancelled',
+    [CART_STATUS.STATUSES.ARCHIVED]: 'Archived',
+    [CART_STATUS.STATUSES.PENDING]: 'Pending',
+    [CART_STATUS.STATUSES.PROCESSING]: 'Processing',
+    [CART_STATUS.STATUSES.COMPLETED]: 'Completed',
+    [CART_STATUS.STATUSES.FAILED]: 'Failed',
+    [CART_STATUS.STATUSES.ON_HOLD]: 'On Hold',
+    [CART_STATUS.STATUSES.REVIEW]: 'Review',
+    [CART_STATUS.STATUSES.APPROVED]: 'Approved',
+    [CART_STATUS.STATUSES.REJECTED]: 'Rejected',
+  };
+  return labels[status] || 'Unknown Status';
+}
+
+export function cartGetStatusColor(status: CartStatusType): CartStatusColor {
+  const colors: Record<CartStatusType, CartStatusColor> = {
+    [CART_STATUS.STATUSES.ACTIVE]: CART_STATUS.COLORS.ACTIVE,
+    [CART_STATUS.STATUSES.INACTIVE]: CART_STATUS.COLORS.INACTIVE,
+    [CART_STATUS.STATUSES.ABANDONED]: CART_STATUS.COLORS.ABANDONED,
+    [CART_STATUS.STATUSES.CONVERTED]: CART_STATUS.COLORS.CONVERTED,
+    [CART_STATUS.STATUSES.EXPIRED]: CART_STATUS.COLORS.EXPIRED,
+    [CART_STATUS.STATUSES.MERGED]: CART_STATUS.COLORS.MERGED,
+    [CART_STATUS.STATUSES.SPLIT]: CART_STATUS.COLORS.SPLIT,
+    [CART_STATUS.STATUSES.SUSPENDED]: CART_STATUS.COLORS.SUSPENDED,
+    [CART_STATUS.STATUSES.RECOVERED]: CART_STATUS.COLORS.RECOVERED,
+    [CART_STATUS.STATUSES.CANCELLED]: CART_STATUS.COLORS.CANCELLED,
+    [CART_STATUS.STATUSES.ARCHIVED]: CART_STATUS.COLORS.ARCHIVED,
+    [CART_STATUS.STATUSES.PENDING]: CART_STATUS.COLORS.PENDING,
+    [CART_STATUS.STATUSES.PROCESSING]: CART_STATUS.COLORS.PROCESSING,
+    [CART_STATUS.STATUSES.COMPLETED]: CART_STATUS.COLORS.COMPLETED,
+    [CART_STATUS.STATUSES.FAILED]: CART_STATUS.COLORS.FAILED,
+    [CART_STATUS.STATUSES.ON_HOLD]: CART_STATUS.COLORS.ON_HOLD,
+    [CART_STATUS.STATUSES.REVIEW]: CART_STATUS.COLORS.REVIEW,
+    [CART_STATUS.STATUSES.APPROVED]: CART_STATUS.COLORS.APPROVED,
+    [CART_STATUS.STATUSES.REJECTED]: CART_STATUS.COLORS.REJECTED,
+  };
+  return colors[status] || CART_STATUS.COLORS.ACTIVE;
+}
+
+export function cartGetStatusCategory(status: CartStatusType): CartStatusCategory {
+  const categories: Record<CartStatusType, CartStatusCategory> = {
+    [CART_STATUS.STATUSES.ACTIVE]: CART_STATUS.CATEGORIES.ACTIVE,
+    [CART_STATUS.STATUSES.PENDING]: CART_STATUS.CATEGORIES.PENDING,
+    [CART_STATUS.STATUSES.PROCESSING]: CART_STATUS.CATEGORIES.PENDING,
+    [CART_STATUS.STATUSES.APPROVED]: CART_STATUS.CATEGORIES.PENDING,
+    [CART_STATUS.STATUSES.ON_HOLD]: CART_STATUS.CATEGORIES.PENDING,
+    [CART_STATUS.STATUSES.REVIEW]: CART_STATUS.CATEGORIES.PENDING,
+    [CART_STATUS.STATUSES.RECOVERED]: CART_STATUS.CATEGORIES.ACTIVE,
+    [CART_STATUS.STATUSES.SUSPENDED]: CART_STATUS.CATEGORIES.INACTIVE,
+    [CART_STATUS.STATUSES.INACTIVE]: CART_STATUS.CATEGORIES.INACTIVE,
+    [CART_STATUS.STATUSES.ABANDONED]: CART_STATUS.CATEGORIES.ABANDONED,
+    [CART_STATUS.STATUSES.CONVERTED]: CART_STATUS.CATEGORIES.CONVERTED,
+    [CART_STATUS.STATUSES.COMPLETED]: CART_STATUS.CATEGORIES.CONVERTED,
+    [CART_STATUS.STATUSES.MERGED]: CART_STATUS.CATEGORIES.CONVERTED,
+    [CART_STATUS.STATUSES.SPLIT]: CART_STATUS.CATEGORIES.CONVERTED,
+    [CART_STATUS.STATUSES.REJECTED]: CART_STATUS.CATEGORIES.FAILED,
+    [CART_STATUS.STATUSES.FAILED]: CART_STATUS.CATEGORIES.FAILED,
+    [CART_STATUS.STATUSES.EXPIRED]: CART_STATUS.CATEGORIES.FAILED,
+    [CART_STATUS.STATUSES.CANCELLED]: CART_STATUS.CATEGORIES.CANCELLED,
+    [CART_STATUS.STATUSES.ARCHIVED]: CART_STATUS.CATEGORIES.ARCHIVED,
+  };
+  return categories[status] || CART_STATUS.CATEGORIES.ACTIVE;
+}
+
+export function cartIsActiveStatus(status: CartStatusType): boolean {
+  const activeStatuses: CartStatusType[] = [
+    CART_STATUS.STATUSES.ACTIVE,
+    CART_STATUS.STATUSES.RECOVERED,
+  ];
+  return activeStatuses.includes(status);
+}
+
+export function cartIsAbandonedStatus(status: CartStatusType): boolean {
+  return status === CART_STATUS.STATUSES.ABANDONED;
+}
+
+export function cartIsConvertedStatus(status: CartStatusType): boolean {
+  const convertedStatuses: CartStatusType[] = [
+    CART_STATUS.STATUSES.CONVERTED,
+    CART_STATUS.STATUSES.COMPLETED,
+  ];
+  return convertedStatuses.includes(status);
+}
+
+export function cartIsEditableStatus(status: CartStatusType): boolean {
+  const editableStatuses: CartStatusType[] = [
+    CART_STATUS.STATUSES.ACTIVE,
+    CART_STATUS.STATUSES.ABANDONED,
+    CART_STATUS.STATUSES.RECOVERED,
+    CART_STATUS.STATUSES.PENDING,
+    CART_STATUS.STATUSES.ON_HOLD,
+    CART_STATUS.STATUSES.REVIEW,
+  ];
+  return editableStatuses.includes(status);
+}
+
+export function cartCanTransition(
+  currentStatus: CartStatusType,
+  targetStatus: CartStatusType
+): boolean {
+  const validTransitions: Record<CartStatusType, CartStatusType[]> = {
+    [CART_STATUS.STATUSES.ACTIVE]: [
+      CART_STATUS.STATUSES.ABANDONED,
+      CART_STATUS.STATUSES.CONVERTED,
+      CART_STATUS.STATUSES.EXPIRED,
+      CART_STATUS.STATUSES.INACTIVE,
+      CART_STATUS.STATUSES.SUSPENDED,
+      CART_STATUS.STATUSES.PENDING,
+    ],
+    [CART_STATUS.STATUSES.PENDING]: [
+      CART_STATUS.STATUSES.PROCESSING,
+      CART_STATUS.STATUSES.APPROVED,
+      CART_STATUS.STATUSES.REJECTED,
+      CART_STATUS.STATUSES.CANCELLED,
+    ],
+    [CART_STATUS.STATUSES.PROCESSING]: [
+      CART_STATUS.STATUSES.COMPLETED,
+      CART_STATUS.STATUSES.FAILED,
+      CART_STATUS.STATUSES.ON_HOLD,
+    ],
+    [CART_STATUS.STATUSES.ON_HOLD]: [
+      CART_STATUS.STATUSES.PROCESSING,
+      CART_STATUS.STATUSES.CANCELLED,
+    ],
+    [CART_STATUS.STATUSES.REVIEW]: [
+      CART_STATUS.STATUSES.APPROVED,
+      CART_STATUS.STATUSES.REJECTED,
+      CART_STATUS.STATUSES.CANCELLED,
+    ],
+    [CART_STATUS.STATUSES.APPROVED]: [
+      CART_STATUS.STATUSES.PROCESSING,
+      CART_STATUS.STATUSES.CANCELLED,
+    ],
+    [CART_STATUS.STATUSES.REJECTED]: [CART_STATUS.STATUSES.ARCHIVED],
+    [CART_STATUS.STATUSES.ABANDONED]: [
+      CART_STATUS.STATUSES.RECOVERED,
+      CART_STATUS.STATUSES.EXPIRED,
+      CART_STATUS.STATUSES.CANCELLED,
+    ],
+    [CART_STATUS.STATUSES.RECOVERED]: [CART_STATUS.STATUSES.ACTIVE, CART_STATUS.STATUSES.CONVERTED],
+    [CART_STATUS.STATUSES.SUSPENDED]: [CART_STATUS.STATUSES.ACTIVE, CART_STATUS.STATUSES.CANCELLED],
+    [CART_STATUS.STATUSES.INACTIVE]: [CART_STATUS.STATUSES.ACTIVE, CART_STATUS.STATUSES.ARCHIVED],
+    [CART_STATUS.STATUSES.COMPLETED]: [CART_STATUS.STATUSES.ARCHIVED],
+    [CART_STATUS.STATUSES.CONVERTED]: [CART_STATUS.STATUSES.ARCHIVED],
+    [CART_STATUS.STATUSES.FAILED]: [CART_STATUS.STATUSES.ARCHIVED],
+    [CART_STATUS.STATUSES.EXPIRED]: [CART_STATUS.STATUSES.ARCHIVED],
+    [CART_STATUS.STATUSES.CANCELLED]: [CART_STATUS.STATUSES.ARCHIVED],
+    [CART_STATUS.STATUSES.MERGED]: [CART_STATUS.STATUSES.ARCHIVED],
+    [CART_STATUS.STATUSES.SPLIT]: [CART_STATUS.STATUSES.ARCHIVED],
+    [CART_STATUS.STATUSES.ARCHIVED]: [],
+  };
+
+  return validTransitions[currentStatus]?.includes(targetStatus) || false;
+}

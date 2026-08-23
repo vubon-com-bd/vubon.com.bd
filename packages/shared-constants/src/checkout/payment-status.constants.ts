@@ -1,0 +1,291 @@
+/**
+ * Payment Status Constants
+ * Status definitions for payments
+ */
+
+export const PAYMENT_STATUS = {
+  // Payment Statuses
+  STATUSES: {
+    PENDING: 'pending',
+    PROCESSING: 'processing',
+    AUTHORIZED: 'authorized',
+    CAPTURED: 'captured',
+    COMPLETED: 'completed',
+    FAILED: 'failed',
+    DECLINED: 'declined',
+    REFUNDED: 'refunded',
+    PARTIAL_REFUNDED: 'partial_refunded',
+    CANCELLED: 'cancelled',
+    EXPIRED: 'expired',
+    VOIDED: 'voided',
+    ON_HOLD: 'on_hold',
+    REVIEWING: 'reviewing',
+    CHARGED_BACK: 'charged_back',
+  } as const,
+
+  // Status Colors (for UI)
+  COLORS: {
+    PENDING: '#F59E0B',
+    PROCESSING: '#3B82F6',
+    AUTHORIZED: '#8B5CF6',
+    CAPTURED: '#10B981',
+    COMPLETED: '#10B981',
+    FAILED: '#EF4444',
+    DECLINED: '#EF4444',
+    REFUNDED: '#6B7280',
+    PARTIAL_REFUNDED: '#F59E0B',
+    CANCELLED: '#6B7280',
+    EXPIRED: '#6B7280',
+    VOIDED: '#6B7280',
+    ON_HOLD: '#F59E0B',
+    REVIEWING: '#8B5CF6',
+    CHARGED_BACK: '#EF4444',
+  } as const,
+
+  // Status Categories
+  CATEGORIES: {
+    PENDING: 'pending',
+    PROCESSING: 'processing',
+    COMPLETED: 'completed',
+    FAILED: 'failed',
+    REFUNDED: 'refunded',
+    CANCELLED: 'cancelled',
+  } as const,
+
+  // Status Priority Order
+  ORDER: {
+    PENDING: 0,
+    PROCESSING: 1,
+    AUTHORIZED: 2,
+    REVIEWING: 3,
+    ON_HOLD: 4,
+    CAPTURED: 5,
+    COMPLETED: 6,
+    PARTIAL_REFUNDED: 7,
+    REFUNDED: 8,
+    FAILED: 9,
+    DECLINED: 10,
+    CHARGED_BACK: 11,
+    VOIDED: 12,
+    CANCELLED: 13,
+    EXPIRED: 14,
+  } as const,
+
+  // Status Transitions
+  TRANSITIONS: {
+    PENDING_TO_PROCESSING: 'pending_to_processing',
+    PENDING_TO_AUTHORIZED: 'pending_to_authorized',
+    PENDING_TO_FAILED: 'pending_to_failed',
+    PENDING_TO_DECLINED: 'pending_to_declined',
+    PENDING_TO_CANCELLED: 'pending_to_cancelled',
+    PROCESSING_TO_AUTHORIZED: 'processing_to_authorized',
+    PROCESSING_TO_CAPTURED: 'processing_to_captured',
+    PROCESSING_TO_COMPLETED: 'processing_to_completed',
+    PROCESSING_TO_FAILED: 'processing_to_failed',
+    PROCESSING_TO_DECLINED: 'processing_to_declined',
+    PROCESSING_TO_ON_HOLD: 'processing_to_on_hold',
+    PROCESSING_TO_REVIEWING: 'processing_to_reviewing',
+    AUTHORIZED_TO_CAPTURED: 'authorized_to_captured',
+    AUTHORIZED_TO_VOIDED: 'authorized_to_voided',
+    AUTHORIZED_TO_FAILED: 'authorized_to_failed',
+    CAPTURED_TO_COMPLETED: 'captured_to_completed',
+    CAPTURED_TO_REFUNDED: 'captured_to_refunded',
+    CAPTURED_TO_PARTIAL_REFUNDED: 'captured_to_partial_refunded',
+    CAPTURED_TO_FAILED: 'captured_to_failed',
+    COMPLETED_TO_REFUNDED: 'completed_to_refunded',
+    COMPLETED_TO_PARTIAL_REFUNDED: 'completed_to_partial_refunded',
+    COMPLETED_TO_CHARGED_BACK: 'completed_to_charged_back',
+    ON_HOLD_TO_PROCESSING: 'on_hold_to_processing',
+    ON_HOLD_TO_AUTHORIZED: 'on_hold_to_authorized',
+    ON_HOLD_TO_CANCELLED: 'on_hold_to_cancelled',
+    REVIEWING_TO_PROCESSING: 'reviewing_to_processing',
+    REVIEWING_TO_AUTHORIZED: 'reviewing_to_authorized',
+    REVIEWING_TO_FAILED: 'reviewing_to_failed',
+    PARTIAL_REFUNDED_TO_REFUNDED: 'partial_refunded_to_refunded',
+    REFUNDED_TO_COMPLETED: 'refunded_to_completed',
+    FAILED_TO_CANCELLED: 'failed_to_cancelled',
+    DECLINED_TO_CANCELLED: 'declined_to_cancelled',
+    VOIDED_TO_CANCELLED: 'voided_to_cancelled',
+    CHARGED_BACK_TO_REFUNDED: 'charged_back_to_refunded',
+    CANCELLED_TO_ARCHIVED: 'cancelled_to_archived',
+    EXPIRED_TO_ARCHIVED: 'expired_to_archived',
+  } as const,
+} as const;
+
+// Payment Statuses
+export type PaymentStatusType =
+  (typeof PAYMENT_STATUS.STATUSES)[keyof typeof PAYMENT_STATUS.STATUSES];
+
+// Status Colors
+export type PaymentStatusColor = (typeof PAYMENT_STATUS.COLORS)[keyof typeof PAYMENT_STATUS.COLORS];
+
+// Status Categories
+export type PaymentStatusCategory =
+  (typeof PAYMENT_STATUS.CATEGORIES)[keyof typeof PAYMENT_STATUS.CATEGORIES];
+
+// Status Priority Order
+export type PaymentStatusOrder = (typeof PAYMENT_STATUS.ORDER)[keyof typeof PAYMENT_STATUS.ORDER];
+
+// Status Transitions
+export type PaymentStatusTransition =
+  (typeof PAYMENT_STATUS.TRANSITIONS)[keyof typeof PAYMENT_STATUS.TRANSITIONS];
+
+// Utility Functions
+export function paymentstatusGetStatusLabel(status: PaymentStatusType): string {
+  const labels: Record<PaymentStatusType, string> = {
+    [PAYMENT_STATUS.STATUSES.PENDING]: 'Pending',
+    [PAYMENT_STATUS.STATUSES.PROCESSING]: 'Processing',
+    [PAYMENT_STATUS.STATUSES.AUTHORIZED]: 'Authorized',
+    [PAYMENT_STATUS.STATUSES.CAPTURED]: 'Captured',
+    [PAYMENT_STATUS.STATUSES.COMPLETED]: 'Completed',
+    [PAYMENT_STATUS.STATUSES.FAILED]: 'Failed',
+    [PAYMENT_STATUS.STATUSES.DECLINED]: 'Declined',
+    [PAYMENT_STATUS.STATUSES.REFUNDED]: 'Refunded',
+    [PAYMENT_STATUS.STATUSES.PARTIAL_REFUNDED]: 'Partial Refunded',
+    [PAYMENT_STATUS.STATUSES.CANCELLED]: 'Cancelled',
+    [PAYMENT_STATUS.STATUSES.EXPIRED]: 'Expired',
+    [PAYMENT_STATUS.STATUSES.VOIDED]: 'Voided',
+    [PAYMENT_STATUS.STATUSES.ON_HOLD]: 'On Hold',
+    [PAYMENT_STATUS.STATUSES.REVIEWING]: 'Reviewing',
+    [PAYMENT_STATUS.STATUSES.CHARGED_BACK]: 'Charged Back',
+  };
+  return labels[status] || 'Unknown Status';
+}
+
+export function paymentstatusGetStatusColor(status: PaymentStatusType): PaymentStatusColor {
+  const colors: Record<PaymentStatusType, PaymentStatusColor> = {
+    [PAYMENT_STATUS.STATUSES.PENDING]: PAYMENT_STATUS.COLORS.PENDING,
+    [PAYMENT_STATUS.STATUSES.PROCESSING]: PAYMENT_STATUS.COLORS.PROCESSING,
+    [PAYMENT_STATUS.STATUSES.AUTHORIZED]: PAYMENT_STATUS.COLORS.AUTHORIZED,
+    [PAYMENT_STATUS.STATUSES.CAPTURED]: PAYMENT_STATUS.COLORS.CAPTURED,
+    [PAYMENT_STATUS.STATUSES.COMPLETED]: PAYMENT_STATUS.COLORS.COMPLETED,
+    [PAYMENT_STATUS.STATUSES.FAILED]: PAYMENT_STATUS.COLORS.FAILED,
+    [PAYMENT_STATUS.STATUSES.DECLINED]: PAYMENT_STATUS.COLORS.DECLINED,
+    [PAYMENT_STATUS.STATUSES.REFUNDED]: PAYMENT_STATUS.COLORS.REFUNDED,
+    [PAYMENT_STATUS.STATUSES.PARTIAL_REFUNDED]: PAYMENT_STATUS.COLORS.PARTIAL_REFUNDED,
+    [PAYMENT_STATUS.STATUSES.CANCELLED]: PAYMENT_STATUS.COLORS.CANCELLED,
+    [PAYMENT_STATUS.STATUSES.EXPIRED]: PAYMENT_STATUS.COLORS.EXPIRED,
+    [PAYMENT_STATUS.STATUSES.VOIDED]: PAYMENT_STATUS.COLORS.VOIDED,
+    [PAYMENT_STATUS.STATUSES.ON_HOLD]: PAYMENT_STATUS.COLORS.ON_HOLD,
+    [PAYMENT_STATUS.STATUSES.REVIEWING]: PAYMENT_STATUS.COLORS.REVIEWING,
+    [PAYMENT_STATUS.STATUSES.CHARGED_BACK]: PAYMENT_STATUS.COLORS.CHARGED_BACK,
+  };
+  return colors[status] || PAYMENT_STATUS.COLORS.PENDING;
+}
+
+export function paymentstatusGetStatusCategory(status: PaymentStatusType): PaymentStatusCategory {
+  const categories: Record<PaymentStatusType, PaymentStatusCategory> = {
+    [PAYMENT_STATUS.STATUSES.PENDING]: PAYMENT_STATUS.CATEGORIES.PENDING,
+    [PAYMENT_STATUS.STATUSES.PROCESSING]: PAYMENT_STATUS.CATEGORIES.PROCESSING,
+    [PAYMENT_STATUS.STATUSES.AUTHORIZED]: PAYMENT_STATUS.CATEGORIES.PROCESSING,
+    [PAYMENT_STATUS.STATUSES.REVIEWING]: PAYMENT_STATUS.CATEGORIES.PROCESSING,
+    [PAYMENT_STATUS.STATUSES.ON_HOLD]: PAYMENT_STATUS.CATEGORIES.PROCESSING,
+    [PAYMENT_STATUS.STATUSES.CAPTURED]: PAYMENT_STATUS.CATEGORIES.COMPLETED,
+    [PAYMENT_STATUS.STATUSES.COMPLETED]: PAYMENT_STATUS.CATEGORIES.COMPLETED,
+    [PAYMENT_STATUS.STATUSES.PARTIAL_REFUNDED]: PAYMENT_STATUS.CATEGORIES.COMPLETED,
+    [PAYMENT_STATUS.STATUSES.REFUNDED]: PAYMENT_STATUS.CATEGORIES.REFUNDED,
+    [PAYMENT_STATUS.STATUSES.FAILED]: PAYMENT_STATUS.CATEGORIES.FAILED,
+    [PAYMENT_STATUS.STATUSES.DECLINED]: PAYMENT_STATUS.CATEGORIES.FAILED,
+    [PAYMENT_STATUS.STATUSES.CHARGED_BACK]: PAYMENT_STATUS.CATEGORIES.FAILED,
+    [PAYMENT_STATUS.STATUSES.VOIDED]: PAYMENT_STATUS.CATEGORIES.CANCELLED,
+    [PAYMENT_STATUS.STATUSES.CANCELLED]: PAYMENT_STATUS.CATEGORIES.CANCELLED,
+    [PAYMENT_STATUS.STATUSES.EXPIRED]: PAYMENT_STATUS.CATEGORIES.CANCELLED,
+  };
+  return categories[status] || PAYMENT_STATUS.CATEGORIES.PENDING;
+}
+
+export function paymentstatusIsCompleted(status: PaymentStatusType): boolean {
+  const completedStatuses: PaymentStatusType[] = [
+    PAYMENT_STATUS.STATUSES.COMPLETED,
+    PAYMENT_STATUS.STATUSES.CAPTURED,
+  ];
+  return completedStatuses.includes(status);
+}
+
+export function paymentstatusIsFailed(status: PaymentStatusType): boolean {
+  const failedStatuses: PaymentStatusType[] = [
+    PAYMENT_STATUS.STATUSES.FAILED,
+    PAYMENT_STATUS.STATUSES.DECLINED,
+    PAYMENT_STATUS.STATUSES.CHARGED_BACK,
+  ];
+  return failedStatuses.includes(status);
+}
+
+export function paymentstatusIsRefunded(status: PaymentStatusType): boolean {
+  const refundedStatuses: PaymentStatusType[] = [
+    PAYMENT_STATUS.STATUSES.REFUNDED,
+    PAYMENT_STATUS.STATUSES.PARTIAL_REFUNDED,
+  ];
+  return refundedStatuses.includes(status);
+}
+
+export function paymentstatusIsPending(status: PaymentStatusType): boolean {
+  const pendingStatuses: PaymentStatusType[] = [
+    PAYMENT_STATUS.STATUSES.PENDING,
+    PAYMENT_STATUS.STATUSES.PROCESSING,
+    PAYMENT_STATUS.STATUSES.AUTHORIZED,
+    PAYMENT_STATUS.STATUSES.REVIEWING,
+    PAYMENT_STATUS.STATUSES.ON_HOLD,
+  ];
+  return pendingStatuses.includes(status);
+}
+
+export function paymentstatusCanTransition(
+  currentStatus: PaymentStatusType,
+  targetStatus: PaymentStatusType
+): boolean {
+  const validTransitions: Record<PaymentStatusType, PaymentStatusType[]> = {
+    [PAYMENT_STATUS.STATUSES.PENDING]: [
+      PAYMENT_STATUS.STATUSES.PROCESSING,
+      PAYMENT_STATUS.STATUSES.AUTHORIZED,
+      PAYMENT_STATUS.STATUSES.FAILED,
+      PAYMENT_STATUS.STATUSES.DECLINED,
+      PAYMENT_STATUS.STATUSES.CANCELLED,
+    ],
+    [PAYMENT_STATUS.STATUSES.PROCESSING]: [
+      PAYMENT_STATUS.STATUSES.AUTHORIZED,
+      PAYMENT_STATUS.STATUSES.CAPTURED,
+      PAYMENT_STATUS.STATUSES.COMPLETED,
+      PAYMENT_STATUS.STATUSES.FAILED,
+      PAYMENT_STATUS.STATUSES.DECLINED,
+      PAYMENT_STATUS.STATUSES.ON_HOLD,
+      PAYMENT_STATUS.STATUSES.REVIEWING,
+    ],
+    [PAYMENT_STATUS.STATUSES.AUTHORIZED]: [
+      PAYMENT_STATUS.STATUSES.CAPTURED,
+      PAYMENT_STATUS.STATUSES.VOIDED,
+      PAYMENT_STATUS.STATUSES.FAILED,
+    ],
+    [PAYMENT_STATUS.STATUSES.CAPTURED]: [
+      PAYMENT_STATUS.STATUSES.COMPLETED,
+      PAYMENT_STATUS.STATUSES.REFUNDED,
+      PAYMENT_STATUS.STATUSES.PARTIAL_REFUNDED,
+      PAYMENT_STATUS.STATUSES.FAILED,
+    ],
+    [PAYMENT_STATUS.STATUSES.COMPLETED]: [
+      PAYMENT_STATUS.STATUSES.REFUNDED,
+      PAYMENT_STATUS.STATUSES.PARTIAL_REFUNDED,
+      PAYMENT_STATUS.STATUSES.CHARGED_BACK,
+    ],
+    [PAYMENT_STATUS.STATUSES.ON_HOLD]: [
+      PAYMENT_STATUS.STATUSES.PROCESSING,
+      PAYMENT_STATUS.STATUSES.AUTHORIZED,
+      PAYMENT_STATUS.STATUSES.CANCELLED,
+    ],
+    [PAYMENT_STATUS.STATUSES.REVIEWING]: [
+      PAYMENT_STATUS.STATUSES.PROCESSING,
+      PAYMENT_STATUS.STATUSES.AUTHORIZED,
+      PAYMENT_STATUS.STATUSES.FAILED,
+    ],
+    [PAYMENT_STATUS.STATUSES.PARTIAL_REFUNDED]: [PAYMENT_STATUS.STATUSES.REFUNDED],
+    [PAYMENT_STATUS.STATUSES.REFUNDED]: [PAYMENT_STATUS.STATUSES.COMPLETED],
+    [PAYMENT_STATUS.STATUSES.FAILED]: [PAYMENT_STATUS.STATUSES.CANCELLED],
+    [PAYMENT_STATUS.STATUSES.DECLINED]: [PAYMENT_STATUS.STATUSES.CANCELLED],
+    [PAYMENT_STATUS.STATUSES.CHARGED_BACK]: [PAYMENT_STATUS.STATUSES.REFUNDED],
+    [PAYMENT_STATUS.STATUSES.VOIDED]: [PAYMENT_STATUS.STATUSES.CANCELLED],
+    [PAYMENT_STATUS.STATUSES.CANCELLED]: [],
+    [PAYMENT_STATUS.STATUSES.EXPIRED]: [],
+  };
+
+  return validTransitions[currentStatus]?.includes(targetStatus) || false;
+}

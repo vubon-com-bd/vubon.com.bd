@@ -1,0 +1,332 @@
+/**
+ * Order Status Constants
+ * Status definitions for orders
+ */
+
+export const ORDER_STATUS = {
+  // Order Statuses
+  STATUSES: {
+    PENDING: 'pending',
+    PROCESSING: 'processing',
+    CONFIRMED: 'confirmed',
+    PAID: 'paid',
+    SHIPPED: 'shipped',
+    DELIVERED: 'delivered',
+    COMPLETED: 'completed',
+    CANCELLED: 'cancelled',
+    REFUNDED: 'refunded',
+    PARTIAL_REFUNDED: 'partial_refunded',
+    FAILED: 'failed',
+    ON_HOLD: 'on_hold',
+    REVIEWING: 'reviewing',
+    RETURNED: 'returned',
+    PARTIAL_SHIPPED: 'partial_shipped',
+    PENDING_PAYMENT: 'pending_payment',
+    PAYMENT_FAILED: 'payment_failed',
+    ARCHIVED: 'archived',
+  } as const,
+
+  // Status Colors (for UI)
+  COLORS: {
+    PENDING: '#F59E0B',
+    PROCESSING: '#3B82F6',
+    CONFIRMED: '#8B5CF6',
+    PAID: '#10B981',
+    SHIPPED: '#3B82F6',
+    DELIVERED: '#10B981',
+    COMPLETED: '#10B981',
+    CANCELLED: '#6B7280',
+    REFUNDED: '#6B7280',
+    PARTIAL_REFUNDED: '#F59E0B',
+    FAILED: '#EF4444',
+    ON_HOLD: '#F59E0B',
+    REVIEWING: '#8B5CF6',
+    RETURNED: '#6B7280',
+    PARTIAL_SHIPPED: '#3B82F6',
+    PENDING_PAYMENT: '#F59E0B',
+    PAYMENT_FAILED: '#EF4444',
+    ARCHIVED: '#6B7280',
+  } as const,
+
+  // Status Categories
+  CATEGORIES: {
+    PENDING: 'pending',
+    PROCESSING: 'processing',
+    COMPLETED: 'completed',
+    CANCELLED: 'cancelled',
+    FAILED: 'failed',
+  } as const,
+
+  // Status Priority Order
+  ORDER: {
+    PENDING: 0,
+    PENDING_PAYMENT: 1,
+    PAYMENT_FAILED: 2,
+    PROCESSING: 3,
+    REVIEWING: 4,
+    ON_HOLD: 5,
+    CONFIRMED: 6,
+    PAID: 7,
+    PARTIAL_SHIPPED: 8,
+    SHIPPED: 9,
+    DELIVERED: 10,
+    COMPLETED: 11,
+    PARTIAL_REFUNDED: 12,
+    REFUNDED: 13,
+    RETURNED: 14,
+    FAILED: 15,
+    CANCELLED: 16,
+    ARCHIVED: 17,
+  } as const,
+
+  // Status Transitions
+  TRANSITIONS: {
+    PENDING_TO_PENDING_PAYMENT: 'pending_to_pending_payment',
+    PENDING_TO_PROCESSING: 'pending_to_processing',
+    PENDING_TO_CANCELLED: 'pending_to_cancelled',
+    PENDING_PAYMENT_TO_PAID: 'pending_payment_to_paid',
+    PENDING_PAYMENT_TO_PAYMENT_FAILED: 'pending_payment_to_payment_failed',
+    PENDING_PAYMENT_TO_CANCELLED: 'pending_payment_to_cancelled',
+    PAYMENT_FAILED_TO_PENDING: 'payment_failed_to_pending',
+    PAYMENT_FAILED_TO_CANCELLED: 'payment_failed_to_cancelled',
+    PROCESSING_TO_CONFIRMED: 'processing_to_confirmed',
+    PROCESSING_TO_ON_HOLD: 'processing_to_on_hold',
+    PROCESSING_TO_REVIEWING: 'processing_to_reviewing',
+    PROCESSING_TO_CANCELLED: 'processing_to_cancelled',
+    CONFIRMED_TO_PAID: 'confirmed_to_paid',
+    CONFIRMED_TO_CANCELLED: 'confirmed_to_cancelled',
+    PAID_TO_PARTIAL_SHIPPED: 'paid_to_partial_shipped',
+    PAID_TO_SHIPPED: 'paid_to_shipped',
+    PAID_TO_CANCELLED: 'paid_to_cancelled',
+    PAID_TO_REFUNDED: 'paid_to_refunded',
+    PARTIAL_SHIPPED_TO_SHIPPED: 'partial_shipped_to_shipped',
+    PARTIAL_SHIPPED_TO_REFUNDED: 'partial_shipped_to_refunded',
+    SHIPPED_TO_DELIVERED: 'shipped_to_delivered',
+    SHIPPED_TO_RETURNED: 'shipped_to_returned',
+    DELIVERED_TO_COMPLETED: 'delivered_to_completed',
+    DELIVERED_TO_RETURNED: 'delivered_to_returned',
+    DELIVERED_TO_REFUNDED: 'delivered_to_refunded',
+    DELIVERED_TO_PARTIAL_REFUNDED: 'delivered_to_partial_refunded',
+    ON_HOLD_TO_PROCESSING: 'on_hold_to_processing',
+    ON_HOLD_TO_CANCELLED: 'on_hold_to_cancelled',
+    REVIEWING_TO_CONFIRMED: 'reviewing_to_confirmed',
+    REVIEWING_TO_PROCESSING: 'reviewing_to_processing',
+    REVIEWING_TO_CANCELLED: 'reviewing_to_cancelled',
+    COMPLETED_TO_REFUNDED: 'completed_to_refunded',
+    COMPLETED_TO_PARTIAL_REFUNDED: 'completed_to_partial_refunded',
+    PARTIAL_REFUNDED_TO_REFUNDED: 'partial_refunded_to_refunded',
+    REFUNDED_TO_COMPLETED: 'refunded_to_completed',
+    RETURNED_TO_REFUNDED: 'returned_to_refunded',
+    FAILED_TO_CANCELLED: 'failed_to_cancelled',
+    CANCELLED_TO_ARCHIVED: 'cancelled_to_archived',
+    COMPLETED_TO_ARCHIVED: 'completed_to_archived',
+    REFUNDED_TO_ARCHIVED: 'refunded_to_archived',
+  } as const,
+} as const;
+
+// Order Statuses
+export type OrderStatusType = (typeof ORDER_STATUS.STATUSES)[keyof typeof ORDER_STATUS.STATUSES];
+
+// Status Colors
+export type OrderStatusColor = (typeof ORDER_STATUS.COLORS)[keyof typeof ORDER_STATUS.COLORS];
+
+// Status Categories
+export type OrderStatusCategory =
+  (typeof ORDER_STATUS.CATEGORIES)[keyof typeof ORDER_STATUS.CATEGORIES];
+
+// Status Priority Order
+export type OrderStatusOrder = (typeof ORDER_STATUS.ORDER)[keyof typeof ORDER_STATUS.ORDER];
+
+// Status Transitions
+export type OrderStatusTransition =
+  (typeof ORDER_STATUS.TRANSITIONS)[keyof typeof ORDER_STATUS.TRANSITIONS];
+
+// Utility Functions
+export function orderstatusGetStatusLabel(status: OrderStatusType): string {
+  const labels: Record<OrderStatusType, string> = {
+    [ORDER_STATUS.STATUSES.PENDING]: 'Pending',
+    [ORDER_STATUS.STATUSES.PROCESSING]: 'Processing',
+    [ORDER_STATUS.STATUSES.CONFIRMED]: 'Confirmed',
+    [ORDER_STATUS.STATUSES.PAID]: 'Paid',
+    [ORDER_STATUS.STATUSES.SHIPPED]: 'Shipped',
+    [ORDER_STATUS.STATUSES.DELIVERED]: 'Delivered',
+    [ORDER_STATUS.STATUSES.COMPLETED]: 'Completed',
+    [ORDER_STATUS.STATUSES.CANCELLED]: 'Cancelled',
+    [ORDER_STATUS.STATUSES.REFUNDED]: 'Refunded',
+    [ORDER_STATUS.STATUSES.PARTIAL_REFUNDED]: 'Partial Refunded',
+    [ORDER_STATUS.STATUSES.FAILED]: 'Failed',
+    [ORDER_STATUS.STATUSES.ON_HOLD]: 'On Hold',
+    [ORDER_STATUS.STATUSES.REVIEWING]: 'Reviewing',
+    [ORDER_STATUS.STATUSES.RETURNED]: 'Returned',
+    [ORDER_STATUS.STATUSES.PARTIAL_SHIPPED]: 'Partial Shipped',
+    [ORDER_STATUS.STATUSES.PENDING_PAYMENT]: 'Pending Payment',
+    [ORDER_STATUS.STATUSES.PAYMENT_FAILED]: 'Payment Failed',
+    [ORDER_STATUS.STATUSES.ARCHIVED]: 'Archived',
+  };
+  return labels[status] || 'Unknown Status';
+}
+
+export function orderstatusGetStatusColor(status: OrderStatusType): OrderStatusColor {
+  const colors: Record<OrderStatusType, OrderStatusColor> = {
+    [ORDER_STATUS.STATUSES.PENDING]: ORDER_STATUS.COLORS.PENDING,
+    [ORDER_STATUS.STATUSES.PROCESSING]: ORDER_STATUS.COLORS.PROCESSING,
+    [ORDER_STATUS.STATUSES.CONFIRMED]: ORDER_STATUS.COLORS.CONFIRMED,
+    [ORDER_STATUS.STATUSES.PAID]: ORDER_STATUS.COLORS.PAID,
+    [ORDER_STATUS.STATUSES.SHIPPED]: ORDER_STATUS.COLORS.SHIPPED,
+    [ORDER_STATUS.STATUSES.DELIVERED]: ORDER_STATUS.COLORS.DELIVERED,
+    [ORDER_STATUS.STATUSES.COMPLETED]: ORDER_STATUS.COLORS.COMPLETED,
+    [ORDER_STATUS.STATUSES.CANCELLED]: ORDER_STATUS.COLORS.CANCELLED,
+    [ORDER_STATUS.STATUSES.REFUNDED]: ORDER_STATUS.COLORS.REFUNDED,
+    [ORDER_STATUS.STATUSES.PARTIAL_REFUNDED]: ORDER_STATUS.COLORS.PARTIAL_REFUNDED,
+    [ORDER_STATUS.STATUSES.FAILED]: ORDER_STATUS.COLORS.FAILED,
+    [ORDER_STATUS.STATUSES.ON_HOLD]: ORDER_STATUS.COLORS.ON_HOLD,
+    [ORDER_STATUS.STATUSES.REVIEWING]: ORDER_STATUS.COLORS.REVIEWING,
+    [ORDER_STATUS.STATUSES.RETURNED]: ORDER_STATUS.COLORS.RETURNED,
+    [ORDER_STATUS.STATUSES.PARTIAL_SHIPPED]: ORDER_STATUS.COLORS.PARTIAL_SHIPPED,
+    [ORDER_STATUS.STATUSES.PENDING_PAYMENT]: ORDER_STATUS.COLORS.PENDING_PAYMENT,
+    [ORDER_STATUS.STATUSES.PAYMENT_FAILED]: ORDER_STATUS.COLORS.PAYMENT_FAILED,
+    [ORDER_STATUS.STATUSES.ARCHIVED]: ORDER_STATUS.COLORS.ARCHIVED,
+  };
+  return colors[status] || ORDER_STATUS.COLORS.PENDING;
+}
+
+export function orderstatusGetStatusCategory(status: OrderStatusType): OrderStatusCategory {
+  const categories: Record<OrderStatusType, OrderStatusCategory> = {
+    [ORDER_STATUS.STATUSES.PENDING]: ORDER_STATUS.CATEGORIES.PENDING,
+    [ORDER_STATUS.STATUSES.PENDING_PAYMENT]: ORDER_STATUS.CATEGORIES.PENDING,
+    [ORDER_STATUS.STATUSES.PAYMENT_FAILED]: ORDER_STATUS.CATEGORIES.PENDING,
+    [ORDER_STATUS.STATUSES.PROCESSING]: ORDER_STATUS.CATEGORIES.PROCESSING,
+    [ORDER_STATUS.STATUSES.REVIEWING]: ORDER_STATUS.CATEGORIES.PROCESSING,
+    [ORDER_STATUS.STATUSES.ON_HOLD]: ORDER_STATUS.CATEGORIES.PROCESSING,
+    [ORDER_STATUS.STATUSES.CONFIRMED]: ORDER_STATUS.CATEGORIES.PROCESSING,
+    [ORDER_STATUS.STATUSES.PAID]: ORDER_STATUS.CATEGORIES.PROCESSING,
+    [ORDER_STATUS.STATUSES.PARTIAL_SHIPPED]: ORDER_STATUS.CATEGORIES.PROCESSING,
+    [ORDER_STATUS.STATUSES.SHIPPED]: ORDER_STATUS.CATEGORIES.PROCESSING,
+    [ORDER_STATUS.STATUSES.DELIVERED]: ORDER_STATUS.CATEGORIES.COMPLETED,
+    [ORDER_STATUS.STATUSES.COMPLETED]: ORDER_STATUS.CATEGORIES.COMPLETED,
+    [ORDER_STATUS.STATUSES.PARTIAL_REFUNDED]: ORDER_STATUS.CATEGORIES.COMPLETED,
+    [ORDER_STATUS.STATUSES.REFUNDED]: ORDER_STATUS.CATEGORIES.CANCELLED,
+    [ORDER_STATUS.STATUSES.RETURNED]: ORDER_STATUS.CATEGORIES.CANCELLED,
+    [ORDER_STATUS.STATUSES.FAILED]: ORDER_STATUS.CATEGORIES.FAILED,
+    [ORDER_STATUS.STATUSES.CANCELLED]: ORDER_STATUS.CATEGORIES.CANCELLED,
+    [ORDER_STATUS.STATUSES.ARCHIVED]: ORDER_STATUS.CATEGORIES.CANCELLED,
+  };
+  return categories[status] || ORDER_STATUS.CATEGORIES.PENDING;
+}
+
+export function orderstatusIsActive(status: OrderStatusType): boolean {
+  const activeStatuses: OrderStatusType[] = [
+    ORDER_STATUS.STATUSES.PENDING,
+    ORDER_STATUS.STATUSES.PENDING_PAYMENT,
+    ORDER_STATUS.STATUSES.PROCESSING,
+    ORDER_STATUS.STATUSES.REVIEWING,
+    ORDER_STATUS.STATUSES.CONFIRMED,
+    ORDER_STATUS.STATUSES.PAID,
+    ORDER_STATUS.STATUSES.PARTIAL_SHIPPED,
+    ORDER_STATUS.STATUSES.SHIPPED,
+  ];
+  return activeStatuses.includes(status);
+}
+
+export function orderstatusIsCompleted(status: OrderStatusType): boolean {
+  const completedStatuses: OrderStatusType[] = [
+    ORDER_STATUS.STATUSES.DELIVERED,
+    ORDER_STATUS.STATUSES.COMPLETED,
+  ];
+  return completedStatuses.includes(status);
+}
+
+export function orderstatusIsCancelled(status: OrderStatusType): boolean {
+  const cancelledStatuses: OrderStatusType[] = [
+    ORDER_STATUS.STATUSES.CANCELLED,
+    ORDER_STATUS.STATUSES.REFUNDED,
+    ORDER_STATUS.STATUSES.RETURNED,
+    ORDER_STATUS.STATUSES.ARCHIVED,
+  ];
+  return cancelledStatuses.includes(status);
+}
+
+export function orderstatusIsFailed(status: OrderStatusType): boolean {
+  const failedStatuses: OrderStatusType[] = [
+    ORDER_STATUS.STATUSES.FAILED,
+    ORDER_STATUS.STATUSES.PAYMENT_FAILED,
+  ];
+  return failedStatuses.includes(status);
+}
+
+export function orderstatusCanTransition(
+  currentStatus: OrderStatusType,
+  targetStatus: OrderStatusType
+): boolean {
+  const validTransitions: Record<OrderStatusType, OrderStatusType[]> = {
+    [ORDER_STATUS.STATUSES.PENDING]: [
+      ORDER_STATUS.STATUSES.PENDING_PAYMENT,
+      ORDER_STATUS.STATUSES.PROCESSING,
+      ORDER_STATUS.STATUSES.CANCELLED,
+    ],
+    [ORDER_STATUS.STATUSES.PENDING_PAYMENT]: [
+      ORDER_STATUS.STATUSES.PAID,
+      ORDER_STATUS.STATUSES.PAYMENT_FAILED,
+      ORDER_STATUS.STATUSES.CANCELLED,
+    ],
+    [ORDER_STATUS.STATUSES.PAYMENT_FAILED]: [
+      ORDER_STATUS.STATUSES.PENDING,
+      ORDER_STATUS.STATUSES.CANCELLED,
+    ],
+    [ORDER_STATUS.STATUSES.PROCESSING]: [
+      ORDER_STATUS.STATUSES.CONFIRMED,
+      ORDER_STATUS.STATUSES.ON_HOLD,
+      ORDER_STATUS.STATUSES.REVIEWING,
+      ORDER_STATUS.STATUSES.CANCELLED,
+    ],
+    [ORDER_STATUS.STATUSES.CONFIRMED]: [
+      ORDER_STATUS.STATUSES.PAID,
+      ORDER_STATUS.STATUSES.CANCELLED,
+    ],
+    [ORDER_STATUS.STATUSES.PAID]: [
+      ORDER_STATUS.STATUSES.PARTIAL_SHIPPED,
+      ORDER_STATUS.STATUSES.SHIPPED,
+      ORDER_STATUS.STATUSES.CANCELLED,
+      ORDER_STATUS.STATUSES.REFUNDED,
+    ],
+    [ORDER_STATUS.STATUSES.PARTIAL_SHIPPED]: [
+      ORDER_STATUS.STATUSES.SHIPPED,
+      ORDER_STATUS.STATUSES.REFUNDED,
+    ],
+    [ORDER_STATUS.STATUSES.SHIPPED]: [
+      ORDER_STATUS.STATUSES.DELIVERED,
+      ORDER_STATUS.STATUSES.RETURNED,
+    ],
+    [ORDER_STATUS.STATUSES.DELIVERED]: [
+      ORDER_STATUS.STATUSES.COMPLETED,
+      ORDER_STATUS.STATUSES.RETURNED,
+      ORDER_STATUS.STATUSES.REFUNDED,
+      ORDER_STATUS.STATUSES.PARTIAL_REFUNDED,
+    ],
+    [ORDER_STATUS.STATUSES.ON_HOLD]: [
+      ORDER_STATUS.STATUSES.PROCESSING,
+      ORDER_STATUS.STATUSES.CANCELLED,
+    ],
+    [ORDER_STATUS.STATUSES.REVIEWING]: [
+      ORDER_STATUS.STATUSES.CONFIRMED,
+      ORDER_STATUS.STATUSES.PROCESSING,
+      ORDER_STATUS.STATUSES.CANCELLED,
+    ],
+    [ORDER_STATUS.STATUSES.COMPLETED]: [
+      ORDER_STATUS.STATUSES.REFUNDED,
+      ORDER_STATUS.STATUSES.PARTIAL_REFUNDED,
+      ORDER_STATUS.STATUSES.ARCHIVED,
+    ],
+    [ORDER_STATUS.STATUSES.PARTIAL_REFUNDED]: [ORDER_STATUS.STATUSES.REFUNDED],
+    [ORDER_STATUS.STATUSES.REFUNDED]: [
+      ORDER_STATUS.STATUSES.COMPLETED,
+      ORDER_STATUS.STATUSES.ARCHIVED,
+    ],
+    [ORDER_STATUS.STATUSES.RETURNED]: [ORDER_STATUS.STATUSES.REFUNDED],
+    [ORDER_STATUS.STATUSES.FAILED]: [ORDER_STATUS.STATUSES.CANCELLED],
+    [ORDER_STATUS.STATUSES.CANCELLED]: [ORDER_STATUS.STATUSES.ARCHIVED],
+    [ORDER_STATUS.STATUSES.ARCHIVED]: [],
+  };
+
+  return validTransitions[currentStatus]?.includes(targetStatus) || false;
+}
