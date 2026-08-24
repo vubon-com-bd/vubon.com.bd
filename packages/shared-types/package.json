@@ -1,0 +1,140 @@
+{
+  "name": "@vubon/shared-types",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./common": {
+      "import": "./dist/common/index.js",
+      "require": "./dist/common/index.js",
+      "types": "./dist/common/index.d.ts"
+    },
+    "./admin": {
+      "import": "./dist/admin/index.js",
+      "require": "./dist/admin/index.js",
+      "types": "./dist/admin/index.d.ts"
+    },
+    "./auth": {
+      "import": "./dist/auth/index.js",
+      "require": "./dist/auth/index.js",
+      "types": "./dist/auth/index.d.ts"
+    },
+    "./user": {
+      "import": "./dist/user/index.js",
+      "require": "./dist/user/index.js",
+      "types": "./dist/user/index.d.ts"
+    },
+    "./ai": {
+      "import": "./dist/ai/index.js",
+      "require": "./dist/ai/index.js",
+      "types": "./dist/ai/index.d.ts"
+    },
+    "./seo": {
+      "import": "./dist/seo/index.js",
+      "require": "./dist/seo/index.js",
+      "types": "./dist/seo/index.d.ts"
+    },
+    "./analytics": {
+      "import": "./dist/analytics/index.js",
+      "require": "./dist/analytics/index.js",
+      "types": "./dist/analytics/index.d.ts"
+    },
+    "./reporting": {
+      "import": "./dist/reporting/index.js",
+      "require": "./dist/reporting/index.js",
+      "types": "./dist/reporting/index.d.ts"
+    },
+    "./flash-sales": {
+      "import": "./dist/flash-sales/index.js",
+      "require": "./dist/flash-sales/index.js",
+      "types": "./dist/flash-sales/index.d.ts"
+    },
+    "./content": {
+      "import": "./dist/content/index.js",
+      "require": "./dist/content/index.js",
+      "types": "./dist/content/index.d.ts"
+    },
+    "./marketing": {
+      "import": "./dist/marketing/index.js",
+      "require": "./dist/marketing/index.js",
+      "types": "./dist/marketing/index.d.ts"
+    },
+    "./notification": {
+      "import": "./dist/notification/index.js",
+      "require": "./dist/notification/index.js",
+      "types": "./dist/notification/index.d.ts"
+    },
+    "./support": {
+      "import": "./dist/support/index.js",
+      "require": "./dist/support/index.js",
+      "types": "./dist/support/index.d.ts"
+    },
+    "./logistics": {
+      "import": "./dist/logistics/index.js",
+      "require": "./dist/logistics/index.js",
+      "types": "./dist/logistics/index.d.ts"
+    },
+    "./vendor": {
+      "import": "./dist/vendor/index.js",
+      "require": "./dist/vendor/index.js",
+      "types": "./dist/vendor/index.d.ts"
+    },
+    "./search": {
+      "import": "./dist/search/index.js",
+      "require": "./dist/search/index.js",
+      "types": "./dist/search/index.d.ts"
+    },
+    "./discovery": {
+      "import": "./dist/discovery/index.js",
+      "require": "./dist/discovery/index.js",
+      "types": "./dist/discovery/index.d.ts"
+    },
+    "./checkout": {
+      "import": "./dist/checkout/index.js",
+      "require": "./dist/checkout/index.js",
+      "types": "./dist/checkout/index.d.ts"
+    },
+    "./payment": {
+      "import": "./dist/payment/index.js",
+      "require": "./dist/payment/index.js",
+      "types": "./dist/payment/index.d.ts"
+    },
+    "./cart": {
+      "import": "./dist/cart/index.js",
+      "require": "./dist/cart/index.js",
+      "types": "./dist/cart/index.d.ts"
+    },
+    "./product-catalog": {
+      "import": "./dist/product-catalog/index.js",
+      "require": "./dist/product-catalog/index.js",
+      "types": "./dist/product-catalog/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint .",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "format:write": "prettier --write \"src/**/*.ts\"",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "globals": "^15.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@vubon/shared-constants": "workspace:*"
+  }
+}
