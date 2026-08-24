@@ -207,7 +207,7 @@ export function isViewStatus(status: AdminReportStatusDetail): boolean {
   return ADMIN_REPORT_STATUS_GROUPS.VIEW.includes(status);
 }
 
-export function isErrorStatus(status: AdminReportStatusDetail): boolean {
+export function isAdminReportErrorStatus(status: AdminReportStatusDetail): boolean {
   return ADMIN_REPORT_STATUS_GROUPS.ERROR.includes(status);
 }
 
@@ -246,7 +246,7 @@ export function isReportTerminal(status: AdminReportStatusDetail): boolean {
   return isFinalStatus(status) || isReportReady(status) || isReportFailed(status);
 }
 
-export function getStatusPriority(status: AdminReportStatusDetail): number {
+export function getAdminReportStatusPriority(status: AdminReportStatusDetail): number {
   const priorityMap: Record<AdminReportStatusDetail, number> = {
     [ADMIN_REPORT_STATUS.CREATED]: 1,
     [ADMIN_REPORT_STATUS.INITIALIZED]: 1,

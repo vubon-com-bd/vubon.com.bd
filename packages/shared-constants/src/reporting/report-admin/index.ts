@@ -85,13 +85,13 @@ export {
   isGenerationStatus,
   isDeliveryStatus,
   isViewStatus,
-  isErrorStatus,
+  isAdminReportErrorStatus,
   isFinalStatus,
   isReportReady,
   isReportProcessing as isReportProcessingDetail,
   isReportFailed as isReportFailedDetail,
   isReportTerminal as isReportTerminalDetail,
-  getStatusPriority,
+  getAdminReportStatusPriority,
   getAdminReportStatuses,
   getLifecycleStatuses,
   getGenerationStatuses,
@@ -102,34 +102,3 @@ export {
 } from './admin-report-status.constants';
 
 export type { AdminReportStatusDetail } from './admin-report-status.constants';
-
-// Admin Error Constants
-export {
-  ADMIN_ERROR,
-  ADMIN_ERROR_CATEGORY_LABELS,
-  ADMIN_ERROR_SEVERITY_LABELS,
-  ADMIN_ERROR_SEVERITY_COLORS,
-  ADMIN_ERROR_TYPE_LABELS,
-  ADMIN_ERROR_SOURCE_LABELS,
-  ADMIN_ERROR_ACTION_LABELS,
-  getAdminErrorCategoryLabel,
-  getAdminErrorSeverityLabel,
-  getAdminErrorSeverityColor,
-  getAdminErrorTypeLabel,
-  getAdminErrorSourceLabel,
-  getAdminErrorActionLabel,
-  isCriticalError,
-  isRecoverableError,
-  shouldRetryError,
-  getErrorCodeCategory,
-  getErrorTypeFromCode,
-} from './admin-error.constants';
-
-export type {
-  AdminErrorCategory,
-  AdminErrorSeverity,
-  AdminErrorType,
-  AdminErrorCode,
-  AdminErrorSource,
-  AdminErrorAction,
-} from './admin-error.constants';

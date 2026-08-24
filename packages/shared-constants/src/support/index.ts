@@ -85,9 +85,6 @@ export * from './conversation';
 // support-team Constants
 export * from './support-team';
 
-// support-report Constants
-export * from './support-report';
-
 // support-sla Constants
 export * from './support-sla';
 

@@ -1,0 +1,158 @@
+/**
+ * Fulfillment Type Constants
+ * Types of fulfillment
+ */
+
+import { LOGISTICS_FULFILLMENT } from './fulfillment.constants';
+import type { LogisticsFulfillmentType } from './fulfillment.constants';
+
+export const LOGISTICS_FULFILLMENT_TYPE = {
+  // Type Categories
+  CATEGORIES: {
+    STANDARD: 'standard',
+    EXPRESS: 'express',
+    SAME_DAY: 'same_day',
+    NEXT_DAY: 'next_day',
+    SCHEDULED: 'scheduled',
+    RUSH: 'rush',
+  } as const,
+
+  // Type Icons (for UI)
+  ICONS: {
+    STANDARD: '📦',
+    EXPRESS: '🚀',
+    SAME_DAY: '☀️',
+    NEXT_DAY: '🌙',
+    SCHEDULED: '📅',
+    RUSH: '⚡',
+  } as const,
+
+  // Type Colors (for UI)
+  COLORS: {
+    STANDARD: '#blue-400',
+    EXPRESS: '#green-500',
+    SAME_DAY: '#orange-500',
+    NEXT_DAY: '#purple-500',
+    SCHEDULED: '#teal-500',
+    RUSH: '#red-500',
+  } as const,
+
+  // Priority Levels
+  PRIORITY_LEVELS: {
+    STANDARD: 1,
+    EXPRESS: 2,
+    NEXT_DAY: 3,
+    SCHEDULED: 2,
+    SAME_DAY: 4,
+    RUSH: 5,
+  } as const,
+
+  // Time Windows (in hours)
+  TIME_WINDOWS: {
+    STANDARD: 24,
+    EXPRESS: 12,
+    SAME_DAY: 4,
+    NEXT_DAY: 8,
+    SCHEDULED: 24,
+    RUSH: 2,
+  } as const,
+
+  // Price Multiplier
+  PRICE_MULTIPLIER: {
+    STANDARD: 1.0,
+    EXPRESS: 1.5,
+    SAME_DAY: 3.0,
+    NEXT_DAY: 2.0,
+    SCHEDULED: 1.2,
+    RUSH: 4.0,
+  } as const,
+} as const;
+
+// Type Categories
+export type LogisticsFulfillmentTypeCategory =
+  (typeof LOGISTICS_FULFILLMENT_TYPE.CATEGORIES)[keyof typeof LOGISTICS_FULFILLMENT_TYPE.CATEGORIES];
+
+// Type Icons
+export type LogisticsFulfillmentTypeIcon =
+  (typeof LOGISTICS_FULFILLMENT_TYPE.ICONS)[keyof typeof LOGISTICS_FULFILLMENT_TYPE.ICONS];
+
+// Type Colors
+export type LogisticsFulfillmentTypeColor =
+  (typeof LOGISTICS_FULFILLMENT_TYPE.COLORS)[keyof typeof LOGISTICS_FULFILLMENT_TYPE.COLORS];
+
+// Utility Functions
+export function logisticsFulfillmentTypeGetLabel(type: LogisticsFulfillmentType): string {
+  const labels: Record<LogisticsFulfillmentType, string> = {
+    [LOGISTICS_FULFILLMENT.TYPES.STANDARD]: 'Standard',
+    [LOGISTICS_FULFILLMENT.TYPES.EXPRESS]: 'Express',
+    [LOGISTICS_FULFILLMENT.TYPES.SAME_DAY]: 'Same Day',
+    [LOGISTICS_FULFILLMENT.TYPES.NEXT_DAY]: 'Next Day',
+    [LOGISTICS_FULFILLMENT.TYPES.SCHEDULED]: 'Scheduled',
+    [LOGISTICS_FULFILLMENT.TYPES.RUSH]: 'Rush',
+  };
+  return labels[type] || 'Unknown';
+}
+
+export function logisticsFulfillmentTypeGetIcon(
+  type: LogisticsFulfillmentType
+): LogisticsFulfillmentTypeIcon {
+  const icons: Record<LogisticsFulfillmentType, LogisticsFulfillmentTypeIcon> = {
+    [LOGISTICS_FULFILLMENT.TYPES.STANDARD]: LOGISTICS_FULFILLMENT_TYPE.ICONS.STANDARD,
+    [LOGISTICS_FULFILLMENT.TYPES.EXPRESS]: LOGISTICS_FULFILLMENT_TYPE.ICONS.EXPRESS,
+    [LOGISTICS_FULFILLMENT.TYPES.SAME_DAY]: LOGISTICS_FULFILLMENT_TYPE.ICONS.SAME_DAY,
+    [LOGISTICS_FULFILLMENT.TYPES.NEXT_DAY]: LOGISTICS_FULFILLMENT_TYPE.ICONS.NEXT_DAY,
+    [LOGISTICS_FULFILLMENT.TYPES.SCHEDULED]: LOGISTICS_FULFILLMENT_TYPE.ICONS.SCHEDULED,
+    [LOGISTICS_FULFILLMENT.TYPES.RUSH]: LOGISTICS_FULFILLMENT_TYPE.ICONS.RUSH,
+  };
+  return icons[type] || '📦';
+}
+
+export function logisticsFulfillmentTypeGetColor(
+  type: LogisticsFulfillmentType
+): LogisticsFulfillmentTypeColor {
+  const colors: Record<LogisticsFulfillmentType, LogisticsFulfillmentTypeColor> = {
+    [LOGISTICS_FULFILLMENT.TYPES.STANDARD]: LOGISTICS_FULFILLMENT_TYPE.COLORS.STANDARD,
+    [LOGISTICS_FULFILLMENT.TYPES.EXPRESS]: LOGISTICS_FULFILLMENT_TYPE.COLORS.EXPRESS,
+    [LOGISTICS_FULFILLMENT.TYPES.SAME_DAY]: LOGISTICS_FULFILLMENT_TYPE.COLORS.SAME_DAY,
+    [LOGISTICS_FULFILLMENT.TYPES.NEXT_DAY]: LOGISTICS_FULFILLMENT_TYPE.COLORS.NEXT_DAY,
+    [LOGISTICS_FULFILLMENT.TYPES.SCHEDULED]: LOGISTICS_FULFILLMENT_TYPE.COLORS.SCHEDULED,
+    [LOGISTICS_FULFILLMENT.TYPES.RUSH]: LOGISTICS_FULFILLMENT_TYPE.COLORS.RUSH,
+  };
+  return colors[type] || '#blue-400';
+}
+
+export function logisticsFulfillmentTypeGetPriority(type: LogisticsFulfillmentType): number {
+  const priorities: Record<LogisticsFulfillmentType, number> = {
+    [LOGISTICS_FULFILLMENT.TYPES.STANDARD]: LOGISTICS_FULFILLMENT_TYPE.PRIORITY_LEVELS.STANDARD,
+    [LOGISTICS_FULFILLMENT.TYPES.EXPRESS]: LOGISTICS_FULFILLMENT_TYPE.PRIORITY_LEVELS.EXPRESS,
+    [LOGISTICS_FULFILLMENT.TYPES.SAME_DAY]: LOGISTICS_FULFILLMENT_TYPE.PRIORITY_LEVELS.SAME_DAY,
+    [LOGISTICS_FULFILLMENT.TYPES.NEXT_DAY]: LOGISTICS_FULFILLMENT_TYPE.PRIORITY_LEVELS.NEXT_DAY,
+    [LOGISTICS_FULFILLMENT.TYPES.SCHEDULED]: LOGISTICS_FULFILLMENT_TYPE.PRIORITY_LEVELS.SCHEDULED,
+    [LOGISTICS_FULFILLMENT.TYPES.RUSH]: LOGISTICS_FULFILLMENT_TYPE.PRIORITY_LEVELS.RUSH,
+  };
+  return priorities[type] || 1;
+}
+
+export function logisticsFulfillmentTypeGetTimeWindow(type: LogisticsFulfillmentType): number {
+  const windows: Record<LogisticsFulfillmentType, number> = {
+    [LOGISTICS_FULFILLMENT.TYPES.STANDARD]: LOGISTICS_FULFILLMENT_TYPE.TIME_WINDOWS.STANDARD,
+    [LOGISTICS_FULFILLMENT.TYPES.EXPRESS]: LOGISTICS_FULFILLMENT_TYPE.TIME_WINDOWS.EXPRESS,
+    [LOGISTICS_FULFILLMENT.TYPES.SAME_DAY]: LOGISTICS_FULFILLMENT_TYPE.TIME_WINDOWS.SAME_DAY,
+    [LOGISTICS_FULFILLMENT.TYPES.NEXT_DAY]: LOGISTICS_FULFILLMENT_TYPE.TIME_WINDOWS.NEXT_DAY,
+    [LOGISTICS_FULFILLMENT.TYPES.SCHEDULED]: LOGISTICS_FULFILLMENT_TYPE.TIME_WINDOWS.SCHEDULED,
+    [LOGISTICS_FULFILLMENT.TYPES.RUSH]: LOGISTICS_FULFILLMENT_TYPE.TIME_WINDOWS.RUSH,
+  };
+  return windows[type] || LOGISTICS_FULFILLMENT_TYPE.TIME_WINDOWS.STANDARD;
+}
+
+export function logisticsFulfillmentTypeGetPriceMultiplier(type: LogisticsFulfillmentType): number {
+  const multipliers: Record<LogisticsFulfillmentType, number> = {
+    [LOGISTICS_FULFILLMENT.TYPES.STANDARD]: LOGISTICS_FULFILLMENT_TYPE.PRICE_MULTIPLIER.STANDARD,
+    [LOGISTICS_FULFILLMENT.TYPES.EXPRESS]: LOGISTICS_FULFILLMENT_TYPE.PRICE_MULTIPLIER.EXPRESS,
+    [LOGISTICS_FULFILLMENT.TYPES.SAME_DAY]: LOGISTICS_FULFILLMENT_TYPE.PRICE_MULTIPLIER.SAME_DAY,
+    [LOGISTICS_FULFILLMENT.TYPES.NEXT_DAY]: LOGISTICS_FULFILLMENT_TYPE.PRICE_MULTIPLIER.NEXT_DAY,
+    [LOGISTICS_FULFILLMENT.TYPES.SCHEDULED]: LOGISTICS_FULFILLMENT_TYPE.PRICE_MULTIPLIER.SCHEDULED,
+    [LOGISTICS_FULFILLMENT.TYPES.RUSH]: LOGISTICS_FULFILLMENT_TYPE.PRICE_MULTIPLIER.RUSH,
+  };
+  return multipliers[type] || 1.0;
+}

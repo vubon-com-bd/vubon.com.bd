@@ -1,0 +1,179 @@
+/**
+ * Shipping Method Type Constants
+ * Types of shipping methods
+ */
+
+import { LOGISTICS_SHIPPING_METHOD } from './shipping-method.constants';
+import type { LogisticsShippingMethodType } from './shipping-method.constants';
+
+export const LOGISTICS_SHIPPING_METHOD_TYPE = {
+  // Type Categories
+  CATEGORIES: {
+    COURIER: 'courier',
+    POSTAL: 'postal',
+    FREIGHT: 'freight',
+    EXPRESS: 'express',
+    ECONOMY: 'economy',
+    PREMIUM: 'premium',
+  } as const,
+
+  // Type Icons (for UI)
+  ICONS: {
+    COURIER: '📦',
+    POSTAL: '✉️',
+    FREIGHT: '🚛',
+    EXPRESS: '🚀',
+    ECONOMY: '💰',
+    PREMIUM: '⭐',
+  } as const,
+
+  // Type Colors (for UI)
+  COLORS: {
+    COURIER: '#blue-500',
+    POSTAL: '#gray-500',
+    FREIGHT: '#orange-500',
+    EXPRESS: '#green-500',
+    ECONOMY: '#yellow-500',
+    PREMIUM: '#purple-500',
+  } as const,
+
+  // Service Levels
+  SERVICE_LEVELS: {
+    COURIER: 3,
+    POSTAL: 2,
+    FREIGHT: 1,
+    EXPRESS: 5,
+    ECONOMY: 2,
+    PREMIUM: 4,
+  } as const,
+
+  // Tracking Support
+  TRACKING_SUPPORT: {
+    COURIER: true,
+    POSTAL: true,
+    FREIGHT: true,
+    EXPRESS: true,
+    ECONOMY: false,
+    PREMIUM: true,
+  } as const,
+
+  // Insurance Support
+  INSURANCE_SUPPORT: {
+    COURIER: true,
+    POSTAL: false,
+    FREIGHT: true,
+    EXPRESS: true,
+    ECONOMY: false,
+    PREMIUM: true,
+  } as const,
+} as const;
+
+// Type Categories
+export type LogisticsShippingMethodTypeCategory =
+  (typeof LOGISTICS_SHIPPING_METHOD_TYPE.CATEGORIES)[keyof typeof LOGISTICS_SHIPPING_METHOD_TYPE.CATEGORIES];
+
+// Type Icons
+export type LogisticsShippingMethodTypeIcon =
+  (typeof LOGISTICS_SHIPPING_METHOD_TYPE.ICONS)[keyof typeof LOGISTICS_SHIPPING_METHOD_TYPE.ICONS];
+
+// Type Colors
+export type LogisticsShippingMethodTypeColor =
+  (typeof LOGISTICS_SHIPPING_METHOD_TYPE.COLORS)[keyof typeof LOGISTICS_SHIPPING_METHOD_TYPE.COLORS];
+
+// Utility Functions
+export function logisticsShippingMethodTypeGetLabel(type: LogisticsShippingMethodType): string {
+  const labels: Record<LogisticsShippingMethodType, string> = {
+    [LOGISTICS_SHIPPING_METHOD.TYPES.COURIER]: 'Courier',
+    [LOGISTICS_SHIPPING_METHOD.TYPES.POSTAL]: 'Postal',
+    [LOGISTICS_SHIPPING_METHOD.TYPES.FREIGHT]: 'Freight',
+    [LOGISTICS_SHIPPING_METHOD.TYPES.EXPRESS]: 'Express',
+    [LOGISTICS_SHIPPING_METHOD.TYPES.ECONOMY]: 'Economy',
+    [LOGISTICS_SHIPPING_METHOD.TYPES.PREMIUM]: 'Premium',
+  };
+  return labels[type] || 'Unknown';
+}
+
+export function logisticsShippingMethodTypeGetIcon(
+  type: LogisticsShippingMethodType
+): LogisticsShippingMethodTypeIcon {
+  const icons: Record<LogisticsShippingMethodType, LogisticsShippingMethodTypeIcon> = {
+    [LOGISTICS_SHIPPING_METHOD.TYPES.COURIER]: LOGISTICS_SHIPPING_METHOD_TYPE.ICONS.COURIER,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.POSTAL]: LOGISTICS_SHIPPING_METHOD_TYPE.ICONS.POSTAL,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.FREIGHT]: LOGISTICS_SHIPPING_METHOD_TYPE.ICONS.FREIGHT,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.EXPRESS]: LOGISTICS_SHIPPING_METHOD_TYPE.ICONS.EXPRESS,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.ECONOMY]: LOGISTICS_SHIPPING_METHOD_TYPE.ICONS.ECONOMY,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.PREMIUM]: LOGISTICS_SHIPPING_METHOD_TYPE.ICONS.PREMIUM,
+  };
+  return icons[type] || '📦';
+}
+
+export function logisticsShippingMethodTypeGetColor(
+  type: LogisticsShippingMethodType
+): LogisticsShippingMethodTypeColor {
+  const colors: Record<LogisticsShippingMethodType, LogisticsShippingMethodTypeColor> = {
+    [LOGISTICS_SHIPPING_METHOD.TYPES.COURIER]: LOGISTICS_SHIPPING_METHOD_TYPE.COLORS.COURIER,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.POSTAL]: LOGISTICS_SHIPPING_METHOD_TYPE.COLORS.POSTAL,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.FREIGHT]: LOGISTICS_SHIPPING_METHOD_TYPE.COLORS.FREIGHT,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.EXPRESS]: LOGISTICS_SHIPPING_METHOD_TYPE.COLORS.EXPRESS,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.ECONOMY]: LOGISTICS_SHIPPING_METHOD_TYPE.COLORS.ECONOMY,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.PREMIUM]: LOGISTICS_SHIPPING_METHOD_TYPE.COLORS.PREMIUM,
+  };
+  return colors[type] || '#blue-500';
+}
+
+export function logisticsShippingMethodTypeGetServiceLevel(
+  type: LogisticsShippingMethodType
+): number {
+  const levels: Record<LogisticsShippingMethodType, number> = {
+    [LOGISTICS_SHIPPING_METHOD.TYPES.COURIER]:
+      LOGISTICS_SHIPPING_METHOD_TYPE.SERVICE_LEVELS.COURIER,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.POSTAL]: LOGISTICS_SHIPPING_METHOD_TYPE.SERVICE_LEVELS.POSTAL,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.FREIGHT]:
+      LOGISTICS_SHIPPING_METHOD_TYPE.SERVICE_LEVELS.FREIGHT,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.EXPRESS]:
+      LOGISTICS_SHIPPING_METHOD_TYPE.SERVICE_LEVELS.EXPRESS,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.ECONOMY]:
+      LOGISTICS_SHIPPING_METHOD_TYPE.SERVICE_LEVELS.ECONOMY,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.PREMIUM]:
+      LOGISTICS_SHIPPING_METHOD_TYPE.SERVICE_LEVELS.PREMIUM,
+  };
+  return levels[type] || 2;
+}
+
+export function logisticsShippingMethodTypeHasTracking(type: LogisticsShippingMethodType): boolean {
+  const tracking: Record<LogisticsShippingMethodType, boolean> = {
+    [LOGISTICS_SHIPPING_METHOD.TYPES.COURIER]:
+      LOGISTICS_SHIPPING_METHOD_TYPE.TRACKING_SUPPORT.COURIER,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.POSTAL]:
+      LOGISTICS_SHIPPING_METHOD_TYPE.TRACKING_SUPPORT.POSTAL,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.FREIGHT]:
+      LOGISTICS_SHIPPING_METHOD_TYPE.TRACKING_SUPPORT.FREIGHT,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.EXPRESS]:
+      LOGISTICS_SHIPPING_METHOD_TYPE.TRACKING_SUPPORT.EXPRESS,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.ECONOMY]:
+      LOGISTICS_SHIPPING_METHOD_TYPE.TRACKING_SUPPORT.ECONOMY,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.PREMIUM]:
+      LOGISTICS_SHIPPING_METHOD_TYPE.TRACKING_SUPPORT.PREMIUM,
+  };
+  return tracking[type] || false;
+}
+
+export function logisticsShippingMethodTypeHasInsurance(
+  type: LogisticsShippingMethodType
+): boolean {
+  const insurance: Record<LogisticsShippingMethodType, boolean> = {
+    [LOGISTICS_SHIPPING_METHOD.TYPES.COURIER]:
+      LOGISTICS_SHIPPING_METHOD_TYPE.INSURANCE_SUPPORT.COURIER,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.POSTAL]:
+      LOGISTICS_SHIPPING_METHOD_TYPE.INSURANCE_SUPPORT.POSTAL,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.FREIGHT]:
+      LOGISTICS_SHIPPING_METHOD_TYPE.INSURANCE_SUPPORT.FREIGHT,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.EXPRESS]:
+      LOGISTICS_SHIPPING_METHOD_TYPE.INSURANCE_SUPPORT.EXPRESS,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.ECONOMY]:
+      LOGISTICS_SHIPPING_METHOD_TYPE.INSURANCE_SUPPORT.ECONOMY,
+    [LOGISTICS_SHIPPING_METHOD.TYPES.PREMIUM]:
+      LOGISTICS_SHIPPING_METHOD_TYPE.INSURANCE_SUPPORT.PREMIUM,
+  };
+  return insurance[type] || false;
+}

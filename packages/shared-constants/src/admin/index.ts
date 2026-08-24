@@ -635,51 +635,6 @@ export type {
   AdminNotificationAction,
 } from './notification/admin-notification.constants';
 
-// Admin Report
-export {
-  ADMIN_REPORT,
-  ADMIN_REPORT_TYPE_LABELS,
-  ADMIN_REPORT_TYPE_ICONS,
-  ADMIN_REPORT_FORMAT_LABELS,
-  ADMIN_REPORT_STATUS_LABELS,
-  ADMIN_REPORT_STATUS_COLORS,
-  ADMIN_REPORT_PRIORITY_LABELS,
-  ADMIN_REPORT_PRIORITY_LEVELS,
-  ADMIN_REPORT_FREQUENCY_LABELS,
-  ADMIN_REPORT_CATEGORY_LABELS,
-  ADMIN_REPORT_SCOPE_LABELS,
-  ADMIN_REPORT_DELIVERY_LABELS,
-  ADMIN_REPORT_TIMEFRAME_LABELS,
-  getAdminReportTypeLabel,
-  getAdminReportTypeIcon,
-  getAdminReportFormatLabel,
-  getAdminReportStatusLabel,
-  getAdminReportStatusColor,
-  getAdminReportPriorityLabel,
-  getAdminReportPriorityLevel,
-  getAdminReportFrequencyLabel,
-  getAdminReportCategoryLabel,
-  getAdminReportScopeLabel,
-  getAdminReportDeliveryLabel,
-  getAdminReportTimeframeLabel,
-  isReportGenerated,
-  isReportProcessing,
-  isReportFailed,
-  isReportTerminal,
-} from './report/admin-report.constants';
-
-export type {
-  AdminReportType,
-  AdminReportFormat,
-  AdminReportStatus,
-  AdminReportPriority,
-  AdminReportFrequency,
-  AdminReportCategory,
-  AdminReportScope,
-  AdminReportDelivery,
-  AdminReportTimeframe,
-} from './report/admin-report.constants';
-
 // Admin Error
 export {
   ADMIN_ERROR,
@@ -700,7 +655,7 @@ export {
   shouldRetryError,
   getErrorCodeCategory,
   getErrorTypeFromCode,
-} from './report/admin-error.constants';
+} from './admin-error.constants';
 
 export type {
   AdminErrorCategory,
@@ -709,4 +664,4 @@ export type {
   AdminErrorCode,
   AdminErrorSource,
   AdminErrorAction,
-} from './report/admin-error.constants';
+} from './admin-error.constants';

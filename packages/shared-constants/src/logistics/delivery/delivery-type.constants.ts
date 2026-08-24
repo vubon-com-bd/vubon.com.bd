@@ -1,0 +1,169 @@
+/**
+ * Delivery Type Constants
+ * Types of deliveries
+ */
+
+export const LOGISTICS_DELIVERY_TYPE = {
+  // Type Types
+  TYPES: {
+    STANDARD: 'standard',
+    EXPRESS: 'express',
+    SAME_DAY: 'same_day',
+    NEXT_DAY: 'next_day',
+    SCHEDULED: 'scheduled',
+    INTERNATIONAL: 'international',
+  } as const,
+
+  // Type Categories
+  CATEGORIES: {
+    REGULAR: 'regular',
+    PREMIUM: 'premium',
+    SPECIAL: 'special',
+  } as const,
+
+  // Type Icons (for UI)
+  ICONS: {
+    STANDARD: '📦',
+    EXPRESS: '🚀',
+    SAME_DAY: '☀️',
+    NEXT_DAY: '🌙',
+    SCHEDULED: '📅',
+    INTERNATIONAL: '✈️',
+  } as const,
+
+  // Type Colors (for UI)
+  COLORS: {
+    STANDARD: '#blue-400',
+    EXPRESS: '#green-500',
+    SAME_DAY: '#orange-500',
+    NEXT_DAY: '#purple-500',
+    SCHEDULED: '#teal-500',
+    INTERNATIONAL: '#red-500',
+  } as const,
+
+  // Delivery Time (in hours)
+  DELIVERY_TIME: {
+    STANDARD: 72,
+    EXPRESS: 48,
+    SAME_DAY: 8,
+    NEXT_DAY: 24,
+    SCHEDULED: 48,
+    INTERNATIONAL: 168,
+  } as const,
+
+  // Price Multiplier
+  PRICE_MULTIPLIER: {
+    STANDARD: 1.0,
+    EXPRESS: 1.5,
+    SAME_DAY: 3.0,
+    NEXT_DAY: 2.0,
+    SCHEDULED: 1.2,
+    INTERNATIONAL: 5.0,
+  } as const,
+} as const;
+
+// Type Types
+export type LogisticsDeliveryTypeType =
+  (typeof LOGISTICS_DELIVERY_TYPE.TYPES)[keyof typeof LOGISTICS_DELIVERY_TYPE.TYPES];
+
+// Type Categories
+export type LogisticsDeliveryTypeCategory =
+  (typeof LOGISTICS_DELIVERY_TYPE.CATEGORIES)[keyof typeof LOGISTICS_DELIVERY_TYPE.CATEGORIES];
+
+// Type Icons
+export type LogisticsDeliveryTypeIcon =
+  (typeof LOGISTICS_DELIVERY_TYPE.ICONS)[keyof typeof LOGISTICS_DELIVERY_TYPE.ICONS];
+
+// Type Colors
+export type LogisticsDeliveryTypeColor =
+  (typeof LOGISTICS_DELIVERY_TYPE.COLORS)[keyof typeof LOGISTICS_DELIVERY_TYPE.COLORS];
+
+// Utility Functions
+export function logisticsDeliveryTypeGetLabel(type: LogisticsDeliveryTypeType): string {
+  const labels: Record<LogisticsDeliveryTypeType, string> = {
+    [LOGISTICS_DELIVERY_TYPE.TYPES.STANDARD]: 'Standard',
+    [LOGISTICS_DELIVERY_TYPE.TYPES.EXPRESS]: 'Express',
+    [LOGISTICS_DELIVERY_TYPE.TYPES.SAME_DAY]: 'Same Day',
+    [LOGISTICS_DELIVERY_TYPE.TYPES.NEXT_DAY]: 'Next Day',
+    [LOGISTICS_DELIVERY_TYPE.TYPES.SCHEDULED]: 'Scheduled',
+    [LOGISTICS_DELIVERY_TYPE.TYPES.INTERNATIONAL]: 'International',
+  };
+  return labels[type] || 'Unknown';
+}
+
+export function logisticsDeliveryTypeGetCategory(
+  type: LogisticsDeliveryTypeType
+): LogisticsDeliveryTypeCategory {
+  const categories: Record<LogisticsDeliveryTypeType, LogisticsDeliveryTypeCategory> = {
+    [LOGISTICS_DELIVERY_TYPE.TYPES.STANDARD]: LOGISTICS_DELIVERY_TYPE.CATEGORIES.REGULAR,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.EXPRESS]: LOGISTICS_DELIVERY_TYPE.CATEGORIES.PREMIUM,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.SAME_DAY]: LOGISTICS_DELIVERY_TYPE.CATEGORIES.PREMIUM,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.NEXT_DAY]: LOGISTICS_DELIVERY_TYPE.CATEGORIES.PREMIUM,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.SCHEDULED]: LOGISTICS_DELIVERY_TYPE.CATEGORIES.REGULAR,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.INTERNATIONAL]: LOGISTICS_DELIVERY_TYPE.CATEGORIES.SPECIAL,
+  };
+  return categories[type] || LOGISTICS_DELIVERY_TYPE.CATEGORIES.REGULAR;
+}
+
+export function logisticsDeliveryTypeGetIcon(
+  type: LogisticsDeliveryTypeType
+): LogisticsDeliveryTypeIcon {
+  const icons: Record<LogisticsDeliveryTypeType, LogisticsDeliveryTypeIcon> = {
+    [LOGISTICS_DELIVERY_TYPE.TYPES.STANDARD]: LOGISTICS_DELIVERY_TYPE.ICONS.STANDARD,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.EXPRESS]: LOGISTICS_DELIVERY_TYPE.ICONS.EXPRESS,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.SAME_DAY]: LOGISTICS_DELIVERY_TYPE.ICONS.SAME_DAY,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.NEXT_DAY]: LOGISTICS_DELIVERY_TYPE.ICONS.NEXT_DAY,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.SCHEDULED]: LOGISTICS_DELIVERY_TYPE.ICONS.SCHEDULED,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.INTERNATIONAL]: LOGISTICS_DELIVERY_TYPE.ICONS.INTERNATIONAL,
+  };
+  return icons[type] || '📦';
+}
+
+export function logisticsDeliveryTypeGetColor(
+  type: LogisticsDeliveryTypeType
+): LogisticsDeliveryTypeColor {
+  const colors: Record<LogisticsDeliveryTypeType, LogisticsDeliveryTypeColor> = {
+    [LOGISTICS_DELIVERY_TYPE.TYPES.STANDARD]: LOGISTICS_DELIVERY_TYPE.COLORS.STANDARD,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.EXPRESS]: LOGISTICS_DELIVERY_TYPE.COLORS.EXPRESS,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.SAME_DAY]: LOGISTICS_DELIVERY_TYPE.COLORS.SAME_DAY,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.NEXT_DAY]: LOGISTICS_DELIVERY_TYPE.COLORS.NEXT_DAY,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.SCHEDULED]: LOGISTICS_DELIVERY_TYPE.COLORS.SCHEDULED,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.INTERNATIONAL]: LOGISTICS_DELIVERY_TYPE.COLORS.INTERNATIONAL,
+  };
+  return colors[type] || '#blue-400';
+}
+
+export function logisticsDeliveryTypeGetDeliveryTime(type: LogisticsDeliveryTypeType): number {
+  const times: Record<LogisticsDeliveryTypeType, number> = {
+    [LOGISTICS_DELIVERY_TYPE.TYPES.STANDARD]: LOGISTICS_DELIVERY_TYPE.DELIVERY_TIME.STANDARD,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.EXPRESS]: LOGISTICS_DELIVERY_TYPE.DELIVERY_TIME.EXPRESS,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.SAME_DAY]: LOGISTICS_DELIVERY_TYPE.DELIVERY_TIME.SAME_DAY,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.NEXT_DAY]: LOGISTICS_DELIVERY_TYPE.DELIVERY_TIME.NEXT_DAY,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.SCHEDULED]: LOGISTICS_DELIVERY_TYPE.DELIVERY_TIME.SCHEDULED,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.INTERNATIONAL]:
+      LOGISTICS_DELIVERY_TYPE.DELIVERY_TIME.INTERNATIONAL,
+  };
+  return times[type] || LOGISTICS_DELIVERY_TYPE.DELIVERY_TIME.STANDARD;
+}
+
+export function logisticsDeliveryTypeGetPriceMultiplier(type: LogisticsDeliveryTypeType): number {
+  const multipliers: Record<LogisticsDeliveryTypeType, number> = {
+    [LOGISTICS_DELIVERY_TYPE.TYPES.STANDARD]: LOGISTICS_DELIVERY_TYPE.PRICE_MULTIPLIER.STANDARD,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.EXPRESS]: LOGISTICS_DELIVERY_TYPE.PRICE_MULTIPLIER.EXPRESS,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.SAME_DAY]: LOGISTICS_DELIVERY_TYPE.PRICE_MULTIPLIER.SAME_DAY,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.NEXT_DAY]: LOGISTICS_DELIVERY_TYPE.PRICE_MULTIPLIER.NEXT_DAY,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.SCHEDULED]: LOGISTICS_DELIVERY_TYPE.PRICE_MULTIPLIER.SCHEDULED,
+    [LOGISTICS_DELIVERY_TYPE.TYPES.INTERNATIONAL]:
+      LOGISTICS_DELIVERY_TYPE.PRICE_MULTIPLIER.INTERNATIONAL,
+  };
+  return multipliers[type] || 1.0;
+}
+
+export function logisticsDeliveryTypeIsPremium(type: LogisticsDeliveryTypeType): boolean {
+  const premiumTypes: LogisticsDeliveryTypeType[] = [
+    LOGISTICS_DELIVERY_TYPE.TYPES.EXPRESS,
+    LOGISTICS_DELIVERY_TYPE.TYPES.SAME_DAY,
+    LOGISTICS_DELIVERY_TYPE.TYPES.NEXT_DAY,
+  ];
+  return premiumTypes.includes(type);
+}

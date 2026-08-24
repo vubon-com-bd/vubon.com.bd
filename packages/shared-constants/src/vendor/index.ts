@@ -481,6 +481,3 @@ export * from './vendor-team';
 
 // Vendor Activity Constants
 export * from './vendor-activity';
-
-// Vendor Report Constants
-export * from './vendor-report';
