@@ -323,7 +323,7 @@ export function getAdminPreferenceGroupLabel(group: AdminPreferenceGroup): strin
   return ADMIN_PREFERENCES_GROUP_LABELS[group] || 'Unknown Group';
 }
 
-export function isPreferenceActive(status: AdminPreferenceStatus): boolean {
+export function isAdminPreferenceActive(status: AdminPreferenceStatus): boolean {
   return (
     status === ADMIN_PREFERENCES.STATUSES.ACTIVE ||
     status === ADMIN_PREFERENCES.STATUSES.CONFIGURED ||
@@ -331,7 +331,7 @@ export function isPreferenceActive(status: AdminPreferenceStatus): boolean {
   );
 }
 
-export function isPreferenceInactive(status: AdminPreferenceStatus): boolean {
+export function isAdminPreferenceInactive(status: AdminPreferenceStatus): boolean {
   return (
     status === ADMIN_PREFERENCES.STATUSES.INACTIVE ||
     status === ADMIN_PREFERENCES.STATUSES.DRAFT ||
@@ -339,23 +339,23 @@ export function isPreferenceInactive(status: AdminPreferenceStatus): boolean {
   );
 }
 
-export function isPreferenceLocked(status: AdminPreferenceStatus): boolean {
+export function isAdminPreferenceLocked(status: AdminPreferenceStatus): boolean {
   return status === ADMIN_PREFERENCES.STATUSES.LOCKED;
 }
 
-export function isPreferenceDefault(status: AdminPreferenceStatus): boolean {
+export function isAdminPreferenceDefault(status: AdminPreferenceStatus): boolean {
   return (
     status === ADMIN_PREFERENCES.STATUSES.DEFAULT || status === ADMIN_PREFERENCES.STATUSES.INHERITED
   );
 }
 
-export function isPreferenceCustom(status: AdminPreferenceStatus): boolean {
+export function isAdminPreferenceCustom(status: AdminPreferenceStatus): boolean {
   return (
     status === ADMIN_PREFERENCES.STATUSES.CUSTOM || status === ADMIN_PREFERENCES.STATUSES.OVERRIDDEN
   );
 }
 
-export function getPreferenceSourceLabel(source: AdminPreferenceSource): string {
+export function getAdminPreferenceSourceLabel(source: AdminPreferenceSource): string {
   const labels: Record<AdminPreferenceSource, string> = {
     [ADMIN_PREFERENCES.SOURCES.DEFAULT]: 'Default',
     [ADMIN_PREFERENCES.SOURCES.USER]: 'User',

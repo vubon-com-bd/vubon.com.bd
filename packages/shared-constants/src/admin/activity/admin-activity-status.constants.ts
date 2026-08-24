@@ -189,39 +189,39 @@ export const ADMIN_ACTIVITY_STATUS_GROUPS = {
   ] as AdminActivityStatusDetail[],
 };
 
-export function getAdminActivityStatusLabel(status: AdminActivityStatusDetail): string {
+export function getActivityAdminStatusLabel(status: AdminActivityStatusDetail): string {
   return ADMIN_ACTIVITY_STATUS_LABELS_DETAIL[status] || 'Unknown Status';
 }
 
-export function getAdminActivityStatusColor(status: AdminActivityStatusDetail): string {
+export function getActivityAdminStatusColor(status: AdminActivityStatusDetail): string {
   return ADMIN_ACTIVITY_STATUS_COLORS_DETAIL[status] || '#6B7280';
 }
 
-export function isSuccessStatus(status: AdminActivityStatusDetail): boolean {
+export function isActivityAdminSuccessStatus(status: AdminActivityStatusDetail): boolean {
   return ADMIN_ACTIVITY_STATUS_GROUPS.SUCCESS.includes(status);
 }
 
-export function isFailureStatus(status: AdminActivityStatusDetail): boolean {
+export function isActivityAdminFailureStatus(status: AdminActivityStatusDetail): boolean {
   return ADMIN_ACTIVITY_STATUS_GROUPS.FAILURE.includes(status);
 }
 
-export function isPendingStatus(status: AdminActivityStatusDetail): boolean {
+export function isActivityAdminPendingStatus(status: AdminActivityStatusDetail): boolean {
   return ADMIN_ACTIVITY_STATUS_GROUPS.PENDING.includes(status);
 }
 
-export function isIntermediateStatus(status: AdminActivityStatusDetail): boolean {
+export function isActivityAdminIntermediateStatus(status: AdminActivityStatusDetail): boolean {
   return ADMIN_ACTIVITY_STATUS_GROUPS.INTERMEDIATE.includes(status);
 }
 
-export function isTerminalStatus(status: AdminActivityStatusDetail): boolean {
-  return isSuccessStatus(status) || isFailureStatus(status);
+export function isActivityAdminTerminalStatus(status: AdminActivityStatusDetail): boolean {
+  return isActivityAdminSuccessStatus(status) || isActivityAdminFailureStatus(status);
 }
 
-export function isActiveStatus(status: AdminActivityStatusDetail): boolean {
-  return isPendingStatus(status) || isIntermediateStatus(status);
+export function isActivityAdminActiveStatus(status: AdminActivityStatusDetail): boolean {
+  return isActivityAdminPendingStatus(status) || isActivityAdminIntermediateStatus(status);
 }
 
-export function getStatusPriority(status: AdminActivityStatusDetail): number {
+export function getActivityAdminStatusPriority(status: AdminActivityStatusDetail): number {
   const priorityMap: Record<AdminActivityStatusDetail, number> = {
     [ADMIN_ACTIVITY_STATUS.SUCCESS]: 1,
     [ADMIN_ACTIVITY_STATUS.COMPLETED]: 1,
@@ -267,22 +267,22 @@ export function getStatusPriority(status: AdminActivityStatusDetail): number {
   return priorityMap[status] || 3;
 }
 
-export function getAdminActivityStatuses(): AdminActivityStatusDetail[] {
+export function getActivityAdminStatuses(): AdminActivityStatusDetail[] {
   return Object.values(ADMIN_ACTIVITY_STATUS);
 }
 
-export function getSuccessStatuses(): AdminActivityStatusDetail[] {
+export function getActivityAdminSuccessStatuses(): AdminActivityStatusDetail[] {
   return ADMIN_ACTIVITY_STATUS_GROUPS.SUCCESS;
 }
 
-export function getFailureStatuses(): AdminActivityStatusDetail[] {
+export function getActivityAdminFailureStatuses(): AdminActivityStatusDetail[] {
   return ADMIN_ACTIVITY_STATUS_GROUPS.FAILURE;
 }
 
-export function getPendingStatuses(): AdminActivityStatusDetail[] {
+export function getActivityAdminPendingStatuses(): AdminActivityStatusDetail[] {
   return ADMIN_ACTIVITY_STATUS_GROUPS.PENDING;
 }
 
-export function getIntermediateStatuses(): AdminActivityStatusDetail[] {
+export function getActivityAdminIntermediateStatuses(): AdminActivityStatusDetail[] {
   return ADMIN_ACTIVITY_STATUS_GROUPS.INTERMEDIATE;
 }

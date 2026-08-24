@@ -1,9 +1,4 @@
-/**
- * Admin Notification Constants Index
- * Export all admin notification constants for easy importing
- */
-
-// Admin Notification Core Constants
+// Export all constants from admin-notification.constants
 export {
   ADMIN_NOTIFICATION,
   ADMIN_NOTIFICATION_CHANNEL_LABELS,
@@ -17,25 +12,9 @@ export {
   ADMIN_NOTIFICATION_CATEGORY_LABELS,
   ADMIN_NOTIFICATION_DELIVERY_LABELS,
   ADMIN_NOTIFICATION_ACTION_LABELS,
-  getAdminNotificationChannelLabel,
-  getAdminNotificationChannelIcon,
-  getAdminNotificationTypeLabel,
-  getAdminNotificationTypeColor,
-  getAdminNotificationStatusLabel,
-  getAdminNotificationStatusColor,
-  getAdminNotificationPriorityLabel,
-  getAdminNotificationPriorityLevel,
-  getAdminNotificationCategoryLabel,
-  getAdminNotificationDeliveryLabel,
-  getAdminNotificationActionLabel,
-  isNotificationDelivered,
-  isNotificationFailed,
-  isNotificationPending,
-  isNotificationRead,
-  getNotificationTimeout,
-  getNotificationTemplateLabel,
 } from './admin-notification.constants';
 
+// Export all types from admin-notification.constants
 export type {
   AdminNotificationChannel,
   AdminNotificationType,
@@ -47,55 +26,86 @@ export type {
   AdminNotificationAction,
 } from './admin-notification.constants';
 
-// Admin Notification Type Constants
+// Export all functions from admin-notification.constants
+export {
+  getAdminNotificationChannelLabel,
+  getAdminNotificationChannelIcon,
+  getAdminNotificationTypeLabel,
+  getAdminNotificationTypeColor,
+  getAdminNotificationStatusLabel,
+  getAdminNotificationStatusColor,
+  getAdminNotificationPriorityLabel,
+  getAdminNotificationPriorityLevel,
+  getAdminNotificationCategoryLabel,
+  getAdminNotificationDeliveryLabel,
+  getAdminNotificationActionLabel,
+  isAdminNotificationDelivered,
+  isAdminNotificationFailed,
+  isAdminNotificationPending,
+  isAdminNotificationRead,
+  getAdminNotificationTimeout,
+  getAdminNotificationTemplateLabel,
+} from './admin-notification.constants';
+
+// Export all constants from admin-notification-type.constants
 export {
   ADMIN_NOTIFICATION_TYPE,
   ADMIN_NOTIFICATION_TYPE_CATEGORIES,
   ADMIN_NOTIFICATION_TYPE_LABELS_DETAIL,
-  getAdminNotificationTypeCategory,
-  getAdminNotificationTypeLabel as getAdminNotificationTypeLabelDetail,
-  isSystemNotification,
-  isSecurityNotification,
-  isUserNotification,
-  isBusinessNotification,
-  isPaymentNotification,
-  isProductNotification,
-  isReportNotification,
-  isApprovalNotification,
-  isAlertNotification,
-  isReminderNotification,
-  isMarketingNotification,
-  isCollaborationNotification,
 } from './admin-notification-type.constants';
 
+// Export all types from admin-notification-type.constants
 export type { AdminNotificationTypeDetail } from './admin-notification-type.constants';
 
-// Admin Notification Status Constants
+// Export all functions from admin-notification-type.constants
+export {
+  getAdminNotificationTypeCategory,
+  getAdminNotificationTypeLabel as getAdminNotificationTypeLabelDetail,
+  isAdminNotificationSystemType,
+  isAdminNotificationSecurityType,
+  isAdminNotificationUserType,
+  isAdminNotificationBusinessType,
+  isAdminNotificationPaymentType,
+  isAdminNotificationProductType,
+  isAdminNotificationReportType,
+  isAdminNotificationApprovalType,
+  isAdminNotificationAlertType,
+  isAdminNotificationReminderType,
+  isAdminNotificationMarketingType,
+  isAdminNotificationCollaborationType,
+} from './admin-notification-type.constants';
+
+// Export all constants from admin-notification-status.constants
 export {
   ADMIN_NOTIFICATION_STATUS,
   ADMIN_NOTIFICATION_STATUS_LABELS_DETAIL,
   ADMIN_NOTIFICATION_STATUS_COLORS_DETAIL,
   ADMIN_NOTIFICATION_STATUS_GROUPS,
-  getAdminNotificationStatusLabel as getAdminNotificationStatusLabelDetail,
-  getAdminNotificationStatusColor as getAdminNotificationStatusColorDetail,
-  isLifecycleStatus,
-  isDeliveryStatus,
-  isReadStatus,
-  isFinalStatus,
-  isErrorStatus,
-  isDeliveredStatus,
-  isFailedStatus,
-  isPendingStatus,
-  isUnreadStatus,
-  isReadStatusType,
-  isTerminalStatus,
-  getStatusPriority,
-  getAdminNotificationStatuses,
-  getLifecycleStatuses,
-  getDeliveryStatuses,
-  getReadStatuses,
-  getFinalStatuses,
-  getErrorStatuses,
 } from './admin-notification-status.constants';
 
+// Export all types from admin-notification-status.constants
 export type { AdminNotificationStatusDetail } from './admin-notification-status.constants';
+
+// Export all functions from admin-notification-status.constants
+export {
+  getAdminNotificationStatusLabel as getAdminNotificationStatusLabelDetail,
+  getAdminNotificationStatusColor as getAdminNotificationStatusColorDetail,
+  isAdminNotificationLifecycleStatus,
+  isAdminNotificationDeliveryStatus,
+  isAdminNotificationReadStatus,
+  isAdminNotificationFinalStatus,
+  isAdminNotificationErrorStatus,
+  isAdminNotificationDeliveredStatus,
+  isAdminNotificationFailedStatus,
+  isAdminNotificationPendingStatus,
+  isAdminNotificationUnreadStatus,
+  isAdminNotificationReadStatusType,
+  isAdminNotificationTerminalStatus,
+  getAdminNotificationStatusPriority,
+  getAdminNotificationStatuses,
+  getAdminNotificationLifecycleStatuses,
+  getAdminNotificationDeliveryStatuses,
+  getAdminNotificationReadStatuses,
+  getAdminNotificationFinalStatuses,
+  getAdminNotificationErrorStatuses,
+} from './admin-notification-status.constants';

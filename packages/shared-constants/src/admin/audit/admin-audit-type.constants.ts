@@ -697,25 +697,25 @@ export function getAdminAuditTypeLabel(type: AdminAuditTypeDetail): string {
   return ADMIN_AUDIT_TYPE_LABELS_DETAIL[type] || 'Unknown Audit Type';
 }
 
-export function isSecurityAudit(type: AdminAuditTypeDetail): boolean {
+export function isAdminAuditSecurity(type: AdminAuditTypeDetail): boolean {
   return getAdminAuditTypeCategory(type) === 'security';
 }
 
-export function isComplianceAudit(type: AdminAuditTypeDetail): boolean {
+export function isAdminAuditCompliance(type: AdminAuditTypeDetail): boolean {
   return getAdminAuditTypeCategory(type) === 'compliance';
 }
 
-export function isFinancialAudit(type: AdminAuditTypeDetail): boolean {
+export function isAdminAuditFinancial(type: AdminAuditTypeDetail): boolean {
   return getAdminAuditTypeCategory(type) === 'finance';
 }
 
-export function isUserAudit(type: AdminAuditTypeDetail): boolean {
+export function isAdminAuditUser(type: AdminAuditTypeDetail): boolean {
   return (
     getAdminAuditTypeCategory(type) === 'user_management' ||
     getAdminAuditTypeCategory(type) === 'authentication'
   );
 }
 
-export function isSystemAudit(type: AdminAuditTypeDetail): boolean {
+export function isAdminAuditSystem(type: AdminAuditTypeDetail): boolean {
   return getAdminAuditTypeCategory(type) === 'system_management';
 }

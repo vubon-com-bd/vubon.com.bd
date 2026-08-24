@@ -217,59 +217,63 @@ export const ADMIN_2FA_STATUS_GROUPS = {
   ] as Admin2FAStatusDetail[],
 };
 
-export function getAdmin2FAStatusLabel(status: Admin2FAStatusDetail): string {
+export function get2faAdminStatusLabel(status: Admin2FAStatusDetail): string {
   return ADMIN_2FA_STATUS_LABELS_DETAIL[status] || 'Unknown Status';
 }
 
-export function getAdmin2FAStatusColor(status: Admin2FAStatusDetail): string {
+export function get2faAdminStatusColor(status: Admin2FAStatusDetail): string {
   return ADMIN_2FA_STATUS_COLORS_DETAIL[status] || '#6B7280';
 }
 
-export function isActiveStatus(status: Admin2FAStatusDetail): boolean {
+export function is2faAdminActiveStatus(status: Admin2FAStatusDetail): boolean {
   return ADMIN_2FA_STATUS_GROUPS.ACTIVE.includes(status);
 }
 
-export function isInactiveStatus(status: Admin2FAStatusDetail): boolean {
+export function is2faAdminInactiveStatus(status: Admin2FAStatusDetail): boolean {
   return ADMIN_2FA_STATUS_GROUPS.INACTIVE.includes(status);
 }
 
-export function isPendingStatus(status: Admin2FAStatusDetail): boolean {
+export function is2faAdminPendingStatus(status: Admin2FAStatusDetail): boolean {
   return ADMIN_2FA_STATUS_GROUPS.PENDING.includes(status);
 }
 
-export function isSecurityStatus(status: Admin2FAStatusDetail): boolean {
+export function is2faAdminSecurityStatus(status: Admin2FAStatusDetail): boolean {
   return ADMIN_2FA_STATUS_GROUPS.SECURITY.includes(status);
 }
 
-export function isExpiredStatus(status: Admin2FAStatusDetail): boolean {
+export function is2faAdminExpiredStatus(status: Admin2FAStatusDetail): boolean {
   return ADMIN_2FA_STATUS_GROUPS.EXPIRED.includes(status);
 }
 
-export function isBackupStatus(status: Admin2FAStatusDetail): boolean {
+export function is2faAdminBackupStatus(status: Admin2FAStatusDetail): boolean {
   return ADMIN_2FA_STATUS_GROUPS.BACKUP.includes(status);
 }
 
-export function isFinalStatus(status: Admin2FAStatusDetail): boolean {
+export function is2faAdminFinalStatus(status: Admin2FAStatusDetail): boolean {
   return ADMIN_2FA_STATUS_GROUPS.FINAL.includes(status);
 }
 
-export function isRecoveryStatus(status: Admin2FAStatusDetail): boolean {
+export function is2faAdminRecoveryStatus(status: Admin2FAStatusDetail): boolean {
   return ADMIN_2FA_STATUS_GROUPS.RECOVERY.includes(status);
 }
 
-export function isTerminalStatus(status: Admin2FAStatusDetail): boolean {
-  return isFinalStatus(status) || isExpiredStatus(status);
+export function is2faAdminTerminalStatus(status: Admin2FAStatusDetail): boolean {
+  return is2faAdminFinalStatus(status) || is2faAdminExpiredStatus(status);
 }
 
-export function isUsableStatus(status: Admin2FAStatusDetail): boolean {
-  return isActiveStatus(status) || isBackupStatus(status);
+export function is2faAdminUsableStatus(status: Admin2FAStatusDetail): boolean {
+  return is2faAdminActiveStatus(status) || is2faAdminBackupStatus(status);
 }
 
-export function isRequiringAction(status: Admin2FAStatusDetail): boolean {
-  return isPendingStatus(status) || isSecurityStatus(status) || isRecoveryStatus(status);
+export function is2faAdminRequiringAction(status: Admin2FAStatusDetail): boolean {
+  return (
+    is2faAdminPendingStatus(status) ||
+    is2faAdminSecurityStatus(status) ||
+    is2faAdminRecoveryStatus(status)
+  );
 }
 
-export function getStatusPriority(status: Admin2FAStatusDetail): number {
+export function get2faAdminStatusPriority(status: Admin2FAStatusDetail): number {
   const priorityMap: Record<Admin2FAStatusDetail, number> = {
     [ADMIN_2FA_STATUS.ENABLED]: 1,
     [ADMIN_2FA_STATUS.VERIFIED]: 1,
@@ -309,38 +313,38 @@ export function getStatusPriority(status: Admin2FAStatusDetail): number {
   return priorityMap[status] || 3;
 }
 
-export function getAdmin2FAStatuses(): Admin2FAStatusDetail[] {
+export function get2faAdminStatuses(): Admin2FAStatusDetail[] {
   return Object.values(ADMIN_2FA_STATUS);
 }
 
-export function getActiveStatuses(): Admin2FAStatusDetail[] {
+export function get2faAdminActiveStatuses(): Admin2FAStatusDetail[] {
   return ADMIN_2FA_STATUS_GROUPS.ACTIVE;
 }
 
-export function getInactiveStatuses(): Admin2FAStatusDetail[] {
+export function get2faAdminInactiveStatuses(): Admin2FAStatusDetail[] {
   return ADMIN_2FA_STATUS_GROUPS.INACTIVE;
 }
 
-export function getPendingStatuses(): Admin2FAStatusDetail[] {
+export function get2faAdminPendingStatuses(): Admin2FAStatusDetail[] {
   return ADMIN_2FA_STATUS_GROUPS.PENDING;
 }
 
-export function getSecurityStatuses(): Admin2FAStatusDetail[] {
+export function get2faAdminSecurityStatuses(): Admin2FAStatusDetail[] {
   return ADMIN_2FA_STATUS_GROUPS.SECURITY;
 }
 
-export function getExpiredStatuses(): Admin2FAStatusDetail[] {
+export function get2faAdminExpiredStatuses(): Admin2FAStatusDetail[] {
   return ADMIN_2FA_STATUS_GROUPS.EXPIRED;
 }
 
-export function getBackupStatuses(): Admin2FAStatusDetail[] {
+export function get2faAdminBackupStatuses(): Admin2FAStatusDetail[] {
   return ADMIN_2FA_STATUS_GROUPS.BACKUP;
 }
 
-export function getFinalStatuses(): Admin2FAStatusDetail[] {
+export function get2faAdminFinalStatuses(): Admin2FAStatusDetail[] {
   return ADMIN_2FA_STATUS_GROUPS.FINAL;
 }
 
-export function getRecoveryStatuses(): Admin2FAStatusDetail[] {
+export function get2faAdminRecoveryStatuses(): Admin2FAStatusDetail[] {
   return ADMIN_2FA_STATUS_GROUPS.RECOVERY;
 }

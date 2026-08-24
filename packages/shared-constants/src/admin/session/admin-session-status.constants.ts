@@ -173,60 +173,64 @@ export function getAdminSessionStatusColor(status: AdminSessionStatusDetail): st
   return ADMIN_SESSION_STATUS_COLORS_DETAIL[status] || '#6B7280';
 }
 
-export function isActiveStatus(status: AdminSessionStatusDetail): boolean {
+export function isAdminSessionActiveStatus(status: AdminSessionStatusDetail): boolean {
   return ADMIN_SESSION_STATUS_GROUPS.ACTIVE.includes(status);
 }
 
-export function isInactiveStatus(status: AdminSessionStatusDetail): boolean {
+export function isAdminSessionInactiveStatus(status: AdminSessionStatusDetail): boolean {
   return ADMIN_SESSION_STATUS_GROUPS.INACTIVE.includes(status);
 }
 
-export function isExpiredStatus(status: AdminSessionStatusDetail): boolean {
+export function isAdminSessionExpiredStatus(status: AdminSessionStatusDetail): boolean {
   return ADMIN_SESSION_STATUS_GROUPS.EXPIRED.includes(status);
 }
 
-export function isTerminatedStatus(status: AdminSessionStatusDetail): boolean {
+export function isAdminSessionTerminatedStatus(status: AdminSessionStatusDetail): boolean {
   return ADMIN_SESSION_STATUS_GROUPS.TERMINATED.includes(status);
 }
 
-export function isPendingStatus(status: AdminSessionStatusDetail): boolean {
+export function isAdminSessionPendingStatus(status: AdminSessionStatusDetail): boolean {
   return ADMIN_SESSION_STATUS_GROUPS.PENDING.includes(status);
 }
 
-export function isVerificationStatus(status: AdminSessionStatusDetail): boolean {
+export function isAdminSessionVerificationStatus(status: AdminSessionStatusDetail): boolean {
   return ADMIN_SESSION_STATUS_GROUPS.VERIFICATION.includes(status);
 }
 
-export function isSecurityStatus(status: AdminSessionStatusDetail): boolean {
+export function isAdminSessionSecurityStatus(status: AdminSessionStatusDetail): boolean {
   return ADMIN_SESSION_STATUS_GROUPS.SECURITY.includes(status);
 }
 
-export function isUsableSessionStatus(status: AdminSessionStatusDetail): boolean {
-  return isActiveStatus(status) || isPendingStatus(status);
+export function isAdminUsableSessionStatus(status: AdminSessionStatusDetail): boolean {
+  return isAdminSessionActiveStatus(status) || isAdminSessionPendingStatus(status);
 }
 
-export function isValidSessionStatus(status: AdminSessionStatusDetail): boolean {
-  return !isTerminatedStatus(status) && !isExpiredStatus(status) && !isSecurityStatus(status);
+export function isAdminValidSessionStatus(status: AdminSessionStatusDetail): boolean {
+  return (
+    !isAdminSessionTerminatedStatus(status) &&
+    !isAdminSessionExpiredStatus(status) &&
+    !isAdminSessionSecurityStatus(status)
+  );
 }
 
-export function isCompromisedSession(status: AdminSessionStatusDetail): boolean {
+export function isAdminCompromisedSession(status: AdminSessionStatusDetail): boolean {
   return status === ADMIN_SESSION_STATUS.COMPROMISED || status === ADMIN_SESSION_STATUS.HIJACKED;
 }
 
-export function isSuspiciousSession(status: AdminSessionStatusDetail): boolean {
+export function isAdminSuspiciousSession(status: AdminSessionStatusDetail): boolean {
   return status === ADMIN_SESSION_STATUS.SUSPICIOUS || status === ADMIN_SESSION_STATUS.UNDER_REVIEW;
 }
 
-export function shouldRevokeSession(status: AdminSessionStatusDetail): boolean {
+export function shouldAdminRevokeSession(status: AdminSessionStatusDetail): boolean {
   return (
-    isCompromisedSession(status) ||
-    isSuspiciousSession(status) ||
+    isAdminCompromisedSession(status) ||
+    isAdminSuspiciousSession(status) ||
     status === ADMIN_SESSION_STATUS.BLOCKED ||
     status === ADMIN_SESSION_STATUS.BANNED
   );
 }
 
-export function getStatusPriority(status: AdminSessionStatusDetail): number {
+export function getAdminSessionStatusPriority(status: AdminSessionStatusDetail): number {
   const priorityMap: Record<AdminSessionStatusDetail, number> = {
     [ADMIN_SESSION_STATUS.ACTIVE]: 1,
     [ADMIN_SESSION_STATUS.VERIFIED]: 1,
@@ -266,30 +270,30 @@ export function getAdminSessionStatuses(): AdminSessionStatusDetail[] {
   return Object.values(ADMIN_SESSION_STATUS);
 }
 
-export function getActiveStatuses(): AdminSessionStatusDetail[] {
+export function getAdminActiveStatuses(): AdminSessionStatusDetail[] {
   return ADMIN_SESSION_STATUS_GROUPS.ACTIVE;
 }
 
-export function getInactiveStatuses(): AdminSessionStatusDetail[] {
+export function getAdminInactiveStatuses(): AdminSessionStatusDetail[] {
   return ADMIN_SESSION_STATUS_GROUPS.INACTIVE;
 }
 
-export function getExpiredStatuses(): AdminSessionStatusDetail[] {
+export function getAdminExpiredStatuses(): AdminSessionStatusDetail[] {
   return ADMIN_SESSION_STATUS_GROUPS.EXPIRED;
 }
 
-export function getTerminatedStatuses(): AdminSessionStatusDetail[] {
+export function getAdminTerminatedStatuses(): AdminSessionStatusDetail[] {
   return ADMIN_SESSION_STATUS_GROUPS.TERMINATED;
 }
 
-export function getPendingStatuses(): AdminSessionStatusDetail[] {
+export function getAdminPendingStatuses(): AdminSessionStatusDetail[] {
   return ADMIN_SESSION_STATUS_GROUPS.PENDING;
 }
 
-export function getVerificationStatuses(): AdminSessionStatusDetail[] {
+export function getAdminVerificationStatuses(): AdminSessionStatusDetail[] {
   return ADMIN_SESSION_STATUS_GROUPS.VERIFICATION;
 }
 
-export function getSecurityStatuses(): AdminSessionStatusDetail[] {
+export function getAdminSecurityStatuses(): AdminSessionStatusDetail[] {
   return ADMIN_SESSION_STATUS_GROUPS.SECURITY;
 }

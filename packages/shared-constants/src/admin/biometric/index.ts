@@ -1,9 +1,4 @@
-/**
- * Admin Biometric Constants Index
- * Export all admin biometric constants for easy importing
- */
-
-// Admin Biometric Core Constants
+// Export all constants from admin-biometric.constants
 export {
   ADMIN_BIOMETRIC,
   ADMIN_BIOMETRIC_TYPE_LABELS,
@@ -18,28 +13,9 @@ export {
   ADMIN_BIOMETRIC_SENSOR_LABELS,
   ADMIN_BIOMETRIC_QUALITY_LEVEL_LABELS,
   ADMIN_BIOMETRIC_CAPTURE_METHOD_LABELS,
-  getAdminBiometricTypeLabel,
-  getAdminBiometricTypeIcon,
-  getAdminBiometricStatusLabel,
-  getAdminBiometricStatusColor,
-  getAdminBiometricSecurityLevelLabel,
-  getAdminBiometricSecurityLevelPriority,
-  getAdminBiometricAccuracyLevelLabel,
-  getAdminBiometricVerificationMethodLabel,
-  getAdminBiometricConfidenceLevelLabel,
-  getAdminBiometricSensorLabel,
-  getAdminBiometricQualityLevelLabel,
-  getAdminBiometricCaptureMethodLabel,
-  // রিনেম করা ফাংশনগুলো এক্সপোর্ট করা হলো
-  isAdminBiometricActive,
-  isAdminBiometricInactive,
-  isAdminBiometricLocked,
-  isAdminBiometricFailed,
-  getAdminBiometricTimeout,
-  getAdminBiometricSecurityLevel,
-  getAdminBiometricAccuracyLevel,
 } from './admin-biometric.constants';
 
+// Export all types from admin-biometric.constants
 export type {
   AdminBiometricType,
   AdminBiometricStatus,
@@ -52,63 +28,96 @@ export type {
   AdminBiometricCaptureMethod,
 } from './admin-biometric.constants';
 
-// Admin Biometric Type Constants
+// Export all functions from admin-biometric.constants
+export {
+  getAdminBiometricTypeLabel,
+  getAdminBiometricTypeIcon,
+  getAdminBiometricStatusLabel,
+  getAdminBiometricStatusColor,
+  getAdminBiometricSecurityLevelLabel,
+  getAdminBiometricSecurityLevelPriority,
+  getAdminBiometricAccuracyLevelLabel,
+  getAdminBiometricVerificationMethodLabel,
+  getAdminBiometricConfidenceLevelLabel,
+  getAdminBiometricSensorLabel,
+  getAdminBiometricQualityLevelLabel,
+  getAdminBiometricCaptureMethodLabel,
+  isAdminBiometricActive,
+  isAdminBiometricInactive,
+  isAdminBiometricLocked,
+  isAdminBiometricFailed,
+  getAdminBiometricTimeout,
+  getAdminBiometricSecurityLevel,
+  getAdminBiometricAccuracyLevel,
+} from './admin-biometric.constants';
+
+// Export all constants from admin-biometric-type.constants
 export {
   ADMIN_BIOMETRIC_TYPE,
   ADMIN_BIOMETRIC_TYPE_CATEGORIES,
   ADMIN_BIOMETRIC_TYPE_LABELS_DETAIL,
-  getAdminBiometricTypeCategory,
-  getAdminBiometricTypeLabel as getAdminBiometricTypeLabelDetail,
-  isFingerprintType,
-  isFaceType,
-  isEyeType,
-  isVoiceType,
-  isHandType,
-  isBehavioralType,
-  isPhysiologicalType,
-  isElectroPhysiologicalType,
-  isMultimodalType,
-  getBiometricTypeCategory,
 } from './admin-biometric-type.constants';
 
+// Export all types from admin-biometric-type.constants
 export type { AdminBiometricTypeDetail } from './admin-biometric-type.constants';
 
-// Admin Biometric Status Constants
+// Export all functions from admin-biometric-type.constants
+export {
+  getAdminBiometricTypeCategory,
+  getAdminBiometricTypeLabel as getAdminBiometricTypeLabelDetail,
+  isAdminBiometricFingerprintType,
+  isAdminBiometricFaceType,
+  isAdminBiometricEyeType,
+  isAdminBiometricVoiceType,
+  isAdminBiometricHandType,
+  isAdminBiometricBehavioralType,
+  isAdminBiometricPhysiologicalType,
+  isAdminBiometricElectroPhysiologicalType,
+  isAdminBiometricMultimodalType,
+  getAdminBiometricTypeCategoryDuplicate,
+} from './admin-biometric-type.constants';
+
+// Export all constants from admin-biometric-status.constants
 export {
   ADMIN_BIOMETRIC_STATUS,
   ADMIN_BIOMETRIC_STATUS_LABELS_DETAIL,
   ADMIN_BIOMETRIC_STATUS_COLORS_DETAIL,
   ADMIN_BIOMETRIC_STATUS_GROUPS,
-  getAdminBiometricStatusLabel as getAdminBiometricStatusLabelDetail,
-  getAdminBiometricStatusColor as getAdminBiometricStatusColorDetail,
-  isRegisteredStatus,
-  isUnregisteredStatus,
-  isVerifiedStatus,
-  isUnverifiedStatus,
-  isPendingStatus,
-  isActiveStatus,
-  isInactiveStatus,
-  isSecurityStatus,
-  isExpiredStatus,
-  isQualityStatus,
-  isErrorStatus,
-  isFinalStatus,
-  isUsableStatus,
-  isTerminalStatus,
-  getStatusPriority,
-  getAdminBiometricStatuses,
-  getRegisteredStatuses,
-  getUnregisteredStatuses,
-  getVerifiedStatuses,
-  getUnverifiedStatuses,
-  getPendingStatuses,
-  getActiveStatuses,
-  getInactiveStatuses,
-  getSecurityStatuses,
-  getExpiredStatuses,
-  getQualityStatuses,
-  getErrorStatuses,
-  getFinalStatuses,
 } from './admin-biometric-status.constants';
 
+// Export all types from admin-biometric-status.constants
 export type { AdminBiometricStatusDetail } from './admin-biometric-status.constants';
+
+// Export all functions from admin-biometric-status.constants
+export {
+  getAdminBiometricStatusLabel as getAdminBiometricStatusLabelDetail,
+  getAdminBiometricStatusColor as getAdminBiometricStatusColorDetail,
+  isAdminBiometricRegisteredStatus,
+  isAdminBiometricUnregisteredStatus,
+  isAdminBiometricVerifiedStatus,
+  isAdminBiometricUnverifiedStatus,
+  isAdminBiometricPendingStatus,
+  isAdminBiometricActiveStatus,
+  isAdminBiometricInactiveStatus,
+  isAdminBiometricSecurityStatus,
+  isAdminBiometricExpiredStatus,
+  isAdminBiometricQualityStatus,
+  isAdminBiometricErrorStatus,
+  isAdminBiometricFinalStatus,
+  isAdminBiometricUsableStatus,
+  isAdminBiometricTerminalStatus,
+  getAdminBiometricStatusPriority,
+  getAdminBiometricStatuses,
+  getAdminBiometricRegisteredStatuses,
+  getAdminBiometricUnregisteredStatuses,
+  getAdminBiometricVerifiedStatuses,
+  getAdminBiometricUnverifiedStatuses,
+  getAdminBiometricPendingStatuses,
+  getAdminBiometricActiveStatuses,
+  getAdminBiometricInactiveStatuses,
+  getAdminBiometricSecurityStatuses,
+  getAdminBiometricExpiredStatuses,
+  getAdminBiometricQualityStatuses,
+  getAdminBiometricErrorStatuses,
+  getAdminBiometricFinalStatuses,
+} from './admin-biometric-status.constants';

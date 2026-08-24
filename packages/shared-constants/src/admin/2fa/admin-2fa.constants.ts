@@ -189,56 +189,56 @@ export const ADMIN_2FA_CHANNEL_LABELS: Record<Admin2FAChannel, string> = {
   [ADMIN_2FA.CHANNELS.AUTHENTICATOR]: 'Authenticator',
 };
 
-// ফাংশন - যেগুলো admin index থেকে এক্সপোর্ট হবে
-export function getAdmin2FAMethodLabel(method: Admin2FAMethod): string {
+// Export functions with 2fa prefix
+export function get2faAdminMethodLabel(method: Admin2FAMethod): string {
   return ADMIN_2FA_METHOD_LABELS[method] || 'Unknown Method';
 }
 
-export function getAdmin2FAMethodIcon(method: Admin2FAMethod): string {
+export function get2faAdminMethodIcon(method: Admin2FAMethod): string {
   return ADMIN_2FA_METHOD_ICONS[method] || '❓';
 }
 
-export function getAdmin2FAStatusLabel(status: Admin2FAStatus): string {
+export function get2faAdminStatusLabel(status: Admin2FAStatus): string {
   return ADMIN_2FA_STATUS_LABELS[status] || 'Unknown Status';
 }
 
-export function getAdmin2FAStatusColor(status: Admin2FAStatus): string {
+export function get2faAdminStatusColor(status: Admin2FAStatus): string {
   return ADMIN_2FA_STATUS_COLORS[status] || '#6B7280';
 }
 
-export function getAdmin2FASecurityLevelLabel(level: Admin2FASecurityLevel): string {
+export function get2faAdminSecurityLevelLabel(level: Admin2FASecurityLevel): string {
   return ADMIN_2FA_SECURITY_LEVEL_LABELS[level] || 'Unknown Level';
 }
 
-export function getAdmin2FASecurityLevelPriority(level: Admin2FASecurityLevel): number {
+export function get2faAdminSecurityLevelPriority(level: Admin2FASecurityLevel): number {
   return ADMIN_2FA_SECURITY_LEVEL_PRIORITY[level] || 0;
 }
 
-export function getAdmin2FAVerificationTypeLabel(type: Admin2FAVerificationType): string {
+export function get2faAdminVerificationTypeLabel(type: Admin2FAVerificationType): string {
   return ADMIN_2FA_VERIFICATION_TYPE_LABELS[type] || 'Unknown Type';
 }
 
-export function getAdmin2FAChannelLabel(channel: Admin2FAChannel): string {
+export function get2faAdminChannelLabel(channel: Admin2FAChannel): string {
   return ADMIN_2FA_CHANNEL_LABELS[channel] || 'Unknown Channel';
 }
 
-export function is2FAEnabled(status: Admin2FAStatus): boolean {
+export function is2faAdminEnabled(status: Admin2FAStatus): boolean {
   return status === ADMIN_2FA.STATUSES.ENABLED || status === ADMIN_2FA.STATUSES.VERIFIED;
 }
 
-export function is2FADisabled(status: Admin2FAStatus): boolean {
+export function is2faAdminDisabled(status: Admin2FAStatus): boolean {
   return status === ADMIN_2FA.STATUSES.DISABLED || status === ADMIN_2FA.STATUSES.REVOKED;
 }
 
-export function is2FAExpired(status: Admin2FAStatus): boolean {
+export function is2faAdminExpired(status: Admin2FAStatus): boolean {
   return status === ADMIN_2FA.STATUSES.EXPIRED;
 }
 
-export function is2FALocked(status: Admin2FAStatus): boolean {
+export function is2faAdminLocked(status: Admin2FAStatus): boolean {
   return status === ADMIN_2FA.STATUSES.LOCKED || status === ADMIN_2FA.STATUSES.SUSPENDED;
 }
 
-export function get2FATimeout(method: Admin2FAMethod): number {
+export function get2faAdminTimeout(method: Admin2FAMethod): number {
   const timeoutMap: Record<Admin2FAMethod, number> = {
     [ADMIN_2FA.METHODS.AUTHENTICATOR]: ADMIN_2FA.TIMEOUTS.AUTHENTICATOR,
     [ADMIN_2FA.METHODS.SMS]: ADMIN_2FA.TIMEOUTS.SMS,
@@ -252,7 +252,7 @@ export function get2FATimeout(method: Admin2FAMethod): number {
   return timeoutMap[method] || 30;
 }
 
-export function get2FASecurityLevel(method: Admin2FAMethod): Admin2FASecurityLevel {
+export function get2faAdminSecurityLevel(method: Admin2FAMethod): Admin2FASecurityLevel {
   const levelMap: Record<Admin2FAMethod, Admin2FASecurityLevel> = {
     [ADMIN_2FA.METHODS.AUTHENTICATOR]: ADMIN_2FA.SECURITY_LEVELS.HIGH,
     [ADMIN_2FA.METHODS.SMS]: ADMIN_2FA.SECURITY_LEVELS.MEDIUM,
@@ -266,7 +266,7 @@ export function get2FASecurityLevel(method: Admin2FAMethod): Admin2FASecurityLev
   return levelMap[method] || ADMIN_2FA.SECURITY_LEVELS.MEDIUM;
 }
 
-export function get2FAChannels(method: Admin2FAMethod): Admin2FAChannel[] {
+export function get2faAdminChannels(method: Admin2FAMethod): Admin2FAChannel[] {
   const channelMap: Record<Admin2FAMethod, Admin2FAChannel[]> = {
     [ADMIN_2FA.METHODS.AUTHENTICATOR]: [ADMIN_2FA.CHANNELS.AUTHENTICATOR],
     [ADMIN_2FA.METHODS.SMS]: [ADMIN_2FA.CHANNELS.SMS],

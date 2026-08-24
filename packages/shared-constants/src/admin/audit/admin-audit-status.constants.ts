@@ -206,31 +206,31 @@ export function getAdminAuditStatusColor(status: AdminAuditStatusDetail): string
   return ADMIN_AUDIT_STATUS_COLORS_DETAIL[status] || '#6B7280';
 }
 
-export function isSuccessStatus(status: AdminAuditStatusDetail): boolean {
+export function isAdminAuditSuccessStatus(status: AdminAuditStatusDetail): boolean {
   return ADMIN_AUDIT_STATUS_GROUPS.SUCCESS.includes(status);
 }
 
-export function isFailureStatus(status: AdminAuditStatusDetail): boolean {
+export function isAdminAuditFailureStatus(status: AdminAuditStatusDetail): boolean {
   return ADMIN_AUDIT_STATUS_GROUPS.FAILURE.includes(status);
 }
 
-export function isPendingStatus(status: AdminAuditStatusDetail): boolean {
+export function isAdminAuditPendingStatus(status: AdminAuditStatusDetail): boolean {
   return ADMIN_AUDIT_STATUS_GROUPS.PENDING.includes(status);
 }
 
-export function isIntermediateStatus(status: AdminAuditStatusDetail): boolean {
+export function isAdminAuditIntermediateStatus(status: AdminAuditStatusDetail): boolean {
   return ADMIN_AUDIT_STATUS_GROUPS.INTERMEDIATE.includes(status);
 }
 
-export function isTerminalStatus(status: AdminAuditStatusDetail): boolean {
-  return isSuccessStatus(status) || isFailureStatus(status);
+export function isAdminAuditTerminalStatus(status: AdminAuditStatusDetail): boolean {
+  return isAdminAuditSuccessStatus(status) || isAdminAuditFailureStatus(status);
 }
 
-export function isActiveStatus(status: AdminAuditStatusDetail): boolean {
-  return isPendingStatus(status) || isIntermediateStatus(status);
+export function isAdminAuditActiveStatus(status: AdminAuditStatusDetail): boolean {
+  return isAdminAuditPendingStatus(status) || isAdminAuditIntermediateStatus(status);
 }
 
-export function isCompliantStatus(status: AdminAuditStatusDetail): boolean {
+export function isAdminAuditCompliantStatus(status: AdminAuditStatusDetail): boolean {
   return (
     status === ADMIN_AUDIT_STATUS.COMPLIANT ||
     status === ADMIN_AUDIT_STATUS.APPROVED ||
@@ -238,7 +238,7 @@ export function isCompliantStatus(status: AdminAuditStatusDetail): boolean {
   );
 }
 
-export function isNonCompliantStatus(status: AdminAuditStatusDetail): boolean {
+export function isAdminAuditNonCompliantStatus(status: AdminAuditStatusDetail): boolean {
   return (
     status === ADMIN_AUDIT_STATUS.NON_COMPLIANT ||
     status === ADMIN_AUDIT_STATUS.REJECTED ||
@@ -246,7 +246,7 @@ export function isNonCompliantStatus(status: AdminAuditStatusDetail): boolean {
   );
 }
 
-export function getStatusPriority(status: AdminAuditStatusDetail): number {
+export function getAdminAuditStatusPriority(status: AdminAuditStatusDetail): number {
   const priorityMap: Record<AdminAuditStatusDetail, number> = {
     [ADMIN_AUDIT_STATUS.SUCCESS]: 1,
     [ADMIN_AUDIT_STATUS.COMPLETED]: 1,
@@ -298,18 +298,18 @@ export function getAdminAuditStatuses(): AdminAuditStatusDetail[] {
   return Object.values(ADMIN_AUDIT_STATUS);
 }
 
-export function getSuccessStatuses(): AdminAuditStatusDetail[] {
+export function getAdminAuditSuccessStatuses(): AdminAuditStatusDetail[] {
   return ADMIN_AUDIT_STATUS_GROUPS.SUCCESS;
 }
 
-export function getFailureStatuses(): AdminAuditStatusDetail[] {
+export function getAdminAuditFailureStatuses(): AdminAuditStatusDetail[] {
   return ADMIN_AUDIT_STATUS_GROUPS.FAILURE;
 }
 
-export function getPendingStatuses(): AdminAuditStatusDetail[] {
+export function getAdminAuditPendingStatuses(): AdminAuditStatusDetail[] {
   return ADMIN_AUDIT_STATUS_GROUPS.PENDING;
 }
 
-export function getIntermediateStatuses(): AdminAuditStatusDetail[] {
+export function getAdminAuditIntermediateStatuses(): AdminAuditStatusDetail[] {
   return ADMIN_AUDIT_STATUS_GROUPS.INTERMEDIATE;
 }

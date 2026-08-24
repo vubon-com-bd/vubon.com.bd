@@ -311,47 +311,47 @@ export function getAdminSettingsStatusColor(status: AdminSettingsStatusDetail): 
   return ADMIN_SETTINGS_STATUS_COLORS_DETAIL[status] || '#6B7280';
 }
 
-export function isLifecycleStatus(status: AdminSettingsStatusDetail): boolean {
+export function isAdminSettingsLifecycleStatus(status: AdminSettingsStatusDetail): boolean {
   return ADMIN_SETTINGS_STATUS_GROUPS.LIFECYCLE.includes(status);
 }
 
-export function isValidationStatus(status: AdminSettingsStatusDetail): boolean {
+export function isAdminSettingsValidationStatus(status: AdminSettingsStatusDetail): boolean {
   return ADMIN_SETTINGS_STATUS_GROUPS.VALIDATION.includes(status);
 }
 
-export function isSyncStatus(status: AdminSettingsStatusDetail): boolean {
+export function isAdminSettingsSyncStatus(status: AdminSettingsStatusDetail): boolean {
   return ADMIN_SETTINGS_STATUS_GROUPS.SYNC.includes(status);
 }
 
-export function isStateStatus(status: AdminSettingsStatusDetail): boolean {
+export function isAdminSettingsStateStatus(status: AdminSettingsStatusDetail): boolean {
   return ADMIN_SETTINGS_STATUS_GROUPS.STATE.includes(status);
 }
 
-export function isSecurityStatus(status: AdminSettingsStatusDetail): boolean {
+export function isAdminSettingsSecurityStatus(status: AdminSettingsStatusDetail): boolean {
   return ADMIN_SETTINGS_STATUS_GROUPS.SECURITY.includes(status);
 }
 
-export function isApplicationStatus(status: AdminSettingsStatusDetail): boolean {
+export function isAdminSettingsApplicationStatus(status: AdminSettingsStatusDetail): boolean {
   return ADMIN_SETTINGS_STATUS_GROUPS.APPLICATION.includes(status);
 }
 
-export function isVersionStatus(status: AdminSettingsStatusDetail): boolean {
+export function isAdminSettingsVersionStatus(status: AdminSettingsStatusDetail): boolean {
   return ADMIN_SETTINGS_STATUS_GROUPS.VERSION.includes(status);
 }
 
-export function isConflictStatus(status: AdminSettingsStatusDetail): boolean {
+export function isAdminSettingsConflictStatus(status: AdminSettingsStatusDetail): boolean {
   return ADMIN_SETTINGS_STATUS_GROUPS.CONFLICT.includes(status);
 }
 
-export function isPriorityStatus(status: AdminSettingsStatusDetail): boolean {
+export function isAdminSettingsPriorityStatus(status: AdminSettingsStatusDetail): boolean {
   return ADMIN_SETTINGS_STATUS_GROUPS.PRIORITY.includes(status);
 }
 
-export function isModificationStatus(status: AdminSettingsStatusDetail): boolean {
+export function isAdminSettingsModificationStatus(status: AdminSettingsStatusDetail): boolean {
   return ADMIN_SETTINGS_STATUS_GROUPS.MODIFICATION.includes(status);
 }
 
-export function isActiveStatus(status: AdminSettingsStatusDetail): boolean {
+export function isAdminSettingsActiveStatus(status: AdminSettingsStatusDetail): boolean {
   return (
     status === ADMIN_SETTINGS_STATUS.ACTIVE ||
     status === ADMIN_SETTINGS_STATUS.APPLIED ||
@@ -362,7 +362,7 @@ export function isActiveStatus(status: AdminSettingsStatusDetail): boolean {
   );
 }
 
-export function isInactiveStatus(status: AdminSettingsStatusDetail): boolean {
+export function isAdminSettingsInactiveStatus(status: AdminSettingsStatusDetail): boolean {
   return (
     status === ADMIN_SETTINGS_STATUS.INACTIVE ||
     status === ADMIN_SETTINGS_STATUS.ARCHIVED ||
@@ -374,7 +374,7 @@ export function isInactiveStatus(status: AdminSettingsStatusDetail): boolean {
   );
 }
 
-export function isPendingStatus(status: AdminSettingsStatusDetail): boolean {
+export function isAdminSettingsPendingStatus(status: AdminSettingsStatusDetail): boolean {
   return (
     status === ADMIN_SETTINGS_STATUS.PENDING ||
     status === ADMIN_SETTINGS_STATUS.PENDING_APPLICATION ||
@@ -383,9 +383,9 @@ export function isPendingStatus(status: AdminSettingsStatusDetail): boolean {
   );
 }
 
-export function isTerminalStatus(status: AdminSettingsStatusDetail): boolean {
+export function isAdminSettingsTerminalStatus(status: AdminSettingsStatusDetail): boolean {
   return (
-    isActiveStatus(status) ||
+    isAdminSettingsActiveStatus(status) ||
     status === ADMIN_SETTINGS_STATUS.ARCHIVED ||
     status === ADMIN_SETTINGS_STATUS.DELETED ||
     status === ADMIN_SETTINGS_STATUS.REJECTED ||
@@ -394,7 +394,7 @@ export function isTerminalStatus(status: AdminSettingsStatusDetail): boolean {
   );
 }
 
-export function isConflictStatusType(status: AdminSettingsStatusDetail): boolean {
+export function isAdminSettingsConflictStatusType(status: AdminSettingsStatusDetail): boolean {
   return (
     status === ADMIN_SETTINGS_STATUS.CONFLICT ||
     status === ADMIN_SETTINGS_STATUS.OVERRIDDEN ||
@@ -403,7 +403,7 @@ export function isConflictStatusType(status: AdminSettingsStatusDetail): boolean
   );
 }
 
-export function getStatusPriority(status: AdminSettingsStatusDetail): number {
+export function getAdminSettingsStatusPriority(status: AdminSettingsStatusDetail): number {
   const priorityMap: Record<AdminSettingsStatusDetail, number> = {
     [ADMIN_SETTINGS_STATUS.ACTIVE]: 1,
     [ADMIN_SETTINGS_STATUS.APPLIED]: 1,
@@ -465,42 +465,42 @@ export function getAdminSettingsStatuses(): AdminSettingsStatusDetail[] {
   return Object.values(ADMIN_SETTINGS_STATUS);
 }
 
-export function getLifecycleStatuses(): AdminSettingsStatusDetail[] {
+export function getAdminSettingsLifecycleStatuses(): AdminSettingsStatusDetail[] {
   return ADMIN_SETTINGS_STATUS_GROUPS.LIFECYCLE;
 }
 
-export function getValidationStatuses(): AdminSettingsStatusDetail[] {
+export function getAdminSettingsValidationStatuses(): AdminSettingsStatusDetail[] {
   return ADMIN_SETTINGS_STATUS_GROUPS.VALIDATION;
 }
 
-export function getSyncStatuses(): AdminSettingsStatusDetail[] {
+export function getAdminSettingsSyncStatuses(): AdminSettingsStatusDetail[] {
   return ADMIN_SETTINGS_STATUS_GROUPS.SYNC;
 }
 
-export function getStateStatuses(): AdminSettingsStatusDetail[] {
+export function getAdminSettingsStateStatuses(): AdminSettingsStatusDetail[] {
   return ADMIN_SETTINGS_STATUS_GROUPS.STATE;
 }
 
-export function getSecurityStatuses(): AdminSettingsStatusDetail[] {
+export function getAdminSettingsSecurityStatuses(): AdminSettingsStatusDetail[] {
   return ADMIN_SETTINGS_STATUS_GROUPS.SECURITY;
 }
 
-export function getApplicationStatuses(): AdminSettingsStatusDetail[] {
+export function getAdminSettingsApplicationStatuses(): AdminSettingsStatusDetail[] {
   return ADMIN_SETTINGS_STATUS_GROUPS.APPLICATION;
 }
 
-export function getVersionStatuses(): AdminSettingsStatusDetail[] {
+export function getAdminSettingsVersionStatuses(): AdminSettingsStatusDetail[] {
   return ADMIN_SETTINGS_STATUS_GROUPS.VERSION;
 }
 
-export function getConflictStatuses(): AdminSettingsStatusDetail[] {
+export function getAdminSettingsConflictStatuses(): AdminSettingsStatusDetail[] {
   return ADMIN_SETTINGS_STATUS_GROUPS.CONFLICT;
 }
 
-export function getPriorityStatuses(): AdminSettingsStatusDetail[] {
+export function getAdminSettingsPriorityStatuses(): AdminSettingsStatusDetail[] {
   return ADMIN_SETTINGS_STATUS_GROUPS.PRIORITY;
 }
 
-export function getModificationStatuses(): AdminSettingsStatusDetail[] {
+export function getAdminSettingsModificationStatuses(): AdminSettingsStatusDetail[] {
   return ADMIN_SETTINGS_STATUS_GROUPS.MODIFICATION;
 }

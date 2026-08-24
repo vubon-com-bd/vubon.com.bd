@@ -442,11 +442,11 @@ export function getAllAdminPermissions(): AdminPermissionType[] {
   );
 }
 
-export function isWildcardPermission(permission: string): boolean {
+export function isAdminWildcardPermission(permission: string): boolean {
   return permission === ADMIN_PERMISSION.ALL || permission.endsWith(':*');
 }
 
-export function matchPermission(permission: string, pattern: string): boolean {
+export function matchAdminPermission(permission: string, pattern: string): boolean {
   if (pattern === ADMIN_PERMISSION.ALL) {
     return true;
   }

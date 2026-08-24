@@ -232,7 +232,6 @@ export function getAdminDeviceTrustLevelPriority(level: AdminDeviceTrustLevel): 
   return ADMIN_DEVICE_TRUST_LEVEL_PRIORITY[level] || 0;
 }
 
-// রিনেম করা ফাংশনগুলো (Admin প্রিফিক্স যোগ করা হয়েছে)
 export function isAdminDeviceActive(status: AdminDeviceStatus): boolean {
   return (
     status === ADMIN_DEVICE.STATUSES.ACTIVE ||

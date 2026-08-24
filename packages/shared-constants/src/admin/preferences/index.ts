@@ -1,9 +1,4 @@
-/**
- * Admin Preferences Constants Index
- * Export all admin preferences constants for easy importing
- */
-
-// Admin Preferences Core Constants
+// Export all constants from admin-preferences.constants
 export {
   ADMIN_PREFERENCES,
   ADMIN_PREFERENCES_CATEGORY_LABELS,
@@ -16,24 +11,9 @@ export {
   ADMIN_PREFERENCES_SENSITIVITY_LABELS,
   ADMIN_PREFERENCES_SENSITIVITY_COLORS,
   ADMIN_PREFERENCES_GROUP_LABELS,
-  getAdminPreferenceCategoryLabel,
-  getAdminPreferenceCategoryIcon,
-  getAdminPreferenceTypeLabel,
-  getAdminPreferenceStatusLabel,
-  getAdminPreferenceStatusColor,
-  getAdminPreferenceScopeLabel,
-  getAdminPreferenceVisibilityLabel,
-  getAdminPreferenceSensitivityLabel,
-  getAdminPreferenceSensitivityColor,
-  getAdminPreferenceGroupLabel,
-  isPreferenceActive,
-  isPreferenceInactive,
-  isPreferenceLocked,
-  isPreferenceDefault,
-  isPreferenceCustom,
-  getPreferenceSourceLabel,
 } from './admin-preferences.constants';
 
+// Export all types from admin-preferences.constants
 export type {
   AdminPreferenceCategory,
   AdminPreferenceType,
@@ -45,62 +25,92 @@ export type {
   AdminPreferenceGroup,
 } from './admin-preferences.constants';
 
-// Admin Preferences Type Constants
+// Export all functions from admin-preferences.constants
+export {
+  getAdminPreferenceCategoryLabel,
+  getAdminPreferenceCategoryIcon,
+  getAdminPreferenceTypeLabel,
+  getAdminPreferenceStatusLabel,
+  getAdminPreferenceStatusColor,
+  getAdminPreferenceScopeLabel,
+  getAdminPreferenceVisibilityLabel,
+  getAdminPreferenceSensitivityLabel,
+  getAdminPreferenceSensitivityColor,
+  getAdminPreferenceGroupLabel,
+  isAdminPreferenceActive,
+  isAdminPreferenceInactive,
+  isAdminPreferenceLocked,
+  isAdminPreferenceDefault,
+  isAdminPreferenceCustom,
+  getAdminPreferenceSourceLabel,
+} from './admin-preferences.constants';
+
+// Export all constants from admin-preferences-type.constants
 export {
   ADMIN_PREFERENCES_TYPE,
   ADMIN_PREFERENCES_TYPE_CATEGORIES,
   ADMIN_PREFERENCES_TYPE_LABELS_DETAIL,
-  getAdminPreferenceTypeCategory,
-  getAdminPreferenceTypeLabel as getAdminPreferenceTypeLabelDetail,
-  isDisplayPreference,
-  isLanguagePreference,
-  isNotificationPreference,
-  isAccessibilityPreference,
-  isDashboardPreference,
-  isReportingPreference,
-  isAnalyticsPreference,
-  isWorkflowPreference,
-  isTeamPreference,
-  isSecurityPreference,
-  isPrivacyPreference,
-  isPerformancePreference,
-  isShortcutPreference,
-  getPreferenceTypeCategory,
 } from './admin-preferences-type.constants';
 
+// Export all types from admin-preferences-type.constants
 export type { AdminPreferenceTypeDetail } from './admin-preferences-type.constants';
 
-// Admin Preferences Status Constants
+// Export all functions from admin-preferences-type.constants
+export {
+  getAdminPreferenceTypeCategory,
+  getAdminPreferenceTypeLabel as getAdminPreferenceTypeLabelDetail,
+  isAdminPreferenceDisplayType,
+  isAdminPreferenceLanguageType,
+  isAdminPreferenceNotificationType,
+  isAdminPreferenceAccessibilityType,
+  isAdminPreferenceDashboardType,
+  isAdminPreferenceReportingType,
+  isAdminPreferenceAnalyticsType,
+  isAdminPreferenceWorkflowType,
+  isAdminPreferenceTeamType,
+  isAdminPreferenceSecurityType,
+  isAdminPreferencePrivacyType,
+  isAdminPreferencePerformanceType,
+  isAdminPreferenceShortcutType,
+  getAdminPreferenceTypeCategoryDuplicate,
+} from './admin-preferences-type.constants';
+
+// Export all constants from admin-preferences-status.constants
 export {
   ADMIN_PREFERENCES_STATUS,
   ADMIN_PREFERENCES_STATUS_LABELS_DETAIL,
   ADMIN_PREFERENCES_STATUS_COLORS_DETAIL,
   ADMIN_PREFERENCES_STATUS_GROUPS,
-  getAdminPreferenceStatusLabel as getAdminPreferenceStatusLabelDetail,
-  getAdminPreferenceStatusColor as getAdminPreferenceStatusColorDetail,
-  isLifecycleStatus,
-  isStateStatus,
-  isConfigurationStatus,
-  isSecurityStatus,
-  isSyncStatus,
-  isValidationStatus,
-  isApplicationStatus,
-  isVersionStatus,
-  isActiveStatus,
-  isInactiveStatus,
-  isPendingStatus,
-  isTerminalStatus,
-  isConfigurationStatusType,
-  getStatusPriority,
-  getAdminPreferenceStatuses,
-  getLifecycleStatuses,
-  getStateStatuses,
-  getConfigurationStatuses,
-  getSecurityStatuses,
-  getSyncStatuses,
-  getValidationStatuses,
-  getApplicationStatuses,
-  getVersionStatuses,
 } from './admin-preferences-status.constants';
 
+// Export all types from admin-preferences-status.constants
 export type { AdminPreferenceStatusDetail } from './admin-preferences-status.constants';
+
+// Export all functions from admin-preferences-status.constants
+export {
+  getAdminPreferenceStatusLabel as getAdminPreferenceStatusLabelDetail,
+  getAdminPreferenceStatusColor as getAdminPreferenceStatusColorDetail,
+  isAdminPreferenceLifecycleStatus,
+  isAdminPreferenceStateStatus,
+  isAdminPreferenceConfigurationStatus,
+  isAdminPreferenceSecurityStatus,
+  isAdminPreferenceSyncStatus,
+  isAdminPreferenceValidationStatus,
+  isAdminPreferenceApplicationStatus,
+  isAdminPreferenceVersionStatus,
+  isAdminPreferenceActiveStatus,
+  isAdminPreferenceInactiveStatus,
+  isAdminPreferencePendingStatus,
+  isAdminPreferenceTerminalStatus,
+  isAdminPreferenceConfigurationStatusType,
+  getAdminPreferenceStatusPriority,
+  getAdminPreferenceStatuses,
+  getAdminPreferenceLifecycleStatuses,
+  getAdminPreferenceStateStatuses,
+  getAdminPreferenceConfigurationStatuses,
+  getAdminPreferenceSecurityStatuses,
+  getAdminPreferenceSyncStatuses,
+  getAdminPreferenceValidationStatuses,
+  getAdminPreferenceApplicationStatuses,
+  getAdminPreferenceVersionStatuses,
+} from './admin-preferences-status.constants';

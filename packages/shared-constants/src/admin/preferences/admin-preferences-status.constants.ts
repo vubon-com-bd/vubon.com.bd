@@ -243,39 +243,39 @@ export function getAdminPreferenceStatusColor(status: AdminPreferenceStatusDetai
   return ADMIN_PREFERENCES_STATUS_COLORS_DETAIL[status] || '#6B7280';
 }
 
-export function isLifecycleStatus(status: AdminPreferenceStatusDetail): boolean {
+export function isAdminPreferenceLifecycleStatus(status: AdminPreferenceStatusDetail): boolean {
   return ADMIN_PREFERENCES_STATUS_GROUPS.LIFECYCLE.includes(status);
 }
 
-export function isStateStatus(status: AdminPreferenceStatusDetail): boolean {
+export function isAdminPreferenceStateStatus(status: AdminPreferenceStatusDetail): boolean {
   return ADMIN_PREFERENCES_STATUS_GROUPS.STATE.includes(status);
 }
 
-export function isConfigurationStatus(status: AdminPreferenceStatusDetail): boolean {
+export function isAdminPreferenceConfigurationStatus(status: AdminPreferenceStatusDetail): boolean {
   return ADMIN_PREFERENCES_STATUS_GROUPS.CONFIGURATION.includes(status);
 }
 
-export function isSecurityStatus(status: AdminPreferenceStatusDetail): boolean {
+export function isAdminPreferenceSecurityStatus(status: AdminPreferenceStatusDetail): boolean {
   return ADMIN_PREFERENCES_STATUS_GROUPS.SECURITY.includes(status);
 }
 
-export function isSyncStatus(status: AdminPreferenceStatusDetail): boolean {
+export function isAdminPreferenceSyncStatus(status: AdminPreferenceStatusDetail): boolean {
   return ADMIN_PREFERENCES_STATUS_GROUPS.SYNC.includes(status);
 }
 
-export function isValidationStatus(status: AdminPreferenceStatusDetail): boolean {
+export function isAdminPreferenceValidationStatus(status: AdminPreferenceStatusDetail): boolean {
   return ADMIN_PREFERENCES_STATUS_GROUPS.VALIDATION.includes(status);
 }
 
-export function isApplicationStatus(status: AdminPreferenceStatusDetail): boolean {
+export function isAdminPreferenceApplicationStatus(status: AdminPreferenceStatusDetail): boolean {
   return ADMIN_PREFERENCES_STATUS_GROUPS.APPLICATION.includes(status);
 }
 
-export function isVersionStatus(status: AdminPreferenceStatusDetail): boolean {
+export function isAdminPreferenceVersionStatus(status: AdminPreferenceStatusDetail): boolean {
   return ADMIN_PREFERENCES_STATUS_GROUPS.VERSION.includes(status);
 }
 
-export function isActiveStatus(status: AdminPreferenceStatusDetail): boolean {
+export function isAdminPreferenceActiveStatus(status: AdminPreferenceStatusDetail): boolean {
   return (
     status === ADMIN_PREFERENCES_STATUS.ACTIVE ||
     status === ADMIN_PREFERENCES_STATUS.APPLIED ||
@@ -290,7 +290,7 @@ export function isActiveStatus(status: AdminPreferenceStatusDetail): boolean {
   );
 }
 
-export function isInactiveStatus(status: AdminPreferenceStatusDetail): boolean {
+export function isAdminPreferenceInactiveStatus(status: AdminPreferenceStatusDetail): boolean {
   return (
     status === ADMIN_PREFERENCES_STATUS.INACTIVE ||
     status === ADMIN_PREFERENCES_STATUS.ARCHIVED ||
@@ -303,7 +303,7 @@ export function isInactiveStatus(status: AdminPreferenceStatusDetail): boolean {
   );
 }
 
-export function isPendingStatus(status: AdminPreferenceStatusDetail): boolean {
+export function isAdminPreferencePendingStatus(status: AdminPreferenceStatusDetail): boolean {
   return (
     status === ADMIN_PREFERENCES_STATUS.PENDING ||
     status === ADMIN_PREFERENCES_STATUS.PENDING_APPLICATION ||
@@ -313,9 +313,9 @@ export function isPendingStatus(status: AdminPreferenceStatusDetail): boolean {
   );
 }
 
-export function isTerminalStatus(status: AdminPreferenceStatusDetail): boolean {
+export function isAdminPreferenceTerminalStatus(status: AdminPreferenceStatusDetail): boolean {
   return (
-    isActiveStatus(status) ||
+    isAdminPreferenceActiveStatus(status) ||
     status === ADMIN_PREFERENCES_STATUS.ARCHIVED ||
     status === ADMIN_PREFERENCES_STATUS.DELETED ||
     status === ADMIN_PREFERENCES_STATUS.REJECTED ||
@@ -323,7 +323,9 @@ export function isTerminalStatus(status: AdminPreferenceStatusDetail): boolean {
   );
 }
 
-export function isConfigurationStatusType(status: AdminPreferenceStatusDetail): boolean {
+export function isAdminPreferenceConfigurationStatusType(
+  status: AdminPreferenceStatusDetail
+): boolean {
   return (
     status === ADMIN_PREFERENCES_STATUS.DEFAULT ||
     status === ADMIN_PREFERENCES_STATUS.CUSTOM ||
@@ -332,7 +334,7 @@ export function isConfigurationStatusType(status: AdminPreferenceStatusDetail): 
   );
 }
 
-export function getStatusPriority(status: AdminPreferenceStatusDetail): number {
+export function getAdminPreferenceStatusPriority(status: AdminPreferenceStatusDetail): number {
   const priorityMap: Record<AdminPreferenceStatusDetail, number> = {
     [ADMIN_PREFERENCES_STATUS.ACTIVE]: 1,
     [ADMIN_PREFERENCES_STATUS.APPLIED]: 1,
@@ -381,34 +383,34 @@ export function getAdminPreferenceStatuses(): AdminPreferenceStatusDetail[] {
   return Object.values(ADMIN_PREFERENCES_STATUS);
 }
 
-export function getLifecycleStatuses(): AdminPreferenceStatusDetail[] {
+export function getAdminPreferenceLifecycleStatuses(): AdminPreferenceStatusDetail[] {
   return ADMIN_PREFERENCES_STATUS_GROUPS.LIFECYCLE;
 }
 
-export function getStateStatuses(): AdminPreferenceStatusDetail[] {
+export function getAdminPreferenceStateStatuses(): AdminPreferenceStatusDetail[] {
   return ADMIN_PREFERENCES_STATUS_GROUPS.STATE;
 }
 
-export function getConfigurationStatuses(): AdminPreferenceStatusDetail[] {
+export function getAdminPreferenceConfigurationStatuses(): AdminPreferenceStatusDetail[] {
   return ADMIN_PREFERENCES_STATUS_GROUPS.CONFIGURATION;
 }
 
-export function getSecurityStatuses(): AdminPreferenceStatusDetail[] {
+export function getAdminPreferenceSecurityStatuses(): AdminPreferenceStatusDetail[] {
   return ADMIN_PREFERENCES_STATUS_GROUPS.SECURITY;
 }
 
-export function getSyncStatuses(): AdminPreferenceStatusDetail[] {
+export function getAdminPreferenceSyncStatuses(): AdminPreferenceStatusDetail[] {
   return ADMIN_PREFERENCES_STATUS_GROUPS.SYNC;
 }
 
-export function getValidationStatuses(): AdminPreferenceStatusDetail[] {
+export function getAdminPreferenceValidationStatuses(): AdminPreferenceStatusDetail[] {
   return ADMIN_PREFERENCES_STATUS_GROUPS.VALIDATION;
 }
 
-export function getApplicationStatuses(): AdminPreferenceStatusDetail[] {
+export function getAdminPreferenceApplicationStatuses(): AdminPreferenceStatusDetail[] {
   return ADMIN_PREFERENCES_STATUS_GROUPS.APPLICATION;
 }
 
-export function getVersionStatuses(): AdminPreferenceStatusDetail[] {
+export function getAdminPreferenceVersionStatuses(): AdminPreferenceStatusDetail[] {
   return ADMIN_PREFERENCES_STATUS_GROUPS.VERSION;
 }

@@ -249,52 +249,52 @@ export function getAdminDeviceStatusColor(status: AdminDeviceStatusDetail): stri
   return ADMIN_DEVICE_STATUS_COLORS_DETAIL[status] || '#6B7280';
 }
 
-export function isActiveStatus(status: AdminDeviceStatusDetail): boolean {
+export function isAdminDeviceActiveStatus(status: AdminDeviceStatusDetail): boolean {
   return ADMIN_DEVICE_STATUS_GROUPS.ACTIVE.includes(status);
 }
 
-export function isInactiveStatus(status: AdminDeviceStatusDetail): boolean {
+export function isAdminDeviceInactiveStatus(status: AdminDeviceStatusDetail): boolean {
   return ADMIN_DEVICE_STATUS_GROUPS.INACTIVE.includes(status);
 }
 
-export function isProblemStatus(status: AdminDeviceStatusDetail): boolean {
+export function isAdminDeviceProblemStatus(status: AdminDeviceStatusDetail): boolean {
   return ADMIN_DEVICE_STATUS_GROUPS.PROBLEM.includes(status);
 }
 
-export function isSecurityStatus(status: AdminDeviceStatusDetail): boolean {
+export function isAdminDeviceSecurityStatus(status: AdminDeviceStatusDetail): boolean {
   return ADMIN_DEVICE_STATUS_GROUPS.SECURITY.includes(status);
 }
 
-export function isAdministrativeStatus(status: AdminDeviceStatusDetail): boolean {
+export function isAdminDeviceAdministrativeStatus(status: AdminDeviceStatusDetail): boolean {
   return ADMIN_DEVICE_STATUS_GROUPS.ADMINISTRATIVE.includes(status);
 }
 
-export function isEndOfLifeStatus(status: AdminDeviceStatusDetail): boolean {
+export function isAdminDeviceEndOfLifeStatus(status: AdminDeviceStatusDetail): boolean {
   return ADMIN_DEVICE_STATUS_GROUPS.END_OF_LIFE.includes(status);
 }
 
-export function isPhysicalStatus(status: AdminDeviceStatusDetail): boolean {
+export function isAdminDevicePhysicalStatus(status: AdminDeviceStatusDetail): boolean {
   return ADMIN_DEVICE_STATUS_GROUPS.PHYSICAL.includes(status);
 }
 
-export function isUsableStatus(status: AdminDeviceStatusDetail): boolean {
-  return isActiveStatus(status) || status === ADMIN_DEVICE_STATUS.PENDING_VERIFICATION;
+export function isAdminDeviceUsableStatus(status: AdminDeviceStatusDetail): boolean {
+  return isAdminDeviceActiveStatus(status) || status === ADMIN_DEVICE_STATUS.PENDING_VERIFICATION;
 }
 
-export function isAvailableStatus(status: AdminDeviceStatusDetail): boolean {
-  return isActiveStatus(status) || isAdministrativeStatus(status);
+export function isAdminDeviceAvailableStatus(status: AdminDeviceStatusDetail): boolean {
+  return isAdminDeviceActiveStatus(status) || isAdminDeviceAdministrativeStatus(status);
 }
 
-export function isUnavailableStatus(status: AdminDeviceStatusDetail): boolean {
+export function isAdminDeviceUnavailableStatus(status: AdminDeviceStatusDetail): boolean {
   return (
-    isInactiveStatus(status) ||
-    isProblemStatus(status) ||
-    isEndOfLifeStatus(status) ||
-    isPhysicalStatus(status)
+    isAdminDeviceInactiveStatus(status) ||
+    isAdminDeviceProblemStatus(status) ||
+    isAdminDeviceEndOfLifeStatus(status) ||
+    isAdminDevicePhysicalStatus(status)
   );
 }
 
-export function isBlockedStatus(status: AdminDeviceStatusDetail): boolean {
+export function isAdminDeviceBlockedStatus(status: AdminDeviceStatusDetail): boolean {
   return (
     status === ADMIN_DEVICE_STATUS.BLOCKED ||
     status === ADMIN_DEVICE_STATUS.LOCKED ||
@@ -302,7 +302,7 @@ export function isBlockedStatus(status: AdminDeviceStatusDetail): boolean {
   );
 }
 
-export function getStatusPriority(status: AdminDeviceStatusDetail): number {
+export function getAdminDeviceStatusPriority(status: AdminDeviceStatusDetail): number {
   const priorityMap: Record<AdminDeviceStatusDetail, number> = {
     [ADMIN_DEVICE_STATUS.ACTIVE]: 1,
     [ADMIN_DEVICE_STATUS.ONLINE]: 1,
@@ -353,30 +353,30 @@ export function getAdminDeviceStatuses(): AdminDeviceStatusDetail[] {
   return Object.values(ADMIN_DEVICE_STATUS);
 }
 
-export function getActiveStatuses(): AdminDeviceStatusDetail[] {
+export function getAdminDeviceActiveStatuses(): AdminDeviceStatusDetail[] {
   return ADMIN_DEVICE_STATUS_GROUPS.ACTIVE;
 }
 
-export function getInactiveStatuses(): AdminDeviceStatusDetail[] {
+export function getAdminDeviceInactiveStatuses(): AdminDeviceStatusDetail[] {
   return ADMIN_DEVICE_STATUS_GROUPS.INACTIVE;
 }
 
-export function getProblemStatuses(): AdminDeviceStatusDetail[] {
+export function getAdminDeviceProblemStatuses(): AdminDeviceStatusDetail[] {
   return ADMIN_DEVICE_STATUS_GROUPS.PROBLEM;
 }
 
-export function getSecurityStatuses(): AdminDeviceStatusDetail[] {
+export function getAdminDeviceSecurityStatuses(): AdminDeviceStatusDetail[] {
   return ADMIN_DEVICE_STATUS_GROUPS.SECURITY;
 }
 
-export function getAdministrativeStatuses(): AdminDeviceStatusDetail[] {
+export function getAdminDeviceAdministrativeStatuses(): AdminDeviceStatusDetail[] {
   return ADMIN_DEVICE_STATUS_GROUPS.ADMINISTRATIVE;
 }
 
-export function getEndOfLifeStatuses(): AdminDeviceStatusDetail[] {
+export function getAdminDeviceEndOfLifeStatuses(): AdminDeviceStatusDetail[] {
   return ADMIN_DEVICE_STATUS_GROUPS.END_OF_LIFE;
 }
 
-export function getPhysicalStatuses(): AdminDeviceStatusDetail[] {
+export function getAdminDevicePhysicalStatuses(): AdminDeviceStatusDetail[] {
   return ADMIN_DEVICE_STATUS_GROUPS.PHYSICAL;
 }

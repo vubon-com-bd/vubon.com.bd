@@ -326,58 +326,58 @@ export function getAdminPreferenceTypeLabel(type: AdminPreferenceTypeDetail): st
   return ADMIN_PREFERENCES_TYPE_LABELS_DETAIL[type] || 'Unknown Type';
 }
 
-export function isDisplayPreference(type: AdminPreferenceTypeDetail): boolean {
+export function isAdminPreferenceDisplayType(type: AdminPreferenceTypeDetail): boolean {
   return getAdminPreferenceTypeCategory(type) === 'display';
 }
 
-export function isLanguagePreference(type: AdminPreferenceTypeDetail): boolean {
+export function isAdminPreferenceLanguageType(type: AdminPreferenceTypeDetail): boolean {
   return getAdminPreferenceTypeCategory(type) === 'language';
 }
 
-export function isNotificationPreference(type: AdminPreferenceTypeDetail): boolean {
+export function isAdminPreferenceNotificationType(type: AdminPreferenceTypeDetail): boolean {
   return getAdminPreferenceTypeCategory(type) === 'notification';
 }
 
-export function isAccessibilityPreference(type: AdminPreferenceTypeDetail): boolean {
+export function isAdminPreferenceAccessibilityType(type: AdminPreferenceTypeDetail): boolean {
   return getAdminPreferenceTypeCategory(type) === 'accessibility';
 }
 
-export function isDashboardPreference(type: AdminPreferenceTypeDetail): boolean {
+export function isAdminPreferenceDashboardType(type: AdminPreferenceTypeDetail): boolean {
   return getAdminPreferenceTypeCategory(type) === 'dashboard';
 }
 
-export function isReportingPreference(type: AdminPreferenceTypeDetail): boolean {
+export function isAdminPreferenceReportingType(type: AdminPreferenceTypeDetail): boolean {
   return getAdminPreferenceTypeCategory(type) === 'reporting';
 }
 
-export function isAnalyticsPreference(type: AdminPreferenceTypeDetail): boolean {
+export function isAdminPreferenceAnalyticsType(type: AdminPreferenceTypeDetail): boolean {
   return getAdminPreferenceTypeCategory(type) === 'analytics';
 }
 
-export function isWorkflowPreference(type: AdminPreferenceTypeDetail): boolean {
+export function isAdminPreferenceWorkflowType(type: AdminPreferenceTypeDetail): boolean {
   return getAdminPreferenceTypeCategory(type) === 'workflow';
 }
 
-export function isTeamPreference(type: AdminPreferenceTypeDetail): boolean {
+export function isAdminPreferenceTeamType(type: AdminPreferenceTypeDetail): boolean {
   return getAdminPreferenceTypeCategory(type) === 'team';
 }
 
-export function isSecurityPreference(type: AdminPreferenceTypeDetail): boolean {
+export function isAdminPreferenceSecurityType(type: AdminPreferenceTypeDetail): boolean {
   return getAdminPreferenceTypeCategory(type) === 'security';
 }
 
-export function isPrivacyPreference(type: AdminPreferenceTypeDetail): boolean {
+export function isAdminPreferencePrivacyType(type: AdminPreferenceTypeDetail): boolean {
   return getAdminPreferenceTypeCategory(type) === 'privacy';
 }
 
-export function isPerformancePreference(type: AdminPreferenceTypeDetail): boolean {
+export function isAdminPreferencePerformanceType(type: AdminPreferenceTypeDetail): boolean {
   return getAdminPreferenceTypeCategory(type) === 'performance';
 }
 
-export function isShortcutPreference(type: AdminPreferenceTypeDetail): boolean {
+export function isAdminPreferenceShortcutType(type: AdminPreferenceTypeDetail): boolean {
   return getAdminPreferenceTypeCategory(type) === 'shortcuts';
 }
 
-export function getPreferenceTypeCategory(type: AdminPreferenceTypeDetail): string {
+export function getAdminPreferenceTypeCategoryDuplicate(type: AdminPreferenceTypeDetail): string {
   return ADMIN_PREFERENCES_TYPE_CATEGORIES[type] || 'other';
 }

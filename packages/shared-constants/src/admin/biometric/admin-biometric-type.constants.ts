@@ -212,42 +212,42 @@ export function getAdminBiometricTypeLabel(type: AdminBiometricTypeDetail): stri
   return ADMIN_BIOMETRIC_TYPE_LABELS_DETAIL[type] || 'Unknown Type';
 }
 
-export function isFingerprintType(type: AdminBiometricTypeDetail): boolean {
+export function isAdminBiometricFingerprintType(type: AdminBiometricTypeDetail): boolean {
   return getAdminBiometricTypeCategory(type) === 'fingerprint';
 }
 
-export function isFaceType(type: AdminBiometricTypeDetail): boolean {
+export function isAdminBiometricFaceType(type: AdminBiometricTypeDetail): boolean {
   return getAdminBiometricTypeCategory(type) === 'face';
 }
 
-export function isEyeType(type: AdminBiometricTypeDetail): boolean {
+export function isAdminBiometricEyeType(type: AdminBiometricTypeDetail): boolean {
   return getAdminBiometricTypeCategory(type) === 'eye';
 }
 
-export function isVoiceType(type: AdminBiometricTypeDetail): boolean {
+export function isAdminBiometricVoiceType(type: AdminBiometricTypeDetail): boolean {
   return getAdminBiometricTypeCategory(type) === 'voice';
 }
 
-export function isHandType(type: AdminBiometricTypeDetail): boolean {
+export function isAdminBiometricHandType(type: AdminBiometricTypeDetail): boolean {
   return getAdminBiometricTypeCategory(type) === 'hand';
 }
 
-export function isBehavioralType(type: AdminBiometricTypeDetail): boolean {
+export function isAdminBiometricBehavioralType(type: AdminBiometricTypeDetail): boolean {
   return getAdminBiometricTypeCategory(type) === 'behavioral';
 }
 
-export function isPhysiologicalType(type: AdminBiometricTypeDetail): boolean {
+export function isAdminBiometricPhysiologicalType(type: AdminBiometricTypeDetail): boolean {
   return getAdminBiometricTypeCategory(type) === 'physiological';
 }
 
-export function isElectroPhysiologicalType(type: AdminBiometricTypeDetail): boolean {
+export function isAdminBiometricElectroPhysiologicalType(type: AdminBiometricTypeDetail): boolean {
   return getAdminBiometricTypeCategory(type) === 'electro_physiological';
 }
 
-export function isMultimodalType(type: AdminBiometricTypeDetail): boolean {
+export function isAdminBiometricMultimodalType(type: AdminBiometricTypeDetail): boolean {
   return getAdminBiometricTypeCategory(type) === 'multimodal';
 }
 
-export function getBiometricTypeCategory(type: AdminBiometricTypeDetail): string {
+export function getAdminBiometricTypeCategoryDuplicate(type: AdminBiometricTypeDetail): string {
   return ADMIN_BIOMETRIC_TYPE_CATEGORIES[type] || 'other';
 }

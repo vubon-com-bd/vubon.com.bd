@@ -152,19 +152,19 @@ export function hasAdminRolePermission(role: AdminRoleType, permission: string):
   });
 }
 
-export function isSuperAdmin(role: AdminRoleType): boolean {
+export function isAdminSuperAdmin(role: AdminRoleType): boolean {
   return role === ADMIN_ROLE.SUPER_ADMIN;
 }
 
-export function isAdmin(role: AdminRoleType): boolean {
+export function isAdminAdmin(role: AdminRoleType): boolean {
   return role === ADMIN_ROLE.ADMIN;
 }
 
-export function isManager(role: AdminRoleType): boolean {
+export function isAdminManager(role: AdminRoleType): boolean {
   return role === ADMIN_ROLE.MANAGER;
 }
 
-export function isModerator(role: AdminRoleType): boolean {
+export function isAdminModerator(role: AdminRoleType): boolean {
   return role === ADMIN_ROLE.MODERATOR;
 }
 

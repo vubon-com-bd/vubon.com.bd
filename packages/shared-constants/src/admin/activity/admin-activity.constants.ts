@@ -305,23 +305,23 @@ export const ADMIN_ACTIVITY_SEVERITY_COLORS: Record<AdminActivitySeverity, strin
   [ADMIN_ACTIVITY.SEVERITY.EMERGENCY]: '#8B0000',
 };
 
-export function getAdminActivityTypeLabel(type: AdminActivityType): string {
+export function getActivityAdminTypeLabel(type: AdminActivityType): string {
   return ADMIN_ACTIVITY_TYPE_LABELS[type] || 'Unknown Activity';
 }
 
-export function getAdminActivityStatusLabel(status: AdminActivityStatus): string {
+export function getActivityAdminStatusLabel(status: AdminActivityStatus): string {
   return ADMIN_ACTIVITY_STATUS_LABELS[status] || 'Unknown Status';
 }
 
-export function getAdminActivitySeverityColor(severity: AdminActivitySeverity): string {
+export function getActivityAdminSeverityColor(severity: AdminActivitySeverity): string {
   return ADMIN_ACTIVITY_SEVERITY_COLORS[severity] || '#808080';
 }
 
-export function isSuccessfulActivity(status: AdminActivityStatus): boolean {
+export function isActivityAdminSuccessful(status: AdminActivityStatus): boolean {
   return status === ADMIN_ACTIVITY.STATUSES.SUCCESS || status === ADMIN_ACTIVITY.STATUSES.COMPLETED;
 }
 
-export function isFailedActivity(status: AdminActivityStatus): boolean {
+export function isActivityAdminFailed(status: AdminActivityStatus): boolean {
   return (
     status === ADMIN_ACTIVITY.STATUSES.FAILED ||
     status === ADMIN_ACTIVITY.STATUSES.ERROR ||
@@ -329,7 +329,7 @@ export function isFailedActivity(status: AdminActivityStatus): boolean {
   );
 }
 
-export function isPendingActivity(status: AdminActivityStatus): boolean {
+export function isActivityAdminPending(status: AdminActivityStatus): boolean {
   return (
     status === ADMIN_ACTIVITY.STATUSES.PENDING ||
     status === ADMIN_ACTIVITY.STATUSES.PROCESSING ||
@@ -338,7 +338,7 @@ export function isPendingActivity(status: AdminActivityStatus): boolean {
   );
 }
 
-export function isTerminalActivity(status: AdminActivityStatus): boolean {
+export function isActivityAdminTerminal(status: AdminActivityStatus): boolean {
   return (
     status === ADMIN_ACTIVITY.STATUSES.SUCCESS ||
     status === ADMIN_ACTIVITY.STATUSES.COMPLETED ||

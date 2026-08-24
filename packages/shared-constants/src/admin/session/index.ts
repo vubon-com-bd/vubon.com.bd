@@ -1,9 +1,4 @@
-/**
- * Admin Session Constants Index
- * Export all admin session constants for easy importing
- */
-
-// Admin Session Core Constants
+// Export all constants from admin-session.constants
 export {
   ADMIN_SESSION,
   ADMIN_SESSION_STATUS_LABELS,
@@ -12,23 +7,9 @@ export {
   ADMIN_SESSION_TYPE_ICONS,
   ADMIN_SESSION_SECURITY_LABELS,
   ADMIN_SESSION_SECURITY_PRIORITY,
-  getAdminSessionStatusLabel,
-  getAdminSessionStatusColor,
-  getAdminSessionTypeLabel,
-  getAdminSessionTypeIcon,
-  getAdminSessionSecurityLabel,
-  getAdminSessionSecurityPriority,
-  getAdminSessionTimeout,
-  isActiveSession,
-  isInactiveSession,
-  isTerminatedSession,
-  isValidSessionType,
-  isHighSecurityLevel,
-  shouldValidateIP,
-  getSessionLifetime,
-  getSessionTimeoutSeconds,
 } from './admin-session.constants';
 
+// Export all types from admin-session.constants
 export type {
   AdminSessionStatus,
   AdminSessionType,
@@ -38,35 +19,59 @@ export type {
   AdminSessionFlag,
 } from './admin-session.constants';
 
-// Admin Session Status Constants
+// Export all functions from admin-session.constants
+export {
+  getAdminSessionStatusLabel,
+  getAdminSessionStatusColor,
+  getAdminSessionTypeLabel,
+  getAdminSessionTypeIcon,
+  getAdminSessionSecurityLabel,
+  getAdminSessionSecurityPriority,
+  getAdminSessionTimeout,
+  isAdminSessionActive,
+  isAdminSessionInactive,
+  isAdminSessionTerminated,
+  isAdminValidSessionType,
+  isAdminHighSecurityLevel,
+  shouldAdminValidateIP,
+  getAdminSessionLifetime,
+  getAdminSessionTimeoutSeconds,
+} from './admin-session.constants';
+
+// Export all constants from admin-session-status.constants
 export {
   ADMIN_SESSION_STATUS,
   ADMIN_SESSION_STATUS_LABELS_DETAIL,
   ADMIN_SESSION_STATUS_COLORS_DETAIL,
   ADMIN_SESSION_STATUS_GROUPS,
-  getAdminSessionStatusLabel as getAdminSessionStatusLabelDetail,
-  getAdminSessionStatusColor as getAdminSessionStatusColorDetail,
-  isActiveStatus,
-  isInactiveStatus,
-  isExpiredStatus,
-  isTerminatedStatus,
-  isPendingStatus,
-  isVerificationStatus,
-  isSecurityStatus,
-  isUsableSessionStatus,
-  isValidSessionStatus,
-  isCompromisedSession,
-  isSuspiciousSession,
-  shouldRevokeSession,
-  getStatusPriority,
-  getAdminSessionStatuses,
-  getActiveStatuses,
-  getInactiveStatuses,
-  getExpiredStatuses,
-  getTerminatedStatuses,
-  getPendingStatuses,
-  getVerificationStatuses,
-  getSecurityStatuses,
 } from './admin-session-status.constants';
 
+// Export all types from admin-session-status.constants
 export type { AdminSessionStatusDetail } from './admin-session-status.constants';
+
+// Export all functions from admin-session-status.constants
+export {
+  getAdminSessionStatusLabel as getAdminSessionStatusLabelDetail,
+  getAdminSessionStatusColor as getAdminSessionStatusColorDetail,
+  isAdminSessionActiveStatus,
+  isAdminSessionInactiveStatus,
+  isAdminSessionExpiredStatus,
+  isAdminSessionTerminatedStatus,
+  isAdminSessionPendingStatus,
+  isAdminSessionVerificationStatus,
+  isAdminSessionSecurityStatus,
+  isAdminUsableSessionStatus,
+  isAdminValidSessionStatus,
+  isAdminCompromisedSession,
+  isAdminSuspiciousSession,
+  shouldAdminRevokeSession,
+  getAdminSessionStatusPriority,
+  getAdminSessionStatuses,
+  getAdminActiveStatuses,
+  getAdminInactiveStatuses,
+  getAdminExpiredStatuses,
+  getAdminTerminatedStatuses,
+  getAdminPendingStatuses,
+  getAdminVerificationStatuses,
+  getAdminSecurityStatuses,
+} from './admin-session-status.constants';

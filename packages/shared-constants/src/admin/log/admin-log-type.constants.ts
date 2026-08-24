@@ -542,22 +542,22 @@ export function getAdminLogTypeLabel(type: AdminLogTypeDetail): string {
   return ADMIN_LOG_TYPE_LABELS_DETAIL[type] || 'Unknown Log Type';
 }
 
-export function isSecurityLog(type: AdminLogTypeDetail): boolean {
+export function isAdminLogSecurityLog(type: AdminLogTypeDetail): boolean {
   return getAdminLogTypeCategory(type) === 'security';
 }
 
-export function isSystemLog(type: AdminLogTypeDetail): boolean {
+export function isAdminLogSystemLog(type: AdminLogTypeDetail): boolean {
   return getAdminLogTypeCategory(type) === 'system';
 }
 
-export function isAuditLog(type: AdminLogTypeDetail): boolean {
+export function isAdminLogAuditLog(type: AdminLogTypeDetail): boolean {
   return getAdminLogTypeCategory(type) === 'audit';
 }
 
-export function isPerformanceLog(type: AdminLogTypeDetail): boolean {
+export function isAdminLogPerformanceLog(type: AdminLogTypeDetail): boolean {
   return getAdminLogTypeCategory(type) === 'performance';
 }
 
-export function isAccessLog(type: AdminLogTypeDetail): boolean {
+export function isAdminLogAccessLog(type: AdminLogTypeDetail): boolean {
   return getAdminLogTypeCategory(type) === 'access';
 }

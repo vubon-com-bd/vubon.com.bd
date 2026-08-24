@@ -223,11 +223,11 @@ export function getAdminSessionTimeout(type: AdminSessionType): number {
   return timeoutMap[type] || ADMIN_SESSION.TIMEOUTS.WEB;
 }
 
-export function isActiveSession(status: AdminSessionStatus): boolean {
+export function isAdminSessionActive(status: AdminSessionStatus): boolean {
   return status === ADMIN_SESSION.STATUSES.ACTIVE || status === ADMIN_SESSION.STATUSES.VERIFIED;
 }
 
-export function isInactiveSession(status: AdminSessionStatus): boolean {
+export function isAdminSessionInactive(status: AdminSessionStatus): boolean {
   return (
     status === ADMIN_SESSION.STATUSES.INACTIVE ||
     status === ADMIN_SESSION.STATUSES.EXPIRED ||
@@ -235,7 +235,7 @@ export function isInactiveSession(status: AdminSessionStatus): boolean {
   );
 }
 
-export function isTerminatedSession(status: AdminSessionStatus): boolean {
+export function isAdminSessionTerminated(status: AdminSessionStatus): boolean {
   return (
     status === ADMIN_SESSION.STATUSES.TERMINATED ||
     status === ADMIN_SESSION.STATUSES.REVOKED ||
@@ -243,17 +243,17 @@ export function isTerminatedSession(status: AdminSessionStatus): boolean {
   );
 }
 
-export function isValidSessionType(type: AdminSessionType): boolean {
+export function isAdminValidSessionType(type: AdminSessionType): boolean {
   return Object.values(ADMIN_SESSION.TYPES).includes(type);
 }
 
-export function isHighSecurityLevel(level: AdminSessionSecurityLevel): boolean {
+export function isAdminHighSecurityLevel(level: AdminSessionSecurityLevel): boolean {
   return (
     level === ADMIN_SESSION.SECURITY_LEVELS.HIGH || level === ADMIN_SESSION.SECURITY_LEVELS.CRITICAL
   );
 }
 
-export function shouldValidateIP(type: AdminSessionType): boolean {
+export function shouldAdminValidateIP(type: AdminSessionType): boolean {
   return (
     type !== ADMIN_SESSION.TYPES.SYSTEM &&
     type !== ADMIN_SESSION.TYPES.CRON &&
@@ -261,14 +261,14 @@ export function shouldValidateIP(type: AdminSessionType): boolean {
   );
 }
 
-export function getSessionLifetime(status: AdminSessionStatus): number {
+export function getAdminSessionLifetime(status: AdminSessionStatus): number {
   if (status === ADMIN_SESSION.STATUSES.ACTIVE) {
     return ADMIN_SESSION.LIMITS.MAX_LIFETIME;
   }
   return 0;
 }
 
-export function getSessionTimeoutSeconds(type: AdminSessionType): number {
+export function getAdminSessionTimeoutSeconds(type: AdminSessionType): number {
   const timeoutMap: Record<AdminSessionType, number> = {
     [ADMIN_SESSION.TYPES.WEB]: ADMIN_SESSION.TIMEOUTS.WEB,
     [ADMIN_SESSION.TYPES.MOBILE]: ADMIN_SESSION.TIMEOUTS.MOBILE,

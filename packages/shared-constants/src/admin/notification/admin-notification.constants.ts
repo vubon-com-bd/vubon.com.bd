@@ -405,7 +405,7 @@ export function getAdminNotificationActionLabel(action: AdminNotificationAction)
   return ADMIN_NOTIFICATION_ACTION_LABELS[action] || 'Unknown Action';
 }
 
-export function isNotificationDelivered(status: AdminNotificationStatus): boolean {
+export function isAdminNotificationDelivered(status: AdminNotificationStatus): boolean {
   return (
     status === ADMIN_NOTIFICATION.STATUSES.DELIVERED ||
     status === ADMIN_NOTIFICATION.STATUSES.READ ||
@@ -415,7 +415,7 @@ export function isNotificationDelivered(status: AdminNotificationStatus): boolea
   );
 }
 
-export function isNotificationFailed(status: AdminNotificationStatus): boolean {
+export function isAdminNotificationFailed(status: AdminNotificationStatus): boolean {
   return (
     status === ADMIN_NOTIFICATION.STATUSES.FAILED ||
     status === ADMIN_NOTIFICATION.STATUSES.BOUNCED ||
@@ -423,7 +423,7 @@ export function isNotificationFailed(status: AdminNotificationStatus): boolean {
   );
 }
 
-export function isNotificationPending(status: AdminNotificationStatus): boolean {
+export function isAdminNotificationPending(status: AdminNotificationStatus): boolean {
   return (
     status === ADMIN_NOTIFICATION.STATUSES.PENDING ||
     status === ADMIN_NOTIFICATION.STATUSES.QUEUED ||
@@ -432,7 +432,7 @@ export function isNotificationPending(status: AdminNotificationStatus): boolean 
   );
 }
 
-export function isNotificationRead(status: AdminNotificationStatus): boolean {
+export function isAdminNotificationRead(status: AdminNotificationStatus): boolean {
   return (
     status === ADMIN_NOTIFICATION.STATUSES.READ ||
     status === ADMIN_NOTIFICATION.STATUSES.VIEWED ||
@@ -441,7 +441,7 @@ export function isNotificationRead(status: AdminNotificationStatus): boolean {
   );
 }
 
-export function getNotificationTimeout(channel: AdminNotificationChannel): number {
+export function getAdminNotificationTimeout(channel: AdminNotificationChannel): number {
   const timeoutMap: Record<AdminNotificationChannel, number> = {
     [ADMIN_NOTIFICATION.CHANNELS.EMAIL]: ADMIN_NOTIFICATION.TIMEOUTS.EMAIL,
     [ADMIN_NOTIFICATION.CHANNELS.SMS]: ADMIN_NOTIFICATION.TIMEOUTS.SMS,
@@ -460,7 +460,7 @@ export function getNotificationTimeout(channel: AdminNotificationChannel): numbe
   return timeoutMap[channel] || ADMIN_NOTIFICATION.TIMEOUTS.EMAIL;
 }
 
-export function getNotificationTemplateLabel(template: AdminNotificationTemplate): string {
+export function getAdminNotificationTemplateLabel(template: AdminNotificationTemplate): string {
   const labels: Record<AdminNotificationTemplate, string> = {
     [ADMIN_NOTIFICATION.TEMPLATES.WELCOME]: 'Welcome Email',
     [ADMIN_NOTIFICATION.TEMPLATES.PASSWORD_RESET]: 'Password Reset',

@@ -271,36 +271,36 @@ export function getAdminDeviceTypeLabel(type: AdminDeviceTypeDetail): string {
   return ADMIN_DEVICE_TYPE_LABELS_DETAIL[type] || 'Unknown Device Type';
 }
 
-export function isMobileDeviceType(type: AdminDeviceTypeDetail): boolean {
+export function isAdminMobileDeviceType(type: AdminDeviceTypeDetail): boolean {
   return getAdminDeviceTypeCategory(type) === 'mobile';
 }
 
-export function isComputerType(type: AdminDeviceTypeDetail): boolean {
+export function isAdminComputerType(type: AdminDeviceTypeDetail): boolean {
   return (
     getAdminDeviceTypeCategory(type) === 'computer' || getAdminDeviceTypeCategory(type) === 'laptop'
   );
 }
 
-export function isWearableType(type: AdminDeviceTypeDetail): boolean {
+export function isAdminWearableType(type: AdminDeviceTypeDetail): boolean {
   return getAdminDeviceTypeCategory(type) === 'wearable';
 }
 
-export function isIoTType(type: AdminDeviceTypeDetail): boolean {
+export function isAdminIoTType(type: AdminDeviceTypeDetail): boolean {
   return getAdminDeviceTypeCategory(type) === 'iot';
 }
 
-export function isVirtualType(type: AdminDeviceTypeDetail): boolean {
+export function isAdminVirtualType(type: AdminDeviceTypeDetail): boolean {
   return getAdminDeviceTypeCategory(type) === 'virtual';
 }
 
-export function isNetworkType(type: AdminDeviceTypeDetail): boolean {
+export function isAdminNetworkType(type: AdminDeviceTypeDetail): boolean {
   return getAdminDeviceTypeCategory(type) === 'network';
 }
 
-export function isGamingType(type: AdminDeviceTypeDetail): boolean {
+export function isAdminGamingType(type: AdminDeviceTypeDetail): boolean {
   return getAdminDeviceTypeCategory(type) === 'gaming';
 }
 
-export function getDeviceCategoryForType(type: AdminDeviceTypeDetail): string {
+export function getAdminDeviceCategoryForType(type: AdminDeviceTypeDetail): string {
   return ADMIN_DEVICE_TYPE_CATEGORIES[type] || 'other';
 }

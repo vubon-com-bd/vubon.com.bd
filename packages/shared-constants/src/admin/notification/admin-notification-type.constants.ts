@@ -368,50 +368,50 @@ export function getAdminNotificationTypeLabel(type: AdminNotificationTypeDetail)
   return ADMIN_NOTIFICATION_TYPE_LABELS_DETAIL[type] || 'Unknown Type';
 }
 
-export function isSystemNotification(type: AdminNotificationTypeDetail): boolean {
+export function isAdminNotificationSystemType(type: AdminNotificationTypeDetail): boolean {
   return getAdminNotificationTypeCategory(type) === 'system';
 }
 
-export function isSecurityNotification(type: AdminNotificationTypeDetail): boolean {
+export function isAdminNotificationSecurityType(type: AdminNotificationTypeDetail): boolean {
   return getAdminNotificationTypeCategory(type) === 'security';
 }
 
-export function isUserNotification(type: AdminNotificationTypeDetail): boolean {
+export function isAdminNotificationUserType(type: AdminNotificationTypeDetail): boolean {
   return getAdminNotificationTypeCategory(type) === 'user';
 }
 
-export function isBusinessNotification(type: AdminNotificationTypeDetail): boolean {
+export function isAdminNotificationBusinessType(type: AdminNotificationTypeDetail): boolean {
   return getAdminNotificationTypeCategory(type) === 'business';
 }
 
-export function isPaymentNotification(type: AdminNotificationTypeDetail): boolean {
+export function isAdminNotificationPaymentType(type: AdminNotificationTypeDetail): boolean {
   return getAdminNotificationTypeCategory(type) === 'payment';
 }
 
-export function isProductNotification(type: AdminNotificationTypeDetail): boolean {
+export function isAdminNotificationProductType(type: AdminNotificationTypeDetail): boolean {
   return getAdminNotificationTypeCategory(type) === 'product';
 }
 
-export function isReportNotification(type: AdminNotificationTypeDetail): boolean {
+export function isAdminNotificationReportType(type: AdminNotificationTypeDetail): boolean {
   return getAdminNotificationTypeCategory(type) === 'report';
 }
 
-export function isApprovalNotification(type: AdminNotificationTypeDetail): boolean {
+export function isAdminNotificationApprovalType(type: AdminNotificationTypeDetail): boolean {
   return getAdminNotificationTypeCategory(type) === 'approval';
 }
 
-export function isAlertNotification(type: AdminNotificationTypeDetail): boolean {
+export function isAdminNotificationAlertType(type: AdminNotificationTypeDetail): boolean {
   return getAdminNotificationTypeCategory(type) === 'alert';
 }
 
-export function isReminderNotification(type: AdminNotificationTypeDetail): boolean {
+export function isAdminNotificationReminderType(type: AdminNotificationTypeDetail): boolean {
   return getAdminNotificationTypeCategory(type) === 'reminder';
 }
 
-export function isMarketingNotification(type: AdminNotificationTypeDetail): boolean {
+export function isAdminNotificationMarketingType(type: AdminNotificationTypeDetail): boolean {
   return getAdminNotificationTypeCategory(type) === 'marketing';
 }
 
-export function isCollaborationNotification(type: AdminNotificationTypeDetail): boolean {
+export function isAdminNotificationCollaborationType(type: AdminNotificationTypeDetail): boolean {
   return getAdminNotificationTypeCategory(type) === 'collaboration';
 }

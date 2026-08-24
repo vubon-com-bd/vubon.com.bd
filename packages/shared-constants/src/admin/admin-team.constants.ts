@@ -149,7 +149,7 @@ export const ADMIN_TEAM_SKILLS: Record<AdminTeamType, string[]> = {
 
 export type AdminTeamSkills = (typeof ADMIN_TEAM_SKILLS)[keyof typeof ADMIN_TEAM_SKILLS];
 
-export const ENGINEERING_TEAMS: AdminTeamType[] = [
+export const ADMIN_ENGINEERING_TEAMS: AdminTeamType[] = [
   ADMIN_TEAM.FRONTEND,
   ADMIN_TEAM.BACKEND,
   ADMIN_TEAM.MOBILE,
@@ -157,9 +157,9 @@ export const ENGINEERING_TEAMS: AdminTeamType[] = [
   ADMIN_TEAM.QA,
 ];
 
-export const DATA_TEAMS: AdminTeamType[] = [ADMIN_TEAM.DATA, ADMIN_TEAM.AI, ADMIN_TEAM.ML];
+export const ADMIN_DATA_TEAMS: AdminTeamType[] = [ADMIN_TEAM.DATA, ADMIN_TEAM.AI, ADMIN_TEAM.ML];
 
-export const INFRASTRUCTURE_TEAMS: AdminTeamType[] = [
+export const ADMIN_INFRASTRUCTURE_TEAMS: AdminTeamType[] = [
   ADMIN_TEAM.INFRASTRUCTURE,
   ADMIN_TEAM.CLOUD,
   ADMIN_TEAM.DATABASE,
@@ -182,23 +182,23 @@ export function getAdminTeamSkills(team: AdminTeamType): string[] {
   return ADMIN_TEAM_SKILLS[team] || [];
 }
 
-export function isEngineeringTeam(team: AdminTeamType): boolean {
-  return ENGINEERING_TEAMS.includes(team);
+export function isAdminEngineeringTeam(team: AdminTeamType): boolean {
+  return ADMIN_ENGINEERING_TEAMS.includes(team);
 }
 
-export function isDataTeam(team: AdminTeamType): boolean {
-  return DATA_TEAMS.includes(team);
+export function isAdminDataTeam(team: AdminTeamType): boolean {
+  return ADMIN_DATA_TEAMS.includes(team);
 }
 
-export function isInfrastructureTeam(team: AdminTeamType): boolean {
-  return INFRASTRUCTURE_TEAMS.includes(team);
+export function isAdminInfrastructureTeam(team: AdminTeamType): boolean {
+  return ADMIN_INFRASTRUCTURE_TEAMS.includes(team);
 }
 
 export function getAdminTeams(): AdminTeamType[] {
   return Object.values(ADMIN_TEAM);
 }
 
-export function getTeamSkillsList(teams: AdminTeamType[]): string[] {
+export function getAdminTeamSkillsList(teams: AdminTeamType[]): string[] {
   const allSkills = teams.flatMap((team) => getAdminTeamSkills(team));
   return Array.from(new Set(allSkills));
 }

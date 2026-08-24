@@ -259,71 +259,79 @@ export function getAdminBiometricStatusColor(status: AdminBiometricStatusDetail)
   return ADMIN_BIOMETRIC_STATUS_COLORS_DETAIL[status] || '#6B7280';
 }
 
-export function isRegisteredStatus(status: AdminBiometricStatusDetail): boolean {
+export function isAdminBiometricRegisteredStatus(status: AdminBiometricStatusDetail): boolean {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.REGISTERED.includes(status);
 }
 
-export function isUnregisteredStatus(status: AdminBiometricStatusDetail): boolean {
+export function isAdminBiometricUnregisteredStatus(status: AdminBiometricStatusDetail): boolean {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.UNREGISTERED.includes(status);
 }
 
-export function isVerifiedStatus(status: AdminBiometricStatusDetail): boolean {
+export function isAdminBiometricVerifiedStatus(status: AdminBiometricStatusDetail): boolean {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.VERIFIED.includes(status);
 }
 
-export function isUnverifiedStatus(status: AdminBiometricStatusDetail): boolean {
+export function isAdminBiometricUnverifiedStatus(status: AdminBiometricStatusDetail): boolean {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.UNVERIFIED.includes(status);
 }
 
-export function isPendingStatus(status: AdminBiometricStatusDetail): boolean {
+export function isAdminBiometricPendingStatus(status: AdminBiometricStatusDetail): boolean {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.PENDING.includes(status);
 }
 
-export function isActiveStatus(status: AdminBiometricStatusDetail): boolean {
+export function isAdminBiometricActiveStatus(status: AdminBiometricStatusDetail): boolean {
   return (
     ADMIN_BIOMETRIC_STATUS_GROUPS.ACTIVE.includes(status) ||
-    isRegisteredStatus(status) ||
-    isVerifiedStatus(status)
+    isAdminBiometricRegisteredStatus(status) ||
+    isAdminBiometricVerifiedStatus(status)
   );
 }
 
-export function isInactiveStatus(status: AdminBiometricStatusDetail): boolean {
+export function isAdminBiometricInactiveStatus(status: AdminBiometricStatusDetail): boolean {
   return (
     ADMIN_BIOMETRIC_STATUS_GROUPS.INACTIVE.includes(status) ||
-    isUnregisteredStatus(status) ||
-    isUnverifiedStatus(status)
+    isAdminBiometricUnregisteredStatus(status) ||
+    isAdminBiometricUnverifiedStatus(status)
   );
 }
 
-export function isSecurityStatus(status: AdminBiometricStatusDetail): boolean {
+export function isAdminBiometricSecurityStatus(status: AdminBiometricStatusDetail): boolean {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.SECURITY.includes(status);
 }
 
-export function isExpiredStatus(status: AdminBiometricStatusDetail): boolean {
+export function isAdminBiometricExpiredStatus(status: AdminBiometricStatusDetail): boolean {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.EXPIRED.includes(status);
 }
 
-export function isQualityStatus(status: AdminBiometricStatusDetail): boolean {
+export function isAdminBiometricQualityStatus(status: AdminBiometricStatusDetail): boolean {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.QUALITY.includes(status);
 }
 
-export function isErrorStatus(status: AdminBiometricStatusDetail): boolean {
+export function isAdminBiometricErrorStatus(status: AdminBiometricStatusDetail): boolean {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.ERROR.includes(status);
 }
 
-export function isFinalStatus(status: AdminBiometricStatusDetail): boolean {
+export function isAdminBiometricFinalStatus(status: AdminBiometricStatusDetail): boolean {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.FINAL.includes(status);
 }
 
-export function isUsableStatus(status: AdminBiometricStatusDetail): boolean {
-  return isActiveStatus(status) && !isSecurityStatus(status) && !isExpiredStatus(status);
+export function isAdminBiometricUsableStatus(status: AdminBiometricStatusDetail): boolean {
+  return (
+    isAdminBiometricActiveStatus(status) &&
+    !isAdminBiometricSecurityStatus(status) &&
+    !isAdminBiometricExpiredStatus(status)
+  );
 }
 
-export function isTerminalStatus(status: AdminBiometricStatusDetail): boolean {
-  return isFinalStatus(status) || isExpiredStatus(status) || isErrorStatus(status);
+export function isAdminBiometricTerminalStatus(status: AdminBiometricStatusDetail): boolean {
+  return (
+    isAdminBiometricFinalStatus(status) ||
+    isAdminBiometricExpiredStatus(status) ||
+    isAdminBiometricErrorStatus(status)
+  );
 }
 
-export function getStatusPriority(status: AdminBiometricStatusDetail): number {
+export function getAdminBiometricStatusPriority(status: AdminBiometricStatusDetail): number {
   const priorityMap: Record<AdminBiometricStatusDetail, number> = {
     [ADMIN_BIOMETRIC_STATUS.ACTIVE]: 1,
     [ADMIN_BIOMETRIC_STATUS.VERIFIED]: 1,
@@ -373,50 +381,50 @@ export function getAdminBiometricStatuses(): AdminBiometricStatusDetail[] {
   return Object.values(ADMIN_BIOMETRIC_STATUS);
 }
 
-export function getRegisteredStatuses(): AdminBiometricStatusDetail[] {
+export function getAdminBiometricRegisteredStatuses(): AdminBiometricStatusDetail[] {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.REGISTERED;
 }
 
-export function getUnregisteredStatuses(): AdminBiometricStatusDetail[] {
+export function getAdminBiometricUnregisteredStatuses(): AdminBiometricStatusDetail[] {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.UNREGISTERED;
 }
 
-export function getVerifiedStatuses(): AdminBiometricStatusDetail[] {
+export function getAdminBiometricVerifiedStatuses(): AdminBiometricStatusDetail[] {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.VERIFIED;
 }
 
-export function getUnverifiedStatuses(): AdminBiometricStatusDetail[] {
+export function getAdminBiometricUnverifiedStatuses(): AdminBiometricStatusDetail[] {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.UNVERIFIED;
 }
 
-export function getPendingStatuses(): AdminBiometricStatusDetail[] {
+export function getAdminBiometricPendingStatuses(): AdminBiometricStatusDetail[] {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.PENDING;
 }
 
-export function getActiveStatuses(): AdminBiometricStatusDetail[] {
+export function getAdminBiometricActiveStatuses(): AdminBiometricStatusDetail[] {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.ACTIVE;
 }
 
-export function getInactiveStatuses(): AdminBiometricStatusDetail[] {
+export function getAdminBiometricInactiveStatuses(): AdminBiometricStatusDetail[] {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.INACTIVE;
 }
 
-export function getSecurityStatuses(): AdminBiometricStatusDetail[] {
+export function getAdminBiometricSecurityStatuses(): AdminBiometricStatusDetail[] {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.SECURITY;
 }
 
-export function getExpiredStatuses(): AdminBiometricStatusDetail[] {
+export function getAdminBiometricExpiredStatuses(): AdminBiometricStatusDetail[] {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.EXPIRED;
 }
 
-export function getQualityStatuses(): AdminBiometricStatusDetail[] {
+export function getAdminBiometricQualityStatuses(): AdminBiometricStatusDetail[] {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.QUALITY;
 }
 
-export function getErrorStatuses(): AdminBiometricStatusDetail[] {
+export function getAdminBiometricErrorStatuses(): AdminBiometricStatusDetail[] {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.ERROR;
 }
 
-export function getFinalStatuses(): AdminBiometricStatusDetail[] {
+export function getAdminBiometricFinalStatuses(): AdminBiometricStatusDetail[] {
   return ADMIN_BIOMETRIC_STATUS_GROUPS.FINAL;
 }

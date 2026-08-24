@@ -311,58 +311,58 @@ export function getAdminSettingsTypeLabel(type: AdminSettingsTypeDetail): string
   return ADMIN_SETTINGS_TYPE_LABELS_DETAIL[type] || 'Unknown Type';
 }
 
-export function isBasicType(type: AdminSettingsTypeDetail): boolean {
+export function isAdminBasicType(type: AdminSettingsTypeDetail): boolean {
   return getAdminSettingsTypeCategory(type) === 'basic';
 }
 
-export function isComplexType(type: AdminSettingsTypeDetail): boolean {
+export function isAdminComplexType(type: AdminSettingsTypeDetail): boolean {
   return getAdminSettingsTypeCategory(type) === 'complex';
 }
 
-export function isTextType(type: AdminSettingsTypeDetail): boolean {
+export function isAdminTextType(type: AdminSettingsTypeDetail): boolean {
   return getAdminSettingsTypeCategory(type) === 'text';
 }
 
-export function isNumericType(type: AdminSettingsTypeDetail): boolean {
+export function isAdminNumericType(type: AdminSettingsTypeDetail): boolean {
   return getAdminSettingsTypeCategory(type) === 'numeric';
 }
 
-export function isDateTimeType(type: AdminSettingsTypeDetail): boolean {
+export function isAdminDateTimeType(type: AdminSettingsTypeDetail): boolean {
   return getAdminSettingsTypeCategory(type) === 'datetime';
 }
 
-export function isContactType(type: AdminSettingsTypeDetail): boolean {
+export function isAdminContactType(type: AdminSettingsTypeDetail): boolean {
   return getAdminSettingsTypeCategory(type) === 'contact';
 }
 
-export function isSelectionType(type: AdminSettingsTypeDetail): boolean {
+export function isAdminSelectionType(type: AdminSettingsTypeDetail): boolean {
   return getAdminSettingsTypeCategory(type) === 'selection';
 }
 
-export function isRangeType(type: AdminSettingsTypeDetail): boolean {
+export function isAdminRangeType(type: AdminSettingsTypeDetail): boolean {
   return getAdminSettingsTypeCategory(type) === 'range';
 }
 
-export function isFileType(type: AdminSettingsTypeDetail): boolean {
+export function isAdminFileType(type: AdminSettingsTypeDetail): boolean {
   return getAdminSettingsTypeCategory(type) === 'file';
 }
 
-export function isSecurityType(type: AdminSettingsTypeDetail): boolean {
+export function isAdminSecurityType(type: AdminSettingsTypeDetail): boolean {
   return getAdminSettingsTypeCategory(type) === 'security';
 }
 
-export function isIntegrationType(type: AdminSettingsTypeDetail): boolean {
+export function isAdminIntegrationType(type: AdminSettingsTypeDetail): boolean {
   return getAdminSettingsTypeCategory(type) === 'integration';
 }
 
-export function isSystemType(type: AdminSettingsTypeDetail): boolean {
+export function isAdminSystemType(type: AdminSettingsTypeDetail): boolean {
   return getAdminSettingsTypeCategory(type) === 'system';
 }
 
-export function isUIType(type: AdminSettingsTypeDetail): boolean {
+export function isAdminUIType(type: AdminSettingsTypeDetail): boolean {
   return getAdminSettingsTypeCategory(type) === 'ui';
 }
 
-export function getSettingsTypeCategory(type: AdminSettingsTypeDetail): string {
+export function getAdminSettingsTypeCategoryDuplicate(type: AdminSettingsTypeDetail): string {
   return ADMIN_SETTINGS_TYPE_CATEGORIES[type] || 'other';
 }

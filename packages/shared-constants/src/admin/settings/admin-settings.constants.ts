@@ -241,7 +241,6 @@ export function getAdminSettingsGroupLabel(group: AdminSettingsGroup): string {
   return ADMIN_SETTINGS_GROUP_LABELS[group] || 'Unknown Group';
 }
 
-// রিনেম করা ফাংশন (Admin প্রিফিক্স যোগ করা হয়েছে)
 export function isAdminSettingsActive(status: AdminSettingsStatus): boolean {
   return status === ADMIN_SETTINGS.STATUS.ACTIVE;
 }
@@ -258,22 +257,22 @@ export function isAdminSettingsSynced(status: AdminSettingsStatus): boolean {
   return status === ADMIN_SETTINGS.STATUS.ACTIVE || status === ADMIN_SETTINGS.STATUS.INACTIVE;
 }
 
-export function isHighSensitivity(sensitivity: AdminSettingsSensitivity): boolean {
+export function isAdminHighSensitivity(sensitivity: AdminSettingsSensitivity): boolean {
   return (
     sensitivity === ADMIN_SETTINGS.SENSITIVITY.HIGH ||
     sensitivity === ADMIN_SETTINGS.SENSITIVITY.CRITICAL
   );
 }
 
-export function isVisibleSettings(visibility: AdminSettingsVisibility): boolean {
+export function isAdminVisibleSettings(visibility: AdminSettingsVisibility): boolean {
   return visibility === ADMIN_SETTINGS.VISIBILITY.PUBLIC;
 }
 
-export function getSettingsModification(source: string): string {
+export function getAdminSettingsModification(source: string): string {
   return `Modified from ${source}`;
 }
 
-export function getSettingsSourceLabel(source: AdminSettingsSource): string {
+export function getAdminSettingsSourceLabel(source: AdminSettingsSource): string {
   const labels: Record<AdminSettingsSource, string> = {
     system: 'System',
     user: 'User',

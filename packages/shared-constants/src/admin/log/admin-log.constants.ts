@@ -139,39 +139,39 @@ export function getAdminLogCategoryLabel(category: AdminLogCategory): string {
   return ADMIN_LOG_CATEGORY_LABELS[category] || 'Unknown Category';
 }
 
-export function isCriticalLevel(level: AdminLogLevel): boolean {
+export function isAdminLogCriticalLevel(level: AdminLogLevel): boolean {
   return level === ADMIN_LOG.LEVEL.CRITICAL;
 }
 
-export function isErrorLevel(level: AdminLogLevel): boolean {
+export function isAdminLogErrorLevel(level: AdminLogLevel): boolean {
   return level === ADMIN_LOG.LEVEL.ERROR || level === ADMIN_LOG.LEVEL.CRITICAL;
 }
 
-export function isWarningLevel(level: AdminLogLevel): boolean {
+export function isAdminLogWarningLevel(level: AdminLogLevel): boolean {
   return level === ADMIN_LOG.LEVEL.WARNING;
 }
 
-export function isInfoLevel(level: AdminLogLevel): boolean {
+export function isAdminLogInfoLevel(level: AdminLogLevel): boolean {
   return level === ADMIN_LOG.LEVEL.INFO;
 }
 
-export function isDebugLevel(level: AdminLogLevel): boolean {
+export function isAdminLogDebugLevel(level: AdminLogLevel): boolean {
   return level === ADMIN_LOG.LEVEL.DEBUG;
 }
 
-export function shouldLogLevel(level: AdminLogLevel, minLevel: AdminLogLevel): boolean {
+export function shouldAdminLogLevel(level: AdminLogLevel, minLevel: AdminLogLevel): boolean {
   return ADMIN_LOG_LEVEL_PRIORITY[level] >= ADMIN_LOG_LEVEL_PRIORITY[minLevel];
 }
 
-export function getLogRetentionDays(retention: AdminLogRetention): number {
+export function getAdminLogRetentionDays(retention: AdminLogRetention): number {
   return retention;
 }
 
-export function getLogSizeLimit(sizeLimit: AdminLogSizeLimit): number {
+export function getAdminLogSizeLimit(sizeLimit: AdminLogSizeLimit): number {
   return sizeLimit;
 }
 
-export function getLogRotationLabel(rotation: AdminLogRotation): string {
+export function getAdminLogRotationLabel(rotation: AdminLogRotation): string {
   const labels: Record<AdminLogRotation, string> = {
     [ADMIN_LOG.ROTATION.DAILY]: 'Daily',
     [ADMIN_LOG.ROTATION.WEEKLY]: 'Weekly',
@@ -181,7 +181,6 @@ export function getLogRotationLabel(rotation: AdminLogRotation): string {
   return labels[rotation] || 'Unknown';
 }
 
-// অ্যাডমিন স্পেসিফিক লগ ফাংশন (ইউজারের সাথে কনফ্লিক্ট করবে না)
 export function isAdminAuditLog(category: AdminLogCategory): boolean {
   return category === ADMIN_LOG.CATEGORY.AUDIT;
 }

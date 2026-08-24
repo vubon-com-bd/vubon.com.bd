@@ -80,11 +80,11 @@ export const ADMIN_VERIFICATION_STATUS = {
   ARCHIVED: 'archived',
 } as const;
 
-export type AdminVerificationStatusDetail =
+export type AdminverificationStatusDetail =
   (typeof ADMIN_VERIFICATION_STATUS)[keyof typeof ADMIN_VERIFICATION_STATUS];
 
 export const ADMIN_VERIFICATION_STATUS_LABELS_DETAIL: Record<
-  AdminVerificationStatusDetail,
+  AdminverificationStatusDetail,
   string
 > = {
   // Initial statuses
@@ -164,7 +164,7 @@ export const ADMIN_VERIFICATION_STATUS_LABELS_DETAIL: Record<
 };
 
 export const ADMIN_VERIFICATION_STATUS_COLORS_DETAIL: Record<
-  AdminVerificationStatusDetail,
+  AdminverificationStatusDetail,
   string
 > = {
   // Initial statuses
@@ -248,7 +248,7 @@ export const ADMIN_VERIFICATION_STATUS_GROUPS = {
     ADMIN_VERIFICATION_STATUS.INITIATED,
     ADMIN_VERIFICATION_STATUS.CREATED,
     ADMIN_VERIFICATION_STATUS.REQUESTED,
-  ] as AdminVerificationStatusDetail[],
+  ] as AdminverificationStatusDetail[],
   PENDING: [
     ADMIN_VERIFICATION_STATUS.PENDING,
     ADMIN_VERIFICATION_STATUS.PENDING_USER,
@@ -258,19 +258,19 @@ export const ADMIN_VERIFICATION_STATUS_GROUPS = {
     ADMIN_VERIFICATION_STATUS.PENDING_INPUT,
     ADMIN_VERIFICATION_STATUS.PENDING_DOCUMENT,
     ADMIN_VERIFICATION_STATUS.PENDING_VERIFICATION,
-  ] as AdminVerificationStatusDetail[],
+  ] as AdminverificationStatusDetail[],
   PROCESSING: [
     ADMIN_VERIFICATION_STATUS.PROCESSING,
     ADMIN_VERIFICATION_STATUS.IN_PROGRESS,
     ADMIN_VERIFICATION_STATUS.AWAITING,
     ADMIN_VERIFICATION_STATUS.SUBMITTED,
-  ] as AdminVerificationStatusDetail[],
+  ] as AdminverificationStatusDetail[],
   REVIEW: [
     ADMIN_VERIFICATION_STATUS.REVIEWING,
     ADMIN_VERIFICATION_STATUS.UNDER_REVIEW,
     ADMIN_VERIFICATION_STATUS.IN_REVIEW,
     ADMIN_VERIFICATION_STATUS.REVIEWED,
-  ] as AdminVerificationStatusDetail[],
+  ] as AdminverificationStatusDetail[],
   SUCCESS: [
     ADMIN_VERIFICATION_STATUS.VERIFIED,
     ADMIN_VERIFICATION_STATUS.APPROVED,
@@ -278,7 +278,7 @@ export const ADMIN_VERIFICATION_STATUS_GROUPS = {
     ADMIN_VERIFICATION_STATUS.CONFIRMED,
     ADMIN_VERIFICATION_STATUS.COMPLETED,
     ADMIN_VERIFICATION_STATUS.SUCCESS,
-  ] as AdminVerificationStatusDetail[],
+  ] as AdminverificationStatusDetail[],
   FAILURE: [
     ADMIN_VERIFICATION_STATUS.FAILED,
     ADMIN_VERIFICATION_STATUS.REJECTED,
@@ -287,25 +287,25 @@ export const ADMIN_VERIFICATION_STATUS_GROUPS = {
     ADMIN_VERIFICATION_STATUS.INVALID,
     ADMIN_VERIFICATION_STATUS.INVALID_DATA,
     ADMIN_VERIFICATION_STATUS.INVALID_DOCUMENT,
-  ] as AdminVerificationStatusDetail[],
+  ] as AdminverificationStatusDetail[],
   EXPIRED: [
     ADMIN_VERIFICATION_STATUS.EXPIRED,
     ADMIN_VERIFICATION_STATUS.TIMEOUT,
     ADMIN_VERIFICATION_STATUS.STALE,
     ADMIN_VERIFICATION_STATUS.OUTDATED,
-  ] as AdminVerificationStatusDetail[],
+  ] as AdminverificationStatusDetail[],
   CANCELLED: [
     ADMIN_VERIFICATION_STATUS.CANCELLED,
     ADMIN_VERIFICATION_STATUS.ABORTED,
     ADMIN_VERIFICATION_STATUS.STOPPED,
-  ] as AdminVerificationStatusDetail[],
+  ] as AdminverificationStatusDetail[],
   PROBLEM: [
     ADMIN_VERIFICATION_STATUS.ERROR,
     ADMIN_VERIFICATION_STATUS.CORRUPTED,
     ADMIN_VERIFICATION_STATUS.INCOMPLETE,
     ADMIN_VERIFICATION_STATUS.AMBIGUOUS,
     ADMIN_VERIFICATION_STATUS.UNCLEAR,
-  ] as AdminVerificationStatusDetail[],
+  ] as AdminverificationStatusDetail[],
   SPECIAL: [
     ADMIN_VERIFICATION_STATUS.SKIPPED,
     ADMIN_VERIFICATION_STATUS.DEFERRED,
@@ -313,97 +313,101 @@ export const ADMIN_VERIFICATION_STATUS_GROUPS = {
     ADMIN_VERIFICATION_STATUS.SUSPENDED,
     ADMIN_VERIFICATION_STATUS.HOLD,
     ADMIN_VERIFICATION_STATUS.ON_HOLD,
-  ] as AdminVerificationStatusDetail[],
+  ] as AdminverificationStatusDetail[],
   FINAL: [
     ADMIN_VERIFICATION_STATUS.CLOSED,
     ADMIN_VERIFICATION_STATUS.RESOLVED,
     ADMIN_VERIFICATION_STATUS.ARCHIVED,
-  ] as AdminVerificationStatusDetail[],
+  ] as AdminverificationStatusDetail[],
 };
 
-export function getAdminVerificationStatusLabel(status: AdminVerificationStatusDetail): string {
+export function getAdminverificationStatusLabel(status: AdminverificationStatusDetail): string {
   return ADMIN_VERIFICATION_STATUS_LABELS_DETAIL[status] || 'Unknown Status';
 }
 
-export function getAdminVerificationStatusColor(status: AdminVerificationStatusDetail): string {
+export function getAdminverificationStatusColor(status: AdminverificationStatusDetail): string {
   return ADMIN_VERIFICATION_STATUS_COLORS_DETAIL[status] || '#6B7280';
 }
 
-export function isInitialStatus(status: AdminVerificationStatusDetail): boolean {
+export function isAdminverificationInitialStatus(status: AdminverificationStatusDetail): boolean {
   return ADMIN_VERIFICATION_STATUS_GROUPS.INITIAL.includes(status);
 }
 
-export function isPendingStatus(status: AdminVerificationStatusDetail): boolean {
+export function isAdminverificationPendingStatus(status: AdminverificationStatusDetail): boolean {
   return ADMIN_VERIFICATION_STATUS_GROUPS.PENDING.includes(status);
 }
 
-export function isProcessingStatus(status: AdminVerificationStatusDetail): boolean {
+export function isAdminverificationProcessingStatus(
+  status: AdminverificationStatusDetail
+): boolean {
   return ADMIN_VERIFICATION_STATUS_GROUPS.PROCESSING.includes(status);
 }
 
-export function isReviewStatus(status: AdminVerificationStatusDetail): boolean {
+export function isAdminverificationReviewStatus(status: AdminverificationStatusDetail): boolean {
   return ADMIN_VERIFICATION_STATUS_GROUPS.REVIEW.includes(status);
 }
 
-export function isSuccessStatus(status: AdminVerificationStatusDetail): boolean {
+export function isAdminverificationSuccessStatus(status: AdminverificationStatusDetail): boolean {
   return ADMIN_VERIFICATION_STATUS_GROUPS.SUCCESS.includes(status);
 }
 
-export function isFailureStatus(status: AdminVerificationStatusDetail): boolean {
+export function isAdminverificationFailureStatus(status: AdminverificationStatusDetail): boolean {
   return ADMIN_VERIFICATION_STATUS_GROUPS.FAILURE.includes(status);
 }
 
-export function isExpiredStatus(status: AdminVerificationStatusDetail): boolean {
+export function isAdminverificationExpiredStatus(status: AdminverificationStatusDetail): boolean {
   return ADMIN_VERIFICATION_STATUS_GROUPS.EXPIRED.includes(status);
 }
 
-export function isCancelledStatus(status: AdminVerificationStatusDetail): boolean {
+export function isAdminverificationCancelledStatus(status: AdminverificationStatusDetail): boolean {
   return ADMIN_VERIFICATION_STATUS_GROUPS.CANCELLED.includes(status);
 }
 
-export function isProblemStatus(status: AdminVerificationStatusDetail): boolean {
+export function isAdminverificationProblemStatus(status: AdminverificationStatusDetail): boolean {
   return ADMIN_VERIFICATION_STATUS_GROUPS.PROBLEM.includes(status);
 }
 
-export function isSpecialStatus(status: AdminVerificationStatusDetail): boolean {
+export function isAdminverificationSpecialStatus(status: AdminverificationStatusDetail): boolean {
   return ADMIN_VERIFICATION_STATUS_GROUPS.SPECIAL.includes(status);
 }
 
-export function isFinalStatus(status: AdminVerificationStatusDetail): boolean {
+export function isAdminverificationFinalStatus(status: AdminverificationStatusDetail): boolean {
   return ADMIN_VERIFICATION_STATUS_GROUPS.FINAL.includes(status);
 }
 
-export function isActiveStatus(status: AdminVerificationStatusDetail): boolean {
+export function isAdminverificationActiveStatus(status: AdminverificationStatusDetail): boolean {
   return (
-    !isFinalStatus(status) &&
-    !isCancelledStatus(status) &&
-    !isExpiredStatus(status) &&
-    !isFailureStatus(status)
+    !isAdminverificationFinalStatus(status) &&
+    !isAdminverificationCancelledStatus(status) &&
+    !isAdminverificationExpiredStatus(status) &&
+    !isAdminverificationFailureStatus(status)
   );
 }
 
-export function isTerminalStatus(status: AdminVerificationStatusDetail): boolean {
+export function isAdminverificationTerminalStatus(status: AdminverificationStatusDetail): boolean {
   return (
-    isFinalStatus(status) ||
-    isCancelledStatus(status) ||
-    isExpiredStatus(status) ||
-    isFailureStatus(status) ||
-    isSuccessStatus(status)
+    isAdminverificationFinalStatus(status) ||
+    isAdminverificationCancelledStatus(status) ||
+    isAdminverificationExpiredStatus(status) ||
+    isAdminverificationFailureStatus(status) ||
+    isAdminverificationSuccessStatus(status)
   );
 }
 
-export function isResolvableStatus(status: AdminVerificationStatusDetail): boolean {
+export function isAdminverificationResolvableStatus(
+  status: AdminverificationStatusDetail
+): boolean {
   return (
-    isPendingStatus(status) ||
-    isProcessingStatus(status) ||
-    isReviewStatus(status) ||
-    isProblemStatus(status) ||
-    isSpecialStatus(status)
+    isAdminverificationPendingStatus(status) ||
+    isAdminverificationProcessingStatus(status) ||
+    isAdminverificationReviewStatus(status) ||
+    isAdminverificationProblemStatus(status) ||
+    isAdminverificationSpecialStatus(status)
   );
 }
 
-export function getStatusPriority(status: AdminVerificationStatusDetail): number {
-  const priorityMap: Record<AdminVerificationStatusDetail, number> = {
+export function getAdminverificationStatusPriority(status: AdminverificationStatusDetail): number {
+  const priorityMap: Record<AdminverificationStatusDetail, number> = {
     [ADMIN_VERIFICATION_STATUS.INITIATED]: 1,
     [ADMIN_VERIFICATION_STATUS.CREATED]: 1,
     [ADMIN_VERIFICATION_STATUS.REQUESTED]: 1,
@@ -461,50 +465,50 @@ export function getStatusPriority(status: AdminVerificationStatusDetail): number
   return priorityMap[status] || 3;
 }
 
-export function getAdminVerificationStatuses(): AdminVerificationStatusDetail[] {
+export function getAdminverificationStatuses(): AdminverificationStatusDetail[] {
   return Object.values(ADMIN_VERIFICATION_STATUS);
 }
 
-export function getInitialStatuses(): AdminVerificationStatusDetail[] {
+export function getAdminverificationInitialStatuses(): AdminverificationStatusDetail[] {
   return ADMIN_VERIFICATION_STATUS_GROUPS.INITIAL;
 }
 
-export function getPendingStatuses(): AdminVerificationStatusDetail[] {
+export function getAdminverificationPendingStatuses(): AdminverificationStatusDetail[] {
   return ADMIN_VERIFICATION_STATUS_GROUPS.PENDING;
 }
 
-export function getProcessingStatuses(): AdminVerificationStatusDetail[] {
+export function getAdminverificationProcessingStatuses(): AdminverificationStatusDetail[] {
   return ADMIN_VERIFICATION_STATUS_GROUPS.PROCESSING;
 }
 
-export function getReviewStatuses(): AdminVerificationStatusDetail[] {
+export function getAdminverificationReviewStatuses(): AdminverificationStatusDetail[] {
   return ADMIN_VERIFICATION_STATUS_GROUPS.REVIEW;
 }
 
-export function getSuccessStatuses(): AdminVerificationStatusDetail[] {
+export function getAdminverificationSuccessStatuses(): AdminverificationStatusDetail[] {
   return ADMIN_VERIFICATION_STATUS_GROUPS.SUCCESS;
 }
 
-export function getFailureStatuses(): AdminVerificationStatusDetail[] {
+export function getAdminverificationFailureStatuses(): AdminverificationStatusDetail[] {
   return ADMIN_VERIFICATION_STATUS_GROUPS.FAILURE;
 }
 
-export function getExpiredStatuses(): AdminVerificationStatusDetail[] {
+export function getAdminverificationExpiredStatuses(): AdminverificationStatusDetail[] {
   return ADMIN_VERIFICATION_STATUS_GROUPS.EXPIRED;
 }
 
-export function getCancelledStatuses(): AdminVerificationStatusDetail[] {
+export function getAdminverificationCancelledStatuses(): AdminverificationStatusDetail[] {
   return ADMIN_VERIFICATION_STATUS_GROUPS.CANCELLED;
 }
 
-export function getProblemStatuses(): AdminVerificationStatusDetail[] {
+export function getAdminverificationProblemStatuses(): AdminverificationStatusDetail[] {
   return ADMIN_VERIFICATION_STATUS_GROUPS.PROBLEM;
 }
 
-export function getSpecialStatuses(): AdminVerificationStatusDetail[] {
+export function getAdminverificationSpecialStatuses(): AdminverificationStatusDetail[] {
   return ADMIN_VERIFICATION_STATUS_GROUPS.SPECIAL;
 }
 
-export function getFinalStatuses(): AdminVerificationStatusDetail[] {
+export function getAdminverificationFinalStatuses(): AdminverificationStatusDetail[] {
   return ADMIN_VERIFICATION_STATUS_GROUPS.FINAL;
 }

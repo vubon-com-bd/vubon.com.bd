@@ -132,7 +132,7 @@ export const ADMIN_TYPE_REQUIREMENTS: Record<
 export type AdminTypeRequirement =
   (typeof ADMIN_TYPE_REQUIREMENTS)[keyof typeof ADMIN_TYPE_REQUIREMENTS];
 
-export const INTERNAL_ADMIN_TYPES: AdminTypeType[] = [
+export const ADMIN_INTERNAL_TYPES: AdminTypeType[] = [
   ADMIN_TYPE.SYSTEM,
   ADMIN_TYPE.USER,
   ADMIN_TYPE.VENDOR,
@@ -141,7 +141,7 @@ export const INTERNAL_ADMIN_TYPES: AdminTypeType[] = [
   ADMIN_TYPE.INTERNAL,
 ];
 
-export const EXTERNAL_ADMIN_TYPES: AdminTypeType[] = [
+export const ADMIN_EXTERNAL_TYPES: AdminTypeType[] = [
   ADMIN_TYPE.CONSULTANT,
   ADMIN_TYPE.CONTRACTOR,
   ADMIN_TYPE.INTERN,
@@ -149,14 +149,14 @@ export const EXTERNAL_ADMIN_TYPES: AdminTypeType[] = [
   ADMIN_TYPE.EXTERNAL,
 ];
 
-export const EMPLOYMENT_ADMIN_TYPES: AdminTypeType[] = [
+export const ADMIN_EMPLOYMENT_TYPES: AdminTypeType[] = [
   ADMIN_TYPE.PERMANENT,
   ADMIN_TYPE.TEMPORARY,
   ADMIN_TYPE.CONTRACTOR,
   ADMIN_TYPE.INTERN,
 ];
 
-export const MANAGEMENT_ADMIN_TYPES: AdminTypeType[] = [
+export const ADMIN_MANAGEMENT_TYPES: AdminTypeType[] = [
   ADMIN_TYPE.SYSTEM,
   ADMIN_TYPE.USER,
   ADMIN_TYPE.VENDOR,
@@ -182,20 +182,20 @@ export function getAdminTypeRequirements(type: AdminTypeType): AdminTypeRequirem
   );
 }
 
-export function isInternalAdminType(type: AdminTypeType): boolean {
-  return INTERNAL_ADMIN_TYPES.includes(type);
+export function isAdminInternalType(type: AdminTypeType): boolean {
+  return ADMIN_INTERNAL_TYPES.includes(type);
 }
 
-export function isExternalAdminType(type: AdminTypeType): boolean {
-  return EXTERNAL_ADMIN_TYPES.includes(type);
+export function isAdminExternalType(type: AdminTypeType): boolean {
+  return ADMIN_EXTERNAL_TYPES.includes(type);
 }
 
-export function isEmploymentAdminType(type: AdminTypeType): boolean {
-  return EMPLOYMENT_ADMIN_TYPES.includes(type);
+export function isAdminEmploymentType(type: AdminTypeType): boolean {
+  return ADMIN_EMPLOYMENT_TYPES.includes(type);
 }
 
-export function isManagementAdminType(type: AdminTypeType): boolean {
-  return MANAGEMENT_ADMIN_TYPES.includes(type);
+export function isAdminManagementType(type: AdminTypeType): boolean {
+  return ADMIN_MANAGEMENT_TYPES.includes(type);
 }
 
 export function getAdminTypes(): AdminTypeType[] {

@@ -147,7 +147,7 @@ export const ADMIN_DEPARTMENT_BUDGET: Record<AdminDepartmentType, number> = {
 export type AdminDepartmentBudget =
   (typeof ADMIN_DEPARTMENT_BUDGET)[keyof typeof ADMIN_DEPARTMENT_BUDGET];
 
-export const TECH_DEPARTMENTS: AdminDepartmentType[] = [
+export const ADMIN_TECH_DEPARTMENTS: AdminDepartmentType[] = [
   ADMIN_DEPARTMENT.IT,
   ADMIN_DEPARTMENT.DEVELOPMENT,
   ADMIN_DEPARTMENT.DATA,
@@ -155,7 +155,7 @@ export const TECH_DEPARTMENTS: AdminDepartmentType[] = [
   ADMIN_DEPARTMENT.SECURITY,
 ];
 
-export const BUSINESS_DEPARTMENTS: AdminDepartmentType[] = [
+export const ADMIN_BUSINESS_DEPARTMENTS: AdminDepartmentType[] = [
   ADMIN_DEPARTMENT.MARKETING,
   ADMIN_DEPARTMENT.SALES,
   ADMIN_DEPARTMENT.FINANCE,
@@ -163,7 +163,7 @@ export const BUSINESS_DEPARTMENTS: AdminDepartmentType[] = [
   ADMIN_DEPARTMENT.PROCUREMENT,
 ];
 
-export const SUPPORT_DEPARTMENTS: AdminDepartmentType[] = [
+export const ADMIN_SUPPORT_DEPARTMENTS: AdminDepartmentType[] = [
   ADMIN_DEPARTMENT.SUPPORT,
   ADMIN_DEPARTMENT.HR,
   ADMIN_DEPARTMENT.ADMINISTRATION,
@@ -186,16 +186,16 @@ export function getAdminDepartmentBudget(department: AdminDepartmentType): numbe
   return ADMIN_DEPARTMENT_BUDGET[department] || 0;
 }
 
-export function isTechDepartment(department: AdminDepartmentType): boolean {
-  return TECH_DEPARTMENTS.includes(department);
+export function isAdminTechDepartment(department: AdminDepartmentType): boolean {
+  return ADMIN_TECH_DEPARTMENTS.includes(department);
 }
 
-export function isBusinessDepartment(department: AdminDepartmentType): boolean {
-  return BUSINESS_DEPARTMENTS.includes(department);
+export function isAdminBusinessDepartment(department: AdminDepartmentType): boolean {
+  return ADMIN_BUSINESS_DEPARTMENTS.includes(department);
 }
 
-export function isSupportDepartment(department: AdminDepartmentType): boolean {
-  return SUPPORT_DEPARTMENTS.includes(department);
+export function isAdminSupportDepartment(department: AdminDepartmentType): boolean {
+  return ADMIN_SUPPORT_DEPARTMENTS.includes(department);
 }
 
 export function getAdminDepartments(): AdminDepartmentType[] {

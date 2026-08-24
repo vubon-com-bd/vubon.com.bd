@@ -185,54 +185,50 @@ export const ADMIN_2FA_TYPE_LABELS_DETAIL: Record<Admin2FATypeDetail, string> = 
   [ADMIN_2FA_TYPE.MULTI_FACTOR]: 'Multi-Factor',
 };
 
-export function getAdmin2FATypeCategory(type: Admin2FATypeDetail): string {
+export function get2faAdminTypeCategory(type: Admin2FATypeDetail): string {
   return ADMIN_2FA_TYPE_CATEGORIES[type] || 'other';
 }
 
-export function getAdmin2FATypeLabel(type: Admin2FATypeDetail): string {
+export function get2faAdminTypeLabel(type: Admin2FATypeDetail): string {
   return ADMIN_2FA_TYPE_LABELS_DETAIL[type] || 'Unknown 2FA Type';
 }
 
-export function isTOTPType(type: Admin2FATypeDetail): boolean {
-  return getAdmin2FATypeCategory(type) === 'totp';
+export function is2faAdminTOTPType(type: Admin2FATypeDetail): boolean {
+  return get2faAdminTypeCategory(type) === 'totp';
 }
 
-export function isHOTPType(type: Admin2FATypeDetail): boolean {
-  return getAdmin2FATypeCategory(type) === 'hotp';
+export function is2faAdminHOTPType(type: Admin2FATypeDetail): boolean {
+  return get2faAdminTypeCategory(type) === 'hotp';
 }
 
-export function isAuthenticatorType(type: Admin2FATypeDetail): boolean {
-  return getAdmin2FATypeCategory(type) === 'authenticator';
+export function is2faAdminAuthenticatorType(type: Admin2FATypeDetail): boolean {
+  return get2faAdminTypeCategory(type) === 'authenticator';
 }
 
-export function isHardwareType(type: Admin2FATypeDetail): boolean {
-  return getAdmin2FATypeCategory(type) === 'hardware';
+export function is2faAdminHardwareType(type: Admin2FATypeDetail): boolean {
+  return get2faAdminTypeCategory(type) === 'hardware';
 }
 
-export function isBiometricType(type: Admin2FATypeDetail): boolean {
-  return getAdmin2FATypeCategory(type) === 'biometric';
+export function is2faAdminBiometricType(type: Admin2FATypeDetail): boolean {
+  return get2faAdminTypeCategory(type) === 'biometric';
 }
 
-export function isBackupType(type: Admin2FATypeDetail): boolean {
-  return getAdmin2FATypeCategory(type) === 'backup';
+export function is2faAdminBackupType(type: Admin2FATypeDetail): boolean {
+  return get2faAdminTypeCategory(type) === 'backup';
 }
 
-export function isSMSBased(type: Admin2FATypeDetail): boolean {
-  return getAdmin2FATypeCategory(type) === 'sms';
+export function is2faAdminSMSBased(type: Admin2FATypeDetail): boolean {
+  return get2faAdminTypeCategory(type) === 'sms';
 }
 
-export function isEmailBased(type: Admin2FATypeDetail): boolean {
-  return getAdmin2FATypeCategory(type) === 'email';
+export function is2faAdminEmailBased(type: Admin2FATypeDetail): boolean {
+  return get2faAdminTypeCategory(type) === 'email';
 }
 
-export function isPushBased(type: Admin2FATypeDetail): boolean {
-  return getAdmin2FATypeCategory(type) === 'push';
+export function is2faAdminPushBased(type: Admin2FATypeDetail): boolean {
+  return get2faAdminTypeCategory(type) === 'push';
 }
 
-export function isQRBased(type: Admin2FATypeDetail): boolean {
-  return getAdmin2FATypeCategory(type) === 'qr';
-}
-
-export function get2FATypeCategory(type: Admin2FATypeDetail): string {
-  return ADMIN_2FA_TYPE_CATEGORIES[type] || 'other';
+export function is2faAdminQRBased(type: Admin2FATypeDetail): boolean {
+  return get2faAdminTypeCategory(type) === 'qr';
 }

@@ -1,9 +1,4 @@
-/**
- * Admin 2FA Constants Index
- * Export all admin 2FA constants for easy importing
- */
-
-// Admin 2FA Core Constants
+// Export all constants from admin-2fa.constants
 export {
   ADMIN_2FA,
   ADMIN_2FA_METHOD_LABELS,
@@ -14,23 +9,9 @@ export {
   ADMIN_2FA_SECURITY_LEVEL_PRIORITY,
   ADMIN_2FA_VERIFICATION_TYPE_LABELS,
   ADMIN_2FA_CHANNEL_LABELS,
-  getAdmin2FAMethodLabel,
-  getAdmin2FAMethodIcon,
-  getAdmin2FAStatusLabel,
-  getAdmin2FAStatusColor,
-  getAdmin2FASecurityLevelLabel,
-  getAdmin2FASecurityLevelPriority,
-  getAdmin2FAVerificationTypeLabel,
-  getAdmin2FAChannelLabel,
-  is2FAEnabled,
-  is2FADisabled,
-  is2FAExpired,
-  is2FALocked,
-  get2FATimeout,
-  get2FASecurityLevel,
-  get2FAChannels,
 } from './admin-2fa.constants';
 
+// Export all types from admin-2fa.constants
 export type {
   Admin2FAMethod,
   Admin2FAStatus,
@@ -43,57 +24,85 @@ export type {
   Admin2FATokenFormat,
 } from './admin-2fa.constants';
 
-// Admin 2FA Type Constants
+// Export all functions from admin-2fa.constants
+export {
+  get2faAdminMethodLabel,
+  get2faAdminMethodIcon,
+  get2faAdminStatusLabel,
+  get2faAdminStatusColor,
+  get2faAdminSecurityLevelLabel,
+  get2faAdminSecurityLevelPriority,
+  get2faAdminVerificationTypeLabel,
+  get2faAdminChannelLabel,
+  is2faAdminEnabled,
+  is2faAdminDisabled,
+  is2faAdminExpired,
+  is2faAdminLocked,
+  get2faAdminTimeout,
+  get2faAdminSecurityLevel,
+  get2faAdminChannels,
+} from './admin-2fa.constants';
+
+// Export all constants from admin-2fa-type.constants
 export {
   ADMIN_2FA_TYPE,
   ADMIN_2FA_TYPE_CATEGORIES,
   ADMIN_2FA_TYPE_LABELS_DETAIL,
-  getAdmin2FATypeCategory,
-  getAdmin2FATypeLabel,
-  isTOTPType,
-  isHOTPType,
-  isAuthenticatorType,
-  isHardwareType,
-  isBiometricType,
-  isBackupType,
-  isSMSBased,
-  isEmailBased,
-  isPushBased,
-  isQRBased,
-  get2FATypeCategory,
 } from './admin-2fa-type.constants';
 
+// Export all types from admin-2fa-type.constants
 export type { Admin2FATypeDetail } from './admin-2fa-type.constants';
 
-// Admin 2FA Status Constants
+// Export all functions from admin-2fa-type.constants
+export {
+  get2faAdminTypeCategory,
+  get2faAdminTypeLabel,
+  is2faAdminTOTPType,
+  is2faAdminHOTPType,
+  is2faAdminAuthenticatorType,
+  is2faAdminHardwareType,
+  is2faAdminBiometricType,
+  is2faAdminBackupType,
+  is2faAdminSMSBased,
+  is2faAdminEmailBased,
+  is2faAdminPushBased,
+  is2faAdminQRBased,
+} from './admin-2fa-type.constants';
+
+// Export all constants from admin-2fa-status.constants
 export {
   ADMIN_2FA_STATUS,
   ADMIN_2FA_STATUS_LABELS_DETAIL,
   ADMIN_2FA_STATUS_COLORS_DETAIL,
   ADMIN_2FA_STATUS_GROUPS,
-  getAdmin2FAStatusLabel as getAdmin2FAStatusLabelDetail,
-  getAdmin2FAStatusColor as getAdmin2FAStatusColorDetail,
-  isActiveStatus,
-  isInactiveStatus,
-  isPendingStatus,
-  isSecurityStatus,
-  isExpiredStatus,
-  isBackupStatus,
-  isFinalStatus,
-  isRecoveryStatus,
-  isTerminalStatus,
-  isUsableStatus,
-  isRequiringAction,
-  getStatusPriority,
-  getAdmin2FAStatuses,
-  getActiveStatuses,
-  getInactiveStatuses,
-  getPendingStatuses,
-  getSecurityStatuses,
-  getExpiredStatuses,
-  getBackupStatuses,
-  getFinalStatuses,
-  getRecoveryStatuses,
 } from './admin-2fa-status.constants';
 
+// Export all types from admin-2fa-status.constants
 export type { Admin2FAStatusDetail } from './admin-2fa-status.constants';
+
+// Export all functions from admin-2fa-status.constants
+export {
+  get2faAdminStatusLabel as get2faAdminStatusLabelDetail,
+  get2faAdminStatusColor as get2faAdminStatusColorDetail,
+  is2faAdminActiveStatus,
+  is2faAdminInactiveStatus,
+  is2faAdminPendingStatus,
+  is2faAdminSecurityStatus,
+  is2faAdminExpiredStatus,
+  is2faAdminBackupStatus,
+  is2faAdminFinalStatus,
+  is2faAdminRecoveryStatus,
+  is2faAdminTerminalStatus,
+  is2faAdminUsableStatus,
+  is2faAdminRequiringAction,
+  get2faAdminStatusPriority,
+  get2faAdminStatuses,
+  get2faAdminActiveStatuses,
+  get2faAdminInactiveStatuses,
+  get2faAdminPendingStatuses,
+  get2faAdminSecurityStatuses,
+  get2faAdminExpiredStatuses,
+  get2faAdminBackupStatuses,
+  get2faAdminFinalStatuses,
+  get2faAdminRecoveryStatuses,
+} from './admin-2fa-status.constants';

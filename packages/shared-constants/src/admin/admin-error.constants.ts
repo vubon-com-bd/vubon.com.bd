@@ -266,11 +266,11 @@ export function getAdminErrorActionLabel(action: AdminErrorAction): string {
   return ADMIN_ERROR_ACTION_LABELS[action] || 'Unknown Action';
 }
 
-export function isCriticalError(severity: AdminErrorSeverity): boolean {
+export function isAdminCriticalError(severity: AdminErrorSeverity): boolean {
   return severity === ADMIN_ERROR.SEVERITIES.CRITICAL || severity === ADMIN_ERROR.SEVERITIES.FATAL;
 }
 
-export function isRecoverableError(type: AdminErrorType): boolean {
+export function isAdminRecoverableError(type: AdminErrorType): boolean {
   return (
     type !== ADMIN_ERROR.TYPES.SYSTEM_ERROR &&
     type !== ADMIN_ERROR.TYPES.UNKNOWN_ERROR &&
@@ -278,7 +278,7 @@ export function isRecoverableError(type: AdminErrorType): boolean {
   );
 }
 
-export function shouldRetryError(error: AdminErrorType): boolean {
+export function shouldAdminRetryError(error: AdminErrorType): boolean {
   return (
     error === ADMIN_ERROR.TYPES.TIMEOUT_ERROR ||
     error === ADMIN_ERROR.TYPES.CONNECTION_ERROR ||
@@ -287,7 +287,7 @@ export function shouldRetryError(error: AdminErrorType): boolean {
   );
 }
 
-export function getErrorCodeCategory(code: AdminErrorCode): AdminErrorCategory {
+export function getAdminErrorCodeCategory(code: AdminErrorCode): AdminErrorCategory {
   if (code >= 1000 && code < 2000) return ADMIN_ERROR.CATEGORIES.SYSTEM;
   if (code >= 2000 && code < 3000) return ADMIN_ERROR.CATEGORIES.NETWORK;
   if (code >= 3000 && code < 4000) return ADMIN_ERROR.CATEGORIES.DATABASE;
@@ -302,7 +302,7 @@ export function getErrorCodeCategory(code: AdminErrorCode): AdminErrorCategory {
   return ADMIN_ERROR.CATEGORIES.UNKNOWN;
 }
 
-export function getErrorTypeFromCode(code: AdminErrorCode): AdminErrorType {
+export function getAdminErrorTypeFromCode(code: AdminErrorCode): AdminErrorType {
   const typeMap: Record<AdminErrorCode, AdminErrorType> = {
     [ADMIN_ERROR.CODES.SYSTEM_UNKNOWN]: ADMIN_ERROR.TYPES.SYSTEM_ERROR,
     [ADMIN_ERROR.CODES.SYSTEM_CONFIGURATION]: ADMIN_ERROR.TYPES.CONFIGURATION_ERROR,

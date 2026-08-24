@@ -182,7 +182,6 @@ export const ADMIN_TYPE_LABELS: Record<AdminType, string> = {
   [ADMIN.TYPE.LEGAL]: 'Legal Administrator',
 };
 
-// রিনেম করা ফাংশন (Admin প্রিফিক্স যোগ করা হয়েছে)
 export function isAdminActive(status: AdminStatus): boolean {
   return status === ADMIN.STATUS.ACTIVE;
 }
@@ -219,7 +218,6 @@ export function getAdminPermissionLabel(permission: AdminPermission): string {
   return ADMIN_PERMISSION_LABELS[permission] || 'Unknown Permission';
 }
 
-// isAdmin ফাংশনটি রিনেম করা হয়েছে
 export function isAdminUser(role: AdminRole): boolean {
   return role === ADMIN.ROLE.ADMIN || role === ADMIN.ROLE.SUPER_ADMIN;
 }

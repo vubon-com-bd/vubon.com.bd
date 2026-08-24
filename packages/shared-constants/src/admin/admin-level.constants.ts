@@ -170,19 +170,19 @@ export function getAdminLevelPermissions(level: AdminLevelType): string[] {
   return ADMIN_LEVEL_PERMISSIONS[level] || [];
 }
 
-export function isEntryLevel(level: AdminLevelType): boolean {
+export function isAdminEntryLevel(level: AdminLevelType): boolean {
   return level <= ADMIN_LEVEL.LEVEL_4;
 }
 
-export function isMidLevel(level: AdminLevelType): boolean {
+export function isAdminMidLevel(level: AdminLevelType): boolean {
   return level >= ADMIN_LEVEL.LEVEL_5 && level <= ADMIN_LEVEL.LEVEL_8;
 }
 
-export function isSeniorLevel(level: AdminLevelType): boolean {
+export function isAdminSeniorLevel(level: AdminLevelType): boolean {
   return level >= ADMIN_LEVEL.LEVEL_9 && level <= ADMIN_LEVEL.LEVEL_11;
 }
 
-export function isExecutiveLevel(level: AdminLevelType): boolean {
+export function isAdminExecutiveLevel(level: AdminLevelType): boolean {
   return level >= ADMIN_LEVEL.LEVEL_12 && level <= ADMIN_LEVEL.LEVEL_15;
 }
 

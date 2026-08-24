@@ -157,8 +157,6 @@ export type AdminBiometricQualityLevel =
 export type AdminBiometricCaptureMethod =
   (typeof ADMIN_BIOMETRIC.CAPTURE_METHODS)[keyof typeof ADMIN_BIOMETRIC.CAPTURE_METHODS];
 
-// ... (লেবেল অবজেক্টগুলো আগের মতোই থাকবে, শুধু ফাংশনের নাম পরিবর্তন করা হবে)
-
 export const ADMIN_BIOMETRIC_TYPE_LABELS: Record<AdminBiometricType, string> = {
   [ADMIN_BIOMETRIC.TYPES.FINGERPRINT]: 'Fingerprint',
   [ADMIN_BIOMETRIC.TYPES.FACE]: 'Face Recognition',
@@ -303,7 +301,6 @@ export const ADMIN_BIOMETRIC_CAPTURE_METHOD_LABELS: Record<AdminBiometricCapture
   [ADMIN_BIOMETRIC.CAPTURE_METHODS.HOLD]: 'Hold',
 };
 
-// সব ফাংশনের নামে Admin প্রিফিক্স যোগ করা হলো
 export function getAdminBiometricTypeLabel(type: AdminBiometricType): string {
   return ADMIN_BIOMETRIC_TYPE_LABELS[type] || 'Unknown Type';
 }
@@ -356,7 +353,6 @@ export function getAdminBiometricCaptureMethodLabel(method: AdminBiometricCaptur
   return ADMIN_BIOMETRIC_CAPTURE_METHOD_LABELS[method] || 'Unknown Method';
 }
 
-// কনফ্লিক্ট এড়াতে ফাংশনের নামে Admin প্রিফিক্স যোগ করা হলো
 export function isAdminBiometricActive(status: AdminBiometricStatus): boolean {
   return (
     status === ADMIN_BIOMETRIC.STATUSES.ACTIVE ||

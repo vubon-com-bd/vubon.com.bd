@@ -181,27 +181,27 @@ export function getAdminNotificationStatusColor(status: AdminNotificationStatusD
   return ADMIN_NOTIFICATION_STATUS_COLORS_DETAIL[status] || '#6B7280';
 }
 
-export function isLifecycleStatus(status: AdminNotificationStatusDetail): boolean {
+export function isAdminNotificationLifecycleStatus(status: AdminNotificationStatusDetail): boolean {
   return ADMIN_NOTIFICATION_STATUS_GROUPS.LIFECYCLE.includes(status);
 }
 
-export function isDeliveryStatus(status: AdminNotificationStatusDetail): boolean {
+export function isAdminNotificationDeliveryStatus(status: AdminNotificationStatusDetail): boolean {
   return ADMIN_NOTIFICATION_STATUS_GROUPS.DELIVERY.includes(status);
 }
 
-export function isReadStatus(status: AdminNotificationStatusDetail): boolean {
+export function isAdminNotificationReadStatus(status: AdminNotificationStatusDetail): boolean {
   return ADMIN_NOTIFICATION_STATUS_GROUPS.READ.includes(status);
 }
 
-export function isFinalStatus(status: AdminNotificationStatusDetail): boolean {
+export function isAdminNotificationFinalStatus(status: AdminNotificationStatusDetail): boolean {
   return ADMIN_NOTIFICATION_STATUS_GROUPS.FINAL.includes(status);
 }
 
-export function isErrorStatus(status: AdminNotificationStatusDetail): boolean {
+export function isAdminNotificationErrorStatus(status: AdminNotificationStatusDetail): boolean {
   return ADMIN_NOTIFICATION_STATUS_GROUPS.ERROR.includes(status);
 }
 
-export function isDeliveredStatus(status: AdminNotificationStatusDetail): boolean {
+export function isAdminNotificationDeliveredStatus(status: AdminNotificationStatusDetail): boolean {
   return (
     status === ADMIN_NOTIFICATION_STATUS.DELIVERED ||
     status === ADMIN_NOTIFICATION_STATUS.READ ||
@@ -211,7 +211,7 @@ export function isDeliveredStatus(status: AdminNotificationStatusDetail): boolea
   );
 }
 
-export function isFailedStatus(status: AdminNotificationStatusDetail): boolean {
+export function isAdminNotificationFailedStatus(status: AdminNotificationStatusDetail): boolean {
   return (
     status === ADMIN_NOTIFICATION_STATUS.FAILED ||
     status === ADMIN_NOTIFICATION_STATUS.BOUNCED ||
@@ -221,7 +221,7 @@ export function isFailedStatus(status: AdminNotificationStatusDetail): boolean {
   );
 }
 
-export function isPendingStatus(status: AdminNotificationStatusDetail): boolean {
+export function isAdminNotificationPendingStatus(status: AdminNotificationStatusDetail): boolean {
   return (
     status === ADMIN_NOTIFICATION_STATUS.QUEUED ||
     status === ADMIN_NOTIFICATION_STATUS.PROCESSING ||
@@ -230,7 +230,7 @@ export function isPendingStatus(status: AdminNotificationStatusDetail): boolean 
   );
 }
 
-export function isUnreadStatus(status: AdminNotificationStatusDetail): boolean {
+export function isAdminNotificationUnreadStatus(status: AdminNotificationStatusDetail): boolean {
   return (
     status === ADMIN_NOTIFICATION_STATUS.UNREAD ||
     status === ADMIN_NOTIFICATION_STATUS.CREATED ||
@@ -238,7 +238,7 @@ export function isUnreadStatus(status: AdminNotificationStatusDetail): boolean {
   );
 }
 
-export function isReadStatusType(status: AdminNotificationStatusDetail): boolean {
+export function isAdminNotificationReadStatusType(status: AdminNotificationStatusDetail): boolean {
   return (
     status === ADMIN_NOTIFICATION_STATUS.READ ||
     status === ADMIN_NOTIFICATION_STATUS.VIEWED ||
@@ -247,16 +247,16 @@ export function isReadStatusType(status: AdminNotificationStatusDetail): boolean
   );
 }
 
-export function isTerminalStatus(status: AdminNotificationStatusDetail): boolean {
+export function isAdminNotificationTerminalStatus(status: AdminNotificationStatusDetail): boolean {
   return (
-    isFinalStatus(status) ||
+    isAdminNotificationFinalStatus(status) ||
     status === ADMIN_NOTIFICATION_STATUS.EXPIRED ||
     status === ADMIN_NOTIFICATION_STATUS.CANCELLED ||
-    isFailedStatus(status)
+    isAdminNotificationFailedStatus(status)
   );
 }
 
-export function getStatusPriority(status: AdminNotificationStatusDetail): number {
+export function getAdminNotificationStatusPriority(status: AdminNotificationStatusDetail): number {
   const priorityMap: Record<AdminNotificationStatusDetail, number> = {
     [ADMIN_NOTIFICATION_STATUS.CREATED]: 1,
     [ADMIN_NOTIFICATION_STATUS.INITIALIZED]: 1,
@@ -294,22 +294,22 @@ export function getAdminNotificationStatuses(): AdminNotificationStatusDetail[] 
   return Object.values(ADMIN_NOTIFICATION_STATUS);
 }
 
-export function getLifecycleStatuses(): AdminNotificationStatusDetail[] {
+export function getAdminNotificationLifecycleStatuses(): AdminNotificationStatusDetail[] {
   return ADMIN_NOTIFICATION_STATUS_GROUPS.LIFECYCLE;
 }
 
-export function getDeliveryStatuses(): AdminNotificationStatusDetail[] {
+export function getAdminNotificationDeliveryStatuses(): AdminNotificationStatusDetail[] {
   return ADMIN_NOTIFICATION_STATUS_GROUPS.DELIVERY;
 }
 
-export function getReadStatuses(): AdminNotificationStatusDetail[] {
+export function getAdminNotificationReadStatuses(): AdminNotificationStatusDetail[] {
   return ADMIN_NOTIFICATION_STATUS_GROUPS.READ;
 }
 
-export function getFinalStatuses(): AdminNotificationStatusDetail[] {
+export function getAdminNotificationFinalStatuses(): AdminNotificationStatusDetail[] {
   return ADMIN_NOTIFICATION_STATUS_GROUPS.FINAL;
 }
 
-export function getErrorStatuses(): AdminNotificationStatusDetail[] {
+export function getAdminNotificationErrorStatuses(): AdminNotificationStatusDetail[] {
   return ADMIN_NOTIFICATION_STATUS_GROUPS.ERROR;
 }

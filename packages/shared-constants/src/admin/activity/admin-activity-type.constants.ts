@@ -615,26 +615,26 @@ export const ADMIN_ACTIVITY_TYPE_LABELS_DETAIL: Record<AdminActivityTypeDetail, 
   [ADMIN_ACTIVITY_TYPE.NOTIFICATION_BROADCAST]: 'Notification Broadcasted',
 };
 
-export function getAdminActivityTypeCategory(type: AdminActivityTypeDetail): string {
+export function getActivityAdminTypeCategory(type: AdminActivityTypeDetail): string {
   return ADMIN_ACTIVITY_TYPE_CATEGORIES[type] || 'other';
 }
 
-export function getAdminActivityTypeLabel(type: AdminActivityTypeDetail): string {
+export function getActivityAdminTypeLabel(type: AdminActivityTypeDetail): string {
   return ADMIN_ACTIVITY_TYPE_LABELS_DETAIL[type] || 'Unknown Activity';
 }
 
-export function isAuthActivity(type: AdminActivityTypeDetail): boolean {
-  return getAdminActivityTypeCategory(type) === 'authentication';
+export function isActivityAdminAuth(type: AdminActivityTypeDetail): boolean {
+  return getActivityAdminTypeCategory(type) === 'authentication';
 }
 
-export function isUserManagementActivity(type: AdminActivityTypeDetail): boolean {
-  return getAdminActivityTypeCategory(type) === 'user_management';
+export function isActivityAdminUserManagement(type: AdminActivityTypeDetail): boolean {
+  return getActivityAdminTypeCategory(type) === 'user_management';
 }
 
-export function isSystemActivity(type: AdminActivityTypeDetail): boolean {
-  return getAdminActivityTypeCategory(type) === 'system_management';
+export function isActivityAdminSystem(type: AdminActivityTypeDetail): boolean {
+  return getActivityAdminTypeCategory(type) === 'system_management';
 }
 
-export function isSecurityActivity(type: AdminActivityTypeDetail): boolean {
-  return getAdminActivityTypeCategory(type) === 'security';
+export function isActivityAdminSecurity(type: AdminActivityTypeDetail): boolean {
+  return getActivityAdminTypeCategory(type) === 'security';
 }

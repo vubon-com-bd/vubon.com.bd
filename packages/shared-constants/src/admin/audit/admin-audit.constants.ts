@@ -430,11 +430,11 @@ export function getAdminAuditSourceLabel(source: AdminAuditSource): string {
   return ADMIN_AUDIT_SOURCE_LABELS[source] || 'Unknown Source';
 }
 
-export function isHighSeverity(severity: AdminAuditSeverity): boolean {
+export function isAdminAuditHighSeverity(severity: AdminAuditSeverity): boolean {
   return severity === ADMIN_AUDIT.SEVERITY.HIGH || severity === ADMIN_AUDIT.SEVERITY.CRITICAL;
 }
 
-export function isSuccessStatus(status: AdminAuditStatus): boolean {
+export function isAdminAuditSuccessStatus(status: AdminAuditStatus): boolean {
   return (
     status === ADMIN_AUDIT.STATUSES.SUCCESS ||
     status === ADMIN_AUDIT.STATUSES.COMPLETED ||
@@ -443,7 +443,7 @@ export function isSuccessStatus(status: AdminAuditStatus): boolean {
   );
 }
 
-export function isFailureStatus(status: AdminAuditStatus): boolean {
+export function isAdminAuditFailureStatus(status: AdminAuditStatus): boolean {
   return (
     status === ADMIN_AUDIT.STATUSES.FAILED ||
     status === ADMIN_AUDIT.STATUSES.ERROR ||
@@ -452,7 +452,7 @@ export function isFailureStatus(status: AdminAuditStatus): boolean {
   );
 }
 
-export function isPendingStatus(status: AdminAuditStatus): boolean {
+export function isAdminAuditPendingStatus(status: AdminAuditStatus): boolean {
   return (
     status === ADMIN_AUDIT.STATUSES.PENDING ||
     status === ADMIN_AUDIT.STATUSES.PROCESSING ||
@@ -462,6 +462,6 @@ export function isPendingStatus(status: AdminAuditStatus): boolean {
   );
 }
 
-export function getAuditRetentionDays(retention: AdminAuditRetention): number {
+export function getAdminAuditRetentionDays(retention: AdminAuditRetention): number {
   return retention;
 }

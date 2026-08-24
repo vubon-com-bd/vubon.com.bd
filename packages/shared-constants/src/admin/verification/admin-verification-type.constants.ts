@@ -144,10 +144,10 @@ export const ADMIN_VERIFICATION_TYPE = {
   BLOOD_TYPE: 'blood_type',
 } as const;
 
-export type AdminVerificationTypeDetail =
+export type AdminverificationTypeDetail =
   (typeof ADMIN_VERIFICATION_TYPE)[keyof typeof ADMIN_VERIFICATION_TYPE];
 
-export const ADMIN_VERIFICATION_TYPE_CATEGORIES: Record<AdminVerificationTypeDetail, string> = {
+export const ADMIN_VERIFICATION_TYPE_CATEGORIES: Record<AdminverificationTypeDetail, string> = {
   // Identity verification
   [ADMIN_VERIFICATION_TYPE.IDENTITY]: 'identity',
   [ADMIN_VERIFICATION_TYPE.IDENTITY_DOCUMENT]: 'identity',
@@ -288,7 +288,7 @@ export const ADMIN_VERIFICATION_TYPE_CATEGORIES: Record<AdminVerificationTypeDet
   [ADMIN_VERIFICATION_TYPE.BLOOD_TYPE]: 'inherent',
 };
 
-export const ADMIN_VERIFICATION_TYPE_LABELS_DETAIL: Record<AdminVerificationTypeDetail, string> = {
+export const ADMIN_VERIFICATION_TYPE_LABELS_DETAIL: Record<AdminverificationTypeDetail, string> = {
   // Identity verification
   [ADMIN_VERIFICATION_TYPE.IDENTITY]: 'Identity Verification',
   [ADMIN_VERIFICATION_TYPE.IDENTITY_DOCUMENT]: 'Identity Document',
@@ -429,42 +429,44 @@ export const ADMIN_VERIFICATION_TYPE_LABELS_DETAIL: Record<AdminVerificationType
   [ADMIN_VERIFICATION_TYPE.BLOOD_TYPE]: 'Blood Type',
 };
 
-export function getAdminVerificationTypeCategory(type: AdminVerificationTypeDetail): string {
+export function getAdminverificationTypeCategory(type: AdminverificationTypeDetail): string {
   return ADMIN_VERIFICATION_TYPE_CATEGORIES[type] || 'other';
 }
 
-export function getAdminVerificationTypeLabel(type: AdminVerificationTypeDetail): string {
+export function getAdminverificationTypeLabel(type: AdminverificationTypeDetail): string {
   return ADMIN_VERIFICATION_TYPE_LABELS_DETAIL[type] || 'Unknown Type';
 }
 
-export function isBiometricType(type: AdminVerificationTypeDetail): boolean {
-  return getAdminVerificationTypeCategory(type) === 'biometric';
+export function isAdminverificationBiometricType(type: AdminverificationTypeDetail): boolean {
+  return getAdminverificationTypeCategory(type) === 'biometric';
 }
 
-export function isIdentityType(type: AdminVerificationTypeDetail): boolean {
-  return getAdminVerificationTypeCategory(type) === 'identity';
+export function isAdminverificationIdentityType(type: AdminverificationTypeDetail): boolean {
+  return getAdminverificationTypeCategory(type) === 'identity';
 }
 
-export function isSecurityType(type: AdminVerificationTypeDetail): boolean {
-  return getAdminVerificationTypeCategory(type) === 'security';
+export function isAdminverificationSecurityType(type: AdminverificationTypeDetail): boolean {
+  return getAdminverificationTypeCategory(type) === 'security';
 }
 
-export function isFinancialType(type: AdminVerificationTypeDetail): boolean {
-  return getAdminVerificationTypeCategory(type) === 'financial';
+export function isAdminverificationFinancialType(type: AdminverificationTypeDetail): boolean {
+  return getAdminverificationTypeCategory(type) === 'financial';
 }
 
-export function isDocumentType(type: AdminVerificationTypeDetail): boolean {
-  return getAdminVerificationTypeCategory(type) === 'document';
+export function isAdminverificationDocumentType(type: AdminverificationTypeDetail): boolean {
+  return getAdminverificationTypeCategory(type) === 'document';
 }
 
-export function isSocialType(type: AdminVerificationTypeDetail): boolean {
-  return getAdminVerificationTypeCategory(type) === 'social';
+export function isAdminverificationSocialType(type: AdminverificationTypeDetail): boolean {
+  return getAdminverificationTypeCategory(type) === 'social';
 }
 
-export function isGovernmentType(type: AdminVerificationTypeDetail): boolean {
-  return getAdminVerificationTypeCategory(type) === 'government';
+export function isAdminverificationGovernmentType(type: AdminverificationTypeDetail): boolean {
+  return getAdminverificationTypeCategory(type) === 'government';
 }
 
-export function getVerificationTypeCategory(type: AdminVerificationTypeDetail): string {
+export function getAdminverificationTypeCategoryDuplicate(
+  type: AdminverificationTypeDetail
+): string {
   return ADMIN_VERIFICATION_TYPE_CATEGORIES[type] || 'other';
 }

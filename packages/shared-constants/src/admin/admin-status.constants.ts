@@ -78,9 +78,9 @@ export const ADMIN_STATUS_ORDER = {
 
 export type AdminStatusOrder = (typeof ADMIN_STATUS_ORDER)[keyof typeof ADMIN_STATUS_ORDER];
 
-export const ACTIVE_ADMIN_STATUSES: AdminStatusType[] = [ADMIN_STATUS.ACTIVE, ADMIN_STATUS.PENDING];
+export const ADMIN_ACTIVE_STATUSES: AdminStatusType[] = [ADMIN_STATUS.ACTIVE, ADMIN_STATUS.PENDING];
 
-export const INACTIVE_ADMIN_STATUSES: AdminStatusType[] = [
+export const ADMIN_INACTIVE_STATUSES: AdminStatusType[] = [
   ADMIN_STATUS.INACTIVE,
   ADMIN_STATUS.SUSPENDED,
   ADMIN_STATUS.BANNED,
@@ -88,7 +88,7 @@ export const INACTIVE_ADMIN_STATUSES: AdminStatusType[] = [
   ADMIN_STATUS.DEACTIVATED,
 ];
 
-export const ARCHIVED_ADMIN_STATUSES: AdminStatusType[] = [
+export const ADMIN_ARCHIVED_STATUSES: AdminStatusType[] = [
   ADMIN_STATUS.ARCHIVED,
   ADMIN_STATUS.DELETED,
   ADMIN_STATUS.EXPIRED,
@@ -110,16 +110,16 @@ export function getAdminStatusOrder(status: AdminStatusType): number {
   return ADMIN_STATUS_ORDER[status] || 0;
 }
 
-export function isActiveAdminStatus(status: AdminStatusType): boolean {
-  return ACTIVE_ADMIN_STATUSES.includes(status);
+export function isAdminActiveStatus(status: AdminStatusType): boolean {
+  return ADMIN_ACTIVE_STATUSES.includes(status);
 }
 
-export function isInactiveAdminStatus(status: AdminStatusType): boolean {
-  return INACTIVE_ADMIN_STATUSES.includes(status);
+export function isAdminInactiveStatus(status: AdminStatusType): boolean {
+  return ADMIN_INACTIVE_STATUSES.includes(status);
 }
 
-export function isArchivedAdminStatus(status: AdminStatusType): boolean {
-  return ARCHIVED_ADMIN_STATUSES.includes(status);
+export function isAdminArchivedStatus(status: AdminStatusType): boolean {
+  return ADMIN_ARCHIVED_STATUSES.includes(status);
 }
 
 export function canAdminLogin(status: AdminStatusType): boolean {

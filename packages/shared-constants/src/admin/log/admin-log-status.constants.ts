@@ -190,31 +190,31 @@ export function getAdminLogStatusColor(status: AdminLogStatusDetail): string {
   return ADMIN_LOG_STATUS_COLORS_DETAIL[status] || '#6B7280';
 }
 
-export function isSuccessStatus(status: AdminLogStatusDetail): boolean {
+export function isAdminLogSuccessStatus(status: AdminLogStatusDetail): boolean {
   return ADMIN_LOG_STATUS_GROUPS.SUCCESS.includes(status);
 }
 
-export function isFailureStatus(status: AdminLogStatusDetail): boolean {
+export function isAdminLogFailureStatus(status: AdminLogStatusDetail): boolean {
   return ADMIN_LOG_STATUS_GROUPS.FAILURE.includes(status);
 }
 
-export function isPendingStatus(status: AdminLogStatusDetail): boolean {
+export function isAdminLogPendingStatus(status: AdminLogStatusDetail): boolean {
   return ADMIN_LOG_STATUS_GROUPS.PENDING.includes(status);
 }
 
-export function isIntermediateStatus(status: AdminLogStatusDetail): boolean {
+export function isAdminLogIntermediateStatus(status: AdminLogStatusDetail): boolean {
   return ADMIN_LOG_STATUS_GROUPS.INTERMEDIATE.includes(status);
 }
 
-export function isTerminalStatus(status: AdminLogStatusDetail): boolean {
-  return isSuccessStatus(status) || isFailureStatus(status);
+export function isAdminLogTerminalStatus(status: AdminLogStatusDetail): boolean {
+  return isAdminLogSuccessStatus(status) || isAdminLogFailureStatus(status);
 }
 
-export function isActiveStatus(status: AdminLogStatusDetail): boolean {
-  return isPendingStatus(status) || isIntermediateStatus(status);
+export function isAdminLogActiveStatus(status: AdminLogStatusDetail): boolean {
+  return isAdminLogPendingStatus(status) || isAdminLogIntermediateStatus(status);
 }
 
-export function getStatusPriority(status: AdminLogStatusDetail): number {
+export function getAdminLogStatusPriority(status: AdminLogStatusDetail): number {
   const priorityMap: Record<AdminLogStatusDetail, number> = {
     [ADMIN_LOG_STATUS.SUCCESS]: 1,
     [ADMIN_LOG_STATUS.COMPLETED]: 1,
@@ -262,18 +262,18 @@ export function getAdminLogStatuses(): AdminLogStatusDetail[] {
   return Object.values(ADMIN_LOG_STATUS);
 }
 
-export function getSuccessStatuses(): AdminLogStatusDetail[] {
+export function getAdminLogSuccessStatuses(): AdminLogStatusDetail[] {
   return ADMIN_LOG_STATUS_GROUPS.SUCCESS;
 }
 
-export function getFailureStatuses(): AdminLogStatusDetail[] {
+export function getAdminLogFailureStatuses(): AdminLogStatusDetail[] {
   return ADMIN_LOG_STATUS_GROUPS.FAILURE;
 }
 
-export function getPendingStatuses(): AdminLogStatusDetail[] {
+export function getAdminLogPendingStatuses(): AdminLogStatusDetail[] {
   return ADMIN_LOG_STATUS_GROUPS.PENDING;
 }
 
-export function getIntermediateStatuses(): AdminLogStatusDetail[] {
+export function getAdminLogIntermediateStatuses(): AdminLogStatusDetail[] {
   return ADMIN_LOG_STATUS_GROUPS.INTERMEDIATE;
 }

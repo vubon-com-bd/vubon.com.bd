@@ -114,36 +114,34 @@ export const ADMIN_VERIFICATION = {
   LIMITS: {
     MAX_ATTEMPTS: 3,
     MAX_RESEND: 5,
-    OTP_EXPIRY: 300, // 5 minutes
+    OTP_EXPIRY: 300,
     CODE_LENGTH: 6,
-    SESSION_TIMEOUT: 900, // 15 minutes
+    SESSION_TIMEOUT: 900,
     MAX_PENDING: 10,
   },
 
   // Verification tokens
   TOKENS: {
     LENGTH: 32,
-    EXPIRY: 3600, // 1 hour
-    REFRESH_EXPIRY: 86400, // 24 hours
+    EXPIRY: 3600,
+    REFRESH_EXPIRY: 86400,
   },
 } as const;
 
-export type AdminVerificationType =
+export type AdminverificationType =
   (typeof ADMIN_VERIFICATION.TYPES)[keyof typeof ADMIN_VERIFICATION.TYPES];
-export type AdminVerificationStatus =
+export type AdminverificationStatus =
   (typeof ADMIN_VERIFICATION.STATUSES)[keyof typeof ADMIN_VERIFICATION.STATUSES];
-export type AdminVerificationMethod =
+export type AdminverificationMethod =
   (typeof ADMIN_VERIFICATION.METHODS)[keyof typeof ADMIN_VERIFICATION.METHODS];
-export type AdminVerificationLevel =
+export type AdminverificationLevel =
   (typeof ADMIN_VERIFICATION.LEVELS)[keyof typeof ADMIN_VERIFICATION.LEVELS];
-export type AdminVerificationPurpose =
+export type AdminverificationPurpose =
   (typeof ADMIN_VERIFICATION.PURPOSES)[keyof typeof ADMIN_VERIFICATION.PURPOSES];
-export type AdminVerificationChannel =
+export type AdminverificationChannel =
   (typeof ADMIN_VERIFICATION.CHANNELS)[keyof typeof ADMIN_VERIFICATION.CHANNELS];
 
-// ... (লেবেল অবজেক্টগুলো আগের মতোই থাকবে, শুধু ফাংশনের নাম পরিবর্তন করা হবে)
-
-export const ADMIN_VERIFICATION_TYPE_LABELS: Record<AdminVerificationType, string> = {
+export const ADMIN_VERIFICATION_TYPE_LABELS: Record<AdminverificationType, string> = {
   [ADMIN_VERIFICATION.TYPES.EMAIL]: 'Email Verification',
   [ADMIN_VERIFICATION.TYPES.PHONE]: 'Phone Verification',
   [ADMIN_VERIFICATION.TYPES.IDENTITY]: 'Identity Verification',
@@ -168,7 +166,7 @@ export const ADMIN_VERIFICATION_TYPE_LABELS: Record<AdminVerificationType, strin
   [ADMIN_VERIFICATION.TYPES.INHERENT]: 'Inherent Attribute Verification',
 };
 
-export const ADMIN_VERIFICATION_TYPE_ICONS: Record<AdminVerificationType, string> = {
+export const ADMIN_VERIFICATION_TYPE_ICONS: Record<AdminverificationType, string> = {
   [ADMIN_VERIFICATION.TYPES.EMAIL]: '✉️',
   [ADMIN_VERIFICATION.TYPES.PHONE]: '📱',
   [ADMIN_VERIFICATION.TYPES.IDENTITY]: '🪪',
@@ -193,7 +191,7 @@ export const ADMIN_VERIFICATION_TYPE_ICONS: Record<AdminVerificationType, string
   [ADMIN_VERIFICATION.TYPES.INHERENT]: '🧬',
 };
 
-export const ADMIN_VERIFICATION_STATUS_LABELS: Record<AdminVerificationStatus, string> = {
+export const ADMIN_VERIFICATION_STATUS_LABELS: Record<AdminverificationStatus, string> = {
   [ADMIN_VERIFICATION.STATUSES.PENDING]: 'Pending',
   [ADMIN_VERIFICATION.STATUSES.PROCESSING]: 'Processing',
   [ADMIN_VERIFICATION.STATUSES.VERIFIED]: 'Verified',
@@ -210,7 +208,7 @@ export const ADMIN_VERIFICATION_STATUS_LABELS: Record<AdminVerificationStatus, s
   [ADMIN_VERIFICATION.STATUSES.ERROR]: 'Error',
 };
 
-export const ADMIN_VERIFICATION_STATUS_COLORS: Record<AdminVerificationStatus, string> = {
+export const ADMIN_VERIFICATION_STATUS_COLORS: Record<AdminverificationStatus, string> = {
   [ADMIN_VERIFICATION.STATUSES.PENDING]: '#F59E0B',
   [ADMIN_VERIFICATION.STATUSES.PROCESSING]: '#3B82F6',
   [ADMIN_VERIFICATION.STATUSES.VERIFIED]: '#10B981',
@@ -227,7 +225,7 @@ export const ADMIN_VERIFICATION_STATUS_COLORS: Record<AdminVerificationStatus, s
   [ADMIN_VERIFICATION.STATUSES.ERROR]: '#DC2626',
 };
 
-export const ADMIN_VERIFICATION_METHOD_LABELS: Record<AdminVerificationMethod, string> = {
+export const ADMIN_VERIFICATION_METHOD_LABELS: Record<AdminverificationMethod, string> = {
   [ADMIN_VERIFICATION.METHODS.OTP]: 'One-Time Password',
   [ADMIN_VERIFICATION.METHODS.SMS]: 'SMS Verification',
   [ADMIN_VERIFICATION.METHODS.EMAIL_LINK]: 'Email Link',
@@ -250,7 +248,7 @@ export const ADMIN_VERIFICATION_METHOD_LABELS: Record<AdminVerificationMethod, s
   [ADMIN_VERIFICATION.METHODS.BEHAVIORAL]: 'Behavioral Analysis',
 };
 
-export const ADMIN_VERIFICATION_LEVEL_LABELS: Record<AdminVerificationLevel, string> = {
+export const ADMIN_VERIFICATION_LEVEL_LABELS: Record<AdminverificationLevel, string> = {
   [ADMIN_VERIFICATION.LEVELS.BASIC]: 'Basic',
   [ADMIN_VERIFICATION.LEVELS.STANDARD]: 'Standard',
   [ADMIN_VERIFICATION.LEVELS.ENHANCED]: 'Enhanced',
@@ -258,7 +256,7 @@ export const ADMIN_VERIFICATION_LEVEL_LABELS: Record<AdminVerificationLevel, str
   [ADMIN_VERIFICATION.LEVELS.MAXIMUM]: 'Maximum',
 };
 
-export const ADMIN_VERIFICATION_LEVEL_PRIORITY: Record<AdminVerificationLevel, number> = {
+export const ADMIN_VERIFICATION_LEVEL_PRIORITY: Record<AdminverificationLevel, number> = {
   [ADMIN_VERIFICATION.LEVELS.BASIC]: 1,
   [ADMIN_VERIFICATION.LEVELS.STANDARD]: 2,
   [ADMIN_VERIFICATION.LEVELS.ENHANCED]: 3,
@@ -266,7 +264,7 @@ export const ADMIN_VERIFICATION_LEVEL_PRIORITY: Record<AdminVerificationLevel, n
   [ADMIN_VERIFICATION.LEVELS.MAXIMUM]: 5,
 };
 
-export const ADMIN_VERIFICATION_PURPOSE_LABELS: Record<AdminVerificationPurpose, string> = {
+export const ADMIN_VERIFICATION_PURPOSE_LABELS: Record<AdminverificationPurpose, string> = {
   [ADMIN_VERIFICATION.PURPOSES.REGISTRATION]: 'Registration',
   [ADMIN_VERIFICATION.PURPOSES.LOGIN]: 'Login',
   [ADMIN_VERIFICATION.PURPOSES.PASSWORD_RESET]: 'Password Reset',
@@ -279,7 +277,7 @@ export const ADMIN_VERIFICATION_PURPOSE_LABELS: Record<AdminVerificationPurpose,
   [ADMIN_VERIFICATION.PURPOSES.ESCALATION]: 'Escalation',
 };
 
-export const ADMIN_VERIFICATION_CHANNEL_LABELS: Record<AdminVerificationChannel, string> = {
+export const ADMIN_VERIFICATION_CHANNEL_LABELS: Record<AdminverificationChannel, string> = {
   [ADMIN_VERIFICATION.CHANNELS.EMAIL]: 'Email',
   [ADMIN_VERIFICATION.CHANNELS.SMS]: 'SMS',
   [ADMIN_VERIFICATION.CHANNELS.PUSH]: 'Push Notification',
@@ -293,51 +291,50 @@ export const ADMIN_VERIFICATION_CHANNEL_LABELS: Record<AdminVerificationChannel,
   [ADMIN_VERIFICATION.CHANNELS.FAX]: 'Fax',
 };
 
-export function getAdminVerificationTypeLabel(type: AdminVerificationType): string {
+export function getAdminverificationTypeLabel(type: AdminverificationType): string {
   return ADMIN_VERIFICATION_TYPE_LABELS[type] || 'Unknown Type';
 }
 
-export function getAdminVerificationTypeIcon(type: AdminVerificationType): string {
+export function getAdminverificationTypeIcon(type: AdminverificationType): string {
   return ADMIN_VERIFICATION_TYPE_ICONS[type] || '❓';
 }
 
-export function getAdminVerificationStatusLabel(status: AdminVerificationStatus): string {
+export function getAdminverificationStatusLabel(status: AdminverificationStatus): string {
   return ADMIN_VERIFICATION_STATUS_LABELS[status] || 'Unknown Status';
 }
 
-export function getAdminVerificationStatusColor(status: AdminVerificationStatus): string {
+export function getAdminverificationStatusColor(status: AdminverificationStatus): string {
   return ADMIN_VERIFICATION_STATUS_COLORS[status] || '#6B7280';
 }
 
-export function getAdminVerificationMethodLabel(method: AdminVerificationMethod): string {
+export function getAdminverificationMethodLabel(method: AdminverificationMethod): string {
   return ADMIN_VERIFICATION_METHOD_LABELS[method] || 'Unknown Method';
 }
 
-export function getAdminVerificationLevelLabel(level: AdminVerificationLevel): string {
+export function getAdminverificationLevelLabel(level: AdminverificationLevel): string {
   return ADMIN_VERIFICATION_LEVEL_LABELS[level] || 'Unknown Level';
 }
 
-export function getAdminVerificationLevelPriority(level: AdminVerificationLevel): number {
+export function getAdminverificationLevelPriority(level: AdminverificationLevel): number {
   return ADMIN_VERIFICATION_LEVEL_PRIORITY[level] || 0;
 }
 
-export function getAdminVerificationPurposeLabel(purpose: AdminVerificationPurpose): string {
+export function getAdminverificationPurposeLabel(purpose: AdminverificationPurpose): string {
   return ADMIN_VERIFICATION_PURPOSE_LABELS[purpose] || 'Unknown Purpose';
 }
 
-export function getAdminVerificationChannelLabel(channel: AdminVerificationChannel): string {
+export function getAdminverificationChannelLabel(channel: AdminverificationChannel): string {
   return ADMIN_VERIFICATION_CHANNEL_LABELS[channel] || 'Unknown Channel';
 }
 
-// রিনেম করা ফাংশনগুলো (Admin প্রিফিক্স যোগ করা হয়েছে)
-export function isAdminVerificationComplete(status: AdminVerificationStatus): boolean {
+export function isAdminverificationComplete(status: AdminverificationStatus): boolean {
   return (
     status === ADMIN_VERIFICATION.STATUSES.VERIFIED ||
     status === ADMIN_VERIFICATION.STATUSES.APPROVED
   );
 }
 
-export function isAdminVerificationFailed(status: AdminVerificationStatus): boolean {
+export function isAdminverificationFailed(status: AdminverificationStatus): boolean {
   return (
     status === ADMIN_VERIFICATION.STATUSES.FAILED ||
     status === ADMIN_VERIFICATION.STATUSES.REJECTED ||
@@ -345,7 +342,7 @@ export function isAdminVerificationFailed(status: AdminVerificationStatus): bool
   );
 }
 
-export function isAdminVerificationPending(status: AdminVerificationStatus): boolean {
+export function isAdminverificationPending(status: AdminverificationStatus): boolean {
   return (
     status === ADMIN_VERIFICATION.STATUSES.PENDING ||
     status === ADMIN_VERIFICATION.STATUSES.PROCESSING ||
@@ -353,26 +350,26 @@ export function isAdminVerificationPending(status: AdminVerificationStatus): boo
   );
 }
 
-export function isAdminVerificationExpired(status: AdminVerificationStatus): boolean {
+export function isAdminverificationExpired(status: AdminverificationStatus): boolean {
   return (
     status === ADMIN_VERIFICATION.STATUSES.EXPIRED || status === ADMIN_VERIFICATION.STATUSES.TIMEOUT
   );
 }
 
-export function isAdminVerificationTerminal(status: AdminVerificationStatus): boolean {
+export function isAdminverificationTerminal(status: AdminverificationStatus): boolean {
   return (
-    isAdminVerificationComplete(status) ||
-    isAdminVerificationFailed(status) ||
-    isAdminVerificationExpired(status) ||
+    isAdminverificationComplete(status) ||
+    isAdminverificationFailed(status) ||
+    isAdminverificationExpired(status) ||
     status === ADMIN_VERIFICATION.STATUSES.CANCELLED ||
     status === ADMIN_VERIFICATION.STATUSES.SKIPPED
   );
 }
 
-export function getAdminVerificationLevelForType(
-  type: AdminVerificationType
-): AdminVerificationLevel {
-  const levelMap: Record<AdminVerificationType, AdminVerificationLevel> = {
+export function getAdminverificationLevelForType(
+  type: AdminverificationType
+): AdminverificationLevel {
+  const levelMap: Record<AdminverificationType, AdminverificationLevel> = {
     [ADMIN_VERIFICATION.TYPES.EMAIL]: ADMIN_VERIFICATION.LEVELS.BASIC,
     [ADMIN_VERIFICATION.TYPES.PHONE]: ADMIN_VERIFICATION.LEVELS.BASIC,
     [ADMIN_VERIFICATION.TYPES.IDENTITY]: ADMIN_VERIFICATION.LEVELS.STANDARD,
@@ -399,10 +396,10 @@ export function getAdminVerificationLevelForType(
   return levelMap[type] || ADMIN_VERIFICATION.LEVELS.BASIC;
 }
 
-export function getAdminVerificationMethodsForType(
-  type: AdminVerificationType
-): AdminVerificationMethod[] {
-  const methodMap: Record<AdminVerificationType, AdminVerificationMethod[]> = {
+export function getAdminverificationMethodsForType(
+  type: AdminverificationType
+): AdminverificationMethod[] {
+  const methodMap: Record<AdminverificationType, AdminverificationMethod[]> = {
     [ADMIN_VERIFICATION.TYPES.EMAIL]: [
       ADMIN_VERIFICATION.METHODS.OTP,
       ADMIN_VERIFICATION.METHODS.EMAIL_LINK,
