@@ -15,7 +15,7 @@ export {
   isPrimaryContact,
   isVerifiedContact,
   validateEmail,
-  validatePhoneNumber,
+  validatePhoneNumber as contactvalidatePhoneNumber,
   validateWhatsAppNumber,
   getContactDisplayValue,
   isContactTypePhone,
