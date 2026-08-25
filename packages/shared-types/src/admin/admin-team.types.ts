@@ -4,14 +4,7 @@
  * @module AdminTeamTypes
  */
 
-import {
-  BaseEntity,
-  Timestamp,
-  Metadata,
-  ID,
-  FullName,
-  Email,
-} from '../common/core-primitives.types';
+import { BaseEntity, Timestamp, Metadata, ID } from '../common/core-primitives.types';
 
 // ============================================================
 // Import from shared-constants admin team
