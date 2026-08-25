@@ -104,7 +104,7 @@ export {
   SSEEvent,
 } from './api.types';
 
-// Pagination types (PaginationParams ইতিমধ্যে core-primitives থেকে এসেছে)
+// Pagination types
 export {
   BasePaginationParams,
   CursorPaginationParams,
@@ -135,8 +135,9 @@ export {
   BatchPaginationResponse,
 } from './pagination.types';
 
-// Audit types
+// Audit types - সব টাইপ এবং ফাংশন audit.types থেকে
 export {
+  // Core types
   AdminAuditAction,
   AdminAuditSeverity,
   AdminAuditCategory,
@@ -151,16 +152,64 @@ export {
   AuditSummary,
   AuditConfig,
   AuditEvent,
+  // Core constants
+  ADMIN_AUDIT,
+  ADMIN_AUDIT_ACTION_LABELS,
+  ADMIN_AUDIT_SEVERITY_LABELS,
+  ADMIN_AUDIT_SEVERITY_COLORS,
+  ADMIN_AUDIT_SEVERITY_PRIORITY,
+  ADMIN_AUDIT_CATEGORY_LABELS,
+  ADMIN_AUDIT_STATUS_LABELS,
+  ADMIN_AUDIT_STATUS_COLORS,
+  ADMIN_AUDIT_SOURCE_LABELS,
+  // Core functions
   getAdminAuditActionLabel,
   getAdminAuditSeverityLabel,
+  getAdminAuditSeverityColor,
+  getAdminAuditSeverityPriority,
   getAdminAuditCategoryLabel,
   getAdminAuditStatusLabel,
+  getAdminAuditStatusColor,
   getAdminAuditSourceLabel,
-  isHighSeverity,
-  isAuditSuccessStatus,
-  isAuditFailureStatus,
-  isAuditPendingStatus,
-  getAuditRetentionDays,
+  isAdminAuditHighSeverity,
+  isAdminAuditSuccessStatus,
+  isAdminAuditFailureStatus,
+  isAdminAuditPendingStatus,
+  getAdminAuditRetentionDays,
+  // Audit Type
+  ADMIN_AUDIT_TYPE,
+  ADMIN_AUDIT_TYPE_CATEGORIES,
+  ADMIN_AUDIT_TYPE_LABELS_DETAIL,
+  AdminAuditTypeDetail,
+  getAdminAuditTypeCategory,
+  getAdminAuditTypeLabel,
+  isAdminAuditSecurity,
+  isAdminAuditCompliance,
+  isAdminAuditFinancial,
+  isAdminAuditUser,
+  isAdminAuditSystem,
+  // Audit Status
+  ADMIN_AUDIT_STATUS,
+  ADMIN_AUDIT_STATUS_LABELS_DETAIL,
+  ADMIN_AUDIT_STATUS_COLORS_DETAIL,
+  ADMIN_AUDIT_STATUS_GROUPS,
+  AdminAuditStatusDetail,
+  getAdminAuditStatusLabelDetail,
+  getAdminAuditStatusColorDetail,
+  isAdminAuditSuccessStatusDetail,
+  isAdminAuditFailureStatusDetail,
+  isAdminAuditPendingStatusDetail,
+  isAdminAuditIntermediateStatus,
+  isAdminAuditTerminalStatus,
+  isAdminAuditActiveStatus,
+  isAdminAuditCompliantStatus,
+  isAdminAuditNonCompliantStatus,
+  getAdminAuditStatusPriority,
+  getAdminAuditStatuses,
+  getAdminAuditSuccessStatuses,
+  getAdminAuditFailureStatuses,
+  getAdminAuditPendingStatuses,
+  getAdminAuditIntermediateStatuses,
 } from './audit.types';
 
 // SEO types

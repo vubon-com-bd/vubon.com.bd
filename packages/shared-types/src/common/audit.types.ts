@@ -7,55 +7,89 @@
 import { BaseEntity, Timestamp, Metadata, ID, DeviceInfo } from './core-primitives.types';
 
 // ============================================================
-// Admin Audit Core Constants (from admin/audit/admin-audit.constants)
+// Admin Audit Core Constants ও ফাংশন (সঠিক নাম ব্যবহার করে)
 // ============================================================
 import {
+  // কনস্ট্যান্ট
+  ADMIN_AUDIT,
   ADMIN_AUDIT_ACTION_LABELS,
   ADMIN_AUDIT_SEVERITY_LABELS,
+  ADMIN_AUDIT_SEVERITY_COLORS,
+  ADMIN_AUDIT_SEVERITY_PRIORITY,
   ADMIN_AUDIT_CATEGORY_LABELS,
   ADMIN_AUDIT_STATUS_LABELS,
+  ADMIN_AUDIT_STATUS_COLORS,
   ADMIN_AUDIT_SOURCE_LABELS,
+  // টাইপ
+  AdminAuditAction,
+  AdminAuditSeverity,
+  AdminAuditCategory,
+  AdminAuditStatus,
+  AdminAuditSource,
+  AdminAuditRetention,
+  // ফাংশন
   getAdminAuditActionLabel,
   getAdminAuditSeverityLabel,
+  getAdminAuditSeverityColor,
+  getAdminAuditSeverityPriority,
   getAdminAuditCategoryLabel,
   getAdminAuditStatusLabel,
+  getAdminAuditStatusColor,
   getAdminAuditSourceLabel,
-  isHighSeverity,
-  isAuditSuccessStatus,
-  isAuditFailureStatus,
-  isAuditPendingStatus,
-  getAuditRetentionDays,
+  isAdminAuditHighSeverity,
+  isAdminAuditSuccessStatus,
+  isAdminAuditFailureStatus,
+  isAdminAuditPendingStatus,
+  getAdminAuditRetentionDays,
 } from '@vubon/shared-constants';
 
-/**
- * Admin audit action from shared-constants
- */
-export type AdminAuditAction = keyof typeof ADMIN_AUDIT_ACTION_LABELS;
+// ============================================================
+// Admin Audit Type Details (admin-audit-type.constants থেকে)
+// ============================================================
+import {
+  ADMIN_AUDIT_TYPE,
+  ADMIN_AUDIT_TYPE_CATEGORIES,
+  ADMIN_AUDIT_TYPE_LABELS_DETAIL,
+  AdminAuditTypeDetail,
+  getAdminAuditTypeCategory,
+  getAdminAuditTypeLabel,
+  isAdminAuditSecurity,
+  isAdminAuditCompliance,
+  isAdminAuditFinancial,
+  isAdminAuditUser,
+  isAdminAuditSystem,
+} from '@vubon/shared-constants';
 
-/**
- * Admin audit severity from shared-constants
- */
-export type AdminAuditSeverity = keyof typeof ADMIN_AUDIT_SEVERITY_LABELS;
+// ============================================================
+// Admin Audit Status Details (admin-audit-status.constants থেকে)
+// ============================================================
+import {
+  ADMIN_AUDIT_STATUS,
+  ADMIN_AUDIT_STATUS_LABELS_DETAIL,
+  ADMIN_AUDIT_STATUS_COLORS_DETAIL,
+  ADMIN_AUDIT_STATUS_GROUPS,
+  AdminAuditStatusDetail,
+  getAdminAuditStatusLabel as getAdminAuditStatusLabelDetail,
+  getAdminAuditStatusColor as getAdminAuditStatusColorDetail,
+  isAdminAuditSuccessStatus as isAdminAuditSuccessStatusDetail,
+  isAdminAuditFailureStatus as isAdminAuditFailureStatusDetail,
+  isAdminAuditPendingStatus as isAdminAuditPendingStatusDetail,
+  isAdminAuditIntermediateStatus,
+  isAdminAuditTerminalStatus,
+  isAdminAuditActiveStatus,
+  isAdminAuditCompliantStatus,
+  isAdminAuditNonCompliantStatus,
+  getAdminAuditStatusPriority,
+  getAdminAuditStatuses,
+  getAdminAuditSuccessStatuses,
+  getAdminAuditFailureStatuses,
+  getAdminAuditPendingStatuses,
+  getAdminAuditIntermediateStatuses,
+} from '@vubon/shared-constants';
 
-/**
- * Admin audit category from shared-constants
- */
-export type AdminAuditCategory = keyof typeof ADMIN_AUDIT_CATEGORY_LABELS;
-
-/**
- * Admin audit status from shared-constants
- */
-export type AdminAuditStatus = keyof typeof ADMIN_AUDIT_STATUS_LABELS;
-
-/**
- * Admin audit source from shared-constants
- */
-export type AdminAuditSource = keyof typeof ADMIN_AUDIT_SOURCE_LABELS;
-
-/**
- * Admin audit retention from shared-constants
- */
-export type AdminAuditRetention = ReturnType<typeof getAuditRetentionDays>;
+// ============================================================
+// টাইপ ডেফিনেশন (শুধুমাত্র প্রয়োজনীয় টাইপ)
+// ============================================================
 
 /**
  * Admin audit log entry
@@ -228,18 +262,72 @@ export interface AuditEvent {
 }
 
 // ============================================================
-// Re-export helper functions for convenience
+// Re-export সব ফাংশন ও টাইপ (সুবিধার জন্য)
 // ============================================================
 
 export {
+  // Admin Audit Core
+  ADMIN_AUDIT,
+  ADMIN_AUDIT_ACTION_LABELS,
+  ADMIN_AUDIT_SEVERITY_LABELS,
+  ADMIN_AUDIT_SEVERITY_COLORS,
+  ADMIN_AUDIT_SEVERITY_PRIORITY,
+  ADMIN_AUDIT_CATEGORY_LABELS,
+  ADMIN_AUDIT_STATUS_LABELS,
+  ADMIN_AUDIT_STATUS_COLORS,
+  ADMIN_AUDIT_SOURCE_LABELS,
+  AdminAuditAction,
+  AdminAuditSeverity,
+  AdminAuditCategory,
+  AdminAuditStatus,
+  AdminAuditSource,
+  AdminAuditRetention,
+  // Core functions
   getAdminAuditActionLabel,
   getAdminAuditSeverityLabel,
+  getAdminAuditSeverityColor,
+  getAdminAuditSeverityPriority,
   getAdminAuditCategoryLabel,
   getAdminAuditStatusLabel,
+  getAdminAuditStatusColor,
   getAdminAuditSourceLabel,
-  isHighSeverity,
-  isAuditSuccessStatus,
-  isAuditFailureStatus,
-  isAuditPendingStatus,
-  getAuditRetentionDays,
+  isAdminAuditHighSeverity,
+  isAdminAuditSuccessStatus,
+  isAdminAuditFailureStatus,
+  isAdminAuditPendingStatus,
+  getAdminAuditRetentionDays,
+  // Admin Audit Type
+  ADMIN_AUDIT_TYPE,
+  ADMIN_AUDIT_TYPE_CATEGORIES,
+  ADMIN_AUDIT_TYPE_LABELS_DETAIL,
+  AdminAuditTypeDetail,
+  getAdminAuditTypeCategory,
+  getAdminAuditTypeLabel,
+  isAdminAuditSecurity,
+  isAdminAuditCompliance,
+  isAdminAuditFinancial,
+  isAdminAuditUser,
+  isAdminAuditSystem,
+  // Admin Audit Status
+  ADMIN_AUDIT_STATUS,
+  ADMIN_AUDIT_STATUS_LABELS_DETAIL,
+  ADMIN_AUDIT_STATUS_COLORS_DETAIL,
+  ADMIN_AUDIT_STATUS_GROUPS,
+  AdminAuditStatusDetail,
+  getAdminAuditStatusLabelDetail,
+  getAdminAuditStatusColorDetail,
+  isAdminAuditSuccessStatusDetail,
+  isAdminAuditFailureStatusDetail,
+  isAdminAuditPendingStatusDetail,
+  isAdminAuditIntermediateStatus,
+  isAdminAuditTerminalStatus,
+  isAdminAuditActiveStatus,
+  isAdminAuditCompliantStatus,
+  isAdminAuditNonCompliantStatus,
+  getAdminAuditStatusPriority,
+  getAdminAuditStatuses,
+  getAdminAuditSuccessStatuses,
+  getAdminAuditFailureStatuses,
+  getAdminAuditPendingStatuses,
+  getAdminAuditIntermediateStatuses,
 };
