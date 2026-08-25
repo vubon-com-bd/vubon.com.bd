@@ -8,7 +8,7 @@
 export * from './common';
 
 // Domain-specific types (to be added as they are created)
-// export * from './admin';
+export * from './admin';
 // export * from './auth';
 // export * from './user';
 // export * from './ai';

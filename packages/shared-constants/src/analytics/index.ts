@@ -203,3 +203,6 @@ export * from './vendor-analytics';
 
 // content-analytics Analytics
 export * from './content-analytics';
+
+// admin-analytics Analytics
+export * from './admin-analytics';
