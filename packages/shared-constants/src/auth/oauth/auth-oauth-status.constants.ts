@@ -4,7 +4,6 @@
  */
 
 export const AUTH_OAUTH_STATUS = {
-  // Primary status
   PENDING: 'pending',
   ACTIVE: 'active',
   INACTIVE: 'inactive',
@@ -12,44 +11,38 @@ export const AUTH_OAUTH_STATUS = {
   REVOKED: 'revoked',
   BLOCKED: 'blocked',
 
-  // Authentication status
   AUTHENTICATED: 'authenticated',
   UNAUTHENTICATED: 'unauthenticated',
   AUTHENTICATION_PENDING: 'authentication_pending',
   AUTHENTICATION_FAILED: 'authentication_failed',
 
-  // Token status
   TOKEN_VALID: 'token_valid',
   TOKEN_EXPIRED: 'token_expired',
   TOKEN_REVOKED: 'token_revoked',
   TOKEN_REFRESHED: 'token_refreshed',
   TOKEN_ISSUED: 'token_issued',
 
-  // Code status
   CODE_ISSUED: 'code_issued',
   CODE_EXPIRED: 'code_expired',
   CODE_USED: 'code_used',
   CODE_REVOKED: 'code_revoked',
 
-  // User info status
   USERINFO_FETCHED: 'userinfo_fetched',
   USERINFO_FAILED: 'userinfo_failed',
   USERINFO_PENDING: 'userinfo_pending',
 
-  // Security status
   SECURE: 'secure',
   SUSPICIOUS: 'suspicious',
   COMPROMISED: 'compromised',
 
-  // Session status
   SESSION_ACTIVE: 'session_active',
   SESSION_EXPIRED: 'session_expired',
   SESSION_TERMINATED: 'session_terminated',
 } as const;
 
-export type AuthOAuthStatus = (typeof AUTH_OAUTH_STATUS)[keyof typeof AUTH_OAUTH_STATUS];
+export type AuthOauthStatus = (typeof AUTH_OAUTH_STATUS)[keyof typeof AUTH_OAUTH_STATUS];
 
-export const ACTIVE_OAUTH_STATUSES: AuthOAuthStatus[] = [
+export const OAUTH_ACTIVE_STATUSES: AuthOauthStatus[] = [
   AUTH_OAUTH_STATUS.ACTIVE,
   AUTH_OAUTH_STATUS.AUTHENTICATED,
   AUTH_OAUTH_STATUS.TOKEN_VALID,
@@ -59,14 +52,14 @@ export const ACTIVE_OAUTH_STATUSES: AuthOAuthStatus[] = [
   AUTH_OAUTH_STATUS.SESSION_ACTIVE,
 ];
 
-export const PENDING_OAUTH_STATUSES: AuthOAuthStatus[] = [
+export const OAUTH_PENDING_STATUSES: AuthOauthStatus[] = [
   AUTH_OAUTH_STATUS.PENDING,
   AUTH_OAUTH_STATUS.AUTHENTICATION_PENDING,
   AUTH_OAUTH_STATUS.USERINFO_PENDING,
   AUTH_OAUTH_STATUS.CODE_ISSUED,
 ];
 
-export const INACTIVE_OAUTH_STATUSES: AuthOAuthStatus[] = [
+export const OAUTH_INACTIVE_STATUSES: AuthOauthStatus[] = [
   AUTH_OAUTH_STATUS.INACTIVE,
   AUTH_OAUTH_STATUS.EXPIRED,
   AUTH_OAUTH_STATUS.REVOKED,
@@ -80,18 +73,18 @@ export const INACTIVE_OAUTH_STATUSES: AuthOAuthStatus[] = [
   AUTH_OAUTH_STATUS.SESSION_TERMINATED,
 ];
 
-export const FAILED_OAUTH_STATUSES: AuthOAuthStatus[] = [
+export const OAUTH_FAILED_STATUSES: AuthOauthStatus[] = [
   AUTH_OAUTH_STATUS.AUTHENTICATION_FAILED,
   AUTH_OAUTH_STATUS.USERINFO_FAILED,
   AUTH_OAUTH_STATUS.BLOCKED,
 ];
 
-export const SECURITY_OAUTH_STATUSES: AuthOAuthStatus[] = [
+export const OAUTH_SECURITY_STATUSES: AuthOauthStatus[] = [
   AUTH_OAUTH_STATUS.SUSPICIOUS,
   AUTH_OAUTH_STATUS.COMPROMISED,
 ];
 
-export const TOKEN_OAUTH_STATUSES: AuthOAuthStatus[] = [
+export const OAUTH_TOKEN_STATUSES: AuthOauthStatus[] = [
   AUTH_OAUTH_STATUS.TOKEN_VALID,
   AUTH_OAUTH_STATUS.TOKEN_EXPIRED,
   AUTH_OAUTH_STATUS.TOKEN_REVOKED,
@@ -99,43 +92,43 @@ export const TOKEN_OAUTH_STATUSES: AuthOAuthStatus[] = [
   AUTH_OAUTH_STATUS.TOKEN_ISSUED,
 ];
 
-export const CODE_OAUTH_STATUSES: AuthOAuthStatus[] = [
+export const OAUTH_CODE_STATUSES: AuthOauthStatus[] = [
   AUTH_OAUTH_STATUS.CODE_ISSUED,
   AUTH_OAUTH_STATUS.CODE_EXPIRED,
   AUTH_OAUTH_STATUS.CODE_USED,
   AUTH_OAUTH_STATUS.CODE_REVOKED,
 ];
 
-export function isOAuthActive(status: AuthOAuthStatus): boolean {
-  return ACTIVE_OAUTH_STATUSES.includes(status);
+export function isOauthActive(status: AuthOauthStatus): boolean {
+  return OAUTH_ACTIVE_STATUSES.includes(status);
 }
 
-export function isOAuthPending(status: AuthOAuthStatus): boolean {
-  return PENDING_OAUTH_STATUSES.includes(status);
+export function isOauthPending(status: AuthOauthStatus): boolean {
+  return OAUTH_PENDING_STATUSES.includes(status);
 }
 
-export function isOAuthInactive(status: AuthOAuthStatus): boolean {
-  return INACTIVE_OAUTH_STATUSES.includes(status);
+export function isOauthInactive(status: AuthOauthStatus): boolean {
+  return OAUTH_INACTIVE_STATUSES.includes(status);
 }
 
-export function isOAuthFailed(status: AuthOAuthStatus): boolean {
-  return FAILED_OAUTH_STATUSES.includes(status);
+export function isOauthFailed(status: AuthOauthStatus): boolean {
+  return OAUTH_FAILED_STATUSES.includes(status);
 }
 
-export function isOAuthSecurityIssue(status: AuthOAuthStatus): boolean {
-  return SECURITY_OAUTH_STATUSES.includes(status);
+export function isOauthSecurityIssue(status: AuthOauthStatus): boolean {
+  return OAUTH_SECURITY_STATUSES.includes(status);
 }
 
-export function isOAuthTokenStatus(status: AuthOAuthStatus): boolean {
-  return TOKEN_OAUTH_STATUSES.includes(status);
+export function isOauthTokenStatus(status: AuthOauthStatus): boolean {
+  return OAUTH_TOKEN_STATUSES.includes(status);
 }
 
-export function isOAuthCodeStatus(status: AuthOAuthStatus): boolean {
-  return CODE_OAUTH_STATUSES.includes(status);
+export function isOauthCodeStatus(status: AuthOauthStatus): boolean {
+  return OAUTH_CODE_STATUSES.includes(status);
 }
 
-export function getOAuthStatusLabel(status: AuthOAuthStatus): string {
-  const labels: Record<AuthOAuthStatus, string> = {
+export function getOauthStatusLabel(status: AuthOauthStatus): string {
+  const labels: Record<AuthOauthStatus, string> = {
     [AUTH_OAUTH_STATUS.PENDING]: 'Pending',
     [AUTH_OAUTH_STATUS.ACTIVE]: 'Active',
     [AUTH_OAUTH_STATUS.INACTIVE]: 'Inactive',
@@ -169,8 +162,8 @@ export function getOAuthStatusLabel(status: AuthOAuthStatus): string {
   return labels[status] || 'Unknown Status';
 }
 
-export function getOAuthStatusColor(status: AuthOAuthStatus): string {
-  const colors: Record<AuthOAuthStatus, string> = {
+export function getOauthStatusColor(status: AuthOauthStatus): string {
+  const colors: Record<AuthOauthStatus, string> = {
     [AUTH_OAUTH_STATUS.PENDING]: '#F59E0B',
     [AUTH_OAUTH_STATUS.ACTIVE]: '#10B981',
     [AUTH_OAUTH_STATUS.INACTIVE]: '#6B7280',
@@ -204,8 +197,8 @@ export function getOAuthStatusColor(status: AuthOAuthStatus): string {
   return colors[status] || '#6B7280';
 }
 
-export function getOAuthStatusPriority(status: AuthOAuthStatus): number {
-  const priorities: Record<AuthOAuthStatus, number> = {
+export function getOauthStatusPriority(status: AuthOauthStatus): number {
+  const priorities: Record<AuthOauthStatus, number> = {
     [AUTH_OAUTH_STATUS.PENDING]: 5,
     [AUTH_OAUTH_STATUS.ACTIVE]: 10,
     [AUTH_OAUTH_STATUS.INACTIVE]: 3,
@@ -239,10 +232,10 @@ export function getOAuthStatusPriority(status: AuthOAuthStatus): number {
   return priorities[status] || 5;
 }
 
-export function getOAuthStatusBadgeType(
-  status: AuthOAuthStatus
+export function getOauthStatusBadgeType(
+  status: AuthOauthStatus
 ): 'success' | 'warning' | 'error' | 'info' | 'default' {
-  const types: Record<AuthOAuthStatus, 'success' | 'warning' | 'error' | 'info' | 'default'> = {
+  const types: Record<AuthOauthStatus, 'success' | 'warning' | 'error' | 'info' | 'default'> = {
     [AUTH_OAUTH_STATUS.PENDING]: 'warning',
     [AUTH_OAUTH_STATUS.ACTIVE]: 'success',
     [AUTH_OAUTH_STATUS.INACTIVE]: 'default',

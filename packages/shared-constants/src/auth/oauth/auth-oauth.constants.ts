@@ -6,7 +6,6 @@
 import { AUTH_OAUTH_PROVIDER } from './auth-oauth-provider.constants';
 import { AUTH_OAUTH_STATUS } from './auth-oauth-status.constants';
 
-// Define PROVIDER_CONFIGS first
 export const OAUTH_PROVIDER_CONFIGS = {
   GOOGLE: {
     clientId: 'google_client_id',
@@ -82,7 +81,6 @@ export const OAUTH_PROVIDER_CONFIGS = {
   },
 } as const;
 
-// Define GRANT_TYPES
 export const OAUTH_GRANT_TYPES = {
   AUTHORIZATION_CODE: 'authorization_code',
   REFRESH_TOKEN: 'refresh_token',
@@ -92,7 +90,6 @@ export const OAUTH_GRANT_TYPES = {
   PKCE: 'pkce',
 } as const;
 
-// Define RESPONSE_TYPES
 export const OAUTH_RESPONSE_TYPES = {
   CODE: 'code',
   TOKEN: 'token',
@@ -102,14 +99,12 @@ export const OAUTH_RESPONSE_TYPES = {
   CODE_TOKEN_ID_TOKEN: 'code token id_token',
 } as const;
 
-// Define TOKEN_TYPES
 export const OAUTH_TOKEN_TYPES = {
   BEARER: 'Bearer',
   MAC: 'MAC',
   JWT: 'JWT',
 } as const;
 
-// Define SCOPES
 export const OAUTH_SCOPES = {
   OPENID: 'openid',
   PROFILE: 'profile',
@@ -128,7 +123,6 @@ export const OAUTH_SCOPES = {
   CALENDARS_READ: 'Calendars.Read',
 } as const;
 
-// Define ENDPOINTS
 export const OAUTH_ENDPOINTS = {
   AUTHORIZATION: '/oauth/authorize',
   TOKEN: '/oauth/token',
@@ -137,7 +131,6 @@ export const OAUTH_ENDPOINTS = {
   INTROSPECT: '/oauth/introspect',
 } as const;
 
-// Define SECURITY
 export const OAUTH_SECURITY = {
   STATE_EXPIRY: 300,
   CODE_EXPIRY: 600,
@@ -149,14 +142,12 @@ export const OAUTH_SECURITY = {
   SIGNATURE_ALGORITHM: 'RS256',
 } as const;
 
-// Define RATE_LIMIT
 export const OAUTH_RATE_LIMIT = {
   MAX_ATTEMPTS: 5,
   WINDOW_MS: 900000,
   BLOCK_DURATION: 3600000,
 } as const;
 
-// Define DEFAULTS
 export const OAUTH_DEFAULTS = {
   STATUS: AUTH_OAUTH_STATUS.PENDING,
   PROVIDER: AUTH_OAUTH_PROVIDER.GOOGLE,
@@ -166,7 +157,6 @@ export const OAUTH_DEFAULTS = {
   PKCE_ENABLED: true,
 } as const;
 
-// Main OAUTH_CONFIG object
 export const OAUTH_CONFIG = {
   GRANT_TYPES: OAUTH_GRANT_TYPES,
   RESPONSE_TYPES: OAUTH_RESPONSE_TYPES,
@@ -178,7 +168,6 @@ export const OAUTH_CONFIG = {
   DEFAULTS: OAUTH_DEFAULTS,
 } as const;
 
-// Define OAUTH_EVENTS
 export const OAUTH_EVENTS = {
   AUTH_STARTED: 'oauth:auth_started',
   AUTH_SUCCESS: 'oauth:auth_success',
@@ -194,7 +183,6 @@ export const OAUTH_EVENTS = {
   USERINFO_FAILED: 'oauth:userinfo_failed',
 } as const;
 
-// Main AUTH_OAUTH object
 export const AUTH_OAUTH = {
   CONFIG: OAUTH_CONFIG,
   PROVIDERS: AUTH_OAUTH_PROVIDER,
@@ -209,7 +197,7 @@ export type AuthOAuthDefaults = typeof OAUTH_DEFAULTS;
 export type OAuthProviderConfig =
   (typeof OAUTH_PROVIDER_CONFIGS)[keyof typeof OAUTH_PROVIDER_CONFIGS];
 
-export function getOAuthProviderConfig(
+export function getOauthProviderConfig(
   provider: (typeof AUTH_OAUTH_PROVIDER)[keyof typeof AUTH_OAUTH_PROVIDER]
 ): OAuthProviderConfig {
   const config = OAUTH_PROVIDER_CONFIGS[provider as keyof typeof OAUTH_PROVIDER_CONFIGS];
@@ -219,25 +207,25 @@ export function getOAuthProviderConfig(
   return config;
 }
 
-export function getOAuthScopes(
+export function getOauthScopes(
   provider: (typeof AUTH_OAUTH_PROVIDER)[keyof typeof AUTH_OAUTH_PROVIDER]
 ): string[] {
-  const config = getOAuthProviderConfig(provider);
+  const config = getOauthProviderConfig(provider);
   return [...config.scope];
 }
 
-export function getOAuthRedirectUri(
+export function getOauthRedirectUri(
   provider: (typeof AUTH_OAUTH_PROVIDER)[keyof typeof AUTH_OAUTH_PROVIDER]
 ): string {
-  const config = getOAuthProviderConfig(provider);
+  const config = getOauthProviderConfig(provider);
   return config.redirectUri;
 }
 
-export function getOAuthAuthorizationUrl(
+export function getOauthAuthorizationUrl(
   provider: (typeof AUTH_OAUTH_PROVIDER)[keyof typeof AUTH_OAUTH_PROVIDER],
   state: string
 ): string {
-  const config = getOAuthProviderConfig(provider);
+  const config = getOauthProviderConfig(provider);
   const params = new URLSearchParams({
     client_id: config.clientId,
     redirect_uri: config.redirectUri,
@@ -253,31 +241,31 @@ export function getOAuthAuthorizationUrl(
   return `${config.authorizationEndpoint}?${params.toString()}`;
 }
 
-export function getOAuthTokenUrl(
+export function getOauthTokenUrl(
   provider: (typeof AUTH_OAUTH_PROVIDER)[keyof typeof AUTH_OAUTH_PROVIDER]
 ): string {
-  const config = getOAuthProviderConfig(provider);
+  const config = getOauthProviderConfig(provider);
   return config.tokenEndpoint;
 }
 
-export function getOAuthUserInfoUrl(
+export function getOauthUserInfoUrl(
   provider: (typeof AUTH_OAUTH_PROVIDER)[keyof typeof AUTH_OAUTH_PROVIDER]
 ): string {
-  const config = getOAuthProviderConfig(provider);
+  const config = getOauthProviderConfig(provider);
   return config.userInfoEndpoint;
 }
 
-export function isOAuthProviderSupported(provider: string): boolean {
+export function isOauthProviderSupported(provider: string): boolean {
   return Object.keys(OAUTH_PROVIDER_CONFIGS).includes(provider);
 }
 
-export function getSupportedOAuthProviders(): (typeof AUTH_OAUTH_PROVIDER)[keyof typeof AUTH_OAUTH_PROVIDER][] {
+export function getOauthSupportedProviders(): (typeof AUTH_OAUTH_PROVIDER)[keyof typeof AUTH_OAUTH_PROVIDER][] {
   return Object.keys(
     OAUTH_PROVIDER_CONFIGS
   ) as (typeof AUTH_OAUTH_PROVIDER)[keyof typeof AUTH_OAUTH_PROVIDER][];
 }
 
-export function getOAuthProviderLabel(
+export function getOauthProviderLabel(
   provider: (typeof AUTH_OAUTH_PROVIDER)[keyof typeof AUTH_OAUTH_PROVIDER]
 ): string {
   const labels: Record<string, string> = {
@@ -292,7 +280,7 @@ export function getOAuthProviderLabel(
   return labels[provider] || 'Unknown Provider';
 }
 
-export function getOAuthProviderIcon(
+export function getOauthProviderIcon(
   provider: (typeof AUTH_OAUTH_PROVIDER)[keyof typeof AUTH_OAUTH_PROVIDER]
 ): string {
   const icons: Record<string, string> = {
@@ -307,7 +295,7 @@ export function getOAuthProviderIcon(
   return icons[provider] || '🔑';
 }
 
-export function getOAuthProviderColor(
+export function getOauthProviderColor(
   provider: (typeof AUTH_OAUTH_PROVIDER)[keyof typeof AUTH_OAUTH_PROVIDER]
 ): string {
   const colors: Record<string, string> = {
@@ -322,48 +310,48 @@ export function getOAuthProviderColor(
   return colors[provider] || '#6B7280';
 }
 
-export function getOAuthStateExpiry(): number {
+export function getOauthStateExpiry(): number {
   return OAUTH_SECURITY.STATE_EXPIRY;
 }
 
-export function getOAuthCodeExpiry(): number {
+export function getOauthCodeExpiry(): number {
   return OAUTH_SECURITY.CODE_EXPIRY;
 }
 
-export function getOAuthAccessTokenExpiry(): number {
+export function getOauthAccessTokenExpiry(): number {
   return OAUTH_SECURITY.ACCESS_TOKEN_EXPIRY;
 }
 
-export function getOAuthRefreshTokenExpiry(): number {
+export function getOauthRefreshTokenExpiry(): number {
   return OAUTH_SECURITY.REFRESH_TOKEN_EXPIRY;
 }
 
-export function getOAuthIdTokenExpiry(): number {
+export function getOauthIdTokenExpiry(): number {
   return OAUTH_SECURITY.ID_TOKEN_EXPIRY;
 }
 
-export function isOAuthStateValid(createdAt: Date): boolean {
+export function isOauthStateValid(createdAt: Date): boolean {
   const age = (Date.now() - createdAt.getTime()) / 1000;
   return age <= OAUTH_SECURITY.STATE_EXPIRY;
 }
 
-export function isOAuthCodeValid(createdAt: Date): boolean {
+export function isOauthCodeValid(createdAt: Date): boolean {
   const age = (Date.now() - createdAt.getTime()) / 1000;
   return age <= OAUTH_SECURITY.CODE_EXPIRY;
 }
 
-export function isOAuthAccessTokenValid(createdAt: Date): boolean {
+export function isOauthAccessTokenValid(createdAt: Date): boolean {
   const age = (Date.now() - createdAt.getTime()) / 1000;
   return age <= OAUTH_SECURITY.ACCESS_TOKEN_EXPIRY;
 }
 
-export function shouldRefreshAccessToken(createdAt: Date): boolean {
+export function shouldOauthRefreshAccessToken(createdAt: Date): boolean {
   const age = (Date.now() - createdAt.getTime()) / 1000;
   const threshold = OAUTH_SECURITY.ACCESS_TOKEN_EXPIRY * 0.8;
   return age >= threshold;
 }
 
-export function getOAuthGrantTypeLabel(grantType: string): string {
+export function getOauthGrantTypeLabel(grantType: string): string {
   const labels: Record<string, string> = {
     [OAUTH_GRANT_TYPES.AUTHORIZATION_CODE]: 'Authorization Code',
     [OAUTH_GRANT_TYPES.REFRESH_TOKEN]: 'Refresh Token',
@@ -376,7 +364,7 @@ export function getOAuthGrantTypeLabel(grantType: string): string {
   return labels[grantType] || 'Unknown Grant Type';
 }
 
-export function getOAuthResponseTypeLabel(responseType: string): string {
+export function getOauthResponseTypeLabel(responseType: string): string {
   const labels: Record<string, string> = {
     [OAUTH_RESPONSE_TYPES.CODE]: 'Authorization Code',
     [OAUTH_RESPONSE_TYPES.TOKEN]: 'Access Token',
@@ -389,7 +377,7 @@ export function getOAuthResponseTypeLabel(responseType: string): string {
   return labels[responseType] || 'Unknown Response Type';
 }
 
-export function getOAuthTokenTypeLabel(tokenType: string): string {
+export function getOauthTokenTypeLabel(tokenType: string): string {
   const labels: Record<string, string> = {
     [OAUTH_TOKEN_TYPES.BEARER]: 'Bearer Token',
     [OAUTH_TOKEN_TYPES.MAC]: 'MAC Token',

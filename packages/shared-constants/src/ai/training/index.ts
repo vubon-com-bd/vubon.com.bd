@@ -1,28 +1,29 @@
 /**
- * AI Training Constants Index
- * Export all training constants and types for easy importing
+ * AI Training Index
+ * Export all AI training constants and types for easy importing
  */
 
-// AI Training Constants
+// Export all constants from ai-training.constants
 export {
   AI_TRAINING,
-  getTrainingTypeLabel,
-  getTrainingStatusLabel,
-  getTrainingPhaseLabel,
-  getTrainingMetricLabel,
-  getTrainingOptimizerLabel,
-  getTrainingLossFunctionLabel,
-  getTrainingFrameworkLabel,
-  getTrainingHardwareLabel,
-  isTrainingActive,
-  isTrainingComplete,
-  isTrainingFailed,
-  getDefaultEpochs,
-  getDefaultBatchSize,
-  getDefaultLearningRate,
-  getValidationSplit,
+  getAiTrainingTypeLabel,
+  getAiTrainingStatusLabel,
+  getAiTrainingPhaseLabel,
+  getAiTrainingMetricLabel,
+  getAiTrainingOptimizerLabel,
+  getAiTrainingLossFunctionLabel,
+  getAiTrainingFrameworkLabel,
+  getAiTrainingHardwareLabel,
+  isAiTrainingActive,
+  isAiTrainingComplete,
+  isAiTrainingFailed,
+  getAiTrainingDefaultEpochs,
+  getAiTrainingDefaultBatchSize,
+  getAiTrainingDefaultLearningRate,
+  getAiTrainingValidationSplit,
 } from './ai-training.constants';
 
+// Export all types from ai-training.constants
 export type {
   AITrainingType,
   AITrainingStatus,
@@ -37,17 +38,18 @@ export type {
   AITrainingCheckpoint,
 } from './ai-training.constants';
 
-// AI Training Type Constants
+// Export all constants from ai-training-type.constants
 export {
   AI_TRAINING_TYPE,
-  getTrainingCategoryLabel,
-  getTrainingSubTypeLabel,
-  getTrainingMethodLabel,
-  getTrainingObjectiveLabel,
-  getTrainingModeLabel,
-  getTrainingDataTypeLabel,
+  getAiTrainingCategoryLabel,
+  getAiTrainingSubTypeLabel,
+  getAiTrainingMethodLabel,
+  getAiTrainingObjectiveLabel,
+  getAiTrainingModeLabel,
+  getAiTrainingDataTypeLabel,
 } from './ai-training-type.constants';
 
+// Export all types from ai-training-type.constants
 export type {
   AITrainingCategory,
   AITrainingSubType,
@@ -57,45 +59,44 @@ export type {
   AITrainingDataType,
 } from './ai-training-type.constants';
 
-// AI Training Status Constants
+// Export all constants from ai-training-phase.constants
 export {
-  AI_TRAINING_STATUS,
+  AI_TRAINING_PHASE,
+  getAiTrainingPhaseCategoryLabel,
+  getAiTrainingPhaseTypeLabel,
+  getAiTrainingPhaseStatusLabel,
+  getAiTrainingPhasePriorityLabel,
+  getAiTrainingPhaseMetricLabel,
+  getAiTrainingPhaseDependencies,
+} from './ai-training-phase.constants';
+
+// Export all types from ai-training-phase.constants
+export type {
+  AITrainingPhaseCategory,
+  AITrainingPhaseType,
+  AITrainingPhaseStatus,
+  AITrainingPhasePriority,
+  AITrainingPhaseMetric,
+} from './ai-training-phase.constants';
+
+// Export all constants from ai-training-status.constants
+export {
   AI_TRAINING_STATUS_TYPES,
-  getTrainingStatusLabel as getTrainingStatusLabel2,
-  getTrainingStatusCategory,
-  getTrainingStatusSeverity,
-  getTrainingStatusColor,
-  isTrainingActive as isTrainingActive2,
-  isTrainingComplete as isTrainingComplete2,
-  isTrainingFailed as isTrainingFailed2,
-  isTrainingPaused,
+  AI_TRAINING_STATUS,
+  getAiTrainingStatusLabel as getAiTrainingStatusLabelDetailed,
+  getAiTrainingStatusCategory,
+  getAiTrainingStatusSeverity,
+  getAiTrainingStatusColor,
+  isAiTrainingActiveStatus,
+  isAiTrainingCompletedStatus,
+  isAiTrainingFailedStatus,
+  getAiTrainingStatusProgress,
 } from './ai-training-status.constants';
 
+// Export all types from ai-training-status.constants
 export type {
   AITrainingStatusType,
   AITrainingStatusCategory,
   AITrainingStatusSeverity,
   AITrainingStatusColor,
 } from './ai-training-status.constants';
-
-// AI Training Phase Constants
-export {
-  AI_TRAINING_PHASE,
-  getTrainingPhaseTypeLabel,
-  getTrainingPhaseStatusLabel,
-  getTrainingPhasePriorityLabel,
-  getPhaseDependencies,
-  getPhaseDuration,
-  getPhaseStatusColor,
-  getPhaseOrder,
-  getNextPhases,
-  getPreviousPhases,
-} from './ai-training-phase.constants';
-
-export type {
-  AITrainingPhaseType,
-  AITrainingPhaseStatus,
-  AITrainingPhasePriority,
-  AITrainingPhaseDependency,
-  AITrainingPhaseDuration,
-} from './ai-training-phase.constants';

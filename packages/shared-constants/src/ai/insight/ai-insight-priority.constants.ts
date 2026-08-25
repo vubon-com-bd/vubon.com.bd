@@ -1,249 +1,144 @@
 /**
  * AI Insight Priority Constants
- * Priority definitions for AI insights
+ * Priority definitions and calculations for AI insights
  */
 
-// First define priority factors
+// First define the factors separately
 export const AI_INSIGHT_PRIORITY_FACTORS = {
-  BUSINESS_IMPACT: 'business_impact',
-  URGENCY: 'urgency',
-  FEASIBILITY: 'feasibility',
-  EFFORT: 'effort',
-  RESOURCES: 'resources',
-  RISK: 'risk',
-  ROI: 'roi',
-  TIMELINESS: 'timeliness',
-  STRATEGIC_ALIGNMENT: 'strategic_alignment',
-  CUSTOMER_IMPACT: 'customer_impact',
-  COMPETITIVE_ADVANTAGE: 'competitive_advantage',
-  COMPLEXITY: 'complexity',
-} as const;
+  FACTORS: {
+    URGENCY: 'urgency',
+    IMPACT: 'impact',
+    EFFORT: 'effort',
+    RISK: 'risk',
+    OPPORTUNITY: 'opportunity',
+    TIMELINESS: 'timeliness',
+    FEASIBILITY: 'feasibility',
+    STRATEGIC_ALIGNMENT: 'strategic_alignment',
+  } as const,
+};
 
 export type AIInsightPriorityFactor =
-  (typeof AI_INSIGHT_PRIORITY_FACTORS)[keyof typeof AI_INSIGHT_PRIORITY_FACTORS];
+  (typeof AI_INSIGHT_PRIORITY_FACTORS.FACTORS)[keyof typeof AI_INSIGHT_PRIORITY_FACTORS.FACTORS];
 
-export const AI_INSIGHT_PRIORITY = {
-  // Priority Levels
-  LEVELS: {
-    CRITICAL: 'critical',
-    HIGH: 'high',
-    MEDIUM: 'medium',
-    LOW: 'low',
-    BACKGROUND: 'background',
-    NICE_TO_HAVE: 'nice_to_have',
-  } as const,
-
-  // Priority Scores
-  SCORES: {
-    CRITICAL: 100,
-    HIGH: 80,
-    MEDIUM: 60,
-    LOW: 40,
-    BACKGROUND: 20,
-    NICE_TO_HAVE: 0,
-  } as const,
-
-  // Priority Factors - using pre-defined factors
-  FACTORS: AI_INSIGHT_PRIORITY_FACTORS,
-
-  // Priority Weights
-  WEIGHTS: {
-    [AI_INSIGHT_PRIORITY_FACTORS.BUSINESS_IMPACT]: 0.25,
-    [AI_INSIGHT_PRIORITY_FACTORS.URGENCY]: 0.15,
-    [AI_INSIGHT_PRIORITY_FACTORS.FEASIBILITY]: 0.1,
-    [AI_INSIGHT_PRIORITY_FACTORS.EFFORT]: 0.05,
-    [AI_INSIGHT_PRIORITY_FACTORS.RESOURCES]: 0.05,
-    [AI_INSIGHT_PRIORITY_FACTORS.RISK]: 0.05,
-    [AI_INSIGHT_PRIORITY_FACTORS.ROI]: 0.1,
-    [AI_INSIGHT_PRIORITY_FACTORS.TIMELINESS]: 0.05,
-    [AI_INSIGHT_PRIORITY_FACTORS.STRATEGIC_ALIGNMENT]: 0.1,
-    [AI_INSIGHT_PRIORITY_FACTORS.CUSTOMER_IMPACT]: 0.05,
-    [AI_INSIGHT_PRIORITY_FACTORS.COMPETITIVE_ADVANTAGE]: 0.03,
-    [AI_INSIGHT_PRIORITY_FACTORS.COMPLEXITY]: 0.02,
-  } as const,
-
-  // Priority Thresholds
-  THRESHOLDS: {
-    CRITICAL: 80,
-    HIGH: 60,
-    MEDIUM: 40,
-    LOW: 20,
-    BACKGROUND: 10,
-  } as const,
-
-  // Priority Decay
-  DECAY: {
-    FAST: 0.5,
-    MEDIUM: 0.7,
-    SLOW: 0.9,
-    NONE: 1.0,
-  } as const,
-
-  // Priority Boosts - using numeric values directly
-  BOOSTS: {
-    EXECUTIVE_ATTENTION: 1.5,
-    CUSTOMER_FACING: 1.3,
-    REVENUE_IMPACT: 1.4,
-    COST_SAVING: 1.3,
-    REGULATORY: 1.8,
-    STRATEGIC: 1.2,
-    TIME_SENSITIVE: 1.5,
-  } as const,
-
-  // Priority Penalties - using numeric values directly
-  PENALTIES: {
-    HIGH_EFFORT: 0.7,
-    HIGH_RESOURCE: 0.6,
-    HIGH_RISK: 0.5,
-    LOW_ROI: 0.4,
-    LOW_ALIGNMENT: 0.6,
-    COMPLEX_IMPLEMENTATION: 0.5,
-  } as const,
+// Then define the weights using the factors
+export const AI_INSIGHT_PRIORITY_WEIGHTS = {
+  [AI_INSIGHT_PRIORITY_FACTORS.FACTORS.URGENCY]: 0.3,
+  [AI_INSIGHT_PRIORITY_FACTORS.FACTORS.IMPACT]: 0.25,
+  [AI_INSIGHT_PRIORITY_FACTORS.FACTORS.OPPORTUNITY]: 0.15,
+  [AI_INSIGHT_PRIORITY_FACTORS.FACTORS.RISK]: 0.1,
+  [AI_INSIGHT_PRIORITY_FACTORS.FACTORS.TIMELINESS]: 0.1,
+  [AI_INSIGHT_PRIORITY_FACTORS.FACTORS.FEASIBILITY]: 0.05,
+  [AI_INSIGHT_PRIORITY_FACTORS.FACTORS.STRATEGIC_ALIGNMENT]: 0.05,
 } as const;
 
-// Priority Levels
-export type AIInsightPriorityLevel =
-  (typeof AI_INSIGHT_PRIORITY.LEVELS)[keyof typeof AI_INSIGHT_PRIORITY.LEVELS];
-
-// Priority Scores
-export type AIInsightPriorityScore =
-  (typeof AI_INSIGHT_PRIORITY.SCORES)[keyof typeof AI_INSIGHT_PRIORITY.SCORES];
-
-// Priority Weights
 export type AIInsightPriorityWeight =
-  (typeof AI_INSIGHT_PRIORITY.WEIGHTS)[keyof typeof AI_INSIGHT_PRIORITY.WEIGHTS];
+  (typeof AI_INSIGHT_PRIORITY_WEIGHTS)[keyof typeof AI_INSIGHT_PRIORITY_WEIGHTS];
 
-// Priority Thresholds
+export const AI_INSIGHT_PRIORITY_THRESHOLDS = {
+  CRITICAL: 80,
+  HIGH: 60,
+  MEDIUM: 40,
+  LOW: 20,
+  BACKGROUND: 10,
+} as const;
+
 export type AIInsightPriorityThreshold =
-  (typeof AI_INSIGHT_PRIORITY.THRESHOLDS)[keyof typeof AI_INSIGHT_PRIORITY.THRESHOLDS];
+  (typeof AI_INSIGHT_PRIORITY_THRESHOLDS)[keyof typeof AI_INSIGHT_PRIORITY_THRESHOLDS];
 
-// Priority Decay
+export const AI_INSIGHT_PRIORITY_BOOSTS = {
+  TIME_SENSITIVE: 15,
+  HIGH_IMPACT: 10,
+  EASY_WIN: 5,
+  STRATEGIC: 8,
+  COMPLIANCE: 12,
+  COMPETITIVE: 6,
+} as const;
+
+export type AIInsightPriorityBoost =
+  (typeof AI_INSIGHT_PRIORITY_BOOSTS)[keyof typeof AI_INSIGHT_PRIORITY_BOOSTS];
+
+export const AI_INSIGHT_PRIORITY_PENALTIES = {
+  HIGH_EFFORT: -10,
+  LOW_FEASIBILITY: -8,
+  LOW_ALIGNMENT: -5,
+  HIGH_RISK: -7,
+  DEPRECATED: -15,
+} as const;
+
+export type AIInsightPriorityPenalty =
+  (typeof AI_INSIGHT_PRIORITY_PENALTIES)[keyof typeof AI_INSIGHT_PRIORITY_PENALTIES];
+
+export const AI_INSIGHT_PRIORITY_DECAY = {
+  FAST: 0.9,
+  NORMAL: 0.95,
+  SLOW: 0.98,
+  NONE: 1.0,
+} as const;
+
 export type AIInsightPriorityDecay =
-  (typeof AI_INSIGHT_PRIORITY.DECAY)[keyof typeof AI_INSIGHT_PRIORITY.DECAY];
+  (typeof AI_INSIGHT_PRIORITY_DECAY)[keyof typeof AI_INSIGHT_PRIORITY_DECAY];
 
-// Priority Boosts
-export type AIInsightPriorityBoost = keyof typeof AI_INSIGHT_PRIORITY.BOOSTS;
-
-// Priority Penalties
-export type AIInsightPriorityPenalty = keyof typeof AI_INSIGHT_PRIORITY.PENALTIES;
-
-// Utility Functions
-export function getInsightPriorityLevelLabel(level: AIInsightPriorityLevel): string {
-  const labels: Record<AIInsightPriorityLevel, string> = {
-    [AI_INSIGHT_PRIORITY.LEVELS.CRITICAL]: 'Critical',
-    [AI_INSIGHT_PRIORITY.LEVELS.HIGH]: 'High',
-    [AI_INSIGHT_PRIORITY.LEVELS.MEDIUM]: 'Medium',
-    [AI_INSIGHT_PRIORITY.LEVELS.LOW]: 'Low',
-    [AI_INSIGHT_PRIORITY.LEVELS.BACKGROUND]: 'Background',
-    [AI_INSIGHT_PRIORITY.LEVELS.NICE_TO_HAVE]: 'Nice to Have',
+export function getAiInsightPriorityFactorLabel(factor: AIInsightPriorityFactor): string {
+  const labels: Record<AIInsightPriorityFactor, string> = {
+    [AI_INSIGHT_PRIORITY_FACTORS.FACTORS.URGENCY]: 'Urgency',
+    [AI_INSIGHT_PRIORITY_FACTORS.FACTORS.IMPACT]: 'Impact',
+    [AI_INSIGHT_PRIORITY_FACTORS.FACTORS.EFFORT]: 'Effort',
+    [AI_INSIGHT_PRIORITY_FACTORS.FACTORS.RISK]: 'Risk',
+    [AI_INSIGHT_PRIORITY_FACTORS.FACTORS.OPPORTUNITY]: 'Opportunity',
+    [AI_INSIGHT_PRIORITY_FACTORS.FACTORS.TIMELINESS]: 'Timeliness',
+    [AI_INSIGHT_PRIORITY_FACTORS.FACTORS.FEASIBILITY]: 'Feasibility',
+    [AI_INSIGHT_PRIORITY_FACTORS.FACTORS.STRATEGIC_ALIGNMENT]: 'Strategic Alignment',
   };
-  return labels[level] || 'Unknown';
+  return labels[factor] || 'Unknown';
 }
 
-export function getInsightPriorityScore(level: AIInsightPriorityLevel): AIInsightPriorityScore {
-  const scores: Record<AIInsightPriorityLevel, AIInsightPriorityScore> = {
-    [AI_INSIGHT_PRIORITY.LEVELS.CRITICAL]: AI_INSIGHT_PRIORITY.SCORES.CRITICAL,
-    [AI_INSIGHT_PRIORITY.LEVELS.HIGH]: AI_INSIGHT_PRIORITY.SCORES.HIGH,
-    [AI_INSIGHT_PRIORITY.LEVELS.MEDIUM]: AI_INSIGHT_PRIORITY.SCORES.MEDIUM,
-    [AI_INSIGHT_PRIORITY.LEVELS.LOW]: AI_INSIGHT_PRIORITY.SCORES.LOW,
-    [AI_INSIGHT_PRIORITY.LEVELS.BACKGROUND]: AI_INSIGHT_PRIORITY.SCORES.BACKGROUND,
-    [AI_INSIGHT_PRIORITY.LEVELS.NICE_TO_HAVE]: AI_INSIGHT_PRIORITY.SCORES.NICE_TO_HAVE,
-  };
-  return scores[level] || AI_INSIGHT_PRIORITY.SCORES.MEDIUM;
-}
-
-export function getInsightPriorityLevel(score: number): AIInsightPriorityLevel {
-  if (score >= AI_INSIGHT_PRIORITY.THRESHOLDS.CRITICAL) {
-    return AI_INSIGHT_PRIORITY.LEVELS.CRITICAL;
-  }
-  if (score >= AI_INSIGHT_PRIORITY.THRESHOLDS.HIGH) {
-    return AI_INSIGHT_PRIORITY.LEVELS.HIGH;
-  }
-  if (score >= AI_INSIGHT_PRIORITY.THRESHOLDS.MEDIUM) {
-    return AI_INSIGHT_PRIORITY.LEVELS.MEDIUM;
-  }
-  if (score >= AI_INSIGHT_PRIORITY.THRESHOLDS.LOW) {
-    return AI_INSIGHT_PRIORITY.LEVELS.LOW;
-  }
-  if (score >= AI_INSIGHT_PRIORITY.THRESHOLDS.BACKGROUND) {
-    return AI_INSIGHT_PRIORITY.LEVELS.BACKGROUND;
-  }
-  return AI_INSIGHT_PRIORITY.LEVELS.NICE_TO_HAVE;
-}
-
-export function calculateInsightPriorityScore(
-  factors: Partial<Record<AIInsightPriorityFactor, number>>
-): number {
-  let score = 0;
-  const weights = AI_INSIGHT_PRIORITY.WEIGHTS;
-  for (const [factor, value] of Object.entries(factors)) {
-    const factorKey = factor as AIInsightPriorityFactor;
-    const weight = weights[factorKey];
-    if (weight && value !== undefined) {
-      score += value * weight;
-    }
-  }
-  return Math.min(score, 100);
-}
-
-export function applyInsightPriorityBoost(
-  score: number,
-  boostFactors: AIInsightPriorityBoost[]
-): number {
-  let boostedScore = score;
-  for (const boost of boostFactors) {
-    boostedScore *= AI_INSIGHT_PRIORITY.BOOSTS[boost];
-  }
-  return Math.min(boostedScore, 100);
-}
-
-export function applyInsightPriorityPenalty(
-  score: number,
-  penaltyFactors: AIInsightPriorityPenalty[]
-): number {
-  let penalizedScore = score;
-  for (const penalty of penaltyFactors) {
-    penalizedScore *= AI_INSIGHT_PRIORITY.PENALTIES[penalty];
-  }
-  return Math.max(penalizedScore, 0);
-}
-
-export function getInsightPriorityBoostLabel(boost: AIInsightPriorityBoost): string {
+export function getAiInsightPriorityBoostLabel(boost: AIInsightPriorityBoost): string {
   const labels: Record<AIInsightPriorityBoost, string> = {
-    EXECUTIVE_ATTENTION: 'Executive Attention',
-    CUSTOMER_FACING: 'Customer Facing',
-    REVENUE_IMPACT: 'Revenue Impact',
-    COST_SAVING: 'Cost Saving',
-    REGULATORY: 'Regulatory',
-    STRATEGIC: 'Strategic',
-    TIME_SENSITIVE: 'Time Sensitive',
+    [AI_INSIGHT_PRIORITY_BOOSTS.TIME_SENSITIVE]: 'Time Sensitive',
+    [AI_INSIGHT_PRIORITY_BOOSTS.HIGH_IMPACT]: 'High Impact',
+    [AI_INSIGHT_PRIORITY_BOOSTS.EASY_WIN]: 'Easy Win',
+    [AI_INSIGHT_PRIORITY_BOOSTS.STRATEGIC]: 'Strategic',
+    [AI_INSIGHT_PRIORITY_BOOSTS.COMPLIANCE]: 'Compliance',
+    [AI_INSIGHT_PRIORITY_BOOSTS.COMPETITIVE]: 'Competitive',
   };
   return labels[boost] || 'Unknown';
 }
 
-export function getInsightPriorityPenaltyLabel(penalty: AIInsightPriorityPenalty): string {
+export function getAiInsightPriorityPenaltyLabel(penalty: AIInsightPriorityPenalty): string {
   const labels: Record<AIInsightPriorityPenalty, string> = {
-    HIGH_EFFORT: 'High Effort',
-    HIGH_RESOURCE: 'High Resource',
-    HIGH_RISK: 'High Risk',
-    LOW_ROI: 'Low ROI',
-    LOW_ALIGNMENT: 'Low Alignment',
-    COMPLEX_IMPLEMENTATION: 'Complex Implementation',
+    [AI_INSIGHT_PRIORITY_PENALTIES.HIGH_EFFORT]: 'High Effort',
+    [AI_INSIGHT_PRIORITY_PENALTIES.LOW_FEASIBILITY]: 'Low Feasibility',
+    [AI_INSIGHT_PRIORITY_PENALTIES.LOW_ALIGNMENT]: 'Low Alignment',
+    [AI_INSIGHT_PRIORITY_PENALTIES.HIGH_RISK]: 'High Risk',
+    [AI_INSIGHT_PRIORITY_PENALTIES.DEPRECATED]: 'Deprecated',
   };
   return labels[penalty] || 'Unknown';
 }
 
-export function getDefaultInsightWeights(): Record<AIInsightPriorityFactor, number> {
-  return { ...AI_INSIGHT_PRIORITY.WEIGHTS };
+export function getAiInsightPriorityDecayLabel(decay: AIInsightPriorityDecay): string {
+  const labels: Record<AIInsightPriorityDecay, string> = {
+    [AI_INSIGHT_PRIORITY_DECAY.FAST]: 'Fast',
+    [AI_INSIGHT_PRIORITY_DECAY.NORMAL]: 'Normal',
+    [AI_INSIGHT_PRIORITY_DECAY.SLOW]: 'Slow',
+    [AI_INSIGHT_PRIORITY_DECAY.NONE]: 'None',
+  };
+  return labels[decay] || 'Unknown';
 }
 
-export function getDefaultInsightThresholds(): Record<AIInsightPriorityLevel, number> {
-  return {
-    [AI_INSIGHT_PRIORITY.LEVELS.CRITICAL]: AI_INSIGHT_PRIORITY.THRESHOLDS.CRITICAL,
-    [AI_INSIGHT_PRIORITY.LEVELS.HIGH]: AI_INSIGHT_PRIORITY.THRESHOLDS.HIGH,
-    [AI_INSIGHT_PRIORITY.LEVELS.MEDIUM]: AI_INSIGHT_PRIORITY.THRESHOLDS.MEDIUM,
-    [AI_INSIGHT_PRIORITY.LEVELS.LOW]: AI_INSIGHT_PRIORITY.THRESHOLDS.LOW,
-    [AI_INSIGHT_PRIORITY.LEVELS.BACKGROUND]: AI_INSIGHT_PRIORITY.THRESHOLDS.BACKGROUND,
-    [AI_INSIGHT_PRIORITY.LEVELS.NICE_TO_HAVE]: 0,
+export function getAiInsightPriorityThresholds(): Record<string, number> {
+  return { ...AI_INSIGHT_PRIORITY_THRESHOLDS };
+}
+
+export function getAiInsightDefaultFactorWeights(): Record<string, number> {
+  return { ...AI_INSIGHT_PRIORITY_WEIGHTS };
+}
+
+export function getAiInsightDecayFactor(decay: AIInsightPriorityDecay): number {
+  const factors: Record<AIInsightPriorityDecay, number> = {
+    [AI_INSIGHT_PRIORITY_DECAY.FAST]: 0.9,
+    [AI_INSIGHT_PRIORITY_DECAY.NORMAL]: 0.95,
+    [AI_INSIGHT_PRIORITY_DECAY.SLOW]: 0.98,
+    [AI_INSIGHT_PRIORITY_DECAY.NONE]: 1.0,
   };
+  return factors[decay] || 0.95;
 }

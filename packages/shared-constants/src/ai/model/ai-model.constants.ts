@@ -258,31 +258,17 @@ export const AI_MODEL = {
   } as const,
 } as const;
 
-// Model Versions
 export type AIModelVersion = (typeof AI_MODEL.VERSIONS)[keyof typeof AI_MODEL.VERSIONS];
-
-// Model Capabilities
 export type AIModelCapability = (typeof AI_MODEL.CAPABILITIES)[keyof typeof AI_MODEL.CAPABILITIES];
-
-// Model Sizes
 export type AIModelSize = (typeof AI_MODEL.SIZES)[keyof typeof AI_MODEL.SIZES];
-
-// Performance Tiers
 export type AIPerformanceTier =
   (typeof AI_MODEL.PERFORMANCE_TIERS)[keyof typeof AI_MODEL.PERFORMANCE_TIERS];
-
-// Context Windows
 export type AIContextWindow =
   (typeof AI_MODEL.CONTEXT_WINDOWS)[keyof typeof AI_MODEL.CONTEXT_WINDOWS];
-
-// Model Costs
 export type AIModelCost = (typeof AI_MODEL.COSTS)[keyof typeof AI_MODEL.COSTS];
-
-// Quality Levels
 export type AIModelQuality = (typeof AI_MODEL.QUALITY)[keyof typeof AI_MODEL.QUALITY];
 
-// Utility Functions
-export function getContextWindow(modelVersion: AIModelVersion): number {
+export function getAiModelContextWindow(modelVersion: AIModelVersion): number {
   const windows: Partial<Record<AIModelVersion, number>> = {
     [AI_MODEL.VERSIONS.GPT_3_5]: AI_MODEL.CONTEXT_WINDOWS.GPT_3_5,
     [AI_MODEL.VERSIONS.GPT_3_5_16K]: AI_MODEL.CONTEXT_WINDOWS.GPT_3_5_16K,
@@ -319,7 +305,7 @@ export function getContextWindow(modelVersion: AIModelVersion): number {
   return windows[modelVersion] || AI_MODEL.LIMITS.MAX_TOKENS.DEFAULT;
 }
 
-export function getModelCost(
+export function getAiModelCost(
   modelVersion: AIModelVersion
 ): (typeof AI_MODEL.COSTS)[keyof typeof AI_MODEL.COSTS] {
   const costs: Partial<
@@ -356,18 +342,18 @@ export function getModelCost(
   return costs[modelVersion] || AI_MODEL.COSTS.GPT_3_5;
 }
 
-export function calculateCost(
+export function calculateAiModelCost(
   modelVersion: AIModelVersion,
   inputTokens: number,
   outputTokens: number
 ): number {
-  const cost = getModelCost(modelVersion);
+  const cost = getAiModelCost(modelVersion);
   const inputCost = (inputTokens / 1000) * cost.input;
   const outputCost = (outputTokens / 1000) * cost.output;
   return inputCost + outputCost;
 }
 
-export function getMaxTokens(modelVersion: AIModelVersion): number {
+export function getAiModelMaxTokens(modelVersion: AIModelVersion): number {
   const maxTokensMap: Partial<Record<AIModelVersion, number>> = {
     [AI_MODEL.VERSIONS.GPT_3_5]: AI_MODEL.LIMITS.MAX_TOKENS.GPT_3_5,
     [AI_MODEL.VERSIONS.GPT_4]: AI_MODEL.LIMITS.MAX_TOKENS.GPT_4,
@@ -392,7 +378,7 @@ export function getMaxTokens(modelVersion: AIModelVersion): number {
   return maxTokensMap[modelVersion] || AI_MODEL.LIMITS.MAX_TOKENS.DEFAULT;
 }
 
-export function isVisionCapable(modelVersion: AIModelVersion): boolean {
+export function isAiModelVisionCapable(modelVersion: AIModelVersion): boolean {
   const visionModels: AIModelVersion[] = [
     AI_MODEL.VERSIONS.GPT_4_VISION,
     AI_MODEL.VERSIONS.GPT_4O,
@@ -402,7 +388,7 @@ export function isVisionCapable(modelVersion: AIModelVersion): boolean {
   return visionModels.includes(modelVersion);
 }
 
-export function isChatModel(modelVersion: AIModelVersion): boolean {
+export function isAiModelChatModel(modelVersion: AIModelVersion): boolean {
   const chatModels: AIModelVersion[] = [
     AI_MODEL.VERSIONS.GPT_3_5,
     AI_MODEL.VERSIONS.GPT_3_5_16K,
@@ -435,7 +421,7 @@ export function isChatModel(modelVersion: AIModelVersion): boolean {
   return chatModels.includes(modelVersion);
 }
 
-export function getModelSize(modelVersion: AIModelVersion): AIModelSize {
+export function getAiModelSize(modelVersion: AIModelVersion): AIModelSize {
   const sizeMap: Partial<Record<AIModelVersion, AIModelSize>> = {
     [AI_MODEL.VERSIONS.GPT_3_5]: AI_MODEL.SIZES.MEDIUM,
     [AI_MODEL.VERSIONS.GPT_4]: AI_MODEL.SIZES.LARGE,

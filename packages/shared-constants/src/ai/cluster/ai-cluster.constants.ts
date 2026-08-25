@@ -176,39 +176,19 @@ export const AI_CLUSTER = {
   } as const,
 } as const;
 
-// Cluster Types
 export type AIClusterType = (typeof AI_CLUSTER.TYPES)[keyof typeof AI_CLUSTER.TYPES];
-
-// Cluster Status
 export type AIClusterStatus = (typeof AI_CLUSTER.STATUSES)[keyof typeof AI_CLUSTER.STATUSES];
-
-// Cluster Categories
 export type AIClusterCategory = (typeof AI_CLUSTER.CATEGORIES)[keyof typeof AI_CLUSTER.CATEGORIES];
-
-// Cluster Algorithms
 export type AIClusterAlgorithm = (typeof AI_CLUSTER.ALGORITHMS)[keyof typeof AI_CLUSTER.ALGORITHMS];
-
-// Cluster Metrics
 export type AIClusterMetric = (typeof AI_CLUSTER.METRICS)[keyof typeof AI_CLUSTER.METRICS];
-
-// Cluster Distance Metrics
 export type AIClusterDistanceMetric =
   (typeof AI_CLUSTER.DISTANCE_METRICS)[keyof typeof AI_CLUSTER.DISTANCE_METRICS];
-
-// Cluster Limits
 export type AIClusterLimit = (typeof AI_CLUSTER.LIMITS)[keyof typeof AI_CLUSTER.LIMITS];
-
-// Cluster Features
 export type AIClusterFeature = (typeof AI_CLUSTER.FEATURES)[keyof typeof AI_CLUSTER.FEATURES];
-
-// Cluster Quality
 export type AIClusterQuality = (typeof AI_CLUSTER.QUALITY)[keyof typeof AI_CLUSTER.QUALITY];
-
-// Cluster Formats
 export type AIClusterFormat = (typeof AI_CLUSTER.FORMATS)[keyof typeof AI_CLUSTER.FORMATS];
 
-// Utility Functions
-export function getClusterTypeLabel(type: AIClusterType): string {
+export function getAiClusterTypeLabel(type: AIClusterType): string {
   const labels: Record<AIClusterType, string> = {
     [AI_CLUSTER.TYPES.K_MEANS]: 'K-Means',
     [AI_CLUSTER.TYPES.HIERARCHICAL]: 'Hierarchical',
@@ -228,7 +208,7 @@ export function getClusterTypeLabel(type: AIClusterType): string {
   return labels[type] || 'Unknown';
 }
 
-export function getClusterStatusLabel(status: AIClusterStatus): string {
+export function getAiClusterStatusLabel(status: AIClusterStatus): string {
   const labels: Record<AIClusterStatus, string> = {
     [AI_CLUSTER.STATUSES.PENDING]: 'Pending',
     [AI_CLUSTER.STATUSES.INITIALIZING]: 'Initializing',
@@ -243,7 +223,7 @@ export function getClusterStatusLabel(status: AIClusterStatus): string {
   return labels[status] || 'Unknown';
 }
 
-export function getClusterCategoryLabel(category: AIClusterCategory): string {
+export function getAiClusterCategoryLabel(category: AIClusterCategory): string {
   const labels: Record<AIClusterCategory, string> = {
     [AI_CLUSTER.CATEGORIES.PARTITIONAL]: 'Partitional',
     [AI_CLUSTER.CATEGORIES.HIERARCHICAL]: 'Hierarchical',
@@ -259,7 +239,7 @@ export function getClusterCategoryLabel(category: AIClusterCategory): string {
   return labels[category] || 'Unknown';
 }
 
-export function getClusterAlgorithmLabel(algorithm: AIClusterAlgorithm): string {
+export function getAiClusterAlgorithmLabel(algorithm: AIClusterAlgorithm): string {
   const labels: Record<AIClusterAlgorithm, string> = {
     [AI_CLUSTER.ALGORITHMS.K_MEANS]: 'K-Means',
     [AI_CLUSTER.ALGORITHMS.K_MEANS_PLUS_PLUS]: 'K-Means++',
@@ -288,7 +268,7 @@ export function getClusterAlgorithmLabel(algorithm: AIClusterAlgorithm): string 
   return labels[algorithm] || 'Unknown';
 }
 
-export function getClusterMetricLabel(metric: AIClusterMetric): string {
+export function getAiClusterMetricLabel(metric: AIClusterMetric): string {
   const labels: Record<AIClusterMetric, string> = {
     [AI_CLUSTER.METRICS.SILHOUETTE]: 'Silhouette',
     [AI_CLUSTER.METRICS.DAVIES_BOULDIN]: 'Davies-Bouldin',
@@ -309,7 +289,7 @@ export function getClusterMetricLabel(metric: AIClusterMetric): string {
   return labels[metric] || 'Unknown';
 }
 
-export function getClusterDistanceMetricLabel(metric: AIClusterDistanceMetric): string {
+export function getAiClusterDistanceMetricLabel(metric: AIClusterDistanceMetric): string {
   const labels: Record<AIClusterDistanceMetric, string> = {
     [AI_CLUSTER.DISTANCE_METRICS.EUCLIDEAN]: 'Euclidean',
     [AI_CLUSTER.DISTANCE_METRICS.MANHATTAN]: 'Manhattan',
@@ -324,7 +304,7 @@ export function getClusterDistanceMetricLabel(metric: AIClusterDistanceMetric): 
   return labels[metric] || 'Unknown';
 }
 
-export function getClusterQualityLabel(quality: AIClusterQuality): string {
+export function getAiClusterQualityLabel(quality: AIClusterQuality): string {
   const labels: Record<AIClusterQuality, string> = {
     [AI_CLUSTER.QUALITY.EXCELLENT]: 'Excellent',
     [AI_CLUSTER.QUALITY.GOOD]: 'Good',
@@ -335,7 +315,7 @@ export function getClusterQualityLabel(quality: AIClusterQuality): string {
   return labels[quality] || 'Unknown';
 }
 
-export function isClusterActive(status: AIClusterStatus): boolean {
+export function isAiClusterActive(status: AIClusterStatus): boolean {
   const activeStatuses: AIClusterStatus[] = [
     AI_CLUSTER.STATUSES.COMPLETED,
     AI_CLUSTER.STATUSES.CACHED,
@@ -344,7 +324,7 @@ export function isClusterActive(status: AIClusterStatus): boolean {
   return activeStatuses.includes(status);
 }
 
-export function isClusterProcessing(status: AIClusterStatus): boolean {
+export function isAiClusterProcessing(status: AIClusterStatus): boolean {
   const processingStatuses: AIClusterStatus[] = [
     AI_CLUSTER.STATUSES.PENDING,
     AI_CLUSTER.STATUSES.INITIALIZING,
@@ -354,7 +334,7 @@ export function isClusterProcessing(status: AIClusterStatus): boolean {
   return processingStatuses.includes(status);
 }
 
-export function isClusterFailed(status: AIClusterStatus): boolean {
+export function isAiClusterFailed(status: AIClusterStatus): boolean {
   const failedStatuses: AIClusterStatus[] = [
     AI_CLUSTER.STATUSES.FAILED,
     AI_CLUSTER.STATUSES.EXPIRED,
@@ -362,23 +342,23 @@ export function isClusterFailed(status: AIClusterStatus): boolean {
   return failedStatuses.includes(status);
 }
 
-export function getDefaultClusters(): number {
+export function getAiClusterDefaultClusters(): number {
   return AI_CLUSTER.LIMITS.DEFAULT_CLUSTERS;
 }
 
-export function getDefaultIterations(): number {
+export function getAiClusterDefaultIterations(): number {
   return AI_CLUSTER.LIMITS.DEFAULT_ITERATIONS;
 }
 
-export function getDefaultEpsilon(): number {
+export function getAiClusterDefaultEpsilon(): number {
   return AI_CLUSTER.LIMITS.EPSILON;
 }
 
-export function getDefaultMinPts(): number {
+export function getAiClusterDefaultMinPts(): number {
   return AI_CLUSTER.LIMITS.MIN_PTS;
 }
 
-export function getAlgorithmCategory(algorithm: AIClusterAlgorithm): AIClusterCategory {
+export function getAiClusterAlgorithmCategory(algorithm: AIClusterAlgorithm): AIClusterCategory {
   const categories: Record<AIClusterAlgorithm, AIClusterCategory> = {
     [AI_CLUSTER.ALGORITHMS.K_MEANS]: AI_CLUSTER.CATEGORIES.PARTITIONAL,
     [AI_CLUSTER.ALGORITHMS.K_MEANS_PLUS_PLUS]: AI_CLUSTER.CATEGORIES.PARTITIONAL,
@@ -407,7 +387,7 @@ export function getAlgorithmCategory(algorithm: AIClusterAlgorithm): AIClusterCa
   return categories[algorithm] || AI_CLUSTER.CATEGORIES.PARTITIONAL;
 }
 
-export function getQualityScore(quality: AIClusterQuality): number {
+export function getAiClusterQualityScore(quality: AIClusterQuality): number {
   const scores: Record<AIClusterQuality, number> = {
     [AI_CLUSTER.QUALITY.EXCELLENT]: 0.9,
     [AI_CLUSTER.QUALITY.GOOD]: 0.7,

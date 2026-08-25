@@ -4,7 +4,6 @@
  */
 
 export const AUTH_ACCOUNT_LOCK_STATUS = {
-  // Primary status
   LOCKED: 'locked',
   UNLOCKED: 'unlocked',
   PENDING: 'pending',
@@ -12,20 +11,17 @@ export const AUTH_ACCOUNT_LOCK_STATUS = {
   PERMANENT: 'permanent',
   TEMPORARY: 'temporary',
 
-  // Lock states
   ACTIVE: 'active',
   EXPIRED: 'expired',
   REMOVED: 'removed',
   ESCALATED: 'escalated',
   DEESCALATED: 'deescalated',
 
-  // Security status
   SECURE: 'secure',
   COMPROMISED: 'compromised',
   SUSPICIOUS: 'suspicious',
   INVESTIGATING: 'investigating',
 
-  // Action status
   MANUAL_LOCK: 'manual_lock',
   AUTO_LOCK: 'auto_lock',
   ADMIN_LOCK: 'admin_lock',
@@ -34,7 +30,6 @@ export const AUTH_ACCOUNT_LOCK_STATUS = {
   DEVICE_LOCK: 'device_lock',
   GEO_LOCK: 'geo_lock',
 
-  // Recovery status
   RECOVERY_IN_PROGRESS: 'recovery_in_progress',
   RECOVERY_COMPLETED: 'recovery_completed',
   RECOVERY_FAILED: 'recovery_failed',
@@ -43,7 +38,7 @@ export const AUTH_ACCOUNT_LOCK_STATUS = {
 export type AuthAccountLockStatus =
   (typeof AUTH_ACCOUNT_LOCK_STATUS)[keyof typeof AUTH_ACCOUNT_LOCK_STATUS];
 
-export const LOCKED_STATUSES: AuthAccountLockStatus[] = [
+export const AUTHLOCK_LOCKED_STATUSES: AuthAccountLockStatus[] = [
   AUTH_ACCOUNT_LOCK_STATUS.LOCKED,
   AUTH_ACCOUNT_LOCK_STATUS.PERMANENT,
   AUTH_ACCOUNT_LOCK_STATUS.TEMPORARY,
@@ -58,7 +53,7 @@ export const LOCKED_STATUSES: AuthAccountLockStatus[] = [
   AUTH_ACCOUNT_LOCK_STATUS.GEO_LOCK,
 ];
 
-export const UNLOCKED_STATUSES: AuthAccountLockStatus[] = [
+export const AUTHLOCK_UNLOCKED_STATUSES: AuthAccountLockStatus[] = [
   AUTH_ACCOUNT_LOCK_STATUS.UNLOCKED,
   AUTH_ACCOUNT_LOCK_STATUS.REMOVED,
   AUTH_ACCOUNT_LOCK_STATUS.DEESCALATED,
@@ -66,54 +61,54 @@ export const UNLOCKED_STATUSES: AuthAccountLockStatus[] = [
   AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_COMPLETED,
 ];
 
-export const PENDING_STATUSES: AuthAccountLockStatus[] = [
+export const AUTHLOCK_PENDING_STATUSES: AuthAccountLockStatus[] = [
   AUTH_ACCOUNT_LOCK_STATUS.PENDING,
   AUTH_ACCOUNT_LOCK_STATUS.INVESTIGATING,
   AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_IN_PROGRESS,
 ];
 
-export const EXPIRED_STATUSES: AuthAccountLockStatus[] = [
+export const AUTHLOCK_EXPIRED_STATUSES: AuthAccountLockStatus[] = [
   AUTH_ACCOUNT_LOCK_STATUS.EXPIRED,
   AUTH_ACCOUNT_LOCK_STATUS.REMOVED,
 ];
 
-export const SECURITY_STATUSES: AuthAccountLockStatus[] = [
+export const AUTHLOCK_SECURITY_STATUSES: AuthAccountLockStatus[] = [
   AUTH_ACCOUNT_LOCK_STATUS.COMPROMISED,
   AUTH_ACCOUNT_LOCK_STATUS.SUSPICIOUS,
   AUTH_ACCOUNT_LOCK_STATUS.INVESTIGATING,
 ];
 
-export const RECOVERY_STATUSES: AuthAccountLockStatus[] = [
+export const AUTHLOCK_RECOVERY_STATUSES: AuthAccountLockStatus[] = [
   AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_IN_PROGRESS,
   AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_COMPLETED,
   AUTH_ACCOUNT_LOCK_STATUS.RECOVERY_FAILED,
 ];
 
-export function isAccountLocked(status: AuthAccountLockStatus): boolean {
-  return LOCKED_STATUSES.includes(status);
+export function isAuthlockLocked(status: AuthAccountLockStatus): boolean {
+  return AUTHLOCK_LOCKED_STATUSES.includes(status);
 }
 
-export function isAccountUnlocked(status: AuthAccountLockStatus): boolean {
-  return UNLOCKED_STATUSES.includes(status);
+export function isAuthlockUnlocked(status: AuthAccountLockStatus): boolean {
+  return AUTHLOCK_UNLOCKED_STATUSES.includes(status);
 }
 
-export function isAccountPending(status: AuthAccountLockStatus): boolean {
-  return PENDING_STATUSES.includes(status);
+export function isAuthlockPending(status: AuthAccountLockStatus): boolean {
+  return AUTHLOCK_PENDING_STATUSES.includes(status);
 }
 
-export function isAccountExpired(status: AuthAccountLockStatus): boolean {
-  return EXPIRED_STATUSES.includes(status);
+export function isAuthlockExpired(status: AuthAccountLockStatus): boolean {
+  return AUTHLOCK_EXPIRED_STATUSES.includes(status);
 }
 
-export function isAccountSecurityIssue(status: AuthAccountLockStatus): boolean {
-  return SECURITY_STATUSES.includes(status);
+export function isAuthlockSecurityIssue(status: AuthAccountLockStatus): boolean {
+  return AUTHLOCK_SECURITY_STATUSES.includes(status);
 }
 
-export function isAccountRecovery(status: AuthAccountLockStatus): boolean {
-  return RECOVERY_STATUSES.includes(status);
+export function isAuthlockRecovery(status: AuthAccountLockStatus): boolean {
+  return AUTHLOCK_RECOVERY_STATUSES.includes(status);
 }
 
-export function getAccountLockStatusLabel(status: AuthAccountLockStatus): string {
+export function getAuthlockStatusLabel(status: AuthAccountLockStatus): string {
   const labels: Record<AuthAccountLockStatus, string> = {
     [AUTH_ACCOUNT_LOCK_STATUS.LOCKED]: 'Locked',
     [AUTH_ACCOUNT_LOCK_STATUS.UNLOCKED]: 'Unlocked',
@@ -145,7 +140,7 @@ export function getAccountLockStatusLabel(status: AuthAccountLockStatus): string
   return labels[status] || 'Unknown Status';
 }
 
-export function getAccountLockStatusColor(status: AuthAccountLockStatus): string {
+export function getAuthlockStatusColor(status: AuthAccountLockStatus): string {
   const colors: Record<AuthAccountLockStatus, string> = {
     [AUTH_ACCOUNT_LOCK_STATUS.LOCKED]: '#DC2626',
     [AUTH_ACCOUNT_LOCK_STATUS.UNLOCKED]: '#10B981',
@@ -177,7 +172,7 @@ export function getAccountLockStatusColor(status: AuthAccountLockStatus): string
   return colors[status] || '#6B7280';
 }
 
-export function getAccountLockStatusPriority(status: AuthAccountLockStatus): number {
+export function getAuthlockStatusPriority(status: AuthAccountLockStatus): number {
   const priorities: Record<AuthAccountLockStatus, number> = {
     [AUTH_ACCOUNT_LOCK_STATUS.LOCKED]: 10,
     [AUTH_ACCOUNT_LOCK_STATUS.UNLOCKED]: 0,
@@ -209,7 +204,7 @@ export function getAccountLockStatusPriority(status: AuthAccountLockStatus): num
   return priorities[status] || 5;
 }
 
-export function getAccountLockStatusBadgeType(
+export function getAuthlockStatusBadgeType(
   status: AuthAccountLockStatus
 ): 'success' | 'warning' | 'error' | 'info' | 'default' {
   const types: Record<AuthAccountLockStatus, 'success' | 'warning' | 'error' | 'info' | 'default'> =

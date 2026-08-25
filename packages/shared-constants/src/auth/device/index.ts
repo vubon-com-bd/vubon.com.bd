@@ -1,9 +1,4 @@
-/**
- * Device Constants Index
- * Export all device constants and types for easy importing
- */
-
-// Device
+// Export all constants from auth-device.constants
 export {
   AUTH_DEVICE,
   DEVICE_PLATFORMS,
@@ -11,28 +6,13 @@ export {
   DEVICE_EVENTS,
   DEVICE_CONFIG,
   DEVICE_DEFAULTS,
-  DEVICE_PLATFORMS_LIST,
-  MOBILE_PLATFORMS,
-  DESKTOP_PLATFORMS,
-  EMBEDDED_PLATFORMS,
-  isDevicePlatform,
-  isMobilePlatform,
-  isDesktopPlatform,
-  isEmbeddedPlatform,
-  getDevicePlatformLabel,
-  getDevicePlatformIcon,
-  getDeviceTrustLevel,
-  getDeviceTrustLevelLabel,
-  getDeviceTrustLevelColor,
-  getMaxDevicesPerUser,
-  getMaxActiveSessions,
-  getSessionTimeoutMinutes,
-  getRememberMeDays,
-  isDeviceTrusted as isDeviceTrustedLevel,
-  isDeviceUntrusted as isDeviceUntrustedLevel,
-  getDeviceTrustLevelFromHistory,
+  AUTHDEVICE_PLATFORMS_LIST,
+  AUTHDEVICE_MOBILE_PLATFORMS,
+  AUTHDEVICE_DESKTOP_PLATFORMS,
+  AUTHDEVICE_EMBEDDED_PLATFORMS,
 } from './auth-device.constants';
 
+// Export all types from auth-device.constants
 export type {
   AuthDeviceConfig,
   AuthDevicePlatform,
@@ -41,55 +21,85 @@ export type {
   AuthDeviceDefaults,
 } from './auth-device.constants';
 
-// Device Types
+// Export all functions from auth-device.constants
+export {
+  isAuthdevicePlatform,
+  isAuthdeviceMobilePlatform,
+  isAuthdeviceDesktopPlatform,
+  isAuthdeviceEmbeddedPlatform,
+  getAuthdevicePlatformLabel,
+  getAuthdevicePlatformIcon,
+  getAuthdeviceTrustLevel,
+  getAuthdeviceTrustLevelLabel,
+  getAuthdeviceTrustLevelColor,
+  getAuthdeviceMaxDevicesPerUser,
+  getAuthdeviceMaxActiveSessions,
+  getAuthdeviceSessionTimeoutMinutes,
+  getAuthdeviceRememberMeDays,
+  isAuthdeviceTrusted,
+  isAuthdeviceUntrusted,
+  getAuthdeviceTrustLevelFromHistory,
+} from './auth-device.constants';
+
+// Export all constants from auth-device-type.constants
 export {
   AUTH_DEVICE_TYPE,
-  PRIMARY_DEVICE_TYPES,
-  BROWSER_TYPES,
-  MOBILE_OS_TYPES,
-  DESKTOP_OS_TYPES,
-  BROWSER_ENGINE_TYPES,
-  DEVICE_CAPABILITIES,
-  MOBILE_DEVICE_TYPES,
-  DESKTOP_DEVICE_TYPES,
-  TOUCH_DEVICE_TYPES,
-  isPrimaryDeviceType,
-  isBrowserType,
-  isMobileOSType,
-  isDesktopOSType,
-  isBrowserEngineType,
-  isDeviceCapability,
-  getDeviceTypeLabel,
-  getDeviceTypeIcon,
-  getDeviceTypeCategory,
-  isMobileDevice,
-  isDesktopDevice,
-  isTouchDevice,
+  AUTHDEVICE_PRIMARY_TYPES,
+  AUTHDEVICE_BROWSER_TYPES,
+  AUTHDEVICE_MOBILE_OS_TYPES,
+  AUTHDEVICE_DESKTOP_OS_TYPES,
+  AUTHDEVICE_BROWSER_ENGINE_TYPES,
+  AUTHDEVICE_CAPABILITIES,
+  AUTHDEVICE_MOBILE_TYPES,
+  AUTHDEVICE_DESKTOP_TYPES,
+  AUTHDEVICE_TOUCH_TYPES,
 } from './auth-device-type.constants';
 
+// Export all types from auth-device-type.constants
 export type { AuthDeviceType } from './auth-device-type.constants';
 
-// Device Status
+// Export all functions from auth-device-type.constants
+export {
+  isAuthdevicePrimaryType,
+  isAuthdeviceBrowserType,
+  isAuthdeviceMobileOSType,
+  isAuthdeviceDesktopOSType,
+  isAuthdeviceBrowserEngineType,
+  isAuthdeviceCapability,
+  getAuthdeviceTypeLabel,
+  getAuthdeviceTypeIcon,
+  getAuthdeviceTypeCategory,
+  isAuthdeviceMobile,
+  isAuthdeviceDesktop,
+  isAuthdeviceTouch,
+} from './auth-device-type.constants';
+
+// Export all constants from auth-device-status.constants
 export {
   AUTH_DEVICE_STATUS,
-  ACTIVE_DEVICE_STATUSES,
-  INACTIVE_DEVICE_STATUSES,
-  PENDING_DEVICE_STATUSES,
-  BLOCKED_DEVICE_STATUSES,
-  SECURITY_DEVICE_STATUSES,
-  TRUSTED_DEVICE_STATUSES,
-  UNTRUSTED_DEVICE_STATUSES,
-  isDeviceActive,
-  isDeviceInactive,
-  isDevicePending,
-  isDeviceBlocked,
-  isDeviceSecurityIssue,
-  isDeviceTrusted as isDeviceTrustedStatus,
-  isDeviceUntrusted as isDeviceUntrustedStatus,
-  getDeviceStatusLabel,
-  getDeviceStatusColor,
-  getDeviceStatusPriority,
-  getDeviceStatusBadgeType,
+  AUTHDEVICE_ACTIVE_STATUSES,
+  AUTHDEVICE_INACTIVE_STATUSES,
+  AUTHDEVICE_PENDING_STATUSES,
+  AUTHDEVICE_BLOCKED_STATUSES,
+  AUTHDEVICE_SECURITY_STATUSES,
+  AUTHDEVICE_TRUSTED_STATUSES,
+  AUTHDEVICE_UNTRUSTED_STATUSES,
 } from './auth-device-status.constants';
 
+// Export all types from auth-device-status.constants
 export type { AuthDeviceStatus } from './auth-device-status.constants';
+
+// Export all functions from auth-device-status.constants
+export {
+  isAuthdeviceActive,
+  isAuthdeviceInactive,
+  isAuthdevicePending,
+  isAuthdeviceBlocked,
+  isAuthdeviceSecurityIssue,
+  isAuthdeviceTrusted as isAuthdeviceStatusTrusted,
+  isAuthdeviceUntrusted as isAuthdeviceStatusUntrusted,
+  getAuthdeviceStatusLabel,
+  getAuthdeviceStatusColor,
+  getAuthdeviceStatusPriority,
+  getAuthdeviceStatusBadgeType,
+} from './auth-device-status.constants';

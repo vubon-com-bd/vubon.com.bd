@@ -90,18 +90,18 @@ export const SEO_STRATEGY = {
 
   // Strategy Timeline
   TIMELINE: {
-    SHORT_TERM: 'short_term', // 0-3 months
-    MEDIUM_TERM: 'medium_term', // 3-6 months
-    LONG_TERM: 'long_term', // 6-12 months
-    ONGOING: 'ongoing', // 12+ months
+    SHORT_TERM: 'short_term',
+    MEDIUM_TERM: 'medium_term',
+    LONG_TERM: 'long_term',
+    ONGOING: 'ongoing',
   } as const,
 
   // Strategy Budget
   BUDGET_RANGES: {
-    LOW: 'low', // < $500/month
-    MEDIUM: 'medium', // $500-$2000/month
-    HIGH: 'high', // $2000-$5000/month
-    ENTERPRISE: 'enterprise', // $5000+/month
+    LOW: 'low',
+    MEDIUM: 'medium',
+    HIGH: 'high',
+    ENTERPRISE: 'enterprise',
   } as const,
 
   // Strategy Resources
@@ -168,49 +168,25 @@ export const SEO_STRATEGY = {
   } as const,
 } as const;
 
-// Strategy Types
 export type SEOStrategyType = (typeof SEO_STRATEGY.TYPES)[keyof typeof SEO_STRATEGY.TYPES];
-
-// Strategy Status
 export type SEOStrategyStatus = (typeof SEO_STRATEGY.STATUS)[keyof typeof SEO_STRATEGY.STATUS];
-
-// Strategy Priority
 export type SEOStrategyPriority =
   (typeof SEO_STRATEGY.PRIORITY)[keyof typeof SEO_STRATEGY.PRIORITY];
-
-// Strategy Goals
 export type SEOStrategyGoal = (typeof SEO_STRATEGY.GOALS)[keyof typeof SEO_STRATEGY.GOALS];
-
-// Strategy KPIs
 export type SEOStrategyKPI = (typeof SEO_STRATEGY.KPIS)[keyof typeof SEO_STRATEGY.KPIS];
-
-// Strategy Timeline
 export type SEOStrategyTimeline =
   (typeof SEO_STRATEGY.TIMELINE)[keyof typeof SEO_STRATEGY.TIMELINE];
-
-// Strategy Budget Range
 export type SEOStrategyBudgetRange =
   (typeof SEO_STRATEGY.BUDGET_RANGES)[keyof typeof SEO_STRATEGY.BUDGET_RANGES];
-
-// Strategy Resources
 export type SEOStrategyResource =
   (typeof SEO_STRATEGY.RESOURCES)[keyof typeof SEO_STRATEGY.RESOURCES];
-
-// Strategy Frequency
 export type SEOStrategyFrequency =
   (typeof SEO_STRATEGY.FREQUENCY)[keyof typeof SEO_STRATEGY.FREQUENCY];
-
-// Strategy Metrics
 export type SEOStrategyMetric = (typeof SEO_STRATEGY.METRICS)[keyof typeof SEO_STRATEGY.METRICS];
-
-// Strategy Risks
 export type SEOStrategyRisk = (typeof SEO_STRATEGY.RISKS)[keyof typeof SEO_STRATEGY.RISKS];
-
-// Strategy Phases
 export type SEOStrategyPhase = (typeof SEO_STRATEGY.PHASES)[keyof typeof SEO_STRATEGY.PHASES];
 
-// Utility Functions
-export function getSEOStrategyTypeLabel(type: SEOStrategyType): string {
+export function getSeostrategyTypeLabel(type: SEOStrategyType): string {
   const labels: Record<SEOStrategyType, string> = {
     [SEO_STRATEGY.TYPES.ON_PAGE]: 'On-Page SEO',
     [SEO_STRATEGY.TYPES.OFF_PAGE]: 'Off-Page SEO',
@@ -232,7 +208,7 @@ export function getSEOStrategyTypeLabel(type: SEOStrategyType): string {
   return labels[type] || 'Unknown Strategy Type';
 }
 
-export function getSEOStrategyStatusLabel(status: SEOStrategyStatus): string {
+export function getSeostrategyStatusLabel(status: SEOStrategyStatus): string {
   const labels: Record<SEOStrategyStatus, string> = {
     [SEO_STRATEGY.STATUS.DRAFT]: 'Draft',
     [SEO_STRATEGY.STATUS.PLANNING]: 'Planning',
@@ -250,7 +226,7 @@ export function getSEOStrategyStatusLabel(status: SEOStrategyStatus): string {
   return labels[status] || 'Unknown Status';
 }
 
-export function getSEOStrategyPriorityLabel(priority: SEOStrategyPriority): string {
+export function getSeostrategyPriorityLabel(priority: SEOStrategyPriority): string {
   const labels: Record<SEOStrategyPriority, string> = {
     [SEO_STRATEGY.PRIORITY.CRITICAL]: 'Critical',
     [SEO_STRATEGY.PRIORITY.HIGH]: 'High',
@@ -261,7 +237,7 @@ export function getSEOStrategyPriorityLabel(priority: SEOStrategyPriority): stri
   return labels[priority] || 'Unknown Priority';
 }
 
-export function getSEOStrategyGoalLabel(goal: SEOStrategyGoal): string {
+export function getSeostrategyGoalLabel(goal: SEOStrategyGoal): string {
   const labels: Record<SEOStrategyGoal, string> = {
     [SEO_STRATEGY.GOALS.INCREASE_TRAFFIC]: 'Increase Organic Traffic',
     [SEO_STRATEGY.GOALS.IMPROVE_RANKINGS]: 'Improve Keyword Rankings',
@@ -282,7 +258,7 @@ export function getSEOStrategyGoalLabel(goal: SEOStrategyGoal): string {
   return labels[goal] || 'Unknown Goal';
 }
 
-export function getSEOStrategyKPILabel(kpi: SEOStrategyKPI): string {
+export function getSeostrategyKPILabel(kpi: SEOStrategyKPI): string {
   const labels: Record<SEOStrategyKPI, string> = {
     [SEO_STRATEGY.KPIS.ORGANIC_TRAFFIC]: 'Organic Traffic',
     [SEO_STRATEGY.KPIS.KEYWORD_RANKINGS]: 'Keyword Rankings',
@@ -304,7 +280,7 @@ export function getSEOStrategyKPILabel(kpi: SEOStrategyKPI): string {
   return labels[kpi] || 'Unknown KPI';
 }
 
-export function getSEOStrategyTimelineLabel(timeline: SEOStrategyTimeline): string {
+export function getSeostrategyTimelineLabel(timeline: SEOStrategyTimeline): string {
   const labels: Record<SEOStrategyTimeline, string> = {
     [SEO_STRATEGY.TIMELINE.SHORT_TERM]: 'Short Term (0-3 months)',
     [SEO_STRATEGY.TIMELINE.MEDIUM_TERM]: 'Medium Term (3-6 months)',
@@ -314,7 +290,7 @@ export function getSEOStrategyTimelineLabel(timeline: SEOStrategyTimeline): stri
   return labels[timeline] || 'Unknown Timeline';
 }
 
-export function getSEOStrategyBudgetLabel(budget: SEOStrategyBudgetRange): string {
+export function getSeostrategyBudgetLabel(budget: SEOStrategyBudgetRange): string {
   const labels: Record<SEOStrategyBudgetRange, string> = {
     [SEO_STRATEGY.BUDGET_RANGES.LOW]: 'Low (< $500/month)',
     [SEO_STRATEGY.BUDGET_RANGES.MEDIUM]: 'Medium ($500-$2000/month)',
@@ -324,7 +300,7 @@ export function getSEOStrategyBudgetLabel(budget: SEOStrategyBudgetRange): strin
   return labels[budget] || 'Unknown Budget Range';
 }
 
-export function getSEOStrategyResourceLabel(resource: SEOStrategyResource): string {
+export function getSeostrategyResourceLabel(resource: SEOStrategyResource): string {
   const labels: Record<SEOStrategyResource, string> = {
     [SEO_STRATEGY.RESOURCES.INTERNAL]: 'Internal Team',
     [SEO_STRATEGY.RESOURCES.EXTERNAL]: 'External Team',
@@ -336,7 +312,7 @@ export function getSEOStrategyResourceLabel(resource: SEOStrategyResource): stri
   return labels[resource] || 'Unknown Resource Type';
 }
 
-export function getSEOStrategyPhaseLabel(phase: SEOStrategyPhase): string {
+export function getSeostrategyPhaseLabel(phase: SEOStrategyPhase): string {
   const labels: Record<SEOStrategyPhase, string> = {
     [SEO_STRATEGY.PHASES.RESEARCH]: 'Research',
     [SEO_STRATEGY.PHASES.PLANNING]: 'Planning',
@@ -349,7 +325,7 @@ export function getSEOStrategyPhaseLabel(phase: SEOStrategyPhase): string {
   return labels[phase] || 'Unknown Phase';
 }
 
-export function getSEOStrategyRiskLabel(risk: SEOStrategyRisk): string {
+export function getSeostrategyRiskLabel(risk: SEOStrategyRisk): string {
   const labels: Record<SEOStrategyRisk, string> = {
     [SEO_STRATEGY.RISKS.ALGORITHM_UPDATE]: 'Algorithm Update',
     [SEO_STRATEGY.RISKS.COMPETITOR_ACTION]: 'Competitor Action',
@@ -365,7 +341,7 @@ export function getSEOStrategyRiskLabel(risk: SEOStrategyRisk): string {
   return labels[risk] || 'Unknown Risk';
 }
 
-export function isSEOStrategyActive(status: SEOStrategyStatus): boolean {
+export function isSeostrategyActive(status: SEOStrategyStatus): boolean {
   const activeStatuses: SEOStrategyStatus[] = [
     SEO_STRATEGY.STATUS.IN_PROGRESS,
     SEO_STRATEGY.STATUS.IMPLEMENTED,
@@ -375,7 +351,7 @@ export function isSEOStrategyActive(status: SEOStrategyStatus): boolean {
   return activeStatuses.includes(status);
 }
 
-export function isSEOStrategyComplete(status: SEOStrategyStatus): boolean {
+export function isSeostrategyComplete(status: SEOStrategyStatus): boolean {
   const completeStatuses: SEOStrategyStatus[] = [
     SEO_STRATEGY.STATUS.COMPLETED,
     SEO_STRATEGY.STATUS.ARCHIVED,
@@ -383,7 +359,7 @@ export function isSEOStrategyComplete(status: SEOStrategyStatus): boolean {
   return completeStatuses.includes(status);
 }
 
-export function getSEOStrategyStatusColor(status: SEOStrategyStatus): string {
+export function getSeostrategyStatusColor(status: SEOStrategyStatus): string {
   const colors: Record<SEOStrategyStatus, string> = {
     [SEO_STRATEGY.STATUS.DRAFT]: '#9E9E9E',
     [SEO_STRATEGY.STATUS.PLANNING]: '#2196F3',

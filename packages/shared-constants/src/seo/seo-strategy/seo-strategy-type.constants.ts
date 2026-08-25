@@ -4,7 +4,6 @@
  */
 
 export const SEO_STRATEGY_TYPE = {
-  // Strategy Categories
   CATEGORIES: {
     TECHNICAL: 'technical',
     CONTENT: 'content',
@@ -18,9 +17,7 @@ export const SEO_STRATEGY_TYPE = {
     REPUTATION: 'reputation',
   } as const,
 
-  // Strategy Sub-types
   SUB_TYPES: {
-    // Technical SEO
     SITE_ARCHITECTURE: 'site_architecture',
     CRAWL_OPTIMIZATION: 'crawl_optimization',
     INDEX_OPTIMIZATION: 'index_optimization',
@@ -29,14 +26,12 @@ export const SEO_STRATEGY_TYPE = {
     STRUCTURED_DATA: 'structured_data',
     SECURITY: 'security',
 
-    // Content SEO
     CONTENT_CREATION: 'content_creation',
     CONTENT_OPTIMIZATION: 'content_optimization',
     CONTENT_DISTRIBUTION: 'content_distribution',
     CONTENT_UPGRADE: 'content_upgrade',
     CONTENT_REFRESH: 'content_refresh',
 
-    // Link Building
     OUTREACH: 'outreach',
     GUEST_POSTING: 'guest_posting',
     BROKEN_LINK: 'broken_link',
@@ -44,14 +39,12 @@ export const SEO_STRATEGY_TYPE = {
     EDITORIAL_LINKS: 'editorial_links',
     LOCAL_CITATIONS: 'local_citations',
 
-    // Local SEO
     GMB_OPTIMIZATION: 'gmb_optimization',
     LOCAL_LISTINGS: 'local_listings',
     LOCAL_CONTENT: 'local_content',
     LOCAL_BACKLINKS: 'local_backlinks',
     REVIEW_MANAGEMENT: 'review_management',
 
-    // E-commerce SEO
     PRODUCT_OPTIMIZATION: 'product_optimization',
     CATEGORY_OPTIMIZATION: 'category_optimization',
     FACETED_NAVIGATION: 'faceted_navigation',
@@ -60,7 +53,6 @@ export const SEO_STRATEGY_TYPE = {
     COMPARISON_SHOPPING: 'comparison_shopping',
   } as const,
 
-  // Strategy Approaches
   APPROACHES: {
     AGGRESSIVE: 'aggressive',
     BALANCED: 'balanced',
@@ -70,7 +62,6 @@ export const SEO_STRATEGY_TYPE = {
     BLACK_HAT: 'black_hat',
   } as const,
 
-  // Strategy Focus Areas
   FOCUS_AREAS: {
     TRAFFIC: 'traffic',
     CONVERSION: 'conversion',
@@ -81,7 +72,6 @@ export const SEO_STRATEGY_TYPE = {
     REVENUE: 'revenue',
   } as const,
 
-  // Strategy Complexity
   COMPLEXITY: {
     SIMPLE: 'simple',
     MODERATE: 'moderate',
@@ -89,7 +79,6 @@ export const SEO_STRATEGY_TYPE = {
     VERY_COMPLEX: 'very_complex',
   } as const,
 
-  // Strategy Maturity
   MATURITY: {
     NASCENT: 'nascent',
     EMERGING: 'emerging',
@@ -99,32 +88,20 @@ export const SEO_STRATEGY_TYPE = {
   } as const,
 } as const;
 
-// Strategy Categories
 export type SEOStrategyTypeCategory =
   (typeof SEO_STRATEGY_TYPE.CATEGORIES)[keyof typeof SEO_STRATEGY_TYPE.CATEGORIES];
-
-// Strategy Sub-types
 export type SEOStrategyTypeSubType =
   (typeof SEO_STRATEGY_TYPE.SUB_TYPES)[keyof typeof SEO_STRATEGY_TYPE.SUB_TYPES];
-
-// Strategy Approaches
 export type SEOStrategyTypeApproach =
   (typeof SEO_STRATEGY_TYPE.APPROACHES)[keyof typeof SEO_STRATEGY_TYPE.APPROACHES];
-
-// Strategy Focus Areas
 export type SEOStrategyTypeFocus =
   (typeof SEO_STRATEGY_TYPE.FOCUS_AREAS)[keyof typeof SEO_STRATEGY_TYPE.FOCUS_AREAS];
-
-// Strategy Complexity
 export type SEOStrategyTypeComplexity =
   (typeof SEO_STRATEGY_TYPE.COMPLEXITY)[keyof typeof SEO_STRATEGY_TYPE.COMPLEXITY];
-
-// Strategy Maturity
 export type SEOStrategyTypeMaturity =
   (typeof SEO_STRATEGY_TYPE.MATURITY)[keyof typeof SEO_STRATEGY_TYPE.MATURITY];
 
-// Utility Functions
-export function getSEOStrategyCategoryLabel(category: SEOStrategyTypeCategory): string {
+export function getSeostrategyCategoryLabel(category: SEOStrategyTypeCategory): string {
   const labels: Record<SEOStrategyTypeCategory, string> = {
     [SEO_STRATEGY_TYPE.CATEGORIES.TECHNICAL]: 'Technical SEO',
     [SEO_STRATEGY_TYPE.CATEGORIES.CONTENT]: 'Content SEO',
@@ -140,9 +117,8 @@ export function getSEOStrategyCategoryLabel(category: SEOStrategyTypeCategory): 
   return labels[category] || 'Unknown Category';
 }
 
-export function getSEOStrategySubTypeLabel(subType: SEOStrategyTypeSubType): string {
+export function getSeostrategySubTypeLabel(subType: SEOStrategyTypeSubType): string {
   const labels: Record<SEOStrategyTypeSubType, string> = {
-    // Technical SEO
     [SEO_STRATEGY_TYPE.SUB_TYPES.SITE_ARCHITECTURE]: 'Site Architecture',
     [SEO_STRATEGY_TYPE.SUB_TYPES.CRAWL_OPTIMIZATION]: 'Crawl Optimization',
     [SEO_STRATEGY_TYPE.SUB_TYPES.INDEX_OPTIMIZATION]: 'Index Optimization',
@@ -150,30 +126,22 @@ export function getSEOStrategySubTypeLabel(subType: SEOStrategyTypeSubType): str
     [SEO_STRATEGY_TYPE.SUB_TYPES.MOBILE_OPTIMIZATION]: 'Mobile Optimization',
     [SEO_STRATEGY_TYPE.SUB_TYPES.STRUCTURED_DATA]: 'Structured Data',
     [SEO_STRATEGY_TYPE.SUB_TYPES.SECURITY]: 'Security (HTTPS)',
-
-    // Content SEO
     [SEO_STRATEGY_TYPE.SUB_TYPES.CONTENT_CREATION]: 'Content Creation',
     [SEO_STRATEGY_TYPE.SUB_TYPES.CONTENT_OPTIMIZATION]: 'Content Optimization',
     [SEO_STRATEGY_TYPE.SUB_TYPES.CONTENT_DISTRIBUTION]: 'Content Distribution',
     [SEO_STRATEGY_TYPE.SUB_TYPES.CONTENT_UPGRADE]: 'Content Upgrade',
     [SEO_STRATEGY_TYPE.SUB_TYPES.CONTENT_REFRESH]: 'Content Refresh',
-
-    // Link Building
     [SEO_STRATEGY_TYPE.SUB_TYPES.OUTREACH]: 'Outreach',
     [SEO_STRATEGY_TYPE.SUB_TYPES.GUEST_POSTING]: 'Guest Posting',
     [SEO_STRATEGY_TYPE.SUB_TYPES.BROKEN_LINK]: 'Broken Link Building',
     [SEO_STRATEGY_TYPE.SUB_TYPES.RESOURCE_LINKS]: 'Resource Links',
     [SEO_STRATEGY_TYPE.SUB_TYPES.EDITORIAL_LINKS]: 'Editorial Links',
     [SEO_STRATEGY_TYPE.SUB_TYPES.LOCAL_CITATIONS]: 'Local Citations',
-
-    // Local SEO
     [SEO_STRATEGY_TYPE.SUB_TYPES.GMB_OPTIMIZATION]: 'GMB Optimization',
     [SEO_STRATEGY_TYPE.SUB_TYPES.LOCAL_LISTINGS]: 'Local Listings',
     [SEO_STRATEGY_TYPE.SUB_TYPES.LOCAL_CONTENT]: 'Local Content',
     [SEO_STRATEGY_TYPE.SUB_TYPES.LOCAL_BACKLINKS]: 'Local Backlinks',
     [SEO_STRATEGY_TYPE.SUB_TYPES.REVIEW_MANAGEMENT]: 'Review Management',
-
-    // E-commerce SEO
     [SEO_STRATEGY_TYPE.SUB_TYPES.PRODUCT_OPTIMIZATION]: 'Product Optimization',
     [SEO_STRATEGY_TYPE.SUB_TYPES.CATEGORY_OPTIMIZATION]: 'Category Optimization',
     [SEO_STRATEGY_TYPE.SUB_TYPES.FACETED_NAVIGATION]: 'Faceted Navigation',
@@ -184,7 +152,7 @@ export function getSEOStrategySubTypeLabel(subType: SEOStrategyTypeSubType): str
   return labels[subType] || 'Unknown Sub-type';
 }
 
-export function getSEOStrategyApproachLabel(approach: SEOStrategyTypeApproach): string {
+export function getSeostrategyApproachLabel(approach: SEOStrategyTypeApproach): string {
   const labels: Record<SEOStrategyTypeApproach, string> = {
     [SEO_STRATEGY_TYPE.APPROACHES.AGGRESSIVE]: 'Aggressive',
     [SEO_STRATEGY_TYPE.APPROACHES.BALANCED]: 'Balanced',
@@ -196,7 +164,7 @@ export function getSEOStrategyApproachLabel(approach: SEOStrategyTypeApproach): 
   return labels[approach] || 'Unknown Approach';
 }
 
-export function getSEOStrategyFocusLabel(focus: SEOStrategyTypeFocus): string {
+export function getSeostrategyFocusLabel(focus: SEOStrategyTypeFocus): string {
   const labels: Record<SEOStrategyTypeFocus, string> = {
     [SEO_STRATEGY_TYPE.FOCUS_AREAS.TRAFFIC]: 'Traffic Focus',
     [SEO_STRATEGY_TYPE.FOCUS_AREAS.CONVERSION]: 'Conversion Focus',
@@ -209,7 +177,7 @@ export function getSEOStrategyFocusLabel(focus: SEOStrategyTypeFocus): string {
   return labels[focus] || 'Unknown Focus Area';
 }
 
-export function getSEOStrategyComplexityLabel(complexity: SEOStrategyTypeComplexity): string {
+export function getSeostrategyComplexityLabel(complexity: SEOStrategyTypeComplexity): string {
   const labels: Record<SEOStrategyTypeComplexity, string> = {
     [SEO_STRATEGY_TYPE.COMPLEXITY.SIMPLE]: 'Simple',
     [SEO_STRATEGY_TYPE.COMPLEXITY.MODERATE]: 'Moderate',
@@ -219,7 +187,7 @@ export function getSEOStrategyComplexityLabel(complexity: SEOStrategyTypeComplex
   return labels[complexity] || 'Unknown Complexity';
 }
 
-export function getSEOStrategyMaturityLabel(maturity: SEOStrategyTypeMaturity): string {
+export function getSeostrategyMaturityLabel(maturity: SEOStrategyTypeMaturity): string {
   const labels: Record<SEOStrategyTypeMaturity, string> = {
     [SEO_STRATEGY_TYPE.MATURITY.NASCENT]: 'Nascent',
     [SEO_STRATEGY_TYPE.MATURITY.EMERGING]: 'Emerging',
@@ -230,15 +198,15 @@ export function getSEOStrategyMaturityLabel(maturity: SEOStrategyTypeMaturity): 
   return labels[maturity] || 'Unknown Maturity Level';
 }
 
-export function isWhiteHatApproach(approach: SEOStrategyTypeApproach): boolean {
+export function isSeostrategyWhiteHat(approach: SEOStrategyTypeApproach): boolean {
   return approach === SEO_STRATEGY_TYPE.APPROACHES.WHITE_HAT;
 }
 
-export function isBlackHatApproach(approach: SEOStrategyTypeApproach): boolean {
+export function isSeostrategyBlackHat(approach: SEOStrategyTypeApproach): boolean {
   return approach === SEO_STRATEGY_TYPE.APPROACHES.BLACK_HAT;
 }
 
-export function getApproachRiskLevel(approach: SEOStrategyTypeApproach): string {
+export function getSeostrategyApproachRiskLevel(approach: SEOStrategyTypeApproach): string {
   const riskLevels: Record<SEOStrategyTypeApproach, string> = {
     [SEO_STRATEGY_TYPE.APPROACHES.WHITE_HAT]: 'Low Risk',
     [SEO_STRATEGY_TYPE.APPROACHES.BALANCED]: 'Medium Risk',

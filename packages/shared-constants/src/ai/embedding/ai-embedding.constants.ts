@@ -169,31 +169,17 @@ export const AI_EMBEDDING = {
   } as const,
 } as const;
 
-// Embedding Types
 export type AIEmbeddingType = (typeof AI_EMBEDDING.TYPES)[keyof typeof AI_EMBEDDING.TYPES];
-
-// Embedding Status
 export type AIEmbeddingStatus = (typeof AI_EMBEDDING.STATUSES)[keyof typeof AI_EMBEDDING.STATUSES];
-
-// Embedding Providers
 export type AIEmbeddingProvider =
   (typeof AI_EMBEDDING.PROVIDERS)[keyof typeof AI_EMBEDDING.PROVIDERS];
-
-// Embedding Formats
 export type AIEmbeddingFormat = (typeof AI_EMBEDDING.FORMATS)[keyof typeof AI_EMBEDDING.FORMATS];
-
-// Embedding Limits
 export type AIEmbeddingLimit = (typeof AI_EMBEDDING.LIMITS)[keyof typeof AI_EMBEDDING.LIMITS];
-
-// Embedding Metrics
 export type AIEmbeddingMetric = (typeof AI_EMBEDDING.METRICS)[keyof typeof AI_EMBEDDING.METRICS];
-
-// Embedding Normalization
 export type AIEmbeddingNormalization =
   (typeof AI_EMBEDDING.NORMALIZATION)[keyof typeof AI_EMBEDDING.NORMALIZATION];
 
-// Utility Functions
-export function getEmbeddingTypeLabel(type: AIEmbeddingType): string {
+export function getAiEmbeddingTypeLabel(type: AIEmbeddingType): string {
   const labels: Record<AIEmbeddingType, string> = {
     [AI_EMBEDDING.TYPES.TEXT]: 'Text',
     [AI_EMBEDDING.TYPES.IMAGE]: 'Image',
@@ -213,7 +199,7 @@ export function getEmbeddingTypeLabel(type: AIEmbeddingType): string {
   return labels[type] || 'Unknown';
 }
 
-export function getEmbeddingStatusLabel(status: AIEmbeddingStatus): string {
+export function getAiEmbeddingStatusLabel(status: AIEmbeddingStatus): string {
   const labels: Record<AIEmbeddingStatus, string> = {
     [AI_EMBEDDING.STATUSES.PENDING]: 'Pending',
     [AI_EMBEDDING.STATUSES.GENERATING]: 'Generating',
@@ -228,7 +214,7 @@ export function getEmbeddingStatusLabel(status: AIEmbeddingStatus): string {
   return labels[status] || 'Unknown';
 }
 
-export function getEmbeddingModelLabel(model: AIEmbeddingModel): string {
+export function getAiEmbeddingModelLabel(model: AIEmbeddingModel): string {
   const labels: Record<AIEmbeddingModel, string> = {
     [AI_EMBEDDING_MODELS.OPENAI_ADA_002]: 'OpenAI Ada 002',
     [AI_EMBEDDING_MODELS.OPENAI_EMBEDDING_3_SMALL]: 'OpenAI Embedding 3 Small',
@@ -257,7 +243,7 @@ export function getEmbeddingModelLabel(model: AIEmbeddingModel): string {
   return labels[model] || 'Unknown';
 }
 
-export function getEmbeddingProviderLabel(provider: AIEmbeddingProvider): string {
+export function getAiEmbeddingProviderLabel(provider: AIEmbeddingProvider): string {
   const labels: Record<AIEmbeddingProvider, string> = {
     [AI_EMBEDDING.PROVIDERS.OPENAI]: 'OpenAI',
     [AI_EMBEDDING.PROVIDERS.COHERE]: 'Cohere',
@@ -271,7 +257,7 @@ export function getEmbeddingProviderLabel(provider: AIEmbeddingProvider): string
   return labels[provider] || 'Unknown';
 }
 
-export function getEmbeddingFormatLabel(format: AIEmbeddingFormat): string {
+export function getAiEmbeddingFormatLabel(format: AIEmbeddingFormat): string {
   const labels: Record<AIEmbeddingFormat, string> = {
     [AI_EMBEDDING.FORMATS.FLOAT32]: 'Float32',
     [AI_EMBEDDING.FORMATS.FLOAT16]: 'Float16',
@@ -282,7 +268,7 @@ export function getEmbeddingFormatLabel(format: AIEmbeddingFormat): string {
   return labels[format] || 'Unknown';
 }
 
-export function getEmbeddingMetricLabel(metric: AIEmbeddingMetric): string {
+export function getAiEmbeddingMetricLabel(metric: AIEmbeddingMetric): string {
   const labels: Record<AIEmbeddingMetric, string> = {
     [AI_EMBEDDING.METRICS.COSINE_SIMILARITY]: 'Cosine Similarity',
     [AI_EMBEDDING.METRICS.EUCLIDEAN_DISTANCE]: 'Euclidean Distance',
@@ -295,7 +281,7 @@ export function getEmbeddingMetricLabel(metric: AIEmbeddingMetric): string {
   return labels[metric] || 'Unknown';
 }
 
-export function getEmbeddingNormalizationLabel(normalization: AIEmbeddingNormalization): string {
+export function getAiEmbeddingNormalizationLabel(normalization: AIEmbeddingNormalization): string {
   const labels: Record<AIEmbeddingNormalization, string> = {
     [AI_EMBEDDING.NORMALIZATION.L2]: 'L2 Normalization',
     [AI_EMBEDDING.NORMALIZATION.L1]: 'L1 Normalization',
@@ -306,11 +292,11 @@ export function getEmbeddingNormalizationLabel(normalization: AIEmbeddingNormali
   return labels[normalization] || 'Unknown';
 }
 
-export function getEmbeddingDimension(model: AIEmbeddingModel): number {
+export function getAiEmbeddingDimension(model: AIEmbeddingModel): number {
   return AI_EMBEDDING_DIMENSIONS[model] || 0;
 }
 
-export function getEmbeddingProvider(model: AIEmbeddingModel): AIEmbeddingProvider {
+export function getAiEmbeddingProvider(model: AIEmbeddingModel): AIEmbeddingProvider {
   const providers: Record<AIEmbeddingModel, AIEmbeddingProvider> = {
     [AI_EMBEDDING_MODELS.OPENAI_ADA_002]: AI_EMBEDDING.PROVIDERS.OPENAI,
     [AI_EMBEDDING_MODELS.OPENAI_EMBEDDING_3_SMALL]: AI_EMBEDDING.PROVIDERS.OPENAI,
@@ -339,7 +325,7 @@ export function getEmbeddingProvider(model: AIEmbeddingModel): AIEmbeddingProvid
   return providers[model] || AI_EMBEDDING.PROVIDERS.CUSTOM;
 }
 
-export function isEmbeddingActive(status: AIEmbeddingStatus): boolean {
+export function isAiEmbeddingActive(status: AIEmbeddingStatus): boolean {
   const activeStatuses: AIEmbeddingStatus[] = [
     AI_EMBEDDING.STATUSES.COMPLETED,
     AI_EMBEDDING.STATUSES.CACHED,
@@ -348,7 +334,7 @@ export function isEmbeddingActive(status: AIEmbeddingStatus): boolean {
   return activeStatuses.includes(status);
 }
 
-export function isEmbeddingGenerating(status: AIEmbeddingStatus): boolean {
+export function isAiEmbeddingGenerating(status: AIEmbeddingStatus): boolean {
   const generatingStatuses: AIEmbeddingStatus[] = [
     AI_EMBEDDING.STATUSES.PENDING,
     AI_EMBEDDING.STATUSES.GENERATING,
@@ -357,7 +343,7 @@ export function isEmbeddingGenerating(status: AIEmbeddingStatus): boolean {
   return generatingStatuses.includes(status);
 }
 
-export function isEmbeddingFailed(status: AIEmbeddingStatus): boolean {
+export function isAiEmbeddingFailed(status: AIEmbeddingStatus): boolean {
   const failedStatuses: AIEmbeddingStatus[] = [
     AI_EMBEDDING.STATUSES.FAILED,
     AI_EMBEDDING.STATUSES.EXPIRED,
@@ -365,19 +351,19 @@ export function isEmbeddingFailed(status: AIEmbeddingStatus): boolean {
   return failedStatuses.includes(status);
 }
 
-export function getDefaultEmbeddingModel(): AIEmbeddingModel {
+export function getAiEmbeddingDefaultModel(): AIEmbeddingModel {
   return AI_EMBEDDING_MODELS.SBERT;
 }
 
-export function getDefaultBatchSize(): number {
+export function getAiEmbeddingDefaultBatchSize(): number {
   return AI_EMBEDDING.LIMITS.DEFAULT_BATCH_SIZE;
 }
 
-export function getMaxBatchSize(): number {
+export function getAiEmbeddingMaxBatchSize(): number {
   return AI_EMBEDDING.LIMITS.MAX_BATCH_SIZE;
 }
 
-export function calculateCosineSimilarity(a: number[], b: number[]): number {
+export function calculateAiEmbeddingCosineSimilarity(a: number[], b: number[]): number {
   if (a.length !== b.length) return 0;
   let dotProduct = 0;
   let normA = 0;
@@ -391,7 +377,7 @@ export function calculateCosineSimilarity(a: number[], b: number[]): number {
   return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
 }
 
-export function calculateEuclideanDistance(a: number[], b: number[]): number {
+export function calculateAiEmbeddingEuclideanDistance(a: number[], b: number[]): number {
   if (a.length !== b.length) return 0;
   let sum = 0;
   for (let i = 0; i < a.length; i++) {
@@ -400,7 +386,7 @@ export function calculateEuclideanDistance(a: number[], b: number[]): number {
   return Math.sqrt(sum);
 }
 
-export function calculateDotProduct(a: number[], b: number[]): number {
+export function calculateAiEmbeddingDotProduct(a: number[], b: number[]): number {
   if (a.length !== b.length) return 0;
   let sum = 0;
   for (let i = 0; i < a.length; i++) {

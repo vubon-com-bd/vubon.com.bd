@@ -4,7 +4,6 @@
  */
 
 export const AUTH_RECOVERY_CODE_STATUS = {
-  // Primary status
   ACTIVE: 'active',
   USED: 'used',
   EXPIRED: 'expired',
@@ -13,18 +12,15 @@ export const AUTH_RECOVERY_CODE_STATUS = {
   PENDING: 'pending',
   INACTIVE: 'inactive',
 
-  // Usage status
   ATTEMPTED: 'attempted',
   VERIFIED: 'verified',
   FAILED: 'failed',
   BLOCKED: 'blocked',
 
-  // Generation status
   GENERATED: 'generated',
   REGENERATED: 'regenerated',
   REPLACED: 'replaced',
 
-  // Security status
   COMPROMISED: 'compromised',
   SUSPENDED: 'suspended',
   ARCHIVED: 'archived',
@@ -33,14 +29,14 @@ export const AUTH_RECOVERY_CODE_STATUS = {
 export type AuthRecoveryCodeStatus =
   (typeof AUTH_RECOVERY_CODE_STATUS)[keyof typeof AUTH_RECOVERY_CODE_STATUS];
 
-export const ACTIVE_RECOVERY_STATUSES: AuthRecoveryCodeStatus[] = [
+export const AUTHRECOVERY_ACTIVE_STATUSES: AuthRecoveryCodeStatus[] = [
   AUTH_RECOVERY_CODE_STATUS.ACTIVE,
   AUTH_RECOVERY_CODE_STATUS.PENDING,
   AUTH_RECOVERY_CODE_STATUS.GENERATED,
   AUTH_RECOVERY_CODE_STATUS.REGENERATED,
 ];
 
-export const INACTIVE_RECOVERY_STATUSES: AuthRecoveryCodeStatus[] = [
+export const AUTHRECOVERY_INACTIVE_STATUSES: AuthRecoveryCodeStatus[] = [
   AUTH_RECOVERY_CODE_STATUS.INACTIVE,
   AUTH_RECOVERY_CODE_STATUS.EXPIRED,
   AUTH_RECOVERY_CODE_STATUS.REVOKED,
@@ -48,47 +44,47 @@ export const INACTIVE_RECOVERY_STATUSES: AuthRecoveryCodeStatus[] = [
   AUTH_RECOVERY_CODE_STATUS.SUSPENDED,
 ];
 
-export const USED_RECOVERY_STATUSES: AuthRecoveryCodeStatus[] = [
+export const AUTHRECOVERY_USED_STATUSES: AuthRecoveryCodeStatus[] = [
   AUTH_RECOVERY_CODE_STATUS.USED,
   AUTH_RECOVERY_CODE_STATUS.VERIFIED,
   AUTH_RECOVERY_CODE_STATUS.REPLACED,
 ];
 
-export const FAILED_RECOVERY_STATUSES: AuthRecoveryCodeStatus[] = [
+export const AUTHRECOVERY_FAILED_STATUSES: AuthRecoveryCodeStatus[] = [
   AUTH_RECOVERY_CODE_STATUS.FAILED,
   AUTH_RECOVERY_CODE_STATUS.LOCKED,
   AUTH_RECOVERY_CODE_STATUS.BLOCKED,
   AUTH_RECOVERY_CODE_STATUS.COMPROMISED,
 ];
 
-export const SECURITY_RECOVERY_STATUSES: AuthRecoveryCodeStatus[] = [
+export const AUTHRECOVERY_SECURITY_STATUSES: AuthRecoveryCodeStatus[] = [
   AUTH_RECOVERY_CODE_STATUS.COMPROMISED,
   AUTH_RECOVERY_CODE_STATUS.SUSPENDED,
   AUTH_RECOVERY_CODE_STATUS.BLOCKED,
   AUTH_RECOVERY_CODE_STATUS.LOCKED,
 ];
 
-export function isRecoveryCodeActive(status: AuthRecoveryCodeStatus): boolean {
-  return ACTIVE_RECOVERY_STATUSES.includes(status);
+export function isAuthrecoveryCodeActive(status: AuthRecoveryCodeStatus): boolean {
+  return AUTHRECOVERY_ACTIVE_STATUSES.includes(status);
 }
 
-export function isRecoveryCodeInactive(status: AuthRecoveryCodeStatus): boolean {
-  return INACTIVE_RECOVERY_STATUSES.includes(status);
+export function isAuthrecoveryCodeInactive(status: AuthRecoveryCodeStatus): boolean {
+  return AUTHRECOVERY_INACTIVE_STATUSES.includes(status);
 }
 
-export function isRecoveryCodeUsed(status: AuthRecoveryCodeStatus): boolean {
-  return USED_RECOVERY_STATUSES.includes(status);
+export function isAuthrecoveryCodeUsed(status: AuthRecoveryCodeStatus): boolean {
+  return AUTHRECOVERY_USED_STATUSES.includes(status);
 }
 
-export function isRecoveryCodeFailed(status: AuthRecoveryCodeStatus): boolean {
-  return FAILED_RECOVERY_STATUSES.includes(status);
+export function isAuthrecoveryCodeFailed(status: AuthRecoveryCodeStatus): boolean {
+  return AUTHRECOVERY_FAILED_STATUSES.includes(status);
 }
 
-export function isRecoveryCodeSecurityIssue(status: AuthRecoveryCodeStatus): boolean {
-  return SECURITY_RECOVERY_STATUSES.includes(status);
+export function isAuthrecoveryCodeSecurityIssue(status: AuthRecoveryCodeStatus): boolean {
+  return AUTHRECOVERY_SECURITY_STATUSES.includes(status);
 }
 
-export function getRecoveryCodeStatusPriority(status: AuthRecoveryCodeStatus): number {
+export function getAuthrecoveryCodeStatusPriority(status: AuthRecoveryCodeStatus): number {
   const priorities: Record<AuthRecoveryCodeStatus, number> = {
     [AUTH_RECOVERY_CODE_STATUS.ACTIVE]: 10,
     [AUTH_RECOVERY_CODE_STATUS.USED]: 5,
@@ -112,7 +108,7 @@ export function getRecoveryCodeStatusPriority(status: AuthRecoveryCodeStatus): n
   return priorities[status] || 5;
 }
 
-export function getRecoveryCodeStatusBadgeType(
+export function getAuthrecoveryCodeStatusBadgeType(
   status: AuthRecoveryCodeStatus
 ): 'success' | 'warning' | 'error' | 'info' | 'default' {
   const types: Record<

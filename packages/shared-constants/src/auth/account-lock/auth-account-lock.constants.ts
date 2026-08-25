@@ -5,7 +5,6 @@
 
 import { AUTH_ACCOUNT_LOCK_STATUS } from './auth-account-lock-status.constants';
 
-// Separate configuration object
 const ACCOUNT_LOCK_CONFIG = {
   MAX_LOGIN_ATTEMPTS: 5,
   MAX_FAILED_ATTEMPTS: 3,
@@ -21,7 +20,6 @@ const ACCOUNT_LOCK_CONFIG = {
   AUTO_UNLOCK_ENABLED: true,
 } as const;
 
-// Separate reasons object
 const ACCOUNT_LOCK_REASONS = {
   MAX_LOGIN_ATTEMPTS: 'max_login_attempts',
   MAX_FAILED_ATTEMPTS: 'max_failed_attempts',
@@ -40,7 +38,6 @@ const ACCOUNT_LOCK_REASONS = {
   INACTIVITY: 'inactivity',
 } as const;
 
-// Separate types object
 const ACCOUNT_LOCK_TYPES = {
   TEMPORARY: 'temporary',
   PERMANENT: 'permanent',
@@ -54,7 +51,6 @@ const ACCOUNT_LOCK_TYPES = {
   SUSPICIOUS: 'suspicious',
 } as const;
 
-// Separate events object
 const ACCOUNT_LOCK_EVENTS = {
   LOCKED: 'account:locked',
   UNLOCKED: 'account:unlocked',
@@ -68,7 +64,6 @@ const ACCOUNT_LOCK_EVENTS = {
   NOTIFIED: 'account:lock_notified',
 } as const;
 
-// Separate levels object
 const ACCOUNT_LOCK_LEVELS = {
   NONE: 0,
   LOW: 1,
@@ -78,7 +73,6 @@ const ACCOUNT_LOCK_LEVELS = {
   MAXIMUM: 5,
 } as const;
 
-// Default values
 const ACCOUNT_LOCK_DEFAULTS = {
   STATUS: AUTH_ACCOUNT_LOCK_STATUS.UNLOCKED,
   TYPE: ACCOUNT_LOCK_TYPES.TEMPORARY,
@@ -87,7 +81,6 @@ const ACCOUNT_LOCK_DEFAULTS = {
   MAX_ATTEMPTS: 5,
 } as const;
 
-// Main export object
 export const AUTH_ACCOUNT_LOCK = {
   CONFIG: ACCOUNT_LOCK_CONFIG,
   REASONS: ACCOUNT_LOCK_REASONS,
@@ -105,7 +98,7 @@ export type AuthAccountLockEvent = (typeof ACCOUNT_LOCK_EVENTS)[keyof typeof ACC
 export type AuthAccountLockLevel = (typeof ACCOUNT_LOCK_LEVELS)[keyof typeof ACCOUNT_LOCK_LEVELS];
 export type AuthAccountLockDefaults = typeof ACCOUNT_LOCK_DEFAULTS;
 
-export const LOCK_REASONS_LIST: AuthAccountLockReason[] = [
+export const AUTHLOCK_REASONS_LIST: AuthAccountLockReason[] = [
   ACCOUNT_LOCK_REASONS.MAX_LOGIN_ATTEMPTS,
   ACCOUNT_LOCK_REASONS.MAX_FAILED_ATTEMPTS,
   ACCOUNT_LOCK_REASONS.SUSPICIOUS_ACTIVITY,
@@ -123,7 +116,7 @@ export const LOCK_REASONS_LIST: AuthAccountLockReason[] = [
   ACCOUNT_LOCK_REASONS.INACTIVITY,
 ];
 
-export const LOCK_TYPES_LIST: AuthAccountLockType[] = [
+export const AUTHLOCK_TYPES_LIST: AuthAccountLockType[] = [
   ACCOUNT_LOCK_TYPES.TEMPORARY,
   ACCOUNT_LOCK_TYPES.PERMANENT,
   ACCOUNT_LOCK_TYPES.ADMIN,
@@ -136,7 +129,7 @@ export const LOCK_TYPES_LIST: AuthAccountLockType[] = [
   ACCOUNT_LOCK_TYPES.SUSPICIOUS,
 ];
 
-export const TEMPORARY_LOCK_TYPES: AuthAccountLockType[] = [
+export const AUTHLOCK_TEMPORARY_TYPES: AuthAccountLockType[] = [
   ACCOUNT_LOCK_TYPES.TEMPORARY,
   ACCOUNT_LOCK_TYPES.AUTOMATIC,
   ACCOUNT_LOCK_TYPES.IP,
@@ -145,24 +138,24 @@ export const TEMPORARY_LOCK_TYPES: AuthAccountLockType[] = [
   ACCOUNT_LOCK_TYPES.SUSPICIOUS,
 ];
 
-export const PERMANENT_LOCK_TYPES: AuthAccountLockType[] = [
+export const AUTHLOCK_PERMANENT_TYPES: AuthAccountLockType[] = [
   ACCOUNT_LOCK_TYPES.PERMANENT,
   ACCOUNT_LOCK_TYPES.ADMIN,
   ACCOUNT_LOCK_TYPES.SYSTEM,
   ACCOUNT_LOCK_TYPES.MANUAL,
 ];
 
-export const ADMIN_LOCK_TYPES: AuthAccountLockType[] = [
+export const AUTHLOCK_ADMIN_TYPES: AuthAccountLockType[] = [
   ACCOUNT_LOCK_TYPES.ADMIN,
   ACCOUNT_LOCK_TYPES.MANUAL,
 ];
 
-export const SYSTEM_LOCK_TYPES: AuthAccountLockType[] = [
+export const AUTHLOCK_SYSTEM_TYPES: AuthAccountLockType[] = [
   ACCOUNT_LOCK_TYPES.SYSTEM,
   ACCOUNT_LOCK_TYPES.AUTOMATIC,
 ];
 
-export const SECURITY_LOCK_REASONS: AuthAccountLockReason[] = [
+export const AUTHLOCK_SECURITY_REASONS: AuthAccountLockReason[] = [
   ACCOUNT_LOCK_REASONS.SECURITY_VIOLATION,
   ACCOUNT_LOCK_REASONS.COMPROMISED,
   ACCOUNT_LOCK_REASONS.SUSPICIOUS_ACTIVITY,
@@ -171,46 +164,46 @@ export const SECURITY_LOCK_REASONS: AuthAccountLockReason[] = [
   ACCOUNT_LOCK_REASONS.GEO_BLOCKED,
 ];
 
-export const POLICY_LOCK_REASONS: AuthAccountLockReason[] = [
+export const AUTHLOCK_POLICY_REASONS: AuthAccountLockReason[] = [
   ACCOUNT_LOCK_REASONS.MAX_LOGIN_ATTEMPTS,
   ACCOUNT_LOCK_REASONS.MAX_FAILED_ATTEMPTS,
   ACCOUNT_LOCK_REASONS.POLICY_VIOLATION,
   ACCOUNT_LOCK_REASONS.INACTIVITY,
 ];
 
-export function isLockReason(reason: string): reason is AuthAccountLockReason {
-  return LOCK_REASONS_LIST.includes(reason as AuthAccountLockReason);
+export function isAuthlockReason(reason: string): reason is AuthAccountLockReason {
+  return AUTHLOCK_REASONS_LIST.includes(reason as AuthAccountLockReason);
 }
 
-export function isLockType(type: string): type is AuthAccountLockType {
-  return LOCK_TYPES_LIST.includes(type as AuthAccountLockType);
+export function isAuthlockType(type: string): type is AuthAccountLockType {
+  return AUTHLOCK_TYPES_LIST.includes(type as AuthAccountLockType);
 }
 
-export function isTemporaryLock(type: AuthAccountLockType): boolean {
-  return TEMPORARY_LOCK_TYPES.includes(type);
+export function isAuthlockTemporary(type: AuthAccountLockType): boolean {
+  return AUTHLOCK_TEMPORARY_TYPES.includes(type);
 }
 
-export function isPermanentLock(type: AuthAccountLockType): boolean {
-  return PERMANENT_LOCK_TYPES.includes(type);
+export function isAuthlockPermanent(type: AuthAccountLockType): boolean {
+  return AUTHLOCK_PERMANENT_TYPES.includes(type);
 }
 
-export function isAdminLock(type: AuthAccountLockType): boolean {
-  return ADMIN_LOCK_TYPES.includes(type);
+export function isAuthlockAdmin(type: AuthAccountLockType): boolean {
+  return AUTHLOCK_ADMIN_TYPES.includes(type);
 }
 
-export function isSystemLock(type: AuthAccountLockType): boolean {
-  return SYSTEM_LOCK_TYPES.includes(type);
+export function isAuthlockSystem(type: AuthAccountLockType): boolean {
+  return AUTHLOCK_SYSTEM_TYPES.includes(type);
 }
 
-export function isSecurityLock(reason: AuthAccountLockReason): boolean {
-  return SECURITY_LOCK_REASONS.includes(reason);
+export function isAuthlockSecurity(reason: AuthAccountLockReason): boolean {
+  return AUTHLOCK_SECURITY_REASONS.includes(reason);
 }
 
-export function isPolicyLock(reason: AuthAccountLockReason): boolean {
-  return POLICY_LOCK_REASONS.includes(reason);
+export function isAuthlockPolicy(reason: AuthAccountLockReason): boolean {
+  return AUTHLOCK_POLICY_REASONS.includes(reason);
 }
 
-export function getLockReasonLabel(reason: AuthAccountLockReason): string {
+export function getAuthlockReasonLabel(reason: AuthAccountLockReason): string {
   const labels: Record<AuthAccountLockReason, string> = {
     [ACCOUNT_LOCK_REASONS.MAX_LOGIN_ATTEMPTS]: 'Maximum Login Attempts Exceeded',
     [ACCOUNT_LOCK_REASONS.MAX_FAILED_ATTEMPTS]: 'Maximum Failed Attempts Exceeded',
@@ -232,7 +225,7 @@ export function getLockReasonLabel(reason: AuthAccountLockReason): string {
   return labels[reason] || 'Unknown Reason';
 }
 
-export function getLockTypeLabel(type: AuthAccountLockType): string {
+export function getAuthlockTypeLabel(type: AuthAccountLockType): string {
   const labels: Record<AuthAccountLockType, string> = {
     [ACCOUNT_LOCK_TYPES.TEMPORARY]: 'Temporary Lock',
     [ACCOUNT_LOCK_TYPES.PERMANENT]: 'Permanent Lock',
@@ -249,7 +242,7 @@ export function getLockTypeLabel(type: AuthAccountLockType): string {
   return labels[type] || 'Unknown Type';
 }
 
-export function getLockTypeIcon(type: AuthAccountLockType): string {
+export function getAuthlockTypeIcon(type: AuthAccountLockType): string {
   const icons: Record<AuthAccountLockType, string> = {
     [ACCOUNT_LOCK_TYPES.TEMPORARY]: '⏳',
     [ACCOUNT_LOCK_TYPES.PERMANENT]: '🔒',
@@ -266,7 +259,7 @@ export function getLockTypeIcon(type: AuthAccountLockType): string {
   return icons[type] || '🔒';
 }
 
-export function getLockLevel(level: AuthAccountLockLevel): number {
+export function getAuthlockLevel(level: AuthAccountLockLevel): number {
   const levels: Record<AuthAccountLockLevel, number> = {
     [ACCOUNT_LOCK_LEVELS.NONE]: 0,
     [ACCOUNT_LOCK_LEVELS.LOW]: 1,
@@ -279,7 +272,7 @@ export function getLockLevel(level: AuthAccountLockLevel): number {
   return levels[level] || 0;
 }
 
-export function getLockLevelLabel(level: AuthAccountLockLevel): string {
+export function getAuthlockLevelLabel(level: AuthAccountLockLevel): string {
   const labels: Record<AuthAccountLockLevel, string> = {
     [ACCOUNT_LOCK_LEVELS.NONE]: 'None',
     [ACCOUNT_LOCK_LEVELS.LOW]: 'Low',
@@ -292,7 +285,7 @@ export function getLockLevelLabel(level: AuthAccountLockLevel): string {
   return labels[level] || 'Unknown';
 }
 
-export function getLockLevelColor(level: AuthAccountLockLevel): string {
+export function getAuthlockLevelColor(level: AuthAccountLockLevel): string {
   const colors: Record<AuthAccountLockLevel, string> = {
     [ACCOUNT_LOCK_LEVELS.NONE]: '#10B981',
     [ACCOUNT_LOCK_LEVELS.LOW]: '#F59E0B',
@@ -305,10 +298,10 @@ export function getLockLevelColor(level: AuthAccountLockLevel): string {
   return colors[level] || '#6B7280';
 }
 
-export function getLockDurationMinutes(type: AuthAccountLockType): number {
+export function getAuthlockDurationMinutes(type: AuthAccountLockType): number {
   const durations: Record<AuthAccountLockType, number> = {
     [ACCOUNT_LOCK_TYPES.TEMPORARY]: ACCOUNT_LOCK_CONFIG.LOCK_DURATION_MINUTES,
-    [ACCOUNT_LOCK_TYPES.PERMANENT]: -1, // Infinite
+    [ACCOUNT_LOCK_TYPES.PERMANENT]: -1,
     [ACCOUNT_LOCK_TYPES.ADMIN]: ACCOUNT_LOCK_CONFIG.LOCK_DURATION_HOURS * 60,
     [ACCOUNT_LOCK_TYPES.SYSTEM]: ACCOUNT_LOCK_CONFIG.LOCK_DURATION_MINUTES,
     [ACCOUNT_LOCK_TYPES.AUTOMATIC]: ACCOUNT_LOCK_CONFIG.LOCK_DURATION_MINUTES,
@@ -322,33 +315,33 @@ export function getLockDurationMinutes(type: AuthAccountLockType): number {
   return durations[type] || ACCOUNT_LOCK_CONFIG.LOCK_DURATION_MINUTES;
 }
 
-export function getLockMaxAttempts(): number {
+export function getAuthlockMaxAttempts(): number {
   return ACCOUNT_LOCK_CONFIG.MAX_LOGIN_ATTEMPTS;
 }
 
-export function getLockFailedAttempts(): number {
+export function getAuthlockFailedAttempts(): number {
   return ACCOUNT_LOCK_CONFIG.MAX_FAILED_ATTEMPTS;
 }
 
-export function isLockExpired(lockedAt: Date, durationMinutes: number): boolean {
-  if (durationMinutes === -1) return false; // Permanent lock never expires
+export function isAuthlockExpired(lockedAt: Date, durationMinutes: number): boolean {
+  if (durationMinutes === -1) return false;
   const lockAge = (Date.now() - lockedAt.getTime()) / (60 * 1000);
   return lockAge >= durationMinutes;
 }
 
-export function getLockRemainingMinutes(lockedAt: Date, durationMinutes: number): number {
-  if (durationMinutes === -1) return -1; // Infinite
+export function getAuthlockRemainingMinutes(lockedAt: Date, durationMinutes: number): number {
+  if (durationMinutes === -1) return -1;
   const lockAge = (Date.now() - lockedAt.getTime()) / (60 * 1000);
   return Math.max(0, durationMinutes - lockAge);
 }
 
-export function shouldAutoUnlock(lockedAt: Date, durationMinutes: number): boolean {
+export function shouldAuthlockAutoUnlock(lockedAt: Date, durationMinutes: number): boolean {
   if (!ACCOUNT_LOCK_CONFIG.AUTO_UNLOCK_ENABLED) return false;
   if (durationMinutes === -1) return false;
-  return isLockExpired(lockedAt, durationMinutes);
+  return isAuthlockExpired(lockedAt, durationMinutes);
 }
 
-export function getLockLevelFromAttempts(attempts: number): AuthAccountLockLevel {
+export function getAuthlockLevelFromAttempts(attempts: number): AuthAccountLockLevel {
   const maxAttempts = ACCOUNT_LOCK_CONFIG.MAX_LOGIN_ATTEMPTS;
   const ratio = attempts / maxAttempts;
 

@@ -5,7 +5,6 @@
 
 import { AUTH_2FA_STATUS } from './auth-2fa-status.constants';
 
-// Define TYPES first
 export const AUTH_2FA_TYPES = {
   TOTP: 'totp',
   SMS: 'sms',
@@ -20,9 +19,7 @@ export const AUTH_2FA_TYPES = {
   WHATSAPP: 'whatsapp',
 } as const;
 
-// Define CONFIG
 export const AUTH_2FA_CONFIG = {
-  // TOTP configuration
   TOTP: {
     ALGORITHM: 'SHA1',
     DIGITS: 6,
@@ -33,7 +30,6 @@ export const AUTH_2FA_CONFIG = {
     APP_NAME: 'Vubon',
   },
 
-  // SMS configuration
   SMS: {
     CODE_LENGTH: 6,
     EXPIRY_TIME: 300,
@@ -42,7 +38,6 @@ export const AUTH_2FA_CONFIG = {
     PROVIDER: 'twilio',
   },
 
-  // Email configuration
   EMAIL: {
     CODE_LENGTH: 6,
     EXPIRY_TIME: 600,
@@ -50,7 +45,6 @@ export const AUTH_2FA_CONFIG = {
     RESEND_COOLDOWN: 120,
   },
 
-  // Authenticator configuration
   AUTHENTICATOR: {
     APP_NAME: 'Vubon',
     ISSUER: 'Vubon E-Commerce',
@@ -59,7 +53,6 @@ export const AUTH_2FA_CONFIG = {
     PERIOD: 30,
   },
 
-  // Backup code configuration
   BACKUP_CODE: {
     CODE_LENGTH: 8,
     COUNT: 10,
@@ -67,7 +60,6 @@ export const AUTH_2FA_CONFIG = {
     EXPIRY_DAYS: 365,
   },
 
-  // Recovery code configuration
   RECOVERY_CODE: {
     CODE_LENGTH: 12,
     COUNT: 5,
@@ -75,7 +67,6 @@ export const AUTH_2FA_CONFIG = {
     EXPIRY_DAYS: 730,
   },
 
-  // Security configuration
   SECURITY: {
     MAX_VERIFICATION_ATTEMPTS: 5,
     LOCKOUT_DURATION: 3600,
@@ -86,7 +77,6 @@ export const AUTH_2FA_CONFIG = {
     SKIP_DURATION: 3600,
   },
 
-  // Session configuration
   SESSION: {
     TRUST_DEVICE: true,
     TRUST_DURATION: 2592000,
@@ -94,7 +84,6 @@ export const AUTH_2FA_CONFIG = {
     INACTIVITY_TIMEOUT: 1800,
   },
 
-  // Default values
   DEFAULTS: {
     STATUS: AUTH_2FA_STATUS.DISABLED,
     TYPE: AUTH_2FA_TYPES.TOTP,
@@ -103,7 +92,6 @@ export const AUTH_2FA_CONFIG = {
   },
 } as const;
 
-// Define EVENTS
 export const AUTH_2FA_EVENTS = {
   ENABLED: '2fa:enabled',
   DISABLED: '2fa:disabled',
@@ -122,7 +110,6 @@ export const AUTH_2FA_EVENTS = {
   UNLOCKED: '2fa:unlocked',
 } as const;
 
-// Main AUTH_2FA object
 export const AUTH_2FA = {
   CONFIG: AUTH_2FA_CONFIG,
   TYPES: AUTH_2FA_TYPES,
@@ -135,7 +122,7 @@ export type Auth2FAType = (typeof AUTH_2FA_TYPES)[keyof typeof AUTH_2FA_TYPES];
 export type Auth2FAEvent = (typeof AUTH_2FA_EVENTS)[keyof typeof AUTH_2FA_EVENTS];
 export type Auth2FADefaults = typeof AUTH_2FA_CONFIG.DEFAULTS;
 
-export function get2FATypeLabel(type: Auth2FAType): string {
+export function getAuth2faTypeLabel(type: Auth2FAType): string {
   const labels: Record<Auth2FAType, string> = {
     [AUTH_2FA_TYPES.TOTP]: 'Authenticator App (TOTP)',
     [AUTH_2FA_TYPES.SMS]: 'SMS Verification',
@@ -153,7 +140,7 @@ export function get2FATypeLabel(type: Auth2FAType): string {
   return labels[type] || 'Unknown Type';
 }
 
-export function get2FATypeIcon(type: Auth2FAType): string {
+export function getAuth2faTypeIcon(type: Auth2FAType): string {
   const icons: Record<Auth2FAType, string> = {
     [AUTH_2FA_TYPES.TOTP]: '📱',
     [AUTH_2FA_TYPES.SMS]: '📲',
@@ -171,7 +158,7 @@ export function get2FATypeIcon(type: Auth2FAType): string {
   return icons[type] || '🔒';
 }
 
-export function get2FATypeSecurityLevel(
+export function getAuth2faTypeSecurityLevel(
   type: Auth2FAType
 ): 'low' | 'medium' | 'high' | 'very_high' {
   const levels: Record<Auth2FAType, 'low' | 'medium' | 'high' | 'very_high'> = {
@@ -191,31 +178,31 @@ export function get2FATypeSecurityLevel(
   return levels[type] || 'medium';
 }
 
-export function getTOTPConfig() {
+export function getAuth2faTOTPConfig() {
   return AUTH_2FA_CONFIG.TOTP;
 }
 
-export function getSMSConfig() {
+export function getAuth2faSMSConfig() {
   return AUTH_2FA_CONFIG.SMS;
 }
 
-export function getEmailConfig() {
+export function getAuth2faEmailConfig() {
   return AUTH_2FA_CONFIG.EMAIL;
 }
 
-export function getAuthenticatorConfig() {
+export function getAuth2faAuthenticatorConfig() {
   return AUTH_2FA_CONFIG.AUTHENTICATOR;
 }
 
-export function getBackupCodeConfig() {
+export function getAuth2faBackupCodeConfig() {
   return AUTH_2FA_CONFIG.BACKUP_CODE;
 }
 
-export function getRecoveryCodeConfig() {
+export function getAuth2faRecoveryCodeConfig() {
   return AUTH_2FA_CONFIG.RECOVERY_CODE;
 }
 
-export function get2FACodeExpiry(type: Auth2FAType): number {
+export function getAuth2faCodeExpiry(type: Auth2FAType): number {
   const expiryMap: Record<Auth2FAType, number> = {
     [AUTH_2FA_TYPES.TOTP]: AUTH_2FA_CONFIG.TOTP.PERIOD,
     [AUTH_2FA_TYPES.SMS]: AUTH_2FA_CONFIG.SMS.EXPIRY_TIME,
@@ -233,7 +220,7 @@ export function get2FACodeExpiry(type: Auth2FAType): number {
   return expiryMap[type] || 300;
 }
 
-export function get2FAMaxAttempts(type: Auth2FAType): number {
+export function getAuth2faMaxAttempts(type: Auth2FAType): number {
   const attemptsMap: Record<Auth2FAType, number> = {
     [AUTH_2FA_TYPES.TOTP]: AUTH_2FA_CONFIG.SECURITY.MAX_VERIFICATION_ATTEMPTS,
     [AUTH_2FA_TYPES.SMS]: AUTH_2FA_CONFIG.SMS.MAX_ATTEMPTS,
@@ -251,27 +238,27 @@ export function get2FAMaxAttempts(type: Auth2FAType): number {
   return attemptsMap[type] || AUTH_2FA_CONFIG.SECURITY.MAX_VERIFICATION_ATTEMPTS;
 }
 
-export function get2FALockoutDuration(): number {
+export function getAuth2faLockoutDuration(): number {
   return AUTH_2FA_CONFIG.SECURITY.LOCKOUT_DURATION;
 }
 
-export function get2FARateLimitWindow(): number {
+export function getAuth2faRateLimitWindow(): number {
   return AUTH_2FA_CONFIG.SECURITY.RATE_LIMIT_WINDOW;
 }
 
-export function get2FAMaxRateLimitAttempts(): number {
+export function getAuth2faMaxRateLimitAttempts(): number {
   return AUTH_2FA_CONFIG.SECURITY.MAX_RATE_LIMIT_ATTEMPTS;
 }
 
-export function get2FATrustDuration(): number {
+export function getAuth2faTrustDuration(): number {
   return AUTH_2FA_CONFIG.SESSION.TRUST_DURATION;
 }
 
-export function get2FAMaxTrustedDevices(): number {
+export function getAuth2faMaxTrustedDevices(): number {
   return AUTH_2FA_CONFIG.SESSION.MAX_TRUSTED_DEVICES;
 }
 
-export function generate2FACode(length: number = 6): string {
+export function generateAuth2faCode(length: number = 6): string {
   const digits = '0123456789';
   let code = '';
   for (let i = 0; i < length; i++) {
@@ -280,7 +267,7 @@ export function generate2FACode(length: number = 6): string {
   return code;
 }
 
-export function generateBackupCodes(count: number = 10, length: number = 8): string[] {
+export function generateAuth2faBackupCodes(count: number = 10, length: number = 8): string[] {
   const alphabet = AUTH_2FA_CONFIG.BACKUP_CODE.ALPHABET;
   const codes: string[] = [];
 
@@ -295,7 +282,7 @@ export function generateBackupCodes(count: number = 10, length: number = 8): str
   return codes;
 }
 
-export function generateRecoveryCodes(count: number = 5, length: number = 12): string[] {
+export function generateAuth2faRecoveryCodes(count: number = 5, length: number = 12): string[] {
   const alphabet = AUTH_2FA_CONFIG.RECOVERY_CODE.ALPHABET;
   const codes: string[] = [];
 
@@ -310,7 +297,7 @@ export function generateRecoveryCodes(count: number = 5, length: number = 12): s
   return codes;
 }
 
-export function is2FACodeValid(code: string, type: Auth2FAType): boolean {
+export function isAuth2faCodeValid(code: string, type: Auth2FAType): boolean {
   const expectedLength =
     type === AUTH_2FA_TYPES.BACKUP_CODE
       ? AUTH_2FA_CONFIG.BACKUP_CODE.CODE_LENGTH
@@ -321,12 +308,12 @@ export function is2FACodeValid(code: string, type: Auth2FAType): boolean {
   return code.length === expectedLength && /^\d+$/.test(code);
 }
 
-export function is2FACodeExpired(createdAt: Date, expiry: number): boolean {
+export function isAuth2faCodeExpired(createdAt: Date, expiry: number): boolean {
   const age = (Date.now() - createdAt.getTime()) / 1000;
   return age > expiry;
 }
 
-export function get2FACodeRemainingTime(createdAt: Date, expiry: number): number {
+export function getAuth2faCodeRemainingTime(createdAt: Date, expiry: number): number {
   const age = (Date.now() - createdAt.getTime()) / 1000;
   return Math.max(0, expiry - age);
 }

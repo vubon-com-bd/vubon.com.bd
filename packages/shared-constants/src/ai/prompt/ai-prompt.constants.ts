@@ -174,38 +174,18 @@ export const AI_PROMPT = {
   } as const,
 } as const;
 
-// Prompt Types
 export type AIPromptType = (typeof AI_PROMPT.TYPES)[keyof typeof AI_PROMPT.TYPES];
-
-// Prompt Status
 export type AIPromptStatus = (typeof AI_PROMPT.STATUSES)[keyof typeof AI_PROMPT.STATUSES];
-
-// Prompt Categories
 export type AIPromptCategory = (typeof AI_PROMPT.CATEGORIES)[keyof typeof AI_PROMPT.CATEGORIES];
-
-// Prompt Formats
 export type AIPromptFormat = (typeof AI_PROMPT.FORMATS)[keyof typeof AI_PROMPT.FORMATS];
-
-// Prompt Variables
 export type AIPromptVariable = (typeof AI_PROMPT.VARIABLES)[keyof typeof AI_PROMPT.VARIABLES];
-
-// Prompt Templates
 export type AIPromptTemplate = (typeof AI_PROMPT.TEMPLATES)[keyof typeof AI_PROMPT.TEMPLATES];
-
-// Prompt Parameters
 export type AIPromptParameter = (typeof AI_PROMPT.PARAMETERS)[keyof typeof AI_PROMPT.PARAMETERS];
-
-// Prompt Defaults
 export type AIPromptDefault = (typeof AI_PROMPT.DEFAULTS)[keyof typeof AI_PROMPT.DEFAULTS];
-
-// Prompt Limits
 export type AIPromptLimit = (typeof AI_PROMPT.LIMITS)[keyof typeof AI_PROMPT.LIMITS];
-
-// Prompt Metrics
 export type AIPromptMetric = (typeof AI_PROMPT.METRICS)[keyof typeof AI_PROMPT.METRICS];
 
-// Utility Functions
-export function getPromptTypeLabel(type: AIPromptType): string {
+export function getAiPromptTypeLabel(type: AIPromptType): string {
   const labels: Record<AIPromptType, string> = {
     [AI_PROMPT.TYPES.SYSTEM]: 'System',
     [AI_PROMPT.TYPES.USER]: 'User',
@@ -226,7 +206,7 @@ export function getPromptTypeLabel(type: AIPromptType): string {
   return labels[type] || 'Unknown';
 }
 
-export function getPromptStatusLabel(status: AIPromptStatus): string {
+export function getAiPromptStatusLabel(status: AIPromptStatus): string {
   const labels: Record<AIPromptStatus, string> = {
     [AI_PROMPT.STATUSES.DRAFT]: 'Draft',
     [AI_PROMPT.STATUSES.PENDING]: 'Pending',
@@ -242,7 +222,7 @@ export function getPromptStatusLabel(status: AIPromptStatus): string {
   return labels[status] || 'Unknown';
 }
 
-export function getPromptCategoryLabel(category: AIPromptCategory): string {
+export function getAiPromptCategoryLabel(category: AIPromptCategory): string {
   const labels: Record<AIPromptCategory, string> = {
     [AI_PROMPT.CATEGORIES.GENERATION]: 'Generation',
     [AI_PROMPT.CATEGORIES.CLASSIFICATION]: 'Classification',
@@ -262,7 +242,7 @@ export function getPromptCategoryLabel(category: AIPromptCategory): string {
   return labels[category] || 'Unknown';
 }
 
-export function getPromptFormatLabel(format: AIPromptFormat): string {
+export function getAiPromptFormatLabel(format: AIPromptFormat): string {
   const labels: Record<AIPromptFormat, string> = {
     [AI_PROMPT.FORMATS.TEXT]: 'Text',
     [AI_PROMPT.FORMATS.JSON]: 'JSON',
@@ -283,7 +263,7 @@ export function getPromptFormatLabel(format: AIPromptFormat): string {
   return labels[format] || 'Unknown';
 }
 
-export function getPromptTemplateLabel(template: AIPromptTemplate): string {
+export function getAiPromptTemplateLabel(template: AIPromptTemplate): string {
   const labels: Record<AIPromptTemplate, string> = {
     [AI_PROMPT.TEMPLATES.SYSTEM_DEFAULT]: 'System Default',
     [AI_PROMPT.TEMPLATES.SYSTEM_ASSISTANT]: 'System Assistant',
@@ -306,7 +286,7 @@ export function getPromptTemplateLabel(template: AIPromptTemplate): string {
   return labels[template] || 'Unknown';
 }
 
-export function getPromptParameterLabel(parameter: AIPromptParameter): string {
+export function getAiPromptParameterLabel(parameter: AIPromptParameter): string {
   const labels: Record<AIPromptParameter, string> = {
     [AI_PROMPT.PARAMETERS.TEMPERATURE]: 'Temperature',
     [AI_PROMPT.PARAMETERS.MAX_TOKENS]: 'Max Tokens',
@@ -322,7 +302,7 @@ export function getPromptParameterLabel(parameter: AIPromptParameter): string {
   return labels[parameter] || 'Unknown';
 }
 
-export function getPromptMetricLabel(metric: AIPromptMetric): string {
+export function getAiPromptMetricLabel(metric: AIPromptMetric): string {
   const labels: Record<AIPromptMetric, string> = {
     [AI_PROMPT.METRICS.TOKEN_COUNT]: 'Token Count',
     [AI_PROMPT.METRICS.CHARACTER_COUNT]: 'Character Count',
@@ -338,7 +318,7 @@ export function getPromptMetricLabel(metric: AIPromptMetric): string {
   return labels[metric] || 'Unknown';
 }
 
-export function isPromptActive(status: AIPromptStatus): boolean {
+export function isAiPromptActive(status: AIPromptStatus): boolean {
   const activeStatuses: AIPromptStatus[] = [
     AI_PROMPT.STATUSES.APPROVED,
     AI_PROMPT.STATUSES.PUBLISHED,
@@ -348,7 +328,7 @@ export function isPromptActive(status: AIPromptStatus): boolean {
   return activeStatuses.includes(status);
 }
 
-export function isPromptAvailable(status: AIPromptStatus): boolean {
+export function isAiPromptAvailable(status: AIPromptStatus): boolean {
   const availableStatuses: AIPromptStatus[] = [
     AI_PROMPT.STATUSES.APPROVED,
     AI_PROMPT.STATUSES.PUBLISHED,
@@ -357,7 +337,7 @@ export function isPromptAvailable(status: AIPromptStatus): boolean {
   return availableStatuses.includes(status);
 }
 
-export function isPromptDeprecated(status: AIPromptStatus): boolean {
+export function isAiPromptDeprecated(status: AIPromptStatus): boolean {
   const deprecatedStatuses: AIPromptStatus[] = [
     AI_PROMPT.STATUSES.DEPRECATED,
     AI_PROMPT.STATUSES.ARCHIVED,
@@ -365,22 +345,22 @@ export function isPromptDeprecated(status: AIPromptStatus): boolean {
   return deprecatedStatuses.includes(status);
 }
 
-export function getDefaultTemperature(): number {
+export function getAiPromptDefaultTemperature(): number {
   return AI_PROMPT.DEFAULTS.TEMPERATURE;
 }
 
-export function getDefaultMaxTokens(): number {
+export function getAiPromptDefaultMaxTokens(): number {
   return AI_PROMPT.DEFAULTS.MAX_TOKENS;
 }
 
-export function getDefaultTopP(): number {
+export function getAiPromptDefaultTopP(): number {
   return AI_PROMPT.DEFAULTS.TOP_P;
 }
 
-export function getDefaultTopK(): number {
+export function getAiPromptDefaultTopK(): number {
   return AI_PROMPT.DEFAULTS.TOP_K;
 }
 
-export function getPromptLimit(key: keyof typeof AI_PROMPT.LIMITS): number {
+export function getAiPromptLimit(key: keyof typeof AI_PROMPT.LIMITS): number {
   return AI_PROMPT.LIMITS[key] || 0;
 }

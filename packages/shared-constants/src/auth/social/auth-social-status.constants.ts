@@ -4,7 +4,6 @@
  */
 
 export const AUTH_SOCIAL_STATUS = {
-  // Primary status
   PENDING: 'pending',
   ACTIVE: 'active',
   INACTIVE: 'inactive',
@@ -12,39 +11,34 @@ export const AUTH_SOCIAL_STATUS = {
   REVOKED: 'revoked',
   BLOCKED: 'blocked',
 
-  // Authentication status
   AUTHENTICATED: 'authenticated',
   UNAUTHENTICATED: 'unauthenticated',
   AUTHENTICATION_PENDING: 'authentication_pending',
   AUTHENTICATION_FAILED: 'authentication_failed',
 
-  // Token status
   TOKEN_VALID: 'token_valid',
   TOKEN_EXPIRED: 'token_expired',
   TOKEN_REVOKED: 'token_revoked',
   TOKEN_REFRESHED: 'token_refreshed',
 
-  // Verification status
   VERIFIED: 'verified',
   UNVERIFIED: 'unverified',
   VERIFICATION_PENDING: 'verification_pending',
   VERIFICATION_FAILED: 'verification_failed',
 
-  // Linking status
   LINKED: 'linked',
   UNLINKED: 'unlinked',
   LINKING_PENDING: 'linking_pending',
   LINKING_FAILED: 'linking_failed',
 
-  // Security status
   SECURE: 'secure',
   SUSPICIOUS: 'suspicious',
   COMPROMISED: 'compromised',
 } as const;
 
-export type AuthSocialStatus = (typeof AUTH_SOCIAL_STATUS)[keyof typeof AUTH_SOCIAL_STATUS];
+export type AuthsocialStatus = (typeof AUTH_SOCIAL_STATUS)[keyof typeof AUTH_SOCIAL_STATUS];
 
-export const ACTIVE_STATUSES: AuthSocialStatus[] = [
+export const AUTHSOCIAL_ACTIVE_STATUSES: AuthsocialStatus[] = [
   AUTH_SOCIAL_STATUS.ACTIVE,
   AUTH_SOCIAL_STATUS.AUTHENTICATED,
   AUTH_SOCIAL_STATUS.TOKEN_VALID,
@@ -53,14 +47,14 @@ export const ACTIVE_STATUSES: AuthSocialStatus[] = [
   AUTH_SOCIAL_STATUS.SECURE,
 ];
 
-export const PENDING_STATUSES: AuthSocialStatus[] = [
+export const AUTHSOCIAL_PENDING_STATUSES: AuthsocialStatus[] = [
   AUTH_SOCIAL_STATUS.PENDING,
   AUTH_SOCIAL_STATUS.AUTHENTICATION_PENDING,
   AUTH_SOCIAL_STATUS.VERIFICATION_PENDING,
   AUTH_SOCIAL_STATUS.LINKING_PENDING,
 ];
 
-export const INACTIVE_STATUSES: AuthSocialStatus[] = [
+export const AUTHSOCIAL_INACTIVE_STATUSES: AuthsocialStatus[] = [
   AUTH_SOCIAL_STATUS.INACTIVE,
   AUTH_SOCIAL_STATUS.EXPIRED,
   AUTH_SOCIAL_STATUS.REVOKED,
@@ -71,65 +65,65 @@ export const INACTIVE_STATUSES: AuthSocialStatus[] = [
   AUTH_SOCIAL_STATUS.UNLINKED,
 ];
 
-export const FAILED_STATUSES: AuthSocialStatus[] = [
+export const AUTHSOCIAL_FAILED_STATUSES: AuthsocialStatus[] = [
   AUTH_SOCIAL_STATUS.AUTHENTICATION_FAILED,
   AUTH_SOCIAL_STATUS.VERIFICATION_FAILED,
   AUTH_SOCIAL_STATUS.LINKING_FAILED,
   AUTH_SOCIAL_STATUS.BLOCKED,
 ];
 
-export const SECURITY_STATUSES: AuthSocialStatus[] = [
+export const AUTHSOCIAL_SECURITY_STATUSES: AuthsocialStatus[] = [
   AUTH_SOCIAL_STATUS.SUSPICIOUS,
   AUTH_SOCIAL_STATUS.COMPROMISED,
 ];
 
-export const TOKEN_STATUSES: AuthSocialStatus[] = [
+export const AUTHSOCIAL_TOKEN_STATUSES: AuthsocialStatus[] = [
   AUTH_SOCIAL_STATUS.TOKEN_VALID,
   AUTH_SOCIAL_STATUS.TOKEN_EXPIRED,
   AUTH_SOCIAL_STATUS.TOKEN_REVOKED,
   AUTH_SOCIAL_STATUS.TOKEN_REFRESHED,
 ];
 
-export const LINKED_VERIFIED_STATUSES: AuthSocialStatus[] = [
+export const AUTHSOCIAL_LINKED_VERIFIED_STATUSES: AuthsocialStatus[] = [
   AUTH_SOCIAL_STATUS.VERIFIED,
   AUTH_SOCIAL_STATUS.AUTHENTICATED,
   AUTH_SOCIAL_STATUS.LINKED,
 ];
 
-export function isSocialActive(status: AuthSocialStatus): boolean {
-  return ACTIVE_STATUSES.includes(status);
+export function isAuthsocialActive(status: AuthsocialStatus): boolean {
+  return AUTHSOCIAL_ACTIVE_STATUSES.includes(status);
 }
 
-export function isSocialPending(status: AuthSocialStatus): boolean {
-  return PENDING_STATUSES.includes(status);
+export function isAuthsocialPending(status: AuthsocialStatus): boolean {
+  return AUTHSOCIAL_PENDING_STATUSES.includes(status);
 }
 
-export function isSocialInactive(status: AuthSocialStatus): boolean {
-  return INACTIVE_STATUSES.includes(status);
+export function isAuthsocialInactive(status: AuthsocialStatus): boolean {
+  return AUTHSOCIAL_INACTIVE_STATUSES.includes(status);
 }
 
-export function isSocialFailed(status: AuthSocialStatus): boolean {
-  return FAILED_STATUSES.includes(status);
+export function isAuthsocialFailed(status: AuthsocialStatus): boolean {
+  return AUTHSOCIAL_FAILED_STATUSES.includes(status);
 }
 
-export function isSocialSecurityIssue(status: AuthSocialStatus): boolean {
-  return SECURITY_STATUSES.includes(status);
+export function isAuthsocialSecurityIssue(status: AuthsocialStatus): boolean {
+  return AUTHSOCIAL_SECURITY_STATUSES.includes(status);
 }
 
-export function isSocialTokenStatus(status: AuthSocialStatus): boolean {
-  return TOKEN_STATUSES.includes(status);
+export function isAuthsocialTokenStatus(status: AuthsocialStatus): boolean {
+  return AUTHSOCIAL_TOKEN_STATUSES.includes(status);
 }
 
-export function isSocialLinked(status: AuthSocialStatus): boolean {
-  return LINKED_VERIFIED_STATUSES.includes(status);
+export function isAuthsocialLinked(status: AuthsocialStatus): boolean {
+  return AUTHSOCIAL_LINKED_VERIFIED_STATUSES.includes(status);
 }
 
-export function isSocialVerified(status: AuthSocialStatus): boolean {
-  return LINKED_VERIFIED_STATUSES.includes(status);
+export function isAuthsocialVerified(status: AuthsocialStatus): boolean {
+  return AUTHSOCIAL_LINKED_VERIFIED_STATUSES.includes(status);
 }
 
-export function getSocialStatusLabel(status: AuthSocialStatus): string {
-  const labels: Record<AuthSocialStatus, string> = {
+export function getAuthsocialStatusLabel(status: AuthsocialStatus): string {
+  const labels: Record<AuthsocialStatus, string> = {
     [AUTH_SOCIAL_STATUS.PENDING]: 'Pending',
     [AUTH_SOCIAL_STATUS.ACTIVE]: 'Active',
     [AUTH_SOCIAL_STATUS.INACTIVE]: 'Inactive',
@@ -160,8 +154,8 @@ export function getSocialStatusLabel(status: AuthSocialStatus): string {
   return labels[status] || 'Unknown Status';
 }
 
-export function getSocialStatusColor(status: AuthSocialStatus): string {
-  const colors: Record<AuthSocialStatus, string> = {
+export function getAuthsocialStatusColor(status: AuthsocialStatus): string {
+  const colors: Record<AuthsocialStatus, string> = {
     [AUTH_SOCIAL_STATUS.PENDING]: '#F59E0B',
     [AUTH_SOCIAL_STATUS.ACTIVE]: '#10B981',
     [AUTH_SOCIAL_STATUS.INACTIVE]: '#6B7280',
@@ -192,8 +186,8 @@ export function getSocialStatusColor(status: AuthSocialStatus): string {
   return colors[status] || '#6B7280';
 }
 
-export function getSocialStatusPriority(status: AuthSocialStatus): number {
-  const priorities: Record<AuthSocialStatus, number> = {
+export function getAuthsocialStatusPriority(status: AuthsocialStatus): number {
+  const priorities: Record<AuthsocialStatus, number> = {
     [AUTH_SOCIAL_STATUS.PENDING]: 5,
     [AUTH_SOCIAL_STATUS.ACTIVE]: 10,
     [AUTH_SOCIAL_STATUS.INACTIVE]: 3,
@@ -224,10 +218,10 @@ export function getSocialStatusPriority(status: AuthSocialStatus): number {
   return priorities[status] || 5;
 }
 
-export function getSocialStatusBadgeType(
-  status: AuthSocialStatus
+export function getAuthsocialStatusBadgeType(
+  status: AuthsocialStatus
 ): 'success' | 'warning' | 'error' | 'info' | 'default' {
-  const types: Record<AuthSocialStatus, 'success' | 'warning' | 'error' | 'info' | 'default'> = {
+  const types: Record<AuthsocialStatus, 'success' | 'warning' | 'error' | 'info' | 'default'> = {
     [AUTH_SOCIAL_STATUS.PENDING]: 'warning',
     [AUTH_SOCIAL_STATUS.ACTIVE]: 'success',
     [AUTH_SOCIAL_STATUS.INACTIVE]: 'default',

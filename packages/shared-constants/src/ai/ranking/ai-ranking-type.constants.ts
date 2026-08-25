@@ -83,30 +83,18 @@ export const AI_RANKING_TYPE = {
   } as const,
 } as const;
 
-// Ranking Categories
 export type AIRankingCategory =
   (typeof AI_RANKING_TYPE.CATEGORIES)[keyof typeof AI_RANKING_TYPE.CATEGORIES];
-
-// Ranking Sub-Types
 export type AIRankingSubType =
   (typeof AI_RANKING_TYPE.SUB_TYPES)[keyof typeof AI_RANKING_TYPE.SUB_TYPES];
-
-// Ranking Levels
 export type AIRankingLevel = (typeof AI_RANKING_TYPE.LEVELS)[keyof typeof AI_RANKING_TYPE.LEVELS];
-
-// Ranking Scopes
 export type AIRankingScope = (typeof AI_RANKING_TYPE.SCOPES)[keyof typeof AI_RANKING_TYPE.SCOPES];
-
-// Ranking Priorities
 export type AIRankingPriority =
   (typeof AI_RANKING_TYPE.PRIORITIES)[keyof typeof AI_RANKING_TYPE.PRIORITIES];
-
-// Ranking Methods
 export type AIRankingMethod =
   (typeof AI_RANKING_TYPE.METHODS)[keyof typeof AI_RANKING_TYPE.METHODS];
 
-// Utility Functions
-export function getRankingCategoryLabel(category: AIRankingCategory): string {
+export function getAiRankingCategoryLabel(category: AIRankingCategory): string {
   const labels: Record<AIRankingCategory, string> = {
     [AI_RANKING_TYPE.CATEGORIES.PRODUCT]: 'Product',
     [AI_RANKING_TYPE.CATEGORIES.CONTENT]: 'Content',
@@ -122,7 +110,7 @@ export function getRankingCategoryLabel(category: AIRankingCategory): string {
   return labels[category] || 'Unknown';
 }
 
-export function getRankingSubTypeLabel(subType: AIRankingSubType): string {
+export function getAiRankingSubTypeLabel(subType: AIRankingSubType): string {
   const labels: Record<AIRankingSubType, string> = {
     [AI_RANKING_TYPE.SUB_TYPES.PRODUCT_RELEVANCE]: 'Product Relevance',
     [AI_RANKING_TYPE.SUB_TYPES.PRODUCT_POPULARITY]: 'Product Popularity',
@@ -145,7 +133,7 @@ export function getRankingSubTypeLabel(subType: AIRankingSubType): string {
   return labels[subType] || 'Unknown';
 }
 
-export function getRankingLevelLabel(level: AIRankingLevel): string {
+export function getAiRankingLevelLabel(level: AIRankingLevel): string {
   const labels: Record<AIRankingLevel, string> = {
     [AI_RANKING_TYPE.LEVELS.GLOBAL]: 'Global',
     [AI_RANKING_TYPE.LEVELS.CATEGORY]: 'Category',
@@ -157,7 +145,7 @@ export function getRankingLevelLabel(level: AIRankingLevel): string {
   return labels[level] || 'Unknown';
 }
 
-export function getRankingScopeLabel(scope: AIRankingScope): string {
+export function getAiRankingScopeLabel(scope: AIRankingScope): string {
   const labels: Record<AIRankingScope, string> = {
     [AI_RANKING_TYPE.SCOPES.PERSONAL]: 'Personal',
     [AI_RANKING_TYPE.SCOPES.PUBLIC]: 'Public',
@@ -168,7 +156,7 @@ export function getRankingScopeLabel(scope: AIRankingScope): string {
   return labels[scope] || 'Unknown';
 }
 
-export function getRankingPriorityLabel(priority: AIRankingPriority): string {
+export function getAiRankingPriorityLabel(priority: AIRankingPriority): string {
   const labels: Record<AIRankingPriority, string> = {
     [AI_RANKING_TYPE.PRIORITIES.CRITICAL]: 'Critical',
     [AI_RANKING_TYPE.PRIORITIES.HIGH]: 'High',
@@ -179,7 +167,7 @@ export function getRankingPriorityLabel(priority: AIRankingPriority): string {
   return labels[priority] || 'Unknown';
 }
 
-export function getRankingMethodLabel(method: AIRankingMethod): string {
+export function getAiRankingMethodLabel(method: AIRankingMethod): string {
   const labels: Record<AIRankingMethod, string> = {
     [AI_RANKING_TYPE.METHODS.POINT_WISE]: 'Point Wise',
     [AI_RANKING_TYPE.METHODS.PAIR_WISE]: 'Pair Wise',

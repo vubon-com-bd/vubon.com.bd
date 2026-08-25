@@ -10,7 +10,7 @@ export const AI_INSIGHT_STATUS_TYPES = {
   QUEUED: 'queued',
   PENDING: 'pending',
 
-  // Discovery States
+  // Processing States
   DISCOVERING: 'discovering',
   ANALYZING: 'analyzing',
   GENERATING: 'generating',
@@ -23,13 +23,15 @@ export const AI_INSIGHT_STATUS_TYPES = {
   VALIDATED: 'validated',
   OPTIMIZED: 'optimized',
 
-  // Delivery States
-  DELIVERING: 'delivering',
-  DELIVERED: 'delivered',
+  // Storage States
+  STORING: 'storing',
+  STORED: 'stored',
+  CACHING: 'caching',
   CACHED: 'cached',
 
   // Terminal States
   COMPLETED: 'completed',
+  DELIVERED: 'delivered',
   FAILED: 'failed',
   EXPIRED: 'expired',
   ARCHIVED: 'archived',
@@ -46,9 +48,10 @@ export const AI_INSIGHT_STATUS = {
   CATEGORIES: {
     PENDING: 'pending',
     PROCESSING: 'processing',
-    DELIVERED: 'delivered',
     COMPLETED: 'completed',
+    DELIVERED: 'delivered',
     FAILED: 'failed',
+    CACHED: 'cached',
   } as const,
 
   // Status Severity
@@ -73,30 +76,26 @@ export const AI_INSIGHT_STATUS = {
     [AI_INSIGHT_STATUS_TYPES.GENERATED]: '#green',
     [AI_INSIGHT_STATUS_TYPES.VALIDATED]: '#green',
     [AI_INSIGHT_STATUS_TYPES.OPTIMIZED]: '#green',
-    [AI_INSIGHT_STATUS_TYPES.DELIVERING]: '#orange',
-    [AI_INSIGHT_STATUS_TYPES.DELIVERED]: '#green',
+    [AI_INSIGHT_STATUS_TYPES.STORING]: '#orange',
+    [AI_INSIGHT_STATUS_TYPES.STORED]: '#green',
+    [AI_INSIGHT_STATUS_TYPES.CACHING]: '#orange',
     [AI_INSIGHT_STATUS_TYPES.CACHED]: '#green',
     [AI_INSIGHT_STATUS_TYPES.COMPLETED]: '#green',
+    [AI_INSIGHT_STATUS_TYPES.DELIVERED]: '#green',
     [AI_INSIGHT_STATUS_TYPES.FAILED]: '#red',
     [AI_INSIGHT_STATUS_TYPES.EXPIRED]: '#gray',
     [AI_INSIGHT_STATUS_TYPES.ARCHIVED]: '#gray',
   } as const,
 } as const;
 
-// Status Categories
 export type AIInsightStatusCategory =
   (typeof AI_INSIGHT_STATUS.CATEGORIES)[keyof typeof AI_INSIGHT_STATUS.CATEGORIES];
-
-// Status Severity
 export type AIInsightStatusSeverity =
   (typeof AI_INSIGHT_STATUS.SEVERITY)[keyof typeof AI_INSIGHT_STATUS.SEVERITY];
-
-// Status Colors
 export type AIInsightStatusColor =
   (typeof AI_INSIGHT_STATUS.COLORS)[keyof typeof AI_INSIGHT_STATUS.COLORS];
 
-// Utility Functions
-export function getInsightStatusLabel(status: AIInsightStatusType): string {
+export function getAiInsightStatusLabel(status: AIInsightStatusType): string {
   const labels: Record<AIInsightStatusType, string> = {
     [AI_INSIGHT_STATUS_TYPES.CREATED]: 'Created',
     [AI_INSIGHT_STATUS_TYPES.QUEUED]: 'Queued',
@@ -110,10 +109,12 @@ export function getInsightStatusLabel(status: AIInsightStatusType): string {
     [AI_INSIGHT_STATUS_TYPES.GENERATED]: 'Generated',
     [AI_INSIGHT_STATUS_TYPES.VALIDATED]: 'Validated',
     [AI_INSIGHT_STATUS_TYPES.OPTIMIZED]: 'Optimized',
-    [AI_INSIGHT_STATUS_TYPES.DELIVERING]: 'Delivering',
-    [AI_INSIGHT_STATUS_TYPES.DELIVERED]: 'Delivered',
+    [AI_INSIGHT_STATUS_TYPES.STORING]: 'Storing',
+    [AI_INSIGHT_STATUS_TYPES.STORED]: 'Stored',
+    [AI_INSIGHT_STATUS_TYPES.CACHING]: 'Caching',
     [AI_INSIGHT_STATUS_TYPES.CACHED]: 'Cached',
     [AI_INSIGHT_STATUS_TYPES.COMPLETED]: 'Completed',
+    [AI_INSIGHT_STATUS_TYPES.DELIVERED]: 'Delivered',
     [AI_INSIGHT_STATUS_TYPES.FAILED]: 'Failed',
     [AI_INSIGHT_STATUS_TYPES.EXPIRED]: 'Expired',
     [AI_INSIGHT_STATUS_TYPES.ARCHIVED]: 'Archived',
@@ -121,7 +122,7 @@ export function getInsightStatusLabel(status: AIInsightStatusType): string {
   return labels[status] || 'Unknown';
 }
 
-export function getInsightStatusCategory(status: AIInsightStatusType): AIInsightStatusCategory {
+export function getAiInsightStatusCategory(status: AIInsightStatusType): AIInsightStatusCategory {
   const categories: Record<AIInsightStatusType, AIInsightStatusCategory> = {
     [AI_INSIGHT_STATUS_TYPES.CREATED]: AI_INSIGHT_STATUS.CATEGORIES.PENDING,
     [AI_INSIGHT_STATUS_TYPES.QUEUED]: AI_INSIGHT_STATUS.CATEGORIES.PENDING,
@@ -135,10 +136,12 @@ export function getInsightStatusCategory(status: AIInsightStatusType): AIInsight
     [AI_INSIGHT_STATUS_TYPES.GENERATED]: AI_INSIGHT_STATUS.CATEGORIES.PROCESSING,
     [AI_INSIGHT_STATUS_TYPES.VALIDATED]: AI_INSIGHT_STATUS.CATEGORIES.PROCESSING,
     [AI_INSIGHT_STATUS_TYPES.OPTIMIZED]: AI_INSIGHT_STATUS.CATEGORIES.PROCESSING,
-    [AI_INSIGHT_STATUS_TYPES.DELIVERING]: AI_INSIGHT_STATUS.CATEGORIES.DELIVERED,
-    [AI_INSIGHT_STATUS_TYPES.DELIVERED]: AI_INSIGHT_STATUS.CATEGORIES.DELIVERED,
-    [AI_INSIGHT_STATUS_TYPES.CACHED]: AI_INSIGHT_STATUS.CATEGORIES.DELIVERED,
+    [AI_INSIGHT_STATUS_TYPES.STORING]: AI_INSIGHT_STATUS.CATEGORIES.PROCESSING,
+    [AI_INSIGHT_STATUS_TYPES.STORED]: AI_INSIGHT_STATUS.CATEGORIES.COMPLETED,
+    [AI_INSIGHT_STATUS_TYPES.CACHING]: AI_INSIGHT_STATUS.CATEGORIES.PROCESSING,
+    [AI_INSIGHT_STATUS_TYPES.CACHED]: AI_INSIGHT_STATUS.CATEGORIES.CACHED,
     [AI_INSIGHT_STATUS_TYPES.COMPLETED]: AI_INSIGHT_STATUS.CATEGORIES.COMPLETED,
+    [AI_INSIGHT_STATUS_TYPES.DELIVERED]: AI_INSIGHT_STATUS.CATEGORIES.DELIVERED,
     [AI_INSIGHT_STATUS_TYPES.FAILED]: AI_INSIGHT_STATUS.CATEGORIES.FAILED,
     [AI_INSIGHT_STATUS_TYPES.EXPIRED]: AI_INSIGHT_STATUS.CATEGORIES.FAILED,
     [AI_INSIGHT_STATUS_TYPES.ARCHIVED]: AI_INSIGHT_STATUS.CATEGORIES.COMPLETED,
@@ -146,7 +149,7 @@ export function getInsightStatusCategory(status: AIInsightStatusType): AIInsight
   return categories[status] || AI_INSIGHT_STATUS.CATEGORIES.PENDING;
 }
 
-export function getInsightStatusSeverity(status: AIInsightStatusType): AIInsightStatusSeverity {
+export function getAiInsightStatusSeverity(status: AIInsightStatusType): AIInsightStatusSeverity {
   const severities: Record<AIInsightStatusType, AIInsightStatusSeverity> = {
     [AI_INSIGHT_STATUS_TYPES.CREATED]: AI_INSIGHT_STATUS.SEVERITY.INFO,
     [AI_INSIGHT_STATUS_TYPES.QUEUED]: AI_INSIGHT_STATUS.SEVERITY.INFO,
@@ -160,10 +163,12 @@ export function getInsightStatusSeverity(status: AIInsightStatusType): AIInsight
     [AI_INSIGHT_STATUS_TYPES.GENERATED]: AI_INSIGHT_STATUS.SEVERITY.INFO,
     [AI_INSIGHT_STATUS_TYPES.VALIDATED]: AI_INSIGHT_STATUS.SEVERITY.INFO,
     [AI_INSIGHT_STATUS_TYPES.OPTIMIZED]: AI_INSIGHT_STATUS.SEVERITY.INFO,
-    [AI_INSIGHT_STATUS_TYPES.DELIVERING]: AI_INSIGHT_STATUS.SEVERITY.INFO,
-    [AI_INSIGHT_STATUS_TYPES.DELIVERED]: AI_INSIGHT_STATUS.SEVERITY.INFO,
+    [AI_INSIGHT_STATUS_TYPES.STORING]: AI_INSIGHT_STATUS.SEVERITY.INFO,
+    [AI_INSIGHT_STATUS_TYPES.STORED]: AI_INSIGHT_STATUS.SEVERITY.INFO,
+    [AI_INSIGHT_STATUS_TYPES.CACHING]: AI_INSIGHT_STATUS.SEVERITY.INFO,
     [AI_INSIGHT_STATUS_TYPES.CACHED]: AI_INSIGHT_STATUS.SEVERITY.INFO,
     [AI_INSIGHT_STATUS_TYPES.COMPLETED]: AI_INSIGHT_STATUS.SEVERITY.INFO,
+    [AI_INSIGHT_STATUS_TYPES.DELIVERED]: AI_INSIGHT_STATUS.SEVERITY.INFO,
     [AI_INSIGHT_STATUS_TYPES.FAILED]: AI_INSIGHT_STATUS.SEVERITY.ERROR,
     [AI_INSIGHT_STATUS_TYPES.EXPIRED]: AI_INSIGHT_STATUS.SEVERITY.WARNING,
     [AI_INSIGHT_STATUS_TYPES.ARCHIVED]: AI_INSIGHT_STATUS.SEVERITY.INFO,
@@ -171,11 +176,11 @@ export function getInsightStatusSeverity(status: AIInsightStatusType): AIInsight
   return severities[status] || AI_INSIGHT_STATUS.SEVERITY.INFO;
 }
 
-export function getInsightStatusColor(status: AIInsightStatusType): AIInsightStatusColor {
+export function getAiInsightStatusColor(status: AIInsightStatusType): AIInsightStatusColor {
   return AI_INSIGHT_STATUS.COLORS[status] || '#gray';
 }
 
-export function isInsightActive(status: AIInsightStatusType): boolean {
+export function isAiInsightActiveStatus(status: AIInsightStatusType): boolean {
   const activeStatuses: AIInsightStatusType[] = [
     AI_INSIGHT_STATUS_TYPES.CREATED,
     AI_INSIGHT_STATUS_TYPES.QUEUED,
@@ -189,28 +194,24 @@ export function isInsightActive(status: AIInsightStatusType): boolean {
     AI_INSIGHT_STATUS_TYPES.GENERATED,
     AI_INSIGHT_STATUS_TYPES.VALIDATED,
     AI_INSIGHT_STATUS_TYPES.OPTIMIZED,
-    AI_INSIGHT_STATUS_TYPES.DELIVERING,
+    AI_INSIGHT_STATUS_TYPES.STORING,
+    AI_INSIGHT_STATUS_TYPES.CACHING,
   ];
   return activeStatuses.includes(status);
 }
 
-export function isInsightDelivered(status: AIInsightStatusType): boolean {
-  const deliveredStatuses: AIInsightStatusType[] = [
-    AI_INSIGHT_STATUS_TYPES.DELIVERED,
-    AI_INSIGHT_STATUS_TYPES.CACHED,
-  ];
-  return deliveredStatuses.includes(status);
-}
-
-export function isInsightCompleted(status: AIInsightStatusType): boolean {
+export function isAiInsightCompleted(status: AIInsightStatusType): boolean {
   const completedStatuses: AIInsightStatusType[] = [
     AI_INSIGHT_STATUS_TYPES.COMPLETED,
+    AI_INSIGHT_STATUS_TYPES.DELIVERED,
+    AI_INSIGHT_STATUS_TYPES.STORED,
+    AI_INSIGHT_STATUS_TYPES.CACHED,
     AI_INSIGHT_STATUS_TYPES.ARCHIVED,
   ];
   return completedStatuses.includes(status);
 }
 
-export function isInsightFailed(status: AIInsightStatusType): boolean {
+export function isAiInsightFailedStatus(status: AIInsightStatusType): boolean {
   const failedStatuses: AIInsightStatusType[] = [
     AI_INSIGHT_STATUS_TYPES.FAILED,
     AI_INSIGHT_STATUS_TYPES.EXPIRED,
@@ -218,24 +219,26 @@ export function isInsightFailed(status: AIInsightStatusType): boolean {
   return failedStatuses.includes(status);
 }
 
-export function getInsightStatusProgress(status: AIInsightStatusType): number {
+export function getAiInsightStatusProgress(status: AIInsightStatusType): number {
   const progress: Record<AIInsightStatusType, number> = {
     [AI_INSIGHT_STATUS_TYPES.CREATED]: 0,
     [AI_INSIGHT_STATUS_TYPES.QUEUED]: 5,
     [AI_INSIGHT_STATUS_TYPES.PENDING]: 10,
     [AI_INSIGHT_STATUS_TYPES.DISCOVERING]: 25,
     [AI_INSIGHT_STATUS_TYPES.ANALYZING]: 40,
-    [AI_INSIGHT_STATUS_TYPES.GENERATING]: 60,
+    [AI_INSIGHT_STATUS_TYPES.GENERATING]: 55,
     [AI_INSIGHT_STATUS_TYPES.VALIDATING]: 70,
     [AI_INSIGHT_STATUS_TYPES.DISCOVERED]: 30,
-    [AI_INSIGHT_STATUS_TYPES.ANALYZED]: 50,
-    [AI_INSIGHT_STATUS_TYPES.GENERATED]: 65,
+    [AI_INSIGHT_STATUS_TYPES.ANALYZED]: 45,
+    [AI_INSIGHT_STATUS_TYPES.GENERATED]: 60,
     [AI_INSIGHT_STATUS_TYPES.VALIDATED]: 75,
-    [AI_INSIGHT_STATUS_TYPES.OPTIMIZED]: 85,
-    [AI_INSIGHT_STATUS_TYPES.DELIVERING]: 90,
-    [AI_INSIGHT_STATUS_TYPES.DELIVERED]: 95,
+    [AI_INSIGHT_STATUS_TYPES.OPTIMIZED]: 80,
+    [AI_INSIGHT_STATUS_TYPES.STORING]: 85,
+    [AI_INSIGHT_STATUS_TYPES.STORED]: 88,
+    [AI_INSIGHT_STATUS_TYPES.CACHING]: 92,
     [AI_INSIGHT_STATUS_TYPES.CACHED]: 95,
     [AI_INSIGHT_STATUS_TYPES.COMPLETED]: 100,
+    [AI_INSIGHT_STATUS_TYPES.DELIVERED]: 100,
     [AI_INSIGHT_STATUS_TYPES.FAILED]: 0,
     [AI_INSIGHT_STATUS_TYPES.EXPIRED]: 0,
     [AI_INSIGHT_STATUS_TYPES.ARCHIVED]: 100,

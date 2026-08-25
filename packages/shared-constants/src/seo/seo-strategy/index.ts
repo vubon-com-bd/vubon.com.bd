@@ -1,24 +1,7 @@
-/**
- * SEO Strategy Constants Index
- * Export all SEO strategy constants and types for easy importing
- */
+// Export all constants from seo-strategy.constants
+export { SEO_STRATEGY } from './seo-strategy.constants';
 
-// SEO Strategy Constants
-export {
-  SEO_STRATEGY,
-  getSEOStrategyTypeLabel,
-  getSEOStrategyStatusLabel,
-  getSEOStrategyPriorityLabel,
-  getSEOStrategyGoalLabel,
-  getSEOStrategyKPILabel,
-  getSEOStrategyTimelineLabel,
-  getSEOStrategyBudgetLabel,
-  getSEOStrategyResourceLabel,
-  getSEOStrategyPhaseLabel,
-  isSEOStrategyActive,
-  isSEOStrategyComplete,
-} from './seo-strategy.constants';
-
+// Export all types from seo-strategy.constants
 export type {
   SEOStrategyType,
   SEOStrategyStatus,
@@ -34,20 +17,27 @@ export type {
   SEOStrategyPhase,
 } from './seo-strategy.constants';
 
-// SEO Strategy Type Constants
+// Export all functions from seo-strategy.constants
 export {
-  SEO_STRATEGY_TYPE,
-  getSEOStrategyCategoryLabel,
-  getSEOStrategySubTypeLabel,
-  getSEOStrategyApproachLabel,
-  getSEOStrategyFocusLabel,
-  getSEOStrategyComplexityLabel,
-  getSEOStrategyMaturityLabel,
-  isWhiteHatApproach,
-  isBlackHatApproach,
-  getApproachRiskLevel,
-} from './seo-strategy-type.constants';
+  getSeostrategyTypeLabel,
+  getSeostrategyStatusLabel,
+  getSeostrategyPriorityLabel,
+  getSeostrategyGoalLabel,
+  getSeostrategyKPILabel,
+  getSeostrategyTimelineLabel,
+  getSeostrategyBudgetLabel,
+  getSeostrategyResourceLabel,
+  getSeostrategyPhaseLabel,
+  getSeostrategyRiskLabel,
+  isSeostrategyActive,
+  isSeostrategyComplete,
+  getSeostrategyStatusColor,
+} from './seo-strategy.constants';
 
+// Export all constants from seo-strategy-type.constants
+export { SEO_STRATEGY_TYPE } from './seo-strategy-type.constants';
+
+// Export all types from seo-strategy-type.constants
 export type {
   SEOStrategyTypeCategory,
   SEOStrategyTypeSubType,
@@ -57,22 +47,23 @@ export type {
   SEOStrategyTypeMaturity,
 } from './seo-strategy-type.constants';
 
-// SEO Strategy Status Constants
+// Export all functions from seo-strategy-type.constants
 export {
-  SEO_STRATEGY_STATUS,
-  getSEOStrategyLifecycleLabel,
-  getSEOStrategyExecutionLabel,
-  getSEOStrategyHealthLabel,
-  getSEOStrategyProgressLabel,
-  getSEOStrategyQualityLabel,
-  getSEOStrategyStatusRiskLabel,
-  getSEOStrategyStatusCategory,
-  getSEOStrategyStatusColorCode,
-  isStrategyActive,
-  isStrategyComplete,
-  getProgressPercentage,
-} from './seo-strategy-status.constants';
+  getSeostrategyCategoryLabel,
+  getSeostrategySubTypeLabel,
+  getSeostrategyApproachLabel,
+  getSeostrategyFocusLabel,
+  getSeostrategyComplexityLabel,
+  getSeostrategyMaturityLabel,
+  isSeostrategyWhiteHat,
+  isSeostrategyBlackHat,
+  getSeostrategyApproachRiskLevel,
+} from './seo-strategy-type.constants';
 
+// Export all constants from seo-strategy-status.constants
+export { SEO_STRATEGY_STATUS } from './seo-strategy-status.constants';
+
+// Export all types from seo-strategy-status.constants
 export type {
   SEOStrategyLifecycleStatus,
   SEOStrategyExecutionStatus,
@@ -81,4 +72,19 @@ export type {
   SEOStrategyQualityStatus,
   SEOStrategyRiskStatus,
   SEOStrategyStatusCategory,
+} from './seo-strategy-status.constants';
+
+// Export all functions from seo-strategy-status.constants
+export {
+  getSeostrategyLifecycleLabel,
+  getSeostrategyExecutionLabel,
+  getSeostrategyHealthLabel,
+  getSeostrategyProgressLabel,
+  getSeostrategyQualityLabel,
+  getSeostrategyRiskLabel as getSeostrategyStatusRiskLabel,
+  getSeostrategyStatusCategory,
+  getSeostrategyStatusColorCode,
+  isSeostrategyActive as isSeostrategyStatusActive,
+  isSeostrategyComplete as isSeostrategyStatusComplete,
+  getSeostrategyProgressPercentage,
 } from './seo-strategy-status.constants';

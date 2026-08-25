@@ -155,60 +155,36 @@ export const AI_MODEL_TYPE = {
 
   // Model Memory Requirements
   MEMORY_REQUIREMENTS: {
-    TINY: 1024, // 1GB
-    SMALL: 4096, // 4GB
-    MEDIUM: 8192, // 8GB
-    LARGE: 16384, // 16GB
-    XLARGE: 32768, // 32GB
-    XXLARGE: 65536, // 64GB
+    TINY: 1024,
+    SMALL: 4096,
+    MEDIUM: 8192,
+    LARGE: 16384,
+    XLARGE: 32768,
+    XXLARGE: 65536,
   } as const,
 } as const;
 
-// Architecture Types
 export type AIModelArchitecture =
   (typeof AI_MODEL_TYPE.ARCHITECTURES)[keyof typeof AI_MODEL_TYPE.ARCHITECTURES];
-
-// Task Types
 export type AIModelTask = (typeof AI_MODEL_TYPE.TASKS)[keyof typeof AI_MODEL_TYPE.TASKS];
-
-// Model Families
 export type AIModelFamily = (typeof AI_MODEL_TYPE.FAMILIES)[keyof typeof AI_MODEL_TYPE.FAMILIES];
-
-// Specializations
 export type AIModelSpecialization =
   (typeof AI_MODEL_TYPE.SPECIALIZATIONS)[keyof typeof AI_MODEL_TYPE.SPECIALIZATIONS];
-
-// Fine-tuning Types
 export type AIFineTuningType =
   (typeof AI_MODEL_TYPE.FINE_TUNING_TYPES)[keyof typeof AI_MODEL_TYPE.FINE_TUNING_TYPES];
-
-// Model Formats
 export type AIModelFormat = (typeof AI_MODEL_TYPE.FORMATS)[keyof typeof AI_MODEL_TYPE.FORMATS];
-
-// Training Paradigms
 export type AITrainingParadigm =
   (typeof AI_MODEL_TYPE.TRAINING_PARADIGMS)[keyof typeof AI_MODEL_TYPE.TRAINING_PARADIGMS];
-
-// Model States
 export type AIModelState = (typeof AI_MODEL_TYPE.STATES)[keyof typeof AI_MODEL_TYPE.STATES];
-
-// Lifecycle Stages
 export type AIModelLifecycleStage =
   (typeof AI_MODEL_TYPE.LIFECYCLE_STAGES)[keyof typeof AI_MODEL_TYPE.LIFECYCLE_STAGES];
-
-// Quantization Types
 export type AIQuantizationType =
   (typeof AI_MODEL_TYPE.QUANTIZATION_TYPES)[keyof typeof AI_MODEL_TYPE.QUANTIZATION_TYPES];
-
-// Memory Requirements
 export type AIMemoryRequirement =
   (typeof AI_MODEL_TYPE.MEMORY_REQUIREMENTS)[keyof typeof AI_MODEL_TYPE.MEMORY_REQUIREMENTS];
-
-// Import AIModelSize from ai-model.constants
 export type AIModelSize = (typeof AI_MODEL.SIZES)[keyof typeof AI_MODEL.SIZES];
 
-// Utility Functions
-export function getMemoryRequirement(size: AIModelSize): number {
+export function getAiModelMemoryRequirement(size: AIModelSize): number {
   const requirements: Record<AIModelSize, number> = {
     [AI_MODEL.SIZES.TINY]: AI_MODEL_TYPE.MEMORY_REQUIREMENTS.TINY,
     [AI_MODEL.SIZES.SMALL]: AI_MODEL_TYPE.MEMORY_REQUIREMENTS.SMALL,
@@ -220,7 +196,7 @@ export function getMemoryRequirement(size: AIModelSize): number {
   return requirements[size] || AI_MODEL_TYPE.MEMORY_REQUIREMENTS.MEDIUM;
 }
 
-export function isLanguageModel(task: AIModelTask): boolean {
+export function isAiModelLanguageModel(task: AIModelTask): boolean {
   const languageTasks: AIModelTask[] = [
     AI_MODEL_TYPE.TASKS.TEXT_CLASSIFICATION,
     AI_MODEL_TYPE.TASKS.TOKEN_CLASSIFICATION,
@@ -234,7 +210,7 @@ export function isLanguageModel(task: AIModelTask): boolean {
   return languageTasks.includes(task);
 }
 
-export function isVisionModel(task: AIModelTask): boolean {
+export function isAiModelVisionModel(task: AIModelTask): boolean {
   const visionTasks: AIModelTask[] = [
     AI_MODEL_TYPE.TASKS.IMAGE_CLASSIFICATION,
     AI_MODEL_TYPE.TASKS.OBJECT_DETECTION,
@@ -246,7 +222,7 @@ export function isVisionModel(task: AIModelTask): boolean {
   return visionTasks.includes(task);
 }
 
-export function isAudioModel(task: AIModelTask): boolean {
+export function isAiModelAudioModel(task: AIModelTask): boolean {
   const audioTasks: AIModelTask[] = [
     AI_MODEL_TYPE.TASKS.SPEECH_RECOGNITION,
     AI_MODEL_TYPE.TASKS.SPEECH_SYNTHESIS,
@@ -255,7 +231,9 @@ export function isAudioModel(task: AIModelTask): boolean {
   return audioTasks.includes(task);
 }
 
-export function getFamilyFromArchitecture(architecture: AIModelArchitecture): AIModelFamily | null {
+export function getAiModelFamilyFromArchitecture(
+  architecture: AIModelArchitecture
+): AIModelFamily | null {
   const familyMap: Partial<Record<AIModelArchitecture, AIModelFamily>> = {
     [AI_MODEL_TYPE.ARCHITECTURES.TRANSFORMER]: AI_MODEL_TYPE.FAMILIES.GPT,
     [AI_MODEL_TYPE.ARCHITECTURES.DIFFUSION]: AI_MODEL_TYPE.FAMILIES.GPT,
@@ -267,7 +245,7 @@ export function getFamilyFromArchitecture(architecture: AIModelArchitecture): AI
   return familyMap[architecture] || null;
 }
 
-export function isModelReady(state: AIModelState): boolean {
+export function isAiModelReady(state: AIModelState): boolean {
   const readyStates: AIModelState[] = [
     AI_MODEL_TYPE.STATES.LOADED,
     AI_MODEL_TYPE.STATES.TRAINED,
@@ -278,7 +256,7 @@ export function isModelReady(state: AIModelState): boolean {
   return readyStates.includes(state);
 }
 
-export function isModelTraining(state: AIModelState): boolean {
+export function isAiModelTraining(state: AIModelState): boolean {
   const trainingStates: AIModelState[] = [
     AI_MODEL_TYPE.STATES.TRAINING,
     AI_MODEL_TYPE.STATES.VALIDATING,
@@ -288,7 +266,7 @@ export function isModelTraining(state: AIModelState): boolean {
   return trainingStates.includes(state);
 }
 
-export function getQuantizationPrecision(quantizationType: AIQuantizationType): number {
+export function getAiModelQuantizationPrecision(quantizationType: AIQuantizationType): number {
   const precisionMap: Record<AIQuantizationType, number> = {
     [AI_MODEL_TYPE.QUANTIZATION_TYPES.FP32]: 32,
     [AI_MODEL_TYPE.QUANTIZATION_TYPES.FP16]: 16,

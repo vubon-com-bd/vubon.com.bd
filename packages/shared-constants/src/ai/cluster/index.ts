@@ -1,29 +1,30 @@
 /**
- * AI Cluster Constants Index
- * Export all cluster constants and types for easy importing
+ * AI Cluster Index
+ * Export all AI cluster constants and types for easy importing
  */
 
-// AI Cluster Constants
+// Export all constants from ai-cluster.constants
 export {
   AI_CLUSTER,
-  getClusterTypeLabel,
-  getClusterStatusLabel,
-  getClusterCategoryLabel,
-  getClusterAlgorithmLabel,
-  getClusterMetricLabel,
-  getClusterDistanceMetricLabel,
-  getClusterQualityLabel,
-  isClusterActive,
-  isClusterProcessing,
-  isClusterFailed,
-  getDefaultClusters,
-  getDefaultIterations,
-  getDefaultEpsilon,
-  getDefaultMinPts,
-  getAlgorithmCategory,
-  getQualityScore,
+  getAiClusterTypeLabel,
+  getAiClusterStatusLabel as getAiClusterStatusLabelBasic,
+  getAiClusterCategoryLabel,
+  getAiClusterAlgorithmLabel,
+  getAiClusterMetricLabel,
+  getAiClusterDistanceMetricLabel,
+  getAiClusterQualityLabel,
+  isAiClusterActive,
+  isAiClusterProcessing,
+  isAiClusterFailed,
+  getAiClusterDefaultClusters,
+  getAiClusterDefaultIterations,
+  getAiClusterDefaultEpsilon,
+  getAiClusterDefaultMinPts,
+  getAiClusterAlgorithmCategory,
+  getAiClusterQualityScore,
 } from './ai-cluster.constants';
 
+// Export all types from ai-cluster.constants
 export type {
   AIClusterType,
   AIClusterStatus,
@@ -37,18 +38,19 @@ export type {
   AIClusterFormat,
 } from './ai-cluster.constants';
 
-// AI Cluster Type Constants
+// Export all constants from ai-cluster-type.constants
 export {
   AI_CLUSTER_TYPE,
-  getClusterDomainLabel,
-  getClusterSubTypeLabel,
-  getClusterShapeLabel,
-  getClusterSizeLabel,
-  getClusterDensityLabel,
-  getClusterSeparabilityLabel,
-  getClusterSizeThreshold,
+  getAiClusterDomainLabel,
+  getAiClusterSubTypeLabel,
+  getAiClusterShapeLabel,
+  getAiClusterSizeLabel,
+  getAiClusterDensityLabel,
+  getAiClusterSeparabilityLabel,
+  getAiClusterSizeThreshold,
 } from './ai-cluster-type.constants';
 
+// Export all types from ai-cluster-type.constants
 export type {
   AIClusterDomain,
   AIClusterSubType,
@@ -58,20 +60,21 @@ export type {
   AIClusterSeparability,
 } from './ai-cluster-type.constants';
 
-// AI Cluster Status Constants
+// Export all constants from ai-cluster-status.constants
 export {
-  AI_CLUSTER_STATUS,
   AI_CLUSTER_STATUS_TYPES,
-  getClusterStatusLabel as getClusterStatusLabel2,
-  getClusterStatusCategory,
-  getClusterStatusSeverity,
-  getClusterStatusColor,
-  isClusterActive as isClusterActive2,
-  isClusterCompleted,
-  isClusterFailed as isClusterFailed2,
-  getClusterStatusProgress,
+  AI_CLUSTER_STATUS,
+  getAiClusterStatusLabel,
+  getAiClusterStatusCategory,
+  getAiClusterStatusSeverity,
+  getAiClusterStatusColor,
+  isAiClusterActive as isAiClusterActiveStatus,
+  isAiClusterCompleted,
+  isAiClusterFailed as isAiClusterFailedStatus,
+  getAiClusterStatusProgress,
 } from './ai-cluster-status.constants';
 
+// Export all types from ai-cluster-status.constants
 export type {
   AIClusterStatusType,
   AIClusterStatusCategory,

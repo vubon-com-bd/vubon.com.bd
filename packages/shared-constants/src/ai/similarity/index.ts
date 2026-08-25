@@ -1,30 +1,31 @@
 /**
- * AI Similarity Constants Index
- * Export all similarity constants and types for easy importing
+ * AI Similarity Index
+ * Export all AI similarity constants and types for easy importing
  */
 
-// AI Similarity Constants
+// Export all constants from ai-similarity.constants
 export {
   AI_SIMILARITY,
-  getSimilarityTypeLabel,
-  getSimilarityStatusLabel,
-  getSimilarityCategoryLabel,
-  getSimilarityAlgorithmLabel,
-  getSimilarityThresholdLabel,
-  getSimilarityFormatLabel,
-  getSimilarityNormalizationLabel,
-  isSimilarityActive,
-  isSimilarityCalculating,
-  isSimilarityFailed,
-  getDefaultThreshold,
-  getDefaultTopK,
-  getMaxTopK,
-  normalizeScore,
-  denormalizeScore,
-  getSimilarityRange,
-  getAlgorithmForType,
+  getAiSimilarityTypeLabel,
+  getAiSimilarityStatusLabel,
+  getAiSimilarityCategoryLabel,
+  getAiSimilarityAlgorithmLabel,
+  getAiSimilarityThresholdLabel,
+  getAiSimilarityFormatLabel,
+  getAiSimilarityNormalizationLabel,
+  isAiSimilarityActive,
+  isAiSimilarityCalculating,
+  isAiSimilarityFailed,
+  getAiSimilarityDefaultThreshold,
+  getAiSimilarityDefaultTopK,
+  getAiSimilarityMaxTopK,
+  normalizeAiSimilarityScore,
+  denormalizeAiSimilarityScore,
+  getAiSimilarityRange,
+  getAiSimilarityAlgorithmForType,
 } from './ai-similarity.constants';
 
+// Export all types from ai-similarity.constants
 export type {
   AISimilarityType,
   AISimilarityStatus,
@@ -38,19 +39,20 @@ export type {
   AISimilarityNormalization,
 } from './ai-similarity.constants';
 
-// AI Similarity Type Constants
+// Export all constants from ai-similarity-type.constants
 export {
   AI_SIMILARITY_TYPE,
-  getSimilarityDomainLabel,
-  getSimilaritySubTypeLabel,
-  getSimilarityLevelLabel,
-  getSimilarityConfidenceLabel,
-  getSimilarityPrecisionLabel,
-  getSimilarityUseCaseLabel,
-  getLevelThreshold,
-  getConfidenceScore,
+  getAiSimilarityDomainLabel,
+  getAiSimilaritySubTypeLabel,
+  getAiSimilarityLevelLabel,
+  getAiSimilarityConfidenceLabel,
+  getAiSimilarityPrecisionLabel,
+  getAiSimilarityUseCaseLabel,
+  getAiSimilarityLevelThreshold,
+  getAiSimilarityConfidenceScore,
 } from './ai-similarity-type.constants';
 
+// Export all types from ai-similarity-type.constants
 export type {
   AISimilarityDomain,
   AISimilaritySubType,
@@ -60,20 +62,21 @@ export type {
   AISimilarityUseCase,
 } from './ai-similarity-type.constants';
 
-// AI Similarity Status Constants
+// Export all constants from ai-similarity-status.constants
 export {
-  AI_SIMILARITY_STATUS,
   AI_SIMILARITY_STATUS_TYPES,
-  getSimilarityStatusLabel as getSimilarityStatusLabel2,
-  getSimilarityStatusCategory,
-  getSimilarityStatusSeverity,
-  getSimilarityStatusColor,
-  isSimilarityActive as isSimilarityActive2,
-  isSimilarityCompleted,
-  isSimilarityFailed as isSimilarityFailed2,
-  getSimilarityStatusProgress,
+  AI_SIMILARITY_STATUS,
+  getAiSimilarityStatusLabel as getAiSimilarityStatusLabelDetailed,
+  getAiSimilarityStatusCategory,
+  getAiSimilarityStatusSeverity,
+  getAiSimilarityStatusColor,
+  isAiSimilarityActiveStatus,
+  isAiSimilarityCompleted,
+  isAiSimilarityFailedStatus,
+  getAiSimilarityStatusProgress,
 } from './ai-similarity-status.constants';
 
+// Export all types from ai-similarity-status.constants
 export type {
   AISimilarityStatusType,
   AISimilarityStatusCategory,

@@ -1,32 +1,33 @@
 /**
- * AI Vector Constants Index
- * Export all vector constants and types for easy importing
+ * AI Vector Index
+ * Export all AI vector constants and types for easy importing
  */
 
-// AI Vector Constants
+// Export all constants from ai-vector.constants
 export {
   AI_VECTOR,
-  getVectorTypeLabel,
-  getVectorStatusLabel,
-  getVectorDBTypeLabel,
-  getVectorIndexTypeLabel,
-  getVectorDistanceMetricLabel,
-  getVectorStorageFormatLabel,
-  getVectorOperationLabel,
-  getVectorMetricLabel,
-  getVectorNormalizationLabel,
-  isVectorActive,
-  isVectorGenerating,
-  isVectorFailed,
-  getDefaultDimension,
-  getDefaultTopK,
-  getDefaultBatchSize,
-  getDefaultDistanceMetric,
-  getDefaultIndexType,
-  getIndexTypeCompatibility,
-  getDistanceMetricForType,
+  getAiVectorTypeLabel,
+  getAiVectorStatusLabel,
+  getAiVectorDBTypeLabel,
+  getAiVectorIndexTypeLabel,
+  getAiVectorDistanceMetricLabel,
+  getAiVectorStorageFormatLabel,
+  getAiVectorOperationLabel,
+  getAiVectorMetricLabel,
+  getAiVectorNormalizationLabel,
+  isAiVectorActive,
+  isAiVectorGenerating,
+  isAiVectorFailed,
+  getAiVectorDefaultDimension,
+  getAiVectorDefaultTopK,
+  getAiVectorDefaultBatchSize,
+  getAiVectorDefaultDistanceMetric,
+  getAiVectorDefaultIndexType,
+  getAiVectorIndexTypeCompatibility,
+  getAiVectorDistanceMetricForType,
 } from './ai-vector.constants';
 
+// Export all types from ai-vector.constants
 export type {
   AIVectorType,
   AIVectorStatus,
@@ -41,19 +42,20 @@ export type {
   AIVectorDefault,
 } from './ai-vector.constants';
 
-// AI Vector Type Constants
+// Export all constants from ai-vector-type.constants
 export {
   AI_VECTOR_TYPE,
-  getVectorCategoryLabel,
-  getVectorSubTypeLabel,
-  getVectorDimensionTypeLabel,
-  getVectorPrecisionLabel,
-  getVectorDensityLabel,
-  getVectorGenerationMethodLabel,
-  getDimensionRange,
-  getPrecisionScore,
+  getAiVectorCategoryLabel,
+  getAiVectorSubTypeLabel,
+  getAiVectorDimensionTypeLabel,
+  getAiVectorPrecisionLabel,
+  getAiVectorDensityLabel,
+  getAiVectorGenerationMethodLabel,
+  getAiVectorDimensionRange,
+  getAiVectorPrecisionScore,
 } from './ai-vector-type.constants';
 
+// Export all types from ai-vector-type.constants
 export type {
   AIVectorCategory,
   AIVectorSubType,
@@ -63,21 +65,22 @@ export type {
   AIVectorGenerationMethod,
 } from './ai-vector-type.constants';
 
-// AI Vector Status Constants
+// Export all constants from ai-vector-status.constants
 export {
-  AI_VECTOR_STATUS,
   AI_VECTOR_STATUS_TYPES,
-  getVectorStatusLabel as getVectorStatusLabel2,
-  getVectorStatusCategory,
-  getVectorStatusSeverity,
-  getVectorStatusColor,
-  isVectorActive as isVectorActive2,
-  isVectorGenerated,
-  isVectorCompleted,
-  isVectorFailed as isVectorFailed2,
-  getVectorStatusProgress,
+  AI_VECTOR_STATUS,
+  getAiVectorStatusLabel as getAiVectorStatusLabelDetailed,
+  getAiVectorStatusCategory,
+  getAiVectorStatusSeverity,
+  getAiVectorStatusColor,
+  isAiVectorActiveStatus,
+  isAiVectorGenerated,
+  isAiVectorCompleted,
+  isAiVectorFailedStatus,
+  getAiVectorStatusProgress,
 } from './ai-vector-status.constants';
 
+// Export all types from ai-vector-status.constants
 export type {
   AIVectorStatusType,
   AIVectorStatusCategory,

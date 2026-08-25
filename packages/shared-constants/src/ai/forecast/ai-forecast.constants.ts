@@ -181,47 +181,23 @@ export const AI_FORECAST = {
   } as const,
 } as const;
 
-// Forecast Types
 export type AIForecastType = (typeof AI_FORECAST.TYPES)[keyof typeof AI_FORECAST.TYPES];
-
-// Forecast Status
 export type AIForecastStatus = (typeof AI_FORECAST.STATUSES)[keyof typeof AI_FORECAST.STATUSES];
-
-// Forecast Methods
 export type AIForecastMethod = (typeof AI_FORECAST.METHODS)[keyof typeof AI_FORECAST.METHODS];
-
-// Forecast Horizons
 export type AIForecastHorizon = (typeof AI_FORECAST.HORIZONS)[keyof typeof AI_FORECAST.HORIZONS];
-
-// Forecast Frequencies
 export type AIForecastFrequency =
   (typeof AI_FORECAST.FREQUENCIES)[keyof typeof AI_FORECAST.FREQUENCIES];
-
-// Forecast Confidence
 export type AIForecastConfidence =
   (typeof AI_FORECAST.CONFIDENCE)[keyof typeof AI_FORECAST.CONFIDENCE];
-
-// Forecast Quality
 export type AIForecastQuality = (typeof AI_FORECAST.QUALITY)[keyof typeof AI_FORECAST.QUALITY];
-
-// Forecast Metrics
 export type AIForecastMetric = (typeof AI_FORECAST.METRICS)[keyof typeof AI_FORECAST.METRICS];
-
-// Forecast Limits
 export type AIForecastLimit = (typeof AI_FORECAST.LIMITS)[keyof typeof AI_FORECAST.LIMITS];
-
-// Forecast Features
 export type AIForecastFeature = (typeof AI_FORECAST.FEATURES)[keyof typeof AI_FORECAST.FEATURES];
-
-// Forecast Outputs
 export type AIForecastOutput = (typeof AI_FORECAST.OUTPUTS)[keyof typeof AI_FORECAST.OUTPUTS];
-
-// Forecast Validation
 export type AIForecastValidation =
   (typeof AI_FORECAST.VALIDATION)[keyof typeof AI_FORECAST.VALIDATION];
 
-// Utility Functions
-export function getForecastTypeLabel(type: AIForecastType): string {
+export function getAiForecastTypeLabel(type: AIForecastType): string {
   const labels: Record<AIForecastType, string> = {
     [AI_FORECAST.TYPES.DEMAND]: 'Demand',
     [AI_FORECAST.TYPES.SALES]: 'Sales',
@@ -243,7 +219,7 @@ export function getForecastTypeLabel(type: AIForecastType): string {
   return labels[type] || 'Unknown';
 }
 
-export function getForecastStatusLabel(status: AIForecastStatus): string {
+export function getAiForecastStatusLabel(status: AIForecastStatus): string {
   const labels: Record<AIForecastStatus, string> = {
     [AI_FORECAST.STATUSES.PENDING]: 'Pending',
     [AI_FORECAST.STATUSES.INITIALIZING]: 'Initializing',
@@ -260,7 +236,7 @@ export function getForecastStatusLabel(status: AIForecastStatus): string {
   return labels[status] || 'Unknown';
 }
 
-export function getForecastMethodLabel(method: AIForecastMethod): string {
+export function getAiForecastMethodLabel(method: AIForecastMethod): string {
   const labels: Record<AIForecastMethod, string> = {
     [AI_FORECAST.METHODS.ARIMA]: 'ARIMA',
     [AI_FORECAST.METHODS.SARIMA]: 'SARIMA',
@@ -293,7 +269,7 @@ export function getForecastMethodLabel(method: AIForecastMethod): string {
   return labels[method] || 'Unknown';
 }
 
-export function getForecastHorizonLabel(horizon: AIForecastHorizon): string {
+export function getAiForecastHorizonLabel(horizon: AIForecastHorizon): string {
   const labels: Record<AIForecastHorizon, string> = {
     [AI_FORECAST.HORIZONS.IMMEDIATE]: 'Immediate',
     [AI_FORECAST.HORIZONS.SHORT_TERM]: 'Short Term',
@@ -304,7 +280,7 @@ export function getForecastHorizonLabel(horizon: AIForecastHorizon): string {
   return labels[horizon] || 'Unknown';
 }
 
-export function getForecastFrequencyLabel(frequency: AIForecastFrequency): string {
+export function getAiForecastFrequencyLabel(frequency: AIForecastFrequency): string {
   const labels: Record<AIForecastFrequency, string> = {
     [AI_FORECAST.FREQUENCIES.HOURLY]: 'Hourly',
     [AI_FORECAST.FREQUENCIES.DAILY]: 'Daily',
@@ -317,7 +293,7 @@ export function getForecastFrequencyLabel(frequency: AIForecastFrequency): strin
   return labels[frequency] || 'Unknown';
 }
 
-export function getForecastConfidenceLabel(confidence: AIForecastConfidence): string {
+export function getAiForecastConfidenceLabel(confidence: AIForecastConfidence): string {
   const labels: Record<AIForecastConfidence, string> = {
     [AI_FORECAST.CONFIDENCE.VERY_LOW]: 'Very Low',
     [AI_FORECAST.CONFIDENCE.LOW]: 'Low',
@@ -328,7 +304,7 @@ export function getForecastConfidenceLabel(confidence: AIForecastConfidence): st
   return labels[confidence] || 'Unknown';
 }
 
-export function getForecastQualityLabel(quality: AIForecastQuality): string {
+export function getAiForecastQualityLabel(quality: AIForecastQuality): string {
   const labels: Record<AIForecastQuality, string> = {
     [AI_FORECAST.QUALITY.EXCELLENT]: 'Excellent',
     [AI_FORECAST.QUALITY.GOOD]: 'Good',
@@ -339,7 +315,7 @@ export function getForecastQualityLabel(quality: AIForecastQuality): string {
   return labels[quality] || 'Unknown';
 }
 
-export function getForecastMetricLabel(metric: AIForecastMetric): string {
+export function getAiForecastMetricLabel(metric: AIForecastMetric): string {
   const labels: Record<AIForecastMetric, string> = {
     [AI_FORECAST.METRICS.MAE]: 'MAE',
     [AI_FORECAST.METRICS.MSE]: 'MSE',
@@ -357,7 +333,7 @@ export function getForecastMetricLabel(metric: AIForecastMetric): string {
   return labels[metric] || 'Unknown';
 }
 
-export function getForecastOutputLabel(output: AIForecastOutput): string {
+export function getAiForecastOutputLabel(output: AIForecastOutput): string {
   const labels: Record<AIForecastOutput, string> = {
     [AI_FORECAST.OUTPUTS.POINT]: 'Point Forecast',
     [AI_FORECAST.OUTPUTS.INTERVAL]: 'Prediction Interval',
@@ -369,7 +345,7 @@ export function getForecastOutputLabel(output: AIForecastOutput): string {
   return labels[output] || 'Unknown';
 }
 
-export function getForecastValidationLabel(validation: AIForecastValidation): string {
+export function getAiForecastValidationLabel(validation: AIForecastValidation): string {
   const labels: Record<AIForecastValidation, string> = {
     [AI_FORECAST.VALIDATION.WALK_FORWARD]: 'Walk Forward',
     [AI_FORECAST.VALIDATION.CROSS_VALIDATION]: 'Cross Validation',
@@ -381,7 +357,7 @@ export function getForecastValidationLabel(validation: AIForecastValidation): st
   return labels[validation] || 'Unknown';
 }
 
-export function isForecastActive(status: AIForecastStatus): boolean {
+export function isAiForecastActive(status: AIForecastStatus): boolean {
   const activeStatuses: AIForecastStatus[] = [
     AI_FORECAST.STATUSES.COMPLETED,
     AI_FORECAST.STATUSES.CACHED,
@@ -390,7 +366,7 @@ export function isForecastActive(status: AIForecastStatus): boolean {
   return activeStatuses.includes(status);
 }
 
-export function isForecastProcessing(status: AIForecastStatus): boolean {
+export function isAiForecastProcessing(status: AIForecastStatus): boolean {
   const processingStatuses: AIForecastStatus[] = [
     AI_FORECAST.STATUSES.PENDING,
     AI_FORECAST.STATUSES.INITIALIZING,
@@ -401,7 +377,7 @@ export function isForecastProcessing(status: AIForecastStatus): boolean {
   return processingStatuses.includes(status);
 }
 
-export function isForecastFailed(status: AIForecastStatus): boolean {
+export function isAiForecastFailed(status: AIForecastStatus): boolean {
   const failedStatuses: AIForecastStatus[] = [
     AI_FORECAST.STATUSES.FAILED,
     AI_FORECAST.STATUSES.EXPIRED,
@@ -409,19 +385,19 @@ export function isForecastFailed(status: AIForecastStatus): boolean {
   return failedStatuses.includes(status);
 }
 
-export function getDefaultHorizon(): number {
+export function getAiForecastDefaultHorizon(): number {
   return AI_FORECAST.LIMITS.DEFAULT_HORIZON;
 }
 
-export function getMaxHorizon(): number {
+export function getAiForecastMaxHorizon(): number {
   return AI_FORECAST.LIMITS.MAX_HORIZON;
 }
 
-export function getDefaultSamples(): number {
+export function getAiForecastDefaultSamples(): number {
   return AI_FORECAST.LIMITS.DEFAULT_SAMPLES;
 }
 
-export function getHorizonDays(horizon: AIForecastHorizon): number {
+export function getAiForecastHorizonDays(horizon: AIForecastHorizon): number {
   const days: Record<AIForecastHorizon, number> = {
     [AI_FORECAST.HORIZONS.IMMEDIATE]: 1,
     [AI_FORECAST.HORIZONS.SHORT_TERM]: 7,
@@ -432,7 +408,7 @@ export function getHorizonDays(horizon: AIForecastHorizon): number {
   return days[horizon] || 30;
 }
 
-export function getConfidenceScore(confidence: AIForecastConfidence): number {
+export function getAiForecastConfidenceScore(confidence: AIForecastConfidence): number {
   const scores: Record<AIForecastConfidence, number> = {
     [AI_FORECAST.CONFIDENCE.VERY_LOW]: 0.1,
     [AI_FORECAST.CONFIDENCE.LOW]: 0.3,
@@ -443,7 +419,7 @@ export function getConfidenceScore(confidence: AIForecastConfidence): number {
   return scores[confidence] || 0.5;
 }
 
-export function getQualityScore(quality: AIForecastQuality): number {
+export function getAiForecastQualityScore(quality: AIForecastQuality): number {
   const scores: Record<AIForecastQuality, number> = {
     [AI_FORECAST.QUALITY.EXCELLENT]: 0.9,
     [AI_FORECAST.QUALITY.GOOD]: 0.7,

@@ -85,20 +85,14 @@ export const AI_FORECAST_STATUS = {
   } as const,
 } as const;
 
-// Status Categories
 export type AIForecastStatusCategory =
   (typeof AI_FORECAST_STATUS.CATEGORIES)[keyof typeof AI_FORECAST_STATUS.CATEGORIES];
-
-// Status Severity
 export type AIForecastStatusSeverity =
   (typeof AI_FORECAST_STATUS.SEVERITY)[keyof typeof AI_FORECAST_STATUS.SEVERITY];
-
-// Status Colors
 export type AIForecastStatusColor =
   (typeof AI_FORECAST_STATUS.COLORS)[keyof typeof AI_FORECAST_STATUS.COLORS];
 
-// Utility Functions
-export function getForecastStatusLabel(status: AIForecastStatusType): string {
+export function getAiForecastStatusLabel(status: AIForecastStatusType): string {
   const labels: Record<AIForecastStatusType, string> = {
     [AI_FORECAST_STATUS_TYPES.CREATED]: 'Created',
     [AI_FORECAST_STATUS_TYPES.QUEUED]: 'Queued',
@@ -124,7 +118,9 @@ export function getForecastStatusLabel(status: AIForecastStatusType): string {
   return labels[status] || 'Unknown';
 }
 
-export function getForecastStatusCategory(status: AIForecastStatusType): AIForecastStatusCategory {
+export function getAiForecastStatusCategory(
+  status: AIForecastStatusType
+): AIForecastStatusCategory {
   const categories: Record<AIForecastStatusType, AIForecastStatusCategory> = {
     [AI_FORECAST_STATUS_TYPES.CREATED]: AI_FORECAST_STATUS.CATEGORIES.PENDING,
     [AI_FORECAST_STATUS_TYPES.QUEUED]: AI_FORECAST_STATUS.CATEGORIES.PENDING,
@@ -150,7 +146,9 @@ export function getForecastStatusCategory(status: AIForecastStatusType): AIForec
   return categories[status] || AI_FORECAST_STATUS.CATEGORIES.PENDING;
 }
 
-export function getForecastStatusSeverity(status: AIForecastStatusType): AIForecastStatusSeverity {
+export function getAiForecastStatusSeverity(
+  status: AIForecastStatusType
+): AIForecastStatusSeverity {
   const severities: Record<AIForecastStatusType, AIForecastStatusSeverity> = {
     [AI_FORECAST_STATUS_TYPES.CREATED]: AI_FORECAST_STATUS.SEVERITY.INFO,
     [AI_FORECAST_STATUS_TYPES.QUEUED]: AI_FORECAST_STATUS.SEVERITY.INFO,
@@ -176,11 +174,11 @@ export function getForecastStatusSeverity(status: AIForecastStatusType): AIForec
   return severities[status] || AI_FORECAST_STATUS.SEVERITY.INFO;
 }
 
-export function getForecastStatusColor(status: AIForecastStatusType): AIForecastStatusColor {
+export function getAiForecastStatusColor(status: AIForecastStatusType): AIForecastStatusColor {
   return AI_FORECAST_STATUS.COLORS[status] || '#gray';
 }
 
-export function isForecastActive(status: AIForecastStatusType): boolean {
+export function isAiForecastActiveStatus(status: AIForecastStatusType): boolean {
   const activeStatuses: AIForecastStatusType[] = [
     AI_FORECAST_STATUS_TYPES.CREATED,
     AI_FORECAST_STATUS_TYPES.QUEUED,
@@ -200,7 +198,7 @@ export function isForecastActive(status: AIForecastStatusType): boolean {
   return activeStatuses.includes(status);
 }
 
-export function isForecastCompleted(status: AIForecastStatusType): boolean {
+export function isAiForecastCompleted(status: AIForecastStatusType): boolean {
   const completedStatuses: AIForecastStatusType[] = [
     AI_FORECAST_STATUS_TYPES.COMPLETED,
     AI_FORECAST_STATUS_TYPES.STORED,
@@ -210,7 +208,7 @@ export function isForecastCompleted(status: AIForecastStatusType): boolean {
   return completedStatuses.includes(status);
 }
 
-export function isForecastFailed(status: AIForecastStatusType): boolean {
+export function isAiForecastFailedStatus(status: AIForecastStatusType): boolean {
   const failedStatuses: AIForecastStatusType[] = [
     AI_FORECAST_STATUS_TYPES.FAILED,
     AI_FORECAST_STATUS_TYPES.EXPIRED,
@@ -218,7 +216,7 @@ export function isForecastFailed(status: AIForecastStatusType): boolean {
   return failedStatuses.includes(status);
 }
 
-export function getForecastStatusProgress(status: AIForecastStatusType): number {
+export function getAiForecastStatusProgress(status: AIForecastStatusType): number {
   const progress: Record<AIForecastStatusType, number> = {
     [AI_FORECAST_STATUS_TYPES.CREATED]: 0,
     [AI_FORECAST_STATUS_TYPES.QUEUED]: 5,

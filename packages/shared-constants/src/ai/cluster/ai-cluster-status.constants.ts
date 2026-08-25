@@ -81,20 +81,14 @@ export const AI_CLUSTER_STATUS = {
   } as const,
 } as const;
 
-// Status Categories
 export type AIClusterStatusCategory =
   (typeof AI_CLUSTER_STATUS.CATEGORIES)[keyof typeof AI_CLUSTER_STATUS.CATEGORIES];
-
-// Status Severity
 export type AIClusterStatusSeverity =
   (typeof AI_CLUSTER_STATUS.SEVERITY)[keyof typeof AI_CLUSTER_STATUS.SEVERITY];
-
-// Status Colors
 export type AIClusterStatusColor =
   (typeof AI_CLUSTER_STATUS.COLORS)[keyof typeof AI_CLUSTER_STATUS.COLORS];
 
-// Utility Functions
-export function getClusterStatusLabel(status: AIClusterStatusType): string {
+export function getAiClusterStatusLabel(status: AIClusterStatusType): string {
   const labels: Record<AIClusterStatusType, string> = {
     [AI_CLUSTER_STATUS_TYPES.CREATED]: 'Created',
     [AI_CLUSTER_STATUS_TYPES.QUEUED]: 'Queued',
@@ -118,7 +112,7 @@ export function getClusterStatusLabel(status: AIClusterStatusType): string {
   return labels[status] || 'Unknown';
 }
 
-export function getClusterStatusCategory(status: AIClusterStatusType): AIClusterStatusCategory {
+export function getAiClusterStatusCategory(status: AIClusterStatusType): AIClusterStatusCategory {
   const categories: Record<AIClusterStatusType, AIClusterStatusCategory> = {
     [AI_CLUSTER_STATUS_TYPES.CREATED]: AI_CLUSTER_STATUS.CATEGORIES.PENDING,
     [AI_CLUSTER_STATUS_TYPES.QUEUED]: AI_CLUSTER_STATUS.CATEGORIES.PENDING,
@@ -142,7 +136,7 @@ export function getClusterStatusCategory(status: AIClusterStatusType): AICluster
   return categories[status] || AI_CLUSTER_STATUS.CATEGORIES.PENDING;
 }
 
-export function getClusterStatusSeverity(status: AIClusterStatusType): AIClusterStatusSeverity {
+export function getAiClusterStatusSeverity(status: AIClusterStatusType): AIClusterStatusSeverity {
   const severities: Record<AIClusterStatusType, AIClusterStatusSeverity> = {
     [AI_CLUSTER_STATUS_TYPES.CREATED]: AI_CLUSTER_STATUS.SEVERITY.INFO,
     [AI_CLUSTER_STATUS_TYPES.QUEUED]: AI_CLUSTER_STATUS.SEVERITY.INFO,
@@ -166,11 +160,11 @@ export function getClusterStatusSeverity(status: AIClusterStatusType): AICluster
   return severities[status] || AI_CLUSTER_STATUS.SEVERITY.INFO;
 }
 
-export function getClusterStatusColor(status: AIClusterStatusType): AIClusterStatusColor {
+export function getAiClusterStatusColor(status: AIClusterStatusType): AIClusterStatusColor {
   return AI_CLUSTER_STATUS.COLORS[status] || '#gray';
 }
 
-export function isClusterActive(status: AIClusterStatusType): boolean {
+export function isAiClusterActive(status: AIClusterStatusType): boolean {
   const activeStatuses: AIClusterStatusType[] = [
     AI_CLUSTER_STATUS_TYPES.CREATED,
     AI_CLUSTER_STATUS_TYPES.QUEUED,
@@ -188,7 +182,7 @@ export function isClusterActive(status: AIClusterStatusType): boolean {
   return activeStatuses.includes(status);
 }
 
-export function isClusterCompleted(status: AIClusterStatusType): boolean {
+export function isAiClusterCompleted(status: AIClusterStatusType): boolean {
   const completedStatuses: AIClusterStatusType[] = [
     AI_CLUSTER_STATUS_TYPES.COMPLETED,
     AI_CLUSTER_STATUS_TYPES.STORED,
@@ -198,7 +192,7 @@ export function isClusterCompleted(status: AIClusterStatusType): boolean {
   return completedStatuses.includes(status);
 }
 
-export function isClusterFailed(status: AIClusterStatusType): boolean {
+export function isAiClusterFailed(status: AIClusterStatusType): boolean {
   const failedStatuses: AIClusterStatusType[] = [
     AI_CLUSTER_STATUS_TYPES.FAILED,
     AI_CLUSTER_STATUS_TYPES.EXPIRED,
@@ -206,7 +200,7 @@ export function isClusterFailed(status: AIClusterStatusType): boolean {
   return failedStatuses.includes(status);
 }
 
-export function getClusterStatusProgress(status: AIClusterStatusType): number {
+export function getAiClusterStatusProgress(status: AIClusterStatusType): number {
   const progress: Record<AIClusterStatusType, number> = {
     [AI_CLUSTER_STATUS_TYPES.CREATED]: 0,
     [AI_CLUSTER_STATUS_TYPES.QUEUED]: 5,

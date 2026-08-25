@@ -1,32 +1,33 @@
 /**
- * AI Forecast Constants Index
- * Export all forecast constants and types for easy importing
+ * AI Forecast Index
+ * Export all AI forecast constants and types for easy importing
  */
 
-// AI Forecast Constants
+// Export all constants from ai-forecast.constants
 export {
   AI_FORECAST,
-  getForecastTypeLabel,
-  getForecastStatusLabel,
-  getForecastMethodLabel,
-  getForecastHorizonLabel,
-  getForecastFrequencyLabel,
-  getForecastConfidenceLabel,
-  getForecastQualityLabel,
-  getForecastMetricLabel,
-  getForecastOutputLabel,
-  getForecastValidationLabel,
-  isForecastActive,
-  isForecastProcessing,
-  isForecastFailed,
-  getDefaultHorizon,
-  getMaxHorizon,
-  getDefaultSamples,
-  getHorizonDays,
-  getConfidenceScore,
-  getQualityScore,
+  getAiForecastTypeLabel,
+  getAiForecastStatusLabel,
+  getAiForecastMethodLabel,
+  getAiForecastHorizonLabel,
+  getAiForecastFrequencyLabel,
+  getAiForecastConfidenceLabel,
+  getAiForecastQualityLabel,
+  getAiForecastMetricLabel,
+  getAiForecastOutputLabel,
+  getAiForecastValidationLabel,
+  isAiForecastActive,
+  isAiForecastProcessing,
+  isAiForecastFailed,
+  getAiForecastDefaultHorizon,
+  getAiForecastMaxHorizon,
+  getAiForecastDefaultSamples,
+  getAiForecastHorizonDays,
+  getAiForecastConfidenceScore,
+  getAiForecastQualityScore,
 } from './ai-forecast.constants';
 
+// Export all types from ai-forecast.constants
 export type {
   AIForecastType,
   AIForecastStatus,
@@ -42,19 +43,20 @@ export type {
   AIForecastValidation,
 } from './ai-forecast.constants';
 
-// AI Forecast Type Constants
+// Export all constants from ai-forecast-type.constants
 export {
   AI_FORECAST_TYPE,
-  getForecastDomainLabel,
-  getForecastSubTypeLabel,
-  getForecastComplexityLabel,
-  getForecastAccuracyLabel,
-  getForecastGranularityLabel,
-  getForecastScopeLabel,
-  getComplexityScore,
-  getAccuracyScore,
+  getAiForecastDomainLabel,
+  getAiForecastSubTypeLabel,
+  getAiForecastComplexityLabel,
+  getAiForecastAccuracyLabel,
+  getAiForecastGranularityLabel,
+  getAiForecastScopeLabel,
+  getAiForecastComplexityScore,
+  getAiForecastAccuracyScore,
 } from './ai-forecast-type.constants';
 
+// Export all types from ai-forecast-type.constants
 export type {
   AIForecastDomain,
   AIForecastSubType,
@@ -64,20 +66,21 @@ export type {
   AIForecastScope,
 } from './ai-forecast-type.constants';
 
-// AI Forecast Status Constants
+// Export all constants from ai-forecast-status.constants
 export {
-  AI_FORECAST_STATUS,
   AI_FORECAST_STATUS_TYPES,
-  getForecastStatusLabel as getForecastStatusLabel2,
-  getForecastStatusCategory,
-  getForecastStatusSeverity,
-  getForecastStatusColor,
-  isForecastActive as isForecastActive2,
-  isForecastCompleted,
-  isForecastFailed as isForecastFailed2,
-  getForecastStatusProgress,
+  AI_FORECAST_STATUS,
+  getAiForecastStatusLabel as getAiForecastStatusLabelDetailed,
+  getAiForecastStatusCategory,
+  getAiForecastStatusSeverity,
+  getAiForecastStatusColor,
+  isAiForecastActiveStatus,
+  isAiForecastCompleted,
+  isAiForecastFailedStatus,
+  getAiForecastStatusProgress,
 } from './ai-forecast-status.constants';
 
+// Export all types from ai-forecast-status.constants
 export type {
   AIForecastStatusType,
   AIForecastStatusCategory,

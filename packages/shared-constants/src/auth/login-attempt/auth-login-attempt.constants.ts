@@ -5,7 +5,6 @@
 
 import { AUTH_LOGIN_ATTEMPT_STATUS } from './auth-login-attempt-status.constants';
 
-// Define TYPES first
 export const ATTEMPT_TYPES = {
   SUCCESS: 'success',
   FAILED: 'failed',
@@ -20,7 +19,6 @@ export const ATTEMPT_TYPES = {
   REVOKED: 'revoked',
 } as const;
 
-// Define REASONS
 export const ATTEMPT_REASONS = {
   INVALID_CREDENTIALS: 'invalid_credentials',
   ACCOUNT_LOCKED: 'account_locked',
@@ -40,7 +38,6 @@ export const ATTEMPT_REASONS = {
   REQUIRES_VERIFICATION: 'requires_verification',
 } as const;
 
-// Define EVENTS
 export const ATTEMPT_EVENTS = {
   ATTEMPTED: 'login:attempted',
   SUCCEEDED: 'login:succeeded',
@@ -54,7 +51,6 @@ export const ATTEMPT_EVENTS = {
   RESET: 'login:reset',
 } as const;
 
-// Define LEVELS
 export const ATTEMPT_LEVELS = {
   NONE: 0,
   LOW: 1,
@@ -64,7 +60,6 @@ export const ATTEMPT_LEVELS = {
   MAXIMUM: 5,
 } as const;
 
-// Define CONFIG
 export const ATTEMPT_CONFIG = {
   MAX_ATTEMPTS: 5,
   MAX_FAILED_ATTEMPTS: 3,
@@ -79,7 +74,6 @@ export const ATTEMPT_CONFIG = {
   REQUIRE_CAPTCHA: false,
 } as const;
 
-// Define DEFAULTS
 export const ATTEMPT_DEFAULTS = {
   STATUS: AUTH_LOGIN_ATTEMPT_STATUS.PENDING,
   TYPE: ATTEMPT_TYPES.VALID,
@@ -88,7 +82,6 @@ export const ATTEMPT_DEFAULTS = {
   MAX_FAILED_ATTEMPTS: 3,
 } as const;
 
-// Main AUTH_LOGIN_ATTEMPT object
 export const AUTH_LOGIN_ATTEMPT = {
   CONFIG: ATTEMPT_CONFIG,
   TYPES: ATTEMPT_TYPES,
@@ -105,7 +98,7 @@ export type AuthLoginAttemptEvent = (typeof ATTEMPT_EVENTS)[keyof typeof ATTEMPT
 export type AuthLoginAttemptLevel = (typeof ATTEMPT_LEVELS)[keyof typeof ATTEMPT_LEVELS];
 export type AuthLoginAttemptDefaults = typeof ATTEMPT_DEFAULTS;
 
-export const ATTEMPT_TYPES_LIST: AuthLoginAttemptType[] = [
+export const AUTHLOGIN_ATTEMPT_TYPES_LIST: AuthLoginAttemptType[] = [
   ATTEMPT_TYPES.SUCCESS,
   ATTEMPT_TYPES.FAILED,
   ATTEMPT_TYPES.BLOCKED,
@@ -119,19 +112,19 @@ export const ATTEMPT_TYPES_LIST: AuthLoginAttemptType[] = [
   ATTEMPT_TYPES.REVOKED,
 ];
 
-export const SUCCESS_ATTEMPT_TYPES: AuthLoginAttemptType[] = [
+export const AUTHLOGIN_SUCCESS_TYPES: AuthLoginAttemptType[] = [
   ATTEMPT_TYPES.SUCCESS,
   ATTEMPT_TYPES.VALID,
 ];
 
-export const FAILED_ATTEMPT_TYPES: AuthLoginAttemptType[] = [
+export const AUTHLOGIN_FAILED_TYPES: AuthLoginAttemptType[] = [
   ATTEMPT_TYPES.FAILED,
   ATTEMPT_TYPES.INVALID,
   ATTEMPT_TYPES.EXPIRED,
   ATTEMPT_TYPES.REVOKED,
 ];
 
-export const BLOCKED_ATTEMPT_TYPES: AuthLoginAttemptType[] = [
+export const AUTHLOGIN_BLOCKED_TYPES: AuthLoginAttemptType[] = [
   ATTEMPT_TYPES.BLOCKED,
   ATTEMPT_TYPES.LOCKED,
   ATTEMPT_TYPES.TIMEOUT,
@@ -139,7 +132,7 @@ export const BLOCKED_ATTEMPT_TYPES: AuthLoginAttemptType[] = [
   ATTEMPT_TYPES.SUSPICIOUS,
 ];
 
-export const ATTEMPT_REASONS_LIST: AuthLoginAttemptReason[] = [
+export const AUTHLOGIN_REASONS_LIST: AuthLoginAttemptReason[] = [
   ATTEMPT_REASONS.INVALID_CREDENTIALS,
   ATTEMPT_REASONS.ACCOUNT_LOCKED,
   ATTEMPT_REASONS.IP_BLOCKED,
@@ -158,7 +151,7 @@ export const ATTEMPT_REASONS_LIST: AuthLoginAttemptReason[] = [
   ATTEMPT_REASONS.REQUIRES_VERIFICATION,
 ];
 
-export const SECURITY_ATTEMPT_REASONS: AuthLoginAttemptReason[] = [
+export const AUTHLOGIN_SECURITY_REASONS: AuthLoginAttemptReason[] = [
   ATTEMPT_REASONS.SUSPICIOUS_ACTIVITY,
   ATTEMPT_REASONS.IP_BLOCKED,
   ATTEMPT_REASONS.DEVICE_BLOCKED,
@@ -166,61 +159,61 @@ export const SECURITY_ATTEMPT_REASONS: AuthLoginAttemptReason[] = [
   ATTEMPT_REASONS.RATE_LIMIT,
 ];
 
-export const CREDENTIAL_ATTEMPT_REASONS: AuthLoginAttemptReason[] = [
+export const AUTHLOGIN_CREDENTIAL_REASONS: AuthLoginAttemptReason[] = [
   ATTEMPT_REASONS.INVALID_CREDENTIALS,
   ATTEMPT_REASONS.ACCOUNT_LOCKED,
 ];
 
-export const TOKEN_ATTEMPT_REASONS: AuthLoginAttemptReason[] = [
+export const AUTHLOGIN_TOKEN_REASONS: AuthLoginAttemptReason[] = [
   ATTEMPT_REASONS.TOKEN_EXPIRED,
   ATTEMPT_REASONS.SESSION_EXPIRED,
   ATTEMPT_REASONS.INVALID_TOKEN,
   ATTEMPT_REASONS.INVALID_SESSION,
 ];
 
-export const MFA_ATTEMPT_REASONS: AuthLoginAttemptReason[] = [
+export const AUTHLOGIN_MFA_REASONS: AuthLoginAttemptReason[] = [
   ATTEMPT_REASONS.REQUIRES_MFA,
   ATTEMPT_REASONS.REQUIRES_2FA,
   ATTEMPT_REASONS.REQUIRES_VERIFICATION,
 ];
 
-export function isAttemptType(type: string): type is AuthLoginAttemptType {
-  return ATTEMPT_TYPES_LIST.includes(type as AuthLoginAttemptType);
+export function isAuthloginAttemptType(type: string): type is AuthLoginAttemptType {
+  return AUTHLOGIN_ATTEMPT_TYPES_LIST.includes(type as AuthLoginAttemptType);
 }
 
-export function isSuccessAttempt(type: AuthLoginAttemptType): boolean {
-  return SUCCESS_ATTEMPT_TYPES.includes(type);
+export function isAuthloginSuccess(type: AuthLoginAttemptType): boolean {
+  return AUTHLOGIN_SUCCESS_TYPES.includes(type);
 }
 
-export function isFailedAttempt(type: AuthLoginAttemptType): boolean {
-  return FAILED_ATTEMPT_TYPES.includes(type);
+export function isAuthloginFailed(type: AuthLoginAttemptType): boolean {
+  return AUTHLOGIN_FAILED_TYPES.includes(type);
 }
 
-export function isBlockedAttempt(type: AuthLoginAttemptType): boolean {
-  return BLOCKED_ATTEMPT_TYPES.includes(type);
+export function isAuthloginBlocked(type: AuthLoginAttemptType): boolean {
+  return AUTHLOGIN_BLOCKED_TYPES.includes(type);
 }
 
-export function isAttemptReason(reason: string): reason is AuthLoginAttemptReason {
-  return ATTEMPT_REASONS_LIST.includes(reason as AuthLoginAttemptReason);
+export function isAuthloginReason(reason: string): reason is AuthLoginAttemptReason {
+  return AUTHLOGIN_REASONS_LIST.includes(reason as AuthLoginAttemptReason);
 }
 
-export function isSecurityAttempt(reason: AuthLoginAttemptReason): boolean {
-  return SECURITY_ATTEMPT_REASONS.includes(reason);
+export function isAuthloginSecurity(reason: AuthLoginAttemptReason): boolean {
+  return AUTHLOGIN_SECURITY_REASONS.includes(reason);
 }
 
-export function isCredentialAttempt(reason: AuthLoginAttemptReason): boolean {
-  return CREDENTIAL_ATTEMPT_REASONS.includes(reason);
+export function isAuthloginCredential(reason: AuthLoginAttemptReason): boolean {
+  return AUTHLOGIN_CREDENTIAL_REASONS.includes(reason);
 }
 
-export function isTokenAttempt(reason: AuthLoginAttemptReason): boolean {
-  return TOKEN_ATTEMPT_REASONS.includes(reason);
+export function isAuthloginToken(reason: AuthLoginAttemptReason): boolean {
+  return AUTHLOGIN_TOKEN_REASONS.includes(reason);
 }
 
-export function isMFAAttempt(reason: AuthLoginAttemptReason): boolean {
-  return MFA_ATTEMPT_REASONS.includes(reason);
+export function isAuthloginMFA(reason: AuthLoginAttemptReason): boolean {
+  return AUTHLOGIN_MFA_REASONS.includes(reason);
 }
 
-export function getAttemptTypeLabel(type: AuthLoginAttemptType): string {
+export function getAuthloginAttemptTypeLabel(type: AuthLoginAttemptType): string {
   const labels: Record<AuthLoginAttemptType, string> = {
     [ATTEMPT_TYPES.SUCCESS]: 'Success',
     [ATTEMPT_TYPES.FAILED]: 'Failed',
@@ -238,7 +231,7 @@ export function getAttemptTypeLabel(type: AuthLoginAttemptType): string {
   return labels[type] || 'Unknown Type';
 }
 
-export function getAttemptTypeIcon(type: AuthLoginAttemptType): string {
+export function getAuthloginAttemptTypeIcon(type: AuthLoginAttemptType): string {
   const icons: Record<AuthLoginAttemptType, string> = {
     [ATTEMPT_TYPES.SUCCESS]: '✅',
     [ATTEMPT_TYPES.FAILED]: '❌',
@@ -256,7 +249,7 @@ export function getAttemptTypeIcon(type: AuthLoginAttemptType): string {
   return icons[type] || '🔑';
 }
 
-export function getAttemptReasonLabel(reason: AuthLoginAttemptReason): string {
+export function getAuthloginAttemptReasonLabel(reason: AuthLoginAttemptReason): string {
   const labels: Record<AuthLoginAttemptReason, string> = {
     [ATTEMPT_REASONS.INVALID_CREDENTIALS]: 'Invalid Credentials',
     [ATTEMPT_REASONS.ACCOUNT_LOCKED]: 'Account Locked',
@@ -279,7 +272,7 @@ export function getAttemptReasonLabel(reason: AuthLoginAttemptReason): string {
   return labels[reason] || 'Unknown Reason';
 }
 
-export function getAttemptLevel(level: AuthLoginAttemptLevel): number {
+export function getAuthloginAttemptLevel(level: AuthLoginAttemptLevel): number {
   const levels: Record<AuthLoginAttemptLevel, number> = {
     [ATTEMPT_LEVELS.NONE]: 0,
     [ATTEMPT_LEVELS.LOW]: 1,
@@ -292,7 +285,7 @@ export function getAttemptLevel(level: AuthLoginAttemptLevel): number {
   return levels[level] || 0;
 }
 
-export function getAttemptLevelLabel(level: AuthLoginAttemptLevel): string {
+export function getAuthloginAttemptLevelLabel(level: AuthLoginAttemptLevel): string {
   const labels: Record<AuthLoginAttemptLevel, string> = {
     [ATTEMPT_LEVELS.NONE]: 'None',
     [ATTEMPT_LEVELS.LOW]: 'Low',
@@ -305,7 +298,7 @@ export function getAttemptLevelLabel(level: AuthLoginAttemptLevel): string {
   return labels[level] || 'Unknown';
 }
 
-export function getAttemptLevelColor(level: AuthLoginAttemptLevel): string {
+export function getAuthloginAttemptLevelColor(level: AuthLoginAttemptLevel): string {
   const colors: Record<AuthLoginAttemptLevel, string> = {
     [ATTEMPT_LEVELS.NONE]: '#10B981',
     [ATTEMPT_LEVELS.LOW]: '#F59E0B',
@@ -318,31 +311,31 @@ export function getAttemptLevelColor(level: AuthLoginAttemptLevel): string {
   return colors[level] || '#6B7280';
 }
 
-export function getMaxLoginAttempts(): number {
+export function getAuthloginMaxAttempts(): number {
   return ATTEMPT_CONFIG.MAX_ATTEMPTS;
 }
 
-export function getMaxFailedAttempts(): number {
+export function getAuthloginMaxFailedAttempts(): number {
   return ATTEMPT_CONFIG.MAX_FAILED_ATTEMPTS;
 }
 
-export function getResetAfterMinutes(): number {
+export function getAuthloginResetAfterMinutes(): number {
   return ATTEMPT_CONFIG.RESET_AFTER_MINUTES;
 }
 
-export function getBlockDurationMinutes(): number {
+export function getAuthloginBlockDurationMinutes(): number {
   return ATTEMPT_CONFIG.BLOCK_DURATION_MINUTES;
 }
 
-export function getCaptchaAfterAttempts(): number {
+export function getAuthloginCaptchaAfterAttempts(): number {
   return ATTEMPT_CONFIG.CAPTCHA_AFTER_ATTEMPTS;
 }
 
-export function shouldRequireCaptcha(attempts: number): boolean {
+export function shouldAuthloginRequireCaptcha(attempts: number): boolean {
   return attempts >= ATTEMPT_CONFIG.CAPTCHA_AFTER_ATTEMPTS;
 }
 
-export function getAttemptLevelFromAttempts(attempts: number): AuthLoginAttemptLevel {
+export function getAuthloginLevelFromAttempts(attempts: number): AuthLoginAttemptLevel {
   const maxAttempts = ATTEMPT_CONFIG.MAX_ATTEMPTS;
   const ratio = attempts / maxAttempts;
 
@@ -353,15 +346,15 @@ export function getAttemptLevelFromAttempts(attempts: number): AuthLoginAttemptL
   return ATTEMPT_LEVELS.NONE;
 }
 
-export function isAccountBlocked(attempts: number): boolean {
+export function isAuthloginAccountBlocked(attempts: number): boolean {
   return attempts >= ATTEMPT_CONFIG.MAX_ATTEMPTS;
 }
 
-export function getRemainingAttempts(attempts: number): number {
+export function getAuthloginRemainingAttempts(attempts: number): number {
   return Math.max(0, ATTEMPT_CONFIG.MAX_ATTEMPTS - attempts);
 }
 
-export function shouldResetAttempts(lastAttemptAt: Date): boolean {
+export function shouldAuthloginResetAttempts(lastAttemptAt: Date): boolean {
   const age = (Date.now() - lastAttemptAt.getTime()) / (60 * 1000);
   return age >= ATTEMPT_CONFIG.RESET_AFTER_MINUTES;
 }

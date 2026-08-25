@@ -4,7 +4,6 @@
  */
 
 export const AUTH_2FA_TYPE = {
-  // Primary 2FA types
   TOTP: 'totp',
   SMS: 'sms',
   EMAIL: 'email',
@@ -17,19 +16,16 @@ export const AUTH_2FA_TYPE = {
   VOICE: 'voice',
   WHATSAPP: 'whatsapp',
 
-  // Biometric subtypes
   FINGERPRINT: 'fingerprint',
   FACE_ID: 'face_id',
   IRIS_SCAN: 'iris_scan',
   VOICE_RECOGNITION: 'voice_recognition',
 
-  // Hardware token subtypes
   YUBIKEY: 'yubikey',
   SMART_CARD: 'smart_card',
   USB_TOKEN: 'usb_token',
   NFC_TOKEN: 'nfc_token',
 
-  // Push notification subtypes
   MOBILE_PUSH: 'mobile_push',
   WEB_PUSH: 'web_push',
   DESKTOP_PUSH: 'desktop_push',
@@ -37,7 +33,7 @@ export const AUTH_2FA_TYPE = {
 
 export type Auth2FAType = (typeof AUTH_2FA_TYPE)[keyof typeof AUTH_2FA_TYPE];
 
-export const PRIMARY_2FA_TYPES: Auth2FAType[] = [
+export const AUTH2FA_PRIMARY_TYPES: Auth2FAType[] = [
   AUTH_2FA_TYPE.TOTP,
   AUTH_2FA_TYPE.SMS,
   AUTH_2FA_TYPE.EMAIL,
@@ -51,7 +47,7 @@ export const PRIMARY_2FA_TYPES: Auth2FAType[] = [
   AUTH_2FA_TYPE.WHATSAPP,
 ];
 
-export const CODE_BASED_2FA_TYPES: Auth2FAType[] = [
+export const AUTH2FA_CODE_BASED_TYPES: Auth2FAType[] = [
   AUTH_2FA_TYPE.TOTP,
   AUTH_2FA_TYPE.SMS,
   AUTH_2FA_TYPE.EMAIL,
@@ -60,57 +56,57 @@ export const CODE_BASED_2FA_TYPES: Auth2FAType[] = [
   AUTH_2FA_TYPE.RECOVERY_CODE,
 ];
 
-export const DEVICE_BASED_2FA_TYPES: Auth2FAType[] = [
+export const AUTH2FA_DEVICE_BASED_TYPES: Auth2FAType[] = [
   AUTH_2FA_TYPE.BIOMETRIC,
   AUTH_2FA_TYPE.PUSH_NOTIFICATION,
   AUTH_2FA_TYPE.HARDWARE_TOKEN,
 ];
 
-export const BIOMETRIC_2FA_TYPES: Auth2FAType[] = [
+export const AUTH2FA_BIOMETRIC_TYPES: Auth2FAType[] = [
   AUTH_2FA_TYPE.FINGERPRINT,
   AUTH_2FA_TYPE.FACE_ID,
   AUTH_2FA_TYPE.IRIS_SCAN,
   AUTH_2FA_TYPE.VOICE_RECOGNITION,
 ];
 
-export const HARDWARE_2FA_TYPES: Auth2FAType[] = [
+export const AUTH2FA_HARDWARE_TYPES: Auth2FAType[] = [
   AUTH_2FA_TYPE.YUBIKEY,
   AUTH_2FA_TYPE.SMART_CARD,
   AUTH_2FA_TYPE.USB_TOKEN,
   AUTH_2FA_TYPE.NFC_TOKEN,
 ];
 
-export const PUSH_2FA_TYPES: Auth2FAType[] = [
+export const AUTH2FA_PUSH_TYPES: Auth2FAType[] = [
   AUTH_2FA_TYPE.MOBILE_PUSH,
   AUTH_2FA_TYPE.WEB_PUSH,
   AUTH_2FA_TYPE.DESKTOP_PUSH,
 ];
 
-export function isPrimary2FAType(type: Auth2FAType): boolean {
-  return PRIMARY_2FA_TYPES.includes(type);
+export function isAuth2faPrimaryType(type: Auth2FAType): boolean {
+  return AUTH2FA_PRIMARY_TYPES.includes(type);
 }
 
-export function isCodeBased2FAType(type: Auth2FAType): boolean {
-  return CODE_BASED_2FA_TYPES.includes(type);
+export function isAuth2faCodeBasedType(type: Auth2FAType): boolean {
+  return AUTH2FA_CODE_BASED_TYPES.includes(type);
 }
 
-export function isDeviceBased2FAType(type: Auth2FAType): boolean {
-  return DEVICE_BASED_2FA_TYPES.includes(type);
+export function isAuth2faDeviceBasedType(type: Auth2FAType): boolean {
+  return AUTH2FA_DEVICE_BASED_TYPES.includes(type);
 }
 
-export function isBiometric2FAType(type: Auth2FAType): boolean {
-  return BIOMETRIC_2FA_TYPES.includes(type);
+export function isAuth2faBiometricType(type: Auth2FAType): boolean {
+  return AUTH2FA_BIOMETRIC_TYPES.includes(type);
 }
 
-export function isHardware2FAType(type: Auth2FAType): boolean {
-  return HARDWARE_2FA_TYPES.includes(type);
+export function isAuth2faHardwareType(type: Auth2FAType): boolean {
+  return AUTH2FA_HARDWARE_TYPES.includes(type);
 }
 
-export function isPush2FAType(type: Auth2FAType): boolean {
-  return PUSH_2FA_TYPES.includes(type);
+export function isAuth2faPushType(type: Auth2FAType): boolean {
+  return AUTH2FA_PUSH_TYPES.includes(type);
 }
 
-export function get2FATypeLabel(type: Auth2FAType): string {
+export function getAuth2faTypeLabel(type: Auth2FAType): string {
   const labels: Record<Auth2FAType, string> = {
     [AUTH_2FA_TYPE.TOTP]: 'Authenticator App (TOTP)',
     [AUTH_2FA_TYPE.SMS]: 'SMS Verification',
@@ -139,7 +135,7 @@ export function get2FATypeLabel(type: Auth2FAType): string {
   return labels[type] || 'Unknown 2FA Type';
 }
 
-export function get2FATypeIcon(type: Auth2FAType): string {
+export function getAuth2faTypeIcon(type: Auth2FAType): string {
   const icons: Record<Auth2FAType, string> = {
     [AUTH_2FA_TYPE.TOTP]: '📱',
     [AUTH_2FA_TYPE.SMS]: '📲',
@@ -168,17 +164,17 @@ export function get2FATypeIcon(type: Auth2FAType): string {
   return icons[type] || '🔒';
 }
 
-export function get2FATypeCategory(
+export function getAuth2faTypeCategory(
   type: Auth2FAType
 ): 'code' | 'biometric' | 'hardware' | 'push' | 'other' {
-  if (isCodeBased2FAType(type)) return 'code';
-  if (isBiometric2FAType(type)) return 'biometric';
-  if (isHardware2FAType(type)) return 'hardware';
-  if (isPush2FAType(type)) return 'push';
+  if (isAuth2faCodeBasedType(type)) return 'code';
+  if (isAuth2faBiometricType(type)) return 'biometric';
+  if (isAuth2faHardwareType(type)) return 'hardware';
+  if (isAuth2faPushType(type)) return 'push';
   return 'other';
 }
 
-export function get2FATypeSecurityLevel(
+export function getAuth2faTypeSecurityLevel(
   type: Auth2FAType
 ): 'low' | 'medium' | 'high' | 'very_high' {
   const levels: Record<Auth2FAType, 'low' | 'medium' | 'high' | 'very_high'> = {

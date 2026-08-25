@@ -1,30 +1,32 @@
 /**
- * AI Ranking Constants Index
- * Export all ranking constants and types for easy importing
+ * AI Ranking Index
+ * Export all AI ranking constants and types for easy importing
  */
 
-// AI Ranking Constants
+// Export all constants from ai-ranking.constants
 export {
+  AI_RANKING_FACTORS,
   AI_RANKING,
-  getRankingTypeLabel,
-  getRankingStatusLabel,
-  getRankingStrategyLabel,
-  getRankingFactorLabel,
-  getRankingMetricLabel,
-  getRankingModeLabel,
-  isRankingActive,
-  isRankingComplete,
-  isRankingFailed,
-  getRankingWeight,
-  getDefaultRankingLimit,
-  calculateCombinedScore,
+  getAiRankingTypeLabel,
+  getAiRankingStatusLabel,
+  getAiRankingStrategyLabel,
+  getAiRankingFactorLabel,
+  getAiRankingMetricLabel,
+  getAiRankingModeLabel,
+  isAiRankingActive,
+  isAiRankingComplete,
+  isAiRankingFailed,
+  getAiRankingWeight,
+  getAiRankingDefaultLimit,
+  calculateAiRankingCombinedScore,
 } from './ai-ranking.constants';
 
+// Export all types from ai-ranking.constants
 export type {
+  AIRankingFactor,
   AIRankingType,
   AIRankingStatus,
   AIRankingStrategy,
-  AIRankingFactor,
   AIRankingWeight,
   AIRankingLimit,
   AIRankingMetric,
@@ -32,17 +34,18 @@ export type {
   AIRankingAlgorithm,
 } from './ai-ranking.constants';
 
-// AI Ranking Type Constants
+// Export all constants from ai-ranking-type.constants
 export {
   AI_RANKING_TYPE,
-  getRankingCategoryLabel,
-  getRankingSubTypeLabel,
-  getRankingLevelLabel,
-  getRankingScopeLabel,
-  getRankingPriorityLabel,
-  getRankingMethodLabel,
+  getAiRankingCategoryLabel,
+  getAiRankingSubTypeLabel,
+  getAiRankingLevelLabel,
+  getAiRankingScopeLabel,
+  getAiRankingPriorityLabel,
+  getAiRankingMethodLabel,
 } from './ai-ranking-type.constants';
 
+// Export all types from ai-ranking-type.constants
 export type {
   AIRankingCategory,
   AIRankingSubType,
@@ -52,40 +55,46 @@ export type {
   AIRankingMethod,
 } from './ai-ranking-type.constants';
 
-// AI Ranking Strategy Constants
+// Export all constants from ai-ranking-strategy.constants
 export {
   AI_RANKING_STRATEGY,
-  getRankingStrategyTypeLabel,
-  getRankingStrategyApproachLabel,
-  getRankingStrategyGoalLabel,
-  getRankingStrategyExecutionLabel,
-  getRankingStrategyEvaluationLabel,
-  getRecommendedStrategyForGoal,
+  getAiRankingStrategyCategoryLabel,
+  getAiRankingStrategyTypeLabel,
+  getAiRankingStrategyApproachLabel,
+  getAiRankingStrategyGoalLabel,
+  getAiRankingStrategyTradeOffLabel,
+  getAiRankingStrategyExecutionLabel,
+  getAiRankingStrategyEvaluationLabel,
+  getAiRankingStrategyPriorityWeight,
+  getAiRankingRecommendedStrategyForGoal,
 } from './ai-ranking-strategy.constants';
 
+// Export all types from ai-ranking-strategy.constants
 export type {
+  AIRankingStrategyCategory,
   AIRankingStrategyType,
   AIRankingStrategyApproach,
   AIRankingStrategyGoal,
-  AIRankingStrategyOptimization,
+  AIRankingStrategyTradeOff,
   AIRankingStrategyExecution,
   AIRankingStrategyEvaluation,
 } from './ai-ranking-strategy.constants';
 
-// AI Ranking Status Constants
+// Export all constants from ai-ranking-status.constants
 export {
-  AI_RANKING_STATUS,
   AI_RANKING_STATUS_TYPES,
-  getRankingStatusLabel as getRankingStatusLabel2,
-  getRankingStatusCategory,
-  getRankingStatusSeverity,
-  getRankingStatusColor,
-  isRankingActive as isRankingActive2,
-  isRankingDelivered,
-  isRankingComplete as isRankingComplete2,
-  isRankingFailed as isRankingFailed2,
+  AI_RANKING_STATUS,
+  getAiRankingStatusLabel as getAiRankingStatusLabelDetailed,
+  getAiRankingStatusCategory,
+  getAiRankingStatusSeverity,
+  getAiRankingStatusColor,
+  isAiRankingActiveStatus,
+  isAiRankingCompleted,
+  isAiRankingFailedStatus,
+  getAiRankingStatusProgress,
 } from './ai-ranking-status.constants';
 
+// Export all types from ai-ranking-status.constants
 export type {
   AIRankingStatusType,
   AIRankingStatusCategory,

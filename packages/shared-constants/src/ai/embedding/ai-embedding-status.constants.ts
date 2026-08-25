@@ -87,20 +87,14 @@ export const AI_EMBEDDING_STATUS = {
   } as const,
 } as const;
 
-// Status Categories
 export type AIEmbeddingStatusCategory =
   (typeof AI_EMBEDDING_STATUS.CATEGORIES)[keyof typeof AI_EMBEDDING_STATUS.CATEGORIES];
-
-// Status Severity
 export type AIEmbeddingStatusSeverity =
   (typeof AI_EMBEDDING_STATUS.SEVERITY)[keyof typeof AI_EMBEDDING_STATUS.SEVERITY];
-
-// Status Colors
 export type AIEmbeddingStatusColor =
   (typeof AI_EMBEDDING_STATUS.COLORS)[keyof typeof AI_EMBEDDING_STATUS.COLORS];
 
-// Utility Functions
-export function getEmbeddingStatusLabel(status: AIEmbeddingStatusType): string {
+export function getAiEmbeddingStatusLabel(status: AIEmbeddingStatusType): string {
   const labels: Record<AIEmbeddingStatusType, string> = {
     [AI_EMBEDDING_STATUS_TYPES.CREATED]: 'Created',
     [AI_EMBEDDING_STATUS_TYPES.QUEUED]: 'Queued',
@@ -127,7 +121,7 @@ export function getEmbeddingStatusLabel(status: AIEmbeddingStatusType): string {
   return labels[status] || 'Unknown';
 }
 
-export function getEmbeddingStatusCategory(
+export function getAiEmbeddingStatusCategory(
   status: AIEmbeddingStatusType
 ): AIEmbeddingStatusCategory {
   const categories: Record<AIEmbeddingStatusType, AIEmbeddingStatusCategory> = {
@@ -156,7 +150,7 @@ export function getEmbeddingStatusCategory(
   return categories[status] || AI_EMBEDDING_STATUS.CATEGORIES.PENDING;
 }
 
-export function getEmbeddingStatusSeverity(
+export function getAiEmbeddingStatusSeverity(
   status: AIEmbeddingStatusType
 ): AIEmbeddingStatusSeverity {
   const severities: Record<AIEmbeddingStatusType, AIEmbeddingStatusSeverity> = {
@@ -185,11 +179,11 @@ export function getEmbeddingStatusSeverity(
   return severities[status] || AI_EMBEDDING_STATUS.SEVERITY.INFO;
 }
 
-export function getEmbeddingStatusColor(status: AIEmbeddingStatusType): AIEmbeddingStatusColor {
+export function getAiEmbeddingStatusColor(status: AIEmbeddingStatusType): AIEmbeddingStatusColor {
   return AI_EMBEDDING_STATUS.COLORS[status] || '#gray';
 }
 
-export function isEmbeddingActive(status: AIEmbeddingStatusType): boolean {
+export function isAiEmbeddingActive(status: AIEmbeddingStatusType): boolean {
   const activeStatuses: AIEmbeddingStatusType[] = [
     AI_EMBEDDING_STATUS_TYPES.CREATED,
     AI_EMBEDDING_STATUS_TYPES.QUEUED,
@@ -210,7 +204,7 @@ export function isEmbeddingActive(status: AIEmbeddingStatusType): boolean {
   return activeStatuses.includes(status);
 }
 
-export function isEmbeddingGenerated(status: AIEmbeddingStatusType): boolean {
+export function isAiEmbeddingGenerated(status: AIEmbeddingStatusType): boolean {
   const generatedStatuses: AIEmbeddingStatusType[] = [
     AI_EMBEDDING_STATUS_TYPES.GENERATED,
     AI_EMBEDDING_STATUS_TYPES.PROCESSED,
@@ -224,7 +218,7 @@ export function isEmbeddingGenerated(status: AIEmbeddingStatusType): boolean {
   return generatedStatuses.includes(status);
 }
 
-export function isEmbeddingCompleted(status: AIEmbeddingStatusType): boolean {
+export function isAiEmbeddingCompleted(status: AIEmbeddingStatusType): boolean {
   const completedStatuses: AIEmbeddingStatusType[] = [
     AI_EMBEDDING_STATUS_TYPES.COMPLETED,
     AI_EMBEDDING_STATUS_TYPES.STORED,
@@ -234,7 +228,7 @@ export function isEmbeddingCompleted(status: AIEmbeddingStatusType): boolean {
   return completedStatuses.includes(status);
 }
 
-export function isEmbeddingFailed(status: AIEmbeddingStatusType): boolean {
+export function isAiEmbeddingFailed(status: AIEmbeddingStatusType): boolean {
   const failedStatuses: AIEmbeddingStatusType[] = [
     AI_EMBEDDING_STATUS_TYPES.FAILED,
     AI_EMBEDDING_STATUS_TYPES.EXPIRED,
@@ -242,7 +236,7 @@ export function isEmbeddingFailed(status: AIEmbeddingStatusType): boolean {
   return failedStatuses.includes(status);
 }
 
-export function getEmbeddingStatusProgress(status: AIEmbeddingStatusType): number {
+export function getAiEmbeddingStatusProgress(status: AIEmbeddingStatusType): number {
   const progress: Record<AIEmbeddingStatusType, number> = {
     [AI_EMBEDDING_STATUS_TYPES.CREATED]: 0,
     [AI_EMBEDDING_STATUS_TYPES.QUEUED]: 5,

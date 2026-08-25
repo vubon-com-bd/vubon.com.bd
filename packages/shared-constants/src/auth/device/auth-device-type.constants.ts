@@ -4,7 +4,6 @@
  */
 
 export const AUTH_DEVICE_TYPE = {
-  // Primary device types
   WEB: 'web',
   MOBILE: 'mobile',
   TABLET: 'tablet',
@@ -17,7 +16,6 @@ export const AUTH_DEVICE_TYPE = {
   API: 'api',
   CLI: 'cli',
 
-  // Browser types
   CHROME: 'chrome',
   FIREFOX: 'firefox',
   SAFARI: 'safari',
@@ -27,26 +25,22 @@ export const AUTH_DEVICE_TYPE = {
   VIVALDI: 'vivaldi',
   ARC: 'arc',
 
-  // Mobile OS types
   ANDROID: 'android',
   IOS: 'ios',
   WINDOWS_PHONE: 'windows_phone',
   BLACKBERRY: 'blackberry',
 
-  // Desktop OS types
   WINDOWS: 'windows',
   MACOS: 'macos',
   LINUX: 'linux',
   CHROME_OS: 'chrome_os',
 
-  // Browser engine types
   WEBKIT: 'webkit',
   GECKO: 'gecko',
   BLINK: 'blink',
   TRIDENT: 'trident',
   PRESTRO: 'prestro',
 
-  // Device capabilities
   TOUCH: 'touch',
   NON_TOUCH: 'non_touch',
   KEYBOARD: 'keyboard',
@@ -60,7 +54,7 @@ export const AUTH_DEVICE_TYPE = {
 
 export type AuthDeviceType = (typeof AUTH_DEVICE_TYPE)[keyof typeof AUTH_DEVICE_TYPE];
 
-export const PRIMARY_DEVICE_TYPES: AuthDeviceType[] = [
+export const AUTHDEVICE_PRIMARY_TYPES: AuthDeviceType[] = [
   AUTH_DEVICE_TYPE.WEB,
   AUTH_DEVICE_TYPE.MOBILE,
   AUTH_DEVICE_TYPE.TABLET,
@@ -74,7 +68,7 @@ export const PRIMARY_DEVICE_TYPES: AuthDeviceType[] = [
   AUTH_DEVICE_TYPE.CLI,
 ];
 
-export const BROWSER_TYPES: AuthDeviceType[] = [
+export const AUTHDEVICE_BROWSER_TYPES: AuthDeviceType[] = [
   AUTH_DEVICE_TYPE.CHROME,
   AUTH_DEVICE_TYPE.FIREFOX,
   AUTH_DEVICE_TYPE.SAFARI,
@@ -85,21 +79,21 @@ export const BROWSER_TYPES: AuthDeviceType[] = [
   AUTH_DEVICE_TYPE.ARC,
 ];
 
-export const MOBILE_OS_TYPES: AuthDeviceType[] = [
+export const AUTHDEVICE_MOBILE_OS_TYPES: AuthDeviceType[] = [
   AUTH_DEVICE_TYPE.ANDROID,
   AUTH_DEVICE_TYPE.IOS,
   AUTH_DEVICE_TYPE.WINDOWS_PHONE,
   AUTH_DEVICE_TYPE.BLACKBERRY,
 ];
 
-export const DESKTOP_OS_TYPES: AuthDeviceType[] = [
+export const AUTHDEVICE_DESKTOP_OS_TYPES: AuthDeviceType[] = [
   AUTH_DEVICE_TYPE.WINDOWS,
   AUTH_DEVICE_TYPE.MACOS,
   AUTH_DEVICE_TYPE.LINUX,
   AUTH_DEVICE_TYPE.CHROME_OS,
 ];
 
-export const BROWSER_ENGINE_TYPES: AuthDeviceType[] = [
+export const AUTHDEVICE_BROWSER_ENGINE_TYPES: AuthDeviceType[] = [
   AUTH_DEVICE_TYPE.WEBKIT,
   AUTH_DEVICE_TYPE.GECKO,
   AUTH_DEVICE_TYPE.BLINK,
@@ -107,7 +101,7 @@ export const BROWSER_ENGINE_TYPES: AuthDeviceType[] = [
   AUTH_DEVICE_TYPE.PRESTRO,
 ];
 
-export const DEVICE_CAPABILITIES: AuthDeviceType[] = [
+export const AUTHDEVICE_CAPABILITIES: AuthDeviceType[] = [
   AUTH_DEVICE_TYPE.TOUCH,
   AUTH_DEVICE_TYPE.NON_TOUCH,
   AUTH_DEVICE_TYPE.KEYBOARD,
@@ -119,48 +113,48 @@ export const DEVICE_CAPABILITIES: AuthDeviceType[] = [
   AUTH_DEVICE_TYPE.BLUETOOTH,
 ];
 
-export const MOBILE_DEVICE_TYPES: AuthDeviceType[] = [
+export const AUTHDEVICE_MOBILE_TYPES: AuthDeviceType[] = [
   AUTH_DEVICE_TYPE.MOBILE,
   AUTH_DEVICE_TYPE.TABLET,
   AUTH_DEVICE_TYPE.WEARABLE,
 ];
 
-export const DESKTOP_DEVICE_TYPES: AuthDeviceType[] = [
+export const AUTHDEVICE_DESKTOP_TYPES: AuthDeviceType[] = [
   AUTH_DEVICE_TYPE.DESKTOP,
   AUTH_DEVICE_TYPE.WEB,
 ];
 
-export const TOUCH_DEVICE_TYPES: AuthDeviceType[] = [
+export const AUTHDEVICE_TOUCH_TYPES: AuthDeviceType[] = [
   AUTH_DEVICE_TYPE.TOUCH,
   AUTH_DEVICE_TYPE.MOBILE,
   AUTH_DEVICE_TYPE.TABLET,
 ];
 
-export function isPrimaryDeviceType(type: AuthDeviceType): boolean {
-  return PRIMARY_DEVICE_TYPES.includes(type);
+export function isAuthdevicePrimaryType(type: AuthDeviceType): boolean {
+  return AUTHDEVICE_PRIMARY_TYPES.includes(type);
 }
 
-export function isBrowserType(type: AuthDeviceType): boolean {
-  return BROWSER_TYPES.includes(type);
+export function isAuthdeviceBrowserType(type: AuthDeviceType): boolean {
+  return AUTHDEVICE_BROWSER_TYPES.includes(type);
 }
 
-export function isMobileOSType(type: AuthDeviceType): boolean {
-  return MOBILE_OS_TYPES.includes(type);
+export function isAuthdeviceMobileOSType(type: AuthDeviceType): boolean {
+  return AUTHDEVICE_MOBILE_OS_TYPES.includes(type);
 }
 
-export function isDesktopOSType(type: AuthDeviceType): boolean {
-  return DESKTOP_OS_TYPES.includes(type);
+export function isAuthdeviceDesktopOSType(type: AuthDeviceType): boolean {
+  return AUTHDEVICE_DESKTOP_OS_TYPES.includes(type);
 }
 
-export function isBrowserEngineType(type: AuthDeviceType): boolean {
-  return BROWSER_ENGINE_TYPES.includes(type);
+export function isAuthdeviceBrowserEngineType(type: AuthDeviceType): boolean {
+  return AUTHDEVICE_BROWSER_ENGINE_TYPES.includes(type);
 }
 
-export function isDeviceCapability(type: AuthDeviceType): boolean {
-  return DEVICE_CAPABILITIES.includes(type);
+export function isAuthdeviceCapability(type: AuthDeviceType): boolean {
+  return AUTHDEVICE_CAPABILITIES.includes(type);
 }
 
-export function getDeviceTypeLabel(type: AuthDeviceType): string {
+export function getAuthdeviceTypeLabel(type: AuthDeviceType): string {
   const labels: Record<AuthDeviceType, string> = {
     [AUTH_DEVICE_TYPE.WEB]: 'Web Browser',
     [AUTH_DEVICE_TYPE.MOBILE]: 'Mobile Phone',
@@ -208,7 +202,7 @@ export function getDeviceTypeLabel(type: AuthDeviceType): string {
   return labels[type] || 'Unknown Device Type';
 }
 
-export function getDeviceTypeIcon(type: AuthDeviceType): string {
+export function getAuthdeviceTypeIcon(type: AuthDeviceType): string {
   const icons: Record<AuthDeviceType, string> = {
     [AUTH_DEVICE_TYPE.WEB]: '🌐',
     [AUTH_DEVICE_TYPE.MOBILE]: '📱',
@@ -256,24 +250,24 @@ export function getDeviceTypeIcon(type: AuthDeviceType): string {
   return icons[type] || '📱';
 }
 
-export function getDeviceTypeCategory(
+export function getAuthdeviceTypeCategory(
   type: AuthDeviceType
 ): 'browser' | 'os' | 'engine' | 'capability' | 'primary' {
-  if (isBrowserType(type)) return 'browser';
-  if (isMobileOSType(type) || isDesktopOSType(type)) return 'os';
-  if (isBrowserEngineType(type)) return 'engine';
-  if (isDeviceCapability(type)) return 'capability';
+  if (isAuthdeviceBrowserType(type)) return 'browser';
+  if (isAuthdeviceMobileOSType(type) || isAuthdeviceDesktopOSType(type)) return 'os';
+  if (isAuthdeviceBrowserEngineType(type)) return 'engine';
+  if (isAuthdeviceCapability(type)) return 'capability';
   return 'primary';
 }
 
-export function isMobileDevice(type: AuthDeviceType): boolean {
-  return MOBILE_DEVICE_TYPES.includes(type);
+export function isAuthdeviceMobile(type: AuthDeviceType): boolean {
+  return AUTHDEVICE_MOBILE_TYPES.includes(type);
 }
 
-export function isDesktopDevice(type: AuthDeviceType): boolean {
-  return DESKTOP_DEVICE_TYPES.includes(type);
+export function isAuthdeviceDesktop(type: AuthDeviceType): boolean {
+  return AUTHDEVICE_DESKTOP_TYPES.includes(type);
 }
 
-export function isTouchDevice(type: AuthDeviceType): boolean {
-  return TOUCH_DEVICE_TYPES.includes(type);
+export function isAuthdeviceTouch(type: AuthDeviceType): boolean {
+  return AUTHDEVICE_TOUCH_TYPES.includes(type);
 }

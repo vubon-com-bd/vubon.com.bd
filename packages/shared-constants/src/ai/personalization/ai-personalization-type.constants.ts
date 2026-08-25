@@ -102,28 +102,18 @@ export const AI_PERSONALIZATION_TYPE = {
   } as const,
 } as const;
 
-// Personalization Categories
 export type AIPersonalizationCategory =
   (typeof AI_PERSONALIZATION_TYPE.CATEGORIES)[keyof typeof AI_PERSONALIZATION_TYPE.CATEGORIES];
-
-// Personalization Sub-Types
 export type AIPersonalizationSubType =
   (typeof AI_PERSONALIZATION_TYPE.SUB_TYPES)[keyof typeof AI_PERSONALIZATION_TYPE.SUB_TYPES];
-
-// Personalization Sources
 export type AIPersonalizationSource =
   (typeof AI_PERSONALIZATION_TYPE.SOURCES)[keyof typeof AI_PERSONALIZATION_TYPE.SOURCES];
-
-// Personalization Modes
 export type AIPersonalizationMode =
   (typeof AI_PERSONALIZATION_TYPE.MODES)[keyof typeof AI_PERSONALIZATION_TYPE.MODES];
-
-// Personalization Levels
 export type AIPersonalizationLevel =
   (typeof AI_PERSONALIZATION_TYPE.LEVELS)[keyof typeof AI_PERSONALIZATION_TYPE.LEVELS];
 
-// Utility Functions
-export function getPersonalizationCategoryLabel(category: AIPersonalizationCategory): string {
+export function getAiPersonalizationCategoryLabel(category: AIPersonalizationCategory): string {
   const labels: Record<AIPersonalizationCategory, string> = {
     [AI_PERSONALIZATION_TYPE.CATEGORIES.USER]: 'User',
     [AI_PERSONALIZATION_TYPE.CATEGORIES.BEHAVIORAL]: 'Behavioral',
@@ -139,7 +129,7 @@ export function getPersonalizationCategoryLabel(category: AIPersonalizationCateg
   return labels[category] || 'Unknown';
 }
 
-export function getPersonalizationSubTypeLabel(subType: AIPersonalizationSubType): string {
+export function getAiPersonalizationSubTypeLabel(subType: AIPersonalizationSubType): string {
   const labels: Record<AIPersonalizationSubType, string> = {
     [AI_PERSONALIZATION_TYPE.SUB_TYPES.USER_PROFILE]: 'User Profile',
     [AI_PERSONALIZATION_TYPE.SUB_TYPES.USER_SEGMENT]: 'User Segment',
@@ -179,7 +169,7 @@ export function getPersonalizationSubTypeLabel(subType: AIPersonalizationSubType
   return labels[subType] || 'Unknown';
 }
 
-export function getPersonalizationSourceLabel(source: AIPersonalizationSource): string {
+export function getAiPersonalizationSourceLabel(source: AIPersonalizationSource): string {
   const labels: Record<AIPersonalizationSource, string> = {
     [AI_PERSONALIZATION_TYPE.SOURCES.FIRST_PARTY]: 'First Party',
     [AI_PERSONALIZATION_TYPE.SOURCES.SECOND_PARTY]: 'Second Party',
@@ -192,7 +182,7 @@ export function getPersonalizationSourceLabel(source: AIPersonalizationSource): 
   return labels[source] || 'Unknown';
 }
 
-export function getPersonalizationModeLabel(mode: AIPersonalizationMode): string {
+export function getAiPersonalizationModeLabel(mode: AIPersonalizationMode): string {
   const labels: Record<AIPersonalizationMode, string> = {
     [AI_PERSONALIZATION_TYPE.MODES.EXPLICIT]: 'Explicit',
     [AI_PERSONALIZATION_TYPE.MODES.IMPLICIT]: 'Implicit',
@@ -205,7 +195,7 @@ export function getPersonalizationModeLabel(mode: AIPersonalizationMode): string
   return labels[mode] || 'Unknown';
 }
 
-export function getPersonalizationLevelLabel(level: AIPersonalizationLevel): string {
+export function getAiPersonalizationLevelLabel(level: AIPersonalizationLevel): string {
   const labels: Record<AIPersonalizationLevel, string> = {
     [AI_PERSONALIZATION_TYPE.LEVELS.NONE]: 'None',
     [AI_PERSONALIZATION_TYPE.LEVELS.BASIC]: 'Basic',

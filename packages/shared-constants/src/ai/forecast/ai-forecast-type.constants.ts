@@ -90,32 +90,20 @@ export const AI_FORECAST_TYPE = {
   } as const,
 } as const;
 
-// Forecast Domains
 export type AIForecastDomain =
   (typeof AI_FORECAST_TYPE.DOMAINS)[keyof typeof AI_FORECAST_TYPE.DOMAINS];
-
-// Forecast Sub-Types
 export type AIForecastSubType =
   (typeof AI_FORECAST_TYPE.SUB_TYPES)[keyof typeof AI_FORECAST_TYPE.SUB_TYPES];
-
-// Forecast Complexity
 export type AIForecastComplexity =
   (typeof AI_FORECAST_TYPE.COMPLEXITY)[keyof typeof AI_FORECAST_TYPE.COMPLEXITY];
-
-// Forecast Accuracy
 export type AIForecastAccuracy =
   (typeof AI_FORECAST_TYPE.ACCURACY)[keyof typeof AI_FORECAST_TYPE.ACCURACY];
-
-// Forecast Granularity
 export type AIForecastGranularity =
   (typeof AI_FORECAST_TYPE.GRANULARITY)[keyof typeof AI_FORECAST_TYPE.GRANULARITY];
-
-// Forecast Scope
 export type AIForecastScope =
   (typeof AI_FORECAST_TYPE.SCOPES)[keyof typeof AI_FORECAST_TYPE.SCOPES];
 
-// Utility Functions
-export function getForecastDomainLabel(domain: AIForecastDomain): string {
+export function getAiForecastDomainLabel(domain: AIForecastDomain): string {
   const labels: Record<AIForecastDomain, string> = {
     [AI_FORECAST_TYPE.DOMAINS.BUSINESS]: 'Business',
     [AI_FORECAST_TYPE.DOMAINS.ECONOMIC]: 'Economic',
@@ -131,7 +119,7 @@ export function getForecastDomainLabel(domain: AIForecastDomain): string {
   return labels[domain] || 'Unknown';
 }
 
-export function getForecastSubTypeLabel(subType: AIForecastSubType): string {
+export function getAiForecastSubTypeLabel(subType: AIForecastSubType): string {
   const labels: Record<AIForecastSubType, string> = {
     [AI_FORECAST_TYPE.SUB_TYPES.REVENUE]: 'Revenue',
     [AI_FORECAST_TYPE.SUB_TYPES.COST]: 'Cost',
@@ -160,7 +148,7 @@ export function getForecastSubTypeLabel(subType: AIForecastSubType): string {
   return labels[subType] || 'Unknown';
 }
 
-export function getForecastComplexityLabel(complexity: AIForecastComplexity): string {
+export function getAiForecastComplexityLabel(complexity: AIForecastComplexity): string {
   const labels: Record<AIForecastComplexity, string> = {
     [AI_FORECAST_TYPE.COMPLEXITY.SIMPLE]: 'Simple',
     [AI_FORECAST_TYPE.COMPLEXITY.MODERATE]: 'Moderate',
@@ -170,7 +158,7 @@ export function getForecastComplexityLabel(complexity: AIForecastComplexity): st
   return labels[complexity] || 'Unknown';
 }
 
-export function getForecastAccuracyLabel(accuracy: AIForecastAccuracy): string {
+export function getAiForecastAccuracyLabel(accuracy: AIForecastAccuracy): string {
   const labels: Record<AIForecastAccuracy, string> = {
     [AI_FORECAST_TYPE.ACCURACY.HIGH]: 'High',
     [AI_FORECAST_TYPE.ACCURACY.MEDIUM]: 'Medium',
@@ -180,7 +168,7 @@ export function getForecastAccuracyLabel(accuracy: AIForecastAccuracy): string {
   return labels[accuracy] || 'Unknown';
 }
 
-export function getForecastGranularityLabel(granularity: AIForecastGranularity): string {
+export function getAiForecastGranularityLabel(granularity: AIForecastGranularity): string {
   const labels: Record<AIForecastGranularity, string> = {
     [AI_FORECAST_TYPE.GRANULARITY.MICRO]: 'Micro',
     [AI_FORECAST_TYPE.GRANULARITY.MESO]: 'Meso',
@@ -190,7 +178,7 @@ export function getForecastGranularityLabel(granularity: AIForecastGranularity):
   return labels[granularity] || 'Unknown';
 }
 
-export function getForecastScopeLabel(scope: AIForecastScope): string {
+export function getAiForecastScopeLabel(scope: AIForecastScope): string {
   const labels: Record<AIForecastScope, string> = {
     [AI_FORECAST_TYPE.SCOPES.INDIVIDUAL]: 'Individual',
     [AI_FORECAST_TYPE.SCOPES.GROUP]: 'Group',
@@ -203,7 +191,7 @@ export function getForecastScopeLabel(scope: AIForecastScope): string {
   return labels[scope] || 'Unknown';
 }
 
-export function getComplexityScore(complexity: AIForecastComplexity): number {
+export function getAiForecastComplexityScore(complexity: AIForecastComplexity): number {
   const scores: Record<AIForecastComplexity, number> = {
     [AI_FORECAST_TYPE.COMPLEXITY.SIMPLE]: 1,
     [AI_FORECAST_TYPE.COMPLEXITY.MODERATE]: 3,
@@ -213,7 +201,7 @@ export function getComplexityScore(complexity: AIForecastComplexity): number {
   return scores[complexity] || 1;
 }
 
-export function getAccuracyScore(accuracy: AIForecastAccuracy): number {
+export function getAiForecastAccuracyScore(accuracy: AIForecastAccuracy): number {
   const scores: Record<AIForecastAccuracy, number> = {
     [AI_FORECAST_TYPE.ACCURACY.HIGH]: 0.8,
     [AI_FORECAST_TYPE.ACCURACY.MEDIUM]: 0.5,

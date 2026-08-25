@@ -1,24 +1,25 @@
 /**
- * AI Search Constants Index
- * Export all search constants and types for easy importing
+ * AI Search Index
+ * Export all AI search constants and types for easy importing
  */
 
-// AI Search Constants
+// Export all constants from ai-search.constants
 export {
   AI_SEARCH,
-  getSearchTypeLabel,
-  getSearchStatusLabel,
-  getSearchStrategyLabel,
-  getSearchSortLabel,
-  getSearchMetricLabel,
-  getSearchModeLabel,
-  isSearchActive,
-  isSearchComplete,
-  isSearchFailed,
-  getDefaultSearchLimit,
-  getMaxSearchLimit,
+  getAiSearchTypeLabel,
+  getAiSearchStatusLabel,
+  getAiSearchStrategyLabel,
+  getAiSearchSortLabel,
+  getAiSearchMetricLabel,
+  getAiSearchModeLabel,
+  isAiSearchActive,
+  isAiSearchComplete,
+  isAiSearchFailed,
+  getAiSearchDefaultLimit,
+  getAiSearchMaxLimit,
 } from './ai-search.constants';
 
+// Export all types from ai-search.constants
 export type {
   AISearchType,
   AISearchStatus,
@@ -32,17 +33,18 @@ export type {
   AISearchMode,
 } from './ai-search.constants';
 
-// AI Search Type Constants
+// Export all constants from ai-search-type.constants
 export {
   AI_SEARCH_TYPE,
-  getSearchCategoryLabel,
-  getSearchSubTypeLabel,
-  getSearchSourceLabel,
-  getSearchModeTypeLabel,
-  getSearchOperatorLabel,
-  getSearchScopeLabel,
+  getAiSearchCategoryLabel,
+  getAiSearchSubTypeLabel,
+  getAiSearchSourceLabel,
+  getAiSearchModeTypeLabel,
+  getAiSearchOperatorLabel,
+  getAiSearchScopeLabel,
 } from './ai-search-type.constants';
 
+// Export all types from ai-search-type.constants
 export type {
   AISearchCategory,
   AISearchSubType,
@@ -52,43 +54,49 @@ export type {
   AISearchScope,
 } from './ai-search-type.constants';
 
-// AI Search Status Constants
+// Export all constants from ai-search-strategy.constants
 export {
-  AI_SEARCH_STATUS,
+  AI_SEARCH_STRATEGY,
+  getAiSearchStrategyCategoryLabel,
+  getAiSearchStrategyTypeLabel,
+  getAiSearchStrategyApproachLabel,
+  getAiSearchStrategyGoalLabel,
+  getAiSearchStrategyTradeOffLabel,
+  getAiSearchStrategyExecutionLabel,
+  getAiSearchStrategyEvaluationLabel,
+  getAiSearchStrategyPriorityWeight,
+  getAiSearchRecommendedStrategyForGoal,
+} from './ai-search-strategy.constants';
+
+// Export all types from ai-search-strategy.constants
+export type {
+  AISearchStrategyCategory,
+  AISearchStrategyType,
+  AISearchStrategyApproach,
+  AISearchStrategyGoal,
+  AISearchStrategyTradeOff,
+  AISearchStrategyExecution,
+  AISearchStrategyEvaluation,
+} from './ai-search-strategy.constants';
+
+// Export all constants from ai-search-status.constants
+export {
   AI_SEARCH_STATUS_TYPES,
-  getSearchStatusLabel as getSearchStatusLabel2,
-  getSearchStatusCategory,
-  getSearchStatusSeverity,
-  getSearchStatusColor,
-  isSearchActive as isSearchActive2,
-  isSearchDelivered,
-  isSearchComplete as isSearchComplete2,
-  isSearchFailed as isSearchFailed2,
+  AI_SEARCH_STATUS,
+  getAiSearchStatusLabel as getAiSearchStatusLabelDetailed,
+  getAiSearchStatusCategory,
+  getAiSearchStatusSeverity,
+  getAiSearchStatusColor,
+  isAiSearchActiveStatus,
+  isAiSearchCompleted,
+  isAiSearchFailedStatus,
+  getAiSearchStatusProgress,
 } from './ai-search-status.constants';
 
+// Export all types from ai-search-status.constants
 export type {
   AISearchStatusType,
   AISearchStatusCategory,
   AISearchStatusSeverity,
   AISearchStatusColor,
 } from './ai-search-status.constants';
-
-// AI Search Strategy Constants
-export {
-  AI_SEARCH_STRATEGY,
-  getSearchStrategyTypeLabel,
-  getSearchStrategyApproachLabel,
-  getSearchStrategyGoalLabel,
-  getSearchStrategyExecutionLabel,
-  getSearchStrategyEvaluationLabel,
-  getRecommendedStrategyForGoal,
-} from './ai-search-strategy.constants';
-
-export type {
-  AISearchStrategyType,
-  AISearchStrategyApproach,
-  AISearchStrategyGoal,
-  AISearchStrategyOptimization,
-  AISearchStrategyExecution,
-  AISearchStrategyEvaluation,
-} from './ai-search-strategy.constants';

@@ -195,38 +195,18 @@ export const AI_SEARCH = {
   } as const,
 } as const;
 
-// Search Types
 export type AISearchType = (typeof AI_SEARCH.TYPES)[keyof typeof AI_SEARCH.TYPES];
-
-// Search Status
 export type AISearchStatus = (typeof AI_SEARCH.STATUSES)[keyof typeof AI_SEARCH.STATUSES];
-
-// Search Strategies
 export type AISearchStrategy = (typeof AI_SEARCH.STRATEGIES)[keyof typeof AI_SEARCH.STRATEGIES];
-
-// Search Filters
 export type AISearchFilter = (typeof AI_SEARCH.FILTERS)[keyof typeof AI_SEARCH.FILTERS];
-
-// Search Sort Options
 export type AISearchSort = (typeof AI_SEARCH.SORT)[keyof typeof AI_SEARCH.SORT];
-
-// Search Limits
 export type AISearchLimit = (typeof AI_SEARCH.LIMITS)[keyof typeof AI_SEARCH.LIMITS];
-
-// Search Metrics
 export type AISearchMetric = (typeof AI_SEARCH.METRICS)[keyof typeof AI_SEARCH.METRICS];
-
-// Search Languages
 export type AISearchLanguage = (typeof AI_SEARCH.LANGUAGES)[keyof typeof AI_SEARCH.LANGUAGES];
-
-// Search Contexts
 export type AISearchContext = (typeof AI_SEARCH.CONTEXTS)[keyof typeof AI_SEARCH.CONTEXTS];
-
-// Search Modes
 export type AISearchMode = (typeof AI_SEARCH.MODES)[keyof typeof AI_SEARCH.MODES];
 
-// Utility Functions
-export function getSearchTypeLabel(type: AISearchType): string {
+export function getAiSearchTypeLabel(type: AISearchType): string {
   const labels: Record<AISearchType, string> = {
     [AI_SEARCH.TYPES.SEMANTIC]: 'Semantic Search',
     [AI_SEARCH.TYPES.KEYWORD]: 'Keyword Search',
@@ -244,7 +224,7 @@ export function getSearchTypeLabel(type: AISearchType): string {
   return labels[type] || 'Unknown';
 }
 
-export function getSearchStatusLabel(status: AISearchStatus): string {
+export function getAiSearchStatusLabel(status: AISearchStatus): string {
   const labels: Record<AISearchStatus, string> = {
     [AI_SEARCH.STATUSES.PENDING]: 'Pending',
     [AI_SEARCH.STATUSES.PROCESSING]: 'Processing',
@@ -261,7 +241,7 @@ export function getSearchStatusLabel(status: AISearchStatus): string {
   return labels[status] || 'Unknown';
 }
 
-export function getSearchStrategyLabel(strategy: AISearchStrategy): string {
+export function getAiSearchStrategyLabel(strategy: AISearchStrategy): string {
   const labels: Record<AISearchStrategy, string> = {
     [AI_SEARCH.STRATEGIES.TF_IDF]: 'TF-IDF',
     [AI_SEARCH.STRATEGIES.BM25]: 'BM25',
@@ -302,7 +282,7 @@ export function getSearchStrategyLabel(strategy: AISearchStrategy): string {
   return labels[strategy] || 'Unknown';
 }
 
-export function getSearchSortLabel(sort: AISearchSort): string {
+export function getAiSearchSortLabel(sort: AISearchSort): string {
   const labels: Record<AISearchSort, string> = {
     [AI_SEARCH.SORT.RELEVANCE]: 'Relevance',
     [AI_SEARCH.SORT.POPULARITY]: 'Popularity',
@@ -319,7 +299,7 @@ export function getSearchSortLabel(sort: AISearchSort): string {
   return labels[sort] || 'Unknown';
 }
 
-export function getSearchMetricLabel(metric: AISearchMetric): string {
+export function getAiSearchMetricLabel(metric: AISearchMetric): string {
   const labels: Record<AISearchMetric, string> = {
     [AI_SEARCH.METRICS.PRECISION]: 'Precision',
     [AI_SEARCH.METRICS.RECALL]: 'Recall',
@@ -338,7 +318,7 @@ export function getSearchMetricLabel(metric: AISearchMetric): string {
   return labels[metric] || 'Unknown';
 }
 
-export function getSearchModeLabel(mode: AISearchMode): string {
+export function getAiSearchModeLabel(mode: AISearchMode): string {
   const labels: Record<AISearchMode, string> = {
     [AI_SEARCH.MODES.PRECISE]: 'Precise',
     [AI_SEARCH.MODES.BROAD]: 'Broad',
@@ -350,7 +330,7 @@ export function getSearchModeLabel(mode: AISearchMode): string {
   return labels[mode] || 'Unknown';
 }
 
-export function isSearchActive(status: AISearchStatus): boolean {
+export function isAiSearchActive(status: AISearchStatus): boolean {
   const activeStatuses: AISearchStatus[] = [
     AI_SEARCH.STATUSES.PENDING,
     AI_SEARCH.STATUSES.PROCESSING,
@@ -362,7 +342,7 @@ export function isSearchActive(status: AISearchStatus): boolean {
   return activeStatuses.includes(status);
 }
 
-export function isSearchComplete(status: AISearchStatus): boolean {
+export function isAiSearchComplete(status: AISearchStatus): boolean {
   const completeStatuses: AISearchStatus[] = [
     AI_SEARCH.STATUSES.COMPLETED,
     AI_SEARCH.STATUSES.DELIVERED,
@@ -371,14 +351,14 @@ export function isSearchComplete(status: AISearchStatus): boolean {
   return completeStatuses.includes(status);
 }
 
-export function isSearchFailed(status: AISearchStatus): boolean {
+export function isAiSearchFailed(status: AISearchStatus): boolean {
   return status === AI_SEARCH.STATUSES.FAILED;
 }
 
-export function getDefaultSearchLimit(): number {
+export function getAiSearchDefaultLimit(): number {
   return AI_SEARCH.LIMITS.DEFAULT;
 }
 
-export function getMaxSearchLimit(): number {
+export function getAiSearchMaxLimit(): number {
   return AI_SEARCH.LIMITS.MAX;
 }

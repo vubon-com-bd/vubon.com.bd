@@ -309,60 +309,34 @@ export const AI_RECOMMENDATION = {
   } as const,
 } as const;
 
-// Recommendation Types
 export type AIRecommendationType =
   (typeof AI_RECOMMENDATION.TYPES)[keyof typeof AI_RECOMMENDATION.TYPES];
-
-// Recommendation Strategies
 export type AIRecommendationStrategy =
   (typeof AI_RECOMMENDATION.STRATEGIES)[keyof typeof AI_RECOMMENDATION.STRATEGIES];
-
-// Recommendation Scopes
 export type AIRecommendationScope =
   (typeof AI_RECOMMENDATION.SCOPES)[keyof typeof AI_RECOMMENDATION.SCOPES];
-
-// Recommendation Priorities
 export type AIRecommendationPriority =
   (typeof AI_RECOMMENDATION.PRIORITIES)[keyof typeof AI_RECOMMENDATION.PRIORITIES];
-
-// Recommendation Status
 export type AIRecommendationStatus =
   (typeof AI_RECOMMENDATION.STATUSES)[keyof typeof AI_RECOMMENDATION.STATUSES];
-
-// Recommendation Feedback Types
 export type AIRecommendationFeedbackType =
   (typeof AI_RECOMMENDATION.FEEDBACK_TYPES)[keyof typeof AI_RECOMMENDATION.FEEDBACK_TYPES];
-
-// Recommendation Score Types
 export type AIRecommendationScoreType =
   (typeof AI_RECOMMENDATION.SCORE_TYPES)[keyof typeof AI_RECOMMENDATION.SCORE_TYPES];
-
-// Recommendation Filters
 export type AIRecommendationFilter =
   (typeof AI_RECOMMENDATION.FILTERS)[keyof typeof AI_RECOMMENDATION.FILTERS];
-
-// Recommendation Algorithms
 export type AIRecommendationAlgorithm =
   (typeof AI_RECOMMENDATION.ALGORITHMS)[keyof typeof AI_RECOMMENDATION.ALGORITHMS];
-
-// Recommendation Metrics
 export type AIRecommendationMetric =
   (typeof AI_RECOMMENDATION.METRICS)[keyof typeof AI_RECOMMENDATION.METRICS];
-
-// Recommendation Limits
 export type AIRecommendationLimit =
   (typeof AI_RECOMMENDATION.LIMITS)[keyof typeof AI_RECOMMENDATION.LIMITS];
-
-// Recommendation Timeframes
 export type AIRecommendationTimeframe =
   (typeof AI_RECOMMENDATION.TIMEFRAMES)[keyof typeof AI_RECOMMENDATION.TIMEFRAMES];
-
-// Recommendation Models
 export type AIRecommendationModel =
   (typeof AI_RECOMMENDATION.MODELS)[keyof typeof AI_RECOMMENDATION.MODELS];
 
-// Utility Functions
-export function getRecommendationPriorityLabel(priority: AIRecommendationPriority): string {
+export function getAiRecommendationPriorityLabel(priority: AIRecommendationPriority): string {
   const labels: Record<AIRecommendationPriority, string> = {
     [AI_RECOMMENDATION.PRIORITIES.CRITICAL]: 'Critical',
     [AI_RECOMMENDATION.PRIORITIES.HIGH]: 'High',
@@ -373,7 +347,7 @@ export function getRecommendationPriorityLabel(priority: AIRecommendationPriorit
   return labels[priority] || 'Unknown';
 }
 
-export function getRecommendationStatusLabel(status: AIRecommendationStatus): string {
+export function getAiRecommendationStatusLabel(status: AIRecommendationStatus): string {
   const labels: Record<AIRecommendationStatus, string> = {
     [AI_RECOMMENDATION.STATUSES.PENDING]: 'Pending',
     [AI_RECOMMENDATION.STATUSES.PROCESSING]: 'Processing',
@@ -395,7 +369,7 @@ export function getRecommendationStatusLabel(status: AIRecommendationStatus): st
   return labels[status] || 'Unknown';
 }
 
-export function getRecommendationScopeLabel(scope: AIRecommendationScope): string {
+export function getAiRecommendationScopeLabel(scope: AIRecommendationScope): string {
   const labels: Record<AIRecommendationScope, string> = {
     [AI_RECOMMENDATION.SCOPES.GLOBAL]: 'Global',
     [AI_RECOMMENDATION.SCOPES.SITE_WIDE]: 'Site Wide',
@@ -423,7 +397,7 @@ export function getRecommendationScopeLabel(scope: AIRecommendationScope): strin
   return labels[scope] || 'Unknown';
 }
 
-export function getRecommendationMetricLabel(metric: AIRecommendationMetric): string {
+export function getAiRecommendationMetricLabel(metric: AIRecommendationMetric): string {
   const labels: Record<AIRecommendationMetric, string> = {
     [AI_RECOMMENDATION.METRICS.RMSE]: 'Root Mean Square Error',
     [AI_RECOMMENDATION.METRICS.MAE]: 'Mean Absolute Error',
@@ -454,7 +428,7 @@ export function getRecommendationMetricLabel(metric: AIRecommendationMetric): st
   return labels[metric] || 'Unknown';
 }
 
-export function getRecommendationAlgorithmFamily(algorithm: AIRecommendationAlgorithm): string {
+export function getAiRecommendationAlgorithmFamily(algorithm: AIRecommendationAlgorithm): string {
   const familyMap: Record<AIRecommendationAlgorithm, string> = {
     [AI_RECOMMENDATION.ALGORITHMS.USER_BASED_CF]: 'Collaborative Filtering',
     [AI_RECOMMENDATION.ALGORITHMS.ITEM_BASED_CF]: 'Collaborative Filtering',
@@ -497,7 +471,7 @@ export function getRecommendationAlgorithmFamily(algorithm: AIRecommendationAlgo
   return familyMap[algorithm] || 'Unknown';
 }
 
-export function isRecommendationDelivered(status: AIRecommendationStatus): boolean {
+export function isAiRecommendationDelivered(status: AIRecommendationStatus): boolean {
   const deliveredStatuses: AIRecommendationStatus[] = [
     AI_RECOMMENDATION.STATUSES.DELIVERED,
     AI_RECOMMENDATION.STATUSES.VIEWED,
@@ -507,7 +481,7 @@ export function isRecommendationDelivered(status: AIRecommendationStatus): boole
   return deliveredStatuses.includes(status);
 }
 
-export function isRecommendationActive(status: AIRecommendationStatus): boolean {
+export function isAiRecommendationActive(status: AIRecommendationStatus): boolean {
   const activeStatuses: AIRecommendationStatus[] = [
     AI_RECOMMENDATION.STATUSES.PENDING,
     AI_RECOMMENDATION.STATUSES.PROCESSING,
@@ -521,7 +495,7 @@ export function isRecommendationActive(status: AIRecommendationStatus): boolean 
   return activeStatuses.includes(status);
 }
 
-export function getDefaultRecommendationCount(scope: AIRecommendationScope): number {
+export function getAiRecommendationDefaultCount(scope: AIRecommendationScope): number {
   const counts: Record<AIRecommendationScope, number> = {
     [AI_RECOMMENDATION.SCOPES.GLOBAL]: 20,
     [AI_RECOMMENDATION.SCOPES.SITE_WIDE]: 20,

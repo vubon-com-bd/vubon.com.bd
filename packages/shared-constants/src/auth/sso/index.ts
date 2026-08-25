@@ -1,12 +1,6 @@
-/**
- * SSO Constants Index
- * Export all SSO constants and types for easy importing
- */
-
-// SSO
+// Export all constants from auth-sso.constants
 export {
   AUTH_SSO,
-  SSO_PROVIDER_CONFIGS,
   SSO_PROTOCOLS,
   SSO_SAML_BINDINGS,
   SSO_SAML_NAME_ID_FORMATS,
@@ -16,22 +10,10 @@ export {
   SSO_RATE_LIMIT,
   SSO_DEFAULTS,
   SSO_EVENTS,
-  getSSOProviderConfig,
-  getSSOProtocol,
-  getSSOProviderLabel,
-  getSSOProviderIcon,
-  getSSOProviderColor,
-  getSSOProtocolLabel,
-  getSAMLNameIdFormatLabel,
-  getSAMLBindingLabel,
-  getLDAPAttributeLabel,
-  getSSOSessionMaxAge,
-  getSSOSessionInactivityTimeout,
-  getSSOMaxSessionsPerUser,
-  isSSOProviderSupported,
-  getSupportedSSOProviders,
+  SSO_PROVIDER_CONFIGS,
 } from './auth-sso.constants';
 
+// Export all types from auth-sso.constants
 export type {
   AuthSSOConfig,
   AuthSSOEvent,
@@ -39,7 +21,57 @@ export type {
   SSOProviderConfig,
 } from './auth-sso.constants';
 
-// SSO Providers
+// Export all functions from auth-sso.constants
+export {
+  getAuthssoProviderConfig,
+  getAuthssoProtocol,
+  getAuthssoProviderLabel,
+  getAuthssoProviderIcon,
+  getAuthssoProviderColor,
+  getAuthssoProtocolLabel,
+  getAuthssoSAMLNameIdFormatLabel,
+  getAuthssoSAMLBindingLabel,
+  getAuthssoLDAPAttributeLabel,
+  getAuthssoSessionMaxAge,
+  getAuthssoSessionInactivityTimeout,
+  getAuthssoMaxSessionsPerUser,
+  isAuthssoProviderSupported,
+  getAuthssoSupportedProviders,
+} from './auth-sso.constants';
+
+// Export all constants from auth-sso-status.constants
+export {
+  AUTH_SSO_STATUS,
+  AUTHS_ACTIVE_SSO_STATUSES,
+  AUTHS_PENDING_SSO_STATUSES,
+  AUTHS_INACTIVE_SSO_STATUSES,
+  AUTHS_FAILED_SSO_STATUSES,
+  AUTHS_SECURITY_SSO_STATUSES,
+  AUTHS_SAML_SSO_STATUSES,
+  AUTHS_LDAP_SSO_STATUSES,
+  AUTHS_LOGOUT_SSO_STATUSES,
+} from './auth-sso-status.constants';
+
+// Export all types from auth-sso-status.constants
+export type { AuthssoStatus } from './auth-sso-status.constants';
+
+// Export all functions from auth-sso-status.constants
+export {
+  isAuthssoActive,
+  isAuthssoPending,
+  isAuthssoInactive,
+  isAuthssoFailed,
+  isAuthssoSecurityIssue,
+  isAuthssoSAMLStatus,
+  isAuthssoLDAPStatus,
+  isAuthssoLogoutStatus,
+  getAuthssoStatusLabel,
+  getAuthssoStatusColor,
+  getAuthssoStatusPriority,
+  getAuthssoStatusBadgeType,
+} from './auth-sso-status.constants';
+
+// Export all constants from auth-sso-provider.constants
 export {
   AUTH_SSO_PROVIDER,
   ENTERPRISE_SSO_PROVIDERS,
@@ -47,38 +79,19 @@ export {
   OIDC_PROVIDERS,
   LDAP_PROVIDERS,
   SSO_PROVIDERS_LIST,
+} from './auth-sso-provider.constants';
+
+// Export all types from auth-sso-provider.constants
+export type { AuthSSOProvider } from './auth-sso-provider.constants';
+
+// Export all functions from auth-sso-provider.constants
+export {
   isEnterpriseSSOProvider,
   isSAMLProvider,
   isOIDCProvider,
   isLDAPProvider,
-  getSSOProviderType,
+  getSSOProviderLabel as getAuthssoProviderLabelFromProvider,
+  getSSOProviderIcon as getAuthssoProviderIconFromProvider,
+  getSSOProviderColor as getAuthssoProviderColorFromProvider,
+  getSSOProviderType as getAuthssoProviderType,
 } from './auth-sso-provider.constants';
-
-export type { AuthSSOProvider } from './auth-sso-provider.constants';
-
-// SSO Status
-export {
-  AUTH_SSO_STATUS,
-  ACTIVE_SSO_STATUSES,
-  PENDING_SSO_STATUSES,
-  INACTIVE_SSO_STATUSES,
-  FAILED_SSO_STATUSES,
-  SECURITY_SSO_STATUSES,
-  SAML_SSO_STATUSES,
-  LDAP_SSO_STATUSES,
-  LOGOUT_SSO_STATUSES,
-  isSSOActive,
-  isSSOPending,
-  isSSOInactive,
-  isSSOFailed,
-  isSSOSecurityIssue,
-  isSAMLStatus,
-  isLDAPStatus,
-  isLogoutStatus,
-  getSSOStatusLabel,
-  getSSOStatusColor,
-  getSSOStatusPriority,
-  getSSOStatusBadgeType,
-} from './auth-sso-status.constants';
-
-export type { AuthSSOStatus } from './auth-sso-status.constants';

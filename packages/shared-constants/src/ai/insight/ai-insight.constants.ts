@@ -158,45 +158,21 @@ export const AI_INSIGHT = {
   } as const,
 } as const;
 
-// Insight Types
 export type AIInsightType = (typeof AI_INSIGHT.TYPES)[keyof typeof AI_INSIGHT.TYPES];
-
-// Insight Status
 export type AIInsightStatus = (typeof AI_INSIGHT.STATUSES)[keyof typeof AI_INSIGHT.STATUSES];
-
-// Insight Categories
 export type AIInsightCategory = (typeof AI_INSIGHT.CATEGORIES)[keyof typeof AI_INSIGHT.CATEGORIES];
-
-// Insight Methods
 export type AIInsightMethod = (typeof AI_INSIGHT.METHODS)[keyof typeof AI_INSIGHT.METHODS];
-
-// Insight Priorities
 export type AIInsightPriority = (typeof AI_INSIGHT.PRIORITIES)[keyof typeof AI_INSIGHT.PRIORITIES];
-
-// Insight Confidence
 export type AIInsightConfidence =
   (typeof AI_INSIGHT.CONFIDENCE)[keyof typeof AI_INSIGHT.CONFIDENCE];
-
-// Insight Impact
 export type AIInsightImpact = (typeof AI_INSIGHT.IMPACT)[keyof typeof AI_INSIGHT.IMPACT];
-
-// Insight Quality
 export type AIInsightQuality = (typeof AI_INSIGHT.QUALITY)[keyof typeof AI_INSIGHT.QUALITY];
-
-// Insight Sources
 export type AIInsightSource = (typeof AI_INSIGHT.SOURCES)[keyof typeof AI_INSIGHT.SOURCES];
-
-// Insight Limits
 export type AIInsightLimit = (typeof AI_INSIGHT.LIMITS)[keyof typeof AI_INSIGHT.LIMITS];
-
-// Insight Formats
 export type AIInsightFormat = (typeof AI_INSIGHT.FORMATS)[keyof typeof AI_INSIGHT.FORMATS];
-
-// Insight Metrics
 export type AIInsightMetric = (typeof AI_INSIGHT.METRICS)[keyof typeof AI_INSIGHT.METRICS];
 
-// Utility Functions
-export function getInsightTypeLabel(type: AIInsightType): string {
+export function getAiInsightTypeLabel(type: AIInsightType): string {
   const labels: Record<AIInsightType, string> = {
     [AI_INSIGHT.TYPES.PATTERN]: 'Pattern',
     [AI_INSIGHT.TYPES.TREND]: 'Trend',
@@ -219,7 +195,7 @@ export function getInsightTypeLabel(type: AIInsightType): string {
   return labels[type] || 'Unknown';
 }
 
-export function getInsightStatusLabel(status: AIInsightStatus): string {
+export function getAiInsightStatusLabel(status: AIInsightStatus): string {
   const labels: Record<AIInsightStatus, string> = {
     [AI_INSIGHT.STATUSES.PENDING]: 'Pending',
     [AI_INSIGHT.STATUSES.DISCOVERING]: 'Discovering',
@@ -237,7 +213,7 @@ export function getInsightStatusLabel(status: AIInsightStatus): string {
   return labels[status] || 'Unknown';
 }
 
-export function getInsightCategoryLabel(category: AIInsightCategory): string {
+export function getAiInsightCategoryLabel(category: AIInsightCategory): string {
   const labels: Record<AIInsightCategory, string> = {
     [AI_INSIGHT.CATEGORIES.DESCRIPTIVE]: 'Descriptive',
     [AI_INSIGHT.CATEGORIES.DIAGNOSTIC]: 'Diagnostic',
@@ -251,7 +227,7 @@ export function getInsightCategoryLabel(category: AIInsightCategory): string {
   return labels[category] || 'Unknown';
 }
 
-export function getInsightMethodLabel(method: AIInsightMethod): string {
+export function getAiInsightMethodLabel(method: AIInsightMethod): string {
   const labels: Record<AIInsightMethod, string> = {
     [AI_INSIGHT.METHODS.STATISTICAL]: 'Statistical',
     [AI_INSIGHT.METHODS.MACHINE_LEARNING]: 'Machine Learning',
@@ -270,7 +246,7 @@ export function getInsightMethodLabel(method: AIInsightMethod): string {
   return labels[method] || 'Unknown';
 }
 
-export function getInsightPriorityLabel(priority: AIInsightPriority): string {
+export function getAiInsightPriorityLabel(priority: AIInsightPriority): string {
   const labels: Record<AIInsightPriority, string> = {
     [AI_INSIGHT.PRIORITIES.CRITICAL]: 'Critical',
     [AI_INSIGHT.PRIORITIES.HIGH]: 'High',
@@ -282,7 +258,7 @@ export function getInsightPriorityLabel(priority: AIInsightPriority): string {
   return labels[priority] || 'Unknown';
 }
 
-export function getInsightConfidenceLabel(confidence: AIInsightConfidence): string {
+export function getAiInsightConfidenceLabel(confidence: AIInsightConfidence): string {
   const labels: Record<AIInsightConfidence, string> = {
     [AI_INSIGHT.CONFIDENCE.VERY_HIGH]: 'Very High',
     [AI_INSIGHT.CONFIDENCE.HIGH]: 'High',
@@ -294,7 +270,7 @@ export function getInsightConfidenceLabel(confidence: AIInsightConfidence): stri
   return labels[confidence] || 'Unknown';
 }
 
-export function getInsightImpactLabel(impact: AIInsightImpact): string {
+export function getAiInsightImpactLabel(impact: AIInsightImpact): string {
   const labels: Record<AIInsightImpact, string> = {
     [AI_INSIGHT.IMPACT.HIGH]: 'High',
     [AI_INSIGHT.IMPACT.MEDIUM]: 'Medium',
@@ -306,7 +282,7 @@ export function getInsightImpactLabel(impact: AIInsightImpact): string {
   return labels[impact] || 'Unknown';
 }
 
-export function getInsightQualityLabel(quality: AIInsightQuality): string {
+export function getAiInsightQualityLabel(quality: AIInsightQuality): string {
   const labels: Record<AIInsightQuality, string> = {
     [AI_INSIGHT.QUALITY.EXCELLENT]: 'Excellent',
     [AI_INSIGHT.QUALITY.GOOD]: 'Good',
@@ -317,7 +293,7 @@ export function getInsightQualityLabel(quality: AIInsightQuality): string {
   return labels[quality] || 'Unknown';
 }
 
-export function getInsightSourceLabel(source: AIInsightSource): string {
+export function getAiInsightSourceLabel(source: AIInsightSource): string {
   const labels: Record<AIInsightSource, string> = {
     [AI_INSIGHT.SOURCES.DATA_ANALYSIS]: 'Data Analysis',
     [AI_INSIGHT.SOURCES.USER_BEHAVIOR]: 'User Behavior',
@@ -334,7 +310,7 @@ export function getInsightSourceLabel(source: AIInsightSource): string {
   return labels[source] || 'Unknown';
 }
 
-export function getInsightFormatLabel(format: AIInsightFormat): string {
+export function getAiInsightFormatLabel(format: AIInsightFormat): string {
   const labels: Record<AIInsightFormat, string> = {
     [AI_INSIGHT.FORMATS.TEXT]: 'Text',
     [AI_INSIGHT.FORMATS.CHART]: 'Chart',
@@ -347,7 +323,7 @@ export function getInsightFormatLabel(format: AIInsightFormat): string {
   return labels[format] || 'Unknown';
 }
 
-export function getInsightMetricLabel(metric: AIInsightMetric): string {
+export function getAiInsightMetricLabel(metric: AIInsightMetric): string {
   const labels: Record<AIInsightMetric, string> = {
     [AI_INSIGHT.METRICS.ACCURACY]: 'Accuracy',
     [AI_INSIGHT.METRICS.RELEVANCE]: 'Relevance',
@@ -361,7 +337,7 @@ export function getInsightMetricLabel(metric: AIInsightMetric): string {
   return labels[metric] || 'Unknown';
 }
 
-export function isInsightActive(status: AIInsightStatus): boolean {
+export function isAiInsightActive(status: AIInsightStatus): boolean {
   const activeStatuses: AIInsightStatus[] = [
     AI_INSIGHT.STATUSES.COMPLETED,
     AI_INSIGHT.STATUSES.DELIVERED,
@@ -371,7 +347,7 @@ export function isInsightActive(status: AIInsightStatus): boolean {
   return activeStatuses.includes(status);
 }
 
-export function isInsightProcessing(status: AIInsightStatus): boolean {
+export function isAiInsightProcessing(status: AIInsightStatus): boolean {
   const processingStatuses: AIInsightStatus[] = [
     AI_INSIGHT.STATUSES.PENDING,
     AI_INSIGHT.STATUSES.DISCOVERING,
@@ -382,7 +358,7 @@ export function isInsightProcessing(status: AIInsightStatus): boolean {
   return processingStatuses.includes(status);
 }
 
-export function isInsightFailed(status: AIInsightStatus): boolean {
+export function isAiInsightFailed(status: AIInsightStatus): boolean {
   const failedStatuses: AIInsightStatus[] = [
     AI_INSIGHT.STATUSES.FAILED,
     AI_INSIGHT.STATUSES.EXPIRED,
@@ -390,7 +366,7 @@ export function isInsightFailed(status: AIInsightStatus): boolean {
   return failedStatuses.includes(status);
 }
 
-export function getPriorityScore(priority: AIInsightPriority): number {
+export function getAiInsightPriorityScore(priority: AIInsightPriority): number {
   const scores: Record<AIInsightPriority, number> = {
     [AI_INSIGHT.PRIORITIES.CRITICAL]: 10,
     [AI_INSIGHT.PRIORITIES.HIGH]: 8,
@@ -402,7 +378,7 @@ export function getPriorityScore(priority: AIInsightPriority): number {
   return scores[priority] || 0;
 }
 
-export function getConfidenceScore(confidence: AIInsightConfidence): number {
+export function getAiInsightConfidenceScore(confidence: AIInsightConfidence): number {
   const scores: Record<AIInsightConfidence, number> = {
     [AI_INSIGHT.CONFIDENCE.VERY_HIGH]: 0.9,
     [AI_INSIGHT.CONFIDENCE.HIGH]: 0.7,
@@ -414,7 +390,7 @@ export function getConfidenceScore(confidence: AIInsightConfidence): number {
   return scores[confidence] || 0;
 }
 
-export function getQualityScore(quality: AIInsightQuality): number {
+export function getAiInsightQualityScore(quality: AIInsightQuality): number {
   const scores: Record<AIInsightQuality, number> = {
     [AI_INSIGHT.QUALITY.EXCELLENT]: 0.9,
     [AI_INSIGHT.QUALITY.GOOD]: 0.7,
@@ -425,7 +401,7 @@ export function getQualityScore(quality: AIInsightQuality): number {
   return scores[quality] || 0;
 }
 
-export function getImpactScore(impact: AIInsightImpact): number {
+export function getAiInsightImpactScore(impact: AIInsightImpact): number {
   const scores: Record<AIInsightImpact, number> = {
     [AI_INSIGHT.IMPACT.HIGH]: 1.0,
     [AI_INSIGHT.IMPACT.MEDIUM]: 0.6,

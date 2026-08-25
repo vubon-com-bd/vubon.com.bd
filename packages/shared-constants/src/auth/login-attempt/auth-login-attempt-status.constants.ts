@@ -4,7 +4,6 @@
  */
 
 export const AUTH_LOGIN_ATTEMPT_STATUS = {
-  // Primary status
   PENDING: 'pending',
   SUCCESS: 'success',
   FAILED: 'failed',
@@ -14,19 +13,16 @@ export const AUTH_LOGIN_ATTEMPT_STATUS = {
   EXPIRED: 'expired',
   REVOKED: 'revoked',
 
-  // Verification status
   VERIFIED: 'verified',
   UNVERIFIED: 'unverified',
   VERIFICATION_PENDING: 'verification_pending',
   VERIFICATION_FAILED: 'verification_failed',
 
-  // Security status
   SECURE: 'secure',
   SUSPICIOUS: 'suspicious',
   COMPROMISED: 'compromised',
   INVESTIGATING: 'investigating',
 
-  // Action status
   CAPTCHA_REQUIRED: 'captcha_required',
   CAPTCHA_VERIFIED: 'captcha_verified',
   CAPTCHA_FAILED: 'captcha_failed',
@@ -43,7 +39,7 @@ export const AUTH_LOGIN_ATTEMPT_STATUS = {
 export type AuthLoginAttemptStatus =
   (typeof AUTH_LOGIN_ATTEMPT_STATUS)[keyof typeof AUTH_LOGIN_ATTEMPT_STATUS];
 
-export const SUCCESS_STATUSES: AuthLoginAttemptStatus[] = [
+export const AUTHLOGIN_SUCCESS_STATUSES: AuthLoginAttemptStatus[] = [
   AUTH_LOGIN_ATTEMPT_STATUS.SUCCESS,
   AUTH_LOGIN_ATTEMPT_STATUS.VERIFIED,
   AUTH_LOGIN_ATTEMPT_STATUS.SECURE,
@@ -52,7 +48,7 @@ export const SUCCESS_STATUSES: AuthLoginAttemptStatus[] = [
   AUTH_LOGIN_ATTEMPT_STATUS.TWO_FA_VERIFIED,
 ];
 
-export const FAILED_STATUSES: AuthLoginAttemptStatus[] = [
+export const AUTHLOGIN_FAILED_STATUSES: AuthLoginAttemptStatus[] = [
   AUTH_LOGIN_ATTEMPT_STATUS.FAILED,
   AUTH_LOGIN_ATTEMPT_STATUS.UNVERIFIED,
   AUTH_LOGIN_ATTEMPT_STATUS.VERIFICATION_FAILED,
@@ -61,7 +57,7 @@ export const FAILED_STATUSES: AuthLoginAttemptStatus[] = [
   AUTH_LOGIN_ATTEMPT_STATUS.TWO_FA_FAILED,
 ];
 
-export const BLOCKED_STATUSES: AuthLoginAttemptStatus[] = [
+export const AUTHLOGIN_BLOCKED_STATUSES: AuthLoginAttemptStatus[] = [
   AUTH_LOGIN_ATTEMPT_STATUS.BLOCKED,
   AUTH_LOGIN_ATTEMPT_STATUS.LOCKED,
   AUTH_LOGIN_ATTEMPT_STATUS.TIMEOUT,
@@ -69,7 +65,7 @@ export const BLOCKED_STATUSES: AuthLoginAttemptStatus[] = [
   AUTH_LOGIN_ATTEMPT_STATUS.REVOKED,
 ];
 
-export const PENDING_STATUSES: AuthLoginAttemptStatus[] = [
+export const AUTHLOGIN_PENDING_STATUSES: AuthLoginAttemptStatus[] = [
   AUTH_LOGIN_ATTEMPT_STATUS.PENDING,
   AUTH_LOGIN_ATTEMPT_STATUS.VERIFICATION_PENDING,
   AUTH_LOGIN_ATTEMPT_STATUS.CAPTCHA_REQUIRED,
@@ -77,20 +73,20 @@ export const PENDING_STATUSES: AuthLoginAttemptStatus[] = [
   AUTH_LOGIN_ATTEMPT_STATUS.TWO_FA_REQUIRED,
 ];
 
-export const SECURITY_STATUSES: AuthLoginAttemptStatus[] = [
+export const AUTHLOGIN_SECURITY_STATUSES: AuthLoginAttemptStatus[] = [
   AUTH_LOGIN_ATTEMPT_STATUS.SUSPICIOUS,
   AUTH_LOGIN_ATTEMPT_STATUS.COMPROMISED,
   AUTH_LOGIN_ATTEMPT_STATUS.INVESTIGATING,
 ];
 
-export const VERIFICATION_STATUSES: AuthLoginAttemptStatus[] = [
+export const AUTHLOGIN_VERIFICATION_STATUSES: AuthLoginAttemptStatus[] = [
   AUTH_LOGIN_ATTEMPT_STATUS.VERIFIED,
   AUTH_LOGIN_ATTEMPT_STATUS.UNVERIFIED,
   AUTH_LOGIN_ATTEMPT_STATUS.VERIFICATION_PENDING,
   AUTH_LOGIN_ATTEMPT_STATUS.VERIFICATION_FAILED,
 ];
 
-export const MFA_STATUSES: AuthLoginAttemptStatus[] = [
+export const AUTHLOGIN_MFA_STATUSES: AuthLoginAttemptStatus[] = [
   AUTH_LOGIN_ATTEMPT_STATUS.MFA_REQUIRED,
   AUTH_LOGIN_ATTEMPT_STATUS.MFA_VERIFIED,
   AUTH_LOGIN_ATTEMPT_STATUS.MFA_FAILED,
@@ -99,35 +95,35 @@ export const MFA_STATUSES: AuthLoginAttemptStatus[] = [
   AUTH_LOGIN_ATTEMPT_STATUS.TWO_FA_FAILED,
 ];
 
-export function isLoginSuccess(status: AuthLoginAttemptStatus): boolean {
-  return SUCCESS_STATUSES.includes(status);
+export function isAuthloginSuccess(status: AuthLoginAttemptStatus): boolean {
+  return AUTHLOGIN_SUCCESS_STATUSES.includes(status);
 }
 
-export function isLoginFailed(status: AuthLoginAttemptStatus): boolean {
-  return FAILED_STATUSES.includes(status);
+export function isAuthloginFailed(status: AuthLoginAttemptStatus): boolean {
+  return AUTHLOGIN_FAILED_STATUSES.includes(status);
 }
 
-export function isLoginBlocked(status: AuthLoginAttemptStatus): boolean {
-  return BLOCKED_STATUSES.includes(status);
+export function isAuthloginBlocked(status: AuthLoginAttemptStatus): boolean {
+  return AUTHLOGIN_BLOCKED_STATUSES.includes(status);
 }
 
-export function isLoginPending(status: AuthLoginAttemptStatus): boolean {
-  return PENDING_STATUSES.includes(status);
+export function isAuthloginPending(status: AuthLoginAttemptStatus): boolean {
+  return AUTHLOGIN_PENDING_STATUSES.includes(status);
 }
 
-export function isLoginSecurityIssue(status: AuthLoginAttemptStatus): boolean {
-  return SECURITY_STATUSES.includes(status);
+export function isAuthloginSecurityIssue(status: AuthLoginAttemptStatus): boolean {
+  return AUTHLOGIN_SECURITY_STATUSES.includes(status);
 }
 
-export function isLoginVerification(status: AuthLoginAttemptStatus): boolean {
-  return VERIFICATION_STATUSES.includes(status);
+export function isAuthloginVerification(status: AuthLoginAttemptStatus): boolean {
+  return AUTHLOGIN_VERIFICATION_STATUSES.includes(status);
 }
 
-export function isLoginMFA(status: AuthLoginAttemptStatus): boolean {
-  return MFA_STATUSES.includes(status);
+export function isAuthloginMFA(status: AuthLoginAttemptStatus): boolean {
+  return AUTHLOGIN_MFA_STATUSES.includes(status);
 }
 
-export function getLoginAttemptStatusLabel(status: AuthLoginAttemptStatus): string {
+export function getAuthloginAttemptStatusLabel(status: AuthLoginAttemptStatus): string {
   const labels: Record<AuthLoginAttemptStatus, string> = {
     [AUTH_LOGIN_ATTEMPT_STATUS.PENDING]: 'Pending',
     [AUTH_LOGIN_ATTEMPT_STATUS.SUCCESS]: 'Success',
@@ -159,7 +155,7 @@ export function getLoginAttemptStatusLabel(status: AuthLoginAttemptStatus): stri
   return labels[status] || 'Unknown Status';
 }
 
-export function getLoginAttemptStatusColor(status: AuthLoginAttemptStatus): string {
+export function getAuthloginAttemptStatusColor(status: AuthLoginAttemptStatus): string {
   const colors: Record<AuthLoginAttemptStatus, string> = {
     [AUTH_LOGIN_ATTEMPT_STATUS.PENDING]: '#F59E0B',
     [AUTH_LOGIN_ATTEMPT_STATUS.SUCCESS]: '#10B981',
@@ -191,7 +187,7 @@ export function getLoginAttemptStatusColor(status: AuthLoginAttemptStatus): stri
   return colors[status] || '#6B7280';
 }
 
-export function getLoginAttemptStatusPriority(status: AuthLoginAttemptStatus): number {
+export function getAuthloginAttemptStatusPriority(status: AuthLoginAttemptStatus): number {
   const priorities: Record<AuthLoginAttemptStatus, number> = {
     [AUTH_LOGIN_ATTEMPT_STATUS.PENDING]: 5,
     [AUTH_LOGIN_ATTEMPT_STATUS.SUCCESS]: 10,
@@ -223,7 +219,7 @@ export function getLoginAttemptStatusPriority(status: AuthLoginAttemptStatus): n
   return priorities[status] || 5;
 }
 
-export function getLoginAttemptStatusBadgeType(
+export function getAuthloginAttemptStatusBadgeType(
   status: AuthLoginAttemptStatus
 ): 'success' | 'warning' | 'error' | 'info' | 'default' {
   const types: Record<

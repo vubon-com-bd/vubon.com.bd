@@ -83,31 +83,19 @@ export const AI_TRAINING_TYPE = {
   } as const,
 } as const;
 
-// Training Categories
 export type AITrainingCategory =
   (typeof AI_TRAINING_TYPE.CATEGORIES)[keyof typeof AI_TRAINING_TYPE.CATEGORIES];
-
-// Training Sub-Types
 export type AITrainingSubType =
   (typeof AI_TRAINING_TYPE.SUB_TYPES)[keyof typeof AI_TRAINING_TYPE.SUB_TYPES];
-
-// Training Methods
 export type AITrainingMethod =
   (typeof AI_TRAINING_TYPE.METHODS)[keyof typeof AI_TRAINING_TYPE.METHODS];
-
-// Training Objectives
 export type AITrainingObjective =
   (typeof AI_TRAINING_TYPE.OBJECTIVES)[keyof typeof AI_TRAINING_TYPE.OBJECTIVES];
-
-// Training Modes
 export type AITrainingMode = (typeof AI_TRAINING_TYPE.MODES)[keyof typeof AI_TRAINING_TYPE.MODES];
-
-// Training Data Types
 export type AITrainingDataType =
   (typeof AI_TRAINING_TYPE.DATA_TYPES)[keyof typeof AI_TRAINING_TYPE.DATA_TYPES];
 
-// Utility Functions
-export function getTrainingCategoryLabel(category: AITrainingCategory): string {
+export function getAiTrainingCategoryLabel(category: AITrainingCategory): string {
   const labels: Record<AITrainingCategory, string> = {
     [AI_TRAINING_TYPE.CATEGORIES.CLASSIFICATION]: 'Classification',
     [AI_TRAINING_TYPE.CATEGORIES.REGRESSION]: 'Regression',
@@ -125,7 +113,7 @@ export function getTrainingCategoryLabel(category: AITrainingCategory): string {
   return labels[category] || 'Unknown';
 }
 
-export function getTrainingSubTypeLabel(subType: AITrainingSubType): string {
+export function getAiTrainingSubTypeLabel(subType: AITrainingSubType): string {
   const labels: Record<AITrainingSubType, string> = {
     [AI_TRAINING_TYPE.SUB_TYPES.BINARY_CLASSIFICATION]: 'Binary Classification',
     [AI_TRAINING_TYPE.SUB_TYPES.MULTI_CLASS_CLASSIFICATION]: 'Multi-Class Classification',
@@ -143,7 +131,7 @@ export function getTrainingSubTypeLabel(subType: AITrainingSubType): string {
   return labels[subType] || 'Unknown';
 }
 
-export function getTrainingMethodLabel(method: AITrainingMethod): string {
+export function getAiTrainingMethodLabel(method: AITrainingMethod): string {
   const labels: Record<AITrainingMethod, string> = {
     [AI_TRAINING_TYPE.METHODS.GRADIENT_DESCENT]: 'Gradient Descent',
     [AI_TRAINING_TYPE.METHODS.STOCHASTIC_GRADIENT_DESCENT]: 'Stochastic Gradient Descent',
@@ -157,7 +145,7 @@ export function getTrainingMethodLabel(method: AITrainingMethod): string {
   return labels[method] || 'Unknown';
 }
 
-export function getTrainingObjectiveLabel(objective: AITrainingObjective): string {
+export function getAiTrainingObjectiveLabel(objective: AITrainingObjective): string {
   const labels: Record<AITrainingObjective, string> = {
     [AI_TRAINING_TYPE.OBJECTIVES.MINIMIZE_LOSS]: 'Minimize Loss',
     [AI_TRAINING_TYPE.OBJECTIVES.MAXIMIZE_ACCURACY]: 'Maximize Accuracy',
@@ -171,7 +159,7 @@ export function getTrainingObjectiveLabel(objective: AITrainingObjective): strin
   return labels[objective] || 'Unknown';
 }
 
-export function getTrainingModeLabel(mode: AITrainingMode): string {
+export function getAiTrainingModeLabel(mode: AITrainingMode): string {
   const labels: Record<AITrainingMode, string> = {
     [AI_TRAINING_TYPE.MODES.FULL]: 'Full',
     [AI_TRAINING_TYPE.MODES.INCREMENTAL]: 'Incremental',
@@ -184,7 +172,7 @@ export function getTrainingModeLabel(mode: AITrainingMode): string {
   return labels[mode] || 'Unknown';
 }
 
-export function getTrainingDataTypeLabel(dataType: AITrainingDataType): string {
+export function getAiTrainingDataTypeLabel(dataType: AITrainingDataType): string {
   const labels: Record<AITrainingDataType, string> = {
     [AI_TRAINING_TYPE.DATA_TYPES.STRUCTURED]: 'Structured',
     [AI_TRAINING_TYPE.DATA_TYPES.UNSTRUCTURED]: 'Unstructured',

@@ -1,29 +1,30 @@
 /**
- * AI Feature Constants Index
- * Export all feature constants and types for easy importing
+ * AI Feature Index
+ * Export all AI feature constants and types for easy importing
  */
 
-// AI Feature Constants
+// Export all constants from ai-feature.constants
 export {
-  AI_FEATURE,
   AI_FEATURE_TYPES,
-  getFeatureCategoryLabel,
-  getFeatureTypeLabel,
-  getFeatureStatusLabel,
-  getFeatureLevelLabel,
-  getFeatureAccessLabel,
-  getFeatureDependencies,
-  getFeatureMetricLabel,
-  isFeatureActive,
-  isFeatureAvailable,
-  isFeatureDeprecated,
-  getFeatureLevelPriority,
-  getFeatureAccessPriority,
+  AI_FEATURE,
+  getAiFeatureCategoryLabel,
+  getAiFeatureTypeLabel,
+  getAiFeatureStatusLabel,
+  getAiFeatureLevelLabel,
+  getAiFeatureAccessLabel,
+  getAiFeatureDependencies,
+  getAiFeatureMetricLabel,
+  isAiFeatureActive,
+  isAiFeatureAvailable,
+  isAiFeatureDeprecated,
+  getAiFeatureLevelPriority,
+  getAiFeatureAccessPriority,
 } from './ai-feature.constants';
 
+// Export all types from ai-feature.constants
 export type {
-  AIFeatureCategory,
   AIFeatureType,
+  AIFeatureCategory,
   AIFeatureStatus,
   AIFeatureLevel,
   AIFeatureAccess,
@@ -31,19 +32,20 @@ export type {
   AIFeatureMetric,
 } from './ai-feature.constants';
 
-// AI Feature Type Constants
+// Export all constants from ai-feature-type.constants
 export {
   AI_FEATURE_TYPE,
-  getFeatureDomainLabel,
-  getFeatureSubDomainLabel,
-  getFeatureComplexityLabel,
-  getFeatureMaturityLabel,
-  getFeatureDeploymentLabel,
-  getFeatureIntegrationLabel,
-  getFeatureComplexityScore,
-  getFeatureMaturityScore,
+  getAiFeatureDomainLabel,
+  getAiFeatureSubDomainLabel,
+  getAiFeatureComplexityLabel,
+  getAiFeatureMaturityLabel,
+  getAiFeatureDeploymentLabel,
+  getAiFeatureIntegrationLabel,
+  getAiFeatureComplexityScore,
+  getAiFeatureMaturityScore,
 } from './ai-feature-type.constants';
 
+// Export all types from ai-feature-type.constants
 export type {
   AIFeatureDomain,
   AIFeatureSubDomain,
@@ -53,22 +55,23 @@ export type {
   AIFeatureIntegration,
 } from './ai-feature-type.constants';
 
-// AI Feature Status Constants
+// Export all constants from ai-feature-status.constants
 export {
-  AI_FEATURE_STATUS,
   AI_FEATURE_STATUS_TYPES,
-  getFeatureStatusLabel as getFeatureStatusLabel2,
-  getFeatureStatusCategory,
-  getFeatureStatusSeverity,
-  getFeatureStatusColor,
-  isFeatureInDevelopment,
-  isFeatureInTesting,
-  isFeatureInProduction,
-  isFeatureActive as isFeatureActive2,
-  isFeatureDeprecated as isFeatureDeprecated2,
-  getFeatureStatusProgress,
+  AI_FEATURE_STATUS,
+  getAiFeatureStatusLabel as getAiFeatureStatusLabelDetailed,
+  getAiFeatureStatusCategory,
+  getAiFeatureStatusSeverity,
+  getAiFeatureStatusColor,
+  isAiFeatureInDevelopment,
+  isAiFeatureInTesting,
+  isAiFeatureInProduction,
+  isAiFeatureActiveStatus,
+  isAiFeatureDeprecatedStatus,
+  getAiFeatureStatusProgress,
 } from './ai-feature-status.constants';
 
+// Export all types from ai-feature-status.constants
 export type {
   AIFeatureStatusType,
   AIFeatureStatusCategory,

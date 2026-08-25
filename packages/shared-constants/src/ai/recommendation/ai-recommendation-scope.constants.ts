@@ -130,32 +130,20 @@ export const AI_RECOMMENDATION_SCOPE = {
   } as const,
 } as const;
 
-// Scope Levels
 export type AIRecommendationScopeLevel =
   (typeof AI_RECOMMENDATION_SCOPE.LEVELS)[keyof typeof AI_RECOMMENDATION_SCOPE.LEVELS];
-
-// Scope Contexts
 export type AIRecommendationScopeContext =
   (typeof AI_RECOMMENDATION_SCOPE.CONTEXTS)[keyof typeof AI_RECOMMENDATION_SCOPE.CONTEXTS];
-
-// Scope Types
 export type AIRecommendationScopeType =
   (typeof AI_RECOMMENDATION_SCOPE.TYPES)[keyof typeof AI_RECOMMENDATION_SCOPE.TYPES];
-
-// Scope Rules
 export type AIRecommendationScopeRule =
   (typeof AI_RECOMMENDATION_SCOPE.RULES)[keyof typeof AI_RECOMMENDATION_SCOPE.RULES];
-
-// Scope Priorities
 export type AIRecommendationScopePriority =
   (typeof AI_RECOMMENDATION_SCOPE.PRIORITIES)[keyof typeof AI_RECOMMENDATION_SCOPE.PRIORITIES];
-
-// Scope Weights
 export type AIRecommendationScopeWeight =
   (typeof AI_RECOMMENDATION_SCOPE.WEIGHTS)[keyof typeof AI_RECOMMENDATION_SCOPE.WEIGHTS];
 
-// Utility Functions
-export function getScopeLevelLabel(level: AIRecommendationScopeLevel): string {
+export function getAiRecommendationScopeLevelLabel(level: AIRecommendationScopeLevel): string {
   const labels: Record<AIRecommendationScopeLevel, string> = {
     [AI_RECOMMENDATION_SCOPE.LEVELS.GLOBAL]: 'Global',
     [AI_RECOMMENDATION_SCOPE.LEVELS.SITE_WIDE]: 'Site Wide',
@@ -166,7 +154,9 @@ export function getScopeLevelLabel(level: AIRecommendationScopeLevel): string {
   return labels[level] || 'Unknown';
 }
 
-export function getScopeContextLabel(context: AIRecommendationScopeContext): string {
+export function getAiRecommendationScopeContextLabel(
+  context: AIRecommendationScopeContext
+): string {
   const labels: Record<AIRecommendationScopeContext, string> = {
     [AI_RECOMMENDATION_SCOPE.CONTEXTS.USER]: 'User',
     [AI_RECOMMENDATION_SCOPE.CONTEXTS.USER_SEGMENT]: 'User Segment',
@@ -196,7 +186,7 @@ export function getScopeContextLabel(context: AIRecommendationScopeContext): str
   return labels[context] || 'Unknown';
 }
 
-export function getScopeTypeLabel(type: AIRecommendationScopeType): string {
+export function getAiRecommendationScopeTypeLabel(type: AIRecommendationScopeType): string {
   const labels: Record<AIRecommendationScopeType, string> = {
     [AI_RECOMMENDATION_SCOPE.TYPES.PERSONALIZED]: 'Personalized',
     [AI_RECOMMENDATION_SCOPE.TYPES.SEGMENTED]: 'Segmented',
@@ -230,7 +220,7 @@ export function getScopeTypeLabel(type: AIRecommendationScopeType): string {
   return labels[type] || 'Unknown';
 }
 
-export function getScopeRuleLabel(rule: AIRecommendationScopeRule): string {
+export function getAiRecommendationScopeRuleLabel(rule: AIRecommendationScopeRule): string {
   const labels: Record<AIRecommendationScopeRule, string> = {
     [AI_RECOMMENDATION_SCOPE.RULES.INCLUDE_ALL]: 'Include All',
     [AI_RECOMMENDATION_SCOPE.RULES.INCLUDE_ANY]: 'Include Any',
@@ -244,7 +234,7 @@ export function getScopeRuleLabel(rule: AIRecommendationScopeRule): string {
   return labels[rule] || 'Unknown';
 }
 
-export function getScopePriorityValue(
+export function getAiRecommendationScopePriorityValue(
   level: AIRecommendationScopeLevel
 ): AIRecommendationScopePriority {
   const priorities: Record<AIRecommendationScopeLevel, AIRecommendationScopePriority> = {
@@ -257,7 +247,7 @@ export function getScopePriorityValue(
   return priorities[level] || AI_RECOMMENDATION_SCOPE.PRIORITIES.MEDIUM;
 }
 
-export function getScopeWeight(context: AIRecommendationScopeContext): number {
+export function getAiRecommendationScopeWeight(context: AIRecommendationScopeContext): number {
   const weights: Record<AIRecommendationScopeContext, number> = {
     [AI_RECOMMENDATION_SCOPE.CONTEXTS.USER]: AI_RECOMMENDATION_SCOPE.WEIGHTS.USER,
     [AI_RECOMMENDATION_SCOPE.CONTEXTS.USER_SEGMENT]: AI_RECOMMENDATION_SCOPE.WEIGHTS.USER * 0.8,
@@ -288,7 +278,9 @@ export function getScopeWeight(context: AIRecommendationScopeContext): number {
   return weights[context] || 0.1;
 }
 
-export function getDefaultRecommendationCountByScope(scope: AIRecommendationScopeType): number {
+export function getAiRecommendationDefaultCountByScopeType(
+  scope: AIRecommendationScopeType
+): number {
   const counts: Record<AIRecommendationScopeType, number> = {
     [AI_RECOMMENDATION_SCOPE.TYPES.PERSONALIZED]: 20,
     [AI_RECOMMENDATION_SCOPE.TYPES.SEGMENTED]: 15,

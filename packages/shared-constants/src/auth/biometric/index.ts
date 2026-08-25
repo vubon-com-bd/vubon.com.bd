@@ -1,84 +1,95 @@
-/**
- * Biometric Constants Index
- * Export all biometric constants and types for easy importing
- */
-
-// Biometric
+// Export all constants from auth-biometric.constants
 export {
   AUTH_BIOMETRIC,
-  AUTH_BIOMETRIC_TYPES,
   AUTH_BIOMETRIC_CONFIG,
+  AUTH_BIOMETRIC_TYPES,
   AUTH_BIOMETRIC_EVENTS,
-  getBiometricTypeLabel,
-  getBiometricTypeIcon,
-  getBiometricTypeSecurityLevel,
-  getBiometricTypeAccuracy,
-  getBiometricMaxDevices,
-  getBiometricMaxAttempts,
-  getBiometricLockoutDuration,
-  getBiometricSessionTimeout,
-  getBiometricReauthInterval,
-  getBiometricMinConfidence,
-  getBiometricMaxRetries,
-  isBiometricTypeSupported,
-  getSupportedBiometricTypes,
-  isBiometricEnabled,
-  isBiometricLocked,
-  getBiometricTypeCategory,
 } from './auth-biometric.constants';
 
+// Export all types from auth-biometric.constants
 export type {
   AuthBiometricConfig,
   AuthBiometricType,
   AuthBiometricEvent,
   AuthBiometricDefaults,
+  AuthBiometricStatusType,
 } from './auth-biometric.constants';
 
-// Biometric Types
+// Export all functions from auth-biometric.constants
+export {
+  getAuthbiometricTypeLabel,
+  getAuthbiometricTypeIcon,
+  getAuthbiometricTypeSecurityLevel,
+  getAuthbiometricTypeAccuracy,
+  getAuthbiometricMaxDevices,
+  getAuthbiometricMaxAttempts,
+  getAuthbiometricLockoutDuration,
+  getAuthbiometricSessionTimeout,
+  getAuthbiometricReauthInterval,
+  getAuthbiometricMinConfidence,
+  getAuthbiometricMaxRetries,
+  isAuthbiometricTypeSupported,
+  getAuthbiometricSupportedTypes,
+  isAuthbiometricEnabled,
+  isAuthbiometricLocked,
+  getAuthbiometricTypeCategory,
+} from './auth-biometric.constants';
+
+// Export all constants from auth-biometric-type.constants
 export {
   AUTH_BIOMETRIC_TYPE,
-  PHYSICAL_BIOMETRICS,
-  BEHAVIORAL_BIOMETRICS,
-  PHYSIOLOGICAL_BIOMETRICS,
-  MOBILE_BIOMETRICS,
-  PLATFORM_BIOMETRICS,
-  COMMON_BIOMETRICS,
-  BIOMETRIC_TYPES_LIST,
-  isPhysicalBiometric,
-  isBehavioralBiometric,
-  isPhysiologicalBiometric,
-  isMobileBiometric,
-  isPlatformBiometric,
-  isCommonBiometric,
-  getBiometricTypeLabel as getBiometricTypeLabelType,
-  getBiometricTypeIcon as getBiometricTypeIconType,
-  getBiometricTypeSecurityLevel as getBiometricTypeSecurityLevelType,
-  getBiometricTypeCategory as getBiometricTypeCategoryType,
+  AUTHBIOMETRIC_PHYSICAL_TYPES,
+  AUTHBIOMETRIC_BEHAVIORAL_TYPES,
+  AUTHBIOMETRIC_PHYSIOLOGICAL_TYPES,
+  AUTHBIOMETRIC_MOBILE_TYPES,
+  AUTHBIOMETRIC_PLATFORM_TYPES,
+  AUTHBIOMETRIC_COMMON_TYPES,
+  AUTHBIOMETRIC_TYPES_LIST,
 } from './auth-biometric-type.constants';
 
-export type { AuthBiometricType as AuthBiometricTypeType } from './auth-biometric-type.constants';
+// Export all types from auth-biometric-type.constants
+export type { AuthBiometricType as AuthBiometricTypeFromType } from './auth-biometric-type.constants';
 
-// Biometric Status
+// Export all functions from auth-biometric-type.constants
+export {
+  isAuthbiometricPhysical,
+  isAuthbiometricBehavioral,
+  isAuthbiometricPhysiological,
+  isAuthbiometricMobile,
+  isAuthbiometricPlatform,
+  isAuthbiometricCommon,
+  getAuthbiometricTypeLabel as getAuthbiometricTypeLabelFromType,
+  getAuthbiometricTypeIcon as getAuthbiometricTypeIconFromType,
+  getAuthbiometricTypeSecurityLevel as getAuthbiometricTypeSecurityLevelFromType,
+  getAuthbiometricTypeCategory as getAuthbiometricTypeCategoryFromType,
+} from './auth-biometric-type.constants';
+
+// Export all constants from auth-biometric-status.constants
 export {
   AUTH_BIOMETRIC_STATUS,
-  ACTIVE_BIOMETRIC_STATUSES,
-  PENDING_BIOMETRIC_STATUSES,
-  INACTIVE_BIOMETRIC_STATUSES,
-  FAILED_BIOMETRIC_STATUSES,
-  SECURITY_BIOMETRIC_STATUSES,
-  TRUSTED_BIOMETRIC_STATUSES,
-  UNTRUSTED_BIOMETRIC_STATUSES,
-  isBiometricActive,
-  isBiometricPending,
-  isBiometricInactive,
-  isBiometricFailed,
-  isBiometricSecurityIssue,
-  isBiometricTrusted,
-  isBiometricUntrusted,
-  getBiometricStatusLabel,
-  getBiometricStatusColor,
-  getBiometricStatusPriority,
-  getBiometricStatusBadgeType,
+  AUTHBIOMETRIC_ACTIVE_STATUSES,
+  AUTHBIOMETRIC_PENDING_STATUSES,
+  AUTHBIOMETRIC_INACTIVE_STATUSES,
+  AUTHBIOMETRIC_FAILED_STATUSES,
+  AUTHBIOMETRIC_SECURITY_STATUSES,
+  AUTHBIOMETRIC_TRUSTED_STATUSES,
+  AUTHBIOMETRIC_UNTRUSTED_STATUSES,
 } from './auth-biometric-status.constants';
 
+// Export all types from auth-biometric-status.constants
 export type { AuthBiometricStatus } from './auth-biometric-status.constants';
+
+// Export all functions from auth-biometric-status.constants
+export {
+  isAuthbiometricActive,
+  isAuthbiometricPending,
+  isAuthbiometricInactive,
+  isAuthbiometricFailed,
+  isAuthbiometricSecurityIssue,
+  isAuthbiometricTrusted,
+  isAuthbiometricUntrusted,
+  getAuthbiometricStatusLabel,
+  getAuthbiometricStatusColor,
+  getAuthbiometricStatusPriority,
+  getAuthbiometricStatusBadgeType,
+} from './auth-biometric-status.constants';

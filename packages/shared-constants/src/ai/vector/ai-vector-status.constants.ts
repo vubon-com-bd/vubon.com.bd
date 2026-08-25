@@ -98,20 +98,14 @@ export const AI_VECTOR_STATUS = {
   } as const,
 } as const;
 
-// Status Categories
 export type AIVectorStatusCategory =
   (typeof AI_VECTOR_STATUS.CATEGORIES)[keyof typeof AI_VECTOR_STATUS.CATEGORIES];
-
-// Status Severity
 export type AIVectorStatusSeverity =
   (typeof AI_VECTOR_STATUS.SEVERITY)[keyof typeof AI_VECTOR_STATUS.SEVERITY];
-
-// Status Colors
 export type AIVectorStatusColor =
   (typeof AI_VECTOR_STATUS.COLORS)[keyof typeof AI_VECTOR_STATUS.COLORS];
 
-// Utility Functions
-export function getVectorStatusLabel(status: AIVectorStatusType): string {
+export function getAiVectorStatusLabel(status: AIVectorStatusType): string {
   const labels: Record<AIVectorStatusType, string> = {
     [AI_VECTOR_STATUS_TYPES.CREATED]: 'Created',
     [AI_VECTOR_STATUS_TYPES.QUEUED]: 'Queued',
@@ -142,7 +136,7 @@ export function getVectorStatusLabel(status: AIVectorStatusType): string {
   return labels[status] || 'Unknown';
 }
 
-export function getVectorStatusCategory(status: AIVectorStatusType): AIVectorStatusCategory {
+export function getAiVectorStatusCategory(status: AIVectorStatusType): AIVectorStatusCategory {
   const categories: Record<AIVectorStatusType, AIVectorStatusCategory> = {
     [AI_VECTOR_STATUS_TYPES.CREATED]: AI_VECTOR_STATUS.CATEGORIES.PENDING,
     [AI_VECTOR_STATUS_TYPES.QUEUED]: AI_VECTOR_STATUS.CATEGORIES.PENDING,
@@ -173,7 +167,7 @@ export function getVectorStatusCategory(status: AIVectorStatusType): AIVectorSta
   return categories[status] || AI_VECTOR_STATUS.CATEGORIES.PENDING;
 }
 
-export function getVectorStatusSeverity(status: AIVectorStatusType): AIVectorStatusSeverity {
+export function getAiVectorStatusSeverity(status: AIVectorStatusType): AIVectorStatusSeverity {
   const severities: Record<AIVectorStatusType, AIVectorStatusSeverity> = {
     [AI_VECTOR_STATUS_TYPES.CREATED]: AI_VECTOR_STATUS.SEVERITY.INFO,
     [AI_VECTOR_STATUS_TYPES.QUEUED]: AI_VECTOR_STATUS.SEVERITY.INFO,
@@ -204,11 +198,11 @@ export function getVectorStatusSeverity(status: AIVectorStatusType): AIVectorSta
   return severities[status] || AI_VECTOR_STATUS.SEVERITY.INFO;
 }
 
-export function getVectorStatusColor(status: AIVectorStatusType): AIVectorStatusColor {
+export function getAiVectorStatusColor(status: AIVectorStatusType): AIVectorStatusColor {
   return AI_VECTOR_STATUS.COLORS[status] || '#gray';
 }
 
-export function isVectorActive(status: AIVectorStatusType): boolean {
+export function isAiVectorActiveStatus(status: AIVectorStatusType): boolean {
   const activeStatuses: AIVectorStatusType[] = [
     AI_VECTOR_STATUS_TYPES.CREATED,
     AI_VECTOR_STATUS_TYPES.QUEUED,
@@ -233,7 +227,7 @@ export function isVectorActive(status: AIVectorStatusType): boolean {
   return activeStatuses.includes(status);
 }
 
-export function isVectorGenerated(status: AIVectorStatusType): boolean {
+export function isAiVectorGenerated(status: AIVectorStatusType): boolean {
   const generatedStatuses: AIVectorStatusType[] = [
     AI_VECTOR_STATUS_TYPES.GENERATED,
     AI_VECTOR_STATUS_TYPES.PROCESSED,
@@ -248,7 +242,7 @@ export function isVectorGenerated(status: AIVectorStatusType): boolean {
   return generatedStatuses.includes(status);
 }
 
-export function isVectorCompleted(status: AIVectorStatusType): boolean {
+export function isAiVectorCompleted(status: AIVectorStatusType): boolean {
   const completedStatuses: AIVectorStatusType[] = [
     AI_VECTOR_STATUS_TYPES.COMPLETED,
     AI_VECTOR_STATUS_TYPES.STORED,
@@ -258,7 +252,7 @@ export function isVectorCompleted(status: AIVectorStatusType): boolean {
   return completedStatuses.includes(status);
 }
 
-export function isVectorFailed(status: AIVectorStatusType): boolean {
+export function isAiVectorFailedStatus(status: AIVectorStatusType): boolean {
   const failedStatuses: AIVectorStatusType[] = [
     AI_VECTOR_STATUS_TYPES.FAILED,
     AI_VECTOR_STATUS_TYPES.EXPIRED,
@@ -266,7 +260,7 @@ export function isVectorFailed(status: AIVectorStatusType): boolean {
   return failedStatuses.includes(status);
 }
 
-export function getVectorStatusProgress(status: AIVectorStatusType): number {
+export function getAiVectorStatusProgress(status: AIVectorStatusType): number {
   const progress: Record<AIVectorStatusType, number> = {
     [AI_VECTOR_STATUS_TYPES.CREATED]: 0,
     [AI_VECTOR_STATUS_TYPES.QUEUED]: 5,

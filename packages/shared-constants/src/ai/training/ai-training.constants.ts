@@ -168,46 +168,24 @@ export const AI_TRAINING = {
   } as const,
 } as const;
 
-// Training Types
 export type AITrainingType = (typeof AI_TRAINING.TYPES)[keyof typeof AI_TRAINING.TYPES];
-
-// Training Status
 export type AITrainingStatus = (typeof AI_TRAINING.STATUSES)[keyof typeof AI_TRAINING.STATUSES];
-
-// Training Phases
 export type AITrainingPhase = (typeof AI_TRAINING.PHASES)[keyof typeof AI_TRAINING.PHASES];
-
-// Training Parameters
 export type AITrainingParameter =
   (typeof AI_TRAINING.PARAMETERS)[keyof typeof AI_TRAINING.PARAMETERS];
-
-// Training Limits
 export type AITrainingLimit = (typeof AI_TRAINING.LIMITS)[keyof typeof AI_TRAINING.LIMITS];
-
-// Training Metrics
 export type AITrainingMetric = (typeof AI_TRAINING.METRICS)[keyof typeof AI_TRAINING.METRICS];
-
-// Training Optimizers
 export type AITrainingOptimizer =
   (typeof AI_TRAINING.OPTIMIZERS)[keyof typeof AI_TRAINING.OPTIMIZERS];
-
-// Training Loss Functions
 export type AITrainingLossFunction =
   (typeof AI_TRAINING.LOSS_FUNCTIONS)[keyof typeof AI_TRAINING.LOSS_FUNCTIONS];
-
-// Training Frameworks
 export type AITrainingFramework =
   (typeof AI_TRAINING.FRAMEWORKS)[keyof typeof AI_TRAINING.FRAMEWORKS];
-
-// Training Hardware
 export type AITrainingHardware = (typeof AI_TRAINING.HARDWARE)[keyof typeof AI_TRAINING.HARDWARE];
-
-// Training Checkpoints
 export type AITrainingCheckpoint =
   (typeof AI_TRAINING.CHECKPOINTS)[keyof typeof AI_TRAINING.CHECKPOINTS];
 
-// Utility Functions
-export function getTrainingTypeLabel(type: AITrainingType): string {
+export function getAiTrainingTypeLabel(type: AITrainingType): string {
   const labels: Record<AITrainingType, string> = {
     [AI_TRAINING.TYPES.SUPERVISED]: 'Supervised',
     [AI_TRAINING.TYPES.UNSUPERVISED]: 'Unsupervised',
@@ -225,7 +203,7 @@ export function getTrainingTypeLabel(type: AITrainingType): string {
   return labels[type] || 'Unknown';
 }
 
-export function getTrainingStatusLabel(status: AITrainingStatus): string {
+export function getAiTrainingStatusLabel(status: AITrainingStatus): string {
   const labels: Record<AITrainingStatus, string> = {
     [AI_TRAINING.STATUSES.PENDING]: 'Pending',
     [AI_TRAINING.STATUSES.INITIALIZING]: 'Initializing',
@@ -243,7 +221,7 @@ export function getTrainingStatusLabel(status: AITrainingStatus): string {
   return labels[status] || 'Unknown';
 }
 
-export function getTrainingPhaseLabel(phase: AITrainingPhase): string {
+export function getAiTrainingPhaseLabel(phase: AITrainingPhase): string {
   const labels: Record<AITrainingPhase, string> = {
     [AI_TRAINING.PHASES.DATA_PREPARATION]: 'Data Preparation',
     [AI_TRAINING.PHASES.DATA_AUGMENTATION]: 'Data Augmentation',
@@ -260,7 +238,7 @@ export function getTrainingPhaseLabel(phase: AITrainingPhase): string {
   return labels[phase] || 'Unknown';
 }
 
-export function getTrainingMetricLabel(metric: AITrainingMetric): string {
+export function getAiTrainingMetricLabel(metric: AITrainingMetric): string {
   const labels: Record<AITrainingMetric, string> = {
     [AI_TRAINING.METRICS.LOSS]: 'Loss',
     [AI_TRAINING.METRICS.ACCURACY]: 'Accuracy',
@@ -282,7 +260,7 @@ export function getTrainingMetricLabel(metric: AITrainingMetric): string {
   return labels[metric] || 'Unknown';
 }
 
-export function getTrainingOptimizerLabel(optimizer: AITrainingOptimizer): string {
+export function getAiTrainingOptimizerLabel(optimizer: AITrainingOptimizer): string {
   const labels: Record<AITrainingOptimizer, string> = {
     [AI_TRAINING.OPTIMIZERS.SGD]: 'SGD',
     [AI_TRAINING.OPTIMIZERS.ADAM]: 'Adam',
@@ -297,7 +275,7 @@ export function getTrainingOptimizerLabel(optimizer: AITrainingOptimizer): strin
   return labels[optimizer] || 'Unknown';
 }
 
-export function getTrainingLossFunctionLabel(lossFunction: AITrainingLossFunction): string {
+export function getAiTrainingLossFunctionLabel(lossFunction: AITrainingLossFunction): string {
   const labels: Record<AITrainingLossFunction, string> = {
     [AI_TRAINING.LOSS_FUNCTIONS.CROSS_ENTROPY]: 'Cross Entropy',
     [AI_TRAINING.LOSS_FUNCTIONS.BINARY_CROSS_ENTROPY]: 'Binary Cross Entropy',
@@ -313,7 +291,7 @@ export function getTrainingLossFunctionLabel(lossFunction: AITrainingLossFunctio
   return labels[lossFunction] || 'Unknown';
 }
 
-export function getTrainingFrameworkLabel(framework: AITrainingFramework): string {
+export function getAiTrainingFrameworkLabel(framework: AITrainingFramework): string {
   const labels: Record<AITrainingFramework, string> = {
     [AI_TRAINING.FRAMEWORKS.PYTORCH]: 'PyTorch',
     [AI_TRAINING.FRAMEWORKS.TENSORFLOW]: 'TensorFlow',
@@ -327,7 +305,7 @@ export function getTrainingFrameworkLabel(framework: AITrainingFramework): strin
   return labels[framework] || 'Unknown';
 }
 
-export function getTrainingHardwareLabel(hardware: AITrainingHardware): string {
+export function getAiTrainingHardwareLabel(hardware: AITrainingHardware): string {
   const labels: Record<AITrainingHardware, string> = {
     [AI_TRAINING.HARDWARE.CPU]: 'CPU',
     [AI_TRAINING.HARDWARE.GPU]: 'GPU',
@@ -339,7 +317,7 @@ export function getTrainingHardwareLabel(hardware: AITrainingHardware): string {
   return labels[hardware] || 'Unknown';
 }
 
-export function isTrainingActive(status: AITrainingStatus): boolean {
+export function isAiTrainingActive(status: AITrainingStatus): boolean {
   const activeStatuses: AITrainingStatus[] = [
     AI_TRAINING.STATUSES.PENDING,
     AI_TRAINING.STATUSES.INITIALIZING,
@@ -351,7 +329,7 @@ export function isTrainingActive(status: AITrainingStatus): boolean {
   return activeStatuses.includes(status);
 }
 
-export function isTrainingComplete(status: AITrainingStatus): boolean {
+export function isAiTrainingComplete(status: AITrainingStatus): boolean {
   const completeStatuses: AITrainingStatus[] = [
     AI_TRAINING.STATUSES.COMPLETED,
     AI_TRAINING.STATUSES.DEPLOYED,
@@ -360,7 +338,7 @@ export function isTrainingComplete(status: AITrainingStatus): boolean {
   return completeStatuses.includes(status);
 }
 
-export function isTrainingFailed(status: AITrainingStatus): boolean {
+export function isAiTrainingFailed(status: AITrainingStatus): boolean {
   const failedStatuses: AITrainingStatus[] = [
     AI_TRAINING.STATUSES.FAILED,
     AI_TRAINING.STATUSES.CANCELLED,
@@ -368,18 +346,18 @@ export function isTrainingFailed(status: AITrainingStatus): boolean {
   return failedStatuses.includes(status);
 }
 
-export function getDefaultEpochs(): number {
+export function getAiTrainingDefaultEpochs(): number {
   return AI_TRAINING.LIMITS.DEFAULT_EPOCHS;
 }
 
-export function getDefaultBatchSize(): number {
+export function getAiTrainingDefaultBatchSize(): number {
   return AI_TRAINING.LIMITS.DEFAULT_BATCH_SIZE;
 }
 
-export function getDefaultLearningRate(): number {
+export function getAiTrainingDefaultLearningRate(): number {
   return AI_TRAINING.LIMITS.DEFAULT_LEARNING_RATE;
 }
 
-export function getValidationSplit(): number {
+export function getAiTrainingValidationSplit(): number {
   return AI_TRAINING.LIMITS.VALIDATION_SPLIT;
 }

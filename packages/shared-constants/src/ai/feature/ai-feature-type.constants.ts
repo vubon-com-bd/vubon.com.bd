@@ -91,32 +91,20 @@ export const AI_FEATURE_TYPE = {
   } as const,
 } as const;
 
-// Feature Domains
 export type AIFeatureDomain =
   (typeof AI_FEATURE_TYPE.DOMAINS)[keyof typeof AI_FEATURE_TYPE.DOMAINS];
-
-// Feature Sub-Domains
 export type AIFeatureSubDomain =
   (typeof AI_FEATURE_TYPE.SUB_DOMAINS)[keyof typeof AI_FEATURE_TYPE.SUB_DOMAINS];
-
-// Feature Complexity
 export type AIFeatureComplexity =
   (typeof AI_FEATURE_TYPE.COMPLEXITY)[keyof typeof AI_FEATURE_TYPE.COMPLEXITY];
-
-// Feature Maturity
 export type AIFeatureMaturity =
   (typeof AI_FEATURE_TYPE.MATURITY)[keyof typeof AI_FEATURE_TYPE.MATURITY];
-
-// Feature Deployment
 export type AIFeatureDeployment =
   (typeof AI_FEATURE_TYPE.DEPLOYMENT)[keyof typeof AI_FEATURE_TYPE.DEPLOYMENT];
-
-// Feature Integration
 export type AIFeatureIntegration =
   (typeof AI_FEATURE_TYPE.INTEGRATION)[keyof typeof AI_FEATURE_TYPE.INTEGRATION];
 
-// Utility Functions
-export function getFeatureDomainLabel(domain: AIFeatureDomain): string {
+export function getAiFeatureDomainLabel(domain: AIFeatureDomain): string {
   const labels: Record<AIFeatureDomain, string> = {
     [AI_FEATURE_TYPE.DOMAINS.ECOMMERCE]: 'E-commerce',
     [AI_FEATURE_TYPE.DOMAINS.MARKETING]: 'Marketing',
@@ -132,7 +120,7 @@ export function getFeatureDomainLabel(domain: AIFeatureDomain): string {
   return labels[domain] || 'Unknown';
 }
 
-export function getFeatureSubDomainLabel(subDomain: AIFeatureSubDomain): string {
+export function getAiFeatureSubDomainLabel(subDomain: AIFeatureSubDomain): string {
   const labels: Record<AIFeatureSubDomain, string> = {
     [AI_FEATURE_TYPE.SUB_DOMAINS.PRODUCT_RECOMMENDATION]: 'Product Recommendation',
     [AI_FEATURE_TYPE.SUB_DOMAINS.PERSONALIZED_SHOPPING]: 'Personalized Shopping',
@@ -161,7 +149,7 @@ export function getFeatureSubDomainLabel(subDomain: AIFeatureSubDomain): string 
   return labels[subDomain] || 'Unknown';
 }
 
-export function getFeatureComplexityLabel(complexity: AIFeatureComplexity): string {
+export function getAiFeatureComplexityLabel(complexity: AIFeatureComplexity): string {
   const labels: Record<AIFeatureComplexity, string> = {
     [AI_FEATURE_TYPE.COMPLEXITY.SIMPLE]: 'Simple',
     [AI_FEATURE_TYPE.COMPLEXITY.MODERATE]: 'Moderate',
@@ -171,7 +159,7 @@ export function getFeatureComplexityLabel(complexity: AIFeatureComplexity): stri
   return labels[complexity] || 'Unknown';
 }
 
-export function getFeatureMaturityLabel(maturity: AIFeatureMaturity): string {
+export function getAiFeatureMaturityLabel(maturity: AIFeatureMaturity): string {
   const labels: Record<AIFeatureMaturity, string> = {
     [AI_FEATURE_TYPE.MATURITY.EXPERIMENTAL]: 'Experimental',
     [AI_FEATURE_TYPE.MATURITY.DEVELOPING]: 'Developing',
@@ -182,7 +170,7 @@ export function getFeatureMaturityLabel(maturity: AIFeatureMaturity): string {
   return labels[maturity] || 'Unknown';
 }
 
-export function getFeatureDeploymentLabel(deployment: AIFeatureDeployment): string {
+export function getAiFeatureDeploymentLabel(deployment: AIFeatureDeployment): string {
   const labels: Record<AIFeatureDeployment, string> = {
     [AI_FEATURE_TYPE.DEPLOYMENT.CLOUD]: 'Cloud',
     [AI_FEATURE_TYPE.DEPLOYMENT.ON_PREMISE]: 'On-Premise',
@@ -193,7 +181,7 @@ export function getFeatureDeploymentLabel(deployment: AIFeatureDeployment): stri
   return labels[deployment] || 'Unknown';
 }
 
-export function getFeatureIntegrationLabel(integration: AIFeatureIntegration): string {
+export function getAiFeatureIntegrationLabel(integration: AIFeatureIntegration): string {
   const labels: Record<AIFeatureIntegration, string> = {
     [AI_FEATURE_TYPE.INTEGRATION.STANDALONE]: 'Standalone',
     [AI_FEATURE_TYPE.INTEGRATION.API]: 'API',
@@ -205,7 +193,7 @@ export function getFeatureIntegrationLabel(integration: AIFeatureIntegration): s
   return labels[integration] || 'Unknown';
 }
 
-export function getFeatureComplexityScore(complexity: AIFeatureComplexity): number {
+export function getAiFeatureComplexityScore(complexity: AIFeatureComplexity): number {
   const scores: Record<AIFeatureComplexity, number> = {
     [AI_FEATURE_TYPE.COMPLEXITY.SIMPLE]: 1,
     [AI_FEATURE_TYPE.COMPLEXITY.MODERATE]: 3,
@@ -215,7 +203,7 @@ export function getFeatureComplexityScore(complexity: AIFeatureComplexity): numb
   return scores[complexity] || 1;
 }
 
-export function getFeatureMaturityScore(maturity: AIFeatureMaturity): number {
+export function getAiFeatureMaturityScore(maturity: AIFeatureMaturity): number {
   const scores: Record<AIFeatureMaturity, number> = {
     [AI_FEATURE_TYPE.MATURITY.EXPERIMENTAL]: 1,
     [AI_FEATURE_TYPE.MATURITY.DEVELOPING]: 3,

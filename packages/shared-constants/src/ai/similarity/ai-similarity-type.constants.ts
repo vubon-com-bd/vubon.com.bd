@@ -89,32 +89,20 @@ export const AI_SIMILARITY_TYPE = {
   } as const,
 } as const;
 
-// Similarity Domains
 export type AISimilarityDomain =
   (typeof AI_SIMILARITY_TYPE.DOMAINS)[keyof typeof AI_SIMILARITY_TYPE.DOMAINS];
-
-// Similarity Sub-Types
 export type AISimilaritySubType =
   (typeof AI_SIMILARITY_TYPE.SUB_TYPES)[keyof typeof AI_SIMILARITY_TYPE.SUB_TYPES];
-
-// Similarity Levels
 export type AISimilarityLevel =
   (typeof AI_SIMILARITY_TYPE.LEVELS)[keyof typeof AI_SIMILARITY_TYPE.LEVELS];
-
-// Similarity Confidence
 export type AISimilarityConfidence =
   (typeof AI_SIMILARITY_TYPE.CONFIDENCE)[keyof typeof AI_SIMILARITY_TYPE.CONFIDENCE];
-
-// Similarity Precision
 export type AISimilarityPrecision =
   (typeof AI_SIMILARITY_TYPE.PRECISION)[keyof typeof AI_SIMILARITY_TYPE.PRECISION];
-
-// Similarity Use Cases
 export type AISimilarityUseCase =
   (typeof AI_SIMILARITY_TYPE.USE_CASES)[keyof typeof AI_SIMILARITY_TYPE.USE_CASES];
 
-// Utility Functions
-export function getSimilarityDomainLabel(domain: AISimilarityDomain): string {
+export function getAiSimilarityDomainLabel(domain: AISimilarityDomain): string {
   const labels: Record<AISimilarityDomain, string> = {
     [AI_SIMILARITY_TYPE.DOMAINS.TEXT]: 'Text',
     [AI_SIMILARITY_TYPE.DOMAINS.IMAGE]: 'Image',
@@ -130,7 +118,7 @@ export function getSimilarityDomainLabel(domain: AISimilarityDomain): string {
   return labels[domain] || 'Unknown';
 }
 
-export function getSimilaritySubTypeLabel(subType: AISimilaritySubType): string {
+export function getAiSimilaritySubTypeLabel(subType: AISimilaritySubType): string {
   const labels: Record<AISimilaritySubType, string> = {
     [AI_SIMILARITY_TYPE.SUB_TYPES.LEXICAL]: 'Lexical',
     [AI_SIMILARITY_TYPE.SUB_TYPES.SEMANTIC]: 'Semantic',
@@ -156,7 +144,7 @@ export function getSimilaritySubTypeLabel(subType: AISimilaritySubType): string 
   return labels[subType] || 'Unknown';
 }
 
-export function getSimilarityLevelLabel(level: AISimilarityLevel): string {
+export function getAiSimilarityLevelLabel(level: AISimilarityLevel): string {
   const labels: Record<AISimilarityLevel, string> = {
     [AI_SIMILARITY_TYPE.LEVELS.EXACT]: 'Exact',
     [AI_SIMILARITY_TYPE.LEVELS.HIGH]: 'High',
@@ -167,7 +155,7 @@ export function getSimilarityLevelLabel(level: AISimilarityLevel): string {
   return labels[level] || 'Unknown';
 }
 
-export function getSimilarityConfidenceLabel(confidence: AISimilarityConfidence): string {
+export function getAiSimilarityConfidenceLabel(confidence: AISimilarityConfidence): string {
   const labels: Record<AISimilarityConfidence, string> = {
     [AI_SIMILARITY_TYPE.CONFIDENCE.VERY_HIGH]: 'Very High',
     [AI_SIMILARITY_TYPE.CONFIDENCE.HIGH]: 'High',
@@ -178,7 +166,7 @@ export function getSimilarityConfidenceLabel(confidence: AISimilarityConfidence)
   return labels[confidence] || 'Unknown';
 }
 
-export function getSimilarityPrecisionLabel(precision: AISimilarityPrecision): string {
+export function getAiSimilarityPrecisionLabel(precision: AISimilarityPrecision): string {
   const labels: Record<AISimilarityPrecision, string> = {
     [AI_SIMILARITY_TYPE.PRECISION.HIGH]: 'High',
     [AI_SIMILARITY_TYPE.PRECISION.MEDIUM]: 'Medium',
@@ -187,7 +175,7 @@ export function getSimilarityPrecisionLabel(precision: AISimilarityPrecision): s
   return labels[precision] || 'Unknown';
 }
 
-export function getSimilarityUseCaseLabel(useCase: AISimilarityUseCase): string {
+export function getAiSimilarityUseCaseLabel(useCase: AISimilarityUseCase): string {
   const labels: Record<AISimilarityUseCase, string> = {
     [AI_SIMILARITY_TYPE.USE_CASES.SEARCH]: 'Search',
     [AI_SIMILARITY_TYPE.USE_CASES.RECOMMENDATION]: 'Recommendation',
@@ -201,7 +189,7 @@ export function getSimilarityUseCaseLabel(useCase: AISimilarityUseCase): string 
   return labels[useCase] || 'Unknown';
 }
 
-export function getLevelThreshold(level: AISimilarityLevel): number {
+export function getAiSimilarityLevelThreshold(level: AISimilarityLevel): number {
   const thresholds: Record<AISimilarityLevel, number> = {
     [AI_SIMILARITY_TYPE.LEVELS.EXACT]: 0.99,
     [AI_SIMILARITY_TYPE.LEVELS.HIGH]: 0.8,
@@ -212,7 +200,7 @@ export function getLevelThreshold(level: AISimilarityLevel): number {
   return thresholds[level] || 0;
 }
 
-export function getConfidenceScore(confidence: AISimilarityConfidence): number {
+export function getAiSimilarityConfidenceScore(confidence: AISimilarityConfidence): number {
   const scores: Record<AISimilarityConfidence, number> = {
     [AI_SIMILARITY_TYPE.CONFIDENCE.VERY_HIGH]: 0.95,
     [AI_SIMILARITY_TYPE.CONFIDENCE.HIGH]: 0.8,

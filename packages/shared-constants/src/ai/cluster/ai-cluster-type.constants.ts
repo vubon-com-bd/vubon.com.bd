@@ -94,30 +94,18 @@ export const AI_CLUSTER_TYPE = {
   } as const,
 } as const;
 
-// Cluster Domains
 export type AIClusterDomain =
   (typeof AI_CLUSTER_TYPE.DOMAINS)[keyof typeof AI_CLUSTER_TYPE.DOMAINS];
-
-// Cluster Sub-Types
 export type AIClusterSubType =
   (typeof AI_CLUSTER_TYPE.SUB_TYPES)[keyof typeof AI_CLUSTER_TYPE.SUB_TYPES];
-
-// Cluster Shapes
 export type AIClusterShape = (typeof AI_CLUSTER_TYPE.SHAPES)[keyof typeof AI_CLUSTER_TYPE.SHAPES];
-
-// Cluster Sizes
 export type AIClusterSize = (typeof AI_CLUSTER_TYPE.SIZES)[keyof typeof AI_CLUSTER_TYPE.SIZES];
-
-// Cluster Densities
 export type AIClusterDensity =
   (typeof AI_CLUSTER_TYPE.DENSITIES)[keyof typeof AI_CLUSTER_TYPE.DENSITIES];
-
-// Cluster Separability
 export type AIClusterSeparability =
   (typeof AI_CLUSTER_TYPE.SEPARABILITY)[keyof typeof AI_CLUSTER_TYPE.SEPARABILITY];
 
-// Utility Functions
-export function getClusterDomainLabel(domain: AIClusterDomain): string {
+export function getAiClusterDomainLabel(domain: AIClusterDomain): string {
   const labels: Record<AIClusterDomain, string> = {
     [AI_CLUSTER_TYPE.DOMAINS.DATA]: 'Data',
     [AI_CLUSTER_TYPE.DOMAINS.TEXT]: 'Text',
@@ -134,7 +122,7 @@ export function getClusterDomainLabel(domain: AIClusterDomain): string {
   return labels[domain] || 'Unknown';
 }
 
-export function getClusterSubTypeLabel(subType: AIClusterSubType): string {
+export function getAiClusterSubTypeLabel(subType: AIClusterSubType): string {
   const labels: Record<AIClusterSubType, string> = {
     [AI_CLUSTER_TYPE.SUB_TYPES.NUMERICAL]: 'Numerical',
     [AI_CLUSTER_TYPE.SUB_TYPES.CATEGORICAL]: 'Categorical',
@@ -162,7 +150,7 @@ export function getClusterSubTypeLabel(subType: AIClusterSubType): string {
   return labels[subType] || 'Unknown';
 }
 
-export function getClusterShapeLabel(shape: AIClusterShape): string {
+export function getAiClusterShapeLabel(shape: AIClusterShape): string {
   const labels: Record<AIClusterShape, string> = {
     [AI_CLUSTER_TYPE.SHAPES.SPHERICAL]: 'Spherical',
     [AI_CLUSTER_TYPE.SHAPES.ELLIPTICAL]: 'Elliptical',
@@ -173,7 +161,7 @@ export function getClusterShapeLabel(shape: AIClusterShape): string {
   return labels[shape] || 'Unknown';
 }
 
-export function getClusterSizeLabel(size: AIClusterSize): string {
+export function getAiClusterSizeLabel(size: AIClusterSize): string {
   const labels: Record<AIClusterSize, string> = {
     [AI_CLUSTER_TYPE.SIZES.TINY]: 'Tiny',
     [AI_CLUSTER_TYPE.SIZES.SMALL]: 'Small',
@@ -185,7 +173,7 @@ export function getClusterSizeLabel(size: AIClusterSize): string {
   return labels[size] || 'Unknown';
 }
 
-export function getClusterDensityLabel(density: AIClusterDensity): string {
+export function getAiClusterDensityLabel(density: AIClusterDensity): string {
   const labels: Record<AIClusterDensity, string> = {
     [AI_CLUSTER_TYPE.DENSITIES.UNIFORM]: 'Uniform',
     [AI_CLUSTER_TYPE.DENSITIES.VARIABLE]: 'Variable',
@@ -196,7 +184,7 @@ export function getClusterDensityLabel(density: AIClusterDensity): string {
   return labels[density] || 'Unknown';
 }
 
-export function getClusterSeparabilityLabel(separability: AIClusterSeparability): string {
+export function getAiClusterSeparabilityLabel(separability: AIClusterSeparability): string {
   const labels: Record<AIClusterSeparability, string> = {
     [AI_CLUSTER_TYPE.SEPARABILITY.WELL_SEPARATED]: 'Well Separated',
     [AI_CLUSTER_TYPE.SEPARABILITY.OVERLAPPING]: 'Overlapping',
@@ -207,7 +195,7 @@ export function getClusterSeparabilityLabel(separability: AIClusterSeparability)
   return labels[separability] || 'Unknown';
 }
 
-export function getClusterSizeThreshold(size: AIClusterSize): number {
+export function getAiClusterSizeThreshold(size: AIClusterSize): number {
   const thresholds: Record<AIClusterSize, number> = {
     [AI_CLUSTER_TYPE.SIZES.TINY]: 10,
     [AI_CLUSTER_TYPE.SIZES.SMALL]: 100,

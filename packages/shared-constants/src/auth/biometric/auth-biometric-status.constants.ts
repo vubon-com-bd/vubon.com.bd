@@ -4,7 +4,6 @@
  */
 
 export const AUTH_BIOMETRIC_STATUS = {
-  // Primary status
   ENABLED: 'enabled',
   DISABLED: 'disabled',
   PENDING: 'pending',
@@ -15,36 +14,30 @@ export const AUTH_BIOMETRIC_STATUS = {
   LOCKED: 'locked',
   BLOCKED: 'blocked',
 
-  // Registration status
   REGISTERED: 'registered',
   UNREGISTERED: 'unregistered',
   REGISTRATION_PENDING: 'registration_pending',
   REGISTRATION_FAILED: 'registration_failed',
 
-  // Trust status
   TRUSTED: 'trusted',
   UNTRUSTED: 'untrusted',
   SUSPICIOUS: 'suspicious',
   COMPROMISED: 'compromised',
 
-  // Verification status
   VERIFICATION_PENDING: 'verification_pending',
   VERIFICATION_SUCCESS: 'verification_success',
   VERIFICATION_FAILED: 'verification_failed',
   VERIFICATION_EXPIRED: 'verification_expired',
 
-  // Device status
   DEVICE_ACTIVE: 'device_active',
   DEVICE_INACTIVE: 'device_inactive',
   DEVICE_REMOVED: 'device_removed',
 
-  // Security status
   SECURE: 'secure',
   UNSECURE: 'unsecure',
   INVESTIGATING: 'investigating',
   QUARANTINED: 'quarantined',
 
-  // Session status
   SESSION_ACTIVE: 'session_active',
   SESSION_EXPIRED: 'session_expired',
   SESSION_TERMINATED: 'session_terminated',
@@ -53,7 +46,7 @@ export const AUTH_BIOMETRIC_STATUS = {
 export type AuthBiometricStatus =
   (typeof AUTH_BIOMETRIC_STATUS)[keyof typeof AUTH_BIOMETRIC_STATUS];
 
-export const ACTIVE_BIOMETRIC_STATUSES: AuthBiometricStatus[] = [
+export const AUTHBIOMETRIC_ACTIVE_STATUSES: AuthBiometricStatus[] = [
   AUTH_BIOMETRIC_STATUS.ENABLED,
   AUTH_BIOMETRIC_STATUS.VERIFIED,
   AUTH_BIOMETRIC_STATUS.TRUSTED,
@@ -64,14 +57,14 @@ export const ACTIVE_BIOMETRIC_STATUSES: AuthBiometricStatus[] = [
   AUTH_BIOMETRIC_STATUS.REGISTERED,
 ];
 
-export const PENDING_BIOMETRIC_STATUSES: AuthBiometricStatus[] = [
+export const AUTHBIOMETRIC_PENDING_STATUSES: AuthBiometricStatus[] = [
   AUTH_BIOMETRIC_STATUS.PENDING,
   AUTH_BIOMETRIC_STATUS.REGISTRATION_PENDING,
   AUTH_BIOMETRIC_STATUS.VERIFICATION_PENDING,
   AUTH_BIOMETRIC_STATUS.INVESTIGATING,
 ];
 
-export const INACTIVE_BIOMETRIC_STATUSES: AuthBiometricStatus[] = [
+export const AUTHBIOMETRIC_INACTIVE_STATUSES: AuthBiometricStatus[] = [
   AUTH_BIOMETRIC_STATUS.DISABLED,
   AUTH_BIOMETRIC_STATUS.EXPIRED,
   AUTH_BIOMETRIC_STATUS.REVOKED,
@@ -83,7 +76,7 @@ export const INACTIVE_BIOMETRIC_STATUSES: AuthBiometricStatus[] = [
   AUTH_BIOMETRIC_STATUS.DEVICE_REMOVED,
 ];
 
-export const FAILED_BIOMETRIC_STATUSES: AuthBiometricStatus[] = [
+export const AUTHBIOMETRIC_FAILED_STATUSES: AuthBiometricStatus[] = [
   AUTH_BIOMETRIC_STATUS.FAILED,
   AUTH_BIOMETRIC_STATUS.REGISTRATION_FAILED,
   AUTH_BIOMETRIC_STATUS.VERIFICATION_FAILED,
@@ -91,7 +84,7 @@ export const FAILED_BIOMETRIC_STATUSES: AuthBiometricStatus[] = [
   AUTH_BIOMETRIC_STATUS.BLOCKED,
 ];
 
-export const SECURITY_BIOMETRIC_STATUSES: AuthBiometricStatus[] = [
+export const AUTHBIOMETRIC_SECURITY_STATUSES: AuthBiometricStatus[] = [
   AUTH_BIOMETRIC_STATUS.SUSPICIOUS,
   AUTH_BIOMETRIC_STATUS.COMPROMISED,
   AUTH_BIOMETRIC_STATUS.UNSECURE,
@@ -99,48 +92,48 @@ export const SECURITY_BIOMETRIC_STATUSES: AuthBiometricStatus[] = [
   AUTH_BIOMETRIC_STATUS.QUARANTINED,
 ];
 
-export const TRUSTED_BIOMETRIC_STATUSES: AuthBiometricStatus[] = [
+export const AUTHBIOMETRIC_TRUSTED_STATUSES: AuthBiometricStatus[] = [
   AUTH_BIOMETRIC_STATUS.TRUSTED,
   AUTH_BIOMETRIC_STATUS.SECURE,
   AUTH_BIOMETRIC_STATUS.VERIFIED,
 ];
 
-export const UNTRUSTED_BIOMETRIC_STATUSES: AuthBiometricStatus[] = [
+export const AUTHBIOMETRIC_UNTRUSTED_STATUSES: AuthBiometricStatus[] = [
   AUTH_BIOMETRIC_STATUS.UNTRUSTED,
   AUTH_BIOMETRIC_STATUS.SUSPICIOUS,
   AUTH_BIOMETRIC_STATUS.COMPROMISED,
   AUTH_BIOMETRIC_STATUS.UNSECURE,
 ];
 
-export function isBiometricActive(status: AuthBiometricStatus): boolean {
-  return ACTIVE_BIOMETRIC_STATUSES.includes(status);
+export function isAuthbiometricActive(status: AuthBiometricStatus): boolean {
+  return AUTHBIOMETRIC_ACTIVE_STATUSES.includes(status);
 }
 
-export function isBiometricPending(status: AuthBiometricStatus): boolean {
-  return PENDING_BIOMETRIC_STATUSES.includes(status);
+export function isAuthbiometricPending(status: AuthBiometricStatus): boolean {
+  return AUTHBIOMETRIC_PENDING_STATUSES.includes(status);
 }
 
-export function isBiometricInactive(status: AuthBiometricStatus): boolean {
-  return INACTIVE_BIOMETRIC_STATUSES.includes(status);
+export function isAuthbiometricInactive(status: AuthBiometricStatus): boolean {
+  return AUTHBIOMETRIC_INACTIVE_STATUSES.includes(status);
 }
 
-export function isBiometricFailed(status: AuthBiometricStatus): boolean {
-  return FAILED_BIOMETRIC_STATUSES.includes(status);
+export function isAuthbiometricFailed(status: AuthBiometricStatus): boolean {
+  return AUTHBIOMETRIC_FAILED_STATUSES.includes(status);
 }
 
-export function isBiometricSecurityIssue(status: AuthBiometricStatus): boolean {
-  return SECURITY_BIOMETRIC_STATUSES.includes(status);
+export function isAuthbiometricSecurityIssue(status: AuthBiometricStatus): boolean {
+  return AUTHBIOMETRIC_SECURITY_STATUSES.includes(status);
 }
 
-export function isBiometricTrusted(status: AuthBiometricStatus): boolean {
-  return TRUSTED_BIOMETRIC_STATUSES.includes(status);
+export function isAuthbiometricTrusted(status: AuthBiometricStatus): boolean {
+  return AUTHBIOMETRIC_TRUSTED_STATUSES.includes(status);
 }
 
-export function isBiometricUntrusted(status: AuthBiometricStatus): boolean {
-  return UNTRUSTED_BIOMETRIC_STATUSES.includes(status);
+export function isAuthbiometricUntrusted(status: AuthBiometricStatus): boolean {
+  return AUTHBIOMETRIC_UNTRUSTED_STATUSES.includes(status);
 }
 
-export function getBiometricStatusLabel(status: AuthBiometricStatus): string {
+export function getAuthbiometricStatusLabel(status: AuthBiometricStatus): string {
   const labels: Record<AuthBiometricStatus, string> = {
     [AUTH_BIOMETRIC_STATUS.ENABLED]: 'Enabled',
     [AUTH_BIOMETRIC_STATUS.DISABLED]: 'Disabled',
@@ -178,7 +171,7 @@ export function getBiometricStatusLabel(status: AuthBiometricStatus): string {
   return labels[status] || 'Unknown Status';
 }
 
-export function getBiometricStatusColor(status: AuthBiometricStatus): string {
+export function getAuthbiometricStatusColor(status: AuthBiometricStatus): string {
   const colors: Record<AuthBiometricStatus, string> = {
     [AUTH_BIOMETRIC_STATUS.ENABLED]: '#10B981',
     [AUTH_BIOMETRIC_STATUS.DISABLED]: '#6B7280',
@@ -216,7 +209,7 @@ export function getBiometricStatusColor(status: AuthBiometricStatus): string {
   return colors[status] || '#6B7280';
 }
 
-export function getBiometricStatusPriority(status: AuthBiometricStatus): number {
+export function getAuthbiometricStatusPriority(status: AuthBiometricStatus): number {
   const priorities: Record<AuthBiometricStatus, number> = {
     [AUTH_BIOMETRIC_STATUS.ENABLED]: 10,
     [AUTH_BIOMETRIC_STATUS.DISABLED]: 5,
@@ -254,7 +247,7 @@ export function getBiometricStatusPriority(status: AuthBiometricStatus): number 
   return priorities[status] || 5;
 }
 
-export function getBiometricStatusBadgeType(
+export function getAuthbiometricStatusBadgeType(
   status: AuthBiometricStatus
 ): 'success' | 'warning' | 'error' | 'info' | 'default' {
   const types: Record<AuthBiometricStatus, 'success' | 'warning' | 'error' | 'info' | 'default'> = {

@@ -1,21 +1,22 @@
 /**
- * AI Recommendation Constants Index
- * Export all recommendation constants and types for easy importing
+ * AI Recommendation Index
+ * Export all AI recommendation constants and types for easy importing
  */
 
-// AI Recommendation Constants
+// Export all constants from ai-recommendation.constants
 export {
   AI_RECOMMENDATION,
-  getRecommendationPriorityLabel as getRecPriorityLabel,
-  getRecommendationStatusLabel as getRecStatusLabel,
-  getRecommendationScopeLabel,
-  getRecommendationMetricLabel,
-  getRecommendationAlgorithmFamily,
-  isRecommendationDelivered as isRecDelivered,
-  isRecommendationActive as isRecActive,
-  getDefaultRecommendationCount,
+  getAiRecommendationPriorityLabel,
+  getAiRecommendationStatusLabel,
+  getAiRecommendationScopeLabel,
+  getAiRecommendationMetricLabel,
+  getAiRecommendationAlgorithmFamily,
+  isAiRecommendationDelivered,
+  isAiRecommendationActive,
+  getAiRecommendationDefaultCount,
 } from './ai-recommendation.constants';
 
+// Export all types from ai-recommendation.constants
 export type {
   AIRecommendationType,
   AIRecommendationStrategy,
@@ -32,16 +33,17 @@ export type {
   AIRecommendationModel,
 } from './ai-recommendation.constants';
 
-// AI Recommendation Type Constants
+// Export all constants from ai-recommendation-type.constants
 export {
   AI_RECOMMENDATION_TYPE,
-  getRecommendationTypeLabel,
-  getRecommendationCategoryLabel,
-  getRecommendationSourceLabel,
-  getRecommendationPurposeLabel,
-  getDefaultCountByPurpose,
+  getAiRecommendationTypeLabel,
+  getAiRecommendationCategoryLabel,
+  getAiRecommendationSourceLabel,
+  getAiRecommendationPurposeLabel,
+  getAiRecommendationDefaultCountByPurpose,
 } from './ai-recommendation-type.constants';
 
+// Export all types from ai-recommendation-type.constants
 export type {
   AIRecommendationTypeType,
   AIRecommendationCategory,
@@ -50,17 +52,18 @@ export type {
   AIRecommendationPurpose,
 } from './ai-recommendation-type.constants';
 
-// AI Recommendation Strategy Constants
+// Export all constants from ai-recommendation-strategy.constants
 export {
   AI_RECOMMENDATION_STRATEGY,
-  getStrategyTypeLabel,
-  getStrategyGoalLabel,
-  getExecutionModeLabel,
-  getEvaluationMethodLabel,
-  getStrategyPriorityWeight,
-  getRecommendedStrategyForGoal,
+  getAiRecommendationStrategyTypeLabel,
+  getAiRecommendationStrategyGoalLabel,
+  getAiRecommendationExecutionModeLabel,
+  getAiRecommendationEvaluationMethodLabel,
+  getAiRecommendationStrategyPriorityWeight,
+  getAiRecommendationRecommendedStrategyForGoal,
 } from './ai-recommendation-strategy.constants';
 
+// Export all types from ai-recommendation-strategy.constants
 export type {
   AIRecommendationStrategyType,
   AIRecommendationStrategyApproach,
@@ -70,21 +73,22 @@ export type {
   AIRecommendationEvaluationMethod,
 } from './ai-recommendation-strategy.constants';
 
-// AI Recommendation Status Constants
+// Export all constants from ai-recommendation-status.constants
 export {
-  AI_RECOMMENDATION_STATUS,
   AI_RECOMMENDATION_STATUS_TYPES,
-  getRecommendationStatusLabel as getRecStatusLabel2,
-  getRecommendationStatusCategory,
-  getRecommendationStatusSeverity,
-  getRecommendationStatusColor,
-  isRecommendationActive as isRecActive2,
-  isRecommendationDelivered as isRecDelivered2,
-  isRecommendationConverted,
-  isRecommendationFailed,
-  isRecommendationComplete,
+  AI_RECOMMENDATION_STATUS,
+  getAiRecommendationStatusLabel as getAiRecommendationStatusLabelDetailed,
+  getAiRecommendationStatusCategory,
+  getAiRecommendationStatusSeverity,
+  getAiRecommendationStatusColor,
+  isAiRecommendationActiveStatus,
+  isAiRecommendationDeliveredStatus,
+  isAiRecommendationFailedStatus,
+  isAiRecommendationCompleted,
+  getAiRecommendationStatusProgress,
 } from './ai-recommendation-status.constants';
 
+// Export all types from ai-recommendation-status.constants
 export type {
   AIRecommendationStatusType,
   AIRecommendationStatusCategory,
@@ -92,18 +96,19 @@ export type {
   AIRecommendationStatusColor,
 } from './ai-recommendation-status.constants';
 
-// AI Recommendation Scope Constants
+// Export all constants from ai-recommendation-scope.constants
 export {
   AI_RECOMMENDATION_SCOPE,
-  getScopeLevelLabel,
-  getScopeContextLabel,
-  getScopeTypeLabel,
-  getScopeRuleLabel,
-  getScopePriorityValue,
-  getScopeWeight,
-  getDefaultRecommendationCountByScope,
+  getAiRecommendationScopeLevelLabel,
+  getAiRecommendationScopeContextLabel,
+  getAiRecommendationScopeTypeLabel,
+  getAiRecommendationScopeRuleLabel,
+  getAiRecommendationScopePriorityValue,
+  getAiRecommendationScopeWeight,
+  getAiRecommendationDefaultCountByScopeType,
 } from './ai-recommendation-scope.constants';
 
+// Export all types from ai-recommendation-scope.constants
 export type {
   AIRecommendationScopeLevel,
   AIRecommendationScopeContext,
@@ -113,27 +118,28 @@ export type {
   AIRecommendationScopeWeight,
 } from './ai-recommendation-scope.constants';
 
-// AI Recommendation Priority Constants
+// Export all constants from ai-recommendation-priority.constants
 export {
-  AI_RECOMMENDATION_PRIORITY,
   AI_RECOMMENDATION_PRIORITY_FACTORS,
-  getPriorityLevelLabel,
-  getPriorityScore,
-  getPriorityLevel,
-  calculatePriorityScore,
-  applyPriorityBoost,
-  applyPriorityPenalty,
-  getPriorityBoostLabel,
-  getPriorityPenaltyLabel,
-  getDecayFactor,
-  getDefaultFactorWeights,
-  getDefaultThresholds,
+  AI_RECOMMENDATION_PRIORITY,
+  getAiRecommendationPriorityLevelLabel,
+  getAiRecommendationPriorityScore,
+  getAiRecommendationPriorityLevel,
+  calculateAiRecommendationPriorityScore,
+  applyAiRecommendationPriorityBoost,
+  applyAiRecommendationPriorityPenalty,
+  getAiRecommendationPriorityBoostLabel,
+  getAiRecommendationPriorityPenaltyLabel,
+  getAiRecommendationDecayFactor,
+  getAiRecommendationDefaultFactorWeights,
+  getAiRecommendationDefaultThresholds,
 } from './ai-recommendation-priority.constants';
 
+// Export all types from ai-recommendation-priority.constants
 export type {
+  AIRecommendationPriorityFactor,
   AIRecommendationPriorityLevel,
   AIRecommendationPriorityScore,
-  AIRecommendationPriorityFactor,
   AIRecommendationPriorityWeight,
   AIRecommendationPriorityThreshold,
   AIRecommendationPriorityDecay,

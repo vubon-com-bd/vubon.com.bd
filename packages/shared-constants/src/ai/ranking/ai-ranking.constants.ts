@@ -178,32 +178,16 @@ export const AI_RANKING = {
   } as const,
 } as const;
 
-// Ranking Types
 export type AIRankingType = (typeof AI_RANKING.TYPES)[keyof typeof AI_RANKING.TYPES];
-
-// Ranking Status
 export type AIRankingStatus = (typeof AI_RANKING.STATUSES)[keyof typeof AI_RANKING.STATUSES];
-
-// Ranking Strategies
 export type AIRankingStrategy = (typeof AI_RANKING.STRATEGIES)[keyof typeof AI_RANKING.STRATEGIES];
-
-// Ranking Weights
 export type AIRankingWeight = (typeof AI_RANKING.WEIGHTS)[keyof typeof AI_RANKING.WEIGHTS];
-
-// Ranking Limits
 export type AIRankingLimit = (typeof AI_RANKING.LIMITS)[keyof typeof AI_RANKING.LIMITS];
-
-// Ranking Metrics
 export type AIRankingMetric = (typeof AI_RANKING.METRICS)[keyof typeof AI_RANKING.METRICS];
-
-// Ranking Modes
 export type AIRankingMode = (typeof AI_RANKING.MODES)[keyof typeof AI_RANKING.MODES];
-
-// Ranking Algorithms
 export type AIRankingAlgorithm = (typeof AI_RANKING.ALGORITHMS)[keyof typeof AI_RANKING.ALGORITHMS];
 
-// Utility Functions
-export function getRankingTypeLabel(type: AIRankingType): string {
+export function getAiRankingTypeLabel(type: AIRankingType): string {
   const labels: Record<AIRankingType, string> = {
     [AI_RANKING.TYPES.RELEVANCE]: 'Relevance',
     [AI_RANKING.TYPES.POPULARITY]: 'Popularity',
@@ -223,7 +207,7 @@ export function getRankingTypeLabel(type: AIRankingType): string {
   return labels[type] || 'Unknown';
 }
 
-export function getRankingStatusLabel(status: AIRankingStatus): string {
+export function getAiRankingStatusLabel(status: AIRankingStatus): string {
   const labels: Record<AIRankingStatus, string> = {
     [AI_RANKING.STATUSES.PENDING]: 'Pending',
     [AI_RANKING.STATUSES.PROCESSING]: 'Processing',
@@ -240,7 +224,7 @@ export function getRankingStatusLabel(status: AIRankingStatus): string {
   return labels[status] || 'Unknown';
 }
 
-export function getRankingStrategyLabel(strategy: AIRankingStrategy): string {
+export function getAiRankingStrategyLabel(strategy: AIRankingStrategy): string {
   const labels: Record<AIRankingStrategy, string> = {
     [AI_RANKING.STRATEGIES.BM25]: 'BM25',
     [AI_RANKING.STRATEGIES.TF_IDF]: 'TF-IDF',
@@ -277,7 +261,7 @@ export function getRankingStrategyLabel(strategy: AIRankingStrategy): string {
   return labels[strategy] || 'Unknown';
 }
 
-export function getRankingFactorLabel(factor: AIRankingFactor): string {
+export function getAiRankingFactorLabel(factor: AIRankingFactor): string {
   const labels: Record<AIRankingFactor, string> = {
     [AI_RANKING_FACTORS.RELEVANCE]: 'Relevance',
     [AI_RANKING_FACTORS.POPULARITY]: 'Popularity',
@@ -299,7 +283,7 @@ export function getRankingFactorLabel(factor: AIRankingFactor): string {
   return labels[factor] || 'Unknown';
 }
 
-export function getRankingMetricLabel(metric: AIRankingMetric): string {
+export function getAiRankingMetricLabel(metric: AIRankingMetric): string {
   const labels: Record<AIRankingMetric, string> = {
     [AI_RANKING.METRICS.NDCG]: 'NDCG',
     [AI_RANKING.METRICS.MAP]: 'Mean Average Precision',
@@ -317,7 +301,7 @@ export function getRankingMetricLabel(metric: AIRankingMetric): string {
   return labels[metric] || 'Unknown';
 }
 
-export function getRankingModeLabel(mode: AIRankingMode): string {
+export function getAiRankingModeLabel(mode: AIRankingMode): string {
   const labels: Record<AIRankingMode, string> = {
     [AI_RANKING.MODES.BATCH]: 'Batch',
     [AI_RANKING.MODES.REAL_TIME]: 'Real Time',
@@ -329,7 +313,7 @@ export function getRankingModeLabel(mode: AIRankingMode): string {
   return labels[mode] || 'Unknown';
 }
 
-export function isRankingActive(status: AIRankingStatus): boolean {
+export function isAiRankingActive(status: AIRankingStatus): boolean {
   const activeStatuses: AIRankingStatus[] = [
     AI_RANKING.STATUSES.PENDING,
     AI_RANKING.STATUSES.PROCESSING,
@@ -341,7 +325,7 @@ export function isRankingActive(status: AIRankingStatus): boolean {
   return activeStatuses.includes(status);
 }
 
-export function isRankingComplete(status: AIRankingStatus): boolean {
+export function isAiRankingComplete(status: AIRankingStatus): boolean {
   const completeStatuses: AIRankingStatus[] = [
     AI_RANKING.STATUSES.COMPLETED,
     AI_RANKING.STATUSES.DELIVERED,
@@ -350,23 +334,25 @@ export function isRankingComplete(status: AIRankingStatus): boolean {
   return completeStatuses.includes(status);
 }
 
-export function isRankingFailed(status: AIRankingStatus): boolean {
+export function isAiRankingFailed(status: AIRankingStatus): boolean {
   return status === AI_RANKING.STATUSES.FAILED;
 }
 
-export function getRankingWeight(factor: AIRankingFactor): number {
+export function getAiRankingWeight(factor: AIRankingFactor): number {
   return AI_RANKING.WEIGHTS[factor] || 0;
 }
 
-export function getDefaultRankingLimit(): number {
+export function getAiRankingDefaultLimit(): number {
   return AI_RANKING.LIMITS.DEFAULT;
 }
 
-export function calculateCombinedScore(scores: Partial<Record<AIRankingFactor, number>>): number {
+export function calculateAiRankingCombinedScore(
+  scores: Partial<Record<AIRankingFactor, number>>
+): number {
   let totalScore = 0;
   for (const [factor, value] of Object.entries(scores)) {
     const factorKey = factor as AIRankingFactor;
-    const weight = getRankingWeight(factorKey);
+    const weight = getAiRankingWeight(factorKey);
     if (weight && value) {
       totalScore += value * weight;
     }

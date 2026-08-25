@@ -92,31 +92,19 @@ export const AI_VECTOR_TYPE = {
   } as const,
 } as const;
 
-// Vector Categories
 export type AIVectorCategory =
   (typeof AI_VECTOR_TYPE.CATEGORIES)[keyof typeof AI_VECTOR_TYPE.CATEGORIES];
-
-// Vector Sub-Types
 export type AIVectorSubType =
   (typeof AI_VECTOR_TYPE.SUB_TYPES)[keyof typeof AI_VECTOR_TYPE.SUB_TYPES];
-
-// Vector Dimensions
 export type AIVectorDimensionType =
   (typeof AI_VECTOR_TYPE.DIMENSIONS)[keyof typeof AI_VECTOR_TYPE.DIMENSIONS];
-
-// Vector Precision
 export type AIVectorPrecision =
   (typeof AI_VECTOR_TYPE.PRECISION)[keyof typeof AI_VECTOR_TYPE.PRECISION];
-
-// Vector Density
 export type AIVectorDensity = (typeof AI_VECTOR_TYPE.DENSITY)[keyof typeof AI_VECTOR_TYPE.DENSITY];
-
-// Vector Generation Methods
 export type AIVectorGenerationMethod =
   (typeof AI_VECTOR_TYPE.GENERATION_METHODS)[keyof typeof AI_VECTOR_TYPE.GENERATION_METHODS];
 
-// Utility Functions
-export function getVectorCategoryLabel(category: AIVectorCategory): string {
+export function getAiVectorCategoryLabel(category: AIVectorCategory): string {
   const labels: Record<AIVectorCategory, string> = {
     [AI_VECTOR_TYPE.CATEGORIES.TEXT]: 'Text',
     [AI_VECTOR_TYPE.CATEGORIES.IMAGE]: 'Image',
@@ -134,7 +122,7 @@ export function getVectorCategoryLabel(category: AIVectorCategory): string {
   return labels[category] || 'Unknown';
 }
 
-export function getVectorSubTypeLabel(subType: AIVectorSubType): string {
+export function getAiVectorSubTypeLabel(subType: AIVectorSubType): string {
   const labels: Record<AIVectorSubType, string> = {
     [AI_VECTOR_TYPE.SUB_TYPES.WORD]: 'Word',
     [AI_VECTOR_TYPE.SUB_TYPES.SENTENCE]: 'Sentence',
@@ -164,7 +152,7 @@ export function getVectorSubTypeLabel(subType: AIVectorSubType): string {
   return labels[subType] || 'Unknown';
 }
 
-export function getVectorDimensionTypeLabel(dimType: AIVectorDimensionType): string {
+export function getAiVectorDimensionTypeLabel(dimType: AIVectorDimensionType): string {
   const labels: Record<AIVectorDimensionType, string> = {
     [AI_VECTOR_TYPE.DIMENSIONS.LOW]: 'Low (50-100)',
     [AI_VECTOR_TYPE.DIMENSIONS.MEDIUM]: 'Medium (100-300)',
@@ -175,7 +163,7 @@ export function getVectorDimensionTypeLabel(dimType: AIVectorDimensionType): str
   return labels[dimType] || 'Unknown';
 }
 
-export function getVectorPrecisionLabel(precision: AIVectorPrecision): string {
+export function getAiVectorPrecisionLabel(precision: AIVectorPrecision): string {
   const labels: Record<AIVectorPrecision, string> = {
     [AI_VECTOR_TYPE.PRECISION.LOW]: 'Low',
     [AI_VECTOR_TYPE.PRECISION.MEDIUM]: 'Medium',
@@ -185,7 +173,7 @@ export function getVectorPrecisionLabel(precision: AIVectorPrecision): string {
   return labels[precision] || 'Unknown';
 }
 
-export function getVectorDensityLabel(density: AIVectorDensity): string {
+export function getAiVectorDensityLabel(density: AIVectorDensity): string {
   const labels: Record<AIVectorDensity, string> = {
     [AI_VECTOR_TYPE.DENSITY.DENSE]: 'Dense',
     [AI_VECTOR_TYPE.DENSITY.SPARSE]: 'Sparse',
@@ -194,7 +182,7 @@ export function getVectorDensityLabel(density: AIVectorDensity): string {
   return labels[density] || 'Unknown';
 }
 
-export function getVectorGenerationMethodLabel(method: AIVectorGenerationMethod): string {
+export function getAiVectorGenerationMethodLabel(method: AIVectorGenerationMethod): string {
   const labels: Record<AIVectorGenerationMethod, string> = {
     [AI_VECTOR_TYPE.GENERATION_METHODS.MODEL_BASED]: 'Model Based',
     [AI_VECTOR_TYPE.GENERATION_METHODS.RULE_BASED]: 'Rule Based',
@@ -204,7 +192,7 @@ export function getVectorGenerationMethodLabel(method: AIVectorGenerationMethod)
   return labels[method] || 'Unknown';
 }
 
-export function getDimensionRange(dimType: AIVectorDimensionType): [number, number] {
+export function getAiVectorDimensionRange(dimType: AIVectorDimensionType): [number, number] {
   const ranges: Record<AIVectorDimensionType, [number, number]> = {
     [AI_VECTOR_TYPE.DIMENSIONS.LOW]: [50, 100],
     [AI_VECTOR_TYPE.DIMENSIONS.MEDIUM]: [100, 300],
@@ -215,7 +203,7 @@ export function getDimensionRange(dimType: AIVectorDimensionType): [number, numb
   return ranges[dimType] || [0, 0];
 }
 
-export function getPrecisionScore(precision: AIVectorPrecision): number {
+export function getAiVectorPrecisionScore(precision: AIVectorPrecision): number {
   const scores: Record<AIVectorPrecision, number> = {
     [AI_VECTOR_TYPE.PRECISION.LOW]: 0.3,
     [AI_VECTOR_TYPE.PRECISION.MEDIUM]: 0.6,

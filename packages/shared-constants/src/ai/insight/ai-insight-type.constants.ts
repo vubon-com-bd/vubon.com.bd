@@ -89,31 +89,19 @@ export const AI_INSIGHT_TYPE = {
   } as const,
 } as const;
 
-// Insight Domains
 export type AIInsightDomain =
   (typeof AI_INSIGHT_TYPE.DOMAINS)[keyof typeof AI_INSIGHT_TYPE.DOMAINS];
-
-// Insight Sub-Types
 export type AIInsightSubType =
   (typeof AI_INSIGHT_TYPE.SUB_TYPES)[keyof typeof AI_INSIGHT_TYPE.SUB_TYPES];
-
-// Insight Complexity
 export type AIInsightComplexity =
   (typeof AI_INSIGHT_TYPE.COMPLEXITY)[keyof typeof AI_INSIGHT_TYPE.COMPLEXITY];
-
-// Insight Maturity
 export type AIInsightMaturity =
   (typeof AI_INSIGHT_TYPE.MATURITY)[keyof typeof AI_INSIGHT_TYPE.MATURITY];
-
-// Insight Scope
 export type AIInsightScope = (typeof AI_INSIGHT_TYPE.SCOPE)[keyof typeof AI_INSIGHT_TYPE.SCOPE];
-
-// Insight Horizon
 export type AIInsightHorizon =
   (typeof AI_INSIGHT_TYPE.HORIZON)[keyof typeof AI_INSIGHT_TYPE.HORIZON];
 
-// Utility Functions
-export function getInsightDomainLabel(domain: AIInsightDomain): string {
+export function getAiInsightDomainLabel(domain: AIInsightDomain): string {
   const labels: Record<AIInsightDomain, string> = {
     [AI_INSIGHT_TYPE.DOMAINS.BUSINESS]: 'Business',
     [AI_INSIGHT_TYPE.DOMAINS.MARKET]: 'Market',
@@ -130,7 +118,7 @@ export function getInsightDomainLabel(domain: AIInsightDomain): string {
   return labels[domain] || 'Unknown';
 }
 
-export function getInsightSubTypeLabel(subType: AIInsightSubType): string {
+export function getAiInsightSubTypeLabel(subType: AIInsightSubType): string {
   const labels: Record<AIInsightSubType, string> = {
     [AI_INSIGHT_TYPE.SUB_TYPES.REVENUE_OPPORTUNITY]: 'Revenue Opportunity',
     [AI_INSIGHT_TYPE.SUB_TYPES.COST_SAVINGS]: 'Cost Savings',
@@ -157,7 +145,7 @@ export function getInsightSubTypeLabel(subType: AIInsightSubType): string {
   return labels[subType] || 'Unknown';
 }
 
-export function getInsightComplexityLabel(complexity: AIInsightComplexity): string {
+export function getAiInsightComplexityLabel(complexity: AIInsightComplexity): string {
   const labels: Record<AIInsightComplexity, string> = {
     [AI_INSIGHT_TYPE.COMPLEXITY.SIMPLE]: 'Simple',
     [AI_INSIGHT_TYPE.COMPLEXITY.MODERATE]: 'Moderate',
@@ -167,7 +155,7 @@ export function getInsightComplexityLabel(complexity: AIInsightComplexity): stri
   return labels[complexity] || 'Unknown';
 }
 
-export function getInsightMaturityLabel(maturity: AIInsightMaturity): string {
+export function getAiInsightMaturityLabel(maturity: AIInsightMaturity): string {
   const labels: Record<AIInsightMaturity, string> = {
     [AI_INSIGHT_TYPE.MATURITY.EMERGING]: 'Emerging',
     [AI_INSIGHT_TYPE.MATURITY.DEVELOPING]: 'Developing',
@@ -178,7 +166,7 @@ export function getInsightMaturityLabel(maturity: AIInsightMaturity): string {
   return labels[maturity] || 'Unknown';
 }
 
-export function getInsightScopeLabel(scope: AIInsightScope): string {
+export function getAiInsightScopeLabel(scope: AIInsightScope): string {
   const labels: Record<AIInsightScope, string> = {
     [AI_INSIGHT_TYPE.SCOPE.INDIVIDUAL]: 'Individual',
     [AI_INSIGHT_TYPE.SCOPE.TEAM]: 'Team',
@@ -190,7 +178,7 @@ export function getInsightScopeLabel(scope: AIInsightScope): string {
   return labels[scope] || 'Unknown';
 }
 
-export function getInsightHorizonLabel(horizon: AIInsightHorizon): string {
+export function getAiInsightHorizonLabel(horizon: AIInsightHorizon): string {
   const labels: Record<AIInsightHorizon, string> = {
     [AI_INSIGHT_TYPE.HORIZON.IMMEDIATE]: 'Immediate',
     [AI_INSIGHT_TYPE.HORIZON.SHORT_TERM]: 'Short Term',
@@ -200,7 +188,7 @@ export function getInsightHorizonLabel(horizon: AIInsightHorizon): string {
   return labels[horizon] || 'Unknown';
 }
 
-export function getComplexityScore(complexity: AIInsightComplexity): number {
+export function getAiInsightComplexityScore(complexity: AIInsightComplexity): number {
   const scores: Record<AIInsightComplexity, number> = {
     [AI_INSIGHT_TYPE.COMPLEXITY.SIMPLE]: 1,
     [AI_INSIGHT_TYPE.COMPLEXITY.MODERATE]: 3,
@@ -210,7 +198,7 @@ export function getComplexityScore(complexity: AIInsightComplexity): number {
   return scores[complexity] || 1;
 }
 
-export function getMaturityScore(maturity: AIInsightMaturity): number {
+export function getAiInsightMaturityScore(maturity: AIInsightMaturity): number {
   const scores: Record<AIInsightMaturity, number> = {
     [AI_INSIGHT_TYPE.MATURITY.EMERGING]: 1,
     [AI_INSIGHT_TYPE.MATURITY.DEVELOPING]: 3,

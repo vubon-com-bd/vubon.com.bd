@@ -1,23 +1,24 @@
 /**
- * AI Personalization Constants Index
- * Export all personalization constants and types for easy importing
+ * AI Personalization Index
+ * Export all AI personalization constants and types for easy importing
  */
 
-// AI Personalization Constants
+// Export all constants from ai-personalization.constants
 export {
   AI_PERSONALIZATION,
-  getPersonalizationTypeLabel,
-  getPersonalizationStatusLabel,
-  getPersonalizationScopeLabel,
-  getPersonalizationStrategyLabel,
-  getPersonalizationEventLabel,
-  getPersonalizationMetricLabel,
-  isPersonalizationActive,
-  isPersonalizationComplete,
-  isPersonalizationFailed,
-  getPersonalizationWeight,
+  getAiPersonalizationTypeLabel,
+  getAiPersonalizationStatusLabel,
+  getAiPersonalizationScopeLabel,
+  getAiPersonalizationStrategyLabel,
+  getAiPersonalizationEventLabel,
+  getAiPersonalizationMetricLabel,
+  isAiPersonalizationActive,
+  isAiPersonalizationComplete,
+  isAiPersonalizationFailed,
+  getAiPersonalizationWeight,
 } from './ai-personalization.constants';
 
+// Export all types from ai-personalization.constants
 export type {
   AIPersonalizationType,
   AIPersonalizationStatus,
@@ -31,16 +32,17 @@ export type {
   AIPersonalizationMetric,
 } from './ai-personalization.constants';
 
-// AI Personalization Type Constants
+// Export all constants from ai-personalization-type.constants
 export {
   AI_PERSONALIZATION_TYPE,
-  getPersonalizationCategoryLabel,
-  getPersonalizationSubTypeLabel,
-  getPersonalizationSourceLabel,
-  getPersonalizationModeLabel,
-  getPersonalizationLevelLabel,
+  getAiPersonalizationCategoryLabel,
+  getAiPersonalizationSubTypeLabel,
+  getAiPersonalizationSourceLabel,
+  getAiPersonalizationModeLabel,
+  getAiPersonalizationLevelLabel,
 } from './ai-personalization-type.constants';
 
+// Export all types from ai-personalization-type.constants
 export type {
   AIPersonalizationCategory,
   AIPersonalizationSubType,
@@ -49,20 +51,46 @@ export type {
   AIPersonalizationLevel,
 } from './ai-personalization-type.constants';
 
-// AI Personalization Status Constants
+// Export all constants from ai-personalization-strategy.constants
 export {
-  AI_PERSONALIZATION_STATUS,
+  AI_PERSONALIZATION_STRATEGY,
+  getAiPersonalizationStrategyCategoryLabel,
+  getAiPersonalizationStrategyTypeLabel,
+  getAiPersonalizationStrategyApproachLabel,
+  getAiPersonalizationStrategyGoalLabel,
+  getAiPersonalizationStrategyTradeOffLabel,
+  getAiPersonalizationStrategyExecutionLabel,
+  getAiPersonalizationStrategyEvaluationLabel,
+  getAiPersonalizationStrategyPriorityWeight,
+  getAiPersonalizationRecommendedStrategyForGoal,
+} from './ai-personalization-strategy.constants';
+
+// Export all types from ai-personalization-strategy.constants
+export type {
+  AIPersonalizationStrategyCategory,
+  AIPersonalizationStrategyType,
+  AIPersonalizationStrategyApproach,
+  AIPersonalizationStrategyGoal,
+  AIPersonalizationStrategyTradeOff,
+  AIPersonalizationStrategyExecution,
+  AIPersonalizationStrategyEvaluation,
+} from './ai-personalization-strategy.constants';
+
+// Export all constants from ai-personalization-status.constants
+export {
   AI_PERSONALIZATION_STATUS_TYPES,
-  getPersonalizationStatusLabel as getPersStatusLabel,
-  getPersonalizationStatusCategory,
-  getPersonalizationStatusSeverity,
-  getPersonalizationStatusColor,
-  isPersonalizationActive as isPersActive,
-  isPersonalizationDelivered,
-  isPersonalizationComplete as isPersComplete,
-  isPersonalizationFailed as isPersFailed,
+  AI_PERSONALIZATION_STATUS,
+  getAiPersonalizationStatusLabel as getAiPersonalizationStatusLabelDetailed,
+  getAiPersonalizationStatusCategory,
+  getAiPersonalizationStatusSeverity,
+  getAiPersonalizationStatusColor,
+  isAiPersonalizationActiveStatus,
+  isAiPersonalizationCompletedStatus,
+  isAiPersonalizationFailedStatus,
+  getAiPersonalizationStatusProgress,
 } from './ai-personalization-status.constants';
 
+// Export all types from ai-personalization-status.constants
 export type {
   AIPersonalizationStatusType,
   AIPersonalizationStatusCategory,
@@ -70,42 +98,24 @@ export type {
   AIPersonalizationStatusColor,
 } from './ai-personalization-status.constants';
 
-// AI Personalization Scope Constants
+// Export all constants from ai-personalization-scope.constants
 export {
   AI_PERSONALIZATION_SCOPE,
-  getPersonalizationScopeLevelLabel,
-  getPersonalizationScopeContextLabel,
-  getPersonalizationScopeTypeLabel,
-  getPersonalizationScopeRuleLabel,
-  getPersonalizationScopeWeight,
-  getPersonalizationScopePriority,
+  getAiPersonalizationScopeLevelLabel,
+  getAiPersonalizationScopeContextLabel,
+  getAiPersonalizationScopeTypeLabel,
+  getAiPersonalizationScopeRuleLabel,
+  getAiPersonalizationScopePriorityValue,
+  getAiPersonalizationScopeWeight,
+  getAiPersonalizationDefaultScopeCount,
 } from './ai-personalization-scope.constants';
 
+// Export all types from ai-personalization-scope.constants
 export type {
   AIPersonalizationScopeLevel,
   AIPersonalizationScopeContext,
   AIPersonalizationScopeType,
   AIPersonalizationScopeRule,
-  AIPersonalizationScopeWeight,
   AIPersonalizationScopePriority,
+  AIPersonalizationScopeWeight,
 } from './ai-personalization-scope.constants';
-
-// AI Personalization Strategy Constants
-export {
-  AI_PERSONALIZATION_STRATEGY,
-  getPersonalizationStrategyTypeLabel,
-  getPersonalizationStrategyApproachLabel,
-  getPersonalizationStrategyGoalLabel,
-  getPersonalizationStrategyExecutionLabel,
-  getPersonalizationStrategyEvaluationLabel,
-  getRecommendedStrategyForGoal,
-} from './ai-personalization-strategy.constants';
-
-export type {
-  AIPersonalizationStrategyType,
-  AIPersonalizationStrategyApproach,
-  AIPersonalizationStrategyGoal,
-  AIPersonalizationStrategyOptimization,
-  AIPersonalizationStrategyExecution,
-  AIPersonalizationStrategyEvaluation,
-} from './ai-personalization-strategy.constants';

@@ -4,7 +4,6 @@
  */
 
 export const AUTH_SOCIAL_PROVIDER = {
-  // Major providers
   GOOGLE: 'google',
   FACEBOOK: 'facebook',
   TWITTER: 'twitter',
@@ -13,17 +12,14 @@ export const AUTH_SOCIAL_PROVIDER = {
   APPLE: 'apple',
   MICROSOFT: 'microsoft',
 
-  // Regional providers (Bangladesh)
   BKASH: 'bkash',
   NAGAD: 'nogod',
   ROCKET: 'rocket',
 
-  // Enterprise providers
   OKTA: 'okta',
   AZURE_AD: 'azure_ad',
   GOOGLE_WORKSPACE: 'google_workspace',
 
-  // Other providers
   AMAZON: 'amazon',
   INSTAGRAM: 'instagram',
   TIKTOK: 'tiktok',
@@ -33,9 +29,9 @@ export const AUTH_SOCIAL_PROVIDER = {
   SLACK: 'slack',
 } as const;
 
-export type AuthSocialProvider = (typeof AUTH_SOCIAL_PROVIDER)[keyof typeof AUTH_SOCIAL_PROVIDER];
+export type AuthsocialProvider = (typeof AUTH_SOCIAL_PROVIDER)[keyof typeof AUTH_SOCIAL_PROVIDER];
 
-export const MAJOR_PROVIDERS: AuthSocialProvider[] = [
+export const AUTHSOCIAL_MAJOR_PROVIDERS: AuthsocialProvider[] = [
   AUTH_SOCIAL_PROVIDER.GOOGLE,
   AUTH_SOCIAL_PROVIDER.FACEBOOK,
   AUTH_SOCIAL_PROVIDER.TWITTER,
@@ -45,19 +41,19 @@ export const MAJOR_PROVIDERS: AuthSocialProvider[] = [
   AUTH_SOCIAL_PROVIDER.MICROSOFT,
 ];
 
-export const BANGLADESH_PROVIDERS: AuthSocialProvider[] = [
+export const AUTHSOCIAL_BANGLADESH_PROVIDERS: AuthsocialProvider[] = [
   AUTH_SOCIAL_PROVIDER.BKASH,
   AUTH_SOCIAL_PROVIDER.NAGAD,
   AUTH_SOCIAL_PROVIDER.ROCKET,
 ];
 
-export const ENTERPRISE_PROVIDERS: AuthSocialProvider[] = [
+export const AUTHSOCIAL_ENTERPRISE_PROVIDERS: AuthsocialProvider[] = [
   AUTH_SOCIAL_PROVIDER.OKTA,
   AUTH_SOCIAL_PROVIDER.AZURE_AD,
   AUTH_SOCIAL_PROVIDER.GOOGLE_WORKSPACE,
 ];
 
-export const OTHER_PROVIDERS: AuthSocialProvider[] = [
+export const AUTHSOCIAL_OTHER_PROVIDERS: AuthsocialProvider[] = [
   AUTH_SOCIAL_PROVIDER.AMAZON,
   AUTH_SOCIAL_PROVIDER.INSTAGRAM,
   AUTH_SOCIAL_PROVIDER.TIKTOK,
@@ -67,14 +63,14 @@ export const OTHER_PROVIDERS: AuthSocialProvider[] = [
   AUTH_SOCIAL_PROVIDER.SLACK,
 ];
 
-export const SOCIAL_PROVIDERS_LIST: AuthSocialProvider[] = [
-  ...MAJOR_PROVIDERS,
-  ...BANGLADESH_PROVIDERS,
-  ...ENTERPRISE_PROVIDERS,
-  ...OTHER_PROVIDERS,
+export const AUTHSOCIAL_PROVIDERS_LIST: AuthsocialProvider[] = [
+  ...AUTHSOCIAL_MAJOR_PROVIDERS,
+  ...AUTHSOCIAL_BANGLADESH_PROVIDERS,
+  ...AUTHSOCIAL_ENTERPRISE_PROVIDERS,
+  ...AUTHSOCIAL_OTHER_PROVIDERS,
 ];
 
-export const OAUTH2_PROVIDERS: AuthSocialProvider[] = [
+export const AUTHSOCIAL_OAUTH2_PROVIDERS: AuthsocialProvider[] = [
   AUTH_SOCIAL_PROVIDER.GOOGLE,
   AUTH_SOCIAL_PROVIDER.FACEBOOK,
   AUTH_SOCIAL_PROVIDER.GITHUB,
@@ -83,7 +79,7 @@ export const OAUTH2_PROVIDERS: AuthSocialProvider[] = [
   AUTH_SOCIAL_PROVIDER.AZURE_AD,
 ];
 
-export const OIDC_PROVIDERS: AuthSocialProvider[] = [
+export const AUTHSOCIAL_OIDC_PROVIDERS: AuthsocialProvider[] = [
   AUTH_SOCIAL_PROVIDER.GOOGLE,
   AUTH_SOCIAL_PROVIDER.LINKEDIN,
   AUTH_SOCIAL_PROVIDER.APPLE,
@@ -91,7 +87,7 @@ export const OIDC_PROVIDERS: AuthSocialProvider[] = [
   AUTH_SOCIAL_PROVIDER.OKTA,
 ];
 
-export const SOCIAL_ONLY_PROVIDERS: AuthSocialProvider[] = [
+export const AUTHSOCIAL_SOCIAL_ONLY_PROVIDERS: AuthsocialProvider[] = [
   AUTH_SOCIAL_PROVIDER.TWITTER,
   AUTH_SOCIAL_PROVIDER.INSTAGRAM,
   AUTH_SOCIAL_PROVIDER.TIKTOK,
@@ -101,36 +97,36 @@ export const SOCIAL_ONLY_PROVIDERS: AuthSocialProvider[] = [
   AUTH_SOCIAL_PROVIDER.SLACK,
 ];
 
-export function isMajorProvider(provider: AuthSocialProvider): boolean {
-  return MAJOR_PROVIDERS.includes(provider);
+export function isAuthsocialMajorProvider(provider: AuthsocialProvider): boolean {
+  return AUTHSOCIAL_MAJOR_PROVIDERS.includes(provider);
 }
 
-export function isBangladeshProvider(provider: AuthSocialProvider): boolean {
-  return BANGLADESH_PROVIDERS.includes(provider);
+export function isAuthsocialBangladeshProvider(provider: AuthsocialProvider): boolean {
+  return AUTHSOCIAL_BANGLADESH_PROVIDERS.includes(provider);
 }
 
-export function isEnterpriseProvider(provider: AuthSocialProvider): boolean {
-  return ENTERPRISE_PROVIDERS.includes(provider);
+export function isAuthsocialEnterpriseProvider(provider: AuthsocialProvider): boolean {
+  return AUTHSOCIAL_ENTERPRISE_PROVIDERS.includes(provider);
 }
 
-export function isOtherProvider(provider: AuthSocialProvider): boolean {
-  return OTHER_PROVIDERS.includes(provider);
+export function isAuthsocialOtherProvider(provider: AuthsocialProvider): boolean {
+  return AUTHSOCIAL_OTHER_PROVIDERS.includes(provider);
 }
 
-export function isOAuth2Provider(provider: AuthSocialProvider): boolean {
-  return OAUTH2_PROVIDERS.includes(provider);
+export function isAuthsocialOAuth2Provider(provider: AuthsocialProvider): boolean {
+  return AUTHSOCIAL_OAUTH2_PROVIDERS.includes(provider);
 }
 
-export function isOIDCProvider(provider: AuthSocialProvider): boolean {
-  return OIDC_PROVIDERS.includes(provider);
+export function isAuthsocialOIDCProvider(provider: AuthsocialProvider): boolean {
+  return AUTHSOCIAL_OIDC_PROVIDERS.includes(provider);
 }
 
-export function isSocialOnlyProvider(provider: AuthSocialProvider): boolean {
-  return SOCIAL_ONLY_PROVIDERS.includes(provider);
+export function isAuthsocialSocialOnlyProvider(provider: AuthsocialProvider): boolean {
+  return AUTHSOCIAL_SOCIAL_ONLY_PROVIDERS.includes(provider);
 }
 
-export function getSocialProviderLabel(provider: AuthSocialProvider): string {
-  const labels: Record<AuthSocialProvider, string> = {
+export function getAuthsocialProviderLabel(provider: AuthsocialProvider): string {
+  const labels: Record<AuthsocialProvider, string> = {
     [AUTH_SOCIAL_PROVIDER.GOOGLE]: 'Google',
     [AUTH_SOCIAL_PROVIDER.FACEBOOK]: 'Facebook',
     [AUTH_SOCIAL_PROVIDER.TWITTER]: 'Twitter',
@@ -156,8 +152,8 @@ export function getSocialProviderLabel(provider: AuthSocialProvider): string {
   return labels[provider] || 'Unknown Provider';
 }
 
-export function getSocialProviderIcon(provider: AuthSocialProvider): string {
-  const icons: Record<AuthSocialProvider, string> = {
+export function getAuthsocialProviderIcon(provider: AuthsocialProvider): string {
+  const icons: Record<AuthsocialProvider, string> = {
     [AUTH_SOCIAL_PROVIDER.GOOGLE]: '🅶',
     [AUTH_SOCIAL_PROVIDER.FACEBOOK]: '📘',
     [AUTH_SOCIAL_PROVIDER.TWITTER]: '🐦',
@@ -183,8 +179,8 @@ export function getSocialProviderIcon(provider: AuthSocialProvider): string {
   return icons[provider] || '🔑';
 }
 
-export function getSocialProviderColor(provider: AuthSocialProvider): string {
-  const colors: Record<AuthSocialProvider, string> = {
+export function getAuthsocialProviderColor(provider: AuthsocialProvider): string {
+  const colors: Record<AuthsocialProvider, string> = {
     [AUTH_SOCIAL_PROVIDER.GOOGLE]: '#4285F4',
     [AUTH_SOCIAL_PROVIDER.FACEBOOK]: '#1877F2',
     [AUTH_SOCIAL_PROVIDER.TWITTER]: '#1DA1F2',
@@ -210,8 +206,10 @@ export function getSocialProviderColor(provider: AuthSocialProvider): string {
   return colors[provider] || '#6B7280';
 }
 
-export function getSocialProviderType(provider: AuthSocialProvider): 'oauth2' | 'oidc' | 'social' {
-  if (isOIDCProvider(provider)) return 'oidc';
-  if (isOAuth2Provider(provider)) return 'oauth2';
+export function getAuthsocialProviderType(
+  provider: AuthsocialProvider
+): 'oauth2' | 'oidc' | 'social' {
+  if (isAuthsocialOIDCProvider(provider)) return 'oidc';
+  if (isAuthsocialOAuth2Provider(provider)) return 'oauth2';
   return 'social';
 }

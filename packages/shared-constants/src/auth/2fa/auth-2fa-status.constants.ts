@@ -4,7 +4,6 @@
  */
 
 export const AUTH_2FA_STATUS = {
-  // Primary status
   ENABLED: 'enabled',
   DISABLED: 'disabled',
   PENDING: 'pending',
@@ -15,36 +14,30 @@ export const AUTH_2FA_STATUS = {
   LOCKED: 'locked',
   BLOCKED: 'blocked',
 
-  // Verification status
   VERIFICATION_PENDING: 'verification_pending',
   VERIFICATION_SUCCESS: 'verification_success',
   VERIFICATION_FAILED: 'verification_failed',
   VERIFICATION_EXPIRED: 'verification_expired',
 
-  // Recovery status
   RECOVERY_INITIATED: 'recovery_initiated',
   RECOVERY_COMPLETED: 'recovery_completed',
   RECOVERY_FAILED: 'recovery_failed',
   RECOVERY_EXPIRED: 'recovery_expired',
 
-  // Backup code status
   BACKUP_CODE_ACTIVE: 'backup_code_active',
   BACKUP_CODE_USED: 'backup_code_used',
   BACKUP_CODE_EXPIRED: 'backup_code_expired',
   BACKUP_CODE_REVOKED: 'backup_code_revoked',
 
-  // Device status
   DEVICE_TRUSTED: 'device_trusted',
   DEVICE_UNTRUSTED: 'device_untrusted',
   DEVICE_PENDING: 'device_pending',
 
-  // Security status
   SECURE: 'secure',
   SUSPICIOUS: 'suspicious',
   COMPROMISED: 'compromised',
   INVESTIGATING: 'investigating',
 
-  // Session status
   SESSION_ACTIVE: 'session_active',
   SESSION_EXPIRED: 'session_expired',
   SESSION_TERMINATED: 'session_terminated',
@@ -52,7 +45,7 @@ export const AUTH_2FA_STATUS = {
 
 export type Auth2FAStatus = (typeof AUTH_2FA_STATUS)[keyof typeof AUTH_2FA_STATUS];
 
-export const ACTIVE_2FA_STATUSES: Auth2FAStatus[] = [
+export const AUTH2FA_ACTIVE_STATUSES: Auth2FAStatus[] = [
   AUTH_2FA_STATUS.ENABLED,
   AUTH_2FA_STATUS.VERIFIED,
   AUTH_2FA_STATUS.VERIFICATION_SUCCESS,
@@ -62,14 +55,14 @@ export const ACTIVE_2FA_STATUSES: Auth2FAStatus[] = [
   AUTH_2FA_STATUS.BACKUP_CODE_ACTIVE,
 ];
 
-export const PENDING_2FA_STATUSES: Auth2FAStatus[] = [
+export const AUTH2FA_PENDING_STATUSES: Auth2FAStatus[] = [
   AUTH_2FA_STATUS.PENDING,
   AUTH_2FA_STATUS.VERIFICATION_PENDING,
   AUTH_2FA_STATUS.RECOVERY_INITIATED,
   AUTH_2FA_STATUS.DEVICE_PENDING,
 ];
 
-export const INACTIVE_2FA_STATUSES: Auth2FAStatus[] = [
+export const AUTH2FA_INACTIVE_STATUSES: Auth2FAStatus[] = [
   AUTH_2FA_STATUS.DISABLED,
   AUTH_2FA_STATUS.EXPIRED,
   AUTH_2FA_STATUS.REVOKED,
@@ -81,7 +74,7 @@ export const INACTIVE_2FA_STATUSES: Auth2FAStatus[] = [
   AUTH_2FA_STATUS.DEVICE_UNTRUSTED,
 ];
 
-export const FAILED_2FA_STATUSES: Auth2FAStatus[] = [
+export const AUTH2FA_FAILED_STATUSES: Auth2FAStatus[] = [
   AUTH_2FA_STATUS.FAILED,
   AUTH_2FA_STATUS.VERIFICATION_FAILED,
   AUTH_2FA_STATUS.RECOVERY_FAILED,
@@ -89,55 +82,55 @@ export const FAILED_2FA_STATUSES: Auth2FAStatus[] = [
   AUTH_2FA_STATUS.BLOCKED,
 ];
 
-export const SECURITY_2FA_STATUSES: Auth2FAStatus[] = [
+export const AUTH2FA_SECURITY_STATUSES: Auth2FAStatus[] = [
   AUTH_2FA_STATUS.SUSPICIOUS,
   AUTH_2FA_STATUS.COMPROMISED,
   AUTH_2FA_STATUS.INVESTIGATING,
 ];
 
-export const BACKUP_CODE_STATUSES: Auth2FAStatus[] = [
+export const AUTH2FA_BACKUP_CODE_STATUSES: Auth2FAStatus[] = [
   AUTH_2FA_STATUS.BACKUP_CODE_ACTIVE,
   AUTH_2FA_STATUS.BACKUP_CODE_USED,
   AUTH_2FA_STATUS.BACKUP_CODE_EXPIRED,
   AUTH_2FA_STATUS.BACKUP_CODE_REVOKED,
 ];
 
-export const RECOVERY_STATUSES: Auth2FAStatus[] = [
+export const AUTH2FA_RECOVERY_STATUSES: Auth2FAStatus[] = [
   AUTH_2FA_STATUS.RECOVERY_INITIATED,
   AUTH_2FA_STATUS.RECOVERY_COMPLETED,
   AUTH_2FA_STATUS.RECOVERY_FAILED,
   AUTH_2FA_STATUS.RECOVERY_EXPIRED,
 ];
 
-export function is2FAActive(status: Auth2FAStatus): boolean {
-  return ACTIVE_2FA_STATUSES.includes(status);
+export function isAuth2faActive(status: Auth2FAStatus): boolean {
+  return AUTH2FA_ACTIVE_STATUSES.includes(status);
 }
 
-export function is2FAPending(status: Auth2FAStatus): boolean {
-  return PENDING_2FA_STATUSES.includes(status);
+export function isAuth2faPending(status: Auth2FAStatus): boolean {
+  return AUTH2FA_PENDING_STATUSES.includes(status);
 }
 
-export function is2FAInactive(status: Auth2FAStatus): boolean {
-  return INACTIVE_2FA_STATUSES.includes(status);
+export function isAuth2faInactive(status: Auth2FAStatus): boolean {
+  return AUTH2FA_INACTIVE_STATUSES.includes(status);
 }
 
-export function is2FAFailed(status: Auth2FAStatus): boolean {
-  return FAILED_2FA_STATUSES.includes(status);
+export function isAuth2faFailed(status: Auth2FAStatus): boolean {
+  return AUTH2FA_FAILED_STATUSES.includes(status);
 }
 
-export function is2FASecurityIssue(status: Auth2FAStatus): boolean {
-  return SECURITY_2FA_STATUSES.includes(status);
+export function isAuth2faSecurityIssue(status: Auth2FAStatus): boolean {
+  return AUTH2FA_SECURITY_STATUSES.includes(status);
 }
 
-export function isBackupCodeStatus(status: Auth2FAStatus): boolean {
-  return BACKUP_CODE_STATUSES.includes(status);
+export function isAuth2faBackupCodeStatus(status: Auth2FAStatus): boolean {
+  return AUTH2FA_BACKUP_CODE_STATUSES.includes(status);
 }
 
-export function isRecoveryStatus(status: Auth2FAStatus): boolean {
-  return RECOVERY_STATUSES.includes(status);
+export function isAuth2faRecoveryStatus(status: Auth2FAStatus): boolean {
+  return AUTH2FA_RECOVERY_STATUSES.includes(status);
 }
 
-export function get2FAStatusLabel(status: Auth2FAStatus): string {
+export function getAuth2faStatusLabel(status: Auth2FAStatus): string {
   const labels: Record<Auth2FAStatus, string> = {
     [AUTH_2FA_STATUS.ENABLED]: 'Enabled',
     [AUTH_2FA_STATUS.DISABLED]: 'Disabled',
@@ -175,7 +168,7 @@ export function get2FAStatusLabel(status: Auth2FAStatus): string {
   return labels[status] || 'Unknown Status';
 }
 
-export function get2FAStatusColor(status: Auth2FAStatus): string {
+export function getAuth2faStatusColor(status: Auth2FAStatus): string {
   const colors: Record<Auth2FAStatus, string> = {
     [AUTH_2FA_STATUS.ENABLED]: '#10B981',
     [AUTH_2FA_STATUS.DISABLED]: '#6B7280',
@@ -213,7 +206,7 @@ export function get2FAStatusColor(status: Auth2FAStatus): string {
   return colors[status] || '#6B7280';
 }
 
-export function get2FAStatusPriority(status: Auth2FAStatus): number {
+export function getAuth2faStatusPriority(status: Auth2FAStatus): number {
   const priorities: Record<Auth2FAStatus, number> = {
     [AUTH_2FA_STATUS.ENABLED]: 10,
     [AUTH_2FA_STATUS.DISABLED]: 5,
@@ -251,7 +244,7 @@ export function get2FAStatusPriority(status: Auth2FAStatus): number {
   return priorities[status] || 5;
 }
 
-export function get2FAStatusBadgeType(
+export function getAuth2faStatusBadgeType(
   status: Auth2FAStatus
 ): 'success' | 'warning' | 'error' | 'info' | 'default' {
   const types: Record<Auth2FAStatus, 'success' | 'warning' | 'error' | 'info' | 'default'> = {

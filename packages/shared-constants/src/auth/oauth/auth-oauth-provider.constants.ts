@@ -4,7 +4,6 @@
  */
 
 export const AUTH_OAUTH_PROVIDER = {
-  // Major OAuth providers
   GOOGLE: 'google',
   FACEBOOK: 'facebook',
   GITHUB: 'github',
@@ -12,12 +11,10 @@ export const AUTH_OAUTH_PROVIDER = {
   LINKEDIN: 'linkedin',
   APPLE: 'apple',
 
-  // Enterprise providers
   OKTA: 'okta',
   AZURE_AD: 'azure_ad',
   GOOGLE_WORKSPACE: 'google_workspace',
 
-  // Other OAuth providers
   AMAZON: 'amazon',
   TWITTER: 'twitter',
   INSTAGRAM: 'instagram',
@@ -27,9 +24,9 @@ export const AUTH_OAUTH_PROVIDER = {
   SLACK: 'slack',
 } as const;
 
-export type AuthOAuthProvider = (typeof AUTH_OAUTH_PROVIDER)[keyof typeof AUTH_OAUTH_PROVIDER];
+export type AuthOauthProvider = (typeof AUTH_OAUTH_PROVIDER)[keyof typeof AUTH_OAUTH_PROVIDER];
 
-export const MAJOR_OAUTH_PROVIDERS: AuthOAuthProvider[] = [
+export const OAUTH_MAJOR_PROVIDERS: AuthOauthProvider[] = [
   AUTH_OAUTH_PROVIDER.GOOGLE,
   AUTH_OAUTH_PROVIDER.FACEBOOK,
   AUTH_OAUTH_PROVIDER.GITHUB,
@@ -38,13 +35,13 @@ export const MAJOR_OAUTH_PROVIDERS: AuthOAuthProvider[] = [
   AUTH_OAUTH_PROVIDER.APPLE,
 ];
 
-export const ENTERPRISE_OAUTH_PROVIDERS: AuthOAuthProvider[] = [
+export const OAUTH_ENTERPRISE_PROVIDERS: AuthOauthProvider[] = [
   AUTH_OAUTH_PROVIDER.OKTA,
   AUTH_OAUTH_PROVIDER.AZURE_AD,
   AUTH_OAUTH_PROVIDER.GOOGLE_WORKSPACE,
 ];
 
-export const OTHER_OAUTH_PROVIDERS: AuthOAuthProvider[] = [
+export const OAUTH_OTHER_PROVIDERS: AuthOauthProvider[] = [
   AUTH_OAUTH_PROVIDER.AMAZON,
   AUTH_OAUTH_PROVIDER.TWITTER,
   AUTH_OAUTH_PROVIDER.INSTAGRAM,
@@ -54,13 +51,13 @@ export const OTHER_OAUTH_PROVIDERS: AuthOAuthProvider[] = [
   AUTH_OAUTH_PROVIDER.SLACK,
 ];
 
-export const OAUTH_PROVIDERS_LIST: AuthOAuthProvider[] = [
-  ...MAJOR_OAUTH_PROVIDERS,
-  ...ENTERPRISE_OAUTH_PROVIDERS,
-  ...OTHER_OAUTH_PROVIDERS,
+export const OAUTH_PROVIDERS_LIST: AuthOauthProvider[] = [
+  ...OAUTH_MAJOR_PROVIDERS,
+  ...OAUTH_ENTERPRISE_PROVIDERS,
+  ...OAUTH_OTHER_PROVIDERS,
 ];
 
-export const OIDC_COMPLIANT_PROVIDERS: AuthOAuthProvider[] = [
+export const OAUTH_OIDC_COMPLIANT_PROVIDERS: AuthOauthProvider[] = [
   AUTH_OAUTH_PROVIDER.GOOGLE,
   AUTH_OAUTH_PROVIDER.MICROSOFT,
   AUTH_OAUTH_PROVIDER.LINKEDIN,
@@ -68,7 +65,7 @@ export const OIDC_COMPLIANT_PROVIDERS: AuthOAuthProvider[] = [
   AUTH_OAUTH_PROVIDER.OKTA,
 ];
 
-export const PKCE_SUPPORTED_PROVIDERS: AuthOAuthProvider[] = [
+export const OAUTH_PKCE_SUPPORTED_PROVIDERS: AuthOauthProvider[] = [
   AUTH_OAUTH_PROVIDER.GOOGLE,
   AUTH_OAUTH_PROVIDER.MICROSOFT,
   AUTH_OAUTH_PROVIDER.LINKEDIN,
@@ -76,28 +73,28 @@ export const PKCE_SUPPORTED_PROVIDERS: AuthOAuthProvider[] = [
   AUTH_OAUTH_PROVIDER.OKTA,
 ];
 
-export function isMajorOAuthProvider(provider: AuthOAuthProvider): boolean {
-  return MAJOR_OAUTH_PROVIDERS.includes(provider);
+export function isOauthMajorProvider(provider: AuthOauthProvider): boolean {
+  return OAUTH_MAJOR_PROVIDERS.includes(provider);
 }
 
-export function isEnterpriseOAuthProvider(provider: AuthOAuthProvider): boolean {
-  return ENTERPRISE_OAUTH_PROVIDERS.includes(provider);
+export function isOauthEnterpriseProvider(provider: AuthOauthProvider): boolean {
+  return OAUTH_ENTERPRISE_PROVIDERS.includes(provider);
 }
 
-export function isOtherOAuthProvider(provider: AuthOAuthProvider): boolean {
-  return OTHER_OAUTH_PROVIDERS.includes(provider);
+export function isOauthOtherProvider(provider: AuthOauthProvider): boolean {
+  return OAUTH_OTHER_PROVIDERS.includes(provider);
 }
 
-export function isOIDCCompliant(provider: AuthOAuthProvider): boolean {
-  return OIDC_COMPLIANT_PROVIDERS.includes(provider);
+export function isOauthOIDCCompliant(provider: AuthOauthProvider): boolean {
+  return OAUTH_OIDC_COMPLIANT_PROVIDERS.includes(provider);
 }
 
-export function isPKCESupported(provider: AuthOAuthProvider): boolean {
-  return PKCE_SUPPORTED_PROVIDERS.includes(provider);
+export function isOauthPKCESupported(provider: AuthOauthProvider): boolean {
+  return OAUTH_PKCE_SUPPORTED_PROVIDERS.includes(provider);
 }
 
-export function getOAuthProviderLabel(provider: AuthOAuthProvider): string {
-  const labels: Record<AuthOAuthProvider, string> = {
+export function getOauthProviderLabel(provider: AuthOauthProvider): string {
+  const labels: Record<AuthOauthProvider, string> = {
     [AUTH_OAUTH_PROVIDER.GOOGLE]: 'Google',
     [AUTH_OAUTH_PROVIDER.FACEBOOK]: 'Facebook',
     [AUTH_OAUTH_PROVIDER.GITHUB]: 'GitHub',
@@ -119,8 +116,8 @@ export function getOAuthProviderLabel(provider: AuthOAuthProvider): string {
   return labels[provider] || 'Unknown Provider';
 }
 
-export function getOAuthProviderIcon(provider: AuthOAuthProvider): string {
-  const icons: Record<AuthOAuthProvider, string> = {
+export function getOauthProviderIcon(provider: AuthOauthProvider): string {
+  const icons: Record<AuthOauthProvider, string> = {
     [AUTH_OAUTH_PROVIDER.GOOGLE]: '🅶',
     [AUTH_OAUTH_PROVIDER.FACEBOOK]: '📘',
     [AUTH_OAUTH_PROVIDER.GITHUB]: '🐙',
@@ -142,8 +139,8 @@ export function getOAuthProviderIcon(provider: AuthOAuthProvider): string {
   return icons[provider] || '🔑';
 }
 
-export function getOAuthProviderColor(provider: AuthOAuthProvider): string {
-  const colors: Record<AuthOAuthProvider, string> = {
+export function getOauthProviderColor(provider: AuthOauthProvider): string {
+  const colors: Record<AuthOauthProvider, string> = {
     [AUTH_OAUTH_PROVIDER.GOOGLE]: '#4285F4',
     [AUTH_OAUTH_PROVIDER.FACEBOOK]: '#1877F2',
     [AUTH_OAUTH_PROVIDER.GITHUB]: '#181717',
@@ -165,8 +162,8 @@ export function getOAuthProviderColor(provider: AuthOAuthProvider): string {
   return colors[provider] || '#6B7280';
 }
 
-export function getOAuthProviderType(provider: AuthOAuthProvider): 'oauth2' | 'oidc' | 'custom' {
-  if (isOIDCCompliant(provider)) return 'oidc';
-  if (isMajorOAuthProvider(provider)) return 'oauth2';
+export function getOauthProviderType(provider: AuthOauthProvider): 'oauth2' | 'oidc' | 'custom' {
+  if (isOauthOIDCCompliant(provider)) return 'oidc';
+  if (isOauthMajorProvider(provider)) return 'oauth2';
   return 'custom';
 }

@@ -1,42 +1,14 @@
-/**
- * Recovery Code Constants Index
- * Export all recovery code constants and types for easy importing
- */
-
-// Recovery Code
+// Export all constants from auth-recovery-code.constants
 export {
   AUTH_RECOVERY_CODE,
-  RECOVERY_CODE_TYPES_LIST,
-  SINGLE_USE_RECOVERY_TYPES,
-  MULTI_USE_RECOVERY_TYPES,
-  TEMPORARY_RECOVERY_TYPES,
-  PERMANENT_RECOVERY_TYPES,
-  isRecoveryCodeType,
-  isSingleUseRecoveryType,
-  isMultiUseRecoveryType,
-  isTemporaryRecoveryType,
-  isPermanentRecoveryType,
-  getRecoveryCodeTypeLabel,
-  getRecoveryCodeTypeIcon,
-  getRecoveryCodeTypePriority,
-  getRecoveryCodeConfig,
-  getRecoveryCodeLength,
-  getRecoveryCodeCount,
-  getRecoveryCodeExpiryDays,
-  getRecoveryCodeMaxAttempts,
-  getRecoveryCodeLockoutDuration,
-  getRecoveryCodeResendCooldown,
-  getRecoveryCodeMaxGenerations,
-  generateRecoveryCode,
-  generateRecoveryCodes,
-  isRecoveryCodeValid,
-  isRecoveryCodeExpired,
-  getRecoveryCodeRemainingDays,
-  getRecoveryCodeStatus,
-  getRecoveryCodeStatusLabel,
-  getRecoveryCodeStatusColor,
+  AUTHRECOVERY_CODE_TYPES_LIST,
+  AUTHRECOVERY_SINGLE_USE_TYPES,
+  AUTHRECOVERY_MULTI_USE_TYPES,
+  AUTHRECOVERY_TEMPORARY_TYPES,
+  AUTHRECOVERY_PERMANENT_TYPES,
 } from './auth-recovery-code.constants';
 
+// Export all types from auth-recovery-code.constants
 export type {
   AuthRecoveryCodeConfig,
   AuthRecoveryCodeType,
@@ -45,87 +17,54 @@ export type {
   AuthRecoveryCodeValidation,
 } from './auth-recovery-code.constants';
 
-// Recovery Code Status
+// Export all functions from auth-recovery-code.constants
+export {
+  isAuthrecoveryCodeType,
+  isAuthrecoverySingleUseType,
+  isAuthrecoveryMultiUseType,
+  isAuthrecoveryTemporaryType,
+  isAuthrecoveryPermanentType,
+  getAuthrecoveryCodeTypeLabel,
+  getAuthrecoveryCodeTypeIcon,
+  getAuthrecoveryCodeTypePriority,
+  getAuthrecoveryCodeConfig,
+  getAuthrecoveryCodeLength,
+  getAuthrecoveryCodeCount,
+  getAuthrecoveryCodeExpiryDays,
+  getAuthrecoveryCodeMaxAttempts,
+  getAuthrecoveryCodeLockoutDuration,
+  getAuthrecoveryCodeResendCooldown,
+  getAuthrecoveryCodeMaxGenerations,
+  generateAuthrecoveryCode,
+  generateAuthrecoveryCodes,
+  isAuthrecoveryCodeValid,
+  isAuthrecoveryCodeExpired,
+  getAuthrecoveryCodeRemainingDays,
+  getAuthrecoveryCodeStatus,
+  getAuthrecoveryCodeStatusLabel,
+  getAuthrecoveryCodeStatusColor,
+} from './auth-recovery-code.constants';
+
+// Export all constants from auth-recovery-code-status.constants
 export {
   AUTH_RECOVERY_CODE_STATUS,
-  ACTIVE_RECOVERY_STATUSES,
-  INACTIVE_RECOVERY_STATUSES,
-  USED_RECOVERY_STATUSES,
-  FAILED_RECOVERY_STATUSES,
-  SECURITY_RECOVERY_STATUSES,
-  isRecoveryCodeActive,
-  isRecoveryCodeInactive,
-  isRecoveryCodeUsed,
-  isRecoveryCodeFailed,
-  isRecoveryCodeSecurityIssue,
-  getRecoveryCodeStatusPriority,
-  getRecoveryCodeStatusBadgeType,
+  AUTHRECOVERY_ACTIVE_STATUSES,
+  AUTHRECOVERY_INACTIVE_STATUSES,
+  AUTHRECOVERY_USED_STATUSES,
+  AUTHRECOVERY_FAILED_STATUSES,
+  AUTHRECOVERY_SECURITY_STATUSES,
 } from './auth-recovery-code-status.constants';
 
+// Export all types from auth-recovery-code-status.constants
 export type { AuthRecoveryCodeStatus } from './auth-recovery-code-status.constants';
 
-// Account Lock
+// Export all functions from auth-recovery-code-status.constants
 export {
-  AUTH_ACCOUNT_LOCK,
-  LOCK_REASONS_LIST,
-  LOCK_TYPES_LIST,
-  TEMPORARY_LOCK_TYPES,
-  PERMANENT_LOCK_TYPES,
-  ADMIN_LOCK_TYPES,
-  SYSTEM_LOCK_TYPES,
-  SECURITY_LOCK_REASONS,
-  POLICY_LOCK_REASONS,
-  isLockReason,
-  isLockType,
-  isTemporaryLock,
-  isPermanentLock,
-  isAdminLock,
-  isSystemLock,
-  isSecurityLock,
-  isPolicyLock,
-  getLockReasonLabel,
-  getLockTypeLabel,
-  getLockTypeIcon,
-  getLockLevel,
-  getLockLevelLabel,
-  getLockLevelColor,
-  getLockDurationMinutes,
-  getLockMaxAttempts,
-  getLockFailedAttempts,
-  isLockExpired,
-  getLockRemainingMinutes,
-  shouldAutoUnlock,
-  getLockLevelFromAttempts,
-} from './auth-account-lock.constants';
-
-export type {
-  AuthAccountLockConfig,
-  AuthAccountLockReason,
-  AuthAccountLockType,
-  AuthAccountLockEvent,
-  AuthAccountLockLevel,
-  AuthAccountLockDefaults,
-} from './auth-account-lock.constants';
-
-// Account Lock Status
-export {
-  AUTH_ACCOUNT_LOCK_STATUS,
-  LOCKED_STATUSES,
-  UNLOCKED_STATUSES,
-  PENDING_STATUSES,
-  EXPIRED_STATUSES,
-  SECURITY_STATUSES,
-  RECOVERY_STATUSES,
-  isAccountLocked,
-  isAccountUnlocked,
-  isAccountPending,
-  isAccountExpired,
-  isAccountSecurityIssue,
-  isAccountRecovery,
-  getAccountLockStatusLabel,
-  getAccountLockStatusColor,
-  getAccountLockStatusPriority,
-  getAccountLockStatusBadgeType,
-} from './auth-account-lock-status.constants';
-
-export type { AuthAccountLockStatus } from './auth-account-lock-status.constants';
+  isAuthrecoveryCodeActive,
+  isAuthrecoveryCodeInactive,
+  isAuthrecoveryCodeUsed,
+  isAuthrecoveryCodeFailed,
+  isAuthrecoveryCodeSecurityIssue,
+  getAuthrecoveryCodeStatusPriority,
+  getAuthrecoveryCodeStatusBadgeType,
+} from './auth-recovery-code-status.constants';

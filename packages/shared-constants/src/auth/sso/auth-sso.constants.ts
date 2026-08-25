@@ -6,7 +6,6 @@
 import { AUTH_SSO_PROVIDER } from './auth-sso-provider.constants';
 import { AUTH_SSO_STATUS } from './auth-sso-status.constants';
 
-// Define PROVIDER_CONFIGS first
 export const SSO_PROVIDER_CONFIGS = {
   SAML: {
     protocol: 'saml',
@@ -71,7 +70,6 @@ export const SSO_PROVIDER_CONFIGS = {
   },
 } as const;
 
-// Define PROTOCOLS
 export const SSO_PROTOCOLS = {
   SAML: 'saml',
   LDAP: 'ldap',
@@ -82,7 +80,6 @@ export const SSO_PROTOCOLS = {
   WS_FEDERATION: 'ws_federation',
 } as const;
 
-// Define SAML_BINDINGS
 export const SSO_SAML_BINDINGS = {
   REDIRECT: 'redirect',
   POST: 'post',
@@ -91,7 +88,6 @@ export const SSO_SAML_BINDINGS = {
   PAOS: 'paos',
 } as const;
 
-// Define SAML_NAME_ID_FORMATS
 export const SSO_SAML_NAME_ID_FORMATS = {
   PERSISTENT: 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
   TRANSIENT: 'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
@@ -103,7 +99,6 @@ export const SSO_SAML_NAME_ID_FORMATS = {
   ENTITY: 'urn:oasis:names:tc:SAML:2.0:nameid-format:entity',
 } as const;
 
-// Define LDAP_ATTRIBUTES
 export const SSO_LDAP_ATTRIBUTES = {
   USERNAME: 'uid',
   EMAIL: 'mail',
@@ -119,7 +114,6 @@ export const SSO_LDAP_ATTRIBUTES = {
   ADDRESS: 'postalAddress',
 } as const;
 
-// Define SECURITY
 export const SSO_SECURITY = {
   SESSION_TIMEOUT: 3600,
   SINGLE_LOGOUT: true,
@@ -131,7 +125,6 @@ export const SSO_SECURITY = {
   ALLOW_UNSIGNED: false,
 } as const;
 
-// Define SESSION
 export const SSO_SESSION = {
   MAX_AGE: 3600,
   EXTEND_ON_ACTIVITY: true,
@@ -139,14 +132,12 @@ export const SSO_SESSION = {
   INACTIVITY_TIMEOUT: 1800,
 } as const;
 
-// Define RATE_LIMIT
 export const SSO_RATE_LIMIT = {
   MAX_ATTEMPTS: 5,
   WINDOW_MS: 900000,
   BLOCK_DURATION: 3600000,
 } as const;
 
-// Define DEFAULTS
 export const SSO_DEFAULTS = {
   STATUS: AUTH_SSO_STATUS.PENDING,
   PROVIDER: AUTH_SSO_PROVIDER.SAML,
@@ -155,7 +146,6 @@ export const SSO_DEFAULTS = {
   NAME_ID_FORMAT: SSO_SAML_NAME_ID_FORMATS.PERSISTENT,
 } as const;
 
-// Define EVENTS
 export const SSO_EVENTS = {
   AUTH_STARTED: 'sso:auth_started',
   AUTH_SUCCESS: 'sso:auth_success',
@@ -173,7 +163,6 @@ export const SSO_EVENTS = {
   SESSION_EXPIRED: 'sso:session_expired',
 } as const;
 
-// Main AUTH_SSO object
 export const AUTH_SSO = {
   CONFIG: {
     PROTOCOLS: SSO_PROTOCOLS,
@@ -196,7 +185,7 @@ export type AuthSSOEvent = (typeof SSO_EVENTS)[keyof typeof SSO_EVENTS];
 export type AuthSSODefaults = typeof SSO_DEFAULTS;
 export type SSOProviderConfig = (typeof SSO_PROVIDER_CONFIGS)[keyof typeof SSO_PROVIDER_CONFIGS];
 
-export function getSSOProviderConfig(
+export function getAuthssoProviderConfig(
   provider: (typeof AUTH_SSO_PROVIDER)[keyof typeof AUTH_SSO_PROVIDER]
 ): SSOProviderConfig {
   const config = SSO_PROVIDER_CONFIGS[provider as keyof typeof SSO_PROVIDER_CONFIGS];
@@ -206,14 +195,14 @@ export function getSSOProviderConfig(
   return config;
 }
 
-export function getSSOProtocol(
+export function getAuthssoProtocol(
   provider: (typeof AUTH_SSO_PROVIDER)[keyof typeof AUTH_SSO_PROVIDER]
 ): string {
-  const config = getSSOProviderConfig(provider);
+  const config = getAuthssoProviderConfig(provider);
   return config.protocol;
 }
 
-export function getSSOProviderLabel(
+export function getAuthssoProviderLabel(
   provider: (typeof AUTH_SSO_PROVIDER)[keyof typeof AUTH_SSO_PROVIDER]
 ): string {
   const labels: Record<string, string> = {
@@ -236,7 +225,7 @@ export function getSSOProviderLabel(
   return labels[provider] || 'Unknown Provider';
 }
 
-export function getSSOProviderIcon(
+export function getAuthssoProviderIcon(
   provider: (typeof AUTH_SSO_PROVIDER)[keyof typeof AUTH_SSO_PROVIDER]
 ): string {
   const icons: Record<string, string> = {
@@ -259,7 +248,7 @@ export function getSSOProviderIcon(
   return icons[provider] || '🔑';
 }
 
-export function getSSOProviderColor(
+export function getAuthssoProviderColor(
   provider: (typeof AUTH_SSO_PROVIDER)[keyof typeof AUTH_SSO_PROVIDER]
 ): string {
   const colors: Record<string, string> = {
@@ -282,7 +271,7 @@ export function getSSOProviderColor(
   return colors[provider] || '#6B7280';
 }
 
-export function getSSOProtocolLabel(protocol: string): string {
+export function getAuthssoProtocolLabel(protocol: string): string {
   const labels: Record<string, string> = {
     [SSO_PROTOCOLS.SAML]: 'SAML 2.0',
     [SSO_PROTOCOLS.LDAP]: 'LDAP',
@@ -296,7 +285,7 @@ export function getSSOProtocolLabel(protocol: string): string {
   return labels[protocol] || 'Unknown Protocol';
 }
 
-export function getSAMLNameIdFormatLabel(format: string): string {
+export function getAuthssoSAMLNameIdFormatLabel(format: string): string {
   const labels: Record<string, string> = {
     [SSO_SAML_NAME_ID_FORMATS.PERSISTENT]: 'Persistent',
     [SSO_SAML_NAME_ID_FORMATS.TRANSIENT]: 'Transient',
@@ -311,7 +300,7 @@ export function getSAMLNameIdFormatLabel(format: string): string {
   return labels[format] || 'Unknown Format';
 }
 
-export function getSAMLBindingLabel(binding: string): string {
+export function getAuthssoSAMLBindingLabel(binding: string): string {
   const labels: Record<string, string> = {
     [SSO_SAML_BINDINGS.REDIRECT]: 'HTTP Redirect',
     [SSO_SAML_BINDINGS.POST]: 'HTTP POST',
@@ -323,7 +312,7 @@ export function getSAMLBindingLabel(binding: string): string {
   return labels[binding] || 'Unknown Binding';
 }
 
-export function getLDAPAttributeLabel(attribute: string): string {
+export function getAuthssoLDAPAttributeLabel(attribute: string): string {
   const labels: Record<string, string> = {
     [SSO_LDAP_ATTRIBUTES.USERNAME]: 'Username',
     [SSO_LDAP_ATTRIBUTES.EMAIL]: 'Email',
@@ -342,22 +331,22 @@ export function getLDAPAttributeLabel(attribute: string): string {
   return labels[attribute] || 'Unknown Attribute';
 }
 
-export function getSSOSessionMaxAge(): number {
+export function getAuthssoSessionMaxAge(): number {
   return SSO_SESSION.MAX_AGE;
 }
 
-export function getSSOSessionInactivityTimeout(): number {
+export function getAuthssoSessionInactivityTimeout(): number {
   return SSO_SESSION.INACTIVITY_TIMEOUT;
 }
 
-export function getSSOMaxSessionsPerUser(): number {
+export function getAuthssoMaxSessionsPerUser(): number {
   return SSO_SESSION.MAX_SESSIONS_PER_USER;
 }
 
-export function isSSOProviderSupported(provider: string): boolean {
+export function isAuthssoProviderSupported(provider: string): boolean {
   return Object.keys(SSO_PROVIDER_CONFIGS).includes(provider);
 }
 
-export function getSupportedSSOProviders(): string[] {
+export function getAuthssoSupportedProviders(): string[] {
   return Object.keys(SSO_PROVIDER_CONFIGS);
 }

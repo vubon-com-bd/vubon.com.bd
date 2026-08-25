@@ -142,44 +142,22 @@ export const AI_VECTOR = {
   } as const,
 } as const;
 
-// Vector Types
 export type AIVectorType = (typeof AI_VECTOR.TYPES)[keyof typeof AI_VECTOR.TYPES];
-
-// Vector Status
 export type AIVectorStatus = (typeof AI_VECTOR.STATUSES)[keyof typeof AI_VECTOR.STATUSES];
-
-// Vector Database Types
 export type AIVectorDBType = (typeof AI_VECTOR.DB_TYPES)[keyof typeof AI_VECTOR.DB_TYPES];
-
-// Vector Index Types
 export type AIVectorIndexType = (typeof AI_VECTOR.INDEX_TYPES)[keyof typeof AI_VECTOR.INDEX_TYPES];
-
-// Vector Distance Metrics
 export type AIVectorDistanceMetric =
   (typeof AI_VECTOR.DISTANCE_METRICS)[keyof typeof AI_VECTOR.DISTANCE_METRICS];
-
-// Vector Storage Formats
 export type AIVectorStorageFormat =
   (typeof AI_VECTOR.STORAGE_FORMATS)[keyof typeof AI_VECTOR.STORAGE_FORMATS];
-
-// Vector Operations
 export type AIVectorOperation = (typeof AI_VECTOR.OPERATIONS)[keyof typeof AI_VECTOR.OPERATIONS];
-
-// Vector Limits
 export type AIVectorLimit = (typeof AI_VECTOR.LIMITS)[keyof typeof AI_VECTOR.LIMITS];
-
-// Vector Metrics
 export type AIVectorMetric = (typeof AI_VECTOR.METRICS)[keyof typeof AI_VECTOR.METRICS];
-
-// Vector Normalization
 export type AIVectorNormalization =
   (typeof AI_VECTOR.NORMALIZATION)[keyof typeof AI_VECTOR.NORMALIZATION];
-
-// Vector Defaults
 export type AIVectorDefault = (typeof AI_VECTOR.DEFAULTS)[keyof typeof AI_VECTOR.DEFAULTS];
 
-// Utility Functions
-export function getVectorTypeLabel(type: AIVectorType): string {
+export function getAiVectorTypeLabel(type: AIVectorType): string {
   const labels: Record<AIVectorType, string> = {
     [AI_VECTOR.TYPES.DENSE]: 'Dense',
     [AI_VECTOR.TYPES.SPARSE]: 'Sparse',
@@ -191,7 +169,7 @@ export function getVectorTypeLabel(type: AIVectorType): string {
   return labels[type] || 'Unknown';
 }
 
-export function getVectorStatusLabel(status: AIVectorStatus): string {
+export function getAiVectorStatusLabel(status: AIVectorStatus): string {
   const labels: Record<AIVectorStatus, string> = {
     [AI_VECTOR.STATUSES.PENDING]: 'Pending',
     [AI_VECTOR.STATUSES.GENERATING]: 'Generating',
@@ -206,7 +184,7 @@ export function getVectorStatusLabel(status: AIVectorStatus): string {
   return labels[status] || 'Unknown';
 }
 
-export function getVectorDBTypeLabel(dbType: AIVectorDBType): string {
+export function getAiVectorDBTypeLabel(dbType: AIVectorDBType): string {
   const labels: Record<AIVectorDBType, string> = {
     [AI_VECTOR.DB_TYPES.PINECONE]: 'Pinecone',
     [AI_VECTOR.DB_TYPES.WEAVIATE]: 'Weaviate',
@@ -224,7 +202,7 @@ export function getVectorDBTypeLabel(dbType: AIVectorDBType): string {
   return labels[dbType] || 'Unknown';
 }
 
-export function getVectorIndexTypeLabel(indexType: AIVectorIndexType): string {
+export function getAiVectorIndexTypeLabel(indexType: AIVectorIndexType): string {
   const labels: Record<AIVectorIndexType, string> = {
     [AI_VECTOR.INDEX_TYPES.FLAT]: 'Flat',
     [AI_VECTOR.INDEX_TYPES.IVF_FLAT]: 'IVF-Flat',
@@ -238,7 +216,7 @@ export function getVectorIndexTypeLabel(indexType: AIVectorIndexType): string {
   return labels[indexType] || 'Unknown';
 }
 
-export function getVectorDistanceMetricLabel(metric: AIVectorDistanceMetric): string {
+export function getAiVectorDistanceMetricLabel(metric: AIVectorDistanceMetric): string {
   const labels: Record<AIVectorDistanceMetric, string> = {
     [AI_VECTOR.DISTANCE_METRICS.COSINE]: 'Cosine',
     [AI_VECTOR.DISTANCE_METRICS.EUCLIDEAN]: 'Euclidean',
@@ -252,7 +230,7 @@ export function getVectorDistanceMetricLabel(metric: AIVectorDistanceMetric): st
   return labels[metric] || 'Unknown';
 }
 
-export function getVectorStorageFormatLabel(format: AIVectorStorageFormat): string {
+export function getAiVectorStorageFormatLabel(format: AIVectorStorageFormat): string {
   const labels: Record<AIVectorStorageFormat, string> = {
     [AI_VECTOR.STORAGE_FORMATS.FLOAT32]: 'Float32',
     [AI_VECTOR.STORAGE_FORMATS.FLOAT16]: 'Float16',
@@ -263,7 +241,7 @@ export function getVectorStorageFormatLabel(format: AIVectorStorageFormat): stri
   return labels[format] || 'Unknown';
 }
 
-export function getVectorOperationLabel(operation: AIVectorOperation): string {
+export function getAiVectorOperationLabel(operation: AIVectorOperation): string {
   const labels: Record<AIVectorOperation, string> = {
     [AI_VECTOR.OPERATIONS.SEARCH]: 'Search',
     [AI_VECTOR.OPERATIONS.SIMILARITY]: 'Similarity',
@@ -277,7 +255,7 @@ export function getVectorOperationLabel(operation: AIVectorOperation): string {
   return labels[operation] || 'Unknown';
 }
 
-export function getVectorMetricLabel(metric: AIVectorMetric): string {
+export function getAiVectorMetricLabel(metric: AIVectorMetric): string {
   const labels: Record<AIVectorMetric, string> = {
     [AI_VECTOR.METRICS.SEARCH_LATENCY]: 'Search Latency',
     [AI_VECTOR.METRICS.INDEXING_LATENCY]: 'Indexing Latency',
@@ -292,7 +270,7 @@ export function getVectorMetricLabel(metric: AIVectorMetric): string {
   return labels[metric] || 'Unknown';
 }
 
-export function getVectorNormalizationLabel(normalization: AIVectorNormalization): string {
+export function getAiVectorNormalizationLabel(normalization: AIVectorNormalization): string {
   const labels: Record<AIVectorNormalization, string> = {
     [AI_VECTOR.NORMALIZATION.NONE]: 'None',
     [AI_VECTOR.NORMALIZATION.L2]: 'L2',
@@ -303,7 +281,7 @@ export function getVectorNormalizationLabel(normalization: AIVectorNormalization
   return labels[normalization] || 'Unknown';
 }
 
-export function isVectorActive(status: AIVectorStatus): boolean {
+export function isAiVectorActive(status: AIVectorStatus): boolean {
   const activeStatuses: AIVectorStatus[] = [
     AI_VECTOR.STATUSES.COMPLETED,
     AI_VECTOR.STATUSES.CACHED,
@@ -312,7 +290,7 @@ export function isVectorActive(status: AIVectorStatus): boolean {
   return activeStatuses.includes(status);
 }
 
-export function isVectorGenerating(status: AIVectorStatus): boolean {
+export function isAiVectorGenerating(status: AIVectorStatus): boolean {
   const generatingStatuses: AIVectorStatus[] = [
     AI_VECTOR.STATUSES.PENDING,
     AI_VECTOR.STATUSES.GENERATING,
@@ -321,32 +299,32 @@ export function isVectorGenerating(status: AIVectorStatus): boolean {
   return generatingStatuses.includes(status);
 }
 
-export function isVectorFailed(status: AIVectorStatus): boolean {
+export function isAiVectorFailed(status: AIVectorStatus): boolean {
   const failedStatuses: AIVectorStatus[] = [AI_VECTOR.STATUSES.FAILED, AI_VECTOR.STATUSES.EXPIRED];
   return failedStatuses.includes(status);
 }
 
-export function getDefaultDimension(): number {
+export function getAiVectorDefaultDimension(): number {
   return AI_VECTOR.DEFAULTS.DIMENSION;
 }
 
-export function getDefaultTopK(): number {
+export function getAiVectorDefaultTopK(): number {
   return AI_VECTOR.DEFAULTS.TOP_K;
 }
 
-export function getDefaultBatchSize(): number {
+export function getAiVectorDefaultBatchSize(): number {
   return AI_VECTOR.DEFAULTS.BATCH_SIZE;
 }
 
-export function getDefaultDistanceMetric(): AIVectorDistanceMetric {
+export function getAiVectorDefaultDistanceMetric(): AIVectorDistanceMetric {
   return AI_VECTOR.DEFAULTS.DISTANCE_METRIC as AIVectorDistanceMetric;
 }
 
-export function getDefaultIndexType(): AIVectorIndexType {
+export function getAiVectorDefaultIndexType(): AIVectorIndexType {
   return AI_VECTOR.DEFAULTS.INDEX_TYPE as AIVectorIndexType;
 }
 
-export function getIndexTypeCompatibility(indexType: AIVectorIndexType): AIVectorType[] {
+export function getAiVectorIndexTypeCompatibility(indexType: AIVectorIndexType): AIVectorType[] {
   const compatibility: Record<AIVectorIndexType, AIVectorType[]> = {
     [AI_VECTOR.INDEX_TYPES.FLAT]: [AI_VECTOR.TYPES.DENSE, AI_VECTOR.TYPES.SPARSE],
     [AI_VECTOR.INDEX_TYPES.IVF_FLAT]: [AI_VECTOR.TYPES.DENSE],
@@ -360,7 +338,9 @@ export function getIndexTypeCompatibility(indexType: AIVectorIndexType): AIVecto
   return compatibility[indexType] || [];
 }
 
-export function getDistanceMetricForType(vectorType: AIVectorType): AIVectorDistanceMetric[] {
+export function getAiVectorDistanceMetricForType(
+  vectorType: AIVectorType
+): AIVectorDistanceMetric[] {
   const metrics: Record<AIVectorType, AIVectorDistanceMetric[]> = {
     [AI_VECTOR.TYPES.DENSE]: [
       AI_VECTOR.DISTANCE_METRICS.COSINE,

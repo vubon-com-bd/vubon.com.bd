@@ -4,7 +4,6 @@
  */
 
 export const AUTH_DEVICE_STATUS = {
-  // Primary status
   ACTIVE: 'active',
   INACTIVE: 'inactive',
   PENDING: 'pending',
@@ -13,25 +12,21 @@ export const AUTH_DEVICE_STATUS = {
   EXPIRED: 'expired',
   REMOVED: 'removed',
 
-  // Registration status
   REGISTERED: 'registered',
   VERIFIED: 'verified',
   UNVERIFIED: 'unverified',
   REGISTRATION_PENDING: 'registration_pending',
   REGISTRATION_FAILED: 'registration_failed',
 
-  // Trust status
   TRUSTED: 'trusted',
   UNTRUSTED: 'untrusted',
   SUSPICIOUS: 'suspicious',
   COMPROMISED: 'compromised',
 
-  // Session status
   SESSION_ACTIVE: 'session_active',
   SESSION_EXPIRED: 'session_expired',
   SESSION_TERMINATED: 'session_terminated',
 
-  // Security status
   SECURE: 'secure',
   UNSECURE: 'unsecure',
   INVESTIGATING: 'investigating',
@@ -40,7 +35,7 @@ export const AUTH_DEVICE_STATUS = {
 
 export type AuthDeviceStatus = (typeof AUTH_DEVICE_STATUS)[keyof typeof AUTH_DEVICE_STATUS];
 
-export const ACTIVE_DEVICE_STATUSES: AuthDeviceStatus[] = [
+export const AUTHDEVICE_ACTIVE_STATUSES: AuthDeviceStatus[] = [
   AUTH_DEVICE_STATUS.ACTIVE,
   AUTH_DEVICE_STATUS.VERIFIED,
   AUTH_DEVICE_STATUS.TRUSTED,
@@ -49,7 +44,7 @@ export const ACTIVE_DEVICE_STATUSES: AuthDeviceStatus[] = [
   AUTH_DEVICE_STATUS.REGISTERED,
 ];
 
-export const INACTIVE_DEVICE_STATUSES: AuthDeviceStatus[] = [
+export const AUTHDEVICE_INACTIVE_STATUSES: AuthDeviceStatus[] = [
   AUTH_DEVICE_STATUS.INACTIVE,
   AUTH_DEVICE_STATUS.EXPIRED,
   AUTH_DEVICE_STATUS.REVOKED,
@@ -58,19 +53,19 @@ export const INACTIVE_DEVICE_STATUSES: AuthDeviceStatus[] = [
   AUTH_DEVICE_STATUS.SESSION_TERMINATED,
 ];
 
-export const PENDING_DEVICE_STATUSES: AuthDeviceStatus[] = [
+export const AUTHDEVICE_PENDING_STATUSES: AuthDeviceStatus[] = [
   AUTH_DEVICE_STATUS.PENDING,
   AUTH_DEVICE_STATUS.REGISTRATION_PENDING,
   AUTH_DEVICE_STATUS.UNVERIFIED,
   AUTH_DEVICE_STATUS.INVESTIGATING,
 ];
 
-export const BLOCKED_DEVICE_STATUSES: AuthDeviceStatus[] = [
+export const AUTHDEVICE_BLOCKED_STATUSES: AuthDeviceStatus[] = [
   AUTH_DEVICE_STATUS.BLOCKED,
   AUTH_DEVICE_STATUS.QUARANTINED,
 ];
 
-export const SECURITY_DEVICE_STATUSES: AuthDeviceStatus[] = [
+export const AUTHDEVICE_SECURITY_STATUSES: AuthDeviceStatus[] = [
   AUTH_DEVICE_STATUS.SUSPICIOUS,
   AUTH_DEVICE_STATUS.COMPROMISED,
   AUTH_DEVICE_STATUS.UNSECURE,
@@ -78,48 +73,48 @@ export const SECURITY_DEVICE_STATUSES: AuthDeviceStatus[] = [
   AUTH_DEVICE_STATUS.QUARANTINED,
 ];
 
-export const TRUSTED_DEVICE_STATUSES: AuthDeviceStatus[] = [
+export const AUTHDEVICE_TRUSTED_STATUSES: AuthDeviceStatus[] = [
   AUTH_DEVICE_STATUS.TRUSTED,
   AUTH_DEVICE_STATUS.SECURE,
   AUTH_DEVICE_STATUS.VERIFIED,
 ];
 
-export const UNTRUSTED_DEVICE_STATUSES: AuthDeviceStatus[] = [
+export const AUTHDEVICE_UNTRUSTED_STATUSES: AuthDeviceStatus[] = [
   AUTH_DEVICE_STATUS.UNTRUSTED,
   AUTH_DEVICE_STATUS.SUSPICIOUS,
   AUTH_DEVICE_STATUS.COMPROMISED,
   AUTH_DEVICE_STATUS.UNSECURE,
 ];
 
-export function isDeviceActive(status: AuthDeviceStatus): boolean {
-  return ACTIVE_DEVICE_STATUSES.includes(status);
+export function isAuthdeviceActive(status: AuthDeviceStatus): boolean {
+  return AUTHDEVICE_ACTIVE_STATUSES.includes(status);
 }
 
-export function isDeviceInactive(status: AuthDeviceStatus): boolean {
-  return INACTIVE_DEVICE_STATUSES.includes(status);
+export function isAuthdeviceInactive(status: AuthDeviceStatus): boolean {
+  return AUTHDEVICE_INACTIVE_STATUSES.includes(status);
 }
 
-export function isDevicePending(status: AuthDeviceStatus): boolean {
-  return PENDING_DEVICE_STATUSES.includes(status);
+export function isAuthdevicePending(status: AuthDeviceStatus): boolean {
+  return AUTHDEVICE_PENDING_STATUSES.includes(status);
 }
 
-export function isDeviceBlocked(status: AuthDeviceStatus): boolean {
-  return BLOCKED_DEVICE_STATUSES.includes(status);
+export function isAuthdeviceBlocked(status: AuthDeviceStatus): boolean {
+  return AUTHDEVICE_BLOCKED_STATUSES.includes(status);
 }
 
-export function isDeviceSecurityIssue(status: AuthDeviceStatus): boolean {
-  return SECURITY_DEVICE_STATUSES.includes(status);
+export function isAuthdeviceSecurityIssue(status: AuthDeviceStatus): boolean {
+  return AUTHDEVICE_SECURITY_STATUSES.includes(status);
 }
 
-export function isDeviceTrusted(status: AuthDeviceStatus): boolean {
-  return TRUSTED_DEVICE_STATUSES.includes(status);
+export function isAuthdeviceTrusted(status: AuthDeviceStatus): boolean {
+  return AUTHDEVICE_TRUSTED_STATUSES.includes(status);
 }
 
-export function isDeviceUntrusted(status: AuthDeviceStatus): boolean {
-  return UNTRUSTED_DEVICE_STATUSES.includes(status);
+export function isAuthdeviceUntrusted(status: AuthDeviceStatus): boolean {
+  return AUTHDEVICE_UNTRUSTED_STATUSES.includes(status);
 }
 
-export function getDeviceStatusLabel(status: AuthDeviceStatus): string {
+export function getAuthdeviceStatusLabel(status: AuthDeviceStatus): string {
   const labels: Record<AuthDeviceStatus, string> = {
     [AUTH_DEVICE_STATUS.ACTIVE]: 'Active',
     [AUTH_DEVICE_STATUS.INACTIVE]: 'Inactive',
@@ -149,7 +144,7 @@ export function getDeviceStatusLabel(status: AuthDeviceStatus): string {
   return labels[status] || 'Unknown Status';
 }
 
-export function getDeviceStatusColor(status: AuthDeviceStatus): string {
+export function getAuthdeviceStatusColor(status: AuthDeviceStatus): string {
   const colors: Record<AuthDeviceStatus, string> = {
     [AUTH_DEVICE_STATUS.ACTIVE]: '#10B981',
     [AUTH_DEVICE_STATUS.INACTIVE]: '#6B7280',
@@ -179,7 +174,7 @@ export function getDeviceStatusColor(status: AuthDeviceStatus): string {
   return colors[status] || '#6B7280';
 }
 
-export function getDeviceStatusPriority(status: AuthDeviceStatus): number {
+export function getAuthdeviceStatusPriority(status: AuthDeviceStatus): number {
   const priorities: Record<AuthDeviceStatus, number> = {
     [AUTH_DEVICE_STATUS.ACTIVE]: 10,
     [AUTH_DEVICE_STATUS.INACTIVE]: 3,
@@ -209,7 +204,7 @@ export function getDeviceStatusPriority(status: AuthDeviceStatus): number {
   return priorities[status] || 5;
 }
 
-export function getDeviceStatusBadgeType(
+export function getAuthdeviceStatusBadgeType(
   status: AuthDeviceStatus
 ): 'success' | 'warning' | 'error' | 'info' | 'default' {
   const types: Record<AuthDeviceStatus, 'success' | 'warning' | 'error' | 'info' | 'default'> = {

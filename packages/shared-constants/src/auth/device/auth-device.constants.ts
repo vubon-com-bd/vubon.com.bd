@@ -6,7 +6,6 @@
 import { AUTH_DEVICE_TYPE } from './auth-device-type.constants';
 import { AUTH_DEVICE_STATUS } from './auth-device-status.constants';
 
-// Define PLATFORMS first
 export const DEVICE_PLATFORMS = {
   WEB: 'web',
   MOBILE: 'mobile',
@@ -21,7 +20,6 @@ export const DEVICE_PLATFORMS = {
   CLI: 'cli',
 } as const;
 
-// Define TRUST_LEVELS
 export const DEVICE_TRUST_LEVELS = {
   UNTRUSTED: 0,
   BASIC: 1,
@@ -31,7 +29,6 @@ export const DEVICE_TRUST_LEVELS = {
   MAXIMUM_TRUST: 5,
 } as const;
 
-// Define EVENTS
 export const DEVICE_EVENTS = {
   REGISTERED: 'device:registered',
   VERIFIED: 'device:verified',
@@ -47,7 +44,6 @@ export const DEVICE_EVENTS = {
   USER_AGENT_CHANGED: 'device:user_agent_changed',
 } as const;
 
-// Define CONFIG
 export const DEVICE_CONFIG = {
   MAX_DEVICES_PER_USER: 5,
   MAX_ACTIVE_SESSIONS: 3,
@@ -63,7 +59,6 @@ export const DEVICE_CONFIG = {
   AUTO_BLOCK_SUSPICIOUS: false,
 } as const;
 
-// Define DEFAULTS
 export const DEVICE_DEFAULTS = {
   STATUS: AUTH_DEVICE_STATUS.PENDING,
   TYPE: AUTH_DEVICE_TYPE.WEB,
@@ -72,7 +67,6 @@ export const DEVICE_DEFAULTS = {
   MAX_DEVICES: 5,
 } as const;
 
-// Main AUTH_DEVICE object
 export const AUTH_DEVICE = {
   CONFIG: DEVICE_CONFIG,
   PLATFORMS: DEVICE_PLATFORMS,
@@ -87,7 +81,7 @@ export type AuthDeviceTrustLevel = (typeof DEVICE_TRUST_LEVELS)[keyof typeof DEV
 export type AuthDeviceEvent = (typeof DEVICE_EVENTS)[keyof typeof DEVICE_EVENTS];
 export type AuthDeviceDefaults = typeof DEVICE_DEFAULTS;
 
-export const DEVICE_PLATFORMS_LIST: AuthDevicePlatform[] = [
+export const AUTHDEVICE_PLATFORMS_LIST: AuthDevicePlatform[] = [
   DEVICE_PLATFORMS.WEB,
   DEVICE_PLATFORMS.MOBILE,
   DEVICE_PLATFORMS.TABLET,
@@ -101,41 +95,41 @@ export const DEVICE_PLATFORMS_LIST: AuthDevicePlatform[] = [
   DEVICE_PLATFORMS.CLI,
 ];
 
-export const MOBILE_PLATFORMS: AuthDevicePlatform[] = [
+export const AUTHDEVICE_MOBILE_PLATFORMS: AuthDevicePlatform[] = [
   DEVICE_PLATFORMS.MOBILE,
   DEVICE_PLATFORMS.TABLET,
   DEVICE_PLATFORMS.WEARABLE,
 ];
 
-export const DESKTOP_PLATFORMS: AuthDevicePlatform[] = [
+export const AUTHDEVICE_DESKTOP_PLATFORMS: AuthDevicePlatform[] = [
   DEVICE_PLATFORMS.DESKTOP,
   DEVICE_PLATFORMS.WEB,
 ];
 
-export const EMBEDDED_PLATFORMS: AuthDevicePlatform[] = [
+export const AUTHDEVICE_EMBEDDED_PLATFORMS: AuthDevicePlatform[] = [
   DEVICE_PLATFORMS.SMART_TV,
   DEVICE_PLATFORMS.GAMING_CONSOLE,
   DEVICE_PLATFORMS.IOT,
   DEVICE_PLATFORMS.EMBEDDED,
 ];
 
-export function isDevicePlatform(platform: string): platform is AuthDevicePlatform {
-  return DEVICE_PLATFORMS_LIST.includes(platform as AuthDevicePlatform);
+export function isAuthdevicePlatform(platform: string): platform is AuthDevicePlatform {
+  return AUTHDEVICE_PLATFORMS_LIST.includes(platform as AuthDevicePlatform);
 }
 
-export function isMobilePlatform(platform: AuthDevicePlatform): boolean {
-  return MOBILE_PLATFORMS.includes(platform);
+export function isAuthdeviceMobilePlatform(platform: AuthDevicePlatform): boolean {
+  return AUTHDEVICE_MOBILE_PLATFORMS.includes(platform);
 }
 
-export function isDesktopPlatform(platform: AuthDevicePlatform): boolean {
-  return DESKTOP_PLATFORMS.includes(platform);
+export function isAuthdeviceDesktopPlatform(platform: AuthDevicePlatform): boolean {
+  return AUTHDEVICE_DESKTOP_PLATFORMS.includes(platform);
 }
 
-export function isEmbeddedPlatform(platform: AuthDevicePlatform): boolean {
-  return EMBEDDED_PLATFORMS.includes(platform);
+export function isAuthdeviceEmbeddedPlatform(platform: AuthDevicePlatform): boolean {
+  return AUTHDEVICE_EMBEDDED_PLATFORMS.includes(platform);
 }
 
-export function getDevicePlatformLabel(platform: AuthDevicePlatform): string {
+export function getAuthdevicePlatformLabel(platform: AuthDevicePlatform): string {
   const labels: Record<AuthDevicePlatform, string> = {
     [DEVICE_PLATFORMS.WEB]: 'Web Browser',
     [DEVICE_PLATFORMS.MOBILE]: 'Mobile Phone',
@@ -153,7 +147,7 @@ export function getDevicePlatformLabel(platform: AuthDevicePlatform): string {
   return labels[platform] || 'Unknown Platform';
 }
 
-export function getDevicePlatformIcon(platform: AuthDevicePlatform): string {
+export function getAuthdevicePlatformIcon(platform: AuthDevicePlatform): string {
   const icons: Record<AuthDevicePlatform, string> = {
     [DEVICE_PLATFORMS.WEB]: '🌐',
     [DEVICE_PLATFORMS.MOBILE]: '📱',
@@ -171,7 +165,7 @@ export function getDevicePlatformIcon(platform: AuthDevicePlatform): string {
   return icons[platform] || '📱';
 }
 
-export function getDeviceTrustLevel(level: AuthDeviceTrustLevel): number {
+export function getAuthdeviceTrustLevel(level: AuthDeviceTrustLevel): number {
   const levels: Record<AuthDeviceTrustLevel, number> = {
     [DEVICE_TRUST_LEVELS.UNTRUSTED]: 0,
     [DEVICE_TRUST_LEVELS.BASIC]: 1,
@@ -184,7 +178,7 @@ export function getDeviceTrustLevel(level: AuthDeviceTrustLevel): number {
   return levels[level] || 0;
 }
 
-export function getDeviceTrustLevelLabel(level: AuthDeviceTrustLevel): string {
+export function getAuthdeviceTrustLevelLabel(level: AuthDeviceTrustLevel): string {
   const labels: Record<AuthDeviceTrustLevel, string> = {
     [DEVICE_TRUST_LEVELS.UNTRUSTED]: 'Untrusted',
     [DEVICE_TRUST_LEVELS.BASIC]: 'Basic Trust',
@@ -197,7 +191,7 @@ export function getDeviceTrustLevelLabel(level: AuthDeviceTrustLevel): string {
   return labels[level] || 'Unknown';
 }
 
-export function getDeviceTrustLevelColor(level: AuthDeviceTrustLevel): string {
+export function getAuthdeviceTrustLevelColor(level: AuthDeviceTrustLevel): string {
   const colors: Record<AuthDeviceTrustLevel, string> = {
     [DEVICE_TRUST_LEVELS.UNTRUSTED]: '#EF4444',
     [DEVICE_TRUST_LEVELS.BASIC]: '#F59E0B',
@@ -210,31 +204,31 @@ export function getDeviceTrustLevelColor(level: AuthDeviceTrustLevel): string {
   return colors[level] || '#6B7280';
 }
 
-export function getMaxDevicesPerUser(): number {
+export function getAuthdeviceMaxDevicesPerUser(): number {
   return DEVICE_CONFIG.MAX_DEVICES_PER_USER;
 }
 
-export function getMaxActiveSessions(): number {
+export function getAuthdeviceMaxActiveSessions(): number {
   return DEVICE_CONFIG.MAX_ACTIVE_SESSIONS;
 }
 
-export function getSessionTimeoutMinutes(): number {
+export function getAuthdeviceSessionTimeoutMinutes(): number {
   return DEVICE_CONFIG.SESSION_TIMEOUT_MINUTES;
 }
 
-export function getRememberMeDays(): number {
+export function getAuthdeviceRememberMeDays(): number {
   return DEVICE_CONFIG.REMEMBER_ME_DAYS;
 }
 
-export function isDeviceTrusted(level: AuthDeviceTrustLevel): boolean {
+export function isAuthdeviceTrusted(level: AuthDeviceTrustLevel): boolean {
   return level >= DEVICE_TRUST_LEVELS.TRUSTED;
 }
 
-export function isDeviceUntrusted(level: AuthDeviceTrustLevel): boolean {
+export function isAuthdeviceUntrusted(level: AuthDeviceTrustLevel): boolean {
   return level <= DEVICE_TRUST_LEVELS.UNTRUSTED;
 }
 
-export function getDeviceTrustLevelFromHistory(
+export function getAuthdeviceTrustLevelFromHistory(
   loginCount: number,
   failedAttempts: number,
   ageDays: number

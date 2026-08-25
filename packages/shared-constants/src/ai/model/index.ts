@@ -1,20 +1,21 @@
 /**
- * AI Model Constants Index
+ * AI Model Index
  * Export all AI model constants and types for easy importing
  */
 
-// AI Model Constants
+// Export all constants from ai-model.constants
 export {
   AI_MODEL,
-  getContextWindow,
-  getModelCost,
-  calculateCost,
-  getMaxTokens,
-  isVisionCapable,
-  isChatModel,
-  getModelSize,
+  getAiModelContextWindow,
+  getAiModelCost,
+  calculateAiModelCost,
+  getAiModelMaxTokens,
+  isAiModelVisionCapable,
+  isAiModelChatModel,
+  getAiModelSize,
 } from './ai-model.constants';
 
+// Export all types from ai-model.constants
 export type {
   AIModelVersion,
   AIModelCapability,
@@ -25,19 +26,20 @@ export type {
   AIModelQuality,
 } from './ai-model.constants';
 
-// AI Model Type Constants
+// Export all constants from ai-model-type.constants
 export {
   AI_MODEL_TYPE,
-  getMemoryRequirement,
-  isLanguageModel,
-  isVisionModel,
-  isAudioModel,
-  getFamilyFromArchitecture,
-  isModelReady,
-  isModelTraining,
-  getQuantizationPrecision,
+  getAiModelMemoryRequirement,
+  isAiModelLanguageModel,
+  isAiModelVisionModel,
+  isAiModelAudioModel,
+  getAiModelFamilyFromArchitecture,
+  isAiModelReady,
+  isAiModelTraining,
+  getAiModelQuantizationPrecision,
 } from './ai-model-type.constants';
 
+// Export all types from ai-model-type.constants
 export type {
   AIModelArchitecture,
   AIModelTask,
@@ -52,26 +54,30 @@ export type {
   AIMemoryRequirement,
 } from './ai-model-type.constants';
 
-// AI Model Status Constants
+// Export all constants from ai-model-status.constants
 export {
+  AI_MODEL_STATUSES,
   AI_MODEL_STATUS,
-  getStatusCategory,
-  getStatusColor,
-  getStatusPriority,
-  isDeployedStatus,
-  isActiveStatus,
-  isErrorStatus,
-  getStatusLabel,
+  getAimodelstatusLabel,
+  getAimodelstatusCategory,
+  getAimodelstatusSeverity,
+  getAimodelstatusColor,
+  isAimodelstatusDeployed,
+  isAimodelstatusActive,
+  isAimodelstatusError,
+  getAimodelstatusProgress,
 } from './ai-model-status.constants';
 
+// Export all types from ai-model-status.constants
 export type {
   AIModelStatusType,
   AIModelStatusCategory,
   AIModelStatusPriority,
+  AIModelStatusSeverity,
   AIModelStatusColor,
 } from './ai-model-status.constants';
 
-// AI Model Provider Constants
+// Export all constants from ai-model-provider.constants
 export {
   AI_MODEL_PROVIDER,
   getProviderEndpoint,
@@ -81,6 +87,7 @@ export {
   getProviderRegion,
 } from './ai-model-provider.constants';
 
+// Export all types from ai-model-provider.constants
 export type {
   AIProviderType,
   AIProviderRegion,

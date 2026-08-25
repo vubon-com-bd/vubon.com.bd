@@ -125,32 +125,22 @@ export const AI_RECOMMENDATION_STRATEGY = {
   } as const,
 } as const;
 
-// Strategy Types
 export type AIRecommendationStrategyType =
   (typeof AI_RECOMMENDATION_STRATEGY.TYPES)[keyof typeof AI_RECOMMENDATION_STRATEGY.TYPES];
-
-// Strategy Approaches
 export type AIRecommendationStrategyApproach =
   (typeof AI_RECOMMENDATION_STRATEGY.APPROACHES)[keyof typeof AI_RECOMMENDATION_STRATEGY.APPROACHES];
-
-// Strategy Goals
 export type AIRecommendationStrategyGoal =
   (typeof AI_RECOMMENDATION_STRATEGY.GOALS)[keyof typeof AI_RECOMMENDATION_STRATEGY.GOALS];
-
-// Strategy Trade-offs
 export type AIRecommendationStrategyTradeOff =
   (typeof AI_RECOMMENDATION_STRATEGY.TRADE_OFFS)[keyof typeof AI_RECOMMENDATION_STRATEGY.TRADE_OFFS];
-
-// Execution Modes
 export type AIRecommendationExecutionMode =
   (typeof AI_RECOMMENDATION_STRATEGY.EXECUTION_MODES)[keyof typeof AI_RECOMMENDATION_STRATEGY.EXECUTION_MODES];
-
-// Evaluation Methods
 export type AIRecommendationEvaluationMethod =
   (typeof AI_RECOMMENDATION_STRATEGY.EVALUATION_METHODS)[keyof typeof AI_RECOMMENDATION_STRATEGY.EVALUATION_METHODS];
 
-// Utility Functions
-export function getStrategyTypeLabel(strategy: AIRecommendationStrategyType): string {
+export function getAiRecommendationStrategyTypeLabel(
+  strategy: AIRecommendationStrategyType
+): string {
   const labels: Record<AIRecommendationStrategyType, string> = {
     [AI_RECOMMENDATION_STRATEGY.TYPES.USER_USER]: 'User-User Collaborative',
     [AI_RECOMMENDATION_STRATEGY.TYPES.ITEM_ITEM]: 'Item-Item Collaborative',
@@ -190,7 +180,7 @@ export function getStrategyTypeLabel(strategy: AIRecommendationStrategyType): st
   return labels[strategy] || 'Unknown';
 }
 
-export function getStrategyGoalLabel(goal: AIRecommendationStrategyGoal): string {
+export function getAiRecommendationStrategyGoalLabel(goal: AIRecommendationStrategyGoal): string {
   const labels: Record<AIRecommendationStrategyGoal, string> = {
     [AI_RECOMMENDATION_STRATEGY.GOALS.MAXIMIZE_ACCURACY]: 'Maximize Accuracy',
     [AI_RECOMMENDATION_STRATEGY.GOALS.MAXIMIZE_DIVERSITY]: 'Maximize Diversity',
@@ -210,7 +200,7 @@ export function getStrategyGoalLabel(goal: AIRecommendationStrategyGoal): string
   return labels[goal] || 'Unknown';
 }
 
-export function getExecutionModeLabel(mode: AIRecommendationExecutionMode): string {
+export function getAiRecommendationExecutionModeLabel(mode: AIRecommendationExecutionMode): string {
   const labels: Record<AIRecommendationExecutionMode, string> = {
     [AI_RECOMMENDATION_STRATEGY.EXECUTION_MODES.REAL_TIME]: 'Real Time',
     [AI_RECOMMENDATION_STRATEGY.EXECUTION_MODES.BATCH]: 'Batch',
@@ -222,7 +212,9 @@ export function getExecutionModeLabel(mode: AIRecommendationExecutionMode): stri
   return labels[mode] || 'Unknown';
 }
 
-export function getEvaluationMethodLabel(method: AIRecommendationEvaluationMethod): string {
+export function getAiRecommendationEvaluationMethodLabel(
+  method: AIRecommendationEvaluationMethod
+): string {
   const labels: Record<AIRecommendationEvaluationMethod, string> = {
     [AI_RECOMMENDATION_STRATEGY.EVALUATION_METHODS.OFFLINE]: 'Offline',
     [AI_RECOMMENDATION_STRATEGY.EVALUATION_METHODS.ONLINE]: 'Online',
@@ -235,7 +227,9 @@ export function getEvaluationMethodLabel(method: AIRecommendationEvaluationMetho
   return labels[method] || 'Unknown';
 }
 
-export function getStrategyPriorityWeight(strategy: AIRecommendationStrategyType): number {
+export function getAiRecommendationStrategyPriorityWeight(
+  strategy: AIRecommendationStrategyType
+): number {
   const weights: Record<AIRecommendationStrategyType, number> = {
     [AI_RECOMMENDATION_STRATEGY.TYPES.USER_USER]: 0.8,
     [AI_RECOMMENDATION_STRATEGY.TYPES.ITEM_ITEM]: 0.9,
@@ -275,7 +269,7 @@ export function getStrategyPriorityWeight(strategy: AIRecommendationStrategyType
   return weights[strategy] || 0.5;
 }
 
-export function getRecommendedStrategyForGoal(
+export function getAiRecommendationRecommendedStrategyForGoal(
   goal: AIRecommendationStrategyGoal
 ): AIRecommendationStrategyType[] {
   const mapping: Record<AIRecommendationStrategyGoal, AIRecommendationStrategyType[]> = {

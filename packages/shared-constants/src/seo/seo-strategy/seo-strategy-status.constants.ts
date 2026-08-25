@@ -4,7 +4,6 @@
  */
 
 export const SEO_STRATEGY_STATUS = {
-  // Strategy Lifecycle Status
   LIFECYCLE: {
     CONCEPT: 'concept',
     RESEARCH: 'research',
@@ -20,7 +19,6 @@ export const SEO_STRATEGY_STATUS = {
     ARCHIVED: 'archived',
   } as const,
 
-  // Execution Status
   EXECUTION: {
     NOT_STARTED: 'not_started',
     IN_PROGRESS: 'in_progress',
@@ -34,7 +32,6 @@ export const SEO_STRATEGY_STATUS = {
     CANCELLED: 'cancelled',
   } as const,
 
-  // Health Status
   HEALTH: {
     HEALTHY: 'healthy',
     WARNING: 'warning',
@@ -42,7 +39,6 @@ export const SEO_STRATEGY_STATUS = {
     UNKNOWN: 'unknown',
   } as const,
 
-  // Progress Status
   PROGRESS: {
     NOT_STARTED: 'not_started',
     INITIATED: 'initiated',
@@ -53,7 +49,6 @@ export const SEO_STRATEGY_STATUS = {
     COMPLETED: 'completed',
   } as const,
 
-  // Quality Status
   QUALITY: {
     POOR: 'poor',
     FAIR: 'fair',
@@ -62,7 +57,6 @@ export const SEO_STRATEGY_STATUS = {
     OUTSTANDING: 'outstanding',
   } as const,
 
-  // Risk Status
   RISK: {
     LOW: 'low',
     MEDIUM: 'medium',
@@ -70,7 +64,6 @@ export const SEO_STRATEGY_STATUS = {
     CRITICAL: 'critical',
   } as const,
 
-  // Status Categories
   CATEGORIES: {
     PLANNING: 'planning',
     ACTIVE: 'active',
@@ -81,36 +74,22 @@ export const SEO_STRATEGY_STATUS = {
   } as const,
 } as const;
 
-// Lifecycle Status
 export type SEOStrategyLifecycleStatus =
   (typeof SEO_STRATEGY_STATUS.LIFECYCLE)[keyof typeof SEO_STRATEGY_STATUS.LIFECYCLE];
-
-// Execution Status
 export type SEOStrategyExecutionStatus =
   (typeof SEO_STRATEGY_STATUS.EXECUTION)[keyof typeof SEO_STRATEGY_STATUS.EXECUTION];
-
-// Health Status
 export type SEOStrategyHealthStatus =
   (typeof SEO_STRATEGY_STATUS.HEALTH)[keyof typeof SEO_STRATEGY_STATUS.HEALTH];
-
-// Progress Status
 export type SEOStrategyProgressStatus =
   (typeof SEO_STRATEGY_STATUS.PROGRESS)[keyof typeof SEO_STRATEGY_STATUS.PROGRESS];
-
-// Quality Status
 export type SEOStrategyQualityStatus =
   (typeof SEO_STRATEGY_STATUS.QUALITY)[keyof typeof SEO_STRATEGY_STATUS.QUALITY];
-
-// Risk Status
 export type SEOStrategyRiskStatus =
   (typeof SEO_STRATEGY_STATUS.RISK)[keyof typeof SEO_STRATEGY_STATUS.RISK];
-
-// Status Categories
 export type SEOStrategyStatusCategory =
   (typeof SEO_STRATEGY_STATUS.CATEGORIES)[keyof typeof SEO_STRATEGY_STATUS.CATEGORIES];
 
-// Utility Functions
-export function getSEOStrategyLifecycleLabel(status: SEOStrategyLifecycleStatus): string {
+export function getSeostrategyLifecycleLabel(status: SEOStrategyLifecycleStatus): string {
   const labels: Record<SEOStrategyLifecycleStatus, string> = {
     [SEO_STRATEGY_STATUS.LIFECYCLE.CONCEPT]: 'Concept Phase',
     [SEO_STRATEGY_STATUS.LIFECYCLE.RESEARCH]: 'Research Phase',
@@ -128,7 +107,7 @@ export function getSEOStrategyLifecycleLabel(status: SEOStrategyLifecycleStatus)
   return labels[status] || 'Unknown Lifecycle Phase';
 }
 
-export function getSEOStrategyExecutionLabel(status: SEOStrategyExecutionStatus): string {
+export function getSeostrategyExecutionLabel(status: SEOStrategyExecutionStatus): string {
   const labels: Record<SEOStrategyExecutionStatus, string> = {
     [SEO_STRATEGY_STATUS.EXECUTION.NOT_STARTED]: 'Not Started',
     [SEO_STRATEGY_STATUS.EXECUTION.IN_PROGRESS]: 'In Progress',
@@ -144,7 +123,7 @@ export function getSEOStrategyExecutionLabel(status: SEOStrategyExecutionStatus)
   return labels[status] || 'Unknown Execution Status';
 }
 
-export function getSEOStrategyHealthLabel(status: SEOStrategyHealthStatus): string {
+export function getSeostrategyHealthLabel(status: SEOStrategyHealthStatus): string {
   const labels: Record<SEOStrategyHealthStatus, string> = {
     [SEO_STRATEGY_STATUS.HEALTH.HEALTHY]: 'Healthy',
     [SEO_STRATEGY_STATUS.HEALTH.WARNING]: 'Warning',
@@ -154,7 +133,7 @@ export function getSEOStrategyHealthLabel(status: SEOStrategyHealthStatus): stri
   return labels[status] || 'Unknown Health Status';
 }
 
-export function getSEOStrategyProgressLabel(status: SEOStrategyProgressStatus): string {
+export function getSeostrategyProgressLabel(status: SEOStrategyProgressStatus): string {
   const labels: Record<SEOStrategyProgressStatus, string> = {
     [SEO_STRATEGY_STATUS.PROGRESS.NOT_STARTED]: 'Not Started',
     [SEO_STRATEGY_STATUS.PROGRESS.INITIATED]: 'Initiated (10-25%)',
@@ -167,7 +146,7 @@ export function getSEOStrategyProgressLabel(status: SEOStrategyProgressStatus): 
   return labels[status] || 'Unknown Progress';
 }
 
-export function getSEOStrategyQualityLabel(status: SEOStrategyQualityStatus): string {
+export function getSeostrategyQualityLabel(status: SEOStrategyQualityStatus): string {
   const labels: Record<SEOStrategyQualityStatus, string> = {
     [SEO_STRATEGY_STATUS.QUALITY.POOR]: 'Poor',
     [SEO_STRATEGY_STATUS.QUALITY.FAIR]: 'Fair',
@@ -178,7 +157,7 @@ export function getSEOStrategyQualityLabel(status: SEOStrategyQualityStatus): st
   return labels[status] || 'Unknown Quality';
 }
 
-export function getSEOStrategyStatusRiskLabel(status: SEOStrategyRiskStatus): string {
+export function getSeostrategyRiskLabel(status: SEOStrategyRiskStatus): string {
   const labels: Record<SEOStrategyRiskStatus, string> = {
     [SEO_STRATEGY_STATUS.RISK.LOW]: 'Low Risk',
     [SEO_STRATEGY_STATUS.RISK.MEDIUM]: 'Medium Risk',
@@ -188,7 +167,7 @@ export function getSEOStrategyStatusRiskLabel(status: SEOStrategyRiskStatus): st
   return labels[status] || 'Unknown Risk Level';
 }
 
-export function getSEOStrategyStatusCategory(
+export function getSeostrategyStatusCategory(
   status: SEOStrategyLifecycleStatus
 ): SEOStrategyStatusCategory {
   const categories: Record<SEOStrategyLifecycleStatus, SEOStrategyStatusCategory> = {
@@ -208,7 +187,7 @@ export function getSEOStrategyStatusCategory(
   return categories[status] || SEO_STRATEGY_STATUS.CATEGORIES.PLANNING;
 }
 
-export function getSEOStrategyStatusColorCode(status: SEOStrategyLifecycleStatus): string {
+export function getSeostrategyStatusColorCode(status: SEOStrategyLifecycleStatus): string {
   const colors: Record<SEOStrategyLifecycleStatus, string> = {
     [SEO_STRATEGY_STATUS.LIFECYCLE.CONCEPT]: '#9E9E9E',
     [SEO_STRATEGY_STATUS.LIFECYCLE.RESEARCH]: '#2196F3',
@@ -226,7 +205,7 @@ export function getSEOStrategyStatusColorCode(status: SEOStrategyLifecycleStatus
   return colors[status] || '#9E9E9E';
 }
 
-export function isStrategyActive(status: SEOStrategyLifecycleStatus): boolean {
+export function isSeostrategyActive(status: SEOStrategyLifecycleStatus): boolean {
   const activeStatuses: SEOStrategyLifecycleStatus[] = [
     SEO_STRATEGY_STATUS.LIFECYCLE.DEVELOPMENT,
     SEO_STRATEGY_STATUS.LIFECYCLE.TESTING,
@@ -237,7 +216,7 @@ export function isStrategyActive(status: SEOStrategyLifecycleStatus): boolean {
   return activeStatuses.includes(status);
 }
 
-export function isStrategyComplete(status: SEOStrategyLifecycleStatus): boolean {
+export function isSeostrategyComplete(status: SEOStrategyLifecycleStatus): boolean {
   const completeStatuses: SEOStrategyLifecycleStatus[] = [
     SEO_STRATEGY_STATUS.LIFECYCLE.COMPLETED,
     SEO_STRATEGY_STATUS.LIFECYCLE.SUNSET,
@@ -246,7 +225,7 @@ export function isStrategyComplete(status: SEOStrategyLifecycleStatus): boolean 
   return completeStatuses.includes(status);
 }
 
-export function getProgressPercentage(status: SEOStrategyProgressStatus): number {
+export function getSeostrategyProgressPercentage(status: SEOStrategyProgressStatus): number {
   const percentages: Record<SEOStrategyProgressStatus, number> = {
     [SEO_STRATEGY_STATUS.PROGRESS.NOT_STARTED]: 0,
     [SEO_STRATEGY_STATUS.PROGRESS.INITIATED]: 15,

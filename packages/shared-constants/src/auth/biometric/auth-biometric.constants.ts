@@ -5,7 +5,6 @@
 
 import { AUTH_BIOMETRIC_STATUS } from './auth-biometric-status.constants';
 
-// Define TYPES first
 export const AUTH_BIOMETRIC_TYPES = {
   FINGERPRINT: 'fingerprint',
   FACE_ID: 'face_id',
@@ -19,9 +18,7 @@ export const AUTH_BIOMETRIC_TYPES = {
   KEYSTROKE_DYNAMICS: 'keystroke_dynamics',
 } as const;
 
-// Define CONFIG
 export const AUTH_BIOMETRIC_CONFIG = {
-  // General configuration
   GENERAL: {
     MAX_DEVICES_PER_USER: 5,
     MAX_ATTEMPTS: 3,
@@ -32,7 +29,6 @@ export const AUTH_BIOMETRIC_CONFIG = {
     REQUIRE_CONFIRMATION: true,
   },
 
-  // Fingerprint configuration
   FINGERPRINT: {
     MIN_QUALITY: 60,
     MAX_RETRIES: 3,
@@ -41,7 +37,6 @@ export const AUTH_BIOMETRIC_CONFIG = {
     MAX_FINGERS: 10,
   },
 
-  // Face ID configuration
   FACE_ID: {
     MIN_CONFIDENCE: 0.8,
     MAX_RETRIES: 3,
@@ -52,7 +47,6 @@ export const AUTH_BIOMETRIC_CONFIG = {
     DEPTH_CHECK: true,
   },
 
-  // Iris scan configuration
   IRIS_SCAN: {
     MIN_QUALITY: 70,
     MAX_RETRIES: 3,
@@ -62,7 +56,6 @@ export const AUTH_BIOMETRIC_CONFIG = {
     MAX_DISTANCE: 40,
   },
 
-  // Voice recognition configuration
   VOICE_RECOGNITION: {
     MIN_CONFIDENCE: 0.75,
     MAX_RETRIES: 3,
@@ -73,7 +66,6 @@ export const AUTH_BIOMETRIC_CONFIG = {
     PHRASE_LENGTH: 6,
   },
 
-  // Security configuration
   SECURITY: {
     ENCRYPTION_ALGORITHM: 'AES-256-GCM',
     KEY_DERIVATION: 'PBKDF2',
@@ -84,7 +76,6 @@ export const AUTH_BIOMETRIC_CONFIG = {
     LIVENESS_DETECTION: true,
   },
 
-  // Default values
   DEFAULTS: {
     STATUS: AUTH_BIOMETRIC_STATUS.PENDING,
     TYPE: AUTH_BIOMETRIC_TYPES.FINGERPRINT,
@@ -94,7 +85,6 @@ export const AUTH_BIOMETRIC_CONFIG = {
   },
 } as const;
 
-// Define EVENTS
 export const AUTH_BIOMETRIC_EVENTS = {
   ENABLED: 'biometric:enabled',
   DISABLED: 'biometric:disabled',
@@ -111,7 +101,6 @@ export const AUTH_BIOMETRIC_EVENTS = {
   SUSPICIOUS: 'biometric:suspicious',
 } as const;
 
-// Main AUTH_BIOMETRIC object
 export const AUTH_BIOMETRIC = {
   CONFIG: AUTH_BIOMETRIC_CONFIG,
   TYPES: AUTH_BIOMETRIC_TYPES,
@@ -126,7 +115,7 @@ export type AuthBiometricDefaults = typeof AUTH_BIOMETRIC_CONFIG.DEFAULTS;
 export type AuthBiometricStatusType =
   (typeof AUTH_BIOMETRIC_STATUS)[keyof typeof AUTH_BIOMETRIC_STATUS];
 
-export function getBiometricTypeLabel(type: AuthBiometricType): string {
+export function getAuthbiometricTypeLabel(type: AuthBiometricType): string {
   const labels: Record<AuthBiometricType, string> = {
     [AUTH_BIOMETRIC_TYPES.FINGERPRINT]: 'Fingerprint',
     [AUTH_BIOMETRIC_TYPES.FACE_ID]: 'Face ID',
@@ -143,7 +132,7 @@ export function getBiometricTypeLabel(type: AuthBiometricType): string {
   return labels[type] || 'Unknown Type';
 }
 
-export function getBiometricTypeIcon(type: AuthBiometricType): string {
+export function getAuthbiometricTypeIcon(type: AuthBiometricType): string {
   const icons: Record<AuthBiometricType, string> = {
     [AUTH_BIOMETRIC_TYPES.FINGERPRINT]: '👆',
     [AUTH_BIOMETRIC_TYPES.FACE_ID]: '😊',
@@ -160,7 +149,7 @@ export function getBiometricTypeIcon(type: AuthBiometricType): string {
   return icons[type] || '🔒';
 }
 
-export function getBiometricTypeSecurityLevel(
+export function getAuthbiometricTypeSecurityLevel(
   type: AuthBiometricType
 ): 'low' | 'medium' | 'high' | 'very_high' {
   const levels: Record<AuthBiometricType, 'low' | 'medium' | 'high' | 'very_high'> = {
@@ -179,7 +168,7 @@ export function getBiometricTypeSecurityLevel(
   return levels[type] || 'medium';
 }
 
-export function getBiometricTypeAccuracy(type: AuthBiometricType): number {
+export function getAuthbiometricTypeAccuracy(type: AuthBiometricType): number {
   const accuracy: Record<AuthBiometricType, number> = {
     [AUTH_BIOMETRIC_TYPES.FINGERPRINT]: 98,
     [AUTH_BIOMETRIC_TYPES.FACE_ID]: 97,
@@ -196,27 +185,27 @@ export function getBiometricTypeAccuracy(type: AuthBiometricType): number {
   return accuracy[type] || 90;
 }
 
-export function getBiometricMaxDevices(): number {
+export function getAuthbiometricMaxDevices(): number {
   return AUTH_BIOMETRIC_CONFIG.GENERAL.MAX_DEVICES_PER_USER;
 }
 
-export function getBiometricMaxAttempts(): number {
+export function getAuthbiometricMaxAttempts(): number {
   return AUTH_BIOMETRIC_CONFIG.GENERAL.MAX_ATTEMPTS;
 }
 
-export function getBiometricLockoutDuration(): number {
+export function getAuthbiometricLockoutDuration(): number {
   return AUTH_BIOMETRIC_CONFIG.GENERAL.LOCKOUT_DURATION;
 }
 
-export function getBiometricSessionTimeout(): number {
+export function getAuthbiometricSessionTimeout(): number {
   return AUTH_BIOMETRIC_CONFIG.GENERAL.SESSION_TIMEOUT;
 }
 
-export function getBiometricReauthInterval(): number {
+export function getAuthbiometricReauthInterval(): number {
   return AUTH_BIOMETRIC_CONFIG.GENERAL.REAUTHENTICATION_INTERVAL;
 }
 
-export function getBiometricMinConfidence(type: AuthBiometricType): number {
+export function getAuthbiometricMinConfidence(type: AuthBiometricType): number {
   const confidence: Record<AuthBiometricType, number> = {
     [AUTH_BIOMETRIC_TYPES.FINGERPRINT]: 60,
     [AUTH_BIOMETRIC_TYPES.FACE_ID]: 80,
@@ -233,7 +222,7 @@ export function getBiometricMinConfidence(type: AuthBiometricType): number {
   return confidence[type] || 60;
 }
 
-export function getBiometricMaxRetries(type: AuthBiometricType): number {
+export function getAuthbiometricMaxRetries(type: AuthBiometricType): number {
   const retries: Record<AuthBiometricType, number> = {
     [AUTH_BIOMETRIC_TYPES.FINGERPRINT]: AUTH_BIOMETRIC_CONFIG.FINGERPRINT.MAX_RETRIES,
     [AUTH_BIOMETRIC_TYPES.FACE_ID]: AUTH_BIOMETRIC_CONFIG.FACE_ID.MAX_RETRIES,
@@ -250,16 +239,16 @@ export function getBiometricMaxRetries(type: AuthBiometricType): number {
   return retries[type] || 3;
 }
 
-export function isBiometricTypeSupported(type: AuthBiometricType): boolean {
+export function isAuthbiometricTypeSupported(type: AuthBiometricType): boolean {
   const supportedTypes = Object.values(AUTH_BIOMETRIC_TYPES);
   return supportedTypes.includes(type);
 }
 
-export function getSupportedBiometricTypes(): AuthBiometricType[] {
+export function getAuthbiometricSupportedTypes(): AuthBiometricType[] {
   return Object.values(AUTH_BIOMETRIC_TYPES);
 }
 
-export function isBiometricEnabled(status: AuthBiometricStatusType): boolean {
+export function isAuthbiometricEnabled(status: AuthBiometricStatusType): boolean {
   return (
     status === AUTH_BIOMETRIC_STATUS.ENABLED ||
     status === AUTH_BIOMETRIC_STATUS.VERIFIED ||
@@ -267,11 +256,11 @@ export function isBiometricEnabled(status: AuthBiometricStatusType): boolean {
   );
 }
 
-export function isBiometricLocked(status: AuthBiometricStatusType): boolean {
+export function isAuthbiometricLocked(status: AuthBiometricStatusType): boolean {
   return status === AUTH_BIOMETRIC_STATUS.LOCKED || status === AUTH_BIOMETRIC_STATUS.BLOCKED;
 }
 
-export function getBiometricTypeCategory(
+export function getAuthbiometricTypeCategory(
   type: AuthBiometricType
 ): 'physical' | 'behavioral' | 'physiological' {
   const physical: AuthBiometricType[] = [

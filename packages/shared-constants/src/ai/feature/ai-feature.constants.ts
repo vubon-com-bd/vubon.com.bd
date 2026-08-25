@@ -221,26 +221,14 @@ export const AI_FEATURE = {
   } as const,
 } as const;
 
-// Feature Categories
 export type AIFeatureCategory = (typeof AI_FEATURE.CATEGORIES)[keyof typeof AI_FEATURE.CATEGORIES];
-
-// Feature Status
 export type AIFeatureStatus = (typeof AI_FEATURE.STATUSES)[keyof typeof AI_FEATURE.STATUSES];
-
-// Feature Levels
 export type AIFeatureLevel = (typeof AI_FEATURE.LEVELS)[keyof typeof AI_FEATURE.LEVELS];
-
-// Feature Access
 export type AIFeatureAccess = (typeof AI_FEATURE.ACCESS)[keyof typeof AI_FEATURE.ACCESS];
-
-// Feature Limits
 export type AIFeatureLimit = (typeof AI_FEATURE.LIMITS)[keyof typeof AI_FEATURE.LIMITS];
-
-// Feature Metrics
 export type AIFeatureMetric = (typeof AI_FEATURE.METRICS)[keyof typeof AI_FEATURE.METRICS];
 
-// Utility Functions
-export function getFeatureCategoryLabel(category: AIFeatureCategory): string {
+export function getAiFeatureCategoryLabel(category: AIFeatureCategory): string {
   const labels: Record<AIFeatureCategory, string> = {
     [AI_FEATURE.CATEGORIES.RECOMMENDATION]: 'Recommendation',
     [AI_FEATURE.CATEGORIES.PERSONALIZATION]: 'Personalization',
@@ -266,7 +254,7 @@ export function getFeatureCategoryLabel(category: AIFeatureCategory): string {
   return labels[category] || 'Unknown';
 }
 
-export function getFeatureTypeLabel(type: AIFeatureType): string {
+export function getAiFeatureTypeLabel(type: AIFeatureType): string {
   const labels: Record<AIFeatureType, string> = {
     [AI_FEATURE_TYPES.SMART_SEARCH]: 'Smart Search',
     [AI_FEATURE_TYPES.RECOMMENDATION_ENGINE]: 'Recommendation Engine',
@@ -305,7 +293,7 @@ export function getFeatureTypeLabel(type: AIFeatureType): string {
   return labels[type] || 'Unknown';
 }
 
-export function getFeatureStatusLabel(status: AIFeatureStatus): string {
+export function getAiFeatureStatusLabel(status: AIFeatureStatus): string {
   const labels: Record<AIFeatureStatus, string> = {
     [AI_FEATURE.STATUSES.PENDING]: 'Pending',
     [AI_FEATURE.STATUSES.DEVELOPMENT]: 'Development',
@@ -322,7 +310,7 @@ export function getFeatureStatusLabel(status: AIFeatureStatus): string {
   return labels[status] || 'Unknown';
 }
 
-export function getFeatureLevelLabel(level: AIFeatureLevel): string {
+export function getAiFeatureLevelLabel(level: AIFeatureLevel): string {
   const labels: Record<AIFeatureLevel, string> = {
     [AI_FEATURE.LEVELS.BASIC]: 'Basic',
     [AI_FEATURE.LEVELS.STANDARD]: 'Standard',
@@ -333,7 +321,7 @@ export function getFeatureLevelLabel(level: AIFeatureLevel): string {
   return labels[level] || 'Unknown';
 }
 
-export function getFeatureAccessLabel(access: AIFeatureAccess): string {
+export function getAiFeatureAccessLabel(access: AIFeatureAccess): string {
   const labels: Record<AIFeatureAccess, string> = {
     [AI_FEATURE.ACCESS.PUBLIC]: 'Public',
     [AI_FEATURE.ACCESS.AUTHENTICATED]: 'Authenticated',
@@ -347,12 +335,12 @@ export function getFeatureAccessLabel(access: AIFeatureAccess): string {
   return labels[access] || 'Unknown';
 }
 
-export function getFeatureDependencies(feature: AIFeatureType): AIFeatureType[] {
+export function getAiFeatureDependencies(feature: AIFeatureType): AIFeatureType[] {
   const dependencies = AI_FEATURE.DEPENDENCIES as Record<AIFeatureType, readonly AIFeatureType[]>;
   return dependencies[feature] ? [...dependencies[feature]] : [];
 }
 
-export function getFeatureMetricLabel(metric: AIFeatureMetric): string {
+export function getAiFeatureMetricLabel(metric: AIFeatureMetric): string {
   const labels: Record<AIFeatureMetric, string> = {
     [AI_FEATURE.METRICS.USAGE]: 'Usage',
     [AI_FEATURE.METRICS.LATENCY]: 'Latency',
@@ -368,7 +356,7 @@ export function getFeatureMetricLabel(metric: AIFeatureMetric): string {
   return labels[metric] || 'Unknown';
 }
 
-export function isFeatureActive(status: AIFeatureStatus): boolean {
+export function isAiFeatureActive(status: AIFeatureStatus): boolean {
   const activeStatuses: AIFeatureStatus[] = [
     AI_FEATURE.STATUSES.PRODUCTION,
     AI_FEATURE.STATUSES.BETA,
@@ -379,7 +367,7 @@ export function isFeatureActive(status: AIFeatureStatus): boolean {
   return activeStatuses.includes(status);
 }
 
-export function isFeatureAvailable(status: AIFeatureStatus): boolean {
+export function isAiFeatureAvailable(status: AIFeatureStatus): boolean {
   const availableStatuses: AIFeatureStatus[] = [
     AI_FEATURE.STATUSES.PRODUCTION,
     AI_FEATURE.STATUSES.BETA,
@@ -391,7 +379,7 @@ export function isFeatureAvailable(status: AIFeatureStatus): boolean {
   return availableStatuses.includes(status);
 }
 
-export function isFeatureDeprecated(status: AIFeatureStatus): boolean {
+export function isAiFeatureDeprecated(status: AIFeatureStatus): boolean {
   const deprecatedStatuses: AIFeatureStatus[] = [
     AI_FEATURE.STATUSES.DEPRECATED,
     AI_FEATURE.STATUSES.RETIRED,
@@ -399,7 +387,7 @@ export function isFeatureDeprecated(status: AIFeatureStatus): boolean {
   return deprecatedStatuses.includes(status);
 }
 
-export function getFeatureLevelPriority(level: AIFeatureLevel): number {
+export function getAiFeatureLevelPriority(level: AIFeatureLevel): number {
   const priorities: Record<AIFeatureLevel, number> = {
     [AI_FEATURE.LEVELS.BASIC]: 1,
     [AI_FEATURE.LEVELS.STANDARD]: 2,
@@ -410,7 +398,7 @@ export function getFeatureLevelPriority(level: AIFeatureLevel): number {
   return priorities[level] || 0;
 }
 
-export function getFeatureAccessPriority(access: AIFeatureAccess): number {
+export function getAiFeatureAccessPriority(access: AIFeatureAccess): number {
   const priorities: Record<AIFeatureAccess, number> = {
     [AI_FEATURE.ACCESS.PUBLIC]: 1,
     [AI_FEATURE.ACCESS.AUTHENTICATED]: 2,

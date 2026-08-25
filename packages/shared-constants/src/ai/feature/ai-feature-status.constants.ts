@@ -105,20 +105,14 @@ export const AI_FEATURE_STATUS = {
   } as const,
 } as const;
 
-// Status Categories
 export type AIFeatureStatusCategory =
   (typeof AI_FEATURE_STATUS.CATEGORIES)[keyof typeof AI_FEATURE_STATUS.CATEGORIES];
-
-// Status Severity
 export type AIFeatureStatusSeverity =
   (typeof AI_FEATURE_STATUS.SEVERITY)[keyof typeof AI_FEATURE_STATUS.SEVERITY];
-
-// Status Colors
 export type AIFeatureStatusColor =
   (typeof AI_FEATURE_STATUS.COLORS)[keyof typeof AI_FEATURE_STATUS.COLORS];
 
-// Utility Functions
-export function getFeatureStatusLabel(status: AIFeatureStatusType): string {
+export function getAiFeatureStatusLabel(status: AIFeatureStatusType): string {
   const labels: Record<AIFeatureStatusType, string> = {
     [AI_FEATURE_STATUS_TYPES.CREATED]: 'Created',
     [AI_FEATURE_STATUS_TYPES.QUEUED]: 'Queued',
@@ -151,7 +145,7 @@ export function getFeatureStatusLabel(status: AIFeatureStatusType): string {
   return labels[status] || 'Unknown';
 }
 
-export function getFeatureStatusCategory(status: AIFeatureStatusType): AIFeatureStatusCategory {
+export function getAiFeatureStatusCategory(status: AIFeatureStatusType): AIFeatureStatusCategory {
   const categories: Record<AIFeatureStatusType, AIFeatureStatusCategory> = {
     [AI_FEATURE_STATUS_TYPES.CREATED]: AI_FEATURE_STATUS.CATEGORIES.PLANNING,
     [AI_FEATURE_STATUS_TYPES.QUEUED]: AI_FEATURE_STATUS.CATEGORIES.PLANNING,
@@ -184,7 +178,7 @@ export function getFeatureStatusCategory(status: AIFeatureStatusType): AIFeature
   return categories[status] || AI_FEATURE_STATUS.CATEGORIES.PLANNING;
 }
 
-export function getFeatureStatusSeverity(status: AIFeatureStatusType): AIFeatureStatusSeverity {
+export function getAiFeatureStatusSeverity(status: AIFeatureStatusType): AIFeatureStatusSeverity {
   const severities: Record<AIFeatureStatusType, AIFeatureStatusSeverity> = {
     [AI_FEATURE_STATUS_TYPES.CREATED]: AI_FEATURE_STATUS.SEVERITY.INFO,
     [AI_FEATURE_STATUS_TYPES.QUEUED]: AI_FEATURE_STATUS.SEVERITY.INFO,
@@ -217,11 +211,11 @@ export function getFeatureStatusSeverity(status: AIFeatureStatusType): AIFeature
   return severities[status] || AI_FEATURE_STATUS.SEVERITY.INFO;
 }
 
-export function getFeatureStatusColor(status: AIFeatureStatusType): AIFeatureStatusColor {
+export function getAiFeatureStatusColor(status: AIFeatureStatusType): AIFeatureStatusColor {
   return AI_FEATURE_STATUS.COLORS[status] || '#gray';
 }
 
-export function isFeatureInDevelopment(status: AIFeatureStatusType): boolean {
+export function isAiFeatureInDevelopment(status: AIFeatureStatusType): boolean {
   const developmentStatuses: AIFeatureStatusType[] = [
     AI_FEATURE_STATUS_TYPES.DESIGNING,
     AI_FEATURE_STATUS_TYPES.DEVELOPING,
@@ -231,7 +225,7 @@ export function isFeatureInDevelopment(status: AIFeatureStatusType): boolean {
   return developmentStatuses.includes(status);
 }
 
-export function isFeatureInTesting(status: AIFeatureStatusType): boolean {
+export function isAiFeatureInTesting(status: AIFeatureStatusType): boolean {
   const testingStatuses: AIFeatureStatusType[] = [
     AI_FEATURE_STATUS_TYPES.TESTING,
     AI_FEATURE_STATUS_TYPES.QA,
@@ -242,7 +236,7 @@ export function isFeatureInTesting(status: AIFeatureStatusType): boolean {
   return testingStatuses.includes(status);
 }
 
-export function isFeatureInProduction(status: AIFeatureStatusType): boolean {
+export function isAiFeatureInProduction(status: AIFeatureStatusType): boolean {
   const productionStatuses: AIFeatureStatusType[] = [
     AI_FEATURE_STATUS_TYPES.PRODUCTION,
     AI_FEATURE_STATUS_TYPES.BETA,
@@ -253,7 +247,7 @@ export function isFeatureInProduction(status: AIFeatureStatusType): boolean {
   return productionStatuses.includes(status);
 }
 
-export function isFeatureActive(status: AIFeatureStatusType): boolean {
+export function isAiFeatureActiveStatus(status: AIFeatureStatusType): boolean {
   const activeStatuses: AIFeatureStatusType[] = [
     AI_FEATURE_STATUS_TYPES.STAGING,
     AI_FEATURE_STATUS_TYPES.PRE_PRODUCTION,
@@ -268,7 +262,7 @@ export function isFeatureActive(status: AIFeatureStatusType): boolean {
   return activeStatuses.includes(status);
 }
 
-export function isFeatureDeprecated(status: AIFeatureStatusType): boolean {
+export function isAiFeatureDeprecatedStatus(status: AIFeatureStatusType): boolean {
   const deprecatedStatuses: AIFeatureStatusType[] = [
     AI_FEATURE_STATUS_TYPES.DEPRECATED,
     AI_FEATURE_STATUS_TYPES.RETIRED,
@@ -277,7 +271,7 @@ export function isFeatureDeprecated(status: AIFeatureStatusType): boolean {
   return deprecatedStatuses.includes(status);
 }
 
-export function getFeatureStatusProgress(status: AIFeatureStatusType): number {
+export function getAiFeatureStatusProgress(status: AIFeatureStatusType): number {
   const progress: Record<AIFeatureStatusType, number> = {
     [AI_FEATURE_STATUS_TYPES.CREATED]: 0,
     [AI_FEATURE_STATUS_TYPES.QUEUED]: 5,

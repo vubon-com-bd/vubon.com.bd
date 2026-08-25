@@ -4,7 +4,6 @@
  */
 
 export const AUTH_BIOMETRIC_TYPE = {
-  // Physical biometrics
   FINGERPRINT: 'fingerprint',
   FACE_ID: 'face_id',
   IRIS_SCAN: 'iris_scan',
@@ -12,27 +11,23 @@ export const AUTH_BIOMETRIC_TYPE = {
   RETINA_SCAN: 'retina_scan',
   VEIN_RECOGNITION: 'vein_recognition',
 
-  // Behavioral biometrics
   VOICE_RECOGNITION: 'voice_recognition',
   GAIT_RECOGNITION: 'gait_recognition',
   SIGNATURE: 'signature',
   KEYSTROKE_DYNAMICS: 'keystroke_dynamics',
 
-  // Physiological biometrics
   DNA: 'dna',
   EAR_SHAPE: 'ear_shape',
   LIP_MOVEMENT: 'lip_movement',
   HEART_RATE: 'heart_rate',
   BRAIN_WAVES: 'brain_waves',
 
-  // Mobile-specific
   ANDROID_FINGERPRINT: 'android_fingerprint',
   ANDROID_FACE: 'android_face',
   IOS_FINGERPRINT: 'ios_fingerprint',
   IOS_FACE: 'ios_face',
   IOS_IRIS: 'ios_iris',
 
-  // Platform-specific
   WINDOWS_HELLO: 'windows_hello',
   MACOS_TOUCH_ID: 'macos_touch_id',
   MACOS_FACE_ID: 'macos_face_id',
@@ -41,7 +36,7 @@ export const AUTH_BIOMETRIC_TYPE = {
 
 export type AuthBiometricType = (typeof AUTH_BIOMETRIC_TYPE)[keyof typeof AUTH_BIOMETRIC_TYPE];
 
-export const PHYSICAL_BIOMETRICS: AuthBiometricType[] = [
+export const AUTHBIOMETRIC_PHYSICAL_TYPES: AuthBiometricType[] = [
   AUTH_BIOMETRIC_TYPE.FINGERPRINT,
   AUTH_BIOMETRIC_TYPE.FACE_ID,
   AUTH_BIOMETRIC_TYPE.IRIS_SCAN,
@@ -50,14 +45,14 @@ export const PHYSICAL_BIOMETRICS: AuthBiometricType[] = [
   AUTH_BIOMETRIC_TYPE.VEIN_RECOGNITION,
 ];
 
-export const BEHAVIORAL_BIOMETRICS: AuthBiometricType[] = [
+export const AUTHBIOMETRIC_BEHAVIORAL_TYPES: AuthBiometricType[] = [
   AUTH_BIOMETRIC_TYPE.VOICE_RECOGNITION,
   AUTH_BIOMETRIC_TYPE.GAIT_RECOGNITION,
   AUTH_BIOMETRIC_TYPE.SIGNATURE,
   AUTH_BIOMETRIC_TYPE.KEYSTROKE_DYNAMICS,
 ];
 
-export const PHYSIOLOGICAL_BIOMETRICS: AuthBiometricType[] = [
+export const AUTHBIOMETRIC_PHYSIOLOGICAL_TYPES: AuthBiometricType[] = [
   AUTH_BIOMETRIC_TYPE.DNA,
   AUTH_BIOMETRIC_TYPE.EAR_SHAPE,
   AUTH_BIOMETRIC_TYPE.LIP_MOVEMENT,
@@ -65,7 +60,7 @@ export const PHYSIOLOGICAL_BIOMETRICS: AuthBiometricType[] = [
   AUTH_BIOMETRIC_TYPE.BRAIN_WAVES,
 ];
 
-export const MOBILE_BIOMETRICS: AuthBiometricType[] = [
+export const AUTHBIOMETRIC_MOBILE_TYPES: AuthBiometricType[] = [
   AUTH_BIOMETRIC_TYPE.ANDROID_FINGERPRINT,
   AUTH_BIOMETRIC_TYPE.ANDROID_FACE,
   AUTH_BIOMETRIC_TYPE.IOS_FINGERPRINT,
@@ -73,53 +68,53 @@ export const MOBILE_BIOMETRICS: AuthBiometricType[] = [
   AUTH_BIOMETRIC_TYPE.IOS_IRIS,
 ];
 
-export const PLATFORM_BIOMETRICS: AuthBiometricType[] = [
+export const AUTHBIOMETRIC_PLATFORM_TYPES: AuthBiometricType[] = [
   AUTH_BIOMETRIC_TYPE.WINDOWS_HELLO,
   AUTH_BIOMETRIC_TYPE.MACOS_TOUCH_ID,
   AUTH_BIOMETRIC_TYPE.MACOS_FACE_ID,
   AUTH_BIOMETRIC_TYPE.LINUX_FINGERPRINT,
 ];
 
-export const COMMON_BIOMETRICS: AuthBiometricType[] = [
+export const AUTHBIOMETRIC_COMMON_TYPES: AuthBiometricType[] = [
   AUTH_BIOMETRIC_TYPE.FINGERPRINT,
   AUTH_BIOMETRIC_TYPE.FACE_ID,
   AUTH_BIOMETRIC_TYPE.VOICE_RECOGNITION,
   AUTH_BIOMETRIC_TYPE.IRIS_SCAN,
 ];
 
-export const BIOMETRIC_TYPES_LIST: AuthBiometricType[] = [
-  ...PHYSICAL_BIOMETRICS,
-  ...BEHAVIORAL_BIOMETRICS,
-  ...PHYSIOLOGICAL_BIOMETRICS,
-  ...MOBILE_BIOMETRICS,
-  ...PLATFORM_BIOMETRICS,
+export const AUTHBIOMETRIC_TYPES_LIST: AuthBiometricType[] = [
+  ...AUTHBIOMETRIC_PHYSICAL_TYPES,
+  ...AUTHBIOMETRIC_BEHAVIORAL_TYPES,
+  ...AUTHBIOMETRIC_PHYSIOLOGICAL_TYPES,
+  ...AUTHBIOMETRIC_MOBILE_TYPES,
+  ...AUTHBIOMETRIC_PLATFORM_TYPES,
 ];
 
-export function isPhysicalBiometric(type: AuthBiometricType): boolean {
-  return PHYSICAL_BIOMETRICS.includes(type);
+export function isAuthbiometricPhysical(type: AuthBiometricType): boolean {
+  return AUTHBIOMETRIC_PHYSICAL_TYPES.includes(type);
 }
 
-export function isBehavioralBiometric(type: AuthBiometricType): boolean {
-  return BEHAVIORAL_BIOMETRICS.includes(type);
+export function isAuthbiometricBehavioral(type: AuthBiometricType): boolean {
+  return AUTHBIOMETRIC_BEHAVIORAL_TYPES.includes(type);
 }
 
-export function isPhysiologicalBiometric(type: AuthBiometricType): boolean {
-  return PHYSIOLOGICAL_BIOMETRICS.includes(type);
+export function isAuthbiometricPhysiological(type: AuthBiometricType): boolean {
+  return AUTHBIOMETRIC_PHYSIOLOGICAL_TYPES.includes(type);
 }
 
-export function isMobileBiometric(type: AuthBiometricType): boolean {
-  return MOBILE_BIOMETRICS.includes(type);
+export function isAuthbiometricMobile(type: AuthBiometricType): boolean {
+  return AUTHBIOMETRIC_MOBILE_TYPES.includes(type);
 }
 
-export function isPlatformBiometric(type: AuthBiometricType): boolean {
-  return PLATFORM_BIOMETRICS.includes(type);
+export function isAuthbiometricPlatform(type: AuthBiometricType): boolean {
+  return AUTHBIOMETRIC_PLATFORM_TYPES.includes(type);
 }
 
-export function isCommonBiometric(type: AuthBiometricType): boolean {
-  return COMMON_BIOMETRICS.includes(type);
+export function isAuthbiometricCommon(type: AuthBiometricType): boolean {
+  return AUTHBIOMETRIC_COMMON_TYPES.includes(type);
 }
 
-export function getBiometricTypeLabel(type: AuthBiometricType): string {
+export function getAuthbiometricTypeLabel(type: AuthBiometricType): string {
   const labels: Record<AuthBiometricType, string> = {
     [AUTH_BIOMETRIC_TYPE.FINGERPRINT]: 'Fingerprint',
     [AUTH_BIOMETRIC_TYPE.FACE_ID]: 'Face ID',
@@ -150,7 +145,7 @@ export function getBiometricTypeLabel(type: AuthBiometricType): string {
   return labels[type] || 'Unknown Biometric Type';
 }
 
-export function getBiometricTypeIcon(type: AuthBiometricType): string {
+export function getAuthbiometricTypeIcon(type: AuthBiometricType): string {
   const icons: Record<AuthBiometricType, string> = {
     [AUTH_BIOMETRIC_TYPE.FINGERPRINT]: '👆',
     [AUTH_BIOMETRIC_TYPE.FACE_ID]: '😊',
@@ -181,7 +176,7 @@ export function getBiometricTypeIcon(type: AuthBiometricType): string {
   return icons[type] || '🔒';
 }
 
-export function getBiometricTypeSecurityLevel(
+export function getAuthbiometricTypeSecurityLevel(
   type: AuthBiometricType
 ): 'low' | 'medium' | 'high' | 'very_high' {
   const levels: Record<AuthBiometricType, 'low' | 'medium' | 'high' | 'very_high'> = {
@@ -214,13 +209,13 @@ export function getBiometricTypeSecurityLevel(
   return levels[type] || 'medium';
 }
 
-export function getBiometricTypeCategory(
+export function getAuthbiometricTypeCategory(
   type: AuthBiometricType
 ): 'physical' | 'behavioral' | 'physiological' | 'mobile' | 'platform' {
-  if (isPhysicalBiometric(type)) return 'physical';
-  if (isBehavioralBiometric(type)) return 'behavioral';
-  if (isPhysiologicalBiometric(type)) return 'physiological';
-  if (isMobileBiometric(type)) return 'mobile';
-  if (isPlatformBiometric(type)) return 'platform';
+  if (isAuthbiometricPhysical(type)) return 'physical';
+  if (isAuthbiometricBehavioral(type)) return 'behavioral';
+  if (isAuthbiometricPhysiological(type)) return 'physiological';
+  if (isAuthbiometricMobile(type)) return 'mobile';
+  if (isAuthbiometricPlatform(type)) return 'platform';
   return 'physical';
 }

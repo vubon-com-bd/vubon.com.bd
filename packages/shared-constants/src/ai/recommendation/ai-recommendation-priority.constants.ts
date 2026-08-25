@@ -111,36 +111,24 @@ export const AI_RECOMMENDATION_PRIORITY = {
   } as const,
 } as const;
 
-// Priority Levels
 export type AIRecommendationPriorityLevel =
   (typeof AI_RECOMMENDATION_PRIORITY.LEVELS)[keyof typeof AI_RECOMMENDATION_PRIORITY.LEVELS];
-
-// Priority Scores
 export type AIRecommendationPriorityScore =
   (typeof AI_RECOMMENDATION_PRIORITY.SCORES)[keyof typeof AI_RECOMMENDATION_PRIORITY.SCORES];
-
-// Priority Weights
 export type AIRecommendationPriorityWeight =
   (typeof AI_RECOMMENDATION_PRIORITY.WEIGHTS)[keyof typeof AI_RECOMMENDATION_PRIORITY.WEIGHTS];
-
-// Priority Thresholds
 export type AIRecommendationPriorityThreshold =
   (typeof AI_RECOMMENDATION_PRIORITY.THRESHOLDS)[keyof typeof AI_RECOMMENDATION_PRIORITY.THRESHOLDS];
-
-// Priority Decay
 export type AIRecommendationPriorityDecay =
   (typeof AI_RECOMMENDATION_PRIORITY.DECAY)[keyof typeof AI_RECOMMENDATION_PRIORITY.DECAY];
-
-// Priority Boost
 export type AIRecommendationPriorityBoost =
   (typeof AI_RECOMMENDATION_PRIORITY.BOOST)[keyof typeof AI_RECOMMENDATION_PRIORITY.BOOST];
-
-// Priority Penalties
 export type AIRecommendationPriorityPenalty =
   (typeof AI_RECOMMENDATION_PRIORITY.PENALTIES)[keyof typeof AI_RECOMMENDATION_PRIORITY.PENALTIES];
 
-// Utility Functions
-export function getPriorityLevelLabel(level: AIRecommendationPriorityLevel): string {
+export function getAiRecommendationPriorityLevelLabel(
+  level: AIRecommendationPriorityLevel
+): string {
   const labels: Record<AIRecommendationPriorityLevel, string> = {
     [AI_RECOMMENDATION_PRIORITY.LEVELS.CRITICAL]: 'Critical',
     [AI_RECOMMENDATION_PRIORITY.LEVELS.HIGH]: 'High',
@@ -152,7 +140,7 @@ export function getPriorityLevelLabel(level: AIRecommendationPriorityLevel): str
   return labels[level] || 'Unknown';
 }
 
-export function getPriorityScore(
+export function getAiRecommendationPriorityScore(
   level: AIRecommendationPriorityLevel
 ): AIRecommendationPriorityScore {
   const scores: Record<AIRecommendationPriorityLevel, AIRecommendationPriorityScore> = {
@@ -166,7 +154,7 @@ export function getPriorityScore(
   return scores[level] || AI_RECOMMENDATION_PRIORITY.SCORES.MEDIUM;
 }
 
-export function getPriorityLevel(score: number): AIRecommendationPriorityLevel {
+export function getAiRecommendationPriorityLevel(score: number): AIRecommendationPriorityLevel {
   if (score >= AI_RECOMMENDATION_PRIORITY.THRESHOLDS.CRITICAL) {
     return AI_RECOMMENDATION_PRIORITY.LEVELS.CRITICAL;
   }
@@ -185,7 +173,7 @@ export function getPriorityLevel(score: number): AIRecommendationPriorityLevel {
   return AI_RECOMMENDATION_PRIORITY.LEVELS.NONE;
 }
 
-export function calculatePriorityScore(
+export function calculateAiRecommendationPriorityScore(
   factors: Partial<Record<AIRecommendationPriorityFactor, number>>
 ): number {
   let score = 0;
@@ -200,7 +188,7 @@ export function calculatePriorityScore(
   return Math.min(score, 100);
 }
 
-export function applyPriorityBoost(
+export function applyAiRecommendationPriorityBoost(
   score: number,
   boostFactors: AIRecommendationPriorityBoost[]
 ): number {
@@ -211,7 +199,7 @@ export function applyPriorityBoost(
   return Math.min(boostedScore, 100);
 }
 
-export function applyPriorityPenalty(
+export function applyAiRecommendationPriorityPenalty(
   score: number,
   penaltyFactors: AIRecommendationPriorityPenalty[]
 ): number {
@@ -222,7 +210,9 @@ export function applyPriorityPenalty(
   return Math.max(penalizedScore, 0);
 }
 
-export function getPriorityBoostLabel(boost: AIRecommendationPriorityBoost): string {
+export function getAiRecommendationPriorityBoostLabel(
+  boost: AIRecommendationPriorityBoost
+): string {
   const labels: Record<AIRecommendationPriorityBoost, string> = {
     [AI_RECOMMENDATION_PRIORITY.BOOST.USER_ACTION]: 'User Action',
     [AI_RECOMMENDATION_PRIORITY.BOOST.SEASONAL]: 'Seasonal',
@@ -237,7 +227,9 @@ export function getPriorityBoostLabel(boost: AIRecommendationPriorityBoost): str
   return labels[boost] || 'Unknown';
 }
 
-export function getPriorityPenaltyLabel(penalty: AIRecommendationPriorityPenalty): string {
+export function getAiRecommendationPriorityPenaltyLabel(
+  penalty: AIRecommendationPriorityPenalty
+): string {
   const labels: Record<AIRecommendationPriorityPenalty, string> = {
     [AI_RECOMMENDATION_PRIORITY.PENALTIES.OUT_OF_STOCK]: 'Out of Stock',
     [AI_RECOMMENDATION_PRIORITY.PENALTIES.LOW_RATING]: 'Low Rating',
@@ -251,15 +243,21 @@ export function getPriorityPenaltyLabel(penalty: AIRecommendationPriorityPenalty
   return labels[penalty] || 'Unknown';
 }
 
-export function getDecayFactor(decay: AIRecommendationPriorityDecay): number {
+export function getAiRecommendationDecayFactor(decay: AIRecommendationPriorityDecay): number {
   return decay;
 }
 
-export function getDefaultFactorWeights(): Record<AIRecommendationPriorityFactor, number> {
+export function getAiRecommendationDefaultFactorWeights(): Record<
+  AIRecommendationPriorityFactor,
+  number
+> {
   return { ...AI_RECOMMENDATION_PRIORITY.WEIGHTS };
 }
 
-export function getDefaultThresholds(): Record<AIRecommendationPriorityLevel, number> {
+export function getAiRecommendationDefaultThresholds(): Record<
+  AIRecommendationPriorityLevel,
+  number
+> {
   return {
     [AI_RECOMMENDATION_PRIORITY.LEVELS.CRITICAL]: AI_RECOMMENDATION_PRIORITY.THRESHOLDS.CRITICAL,
     [AI_RECOMMENDATION_PRIORITY.LEVELS.HIGH]: AI_RECOMMENDATION_PRIORITY.THRESHOLDS.HIGH,

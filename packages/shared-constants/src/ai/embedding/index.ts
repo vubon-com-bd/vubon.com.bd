@@ -1,38 +1,39 @@
 /**
- * AI Embedding Constants Index
- * Export all embedding constants and types for easy importing
+ * AI Embedding Index
+ * Export all AI embedding constants and types for easy importing
  */
 
-// AI Embedding Constants
+// Export all constants from ai-embedding.constants
 export {
-  AI_EMBEDDING,
   AI_EMBEDDING_MODELS,
   AI_EMBEDDING_DIMENSIONS,
-  getEmbeddingTypeLabel,
-  getEmbeddingStatusLabel,
-  getEmbeddingModelLabel,
-  getEmbeddingProviderLabel,
-  getEmbeddingFormatLabel,
-  getEmbeddingMetricLabel,
-  getEmbeddingNormalizationLabel,
-  getEmbeddingDimension,
-  getEmbeddingProvider,
-  isEmbeddingActive,
-  isEmbeddingGenerating,
-  isEmbeddingFailed,
-  getDefaultEmbeddingModel,
-  getDefaultBatchSize,
-  getMaxBatchSize,
-  calculateCosineSimilarity,
-  calculateEuclideanDistance,
-  calculateDotProduct,
+  AI_EMBEDDING,
+  getAiEmbeddingTypeLabel,
+  getAiEmbeddingStatusLabel,
+  getAiEmbeddingModelLabel,
+  getAiEmbeddingProviderLabel,
+  getAiEmbeddingFormatLabel,
+  getAiEmbeddingMetricLabel,
+  getAiEmbeddingNormalizationLabel,
+  getAiEmbeddingDimension,
+  getAiEmbeddingProvider,
+  isAiEmbeddingActive,
+  isAiEmbeddingGenerating,
+  isAiEmbeddingFailed,
+  getAiEmbeddingDefaultModel,
+  getAiEmbeddingDefaultBatchSize,
+  getAiEmbeddingMaxBatchSize,
+  calculateAiEmbeddingCosineSimilarity,
+  calculateAiEmbeddingEuclideanDistance,
+  calculateAiEmbeddingDotProduct,
 } from './ai-embedding.constants';
 
+// Export all types from ai-embedding.constants
 export type {
-  AIEmbeddingType,
-  AIEmbeddingStatus,
   AIEmbeddingModel,
   AIEmbeddingDimension,
+  AIEmbeddingType,
+  AIEmbeddingStatus,
   AIEmbeddingProvider,
   AIEmbeddingFormat,
   AIEmbeddingLimit,
@@ -40,19 +41,20 @@ export type {
   AIEmbeddingNormalization,
 } from './ai-embedding.constants';
 
-// AI Embedding Types Constants
+// Export all constants from ai-embedding-types.constants
 export {
   AI_EMBEDDING_TYPE,
-  getEmbeddingCategoryLabel,
-  getEmbeddingSubTypeLabel,
-  getEmbeddingDimensionTypeLabel,
-  getEmbeddingTrainingMethodLabel,
-  getEmbeddingQualityLabel,
-  getEmbeddingUsageLabel,
-  getDimensionRange,
-  getQualityScore,
+  getAiEmbeddingCategoryLabel,
+  getAiEmbeddingSubTypeLabel,
+  getAiEmbeddingDimensionTypeLabel,
+  getAiEmbeddingTrainingMethodLabel,
+  getAiEmbeddingQualityLabel,
+  getAiEmbeddingUsageLabel,
+  getAiEmbeddingDimensionRange,
+  getAiEmbeddingQualityScore,
 } from './ai-embedding-types.constants';
 
+// Export all types from ai-embedding-types.constants
 export type {
   AIEmbeddingCategory,
   AIEmbeddingSubType,
@@ -62,21 +64,22 @@ export type {
   AIEmbeddingUsage,
 } from './ai-embedding-types.constants';
 
-// AI Embedding Status Constants
+// Export all constants from ai-embedding-status.constants
 export {
-  AI_EMBEDDING_STATUS,
   AI_EMBEDDING_STATUS_TYPES,
-  getEmbeddingStatusLabel as getEmbeddingStatusLabel2,
-  getEmbeddingStatusCategory,
-  getEmbeddingStatusSeverity,
-  getEmbeddingStatusColor,
-  isEmbeddingActive as isEmbeddingActive2,
-  isEmbeddingGenerated,
-  isEmbeddingCompleted,
-  isEmbeddingFailed as isEmbeddingFailed2,
-  getEmbeddingStatusProgress,
+  AI_EMBEDDING_STATUS,
+  getAiEmbeddingStatusLabel as getAiEmbeddingStatusLabelDetailed,
+  getAiEmbeddingStatusCategory,
+  getAiEmbeddingStatusSeverity,
+  getAiEmbeddingStatusColor,
+  isAiEmbeddingActive as isAiEmbeddingActiveStatus,
+  isAiEmbeddingGenerated,
+  isAiEmbeddingCompleted,
+  isAiEmbeddingFailed as isAiEmbeddingFailedStatus,
+  getAiEmbeddingStatusProgress,
 } from './ai-embedding-status.constants';
 
+// Export all types from ai-embedding-status.constants
 export type {
   AIEmbeddingStatusType,
   AIEmbeddingStatusCategory,

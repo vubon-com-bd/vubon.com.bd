@@ -152,28 +152,18 @@ export const AI_RECOMMENDATION_TYPE = {
   } as const,
 } as const;
 
-// Recommendation Types
 export type AIRecommendationTypeType =
   (typeof AI_RECOMMENDATION_TYPE.TYPES)[keyof typeof AI_RECOMMENDATION_TYPE.TYPES];
-
-// Recommendation Categories
 export type AIRecommendationCategory =
   (typeof AI_RECOMMENDATION_TYPE.CATEGORIES)[keyof typeof AI_RECOMMENDATION_TYPE.CATEGORIES];
-
-// Recommendation Sub-Types
 export type AIRecommendationSubType =
   (typeof AI_RECOMMENDATION_TYPE.SUB_TYPES)[keyof typeof AI_RECOMMENDATION_TYPE.SUB_TYPES];
-
-// Recommendation Sources
 export type AIRecommendationSource =
   (typeof AI_RECOMMENDATION_TYPE.SOURCES)[keyof typeof AI_RECOMMENDATION_TYPE.SOURCES];
-
-// Recommendation Purposes
 export type AIRecommendationPurpose =
   (typeof AI_RECOMMENDATION_TYPE.PURPOSES)[keyof typeof AI_RECOMMENDATION_TYPE.PURPOSES];
 
-// Utility Functions
-export function getRecommendationTypeLabel(type: AIRecommendationTypeType): string {
+export function getAiRecommendationTypeLabel(type: AIRecommendationTypeType): string {
   const labels: Record<AIRecommendationTypeType, string> = {
     [AI_RECOMMENDATION_TYPE.TYPES.PERSONALIZED]: 'Personalized',
     [AI_RECOMMENDATION_TYPE.TYPES.BEHAVIORAL]: 'Behavioral',
@@ -210,7 +200,7 @@ export function getRecommendationTypeLabel(type: AIRecommendationTypeType): stri
   return labels[type] || 'Unknown';
 }
 
-export function getRecommendationCategoryLabel(category: AIRecommendationCategory): string {
+export function getAiRecommendationCategoryLabel(category: AIRecommendationCategory): string {
   const labels: Record<AIRecommendationCategory, string> = {
     [AI_RECOMMENDATION_TYPE.CATEGORIES.PRODUCT]: 'Product',
     [AI_RECOMMENDATION_TYPE.CATEGORIES.CONTENT]: 'Content',
@@ -230,7 +220,7 @@ export function getRecommendationCategoryLabel(category: AIRecommendationCategor
   return labels[category] || 'Unknown';
 }
 
-export function getRecommendationSourceLabel(source: AIRecommendationSource): string {
+export function getAiRecommendationSourceLabel(source: AIRecommendationSource): string {
   const labels: Record<AIRecommendationSource, string> = {
     [AI_RECOMMENDATION_TYPE.SOURCES.USER_HISTORY]: 'User History',
     [AI_RECOMMENDATION_TYPE.SOURCES.USER_PROFILE]: 'User Profile',
@@ -257,7 +247,7 @@ export function getRecommendationSourceLabel(source: AIRecommendationSource): st
   return labels[source] || 'Unknown';
 }
 
-export function getRecommendationPurposeLabel(purpose: AIRecommendationPurpose): string {
+export function getAiRecommendationPurposeLabel(purpose: AIRecommendationPurpose): string {
   const labels: Record<AIRecommendationPurpose, string> = {
     [AI_RECOMMENDATION_TYPE.PURPOSES.DISCOVERY]: 'Discovery',
     [AI_RECOMMENDATION_TYPE.PURPOSES.ENGAGEMENT]: 'Engagement',
@@ -279,7 +269,7 @@ export function getRecommendationPurposeLabel(purpose: AIRecommendationPurpose):
   return labels[purpose] || 'Unknown';
 }
 
-export function getDefaultCountByPurpose(purpose: AIRecommendationPurpose): number {
+export function getAiRecommendationDefaultCountByPurpose(purpose: AIRecommendationPurpose): number {
   const counts: Record<AIRecommendationPurpose, number> = {
     [AI_RECOMMENDATION_TYPE.PURPOSES.DISCOVERY]: 20,
     [AI_RECOMMENDATION_TYPE.PURPOSES.ENGAGEMENT]: 15,

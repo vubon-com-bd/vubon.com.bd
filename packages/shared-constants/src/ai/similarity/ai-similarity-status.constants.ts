@@ -87,20 +87,14 @@ export const AI_SIMILARITY_STATUS = {
   } as const,
 } as const;
 
-// Status Categories
 export type AISimilarityStatusCategory =
   (typeof AI_SIMILARITY_STATUS.CATEGORIES)[keyof typeof AI_SIMILARITY_STATUS.CATEGORIES];
-
-// Status Severity
 export type AISimilarityStatusSeverity =
   (typeof AI_SIMILARITY_STATUS.SEVERITY)[keyof typeof AI_SIMILARITY_STATUS.SEVERITY];
-
-// Status Colors
 export type AISimilarityStatusColor =
   (typeof AI_SIMILARITY_STATUS.COLORS)[keyof typeof AI_SIMILARITY_STATUS.COLORS];
 
-// Utility Functions
-export function getSimilarityStatusLabel(status: AISimilarityStatusType): string {
+export function getAiSimilarityStatusLabel(status: AISimilarityStatusType): string {
   const labels: Record<AISimilarityStatusType, string> = {
     [AI_SIMILARITY_STATUS_TYPES.CREATED]: 'Created',
     [AI_SIMILARITY_STATUS_TYPES.QUEUED]: 'Queued',
@@ -127,7 +121,7 @@ export function getSimilarityStatusLabel(status: AISimilarityStatusType): string
   return labels[status] || 'Unknown';
 }
 
-export function getSimilarityStatusCategory(
+export function getAiSimilarityStatusCategory(
   status: AISimilarityStatusType
 ): AISimilarityStatusCategory {
   const categories: Record<AISimilarityStatusType, AISimilarityStatusCategory> = {
@@ -156,7 +150,7 @@ export function getSimilarityStatusCategory(
   return categories[status] || AI_SIMILARITY_STATUS.CATEGORIES.PENDING;
 }
 
-export function getSimilarityStatusSeverity(
+export function getAiSimilarityStatusSeverity(
   status: AISimilarityStatusType
 ): AISimilarityStatusSeverity {
   const severities: Record<AISimilarityStatusType, AISimilarityStatusSeverity> = {
@@ -185,11 +179,13 @@ export function getSimilarityStatusSeverity(
   return severities[status] || AI_SIMILARITY_STATUS.SEVERITY.INFO;
 }
 
-export function getSimilarityStatusColor(status: AISimilarityStatusType): AISimilarityStatusColor {
+export function getAiSimilarityStatusColor(
+  status: AISimilarityStatusType
+): AISimilarityStatusColor {
   return AI_SIMILARITY_STATUS.COLORS[status] || '#gray';
 }
 
-export function isSimilarityActive(status: AISimilarityStatusType): boolean {
+export function isAiSimilarityActiveStatus(status: AISimilarityStatusType): boolean {
   const activeStatuses: AISimilarityStatusType[] = [
     AI_SIMILARITY_STATUS_TYPES.CREATED,
     AI_SIMILARITY_STATUS_TYPES.QUEUED,
@@ -210,7 +206,7 @@ export function isSimilarityActive(status: AISimilarityStatusType): boolean {
   return activeStatuses.includes(status);
 }
 
-export function isSimilarityCompleted(status: AISimilarityStatusType): boolean {
+export function isAiSimilarityCompleted(status: AISimilarityStatusType): boolean {
   const completedStatuses: AISimilarityStatusType[] = [
     AI_SIMILARITY_STATUS_TYPES.COMPLETED,
     AI_SIMILARITY_STATUS_TYPES.STORED,
@@ -220,7 +216,7 @@ export function isSimilarityCompleted(status: AISimilarityStatusType): boolean {
   return completedStatuses.includes(status);
 }
 
-export function isSimilarityFailed(status: AISimilarityStatusType): boolean {
+export function isAiSimilarityFailedStatus(status: AISimilarityStatusType): boolean {
   const failedStatuses: AISimilarityStatusType[] = [
     AI_SIMILARITY_STATUS_TYPES.FAILED,
     AI_SIMILARITY_STATUS_TYPES.EXPIRED,
@@ -228,7 +224,7 @@ export function isSimilarityFailed(status: AISimilarityStatusType): boolean {
   return failedStatuses.includes(status);
 }
 
-export function getSimilarityStatusProgress(status: AISimilarityStatusType): number {
+export function getAiSimilarityStatusProgress(status: AISimilarityStatusType): number {
   const progress: Record<AISimilarityStatusType, number> = {
     [AI_SIMILARITY_STATUS_TYPES.CREATED]: 0,
     [AI_SIMILARITY_STATUS_TYPES.QUEUED]: 5,

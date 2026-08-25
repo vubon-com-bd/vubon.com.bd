@@ -174,48 +174,28 @@ export const AI_PERSONALIZATION = {
   } as const,
 } as const;
 
-// Personalization Types
 export type AIPersonalizationType =
   (typeof AI_PERSONALIZATION.TYPES)[keyof typeof AI_PERSONALIZATION.TYPES];
-
-// Personalization Status
 export type AIPersonalizationStatus =
   (typeof AI_PERSONALIZATION.STATUSES)[keyof typeof AI_PERSONALIZATION.STATUSES];
-
-// Personalization Scopes
 export type AIPersonalizationScope =
   (typeof AI_PERSONALIZATION.SCOPES)[keyof typeof AI_PERSONALIZATION.SCOPES];
-
-// Personalization Strategies
 export type AIPersonalizationStrategy =
   (typeof AI_PERSONALIZATION.STRATEGIES)[keyof typeof AI_PERSONALIZATION.STRATEGIES];
-
-// Personalization Parameters
 export type AIPersonalizationParameter =
   (typeof AI_PERSONALIZATION.PARAMETERS)[keyof typeof AI_PERSONALIZATION.PARAMETERS];
-
-// Personalization Weights
 export type AIPersonalizationWeight =
   (typeof AI_PERSONALIZATION.WEIGHTS)[keyof typeof AI_PERSONALIZATION.WEIGHTS];
-
-// Personalization Limits
 export type AIPersonalizationLimit =
   (typeof AI_PERSONALIZATION.LIMITS)[keyof typeof AI_PERSONALIZATION.LIMITS];
-
-// Personalization Confidence
 export type AIPersonalizationConfidence =
   (typeof AI_PERSONALIZATION.CONFIDENCE)[keyof typeof AI_PERSONALIZATION.CONFIDENCE];
-
-// Personalization Events
 export type AIPersonalizationEvent =
   (typeof AI_PERSONALIZATION.EVENTS)[keyof typeof AI_PERSONALIZATION.EVENTS];
-
-// Personalization Metrics
 export type AIPersonalizationMetric =
   (typeof AI_PERSONALIZATION.METRICS)[keyof typeof AI_PERSONALIZATION.METRICS];
 
-// Utility Functions
-export function getPersonalizationTypeLabel(type: AIPersonalizationType): string {
+export function getAiPersonalizationTypeLabel(type: AIPersonalizationType): string {
   const labels: Record<AIPersonalizationType, string> = {
     [AI_PERSONALIZATION.TYPES.USER_PROFILE]: 'User Profile',
     [AI_PERSONALIZATION.TYPES.BEHAVIORAL]: 'Behavioral',
@@ -232,7 +212,7 @@ export function getPersonalizationTypeLabel(type: AIPersonalizationType): string
   return labels[type] || 'Unknown';
 }
 
-export function getPersonalizationStatusLabel(status: AIPersonalizationStatus): string {
+export function getAiPersonalizationStatusLabel(status: AIPersonalizationStatus): string {
   const labels: Record<AIPersonalizationStatus, string> = {
     [AI_PERSONALIZATION.STATUSES.PENDING]: 'Pending',
     [AI_PERSONALIZATION.STATUSES.INITIALIZING]: 'Initializing',
@@ -250,7 +230,7 @@ export function getPersonalizationStatusLabel(status: AIPersonalizationStatus): 
   return labels[status] || 'Unknown';
 }
 
-export function getPersonalizationScopeLabel(scope: AIPersonalizationScope): string {
+export function getAiPersonalizationScopeLabel(scope: AIPersonalizationScope): string {
   const labels: Record<AIPersonalizationScope, string> = {
     [AI_PERSONALIZATION.SCOPES.GLOBAL]: 'Global',
     [AI_PERSONALIZATION.SCOPES.USER]: 'User',
@@ -275,7 +255,7 @@ export function getPersonalizationScopeLabel(scope: AIPersonalizationScope): str
   return labels[scope] || 'Unknown';
 }
 
-export function getPersonalizationStrategyLabel(strategy: AIPersonalizationStrategy): string {
+export function getAiPersonalizationStrategyLabel(strategy: AIPersonalizationStrategy): string {
   const labels: Record<AIPersonalizationStrategy, string> = {
     [AI_PERSONALIZATION.STRATEGIES.CONTENT_BASED]: 'Content Based',
     [AI_PERSONALIZATION.STRATEGIES.COLLABORATIVE_FILTERING]: 'Collaborative Filtering',
@@ -297,7 +277,7 @@ export function getPersonalizationStrategyLabel(strategy: AIPersonalizationStrat
   return labels[strategy] || 'Unknown';
 }
 
-export function getPersonalizationEventLabel(event: AIPersonalizationEvent): string {
+export function getAiPersonalizationEventLabel(event: AIPersonalizationEvent): string {
   const labels: Record<AIPersonalizationEvent, string> = {
     [AI_PERSONALIZATION.EVENTS.VIEW]: 'View',
     [AI_PERSONALIZATION.EVENTS.CLICK]: 'Click',
@@ -321,7 +301,7 @@ export function getPersonalizationEventLabel(event: AIPersonalizationEvent): str
   return labels[event] || 'Unknown';
 }
 
-export function getPersonalizationMetricLabel(metric: AIPersonalizationMetric): string {
+export function getAiPersonalizationMetricLabel(metric: AIPersonalizationMetric): string {
   const labels: Record<AIPersonalizationMetric, string> = {
     [AI_PERSONALIZATION.METRICS.RELEVANCE]: 'Relevance',
     [AI_PERSONALIZATION.METRICS.ENGAGEMENT]: 'Engagement',
@@ -342,7 +322,7 @@ export function getPersonalizationMetricLabel(metric: AIPersonalizationMetric): 
   return labels[metric] || 'Unknown';
 }
 
-export function isPersonalizationActive(status: AIPersonalizationStatus): boolean {
+export function isAiPersonalizationActive(status: AIPersonalizationStatus): boolean {
   const activeStatuses: AIPersonalizationStatus[] = [
     AI_PERSONALIZATION.STATUSES.PENDING,
     AI_PERSONALIZATION.STATUSES.INITIALIZING,
@@ -354,7 +334,7 @@ export function isPersonalizationActive(status: AIPersonalizationStatus): boolea
   return activeStatuses.includes(status);
 }
 
-export function isPersonalizationComplete(status: AIPersonalizationStatus): boolean {
+export function isAiPersonalizationComplete(status: AIPersonalizationStatus): boolean {
   const completeStatuses: AIPersonalizationStatus[] = [
     AI_PERSONALIZATION.STATUSES.COMPLETED,
     AI_PERSONALIZATION.STATUSES.DELIVERED,
@@ -363,11 +343,11 @@ export function isPersonalizationComplete(status: AIPersonalizationStatus): bool
   return completeStatuses.includes(status);
 }
 
-export function isPersonalizationFailed(status: AIPersonalizationStatus): boolean {
+export function isAiPersonalizationFailed(status: AIPersonalizationStatus): boolean {
   return status === AI_PERSONALIZATION.STATUSES.FAILED;
 }
 
-export function getPersonalizationWeight(strategy: AIPersonalizationStrategy): number {
+export function getAiPersonalizationWeight(strategy: AIPersonalizationStrategy): number {
   const weights: Record<AIPersonalizationStrategy, number> = {
     [AI_PERSONALIZATION.STRATEGIES.CONTENT_BASED]: AI_PERSONALIZATION.WEIGHTS.USER_PROFILE,
     [AI_PERSONALIZATION.STRATEGIES.COLLABORATIVE_FILTERING]:

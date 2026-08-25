@@ -4,7 +4,6 @@
  */
 
 export const AUTH_SSO_STATUS = {
-  // Primary status
   PENDING: 'pending',
   ACTIVE: 'active',
   INACTIVE: 'inactive',
@@ -12,57 +11,49 @@ export const AUTH_SSO_STATUS = {
   REVOKED: 'revoked',
   BLOCKED: 'blocked',
 
-  // Authentication status
   AUTHENTICATED: 'authenticated',
   UNAUTHENTICATED: 'unauthenticated',
   AUTHENTICATION_PENDING: 'authentication_pending',
   AUTHENTICATION_FAILED: 'authentication_failed',
 
-  // SAML specific status
   SAML_RESPONSE_RECEIVED: 'saml_response_received',
   SAML_RESPONSE_VALIDATED: 'saml_response_validated',
   SAML_RESPONSE_INVALID: 'saml_response_invalid',
   SAML_ASSERTION_CREATED: 'saml_assertion_created',
   SAML_ASSERTION_VALIDATED: 'saml_assertion_validated',
 
-  // LDAP specific status
   LDAP_BIND_SUCCESS: 'ldap_bind_success',
   LDAP_BIND_FAILED: 'ldap_bind_failed',
   LDAP_SEARCH_SUCCESS: 'ldap_search_success',
   LDAP_SEARCH_FAILED: 'ldap_search_failed',
 
-  // Kerberos specific status
   KERBEROS_TICKET_ISSUED: 'kerberos_ticket_issued',
   KERBEROS_TICKET_VALIDATED: 'kerberos_ticket_validated',
   KERBEROS_TICKET_EXPIRED: 'kerberos_ticket_expired',
 
-  // Session status
   SESSION_ACTIVE: 'session_active',
   SESSION_EXPIRED: 'session_expired',
   SESSION_TERMINATED: 'session_terminated',
   SESSION_CREATED: 'session_created',
   SESSION_DESTROYED: 'session_destroyed',
 
-  // Logout status
   LOGOUT_INITIATED: 'logout_initiated',
   LOGOUT_SUCCESS: 'logout_success',
   LOGOUT_FAILED: 'logout_failed',
   LOGOUT_PENDING: 'logout_pending',
 
-  // Metadata status
   METADATA_FETCHED: 'metadata_fetched',
   METADATA_FAILED: 'metadata_failed',
   METADATA_PENDING: 'metadata_pending',
 
-  // Security status
   SECURE: 'secure',
   SUSPICIOUS: 'suspicious',
   COMPROMISED: 'compromised',
 } as const;
 
-export type AuthSSOStatus = (typeof AUTH_SSO_STATUS)[keyof typeof AUTH_SSO_STATUS];
+export type AuthssoStatus = (typeof AUTH_SSO_STATUS)[keyof typeof AUTH_SSO_STATUS];
 
-export const ACTIVE_SSO_STATUSES: AuthSSOStatus[] = [
+export const AUTHS_ACTIVE_SSO_STATUSES: AuthssoStatus[] = [
   AUTH_SSO_STATUS.ACTIVE,
   AUTH_SSO_STATUS.AUTHENTICATED,
   AUTH_SSO_STATUS.SAML_RESPONSE_VALIDATED,
@@ -75,7 +66,7 @@ export const ACTIVE_SSO_STATUSES: AuthSSOStatus[] = [
   AUTH_SSO_STATUS.METADATA_FETCHED,
 ];
 
-export const PENDING_SSO_STATUSES: AuthSSOStatus[] = [
+export const AUTHS_PENDING_SSO_STATUSES: AuthssoStatus[] = [
   AUTH_SSO_STATUS.PENDING,
   AUTH_SSO_STATUS.AUTHENTICATION_PENDING,
   AUTH_SSO_STATUS.LOGOUT_PENDING,
@@ -83,7 +74,7 @@ export const PENDING_SSO_STATUSES: AuthSSOStatus[] = [
   AUTH_SSO_STATUS.SAML_RESPONSE_RECEIVED,
 ];
 
-export const INACTIVE_SSO_STATUSES: AuthSSOStatus[] = [
+export const AUTHS_INACTIVE_SSO_STATUSES: AuthssoStatus[] = [
   AUTH_SSO_STATUS.INACTIVE,
   AUTH_SSO_STATUS.EXPIRED,
   AUTH_SSO_STATUS.REVOKED,
@@ -94,7 +85,7 @@ export const INACTIVE_SSO_STATUSES: AuthSSOStatus[] = [
   AUTH_SSO_STATUS.KERBEROS_TICKET_EXPIRED,
 ];
 
-export const FAILED_SSO_STATUSES: AuthSSOStatus[] = [
+export const AUTHS_FAILED_SSO_STATUSES: AuthssoStatus[] = [
   AUTH_SSO_STATUS.AUTHENTICATION_FAILED,
   AUTH_SSO_STATUS.SAML_RESPONSE_INVALID,
   AUTH_SSO_STATUS.LDAP_BIND_FAILED,
@@ -104,12 +95,12 @@ export const FAILED_SSO_STATUSES: AuthSSOStatus[] = [
   AUTH_SSO_STATUS.BLOCKED,
 ];
 
-export const SECURITY_SSO_STATUSES: AuthSSOStatus[] = [
+export const AUTHS_SECURITY_SSO_STATUSES: AuthssoStatus[] = [
   AUTH_SSO_STATUS.SUSPICIOUS,
   AUTH_SSO_STATUS.COMPROMISED,
 ];
 
-export const SAML_SSO_STATUSES: AuthSSOStatus[] = [
+export const AUTHS_SAML_SSO_STATUSES: AuthssoStatus[] = [
   AUTH_SSO_STATUS.SAML_RESPONSE_RECEIVED,
   AUTH_SSO_STATUS.SAML_RESPONSE_VALIDATED,
   AUTH_SSO_STATUS.SAML_RESPONSE_INVALID,
@@ -117,54 +108,54 @@ export const SAML_SSO_STATUSES: AuthSSOStatus[] = [
   AUTH_SSO_STATUS.SAML_ASSERTION_VALIDATED,
 ];
 
-export const LDAP_SSO_STATUSES: AuthSSOStatus[] = [
+export const AUTHS_LDAP_SSO_STATUSES: AuthssoStatus[] = [
   AUTH_SSO_STATUS.LDAP_BIND_SUCCESS,
   AUTH_SSO_STATUS.LDAP_BIND_FAILED,
   AUTH_SSO_STATUS.LDAP_SEARCH_SUCCESS,
   AUTH_SSO_STATUS.LDAP_SEARCH_FAILED,
 ];
 
-export const LOGOUT_SSO_STATUSES: AuthSSOStatus[] = [
+export const AUTHS_LOGOUT_SSO_STATUSES: AuthssoStatus[] = [
   AUTH_SSO_STATUS.LOGOUT_INITIATED,
   AUTH_SSO_STATUS.LOGOUT_SUCCESS,
   AUTH_SSO_STATUS.LOGOUT_FAILED,
   AUTH_SSO_STATUS.LOGOUT_PENDING,
 ];
 
-export function isSSOActive(status: AuthSSOStatus): boolean {
-  return ACTIVE_SSO_STATUSES.includes(status);
+export function isAuthssoActive(status: AuthssoStatus): boolean {
+  return AUTHS_ACTIVE_SSO_STATUSES.includes(status);
 }
 
-export function isSSOPending(status: AuthSSOStatus): boolean {
-  return PENDING_SSO_STATUSES.includes(status);
+export function isAuthssoPending(status: AuthssoStatus): boolean {
+  return AUTHS_PENDING_SSO_STATUSES.includes(status);
 }
 
-export function isSSOInactive(status: AuthSSOStatus): boolean {
-  return INACTIVE_SSO_STATUSES.includes(status);
+export function isAuthssoInactive(status: AuthssoStatus): boolean {
+  return AUTHS_INACTIVE_SSO_STATUSES.includes(status);
 }
 
-export function isSSOFailed(status: AuthSSOStatus): boolean {
-  return FAILED_SSO_STATUSES.includes(status);
+export function isAuthssoFailed(status: AuthssoStatus): boolean {
+  return AUTHS_FAILED_SSO_STATUSES.includes(status);
 }
 
-export function isSSOSecurityIssue(status: AuthSSOStatus): boolean {
-  return SECURITY_SSO_STATUSES.includes(status);
+export function isAuthssoSecurityIssue(status: AuthssoStatus): boolean {
+  return AUTHS_SECURITY_SSO_STATUSES.includes(status);
 }
 
-export function isSAMLStatus(status: AuthSSOStatus): boolean {
-  return SAML_SSO_STATUSES.includes(status);
+export function isAuthssoSAMLStatus(status: AuthssoStatus): boolean {
+  return AUTHS_SAML_SSO_STATUSES.includes(status);
 }
 
-export function isLDAPStatus(status: AuthSSOStatus): boolean {
-  return LDAP_SSO_STATUSES.includes(status);
+export function isAuthssoLDAPStatus(status: AuthssoStatus): boolean {
+  return AUTHS_LDAP_SSO_STATUSES.includes(status);
 }
 
-export function isLogoutStatus(status: AuthSSOStatus): boolean {
-  return LOGOUT_SSO_STATUSES.includes(status);
+export function isAuthssoLogoutStatus(status: AuthssoStatus): boolean {
+  return AUTHS_LOGOUT_SSO_STATUSES.includes(status);
 }
 
-export function getSSOStatusLabel(status: AuthSSOStatus): string {
-  const labels: Record<AuthSSOStatus, string> = {
+export function getAuthssoStatusLabel(status: AuthssoStatus): string {
+  const labels: Record<AuthssoStatus, string> = {
     [AUTH_SSO_STATUS.PENDING]: 'Pending',
     [AUTH_SSO_STATUS.ACTIVE]: 'Active',
     [AUTH_SSO_STATUS.INACTIVE]: 'Inactive',
@@ -207,8 +198,8 @@ export function getSSOStatusLabel(status: AuthSSOStatus): string {
   return labels[status] || 'Unknown Status';
 }
 
-export function getSSOStatusColor(status: AuthSSOStatus): string {
-  const colors: Record<AuthSSOStatus, string> = {
+export function getAuthssoStatusColor(status: AuthssoStatus): string {
+  const colors: Record<AuthssoStatus, string> = {
     [AUTH_SSO_STATUS.PENDING]: '#F59E0B',
     [AUTH_SSO_STATUS.ACTIVE]: '#10B981',
     [AUTH_SSO_STATUS.INACTIVE]: '#6B7280',
@@ -251,8 +242,8 @@ export function getSSOStatusColor(status: AuthSSOStatus): string {
   return colors[status] || '#6B7280';
 }
 
-export function getSSOStatusPriority(status: AuthSSOStatus): number {
-  const priorities: Record<AuthSSOStatus, number> = {
+export function getAuthssoStatusPriority(status: AuthssoStatus): number {
+  const priorities: Record<AuthssoStatus, number> = {
     [AUTH_SSO_STATUS.PENDING]: 5,
     [AUTH_SSO_STATUS.ACTIVE]: 10,
     [AUTH_SSO_STATUS.INACTIVE]: 3,
@@ -295,10 +286,10 @@ export function getSSOStatusPriority(status: AuthSSOStatus): number {
   return priorities[status] || 5;
 }
 
-export function getSSOStatusBadgeType(
-  status: AuthSSOStatus
+export function getAuthssoStatusBadgeType(
+  status: AuthssoStatus
 ): 'success' | 'warning' | 'error' | 'info' | 'default' {
-  const types: Record<AuthSSOStatus, 'success' | 'warning' | 'error' | 'info' | 'default'> = {
+  const types: Record<AuthssoStatus, 'success' | 'warning' | 'error' | 'info' | 'default'> = {
     [AUTH_SSO_STATUS.PENDING]: 'warning',
     [AUTH_SSO_STATUS.ACTIVE]: 'success',
     [AUTH_SSO_STATUS.INACTIVE]: 'default',

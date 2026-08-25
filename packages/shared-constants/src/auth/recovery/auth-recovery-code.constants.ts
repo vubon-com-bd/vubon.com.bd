@@ -9,22 +9,20 @@ export type AuthRecoveryCodeStatus =
   (typeof AUTH_RECOVERY_CODE_STATUS)[keyof typeof AUTH_RECOVERY_CODE_STATUS];
 
 export const AUTH_RECOVERY_CODE = {
-  // Recovery code configuration
   CONFIG: {
     CODE_LENGTH: 8,
     CODE_ALPHABET: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
     CODE_COUNT: 10,
     EXPIRY_DAYS: 365,
     MAX_ATTEMPTS: 3,
-    LOCKOUT_DURATION: 3600, // 1 hour
-    RESEND_COOLDOWN: 300, // 5 minutes
+    LOCKOUT_DURATION: 3600,
+    RESEND_COOLDOWN: 300,
     MAX_GENERATIONS: 5,
     NOTIFY_ON_USE: true,
     NOTIFY_ON_GENERATE: true,
     REQUIRE_CONFIRMATION: true,
   },
 
-  // Recovery code types
   TYPES: {
     BACKUP: 'backup',
     RECOVERY: 'recovery',
@@ -34,7 +32,6 @@ export const AUTH_RECOVERY_CODE = {
     PERMANENT: 'permanent',
   },
 
-  // Recovery code events
   EVENTS: {
     GENERATED: 'recovery_code:generated',
     USED: 'recovery_code:used',
@@ -47,7 +44,6 @@ export const AUTH_RECOVERY_CODE = {
     REPLACED: 'recovery_code:replaced',
   },
 
-  // Default values
   DEFAULTS: {
     STATUS: 'active' as const,
     TYPE: 'backup' as const,
@@ -56,7 +52,6 @@ export const AUTH_RECOVERY_CODE = {
     EXPIRY_DAYS: 365,
   },
 
-  // Validation rules
   VALIDATION: {
     MIN_CODE_LENGTH: 6,
     MAX_CODE_LENGTH: 16,
@@ -75,7 +70,7 @@ export type AuthRecoveryCodeEvent =
 export type AuthRecoveryCodeDefaults = typeof AUTH_RECOVERY_CODE.DEFAULTS;
 export type AuthRecoveryCodeValidation = typeof AUTH_RECOVERY_CODE.VALIDATION;
 
-export const RECOVERY_CODE_TYPES_LIST: AuthRecoveryCodeType[] = [
+export const AUTHRECOVERY_CODE_TYPES_LIST: AuthRecoveryCodeType[] = [
   AUTH_RECOVERY_CODE.TYPES.BACKUP,
   AUTH_RECOVERY_CODE.TYPES.RECOVERY,
   AUTH_RECOVERY_CODE.TYPES.EMERGENCY,
@@ -84,50 +79,50 @@ export const RECOVERY_CODE_TYPES_LIST: AuthRecoveryCodeType[] = [
   AUTH_RECOVERY_CODE.TYPES.PERMANENT,
 ];
 
-export const SINGLE_USE_RECOVERY_TYPES: AuthRecoveryCodeType[] = [
+export const AUTHRECOVERY_SINGLE_USE_TYPES: AuthRecoveryCodeType[] = [
   AUTH_RECOVERY_CODE.TYPES.ONE_TIME,
   AUTH_RECOVERY_CODE.TYPES.TEMPORARY,
 ];
 
-export const MULTI_USE_RECOVERY_TYPES: AuthRecoveryCodeType[] = [
+export const AUTHRECOVERY_MULTI_USE_TYPES: AuthRecoveryCodeType[] = [
   AUTH_RECOVERY_CODE.TYPES.BACKUP,
   AUTH_RECOVERY_CODE.TYPES.RECOVERY,
   AUTH_RECOVERY_CODE.TYPES.EMERGENCY,
   AUTH_RECOVERY_CODE.TYPES.PERMANENT,
 ];
 
-export const TEMPORARY_RECOVERY_TYPES: AuthRecoveryCodeType[] = [
+export const AUTHRECOVERY_TEMPORARY_TYPES: AuthRecoveryCodeType[] = [
   AUTH_RECOVERY_CODE.TYPES.TEMPORARY,
   AUTH_RECOVERY_CODE.TYPES.ONE_TIME,
 ];
 
-export const PERMANENT_RECOVERY_TYPES: AuthRecoveryCodeType[] = [
+export const AUTHRECOVERY_PERMANENT_TYPES: AuthRecoveryCodeType[] = [
   AUTH_RECOVERY_CODE.TYPES.PERMANENT,
   AUTH_RECOVERY_CODE.TYPES.BACKUP,
   AUTH_RECOVERY_CODE.TYPES.RECOVERY,
 ];
 
-export function isRecoveryCodeType(type: string): type is AuthRecoveryCodeType {
-  return RECOVERY_CODE_TYPES_LIST.includes(type as AuthRecoveryCodeType);
+export function isAuthrecoveryCodeType(type: string): type is AuthRecoveryCodeType {
+  return AUTHRECOVERY_CODE_TYPES_LIST.includes(type as AuthRecoveryCodeType);
 }
 
-export function isSingleUseRecoveryType(type: AuthRecoveryCodeType): boolean {
-  return SINGLE_USE_RECOVERY_TYPES.includes(type);
+export function isAuthrecoverySingleUseType(type: AuthRecoveryCodeType): boolean {
+  return AUTHRECOVERY_SINGLE_USE_TYPES.includes(type);
 }
 
-export function isMultiUseRecoveryType(type: AuthRecoveryCodeType): boolean {
-  return MULTI_USE_RECOVERY_TYPES.includes(type);
+export function isAuthrecoveryMultiUseType(type: AuthRecoveryCodeType): boolean {
+  return AUTHRECOVERY_MULTI_USE_TYPES.includes(type);
 }
 
-export function isTemporaryRecoveryType(type: AuthRecoveryCodeType): boolean {
-  return TEMPORARY_RECOVERY_TYPES.includes(type);
+export function isAuthrecoveryTemporaryType(type: AuthRecoveryCodeType): boolean {
+  return AUTHRECOVERY_TEMPORARY_TYPES.includes(type);
 }
 
-export function isPermanentRecoveryType(type: AuthRecoveryCodeType): boolean {
-  return PERMANENT_RECOVERY_TYPES.includes(type);
+export function isAuthrecoveryPermanentType(type: AuthRecoveryCodeType): boolean {
+  return AUTHRECOVERY_PERMANENT_TYPES.includes(type);
 }
 
-export function getRecoveryCodeTypeLabel(type: AuthRecoveryCodeType): string {
+export function getAuthrecoveryCodeTypeLabel(type: AuthRecoveryCodeType): string {
   const labels: Record<AuthRecoveryCodeType, string> = {
     [AUTH_RECOVERY_CODE.TYPES.BACKUP]: 'Backup Code',
     [AUTH_RECOVERY_CODE.TYPES.RECOVERY]: 'Recovery Code',
@@ -140,7 +135,7 @@ export function getRecoveryCodeTypeLabel(type: AuthRecoveryCodeType): string {
   return labels[type] || 'Unknown Code Type';
 }
 
-export function getRecoveryCodeTypeIcon(type: AuthRecoveryCodeType): string {
+export function getAuthrecoveryCodeTypeIcon(type: AuthRecoveryCodeType): string {
   const icons: Record<AuthRecoveryCodeType, string> = {
     [AUTH_RECOVERY_CODE.TYPES.BACKUP]: '🔑',
     [AUTH_RECOVERY_CODE.TYPES.RECOVERY]: '🔐',
@@ -153,7 +148,7 @@ export function getRecoveryCodeTypeIcon(type: AuthRecoveryCodeType): string {
   return icons[type] || '🔑';
 }
 
-export function getRecoveryCodeTypePriority(type: AuthRecoveryCodeType): number {
+export function getAuthrecoveryCodeTypePriority(type: AuthRecoveryCodeType): number {
   const priorities: Record<AuthRecoveryCodeType, number> = {
     [AUTH_RECOVERY_CODE.TYPES.BACKUP]: 3,
     [AUTH_RECOVERY_CODE.TYPES.RECOVERY]: 2,
@@ -166,39 +161,39 @@ export function getRecoveryCodeTypePriority(type: AuthRecoveryCodeType): number 
   return priorities[type] || 3;
 }
 
-export function getRecoveryCodeConfig() {
+export function getAuthrecoveryCodeConfig() {
   return AUTH_RECOVERY_CODE.CONFIG;
 }
 
-export function getRecoveryCodeLength(): number {
+export function getAuthrecoveryCodeLength(): number {
   return AUTH_RECOVERY_CODE.CONFIG.CODE_LENGTH;
 }
 
-export function getRecoveryCodeCount(): number {
+export function getAuthrecoveryCodeCount(): number {
   return AUTH_RECOVERY_CODE.CONFIG.CODE_COUNT;
 }
 
-export function getRecoveryCodeExpiryDays(): number {
+export function getAuthrecoveryCodeExpiryDays(): number {
   return AUTH_RECOVERY_CODE.CONFIG.EXPIRY_DAYS;
 }
 
-export function getRecoveryCodeMaxAttempts(): number {
+export function getAuthrecoveryCodeMaxAttempts(): number {
   return AUTH_RECOVERY_CODE.CONFIG.MAX_ATTEMPTS;
 }
 
-export function getRecoveryCodeLockoutDuration(): number {
+export function getAuthrecoveryCodeLockoutDuration(): number {
   return AUTH_RECOVERY_CODE.CONFIG.LOCKOUT_DURATION;
 }
 
-export function getRecoveryCodeResendCooldown(): number {
+export function getAuthrecoveryCodeResendCooldown(): number {
   return AUTH_RECOVERY_CODE.CONFIG.RESEND_COOLDOWN;
 }
 
-export function getRecoveryCodeMaxGenerations(): number {
+export function getAuthrecoveryCodeMaxGenerations(): number {
   return AUTH_RECOVERY_CODE.CONFIG.MAX_GENERATIONS;
 }
 
-export function generateRecoveryCode(): string {
+export function generateAuthrecoveryCode(): string {
   const alphabet = AUTH_RECOVERY_CODE.CONFIG.CODE_ALPHABET;
   const length = AUTH_RECOVERY_CODE.CONFIG.CODE_LENGTH;
   let code = '';
@@ -211,38 +206,38 @@ export function generateRecoveryCode(): string {
   return code;
 }
 
-export function generateRecoveryCodes(count: number): string[] {
+export function generateAuthrecoveryCodes(count: number): string[] {
   const codes: string[] = [];
   const maxCount = Math.min(count, AUTH_RECOVERY_CODE.CONFIG.CODE_COUNT);
 
   for (let i = 0; i < maxCount; i++) {
-    codes.push(generateRecoveryCode());
+    codes.push(generateAuthrecoveryCode());
   }
 
   return codes;
 }
 
-export function isRecoveryCodeValid(code: string): boolean {
+export function isAuthrecoveryCodeValid(code: string): boolean {
   const pattern = new RegExp(
     `^[${AUTH_RECOVERY_CODE.CONFIG.CODE_ALPHABET}]{${AUTH_RECOVERY_CODE.CONFIG.CODE_LENGTH}}$`
   );
   return pattern.test(code);
 }
 
-export function isRecoveryCodeExpired(createdAt: Date): boolean {
+export function isAuthrecoveryCodeExpired(createdAt: Date): boolean {
   const expiryTime = AUTH_RECOVERY_CODE.CONFIG.EXPIRY_DAYS * 24 * 60 * 60 * 1000;
   const age = Date.now() - createdAt.getTime();
   return age > expiryTime;
 }
 
-export function getRecoveryCodeRemainingDays(createdAt: Date): number {
+export function getAuthrecoveryCodeRemainingDays(createdAt: Date): number {
   const expiryTime = AUTH_RECOVERY_CODE.CONFIG.EXPIRY_DAYS * 24 * 60 * 60 * 1000;
   const age = Date.now() - createdAt.getTime();
   const remaining = expiryTime - age;
   return Math.max(0, Math.ceil(remaining / (24 * 60 * 60 * 1000)));
 }
 
-export function getRecoveryCodeStatus(
+export function getAuthrecoveryCodeStatus(
   createdAt: Date,
   usedAt: Date | null,
   attempts: number
@@ -251,7 +246,7 @@ export function getRecoveryCodeStatus(
     return AUTH_RECOVERY_CODE_STATUS.USED;
   }
 
-  if (isRecoveryCodeExpired(createdAt)) {
+  if (isAuthrecoveryCodeExpired(createdAt)) {
     return AUTH_RECOVERY_CODE_STATUS.EXPIRED;
   }
 
@@ -262,7 +257,7 @@ export function getRecoveryCodeStatus(
   return AUTH_RECOVERY_CODE_STATUS.ACTIVE;
 }
 
-export function getRecoveryCodeStatusLabel(status: AuthRecoveryCodeStatus): string {
+export function getAuthrecoveryCodeStatusLabel(status: AuthRecoveryCodeStatus): string {
   const labels: Record<AuthRecoveryCodeStatus, string> = {
     [AUTH_RECOVERY_CODE_STATUS.ACTIVE]: 'Active',
     [AUTH_RECOVERY_CODE_STATUS.USED]: 'Used',
@@ -286,7 +281,7 @@ export function getRecoveryCodeStatusLabel(status: AuthRecoveryCodeStatus): stri
   return labels[status] || 'Unknown Status';
 }
 
-export function getRecoveryCodeStatusColor(status: AuthRecoveryCodeStatus): string {
+export function getAuthrecoveryCodeStatusColor(status: AuthRecoveryCodeStatus): string {
   const colors: Record<AuthRecoveryCodeStatus, string> = {
     [AUTH_RECOVERY_CODE_STATUS.ACTIVE]: '#10B981',
     [AUTH_RECOVERY_CODE_STATUS.USED]: '#6B7280',

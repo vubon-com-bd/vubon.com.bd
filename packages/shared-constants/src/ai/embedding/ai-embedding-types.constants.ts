@@ -94,32 +94,20 @@ export const AI_EMBEDDING_TYPE = {
   } as const,
 } as const;
 
-// Embedding Categories
 export type AIEmbeddingCategory =
   (typeof AI_EMBEDDING_TYPE.CATEGORIES)[keyof typeof AI_EMBEDDING_TYPE.CATEGORIES];
-
-// Embedding Sub-Types
 export type AIEmbeddingSubType =
   (typeof AI_EMBEDDING_TYPE.SUB_TYPES)[keyof typeof AI_EMBEDDING_TYPE.SUB_TYPES];
-
-// Embedding Dimension Types
 export type AIEmbeddingDimensionType =
   (typeof AI_EMBEDDING_TYPE.DIMENSION_TYPES)[keyof typeof AI_EMBEDDING_TYPE.DIMENSION_TYPES];
-
-// Embedding Training Methods
 export type AIEmbeddingTrainingMethod =
   (typeof AI_EMBEDDING_TYPE.TRAINING_METHODS)[keyof typeof AI_EMBEDDING_TYPE.TRAINING_METHODS];
-
-// Embedding Quality
 export type AIEmbeddingQuality =
   (typeof AI_EMBEDDING_TYPE.QUALITY)[keyof typeof AI_EMBEDDING_TYPE.QUALITY];
-
-// Embedding Usage
 export type AIEmbeddingUsage =
   (typeof AI_EMBEDDING_TYPE.USAGE)[keyof typeof AI_EMBEDDING_TYPE.USAGE];
 
-// Utility Functions
-export function getEmbeddingCategoryLabel(category: AIEmbeddingCategory): string {
+export function getAiEmbeddingCategoryLabel(category: AIEmbeddingCategory): string {
   const labels: Record<AIEmbeddingCategory, string> = {
     [AI_EMBEDDING_TYPE.CATEGORIES.DENSE]: 'Dense',
     [AI_EMBEDDING_TYPE.CATEGORIES.SPARSE]: 'Sparse',
@@ -133,7 +121,7 @@ export function getEmbeddingCategoryLabel(category: AIEmbeddingCategory): string
   return labels[category] || 'Unknown';
 }
 
-export function getEmbeddingSubTypeLabel(subType: AIEmbeddingSubType): string {
+export function getAiEmbeddingSubTypeLabel(subType: AIEmbeddingSubType): string {
   const labels: Record<AIEmbeddingSubType, string> = {
     [AI_EMBEDDING_TYPE.SUB_TYPES.WORD_EMBEDDING]: 'Word Embedding',
     [AI_EMBEDDING_TYPE.SUB_TYPES.SENTENCE_EMBEDDING]: 'Sentence Embedding',
@@ -161,7 +149,7 @@ export function getEmbeddingSubTypeLabel(subType: AIEmbeddingSubType): string {
   return labels[subType] || 'Unknown';
 }
 
-export function getEmbeddingDimensionTypeLabel(dimType: AIEmbeddingDimensionType): string {
+export function getAiEmbeddingDimensionTypeLabel(dimType: AIEmbeddingDimensionType): string {
   const labels: Record<AIEmbeddingDimensionType, string> = {
     [AI_EMBEDDING_TYPE.DIMENSION_TYPES.LOW]: 'Low (50-100)',
     [AI_EMBEDDING_TYPE.DIMENSION_TYPES.MEDIUM]: 'Medium (100-300)',
@@ -171,7 +159,7 @@ export function getEmbeddingDimensionTypeLabel(dimType: AIEmbeddingDimensionType
   return labels[dimType] || 'Unknown';
 }
 
-export function getEmbeddingTrainingMethodLabel(method: AIEmbeddingTrainingMethod): string {
+export function getAiEmbeddingTrainingMethodLabel(method: AIEmbeddingTrainingMethod): string {
   const labels: Record<AIEmbeddingTrainingMethod, string> = {
     [AI_EMBEDDING_TYPE.TRAINING_METHODS.WORD2VEC]: 'Word2Vec',
     [AI_EMBEDDING_TYPE.TRAINING_METHODS.GLOVE]: 'GloVe',
@@ -185,7 +173,7 @@ export function getEmbeddingTrainingMethodLabel(method: AIEmbeddingTrainingMetho
   return labels[method] || 'Unknown';
 }
 
-export function getEmbeddingQualityLabel(quality: AIEmbeddingQuality): string {
+export function getAiEmbeddingQualityLabel(quality: AIEmbeddingQuality): string {
   const labels: Record<AIEmbeddingQuality, string> = {
     [AI_EMBEDDING_TYPE.QUALITY.LOW]: 'Low',
     [AI_EMBEDDING_TYPE.QUALITY.MEDIUM]: 'Medium',
@@ -195,7 +183,7 @@ export function getEmbeddingQualityLabel(quality: AIEmbeddingQuality): string {
   return labels[quality] || 'Unknown';
 }
 
-export function getEmbeddingUsageLabel(usage: AIEmbeddingUsage): string {
+export function getAiEmbeddingUsageLabel(usage: AIEmbeddingUsage): string {
   const labels: Record<AIEmbeddingUsage, string> = {
     [AI_EMBEDDING_TYPE.USAGE.SEARCH]: 'Search',
     [AI_EMBEDDING_TYPE.USAGE.RECOMMENDATION]: 'Recommendation',
@@ -209,7 +197,7 @@ export function getEmbeddingUsageLabel(usage: AIEmbeddingUsage): string {
   return labels[usage] || 'Unknown';
 }
 
-export function getDimensionRange(dimType: AIEmbeddingDimensionType): [number, number] {
+export function getAiEmbeddingDimensionRange(dimType: AIEmbeddingDimensionType): [number, number] {
   const ranges: Record<AIEmbeddingDimensionType, [number, number]> = {
     [AI_EMBEDDING_TYPE.DIMENSION_TYPES.LOW]: [50, 100],
     [AI_EMBEDDING_TYPE.DIMENSION_TYPES.MEDIUM]: [100, 300],
@@ -219,7 +207,7 @@ export function getDimensionRange(dimType: AIEmbeddingDimensionType): [number, n
   return ranges[dimType] || [0, 0];
 }
 
-export function getQualityScore(quality: AIEmbeddingQuality): number {
+export function getAiEmbeddingQualityScore(quality: AIEmbeddingQuality): number {
   const scores: Record<AIEmbeddingQuality, number> = {
     [AI_EMBEDDING_TYPE.QUALITY.LOW]: 0.3,
     [AI_EMBEDDING_TYPE.QUALITY.MEDIUM]: 0.6,

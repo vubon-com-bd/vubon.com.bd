@@ -16,7 +16,6 @@ export const AUTH_MFA_LEVEL = {
 } as const;
 
 export const AUTH_MFA = {
-  // MFA configuration
   CONFIG: {
     TOTP: {
       ALGORITHM: 'SHA1',
@@ -29,15 +28,15 @@ export const AUTH_MFA = {
     },
     SMS: {
       CODE_LENGTH: 6,
-      EXPIRY_TIME: 300, // 5 minutes
+      EXPIRY_TIME: 300,
       MAX_ATTEMPTS: 3,
-      RESEND_COOLDOWN: 60, // 1 minute
+      RESEND_COOLDOWN: 60,
     },
     EMAIL: {
       CODE_LENGTH: 6,
-      EXPIRY_TIME: 600, // 10 minutes
+      EXPIRY_TIME: 600,
       MAX_ATTEMPTS: 3,
-      RESEND_COOLDOWN: 120, // 2 minutes
+      RESEND_COOLDOWN: 120,
     },
     BACKUP_CODE: {
       CODE_LENGTH: 8,
@@ -47,12 +46,11 @@ export const AUTH_MFA = {
     },
     BIOMETRIC: {
       MAX_DEVICES: 5,
-      SESSION_TIMEOUT: 300, // 5 minutes
-      REAUTHENTICATION_INTERVAL: 3600, // 1 hour
+      SESSION_TIMEOUT: 300,
+      REAUTHENTICATION_INTERVAL: 3600,
     },
   },
 
-  // MFA methods
   METHODS: {
     TOTP: 'totp',
     SMS: 'sms',
@@ -64,10 +62,8 @@ export const AUTH_MFA = {
     RECOVERY_CODE: 'recovery_code',
   },
 
-  // MFA levels
   LEVELS: AUTH_MFA_LEVEL,
 
-  // MFA events
   EVENTS: {
     ENABLED: 'mfa:enabled',
     DISABLED: 'mfa:disabled',
@@ -81,7 +77,6 @@ export const AUTH_MFA = {
     DEVICE_REMOVED: 'mfa:device-removed',
   },
 
-  // Default values
   DEFAULTS: {
     TYPE: AUTH_MFA_TYPE.TOTP,
     STATUS: AUTH_MFA_STATUS.DISABLED,
@@ -96,7 +91,7 @@ export type AuthMFALevel = (typeof AUTH_MFA_LEVEL)[keyof typeof AUTH_MFA_LEVEL];
 export type AuthMFAEvent = (typeof AUTH_MFA.EVENTS)[keyof typeof AUTH_MFA.EVENTS];
 export type AuthMFADefaults = typeof AUTH_MFA.DEFAULTS;
 
-export const MFA_METHODS_LIST: AuthMFAMethod[] = [
+export const AUTHMFA_METHODS_LIST: AuthMFAMethod[] = [
   AUTH_MFA.METHODS.TOTP,
   AUTH_MFA.METHODS.SMS,
   AUTH_MFA.METHODS.EMAIL,
@@ -107,12 +102,12 @@ export const MFA_METHODS_LIST: AuthMFAMethod[] = [
   AUTH_MFA.METHODS.RECOVERY_CODE,
 ];
 
-export const REQUIRED_MFA_METHODS: AuthMFAMethod[] = [
+export const AUTHMFA_REQUIRED_METHODS: AuthMFAMethod[] = [
   AUTH_MFA.METHODS.TOTP,
   AUTH_MFA.METHODS.BACKUP_CODE,
 ];
 
-export const OPTIONAL_MFA_METHODS: AuthMFAMethod[] = [
+export const AUTHMFA_OPTIONAL_METHODS: AuthMFAMethod[] = [
   AUTH_MFA.METHODS.SMS,
   AUTH_MFA.METHODS.EMAIL,
   AUTH_MFA.METHODS.BIOMETRIC,
@@ -121,19 +116,19 @@ export const OPTIONAL_MFA_METHODS: AuthMFAMethod[] = [
   AUTH_MFA.METHODS.RECOVERY_CODE,
 ];
 
-export function isMFAMethod(method: string): method is AuthMFAMethod {
-  return MFA_METHODS_LIST.includes(method as AuthMFAMethod);
+export function isAuthmfaMethod(method: string): method is AuthMFAMethod {
+  return AUTHMFA_METHODS_LIST.includes(method as AuthMFAMethod);
 }
 
-export function isRequiredMFAMethod(method: AuthMFAMethod): boolean {
-  return REQUIRED_MFA_METHODS.includes(method);
+export function isAuthmfaRequiredMethod(method: AuthMFAMethod): boolean {
+  return AUTHMFA_REQUIRED_METHODS.includes(method);
 }
 
-export function isOptionalMFAMethod(method: AuthMFAMethod): boolean {
-  return OPTIONAL_MFA_METHODS.includes(method);
+export function isAuthmfaOptionalMethod(method: AuthMFAMethod): boolean {
+  return AUTHMFA_OPTIONAL_METHODS.includes(method);
 }
 
-export function getMFAMethodLabel(method: AuthMFAMethod): string {
+export function getAuthmfaMethodLabel(method: AuthMFAMethod): string {
   const labels: Record<AuthMFAMethod, string> = {
     [AUTH_MFA.METHODS.TOTP]: 'Authenticator App (TOTP)',
     [AUTH_MFA.METHODS.SMS]: 'SMS Verification',
@@ -148,7 +143,7 @@ export function getMFAMethodLabel(method: AuthMFAMethod): string {
   return labels[method] || 'Unknown Method';
 }
 
-export function getMFAMethodSecurityLevel(method: AuthMFAMethod): AuthMFALevel {
+export function getAuthmfaMethodSecurityLevel(method: AuthMFAMethod): AuthMFALevel {
   const levels: Record<AuthMFAMethod, AuthMFALevel> = {
     [AUTH_MFA.METHODS.TOTP]: AUTH_MFA_LEVEL.HIGH,
     [AUTH_MFA.METHODS.SMS]: AUTH_MFA_LEVEL.STANDARD,
@@ -163,7 +158,7 @@ export function getMFAMethodSecurityLevel(method: AuthMFAMethod): AuthMFALevel {
   return levels[method] || AUTH_MFA_LEVEL.NONE;
 }
 
-export function getMFALevelLabel(level: AuthMFALevel): string {
+export function getAuthmfaLevelLabel(level: AuthMFALevel): string {
   const labels: Record<AuthMFALevel, string> = {
     [AUTH_MFA_LEVEL.NONE]: 'None',
     [AUTH_MFA_LEVEL.BASIC]: 'Basic',
@@ -176,7 +171,7 @@ export function getMFALevelLabel(level: AuthMFALevel): string {
   return labels[level] || 'Unknown';
 }
 
-export function getMFAMethodIcon(method: AuthMFAMethod): string {
+export function getAuthmfaMethodIcon(method: AuthMFAMethod): string {
   const icons: Record<AuthMFAMethod, string> = {
     [AUTH_MFA.METHODS.TOTP]: '📱',
     [AUTH_MFA.METHODS.SMS]: '📲',
@@ -191,62 +186,62 @@ export function getMFAMethodIcon(method: AuthMFAMethod): string {
   return icons[method] || '🔒';
 }
 
-export function getTOTPConfig() {
+export function getAuthmfaTOTPConfig() {
   return AUTH_MFA.CONFIG.TOTP;
 }
 
-export function getSMSConfig() {
+export function getAuthmfaSMSConfig() {
   return AUTH_MFA.CONFIG.SMS;
 }
 
-export function getEmailConfig() {
+export function getAuthmfaEmailConfig() {
   return AUTH_MFA.CONFIG.EMAIL;
 }
 
-export function getBackupCodeConfig() {
+export function getAuthmfaBackupCodeConfig() {
   return AUTH_MFA.CONFIG.BACKUP_CODE;
 }
 
-export function getBiometricConfig() {
+export function getAuthmfaBiometricConfig() {
   return AUTH_MFA.CONFIG.BIOMETRIC;
 }
 
-export function getBackupCodesCount(): number {
+export function getAuthmfaBackupCodesCount(): number {
   return AUTH_MFA.CONFIG.BACKUP_CODE.COUNT;
 }
 
-export function getBackupCodeLength(): number {
+export function getAuthmfaBackupCodeLength(): number {
   return AUTH_MFA.CONFIG.BACKUP_CODE.CODE_LENGTH;
 }
 
-export function getTOTPPeriod(): number {
+export function getAuthmfaTOTPPeriod(): number {
   return AUTH_MFA.CONFIG.TOTP.PERIOD;
 }
 
-export function getTOTPDigits(): number {
+export function getAuthmfaTOTPDigits(): number {
   return AUTH_MFA.CONFIG.TOTP.DIGITS;
 }
 
-export function getTOTPWindow(): number {
+export function getAuthmfaTOTPWindow(): number {
   return AUTH_MFA.CONFIG.TOTP.WINDOW;
 }
 
-export function getMFACodeExpiry(method: AuthMFAMethod): number {
+export function getAuthmfaCodeExpiry(method: AuthMFAMethod): number {
   const expiryMap: Record<AuthMFAMethod, number> = {
     [AUTH_MFA.METHODS.TOTP]: AUTH_MFA.CONFIG.TOTP.PERIOD,
     [AUTH_MFA.METHODS.SMS]: AUTH_MFA.CONFIG.SMS.EXPIRY_TIME,
     [AUTH_MFA.METHODS.EMAIL]: AUTH_MFA.CONFIG.EMAIL.EXPIRY_TIME,
     [AUTH_MFA.METHODS.BACKUP_CODE]: AUTH_MFA.CONFIG.BACKUP_CODE.EXPIRY_DAYS * 86400,
     [AUTH_MFA.METHODS.BIOMETRIC]: AUTH_MFA.CONFIG.BIOMETRIC.SESSION_TIMEOUT,
-    [AUTH_MFA.METHODS.PUSH_NOTIFICATION]: 300, // 5 minutes
-    [AUTH_MFA.METHODS.HARDWARE_TOKEN]: 300, // 5 minutes
-    [AUTH_MFA.METHODS.RECOVERY_CODE]: 86400, // 24 hours
+    [AUTH_MFA.METHODS.PUSH_NOTIFICATION]: 300,
+    [AUTH_MFA.METHODS.HARDWARE_TOKEN]: 300,
+    [AUTH_MFA.METHODS.RECOVERY_CODE]: 86400,
   };
 
   return expiryMap[method] || 300;
 }
 
-export function getMFAMaxAttempts(method: AuthMFAMethod): number {
+export function getAuthmfaMaxAttempts(method: AuthMFAMethod): number {
   const attemptsMap: Record<AuthMFAMethod, number> = {
     [AUTH_MFA.METHODS.TOTP]: 5,
     [AUTH_MFA.METHODS.SMS]: AUTH_MFA.CONFIG.SMS.MAX_ATTEMPTS,

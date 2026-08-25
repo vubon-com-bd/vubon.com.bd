@@ -6,7 +6,6 @@
 import { AUTH_SOCIAL_PROVIDER } from './auth-social-provider.constants';
 import { AUTH_SOCIAL_STATUS } from './auth-social-status.constants';
 
-// Define PROVIDER_CONFIGS first
 export const SOCIAL_PROVIDER_CONFIGS = {
   google: {
     clientId: 'google_client_id',
@@ -66,15 +65,12 @@ export const SOCIAL_PROVIDER_CONFIGS = {
   },
 } as const;
 
-// Define SOCIAL_CONFIG
 export const SOCIAL_CONFIG = {
-  // Default scopes
   SCOPES: {
     BASIC: ['profile', 'email'],
     FULL: ['profile', 'email', 'phone', 'address'],
   },
 
-  // OAuth2 configuration
   OAUTH2: {
     RESPONSE_TYPE: 'code',
     GRANT_TYPE: 'authorization_code',
@@ -83,20 +79,17 @@ export const SOCIAL_CONFIG = {
     AUTHORIZATION_ENDPOINT: '/oauth/authorize',
   },
 
-  // Session configuration
   SESSION: {
     MAX_AGE: 3600,
     EXTEND_ON_ACTIVITY: true,
   },
 
-  // Rate limiting
   RATE_LIMIT: {
     MAX_ATTEMPTS: 5,
     WINDOW_MS: 900000,
     BLOCK_DURATION: 3600000,
   },
 
-  // Security
   SECURITY: {
     STATE_EXPIRY: 300,
     CODE_EXPIRY: 600,
@@ -107,14 +100,12 @@ export const SOCIAL_CONFIG = {
     REQUIRE_VERIFICATION: true,
   },
 
-  // Account linking
   ACCOUNT_LINKING: {
     AUTO_LINK: true,
     REQUIRE_CONFIRMATION: false,
     MAX_LINKED_ACCOUNTS: 5,
   },
 
-  // Default values
   DEFAULTS: {
     STATUS: AUTH_SOCIAL_STATUS.PENDING,
     PROVIDER: AUTH_SOCIAL_PROVIDER.GOOGLE,
@@ -123,7 +114,6 @@ export const SOCIAL_CONFIG = {
   },
 } as const;
 
-// Define SOCIAL_EVENTS
 export const SOCIAL_EVENTS = {
   AUTH_STARTED: 'social:auth_started',
   AUTH_SUCCESS: 'social:auth_success',
@@ -138,7 +128,6 @@ export const SOCIAL_EVENTS = {
   PROFILE_UPDATED: 'social:profile_updated',
 } as const;
 
-// Main AUTH_SOCIAL object
 export const AUTH_SOCIAL = {
   CONFIG: SOCIAL_CONFIG,
   PROVIDERS: AUTH_SOCIAL_PROVIDER,
@@ -153,7 +142,7 @@ export type AuthSocialDefaults = typeof SOCIAL_CONFIG.DEFAULTS;
 export type SocialProviderConfig =
   (typeof SOCIAL_PROVIDER_CONFIGS)[keyof typeof SOCIAL_PROVIDER_CONFIGS];
 
-export function getProviderConfig(
+export function getAuthsocialProviderConfig(
   provider: keyof typeof SOCIAL_PROVIDER_CONFIGS
 ): SocialProviderConfig {
   const config = SOCIAL_PROVIDER_CONFIGS[provider];
@@ -163,28 +152,32 @@ export function getProviderConfig(
   return config;
 }
 
-export function getProviderScopes(
+export function getAuthsocialProviderScopes(
   provider: keyof typeof SOCIAL_PROVIDER_CONFIGS
 ): readonly string[] {
-  const config = getProviderConfig(provider);
+  const config = getAuthsocialProviderConfig(provider);
   return config.scope;
 }
 
-export function getProviderRedirectUri(provider: keyof typeof SOCIAL_PROVIDER_CONFIGS): string {
-  const config = getProviderConfig(provider);
+export function getAuthsocialProviderRedirectUri(
+  provider: keyof typeof SOCIAL_PROVIDER_CONFIGS
+): string {
+  const config = getAuthsocialProviderConfig(provider);
   return config.redirectUri;
 }
 
-export function getProviderClientId(provider: keyof typeof SOCIAL_PROVIDER_CONFIGS): string {
-  const config = getProviderConfig(provider);
+export function getAuthsocialProviderClientId(
+  provider: keyof typeof SOCIAL_PROVIDER_CONFIGS
+): string {
+  const config = getAuthsocialProviderConfig(provider);
   return config.clientId;
 }
 
-export function getSocialAuthUrl(
+export function getAuthsocialAuthUrl(
   provider: keyof typeof SOCIAL_PROVIDER_CONFIGS,
   state: string
 ): string {
-  const config = getProviderConfig(provider);
+  const config = getAuthsocialProviderConfig(provider);
   const baseUrl = `https://${String(provider)}.com`;
   const params = new URLSearchParams({
     client_id: config.clientId,
@@ -197,16 +190,15 @@ export function getSocialAuthUrl(
   return `${baseUrl}/oauth/authorize?${params.toString()}`;
 }
 
-export function isSocialProviderSupported(provider: string): boolean {
+export function isAuthsocialProviderSupported(provider: string): boolean {
   return Object.keys(SOCIAL_PROVIDER_CONFIGS).includes(provider);
 }
 
-export function getSupportedProviders(): (keyof typeof SOCIAL_PROVIDER_CONFIGS)[] {
+export function getAuthsocialSupportedProviders(): (keyof typeof SOCIAL_PROVIDER_CONFIGS)[] {
   return Object.keys(SOCIAL_PROVIDER_CONFIGS) as (keyof typeof SOCIAL_PROVIDER_CONFIGS)[];
 }
 
-// রিনেম করা ফাংশন (Auth প্রিফিক্স যোগ করা হয়েছে)
-export function getAuthSocialProviderLabel(provider: keyof typeof SOCIAL_PROVIDER_CONFIGS): string {
+export function getAuthsocialProviderLabel(provider: keyof typeof SOCIAL_PROVIDER_CONFIGS): string {
   const labels: Record<string, string> = {
     google: 'Google',
     facebook: 'Facebook',
@@ -220,7 +212,7 @@ export function getAuthSocialProviderLabel(provider: keyof typeof SOCIAL_PROVIDE
   return labels[String(provider)] || 'Unknown Provider';
 }
 
-export function getAuthSocialProviderIcon(provider: keyof typeof SOCIAL_PROVIDER_CONFIGS): string {
+export function getAuthsocialProviderIcon(provider: keyof typeof SOCIAL_PROVIDER_CONFIGS): string {
   const icons: Record<string, string> = {
     google: '🅶',
     facebook: '📘',
@@ -234,7 +226,7 @@ export function getAuthSocialProviderIcon(provider: keyof typeof SOCIAL_PROVIDER
   return icons[String(provider)] || '🔑';
 }
 
-export function getAuthSocialProviderColor(provider: keyof typeof SOCIAL_PROVIDER_CONFIGS): string {
+export function getAuthsocialProviderColor(provider: keyof typeof SOCIAL_PROVIDER_CONFIGS): string {
   const colors: Record<string, string> = {
     google: '#4285F4',
     facebook: '#1877F2',
@@ -248,39 +240,39 @@ export function getAuthSocialProviderColor(provider: keyof typeof SOCIAL_PROVIDE
   return colors[String(provider)] || '#6B7280';
 }
 
-export function getSocialAuthStateExpiry(): number {
+export function getAuthsocialStateExpiry(): number {
   return SOCIAL_CONFIG.SECURITY.STATE_EXPIRY;
 }
 
-export function getSocialCodeExpiry(): number {
+export function getAuthsocialCodeExpiry(): number {
   return SOCIAL_CONFIG.SECURITY.CODE_EXPIRY;
 }
 
-export function getSocialTokenExpiry(): number {
+export function getAuthsocialTokenExpiry(): number {
   return SOCIAL_CONFIG.SECURITY.TOKEN_EXPIRY;
 }
 
-export function getSocialRefreshTokenExpiry(): number {
+export function getAuthsocialRefreshTokenExpiry(): number {
   return SOCIAL_CONFIG.SECURITY.REFRESH_TOKEN_EXPIRY;
 }
 
-export function isSocialStateValid(createdAt: Date): boolean {
+export function isAuthsocialStateValid(createdAt: Date): boolean {
   const age = (Date.now() - createdAt.getTime()) / 1000;
   return age <= SOCIAL_CONFIG.SECURITY.STATE_EXPIRY;
 }
 
-export function isSocialCodeValid(createdAt: Date): boolean {
+export function isAuthsocialCodeValid(createdAt: Date): boolean {
   const age = (Date.now() - createdAt.getTime()) / 1000;
   return age <= SOCIAL_CONFIG.SECURITY.CODE_EXPIRY;
 }
 
-export function isSocialTokenValid(createdAt: Date): boolean {
+export function isAuthsocialTokenValid(createdAt: Date): boolean {
   const age = (Date.now() - createdAt.getTime()) / 1000;
   return age <= SOCIAL_CONFIG.SECURITY.TOKEN_EXPIRY;
 }
 
-export function shouldRefreshToken(createdAt: Date): boolean {
+export function shouldAuthsocialRefreshToken(createdAt: Date): boolean {
   const age = (Date.now() - createdAt.getTime()) / 1000;
-  const threshold = SOCIAL_CONFIG.SECURITY.TOKEN_EXPIRY * 0.8; // 80% of expiry
+  const threshold = SOCIAL_CONFIG.SECURITY.TOKEN_EXPIRY * 0.8;
   return age >= threshold;
 }

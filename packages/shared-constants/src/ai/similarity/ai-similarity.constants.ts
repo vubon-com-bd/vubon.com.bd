@@ -148,43 +148,23 @@ export const AI_SIMILARITY = {
   } as const,
 } as const;
 
-// Similarity Types
 export type AISimilarityType = (typeof AI_SIMILARITY.TYPES)[keyof typeof AI_SIMILARITY.TYPES];
-
-// Similarity Status
 export type AISimilarityStatus =
   (typeof AI_SIMILARITY.STATUSES)[keyof typeof AI_SIMILARITY.STATUSES];
-
-// Similarity Categories
 export type AISimilarityCategory =
   (typeof AI_SIMILARITY.CATEGORIES)[keyof typeof AI_SIMILARITY.CATEGORIES];
-
-// Similarity Algorithms
 export type AISimilarityAlgorithm =
   (typeof AI_SIMILARITY.ALGORITHMS)[keyof typeof AI_SIMILARITY.ALGORITHMS];
-
-// Similarity Thresholds
 export type AISimilarityThreshold =
   (typeof AI_SIMILARITY.THRESHOLDS)[keyof typeof AI_SIMILARITY.THRESHOLDS];
-
-// Similarity Ranges
 export type AISimilarityRange = (typeof AI_SIMILARITY.RANGES)[keyof typeof AI_SIMILARITY.RANGES];
-
-// Similarity Limits
 export type AISimilarityLimit = (typeof AI_SIMILARITY.LIMITS)[keyof typeof AI_SIMILARITY.LIMITS];
-
-// Similarity Metrics
 export type AISimilarityMetric = (typeof AI_SIMILARITY.METRICS)[keyof typeof AI_SIMILARITY.METRICS];
-
-// Similarity Formats
 export type AISimilarityFormat = (typeof AI_SIMILARITY.FORMATS)[keyof typeof AI_SIMILARITY.FORMATS];
-
-// Similarity Normalization
 export type AISimilarityNormalization =
   (typeof AI_SIMILARITY.NORMALIZATION)[keyof typeof AI_SIMILARITY.NORMALIZATION];
 
-// Utility Functions
-export function getSimilarityTypeLabel(type: AISimilarityType): string {
+export function getAiSimilarityTypeLabel(type: AISimilarityType): string {
   const labels: Record<AISimilarityType, string> = {
     [AI_SIMILARITY.TYPES.COSINE]: 'Cosine',
     [AI_SIMILARITY.TYPES.EUCLIDEAN]: 'Euclidean',
@@ -206,7 +186,7 @@ export function getSimilarityTypeLabel(type: AISimilarityType): string {
   return labels[type] || 'Unknown';
 }
 
-export function getSimilarityStatusLabel(status: AISimilarityStatus): string {
+export function getAiSimilarityStatusLabel(status: AISimilarityStatus): string {
   const labels: Record<AISimilarityStatus, string> = {
     [AI_SIMILARITY.STATUSES.PENDING]: 'Pending',
     [AI_SIMILARITY.STATUSES.CALCULATING]: 'Calculating',
@@ -221,7 +201,7 @@ export function getSimilarityStatusLabel(status: AISimilarityStatus): string {
   return labels[status] || 'Unknown';
 }
 
-export function getSimilarityCategoryLabel(category: AISimilarityCategory): string {
+export function getAiSimilarityCategoryLabel(category: AISimilarityCategory): string {
   const labels: Record<AISimilarityCategory, string> = {
     [AI_SIMILARITY.CATEGORIES.VECTOR]: 'Vector',
     [AI_SIMILARITY.CATEGORIES.TEXT]: 'Text',
@@ -237,7 +217,7 @@ export function getSimilarityCategoryLabel(category: AISimilarityCategory): stri
   return labels[category] || 'Unknown';
 }
 
-export function getSimilarityAlgorithmLabel(algorithm: AISimilarityAlgorithm): string {
+export function getAiSimilarityAlgorithmLabel(algorithm: AISimilarityAlgorithm): string {
   const labels: Record<AISimilarityAlgorithm, string> = {
     [AI_SIMILARITY.ALGORITHMS.COSINE_SIMILARITY]: 'Cosine Similarity',
     [AI_SIMILARITY.ALGORITHMS.EUCLIDEAN_DISTANCE]: 'Euclidean Distance',
@@ -265,7 +245,7 @@ export function getSimilarityAlgorithmLabel(algorithm: AISimilarityAlgorithm): s
   return labels[algorithm] || 'Unknown';
 }
 
-export function getSimilarityThresholdLabel(threshold: AISimilarityThreshold): string {
+export function getAiSimilarityThresholdLabel(threshold: AISimilarityThreshold): string {
   const labels: Record<AISimilarityThreshold, string> = {
     [AI_SIMILARITY.THRESHOLDS.VERY_LOW]: 'Very Low',
     [AI_SIMILARITY.THRESHOLDS.LOW]: 'Low',
@@ -277,7 +257,7 @@ export function getSimilarityThresholdLabel(threshold: AISimilarityThreshold): s
   return labels[threshold] || 'Unknown';
 }
 
-export function getSimilarityFormatLabel(format: AISimilarityFormat): string {
+export function getAiSimilarityFormatLabel(format: AISimilarityFormat): string {
   const labels: Record<AISimilarityFormat, string> = {
     [AI_SIMILARITY.FORMATS.SCORE]: 'Score',
     [AI_SIMILARITY.FORMATS.RANK]: 'Rank',
@@ -289,7 +269,9 @@ export function getSimilarityFormatLabel(format: AISimilarityFormat): string {
   return labels[format] || 'Unknown';
 }
 
-export function getSimilarityNormalizationLabel(normalization: AISimilarityNormalization): string {
+export function getAiSimilarityNormalizationLabel(
+  normalization: AISimilarityNormalization
+): string {
   const labels: Record<AISimilarityNormalization, string> = {
     [AI_SIMILARITY.NORMALIZATION.NONE]: 'None',
     [AI_SIMILARITY.NORMALIZATION.MIN_MAX]: 'Min-Max',
@@ -300,7 +282,7 @@ export function getSimilarityNormalizationLabel(normalization: AISimilarityNorma
   return labels[normalization] || 'Unknown';
 }
 
-export function isSimilarityActive(status: AISimilarityStatus): boolean {
+export function isAiSimilarityActive(status: AISimilarityStatus): boolean {
   const activeStatuses: AISimilarityStatus[] = [
     AI_SIMILARITY.STATUSES.COMPLETED,
     AI_SIMILARITY.STATUSES.CACHED,
@@ -309,7 +291,7 @@ export function isSimilarityActive(status: AISimilarityStatus): boolean {
   return activeStatuses.includes(status);
 }
 
-export function isSimilarityCalculating(status: AISimilarityStatus): boolean {
+export function isAiSimilarityCalculating(status: AISimilarityStatus): boolean {
   const calculatingStatuses: AISimilarityStatus[] = [
     AI_SIMILARITY.STATUSES.PENDING,
     AI_SIMILARITY.STATUSES.CALCULATING,
@@ -318,7 +300,7 @@ export function isSimilarityCalculating(status: AISimilarityStatus): boolean {
   return calculatingStatuses.includes(status);
 }
 
-export function isSimilarityFailed(status: AISimilarityStatus): boolean {
+export function isAiSimilarityFailed(status: AISimilarityStatus): boolean {
   const failedStatuses: AISimilarityStatus[] = [
     AI_SIMILARITY.STATUSES.FAILED,
     AI_SIMILARITY.STATUSES.EXPIRED,
@@ -326,30 +308,30 @@ export function isSimilarityFailed(status: AISimilarityStatus): boolean {
   return failedStatuses.includes(status);
 }
 
-export function getDefaultThreshold(): number {
+export function getAiSimilarityDefaultThreshold(): number {
   return AI_SIMILARITY.THRESHOLDS.MEDIUM;
 }
 
-export function getDefaultTopK(): number {
+export function getAiSimilarityDefaultTopK(): number {
   return AI_SIMILARITY.LIMITS.DEFAULT_TOP_K;
 }
 
-export function getMaxTopK(): number {
+export function getAiSimilarityMaxTopK(): number {
   return AI_SIMILARITY.LIMITS.MAX_TOP_K;
 }
 
-export function normalizeScore(score: number, range: [number, number]): number {
+export function normalizeAiSimilarityScore(score: number, range: [number, number]): number {
   const [min, max] = range;
   if (max === min) return 0;
   return (score - min) / (max - min);
 }
 
-export function denormalizeScore(normalized: number, range: [number, number]): number {
+export function denormalizeAiSimilarityScore(normalized: number, range: [number, number]): number {
   const [min, max] = range;
   return normalized * (max - min) + min;
 }
 
-export function getSimilarityRange(type: AISimilarityType): [number, number] {
+export function getAiSimilarityRange(type: AISimilarityType): [number, number] {
   const ranges: Record<AISimilarityType, [number, number]> = {
     [AI_SIMILARITY.TYPES.COSINE]: [0, 1],
     [AI_SIMILARITY.TYPES.EUCLIDEAN]: [0, Infinity],
@@ -371,7 +353,7 @@ export function getSimilarityRange(type: AISimilarityType): [number, number] {
   return ranges[type] || [0, 1];
 }
 
-export function getAlgorithmForType(type: AISimilarityType): AISimilarityAlgorithm {
+export function getAiSimilarityAlgorithmForType(type: AISimilarityType): AISimilarityAlgorithm {
   const algorithms: Record<AISimilarityType, AISimilarityAlgorithm> = {
     [AI_SIMILARITY.TYPES.COSINE]: AI_SIMILARITY.ALGORITHMS.COSINE_SIMILARITY,
     [AI_SIMILARITY.TYPES.EUCLIDEAN]: AI_SIMILARITY.ALGORITHMS.EUCLIDEAN_DISTANCE,

@@ -4,7 +4,6 @@
  */
 
 export const AUTH_MFA_STATUS = {
-  // Primary status
   ENABLED: 'enabled',
   DISABLED: 'disabled',
   PENDING: 'pending',
@@ -15,31 +14,26 @@ export const AUTH_MFA_STATUS = {
   LOCKED: 'locked',
   BLOCKED: 'blocked',
 
-  // Setup status
   SETUP_INITIATED: 'setup_initiated',
   SETUP_COMPLETED: 'setup_completed',
   SETUP_FAILED: 'setup_failed',
 
-  // Verification status
   VERIFICATION_PENDING: 'verification_pending',
   VERIFICATION_SUCCESS: 'verification_success',
   VERIFICATION_FAILED: 'verification_failed',
   VERIFICATION_EXPIRED: 'verification_expired',
   VERIFICATION_BLOCKED: 'verification_blocked',
 
-  // Recovery status
   RECOVERY_INITIATED: 'recovery_initiated',
   RECOVERY_COMPLETED: 'recovery_completed',
   RECOVERY_FAILED: 'recovery_failed',
   RECOVERY_EXPIRED: 'recovery_expired',
 
-  // Backup code status
   BACKUP_CODE_ACTIVE: 'backup_code_active',
   BACKUP_CODE_USED: 'backup_code_used',
   BACKUP_CODE_EXPIRED: 'backup_code_expired',
   BACKUP_CODE_REVOKED: 'backup_code_revoked',
 
-  // Device status
   DEVICE_REGISTERED: 'device_registered',
   DEVICE_ACTIVE: 'device_active',
   DEVICE_INACTIVE: 'device_inactive',
@@ -49,7 +43,7 @@ export const AUTH_MFA_STATUS = {
 
 export type AuthMFAStatus = (typeof AUTH_MFA_STATUS)[keyof typeof AUTH_MFA_STATUS];
 
-export const ACTIVE_MFA_STATUSES: AuthMFAStatus[] = [
+export const AUTHMFA_ACTIVE_STATUSES: AuthMFAStatus[] = [
   AUTH_MFA_STATUS.ENABLED,
   AUTH_MFA_STATUS.VERIFIED,
   AUTH_MFA_STATUS.SETUP_COMPLETED,
@@ -59,7 +53,7 @@ export const ACTIVE_MFA_STATUSES: AuthMFAStatus[] = [
   AUTH_MFA_STATUS.BACKUP_CODE_ACTIVE,
 ];
 
-export const INACTIVE_MFA_STATUSES: AuthMFAStatus[] = [
+export const AUTHMFA_INACTIVE_STATUSES: AuthMFAStatus[] = [
   AUTH_MFA_STATUS.DISABLED,
   AUTH_MFA_STATUS.EXPIRED,
   AUTH_MFA_STATUS.REVOKED,
@@ -69,14 +63,14 @@ export const INACTIVE_MFA_STATUSES: AuthMFAStatus[] = [
   AUTH_MFA_STATUS.BACKUP_CODE_REVOKED,
 ];
 
-export const PENDING_MFA_STATUSES: AuthMFAStatus[] = [
+export const AUTHMFA_PENDING_STATUSES: AuthMFAStatus[] = [
   AUTH_MFA_STATUS.PENDING,
   AUTH_MFA_STATUS.SETUP_INITIATED,
   AUTH_MFA_STATUS.VERIFICATION_PENDING,
   AUTH_MFA_STATUS.RECOVERY_INITIATED,
 ];
 
-export const FAILED_MFA_STATUSES: AuthMFAStatus[] = [
+export const AUTHMFA_FAILED_STATUSES: AuthMFAStatus[] = [
   AUTH_MFA_STATUS.FAILED,
   AUTH_MFA_STATUS.SETUP_FAILED,
   AUTH_MFA_STATUS.VERIFICATION_FAILED,
@@ -85,45 +79,45 @@ export const FAILED_MFA_STATUSES: AuthMFAStatus[] = [
   AUTH_MFA_STATUS.DEVICE_BLOCKED,
 ];
 
-export const BLOCKED_MFA_STATUSES: AuthMFAStatus[] = [
+export const AUTHMFA_BLOCKED_STATUSES: AuthMFAStatus[] = [
   AUTH_MFA_STATUS.LOCKED,
   AUTH_MFA_STATUS.BLOCKED,
   AUTH_MFA_STATUS.VERIFICATION_BLOCKED,
   AUTH_MFA_STATUS.DEVICE_BLOCKED,
 ];
 
-export const BACKUP_CODE_STATUSES: AuthMFAStatus[] = [
+export const AUTHMFA_BACKUP_CODE_STATUSES: AuthMFAStatus[] = [
   AUTH_MFA_STATUS.BACKUP_CODE_ACTIVE,
   AUTH_MFA_STATUS.BACKUP_CODE_USED,
   AUTH_MFA_STATUS.BACKUP_CODE_EXPIRED,
   AUTH_MFA_STATUS.BACKUP_CODE_REVOKED,
 ];
 
-export function isMFAActive(status: AuthMFAStatus): boolean {
-  return ACTIVE_MFA_STATUSES.includes(status);
+export function isAuthmfaActive(status: AuthMFAStatus): boolean {
+  return AUTHMFA_ACTIVE_STATUSES.includes(status);
 }
 
-export function isMFAInactive(status: AuthMFAStatus): boolean {
-  return INACTIVE_MFA_STATUSES.includes(status);
+export function isAuthmfaInactive(status: AuthMFAStatus): boolean {
+  return AUTHMFA_INACTIVE_STATUSES.includes(status);
 }
 
-export function isMFAPending(status: AuthMFAStatus): boolean {
-  return PENDING_MFA_STATUSES.includes(status);
+export function isAuthmfaPending(status: AuthMFAStatus): boolean {
+  return AUTHMFA_PENDING_STATUSES.includes(status);
 }
 
-export function isMFAFailed(status: AuthMFAStatus): boolean {
-  return FAILED_MFA_STATUSES.includes(status);
+export function isAuthmfaFailed(status: AuthMFAStatus): boolean {
+  return AUTHMFA_FAILED_STATUSES.includes(status);
 }
 
-export function isMFABlocked(status: AuthMFAStatus): boolean {
-  return BLOCKED_MFA_STATUSES.includes(status);
+export function isAuthmfaBlocked(status: AuthMFAStatus): boolean {
+  return AUTHMFA_BLOCKED_STATUSES.includes(status);
 }
 
-export function isBackupCodeStatus(status: AuthMFAStatus): boolean {
-  return BACKUP_CODE_STATUSES.includes(status);
+export function isAuthmfaBackupCodeStatus(status: AuthMFAStatus): boolean {
+  return AUTHMFA_BACKUP_CODE_STATUSES.includes(status);
 }
 
-export function getMFAStatusLabel(status: AuthMFAStatus): string {
+export function getAuthmfaStatusLabel(status: AuthMFAStatus): string {
   const labels: Record<AuthMFAStatus, string> = {
     [AUTH_MFA_STATUS.ENABLED]: 'Enabled',
     [AUTH_MFA_STATUS.DISABLED]: 'Disabled',
@@ -160,7 +154,7 @@ export function getMFAStatusLabel(status: AuthMFAStatus): string {
   return labels[status] || 'Unknown Status';
 }
 
-export function getMFAStatusColor(status: AuthMFAStatus): string {
+export function getAuthmfaStatusColor(status: AuthMFAStatus): string {
   const colors: Record<AuthMFAStatus, string> = {
     [AUTH_MFA_STATUS.ENABLED]: '#10B981',
     [AUTH_MFA_STATUS.DISABLED]: '#6B7280',
@@ -197,7 +191,7 @@ export function getMFAStatusColor(status: AuthMFAStatus): string {
   return colors[status] || '#6B7280';
 }
 
-export function getMFAStatusPriority(status: AuthMFAStatus): number {
+export function getAuthmfaStatusPriority(status: AuthMFAStatus): number {
   const priorities: Record<AuthMFAStatus, number> = {
     [AUTH_MFA_STATUS.ENABLED]: 10,
     [AUTH_MFA_STATUS.DISABLED]: 5,

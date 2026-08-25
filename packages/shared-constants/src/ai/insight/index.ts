@@ -1,31 +1,32 @@
 /**
- * AI Insight Constants Index
- * Export all insight constants and types for easy importing
+ * AI Insight Index
+ * Export all AI insight constants and types for easy importing
  */
 
-// AI Insight Constants
+// Export all constants from ai-insight.constants
 export {
   AI_INSIGHT,
-  getInsightTypeLabel,
-  getInsightStatusLabel,
-  getInsightCategoryLabel,
-  getInsightMethodLabel,
-  getInsightPriorityLabel,
-  getInsightConfidenceLabel,
-  getInsightImpactLabel,
-  getInsightQualityLabel,
-  getInsightSourceLabel,
-  getInsightFormatLabel,
-  getInsightMetricLabel,
-  isInsightActive,
-  isInsightProcessing,
-  isInsightFailed,
-  getPriorityScore,
-  getConfidenceScore,
-  getQualityScore,
-  getImpactScore,
+  getAiInsightTypeLabel,
+  getAiInsightStatusLabel,
+  getAiInsightCategoryLabel,
+  getAiInsightMethodLabel,
+  getAiInsightPriorityLabel,
+  getAiInsightConfidenceLabel,
+  getAiInsightImpactLabel,
+  getAiInsightQualityLabel,
+  getAiInsightSourceLabel,
+  getAiInsightFormatLabel,
+  getAiInsightMetricLabel,
+  isAiInsightActive,
+  isAiInsightProcessing,
+  isAiInsightFailed,
+  getAiInsightPriorityScore,
+  getAiInsightConfidenceScore,
+  getAiInsightQualityScore,
+  getAiInsightImpactScore,
 } from './ai-insight.constants';
 
+// Export all types from ai-insight.constants
 export type {
   AIInsightType,
   AIInsightStatus,
@@ -41,19 +42,20 @@ export type {
   AIInsightMetric,
 } from './ai-insight.constants';
 
-// AI Insight Type Constants
+// Export all constants from ai-insight-type.constants
 export {
   AI_INSIGHT_TYPE,
-  getInsightDomainLabel,
-  getInsightSubTypeLabel,
-  getInsightComplexityLabel,
-  getInsightMaturityLabel,
-  getInsightScopeLabel,
-  getInsightHorizonLabel,
-  getComplexityScore as getInsightComplexityScore,
-  getMaturityScore as getInsightMaturityScore,
+  getAiInsightDomainLabel,
+  getAiInsightSubTypeLabel,
+  getAiInsightComplexityLabel,
+  getAiInsightMaturityLabel,
+  getAiInsightScopeLabel,
+  getAiInsightHorizonLabel,
+  getAiInsightComplexityScore,
+  getAiInsightMaturityScore,
 } from './ai-insight-type.constants';
 
+// Export all types from ai-insight-type.constants
 export type {
   AIInsightDomain,
   AIInsightSubType,
@@ -63,21 +65,21 @@ export type {
   AIInsightHorizon,
 } from './ai-insight-type.constants';
 
-// AI Insight Status Constants
+// Export all constants from ai-insight-status.constants
 export {
-  AI_INSIGHT_STATUS,
   AI_INSIGHT_STATUS_TYPES,
-  getInsightStatusLabel as getInsightStatusLabel2,
-  getInsightStatusCategory,
-  getInsightStatusSeverity,
-  getInsightStatusColor,
-  isInsightActive as isInsightActive2,
-  isInsightDelivered,
-  isInsightCompleted,
-  isInsightFailed as isInsightFailed2,
-  getInsightStatusProgress,
+  AI_INSIGHT_STATUS,
+  getAiInsightStatusLabel as getAiInsightStatusLabelDetailed,
+  getAiInsightStatusCategory,
+  getAiInsightStatusSeverity,
+  getAiInsightStatusColor,
+  isAiInsightActiveStatus,
+  isAiInsightCompleted,
+  isAiInsightFailedStatus,
+  getAiInsightStatusProgress,
 } from './ai-insight-status.constants';
 
+// Export all types from ai-insight-status.constants
 export type {
   AIInsightStatusType,
   AIInsightStatusCategory,
@@ -85,29 +87,24 @@ export type {
   AIInsightStatusColor,
 } from './ai-insight-status.constants';
 
-// AI Insight Priority Constants
+// Export all constants from ai-insight-priority.constants
 export {
-  AI_INSIGHT_PRIORITY,
   AI_INSIGHT_PRIORITY_FACTORS,
-  getInsightPriorityLevelLabel,
-  getInsightPriorityScore,
-  getInsightPriorityLevel,
-  calculateInsightPriorityScore,
-  applyInsightPriorityBoost,
-  applyInsightPriorityPenalty,
-  getInsightPriorityBoostLabel,
-  getInsightPriorityPenaltyLabel,
-  getDefaultInsightWeights,
-  getDefaultInsightThresholds,
+  getAiInsightPriorityFactorLabel,
+  getAiInsightPriorityBoostLabel,
+  getAiInsightPriorityPenaltyLabel,
+  getAiInsightPriorityDecayLabel,
+  getAiInsightPriorityThresholds,
+  getAiInsightDefaultFactorWeights,
+  getAiInsightDecayFactor,
 } from './ai-insight-priority.constants';
 
+// Export all types from ai-insight-priority.constants
 export type {
-  AIInsightPriorityLevel,
-  AIInsightPriorityScore,
   AIInsightPriorityFactor,
   AIInsightPriorityWeight,
   AIInsightPriorityThreshold,
-  AIInsightPriorityDecay,
   AIInsightPriorityBoost,
   AIInsightPriorityPenalty,
+  AIInsightPriorityDecay,
 } from './ai-insight-priority.constants';

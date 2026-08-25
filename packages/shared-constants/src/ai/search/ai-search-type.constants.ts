@@ -107,29 +107,17 @@ export const AI_SEARCH_TYPE = {
   } as const,
 } as const;
 
-// Search Categories
 export type AISearchCategory =
   (typeof AI_SEARCH_TYPE.CATEGORIES)[keyof typeof AI_SEARCH_TYPE.CATEGORIES];
-
-// Search Sub-Types
 export type AISearchSubType =
   (typeof AI_SEARCH_TYPE.SUB_TYPES)[keyof typeof AI_SEARCH_TYPE.SUB_TYPES];
-
-// Search Sources
 export type AISearchSource = (typeof AI_SEARCH_TYPE.SOURCES)[keyof typeof AI_SEARCH_TYPE.SOURCES];
-
-// Search Modes
 export type AISearchModeType = (typeof AI_SEARCH_TYPE.MODES)[keyof typeof AI_SEARCH_TYPE.MODES];
-
-// Search Operators
 export type AISearchOperator =
   (typeof AI_SEARCH_TYPE.OPERATORS)[keyof typeof AI_SEARCH_TYPE.OPERATORS];
-
-// Search Scopes
 export type AISearchScope = (typeof AI_SEARCH_TYPE.SCOPES)[keyof typeof AI_SEARCH_TYPE.SCOPES];
 
-// Utility Functions
-export function getSearchCategoryLabel(category: AISearchCategory): string {
+export function getAiSearchCategoryLabel(category: AISearchCategory): string {
   const labels: Record<AISearchCategory, string> = {
     [AI_SEARCH_TYPE.CATEGORIES.PRODUCT]: 'Product',
     [AI_SEARCH_TYPE.CATEGORIES.CONTENT]: 'Content',
@@ -148,7 +136,7 @@ export function getSearchCategoryLabel(category: AISearchCategory): string {
   return labels[category] || 'Unknown';
 }
 
-export function getSearchSubTypeLabel(subType: AISearchSubType): string {
+export function getAiSearchSubTypeLabel(subType: AISearchSubType): string {
   const labels: Record<AISearchSubType, string> = {
     [AI_SEARCH_TYPE.SUB_TYPES.PRODUCT_NAME]: 'Product Name',
     [AI_SEARCH_TYPE.SUB_TYPES.PRODUCT_DESCRIPTION]: 'Product Description',
@@ -179,7 +167,7 @@ export function getSearchSubTypeLabel(subType: AISearchSubType): string {
   return labels[subType] || 'Unknown';
 }
 
-export function getSearchSourceLabel(source: AISearchSource): string {
+export function getAiSearchSourceLabel(source: AISearchSource): string {
   const labels: Record<AISearchSource, string> = {
     [AI_SEARCH_TYPE.SOURCES.DATABASE]: 'Database',
     [AI_SEARCH_TYPE.SOURCES.ELASTICSEARCH]: 'Elasticsearch',
@@ -191,7 +179,7 @@ export function getSearchSourceLabel(source: AISearchSource): string {
   return labels[source] || 'Unknown';
 }
 
-export function getSearchModeTypeLabel(mode: AISearchModeType): string {
+export function getAiSearchModeTypeLabel(mode: AISearchModeType): string {
   const labels: Record<AISearchModeType, string> = {
     [AI_SEARCH_TYPE.MODES.EXACT]: 'Exact',
     [AI_SEARCH_TYPE.MODES.PARTIAL]: 'Partial',
@@ -205,7 +193,7 @@ export function getSearchModeTypeLabel(mode: AISearchModeType): string {
   return labels[mode] || 'Unknown';
 }
 
-export function getSearchOperatorLabel(operator: AISearchOperator): string {
+export function getAiSearchOperatorLabel(operator: AISearchOperator): string {
   const labels: Record<AISearchOperator, string> = {
     [AI_SEARCH_TYPE.OPERATORS.AND]: 'AND',
     [AI_SEARCH_TYPE.OPERATORS.OR]: 'OR',
@@ -219,7 +207,7 @@ export function getSearchOperatorLabel(operator: AISearchOperator): string {
   return labels[operator] || 'Unknown';
 }
 
-export function getSearchScopeLabel(scope: AISearchScope): string {
+export function getAiSearchScopeLabel(scope: AISearchScope): string {
   const labels: Record<AISearchScope, string> = {
     [AI_SEARCH_TYPE.SCOPES.GLOBAL]: 'Global',
     [AI_SEARCH_TYPE.SCOPES.CATEGORY]: 'Category',

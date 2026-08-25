@@ -1,38 +1,7 @@
-/**
- * 2FA Constants Index
- * Export all 2FA constants and types for easy importing
- */
+// Export all constants from auth-2fa.constants
+export { AUTH_2FA, AUTH_2FA_CONFIG, AUTH_2FA_TYPES, AUTH_2FA_EVENTS } from './auth-2fa.constants';
 
-// 2FA
-export {
-  AUTH_2FA,
-  AUTH_2FA_TYPES,
-  AUTH_2FA_CONFIG,
-  AUTH_2FA_EVENTS,
-  get2FATypeLabel,
-  get2FATypeIcon,
-  get2FATypeSecurityLevel,
-  getTOTPConfig,
-  getSMSConfig,
-  getEmailConfig,
-  getAuthenticatorConfig,
-  getBackupCodeConfig,
-  getRecoveryCodeConfig,
-  get2FACodeExpiry,
-  get2FAMaxAttempts,
-  get2FALockoutDuration,
-  get2FARateLimitWindow,
-  get2FAMaxRateLimitAttempts,
-  get2FATrustDuration,
-  get2FAMaxTrustedDevices,
-  generate2FACode,
-  generateBackupCodes,
-  generateRecoveryCodes,
-  is2FACodeValid,
-  is2FACodeExpired,
-  get2FACodeRemainingTime,
-} from './auth-2fa.constants';
-
+// Export all types from auth-2fa.constants
 export type {
   Auth2FAConfig,
   Auth2FAType,
@@ -40,50 +9,86 @@ export type {
   Auth2FADefaults,
 } from './auth-2fa.constants';
 
-// 2FA Types
+// Export all functions from auth-2fa.constants
+export {
+  getAuth2faTypeLabel,
+  getAuth2faTypeIcon,
+  getAuth2faTypeSecurityLevel,
+  getAuth2faTOTPConfig,
+  getAuth2faSMSConfig,
+  getAuth2faEmailConfig,
+  getAuth2faAuthenticatorConfig,
+  getAuth2faBackupCodeConfig,
+  getAuth2faRecoveryCodeConfig,
+  getAuth2faCodeExpiry,
+  getAuth2faMaxAttempts,
+  getAuth2faLockoutDuration,
+  getAuth2faRateLimitWindow,
+  getAuth2faMaxRateLimitAttempts,
+  getAuth2faTrustDuration,
+  getAuth2faMaxTrustedDevices,
+  generateAuth2faCode,
+  generateAuth2faBackupCodes,
+  generateAuth2faRecoveryCodes,
+  isAuth2faCodeValid,
+  isAuth2faCodeExpired,
+  getAuth2faCodeRemainingTime,
+} from './auth-2fa.constants';
+
+// Export all constants from auth-2fa-type.constants
 export {
   AUTH_2FA_TYPE,
-  PRIMARY_2FA_TYPES,
-  CODE_BASED_2FA_TYPES,
-  DEVICE_BASED_2FA_TYPES,
-  BIOMETRIC_2FA_TYPES,
-  HARDWARE_2FA_TYPES,
-  PUSH_2FA_TYPES,
-  isPrimary2FAType,
-  isCodeBased2FAType,
-  isDeviceBased2FAType,
-  isBiometric2FAType,
-  isHardware2FAType,
-  isPush2FAType,
-  get2FATypeLabel as get2FATypeLabelType,
-  get2FATypeIcon as get2FATypeIconType,
-  get2FATypeCategory,
-  get2FATypeSecurityLevel as get2FATypeSecurityLevelType,
+  AUTH2FA_PRIMARY_TYPES,
+  AUTH2FA_CODE_BASED_TYPES,
+  AUTH2FA_DEVICE_BASED_TYPES,
+  AUTH2FA_BIOMETRIC_TYPES,
+  AUTH2FA_HARDWARE_TYPES,
+  AUTH2FA_PUSH_TYPES,
 } from './auth-2fa-type.constants';
 
-export type { Auth2FAType as Auth2FATypeType } from './auth-2fa-type.constants';
+// Export all types from auth-2fa-type.constants
+export type { Auth2FAType as Auth2FATypeFromType } from './auth-2fa-type.constants';
 
-// 2FA Status
+// Export all functions from auth-2fa-type.constants
+export {
+  isAuth2faPrimaryType,
+  isAuth2faCodeBasedType,
+  isAuth2faDeviceBasedType,
+  isAuth2faBiometricType,
+  isAuth2faHardwareType,
+  isAuth2faPushType,
+  getAuth2faTypeLabel as getAuth2faTypeLabelFromType,
+  getAuth2faTypeIcon as getAuth2faTypeIconFromType,
+  getAuth2faTypeCategory,
+  getAuth2faTypeSecurityLevel as getAuth2faTypeSecurityLevelFromType,
+} from './auth-2fa-type.constants';
+
+// Export all constants from auth-2fa-status.constants
 export {
   AUTH_2FA_STATUS,
-  ACTIVE_2FA_STATUSES,
-  PENDING_2FA_STATUSES,
-  INACTIVE_2FA_STATUSES,
-  FAILED_2FA_STATUSES,
-  SECURITY_2FA_STATUSES,
-  BACKUP_CODE_STATUSES,
-  RECOVERY_STATUSES,
-  is2FAActive,
-  is2FAPending,
-  is2FAInactive,
-  is2FAFailed,
-  is2FASecurityIssue,
-  isBackupCodeStatus,
-  isRecoveryStatus,
-  get2FAStatusLabel,
-  get2FAStatusColor,
-  get2FAStatusPriority,
-  get2FAStatusBadgeType,
+  AUTH2FA_ACTIVE_STATUSES,
+  AUTH2FA_PENDING_STATUSES,
+  AUTH2FA_INACTIVE_STATUSES,
+  AUTH2FA_FAILED_STATUSES,
+  AUTH2FA_SECURITY_STATUSES,
+  AUTH2FA_BACKUP_CODE_STATUSES,
+  AUTH2FA_RECOVERY_STATUSES,
 } from './auth-2fa-status.constants';
 
+// Export all types from auth-2fa-status.constants
 export type { Auth2FAStatus } from './auth-2fa-status.constants';
+
+// Export all functions from auth-2fa-status.constants
+export {
+  isAuth2faActive,
+  isAuth2faPending,
+  isAuth2faInactive,
+  isAuth2faFailed,
+  isAuth2faSecurityIssue,
+  isAuth2faBackupCodeStatus,
+  isAuth2faRecoveryStatus,
+  getAuth2faStatusLabel,
+  getAuth2faStatusColor,
+  getAuth2faStatusPriority,
+  getAuth2faStatusBadgeType,
+} from './auth-2fa-status.constants';

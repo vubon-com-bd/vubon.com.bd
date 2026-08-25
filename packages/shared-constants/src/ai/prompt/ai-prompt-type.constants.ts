@@ -122,30 +122,18 @@ export const AI_PROMPT_TYPE = {
   } as const,
 } as const;
 
-// Prompt Domains
 export type AIPromptDomain = (typeof AI_PROMPT_TYPE.DOMAINS)[keyof typeof AI_PROMPT_TYPE.DOMAINS];
-
-// Prompt Sub-Types
 export type AIPromptSubType =
   (typeof AI_PROMPT_TYPE.SUB_TYPES)[keyof typeof AI_PROMPT_TYPE.SUB_TYPES];
-
-// Prompt Complexity
 export type AIPromptComplexity =
   (typeof AI_PROMPT_TYPE.COMPLEXITY)[keyof typeof AI_PROMPT_TYPE.COMPLEXITY];
-
-// Prompt Tone
 export type AIPromptTone = (typeof AI_PROMPT_TYPE.TONES)[keyof typeof AI_PROMPT_TYPE.TONES];
-
-// Prompt Language
 export type AIPromptLanguage =
   (typeof AI_PROMPT_TYPE.LANGUAGES)[keyof typeof AI_PROMPT_TYPE.LANGUAGES];
-
-// Prompt Persona
 export type AIPromptPersona =
   (typeof AI_PROMPT_TYPE.PERSONAS)[keyof typeof AI_PROMPT_TYPE.PERSONAS];
 
-// Utility Functions
-export function getPromptDomainLabel(domain: AIPromptDomain): string {
+export function getAiPromptDomainLabel(domain: AIPromptDomain): string {
   const labels: Record<AIPromptDomain, string> = {
     [AI_PROMPT_TYPE.DOMAINS.GENERATIVE]: 'Generative',
     [AI_PROMPT_TYPE.DOMAINS.ANALYTICAL]: 'Analytical',
@@ -163,7 +151,7 @@ export function getPromptDomainLabel(domain: AIPromptDomain): string {
   return labels[domain] || 'Unknown';
 }
 
-export function getPromptSubTypeLabel(subType: AIPromptSubType): string {
+export function getAiPromptSubTypeLabel(subType: AIPromptSubType): string {
   const labels: Record<AIPromptSubType, string> = {
     [AI_PROMPT_TYPE.SUB_TYPES.CONTENT_CREATION]: 'Content Creation',
     [AI_PROMPT_TYPE.SUB_TYPES.STORY_GENERATION]: 'Story Generation',
@@ -199,7 +187,7 @@ export function getPromptSubTypeLabel(subType: AIPromptSubType): string {
   return labels[subType] || 'Unknown';
 }
 
-export function getPromptComplexityLabel(complexity: AIPromptComplexity): string {
+export function getAiPromptComplexityLabel(complexity: AIPromptComplexity): string {
   const labels: Record<AIPromptComplexity, string> = {
     [AI_PROMPT_TYPE.COMPLEXITY.SIMPLE]: 'Simple',
     [AI_PROMPT_TYPE.COMPLEXITY.MODERATE]: 'Moderate',
@@ -210,7 +198,7 @@ export function getPromptComplexityLabel(complexity: AIPromptComplexity): string
   return labels[complexity] || 'Unknown';
 }
 
-export function getPromptToneLabel(tone: AIPromptTone): string {
+export function getAiPromptToneLabel(tone: AIPromptTone): string {
   const labels: Record<AIPromptTone, string> = {
     [AI_PROMPT_TYPE.TONES.FORMAL]: 'Formal',
     [AI_PROMPT_TYPE.TONES.INFORMAL]: 'Informal',
@@ -226,7 +214,7 @@ export function getPromptToneLabel(tone: AIPromptTone): string {
   return labels[tone] || 'Unknown';
 }
 
-export function getPromptLanguageLabel(language: AIPromptLanguage): string {
+export function getAiPromptLanguageLabel(language: AIPromptLanguage): string {
   const labels: Record<AIPromptLanguage, string> = {
     [AI_PROMPT_TYPE.LANGUAGES.BENGALI]: 'Bengali',
     [AI_PROMPT_TYPE.LANGUAGES.ENGLISH]: 'English',
@@ -247,7 +235,7 @@ export function getPromptLanguageLabel(language: AIPromptLanguage): string {
   return labels[language] || 'Unknown';
 }
 
-export function getPromptPersonaLabel(persona: AIPromptPersona): string {
+export function getAiPromptPersonaLabel(persona: AIPromptPersona): string {
   const labels: Record<AIPromptPersona, string> = {
     [AI_PROMPT_TYPE.PERSONAS.EXPERT]: 'Expert',
     [AI_PROMPT_TYPE.PERSONAS.ASSISTANT]: 'Assistant',
@@ -263,7 +251,7 @@ export function getPromptPersonaLabel(persona: AIPromptPersona): string {
   return labels[persona] || 'Unknown';
 }
 
-export function getPromptComplexityScore(complexity: AIPromptComplexity): number {
+export function getAiPromptComplexityScore(complexity: AIPromptComplexity): number {
   const scores: Record<AIPromptComplexity, number> = {
     [AI_PROMPT_TYPE.COMPLEXITY.SIMPLE]: 1,
     [AI_PROMPT_TYPE.COMPLEXITY.MODERATE]: 3,
