@@ -23,7 +23,7 @@ export * from './user';
 // export * from './logistics';
 // export * from './vendor';
 export * from './search';
-// export * from './discovery';
+export * from './discovery';
 // export * from './checkout';
 // export * from './payment';
 // export * from './cart';
