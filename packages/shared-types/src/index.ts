@@ -27,4 +27,4 @@ export * from './discovery';
 export * from './checkout';
 // export * from './payment';
 export * from './cart';
-// export * from './product-catalog';
+export * from './product-catalog';
