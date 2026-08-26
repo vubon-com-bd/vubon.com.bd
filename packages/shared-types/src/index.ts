@@ -12,7 +12,7 @@ export * from './admin';
 export * from './auth';
 export * from './user';
 // export * from './ai';
-// export * from './seo';
+export * from './seo';
 // export * from './analytics';
 // export * from './reporting';
 // export * from './flash-sales';
