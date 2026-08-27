@@ -228,3 +228,6 @@ export * from './report-vendor';
 
 // report-widget Constants
 export * from './report-widget';
+
+// report-flash-sale Constants
+export * from './report-flash-sales';
