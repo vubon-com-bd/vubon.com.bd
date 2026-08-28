@@ -4,7 +4,7 @@
  * @module ContentTagTypes
  */
 
-import { BaseEntity, Timestamp, Metadata, ID, Slug } from '../common/core-primitives.types';
+import { BaseEntity, Timestamp, Metadata, ID } from '../common/core-primitives.types';
 
 // ============================================================
 // Import ContentTag from content.types
