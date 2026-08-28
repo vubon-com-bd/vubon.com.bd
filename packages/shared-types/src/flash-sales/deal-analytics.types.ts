@@ -7,80 +7,52 @@
 import { BaseEntity, Timestamp, Metadata, ID } from '../common/core-primitives.types';
 
 // ============================================================
-// Import from shared-constants analytics
+// Import from shared-constants flash-sales-analytics
 // ============================================================
 import {
-  // Analytics Aggregation
-  ANALYTICS_AGGREGATION,
-  AnalyticsAggregationType,
-  AnalyticsAggregationCategory,
-  AnalyticsAggregationLevel,
-  AnalyticsAggregationScope,
-  AnalyticsAggregationPrecision,
-  getAnalyticsAggregationLabel,
-  getAnalyticsAggregationCategoryLabel,
-  getAnalyticsAggregationLevelLabel,
-  getAnalyticsAggregationScopeLabel,
-  getAnalyticsAggregationPrecisionLabel,
-  isAnalyticsAggregationStatistical,
-  isAnalyticsAggregationMathematical,
-  isAnalyticsAggregationTimeSeries,
-  isAnalyticsAggregationApproximate,
-  getAnalyticsAggregationCategory,
-  // Analytics Comparison
-  ANALYTICS_COMPARISON,
-  AnalyticsComparisonType,
-  AnalyticsComparisonMethod,
-  AnalyticsComparisonDirection,
-  AnalyticsComparisonSignificance,
-  AnalyticsComparisonUnit,
-  getAnalyticsComparisonLabel,
-  getAnalyticsComparisonMethodLabel,
-  getAnalyticsComparisonDirectionLabel,
-  getAnalyticsComparisonSignificanceLabel,
-  getAnalyticsComparisonUnitLabel,
-  isAnalyticsComparisonPeriodBased,
-  isAnalyticsComparisonBenchmarkBased,
-  getAnalyticsComparisonDirection,
-  getAnalyticsComparisonSignificance,
-  // Analytics Trend
-  ANALYTICS_TREND,
-  AnalyticsTrendType,
-  AnalyticsTrendStrength,
-  AnalyticsTrendDirection,
-  AnalyticsTrendPattern,
-  AnalyticsTrendMethod,
-  AnalyticsTrendConfidence,
-  AnalyticsTrendHorizon,
-  getAnalyticsTrendLabelName,
-  getAnalyticsTrendStrengthLabel,
-  getAnalyticsTrendDirectionLabel,
-  getAnalyticsTrendPatternLabel,
-  getAnalyticsTrendMethodLabel,
-  getAnalyticsTrendConfidenceLabel,
-  getAnalyticsTrendHorizonLabel,
-  isAnalyticsTrendUpward,
-  isAnalyticsTrendDownward,
-  isAnalyticsTrendStable,
-  getAnalyticsTrendDirection,
-  getAnalyticsTrendStrength,
-  // Analytics Status
-  ANALYTICS_STATUS,
-  AnalyticsStatusCode,
-  AnalyticsStatusCategory,
-  AnalyticsStatusPriority,
-  AnalyticsStatusVisibility,
-  AnalyticsStatusAction,
-  getAnalyticsStatusCodeLabel,
-  getAnalyticsStatusCategoryLabel,
-  getAnalyticsStatusPriorityLabel,
-  getAnalyticsStatusVisibilityLabel,
-  getAnalyticsStatusActionLabel,
-  isAnalyticsStatusSuccess,
-  isAnalyticsStatusProcessing,
-  isAnalyticsStatusFailure,
-  isAnalyticsStatusFinal,
-  getAnalyticsStatusCategory,
+  // Flash Sale Analytics Core
+  FLASH_SALE_ANALYTICS,
+  FlashSaleAnalyticsType,
+  FlashSaleAnalyticsMetric,
+  FlashSaleAnalyticsPeriod,
+  FlashSaleAnalyticsInterval,
+  FlashSaleAnalyticsAggregation,
+  FlashSaleAnalyticsDimension,
+  flashsalesAnalyticsGetTypeLabel,
+  flashsalesAnalyticsGetMetricLabel,
+  flashsalesAnalyticsGetPeriodLabel,
+  flashsalesAnalyticsGetIntervalLabel,
+  flashsalesAnalyticsGetAggregationLabel,
+  flashsalesAnalyticsGetDimensionLabel,
+  flashsalesAnalyticsIsValidType,
+  flashsalesAnalyticsIsValidMetric,
+  flashsalesAnalyticsIsValidPeriod,
+  flashsalesAnalyticsGetDefaultPeriod,
+  flashsalesAnalyticsGetDefaultInterval,
+  flashsalesAnalyticsGetDefaultAggregation,
+  flashsalesAnalyticsGetMaxResults,
+  flashsalesAnalyticsGetPeriodInDays,
+  // Flash Sale Analytics Type
+  FLASH_SALE_ANALYTICS_TYPE,
+  FlashSaleAnalyticsTypeCategory,
+  FlashSaleAnalyticsTypeComplexity,
+  FlashSaleAnalyticsTypeScope,
+  FlashSaleAnalyticsTypeFrequency,
+  FlashSaleAnalyticsTypeMethod,
+  FlashSaleAnalyticsTypePriority,
+  FlashSaleAnalyticsTypeStatus,
+  flashsalesAnalyticsTypeGetCategoryLabel,
+  flashsalesAnalyticsTypeGetComplexityLabel,
+  flashsalesAnalyticsTypeGetScopeLabel,
+  flashsalesAnalyticsTypeGetFrequencyLabel,
+  flashsalesAnalyticsTypeGetMethodLabel,
+  flashsalesAnalyticsTypeGetPriorityLabel,
+  flashsalesAnalyticsTypeGetStatusLabel,
+  flashsalesAnalyticsTypeIsValidCategory,
+  flashsalesAnalyticsTypeIsValidMethod,
+  flashsalesAnalyticsTypeIsCompleted,
+  flashsalesAnalyticsTypeIsProcessing,
+  flashsalesAnalyticsTypeIsFailed,
 } from '@vubon/shared-constants';
 
 // ============================================================
@@ -94,18 +66,18 @@ export interface DealAnalytics extends BaseEntity, Timestamp {
   id: ID;
   dealId: ID;
   flashSaleId: ID;
-  metric: string;
+  type: FlashSaleAnalyticsType;
+  metric: FlashSaleAnalyticsMetric;
+  period: FlashSaleAnalyticsPeriod;
+  interval: FlashSaleAnalyticsInterval;
+  aggregation: FlashSaleAnalyticsAggregation;
+  dimension: FlashSaleAnalyticsDimension;
   value: number;
   previousValue?: number;
   percentageChange?: number;
-  aggregation: AnalyticsAggregationType;
-  comparison?: AnalyticsComparisonType;
-  trend?: AnalyticsTrendType;
-  status: AnalyticsStatusCode;
-  period: {
-    start: Date;
-    end: Date;
-  };
+  isCompleted: boolean;
+  isProcessing: boolean;
+  isFailed: boolean;
   metadata?: Metadata;
 }
 
@@ -116,15 +88,19 @@ export interface DealAnalyticsFilter {
   ids?: ID[];
   dealIds?: ID[];
   flashSaleIds?: ID[];
-  metrics?: string[];
-  aggregations?: AnalyticsAggregationType[];
-  comparisons?: AnalyticsComparisonType[];
-  trends?: AnalyticsTrendType[];
-  statuses?: AnalyticsStatusCode[];
+  types?: FlashSaleAnalyticsType[];
+  metrics?: FlashSaleAnalyticsMetric[];
+  periods?: FlashSaleAnalyticsPeriod[];
+  intervals?: FlashSaleAnalyticsInterval[];
+  aggregations?: FlashSaleAnalyticsAggregation[];
+  dimensions?: FlashSaleAnalyticsDimension[];
   dateRange?: {
     start: Date;
     end: Date;
   };
+  isCompleted?: boolean;
+  isProcessing?: boolean;
+  isFailed?: boolean;
   minValue?: number;
   maxValue?: number;
   searchTerm?: string;
@@ -136,9 +112,15 @@ export interface DealAnalyticsFilter {
 export interface DealAnalyticsStatistics {
   dealId: ID;
   totalAnalytics: number;
-  byMetric: Record<string, number>;
-  byAggregation: Record<AnalyticsAggregationType, number>;
-  byStatus: Record<AnalyticsStatusCode, number>;
+  completedAnalytics: number;
+  processingAnalytics: number;
+  failedAnalytics: number;
+  byType: Record<FlashSaleAnalyticsType, number>;
+  byMetric: Record<FlashSaleAnalyticsMetric, number>;
+  byPeriod: Record<FlashSaleAnalyticsPeriod, number>;
+  byInterval: Record<FlashSaleAnalyticsInterval, number>;
+  byAggregation: Record<FlashSaleAnalyticsAggregation, number>;
+  byDimension: Record<FlashSaleAnalyticsDimension, number>;
   dateRange: {
     start: Date;
     end: Date;
@@ -146,8 +128,9 @@ export interface DealAnalyticsStatistics {
   averageValue: number;
   maxValue: number;
   minValue: number;
-  mostFrequentMetric: string;
-  mostFrequentAggregation: AnalyticsAggregationType;
+  mostFrequentType: FlashSaleAnalyticsType;
+  mostFrequentMetric: FlashSaleAnalyticsMetric;
+  mostFrequentPeriod: FlashSaleAnalyticsPeriod;
 }
 
 /**
@@ -159,24 +142,36 @@ export interface DealAnalyticsSummary {
     end: Date;
   };
   totalAnalytics: number;
-  byMetric: Record<string, number>;
-  byAggregation: Record<AnalyticsAggregationType, number>;
-  byStatus: Record<AnalyticsStatusCode, number>;
+  completed: number;
+  processing: number;
+  failed: number;
+  byType: Record<FlashSaleAnalyticsType, number>;
+  byMetric: Record<FlashSaleAnalyticsMetric, number>;
+  byPeriod: Record<FlashSaleAnalyticsPeriod, number>;
+  byInterval: Record<FlashSaleAnalyticsInterval, number>;
+  byAggregation: Record<FlashSaleAnalyticsAggregation, number>;
+  byDimension: Record<FlashSaleAnalyticsDimension, number>;
   analyticsTrend: {
     date: Date;
     total: number;
-    value: number;
+    completed: number;
+    failed: number;
+  }[];
+  topTypes: {
+    type: FlashSaleAnalyticsType;
+    count: number;
+    label: string;
   }[];
   topMetrics: {
-    metric: string;
+    metric: FlashSaleAnalyticsMetric;
     count: number;
-    value: number;
+    label: string;
   }[];
-  performanceMetrics: {
-    averageValue: number;
-    maxValue: number;
-    minValue: number;
-  };
+  topPeriods: {
+    period: FlashSaleAnalyticsPeriod;
+    count: number;
+    label: string;
+  }[];
 }
 
 /**
@@ -184,14 +179,18 @@ export interface DealAnalyticsSummary {
  */
 export interface DealAnalyticsConfiguration {
   enabled: boolean;
-  defaultAggregation: AnalyticsAggregationType;
-  defaultComparison: AnalyticsComparisonType;
-  defaultTrend: AnalyticsTrendType;
+  defaultType: FlashSaleAnalyticsType;
+  defaultMetric: FlashSaleAnalyticsMetric;
+  defaultPeriod: FlashSaleAnalyticsPeriod;
+  defaultInterval: FlashSaleAnalyticsInterval;
+  defaultAggregation: FlashSaleAnalyticsAggregation;
+  defaultDimension: FlashSaleAnalyticsDimension;
+  maxResults: number;
   retentionDays: number;
   autoRefresh: boolean;
   refreshInterval: number;
-  notificationOnComplete: boolean;
-  notificationOnError: boolean;
+  notificationOnCompleted: boolean;
+  notificationOnFailed: boolean;
   notificationOnThreshold: boolean;
   alertConfig?: DealAnalyticsAlertConfig;
 }
@@ -204,10 +203,28 @@ export interface DealAnalyticsAlertConfig {
   thresholdAlert: boolean;
   thresholdValue: number;
   thresholdOperator: 'gt' | 'lt' | 'gte' | 'lte' | 'eq';
-  trendChangeAlert: boolean;
-  trendChangeThreshold: number;
+  failedAnalyticsAlert: boolean;
+  performanceDropAlert: boolean;
+  performanceDropThreshold: number;
   notificationChannels: ('email' | 'sms' | 'slack' | 'webhook')[];
   cooldownMinutes: number;
+}
+
+/**
+ * Deal Analytics History
+ */
+export interface DealAnalyticsHistory extends BaseEntity, Timestamp {
+  id: ID;
+  analyticsId: ID;
+  dealId: ID;
+  flashSaleId: ID;
+  action: 'create' | 'update' | 'process' | 'complete' | 'fail' | 'archive' | 'delete';
+  changes?: {
+    field: string;
+    oldValue: unknown;
+    newValue: unknown;
+  }[];
+  metadata?: Metadata;
 }
 
 /**
@@ -217,44 +234,12 @@ export interface DealAnalyticsDataPoint extends BaseEntity, Timestamp {
   id: ID;
   analyticsId: ID;
   dealId: ID;
-  metric: string;
+  flashSaleId: ID;
+  metric: FlashSaleAnalyticsMetric;
+  dimension: FlashSaleAnalyticsDimension;
   value: number;
   timestamp: Date;
-  dimension?: string;
   metadata?: Metadata;
-}
-
-/**
- * Deal Analytics Comparison Result
- */
-export interface DealAnalyticsComparisonResult {
-  type: AnalyticsComparisonType;
-  method: AnalyticsComparisonMethod;
-  direction: AnalyticsComparisonDirection;
-  significance: AnalyticsComparisonSignificance;
-  unit: AnalyticsComparisonUnit;
-  currentValue: number;
-  previousValue: number;
-  absoluteChange: number;
-  percentageChange: number;
-  isSignificant: boolean;
-}
-
-/**
- * Deal Analytics Trend Result
- */
-export interface DealAnalyticsTrendResult {
-  type: AnalyticsTrendType;
-  strength: AnalyticsTrendStrength;
-  direction: AnalyticsTrendDirection;
-  pattern: AnalyticsTrendPattern;
-  method: AnalyticsTrendMethod;
-  confidence: AnalyticsTrendConfidence;
-  horizon: AnalyticsTrendHorizon;
-  slope: number;
-  intercept: number;
-  rSquared: number;
-  forecast: DealAnalyticsDataPoint[];
 }
 
 /**
@@ -263,6 +248,7 @@ export interface DealAnalyticsTrendResult {
 export interface DealAnalyticsExport extends BaseEntity, Timestamp {
   id: ID;
   dealId: ID;
+  flashSaleId: ID;
   format: 'json' | 'csv' | 'pdf' | 'xlsx';
   filter: DealAnalyticsFilter;
   filename: string;
@@ -278,75 +264,47 @@ export interface DealAnalyticsExport extends BaseEntity, Timestamp {
 // ============================================================
 
 export {
-  // Analytics Aggregation
-  ANALYTICS_AGGREGATION,
-  AnalyticsAggregationType,
-  AnalyticsAggregationCategory,
-  AnalyticsAggregationLevel,
-  AnalyticsAggregationScope,
-  AnalyticsAggregationPrecision,
-  getAnalyticsAggregationLabel,
-  getAnalyticsAggregationCategoryLabel,
-  getAnalyticsAggregationLevelLabel,
-  getAnalyticsAggregationScopeLabel,
-  getAnalyticsAggregationPrecisionLabel,
-  isAnalyticsAggregationStatistical,
-  isAnalyticsAggregationMathematical,
-  isAnalyticsAggregationTimeSeries,
-  isAnalyticsAggregationApproximate,
-  getAnalyticsAggregationCategory,
-  // Analytics Comparison
-  ANALYTICS_COMPARISON,
-  AnalyticsComparisonType,
-  AnalyticsComparisonMethod,
-  AnalyticsComparisonDirection,
-  AnalyticsComparisonSignificance,
-  AnalyticsComparisonUnit,
-  getAnalyticsComparisonLabel,
-  getAnalyticsComparisonMethodLabel,
-  getAnalyticsComparisonDirectionLabel,
-  getAnalyticsComparisonSignificanceLabel,
-  getAnalyticsComparisonUnitLabel,
-  isAnalyticsComparisonPeriodBased,
-  isAnalyticsComparisonBenchmarkBased,
-  getAnalyticsComparisonDirection,
-  getAnalyticsComparisonSignificance,
-  // Analytics Trend
-  ANALYTICS_TREND,
-  AnalyticsTrendType,
-  AnalyticsTrendStrength,
-  AnalyticsTrendDirection,
-  AnalyticsTrendPattern,
-  AnalyticsTrendMethod,
-  AnalyticsTrendConfidence,
-  AnalyticsTrendHorizon,
-  getAnalyticsTrendLabelName,
-  getAnalyticsTrendStrengthLabel,
-  getAnalyticsTrendDirectionLabel,
-  getAnalyticsTrendPatternLabel,
-  getAnalyticsTrendMethodLabel,
-  getAnalyticsTrendConfidenceLabel,
-  getAnalyticsTrendHorizonLabel,
-  isAnalyticsTrendUpward,
-  isAnalyticsTrendDownward,
-  isAnalyticsTrendStable,
-  getAnalyticsTrendDirection,
-  getAnalyticsTrendStrength,
-  // Analytics Status
-  ANALYTICS_STATUS,
-  AnalyticsStatusCode,
-  AnalyticsStatusCategory,
-  AnalyticsStatusPriority,
-  AnalyticsStatusVisibility,
-  AnalyticsStatusAction,
-  getAnalyticsStatusCodeLabel,
-  getAnalyticsStatusCategoryLabel,
-  getAnalyticsStatusPriorityLabel,
-  getAnalyticsStatusVisibilityLabel,
-  getAnalyticsStatusActionLabel,
-  isAnalyticsStatusSuccess,
-  isAnalyticsStatusProcessing,
-  isAnalyticsStatusFailure,
-  isAnalyticsStatusFinal,
-  getAnalyticsStatusCategory,
+  // Flash Sale Analytics Core
+  FLASH_SALE_ANALYTICS,
+  FlashSaleAnalyticsType,
+  FlashSaleAnalyticsMetric,
+  FlashSaleAnalyticsPeriod,
+  FlashSaleAnalyticsInterval,
+  FlashSaleAnalyticsAggregation,
+  FlashSaleAnalyticsDimension,
+  flashsalesAnalyticsGetTypeLabel,
+  flashsalesAnalyticsGetMetricLabel,
+  flashsalesAnalyticsGetPeriodLabel,
+  flashsalesAnalyticsGetIntervalLabel,
+  flashsalesAnalyticsGetAggregationLabel,
+  flashsalesAnalyticsGetDimensionLabel,
+  flashsalesAnalyticsIsValidType,
+  flashsalesAnalyticsIsValidMetric,
+  flashsalesAnalyticsIsValidPeriod,
+  flashsalesAnalyticsGetDefaultPeriod,
+  flashsalesAnalyticsGetDefaultInterval,
+  flashsalesAnalyticsGetDefaultAggregation,
+  flashsalesAnalyticsGetMaxResults,
+  flashsalesAnalyticsGetPeriodInDays,
+  // Flash Sale Analytics Type
+  FLASH_SALE_ANALYTICS_TYPE,
+  FlashSaleAnalyticsTypeCategory,
+  FlashSaleAnalyticsTypeComplexity,
+  FlashSaleAnalyticsTypeScope,
+  FlashSaleAnalyticsTypeFrequency,
+  FlashSaleAnalyticsTypeMethod,
+  FlashSaleAnalyticsTypePriority,
+  FlashSaleAnalyticsTypeStatus,
+  flashsalesAnalyticsTypeGetCategoryLabel,
+  flashsalesAnalyticsTypeGetComplexityLabel,
+  flashsalesAnalyticsTypeGetScopeLabel,
+  flashsalesAnalyticsTypeGetFrequencyLabel,
+  flashsalesAnalyticsTypeGetMethodLabel,
+  flashsalesAnalyticsTypeGetPriorityLabel,
+  flashsalesAnalyticsTypeGetStatusLabel,
+  flashsalesAnalyticsTypeIsValidCategory,
+  flashsalesAnalyticsTypeIsValidMethod,
+  flashsalesAnalyticsTypeIsCompleted,
+  flashsalesAnalyticsTypeIsProcessing,
+  flashsalesAnalyticsTypeIsFailed,
 };
