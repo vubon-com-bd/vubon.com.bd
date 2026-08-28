@@ -52,8 +52,8 @@ export type {
 // Ticket Constants
 export * from './ticket';
 
-// Conversation Constants
-export * from './conversation';
+// attachment Constants
+export * from './attachment';
 
 // knowledge-base Constants
 export * from './knowledge-base';
@@ -64,8 +64,8 @@ export * from './support-feedback';
 // support-faq Constants
 export * from './support-faq';
 
-// Conversation Constants
-export * from './conversation';
+// support-agent Constants
+export * from './support-agent';
 
 // survey Constants
 export * from './survey';
@@ -111,3 +111,6 @@ export * from './support-sms';
 
 // support-push Constants
 export * from './support-push';
+
+// message Constants
+export * from './message';
