@@ -16,7 +16,7 @@ export * from './seo';
 // export * from './analytics';
 export * from './reporting';
 export * from './flash-sales';
-// export * from './content';
+export * from './content';
 // export * from './marketing';
 // export * from './notification';
 // export * from './support';
