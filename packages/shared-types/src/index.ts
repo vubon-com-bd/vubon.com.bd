@@ -18,7 +18,7 @@ export * from './reporting';
 export * from './flash-sales';
 export * from './content';
 export * from './marketing';
-// export * from './notification';
+export * from './notification';
 // export * from './support';
 // export * from './logistics';
 // export * from './vendor';
