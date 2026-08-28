@@ -21,7 +21,7 @@ export * from './marketing';
 export * from './notification';
 export * from './support';
 // export * from './logistics';
-// export * from './vendor';
+export * from './vendor';
 export * from './search';
 export * from './discovery';
 export * from './checkout';
