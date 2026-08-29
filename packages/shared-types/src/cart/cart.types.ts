@@ -208,12 +208,11 @@ import {
   cartsettingsGetDefaultLocale,
   cartsettingsGetDefaultMaxItems,
   cartsettingsGetDefaultSessionTimeout,
-  // Shipping
+  // Shipping (ShippingMethod সরানো হয়েছে কারণ এটি logistics মডিউলে ডিফাইন করা আছে)
   SHIPPING,
   ShippingType,
   ShippingCategory,
   ShippingStatus,
-  ShippingMethod,
   ShippingCarrier,
   ShippingCalculationType,
   ShippingDefault,
@@ -764,12 +763,11 @@ export {
   cartsettingsGetDefaultLocale,
   cartsettingsGetDefaultMaxItems,
   cartsettingsGetDefaultSessionTimeout,
-  // Shipping
+  // Shipping (ShippingMethod সরানো হয়েছে)
   SHIPPING,
   ShippingType,
   ShippingCategory,
   ShippingStatus,
-  ShippingMethod,
   ShippingCarrier,
   ShippingCalculationType,
   ShippingDefault,
