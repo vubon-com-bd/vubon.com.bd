@@ -13,6 +13,8 @@ import type { AuthUser } from './auth.types';
 export interface AuthPreferences {
   /** User ID */
   userId: ID;
+  /** User data (optional, for reference) */
+  user?: AuthUser;
   /** Preferred authentication method (local, oauth, sso) */
   preferredAuthMethod: 'local' | 'oauth' | 'sso';
   /** Preferred two-factor authentication method */
@@ -38,6 +40,8 @@ export interface AuthPreferences {
 export interface SecurityPreferences {
   /** User ID */
   userId: ID;
+  /** User data (optional, for reference) */
+  user?: AuthUser;
   /** Security questions enabled */
   securityQuestionsEnabled: boolean;
   /** Security questions configured */
@@ -61,6 +65,8 @@ export interface SecurityPreferences {
 export interface PrivacyPreferences {
   /** User ID */
   userId: ID;
+  /** User data (optional, for reference) */
+  user?: AuthUser;
   /** Show online status */
   showOnlineStatus: boolean;
   /** Show last active time */
@@ -90,6 +96,8 @@ export interface PrivacyPreferences {
 export interface NotificationPreferences {
   /** User ID */
   userId: ID;
+  /** User data (optional, for reference) */
+  user?: AuthUser;
   /** Email notification preferences */
   email: {
     loginAlerts: boolean;
@@ -136,6 +144,8 @@ export interface NotificationPreferences {
 export interface SessionPreferences {
   /** User ID */
   userId: ID;
+  /** User data (optional, for reference) */
+  user?: AuthUser;
   /** Preferred session duration in minutes */
   preferredSessionDurationMinutes: number;
   /** Keep me signed in */
@@ -157,6 +167,8 @@ export interface SessionPreferences {
 export interface DevicePreferences {
   /** User ID */
   userId: ID;
+  /** User data (optional, for reference) */
+  user?: AuthUser;
   /** Preferred device name */
   preferredDeviceName?: string;
   /** Trust this device */
@@ -178,6 +190,8 @@ export interface DevicePreferences {
 export interface UIPreferences {
   /** User ID */
   userId: ID;
+  /** User data (optional, for reference) */
+  user?: AuthUser;
   /** Preferred theme (light, dark, system) */
   theme: 'light' | 'dark' | 'system';
   /** Preferred language */
@@ -248,19 +262,19 @@ export interface PreferencesValidationResult {
  */
 export interface PreferencesDefaults {
   /** Default authentication preferences */
-  auth: Omit<AuthPreferences, 'userId' | 'updatedAt'>;
+  auth: Omit<AuthPreferences, 'userId' | 'updatedAt' | 'user'>;
   /** Default security preferences */
-  security: Omit<SecurityPreferences, 'userId' | 'updatedAt'>;
+  security: Omit<SecurityPreferences, 'userId' | 'updatedAt' | 'user'>;
   /** Default privacy preferences */
-  privacy: Omit<PrivacyPreferences, 'userId' | 'updatedAt'>;
+  privacy: Omit<PrivacyPreferences, 'userId' | 'updatedAt' | 'user'>;
   /** Default notification preferences */
-  notifications: Omit<NotificationPreferences, 'userId' | 'updatedAt'>;
+  notifications: Omit<NotificationPreferences, 'userId' | 'updatedAt' | 'user'>;
   /** Default session preferences */
-  session: Omit<SessionPreferences, 'userId' | 'updatedAt'>;
+  session: Omit<SessionPreferences, 'userId' | 'updatedAt' | 'user'>;
   /** Default device preferences */
-  device: Omit<DevicePreferences, 'userId' | 'updatedAt'>;
+  device: Omit<DevicePreferences, 'userId' | 'updatedAt' | 'user'>;
   /** Default UI preferences */
-  ui: Omit<UIPreferences, 'userId' | 'updatedAt'>;
+  ui: Omit<UIPreferences, 'userId' | 'updatedAt' | 'user'>;
 }
 
 /**
@@ -270,6 +284,8 @@ export interface PreferencesDefaults {
 export interface PreferencesExport {
   /** User ID */
   userId: ID;
+  /** User data (optional, for reference) */
+  user?: AuthUser;
   /** Export timestamp */
   exportedAt: Timestamp;
   /** Authentication preferences */
@@ -312,6 +328,8 @@ export interface PreferencesAuditLog {
   id: ID;
   /** User ID */
   userId: ID;
+  /** User data (optional, for reference) */
+  user?: AuthUser;
   /** Section changed (auth, security, privacy, notifications, session, device, ui) */
   section: string;
   /** Changes made */

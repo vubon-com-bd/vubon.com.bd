@@ -13,6 +13,8 @@ import type { AuthUser } from './auth.types';
 export interface AuthSettings {
   /** User ID */
   userId: ID;
+  /** User data (optional, for reference) */
+  user?: AuthUser;
   /** Is two-factor authentication enabled */
   isTwoFactorEnabled: boolean;
   /** Two-factor authentication method (totp, sms, email) */
@@ -58,6 +60,8 @@ export interface AuthSettings {
 export interface SecuritySettings {
   /** User ID */
   userId: ID;
+  /** User data (optional, for reference) */
+  user?: AuthUser;
   /** Is password change required */
   isPasswordChangeRequired: boolean;
   /** Password last changed timestamp */
@@ -95,6 +99,8 @@ export interface SecuritySettings {
 export interface PrivacySettings {
   /** User ID */
   userId: ID;
+  /** User data (optional, for reference) */
+  user?: AuthUser;
   /** Is profile public */
   isProfilePublic: boolean;
   /** Show email in profile */
@@ -128,6 +134,8 @@ export interface PrivacySettings {
 export interface NotificationSettings {
   /** User ID */
   userId: ID;
+  /** User data (optional, for reference) */
+  user?: AuthUser;
   /** Email notifications enabled */
   emailNotifications: {
     loginAlerts: boolean;
@@ -174,6 +182,8 @@ export interface NotificationSettings {
 export interface SessionSettings {
   /** User ID */
   userId: ID;
+  /** User data (optional, for reference) */
+  user?: AuthUser;
   /** Maximum concurrent sessions */
   maxConcurrentSessions: number;
   /** Session idle timeout in minutes */
@@ -201,6 +211,8 @@ export interface SessionSettings {
 export interface DeviceSettings {
   /** User ID */
   userId: ID;
+  /** User data (optional, for reference) */
+  user?: AuthUser;
   /** Maximum devices per user */
   maxDevicesPerUser: number;
   /** Maximum untrusted devices per user */
@@ -226,6 +238,8 @@ export interface DeviceSettings {
 export interface LoginAttemptSettings {
   /** User ID */
   userId: ID;
+  /** User data (optional, for reference) */
+  user?: AuthUser;
   /** Maximum failed login attempts */
   maxFailedAttempts: number;
   /** Failed attempt window in minutes */
@@ -292,19 +306,19 @@ export interface SettingsValidationResult {
  */
 export interface SettingsDefaults {
   /** Default authentication settings */
-  auth: Omit<AuthSettings, 'userId' | 'updatedAt'>;
+  auth: Omit<AuthSettings, 'userId' | 'updatedAt' | 'user'>;
   /** Default security settings */
-  security: Omit<SecuritySettings, 'userId' | 'updatedAt'>;
+  security: Omit<SecuritySettings, 'userId' | 'updatedAt' | 'user'>;
   /** Default privacy settings */
-  privacy: Omit<PrivacySettings, 'userId' | 'updatedAt'>;
+  privacy: Omit<PrivacySettings, 'userId' | 'updatedAt' | 'user'>;
   /** Default notification settings */
-  notifications: Omit<NotificationSettings, 'userId' | 'updatedAt'>;
+  notifications: Omit<NotificationSettings, 'userId' | 'updatedAt' | 'user'>;
   /** Default session settings */
-  session: Omit<SessionSettings, 'userId' | 'updatedAt'>;
+  session: Omit<SessionSettings, 'userId' | 'updatedAt' | 'user'>;
   /** Default device settings */
-  device: Omit<DeviceSettings, 'userId' | 'updatedAt'>;
+  device: Omit<DeviceSettings, 'userId' | 'updatedAt' | 'user'>;
   /** Default login attempt settings */
-  loginAttempt: Omit<LoginAttemptSettings, 'userId' | 'updatedAt'>;
+  loginAttempt: Omit<LoginAttemptSettings, 'userId' | 'updatedAt' | 'user'>;
 }
 
 /**
@@ -316,6 +330,8 @@ export interface SettingsAuditLog {
   id: ID;
   /** User ID */
   userId: ID;
+  /** User data (optional, for reference) */
+  user?: AuthUser;
   /** Section changed (auth, security, privacy, notifications, session, device, loginAttempt) */
   section: string;
   /** Changes made */

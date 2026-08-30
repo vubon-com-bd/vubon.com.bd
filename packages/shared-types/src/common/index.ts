@@ -14,3 +14,6 @@ export * from './api.types';
 
 // Pagination types
 export * from './pagination.types';
+
+// Filter types
+export * from './filter.types';
