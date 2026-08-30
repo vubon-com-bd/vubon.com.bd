@@ -5,7 +5,7 @@
  */
 
 // Common types (core primitives, API, pagination, audit, SEO)
-// export * from './common';
+export * from './common';
 
 // Domain-specific types (to be added as they are created)
 // export * from './admin';
