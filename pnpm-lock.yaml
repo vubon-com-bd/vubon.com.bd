@@ -60,6 +60,43 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
+  packages/shared-schemas:
+    dependencies:
+      '@vubon/shared-constants':
+        specifier: workspace:*
+        version: link:../shared-constants
+      '@vubon/shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
+    devDependencies:
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.0.0
+        version: 8.67.0(@typescript-eslint/parser@8.67.0(eslint@9.39.5)(typescript@5.9.3))(eslint@9.39.5)(typescript@5.9.3)
+      '@typescript-eslint/parser':
+        specifier: ^8.0.0
+        version: 8.67.0(eslint@9.39.5)(typescript@5.9.3)
+      eslint:
+        specifier: ^9.0.0
+        version: 9.39.5
+      eslint-plugin-prettier:
+        specifier: ^5.0.0
+        version: 5.5.6(eslint@9.39.5)(prettier@3.9.6)
+      globals:
+        specifier: ^15.0.0
+        version: 15.15.0
+      prettier:
+        specifier: ^3.0.0
+        version: 3.9.6
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
   packages/shared-types:
     dependencies:
       '@vubon/shared-constants':
@@ -328,6 +365,7 @@ packages:
   eslint@9.39.5:
     resolution: {integrity: sha512-DgZS62aPLXKlnxILS/AYCoRvHaZeXceIzlXPkkGGzJWSow1aEk0lbTlxUSlyjC8jcaKxAdOnTDz+o1JFSBsyjw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'
@@ -585,6 +623,9 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  zod@3.25.76:
+    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
 snapshots:
 
@@ -1066,3 +1107,5 @@ snapshots:
   word-wrap@1.2.5: {}
 
   yocto-queue@0.1.0: {}
+
+  zod@3.25.76: {}

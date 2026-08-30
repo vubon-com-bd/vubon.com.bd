@@ -1,215 +1,423 @@
 /**
  * Cache Constants
- * Configuration for caching strategies and TTL (Time To Live)
+ * Common cache configurations, TTL values, and cache key patterns
  */
 
-export const CACHE = {
-  // Standard TTLs (in seconds)
-  TTL: {
-    // Short-lived (seconds)
-    SECOND: 1,
-    SECONDS_5: 5,
-    SECONDS_10: 10,
-    SECONDS_30: 30,
-
-    // Minute-based
-    MINUTE: 60,
-    MINUTES_5: 300,
-    MINUTES_10: 600,
-    MINUTES_15: 900,
-    MINUTES_30: 1800,
-
-    // Hour-based
-    HOUR: 3600,
-    HOURS_2: 7200,
-    HOURS_6: 21600,
-    HOURS_12: 43200,
-
-    // Day-based
-    DAY: 86400,
-    DAYS_2: 172800,
-    DAYS_7: 604800,
-    DAYS_30: 2592000,
-
-    // Month-based
-    MONTH: 2592000,
-    MONTHS_3: 7776000,
-    MONTHS_6: 15552000,
-
-    // Year-based
-    YEAR: 31536000,
-  },
-
-  // Cache keys
-  KEYS: {
-    // Auth
-    AUTH_SESSION: 'auth:session',
-    AUTH_TOKEN: 'auth:token',
-    AUTH_USER: 'auth:user',
-    AUTH_PERMISSION: 'auth:permission',
-
-    // User
-    USER_PROFILE: 'user:profile',
-    USER_SETTINGS: 'user:settings',
-    USER_PREFERENCES: 'user:preferences',
-    USER_ADDRESS: 'user:address',
-
-    // Product
-    PRODUCT_LIST: 'product:list',
-    PRODUCT_DETAIL: 'product:detail',
-    PRODUCT_CATEGORY: 'product:category',
-    PRODUCT_SEARCH: 'product:search',
-    PRODUCT_REVIEWS: 'product:reviews',
-
-    // Cart
-    CART: 'cart',
-    CART_ITEMS: 'cart:items',
-
-    // Order
-    ORDER: 'order',
-    ORDER_HISTORY: 'order:history',
-
-    // Admin
-    ADMIN_SESSION: 'admin:session',
-    ADMIN_ACTIVITY: 'admin:activity',
-
-    // AI
-    AI_RECOMMENDATION: 'ai:recommendation',
-    AI_SEARCH: 'ai:search',
-    AI_PERSONALIZATION: 'ai:personalization',
-
-    // SEO
-    SEO_META: 'seo:meta',
-    SEO_SITEMAP: 'seo:sitemap',
-    SEO_RANKING: 'seo:ranking',
-
-    // Analytics
-    ANALYTICS_DAILY: 'analytics:daily',
-    ANALYTICS_WEEKLY: 'analytics:weekly',
-    ANALYTICS_MONTHLY: 'analytics:monthly',
-
-    // Config
-    CONFIG: 'config',
-    SETTINGS: 'settings',
-    FEATURES: 'features',
-
-    // Cache control
-    CACHE_VERSION: 'cache:version',
-    CACHE_FLUSH: 'cache:flush',
-  },
-
-  // Cache control headers
-  HEADERS: {
-    NO_CACHE: 'no-cache',
-    NO_STORE: 'no-store',
-    MUST_REVALIDATE: 'must-revalidate',
-    PUBLIC: 'public',
-    PRIVATE: 'private',
-    PROXY_REVALIDATE: 'proxy-revalidate',
-  },
-
-  // Cache policies
-  POLICIES: {
-    // Static assets (1 year)
-    STATIC: {
-      maxAge: 31536000,
-      staleWhileRevalidate: 86400,
-    },
-
-    // API responses (5 minutes)
-    API: {
-      maxAge: 300,
-      staleWhileRevalidate: 60,
-    },
-
-    // User sessions (1 hour)
-    SESSION: {
-      maxAge: 3600,
-      staleWhileRevalidate: 300,
-    },
-
-    // Real-time data (30 seconds)
-    REALTIME: {
-      maxAge: 30,
-      staleWhileRevalidate: 5,
-    },
-
-    // User-specific data (15 minutes)
-    USER_DATA: {
-      maxAge: 900,
-      staleWhileRevalidate: 60,
-    },
-
-    // Public data (1 hour)
-    PUBLIC_DATA: {
-      maxAge: 3600,
-      staleWhileRevalidate: 300,
-    },
-
-    // Search results (10 minutes)
-    SEARCH: {
-      maxAge: 600,
-      staleWhileRevalidate: 60,
-    },
-
-    // Product listings (15 minutes)
-    PRODUCT_LISTING: {
-      maxAge: 900,
-      staleWhileRevalidate: 120,
-    },
-  },
+/**
+ * Cache TTL (Time To Live) values in seconds
+ */
+export const CACHE_TTL = {
+  /** 1 minute */
+  ONE_MINUTE: 60,
+  /** 5 minutes */
+  FIVE_MINUTES: 300,
+  /** 10 minutes */
+  TEN_MINUTES: 600,
+  /** 15 minutes */
+  FIFTEEN_MINUTES: 900,
+  /** 30 minutes */
+  THIRTY_MINUTES: 1800,
+  /** 1 hour */
+  ONE_HOUR: 3600,
+  /** 2 hours */
+  TWO_HOURS: 7200,
+  /** 6 hours */
+  SIX_HOURS: 21600,
+  /** 12 hours */
+  TWELVE_HOURS: 43200,
+  /** 24 hours / 1 day */
+  ONE_DAY: 86400,
+  /** 2 days */
+  TWO_DAYS: 172800,
+  /** 7 days / 1 week */
+  ONE_WEEK: 604800,
+  /** 30 days / 1 month */
+  ONE_MONTH: 2592000,
+  /** 365 days / 1 year */
+  ONE_YEAR: 31536000,
+  /** No expiration / permanent */
+  PERMANENT: 0,
 } as const;
 
-export type CacheTTL = (typeof CACHE.TTL)[keyof typeof CACHE.TTL];
-export type CacheKey = (typeof CACHE.KEYS)[keyof typeof CACHE.KEYS];
-export type CachePolicy = (typeof CACHE.POLICIES)[keyof typeof CACHE.POLICIES];
+/**
+ * Cache TTL values in milliseconds
+ */
+export const CACHE_TTL_MS = {
+  ONE_MINUTE: 60 * 1000,
+  FIVE_MINUTES: 5 * 60 * 1000,
+  TEN_MINUTES: 10 * 60 * 1000,
+  FIFTEEN_MINUTES: 15 * 60 * 1000,
+  THIRTY_MINUTES: 30 * 60 * 1000,
+  ONE_HOUR: 60 * 60 * 1000,
+  TWO_HOURS: 2 * 60 * 60 * 1000,
+  SIX_HOURS: 6 * 60 * 60 * 1000,
+  TWELVE_HOURS: 12 * 60 * 60 * 1000,
+  ONE_DAY: 24 * 60 * 60 * 1000,
+  TWO_DAYS: 2 * 24 * 60 * 60 * 1000,
+  ONE_WEEK: 7 * 24 * 60 * 60 * 1000,
+  ONE_MONTH: 30 * 24 * 60 * 60 * 1000,
+  ONE_YEAR: 365 * 24 * 60 * 60 * 1000,
+} as const;
 
-export function getCacheTTL(ttl: keyof typeof CACHE.TTL): number {
-  return CACHE.TTL[ttl];
+/**
+ * Cache key prefixes for different modules
+ */
+export const CACHE_KEY_PREFIX = {
+  AUTH: 'auth:',
+  USER: 'user:',
+  ADMIN: 'admin:',
+  VENDOR: 'vendor:',
+  PRODUCT: 'product:',
+  CATEGORY: 'category:',
+  BRAND: 'brand:',
+  CART: 'cart:',
+  ORDER: 'order:',
+  PAYMENT: 'payment:',
+  SESSION: 'session:',
+  TOKEN: 'token:',
+  OTP: 'otp:',
+  VERIFICATION: 'verification:',
+  SEARCH: 'search:',
+  ANALYTICS: 'analytics:',
+  NOTIFICATION: 'notification:',
+  REPORT: 'report:',
+  SEO: 'seo:',
+  SETTINGS: 'settings:',
+  CONFIG: 'config:',
+  TRANSLATION: 'translation:',
+  RATE_LIMIT: 'rate_limit:',
+  LOCK: 'lock:',
+  QUEUE: 'queue:',
+  JOB: 'job:',
+  SCHEDULE: 'schedule:',
+  WEBSOCKET: 'ws:',
+  EVENT: 'event:',
+  LOG: 'log:',
+  AUDIT: 'audit:',
+  METRIC: 'metric:',
+  STATISTIC: 'statistic:',
+  GEO: 'geo:',
+  IP: 'ip:',
+  LOCATION: 'location:',
+  CURRENCY: 'currency:',
+  EXCHANGE_RATE: 'exchange_rate:',
+  TAX: 'tax:',
+  SHIPPING: 'shipping:',
+  INVENTORY: 'inventory:',
+  WAREHOUSE: 'warehouse:',
+  SUPPLIER: 'supplier:',
+  COUPON: 'coupon:',
+  PROMOTION: 'promotion:',
+  FLASH_SALE: 'flash_sale:',
+  DEAL: 'deal:',
+  REVIEW: 'review:',
+  RATING: 'rating:',
+  COMMENT: 'comment:',
+  LIKE: 'like:',
+  FOLLOW: 'follow:',
+  FAVORITE: 'favorite:',
+  WISHLIST: 'wishlist:',
+  COMPARE: 'compare:',
+  RECENTLY_VIEWED: 'recently_viewed:',
+  RECOMMENDATION: 'recommendation:',
+  PERSONALIZATION: 'personalization:',
+} as const;
+
+/**
+ * Cache key patterns for common operations
+ */
+export const CACHE_KEY_PATTERN = {
+  /** Single item by ID */
+  BY_ID: ':id',
+  /** Collection/list */
+  LIST: ':list',
+  /** Paginated list */
+  PAGINATED: ':paginated',
+  /** Sorted list */
+  SORTED: ':sorted',
+  /** Filtered list */
+  FILTERED: ':filtered',
+  /** Search results */
+  SEARCH: ':search',
+  /** Count/Total */
+  COUNT: ':count',
+  /** Existence check */
+  EXISTS: ':exists',
+  /** Latest entry */
+  LATEST: ':latest',
+  /** Active entries */
+  ACTIVE: ':active',
+  /** Inactive entries */
+  INACTIVE: ':inactive',
+  /** Pending entries */
+  PENDING: ':pending',
+  /** Approved entries */
+  APPROVED: ':approved',
+  /** Rejected entries */
+  REJECTED: ':rejected',
+  /** Deleted entries */
+  DELETED: ':deleted',
+  /** By user */
+  BY_USER: ':user',
+  /** By vendor */
+  BY_VENDOR: ':vendor',
+  /** By admin */
+  BY_ADMIN: ':admin',
+  /** By date */
+  BY_DATE: ':date',
+  /** By month */
+  BY_MONTH: ':month',
+  /** By year */
+  BY_YEAR: ':year',
+  /** By status */
+  BY_STATUS: ':status',
+  /** By type */
+  BY_TYPE: ':type',
+  /** By category */
+  BY_CATEGORY: ':category',
+  /** By brand */
+  BY_BRAND: ':brand',
+  /** By price range */
+  BY_PRICE: ':price',
+  /** By location */
+  BY_LOCATION: ':location',
+  /** By IP address */
+  BY_IP: ':ip',
+  /** By device */
+  BY_DEVICE: ':device',
+  /** By browser */
+  BY_BROWSER: ':browser',
+  /** By platform */
+  BY_PLATFORM: ':platform',
+  /** By language */
+  BY_LANGUAGE: ':language',
+  /** By currency */
+  BY_CURRENCY: ':currency',
+  /** By time range */
+  BY_TIME: ':time',
+  /** Date range */
+  DATE_RANGE: ':date_range',
+  /** Time range */
+  TIME_RANGE: ':time_range',
+} as const;
+
+/**
+ * Cache operation types
+ */
+export const CACHE_OPERATION = {
+  GET: 'get',
+  SET: 'set',
+  DELETE: 'delete',
+  CLEAR: 'clear',
+  EXISTS: 'exists',
+  EXPIRE: 'expire',
+  PERSIST: 'persist',
+  TTL: 'ttl',
+  INCR: 'incr',
+  DECR: 'decr',
+  APPEND: 'append',
+  PREPEND: 'prepend',
+  HSET: 'hset',
+  HGET: 'hget',
+  HDEL: 'hdel',
+  HGETALL: 'hgetall',
+  LPUSH: 'lpush',
+  RPUSH: 'rpush',
+  LPOP: 'lpop',
+  RPOP: 'rpop',
+  LRANGE: 'lrange',
+  SADD: 'sadd',
+  SREM: 'srem',
+  SMEMBERS: 'smembers',
+  SISMEMBER: 'sismember',
+  ZADD: 'zadd',
+  ZREM: 'zrem',
+  ZRANGE: 'zrange',
+  ZREVRANGE: 'zrevrange',
+  ZRANK: 'zrank',
+  ZREVRANK: 'zrevrank',
+} as const;
+
+/**
+ * Cache invalidation strategies
+ */
+export const CACHE_INVALIDATION = {
+  /** Invalidate on write */
+  ON_WRITE: 'on_write',
+  /** Invalidate on update */
+  ON_UPDATE: 'on_update',
+  /** Invalidate on delete */
+  ON_DELETE: 'on_delete',
+  /** Invalidate on schedule */
+  ON_SCHEDULE: 'on_schedule',
+  /** Invalidate manually */
+  MANUAL: 'manual',
+  /** Never invalidate (permanent) */
+  NEVER: 'never',
+  /** Invalidate all related */
+  RELATED: 'related',
+  /** Invalidate by pattern */
+  PATTERN: 'pattern',
+} as const;
+
+/**
+ * Cache storage types
+ */
+export const CACHE_STORAGE = {
+  MEMORY: 'memory',
+  REDIS: 'redis',
+  MEMCACHED: 'memcached',
+  FILE: 'file',
+  DATABASE: 'database',
+  S3: 's3',
+  CLOUD: 'cloud',
+  LOCAL: 'local',
+} as const;
+
+/**
+ * Cache compression types
+ */
+export const CACHE_COMPRESSION = {
+  NONE: 'none',
+  GZIP: 'gzip',
+  DEFLATE: 'deflate',
+  BROTLI: 'brotli',
+  ZSTD: 'zstd',
+} as const;
+
+/**
+ * Build cache key with prefix and identifier
+ */
+export function buildCacheKey(prefix: string, identifier: string | number): string {
+  return `${prefix}${identifier}`;
 }
 
-export function buildCacheKey(prefix: string, ...parts: string[]): string {
-  return [prefix, ...parts].join(':');
+/**
+ * Build cache key with multiple parts
+ */
+export function buildCacheKeyWithParts(prefix: string, ...parts: (string | number)[]): string {
+  return `${prefix}${parts.join(':')}`;
 }
 
-export function getCachePolicy(name: keyof typeof CACHE.POLICIES): CachePolicy {
-  return CACHE.POLICIES[name];
-}
-
-export function getCacheControlHeader(policy: CachePolicy): string {
-  return `max-age=${policy.maxAge}, stale-while-revalidate=${policy.staleWhileRevalidate}`;
-}
-
-export function generateETag(data: unknown): string {
-  const jsonString = JSON.stringify(data);
-  return `"${Buffer.from(jsonString).toString('base64').slice(0, 16)}"`;
-}
-
-export function shouldBypassCache(ttl: number, lastUpdated: Date): boolean {
-  const age = (Date.now() - lastUpdated.getTime()) / 1000;
-  return age > ttl;
-}
-
-export function getCacheTTLFromRefreshInterval(refreshIntervalMinutes: number): number {
-  return refreshIntervalMinutes * 60;
-}
-
-export function getCacheKeyForUser(userId: string, resource: string): string {
-  return buildCacheKey(resource, userId);
-}
-
-export function getCacheKeyForPaginatedList(resource: string, page: number, limit: number): string {
-  return buildCacheKey(resource, `${page}`, `${limit}`);
-}
-
-export function getCacheKeyWithFilters(
-  resource: string,
-  filters: Record<string, string | number | boolean>
+/**
+ * Build cache key for paginated data
+ */
+export function buildPaginatedCacheKey(
+  prefix: string,
+  page: number,
+  limit: number,
+  ...filters: string[]
 ): string {
-  const filterString = Object.entries(filters)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([key, value]) => `${key}:${value}`)
-    .join(':');
+  const baseKey = `${prefix}${CACHE_KEY_PATTERN.PAGINATED}`;
+  const filterPart = filters.length > 0 ? `:${filters.join(':')}` : '';
+  return `${baseKey}:page${page}:limit${limit}${filterPart}`;
+}
 
-  return buildCacheKey(resource, filterString);
+/**
+ * Build cache key for sorted data
+ */
+export function buildSortedCacheKey(
+  prefix: string,
+  sortBy: string,
+  sortOrder: 'asc' | 'desc',
+  ...filters: string[]
+): string {
+  const baseKey = `${prefix}${CACHE_KEY_PATTERN.SORTED}`;
+  const filterPart = filters.length > 0 ? `:${filters.join(':')}` : '';
+  return `${baseKey}:${sortBy}:${sortOrder}${filterPart}`;
+}
+
+/**
+ * Build cache key for filtered data
+ */
+export function buildFilteredCacheKey(prefix: string, ...filters: string[]): string {
+  const baseKey = `${prefix}${CACHE_KEY_PATTERN.FILTERED}`;
+  return `${baseKey}:${filters.join(':')}`;
+}
+
+/**
+ * Build cache key for search results
+ */
+export function buildSearchCacheKey(prefix: string, query: string, ...filters: string[]): string {
+  const baseKey = `${prefix}${CACHE_KEY_PATTERN.SEARCH}`;
+  const filterPart = filters.length > 0 ? `:${filters.join(':')}` : '';
+  return `${baseKey}:${query.toLowerCase().trim()}${filterPart}`;
+}
+
+/**
+ * Build cache key for user-specific data
+ */
+export function buildUserCacheKey(
+  prefix: string,
+  userId: string | number,
+  ...parts: string[]
+): string {
+  const baseKey = `${prefix}${CACHE_KEY_PATTERN.BY_USER}`;
+  const part = parts.length > 0 ? `:${parts.join(':')}` : '';
+  return `${baseKey}:${userId}${part}`;
+}
+
+/**
+ * Build cache key for vendor-specific data
+ */
+export function buildVendorCacheKey(
+  prefix: string,
+  vendorId: string | number,
+  ...parts: string[]
+): string {
+  const baseKey = `${prefix}${CACHE_KEY_PATTERN.BY_VENDOR}`;
+  const part = parts.length > 0 ? `:${parts.join(':')}` : '';
+  return `${baseKey}:${vendorId}${part}`;
+}
+
+/**
+ * Build cache key for date-specific data
+ */
+export function buildDateCacheKey(prefix: string, date: Date, ...parts: string[]): string {
+  const baseKey = `${prefix}${CACHE_KEY_PATTERN.BY_DATE}`;
+  const dateStr = date.toISOString().split('T')[0];
+  const part = parts.length > 0 ? `:${parts.join(':')}` : '';
+  return `${baseKey}:${dateStr}${part}`;
+}
+
+/**
+ * Get TTL in seconds from milliseconds
+ */
+export function msToSeconds(ms: number): number {
+  return Math.floor(ms / 1000);
+}
+
+/**
+ * Get TTL in milliseconds from seconds
+ */
+export function secondsToMs(seconds: number): number {
+  return seconds * 1000;
+}
+
+/**
+ * Check if TTL is permanent (0 means no expiration)
+ */
+export function isPermanentCache(ttl: number): boolean {
+  return ttl === 0;
+}
+
+/**
+ * Get expiration timestamp from TTL
+ */
+export function getExpirationTimestamp(ttl: number): number {
+  if (isPermanentCache(ttl)) {
+    return -1;
+  }
+  return Date.now() + secondsToMs(ttl);
+}
+
+/**
+ * Calculate remaining TTL from expiration timestamp
+ */
+export function getRemainingTTL(expirationTimestamp: number): number {
+  if (expirationTimestamp === -1) {
+    return 0;
+  }
+  const remaining = expirationTimestamp - Date.now();
+  return remaining > 0 ? msToSeconds(remaining) : 0;
 }

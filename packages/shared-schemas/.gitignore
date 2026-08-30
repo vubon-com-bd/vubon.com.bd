@@ -1,0 +1,11 @@
+dist/
+node_modules/
+*.d.ts
+*.d.ts.map
+*.js
+*.js.map
+package.json
+tsconfig.json
+.eslintrc.js
+.prettierrc
+.prettierignore

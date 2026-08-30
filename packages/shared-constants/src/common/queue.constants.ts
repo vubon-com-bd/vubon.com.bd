@@ -1,335 +1,582 @@
 /**
  * Queue Constants
- * Configuration for message queues and job processing
+ * Common queue configurations, job types, priorities, and statuses
  */
 
-export const QUEUE = {
-  // Queue names
-  NAMES: {
-    // Core queues
-    DEFAULT: 'default',
-    HIGH_PRIORITY: 'high-priority',
-    LOW_PRIORITY: 'low-priority',
+/**
+ * Queue names for different modules
+ */
+export const QUEUE_NAMES = {
+  // Auth queues
+  AUTH: 'auth',
+  AUTH_EMAIL: 'auth:email',
+  AUTH_SMS: 'auth:sms',
+  AUTH_VERIFICATION: 'auth:verification',
+  AUTH_PASSWORD_RESET: 'auth:password_reset',
+  AUTH_MFA: 'auth:mfa',
 
-    // Auth queues
-    AUTH: 'auth',
-    AUTH_EMAIL: 'auth:email',
-    AUTH_SMS: 'auth:sms',
-    AUTH_RESET_PASSWORD: 'auth:reset-password',
-    AUTH_VERIFICATION: 'auth:verification',
+  // User queues
+  USER: 'user',
+  USER_PROFILE: 'user:profile',
+  USER_VERIFICATION: 'user:verification',
+  USER_KYC: 'user:kyc',
+  USER_ACTIVITY: 'user:activity',
+  USER_NOTIFICATION: 'user:notification',
 
-    // User queues
-    USER: 'user',
-    USER_PROFILE: 'user:profile',
-    USER_PREFERENCES: 'user:preferences',
-    USER_NOTIFICATION: 'user:notification',
+  // Admin queues
+  ADMIN: 'admin',
+  ADMIN_AUDIT: 'admin:audit',
+  ADMIN_ACTIVITY: 'admin:activity',
+  ADMIN_NOTIFICATION: 'admin:notification',
 
-    // Order queues
-    ORDER: 'order',
-    ORDER_CREATE: 'order:create',
-    ORDER_UPDATE: 'order:update',
-    ORDER_CANCEL: 'order:cancel',
-    ORDER_FULFILLMENT: 'order:fulfillment',
+  // Vendor queues
+  VENDOR: 'vendor',
+  VENDOR_VERIFICATION: 'vendor:verification',
+  VENDOR_COMMISSION: 'vendor:commission',
+  VENDOR_PAYOUT: 'vendor:payout',
+  VENDOR_PERFORMANCE: 'vendor:performance',
+  VENDOR_DOCUMENT: 'vendor:document',
 
-    // Payment queues
-    PAYMENT: 'payment',
-    PAYMENT_PROCESS: 'payment:process',
-    PAYMENT_REFUND: 'payment:refund',
-    PAYMENT_RECONCILE: 'payment:reconcile',
+  // Product queues
+  PRODUCT: 'product',
+  PRODUCT_INDEX: 'product:index',
+  PRODUCT_SYNC: 'product:sync',
+  PRODUCT_INVENTORY: 'product:inventory',
+  PRODUCT_PRICE: 'product:price',
+  PRODUCT_REVIEW: 'product:review',
 
-    // Product queues
-    PRODUCT: 'product',
-    PRODUCT_INDEX: 'product:index',
-    PRODUCT_SYNC: 'product:sync',
-    PRODUCT_INVENTORY: 'product:inventory',
+  // Order queues
+  ORDER: 'order',
+  ORDER_PROCESSING: 'order:processing',
+  ORDER_FULFILLMENT: 'order:fulfillment',
+  ORDER_SHIPPING: 'order:shipping',
+  ORDER_DELIVERY: 'order:delivery',
+  ORDER_CANCELLATION: 'order:cancellation',
 
-    // Email queues
-    EMAIL: 'email',
-    EMAIL_WELCOME: 'email:welcome',
-    EMAIL_NEWSLETTER: 'email:newsletter',
-    EMAIL_INVOICE: 'email:invoice',
-    EMAIL_REMINDER: 'email:reminder',
+  // Payment queues
+  PAYMENT: 'payment',
+  PAYMENT_PROCESSING: 'payment:processing',
+  PAYMENT_VERIFICATION: 'payment:verification',
+  PAYMENT_REFUND: 'payment:refund',
+  PAYMENT_RECONCILIATION: 'payment:reconciliation',
+  PAYMENT_SETTLEMENT: 'payment:settlement',
 
-    // Notification queues
-    NOTIFICATION: 'notification',
-    NOTIFICATION_PUSH: 'notification:push',
-    NOTIFICATION_SMS: 'notification:sms',
-    NOTIFICATION_EMAIL: 'notification:email',
-    NOTIFICATION_IN_APP: 'notification:in-app',
+  // Notification queues
+  NOTIFICATION: 'notification',
+  NOTIFICATION_EMAIL: 'notification:email',
+  NOTIFICATION_SMS: 'notification:sms',
+  NOTIFICATION_PUSH: 'notification:push',
+  NOTIFICATION_IN_APP: 'notification:in_app',
+  NOTIFICATION_WEBHOOK: 'notification:webhook',
 
-    // Report queues
-    REPORT: 'report',
-    REPORT_GENERATE: 'report:generate',
-    REPORT_EXPORT: 'report:export',
-    REPORT_EMAIL: 'report:email',
+  // Email queues
+  EMAIL: 'email',
+  EMAIL_WELCOME: 'email:welcome',
+  EMAIL_VERIFICATION: 'email:verification',
+  EMAIL_PASSWORD_RESET: 'email:password_reset',
+  EMAIL_ORDER_CONFIRMATION: 'email:order_confirmation',
+  EMAIL_INVOICE: 'email:invoice',
+  EMAIL_REPORT: 'email:report',
+  EMAIL_MARKETING: 'email:marketing',
+  EMAIL_NEWSLETTER: 'email:newsletter',
 
-    // Analytics queues
-    ANALYTICS: 'analytics',
-    ANALYTICS_PROCESS: 'analytics:process',
-    ANALYTICS_AGGREGATE: 'analytics:aggregate',
+  // SMS queues
+  SMS: 'sms',
+  SMS_OTP: 'sms:otp',
+  SMS_VERIFICATION: 'sms:verification',
+  SMS_ALERT: 'sms:alert',
+  SMS_NOTIFICATION: 'sms:notification',
+  SMS_MARKETING: 'sms:marketing',
 
-    // AI queues
-    AI: 'ai',
-    AI_RECOMMENDATION: 'ai:recommendation',
-    AI_PERSONALIZATION: 'ai:personalization',
-    AI_TRAINING: 'ai:training',
-    AI_PREDICTION: 'ai:prediction',
+  // Push notification queues
+  PUSH: 'push',
+  PUSH_NOTIFICATION: 'push:notification',
+  PUSH_ALERT: 'push:alert',
+  PUSH_REMINDER: 'push:reminder',
 
-    // SEO queues
-    SEO: 'seo',
-    SEO_INDEX: 'seo:index',
-    SEO_SITEMAP: 'seo:sitemap',
-    SEO_AUDIT: 'seo:audit',
+  // Analytics queues
+  ANALYTICS: 'analytics',
+  ANALYTICS_EVENT: 'analytics:event',
+  ANALYTICS_REPORT: 'analytics:report',
+  ANALYTICS_AGGREGATION: 'analytics:aggregation',
+  ANALYTICS_SYNC: 'analytics:sync',
 
-    // Logistics queues
-    LOGISTICS: 'logistics',
-    LOGISTICS_SHIPMENT: 'logistics:shipment',
-    LOGISTICS_TRACKING: 'logistics:tracking',
-    LOGISTICS_DELIVERY: 'logistics:delivery',
+  // Reporting queues
+  REPORT: 'report',
+  REPORT_GENERATION: 'report:generation',
+  REPORT_EXPORT: 'report:export',
+  REPORT_EMAIL: 'report:email',
 
-    // Support queues
-    SUPPORT: 'support',
-    SUPPORT_TICKET: 'support:ticket',
-    SUPPORT_EMAIL: 'support:email',
+  // Search queues
+  SEARCH: 'search',
+  SEARCH_INDEX: 'search:index',
+  SEARCH_REINDEX: 'search:reindex',
+  SEARCH_SYNC: 'search:sync',
+  SEARCH_SUGGESTION: 'search:suggestion',
 
-    // Marketing queues
-    MARKETING: 'marketing',
-    MARKETING_CAMPAIGN: 'marketing:campaign',
-    MARKETING_ANALYTICS: 'marketing:analytics',
+  // Cache queues
+  CACHE: 'cache',
+  CACHE_CLEAR: 'cache:clear',
+  CACHE_INVALIDATE: 'cache:invalidate',
+  CACHE_WARM: 'cache:warm',
 
-    // Vendor queues
-    VENDOR: 'vendor',
-    VENDOR_PAYOUT: 'vendor:payout',
-    VENDOR_SETTLEMENT: 'vendor:settlement',
+  // File queues
+  FILE: 'file',
+  FILE_UPLOAD: 'file:upload',
+  FILE_PROCESS: 'file:process',
+  FILE_CONVERT: 'file:convert',
+  FILE_OPTIMIZE: 'file:optimize',
+  FILE_DELETE: 'file:delete',
 
-    // Flash sale queues
-    FLASH_SALE: 'flash-sale',
-    FLASH_SALE_START: 'flash-sale:start',
-    FLASH_SALE_END: 'flash-sale:end',
-    FLASH_SALE_INVENTORY: 'flash-sale:inventory',
+  // Image queues
+  IMAGE: 'image',
+  IMAGE_RESIZE: 'image:resize',
+  IMAGE_OPTIMIZE: 'image:optimize',
+  IMAGE_UPLOAD: 'image:upload',
+  IMAGE_PROCESS: 'image:process',
 
-    // Cache queues
-    CACHE: 'cache',
-    CACHE_INVALIDATE: 'cache:invalidate',
-    CACHE_WARM: 'cache:warm',
+  // Export queues
+  EXPORT: 'export',
+  EXPORT_CSV: 'export:csv',
+  EXPORT_EXCEL: 'export:excel',
+  EXPORT_PDF: 'export:pdf',
 
-    // System queues
-    SYSTEM: 'system',
-    SYSTEM_HEALTH_CHECK: 'system:health-check',
-    SYSTEM_LOG: 'system:log',
-    SYSTEM_BACKUP: 'system:backup',
-  },
+  // Import queues
+  IMPORT: 'import',
+  IMPORT_CSV: 'import:csv',
+  IMPORT_EXCEL: 'import:excel',
+  IMPORT_BULK: 'import:bulk',
 
-  // Job priorities
-  PRIORITY: {
-    CRITICAL: 10,
-    HIGH: 5,
-    MEDIUM: 3,
-    LOW: 1,
-    BACKGROUND: 0,
-  },
+  // Backup queues
+  BACKUP: 'backup',
+  BACKUP_DATABASE: 'backup:database',
+  BACKUP_FILE: 'backup:file',
+  BACKUP_SYSTEM: 'backup:system',
 
-  // Queue options
-  OPTIONS: {
-    DEFAULT: {
-      concurrency: 5,
-      limiter: {
-        max: 100,
-        duration: 1000,
-      },
-    },
+  // Cleanup queues
+  CLEANUP: 'cleanup',
+  CLEANUP_LOG: 'cleanup:log',
+  CLEANUP_SESSION: 'cleanup:session',
+  CLEANUP_TEMP: 'cleanup:temp',
+  CLEANUP_ARCHIVE: 'cleanup:archive',
 
-    HIGH_PRIORITY: {
-      concurrency: 10,
-      limiter: {
-        max: 200,
-        duration: 1000,
-      },
-    },
+  // Sync queues
+  SYNC: 'sync',
+  SYNC_DATA: 'sync:data',
+  SYNC_METADATA: 'sync:metadata',
+  SYNC_REALTIME: 'sync:realtime',
 
-    EMAIL: {
-      concurrency: 2,
-      limiter: {
-        max: 50,
-        duration: 60000,
-      },
-    },
+  // Integration queues
+  INTEGRATION: 'integration',
+  INTEGRATION_API: 'integration:api',
+  INTEGRATION_WEBHOOK: 'integration:webhook',
+  INTEGRATION_THIRD_PARTY: 'integration:third_party',
 
-    PAYMENT: {
-      concurrency: 3,
-      limiter: {
-        max: 10,
-        duration: 1000,
-      },
-    },
+  // Webhook queues
+  WEBHOOK: 'webhook',
+  WEBHOOK_DELIVERY: 'webhook:delivery',
+  WEBHOOK_RETRY: 'webhook:retry',
 
-    ANALYTICS: {
-      concurrency: 1,
-      limiter: {
-        max: 20,
-        duration: 5000,
-      },
-    },
+  // Event queues
+  EVENT: 'event',
+  EVENT_PUBLISH: 'event:publish',
+  EVENT_PROCESS: 'event:process',
 
-    AI: {
-      concurrency: 1,
-      limiter: {
-        max: 5,
-        duration: 10000,
-      },
-    },
-  },
+  // Job queues
+  JOB: 'job',
+  JOB_SCHEDULE: 'job:schedule',
+  JOB_PROCESS: 'job:process',
+  JOB_RETRY: 'job:retry',
 
-  // Retry configurations
-  RETRY: {
-    DEFAULT: {
-      attempts: 3,
-      backoff: {
-        type: 'exponential',
-        delay: 1000,
-      },
-    },
+  // Logging queues
+  LOG: 'log',
+  LOG_AUDIT: 'log:audit',
+  LOG_SYSTEM: 'log:system',
+  LOG_ACCESS: 'log:access',
+  LOG_ERROR: 'log:error',
 
-    CRITICAL: {
-      attempts: 5,
-      backoff: {
-        type: 'exponential',
-        delay: 5000,
-      },
-    },
+  // Monitoring queues
+  MONITOR: 'monitor',
+  MONITOR_METRIC: 'monitor:metric',
+  MONITOR_ALERT: 'monitor:alert',
+  MONITOR_HEALTH: 'monitor:health',
 
-    PAYMENT: {
-      attempts: 5,
-      backoff: {
-        type: 'exponential',
-        delay: 2000,
-      },
-    },
+  // Notification preference queues
+  NOTIFICATION_PREFERENCE: 'notification:preference',
 
-    EMAIL: {
-      attempts: 3,
-      backoff: {
-        type: 'fixed',
-        delay: 60000,
-      },
-    },
+  // Discount queues
+  DISCOUNT: 'discount',
+  DISCOUNT_APPLY: 'discount:apply',
+  DISCOUNT_CALCULATE: 'discount:calculate',
 
-    ANALYTICS: {
-      attempts: 2,
-      backoff: {
-        type: 'exponential',
-        delay: 1000,
-      },
-    },
+  // Coupon queues
+  COUPON: 'coupon',
+  COUPON_VALIDATE: 'coupon:validate',
+  COUPON_APPLY: 'coupon:apply',
+  COUPON_RELEASE: 'coupon:release',
 
-    REPORT: {
-      attempts: 3,
-      backoff: {
-        type: 'exponential',
-        delay: 3000,
-      },
-    },
+  // Flash sale queues
+  FLASH_SALE: 'flash_sale',
+  FLASH_SALE_START: 'flash_sale:start',
+  FLASH_SALE_END: 'flash_sale:end',
+  FLASH_SALE_INVENTORY: 'flash_sale:inventory',
+  FLASH_SALE_NOTIFICATION: 'flash_sale:notification',
 
-    AI: {
-      attempts: 2,
-      backoff: {
-        type: 'exponential',
-        delay: 10000,
-      },
-    },
-  },
+  // Inventory queues
+  INVENTORY: 'inventory',
+  INVENTORY_UPDATE: 'inventory:update',
+  INVENTORY_SYNC: 'inventory:sync',
+  INVENTORY_CHECK: 'inventory:check',
+  INVENTORY_RESERVE: 'inventory:reserve',
+  INVENTORY_RELEASE: 'inventory:release',
 
-  // Queue events
-  EVENTS: {
-    JOB_ADDED: 'job:added',
-    JOB_STARTED: 'job:started',
-    JOB_PROGRESS: 'job:progress',
-    JOB_COMPLETED: 'job:completed',
-    JOB_FAILED: 'job:failed',
-    JOB_STALLED: 'job:stalled',
-    JOB_DELAYED: 'job:delayed',
-    JOB_REMOVED: 'job:removed',
-    QUEUE_DRAINED: 'queue:drained',
-    QUEUE_PAUSED: 'queue:paused',
-    QUEUE_RESUMED: 'queue:resumed',
-    QUEUE_ERROR: 'queue:error',
-  },
+  // Shipping queues
+  SHIPPING: 'shipping',
+  SHIPPING_CALCULATE: 'shipping:calculate',
+  SHIPPING_LABEL: 'shipping:label',
+  SHIPPING_TRACK: 'shipping:track',
+  SHIPPING_UPDATE: 'shipping:update',
 
-  // Job states
-  STATES: {
-    WAITING: 'waiting',
-    ACTIVE: 'active',
-    COMPLETED: 'completed',
-    FAILED: 'failed',
-    DELAYED: 'delayed',
-    PAUSED: 'paused',
-    REMOVED: 'removed',
-    STALLED: 'stalled',
-  },
+  // Fulfillment queues
+  FULFILLMENT: 'fulfillment',
+  FULFILLMENT_PROCESS: 'fulfillment:process',
+  FULFILLMENT_COMPLETE: 'fulfillment:complete',
+
+  // Return queues
+  RETURN: 'return',
+  RETURN_REQUEST: 'return:request',
+  RETURN_APPROVE: 'return:approve',
+  RETURN_PROCESS: 'return:process',
+  RETURN_REFUND: 'return:refund',
+
+  // Refund queues
+  REFUND: 'refund',
+  REFUND_PROCESS: 'refund:process',
+  REFUND_APPROVE: 'refund:approve',
+  REFUND_COMPLETE: 'refund:complete',
+
+  // Invoice queues
+  INVOICE: 'invoice',
+  INVOICE_GENERATE: 'invoice:generate',
+  INVOICE_SEND: 'invoice:send',
+  INVOICE_PAYMENT: 'invoice:payment',
+
+  // Tax queues
+  TAX: 'tax',
+  TAX_CALCULATE: 'tax:calculate',
+  TAX_REPORT: 'tax:report',
+
+  // Commission queues
+  COMMISSION: 'commission',
+  COMMISSION_CALCULATE: 'commission:calculate',
+  COMMISSION_PAYOUT: 'commission:payout',
+
+  // Settlement queues
+  SETTLEMENT: 'settlement',
+  SETTLEMENT_PROCESS: 'settlement:process',
+  SETTLEMENT_COMPLETE: 'settlement:complete',
+
+  // Reconciliation queues
+  RECONCILIATION: 'reconciliation',
+  RECONCILIATION_PROCESS: 'reconciliation:process',
+  RECONCILIATION_REPORT: 'reconciliation:report',
 } as const;
 
-export type QueueName = (typeof QUEUE.NAMES)[keyof typeof QUEUE.NAMES];
-export type QueuePriority = (typeof QUEUE.PRIORITY)[keyof typeof QUEUE.PRIORITY];
-export type QueueState = (typeof QUEUE.STATES)[keyof typeof QUEUE.STATES];
-export type QueueEvent = (typeof QUEUE.EVENTS)[keyof typeof QUEUE.EVENTS];
+/**
+ * Queue job priorities
+ */
+export const QUEUE_PRIORITY = {
+  /** Highest priority */
+  CRITICAL: 1,
+  /** High priority */
+  HIGH: 2,
+  /** Normal priority */
+  NORMAL: 3,
+  /** Low priority */
+  LOW: 4,
+  /** Lowest priority */
+  LOWEST: 5,
+} as const;
 
-export function getQueueOptions(
-  name: keyof typeof QUEUE.OPTIONS
-): (typeof QUEUE.OPTIONS)[keyof typeof QUEUE.OPTIONS] {
-  return QUEUE.OPTIONS[name] || QUEUE.OPTIONS.DEFAULT;
+/**
+ * Queue job statuses
+ */
+export const QUEUE_JOB_STATUS = {
+  /** Job is waiting to be processed */
+  WAITING: 'waiting',
+  /** Job is currently being processed */
+  ACTIVE: 'active',
+  /** Job has been completed successfully */
+  COMPLETED: 'completed',
+  /** Job has failed */
+  FAILED: 'failed',
+  /** Job has been delayed */
+  DELAYED: 'delayed',
+  /** Job has been paused */
+  PAUSED: 'paused',
+  /** Job has been cancelled */
+  CANCELLED: 'cancelled',
+  /** Job is being retried */
+  RETRYING: 'retrying',
+  /** Job is in progress */
+  IN_PROGRESS: 'in_progress',
+  /** Job is scheduled for later */
+  SCHEDULED: 'scheduled',
+  /** Job has been archived */
+  ARCHIVED: 'archived',
+  /** Job has expired */
+  EXPIRED: 'expired',
+  /** Job is on hold */
+  ON_HOLD: 'on_hold',
+  /** Job is being processed in background */
+  BACKGROUND: 'background',
+} as const;
+
+/**
+ * Queue job types
+ */
+export const QUEUE_JOB_TYPE = {
+  /** One-time jobs */
+  ONCE: 'once',
+  /** Recurring jobs */
+  RECURRING: 'recurring',
+  /** Delayed jobs */
+  DELAYED: 'delayed',
+  /** Scheduled jobs */
+  SCHEDULED: 'scheduled',
+  /** Cron jobs */
+  CRON: 'cron',
+  /** Batch jobs */
+  BATCH: 'batch',
+  /** Chained jobs */
+  CHAINED: 'chained',
+  /** Parallel jobs */
+  PARALLEL: 'parallel',
+  /** Sequential jobs */
+  SEQUENTIAL: 'sequential',
+  /** Priority jobs */
+  PRIORITY: 'priority',
+  /** Retry jobs */
+  RETRY: 'retry',
+  /** Dead letter jobs */
+  DEAD_LETTER: 'dead_letter',
+} as const;
+
+/**
+ * Queue retry strategies
+ */
+export const QUEUE_RETRY_STRATEGY = {
+  /** No retry */
+  NONE: 'none',
+  /** Fixed delay between retries */
+  FIXED: 'fixed',
+  /** Exponential backoff */
+  EXPONENTIAL: 'exponential',
+  /** Linear backoff */
+  LINEAR: 'linear',
+  /** Custom retry strategy */
+  CUSTOM: 'custom',
+  /** Immediate retry */
+  IMMEDIATE: 'immediate',
+} as const;
+
+/**
+ * Queue concurrency types
+ */
+export const QUEUE_CONCURRENCY = {
+  /** Single job at a time */
+  SINGLE: 1,
+  /** Limited concurrent jobs */
+  LIMITED: 'limited',
+  /** Unlimited concurrent jobs */
+  UNLIMITED: 'unlimited',
+  /** Custom concurrency */
+  CUSTOM: 'custom',
+} as const;
+
+/**
+ * Queue event types
+ */
+export const QUEUE_EVENT = {
+  JOB_ADDED: 'job_added',
+  JOB_PROCESSING: 'job_processing',
+  JOB_COMPLETED: 'job_completed',
+  JOB_FAILED: 'job_failed',
+  JOB_RETRY: 'job_retry',
+  JOB_DELAYED: 'job_delayed',
+  JOB_CANCELLED: 'job_cancelled',
+  JOB_PAUSED: 'job_paused',
+  JOB_RESUMED: 'job_resumed',
+  JOB_PROGRESS: 'job_progress',
+  QUEUE_EMPTY: 'queue_empty',
+  QUEUE_DRAINED: 'queue_drained',
+  QUEUE_ERROR: 'queue_error',
+} as const;
+
+/**
+ * Queue options
+ */
+export interface QueueOptions {
+  /** Queue name */
+  name: string;
+  /** Number of concurrent jobs */
+  concurrency?: number;
+  /** Max number of retries */
+  maxRetries?: number;
+  /** Retry strategy */
+  retryStrategy?: keyof typeof QUEUE_RETRY_STRATEGY;
+  /** Retry delay in seconds */
+  retryDelay?: number;
+  /** Job timeout in seconds */
+  timeout?: number;
+  /** Job priority */
+  priority?: number;
+  /** Enable job removal on completion */
+  removeOnComplete?: boolean;
+  /** Enable job removal on failure */
+  removeOnFail?: boolean;
+  /** Enable job progress tracking */
+  progressTracking?: boolean;
+  /** Enable job logging */
+  logging?: boolean;
+  /** Enable job metrics */
+  metrics?: boolean;
+  /** Enable dead letter queue */
+  deadLetterQueue?: boolean;
 }
 
-export function getRetryConfig(
-  name: keyof typeof QUEUE.RETRY
-): (typeof QUEUE.RETRY)[keyof typeof QUEUE.RETRY] {
-  return QUEUE.RETRY[name] || QUEUE.RETRY.DEFAULT;
+/**
+ * Job options
+ */
+export interface JobOptions {
+  /** Job priority */
+  priority?: number;
+  /** Job delay in seconds */
+  delay?: number;
+  /** Job timeout in seconds */
+  timeout?: number;
+  /** Max retries for this job */
+  maxRetries?: number;
+  /** Retry delay for this job */
+  retryDelay?: number;
+  /** Job ID (for deduplication) */
+  jobId?: string;
+  /** Job group */
+  group?: string;
+  /** Enable job removal on completion */
+  removeOnComplete?: boolean;
+  /** Enable job removal on failure */
+  removeOnFail?: boolean;
+  /** Enable progress tracking */
+  progressTracking?: boolean;
+  /** Job metadata */
+  metadata?: Record<string, unknown>;
+  /** Job tags for filtering */
+  tags?: string[];
 }
 
-export function shouldRetryJob(attempts: number): boolean {
-  return attempts < QUEUE.RETRY.DEFAULT.attempts;
+/**
+ * Build queue name with prefix
+ */
+export function buildQueueName(queueName: string): string {
+  return `queue:${queueName}`;
 }
 
-export function getBackoffDelay(attempt: number, config: typeof QUEUE.RETRY.DEFAULT): number {
-  if (config.backoff.type === 'exponential') {
-    return config.backoff.delay * Math.pow(2, attempt - 1);
+/**
+ * Build job key with queue and job ID
+ */
+export function buildJobKey(queueName: string, jobId: string): string {
+  return `${queueName}:job:${jobId}`;
+}
+
+/**
+ * Build dead letter queue name
+ */
+export function buildDeadLetterQueueName(queueName: string): string {
+  return `${queueName}:dead_letter`;
+}
+
+/**
+ * Build retry queue name
+ */
+export function buildRetryQueueName(queueName: string): string {
+  return `${queueName}:retry`;
+}
+
+/**
+ * Build delayed queue name
+ */
+export function buildDelayedQueueName(queueName: string): string {
+  return `${queueName}:delayed`;
+}
+
+/**
+ * Build queue group name
+ */
+export function buildQueueGroupName(groupName: string): string {
+  return `queue:group:${groupName}`;
+}
+
+/**
+ * Check if job is recoverable
+ */
+export function isJobRecoverable(error: Error): boolean {
+  const unrecoverableErrors = [
+    'ValidationError',
+    'AuthenticationError',
+    'AuthorizationError',
+    'NotFoundError',
+  ];
+
+  return !unrecoverableErrors.some(
+    (errType) => error.name === errType || error.message.includes(errType)
+  );
+}
+
+/**
+ * Get retry delay based on retry count
+ */
+export function getRetryDelay(
+  retryCount: number,
+  strategy: keyof typeof QUEUE_RETRY_STRATEGY,
+  baseDelay: number = 60
+): number {
+  switch (strategy) {
+    case 'NONE':
+      return 0;
+
+    case 'IMMEDIATE':
+      return 0;
+
+    case 'FIXED':
+      return baseDelay;
+
+    case 'LINEAR':
+      return baseDelay * (retryCount + 1);
+
+    case 'EXPONENTIAL':
+      return Math.min(
+        baseDelay * Math.pow(2, retryCount),
+        86400 // Max 24 hours
+      );
+
+    case 'CUSTOM':
+      return baseDelay * (retryCount + 1);
+
+    default:
+      return baseDelay;
   }
-  return config.backoff.delay;
 }
 
-export function isJobComplete(state: QueueState): boolean {
-  return state === QUEUE.STATES.COMPLETED;
-}
-
-export function isJobFailed(state: QueueState): boolean {
-  return state === QUEUE.STATES.FAILED;
-}
-
-export function isJobWaiting(state: QueueState): boolean {
-  return state === QUEUE.STATES.WAITING;
-}
-
-export function isJobActive(state: QueueState): boolean {
-  return state === QUEUE.STATES.ACTIVE;
-}
-
-export function getJobPriorityLabel(priority: QueuePriority): string {
-  const labels: Record<QueuePriority, string> = {
-    [QUEUE.PRIORITY.CRITICAL]: 'Critical',
-    [QUEUE.PRIORITY.HIGH]: 'High',
-    [QUEUE.PRIORITY.MEDIUM]: 'Medium',
-    [QUEUE.PRIORITY.LOW]: 'Low',
-    [QUEUE.PRIORITY.BACKGROUND]: 'Background',
-  };
-  return labels[priority] || 'Unknown';
-}
-
-export function getPriorityFromLabel(label: string): QueuePriority {
-  const mapping: Record<string, QueuePriority> = {
-    critical: QUEUE.PRIORITY.CRITICAL,
-    high: QUEUE.PRIORITY.HIGH,
-    medium: QUEUE.PRIORITY.MEDIUM,
-    low: QUEUE.PRIORITY.LOW,
-    background: QUEUE.PRIORITY.BACKGROUND,
-  };
-  return mapping[label.toLowerCase()] || QUEUE.PRIORITY.MEDIUM;
+/**
+ * Calculate exponential backoff with jitter
+ */
+export function getExponentialBackoffWithJitter(
+  retryCount: number,
+  baseDelay: number = 60,
+  maxDelay: number = 86400
+): number {
+  const delay = Math.min(baseDelay * Math.pow(2, retryCount), maxDelay);
+  const jitter = Math.random() * 0.1 * delay; // 10% jitter
+  return delay + jitter;
 }
