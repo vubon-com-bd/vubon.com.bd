@@ -582,3 +582,20 @@ export {
   USER_LOG_TYPE_RETENTION_MAP,
   getUserLogRetentionFromType,
 } from './user-log.constants';
+
+// user/index.ts-এ যোগ করুন:
+export {
+  USER_DEFAULTS,
+  USER_VALIDATION,
+  USER_LIMITS,
+  USER_METADATA,
+  USER_PLATFORM,
+  USER_PLATFORM_LABELS,
+  isValidUserPlatform,
+  getUserPlatformLabel,
+  getAllUserPlatforms,
+  isUserPlatformMobile,
+  isUserPlatformWeb,
+  isUserPlatformAdmin,
+  isUserPlatformVendor,
+} from './user.constants';
