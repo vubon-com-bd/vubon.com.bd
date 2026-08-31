@@ -5,7 +5,7 @@
 
 import { z } from 'zod';
 import type { FilterParams } from '@vubon/shared-types';
-import { sortOrderSchema } from './type.schema';
+import { sortOrderSchema } from './core-primitives.schema';
 
 /**
  * Base filter schema (as ZodObject for extend support)

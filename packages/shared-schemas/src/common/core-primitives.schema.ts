@@ -4,12 +4,17 @@
  */
 
 import { z } from 'zod';
-import {
-  HTTP_STATUS,
-  // Common constants
-} from '@vubon/shared-constants';
-
-import type { ID, UUID, Email, PhoneNumber, Url, Timestamp, JsonObject } from '@vubon/shared-types';
+import { HTTP_STATUS } from '@vubon/shared-constants';
+import type {
+  ID,
+  UUID,
+  Email,
+  PhoneNumber,
+  Url,
+  Timestamp,
+  JsonObject,
+  JsonValue,
+} from '@vubon/shared-types';
 
 // ============================================
 // Validator functions (using regex patterns)
@@ -76,7 +81,7 @@ export const phoneSchema = z
 export const urlSchema = z.string().url() satisfies z.ZodType<Url>;
 
 /**
- * Timestamp schema
+ * Timestamp schema (Date only, as per Timestamp type)
  */
 export const timestampSchema = z.date() satisfies z.ZodType<Timestamp>;
 
@@ -91,9 +96,9 @@ export const isoDateSchema = z.string().datetime();
 export const jsonObjectSchema = z.record(z.unknown()) satisfies z.ZodType<JsonObject>;
 
 /**
- * JSON Value schema (recursive)
+ * JSON Value schema (recursive) - JSON spec compliant
  */
-export const jsonValueSchema: z.ZodType<unknown> = z.lazy(() =>
+export const jsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
   z.union([
     z.string(),
     z.number(),
@@ -134,9 +139,55 @@ export const validators = {
 // Re-export constants (if needed)
 // ============================================
 
-// Note: These are re-exported for convenience
-// Import from '@vubon/shared-constants' directly in your code
 export const CONSTANTS = {
   HTTP_STATUS,
-  // Add other constants as needed
+} as const;
+
+// ============================================
+// Helper Schemas
+// ============================================
+
+/**
+ * Sort order schema
+ */
+export const sortOrderSchema = z.enum(['asc', 'desc']);
+
+/**
+ * Nullable schema helper
+ */
+export const nullable = <T extends z.ZodTypeAny>(schema: T) => schema.nullable();
+
+/**
+ * Optional schema helper
+ */
+export const optional = <T extends z.ZodTypeAny>(schema: T) => schema.optional();
+
+/**
+ * Array schema helper with min/max
+ */
+export const arrayOf = <T extends z.ZodTypeAny>(schema: T, min?: number, max?: number) => {
+  let arr = z.array(schema);
+  if (min !== undefined) arr = arr.min(min);
+  if (max !== undefined) arr = arr.max(max);
+  return arr;
+};
+
+/**
+ * String schema with min/max length
+ */
+export const stringWithLength = (min?: number, max?: number) => {
+  let str = z.string();
+  if (min !== undefined) str = str.min(min);
+  if (max !== undefined) str = str.max(max);
+  return str;
+};
+
+/**
+ * Number schema with min/max
+ */
+export const numberWithRange = (min?: number, max?: number) => {
+  let num = z.number();
+  if (min !== undefined) num = num.min(min);
+  if (max !== undefined) num = num.max(max);
+  return num;
 };
