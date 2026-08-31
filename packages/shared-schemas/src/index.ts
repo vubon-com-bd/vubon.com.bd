@@ -5,3 +5,6 @@
 
 // Common schemas
 export * from './common';
+
+// Auth schemas
+export * from './auth';
