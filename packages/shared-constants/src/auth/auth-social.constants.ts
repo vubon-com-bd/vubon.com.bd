@@ -1,58 +1,45 @@
 /**
  * Authentication Social Constants
  * Social login, social media integration, and social authentication constants
- *
- * Note: Base SOCIAL_PROVIDERS and related types are exported from auth-provider.constants
  */
 
 import { HTTP_STATUS } from '../common/http-status.constants';
 
-/**
- * Social Login Status
- * Status of social login attempts
- */
-export const SOCIAL_LOGIN_STATUS = {
-  /** Social login successful */
+// ============================================================
+// AUTH SOCIAL LOGIN STATUS
+// ============================================================
+export const AUTH_SOCIAL_LOGIN_STATUS = {
   SUCCESS: 'success',
-  /** Social login failed */
   FAILED: 'failed',
-  /** Social login requires additional information */
   REQUIRES_INFO: 'requires_info',
-  /** Social login requires email verification */
   REQUIRES_VERIFICATION: 'requires_verification',
-  /** Social login cancelled by user */
   CANCELLED: 'cancelled',
-  /** Social login timed out */
   TIMEOUT: 'timeout',
-  /** Social login requires account linking */
   REQUIRES_LINKING: 'requires_linking',
-  /** Social login is blocked */
   BLOCKED: 'blocked',
 } as const;
 
-export type SocialLoginStatus = (typeof SOCIAL_LOGIN_STATUS)[keyof typeof SOCIAL_LOGIN_STATUS];
+export type AuthSocialLoginStatus =
+  (typeof AUTH_SOCIAL_LOGIN_STATUS)[keyof typeof AUTH_SOCIAL_LOGIN_STATUS];
 
-/**
- * Social Login Status HTTP Mapping
- * Maps social login status to HTTP status codes
- */
-export const SOCIAL_LOGIN_STATUS_HTTP_MAP: Record<SocialLoginStatus, number> = {
-  [SOCIAL_LOGIN_STATUS.SUCCESS]: HTTP_STATUS.OK,
-  [SOCIAL_LOGIN_STATUS.FAILED]: HTTP_STATUS.UNAUTHORIZED,
-  [SOCIAL_LOGIN_STATUS.REQUIRES_INFO]: HTTP_STATUS.BAD_REQUEST,
-  [SOCIAL_LOGIN_STATUS.REQUIRES_VERIFICATION]: HTTP_STATUS.FORBIDDEN,
-  [SOCIAL_LOGIN_STATUS.CANCELLED]: HTTP_STATUS.BAD_REQUEST,
-  [SOCIAL_LOGIN_STATUS.TIMEOUT]: HTTP_STATUS.REQUEST_TIMEOUT,
-  [SOCIAL_LOGIN_STATUS.REQUIRES_LINKING]: HTTP_STATUS.CONFLICT,
-  [SOCIAL_LOGIN_STATUS.BLOCKED]: HTTP_STATUS.FORBIDDEN,
+// ============================================================
+// AUTH SOCIAL LOGIN STATUS HTTP MAP
+// ============================================================
+export const AUTH_SOCIAL_LOGIN_STATUS_HTTP_MAP: Record<AuthSocialLoginStatus, number> = {
+  [AUTH_SOCIAL_LOGIN_STATUS.SUCCESS]: HTTP_STATUS.OK,
+  [AUTH_SOCIAL_LOGIN_STATUS.FAILED]: HTTP_STATUS.UNAUTHORIZED,
+  [AUTH_SOCIAL_LOGIN_STATUS.REQUIRES_INFO]: HTTP_STATUS.BAD_REQUEST,
+  [AUTH_SOCIAL_LOGIN_STATUS.REQUIRES_VERIFICATION]: HTTP_STATUS.FORBIDDEN,
+  [AUTH_SOCIAL_LOGIN_STATUS.CANCELLED]: HTTP_STATUS.BAD_REQUEST,
+  [AUTH_SOCIAL_LOGIN_STATUS.TIMEOUT]: HTTP_STATUS.REQUEST_TIMEOUT,
+  [AUTH_SOCIAL_LOGIN_STATUS.REQUIRES_LINKING]: HTTP_STATUS.CONFLICT,
+  [AUTH_SOCIAL_LOGIN_STATUS.BLOCKED]: HTTP_STATUS.FORBIDDEN,
 } as const;
 
-/**
- * Social Provider Config
- * Configuration for each social provider
- */
-export const SOCIAL_PROVIDER_CONFIG = {
-  /** Google OAuth configuration */
+// ============================================================
+// AUTH SOCIAL PROVIDER CONFIG
+// ============================================================
+export const AUTH_SOCIAL_PROVIDER_CONFIG = {
   GOOGLE: {
     clientId: '',
     clientSecret: '',
@@ -62,7 +49,6 @@ export const SOCIAL_PROVIDER_CONFIG = {
     tokenUrl: 'https://oauth2.googleapis.com/token',
     userInfoUrl: 'https://www.googleapis.com/oauth2/v2/userinfo',
   },
-  /** Facebook OAuth configuration */
   FACEBOOK: {
     clientId: '',
     clientSecret: '',
@@ -72,7 +58,6 @@ export const SOCIAL_PROVIDER_CONFIG = {
     tokenUrl: 'https://graph.facebook.com/v18.0/oauth/access_token',
     userInfoUrl: 'https://graph.facebook.com/me',
   },
-  /** GitHub OAuth configuration */
   GITHUB: {
     clientId: '',
     clientSecret: '',
@@ -82,7 +67,6 @@ export const SOCIAL_PROVIDER_CONFIG = {
     tokenUrl: 'https://github.com/login/oauth/access_token',
     userInfoUrl: 'https://api.github.com/user',
   },
-  /** Twitter/X OAuth configuration */
   TWITTER: {
     clientId: '',
     clientSecret: '',
@@ -92,7 +76,6 @@ export const SOCIAL_PROVIDER_CONFIG = {
     tokenUrl: 'https://api.twitter.com/2/oauth2/token',
     userInfoUrl: 'https://api.twitter.com/2/users/me',
   },
-  /** LinkedIn OAuth configuration */
   LINKEDIN: {
     clientId: '',
     clientSecret: '',
@@ -102,7 +85,6 @@ export const SOCIAL_PROVIDER_CONFIG = {
     tokenUrl: 'https://www.linkedin.com/oauth/v2/accessToken',
     userInfoUrl: 'https://api.linkedin.com/v2/userinfo',
   },
-  /** Apple OAuth configuration */
   APPLE: {
     clientId: '',
     clientSecret: '',
@@ -112,7 +94,6 @@ export const SOCIAL_PROVIDER_CONFIG = {
     tokenUrl: 'https://appleid.apple.com/auth/token',
     userInfoUrl: 'https://appleid.apple.com/auth/keys',
   },
-  /** Microsoft OAuth configuration */
   MICROSOFT: {
     clientId: '',
     clientSecret: '',
@@ -124,129 +105,120 @@ export const SOCIAL_PROVIDER_CONFIG = {
   },
 } as const;
 
-export type SocialProviderConfig =
-  (typeof SOCIAL_PROVIDER_CONFIG)[keyof typeof SOCIAL_PROVIDER_CONFIG];
+export type AuthSocialProviderConfig =
+  (typeof AUTH_SOCIAL_PROVIDER_CONFIG)[keyof typeof AUTH_SOCIAL_PROVIDER_CONFIG];
 
-/**
- * Social Login Error Messages
- * Error messages for social login failures
- */
-export const SOCIAL_LOGIN_ERRORS = {
-  /** Social login failed */
+// ============================================================
+// AUTH SOCIAL LOGIN ERRORS
+// ============================================================
+export const AUTH_SOCIAL_LOGIN_ERRORS = {
   LOGIN_FAILED: 'Social login failed',
-  /** Provider not configured */
   PROVIDER_NOT_CONFIGURED: 'Social provider is not configured',
-  /** Invalid provider */
   INVALID_PROVIDER: 'Invalid social provider',
-  /** User cancelled login */
   USER_CANCELLED: 'User cancelled the social login',
-  /** Access denied */
   ACCESS_DENIED: 'Access denied by the social provider',
-  /** Email already exists */
   EMAIL_ALREADY_EXISTS: 'Email is already registered with another provider',
-  /** Account needs linking */
   ACCOUNT_NEEDS_LINKING: 'Account needs to be linked with existing account',
-  /** Provider error */
   PROVIDER_ERROR: 'Social provider returned an error',
-  /** Invalid state */
   INVALID_STATE: 'Invalid OAuth state parameter',
-  /** Code exchange failed */
   CODE_EXCHANGE_FAILED: 'Failed to exchange authorization code',
-  /** User info fetch failed */
   USER_INFO_FETCH_FAILED: 'Failed to fetch user information',
-  /** Token invalid */
   TOKEN_INVALID: 'Social access token is invalid',
-  /** Token expired */
   TOKEN_EXPIRED: 'Social access token has expired',
-  /** Rate limit exceeded */
   RATE_LIMIT_EXCEEDED: 'Social provider rate limit exceeded',
-  /** Account linking failed */
   LINKING_FAILED: 'Failed to link social account',
-  /** Account unlinking failed */
   UNLINKING_FAILED: 'Failed to unlink social account',
 } as const;
 
-export type SocialLoginError = (typeof SOCIAL_LOGIN_ERRORS)[keyof typeof SOCIAL_LOGIN_ERRORS];
+export type AuthSocialLoginError =
+  (typeof AUTH_SOCIAL_LOGIN_ERRORS)[keyof typeof AUTH_SOCIAL_LOGIN_ERRORS];
 
-/**
- * Social Login Success Messages
- * Success messages for social login operations
- */
-export const SOCIAL_LOGIN_SUCCESS = {
+// ============================================================
+// AUTH SOCIAL LOGIN SUCCESS
+// ============================================================
+export const AUTH_SOCIAL_LOGIN_SUCCESS = {
   SUCCESS: 'Social login successful',
   LINKED: 'Social account linked successfully',
   UNLINKED: 'Social account unlinked successfully',
   ACCOUNT_CREATED: 'New account created with social login',
 } as const;
 
-export type SocialLoginSuccess = (typeof SOCIAL_LOGIN_SUCCESS)[keyof typeof SOCIAL_LOGIN_SUCCESS];
+export type AuthSocialLoginSuccess =
+  (typeof AUTH_SOCIAL_LOGIN_SUCCESS)[keyof typeof AUTH_SOCIAL_LOGIN_SUCCESS];
 
-/**
- * Social Login Status Messages
- * Human-readable messages for each social login status
- */
-export const SOCIAL_LOGIN_STATUS_MESSAGES: Record<SocialLoginStatus, string> = {
-  [SOCIAL_LOGIN_STATUS.SUCCESS]: 'Social login was successful',
-  [SOCIAL_LOGIN_STATUS.FAILED]: 'Social login failed',
-  [SOCIAL_LOGIN_STATUS.REQUIRES_INFO]: 'Additional information required to complete login',
-  [SOCIAL_LOGIN_STATUS.REQUIRES_VERIFICATION]: 'Email verification required',
-  [SOCIAL_LOGIN_STATUS.CANCELLED]: 'Social login was cancelled',
-  [SOCIAL_LOGIN_STATUS.TIMEOUT]: 'Social login timed out',
-  [SOCIAL_LOGIN_STATUS.REQUIRES_LINKING]: 'Account linking required',
-  [SOCIAL_LOGIN_STATUS.BLOCKED]: 'Social login is blocked',
+// ============================================================
+// AUTH SOCIAL LOGIN STATUS MESSAGES
+// ============================================================
+export const AUTH_SOCIAL_LOGIN_STATUS_MESSAGES: Record<AuthSocialLoginStatus, string> = {
+  [AUTH_SOCIAL_LOGIN_STATUS.SUCCESS]: 'Social login was successful',
+  [AUTH_SOCIAL_LOGIN_STATUS.FAILED]: 'Social login failed',
+  [AUTH_SOCIAL_LOGIN_STATUS.REQUIRES_INFO]: 'Additional information required to complete login',
+  [AUTH_SOCIAL_LOGIN_STATUS.REQUIRES_VERIFICATION]: 'Email verification required',
+  [AUTH_SOCIAL_LOGIN_STATUS.CANCELLED]: 'Social login was cancelled',
+  [AUTH_SOCIAL_LOGIN_STATUS.TIMEOUT]: 'Social login timed out',
+  [AUTH_SOCIAL_LOGIN_STATUS.REQUIRES_LINKING]: 'Account linking required',
+  [AUTH_SOCIAL_LOGIN_STATUS.BLOCKED]: 'Social login is blocked',
 } as const;
 
-/**
- * Social Provider Types
- * Categories of social providers (re-exported from auth-provider.constants)
- */
-export const SOCIAL_PROVIDER_TYPES = {
-  /** Social media platforms */
+// ============================================================
+// AUTH SOCIAL PROVIDER TYPES
+// ============================================================
+export const AUTH_SOCIAL_PROVIDER_TYPES = {
   SOCIAL_MEDIA: 'social_media',
-  /** Professional networks */
   PROFESSIONAL: 'professional',
-  /** Developer platforms */
   DEVELOPER: 'developer',
-  /** Messaging platforms */
   MESSAGING: 'messaging',
-  /** Entertainment platforms */
   ENTERTAINMENT: 'entertainment',
 } as const;
 
-export type SocialProviderType = (typeof SOCIAL_PROVIDER_TYPES)[keyof typeof SOCIAL_PROVIDER_TYPES];
+export type AuthSocialProviderType =
+  (typeof AUTH_SOCIAL_PROVIDER_TYPES)[keyof typeof AUTH_SOCIAL_PROVIDER_TYPES];
 
-/**
- * Social Provider Type Map
- * Maps each social provider to its type
- */
-export const SOCIAL_PROVIDER_TYPE_MAP: Record<string, SocialProviderType> = {
-  google: SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA,
-  facebook: SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA,
-  github: SOCIAL_PROVIDER_TYPES.DEVELOPER,
-  twitter: SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA,
-  linkedin: SOCIAL_PROVIDER_TYPES.PROFESSIONAL,
-  apple: SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA,
-  microsoft: SOCIAL_PROVIDER_TYPES.PROFESSIONAL,
-  instagram: SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA,
-  tiktok: SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA,
-  snapchat: SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA,
-  wechat: SOCIAL_PROVIDER_TYPES.MESSAGING,
-  line: SOCIAL_PROVIDER_TYPES.MESSAGING,
-  telegram: SOCIAL_PROVIDER_TYPES.MESSAGING,
-  whatsapp: SOCIAL_PROVIDER_TYPES.MESSAGING,
-  vk: SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA,
-  yahoo: SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA,
-  discord: SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA,
-  slack: SOCIAL_PROVIDER_TYPES.PROFESSIONAL,
-  spotify: SOCIAL_PROVIDER_TYPES.ENTERTAINMENT,
+// ============================================================
+// AUTH SOCIAL PROVIDER TYPE MAP
+// ============================================================
+export const AUTH_SOCIAL_PROVIDER_TYPE_MAP: Record<string, AuthSocialProviderType> = {
+  google: AUTH_SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA,
+  facebook: AUTH_SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA,
+  github: AUTH_SOCIAL_PROVIDER_TYPES.DEVELOPER,
+  twitter: AUTH_SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA,
+  linkedin: AUTH_SOCIAL_PROVIDER_TYPES.PROFESSIONAL,
+  apple: AUTH_SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA,
+  microsoft: AUTH_SOCIAL_PROVIDER_TYPES.PROFESSIONAL,
+  instagram: AUTH_SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA,
+  tiktok: AUTH_SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA,
+  snapchat: AUTH_SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA,
+  wechat: AUTH_SOCIAL_PROVIDER_TYPES.MESSAGING,
+  line: AUTH_SOCIAL_PROVIDER_TYPES.MESSAGING,
+  telegram: AUTH_SOCIAL_PROVIDER_TYPES.MESSAGING,
+  whatsapp: AUTH_SOCIAL_PROVIDER_TYPES.MESSAGING,
+  vk: AUTH_SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA,
+  yahoo: AUTH_SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA,
+  discord: AUTH_SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA,
+  slack: AUTH_SOCIAL_PROVIDER_TYPES.PROFESSIONAL,
+  spotify: AUTH_SOCIAL_PROVIDER_TYPES.ENTERTAINMENT,
 } as const;
 
-/**
- * Helper function to check if social provider is valid
- * Uses the provider list from auth-provider.constants
- */
-export function isValidSocialProvider(provider: string): boolean {
-  // This checks against the providers defined in auth.constants
+// ============================================================
+// AUTH SOCIAL MAIN OBJECT
+// ============================================================
+export const authSocial = {
+  LOGIN_STATUS: AUTH_SOCIAL_LOGIN_STATUS,
+  STATUS_HTTP_MAP: AUTH_SOCIAL_LOGIN_STATUS_HTTP_MAP,
+  PROVIDER_CONFIG: AUTH_SOCIAL_PROVIDER_CONFIG,
+  ERRORS: AUTH_SOCIAL_LOGIN_ERRORS,
+  SUCCESS: AUTH_SOCIAL_LOGIN_SUCCESS,
+  STATUS_MESSAGES: AUTH_SOCIAL_LOGIN_STATUS_MESSAGES,
+  PROVIDER_TYPES: AUTH_SOCIAL_PROVIDER_TYPES,
+  PROVIDER_TYPE_MAP: AUTH_SOCIAL_PROVIDER_TYPE_MAP,
+} as const;
+
+export type AuthSocial = typeof authSocial;
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+export function isValidAuthSocialProvider(provider: string): boolean {
   const validProviders = [
     'google',
     'facebook',
@@ -271,10 +243,7 @@ export function isValidSocialProvider(provider: string): boolean {
   return validProviders.includes(provider);
 }
 
-/**
- * Helper function to get social provider label
- */
-export function getSocialProviderLabel(provider: string): string {
+export function getAuthSocialProviderLabel(provider: string): string {
   const labels: Record<string, string> = {
     google: 'Google',
     facebook: 'Facebook',
@@ -299,10 +268,7 @@ export function getSocialProviderLabel(provider: string): string {
   return labels[provider] || 'Unknown Provider';
 }
 
-/**
- * Helper function to get social provider color
- */
-export function getSocialProviderColor(provider: string): string {
+export function getAuthSocialProviderColor(provider: string): string {
   const colors: Record<string, string> = {
     google: '#4285F4',
     facebook: '#1877F2',
@@ -327,10 +293,7 @@ export function getSocialProviderColor(provider: string): string {
   return colors[provider] || '#000000';
 }
 
-/**
- * Helper function to get social provider icon
- */
-export function getSocialProviderIcon(provider: string): string {
+export function getAuthSocialProviderIcon(provider: string): string {
   const icons: Record<string, string> = {
     google: 'google',
     facebook: 'facebook',
@@ -355,67 +318,42 @@ export function getSocialProviderIcon(provider: string): string {
   return icons[provider] || 'link';
 }
 
-/**
- * Helper function to get social provider config
- */
-export function getSocialProviderConfig(provider: string): SocialProviderConfig | null {
-  const providerKey = provider.toUpperCase() as keyof typeof SOCIAL_PROVIDER_CONFIG;
-  const config = SOCIAL_PROVIDER_CONFIG[providerKey];
+export function getAuthSocialProviderConfig(provider: string): AuthSocialProviderConfig | null {
+  const providerKey = provider.toUpperCase() as keyof typeof AUTH_SOCIAL_PROVIDER_CONFIG;
+  const config = AUTH_SOCIAL_PROVIDER_CONFIG[providerKey];
   return config || null;
 }
 
-/**
- * Helper function to get social provider type
- */
-export function getSocialProviderType(provider: string): SocialProviderType {
-  return SOCIAL_PROVIDER_TYPE_MAP[provider] || SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA;
+export function getAuthSocialProviderType(provider: string): AuthSocialProviderType {
+  return AUTH_SOCIAL_PROVIDER_TYPE_MAP[provider] || AUTH_SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA;
 }
 
-/**
- * Helper function to check if social login status is valid
- */
-export function isValidSocialLoginStatus(status: string): status is SocialLoginStatus {
-  return Object.values(SOCIAL_LOGIN_STATUS).includes(status as SocialLoginStatus);
+export function isValidAuthSocialLoginStatus(status: string): status is AuthSocialLoginStatus {
+  return Object.values(AUTH_SOCIAL_LOGIN_STATUS).includes(status as AuthSocialLoginStatus);
 }
 
-/**
- * Helper function to check if social login was successful
- */
-export function isSocialLoginSuccessful(status: SocialLoginStatus): boolean {
-  return status === SOCIAL_LOGIN_STATUS.SUCCESS;
+export function isAuthSocialLoginSuccessful(status: AuthSocialLoginStatus): boolean {
+  return status === AUTH_SOCIAL_LOGIN_STATUS.SUCCESS;
 }
 
-/**
- * Helper function to check if social login requires action
- * Only includes statuses that require user action
- */
-export function isSocialLoginRequiringAction(status: SocialLoginStatus): boolean {
-  const actionRequiredStatuses: SocialLoginStatus[] = [
-    SOCIAL_LOGIN_STATUS.REQUIRES_INFO,
-    SOCIAL_LOGIN_STATUS.REQUIRES_VERIFICATION,
-    SOCIAL_LOGIN_STATUS.REQUIRES_LINKING,
+export function isAuthSocialLoginRequiringAction(status: AuthSocialLoginStatus): boolean {
+  const actionRequiredStatuses: AuthSocialLoginStatus[] = [
+    AUTH_SOCIAL_LOGIN_STATUS.REQUIRES_INFO,
+    AUTH_SOCIAL_LOGIN_STATUS.REQUIRES_VERIFICATION,
+    AUTH_SOCIAL_LOGIN_STATUS.REQUIRES_LINKING,
   ];
   return actionRequiredStatuses.includes(status);
 }
 
-/**
- * Helper function to get social login status message
- */
-export function getSocialLoginStatusMessage(status: SocialLoginStatus): string {
-  return SOCIAL_LOGIN_STATUS_MESSAGES[status] || 'Unknown status';
+export function getAuthSocialLoginStatusMessage(status: AuthSocialLoginStatus): string {
+  return AUTH_SOCIAL_LOGIN_STATUS_MESSAGES[status] || 'Unknown status';
 }
 
-/**
- * Helper function to get HTTP status for social login status
- */
-export function getHttpStatusForSocialLoginStatus(status: SocialLoginStatus): number {
-  return SOCIAL_LOGIN_STATUS_HTTP_MAP[status] || HTTP_STATUS.INTERNAL_SERVER_ERROR;
+export function getHttpStatusForAuthSocialLoginStatus(status: AuthSocialLoginStatus): number {
+  return AUTH_SOCIAL_LOGIN_STATUS_HTTP_MAP[status] || HTTP_STATUS.INTERNAL_SERVER_ERROR;
 }
 
-/**
- * Helper function to get all social provider names
- */
-export function getAllSocialProviderNames(): string[] {
+export function getAllAuthSocialProviderNames(): string[] {
   return [
     'google',
     'facebook',

@@ -5,111 +5,70 @@
 
 import { ERROR_CODE } from '../common/error.constants';
 
-/**
- * Token Types
- * Different types of authentication tokens
- */
-export const TOKEN_TYPES = {
-  /** Access token for API authentication */
+// ============================================================
+// AUTH TOKEN TYPES
+// ============================================================
+export const AUTH_TOKEN_TYPES = {
   ACCESS: 'access',
-  /** Refresh token for obtaining new access tokens */
   REFRESH: 'refresh',
-  /** Email verification token */
   VERIFICATION: 'verification',
-  /** Password reset token */
   RESET: 'reset',
-  /** Two-factor authentication token */
   MFA: 'mfa',
-  /** API key for service-to-service authentication */
   API_KEY: 'api_key',
-  /** Session token for web sessions */
   SESSION: 'session',
-  /** Social login token */
   SOCIAL: 'social',
-  /** Single Sign-On token */
   SSO: 'sso',
-  /** OAuth access token */
   OAUTH: 'oauth',
-  /** OAuth refresh token */
   OAUTH_REFRESH: 'oauth_refresh',
-  /** Device token for device authentication */
   DEVICE: 'device',
-  /** Invitation token for user invitations */
   INVITATION: 'invitation',
-  /** Magic link token for passwordless login */
   MAGIC_LINK: 'magic_link',
 } as const;
 
-export type TokenType = (typeof TOKEN_TYPES)[keyof typeof TOKEN_TYPES];
+export type AuthTokenType = (typeof AUTH_TOKEN_TYPES)[keyof typeof AUTH_TOKEN_TYPES];
 
-/**
- * Token Status
- * Current status of a token
- */
-export const TOKEN_STATUS = {
-  /** Token is active and valid */
+// ============================================================
+// AUTH TOKEN STATUS
+// ============================================================
+export const AUTH_TOKEN_STATUS = {
   ACTIVE: 'active',
-  /** Token has expired */
   EXPIRED: 'expired',
-  /** Token has been revoked */
   REVOKED: 'revoked',
-  /** Token is blacklisted */
   BLACKLISTED: 'blacklisted',
-  /** Token is pending (not yet activated) */
   PENDING: 'pending',
-  /** Token is used (one-time use) */
   USED: 'used',
-  /** Token is invalid */
   INVALID: 'invalid',
 } as const;
 
-export type TokenStatus = (typeof TOKEN_STATUS)[keyof typeof TOKEN_STATUS];
+export type AuthTokenStatus = (typeof AUTH_TOKEN_STATUS)[keyof typeof AUTH_TOKEN_STATUS];
 
-/**
- * Token Configuration
- * Default configuration values for tokens
- */
-export const TOKEN_CONFIG = {
-  /** Access token expiry in seconds (15 minutes) */
+// ============================================================
+// AUTH TOKEN CONFIG
+// ============================================================
+export const AUTH_TOKEN_CONFIG = {
   ACCESS_EXPIRY: 900,
-  /** Refresh token expiry in seconds (7 days) */
   REFRESH_EXPIRY: 604800,
-  /** Verification token expiry in seconds (24 hours) */
   VERIFICATION_EXPIRY: 86400,
-  /** Reset token expiry in seconds (1 hour) */
   RESET_EXPIRY: 3600,
-  /** MFA token expiry in seconds (5 minutes) */
   MFA_EXPIRY: 300,
-  /** Magic link expiry in seconds (15 minutes) */
   MAGIC_LINK_EXPIRY: 900,
-  /** Invitation token expiry in seconds (7 days) */
   INVITATION_EXPIRY: 604800,
-  /** OAuth token expiry in seconds (1 hour) */
   OAUTH_EXPIRY: 3600,
-  /** OAuth refresh token expiry in seconds (30 days) */
   OAUTH_REFRESH_EXPIRY: 2592000,
-  /** Device token expiry in seconds (30 days) */
   DEVICE_EXPIRY: 2592000,
-  /** API key expiry in seconds (365 days) */
   API_KEY_EXPIRY: 31536000,
-  /** Token algorithm */
   ALGORITHM: 'HS256' as const,
-  /** Token issuer */
   ISSUER: 'vubon.com.bd',
-  /** Token audience */
   AUDIENCE: 'vubon-platform',
-  /** Token version */
   VERSION: '1.0.0',
 } as const;
 
-export type TokenConfig = (typeof TOKEN_CONFIG)[keyof typeof TOKEN_CONFIG];
+export type AuthTokenConfig = (typeof AUTH_TOKEN_CONFIG)[keyof typeof AUTH_TOKEN_CONFIG];
 
-/**
- * Token Error Messages
- * Error messages for token-related failures
- * Using ERROR_CODE from common/error.constants
- */
-export const TOKEN_ERRORS = {
+// ============================================================
+// AUTH TOKEN ERRORS
+// ============================================================
+export const AUTH_TOKEN_ERRORS = {
   TOKEN_EXPIRED: ERROR_CODE.EXPIRED_TOKEN,
   TOKEN_INVALID: ERROR_CODE.INVALID_TOKEN,
   TOKEN_MISSING: 'TOKEN_MISSING',
@@ -138,13 +97,12 @@ export const TOKEN_ERRORS = {
   TOKEN_REVOCATION_FAILED: 'TOKEN_REVOCATION_FAILED',
 } as const;
 
-export type TokenError = (typeof TOKEN_ERRORS)[keyof typeof TOKEN_ERRORS];
+export type AuthTokenError = (typeof AUTH_TOKEN_ERRORS)[keyof typeof AUTH_TOKEN_ERRORS];
 
-/**
- * Token Success Messages
- * Success messages for token operations
- */
-export const TOKEN_SUCCESS = {
+// ============================================================
+// AUTH TOKEN SUCCESS
+// ============================================================
+export const AUTH_TOKEN_SUCCESS = {
   GENERATED: 'Token generated successfully',
   REFRESHED: 'Token refreshed successfully',
   VERIFIED: 'Token verified successfully',
@@ -152,100 +110,92 @@ export const TOKEN_SUCCESS = {
   VALIDATED: 'Token validated successfully',
 } as const;
 
-export type TokenSuccess = (typeof TOKEN_SUCCESS)[keyof typeof TOKEN_SUCCESS];
+export type AuthTokenSuccess = (typeof AUTH_TOKEN_SUCCESS)[keyof typeof AUTH_TOKEN_SUCCESS];
 
-/**
- * Token Status Messages
- * Human-readable messages for each token status
- */
-export const TOKEN_STATUS_MESSAGES: Record<TokenStatus, string> = {
-  [TOKEN_STATUS.ACTIVE]: 'Token is active and valid',
-  [TOKEN_STATUS.EXPIRED]: 'Token has expired',
-  [TOKEN_STATUS.REVOKED]: 'Token has been revoked',
-  [TOKEN_STATUS.BLACKLISTED]: 'Token is blacklisted',
-  [TOKEN_STATUS.PENDING]: 'Token is pending',
-  [TOKEN_STATUS.USED]: 'Token has been used',
-  [TOKEN_STATUS.INVALID]: 'Token is invalid',
+// ============================================================
+// AUTH TOKEN STATUS MESSAGES
+// ============================================================
+export const AUTH_TOKEN_STATUS_MESSAGES: Record<AuthTokenStatus, string> = {
+  [AUTH_TOKEN_STATUS.ACTIVE]: 'Token is active and valid',
+  [AUTH_TOKEN_STATUS.EXPIRED]: 'Token has expired',
+  [AUTH_TOKEN_STATUS.REVOKED]: 'Token has been revoked',
+  [AUTH_TOKEN_STATUS.BLACKLISTED]: 'Token is blacklisted',
+  [AUTH_TOKEN_STATUS.PENDING]: 'Token is pending',
+  [AUTH_TOKEN_STATUS.USED]: 'Token has been used',
+  [AUTH_TOKEN_STATUS.INVALID]: 'Token is invalid',
 } as const;
 
-/**
- * Active Token Statuses
- * Statuses that indicate a valid token
- */
-export const ACTIVE_TOKEN_STATUSES: TokenStatus[] = [TOKEN_STATUS.ACTIVE] as const;
+// ============================================================
+// ACTIVE AUTH TOKEN STATUSES
+// ============================================================
+export const ACTIVE_AUTH_TOKEN_STATUSES: AuthTokenStatus[] = [AUTH_TOKEN_STATUS.ACTIVE] as const;
 
-/**
- * Invalid Token Statuses
- * Statuses that indicate an invalid token
- */
-export const INVALID_TOKEN_STATUSES: TokenStatus[] = [
-  TOKEN_STATUS.EXPIRED,
-  TOKEN_STATUS.REVOKED,
-  TOKEN_STATUS.BLACKLISTED,
-  TOKEN_STATUS.INVALID,
+// ============================================================
+// INVALID AUTH TOKEN STATUSES
+// ============================================================
+export const INVALID_AUTH_TOKEN_STATUSES: AuthTokenStatus[] = [
+  AUTH_TOKEN_STATUS.EXPIRED,
+  AUTH_TOKEN_STATUS.REVOKED,
+  AUTH_TOKEN_STATUS.BLACKLISTED,
+  AUTH_TOKEN_STATUS.INVALID,
 ] as const;
 
-/**
- * Token Types with Expiry
- * Mapping of token types to their default expiry times
- */
-export const TOKEN_EXPIRY_MAP: Record<TokenType, number> = {
-  [TOKEN_TYPES.ACCESS]: TOKEN_CONFIG.ACCESS_EXPIRY,
-  [TOKEN_TYPES.REFRESH]: TOKEN_CONFIG.REFRESH_EXPIRY,
-  [TOKEN_TYPES.VERIFICATION]: TOKEN_CONFIG.VERIFICATION_EXPIRY,
-  [TOKEN_TYPES.RESET]: TOKEN_CONFIG.RESET_EXPIRY,
-  [TOKEN_TYPES.MFA]: TOKEN_CONFIG.MFA_EXPIRY,
-  [TOKEN_TYPES.API_KEY]: TOKEN_CONFIG.API_KEY_EXPIRY,
-  [TOKEN_TYPES.SESSION]: TOKEN_CONFIG.ACCESS_EXPIRY,
-  [TOKEN_TYPES.SOCIAL]: TOKEN_CONFIG.ACCESS_EXPIRY,
-  [TOKEN_TYPES.SSO]: TOKEN_CONFIG.ACCESS_EXPIRY,
-  [TOKEN_TYPES.OAUTH]: TOKEN_CONFIG.OAUTH_EXPIRY,
-  [TOKEN_TYPES.OAUTH_REFRESH]: TOKEN_CONFIG.OAUTH_REFRESH_EXPIRY,
-  [TOKEN_TYPES.DEVICE]: TOKEN_CONFIG.DEVICE_EXPIRY,
-  [TOKEN_TYPES.INVITATION]: TOKEN_CONFIG.INVITATION_EXPIRY,
-  [TOKEN_TYPES.MAGIC_LINK]: TOKEN_CONFIG.MAGIC_LINK_EXPIRY,
+// ============================================================
+// AUTH TOKEN EXPIRY MAP
+// ============================================================
+export const AUTH_TOKEN_EXPIRY_MAP: Record<AuthTokenType, number> = {
+  [AUTH_TOKEN_TYPES.ACCESS]: AUTH_TOKEN_CONFIG.ACCESS_EXPIRY,
+  [AUTH_TOKEN_TYPES.REFRESH]: AUTH_TOKEN_CONFIG.REFRESH_EXPIRY,
+  [AUTH_TOKEN_TYPES.VERIFICATION]: AUTH_TOKEN_CONFIG.VERIFICATION_EXPIRY,
+  [AUTH_TOKEN_TYPES.RESET]: AUTH_TOKEN_CONFIG.RESET_EXPIRY,
+  [AUTH_TOKEN_TYPES.MFA]: AUTH_TOKEN_CONFIG.MFA_EXPIRY,
+  [AUTH_TOKEN_TYPES.API_KEY]: AUTH_TOKEN_CONFIG.API_KEY_EXPIRY,
+  [AUTH_TOKEN_TYPES.SESSION]: AUTH_TOKEN_CONFIG.ACCESS_EXPIRY,
+  [AUTH_TOKEN_TYPES.SOCIAL]: AUTH_TOKEN_CONFIG.ACCESS_EXPIRY,
+  [AUTH_TOKEN_TYPES.SSO]: AUTH_TOKEN_CONFIG.ACCESS_EXPIRY,
+  [AUTH_TOKEN_TYPES.OAUTH]: AUTH_TOKEN_CONFIG.OAUTH_EXPIRY,
+  [AUTH_TOKEN_TYPES.OAUTH_REFRESH]: AUTH_TOKEN_CONFIG.OAUTH_REFRESH_EXPIRY,
+  [AUTH_TOKEN_TYPES.DEVICE]: AUTH_TOKEN_CONFIG.DEVICE_EXPIRY,
+  [AUTH_TOKEN_TYPES.INVITATION]: AUTH_TOKEN_CONFIG.INVITATION_EXPIRY,
+  [AUTH_TOKEN_TYPES.MAGIC_LINK]: AUTH_TOKEN_CONFIG.MAGIC_LINK_EXPIRY,
 } as const;
 
-/**
- * One-Time Use Tokens
- * Token types that can only be used once
- */
-export const ONE_TIME_USE_TOKENS: TokenType[] = [
-  TOKEN_TYPES.VERIFICATION,
-  TOKEN_TYPES.RESET,
-  TOKEN_TYPES.MFA,
-  TOKEN_TYPES.MAGIC_LINK,
-  TOKEN_TYPES.INVITATION,
+// ============================================================
+// ONE-TIME USE AUTH TOKENS
+// ============================================================
+export const ONE_TIME_USE_AUTH_TOKENS: AuthTokenType[] = [
+  AUTH_TOKEN_TYPES.VERIFICATION,
+  AUTH_TOKEN_TYPES.RESET,
+  AUTH_TOKEN_TYPES.MFA,
+  AUTH_TOKEN_TYPES.MAGIC_LINK,
+  AUTH_TOKEN_TYPES.INVITATION,
 ] as const;
 
-/**
- * Long-Lived Tokens
- * Token types with long expiry times
- */
-export const LONG_LIVED_TOKENS: TokenType[] = [
-  TOKEN_TYPES.REFRESH,
-  TOKEN_TYPES.API_KEY,
-  TOKEN_TYPES.DEVICE,
-  TOKEN_TYPES.OAUTH_REFRESH,
+// ============================================================
+// LONG-LIVED AUTH TOKENS
+// ============================================================
+export const LONG_LIVED_AUTH_TOKENS: AuthTokenType[] = [
+  AUTH_TOKEN_TYPES.REFRESH,
+  AUTH_TOKEN_TYPES.API_KEY,
+  AUTH_TOKEN_TYPES.DEVICE,
+  AUTH_TOKEN_TYPES.OAUTH_REFRESH,
 ] as const;
 
-/**
- * Short-Lived Tokens
- * Token types with short expiry times
- */
-export const SHORT_LIVED_TOKENS: TokenType[] = [
-  TOKEN_TYPES.ACCESS,
-  TOKEN_TYPES.MFA,
-  TOKEN_TYPES.MAGIC_LINK,
-  TOKEN_TYPES.SESSION,
-  TOKEN_TYPES.OAUTH,
+// ============================================================
+// SHORT-LIVED AUTH TOKENS
+// ============================================================
+export const SHORT_LIVED_AUTH_TOKENS: AuthTokenType[] = [
+  AUTH_TOKEN_TYPES.ACCESS,
+  AUTH_TOKEN_TYPES.MFA,
+  AUTH_TOKEN_TYPES.MAGIC_LINK,
+  AUTH_TOKEN_TYPES.SESSION,
+  AUTH_TOKEN_TYPES.OAUTH,
 ] as const;
 
-/**
- * Token Headers
- * HTTP headers used for token transmission
- */
-export const TOKEN_HEADERS = {
+// ============================================================
+// AUTH TOKEN HEADERS
+// ============================================================
+export const AUTH_TOKEN_HEADERS = {
   AUTHORIZATION: 'Authorization',
   BEARER: 'Bearer',
   X_API_KEY: 'X-API-Key',
@@ -253,13 +203,12 @@ export const TOKEN_HEADERS = {
   X_DEVICE_TOKEN: 'X-Device-Token',
 } as const;
 
-export type TokenHeader = (typeof TOKEN_HEADERS)[keyof typeof TOKEN_HEADERS];
+export type AuthTokenHeader = (typeof AUTH_TOKEN_HEADERS)[keyof typeof AUTH_TOKEN_HEADERS];
 
-/**
- * Token Claims
- * Standard JWT claims
- */
-export const TOKEN_CLAIMS = {
+// ============================================================
+// AUTH TOKEN CLAIMS
+// ============================================================
+export const AUTH_TOKEN_CLAIMS = {
   ISSUER: 'iss',
   SUBJECT: 'sub',
   AUDIENCE: 'aud',
@@ -277,106 +226,92 @@ export const TOKEN_CLAIMS = {
   USER_AGENT: 'user_agent',
 } as const;
 
-export type TokenClaim = (typeof TOKEN_CLAIMS)[keyof typeof TOKEN_CLAIMS];
+export type AuthTokenClaim = (typeof AUTH_TOKEN_CLAIMS)[keyof typeof AUTH_TOKEN_CLAIMS];
 
-/**
- * Helper function to check if token status is active
- */
-export function isActiveTokenStatus(status: TokenStatus): boolean {
-  return ACTIVE_TOKEN_STATUSES.includes(status);
+// ============================================================
+// AUTH TOKEN MAIN OBJECT
+// ============================================================
+export const authToken = {
+  TYPES: AUTH_TOKEN_TYPES,
+  STATUS: AUTH_TOKEN_STATUS,
+  CONFIG: AUTH_TOKEN_CONFIG,
+  ERRORS: AUTH_TOKEN_ERRORS,
+  SUCCESS: AUTH_TOKEN_SUCCESS,
+  STATUS_MESSAGES: AUTH_TOKEN_STATUS_MESSAGES,
+  ACTIVE_STATUSES: ACTIVE_AUTH_TOKEN_STATUSES,
+  INVALID_STATUSES: INVALID_AUTH_TOKEN_STATUSES,
+  EXPIRY_MAP: AUTH_TOKEN_EXPIRY_MAP,
+  ONE_TIME_USE: ONE_TIME_USE_AUTH_TOKENS,
+  LONG_LIVED: LONG_LIVED_AUTH_TOKENS,
+  SHORT_LIVED: SHORT_LIVED_AUTH_TOKENS,
+  HEADERS: AUTH_TOKEN_HEADERS,
+  CLAIMS: AUTH_TOKEN_CLAIMS,
+} as const;
+
+export type AuthToken = typeof authToken;
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+export function isActiveAuthTokenStatus(status: AuthTokenStatus): boolean {
+  return ACTIVE_AUTH_TOKEN_STATUSES.includes(status);
 }
 
-/**
- * Helper function to check if token status is invalid
- */
-export function isInvalidTokenStatus(status: TokenStatus): boolean {
-  return INVALID_TOKEN_STATUSES.includes(status);
+export function isInvalidAuthTokenStatus(status: AuthTokenStatus): boolean {
+  return INVALID_AUTH_TOKEN_STATUSES.includes(status);
 }
 
-/**
- * Helper function to check if token is one-time use
- */
-export function isOneTimeUseToken(tokenType: TokenType): boolean {
-  return ONE_TIME_USE_TOKENS.includes(tokenType);
+export function isOneTimeUseAuthToken(tokenType: AuthTokenType): boolean {
+  return ONE_TIME_USE_AUTH_TOKENS.includes(tokenType);
 }
 
-/**
- * Helper function to check if token is long-lived
- */
-export function isLongLivedToken(tokenType: TokenType): boolean {
-  return LONG_LIVED_TOKENS.includes(tokenType);
+export function isLongLivedAuthToken(tokenType: AuthTokenType): boolean {
+  return LONG_LIVED_AUTH_TOKENS.includes(tokenType);
 }
 
-/**
- * Helper function to check if token is short-lived
- */
-export function isShortLivedToken(tokenType: TokenType): boolean {
-  return SHORT_LIVED_TOKENS.includes(tokenType);
+export function isShortLivedAuthToken(tokenType: AuthTokenType): boolean {
+  return SHORT_LIVED_AUTH_TOKENS.includes(tokenType);
 }
 
-/**
- * Helper function to check if token type is valid
- */
-export function isValidTokenType(tokenType: string): tokenType is TokenType {
-  return Object.values(TOKEN_TYPES).includes(tokenType as TokenType);
+export function isValidAuthTokenType(tokenType: string): tokenType is AuthTokenType {
+  return Object.values(AUTH_TOKEN_TYPES).includes(tokenType as AuthTokenType);
 }
 
-/**
- * Helper function to check if token status is valid
- */
-export function isValidTokenStatus(status: string): status is TokenStatus {
-  return Object.values(TOKEN_STATUS).includes(status as TokenStatus);
+export function isValidAuthTokenStatus(status: string): status is AuthTokenStatus {
+  return Object.values(AUTH_TOKEN_STATUS).includes(status as AuthTokenStatus);
 }
 
-/**
- * Helper function to get token expiry in seconds
- */
-export function getTokenExpiry(tokenType: TokenType): number {
-  return TOKEN_EXPIRY_MAP[tokenType] || TOKEN_CONFIG.ACCESS_EXPIRY;
+export function getAuthTokenExpiry(tokenType: AuthTokenType): number {
+  return AUTH_TOKEN_EXPIRY_MAP[tokenType] || AUTH_TOKEN_CONFIG.ACCESS_EXPIRY;
 }
 
-/**
- * Helper function to get token status message
- */
-export function getTokenStatusMessage(status: TokenStatus): string {
-  return TOKEN_STATUS_MESSAGES[status] || 'Unknown token status';
+export function getAuthTokenStatusMessage(status: AuthTokenStatus): string {
+  return AUTH_TOKEN_STATUS_MESSAGES[status] || 'Unknown token status';
 }
 
-/**
- * Helper function to check if token is expired
- */
-export function isTokenExpired(createdAt: Date, tokenType: TokenType): boolean {
+export function isAuthTokenExpired(createdAt: Date, tokenType: AuthTokenType): boolean {
   const now = Date.now();
-  const tokenAge = (now - createdAt.getTime()) / 1000; // Convert to seconds
-  const expiry = getTokenExpiry(tokenType);
+  const tokenAge = (now - createdAt.getTime()) / 1000;
+  const expiry = getAuthTokenExpiry(tokenType);
   return tokenAge >= expiry;
 }
 
-/**
- * Helper function to get remaining token time in seconds
- */
-export function getTokenRemainingTime(createdAt: Date, tokenType: TokenType): number {
+export function getAuthTokenRemainingTime(createdAt: Date, tokenType: AuthTokenType): number {
   const now = Date.now();
   const tokenAge = (now - createdAt.getTime()) / 1000;
-  const expiry = getTokenExpiry(tokenType);
+  const expiry = getAuthTokenExpiry(tokenType);
   const remaining = expiry - tokenAge;
   return Math.max(0, remaining);
 }
 
-/**
- * Helper function to format authorization header
- */
-export function formatAuthorizationHeader(
+export function formatAuthAuthorizationHeader(
   token: string,
   type: 'Bearer' | 'Basic' = 'Bearer'
 ): string {
   return `${type} ${token}`;
 }
 
-/**
- * Helper function to extract token from authorization header
- */
-export function extractTokenFromHeader(header: string): string | null {
+export function extractAuthTokenFromHeader(header: string): string | null {
   const match = header.match(/^Bearer\s+(.+)$/);
   return match ? match[1] : null;
 }

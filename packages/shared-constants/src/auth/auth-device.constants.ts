@@ -3,167 +3,110 @@
  * Device management, types, and security constants
  */
 
-/**
- * Device Types
- * Types of devices that can access the platform
- */
-export const DEVICE_TYPES = {
-  /** Desktop computer */
+// ============================================================
+// AUTH DEVICE TYPES
+// ============================================================
+export const AUTH_DEVICE_TYPES = {
   DESKTOP: 'desktop',
-  /** Laptop computer */
   LAPTOP: 'laptop',
-  /** Tablet device */
   TABLET: 'tablet',
-  /** Mobile phone */
   MOBILE: 'mobile',
-  /** Smart TV */
   TV: 'tv',
-  /** Gaming console */
   CONSOLE: 'console',
-  /** Smart watch */
   SMART_WATCH: 'smart_watch',
-  /** Other/Unknown device */
   OTHER: 'other',
 } as const;
 
-export type DeviceType = (typeof DEVICE_TYPES)[keyof typeof DEVICE_TYPES];
+export type AuthDeviceType = (typeof AUTH_DEVICE_TYPES)[keyof typeof AUTH_DEVICE_TYPES];
 
-/**
- * Device Platforms
- * Operating systems and platforms
- */
-export const DEVICE_PLATFORMS = {
-  /** Windows operating system */
+// ============================================================
+// AUTH DEVICE PLATFORMS
+// ============================================================
+export const AUTH_DEVICE_PLATFORMS = {
   WINDOWS: 'windows',
-  /** macOS operating system */
   MACOS: 'macos',
-  /** Linux operating system */
   LINUX: 'linux',
-  /** Chrome OS */
   CHROME_OS: 'chrome_os',
-  /** Android operating system */
   ANDROID: 'android',
-  /** iOS operating system */
   IOS: 'ios',
-  /** iPadOS operating system */
   IPADOS: 'ipados',
-  /** watchOS */
   WATCHOS: 'watchos',
-  /** tvOS */
   TVOS: 'tvos',
-  /** Web browser */
   WEB: 'web',
-  /** Other/Unknown platform */
   OTHER: 'other',
 } as const;
 
-export type DevicePlatform = (typeof DEVICE_PLATFORMS)[keyof typeof DEVICE_PLATFORMS];
+export type AuthDevicePlatform = (typeof AUTH_DEVICE_PLATFORMS)[keyof typeof AUTH_DEVICE_PLATFORMS];
 
-/**
- * Device Trust Levels
- * Trust levels for device authentication
- */
-export const DEVICE_TRUST_LEVELS = {
-  /** Highly trusted device (saved, MFA disabled) */
+// ============================================================
+// AUTH DEVICE TRUST LEVELS
+// ============================================================
+export const AUTH_DEVICE_TRUST_LEVELS = {
   HIGH: 'high',
-  /** Medium trust device (saved, MFA required) */
   MEDIUM: 'medium',
-  /** Low trust device (not saved, MFA required) */
   LOW: 'low',
-  /** Untrusted device (blocked) */
   UNTRUSTED: 'untrusted',
 } as const;
 
-export type DeviceTrustLevel = (typeof DEVICE_TRUST_LEVELS)[keyof typeof DEVICE_TRUST_LEVELS];
+export type AuthDeviceTrustLevel =
+  (typeof AUTH_DEVICE_TRUST_LEVELS)[keyof typeof AUTH_DEVICE_TRUST_LEVELS];
 
-/**
- * Device Status
- * Status of a device in the system
- */
-export const DEVICE_STATUS = {
-  /** Device is active and allowed */
+// ============================================================
+// AUTH DEVICE STATUS
+// ============================================================
+export const AUTH_DEVICE_STATUS = {
   ACTIVE: 'active',
-  /** Device is inactive */
   INACTIVE: 'inactive',
-  /** Device is blocked */
   BLOCKED: 'blocked',
-  /** Device is suspended */
   SUSPENDED: 'suspended',
-  /** Device is pending verification */
   PENDING: 'pending',
-  /** Device is expired */
   EXPIRED: 'expired',
 } as const;
 
-export type DeviceStatus = (typeof DEVICE_STATUS)[keyof typeof DEVICE_STATUS];
+export type AuthDeviceStatus = (typeof AUTH_DEVICE_STATUS)[keyof typeof AUTH_DEVICE_STATUS];
 
-/**
- * Device Configuration
- * Default configuration values for device management
- */
-export const DEVICE_CONFIG = {
-  /** Maximum devices per user */
+// ============================================================
+// AUTH DEVICE CONFIG
+// ============================================================
+export const AUTH_DEVICE_CONFIG = {
   MAX_DEVICES_PER_USER: 10,
-  /** Maximum untrusted devices per user */
   MAX_UNTRUSTED_DEVICES: 3,
-  /** Device trust duration in days (90 days) */
   TRUST_DURATION_DAYS: 90,
-  /** Device session duration in days (7 days) */
   SESSION_DURATION_DAYS: 7,
-  /** Remember me cookie duration in days (30 days) */
   REMEMBER_ME_DURATION_DAYS: 30,
-  /** Inactive device cleanup days (30 days) */
   INACTIVE_CLEANUP_DAYS: 30,
-  /** Maximum failed device verifications */
   MAX_VERIFICATION_ATTEMPTS: 5,
-  /** Device fingerprint TTL in days */
   FINGERPRINT_TTL_DAYS: 30,
-  /** Allow new devices without verification */
   ALLOW_NEW_DEVICES_WITHOUT_VERIFICATION: false,
-  /** Require MFA for new devices */
   REQUIRE_MFA_FOR_NEW_DEVICES: true,
-  /** Trust device after successful logins */
   TRUST_AFTER_SUCCESSFUL_LOGINS: 3,
 } as const;
 
-export type DeviceConfig = (typeof DEVICE_CONFIG)[keyof typeof DEVICE_CONFIG];
+export type AuthDeviceConfig = (typeof AUTH_DEVICE_CONFIG)[keyof typeof AUTH_DEVICE_CONFIG];
 
-/**
- * Device Error Messages
- * Error messages for device management failures
- */
-export const DEVICE_ERRORS = {
-  /** Device not found */
+// ============================================================
+// AUTH DEVICE ERRORS
+// ============================================================
+export const AUTH_DEVICE_ERRORS = {
   DEVICE_NOT_FOUND: 'Device not found',
-  /** Device is blocked */
   DEVICE_BLOCKED: 'Device is blocked',
-  /** Device is inactive */
   DEVICE_INACTIVE: 'Device is inactive',
-  /** Maximum devices exceeded */
   MAX_DEVICES_EXCEEDED: 'Maximum number of devices exceeded',
-  /** Device verification failed */
   VERIFICATION_FAILED: 'Device verification failed',
-  /** Device trust level is too low */
   TRUST_LEVEL_TOO_LOW: 'Device trust level is too low for this action',
-  /** Device not recognized */
   DEVICE_NOT_RECOGNIZED: 'Device not recognized. Please verify your identity',
-  /** Device fingerprint mismatch */
   FINGERPRINT_MISMATCH: 'Device fingerprint mismatch',
-  /** Device already exists */
   DEVICE_ALREADY_EXISTS: 'Device already exists',
-  /** Device not allowed */
   DEVICE_NOT_ALLOWED: 'Device is not allowed',
-  /** Device verification expired */
   VERIFICATION_EXPIRED: 'Device verification expired',
 } as const;
 
-export type DeviceError = (typeof DEVICE_ERRORS)[keyof typeof DEVICE_ERRORS];
+export type AuthDeviceError = (typeof AUTH_DEVICE_ERRORS)[keyof typeof AUTH_DEVICE_ERRORS];
 
-/**
- * Device Success Messages
- * Success messages for device operations
- */
-export const DEVICE_SUCCESS = {
+// ============================================================
+// AUTH DEVICE SUCCESS
+// ============================================================
+export const AUTH_DEVICE_SUCCESS = {
   ADDED: 'Device added successfully',
   VERIFIED: 'Device verified successfully',
   REMOVED: 'Device removed successfully',
@@ -172,232 +115,199 @@ export const DEVICE_SUCCESS = {
   UNTRUSTED: 'Device untrusted successfully',
 } as const;
 
-export type DeviceSuccess = (typeof DEVICE_SUCCESS)[keyof typeof DEVICE_SUCCESS];
+export type AuthDeviceSuccess = (typeof AUTH_DEVICE_SUCCESS)[keyof typeof AUTH_DEVICE_SUCCESS];
 
-/**
- * Device Status Messages
- * Human-readable messages for each device status
- */
-export const DEVICE_STATUS_MESSAGES: Record<DeviceStatus, string> = {
-  [DEVICE_STATUS.ACTIVE]: 'Device is active and can access the platform',
-  [DEVICE_STATUS.INACTIVE]: 'Device is inactive and cannot access the platform',
-  [DEVICE_STATUS.BLOCKED]: 'Device is blocked from accessing the platform',
-  [DEVICE_STATUS.SUSPENDED]: 'Device is suspended for security reasons',
-  [DEVICE_STATUS.PENDING]: 'Device is pending verification',
-  [DEVICE_STATUS.EXPIRED]: 'Device trust has expired',
+// ============================================================
+// AUTH DEVICE STATUS MESSAGES
+// ============================================================
+export const AUTH_DEVICE_STATUS_MESSAGES: Record<AuthDeviceStatus, string> = {
+  [AUTH_DEVICE_STATUS.ACTIVE]: 'Device is active and can access the platform',
+  [AUTH_DEVICE_STATUS.INACTIVE]: 'Device is inactive and cannot access the platform',
+  [AUTH_DEVICE_STATUS.BLOCKED]: 'Device is blocked from accessing the platform',
+  [AUTH_DEVICE_STATUS.SUSPENDED]: 'Device is suspended for security reasons',
+  [AUTH_DEVICE_STATUS.PENDING]: 'Device is pending verification',
+  [AUTH_DEVICE_STATUS.EXPIRED]: 'Device trust has expired',
 } as const;
 
-/**
- * Device Trust Level Descriptions
- * Human-readable descriptions for each trust level
- */
-export const DEVICE_TRUST_LEVEL_DESCRIPTIONS: Record<DeviceTrustLevel, string> = {
-  [DEVICE_TRUST_LEVELS.HIGH]: 'Highly trusted device - MFA not required, full access',
-  [DEVICE_TRUST_LEVELS.MEDIUM]: 'Medium trust device - MFA required for sensitive actions',
-  [DEVICE_TRUST_LEVELS.LOW]: 'Low trust device - MFA required, limited access',
-  [DEVICE_TRUST_LEVELS.UNTRUSTED]: 'Untrusted device - Access blocked or requires verification',
+// ============================================================
+// AUTH DEVICE TRUST LEVEL DESCRIPTIONS
+// ============================================================
+export const AUTH_DEVICE_TRUST_LEVEL_DESCRIPTIONS: Record<AuthDeviceTrustLevel, string> = {
+  [AUTH_DEVICE_TRUST_LEVELS.HIGH]: 'Highly trusted device - MFA not required, full access',
+  [AUTH_DEVICE_TRUST_LEVELS.MEDIUM]: 'Medium trust device - MFA required for sensitive actions',
+  [AUTH_DEVICE_TRUST_LEVELS.LOW]: 'Low trust device - MFA required, limited access',
+  [AUTH_DEVICE_TRUST_LEVELS.UNTRUSTED]:
+    'Untrusted device - Access blocked or requires verification',
 } as const;
 
-/**
- * Device Trust Level Scores
- * Numeric scores for trust levels
- */
-export const DEVICE_TRUST_LEVEL_SCORES: Record<DeviceTrustLevel, number> = {
-  [DEVICE_TRUST_LEVELS.HIGH]: 100,
-  [DEVICE_TRUST_LEVELS.MEDIUM]: 75,
-  [DEVICE_TRUST_LEVELS.LOW]: 25,
-  [DEVICE_TRUST_LEVELS.UNTRUSTED]: 0,
+// ============================================================
+// AUTH DEVICE TRUST LEVEL SCORES
+// ============================================================
+export const AUTH_DEVICE_TRUST_LEVEL_SCORES: Record<AuthDeviceTrustLevel, number> = {
+  [AUTH_DEVICE_TRUST_LEVELS.HIGH]: 100,
+  [AUTH_DEVICE_TRUST_LEVELS.MEDIUM]: 75,
+  [AUTH_DEVICE_TRUST_LEVELS.LOW]: 25,
+  [AUTH_DEVICE_TRUST_LEVELS.UNTRUSTED]: 0,
 } as const;
 
-/**
- * Device Type Labels
- * Human-readable labels for each device type
- */
-export const DEVICE_TYPE_LABELS: Record<DeviceType, string> = {
-  [DEVICE_TYPES.DESKTOP]: 'Desktop Computer',
-  [DEVICE_TYPES.LAPTOP]: 'Laptop',
-  [DEVICE_TYPES.TABLET]: 'Tablet',
-  [DEVICE_TYPES.MOBILE]: 'Mobile Phone',
-  [DEVICE_TYPES.TV]: 'Smart TV',
-  [DEVICE_TYPES.CONSOLE]: 'Gaming Console',
-  [DEVICE_TYPES.SMART_WATCH]: 'Smart Watch',
-  [DEVICE_TYPES.OTHER]: 'Other Device',
+// ============================================================
+// AUTH DEVICE TYPE LABELS
+// ============================================================
+export const AUTH_DEVICE_TYPE_LABELS: Record<AuthDeviceType, string> = {
+  [AUTH_DEVICE_TYPES.DESKTOP]: 'Desktop Computer',
+  [AUTH_DEVICE_TYPES.LAPTOP]: 'Laptop',
+  [AUTH_DEVICE_TYPES.TABLET]: 'Tablet',
+  [AUTH_DEVICE_TYPES.MOBILE]: 'Mobile Phone',
+  [AUTH_DEVICE_TYPES.TV]: 'Smart TV',
+  [AUTH_DEVICE_TYPES.CONSOLE]: 'Gaming Console',
+  [AUTH_DEVICE_TYPES.SMART_WATCH]: 'Smart Watch',
+  [AUTH_DEVICE_TYPES.OTHER]: 'Other Device',
 } as const;
 
-/**
- * Device Platform Labels
- * Human-readable labels for each platform
- */
-export const DEVICE_PLATFORM_LABELS: Record<DevicePlatform, string> = {
-  [DEVICE_PLATFORMS.WINDOWS]: 'Windows',
-  [DEVICE_PLATFORMS.MACOS]: 'macOS',
-  [DEVICE_PLATFORMS.LINUX]: 'Linux',
-  [DEVICE_PLATFORMS.CHROME_OS]: 'Chrome OS',
-  [DEVICE_PLATFORMS.ANDROID]: 'Android',
-  [DEVICE_PLATFORMS.IOS]: 'iOS',
-  [DEVICE_PLATFORMS.IPADOS]: 'iPadOS',
-  [DEVICE_PLATFORMS.WATCHOS]: 'watchOS',
-  [DEVICE_PLATFORMS.TVOS]: 'tvOS',
-  [DEVICE_PLATFORMS.WEB]: 'Web Browser',
-  [DEVICE_PLATFORMS.OTHER]: 'Other Platform',
+// ============================================================
+// AUTH DEVICE PLATFORM LABELS
+// ============================================================
+export const AUTH_DEVICE_PLATFORM_LABELS: Record<AuthDevicePlatform, string> = {
+  [AUTH_DEVICE_PLATFORMS.WINDOWS]: 'Windows',
+  [AUTH_DEVICE_PLATFORMS.MACOS]: 'macOS',
+  [AUTH_DEVICE_PLATFORMS.LINUX]: 'Linux',
+  [AUTH_DEVICE_PLATFORMS.CHROME_OS]: 'Chrome OS',
+  [AUTH_DEVICE_PLATFORMS.ANDROID]: 'Android',
+  [AUTH_DEVICE_PLATFORMS.IOS]: 'iOS',
+  [AUTH_DEVICE_PLATFORMS.IPADOS]: 'iPadOS',
+  [AUTH_DEVICE_PLATFORMS.WATCHOS]: 'watchOS',
+  [AUTH_DEVICE_PLATFORMS.TVOS]: 'tvOS',
+  [AUTH_DEVICE_PLATFORMS.WEB]: 'Web Browser',
+  [AUTH_DEVICE_PLATFORMS.OTHER]: 'Other Platform',
 } as const;
 
-/**
- * Device Icon Mapping
- * Icon names for each device type
- */
-export const DEVICE_TYPE_ICONS: Record<DeviceType, string> = {
-  [DEVICE_TYPES.DESKTOP]: 'desktop_windows',
-  [DEVICE_TYPES.LAPTOP]: 'laptop',
-  [DEVICE_TYPES.TABLET]: 'tablet',
-  [DEVICE_TYPES.MOBILE]: 'smartphone',
-  [DEVICE_TYPES.TV]: 'tv',
-  [DEVICE_TYPES.CONSOLE]: 'sports_esports',
-  [DEVICE_TYPES.SMART_WATCH]: 'watch',
-  [DEVICE_TYPES.OTHER]: 'devices',
+// ============================================================
+// AUTH DEVICE TYPE ICONS
+// ============================================================
+export const AUTH_DEVICE_TYPE_ICONS: Record<AuthDeviceType, string> = {
+  [AUTH_DEVICE_TYPES.DESKTOP]: 'desktop_windows',
+  [AUTH_DEVICE_TYPES.LAPTOP]: 'laptop',
+  [AUTH_DEVICE_TYPES.TABLET]: 'tablet',
+  [AUTH_DEVICE_TYPES.MOBILE]: 'smartphone',
+  [AUTH_DEVICE_TYPES.TV]: 'tv',
+  [AUTH_DEVICE_TYPES.CONSOLE]: 'sports_esports',
+  [AUTH_DEVICE_TYPES.SMART_WATCH]: 'watch',
+  [AUTH_DEVICE_TYPES.OTHER]: 'devices',
 } as const;
 
-/**
- * Blocked Device Statuses
- * Device statuses that indicate blocked or restricted access
- */
-export const BLOCKED_DEVICE_STATUSES: DeviceStatus[] = [
-  DEVICE_STATUS.BLOCKED,
-  DEVICE_STATUS.SUSPENDED,
+// ============================================================
+// BLOCKED AUTH DEVICE STATUSES
+// ============================================================
+export const BLOCKED_AUTH_DEVICE_STATUSES: AuthDeviceStatus[] = [
+  AUTH_DEVICE_STATUS.BLOCKED,
+  AUTH_DEVICE_STATUS.SUSPENDED,
 ] as const;
 
-/**
- * Helper function to check if device type is valid
- */
-export function isValidDeviceType(type: string): type is DeviceType {
-  return Object.values(DEVICE_TYPES).includes(type as DeviceType);
+// ============================================================
+// AUTH DEVICE MAIN OBJECT
+// ============================================================
+export const authDevice = {
+  TYPES: AUTH_DEVICE_TYPES,
+  PLATFORMS: AUTH_DEVICE_PLATFORMS,
+  TRUST_LEVELS: AUTH_DEVICE_TRUST_LEVELS,
+  STATUS: AUTH_DEVICE_STATUS,
+  CONFIG: AUTH_DEVICE_CONFIG,
+  ERRORS: AUTH_DEVICE_ERRORS,
+  SUCCESS: AUTH_DEVICE_SUCCESS,
+  STATUS_MESSAGES: AUTH_DEVICE_STATUS_MESSAGES,
+  TRUST_LEVEL_DESCRIPTIONS: AUTH_DEVICE_TRUST_LEVEL_DESCRIPTIONS,
+  TRUST_LEVEL_SCORES: AUTH_DEVICE_TRUST_LEVEL_SCORES,
+  TYPE_LABELS: AUTH_DEVICE_TYPE_LABELS,
+  PLATFORM_LABELS: AUTH_DEVICE_PLATFORM_LABELS,
+  TYPE_ICONS: AUTH_DEVICE_TYPE_ICONS,
+  BLOCKED_STATUSES: BLOCKED_AUTH_DEVICE_STATUSES,
+} as const;
+
+export type AuthDevice = typeof authDevice;
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+export function isValidAuthDeviceType(type: string): type is AuthDeviceType {
+  return Object.values(AUTH_DEVICE_TYPES).includes(type as AuthDeviceType);
 }
 
-/**
- * Helper function to check if device platform is valid
- */
-export function isValidDevicePlatform(platform: string): platform is DevicePlatform {
-  return Object.values(DEVICE_PLATFORMS).includes(platform as DevicePlatform);
+export function isValidAuthDevicePlatform(platform: string): platform is AuthDevicePlatform {
+  return Object.values(AUTH_DEVICE_PLATFORMS).includes(platform as AuthDevicePlatform);
 }
 
-/**
- * Helper function to check if device status is valid
- */
-export function isValidDeviceStatus(status: string): status is DeviceStatus {
-  return Object.values(DEVICE_STATUS).includes(status as DeviceStatus);
+export function isValidAuthDeviceStatus(status: string): status is AuthDeviceStatus {
+  return Object.values(AUTH_DEVICE_STATUS).includes(status as AuthDeviceStatus);
 }
 
-/**
- * Helper function to check if device trust level is valid
- */
-export function isValidDeviceTrustLevel(level: string): level is DeviceTrustLevel {
-  return Object.values(DEVICE_TRUST_LEVELS).includes(level as DeviceTrustLevel);
+export function isValidAuthDeviceTrustLevel(level: string): level is AuthDeviceTrustLevel {
+  return Object.values(AUTH_DEVICE_TRUST_LEVELS).includes(level as AuthDeviceTrustLevel);
 }
 
-/**
- * Helper function to get device type label
- */
-export function getDeviceTypeLabel(type: DeviceType): string {
-  return DEVICE_TYPE_LABELS[type] || 'Unknown Device';
+export function getAuthDeviceTypeLabel(type: AuthDeviceType): string {
+  return AUTH_DEVICE_TYPE_LABELS[type] || 'Unknown Device';
 }
 
-/**
- * Helper function to get device platform label
- */
-export function getDevicePlatformLabel(platform: DevicePlatform): string {
-  return DEVICE_PLATFORM_LABELS[platform] || 'Unknown Platform';
+export function getAuthDevicePlatformLabel(platform: AuthDevicePlatform): string {
+  return AUTH_DEVICE_PLATFORM_LABELS[platform] || 'Unknown Platform';
 }
 
-/**
- * Helper function to get device type icon
- */
-export function getDeviceTypeIcon(type: DeviceType): string {
-  return DEVICE_TYPE_ICONS[type] || 'devices';
+export function getAuthDeviceTypeIcon(type: AuthDeviceType): string {
+  return AUTH_DEVICE_TYPE_ICONS[type] || 'devices';
 }
 
-/**
- * Helper function to get device trust level description
- */
-export function getDeviceTrustLevelDescription(level: DeviceTrustLevel): string {
-  return DEVICE_TRUST_LEVEL_DESCRIPTIONS[level] || 'Unknown trust level';
+export function getAuthDeviceTrustLevelDescription(level: AuthDeviceTrustLevel): string {
+  return AUTH_DEVICE_TRUST_LEVEL_DESCRIPTIONS[level] || 'Unknown trust level';
 }
 
-/**
- * Helper function to get device trust level score
- */
-export function getDeviceTrustLevelScore(level: DeviceTrustLevel): number {
-  return DEVICE_TRUST_LEVEL_SCORES[level] || 0;
+export function getAuthDeviceTrustLevelScore(level: AuthDeviceTrustLevel): number {
+  return AUTH_DEVICE_TRUST_LEVEL_SCORES[level] || 0;
 }
 
-/**
- * Helper function to get device status message
- */
-export function getDeviceStatusMessage(status: DeviceStatus): string {
-  return DEVICE_STATUS_MESSAGES[status] || 'Unknown device status';
+export function getAuthDeviceStatusMessage(status: AuthDeviceStatus): string {
+  return AUTH_DEVICE_STATUS_MESSAGES[status] || 'Unknown device status';
 }
 
-/**
- * Helper function to check if device is active
- */
-export function isDeviceActive(status: DeviceStatus): boolean {
-  return status === DEVICE_STATUS.ACTIVE;
+export function isAuthDeviceActive(status: AuthDeviceStatus): boolean {
+  return status === AUTH_DEVICE_STATUS.ACTIVE;
 }
 
-/**
- * Helper function to check if device is allowed
- */
-export function isDeviceAllowed(status: DeviceStatus): boolean {
-  return !BLOCKED_DEVICE_STATUSES.includes(status);
+export function isAuthDeviceAllowed(status: AuthDeviceStatus): boolean {
+  return !BLOCKED_AUTH_DEVICE_STATUSES.includes(status);
 }
 
-/**
- * Helper function to check if device needs verification
- */
-export function doesDeviceNeedVerification(status: DeviceStatus): boolean {
-  return status === DEVICE_STATUS.PENDING;
+export function doesAuthDeviceNeedVerification(status: AuthDeviceStatus): boolean {
+  return status === AUTH_DEVICE_STATUS.PENDING;
 }
 
-/**
- * Helper function to check if device trust has expired
- */
-export function isDeviceTrustExpired(
+export function isAuthDeviceTrustExpired(
   trustedAt: Date,
-  durationDays: number = DEVICE_CONFIG.TRUST_DURATION_DAYS
+  durationDays: number = AUTH_DEVICE_CONFIG.TRUST_DURATION_DAYS
 ): boolean {
   const now = Date.now();
   const age = (now - trustedAt.getTime()) / (1000 * 60 * 60 * 24);
   return age >= durationDays;
 }
 
-/**
- * Helper function to check if device session has expired
- */
-export function isDeviceSessionExpired(
+export function isAuthDeviceSessionExpired(
   lastUsedAt: Date,
-  durationDays: number = DEVICE_CONFIG.SESSION_DURATION_DAYS
+  durationDays: number = AUTH_DEVICE_CONFIG.SESSION_DURATION_DAYS
 ): boolean {
   const now = Date.now();
   const age = (now - lastUsedAt.getTime()) / (1000 * 60 * 60 * 24);
   return age >= durationDays;
 }
 
-/**
- * Helper function to check if device is inactive for cleanup
- */
-export function isDeviceInactiveForCleanup(
+export function isAuthDeviceInactiveForCleanup(
   lastUsedAt: Date,
-  cleanupDays: number = DEVICE_CONFIG.INACTIVE_CLEANUP_DAYS
+  cleanupDays: number = AUTH_DEVICE_CONFIG.INACTIVE_CLEANUP_DAYS
 ): boolean {
   const now = Date.now();
   const age = (now - lastUsedAt.getTime()) / (1000 * 60 * 60 * 24);
   return age >= cleanupDays;
 }
 
-/**
- * Helper function to get device type from user agent
- * This is a simple detection based on user agent string
- */
-export function getDeviceTypeFromUserAgent(userAgent: string): DeviceType {
+export function getAuthDeviceTypeFromUserAgent(userAgent: string): AuthDeviceType {
   const ua = userAgent.toLowerCase();
   if (
     ua.includes('mobile') ||
@@ -405,44 +315,41 @@ export function getDeviceTypeFromUserAgent(userAgent: string): DeviceType {
     ua.includes('iphone') ||
     ua.includes('ipod')
   ) {
-    return DEVICE_TYPES.MOBILE;
+    return AUTH_DEVICE_TYPES.MOBILE;
   }
   if (ua.includes('tablet') || ua.includes('ipad')) {
-    return DEVICE_TYPES.TABLET;
+    return AUTH_DEVICE_TYPES.TABLET;
   }
   if (ua.includes('tv') || ua.includes('smarttv') || ua.includes('android tv')) {
-    return DEVICE_TYPES.TV;
+    return AUTH_DEVICE_TYPES.TV;
   }
   if (ua.includes('console') || ua.includes('ps4') || ua.includes('ps5') || ua.includes('xbox')) {
-    return DEVICE_TYPES.CONSOLE;
+    return AUTH_DEVICE_TYPES.CONSOLE;
   }
   if (ua.includes('watch')) {
-    return DEVICE_TYPES.SMART_WATCH;
+    return AUTH_DEVICE_TYPES.SMART_WATCH;
   }
   if (ua.includes('laptop') || ua.includes('macbook')) {
-    return DEVICE_TYPES.LAPTOP;
+    return AUTH_DEVICE_TYPES.LAPTOP;
   }
-  return DEVICE_TYPES.DESKTOP;
+  return AUTH_DEVICE_TYPES.DESKTOP;
 }
 
-/**
- * Helper function to get device platform from user agent
- */
-export function getDevicePlatformFromUserAgent(userAgent: string): DevicePlatform {
+export function getAuthDevicePlatformFromUserAgent(userAgent: string): AuthDevicePlatform {
   const ua = userAgent.toLowerCase();
-  if (ua.includes('windows')) return DEVICE_PLATFORMS.WINDOWS;
+  if (ua.includes('windows')) return AUTH_DEVICE_PLATFORMS.WINDOWS;
   if (ua.includes('mac os') || ua.includes('macos') || ua.includes('darwin')) {
-    return DEVICE_PLATFORMS.MACOS;
+    return AUTH_DEVICE_PLATFORMS.MACOS;
   }
-  if (ua.includes('linux') || ua.includes('x11')) return DEVICE_PLATFORMS.LINUX;
-  if (ua.includes('chrome os') || ua.includes('cros')) return DEVICE_PLATFORMS.CHROME_OS;
-  if (ua.includes('android')) return DEVICE_PLATFORMS.ANDROID;
+  if (ua.includes('linux') || ua.includes('x11')) return AUTH_DEVICE_PLATFORMS.LINUX;
+  if (ua.includes('chrome os') || ua.includes('cros')) return AUTH_DEVICE_PLATFORMS.CHROME_OS;
+  if (ua.includes('android')) return AUTH_DEVICE_PLATFORMS.ANDROID;
   if (ua.includes('iphone') || ua.includes('ios') || ua.includes('ipod')) {
-    return DEVICE_PLATFORMS.IOS;
+    return AUTH_DEVICE_PLATFORMS.IOS;
   }
-  if (ua.includes('ipad') || ua.includes('ipados')) return DEVICE_PLATFORMS.IPADOS;
-  if (ua.includes('watchos')) return DEVICE_PLATFORMS.WATCHOS;
-  if (ua.includes('tvos') || ua.includes('apple tv')) return DEVICE_PLATFORMS.TVOS;
-  if (ua.includes('web') || ua.includes('browser')) return DEVICE_PLATFORMS.WEB;
-  return DEVICE_PLATFORMS.OTHER;
+  if (ua.includes('ipad') || ua.includes('ipados')) return AUTH_DEVICE_PLATFORMS.IPADOS;
+  if (ua.includes('watchos')) return AUTH_DEVICE_PLATFORMS.WATCHOS;
+  if (ua.includes('tvos') || ua.includes('apple tv')) return AUTH_DEVICE_PLATFORMS.TVOS;
+  if (ua.includes('web') || ua.includes('browser')) return AUTH_DEVICE_PLATFORMS.WEB;
+  return AUTH_DEVICE_PLATFORMS.OTHER;
 }
