@@ -1,315 +1,627 @@
 /**
  * Authentication Token Types
- * Token management data types
+ * Types for token management, generation, and validation
  */
 
-import type { TokenType, TokenStatus, TokenClaim } from '@vubon/shared-constants';
+import type { AuthTokenType, AuthTokenStatus } from '@vubon/shared-constants';
+import {
+  AUTH_TOKEN_TYPES,
+  AUTH_TOKEN_STATUS,
+  AUTH_TOKEN_CONFIG,
+  AUTH_TOKEN_EXPIRY_MAP,
+  ONE_TIME_USE_AUTH_TOKENS,
+  LONG_LIVED_AUTH_TOKENS,
+  SHORT_LIVED_AUTH_TOKENS,
+  ACTIVE_AUTH_TOKEN_STATUSES,
+  INVALID_AUTH_TOKEN_STATUSES,
+  AUTH_TOKEN_HEADERS,
+  AUTH_TOKEN_CLAIMS,
+} from '@vubon/shared-constants';
+import type { ID, Timestamp, UUID } from '../common/core-primitives.types';
 
-import type { ID, Timestamp } from '../common/core-primitives.types';
-import type { AuthUser } from './auth.types';
+// ============================================================
+// TOKEN PAYLOAD
+// ============================================================
 
 /**
- * Token Data
- * Complete token information
+ * Base token payload
  */
-export interface TokenData {
-  /** Token unique identifier (JTI) */
-  id: ID;
-  /** Token value (actual token string) */
-  value: string;
+export interface AuthTokenPayload {
   /** Token type */
-  type: TokenType;
-  /** Current token status */
-  status: TokenStatus;
-  /** User ID associated with the token */
+  type: AuthTokenType;
+  /** User ID (subject) */
   userId: ID;
-  /** Token creation timestamp */
-  createdAt: Timestamp;
+  /** Token ID (JTI) */
+  jti: UUID;
+  /** Issuer */
+  iss: string;
+  /** Audience */
+  aud: string;
+  /** Issued at timestamp */
+  iat: number;
+  /** Expiration timestamp */
+  exp: number;
+  /** Not before timestamp */
+  nbf?: number;
+  /** User role */
+  role?: string;
+  /** User permissions */
+  permissions?: string[];
+  /** Device ID */
+  deviceId?: ID;
+  /** Session ID */
+  sessionId?: ID;
+  /** IP address */
+  ipAddress?: string;
+  /** User agent */
+  userAgent?: string;
+  /** Additional claims */
+  [key: string]: unknown;
+}
+
+/**
+ * Access token payload
+ */
+export interface AuthAccessTokenPayload extends AuthTokenPayload {
+  type: typeof AUTH_TOKEN_TYPES.ACCESS;
+  /** Whether token can be used for API access */
+  apiAccess: boolean;
+}
+
+/**
+ * Refresh token payload
+ */
+export interface AuthRefreshTokenPayload extends AuthTokenPayload {
+  type: typeof AUTH_TOKEN_TYPES.REFRESH;
+  /** Parent access token ID (if any) */
+  parentTokenId?: UUID;
+}
+
+/**
+ * Verification token payload
+ */
+export interface AuthVerificationTokenPayload extends AuthTokenPayload {
+  type: typeof AUTH_TOKEN_TYPES.VERIFICATION;
+  /** Verification type (email, phone, etc.) */
+  verificationType: string;
+  /** Target (email, phone, etc.) */
+  target: string;
+}
+
+/**
+ * Reset token payload
+ */
+export interface AuthResetTokenPayload extends AuthTokenPayload {
+  type: typeof AUTH_TOKEN_TYPES.RESET;
+  /** Reset type (password, etc.) */
+  resetType: string;
+}
+
+/**
+ * MFA token payload
+ */
+export interface AuthMfaTokenPayload extends AuthTokenPayload {
+  type: typeof AUTH_TOKEN_TYPES.MFA;
+  /** MFA method */
+  mfaMethod: string;
+  /** MFA session ID */
+  mfaSessionId: string;
+}
+
+// ============================================================
+// TOKEN RECORD
+// ============================================================
+
+/**
+ * Token record (stored in database)
+ */
+export interface AuthTokenRecord {
+  /** Unique token ID */
+  id: ID;
+  /** Token ID (JTI) */
+  jti: UUID;
+  /** User ID */
+  userId: ID;
+  /** Token type */
+  type: AuthTokenType;
+  /** Token status */
+  status: AuthTokenStatus;
+  /** Token hash (for verification) */
+  tokenHash: string;
+  /** Refresh token hash (if applicable) */
+  refreshTokenHash?: string;
   /** Token expiry timestamp */
   expiresAt: Timestamp;
-  /** Token last used timestamp */
-  lastUsedAt?: Timestamp;
+  /** Refresh token expiry timestamp (if applicable) */
+  refreshExpiresAt?: Timestamp;
+  /** Token issued at timestamp */
+  issuedAt: Timestamp;
+  /** Token revoked at timestamp (if applicable) */
+  revokedAt?: Timestamp;
+  /** Device ID (if applicable) */
+  deviceId?: ID;
+  /** Session ID (if applicable) */
+  sessionId?: ID;
+  /** IP address (if applicable) */
+  ipAddress?: string;
+  /** User agent (if applicable) */
+  userAgent?: string;
+  /** Whether token is one-time use */
+  isOneTimeUse: boolean;
+  /** Whether token is active */
+  isActive: boolean;
+  /** Additional metadata */
+  metadata?: Record<string, unknown>;
+}
+
+// ============================================================
+// TOKEN REQUEST
+// ============================================================
+
+/**
+ * Token generation request
+ */
+export interface AuthTokenGenerateRequest {
+  /** User ID */
+  userId: ID;
+  /** Token type */
+  type: AuthTokenType;
+  /** Device ID (if applicable) */
+  deviceId?: ID;
+  /** Session ID (if applicable) */
+  sessionId?: ID;
+  /** IP address (if applicable) */
+  ipAddress?: string;
+  /** User agent (if applicable) */
+  userAgent?: string;
+  /** Custom expiry in seconds */
+  customExpiry?: number;
+  /** Additional claims */
+  claims?: Record<string, unknown>;
+}
+
+/**
+ * Token refresh request
+ */
+export interface AuthTokenRefreshRequest {
+  /** Refresh token */
+  refreshToken: string;
+  /** Device ID (if applicable) */
+  deviceId?: ID;
+  /** Session ID (if applicable) */
+  sessionId?: ID;
+  /** IP address (if applicable) */
+  ipAddress?: string;
+  /** User agent (if applicable) */
+  userAgent?: string;
+}
+
+/**
+ * Token verification request
+ */
+export interface AuthTokenVerifyRequest {
+  /** Token to verify */
+  token: string;
+  /** Expected token type (optional) */
+  expectedType?: AuthTokenType;
+  /** Expected user ID (optional) */
+  expectedUserId?: ID;
+  /** Expected device ID (optional) */
+  expectedDeviceId?: ID;
+  /** Expected session ID (optional) */
+  expectedSessionId?: ID;
+}
+
+// ============================================================
+// TOKEN RESPONSE
+// ============================================================
+
+/**
+ * Token generation response
+ */
+export interface AuthTokenResponse {
+  /** Whether the operation was successful */
+  success: boolean;
+  /** Access token (if applicable) */
+  accessToken?: string;
+  /** Refresh token (if applicable) */
+  refreshToken?: string;
+  /** Token type */
+  tokenType?: AuthTokenType;
+  /** Token expiry in seconds */
+  expiresIn?: number;
+  /** Refresh token expiry in seconds */
+  refreshExpiresIn?: number;
+  /** Token record (if applicable) */
+  record?: AuthTokenRecord;
+  /** Error message if failed */
+  error?: string;
+}
+
+/**
+ * Token verification response
+ */
+export interface AuthTokenVerifyResponse {
+  /** Whether the token is valid */
+  isValid: boolean;
+  /** Token status */
+  status: AuthTokenStatus;
+  /** Token payload (if valid) */
+  payload?: AuthTokenPayload;
+  /** Token record (if found) */
+  record?: AuthTokenRecord;
+  /** Error message if invalid */
+  error?: string;
+  /** Whether token needs refresh */
+  needsRefresh?: boolean;
+}
+
+// ============================================================
+// TOKEN FILTER
+// ============================================================
+
+/**
+ * Filter for querying tokens
+ */
+export interface AuthTokenFilter {
+  /** Filter by user ID */
+  userId?: ID;
+  /** Filter by token type */
+  type?: AuthTokenType | AuthTokenType[];
+  /** Filter by status */
+  status?: AuthTokenStatus | AuthTokenStatus[];
+  /** Filter by device ID */
+  deviceId?: ID;
+  /** Filter by session ID */
+  sessionId?: ID;
+  /** Filter by active tokens only */
+  activeOnly?: boolean;
+  /** Filter by one-time use tokens */
+  oneTimeUseOnly?: boolean;
+  /** Filter by date range (issued) */
+  issuedDateRange?: {
+    start?: Date;
+    end?: Date;
+  };
+}
+
+// ============================================================
+// TOKEN SUMMARY
+// ============================================================
+
+/**
+ * Token summary for a user
+ */
+export interface AuthTokenSummary {
+  /** User ID */
+  userId: ID;
+  /** Total tokens */
+  totalTokens: number;
+  /** Active tokens */
+  activeTokens: number;
+  /** Expired tokens */
+  expiredTokens: number;
+  /** Revoked tokens */
+  revokedTokens: number;
+  /** Tokens by type */
+  tokensByType: Record<AuthTokenType, number>;
+  /** Tokens by status */
+  tokensByStatus: Record<AuthTokenStatus, number>;
+  /** Current access token (if any) */
+  currentAccessToken?: AuthTokenRecord;
+  /** Active tokens */
+  tokens: AuthTokenRecord[];
+}
+
+// ============================================================
+// TOKEN CONFIG
+// ============================================================
+
+/**
+ * Token configuration
+ */
+export interface AuthTokenConfig {
+  /** Access token expiry in seconds */
+  accessExpiry: number;
+  /** Refresh token expiry in seconds */
+  refreshExpiry: number;
+  /** Verification token expiry in seconds */
+  verificationExpiry: number;
+  /** Reset token expiry in seconds */
+  resetExpiry: number;
+  /** MFA token expiry in seconds */
+  mfaExpiry: number;
+  /** Magic link expiry in seconds */
+  magicLinkExpiry: number;
+  /** Invitation expiry in seconds */
+  invitationExpiry: number;
+  /** OAuth token expiry in seconds */
+  oauthExpiry: number;
+  /** OAuth refresh token expiry in seconds */
+  oauthRefreshExpiry: number;
+  /** Device token expiry in seconds */
+  deviceExpiry: number;
+  /** API key expiry in seconds */
+  apiKeyExpiry: number;
+  /** Token algorithm */
+  algorithm:
+    'HS256' | 'HS384' | 'HS512' | 'RS256' | 'RS384' | 'RS512' | 'ES256' | 'ES384' | 'ES512';
   /** Token issuer */
   issuer: string;
   /** Token audience */
   audience: string;
-  /** Token scopes (optional) */
-  scopes?: string[];
-  /** Token metadata (optional) */
-  metadata?: Record<string, unknown>;
+  /** Token version */
+  version: string;
+}
+
+// ============================================================
+// TOKEN HEADER (HTTP)
+// ============================================================
+
+/**
+ * Token header from HTTP request
+ */
+export interface AuthTokenHttpHeader {
+  /** Authorization header value */
+  authorization?: string;
+  /** API key header value */
+  xApiKey?: string;
+  /** Refresh token header value */
+  xRefreshToken?: string;
+  /** Device token header value */
+  xDeviceToken?: string;
+}
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+
+/**
+ * Check if token type is valid
+ */
+export function isValidAuthTokenType(type: string): type is AuthTokenType {
+  return Object.values(AUTH_TOKEN_TYPES).includes(type as AuthTokenType);
 }
 
 /**
- * Token Payload
- * Data encoded within a token
- * Uses TokenClaim for standard JWT claims
+ * Check if token status is valid
  */
-export interface TokenPayload {
-  /** Subject (user ID) - maps to TokenClaim.SUBJECT */
-  sub: ID;
-  /** Issuer - maps to TokenClaim.ISSUER */
-  iss: string;
-  /** Audience - maps to TokenClaim.AUDIENCE */
-  aud: string;
-  /** Expiration timestamp - maps to TokenClaim.EXPIRATION */
-  exp: number;
-  /** Not before timestamp - maps to TokenClaim.NOT_BEFORE */
-  nbf?: number;
-  /** Issued at timestamp - maps to TokenClaim.ISSUED_AT */
-  iat: number;
-  /** JWT ID - maps to TokenClaim.JWT_ID */
-  jti: string;
-  /** Token type - maps to TokenClaim.TOKEN_TYPE */
-  type: TokenType;
-  /** User role - maps to TokenClaim.ROLE */
-  role?: string;
-  /** User permissions - maps to TokenClaim.PERMISSIONS */
-  permissions?: string[];
-  /** Device ID - maps to TokenClaim.DEVICE_ID */
-  deviceId?: ID;
-  /** Session ID - maps to TokenClaim.SESSION_ID */
-  sessionId?: ID;
-  /** IP address - maps to TokenClaim.IP_ADDRESS */
-  ipAddress?: string;
-  /** User agent - maps to TokenClaim.USER_AGENT */
-  userAgent?: string;
-  /** Additional claims */
-  [key: string]: unknown;
+export function isValidAuthTokenStatus(status: string): status is AuthTokenStatus {
+  return Object.values(AUTH_TOKEN_STATUS).includes(status as AuthTokenStatus);
 }
 
 /**
- * Token Claims Map
- * Type-safe mapping of token claims using TokenClaim
+ * Check if token is active
  */
-export type TokenClaimsMap = {
-  [K in TokenClaim]?: string | number | boolean | unknown;
-};
-
-/**
- * Token Generation Request
- * Data required to generate a new token
- */
-export interface TokenGenerationRequest {
-  /** User ID */
-  userId: ID;
-  /** Token type */
-  type: TokenType;
-  /** Token expiry in seconds (optional) */
-  expiresIn?: number;
-  /** Token claims (optional) - uses TokenClaim keys */
-  claims?: Partial<TokenClaimsMap>;
-  /** Token scopes (optional) */
-  scopes?: string[];
-  /** Device ID (optional) */
-  deviceId?: ID;
-  /** Session ID (optional) */
-  sessionId?: ID;
-  /** IP address (optional) */
-  ipAddress?: string;
-  /** User agent (optional) */
-  userAgent?: string;
+export function isAuthTokenActive(status: AuthTokenStatus): boolean {
+  return ACTIVE_AUTH_TOKEN_STATUSES.includes(status);
 }
 
 /**
- * Token Validation Request
- * Data required to validate a token
+ * Check if token is invalid
  */
-export interface TokenValidationRequest {
-  /** Token value */
-  token: string;
-  /** Expected token type */
-  expectedType?: TokenType;
-  /** Expected audience (optional) */
-  audience?: string;
-  /** Expected issuer (optional) */
-  issuer?: string;
-  /** Validate token status */
-  validateStatus?: boolean;
-  /** Validate expiration */
-  validateExpiry?: boolean;
-  /** Additional claims to validate */
-  requiredClaims?: TokenClaim[];
+export function isAuthTokenInvalid(status: AuthTokenStatus): boolean {
+  return INVALID_AUTH_TOKEN_STATUSES.includes(status);
 }
 
 /**
- * Token Validation Result
- * Result of token validation
+ * Check if token is one-time use
  */
-export interface TokenValidationResult {
-  /** Is token valid */
-  isValid: boolean;
-  /** Token status */
-  status: TokenStatus;
-  /** Token payload (if valid) */
-  payload?: TokenPayload;
-  /** Token data (if valid) */
-  token?: TokenData;
-  /** User data (if valid) */
-  user?: AuthUser;
-  /** Validation error message */
-  error?: string;
-  /** Validation error code */
-  errorCode?: string;
-  /** Validated claims */
-  validatedClaims?: TokenClaim[];
+export function isAuthTokenOneTimeUse(type: AuthTokenType): boolean {
+  return ONE_TIME_USE_AUTH_TOKENS.includes(type);
 }
 
 /**
- * Token Refresh Request
- * Data required to refresh a token
+ * Check if token is long-lived
  */
-export interface TokenRefreshRequest {
-  /** Refresh token value */
-  refreshToken: string;
-  /** Device ID (optional) */
-  deviceId?: ID;
-  /** Session ID (optional) */
-  sessionId?: ID;
-  /** IP address (optional) */
-  ipAddress?: string;
-  /** User agent (optional) */
-  userAgent?: string;
+export function isAuthTokenLongLived(type: AuthTokenType): boolean {
+  return LONG_LIVED_AUTH_TOKENS.includes(type);
 }
 
 /**
- * Token Refresh Result
- * Result of token refresh
+ * Check if token is short-lived
  */
-export interface TokenRefreshResult {
-  /** New access token */
-  accessToken: string;
-  /** New refresh token (if rotation enabled) */
-  refreshToken?: string;
-  /** Token expiry in seconds */
-  expiresIn: number;
-  /** Token type */
-  tokenType: string;
-  /** User data */
-  user: AuthUser;
+export function isAuthTokenShortLived(type: AuthTokenType): boolean {
+  return SHORT_LIVED_AUTH_TOKENS.includes(type);
 }
 
 /**
- * Token Revocation Request
- * Data required to revoke a token
+ * Get token expiry in seconds
  */
-export interface TokenRevocationRequest {
-  /** Token value */
-  token: string;
-  /** Token type (optional) */
-  type?: TokenType;
-  /** User ID (optional) */
-  userId?: ID;
-  /** Revocation reason */
-  reason?: string;
-  /** Force revocation */
-  force?: boolean;
+export function getAuthTokenExpiry(type: AuthTokenType): number {
+  return AUTH_TOKEN_EXPIRY_MAP[type] || AUTH_TOKEN_CONFIG.ACCESS_EXPIRY;
 }
 
 /**
- * Token Revocation Result
- * Result of token revocation
+ * Check if token has expired
  */
-export interface TokenRevocationResult {
-  /** Is token revoked */
-  revoked: boolean;
-  /** Revocation timestamp */
-  revokedAt: Timestamp;
-  /** Revocation reason */
-  reason?: string;
-  /** Message */
-  message: string;
+export function isAuthTokenExpired(issuedAt: Date, type: AuthTokenType): boolean {
+  const now = Date.now();
+  const tokenAge = (now - issuedAt.getTime()) / 1000;
+  const expiry = getAuthTokenExpiry(type);
+  return tokenAge >= expiry;
 }
 
 /**
- * Token Blacklist Entry
- * Blacklisted token information
+ * Get remaining token time in seconds
  */
-export interface TokenBlacklistEntry {
-  /** Token ID (JTI) */
-  id: ID;
-  /** Token value (hashed) */
-  tokenHash: string;
-  /** Token type */
-  type: TokenType;
-  /** User ID */
-  userId: ID;
-  /** Blacklist reason */
-  reason: string;
-  /** Blacklist timestamp */
-  blacklistedAt: Timestamp;
-  /** Token expiry timestamp */
-  expiresAt: Timestamp;
+export function getAuthTokenRemainingTime(issuedAt: Date, type: AuthTokenType): number {
+  const now = Date.now();
+  const tokenAge = (now - issuedAt.getTime()) / 1000;
+  const expiry = getAuthTokenExpiry(type);
+  const remaining = expiry - tokenAge;
+  return Math.max(0, remaining);
 }
 
 /**
- * Token Statistics
- * Token usage statistics
+ * Get human-readable label for token type
  */
-export interface TokenStatistics {
-  /** Total tokens generated */
-  totalGenerated: number;
-  /** Total tokens active */
-  totalActive: number;
-  /** Total tokens expired */
-  totalExpired: number;
-  /** Total tokens revoked */
-  totalRevoked: number;
-  /** Active by type */
-  activeByType: Record<TokenType, number>;
-  /** Average token lifetime in seconds */
-  averageLifetime: number;
-  /** Most used token type */
-  mostUsedType: TokenType;
-  /** Token generation rate (per hour) */
-  generationRate: number;
-  /** Timestamp of statistics */
-  timestamp: Timestamp;
+export function getAuthTokenTypeLabel(type: AuthTokenType): string {
+  const labels: Record<AuthTokenType, string> = {
+    access: 'Access Token',
+    refresh: 'Refresh Token',
+    verification: 'Verification Token',
+    reset: 'Reset Token',
+    mfa: 'MFA Token',
+    api_key: 'API Key',
+    session: 'Session Token',
+    social: 'Social Token',
+    sso: 'SSO Token',
+    oauth: 'OAuth Token',
+    oauth_refresh: 'OAuth Refresh Token',
+    device: 'Device Token',
+    invitation: 'Invitation Token',
+    magic_link: 'Magic Link',
+  };
+  return labels[type] || 'Unknown Token Type';
 }
 
 /**
- * Token Introspection Request
- * Request for token introspection (OAuth)
+ * Get human-readable label for token status
  */
-export interface TokenIntrospectionRequest {
-  /** Token value */
-  token: string;
-  /** Token type hint (optional) */
-  tokenTypeHint?: string;
-  /** Client ID (optional) */
-  clientId?: string;
-  /** Client secret (optional) */
-  clientSecret?: string;
+export function getAuthTokenStatusLabel(status: AuthTokenStatus): string {
+  const labels: Record<AuthTokenStatus, string> = {
+    active: 'Active',
+    expired: 'Expired',
+    revoked: 'Revoked',
+    blacklisted: 'Blacklisted',
+    pending: 'Pending',
+    used: 'Used',
+    invalid: 'Invalid',
+  };
+  return labels[status] || 'Unknown Status';
 }
 
 /**
- * Token Introspection Response
- * Response for token introspection (OAuth)
+ * Format token for authorization header
  */
-export interface TokenIntrospectionResponse {
-  /** Is token active */
-  active: boolean;
-  /** Token scopes */
-  scope?: string;
-  /** Client ID */
-  clientId?: string;
-  /** Username */
-  username?: string;
-  /** Token type */
-  tokenType?: string;
-  /** Expiration timestamp */
-  exp?: number;
-  /** Issued at timestamp */
-  iat?: number;
-  /** Not before timestamp */
-  nbf?: number;
-  /** Subject */
-  sub?: string;
-  /** Audience */
-  aud?: string;
-  /** Issuer */
-  iss?: string;
-  /** JWT ID */
-  jti?: string;
-  /** Additional claims */
-  [key: string]: unknown;
+export function formatAuthAuthorizationHeader(
+  token: string,
+  type: 'Bearer' | 'Basic' = 'Bearer'
+): string {
+  return `${type} ${token}`;
+}
+
+/**
+ * Extract token from authorization header
+ */
+export function extractAuthTokenFromHeader(header: string): string | null {
+  const match = header.match(/^Bearer\s+(.+)$/);
+  return match ? match[1] : null;
+}
+
+/**
+ * Generate token JTI (JWT ID)
+ */
+export function generateAuthTokenJti(): UUID {
+  return crypto.randomUUID();
+}
+
+/**
+ * Create token config
+ */
+export function createAuthTokenConfig(overrides?: Partial<AuthTokenConfig>): AuthTokenConfig {
+  return {
+    accessExpiry: AUTH_TOKEN_CONFIG.ACCESS_EXPIRY,
+    refreshExpiry: AUTH_TOKEN_CONFIG.REFRESH_EXPIRY,
+    verificationExpiry: AUTH_TOKEN_CONFIG.VERIFICATION_EXPIRY,
+    resetExpiry: AUTH_TOKEN_CONFIG.RESET_EXPIRY,
+    mfaExpiry: AUTH_TOKEN_CONFIG.MFA_EXPIRY,
+    magicLinkExpiry: AUTH_TOKEN_CONFIG.MAGIC_LINK_EXPIRY,
+    invitationExpiry: AUTH_TOKEN_CONFIG.INVITATION_EXPIRY,
+    oauthExpiry: AUTH_TOKEN_CONFIG.OAUTH_EXPIRY,
+    oauthRefreshExpiry: AUTH_TOKEN_CONFIG.OAUTH_REFRESH_EXPIRY,
+    deviceExpiry: AUTH_TOKEN_CONFIG.DEVICE_EXPIRY,
+    apiKeyExpiry: AUTH_TOKEN_CONFIG.API_KEY_EXPIRY,
+    algorithm: AUTH_TOKEN_CONFIG.ALGORITHM,
+    issuer: AUTH_TOKEN_CONFIG.ISSUER,
+    audience: AUTH_TOKEN_CONFIG.AUDIENCE,
+    version: AUTH_TOKEN_CONFIG.VERSION,
+    ...overrides,
+  };
+}
+
+/**
+ * Get token header for HTTP request
+ */
+export function createAuthTokenHttpHeader(
+  token?: string,
+  apiKey?: string,
+  refreshToken?: string,
+  deviceToken?: string
+): AuthTokenHttpHeader {
+  const header: AuthTokenHttpHeader = {};
+  if (token) header.authorization = formatAuthAuthorizationHeader(token);
+  if (apiKey) header.xApiKey = apiKey;
+  if (refreshToken) header.xRefreshToken = refreshToken;
+  if (deviceToken) header.xDeviceToken = deviceToken;
+  return header;
+}
+
+/**
+ * Get standard token claims
+ */
+export function getAuthStandardTokenClaims(): string[] {
+  return [
+    AUTH_TOKEN_CLAIMS.ISSUER,
+    AUTH_TOKEN_CLAIMS.SUBJECT,
+    AUTH_TOKEN_CLAIMS.AUDIENCE,
+    AUTH_TOKEN_CLAIMS.EXPIRATION,
+    AUTH_TOKEN_CLAIMS.NOT_BEFORE,
+    AUTH_TOKEN_CLAIMS.ISSUED_AT,
+    AUTH_TOKEN_CLAIMS.JWT_ID,
+  ];
+}
+
+/**
+ * Get token type from claim
+ */
+export function getAuthTokenTypeFromClaim(tokenType: string): AuthTokenType | null {
+  const validTypes = Object.values(AUTH_TOKEN_TYPES);
+  if (validTypes.includes(tokenType as AuthTokenType)) {
+    return tokenType as AuthTokenType;
+  }
+  return null;
+}
+
+/**
+ * Validate token header
+ */
+export function validateAuthTokenHttpHeader(header: AuthTokenHttpHeader): {
+  hasValidAuth: boolean;
+  hasApiKey: boolean;
+  hasRefreshToken: boolean;
+} {
+  return {
+    hasValidAuth: !!(header.authorization && extractAuthTokenFromHeader(header.authorization)),
+    hasApiKey: !!header.xApiKey,
+    hasRefreshToken: !!header.xRefreshToken,
+  };
+}
+
+/**
+ * Get all available token headers
+ */
+export function getAuthTokenHeaders(): string[] {
+  return [
+    AUTH_TOKEN_HEADERS.AUTHORIZATION,
+    AUTH_TOKEN_HEADERS.BEARER,
+    AUTH_TOKEN_HEADERS.X_API_KEY,
+    AUTH_TOKEN_HEADERS.X_REFRESH_TOKEN,
+    AUTH_TOKEN_HEADERS.X_DEVICE_TOKEN,
+  ];
+}
+
+/**
+ * Check if header is a token header
+ */
+export function isAuthTokenHeader(header: string): boolean {
+  const tokenHeaders = [
+    AUTH_TOKEN_HEADERS.AUTHORIZATION,
+    AUTH_TOKEN_HEADERS.BEARER,
+    AUTH_TOKEN_HEADERS.X_API_KEY,
+    AUTH_TOKEN_HEADERS.X_REFRESH_TOKEN,
+    AUTH_TOKEN_HEADERS.X_DEVICE_TOKEN,
+  ];
+  return tokenHeaders.includes(header as (typeof tokenHeaders)[number]);
 }

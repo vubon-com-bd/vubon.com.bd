@@ -1,285 +1,595 @@
 /**
  * Authentication Social Types
- * Social login, social media integration, and social authentication data types
+ * Types for social login, social media integration, and social authentication
  */
 
 import type {
-  SocialLoginStatus,
-  SocialProviderConfig,
-  SocialProviderType,
+  AuthSocialLoginStatus,
+  AuthSocialProviderConfig,
+  AuthSocialLoginError,
+  AuthSocialLoginSuccess,
+  AuthSocialProviderType,
 } from '@vubon/shared-constants';
-
+import {
+  AUTH_SOCIAL_LOGIN_STATUS,
+  AUTH_SOCIAL_PROVIDER_CONFIG,
+  AUTH_SOCIAL_LOGIN_ERRORS,
+  AUTH_SOCIAL_LOGIN_SUCCESS,
+  AUTH_SOCIAL_PROVIDER_TYPES,
+  AUTH_SOCIAL_PROVIDER_TYPE_MAP,
+  AUTH_SOCIAL_LOGIN_STATUS_MESSAGES,
+} from '@vubon/shared-constants';
 import type { ID, Timestamp, Email, Url } from '../common/core-primitives.types';
-import type { AuthUser, AuthDeviceInfo } from './auth.types';
+
+// ============================================================
+// SOCIAL PROVIDER TYPES
+// ============================================================
 
 /**
- * Social Login Data
- * Complete social login information
+ * Social provider name
+ * Supported social providers
  */
-export interface SocialLoginData {
+export type AuthSocialProvider =
+  | 'google'
+  | 'facebook'
+  | 'github'
+  | 'twitter'
+  | 'linkedin'
+  | 'apple'
+  | 'microsoft'
+  | 'instagram'
+  | 'tiktok'
+  | 'snapchat'
+  | 'wechat'
+  | 'line'
+  | 'telegram'
+  | 'whatsapp'
+  | 'vk'
+  | 'yahoo'
+  | 'discord'
+  | 'slack'
+  | 'spotify';
+
+// ============================================================
+// SOCIAL PROFILE
+// ============================================================
+
+/**
+ * Social profile from provider
+ */
+export interface AuthSocialProfile {
+  /** Provider name */
+  provider: AuthSocialProvider;
+  /** Provider-specific user ID */
+  providerUserId: string;
+  /** Email address */
+  email?: Email;
+  /** Whether email is verified */
+  emailVerified?: boolean;
+  /** Full name */
+  name?: string;
+  /** First name */
+  firstName?: string;
+  /** Last name */
+  lastName?: string;
+  /** Profile picture URL */
+  picture?: Url;
+  /** Profile URL */
+  profileUrl?: Url;
+  /** Location */
+  location?: string;
+  /** Bio/description */
+  bio?: string;
+  /** Phone number */
+  phone?: string;
+  /** Additional provider-specific data */
+  rawData?: Record<string, unknown>;
+  /** When the profile was fetched */
+  fetchedAt: Timestamp;
+}
+
+// ============================================================
+// SOCIAL ACCOUNT
+// ============================================================
+
+/**
+ * Social account linked to a user
+ */
+export interface AuthSocialAccount {
   /** Unique identifier */
   id: ID;
-  /** User ID (if linked to existing user) */
-  userId?: ID;
+  /** User ID */
+  userId: ID;
   /** Social provider */
-  provider: string;
-  /** Provider user ID */
+  provider: AuthSocialProvider;
+  /** Provider-specific user ID */
   providerUserId: string;
-  /** Provider email */
-  email: Email;
-  /** Provider display name */
-  displayName?: string;
-  /** Provider profile picture URL */
-  profilePicture?: Url;
-  /** Provider profile URL */
-  profileUrl?: Url;
-  /** Social login status */
-  status: SocialLoginStatus;
-  /** When social login was initiated */
-  initiatedAt: Timestamp;
-  /** When social login was completed */
-  completedAt?: Timestamp;
-  /** Provider response data */
-  providerData?: Record<string, unknown>;
-  /** Additional metadata */
-  metadata?: Record<string, unknown>;
+  /** Social profile data */
+  profile: AuthSocialProfile;
+  /** Access token (encrypted) */
+  accessToken?: string;
+  /** Refresh token (encrypted) */
+  refreshToken?: string;
+  /** Token expiry */
+  tokenExpiresAt?: Timestamp;
+  /** Whether the account is active */
+  isActive: boolean;
+  /** Whether the account is verified */
+  isVerified: boolean;
+  /** When the account was linked */
+  linkedAt: Timestamp;
+  /** When the account was updated */
+  updatedAt: Timestamp;
+  /** When the account was unlinked (if applicable) */
+  unlinkedAt?: Timestamp;
 }
 
+// ============================================================
+// SOCIAL LOGIN REQUEST
+// ============================================================
+
 /**
- * Social Login Request
- * Request to initiate social login
+ * Social login request
  */
-export interface SocialLoginRequest {
+export interface AuthSocialLoginRequest {
   /** Social provider */
-  provider: string;
+  provider: AuthSocialProvider;
   /** Authorization code from provider */
-  code: string;
-  /** Redirect URI (optional) */
-  redirectUri?: string;
-  /** State parameter for CSRF */
+  code?: string;
+  /** OAuth state parameter (for CSRF) */
   state?: string;
-  /** Device information (optional) */
-  device?: Partial<AuthDeviceInfo>;
-  /** Additional provider-specific data */
-  providerData?: Record<string, unknown>;
+  /** Redirect URI */
+  redirectUri?: Url;
+  /** Whether to create account if not exists */
+  createIfNotExists?: boolean;
+  /** Whether to force account linking */
+  forceLinking?: boolean;
 }
 
 /**
- * Social Login Result
- * Result of social login
+ * Social login callback request
  */
-export interface SocialLoginResult {
-  /** Is login successful */
+export interface AuthSocialCallbackRequest {
+  /** Social provider */
+  provider: AuthSocialProvider;
+  /** Authorization code */
+  code: string;
+  /** OAuth state parameter */
+  state?: string;
+  /** Error from provider */
+  error?: string;
+  /** Error description from provider */
+  error_description?: string;
+}
+
+// ============================================================
+// SOCIAL LOGIN RESPONSE
+// ============================================================
+
+/**
+ * Social login response
+ */
+export interface AuthSocialLoginResponse {
+  /** Whether the operation was successful */
   success: boolean;
   /** Login status */
-  status: SocialLoginStatus;
-  /** User data (if successful) */
-  user?: AuthUser;
-  /** Access token (if successful) */
-  accessToken?: string;
-  /** Refresh token (if successful) */
-  refreshToken?: string;
-  /** Token expiry in seconds */
-  expiresIn?: number;
-  /** Is new account created */
+  status: AuthSocialLoginStatus;
+  /** Social account if successful */
+  account?: AuthSocialAccount;
+  /** User ID if authenticated */
+  userId?: ID;
+  /** Whether new account was created */
   isNewAccount?: boolean;
-  /** Account linking data (if requires linking) */
-  linkingData?: {
-    email: Email;
-    provider: string;
-    providerUserId: string;
-    providerData: Record<string, unknown>;
-  };
-  /** Required info (if requires info) */
-  requiredInfo?: {
-    fields: string[];
-    message: string;
-  };
-  /** Error message (if failed) */
+  /** Whether account linking is required */
+  linkingRequired?: boolean;
+  /** Error message if failed */
   error?: string;
+  /** Required additional info (if status is REQUIRES_INFO) */
+  requiredFields?: string[];
+  /** Social profile (if available) */
+  profile?: AuthSocialProfile;
+  /** Error code (if status is FAILED) */
+  errorCode?: AuthSocialLoginError;
+  /** Success message (if status is SUCCESS) */
+  successMessage?: AuthSocialLoginSuccess;
 }
 
+// ============================================================
+// SOCIAL LINK REQUEST
+// ============================================================
+
 /**
- * Social Account Link Request
- * Request to link social account to existing user
+ * Request to link social account
  */
-export interface SocialAccountLinkRequest {
+export interface AuthSocialLinkRequest {
   /** User ID */
   userId: ID;
   /** Social provider */
-  provider: string;
-  /** Authorization code from provider */
+  provider: AuthSocialProvider;
+  /** Authorization code */
   code: string;
-  /** Redirect URI (optional) */
-  redirectUri?: string;
-  /** State parameter for CSRF */
+  /** OAuth state parameter */
   state?: string;
+  /** Whether to set as primary */
+  setPrimary?: boolean;
 }
 
 /**
- * Social Account Unlink Request
- * Request to unlink social account from user
+ * Request to unlink social account
  */
-export interface SocialAccountUnlinkRequest {
+export interface AuthSocialUnlinkRequest {
   /** User ID */
   userId: ID;
-  /** Social provider to unlink */
-  provider: string;
-  /** Provider user ID (optional, for verification) */
+  /** Social provider */
+  provider: AuthSocialProvider;
+  /** Reason for unlinking */
+  reason?: string;
+}
+
+// ============================================================
+// SOCIAL FILTER
+// ============================================================
+
+/**
+ * Filter for querying social accounts
+ */
+export interface AuthSocialFilter {
+  /** Filter by user ID */
+  userId?: ID;
+  /** Filter by provider */
+  provider?: AuthSocialProvider | AuthSocialProvider[];
+  /** Filter by provider user ID */
   providerUserId?: string;
+  /** Filter by active status */
+  isActive?: boolean;
+  /** Filter by verification status */
+  isVerified?: boolean;
 }
 
-/**
- * Social Account Link Result
- * Result of social account linking
- */
-export interface SocialAccountLinkResult {
-  /** Is linking successful */
-  success: boolean;
-  /** User data */
-  user?: AuthUser;
-  /** Social provider that was linked */
-  provider?: string;
-  /** Message */
-  message: string;
-}
+// ============================================================
+// SOCIAL SUMMARY
+// ============================================================
 
 /**
- * Social Account Unlink Result
- * Result of social account unlinking
+ * Social accounts summary for a user
  */
-export interface SocialAccountUnlinkResult {
-  /** Is unlinking successful */
-  success: boolean;
-  /** Social provider that was unlinked */
-  provider?: string;
-  /** Message */
-  message: string;
-}
-
-/**
- * Social Account List
- * List of social accounts linked to a user
- */
-export interface SocialAccountList {
+export interface AuthSocialSummary {
   /** User ID */
   userId: ID;
-  /** List of linked social accounts */
-  accounts: SocialAccountData[];
-  /** Total count */
-  total: number;
+  /** Total linked accounts */
+  totalAccounts: number;
+  /** Active accounts */
+  activeAccounts: number;
+  /** Verified accounts */
+  verifiedAccounts: number;
+  /** Linked providers */
+  providers: AuthSocialProvider[];
+  /** Primary social account */
+  primaryAccount?: AuthSocialAccount;
+  /** All social accounts */
+  accounts: AuthSocialAccount[];
+  /** Social login status */
+  status: AuthSocialLoginStatus;
 }
 
-/**
- * Social Account Data
- * Social account information
- */
-export interface SocialAccountData {
-  /** Provider */
-  provider: string;
-  /** Provider user ID */
-  providerUserId: string;
-  /** Provider email */
-  email: Email;
-  /** Provider display name */
-  displayName?: string;
-  /** Profile picture URL */
-  profilePicture?: Url;
-  /** When account was linked */
-  linkedAt: Timestamp;
-  /** When account was last used */
-  lastUsedAt?: Timestamp;
-  /** Provider-specific data */
-  providerData?: Record<string, unknown>;
-}
+// ============================================================
+// SOCIAL PROVIDER INFO
+// ============================================================
 
 /**
- * Social Provider Status
- * Status of social provider configuration
+ * Social provider information for UI
  */
-export interface SocialProviderStatus {
+export interface AuthSocialProviderInfo {
   /** Provider name */
-  provider: string;
-  /** Is provider enabled */
-  isEnabled: boolean;
-  /** Is provider configured */
-  isConfigured: boolean;
+  name: AuthSocialProvider;
+  /** Display name */
+  displayName: string;
   /** Provider type */
-  type: SocialProviderType;
-  /** Provider label */
-  label: string;
-  /** Provider icon */
-  icon: string;
-  /** Provider color */
+  type: AuthSocialProviderType;
+  /** Brand color */
   color: string;
-  /** Error message (if not configured) */
-  error?: string;
+  /** Icon name */
+  icon: string;
+  /** Whether provider is enabled */
+  isEnabled: boolean;
+  /** Whether provider is configured */
+  isConfigured: boolean;
+}
+
+// ============================================================
+// SOCIAL ERROR RESPONSE
+// ============================================================
+
+/**
+ * Social login error response
+ */
+export interface AuthSocialErrorResponse {
+  /** Error code */
+  error: AuthSocialLoginError;
+  /** Human-readable error message */
+  message: string;
+  /** HTTP status code */
+  statusCode: number;
+  /** Additional details */
+  details?: Record<string, unknown>;
+}
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+
+/**
+ * Check if social provider is valid
+ */
+export function isValidAuthSocialProvider(provider: string): provider is AuthSocialProvider {
+  const validProviders: AuthSocialProvider[] = [
+    'google',
+    'facebook',
+    'github',
+    'twitter',
+    'linkedin',
+    'apple',
+    'microsoft',
+    'instagram',
+    'tiktok',
+    'snapchat',
+    'wechat',
+    'line',
+    'telegram',
+    'whatsapp',
+    'vk',
+    'yahoo',
+    'discord',
+    'slack',
+    'spotify',
+  ];
+  return validProviders.includes(provider as AuthSocialProvider);
 }
 
 /**
- * Social Login Statistics
- * Social login usage statistics
+ * Check if social login status is successful
  */
-export interface SocialLoginStatistics {
-  /** Total social logins */
-  totalLogins: number;
-  /** Logins by provider */
-  byProvider: Record<string, number>;
-  /** Successful logins */
-  successfulLogins: number;
-  /** Failed logins */
-  failedLogins: number;
-  /** New accounts created */
-  newAccounts: number;
-  /** Account linking count */
-  accountLinks: number;
-  /** Success rate by provider */
-  successRateByProvider: Record<string, number>;
-  /** Average login time in seconds */
-  averageLoginTime: number;
-  /** Timestamp of statistics */
-  timestamp: Timestamp;
+export function isAuthSocialLoginSuccessful(status: AuthSocialLoginStatus): boolean {
+  return status === AUTH_SOCIAL_LOGIN_STATUS.SUCCESS;
 }
 
 /**
- * Social Login Config
- * Social login configuration for a provider
+ * Check if social login requires action
  */
-export interface SocialLoginConfig {
-  /** Provider */
-  provider: string;
-  /** Is enabled */
-  enabled: boolean;
-  /** Client ID */
-  clientId: string;
-  /** Client Secret (hidden in response) */
-  clientSecret?: string;
-  /** Redirect URI */
-  redirectUri: string;
-  /** Scopes */
-  scopes: string[];
-  /** Authorization URL */
-  authorizationUrl: string;
-  /** Token URL */
-  tokenUrl: string;
-  /** User Info URL */
-  userInfoUrl: string;
-  /** Additional configuration */
-  config?: Record<string, unknown>;
+export function isAuthSocialLoginRequiringAction(status: AuthSocialLoginStatus): boolean {
+  const actionRequiredStatuses: AuthSocialLoginStatus[] = [
+    AUTH_SOCIAL_LOGIN_STATUS.REQUIRES_INFO,
+    AUTH_SOCIAL_LOGIN_STATUS.REQUIRES_VERIFICATION,
+    AUTH_SOCIAL_LOGIN_STATUS.REQUIRES_LINKING,
+  ];
+  return actionRequiredStatuses.includes(status);
 }
 
 /**
- * Social Provider Configuration Helper
- * Complete social provider configuration
+ * Get social provider display name
  */
-export interface SocialProviderConfiguration {
-  /** Provider-specific configuration */
-  config: SocialProviderConfig;
-  /** Provider metadata */
-  metadata: {
-    label: string;
-    icon: string;
-    color: string;
-    type: SocialProviderType;
+export function getAuthSocialProviderDisplayName(provider: AuthSocialProvider): string {
+  const labels: Record<AuthSocialProvider, string> = {
+    google: 'Google',
+    facebook: 'Facebook',
+    github: 'GitHub',
+    twitter: 'Twitter / X',
+    linkedin: 'LinkedIn',
+    apple: 'Apple',
+    microsoft: 'Microsoft',
+    instagram: 'Instagram',
+    tiktok: 'TikTok',
+    snapchat: 'Snapchat',
+    wechat: 'WeChat',
+    line: 'LINE',
+    telegram: 'Telegram',
+    whatsapp: 'WhatsApp',
+    vk: 'VK',
+    yahoo: 'Yahoo',
+    discord: 'Discord',
+    slack: 'Slack',
+    spotify: 'Spotify',
   };
+  return labels[provider] || 'Unknown Provider';
+}
+
+/**
+ * Get social provider brand color
+ */
+export function getAuthSocialProviderColor(provider: AuthSocialProvider): string {
+  const colors: Record<AuthSocialProvider, string> = {
+    google: '#4285F4',
+    facebook: '#1877F2',
+    github: '#181717',
+    twitter: '#000000',
+    linkedin: '#0A66C2',
+    apple: '#000000',
+    microsoft: '#00A4EF',
+    instagram: '#E4405F',
+    tiktok: '#000000',
+    snapchat: '#FFFC00',
+    wechat: '#07C160',
+    line: '#00C300',
+    telegram: '#26A5E4',
+    whatsapp: '#25D366',
+    vk: '#0077FF',
+    yahoo: '#6001D2',
+    discord: '#5865F2',
+    slack: '#4A154B',
+    spotify: '#1ED760',
+  };
+  return colors[provider] || '#000000';
+}
+
+/**
+ * Get social provider icon name
+ */
+export function getAuthSocialProviderIcon(provider: AuthSocialProvider): string {
+  const icons: Record<AuthSocialProvider, string> = {
+    google: 'google',
+    facebook: 'facebook',
+    github: 'github',
+    twitter: 'twitter',
+    linkedin: 'linkedin',
+    apple: 'apple',
+    microsoft: 'microsoft',
+    instagram: 'instagram',
+    tiktok: 'tiktok',
+    snapchat: 'snapchat',
+    wechat: 'wechat',
+    line: 'line',
+    telegram: 'telegram',
+    whatsapp: 'whatsapp',
+    vk: 'vk',
+    yahoo: 'yahoo',
+    discord: 'discord',
+    slack: 'slack',
+    spotify: 'spotify',
+  };
+  return icons[provider] || 'link';
+}
+
+/**
+ * Get social provider type
+ */
+export function getAuthSocialProviderType(provider: AuthSocialProvider): AuthSocialProviderType {
+  return AUTH_SOCIAL_PROVIDER_TYPE_MAP[provider] || AUTH_SOCIAL_PROVIDER_TYPES.SOCIAL_MEDIA;
+}
+
+/**
+ * Get social provider configuration
+ */
+export function getAuthSocialProviderConfig(
+  provider: AuthSocialProvider
+): AuthSocialProviderConfig | null {
+  const providerKey = provider.toUpperCase() as keyof typeof AUTH_SOCIAL_PROVIDER_CONFIG;
+  return AUTH_SOCIAL_PROVIDER_CONFIG[providerKey] || null;
+}
+
+/**
+ * Get all social provider names
+ */
+export function getAllAuthSocialProviders(): AuthSocialProvider[] {
+  return [
+    'google',
+    'facebook',
+    'github',
+    'twitter',
+    'linkedin',
+    'apple',
+    'microsoft',
+    'instagram',
+    'tiktok',
+    'snapchat',
+    'wechat',
+    'line',
+    'telegram',
+    'whatsapp',
+    'vk',
+    'yahoo',
+    'discord',
+    'slack',
+    'spotify',
+  ];
+}
+
+/**
+ * Get social login status message
+ */
+export function getAuthSocialLoginStatusMessage(status: AuthSocialLoginStatus): string {
+  return AUTH_SOCIAL_LOGIN_STATUS_MESSAGES[status] || 'Unknown status';
+}
+
+/**
+ * Create social provider info for UI
+ */
+export function createAuthSocialProviderInfo(
+  provider: AuthSocialProvider,
+  isEnabled: boolean = true,
+  isConfigured: boolean = true
+): AuthSocialProviderInfo {
+  return {
+    name: provider,
+    displayName: getAuthSocialProviderDisplayName(provider),
+    type: getAuthSocialProviderType(provider),
+    color: getAuthSocialProviderColor(provider),
+    icon: getAuthSocialProviderIcon(provider),
+    isEnabled,
+    isConfigured,
+  };
+}
+
+/**
+ * Check if social account is active
+ */
+export function isAuthSocialAccountActive(account: AuthSocialAccount): boolean {
+  return account.isActive && account.isVerified;
+}
+
+/**
+ * Check if social account token has expired
+ */
+export function isAuthSocialTokenExpired(account: AuthSocialAccount): boolean {
+  if (!account.tokenExpiresAt) return false;
+  return new Date() > account.tokenExpiresAt;
+}
+
+/**
+ * Check if social account is linked to user
+ */
+export function isAuthSocialAccountLinked(account: AuthSocialAccount): boolean {
+  return !!account.userId && account.isActive;
+}
+
+/**
+ * Get social provider display name from string
+ */
+export function getAuthSocialProviderNameFromString(provider: string): string {
+  if (isValidAuthSocialProvider(provider)) {
+    return getAuthSocialProviderDisplayName(provider);
+  }
+  return 'Unknown Provider';
+}
+
+/**
+ * Get social login error message
+ */
+export function getAuthSocialErrorMessage(errorCode: AuthSocialLoginError): string {
+  // Access error message from constants using the enum value
+  const errorMessages = AUTH_SOCIAL_LOGIN_ERRORS;
+  return errorMessages[errorCode as keyof typeof errorMessages] || 'Unknown social login error';
+}
+
+/**
+ * Get social login success message
+ */
+export function getAuthSocialSuccessMessage(successCode: AuthSocialLoginSuccess): string {
+  // Access success message from constants using the enum value
+  const successMessages = AUTH_SOCIAL_LOGIN_SUCCESS;
+  return successMessages[successCode as keyof typeof successMessages] || 'Success';
+}
+
+/**
+ * Check if social provider supports given feature
+ */
+export function doesAuthSocialProviderSupport(
+  provider: AuthSocialProvider,
+  feature: 'email' | 'profile' | 'phone'
+): boolean {
+  const config = getAuthSocialProviderConfig(provider);
+  if (!config) return false;
+
+  // Type-safe way to check if a feature is supported
+  const scopes = config.scopes as readonly string[];
+
+  switch (feature) {
+    case 'email':
+      return scopes.includes('email') || scopes.includes('user:email');
+    case 'profile':
+      return scopes.includes('profile') || scopes.includes('public_profile');
+    case 'phone':
+      return scopes.includes('phone');
+    default:
+      return false;
+  }
 }

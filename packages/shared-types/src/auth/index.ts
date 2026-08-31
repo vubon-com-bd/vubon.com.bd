@@ -3,42 +3,44 @@
  * Export all authentication-related type definitions
  */
 
-// Core authentication types
+// Core Auth Process Types (pure auth, no user domain)
 export * from './auth.types';
 
-// Request/Response types
+// Auth Request/Response
 export * from './auth-request.types';
 export * from './auth-response.types';
 
-// Session & Token types
+// Auth Session & Token
 export * from './auth-session.types';
 export * from './auth-token.types';
 
-// Verification & MFA types
+// Auth Verification
 export * from './auth-verification.types';
-export * from './auth-mfa.types';
-export * from './auth-recovery-code.types';
-export * from './auth-2fa.types';
 
-// Account management types
+// Auth MFA & 2FA
+export * from './auth-mfa.types';
+export * from './auth-2fa.types';
+export * from './auth-recovery-code.types';
+
+// Auth Biometric
+export * from './auth-biometric.types';
+
+// Auth Account Lock & Login Attempt
 export * from './auth-account-lock.types';
 export * from './auth-login-attempt.types';
 
-// Device types
+// Auth Device
 export * from './auth-device.types';
 
-// Social & OAuth types
+// Auth Social & OAuth & SSO
 export * from './auth-social.types';
 export * from './auth-oauth.types';
 export * from './auth-sso.types';
 
-// Biometric types
-export * from './auth-biometric.types';
-
-// Permission & Role types
+// Auth Permission & Role
 export * from './auth-permission.types';
 export * from './auth-role.types';
 
-// Settings & Preferences types
+// Auth Settings & Preferences
 export * from './auth-settings.types';
 export * from './auth-preferences.types';

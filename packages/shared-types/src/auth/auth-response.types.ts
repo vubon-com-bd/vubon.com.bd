@@ -1,334 +1,362 @@
 /**
  * Authentication Response Types
- * Response payload types for authentication endpoints
+ * Types for all authentication-related responses
  */
 
-import type { AuthStatus, AuthType, AuthProvider, AuthMethod } from '@vubon/shared-constants';
+import type { AuthStatus, AuthRole } from '@vubon/shared-constants';
+import { AUTHENTICATED_STATUSES } from '@vubon/shared-constants';
+import type { ID, Timestamp } from '../common/core-primitives.types';
+import type { ApiError } from '../common/api.types';
+import type { AuthToken } from './auth.types';
 
-import type { AuthUser, AuthDeviceInfo, AuthSessionData } from './auth.types';
-import type { ApiResponse, ApiError } from '../common/api.types';
+// Re-export social response types from auth-social.types to avoid duplication
+export type { AuthSocialLoginResponse } from './auth-social.types';
+
+// Re-export SSO response types from auth-sso.types to avoid duplication
+export type { AuthSsoAuthResponse } from './auth-sso.types';
+
+// Re-export OAuth response types from auth-oauth.types to avoid duplication
+export type { AuthOAuthTokenResponse, AuthOAuthErrorResponse } from './auth-oauth.types';
+
+// ============================================================
+// AUTH RESPONSE (বেস)
+// ============================================================
 
 /**
- * Login Response
- * Response after successful login
+ * Base authentication response
  */
-export interface LoginResponse {
-  /** User data */
-  user: AuthUser;
-  /** Access token */
-  accessToken: string;
-  /** Refresh token */
-  refreshToken: string;
-  /** Token type (Bearer) */
-  tokenType: string;
-  /** Access token expiry in seconds */
-  expiresIn: number;
-  /** Session data */
-  session: AuthSessionData;
-  /** Device information */
-  device?: AuthDeviceInfo;
-}
-
-/**
- * Register Response
- * Response after successful registration
- */
-export interface RegisterResponse {
-  /** User data */
-  user: AuthUser;
-  /** Access token */
-  accessToken: string;
-  /** Refresh token */
-  refreshToken: string;
-  /** Token type (Bearer) */
-  tokenType: string;
-  /** Access token expiry in seconds */
-  expiresIn: number;
-  /** Session data */
-  session: AuthSessionData;
-  /** Verification required flag */
-  requiresVerification: boolean;
-  /** Verification message */
-  verificationMessage?: string;
-}
-
-/**
- * Refresh Token Response
- * Response after token refresh
- */
-export interface RefreshTokenResponse {
-  /** New access token */
-  accessToken: string;
-  /** Token type (Bearer) */
-  tokenType: string;
-  /** Access token expiry in seconds */
-  expiresIn: number;
-  /** New refresh token (optional, if rotation enabled) */
-  refreshToken?: string;
-}
-
-/**
- * Logout Response
- * Response after logout
- */
-export interface LogoutResponse {
-  /** Success message */
+export interface AuthBaseResponse {
+  /** Whether the operation was successful */
+  success: boolean;
+  /** HTTP status code */
+  statusCode: number;
+  /** Human-readable message */
   message: string;
-  /** Session ID that was logged out */
-  sessionId?: string;
-  /** Logged out from all devices */
-  allDevices?: boolean;
+  /** Timestamp of the response */
+  timestamp: Timestamp;
+  /** Error details (if any) */
+  errors?: ApiError[];
+}
+
+// ============================================================
+// LOGIN RESPONSES
+// ============================================================
+
+/**
+ * Login response
+ */
+export interface AuthLoginResponse extends AuthBaseResponse {
+  /** User ID */
+  userId: ID;
+  /** Authentication tokens */
+  tokens: AuthToken;
+  /** User role */
+  role: AuthRole;
+  /** Authentication status */
+  authStatus: AuthStatus;
+  /** Whether 2FA is required */
+  twoFactorRequired?: boolean;
+  /** 2FA session ID (if required) */
+  twoFactorSessionId?: ID;
 }
 
 /**
- * Forgot Password Response
- * Response after requesting password reset
+ * OAuth login response
  */
-export interface ForgotPasswordResponse {
-  /** Success message */
-  message: string;
-  /** Reset token (if sent via response) */
-  resetToken?: string;
-  /** Reset link (if sent via response) */
-  resetLink?: string;
-  /** Email sent flag */
+export interface AuthOAuthLoginResponse extends AuthBaseResponse {
+  /** User ID */
+  userId: ID;
+  /** Authentication tokens */
+  tokens: AuthToken;
+  /** OAuth provider used */
+  provider: string;
+  /** Whether new account was created */
+  isNewAccount: boolean;
+}
+
+/**
+ * SSO login response
+ */
+export interface AuthSsoLoginResponse extends AuthBaseResponse {
+  /** User ID */
+  userId: ID;
+  /** Authentication tokens */
+  tokens: AuthToken;
+  /** SSO provider used */
+  provider: string;
+  /** SSO session ID */
+  ssoSessionId: ID;
+}
+
+// ============================================================
+// REGISTER RESPONSES
+// ============================================================
+
+/**
+ * Registration response
+ */
+export interface AuthRegisterResponse extends AuthBaseResponse {
+  /** User ID */
+  userId: ID;
+  /** Authentication tokens */
+  tokens: AuthToken;
+  /** Whether verification is required */
+  verificationRequired: boolean;
+  /** Verification type */
+  verificationType?: 'email' | 'phone';
+}
+
+// ============================================================
+// TOKEN RESPONSES
+// ============================================================
+
+/**
+ * Refresh token response
+ */
+export interface AuthRefreshTokenResponse extends AuthBaseResponse {
+  /** New authentication tokens */
+  tokens: AuthToken;
+}
+
+/**
+ * Verify token response
+ */
+export interface AuthVerifyTokenResponse extends AuthBaseResponse {
+  /** Whether the token is valid */
+  isValid: boolean;
+  /** Token status */
+  status: string;
+  /** Token payload (if valid) */
+  payload?: Record<string, unknown>;
+}
+
+// ============================================================
+// PASSWORD RESPONSES
+// ============================================================
+
+/**
+ * Forgot password response
+ */
+export interface AuthForgotPasswordResponse extends AuthBaseResponse {
+  /** Whether reset email was sent */
   emailSent: boolean;
-  /** Time to wait before next request in seconds */
-  retryAfter?: number;
+  /** Reset token (if applicable) */
+  resetToken?: string;
 }
 
 /**
- * Reset Password Response
- * Response after resetting password
+ * Reset password response
  */
-export interface ResetPasswordResponse {
-  /** Success message */
-  message: string;
-  /** Redirect URL (optional) */
-  redirectUrl?: string;
+export interface AuthResetPasswordResponse extends AuthBaseResponse {
+  /** Whether password was reset successfully */
+  resetSuccess: boolean;
 }
 
 /**
- * Change Password Response
- * Response after changing password
+ * Change password response
  */
-export interface ChangePasswordResponse {
-  /** Success message */
-  message: string;
-  /** Force logout from all devices */
-  forcedLogout?: boolean;
+export interface AuthChangePasswordResponse extends AuthBaseResponse {
+  /** Whether password was changed successfully */
+  changedSuccess: boolean;
 }
 
-/**
- * Verify Email Response
- * Response after email verification
- */
-export interface VerifyEmailResponse {
-  /** Success message */
-  message: string;
-  /** Email verified flag */
-  verified: boolean;
-}
+// ============================================================
+// MFA/2FA RESPONSES
+// ============================================================
 
 /**
- * Resend Verification Response
- * Response after resending verification
+ * Enable 2FA response
  */
-export interface ResendVerificationResponse {
-  /** Success message */
-  message: string;
-  /** Time to wait before next request in seconds */
-  retryAfter?: number;
-}
-
-/**
- * Social Login Response
- * Response after social login
- */
-export interface SocialLoginResponse {
-  /** Authentication result */
-  result: 'success' | 'requires_linking' | 'requires_info';
-  /** User data (if success) */
-  user?: AuthUser;
-  /** Access token (if success) */
-  accessToken?: string;
-  /** Refresh token (if success) */
-  refreshToken?: string;
-  /** Token expiry in seconds */
-  expiresIn?: number;
-  /** Session data (if success) */
-  session?: AuthSessionData;
-  /** Account linking data (if requires_linking) */
-  linkingData?: {
-    email: string;
-    provider: string;
-    providerUserId: string;
-    providerData: Record<string, unknown>;
-  };
-  /** Additional info required (if requires_info) */
-  requiredInfo?: {
-    fields: string[];
-    message: string;
-  };
-}
-
-/**
- * Two-Factor Authentication Responses
- */
-export interface TwoFASetupResponse {
-  /** Setup status */
-  status: 'pending' | 'completed';
-  /** QR code URL (for TOTP) */
-  qrCode?: string;
-  /** Secret key (for TOTP) */
-  secret?: string;
+export interface AuthEnable2faResponse extends AuthBaseResponse {
+  /** 2FA method enabled */
+  method: 'totp' | 'sms' | 'email';
+  /** TOTP secret (for TOTP) */
+  totpSecret?: string;
+  /** TOTP QR code URL (for TOTP) */
+  totpQrUrl?: string;
   /** Backup codes */
   backupCodes?: string[];
-  /** Method used */
-  method: string;
-  /** Message */
-  message: string;
 }
 
-export interface TwoFAVerifyResponse {
-  /** Verification status */
+/**
+ * Verify 2FA response
+ */
+export interface AuthVerify2faResponse extends AuthBaseResponse {
+  /** Whether verification was successful */
   verified: boolean;
-  /** Access token (if verification completed) */
-  accessToken?: string;
-  /** Refresh token (if verification completed) */
-  refreshToken?: string;
-  /** Token expiry in seconds */
-  expiresIn?: number;
-  /** Session data (if verification completed) */
-  session?: AuthSessionData;
-  /** Trust device flag */
-  deviceTrusted?: boolean;
+  /** Authentication tokens (if login flow) */
+  tokens?: AuthToken;
 }
 
-export interface TwoFADisableResponse {
-  /** Success message */
-  message: string;
-  /** Disabled flag */
+/**
+ * Disable 2FA response
+ */
+export interface AuthDisable2faResponse extends AuthBaseResponse {
+  /** Whether 2FA was disabled successfully */
   disabled: boolean;
 }
 
+// ============================================================
+// VERIFICATION RESPONSES
+// ============================================================
+
 /**
- * Device Registration Response
- * Response after device registration
+ * Send verification response
  */
-export interface DeviceRegistrationResponse {
-  /** Device ID */
-  deviceId: string;
-  /** Device name */
-  deviceName: string;
-  /** Device type */
-  deviceType: string;
-  /** Device status */
+export interface AuthSendVerificationResponse extends AuthBaseResponse {
+  /** Whether verification was sent */
+  sent: boolean;
+  /** Verification method */
+  method: 'email' | 'sms';
+  /** Resend cooldown in seconds */
+  resendCooldown: number;
+}
+
+/**
+ * Verify code response
+ */
+export interface AuthVerifyCodeResponse extends AuthBaseResponse {
+  /** Whether verification was successful */
+  verified: boolean;
+  /** Verification status */
   status: string;
-  /** Trust level */
-  trustLevel: number;
-  /** Registration timestamp */
-  registeredAt: Date;
+}
+
+// ============================================================
+// SESSION RESPONSES
+// ============================================================
+
+/**
+ * Terminate session response
+ */
+export interface AuthTerminateSessionResponse extends AuthBaseResponse {
+  /** Whether session was terminated */
+  terminated: boolean;
 }
 
 /**
- * SSO Login Response
- * Response after SSO login
+ * Session list response
  */
-export interface SSOLoginResponse {
-  /** User data */
-  user: AuthUser;
-  /** Access token */
-  accessToken: string;
-  /** Refresh token */
-  refreshToken: string;
-  /** Token expiry in seconds */
-  expiresIn: number;
-  /** Session data */
-  session: AuthSessionData;
-  /** SSO session ID */
-  ssoSessionId: string;
-}
-
-/**
- * Magic Link Response
- * Response after magic link request
- */
-export interface MagicLinkResponse {
-  /** Success message */
-  message: string;
-  /** Email sent flag */
-  emailSent: boolean;
-  /** Time to wait before next request in seconds */
-  retryAfter?: number;
-}
-
-/**
- * Authentication Status Response
- * Response for checking authentication status
- */
-export interface AuthStatusResponse {
-  /** Is authenticated */
-  isAuthenticated: boolean;
-  /** User data (if authenticated) */
-  user?: AuthUser;
-  /** Session data (if authenticated) */
-  session?: AuthSessionData;
-  /** Status message */
-  message: string;
-  /** Status code */
-  status: AuthStatus;
-}
-
-/**
- * Login Attempt List Response
- * Response for listing login attempts
- */
-export interface LoginAttemptListResponse {
-  /** Login attempts */
-  attempts: Array<{
-    id: string;
-    userId: string;
+export interface AuthSessionListResponse extends AuthBaseResponse {
+  /** Active sessions */
+  sessions: Array<{
+    id: ID;
+    device: string;
+    lastActive: Timestamp;
     ipAddress: string;
-    userAgent: string;
-    status: string;
-    createdAt: Date;
   }>;
-  /** Pagination metadata */
-  pagination: {
-    currentPage: number;
-    itemsPerPage: number;
-    totalItems: number;
-    totalPages: number;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
+  /** Total sessions */
+  total: number;
+}
+
+// ============================================================
+// API RESPONSE WRAPPER
+// ============================================================
+
+/**
+ * API response wrapper for auth endpoints
+ */
+export interface AuthApiResponse<T> {
+  /** HTTP status code */
+  status: number;
+  /** Response data */
+  data: T;
+  /** Human-readable message */
+  message: string;
+  /** ISO timestamp of the response */
+  timestamp: string;
+  /** Request path (optional) */
+  path?: string;
+  /** Validation or business errors (optional) */
+  errors?: ApiError[];
+  /** Auth-specific metadata */
+  authMeta?: {
+    /** Authentication status */
+    status: AuthStatus;
+    /** Whether authentication is required */
+    requiresAuth: boolean;
+    /** User ID (if authenticated) */
+    userId?: ID;
+    /** Session ID (if applicable) */
+    sessionId?: ID;
+  };
+}
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+
+/**
+ * Create success response
+ */
+export function createAuthSuccessResponse<T extends AuthBaseResponse>(
+  data: Partial<T>,
+  message: string = 'Success'
+): T {
+  return {
+    success: true,
+    statusCode: 200,
+    message,
+    timestamp: new Date(),
+    ...data,
+  } as T;
+}
+
+/**
+ * Create error response
+ */
+export function createAuthErrorResponse(
+  message: string,
+  statusCode: number = 400,
+  errors?: ApiError[]
+): AuthBaseResponse {
+  return {
+    success: false,
+    statusCode,
+    message,
+    timestamp: new Date(),
+    errors,
   };
 }
 
 /**
- * Generic Auth Response
- * Base response for all auth operations (extends ApiResponse)
+ * Check if response is successful
  */
-export interface AuthResponse<T = unknown> extends ApiResponse<T> {
-  /** Authentication method used */
-  method?: AuthMethod;
-  /** Authentication type used */
-  type?: AuthType;
-  /** Provider used (for social/oauth) */
-  provider?: AuthProvider;
+export function isAuthResponseSuccess(response: AuthBaseResponse): boolean {
+  return response.success;
 }
 
 /**
- * Auth Error Response
- * Error response for auth operations (extends ApiError)
+ * Get error message from response
  */
-export interface AuthErrorResponse extends ApiResponse<null> {
-  /** Authentication error code */
-  errorCode: string;
-  /** Authentication errors */
-  errors: ApiError[];
-  /** Authentication method used (if available) */
-  method?: AuthMethod;
-  /** Authentication type used (if available) */
-  type?: AuthType;
+export function getAuthResponseErrorMessage(response: AuthBaseResponse): string {
+  if (response.errors && response.errors.length > 0) {
+    return response.errors[0].message;
+  }
+  return response.message;
+}
+
+/**
+ * Create auth API response
+ */
+export function createAuthApiResponse<T>(
+  data: T,
+  message: string = 'Success',
+  statusCode: number = 200,
+  authMeta?: AuthApiResponse<T>['authMeta']
+): AuthApiResponse<T> {
+  return {
+    status: statusCode,
+    data,
+    message,
+    timestamp: new Date().toISOString(),
+    authMeta,
+  };
+}
+
+/**
+ * Check if user is authenticated based on status
+ */
+export function isAuthResponseAuthenticated(status: AuthStatus): boolean {
+  return AUTHENTICATED_STATUSES.includes(status);
 }

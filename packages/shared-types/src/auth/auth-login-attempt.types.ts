@@ -1,303 +1,342 @@
 /**
  * Authentication Login Attempt Types
- * Login attempt tracking, monitoring, and analysis data types
+ * Types for login attempt tracking, history, and analysis
  */
 
 import type {
-  LoginAttemptStatus,
-  LoginAttemptReason,
-  SuspiciousIndicator,
+  AuthLoginAttemptStatus,
+  AuthLoginAttemptReason,
+  AuthSuspiciousIndicator,
 } from '@vubon/shared-constants';
-
+import { AUTH_LOGIN_ATTEMPT_STATUS } from '@vubon/shared-constants';
 import type { ID, Timestamp } from '../common/core-primitives.types';
-import type { AuthUser } from './auth.types';
-import type { AuthDeviceInfo } from './auth.types';
+
+// ============================================================
+// CUSTOM PRIMITIVE TYPES
+// ============================================================
 
 /**
- * Login Attempt Data
- * Complete login attempt information
+ * IP address type
  */
-export interface LoginAttemptData {
+export type AuthIPAddress = string;
+
+/**
+ * User agent type
+ */
+export type AuthUserAgent = string;
+
+// ============================================================
+// LOGIN ATTEMPT RECORD
+// ============================================================
+
+/**
+ * Complete login attempt record
+ */
+export interface AuthLoginAttempt {
   /** Unique identifier */
   id: ID;
   /** User ID (if known) */
   userId?: ID;
   /** Email or username used for login */
   identifier: string;
-  /** Login attempt status */
-  status: LoginAttemptStatus;
-  /** Reason for failure (if failed) */
-  reason?: LoginAttemptReason;
+  /** Attempt status */
+  status: AuthLoginAttemptStatus;
+  /** Reason for the attempt outcome */
+  reason?: AuthLoginAttemptReason;
   /** IP address of the request */
-  ipAddress: string;
+  ipAddress: AuthIPAddress;
   /** User agent of the request */
-  userAgent: string;
-  /** Device information (if available) */
-  device?: AuthDeviceInfo;
-  /** Location information (if available) */
+  userAgent: AuthUserAgent;
+  /** Device fingerprint */
+  deviceFingerprint?: string;
+  /** Location information */
   location?: {
     country?: string;
     city?: string;
     latitude?: number;
     longitude?: number;
   };
-  /** When attempt was made */
+  /** Suspicious indicators detected */
+  suspiciousIndicators?: AuthSuspiciousIndicator[];
+  /** Whether the attempt was suspicious */
+  isSuspicious: boolean;
+  /** Timestamp of the attempt */
   attemptedAt: Timestamp;
+  /** Response time in milliseconds */
+  responseTime?: number;
   /** Additional metadata */
   metadata?: Record<string, unknown>;
 }
 
+// ============================================================
+// LOGIN ATTEMPT REQUEST
+// ============================================================
+
 /**
- * Login Attempt Request
  * Request to record a login attempt
  */
-export interface LoginAttemptRequest {
-  /** User ID (if known) */
-  userId?: ID;
-  /** Email or username */
+export interface AuthLoginAttemptRequest {
+  /** Email or username used for login */
   identifier: string;
-  /** IP address */
-  ipAddress: string;
-  /** User agent */
-  userAgent: string;
-  /** Device information (optional) */
-  device?: Partial<AuthDeviceInfo>;
-  /** Location information (optional) */
+  /** IP address of the request */
+  ipAddress: AuthIPAddress;
+  /** User agent of the request */
+  userAgent: AuthUserAgent;
+  /** Device fingerprint */
+  deviceFingerprint?: string;
+  /** Location information */
   location?: {
     country?: string;
     city?: string;
     latitude?: number;
     longitude?: number;
   };
+  /** Additional metadata */
+  metadata?: Record<string, unknown>;
 }
 
+// ============================================================
+// LOGIN ATTEMPT RESPONSE
+// ============================================================
+
 /**
- * Login Attempt Result
- * Result of a login attempt
+ * Response for login attempt operations
  */
-export interface LoginAttemptResult {
-  /** Is login successful */
+export interface AuthLoginAttemptResponse {
+  /** Whether the attempt was successful */
   success: boolean;
   /** Attempt status */
-  status: LoginAttemptStatus;
-  /** Reason (if failed) */
-  reason?: LoginAttemptReason;
-  /** User data (if successful) */
-  user?: AuthUser;
-  /** Access token (if successful) */
-  accessToken?: string;
-  /** Refresh token (if successful) */
-  refreshToken?: string;
-  /** Token expiry in seconds */
-  expiresIn?: number;
-  /** MFA required flag */
-  mfaRequired?: boolean;
+  status: AuthLoginAttemptStatus;
+  /** Attempt record if created */
+  attempt?: AuthLoginAttempt;
+  /** Error message if failed */
+  error?: string;
   /** Remaining lockout time in seconds */
-  remainingLockout?: number;
-  /** Suspicious indicators detected */
-  suspiciousIndicators?: SuspiciousIndicator[];
-  /** Message */
-  message: string;
+  remainingLockoutSeconds?: number;
+  /** Whether MFA is required */
+  mfaRequired?: boolean;
 }
 
+// ============================================================
+// LOGIN ATTEMPT FILTER
+// ============================================================
+
 /**
- * Login Attempt Filter
  * Filter for querying login attempts
  */
-export interface LoginAttemptFilter {
+export interface AuthLoginAttemptFilter {
   /** Filter by user ID */
   userId?: ID;
-  /** Filter by email/username */
+  /** Filter by identifier (email/username) */
   identifier?: string;
   /** Filter by status */
-  status?: LoginAttemptStatus;
+  status?: AuthLoginAttemptStatus | AuthLoginAttemptStatus[];
+  /** Filter by reason */
+  reason?: AuthLoginAttemptReason | AuthLoginAttemptReason[];
   /** Filter by IP address */
-  ipAddress?: string;
-  /** Start date for filter */
-  startDate?: Date;
-  /** End date for filter */
-  endDate?: Date;
-  /** Filter by successful attempts */
-  isSuccess?: boolean;
-  /** Filter by failed attempts */
-  isFailed?: boolean;
+  ipAddress?: AuthIPAddress;
+  /** Filter by suspicious attempts only */
+  suspiciousOnly?: boolean;
+  /** Filter by date range */
+  dateRange?: {
+    start?: Date;
+    end?: Date;
+  };
+  /** Filter by successful attempts only */
+  successfulOnly?: boolean;
+  /** Filter by failed attempts only */
+  failedOnly?: boolean;
 }
 
+// ============================================================
+// LOGIN ATTEMPT STATISTICS
+// ============================================================
+
 /**
- * Login Attempt Statistics
- * Statistics for login attempts
+ * Login attempt statistics
  */
-export interface LoginAttemptStatistics {
-  /** Total attempts */
+export interface AuthLoginAttemptStatistics {
+  /** Total number of attempts */
   totalAttempts: number;
-  /** Successful attempts */
+  /** Number of successful attempts */
   successfulAttempts: number;
-  /** Failed attempts */
+  /** Number of failed attempts */
   failedAttempts: number;
-  /** Blocked attempts */
-  blockedAttempts: number;
-  /** Suspicious attempts */
+  /** Number of suspicious attempts */
   suspiciousAttempts: number;
-  /** Success rate */
+  /** Success rate (0-1) */
   successRate: number;
-  /** Failed rate */
-  failedRate: number;
-  /** Top IPs with most attempts */
-  topIps: Array<{
-    ipAddress: string;
-    attempts: number;
-    successRate: number;
-  }>;
   /** Attempts by status */
-  byStatus: Record<LoginAttemptStatus, number>;
+  statusCounts: Record<AuthLoginAttemptStatus, number>;
   /** Attempts by reason */
-  byReason: Record<LoginAttemptReason, number>;
-  /** Attempts by hour */
-  byHour: Record<number, number>;
-  /** Timestamp of statistics */
-  timestamp: Timestamp;
+  reasonCounts: Record<AuthLoginAttemptReason, number>;
+  /** Attempts by hour (for trend analysis) */
+  attemptsByHour: Record<number, number>;
+  /** Unique IP addresses */
+  uniqueIPs: number;
+  /** Unique users */
+  uniqueUsers: number;
+  /** Time period covered */
+  period: {
+    start: Date;
+    end: Date;
+  };
 }
 
+// ============================================================
+// LOGIN ATTEMPT SUMMARY
+// ============================================================
+
 /**
- * Login Attempt Summary
- * Summary of login attempts for a user
+ * Summary of recent login attempts for a user
  */
-export interface LoginAttemptSummary {
+export interface AuthUserLoginSummary {
   /** User ID */
   userId: ID;
   /** Total attempts */
   totalAttempts: number;
-  /** Recent attempts (last 24 hours) */
-  recentAttempts: number;
-  /** Failed attempts (last 24 hours) */
+  /** Recent failed attempts count */
   recentFailedAttempts: number;
-  /** Is account at risk */
+  /** Whether account is at risk of lockout */
   isAtRisk: boolean;
-  /** Risk level (low, medium, high) */
-  riskLevel: 'low' | 'medium' | 'high';
-  /** Last successful attempt */
-  lastSuccess?: Date;
-  /** Last failed attempt */
-  lastFailed?: Date;
-  /** Suspicious indicators detected */
-  suspiciousIndicators?: SuspiciousIndicator[];
+  /** Time until lockout reset (if applicable) */
+  resetTimeRemaining?: number;
+  /** Last attempt */
+  lastAttempt?: AuthLoginAttempt;
+  /** Recent attempts (limited) */
+  recentAttempts: AuthLoginAttempt[];
+}
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+
+/**
+ * Check if login attempt was successful
+ */
+export function isAuthLoginAttemptSuccessful(status: AuthLoginAttemptStatus): boolean {
+  return status === AUTH_LOGIN_ATTEMPT_STATUS.SUCCESS;
 }
 
 /**
- * Login Attempt Action
- * Action to take based on login attempt
+ * Check if login attempt was failed
  */
-export interface LoginAttemptAction {
-  /** Action type */
-  type: 'allow' | 'block' | 'challenge' | 'lockout' | 'mfa_required';
-  /** Reason for action */
-  reason: string;
-  /** Additional data */
-  data?: Record<string, unknown>;
+export function isAuthLoginAttemptFailed(status: AuthLoginAttemptStatus): boolean {
+  const failedStatuses: AuthLoginAttemptStatus[] = [
+    AUTH_LOGIN_ATTEMPT_STATUS.FAILED,
+    AUTH_LOGIN_ATTEMPT_STATUS.BLOCKED,
+    AUTH_LOGIN_ATTEMPT_STATUS.LOCKED,
+    AUTH_LOGIN_ATTEMPT_STATUS.TIMEOUT,
+    AUTH_LOGIN_ATTEMPT_STATUS.SUSPICIOUS,
+  ];
+  return failedStatuses.includes(status);
 }
 
 /**
- * Login Attempt Rate Limit
- * Rate limit information
+ * Check if login attempt requires MFA
  */
-export interface LoginAttemptRateLimit {
-  /** Current attempts */
-  attempts: number;
-  /** Maximum allowed attempts */
-  maxAttempts: number;
-  /** Time window in seconds */
-  window: number;
-  /** Remaining attempts */
-  remaining: number;
-  /** Reset time in seconds */
-  resetIn: number;
-  /** Is rate limited */
-  isLimited: boolean;
-  /** Configuration values used */
-  config: {
-    maxFailedAttempts: number;
-    attemptWindow: number;
-    maxConcurrentPerIp: number;
-    maxConcurrentPerUser: number;
+export function isAuthLoginAttemptMfaRequired(status: AuthLoginAttemptStatus): boolean {
+  return status === AUTH_LOGIN_ATTEMPT_STATUS.MFA_REQUIRED;
+}
+
+/**
+ * Check if login attempt was blocked
+ */
+export function isAuthLoginAttemptBlocked(status: AuthLoginAttemptStatus): boolean {
+  const blockedStatuses: AuthLoginAttemptStatus[] = [
+    AUTH_LOGIN_ATTEMPT_STATUS.BLOCKED,
+    AUTH_LOGIN_ATTEMPT_STATUS.LOCKED,
+  ];
+  return blockedStatuses.includes(status);
+}
+
+/**
+ * Check if login attempt was suspicious
+ */
+export function isAuthLoginAttemptSuspicious(status: AuthLoginAttemptStatus): boolean {
+  return status === AUTH_LOGIN_ATTEMPT_STATUS.SUSPICIOUS;
+}
+
+/**
+ * Get human-readable label for login attempt status
+ */
+export function getAuthLoginAttemptStatusLabel(status: AuthLoginAttemptStatus): string {
+  const labels: Record<AuthLoginAttemptStatus, string> = {
+    [AUTH_LOGIN_ATTEMPT_STATUS.SUCCESS]: 'Successful',
+    [AUTH_LOGIN_ATTEMPT_STATUS.FAILED]: 'Failed',
+    [AUTH_LOGIN_ATTEMPT_STATUS.BLOCKED]: 'Blocked',
+    [AUTH_LOGIN_ATTEMPT_STATUS.LOCKED]: 'Locked',
+    [AUTH_LOGIN_ATTEMPT_STATUS.MFA_REQUIRED]: 'MFA Required',
+    [AUTH_LOGIN_ATTEMPT_STATUS.CANCELLED]: 'Cancelled',
+    [AUTH_LOGIN_ATTEMPT_STATUS.TIMEOUT]: 'Timed Out',
+    [AUTH_LOGIN_ATTEMPT_STATUS.SUSPICIOUS]: 'Suspicious',
   };
+  return labels[status] || 'Unknown Status';
 }
 
 /**
- * Login Attempt Security Check
- * Security check result for a login attempt
+ * Get severity level for login attempt status
  */
-export interface LoginAttemptSecurityCheck {
-  /** Is login allowed */
-  allowed: boolean;
-  /** Security score (0-100) */
-  securityScore: number;
-  /** Is IP trusted */
-  isIpTrusted: boolean;
-  /** Is device trusted */
-  isDeviceTrusted: boolean;
-  /** Is location trusted */
-  isLocationTrusted: boolean;
-  /** Suspicious indicators found */
-  suspiciousIndicators: SuspiciousIndicator[];
-  /** Recommended action */
-  recommendedAction: LoginAttemptAction;
-  /** Risk assessment */
-  riskAssessment: {
-    level: 'low' | 'medium' | 'high';
-    factors: string[];
+export function getAuthLoginAttemptSeverity(
+  status: AuthLoginAttemptStatus
+): 'info' | 'warning' | 'error' {
+  const severityMap: Record<AuthLoginAttemptStatus, 'info' | 'warning' | 'error'> = {
+    [AUTH_LOGIN_ATTEMPT_STATUS.SUCCESS]: 'info',
+    [AUTH_LOGIN_ATTEMPT_STATUS.FAILED]: 'warning',
+    [AUTH_LOGIN_ATTEMPT_STATUS.BLOCKED]: 'error',
+    [AUTH_LOGIN_ATTEMPT_STATUS.LOCKED]: 'error',
+    [AUTH_LOGIN_ATTEMPT_STATUS.MFA_REQUIRED]: 'warning',
+    [AUTH_LOGIN_ATTEMPT_STATUS.CANCELLED]: 'info',
+    [AUTH_LOGIN_ATTEMPT_STATUS.TIMEOUT]: 'warning',
+    [AUTH_LOGIN_ATTEMPT_STATUS.SUSPICIOUS]: 'error',
   };
-  /** Configuration values used */
-  config: {
-    suspiciousThreshold: number;
-    maxFailedAttempts: number;
-    lockoutDuration: number;
-    attemptWindow: number;
-  };
+  return severityMap[status] || 'info';
 }
 
 /**
- * Login Attempt Monitoring
- * Real-time monitoring data for login attempts
+ * Check if account should be locked based on failed attempts
  */
-export interface LoginAttemptMonitoring {
-  /** Total attempts in the last minute */
-  attemptsLastMinute: number;
-  /** Failed attempts in the last minute */
-  failedLastMinute: number;
-  /** Unique IPs in the last minute */
-  uniqueIpsLastMinute: number;
-  /** Attempts by country */
-  byCountry: Record<string, number>;
-  /** Current attack detected */
-  attackDetected: boolean;
-  /** Attack type (if detected) */
-  attackType?: 'bruteforce' | 'credential_stuffing' | 'distributed';
-  /** Alert level */
-  alertLevel: 'info' | 'warning' | 'critical';
-  /** Threshold values used */
-  thresholds: {
-    maxAttemptsPerIpPerDay: number;
-    maxAttemptsPerUserPerDay: number;
-    maxUniqueIpsPerUserPerDay: number;
-    suspiciousThreshold: number;
-  };
+export function shouldAuthAccountBeLocked(
+  failedAttempts: number,
+  maxFailedAttempts: number = 5
+): boolean {
+  return failedAttempts >= maxFailedAttempts;
 }
 
 /**
- * Login Attempt Configuration Values
- * All configuration values as a single interface
+ * Calculate remaining lockout time
  */
-export interface LoginAttemptConfigValues {
-  maxFailedAttempts: number;
-  lockoutDuration: number;
-  attemptWindow: number;
-  maxConcurrentPerIp: number;
-  maxConcurrentPerUser: number;
-  attemptResetTime: number;
-  trustIpAfterSuccesses: number;
-  trustedIpExpiry: number;
-  maxAttemptsPerIpPerDay: number;
-  maxAttemptsPerUserPerDay: number;
-  maxUniqueIpsPerUserPerDay: number;
-  suspiciousThreshold: number;
+export function calculateAuthLockoutRemainingTime(
+  lockedAt: Date,
+  lockoutDurationSeconds: number = 900
+): number {
+  const now = Date.now();
+  const elapsed = (now - lockedAt.getTime()) / 1000;
+  const remaining = lockoutDurationSeconds - elapsed;
+  return Math.max(0, Math.ceil(remaining));
+}
+
+/**
+ * Format lockout remaining time for display
+ */
+export function formatAuthLockoutTime(seconds: number): string {
+  if (seconds <= 0) return '0s';
+
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = Math.floor(seconds % 60);
+
+  if (minutes === 0) {
+    return `${remainingSeconds}s`;
+  }
+
+  return `${minutes}m ${remainingSeconds}s`;
+}
+
+/**
+ * Check if login attempt is within rate limit window
+ */
+export function isAuthAttemptWithinWindow(attemptedAt: Date, windowSeconds: number = 900): boolean {
+  const now = Date.now();
+  const age = (now - attemptedAt.getTime()) / 1000;
+  return age <= windowSeconds;
 }

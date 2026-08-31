@@ -1,349 +1,454 @@
 /**
  * Authentication Device Types
- * Device management, tracking, and security data types
+ * Types for device management, fingerprinting, and trust
  */
 
 import type {
-  DeviceType,
-  DevicePlatform,
-  DeviceStatus,
-  DeviceTrustLevel,
+  AuthDeviceType,
+  AuthDevicePlatform,
+  AuthDeviceTrustLevel,
+  AuthDeviceStatus,
 } from '@vubon/shared-constants';
-
+import {
+  AUTH_DEVICE_STATUS,
+  AUTH_DEVICE_TRUST_LEVELS,
+  BLOCKED_AUTH_DEVICE_STATUSES,
+} from '@vubon/shared-constants';
 import type { ID, Timestamp } from '../common/core-primitives.types';
-import type { AuthUser } from './auth.types';
+import type { AuthIPAddress, AuthUserAgent } from './auth-login-attempt.types';
+
+// ============================================================
+// CUSTOM PRIMITIVE TYPES (রফা)
+// ============================================================
 
 /**
- * Device Data
- * Complete device information
+ * Device fingerprint type
  */
-export interface DeviceData {
-  /** Unique device identifier */
+export type AuthDeviceFingerprint = string;
+
+// ============================================================
+// DEVICE RECORD
+// ============================================================
+
+/**
+ * Complete device record
+ */
+export interface AuthDevice {
+  /** Unique identifier */
   id: ID;
-  /** User ID associated with the device */
+  /** User ID who owns the device */
   userId: ID;
-  /** User data (optional, for populated responses) */
-  user?: AuthUser;
-  /** Device name (user-defined) */
-  deviceName: string;
+  /** Device name (user-provided) */
+  name?: string;
   /** Device type */
-  deviceType: DeviceType;
+  type: AuthDeviceType;
   /** Device platform */
-  platform: DevicePlatform;
-  /** Device model (optional) */
-  model?: string;
-  /** Device operating system version */
-  osVersion?: string;
-  /** Device browser (optional) */
-  browser?: string;
+  platform: AuthDevicePlatform;
   /** Device status */
-  status: DeviceStatus;
-  /** Device trust level */
-  trustLevel: DeviceTrustLevel;
-  /** Device fingerprint (for identification) */
-  fingerprint?: string;
-  /** Push notification token (if applicable) */
-  pushToken?: string;
-  /** IP address of last use */
-  lastIpAddress?: string;
-  /** User agent of last use */
-  lastUserAgent?: string;
-  /** When device was first registered */
+  status: AuthDeviceStatus;
+  /** Trust level of the device */
+  trustLevel: AuthDeviceTrustLevel;
+  /** Device fingerprint (unique identifier) */
+  fingerprint: AuthDeviceFingerprint;
+  /** IP address when last used */
+  lastIPAddress?: AuthIPAddress;
+  /** User agent when last used */
+  lastUserAgent?: AuthUserAgent;
+  /** Location when last used */
+  lastLocation?: {
+    country?: string;
+    city?: string;
+    latitude?: number;
+    longitude?: number;
+  };
+  /** When the device was first registered */
   registeredAt: Timestamp;
-  /** When device was last used */
+  /** When the device was last used */
   lastUsedAt: Timestamp;
-  /** When device trust expires */
+  /** When the device trust was established */
+  trustedAt?: Timestamp;
+  /** When the device trust expires */
   trustExpiresAt?: Timestamp;
-  /** Is device verified */
+  /** Whether the device is verified */
   isVerified: boolean;
-  /** Is device active */
-  isActive: boolean;
-  /** Is device trusted */
+  /** Whether the device is trusted */
   isTrusted: boolean;
+  /** Whether the device is active */
+  isActive: boolean;
+  /** Additional metadata */
+  metadata?: Record<string, unknown>;
+}
+
+// ============================================================
+// DEVICE REQUEST
+// ============================================================
+
+/**
+ * Request to register a new device
+ */
+export interface AuthDeviceRegisterRequest {
+  /** Device name (user-provided) */
+  name?: string;
+  /** Device type */
+  type: AuthDeviceType;
+  /** Device platform */
+  platform: AuthDevicePlatform;
+  /** Device fingerprint */
+  fingerprint: AuthDeviceFingerprint;
+  /** IP address of the request */
+  ipAddress: AuthIPAddress;
+  /** User agent of the request */
+  userAgent: AuthUserAgent;
+  /** Location information */
+  location?: {
+    country?: string;
+    city?: string;
+    latitude?: number;
+    longitude?: number;
+  };
+  /** Whether to trust the device */
+  trustDevice?: boolean;
   /** Additional metadata */
   metadata?: Record<string, unknown>;
 }
 
 /**
- * Device Registration Request
- * Request to register a new device
+ * Request to update a device
  */
-export interface DeviceRegistrationRequest {
-  /** User ID */
-  userId: ID;
+export interface AuthDeviceUpdateRequest {
   /** Device name */
-  deviceName: string;
+  name?: string;
   /** Device type */
-  deviceType: DeviceType;
+  type?: AuthDeviceType;
   /** Device platform */
-  platform: DevicePlatform;
-  /** Device model (optional) */
-  model?: string;
-  /** OS version (optional) */
-  osVersion?: string;
-  /** Push notification token (optional) */
-  pushToken?: string;
-  /** Device fingerprint (optional) */
-  fingerprint?: string;
-}
-
-/**
- * Device Update Request
- * Request to update device information
- */
-export interface DeviceUpdateRequest {
-  /** Device ID */
-  deviceId: ID;
-  /** User ID */
-  userId: ID;
-  /** New device name (optional) */
-  deviceName?: string;
-  /** New device status (optional) */
-  status?: DeviceStatus;
-  /** New trust level (optional) */
-  trustLevel?: DeviceTrustLevel;
-  /** New push token (optional) */
-  pushToken?: string;
-  /** Additional metadata (optional) */
+  platform?: AuthDevicePlatform;
+  /** Device status */
+  status?: AuthDeviceStatus;
+  /** Trust level */
+  trustLevel?: AuthDeviceTrustLevel;
+  /** Additional metadata */
   metadata?: Record<string, unknown>;
 }
 
 /**
- * Device Verification Request
  * Request to verify a device
  */
-export interface DeviceVerificationRequest {
+export interface AuthDeviceVerifyRequest {
   /** Device ID */
   deviceId: ID;
-  /** User ID */
-  userId: ID;
   /** Verification code */
-  code: string;
-  /** Trust device after verification */
+  verificationCode?: string;
+  /** Whether to trust the device */
   trustDevice?: boolean;
 }
 
+// ============================================================
+// DEVICE RESPONSE
+// ============================================================
+
 /**
- * Device Verification Result
- * Result of device verification
+ * Response for device operations
  */
-export interface DeviceVerificationResult {
-  /** Is verification successful */
+export interface AuthDeviceResponse {
+  /** Whether the operation was successful */
   success: boolean;
-  /** User data (if verification completed) */
-  user?: AuthUser;
-  /** Device data (if successful) */
-  device?: DeviceData;
-  /** New trust level */
-  trustLevel: DeviceTrustLevel;
-  /** Trust expiry timestamp */
-  trustExpiresAt?: Timestamp;
-  /** Message */
-  message: string;
+  /** Device record if successful */
+  device?: AuthDevice;
+  /** Error message if failed */
+  error?: string;
+  /** Whether verification is required */
+  verificationRequired?: boolean;
+  /** Verification code (if applicable) */
+  verificationCode?: string;
 }
 
-/**
- * Device Trust Request
- * Request to trust/untrust a device
- */
-export interface DeviceTrustRequest {
-  /** Device ID */
-  deviceId: ID;
-  /** User ID */
-  userId: ID;
-  /** Trust action */
-  action: 'trust' | 'untrust';
-  /** Trust duration in days (optional) */
-  durationDays?: number;
-}
+// ============================================================
+// DEVICE FILTER
+// ============================================================
 
 /**
- * Device Trust Result
- * Result of device trust operation
- */
-export interface DeviceTrustResult {
-  /** Is operation successful */
-  success: boolean;
-  /** User data (if operation completed) */
-  user?: AuthUser;
-  /** Device data */
-  device?: DeviceData;
-  /** New trust level */
-  trustLevel: DeviceTrustLevel;
-  /** Trust expiry timestamp */
-  trustExpiresAt?: Timestamp;
-  /** Message */
-  message: string;
-}
-
-/**
- * Device List Response
- * Response for listing user devices
- */
-export interface DeviceListResponse {
-  /** List of devices */
-  devices: DeviceData[];
-  /** Total count */
-  total: number;
-  /** Active count */
-  activeCount: number;
-  /** Trusted count */
-  trustedCount: number;
-  /** Current device ID (if applicable) */
-  currentDeviceId?: ID;
-  /** User data (if populated) */
-  user?: AuthUser;
-}
-
-/**
- * Device Filter
  * Filter for querying devices
  */
-export interface DeviceFilter {
+export interface AuthDeviceFilter {
   /** Filter by user ID */
   userId?: ID;
   /** Filter by device type */
-  deviceType?: DeviceType;
+  type?: AuthDeviceType | AuthDeviceType[];
   /** Filter by platform */
-  platform?: DevicePlatform;
+  platform?: AuthDevicePlatform | AuthDevicePlatform[];
   /** Filter by status */
-  status?: DeviceStatus;
+  status?: AuthDeviceStatus | AuthDeviceStatus[];
   /** Filter by trust level */
-  trustLevel?: DeviceTrustLevel;
+  trustLevel?: AuthDeviceTrustLevel | AuthDeviceTrustLevel[];
+  /** Filter by verification status */
+  verifiedOnly?: boolean;
+  /** Filter by trust status */
+  trustedOnly?: boolean;
   /** Filter by active status */
-  isActive?: boolean;
-  /** Filter by trusted status */
-  isTrusted?: boolean;
-  /** Filter by search term */
-  searchTerm?: string;
-}
-
-/**
- * Device Statistics
- * Device usage statistics
- */
-export interface DeviceStatistics {
-  /** Total devices */
-  totalDevices: number;
-  /** Active devices */
-  activeDevices: number;
-  /** Inactive devices */
-  inactiveDevices: number;
-  /** Blocked devices */
-  blockedDevices: number;
-  /** Pending devices */
-  pendingDevices: number;
-  /** Devices by type */
-  byType: Record<DeviceType, number>;
-  /** Devices by platform */
-  byPlatform: Record<DevicePlatform, number>;
-  /** Devices by trust level */
-  byTrustLevel: Record<DeviceTrustLevel, number>;
-  /** Average devices per user */
-  averagePerUser: number;
-  /** Most common device type */
-  mostCommonType: DeviceType;
-  /** Most common platform */
-  mostCommonPlatform: DevicePlatform;
-  /** Timestamp of statistics */
-  timestamp: Timestamp;
-}
-
-/**
- * Device Fingerprint
- * Device fingerprint data for identification
- */
-export interface DeviceFingerprint {
-  /** Fingerprint hash */
-  hash: string;
-  /** Components used to generate fingerprint */
-  components: {
-    userAgent?: string;
-    screenResolution?: string;
-    colorDepth?: string;
-    timezone?: string;
-    language?: string;
-    platform?: string;
-    canvas?: string;
-    webgl?: string;
-    fonts?: string[];
+  activeOnly?: boolean;
+  /** Filter by date range (registration) */
+  registeredDateRange?: {
+    start?: Date;
+    end?: Date;
   };
-  /** When fingerprint was generated */
-  generatedAt: Timestamp;
-  /** Fingerprint confidence score (0-100) */
-  confidence: number;
+  /** Filter by date range (last used) */
+  lastUsedDateRange?: {
+    start?: Date;
+    end?: Date;
+  };
 }
 
+// ============================================================
+// DEVICE SUMMARY
+// ============================================================
+
 /**
- * Device Session
- * Active device session data
+ * Summary of devices for a user
  */
-export interface DeviceSession {
-  /** Session ID */
-  id: ID;
-  /** Device ID */
-  deviceId: ID;
+export interface AuthDeviceSummary {
   /** User ID */
   userId: ID;
-  /** User data (optional) */
-  user?: AuthUser;
-  /** Session status */
-  status: 'active' | 'expired' | 'terminated';
-  /** Session start timestamp */
-  startedAt: Timestamp;
-  /** Session expiry timestamp */
-  expiresAt: Timestamp;
-  /** Last activity timestamp */
-  lastActivityAt: Timestamp;
-  /** IP address */
-  ipAddress: string;
-  /** User agent */
-  userAgent: string;
-  /** Is session active */
-  isActive: boolean;
+  /** Total number of devices */
+  totalDevices: number;
+  /** Number of active devices */
+  activeDevices: number;
+  /** Number of trusted devices */
+  trustedDevices: number;
+  /** Number of verified devices */
+  verifiedDevices: number;
+  /** Number of blocked devices */
+  blockedDevices: number;
+  /** Devices by type */
+  devicesByType: Record<AuthDeviceType, number>;
+  /** Devices by platform */
+  devicesByPlatform: Record<AuthDevicePlatform, number>;
+  /** Devices by trust level */
+  devicesByTrustLevel: Record<AuthDeviceTrustLevel, number>;
+  /** Most recently used device */
+  lastUsedDevice?: AuthDevice;
+  /** All devices (limited) */
+  devices: AuthDevice[];
+}
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+
+/**
+ * Check if device is active
+ */
+export function isAuthDeviceActive(status: AuthDeviceStatus): boolean {
+  return status === AUTH_DEVICE_STATUS.ACTIVE;
 }
 
 /**
- * Device Activity
- * Device activity log entry
+ * Check if device is blocked
  */
-export interface DeviceActivity {
-  /** Activity ID */
-  id: ID;
-  /** Device ID */
-  deviceId: ID;
-  /** User ID */
-  userId: ID;
-  /** User data (optional) */
-  user?: AuthUser;
-  /** Activity type */
-  type: 'login' | 'logout' | 'refresh' | 'action' | 'error';
-  /** Activity description */
-  description: string;
-  /** IP address */
-  ipAddress: string;
-  /** User agent */
-  userAgent: string;
-  /** Activity timestamp */
-  timestamp: Timestamp;
-  /** Additional data */
-  data?: Record<string, unknown>;
+export function isAuthDeviceBlocked(status: AuthDeviceStatus): boolean {
+  return BLOCKED_AUTH_DEVICE_STATUSES.includes(status);
 }
 
 /**
- * Device Configuration Values
- * Device management configuration
+ * Check if device is allowed (not blocked or suspended)
  */
-export interface DeviceConfigValues {
-  maxDevicesPerUser: number;
-  maxUntrustedDevices: number;
-  trustDurationDays: number;
-  sessionDurationDays: number;
-  rememberMeDurationDays: number;
-  inactiveCleanupDays: number;
-  maxVerificationAttempts: number;
-  fingerprintTtlDays: number;
-  allowNewDevicesWithoutVerification: boolean;
-  requireMfaForNewDevices: boolean;
-  trustAfterSuccessfulLogins: number;
+export function isAuthDeviceAllowed(status: AuthDeviceStatus): boolean {
+  return !isAuthDeviceBlocked(status);
+}
+
+/**
+ * Check if device needs verification
+ */
+export function doesAuthDeviceNeedVerification(status: AuthDeviceStatus): boolean {
+  return status === AUTH_DEVICE_STATUS.PENDING;
+}
+
+/**
+ * Check if device is trusted
+ */
+export function isAuthDeviceTrusted(trustLevel: AuthDeviceTrustLevel): boolean {
+  return (
+    trustLevel === AUTH_DEVICE_TRUST_LEVELS.HIGH || trustLevel === AUTH_DEVICE_TRUST_LEVELS.MEDIUM
+  );
+}
+
+/**
+ * Check if device is highly trusted
+ */
+export function isAuthDeviceHighlyTrusted(trustLevel: AuthDeviceTrustLevel): boolean {
+  return trustLevel === AUTH_DEVICE_TRUST_LEVELS.HIGH;
+}
+
+/**
+ * Check if device trust has expired
+ */
+export function isAuthDeviceTrustExpired(
+  trustedAt: Date | undefined,
+  trustExpiresAt: Date | undefined,
+  currentDate: Date = new Date()
+): boolean {
+  if (!trustedAt || !trustExpiresAt) {
+    return true;
+  }
+  return currentDate > trustExpiresAt;
+}
+
+/**
+ * Check if device session has expired
+ */
+export function isAuthDeviceSessionExpired(
+  lastUsedAt: Date,
+  sessionDurationDays: number = 7,
+  currentDate: Date = new Date()
+): boolean {
+  const sessionExpiry = new Date(lastUsedAt);
+  sessionExpiry.setDate(sessionExpiry.getDate() + sessionDurationDays);
+  return currentDate > sessionExpiry;
+}
+
+/**
+ * Check if device is inactive for cleanup
+ */
+export function isAuthDeviceInactiveForCleanup(
+  lastUsedAt: Date,
+  cleanupDays: number = 30,
+  currentDate: Date = new Date()
+): boolean {
+  const cleanupDate = new Date(lastUsedAt);
+  cleanupDate.setDate(cleanupDate.getDate() + cleanupDays);
+  return currentDate > cleanupDate;
+}
+
+/**
+ * Get human-readable label for device type
+ */
+export function getAuthDeviceTypeLabel(type: AuthDeviceType): string {
+  const labels: Record<AuthDeviceType, string> = {
+    desktop: 'Desktop Computer',
+    laptop: 'Laptop',
+    tablet: 'Tablet',
+    mobile: 'Mobile Phone',
+    tv: 'Smart TV',
+    console: 'Gaming Console',
+    smart_watch: 'Smart Watch',
+    other: 'Other Device',
+  };
+  return labels[type] || 'Unknown Device';
+}
+
+/**
+ * Get human-readable label for device platform
+ */
+export function getAuthDevicePlatformLabel(platform: AuthDevicePlatform): string {
+  const labels: Record<AuthDevicePlatform, string> = {
+    windows: 'Windows',
+    macos: 'macOS',
+    linux: 'Linux',
+    chrome_os: 'Chrome OS',
+    android: 'Android',
+    ios: 'iOS',
+    ipados: 'iPadOS',
+    watchos: 'watchOS',
+    tvos: 'tvOS',
+    web: 'Web Browser',
+    other: 'Other Platform',
+  };
+  return labels[platform] || 'Unknown Platform';
+}
+
+/**
+ * Get human-readable label for device status
+ */
+export function getAuthDeviceStatusLabel(status: AuthDeviceStatus): string {
+  const labels: Record<AuthDeviceStatus, string> = {
+    active: 'Active',
+    inactive: 'Inactive',
+    blocked: 'Blocked',
+    suspended: 'Suspended',
+    pending: 'Pending Verification',
+    expired: 'Expired',
+  };
+  return labels[status] || 'Unknown Status';
+}
+
+/**
+ * Get human-readable label for trust level
+ */
+export function getAuthDeviceTrustLevelLabel(level: AuthDeviceTrustLevel): string {
+  const labels: Record<AuthDeviceTrustLevel, string> = {
+    high: 'High Trust',
+    medium: 'Medium Trust',
+    low: 'Low Trust',
+    untrusted: 'Untrusted',
+  };
+  return labels[level] || 'Unknown Trust Level';
+}
+
+/**
+ * Get trust level score
+ */
+export function getAuthDeviceTrustLevelScore(level: AuthDeviceTrustLevel): number {
+  const scores: Record<AuthDeviceTrustLevel, number> = {
+    high: 100,
+    medium: 75,
+    low: 25,
+    untrusted: 0,
+  };
+  return scores[level] || 0;
+}
+
+/**
+ * Get device type from user agent
+ */
+export function getAuthDeviceTypeFromUserAgent(userAgent: string): AuthDeviceType {
+  const ua = userAgent.toLowerCase();
+
+  if (
+    ua.includes('mobile') ||
+    ua.includes('android') ||
+    ua.includes('iphone') ||
+    ua.includes('ipod')
+  ) {
+    return 'mobile';
+  }
+  if (ua.includes('tablet') || ua.includes('ipad')) {
+    return 'tablet';
+  }
+  if (ua.includes('tv') || ua.includes('smarttv') || ua.includes('android tv')) {
+    return 'tv';
+  }
+  if (ua.includes('console') || ua.includes('ps4') || ua.includes('ps5') || ua.includes('xbox')) {
+    return 'console';
+  }
+  if (ua.includes('watch')) {
+    return 'smart_watch';
+  }
+  if (ua.includes('laptop') || ua.includes('macbook')) {
+    return 'laptop';
+  }
+
+  return 'desktop';
+}
+
+/**
+ * Get device platform from user agent
+ */
+export function getAuthDevicePlatformFromUserAgent(userAgent: string): AuthDevicePlatform {
+  const ua = userAgent.toLowerCase();
+
+  if (ua.includes('windows')) return 'windows';
+  if (ua.includes('mac os') || ua.includes('macos') || ua.includes('darwin')) {
+    return 'macos';
+  }
+  if (ua.includes('linux') || ua.includes('x11')) return 'linux';
+  if (ua.includes('chrome os') || ua.includes('cros')) return 'chrome_os';
+  if (ua.includes('android')) return 'android';
+  if (ua.includes('iphone') || ua.includes('ios') || ua.includes('ipod')) {
+    return 'ios';
+  }
+  if (ua.includes('ipad') || ua.includes('ipados')) return 'ipados';
+  if (ua.includes('watchos')) return 'watchos';
+  if (ua.includes('tvos') || ua.includes('apple tv')) return 'tvos';
+  if (ua.includes('web') || ua.includes('browser')) return 'web';
+
+  return 'other';
 }

@@ -1,282 +1,229 @@
 /**
  * Authentication Recovery Code Types
- * Recovery code management for MFA and account recovery
+ * Types for backup codes and account recovery
  */
 
-import type { MfaMethod, MfaStatus } from '@vubon/shared-constants';
-
+import type { AuthMfaMethod } from '@vubon/shared-constants';
+import { AUTH_MFA_CONFIG } from '@vubon/shared-constants';
 import type { ID, Timestamp } from '../common/core-primitives.types';
-import type { AuthUser } from './auth.types';
+
+// ============================================================
+// RECOVERY CODE RECORD
+// ============================================================
 
 /**
- * Recovery Code
- * Complete recovery code information
+ * Individual backup/recovery code
  */
-export interface RecoveryCode {
-  /** Unique identifier for the recovery code */
+export interface AuthRecoveryCode {
+  /** Unique identifier */
   id: ID;
-  /** User ID associated with this recovery code */
+  /** User ID */
   userId: ID;
-  /** MFA method this recovery code is for */
-  mfaMethod: MfaMethod;
-  /** Hashed recovery code value */
+  /** The actual recovery code (hashed) */
   codeHash: string;
-  /** Recovery code status */
-  status: RecoveryCodeStatus;
-  /** When recovery code was generated */
-  generatedAt: Timestamp;
-  /** When recovery code was used */
+  /** Whether the code has been used */
+  isUsed: boolean;
+  /** When the code was used (if used) */
   usedAt?: Timestamp;
-  /** When recovery code expires */
+  /** When the code was generated */
+  generatedAt: Timestamp;
+  /** When the code expires (if applicable) */
   expiresAt?: Timestamp;
+  /** Which MFA method this code is for */
+  mfaMethod: AuthMfaMethod;
 }
 
 /**
- * Recovery Code Status
- * Status of a recovery code
+ * Recovery code set
  */
-export const RECOVERY_CODE_STATUS = {
-  /** Code is active and can be used */
-  ACTIVE: 'active',
-  /** Code has been used */
-  USED: 'used',
-  /** Code has expired */
-  EXPIRED: 'expired',
-  /** Code has been revoked */
-  REVOKED: 'revoked',
-} as const;
+export interface AuthRecoveryCodeSet {
+  /** Unique identifier for the set */
+  id: ID;
+  /** User ID */
+  userId: ID;
+  /** All codes in the set */
+  codes: AuthRecoveryCode[];
+  /** Total number of codes in the set */
+  totalCount: number;
+  /** Number of unused codes */
+  unusedCount: number;
+  /** Number of used codes */
+  usedCount: number;
+  /** When the set was generated */
+  generatedAt: Timestamp;
+  /** Whether this is the active set */
+  isActive: boolean;
+}
 
-export type RecoveryCodeStatus = (typeof RECOVERY_CODE_STATUS)[keyof typeof RECOVERY_CODE_STATUS];
+// ============================================================
+// RECOVERY CODE REQUEST
+// ============================================================
 
 /**
- * Recovery Code Generate Request
  * Request to generate recovery codes
  */
-export interface RecoveryCodeGenerateRequest {
+export interface AuthGenerateRecoveryCodesRequest {
   /** User ID */
   userId: ID;
-  /** MFA method */
-  mfaMethod: MfaMethod;
+  /** Number of codes to generate (default from config) */
+  count?: number;
+  /** Length of each code (default from config) */
+  codeLength?: number;
+  /** MFA method these codes are for */
+  mfaMethod: AuthMfaMethod;
+}
+
+/**
+ * Request to use a recovery code
+ */
+export interface AuthUseRecoveryCodeRequest {
+  /** User ID */
+  userId: ID;
+  /** Recovery code to use */
+  code: string;
+  /** MFA method being recovered */
+  mfaMethod: AuthMfaMethod;
+}
+
+/**
+ * Request to regenerate recovery codes
+ */
+export interface AuthRegenerateRecoveryCodesRequest {
+  /** User ID */
+  userId: ID;
+  /** Whether to invalidate all existing codes */
+  invalidateExisting: boolean;
   /** Number of codes to generate */
   count?: number;
-  /** Recovery code length */
-  length?: number;
-  /** Expiry in seconds (optional) */
-  expiresIn?: number;
 }
 
-/**
- * Recovery Code Generate Result
- * Result of recovery code generation
- */
-export interface RecoveryCodeGenerateResult {
-  /** User ID */
-  userId: ID;
-  /** MFA method */
-  mfaMethod: MfaMethod;
-  /** Generated recovery codes (plain text - show once) */
-  codes: string[];
-  /** Hashed recovery codes (stored) */
-  hashedCodes: string[];
-  /** Number of codes generated */
-  count: number;
-  /** Expiry timestamp */
-  expiresAt: Timestamp;
-  /** Warning message (if any) */
-  warning?: string;
-}
+// ============================================================
+// RECOVERY CODE RESPONSE
+// ============================================================
 
 /**
- * Recovery Code Verify Request
- * Request to verify a recovery code
+ * Response for recovery code operations
  */
-export interface RecoveryCodeVerifyRequest {
-  /** User ID */
-  userId: ID;
-  /** Recovery code (plain text) */
-  code: string;
-  /** MFA method (optional) */
-  mfaMethod?: MfaMethod;
-}
-
-/**
- * Recovery Code Verify Result
- * Result of recovery code verification
- */
-export interface RecoveryCodeVerifyResult {
-  /** Is code valid */
-  isValid: boolean;
-  /** User data (if valid) */
-  user?: AuthUser;
-  /** Recovery code data (if valid) */
-  recoveryCode?: RecoveryCode;
-  /** MFA status after verification */
-  mfaStatus?: MfaStatus;
-  /** Access token (if verification completed) */
-  accessToken?: string;
-  /** Refresh token (if verification completed) */
-  refreshToken?: string;
-  /** Token expiry in seconds */
-  expiresIn?: number;
-  /** Error message (if invalid) */
+export interface AuthRecoveryCodeResponse {
+  /** Whether the operation was successful */
+  success: boolean;
+  /** Recovery code set (for generation) */
+  codeSet?: AuthRecoveryCodeSet;
+  /** Plain text codes (only returned once) */
+  plainCodes?: string[];
+  /** Whether codes need to be saved */
+  saveRequired?: boolean;
+  /** Error message if failed */
   error?: string;
-  /** Remaining attempts (if locked) */
-  remainingAttempts?: number;
+  /** Remaining unused codes count */
+  remainingCount?: number;
+}
+
+// ============================================================
+// RECOVERY CODE VERIFICATION
+// ============================================================
+
+/**
+ * Recovery code verification result
+ */
+export interface AuthRecoveryCodeVerification {
+  /** Whether the code is valid */
+  isValid: boolean;
+  /** Whether the code has been used */
+  isUsed: boolean;
+  /** Whether the code has expired */
+  isExpired: boolean;
+  /** The recovery code record (if found) */
+  code?: AuthRecoveryCode;
+  /** Error message if invalid */
+  error?: string;
+}
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+
+/**
+ * Generate a single recovery code
+ */
+export function generateAuthRecoveryCode(length: number = 8): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = '';
+  for (let i = 0; i < length; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
 }
 
 /**
- * Recovery Code List
- * List of recovery codes for a user
+ * Generate multiple recovery codes
  */
-export interface RecoveryCodeList {
-  /** User ID */
-  userId: ID;
-  /** MFA method */
-  mfaMethod: MfaMethod;
-  /** List of recovery codes (hashed) */
-  codes: RecoveryCode[];
-  /** Total number of codes */
-  total: number;
-  /** Number of used codes */
-  used: number;
-  /** Number of remaining codes */
-  remaining: number;
+export function generateAuthRecoveryCodes(count: number = 10, length: number = 8): string[] {
+  const codes: string[] = [];
+  for (let i = 0; i < count; i++) {
+    codes.push(generateAuthRecoveryCode(length));
+  }
+  return codes;
 }
 
 /**
- * Recovery Code Revoke Request
- * Request to revoke recovery codes
+ * Check if recovery code is valid format
  */
-export interface RecoveryCodeRevokeRequest {
-  /** User ID */
-  userId: ID;
-  /** Specific code ID to revoke (optional) */
-  codeId?: ID;
-  /** Revoke all codes for this user */
-  revokeAll?: boolean;
-  /** MFA method (optional) */
-  mfaMethod?: MfaMethod;
+export function isAuthRecoveryCodeValidFormat(code: string): boolean {
+  return /^[A-Z0-9]{8}$/.test(code);
 }
 
 /**
- * Recovery Code Revoke Result
- * Result of recovery code revocation
+ * Check if recovery code has expired
  */
-export interface RecoveryCodeRevokeResult {
-  /** Number of codes revoked */
-  revokedCount: number;
-  /** User ID */
-  userId: ID;
-  /** MFA method (if specified) */
-  mfaMethod?: MfaMethod;
-  /** Revocation timestamp */
-  revokedAt: Timestamp;
-  /** Message */
-  message: string;
+export function isAuthRecoveryCodeExpired(generatedAt: Date, expiryDays: number = 365): boolean {
+  const now = Date.now();
+  const age = (now - generatedAt.getTime()) / (1000 * 60 * 60 * 24);
+  return age >= expiryDays;
 }
 
 /**
- * Recovery Code Statistics
- * Recovery code usage statistics
+ * Check if recovery code set is active
  */
-export interface RecoveryCodeStatistics {
-  /** Total codes generated */
-  totalGenerated: number;
-  /** Total codes used */
-  totalUsed: number;
-  /** Total codes expired */
-  totalExpired: number;
-  /** Total codes revoked */
-  totalRevoked: number;
-  /** Active codes */
-  totalActive: number;
-  /** Usage by MFA method */
-  byMethod: Record<
-    MfaMethod,
-    {
-      generated: number;
-      used: number;
-      expired: number;
-    }
-  >;
-  /** Average time to use (seconds) */
-  averageTimeToUse: number;
-  /** Success rate */
-  successRate: number;
-  /** Timestamp of statistics */
-  timestamp: Timestamp;
+export function isAuthRecoveryCodeSetActive(codeSet: AuthRecoveryCodeSet): boolean {
+  return codeSet.isActive && codeSet.unusedCount > 0;
 }
 
 /**
- * Recovery Code Backup
- * Backup of recovery codes for user
+ * Get count of remaining usable codes
  */
-export interface RecoveryCodeBackup {
-  /** User ID */
-  userId: ID;
-  /** Backup ID */
-  backupId: ID;
-  /** Backup of recovery codes (encrypted) */
-  codes: string[];
-  /** When backup was created */
-  createdAt: Timestamp;
-  /** Backup encryption metadata */
-  encryption: {
-    algorithm: string;
-    iv: string;
-    salt: string;
+export function getAuthRemainingRecoveryCodes(codeSet: AuthRecoveryCodeSet): number {
+  return codeSet.unusedCount;
+}
+
+/**
+ * Format recovery codes for display
+ */
+export function formatAuthRecoveryCodes(codes: string[]): string[] {
+  return codes.map((code) => {
+    // Format as groups of 4 characters
+    return code.match(/.{1,4}/g)?.join('-') || code;
+  });
+}
+
+/**
+ * Validate recovery code length
+ */
+export function validateAuthRecoveryCodeLength(code: string, expectedLength: number = 8): boolean {
+  // Remove any separators like hyphens
+  const cleanCode = code.replace(/-/g, '');
+  return cleanCode.length === expectedLength && /^[A-Z0-9]+$/.test(cleanCode);
+}
+
+/**
+ * Get default recovery code config from constants
+ */
+export function getAuthDefaultRecoveryCodeConfig(): {
+  count: number;
+  length: number;
+} {
+  return {
+    count: AUTH_MFA_CONFIG.BACKUP_CODES_COUNT,
+    length: AUTH_MFA_CONFIG.BACKUP_CODE_LENGTH,
   };
-}
-
-/**
- * Recovery Code Session
- * Active recovery session
- */
-export interface RecoveryCodeSession {
-  /** Session ID */
-  id: ID;
-  /** User ID */
-  userId: ID;
-  /** MFA method being recovered */
-  mfaMethod: MfaMethod;
-  /** Recovery session status */
-  status: 'pending' | 'verified' | 'expired';
-  /** Number of attempts */
-  attempts: number;
-  /** Max attempts allowed */
-  maxAttempts: number;
-  /** Session start timestamp */
-  startedAt: Timestamp;
-  /** Session expiry timestamp */
-  expiresAt: Timestamp;
-}
-
-/**
- * Recovery Code Email Request
- * Request to email recovery codes
- */
-export interface RecoveryCodeEmailRequest {
-  /** User ID */
-  userId: ID;
-  /** Email address */
-  email: string;
-  /** Custom message */
-  message?: string;
-  /** Include instructions */
-  includeInstructions?: boolean;
-}
-
-/**
- * Recovery Code Email Result
- * Result of emailing recovery codes
- */
-export interface RecoveryCodeEmailResult {
-  /** Is email sent */
-  sent: boolean;
-  /** Recipient email */
-  email: string;
-  /** Sent timestamp */
-  sentAt: Timestamp;
-  /** Message */
-  message: string;
 }

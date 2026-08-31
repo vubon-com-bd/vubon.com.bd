@@ -1,441 +1,601 @@
 /**
  * Authentication OAuth Types
- * OAuth 2.0 and OIDC data types
+ * Types for OAuth 2.0 and OpenID Connect flows
  */
 
 import type {
   OAuthGrantType,
+  OAuthResponseType,
   OAuthScope,
   OAuthTokenType,
   OAuthTokenStatus,
   OAuthClientType,
   OAuthClientAuthMethod,
+  OAuthError,
 } from '@vubon/shared-constants';
-
+import {
+  OAUTH_CONFIG,
+  OAUTH_GRANT_TYPES,
+  OAUTH_RESPONSE_TYPES,
+  OAUTH_SCOPES,
+  OAUTH_ERRORS,
+} from '@vubon/shared-constants';
 import type { ID, Timestamp, Url } from '../common/core-primitives.types';
-import type { AuthUser } from './auth.types';
+
+// ============================================================
+// OAUTH CLIENT
+// ============================================================
 
 /**
- * OAuth Client Data
- * OAuth client application information
+ * OAuth client record
  */
-export interface OAuthClientData {
-  /** Client ID */
-  clientId: ID;
+export interface AuthOAuthClient {
+  /** Unique client ID */
+  clientId: string;
+  /** Client secret (hashed) */
+  clientSecretHash: string;
   /** Client name */
-  clientName: string;
+  name: string;
   /** Client description */
-  clientDescription?: string;
+  description?: string;
   /** Client type (public/confidential) */
   clientType: OAuthClientType;
   /** Client authentication method */
   authMethod: OAuthClientAuthMethod;
-  /** Redirect URIs */
+  /** Allowed redirect URIs */
   redirectUris: Url[];
   /** Allowed grant types */
   grantTypes: OAuthGrantType[];
   /** Allowed scopes */
   scopes: OAuthScope[];
-  /** Is client active */
+  /** Allowed response types */
+  responseTypes: OAuthResponseType[];
+  /** Whether client is active */
   isActive: boolean;
-  /** Is client trusted */
+  /** Whether client is trusted */
   isTrusted: boolean;
-  /** Client creation timestamp */
-  createdAt: Timestamp;
-  /** Client last update timestamp */
-  updatedAt: Timestamp;
+  /** Require PKCE for this client */
+  requirePkce: boolean;
   /** Client metadata */
-  metadata?: Record<string, unknown>;
-}
-
-/**
- * OAuth Authorization Request
- * Request for OAuth authorization
- */
-export interface OAuthAuthorizationRequest {
-  /** Response type */
-  responseType: string;
-  /** Client ID */
-  clientId: ID;
-  /** Redirect URI */
-  redirectUri: Url;
-  /** Requested scopes */
-  scope?: string;
-  /** State parameter for CSRF */
-  state?: string;
-  /** Code challenge (PKCE) */
-  codeChallenge?: string;
-  /** Code challenge method (PKCE) */
-  codeChallengeMethod?: string;
-  /** Additional parameters */
-  [key: string]: unknown;
-}
-
-/**
- * OAuth Authorization Response
- * Response for OAuth authorization
- */
-export interface OAuthAuthorizationResponse {
-  /** Authorization code */
-  code: string;
-  /** State parameter */
-  state: string;
-  /** Redirect URI */
-  redirectUri: Url;
-  /** Expiry timestamp */
-  expiresAt: Timestamp;
-  /** Granted scopes */
-  scopes?: OAuthScope[];
-}
-
-/**
- * OAuth Token Request
- * Request for OAuth token exchange
- */
-export interface OAuthTokenRequest {
-  /** Grant type */
-  grantType: OAuthGrantType;
-  /** Authorization code (for authorization_code grant) */
-  code?: string;
-  /** Refresh token (for refresh_token grant) */
-  refreshToken?: string;
-  /** Redirect URI (for authorization_code grant) */
-  redirectUri?: Url;
-  /** Client ID (for public clients) */
-  clientId?: ID;
-  /** Client secret (for confidential clients) */
-  clientSecret?: string;
-  /** Code verifier (PKCE) */
-  codeVerifier?: string;
-}
-
-/**
- * OAuth Token Response
- * Response for OAuth token exchange
- */
-export interface OAuthTokenResponse {
-  /** Access token */
-  accessToken: string;
-  /** Token type (Bearer, MAC, DPoP) */
-  tokenType: OAuthTokenType;
-  /** Access token expiry in seconds */
-  expiresIn: number;
-  /** Refresh token (if applicable) */
-  refreshToken?: string;
-  /** Granted scopes */
-  scope?: string;
-  /** ID token (OIDC) */
-  idToken?: string;
-  /** Token creation timestamp */
+  metadata?: {
+    logoUri?: Url;
+    policyUri?: Url;
+    tosUri?: Url;
+    contacts?: string[];
+    [key: string]: unknown;
+  };
+  /** When the client was created */
   createdAt: Timestamp;
+  /** When the client was updated */
+  updatedAt: Timestamp;
+  /** When the client expires (if applicable) */
+  expiresAt?: Timestamp;
 }
 
+// ============================================================
+// OAUTH TOKEN
+// ============================================================
+
 /**
- * OAuth Token Data
- * Complete OAuth token information
+ * OAuth token record
  */
-export interface OAuthTokenData {
-  /** Token ID */
+export interface AuthOAuthToken {
+  /** Unique token ID */
   id: ID;
-  /** Client ID */
-  clientId: ID;
-  /** User ID (if applicable) */
-  userId?: ID;
-  /** Associated user data (if available) */
-  user?: AuthUser;
+  /** Access token value (hashed) */
+  accessTokenHash: string;
+  /** Refresh token value (hashed) */
+  refreshTokenHash?: string;
   /** Token type */
   tokenType: OAuthTokenType;
   /** Token status */
   status: OAuthTokenStatus;
+  /** Client ID */
+  clientId: string;
+  /** User ID (if user-authorized) */
+  userId?: ID;
   /** Granted scopes */
   scopes: OAuthScope[];
-  /** Token creation timestamp */
-  createdAt: Timestamp;
-  /** Token expiry timestamp */
+  /** Grant type used */
+  grantType: OAuthGrantType;
+  /** When the token was issued */
+  issuedAt: Timestamp;
+  /** When the token expires */
   expiresAt: Timestamp;
-  /** Token last used timestamp */
-  lastUsedAt?: Timestamp;
-  /** IP address of last use */
-  lastIpAddress?: string;
+  /** When the refresh token expires (if applicable) */
+  refreshExpiresAt?: Timestamp;
   /** Token metadata */
   metadata?: Record<string, unknown>;
 }
 
-/**
- * OAuth Client Create Request
- * Request to create an OAuth client
- */
-export interface OAuthClientCreateRequest {
-  /** Client name */
-  clientName: string;
-  /** Client description */
-  clientDescription?: string;
-  /** Client type */
-  clientType: OAuthClientType;
-  /** Redirect URIs */
-  redirectUris: Url[];
-  /** Allowed grant types */
-  grantTypes: OAuthGrantType[];
-  /** Allowed scopes */
-  scopes: OAuthScope[];
-  /** Is client trusted */
-  isTrusted?: boolean;
-}
+// ============================================================
+// OAUTH AUTHORIZATION REQUEST
+// ============================================================
 
 /**
- * OAuth Client Update Request
- * Request to update an OAuth client
+ * OAuth authorization request
  */
-export interface OAuthClientUpdateRequest {
+export interface AuthOAuthAuthorizeRequest {
   /** Client ID */
-  clientId: ID;
-  /** New client name */
-  clientName?: string;
-  /** New client description */
-  clientDescription?: string;
-  /** New redirect URIs */
-  redirectUris?: Url[];
-  /** New allowed grant types */
-  grantTypes?: OAuthGrantType[];
-  /** New allowed scopes */
-  scopes?: OAuthScope[];
-  /** New active status */
-  isActive?: boolean;
+  clientId: string;
+  /** Response type */
+  responseType: OAuthResponseType;
+  /** Redirect URI */
+  redirectUri: Url;
+  /** Requested scopes */
+  scope?: string;
+  /** State parameter for CSRF protection */
+  state?: string;
+  /** PKCE code challenge */
+  codeChallenge?: string;
+  /** PKCE code challenge method */
+  codeChallengeMethod?: 'plain' | 'S256';
+  /** Additional parameters */
+  [key: string]: unknown;
 }
 
-/**
- * OAuth Client List
- * List of OAuth clients
- */
-export interface OAuthClientList {
-  /** List of clients */
-  clients: OAuthClientData[];
-  /** Total count */
-  total: number;
-  /** Active count */
-  activeCount: number;
-}
+// ============================================================
+// OAUTH TOKEN REQUEST
+// ============================================================
 
 /**
- * OAuth Access Token Request
- * Request to get an access token (simplified)
+ * OAuth token request
  */
-export interface OAuthAccessTokenRequest {
-  /** Client ID */
-  clientId: ID;
-  /** Client secret (for confidential clients) */
-  clientSecret?: string;
+export interface AuthOAuthTokenRequest {
   /** Grant type */
   grantType: OAuthGrantType;
-  /** User credentials (for password grant) */
-  username?: string;
-  /** User password (for password grant) */
-  password?: string;
-  /** Refresh token (for refresh_token grant) */
-  refreshToken?: string;
+  /** Client ID */
+  clientId: string;
+  /** Client secret (for confidential clients) */
+  clientSecret?: string;
   /** Authorization code (for authorization_code grant) */
   code?: string;
   /** Redirect URI (for authorization_code grant) */
   redirectUri?: Url;
+  /** Refresh token (for refresh_token grant) */
+  refreshToken?: string;
+  /** Resource owner credentials (for password grant) */
+  username?: string;
+  /** Resource owner credentials (for password grant) */
+  password?: string;
+  /** PKCE code verifier (for authorization_code grant) */
+  codeVerifier?: string;
+  /** Requested scopes */
+  scope?: string;
 }
 
-/**
- * OAuth Introspection Request
- * Request for token introspection
- */
-export interface OAuthIntrospectionRequest {
-  /** Token value */
-  token: string;
-  /** Token type hint (access_token or refresh_token) */
-  tokenTypeHint?: string;
-  /** Client ID (optional) */
-  clientId?: ID;
-  /** Client secret (optional) */
-  clientSecret?: string;
-}
+// ============================================================
+// OAUTH TOKEN RESPONSE
+// ============================================================
 
 /**
- * OAuth Introspection Response
- * Response for token introspection
+ * OAuth token response
  */
-export interface OAuthIntrospectionResponse {
-  /** Is token active */
-  active: boolean;
+export interface AuthOAuthTokenResponse {
+  /** Access token */
+  access_token: string;
+  /** Token type */
+  token_type: OAuthTokenType;
+  /** Token expiry in seconds */
+  expires_in: number;
+  /** Refresh token (if applicable) */
+  refresh_token?: string;
+  /** ID token (for OIDC) */
+  id_token?: string;
   /** Granted scopes */
   scope?: string;
+}
+
+// ============================================================
+// OAUTH INTROSPECTION
+// ============================================================
+
+/**
+ * OAuth token introspection request
+ */
+export interface AuthOAuthIntrospectRequest {
+  /** Token to introspect */
+  token: string;
+  /** Token type hint (optional) */
+  token_type_hint?: 'access_token' | 'refresh_token';
+}
+
+/**
+ * OAuth token introspection response
+ */
+export interface AuthOAuthIntrospectResponse {
+  /** Whether the token is active */
+  active: boolean;
+  /** Token scopes */
+  scope?: string;
   /** Client ID */
-  clientId?: ID;
-  /** Username */
+  client_id?: string;
+  /** Username (or user ID) */
   username?: string;
   /** Token type */
-  tokenType?: OAuthTokenType;
-  /** Expiration timestamp */
+  token_type?: OAuthTokenType;
+  /** Token expiry timestamp */
   exp?: number;
-  /** Issued at timestamp */
+  /** Token issued timestamp */
   iat?: number;
-  /** Not before timestamp */
-  nbf?: number;
-  /** Subject (user ID) */
-  sub?: string;
-  /** Audience */
-  aud?: string;
-  /** Issuer */
-  iss?: string;
-  /** JWT ID */
+  /** Token ID */
   jti?: string;
   /** Additional claims */
   [key: string]: unknown;
 }
 
+// ============================================================
+// OAUTH REVOCATION
+// ============================================================
+
 /**
- * OAuth Revocation Request
- * Request to revoke a token
+ * OAuth token revocation request
  */
-export interface OAuthRevocationRequest {
-  /** Token value */
+export interface AuthOAuthRevokeRequest {
+  /** Token to revoke */
   token: string;
-  /** Token type hint (access_token or refresh_token) */
-  tokenTypeHint?: string;
-  /** Client ID (optional) */
-  clientId?: ID;
-  /** Client secret (optional) */
+  /** Token type hint (optional) */
+  token_type_hint?: 'access_token' | 'refresh_token';
+  /** Client ID */
+  clientId: string;
+  /** Client secret (for confidential clients) */
   clientSecret?: string;
 }
 
-/**
- * OAuth Statistics
- * OAuth usage statistics
- */
-export interface OAuthStatistics {
-  /** Total clients */
-  totalClients: number;
-  /** Active clients */
-  activeClients: number;
-  /** Total tokens issued */
-  totalTokensIssued: number;
-  /** Active tokens */
-  activeTokens: number;
-  /** Expired tokens */
-  expiredTokens: number;
-  /** Revoked tokens */
-  revokedTokens: number;
-  /** Tokens by grant type */
-  byGrantType: Record<OAuthGrantType, number>;
-  /** Tokens by scope */
-  byScope: Record<OAuthScope, number>;
-  /** Token issuance rate (per day) */
-  issuanceRate: number;
-  /** Average token lifetime in seconds */
-  averageLifetime: number;
-  /** Top users by token usage */
-  topUsers: Array<{
-    userId: ID;
-    user?: AuthUser;
-    tokenCount: number;
-  }>;
-  /** Timestamp of statistics */
-  timestamp: Timestamp;
-}
+// ============================================================
+// OAUTH USER INFO
+// ============================================================
 
 /**
- * OAuth Consent Request
- * Request for user consent
+ * OIDC user info response
  */
-export interface OAuthConsentRequest {
+export interface AuthOAuthUserInfo {
+  /** User ID (sub) */
+  sub: string;
+  /** Email address */
+  email?: string;
+  /** Whether email is verified */
+  email_verified?: boolean;
+  /** Phone number */
+  phone_number?: string;
+  /** Whether phone is verified */
+  phone_number_verified?: boolean;
+  /** Full name */
+  name?: string;
+  /** Given name */
+  given_name?: string;
+  /** Family name */
+  family_name?: string;
+  /** Profile URL */
+  profile?: Url;
+  /** Picture URL */
+  picture?: Url;
+  /** Website URL */
+  website?: Url;
+  /** Locale */
+  locale?: string;
+  /** Updated timestamp */
+  updated_at?: number;
+  /** Additional claims */
+  [key: string]: unknown;
+}
+
+// ============================================================
+// OAUTH CLIENT FILTER
+// ============================================================
+
+/**
+ * Filter for querying OAuth clients
+ */
+export interface AuthOAuthClientFilter {
+  /** Filter by client type */
+  clientType?: OAuthClientType;
+  /** Filter by auth method */
+  authMethod?: OAuthClientAuthMethod;
+  /** Filter by active status */
+  isActive?: boolean;
+  /** Filter by trusted status */
+  isTrusted?: boolean;
+  /** Filter by grant type */
+  grantType?: OAuthGrantType;
+  /** Filter by scope */
+  scope?: OAuthScope;
+  /** Search by name or description */
+  search?: string;
+}
+
+// ============================================================
+// OAUTH TOKEN FILTER
+// ============================================================
+
+/**
+ * Filter for querying OAuth tokens
+ */
+export interface AuthOAuthTokenFilter {
+  /** Filter by client ID */
+  clientId?: string;
+  /** Filter by user ID */
+  userId?: ID;
+  /** Filter by status */
+  status?: OAuthTokenStatus;
+  /** Filter by grant type */
+  grantType?: OAuthGrantType;
+  /** Filter by scope */
+  scope?: OAuthScope;
+  /** Filter by active tokens only */
+  activeOnly?: boolean;
+}
+
+// ============================================================
+// OAUTH CONFIG
+// ============================================================
+
+/**
+ * OAuth server configuration
+ */
+export interface AuthOAuthServerConfig {
+  /** OAuth issuer */
+  issuer: string;
+  /** Token endpoint URL */
+  tokenEndpoint: Url;
+  /** Authorization endpoint URL */
+  authorizationEndpoint: Url;
+  /** User info endpoint URL */
+  userInfoEndpoint: Url;
+  /** Revocation endpoint URL */
+  revocationEndpoint: Url;
+  /** Introspection endpoint URL */
+  introspectionEndpoint: Url;
+  /** JWKS URI (if using JWT) */
+  jwksUri?: Url;
+  /** Access token expiry in seconds */
+  accessTokenExpiry: number;
+  /** Refresh token expiry in seconds */
+  refreshTokenExpiry: number;
+  /** Authorization code expiry in seconds */
+  authorizationCodeExpiry: number;
+  /** Supported grant types */
+  supportedGrantTypes: OAuthGrantType[];
+  /** Supported response types */
+  supportedResponseTypes: OAuthResponseType[];
+  /** Supported scopes */
+  supportedScopes: OAuthScope[];
+  /** Supported token types */
+  supportedTokenTypes: OAuthTokenType[];
+  /** Require PKCE for public clients */
+  requirePkce: boolean;
+  /** Supported PKCE methods */
+  pkceMethods: ('plain' | 'S256')[];
+}
+
+// ============================================================
+// OAUTH CLIENT CREDENTIALS
+// ============================================================
+
+/**
+ * OAuth client credentials for storage
+ */
+export interface AuthOAuthClientCredentials {
   /** Client ID */
-  clientId: ID;
-  /** Client name */
-  clientName: string;
-  /** Requested scopes */
-  requestedScopes: OAuthScope[];
-  /** User ID */
-  userId: ID;
-  /** User data (if available) */
-  user?: AuthUser;
-  /** Redirect URI */
-  redirectUri: Url;
-  /** State parameter */
+  clientId: string;
+  /** Client secret (plain text) */
+  clientSecret: string;
+}
+
+// ============================================================
+// OAUTH ERROR RESPONSE
+// ============================================================
+
+/**
+ * OAuth error response
+ */
+export interface AuthOAuthErrorResponse {
+  /** Error code */
+  error: OAuthError;
+  /** Human-readable error description */
+  error_description?: string;
+  /** URI for more information about the error */
+  error_uri?: string;
+  /** State parameter (if provided in request) */
   state?: string;
 }
 
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+
 /**
- * OAuth Consent Response
- * Response for user consent
+ * Check if OAuth grant type is valid
  */
-export interface OAuthConsentResponse {
-  /** Is consent given */
-  granted: boolean;
-  /** Granted scopes */
-  grantedScopes: OAuthScope[];
-  /** Remember consent */
-  remember?: boolean;
-  /** Redirect URI with code or error */
-  redirectUri: Url;
+export function isValidAuthOAuthGrantType(grantType: string): grantType is OAuthGrantType {
+  return Object.values(OAUTH_GRANT_TYPES).includes(grantType as OAuthGrantType);
 }
 
 /**
- * OAuth Device Code Request
- * Request for device code (device flow)
+ * Check if OAuth response type is valid
  */
-export interface OAuthDeviceCodeRequest {
-  /** Client ID */
-  clientId: ID;
-  /** Requested scopes */
-  scope?: string;
+export function isValidAuthOAuthResponseType(
+  responseType: string
+): responseType is OAuthResponseType {
+  return Object.values(OAUTH_RESPONSE_TYPES).includes(responseType as OAuthResponseType);
 }
 
 /**
- * OAuth Device Code Response
- * Response for device code
+ * Check if OAuth scope is valid
  */
-export interface OAuthDeviceCodeResponse {
-  /** Device code */
-  deviceCode: string;
-  /** User code (for display) */
-  userCode: string;
-  /** Verification URI */
-  verificationUri: Url;
-  /** Verification URI with user code */
-  verificationUriComplete?: Url;
-  /** Expiry in seconds */
-  expiresIn: number;
-  /** Polling interval in seconds */
-  interval: number;
+export function isValidAuthOAuthScope(scope: string): scope is OAuthScope {
+  return Object.values(OAUTH_SCOPES).includes(scope as OAuthScope);
 }
 
 /**
- * OAuth Configuration Values
- * OAuth configuration
+ * Check if OAuth token is active
  */
-export interface OAuthConfigValues {
-  accessTokenExpiry: number;
-  refreshTokenExpiry: number;
-  authorizationCodeExpiry: number;
-  deviceCodeExpiry: number;
-  maxClientsPerUser: number;
-  maxScopesPerToken: number;
-  maxRefreshTokenReuse: number;
-  issuer: string;
-  tokenEndpoint: string;
-  authorizationEndpoint: string;
-  userInfoEndpoint: string;
-  revocationEndpoint: string;
-  introspectionEndpoint: string;
-  pkceMethod: string;
-  enablePkce: boolean;
+export function isAuthOAuthTokenActive(status: OAuthTokenStatus): boolean {
+  return status === 'active';
 }
 
 /**
- * OAuth PKCE Data
- * PKCE (Proof Key for Code Exchange) data
+ * Check if OAuth token is expired
  */
-export interface OAuthPkceData {
-  /** Code verifier */
-  codeVerifier: string;
-  /** Code challenge */
-  codeChallenge: string;
-  /** Code challenge method (S256 or plain) */
-  codeChallengeMethod: string;
-  /** When generated */
-  generatedAt: Timestamp;
+export function isAuthOAuthTokenExpired(status: OAuthTokenStatus): boolean {
+  return status === 'expired';
+}
+
+/**
+ * Check if OAuth token is revoked
+ */
+export function isAuthOAuthTokenRevoked(status: OAuthTokenStatus): boolean {
+  return status === 'revoked';
+}
+
+/**
+ * Get human-readable label for OAuth grant type
+ */
+export function getAuthOAuthGrantTypeLabel(grantType: OAuthGrantType): string {
+  const labels: Record<OAuthGrantType, string> = {
+    authorization_code: 'Authorization Code',
+    implicit: 'Implicit (deprecated)',
+    password: 'Resource Owner Password',
+    client_credentials: 'Client Credentials',
+    refresh_token: 'Refresh Token',
+    'urn:ietf:params:oauth:grant-type:device_code': 'Device Code',
+    'urn:ietf:params:oauth:grant-type:jwt-bearer': 'JWT Bearer',
+  };
+  return labels[grantType] || 'Unknown Grant Type';
+}
+
+/**
+ * Get human-readable label for OAuth scope
+ */
+export function getAuthOAuthScopeLabel(scope: OAuthScope): string {
+  const labels: Record<OAuthScope, string> = {
+    profile: 'View profile information',
+    email: 'View email address',
+    phone: 'View phone number',
+    address: 'View address information',
+    'orders:read': 'Read orders',
+    'orders:write': 'Create and update orders',
+    'products:read': 'Read products',
+    'products:write': 'Create and update products',
+    'payments:read': 'Read payments',
+    'payments:write': 'Create and update payments',
+    'users:read': 'Read users',
+    'users:write': 'Create and update users',
+    'vendors:read': 'Read vendors',
+    'vendors:write': 'Create and update vendors',
+    offline_access: 'Offline access (refresh token)',
+    openid: 'OpenID Connect authentication',
+  };
+  return labels[scope] || 'Unknown Scope';
+}
+
+/**
+ * Get default OAuth config
+ */
+export function getAuthOAuthDefaultConfig(): AuthOAuthServerConfig {
+  return {
+    issuer: OAUTH_CONFIG.ISSUER,
+    tokenEndpoint: OAUTH_CONFIG.TOKEN_ENDPOINT as Url,
+    authorizationEndpoint: OAUTH_CONFIG.AUTHORIZATION_ENDPOINT as Url,
+    userInfoEndpoint: OAUTH_CONFIG.USER_INFO_ENDPOINT as Url,
+    revocationEndpoint: OAUTH_CONFIG.REVOCATION_ENDPOINT as Url,
+    introspectionEndpoint: OAUTH_CONFIG.INTROSPECTION_ENDPOINT as Url,
+    accessTokenExpiry: OAUTH_CONFIG.ACCESS_TOKEN_EXPIRY,
+    refreshTokenExpiry: OAUTH_CONFIG.REFRESH_TOKEN_EXPIRY,
+    authorizationCodeExpiry: OAUTH_CONFIG.AUTHORIZATION_CODE_EXPIRY,
+    supportedGrantTypes: Object.values(OAUTH_GRANT_TYPES),
+    supportedResponseTypes: Object.values(OAUTH_RESPONSE_TYPES),
+    supportedScopes: Object.values(OAUTH_SCOPES),
+    supportedTokenTypes: ['bearer', 'mac', 'dpop'],
+    requirePkce: OAUTH_CONFIG.ENABLE_PKCE,
+    pkceMethods: ['plain', 'S256'],
+  };
+}
+
+/**
+ * Check if OAuth scope is sensitive
+ */
+export function isAuthOAuthScopeSensitive(scope: OAuthScope): boolean {
+  const sensitiveScopes: OAuthScope[] = [
+    OAUTH_SCOPES.USERS_READ,
+    OAUTH_SCOPES.USERS_WRITE,
+    OAUTH_SCOPES.PAYMENTS_READ,
+    OAUTH_SCOPES.PAYMENTS_WRITE,
+    OAUTH_SCOPES.OFFLINE_ACCESS,
+  ];
+  return sensitiveScopes.includes(scope);
+}
+
+/**
+ * Get OAuth scopes from space-separated string
+ */
+export function parseAuthOAuthScopes(scopeString: string): OAuthScope[] {
+  return scopeString
+    .split(' ')
+    .filter((scope) => isValidAuthOAuthScope(scope))
+    .map((scope) => scope as OAuthScope);
+}
+
+/**
+ * Get OAuth scopes as space-separated string
+ */
+export function stringifyAuthOAuthScopes(scopes: OAuthScope[]): string {
+  return scopes.join(' ');
+}
+
+/**
+ * Check if OAuth token needs refresh
+ */
+export function doesAuthOAuthTokenNeedRefresh(
+  issuedAt: Date,
+  expirySeconds: number = OAUTH_CONFIG.ACCESS_TOKEN_EXPIRY
+): boolean {
+  const now = Date.now();
+  const age = (now - issuedAt.getTime()) / 1000;
+  return age >= expirySeconds;
+}
+
+/**
+ * Calculate remaining OAuth token time
+ */
+export function getAuthOAuthTokenRemainingTime(
+  issuedAt: Date,
+  expirySeconds: number = OAUTH_CONFIG.ACCESS_TOKEN_EXPIRY
+): number {
+  const now = Date.now();
+  const age = (now - issuedAt.getTime()) / 1000;
+  const remaining = expirySeconds - age;
+  return Math.max(0, remaining);
+}
+
+/**
+ * Create OAuth error response
+ */
+export function createAuthOAuthErrorResponse(
+  error: OAuthError,
+  description?: string,
+  state?: string
+): AuthOAuthErrorResponse {
+  // Use type assertion to safely access OAUTH_ERRORS
+  const errorMessage = OAUTH_ERRORS[error as keyof typeof OAUTH_ERRORS];
+  return {
+    error,
+    error_description: description || errorMessage || 'Unknown error',
+    state,
+  };
+}
+
+/**
+ * Check if OAuth error is valid
+ */
+export function isValidAuthOAuthError(error: string): error is OAuthError {
+  return Object.values(OAUTH_ERRORS).includes(error as OAuthError);
+}
+
+/**
+ * Get human-readable OAuth error message
+ */
+export function getAuthOAuthErrorMessage(error: OAuthError): string {
+  // Use type assertion to safely access OAUTH_ERRORS
+  return OAUTH_ERRORS[error as keyof typeof OAUTH_ERRORS] || 'Unknown OAuth error';
 }

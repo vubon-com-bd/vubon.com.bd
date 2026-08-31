@@ -1,261 +1,231 @@
 /**
  * Authentication Account Lock Types
- * Account locking, suspension, and restriction data types
+ * Types for account locking and security policies
  */
 
+import type { AuthLoginAttemptReason, AuthLoginAttemptStatus } from '@vubon/shared-constants';
+import { AUTH_LOGIN_ATTEMPT_STATUS } from '@vubon/shared-constants';
 import type { ID, Timestamp } from '../common/core-primitives.types';
-import type { AuthUser } from './auth.types';
+
+// ============================================================
+// ACCOUNT LOCK STATUS
+// ============================================================
 
 /**
- * Account Lock Status
- * Status of account lock
+ * Account lock status
  */
-export const ACCOUNT_LOCK_STATUS = {
-  /** Account is not locked */
-  UNLOCKED: 'unlocked',
-  /** Account is temporarily locked */
-  TEMPORARY: 'temporary',
-  /** Account is permanently locked */
-  PERMANENT: 'permanent',
-  /** Account is locked due to suspicious activity */
-  SUSPICIOUS: 'suspicious',
-} as const;
-
-export type AccountLockStatus = (typeof ACCOUNT_LOCK_STATUS)[keyof typeof ACCOUNT_LOCK_STATUS];
+export type AuthAccountLockStatus = 'locked' | 'unlocked' | 'suspended' | 'permanently_locked';
 
 /**
- * Account Lock Reason
- * Reasons for account lock
+ * Account lock reason
+ * Extends login attempt reasons with lock-specific reasons
  */
-export const ACCOUNT_LOCK_REASONS = {
-  /** Too many failed login attempts */
-  TOO_MANY_ATTEMPTS: 'too_many_attempts',
-  /** Suspicious login detected */
-  SUSPICIOUS_LOGIN: 'suspicious_login',
-  /** Admin action */
-  ADMIN_ACTION: 'admin_action',
-  /** Security breach detected */
-  SECURITY_BREACH: 'security_breach',
-  /** User request */
-  USER_REQUEST: 'user_request',
-  /** Password expired */
-  PASSWORD_EXPIRED: 'password_expired',
-  /** Account inactivity */
-  INACTIVITY: 'inactivity',
-  /** Violation of terms */
-  TERMS_VIOLATION: 'terms_violation',
-  /** Fraud detection */
-  FRAUD_DETECTED: 'fraud_detected',
-} as const;
+export type AuthAccountLockReason =
+  | AuthLoginAttemptReason
+  | 'admin_action'
+  | 'security_policy'
+  | 'suspicious_activity'
+  | 'password_expired'
+  | 'mfa_required';
 
-export type AccountLockReason = (typeof ACCOUNT_LOCK_REASONS)[keyof typeof ACCOUNT_LOCK_REASONS];
+// ============================================================
+// ACCOUNT LOCK RECORD
+// ============================================================
 
 /**
- * Account Lock Data
- * Complete account lock information
+ * Account lock record
  */
-export interface AccountLockData {
+export interface AuthAccountLock {
   /** Unique identifier */
   id: ID;
   /** User ID */
   userId: ID;
   /** Lock status */
-  status: AccountLockStatus;
-  /** Lock reason */
-  reason: AccountLockReason;
-  /** Detailed reason message */
-  reasonMessage?: string;
-  /** When account was locked */
+  status: AuthAccountLockStatus;
+  /** Reason for lock */
+  reason: AuthAccountLockReason;
+  /** When the lock was applied */
   lockedAt: Timestamp;
-  /** When account will be unlocked (if temporary) */
-  unlockedAt?: Timestamp;
-  /** Who performed the lock (admin ID or system) */
+  /** When the lock will expire (if temporary) */
+  expiresAt?: Timestamp;
+  /** Who performed the lock (system, admin ID, etc.) */
   lockedBy?: ID | 'system';
-  /** Number of failed attempts */
-  failedAttempts: number;
   /** Additional metadata */
   metadata?: Record<string, unknown>;
-  /** Is account locked */
-  isLocked: boolean;
+  /** Number of failed attempts that led to lock */
+  failedAttempts: number;
+  /** Whether lock is active */
+  isActive: boolean;
+  /** Related login attempt status that triggered the lock */
+  triggerStatus?: AuthLoginAttemptStatus;
 }
 
+// ============================================================
+// ACCOUNT LOCK REQUEST
+// ============================================================
+
 /**
- * Account Lock Request
  * Request to lock an account
  */
-export interface AccountLockRequest {
-  /** User ID */
+export interface AuthAccountLockRequest {
+  /** User ID to lock */
   userId: ID;
-  /** Lock reason */
-  reason: AccountLockReason;
-  /** Detailed reason message */
-  reasonMessage?: string;
-  /** Lock duration in seconds (for temporary lock) */
+  /** Reason for locking */
+  reason: AuthAccountLockReason;
+  /** Duration in seconds (optional, default from config) */
   duration?: number;
-  /** Admin ID (if locked by admin) */
-  lockedBy?: ID;
   /** Additional metadata */
   metadata?: Record<string, unknown>;
+  /** Login attempt status that triggered this lock */
+  triggerStatus?: AuthLoginAttemptStatus;
 }
 
 /**
- * Account Unlock Request
  * Request to unlock an account
  */
-export interface AccountUnlockRequest {
-  /** User ID */
+export interface AuthAccountUnlockRequest {
+  /** User ID to unlock */
   userId: ID;
-  /** Unlock reason */
+  /** Reason for unlocking */
   reason?: string;
-  /** Admin ID (if unlocked by admin) */
+  /** Admin ID who performed the unlock */
   unlockedBy?: ID;
-  /** Reset failed attempts counter */
-  resetAttempts?: boolean;
 }
 
+// ============================================================
+// ACCOUNT LOCK RESPONSE
+// ============================================================
+
 /**
- * Account Lock Result
- * Result of account lock operation
+ * Response for account lock operations
  */
-export interface AccountLockResult {
-  /** Is lock successful */
+export interface AuthAccountLockResponse {
+  /** Whether operation was successful */
   success: boolean;
-  /** Lock data (if successful) */
-  lockData?: AccountLockData;
-  /** User data (if available) */
-  user?: AuthUser;
-  /** Message */
-  message: string;
+  /** Lock record if successful */
+  lock?: AuthAccountLock;
+  /** Error message if failed */
+  error?: string;
   /** Remaining lock time in seconds */
-  remainingTime?: number;
+  remainingSeconds?: number;
+  /** Current status of the account */
+  status?: AuthAccountLockStatus;
+  /** Login attempt status */
+  attemptStatus?: AuthLoginAttemptStatus;
 }
 
-/**
- * Account Unlock Result
- * Result of account unlock operation
- */
-export interface AccountUnlockResult {
-  /** Is unlock successful */
-  success: boolean;
-  /** New lock status */
-  status: AccountLockStatus;
-  /** User data (if available) */
-  user?: AuthUser;
-  /** Message */
-  message: string;
-}
+// ============================================================
+// ACCOUNT LOCK FILTER
+// ============================================================
 
 /**
- * Account Lock Status Check
- * Check account lock status
+ * Filter for querying account locks
  */
-export interface AccountLockStatusCheck {
-  /** User ID */
-  userId: ID;
-  /** Is account locked */
-  isLocked: boolean;
-  /** Lock status */
-  status: AccountLockStatus;
-  /** Lock reason (if locked) */
-  reason?: AccountLockReason;
-  /** When account was locked (if locked) */
-  lockedAt?: Timestamp;
-  /** When account will be unlocked (if temporary) */
-  unlockedAt?: Timestamp;
-  /** Remaining lock time in seconds */
-  remainingTime?: number;
-  /** Failed attempts count */
-  failedAttempts: number;
-  /** Max attempts allowed */
-  maxAttempts: number;
+export interface AuthAccountLockFilter {
+  /** Filter by user ID */
+  userId?: ID;
+  /** Filter by lock status */
+  status?: AuthAccountLockStatus;
+  /** Filter by reason */
+  reason?: AuthAccountLockReason;
+  /** Filter by active locks only */
+  activeOnly?: boolean;
+  /** Filter by date range */
+  dateRange?: {
+    start?: Date;
+    end?: Date;
+  };
+  /** Filter by trigger status */
+  triggerStatus?: AuthLoginAttemptStatus;
 }
 
-/**
- * Account Lock Statistics
- * Account lock statistics
- */
-export interface AccountLockStatistics {
-  /** Total accounts locked */
-  totalLocked: number;
-  /** Temporary locks */
-  temporaryLocks: number;
-  /** Permanent locks */
-  permanentLocks: number;
-  /** Suspicious locks */
-  suspiciousLocks: number;
-  /** Lock by reason */
-  byReason: Record<AccountLockReason, number>;
-  /** Average lock duration in seconds */
-  averageDuration: number;
-  /** Lock rate (per day) */
-  lockRate: number;
-  /** Unlock rate (per day) */
-  unlockRate: number;
-  /** Timestamp of statistics */
-  timestamp: Timestamp;
-}
+// ============================================================
+// ACCOUNT LOCK CONFIG
+// ============================================================
 
 /**
- * Account Lock History
- * History of account locks and unlocks
+ * Account lock configuration
  */
-export interface AccountLockHistory {
-  /** Lock ID */
-  lockId: ID;
-  /** User ID */
-  userId: ID;
-  /** Action performed */
-  action: 'lock' | 'unlock';
-  /** Lock status after action */
-  status: AccountLockStatus;
-  /** Reason for action */
-  reason: string;
-  /** Who performed the action */
-  performedBy: ID | 'system' | 'user';
-  /** When action was performed */
-  performedAt: Timestamp;
-  /** Additional metadata */
-  metadata?: Record<string, unknown>;
-}
-
-/**
- * Account Lock Configuration
- * Configuration for account locking
- */
-export interface AccountLockConfig {
-  /** Maximum failed login attempts */
+export interface AuthAccountLockConfig {
+  /** Maximum failed attempts before lock */
   maxFailedAttempts: number;
-  /** Default lock duration in seconds */
-  defaultLockDuration: number;
-  /** Maximum lock duration in seconds */
-  maxLockDuration: number;
-  /** Time window for failed attempts in seconds */
-  failedAttemptsWindow: number;
-  /** Reset failed attempts after successful login */
-  resetAttemptsOnLogin: boolean;
-  /** Notify user on lock */
+  /** Lockout duration in seconds */
+  lockoutDuration: number;
+  /** Whether to lock on suspicious activity */
+  lockOnSuspicious: boolean;
+  /** Whether to notify user on lock */
   notifyOnLock: boolean;
-  /** Notify user on unlock */
-  notifyOnUnlock: boolean;
-  /** Allow admin override */
+  /** Whether to allow admin override */
   allowAdminOverride: boolean;
 }
 
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+
 /**
- * Account Lock Event
- * Event emitted when account lock state changes
+ * Check if account lock status is active
  */
-export interface AccountLockEvent {
-  /** Event type */
-  type: 'locked' | 'unlocked' | 'attempt_failed';
-  /** User ID */
-  userId: ID;
-  /** Lock status (if locked) */
-  status?: AccountLockStatus;
-  /** Reason (if locked) */
-  reason?: AccountLockReason;
-  /** Timestamp of event */
-  timestamp: Timestamp;
-  /** Additional data */
-  data?: Record<string, unknown>;
+export function isAuthAccountLockActive(status: AuthAccountLockStatus): boolean {
+  return status === 'locked' || status === 'suspended';
+}
+
+/**
+ * Check if account lock is permanent
+ */
+export function isAuthAccountLockPermanent(status: AuthAccountLockStatus): boolean {
+  return status === 'permanently_locked';
+}
+
+/**
+ * Check if account lock can be manually removed
+ */
+export function canAuthAccountLockBeManuallyRemoved(status: AuthAccountLockStatus): boolean {
+  return status === 'locked' || status === 'suspended';
+}
+
+/**
+ * Get human-readable label for lock status
+ */
+export function getAuthAccountLockStatusLabel(status: AuthAccountLockStatus): string {
+  const labels: Record<AuthAccountLockStatus, string> = {
+    locked: 'Locked',
+    unlocked: 'Unlocked',
+    suspended: 'Suspended',
+    permanently_locked: 'Permanently Locked',
+  };
+  return labels[status] || 'Unknown';
+}
+
+/**
+ * Map login attempt status to lock status
+ */
+export function mapAuthLoginAttemptStatusToLockStatus(
+  status: AuthLoginAttemptStatus
+): AuthAccountLockStatus | null {
+  // Use the imported constant values
+  const mapping: Record<string, AuthAccountLockStatus> = {
+    [AUTH_LOGIN_ATTEMPT_STATUS.SUCCESS]: 'unlocked',
+    [AUTH_LOGIN_ATTEMPT_STATUS.FAILED]: 'locked',
+    [AUTH_LOGIN_ATTEMPT_STATUS.BLOCKED]: 'locked',
+    [AUTH_LOGIN_ATTEMPT_STATUS.LOCKED]: 'locked',
+    [AUTH_LOGIN_ATTEMPT_STATUS.MFA_REQUIRED]: 'locked',
+    [AUTH_LOGIN_ATTEMPT_STATUS.CANCELLED]: 'unlocked',
+    [AUTH_LOGIN_ATTEMPT_STATUS.TIMEOUT]: 'locked',
+    [AUTH_LOGIN_ATTEMPT_STATUS.SUSPICIOUS]: 'suspended',
+  };
+  return mapping[status] || null;
+}
+
+/**
+ * Check if login attempt status should trigger lock
+ */
+export function shouldAuthLoginAttemptTriggerLock(status: AuthLoginAttemptStatus): boolean {
+  const triggerStatuses: AuthLoginAttemptStatus[] = [
+    AUTH_LOGIN_ATTEMPT_STATUS.FAILED,
+    AUTH_LOGIN_ATTEMPT_STATUS.BLOCKED,
+    AUTH_LOGIN_ATTEMPT_STATUS.SUSPICIOUS,
+    AUTH_LOGIN_ATTEMPT_STATUS.TIMEOUT,
+  ];
+  return triggerStatuses.includes(status);
 }

@@ -1,330 +1,271 @@
 /**
  * Authentication Biometric Types
- * Biometric authentication data types
+ * Types for biometric authentication (fingerprint, face, etc.)
  */
 
+import type { AuthMfaMethod } from '@vubon/shared-constants';
+import { AUTH_MFA_METHODS } from '@vubon/shared-constants';
 import type { ID, Timestamp } from '../common/core-primitives.types';
-import type { AuthUser } from './auth.types';
+
+// ============================================================
+// BIOMETRIC TYPES
+// ============================================================
 
 /**
- * Biometric Data
- * Complete biometric authentication data
+ * Biometric type
  */
-export interface BiometricData {
+export type AuthBiometricType =
+  'fingerprint' | 'face' | 'iris' | 'voice' | 'hand_geometry' | 'keystroke' | 'gait' | 'signature';
+
+/**
+ * Biometric verification status
+ */
+export type AuthBiometricStatus = 'enrolled' | 'pending' | 'failed' | 'expired' | 'revoked';
+
+/**
+ * Biometric platform
+ */
+export type AuthBiometricPlatform = 'android' | 'ios' | 'windows' | 'macos' | 'linux' | 'web';
+
+// ============================================================
+// BIOMETRIC RECORD
+// ============================================================
+
+/**
+ * Complete biometric record
+ */
+export interface AuthBiometricRecord {
   /** Unique identifier */
   id: ID;
   /** User ID */
   userId: ID;
-  /** Biometric type (fingerprint, face, iris, voice, etc.) */
-  biometricType: BiometricType;
-  /** Biometric status */
-  status: BiometricStatus;
-  /** Biometric credential ID (from device) */
-  credentialId: string;
-  /** Biometric public key (for verification) */
-  publicKey?: string;
-  /** Biometric device ID */
-  deviceId: ID;
-  /** Device name */
-  deviceName: string;
-  /** Biometric registration timestamp */
-  registeredAt: Timestamp;
-  /** Last used timestamp */
-  lastUsedAt?: Timestamp;
-  /** Biometric expiry timestamp */
-  expiresAt?: Timestamp;
-  /** Is biometric active */
-  isActive: boolean;
-  /** Is biometric verified */
-  isVerified: boolean;
-  /** Additional metadata */
-  metadata?: Record<string, unknown>;
-}
-
-/**
- * Biometric Type
- * Types of biometric authentication
- */
-export const BIOMETRIC_TYPES = {
-  /** Fingerprint recognition */
-  FINGERPRINT: 'fingerprint',
-  /** Facial recognition */
-  FACE: 'face',
-  /** Iris recognition */
-  IRIS: 'iris',
-  /** Voice recognition */
-  VOICE: 'voice',
-  /** Palm print recognition */
-  PALM: 'palm',
-  /** Retina recognition */
-  RETINA: 'retina',
-  /** Hand geometry */
-  HAND_GEOMETRY: 'hand_geometry',
-  /** Signature recognition */
-  SIGNATURE: 'signature',
-  /** Gait recognition */
-  GAIT: 'gait',
-  /** Ear recognition */
-  EAR: 'ear',
-} as const;
-
-export type BiometricType = (typeof BIOMETRIC_TYPES)[keyof typeof BIOMETRIC_TYPES];
-
-/**
- * Biometric Status
- * Status of biometric authentication
- */
-export const BIOMETRIC_STATUS = {
-  /** Biometric is active and ready */
-  ACTIVE: 'active',
-  /** Biometric is inactive */
-  INACTIVE: 'inactive',
-  /** Biometric is pending verification */
-  PENDING: 'pending',
-  /** Biometric is verified */
-  VERIFIED: 'verified',
-  /** Biometric is blocked */
-  BLOCKED: 'blocked',
-  /** Biometric has expired */
-  EXPIRED: 'expired',
-  /** Biometric failed verification */
-  FAILED: 'failed',
-} as const;
-
-export type BiometricStatus = (typeof BIOMETRIC_STATUS)[keyof typeof BIOMETRIC_STATUS];
-
-/**
- * Biometric Registration Request
- * Request to register biometric authentication
- */
-export interface BiometricRegistrationRequest {
-  /** User ID */
-  userId: ID;
   /** Biometric type */
-  biometricType: BiometricType;
+  type: AuthBiometricType;
+  /** Platform used for enrollment */
+  platform: AuthBiometricPlatform;
+  /** Device ID that enrolled the biometric */
+  deviceId: ID;
+  /** Biometric status */
+  status: AuthBiometricStatus;
+  /** Whether this is the primary biometric */
+  isPrimary: boolean;
+  /** Biometric template (stored securely) */
+  templateHash: string;
+  /** Biometric metadata */
+  metadata?: {
+    /** Device model */
+    deviceModel?: string;
+    /** Operating system version */
+    osVersion?: string;
+    /** SDK version used */
+    sdkVersion?: string;
+    /** Additional metadata */
+    [key: string]: unknown;
+  };
+  /** When the biometric was enrolled */
+  enrolledAt: Timestamp;
+  /** When the biometric was last used */
+  lastUsedAt?: Timestamp;
+  /** When the biometric expires (if applicable) */
+  expiresAt?: Timestamp;
+}
+
+// ============================================================
+// BIOMETRIC REQUEST
+// ============================================================
+
+/**
+ * Request to enroll biometric
+ */
+export interface AuthBiometricEnrollRequest {
+  /** Biometric type */
+  type: AuthBiometricType;
+  /** Platform used for enrollment */
+  platform: AuthBiometricPlatform;
   /** Device ID */
   deviceId: ID;
-  /** Device name */
-  deviceName: string;
-  /** Biometric credential ID */
-  credentialId: string;
-  /** Biometric public key (optional) */
-  publicKey?: string;
+  /** Whether to make this the primary biometric */
+  isPrimary?: boolean;
+  /** Biometric data (platform-specific) */
+  biometricData: unknown;
   /** Additional metadata */
   metadata?: Record<string, unknown>;
 }
 
 /**
- * Biometric Verification Request
- * Request to verify biometric authentication
+ * Request to verify biometric
  */
-export interface BiometricVerificationRequest {
-  /** User ID */
-  userId: ID;
-  /** Biometric credential ID */
-  credentialId: string;
-  /** Biometric signature or token */
-  biometricSignature: string;
-  /** Device ID (optional) */
-  deviceId?: ID;
-}
-
-/**
- * Biometric Verification Result
- * Result of biometric verification
- */
-export interface BiometricVerificationResult {
-  /** Is verification successful */
-  success: boolean;
-  /** User data (if successful) */
-  user?: AuthUser;
-  /** Biometric data (if successful) */
-  biometricData?: BiometricData;
-  /** Access token (if verification completed) */
-  accessToken?: string;
-  /** Refresh token (if verification completed) */
-  refreshToken?: string;
-  /** Token expiry in seconds */
-  expiresIn?: number;
-  /** Error message (if failed) */
-  error?: string;
-  /** Confidence score (0-100) */
-  confidenceScore?: number;
-}
-
-/**
- * Biometric Delete Request
- * Request to delete biometric authentication
- */
-export interface BiometricDeleteRequest {
-  /** User ID */
-  userId: ID;
-  /** Biometric ID (optional, deletes all if not provided) */
-  biometricId?: ID;
-  /** Device ID (optional) */
-  deviceId?: ID;
-}
-
-/**
- * Biometric Delete Result
- * Result of biometric deletion
- */
-export interface BiometricDeleteResult {
-  /** Is deletion successful */
-  success: boolean;
-  /** Number of biometrics deleted */
-  deletedCount: number;
-  /** Message */
-  message: string;
-}
-
-/**
- * Biometric List
- * List of biometric authentications for a user
- */
-export interface BiometricList {
-  /** User ID */
-  userId: ID;
-  /** List of biometric data */
-  biometrics: BiometricData[];
-  /** Total count */
-  total: number;
-  /** Active count */
-  activeCount: number;
-  /** Verified count */
-  verifiedCount: number;
-}
-
-/**
- * Biometric Statistics
- * Biometric usage statistics
- */
-export interface BiometricStatistics {
-  /** Total biometric registrations */
-  totalRegistrations: number;
-  /** Active biometrics */
-  activeBiometrics: number;
-  /** Verified biometrics */
-  verifiedBiometrics: number;
-  /** Blocked biometrics */
-  blockedBiometrics: number;
-  /** Registrations by type */
-  byType: Record<BiometricType, number>;
-  /** Verification success rate */
-  successRate: number;
-  /** Average verification time in seconds */
-  averageVerificationTime: number;
-  /** Failed verifications */
-  failedVerifications: number;
-  /** Timestamp of statistics */
-  timestamp: Timestamp;
-}
-
-/**
- * Biometric Session
- * Active biometric session data
- */
-export interface BiometricSession {
-  /** Session ID */
-  id: ID;
-  /** User ID */
-  userId: ID;
-  /** Biometric ID */
-  biometricId: ID;
-  /** Session status */
-  status: 'pending' | 'verified' | 'failed' | 'expired';
-  /** Session start timestamp */
-  startedAt: Timestamp;
-  /** Session expiry timestamp */
-  expiresAt: Timestamp;
-  /** Number of attempts */
-  attempts: number;
-  /** Max attempts allowed */
-  maxAttempts: number;
-  /** Device ID */
-  deviceId?: ID;
-}
-
-/**
- * Biometric Challenge
- * Challenge-response for biometric verification
- */
-export interface BiometricChallenge {
-  /** Challenge ID */
-  id: ID;
-  /** Challenge data (random bytes) */
-  challenge: string;
-  /** User ID */
-  userId: ID;
-  /** Biometric ID */
-  biometricId: ID;
-  /** Challenge creation timestamp */
-  createdAt: Timestamp;
-  /** Challenge expiry timestamp */
-  expiresAt: Timestamp;
-  /** Is challenge used */
-  isUsed: boolean;
-}
-
-/**
- * Biometric Device
- * Device with biometric capability
- */
-export interface BiometricDevice {
+export interface AuthBiometricVerifyRequest {
+  /** Biometric type */
+  type: AuthBiometricType;
+  /** Biometric data for verification */
+  biometricData: unknown;
   /** Device ID */
   deviceId: ID;
-  /** Device name */
-  deviceName: string;
-  /** Device type */
-  deviceType: string;
-  /** Supported biometric types */
-  supportedTypes: BiometricType[];
-  /** Is device trusted */
-  isTrusted: boolean;
-  /** Last used timestamp */
-  lastUsedAt?: Timestamp;
-  /** Device metadata */
-  metadata?: Record<string, unknown>;
+  /** Whether to update last used timestamp */
+  updateLastUsed?: boolean;
+}
+
+// ============================================================
+// BIOMETRIC RESPONSE
+// ============================================================
+
+/**
+ * Response for biometric operations
+ */
+export interface AuthBiometricResponse {
+  /** Whether the operation was successful */
+  success: boolean;
+  /** Biometric record (for enrollment) */
+  record?: AuthBiometricRecord;
+  /** Whether verification was successful */
+  verified?: boolean;
+  /** MFA method associated */
+  mfaMethod: AuthMfaMethod;
+  /** Error message if failed */
+  error?: string;
+}
+
+// ============================================================
+// BIOMETRIC FILTER
+// ============================================================
+
+/**
+ * Filter for querying biometric records
+ */
+export interface AuthBiometricFilter {
+  /** Filter by user ID */
+  userId?: ID;
+  /** Filter by biometric type */
+  type?: AuthBiometricType | AuthBiometricType[];
+  /** Filter by platform */
+  platform?: AuthBiometricPlatform | AuthBiometricPlatform[];
+  /** Filter by status */
+  status?: AuthBiometricStatus | AuthBiometricStatus[];
+  /** Filter by primary biometric */
+  primaryOnly?: boolean;
+}
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+
+/**
+ * Check if biometric is valid
+ */
+export function isAuthBiometricValid(status: AuthBiometricStatus): boolean {
+  return status === 'enrolled' || status === 'pending';
 }
 
 /**
- * Biometric Settings
- * User's biometric settings
+ * Check if biometric is active
  */
-export interface BiometricSettings {
-  /** User ID */
-  userId: ID;
-  /** Is biometric enabled */
-  isEnabled: boolean;
-  /** Allowed biometric types */
-  allowedTypes: BiometricType[];
-  /** Default biometric type */
-  defaultType?: BiometricType;
-  /** Max verification attempts */
-  maxAttempts: number;
-  /** Lockout duration in seconds */
-  lockoutDuration: number;
-  /** Session timeout in seconds */
-  sessionTimeout: number;
+export function isAuthBiometricActive(status: AuthBiometricStatus): boolean {
+  return status === 'enrolled';
 }
 
 /**
- * Biometric Configuration Values
- * System-wide biometric configuration
+ * Check if biometric is expired
  */
-export interface BiometricConfig {
-  /** Max biometrics per user */
-  maxBiometricsPerUser: number;
-  /** Max verification attempts */
-  maxVerificationAttempts: number;
-  /** Lockout duration in seconds */
-  lockoutDuration: number;
-  /** Session timeout in seconds */
-  sessionTimeout: number;
-  /** Challenge expiry in seconds */
-  challengeExpiry: number;
-  /** Minimum confidence score */
-  minConfidenceScore: number;
-  /** Enable biometric authentication */
-  isEnabled: boolean;
+export function isAuthBiometricExpired(status: AuthBiometricStatus): boolean {
+  return status === 'expired';
+}
+
+/**
+ * Check if biometric is revoked
+ */
+export function isAuthBiometricRevoked(status: AuthBiometricStatus): boolean {
+  return status === 'revoked';
+}
+
+/**
+ * Get human-readable label for biometric type
+ */
+export function getAuthBiometricTypeLabel(type: AuthBiometricType): string {
+  const labels: Record<AuthBiometricType, string> = {
+    fingerprint: 'Fingerprint',
+    face: 'Face Recognition',
+    iris: 'Iris Scan',
+    voice: 'Voice Recognition',
+    hand_geometry: 'Hand Geometry',
+    keystroke: 'Keystroke Dynamics',
+    gait: 'Gait Analysis',
+    signature: 'Signature Verification',
+  };
+  return labels[type] || 'Unknown Type';
+}
+
+/**
+ * Get human-readable label for biometric status
+ */
+export function getAuthBiometricStatusLabel(status: AuthBiometricStatus): string {
+  const labels: Record<AuthBiometricStatus, string> = {
+    enrolled: 'Enrolled',
+    pending: 'Pending',
+    failed: 'Failed',
+    expired: 'Expired',
+    revoked: 'Revoked',
+  };
+  return labels[status] || 'Unknown Status';
+}
+
+/**
+ * Get MFA method for biometric type
+ */
+export function getAuthBiometricMfaMethod(_type: AuthBiometricType): AuthMfaMethod {
+  // All biometric types use the same MFA method
+  return AUTH_MFA_METHODS.BIOMETRIC;
+}
+
+/**
+ * Check if biometric type is supported
+ */
+export function isAuthBiometricTypeSupported(type: string): type is AuthBiometricType {
+  const supported: AuthBiometricType[] = [
+    'fingerprint',
+    'face',
+    'iris',
+    'voice',
+    'hand_geometry',
+    'keystroke',
+    'gait',
+    'signature',
+  ];
+  return supported.includes(type as AuthBiometricType);
+}
+
+/**
+ * Check if biometric enrollment is complete
+ */
+export function isAuthBiometricEnrollmentComplete(status: AuthBiometricStatus): boolean {
+  return status === 'enrolled' || status === 'failed' || status === 'revoked';
+}
+
+/**
+ * Get biometric security level
+ */
+export function getAuthBiometricSecurityLevel(type: AuthBiometricType): number {
+  const levels: Record<AuthBiometricType, number> = {
+    fingerprint: 8,
+    face: 7,
+    iris: 10,
+    voice: 6,
+    hand_geometry: 7,
+    keystroke: 5,
+    gait: 4,
+    signature: 6,
+  };
+  return levels[type] || 5;
+}
+
+/**
+ * Validate biometric data (placeholder)
+ */
+export function validateAuthBiometricData(
+  _biometricData: unknown,
+  _type: AuthBiometricType
+): boolean {
+  // This is a placeholder - actual validation depends on the biometric system
+  // In production, this would validate the biometric data format
+  return true;
 }

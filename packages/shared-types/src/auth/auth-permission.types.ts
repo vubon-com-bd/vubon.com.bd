@@ -1,291 +1,453 @@
 /**
  * Authentication Permission Types
- * Permission management, access control, and authorization data types
+ * Types for permission management, checking, and assignment
  */
 
-import type { Permission, PermissionCategory } from '@vubon/shared-constants';
-
+import type {
+  AuthPermission,
+  AdminAuthPermission,
+  SuperAdminAuthPermission,
+  AllAuthPermission,
+  AuthPermissionCategory,
+} from '@vubon/shared-constants';
+import {
+  AUTH_PERMISSIONS,
+  ADMIN_AUTH_PERMISSIONS,
+  SUPER_ADMIN_AUTH_PERMISSIONS,
+  ALL_AUTH_PERMISSIONS,
+  AUTH_PERMISSION_CATEGORIES,
+  AUTH_PERMISSION_CATEGORY_MAP,
+} from '@vubon/shared-constants';
 import type { ID, Timestamp } from '../common/core-primitives.types';
-import type { AuthUser } from './auth.types';
 
-// Re-export Permission and PermissionCategory for other files
-export type { Permission, PermissionCategory };
+// ============================================================
+// PERMISSION RECORD
+// ============================================================
 
 /**
- * Permission Data
- * Complete permission information
+ * Permission record
  */
-export interface PermissionData {
-  /** Permission unique identifier */
+export interface AuthPermissionRecord {
+  /** Unique permission ID */
   id: ID;
-  /** Permission name (e.g., 'view:profile') */
-  name: Permission;
-  /** Permission display name */
+  /** Permission name (e.g., 'auth:login') */
+  name: AllAuthPermission;
+  /** Display name */
   displayName: string;
   /** Permission description */
   description?: string;
   /** Permission category */
-  category: PermissionCategory;
-  /** Is permission active */
+  category: AuthPermissionCategory;
+  /** Whether permission is active */
   isActive: boolean;
-  /** Is permission system-defined (cannot be deleted) */
+  /** Whether permission is system-level (cannot be deleted) */
   isSystem: boolean;
-  /** Permission creation timestamp */
+  /** When the permission was created */
   createdAt: Timestamp;
-  /** Permission last update timestamp */
+  /** When the permission was updated */
   updatedAt: Timestamp;
-  /** Additional metadata */
-  metadata?: Record<string, unknown>;
 }
 
+// ============================================================
+// PERMISSION ASSIGNMENT
+// ============================================================
+
 /**
- * Permission Assignment
- * User permission assignment data
+ * User permission assignment
  */
-export interface PermissionAssignment {
-  /** Assignment ID */
+export interface AuthUserPermission {
+  /** Unique assignment ID */
   id: ID;
   /** User ID */
   userId: ID;
   /** Permission name */
-  permission: Permission;
-  /** Assigned by (user/admin ID) */
-  assignedBy: ID;
-  /** Assignment timestamp */
+  permissionName: AllAuthPermission;
+  /** Whether the permission is granted */
+  isGranted: boolean;
+  /** Reason for granting/denying */
+  reason?: string;
+  /** Who assigned the permission */
+  assignedBy?: ID;
+  /** When the permission was assigned */
   assignedAt: Timestamp;
-  /** Assignment expiry timestamp (optional) */
+  /** When the permission expires (if temporary) */
   expiresAt?: Timestamp;
-  /** Is assignment active */
-  isActive: boolean;
-  /** Additional metadata */
-  metadata?: Record<string, unknown>;
 }
 
 /**
- * Permission Assignment Request
+ * Role permission assignment
+ */
+export interface AuthRolePermission {
+  /** Unique assignment ID */
+  id: ID;
+  /** Role ID */
+  roleId: ID;
+  /** Permission name */
+  permissionName: AllAuthPermission;
+  /** Whether the permission is granted */
+  isGranted: boolean;
+  /** When the permission was assigned */
+  assignedAt: Timestamp;
+}
+
+// ============================================================
+// PERMISSION CHECK REQUEST
+// ============================================================
+
+/**
+ * Request to check permissions
+ */
+export interface AuthPermissionCheckRequest {
+  /** User ID or role ID */
+  subjectId: ID;
+  /** Subject type (user or role) */
+  subjectType: 'user' | 'role';
+  /** Permission(s) to check */
+  permissions: AllAuthPermission | AllAuthPermission[];
+  /** Whether to check for ALL permissions (AND) or ANY (OR) */
+  mode?: 'all' | 'any';
+}
+
+/**
+ * Permission check result
+ */
+export interface AuthPermissionCheckResult {
+  /** Whether the check passed */
+  hasPermission: boolean;
+  /** Permissions that were granted */
+  grantedPermissions: AllAuthPermission[];
+  /** Permissions that were denied */
+  deniedPermissions: AllAuthPermission[];
+  /** Mode used for checking */
+  mode: 'all' | 'any';
+}
+
+// ============================================================
+// PERMISSION ASSIGNMENT REQUEST
+// ============================================================
+
+/**
  * Request to assign permissions to a user
  */
-export interface PermissionAssignmentRequest {
+export interface AuthAssignUserPermissionsRequest {
   /** User ID */
   userId: ID;
-  /** Permissions to assign */
-  permissions: Permission[];
-  /** Expiry timestamp (optional) */
+  /** Permission(s) to assign */
+  permissions: AllAuthPermission | AllAuthPermission[];
+  /** Whether to grant (true) or revoke (false) */
+  grant: boolean;
+  /** Reason for assignment */
+  reason?: string;
+  /** Expiry for temporary permissions */
   expiresAt?: Timestamp;
-  /** Metadata */
-  metadata?: Record<string, unknown>;
+  /** Who is performing the assignment */
+  assignedBy?: ID;
 }
 
 /**
- * Permission Revoke Request
- * Request to revoke permissions from a user
+ * Request to assign permissions to a role
  */
-export interface PermissionRevokeRequest {
-  /** User ID */
-  userId: ID;
-  /** Permissions to revoke */
-  permissions: Permission[];
-  /** Revoke all permissions */
-  revokeAll?: boolean;
-  /** Reason for revocation */
-  reason?: string;
+export interface AuthAssignRolePermissionsRequest {
+  /** Role ID */
+  roleId: ID;
+  /** Permission(s) to assign */
+  permissions: AllAuthPermission | AllAuthPermission[];
+  /** Whether to grant (true) or revoke (false) */
+  grant: boolean;
 }
 
-/**
- * Permission Check Result
- * Result of permission check
- */
-export interface PermissionCheckResult {
-  /** Has permission */
-  hasPermission: boolean;
-  /** User ID */
-  userId: ID;
-  /** Permission checked */
-  permission: Permission;
-  /** Reason (if denied) */
-  reason?: string;
-  /** Permission source (direct, role, inherited) */
-  source?: 'direct' | 'role' | 'inherited';
-  /** Timestamp of check */
-  checkedAt: Timestamp;
-}
+// ============================================================
+// PERMISSION RESPONSE
+// ============================================================
 
 /**
- * Permission Group
- * Group of related permissions
+ * Permission operation response
  */
-export interface PermissionGroup {
-  /** Group ID */
-  id: ID;
-  /** Group name */
-  name: string;
-  /** Group description */
-  description?: string;
-  /** Permissions in this group */
-  permissions: Permission[];
-  /** Is group active */
-  isActive: boolean;
-  /** Is group system-defined */
-  isSystem: boolean;
-  /** Creation timestamp */
-  createdAt: Timestamp;
-  /** Last update timestamp */
-  updatedAt: Timestamp;
+export interface AuthPermissionResponse {
+  /** Whether the operation was successful */
+  success: boolean;
+  /** Assigned permissions (if applicable) */
+  assignments?: AuthUserPermission[] | AuthRolePermission[];
+  /** Error message if failed */
+  error?: string;
 }
 
-/**
- * Permission Group Create Request
- * Request to create a permission group
- */
-export interface PermissionGroupCreateRequest {
-  /** Group name */
-  name: string;
-  /** Group description */
-  description?: string;
-  /** Permissions in this group */
-  permissions: Permission[];
-}
+// ============================================================
+// PERMISSION FILTER
+// ============================================================
 
 /**
- * Permission Group Update Request
- * Request to update a permission group
+ * Filter for querying permissions
  */
-export interface PermissionGroupUpdateRequest {
-  /** Group ID */
-  groupId: ID;
-  /** New group name */
-  name?: string;
-  /** New description */
-  description?: string;
-  /** Updated permissions */
-  permissions?: Permission[];
-  /** Is active */
+export interface AuthPermissionFilter {
+  /** Filter by category */
+  category?: AuthPermissionCategory | AuthPermissionCategory[];
+  /** Filter by active status */
   isActive?: boolean;
+  /** Filter by system status */
+  isSystem?: boolean;
+  /** Filter by permission name */
+  names?: AllAuthPermission | AllAuthPermission[];
+  /** Search by display name or description */
+  search?: string;
 }
 
 /**
- * Permission Group List
- * List of permission groups
+ * Filter for querying user permissions
  */
-export interface PermissionGroupList {
-  /** Groups */
-  groups: PermissionGroup[];
-  /** Total count */
-  total: number;
-  /** Active count */
-  activeCount: number;
+export interface AuthUserPermissionFilter {
+  /** Filter by user ID */
+  userId?: ID;
+  /** Filter by permission name */
+  permissionName?: AllAuthPermission | AllAuthPermission[];
+  /** Filter by granted status */
+  isGranted?: boolean;
+  /** Filter by active assignments (not expired) */
+  activeOnly?: boolean;
 }
 
+// ============================================================
+// PERMISSION SUMMARY
+// ============================================================
+
 /**
- * User Permission List
- * List of user's permissions
+ * Permission summary for a user
  */
-export interface UserPermissionList {
+export interface AuthUserPermissionSummary {
   /** User ID */
   userId: ID;
-  /** User data */
-  user?: AuthUser;
-  /** Direct permissions */
-  directPermissions: Permission[];
-  /** Permissions from roles */
-  rolePermissions: Permission[];
-  /** Inherited permissions */
-  inheritedPermissions: Permission[];
-  /** All permissions combined */
-  allPermissions: Permission[];
-  /** Permission groups */
-  groups: PermissionGroup[];
-  /** Last updated */
-  updatedAt: Timestamp;
-}
-
-/**
- * Permission Statistics
- * Permission usage statistics
- */
-export interface PermissionStatistics {
-  /** Total permissions */
+  /** Total permissions assigned */
   totalPermissions: number;
-  /** System permissions */
-  systemPermissions: number;
-  /** Custom permissions */
-  customPermissions: number;
-  /** Permissions by category */
-  byCategory: Record<PermissionCategory, number>;
-  /** Total assignments */
-  totalAssignments: number;
-  /** Active assignments */
-  activeAssignments: number;
-  /** Expired assignments */
-  expiredAssignments: number;
-  /** Most assigned permissions */
-  mostAssigned: Array<{
-    permission: Permission;
-    count: number;
-  }>;
-  /** Timestamp of statistics */
-  timestamp: Timestamp;
-}
-
-/**
- * Permission Audit Log
- * Permission-related audit log entry
- */
-export interface PermissionAuditLog {
-  /** Log ID */
-  id: ID;
-  /** User ID */
-  userId: ID;
-  /** Action performed */
-  action: 'assign' | 'revoke' | 'create' | 'update' | 'delete';
-  /** Permission involved */
-  permission?: Permission;
-  /** User affected */
-  targetUserId?: ID;
-  /** Changes made */
-  changes?: Record<string, unknown>;
-  /** Performed by (user/admin ID) */
-  performedBy: ID;
-  /** Timestamp */
-  performedAt: Timestamp;
-  /** IP address */
-  ipAddress?: string;
-  /** User agent */
-  userAgent?: string;
-}
-
-/**
- * Permission Validation Request
- * Request to validate permissions
- */
-export interface PermissionValidationRequest {
-  /** User ID */
-  userId: ID;
-  /** Required permissions */
-  requiredPermissions: Permission[];
-  /** Require all permissions (AND) */
-  requireAll?: boolean;
-  /** Context data for validation */
-  context?: Record<string, unknown>;
-}
-
-/**
- * Permission Validation Result
- * Result of permission validation
- */
-export interface PermissionValidationResult {
-  /** Is valid */
-  isValid: boolean;
-  /** User ID */
-  userId: ID;
-  /** Required permissions */
-  requiredPermissions: Permission[];
   /** Granted permissions */
-  grantedPermissions: Permission[];
-  /** Missing permissions */
-  missingPermissions: Permission[];
-  /** Reason (if invalid) */
-  reason?: string;
-  /** Timestamp */
-  validatedAt: Timestamp;
+  grantedPermissions: AllAuthPermission[];
+  /** Denied permissions */
+  deniedPermissions: AllAuthPermission[];
+  /** Permissions grouped by category */
+  permissionsByCategory: Record<AuthPermissionCategory, AllAuthPermission[]>;
+  /** Whether user has admin permissions */
+  hasAdminPermissions: boolean;
+  /** Whether user has super admin permissions */
+  hasSuperAdminPermissions: boolean;
+}
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+
+/**
+ * Check if permission is valid
+ */
+export function isValidAuthPermission(permission: string): permission is AllAuthPermission {
+  return Object.values(ALL_AUTH_PERMISSIONS).includes(permission as AllAuthPermission);
+}
+
+/**
+ * Get permission category
+ */
+export function getAuthPermissionCategory(permission: AllAuthPermission): AuthPermissionCategory {
+  return AUTH_PERMISSION_CATEGORY_MAP[permission] || AUTH_PERMISSION_CATEGORIES.AUTH;
+}
+
+/**
+ * Check if permission is admin-level
+ */
+export function isAuthPermissionAdmin(permission: AllAuthPermission): boolean {
+  return permission.startsWith('admin:') || permission.startsWith('super_admin:');
+}
+
+/**
+ * Check if permission is super admin-level
+ */
+export function isAuthPermissionSuperAdmin(permission: AllAuthPermission): boolean {
+  return permission.startsWith('super_admin:');
+}
+
+/**
+ * Get all permissions by category
+ */
+export function getAuthPermissionsByCategory(
+  category: AuthPermissionCategory
+): AllAuthPermission[] {
+  return Object.keys(AUTH_PERMISSION_CATEGORY_MAP)
+    .filter((key) => AUTH_PERMISSION_CATEGORY_MAP[key] === category)
+    .map((key) => key as AllAuthPermission);
+}
+
+/**
+ * Check if user has permission
+ */
+export function hasAuthPermission(
+  userPermissions: AllAuthPermission[],
+  requiredPermission: AllAuthPermission
+): boolean {
+  return userPermissions.includes(requiredPermission);
+}
+
+/**
+ * Check if user has any of the permissions
+ */
+export function hasAnyAuthPermission(
+  userPermissions: AllAuthPermission[],
+  requiredPermissions: AllAuthPermission[]
+): boolean {
+  return requiredPermissions.some((permission) => userPermissions.includes(permission));
+}
+
+/**
+ * Check if user has all permissions
+ */
+export function hasAllAuthPermissions(
+  userPermissions: AllAuthPermission[],
+  requiredPermissions: AllAuthPermission[]
+): boolean {
+  return requiredPermissions.every((permission) => userPermissions.includes(permission));
+}
+
+/**
+ * Get human-readable label for permission
+ */
+export function getAuthPermissionLabel(permission: AllAuthPermission): string {
+  const labels: Partial<Record<AllAuthPermission, string>> = {
+    'auth:login': 'Login',
+    'auth:logout': 'Logout',
+    'auth:refresh-token': 'Refresh Token',
+    'auth:verify-token': 'Verify Token',
+    'auth:revoke-token': 'Revoke Token',
+    'auth:change-password': 'Change Password',
+    'auth:reset-password': 'Reset Password',
+    'auth:forgot-password': 'Forgot Password',
+    'auth:verify-email': 'Verify Email',
+    'auth:verify-phone': 'Verify Phone',
+    'auth:enable-2fa': 'Enable 2FA',
+    'auth:disable-2fa': 'Disable 2FA',
+    'auth:verify-2fa': 'Verify 2FA',
+    'auth:manage-sessions': 'Manage Sessions',
+    'auth:terminate-session': 'Terminate Session',
+    'auth:terminate-all-sessions': 'Terminate All Sessions',
+    'auth:view-profile': 'View Profile',
+    'auth:update-profile': 'Update Profile',
+    'auth:delete-account': 'Delete Account',
+    'auth:manage-settings': 'Manage Settings',
+    'auth:view-audit': 'View Audit Logs',
+    'admin:view-users': 'View Users',
+    'admin:manage-users': 'Manage Users',
+    'admin:manage-roles': 'Manage Roles',
+    'admin:manage-permissions': 'Manage Permissions',
+    'admin:view-sessions': 'View Sessions',
+    'admin:terminate-session': 'Terminate Any Session',
+    'admin:manage-2fa': 'Manage 2FA',
+    'admin:view-audit': 'View All Audit Logs',
+    'admin:manage-auth-settings': 'Manage Auth Settings',
+    'admin:manage-security': 'Manage Security Policies',
+    'admin:manage-api-keys': 'Manage API Keys',
+    'admin:manage-webhooks': 'Manage Webhooks',
+    'admin:manage-rate-limits': 'Manage Rate Limits',
+    'super_admin:manage-auth': 'Manage Authentication System',
+    'super_admin:manage-security': 'Manage Security Configuration',
+    'super_admin:manage-system': 'Manage System Settings',
+    'super_admin:emergency-access': 'Emergency Access',
+    'super_admin:manage-recovery': 'Manage Disaster Recovery',
+  };
+  return labels[permission] || permission;
+}
+
+/**
+ * Get human-readable label for permission category
+ */
+export function getAuthPermissionCategoryLabel(category: AuthPermissionCategory): string {
+  const labels: Record<AuthPermissionCategory, string> = {
+    auth: 'Authentication',
+    token: 'Token Management',
+    password: 'Password Management',
+    verification: 'Verification',
+    session: 'Session Management',
+    profile: 'Profile Management',
+    admin: 'Administration',
+    security: 'Security',
+    system: 'System',
+  };
+  return labels[category] || 'Unknown Category';
+}
+
+/**
+ * Create permission check result
+ */
+export function createAuthPermissionCheckResult(
+  hasPermission: boolean,
+  grantedPermissions: AllAuthPermission[],
+  deniedPermissions: AllAuthPermission[],
+  mode: 'all' | 'any' = 'any'
+): AuthPermissionCheckResult {
+  return {
+    hasPermission,
+    grantedPermissions,
+    deniedPermissions,
+    mode,
+  };
+}
+
+/**
+ * Check if permission is sensitive (requires special handling)
+ */
+export function isAuthPermissionSensitive(permission: AllAuthPermission): boolean {
+  const sensitivePermissions: AllAuthPermission[] = [
+    AUTH_PERMISSIONS.AUTH_DELETE_ACCOUNT,
+    ADMIN_AUTH_PERMISSIONS.ADMIN_MANAGE_USERS,
+    ADMIN_AUTH_PERMISSIONS.ADMIN_MANAGE_ROLES,
+    ADMIN_AUTH_PERMISSIONS.ADMIN_MANAGE_PERMISSIONS,
+    SUPER_ADMIN_AUTH_PERMISSIONS.SUPER_ADMIN_MANAGE_AUTH,
+    SUPER_ADMIN_AUTH_PERMISSIONS.SUPER_ADMIN_MANAGE_SECURITY,
+    SUPER_ADMIN_AUTH_PERMISSIONS.SUPER_ADMIN_MANAGE_SYSTEM,
+  ];
+  return sensitivePermissions.includes(permission);
+}
+
+/**
+ * Get all auth permissions
+ */
+export function getAllAuthPermissions(): AllAuthPermission[] {
+  return Object.values(ALL_AUTH_PERMISSIONS);
+}
+
+/**
+ * Get core auth permissions
+ */
+export function getCoreAuthPermissions(): AuthPermission[] {
+  return Object.values(AUTH_PERMISSIONS);
+}
+
+/**
+ * Get admin auth permissions
+ */
+export function getAdminAuthPermissions(): AdminAuthPermission[] {
+  return Object.values(ADMIN_AUTH_PERMISSIONS);
+}
+
+/**
+ * Get super admin auth permissions
+ */
+export function getSuperAdminAuthPermissions(): SuperAdminAuthPermission[] {
+  return Object.values(SUPER_ADMIN_AUTH_PERMISSIONS);
+}
+
+/**
+ * Validate permission list
+ * Returns invalid permissions
+ */
+export function validateAuthPermissionList(permissions: string[]): {
+  valid: AllAuthPermission[];
+  invalid: string[];
+} {
+  const valid: AllAuthPermission[] = [];
+  const invalid: string[] = [];
+
+  permissions.forEach((permission) => {
+    if (isValidAuthPermission(permission)) {
+      valid.push(permission);
+    } else {
+      invalid.push(permission);
+    }
+  });
+
+  return { valid, invalid };
 }
