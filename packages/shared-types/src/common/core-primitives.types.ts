@@ -85,3 +85,18 @@ export type DeepRequired<T> = {
 export type PickByType<T, U> = {
   [P in keyof T as T[P] extends U ? P : never]: T[P];
 };
+
+/**
+ * Base Entity Interface
+ * Common fields for all database entities
+ */
+export interface BaseEntity {
+  /** Unique identifier */
+  id: ID;
+  /** Creation timestamp */
+  createdAt: Timestamp;
+  /** Last update timestamp */
+  updatedAt: Timestamp;
+  /** Soft delete timestamp (null if not deleted) */
+  deletedAt: Nullable<Timestamp>;
+}
