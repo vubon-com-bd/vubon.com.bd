@@ -11,3 +11,6 @@ export * from './auth';
 
 // user schemas
 export * from './user';
+
+// admin schemas
+export * from './admin';
