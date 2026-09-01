@@ -303,6 +303,8 @@ export {
 
 // User Preferences Constants (from user-preferences.constants.ts)
 export {
+  USER_PREFERENCE_STATUS,
+  USER_PREFERENCE_STATUS_LABELS,
   USER_PREFERENCE_CATEGORY,
   USER_COMMUNICATION_PREFERENCE,
   USER_CONTENT_PREFERENCE,
@@ -354,6 +356,8 @@ export {
 
 // User Address Constants (from user-address.constants.ts)
 export {
+  USER_ADDRESS_STATUS,
+  USER_ADDRESS_STATUS_LABELS,
   USER_ADDRESS_TYPE,
   USER_ADDRESS_VERIFICATION_STATUS,
   USER_ADDRESS_LABEL,
@@ -383,6 +387,8 @@ export {
 
 // User Contact Constants (from user-contact.constants.ts)
 export {
+  USER_CONTACT_STATUS,
+  USER_CONTACT_STATUS_LABELS,
   USER_CONTACT_TYPE,
   USER_CONTACT_VERIFICATION_STATUS,
   USER_CONTACT_LABEL,
@@ -424,6 +430,8 @@ export {
 
 // User Verification Constants (from user-verification.constants.ts)
 export {
+  USER_VERIFICATION_STATUS,
+  USER_VERIFICATION_STATUS_LABELS,
   USER_VERIFICATION_TYPE,
   USER_VERIFICATION_METHOD,
   USER_VERIFICATION_LEVEL,

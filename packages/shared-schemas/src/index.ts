@@ -8,3 +8,6 @@ export * from './common';
 
 // Auth schemas
 export * from './auth';
+
+// user schemas
+export * from './user';
