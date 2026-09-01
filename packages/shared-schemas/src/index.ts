@@ -1,16 +1,5 @@
 /**
- * Shared Schemas Index
- * Export all schema definitions
+ * Shared Schemas
+ * বাংলাদেশের কনটেক্সট অনুযায়ী সব Zod স্কিমা
  */
-
-// Common schemas
 export * from './common';
-
-// Auth schemas
-export * from './auth';
-
-// user schemas
-export * from './user';
-
-// admin schemas
-export * from './admin';

@@ -1,19 +1,9 @@
 /**
- * Common Schemas Index
- * Export all common schema definitions
+ * Common exports
+ * সকল কমন স্কিমা এক্সপোর্ট
  */
-
-// Filter schemas
-export * from './filter.schema';
-
-// Status schemas
-export * from './status.schema';
-
-// Error schemas
-export * from './error.schema';
-
-// Pagination schemas
+export * from './base.schema';
 export * from './pagination.schema';
-
-// core-primitives schemas
-export * from './core-primitives.schema';
+export * from './auth.schema';
+export * from './user.schema';
+export * from './address.schema';
