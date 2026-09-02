@@ -1,0 +1,322 @@
+/**
+ * Auth Provider Constants
+ * প্রমাণীকরণ প্রোভাইডার সম্পর্কিত কনস্ট্যান্টস
+ */
+
+import { AUTH } from './auth.constants';
+
+export const AUTH_PROVIDER = {
+  ...AUTH.PROVIDERS,
+
+  // Additional Bangladesh-specific providers
+  BKASH: 'bkash',
+  NAGAD: 'nagad',
+  ROCKET: 'rocket',
+  DBBL: 'dbbl',
+  CITY_BANK: 'city_bank',
+  BRAC_BANK: 'brac_bank',
+  ETC: 'etc',
+  // Government services
+  EKYC: 'ekyc',
+  NID_VERIFY: 'nid_verify',
+  BIRTH_REG_VERIFY: 'birth_reg_verify',
+  PASSPORT: 'passport',
+  DRIVING_LICENSE: 'driving_license',
+} as const;
+
+export type AuthProviderType = (typeof AUTH_PROVIDER)[keyof typeof AUTH_PROVIDER];
+
+// Provider configuration
+export const AUTH_PROVIDER_CONFIG: Record<
+  AuthProviderType,
+  {
+    name: string;
+    nameBangla: string;
+    type: 'email' | 'phone' | 'social' | 'sso' | 'oauth' | 'government';
+    enabled: boolean;
+    requiresVerification: boolean;
+    verificationMethod: 'email' | 'phone' | 'both' | 'none';
+  }
+> = {
+  email: {
+    name: 'Email',
+    nameBangla: 'ইমেইল',
+    type: 'email',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'email',
+  },
+  phone: {
+    name: 'Phone',
+    nameBangla: 'ফোন',
+    type: 'phone',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'phone',
+  },
+  google: {
+    name: 'Google',
+    nameBangla: 'গুগল',
+    type: 'social',
+    enabled: true,
+    requiresVerification: false,
+    verificationMethod: 'none',
+  },
+  facebook: {
+    name: 'Facebook',
+    nameBangla: 'ফেসবুক',
+    type: 'social',
+    enabled: true,
+    requiresVerification: false,
+    verificationMethod: 'none',
+  },
+  github: {
+    name: 'GitHub',
+    nameBangla: 'গিটহাব',
+    type: 'social',
+    enabled: true,
+    requiresVerification: false,
+    verificationMethod: 'none',
+  },
+  linkedin: {
+    name: 'LinkedIn',
+    nameBangla: 'লিংকডইন',
+    type: 'social',
+    enabled: true,
+    requiresVerification: false,
+    verificationMethod: 'none',
+  },
+  twitter: {
+    name: 'Twitter',
+    nameBangla: 'টুইটার',
+    type: 'social',
+    enabled: true,
+    requiresVerification: false,
+    verificationMethod: 'none',
+  },
+  microsoft: {
+    name: 'Microsoft',
+    nameBangla: 'মাইক্রোসফট',
+    type: 'social',
+    enabled: true,
+    requiresVerification: false,
+    verificationMethod: 'none',
+  },
+  apple: {
+    name: 'Apple',
+    nameBangla: 'অ্যাপল',
+    type: 'social',
+    enabled: true,
+    requiresVerification: false,
+    verificationMethod: 'none',
+  },
+  bangladesh_gov: {
+    name: 'Bangladesh Government',
+    nameBangla: 'বাংলাদেশ সরকার',
+    type: 'government',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'both',
+  },
+  nid: {
+    name: 'NID',
+    nameBangla: 'জাতীয় পরিচয়পত্র',
+    type: 'government',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'both',
+  },
+  birth_reg: {
+    name: 'Birth Registration',
+    nameBangla: 'জন্ম নিবন্ধন',
+    type: 'government',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'both',
+  },
+  mobile: {
+    name: 'Mobile',
+    nameBangla: 'মোবাইল',
+    type: 'phone',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'phone',
+  },
+  bank: {
+    name: 'Bank',
+    nameBangla: 'ব্যাংক',
+    type: 'phone',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'phone',
+  },
+  bkash: {
+    name: 'bKash',
+    nameBangla: 'বিকাশ',
+    type: 'phone',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'phone',
+  },
+  nagad: {
+    name: 'Nagad',
+    nameBangla: 'নগদ',
+    type: 'phone',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'phone',
+  },
+  rocket: {
+    name: 'Rocket',
+    nameBangla: 'রকেট',
+    type: 'phone',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'phone',
+  },
+  dbbl: {
+    name: 'DBBL',
+    nameBangla: 'ডিবিবিএল',
+    type: 'phone',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'phone',
+  },
+  city_bank: {
+    name: 'City Bank',
+    nameBangla: 'সিটি ব্যাংক',
+    type: 'phone',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'phone',
+  },
+  brac_bank: {
+    name: 'BRAC Bank',
+    nameBangla: 'ব্র্যাক ব্যাংক',
+    type: 'phone',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'phone',
+  },
+  etc: {
+    name: 'ETC',
+    nameBangla: 'ইটিসি',
+    type: 'phone',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'phone',
+  },
+  ekyc: {
+    name: 'eKYC',
+    nameBangla: 'ই-কেওয়াইসি',
+    type: 'government',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'both',
+  },
+  nid_verify: {
+    name: 'NID Verify',
+    nameBangla: 'এনআইডি ভেরিফাই',
+    type: 'government',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'both',
+  },
+  birth_reg_verify: {
+    name: 'Birth Registration Verify',
+    nameBangla: 'জন্ম নিবন্ধন ভেরিফাই',
+    type: 'government',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'both',
+  },
+  passport: {
+    name: 'Passport',
+    nameBangla: 'পাসপোর্ট',
+    type: 'government',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'both',
+  },
+  driving_license: {
+    name: 'Driving License',
+    nameBangla: 'ড্রাইভিং লাইসেন্স',
+    type: 'government',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'both',
+  },
+  // ROLES থেকে আসা প্রোভাইডারগুলো - AUTH.PROVIDERS এর অংশ হিসেবে ইতিমধ্যে আছে
+  super_admin: {
+    name: 'Super Admin',
+    nameBangla: 'সুপার অ্যাডমিন',
+    type: 'email',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'email',
+  },
+  admin: {
+    name: 'Admin',
+    nameBangla: 'অ্যাডমিন',
+    type: 'email',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'email',
+  },
+  moderator: {
+    name: 'Moderator',
+    nameBangla: 'মডারেটর',
+    type: 'email',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'email',
+  },
+  user: {
+    name: 'User',
+    nameBangla: 'ইউজার',
+    type: 'email',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'email',
+  },
+  vendor: {
+    name: 'Vendor',
+    nameBangla: 'ভেন্ডর',
+    type: 'email',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'email',
+  },
+  guest: {
+    name: 'Guest',
+    nameBangla: 'গেস্ট',
+    type: 'email',
+    enabled: true,
+    requiresVerification: false,
+    verificationMethod: 'none',
+  },
+  manager: {
+    name: 'Manager',
+    nameBangla: 'ম্যানেজার',
+    type: 'email',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'email',
+  },
+  support: {
+    name: 'Support',
+    nameBangla: 'সাপোর্ট',
+    type: 'email',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'email',
+  },
+  delivery_agent: {
+    name: 'Delivery Agent',
+    nameBangla: 'ডেলিভারি এজেন্ট',
+    type: 'phone',
+    enabled: true,
+    requiresVerification: true,
+    verificationMethod: 'phone',
+  },
+};
