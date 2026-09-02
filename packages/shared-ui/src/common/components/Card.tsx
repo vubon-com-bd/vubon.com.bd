@@ -37,7 +37,7 @@ export const Card: React.FC<CardProps> = ({
     ${shadowStyles[shadow]}
     ${hoverStyles}
     ${className}
-  `;
+  `.trim();
 
   return <div className={combinedClassName}>{children}</div>;
 };

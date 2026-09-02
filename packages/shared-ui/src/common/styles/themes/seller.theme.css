@@ -1,0 +1,17 @@
+/* Seller Theme */
+[data-theme="seller"] {
+  --primary: 160 84% 39%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 160 30% 96%;
+  --secondary-foreground: 160 84% 10%;
+  --background: 160 30% 96%;
+  --foreground: 160 84% 10%;
+  --muted: 160 20% 90%;
+  --muted-foreground: 160 30% 30%;
+  --accent: 160 84% 39%;
+  --accent-foreground: 0 0% 100%;
+  --card: 0 0% 100%;
+  --card-foreground: 160 84% 10%;
+  --border: 160 20% 85%;
+  --radius: 0.5rem;
+}

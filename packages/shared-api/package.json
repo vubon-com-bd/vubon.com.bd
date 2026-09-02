@@ -35,10 +35,11 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@vubon/shared-config": "workspace:*",
     "@vubon/shared-constants": "workspace:*",
-    "@vubon/shared-types": "workspace:*",
     "@vubon/shared-schemas": "workspace:*",
+    "@vubon/shared-types": "workspace:*",
     "@vubon/shared-utils": "workspace:*",
-    "@vubon/shared-config": "workspace:*"
+    "zod": "4.5.4"
   }
 }

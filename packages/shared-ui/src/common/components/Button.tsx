@@ -53,7 +53,7 @@ export const Button: React.FC<ButtonProps> = ({
     ${fullWidthStyles}
     ${disabledStyles}
     ${className}
-  `;
+  `.trim();
 
   return (
     <button

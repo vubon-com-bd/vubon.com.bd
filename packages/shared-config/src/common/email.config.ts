@@ -5,6 +5,7 @@
 export type EmailProvider = 'sendgrid' | 'mailgun' | 'aws' | 'smtp';
 
 export interface EmailConfig {
+  enabled: boolean;
   provider: EmailProvider;
   apiKey: string;
   apiSecret: string;
@@ -16,9 +17,11 @@ export interface EmailConfig {
   retryDelay: number;
   rateLimit: number;
   testMode: boolean;
+  sandbox: boolean;
 }
 
-export const emailConfig = (): EmailConfig => ({
+export const createEmailConfig = (): EmailConfig => ({
+  enabled: true,
   provider: (process.env.EMAIL_PROVIDER as EmailProvider) || 'sendgrid',
   apiKey: process.env.EMAIL_API_KEY || '',
   apiSecret: process.env.EMAIL_API_SECRET || '',
@@ -30,4 +33,5 @@ export const emailConfig = (): EmailConfig => ({
   retryDelay: parseInt(process.env.EMAIL_RETRY_DELAY || '5000'),
   rateLimit: parseInt(process.env.EMAIL_RATE_LIMIT || '1000'),
   testMode: process.env.EMAIL_TEST_MODE === 'true',
+  sandbox: process.env.EMAIL_SANDBOX === 'true',
 });

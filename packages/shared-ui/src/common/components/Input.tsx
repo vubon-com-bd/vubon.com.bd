@@ -26,7 +26,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       ${widthStyles}
       ${paddingStyles}
       ${className}
-    `;
+    `.trim();
 
     return (
       <div className={fullWidth ? 'w-full' : ''}>

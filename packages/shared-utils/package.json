@@ -36,7 +36,8 @@
   },
   "dependencies": {
     "@vubon/shared-constants": "workspace:*",
+    "@vubon/shared-schemas": "workspace:*",
     "@vubon/shared-types": "workspace:*",
-    "@vubon/shared-schemas": "workspace:*"
+    "zod": "4.5.4"
   }
 }

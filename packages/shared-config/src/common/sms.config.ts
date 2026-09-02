@@ -5,6 +5,7 @@
 export type SMSProvider = 'banglasms' | 'sendsms' | 'twilio' | 'mim';
 
 export interface SMSConfig {
+  enabled: boolean;
   provider: SMSProvider;
   apiKey: string;
   apiSecret: string;
@@ -15,9 +16,11 @@ export interface SMSConfig {
   retryDelay: number;
   rateLimit: number;
   testMode: boolean;
+  maxLength: number;
 }
 
-export const smsConfig = (): SMSConfig => ({
+export const createSMSConfig = (): SMSConfig => ({
+  enabled: true,
   provider: (process.env.SMS_PROVIDER as SMSProvider) || 'banglasms',
   apiKey: process.env.SMS_API_KEY || '',
   apiSecret: process.env.SMS_API_SECRET || '',
@@ -28,4 +31,5 @@ export const smsConfig = (): SMSConfig => ({
   retryDelay: parseInt(process.env.SMS_RETRY_DELAY || '5000'),
   rateLimit: parseInt(process.env.SMS_RATE_LIMIT || '100'),
   testMode: process.env.SMS_TEST_MODE === 'true',
+  maxLength: 160,
 });

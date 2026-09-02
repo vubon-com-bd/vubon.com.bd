@@ -135,6 +135,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@vubon/shared-constants": "workspace:*"
+    "@vubon/shared-constants": "workspace:*",
+    "zod": "4.5.4"
   }
 }

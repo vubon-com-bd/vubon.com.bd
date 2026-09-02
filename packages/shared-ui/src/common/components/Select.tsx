@@ -30,7 +30,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
       ${disabledStyles}
       ${widthStyles}
       ${className}
-    `;
+    `.trim();
 
     return (
       <div className={fullWidth ? 'w-full' : ''}>

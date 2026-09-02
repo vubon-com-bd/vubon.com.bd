@@ -2,7 +2,7 @@
  * Common exports
  * সকল কমন ইউটিলিটি এক্সপোর্ট
  */
-export * from './formatters';
-export * from './validators';
-export * from './generators';
-export * from './calculators';
+export * from './formatter';
+export * from './calculator';
+export * from './validator';
+export * from './generator';

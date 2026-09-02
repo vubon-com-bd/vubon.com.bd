@@ -1,0 +1,17 @@
+/* Customer Theme */
+[data-theme="customer"] {
+  --primary: 217 91% 60%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 217 30% 96%;
+  --secondary-foreground: 217 91% 20%;
+  --background: 217 30% 96%;
+  --foreground: 217 91% 20%;
+  --muted: 217 20% 90%;
+  --muted-foreground: 217 30% 30%;
+  --accent: 217 91% 60%;
+  --accent-foreground: 0 0% 100%;
+  --card: 0 0% 100%;
+  --card-foreground: 217 91% 20%;
+  --border: 217 20% 85%;
+  --radius: 0.5rem;
+}
