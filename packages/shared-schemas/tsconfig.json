@@ -1,8 +1,6 @@
 {
-  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -14,33 +12,16 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "skipLibCheck": true,
+    "lib": ["ES2020"],
     "types": ["node"],
     "baseUrl": ".",
     "paths": {
-      "@vubon/shared-schemas": ["./src/index.ts"],
-      "@vubon/shared-schemas/common": ["./src/common/index.ts"],
-      "@vubon/shared-schemas/admin": ["./src/admin/index.ts"],
-      "@vubon/shared-schemas/auth": ["./src/auth/index.ts"],
-      "@vubon/shared-schemas/user": ["./src/user/index.ts"],
-      "@vubon/shared-schemas/ai": ["./src/ai/index.ts"],
-      "@vubon/shared-schemas/seo": ["./src/seo/index.ts"],
-      "@vubon/shared-schemas/analytics": ["./src/analytics/index.ts"],
-      "@vubon/shared-schemas/reporting": ["./src/reporting/index.ts"],
-      "@vubon/shared-schemas/flash-sales": ["./src/flash-sales/index.ts"],
-      "@vubon/shared-schemas/content": ["./src/content/index.ts"],
-      "@vubon/shared-schemas/marketing": ["./src/marketing/index.ts"],
-      "@vubon/shared-schemas/notification": ["./src/notification/index.ts"],
-      "@vubon/shared-schemas/support": ["./src/support/index.ts"],
-      "@vubon/shared-schemas/logistics": ["./src/logistics/index.ts"],
-      "@vubon/shared-schemas/vendor": ["./src/vendor/index.ts"],
-      "@vubon/shared-schemas/search": ["./src/search/index.ts"],
-      "@vubon/shared-schemas/discovery": ["./src/discovery/index.ts"],
-      "@vubon/shared-schemas/checkout": ["./src/checkout/index.ts"],
-      "@vubon/shared-schemas/payment": ["./src/payment/index.ts"],
-      "@vubon/shared-schemas/cart": ["./src/cart/index.ts"],
-      "@vubon/shared-schemas/product-catalog": ["./src/product-catalog/index.ts"]
+      "@vubon/shared-constants": ["../shared-constants/src/index.ts"],
+      "@vubon/shared-constants/*": ["../shared-constants/src/*"],
+      "@vubon/shared-types": ["../shared-types/src/index.ts"],
+      "@vubon/shared-types/*": ["../shared-types/src/*"]
     }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*", "../shared-constants/src/**/*", "../shared-types/src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }

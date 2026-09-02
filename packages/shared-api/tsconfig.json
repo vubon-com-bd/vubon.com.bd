@@ -12,7 +12,7 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "skipLibCheck": true,
-    "lib": ["ES2020"],
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "types": ["node"],
     "baseUrl": ".",
     "paths": {
@@ -21,9 +21,13 @@
       "@vubon/shared-types": ["../shared-types/src/index.ts"],
       "@vubon/shared-types/*": ["../shared-types/src/*"],
       "@vubon/shared-schemas": ["../shared-schemas/src/index.ts"],
-      "@vubon/shared-schemas/*": ["../shared-schemas/src/*"]
+      "@vubon/shared-schemas/*": ["../shared-schemas/src/*"],
+      "@vubon/shared-utils": ["../shared-utils/src/index.ts"],
+      "@vubon/shared-utils/*": ["../shared-utils/src/*"],
+      "@vubon/shared-config": ["../shared-config/src/index.ts"],
+      "@vubon/shared-config/*": ["../shared-config/src/*"]
     }
   },
-  "include": ["src/**/*", "../shared-constants/src/**/*", "../shared-types/src/**/*", "../shared-schemas/src/**/*"],
+  "include": ["src/**/*", "../shared-constants/src/**/*", "../shared-types/src/**/*", "../shared-schemas/src/**/*", "../shared-utils/src/**/*", "../shared-config/src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }

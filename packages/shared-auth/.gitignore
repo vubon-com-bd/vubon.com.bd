@@ -1,0 +1,89 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+coverage/
+.nyc_output/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp
+
+# Package manager locks
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# Runtime data
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# TypeScript
+*.tsbuildinfo
+
+# Miscellaneous
+*.cache
+.eslintcache
+.prettiercache
+
+# Temporary folders
+.temp
+.tmp
+
+# Backup files
+*.bak
+*.backup
+
+# Secret files
+*.pem
+*.key
+*.crt
+.env
+.env.*
+!.env.example
+
+# Other
+.DS_Store
+node_modules
+dist
+dist-ssr
+*.local
