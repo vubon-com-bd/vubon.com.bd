@@ -1,0 +1,70 @@
+/**
+ * User Role Constants
+ * ইউজার রোল সম্পর্কিত কনস্ট্যান্টস
+ */
+
+export const USER_ROLES = {
+  SUPER_ADMIN: 'super_admin',
+  ADMIN: 'admin',
+  MANAGER: 'manager',
+  PROJECT_MANAGER: 'project_manager',
+  TEAM_LEAD: 'team_lead',
+  MODERATOR: 'moderator',
+  REVIEWER: 'reviewer',
+  EDITOR: 'editor',
+  AUTHOR: 'author',
+  ANALYST: 'analyst',
+  ACCOUNTANT: 'accountant',
+  CONTRIBUTOR: 'contributor',
+  HR: 'hr',
+  SUPPORT: 'support',
+  DELIVERY_AGENT: 'delivery_agent',
+  VENDOR: 'vendor',
+  USER: 'user',
+  SUBSCRIBER: 'subscriber',
+  GUEST: 'guest',
+} as const;
+
+export const USER_ROLE_HIERARCHY = {
+  super_admin: 100,
+  admin: 90,
+  manager: 80,
+  project_manager: 75,
+  team_lead: 70,
+  moderator: 60,
+  reviewer: 55,
+  editor: 50,
+  author: 45,
+  analyst: 40,
+  accountant: 40,
+  contributor: 35,
+  hr: 35,
+  support: 30,
+  delivery_agent: 25,
+  vendor: 20,
+  user: 15,
+  subscriber: 10,
+  guest: 0,
+} as const;
+
+export const USER_ROLE_PERMISSIONS = {
+  super_admin: ['*'],
+  admin: ['user.*', 'role.*', 'permission.*', 'settings.*'],
+  manager: ['user.read', 'user.update', 'report.*'],
+  project_manager: ['project.*', 'task.*', 'team.*'],
+  team_lead: ['team.read', 'team.update', 'task.*'],
+  moderator: ['content.*', 'user.read', 'report.read'],
+  reviewer: ['content.review', 'content.approve'],
+  editor: ['content.*', 'media.*'],
+  author: ['content.create', 'content.update'],
+  analyst: ['analytics.*', 'report.*'],
+  accountant: ['finance.*', 'report.*'],
+  contributor: ['content.create'],
+  hr: ['user.*', 'attendance.*'],
+  support: ['ticket.*', 'user.read'],
+  delivery_agent: ['order.read', 'order.update'],
+  vendor: ['product.*', 'order.*', 'inventory.*'],
+  user: ['profile.*', 'order.create', 'order.read'],
+  subscriber: ['content.read', 'profile.*'],
+  guest: ['content.read'],
+} as const;
