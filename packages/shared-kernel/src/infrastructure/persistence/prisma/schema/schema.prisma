@@ -1,0 +1,192 @@
+// This is a sample Prisma schema for the application
+// You can extend this based on your actual domain models
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  phone         String?  @unique
+  name          String?
+  password      String
+  role          String   @default("user")
+  status        String   @default("pending")
+  isVerified    Boolean  @default(false)
+  isLocked      Boolean  @default(false)
+  lastLoginAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
+
+  profile       UserProfile?
+  addresses     Address[]
+  orders        Order[]
+  sessions      Session[]
+  devices       Device[]
+
+  @@map("users")
+}
+
+model UserProfile {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  firstName         String?
+  lastName          String?
+  dateOfBirth       DateTime?
+  gender            String?
+  nid               String?
+  birthRegistration String?
+  occupation        String?
+  company           String?
+  avatar            String?
+  bio               String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model Address {
+  id           String   @id @default(cuid())
+  userId       String
+  street       String
+  city         String
+  state        String
+  country      String
+  zipCode      String
+  division     String?
+  district     String?
+  upazila      String?
+  union        String?
+  landmark     String?
+  latitude     Float?
+  longitude    Float?
+  isDefault    Boolean  @default(false)
+  addressType  String   @default("both")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("addresses")
+}
+
+model Order {
+  id            String   @id @default(cuid())
+  userId        String
+  orderNumber   String   @unique
+  totalAmount   Float
+  currency      String   @default("BDT")
+  status        String   @default("pending")
+  paymentStatus String   @default("pending")
+  paymentMethod String?
+  transactionId String?
+  shippingAddress Json?
+  trackingNumber String?
+  deliveredAt    DateTime?
+  cancelledAt    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items         OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  productId  String
+  productName String
+  quantity   Int
+  unitPrice  Float
+  totalPrice Float
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_items")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  token        String   @unique
+  refreshToken String   @unique
+  expiresAt    DateTime
+  refreshExpiresAt DateTime
+  lastActivity DateTime @default(now())
+  ipAddress    String?
+  userAgent    String?
+  deviceId     String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  device       Device?  @relation(fields: [deviceId], references: [id])
+
+  @@map("sessions")
+}
+
+model Device {
+  id           String   @id @default(cuid())
+  userId       String
+  deviceType   String
+  deviceName   String?
+  platform     String?
+  browser      String?
+  ipAddress    String?
+  lastUsed     DateTime @default(now())
+  isTrusted    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions     Session[]
+
+  @@map("devices")
+}
+
+model Verification {
+  id           String   @id @default(cuid())
+  userId       String
+  type         String   @default("email")
+  code         String
+  expiresAt    DateTime
+  verifiedAt   DateTime?
+  attempts     Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("verifications")
+}
+
+model TwoFA {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  secret       String
+  enabled      Boolean  @default(false)
+  backupCodes  String[]
+  recoveryCodes String[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("two_fa")
+}

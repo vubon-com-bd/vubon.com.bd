@@ -37,9 +37,7 @@ export const AuthRequireVerified: React.FC<AuthRequireVerifiedProps> = ({
   return (
     <div className="verification-required">
       <h3>Email Verification Required</h3>
-      <p>
-        {verificationStatus.unverifiedReason || 'Please verify your email to continue.'}
-      </p>
+      <p>{verificationStatus.unverifiedReason || 'Please verify your email to continue.'}</p>
     </div>
   );
 };
