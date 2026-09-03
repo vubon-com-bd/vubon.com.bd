@@ -50,6 +50,16 @@
       "import": "./dist/interfaces/*/index.js",
       "require": "./dist/interfaces/*/index.js",
       "types": "./dist/interfaces/*/index.d.ts"
+    },
+    "./modules": {
+      "import": "./dist/modules/index.js",
+      "require": "./dist/modules/index.js",
+      "types": "./dist/modules/index.d.ts"
+    },
+    "./modules/*": {
+      "import": "./dist/modules/*/index.js",
+      "require": "./dist/modules/*/index.js",
+      "types": "./dist/modules/*/index.d.ts"
     }
   },
   "scripts": {
@@ -87,6 +97,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@nestjs/cqrs": "^10.2.8",
     "@nestjs/swagger": "12.0.1",
     "@vubon/shared-constants": "workspace:*",
     "@vubon/shared-schemas": "workspace:*",
