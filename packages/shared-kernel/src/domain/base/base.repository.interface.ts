@@ -14,8 +14,9 @@ export interface IRepository<T extends Entity<unknown>> {
 }
 
 export interface IRepositoryWithSoftDelete<T extends Entity<unknown>> extends IRepository<T> {
-  findDeleted(): Promise<T[]>;
+  softDelete(id: string): Promise<void>;
   restore(id: string): Promise<void>;
+  findDeleted(): Promise<T[]>;
   permanentlyDelete(id: string): Promise<void>;
 }
 
@@ -28,7 +29,7 @@ export interface IRepositoryWithPagination<T extends Entity<unknown>> {
   ): Promise<{ items: T[]; total: number }>;
 }
 
-export interface IRepositoryWithSearch<T extends Entity<unknown>> {
+export interface IRepositoryWithSearch<T extends Entity<unknown>> extends IRepository<T> {
   search(query: string): Promise<T[]>;
   searchPaginated(
     query: string,

@@ -1,6 +1,7 @@
 {
   "name": "@vubon/shared-kernel",
   "version": "1.0.0",
+  "description": "Shared kernel with DDD building blocks for Bangladesh context",
   "private": true,
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -44,6 +45,41 @@
       "import": "./dist/domain/event-store/index.js",
       "require": "./dist/domain/event-store/index.js",
       "types": "./dist/domain/event-store/index.d.ts"
+    },
+    "./application": {
+      "import": "./dist/application/index.js",
+      "require": "./dist/application/index.js",
+      "types": "./dist/application/index.d.ts"
+    },
+    "./application/dtos": {
+      "import": "./dist/application/dtos/index.js",
+      "require": "./dist/application/dtos/index.js",
+      "types": "./dist/application/dtos/index.d.ts"
+    },
+    "./application/services": {
+      "import": "./dist/application/services/index.js",
+      "require": "./dist/application/services/index.js",
+      "types": "./dist/application/services/index.d.ts"
+    },
+    "./application/commands": {
+      "import": "./dist/application/commands/index.js",
+      "require": "./dist/application/commands/index.js",
+      "types": "./dist/application/commands/index.d.ts"
+    },
+    "./application/queries": {
+      "import": "./dist/application/queries/index.js",
+      "require": "./dist/application/queries/index.js",
+      "types": "./dist/application/queries/index.d.ts"
+    },
+    "./application/sagas": {
+      "import": "./dist/application/sagas/index.js",
+      "require": "./dist/application/sagas/index.js",
+      "types": "./dist/application/sagas/index.d.ts"
+    },
+    "./application/errors": {
+      "import": "./dist/application/errors/index.js",
+      "require": "./dist/application/errors/index.js",
+      "types": "./dist/application/errors/index.d.ts"
     }
   },
   "scripts": {
@@ -62,6 +98,8 @@
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.0.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.6",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^9.0.0",
@@ -72,8 +110,10 @@
   },
   "dependencies": {
     "@vubon/shared-constants": "workspace:*",
-    "@vubon/shared-types": "workspace:*",
     "@vubon/shared-schemas": "workspace:*",
-    "bcryptjs": "^2.4.3"
+    "@vubon/shared-types": "workspace:*",
+    "bcryptjs": "^2.4.3",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   }
 }

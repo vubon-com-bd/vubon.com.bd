@@ -31,6 +31,16 @@
       "@vubon/shared-api/*": ["../shared-api/src/*"]
     }
   },
-  "include": ["src/**/*", "../shared-constants/src/**/*", "../shared-types/src/**/*", "../shared-schemas/src/**/*", "../shared-utils/src/**/*", "../shared-config/src/**/*", "../shared-api/src/**/*"],
+  "include": [
+    "src/**/*",
+    "src/auth/**/*",
+    "src/common/**/*",
+    "../shared-constants/src/**/*",
+    "../shared-types/src/**/*",
+    "../shared-schemas/src/**/*",
+    "../shared-utils/src/**/*",
+    "../shared-config/src/**/*",
+    "../shared-api/src/**/*"
+  ],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"]
 }
