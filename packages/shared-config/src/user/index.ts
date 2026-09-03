@@ -21,6 +21,3 @@ export * from './kyc.config';
 // Activity & Log
 export * from './activity.config';
 export * from './log.config';
-
-// Verification Config (common থেকে রি-এক্সপোর্ট)
-export * from './verification.config';
