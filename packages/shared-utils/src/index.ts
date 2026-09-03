@@ -1,6 +1,13 @@
 /**
- * Shared Utils
- * বাংলাদেশের কনটেক্সট অনুযায়ী সব ইউটিলিটি
+ * Shared Utils Index
+ * সকল শেয়ার্ড ইউটিলিটি এক্সপোর্ট
  */
+
+// Common exports
 export * from './common';
+
+// Auth exports
 export * from './auth';
+
+// User exports
+export * from './user';
