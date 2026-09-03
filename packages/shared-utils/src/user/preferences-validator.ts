@@ -7,6 +7,7 @@ import {
   UserPreferences,
   UserPreferencesCreateInput,
   UserPreferencesUpdateInput,
+  UserPreferencesLanguage,
 } from '@vubon/shared-types';
 import { USER_PREFERENCES } from '@vubon/shared-constants';
 
@@ -91,19 +92,27 @@ export const PreferencesValidator = {
    * প্রেফারেন্স আপডেট ভ্যালিডেট করা
    */
   validateUpdate: (data: UserPreferencesUpdateInput): { valid: boolean; errors: string[] } => {
-    return PreferencesValidator.validate(data);
+    // Convert UpdateInput to Partial<UserPreferences> for validation
+    const validationData: Partial<UserPreferences> = {
+      content: data.content as UserPreferences['content'],
+      ui: data.ui as UserPreferences['ui'],
+      communication: data.communication as UserPreferences['communication'],
+      accessibility: data.accessibility as UserPreferences['accessibility'],
+      metadata: data.metadata,
+    };
+
+    return PreferencesValidator.validate(validationData);
   },
 
   /**
    * Get default preferences
    * ডিফল্ট প্রেফারেন্স পাওয়া
    */
-  getDefaults: (): UserPreferencesCreateInput => {
-    // USER_PREFERENCES.DEFAULTS থেকে সরাসরি মান ব্যবহার
+  getDefaults: (userId: string = ''): UserPreferencesCreateInput => {
     return {
-      userId: '', // This will be set by the caller
+      userId,
       content: {
-        language: 'bn',
+        language: 'bn' as UserPreferencesLanguage,
         region: 'BD',
         contentType: ['article', 'video', 'image'],
         notificationTypes: ['email', 'push'],

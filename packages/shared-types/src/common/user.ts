@@ -13,6 +13,7 @@ export interface User {
   role: (typeof ROLES)[keyof typeof ROLES];
   status:
     typeof STATUS.ACTIVE | typeof STATUS.INACTIVE | typeof STATUS.PENDING | typeof STATUS.SUSPENDED;
+  username?: string;
   avatar?: string;
   bio?: string;
   addresses?: Address[];
@@ -21,6 +22,37 @@ export interface User {
   lastLoginAt?: Date;
   createdAt: Date;
   updatedAt: Date;
+}
+
+/**
+ * User Create Input
+ * ইউজার তৈরি করার জন্য ইনপুট
+ */
+export interface UserCreateInput {
+  email: string;
+  name: string;
+  phone?: string;
+  username?: string;
+  password?: string;
+  role?: string;
+  status?: string;
+}
+
+/**
+ * User Update Input
+ * ইউজার আপডেট করার জন্য ইনপুট
+ */
+export interface UserUpdateInput {
+  email?: string;
+  name?: string;
+  phone?: string;
+  username?: string;
+  bio?: string;
+  avatar?: string;
+  role?: string;
+  status?: string;
+  isVerified?: boolean;
+  isLocked?: boolean;
 }
 
 /**
