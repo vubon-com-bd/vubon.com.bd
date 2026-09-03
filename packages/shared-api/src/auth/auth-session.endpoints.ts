@@ -120,4 +120,19 @@ export class AuthSessionEndpoints {
     if (options?.offset) params.offset = String(options.offset);
     return this.client.get('/auth/sessions/history', { params });
   }
+
+  /**
+   * Get session status from constants
+   * কনস্ট্যান্ট থেকে সেশন স্ট্যাটাস পাওয়া
+   */
+  getSessionStatuses(): Record<string, string> {
+    return {
+      ACTIVE: AUTH_SESSION.STATUS.ACTIVE,
+      EXPIRED: AUTH_SESSION.STATUS.EXPIRED,
+      TERMINATED: AUTH_SESSION.STATUS.TERMINATED,
+      REVOKED: AUTH_SESSION.STATUS.REVOKED,
+      PENDING: AUTH_SESSION.STATUS.PENDING,
+      INACTIVE: AUTH_SESSION.STATUS.INACTIVE,
+    };
+  }
 }

@@ -1,7 +1,16 @@
 /**
- * Shared API
- * বাংলাদেশের কনটেক্সট অনুযায়ী সব এপিআই ক্লায়েন্ট
+ * Shared API Index
+ * সকল শেয়ার্ড এপিআই এক্সপোর্ট
  */
+
+// Client exports
 export * from './client';
+
+// Common exports
 export * from './common';
+
+// Auth exports
 export * from './auth';
+
+// User exports
+export * from './user';
