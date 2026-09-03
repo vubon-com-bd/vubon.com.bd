@@ -1,0 +1,53 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "composite": false,
+    "module": "CommonJS",
+    "target": "ES2020",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@vubon/shared-constants": ["../shared-constants/src/index.ts"],
+      "@vubon/shared-constants/*": ["../shared-constants/src/*"],
+      "@vubon/shared-types": ["../shared-types/src/index.ts"],
+      "@vubon/shared-types/*": ["../shared-types/src/*"],
+      "@vubon/shared-schemas": ["../shared-schemas/src/index.ts"],
+      "@vubon/shared-schemas/*": ["../shared-schemas/src/*"],
+      "@vubon/shared-utils": ["../shared-utils/src/index.ts"],
+      "@vubon/shared-utils/*": ["../shared-utils/src/*"],
+      "@vubon/shared-config": ["../shared-config/src/index.ts"],
+      "@vubon/shared-config/*": ["../shared-config/src/*"],
+      "@vubon/shared-api": ["../shared-api/src/index.ts"],
+      "@vubon/shared-api/*": ["../shared-api/src/*"],
+      "@vubon/shared-auth": ["../shared-auth/src/index.ts"],
+      "@vubon/shared-auth/*": ["../shared-auth/src/*"],
+      "@vubon/shared-hooks": ["../shared-hooks/src/index.ts"],
+      "@vubon/shared-hooks/*": ["../shared-hooks/src/*"],
+      "@vubon/shared-kernel": ["../shared-kernel/src/index.ts"],
+      "@vubon/shared-kernel/*": ["../shared-kernel/src/*"]
+    }
+  },
+  "include": [
+    "src/**/*",
+    "../shared-constants/src/**/*",
+    "../shared-types/src/**/*",
+    "../shared-schemas/src/**/*",
+    "../shared-utils/src/**/*",
+    "../shared-config/src/**/*",
+    "../shared-api/src/**/*",
+    "../shared-auth/src/**/*",
+    "../shared-hooks/src/**/*",
+    "../shared-kernel/src/**/*"
+  ],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"]
+}

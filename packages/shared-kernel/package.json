@@ -1,0 +1,79 @@
+{
+  "name": "@vubon/shared-kernel",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./domain": {
+      "import": "./dist/domain/index.js",
+      "require": "./dist/domain/index.js",
+      "types": "./dist/domain/index.d.ts"
+    },
+    "./domain/base": {
+      "import": "./dist/domain/base/index.js",
+      "require": "./dist/domain/base/index.js",
+      "types": "./dist/domain/base/index.d.ts"
+    },
+    "./domain/value-objects": {
+      "import": "./dist/domain/value-objects/index.js",
+      "require": "./dist/domain/value-objects/index.js",
+      "types": "./dist/domain/value-objects/index.d.ts"
+    },
+    "./domain/entities": {
+      "import": "./dist/domain/entities/index.js",
+      "require": "./dist/domain/entities/index.js",
+      "types": "./dist/domain/entities/index.d.ts"
+    },
+    "./domain/repositories": {
+      "import": "./dist/domain/repositories/index.js",
+      "require": "./dist/domain/repositories/index.js",
+      "types": "./dist/domain/repositories/index.d.ts"
+    },
+    "./domain/events": {
+      "import": "./dist/domain/events/index.js",
+      "require": "./dist/domain/events/index.js",
+      "types": "./dist/domain/events/index.d.ts"
+    },
+    "./domain/event-store": {
+      "import": "./dist/domain/event-store/index.js",
+      "require": "./dist/domain/event-store/index.js",
+      "types": "./dist/domain/event-store/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "lint": "eslint .",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "format:write": "prettier --write \"src/**/*.ts\"",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "globals": "^15.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@vubon/shared-constants": "workspace:*",
+    "@vubon/shared-types": "workspace:*",
+    "@vubon/shared-schemas": "workspace:*",
+    "bcryptjs": "^2.4.3"
+  }
+}

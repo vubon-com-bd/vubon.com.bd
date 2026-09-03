@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, ReactNode } from 'react';
 import { AuthUser, AuthTokens, AuthClient, RegisterDataIn } from '../client/auth.client';
 
 export interface AuthContextType {
@@ -16,7 +16,7 @@ export interface AuthContextType {
 }
 
 export interface AuthProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
   authClient: AuthClient;
   onLogin?: (user: AuthUser) => void;
   onLogout?: () => void;
