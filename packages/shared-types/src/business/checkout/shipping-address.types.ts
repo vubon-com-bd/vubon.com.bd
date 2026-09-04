@@ -36,7 +36,7 @@ export interface ShippingAddressCreateInput {
   contactName?: string;
 }
 
-export interface ShippingAddressUpdateInput extends Partial<ShippingAddressCreateInput> {}
+export type ShippingAddressUpdateInput = Partial<ShippingAddressCreateInput>;
 
 export interface ShippingAddressResponse {
   shippingAddress: ShippingAddress;

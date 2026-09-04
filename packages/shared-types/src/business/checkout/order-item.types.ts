@@ -20,7 +20,15 @@ export interface OrderItem extends BaseEntity {
   tax: number;
   total: number;
   attributes?: Record<string, string | number | boolean>;
-  status: 'pending' | 'confirmed' | 'processed' | 'shipped' | 'delivered' | 'cancelled' | 'returned' | 'refunded';
+  status:
+    | 'pending'
+    | 'confirmed'
+    | 'processed'
+    | 'shipped'
+    | 'delivered'
+    | 'cancelled'
+    | 'returned'
+    | 'refunded';
   returnRequested?: boolean;
   returnStatus?: 'pending' | 'approved' | 'rejected' | 'processed' | 'completed';
   createdAt: Date;
@@ -40,7 +48,15 @@ export interface OrderItemCreateInput {
 }
 
 export interface OrderItemUpdateInput {
-  status?: 'pending' | 'confirmed' | 'processed' | 'shipped' | 'delivered' | 'cancelled' | 'returned' | 'refunded';
+  status?:
+    | 'pending'
+    | 'confirmed'
+    | 'processed'
+    | 'shipped'
+    | 'delivered'
+    | 'cancelled'
+    | 'returned'
+    | 'refunded';
   returnRequested?: boolean;
   returnStatus?: 'pending' | 'approved' | 'rejected' | 'processed' | 'completed';
 }

@@ -38,7 +38,7 @@ export interface BillingAddressCreateInput {
   vatNumber?: string;
 }
 
-export interface BillingAddressUpdateInput extends Partial<BillingAddressCreateInput> {}
+export type BillingAddressUpdateInput = Partial<BillingAddressCreateInput>;
 
 export interface BillingAddressResponse {
   billingAddress: BillingAddress;

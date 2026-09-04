@@ -12,7 +12,15 @@ export interface OrderFulfillment extends BaseEntity {
   orderId: string;
   order: Order;
   items: OrderItem[];
-  status: 'pending' | 'processing' | 'picked' | 'packed' | 'shipped' | 'delivered' | 'failed' | 'cancelled';
+  status:
+    | 'pending'
+    | 'processing'
+    | 'picked'
+    | 'packed'
+    | 'shipped'
+    | 'delivered'
+    | 'failed'
+    | 'cancelled';
   fulfillmentMethod: 'manual' | 'automated' | 'dropshipping';
   warehouseId?: string;
   location?: string;
@@ -24,6 +32,7 @@ export interface OrderFulfillment extends BaseEntity {
   packingSlip?: string;
   invoice?: string;
   processedBy?: string;
+  processedByUser?: User;
   processedAt?: Date;
   shippedAt?: Date;
   deliveredAt?: Date;
@@ -41,7 +50,15 @@ export interface OrderFulfillmentCreateInput {
 }
 
 export interface OrderFulfillmentUpdateInput {
-  status?: 'pending' | 'processing' | 'picked' | 'packed' | 'shipped' | 'delivered' | 'failed' | 'cancelled';
+  status?:
+    | 'pending'
+    | 'processing'
+    | 'picked'
+    | 'packed'
+    | 'shipped'
+    | 'delivered'
+    | 'failed'
+    | 'cancelled';
   trackingNumber?: string;
   trackingUrl?: string;
   carrier?: string;
