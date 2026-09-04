@@ -28,6 +28,12 @@ export interface AdminReportCreateInput {
   metadata?: Record<string, unknown>;
 }
 
+export interface AdminReportUpdateInput extends Partial<AdminReportCreateInput> {
+  status?: 'pending' | 'processing' | 'completed' | 'failed';
+  downloadUrl?: string;
+  generatedAt?: Date;
+}
+
 export interface AdminReportListResponse {
   reports: AdminReport[];
   total: number;
