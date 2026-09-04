@@ -50,6 +50,12 @@ export const STATUS = {
   PRODUCT_PENDING_APPROVAL: 'pending_approval',
   PRODUCT_REJECTED: 'rejected',
 
+  // Review status
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+  FLAGGED: 'flagged',
+  HIDDEN: 'hidden',
+
   // Payment gateway status (Bangladesh)
   GATEWAY_SUCCESS: 'success',
   GATEWAY_FAILED: 'failed',

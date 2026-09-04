@@ -30,6 +30,23 @@ export const TYPES = {
   BANNED: 'banned',
   VERIFIED: 'verified',
   UNVERIFIED: 'unverified',
+
+  // Attribute types (for product attributes)
+  TEXT: 'text',
+  NUMBER: 'number',
+  BOOLEAN: 'boolean',
+  DATE: 'date',
+  DATETIME: 'datetime',
+
+  // Pricing types
+  FIXED: 'fixed',
+  VARIABLE: 'variable',
+  SUBSCRIPTION: 'subscription',
+  DOWNLOADABLE: 'downloadable',
+  VIRTUAL: 'virtual',
+  SERVICE: 'service',
+  DIGITAL: 'digital',
+  PHYSICAL: 'physical',
 } as const;
 
 export type CommonType = (typeof TYPES)[keyof typeof TYPES];
