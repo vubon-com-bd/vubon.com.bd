@@ -1,5 +1,6 @@
 import { AxiosClient } from '../client/axios.client';
 import { FetchClient } from '../client/fetch.client';
+import { AdminAnalytics, AdminAnalyticsCreateInput, AdminAnalyticsQuery, AdminAnalyticsSummary } from '@vubon/shared-types';
 
 export interface AnalyticsEvent {
   name: string;
@@ -125,5 +126,82 @@ export class AnalyticsEndpoints {
     trafficSources: { source: string; count: number }[];
   }> {
     return this.client.get('/analytics/dashboard', { params: { days: String(days) } });
+  }
+}
+
+// Admin Analytics Endpoints
+export class AdminAnalyticsEndpoints {
+  constructor(private client: AxiosClient | FetchClient) {}
+
+  /**
+   * Get admin analytics
+   * অ্যাডমিন অ্যানালিটিক্স পাওয়া
+   */
+  async getAnalytics(adminId: string, query?: AdminAnalyticsQuery): Promise<AdminAnalytics[]> {
+    const params: Record<string, string> = {};
+    if (query?.type) params.type = query.type;
+    if (query?.period) params.period = query.period;
+    if (query?.startDate) params.startDate = query.startDate.toISOString();
+    if (query?.endDate) params.endDate = query.endDate.toISOString();
+    if (query?.page) params.page = String(query.page);
+    if (query?.limit) params.limit = String(query.limit);
+
+    return this.client.get<AdminAnalytics[]>(`/admin/${adminId}/analytics`, { params });
+  }
+
+  /**
+   * Get admin analytics summary
+   * অ্যাডমিন অ্যানালিটিক্স সেরসংক্ষেপ পাওয়া
+   */
+  async getAnalyticsSummary(adminId: string): Promise<AdminAnalyticsSummary> {
+    return this.client.get<AdminAnalyticsSummary>(`/admin/${adminId}/analytics/summary`);
+  }
+
+  /**
+   * Create admin analytics
+   * অ্যাডমিন অ্যানালিটিক্স তৈরি করা
+   */
+  async createAnalytics(adminId: string, data: AdminAnalyticsCreateInput): Promise<AdminAnalytics> {
+    return this.client.post<AdminAnalytics>(`/admin/${adminId}/analytics`, data);
+  }
+
+  /**
+   * Get admin analytics by type
+   * টাইপ অনুযায়ী অ্যাডমিন অ্যানালিটিক্স পাওয়া
+   */
+  async getAnalyticsByType(adminId: string, type: string): Promise<AdminAnalytics[]> {
+    return this.client.get<AdminAnalytics[]>(`/admin/${adminId}/analytics/type/${type}`);
+  }
+
+  /**
+   * Get admin analytics by period
+   * পিরিয়ড অনুযায়ী অ্যাডমিন অ্যানালিটিক্স পাওয়া
+   */
+  async getAnalyticsByPeriod(adminId: string, period: string): Promise<AdminAnalytics[]> {
+    return this.client.get<AdminAnalytics[]>(`/admin/${adminId}/analytics/period/${period}`);
+  }
+
+  /**
+   * Get current admin analytics
+   * বর্তমান অ্যাডমিনের অ্যানালিটিক্স পাওয়া
+   */
+  async getMyAnalytics(query?: AdminAnalyticsQuery): Promise<AdminAnalytics[]> {
+    const params: Record<string, string> = {};
+    if (query?.type) params.type = query.type;
+    if (query?.period) params.period = query.period;
+    if (query?.startDate) params.startDate = query.startDate.toISOString();
+    if (query?.endDate) params.endDate = query.endDate.toISOString();
+    if (query?.page) params.page = String(query.page);
+    if (query?.limit) params.limit = String(query.limit);
+
+    return this.client.get<AdminAnalytics[]>('/admin/me/analytics', { params });
+  }
+
+  /**
+   * Get current admin analytics summary
+   * বর্তমান অ্যাডমিনের অ্যানালিটিক্স সেরসংক্ষেপ পাওয়া
+   */
+  async getMyAnalyticsSummary(): Promise<AdminAnalyticsSummary> {
+    return this.client.get<AdminAnalyticsSummary>('/admin/me/analytics/summary');
   }
 }
