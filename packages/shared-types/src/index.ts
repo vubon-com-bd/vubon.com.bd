@@ -3,11 +3,14 @@
  * সকল শেয়ার্ড টাইপ এক্সপোর্ট
  */
 
-// Common exports (User, UserWithProfile, VendorUser এখান থেকে আসে)
+// Common exports
 export * from './common';
 
 // Auth exports
 export * from './auth';
 
-// User exports (User এবং UserWithProfile বাদে বাকি সব)
+// User exports
 export * from './user';
+
+// Admin exports
+export * from './admin';
