@@ -95,6 +95,98 @@ export const TYPES = {
   INCLUSIVE: 'inclusive',
   EXCLUSIVE: 'exclusive',
   COMPOUND: 'compound',
+
+  // Vendor specific types
+  BASIC: 'basic',
+  SILVER: 'silver',
+  GOLD: 'gold',
+  PLATINUM: 'platinum',
+  DIAMOND: 'diamond',
+  ENTERPRISE: 'enterprise',
+  PREMIUM: 'premium',
+
+  // Performance types
+  GOOD: 'good',
+  AVERAGE: 'average',
+  POOR: 'poor',
+  EXCELLENT: 'excellent',
+  CRITICAL: 'critical',
+
+  // Activity types
+  LOGIN: 'login',
+  LOGOUT: 'logout',
+
+  // Document types
+  NID: 'nid',
+  PASSPORT: 'passport',
+  DRIVING_LICENSE: 'driving_license',
+  BUSINESS_LICENSE: 'business_license',
+  TRADE_LICENSE: 'trade_license',
+  TIN: 'tin',
+  BANK_STATEMENT: 'bank_statement',
+  ADDRESS_PROOF: 'address_proof',
+
+  // Payment types
+  PAYMENT: 'payment',
+  REFUND: 'refund',
+  CAPTURE: 'capture',
+  AUTHORIZE: 'authorize',
+  VOID: 'void',
+
+  // Order types
+  REGULAR: 'regular',
+  BULK: 'bulk',
+  WHOLESALE_ORDER: 'wholesale_order',
+  RENTAL: 'rental',
+  GIFT_ORDER: 'gift_order',
+
+  // Delivery types
+  DELIVERY: 'delivery',
+  PICKED: 'picked',
+  IN_TRANSIT: 'in_transit',
+  OUT_FOR_DELIVERY: 'out_for_delivery',
+  ATTEMPTED: 'attempted',
+  DELIVERED: 'delivered',
+
+  // Vendor activity types
+  PRODUCT_CREATE: 'product_create',
+  PRODUCT_UPDATE: 'product_update',
+  PRODUCT_DELETE: 'product_delete',
+  ORDER_CREATE: 'order_create',
+  ORDER_UPDATE: 'order_update',
+  ORDER_CANCEL: 'order_cancel',
+  PAYMENT_REQUEST: 'payment_request',
+  PAYMENT_RECEIVE: 'payment_receive',
+  SETTINGS_UPDATE: 'settings_update',
+  PROFILE_UPDATE: 'profile_update',
+  DOCUMENT_UPLOAD: 'document_upload',
+  DOCUMENT_DELETE: 'document_delete',
+  TEAM_ADD: 'team_add',
+  TEAM_REMOVE: 'team_remove',
+  TEAM_UPDATE: 'team_update',
+
+  // Vendor warranty types
+  EXTENDED: 'extended',
+  LIFETIME: 'lifetime',
+  NO_WARRANTY: 'no_warranty',
+  REPLACEMENT: 'replacement',
+
+  // Vendor return policy types
+  NO_RETURN: 'no_return',
+  STORE_CREDIT: 'store_credit',
+
+  // Vendor report types
+  SALES: 'sales',
+  ORDERS_REPORT: 'orders_report',
+  PRODUCTS_REPORT: 'products_report',
+  PAYMENTS_REPORT: 'payments_report',
+  REVENUE: 'revenue',
+  PROFIT_REPORT: 'profit_report',
+  CUSTOMERS: 'customers',
+  ANALYTICS: 'analytics',
+  PERFORMANCE: 'performance',
+  INVENTORY: 'inventory',
+  COMPARISON: 'comparison',
 } as const;
 
 export type CommonType = (typeof TYPES)[keyof typeof TYPES];

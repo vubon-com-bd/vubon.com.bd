@@ -14,3 +14,6 @@ export * from './checkout';
 
 // Flash Sales domain
 export * from './flash-sales';
+
+// Vendor domain
+export * from './vendor';
