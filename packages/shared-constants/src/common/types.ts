@@ -4,6 +4,9 @@
  */
 
 export const TYPES = {
+  // Default
+  DEFAULT: 'default',
+
   // User types
   USER: 'user',
   ADMIN: 'admin',
@@ -47,6 +50,51 @@ export const TYPES = {
   SERVICE: 'service',
   DIGITAL: 'digital',
   PHYSICAL: 'physical',
+
+  // Tax types
+  VAT: 'vat',
+  SALES_TAX: 'sales_tax',
+  SERVICE_TAX: 'service_tax',
+  IMPORT_DUTY: 'import_duty',
+  CUSTOM_DUTY: 'custom_duty',
+  EXCISE: 'excise',
+  GST: 'gst',
+
+  // Shipping types
+  STANDARD: 'standard',
+  EXPRESS: 'express',
+  SAME_DAY: 'same_day',
+  NEXT_DAY: 'next_day',
+  INTERNATIONAL: 'international',
+  FREE: 'free',
+  PICKUP: 'pickup',
+  DROPSHIPPING: 'dropshipping',
+
+  // Coupon types
+  DISCOUNT: 'discount',
+  FREE_SHIPPING: 'free_shipping',
+  BUY_GET: 'buy_get',
+  GIFT: 'gift',
+  VOUCHER: 'voucher',
+  WELCOME: 'welcome',
+  REFERRAL: 'referral',
+  BIRTHDAY: 'birthday',
+  SEASONAL: 'seasonal',
+  FLASH_SALE: 'flash_sale',
+  BUNDLE: 'bundle',
+
+  // Discount types
+  PERCENTAGE: 'percentage',
+  BUY_X_GET_Y: 'buy_x_get_y',
+  TIERED: 'tiered',
+  VOLUME: 'volume',
+  MEMBERSHIP: 'membership',
+  WHOLESALE: 'wholesale',
+
+  // Tax calculation types
+  INCLUSIVE: 'inclusive',
+  EXCLUSIVE: 'exclusive',
+  COMPOUND: 'compound',
 } as const;
 
 export type CommonType = (typeof TYPES)[keyof typeof TYPES];
