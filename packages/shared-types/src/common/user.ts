@@ -16,6 +16,9 @@ export interface User {
   username?: string;
   avatar?: string;
   bio?: string;
+  timezone?: string;
+  language?: string;
+  currency?: string;
   addresses?: Address[];
   isVerified: boolean;
   isLocked: boolean;
@@ -36,6 +39,9 @@ export interface UserCreateInput {
   password?: string;
   role?: string;
   status?: string;
+  timezone?: string;
+  language?: string;
+  currency?: string;
 }
 
 /**
@@ -53,6 +59,9 @@ export interface UserUpdateInput {
   status?: string;
   isVerified?: boolean;
   isLocked?: boolean;
+  timezone?: string;
+  language?: string;
+  currency?: string;
 }
 
 /**
