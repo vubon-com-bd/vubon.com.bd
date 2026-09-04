@@ -32,3 +32,7 @@ export * from './product-approval.types';
 
 // Request types
 export * from './product-request.types';
+
+// Tag & Price History
+export * from './tag.types';
+export * from './price-history.types';

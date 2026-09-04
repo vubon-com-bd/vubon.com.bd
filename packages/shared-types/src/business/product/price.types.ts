@@ -5,7 +5,7 @@
 
 import { BaseEntity } from '../../common/base.entity';
 
-export interface Price extends BaseEntity {
+export interface PriceData extends BaseEntity {
   productId: string;
   variantId?: string;
   amount: number;
@@ -47,5 +47,5 @@ export interface PriceUpdateInput extends Partial<PriceCreateInput> {
 }
 
 export interface PriceResponse {
-  price: Price;
+  price: PriceData;
 }
