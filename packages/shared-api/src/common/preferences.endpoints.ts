@@ -82,7 +82,10 @@ export class AdminPreferencesEndpoints {
    * Update admin preferences
    * অ্যাডমিন প্রেফারেন্স আপডেট করা
    */
-  async updatePreferences(adminId: string, preferences: Partial<AdminPreferences>): Promise<AdminPreferences> {
+  async updatePreferences(
+    adminId: string,
+    preferences: Partial<AdminPreferences>
+  ): Promise<AdminPreferences> {
     return this.client.patch<AdminPreferences>(`/admin/${adminId}/preferences`, preferences);
   }
 

@@ -1,6 +1,11 @@
 import { AxiosClient } from '../client/axios.client';
 import { FetchClient } from '../client/fetch.client';
-import { AdminAnalytics, AdminAnalyticsCreateInput, AdminAnalyticsQuery, AdminAnalyticsSummary } from '@vubon/shared-types';
+import {
+  AdminAnalytics,
+  AdminAnalyticsCreateInput,
+  AdminAnalyticsQuery,
+  AdminAnalyticsSummary,
+} from '@vubon/shared-types';
 
 export interface AnalyticsEvent {
   name: string;

@@ -126,7 +126,10 @@ export class AdminSettingsEndpoints {
    * Reset admin settings
    * অ্যাডমিন সেটিংস রিসেট করা
    */
-  async resetSettings(adminId: string, category?: string): Promise<{ success: boolean; count: number }> {
+  async resetSettings(
+    adminId: string,
+    category?: string
+  ): Promise<{ success: boolean; count: number }> {
     const url = category
       ? `/admin/${adminId}/settings/category/${category}/reset`
       : `/admin/${adminId}/settings/reset`;
