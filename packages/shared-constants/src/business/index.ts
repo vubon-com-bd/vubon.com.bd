@@ -11,3 +11,6 @@ export * from './cart';
 
 // Checkout domain
 export * from './checkout';
+
+// Flash Sales domain
+export * from './flash-sales';
