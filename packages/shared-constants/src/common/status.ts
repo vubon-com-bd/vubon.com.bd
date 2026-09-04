@@ -63,6 +63,13 @@ export const STATUS = {
   GATEWAY_CANCELLED: 'cancelled',
   GATEWAY_INVALID: 'invalid',
   GATEWAY_VALID: 'valid',
+
+  // Voucher status
+  VOUCHER_ACTIVE: 'active',
+  VOUCHER_INACTIVE: 'inactive',
+  VOUCHER_USED: 'used',
+  VOUCHER_EXPIRED: 'expired',
+  VOUCHER_CANCELLED: 'cancelled',
 } as const;
 
 export type Status = (typeof STATUS)[keyof typeof STATUS];
@@ -85,3 +92,9 @@ export type PaymentStatus =
   | typeof STATUS.PAYMENT_COMPLETED
   | typeof STATUS.PAYMENT_FAILED
   | typeof STATUS.PAYMENT_CANCELLED;
+export type VoucherStatus =
+  | typeof STATUS.VOUCHER_ACTIVE
+  | typeof STATUS.VOUCHER_INACTIVE
+  | typeof STATUS.VOUCHER_USED
+  | typeof STATUS.VOUCHER_EXPIRED
+  | typeof STATUS.VOUCHER_CANCELLED;
