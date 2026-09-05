@@ -17,3 +17,6 @@ export * from './flash-sales';
 
 // Vendor domain
 export * from './vendor';
+
+// Payment domain
+export * from './payment';
