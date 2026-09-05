@@ -4,6 +4,7 @@
  */
 
 import { VENDOR_INVOICE } from '@vubon/shared-constants';
+import { PAYMENT_METHODS } from '@vubon/shared-constants';
 
 export interface InvoiceConfig {
   enabled: boolean;
@@ -46,11 +47,20 @@ export const invoiceConfig: InvoiceConfig = {
   },
 
   paymentMethods: {
-    bank_transfer: VENDOR_INVOICE.PAYMENT_METHODS.BANK_TRANSFER,
-    mobile_banking: VENDOR_INVOICE.PAYMENT_METHODS.MOBILE_BANKING,
-    cash: VENDOR_INVOICE.PAYMENT_METHODS.CASH,
-    check: VENDOR_INVOICE.PAYMENT_METHODS.CHECK,
-    payment_gateway: VENDOR_INVOICE.PAYMENT_METHODS.PAYMENT_GATEWAY,
+    bank_transfer: PAYMENT_METHODS.BANK_TRANSFER,
+    mobile_banking: PAYMENT_METHODS.MOBILE_BANKING,
+    cash_on_delivery: PAYMENT_METHODS.CASH_ON_DELIVERY,
+    credit_card: PAYMENT_METHODS.CREDIT_CARD,
+    debit_card: PAYMENT_METHODS.DEBIT_CARD,
+    digital_wallet: PAYMENT_METHODS.DIGITAL_WALLET,
+    online_banking: PAYMENT_METHODS.ONLINE_BANKING,
+    payment_gateway: PAYMENT_METHODS.PAYMENT_GATEWAY,
+    installment: PAYMENT_METHODS.INSTALLMENT,
+    crypto: PAYMENT_METHODS.CRYPTO,
+    bkash: PAYMENT_METHODS.BKASH,
+    nagad: PAYMENT_METHODS.NAGAD,
+    rocket: PAYMENT_METHODS.ROCKET,
+    sslcommerz: PAYMENT_METHODS.SSLCOMMERZ,
   },
 
   prefix: 'INV',

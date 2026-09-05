@@ -6,6 +6,7 @@
 import { z } from 'zod';
 import { BaseSchema } from '../../common/base.schema';
 import { VENDOR_INVOICE } from '@vubon/shared-constants';
+import { PAYMENT_METHODS } from '@vubon/shared-constants';
 
 export const VendorInvoiceSchema = BaseSchema.extend({
   vendorId: z.string().uuid(),
@@ -22,9 +23,7 @@ export const VendorInvoiceSchema = BaseSchema.extend({
   dueDate: z.date(),
   issuedDate: z.date(),
   paidDate: z.date().optional(),
-  paymentMethod: z
-    .enum(Object.values(VENDOR_INVOICE.PAYMENT_METHODS) as [string, ...string[]])
-    .optional(),
+  paymentMethod: z.enum(Object.values(PAYMENT_METHODS) as [string, ...string[]]).optional(),
   paymentId: z.string().uuid().optional(),
   description: z.string().optional(),
   descriptionBangla: z.string().optional(),
