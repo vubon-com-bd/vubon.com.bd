@@ -4,6 +4,7 @@
  */
 
 import { BaseEntity } from '../../common/base.entity';
+import { PRODUCT } from '@vubon/shared-constants';
 
 export interface Tag extends BaseEntity {
   name: string;
@@ -25,7 +26,6 @@ export interface TagCreateInput {
   isActive?: boolean;
 }
 
-// Remove empty interface - সরাসরি Partial<TagCreateInput> ব্যবহার করা যেতে পারে
 export type TagUpdateInput = Partial<TagCreateInput>;
 
 export interface TagResponse {
@@ -45,3 +45,12 @@ export interface TagBulkResponse {
     reason: string;
   }[];
 }
+
+// Constants from PRODUCT
+export const TAG_CONSTANTS = {
+  MAX_TAGS_PER_PRODUCT: PRODUCT.TAG.MAX_TAGS_PER_PRODUCT,
+  MAX_TAGS_PER_BULK: PRODUCT.TAG.MAX_TAGS_PER_BULK,
+  MIN_LENGTH: PRODUCT.TAG.MIN_LENGTH,
+  MAX_LENGTH: PRODUCT.TAG.MAX_LENGTH,
+  ALLOWED_CHARS: PRODUCT.TAG.ALLOWED_CHARS,
+};

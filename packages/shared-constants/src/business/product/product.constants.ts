@@ -68,6 +68,39 @@ export const PRODUCT = {
     IN_REVIEW: 'in_review',
   },
 
+  // Comparison related constants
+  COMPARISON: {
+    MAX_ITEMS: 10,
+    DEFAULT_ITEMS: 4,
+    MAX_ATTRIBUTES: 20,
+    SHARE_EXPIRY: 7, // days
+  },
+
+  // Price History related constants
+  PRICE_HISTORY: {
+    MAX_RECORDS: 100,
+    RETENTION_DAYS: 90,
+    BULK_LIMIT: 1000,
+  },
+
+  // Pricing Rule related constants
+  PRICING_RULE: {
+    MAX_RULES: 50,
+    PRIORITY_MIN: 1,
+    PRIORITY_MAX: 100,
+    MAX_CONDITIONS: 10,
+    MAX_ADJUSTMENTS: 5,
+  },
+
+  // Tag related constants
+  TAG: {
+    MAX_TAGS_PER_PRODUCT: 10,
+    MAX_TAGS_PER_BULK: 50,
+    MIN_LENGTH: 2,
+    MAX_LENGTH: 30,
+    ALLOWED_CHARS: /^[a-zA-Z0-9\s\-_]+$/,
+  },
+
   // Default values
   DEFAULTS: {
     MIN_QUANTITY: 1,
@@ -95,3 +128,7 @@ export type ProductCondition = (typeof PRODUCT.CONDITION)[keyof typeof PRODUCT.C
 export type ProductAvailability = (typeof PRODUCT.AVAILABILITY)[keyof typeof PRODUCT.AVAILABILITY];
 export type ProductApproval = (typeof PRODUCT.APPROVAL)[keyof typeof PRODUCT.APPROVAL];
 export type ProductSellerRole = (typeof PRODUCT.SELLER_ROLES)[keyof typeof PRODUCT.SELLER_ROLES];
+export type ComparisonConfig = typeof PRODUCT.COMPARISON;
+export type PriceHistoryConfig = typeof PRODUCT.PRICE_HISTORY;
+export type PricingRuleConfig = typeof PRODUCT.PRICING_RULE;
+export type TagConfig = typeof PRODUCT.TAG;

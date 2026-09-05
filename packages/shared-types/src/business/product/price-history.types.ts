@@ -5,8 +5,9 @@
 
 import { BaseEntity } from '../../common/base.entity';
 import { User } from '../../common/user';
+import { PRODUCT } from '@vubon/shared-constants';
 
-export interface PriceHistoryEntry extends BaseEntity {
+export interface ProductPriceHistory extends BaseEntity {
   productId: string;
   variantId?: string;
   oldPrice: number;
@@ -22,7 +23,7 @@ export interface PriceHistoryEntry extends BaseEntity {
   createdAt: Date;
 }
 
-export interface PriceHistoryCreateInput {
+export interface ProductPriceHistoryCreateInput {
   productId: string;
   variantId?: string;
   oldPrice: number;
@@ -36,14 +37,14 @@ export interface PriceHistoryCreateInput {
   changedBy: string;
 }
 
-export interface PriceHistoryListResponse {
-  items: PriceHistoryEntry[];
+export interface ProductPriceHistoryListResponse {
+  items: ProductPriceHistory[];
   total: number;
   page: number;
   limit: number;
 }
 
-export interface PriceHistoryStats {
+export interface ProductPriceHistoryStats {
   productId: string;
   variantId?: string;
   priceChanges: number;
@@ -54,3 +55,10 @@ export interface PriceHistoryStats {
   percentageChange: number;
   lastChangeAt: Date;
 }
+
+// Constants from PRODUCT
+export const PRICE_HISTORY_CONSTANTS = {
+  MAX_RECORDS: PRODUCT.PRICE_HISTORY.MAX_RECORDS,
+  RETENTION_DAYS: PRODUCT.PRICE_HISTORY.RETENTION_DAYS,
+  BULK_LIMIT: PRODUCT.PRICE_HISTORY.BULK_LIMIT,
+};

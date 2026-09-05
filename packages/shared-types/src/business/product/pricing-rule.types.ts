@@ -4,13 +4,13 @@
  */
 
 import { BaseEntity } from '../../common/base.entity';
-import { PRICING_TYPES } from '@vubon/shared-constants';
+import { PRODUCT } from '@vubon/shared-constants';
 
 export interface PricingRule extends BaseEntity {
   name: string;
   nameBangla?: string;
   description?: string;
-  type: (typeof PRICING_TYPES)[keyof typeof PRICING_TYPES];
+  type: 'fixed' | 'percentage' | 'tiered' | 'dynamic';
   priority: number;
   isActive: boolean;
   conditions: {
@@ -44,7 +44,7 @@ export interface PricingRuleCreateInput {
   name: string;
   nameBangla?: string;
   description?: string;
-  type: (typeof PRICING_TYPES)[keyof typeof PRICING_TYPES];
+  type: 'fixed' | 'percentage' | 'tiered' | 'dynamic';
   priority?: number;
   conditions: {
     field: string;
@@ -68,10 +68,17 @@ export interface PricingRuleCreateInput {
   maxUsage?: number;
 }
 
-export interface PricingRuleUpdateInput extends Partial<PricingRuleCreateInput> {
-  isActive?: boolean;
-}
+export type PricingRuleUpdateInput = Partial<PricingRuleCreateInput>;
 
 export interface PricingRuleResponse {
   pricingRule: PricingRule;
 }
+
+// Constants from PRODUCT
+export const PRICING_RULE_CONSTANTS = {
+  MAX_RULES: PRODUCT.PRICING_RULE.MAX_RULES,
+  PRIORITY_MIN: PRODUCT.PRICING_RULE.PRIORITY_MIN,
+  PRIORITY_MAX: PRODUCT.PRICING_RULE.PRIORITY_MAX,
+  MAX_CONDITIONS: PRODUCT.PRICING_RULE.MAX_CONDITIONS,
+  MAX_ADJUSTMENTS: PRODUCT.PRICING_RULE.MAX_ADJUSTMENTS,
+};

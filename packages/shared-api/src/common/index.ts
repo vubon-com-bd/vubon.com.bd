@@ -2,6 +2,8 @@
  * Common exports
  * সকল কমন এন্ডপয়েন্ট এক্সপোর্ট
  */
+
+export * from './base.endpoints';
 export * from './health.endpoints';
 export * from './search.endpoints';
 export * from './analytics.endpoints';

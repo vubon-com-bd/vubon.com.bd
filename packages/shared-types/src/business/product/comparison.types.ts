@@ -5,6 +5,7 @@
 
 import { BaseEntity } from '../../common/base.entity';
 import { User } from '../../common/user';
+import { PRODUCT } from '@vubon/shared-constants';
 
 export interface ComparisonItem {
   productId: string;
@@ -30,10 +31,16 @@ export interface ComparisonCreateInput {
   isPublic?: boolean;
 }
 
-export interface ComparisonUpdateInput extends Partial<ComparisonCreateInput> {
-  productIds?: string[];
-}
+export type ComparisonUpdateInput = Partial<ComparisonCreateInput>;
 
 export interface ComparisonResponse {
   comparison: Comparison;
 }
+
+// Constants from PRODUCT
+export const COMPARISON_CONSTANTS = {
+  MAX_ITEMS: PRODUCT.COMPARISON.MAX_ITEMS,
+  DEFAULT_ITEMS: PRODUCT.COMPARISON.DEFAULT_ITEMS,
+  MAX_ATTRIBUTES: PRODUCT.COMPARISON.MAX_ATTRIBUTES,
+  SHARE_EXPIRY: PRODUCT.COMPARISON.SHARE_EXPIRY,
+};
