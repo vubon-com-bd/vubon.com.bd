@@ -5,3 +5,6 @@
 
 // Product domain
 export * from './product';
+
+// Cart domain
+export * from './cart';
