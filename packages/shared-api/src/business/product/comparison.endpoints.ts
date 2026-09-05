@@ -17,9 +17,11 @@ export const comparisonEndpoints = {
   clear: (id: string): string => `/comparisons/${id}/clear`,
   delete: (id: string): string => `/comparisons/${id}`,
   share: (token: string): string => `/comparisons/share/${token}`,
-  // COMPARISON ব্যবহার করা হয়েছে
-  maxItems: COMPARISON.MAX_ITEMS || 10,
-  defaultSort: COMPARISON.DEFAULT_SORT || 'createdAt',
+  // PRODUCT.COMPARISON থেকে কনস্ট্যান্টস ব্যবহার
+  maxItems: PRODUCT.COMPARISON.MAX_ITEMS,
+  defaultItems: PRODUCT.COMPARISON.DEFAULT_ITEMS,
+  maxAttributes: PRODUCT.COMPARISON.MAX_ATTRIBUTES,
+  shareExpiry: PRODUCT.COMPARISON.SHARE_EXPIRY,
 } as const;
 
 export type ComparisonEndpoint = {

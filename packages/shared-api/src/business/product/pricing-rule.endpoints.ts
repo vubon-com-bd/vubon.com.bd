@@ -4,7 +4,7 @@
  */
 
 import { baseEndpoints } from '../../common';
-import { PRICING_RULE } from '@vubon/shared-constants';
+import { PRODUCT } from '@vubon/shared-constants';
 import type { PricingRule } from '@vubon/shared-types';
 
 export const pricingRuleEndpoints = {
@@ -17,12 +17,12 @@ export const pricingRuleEndpoints = {
   byProduct: (productId: string): string => `/pricing-rules/product/${productId}`,
   apply: (id: string): string => `/pricing-rules/${id}/apply`,
   simulate: '/pricing-rules/simulate',
-  // PRICING_RULE ব্যবহার করা হয়েছে
-  types: PRICING_RULE.TYPES || ['fixed', 'percentage', 'override'],
-  maxRules: PRICING_RULE.MAX_RULES || 10,
-  // baseEndpoints এর ভ্যালু ব্যবহার
-  baseList: baseEndpoints.list,
-  baseCreate: baseEndpoints.create,
+  // PRODUCT.PRICING_RULE থেকে কনস্ট্যান্টস ব্যবহার
+  maxRules: PRODUCT.PRICING_RULE.MAX_RULES,
+  priorityMin: PRODUCT.PRICING_RULE.PRIORITY_MIN,
+  priorityMax: PRODUCT.PRICING_RULE.PRIORITY_MAX,
+  maxConditions: PRODUCT.PRICING_RULE.MAX_CONDITIONS,
+  maxAdjustments: PRODUCT.PRICING_RULE.MAX_ADJUSTMENTS,
 } as const;
 
 export type PricingRuleEndpoint = {

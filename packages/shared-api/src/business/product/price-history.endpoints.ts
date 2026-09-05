@@ -4,7 +4,7 @@
  */
 
 import { baseEndpoints } from '../../common';
-import { PRICE_HISTORY } from '@vubon/shared-constants';
+import { PRODUCT } from '@vubon/shared-constants';
 import type { PriceHistory } from '@vubon/shared-types';
 
 export const priceHistoryEndpoints = {
@@ -13,12 +13,10 @@ export const priceHistoryEndpoints = {
   create: baseEndpoints.create,
   byProduct: (productId: string): string => `/price-history/product/${productId}`,
   stats: (productId: string): string => `/price-history/product/${productId}/stats`,
-  // PRICE_HISTORY ব্যবহার করা হয়েছে
-  maxHistory: PRICE_HISTORY.MAX_HISTORY || 100,
-  retentionDays: PRICE_HISTORY.RETENTION_DAYS || 30,
-  // baseEndpoints এর ভ্যালু ব্যবহার
-  baseList: baseEndpoints.list,
-  baseCreate: baseEndpoints.create,
+  // PRODUCT.PRICE_HISTORY থেকে কনস্ট্যান্টস ব্যবহার
+  maxRecords: PRODUCT.PRICE_HISTORY.MAX_RECORDS,
+  retentionDays: PRODUCT.PRICE_HISTORY.RETENTION_DAYS,
+  bulkLimit: PRODUCT.PRICE_HISTORY.BULK_LIMIT,
 } as const;
 
 export type PriceHistoryEndpoint = {

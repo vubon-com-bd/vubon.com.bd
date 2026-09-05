@@ -4,26 +4,26 @@
  */
 
 import { baseEndpoints } from '../../common';
-import { INVENTORY } from '@vubon/shared-constants';
+import { PRODUCT } from '@vubon/shared-constants';
 import type { Inventory } from '@vubon/shared-types';
 
 export const inventoryEndpoints = {
   // baseEndpoints ব্যবহার করা হয়েছে
-  get: (productId: string): string => `/inventory/product/${productId}`,
-  update: (productId: string): string => `/inventory/product/${productId}`,
-  bulk: '/inventory/bulk',
-  history: (productId: string): string => `/inventory/product/${productId}/history`,
-  adjust: (productId: string): string => `/inventory/product/${productId}/adjust`,
-  restock: (productId: string): string => `/inventory/product/${productId}/restock`,
-  lowStock: '/inventory/low-stock',
-  stats: '/inventory/stats',
-  // INVENTORY থেকে status, types, movementTypes ব্যবহার
-  status: INVENTORY.STATUS,
-  types: INVENTORY.TYPES,
-  movementTypes: INVENTORY.MOVEMENT_TYPES,
-  // baseEndpoints এর ভ্যালু ব্যবহার
-  baseList: baseEndpoints.list,
-  baseCreate: baseEndpoints.create,
+  get: (productId: string): string => `${baseEndpoints.list}${productId}/inventory`,
+  update: (productId: string): string => `${baseEndpoints.list}${productId}/inventory`,
+  bulk: `${baseEndpoints.list}bulk`,
+  history: (productId: string): string => `${baseEndpoints.list}${productId}/inventory/history`,
+  adjust: (productId: string): string => `${baseEndpoints.list}${productId}/inventory/adjust`,
+  restock: (productId: string): string => `${baseEndpoints.list}${productId}/inventory/restock`,
+  lowStock: `${baseEndpoints.list}low-stock`,
+  stats: `${baseEndpoints.list}stats`,
+  // PRODUCT থেকে ডিফল্ট ভ্যালু ব্যবহার
+  lowStockThreshold: PRODUCT.DEFAULTS.LOW_STOCK_THRESHOLD,
+  minQuantity: PRODUCT.DEFAULTS.MIN_QUANTITY,
+  maxQuantity: PRODUCT.DEFAULTS.MAX_QUANTITY,
+  // baseEndpoints এর create এবং delete ব্যবহার
+  create: baseEndpoints.create,
+  delete: (id: string): string => baseEndpoints.delete(id),
 } as const;
 
 export type InventoryEndpoint = {

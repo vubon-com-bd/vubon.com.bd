@@ -4,7 +4,7 @@
  */
 
 import { baseEndpoints } from '../../common';
-import { TAG } from '@vubon/shared-constants';
+import { PRODUCT } from '@vubon/shared-constants';
 import type { Tag } from '@vubon/shared-types';
 
 export const tagEndpoints = {
@@ -16,13 +16,12 @@ export const tagEndpoints = {
   bulk: '/tags/bulk',
   popular: '/tags/popular',
   products: (id: string): string => `/tags/${id}/products`,
-  // TAG ব্যবহার করা হয়েছে
-  maxTags: TAG.MAX_TAGS || 50,
-  minLength: TAG.MIN_LENGTH || 2,
-  maxLength: TAG.MAX_LENGTH || 50,
-  // baseEndpoints এর ভ্যালু ব্যবহার
-  baseList: baseEndpoints.list,
-  baseCreate: baseEndpoints.create,
+  // PRODUCT.TAG থেকে কনস্ট্যান্টস ব্যবহার
+  maxTagsPerProduct: PRODUCT.TAG.MAX_TAGS_PER_PRODUCT,
+  maxTagsPerBulk: PRODUCT.TAG.MAX_TAGS_PER_BULK,
+  minLength: PRODUCT.TAG.MIN_LENGTH,
+  maxLength: PRODUCT.TAG.MAX_LENGTH,
+  allowedChars: PRODUCT.TAG.ALLOWED_CHARS,
 } as const;
 
 export type TagEndpoint = {
