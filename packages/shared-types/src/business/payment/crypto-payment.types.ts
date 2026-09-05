@@ -4,11 +4,11 @@
  */
 
 import { BaseEntity } from '../../common/base.entity';
+import { CRYPTO_PAYMENT } from '@vubon/shared-constants';
 
 export interface CryptoPayment extends BaseEntity {
   paymentId: string;
-  currency:
-    'btc' | 'eth' | 'usdt' | 'bnb' | 'xrp' | 'ada' | 'sol' | 'dot' | 'doge' | 'shib' | 'other';
+  currency: (typeof CRYPTO_PAYMENT.CURRENCIES)[keyof typeof CRYPTO_PAYMENT.CURRENCIES];
   amount: number;
   fiatAmount: number;
   fiatCurrency: string;
@@ -18,7 +18,7 @@ export interface CryptoPayment extends BaseEntity {
   blockNumber?: number;
   confirmations: number;
   requiredConfirmations: number;
-  status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled' | 'expired';
+  status: (typeof CRYPTO_PAYMENT.STATUS)[keyof typeof CRYPTO_PAYMENT.STATUS];
   metadata?: Record<string, string | number | boolean>;
   completedAt?: Date;
   failedAt?: Date;
@@ -29,8 +29,7 @@ export interface CryptoPayment extends BaseEntity {
 
 export interface CryptoPaymentCreateInput {
   paymentId: string;
-  currency:
-    'btc' | 'eth' | 'usdt' | 'bnb' | 'xrp' | 'ada' | 'sol' | 'dot' | 'doge' | 'shib' | 'other';
+  currency: (typeof CRYPTO_PAYMENT.CURRENCIES)[keyof typeof CRYPTO_PAYMENT.CURRENCIES];
   amount: number;
   fiatAmount: number;
   fiatCurrency?: string;
@@ -41,7 +40,7 @@ export interface CryptoPaymentCreateInput {
 }
 
 export interface CryptoPaymentUpdateInput {
-  status?: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled' | 'expired';
+  status?: (typeof CRYPTO_PAYMENT.STATUS)[keyof typeof CRYPTO_PAYMENT.STATUS];
   transactionId?: string;
   blockHash?: string;
   blockNumber?: number;

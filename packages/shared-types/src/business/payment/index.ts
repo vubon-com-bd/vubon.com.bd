@@ -28,5 +28,17 @@ export * from './digital-wallet.types';
 export * from './crypto-payment.types';
 export * from './cash-on-delivery.types';
 
+// Gateway specific types
+export * from './sslcommerz.types';
+export * from './bkash.types';
+export * from './nagad.types';
+export * from './rocket.types';
+export * from './stripe.types';
+export * from './paypal.types';
+
+// Invoice & Billing
+export * from './invoice.types';
+export * from './billing.types';
+
 // Settings
 export * from './payment-settings.types';

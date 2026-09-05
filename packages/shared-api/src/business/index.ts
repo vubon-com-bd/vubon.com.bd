@@ -11,3 +11,6 @@ export * from './cart';
 
 // Checkout domain
 export * from './checkout';
+
+// Payment domain
+export * from './payment';

@@ -4,6 +4,7 @@
  */
 
 import { BaseEntity } from '../../common/base.entity';
+import { BANK_TRANSFER } from '@vubon/shared-constants';
 
 export interface BankTransfer extends BaseEntity {
   paymentId: string;
@@ -17,7 +18,7 @@ export interface BankTransfer extends BaseEntity {
   branchCode?: string;
   referenceNumber?: string;
   transferDate?: Date;
-  status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
+  status: (typeof BANK_TRANSFER.STATUS)[keyof typeof BANK_TRANSFER.STATUS];
   amount: number;
   currency: string;
   note?: string;
@@ -47,7 +48,7 @@ export interface BankTransferCreateInput {
 }
 
 export interface BankTransferUpdateInput {
-  status?: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
+  status?: (typeof BANK_TRANSFER.STATUS)[keyof typeof BANK_TRANSFER.STATUS];
   referenceNumber?: string;
   transferDate?: Date;
   completedAt?: Date;

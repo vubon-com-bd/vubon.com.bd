@@ -3,12 +3,10 @@
  * ইনভয়েস সম্পর্কিত কনস্ট্যান্টস
  */
 
-import { STATUS } from '../../common';
-
 export const INVOICE = {
   STATUS: {
     DRAFT: 'draft',
-    PENDING: STATUS.PENDING,
+    PENDING: 'pending',
     SENT: 'sent',
     PAID: 'paid',
     OVERDUE: 'overdue',
@@ -34,3 +32,10 @@ export const INVOICE = {
 
 export type InvoiceStatus = (typeof INVOICE.STATUS)[keyof typeof INVOICE.STATUS];
 export type InvoiceType = (typeof INVOICE.TYPES)[keyof typeof INVOICE.TYPES];
+
+// VENDOR_INVOICE এর সাথে consistency এর জন্য re-export
+export const VENDOR_INVOICE = {
+  STATUS: INVOICE.STATUS,
+  TYPES: INVOICE.TYPES,
+  DEFAULTS: INVOICE.DEFAULTS,
+} as const;

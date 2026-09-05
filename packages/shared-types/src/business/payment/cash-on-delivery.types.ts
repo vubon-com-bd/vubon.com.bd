@@ -4,13 +4,14 @@
  */
 
 import { BaseEntity } from '../../common/base.entity';
+import { CASH_ON_DELIVERY } from '@vubon/shared-constants';
 
 export interface CashOnDelivery extends BaseEntity {
   orderId: string;
   paymentId?: string;
   amount: number;
   currency: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
+  status: (typeof CASH_ON_DELIVERY.STATUS)[keyof typeof CASH_ON_DELIVERY.STATUS];
   deliveryAddress: string;
   deliveryDate?: Date;
   collectedBy?: string;
@@ -32,7 +33,7 @@ export interface CashOnDeliveryCreateInput {
 }
 
 export interface CashOnDeliveryUpdateInput {
-  status?: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
+  status?: (typeof CASH_ON_DELIVERY.STATUS)[keyof typeof CASH_ON_DELIVERY.STATUS];
   collectedBy?: string;
   collectedAt?: Date;
   note?: string;
