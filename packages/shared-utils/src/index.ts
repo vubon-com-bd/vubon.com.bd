@@ -11,3 +11,6 @@ export * from './auth';
 
 // User exports
 export * from './user';
+
+// Business exports
+export * from './business';
