@@ -9,6 +9,7 @@ export interface BaseEndpoints {
   create: string;
   update: (id: string) => string;
   delete: (id: string) => string;
+  api: string;
 }
 
 export const baseEndpoints: BaseEndpoints = {
@@ -17,6 +18,7 @@ export const baseEndpoints: BaseEndpoints = {
   create: '/',
   update: (id: string) => `/${id}`,
   delete: (id: string) => `/${id}`,
+  api: '/api/v1',
 } as const;
 
 export type BaseEndpointKey = keyof typeof baseEndpoints;
