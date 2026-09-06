@@ -8,3 +8,6 @@ export * from './product';
 
 // Export cart domain
 export * from './cart';
+
+// Export checkout domain
+export * from './checkout';
