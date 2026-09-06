@@ -1,0 +1,144 @@
+/**
+ * User Status Constants (EXTENDS common/status)
+ * @module shared-constants/user/user-status.constants
+ */
+
+import { STATUS } from '../common/status.constants';
+
+export const USER_STATUS = {
+  // Base status from common
+  ACTIVE: STATUS.ACTIVE,
+  INACTIVE: STATUS.INACTIVE,
+  PENDING: STATUS.PENDING,
+  DRAFT: STATUS.DRAFT,
+  ARCHIVED: STATUS.ARCHIVED,
+  DELETED: STATUS.DELETED,
+  BLOCKED: STATUS.BLOCKED,
+  SUSPENDED: STATUS.SUSPENDED,
+
+  // User specific status
+  USER_ACTIVE: 'user_active',
+  USER_INACTIVE: 'user_inactive',
+  USER_PENDING: 'user_pending',
+  USER_SUSPENDED: 'user_suspended',
+  USER_BLOCKED: 'user_blocked',
+  USER_DELETED: 'user_deleted',
+  USER_ARCHIVED: 'user_archived',
+  USER_VERIFIED: 'user_verified',
+  USER_UNVERIFIED: 'user_unverified',
+  USER_PENDING_VERIFICATION: 'user_pending_verification',
+  USER_PENDING_APPROVAL: 'user_pending_approval',
+  USER_APPROVED: 'user_approved',
+  USER_REJECTED: 'user_rejected',
+  USER_ONBOARDING: 'user_onboarding',
+  USER_COMPLETED: 'user_completed',
+  USER_EXPIRED: 'user_expired',
+  USER_LOCKED: 'user_locked',
+  USER_RESTRICTED: 'user_restricted',
+  USER_TERMINATED: 'user_terminated',
+  USER_DEACTIVATED: 'user_deactivated',
+} as const;
+
+export type UserStatusValue = (typeof USER_STATUS)[keyof typeof USER_STATUS];
+
+// Helper to get all status values as array
+export const USER_STATUS_VALUES = Object.values(USER_STATUS) as UserStatusValue[];
+
+export const USER_STATUS_LABELS: Record<UserStatusValue, string> = {
+  [USER_STATUS.ACTIVE]: 'Active',
+  [USER_STATUS.INACTIVE]: 'Inactive',
+  [USER_STATUS.PENDING]: 'Pending',
+  [USER_STATUS.DRAFT]: 'Draft',
+  [USER_STATUS.ARCHIVED]: 'Archived',
+  [USER_STATUS.DELETED]: 'Deleted',
+  [USER_STATUS.BLOCKED]: 'Blocked',
+  [USER_STATUS.SUSPENDED]: 'Suspended',
+  [USER_STATUS.USER_ACTIVE]: 'User Active',
+  [USER_STATUS.USER_INACTIVE]: 'User Inactive',
+  [USER_STATUS.USER_PENDING]: 'User Pending',
+  [USER_STATUS.USER_SUSPENDED]: 'User Suspended',
+  [USER_STATUS.USER_BLOCKED]: 'User Blocked',
+  [USER_STATUS.USER_DELETED]: 'User Deleted',
+  [USER_STATUS.USER_ARCHIVED]: 'User Archived',
+  [USER_STATUS.USER_VERIFIED]: 'User Verified',
+  [USER_STATUS.USER_UNVERIFIED]: 'User Unverified',
+  [USER_STATUS.USER_PENDING_VERIFICATION]: 'Pending Verification',
+  [USER_STATUS.USER_PENDING_APPROVAL]: 'Pending Approval',
+  [USER_STATUS.USER_APPROVED]: 'User Approved',
+  [USER_STATUS.USER_REJECTED]: 'User Rejected',
+  [USER_STATUS.USER_ONBOARDING]: 'Onboarding',
+  [USER_STATUS.USER_COMPLETED]: 'Completed',
+  [USER_STATUS.USER_EXPIRED]: 'User Expired',
+  [USER_STATUS.USER_LOCKED]: 'User Locked',
+  [USER_STATUS.USER_RESTRICTED]: 'User Restricted',
+  [USER_STATUS.USER_TERMINATED]: 'User Terminated',
+  [USER_STATUS.USER_DEACTIVATED]: 'User Deactivated',
+};
+
+export const USER_STATUS_COLORS: Record<UserStatusValue, string> = {
+  [USER_STATUS.ACTIVE]: '#22c55e',
+  [USER_STATUS.INACTIVE]: '#9ca3af',
+  [USER_STATUS.PENDING]: '#eab308',
+  [USER_STATUS.DRAFT]: '#60a5fa',
+  [USER_STATUS.ARCHIVED]: '#6b7280',
+  [USER_STATUS.DELETED]: '#ef4444',
+  [USER_STATUS.BLOCKED]: '#dc2626',
+  [USER_STATUS.SUSPENDED]: '#f59e0b',
+  [USER_STATUS.USER_ACTIVE]: '#22c55e',
+  [USER_STATUS.USER_INACTIVE]: '#9ca3af',
+  [USER_STATUS.USER_PENDING]: '#eab308',
+  [USER_STATUS.USER_SUSPENDED]: '#f59e0b',
+  [USER_STATUS.USER_BLOCKED]: '#dc2626',
+  [USER_STATUS.USER_DELETED]: '#ef4444',
+  [USER_STATUS.USER_ARCHIVED]: '#6b7280',
+  [USER_STATUS.USER_VERIFIED]: '#22c55e',
+  [USER_STATUS.USER_UNVERIFIED]: '#f59e0b',
+  [USER_STATUS.USER_PENDING_VERIFICATION]: '#eab308',
+  [USER_STATUS.USER_PENDING_APPROVAL]: '#eab308',
+  [USER_STATUS.USER_APPROVED]: '#22c55e',
+  [USER_STATUS.USER_REJECTED]: '#ef4444',
+  [USER_STATUS.USER_ONBOARDING]: '#60a5fa',
+  [USER_STATUS.USER_COMPLETED]: '#22c55e',
+  [USER_STATUS.USER_EXPIRED]: '#9ca3af',
+  [USER_STATUS.USER_LOCKED]: '#dc2626',
+  [USER_STATUS.USER_RESTRICTED]: '#f59e0b',
+  [USER_STATUS.USER_TERMINATED]: '#ef4444',
+  [USER_STATUS.USER_DEACTIVATED]: '#9ca3af',
+};
+
+export const USER_STATUS_GROUPS = {
+  ACTIVE: [
+    USER_STATUS.ACTIVE,
+    USER_STATUS.USER_ACTIVE,
+    USER_STATUS.USER_VERIFIED,
+    USER_STATUS.USER_APPROVED,
+    USER_STATUS.USER_COMPLETED,
+  ] as const,
+
+  PENDING: [
+    USER_STATUS.PENDING,
+    USER_STATUS.USER_PENDING,
+    USER_STATUS.USER_PENDING_VERIFICATION,
+    USER_STATUS.USER_PENDING_APPROVAL,
+    USER_STATUS.USER_ONBOARDING,
+  ] as const,
+
+  INACTIVE: [
+    USER_STATUS.INACTIVE,
+    USER_STATUS.USER_INACTIVE,
+    USER_STATUS.USER_UNVERIFIED,
+    USER_STATUS.USER_EXPIRED,
+    USER_STATUS.USER_DEACTIVATED,
+  ] as const,
+
+  BLOCKED: [
+    USER_STATUS.BLOCKED,
+    USER_STATUS.USER_BLOCKED,
+    USER_STATUS.USER_SUSPENDED,
+    USER_STATUS.USER_LOCKED,
+    USER_STATUS.USER_RESTRICTED,
+    USER_STATUS.USER_TERMINATED,
+  ] as const,
+
+  DELETED: [USER_STATUS.DELETED, USER_STATUS.USER_DELETED, USER_STATUS.USER_ARCHIVED] as const,
+} as const;
