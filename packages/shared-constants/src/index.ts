@@ -4,14 +4,16 @@
  */
 
 // Export common constants
-export * from './common/index';
+export * from './common';
 
 // Export auth constants
-export * from './auth/index';
+export * from './auth';
 
 // Export user constants
-export * from './user/index';
+export * from './user';
 
-// Export admin constants (last to avoid conflicts)
-// Note: ADMIN_ROLE and ADMIN_PERMISSION are exported with unique names
-export * from './admin/index';
+// Export admin constants
+export * from './admin';
+
+// Export business/product constants
+export * from './business';

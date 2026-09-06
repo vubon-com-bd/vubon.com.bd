@@ -1,0 +1,141 @@
+/**
+ * Product Status Constants (EXTENDS common/status)
+ * @module shared-constants/business/product/product-status.constants
+ */
+
+import { STATUS } from '../../common/status.constants';
+
+// এই কনস্ট্যান্ট অবজেক্টটি কমন STATUS থেকে এক্সটেন্ডেড
+export const PRODUCT_STATUS = {
+  // Base status from common
+  ...STATUS,
+
+  // Product specific status
+  PRODUCT_DRAFT: 'product_draft',
+  PRODUCT_PENDING: 'product_pending',
+  PRODUCT_APPROVED: 'product_approved',
+  PRODUCT_REJECTED: 'product_rejected',
+  PRODUCT_ACTIVE: 'product_active',
+  PRODUCT_INACTIVE: 'product_inactive',
+  PRODUCT_OUT_OF_STOCK: 'product_out_of_stock',
+  PRODUCT_DISCONTINUED: 'product_discontinued',
+  PRODUCT_COMING_SOON: 'product_coming_soon',
+  PRODUCT_PRE_ORDER: 'product_pre_order',
+  PRODUCT_BACK_ORDER: 'product_back_order',
+  PRODUCT_ARCHIVED: 'product_archived',
+  PRODUCT_DELETED: 'product_deleted',
+  PRODUCT_RESTRICTED: 'product_restricted',
+  PRODUCT_FLAGGED: 'product_flagged',
+  PRODUCT_UNDER_REVIEW: 'product_under_review',
+  PRODUCT_EXPIRED: 'product_expired',
+  PRODUCT_SUSPENDED: 'product_suspended',
+  PRODUCT_BLOCKED: 'product_blocked',
+  PRODUCT_VERIFIED: 'product_verified',
+  PRODUCT_UNVERIFIED: 'product_unverified',
+} as const;
+
+// টাইপের নাম পরিবর্তন করে আলাদা করা হয়েছে যাতে common/status এর সাথে কনফ্লিক্ট না হয়
+export type ProductStatusValue = (typeof PRODUCT_STATUS)[keyof typeof PRODUCT_STATUS];
+
+// লেবেল এবং কালার অবজেক্ট
+export const PRODUCT_STATUS_LABELS: Record<string, string> = {
+  [PRODUCT_STATUS.ACTIVE]: 'Active',
+  [PRODUCT_STATUS.INACTIVE]: 'Inactive',
+  [PRODUCT_STATUS.PENDING]: 'Pending',
+  [PRODUCT_STATUS.DRAFT]: 'Draft',
+  [PRODUCT_STATUS.ARCHIVED]: 'Archived',
+  [PRODUCT_STATUS.DELETED]: 'Deleted',
+  [PRODUCT_STATUS.BLOCKED]: 'Blocked',
+  [PRODUCT_STATUS.SUSPENDED]: 'Suspended',
+  [PRODUCT_STATUS.PRODUCT_DRAFT]: 'Product Draft',
+  [PRODUCT_STATUS.PRODUCT_PENDING]: 'Product Pending',
+  [PRODUCT_STATUS.PRODUCT_APPROVED]: 'Product Approved',
+  [PRODUCT_STATUS.PRODUCT_REJECTED]: 'Product Rejected',
+  [PRODUCT_STATUS.PRODUCT_ACTIVE]: 'Product Active',
+  [PRODUCT_STATUS.PRODUCT_INACTIVE]: 'Product Inactive',
+  [PRODUCT_STATUS.PRODUCT_OUT_OF_STOCK]: 'Out of Stock',
+  [PRODUCT_STATUS.PRODUCT_DISCONTINUED]: 'Discontinued',
+  [PRODUCT_STATUS.PRODUCT_COMING_SOON]: 'Coming Soon',
+  [PRODUCT_STATUS.PRODUCT_PRE_ORDER]: 'Pre-Order',
+  [PRODUCT_STATUS.PRODUCT_BACK_ORDER]: 'Back Order',
+  [PRODUCT_STATUS.PRODUCT_ARCHIVED]: 'Product Archived',
+  [PRODUCT_STATUS.PRODUCT_DELETED]: 'Product Deleted',
+  [PRODUCT_STATUS.PRODUCT_RESTRICTED]: 'Product Restricted',
+  [PRODUCT_STATUS.PRODUCT_FLAGGED]: 'Product Flagged',
+  [PRODUCT_STATUS.PRODUCT_UNDER_REVIEW]: 'Under Review',
+  [PRODUCT_STATUS.PRODUCT_EXPIRED]: 'Product Expired',
+  [PRODUCT_STATUS.PRODUCT_SUSPENDED]: 'Product Suspended',
+  [PRODUCT_STATUS.PRODUCT_BLOCKED]: 'Product Blocked',
+  [PRODUCT_STATUS.PRODUCT_VERIFIED]: 'Product Verified',
+  [PRODUCT_STATUS.PRODUCT_UNVERIFIED]: 'Product Unverified',
+};
+
+export const PRODUCT_STATUS_COLORS: Record<string, string> = {
+  [PRODUCT_STATUS.ACTIVE]: '#22c55e',
+  [PRODUCT_STATUS.INACTIVE]: '#9ca3af',
+  [PRODUCT_STATUS.PENDING]: '#eab308',
+  [PRODUCT_STATUS.DRAFT]: '#60a5fa',
+  [PRODUCT_STATUS.ARCHIVED]: '#6b7280',
+  [PRODUCT_STATUS.DELETED]: '#ef4444',
+  [PRODUCT_STATUS.BLOCKED]: '#dc2626',
+  [PRODUCT_STATUS.SUSPENDED]: '#f59e0b',
+  [PRODUCT_STATUS.PRODUCT_DRAFT]: '#60a5fa',
+  [PRODUCT_STATUS.PRODUCT_PENDING]: '#eab308',
+  [PRODUCT_STATUS.PRODUCT_APPROVED]: '#22c55e',
+  [PRODUCT_STATUS.PRODUCT_REJECTED]: '#ef4444',
+  [PRODUCT_STATUS.PRODUCT_ACTIVE]: '#22c55e',
+  [PRODUCT_STATUS.PRODUCT_INACTIVE]: '#9ca3af',
+  [PRODUCT_STATUS.PRODUCT_OUT_OF_STOCK]: '#ef4444',
+  [PRODUCT_STATUS.PRODUCT_DISCONTINUED]: '#6b7280',
+  [PRODUCT_STATUS.PRODUCT_COMING_SOON]: '#60a5fa',
+  [PRODUCT_STATUS.PRODUCT_PRE_ORDER]: '#eab308',
+  [PRODUCT_STATUS.PRODUCT_BACK_ORDER]: '#f59e0b',
+  [PRODUCT_STATUS.PRODUCT_ARCHIVED]: '#6b7280',
+  [PRODUCT_STATUS.PRODUCT_DELETED]: '#ef4444',
+  [PRODUCT_STATUS.PRODUCT_RESTRICTED]: '#f59e0b',
+  [PRODUCT_STATUS.PRODUCT_FLAGGED]: '#ef4444',
+  [PRODUCT_STATUS.PRODUCT_UNDER_REVIEW]: '#eab308',
+  [PRODUCT_STATUS.PRODUCT_EXPIRED]: '#9ca3af',
+  [PRODUCT_STATUS.PRODUCT_SUSPENDED]: '#f59e0b',
+  [PRODUCT_STATUS.PRODUCT_BLOCKED]: '#dc2626',
+  [PRODUCT_STATUS.PRODUCT_VERIFIED]: '#22c55e',
+  [PRODUCT_STATUS.PRODUCT_UNVERIFIED]: '#f59e0b',
+};
+
+export const PRODUCT_STATUS_GROUPS = {
+  ACTIVE: [
+    PRODUCT_STATUS.ACTIVE,
+    PRODUCT_STATUS.PRODUCT_ACTIVE,
+    PRODUCT_STATUS.PRODUCT_APPROVED,
+    PRODUCT_STATUS.PRODUCT_VERIFIED,
+  ] as const,
+
+  PENDING: [
+    PRODUCT_STATUS.PENDING,
+    PRODUCT_STATUS.PRODUCT_PENDING,
+    PRODUCT_STATUS.PRODUCT_UNDER_REVIEW,
+    PRODUCT_STATUS.PRODUCT_PRE_ORDER,
+  ] as const,
+
+  INACTIVE: [
+    PRODUCT_STATUS.INACTIVE,
+    PRODUCT_STATUS.PRODUCT_INACTIVE,
+    PRODUCT_STATUS.PRODUCT_DISCONTINUED,
+    PRODUCT_STATUS.PRODUCT_EXPIRED,
+    PRODUCT_STATUS.PRODUCT_ARCHIVED,
+  ] as const,
+
+  OUT_OF_STOCK: [PRODUCT_STATUS.PRODUCT_OUT_OF_STOCK, PRODUCT_STATUS.PRODUCT_BACK_ORDER] as const,
+
+  BLOCKED: [
+    PRODUCT_STATUS.BLOCKED,
+    PRODUCT_STATUS.PRODUCT_BLOCKED,
+    PRODUCT_STATUS.PRODUCT_SUSPENDED,
+    PRODUCT_STATUS.PRODUCT_RESTRICTED,
+    PRODUCT_STATUS.PRODUCT_FLAGGED,
+  ] as const,
+
+  DELETED: [PRODUCT_STATUS.DELETED, PRODUCT_STATUS.PRODUCT_DELETED] as const,
+
+  COMING: [PRODUCT_STATUS.PRODUCT_COMING_SOON] as const,
+} as const;
