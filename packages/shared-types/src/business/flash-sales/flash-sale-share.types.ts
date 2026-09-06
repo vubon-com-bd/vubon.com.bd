@@ -6,18 +6,19 @@
 import { BaseEntity } from '../../common/base.entity';
 import { User } from '../../common/user';
 import { FlashSale } from './flash-sale.types';
+import { FLASH_SALE_SHARE } from '@vubon/shared-constants';
 
 export interface FlashSaleShare extends BaseEntity {
   flashSaleId: string;
   flashSale: FlashSale;
   userId: string;
   user: User;
-  platform:
-    'facebook' | 'twitter' | 'linkedin' | 'whatsapp' | 'telegram' | 'email' | 'copy_link' | 'other';
+  platform: (typeof FLASH_SALE_SHARE.PLATFORMS)[keyof typeof FLASH_SALE_SHARE.PLATFORMS];
   shareUrl: string;
   shareCode: string;
   clicks: number;
   conversions: number;
+  status: (typeof FLASH_SALE_SHARE.STATUS)[keyof typeof FLASH_SALE_SHARE.STATUS];
   metadata?: Record<string, string | number | boolean>;
   sharedAt: Date;
   lastClickedAt?: Date;
@@ -28,8 +29,7 @@ export interface FlashSaleShare extends BaseEntity {
 export interface FlashSaleShareCreateInput {
   flashSaleId: string;
   userId: string;
-  platform:
-    'facebook' | 'twitter' | 'linkedin' | 'whatsapp' | 'telegram' | 'email' | 'copy_link' | 'other';
+  platform: (typeof FLASH_SALE_SHARE.PLATFORMS)[keyof typeof FLASH_SALE_SHARE.PLATFORMS];
   shareUrl: string;
   shareCode: string;
   metadata?: Record<string, string | number | boolean>;
@@ -38,6 +38,7 @@ export interface FlashSaleShareCreateInput {
 export interface FlashSaleShareUpdateInput {
   clicks?: number;
   conversions?: number;
+  status?: (typeof FLASH_SALE_SHARE.STATUS)[keyof typeof FLASH_SALE_SHARE.STATUS];
   lastClickedAt?: Date;
   metadata?: Record<string, string | number | boolean>;
 }

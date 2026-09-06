@@ -6,13 +6,14 @@
 import { BaseEntity } from '../../common/base.entity';
 import { User } from '../../common/user';
 import { FlashSale } from './flash-sale.types';
+import { FLASH_SALE_WISHLIST } from '@vubon/shared-constants';
 
 export interface FlashSaleWishlist extends BaseEntity {
   flashSaleId: string;
   flashSale: FlashSale;
   userId: string;
   user: User;
-  status: 'active' | 'inactive' | 'notified' | 'expired';
+  status: (typeof FLASH_SALE_WISHLIST.STATUS)[keyof typeof FLASH_SALE_WISHLIST.STATUS];
   notifiedAt?: Date;
   metadata?: Record<string, string | number | boolean>;
   createdAt: Date;
@@ -26,7 +27,7 @@ export interface FlashSaleWishlistCreateInput {
 }
 
 export interface FlashSaleWishlistUpdateInput {
-  status?: 'active' | 'inactive' | 'notified' | 'expired';
+  status?: (typeof FLASH_SALE_WISHLIST.STATUS)[keyof typeof FLASH_SALE_WISHLIST.STATUS];
   notifiedAt?: Date;
   metadata?: Record<string, string | number | boolean>;
 }

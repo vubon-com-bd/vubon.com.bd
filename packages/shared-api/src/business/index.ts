@@ -14,3 +14,6 @@ export * from './checkout';
 
 // Payment domain
 export * from './payment';
+
+// Flash Sales domain
+export * from './flash-sales';
