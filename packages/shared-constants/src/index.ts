@@ -1,19 +1,7 @@
 /**
- * Shared Constants Index
- * সকল শেয়ার্ড কনস্ট্যান্টস এক্সপোর্ট
+ * Shared Constants - Main Entry Point
+ * @module shared-constants
  */
 
-// Common exports
+// Export all common constants
 export * from './common';
-
-// Auth exports
-export * from './auth';
-
-// User exports
-export * from './user';
-
-// Admin exports
-export * from './admin';
-
-// business exports
-export * from './business';
