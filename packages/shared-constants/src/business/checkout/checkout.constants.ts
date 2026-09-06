@@ -4,10 +4,42 @@
  */
 
 import { STATUS } from '../../common/status.constants';
+import { TYPES } from '../../common/types.constants';
+import { VERIFICATION } from '../../common/verification.constants';
+import { SESSION } from '../../common/session.constants';
+import { CURRENCY } from '../../common/currency.constants';
+import { TAX } from '../../common/tax.constants';
+import { DISCOUNT } from '../../common/discount.constants';
+import { PAYMENT_METHODS } from '../../common/payment-methods.constants';
+import { SHIPPING_METHODS } from '../../common/shipping-methods.constants';
 
 export const CHECKOUT = {
   // Checkout status from common
   STATUS: STATUS,
+
+  // Checkout types from common
+  TYPES: TYPES,
+
+  // Checkout verification from common
+  VERIFICATION: VERIFICATION,
+
+  // Checkout session from common
+  SESSION: SESSION,
+
+  // Checkout currency from common
+  CURRENCY: CURRENCY,
+
+  // Checkout tax from common
+  TAX: TAX,
+
+  // Checkout discount from common
+  DISCOUNT: DISCOUNT,
+
+  // Checkout payment methods from common
+  PAYMENT_METHODS: PAYMENT_METHODS,
+
+  // Checkout shipping methods from common
+  SHIPPING_METHODS: SHIPPING_METHODS,
 
   // Checkout specific
   MAX_CHECKOUT_ATTEMPTS: 3,

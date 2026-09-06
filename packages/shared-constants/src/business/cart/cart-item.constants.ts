@@ -1,13 +1,29 @@
 /**
- * Cart Item Constants (EXTENDS common/status)
+ * Cart Item Constants (EXTENDS common/status + common/types)
  * @module shared-constants/business/cart/cart-item.constants
  */
 
 import { STATUS } from '../../common/status.constants';
+import { TYPES } from '../../common/types.constants';
+import { CURRENCY } from '../../common/currency.constants';
+import { TAX } from '../../common/tax.constants';
+import { DISCOUNT } from '../../common/discount.constants';
 
 export const CART_ITEM = {
   // Base status from common
   STATUS: STATUS,
+
+  // Types from common
+  TYPES: TYPES,
+
+  // Currency from common
+  CURRENCY: CURRENCY,
+
+  // Tax from common
+  TAX: TAX,
+
+  // Discount from common
+  DISCOUNT: DISCOUNT,
 
   // Cart item specific
   MAX_QUANTITY: 999,
@@ -58,6 +74,13 @@ export const CART_ITEM = {
     PRICE_VALID: 'price_valid',
     CUSTOM: 'custom',
   } as const,
+
+  // Cart item tax
+  CART_ITEM_TAX: {
+    APPLICABLE: true,
+    INCLUDED: false,
+    CALCULATION: 'percentage',
+  } as const,
 } as const;
 
 export type CartItemStatus =
@@ -67,25 +90,3 @@ export type CartItemDiscount =
   (typeof CART_ITEM.CART_ITEM_DISCOUNT)[keyof typeof CART_ITEM.CART_ITEM_DISCOUNT];
 export type CartItemValidation =
   (typeof CART_ITEM.CART_ITEM_VALIDATION)[keyof typeof CART_ITEM.CART_ITEM_VALIDATION];
-
-export const CART_ITEM_STATUS_LABELS: Record<CartItemStatus, string> = {
-  active: 'Active',
-  inactive: 'Inactive',
-  pending: 'Pending',
-  removed: 'Removed',
-  moved_to_saved: 'Moved to Saved',
-  converted: 'Converted',
-  out_of_stock: 'Out of Stock',
-  discontinued: 'Discontinued',
-};
-
-export const CART_ITEM_STATUS_COLORS: Record<CartItemStatus, string> = {
-  active: '#22c55e',
-  inactive: '#9ca3af',
-  pending: '#eab308',
-  removed: '#ef4444',
-  moved_to_saved: '#60a5fa',
-  converted: '#22c55e',
-  out_of_stock: '#ef4444',
-  discontinued: '#6b7280',
-};

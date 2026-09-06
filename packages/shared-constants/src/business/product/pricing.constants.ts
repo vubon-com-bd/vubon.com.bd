@@ -1,13 +1,29 @@
 /**
- * Product Pricing Constants (EXTENDS common/types)
+ * Product Pricing Constants (EXTENDS common/types + common/currency + common/tax)
  * @module shared-constants/business/product/pricing.constants
  */
 
 import { TYPES } from '../../common/types.constants';
+import { CURRENCY } from '../../common/currency.constants';
+import { TAX } from '../../common/tax.constants';
+import { DISCOUNT } from '../../common/discount.constants';
+import { STATUS } from '../../common/status.constants';
 
 export const PRODUCT_PRICING = {
   // Base types from common
   ...TYPES,
+
+  // Currency from common
+  CURRENCY: CURRENCY,
+
+  // Tax from common
+  TAX: TAX,
+
+  // Discount from common
+  DISCOUNT: DISCOUNT,
+
+  // Status from common
+  STATUS: STATUS,
 
   // Pricing specific
   DEFAULT_CURRENCY: 'BDT',
@@ -76,6 +92,15 @@ export const PRODUCT_PRICING = {
     ENTERPRISE: 'enterprise',
     STUDENT: 'student',
     NON_PROFIT: 'non_profit',
+  } as const,
+
+  // Price validation
+  PRODUCT_PRICE_VALIDATION: {
+    REQUIRES_PRICE: true,
+    REQUIRES_CURRENCY: true,
+    REQUIRES_TAX: false,
+    MIN_AMOUNT: 0,
+    MAX_AMOUNT: 99999999.99,
   } as const,
 } as const;
 

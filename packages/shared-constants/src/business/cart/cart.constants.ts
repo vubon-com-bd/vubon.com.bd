@@ -4,10 +4,38 @@
  */
 
 import { STATUS } from '../../common/status.constants';
+import { TYPES } from '../../common/types.constants';
+import { VERIFICATION } from '../../common/verification.constants';
+import { SESSION } from '../../common/session.constants';
+import { DEVICE } from '../../common/device.constants';
+import { CURRENCY } from '../../common/currency.constants';
+import { TAX } from '../../common/tax.constants';
+import { DISCOUNT } from '../../common/discount.constants';
 
 export const CART = {
   // Cart status from common
   STATUS: STATUS,
+
+  // Cart types from common
+  TYPES: TYPES,
+
+  // Cart verification from common
+  VERIFICATION: VERIFICATION,
+
+  // Cart session from common
+  SESSION: SESSION,
+
+  // Cart device from common
+  DEVICE: DEVICE,
+
+  // Cart currency from common
+  CURRENCY: CURRENCY,
+
+  // Cart tax from common
+  TAX: TAX,
+
+  // Cart discount from common
+  DISCOUNT: DISCOUNT,
 
   // Cart specific
   MAX_CART_ITEMS: 50,
@@ -30,7 +58,7 @@ export const CART = {
     BULK: 'bulk',
   } as const,
 
-  // Cart status values (unique names)
+  // Cart status values
   CART_STATUS_VALUES: {
     ACTIVE: 'active',
     INACTIVE: 'inactive',

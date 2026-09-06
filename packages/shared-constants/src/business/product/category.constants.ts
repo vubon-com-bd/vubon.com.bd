@@ -1,13 +1,21 @@
 /**
- * Product Category Constants (EXTENDS common/status)
+ * Product Category Constants (EXTENDS common/status + common/types)
  * @module shared-constants/business/product/category.constants
  */
 
 import { STATUS } from '../../common/status.constants';
+import { TYPES } from '../../common/types.constants';
+import { PERMISSIONS } from '../../common/permissions.constants';
 
 export const PRODUCT_CATEGORY = {
   // Base status from common
   STATUS: STATUS,
+
+  // Types from common
+  TYPES: TYPES,
+
+  // Permissions from common
+  PERMISSIONS: PERMISSIONS,
 
   // Category specific
   MAX_CATEGORY_NAME_LENGTH: 100,
@@ -26,6 +34,8 @@ export const PRODUCT_CATEGORY = {
     DIGITAL: 'digital',
     PHYSICAL: 'physical',
     SUBSCRIPTION: 'subscription',
+    BUNDLE: 'bundle',
+    KIT: 'kit',
   } as const,
 
   // Category status
@@ -73,7 +83,7 @@ export type ProductCategoryVisibility =
 export type ProductCategorySort =
   (typeof PRODUCT_CATEGORY.PRODUCT_CATEGORY_SORT)[keyof typeof PRODUCT_CATEGORY.PRODUCT_CATEGORY_SORT];
 
-export const PRODUCT_CATEGORY_STATUS_LABELS: Record<string, string> = {
+export const PRODUCT_CATEGORY_STATUS_LABELS: Record<ProductCategoryStatus, string> = {
   [PRODUCT_CATEGORY.PRODUCT_CATEGORY_STATUS.ACTIVE]: 'Active',
   [PRODUCT_CATEGORY.PRODUCT_CATEGORY_STATUS.INACTIVE]: 'Inactive',
   [PRODUCT_CATEGORY.PRODUCT_CATEGORY_STATUS.PENDING]: 'Pending',
@@ -84,7 +94,7 @@ export const PRODUCT_CATEGORY_STATUS_LABELS: Record<string, string> = {
   [PRODUCT_CATEGORY.PRODUCT_CATEGORY_STATUS.FEATURED]: 'Featured',
 };
 
-export const PRODUCT_CATEGORY_STATUS_COLORS: Record<string, string> = {
+export const PRODUCT_CATEGORY_STATUS_COLORS: Record<ProductCategoryStatus, string> = {
   [PRODUCT_CATEGORY.PRODUCT_CATEGORY_STATUS.ACTIVE]: '#22c55e',
   [PRODUCT_CATEGORY.PRODUCT_CATEGORY_STATUS.INACTIVE]: '#9ca3af',
   [PRODUCT_CATEGORY.PRODUCT_CATEGORY_STATUS.PENDING]: '#eab308',

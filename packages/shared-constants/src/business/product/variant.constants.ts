@@ -1,13 +1,25 @@
 /**
- * Product Variant Constants (EXTENDS common/status)
+ * Product Variant Constants (EXTENDS common/status + common/types + common/inventory)
  * @module shared-constants/business/product/variant.constants
  */
 
 import { STATUS } from '../../common/status.constants';
+import { TYPES } from '../../common/types.constants';
+import { VERIFICATION } from '../../common/verification.constants';
+import { CURRENCY } from '../../common/currency.constants';
 
 export const PRODUCT_VARIANT = {
   // Base status from common
   STATUS: STATUS,
+
+  // Types from common
+  TYPES: TYPES,
+
+  // Verification from common
+  VERIFICATION: VERIFICATION,
+
+  // Currency from common
+  CURRENCY: CURRENCY,
 
   // Variant specific
   MAX_VARIANT_NAME_LENGTH: 255,
@@ -61,6 +73,15 @@ export const PRODUCT_VARIANT = {
     TIERED: 'tiered',
     DYNAMIC: 'dynamic',
   } as const,
+
+  // Variant validation
+  PRODUCT_VARIANT_VALIDATION: {
+    REQUIRES_SKU: true,
+    REQUIRES_PRICE: false,
+    REQUIRES_WEIGHT: false,
+    REQUIRES_DIMENSIONS: false,
+    MAX_OPTIONS: 100,
+  } as const,
 } as const;
 
 export type ProductVariantStatus =
@@ -71,29 +92,3 @@ export type ProductVariantStock =
   (typeof PRODUCT_VARIANT.PRODUCT_VARIANT_STOCK)[keyof typeof PRODUCT_VARIANT.PRODUCT_VARIANT_STOCK];
 export type ProductVariantPricing =
   (typeof PRODUCT_VARIANT.PRODUCT_VARIANT_PRICING)[keyof typeof PRODUCT_VARIANT.PRODUCT_VARIANT_PRICING];
-
-export const PRODUCT_VARIANT_STATUS_LABELS: Record<ProductVariantStatus, string> = {
-  [PRODUCT_VARIANT.PRODUCT_VARIANT_STATUS.ACTIVE]: 'Active',
-  [PRODUCT_VARIANT.PRODUCT_VARIANT_STATUS.INACTIVE]: 'Inactive',
-  [PRODUCT_VARIANT.PRODUCT_VARIANT_STATUS.PENDING]: 'Pending',
-  [PRODUCT_VARIANT.PRODUCT_VARIANT_STATUS.DRAFT]: 'Draft',
-  [PRODUCT_VARIANT.PRODUCT_VARIANT_STATUS.ARCHIVED]: 'Archived',
-  [PRODUCT_VARIANT.PRODUCT_VARIANT_STATUS.DELETED]: 'Deleted',
-  [PRODUCT_VARIANT.PRODUCT_VARIANT_STATUS.OUT_OF_STOCK]: 'Out of Stock',
-  [PRODUCT_VARIANT.PRODUCT_VARIANT_STATUS.DISCONTINUED]: 'Discontinued',
-  [PRODUCT_VARIANT.PRODUCT_VARIANT_STATUS.PRE_ORDER]: 'Pre-Order',
-  [PRODUCT_VARIANT.PRODUCT_VARIANT_STATUS.BACK_ORDER]: 'Back Order',
-};
-
-export const PRODUCT_VARIANT_STATUS_COLORS: Record<ProductVariantStatus, string> = {
-  [PRODUCT_VARIANT.PRODUCT_VARIANT_STATUS.ACTIVE]: '#22c55e',
-  [PRODUCT_VARIANT.PRODUCT_VARIANT_STATUS.INACTIVE]: '#9ca3af',
-  [PRODUCT_VARIANT.PRODUCT_VARIANT_STATUS.PENDING]: '#eab308',
-  [PRODUCT_VARIANT.PRODUCT_VARIANT_STATUS.DRAFT]: '#60a5fa',
-  [PRODUCT_VARIANT.PRODUCT_VARIANT_STATUS.ARCHIVED]: '#6b7280',
-  [PRODUCT_VARIANT.PRODUCT_VARIANT_STATUS.DELETED]: '#ef4444',
-  [PRODUCT_VARIANT.PRODUCT_VARIANT_STATUS.OUT_OF_STOCK]: '#ef4444',
-  [PRODUCT_VARIANT.PRODUCT_VARIANT_STATUS.DISCONTINUED]: '#6b7280',
-  [PRODUCT_VARIANT.PRODUCT_VARIANT_STATUS.PRE_ORDER]: '#eab308',
-  [PRODUCT_VARIANT.PRODUCT_VARIANT_STATUS.BACK_ORDER]: '#f59e0b',
-};

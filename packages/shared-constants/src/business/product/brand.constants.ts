@@ -1,13 +1,25 @@
 /**
- * Product Brand Constants (EXTENDS common/status)
+ * Product Brand Constants (EXTENDS common/status + common/types + common/permissions)
  * @module shared-constants/business/product/brand.constants
  */
 
 import { STATUS } from '../../common/status.constants';
+import { TYPES } from '../../common/types.constants';
+import { PERMISSIONS } from '../../common/permissions.constants';
+import { VERIFICATION } from '../../common/verification.constants';
 
 export const PRODUCT_BRAND = {
   // Base status from common
   STATUS: STATUS,
+
+  // Types from common
+  TYPES: TYPES,
+
+  // Permissions from common
+  PERMISSIONS: PERMISSIONS,
+
+  // Verification from common
+  VERIFICATION: VERIFICATION,
 
   // Brand specific
   MAX_BRAND_NAME_LENGTH: 100,
@@ -72,29 +84,3 @@ export type ProductBrandVisibility =
   (typeof PRODUCT_BRAND.PRODUCT_BRAND_VISIBILITY)[keyof typeof PRODUCT_BRAND.PRODUCT_BRAND_VISIBILITY];
 export type ProductBrandSort =
   (typeof PRODUCT_BRAND.PRODUCT_BRAND_SORT)[keyof typeof PRODUCT_BRAND.PRODUCT_BRAND_SORT];
-
-export const PRODUCT_BRAND_STATUS_LABELS: Record<ProductBrandStatus, string> = {
-  [PRODUCT_BRAND.PRODUCT_BRAND_STATUS.ACTIVE]: 'Active',
-  [PRODUCT_BRAND.PRODUCT_BRAND_STATUS.INACTIVE]: 'Inactive',
-  [PRODUCT_BRAND.PRODUCT_BRAND_STATUS.PENDING]: 'Pending',
-  [PRODUCT_BRAND.PRODUCT_BRAND_STATUS.DRAFT]: 'Draft',
-  [PRODUCT_BRAND.PRODUCT_BRAND_STATUS.ARCHIVED]: 'Archived',
-  [PRODUCT_BRAND.PRODUCT_BRAND_STATUS.DELETED]: 'Deleted',
-  [PRODUCT_BRAND.PRODUCT_BRAND_STATUS.FEATURED]: 'Featured',
-  [PRODUCT_BRAND.PRODUCT_BRAND_STATUS.VERIFIED]: 'Verified',
-  [PRODUCT_BRAND.PRODUCT_BRAND_STATUS.UNVERIFIED]: 'Unverified',
-  [PRODUCT_BRAND.PRODUCT_BRAND_STATUS.SUSPENDED]: 'Suspended',
-};
-
-export const PRODUCT_BRAND_STATUS_COLORS: Record<ProductBrandStatus, string> = {
-  [PRODUCT_BRAND.PRODUCT_BRAND_STATUS.ACTIVE]: '#22c55e',
-  [PRODUCT_BRAND.PRODUCT_BRAND_STATUS.INACTIVE]: '#9ca3af',
-  [PRODUCT_BRAND.PRODUCT_BRAND_STATUS.PENDING]: '#eab308',
-  [PRODUCT_BRAND.PRODUCT_BRAND_STATUS.DRAFT]: '#60a5fa',
-  [PRODUCT_BRAND.PRODUCT_BRAND_STATUS.ARCHIVED]: '#6b7280',
-  [PRODUCT_BRAND.PRODUCT_BRAND_STATUS.DELETED]: '#ef4444',
-  [PRODUCT_BRAND.PRODUCT_BRAND_STATUS.FEATURED]: '#8b5cf6',
-  [PRODUCT_BRAND.PRODUCT_BRAND_STATUS.VERIFIED]: '#22c55e',
-  [PRODUCT_BRAND.PRODUCT_BRAND_STATUS.UNVERIFIED]: '#f59e0b',
-  [PRODUCT_BRAND.PRODUCT_BRAND_STATUS.SUSPENDED]: '#dc2626',
-};

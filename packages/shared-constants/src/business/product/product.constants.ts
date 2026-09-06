@@ -5,9 +5,11 @@
 
 import { STATUS } from '../../common/status.constants';
 import { TYPES } from '../../common/types.constants';
-
-// Re-export status and types from common
-export { STATUS, TYPES };
+import { VERIFICATION } from '../../common/verification.constants';
+import { CURRENCY } from '../../common/currency.constants';
+import { TAX } from '../../common/tax.constants';
+import { PERMISSIONS } from '../../common/permissions.constants';
+import { ROLES } from '../../common/roles.constants';
 
 export const PRODUCT = {
   // Product status from common
@@ -15,6 +17,21 @@ export const PRODUCT = {
 
   // Product types from common
   TYPES: TYPES,
+
+  // Product verification from common
+  VERIFICATION: VERIFICATION,
+
+  // Product currency from common
+  CURRENCY: CURRENCY,
+
+  // Product tax from common
+  TAX: TAX,
+
+  // Product permissions from common
+  PERMISSIONS: PERMISSIONS,
+
+  // Product roles from common
+  ROLES: ROLES,
 
   // Product specific
   DEFAULT_PRODUCT_STATUS: 'draft',
@@ -37,5 +54,6 @@ export const PRODUCT = {
   MAX_PRODUCT_COLLECTIONS: 10,
 } as const;
 
-// Don't export ProductStatus and ProductType from here to avoid conflicts
-// They will be exported from their respective files
+// Use different type names to avoid conflicts
+export type ProductMainStatus = (typeof STATUS)[keyof typeof STATUS];
+export type ProductMainType = (typeof TYPES)[keyof typeof TYPES];

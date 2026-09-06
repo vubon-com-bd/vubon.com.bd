@@ -1,13 +1,25 @@
 /**
- * Order Tracking Constants (EXTENDS common/status)
+ * Order Tracking Constants (EXTENDS common/status + common/types)
  * @module shared-constants/business/checkout/order-tracking.constants
  */
 
 import { STATUS } from '../../common/status.constants';
+import { TYPES } from '../../common/types.constants';
+import { VERIFICATION } from '../../common/verification.constants';
+import { SHIPPING_METHODS } from '../../common/shipping-methods.constants';
 
 export const ORDER_TRACKING = {
   // Base status from common
   STATUS: STATUS,
+
+  // Types from common
+  TYPES: TYPES,
+
+  // Verification from common
+  VERIFICATION: VERIFICATION,
+
+  // Shipping methods from common
+  SHIPPING_METHODS: SHIPPING_METHODS,
 
   // Tracking specific
   MAX_TRACKING_ENTRIES: 50,
@@ -56,6 +68,14 @@ export const ORDER_TRACKING = {
     ORDER_RETURNED: 'order_returned',
     ORDER_CANCELLED: 'order_cancelled',
   } as const,
+
+  // Tracking validation
+  ORDER_TRACKING_VALIDATION: {
+    REQUIRES_TRACKING_NUMBER: true,
+    REQUIRES_PROVIDER: true,
+    REQUIRES_STATUS: true,
+    REQUIRES_UPDATES: true,
+  } as const,
 } as const;
 
 export type OrderTrackingStatus =
@@ -64,42 +84,3 @@ export type OrderTrackingProvider =
   (typeof ORDER_TRACKING.ORDER_TRACKING_PROVIDER)[keyof typeof ORDER_TRACKING.ORDER_TRACKING_PROVIDER];
 export type OrderTrackingEvent =
   (typeof ORDER_TRACKING.ORDER_TRACKING_EVENT)[keyof typeof ORDER_TRACKING.ORDER_TRACKING_EVENT];
-
-export const ORDER_TRACKING_STATUS_LABELS: Record<OrderTrackingStatus, string> = {
-  pending: 'Pending',
-  processing: 'Processing',
-  in_transit: 'In Transit',
-  out_for_delivery: 'Out for Delivery',
-  delivered: 'Delivered',
-  failed: 'Failed',
-  returned: 'Returned',
-  cancelled: 'Cancelled',
-  on_hold: 'On Hold',
-  delayed: 'Delayed',
-};
-
-export const ORDER_TRACKING_STATUS_COLORS: Record<OrderTrackingStatus, string> = {
-  pending: '#eab308',
-  processing: '#60a5fa',
-  in_transit: '#3b82f6',
-  out_for_delivery: '#8b5cf6',
-  delivered: '#22c55e',
-  failed: '#ef4444',
-  returned: '#f59e0b',
-  cancelled: '#dc2626',
-  on_hold: '#f59e0b',
-  delayed: '#ef4444',
-};
-
-export const ORDER_TRACKING_EVENT_LABELS: Record<OrderTrackingEvent, string> = {
-  order_placed: 'Order Placed',
-  order_confirmed: 'Order Confirmed',
-  order_processing: 'Order Processing',
-  order_shipped: 'Order Shipped',
-  order_in_transit: 'Order In Transit',
-  order_out_for_delivery: 'Out for Delivery',
-  order_delivered: 'Order Delivered',
-  order_delayed: 'Order Delayed',
-  order_returned: 'Order Returned',
-  order_cancelled: 'Order Cancelled',
-};

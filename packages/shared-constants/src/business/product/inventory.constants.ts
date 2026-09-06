@@ -1,13 +1,25 @@
 /**
- * Product Inventory Constants (EXTENDS common/status)
+ * Product Inventory Constants (EXTENDS common/status + common/types)
  * @module shared-constants/business/product/inventory.constants
  */
 
 import { STATUS } from '../../common/status.constants';
+import { TYPES } from '../../common/types.constants';
+import { VERIFICATION } from '../../common/verification.constants';
+import { CURRENCY } from '../../common/currency.constants';
 
 export const PRODUCT_INVENTORY = {
   // Base status from common
   STATUS: STATUS,
+
+  // Types from common
+  TYPES: TYPES,
+
+  // Verification from common
+  VERIFICATION: VERIFICATION,
+
+  // Currency from common
+  CURRENCY: CURRENCY,
 
   // Inventory specific
   DEFAULT_INVENTORY_QUANTITY: 0,
@@ -85,6 +97,15 @@ export const PRODUCT_INVENTORY = {
     VENDOR: 'vendor',
     CUSTOM: 'custom',
   } as const,
+
+  // Inventory validation
+  PRODUCT_INVENTORY_VALIDATION: {
+    REQUIRES_QUANTITY: true,
+    REQUIRES_LOCATION: false,
+    REQUIRES_BATCH: false,
+    REQUIRES_EXPIRY: false,
+    ALLOW_NEGATIVE: false,
+  } as const,
 } as const;
 
 export type ProductInventoryStatus =
@@ -99,29 +120,3 @@ export type ProductReorderType =
   (typeof PRODUCT_INVENTORY.PRODUCT_REORDER)[keyof typeof PRODUCT_INVENTORY.PRODUCT_REORDER];
 export type ProductWarehouseType =
   (typeof PRODUCT_INVENTORY.PRODUCT_WAREHOUSE_TYPE)[keyof typeof PRODUCT_INVENTORY.PRODUCT_WAREHOUSE_TYPE];
-
-export const PRODUCT_INVENTORY_STATUS_LABELS: Record<ProductInventoryStatus, string> = {
-  [PRODUCT_INVENTORY.PRODUCT_INVENTORY_STATUS.IN_STOCK]: 'In Stock',
-  [PRODUCT_INVENTORY.PRODUCT_INVENTORY_STATUS.OUT_OF_STOCK]: 'Out of Stock',
-  [PRODUCT_INVENTORY.PRODUCT_INVENTORY_STATUS.LOW_STOCK]: 'Low Stock',
-  [PRODUCT_INVENTORY.PRODUCT_INVENTORY_STATUS.CRITICAL_STOCK]: 'Critical Stock',
-  [PRODUCT_INVENTORY.PRODUCT_INVENTORY_STATUS.PRE_ORDER]: 'Pre-Order',
-  [PRODUCT_INVENTORY.PRODUCT_INVENTORY_STATUS.BACK_ORDER]: 'Back Order',
-  [PRODUCT_INVENTORY.PRODUCT_INVENTORY_STATUS.DISCONTINUED]: 'Discontinued',
-  [PRODUCT_INVENTORY.PRODUCT_INVENTORY_STATUS.COMING_SOON]: 'Coming Soon',
-  [PRODUCT_INVENTORY.PRODUCT_INVENTORY_STATUS.ON_HOLD]: 'On Hold',
-  [PRODUCT_INVENTORY.PRODUCT_INVENTORY_STATUS.RESERVED]: 'Reserved',
-};
-
-export const PRODUCT_INVENTORY_STATUS_COLORS: Record<ProductInventoryStatus, string> = {
-  [PRODUCT_INVENTORY.PRODUCT_INVENTORY_STATUS.IN_STOCK]: '#22c55e',
-  [PRODUCT_INVENTORY.PRODUCT_INVENTORY_STATUS.OUT_OF_STOCK]: '#ef4444',
-  [PRODUCT_INVENTORY.PRODUCT_INVENTORY_STATUS.LOW_STOCK]: '#f59e0b',
-  [PRODUCT_INVENTORY.PRODUCT_INVENTORY_STATUS.CRITICAL_STOCK]: '#dc2626',
-  [PRODUCT_INVENTORY.PRODUCT_INVENTORY_STATUS.PRE_ORDER]: '#eab308',
-  [PRODUCT_INVENTORY.PRODUCT_INVENTORY_STATUS.BACK_ORDER]: '#f59e0b',
-  [PRODUCT_INVENTORY.PRODUCT_INVENTORY_STATUS.DISCONTINUED]: '#6b7280',
-  [PRODUCT_INVENTORY.PRODUCT_INVENTORY_STATUS.COMING_SOON]: '#60a5fa',
-  [PRODUCT_INVENTORY.PRODUCT_INVENTORY_STATUS.ON_HOLD]: '#9ca3af',
-  [PRODUCT_INVENTORY.PRODUCT_INVENTORY_STATUS.RESERVED]: '#8b5cf6',
-};

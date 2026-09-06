@@ -1,13 +1,21 @@
 /**
- * Product Attribute Constants (EXTENDS common/types)
+ * Product Attribute Constants (EXTENDS common/types + common/status)
  * @module shared-constants/business/product/attribute.constants
  */
 
 import { TYPES } from '../../common/types.constants';
+import { STATUS } from '../../common/status.constants';
+import { VERIFICATION } from '../../common/verification.constants';
 
 export const PRODUCT_ATTRIBUTE = {
   // Base types from common
   ...TYPES,
+
+  // Status from common
+  STATUS: STATUS,
+
+  // Verification from common
+  VERIFICATION: VERIFICATION,
 
   // Attribute specific
   MAX_ATTRIBUTE_NAME_LENGTH: 100,

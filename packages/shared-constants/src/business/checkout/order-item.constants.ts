@@ -1,13 +1,29 @@
 /**
- * Order Item Constants (EXTENDS common/status)
+ * Order Item Constants (EXTENDS common/status + common/types)
  * @module shared-constants/business/checkout/order-item.constants
  */
 
 import { STATUS } from '../../common/status.constants';
+import { TYPES } from '../../common/types.constants';
+import { CURRENCY } from '../../common/currency.constants';
+import { TAX } from '../../common/tax.constants';
+import { DISCOUNT } from '../../common/discount.constants';
 
 export const ORDER_ITEM = {
   // Base status from common
   STATUS: STATUS,
+
+  // Types from common
+  TYPES: TYPES,
+
+  // Currency from common
+  CURRENCY: CURRENCY,
+
+  // Tax from common
+  TAX: TAX,
+
+  // Discount from common
+  DISCOUNT: DISCOUNT,
 
   // Order item specific
   MAX_QUANTITY: 999,
@@ -46,6 +62,13 @@ export const ORDER_ITEM = {
     BUNDLE: 'bundle',
     BOGO: 'bogo',
   } as const,
+
+  // Order item tax
+  ORDER_ITEM_TAX: {
+    APPLICABLE: true,
+    INCLUDED: false,
+    CALCULATION: 'percentage',
+  } as const,
 } as const;
 
 export type OrderItemStatus =
@@ -54,27 +77,3 @@ export type OrderItemType =
   (typeof ORDER_ITEM.ORDER_ITEM_TYPE)[keyof typeof ORDER_ITEM.ORDER_ITEM_TYPE];
 export type OrderItemDiscount =
   (typeof ORDER_ITEM.ORDER_ITEM_DISCOUNT)[keyof typeof ORDER_ITEM.ORDER_ITEM_DISCOUNT];
-
-export const ORDER_ITEM_STATUS_LABELS: Record<OrderItemStatus, string> = {
-  pending: 'Pending',
-  confirmed: 'Confirmed',
-  processing: 'Processing',
-  shipped: 'Shipped',
-  delivered: 'Delivered',
-  cancelled: 'Cancelled',
-  returned: 'Returned',
-  refunded: 'Refunded',
-  failed: 'Failed',
-};
-
-export const ORDER_ITEM_STATUS_COLORS: Record<OrderItemStatus, string> = {
-  pending: '#eab308',
-  confirmed: '#60a5fa',
-  processing: '#8b5cf6',
-  shipped: '#3b82f6',
-  delivered: '#22c55e',
-  cancelled: '#dc2626',
-  returned: '#f59e0b',
-  refunded: '#6b7280',
-  failed: '#ef4444',
-};

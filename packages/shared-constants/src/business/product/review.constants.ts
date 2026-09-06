@@ -1,13 +1,25 @@
 /**
- * Product Review Constants (EXTENDS common/status)
+ * Product Review Constants (EXTENDS common/status + common/types)
  * @module shared-constants/business/product/review.constants
  */
 
 import { STATUS } from '../../common/status.constants';
+import { TYPES } from '../../common/types.constants';
+import { VERIFICATION } from '../../common/verification.constants';
+import { PERMISSIONS } from '../../common/permissions.constants';
 
 export const PRODUCT_REVIEW = {
   // Base status from common
   STATUS: STATUS,
+
+  // Types from common
+  TYPES: TYPES,
+
+  // Verification from common
+  VERIFICATION: VERIFICATION,
+
+  // Permissions from common
+  PERMISSIONS: PERMISSIONS,
 
   // Review specific
   MIN_RATING: 1,
@@ -80,6 +92,16 @@ export const PRODUCT_REVIEW = {
     MOST_HELPFUL: 'most_helpful',
     MOST_LIKED: 'most_liked',
   } as const,
+
+  // Review validation
+  PRODUCT_REVIEW_VALIDATION: {
+    REQUIRES_RATING: true,
+    REQUIRES_COMMENT: false,
+    REQUIRES_VERIFICATION: false,
+    ALLOW_ANONYMOUS: false,
+    MAX_IMAGES: 5,
+    MAX_VIDEOS: 2,
+  } as const,
 } as const;
 
 export type ProductReviewStatus =
@@ -94,27 +116,3 @@ export type ProductReviewFilter =
   (typeof PRODUCT_REVIEW.PRODUCT_REVIEW_FILTER)[keyof typeof PRODUCT_REVIEW.PRODUCT_REVIEW_FILTER];
 export type ProductReviewSort =
   (typeof PRODUCT_REVIEW.PRODUCT_REVIEW_SORT)[keyof typeof PRODUCT_REVIEW.PRODUCT_REVIEW_SORT];
-
-export const PRODUCT_REVIEW_STATUS_LABELS: Record<ProductReviewStatus, string> = {
-  [PRODUCT_REVIEW.PRODUCT_REVIEW_STATUS.PENDING]: 'Pending',
-  [PRODUCT_REVIEW.PRODUCT_REVIEW_STATUS.APPROVED]: 'Approved',
-  [PRODUCT_REVIEW.PRODUCT_REVIEW_STATUS.REJECTED]: 'Rejected',
-  [PRODUCT_REVIEW.PRODUCT_REVIEW_STATUS.FLAGGED]: 'Flagged',
-  [PRODUCT_REVIEW.PRODUCT_REVIEW_STATUS.REMOVED]: 'Removed',
-  [PRODUCT_REVIEW.PRODUCT_REVIEW_STATUS.SPAM]: 'Spam',
-  [PRODUCT_REVIEW.PRODUCT_REVIEW_STATUS.HIDDEN]: 'Hidden',
-  [PRODUCT_REVIEW.PRODUCT_REVIEW_STATUS.HELPFUL]: 'Helpful',
-  [PRODUCT_REVIEW.PRODUCT_REVIEW_STATUS.UNHELPFUL]: 'Unhelpful',
-};
-
-export const PRODUCT_REVIEW_STATUS_COLORS: Record<ProductReviewStatus, string> = {
-  [PRODUCT_REVIEW.PRODUCT_REVIEW_STATUS.PENDING]: '#eab308',
-  [PRODUCT_REVIEW.PRODUCT_REVIEW_STATUS.APPROVED]: '#22c55e',
-  [PRODUCT_REVIEW.PRODUCT_REVIEW_STATUS.REJECTED]: '#ef4444',
-  [PRODUCT_REVIEW.PRODUCT_REVIEW_STATUS.FLAGGED]: '#f59e0b',
-  [PRODUCT_REVIEW.PRODUCT_REVIEW_STATUS.REMOVED]: '#dc2626',
-  [PRODUCT_REVIEW.PRODUCT_REVIEW_STATUS.SPAM]: '#6b7280',
-  [PRODUCT_REVIEW.PRODUCT_REVIEW_STATUS.HIDDEN]: '#6b7280',
-  [PRODUCT_REVIEW.PRODUCT_REVIEW_STATUS.HELPFUL]: '#22c55e',
-  [PRODUCT_REVIEW.PRODUCT_REVIEW_STATUS.UNHELPFUL]: '#ef4444',
-};

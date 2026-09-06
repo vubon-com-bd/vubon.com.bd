@@ -1,13 +1,37 @@
 /**
- * Order Constants (EXTENDS common/status)
+ * Order Constants (EXTENDS common/status + common/types)
  * @module shared-constants/business/checkout/order.constants
  */
 
 import { STATUS } from '../../common/status.constants';
+import { TYPES } from '../../common/types.constants';
+import { CURRENCY } from '../../common/currency.constants';
+import { TAX } from '../../common/tax.constants';
+import { DISCOUNT } from '../../common/discount.constants';
+import { PAYMENT_METHODS } from '../../common/payment-methods.constants';
+import { SHIPPING_METHODS } from '../../common/shipping-methods.constants';
 
 export const ORDER = {
   // Base status from common
   STATUS: STATUS,
+
+  // Types from common
+  TYPES: TYPES,
+
+  // Currency from common
+  CURRENCY: CURRENCY,
+
+  // Tax from common
+  TAX: TAX,
+
+  // Discount from common
+  DISCOUNT: DISCOUNT,
+
+  // Payment methods from common
+  PAYMENT_METHODS: PAYMENT_METHODS,
+
+  // Shipping methods from common
+  SHIPPING_METHODS: SHIPPING_METHODS,
 
   // Order specific
   MAX_ORDER_ITEMS: 100,
@@ -47,6 +71,16 @@ export const ORDER = {
     MEDIUM: 'medium',
     HIGH: 'high',
     URGENT: 'urgent',
+  } as const,
+
+  // Order validation
+  ORDER_VALIDATION: {
+    REQUIRES_ITEMS: true,
+    REQUIRES_ADDRESS: true,
+    REQUIRES_PAYMENT: true,
+    REQUIRES_SHIPPING: true,
+    MIN_AMOUNT: 0,
+    MAX_AMOUNT: 99999999.99,
   } as const,
 } as const;
 
