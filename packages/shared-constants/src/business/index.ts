@@ -3,5 +3,8 @@
  * @module shared-constants/business
  */
 
-// Export product constants
-export * from './product/';
+// Export product domain
+export * from './product';
+
+// Export cart domain
+export * from './cart';
