@@ -1,4 +1,5 @@
-import { ENVIRONMENT, LOG_LEVEL } from '@vubon/shared-constants';
+import { ENVIRONMENT } from '@vubon/shared-constants';
+import { LOG_LEVEL } from '@vubon/shared-constants';
 
 export interface AppConfig {
   env: keyof typeof ENVIRONMENT;

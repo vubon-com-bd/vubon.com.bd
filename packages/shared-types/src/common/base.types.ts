@@ -1,10 +1,9 @@
-import { STATUS, ROLES, PERMISSIONS } from '@vubon/shared-constants';
-
-// ID এর জন্য আলাদা টাইপ তৈরি করলাম
-export type BaseId = string;
+import { STATUS } from '@vubon/shared-constants';
+import { ROLES } from '@vubon/shared-constants';
+import { PERMISSIONS } from '@vubon/shared-constants';
 
 export interface BaseEntity {
-  id: BaseId;
+  id: string;
   createdAt: Date;
   updatedAt: Date;
   status: keyof typeof STATUS;

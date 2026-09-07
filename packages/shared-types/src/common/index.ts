@@ -24,20 +24,6 @@ export * from './sort.types';
 export * from './filter.types';
 export * from './search.types';
 export * from './pagination.types';
-// error.types-এ ErrorResponse আছে, base-response.types-ও ErrorResponse এক্সপোর্ট করে
-// তাই আমরা error.types থেকে শুধু AppError এবং অন্যান্য টাইপ ইমপোর্ট করছি
-export {
-  AppError,
-  ValidationError,
-  DatabaseError,
-  NetworkError,
-  AuthorizationError,
-  NotFoundError,
-  AppErrorType,
-  ErrorFactory,
-  ErrorHandlingOptions,
-  ErrorDetails,
-} from './error.types';
-// শুধু ErrorResponse বাদ দিয়ে বাকি সব এক্সপোর্ট
+export * from './error.types';
 export * from './validation.types';
 export * from './config.types';

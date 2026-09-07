@@ -1,5 +1,4 @@
 import { BaseValueObject } from './base.types';
-import { COUNTRY, DIVISIONS, DISTRICTS, UPAZILAS } from '@vubon/shared-constants';
 
 export interface AddressData {
   street: string;
@@ -13,71 +12,34 @@ export interface AddressData {
 }
 
 export class Address implements BaseValueObject<AddressData> {
-  private _data: AddressData;
-
-  constructor(data: AddressData) {
-    this._data = {
-      street: data.street,
-      city: data.city,
-      state: data.state,
-      postalCode: data.postalCode,
-      country: data.country,
-      division: data.division,
-      district: data.district,
-      upazila: data.upazila,
-    };
-  }
-
-  // BaseValueObject এর জন্য value প্রপার্টি
-  get value(): AddressData {
-    return { ...this._data };
-  }
-
-  // প্রয়োজনীয় অন্যান্য গেটার
-  get street(): string {
-    return this._data.street;
-  }
-  get city(): string {
-    return this._data.city;
-  }
-  get state(): string | undefined {
-    return this._data.state;
-  }
-  get postalCode(): string {
-    return this._data.postalCode;
-  }
-  get country(): keyof typeof COUNTRY {
-    return this._data.country as keyof typeof COUNTRY;
-  }
-  get division(): keyof typeof DIVISIONS | undefined {
-    return this._data.division as keyof typeof DIVISIONS;
-  }
-  get district(): keyof typeof DISTRICTS | undefined {
-    return this._data.district as keyof typeof DISTRICTS;
-  }
-  get upazila(): keyof typeof UPAZILAS | undefined {
-    return this._data.upazila as keyof typeof UPAZILAS;
-  }
+  constructor(public value: AddressData) {}
 
   isValid(): boolean {
     return (
-      !!this._data.street && !!this._data.city && !!this._data.postalCode && !!this._data.country
+      this.value.street.trim() !== '' &&
+      this.value.city.trim() !== '' &&
+      this.value.postalCode.trim() !== '' &&
+      this.value.country.trim() !== ''
     );
   }
 
   equals(other: Address): boolean {
-    return JSON.stringify(this._data) === JSON.stringify(other._data);
+    return (
+      this.value.street === other.value.street &&
+      this.value.city === other.value.city &&
+      this.value.postalCode === other.value.postalCode &&
+      this.value.country === other.value.country
+    );
   }
 
   getFullAddress(): string {
-    const parts: string[] = [this._data.street, this._data.city, this._data.postalCode];
-
-    if (this._data.state) {
-      parts.push(this._data.state);
-    }
-
-    parts.push(this._data.country);
-
+    const parts = [
+      this.value.street,
+      this.value.city,
+      this.value.state,
+      this.value.postalCode,
+      this.value.country,
+    ].filter(Boolean);
     return parts.join(', ');
   }
 
