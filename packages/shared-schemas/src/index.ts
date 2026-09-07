@@ -2,10 +2,10 @@
 export * from './common';
 
 // Auth Domain Schemas
-	export * from './auth';
+export * from './auth';
 
 // User Domain Schemas
-// export * from './user';
+export * from './user';
 
 // Admin Domain Schemas
-// export * from './admin';
+export * from './admin';
