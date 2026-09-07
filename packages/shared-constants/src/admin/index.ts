@@ -1,12 +1,4 @@
-/**
- * Admin Constants Index
- * @module shared-constants/admin
- */
-
-// Export main admin constants first
 export * from './admin.constants';
-
-// Then export extended constants (with unique names)
 export * from './admin-role.constants';
 export * from './admin-permission.constants';
 export * from './admin-status.constants';

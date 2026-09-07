@@ -1,8 +1,3 @@
-/**
- * User Constants Index
- * @module shared-constants/user
- */
-
 export * from './user.constants';
 export * from './user-status.constants';
 export * from './user-type.constants';

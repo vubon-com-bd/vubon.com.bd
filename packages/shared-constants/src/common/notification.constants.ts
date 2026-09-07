@@ -105,7 +105,7 @@ export const NOTIFICATION = {
   // Delivery settings
   DELIVERY: {
     MAX_RETRY: 3,
-    RETRY_DELAY: 300, // 5 minutes
+    RETRY_DELAY: 300,
     BATCH_SIZE: 100,
     QUEUE_PREFIX: 'notification:',
     CONCURRENCY: 10,
@@ -138,13 +138,13 @@ export const NOTIFICATION = {
     MAX_NAME_LENGTH: 100,
     MAX_SUBJECT_LENGTH: 200,
     MAX_BODY_LENGTH: 10000,
-    CACHE_TTL: 3600, // 1 hour
+    CACHE_TTL: 3600,
   },
 
   // Schedule
   SCHEDULE: {
-    MAX_DELAY: 604800, // 7 days
-    MIN_DELAY: 60, // 1 minute
+    MAX_DELAY: 604800,
+    MIN_DELAY: 60,
     DEFAULT_DELAY: 0,
   },
 
@@ -188,12 +188,13 @@ export const NOTIFICATION = {
 
   // Push notification platform
   PUSH_PLATFORM: {
-    FCM: 'fcm', // Firebase Cloud Messaging
-    APNS: 'apns', // Apple Push Notification Service
+    FCM: 'fcm',
+    APNS: 'apns',
     WEB_PUSH: 'web_push',
   } as const,
 } as const;
 
+// ============== টাইপ এক্সপোর্ট (আগে ছিল) ==============
 export type NotificationChannel = (typeof NOTIFICATION.CHANNEL)[keyof typeof NOTIFICATION.CHANNEL];
 export type NotificationType = (typeof NOTIFICATION.TYPE)[keyof typeof NOTIFICATION.TYPE];
 export type NotificationPriority =
@@ -207,3 +208,7 @@ export type PushDeviceType =
   (typeof NOTIFICATION.PUSH_DEVICE)[keyof typeof NOTIFICATION.PUSH_DEVICE];
 export type PushPlatform =
   (typeof NOTIFICATION.PUSH_PLATFORM)[keyof typeof NOTIFICATION.PUSH_PLATFORM];
+
+// ============== নতুন: কনস্ট্যান্ট এক্সপোর্ট (সমাধান) ==============
+// অ্যাডমিন ফাইলের জন্য আলাদা কনস্ট্যান্ট হিসেবে TYPE এক্সপোর্ট করা হলো
+export const NOTIFICATION_TYPES = NOTIFICATION.TYPE;

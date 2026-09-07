@@ -1,20 +1,5 @@
-/**
- * Auth Constants Index
- * @module shared-constants/auth
- */
-
-// Export main auth constants first
 export * from './auth.constants';
-
-// Export auth status with specific names to avoid conflicts
-export {
-  AUTH_STATUS,
-  type AuthStatus,
-  AUTH_STATUS_LABELS,
-  AUTH_STATUS_COLORS,
-} from './auth-status.constants';
-
-// Export other auth constants
+export * from './auth-status.constants';
 export * from './auth-type.constants';
 export * from './auth-provider.constants';
 export * from './auth-method.constants';

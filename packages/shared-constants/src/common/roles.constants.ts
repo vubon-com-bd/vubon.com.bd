@@ -82,12 +82,7 @@ export const ROLE_HIERARCHY: Record<Role, number> = {
   [ROLES.PUBLIC]: 0,
 };
 
-export const ADMIN_ROLES = [
-  ROLES.SUPER_ADMIN,
-  ROLES.ADMIN,
-  ROLES.MANAGER,
-  ROLES.MODERATOR,
-] as const;
+// ============== ADMIN_ROLES সরানো হয়েছে ==============
 
 export const SUPPORT_ROLES = [ROLES.SUPPORT_AGENT, ROLES.SUPPORT_MANAGER] as const;
 
@@ -102,8 +97,11 @@ export const OPERATIONS_ROLES = [
   ROLES.DELIVERY,
 ] as const;
 
+// STAFF_ROLES থেকে ADMIN_ROLES বাদ দিন (কারণ এটি এখন আর নেই)
 export const STAFF_ROLES = [
-  ...ADMIN_ROLES,
+  ROLES.ADMIN,
+  ROLES.MANAGER,
+  ROLES.MODERATOR,
   ...SUPPORT_ROLES,
   ...FINANCE_ROLES,
   ...OPERATIONS_ROLES,
