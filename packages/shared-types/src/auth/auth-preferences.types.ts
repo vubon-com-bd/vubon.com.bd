@@ -1,4 +1,4 @@
-export interface NotificationPreferences {
+export interface AuthNotificationPreferences {
   email: boolean;
   sms: boolean;
   push: boolean;
@@ -16,7 +16,7 @@ export interface AuthPreferences {
   twoFactorEnabled: boolean;
   rememberMe: boolean;
   sessionTimeout: number;
-  notificationPreferences: NotificationPreferences;
+  notificationPreferences: AuthNotificationPreferences;
   securityPreferences: SecurityPreferences;
   metadata: Record<string, unknown>;
 }

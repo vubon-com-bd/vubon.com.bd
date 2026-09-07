@@ -1,6 +1,6 @@
 import { USER_SETTINGS } from '@vubon/shared-constants';
 
-export interface NotificationPreferences {
+export interface UserNotificationPreferences {
   email: boolean;
   sms: boolean;
   push: boolean;
@@ -15,18 +15,13 @@ export interface PrivacySettings {
 }
 
 export interface UserSettings {
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  isActive: boolean;
-  isDeleted: boolean;
   settingsId: string;
   userId: string;
   theme: keyof typeof USER_SETTINGS;
   language: string;
   timezone: string;
   currency: string;
-  notifications: NotificationPreferences;
+  notifications: UserNotificationPreferences;
   privacy: PrivacySettings;
   metadata: Record<string, unknown>;
 }
