@@ -8,4 +8,4 @@ export * from './auth';
 export * from './user';
 
 // Admin Domain Types
-// export * from './admin';
+export * from './admin';
