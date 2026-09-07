@@ -1,11 +1,11 @@
-// Common Types Exports
+// Common Types
 export * from './common';
 
-// Auth Types Exports (if exists)
-// export * from './auth';
+// Auth Domain Types
+export * from './auth';
 
-// User Types Exports (if exists)
+// User Domain Types
 // export * from './user';
 
-// Admin Types Exports (if exists)
+// Admin Domain Types
 // export * from './admin';
