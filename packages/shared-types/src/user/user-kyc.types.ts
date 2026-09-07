@@ -1,20 +1,21 @@
 import { STATUS } from '@vubon/shared-constants';
-import { AUTH_VERIFICATION } from '@vubon/shared-constants';
+import { USER_KYC } from '@vubon/shared-constants';
 
-export interface AuthVerification {
+export interface UserKyc {
   id: string;
   createdAt: Date;
   updatedAt: Date;
   isActive: boolean;
   isDeleted: boolean;
-  verificationId: string;
+  kycId: string;
   userId: string;
-  type: keyof typeof AUTH_VERIFICATION;
-  code: string;
+  type: keyof typeof USER_KYC;
+  documentType: string;
+  documentNumber: string;
+  documentImage: string;
   status: keyof typeof STATUS;
-  expiresAt: Date;
+  submittedAt: Date;
   verifiedAt?: Date;
-  attempts: number;
-  maxAttempts: number;
+  rejectedReason?: string;
   metadata: Record<string, unknown>;
 }

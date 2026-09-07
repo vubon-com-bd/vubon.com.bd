@@ -6,5 +6,5 @@ export const SEARCH = {
   LIMIT: 'limit',
   OFFSET: 'offset',
   DEFAULT_LIMIT: 10,
-  MAX_LIMIT: 100
+  MAX_LIMIT: 100,
 } as const;

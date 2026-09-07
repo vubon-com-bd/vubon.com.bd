@@ -204,3 +204,57 @@ export const TYPE_VALIDATION_MESSAGES: Record<TypeName, string> = {
   [TYPES.NEVER]: 'Never type',
   [TYPES.VOID]: 'Void type',
 };
+
+// ===== METRICS CONSTANTS ADDED HERE =====
+export const METRICS = {
+  // User metrics
+  USER_LOGIN: 'user_login',
+  USER_REGISTER: 'user_register',
+  USER_LOGOUT: 'user_logout',
+  USER_ACTIVE: 'user_active',
+  USER_INACTIVE: 'user_inactive',
+  USER_DELETED: 'user_deleted',
+
+  // Session metrics
+  SESSION_CREATED: 'session_created',
+  SESSION_EXPIRED: 'session_expired',
+  SESSION_REVOKED: 'session_revoked',
+
+  // Auth metrics
+  AUTH_SUCCESS: 'auth_success',
+  AUTH_FAILURE: 'auth_failure',
+  AUTH_LOCKED: 'auth_locked',
+  AUTH_UNLOCKED: 'auth_unlocked',
+
+  // Verification metrics
+  VERIFICATION_SENT: 'verification_sent',
+  VERIFICATION_SUCCESS: 'verification_success',
+  VERIFICATION_FAILURE: 'verification_failure',
+
+  // API metrics
+  API_REQUEST: 'api_request',
+  API_SUCCESS: 'api_success',
+  API_ERROR: 'api_error',
+  API_RESPONSE_TIME: 'api_response_time',
+
+  // Performance metrics
+  PAGE_LOAD: 'page_load',
+  RENDER_TIME: 'render_time',
+  DB_QUERY_TIME: 'db_query_time',
+  CACHE_HIT: 'cache_hit',
+  CACHE_MISS: 'cache_miss',
+
+  // Business metrics
+  ORDER_PLACED: 'order_placed',
+  ORDER_COMPLETED: 'order_completed',
+  ORDER_CANCELLED: 'order_cancelled',
+  PAYMENT_SUCCESS: 'payment_success',
+  PAYMENT_FAILURE: 'payment_failure',
+
+  // Notification metrics
+  NOTIFICATION_SENT: 'notification_sent',
+  NOTIFICATION_OPENED: 'notification_opened',
+  NOTIFICATION_DISMISSED: 'notification_dismissed',
+} as const;
+
+export type MetricName = (typeof METRICS)[keyof typeof METRICS];

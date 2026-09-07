@@ -1,7 +1,11 @@
-import { BaseEntity } from '../common/base.types';
 import { STATUS } from '@vubon/shared-constants';
 
-export interface AuthAccountLock extends BaseEntity {
+export interface AuthAccountLock {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  isActive: boolean;
+  isDeleted: boolean;
   lockId: string;
   userId: string;
   reason: string;

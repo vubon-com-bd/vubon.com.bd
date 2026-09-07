@@ -6,5 +6,5 @@ export const METADATA = {
   UPDATED_BY: 'updatedBy',
   TAGS: 'tags',
   NOTES: 'notes',
-  CUSTOM: 'custom'
+  CUSTOM: 'custom',
 } as const;

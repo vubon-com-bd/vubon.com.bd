@@ -1,4 +1,3 @@
-import { BaseEntity } from '../common/base.types';
 import { STATUS } from '@vubon/shared-constants';
 import { ROLES } from '@vubon/shared-constants';
 import { PERMISSIONS } from '@vubon/shared-constants';
@@ -13,7 +12,12 @@ export interface AuthMetadata {
   location?: string;
 }
 
-export interface Auth extends BaseEntity {
+export interface Auth {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  isActive: boolean;
+  isDeleted: boolean;
   userId: string;
   email: string;
   phone?: string;
@@ -25,7 +29,6 @@ export interface Auth extends BaseEntity {
   role: keyof typeof ROLES;
   permissions: (keyof typeof PERMISSIONS)[];
   isVerified: boolean;
-  isActive: boolean;
   lastLoginAt?: Date;
   loginCount: number;
   metadata: AuthMetadata;

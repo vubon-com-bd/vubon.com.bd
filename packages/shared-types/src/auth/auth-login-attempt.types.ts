@@ -1,7 +1,11 @@
-import { BaseEntity } from '../common/base.types';
 import { STATUS } from '@vubon/shared-constants';
 
-export interface AuthLoginAttempt extends BaseEntity {
+export interface AuthLoginAttempt {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  isActive: boolean;
+  isDeleted: boolean;
   attemptId: string;
   userId: string;
   email: string;

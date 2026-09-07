@@ -5,7 +5,7 @@ export * from './common';
 export * from './auth';
 
 // User Domain Types
-// export * from './user';
+export * from './user';
 
 // Admin Domain Types
 // export * from './admin';

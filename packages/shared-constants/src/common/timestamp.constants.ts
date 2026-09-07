@@ -1,5 +1,5 @@
 export const TIMESTAMP = {
   FORMAT: 'YYYY-MM-DDTHH:mm:ss.SSSZ',
   TIMEZONE: 'UTC',
-  PRECISION: 'millisecond'
+  PRECISION: 'millisecond',
 } as const;
