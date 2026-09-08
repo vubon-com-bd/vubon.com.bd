@@ -1,5 +1,5 @@
-import { STATUS } from '@vubon/shared-constants';
 import { SESSION } from '@vubon/shared-constants';
+import { AUTH_SESSION } from '@vubon/shared-constants';
 import { DeviceInfo } from './auth-request.types';
 
 export interface AuthSession {
@@ -11,7 +11,7 @@ export interface AuthSession {
   sessionId: string;
   userId: string;
   token: string;
-  status: keyof typeof STATUS;
+  status: keyof typeof AUTH_SESSION;
   type: keyof typeof SESSION;
   expiresAt: Date;
   lastActivity: Date;

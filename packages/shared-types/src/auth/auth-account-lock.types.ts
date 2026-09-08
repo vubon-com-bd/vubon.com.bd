@@ -1,4 +1,4 @@
-import { STATUS } from '@vubon/shared-constants';
+import { AUTH_STATUS } from '@vubon/shared-constants';
 
 export interface AuthAccountLock {
   id: string;
@@ -9,7 +9,7 @@ export interface AuthAccountLock {
   lockId: string;
   userId: string;
   reason: string;
-  status: keyof typeof STATUS;
+  status: keyof typeof AUTH_STATUS;
   lockedAt: Date;
   unlockedAt?: Date;
   lockedBy: string;

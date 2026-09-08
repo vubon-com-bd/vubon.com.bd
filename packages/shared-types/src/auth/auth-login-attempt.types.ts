@@ -1,4 +1,4 @@
-import { STATUS } from '@vubon/shared-constants';
+import { AUTH_LOGIN_ATTEMPT } from '@vubon/shared-constants';
 
 export interface AuthLoginAttempt {
   id: string;
@@ -11,7 +11,7 @@ export interface AuthLoginAttempt {
   email: string;
   ipAddress: string;
   userAgent: string;
-  status: keyof typeof STATUS;
+  status: keyof typeof AUTH_LOGIN_ATTEMPT;
   failureReason?: string;
   attemptedAt: Date;
   metadata: Record<string, unknown>;

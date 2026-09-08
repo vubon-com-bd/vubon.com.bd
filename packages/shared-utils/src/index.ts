@@ -1,11 +1,11 @@
-// Common Utils
+// Common Utilities
 export * from './common';
 
-// Auth Utils (যদি থাকে)
-// export * from './auth';
+// Auth Domain Utilities
+export * from './auth';
 
-// User Utils (যদি থাকে)
+// User Domain Utilities
 // export * from './user';
 
-// Admin Utils (যদি থাকে)
+// Admin Domain Utilities
 // export * from './admin';
