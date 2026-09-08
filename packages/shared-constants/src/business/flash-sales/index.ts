@@ -1,9 +1,3 @@
-/**
- * Flash Sales Constants Index
- * @module shared-constants/business/flash-sales
- */
-
-// Export flash-sale constants first
 export * from './flash-sale.constants';
 export * from './flash-sale-status.constants';
 export * from './flash-sale-type.constants';
@@ -19,8 +13,6 @@ export * from './flash-sale-coupon.constants';
 export * from './flash-sale-voucher.constants';
 export * from './flash-sale-wishlist.constants';
 export * from './flash-sale-share.constants';
-
-// Then export deal constants
 export * from './deal.constants';
 export * from './deal-status.constants';
 export * from './deal-discount-type.constants';

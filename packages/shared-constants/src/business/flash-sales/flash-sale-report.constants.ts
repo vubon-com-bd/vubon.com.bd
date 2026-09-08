@@ -1,63 +1,33 @@
-/**
- * Flash Sale Report Constants (EXTENDS common/types)
- * @module shared-constants/business/flash-sales/flash-sale-report.constants
- */
-
-import { TYPES } from '../../common/types.constants';
+import { TYPES as COMMON_TYPES } from '../../common/types.constants';
+import { DATE_FORMAT } from '../../common/date-format.constants';
+import { FLASH_SALE_ANALYTICS } from './flash-sale-analytics.constants';
 
 export const FLASH_SALE_REPORT = {
-  // Base types from common
-  ...TYPES,
-
-  // Report specific
-  REPORT_CACHE_TTL: 3600,
-  MAX_REPORT_ENTRIES: 500,
-  REPORT_RETENTION_DAYS: 365,
-
-  // Report type
-  FLASH_SALE_REPORT_TYPE: {
+  TYPES: {
+    ...COMMON_TYPES,
     SUMMARY: 'summary',
     DETAILED: 'detailed',
-    ANALYTICS: 'analytics',
     FINANCIAL: 'financial',
-    PERFORMANCE: 'performance',
-    COMPARISON: 'comparison',
-    CUSTOM: 'custom',
-  } as const,
-
-  // Report format
-  FLASH_SALE_REPORT_FORMAT: {
+    PRODUCT_PERFORMANCE: 'product_performance',
+    CUSTOMER_INSIGHT: 'customer_insight',
+  },
+  DATE_FORMAT: { ...DATE_FORMAT },
+  FLASH_SALE_ANALYTICS: { ...FLASH_SALE_ANALYTICS },
+  REPORT_FORMATS: {
     PDF: 'pdf',
     EXCEL: 'excel',
     CSV: 'csv',
     JSON: 'json',
     HTML: 'html',
-  } as const,
-
-  // Report status
-  FLASH_SALE_REPORT_STATUS: {
-    PENDING: 'pending',
-    GENERATING: 'generating',
-    COMPLETED: 'completed',
-    FAILED: 'failed',
-    CANCELLED: 'cancelled',
-  } as const,
-
-  // Report schedule
-  FLASH_SALE_REPORT_SCHEDULE: {
-    ON_DEMAND: 'on_demand',
-    DAILY: 'daily',
-    WEEKLY: 'weekly',
-    MONTHLY: 'monthly',
-    AFTER_EVENT: 'after_event',
-  } as const,
+  },
+  REPORT_SECTIONS: [
+    'overview',
+    'sales_metrics',
+    'top_products',
+    'customer_demographics',
+    'payment_analysis',
+    'refund_analysis',
+  ],
+  DEFAULT_DATE_RANGE_DAYS: 30,
+  MAX_DATE_RANGE_DAYS: 365,
 } as const;
-
-export type FlashSaleReportType =
-  (typeof FLASH_SALE_REPORT.FLASH_SALE_REPORT_TYPE)[keyof typeof FLASH_SALE_REPORT.FLASH_SALE_REPORT_TYPE];
-export type FlashSaleReportFormat =
-  (typeof FLASH_SALE_REPORT.FLASH_SALE_REPORT_FORMAT)[keyof typeof FLASH_SALE_REPORT.FLASH_SALE_REPORT_FORMAT];
-export type FlashSaleReportStatus =
-  (typeof FLASH_SALE_REPORT.FLASH_SALE_REPORT_STATUS)[keyof typeof FLASH_SALE_REPORT.FLASH_SALE_REPORT_STATUS];
-export type FlashSaleReportSchedule =
-  (typeof FLASH_SALE_REPORT.FLASH_SALE_REPORT_SCHEDULE)[keyof typeof FLASH_SALE_REPORT.FLASH_SALE_REPORT_SCHEDULE];

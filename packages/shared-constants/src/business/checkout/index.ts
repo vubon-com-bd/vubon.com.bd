@@ -1,8 +1,3 @@
-/**
- * Checkout Constants Index
- * @module shared-constants/business/checkout
- */
-
 export * from './checkout.constants';
 export * from './checkout-status.constants';
 export * from './checkout-step.constants';

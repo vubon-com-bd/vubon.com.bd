@@ -1,66 +1,37 @@
-/**
- * Flash Sale Notification Constants (EXTENDS common/status)
- * @module shared-constants/business/flash-sales/flash-sale-notification.constants
- */
-
-import { STATUS } from '../../common/status.constants';
+import { STATUS as COMMON_STATUS } from '../../common/status.constants';
+import { NOTIFICATION_TYPES } from '../../common/notification.constants';
+import { USER_STATUS } from '../../user/user-status.constants';
+import { FLASH_SALE_STATUS } from './flash-sale-status.constants';
 
 export const FLASH_SALE_NOTIFICATION = {
-  // Base status from common
-  STATUS: STATUS,
-
-  // Notification specific
-  NOTIFICATION_CACHE_TTL: 3600,
-  MAX_NOTIFICATIONS_PER_USER: 50,
-  NOTIFICATION_RETENTION_DAYS: 30,
-
-  // Notification type
-  FLASH_SALE_NOTIFICATION_TYPE: {
-    UPCOMING: 'upcoming',
-    STARTED: 'started',
-    ENDING: 'ending',
-    EXTENDED: 'extended',
-    CANCELLED: 'cancelled',
-    SOLD_OUT: 'sold_out',
-    BACK_IN_STOCK: 'back_in_stock',
-    PRICE_DROP: 'price_drop',
-    REMINDER: 'reminder',
-  } as const,
-
-  // Notification channel
-  FLASH_SALE_NOTIFICATION_CHANNEL: {
-    EMAIL: 'email',
-    SMS: 'sms',
-    PUSH: 'push',
-    IN_APP: 'in_app',
-    WHATSAPP: 'whatsapp',
-    TELEGRAM: 'telegram',
-  } as const,
-
-  // Notification status
-  FLASH_SALE_NOTIFICATION_STATUS: {
+  STATUS: {
+    ...COMMON_STATUS,
     PENDING: 'pending',
     SENT: 'sent',
     DELIVERED: 'delivered',
     READ: 'read',
     FAILED: 'failed',
     CANCELLED: 'cancelled',
-  } as const,
-
-  // Notification priority
-  FLASH_SALE_NOTIFICATION_PRIORITY: {
-    LOW: 'low',
-    MEDIUM: 'medium',
-    HIGH: 'high',
-    URGENT: 'urgent',
-  } as const,
+  },
+  NOTIFICATION_TYPES: {
+    ...NOTIFICATION_TYPES,
+    SALE_START: 'sale_start',
+    SALE_END: 'sale_end',
+    PRICE_DROP: 'price_drop',
+    LIMITED_STOCK: 'limited_stock',
+    LAST_CHANCE: 'last_chance',
+    REMINDER: 'reminder',
+    EARLY_ACCESS: 'early_access',
+  },
+  USER_STATUS: { ...USER_STATUS },
+  FLASH_SALE_STATUS: { ...FLASH_SALE_STATUS },
+  NOTIFICATION_CHANNELS: {
+    EMAIL: 'email',
+    SMS: 'sms',
+    PUSH: 'push',
+    IN_APP: 'in_app',
+    WHATSAPP: 'whatsapp',
+  },
+  MIN_NOTIFICATION_INTERVAL_MINUTES: 30,
+  MAX_NOTIFICATIONS_PER_USER: 10,
 } as const;
-
-export type FlashSaleNotificationType =
-  (typeof FLASH_SALE_NOTIFICATION.FLASH_SALE_NOTIFICATION_TYPE)[keyof typeof FLASH_SALE_NOTIFICATION.FLASH_SALE_NOTIFICATION_TYPE];
-export type FlashSaleNotificationChannel =
-  (typeof FLASH_SALE_NOTIFICATION.FLASH_SALE_NOTIFICATION_CHANNEL)[keyof typeof FLASH_SALE_NOTIFICATION.FLASH_SALE_NOTIFICATION_CHANNEL];
-export type FlashSaleNotificationStatus =
-  (typeof FLASH_SALE_NOTIFICATION.FLASH_SALE_NOTIFICATION_STATUS)[keyof typeof FLASH_SALE_NOTIFICATION.FLASH_SALE_NOTIFICATION_STATUS];
-export type FlashSaleNotificationPriority =
-  (typeof FLASH_SALE_NOTIFICATION.FLASH_SALE_NOTIFICATION_PRIORITY)[keyof typeof FLASH_SALE_NOTIFICATION.FLASH_SALE_NOTIFICATION_PRIORITY];

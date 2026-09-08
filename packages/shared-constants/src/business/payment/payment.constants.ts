@@ -1,108 +1,37 @@
-/**
- * Payment Main Constants
- * @module shared-constants/business/payment/payment.constants
- */
-
 import { STATUS } from '../../common/status.constants';
-import { TYPES } from '../../common/types.constants';
-import { VERIFICATION } from '../../common/verification.constants';
+import { PERMISSIONS } from '../../common/permissions.constants';
 import { CURRENCY } from '../../common/currency.constants';
-import { SECURITY } from '../../common/security.constants';
+import { USER_STATUS } from '../../user/user-status.constants';
+import { ORDER_STATUS } from '../checkout/order-status.constants';
+import { CHECKOUT_STATUS } from '../checkout/checkout-status.constants';
 
 export const PAYMENT = {
-  // Payment status from common
-  STATUS: STATUS,
-
-  // Payment types from common
-  TYPES: TYPES,
-
-  // Payment verification from common
-  VERIFICATION: VERIFICATION,
-
-  // Payment currency from common
-  CURRENCY: CURRENCY,
-
-  // Payment security from common
-  SECURITY: SECURITY,
-
-  // Payment specific
-  DEFAULT_PAYMENT_STATUS: 'pending',
-  PAYMENT_CACHE_TTL: 3600,
-  MAX_PAYMENT_AMOUNT: 99999999.99,
-  MIN_PAYMENT_AMOUNT: 0,
-  PAYMENT_TIMEOUT_MINUTES: 15,
-  MAX_PAYMENT_ATTEMPTS: 3,
-  PAYMENT_SESSION_TIMEOUT: 600,
-
-  // Payment type
-  PAYMENT_TYPE: {
-    ONE_TIME: 'one_time',
-    RECURRING: 'recurring',
-    SUBSCRIPTION: 'subscription',
-    INSTALLMENT: 'installment',
-    SPLIT: 'split',
-    REFUND: 'refund',
-    PARTIAL: 'partial',
-    FULL: 'full',
-    ADVANCE: 'advance',
-    DEPOSIT: 'deposit',
-  } as const,
-
-  // Payment source
-  PAYMENT_SOURCE: {
-    WEB: 'web',
-    MOBILE: 'mobile',
-    ADMIN: 'admin',
-    API: 'api',
-    POS: 'pos',
-    AUTOMATED: 'automated',
-    SCHEDULED: 'scheduled',
-    RECURRING: 'recurring',
-  } as const,
-
-  // Payment status values
-  PAYMENT_STATUS_VALUES: {
-    PENDING: 'pending',
+  STATUS: {
+    ...STATUS,
+    INITIATED: 'initiated',
     PROCESSING: 'processing',
     COMPLETED: 'completed',
     FAILED: 'failed',
+    PENDING: 'pending',
     CANCELLED: 'cancelled',
     REFUNDED: 'refunded',
     PARTIAL_REFUND: 'partial_refund',
-    AUTHORIZED: 'authorized',
-    CAPTURED: 'captured',
-    DECLINED: 'declined',
-    EXPIRED: 'expired',
-    ON_HOLD: 'on_hold',
-    VERIFIED: 'verified',
-    UNVERIFIED: 'unverified',
-    REVERSED: 'reversed',
-    CHARGEBACK: 'chargeback',
-    DISPUTE: 'dispute',
-  } as const,
-
-  // Payment gateway
-  PAYMENT_GATEWAY: {
-    BKASH: 'bkash',
-    NAGAD: 'nagad',
-    ROCKET: 'rocket',
-    SSLCOMMERZ: 'sslcommerz',
-    AAMARPAY: 'aamarpay',
-    STRIPE: 'stripe',
-    PAYPAL: 'paypal',
-    BANK_TRANSFER: 'bank_transfer',
-    CASH_ON_DELIVERY: 'cash_on_delivery',
-    CREDIT_CARD: 'credit_card',
-    DEBIT_CARD: 'debit_card',
-    CRYPTO: 'crypto',
-    STORE_CREDIT: 'store_credit',
-    GOOGLE_PAY: 'google_pay',
-    APPLE_PAY: 'apple_pay',
-  } as const,
+  },
+  PERMISSIONS: {
+    ...PERMISSIONS,
+    VIEW: 'payment:view',
+    CREATE: 'payment:create',
+    PROCESS: 'payment:process',
+    REFUND: 'payment:refund',
+    MANAGE: 'payment:manage',
+    VERIFY: 'payment:verify',
+  },
+  CURRENCY: { ...CURRENCY },
+  USER_STATUS: { ...USER_STATUS },
+  ORDER_STATUS: { ...ORDER_STATUS },
+  CHECKOUT_STATUS: { ...CHECKOUT_STATUS },
+  PAYMENT_TIMEOUT_MINUTES: 15,
+  MAX_RETRY_ATTEMPTS: 3,
+  MIN_AMOUNT: 1,
+  MAX_AMOUNT: 9999999,
 } as const;
-
-export type PaymentType = (typeof PAYMENT.PAYMENT_TYPE)[keyof typeof PAYMENT.PAYMENT_TYPE];
-export type PaymentSource = (typeof PAYMENT.PAYMENT_SOURCE)[keyof typeof PAYMENT.PAYMENT_SOURCE];
-export type PaymentMainStatus =
-  (typeof PAYMENT.PAYMENT_STATUS_VALUES)[keyof typeof PAYMENT.PAYMENT_STATUS_VALUES];
-export type PaymentGateway = (typeof PAYMENT.PAYMENT_GATEWAY)[keyof typeof PAYMENT.PAYMENT_GATEWAY];

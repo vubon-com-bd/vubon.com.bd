@@ -1,76 +1,34 @@
-/**
- * Deal Analytics Constants (EXTENDS common/types + common/currency)
- * @module shared-constants/business/flash-sales/deal-analytics.constants
- */
-
-import { TYPES } from '../../common/types.constants';
-import { CURRENCY } from '../../common/currency.constants';
-import { TAX } from '../../common/tax.constants';
-import { DISCOUNT } from '../../common/discount.constants';
+import { TYPES as COMMON_TYPES } from '../../common/types.constants';
+import { METRICS } from '../../common/types.constants';
+import { ORDER_STATUS } from '../checkout/order-status.constants';
+import { PAYMENT_STATUS } from '../payment/payment-status.constants';
 
 export const DEAL_ANALYTICS = {
-  // Base types from common
-  ...TYPES,
-
-  // Currency from common
-  CURRENCY: CURRENCY,
-
-  // Tax from common
-  TAX: TAX,
-
-  // Discount from common
-  DISCOUNT: DISCOUNT,
-
-  // Analytics specific
-  ANALYTICS_CACHE_TTL: 3600,
-  MAX_HISTORY_ENTRIES: 1000,
-  RETENTION_DAYS: 365,
-
-  // Analytics metric
-  DEAL_ANALYTICS_METRIC: {
-    VIEWS: 'views',
-    CLICKS: 'clicks',
-    CONVERSIONS: 'conversions',
+  TYPES: {
+    ...COMMON_TYPES,
+    PERFORMANCE: 'performance',
+    CONVERSION: 'conversion',
     REVENUE: 'revenue',
     PROFIT: 'profit',
-    ROI: 'roi',
-    PARTICIPANTS: 'participants',
-    SALES_VELOCITY: 'sales_velocity',
-    STOCK_LEFT: 'stock_left',
-    SOLD_OUT_TIME: 'sold_out_time',
-    CART_ABANDONMENT: 'cart_abandonment',
-    DISCOUNT_USAGE: 'discount_usage',
-    CUSTOMER_SATISFACTION: 'customer_satisfaction',
-    REPEAT_PURCHASE: 'repeat_purchase',
-  } as const,
-
-  // Analytics period
-  DEAL_ANALYTICS_PERIOD: {
-    REAL_TIME: 'real_time',
+    CUSTOMER: 'customer',
+  },
+  METRICS: {
+    ...METRICS,
+    IMPRESSIONS: 'impressions',
+    CLICKS: 'clicks',
+    CTR: 'ctr',
+    CONVERSION_RATE: 'conversion_rate',
+    AOV: 'aov',
+    REVENUE_PER_USER: 'revenue_per_user',
+    PROFIT_MARGIN: 'profit_margin',
+  },
+  ORDER_STATUS: { ...ORDER_STATUS },
+  PAYMENT_STATUS: { ...PAYMENT_STATUS },
+  ANALYTICS_GRANULARITY: {
     HOURLY: 'hourly',
     DAILY: 'daily',
     WEEKLY: 'weekly',
     MONTHLY: 'monthly',
-    DURING_DEAL: 'during_deal',
-    POST_DEAL: 'post_deal',
-    PRE_DEAL: 'pre_deal',
-  } as const,
-
-  // Analytics comparison
-  DEAL_ANALYTICS_COMPARISON: {
-    PREVIOUS_DEAL: 'previous_deal',
-    SAME_PERIOD: 'same_period',
-    YEAR_OVER_YEAR: 'year_over_year',
-    CATEGORY_AVERAGE: 'category_average',
-    STORE_AVERAGE: 'store_average',
-    INDUSTRY_AVERAGE: 'industry_average',
-    TARGET_VS_ACTUAL: 'target_vs_actual',
-  } as const,
+  },
+  BENCHMARK_PERIOD_DAYS: 30,
 } as const;
-
-export type DealAnalyticsMetric =
-  (typeof DEAL_ANALYTICS.DEAL_ANALYTICS_METRIC)[keyof typeof DEAL_ANALYTICS.DEAL_ANALYTICS_METRIC];
-export type DealAnalyticsPeriod =
-  (typeof DEAL_ANALYTICS.DEAL_ANALYTICS_PERIOD)[keyof typeof DEAL_ANALYTICS.DEAL_ANALYTICS_PERIOD];
-export type DealAnalyticsComparison =
-  (typeof DEAL_ANALYTICS.DEAL_ANALYTICS_COMPARISON)[keyof typeof DEAL_ANALYTICS.DEAL_ANALYTICS_COMPARISON];

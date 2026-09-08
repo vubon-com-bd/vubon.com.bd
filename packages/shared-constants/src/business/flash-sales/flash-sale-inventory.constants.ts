@@ -1,57 +1,27 @@
-/**
- * Flash Sale Inventory Constants (EXTENDS common/status)
- * @module shared-constants/business/flash-sales/flash-sale-inventory.constants
- */
-
-import { STATUS } from '../../common/status.constants';
+import { STATUS as COMMON_STATUS } from '../../common/status.constants';
+import { INVENTORY } from '../product/inventory.constants';
+import { PRODUCT_STATUS } from '../product/product-status.constants';
+import { FLASH_SALE_STATUS } from './flash-sale-status.constants';
 
 export const FLASH_SALE_INVENTORY = {
-  // Base status from common
-  STATUS: STATUS,
-
-  // Inventory specific
-  INVENTORY_CACHE_TTL: 3600,
-  RESERVATION_TIMEOUT_MINUTES: 5,
-  MAX_RESERVATION_PER_USER: 1,
-
-  // Inventory status
-  FLASH_SALE_INVENTORY_STATUS: {
-    AVAILABLE: 'available',
+  STATUS: {
+    ...COMMON_STATUS,
+    ...INVENTORY.STATUS,
     RESERVED: 'reserved',
+    ALLOCATED: 'allocated',
     SOLD: 'sold',
-    SOLD_OUT: 'sold_out',
-    RESTOCKED: 'restocked',
-    CANCELLED: 'cancelled',
-    EXPIRED: 'expired',
-    ON_HOLD: 'on_hold',
-  } as const,
-
-  // Inventory type
-  FLASH_SALE_INVENTORY_TYPE: {
-    PRODUCT: 'product',
-    VARIANT: 'variant',
-    BUNDLE: 'bundle',
-    KIT: 'kit',
-  } as const,
-
-  // Stock management
-  FLASH_SALE_STOCK_MANAGEMENT: {
-    AUTO: 'auto',
-    MANUAL: 'manual',
-    HYBRID: 'hybrid',
-  } as const,
-
-  // Reserve settings
-  FLASH_SALE_RESERVE: {
-    TIMEOUT_SECONDS: 300,
-    MAX_RESERVES: 1000,
-    RELEASE_ON_EXPIRY: true,
-  } as const,
+    AVAILABLE: 'available',
+    OUT_OF_STOCK: 'out_of_stock',
+  },
+  INVENTORY: { ...INVENTORY },
+  PRODUCT_STATUS: { ...PRODUCT_STATUS },
+  FLASH_SALE_STATUS: { ...FLASH_SALE_STATUS },
+  INVENTORY_TYPES: {
+    DEDICATED: 'dedicated',
+    SHARED: 'shared',
+    RESERVED: 'reserved',
+  },
+  MAX_RESERVATION_MINUTES: 15,
+  AUTO_RELEASE_MINUTES: 5,
+  STOCK_ALERT_THRESHOLD: 10,
 } as const;
-
-export type FlashSaleInventoryStatus =
-  (typeof FLASH_SALE_INVENTORY.FLASH_SALE_INVENTORY_STATUS)[keyof typeof FLASH_SALE_INVENTORY.FLASH_SALE_INVENTORY_STATUS];
-export type FlashSaleInventoryType =
-  (typeof FLASH_SALE_INVENTORY.FLASH_SALE_INVENTORY_TYPE)[keyof typeof FLASH_SALE_INVENTORY.FLASH_SALE_INVENTORY_TYPE];
-export type FlashSaleStockManagement =
-  (typeof FLASH_SALE_INVENTORY.FLASH_SALE_STOCK_MANAGEMENT)[keyof typeof FLASH_SALE_INVENTORY.FLASH_SALE_STOCK_MANAGEMENT];

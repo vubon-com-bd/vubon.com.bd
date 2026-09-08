@@ -1,8 +1,3 @@
-/**
- * Payment Constants Index
- * @module shared-constants/business/payment
- */
-
 export * from './payment.constants';
 export * from './payment-method.constants';
 export * from './payment-status.constants';

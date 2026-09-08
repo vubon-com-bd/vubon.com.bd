@@ -1,71 +1,32 @@
-/**
- * Flash Sale Rule Constants (EXTENDS common/types)
- * @module shared-constants/business/flash-sales/flash-sale-rule.constants
- */
-
-import { TYPES } from '../../common/types.constants';
+import { TYPES as COMMON_TYPES } from '../../common/types.constants';
+import { VALIDATION } from '../../common/validation.constants';
+import { FLASH_SALE_STATUS } from './flash-sale-status.constants';
 
 export const FLASH_SALE_RULE = {
-  // Base types from common
-  ...TYPES,
-
-  // Rule specific
-  MAX_RULES_PER_SALE: 20,
-  RULE_CACHE_TTL: 3600,
-
-  // Rule type
-  FLASH_SALE_RULE_TYPE: {
-    ELIGIBILITY: 'eligibility',
-    DISCOUNT: 'discount',
-    PRIORITY: 'priority',
-    LIMIT: 'limit',
-    EXCLUSION: 'exclusion',
-    COMBINATION: 'combination',
-    CUSTOM: 'custom',
-  } as const,
-
-  // Rule condition
-  FLASH_SALE_RULE_CONDITION: {
-    USER_TYPE: 'user_type',
-    USER_GROUP: 'user_group',
-    ORDER_AMOUNT: 'order_amount',
-    ORDER_COUNT: 'order_count',
-    PRODUCT_CATEGORY: 'product_category',
-    PRODUCT_BRAND: 'product_brand',
-    PRODUCT_PRICE: 'product_price',
-    LOCATION: 'location',
-    DEVICE: 'device',
-    TIME: 'time',
-  } as const,
-
-  // Rule operator
-  FLASH_SALE_RULE_OPERATOR: {
-    EQUALS: 'equals',
-    NOT_EQUALS: 'not_equals',
+  TYPES: {
+    ...COMMON_TYPES,
+    QUANTITY_LIMIT: 'quantity_limit',
+    TIME_LIMIT: 'time_limit',
+    USER_LIMIT: 'user_limit',
+    PRODUCT_LIMIT: 'product_limit',
+    CATEGORY_LIMIT: 'category_limit',
+    PRICE_LIMIT: 'price_limit',
+  },
+  VALIDATION: { ...VALIDATION },
+  FLASH_SALE_STATUS: { ...FLASH_SALE_STATUS },
+  RULE_OPERATORS: {
+    EQUAL: 'equal',
+    NOT_EQUAL: 'not_equal',
     GREATER_THAN: 'greater_than',
     LESS_THAN: 'less_than',
     BETWEEN: 'between',
     IN: 'in',
     NOT_IN: 'not_in',
-    CONTAINS: 'contains',
-    STARTS_WITH: 'starts_with',
-    ENDS_WITH: 'ends_with',
-  } as const,
-
-  // Rule priority
-  FLASH_SALE_RULE_PRIORITY: {
-    LOW: 1,
+  },
+  RULE_PRIORITIES: {
+    HIGH: 1,
     MEDIUM: 2,
-    HIGH: 3,
-    CRITICAL: 4,
-  } as const,
+    LOW: 3,
+  },
+  MAX_RULES_PER_SALE: 20,
 } as const;
-
-export type FlashSaleRuleType =
-  (typeof FLASH_SALE_RULE.FLASH_SALE_RULE_TYPE)[keyof typeof FLASH_SALE_RULE.FLASH_SALE_RULE_TYPE];
-export type FlashSaleRuleCondition =
-  (typeof FLASH_SALE_RULE.FLASH_SALE_RULE_CONDITION)[keyof typeof FLASH_SALE_RULE.FLASH_SALE_RULE_CONDITION];
-export type FlashSaleRuleOperator =
-  (typeof FLASH_SALE_RULE.FLASH_SALE_RULE_OPERATOR)[keyof typeof FLASH_SALE_RULE.FLASH_SALE_RULE_OPERATOR];
-export type FlashSaleRulePriority =
-  (typeof FLASH_SALE_RULE.FLASH_SALE_RULE_PRIORITY)[keyof typeof FLASH_SALE_RULE.FLASH_SALE_RULE_PRIORITY];
