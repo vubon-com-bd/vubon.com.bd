@@ -5,7 +5,7 @@ export * from './common';
 export * from './auth';
 
 // User Domain Utilities
-// export * from './user';
+export * from './user';
 
 // Admin Domain Utilities
 // export * from './admin';
