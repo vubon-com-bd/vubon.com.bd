@@ -67,44 +67,54 @@ jobs:
       - name: Run TypeScript type check
         run: pnpm --filter @vubon/backend-service type-check
 
-  build:
-    name: 🏗️ Build
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    needs: type-check
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+build:
+  name: 🏗️ Build
+  runs-on: ubuntu-latest
+  timeout-minutes: 20
+  needs: type-check
+  steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
 
-      - name: Install dependencies (no lockfile)
-        run: pnpm install --no-frozen-lockfile
+    - name: Install dependencies (no lockfile)
+      run: pnpm install --no-frozen-lockfile
 
-      - name: Build all packages
-        run: |
-          pnpm --filter @vubon/shared-constants build
-          pnpm --filter @vubon/shared-types build
-          pnpm --filter @vubon/shared-schemas build
-          pnpm --filter @vubon/shared-utils build
-          pnpm --filter @vubon/shared-config build
-          pnpm --filter @vubon/backend-service build
+    - name: Build all packages
+      run: |
+        pnpm --filter @vubon/shared-constants build
+        pnpm --filter @vubon/shared-types build
+        pnpm --filter @vubon/shared-schemas build
+        pnpm --filter @vubon/shared-utils build
+        pnpm --filter @vubon/shared-config build
+        pnpm --filter @vubon/backend-service build
+      env:
+        NODE_OPTIONS: "--max-old-space-size=8192"  # ✅ মেমরি বাড়ান
 
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: vubon-build-${{ github.sha }}
-          retention-days: 7
-          path: |
-            packages/**/dist
-            package.json
-            pnpm-lock.yaml
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: vubon-build-${{ github.sha }}
+        retention-days: 7
+        path: |
+          packages/backend-service/dist/
+          packages/shared-constants/dist/
+          packages/shared-types/dist/
+          packages/shared-schemas/dist/
+          packages/shared-utils/dist/
+          packages/shared-config/dist/
+        exclude: |
+          **/node_modules/**
+          **/*.log
+          **/.git/**
+        if-no-files-found: warn
 
   test:
     name: 🧪 Test
