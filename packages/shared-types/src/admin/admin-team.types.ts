@@ -1,7 +1,11 @@
-import { STATUS } from '@vubon/shared-constants';
+import { BaseEntity } from '../common/base.types';
+import { STATUS } from '@vubon/shared-constants/src/common/status.constants';
 import { Admin } from './admin.types';
 
-export interface AdminTeam {
+/**
+ * Admin team interface
+ */
+export interface AdminTeam extends BaseEntity {
   teamId: string;
   name: string;
   description: string;

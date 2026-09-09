@@ -1,6 +1,10 @@
+import { BaseEntity } from '../common/base.types';
 import { Admin } from './admin.types';
 
-export interface AdminNotification {
+/**
+ * Admin notification interface
+ */
+export interface AdminNotification extends BaseEntity {
   notificationId: string;
   adminId: string;
   admin: Admin;

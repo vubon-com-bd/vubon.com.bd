@@ -1,12 +1,17 @@
 import { RoleObject } from '../common/role.types';
-import { ADMIN_ROLES } from '@vubon/shared-constants';
-import { UserRoleKey } from '../user/user-role.types';
+import { ADMIN_ROLES } from '@vubon/shared-constants/src/admin/admin-role.constants';
 
-export interface AdminRole extends Omit<RoleObject, 'type'> {
-  type: keyof typeof ADMIN_ROLES;
+/**
+ * Admin role interface
+ */
+export interface AdminRole extends RoleObject {
+  type: keyof typeof ADMIN_ROLES | string;
   category: 'admin';
-  extends: keyof typeof ADMIN_ROLES | null;
-  userRoles: UserRoleKey[];
+  extends: keyof typeof ADMIN_ROLES | string | null;
+  userRoles: string[];
 }
 
+/**
+ * Admin role key type
+ */
 export type AdminRoleKey = keyof typeof ADMIN_ROLES;

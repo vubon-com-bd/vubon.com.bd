@@ -1,12 +1,10 @@
-import { USER_SETTINGS } from '@vubon/shared-constants';
+import { BaseEntity } from '../common/base.types';
+import { USER_SETTINGS } from '@vubon/shared-constants/src/user/user-settings.constants';
+import { NotificationPreferences } from '../auth/auth-preferences.types';
 
-export interface UserNotificationPreferences {
-  email: boolean;
-  sms: boolean;
-  push: boolean;
-  inApp: boolean;
-}
-
+/**
+ * Privacy settings interface
+ */
 export interface PrivacySettings {
   profileVisibility: string;
   emailVisibility: boolean;
@@ -14,14 +12,17 @@ export interface PrivacySettings {
   addressVisibility: boolean;
 }
 
-export interface UserSettings {
+/**
+ * User settings interface
+ */
+export interface UserSettings extends BaseEntity {
   settingsId: string;
   userId: string;
   theme: keyof typeof USER_SETTINGS;
   language: string;
   timezone: string;
   currency: string;
-  notifications: UserNotificationPreferences;
+  notifications: NotificationPreferences;
   privacy: PrivacySettings;
   metadata: Record<string, unknown>;
 }

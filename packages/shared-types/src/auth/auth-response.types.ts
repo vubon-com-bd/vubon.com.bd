@@ -1,14 +1,19 @@
-import { SuccessResponse } from '../common/base-response.types';
 import { Auth } from './auth.types';
 import { AuthSession } from './auth-session.types';
 import { AuthToken } from './auth-token.types';
 
-export type AuthResponse = SuccessResponse<{
+/**
+ * Auth response interface
+ */
+export interface AuthResponse {
   user: Auth;
   session: AuthSession;
   token: AuthToken;
-}>;
+}
 
+/**
+ * Login response interface
+ */
 export interface LoginResponse {
   accessToken: string;
   refreshToken: string;
@@ -17,6 +22,9 @@ export interface LoginResponse {
   session: AuthSession;
 }
 
+/**
+ * Register response interface
+ */
 export interface RegisterResponse {
   userId: string;
   email: string;

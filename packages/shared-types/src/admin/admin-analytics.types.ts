@@ -1,7 +1,11 @@
-import { METRICS } from '@vubon/shared-constants';
+import { BaseEntity } from '../common/base.types';
+import { METRICS } from '@vubon/shared-constants/src/common/types.constants';
 import { Admin } from './admin.types';
 
-export interface AdminAnalytics {
+/**
+ * Admin analytics interface
+ */
+export interface AdminAnalytics extends BaseEntity {
   analyticsId: string;
   adminId: string;
   admin: Admin;

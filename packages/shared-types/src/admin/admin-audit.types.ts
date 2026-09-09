@@ -1,12 +1,19 @@
+import { BaseEntity } from '../common/base.types';
 import { Admin } from './admin.types';
 
+/**
+ * Audit change interface
+ */
 export interface AuditChange {
   field: string;
   from: unknown;
   to: unknown;
 }
 
-export interface AdminAudit {
+/**
+ * Admin audit interface
+ */
+export interface AdminAudit extends BaseEntity {
   auditId: string;
   adminId: string;
   admin: Admin;

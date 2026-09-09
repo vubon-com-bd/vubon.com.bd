@@ -1,12 +1,13 @@
 import { BaseValueObject } from './base.types';
 
+/**
+ * Quantity Value Object class
+ */
 export class Quantity implements BaseValueObject<{ value: number; unit?: string }> {
   constructor(public value: { value: number; unit?: string }) {}
 
   isValid(): boolean {
-    return (
-      typeof this.value.value === 'number' && !isNaN(this.value.value) && this.value.value >= 0
-    );
+    return this.value.value >= 0;
   }
 
   equals(other: Quantity): boolean {
@@ -15,7 +16,7 @@ export class Quantity implements BaseValueObject<{ value: number; unit?: string 
 
   add(other: Quantity): Quantity {
     if (this.value.unit !== other.value.unit) {
-      throw new Error('Units must match for addition');
+      throw new Error('Cannot add quantities with different units');
     }
     return new Quantity({
       value: this.value.value + other.value.value,
@@ -25,7 +26,7 @@ export class Quantity implements BaseValueObject<{ value: number; unit?: string 
 
   subtract(other: Quantity): Quantity {
     if (this.value.unit !== other.value.unit) {
-      throw new Error('Units must match for subtraction');
+      throw new Error('Cannot subtract quantities with different units');
     }
     return new Quantity({
       value: this.value.value - other.value.value,
@@ -41,7 +42,6 @@ export class Quantity implements BaseValueObject<{ value: number; unit?: string 
   }
 
   divide(factor: number): Quantity {
-    if (factor === 0) throw new Error('Cannot divide by zero');
     return new Quantity({
       value: this.value.value / factor,
       unit: this.value.unit,
@@ -53,4 +53,7 @@ export class Quantity implements BaseValueObject<{ value: number; unit?: string 
   }
 }
 
+/**
+ * Quantity number type
+ */
 export type QuantityNumber = number;

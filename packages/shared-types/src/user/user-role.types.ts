@@ -1,11 +1,15 @@
-import { USER_ROLES } from '@vubon/shared-constants';
+import { RoleObject } from '../common/role.types';
+import { USER_ROLES } from '@vubon/shared-constants/src/user/user-role.constants';
 
-export interface UserRole {
-  type: keyof typeof USER_ROLES;
+/**
+ * User role interface
+ */
+export interface UserRole extends RoleObject {
+  type: keyof typeof USER_ROLES | string;
   category: 'user';
-  label: string;
-  weight: number;
-  permissions: string[];
 }
 
+/**
+ * User role key type
+ */
 export type UserRoleKey = keyof typeof USER_ROLES;

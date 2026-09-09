@@ -1,6 +1,9 @@
 import { AuthSession } from '../auth/auth-session.types';
 import { Admin } from './admin.types';
 
+/**
+ * Admin session interface
+ */
 export interface AdminSession extends AuthSession {
   sessionId: string;
   adminId: string;

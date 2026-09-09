@@ -1,9 +1,13 @@
-import { AUTH_DEVICE } from '@vubon/shared-constants';
+import { BaseEntity } from '../common/base.types';
+import { AUTH_DEVICE } from '@vubon/shared-constants/src/auth/auth-device.constants';
 
-export interface AuthDevice {
+/**
+ * Auth device interface
+ */
+export interface AuthDevice extends BaseEntity {
   deviceId: string;
   userId: string;
-  type: keyof typeof AUTH_DEVICE;
+  type: keyof typeof AUTH_DEVICE | string;
   name: string;
   model?: string;
   os: string;

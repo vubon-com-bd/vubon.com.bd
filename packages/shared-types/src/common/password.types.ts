@@ -1,5 +1,8 @@
 import { BaseValueObject } from './base.types';
 
+/**
+ * Password Value Object class
+ */
 export class Password implements BaseValueObject<string> {
   constructor(public value: string) {}
 
@@ -12,25 +15,20 @@ export class Password implements BaseValueObject<string> {
   }
 
   hash(): string {
+    // Placeholder for hash implementation
     return `hashed_${this.value}`;
   }
 
   verify(plainText: string): boolean {
+    // Placeholder for verification implementation
     return this.value === plainText;
   }
 
   getStrength(): 'weak' | 'medium' | 'strong' {
     const length = this.value.length;
-    const hasUpper = /[A-Z]/.test(this.value);
-    const hasLower = /[a-z]/.test(this.value);
-    const hasDigit = /\d/.test(this.value);
-    const hasSpecial = /[^A-Za-z0-9]/.test(this.value);
-
-    const score = [hasUpper, hasLower, hasDigit, hasSpecial].filter(Boolean).length;
-
-    if (length < 8 || score < 2) return 'weak';
-    if (length < 12 || score < 3) return 'medium';
-    return 'strong';
+    if (length >= 12) return 'strong';
+    if (length >= 8) return 'medium';
+    return 'weak';
   }
 
   toString(): string {
@@ -38,4 +36,7 @@ export class Password implements BaseValueObject<string> {
   }
 }
 
+/**
+ * Password string type
+ */
 export type PasswordString = string;

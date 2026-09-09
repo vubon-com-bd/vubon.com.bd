@@ -1,7 +1,11 @@
-import { ADMIN_DEPARTMENT } from '@vubon/shared-constants';
+import { BaseEntity } from '../common/base.types';
+import { ADMIN_DEPARTMENT } from '@vubon/shared-constants/src/admin/admin-department.constants';
 import { Admin } from './admin.types';
 
-export interface AdminDepartment {
+/**
+ * Admin department interface
+ */
+export interface AdminDepartment extends BaseEntity {
   departmentId: string;
   name: keyof typeof ADMIN_DEPARTMENT;
   description: string;

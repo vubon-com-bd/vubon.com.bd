@@ -1,15 +1,14 @@
-import { USER_VERIFICATION } from '@vubon/shared-constants';
+import { BaseEntity } from '../common/base.types';
+import { USER_VERIFICATION } from '@vubon/shared-constants/src/user/user-verification.constants';
 
-export interface UserVerification {
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  isActive: boolean;
-  isDeleted: boolean;
+/**
+ * User verification interface
+ */
+export interface UserVerification extends BaseEntity {
   verificationId: string;
   userId: string;
-  type: keyof typeof USER_VERIFICATION;
-  status: keyof typeof USER_VERIFICATION;
+  type: keyof typeof USER_VERIFICATION | string;
+  status: string;
   documentId?: string;
   verifiedAt?: Date;
   expiresAt?: Date;

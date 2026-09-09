@@ -1,10 +1,12 @@
-import { STATUS } from '@vubon/shared-constants';
-import { ROLES } from '@vubon/shared-constants';
-import { PERMISSIONS } from '@vubon/shared-constants';
-import { AUTH_TYPES } from '@vubon/shared-constants';
-import { AUTH_PROVIDER } from '@vubon/shared-constants';
-import { AUTH_METHOD } from '@vubon/shared-constants';
+import { BaseEntity } from '../common/base.types';
+import { AUTH_STATUS } from '@vubon/shared-constants/src/auth/auth-status.constants';
+import { AUTH_TYPES } from '@vubon/shared-constants/src/auth/auth-type.constants';
+import { AUTH_PROVIDER } from '@vubon/shared-constants/src/auth/auth-provider.constants';
+import { AUTH_METHOD } from '@vubon/shared-constants/src/auth/auth-method.constants';
 
+/**
+ * Auth metadata interface
+ */
 export interface AuthMetadata {
   userAgent?: string;
   ipAddress?: string;
@@ -12,23 +14,22 @@ export interface AuthMetadata {
   location?: string;
 }
 
-export interface Auth {
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  isActive: boolean;
-  isDeleted: boolean;
+/**
+ * Auth interface
+ */
+export interface Auth extends BaseEntity {
   userId: string;
   email: string;
   phone?: string;
   passwordHash: string;
-  status: keyof typeof STATUS;
-  type: keyof typeof AUTH_TYPES;
-  provider: keyof typeof AUTH_PROVIDER;
-  method: keyof typeof AUTH_METHOD;
-  role: keyof typeof ROLES;
-  permissions: (keyof typeof PERMISSIONS)[];
+  status: keyof typeof AUTH_STATUS | string;
+  type: keyof typeof AUTH_TYPES | string;
+  provider: keyof typeof AUTH_PROVIDER | string;
+  method: keyof typeof AUTH_METHOD | string;
+  role: string;
+  permissions: string[];
   isVerified: boolean;
+  isActive: boolean;
   lastLoginAt?: Date;
   loginCount: number;
   metadata: AuthMetadata;

@@ -1,4 +1,9 @@
-export interface AuthSettings {
+import { BaseEntity } from '../common/base.types';
+
+/**
+ * Auth settings interface
+ */
+export interface AuthSettings extends BaseEntity {
   userId: string;
   sessionTimeout: number;
   maxLoginAttempts: number;

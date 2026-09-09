@@ -1,5 +1,8 @@
 import { BaseValueObject } from './base.types';
 
+/**
+ * Address data interface
+ */
 export interface AddressData {
   street: string;
   city: string;
@@ -11,16 +14,14 @@ export interface AddressData {
   upazila?: string;
 }
 
+/**
+ * Address Value Object class
+ */
 export class Address implements BaseValueObject<AddressData> {
   constructor(public value: AddressData) {}
 
   isValid(): boolean {
-    return (
-      this.value.street.trim() !== '' &&
-      this.value.city.trim() !== '' &&
-      this.value.postalCode.trim() !== '' &&
-      this.value.country.trim() !== ''
-    );
+    return !!(this.value.street && this.value.city && this.value.postalCode && this.value.country);
   }
 
   equals(other: Address): boolean {

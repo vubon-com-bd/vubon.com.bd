@@ -1,12 +1,11 @@
-import { STATUS } from '@vubon/shared-constants';
-import { USER_KYC } from '@vubon/shared-constants';
+import { BaseEntity } from '../common/base.types';
+import { STATUS } from '@vubon/shared-constants/src/common/status.constants';
+import { USER_KYC } from '@vubon/shared-constants/src/user/user-kyc.constants';
 
-export interface UserKyc {
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  isActive: boolean;
-  isDeleted: boolean;
+/**
+ * User KYC interface
+ */
+export interface UserKyc extends BaseEntity {
   kycId: string;
   userId: string;
   type: keyof typeof USER_KYC;

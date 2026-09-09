@@ -1,18 +1,16 @@
-import { SESSION } from '@vubon/shared-constants';
-import { AUTH_SESSION } from '@vubon/shared-constants';
+import { BaseEntity } from '../common/base.types';
+import { AUTH_SESSION } from '@vubon/shared-constants/src/auth/auth-session.constants';
 import { DeviceInfo } from './auth-request.types';
 
-export interface AuthSession {
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  isActive: boolean;
-  isDeleted: boolean;
+/**
+ * Auth session interface
+ */
+export interface AuthSession extends BaseEntity {
   sessionId: string;
   userId: string;
   token: string;
-  status: keyof typeof AUTH_SESSION;
-  type: keyof typeof SESSION;
+  status: keyof typeof AUTH_SESSION | string;
+  type: string;
   expiresAt: Date;
   lastActivity: Date;
   deviceInfo: DeviceInfo;

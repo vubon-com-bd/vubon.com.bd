@@ -1,11 +1,10 @@
-import { USER_LOG } from '@vubon/shared-constants';
+import { BaseEntity } from '../common/base.types';
+import { USER_LOG } from '@vubon/shared-constants/src/user/user-log.constants';
 
-export interface UserLog {
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  isActive: boolean;
-  isDeleted: boolean;
+/**
+ * User log interface
+ */
+export interface UserLog extends BaseEntity {
   logId: string;
   userId: string;
   type: keyof typeof USER_LOG;
@@ -13,4 +12,5 @@ export interface UserLog {
   data: Record<string, unknown>;
   ipAddress: string;
   userAgent: string;
+  createdAt: Date;
 }

@@ -1,15 +1,13 @@
 import { BaseValueObject } from './base.types';
 
+/**
+ * Money Value Object class
+ */
 export class Money implements BaseValueObject<{ amount: number; currency: string }> {
   constructor(public value: { amount: number; currency: string }) {}
 
   isValid(): boolean {
-    return (
-      typeof this.value.amount === 'number' &&
-      !isNaN(this.value.amount) &&
-      this.value.amount >= 0 &&
-      this.value.currency.trim() !== ''
-    );
+    return this.value.amount >= 0 && !!this.value.currency;
   }
 
   equals(other: Money): boolean {
@@ -18,7 +16,7 @@ export class Money implements BaseValueObject<{ amount: number; currency: string
 
   add(other: Money): Money {
     if (this.value.currency !== other.value.currency) {
-      throw new Error('Currencies must match for addition');
+      throw new Error('Cannot add money with different currencies');
     }
     return new Money({
       amount: this.value.amount + other.value.amount,
@@ -28,7 +26,7 @@ export class Money implements BaseValueObject<{ amount: number; currency: string
 
   subtract(other: Money): Money {
     if (this.value.currency !== other.value.currency) {
-      throw new Error('Currencies must match for subtraction');
+      throw new Error('Cannot subtract money with different currencies');
     }
     return new Money({
       amount: this.value.amount - other.value.amount,
@@ -44,7 +42,6 @@ export class Money implements BaseValueObject<{ amount: number; currency: string
   }
 
   divide(factor: number): Money {
-    if (factor === 0) throw new Error('Cannot divide by zero');
     return new Money({
       amount: this.value.amount / factor,
       currency: this.value.currency,
@@ -52,7 +49,7 @@ export class Money implements BaseValueObject<{ amount: number; currency: string
   }
 
   getFormattedAmount(): string {
-    return `${this.value.amount} ${this.value.currency}`;
+    return `${this.value.amount.toFixed(2)} ${this.value.currency}`;
   }
 
   toString(): string {
@@ -60,4 +57,7 @@ export class Money implements BaseValueObject<{ amount: number; currency: string
   }
 }
 
+/**
+ * Money amount type
+ */
 export type MoneyAmount = number;

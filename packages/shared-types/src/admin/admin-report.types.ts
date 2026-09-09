@@ -1,6 +1,10 @@
+import { BaseEntity } from '../common/base.types';
 import { Admin } from './admin.types';
 
-export interface AdminReport {
+/**
+ * Admin report interface
+ */
+export interface AdminReport extends BaseEntity {
   reportId: string;
   adminId: string;
   admin: Admin;

@@ -1,11 +1,13 @@
 import { Auth2FA } from '../auth/auth-2fa.types';
 import { Admin } from './admin.types';
 
-export interface Admin2FA extends Omit<Auth2FA, 'type'> {
+/**
+ * Admin 2FA interface
+ */
+export interface Admin2FA extends Auth2FA {
   twoFAId: string;
   adminId: string;
   admin: Admin;
-  type: 'totp' | 'sms' | 'email';
   isRequired: boolean;
   isEnabled: boolean;
   metadata: Record<string, unknown>;

@@ -1,11 +1,21 @@
-import { STATUS } from '@vubon/shared-constants';
+import { STATUS } from '@vubon/shared-constants/src/common/status.constants';
 
-export type Status = keyof typeof STATUS;
-export type StatusValue = (typeof STATUS)[Status];
+/**
+ * Status type
+ */
+export type Status = keyof typeof STATUS | string;
 
+/**
+ * Status value type
+ */
+export type StatusValue = (typeof STATUS)[keyof typeof STATUS] | string;
+
+/**
+ * Status object interface
+ */
 export interface StatusObject {
-  type: Status;
-  value: StatusValue;
+  type: string;
+  value: string;
   label: string;
   color?: string;
 }

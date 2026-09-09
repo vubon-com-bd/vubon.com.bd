@@ -1,12 +1,11 @@
+import { BaseEntity } from '../common/base.types';
 import { Address } from '../common/address.types';
-import { USER_ADDRESS } from '@vubon/shared-constants';
+import { USER_ADDRESS } from '@vubon/shared-constants/src/user/user-address.constants';
 
-export interface UserAddress {
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  isActive: boolean;
-  isDeleted: boolean;
+/**
+ * User address interface
+ */
+export interface UserAddress extends BaseEntity {
   addressId: string;
   userId: string;
   address: Address;

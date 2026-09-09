@@ -1,14 +1,14 @@
 import { AuthVerification } from '../auth/auth-verification.types';
 import { Admin } from './admin.types';
 
-export type AdminVerificationType = 'email' | 'phone' | 'document' | 'background_check';
-export type AdminVerificationStatus = 'pending' | 'approved' | 'rejected';
-
-export interface AdminVerification extends Omit<AuthVerification, 'type' | 'status'> {
+/**
+ * Admin verification interface
+ */
+export interface AdminVerification extends AuthVerification {
   verificationId: string;
   adminId: string;
   admin: Admin;
-  type: AdminVerificationType;
-  status: AdminVerificationStatus;
+  type: 'email' | 'phone' | 'document' | 'background_check' | string;
+  status: 'pending' | 'approved' | 'rejected' | string;
   metadata: Record<string, unknown>;
 }

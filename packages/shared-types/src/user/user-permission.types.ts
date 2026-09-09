@@ -1,12 +1,15 @@
-import { USER_PERMISSIONS } from '@vubon/shared-constants';
+import { PermissionObject } from '../common/permission.types';
+import { USER_PERMISSIONS } from '@vubon/shared-constants/src/user/user-permission.constants';
 
-export interface UserPermission {
-  type: keyof typeof USER_PERMISSIONS;
+/**
+ * User permission interface
+ */
+export interface UserPermission extends PermissionObject {
+  type: keyof typeof USER_PERMISSIONS | string;
   category: 'user';
-  label: string;
-  resource: string;
-  action: 'create' | 'read' | 'update' | 'delete' | 'manage';
-  description?: string;
 }
 
+/**
+ * User permission key type
+ */
 export type UserPermissionKey = keyof typeof USER_PERMISSIONS;

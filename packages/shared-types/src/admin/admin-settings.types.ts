@@ -1,13 +1,19 @@
 import { UserSettings } from '../user/user-settings.types';
 import { Admin } from './admin.types';
+import { NotificationPreferences } from '../auth/auth-preferences.types';
 
-export interface AdminNotificationPreferences {
-  email: boolean;
-  sms: boolean;
-  push: boolean;
-  inApp: boolean;
+/**
+ * Admin notification preferences interface
+ */
+export interface AdminNotificationPreferences extends NotificationPreferences {
+  adminAlerts: boolean;
+  systemUpdates: boolean;
+  securityAlerts: boolean;
 }
 
+/**
+ * Admin settings interface
+ */
 export interface AdminSettings extends UserSettings {
   settingsId: string;
   adminId: string;

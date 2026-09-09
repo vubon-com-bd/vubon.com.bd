@@ -1,3 +1,6 @@
+/**
+ * Metadata interface
+ */
 export interface Metadata {
   createdAt: Date;
   updatedAt: Date;
@@ -9,4 +12,7 @@ export interface Metadata {
   custom?: Record<string, unknown>;
 }
 
+/**
+ * Metadata key type
+ */
 export type MetadataKey = keyof Metadata;

@@ -1,5 +1,8 @@
-import { VALIDATION } from '@vubon/shared-constants';
+import { VALIDATION } from '@vubon/shared-constants/src/common/validation.constants';
 
+/**
+ * Validation rule interface
+ */
 export interface ValidationRule {
   field: string;
   rule: string;
@@ -7,11 +10,9 @@ export interface ValidationRule {
   message?: string;
 }
 
-export interface ValidationResult {
-  isValid: boolean;
-  errors: ValidationError[];
-}
-
+/**
+ * Validation error interface
+ */
 export interface ValidationError {
   field: string;
   message: string;
@@ -19,4 +20,15 @@ export interface ValidationError {
   value?: unknown;
 }
 
+/**
+ * Validation result interface
+ */
+export interface ValidationResult {
+  isValid: boolean;
+  errors: ValidationError[];
+}
+
+/**
+ * Validation type
+ */
 export type ValidationType = keyof typeof VALIDATION;

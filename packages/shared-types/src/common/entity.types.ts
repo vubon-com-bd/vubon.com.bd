@@ -1,11 +1,16 @@
 import { BaseEntity } from './base.types';
 
+/**
+ * Entity interface
+ */
 export interface Entity<T = unknown> extends BaseEntity {
-  id: string;
   version: number;
   metadata: Record<string, unknown>;
   toJSON(): T;
-  toDTO(): Record<string, unknown>;
+  toDTO(): unknown;
 }
 
+/**
+ * Entity constructor type
+ */
 export type EntityConstructor<T> = new (...args: unknown[]) => T;

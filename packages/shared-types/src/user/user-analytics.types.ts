@@ -1,14 +1,12 @@
-import { METRICS } from '@vubon/shared-constants';
+import { BaseEntity } from '../common/base.types';
+import { METRICS } from '@vubon/shared-constants/src/common/types.constants';
+import { User } from './user.types';
 
-export interface UserAnalytics {
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  isActive: boolean;
-  isDeleted: boolean;
+export interface BusinessUserAnalytics extends BaseEntity {
   analyticsId: string;
   userId: string;
-  metric: keyof typeof METRICS;
+  user: User;
+  metric: keyof typeof METRICS | string;
   value: number;
   timestamp: Date;
   metadata: Record<string, unknown>;

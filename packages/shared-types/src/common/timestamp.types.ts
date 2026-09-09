@@ -1,13 +1,16 @@
 import { BaseValueObject } from './base.types';
 
-export class Timestamp implements BaseValueObject<Date> {
+/**
+ * Timestamp Value Object class
+ */
+export class TimestampVO implements BaseValueObject<Date> {
   constructor(public value: Date) {}
 
   isValid(): boolean {
     return this.value instanceof Date && !isNaN(this.value.getTime());
   }
 
-  equals(other: Timestamp): boolean {
+  equals(other: TimestampVO): boolean {
     return this.value.getTime() === other.value.getTime();
   }
 
@@ -24,8 +27,11 @@ export class Timestamp implements BaseValueObject<Date> {
   }
 
   toString(): string {
-    return this.value.toISOString();
+    return this.getISOString();
   }
 }
 
+/**
+ * Timestamp string type
+ */
 export type TimestampString = string;

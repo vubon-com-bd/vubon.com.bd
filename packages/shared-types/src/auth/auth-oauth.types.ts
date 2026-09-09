@@ -1,6 +1,10 @@
-import { AUTH_OAUTH } from '@vubon/shared-constants';
+import { BaseEntity } from '../common/base.types';
+import { AUTH_OAUTH } from '@vubon/shared-constants/src/auth/auth-oauth.constants';
 
-export interface AuthOAuth {
+/**
+ * Auth OAuth interface
+ */
+export interface AuthOAuth extends BaseEntity {
   oauthId: string;
   userId: string;
   provider: keyof typeof AUTH_OAUTH;

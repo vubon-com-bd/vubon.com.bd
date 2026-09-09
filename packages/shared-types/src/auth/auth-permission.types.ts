@@ -1,13 +1,15 @@
-import { AUTH_PERMISSIONS } from '@vubon/shared-constants';
+import { PermissionObject } from '../common/permission.types';
+import { AUTH_PERMISSIONS } from '@vubon/shared-constants/src/auth/auth-permission.constants';
 
-export interface AuthPermission {
-  type: keyof typeof AUTH_PERMISSIONS;
+/**
+ * Auth permission interface
+ */
+export interface AuthPermission extends PermissionObject {
+  type: keyof typeof AUTH_PERMISSIONS | string;
   category: 'auth';
-  value: string;
-  label: string;
-  resource: string;
-  action: 'create' | 'read' | 'update' | 'delete' | 'manage';
-  description?: string;
 }
 
+/**
+ * Auth permission key type
+ */
 export type AuthPermissionKey = keyof typeof AUTH_PERMISSIONS;

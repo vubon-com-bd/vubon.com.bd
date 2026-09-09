@@ -1,5 +1,8 @@
 import { BaseValueObject } from './base.types';
 
+/**
+ * Date Value Object class
+ */
 export class DateVO implements BaseValueObject<Date> {
   constructor(public value: Date) {}
 
@@ -20,16 +23,20 @@ export class DateVO implements BaseValueObject<Date> {
   }
 
   diffInDays(other: DateVO): number {
-    const diff = this.value.getTime() - other.value.getTime();
-    return Math.floor(diff / (1000 * 60 * 60 * 24));
+    const diffMs = this.value.getTime() - other.value.getTime();
+    return Math.floor(diffMs / (1000 * 60 * 60 * 24));
   }
 
-  format(format?: string): string {
-    const defaultFormat = format || 'YYYY-MM-DD';
-    const year = this.value.getFullYear();
-    const month = String(this.value.getMonth() + 1).padStart(2, '0');
-    const day = String(this.value.getDate()).padStart(2, '0');
-    return defaultFormat.replace('YYYY', String(year)).replace('MM', month).replace('DD', day);
+  format(_format?: string): string {
+    const date = this.value;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   }
 
   toString(): string {
@@ -37,4 +44,7 @@ export class DateVO implements BaseValueObject<Date> {
   }
 }
 
+/**
+ * Date string type
+ */
 export type DateString = string;

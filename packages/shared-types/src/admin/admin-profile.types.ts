@@ -1,6 +1,9 @@
 import { UserProfile } from '../user/user-profile.types';
 import { Admin } from './admin.types';
 
+/**
+ * Admin profile interface
+ */
 export interface AdminProfile extends UserProfile {
   profileId: string;
   adminId: string;

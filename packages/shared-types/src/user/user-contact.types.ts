@@ -1,13 +1,12 @@
+import { BaseEntity } from '../common/base.types';
 import { Email } from '../common/email.types';
 import { PhoneNumber } from '../common/phone.types';
-import { USER_CONTACT } from '@vubon/shared-constants';
+import { USER_CONTACT } from '@vubon/shared-constants/src/user/user-contact.constants';
 
-export interface UserContact {
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  isActive: boolean;
-  isDeleted: boolean;
+/**
+ * User contact interface
+ */
+export interface UserContact extends BaseEntity {
   contactId: string;
   userId: string;
   type: keyof typeof USER_CONTACT;

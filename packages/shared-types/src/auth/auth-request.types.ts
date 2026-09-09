@@ -1,6 +1,9 @@
 import { ApiRequest } from '../common/api-request.types';
 import { Auth } from './auth.types';
 
+/**
+ * Device information interface
+ */
 export interface DeviceInfo {
   deviceId: string;
   deviceName: string;
@@ -10,6 +13,9 @@ export interface DeviceInfo {
   ipAddress: string;
 }
 
+/**
+ * Auth request interface
+ */
 export interface AuthRequest extends ApiRequest {
   userId: string;
   sessionId: string;
@@ -17,6 +23,9 @@ export interface AuthRequest extends ApiRequest {
   auth: Auth;
 }
 
+/**
+ * Login request interface
+ */
 export interface LoginRequest {
   email: string;
   password: string;
@@ -24,6 +33,9 @@ export interface LoginRequest {
   deviceInfo?: DeviceInfo;
 }
 
+/**
+ * Register request interface
+ */
 export interface RegisterRequest {
   email: string;
   password: string;

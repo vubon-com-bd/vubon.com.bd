@@ -1,7 +1,10 @@
-import { PaginationParams } from './paginated-response.types';
-import { SORT } from '@vubon/shared-constants';
-import { FILTER } from '@vubon/shared-constants';
+import { PaginationParams } from './pagination.types';
+import { SORT } from '@vubon/shared-constants/src/common/sort.constants';
+import { FILTER } from '@vubon/shared-constants/src/common/filter.constants';
 
+/**
+ * API request interface
+ */
 export interface ApiRequest<T = unknown> {
   body?: T;
   params?: Record<string, string>;
@@ -9,6 +12,9 @@ export interface ApiRequest<T = unknown> {
   headers?: Record<string, string>;
 }
 
+/**
+ * API request with pagination interface
+ */
 export interface ApiRequestWithPagination extends ApiRequest {
   pagination: PaginationParams;
   sort?: keyof typeof SORT;

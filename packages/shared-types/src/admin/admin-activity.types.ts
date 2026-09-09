@@ -1,6 +1,9 @@
 import { UserActivity } from '../user/user-activity.types';
 import { Admin } from './admin.types';
 
+/**
+ * Admin activity interface
+ */
 export interface AdminActivity extends UserActivity {
   activityId: string;
   adminId: string;

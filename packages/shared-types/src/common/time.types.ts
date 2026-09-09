@@ -1,5 +1,8 @@
 import { BaseValueObject } from './base.types';
 
+/**
+ * Time Value Object class
+ */
 export class TimeVO implements BaseValueObject<{
   hours: number;
   minutes: number;
@@ -8,8 +11,14 @@ export class TimeVO implements BaseValueObject<{
   constructor(public value: { hours: number; minutes: number; seconds: number }) {}
 
   isValid(): boolean {
-    const { hours, minutes, seconds } = this.value;
-    return hours >= 0 && hours < 24 && minutes >= 0 && minutes < 60 && seconds >= 0 && seconds < 60;
+    return (
+      this.value.hours >= 0 &&
+      this.value.hours < 24 &&
+      this.value.minutes >= 0 &&
+      this.value.minutes < 60 &&
+      this.value.seconds >= 0 &&
+      this.value.seconds < 60
+    );
   }
 
   equals(other: TimeVO): boolean {
@@ -21,15 +30,15 @@ export class TimeVO implements BaseValueObject<{
   }
 
   isBefore(other: TimeVO): boolean {
-    const thisTotal = this.value.hours * 3600 + this.value.minutes * 60 + this.value.seconds;
-    const otherTotal = other.value.hours * 3600 + other.value.minutes * 60 + other.value.seconds;
-    return thisTotal < otherTotal;
+    const thisSeconds = this.value.hours * 3600 + this.value.minutes * 60 + this.value.seconds;
+    const otherSeconds = other.value.hours * 3600 + other.value.minutes * 60 + other.value.seconds;
+    return thisSeconds < otherSeconds;
   }
 
   isAfter(other: TimeVO): boolean {
-    const thisTotal = this.value.hours * 3600 + this.value.minutes * 60 + this.value.seconds;
-    const otherTotal = other.value.hours * 3600 + other.value.minutes * 60 + other.value.seconds;
-    return thisTotal > otherTotal;
+    const thisSeconds = this.value.hours * 3600 + this.value.minutes * 60 + this.value.seconds;
+    const otherSeconds = other.value.hours * 3600 + other.value.minutes * 60 + other.value.seconds;
+    return thisSeconds > otherSeconds;
   }
 
   add(other: TimeVO): TimeVO {
@@ -40,34 +49,35 @@ export class TimeVO implements BaseValueObject<{
       other.value.hours * 3600 +
       other.value.minutes * 60 +
       other.value.seconds;
-    totalSeconds = totalSeconds % (24 * 3600);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = Math.floor(totalSeconds % 60);
+
+    const hours = Math.floor(totalSeconds / 3600) % 24;
+    totalSeconds %= 3600;
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
     return new TimeVO({ hours, minutes, seconds });
   }
 
   subtract(other: TimeVO): TimeVO {
-    let totalSeconds =
-      this.value.hours * 3600 +
-      this.value.minutes * 60 +
-      this.value.seconds -
-      other.value.hours * 3600 -
-      other.value.minutes * 60 -
-      other.value.seconds;
-    if (totalSeconds < 0) totalSeconds += 24 * 3600;
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = Math.floor(totalSeconds % 60);
+    let thisSeconds = this.value.hours * 3600 + this.value.minutes * 60 + this.value.seconds;
+    const otherSeconds = other.value.hours * 3600 + other.value.minutes * 60 + other.value.seconds;
+    let diffSeconds = thisSeconds - otherSeconds;
+
+    if (diffSeconds < 0) diffSeconds += 24 * 3600;
+
+    const hours = Math.floor(diffSeconds / 3600);
+    diffSeconds %= 3600;
+    const minutes = Math.floor(diffSeconds / 60);
+    const seconds = diffSeconds % 60;
+
     return new TimeVO({ hours, minutes, seconds });
   }
 
-  format(format?: string): string {
-    const defaultFormat = format || 'HH:MM:SS';
-    const hours = String(this.value.hours).padStart(2, '0');
-    const minutes = String(this.value.minutes).padStart(2, '0');
-    const seconds = String(this.value.seconds).padStart(2, '0');
-    return defaultFormat.replace('HH', hours).replace('MM', minutes).replace('SS', seconds);
+  format(_format?: string): string {
+    const h = String(this.value.hours).padStart(2, '0');
+    const m = String(this.value.minutes).padStart(2, '0');
+    const s = String(this.value.seconds).padStart(2, '0');
+    return `${h}:${m}:${s}`;
   }
 
   toString(): string {
@@ -75,4 +85,7 @@ export class TimeVO implements BaseValueObject<{
   }
 }
 
+/**
+ * Time string type
+ */
 export type TimeString = string;

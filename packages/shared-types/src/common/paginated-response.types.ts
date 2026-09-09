@@ -1,5 +1,8 @@
 import { BaseResponse } from './base-response.types';
 
+/**
+ * Pagination metadata interface
+ */
 export interface PaginationMeta {
   page: number;
   limit: number;
@@ -9,14 +12,10 @@ export interface PaginationMeta {
   hasPrevious: boolean;
 }
 
+/**
+ * Paginated response interface
+ */
 export interface PaginatedResponse<T> extends BaseResponse<T[]> {
   data: T[];
   meta: PaginationMeta;
-}
-
-export interface PaginationParams {
-  page?: number;
-  limit?: number;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
 }

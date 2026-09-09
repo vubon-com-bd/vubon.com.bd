@@ -1,6 +1,10 @@
-import { AUTH_SOCIAL } from '@vubon/shared-constants';
+import { BaseEntity } from '../common/base.types';
+import { AUTH_SOCIAL } from '@vubon/shared-constants/src/auth/auth-social.constants';
 
-export interface AuthSocial {
+/**
+ * Auth social interface
+ */
+export interface AuthSocial extends BaseEntity {
   socialId: string;
   userId: string;
   provider: keyof typeof AUTH_SOCIAL;

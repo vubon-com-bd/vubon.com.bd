@@ -1,7 +1,11 @@
-import { TYPES } from '@vubon/shared-constants';
-import { AUTH_TOKEN } from '@vubon/shared-constants';
+import { BaseEntity } from '../common/base.types';
+import { TYPES } from '@vubon/shared-constants/src/common/types.constants';
+import { AUTH_TOKEN } from '@vubon/shared-constants/src/auth/auth-token.constants';
 
-export interface AuthToken {
+/**
+ * Auth token interface
+ */
+export interface AuthToken extends BaseEntity {
   tokenId: string;
   userId: string;
   token: string;
@@ -13,6 +17,9 @@ export interface AuthToken {
   metadata: Record<string, unknown>;
 }
 
+/**
+ * Token payload interface
+ */
 export interface TokenPayload {
   sub: string;
   email: string;

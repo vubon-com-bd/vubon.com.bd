@@ -1,11 +1,32 @@
 // Common Types
 export * from './common';
 
-// Auth Domain Types
+// Auth Types
 export * from './auth';
 
-// User Domain Types
+// User Types
 export * from './user';
 
-// Admin Domain Types
+// Admin Types
 export * from './admin';
+
+// Admin Types
+export * from './business';
+
+// Logistics Types
+export * from './logistics';
+
+// content Types
+export * from './content';
+
+// support Types
+export * from './support';
+
+// marketing Types
+export * from './marketing';
+
+// platform Types
+export * from './platform';
+
+// ai Types
+export * from './ai';

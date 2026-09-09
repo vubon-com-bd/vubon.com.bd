@@ -1,8 +1,10 @@
-import { AUTH_MFA } from '@vubon/shared-constants';
 import { AuthMfa } from './auth-mfa.types';
 
+/**
+ * Auth 2FA interface
+ */
 export interface Auth2FA extends AuthMfa {
-  type: keyof typeof AUTH_MFA;
+  type: 'totp' | 'sms' | 'email' | string;
   phoneNumber?: string;
   emailAddress?: string;
   isPrimary: boolean;

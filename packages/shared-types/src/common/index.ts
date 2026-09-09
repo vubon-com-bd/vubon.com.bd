@@ -27,3 +27,4 @@ export * from './pagination.types';
 export * from './error.types';
 export * from './validation.types';
 export * from './config.types';
+export * from './types.types';

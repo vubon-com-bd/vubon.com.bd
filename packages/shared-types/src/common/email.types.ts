@@ -1,11 +1,15 @@
 import { BaseValueObject } from './base.types';
 
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+/**
+ * Email Value Object class
+ */
 export class Email implements BaseValueObject<string> {
   constructor(public value: string) {}
 
   isValid(): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(this.value);
+    return EMAIL_REGEX.test(this.value);
   }
 
   equals(other: Email): boolean {
@@ -25,4 +29,7 @@ export class Email implements BaseValueObject<string> {
   }
 }
 
+/**
+ * Email string type
+ */
 export type EmailString = string;
