@@ -1,11 +1,13 @@
 import { z } from 'zod';
 import { BaseSchema } from '../common/base.schema';
-import { AUTH_SOCIAL } from '@vubon/shared-constants';
+import { AUTH_SOCIAL } from '@vubon/shared-constants/src/auth/auth-social.constants';
+
+const authSocialKeys = Object.keys(AUTH_SOCIAL) as [string, ...string[]];
 
 export const AuthSocialSchema = BaseSchema.extend({
   socialId: z.string().uuid(),
   userId: z.string().uuid(),
-  provider: z.enum(Object.keys(AUTH_SOCIAL) as [string, ...string[]]),
+  provider: z.enum(authSocialKeys),
   providerUserId: z.string(),
   providerEmail: z.string().email(),
   displayName: z.string(),

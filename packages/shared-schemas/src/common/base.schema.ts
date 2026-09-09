@@ -1,15 +1,19 @@
 import { z } from 'zod';
-import { STATUS } from '@vubon/shared-constants';
-import { ROLES } from '@vubon/shared-constants';
-import { PERMISSIONS } from '@vubon/shared-constants';
+import { STATUS } from '@vubon/shared-constants/src/common/status.constants';
+import { ROLES } from '@vubon/shared-constants/src/common/roles.constants';
+import { PERMISSIONS } from '@vubon/shared-constants/src/common/permissions.constants';
+
+const statusKeys = Object.keys(STATUS) as [string, ...string[]];
+const roleKeys = Object.keys(ROLES) as [string, ...string[]];
+const permissionKeys = Object.keys(PERMISSIONS) as [string, ...string[]];
 
 export const BaseSchema = z.object({
   id: z.string().uuid(),
   createdAt: z.date(),
   updatedAt: z.date(),
-  status: z.enum(Object.keys(STATUS) as [string, ...string[]]),
-  role: z.enum(Object.keys(ROLES) as [string, ...string[]]).optional(),
-  permissions: z.array(z.enum(Object.keys(PERMISSIONS) as [string, ...string[]])).optional(),
+  status: z.enum(statusKeys),
+  role: z.enum(roleKeys).optional(),
+  permissions: z.array(z.enum(permissionKeys)).optional(),
   isActive: z.boolean().default(true),
   isDeleted: z.boolean().default(false),
 });

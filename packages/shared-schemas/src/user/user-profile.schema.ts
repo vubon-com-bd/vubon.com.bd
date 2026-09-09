@@ -2,7 +2,9 @@ import { z } from 'zod';
 import { BaseSchema } from '../common/base.schema';
 import { NameSchema } from '../common/name.schema';
 import { AddressSchema } from '../common/address.schema';
-import { USER_PROFILE } from '@vubon/shared-constants';
+import { USER_PROFILE } from '@vubon/shared-constants/src/user/user-profile.constants';
+
+const userProfileKeys = Object.keys(USER_PROFILE) as [string, ...string[]];
 
 export const UserProfileSchema = BaseSchema.extend({
   profileId: z.string().uuid(),
@@ -21,6 +23,6 @@ export const UserProfileSchema = BaseSchema.extend({
       youtube: z.string().url().optional(),
     })
     .optional(),
-  visibility: z.enum(Object.keys(USER_PROFILE) as [string, ...string[]]),
+  visibility: z.enum(userProfileKeys),
   metadata: z.record(z.unknown()).optional(),
 });

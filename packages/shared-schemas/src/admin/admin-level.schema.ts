@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { ADMIN_LEVEL } from '@vubon/shared-constants';
+import { ADMIN_LEVEL } from '@vubon/shared-constants/src/admin/admin-level.constants';
+
+const adminLevelKeys = Object.keys(ADMIN_LEVEL) as [string, ...string[]];
 
 export const AdminLevelSchema = z.object({
-  level: z.enum(Object.keys(ADMIN_LEVEL) as [string, ...string[]]),
+  level: z.enum(adminLevelKeys),
   category: z.literal('admin'),
 });
-
-export const AdminLevelEnumSchema = z.enum(Object.keys(ADMIN_LEVEL) as [string, ...string[]]);

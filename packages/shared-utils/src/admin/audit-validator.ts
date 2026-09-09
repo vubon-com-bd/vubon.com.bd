@@ -1,4 +1,16 @@
-import { AdminAudit } from '@vubon/shared-types';
+export interface AdminAudit {
+  action: string;
+  resource: string;
+  resourceId: string;
+  changes: Array<{
+    field: string;
+    from: unknown;
+    to: unknown;
+  }>;
+  ipAddress: string;
+  userAgent: string;
+  timestamp: Date;
+}
 
 export const validateAudit = (
   audit: Partial<AdminAudit>

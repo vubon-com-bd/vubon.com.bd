@@ -2,24 +2,31 @@ import { z } from 'zod';
 import { BaseSchema } from '../common/base.schema';
 import { EmailSchema } from '../common/email.schema';
 import { PhoneSchema } from '../common/phone.schema';
-import { AUTH_STATUS } from '@vubon/shared-constants';
-import { AUTH_TYPES } from '@vubon/shared-constants';
-import { AUTH_PROVIDER } from '@vubon/shared-constants';
-import { AUTH_METHOD } from '@vubon/shared-constants';
-import { ROLES } from '@vubon/shared-constants';
-import { PERMISSIONS } from '@vubon/shared-constants';
+import { AUTH_STATUS } from '@vubon/shared-constants/src/auth/auth-status.constants';
+import { AUTH_TYPES } from '@vubon/shared-constants/src/auth/auth-type.constants';
+import { AUTH_PROVIDER } from '@vubon/shared-constants/src/auth/auth-provider.constants';
+import { AUTH_METHOD } from '@vubon/shared-constants/src/auth/auth-method.constants';
+import { ROLES } from '@vubon/shared-constants/src/common/roles.constants';
+import { PERMISSIONS } from '@vubon/shared-constants/src/common/permissions.constants';
+
+const authStatusKeys = Object.keys(AUTH_STATUS) as [string, ...string[]];
+const authTypeKeys = Object.keys(AUTH_TYPES) as [string, ...string[]];
+const authProviderKeys = Object.keys(AUTH_PROVIDER) as [string, ...string[]];
+const authMethodKeys = Object.keys(AUTH_METHOD) as [string, ...string[]];
+const roleKeys = Object.keys(ROLES) as [string, ...string[]];
+const permissionKeys = Object.keys(PERMISSIONS) as [string, ...string[]];
 
 export const AuthSchema = BaseSchema.extend({
   userId: z.string().uuid(),
   email: EmailSchema.shape.email,
   phone: PhoneSchema.shape.phone.optional(),
   passwordHash: z.string().min(60).max(255),
-  status: z.enum(Object.keys(AUTH_STATUS) as [string, ...string[]]),
-  type: z.enum(Object.keys(AUTH_TYPES) as [string, ...string[]]),
-  provider: z.enum(Object.keys(AUTH_PROVIDER) as [string, ...string[]]),
-  method: z.enum(Object.keys(AUTH_METHOD) as [string, ...string[]]),
-  role: z.enum(Object.keys(ROLES) as [string, ...string[]]),
-  permissions: z.array(z.enum(Object.keys(PERMISSIONS) as [string, ...string[]])),
+  status: z.enum(authStatusKeys),
+  type: z.enum(authTypeKeys),
+  provider: z.enum(authProviderKeys),
+  method: z.enum(authMethodKeys),
+  role: z.enum(roleKeys),
+  permissions: z.array(z.enum(permissionKeys)),
   isVerified: z.boolean().default(false),
   isActive: z.boolean().default(true),
   lastLoginAt: z.date().optional(),

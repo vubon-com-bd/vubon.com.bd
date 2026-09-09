@@ -1,19 +1,33 @@
 import { addHours } from '../common/helper/time.helper';
-import { AuthSession } from '@vubon/shared-types';
-import { generateToken } from '../common/generator';
+import { AUTH_SESSION } from '@vubon/shared-constants/src/auth/auth-session.constants';
+
+export interface AuthSession {
+  sessionId: string;
+  userId: string;
+  token: string;
+  status: keyof typeof AUTH_SESSION;
+  type: string;
+  expiresAt: Date;
+  lastActivity: Date;
+  deviceInfo: {
+    deviceId: string;
+    deviceName: string;
+    deviceType: 'mobile' | 'tablet' | 'desktop' | 'other';
+    browser: string;
+    os: string;
+  };
+  ipAddress: string;
+  userAgent: string;
+  metadata: Record<string, unknown>;
+}
 
 export const createSession = (userId: string): AuthSession => {
   return {
-    id: crypto.randomUUID(),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    isActive: true,
-    isDeleted: false,
     sessionId: crypto.randomUUID(),
     userId,
-    token: generateToken(32),
+    token: crypto.randomUUID(),
     status: 'ACTIVE',
-    type: 'DEVICE', // SESSION কনস্ট্যান্টের বৈঠক কী ব্যবহার করুন
+    type: 'session',
     expiresAt: addHours(new Date(), 24),
     lastActivity: new Date(),
     deviceInfo: {
@@ -22,7 +36,6 @@ export const createSession = (userId: string): AuthSession => {
       deviceType: 'other',
       browser: '',
       os: '',
-      ipAddress: '',
     },
     ipAddress: '',
     userAgent: '',

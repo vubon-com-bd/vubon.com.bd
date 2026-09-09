@@ -1,13 +1,20 @@
 import { getTimeDifference } from '../common/helper/time.helper';
-import { AuthLoginAttempt } from '@vubon/shared-types';
+import { AUTH_LOGIN_ATTEMPT } from '@vubon/shared-constants/src/auth/auth-login-attempt.constants';
+
+export interface AuthLoginAttempt {
+  attemptId: string;
+  userId: string;
+  email: string;
+  ipAddress: string;
+  userAgent: string;
+  status: keyof typeof AUTH_LOGIN_ATTEMPT;
+  failureReason?: string;
+  attemptedAt: Date;
+  metadata: Record<string, unknown>;
+}
 
 export const trackLoginAttempt = (email: string, ip: string): AuthLoginAttempt => {
   return {
-    id: crypto.randomUUID(),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    isActive: true,
-    isDeleted: false,
     attemptId: crypto.randomUUID(),
     userId: '',
     email,

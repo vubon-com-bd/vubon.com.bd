@@ -1,6 +1,12 @@
-import { ADMIN_STATUS } from '@vubon/shared-constants';
-import { ADMIN_TYPES } from '@vubon/shared-constants';
-import { Admin } from '@vubon/shared-types';
+import { ADMIN_STATUS } from '@vubon/shared-constants/src/admin/admin-status.constants';
+import { ADMIN_TYPES } from '@vubon/shared-constants/src/admin/admin-type.constants';
+
+export interface Admin {
+  status: string;
+  type: string;
+  level: string;
+  department: string;
+}
 
 export const validateAdmin = (admin: Partial<Admin>): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];

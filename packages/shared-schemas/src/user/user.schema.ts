@@ -5,10 +5,15 @@ import { PhoneSchema } from '../common/phone.schema';
 import { AddressSchema } from '../common/address.schema';
 import { NameSchema } from '../common/name.schema';
 import { AuthSchema } from '../auth/auth.schema';
-import { USER_STATUS } from '@vubon/shared-constants';
-import { USER_TYPES } from '@vubon/shared-constants';
-import { USER_ROLES } from '@vubon/shared-constants';
-import { USER_PERMISSIONS } from '@vubon/shared-constants';
+import { USER_STATUS } from '@vubon/shared-constants/src/user/user-status.constants';
+import { USER_TYPES } from '@vubon/shared-constants/src/user/user-type.constants';
+import { USER_ROLES } from '@vubon/shared-constants/src/user/user-role.constants';
+import { USER_PERMISSIONS } from '@vubon/shared-constants/src/user/user-permission.constants';
+
+const userStatusKeys = Object.keys(USER_STATUS) as [string, ...string[]];
+const userTypeKeys = Object.keys(USER_TYPES) as [string, ...string[]];
+const userRoleKeys = Object.keys(USER_ROLES) as [string, ...string[]];
+const userPermissionKeys = Object.keys(USER_PERMISSIONS) as [string, ...string[]];
 
 export const UserSchema = BaseSchema.extend({
   userId: z.string().uuid(),
@@ -16,10 +21,10 @@ export const UserSchema = BaseSchema.extend({
   phone: PhoneSchema.shape.phone.optional(),
   name: NameSchema,
   address: AddressSchema.optional(),
-  status: z.enum(Object.keys(USER_STATUS) as [string, ...string[]]),
-  type: z.enum(Object.keys(USER_TYPES) as [string, ...string[]]),
-  role: z.enum(Object.keys(USER_ROLES) as [string, ...string[]]),
-  permissions: z.array(z.enum(Object.keys(USER_PERMISSIONS) as [string, ...string[]])),
+  status: z.enum(userStatusKeys),
+  type: z.enum(userTypeKeys),
+  role: z.enum(userRoleKeys),
+  permissions: z.array(z.enum(userPermissionKeys)),
   auth: AuthSchema,
   isVerified: z.boolean().default(false),
   isActive: z.boolean().default(true),

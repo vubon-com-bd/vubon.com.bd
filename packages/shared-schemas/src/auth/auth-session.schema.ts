@@ -1,14 +1,17 @@
 import { z } from 'zod';
 import { BaseSchema } from '../common/base.schema';
-import { SESSION } from '@vubon/shared-constants';
-import { AUTH_SESSION } from '@vubon/shared-constants';
+import { SESSION } from '@vubon/shared-constants/src/common/session.constants';
+import { AUTH_SESSION } from '@vubon/shared-constants/src/auth/auth-session.constants';
+
+const sessionKeys = Object.keys(SESSION) as [string, ...string[]];
+const authSessionKeys = Object.keys(AUTH_SESSION) as [string, ...string[]];
 
 export const AuthSessionSchema = BaseSchema.extend({
   sessionId: z.string().uuid(),
   userId: z.string().uuid(),
   token: z.string(),
-  status: z.enum(Object.keys(AUTH_SESSION) as [string, ...string[]]),
-  type: z.enum(Object.keys(SESSION) as [string, ...string[]]),
+  status: z.enum(authSessionKeys),
+  type: z.enum(sessionKeys),
   expiresAt: z.date(),
   lastActivity: z.date(),
   deviceInfo: z.object({

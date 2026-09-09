@@ -1,4 +1,4 @@
-import { generateToken } from '../common/generator';
+import { generateToken } from '../common/generator/token-generator';
 
 export const generateRecoveryCodes = (count: number = 10): string[] => {
   return Array.from({ length: count }, () => generateToken(8));

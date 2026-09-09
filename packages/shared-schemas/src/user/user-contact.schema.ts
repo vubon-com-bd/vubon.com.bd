@@ -2,12 +2,14 @@ import { z } from 'zod';
 import { BaseSchema } from '../common/base.schema';
 import { EmailSchema } from '../common/email.schema';
 import { PhoneSchema } from '../common/phone.schema';
-import { USER_CONTACT } from '@vubon/shared-constants';
+import { USER_CONTACT } from '@vubon/shared-constants/src/user/user-contact.constants';
+
+const userContactKeys = Object.keys(USER_CONTACT) as [string, ...string[]];
 
 export const UserContactSchema = BaseSchema.extend({
   contactId: z.string().uuid(),
   userId: z.string().uuid(),
-  type: z.enum(Object.keys(USER_CONTACT) as [string, ...string[]]),
+  type: z.enum(userContactKeys),
   email: EmailSchema.shape.email.optional(),
   phone: PhoneSchema.shape.phone.optional(),
   isPrimary: z.boolean().default(false),

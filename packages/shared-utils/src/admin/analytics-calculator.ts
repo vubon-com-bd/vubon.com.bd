@@ -1,4 +1,4 @@
-import { calculateAverage } from '../common/calculator';
+import { calculateAverage } from '../common/calculator/index';
 
 export const calculateAdminAnalytics = (metrics: number[]): { average: number; trend: number } => {
   const average = calculateAverage(metrics);
@@ -8,7 +8,7 @@ export const calculateAdminAnalytics = (metrics: number[]): { average: number; t
 };
 
 export const calculatePerformanceScore = (metrics: Record<string, number>): number => {
-  const weights = {
+  const weights: Record<string, number> = {
     ticketsResolved: 0.3,
     responseTime: 0.25,
     satisfactionScore: 0.25,
@@ -16,8 +16,8 @@ export const calculatePerformanceScore = (metrics: Record<string, number>): numb
   };
   let score = 0;
   for (const [key, value] of Object.entries(metrics)) {
-    if (weights[key as keyof typeof weights]) {
-      score += value * weights[key as keyof typeof weights];
+    if (weights[key]) {
+      score += value * weights[key];
     }
   }
   return score;

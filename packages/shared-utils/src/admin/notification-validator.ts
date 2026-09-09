@@ -1,4 +1,10 @@
-import { AdminNotification } from '@vubon/shared-types';
+export interface AdminNotification {
+  title: string;
+  message: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  type: string;
+  metadata: Record<string, unknown>;
+}
 
 export const validateAdminNotification = (
   notification: Partial<AdminNotification>

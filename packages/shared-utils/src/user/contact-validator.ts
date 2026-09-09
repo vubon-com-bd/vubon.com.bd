@@ -1,16 +1,25 @@
 import { validateEmail } from '../common/validator/email.validator';
 import { validatePhone } from '../common/validator/phone.validator';
-import { UserContact } from '@vubon/shared-types';
+import { USER_CONTACT } from '@vubon/shared-constants/src/user/user-contact.constants';
+
+export interface UserContact {
+  email?: string;
+  phone?: string;
+  type: string;
+}
 
 export const validateContact = (
   contact: Partial<UserContact>
 ): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
-  if (contact.email?.value && !validateEmail(contact.email.value).isValid) {
+  if (contact.email && !validateEmail(contact.email).isValid) {
     errors.push('Invalid email');
   }
-  if (contact.phone?.value && !validatePhone(contact.phone.value).isValid) {
+  if (contact.phone && !validatePhone(contact.phone).isValid) {
     errors.push('Invalid phone');
+  }
+  if (contact.type && !Object.keys(USER_CONTACT).includes(contact.type)) {
+    errors.push('Invalid contact type');
   }
   return { isValid: errors.length === 0, errors };
 };

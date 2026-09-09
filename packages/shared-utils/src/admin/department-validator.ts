@@ -1,5 +1,13 @@
-import { ADMIN_DEPARTMENT } from '@vubon/shared-constants';
-import { AdminDepartment } from '@vubon/shared-types';
+import { ADMIN_DEPARTMENT } from '@vubon/shared-constants/src/admin/admin-department.constants';
+
+export interface AdminDepartment {
+  name: string;
+  description: string;
+  headId: string;
+  parentId?: string;
+  isActive: boolean;
+  metadata: Record<string, unknown>;
+}
 
 export const validateDepartment = (
   department: Partial<AdminDepartment>

@@ -1,12 +1,14 @@
 import { z } from 'zod';
-import { ROLES } from '@vubon/shared-constants';
+import { ROLES } from '@vubon/shared-constants/src/common/roles.constants';
+
+const roleKeys = Object.keys(ROLES) as [string, ...string[]];
 
 export const RoleSchema = z.object({
-  role: z.enum(Object.keys(ROLES) as [string, ...string[]]),
+  role: z.enum(roleKeys),
 });
 
-export const RoleEnumSchema = z.enum(Object.keys(ROLES) as [string, ...string[]]);
+export const RoleEnumSchema = z.enum(roleKeys);
 
 export const RoleListSchema = z.object({
-  roles: z.array(z.enum(Object.keys(ROLES) as [string, ...string[]])),
+  roles: z.array(z.enum(roleKeys)),
 });

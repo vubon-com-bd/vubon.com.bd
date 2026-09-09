@@ -1,12 +1,14 @@
 import { z } from 'zod';
-import { PERMISSIONS } from '@vubon/shared-constants';
+import { PERMISSIONS } from '@vubon/shared-constants/src/common/permissions.constants';
+
+const permissionKeys = Object.keys(PERMISSIONS) as [string, ...string[]];
 
 export const PermissionSchema = z.object({
-  permission: z.enum(Object.keys(PERMISSIONS) as [string, ...string[]]),
+  permission: z.enum(permissionKeys),
 });
 
-export const PermissionEnumSchema = z.enum(Object.keys(PERMISSIONS) as [string, ...string[]]);
+export const PermissionEnumSchema = z.enum(permissionKeys);
 
 export const PermissionListSchema = z.object({
-  permissions: z.array(z.enum(Object.keys(PERMISSIONS) as [string, ...string[]])),
+  permissions: z.array(z.enum(permissionKeys)),
 });

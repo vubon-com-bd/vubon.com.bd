@@ -1,5 +1,12 @@
-import { USER_LOG } from '@vubon/shared-constants';
-import { UserLog } from '@vubon/shared-types';
+import { USER_LOG } from '@vubon/shared-constants/src/user/user-log.constants';
+
+export interface UserLog {
+  type: string;
+  message: string;
+  data: Record<string, unknown>;
+  ipAddress: string;
+  userAgent: string;
+}
 
 export const validateLog = (log: Partial<UserLog>): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];

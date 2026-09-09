@@ -1,19 +1,23 @@
-import { USER_ACTIVITY } from '@vubon/shared-constants';
-import { UserActivity } from '@vubon/shared-types';
+import { USER_ACTIVITY } from '@vubon/shared-constants/src/user/user-activity.constants';
+
+export interface UserActivity {
+  activityId: string;
+  userId: string;
+  type: string;
+  description: string;
+  ipAddress: string;
+  userAgent: string;
+  metadata: Record<string, unknown>;
+  occurredAt: Date;
+}
 
 export const trackActivity = (
   userId: string,
-  type: keyof typeof USER_ACTIVITY,
+  type: string,
   description: string,
   ip: string
 ): UserActivity => {
-  const now = new Date();
   return {
-    id: crypto.randomUUID(),
-    createdAt: now,
-    updatedAt: now,
-    isActive: true,
-    isDeleted: false,
     activityId: crypto.randomUUID(),
     userId,
     type,
@@ -21,7 +25,7 @@ export const trackActivity = (
     ipAddress: ip,
     userAgent: '',
     metadata: {},
-    occurredAt: now,
+    occurredAt: new Date(),
   };
 };
 
@@ -33,4 +37,8 @@ export const getActivitySummary = (activities: UserActivity[]): Record<string, n
     },
     {} as Record<string, number>
   );
+};
+
+export const validateActivityType = (type: string): boolean => {
+  return Object.keys(USER_ACTIVITY).includes(type);
 };

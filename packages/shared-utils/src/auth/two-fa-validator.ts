@@ -1,4 +1,4 @@
-import { generateToken } from '../common/generator';
+import { generateToken } from '../common/generator/token-generator';
 
 export const validateTwoFaCode = (_code: string, _secret: string): boolean => {
   // Implementation for 2FA code validation

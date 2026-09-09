@@ -1,11 +1,18 @@
-import { generateToken } from '../common/generator';
-import { TokenPayload } from '@vubon/shared-types';
+import { generateToken } from '../common/generator/index';
 
-export const generateAccessToken = (_payload: TokenPayload): string => {
+export const generateAccessToken = (_payload: {
+  userId: string;
+  email: string;
+  role: string;
+}): string => {
   return generateToken(32);
 };
 
-export const generateRefreshToken = (_payload: TokenPayload): string => {
+export const generateRefreshToken = (_payload: {
+  userId: string;
+  email: string;
+  role: string;
+}): string => {
   return generateToken(64);
 };
 
@@ -13,7 +20,9 @@ export const generateResetToken = (_userId: string): string => {
   return generateToken(40);
 };
 
-export const verifyToken = (_token: string): TokenPayload | null => {
+export const verifyToken = (
+  _token: string
+): { userId: string; email: string; role: string } | null => {
   // Implementation for token verification
   return null;
 };

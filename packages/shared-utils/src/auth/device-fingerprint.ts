@@ -1,6 +1,19 @@
 import { hashString } from '../common/helper/hash.helper';
-import { addHours } from '../common/helper/time.helper';
-import { AuthDevice } from '@vubon/shared-types';
+import { AUTH_DEVICE } from '@vubon/shared-constants/src/auth/auth-device.constants';
+
+export interface AuthDevice {
+  deviceId: string;
+  userId: string;
+  type: keyof typeof AUTH_DEVICE;
+  name: string;
+  model?: string;
+  os: string;
+  browser: string;
+  isTrusted: boolean;
+  lastUsed: Date;
+  registeredAt: Date;
+  metadata: Record<string, unknown>;
+}
 
 export const generateDeviceFingerprint = (data: {
   userAgent: string;
@@ -11,5 +24,5 @@ export const generateDeviceFingerprint = (data: {
 };
 
 export const validateDevice = (device: AuthDevice): boolean => {
-  return device.isTrusted && new Date(device.lastUsed) > addHours(new Date(), -24);
+  return device.isTrusted && new Date(device.lastUsed) > new Date(Date.now() - 24 * 60 * 60 * 1000);
 };

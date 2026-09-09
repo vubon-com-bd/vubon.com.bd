@@ -1,5 +1,5 @@
-import { ADMIN_ROLES } from '@vubon/shared-constants';
-import { USER_ROLES } from '@vubon/shared-constants';
+import { ADMIN_ROLES } from '@vubon/shared-constants/src/admin/admin-role.constants';
+import { USER_ROLES } from '@vubon/shared-constants/src/user/user-role.constants';
 
 export const validateAdminRole = (role: string): boolean => {
   return Object.keys(ADMIN_ROLES).includes(role) || Object.keys(USER_ROLES).includes(role);

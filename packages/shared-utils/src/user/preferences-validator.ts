@@ -1,5 +1,9 @@
-import { USER_PREFERENCES } from '@vubon/shared-constants';
-import { UserPreferences } from '@vubon/shared-types';
+import { USER_PREFERENCES } from '@vubon/shared-constants/src/user/user-preferences.constants';
+
+export interface UserPreferences {
+  type: string;
+  value: unknown;
+}
 
 export const validatePreferences = (
   prefs: Partial<UserPreferences>

@@ -1,5 +1,10 @@
-import { USER_SETTINGS } from '@vubon/shared-constants';
-import { UserSettings } from '@vubon/shared-types';
+import { USER_SETTINGS } from '@vubon/shared-constants/src/user/user-settings.constants';
+
+export interface UserSettings {
+  theme: string;
+  language: string;
+  timezone: string;
+}
 
 export const validateSettings = (
   settings: Partial<UserSettings>

@@ -274,6 +274,18 @@ export const VALIDATION = {
   } as const,
 } as const;
 
+// ----- নতুন অ্যালিয়াস (Aliases) যোগ করা হলো -----
+// এগুলি schema ফাইলের জন্য প্রয়োজন
+export const EMAIL_MIN_LENGTH = VALIDATION.EMAIL.MIN_LENGTH;
+export const EMAIL_MAX_LENGTH = VALIDATION.EMAIL.MAX_LENGTH;
+export const PHONE_MIN_LENGTH = VALIDATION.PHONE.MIN_LENGTH;
+export const PHONE_MAX_LENGTH = VALIDATION.PHONE.MAX_LENGTH;
+export const NAME_MIN_LENGTH = VALIDATION.NAME.MIN_LENGTH;
+export const NAME_MAX_LENGTH = VALIDATION.NAME.MAX_LENGTH;
+export const PASSWORD_MIN_LENGTH = VALIDATION.PASSWORD.MIN_LENGTH;
+export const PASSWORD_MAX_LENGTH = VALIDATION.PASSWORD.MAX_LENGTH;
+
+// টাইপ এক্সপোর্ট
 export type ValidationMode = (typeof VALIDATION.MODE)[keyof typeof VALIDATION.MODE];
 export type ValidationContext = (typeof VALIDATION.CONTEXT)[keyof typeof VALIDATION.CONTEXT];
 export type ValidationGroup = (typeof VALIDATION.GROUPS)[keyof typeof VALIDATION.GROUPS];

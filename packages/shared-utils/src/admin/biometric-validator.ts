@@ -1,5 +1,13 @@
 import { validateBiometricType } from '../auth/biometric-validator';
-import { AdminBiometric } from '@vubon/shared-types';
+
+export interface AdminBiometric {
+  type: 'fingerprint' | 'face' | 'voice' | 'iris';
+  isRequired: boolean;
+  isEnabled: boolean;
+  publicKey: string;
+  credentialId: string;
+  metadata: Record<string, unknown>;
+}
 
 export const validateAdminBiometric = (biometric: AdminBiometric): boolean => {
   return validateBiometricType(biometric.type) && biometric.isEnabled && biometric.isRequired;

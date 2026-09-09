@@ -1,16 +1,19 @@
 import { z } from 'zod';
-import { VALIDATION } from '@vubon/shared-constants';
+import {
+  EMAIL_MIN_LENGTH,
+  EMAIL_MAX_LENGTH,
+} from '@vubon/shared-constants/src/common/validation.constants';
 
 export const EmailSchema = z.object({
   email: z
     .string()
     .email('Invalid email format')
-    .min(VALIDATION.EMAIL.MIN_LENGTH, 'Email must be at least 5 characters')
-    .max(VALIDATION.EMAIL.MAX_LENGTH, 'Email must not exceed 254 characters'),
+    .min(EMAIL_MIN_LENGTH, `Email must be at least ${EMAIL_MIN_LENGTH} characters`)
+    .max(EMAIL_MAX_LENGTH, `Email must not exceed ${EMAIL_MAX_LENGTH} characters`),
 });
 
 export const EmailStringSchema = z
   .string()
   .email('Invalid email format')
-  .min(VALIDATION.EMAIL.MIN_LENGTH)
-  .max(VALIDATION.EMAIL.MAX_LENGTH);
+  .min(EMAIL_MIN_LENGTH)
+  .max(EMAIL_MAX_LENGTH);

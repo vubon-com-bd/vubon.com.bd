@@ -5,4 +5,5 @@ export const TimestampSchema = z.object({
 });
 
 export const UnixTimestampSchema = z.number().int().positive();
+
 export const ISOTimestampSchema = z.string().datetime();

@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { PasswordSchema, PasswordConfirmSchema } from '../common/password.schema';
 
 export const AuthPasswordSchema = PasswordSchema;
+
 export const AuthPasswordConfirmSchema = PasswordConfirmSchema;
 
 export const AuthPasswordResetSchema = z

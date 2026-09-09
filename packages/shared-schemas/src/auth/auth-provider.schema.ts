@@ -1,9 +1,10 @@
 import { z } from 'zod';
-import { AUTH_PROVIDER } from '@vubon/shared-constants';
+import { AUTH_PROVIDER } from '@vubon/shared-constants/src/auth/auth-provider.constants';
+
+const authProviderKeys = Object.keys(AUTH_PROVIDER) as [string, ...string[]];
 
 export const AuthProviderSchema = z.object({
-  provider: z.enum(Object.keys(AUTH_PROVIDER) as [string, ...string[]]),
-  category: z.literal('auth'),
+  provider: z.enum(authProviderKeys),
 });
 
-export const AuthProviderEnumSchema = z.enum(Object.keys(AUTH_PROVIDER) as [string, ...string[]]);
+export const AuthProviderEnumSchema = z.enum(authProviderKeys);

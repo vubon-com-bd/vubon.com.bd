@@ -1,40 +1,38 @@
-import { createSession, isSessionValid } from '../auth/session-manager';
-import { AdminSession, Admin, User, Auth } from '@vubon/shared-types';
+import { createSession } from '../auth/session-manager';
 
-// ডামি ডেটা তৈরির ফাংশন (কোনো any নেই)
-const createDummyAdmin = (adminId: string): Admin => ({
-  adminId,
-  userId: '',
-  user: {} as User,
-  auth: {} as Auth,
-  status: 'ACTIVE',
-  type: 'FULL_TIME',
-  level: 'L1',
-  department: 'IT',
-  role: 'ADMIN',
-  permissions: [],
-  isSuperAdmin: false,
-  isActive: true,
-  joinedAt: new Date(),
-  metadata: {
-    employeeId: '',
-    title: '',
-    skills: [],
-    languages: [],
-    timezone: '',
-  },
-});
+export interface AdminSession {
+  sessionId: string;
+  adminId: string;
+  token: string;
+  status: string;
+  type: string;
+  expiresAt: Date;
+  lastActivity: Date;
+  deviceInfo: {
+    deviceId: string;
+    deviceName: string;
+    deviceType: 'mobile' | 'tablet' | 'desktop' | 'other';
+    browser: string;
+    os: string;
+  };
+  ipAddress: string;
+  userAgent: string;
+  isActive: boolean;
+  metadata: Record<string, unknown>;
+}
 
 export const createAdminSession = (adminId: string): AdminSession => {
   const session = createSession(adminId);
   return {
     ...session,
     adminId,
-    admin: createDummyAdmin(adminId),
     isActive: true,
   };
 };
 
 export const isAdminSessionValid = (session: AdminSession): boolean => {
-  return isSessionValid(session) && session.isActive;
+  // Direct validation without calling isSessionValid
+  return (
+    session.status === 'ACTIVE' && session.isActive && new Date(session.expiresAt) > new Date()
+  );
 };

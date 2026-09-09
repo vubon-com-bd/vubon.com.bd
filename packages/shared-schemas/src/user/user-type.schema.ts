@@ -1,9 +1,11 @@
 import { z } from 'zod';
-import { USER_TYPES } from '@vubon/shared-constants';
+import { USER_TYPES } from '@vubon/shared-constants/src/user/user-type.constants';
+
+const userTypeKeys = Object.keys(USER_TYPES) as [string, ...string[]];
 
 export const UserTypeSchema = z.object({
-  type: z.enum(Object.keys(USER_TYPES) as [string, ...string[]]),
+  type: z.enum(userTypeKeys),
   category: z.literal('user'),
 });
 
-export const UserTypeEnumSchema = z.enum(Object.keys(USER_TYPES) as [string, ...string[]]);
+export const UserTypeEnumSchema = z.enum(userTypeKeys);
