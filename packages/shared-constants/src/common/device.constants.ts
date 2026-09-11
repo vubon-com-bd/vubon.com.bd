@@ -85,7 +85,7 @@ export const DEVICE = {
   FINGERPRINT: {
     ENABLED: true,
     COMPONENTS: ['user_agent', 'screen', 'canvas', 'webgl', 'fonts', 'timezone', 'language'],
-    SALT_ROUNDS: 10,
+    SALT_ROUNDS: 12,
   },
 
   // Device validation

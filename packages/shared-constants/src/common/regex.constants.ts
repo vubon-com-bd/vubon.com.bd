@@ -27,10 +27,11 @@ export const REGEX = {
   // Username (3-20 chars, alphanumeric, underscore, hyphen)
   USERNAME: /^[a-zA-Z0-9_-]{3,20}$/,
 
-  // Password (min 8 chars, at least one uppercase, lowercase, number, special)
-  PASSWORD_STRONG: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-  PASSWORD_MEDIUM: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/,
-  PASSWORD_WEAK: /^.{6,}$/,
+  // Password (min 8, max 72 chars, uppercase + lowercase + number + special)
+  // Aligned with SECURITY.PASSWORD.SPECIAL_CHARS
+  PASSWORD_STRONG: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]).{8,72}$/,
+  PASSWORD_MEDIUM: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,72}$/,
+  PASSWORD_WEAK: /^.{6,72}$/,
 
   // Bangladeshi NID (National ID)
   NID: /^\d{10,17}$/,

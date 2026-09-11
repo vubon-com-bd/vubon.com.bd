@@ -66,10 +66,10 @@ export const SESSION = {
   // Cookie settings
   COOKIE: {
     HTTP_ONLY: true,
-    SECURE: true,
+    SECURE: process.env.NODE_ENV === 'production',
     SAME_SITE: 'lax' as const,
     PATH: '/',
-    DOMAIN: undefined,
+    DOMAIN: process.env.SESSION_COOKIE_DOMAIN ?? undefined,
     MAX_AGE: 86400, // 24 hours
   },
 

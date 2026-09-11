@@ -1,8 +1,15 @@
-import { VALIDATION as COMMON_VALIDATION } from '../common/validation.constants';
+/**
+ * Auth Password Constants
+ * @module shared-constants/auth/auth-password.constants
+ *
+ * Password policy is derived from SECURITY.PASSWORD (single source of truth).
+ */
+
+import { SECURITY } from '../common/security.constants';
 
 export const AUTH_PASSWORD = {
-  ...COMMON_VALIDATION,
-  MIN_LENGTH: 8,
-  MAX_LENGTH: 32,
-  PATTERN: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+  ...SECURITY.PASSWORD,
 } as const;
+
+export type AuthPasswordPolicy = typeof AUTH_PASSWORD;
+export type AuthPassword = AuthPasswordPolicy;

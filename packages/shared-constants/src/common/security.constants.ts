@@ -7,7 +7,7 @@ export const SECURITY = {
   // Password security
   PASSWORD: {
     MIN_LENGTH: 8,
-    MAX_LENGTH: 72,
+    MAX_LENGTH: 72, // bcrypt limit
     REQUIRE_UPPERCASE: true,
     REQUIRE_LOWERCASE: true,
     REQUIRE_NUMBER: true,
@@ -25,13 +25,13 @@ export const SECURITY = {
     REFRESH_TOKEN_EXPIRY: 604800, // 7 days
     RESET_TOKEN_EXPIRY: 3600, // 1 hour
     VERIFICATION_TOKEN_EXPIRY: 86400, // 24 hours
-    ISSUER: 'ecommerce-api',
-    AUDIENCE: 'ecommerce-client',
+    ISSUER: process.env.JWT_ISSUER ?? 'vubon-api',
+    AUDIENCE: process.env.JWT_AUDIENCE ?? 'vubon-client',
   },
 
   // CORS
   CORS: {
-    ALLOWED_ORIGINS: ['http://localhost:3000', 'https://*.ecommerce.com'],
+    ALLOWED_ORIGINS: (process.env.ALLOWED_ORIGINS ?? 'http://localhost:3000').split(','),
     ALLOWED_METHODS: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     ALLOWED_HEADERS: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
     EXPOSED_HEADERS: ['Content-Length', 'X-Request-ID'],
@@ -52,10 +52,11 @@ export const SECURITY = {
   // Session security
   SESSION: {
     MAX_AGE: 86400, // 24 hours
-    SECURE: true,
+    SECURE: process.env.NODE_ENV === 'production',
     HTTP_ONLY: true,
     SAME_SITE: 'lax',
     REGENERATE_INTERVAL: 1800, // 30 minutes
+    DOMAIN: process.env.SESSION_COOKIE_DOMAIN ?? undefined,
   },
 
   // Encryption
