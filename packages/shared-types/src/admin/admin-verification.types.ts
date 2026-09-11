@@ -1,14 +1,20 @@
 import { AuthVerification } from '../auth/auth-verification.types';
-import { Admin } from './admin.types';
+import { AdminPublic } from './admin.types';
+
+/**
+ * Admin verification types
+ */
+export type AdminVerificationType = 'email' | 'phone' | 'document' | 'background_check';
+
+export type AdminVerificationStatus = 'pending' | 'approved' | 'rejected';
 
 /**
  * Admin verification interface
+ * Note: `type` is Omitted from AuthVerification to allow admin-specific types.
  */
-export interface AdminVerification extends AuthVerification {
-  verificationId: string;
+export interface AdminVerification extends Omit<AuthVerification, 'type'> {
   adminId: string;
-  admin: Admin;
-  type: 'email' | 'phone' | 'document' | 'background_check' | string;
-  status: 'pending' | 'approved' | 'rejected' | string;
-  metadata: Record<string, unknown>;
+  admin: AdminPublic;
+  type: AdminVerificationType;
+  status: AdminVerificationStatus;
 }

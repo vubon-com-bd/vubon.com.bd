@@ -1,14 +1,11 @@
 import { AuthSession } from '../auth/auth-session.types';
-import { Admin } from './admin.types';
+import { AdminPublic } from './admin.types';
 
 /**
  * Admin session interface
  */
 export interface AdminSession extends AuthSession {
-  sessionId: string;
   adminId: string;
-  admin: Admin;
+  admin: AdminPublic;
   isActive: boolean;
-  expiresAt: Date;
-  metadata: Record<string, unknown>;
 }

@@ -1,6 +1,5 @@
+import { REGEX } from '@vubon/shared-constants/src/common/regex.constants';
 import { BaseValueObject } from './base.types';
-
-const PHONE_REGEX = /^\+?[0-9]{10,15}$/;
 
 /**
  * Phone Number Value Object class
@@ -9,20 +8,26 @@ export class PhoneNumber implements BaseValueObject<string> {
   constructor(public value: string) {}
 
   isValid(): boolean {
-    return PHONE_REGEX.test(this.value);
+    return REGEX.PHONE.test(this.value);
   }
 
   equals(other: PhoneNumber): boolean {
     return this.value === other.value;
   }
 
+  /**
+   * Returns the country calling code (1-3 digits after '+')
+   */
   getCountryCode(): string {
-    const match = this.value.match(/^\+\d+/);
-    return match ? match[0] : '';
+    const match = this.value.match(/^\+(\d{1,3})/);
+    return match ? `+${match[1]}` : '';
   }
 
+  /**
+   * Returns the national number without the '+' and country code
+   */
   getNationalNumber(): string {
-    return this.value.replace(/^\+\d+/, '');
+    return this.value.replace(/^\+\d{1,3}/, '');
   }
 
   toString(): string {

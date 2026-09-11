@@ -1,8 +1,9 @@
 import { ApiRequest } from '../common/api-request.types';
-import { Auth } from './auth.types';
+import { AuthPublic } from './auth.types';
 
 /**
- * Device information interface
+ * Device information — server-side enriched.
+ * ipAddress is filled from request, not trusted from client.
  */
 export interface DeviceInfo {
   deviceId: string;
@@ -10,7 +11,8 @@ export interface DeviceInfo {
   deviceType: string;
   browser: string;
   os: string;
-  ipAddress: string;
+  /** @internal filled by server, not trusted from client */
+  ipAddress?: string;
 }
 
 /**
@@ -20,7 +22,7 @@ export interface AuthRequest extends ApiRequest {
   userId: string;
   sessionId: string;
   token: string;
-  auth: Auth;
+  auth: AuthPublic;
 }
 
 /**
@@ -30,7 +32,7 @@ export interface LoginRequest {
   email: string;
   password: string;
   rememberMe?: boolean;
-  deviceInfo?: DeviceInfo;
+  deviceInfo?: Omit<DeviceInfo, 'ipAddress'>;
 }
 
 /**

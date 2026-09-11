@@ -1,14 +1,5 @@
 import { BaseEntity } from '../common/base.types';
-
-/**
- * Notification preferences interface
- */
-export interface NotificationPreferences {
-  email: boolean;
-  sms: boolean;
-  push: boolean;
-  inApp: boolean;
-}
+import { NotificationPreferences } from '../user/user-settings.types';
 
 /**
  * Security preferences interface
@@ -31,3 +22,6 @@ export interface AuthPreferences extends BaseEntity {
   securityPreferences: SecurityPreferences;
   metadata: Record<string, unknown>;
 }
+
+// Re-export for convenience (no duplicate declaration)
+export type { NotificationPreferences };

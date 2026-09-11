@@ -3,8 +3,10 @@ import { ADMIN_STATUS } from '@vubon/shared-constants/src/admin/admin-status.con
 import { ADMIN_TYPES } from '@vubon/shared-constants/src/admin/admin-type.constants';
 import { ADMIN_LEVEL } from '@vubon/shared-constants/src/admin/admin-level.constants';
 import { ADMIN_DEPARTMENT } from '@vubon/shared-constants/src/admin/admin-department.constants';
-import { User } from '../user/user.types';
-import { Auth } from '../auth/auth.types';
+import { ADMIN_ROLES } from '@vubon/shared-constants/src/admin/admin-role.constants';
+import { ADMIN_PERMISSIONS } from '@vubon/shared-constants/src/admin/admin-permission.constants';
+import { User, UserPublic } from '../user/user.types';
+import { Auth, AuthPublic } from '../auth/auth.types';
 
 /**
  * Admin metadata interface
@@ -19,22 +21,33 @@ export interface AdminMetadata {
 }
 
 /**
- * Admin interface
+ * Admin interface (internal)
  */
-export interface Admin extends BaseEntity {
+export interface Admin extends Omit<BaseEntity, 'status'> {
   adminId: string;
   userId: string;
+  /** @internal */
   user: User;
+  /** @internal */
   auth: Auth;
-  status: keyof typeof ADMIN_STATUS | string;
-  type: keyof typeof ADMIN_TYPES | string;
-  level: keyof typeof ADMIN_LEVEL | string;
-  department: keyof typeof ADMIN_DEPARTMENT | string;
-  role: string;
-  permissions: string[];
+  status: (typeof ADMIN_STATUS)[keyof typeof ADMIN_STATUS];
+  type: (typeof ADMIN_TYPES)[keyof typeof ADMIN_TYPES];
+  level: (typeof ADMIN_LEVEL)[keyof typeof ADMIN_LEVEL];
+  department: (typeof ADMIN_DEPARTMENT)[keyof typeof ADMIN_DEPARTMENT];
+  role: (typeof ADMIN_ROLES)[keyof typeof ADMIN_ROLES];
+  permissions: Array<(typeof ADMIN_PERMISSIONS)[keyof typeof ADMIN_PERMISSIONS]>;
   isSuperAdmin: boolean;
   isActive: boolean;
   lastLoginAt?: Date;
   joinedAt: Date;
   metadata: AdminMetadata;
 }
+
+/**
+ * Public-safe Admin DTO
+ */
+export type AdminPublic = Omit<Admin, 'user' | 'auth' | 'metadata'> & {
+  user?: UserPublic;
+  auth?: AuthPublic;
+  metadata?: Omit<AdminMetadata, 'reportsTo'>;
+};

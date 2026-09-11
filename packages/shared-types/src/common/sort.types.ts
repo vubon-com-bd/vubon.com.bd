@@ -1,14 +1,14 @@
 import { SORT } from '@vubon/shared-constants/src/common/sort.constants';
 
 /**
- * Sort field type
+ * Sort field type — derived from SORT.FIELDS
  */
-export type SortField = string;
+export type SortField = (typeof SORT.FIELDS)[keyof typeof SORT.FIELDS];
 
 /**
  * Sort order type
  */
-export type SortOrder = 'asc' | 'desc';
+export type SortOrder = typeof SORT.ASC | typeof SORT.DESC;
 
 /**
  * Sort interface
@@ -19,6 +19,6 @@ export interface Sort {
 }
 
 /**
- * Sort type
+ * Sort type — the whole SORT constant keys
  */
 export type SortType = keyof typeof SORT;

@@ -1,26 +1,28 @@
+import { PERMISSIONS } from '@vubon/shared-constants/src/common/permissions.constants';
+
 /**
- * Permission action type
+ * Permission type — derived from PERMISSIONS constant values
  */
-export type PermissionAction = string; // Relaxed to string for domain-specific extensions
+export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
+
+/**
+ * Permission value type
+ */
+export type PermissionValue = Permission;
+
+/**
+ * Permission action type — the part after the colon in "resource:action"
+ */
+export type PermissionAction = string;
 
 /**
  * Permission object interface
  */
 export interface PermissionObject {
   type: string;
-  value: string;
+  value: Permission;
   label: string;
   resource: string;
   action: PermissionAction;
   description?: string;
 }
-
-/**
- * Permission type
- */
-export type Permission = string;
-
-/**
- * Permission value type
- */
-export type PermissionValue = string;

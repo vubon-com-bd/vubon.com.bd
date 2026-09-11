@@ -1,3 +1,5 @@
+import { METADATA } from '@vubon/shared-constants/src/common/metadata.constants';
+
 /**
  * Metadata interface
  */
@@ -13,6 +15,6 @@ export interface Metadata {
 }
 
 /**
- * Metadata key type
+ * Metadata key type — derived from METADATA constant
  */
-export type MetadataKey = keyof Metadata;
+export type MetadataKey = (typeof METADATA)[keyof typeof METADATA];

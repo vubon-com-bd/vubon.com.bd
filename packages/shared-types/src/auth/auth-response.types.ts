@@ -1,4 +1,4 @@
-import { Auth } from './auth.types';
+import { AuthPublic } from './auth.types';
 import { AuthSession } from './auth-session.types';
 import { AuthToken } from './auth-token.types';
 
@@ -6,7 +6,7 @@ import { AuthToken } from './auth-token.types';
  * Auth response interface
  */
 export interface AuthResponse {
-  user: Auth;
+  user: AuthPublic;
   session: AuthSession;
   token: AuthToken;
 }
@@ -18,7 +18,7 @@ export interface LoginResponse {
   accessToken: string;
   refreshToken: string;
   expiresIn: number;
-  user: Auth;
+  user: AuthPublic;
   session: AuthSession;
 }
 

@@ -1,16 +1,22 @@
 import { BaseEntity } from '../common/base.types';
-import { TYPES } from '@vubon/shared-constants/src/common/types.constants';
 import { AUTH_TOKEN } from '@vubon/shared-constants/src/auth/auth-token.constants';
+import { ROLES } from '@vubon/shared-constants/src/common/roles.constants';
+import { PERMISSIONS } from '@vubon/shared-constants/src/common/permissions.constants';
 
 /**
- * Auth token interface
+ * Token type value
+ */
+export type AuthTokenType = (typeof AUTH_TOKEN)[keyof typeof AUTH_TOKEN];
+
+/**
+ * Auth token interface (internal — never return token field)
  */
 export interface AuthToken extends BaseEntity {
   tokenId: string;
   userId: string;
+  /** @internal */
   token: string;
-  type: keyof typeof AUTH_TOKEN;
-  category: keyof typeof TYPES;
+  type: AuthTokenType;
   expiresAt: Date;
   isRevoked: boolean;
   revokedAt?: Date;
@@ -18,13 +24,13 @@ export interface AuthToken extends BaseEntity {
 }
 
 /**
- * Token payload interface
+ * Token payload interface (JWT claims)
  */
 export interface TokenPayload {
   sub: string;
   email: string;
-  role: string;
-  permissions: string[];
+  role: (typeof ROLES)[keyof typeof ROLES];
+  permissions: Array<(typeof PERMISSIONS)[keyof typeof PERMISSIONS]>;
   iat: number;
   exp: number;
 }

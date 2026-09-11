@@ -1,14 +1,11 @@
 import { AuthDevice } from '../auth/auth-device.types';
-import { Admin } from './admin.types';
+import { AdminPublic } from './admin.types';
 
 /**
  * Admin device interface
  */
 export interface AdminDevice extends AuthDevice {
-  deviceId: string;
   adminId: string;
-  admin: Admin;
-  isTrusted: boolean;
+  admin: AdminPublic;
   isActive: boolean;
-  metadata: Record<string, unknown>;
 }

@@ -1,6 +1,16 @@
 import { BaseEntity } from '../common/base.types';
 import { METRICS } from '@vubon/shared-constants/src/common/types.constants';
-import { Admin } from './admin.types';
+import { AdminPublic } from './admin.types';
+
+/**
+ * Metric name value
+ */
+export type AdminMetricName = (typeof METRICS)[keyof typeof METRICS];
+
+/**
+ * Analytics period
+ */
+export type AnalyticsPeriod = 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly';
 
 /**
  * Admin analytics interface
@@ -8,10 +18,9 @@ import { Admin } from './admin.types';
 export interface AdminAnalytics extends BaseEntity {
   analyticsId: string;
   adminId: string;
-  admin: Admin;
-  metric: keyof typeof METRICS;
+  admin: AdminPublic;
+  metric: AdminMetricName;
   value: number;
-  period: 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly';
+  period: AnalyticsPeriod;
   timestamp: Date;
-  metadata: Record<string, unknown>;
 }

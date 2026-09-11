@@ -1,6 +1,5 @@
-import { UserSettings } from '../user/user-settings.types';
-import { Admin } from './admin.types';
-import { NotificationPreferences } from '../auth/auth-preferences.types';
+import { UserSettings, NotificationPreferences } from '../user/user-settings.types';
+import { AdminPublic } from './admin.types';
 
 /**
  * Admin notification preferences interface
@@ -15,12 +14,10 @@ export interface AdminNotificationPreferences extends NotificationPreferences {
  * Admin settings interface
  */
 export interface AdminSettings extends UserSettings {
-  settingsId: string;
   adminId: string;
-  admin: Admin;
+  admin: AdminPublic;
   dashboardLayout: string;
   defaultReport: string;
   adminNotifications: AdminNotificationPreferences;
   securityLevel: 'high' | 'medium' | 'low';
-  metadata: Record<string, unknown>;
 }

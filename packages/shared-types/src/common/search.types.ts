@@ -1,3 +1,4 @@
+import { SEARCH } from '@vubon/shared-constants/src/common/search.constants';
 import { Filter } from './filter.types';
 import { Sort } from './sort.types';
 
@@ -14,6 +15,6 @@ export interface SearchQuery {
 }
 
 /**
- * Search type
+ * Search type — keys of SEARCH constant
  */
-export type SearchType = string;
+export type SearchType = keyof typeof SEARCH;

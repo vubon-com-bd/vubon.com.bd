@@ -1,5 +1,11 @@
 import { BaseEntity } from '../common/base.types';
-import { Admin } from './admin.types';
+import { ADMIN_ACTIVITY } from '@vubon/shared-constants/src/admin/admin-activity.constants';
+import { AdminPublic } from './admin.types';
+
+/**
+ * Audit action value
+ */
+export type AuditAction = (typeof ADMIN_ACTIVITY)[keyof typeof ADMIN_ACTIVITY];
 
 /**
  * Audit change interface
@@ -16,13 +22,12 @@ export interface AuditChange {
 export interface AdminAudit extends BaseEntity {
   auditId: string;
   adminId: string;
-  admin: Admin;
-  action: string;
+  admin: AdminPublic;
+  action: AuditAction;
   resource: string;
   resourceId: string;
   changes: AuditChange[];
   ipAddress: string;
   userAgent: string;
   timestamp: Date;
-  metadata: Record<string, unknown>;
 }

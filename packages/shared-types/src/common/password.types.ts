@@ -1,13 +1,16 @@
+import { SECURITY } from '@vubon/shared-constants/src/common/security.constants';
 import { BaseValueObject } from './base.types';
 
 /**
  * Password Value Object class
+ * Validation rules are derived from SECURITY.PASSWORD (single source of truth)
  */
 export class Password implements BaseValueObject<string> {
   constructor(public value: string) {}
 
   isValid(): boolean {
-    return this.value.length >= 8 && this.value.length <= 32;
+    const { MIN_LENGTH, MAX_LENGTH } = SECURITY.PASSWORD;
+    return this.value.length >= MIN_LENGTH && this.value.length <= MAX_LENGTH;
   }
 
   equals(other: Password): boolean {
@@ -15,12 +18,12 @@ export class Password implements BaseValueObject<string> {
   }
 
   hash(): string {
-    // Placeholder for hash implementation
+    // TODO: replace with real bcrypt hash using SECURITY.PASSWORD.HASH_ROUNDS
     return `hashed_${this.value}`;
   }
 
   verify(plainText: string): boolean {
-    // Placeholder for verification implementation
+    // TODO: replace with real bcrypt compare
     return this.value === plainText;
   }
 

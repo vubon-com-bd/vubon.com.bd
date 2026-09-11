@@ -1,13 +1,17 @@
 import { UserLog } from '../user/user-log.types';
-import { Admin } from './admin.types';
+import { LOG_LEVEL } from '@vubon/shared-constants/src/common/log-level.constants';
+import { AdminPublic } from './admin.types';
+
+/**
+ * Admin log level value
+ */
+export type AdminLogLevel = (typeof LOG_LEVEL)[keyof typeof LOG_LEVEL];
 
 /**
  * Admin log interface
  */
 export interface AdminLog extends UserLog {
-  logId: string;
   adminId: string;
-  admin: Admin;
-  level: 'info' | 'warning' | 'error' | 'critical';
-  metadata: Record<string, unknown>;
+  admin: AdminPublic;
+  level: AdminLogLevel;
 }

@@ -1,5 +1,14 @@
 import { BaseEntity } from '../common/base.types';
-import { Admin } from './admin.types';
+import { DOCUMENT } from '@vubon/shared-constants/src/common/document.constants';
+import { AdminPublic } from './admin.types';
+
+/**
+ * Report format value
+ */
+export type ReportFormat = Extract<
+  (typeof DOCUMENT.FORMATS)[keyof typeof DOCUMENT.FORMATS],
+  'pdf' | 'excel' | 'csv' | 'json'
+>;
 
 /**
  * Admin report interface
@@ -7,12 +16,11 @@ import { Admin } from './admin.types';
 export interface AdminReport extends BaseEntity {
   reportId: string;
   adminId: string;
-  admin: Admin;
+  admin: AdminPublic;
   type: string;
   title: string;
   description: string;
   data: Record<string, unknown>;
   generatedAt: Date;
-  format: 'pdf' | 'excel' | 'csv' | 'json';
-  metadata: Record<string, unknown>;
+  format: ReportFormat;
 }

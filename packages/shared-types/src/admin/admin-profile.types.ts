@@ -1,18 +1,24 @@
 import { UserProfile } from '../user/user-profile.types';
-import { Admin } from './admin.types';
+import { ADMIN_DEPARTMENT } from '@vubon/shared-constants/src/admin/admin-department.constants';
+import { LANGUAGE } from '@vubon/shared-constants/src/common/language.constants';
+import { AdminPublic } from './admin.types';
+
+/**
+ * Value types
+ */
+export type AdminProfileDepartment = (typeof ADMIN_DEPARTMENT)[keyof typeof ADMIN_DEPARTMENT];
+export type AdminProfileLanguage = (typeof LANGUAGE)[keyof typeof LANGUAGE];
 
 /**
  * Admin profile interface
  */
 export interface AdminProfile extends UserProfile {
-  profileId: string;
   adminId: string;
-  admin: Admin;
+  admin: AdminPublic;
   employeeId: string;
   title: string;
-  department: string;
+  department: AdminProfileDepartment;
   managerId?: string;
   skills: string[];
-  languages: string[];
-  metadata: Record<string, unknown>;
+  languages: AdminProfileLanguage[];
 }

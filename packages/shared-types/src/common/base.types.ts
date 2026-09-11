@@ -1,13 +1,12 @@
 /**
  * Base entity interface with common properties
+ * Note: domain-specific fields like status/role/permissions
+ * are intentionally NOT here — they belong to their own entities.
  */
 export interface BaseEntity {
   id: string;
   createdAt: Date;
   updatedAt: Date;
-  status: string;
-  role?: string;
-  permissions?: string[];
   isActive: boolean;
   isDeleted: boolean;
 }
