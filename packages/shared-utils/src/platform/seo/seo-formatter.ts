@@ -16,7 +16,7 @@ export const formatSEOScore = (score: number): string => {
   return `${score.toFixed(1)}/100`;
 };
 
-export const formatRankingPosition = (position: number): string => {
+export const formatSEORankingPosition = (position: number): string => {
   if (position === 0) return 'Not ranked';
   return `#${position}`;
 };

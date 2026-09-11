@@ -22,7 +22,7 @@ export interface SEOScoreData {
 }
 
 export const calculateSEOScore = (metrics: SEOScoreMetrics): SEOScoreData => {
-  const weights = {
+  const weights: Record<keyof SEOScoreMetrics, number> = {
     title: 0.2,
     description: 0.15,
     keywords: 0.15,
@@ -30,9 +30,10 @@ export const calculateSEOScore = (metrics: SEOScoreMetrics): SEOScoreData => {
     links: 0.15,
     performance: 0.15,
   };
-  const value = Object.entries(metrics).reduce((sum, [key, val]) => {
-    return sum + val * weights[key as keyof typeof weights];
-  }, 0);
+  const value = Object.entries(metrics).reduce(
+    (sum, [key, val]) => sum + val * weights[key as keyof SEOScoreMetrics],
+    0
+  );
   const range = value >= 90 ? 'excellent' : value >= 75 ? 'good' : value >= 60 ? 'average' : 'poor';
   return {
     scoreId: crypto.randomUUID(),

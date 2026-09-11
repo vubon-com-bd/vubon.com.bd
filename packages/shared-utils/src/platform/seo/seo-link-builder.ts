@@ -11,7 +11,7 @@ export interface SEOLinkData {
   metadata: Record<string, unknown>;
 }
 
-export const buildInternalLink = (text: string, url: string): SEOLinkData => {
+export const buildSEOInternalLink = (text: string, url: string): SEOLinkData => {
   return {
     linkId: crypto.randomUUID(),
     seoId: '',
@@ -26,7 +26,7 @@ export const buildInternalLink = (text: string, url: string): SEOLinkData => {
   };
 };
 
-export const buildExternalLink = (
+export const buildSEOExternalLink = (
   text: string,
   url: string,
   rel: string = 'nofollow'

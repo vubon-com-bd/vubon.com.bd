@@ -1,4 +1,4 @@
-export interface SEOSitemapInput {
+export interface SitemapUrlInput {
   url: string;
   lastModified: Date;
   changeFrequency: string;
@@ -17,7 +17,7 @@ export interface SEOSitemapData {
   metadata: Record<string, unknown>;
 }
 
-export const generateSEOSitemap = (urls: SEOSitemapInput[]): SEOSitemapData[] => {
+export const generateSEOSitemap = (urls: SitemapUrlInput[]): SEOSitemapData[] => {
   return urls.map((url) => ({
     sitemapId: crypto.randomUUID(),
     seoId: '',

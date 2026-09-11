@@ -1,4 +1,4 @@
-export interface SEOKeywordData {
+export interface KeywordData {
   keyword: string;
 }
 
@@ -7,28 +7,27 @@ export interface ContentOptimizationResult {
   suggestions: string[];
 }
 
-export const optimizeContent = (
+export const optimizeSEOContent = (
   content: string,
-  keywords: SEOKeywordData[]
+  keywords: KeywordData[]
 ): ContentOptimizationResult => {
-  const optimized = content;
   const suggestions: string[] = [];
   for (const keyword of keywords) {
     if (!content.toLowerCase().includes(keyword.keyword.toLowerCase())) {
       suggestions.push(`Add keyword: ${keyword.keyword}`);
     }
   }
-  return { optimizedContent: optimized, suggestions };
+  return { optimizedContent: content, suggestions };
 };
 
-export const checkKeywordDensity = (content: string, keyword: string): number => {
+export const checkSEOKeywordDensity = (content: string, keyword: string): number => {
   const words = content.split(' ');
   if (words.length === 0) return 0;
   const keywordCount = words.filter((w) => w.toLowerCase() === keyword.toLowerCase()).length;
   return (keywordCount / words.length) * 100;
 };
 
-export const getReadabilityScore = (content: string): number => {
+export const getSEOReadabilityScore = (content: string): number => {
   void content;
   return 70;
 };

@@ -1,8 +1,11 @@
 import { calculateSEOMetrics } from './seo-analytics-calculator';
 import type { SEOAnalyticsData } from './seo-analytics-calculator';
 
-export const generateSEOReportId = (prefix: string = 'SRPT'): string => {
-  const random = Math.random().toString(36).substring(2, 14).toUpperCase();
+export const generateSEOId = (prefix: string, length: number): string => {
+  const random = Math.random()
+    .toString(36)
+    .substring(2, 2 + length)
+    .toUpperCase();
   return `${prefix}-${random}`;
 };
 
@@ -56,7 +59,7 @@ export const generateSEOReport = (data: SEOReportInput, type: string): SEOReport
   const analytics = data.analytics || [];
   const metrics = calculateSEOMetrics(analytics);
   return {
-    reportId: generateSEOReportId(),
+    reportId: generateSEOId('SRPT', 12),
     type,
     format: 'pdf',
     analytics,

@@ -1,4 +1,4 @@
-export const scoreTitle = (title: string): number => {
+export const scoreSEOTitle = (title: string): number => {
   if (!title) return 0;
   const length = title.length;
   if (length >= 50 && length <= 60) return 100;
@@ -6,7 +6,7 @@ export const scoreTitle = (title: string): number => {
   return 60;
 };
 
-export const scoreDescription = (description: string): number => {
+export const scoreSEODescription = (description: string): number => {
   if (!description) return 0;
   const length = description.length;
   if (length >= 150 && length <= 160) return 100;
@@ -14,8 +14,8 @@ export const scoreDescription = (description: string): number => {
   return 60;
 };
 
-export const scoreKeywords = (keywords: string[], content: string): number => {
-  if (!keywords.length) return 0;
+export const scoreSEOKeywords = (keywords: string[], content: string): number => {
+  if (keywords.length === 0) return 0;
   let score = 0;
   for (const keyword of keywords) {
     if (content.toLowerCase().includes(keyword.toLowerCase())) {
@@ -25,9 +25,10 @@ export const scoreKeywords = (keywords: string[], content: string): number => {
   return Math.min(score, 100);
 };
 
-export const scoreReadability = (content: string): number => {
+export const scoreSEOReadability = (content: string): number => {
   const words = content.split(' ');
   const sentences = content.split(/[.!?]+/).length;
+  if (sentences === 0) return 60;
   const avgWordsPerSentence = words.length / sentences;
   if (avgWordsPerSentence >= 15 && avgWordsPerSentence <= 20) return 100;
   if (avgWordsPerSentence >= 12 && avgWordsPerSentence <= 25) return 80;

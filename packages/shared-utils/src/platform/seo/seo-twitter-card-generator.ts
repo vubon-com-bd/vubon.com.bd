@@ -12,16 +12,14 @@ export interface SEOTwitterCardData {
   metadata: Record<string, unknown>;
 }
 
-export interface SEOTwitterCardInput {
+export const generateSEOTwitterCardTags = (data: {
   card: string;
   site: string;
   title: string;
   description: string;
   image: string;
   creator?: string;
-}
-
-export const generateSEOTwitterCardTags = (data: SEOTwitterCardInput): SEOTwitterCardData => {
+}): SEOTwitterCardData => {
   return {
     twitterCardId: crypto.randomUUID(),
     seoId: '',

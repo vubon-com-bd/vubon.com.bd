@@ -8,23 +8,13 @@ export interface SEOSchemaData {
   metadata: Record<string, unknown>;
 }
 
-export interface SEOProductSchemaInput {
+export const generateSEOProductSchema = (product: {
   name: string;
   description: string;
   brand: string;
   price: number;
   currency: string;
-}
-
-export interface SEOArticleSchemaInput {
-  headline: string;
-  description: string;
-  author: string;
-  datePublished: Date;
-  dateModified: Date;
-}
-
-export const generateSEOProductSchema = (product: SEOProductSchemaInput): SEOSchemaData => {
+}): SEOSchemaData => {
   return {
     schemaId: crypto.randomUUID(),
     seoId: '',
@@ -34,15 +24,8 @@ export const generateSEOProductSchema = (product: SEOProductSchemaInput): SEOSch
       '@type': 'Product',
       name: product.name,
       description: product.description,
-      brand: {
-        '@type': 'Brand',
-        name: product.brand,
-      },
-      offers: {
-        '@type': 'Offer',
-        price: product.price,
-        priceCurrency: product.currency,
-      },
+      brand: { '@type': 'Brand', name: product.brand },
+      offers: { '@type': 'Offer', price: product.price, priceCurrency: product.currency },
     },
     isActive: true,
     version: '1.0',
@@ -50,7 +33,13 @@ export const generateSEOProductSchema = (product: SEOProductSchemaInput): SEOSch
   };
 };
 
-export const generateSEOArticleSchema = (article: SEOArticleSchemaInput): SEOSchemaData => {
+export const generateSEOArticleSchema = (article: {
+  headline: string;
+  description: string;
+  author: string;
+  datePublished: Date;
+  dateModified: Date;
+}): SEOSchemaData => {
   return {
     schemaId: crypto.randomUUID(),
     seoId: '',
@@ -60,10 +49,7 @@ export const generateSEOArticleSchema = (article: SEOArticleSchemaInput): SEOSch
       '@type': 'Article',
       headline: article.headline,
       description: article.description,
-      author: {
-        '@type': 'Person',
-        name: article.author,
-      },
+      author: { '@type': 'Person', name: article.author },
       datePublished: article.datePublished.toISOString(),
       dateModified: article.dateModified.toISOString(),
     },

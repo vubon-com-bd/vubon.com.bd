@@ -12,16 +12,14 @@ export interface SEOOpenGraphData {
   metadata: Record<string, unknown>;
 }
 
-export interface SEOOpenGraphInput {
+export const generateSEOOpenGraphTags = (data: {
   title: string;
   description: string;
   url: string;
   image: string;
   type: string;
   siteName: string;
-}
-
-export const generateSEOOpenGraphTags = (data: SEOOpenGraphInput): SEOOpenGraphData => {
+}): SEOOpenGraphData => {
   return {
     openGraphId: crypto.randomUUID(),
     seoId: '',
