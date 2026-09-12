@@ -1,0 +1,35 @@
+import { TYPES as COMMON_TYPES } from '../common/types.constants';
+
+export const CHATBOT_INTENT = {
+  TYPES: {
+    ...COMMON_TYPES,
+    GREETING: 'greeting',
+    FAREWELL: 'farewell',
+    ORDER_STATUS: 'order_status',
+    PAYMENT_ISSUE: 'payment_issue',
+    DELIVERY_ISSUE: 'delivery_issue',
+    PRODUCT_QUERY: 'product_query',
+    RETURN_ISSUE: 'return_issue',
+    REFUND_ISSUE: 'refund_issue',
+    ACCOUNT_ISSUE: 'account_issue',
+    TECHNICAL_ISSUE: 'technical_issue',
+    VENDOR_QUERY: 'vendor_query',
+    GENERAL_QUERY: 'general_query',
+    HUMAN_AGENT: 'human_agent',
+  },
+  INTENT_PRIORITY: {
+    HUMAN_AGENT: 1,
+    PAYMENT_ISSUE: 2,
+    DELIVERY_ISSUE: 3,
+    TECHNICAL_ISSUE: 4,
+    ORDER_STATUS: 5,
+    REFUND_ISSUE: 6,
+    RETURN_ISSUE: 7,
+    ACCOUNT_ISSUE: 8,
+    PRODUCT_QUERY: 9,
+    VENDOR_QUERY: 10,
+    GENERAL_QUERY: 11,
+    GREETING: 12,
+    FAREWELL: 13,
+  },
+} as const;

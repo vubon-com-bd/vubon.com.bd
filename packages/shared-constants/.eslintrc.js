@@ -14,7 +14,15 @@ module.exports = {
   env: {
     node: true,
   },
-  ignorePatterns: ['.eslintrc.js', 'dist/', 'node_modules/'],
+  ignorePatterns: [
+    '.eslintrc.js',
+    'dist/',
+    'node_modules/',
+    '*.d.ts',
+    '*.d.ts.map',
+    '*.js',
+    '*.js.map',
+  ],
   rules: {
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
@@ -23,5 +31,7 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'no-console': ['warn', { allow: ['warn', 'error'] }],
     'prettier/prettier': 'error',
+    '@typescript-eslint/no-require-imports': 'off',
+    '@typescript-eslint/no-namespace': 'off',
   },
 };

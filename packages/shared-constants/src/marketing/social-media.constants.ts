@@ -1,0 +1,48 @@
+import { TYPES as COMMON_TYPES } from '../common/types.constants';
+
+export const SOCIAL_MEDIA = {
+  TYPES: {
+    ...COMMON_TYPES,
+    FACEBOOK: 'facebook',
+    INSTAGRAM: 'instagram',
+    TWITTER: 'twitter',
+    LINKEDIN: 'linkedin',
+    YOUTUBE: 'youtube',
+    TIKTOK: 'tiktok',
+    SNAPCHAT: 'snapchat',
+    PINTEREST: 'pinterest',
+    WHATSAPP: 'whatsapp',
+    TELEGRAM: 'telegram',
+    DISCORD: 'discord',
+    REDDIT: 'reddit',
+  },
+  SOCIAL_PLATFORMS: {
+    FACEBOOK: 'facebook',
+    INSTAGRAM: 'instagram',
+    TWITTER: 'twitter',
+    LINKEDIN: 'linkedin',
+    YOUTUBE: 'youtube',
+    TIKTOK: 'tiktok',
+    SNAPCHAT: 'snapchat',
+    PINTEREST: 'pinterest',
+    WHATSAPP: 'whatsapp',
+    TELEGRAM: 'telegram',
+    DISCORD: 'discord',
+    REDDIT: 'reddit',
+  },
+  POST_TYPES: {
+    TEXT: 'text',
+    IMAGE: 'image',
+    VIDEO: 'video',
+    CAROUSEL: 'carousel',
+    STORY: 'story',
+    REEL: 'reel',
+    LIVE: 'live',
+  },
+  MAX_POST_LENGTH: {
+    TWITTER: 280,
+    FACEBOOK: 5000,
+    INSTAGRAM: 2200,
+    LINKEDIN: 3000,
+  },
+} as const;

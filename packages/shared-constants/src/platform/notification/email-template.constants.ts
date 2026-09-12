@@ -1,0 +1,38 @@
+import { TYPES as COMMON_TYPES } from '../../common/types.constants';
+
+export const EMAIL_TEMPLATE = {
+  TYPES: {
+    ...COMMON_TYPES,
+    WELCOME: 'welcome',
+    VERIFICATION: 'verification',
+    PASSWORD_RESET: 'password_reset',
+    ORDER_CONFIRMATION: 'order_confirmation',
+    ORDER_SHIPPED: 'order_shipped',
+    ORDER_DELIVERED: 'order_delivered',
+    PAYMENT_RECEIVED: 'payment_received',
+    PAYMENT_FAILED: 'payment_failed',
+    CART_ABANDONED: 'cart_abandoned',
+    PROMOTIONAL: 'promotional',
+    NEWSLETTER: 'newsletter',
+    SUPPORT_TICKET: 'support_ticket',
+    SUPPORT_RESOLVED: 'support_resolved',
+    VENDOR_ORDER: 'vendor_order',
+    VENDOR_PAYOUT: 'vendor_payout',
+    SECURITY_ALERT: 'security_alert',
+    SYSTEM_NOTIFICATION: 'system_notification',
+    CUSTOM: 'custom',
+  },
+  TEMPLATE_VARIABLES: {
+    USER_NAME: '{{user_name}}',
+    USER_EMAIL: '{{user_email}}',
+    ORDER_ID: '{{order_id}}',
+    ORDER_TOTAL: '{{order_total}}',
+    PAYMENT_AMOUNT: '{{payment_amount}}',
+    VERIFICATION_CODE: '{{verification_code}}',
+    RESET_LINK: '{{reset_link}}',
+    SUPPORT_LINK: '{{support_link}}',
+    COMPANY_NAME: '{{company_name}}',
+    COMPANY_LOGO: '{{company_logo}}',
+    CURRENT_YEAR: '{{current_year}}',
+  },
+} as const;

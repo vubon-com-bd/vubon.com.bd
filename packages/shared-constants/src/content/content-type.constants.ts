@@ -1,0 +1,25 @@
+import { TYPES as COMMON_TYPES } from '../common/types.constants';
+
+export const CONTENT_TYPE = {
+  ...COMMON_TYPES,
+  BLOG_POST: 'blog_post',
+  STATIC_PAGE: 'static_page',
+  LANDING_PAGE: 'landing_page',
+  PRODUCT_DESCRIPTION: 'product_description',
+  VENDOR_STORY: 'vendor_story',
+  CATEGORY_DESCRIPTION: 'category_description',
+  BRAND_STORY: 'brand_story',
+  REVIEW: 'review',
+  TESTIMONIAL: 'testimonial',
+  FAQ: 'faq',
+  GUIDE: 'guide',
+  TUTORIAL: 'tutorial',
+  CASE_STUDY: 'case_study',
+  WHITE_PAPER: 'white_paper',
+  E_BOOK: 'e_book',
+  VIDEO: 'video',
+  PODCAST: 'podcast',
+  WEBINAR: 'webinar',
+  NEWS: 'news',
+  PRESS_RELEASE: 'press_release',
+} as const;

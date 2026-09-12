@@ -1,285 +1,38 @@
-/**
- * Auth types module exports
- * Central export point for all authentication-related types
- */
+// Core auth
+export * from './auth.types';
+export * from './auth-request.types';
+export * from './auth-response.types';
 
-// Export user types
-export type {
-  UserStatus,
-  UserRole,
-  User,
-  UserPreferences,
-  CreateUserRequest,
-  UpdateProfileRequest,
-  DeleteAccountRequest,
-  AdminUserListResponse,
-  AdminUserFilters,
-  AdminUserUpdateRequest,
-  AdminCreateUserRequest,
-  UserSession,
-  UserActivity,
-  UserPasswordReset,
-  UserEmailVerification,
-  UserDevice,
-  UserStatistics,
-  UserRoleAssignment,
-  UserPermissions,
-  UserToken,
-} from './user.types';
+// Session & token
+export * from './auth-session.types';
+export * from './auth-token.types';
 
-// Export session types
-export type {
-  SessionStatus,
-  DeviceInfo,
-  Session,
-  SessionListResponse,
-  LogoutRequest,
-  LogoutResponse,
-  RevokeSessionRequest,
-  RevokeAllSessionsRequest,
-  CreateSessionRequest,
-  UpdateSessionRequest,
-  SessionValidationResult,
-  SessionStatistics,
-  SessionEvent,
-  SessionFilter,
-} from './session.types';
+// Verification & recovery
+export * from './auth-verification.types';
+export * from './auth-recovery-code.types';
 
-// Export token types
-export type {
-  AccessTokenPayload,
-  RefreshTokenPayload,
-  TokenResponse,
-  TokenRefreshRequest,
-  TokenRefreshResponse,
-  TokenRotationResult,
-  TokenFamily,
-  TokenVerificationResult,
-  TokenMetadata,
-  TokenBlacklistEntry,
-  TokenGenerationOptions,
-  TokenConfig,
-  TokenStatistics,
-  TokenValidationContext,
-} from './token.types';
+// MFA & 2FA
+export * from './auth-mfa.types';
+export * from './auth-2fa.types';
+export * from './auth-biometric.types';
 
-// Export login attempt types
-export type {
-  LoginAttemptStatus,
-  LoginFailureReason,
-  LoginAttempt,
-  LoginAttemptRequest,
-  LoginAttemptResponse,
-  LoginAttemptStatistics,
-  LoginAttemptFilter,
-  LoginAttemptListResponse,
-  LoginAttemptSummary,
-  LoginAttemptConfig,
-  AccountLockStatus,
-} from './login-attempt.types';
+// Account security
+export * from './auth-account-lock.types';
+export * from './auth-login-attempt.types';
+export * from './auth-device.types';
 
-// Export account lock types
-export type {
-  LockLevel,
-  LockReason,
-  AccountLock,
-  AccountLockRequest,
-  AccountUnlockRequest,
-  AccountLockResponse,
-  AccountLockStatus as AccountLockStatusType,
-  SecurityEventType,
-  SecurityEvent,
-  SecurityEventFilter,
-  SecurityEventListResponse,
-  SecurityEventStatistics,
-  AccountLockConfig,
-  AccountLockHistory,
-  AccountLockAudit,
-} from './account-lock.types';
+// Social & SSO
+export * from './auth-social.types';
+export * from './auth-oauth.types';
+export * from './auth-sso.types';
 
-// Export verification types
-export type {
-  EmailVerificationStatus,
-  EmailVerification,
-  SendVerificationEmailRequest,
-  VerifyEmailRequest,
-  VerifyEmailResponse,
-  ResendVerificationEmailRequest,
-  ResendVerificationEmailResponse,
-  EmailVerificationStatusResponse,
-  EmailVerificationConfig,
-  EmailVerificationStatistics,
-  EmailVerificationFilter,
-  EmailVerificationListResponse,
-  EmailVerificationEvent,
-  EmailVerificationWebhookPayload,
-  EmailVerificationTokenGeneration,
-  EmailVerificationValidationResult,
-} from './verification.types';
+// Role & permission
+export * from './auth-role.types';
+export * from './auth-permission.types';
 
-// Export password reset types
-export type {
-  PasswordResetStatus,
-  PasswordReset,
-  ForgotPasswordRequest,
-  ResetPasswordRequest,
-  ResetPasswordResponse,
-  ValidateResetTokenRequest,
-  ValidateResetTokenResponse,
-  ResendResetEmailRequest,
-  ResendResetEmailResponse,
-  PasswordResetStatusResponse,
-  PasswordResetConfig,
-  PasswordResetStatistics,
-  PasswordResetFilter,
-  PasswordResetListResponse,
-  PasswordResetEvent,
-  PasswordResetWebhookPayload,
-  PasswordResetTokenGeneration,
-  PasswordResetValidationResult,
-  PasswordResetSecurityCheck,
-  ChangePasswordRequest,
-  ChangePasswordResponse,
-} from './password-reset.types';
+// Settings & preferences
+export * from './auth-settings.types';
+export * from './auth-preferences.types';
 
-// Export MFA types
-export type {
-  MFAStatus,
-  MFAType,
-  MFA,
-  MFAMethod,
-  EnableMFARequest,
-  VerifyMFARequest,
-  VerifyMFAResponse,
-  MFAStatusResponse,
-  DisableMFARequest,
-  DisableMFAResponse,
-  GenerateBackupCodesRequest,
-  GenerateBackupCodesResponse,
-  MFAConfig,
-  MFAVerificationAttempt,
-  MFAEvent,
-  MFAChallengeRequest,
-  MFAChallengeResponse,
-  MFARecoveryRequest,
-  MFARecoveryResponse,
-  MFALockStatus,
-  MFATrustDeviceRequest,
-  MFATrustDeviceResponse,
-  MFAMethodStatus,
-} from './mfa.types';
-
-// Export social types
-export type {
-  SocialProvider,
-  SocialLoginRequest,
-  SocialLoginResponse,
-  SocialAccount,
-  LinkSocialAccountRequest,
-  LinkSocialAccountResponse,
-  UnlinkSocialAccountRequest,
-  UnlinkSocialAccountResponse,
-  SocialAccountListResponse,
-  SocialProviderConfig,
-  SocialUserProfile,
-  SocialAuthTokenResponse,
-  SocialAuthState,
-  SocialLoginParams,
-  SocialLoginUrlResponse,
-  SocialAccountFilter,
-  SocialEvent,
-  SocialErrorType,
-  SocialErrorResponse,
-  SocialConfig,
-} from './social.types';
-
-// Export role types
-export type {
-  BaseRole,
-  Role,
-  RoleAssignment,
-  CreateRoleRequest,
-  UpdateRoleRequest,
-  AssignRoleRequest,
-  AssignRoleResponse,
-  RemoveRoleRequest,
-  RemoveRoleResponse,
-  RoleListResponse,
-  UserRoleResponse,
-  RoleHierarchy,
-  PermissionCheck,
-  RoleFilter,
-  RoleValidationResult,
-  RoleStatistics,
-  RoleEvent,
-  RoleInheritanceTree,
-  RolePermissionsResponse,
-  BulkRoleAssignmentRequest,
-  BulkRoleAssignmentResponse,
-  RolePermissionsCheckRequest,
-  RolePermissionsCheckResponse,
-  RoleConfig,
-} from './role.types';
-
-// Export permission types
-export type {
-  PermissionResource,
-  PermissionAction,
-  Permission,
-  PermissionDefinition,
-  PermissionCheckRequest,
-  PermissionCheckResponse,
-  BulkPermissionCheckRequest,
-  BulkPermissionCheckResponse,
-  GrantPermissionRequest,
-  GrantPermissionResponse,
-  RevokePermissionRequest,
-  RevokePermissionResponse,
-  PermissionListResponse,
-  PermissionFilter,
-  UserPermissionResponse,
-  PermissionStatistics,
-  PermissionValidationResult,
-  PermissionEvent,
-  PermissionConfig,
-  PermissionHierarchy,
-  PermissionAssignment,
-  PermissionCheckOptions,
-  PermissionSet,
-  PermissionSetRequest,
-} from './permission.types';
-
-// Export device types
-export type {
-  DeviceType,
-  DeviceOS,
-  DeviceBrowser,
-  DeviceVendor,
-  DeviceTrustLevel,
-  DeviceOrientation,
-  DeviceConnectionType,
-  MobileNetworkOperator,
-  Device,
-  DeviceMetadata,
-  DeviceLocation,
-  DeviceCapabilities,
-  DeviceStatus,
-  DeviceTrustScore,
-  DeviceFingerprint,
-  DeviceRegistrationRequest,
-  DeviceRegistrationResponse,
-  DeviceVerificationRequest,
-  DeviceVerificationResponse,
-  DeviceTrustRequest,
-  DeviceTrustResponse,
-  DeviceListResponse,
-  DeviceFilter,
-  DeviceStatistics,
-  DeviceConfig,
-  DeviceEvent,
-  DeviceSessionInfo,
-  DeviceNetworkInfo,
-} from './device.types';
-
-// Re-export shared constants types
-export type { DefaultRole } from '@vubon/shared-constants';
+// Public-safe DTOs (must come last for clarity)
+export * from './auth-public.types';

@@ -1,0 +1,36 @@
+import { TYPES as COMMON_TYPES } from '../common/types.constants';
+
+export const CAMPAIGN_CHANNEL = {
+  TYPES: {
+    ...COMMON_TYPES,
+    EMAIL: 'email',
+    SMS: 'sms',
+    WHATSAPP: 'whatsapp',
+    FACEBOOK: 'facebook',
+    INSTAGRAM: 'instagram',
+    TWITTER: 'twitter',
+    LINKEDIN: 'linkedin',
+    YOUTUBE: 'youtube',
+    TIKTOK: 'tiktok',
+    SNAPCHAT: 'snapchat',
+    GOOGLE_ADS: 'google_ads',
+    FACEBOOK_ADS: 'facebook_ads',
+    INSTAGRAM_ADS: 'instagram_ads',
+    TIKTOK_ADS: 'tiktok_ads',
+    YOUTUBE_ADS: 'youtube_ads',
+    DISPLAY_ADS: 'display_ads',
+    NATIVE_ADS: 'native_ads',
+    AFFILIATE: 'affiliate',
+    INFLUENCER: 'influencer',
+    CONTENT: 'content',
+    SEO: 'seo',
+    PPC: 'ppc',
+  },
+  CHANNEL_CATEGORIES: {
+    DIGITAL: 'digital',
+    SOCIAL: 'social',
+    ADVERTISING: 'advertising',
+    TRADITIONAL: 'traditional',
+  },
+  MAX_CHANNELS_PER_CAMPAIGN: 10,
+} as const;
