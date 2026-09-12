@@ -14,3 +14,4 @@ export * from './compression.helper';
 export * from './encryption.helper';
 export * from './decryption.helper';
 export * from './sanitize.helper';
+export * from './slug-linear';

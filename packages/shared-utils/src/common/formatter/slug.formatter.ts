@@ -1,11 +1,9 @@
 /**
- * Slug Formatter — display formatting only.
- * Note: Generation (generateSlug, generateUniqueSlug) lives in generator/slug-generator.ts.
- *       Validation (isValidSlug) lives in validator/slug.validator.ts.
+ * Slug Formatter — ReDoS-safe.
+ * @module shared-utils/common/formatter/slug
+ *
+ * Uses a linear-time algorithm instead of backtracking regex.
  */
-export const formatSlug = (text: string): string =>
-  text
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+import { formatSlugLinear } from '../helper/slug-linear';
+
+export const formatSlug = (text: string): string => formatSlugLinear(text);

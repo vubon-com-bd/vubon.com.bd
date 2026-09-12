@@ -4,6 +4,9 @@
  *
  * ⚠️ ALL functions use cryptographically secure randomness.
  * NEVER use Math.random() for anything security-related.
+ *
+ * NOTE: Uses rejection sampling to avoid modulo bias when picking
+ * characters from a pool.
  */
 
 import { randomBytes, randomUUID, randomInt as cryptoRandomInt } from 'crypto';
@@ -26,16 +29,23 @@ export const secureRandomInt = (min: number, max: number): number => {
 
 /**
  * Cryptographically secure random string from a character pool.
+ * Uses rejection sampling to avoid modulo bias.
  */
 export const secureRandomString = (length: number, chars?: string): string => {
   if (length <= 0) throw new Error('Length must be positive');
   const pool = chars ?? 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   if (pool.length === 0) throw new Error('Character pool cannot be empty');
 
-  const bytes = randomBytes(length);
+  const maxValid = Math.floor(256 / pool.length) * pool.length;
   let result = '';
-  for (let i = 0; i < length; i++) {
-    result += pool[bytes[i]! % pool.length];
+  while (result.length < length) {
+    const bytes = randomBytes(length - result.length + 8);
+    for (let i = 0; i < bytes.length && result.length < length; i++) {
+      const byte = bytes[i]!;
+      if (byte < maxValid) {
+        result += pool[byte % pool.length];
+      }
+    }
   }
   return result;
 };
@@ -59,7 +69,6 @@ export const secureNumericCode = (length: number): string => {
 
 /**
  * Generates a cryptographically secure salt (hex string).
- * @param bytes number of bytes (default 16 = 32 hex chars)
  */
 export const generateSalt = (bytes: number = 16): string => {
   if (bytes < 8) throw new Error('Salt must be at least 8 bytes');

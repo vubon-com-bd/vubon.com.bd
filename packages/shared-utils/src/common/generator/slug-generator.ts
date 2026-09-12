@@ -1,16 +1,13 @@
 /**
- * Slug Generator.
- * Note: Validation (isValidSlug) lives in validator/slug.validator.ts.
+ * Slug Generator — ReDoS-safe.
+ * @module shared-utils/common/generator/slug
  */
-export const generateSlug = (text: string): string =>
-  text
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+import { formatSlugLinear } from '../helper/slug-linear';
+
+export const generateSlug = (text: string): string => formatSlugLinear(text);
 
 export const generateUniqueSlug = (text: string, existing: string[] = []): string => {
-  const base = generateSlug(text);
+  const base = formatSlugLinear(text);
   if (!existing.includes(base)) return base;
   let counter = 1;
   let slug = `${base}-${counter}`;
