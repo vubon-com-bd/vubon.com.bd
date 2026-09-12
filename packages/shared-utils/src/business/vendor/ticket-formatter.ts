@@ -1,7 +1,6 @@
-export const formatDate = (date: Date): string => {
-  return new Date(date).toLocaleDateString('en-GB');
-};
-
+/**
+ * Ticket Formatter — vendor-scoped names.
+ */
 export interface TicketFormatData {
   ticketId: string;
   subject: string;
@@ -9,10 +8,10 @@ export interface TicketFormatData {
   createdAt: Date;
 }
 
-export const formatTicketSummary = (ticket: TicketFormatData): string => {
-  return `#${ticket.ticketId} | ${ticket.subject} | ${ticket.status} | ${formatDate(ticket.createdAt)}`;
-};
+export const formatTicketDate = (date: Date): string => new Date(date).toLocaleDateString('en-GB');
 
-export const formatTicketStatus = (status: string): string => {
-  return status.charAt(0).toUpperCase() + status.slice(1);
-};
+export const formatTicketSummary = (ticket: TicketFormatData): string =>
+  `#${ticket.ticketId} | ${ticket.subject} | ${ticket.status} | ${formatTicketDate(ticket.createdAt)}`;
+
+export const formatTicketStatus = (status: string): string =>
+  status.charAt(0).toUpperCase() + status.slice(1);

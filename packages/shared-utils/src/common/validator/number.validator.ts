@@ -1,11 +1,17 @@
-export const isNumber = (value: unknown): boolean => {
-  return typeof value === 'number' && !isNaN(value);
-};
+/**
+ * Number Validator.
+ */
+export const isNumber = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isFinite(value);
 
-export const isPositiveNumber = (value: number): boolean => {
-  return isNumber(value) && value > 0;
-};
+export const isInteger = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isInteger(value);
 
-export const isNonNegativeNumber = (value: number): boolean => {
-  return isNumber(value) && value >= 0;
-};
+export const isPositive = (value: number): boolean => value > 0;
+
+export const isNonNegative = (value: number): boolean => value >= 0;
+
+export const inRange = (value: number, min: number, max: number): boolean =>
+  value >= min && value <= max;
+
+export const isPercentage = (value: number): boolean => value >= 0 && value <= 100;

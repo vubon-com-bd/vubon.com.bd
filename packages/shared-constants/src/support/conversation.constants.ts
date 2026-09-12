@@ -1,6 +1,6 @@
 import { STATUS as COMMON_STATUS } from '../common/status.constants';
 import { TICKET_STATUS } from './ticket-status.constants';
-import { MESSAGE } from './message.constants';
+import { SUPPORT_MESSAGE } from './message.constants';
 
 export const CONVERSATION = {
   STATUS: {
@@ -11,7 +11,7 @@ export const CONVERSATION = {
     ARCHIVED: 'archived',
   },
   TICKET_STATUS: { ...TICKET_STATUS },
-  MESSAGE: { ...MESSAGE },
+  MESSAGE: { ...SUPPORT_MESSAGE },
   CONVERSATION_TYPES: {
     TICKET: 'ticket',
     CHAT: 'chat',

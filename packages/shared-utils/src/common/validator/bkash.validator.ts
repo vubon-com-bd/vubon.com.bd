@@ -1,4 +1,7 @@
-export const isValidBkashNumber = (number: string): boolean => {
-  const bkashRegex = /^(?:\+880|0|880)?(1[3-9]\d{8})$/;
-  return bkashRegex.test(number.replace(/\s/g, ''));
-};
+/**
+ * bKash Validator — uses REGEX.BKASH_ACCOUNT.
+ */
+import { REGEX } from '@vubon/shared-constants/src/common/regex.constants';
+
+export const isValidBkashNumber = (number: string): boolean =>
+  REGEX.BKASH_ACCOUNT.test(number.replace(/\s/g, ''));

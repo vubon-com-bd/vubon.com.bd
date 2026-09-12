@@ -1,9 +1,16 @@
-export const isValidBDPhone = (phone: string): boolean => {
-  const phoneRegex = /^(?:\+880|0|880)?(1[3-9]\d{8})$/;
-  return phoneRegex.test(phone.replace(/\s/g, ''));
-};
+/**
+ * Bangladesh-specific Validators — uses REGEX.* constants.
+ */
+import { REGEX } from '@vubon/shared-constants/src/common/regex.constants';
 
-export const isValidBDPostalCode = (postalCode: string): boolean => {
-  const postalRegex = /^[1-9]\d{3}$/;
-  return postalRegex.test(postalCode);
-};
+export const isValidBDPostalCode = (code: string): boolean =>
+  REGEX.BD_POSTAL_CODE.test(code.trim());
+
+export const isValidBDDivisionCode = (code: string): boolean =>
+  REGEX.BD_DIVISION_CODE.test(code.trim());
+
+export const isValidBDDistrictCode = (code: string): boolean =>
+  REGEX.BD_DISTRICT_CODE.test(code.trim());
+
+export const isValidBDUpazilaCode = (code: string): boolean =>
+  REGEX.BD_UPAZILA_CODE.test(code.trim());

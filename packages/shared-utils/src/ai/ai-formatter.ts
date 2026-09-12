@@ -1,11 +1,7 @@
-export const formatNumber = (value: number): string => {
-  return new Intl.NumberFormat('en-US').format(value);
-};
-
-export const formatPercentage = (value: number): string => {
-  return `${value.toFixed(1)}%`;
-};
-
+/**
+ * AI Formatter — AI-specific display formatting.
+ * Note: Names are AI-scoped to avoid collision with common formatters.
+ */
 export interface AIFormatData {
   models: unknown[];
   status: string;
@@ -19,18 +15,18 @@ export interface AIModelFormatData {
   accuracy: number;
 }
 
-export const formatAISummary = (ai: AIFormatData): string => {
-  return `Models: ${ai.models.length} | Status: ${ai.status} | Type: ${ai.type}`;
-};
+export const formatAINumber = (value: number): string =>
+  new Intl.NumberFormat('en-US').format(value);
 
-export const formatAIModel = (model: AIModelFormatData): string => {
-  return `${model.name} v${model.version} | ${model.type} | Accuracy: ${formatPercentage(model.accuracy * 100)}`;
-};
+export const formatAIPercentage = (value: number): string => `${value.toFixed(1)}%`;
 
-export const formatAIStatus = (status: string): string => {
-  return status.charAt(0).toUpperCase() + status.slice(1);
-};
+export const formatAISummary = (ai: AIFormatData): string =>
+  `Models: ${ai.models.length} | Status: ${ai.status} | Type: ${ai.type}`;
 
-export const formatAIAccuracy = (accuracy: number): string => {
-  return formatPercentage(accuracy * 100);
-};
+export const formatAIModel = (model: AIModelFormatData): string =>
+  `${model.name} v${model.version} | ${model.type} | Accuracy: ${formatAIPercentage(model.accuracy)}`;
+
+export const formatAIStatus = (status: string): string =>
+  status.charAt(0).toUpperCase() + status.slice(1);
+
+export const formatAIAccuracy = (accuracy: number): string => formatAIPercentage(accuracy);

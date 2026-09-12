@@ -1,12 +1,21 @@
-export const isValidEmail = (email: string): boolean => {
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  return emailRegex.test(email);
-};
+/**
+ * Email Validator — uses REGEX.EMAIL (single source of truth).
+ */
+import { REGEX } from '@vubon/shared-constants/src/common/regex.constants';
+import { VALIDATION } from '@vubon/shared-constants/src/common/validation.constants';
+
+export const isValidEmail = (email: string): boolean => REGEX.EMAIL.test(email.trim());
 
 export const validateEmail = (email: string): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
-  if (!email) errors.push('Email is required');
-  if (email.length < 5) errors.push('Email is too short');
-  if (!isValidEmail(email)) errors.push('Invalid email format');
+  const trimmed = email?.trim() ?? '';
+  if (!trimmed) errors.push('Email is required');
+  else {
+    if (trimmed.length < VALIDATION.EMAIL.MIN_LENGTH)
+      errors.push(`Email must be at least ${VALIDATION.EMAIL.MIN_LENGTH} characters`);
+    if (trimmed.length > VALIDATION.EMAIL.MAX_LENGTH)
+      errors.push(`Email must not exceed ${VALIDATION.EMAIL.MAX_LENGTH} characters`);
+    if (!isValidEmail(trimmed)) errors.push('Invalid email format');
+  }
   return { isValid: errors.length === 0, errors };
 };

@@ -1,4 +1,6 @@
-export const isValidUuid = (uuid: string): boolean => {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  return uuidRegex.test(uuid);
-};
+/**
+ * UUID Validator — uses REGEX.UUID (v4).
+ */
+import { REGEX } from '@vubon/shared-constants/src/common/regex.constants';
+
+export const isValidUuid = (uuid: string): boolean => REGEX.UUID.test(uuid.trim());

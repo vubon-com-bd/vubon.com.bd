@@ -1,4 +1,7 @@
-export const isValidNagadNumber = (number: string): boolean => {
-  const nagadRegex = /^(?:\+880|0|880)?(1[3-9]\d{8})$/;
-  return nagadRegex.test(number.replace(/\s/g, ''));
-};
+/**
+ * Nagad Validator — uses REGEX.NAGAD_ACCOUNT.
+ */
+import { REGEX } from '@vubon/shared-constants/src/common/regex.constants';
+
+export const isValidNagadNumber = (number: string): boolean =>
+  REGEX.NAGAD_ACCOUNT.test(number.replace(/\s/g, ''));

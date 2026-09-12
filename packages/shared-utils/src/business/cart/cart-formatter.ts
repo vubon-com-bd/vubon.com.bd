@@ -1,28 +1,27 @@
-export const formatPrice = (amount: number, currency = 'BDT'): string => {
-  return `${amount.toFixed(2)} ${currency}`;
-};
-
+/**
+ * Cart Formatter — cart-scoped names.
+ * Note: `formatPrice` (base) lives in common/formatter/price.formatter.ts.
+ */
 export interface CartFormatData {
-  grandTotal?: { amount: number };
-  itemCount?: number;
+  items: CartItemFormatData[];
+  subtotal: number;
+  total: number;
 }
 
 export interface CartItemFormatData {
-  quantity: { value: number };
-  product: { name: string };
-  finalPrice: { amount: number };
+  productId: string;
+  name: string;
+  quantity: number;
+  price: number;
 }
 
-export const formatCartSummary = (cart: CartFormatData): string => {
-  const total = cart.grandTotal?.amount || 0;
-  const itemCount = cart.itemCount || 0;
-  return `${itemCount} items | Total: ${formatPrice(total)}`;
-};
+export const formatCartPrice = (amount: number, currency = 'BDT'): string =>
+  `${amount.toFixed(2)} ${currency}`;
 
-export const formatCartItem = (item: CartItemFormatData): string => {
-  return `${item.quantity.value}x ${item.product.name} - ${formatPrice(item.finalPrice.amount)}`;
-};
+export const formatCartSummary = (cart: CartFormatData): string =>
+  `${cart.items.length} items | ${formatCartPrice(cart.total)}`;
 
-export const formatCartItems = (items: CartItemFormatData[]): string[] => {
-  return items.map(formatCartItem);
-};
+export const formatCartItem = (item: CartItemFormatData): string =>
+  `${item.name} x${item.quantity} | ${formatCartPrice(item.price)}`;
+
+export const formatCartItems = (items: CartItemFormatData[]): string[] => items.map(formatCartItem);

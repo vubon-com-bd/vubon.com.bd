@@ -1,8 +1,17 @@
+/**
+ * ID Generator — cryptographically secure.
+ * @module shared-utils/common/generator/id
+ */
+
+import { secureRandomString } from '../helper/crypto.helper';
+
+const DEFAULT_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+/**
+ * Generates a crypto-secure ID with optional prefix.
+ */
 export const generateId = (prefix: string = '', length: number = 12): string => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let id = '';
-  for (let i = 0; i < length; i++) {
-    id += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
+  if (length <= 0) throw new Error('Length must be positive');
+  const id = secureRandomString(length, DEFAULT_CHARS);
   return prefix ? `${prefix}-${id}` : id;
 };

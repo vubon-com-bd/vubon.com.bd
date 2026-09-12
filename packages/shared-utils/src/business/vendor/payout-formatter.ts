@@ -1,21 +1,19 @@
-export const formatPrice = (amount: number, currency = 'BDT'): string => {
-  return `${amount.toFixed(2)} ${currency}`;
-};
-
-export const formatDate = (date: Date): string => {
-  return new Date(date).toLocaleDateString('en-GB');
-};
-
+/**
+ * Payout Formatter — vendor-scoped names.
+ */
 export interface PayoutFormatData {
   requestedAt: Date;
   amount: { amount: number };
   status: string;
 }
 
-export const formatPayoutSummary = (payout: PayoutFormatData): string => {
-  return `${formatDate(payout.requestedAt)} | ${formatPrice(payout.amount.amount)} | ${payout.status}`;
-};
+export const formatPayoutPrice = (amount: number, currency = 'BDT'): string =>
+  `${amount.toFixed(2)} ${currency}`;
 
-export const formatPayoutStatus = (status: string): string => {
-  return status.charAt(0).toUpperCase() + status.slice(1);
-};
+export const formatPayoutDate = (date: Date): string => new Date(date).toLocaleDateString('en-GB');
+
+export const formatPayoutSummary = (payout: PayoutFormatData): string =>
+  `${formatPayoutDate(payout.requestedAt)} | ${formatPayoutPrice(payout.amount.amount)} | ${payout.status}`;
+
+export const formatPayoutStatus = (status: string): string =>
+  status.charAt(0).toUpperCase() + status.slice(1);

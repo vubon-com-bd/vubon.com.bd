@@ -1,6 +1,6 @@
 import { STATUS as COMMON_STATUS } from '../common/status.constants';
 import { PERMISSIONS } from '../common/permissions.constants';
-import { MESSAGE } from './message.constants';
+import { SUPPORT_MESSAGE } from './message.constants';
 import { SUPPORT_AGENT } from './support-agent.constants';
 
 export const LIVE_CHAT = {
@@ -18,7 +18,7 @@ export const LIVE_CHAT = {
     END: 'chat:end',
     TRANSFER: 'chat:transfer',
   },
-  MESSAGE: { ...MESSAGE },
+  MESSAGE: { ...SUPPORT_MESSAGE },
   SUPPORT_AGENT: { ...SUPPORT_AGENT },
   CHAT_TYPES: {
     USER: 'user',

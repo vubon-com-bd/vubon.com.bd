@@ -1,18 +1,22 @@
-export const generateSlug = (text: string): string => {
-  return text
+/**
+ * Slug Generator.
+ * Note: Validation (isValidSlug) lives in validator/slug.validator.ts.
+ */
+export const generateSlug = (text: string): string =>
+  text
     .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
-};
 
-export const generateUniqueSlug = (text: string, existingSlugs: string[]): string => {
-  let slug = generateSlug(text);
+export const generateUniqueSlug = (text: string, existing: string[] = []): string => {
+  const base = generateSlug(text);
+  if (!existing.includes(base)) return base;
   let counter = 1;
-  while (existingSlugs.includes(slug)) {
-    slug = `${generateSlug(text)}-${counter}`;
+  let slug = `${base}-${counter}`;
+  while (existing.includes(slug)) {
     counter++;
+    slug = `${base}-${counter}`;
   }
   return slug;
 };

@@ -1,34 +1,47 @@
-import { getTimeDifference } from '../common/helper/time.helper';
-import { AUTH_LOGIN_ATTEMPT } from '@vubon/shared-constants/src/auth/auth-login-attempt.constants';
+/**
+ * Login Attempt Tracker.
+ * @module shared-utils/auth/login-attempt-tracker
+ */
+import {
+  AUTH_LOGIN_ATTEMPT,
+  AuthLoginAttemptStatus,
+} from '@vubon/shared-constants/src/auth/auth-login-attempt.constants';
 
 export interface AuthLoginAttempt {
-  attemptId: string;
   userId: string;
   email: string;
-  ipAddress: string;
-  userAgent: string;
-  status: keyof typeof AUTH_LOGIN_ATTEMPT;
-  failureReason?: string;
+  status: AuthLoginAttemptStatus;
   attemptedAt: Date;
-  metadata: Record<string, unknown>;
+  ipAddress?: string;
+  userAgent?: string;
 }
 
-export const trackLoginAttempt = (email: string, ip: string): AuthLoginAttempt => {
-  return {
-    attemptId: crypto.randomUUID(),
-    userId: '',
-    email,
-    ipAddress: ip,
-    userAgent: '',
-    status: 'PENDING',
-    attemptedAt: new Date(),
-    metadata: {},
-  };
-};
+export const createLoginAttempt = (
+  userId: string,
+  email: string,
+  extra?: { ipAddress?: string; userAgent?: string }
+): AuthLoginAttempt => ({
+  userId,
+  email,
+  status: AUTH_LOGIN_ATTEMPT.PENDING,
+  attemptedAt: new Date(),
+  ...extra,
+});
 
-export const getFailedAttempts = (attempts: AuthLoginAttempt[]): number => {
-  const recent = attempts.filter(
-    (a) => a.status === 'FAILED' && getTimeDifference(a.attemptedAt, new Date()) < 30 * 60 * 1000
-  );
-  return recent.length;
-};
+export const markAttemptSuccess = (attempt: AuthLoginAttempt): AuthLoginAttempt => ({
+  ...attempt,
+  status: AUTH_LOGIN_ATTEMPT.SUCCESS,
+});
+
+export const markAttemptFailed = (
+  attempt: AuthLoginAttempt,
+  _reason?: string
+): AuthLoginAttempt => ({
+  ...attempt,
+  status: AUTH_LOGIN_ATTEMPT.FAILED,
+});
+
+export const markAttemptBlocked = (attempt: AuthLoginAttempt): AuthLoginAttempt => ({
+  ...attempt,
+  status: AUTH_LOGIN_ATTEMPT.BLOCKED,
+});

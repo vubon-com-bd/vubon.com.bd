@@ -1,17 +1,29 @@
-import { Address } from '@vubon/shared-types';
+/**
+ * Address Formatter — works with Address value object or plain data.
+ */
+import type { Address } from '@vubon/shared-types';
 
-export const formatAddress = (address: Address): string => {
-  const parts = [
-    address.value.street,
-    address.value.city,
-    address.value.state,
-    address.value.postalCode,
-    address.value.country,
-  ].filter(Boolean);
-  return parts.join(', ');
+interface AddressLike {
+  street?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+}
+
+const extract = (addr: Address | AddressLike): AddressLike => {
+  if ('value' in addr && addr.value) {
+    return addr.value as AddressLike;
+  }
+  return addr as AddressLike;
 };
 
-export const formatAddressShort = (address: Address): string => {
-  const parts = [address.value.street, address.value.city, address.value.country].filter(Boolean);
-  return parts.join(', ');
+export const formatAddress = (address: Address | AddressLike): string => {
+  const a = extract(address);
+  return [a.street, a.city, a.state, a.postalCode, a.country].filter(Boolean).join(', ');
+};
+
+export const formatAddressShort = (address: Address | AddressLike): string => {
+  const a = extract(address);
+  return [a.street, a.city, a.country].filter(Boolean).join(', ');
 };

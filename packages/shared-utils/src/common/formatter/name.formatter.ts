@@ -1,12 +1,27 @@
-import { Name } from '@vubon/shared-types';
+/**
+ * Name Formatter.
+ */
+import type { Name } from '@vubon/shared-types';
 
-export const formatFullName = (name: Name): string => {
-  const parts = [name.value.firstName, name.value.middleName, name.value.lastName].filter(Boolean);
-  return parts.join(' ');
+interface NameLike {
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+}
+
+const extract = (n: Name | NameLike): NameLike => {
+  if ('value' in n && n.value) return n.value as NameLike;
+  return n as NameLike;
 };
 
-export const formatInitials = (name: Name): string => {
-  const first = name.value.firstName.charAt(0).toUpperCase();
-  const last = name.value.lastName.charAt(0).toUpperCase();
+export const formatFullName = (name: Name | NameLike): string => {
+  const n = extract(name);
+  return [n.firstName, n.middleName, n.lastName].filter(Boolean).join(' ');
+};
+
+export const formatInitials = (name: Name | NameLike): string => {
+  const n = extract(name);
+  const first = n.firstName?.charAt(0)?.toUpperCase() ?? '';
+  const last = n.lastName?.charAt(0)?.toUpperCase() ?? '';
   return `${first}${last}`;
 };

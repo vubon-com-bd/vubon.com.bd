@@ -1,4 +1,7 @@
-export const isValidRocketNumber = (number: string): boolean => {
-  const rocketRegex = /^(?:\+880|0|880)?(1[3-9]\d{8})$/;
-  return rocketRegex.test(number.replace(/\s/g, ''));
-};
+/**
+ * Rocket Validator — uses REGEX.ROCKET_ACCOUNT.
+ */
+import { REGEX } from '@vubon/shared-constants/src/common/regex.constants';
+
+export const isValidRocketNumber = (number: string): boolean =>
+  REGEX.ROCKET_ACCOUNT.test(number.replace(/\s/g, ''));

@@ -1,4 +1,6 @@
-export const isValidNID = (nid: string): boolean => {
-  const nidRegex = /^[0-9]{10}$|^[0-9]{17}$/;
-  return nidRegex.test(nid);
-};
+/**
+ * NID Validator — uses REGEX.NID.
+ */
+import { REGEX } from '@vubon/shared-constants/src/common/regex.constants';
+
+export const isValidNID = (nid: string): boolean => REGEX.NID.test(nid.replace(/\s/g, ''));

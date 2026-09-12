@@ -1,7 +1,10 @@
-export const isObject = (value: unknown): boolean => {
-  return value !== null && typeof value === 'object' && !Array.isArray(value);
-};
+/**
+ * Object Validator.
+ */
+export const isObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
 
-export const isEmptyObject = (value: Record<string, unknown>): boolean => {
-  return Object.keys(value).length === 0;
-};
+export const isEmptyObject = (value: object): boolean => Object.keys(value).length === 0;
+
+export const hasKey = <T extends object>(obj: T, key: PropertyKey): key is keyof T =>
+  Object.prototype.hasOwnProperty.call(obj, key);

@@ -1,4 +1,7 @@
-export const isValidTime = (time: string): boolean => {
-  const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/;
-  return timeRegex.test(time);
-};
+/**
+ * Time Validator — uses REGEX.TIME_SHORT / TIME_ISO.
+ */
+import { REGEX } from '@vubon/shared-constants/src/common/regex.constants';
+
+export const isValidTime = (time: string): boolean =>
+  REGEX.TIME_SHORT.test(time.trim()) || REGEX.TIME_ISO.test(time.trim());

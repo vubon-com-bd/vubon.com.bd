@@ -1,8 +1,12 @@
+/**
+ * Tracking Number Generator — crypto-secure.
+ * @module shared-utils/common/generator/tracking-number
+ */
+
+import { secureRandomString } from '../helper/crypto.helper';
+
+const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
 export const generateTrackingNumber = (prefix: string = 'TRK'): string => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = prefix;
-  for (let i = 0; i < 12; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
+  return prefix + secureRandomString(12, CHARS);
 };
