@@ -1,7 +1,9 @@
+import { NOTIFICATION } from '@vubon/shared-constants/src/common/notification.constants';
+
 export const notificationConfig = {
   maxNotificationsPerUser: 1000,
   maxRetryAttempts: 3,
-  retryInterval: 5 * 60, // 5 minutes
+  retryInterval: 5 * 60,
   retentionDays: 90,
   batchSize: 100,
   channels: {
@@ -11,11 +13,5 @@ export const notificationConfig = {
     in_app: true,
     webhook: false,
   },
-  priorities: {
-    low: 1,
-    medium: 2,
-    high: 3,
-    urgent: 4,
-    critical: 5,
-  },
-};
+  priorities: NOTIFICATION.PRIORITY,
+} as const;

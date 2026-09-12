@@ -1,5 +1,5 @@
 export const rankingConfig = {
-  algorithm: 'lambda_mart',
+  algorithm: 'lambda_mart' as const,
   features: ['relevance', 'popularity', 'rating', 'recency', 'personalization', 'context'],
   weights: {
     relevance: 0.3,
@@ -10,5 +10,5 @@ export const rankingConfig = {
     context: 0.1,
   },
   maxResults: 100,
-  updateInterval: 6 * 60 * 60, // 6 hours
-};
+  updateInterval: 6 * 60 * 60,
+} as const;

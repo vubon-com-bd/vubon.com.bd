@@ -1,13 +1,20 @@
+/**
+ * Helmet.js configuration.
+ * ⚠️ Removed 'unsafe-inline' — use nonces for inline scripts/styles if needed.
+ */
 export const helmetConfig = {
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'"],
       imgSrc: ["'self'", 'data:', 'https:'],
       connectSrc: ["'self'"],
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
+      frameAncestors: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
       upgradeInsecureRequests: [],
     },
   },
@@ -17,12 +24,8 @@ export const helmetConfig = {
     preload: true,
   },
   noSniff: true,
-  referrerPolicy: {
-    policy: 'same-origin',
-  },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   xssFilter: true,
-  frameguard: {
-    action: 'deny',
-  },
+  frameguard: { action: 'deny' },
   hidePoweredBy: true,
-};
+} as const;

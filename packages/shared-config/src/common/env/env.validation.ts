@@ -1,19 +1,49 @@
-import { EnvSchema } from './env.schema';
+import { EnvSchema, type Env } from './env.schema';
 
-export const validateEnv = (): void => {
-  try {
-    EnvSchema.parse(process.env);
-  } catch (error) {
-    console.error('❌ Invalid environment variables:', error);
+/**
+ * Validates process.env against EnvSchema.
+ * On failure, logs errors and exits (fail-fast).
+ */
+export const validateEnv = (): Env => {
+  const result = EnvSchema.safeParse(process.env);
+  if (!result.success) {
+    console.error('❌ Invalid environment variables:');
+    console.error(result.error.flatten().fieldErrors);
     process.exit(1);
   }
+  return result.data;
 };
 
-export const getEnv = <T>(key: string, defaultValue?: T): T => {
+/**
+ * REQUIRED env var — throws if missing.
+ * Returns string.
+ */
+export const getRequiredEnv = (key: string): string => {
   const value = process.env[key];
-  if (value === undefined) {
-    if (defaultValue !== undefined) return defaultValue;
-    throw new Error(`Environment variable ${key} is not defined`);
+  if (value === undefined || value === '') {
+    throw new Error(`Required environment variable "${key}" is not set`);
   }
-  return value as T;
+  return value;
+};
+
+/**
+ * Optional env var — returns defaultValue if missing.
+ * ⚠️ Do NOT use for secrets.
+ *
+ * Signature: returns string. Use Number() or === 'true' for conversion.
+ */
+export const getOptionalEnv = (key: string, defaultValue: string): string => {
+  const value = process.env[key];
+  if (value === undefined || value === '') return defaultValue;
+  return value;
+};
+
+/**
+ * @deprecated Use getRequiredEnv or getOptionalEnv explicitly.
+ */
+export const getEnv = (key: string, defaultValue?: string): string => {
+  if (defaultValue !== undefined) {
+    return getOptionalEnv(key, defaultValue);
+  }
+  return getRequiredEnv(key);
 };

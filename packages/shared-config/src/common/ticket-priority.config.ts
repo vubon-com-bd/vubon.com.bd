@@ -8,4 +8,4 @@ export const ticketPriorityConfig = {
   },
   autoAssign: true,
   autoEscalate: true,
-};
+} as const;

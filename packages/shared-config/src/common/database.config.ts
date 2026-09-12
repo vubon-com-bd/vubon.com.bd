@@ -1,12 +1,13 @@
-import { getEnv } from './env/env.validation';
+import { getRequiredEnv, getOptionalEnv } from './env/env.validation';
 
 export const databaseConfig = {
-  host: getEnv('DB_HOST', 'localhost'),
-  port: getEnv('DB_PORT', 5432),
-  user: getEnv('DB_USER', 'postgres'),
-  password: getEnv('DB_PASSWORD', 'password'),
-  database: getEnv('DB_NAME', 'vubon'),
-  ssl: getEnv('DB_SSL', false),
+  host: getOptionalEnv('DB_HOST', 'localhost'),
+  port: Number(getOptionalEnv('DB_PORT', '5432')),
+  user: getOptionalEnv('DB_USER', 'postgres'),
+  /** @required — no fallback for security */
+  password: getRequiredEnv('DB_PASSWORD'),
+  database: getOptionalEnv('DB_NAME', 'vubon'),
+  ssl: getOptionalEnv('DB_SSL', 'false') === 'true',
   pool: {
     min: 2,
     max: 10,
@@ -20,4 +21,4 @@ export const databaseConfig = {
   seeds: {
     directory: 'src/database/seeds',
   },
-};
+} as const;

@@ -9,4 +9,4 @@ export const seoConfig = {
   enableOpenGraph: true,
   enableTwitterCard: true,
   autoOptimize: false,
-};
+} as const;

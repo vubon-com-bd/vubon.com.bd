@@ -1,22 +1,15 @@
+import { CACHE } from '@vubon/shared-constants/src/common/cache.constants';
+
 export const cacheConfig = {
   ttl: {
-    default: 300, // 5 minutes
-    short: 60, // 1 minute
-    medium: 600, // 10 minutes
-    long: 3600, // 1 hour
-    day: 86400, // 1 day
-    week: 604800, // 1 week
+    default: CACHE.SHORT_TTL,
+    short: CACHE.SHORT_TTL,
+    medium: CACHE.MEDIUM_TTL,
+    long: CACHE.DEFAULT_TTL,
+    day: CACHE.LONG_TTL,
+    week: CACHE.EXTRA_LONG_TTL,
   },
-  keys: {
-    user: 'user:',
-    session: 'session:',
-    product: 'product:',
-    category: 'category:',
-    vendor: 'vendor:',
-    order: 'order:',
-    payment: 'payment:',
-    rateLimit: 'rateLimit:',
-  },
-  maxKeys: 10000,
+  keys: CACHE.PREFIX,
+  maxKeys: CACHE.MAX_ITEMS.LARGE,
   checkPeriod: 600,
-};
+} as const;

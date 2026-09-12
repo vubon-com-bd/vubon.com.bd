@@ -1,3 +1,8 @@
+import { getOptionalEnv } from '../env/env.validation';
+import { ENVIRONMENT } from '@vubon/shared-constants/src/common/environment.constants';
+
+const nodeEnv = getOptionalEnv('NODE_ENV', ENVIRONMENT.DEVELOPMENT);
+
 export const csrfConfig = {
   cookie: true,
   ignoreMethods: ['GET', 'HEAD', 'OPTIONS'],
@@ -6,7 +11,7 @@ export const csrfConfig = {
   headerKey: 'x-csrf-token',
   cookieOptions: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    secure: nodeEnv === ENVIRONMENT.PRODUCTION,
+    sameSite: 'strict' as const,
   },
-};
+} as const;

@@ -4,4 +4,4 @@ export const robotsConfig = {
   disallow: ['/admin/*', '/auth/*', '/api/*', '/_next/*'],
   crawlDelay: 1,
   sitemap: '/sitemap.xml',
-};
+} as const;

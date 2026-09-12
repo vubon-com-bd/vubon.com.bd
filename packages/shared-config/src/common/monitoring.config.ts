@@ -20,4 +20,4 @@ export const monitoringConfig = {
       errorRate: 5,
     },
   },
-};
+} as const;

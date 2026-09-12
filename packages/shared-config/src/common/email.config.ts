@@ -1,16 +1,16 @@
-import { getEnv } from './env/env.validation';
+import { getOptionalEnv } from './env/env.validation';
 
 export const emailConfig = {
-  provider: getEnv('EMAIL_PROVIDER', 'smtp'),
-  host: getEnv('SMTP_HOST', 'smtp.gmail.com'),
-  port: getEnv('SMTP_PORT', 587),
-  secure: false,
-  user: getEnv('SMTP_USER', ''),
-  pass: getEnv('SMTP_PASS', ''),
-  from: getEnv('EMAIL_FROM', 'noreply@vubon.com'),
-  fromName: getEnv('EMAIL_FROM_NAME', 'Vubon'),
+  provider: getOptionalEnv('EMAIL_PROVIDER', 'smtp'),
+  host: getOptionalEnv('SMTP_HOST', 'smtp.gmail.com'),
+  port: Number(getOptionalEnv('SMTP_PORT', '587')),
+  secure: getOptionalEnv('SMTP_SECURE', 'false') === 'true',
+  user: getOptionalEnv('SMTP_USER', ''),
+  pass: getOptionalEnv('SMTP_PASS', ''),
+  from: getOptionalEnv('EMAIL_FROM', 'noreply@vubon.com'),
+  fromName: getOptionalEnv('EMAIL_FROM_NAME', 'Vubon'),
   maxRecipients: 1000,
   timeout: 30,
   retryAttempts: 3,
   retryDelay: 60,
-};
+} as const;

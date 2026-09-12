@@ -5,4 +5,4 @@ export const refundConfig = {
   maxRefundPercentage: 100,
   autoApprove: false,
   requireApproval: true,
-};
+} as const;

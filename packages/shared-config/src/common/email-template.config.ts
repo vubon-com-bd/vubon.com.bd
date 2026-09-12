@@ -1,6 +1,8 @@
+import { LOCALE } from '@vubon/shared-constants/src/common/locale.constants';
+
 export const emailTemplateConfig = {
-  defaultLocale: 'en',
-  supportedLocales: ['en', 'bn'],
+  defaultLocale: LOCALE.EN_US,
+  supportedLocales: [LOCALE.EN_US, LOCALE.BN_BD] as const,
   cacheEnabled: true,
   cacheTtl: 3600,
   maxVariables: 20,
@@ -13,4 +15,4 @@ export const emailTemplateConfig = {
     '{{verification_code}}',
     '{{reset_link}}',
   ],
-};
+} as const;

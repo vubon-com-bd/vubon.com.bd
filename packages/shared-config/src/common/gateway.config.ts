@@ -1,3 +1,9 @@
+import { getOptionalEnv } from './env/env.validation';
+import { ENVIRONMENT } from '@vubon/shared-constants/src/common/environment.constants';
+
+const nodeEnv = getOptionalEnv('NODE_ENV', ENVIRONMENT.DEVELOPMENT);
+const sandbox = nodeEnv !== ENVIRONMENT.PRODUCTION;
+
 export const gatewayConfig = {
   enabled: {
     sslcommerz: true,
@@ -11,22 +17,22 @@ export const gatewayConfig = {
   },
   default: 'sslcommerz',
   sslcommerz: {
-    storeId: process.env.SSLCOMMERZ_STORE_ID || '',
-    storePassword: process.env.SSLCOMMERZ_STORE_PASSWORD || '',
-    sandbox: process.env.NODE_ENV !== 'production',
+    storeId: getOptionalEnv('SSLCOMMERZ_STORE_ID', ''),
+    storePassword: getOptionalEnv('SSLCOMMERZ_STORE_PASSWORD', ''),
+    sandbox,
   },
   bkash: {
-    appKey: process.env.BKASH_APP_KEY || '',
-    appSecret: process.env.BKASH_APP_SECRET || '',
-    sandbox: process.env.NODE_ENV !== 'production',
+    appKey: getOptionalEnv('BKASH_APP_KEY', ''),
+    appSecret: getOptionalEnv('BKASH_APP_SECRET', ''),
+    sandbox,
   },
   stripe: {
-    secretKey: process.env.STRIPE_SECRET_KEY || '',
-    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || '',
+    secretKey: getOptionalEnv('STRIPE_SECRET_KEY', ''),
+    webhookSecret: getOptionalEnv('STRIPE_WEBHOOK_SECRET', ''),
   },
   paypal: {
-    clientId: process.env.PAYPAL_CLIENT_ID || '',
-    clientSecret: process.env.PAYPAL_CLIENT_SECRET || '',
-    sandbox: process.env.NODE_ENV !== 'production',
+    clientId: getOptionalEnv('PAYPAL_CLIENT_ID', ''),
+    clientSecret: getOptionalEnv('PAYPAL_CLIENT_SECRET', ''),
+    sandbox,
   },
-};
+} as const;

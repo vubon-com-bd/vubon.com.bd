@@ -9,4 +9,4 @@ export const ticketSlaConfig = {
   penaltyRate: 10,
   breachNotifyMinutes: 30,
   escalationMinutes: 15,
-};
+} as const;

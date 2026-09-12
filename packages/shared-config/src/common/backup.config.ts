@@ -1,9 +1,9 @@
 export const backupConfig = {
   enabled: true,
-  frequency: 'daily',
+  frequency: 'daily' as const,
   retentionDays: 30,
   maxBackups: 30,
-  storage: 'local',
+  storage: 'local' as const,
   compress: true,
   excludeTables: ['logs', 'sessions'],
-};
+} as const;

@@ -1,6 +1,8 @@
+import { TAX } from '@vubon/shared-constants/src/common/tax.constants';
+
 export const taxConfig = {
-  defaultRate: 15,
+  defaultRate: TAX.BD.VAT_STANDARD,
   inclusive: true,
-  taxTypes: ['vat', 'gst', 'sales_tax'],
+  taxTypes: Object.values(TAX.TYPE) as readonly string[],
   exemptThreshold: 1000,
-};
+} as const;

@@ -9,4 +9,4 @@ export const warehouseConfig = {
     dhaka: { name: 'Dhaka Warehouse', address: 'Dhaka, Bangladesh' },
     chittagong: { name: 'Chittagong Warehouse', address: 'Chittagong, Bangladesh' },
   },
-};
+} as const;

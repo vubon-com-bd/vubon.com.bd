@@ -12,4 +12,4 @@ export const tracingConfig = {
     'x-request-id': true,
     'x-correlation-id': true,
   },
-};
+} as const;

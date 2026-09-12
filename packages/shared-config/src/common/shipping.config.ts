@@ -1,8 +1,8 @@
 export const shippingConfig = {
-  defaultMethod: 'standard',
+  defaultMethod: 'standard' as const,
   freeShippingThreshold: 500,
   defaultCost: 50,
   zones: ['domestic', 'international'],
-  weightUnit: 'kg',
-  dimensionUnit: 'cm',
-};
+  weightUnit: 'kg' as const,
+  dimensionUnit: 'cm' as const,
+} as const;

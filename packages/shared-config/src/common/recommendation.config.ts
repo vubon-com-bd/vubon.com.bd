@@ -2,7 +2,7 @@ export const recommendationConfig = {
   maxRecommendations: 20,
   minRecommendations: 3,
   scoreThreshold: 0.3,
-  cacheTtl: 12 * 60 * 60, // 12 hours
+  cacheTtl: 12 * 60 * 60,
   strategies: ['collaborative_filtering', 'content_based', 'hybrid'],
   weights: {
     collaborative_filtering: 0.3,
@@ -12,4 +12,4 @@ export const recommendationConfig = {
     contextual: 0.1,
     sequential: 0.1,
   },
-};
+} as const;

@@ -1,14 +1,14 @@
+import { COMMISSION } from '@vubon/shared-constants/src/common/commission.constants';
+
 export const commissionConfig = {
-  defaultRate: 10,
+  defaultRate: COMMISSION.DEFAULT.RATE,
   tierRates: {
-    basic: 15,
-    silver: 12,
-    gold: 10,
-    platinum: 8,
-    diamond: 6,
-    enterprise: 4,
+    basic: COMMISSION.TIER.LEVEL_1.rate,
+    silver: COMMISSION.TIER.LEVEL_2.rate,
+    gold: COMMISSION.TIER.LEVEL_3.rate,
+    platinum: COMMISSION.TIER.LEVEL_4.rate,
+    diamond: COMMISSION.TIER.LEVEL_5.rate,
   },
-  minAmount: 1,
-  maxAmount: 1000,
-  calculation: 'product_price',
-};
+  minAmount: COMMISSION.DEFAULT.MIN_AMOUNT,
+  calculation: COMMISSION.BASIS.PRODUCT_PRICE,
+} as const;

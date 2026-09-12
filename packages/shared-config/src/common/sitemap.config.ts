@@ -1,7 +1,7 @@
 export const sitemapConfig = {
-  maxUrlsPerSitemap: 50000,
-  maxSitemapSize: 50 * 1024 * 1024, // 50 MB
-  updateFrequency: 'daily',
+  maxUrlsPerSitemap: 50_000,
+  maxSitemapSize: 50 * 1024 * 1024,
+  updateFrequency: 'daily' as const,
   priority: {
     home: 1.0,
     product: 0.8,
@@ -10,4 +10,4 @@ export const sitemapConfig = {
     page: 0.3,
   },
   excludePaths: ['/admin/*', '/auth/*', '/api/*'],
-};
+} as const;

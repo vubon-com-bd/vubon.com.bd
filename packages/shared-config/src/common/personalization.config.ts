@@ -1,8 +1,8 @@
 export const personalizationConfig = {
   enabled: true,
   minUserActions: 10,
-  model: 'deep_learning',
-  updateInterval: 12 * 60 * 60, // 12 hours
+  model: 'deep_learning' as const,
+  updateInterval: 12 * 60 * 60,
   factors: ['user_history', 'user_preferences', 'user_demographics', 'user_behavior', 'context'],
   weights: {
     user_history: 0.3,
@@ -11,4 +11,4 @@ export const personalizationConfig = {
     context: 0.15,
     demographics: 0.1,
   },
-};
+} as const;

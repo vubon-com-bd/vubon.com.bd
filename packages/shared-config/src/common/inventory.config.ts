@@ -4,6 +4,6 @@ export const inventoryConfig = {
   lowStockThreshold: 10,
   outOfStockThreshold: 0,
   maxStock: 1000,
-  reserveTimeout: 15 * 60, // 15 minutes
+  reserveTimeout: 15 * 60,
   autoRestock: false,
-};
+} as const;
