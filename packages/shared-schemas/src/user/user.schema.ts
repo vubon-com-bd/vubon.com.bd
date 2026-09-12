@@ -10,21 +10,28 @@ import { USER_TYPES } from '@vubon/shared-constants/src/user/user-type.constants
 import { USER_ROLES } from '@vubon/shared-constants/src/user/user-role.constants';
 import { USER_PERMISSIONS } from '@vubon/shared-constants/src/user/user-permission.constants';
 
-const userStatusKeys = Object.keys(USER_STATUS) as [string, ...string[]];
-const userTypeKeys = Object.keys(USER_TYPES) as [string, ...string[]];
-const userRoleKeys = Object.keys(USER_ROLES) as [string, ...string[]];
-const userPermissionKeys = Object.keys(USER_PERMISSIONS) as [string, ...string[]];
+// Object.values — we need enum VALUES ('active', 'admin'), not keys.
+const userStatusValues = Object.values(USER_STATUS) as [string, ...string[]];
+const userTypeValues = Object.values(USER_TYPES) as [string, ...string[]];
+const userRoleValues = Object.values(USER_ROLES) as [string, ...string[]];
+const userPermissionValues = Object.values(USER_PERMISSIONS) as [string, ...string[]];
 
+/**
+ * Internal User entity.
+ * ⚠️ Embeds AuthSchema (passwordHash) — do not serialize to clients.
+ * Use UserPublicSchema for API responses.
+ */
 export const UserSchema = BaseSchema.extend({
   userId: z.string().uuid(),
   email: EmailSchema.shape.email,
   phone: PhoneSchema.shape.phone.optional(),
   name: NameSchema,
   address: AddressSchema.optional(),
-  status: z.enum(userStatusKeys),
-  type: z.enum(userTypeKeys),
-  role: z.enum(userRoleKeys),
-  permissions: z.array(z.enum(userPermissionKeys)),
+  status: z.enum(userStatusValues),
+  type: z.enum(userTypeValues),
+  role: z.enum(userRoleValues),
+  permissions: z.array(z.enum(userPermissionValues)),
+  /** @internal */
   auth: AuthSchema,
   isVerified: z.boolean().default(false),
   isActive: z.boolean().default(true),
@@ -59,3 +66,11 @@ export const UserCreateSchema = UserSchema.omit({
 });
 
 export const UserUpdateSchema = UserCreateSchema.partial();
+
+/**
+ * Public-safe User DTO — no auth embed, no preferences.
+ */
+export const UserPublicSchema = UserSchema.omit({
+  auth: true,
+  metadata: true,
+});

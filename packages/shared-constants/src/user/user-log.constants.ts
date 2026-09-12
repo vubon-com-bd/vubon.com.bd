@@ -1,8 +1,14 @@
-import { TYPES as COMMON_TYPES } from '../common/types.constants';
+/**
+ * User Log Constants
+ * @module shared-constants/user/user-log
+ */
 
 export const USER_LOG = {
-  ...COMMON_TYPES,
   INFO: 'info',
   WARNING: 'warning',
   ERROR: 'error',
+  DEBUG: 'debug',
+  AUDIT: 'audit',
 } as const;
+
+export type UserLogType = (typeof USER_LOG)[keyof typeof USER_LOG];

@@ -1,12 +1,15 @@
 import { z } from 'zod';
-import { StatusSchema } from '../common/status.schema';
 import { AUTH_STATUS } from '@vubon/shared-constants/src/auth/auth-status.constants';
 
-const authStatusKeys = Object.keys(AUTH_STATUS) as [string, ...string[]];
+/**
+ * Auth status VALUES only.
+ * AUTH_STATUS is a flat object — Object.values gives 'active', 'locked', etc.
+ */
+const authStatusValues = Object.values(AUTH_STATUS) as [string, ...string[]];
 
-export const AuthStatusSchema = StatusSchema.extend({
-  status: z.enum(authStatusKeys),
+export const AuthStatusSchema = z.object({
+  status: z.enum(authStatusValues),
   category: z.literal('auth'),
 });
 
-export const AuthStatusEnumSchema = z.enum(authStatusKeys);
+export const AuthStatusEnumSchema = z.enum(authStatusValues);

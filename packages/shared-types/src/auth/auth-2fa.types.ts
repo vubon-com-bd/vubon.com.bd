@@ -1,21 +1,20 @@
-import { AuthMfa, AuthMfaPublic, MfaTypeValue } from './auth-mfa.types';
+import { AUTH_MFA } from '@vubon/shared-constants/src/auth/auth-mfa.constants';
+import { AuthMfa, AuthMfaPublic } from './auth-mfa.types';
 
 /**
- * 2FA specific methods
+ * 2FA specific methods — derived from AUTH_MFA (excluding BACKUP)
  */
-export type TwoFactorMethod = 'totp' | 'sms' | 'email';
+export type TwoFactorMethod = typeof AUTH_MFA.TOTP | typeof AUTH_MFA.SMS | typeof AUTH_MFA.EMAIL;
 
 /**
  * Auth 2FA interface (internal)
+ * Note: reuses backupCodeHashes from AuthMfa — no duplicate field.
  */
 export interface Auth2FA extends AuthMfa {
-  type: MfaTypeValue;
   method: TwoFactorMethod;
   phoneNumber?: string;
   emailAddress?: string;
   isPrimary: boolean;
-  /** Alias for backupCodeHashes in parent — kept for clarity */
-  recoveryCodeHashes: string[];
 }
 
 /**

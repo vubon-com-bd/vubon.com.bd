@@ -8,6 +8,8 @@ export type UserLogType = (typeof USER_LOG)[keyof typeof USER_LOG];
 
 /**
  * User log interface
+ * Note: createdAt (BaseEntity) records when the row was written;
+ * occurredAt records when the actual event happened.
  */
 export interface UserLog extends BaseEntity {
   logId: string;
@@ -17,5 +19,5 @@ export interface UserLog extends BaseEntity {
   data: Record<string, unknown>;
   ipAddress: string;
   userAgent: string;
-  // createdAt is inherited from BaseEntity
+  occurredAt: Date;
 }

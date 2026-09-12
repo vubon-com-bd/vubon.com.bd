@@ -1,14 +1,18 @@
 import { AuthPublic } from './auth.types';
-import { AuthSession } from './auth-session.types';
-import { AuthToken } from './auth-token.types';
+import { AuthSessionPublic } from './auth-session.types';
 
 /**
  * Auth response interface
+ *
+ * ⚠️ SECURITY: Uses AuthSessionPublic (no raw token) — never AuthSession.
+ * Tokens are delivered as top-level accessToken/refreshToken fields.
  */
 export interface AuthResponse {
   user: AuthPublic;
-  session: AuthSession;
-  token: AuthToken;
+  session: AuthSessionPublic;
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
 }
 
 /**
@@ -19,7 +23,7 @@ export interface LoginResponse {
   refreshToken: string;
   expiresIn: number;
   user: AuthPublic;
-  session: AuthSession;
+  session: AuthSessionPublic;
 }
 
 /**

@@ -1,3 +1,6 @@
+import { Country, DEFAULT_COUNTRY } from '@vubon/shared-constants/src/common/country.constants';
+import { Division } from '@vubon/shared-constants/src/common/divisions.constants';
+import { District } from '@vubon/shared-constants/src/common/districts.constants';
 import { BaseValueObject } from './base.types';
 
 /**
@@ -8,9 +11,9 @@ export interface AddressData {
   city: string;
   state?: string;
   postalCode: string;
-  country: string;
-  division?: string;
-  district?: string;
+  country: Country;
+  division?: Division;
+  district?: District;
   upazila?: string;
 }
 
@@ -47,4 +50,16 @@ export class Address implements BaseValueObject<AddressData> {
   toString(): string {
     return this.getFullAddress();
   }
+}
+
+/**
+ * Default address factory (uses DEFAULT_COUNTRY from shared-constants)
+ */
+export function createDefaultAddress(): AddressData {
+  return {
+    street: '',
+    city: '',
+    postalCode: '',
+    country: DEFAULT_COUNTRY,
+  };
 }

@@ -1,5 +1,5 @@
 import { UserSettings, NotificationPreferences } from '../user/user-settings.types';
-import { AdminPublic } from './admin.types';
+import { AdminSecurityLevel } from '@vubon/shared-constants/src/admin/admin-settings.constants';
 
 /**
  * Admin notification preferences interface
@@ -12,12 +12,15 @@ export interface AdminNotificationPreferences extends NotificationPreferences {
 
 /**
  * Admin settings interface
+ *
+ * Design notes:
+ * - Extends UserSettings (inherits theme, language, timezone, currency).
+ * - `adminId` only — no Admin summary embed.
  */
 export interface AdminSettings extends UserSettings {
   adminId: string;
-  admin: AdminPublic;
   dashboardLayout: string;
   defaultReport: string;
   adminNotifications: AdminNotificationPreferences;
-  securityLevel: 'high' | 'medium' | 'low';
+  securityLevel: AdminSecurityLevel;
 }

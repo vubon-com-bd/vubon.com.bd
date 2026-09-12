@@ -1,12 +1,15 @@
 import { BaseEntity } from '../common/base.types';
-import { STATUS } from '@vubon/shared-constants/src/common/status.constants';
+import { ADMIN_TEAM_STATUS } from '@vubon/shared-constants/src/admin/admin-status.constants';
 import { ADMIN_DEPARTMENT } from '@vubon/shared-constants/src/admin/admin-department.constants';
-import { AdminPublic } from './admin.types';
 
 /**
- * Admin team status and department values
+ * Admin team status — from ADMIN_TEAM_STATUS (flat enum, no nested objects).
  */
-export type AdminTeamStatus = (typeof STATUS)[keyof typeof STATUS];
+export type AdminTeamStatus = (typeof ADMIN_TEAM_STATUS)[keyof typeof ADMIN_TEAM_STATUS];
+
+/**
+ * Admin team department value
+ */
 export type AdminTeamDepartment = (typeof ADMIN_DEPARTMENT)[keyof typeof ADMIN_DEPARTMENT];
 
 /**
@@ -17,8 +20,7 @@ export interface AdminTeam extends BaseEntity {
   name: string;
   description: string;
   leadId: string;
-  lead: AdminPublic;
-  members: AdminPublic[];
+  memberIds: string[];
   status: AdminTeamStatus;
   department: AdminTeamDepartment;
 }

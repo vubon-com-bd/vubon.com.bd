@@ -1,8 +1,16 @@
-import { TYPES as COMMON_TYPES } from '../common/types.constants';
+/**
+ * User Preferences Constants
+ * @module shared-constants/user/user-preferences
+ */
 
 export const USER_PREFERENCES = {
-  ...COMMON_TYPES,
   EMAIL: 'email',
   SMS: 'sms',
   PUSH: 'push',
+  IN_APP: 'in_app',
+  NEWSLETTER: 'newsletter',
+  PROMOTIONS: 'promotions',
+  ORDER_UPDATES: 'order_updates',
 } as const;
+
+export type UserPreferenceType = (typeof USER_PREFERENCES)[keyof typeof USER_PREFERENCES];

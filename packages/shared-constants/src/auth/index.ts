@@ -15,3 +15,4 @@ export * from './auth-device.constants';
 export * from './auth-social.constants';
 export * from './auth-oauth.constants';
 export * from './auth-sso.constants';
+export * from './auth-biometric.constants';

@@ -1,15 +1,15 @@
+import { REGEX } from '@vubon/shared-constants/src/common/regex.constants';
 import { BaseValueObject } from './base.types';
-
-const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 /**
  * Email Value Object class
+ * Uses REGEX.EMAIL from shared-constants (single source of truth)
  */
 export class Email implements BaseValueObject<string> {
   constructor(public value: string) {}
 
   isValid(): boolean {
-    return EMAIL_REGEX.test(this.value);
+    return REGEX.EMAIL.test(this.value);
   }
 
   equals(other: Email): boolean {

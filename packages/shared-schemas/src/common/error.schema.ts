@@ -1,10 +1,13 @@
 import { z } from 'zod';
 import { ERROR_CODE } from '@vubon/shared-constants/src/common/error-code.constants';
 
-const errorKeys = Object.keys(ERROR_CODE) as [string, ...string[]];
+/**
+ * Error CODE VALUES (e.g. 'AUTH-001', 'VAL-005') — not KEYS.
+ */
+const errorCodeValues = Object.values(ERROR_CODE) as [string, ...string[]];
 
 export const ErrorSchema = z.object({
-  code: z.enum(errorKeys),
+  code: z.enum(errorCodeValues),
   message: z.string(),
   details: z.unknown().optional(),
   stack: z.string().optional(),

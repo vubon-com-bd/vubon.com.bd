@@ -7,7 +7,7 @@ import { USER_STATUS } from '@vubon/shared-constants/src/user/user-status.consta
 import { USER_TYPES } from '@vubon/shared-constants/src/user/user-type.constants';
 import { USER_ROLES } from '@vubon/shared-constants/src/user/user-role.constants';
 import { USER_PERMISSIONS } from '@vubon/shared-constants/src/user/user-permission.constants';
-import { Auth, AuthPublic } from '../auth/auth.types';
+import { AuthPublic } from '../auth/auth.types';
 
 /**
  * Social links interface
@@ -39,6 +39,9 @@ export type UserTypeValue = (typeof USER_TYPES)[keyof typeof USER_TYPES];
 
 /**
  * User interface (internal)
+ *
+ * Note: `authId` is a reference, not an embedded Auth entity.
+ * Prevents data duplication and cross-table sync issues.
  */
 export interface User extends Omit<BaseEntity, 'status'> {
   userId: string;
@@ -50,8 +53,8 @@ export interface User extends Omit<BaseEntity, 'status'> {
   type: UserTypeValue;
   role: (typeof USER_ROLES)[keyof typeof USER_ROLES];
   permissions: Array<(typeof USER_PERMISSIONS)[keyof typeof USER_PERMISSIONS]>;
-  /** @internal */
-  auth: Auth;
+  /** @internal — reference to Auth entity */
+  authId: string;
   isVerified: boolean;
   isActive: boolean;
   lastLoginAt?: Date;
@@ -61,8 +64,9 @@ export interface User extends Omit<BaseEntity, 'status'> {
 
 /**
  * Public-safe User DTO
+ * Note: authId replaced with AuthPublic summary when needed.
  */
-export type UserPublic = Omit<User, 'auth' | 'metadata'> & {
+export type UserPublic = Omit<User, 'authId' | 'metadata'> & {
   auth?: AuthPublic;
   metadata?: Omit<UserMetadata, 'preferences'>;
 };

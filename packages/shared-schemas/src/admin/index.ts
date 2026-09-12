@@ -14,3 +14,8 @@ export * from './admin-verification.schema';
 export * from './admin-settings.schema';
 export * from './admin-preferences.schema';
 export * from './admin-notification.schema';
+
+// Public-safe DTO schemas
+export { AdminPublicSchema } from './admin.schema';
+export { AdminSessionPublicSchema } from './admin-session.schema';
+export { AdminVerificationPublicSchema } from './admin-verification.schema';

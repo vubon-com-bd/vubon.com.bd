@@ -1,12 +1,7 @@
 import { STATUS } from '@vubon/shared-constants/src/common/status.constants';
 
 /**
- * Status type — derived from STATUS constant
- */
-export type Status = keyof typeof STATUS;
-
-/**
- * Status value type — actual string values
+ * Status value type — actual string values (e.g. 'active', 'pending')
  */
 export type StatusValue = (typeof STATUS)[keyof typeof STATUS];
 

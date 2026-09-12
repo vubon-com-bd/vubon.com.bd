@@ -34,3 +34,10 @@ export * from './admin-analytics.types';
 // Team & department
 export * from './admin-team.types';
 export * from './admin-department.types';
+
+// ============================================================
+// Public-safe DTOs (must come last for clarity)
+// ============================================================
+export type { AdminPublic } from './admin.types';
+export type { AdminSessionPublic } from './admin-session.types';
+export type { AdminVerificationPublic } from './admin-verification.types';

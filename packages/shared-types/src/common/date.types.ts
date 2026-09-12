@@ -1,3 +1,4 @@
+import { DATE_FORMAT } from '@vubon/shared-constants/src/common/date-format.constants';
 import { BaseValueObject } from './base.types';
 
 /**
@@ -27,20 +28,31 @@ export class DateVO implements BaseValueObject<Date> {
     return Math.floor(diffMs / (1000 * 60 * 60 * 24));
   }
 
-  format(_format?: string): string {
-    const date = this.value;
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
+  /**
+   * Formats the date using a DATE_FORMAT pattern.
+   * Supported tokens: YYYY, MM, DD, HH, mm, ss, hh, A
+   * Falls back to DATE_FORMAT.DEFAULT_DATETIME if format is missing.
+   */
+  format(format: string = DATE_FORMAT.DEFAULT_DATETIME): string {
+    const d = this.value;
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const hours12 = d.getHours() % 12 || 12;
 
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    return format
+      .replace(/YYYY/g, String(d.getFullYear()))
+      .replace(/MMMM/g, d.toLocaleString('en-US', { month: 'long' }))
+      .replace(/MMM/g, d.toLocaleString('en-US', { month: 'short' }))
+      .replace(/MM/g, pad(d.getMonth() + 1))
+      .replace(/DD/g, pad(d.getDate()))
+      .replace(/HH/g, pad(d.getHours()))
+      .replace(/hh/g, pad(hours12))
+      .replace(/mm/g, pad(d.getMinutes()))
+      .replace(/ss/g, pad(d.getSeconds()))
+      .replace(/A/g, d.getHours() >= 12 ? 'PM' : 'AM');
   }
 
   toString(): string {
-    return this.format();
+    return this.value.toISOString();
   }
 }
 

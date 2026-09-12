@@ -1,11 +1,11 @@
 import { z } from 'zod';
 import { AUTH_TYPES } from '@vubon/shared-constants/src/auth/auth-type.constants';
 
-const authTypeKeys = Object.keys(AUTH_TYPES) as [string, ...string[]];
+const authTypeValues = Object.values(AUTH_TYPES) as [string, ...string[]];
 
 export const AuthTypeSchema = z.object({
-  type: z.enum(authTypeKeys),
+  type: z.enum(authTypeValues),
   category: z.literal('auth'),
 });
 
-export const AuthTypeEnumSchema = z.enum(authTypeKeys);
+export const AuthTypeEnumSchema = z.enum(authTypeValues);

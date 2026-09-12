@@ -1,16 +1,23 @@
 import { z } from 'zod';
 import { BaseSchema } from '../common/base.schema';
-import { USER_SETTINGS } from '@vubon/shared-constants/src/user/user-settings.constants';
+import { LANGUAGE } from '@vubon/shared-constants/src/common/language.constants';
+import { TIMEZONE } from '@vubon/shared-constants/src/common/timezone.constants';
+import { CURRENCY } from '@vubon/shared-constants/src/common/currency.constants';
 
-const userSettingsKeys = Object.keys(USER_SETTINGS) as [string, ...string[]];
+const languageValues = Object.values(LANGUAGE) as [string, ...string[]];
+const timezoneValues = Object.values(TIMEZONE) as [string, ...string[]];
+const currencyValues = Object.values(CURRENCY).map((c) => c.code) as [string, ...string[]];
+
+/** Theme is a UI concept — no constant yet, kept as a literal union. */
+const themeValues = ['light', 'dark', 'system'] as [string, ...string[]];
 
 export const UserSettingsSchema = BaseSchema.extend({
   settingsId: z.string().uuid(),
   userId: z.string().uuid(),
-  theme: z.enum(userSettingsKeys),
-  language: z.string().min(2).max(5),
-  timezone: z.string(),
-  currency: z.string().min(3).max(3),
+  theme: z.enum(themeValues),
+  language: z.enum(languageValues),
+  timezone: z.enum(timezoneValues),
+  currency: z.enum(currencyValues),
   notifications: z.object({
     email: z.boolean().default(true),
     sms: z.boolean().default(true),

@@ -8,25 +8,28 @@ import { AUTH_PROVIDER } from '@vubon/shared-constants/src/auth/auth-provider.co
 import { AUTH_METHOD } from '@vubon/shared-constants/src/auth/auth-method.constants';
 import { ROLES } from '@vubon/shared-constants/src/common/roles.constants';
 import { PERMISSIONS } from '@vubon/shared-constants/src/common/permissions.constants';
+import { SECURITY } from '@vubon/shared-constants/src/common/security.constants';
+import { NAME } from '@vubon/shared-constants/src/common/name.constants';
 
-const authStatusKeys = Object.keys(AUTH_STATUS) as [string, ...string[]];
-const authTypeKeys = Object.keys(AUTH_TYPES) as [string, ...string[]];
-const authProviderKeys = Object.keys(AUTH_PROVIDER) as [string, ...string[]];
-const authMethodKeys = Object.keys(AUTH_METHOD) as [string, ...string[]];
-const roleKeys = Object.keys(ROLES) as [string, ...string[]];
-const permissionKeys = Object.keys(PERMISSIONS) as [string, ...string[]];
+// Use Object.values — we need enum VALUES (e.g. 'super_admin'), not keys.
+const authStatusValues = Object.values(AUTH_STATUS) as [string, ...string[]];
+const authTypeValues = Object.values(AUTH_TYPES) as [string, ...string[]];
+const authProviderValues = Object.values(AUTH_PROVIDER) as [string, ...string[]];
+const authMethodValues = Object.values(AUTH_METHOD) as [string, ...string[]];
+const roleValues = Object.values(ROLES) as [string, ...string[]];
+const permissionValues = Object.values(PERMISSIONS) as [string, ...string[]];
 
 export const AuthSchema = BaseSchema.extend({
   userId: z.string().uuid(),
   email: EmailSchema.shape.email,
   phone: PhoneSchema.shape.phone.optional(),
-  passwordHash: z.string().min(60).max(255),
-  status: z.enum(authStatusKeys),
-  type: z.enum(authTypeKeys),
-  provider: z.enum(authProviderKeys),
-  method: z.enum(authMethodKeys),
-  role: z.enum(roleKeys),
-  permissions: z.array(z.enum(permissionKeys)),
+  passwordHash: z.string().min(50).max(512),
+  status: z.enum(authStatusValues),
+  type: z.enum(authTypeValues),
+  provider: z.enum(authProviderValues),
+  method: z.enum(authMethodValues),
+  role: z.enum(roleValues),
+  permissions: z.array(z.enum(permissionValues)),
   isVerified: z.boolean().default(false),
   isActive: z.boolean().default(true),
   lastLoginAt: z.date().optional(),
@@ -34,6 +37,7 @@ export const AuthSchema = BaseSchema.extend({
   metadata: z
     .object({
       userAgent: z.string().optional(),
+      /** @internal filled by server from request, never trusted from client */
       ipAddress: z.string().optional(),
       deviceId: z.string().optional(),
       location: z.string().optional(),
@@ -53,7 +57,7 @@ export const AuthUpdateSchema = AuthCreateSchema.partial();
 
 export const LoginRequestSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8).max(32),
+  password: z.string().min(SECURITY.PASSWORD.MIN_LENGTH).max(SECURITY.PASSWORD.MAX_LENGTH),
   rememberMe: z.boolean().optional(),
   deviceInfo: z
     .object({
@@ -62,16 +66,16 @@ export const LoginRequestSchema = z.object({
       deviceType: z.string(),
       browser: z.string(),
       os: z.string(),
-      ipAddress: z.string(),
+      // ⚠️ Do NOT accept ipAddress from client — server fills it.
     })
     .optional(),
 });
 
 export const RegisterRequestSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8).max(32),
-  firstName: z.string().min(1).max(50),
-  lastName: z.string().min(1).max(50),
+  password: z.string().min(SECURITY.PASSWORD.MIN_LENGTH).max(SECURITY.PASSWORD.MAX_LENGTH),
+  firstName: z.string().min(NAME.MIN_LENGTH).max(NAME.FIRST_NAME_MAX),
+  lastName: z.string().min(NAME.MIN_LENGTH).max(NAME.LAST_NAME_MAX),
   phone: z.string().optional(),
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: 'You must accept the terms and conditions',

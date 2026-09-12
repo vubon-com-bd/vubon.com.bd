@@ -1,9 +1,16 @@
-import { TYPES as COMMON_TYPES } from '../common/types.constants';
+/**
+ * Auth Social Constants
+ * @module shared-constants/auth/auth-social
+ */
 
 export const AUTH_SOCIAL = {
-  ...COMMON_TYPES,
   GOOGLE: 'google',
   FACEBOOK: 'facebook',
   TWITTER: 'twitter',
   GITHUB: 'github',
+  LINKEDIN: 'linkedin',
+  APPLE: 'apple',
+  MICROSOFT: 'microsoft',
 } as const;
+
+export type AuthSocialProvider = (typeof AUTH_SOCIAL)[keyof typeof AUTH_SOCIAL];

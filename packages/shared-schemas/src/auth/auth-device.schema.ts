@@ -2,12 +2,12 @@ import { z } from 'zod';
 import { BaseSchema } from '../common/base.schema';
 import { AUTH_DEVICE } from '@vubon/shared-constants/src/auth/auth-device.constants';
 
-const authDeviceKeys = Object.keys(AUTH_DEVICE) as [string, ...string[]];
+const authDeviceValues = Object.values(AUTH_DEVICE) as [string, ...string[]];
 
 export const AuthDeviceSchema = BaseSchema.extend({
   deviceId: z.string().uuid(),
   userId: z.string().uuid(),
-  type: z.enum(authDeviceKeys),
+  type: z.enum(authDeviceValues),
   name: z.string().min(1).max(100),
   model: z.string().optional(),
   os: z.string(),

@@ -1,7 +1,7 @@
 import { BaseValueObject } from './base.types';
 
 /**
- * ID type
+ * ID type — prefer UUID for new entities.
  */
 export type ID = string | number;
 
@@ -12,11 +12,14 @@ export class IDVO implements BaseValueObject<ID> {
   constructor(public value: ID) {}
 
   isValid(): boolean {
-    return this.value !== undefined && this.value !== null && this.value !== '';
+    if (this.value === undefined || this.value === null) return false;
+    if (typeof this.value === 'string') return this.value.trim().length > 0;
+    if (typeof this.value === 'number') return Number.isFinite(this.value) && this.value >= 0;
+    return false;
   }
 
   equals(other: IDVO): boolean {
-    return this.value === other.value;
+    return String(this.value) === String(other.value);
   }
 
   toString(): string {

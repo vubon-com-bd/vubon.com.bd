@@ -1,14 +1,17 @@
+import { TIME_FORMAT } from '@vubon/shared-constants/src/common/time-format.constants';
 import { BaseValueObject } from './base.types';
+
+export interface TimeData {
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
 
 /**
  * Time Value Object class
  */
-export class TimeVO implements BaseValueObject<{
-  hours: number;
-  minutes: number;
-  seconds: number;
-}> {
-  constructor(public value: { hours: number; minutes: number; seconds: number }) {}
+export class TimeVO implements BaseValueObject<TimeData> {
+  constructor(public value: TimeData) {}
 
   isValid(): boolean {
     return (
@@ -29,55 +32,51 @@ export class TimeVO implements BaseValueObject<{
     );
   }
 
+  private toSeconds(): number {
+    return this.value.hours * 3600 + this.value.minutes * 60 + this.value.seconds;
+  }
+
   isBefore(other: TimeVO): boolean {
-    const thisSeconds = this.value.hours * 3600 + this.value.minutes * 60 + this.value.seconds;
-    const otherSeconds = other.value.hours * 3600 + other.value.minutes * 60 + other.value.seconds;
-    return thisSeconds < otherSeconds;
+    return this.toSeconds() < other.toSeconds();
   }
 
   isAfter(other: TimeVO): boolean {
-    const thisSeconds = this.value.hours * 3600 + this.value.minutes * 60 + this.value.seconds;
-    const otherSeconds = other.value.hours * 3600 + other.value.minutes * 60 + other.value.seconds;
-    return thisSeconds > otherSeconds;
+    return this.toSeconds() > other.toSeconds();
   }
 
   add(other: TimeVO): TimeVO {
-    let totalSeconds =
-      this.value.hours * 3600 +
-      this.value.minutes * 60 +
-      this.value.seconds +
-      other.value.hours * 3600 +
-      other.value.minutes * 60 +
-      other.value.seconds;
-
-    const hours = Math.floor(totalSeconds / 3600) % 24;
-    totalSeconds %= 3600;
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-
+    let total = (this.toSeconds() + other.toSeconds()) % 86400;
+    const hours = Math.floor(total / 3600);
+    total %= 3600;
+    const minutes = Math.floor(total / 60);
+    const seconds = total % 60;
     return new TimeVO({ hours, minutes, seconds });
   }
 
   subtract(other: TimeVO): TimeVO {
-    let thisSeconds = this.value.hours * 3600 + this.value.minutes * 60 + this.value.seconds;
-    const otherSeconds = other.value.hours * 3600 + other.value.minutes * 60 + other.value.seconds;
-    let diffSeconds = thisSeconds - otherSeconds;
-
-    if (diffSeconds < 0) diffSeconds += 24 * 3600;
-
-    const hours = Math.floor(diffSeconds / 3600);
-    diffSeconds %= 3600;
-    const minutes = Math.floor(diffSeconds / 60);
-    const seconds = diffSeconds % 60;
-
+    let diff = this.toSeconds() - other.toSeconds();
+    if (diff < 0) diff += 86400;
+    const hours = Math.floor(diff / 3600);
+    diff %= 3600;
+    const minutes = Math.floor(diff / 60);
+    const seconds = diff % 60;
     return new TimeVO({ hours, minutes, seconds });
   }
 
-  format(_format?: string): string {
-    const h = String(this.value.hours).padStart(2, '0');
-    const m = String(this.value.minutes).padStart(2, '0');
-    const s = String(this.value.seconds).padStart(2, '0');
-    return `${h}:${m}:${s}`;
+  /**
+   * Formats using a TIME_FORMAT pattern.
+   * Supported tokens: HH, hh, mm, ss, A
+   */
+  format(format: string = TIME_FORMAT.TWENTY_FOUR_HOUR_WITH_SECONDS): string {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const hours12 = this.value.hours % 12 || 12;
+
+    return format
+      .replace(/HH/g, pad(this.value.hours))
+      .replace(/hh/g, pad(hours12))
+      .replace(/mm/g, pad(this.value.minutes))
+      .replace(/ss/g, pad(this.value.seconds))
+      .replace(/A/g, this.value.hours >= 12 ? 'PM' : 'AM');
   }
 
   toString(): string {

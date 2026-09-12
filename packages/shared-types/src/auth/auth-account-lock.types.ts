@@ -1,9 +1,12 @@
 import { BaseEntity } from '../common/base.types';
+import { AUTH_STATUS } from '@vubon/shared-constants/src/auth/auth-status.constants';
 
 /**
- * Account lock status — explicit union
+ * Account lock status — derived from AUTH_STATUS where possible.
+ * Custom states: 'unlocked', 'expired' (not in AUTH_STATUS).
  */
-export type AccountLockStatus = 'active' | 'locked' | 'unlocked' | 'expired';
+export type AccountLockStatus =
+  typeof AUTH_STATUS.ACTIVE | typeof AUTH_STATUS.LOCKED | 'unlocked' | 'expired';
 
 /**
  * Auth account lock interface

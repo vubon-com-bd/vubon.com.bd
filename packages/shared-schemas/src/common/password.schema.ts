@@ -1,18 +1,36 @@
 import { z } from 'zod';
-import {
-  PASSWORD_MIN_LENGTH,
-  PASSWORD_MAX_LENGTH,
-} from '@vubon/shared-constants/src/common/validation.constants';
+import { SECURITY } from '@vubon/shared-constants/src/common/security.constants';
+
+/**
+ * Password schema — reads rules from SECURITY.PASSWORD (single source of truth).
+ */
+const {
+  MIN_LENGTH,
+  MAX_LENGTH,
+  REQUIRE_UPPERCASE,
+  REQUIRE_LOWERCASE,
+  REQUIRE_NUMBER,
+  REQUIRE_SPECIAL,
+} = SECURITY.PASSWORD;
 
 export const PasswordSchema = z.object({
   password: z
     .string()
-    .min(PASSWORD_MIN_LENGTH, `Password must be at least ${PASSWORD_MIN_LENGTH} characters`)
-    .max(PASSWORD_MAX_LENGTH, `Password must not exceed ${PASSWORD_MAX_LENGTH} characters`)
-    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .regex(/[0-9]/, 'Password must contain at least one number')
-    .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
+    .min(MIN_LENGTH, `Password must be at least ${MIN_LENGTH} characters`)
+    .max(MAX_LENGTH, `Password must not exceed ${MAX_LENGTH} characters`)
+    .refine(
+      (val) => !REQUIRE_UPPERCASE || /[A-Z]/.test(val),
+      'Password must contain an uppercase letter'
+    )
+    .refine(
+      (val) => !REQUIRE_LOWERCASE || /[a-z]/.test(val),
+      'Password must contain a lowercase letter'
+    )
+    .refine((val) => !REQUIRE_NUMBER || /[0-9]/.test(val), 'Password must contain a number')
+    .refine(
+      (val) => !REQUIRE_SPECIAL || /[^A-Za-z0-9]/.test(val),
+      'Password must contain a special character'
+    ),
 });
 
 export const PasswordConfirmSchema = PasswordSchema.extend({

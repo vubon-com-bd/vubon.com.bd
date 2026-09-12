@@ -14,3 +14,5 @@ export * from './admin-verification.constants';
 export * from './admin-settings.constants';
 export * from './admin-preferences.constants';
 export * from './admin-notification.constants';
+export * from './admin-analytics.constants';
+export * from './admin-report.constants';

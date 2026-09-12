@@ -1,10 +1,11 @@
 import { z } from 'zod';
-import { UserTypeSchema } from '../user/user-type.schema';
 import { ADMIN_TYPES } from '@vubon/shared-constants/src/admin/admin-type.constants';
 
-const adminTypeKeys = Object.keys(ADMIN_TYPES) as [string, ...string[]];
+const adminTypeValues = Object.values(ADMIN_TYPES) as [string, ...string[]];
 
-export const AdminTypeSchema = UserTypeSchema.extend({
-  type: z.enum(adminTypeKeys),
+export const AdminTypeSchema = z.object({
+  type: z.enum(adminTypeValues),
   category: z.literal('admin'),
 });
+
+export const AdminTypeEnumSchema = z.enum(adminTypeValues);

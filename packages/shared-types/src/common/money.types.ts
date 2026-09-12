@@ -1,23 +1,43 @@
+import {
+  CurrencyCode,
+  DEFAULT_CURRENCY,
+} from '@vubon/shared-constants/src/common/currency.constants';
 import { BaseValueObject } from './base.types';
+
+export interface MoneyData {
+  amount: number;
+  currency: CurrencyCode;
+}
 
 /**
  * Money Value Object class
  */
-export class Money implements BaseValueObject<{ amount: number; currency: string }> {
-  constructor(public value: { amount: number; currency: string }) {}
+export class Money implements BaseValueObject<MoneyData> {
+  constructor(public value: MoneyData = { amount: 0, currency: DEFAULT_CURRENCY }) {}
 
   isValid(): boolean {
-    return this.value.amount >= 0 && !!this.value.currency;
+    return (
+      typeof this.value.amount === 'number' &&
+      isFinite(this.value.amount) &&
+      this.value.amount >= 0 &&
+      !!this.value.currency
+    );
   }
 
   equals(other: Money): boolean {
     return this.value.amount === other.value.amount && this.value.currency === other.value.currency;
   }
 
-  add(other: Money): Money {
+  private assertSameCurrency(other: Money): void {
     if (this.value.currency !== other.value.currency) {
-      throw new Error('Cannot add money with different currencies');
+      throw new Error(
+        `Cannot operate on money with different currencies: ${this.value.currency} vs ${other.value.currency}`
+      );
     }
+  }
+
+  add(other: Money): Money {
+    this.assertSameCurrency(other);
     return new Money({
       amount: this.value.amount + other.value.amount,
       currency: this.value.currency,
@@ -25,27 +45,21 @@ export class Money implements BaseValueObject<{ amount: number; currency: string
   }
 
   subtract(other: Money): Money {
-    if (this.value.currency !== other.value.currency) {
-      throw new Error('Cannot subtract money with different currencies');
-    }
-    return new Money({
-      amount: this.value.amount - other.value.amount,
-      currency: this.value.currency,
-    });
+    this.assertSameCurrency(other);
+    const amount = this.value.amount - other.value.amount;
+    if (amount < 0) throw new Error('Money cannot be negative');
+    return new Money({ amount, currency: this.value.currency });
   }
 
   multiply(factor: number): Money {
-    return new Money({
-      amount: this.value.amount * factor,
-      currency: this.value.currency,
-    });
+    if (!isFinite(factor)) throw new Error('Factor must be a finite number');
+    return new Money({ amount: this.value.amount * factor, currency: this.value.currency });
   }
 
   divide(factor: number): Money {
-    return new Money({
-      amount: this.value.amount / factor,
-      currency: this.value.currency,
-    });
+    if (factor === 0) throw new Error('Cannot divide by zero');
+    if (!isFinite(factor)) throw new Error('Factor must be a finite number');
+    return new Money({ amount: this.value.amount / factor, currency: this.value.currency });
   }
 
   getFormattedAmount(): string {

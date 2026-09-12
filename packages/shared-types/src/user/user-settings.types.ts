@@ -1,8 +1,9 @@
 import { BaseEntity } from '../common/base.types';
 import { USER_SETTINGS } from '@vubon/shared-constants/src/user/user-settings.constants';
+import { USER_PROFILE } from '@vubon/shared-constants/src/user/user-profile.constants';
 import { LANGUAGE } from '@vubon/shared-constants/src/common/language.constants';
 import { TIMEZONE } from '@vubon/shared-constants/src/common/timezone.constants';
-import { CURRENCY } from '@vubon/shared-constants/src/common/currency.constants';
+import { CurrencyCode } from '@vubon/shared-constants/src/common/currency.constants';
 
 /**
  * Notification preferences — moved to user scope (was in auth)
@@ -16,9 +17,10 @@ export interface NotificationPreferences {
 
 /**
  * Privacy settings interface
+ * profileVisibility now uses USER_PROFILE values (public/private/friends).
  */
 export interface PrivacySettings {
-  profileVisibility: string;
+  profileVisibility: (typeof USER_PROFILE)[keyof typeof USER_PROFILE];
   emailVisibility: boolean;
   phoneVisibility: boolean;
   addressVisibility: boolean;
@@ -27,10 +29,11 @@ export interface PrivacySettings {
 /**
  * Value types
  */
-export type UserSettingsKey = (typeof USER_SETTINGS)[keyof typeof USER_SETTINGS];
+export type UserSettingType = (typeof USER_SETTINGS)[keyof typeof USER_SETTINGS];
+export type UserSettingKey = keyof typeof USER_SETTINGS;
 export type LanguageValue = (typeof LANGUAGE)[keyof typeof LANGUAGE];
 export type TimezoneValue = (typeof TIMEZONE)[keyof typeof TIMEZONE];
-export type CurrencyValue = keyof typeof CURRENCY;
+export type CurrencyValue = CurrencyCode;
 
 /**
  * User settings interface

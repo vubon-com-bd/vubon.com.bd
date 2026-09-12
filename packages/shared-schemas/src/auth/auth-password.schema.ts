@@ -2,12 +2,11 @@ import { z } from 'zod';
 import { PasswordSchema, PasswordConfirmSchema } from '../common/password.schema';
 
 export const AuthPasswordSchema = PasswordSchema;
-
 export const AuthPasswordConfirmSchema = PasswordConfirmSchema;
 
 export const AuthPasswordResetSchema = z
   .object({
-    token: z.string(),
+    token: z.string().min(20),
     newPassword: PasswordSchema.shape.password,
     confirmPassword: z.string(),
   })

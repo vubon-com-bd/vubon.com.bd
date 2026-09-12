@@ -1,12 +1,11 @@
 import { z } from 'zod';
-import { StatusSchema } from '../common/status.schema';
 import { USER_STATUS } from '@vubon/shared-constants/src/user/user-status.constants';
 
-const userStatusKeys = Object.keys(USER_STATUS) as [string, ...string[]];
+const userStatusValues = Object.values(USER_STATUS) as [string, ...string[]];
 
-export const UserStatusSchema = StatusSchema.extend({
-  status: z.enum(userStatusKeys),
+export const UserStatusSchema = z.object({
+  status: z.enum(userStatusValues),
   category: z.literal('user'),
 });
 
-export const UserStatusEnumSchema = z.enum(userStatusKeys);
+export const UserStatusEnumSchema = z.enum(userStatusValues);
