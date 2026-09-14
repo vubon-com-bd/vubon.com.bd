@@ -1,19 +1,45 @@
 /**
- * Sanitize HTML by allowing only a small safe subset
+ * Sanitize HTML by escaping ALL HTML special characters.
  * @module shared-utils/security/sanitize
  *
- * ⚠️ If you need untrusted rich HTML, use a dedicated library (DOMPurify on client).
- * This helper is intentionally conservative.
+ * Strategy: full escape (no regex-based tag stripping — those are unsafe).
+ * Every '<', '>', '&', '"', "'" is encoded to its HTML entity.
+ *
+ * ⚠️ If you need to ALLOW a subset of HTML, use a dedicated library
+ * like DOMPurify (client) or sanitize-html (server).
+ *
+ * @example
+ * sanitizeHtml('<script>alert(1)</script>')
+ * // '&lt;script&gt;alert(1)&lt;/script&gt;'
  */
-import { escapeHtml } from '../../common/string/escape-html';
-
 export function sanitizeHtml(input: string): string {
   if (!input) return '';
-  // Step 1: remove full script blocks
-  const withoutScripts = input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-  // Step 2: remove event handlers (onclick=, etc.)
-  const withoutHandlers = withoutScripts.replace(/\son\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
-  // Step 3: strip all remaining tags, then escape
-  const stripped = withoutHandlers.replace(/<[^>]*>/g, '');
-  return escapeHtml(stripped);
+
+  let output = '';
+  for (let i = 0; i < input.length; i++) {
+    const ch = input.charCodeAt(i);
+    switch (ch) {
+      case 38 /* & */:
+        output += '&amp;';
+        break;
+      case 60 /* < */:
+        output += '&lt;';
+        break;
+      case 62 /* > */:
+        output += '&gt;';
+        break;
+      case 34 /* " */:
+        output += '&quot;';
+        break;
+      case 39 /* ' */:
+        output += '&#39;';
+        break;
+      case 47 /* / */:
+        output += '&#x2F;';
+        break;
+      default:
+        output += input[i];
+    }
+  }
+  return output;
 }

@@ -10,10 +10,13 @@ export function buildUrl(
   base: string,
   path = '',
   query?: Readonly<
-    Record<string, string | number | boolean | null | undefined | readonly (string | number)[]>
-  >
+    Record<
+      string,
+      string | number | boolean | null | undefined | readonly (string | number)[]
+    >
+  >,
 ): string {
-  const normalizedBase = base.replace(/\/+$/, '');
+  const normalizedBase = stripTrailingSlashes(base);
   const normalizedPath = path.startsWith('/') ? path : path ? `/${path}` : '';
   const url = `${normalizedBase}${normalizedPath}`;
 
@@ -31,4 +34,15 @@ export function buildUrl(
 
   const qs = params.toString();
   return qs ? `${url}?${qs}` : url;
+}
+
+/**
+ * Strip trailing slashes without regex (ReDoS-safe)
+ */
+function stripTrailingSlashes(value: string): string {
+  let end = value.length;
+  while (end > 0 && value.charCodeAt(end - 1) === 47 /* '/' */) {
+    end--;
+  }
+  return value.slice(0, end);
 }
