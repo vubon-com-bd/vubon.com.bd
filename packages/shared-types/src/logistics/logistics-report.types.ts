@@ -1,35 +1,46 @@
-import { BaseEntity } from '../common/base.types';
-import { LOGISTICS_REPORT } from '@vubon/shared-constants/src/logistics/logistics-report.constants';
-import { Logistics } from './logistics.types';
-import { LogisticsAnalytics } from './logistics-analytics.types';
+/**
+ * Logistics Report Types
+ * @module shared-types/logistics
+ */
 
-export interface LogisticsReportSummary {
-  totalShipments: number;
-  totalDeliveries: number;
-  onTimeDelivery: number;
-  averageDeliveryTime: number;
-  totalCost: number;
-  courierPerformance: Record<string, number>;
-  zonePerformance: Record<string, number>;
+import type { LogisticsAnalyticsPeriodValue } from './logistics-analytics.types';
+
+export type LogisticsReportTypeValue =
+  | 'shipments'
+  | 'deliveries'
+  | 'couriers'
+  | 'warehouses'
+  | 'drivers'
+  | 'vehicles'
+  | 'routes'
+  | 'performance'
+  | 'costs'
+  | 'custom';
+
+export type LogisticsReportFormatValue = 'pdf' | 'csv' | 'xlsx' | 'json';
+
+export type LogisticsReportScheduleValue =
+  'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'on_demand';
+
+export interface LogisticsReport {
+  readonly id: string;
+  readonly type: LogisticsReportTypeValue;
+  readonly format: LogisticsReportFormatValue;
+  readonly schedule?: LogisticsReportScheduleValue;
+  readonly period: LogisticsAnalyticsPeriodValue;
+  readonly periodStart: string;
+  readonly periodEnd: string;
+  readonly fileUrl?: string;
+  readonly fileSize?: number;
+  readonly generatedAt: string;
+  readonly expiresAt?: string;
+  readonly generatedBy?: string;
 }
 
-export interface LogisticsReportInsight {
-  type: string;
-  title: string;
-  description: string;
-  severity: 'info' | 'warning' | 'success' | 'error';
-}
-
-export interface LogisticsReport extends BaseEntity {
-  reportId: string;
-  logisticsId: string;
-  logistics: Logistics;
-  type: keyof typeof LOGISTICS_REPORT.TYPES | string;
-  format: keyof typeof LOGISTICS_REPORT.REPORT_FORMATS | string;
-  analytics: LogisticsAnalytics[];
-  summary: LogisticsReportSummary;
-  insights: LogisticsReportInsight[];
-  recommendations: string[];
-  generatedAt: Date;
-  metadata: Record<string, unknown>;
+export interface LogisticsReportRequest {
+  readonly type: LogisticsReportTypeValue;
+  readonly format: LogisticsReportFormatValue;
+  readonly periodStart: string;
+  readonly periodEnd: string;
+  readonly filters?: Readonly<Record<string, unknown>>;
 }

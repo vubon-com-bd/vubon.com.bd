@@ -1,76 +1,57 @@
-import { PERMISSIONS as COMMON_PERMISSIONS } from '../common/permissions.constants';
-import { ADMIN_PERMISSIONS } from '../admin/admin-permission.constants';
-import { VENDOR_PERMISSION } from '../business/vendor/vendor-permission.constants';
-
+// Note: Cannot import from higher layer (layer isolation) — hardcode + comment
 export const MARKETING_PERMISSION = {
-  ...COMMON_PERMISSIONS,
-  ...ADMIN_PERMISSIONS,
-  ...VENDOR_PERMISSION,
+  CAMPAIGN_VIEW: 'marketing:campaign:view',
+  CAMPAIGN_CREATE: 'marketing:campaign:create',
+  CAMPAIGN_UPDATE: 'marketing:campaign:update',
+  CAMPAIGN_DELETE: 'marketing:campaign:delete',
+  CAMPAIGN_LAUNCH: 'marketing:campaign:launch',
+  CAMPAIGN_PAUSE: 'marketing:campaign:pause',
 
-  // Campaign Management
-  CAMPAIGN_VIEW: 'campaign:view',
-  CAMPAIGN_CREATE: 'campaign:create',
-  CAMPAIGN_UPDATE: 'campaign:update',
-  CAMPAIGN_DELETE: 'campaign:delete',
-  CAMPAIGN_LAUNCH: 'campaign:launch',
-  CAMPAIGN_PAUSE: 'campaign:pause',
-  CAMPAIGN_MANAGE: 'campaign:manage',
+  PROMOTION_VIEW: 'marketing:promotion:view',
+  PROMOTION_CREATE: 'marketing:promotion:create',
+  PROMOTION_UPDATE: 'marketing:promotion:update',
+  PROMOTION_DELETE: 'marketing:promotion:delete',
 
-  // Promotion Management
-  PROMOTION_VIEW: 'promotion:view',
-  PROMOTION_CREATE: 'promotion:create',
-  PROMOTION_UPDATE: 'promotion:update',
-  PROMOTION_DELETE: 'promotion:delete',
-  PROMOTION_APPLY: 'promotion:apply',
+  AFFILIATE_VIEW: 'marketing:affiliate:view',
+  AFFILIATE_MANAGE: 'marketing:affiliate:manage',
+  AFFILIATE_APPROVE: 'marketing:affiliate:approve',
+  AFFILIATE_PAYOUT: 'marketing:affiliate:payout',
 
-  // Affiliate Management
-  AFFILIATE_VIEW: 'affiliate:view',
-  AFFILIATE_CREATE: 'affiliate:create',
-  AFFILIATE_UPDATE: 'affiliate:update',
-  AFFILIATE_DELETE: 'affiliate:delete',
-  AFFILIATE_APPROVE: 'affiliate:approve',
-  AFFILIATE_COMMISSION: 'affiliate:commission',
+  REFERRAL_VIEW: 'marketing:referral:view',
+  REFERRAL_MANAGE: 'marketing:referral:manage',
 
-  // Referral Management
-  REFERRAL_VIEW: 'referral:view',
-  REFERRAL_CREATE: 'referral:create',
-  REFERRAL_UPDATE: 'referral:update',
-  REFERRAL_DELETE: 'referral:delete',
+  LOYALTY_VIEW: 'marketing:loyalty:view',
+  LOYALTY_MANAGE: 'marketing:loyalty:manage',
+  LOYALTY_POINTS_ADJUST: 'marketing:loyalty:points:adjust',
 
-  // Loyalty Management
-  LOYALTY_VIEW: 'loyalty:view',
-  LOYALTY_CREATE: 'loyalty:create',
-  LOYALTY_UPDATE: 'loyalty:update',
-  LOYALTY_DELETE: 'loyalty:delete',
-  LOYALTY_MANAGE: 'loyalty:manage',
+  EMAIL_VIEW: 'marketing:email:view',
+  EMAIL_MANAGE: 'marketing:email:manage',
+  EMAIL_SEND: 'marketing:email:send',
 
-  // Email Marketing
-  EMAIL_VIEW: 'email:view',
-  EMAIL_CREATE: 'email:create',
-  EMAIL_UPDATE: 'email:update',
-  EMAIL_DELETE: 'email:delete',
-  EMAIL_SEND: 'email:send',
+  SMS_VIEW: 'marketing:sms:view',
+  SMS_MANAGE: 'marketing:sms:manage',
+  SMS_SEND: 'marketing:sms:send',
 
-  // SMS Marketing
-  SMS_VIEW: 'sms:view',
-  SMS_CREATE: 'sms:create',
-  SMS_UPDATE: 'sms:update',
-  SMS_DELETE: 'sms:delete',
-  SMS_SEND: 'sms:send',
+  SOCIAL_VIEW: 'marketing:social:view',
+  SOCIAL_MANAGE: 'marketing:social:manage',
+  SOCIAL_PUBLISH: 'marketing:social:publish',
 
-  // Lead Management
-  LEAD_VIEW: 'lead:view',
-  LEAD_CREATE: 'lead:create',
-  LEAD_UPDATE: 'lead:update',
-  LEAD_DELETE: 'lead:delete',
-  LEAD_CONVERT: 'lead:convert',
-  LEAD_QUALIFY: 'lead:qualify',
+  LEAD_VIEW: 'marketing:lead:view',
+  LEAD_MANAGE: 'marketing:lead:manage',
+  LEAD_EXPORT: 'marketing:lead:export',
 
-  // Marketing Analytics
-  MARKETING_ANALYTICS_VIEW: 'marketing_analytics:view',
-  MARKETING_REPORT_VIEW: 'marketing_report:view',
+  ANALYTICS_VIEW: 'marketing:analytics:view',
+  ANALYTICS_EXPORT: 'marketing:analytics:export',
 
-  // Marketing Automation
-  MARKETING_AUTOMATION_VIEW: 'marketing_automation:view',
-  MARKETING_AUTOMATION_CONFIGURE: 'marketing_automation:configure',
+  REPORT_VIEW: 'marketing:report:view',
+  REPORT_EXPORT: 'marketing:report:export',
+
+  AUTOMATION_VIEW: 'marketing:automation:view',
+  AUTOMATION_MANAGE: 'marketing:automation:manage',
+
+  ADMIN_VIEW: 'admin:view',
+  ADMIN_MANAGE: 'admin:manage',
 } as const;
+
+export type MarketingPermissionType =
+  (typeof MARKETING_PERMISSION)[keyof typeof MARKETING_PERMISSION];

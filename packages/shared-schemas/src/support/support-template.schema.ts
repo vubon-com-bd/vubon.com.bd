@@ -1,25 +1,58 @@
+/**
+ * Support Template Schema
+ * @module shared-schemas/support
+ *
+ * ⚠️ Note: TemplateVariable → SupportTemplateVariable, কারণ notification/-এর সাথে conflict এড়াতে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { SUPPORT_TEMPLATE } from '@vubon/shared-constants/src/support/support-template.constants';
+import { BaseEntitySchema } from '../common/base/base-entity.schema';
 
-const supportTemplateStatusKeys = Object.keys(SUPPORT_TEMPLATE.STATUS) as [string, ...string[]];
-const supportTemplateTypeKeys = Object.keys(SUPPORT_TEMPLATE.TYPES) as [string, ...string[]];
-const supportTemplateFormatKeys = Object.keys(SUPPORT_TEMPLATE.TEMPLATE_FORMATS) as [
-  string,
-  ...string[],
-];
+export const SupportTemplateTypeSchema = z.enum([
+  'email',
+  'sms',
+  'push',
+  'in_app',
+  'auto_reply',
+  'signature',
+  'macro',
+]);
 
-export const SupportTemplateSchema = BaseSchema.extend({
-  templateId: z.string().uuid(),
-  name: z.string().min(1).max(100),
-  description: z.string().optional(),
-  status: z.enum(supportTemplateStatusKeys),
-  type: z.enum(supportTemplateTypeKeys),
-  format: z.enum(supportTemplateFormatKeys),
-  subject: z.string().min(1).max(200),
-  content: z.string().min(1).max(5000),
-  variables: z.array(z.string()),
-  isActive: z.boolean().default(true),
-  isDefault: z.boolean().default(false),
-  metadata: z.record(z.unknown()).optional(),
+export const SupportTemplateStatusSchema = z.enum(['draft', 'active', 'inactive', 'archived']);
+
+export const SupportTemplateVariableSchema = z.object({
+  name: z.string().min(1).max(50),
+  type: z.enum(['string', 'number', 'boolean', 'date']),
+  required: z.boolean(),
+  defaultValue: z.string().max(500).optional(),
+  description: z.string().max(500).optional(),
 });
+
+export const SupportTemplateSchema = BaseEntitySchema.extend({
+  name: z.string().min(1).max(150),
+  slug: z.string().min(1).max(150),
+  type: SupportTemplateTypeSchema,
+  status: SupportTemplateStatusSchema,
+  locale: z.string().min(2).max(10),
+  subject: z.string().max(200).optional(),
+  body: z.string().min(1).max(500000),
+  variables: z.array(SupportTemplateVariableSchema).max(50),
+  version: z.number().int().positive(),
+  createdBy: z.string().min(1),
+  updatedBy: z.string().optional(),
+});
+
+export const SupportTemplatePublicSchema = SupportTemplateSchema.pick({
+  id: true,
+  name: true,
+  slug: true,
+  type: true,
+  status: true,
+  locale: true,
+  version: true,
+});
+
+export type SupportTemplateTypeSchemaType = z.infer<typeof SupportTemplateTypeSchema>;
+export type SupportTemplateStatusSchemaType = z.infer<typeof SupportTemplateStatusSchema>;
+export type SupportTemplateSchemaType = z.infer<typeof SupportTemplateSchema>;
+export type SupportTemplatePublicSchemaType = z.infer<typeof SupportTemplatePublicSchema>;

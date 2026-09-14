@@ -1,17 +1,26 @@
-import { BaseEntity } from '../../common/base.types';
-import { User } from '../../user/user.types';
-import { Product } from '../../business/product/product.types';
-import { RECENTLY_VIEWED } from '@vubon/shared-constants/src/platform/discovery/recently-viewed.constants';
+/**
+ * Recently Viewed Types
+ * @module shared-types/platform/discovery
+ */
 
-export interface RecentlyViewed extends BaseEntity {
-  viewedId: string;
-  userId: string;
-  user: User;
-  productId: string;
-  product: Product;
-  type: keyof typeof RECENTLY_VIEWED.TYPES | string;
-  viewedAt: Date;
-  duration: number;
-  isActive: boolean;
-  metadata: Record<string, unknown>;
+import type { RECENTLY_VIEWED_TYPE } from '@vubon/shared-constants/platform';
+import type { UserId } from '../../common/primitives';
+
+export type RecentlyViewedTypeValue =
+  (typeof RECENTLY_VIEWED_TYPE)[keyof typeof RECENTLY_VIEWED_TYPE];
+
+export interface RecentlyViewedItem {
+  readonly id: string;
+  readonly userId?: UserId;
+  readonly sessionId?: string;
+  readonly type: RecentlyViewedTypeValue;
+  readonly referenceId: string;
+  readonly viewedAt: string;
+  readonly viewCount: number;
+}
+
+export interface RecentlyViewedList {
+  readonly type: RecentlyViewedTypeValue;
+  readonly items: readonly RecentlyViewedItem[];
+  readonly total: number;
 }

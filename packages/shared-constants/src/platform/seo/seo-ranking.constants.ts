@@ -1,33 +1,23 @@
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
-import { SEO_KEYWORD } from './seo-keyword.constants';
-import { SEO_SCORE } from './seo-score.constants';
+export const SEO_RANKING_TYPE = {
+  ORGANIC: 'organic',
+  PAID: 'paid',
+  LOCAL: 'local',
+  FEATURED_SNIPPET: 'featured_snippet',
+  KNOWLEDGE_PANEL: 'knowledge_panel',
+  IMAGE: 'image',
+  VIDEO: 'video',
+} as const;
 
 export const SEO_RANKING = {
-  TYPES: {
-    ...COMMON_TYPES,
-    ...SEO_KEYWORD.TYPES,
-    ORGANIC: 'organic',
-    LOCAL: 'local',
-    MAP: 'map',
-    VIDEO: 'video',
-    IMAGE: 'image',
-    NEWS: 'news',
-  },
-  SEO_KEYWORD: { ...SEO_KEYWORD },
-  SEO_SCORE: { ...SEO_SCORE },
-  RANKING_POSITIONS: {
-    TOP_3: 3,
-    TOP_10: 10,
-    TOP_20: 20,
-    TOP_50: 50,
-    TOP_100: 100,
-  },
-  RANKING_IMPROVEMENT: {
-    EXCELLENT: 10,
-    GOOD: 5,
-    AVERAGE: 2,
-    POOR: 0,
-  },
-  MAX_RANKING_KEYWORDS: 100,
-  RANKING_CHECK_FREQUENCY_DAYS: 7,
+  TOP_POSITION: 1,
+  PAGE_1_MAX: 10,
+  PAGE_2_MAX: 20,
+  PAGE_3_MAX: 30,
+  TRACK_DAILY: true,
+  TRACK_LOCATION: true,
+  TRACK_DEVICE: true,
+  RETENTION_DAYS: 365,
+  MAX_TRACKED_KEYWORDS: 1000,
 } as const;
+
+export type SeoRankingTypeType = (typeof SEO_RANKING_TYPE)[keyof typeof SEO_RANKING_TYPE];

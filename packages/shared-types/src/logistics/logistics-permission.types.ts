@@ -1,11 +1,17 @@
-import { PermissionObject } from '../common/permission.types';
-import { LOGISTICS_PERMISSION } from '@vubon/shared-constants/src/logistics/logistics-permission.constants';
+/**
+ * Logistics Permission Value Types
+ * @module shared-types/logistics
+ */
 
-export interface LogisticsPermission extends PermissionObject {
-  type: keyof typeof LOGISTICS_PERMISSION | string;
-  category: 'logistics';
-  module: string;
-  action: 'create' | 'read' | 'update' | 'delete' | 'manage';
+import type { LOGISTICS_PERMISSION } from '@vubon/shared-constants/logistics';
+
+export type LogisticsPermissionValue =
+  (typeof LOGISTICS_PERMISSION)[keyof typeof LOGISTICS_PERMISSION];
+
+export interface LogisticsPermissionGrant {
+  readonly userId: string;
+  readonly permission: LogisticsPermissionValue;
+  readonly grantedBy: string;
+  readonly grantedAt: string;
+  readonly expiresAt?: string;
 }
-
-export type LogisticsPermissionKey = keyof typeof LOGISTICS_PERMISSION;

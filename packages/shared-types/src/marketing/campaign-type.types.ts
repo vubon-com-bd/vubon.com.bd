@@ -1,27 +1,17 @@
-import { TypeObject } from '../common/types.types';
-import { CAMPAIGN_TYPE } from '@vubon/shared-constants/src/marketing/campaign-type.constants';
+/**
+ * Campaign Type Value Types
+ * @module shared-types/marketing
+ *
+ * Values আসে shared-constants/marketing/campaign.constants থেকে।
+ */
 
-export interface CampaignType extends TypeObject {
-  type: keyof typeof CAMPAIGN_TYPE.TYPES | string;
-  category: keyof typeof CAMPAIGN_TYPE.CAMPAIGN_CATEGORIES | string;
-  isSeasonal: boolean;
-  isHoliday: boolean;
-  isProductLaunch: boolean;
-  isBrandAwareness: boolean;
-  isRetargeting: boolean;
-  isAcquisition: boolean;
-  isRetention: boolean;
-  isReferral: boolean;
-  isLoyalty: boolean;
-  isFlashSale: boolean;
-  isClearance: boolean;
-  isSocialMedia: boolean;
-  isEmail: boolean;
-  isSms: boolean;
-  isInfluencer: boolean;
-  isContent: boolean;
-  isEvent: boolean;
-  isCustom: boolean;
+import type { CAMPAIGN_TYPE } from '@vubon/shared-constants/marketing';
+
+export type CampaignTypeValue = (typeof CAMPAIGN_TYPE)[keyof typeof CAMPAIGN_TYPE];
+
+export interface CampaignTypeMetadata {
+  readonly value: CampaignTypeValue;
+  readonly label: string;
+  readonly isDigital: boolean;
+  readonly isPaid: boolean;
 }
-
-export type CampaignTypeKey = keyof typeof CAMPAIGN_TYPE.TYPES;

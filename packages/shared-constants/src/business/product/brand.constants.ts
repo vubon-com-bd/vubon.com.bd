@@ -1,15 +1,19 @@
-import { STATUS as COMMON_STATUS } from '../../common/status.constants';
-import { USER_PERMISSIONS } from '../../user/user-permission.constants';
+export const BRAND_STATUS = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+  PENDING: 'pending',
+  REJECTED: 'rejected',
+  DELETED: 'deleted',
+} as const;
 
 export const BRAND = {
-  STATUS: {
-    ...COMMON_STATUS,
-    ACTIVE: 'active',
-    INACTIVE: 'inactive',
-    PENDING: 'pending',
-  },
-  PERMISSIONS: {
-    ...USER_PERMISSIONS,
-    MANAGE_BRAND: 'brand:manage',
-  },
+  NAME_MIN_LENGTH: 2,
+  NAME_MAX_LENGTH: 100,
+  SLUG_MAX_LENGTH: 120,
+  DESCRIPTION_MAX_LENGTH: 2000,
+  LOGO_MAX_SIZE_MB: 5,
+  BANNER_MAX_SIZE_MB: 10,
+  WEBSITE_MAX_LENGTH: 255,
 } as const;
+
+export type BrandStatusType = (typeof BRAND_STATUS)[keyof typeof BRAND_STATUS];

@@ -1,56 +1,63 @@
+/**
+ * Return Shipment Schema
+ * @module shared-schemas/logistics
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { MoneySchema } from '../common/money.schema';
-import { OrderSchema } from '../business/checkout/order.schema';
-import { ShipmentSchema } from './shipment.schema';
-import { CourierSchema } from './courier.schema';
-import { ReturnReasonSchema } from './return-reason.schema';
-import { RETURN_SHIPMENT } from '@vubon/shared-constants/src/logistics/return-shipment.constants';
+import { BaseEntitySchema } from '../common/base/base-entity.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema';
+import { AddressSchema } from '../common/geo/address.schema';
+import {
+  ReturnShipmentStatusSchema,
+  ReturnShipmentTypeSchema,
+  ReturnReasonSchema,
+} from './return-reason.schema';
 
-const returnShipmentStatusKeys = Object.keys(RETURN_SHIPMENT.STATUS) as [string, ...string[]];
-const returnShipmentTypeKeys = Object.keys(RETURN_SHIPMENT.RETURN_SHIPMENT_TYPES) as [
-  string,
-  ...string[],
-];
-const returnShippingCostKeys = Object.keys(RETURN_SHIPMENT.RETURN_SHIPPING_COST) as [
-  string,
-  ...string[],
-];
-
-export const ReturnShipmentSchema: z.ZodObject<z.ZodRawShape> = BaseSchema.extend({
-  returnShipmentId: z.string().uuid(),
-  orderId: z.string().uuid(),
-  order: OrderSchema,
-  originalShipmentId: z.string().uuid(),
-  originalShipment: ShipmentSchema,
-  status: z.enum(returnShipmentStatusKeys),
-  type: z.enum(returnShipmentTypeKeys),
+export const ReturnShipmentSchema = BaseEntitySchema.extend({
+  rmaNumber: z.string().min(1).max(50),
+  orderId: UuidSchema,
+  originalShipmentId: UuidSchema.optional(),
+  userId: UuidSchema,
+  status: ReturnShipmentStatusSchema,
+  type: ReturnShipmentTypeSchema,
   reason: ReturnReasonSchema,
-  items: z.array(
-    z.object({
-      itemId: z.string().uuid(),
-      productId: z.string().uuid(),
-      productName: z.string(),
-      quantity: z.number().int().min(1),
-      reason: z.string(),
-      condition: z.string(),
-      refundAmount: MoneySchema,
-    })
-  ),
-  totalItems: z.number().int().min(0).default(0),
-  totalWeight: z.number().min(0).default(0),
-  returnCost: MoneySchema,
-  shippingCost: z.enum(returnShippingCostKeys),
-  courier: CourierSchema,
-  trackingNumber: z.string(),
-  requestedAt: z.date(),
-  approvedAt: z.date().optional(),
-  pickedUpAt: z.date().optional(),
-  receivedAt: z.date().optional(),
-  inspectedAt: z.date().optional(),
-  completedAt: z.date().optional(),
-  isCompleted: z.boolean().default(false),
-  metadata: z.record(z.unknown()).optional(),
+  description: z.string().max(5000).optional(),
+  images: z.array(z.string().url()).max(10).optional(),
+  itemIds: z.array(UuidSchema).min(1).max(100),
+  pickupAddress: AddressSchema,
+  pickupScheduledAt: z.string().datetime().optional(),
+  pickedUpAt: z.string().datetime().optional(),
+  receivedAt: z.string().datetime().optional(),
+  inspectedAt: z.string().datetime().optional(),
+  inspectedBy: UuidSchema.optional(),
+  restockable: z.boolean(),
+  refundAmount: z.number().nonnegative().optional(),
+  refundCurrency: z.string().length(3).optional(),
+  restockFeeAmount: z.number().nonnegative().optional(),
+  trackingNumber: z.string().max(100).optional(),
+  notes: z.string().max(1000).optional(),
 });
 
+export const ReturnShipmentPublicSchema = ReturnShipmentSchema.pick({
+  id: true,
+  rmaNumber: true,
+  status: true,
+  type: true,
+  reason: true,
+  createdAt: true,
+});
+
+export const ReturnShipmentCreateInputSchema = z
+  .object({
+    orderId: UuidSchema,
+    type: ReturnShipmentTypeSchema,
+    reason: ReturnReasonSchema,
+    itemIds: z.array(UuidSchema).min(1).max(100),
+    description: z.string().max(5000).optional(),
+    images: z.array(z.string().url()).max(10).optional(),
+  })
+  .strict();
+
 export type ReturnShipmentSchemaType = z.infer<typeof ReturnShipmentSchema>;
+export type ReturnShipmentPublicSchemaType = z.infer<typeof ReturnShipmentPublicSchema>;
+export type ReturnShipmentCreateInputSchemaType = z.infer<typeof ReturnShipmentCreateInputSchema>;

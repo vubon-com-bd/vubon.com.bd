@@ -1,11 +1,27 @@
-import { PermissionObject } from '../../common/permission.types';
-import { VENDOR_PERMISSION } from '@vubon/shared-constants/src/business/vendor/vendor-permission.constants';
+/**
+ * Vendor Permission Value Types
+ * @module shared-types/business/vendor
+ *
+ * Values আসে shared-constants/business/vendor/vendor-permission.constants থেকে।
+ */
 
-export interface VendorPermission extends PermissionObject {
-  type: keyof typeof VENDOR_PERMISSION | string;
-  category: 'vendor';
-  module: string;
-  action: 'create' | 'read' | 'update' | 'delete' | 'manage';
+import type { VENDOR_PERMISSION } from '@vubon/shared-constants/business';
+
+export type VendorPermissionValue = (typeof VENDOR_PERMISSION)[keyof typeof VENDOR_PERMISSION];
+
+export interface VendorPermissionGrant {
+  readonly vendorId: string;
+  readonly userId: string;
+  readonly permission: VendorPermissionValue;
+  readonly grantedBy: string;
+  readonly grantedAt: string;
+  readonly expiresAt?: string;
 }
 
-export type VendorPermissionKey = keyof typeof VENDOR_PERMISSION;
+export interface VendorPermissionCheck {
+  readonly vendorId: string;
+  readonly userId: string;
+  readonly permission: VendorPermissionValue;
+  readonly granted: boolean;
+  readonly checkedAt: string;
+}

@@ -1,23 +1,51 @@
-import { BaseEntity } from '../../common/base.types';
-import { NOTIFICATION_SCHEDULE } from '@vubon/shared-constants/src/platform/notification/notification-schedule.constants';
-import { Notification } from './notification.types';
+/**
+ * Notification Schedule Types
+ * @module shared-types/platform/notification
+ */
 
-export interface NotificationSchedule extends BaseEntity {
-  scheduleId: string;
-  notificationId: string;
-  notification: Notification;
-  status: keyof typeof NOTIFICATION_SCHEDULE.STATUS | string;
-  type: keyof typeof NOTIFICATION_SCHEDULE.TYPES | string;
-  frequency: keyof typeof NOTIFICATION_SCHEDULE.FREQUENCIES | string;
-  cronExpression?: string;
-  startDate: Date;
-  endDate?: Date;
-  lastRunAt?: Date;
-  nextRunAt: Date;
-  runCount: number;
-  maxRuns?: number;
-  isActive: boolean;
-  isPaused: boolean;
-  isCompleted: boolean;
-  metadata: Record<string, unknown>;
+import type {
+  NOTIFICATION_SCHEDULE_TYPE,
+  NOTIFICATION_SCHEDULE_RECURRENCE,
+  NOTIFICATION_SCHEDULE_STATUS,
+} from '@vubon/shared-constants/platform';
+
+export type NotificationScheduleTypeValue =
+  (typeof NOTIFICATION_SCHEDULE_TYPE)[keyof typeof NOTIFICATION_SCHEDULE_TYPE];
+
+export type NotificationScheduleRecurrenceValue =
+  (typeof NOTIFICATION_SCHEDULE_RECURRENCE)[keyof typeof NOTIFICATION_SCHEDULE_RECURRENCE];
+
+export type NotificationScheduleStatusValue =
+  (typeof NOTIFICATION_SCHEDULE_STATUS)[keyof typeof NOTIFICATION_SCHEDULE_STATUS];
+
+export interface NotificationSchedule {
+  readonly id: string;
+  readonly name: string;
+  readonly type: NotificationScheduleTypeValue;
+  readonly recurrence: NotificationScheduleRecurrenceValue;
+  readonly status: NotificationScheduleStatusValue;
+  readonly scheduledAt?: string;
+  readonly timezone: string;
+  readonly cronExpression?: string;
+  readonly templateId?: string;
+  readonly recipientIds?: readonly string[];
+  readonly segmentId?: string;
+  readonly data?: Readonly<Record<string, unknown>>;
+  readonly nextRunAt?: string;
+  readonly lastRunAt?: string;
+  readonly runCount: number;
+  readonly createdBy: string;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
+export interface NotificationScheduleCreateInput {
+  readonly name: string;
+  readonly type: NotificationScheduleTypeValue;
+  readonly recurrence: NotificationScheduleRecurrenceValue;
+  readonly scheduledAt?: string;
+  readonly timezone: string;
+  readonly cronExpression?: string;
+  readonly templateId?: string;
+  readonly recipientIds?: readonly string[];
 }

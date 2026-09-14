@@ -1,43 +1,30 @@
-import { STATUS as COMMON_STATUS } from '../../common/status.constants';
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
-import { SEO } from './seo.constants';
-import { SEO_SCORE } from './seo-score.constants';
+export const SEO_AUDIT_TYPE = {
+  FULL: 'full',
+  QUICK: 'quick',
+  TECHNICAL: 'technical',
+  CONTENT: 'content',
+  PERFORMANCE: 'performance',
+  MOBILE: 'mobile',
+  LOCAL: 'local',
+} as const;
+
+export const SEO_AUDIT_STATUS = {
+  PENDING: 'pending',
+  RUNNING: 'running',
+  COMPLETED: 'completed',
+  FAILED: 'failed',
+  SCHEDULED: 'scheduled',
+  CANCELLED: 'cancelled',
+} as const;
 
 export const SEO_AUDIT = {
-  STATUS: {
-    ...COMMON_STATUS,
-    PENDING: 'pending',
-    IN_PROGRESS: 'in_progress',
-    COMPLETED: 'completed',
-    FAILED: 'failed',
-    SCHEDULED: 'scheduled',
-  },
-  TYPES: {
-    ...COMMON_TYPES,
-    ...SEO.SEO_TYPES,
-    FULL: 'full',
-    QUICK: 'quick',
-    TECHNICAL: 'technical',
-    CONTENT: 'content',
-    LINK: 'link',
-  },
-  SEO: { ...SEO },
-  SEO_SCORE: { ...SEO_SCORE },
-  AUDIT_FREQUENCIES: {
-    DAILY: 'daily',
-    WEEKLY: 'weekly',
-    MONTHLY: 'monthly',
-    QUARTERLY: 'quarterly',
-  },
-  AUDIT_CATEGORIES: [
-    'technical',
-    'on_page',
-    'content',
-    'links',
-    'performance',
-    'mobile',
-    'security',
-  ],
-  MAX_AUDITS: 50,
-  AUDIT_RETENTION_DAYS: 365,
+  MAX_PAGES_PER_AUDIT: 1000,
+  TIMEOUT_SECONDS: 300,
+  SCHEDULE_FREQUENCY: 'weekly',
+  AUTO_RUN: true,
+  MAX_CONCURRENT: 5,
+  RETENTION_DAYS: 90,
 } as const;
+
+export type SeoAuditTypeType = (typeof SEO_AUDIT_TYPE)[keyof typeof SEO_AUDIT_TYPE];
+export type SeoAuditStatusType = (typeof SEO_AUDIT_STATUS)[keyof typeof SEO_AUDIT_STATUS];

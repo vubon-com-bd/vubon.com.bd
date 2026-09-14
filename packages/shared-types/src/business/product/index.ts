@@ -1,3 +1,6 @@
+// shared-types/business/product/index.ts
+// Product sub-domain barrel export
+
 export * from './product.types';
 export * from './product-status.types';
 export * from './product-type.types';
@@ -9,9 +12,3 @@ export * from './inventory.types';
 export * from './pricing.types';
 export * from './review.types';
 export * from './collection.types';
-export * from './tag.types';
-export * from './price-history.types';
-export * from './comparison.types';
-export * from './pricing-rule.types';
-export * from './product-analytics.types';
-export * from './product-request.types';

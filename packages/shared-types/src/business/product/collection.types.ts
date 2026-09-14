@@ -1,22 +1,48 @@
-import { BaseEntity } from '../../common/base.types';
-import { COLLECTION } from '@vubon/shared-constants/src/business/product/collection.constants';
-import { Product } from './product.types';
+/**
+ * Collection Types
+ * @module shared-types/business/product
+ *
+ * Values আসে shared-constants/business/product/collection.constants থেকে।
+ */
 
-export interface Collection extends BaseEntity {
-  collectionId: string;
-  name: string;
-  slug: string;
-  description?: string;
-  status: keyof typeof COLLECTION.STATUS | string;
-  type: keyof typeof COLLECTION.TYPES | string;
-  products: Product[];
-  productCount: number;
-  image?: string;
-  banner?: string;
-  isActive: boolean;
-  isFeatured: boolean;
-  order: number;
-  startsAt?: Date;
-  endsAt?: Date;
-  metadata: Record<string, unknown>;
+import type { COLLECTION_TYPE, COLLECTION_STATUS } from '@vubon/shared-constants/business';
+import type { ProductId, Slug, Url } from '../../common/primitives';
+import type { BaseEntity } from '../../common/base';
+
+export type CollectionTypeValue = (typeof COLLECTION_TYPE)[keyof typeof COLLECTION_TYPE];
+
+export type CollectionStatusValue = (typeof COLLECTION_STATUS)[keyof typeof COLLECTION_STATUS];
+
+export interface Collection extends BaseEntity<string> {
+  readonly name: string;
+  readonly slug: Slug;
+  readonly description?: string;
+  readonly type: CollectionTypeValue;
+  readonly status: CollectionStatusValue;
+  readonly imageUrl?: Url;
+  readonly bannerUrl?: Url;
+  readonly productIds: readonly ProductId[];
+  readonly productCount: number;
+  readonly isFeatured: boolean;
+  readonly sortOrder: number;
+  readonly startAt?: string;
+  readonly endAt?: string;
+}
+
+export interface CollectionPublic {
+  readonly id: string;
+  readonly name: string;
+  readonly slug: Slug;
+  readonly imageUrl?: Url;
+  readonly productCount: number;
+}
+
+export interface CollectionCreateInput {
+  readonly name: string;
+  readonly slug: string;
+  readonly description?: string;
+  readonly type: CollectionTypeValue;
+  readonly imageUrl?: string;
+  readonly productIds?: readonly ProductId[];
+  readonly isFeatured?: boolean;
 }

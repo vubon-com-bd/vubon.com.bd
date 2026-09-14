@@ -1,36 +1,30 @@
-import { STATUS as COMMON_STATUS } from '../../common/status.constants';
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
-import { PAYMENT_STATUS } from './payment-status.constants';
-import { CURRENCY } from '../../common/currency.constants';
-import { USER_STATUS } from '../../user/user-status.constants';
-
-export const TRANSACTION = {
-  STATUS: {
-    ...COMMON_STATUS,
-    ...PAYMENT_STATUS,
-    PENDING: 'pending',
-    PROCESSING: 'processing',
-    COMPLETED: 'completed',
-    FAILED: 'failed',
-    REVERSED: 'reversed',
-    CHARGEBACK: 'chargeback',
-    DISPUTED: 'disputed',
-  },
-  TYPES: {
-    ...COMMON_TYPES,
-    PAYMENT: 'payment',
-    REFUND: 'refund',
-    REVERSAL: 'reversal',
-    ADJUSTMENT: 'adjustment',
-    FEE: 'fee',
-    TAX: 'tax',
-  },
-  PAYMENT_STATUS: { ...PAYMENT_STATUS },
-  CURRENCY: { ...CURRENCY },
-  USER_STATUS: { ...USER_STATUS },
-  TRANSACTION_ID_PREFIX: 'TXN',
-  TRANSACTION_ID_LENGTH: 12,
-  MAX_TRANSACTION_AMOUNT: 9999999,
-  MIN_TRANSACTION_AMOUNT: 0.01,
-  TRANSACTION_RETENTION_DAYS: 2190, // 6 years
+export const TRANSACTION_TYPE = {
+  PAYMENT: 'payment',
+  REFUND: 'refund',
+  CHARGEBACK: 'chargeback',
+  PAYOUT: 'payout',
+  TRANSFER: 'transfer',
+  ADJUSTMENT: 'adjustment',
+  REVERSAL: 'reversal',
 } as const;
+
+export const TRANSACTION_STATUS = {
+  PENDING: 'pending',
+  SUCCESS: 'success',
+  FAILED: 'failed',
+  CANCELLED: 'cancelled',
+  REVERSED: 'reversed',
+  SETTLED: 'settled',
+} as const;
+
+export const TRANSACTION_LIMIT = {
+  MIN_AMOUNT: 1,
+  MAX_AMOUNT: 10000000,
+  MAX_RETRIES: 3,
+  RETRY_DELAY_SECONDS: 30,
+  IDEMPOTENCY_TTL_SECONDS: 86400,
+  REFERENCE_MAX_LENGTH: 128,
+} as const;
+
+export type TransactionTypeType = (typeof TRANSACTION_TYPE)[keyof typeof TRANSACTION_TYPE];
+export type TransactionStatusType = (typeof TRANSACTION_STATUS)[keyof typeof TRANSACTION_STATUS];

@@ -1,26 +1,39 @@
+/**
+ * SEO Analytics Schema
+ * @module shared-schemas/platform/seo
+ *
+ * Values আসে shared-constants/platform/seo-analytics.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { SEO_ANALYTICS } from '@vubon/shared-constants/src/platform/seo/seo-analytics.constants';
-import { SEOKeywordSchema } from './seo-keyword.schema';
-import { SEORankingSchema } from './seo-ranking.schema';
-import { SEOScoreSchema } from './seo-score.schema';
+import { SEO_ANALYTICS_METRIC, SEO_ANALYTICS_PERIOD } from '@vubon/shared-constants/platform';
 
-const analyticsTypeKeys = Object.keys(SEO_ANALYTICS.TYPES) as [string, ...string[]];
-const analyticsMetricKeys = Object.keys(SEO_ANALYTICS.METRICS) as [string, ...string[]];
-const analyticsGranularityKeys = Object.keys(SEO_ANALYTICS.ANALYTICS_GRANULARITY) as [
-  string,
-  ...string[],
-];
+export const SeoAnalyticsMetricSchema = z.enum(
+  Object.values(SEO_ANALYTICS_METRIC) as [string, ...string[]]
+);
 
-export const SEOAnalyticsSchema = BaseSchema.extend({
-  analyticsId: z.string().uuid(),
-  type: z.enum(analyticsTypeKeys),
-  metric: z.enum(analyticsMetricKeys),
+export const SeoAnalyticsPeriodSchema = z.enum(
+  Object.values(SEO_ANALYTICS_PERIOD) as [string, ...string[]]
+);
+
+export const SeoAnalyticsSchema = z.object({
+  metric: SeoAnalyticsMetricSchema,
+  period: SeoAnalyticsPeriodSchema,
   value: z.number(),
-  keyword: SEOKeywordSchema,
-  ranking: SEORankingSchema,
-  score: SEOScoreSchema,
-  period: z.enum(analyticsGranularityKeys),
-  timestamp: z.date(),
-  metadata: z.record(z.unknown()).optional(),
+  previousValue: z.number().optional(),
+  changePercent: z.number().optional(),
+  periodStart: z.string().datetime(),
+  periodEnd: z.string().datetime(),
+  capturedAt: z.string().datetime(),
 });
+
+export const SeoAnalyticsSnapshotSchema = z.object({
+  period: SeoAnalyticsPeriodSchema,
+  metrics: z.array(SeoAnalyticsSchema).max(50),
+  capturedAt: z.string().datetime(),
+});
+
+export type SeoAnalyticsMetricSchemaType = z.infer<typeof SeoAnalyticsMetricSchema>;
+export type SeoAnalyticsPeriodSchemaType = z.infer<typeof SeoAnalyticsPeriodSchema>;
+export type SeoAnalyticsSchemaType = z.infer<typeof SeoAnalyticsSchema>;
+export type SeoAnalyticsSnapshotSchemaType = z.infer<typeof SeoAnalyticsSnapshotSchema>;

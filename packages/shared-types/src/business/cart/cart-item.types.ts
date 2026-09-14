@@ -1,39 +1,54 @@
-import { BaseEntity } from '../../common/base.types';
-import { Money } from '../../common/money.types';
-import { Quantity } from '../../common/quantity.types';
-import { CART_ITEM } from '@vubon/shared-constants/src/business/cart/cart-item.constants';
-import { Product } from '../product/product.types';
-import { Variant } from '../product/variant.types';
-import { Cart } from './cart.types';
+/**
+ * Cart Item Types
+ * @module shared-types/business/cart
+ *
+ * Cart item — একটা product/variant cart-এ।
+ */
 
-export interface CartItemMetadata {
-  addedAt: Date;
-  updatedAt: Date;
-  source: string;
-  wishlistId?: string;
-  savedForLaterId?: string;
+import type { CartId, ProductId, Money, Url } from '../../common/primitives';
+
+export interface CartItem {
+  readonly id: string;
+  readonly cartId: CartId;
+  readonly productId: ProductId;
+  readonly variantId?: string;
+  readonly sku: string;
+  readonly name: string;
+  readonly imageUrl?: Url;
+  readonly unitPrice: Money;
+  readonly compareAtPrice?: Money;
+  readonly quantity: number;
+  readonly subtotal: Money;
+  readonly discountAmount?: Money;
+  readonly taxAmount?: Money;
+  readonly total: Money;
+  readonly currency: string;
+  readonly attributes?: Readonly<Record<string, string>>;
+  readonly isAvailable: boolean;
+  readonly addedAt: string;
+  readonly updatedAt: string;
 }
 
-export interface CartItem extends BaseEntity {
-  itemId: string;
-  cartId: string;
-  cart: Cart;
-  productId: string;
-  product: Product;
-  variantId?: string;
-  variant?: Variant;
-  status: keyof typeof CART_ITEM.STATUS | string;
-  type: keyof typeof CART_ITEM.TYPES | string;
-  quantity: Quantity;
-  maxQuantity: number;
-  unitPrice: Money;
-  totalPrice: Money;
-  discountPrice: Money;
-  taxPrice: Money;
-  finalPrice: Money;
-  isSelected: boolean;
-  isGift: boolean;
-  giftMessage?: string;
-  notes?: string;
-  metadata: CartItemMetadata;
+export interface CartItemInput {
+  readonly productId: ProductId;
+  readonly variantId?: string;
+  readonly quantity: number;
+  readonly attributes?: Readonly<Record<string, string>>;
+}
+
+export interface CartItemUpdateInput {
+  readonly quantity?: number;
+  readonly attributes?: Readonly<Record<string, string>>;
+}
+
+export interface CartItemPublic {
+  readonly id: string;
+  readonly productId: ProductId;
+  readonly variantId?: string;
+  readonly name: string;
+  readonly imageUrl?: Url;
+  readonly unitPrice: Money;
+  readonly quantity: number;
+  readonly total: Money;
+  readonly isAvailable: boolean;
 }

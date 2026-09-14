@@ -1,12 +1,15 @@
+/**
+ * Notification Status Schema
+ * @module shared-schemas/platform/notification
+ *
+ * Values আসে shared-constants/platform/notification-status.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { StatusSchema } from '../../common/status.schema';
-import { NOTIFICATION_STATUS } from '@vubon/shared-constants/src/platform/notification/notification-status.constants';
+import { NOTIFICATION_STATUS } from '@vubon/shared-constants/platform';
 
-const notificationStatusKeys = Object.keys(NOTIFICATION_STATUS) as [string, ...string[]];
+export const NotificationStatusSchema = z.enum(
+  Object.values(NOTIFICATION_STATUS) as [string, ...string[]]
+);
 
-export const NotificationStatusSchema = StatusSchema.extend({
-  status: z.enum(notificationStatusKeys),
-  category: z.literal('notification'),
-});
-
-export const NotificationStatusEnumSchema = z.enum(notificationStatusKeys);
+export type NotificationStatusSchemaType = z.infer<typeof NotificationStatusSchema>;

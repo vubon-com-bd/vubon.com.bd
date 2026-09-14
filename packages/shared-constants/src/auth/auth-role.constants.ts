@@ -1,19 +1,14 @@
-import { ROLES as COMMON_ROLES } from '../common/roles.constants';
+import { ROLE as COMMON_ROLE } from '../common/role.constants';
 
-/**
- * Auth Role Constants
- * @module shared-constants/auth/auth-role
- *
- * Note: The auth-specific role list is intentionally small.
- * Roles themselves live in common/roles.constants — do NOT spread
- * USER_ROLES here (it would duplicate and bloat the enum).
- */
-
-export const AUTH_ROLES = {
-  ...COMMON_ROLES,
-  AUTH_USER: 'auth_user',
-  AUTH_GUEST: 'auth_guest',
-  AUTH_SERVICE: 'auth_service',
+export const AUTH_ROLE = {
+  SUPER_ADMIN: COMMON_ROLE.SUPER_ADMIN,
+  ADMIN: COMMON_ROLE.ADMIN,
+  MODERATOR: COMMON_ROLE.MODERATOR,
+  VENDOR: COMMON_ROLE.VENDOR,
+  CUSTOMER: COMMON_ROLE.CUSTOMER,
+  GUEST: COMMON_ROLE.GUEST,
+  SUPPORT_AGENT: COMMON_ROLE.SUPPORT_AGENT,
+  LOGISTICS_MANAGER: COMMON_ROLE.LOGISTICS_MANAGER,
 } as const;
 
-export type AuthRoleValue = (typeof AUTH_ROLES)[keyof typeof AUTH_ROLES];
+export type AuthRoleType = (typeof AUTH_ROLE)[keyof typeof AUTH_ROLE];

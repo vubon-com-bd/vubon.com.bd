@@ -1,20 +1,41 @@
-import { BaseEntity } from '../../common/base.types';
-import { FLASH_SALE_VOUCHER } from '@vubon/shared-constants/src/business/flash-sales/flash-sale-voucher.constants';
-import { FlashSale } from './flash-sale.types';
-import { User } from '../../user/user.types';
+/**
+ * Flash Sale Voucher Types
+ * @module shared-types/business/flash-sales
+ *
+ * Values আসে shared-constants/business/flash-sales/flash-sale-voucher.constants থেকে।
+ */
 
-export interface FlashSaleVoucher extends BaseEntity {
-  voucherId: string;
-  flashSaleId: string;
-  flashSale: FlashSale;
-  userId: string;
-  user: User;
-  code: string;
-  status: keyof typeof FLASH_SALE_VOUCHER.STATUS | string;
-  type: keyof typeof FLASH_SALE_VOUCHER.TYPES | string;
-  value: number;
-  isUsed: boolean;
-  usedAt?: Date;
-  expiresAt: Date;
-  metadata: Record<string, unknown>;
+import type {
+  FLASH_SALE_VOUCHER_TYPE,
+  FLASH_SALE_VOUCHER_STATUS,
+} from '@vubon/shared-constants/business';
+import type { Money } from '../../common/primitives';
+
+export type FlashSaleVoucherTypeValue =
+  (typeof FLASH_SALE_VOUCHER_TYPE)[keyof typeof FLASH_SALE_VOUCHER_TYPE];
+
+export type FlashSaleVoucherStatusValue =
+  (typeof FLASH_SALE_VOUCHER_STATUS)[keyof typeof FLASH_SALE_VOUCHER_STATUS];
+
+export interface FlashSaleVoucher {
+  readonly id: string;
+  readonly flashSaleId: string;
+  readonly code: string;
+  readonly type: FlashSaleVoucherTypeValue;
+  readonly status: FlashSaleVoucherStatusValue;
+  readonly amount: Money;
+  readonly currency: string;
+  readonly maxUses: number;
+  readonly usedCount: number;
+  readonly expiresAt: string;
+  readonly partialRedeemAllowed: boolean;
+  readonly createdAt: string;
+}
+
+export interface FlashSaleVoucherRedeemResult {
+  readonly success: boolean;
+  readonly voucherId?: string;
+  readonly redeemedAmount?: Money;
+  readonly remainingAmount?: Money;
+  readonly reason?: string;
 }

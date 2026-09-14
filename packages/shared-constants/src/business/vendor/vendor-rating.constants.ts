@@ -1,34 +1,24 @@
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
-import { RATING } from '../../common/rating.constants';
-
 export const VENDOR_RATING = {
-  TYPES: {
-    ...COMMON_TYPES,
-    ...RATING,
-    OVERALL: 'overall',
-    PRODUCT_QUALITY: 'product_quality',
-    SHIPPING_SPEED: 'shipping_speed',
-    CUSTOMER_SERVICE: 'customer_service',
-    VALUE_FOR_MONEY: 'value_for_money',
-    PACKAGING: 'packaging',
-  },
-  RATING: { ...RATING },
-  RATING_CRITERIA: [
-    'product_quality',
-    'shipping_speed',
-    'customer_service',
-    'value_for_money',
-    'packaging',
-    'accuracy',
-  ],
-  MIN_RATINGS_FOR_AVERAGE: 5,
-  RATING_SCALE: 5,
-  RATING_WEIGHTS: {
-    PRODUCT_QUALITY: 0.25,
-    SHIPPING_SPEED: 0.2,
-    CUSTOMER_SERVICE: 0.25,
-    VALUE_FOR_MONEY: 0.15,
-    PACKAGING: 0.1,
-    ACCURACY: 0.05,
-  },
+  MIN: 1,
+  MAX: 5,
+  DEFAULT: 0,
+  DECIMAL_PLACES: 1,
+  MIN_REVIEWS_FOR_DISPLAY: 5,
+  WEIGHTED_AVERAGE: true,
+  RECENT_WEIGHT_DAYS: 90,
+  RECENT_WEIGHT_FACTOR: 1.5,
+  AUTO_HIDE_BELOW: 2,
+  AUTO_FLAG_BELOW: 3,
 } as const;
+
+export const VENDOR_RATING_CATEGORY = {
+  PRODUCT_QUALITY: 'product_quality',
+  SHIPPING_SPEED: 'shipping_speed',
+  CUSTOMER_SERVICE: 'customer_service',
+  COMMUNICATION: 'communication',
+  VALUE_FOR_MONEY: 'value_for_money',
+  PACKAGING: 'packaging',
+} as const;
+
+export type VendorRatingCategoryType =
+  (typeof VENDOR_RATING_CATEGORY)[keyof typeof VENDOR_RATING_CATEGORY];

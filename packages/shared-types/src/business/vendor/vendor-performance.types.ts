@@ -1,29 +1,45 @@
-import { BaseEntity } from '../../common/base.types';
-import { VENDOR_PERFORMANCE } from '@vubon/shared-constants/src/business/vendor/vendor-performance.constants';
-import { Vendor } from './vendor.types';
+/**
+ * Vendor Performance Types
+ * @module shared-types/business/vendor
+ *
+ * Values আসে shared-constants/business/vendor/vendor-performance.constants থেকে।
+ */
 
-export interface VendorPerformanceMetrics {
-  totalOrders: number;
-  totalRevenue: number;
-  totalCommission: number;
-  averageRating: number;
-  reviewCount: number;
-  fulfillmentRate: number;
-  onTimeDelivery: number;
-  customerSatisfaction: number;
+import type {
+  VENDOR_PERFORMANCE_METRIC,
+  VENDOR_PERFORMANCE_GRADE,
+} from '@vubon/shared-constants/business';
+import type { VendorId } from '../../common/primitives';
+
+export type VendorPerformanceMetricValue =
+  (typeof VENDOR_PERFORMANCE_METRIC)[keyof typeof VENDOR_PERFORMANCE_METRIC];
+
+export type VendorPerformanceGradeValue =
+  (typeof VENDOR_PERFORMANCE_GRADE)[keyof typeof VENDOR_PERFORMANCE_GRADE];
+
+export interface VendorPerformance {
+  readonly vendorId: VendorId;
+  readonly grade: VendorPerformanceGradeValue;
+  readonly metrics: readonly VendorPerformanceMetrics[];
+  readonly overallScore: number;
+  readonly evaluationPeriodStart: string;
+  readonly evaluationPeriodEnd: string;
+  readonly orderCount: number;
+  readonly isSuspended: boolean;
+  readonly warningIssued: boolean;
+  readonly evaluatedAt: string;
 }
 
-export interface VendorPerformance extends BaseEntity {
-  performanceId: string;
-  vendorId: string;
-  vendor: Vendor;
-  type: keyof typeof VENDOR_PERFORMANCE.TYPES | string;
-  score: number;
-  metrics: VendorPerformanceMetrics;
-  rating: number;
-  period: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
-  startDate: Date;
-  endDate: Date;
-  isActive: boolean;
-  metadata: Record<string, unknown>;
+export interface VendorPerformanceMetrics {
+  readonly metric: VendorPerformanceMetricValue;
+  readonly value: number;
+  readonly target: number;
+  readonly grade: VendorPerformanceGradeValue;
+}
+
+export interface VendorPerformanceHistory {
+  readonly vendorId: VendorId;
+  readonly grade: VendorPerformanceGradeValue;
+  readonly overallScore: number;
+  readonly evaluatedAt: string;
 }

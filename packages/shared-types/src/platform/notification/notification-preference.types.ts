@@ -1,19 +1,50 @@
-import { BaseEntity } from '../../common/base.types';
-import { User } from '../../user/user.types';
-import { NOTIFICATION_PREFERENCE } from '@vubon/shared-constants/src/platform/notification/notification-preference.constants';
-import { NOTIFICATION_TYPE } from '@vubon/shared-constants/src/platform/notification/notification-type.constants';
-import { NOTIFICATION_CHANNEL } from '@vubon/shared-constants/src/platform/notification/notification-channel.constants';
+/**
+ * Notification Preference Types
+ * @module shared-types/platform/notification
+ */
 
-export interface NotificationPreference extends BaseEntity {
-  preferenceId: string;
-  userId: string;
-  user: User;
-  type: keyof typeof NOTIFICATION_PREFERENCE.TYPES | string;
-  notificationType: keyof typeof NOTIFICATION_TYPE.TYPES | string;
-  channel: keyof typeof NOTIFICATION_CHANNEL.TYPES | string;
-  option: keyof typeof NOTIFICATION_PREFERENCE.PREFERENCE_OPTIONS | string;
-  isAllowed: boolean;
-  isBlocked: boolean;
-  isDigest: boolean;
-  metadata: Record<string, unknown>;
+import type {
+  NOTIFICATION_PREFERENCE_TYPE,
+  NOTIFICATION_PREFERENCE_FREQUENCY,
+  NOTIFICATION_PREFERENCE_DEFAULT,
+} from '@vubon/shared-constants/platform';
+import type { UserId } from '../../common/primitives';
+
+export type NotificationPreferenceTypeValue =
+  (typeof NOTIFICATION_PREFERENCE_TYPE)[keyof typeof NOTIFICATION_PREFERENCE_TYPE];
+
+export type NotificationPreferenceFrequencyValue =
+  (typeof NOTIFICATION_PREFERENCE_FREQUENCY)[keyof typeof NOTIFICATION_PREFERENCE_FREQUENCY];
+
+export type NotificationPreferenceDefaults = typeof NOTIFICATION_PREFERENCE_DEFAULT;
+
+export interface NotificationPreference {
+  readonly userId: UserId;
+  readonly type: NotificationPreferenceTypeValue;
+  readonly email: boolean;
+  readonly sms: boolean;
+  readonly push: boolean;
+  readonly inApp: boolean;
+  readonly webhook: boolean;
+  readonly whatsapp: boolean;
+  readonly frequency: NotificationPreferenceFrequencyValue;
+  readonly quietHoursEnabled: boolean;
+  readonly quietHoursStart?: number;
+  readonly quietHoursEnd?: number;
+  readonly timezone: string;
+  readonly locale: string;
+  readonly updatedAt: string;
+}
+
+export interface NotificationPreferenceUpdate {
+  readonly email?: boolean;
+  readonly sms?: boolean;
+  readonly push?: boolean;
+  readonly inApp?: boolean;
+  readonly webhook?: boolean;
+  readonly whatsapp?: boolean;
+  readonly frequency?: NotificationPreferenceFrequencyValue;
+  readonly quietHoursEnabled?: boolean;
+  readonly quietHoursStart?: number;
+  readonly quietHoursEnd?: number;
 }

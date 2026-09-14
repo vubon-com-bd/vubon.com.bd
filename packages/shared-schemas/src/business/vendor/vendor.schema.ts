@@ -1,94 +1,100 @@
+/**
+ * Vendor Core Schema
+ * @module shared-schemas/business/vendor
+ *
+ * Vendor entity + aggregator।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { UserSchema } from '../../user/user.schema';
-import { VendorProfileSchema } from './vendor-profile.schema';
-import { VendorBusinessSchema } from './vendor-business.schema';
-import { VendorContactSchema } from './vendor-contact.schema';
-import { VendorAddressSchema } from './vendor-address.schema';
-import { VendorBankAccountSchema } from './vendor-bank-account.schema';
-import { VendorDocumentSchema } from './vendor-document.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { EmailSchema } from '../../common/primitives/email.schema';
+import { PhoneSchema } from '../../common/primitives/phone.schema';
+import { SlugSchema } from '../../common/primitives/slug.schema';
+import { AddressSchema } from '../../common/geo/address.schema';
+import { VendorStatusSchema } from './vendor-status.schema';
+import { VendorTypeSchema, VendorBusinessTypeSchema } from './vendor-type.schema';
+import { VendorTierSchema } from './vendor-tier.schema';
 import { VendorCommissionSchema } from './vendor-commission.schema';
-import { VENDOR_STATUS } from '@vubon/shared-constants/src/business/vendor/vendor-status.constants';
-import { VENDOR_TYPE } from '@vubon/shared-constants/src/business/vendor/vendor-type.constants';
-import { VENDOR_TIER } from '@vubon/shared-constants/src/business/vendor/vendor-tier.constants';
+import { VendorReturnPolicySchema } from './vendor-return-policy.schema';
 
-const vendorStatusKeys = Object.keys(VENDOR_STATUS) as [string, ...string[]];
-const vendorTypeKeys = Object.keys(VENDOR_TYPE) as [string, ...string[]];
-const vendorTierKeys = Object.keys(VENDOR_TIER) as [string, ...string[]];
-
-export const VendorSchema = BaseSchema.extend({
-  vendorId: z.string().uuid(),
-  userId: z.string().uuid(),
-  user: UserSchema,
-  name: z.string().min(1).max(255),
-  slug: z
-    .string()
-    .min(1)
-    .max(255)
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-  status: z.enum(vendorStatusKeys),
-  type: z.enum(vendorTypeKeys),
-  tier: z.enum(vendorTierKeys),
-  profile: VendorProfileSchema,
-  business: VendorBusinessSchema,
-  contacts: z.array(VendorContactSchema),
-  addresses: z.array(VendorAddressSchema),
-  bankAccounts: z.array(VendorBankAccountSchema),
-  documents: z.array(VendorDocumentSchema),
+export const VendorSchema = BaseEntitySchema.extend({
+  userId: UuidSchema,
+  name: z.string().min(1).max(200),
+  slug: SlugSchema,
+  displayName: z.string().min(1).max(200),
+  description: z.string().max(5000).optional(),
+  type: VendorTypeSchema,
+  businessType: VendorBusinessTypeSchema,
+  status: VendorStatusSchema,
+  tier: VendorTierSchema,
+  email: EmailSchema,
+  phone: PhoneSchema.optional(),
+  website: z.string().url().optional(),
+  logoUrl: z.string().url().optional(),
+  bannerUrl: z.string().url().optional(),
+  address: AddressSchema,
   commission: VendorCommissionSchema,
-  isActive: z.boolean().default(true),
-  isVerified: z.boolean().default(false),
-  isApproved: z.boolean().default(false),
-  isSuspended: z.boolean().default(false),
-  joinedAt: z.date(),
-  lastActiveAt: z.date(),
-  metadata: z
-    .object({
-      businessLicense: z.string().optional(),
-      taxId: z.string().optional(),
-      website: z.string().url().optional(),
-      socialLinks: z
-        .object({
-          facebook: z.string().url().optional(),
-          instagram: z.string().url().optional(),
-          twitter: z.string().url().optional(),
-          linkedin: z.string().url().optional(),
-          youtube: z.string().url().optional(),
-        })
-        .optional(),
-      storeHours: z
-        .object({
-          monday: z.string(),
-          tuesday: z.string(),
-          wednesday: z.string(),
-          thursday: z.string(),
-          friday: z.string(),
-          saturday: z.string(),
-          sunday: z.string(),
-        })
-        .optional(),
-      holidaySchedule: z
-        .array(
-          z.object({
-            date: z.date(),
-            name: z.string(),
-            isClosed: z.boolean(),
-          })
-        )
-        .optional(),
-    })
-    .optional(),
+  returnPolicy: VendorReturnPolicySchema,
+  rating: z.number().min(0).max(5),
+  totalSales: z.number().nonnegative(),
+  totalOrders: z.number().int().nonnegative(),
+  isVerified: z.boolean(),
+  isFeatured: z.boolean(),
+  joinedAt: z.string().datetime(),
+  approvedAt: z.string().datetime().optional(),
 });
 
-export const VendorCreateSchema = VendorSchema.omit({
+export const VendorPublicSchema = VendorSchema.pick({
   id: true,
-  createdAt: true,
-  updatedAt: true,
+  name: true,
+  slug: true,
+  displayName: true,
+  description: true,
+  type: true,
+  tier: true,
+  logoUrl: true,
+  bannerUrl: true,
+  rating: true,
+  totalSales: true,
   isVerified: true,
-  isApproved: true,
-  isSuspended: true,
+  isFeatured: true,
   joinedAt: true,
-  lastActiveAt: true,
 });
 
-export const VendorUpdateSchema = VendorCreateSchema.partial();
+export const VendorSummarySchema = VendorSchema.pick({
+  id: true,
+  name: true,
+  displayName: true,
+  logoUrl: true,
+  status: true,
+  tier: true,
+  rating: true,
+});
+
+export const VendorListFilterSchema = z.object({
+  status: VendorStatusSchema.optional(),
+  type: VendorTypeSchema.optional(),
+  tier: VendorTierSchema.optional(),
+  isVerified: z.boolean().optional(),
+  isFeatured: z.boolean().optional(),
+  minRating: z.number().min(0).max(5).optional(),
+  search: z.string().max(200).optional(),
+});
+
+export const VendorStatsSchema = z.object({
+  vendorId: UuidSchema,
+  totalProducts: z.number().int().nonnegative(),
+  totalOrders: z.number().int().nonnegative(),
+  totalRevenue: z.number().nonnegative(),
+  totalCommission: z.number().nonnegative(),
+  totalPayout: z.number().nonnegative(),
+  averageRating: z.number().min(0).max(5),
+  fulfillmentRate: z.number().min(0).max(1),
+});
+
+export type VendorSchemaType = z.infer<typeof VendorSchema>;
+export type VendorPublicSchemaType = z.infer<typeof VendorPublicSchema>;
+export type VendorSummarySchemaType = z.infer<typeof VendorSummarySchema>;
+export type VendorListFilterSchemaType = z.infer<typeof VendorListFilterSchema>;
+export type VendorStatsSchemaType = z.infer<typeof VendorStatsSchema>;

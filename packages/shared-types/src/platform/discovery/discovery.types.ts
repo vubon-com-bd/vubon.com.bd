@@ -1,44 +1,66 @@
-import { BaseEntity } from '../../common/base.types';
-import { User } from '../../user/user.types';
-import { DISCOVERY } from '@vubon/shared-constants/src/platform/discovery/discovery.constants';
-import { Recommendation } from './recommendation.types';
-import { Personalization } from './personalization.types';
-import { Trending } from './trending.types';
-import { Popular } from './popular.types';
-import { RecentlyViewed } from './recently-viewed.types';
-import { FrequentlyBought } from './frequently-bought.types';
-import { Complementary } from './complementary.types';
-import { Substitute } from './substitute.types';
-import { Upselling } from './upselling.types';
-import { CrossSelling } from './cross-selling.types';
-import { DiscoveryBundle } from './discovery-bundle.types';
+/**
+ * Discovery Core Types
+ * @module shared-types/platform/discovery
+ *
+ * Discovery aggregator।
+ */
 
-export interface DiscoveryMetadata {
-  sessionId?: string;
-  deviceId?: string;
-  ipAddress?: string;
-  location?: string;
-  timezone?: string;
-  language?: string;
+import type { UserId } from '../../common/primitives';
+import type { Recommendation } from './recommendation.types';
+import type { TrendingList } from './trending.types';
+import type { PopularList } from './popular.types';
+import type { RecentlyViewedList } from './recently-viewed.types';
+import type { FrequentlyBoughtResult } from './frequently-bought.types';
+import type { ComplementaryResult } from './complementary.types';
+import type { SubstituteResult } from './substitute.types';
+import type { UpsellResult } from './upselling.types';
+import type { CrossSellResult } from './cross-selling.types';
+import type { DiscoveryBundle } from './bundle.types';
+
+export interface DiscoveryResult {
+  readonly userId?: UserId;
+  readonly recommendations?: Recommendation;
+  readonly trending?: TrendingList;
+  readonly popular?: PopularList;
+  readonly recentlyViewed?: RecentlyViewedList;
+  readonly frequentlyBought?: FrequentlyBoughtResult;
+  readonly complementary?: ComplementaryResult;
+  readonly substitute?: SubstituteResult;
+  readonly upsell?: UpsellResult;
+  readonly crossSell?: CrossSellResult;
+  readonly bundles?: readonly DiscoveryBundle[];
+  readonly generatedAt: string;
+  readonly cached: boolean;
 }
 
-export interface Discovery extends BaseEntity {
-  discoveryId: string;
-  recommendations: Recommendation[];
-  personalization: Personalization;
-  trending: Trending;
-  popular: Popular;
-  recentlyViewed: RecentlyViewed[];
-  frequentlyBought: FrequentlyBought[];
-  complementary: Complementary[];
-  substitutes: Substitute[];
-  upsellings: Upselling[];
-  crossSellings: CrossSelling[];
-  bundles: DiscoveryBundle[];
-  userId?: string;
-  user?: User;
-  status: keyof typeof DISCOVERY.STATUS | string;
-  type: keyof typeof DISCOVERY.DISCOVERY_TYPES | string;
-  isActive: boolean;
-  metadata: DiscoveryMetadata;
+export interface DiscoveryRequest {
+  readonly userId?: UserId;
+  readonly sessionId?: string;
+  readonly include?: readonly DiscoverySection[];
+  readonly limit?: number;
+  readonly excludeOutOfStock?: boolean;
+  readonly personalize?: boolean;
+}
+
+export type DiscoverySection =
+  | 'recommendations'
+  | 'trending'
+  | 'popular'
+  | 'recently_viewed'
+  | 'frequently_bought'
+  | 'complementary'
+  | 'substitute'
+  | 'upsell'
+  | 'cross_sell'
+  | 'bundles';
+
+export interface DiscoveryMetrics {
+  readonly userId?: UserId;
+  readonly totalRecommendations: number;
+  readonly totalClicks: number;
+  readonly totalConversions: number;
+  readonly clickThroughRate: number;
+  readonly conversionRate: number;
+  readonly periodStart: string;
+  readonly periodEnd: string;
 }

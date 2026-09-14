@@ -1,34 +1,36 @@
-import { TYPES as COMMON_TYPES } from '../common/types.constants';
-
 export const AI_MODEL_PROVIDER = {
-  TYPES: {
-    ...COMMON_TYPES,
-    OPENAI: 'openai',
-    GOOGLE: 'google',
-    AWS: 'aws',
-    AZURE: 'azure',
-    META: 'meta',
-    ANTHROPIC: 'anthropic',
-    COHERE: 'cohere',
-    HUGGINGFACE: 'huggingface',
-    REKA: 'reka',
-    MISTRAL: 'mistral',
-    GEMINI: 'gemini',
-    CLAUDE: 'claude',
-    LLAMA: 'llama',
-    BERT: 'bert',
-    T5: 't5',
-  },
-  PROVIDER_ENDPOINTS: {
-    OPENAI: 'https://api.openai.com/v1',
-    GOOGLE: 'https://api.google.com/ai/v1',
-    AWS: 'https://api.aws.amazon.com/ai/v1',
-    AZURE: 'https://api.azure.com/ai/v1',
-  },
-  PROVIDER_API_VERSIONS: {
-    OPENAI: '2024-02-15',
-    GOOGLE: 'v1beta1',
-    AWS: 'v1',
-    AZURE: '2024-02-15-preview',
-  },
+  OPENAI: 'openai',
+  ANTHROPIC: 'anthropic',
+  GOOGLE: 'google',
+  META: 'meta',
+  MICROSOFT: 'microsoft',
+  COHERE: 'cohere',
+  HUGGING_FACE: 'hugging_face',
+  STABILITY_AI: 'stability_ai',
+  MISTRAL: 'mistral',
+  DEEPSEEK: 'deepseek',
+  XAI: 'xai',
+  LOCAL: 'local',
+  CUSTOM: 'custom',
 } as const;
+
+export const AI_PROVIDER_ENV_KEY = {
+  OPENAI_API_KEY: 'OPENAI_API_KEY',
+  ANTHROPIC_API_KEY: 'ANTHROPIC_API_KEY',
+  GOOGLE_API_KEY: 'GOOGLE_API_KEY',
+  COHERE_API_KEY: 'COHERE_API_KEY',
+  HUGGING_FACE_API_KEY: 'HUGGING_FACE_API_KEY',
+  MISTRAL_API_KEY: 'MISTRAL_API_KEY',
+  DEEPSEEK_API_KEY: 'DEEPSEEK_API_KEY',
+  XAI_API_KEY: 'XAI_API_KEY',
+} as const;
+
+export const AI_PROVIDER_REGION = {
+  US: 'us',
+  EU: 'eu',
+  ASIA: 'asia',
+  GLOBAL: 'global',
+} as const;
+
+export type AiModelProviderType = (typeof AI_MODEL_PROVIDER)[keyof typeof AI_MODEL_PROVIDER];
+export type AiProviderRegionType = (typeof AI_PROVIDER_REGION)[keyof typeof AI_PROVIDER_REGION];

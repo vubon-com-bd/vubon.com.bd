@@ -1,28 +1,59 @@
+/**
+ * Tracking Schema
+ * @module shared-schemas/logistics
+ *
+ * Values আসে shared-constants/logistics/tracking.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { TRACKING } from '@vubon/shared-constants/src/logistics/tracking.constants';
+import { UuidSchema } from '../common/primitives/uuid.schema';
+import {
+  TRACKING_EVENT,
+  TRACKING_STATUS,
+  TRACKING_SOURCE,
+} from '@vubon/shared-constants/logistics';
 
-const trackingStatusKeys = Object.keys(TRACKING.STATUS) as [string, ...string[]];
+export const TrackingEventSchema = z.enum(Object.values(TRACKING_EVENT) as [string, ...string[]]);
 
-export const TrackingSchema = BaseSchema.extend({
-  trackingId: z.string().uuid(),
-  shipmentId: z.string().uuid(),
-  trackingNumber: z.string().min(1).max(100),
-  status: z.enum(trackingStatusKeys),
-  carrier: z.string(),
-  events: z.array(
-    z.object({
-      eventId: z.string().uuid(),
-      status: z.string(),
-      location: z.string(),
-      description: z.string(),
-      timestamp: z.date(),
-      metadata: z.record(z.unknown()),
-    })
-  ),
-  isActive: z.boolean().default(true),
-  isDelivered: z.boolean().default(false),
-  isExpired: z.boolean().default(false),
-  expiresAt: z.date(),
-  metadata: z.record(z.unknown()).optional(),
+export const TrackingStatusSchema = z.enum(Object.values(TRACKING_STATUS) as [string, ...string[]]);
+
+export const TrackingSourceSchema = z.enum(Object.values(TRACKING_SOURCE) as [string, ...string[]]);
+
+export const TrackingEventEntrySchema = z.object({
+  id: z.string().min(1),
+  shipmentId: UuidSchema.optional(),
+  orderId: UuidSchema.optional(),
+  event: TrackingEventSchema,
+  status: TrackingStatusSchema,
+  source: TrackingSourceSchema,
+  message: z.string().min(1).max(500),
+  location: z.string().max(255).optional(),
+  latitude: z.number().min(-90).max(90).optional(),
+  longitude: z.number().min(-180).max(180).optional(),
+  occurredAt: z.string().datetime(),
+  receivedAt: z.string().datetime(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
+
+export const TrackingInfoSchema = z.object({
+  trackingNumber: z.string().min(1).max(100),
+  courierCode: z.string().max(50).optional(),
+  status: TrackingStatusSchema,
+  currentEvent: TrackingEventSchema.optional(),
+  currentLocation: z.string().max(255).optional(),
+  estimatedDeliveryAt: z.string().datetime().optional(),
+  events: z.array(TrackingEventEntrySchema).max(500),
+  lastUpdatedAt: z.string().datetime(),
+});
+
+export const TrackingPublicSchema = TrackingInfoSchema.pick({
+  trackingNumber: true,
+  status: true,
+  currentEvent: true,
+  events: true,
+});
+
+export type TrackingEventSchemaType = z.infer<typeof TrackingEventSchema>;
+export type TrackingStatusSchemaType = z.infer<typeof TrackingStatusSchema>;
+export type TrackingInfoSchemaType = z.infer<typeof TrackingInfoSchema>;
+export type TrackingPublicSchemaType = z.infer<typeof TrackingPublicSchema>;

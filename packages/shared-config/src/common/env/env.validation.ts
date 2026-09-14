@@ -1,49 +1,48 @@
-import { EnvSchema, type Env } from './env.schema';
+/**
+ * Environment assertions & safety checks
+ * @module shared-config/common/env
+ */
+import { loadEnv } from './env.loader';
+
+export function isProduction(): boolean {
+  return loadEnv().NODE_ENV === 'production';
+}
+
+export function isDevelopment(): boolean {
+  return loadEnv().NODE_ENV === 'development';
+}
+
+export function isTest(): boolean {
+  return loadEnv().NODE_ENV === 'test';
+}
+
+export function isStaging(): boolean {
+  return loadEnv().NODE_ENV === 'staging';
+}
 
 /**
- * Validates process.env against EnvSchema.
- * On failure, logs errors and exits (fail-fast).
+ * Assert safe environment — call on boot.
+ * Throws if production env has insecure values.
  */
-export const validateEnv = (): Env => {
-  const result = EnvSchema.safeParse(process.env);
-  if (!result.success) {
-    console.error('❌ Invalid environment variables:');
-    console.error(result.error.flatten().fieldErrors);
-    process.exit(1);
+export function assertSafeEnv(): void {
+  const env = loadEnv();
+
+  if (env.NODE_ENV !== 'production') return;
+
+  if (env.JWT_SECRET.length < 32) {
+    throw new Error('JWT_SECRET must be at least 32 characters in production');
   }
-  return result.data;
-};
 
-/**
- * REQUIRED env var — throws if missing.
- * Returns string.
- */
-export const getRequiredEnv = (key: string): string => {
-  const value = process.env[key];
-  if (value === undefined || value === '') {
-    throw new Error(`Required environment variable "${key}" is not set`);
+  if (env.CORS_ORIGINS.trim() === '*') {
+    throw new Error('Wildcard CORS origin is forbidden in production');
   }
-  return value;
-};
 
-/**
- * Optional env var — returns defaultValue if missing.
- * ⚠️ Do NOT use for secrets.
- *
- * Signature: returns string. Use Number() or === 'true' for conversion.
- */
-export const getOptionalEnv = (key: string, defaultValue: string): string => {
-  const value = process.env[key];
-  if (value === undefined || value === '') return defaultValue;
-  return value;
-};
-
-/**
- * @deprecated Use getRequiredEnv or getOptionalEnv explicitly.
- */
-export const getEnv = (key: string, defaultValue?: string): string => {
-  if (defaultValue !== undefined) {
-    return getOptionalEnv(key, defaultValue);
+  if (env.APP_URL.startsWith('http://')) {
+    throw new Error('APP_URL must use HTTPS in production');
   }
-  return getRequiredEnv(key);
-};
+
+  if (env.DATABASE_URL.includes('localhost')) {
+    // Not fatal, but flagged — uncomment to throw if strict
+    // throw new Error('DATABASE_URL points to localhost in production');
+  }
+}

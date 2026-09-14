@@ -1,30 +1,52 @@
+/**
+ * Report Email Schema
+ * @module shared-schemas/platform/reporting
+ *
+ * Values আসে shared-constants/platform/report-email.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { REPORT_EMAIL } from '@vubon/shared-constants/src/platform/reporting/report-email.constants';
-import { REPORT_FORMAT } from '@vubon/shared-constants/src/platform/reporting/report-format.constants';
+import {
+  REPORT_EMAIL_TYPE,
+  REPORT_EMAIL_STATUS,
+  REPORT_EMAIL_FORMAT,
+} from '@vubon/shared-constants/platform';
+import { EmailSchema } from '../../common/primitives/email.schema';
 
-const reportEmailStatusKeys = Object.keys(REPORT_EMAIL.STATUS) as [string, ...string[]];
-const reportEmailTypeKeys = Object.keys(REPORT_EMAIL.TYPES) as [string, ...string[]];
-const reportEmailTemplateKeys = Object.keys(REPORT_EMAIL.EMAIL_TEMPLATES) as [string, ...string[]];
-const reportFormatTypeKeys = Object.keys(REPORT_FORMAT.TYPES) as [string, ...string[]];
+export const ReportEmailTypeSchema = z.enum(
+  Object.values(REPORT_EMAIL_TYPE) as [string, ...string[]]
+);
 
-export const ReportEmailSchema = BaseSchema.extend({
-  emailId: z.string().uuid(),
-  reportId: z.string().uuid(),
-  status: z.enum(reportEmailStatusKeys),
-  type: z.enum(reportEmailTypeKeys),
-  template: z.enum(reportEmailTemplateKeys),
-  from: z.string().email(),
-  to: z.array(z.string().email()),
-  cc: z.array(z.string().email()),
-  bcc: z.array(z.string().email()),
+export const ReportEmailStatusSchema = z.enum(
+  Object.values(REPORT_EMAIL_STATUS) as [string, ...string[]]
+);
+
+export const ReportEmailFormatSchema = z.enum(
+  Object.values(REPORT_EMAIL_FORMAT) as [string, ...string[]]
+);
+
+export const ReportEmailSchema = z.object({
+  id: z.string().min(1),
+  reportId: z.string().min(1),
+  scheduleId: z.string().optional(),
+  type: ReportEmailTypeSchema,
+  status: ReportEmailStatusSchema,
+  format: ReportEmailFormatSchema,
+  to: z.array(EmailSchema).min(1).max(100),
+  cc: z.array(EmailSchema).max(50).optional(),
+  bcc: z.array(EmailSchema).max(50).optional(),
   subject: z.string().min(1).max(200),
-  body: z.string().min(1).max(5000),
-  format: z.enum(reportFormatTypeKeys),
-  isSent: z.boolean().default(false),
-  isFailed: z.boolean().default(false),
-  sentAt: z.date().optional(),
-  failedAt: z.date().optional(),
-  failureReason: z.string().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  body: z.string().max(500000).optional(),
+  attachmentUrl: z.string().url().optional(),
+  sentAt: z.string().datetime().optional(),
+  deliveredAt: z.string().datetime().optional(),
+  openedAt: z.string().datetime().optional(),
+  failedAt: z.string().datetime().optional(),
+  error: z.string().max(500).optional(),
+  createdAt: z.string().datetime(),
 });
+
+export type ReportEmailTypeSchemaType = z.infer<typeof ReportEmailTypeSchema>;
+export type ReportEmailStatusSchemaType = z.infer<typeof ReportEmailStatusSchema>;
+export type ReportEmailFormatSchemaType = z.infer<typeof ReportEmailFormatSchema>;
+export type ReportEmailSchemaType = z.infer<typeof ReportEmailSchema>;

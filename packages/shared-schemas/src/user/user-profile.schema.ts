@@ -1,31 +1,47 @@
+/**
+ * User Profile Schema
+ * @module shared-schemas/user
+ *
+ * Values আসে shared-constants/user/user-profile.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { NameSchema } from '../common/name.schema';
-import { AddressSchema } from '../common/address.schema';
-import { USER_PROFILE } from '@vubon/shared-constants/src/user/user-profile.constants';
+import { USER_PROFILE, USER_PROFILE_VISIBILITY, USER_GENDER } from '@vubon/shared-constants/user';
 
-const userProfileValues = Object.values(USER_PROFILE) as [string, ...string[]];
+export const ProfileVisibilitySchema = z.enum(
+  Object.values(USER_PROFILE_VISIBILITY) as [string, ...string[]]
+);
 
-/** Profile bio max length — matches the client-side textarea limit. */
-const BIO_MAX_LENGTH = 500;
+export const GenderSchema = z.enum(Object.values(USER_GENDER) as [string, ...string[]]);
 
-export const UserProfileSchema = BaseSchema.extend({
-  profileId: z.string().uuid(),
-  userId: z.string().uuid(),
-  name: NameSchema,
-  address: AddressSchema.optional(),
-  avatar: z.string().url().optional(),
-  bio: z.string().max(BIO_MAX_LENGTH).optional(),
-  website: z.string().url().optional(),
-  socialLinks: z
-    .object({
-      facebook: z.string().url().optional(),
-      twitter: z.string().url().optional(),
-      instagram: z.string().url().optional(),
-      linkedin: z.string().url().optional(),
-      youtube: z.string().url().optional(),
-    })
+export const UserProfileSchema = z.object({
+  userId: z.string().min(1),
+  firstName: z.string().trim().min(1).max(USER_PROFILE.NAME_MAX_LENGTH).optional(),
+  lastName: z.string().trim().min(1).max(USER_PROFILE.NAME_MAX_LENGTH).optional(),
+  displayName: z.string().trim().max(USER_PROFILE.NAME_MAX_LENGTH).optional(),
+  bio: z.string().trim().max(USER_PROFILE.BIO_MAX_LENGTH).optional(),
+  avatarUrl: z.string().url().optional(),
+  coverUrl: z.string().url().optional(),
+  gender: GenderSchema.optional(),
+  dateOfBirth: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format')
     .optional(),
-  visibility: z.enum(userProfileValues),
-  metadata: z.record(z.unknown()).optional(),
+  website: z.string().url().max(USER_PROFILE.WEBSITE_MAX_LENGTH).optional(),
+  company: z.string().trim().max(USER_PROFILE.COMPANY_MAX_LENGTH).optional(),
+  designation: z.string().trim().max(USER_PROFILE.DESIGNATION_MAX_LENGTH).optional(),
+  visibility: ProfileVisibilitySchema,
+  updatedAt: z.string().datetime(),
 });
+
+export const UserProfilePublicSchema = UserProfileSchema.omit({
+  userId: true,
+  gender: true,
+  dateOfBirth: true,
+  visibility: true,
+});
+
+export type ProfileVisibilitySchemaType = z.infer<typeof ProfileVisibilitySchema>;
+export type GenderSchemaType = z.infer<typeof GenderSchema>;
+export type UserProfileSchemaType = z.infer<typeof UserProfileSchema>;
+export type UserProfilePublicSchemaType = z.infer<typeof UserProfilePublicSchema>;

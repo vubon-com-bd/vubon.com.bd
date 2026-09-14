@@ -1,15 +1,36 @@
-import { TypeObject } from '../common/types.types';
-import { SEO_MARKETING } from '@vubon/shared-constants/src/marketing/seo-marketing.constants';
+/**
+ * SEO Marketing Types
+ * @module shared-types/marketing
+ */
 
-export interface SeoMarketing extends TypeObject {
-  type: keyof typeof SEO_MARKETING.TYPES | string;
-  category: 'seo_marketing';
-  keywordType: keyof typeof SEO_MARKETING.KEYWORD_TYPES | string;
-  isOnPage: boolean;
-  isOffPage: boolean;
-  isTechnical: boolean;
-  isLocal: boolean;
-  isContent: boolean;
+import type { Money } from '../common/primitives';
+
+export type SeoMarketingTypeValue =
+  'organic' | 'local' | 'content' | 'link_building' | 'keyword' | 'technical';
+
+export interface SeoMarketing {
+  readonly id: string;
+  readonly name: string;
+  readonly type: SeoMarketingTypeValue;
+  readonly keywords: readonly string[];
+  readonly targetUrls: readonly string[];
+  readonly monthlySearchVolume?: number;
+  readonly currentRank?: number;
+  readonly targetRank?: number;
+  readonly competitorDomains?: readonly string[];
+  readonly budget?: Money;
+  readonly currency?: string;
+  readonly startAt: string;
+  readonly endAt?: string;
+  readonly isActive: boolean;
+  readonly metrics?: SeoMarketingMetrics;
 }
 
-export type SeoMarketingKey = keyof typeof SEO_MARKETING.TYPES;
+export interface SeoMarketingMetrics {
+  readonly organicTraffic: number;
+  readonly organicKeywords: number;
+  readonly backlinks: number;
+  readonly domainAuthority: number;
+  readonly averagePosition: number;
+  readonly clickThroughRate: number;
+}

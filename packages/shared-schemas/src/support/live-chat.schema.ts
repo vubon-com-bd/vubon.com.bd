@@ -1,30 +1,66 @@
+/**
+ * Live Chat Schema
+ * @module shared-schemas/support
+ *
+ * Values আসে shared-constants/support/live-chat.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { UserSchema } from '../user/user.schema';
-import { LiveChatSessionSchema } from './live-chat-session.schema';
-import { MessageSchema } from './message.schema';
-import { SupportAgentSchema } from './support-agent.schema';
-import { LIVE_CHAT } from '@vubon/shared-constants/src/support/live-chat.constants';
+import { BaseEntitySchema } from '../common/base/base-entity.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema';
+import {
+  LIVE_CHAT_STATUS,
+  LIVE_CHAT_SESSION_STATUS,
+  LIVE_CHAT_TRIGGER,
+} from '@vubon/shared-constants/support';
 
-const liveChatStatusKeys = Object.keys(LIVE_CHAT.STATUS) as [string, ...string[]];
-const liveChatTypeKeys = Object.keys(LIVE_CHAT.CHAT_TYPES) as [string, ...string[]];
+export const LiveChatStatusSchema = z.enum(
+  Object.values(LIVE_CHAT_STATUS) as [string, ...string[]]
+);
 
-export const LiveChatSchema = BaseSchema.extend({
-  chatId: z.string().uuid(),
-  userId: z.string().uuid(),
-  user: UserSchema,
-  status: z.enum(liveChatStatusKeys),
-  type: z.enum(liveChatTypeKeys),
-  session: LiveChatSessionSchema,
-  messages: z.array(MessageSchema),
-  messageCount: z.number().int().min(0).default(0),
-  assignedTo: z.string().uuid().optional(),
-  assignedToAgent: SupportAgentSchema.optional(),
-  startedAt: z.date(),
-  endedAt: z.date().optional(),
-  isActive: z.boolean().default(true),
-  isEnded: z.boolean().default(false),
-  rating: z.number().min(0).max(5).optional(),
-  feedback: z.string().optional(),
-  metadata: z.record(z.unknown()).optional(),
+export const LiveChatSessionStatusSchema = z.enum(
+  Object.values(LIVE_CHAT_SESSION_STATUS) as [string, ...string[]]
+);
+
+export const LiveChatTriggerSchema = z.enum(
+  Object.values(LIVE_CHAT_TRIGGER) as [string, ...string[]]
+);
+
+export const LiveChatSessionSchema = BaseEntitySchema.extend({
+  userId: UuidSchema.optional(),
+  agentId: UuidSchema.optional(),
+  visitorId: z.string().max(128).optional(),
+  status: LiveChatSessionStatusSchema,
+  trigger: LiveChatTriggerSchema,
+  subject: z.string().max(200).optional(),
+  messageCount: z.number().int().nonnegative(),
+  startedAt: z.string().datetime(),
+  endedAt: z.string().datetime().optional(),
+  durationSeconds: z.number().int().nonnegative().optional(),
+  transferredTo: UuidSchema.optional(),
+  rating: z.number().int().min(1).max(5).optional(),
+  ratingComment: z.string().max(1000).optional(),
+  transcriptUrl: z.string().url().optional(),
 });
+
+export const LiveChatAgentSchema = z.object({
+  userId: UuidSchema,
+  status: LiveChatStatusSchema,
+  activeChatCount: z.number().int().nonnegative(),
+  maxConcurrentChats: z.number().int().positive(),
+  lastActiveAt: z.string().datetime(),
+});
+
+export const LiveChatPublicSchema = LiveChatSessionSchema.pick({
+  id: true,
+  status: true,
+  startedAt: true,
+  endedAt: true,
+  durationSeconds: true,
+});
+
+export type LiveChatStatusSchemaType = z.infer<typeof LiveChatStatusSchema>;
+export type LiveChatSessionStatusSchemaType = z.infer<typeof LiveChatSessionStatusSchema>;
+export type LiveChatSessionSchemaType = z.infer<typeof LiveChatSessionSchema>;
+export type LiveChatAgentSchemaType = z.infer<typeof LiveChatAgentSchema>;
+export type LiveChatPublicSchemaType = z.infer<typeof LiveChatPublicSchema>;

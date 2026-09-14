@@ -1,27 +1,37 @@
+/**
+ * Flash Sale Coupon Schema
+ * @module shared-schemas/business/flash-sales
+ *
+ * Values আসে shared-constants/business/flash-sale-coupon.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { MoneySchema } from '../../common/money.schema';
-import { FLASH_SALE_COUPON } from '@vubon/shared-constants/src/business/flash-sales/flash-sale-coupon.constants';
+import { FLASH_SALE_COUPON_TYPE, FLASH_SALE_COUPON } from '@vubon/shared-constants/business';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { MoneySchema } from '../../common/primitives/money.schema';
 
-const couponStatusKeys = Object.keys(FLASH_SALE_COUPON.STATUS) as [string, ...string[]];
-const couponTypeKeys = Object.keys(FLASH_SALE_COUPON.COUPON_TYPES) as [string, ...string[]];
+export const FlashSaleCouponTypeSchema = z.enum(
+  Object.values(FLASH_SALE_COUPON_TYPE) as [string, ...string[]]
+);
 
-export const FlashSaleCouponSchema = BaseSchema.extend({
-  couponId: z.string().uuid(),
-  flashSaleId: z.string().uuid(),
-  code: z.string().min(3).max(50),
-  status: z.enum(couponStatusKeys),
-  type: z.enum(couponTypeKeys),
-  discountType: z.enum(['percentage', 'fixed']),
-  discountValue: z.number().min(0),
+export const FlashSaleCouponSchema = z.object({
+  id: UuidSchema,
+  flashSaleId: UuidSchema,
+  couponId: UuidSchema.optional(),
+  code: z.string().min(4).max(32),
+  type: FlashSaleCouponTypeSchema,
+  discountValue: z.number().positive(),
   maxDiscountAmount: MoneySchema.optional(),
-  minPurchaseAmount: MoneySchema.optional(),
-  usageLimit: z.number().int().min(1),
-  usageCount: z.number().int().min(0).default(0),
-  perUserLimit: z.number().int().min(1),
-  perUserCount: z.number().int().min(0).default(0),
-  isActive: z.boolean().default(true),
-  isValid: z.boolean().default(true),
-  expiresAt: z.date(),
-  metadata: z.record(z.unknown()).optional(),
+  minOrderAmount: MoneySchema.optional(),
+  maxUses: z.number().int().positive().max(FLASH_SALE_COUPON.MAX_USES_PER_COUPON),
+  usedCount: z.number().int().nonnegative(),
+  maxUsesPerUser: z.number().int().positive().max(100),
+  isStackable: z.boolean(),
+  isActive: z.boolean(),
+  startAt: z.string().datetime(),
+  endAt: z.string().datetime(),
+  createdAt: z.string().datetime(),
 });
+
+export type FlashSaleCouponTypeSchemaType = z.infer<typeof FlashSaleCouponTypeSchema>;
+export type FlashSaleCouponSchemaType = z.infer<typeof FlashSaleCouponSchema>;

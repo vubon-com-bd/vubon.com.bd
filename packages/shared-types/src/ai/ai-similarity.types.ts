@@ -1,18 +1,39 @@
-import { BaseEntity } from '../common/base.types';
-import { AI_SIMILARITY } from '@vubon/shared-constants/src/ai/ai-similarity.constants';
-import { AIVector } from './ai-vector.types';
-import { AI } from './ai.types';
+/**
+ * AI Similarity Types
+ * @module shared-types/ai
+ *
+ * Values আসে shared-constants/ai/ai-similarity.constants থেকে।
+ */
 
-export interface AISimilarity extends BaseEntity {
-  similarityId: string;
-  aiId: string;
-  ai: AI;
-  type: keyof typeof AI_SIMILARITY.TYPES | string;
-  metric: keyof typeof AI_SIMILARITY.DEFAULT_SIMILARITY_METRIC | string;
-  vectorA: AIVector;
-  vectorB: AIVector;
-  score: number;
-  threshold: number;
-  isActive: boolean;
-  metadata: Record<string, unknown>;
+import type { AI_SIMILARITY_METRIC, AI_SIMILARITY_THRESHOLD } from '@vubon/shared-constants/ai';
+
+export type AiSimilarityMetricValue =
+  (typeof AI_SIMILARITY_METRIC)[keyof typeof AI_SIMILARITY_METRIC];
+
+export type AiSimilarityThresholdValue =
+  (typeof AI_SIMILARITY_THRESHOLD)[keyof typeof AI_SIMILARITY_THRESHOLD];
+
+export interface AiSimilarityRequest {
+  readonly sourceId: string;
+  readonly targetIds: readonly string[];
+  readonly metric?: AiSimilarityMetricValue;
+  readonly threshold?: number;
+}
+
+export interface AiSimilarityResult {
+  readonly matches: readonly AiSimilarityMatch[];
+  readonly metric: AiSimilarityMetricValue;
+  readonly took: number;
+}
+
+export interface AiSimilarityMatch {
+  readonly id: string;
+  readonly score: number;
+  readonly rank: number;
+}
+
+export interface AiSimilarityPair {
+  readonly idA: string;
+  readonly idB: string;
+  readonly score: number;
 }

@@ -1,60 +1,70 @@
+/**
+ * Route Schema
+ * @module shared-schemas/logistics
+ *
+ * Values আসে shared-constants/logistics/route.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { ZoneSchema } from './zone.schema';
-import { ROUTE } from '@vubon/shared-constants/src/logistics/route.constants';
+import { BaseEntitySchema } from '../common/base/base-entity.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema';
+import { ROUTE_STATUS, ROUTE_TYPE, ROUTE_OPTIMIZATION } from '@vubon/shared-constants/logistics';
 
-const routeStatusKeys = Object.keys(ROUTE.STATUS) as [string, ...string[]];
-const routeTypeKeys = Object.keys(ROUTE.TYPES) as [string, ...string[]];
-const routeOptimizationKeys = Object.keys(ROUTE.ROUTE_OPTIMIZATION) as [string, ...string[]];
+export const RouteStatusSchema = z.enum(Object.values(ROUTE_STATUS) as [string, ...string[]]);
 
-export const RouteSchema = BaseSchema.extend({
-  routeId: z.string().uuid(),
-  name: z.string().min(1).max(100),
-  code: z.string().min(1).max(50),
-  status: z.enum(routeStatusKeys),
-  type: z.enum(routeTypeKeys),
-  zone: ZoneSchema,
-  stops: z.array(
-    z.object({
-      stopId: z.string().uuid(),
-      address: z.string(),
-      latitude: z.number(),
-      longitude: z.number(),
-      order: z.number().int().min(0),
-      estimatedArrival: z.date(),
-      estimatedDeparture: z.date(),
-      actualArrival: z.date().optional(),
-      actualDeparture: z.date().optional(),
-    })
-  ),
-  totalStops: z.number().int().min(0).default(0),
-  totalDistance: z.number().positive(),
-  totalDuration: z.number().positive(),
-  optimization: z.enum(routeOptimizationKeys),
-  isActive: z.boolean().default(true),
-  isOptimized: z.boolean().default(false),
-  isUnderMaintenance: z.boolean().default(false),
-  startPoint: z.object({
-    latitude: z.number(),
-    longitude: z.number(),
-    address: z.string(),
-  }),
-  endPoint: z.object({
-    latitude: z.number(),
-    longitude: z.number(),
-    address: z.string(),
-  }),
-  waypoints: z.array(
-    z.object({
-      latitude: z.number(),
-      longitude: z.number(),
-      address: z.string(),
-    })
-  ),
-  metadata: z.object({
-    trafficCondition: z.string(),
-    roadCondition: z.string(),
-    weatherCondition: z.string(),
-    notes: z.string().optional(),
-  }),
+export const RouteTypeSchema = z.enum(Object.values(ROUTE_TYPE) as [string, ...string[]]);
+
+export const RouteOptimizationSchema = z.enum(
+  Object.values(ROUTE_OPTIMIZATION) as [string, ...string[]]
+);
+
+export const RouteStopSchema = z.object({
+  id: z.string().min(1).max(50),
+  order: z.number().int().nonnegative(),
+  location: z.string().max(200),
+  address: z.string().min(1).max(500),
+  latitude: z.number().min(-90).max(90).optional(),
+  longitude: z.number().min(-180).max(180).optional(),
+  shipmentIds: z.array(UuidSchema).max(100),
+  estimatedArrivalAt: z.string().datetime().optional(),
+  actualArrivalAt: z.string().datetime().optional(),
+  completed: z.boolean(),
+  notes: z.string().max(500).optional(),
 });
+
+export const RouteSchema = BaseEntitySchema.extend({
+  name: z.string().min(1).max(150),
+  code: z.string().min(1).max(50),
+  type: RouteTypeSchema,
+  status: RouteStatusSchema,
+  optimization: RouteOptimizationSchema,
+  stops: z.array(RouteStopSchema).min(1).max(200),
+  totalDistanceKm: z.number().nonnegative().optional(),
+  totalDurationMinutes: z.number().nonnegative().optional(),
+  warehouseId: UuidSchema.optional(),
+  vehicleId: UuidSchema.optional(),
+  driverId: UuidSchema.optional(),
+  scheduledDate: z.string().datetime(),
+  startedAt: z.string().datetime().optional(),
+  completedAt: z.string().datetime().optional(),
+  isOptimized: z.boolean(),
+  isRecurring: z.boolean(),
+  recurrenceRule: z.string().max(200).optional(),
+});
+
+export const RoutePublicSchema = RouteSchema.pick({
+  id: true,
+  name: true,
+  code: true,
+  type: true,
+  status: true,
+  scheduledDate: true,
+}).extend({
+  totalStops: z.number().int().nonnegative(),
+});
+
+export type RouteStatusSchemaType = z.infer<typeof RouteStatusSchema>;
+export type RouteTypeSchemaType = z.infer<typeof RouteTypeSchema>;
+export type RouteOptimizationSchemaType = z.infer<typeof RouteOptimizationSchema>;
+export type RouteSchemaType = z.infer<typeof RouteSchema>;
+export type RoutePublicSchemaType = z.infer<typeof RoutePublicSchema>;

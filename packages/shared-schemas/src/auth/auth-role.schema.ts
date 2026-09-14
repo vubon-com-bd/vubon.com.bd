@@ -1,12 +1,17 @@
+/**
+ * Auth Role Schema
+ * @module shared-schemas/auth
+ */
+
 import { z } from 'zod';
-import { RoleSchema } from '../common/role.schema';
-import { AUTH_ROLES } from '@vubon/shared-constants/src/auth/auth-role.constants';
+import { AUTH_ROLE } from '@vubon/shared-constants/auth';
 
-const authRoleValues = Object.values(AUTH_ROLES) as [string, ...string[]];
+export const AuthRoleSchema = z.enum(Object.values(AUTH_ROLE) as [string, ...string[]]);
 
-export const AuthRoleSchema = RoleSchema.extend({
-  role: z.enum(authRoleValues),
-  category: z.literal('auth'),
-});
+export const AuthRoleListSchema = z
+  .array(AuthRoleSchema)
+  .min(1, 'At least one role required')
+  .max(20, 'Too many roles');
 
-export const AuthRoleEnumSchema = z.enum(authRoleValues);
+export type AuthRoleSchemaType = z.infer<typeof AuthRoleSchema>;
+export type AuthRoleListSchemaType = z.infer<typeof AuthRoleListSchema>;

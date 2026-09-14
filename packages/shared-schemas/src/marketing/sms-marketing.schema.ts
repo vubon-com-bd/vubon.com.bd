@@ -1,21 +1,65 @@
+/**
+ * SMS Marketing Schema
+ * @module shared-schemas/marketing
+ *
+ * Values আসে shared-constants/marketing/sms-marketing.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { SMS_MARKETING } from '@vubon/shared-constants/src/marketing/sms-marketing.constants';
+import {
+  SMS_MARKETING_TYPE,
+  SMS_MARKETING_STATUS,
+  SMS_MARKETING,
+} from '@vubon/shared-constants/marketing';
 
-const smsMarketingStatusKeys = Object.keys(SMS_MARKETING.STATUS) as [string, ...string[]];
-const smsMarketingTypeKeys = Object.keys(SMS_MARKETING.SMS_TYPES) as [string, ...string[]];
+export const SmsMarketingTypeSchema = z.enum(
+  Object.values(SMS_MARKETING_TYPE) as [string, ...string[]]
+);
 
-export const SmsMarketingSchema = BaseSchema.extend({
-  smsId: z.string().uuid(),
-  body: z.string().min(1).max(160),
-  status: z.enum(smsMarketingStatusKeys),
-  type: z.enum(smsMarketingTypeKeys),
-  from: z.string(),
-  to: z.array(z.string()),
-  recipientCount: z.number().int().min(0).default(0),
-  sentAt: z.date().optional(),
-  scheduledAt: z.date().optional(),
-  deliveredCount: z.number().int().min(0).default(0),
-  failedCount: z.number().int().min(0).default(0),
-  metadata: z.record(z.unknown()).optional(),
+export const SmsMarketingStatusSchema = z.enum(
+  Object.values(SMS_MARKETING_STATUS) as [string, ...string[]]
+);
+
+export const SmsMarketingSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1).max(150),
+  type: SmsMarketingTypeSchema,
+  status: SmsMarketingStatusSchema,
+  message: z
+    .string()
+    .min(1)
+    .max(SMS_MARKETING.MAX_LENGTH * 5),
+  senderId: z.string().max(SMS_MARKETING.SENDER_ID_MAX_LENGTH).optional(),
+  recipientCount: z.number().int().nonnegative(),
+  sentCount: z.number().int().nonnegative(),
+  deliveredCount: z.number().int().nonnegative(),
+  failedCount: z.number().int().nonnegative(),
+  segments: z.number().int().nonnegative(),
+  scheduledAt: z.string().datetime().optional(),
+  sentAt: z.string().datetime().optional(),
+  createdBy: z.string().min(1),
+  createdAt: z.string().datetime(),
 });
+
+export const SmsMarketingPublicSchema = SmsMarketingSchema.pick({
+  id: true,
+  name: true,
+  type: true,
+  status: true,
+  recipientCount: true,
+  sentAt: true,
+});
+
+export const SmsMarketingStatsSchema = z.object({
+  campaignId: z.string().min(1),
+  sent: z.number().int().nonnegative(),
+  delivered: z.number().int().nonnegative(),
+  failed: z.number().int().nonnegative(),
+  deliveryRate: z.number().min(0).max(1),
+});
+
+export type SmsMarketingTypeSchemaType = z.infer<typeof SmsMarketingTypeSchema>;
+export type SmsMarketingStatusSchemaType = z.infer<typeof SmsMarketingStatusSchema>;
+export type SmsMarketingSchemaType = z.infer<typeof SmsMarketingSchema>;
+export type SmsMarketingPublicSchemaType = z.infer<typeof SmsMarketingPublicSchema>;
+export type SmsMarketingStatsSchemaType = z.infer<typeof SmsMarketingStatsSchema>;

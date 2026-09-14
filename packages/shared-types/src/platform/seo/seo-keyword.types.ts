@@ -1,19 +1,42 @@
-import { BaseEntity } from '../../common/base.types';
-import { SEO_KEYWORD } from '@vubon/shared-constants/src/platform/seo/seo-keyword.constants';
-import { SEO } from './seo.types';
+/**
+ * SEO Keyword Types
+ * @module shared-types/platform/seo
+ */
 
-export interface SEOKeyword extends BaseEntity {
-  keywordId: string;
-  seoId: string;
-  seo: SEO;
-  type: keyof typeof SEO_KEYWORD.TYPES | string;
-  keyword: string;
-  length: keyof typeof SEO_KEYWORD.KEYWORD_LENGTHS | string;
-  difficulty: keyof typeof SEO_KEYWORD.KEYWORD_DIFFICULTY | string;
-  searchVolume: number;
-  cpc: number;
-  competition: number;
-  isActive: boolean;
-  isTracking: boolean;
-  metadata: Record<string, unknown>;
+import type {
+  SEO_KEYWORD_TYPE,
+  SEO_KEYWORD_DIFFICULTY,
+  SEO_KEYWORD_INTENT,
+} from '@vubon/shared-constants/platform';
+
+export type SeoKeywordTypeValue = (typeof SEO_KEYWORD_TYPE)[keyof typeof SEO_KEYWORD_TYPE];
+
+export type SeoKeywordDifficultyValue =
+  (typeof SEO_KEYWORD_DIFFICULTY)[keyof typeof SEO_KEYWORD_DIFFICULTY];
+
+export type SeoKeywordIntentValue = (typeof SEO_KEYWORD_INTENT)[keyof typeof SEO_KEYWORD_INTENT];
+
+export interface SeoKeyword {
+  readonly id: string;
+  readonly keyword: string;
+  readonly type: SeoKeywordTypeValue;
+  readonly difficulty: SeoKeywordDifficultyValue;
+  readonly intent: SeoKeywordIntentValue;
+  readonly searchVolume?: number;
+  readonly competition?: number;
+  readonly cpc?: number;
+  readonly currentRank?: number;
+  readonly targetRank?: number;
+  readonly pageUrl?: string;
+  readonly lastCheckedAt?: string;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
+export interface SeoKeywordPublic {
+  readonly id: string;
+  readonly keyword: string;
+  readonly type: SeoKeywordTypeValue;
+  readonly searchVolume?: number;
+  readonly currentRank?: number;
 }

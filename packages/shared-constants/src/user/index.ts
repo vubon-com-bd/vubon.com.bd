@@ -1,3 +1,5 @@
+// user/index.ts — User domain barrel export
+
 export * from './user.constants';
 export * from './user-status.constants';
 export * from './user-type.constants';

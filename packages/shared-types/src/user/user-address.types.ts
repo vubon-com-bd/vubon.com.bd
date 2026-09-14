@@ -1,28 +1,40 @@
-import { BaseEntity } from '../common/base.types';
-import { Address, AddressData } from '../common/address.types';
-import { USER_ADDRESS } from '@vubon/shared-constants/src/user/user-address.constants';
-
 /**
- * User address type value
+ * User Address Types
+ * @module shared-types/user
+ *
+ * Values আসে shared-constants/user/user-address.constants থেকে।
+ * এবং shared-constants/common থেকে COUNTRY, DIVISION, DISTRICT।
  */
-export type UserAddressType = (typeof USER_ADDRESS)[keyof typeof USER_ADDRESS];
 
-/**
- * User address interface
- * Note: `address` stored as plain data for serialization.
- * Use `Address` value object in domain logic separately.
- */
-export interface UserAddress extends BaseEntity {
-  addressId: string;
-  userId: string;
-  address: AddressData;
-  type: UserAddressType;
-  isDefault: boolean;
-  isVerified: boolean;
-  metadata: Record<string, unknown>;
+import type { USER_ADDRESS_TYPE } from '@vubon/shared-constants/user';
+import type { UserId } from '../common/primitives';
+import type { Address } from '../common/geo';
+
+export type AddressTypeValue = (typeof USER_ADDRESS_TYPE)[keyof typeof USER_ADDRESS_TYPE];
+
+export interface UserAddress extends Address {
+  readonly id: string;
+  readonly userId: UserId;
+  readonly type: AddressTypeValue;
+  readonly isDefault: boolean;
+  readonly isDefaultShipping: boolean;
+  readonly isDefaultBilling: boolean;
+  readonly createdAt: string;
+  readonly updatedAt: string;
 }
 
-/**
- * Helper to get Address value object
- */
-export const toAddressVO = (data: AddressData): Address => new Address(data);
+export interface UserAddressInput extends Address {
+  readonly type: AddressTypeValue;
+  readonly isDefault?: boolean;
+  readonly isDefaultShipping?: boolean;
+  readonly isDefaultBilling?: boolean;
+}
+
+export interface UserAddressPublic {
+  readonly id: string;
+  readonly type: AddressTypeValue;
+  readonly line1: string;
+  readonly city: string;
+  readonly country: string;
+  readonly isDefault: boolean;
+}

@@ -1,15 +1,14 @@
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
-
 export const FLASH_SALE_TYPE = {
-  ...COMMON_TYPES,
-  DAILY_FLASH: 'daily_flash',
-  WEEKLY_FLASH: 'weekly_flash',
-  MONTHLY_FLASH: 'monthly_flash',
-  HOLIDAY_SPECIAL: 'holiday_special',
-  SEASONAL_SALE: 'seasonal_sale',
-  MIDNIGHT_MADNESS: 'midnight_madness',
-  HAPPY_HOUR: 'happy_hour',
-  FESTIVAL_OFFER: 'festival_offer',
-  CLEARANCE_SALE: 'clearance_sale',
-  NEW_ARRIVAL: 'new_arrival',
+  DAILY: 'daily',
+  WEEKLY: 'weekly',
+  MONTHLY: 'monthly',
+  SEASONAL: 'seasonal',
+  FESTIVAL: 'festival',
+  FLASH_HOUR: 'flash_hour',
+  MIDNIGHT: 'midnight',
+  WEEKEND: 'weekend',
+  CLEARANCE: 'clearance',
+  LIMITED_STOCK: 'limited_stock',
 } as const;
+
+export type FlashSaleTypeType = (typeof FLASH_SALE_TYPE)[keyof typeof FLASH_SALE_TYPE];

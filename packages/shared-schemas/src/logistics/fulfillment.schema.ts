@@ -1,58 +1,72 @@
+/**
+ * Fulfillment Schema
+ * @module shared-schemas/logistics
+ *
+ * Values আসে shared-constants/logistics/fulfillment.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { MoneySchema } from '../common/money.schema';
-import { QuantitySchema } from '../common/quantity.schema';
-import { OrderSchema } from '../business/checkout/order.schema';
-import { ProductSchema } from '../business/product/product.schema';
-import { WarehouseSchema } from './warehouse.schema';
-import { ShipmentSchema } from './shipment.schema';
-import { FULFILLMENT } from '@vubon/shared-constants/src/logistics/fulfillment.constants';
+import { BaseEntitySchema } from '../common/base/base-entity.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema';
+import {
+  FULFILLMENT_STATUS,
+  FULFILLMENT_TYPE,
+  FULFILLMENT_PRIORITY,
+} from '@vubon/shared-constants/logistics';
 
-const fulfillmentStatusKeys = Object.keys(FULFILLMENT.STATUS) as [string, ...string[]];
-const fulfillmentTypeKeys = Object.keys(FULFILLMENT.FULFILLMENT_TYPES) as [string, ...string[]];
-const pickingStrategyKeys = Object.keys(FULFILLMENT.PICKING_STRATEGIES) as [string, ...string[]];
+export const FulfillmentStatusSchema = z.enum(
+  Object.values(FULFILLMENT_STATUS) as [string, ...string[]]
+);
 
-export const FulfillmentSchema: z.ZodObject<z.ZodRawShape> = BaseSchema.extend({
-  fulfillmentId: z.string().uuid(),
-  orderId: z.string().uuid(),
-  order: OrderSchema,
-  status: z.enum(fulfillmentStatusKeys),
-  type: z.enum(fulfillmentTypeKeys),
-  strategy: z.enum(pickingStrategyKeys),
-  warehouse: WarehouseSchema,
-  shipment: ShipmentSchema,
-  items: z.array(
-    z.object({
-      itemId: z.string().uuid(),
-      productId: z.string().uuid(),
-      product: ProductSchema,
-      quantity: QuantitySchema,
-      location: z.string(),
-      status: z.enum(['pending', 'picked', 'packed', 'labeled', 'ready', 'shipped']),
-    })
-  ),
-  totalItems: z.number().int().min(0).default(0),
-  totalWeight: z.number().min(0).default(0),
-  totalVolume: z.number().min(0).default(0),
-  pickingStartedAt: z.date().optional(),
-  pickingCompletedAt: z.date().optional(),
-  packingStartedAt: z.date().optional(),
-  packingCompletedAt: z.date().optional(),
-  labelingStartedAt: z.date().optional(),
-  labelingCompletedAt: z.date().optional(),
-  readyToShipAt: z.date().optional(),
-  shippedAt: z.date().optional(),
-  deliveredAt: z.date().optional(),
-  notes: z.string().optional(),
-  metadata: z.object({
-    batchId: z.string().optional(),
-    waveId: z.string().optional(),
-    zoneId: z.string().optional(),
-    pickerId: z.string().optional(),
-    packerId: z.string().optional(),
-    laborCost: MoneySchema,
-    materialCost: MoneySchema,
-  }),
+export const FulfillmentTypeSchema = z.enum(
+  Object.values(FULFILLMENT_TYPE) as [string, ...string[]]
+);
+
+export const FulfillmentPrioritySchema = z.enum(
+  Object.values(FULFILLMENT_PRIORITY) as [string, ...string[]]
+);
+
+export const FulfillmentSchema = BaseEntitySchema.extend({
+  orderId: UuidSchema,
+  vendorId: UuidSchema.optional(),
+  warehouseId: UuidSchema.optional(),
+  status: FulfillmentStatusSchema,
+  type: FulfillmentTypeSchema,
+  priority: FulfillmentPrioritySchema,
+  itemIds: z.array(UuidSchema).min(1).max(100),
+  assignedTo: UuidSchema.optional(),
+  pickedAt: z.string().datetime().optional(),
+  packedAt: z.string().datetime().optional(),
+  shippedAt: z.string().datetime().optional(),
+  cancelledAt: z.string().datetime().optional(),
+  notes: z.string().max(1000).optional(),
+  slaDueAt: z.string().datetime().optional(),
 });
 
+export const FulfillmentPublicSchema = FulfillmentSchema.pick({
+  id: true,
+  orderId: true,
+  status: true,
+  type: true,
+  priority: true,
+}).extend({
+  itemCount: z.number().int().nonnegative(),
+});
+
+export const FulfillmentListFilterSchema = z.object({
+  status: FulfillmentStatusSchema.optional(),
+  type: FulfillmentTypeSchema.optional(),
+  priority: FulfillmentPrioritySchema.optional(),
+  orderId: UuidSchema.optional(),
+  vendorId: UuidSchema.optional(),
+  warehouseId: UuidSchema.optional(),
+  fromDate: z.string().datetime().optional(),
+  toDate: z.string().datetime().optional(),
+});
+
+export type FulfillmentStatusSchemaType = z.infer<typeof FulfillmentStatusSchema>;
+export type FulfillmentTypeSchemaType = z.infer<typeof FulfillmentTypeSchema>;
+export type FulfillmentPrioritySchemaType = z.infer<typeof FulfillmentPrioritySchema>;
 export type FulfillmentSchemaType = z.infer<typeof FulfillmentSchema>;
+export type FulfillmentPublicSchemaType = z.infer<typeof FulfillmentPublicSchema>;
+export type FulfillmentListFilterSchemaType = z.infer<typeof FulfillmentListFilterSchema>;

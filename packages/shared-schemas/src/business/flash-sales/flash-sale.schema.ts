@@ -1,70 +1,80 @@
+/**
+ * Flash Sale Core Schema
+ * @module shared-schemas/business/flash-sales
+ *
+ * Flash Sale entity + aggregator।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { MoneySchema } from '../../common/money.schema';
-import { ProductSchema } from '../product/product.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema';
+import { FlashSaleStatusSchema } from './flash-sale-status.schema';
+import { FlashSaleTypeSchema } from './flash-sale-type.schema';
 import { FlashSaleScheduleSchema } from './flash-sale-schedule.schema';
-import { FlashSaleParticipantSchema } from './flash-sale-participant.schema';
-import { FlashSaleRuleSchema } from './flash-sale-rule.schema';
-import { FlashSaleInventorySchema } from './flash-sale-inventory.schema';
-import { FlashSalePriceSchema } from './flash-sale-price.schema';
-import { FLASH_SALE_STATUS } from '@vubon/shared-constants/src/business/flash-sales/flash-sale-status.constants';
-import { FLASH_SALE_TYPE } from '@vubon/shared-constants/src/business/flash-sales/flash-sale-type.constants';
+import { FlashSalePricePublicSchema } from './flash-sale-price.schema';
+import { ProductDealPublicSchema } from './product-deal.schema';
+import { BundleDealPublicSchema } from './bundle-deal.schema';
 
-const flashSaleStatusKeys = Object.keys(FLASH_SALE_STATUS) as [string, ...string[]];
-const flashSaleTypeKeys = Object.keys(FLASH_SALE_TYPE) as [string, ...string[]];
-
-export const FlashSaleSchema = BaseSchema.extend({
-  flashSaleId: z.string().uuid(),
-  name: z.string().min(1).max(255),
-  slug: z
-    .string()
-    .min(1)
-    .max(255)
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-  description: z.string().optional(),
-  status: z.enum(flashSaleStatusKeys),
-  type: z.enum(flashSaleTypeKeys),
-  products: z.array(ProductSchema),
-  productCount: z.number().int().min(0).default(0),
+export const FlashSaleSchema = BaseEntitySchema.extend({
+  name: z.string().min(1).max(150),
+  slug: z.string().min(1).max(150),
+  description: z.string().max(2000).optional(),
+  type: FlashSaleTypeSchema,
+  status: FlashSaleStatusSchema,
   schedule: FlashSaleScheduleSchema,
-  participants: z.array(FlashSaleParticipantSchema),
-  participantCount: z.number().int().min(0).default(0),
-  rules: z.array(FlashSaleRuleSchema),
-  inventory: FlashSaleInventorySchema,
-  pricing: FlashSalePriceSchema,
-  discountPercentage: z.number().min(0).max(100),
-  maxDiscountAmount: MoneySchema.optional(),
-  minPurchaseAmount: MoneySchema.optional(),
-  maxPurchaseAmount: MoneySchema.optional(),
-  perUserLimit: z.number().int().min(1).default(1),
-  totalLimit: z.number().int().min(1),
-  soldCount: z.number().int().min(0).default(0),
-  remainingCount: z.number().int().min(0).default(0),
-  isActive: z.boolean().default(true),
-  isPublished: z.boolean().default(false),
-  isFeatured: z.boolean().default(false),
-  publishedAt: z.date().optional(),
-  metadata: z
-    .object({
-      bannerImage: z.string().url().optional(),
-      bannerVideo: z.string().url().optional(),
-      seoTitle: z.string().max(60).optional(),
-      seoDescription: z.string().max(160).optional(),
-      isPublic: z.boolean().default(true),
-      viewCount: z.number().int().min(0).default(0),
-      shareCount: z.number().int().min(0).default(0),
-    })
-    .optional(),
+  bannerUrl: z.string().url().optional(),
+  thumbnailUrl: z.string().url().optional(),
+  theme: z.string().max(50).optional(),
+  maxProducts: z.number().int().positive().max(100000),
+  maxParticipants: z.number().int().positive().max(100000),
+  minDiscountPercent: z.number().min(0).max(100),
+  maxDiscountPercent: z.number().min(0).max(100),
+  products: z.array(ProductDealPublicSchema).max(1000),
+  bundles: z.array(BundleDealPublicSchema).max(100),
+  prices: z.array(FlashSalePricePublicSchema).max(1000),
+  participantCount: z.number().int().nonnegative(),
+  productCount: z.number().int().nonnegative(),
+  isFeatured: z.boolean(),
+  createdBy: z.string().min(1),
 });
 
-export const FlashSaleCreateSchema = FlashSaleSchema.omit({
+export const FlashSalePublicSchema = FlashSaleSchema.pick({
   id: true,
-  createdAt: true,
-  updatedAt: true,
+  name: true,
+  slug: true,
+  type: true,
+  status: true,
+  bannerUrl: true,
+  thumbnailUrl: true,
+  theme: true,
   productCount: true,
-  participantCount: true,
-  soldCount: true,
-  remainingCount: true,
+  isFeatured: true,
+}).extend({
+  startAt: z.string().datetime(),
+  endAt: z.string().datetime(),
 });
 
-export const FlashSaleUpdateSchema = FlashSaleCreateSchema.partial();
+export const FlashSaleSummarySchema = FlashSaleSchema.pick({
+  id: true,
+  name: true,
+  status: true,
+  productCount: true,
+}).extend({
+  startAt: z.string().datetime(),
+  endAt: z.string().datetime(),
+  remainingSeconds: z.number().int().nonnegative(),
+});
+
+export const FlashSaleListFilterSchema = z.object({
+  status: FlashSaleStatusSchema.optional(),
+  type: FlashSaleTypeSchema.optional(),
+  isFeatured: z.boolean().optional(),
+  activeNow: z.boolean().optional(),
+  fromDate: z.string().datetime().optional(),
+  toDate: z.string().datetime().optional(),
+  search: z.string().max(200).optional(),
+});
+
+export type FlashSaleSchemaType = z.infer<typeof FlashSaleSchema>;
+export type FlashSalePublicSchemaType = z.infer<typeof FlashSalePublicSchema>;
+export type FlashSaleSummarySchemaType = z.infer<typeof FlashSaleSummarySchema>;
+export type FlashSaleListFilterSchemaType = z.infer<typeof FlashSaleListFilterSchema>;

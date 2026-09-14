@@ -1,38 +1,40 @@
-import { BaseEntity } from '../../common/base.types';
-import { SEO_AUDIT } from '@vubon/shared-constants/src/platform/seo/seo-audit.constants';
-import { SEO } from './seo.types';
-import { SEOScore } from './seo-score.types';
+/**
+ * SEO Audit Types
+ * @module shared-types/platform/seo
+ */
 
-export interface AuditIssue {
-  id: string;
-  severity: 'critical' | 'high' | 'medium' | 'low';
-  title: string;
-  description: string;
-  recommendation: string;
-  isFixed: boolean;
+import type { SEO_AUDIT_TYPE, SEO_AUDIT_STATUS } from '@vubon/shared-constants/platform';
+
+export type SeoAuditTypeValue = (typeof SEO_AUDIT_TYPE)[keyof typeof SEO_AUDIT_TYPE];
+
+export type SeoAuditStatusValue = (typeof SEO_AUDIT_STATUS)[keyof typeof SEO_AUDIT_STATUS];
+
+export interface SeoAudit {
+  readonly id: string;
+  readonly url?: string;
+  readonly type: SeoAuditTypeValue;
+  readonly status: SeoAuditStatusValue;
+  readonly score?: number;
+  readonly totalPages: number;
+  readonly issues: readonly SeoAuditIssue[];
+  readonly startedAt?: string;
+  readonly completedAt?: string;
+  readonly durationMs?: number;
+  readonly triggeredBy?: string;
+  readonly createdAt: string;
 }
 
-export interface AuditRecommendation {
-  id: string;
-  priority: 'high' | 'medium' | 'low';
-  title: string;
-  description: string;
-  effort: 'low' | 'medium' | 'high';
-  impact: 'low' | 'medium' | 'high';
+export interface SeoAuditIssue {
+  readonly id: string;
+  readonly category: string;
+  readonly severity: 'critical' | 'high' | 'medium' | 'low';
+  readonly message: string;
+  readonly url?: string;
+  readonly details?: Readonly<Record<string, unknown>>;
 }
 
-export interface SEOAudit extends BaseEntity {
-  auditId: string;
-  seoId: string;
-  seo: SEO;
-  status: keyof typeof SEO_AUDIT.STATUS | string;
-  type: keyof typeof SEO_AUDIT.TYPES | string;
-  category: keyof typeof SEO_AUDIT.AUDIT_CATEGORIES | string;
-  score: SEOScore;
-  issues: AuditIssue[];
-  recommendations: AuditRecommendation[];
-  frequency: keyof typeof SEO_AUDIT.AUDIT_FREQUENCIES | string;
-  startedAt: Date;
-  completedAt?: Date;
-  metadata: Record<string, unknown>;
+export interface SeoAuditRequest {
+  readonly url?: string;
+  readonly type: SeoAuditTypeValue;
+  readonly maxPages?: number;
 }

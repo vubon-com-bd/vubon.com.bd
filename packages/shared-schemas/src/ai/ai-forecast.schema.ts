@@ -1,21 +1,53 @@
+/**
+ * AI Forecast Schema
+ * @module shared-schemas/ai
+ *
+ * Values আসে shared-constants/ai/ai-forecast.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { AI_FORECAST } from '@vubon/shared-constants/src/ai/ai-forecast.constants';
+import { AI_FORECAST_TYPE, AI_FORECAST_MODEL } from '@vubon/shared-constants/ai';
 
-const aiForecastTypeKeys = Object.keys(AI_FORECAST.TYPES) as [string, ...string[]];
-const forecastModelKeys = Object.keys(AI_FORECAST.FORECAST_MODELS) as [string, ...string[]];
-const timeFrameKeys = Object.keys(AI_FORECAST.TIME_FRAMES) as [string, ...string[]];
+export const AiForecastTypeSchema = z.enum(
+  Object.values(AI_FORECAST_TYPE) as [string, ...string[]]
+);
 
-export const AIForecastSchema = BaseSchema.extend({
-  forecastId: z.string().uuid(),
-  aiId: z.string().uuid(),
-  type: z.enum(aiForecastTypeKeys),
-  model: z.enum(forecastModelKeys),
-  timeFrame: z.enum(timeFrameKeys),
-  value: z.number(),
-  confidenceLower: z.number(),
-  confidenceUpper: z.number(),
-  confidenceInterval: z.number().min(0).max(1),
-  isActive: z.boolean().default(true),
-  metadata: z.record(z.unknown()).optional(),
+export const AiForecastModelSchema = z.enum(
+  Object.values(AI_FORECAST_MODEL) as [string, ...string[]]
+);
+
+export const AiForecastDataPointSchema = z.object({
+  timestamp: z.string().datetime(),
+  predictedValue: z.number(),
+  lowerBound: z.number(),
+  upperBound: z.number(),
+  actualValue: z.number().optional(),
 });
+
+export const AiForecastSchema = z.object({
+  id: z.string().min(1),
+  type: AiForecastTypeSchema,
+  model: AiForecastModelSchema,
+  horizonDays: z.number().int().positive().max(365),
+  dataPoints: z.array(AiForecastDataPointSchema).max(10000),
+  confidenceInterval: z.number().min(0).max(1),
+  seasonalityDetected: z.boolean(),
+  mape: z.number().nonnegative().optional(),
+  mae: z.number().nonnegative().optional(),
+  rmse: z.number().nonnegative().optional(),
+  generatedAt: z.string().datetime(),
+  expiresAt: z.string().datetime().optional(),
+});
+
+export const AiForecastRequestSchema = z.object({
+  type: AiForecastTypeSchema,
+  model: AiForecastModelSchema.optional(),
+  horizonDays: z.number().int().min(1).max(365),
+  historyDays: z.number().int().min(30).max(1095),
+  filters: z.record(z.string(), z.unknown()).optional(),
+});
+
+export type AiForecastTypeSchemaType = z.infer<typeof AiForecastTypeSchema>;
+export type AiForecastModelSchemaType = z.infer<typeof AiForecastModelSchema>;
+export type AiForecastSchemaType = z.infer<typeof AiForecastSchema>;
+export type AiForecastRequestSchemaType = z.infer<typeof AiForecastRequestSchema>;

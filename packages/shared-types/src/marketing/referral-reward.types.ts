@@ -1,20 +1,30 @@
-import { BaseEntity } from '../common/base.types';
-import { Money } from '../common/money.types';
-import { REFERRAL_REWARD } from '@vubon/shared-constants/src/marketing/referral-reward.constants';
-import { Referral } from './referral.types';
-import { LoyaltyPoints } from './loyalty-points.types';
+/**
+ * Referral Reward Types
+ * @module shared-types/marketing
+ */
 
-export interface ReferralReward extends BaseEntity {
-  rewardId: string;
-  referralId: string;
-  referral: Referral;
-  type: keyof typeof REFERRAL_REWARD.TYPES | string;
-  referrerAmount: Money;
-  refereeAmount: Money;
-  totalAmount: Money;
-  points: LoyaltyPoints;
-  isClaimed: boolean;
-  claimedAt?: Date;
-  expiresAt: Date;
-  metadata: Record<string, unknown>;
+import type { REFERRAL_REWARD_TYPE, REFERRAL_TYPE } from '@vubon/shared-constants/marketing';
+import type { Money } from '../common/primitives';
+
+export type ReferralRewardTypeValue =
+  (typeof REFERRAL_REWARD_TYPE)[keyof typeof REFERRAL_REWARD_TYPE];
+
+export type ReferralTypeValue = (typeof REFERRAL_TYPE)[keyof typeof REFERRAL_TYPE];
+
+export interface ReferralReward {
+  readonly type: ReferralRewardTypeValue;
+  readonly amount?: Money;
+  readonly percent?: number;
+  readonly points?: number;
+  readonly currency?: string;
+  readonly expiresAt?: string;
+}
+
+export interface ReferralRewardGrant {
+  readonly referralId: string;
+  readonly userId: string;
+  readonly reward: ReferralReward;
+  readonly grantedAt: string;
+  readonly expiresAt?: string;
+  readonly claimedAt?: string;
 }

@@ -1,19 +1,44 @@
-import { BaseEntity } from '../common/base.types';
-import { SUPPORT_FAQ } from '@vubon/shared-constants/src/support/faq.constants';
-import { FAQ_CATEGORY } from '@vubon/shared-constants/src/content/faq-category.constants';
+/**
+ * FAQ Types
+ * @module shared-types/support
+ */
 
-export interface SupportFaq extends BaseEntity {
-  faqId: string;
-  question: string;
-  answer: string;
-  status: keyof typeof SUPPORT_FAQ.STATUS | string;
-  type: keyof typeof SUPPORT_FAQ.FAQ_TYPES | string;
-  category: keyof typeof FAQ_CATEGORY.TYPES | string;
-  order: number;
-  viewCount: number;
-  helpfulCount: number;
-  notHelpfulCount: number;
-  isActive: boolean;
-  isPublished: boolean;
-  metadata: Record<string, unknown>;
+import type { FAQ_STATUS, FAQ_CATEGORY } from '@vubon/shared-constants/support';
+import type { BaseEntity } from '../common/base';
+
+export type FaqStatusValue = (typeof FAQ_STATUS)[keyof typeof FAQ_STATUS];
+
+export type FaqCategoryValue = (typeof FAQ_CATEGORY)[keyof typeof FAQ_CATEGORY];
+
+export interface Faq extends BaseEntity<string> {
+  readonly question: string;
+  readonly answer: string;
+  readonly category: FaqCategoryValue;
+  readonly status: FaqStatusValue;
+  readonly tags?: readonly string[];
+  readonly helpfulCount: number;
+  readonly notHelpfulCount: number;
+  readonly viewCount: number;
+  readonly sortOrder: number;
+  readonly isFeatured: boolean;
+  readonly language?: string;
+  readonly createdBy: string;
+  readonly updatedBy?: string;
+}
+
+export interface FaqPublic {
+  readonly id: string;
+  readonly question: string;
+  readonly answer: string;
+  readonly category: FaqCategoryValue;
+  readonly helpfulCount: number;
+  readonly viewCount: number;
+}
+
+export interface FaqListFilter {
+  readonly status?: FaqStatusValue;
+  readonly category?: FaqCategoryValue;
+  readonly tags?: readonly string[];
+  readonly isFeatured?: boolean;
+  readonly search?: string;
 }

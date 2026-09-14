@@ -1,23 +1,23 @@
-import { TypeObject } from '../../common/types.types';
-import { SEARCH_BOOST } from '@vubon/shared-constants/src/platform/search/search-boost.constants';
+/**
+ * Search Boost Types
+ * @module shared-types/platform/search
+ */
 
-export interface SearchBoost extends TypeObject {
-  type: keyof typeof SEARCH_BOOST.TYPES | string;
-  category: 'search_boost';
-  weight: number;
-  isTitle: boolean;
-  isDescription: boolean;
-  isContent: boolean;
-  isCategory: boolean;
-  isBrand: boolean;
-  isVendor: boolean;
-  isTags: boolean;
-  isSku: boolean;
-  isPopularity: boolean;
-  isRating: boolean;
-  isSales: boolean;
-  isNewness: boolean;
-  isPromotion: boolean;
+import type { SEARCH_BOOST, SEARCH_BOOST_FIELD } from '@vubon/shared-constants/platform';
+
+export type SearchBoostFieldValue = (typeof SEARCH_BOOST_FIELD)[keyof typeof SEARCH_BOOST_FIELD];
+
+export type SearchBoostConfig = typeof SEARCH_BOOST;
+
+export interface SearchBoost {
+  readonly field: SearchBoostFieldValue;
+  readonly boost: number;
+  readonly decayEnabled?: boolean;
+  readonly decayScaleDays?: number;
 }
 
-export type SearchBoostKey = keyof typeof SEARCH_BOOST.TYPES;
+export interface SearchBoostMetadata {
+  readonly field: SearchBoostFieldValue;
+  readonly defaultBoost: number;
+  readonly maxBoost: number;
+}

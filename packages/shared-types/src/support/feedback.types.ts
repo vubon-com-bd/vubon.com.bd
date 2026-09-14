@@ -1,22 +1,62 @@
-import { BaseEntity } from '../common/base.types';
-import { User } from '../user/user.types';
-import { RATING } from '@vubon/shared-constants/src/common/rating.constants';
-import { FEEDBACK } from '@vubon/shared-constants/src/support/feedback.constants';
+/**
+ * Feedback Types
+ * @module shared-types/support
+ */
 
-export interface Feedback extends BaseEntity {
-  feedbackId: string;
-  userId: string;
-  user: User;
-  type: keyof typeof FEEDBACK.FEEDBACK_TYPES | string;
-  rating: keyof typeof RATING | string;
-  content: string;
-  status: keyof typeof FEEDBACK.STATUS | string;
-  images: string[];
-  isAnonymous: boolean;
-  reviewedBy?: string;
-  reviewedAt?: Date;
-  actionedAt?: Date;
-  action?: string;
-  rejectedReason?: string;
-  metadata: Record<string, unknown>;
+import type { FEEDBACK_TYPE, FEEDBACK_STATUS } from '@vubon/shared-constants/support';
+import type { BaseEntity } from '../common/base';
+import type { UserId } from '../common/primitives';
+
+export type FeedbackTypeValue = (typeof FEEDBACK_TYPE)[keyof typeof FEEDBACK_TYPE];
+
+export type FeedbackStatusValue = (typeof FEEDBACK_STATUS)[keyof typeof FEEDBACK_STATUS];
+
+export interface Feedback extends BaseEntity<string> {
+  readonly type: FeedbackTypeValue;
+  readonly status: FeedbackStatusValue;
+  readonly title?: string;
+  readonly message: string;
+  readonly rating?: number;
+  readonly attachments?: readonly string[];
+  readonly userId?: UserId;
+  readonly email?: string;
+  readonly isAnonymous: boolean;
+  readonly tags?: readonly string[];
+  readonly referenceId?: string;
+  readonly referenceType?: string;
+  readonly reviewedBy?: UserId;
+  readonly reviewedAt?: string;
+  readonly resolvedAt?: string;
+}
+
+export interface FeedbackPublic {
+  readonly id: string;
+  readonly type: FeedbackTypeValue;
+  readonly status: FeedbackStatusValue;
+  readonly title?: string;
+  readonly message: string;
+  readonly rating?: number;
+  readonly isAnonymous: boolean;
+  readonly createdAt: string;
+}
+
+export interface FeedbackCreateInput {
+  readonly type: FeedbackTypeValue;
+  readonly title?: string;
+  readonly message: string;
+  readonly rating?: number;
+  readonly attachments?: readonly string[];
+  readonly isAnonymous?: boolean;
+  readonly referenceId?: string;
+  readonly referenceType?: string;
+}
+
+export interface FeedbackListFilter {
+  readonly type?: FeedbackTypeValue;
+  readonly status?: FeedbackStatusValue;
+  readonly minRating?: number;
+  readonly maxRating?: number;
+  readonly isAnonymous?: boolean;
+  readonly fromDate?: string;
+  readonly toDate?: string;
 }

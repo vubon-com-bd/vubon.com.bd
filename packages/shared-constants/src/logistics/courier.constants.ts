@@ -1,41 +1,51 @@
-import { STATUS as COMMON_STATUS } from '../common/status.constants';
-import { TYPES as COMMON_TYPES } from '../common/types.constants';
-import { VENDOR_STATUS } from '../business/vendor/vendor-status.constants';
+export const COURIER_STATUS = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+  SUSPENDED: 'suspended',
+  PENDING: 'pending',
+  TERMINATED: 'terminated',
+} as const;
+
+export const COURIER_TYPE = {
+  LOCAL: 'local',
+  NATIONAL: 'national',
+  INTERNATIONAL: 'international',
+  THIRD_PARTY: 'third_party',
+  IN_HOUSE: 'in_house',
+  MARKETPLACE: 'marketplace',
+} as const;
+
+export const COURIER_NAME = {
+  SA_PARIBAHAN: 'sa_paribahan',
+  SUNDARBAN: 'sundarban',
+  KARATOYA: 'karatoya',
+  SHOHAGH: 'shohagh',
+  TRC: 'trc',
+  DHL: 'dhl',
+  FEDEX: 'fedex',
+  UPS: 'ups',
+  ARAMEX: 'aramex',
+  PATHao: 'pathao',
+  REDX: 'redx',
+  PAPERFLY: 'paperfly',
+  STEADFAST: 'steadfast',
+  ECURIER: 'ecourier',
+} as const;
 
 export const COURIER = {
-  STATUS: {
-    ...COMMON_STATUS,
-    ACTIVE: 'active',
-    INACTIVE: 'inactive',
-    SUSPENDED: 'suspended',
-    BANNED: 'banned',
-  },
-  TYPES: {
-    ...COMMON_TYPES,
-    LOCAL: 'local',
-    NATIONAL: 'national',
-    INTERNATIONAL: 'international',
-    EXPRESS: 'express',
-    STANDARD: 'standard',
-    ECONOMY: 'economy',
-  },
-  VENDOR_STATUS: { ...VENDOR_STATUS },
-  COURIER_COMPANIES: [
-    'SA Paribahan',
-    'Sundarban Courier',
-    'Redx',
-    'Pathao Courier',
-    'E-Courier',
-    'DHL',
-    'FedEx',
-    'UPS',
-  ],
-  SERVICE_TYPES: {
-    DOOR_TO_DOOR: 'door_to_door',
-    DOOR_TO_STATION: 'door_to_station',
-    STATION_TO_DOOR: 'station_to_door',
-    STATION_TO_STATION: 'station_to_station',
-  },
-  MAX_WEIGHT_KG: 100,
-  MAX_DIMENSIONS_CM: { length: 150, width: 150, height: 150 },
+  STATUS: COURIER_STATUS,
+  TYPE: COURIER_TYPE,
+  NAME: COURIER_NAME,
+  MAX_ACTIVE_COURIERS: 50,
+  API_TIMEOUT_SECONDS: 30,
+  RETRY_ATTEMPTS: 3,
+  RETRY_DELAY_SECONDS: 60,
+  AUTO_SELECT_CHEAPEST: false,
+  PREFER_FASTEST: true,
+  REQUIRE_API_KEY: true,
+  TRACK_ENABLED: true,
 } as const;
+
+export type CourierStatusType = (typeof COURIER_STATUS)[keyof typeof COURIER_STATUS];
+export type CourierTypeType = (typeof COURIER_TYPE)[keyof typeof COURIER_TYPE];
+export type CourierNameType = (typeof COURIER_NAME)[keyof typeof COURIER_NAME];

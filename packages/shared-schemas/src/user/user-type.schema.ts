@@ -1,11 +1,11 @@
+/**
+ * User Type Schema
+ * @module shared-schemas/user
+ */
+
 import { z } from 'zod';
-import { USER_TYPES } from '@vubon/shared-constants/src/user/user-type.constants';
+import { USER_TYPE } from '@vubon/shared-constants/user';
 
-const userTypeValues = Object.values(USER_TYPES) as [string, ...string[]];
+export const UserTypeSchema = z.enum(Object.values(USER_TYPE) as [string, ...string[]]);
 
-export const UserTypeSchema = z.object({
-  type: z.enum(userTypeValues),
-  category: z.literal('user'),
-});
-
-export const UserTypeEnumSchema = z.enum(userTypeValues);
+export type UserTypeSchemaType = z.infer<typeof UserTypeSchema>;

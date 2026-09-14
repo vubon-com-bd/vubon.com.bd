@@ -1,49 +1,45 @@
+/**
+ * Cart Item Schema
+ * @module shared-schemas/business/cart
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { MoneySchema } from '../../common/money.schema';
-import { QuantitySchema } from '../../common/quantity.schema';
-import { ProductSchema } from '../product/product.schema';
-import { VariantSchema } from '../product/variant.schema';
-import { CART_ITEM } from '@vubon/shared-constants/src/business/cart/cart-item.constants';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { MoneySchema, PositiveMoneySchema } from '../../common/primitives/money.schema';
 
-const cartItemStatusKeys = Object.keys(CART_ITEM.STATUS) as [string, ...string[]];
-const cartItemTypeKeys = Object.keys(CART_ITEM.TYPES) as [string, ...string[]];
-
-export const CartItemSchema = BaseSchema.extend({
-  itemId: z.string().uuid(),
-  cartId: z.string().uuid(),
-  productId: z.string().uuid(),
-  product: ProductSchema,
-  variantId: z.string().uuid().optional(),
-  variant: VariantSchema.optional(),
-  status: z.enum(cartItemStatusKeys),
-  type: z.enum(cartItemTypeKeys),
-  quantity: QuantitySchema,
-  maxQuantity: z.number().int().min(1).default(99),
-  unitPrice: MoneySchema,
-  totalPrice: MoneySchema,
-  discountPrice: MoneySchema,
-  taxPrice: MoneySchema,
-  finalPrice: MoneySchema,
-  isSelected: z.boolean().default(true),
-  isGift: z.boolean().default(false),
-  giftMessage: z.string().optional(),
-  notes: z.string().optional(),
-  metadata: z.object({
-    addedAt: z.date(),
-    updatedAt: z.date(),
-    source: z.string(),
-    wishlistId: z.string().uuid().optional(),
-    savedForLaterId: z.string().uuid().optional(),
-  }),
+export const CartItemSchema = z.object({
+  id: UuidSchema,
+  cartId: UuidSchema,
+  productId: UuidSchema,
+  variantId: UuidSchema.optional(),
+  sku: z.string().min(1).max(64),
+  name: z.string().min(1).max(200),
+  imageUrl: z.string().url().optional(),
+  unitPrice: PositiveMoneySchema,
+  compareAtPrice: MoneySchema.optional(),
+  quantity: z.number().int().min(1).max(999),
+  subtotal: PositiveMoneySchema,
+  discountAmount: MoneySchema.optional(),
+  taxAmount: MoneySchema.optional(),
+  total: PositiveMoneySchema,
+  currency: z.string().length(3),
+  attributes: z.record(z.string(), z.string()).optional(),
+  isAvailable: z.boolean(),
+  addedAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
 });
 
-export const CartItemCreateSchema = CartItemSchema.omit({
+export const CartItemPublicSchema = CartItemSchema.pick({
   id: true,
-  createdAt: true,
-  updatedAt: true,
-  totalPrice: true,
-  discountPrice: true,
-  taxPrice: true,
-  finalPrice: true,
+  productId: true,
+  variantId: true,
+  name: true,
+  imageUrl: true,
+  unitPrice: true,
+  quantity: true,
+  total: true,
+  isAvailable: true,
 });
+
+export type CartItemSchemaType = z.infer<typeof CartItemSchema>;
+export type CartItemPublicSchemaType = z.infer<typeof CartItemPublicSchema>;

@@ -1,21 +1,43 @@
-import { BaseEntity } from '../common/base.types';
-import { USER_ACTIVITY } from '@vubon/shared-constants/src/user/user-activity.constants';
-
 /**
- * User activity type value
+ * User Activity Types
+ * @module shared-types/user
+ *
+ * Values আসে shared-constants/user/user-activity.constants থেকে।
  */
-export type UserActivityType = (typeof USER_ACTIVITY)[keyof typeof USER_ACTIVITY];
 
-/**
- * User activity interface
- */
-export interface UserActivity extends BaseEntity {
-  activityId: string;
-  userId: string;
-  type: UserActivityType;
-  description: string;
-  ipAddress: string;
-  userAgent: string;
-  metadata: Record<string, unknown>;
-  occurredAt: Date;
+import type { USER_ACTIVITY, USER_ACTIVITY_CATEGORY } from '@vubon/shared-constants/user';
+import type { UserId, IpAddress } from '../common/primitives';
+
+export type ActivityTypeValue = (typeof USER_ACTIVITY)[keyof typeof USER_ACTIVITY];
+
+export type ActivityCategoryValue =
+  (typeof USER_ACTIVITY_CATEGORY)[keyof typeof USER_ACTIVITY_CATEGORY];
+
+export interface UserActivity {
+  readonly id: string;
+  readonly userId: UserId;
+  readonly type: ActivityTypeValue;
+  readonly category: ActivityCategoryValue;
+  readonly description?: string;
+  readonly ipAddress?: IpAddress;
+  readonly userAgent?: string;
+  readonly deviceId?: string;
+  readonly metadata?: Readonly<Record<string, unknown>>;
+  readonly occurredAt: string;
+}
+
+export interface UserActivitySummary {
+  readonly userId: UserId;
+  readonly totalActivities: number;
+  readonly lastActivityAt: string;
+  readonly lastLoginAt?: string;
+  readonly activityByCategory: Readonly<Record<ActivityCategoryValue, number>>;
+}
+
+export interface UserActivityFilter {
+  readonly userId?: UserId;
+  readonly type?: ActivityTypeValue;
+  readonly category?: ActivityCategoryValue;
+  readonly fromDate?: string;
+  readonly toDate?: string;
 }

@@ -1,14 +1,17 @@
-import { StatusObject } from '../../common/status.types';
-import { DEAL_STATUS } from '@vubon/shared-constants/src/business/flash-sales/deal-status.constants';
+/**
+ * Deal Status Value Types
+ * @module shared-types/business/flash-sales
+ *
+ * Values আসে shared-constants/business/flash-sales/deal-status.constants থেকে।
+ */
 
-export interface DealStatus extends StatusObject {
-  type: keyof typeof DEAL_STATUS | string;
-  category: 'deal';
-  isDraft: boolean;
-  isActive: boolean;
-  isExpired: boolean;
-  isCancelled: boolean;
-  isCompleted: boolean;
+import type { DEAL_STATUS } from '@vubon/shared-constants/business';
+
+export type DealStatusValue = (typeof DEAL_STATUS)[keyof typeof DEAL_STATUS];
+
+export interface DealStatusMetadata {
+  readonly value: DealStatusValue;
+  readonly label: string;
+  readonly isActive: boolean;
+  readonly isFinal: boolean;
 }
-
-export type DealStatusKey = keyof typeof DEAL_STATUS;

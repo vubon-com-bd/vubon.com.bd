@@ -1,46 +1,92 @@
-import { STATUS } from '../common/status.constants';
-import { PERMISSIONS } from '../common/permissions.constants';
-import { TICKET_STATUS } from './ticket-status.constants';
-import { TICKET_PRIORITY } from './ticket-priority.constants';
-import { TICKET_TYPE } from './ticket-type.constants';
-import { TICKET_CATEGORY } from './ticket-category.constants';
-import { ORDER_STATUS } from '../business/checkout/order-status.constants';
-import { PAYMENT_STATUS } from '../business/payment/payment-status.constants';
+export const TICKET_STATUS = {
+  OPEN: 'open',
+  PENDING: 'pending',
+  IN_PROGRESS: 'in_progress',
+  ON_HOLD: 'on_hold',
+  WAITING_CUSTOMER: 'waiting_customer',
+  WAITING_AGENT: 'waiting_agent',
+  RESOLVED: 'resolved',
+  CLOSED: 'closed',
+  REOPENED: 'reopened',
+  CANCELLED: 'cancelled',
+} as const;
+
+export const TICKET_PRIORITY = {
+  LOW: 'low',
+  NORMAL: 'normal',
+  HIGH: 'high',
+  URGENT: 'urgent',
+  CRITICAL: 'critical',
+} as const;
+
+export const TICKET_PRIORITY_WEIGHT = {
+  low: 1,
+  normal: 2,
+  high: 3,
+  urgent: 4,
+  critical: 5,
+} as const;
+
+export const TICKET_TYPE = {
+  QUESTION: 'question',
+  INCIDENT: 'incident',
+  PROBLEM: 'problem',
+  FEATURE_REQUEST: 'feature_request',
+  BUG_REPORT: 'bug_report',
+  COMPLAINT: 'complaint',
+  REFUND: 'refund',
+  RETURN: 'return',
+  ORDER_ISSUE: 'order_issue',
+  PAYMENT_ISSUE: 'payment_issue',
+  ACCOUNT_ISSUE: 'account_issue',
+  OTHER: 'other',
+} as const;
+
+export const TICKET_CHANNEL = {
+  WEB: 'web',
+  EMAIL: 'email',
+  PHONE: 'phone',
+  CHAT: 'chat',
+  SOCIAL: 'social',
+  WHATSAPP: 'whatsapp',
+  TELEGRAM: 'telegram',
+  MESSENGER: 'messenger',
+  IN_APP: 'in_app',
+  API: 'api',
+} as const;
+
+export const TICKET_CATEGORY = {
+  ORDER: 'order',
+  PAYMENT: 'payment',
+  SHIPPING: 'shipping',
+  PRODUCT: 'product',
+  ACCOUNT: 'account',
+  TECHNICAL: 'technical',
+  BILLING: 'billing',
+  GENERAL: 'general',
+  OTHER: 'other',
+} as const;
 
 export const TICKET = {
-  STATUS: {
-    ...STATUS,
-    ...TICKET_STATUS,
-    OPEN: 'open',
-    IN_PROGRESS: 'in_progress',
-    ON_HOLD: 'on_hold',
-    RESOLVED: 'resolved',
-    CLOSED: 'closed',
-    REOPENED: 'reopened',
-    ESCALATED: 'escalated',
-  },
-  PERMISSIONS: {
-    ...PERMISSIONS,
-    VIEW: 'ticket:view',
-    CREATE: 'ticket:create',
-    UPDATE: 'ticket:update',
-    DELETE: 'ticket:delete',
-    ASSIGN: 'ticket:assign',
-    ESCALATE: 'ticket:escalate',
-    RESOLVE: 'ticket:resolve',
-    CLOSE: 'ticket:close',
-  },
-  TICKET_STATUS: { ...TICKET_STATUS },
-  TICKET_PRIORITY: { ...TICKET_PRIORITY },
-  TICKET_TYPE: { ...TICKET_TYPE },
-  TICKET_CATEGORY: { ...TICKET_CATEGORY },
-  ORDER_STATUS: { ...ORDER_STATUS },
-  PAYMENT_STATUS: { ...PAYMENT_STATUS },
-  TICKET_NUMBER_PREFIX: 'TKT',
-  TICKET_NUMBER_LENGTH: 10,
-  MAX_DESCRIPTION_LENGTH: 5000,
-  MIN_DESCRIPTION_LENGTH: 10,
-  AUTO_CLOSE_DAYS: 7,
+  STATUS: TICKET_STATUS,
+  PRIORITY: TICKET_PRIORITY,
+  PRIORITY_WEIGHT: TICKET_PRIORITY_WEIGHT,
+  TYPE: TICKET_TYPE,
+  CHANNEL: TICKET_CHANNEL,
+  CATEGORY: TICKET_CATEGORY,
+  SUBJECT_MAX_LENGTH: 200,
+  DESCRIPTION_MAX_LENGTH: 10000,
   MAX_ATTACHMENTS: 10,
   MAX_ATTACHMENT_SIZE_MB: 10,
+  MAX_TAGS: 20,
+  MAX_WATCHERS: 10,
+  AUTO_CLOSE_DAYS: 7,
+  REOPEN_WINDOW_DAYS: 14,
+  MAX_OPEN_PER_USER: 20,
 } as const;
+
+export type TicketStatusType = (typeof TICKET_STATUS)[keyof typeof TICKET_STATUS];
+export type TicketPriorityType = (typeof TICKET_PRIORITY)[keyof typeof TICKET_PRIORITY];
+export type TicketTypeType = (typeof TICKET_TYPE)[keyof typeof TICKET_TYPE];
+export type TicketChannelType = (typeof TICKET_CHANNEL)[keyof typeof TICKET_CHANNEL];
+export type TicketCategoryType = (typeof TICKET_CATEGORY)[keyof typeof TICKET_CATEGORY];

@@ -1,27 +1,47 @@
-import { STATUS } from '../../common/status.constants';
-import { PERMISSIONS } from '../../common/permissions.constants';
-import { USER_STATUS } from '../../user/user-status.constants';
-import { PRODUCT_STATUS } from '../product/product-status.constants';
+import { CART_STATUS } from './cart-status.constants';
+import { COUPON, COUPON_LIMIT } from './coupon.constants';
+import { COUPON_TYPE } from './coupon-type.constants';
+import { COUPON_DISCOUNT_TYPE } from './coupon-discount-type.constants';
+import { VOUCHER, VOUCHER_LIMIT } from './voucher.constants';
+import { ABANDONED_CART } from './abandoned-cart.constants';
+
+export const CART_TYPE = {
+  GUEST: 'guest',
+  USER: 'user',
+  WISHLIST: 'wishlist',
+  SAVED: 'saved',
+  SUBSCRIPTION: 'subscription',
+} as const;
+
+export const CART_LIMIT = {
+  MAX_ITEMS: 100,
+  MAX_QUANTITY_PER_ITEM: 999,
+  MIN_QUANTITY_PER_ITEM: 1,
+  EXPIRY_HOURS: 720,
+  GUEST_CART_EXPIRY_HOURS: 168,
+  SESSION_TTL_SECONDS: 2592000,
+  AUTO_MERGE_ON_LOGIN: true,
+  ALLOW_GUEST_CHECKOUT: true,
+  MAX_COUPONS_PER_CART: 1,
+  MAX_VOUCHERS_PER_CART: 1,
+} as const;
 
 export const CART = {
-  STATUS: {
-    ...STATUS,
-    ACTIVE: 'active',
-    CHECKED_OUT: 'checked_out',
-    ABANDONED: 'abandoned',
-    RECOVERED: 'recovered',
+  TYPE: CART_TYPE,
+  STATUS: CART_STATUS,
+  LIMIT: CART_LIMIT,
+  COUPON: {
+    STATUS: COUPON.STATUS,
+    TYPE: COUPON_TYPE,
+    DISCOUNT_TYPE: COUPON_DISCOUNT_TYPE,
+    LIMIT: COUPON_LIMIT,
   },
-  PERMISSIONS: {
-    ...PERMISSIONS,
-    VIEW: 'cart:view',
-    CREATE: 'cart:create',
-    UPDATE: 'cart:update',
-    DELETE: 'cart:delete',
-    MANAGE: 'cart:manage',
+  VOUCHER: {
+    STATUS: VOUCHER.STATUS,
+    TYPE: VOUCHER.TYPE,
+    LIMIT: VOUCHER_LIMIT,
   },
-  USER_STATUS: { ...USER_STATUS },
-  PRODUCT_STATUS: { ...PRODUCT_STATUS },
-  MAX_ITEMS: 100,
-  MIN_ORDER_AMOUNT: 0,
-  MAX_ORDER_AMOUNT: 999999,
+  ABANDONED: ABANDONED_CART,
 } as const;
+
+export type CartType = typeof CART;

@@ -1,16 +1,13 @@
+/**
+ * Checkout Status Schema
+ * @module shared-schemas/business/checkout
+ *
+ * Values আসে shared-constants/business/checkout-status.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { StatusSchema } from '../../common/status.schema';
-import { CHECKOUT_STATUS } from '@vubon/shared-constants/src/business/checkout/checkout-status.constants';
+import { CHECKOUT_STATUS } from '@vubon/shared-constants/business';
 
-const checkoutStatusKeys = Object.keys(CHECKOUT_STATUS) as [string, ...string[]];
+export const CheckoutStatusSchema = z.enum(Object.values(CHECKOUT_STATUS) as [string, ...string[]]);
 
-export const CheckoutStatusSchema = StatusSchema.extend({
-  status: z.enum(checkoutStatusKeys),
-  category: z.literal('checkout'),
-  isActive: z.boolean().default(true),
-  isComplete: z.boolean().default(false),
-  isAbandoned: z.boolean().default(false),
-  isExpired: z.boolean().default(false),
-});
-
-export const CheckoutStatusEnumSchema = z.enum(checkoutStatusKeys);
+export type CheckoutStatusSchemaType = z.infer<typeof CheckoutStatusSchema>;

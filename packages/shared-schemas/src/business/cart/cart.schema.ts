@@ -1,91 +1,78 @@
+/**
+ * Cart Core Schema
+ * @module shared-schemas/business/cart
+ *
+ * Cart entity + aggregator।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { MoneySchema } from '../../common/money.schema';
-import { UserSchema } from '../../user/user.schema';
-import { CartItemSchema } from './cart-item.schema';
-import { CartCouponSchema } from './cart-coupon.schema';
-import { CartGuestSchema } from './cart-guest.schema';
-import { CART_STATUS } from '@vubon/shared-constants/src/business/cart/cart-status.constants';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { MoneySchema } from '../../common/primitives/money.schema';
+import { CartStatusSchema } from './cart-status.schema';
+import { CartItemSchema, CartItemPublicSchema } from './cart-item.schema';
+import { CouponPublicSchema } from './coupon.schema';
+import { VoucherPublicSchema } from './voucher.schema';
 
-const cartStatusKeys = Object.keys(CART_STATUS) as [string, ...string[]];
+export const CartTypeSchema = z.enum(['guest', 'user', 'wishlist', 'saved', 'subscription']);
 
-export const CartSchema = BaseSchema.extend({
-  cartId: z.string().uuid(),
-  userId: z.string().uuid().optional(),
-  user: UserSchema.optional(),
-  guestId: z.string().uuid().optional(),
-  guest: CartGuestSchema.optional(),
-  status: z.enum(cartStatusKeys),
-  items: z.array(CartItemSchema),
-  itemCount: z.number().int().min(0).default(0),
-  totalQuantity: z.number().int().min(0).default(0),
+export const CartSchema = BaseEntitySchema.extend({
+  userId: UuidSchema.optional(),
+  sessionId: z.string().max(128).optional(),
+  type: CartTypeSchema,
+  status: CartStatusSchema,
+  items: z.array(CartItemSchema).max(100),
+  itemCount: z.number().int().nonnegative(),
   subtotal: MoneySchema,
-  discountTotal: MoneySchema,
-  taxTotal: MoneySchema,
-  shippingTotal: MoneySchema,
-  grandTotal: MoneySchema,
-  coupons: z.array(CartCouponSchema),
-  promotions: z.array(
-    z.object({
-      promotionId: z.string().uuid(),
-      name: z.string(),
-      description: z.string().optional(),
-      type: z.enum(['percentage', 'fixed', 'free_shipping']),
-      value: z.number(),
-      discountAmount: MoneySchema,
-      appliedAt: z.date(),
-      expiresAt: z.date().optional(),
-      conditions: z.array(
-        z.object({
-          field: z.string(),
-          operator: z.enum(['eq', 'ne', 'gt', 'gte', 'lt', 'lte', 'in', 'not_in']),
-          value: z.unknown(),
-        })
-      ),
-    })
-  ),
-  currency: z.string().min(3).max(3),
-  isActive: z.boolean().default(true),
-  isLocked: z.boolean().default(false),
-  isExpired: z.boolean().default(false),
-  expiresAt: z.date().optional(),
-  lastActivity: z.date(),
-  metadata: z.object({
-    source: z.string(),
-    device: z.string(),
-    ipAddress: z.string(),
-    userAgent: z.string(),
-    referrer: z.string().optional(),
-    utmSource: z.string().optional(),
-    utmMedium: z.string().optional(),
-    utmCampaign: z.string().optional(),
-    utmTerm: z.string().optional(),
-    utmContent: z.string().optional(),
-  }),
+  discountAmount: MoneySchema,
+  taxAmount: MoneySchema,
+  shippingAmount: MoneySchema,
+  total: MoneySchema,
+  currency: z.string().length(3),
+  couponId: UuidSchema.optional(),
+  coupon: CouponPublicSchema.optional(),
+  voucherId: UuidSchema.optional(),
+  voucher: VoucherPublicSchema.optional(),
+  notes: z.string().max(1000).optional(),
+  expiresAt: z.string().datetime(),
+  lastActivityAt: z.string().datetime(),
 });
 
-export const CartCreateSchema = CartSchema.omit({
+export const CartPublicSchema = CartSchema.pick({
   id: true,
-  createdAt: true,
-  updatedAt: true,
+  type: true,
+  status: true,
   itemCount: true,
-  totalQuantity: true,
   subtotal: true,
-  discountTotal: true,
-  taxTotal: true,
-  shippingTotal: true,
-  grandTotal: true,
-  lastActivity: true,
+  discountAmount: true,
+  taxAmount: true,
+  shippingAmount: true,
+  total: true,
+  currency: true,
+  coupon: true,
+  voucher: true,
+}).extend({
+  items: z.array(CartItemPublicSchema).max(100),
 });
 
-export const CartUpdateSchema = CartCreateSchema.partial();
+export const CartSummarySchema = CartSchema.pick({
+  id: true,
+  itemCount: true,
+  total: true,
+  currency: true,
+});
 
-export const CartSummarySchema = z.object({
+export const CartTotalsSchema = z.object({
   subtotal: MoneySchema,
-  discountTotal: MoneySchema,
-  taxTotal: MoneySchema,
-  shippingTotal: MoneySchema,
-  grandTotal: MoneySchema,
-  itemCount: z.number().int().min(0),
-  totalQuantity: z.number().int().min(0),
+  discountAmount: MoneySchema,
+  taxAmount: MoneySchema,
+  shippingAmount: MoneySchema,
+  total: MoneySchema,
+  currency: z.string().length(3),
 });
+
+export type CartTypeSchemaType = z.infer<typeof CartTypeSchema>;
+export type CartSchemaType = z.infer<typeof CartSchema>;
+export type CartPublicSchemaType = z.infer<typeof CartPublicSchema>;
+export type CartSummarySchemaType = z.infer<typeof CartSummarySchema>;
+export type CartTotalsSchemaType = z.infer<typeof CartTotalsSchema>;

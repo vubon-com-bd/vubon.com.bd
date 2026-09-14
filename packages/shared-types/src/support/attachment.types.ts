@@ -1,21 +1,28 @@
-import { BaseEntity } from '../common/base.types';
-import { ATTACHMENT } from '@vubon/shared-constants/src/support/attachment.constants';
-import { Message } from './message.types';
+/**
+ * Attachment Types
+ * @module shared-types/support
+ */
 
-export interface Attachment extends BaseEntity {
-  attachmentId: string;
-  messageId: string;
-  message: Message;
-  type: keyof typeof ATTACHMENT.TYPES | string;
-  name: string;
-  filename: string;
-  url: string;
-  size: number;
-  mimeType: string;
-  extension: string;
-  width?: number;
-  height?: number;
-  duration?: number;
-  metadata: Record<string, unknown>;
-  uploadedAt: Date;
+import type { Url } from '../common/primitives';
+
+export interface Attachment {
+  readonly id: string;
+  readonly messageId?: string;
+  readonly ticketId?: string;
+  readonly fileName: string;
+  readonly fileUrl: Url;
+  readonly fileSize: number;
+  readonly mimeType: string;
+  readonly thumbnailUrl?: Url;
+  readonly uploadedBy: string;
+  readonly uploadedAt: string;
+}
+
+export interface AttachmentPublic {
+  readonly id: string;
+  readonly fileName: string;
+  readonly fileUrl: Url;
+  readonly fileSize: number;
+  readonly mimeType: string;
+  readonly thumbnailUrl?: Url;
 }

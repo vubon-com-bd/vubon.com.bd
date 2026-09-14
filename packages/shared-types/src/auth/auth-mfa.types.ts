@@ -1,42 +1,71 @@
-import { BaseEntity } from '../common/base.types';
-import { AUTH_MFA } from '@vubon/shared-constants/src/auth/auth-mfa.constants';
-
 /**
- * MFA type value
+ * Auth MFA Types
+ * @module shared-types/auth
+ *
+ * Values আসে shared-constants/auth/auth-mfa.constants থেকে।
  */
-export type MfaTypeValue = (typeof AUTH_MFA)[keyof typeof AUTH_MFA];
 
-/**
- * MFA setup response — returned once at setup time.
- * Contains plain values shown to user exactly once.
- */
-export interface MfaSetupResponse {
-  secret: string;
-  qrCode: string;
-  backupCodes: string[];
-  recoveryUrl: string;
+import type { AUTH_MFA, AUTH_MFA_METHOD } from '@vubon/shared-constants/auth';
+import type { UserId, OtpCode } from '../common/primitives';
+
+export type MfaMethodValue = (typeof AUTH_MFA_METHOD)[keyof typeof AUTH_MFA_METHOD];
+
+export type MfaOtpLength = typeof AUTH_MFA.OTP_LENGTH;
+export type MfaBackupCodesCount = typeof AUTH_MFA.BACKUP_CODES_COUNT;
+export type MfaTotpPeriod = typeof AUTH_MFA.TOTP_PERIOD_SECONDS;
+
+export interface MfaConfig {
+  readonly userId: UserId;
+  readonly enabled: boolean;
+  readonly primaryMethod: MfaMethodValue;
+  readonly backupMethods: readonly MfaMethodValue[];
+  readonly createdAt: string;
+  readonly updatedAt: string;
 }
 
-/**
- * Auth MFA interface (internal — secrets stored encrypted/hashed)
- * ⚠️ NEVER return this directly to clients.
- */
-export interface AuthMfa extends BaseEntity {
-  mfaId: string;
-  userId: string;
-  type: MfaTypeValue;
-  /** @internal AES-256 encrypted TOTP secret */
-  encryptedSecret: string;
-  /** @internal bcrypt-hashed backup codes */
-  backupCodeHashes: string[];
-  isEnabled: boolean;
-  isVerified: boolean;
-  metadata: Record<string, unknown>;
+export interface MfaSecret {
+  readonly userId: UserId;
+  readonly secret: string;
+  readonly method: MfaMethodValue;
+  readonly verified: boolean;
+  readonly createdAt: string;
+  readonly verifiedAt?: string;
 }
 
-/**
- * Public-safe MFA DTO
- */
-export type AuthMfaPublic = Omit<AuthMfa, 'encryptedSecret' | 'backupCodeHashes' | 'metadata'> & {
-  hasBackupCodes: boolean;
-};
+export interface MfaSetupResult {
+  readonly secret: string;
+  readonly qrCodeUrl: string;
+  readonly otpauthUrl: string;
+  readonly backupCodes: readonly string[];
+}
+
+export interface MfaVerifyInput {
+  readonly userId: UserId;
+  readonly code: OtpCode;
+  readonly method: MfaMethodValue;
+}
+
+export interface MfaVerifyResult {
+  readonly verified: boolean;
+  readonly method: MfaMethodValue;
+  readonly usedBackupCode: boolean;
+  readonly remainingBackupCodes: number;
+  readonly verifiedAt: string;
+}
+
+export interface MfaBackupCode {
+  readonly userId: UserId;
+  readonly code: string;
+  readonly used: boolean;
+  readonly usedAt?: string;
+  readonly createdAt: string;
+}
+
+export interface MfaChallenge {
+  readonly challengeId: string;
+  readonly userId: UserId;
+  readonly method: MfaMethodValue;
+  readonly createdAt: string;
+  readonly expiresAt: string;
+  readonly attempts: number;
+}

@@ -1,48 +1,70 @@
-import { BaseEntity } from '../common/base.types';
-import { AUTH_OAUTH } from '@vubon/shared-constants/src/auth/auth-oauth.constants';
-import { AUTH_PROVIDER } from '@vubon/shared-constants/src/auth/auth-provider.constants';
-
 /**
- * OAuth grant type — from AUTH_OAUTH
+ * Auth OAuth Types
+ * @module shared-types/auth
+ *
+ * Values আসে shared-constants/auth/auth-oauth.constants থেকে।
  */
-export type OAuthGrantType = (typeof AUTH_OAUTH)[keyof typeof AUTH_OAUTH];
 
-/**
- * OAuth provider — from AUTH_PROVIDER
- */
-export type OAuthProvider = (typeof AUTH_PROVIDER)[keyof typeof AUTH_PROVIDER];
+import type { AUTH_OAUTH } from '@vubon/shared-constants/auth';
+import type { UserId, Url } from '../common/primitives';
 
-/**
- * Auth OAuth interface (public-safe)
- * Note: clientSecret intentionally omitted — keep it server-side only.
- */
-export interface AuthOAuth extends BaseEntity {
-  oauthId: string;
-  userId: string;
-  provider: OAuthProvider;
-  grantType: OAuthGrantType;
-  clientId: string;
-  redirectUri: string;
-  scope: string[];
-  /** @internal AES-256 encrypted */
-  encryptedAccessToken: string;
-  /** @internal AES-256 encrypted */
-  encryptedRefreshToken?: string;
-  expiresAt: Date;
-  metadata: Record<string, unknown>;
+export type OAuthGrantType =
+  | typeof AUTH_OAUTH.GRANT_TYPE_AUTHORIZATION_CODE
+  | typeof AUTH_OAUTH.GRANT_TYPE_CLIENT_CREDENTIALS
+  | typeof AUTH_OAUTH.GRANT_TYPE_REFRESH_TOKEN
+  | typeof AUTH_OAUTH.GRANT_TYPE_PASSWORD;
+
+export type OAuthResponseType =
+  typeof AUTH_OAUTH.RESPONSE_TYPE_CODE | typeof AUTH_OAUTH.RESPONSE_TYPE_TOKEN;
+
+export type PkceMethod = typeof AUTH_OAUTH.PKCE_METHOD_S256 | typeof AUTH_OAUTH.PKCE_METHOD_PLAIN;
+
+export interface OAuthClient {
+  readonly clientId: string;
+  readonly clientName: string;
+  readonly redirectUris: readonly Url[];
+  readonly scopes: readonly string[];
+  readonly grantTypes: readonly OAuthGrantType[];
+  readonly isPublic: boolean;
+  readonly isActive: boolean;
+  readonly createdAt: string;
 }
 
-/**
- * Public-safe OAuth DTO
- */
-export type AuthOAuthPublic = Omit<
-  AuthOAuth,
-  'encryptedAccessToken' | 'encryptedRefreshToken' | 'metadata'
->;
+export interface OAuthTokenRequest {
+  readonly grantType: OAuthGrantType;
+  readonly clientId: string;
+  readonly clientSecret?: string;
+  readonly code?: string;
+  readonly redirectUri?: string;
+  readonly refreshToken?: string;
+  readonly scope?: readonly string[];
+  readonly codeVerifier?: string;
+}
 
-/**
- * @internal — server-side only. Never expose.
- */
-export interface AuthOAuthInternal extends AuthOAuth {
-  encryptedClientSecret: string;
+export interface OAuthTokenResponse {
+  readonly accessToken: string;
+  readonly tokenType: 'Bearer';
+  readonly expiresIn: number;
+  readonly refreshToken?: string;
+  readonly scope?: string;
+  readonly idToken?: string;
+}
+
+export interface OAuthAuthorizeRequest {
+  readonly responseType: OAuthResponseType;
+  readonly clientId: string;
+  readonly redirectUri: Url;
+  readonly scope: readonly string[];
+  readonly state: string;
+  readonly codeChallenge?: string;
+  readonly codeChallengeMethod?: PkceMethod;
+}
+
+export interface OAuthUserInfo {
+  readonly sub: UserId | string;
+  readonly email?: string;
+  readonly emailVerified?: boolean;
+  readonly name?: string;
+  readonly picture?: string;
+  readonly locale?: string;
 }

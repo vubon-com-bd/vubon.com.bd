@@ -1,17 +1,22 @@
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
+export const COMPLEMENTARY_TYPE = {
+  ACCESSORY: 'accessory',
+  ADD_ON: 'add_on',
+  RELATED: 'related',
+  COMPATIBLE: 'compatible',
+  ESSENTIAL: 'essential',
+  UPGRADE: 'upgrade',
+} as const;
 
 export const COMPLEMENTARY = {
-  TYPES: {
-    ...COMMON_TYPES,
-    ACCESSORY: 'accessory',
-    ADD_ON: 'add_on',
-    UPGRADE: 'upgrade',
-    SERVICE: 'service',
-    MAINTENANCE: 'maintenance',
-  },
-  COMPLEMENTARY_SCORE_THRESHOLD: 0.6,
-  MAX_COMPLEMENTARY_ITEMS: 10,
-  COMPLEMENTARY_CATEGORY_MATCH: 0.8,
-  ANALYSIS_WINDOW_DAYS: 60,
-  UPDATE_INTERVAL_DAYS: 7,
+  MAX_ITEMS: 20,
+  DEFAULT_ITEMS: 6,
+  MIN_AFFINITY: 0.15,
+  LOOKBACK_DAYS: 180,
+  REFRESH_INTERVAL_HOURS: 24,
+  INCLUDE_OUT_OF_STOCK: false,
+  DIVERSITY_ENABLED: true,
+  EXCLUDE_SAME_CATEGORY: true,
+  RETENTION_DAYS: 90,
 } as const;
+
+export type ComplementaryTypeType = (typeof COMPLEMENTARY_TYPE)[keyof typeof COMPLEMENTARY_TYPE];

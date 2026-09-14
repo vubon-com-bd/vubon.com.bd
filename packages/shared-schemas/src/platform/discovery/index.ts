@@ -1,3 +1,6 @@
+// shared-schemas/platform/discovery/index.ts
+// Discovery sub-service barrel export
+
 export * from './discovery.schema';
 export * from './recommendation.schema';
 export * from './recommendation-type.schema';

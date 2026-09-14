@@ -1,16 +1,17 @@
-import { StatusObject } from '../../common/status.types';
-import { PAYMENT_STATUS } from '@vubon/shared-constants/src/business/payment/payment-status.constants';
+/**
+ * Payment Status Value Types
+ * @module shared-types/business/payment
+ *
+ * Values আসে shared-constants/business/payment/payment-status.constants থেকে।
+ */
 
-export interface PaymentStatus extends StatusObject {
-  type: keyof typeof PAYMENT_STATUS | string;
-  category: 'payment';
-  isPending: boolean;
-  isProcessing: boolean;
-  isCompleted: boolean;
-  isFailed: boolean;
-  isRefunded: boolean;
-  isAuthorized: boolean;
-  isCaptured: boolean;
+import type { PAYMENT_STATUS } from '@vubon/shared-constants/business';
+
+export type PaymentStatusValue = (typeof PAYMENT_STATUS)[keyof typeof PAYMENT_STATUS];
+
+export interface PaymentStatusMetadata {
+  readonly value: PaymentStatusValue;
+  readonly label: string;
+  readonly isSuccessful: boolean;
+  readonly isFinal: boolean;
 }
-
-export type PaymentStatusKey = keyof typeof PAYMENT_STATUS;

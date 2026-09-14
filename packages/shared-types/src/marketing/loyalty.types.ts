@@ -1,25 +1,37 @@
-import { BaseEntity } from '../common/base.types';
-import { User } from '../user/user.types';
-import { LOYALTY_STATUS } from '@vubon/shared-constants/src/marketing/loyalty-status.constants';
-import { LoyaltyPoints } from './loyalty-points.types';
-import { LoyaltyTier } from './loyalty-tier.types';
-import { LoyaltyReward } from './loyalty-reward.types';
+/**
+ * Loyalty Core Types
+ * @module shared-types/marketing
+ */
 
-export interface Loyalty extends BaseEntity {
-  loyaltyId: string;
-  userId: string;
-  user: User;
-  status: keyof typeof LOYALTY_STATUS | string;
-  points: LoyaltyPoints;
-  tier: LoyaltyTier;
-  rewards: LoyaltyReward[];
-  totalPointsEarned: number;
-  totalPointsSpent: number;
-  availablePoints: number;
-  lifetimeValue: number;
-  joinDate: Date;
-  lastActivityDate: Date;
-  tierUpgradeDate?: Date;
-  isActive: boolean;
-  metadata: Record<string, unknown>;
+import type { BaseEntity } from '../common/base';
+import type { UserId } from '../common/primitives';
+import type { LoyaltyStatusValue } from './loyalty-status.types';
+import type { LoyaltyTierValue } from './loyalty-tier.types';
+import type { LoyaltyPoints } from './loyalty-points.types';
+
+export interface Loyalty extends BaseEntity<string> {
+  readonly userId: UserId;
+  readonly status: LoyaltyStatusValue;
+  readonly tier: LoyaltyTierValue;
+  readonly points: LoyaltyPoints;
+  readonly tierExpiresAt?: string;
+  readonly isEnrolled: boolean;
+  readonly enrolledAt: string;
+  readonly lastTierChangeAt?: string;
+}
+
+export interface LoyaltyPublic {
+  readonly userId: UserId;
+  readonly status: LoyaltyStatusValue;
+  readonly tier: LoyaltyTierValue;
+  readonly points: number;
+  readonly tierExpiresAt?: string;
+}
+
+export interface LoyaltyListFilter {
+  readonly status?: LoyaltyStatusValue;
+  readonly tier?: LoyaltyTierValue;
+  readonly minPoints?: number;
+  readonly maxPoints?: number;
+  readonly search?: string;
 }

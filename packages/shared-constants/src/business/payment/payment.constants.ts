@@ -1,37 +1,47 @@
-import { STATUS } from '../../common/status.constants';
-import { PERMISSIONS } from '../../common/permissions.constants';
-import { CURRENCY } from '../../common/currency.constants';
-import { USER_STATUS } from '../../user/user-status.constants';
-import { ORDER_STATUS } from '../checkout/order-status.constants';
-import { CHECKOUT_STATUS } from '../checkout/checkout-status.constants';
+import { PAYMENT_STATUS } from './payment-status.constants';
+import { PAYMENT_METHOD, PAYMENT_METHOD_TYPE } from './payment-method.constants';
+import {
+  PAYMENT_GATEWAY,
+  PAYMENT_GATEWAY_STATUS,
+  PAYMENT_GATEWAY_ENV,
+} from './payment-gateway.constants';
+import { TRANSACTION_TYPE, TRANSACTION_STATUS, TRANSACTION_LIMIT } from './transaction.constants';
+
+export const PAYMENT_TYPE = {
+  ONE_TIME: 'one_time',
+  RECURRING: 'recurring',
+  INSTALLMENT: 'installment',
+  SUBSCRIPTION: 'subscription',
+  PREPAID: 'prepaid',
+  POSTPAID: 'postpaid',
+} as const;
+
+export const PAYMENT_LIMIT = {
+  MIN_AMOUNT: 1,
+  MAX_AMOUNT: 10000000,
+  MAX_ATTEMPTS: 3,
+  SESSION_TTL_SECONDS: 1800,
+  AUTHORIZATION_TTL_SECONDS: 604800,
+  CAPTURE_WINDOW_HOURS: 168,
+  REFUND_WINDOW_DAYS: 90,
+  PARTIAL_REFUND_ALLOWED: true,
+  CURRENCY_DECIMALS: 2,
+} as const;
 
 export const PAYMENT = {
-  STATUS: {
-    ...STATUS,
-    INITIATED: 'initiated',
-    PROCESSING: 'processing',
-    COMPLETED: 'completed',
-    FAILED: 'failed',
-    PENDING: 'pending',
-    CANCELLED: 'cancelled',
-    REFUNDED: 'refunded',
-    PARTIAL_REFUND: 'partial_refund',
+  TYPE: PAYMENT_TYPE,
+  STATUS: PAYMENT_STATUS,
+  METHOD: PAYMENT_METHOD,
+  METHOD_TYPE: PAYMENT_METHOD_TYPE,
+  GATEWAY: PAYMENT_GATEWAY,
+  GATEWAY_STATUS: PAYMENT_GATEWAY_STATUS,
+  GATEWAY_ENV: PAYMENT_GATEWAY_ENV,
+  TRANSACTION: {
+    TYPE: TRANSACTION_TYPE,
+    STATUS: TRANSACTION_STATUS,
+    LIMIT: TRANSACTION_LIMIT,
   },
-  PERMISSIONS: {
-    ...PERMISSIONS,
-    VIEW: 'payment:view',
-    CREATE: 'payment:create',
-    PROCESS: 'payment:process',
-    REFUND: 'payment:refund',
-    MANAGE: 'payment:manage',
-    VERIFY: 'payment:verify',
-  },
-  CURRENCY: { ...CURRENCY },
-  USER_STATUS: { ...USER_STATUS },
-  ORDER_STATUS: { ...ORDER_STATUS },
-  CHECKOUT_STATUS: { ...CHECKOUT_STATUS },
-  PAYMENT_TIMEOUT_MINUTES: 15,
-  MAX_RETRY_ATTEMPTS: 3,
-  MIN_AMOUNT: 1,
-  MAX_AMOUNT: 9999999,
+  LIMIT: PAYMENT_LIMIT,
 } as const;
+
+export type PaymentType = typeof PAYMENT;

@@ -1,19 +1,13 @@
-/**
- * Auth Provider Constants
- * @module shared-constants/auth/auth-provider
- */
-
 export const AUTH_PROVIDER = {
   LOCAL: 'local',
   GOOGLE: 'google',
   FACEBOOK: 'facebook',
-  TWITTER: 'twitter',
-  GITHUB: 'github',
-  LINKEDIN: 'linkedin',
   APPLE: 'apple',
+  GITHUB: 'github',
   MICROSOFT: 'microsoft',
-  SAML: 'saml',
-  OIDC: 'oidc',
+  TWITTER: 'twitter',
+  LINKEDIN: 'linkedin',
+  CUSTOM: 'custom',
 } as const;
 
-export type AuthProviderValue = (typeof AUTH_PROVIDER)[keyof typeof AUTH_PROVIDER];
+export type AuthProviderType = (typeof AUTH_PROVIDER)[keyof typeof AUTH_PROVIDER];

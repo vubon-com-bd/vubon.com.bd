@@ -1,16 +1,31 @@
+/**
+ * Loyalty Status Schema
+ * @module shared-schemas/marketing
+ *
+ * Values আসে shared-constants/marketing/loyalty.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { StatusSchema } from '../common/status.schema';
-import { LOYALTY_STATUS } from '@vubon/shared-constants/src/marketing/loyalty-status.constants';
+import {
+  LOYALTY_STATUS,
+  LOYALTY_TIER,
+  LOYALTY_POINT_TYPE,
+  LOYALTY_EARN_RULE,
+} from '@vubon/shared-constants/marketing';
 
-const loyaltyStatusKeys = Object.keys(LOYALTY_STATUS) as [string, ...string[]];
+export const LoyaltyStatusSchema = z.enum(Object.values(LOYALTY_STATUS) as [string, ...string[]]);
 
-export const LoyaltyStatusSchema = StatusSchema.extend({
-  status: z.enum(loyaltyStatusKeys),
-  category: z.literal('loyalty'),
-  isActive: z.boolean().default(false),
-  isInactive: z.boolean().default(false),
-  isSuspended: z.boolean().default(false),
-  isExpired: z.boolean().default(false),
-});
+export const LoyaltyTierSchema = z.enum(Object.values(LOYALTY_TIER) as [string, ...string[]]);
 
-export const LoyaltyStatusEnumSchema = z.enum(loyaltyStatusKeys);
+export const LoyaltyPointTypeSchema = z.enum(
+  Object.values(LOYALTY_POINT_TYPE) as [string, ...string[]]
+);
+
+export const LoyaltyEarnRuleSchema = z.enum(
+  Object.values(LOYALTY_EARN_RULE) as [string, ...string[]]
+);
+
+export type LoyaltyStatusSchemaType = z.infer<typeof LoyaltyStatusSchema>;
+export type LoyaltyTierSchemaType = z.infer<typeof LoyaltyTierSchema>;
+export type LoyaltyPointTypeSchemaType = z.infer<typeof LoyaltyPointTypeSchema>;
+export type LoyaltyEarnRuleSchemaType = z.infer<typeof LoyaltyEarnRuleSchema>;

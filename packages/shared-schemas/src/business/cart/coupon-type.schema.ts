@@ -1,11 +1,13 @@
+/**
+ * Coupon Type Schema
+ * @module shared-schemas/business/cart
+ *
+ * Values আসে shared-constants/business/coupon-type.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { COUPON } from '@vubon/shared-constants/src/business/cart/coupon.constants';
+import { COUPON_TYPE } from '@vubon/shared-constants/business';
 
-const couponTypeKeys = Object.keys(COUPON.TYPES) as [string, ...string[]];
+export const CouponTypeSchema = z.enum(Object.values(COUPON_TYPE) as [string, ...string[]]);
 
-export const CouponTypeSchema = z.object({
-  type: z.enum(couponTypeKeys),
-  category: z.literal('coupon'),
-});
-
-export const CouponTypeEnumSchema = z.enum(couponTypeKeys);
+export type CouponTypeSchemaType = z.infer<typeof CouponTypeSchema>;

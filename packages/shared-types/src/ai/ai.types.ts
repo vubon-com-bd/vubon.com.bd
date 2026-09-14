@@ -1,50 +1,96 @@
-import { BaseEntity } from '../common/base.types';
-import { User } from '../user/user.types';
-import { AI } from '@vubon/shared-constants/src/ai/ai.constants';
-import { AIModel } from './ai-model.types';
-import { AIRecommendation } from './ai-recommendation.types';
-import { AIPersonalization } from './ai-personalization.types';
-import { AISearch } from './ai-search.types';
-import { AIRanking } from './ai-ranking.types';
-import { AIAnalytics } from './ai-analytics.types';
-import { AITraining } from './ai-training.types';
-import { AIFeature } from './ai-feature.types';
-import { AIForecast } from './ai-forecast.types';
-import { AIInsight } from './ai-insight.types';
+/**
+ * AI Core Types
+ * @module shared-types/ai
+ *
+ * AI entity + aggregator।
+ */
 
-export interface AIMetrics {
-  totalPredictions: number;
-  accuracy: number;
-  precision: number;
-  recall: number;
-  f1Score: number;
-  latency: number;
-  uptime: number;
+import type { BaseEntity } from '../common/base';
+import type { AiModelTypeValue } from './ai-model-type.types';
+import type { AiModelStatusValue } from './ai-model-status.types';
+import type { AiModelProviderValue } from './ai-model-provider.types';
+import type { AiFeatureValue } from './ai-feature.types';
+import type { AiModel, AiModelConfig } from './ai-model.types';
+import type { AiModelUsage } from './ai-analytics.types';
+
+export interface Ai extends BaseEntity<string> {
+  readonly modelId: string;
+  readonly modelType: AiModelTypeValue;
+  readonly modelStatus: AiModelStatusValue;
+  readonly modelProvider: AiModelProviderValue;
+  readonly feature: AiFeatureValue;
+  readonly inputTokens: number;
+  readonly outputTokens: number;
+  readonly totalTokens: number;
+  readonly cost: number;
+  readonly currency: string;
+  readonly latencyMs: number;
+  readonly success: boolean;
+  readonly errorCode?: string;
+  readonly errorMessage?: string;
+  readonly userId?: string;
+  readonly sessionId?: string;
+  readonly metadata?: Readonly<Record<string, unknown>>;
 }
 
-export interface AIMetadata {
-  version: string;
-  environment: string;
-  config: Record<string, unknown>;
-  metrics: AIMetrics;
+export interface AiPublic {
+  readonly id: string;
+  readonly modelId: string;
+  readonly feature: AiFeatureValue;
+  readonly totalTokens: number;
+  readonly latencyMs: number;
+  readonly success: boolean;
+  readonly createdAt: string;
 }
 
-export interface AI extends BaseEntity {
-  aiId: string;
-  models: AIModel[];
-  recommendations: AIRecommendation[];
-  personalizations: AIPersonalization[];
-  searches: AISearch[];
-  rankings: AIRanking[];
-  analytics: AIAnalytics[];
-  trainings: AITraining[];
-  features: AIFeature[];
-  forecasts: AIForecast[];
-  insights: AIInsight[];
-  userId?: string;
-  user?: User;
-  status: keyof typeof AI.STATUS | string;
-  type: keyof typeof AI.AI_TYPES | string;
-  isActive: boolean;
-  metadata: AIMetadata;
+export interface AiRequest {
+  readonly feature: AiFeatureValue;
+  readonly modelId?: string;
+  readonly prompt: string;
+  readonly variables?: Readonly<Record<string, unknown>>;
+  readonly config?: Partial<AiModelConfig>;
+  readonly userId?: string;
+  readonly sessionId?: string;
+}
+
+export interface AiResponse {
+  readonly id: string;
+  readonly modelId: string;
+  readonly content: string;
+  readonly inputTokens: number;
+  readonly outputTokens: number;
+  readonly totalTokens: number;
+  readonly latencyMs: number;
+  readonly cost?: number;
+  readonly finishReason: 'stop' | 'length' | 'content_filter' | 'error';
+  readonly cached: boolean;
+}
+
+export interface AiUsageSummary {
+  readonly period: string;
+  readonly totalRequests: number;
+  readonly totalTokens: number;
+  readonly totalCost: number;
+  readonly currency: string;
+  readonly averageLatencyMs: number;
+  readonly errorRate: number;
+  readonly byModel: readonly AiModelUsage[];
+  readonly byFeature: Readonly<Record<AiFeatureValue, number>>;
+}
+
+export interface AiListFilter {
+  readonly modelId?: string;
+  readonly modelType?: AiModelTypeValue;
+  readonly modelProvider?: AiModelProviderValue;
+  readonly feature?: AiFeatureValue;
+  readonly success?: boolean;
+  readonly userId?: string;
+  readonly fromDate?: string;
+  readonly toDate?: string;
+}
+
+export interface AiContext {
+  readonly models: readonly AiModel[];
+  readonly defaultModelId: string;
+  readonly enabledFeatures: readonly AiFeatureValue[];
 }

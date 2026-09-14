@@ -1,44 +1,41 @@
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
-import { DATE_FORMAT } from '../../common/date-format.constants';
-import { SEO_ANALYTICS } from './seo-analytics.constants';
-import { SEO_RANKING } from './seo-ranking.constants';
-import { SEO_SCORE } from './seo-score.constants';
+export const SEO_REPORT_TYPE = {
+  AUDIT: 'audit',
+  RANKING: 'ranking',
+  TRAFFIC: 'traffic',
+  KEYWORD: 'keyword',
+  BACKLINK: 'backlink',
+  COMPETITOR: 'competitor',
+  PERFORMANCE: 'performance',
+  CONTENT: 'content',
+} as const;
+
+export const SEO_REPORT_FORMAT = {
+  PDF: 'pdf',
+  CSV: 'csv',
+  XLSX: 'xlsx',
+  JSON: 'json',
+  HTML: 'html',
+} as const;
+
+export const SEO_REPORT_SCHEDULE = {
+  DAILY: 'daily',
+  WEEKLY: 'weekly',
+  BIWEEKLY: 'biweekly',
+  MONTHLY: 'monthly',
+  QUARTERLY: 'quarterly',
+  YEARLY: 'yearly',
+  ON_DEMAND: 'on_demand',
+} as const;
 
 export const SEO_REPORT = {
-  TYPES: {
-    ...COMMON_TYPES,
-    KEYWORD: 'keyword',
-    RANKING: 'ranking',
-    TRAFFIC: 'traffic',
-    PERFORMANCE: 'performance',
-    COMPETITOR: 'competitor',
-    BACKLINK: 'backlink',
-  },
-  DATE_FORMAT: { ...DATE_FORMAT },
-  SEO_ANALYTICS: { ...SEO_ANALYTICS },
-  SEO_RANKING: { ...SEO_RANKING },
-  SEO_SCORE: { ...SEO_SCORE },
-  REPORT_FORMATS: {
-    PDF: 'pdf',
-    EXCEL: 'excel',
-    CSV: 'csv',
-    JSON: 'json',
-    HTML: 'html',
-  },
-  REPORT_SECTIONS: [
-    'executive_summary',
-    'keyword_performance',
-    'ranking_progress',
-    'traffic_analysis',
-    'backlink_profile',
-    'technical_seo',
-    'recommendations',
-  ],
-  DEFAULT_REPORT_DAYS: 30,
-  MAX_REPORT_DAYS: 365,
-  REPORT_SCHEDULE: {
-    WEEKLY: 'weekly',
-    MONTHLY: 'monthly',
-    QUARTERLY: 'quarterly',
-  },
+  MAX_ROWS: 100000,
+  EXPORT_EXPIRY_HOURS: 24,
+  EMAIL_ENABLED: true,
+  MAX_SCHEDULES: 10,
+  RETENTION_DAYS: 180,
+  MAX_DATE_RANGE_DAYS: 365,
 } as const;
+
+export type SeoReportTypeType = (typeof SEO_REPORT_TYPE)[keyof typeof SEO_REPORT_TYPE];
+export type SeoReportFormatType = (typeof SEO_REPORT_FORMAT)[keyof typeof SEO_REPORT_FORMAT];
+export type SeoReportScheduleType = (typeof SEO_REPORT_SCHEDULE)[keyof typeof SEO_REPORT_SCHEDULE];

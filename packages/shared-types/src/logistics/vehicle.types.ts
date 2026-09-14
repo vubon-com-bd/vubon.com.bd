@@ -1,36 +1,56 @@
-import { BaseEntity } from '../common/base.types';
-import { VEHICLE } from '@vubon/shared-constants/src/logistics/vehicle.constants';
-import { Dimensions } from './shipment.types';
+/**
+ * Vehicle Types
+ * @module shared-types/logistics
+ *
+ * Values আসে shared-constants/logistics/vehicle.constants থেকে।
+ */
 
-export interface VehicleMetadata {
-  gpsTrackerId?: string;
-  simCardNumber?: string;
-  colorHex: string;
-  photoUrl?: string;
-  documents: string[];
+import type {
+  VEHICLE_STATUS,
+  VEHICLE_TYPE,
+  VEHICLE_FUEL_TYPE,
+} from '@vubon/shared-constants/logistics';
+import type { BaseEntity } from '../common/base';
+
+export type VehicleStatusValue = (typeof VEHICLE_STATUS)[keyof typeof VEHICLE_STATUS];
+
+export type VehicleTypeValue = (typeof VEHICLE_TYPE)[keyof typeof VEHICLE_TYPE];
+
+export type VehicleFuelTypeValue = (typeof VEHICLE_FUEL_TYPE)[keyof typeof VEHICLE_FUEL_TYPE];
+
+export interface Vehicle extends BaseEntity<string> {
+  readonly registrationNumber: string;
+  readonly type: VehicleTypeValue;
+  readonly status: VehicleStatusValue;
+  readonly fuelType: VehicleFuelTypeValue;
+  readonly make: string;
+  readonly model: string;
+  readonly year: number;
+  readonly color?: string;
+  readonly maxWeightKg: number;
+  readonly maxVolumeM3?: number;
+  readonly capacity?: number;
+  readonly mileageKm?: number;
+  readonly lastServiceAt?: string;
+  readonly nextServiceAt?: string;
+  readonly insuranceExpiresAt?: string;
+  readonly registrationExpiresAt?: string;
+  readonly assignedDriverId?: string;
+  readonly isActive: boolean;
 }
 
-export interface Vehicle extends BaseEntity {
-  vehicleId: string;
-  registrationNumber: string;
-  status: keyof typeof VEHICLE.STATUS | string;
-  type: keyof typeof VEHICLE.TYPES | string;
-  brand: string;
-  model: string;
-  year: number;
-  color: string;
-  capacity: number;
-  weightLimit: number;
-  dimensions: Dimensions;
-  fuelType: keyof typeof VEHICLE.FUEL_TYPES | string;
-  fuelEfficiency: number;
-  insuranceExpiry: Date;
-  registrationExpiry: Date;
-  licensePlate: string;
-  isActive: boolean;
-  isAvailable: boolean;
-  isOnRoute: boolean;
-  lastMaintenanceDate?: Date;
-  nextMaintenanceDate?: Date;
-  metadata: VehicleMetadata;
+export interface VehiclePublic {
+  readonly id: string;
+  readonly registrationNumber: string;
+  readonly type: VehicleTypeValue;
+  readonly status: VehicleStatusValue;
+  readonly make: string;
+  readonly model: string;
+}
+
+export interface VehicleListFilter {
+  readonly status?: VehicleStatusValue;
+  readonly type?: VehicleTypeValue;
+  readonly fuelType?: VehicleFuelTypeValue;
+  readonly search?: string;
 }

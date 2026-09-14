@@ -1,33 +1,42 @@
-import { STATUS as COMMON_STATUS } from '../../common/status.constants';
-import { TRANSACTION } from '../payment/transaction.constants';
-import { VENDOR_COMMISSION } from './vendor-commission.constants';
+import { VENDOR_PAYOUT_STATUS } from './vendor-payout-status.constants';
+
+export const VENDOR_PAYOUT_METHOD = {
+  BANK_TRANSFER: 'bank_transfer',
+  MOBILE_BANKING: 'mobile_banking',
+  PAYPAL: 'paypal',
+  STRIPE: 'stripe',
+  WISE: 'wise',
+  PAYONEER: 'payoneer',
+  CASH: 'cash',
+  CHEQUE: 'cheque',
+} as const;
+
+export const VENDOR_PAYOUT_CYCLE = {
+  DAILY: 'daily',
+  WEEKLY: 'weekly',
+  BIWEEKLY: 'biweekly',
+  MONTHLY: 'monthly',
+  ON_DEMAND: 'on_demand',
+} as const;
 
 export const VENDOR_PAYOUT = {
-  STATUS: {
-    ...COMMON_STATUS,
-    PENDING: 'pending',
-    PROCESSING: 'processing',
-    COMPLETED: 'completed',
-    FAILED: 'failed',
-    CANCELLED: 'cancelled',
-    ON_HOLD: 'on_hold',
-  },
-  TRANSACTION: { ...TRANSACTION },
-  VENDOR_COMMISSION: { ...VENDOR_COMMISSION },
-  PAYOUT_TYPES: {
-    SCHEDULED: 'scheduled',
-    MANUAL: 'manual',
-    INSTANT: 'instant',
-    BULK: 'bulk',
-  },
-  MIN_PAYOUT_AMOUNT: 100,
-  MAX_PAYOUT_AMOUNT: 500000,
-  PAYOUT_FREQUENCIES: {
-    DAILY: 'daily',
-    WEEKLY: 'weekly',
-    BI_WEEKLY: 'bi_weekly',
-    MONTHLY: 'monthly',
-  },
-  PAYOUT_PROCESSING_DAYS: 3,
-  HOLD_PERIOD_DAYS: 7,
+  MIN_AMOUNT: 100,
+  MAX_AMOUNT: 10000000,
+  HOLD_DAYS: 7,
+  PROCESSING_DAYS: 3,
+  DEFAULT_CYCLE: VENDOR_PAYOUT_CYCLE.WEEKLY,
+  AUTO_PAYOUT: false,
+  REQUIRE_APPROVAL: true,
+  MAX_PAYOUTS_PER_DAY: 1,
 } as const;
+
+export const VENDOR_PAYOUT_LIMIT = {
+  STATUS: VENDOR_PAYOUT_STATUS,
+  MIN_AMOUNT: 100,
+  MAX_AMOUNT: 10000000,
+  HOLD_DAYS: 7,
+} as const;
+
+export type VendorPayoutMethodType =
+  (typeof VENDOR_PAYOUT_METHOD)[keyof typeof VENDOR_PAYOUT_METHOD];
+export type VendorPayoutCycleType = (typeof VENDOR_PAYOUT_CYCLE)[keyof typeof VENDOR_PAYOUT_CYCLE];

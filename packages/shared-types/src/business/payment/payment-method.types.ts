@@ -1,26 +1,20 @@
-import { BaseEntity } from '../../common/base.types';
-import { PAYMENT_METHOD } from '@vubon/shared-constants/src/business/payment/payment-method.constants';
+/**
+ * Payment Method Value Types
+ * @module shared-types/business/payment
+ *
+ * Values আসে shared-constants/business/payment/payment-method.constants থেকে।
+ */
 
-export interface PaymentMethodConfig {
-  apiKey?: string;
-  apiSecret?: string;
-  merchantId?: string;
-  returnUrl: string;
-  cancelUrl: string;
-  webhookUrl: string;
-  timeout: number;
-  retryAttempts: number;
-}
+import type { PAYMENT_METHOD, PAYMENT_METHOD_TYPE } from '@vubon/shared-constants/business';
 
-export interface PaymentMethod extends BaseEntity {
-  methodId: string;
-  type: keyof typeof PAYMENT_METHOD.TYPES | string;
-  category: keyof typeof PAYMENT_METHOD.CATEGORIES | string;
-  name: string;
-  code: string;
-  icon?: string;
-  isActive: boolean;
-  isDefault: boolean;
-  config: PaymentMethodConfig;
-  metadata: Record<string, unknown>;
+export type PaymentMethodValue = (typeof PAYMENT_METHOD)[keyof typeof PAYMENT_METHOD];
+
+export type PaymentMethodTypeValue = (typeof PAYMENT_METHOD_TYPE)[keyof typeof PAYMENT_METHOD_TYPE];
+
+export interface PaymentMethodMetadata {
+  readonly value: PaymentMethodValue;
+  readonly label: string;
+  readonly type: PaymentMethodTypeValue;
+  readonly isOnline: boolean;
+  readonly requiresGateway: boolean;
 }

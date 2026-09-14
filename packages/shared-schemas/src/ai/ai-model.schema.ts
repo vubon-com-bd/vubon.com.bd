@@ -1,37 +1,67 @@
-import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { AIModelTypeSchema } from './ai-model-type.schema';
-import { AIModelStatusSchema } from './ai-model-status.schema';
-import { AIModelProviderSchema } from './ai-model-provider.schema';
-import { AIFeatureSchema } from './ai-feature.schema';
+/**
+ * AI Model Schema
+ * @module shared-schemas/ai
+ *
+ * AI model definition + configuration।
+ */
 
-export const AIModelSchema = BaseSchema.extend({
-  modelId: z.string().uuid(),
-  aiId: z.string().uuid(),
+import { z } from 'zod';
+import { BaseEntitySchema } from '../common/base/base-entity.schema';
+import { AiModelTypeSchema } from './ai-model-type.schema';
+import { AiModelStatusSchema } from './ai-model-status.schema';
+import { AiModelProviderSchema } from './ai-model-provider.schema';
+
+export const AiModelSchema = BaseEntitySchema.extend({
   name: z.string().min(1).max(100),
-  version: z.string().min(1).max(20),
-  type: AIModelTypeSchema,
-  status: AIModelStatusSchema,
-  provider: AIModelProviderSchema,
-  features: z.array(AIFeatureSchema),
-  modelSize: z.number().min(0),
-  accuracy: z.number().min(0).max(1),
-  precision: z.number().min(0).max(1),
-  recall: z.number().min(0).max(1),
-  f1Score: z.number().min(0).max(1),
-  trainingDataSize: z.number().int().min(0),
-  trainingTime: z.number().min(0),
-  isActive: z.boolean().default(true),
-  isDeployed: z.boolean().default(false),
-  isDeprecated: z.boolean().default(false),
-  deployedAt: z.date().optional(),
-  deprecatedAt: z.date().optional(),
-  metadata: z.object({
-    description: z.string().optional(),
-    tags: z.array(z.string()),
-    hyperparameters: z.record(z.unknown()),
-    evaluationMetrics: z.record(z.number()),
-    limitations: z.array(z.string()),
-    useCases: z.array(z.string()),
-  }),
+  displayName: z.string().min(1).max(150),
+  type: AiModelTypeSchema,
+  provider: AiModelProviderSchema,
+  status: AiModelStatusSchema,
+  version: z.string().min(1).max(50),
+  description: z.string().max(2000).optional(),
+  contextWindow: z.number().int().positive().max(2000000).optional(),
+  maxOutputTokens: z.number().int().positive().max(200000).optional(),
+  embeddingDimension: z.number().int().positive().max(10000).optional(),
+  supportsStreaming: z.boolean(),
+  supportsFunctionCalling: z.boolean(),
+  supportsVision: z.boolean(),
+  costPerInputToken: z.number().nonnegative().optional(),
+  costPerOutputToken: z.number().nonnegative().optional(),
+  currency: z.string().length(3).optional(),
+  documentationUrl: z.string().url().optional(),
+  isDefault: z.boolean(),
 });
+
+export const AiModelPublicSchema = AiModelSchema.pick({
+  id: true,
+  name: true,
+  displayName: true,
+  type: true,
+  provider: true,
+  version: true,
+  contextWindow: true,
+  supportsStreaming: true,
+});
+
+export const AiModelConfigSchema = z.object({
+  modelId: z.string().min(1),
+  temperature: z.number().min(0).max(2),
+  maxTokens: z.number().int().min(1).max(200000),
+  topP: z.number().min(0).max(1),
+  frequencyPenalty: z.number().min(-2).max(2).optional(),
+  presencePenalty: z.number().min(-2).max(2).optional(),
+  stopSequences: z.array(z.string().max(100)).max(4).optional(),
+});
+
+export const AiModelListFilterSchema = z.object({
+  type: AiModelTypeSchema.optional(),
+  provider: AiModelProviderSchema.optional(),
+  status: AiModelStatusSchema.optional(),
+  isDefault: z.boolean().optional(),
+  search: z.string().max(200).optional(),
+});
+
+export type AiModelSchemaType = z.infer<typeof AiModelSchema>;
+export type AiModelPublicSchemaType = z.infer<typeof AiModelPublicSchema>;
+export type AiModelConfigSchemaType = z.infer<typeof AiModelConfigSchema>;
+export type AiModelListFilterSchemaType = z.infer<typeof AiModelListFilterSchema>;

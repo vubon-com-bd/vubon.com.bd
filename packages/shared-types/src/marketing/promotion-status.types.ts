@@ -1,16 +1,15 @@
-import { StatusObject } from '../common/status.types';
-import { PROMOTION_STATUS } from '@vubon/shared-constants/src/marketing/promotion-status.constants';
+/**
+ * Promotion Status Value Types
+ * @module shared-types/marketing
+ */
 
-export interface PromotionStatus extends StatusObject {
-  type: keyof typeof PROMOTION_STATUS | string;
-  category: 'promotion';
-  isDraft: boolean;
-  isPending: boolean;
-  isActive: boolean;
-  isInactive: boolean;
-  isExpired: boolean;
-  isCancelled: boolean;
-  isCompleted: boolean;
+import type { PROMOTION_STATUS } from '@vubon/shared-constants/marketing';
+
+export type PromotionStatusValue = (typeof PROMOTION_STATUS)[keyof typeof PROMOTION_STATUS];
+
+export interface PromotionStatusMetadata {
+  readonly value: PromotionStatusValue;
+  readonly label: string;
+  readonly isActive: boolean;
+  readonly isFinal: boolean;
 }
-
-export type PromotionStatusKey = keyof typeof PROMOTION_STATUS;

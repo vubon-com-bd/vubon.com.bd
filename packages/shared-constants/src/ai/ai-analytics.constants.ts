@@ -1,39 +1,41 @@
-import { TYPES as COMMON_TYPES } from '../common/types.constants';
-import { METRICS } from '../common/types.constants';
-import { SEARCH_ANALYTICS } from '../platform/search/search-analytics.constants';
-import { MARKETING_ANALYTICS } from '../marketing/marketing-analytics.constants';
+export const AI_ANALYTICS_METRIC = {
+  PREDICTION_ACCURACY: 'prediction_accuracy',
+  PRECISION: 'precision',
+  RECALL: 'recall',
+  F1_SCORE: 'f1_score',
+  AUC_ROC: 'auc_roc',
+  LATENCY_MS: 'latency_ms',
+  THROUGHPUT: 'throughput',
+  COST_PER_REQUEST: 'cost_per_request',
+  TOKEN_USAGE: 'token_usage',
+  ERROR_RATE: 'error_rate',
+  USER_SATISFACTION: 'user_satisfaction',
+  CONVERSION_LIFT: 'conversion_lift',
+  ENGAGEMENT_LIFT: 'engagement_lift',
+} as const;
+
+export const AI_ANALYTICS_PERIOD = {
+  TODAY: 'today',
+  LAST_7_DAYS: 'last_7_days',
+  LAST_30_DAYS: 'last_30_days',
+  LAST_90_DAYS: 'last_90_days',
+  THIS_MONTH: 'this_month',
+  LAST_MONTH: 'last_month',
+  THIS_YEAR: 'this_year',
+  CUSTOM: 'custom',
+} as const;
 
 export const AI_ANALYTICS = {
-  TYPES: {
-    ...COMMON_TYPES,
-    ...SEARCH_ANALYTICS.TYPES,
-    ...MARKETING_ANALYTICS.TYPES,
-    PREDICTIVE: 'predictive',
-    PRESCRIPTIVE: 'prescriptive',
-    DIAGNOSTIC: 'diagnostic',
-    DESCRIPTIVE: 'descriptive',
-    COGNITIVE: 'cognitive',
-  },
-  METRICS: {
-    ...METRICS,
-    ...SEARCH_ANALYTICS.METRICS,
-    ...MARKETING_ANALYTICS.METRICS,
-    PREDICTION_ACCURACY: 'prediction_accuracy',
-    MODEL_CONFIDENCE: 'model_confidence',
-    ANOMALY_SCORE: 'anomaly_score',
-    TREND_STRENGTH: 'trend_strength',
-    SEASONALITY: 'seasonality',
-  },
-  SEARCH_ANALYTICS: { ...SEARCH_ANALYTICS },
-  MARKETING_ANALYTICS: { ...MARKETING_ANALYTICS },
-  ANALYTICS_ALGORITHMS: {
-    REGRESSION: 'regression',
-    CLASSIFICATION: 'classification',
-    CLUSTERING: 'clustering',
-    ANOMALY_DETECTION: 'anomaly_detection',
-    FORECASTING: 'forecasting',
-  },
-  PREDICTION_THRESHOLD: 0.8,
-  ANOMALY_THRESHOLD: 2.5,
-  MIN_DATA_POINTS_FOR_ANALYSIS: 100,
+  METRIC: AI_ANALYTICS_METRIC,
+  PERIOD: AI_ANALYTICS_PERIOD,
+  RETENTION_DAYS: 365,
+  REFRESH_INTERVAL_SECONDS: 300,
+  TRACK_LATENCY: true,
+  TRACK_COST: true,
+  TRACK_ACCURACY: true,
+  TRACK_TOKEN_USAGE: true,
+  ANONYMIZE_DATA: true,
+  MAX_DATE_RANGE_DAYS: 365,
 } as const;
+
+export type AiAnalyticsType = typeof AI_ANALYTICS;

@@ -1,21 +1,34 @@
+/**
+ * Support SMS Schema
+ * @module shared-schemas/support
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { SMS } from '@vubon/shared-constants/src/platform/notification/sms.constants';
+import { BaseEntitySchema } from '../common/base/base-entity.schema';
+import { PhoneSchema } from '../common/primitives/phone.schema';
 
-const smsStatusKeys = Object.keys(SMS.STATUS) as [string, ...string[]];
-const smsTypeKeys = Object.keys(SMS.TYPES) as [string, ...string[]];
+export const SupportSmsStatusSchema = z.enum(['pending', 'queued', 'sent', 'delivered', 'failed']);
 
-export const SupportSmsSchema = BaseSchema.extend({
-  smsId: z.string().uuid(),
-  ticketId: z.string().uuid().optional(),
-  to: z.string(),
-  from: z.string(),
-  body: z.string().min(1).max(160),
-  status: z.enum(smsStatusKeys),
-  type: z.enum(smsTypeKeys),
-  sentBy: z.string().uuid(),
-  sentAt: z.date(),
-  deliveredAt: z.date().optional(),
-  readAt: z.date().optional(),
-  metadata: z.record(z.unknown()).optional(),
+export const SupportSmsSchema = BaseEntitySchema.extend({
+  ticketId: z.string().optional(),
+  to: PhoneSchema,
+  from: z.string().max(20).optional(),
+  message: z.string().min(1).max(1600),
+  status: SupportSmsStatusSchema,
+  segments: z.number().int().positive().max(10),
+  sentAt: z.string().datetime().optional(),
+  deliveredAt: z.string().datetime().optional(),
+  failureReason: z.string().max(500).optional(),
 });
+
+export const SupportSmsPublicSchema = SupportSmsSchema.pick({
+  id: true,
+  to: true,
+  message: true,
+  status: true,
+  sentAt: true,
+});
+
+export type SupportSmsStatusSchemaType = z.infer<typeof SupportSmsStatusSchema>;
+export type SupportSmsSchemaType = z.infer<typeof SupportSmsSchema>;
+export type SupportSmsPublicSchemaType = z.infer<typeof SupportSmsPublicSchema>;

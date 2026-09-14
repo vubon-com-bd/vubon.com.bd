@@ -1,13 +1,17 @@
-import { StatusObject } from '../../common/status.types';
-import { CHECKOUT_STATUS } from '@vubon/shared-constants/src/business/checkout/checkout-status.constants';
+/**
+ * Checkout Status Value Types
+ * @module shared-types/business/checkout
+ *
+ * Values আসে shared-constants/business/checkout/checkout-status.constants থেকে।
+ */
 
-export interface CheckoutStatus extends StatusObject {
-  type: keyof typeof CHECKOUT_STATUS | string;
-  category: 'checkout';
-  isActive: boolean;
-  isComplete: boolean;
-  isAbandoned: boolean;
-  isExpired: boolean;
+import type { CHECKOUT_STATUS } from '@vubon/shared-constants/business';
+
+export type CheckoutStatusValue = (typeof CHECKOUT_STATUS)[keyof typeof CHECKOUT_STATUS];
+
+export interface CheckoutStatusMetadata {
+  readonly value: CheckoutStatusValue;
+  readonly label: string;
+  readonly isActive: boolean;
+  readonly isFinal: boolean;
 }
-
-export type CheckoutStatusKey = keyof typeof CHECKOUT_STATUS;

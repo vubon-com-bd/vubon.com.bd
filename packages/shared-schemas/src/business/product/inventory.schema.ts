@@ -1,38 +1,54 @@
+/**
+ * Inventory Schema
+ * @module shared-schemas/business/product
+ *
+ * Values আসে shared-constants/business/inventory.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { QuantitySchema } from '../../common/quantity.schema';
-import { INVENTORY } from '@vubon/shared-constants/src/business/product/inventory.constants';
+import { INVENTORY_STATUS } from '@vubon/shared-constants/business';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
 
-const inventoryStatusKeys = Object.keys(INVENTORY.STATUS) as [string, ...string[]];
-const inventoryTypeKeys = Object.keys(INVENTORY.TYPES) as [string, ...string[]];
+export const InventoryStatusSchema = z.enum(
+  Object.values(INVENTORY_STATUS) as [string, ...string[]]
+);
 
-export const InventorySchema = BaseSchema.extend({
-  inventoryId: z.string().uuid(),
-  productId: z.string().uuid(),
-  variantId: z.string().uuid().optional(),
-  quantity: QuantitySchema,
-  reserved: z.number().int().min(0).default(0),
-  sold: z.number().int().min(0).default(0),
-  returned: z.number().int().min(0).default(0),
-  damaged: z.number().int().min(0).default(0),
-  status: z.enum(inventoryStatusKeys),
-  type: z.enum(inventoryTypeKeys),
-  reorderPoint: z.number().int().min(0).default(10),
-  reorderQuantity: z.number().int().min(1).default(50),
-  warehouseId: z.string(),
-  warehouseLocation: z.string(),
-  isInStock: z.boolean().default(true),
-  isLowStock: z.boolean().default(false),
-  isOutOfStock: z.boolean().default(false),
-  lastRestockedAt: z.date().optional(),
-  metadata: z.record(z.unknown()).optional(),
+export const InventorySchema = z.object({
+  id: UuidSchema,
+  productId: UuidSchema,
+  variantId: UuidSchema.optional(),
+  vendorId: UuidSchema.optional(),
+  sku: z.string().min(1).max(64),
+  quantity: z.number().int().nonnegative(),
+  reserved: z.number().int().nonnegative(),
+  available: z.number().int().nonnegative(),
+  status: InventoryStatusSchema,
+  lowStockThreshold: z.number().int().nonnegative(),
+  locationId: UuidSchema.optional(),
+  lastRestockedAt: z.string().datetime().optional(),
+  updatedAt: z.string().datetime(),
 });
 
-export const InventoryCreateSchema = InventorySchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  sold: true,
-  returned: true,
-  damaged: true,
+export const InventoryAdjustmentSchema = z.object({
+  inventoryId: UuidSchema,
+  delta: z.number().int(),
+  reason: z.string().min(1).max(500),
+  reference: z.string().max(255).optional(),
+  adjustedBy: UuidSchema,
+  adjustedAt: z.string().datetime(),
 });
+
+export const InventoryAlertSchema = z.object({
+  inventoryId: UuidSchema,
+  productId: UuidSchema,
+  variantId: UuidSchema.optional(),
+  currentStock: z.number().int().nonnegative(),
+  threshold: z.number().int().nonnegative(),
+  status: InventoryStatusSchema,
+  createdAt: z.string().datetime(),
+});
+
+export type InventoryStatusSchemaType = z.infer<typeof InventoryStatusSchema>;
+export type InventorySchemaType = z.infer<typeof InventorySchema>;
+export type InventoryAdjustmentSchemaType = z.infer<typeof InventoryAdjustmentSchema>;
+export type InventoryAlertSchemaType = z.infer<typeof InventoryAlertSchema>;

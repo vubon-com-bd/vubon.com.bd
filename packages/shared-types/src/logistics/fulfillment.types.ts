@@ -1,49 +1,65 @@
-import { BaseEntity } from '../common/base.types';
-import { Money } from '../common/money.types';
-import { Quantity } from '../common/quantity.types';
-import { FULFILLMENT } from '@vubon/shared-constants/src/logistics/fulfillment.constants';
-import { Warehouse } from './warehouse.types';
-import { Shipment } from './shipment.types';
+/**
+ * Fulfillment Types
+ * @module shared-types/logistics
+ *
+ * Values আসে shared-constants/logistics/fulfillment.constants থেকে।
+ */
 
-export interface FulfillmentItem {
-  itemId: string;
-  productId: string;
-  quantity: Quantity;
-  location: string;
-  status: 'pending' | 'picked' | 'packed' | 'labeled' | 'ready' | 'shipped';
+import type {
+  FULFILLMENT_STATUS,
+  FULFILLMENT_TYPE,
+  FULFILLMENT_PRIORITY,
+} from '@vubon/shared-constants/logistics';
+import type { BaseEntity } from '../common/base';
+import type { OrderId, VendorId, WarehouseId } from '../common/primitives';
+
+export type FulfillmentStatusValue = (typeof FULFILLMENT_STATUS)[keyof typeof FULFILLMENT_STATUS];
+
+export type FulfillmentTypeValue = (typeof FULFILLMENT_TYPE)[keyof typeof FULFILLMENT_TYPE];
+
+export type FulfillmentPriorityValue =
+  (typeof FULFILLMENT_PRIORITY)[keyof typeof FULFILLMENT_PRIORITY];
+
+export interface Fulfillment extends BaseEntity<string> {
+  readonly orderId: OrderId;
+  readonly vendorId?: VendorId;
+  readonly warehouseId?: WarehouseId;
+  readonly status: FulfillmentStatusValue;
+  readonly type: FulfillmentTypeValue;
+  readonly priority: FulfillmentPriorityValue;
+  readonly itemIds: readonly string[];
+  readonly assignedTo?: string;
+  readonly pickedAt?: string;
+  readonly packedAt?: string;
+  readonly shippedAt?: string;
+  readonly cancelledAt?: string;
+  readonly notes?: string;
+  readonly slaDueAt?: string;
 }
 
-export interface FulfillmentMetadata {
-  batchId?: string;
-  waveId?: string;
-  zoneId?: string;
-  pickerId?: string;
-  packerId?: string;
-  laborCost: Money;
-  materialCost: Money;
+export interface FulfillmentPublic {
+  readonly id: string;
+  readonly orderId: OrderId;
+  readonly status: FulfillmentStatusValue;
+  readonly type: FulfillmentTypeValue;
+  readonly priority: FulfillmentPriorityValue;
+  readonly itemCount: number;
 }
 
-export interface Fulfillment extends BaseEntity {
-  fulfillmentId: string;
-  orderId: string;
-  status: keyof typeof FULFILLMENT.STATUS | string;
-  type: keyof typeof FULFILLMENT.FULFILLMENT_TYPES | string;
-  strategy: keyof typeof FULFILLMENT.PICKING_STRATEGIES | string;
-  warehouse: Warehouse;
-  shipment: Shipment;
-  items: FulfillmentItem[];
-  totalItems: number;
-  totalWeight: number;
-  totalVolume: number;
-  pickingStartedAt?: Date;
-  pickingCompletedAt?: Date;
-  packingStartedAt?: Date;
-  packingCompletedAt?: Date;
-  labelingStartedAt?: Date;
-  labelingCompletedAt?: Date;
-  readyToShipAt?: Date;
-  shippedAt?: Date;
-  deliveredAt?: Date;
-  notes?: string;
-  metadata: FulfillmentMetadata;
+export interface FulfillmentSummary {
+  readonly id: string;
+  readonly status: FulfillmentStatusValue;
+  readonly itemCount: number;
+  readonly createdAt: string;
+}
+
+export interface FulfillmentListFilter {
+  readonly status?: FulfillmentStatusValue;
+  readonly type?: FulfillmentTypeValue;
+  readonly priority?: FulfillmentPriorityValue;
+  readonly orderId?: OrderId;
+  readonly vendorId?: VendorId;
+  readonly warehouseId?: WarehouseId;
+  readonly fromDate?: string;
+  readonly toDate?: string;
 }

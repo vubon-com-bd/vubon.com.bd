@@ -1,14 +1,34 @@
+/**
+ * Vendor Permission Schema
+ * @module shared-schemas/business/vendor
+ *
+ * Values আসে shared-constants/business/vendor-permission.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { PermissionSchema } from '../../common/permission.schema';
-import { VENDOR_PERMISSION } from '@vubon/shared-constants/src/business/vendor/vendor-permission.constants';
+import { VENDOR_PERMISSION } from '@vubon/shared-constants/business';
 
-const vendorPermissionKeys = Object.keys(VENDOR_PERMISSION) as [string, ...string[]];
+export const VendorPermissionSchema = z.enum(
+  Object.values(VENDOR_PERMISSION) as [string, ...string[]]
+);
 
-export const VendorPermissionSchema = PermissionSchema.extend({
-  permission: z.enum(vendorPermissionKeys),
-  category: z.literal('vendor'),
-  module: z.string(),
-  action: z.enum(['view', 'create', 'update', 'delete', 'manage']),
+export const VendorPermissionGrantSchema = z.object({
+  vendorId: z.string().min(1),
+  userId: z.string().min(1),
+  permission: VendorPermissionSchema,
+  grantedBy: z.string().min(1),
+  grantedAt: z.string().datetime(),
+  expiresAt: z.string().datetime().optional(),
 });
 
-export const VendorPermissionEnumSchema = z.enum(vendorPermissionKeys);
+export const VendorPermissionCheckSchema = z.object({
+  vendorId: z.string().min(1),
+  userId: z.string().min(1),
+  permission: VendorPermissionSchema,
+  granted: z.boolean(),
+  checkedAt: z.string().datetime(),
+});
+
+export type VendorPermissionSchemaType = z.infer<typeof VendorPermissionSchema>;
+export type VendorPermissionGrantSchemaType = z.infer<typeof VendorPermissionGrantSchema>;
+export type VendorPermissionCheckSchemaType = z.infer<typeof VendorPermissionCheckSchema>;

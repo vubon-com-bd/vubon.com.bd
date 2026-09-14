@@ -1,15 +1,17 @@
-import { StatusObject } from '../common/status.types';
-import { LEAD_STATUS } from '@vubon/shared-constants/src/marketing/lead-status.constants';
+/**
+ * Lead Status Value Types
+ * @module shared-types/marketing
+ */
 
-export interface LeadStatus extends StatusObject {
-  type: keyof typeof LEAD_STATUS | string;
-  category: 'lead';
-  isNew: boolean;
-  isContacted: boolean;
-  isQualified: boolean;
-  isUnqualified: boolean;
-  isConverted: boolean;
-  isLost: boolean;
+import type { LEAD_STATUS, LEAD_QUALITY } from '@vubon/shared-constants/marketing';
+
+export type LeadStatusValue = (typeof LEAD_STATUS)[keyof typeof LEAD_STATUS];
+
+export type LeadQualityValue = (typeof LEAD_QUALITY)[keyof typeof LEAD_QUALITY];
+
+export interface LeadStatusMetadata {
+  readonly value: LeadStatusValue;
+  readonly label: string;
+  readonly isFinal: boolean;
+  readonly isConverted: boolean;
 }
-
-export type LeadStatusKey = keyof typeof LEAD_STATUS;

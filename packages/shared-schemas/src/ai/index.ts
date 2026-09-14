@@ -1,11 +1,12 @@
+// shared-schemas/ai/index.ts
+// AI domain barrel export
+
 export * from './ai.schema';
 export * from './ai-model.schema';
 export * from './ai-model-type.schema';
 export * from './ai-model-status.schema';
 export * from './ai-model-provider.schema';
-export * from './ai-recommendation.schema';
 export * from './ai-personalization.schema';
-export * from './ai-search.schema';
 export * from './ai-ranking.schema';
 export * from './ai-analytics.schema';
 export * from './ai-training.schema';

@@ -1,17 +1,43 @@
-import { BaseEntity } from '../common/base.types';
-import { SUPPORT_TEMPLATE } from '@vubon/shared-constants/src/support/support-template.constants';
+/**
+ * Support Template Types
+ * @module shared-types/support
+ */
 
-export interface SupportTemplate extends BaseEntity {
-  templateId: string;
-  name: string;
-  description?: string;
-  status: keyof typeof SUPPORT_TEMPLATE.STATUS | string;
-  type: keyof typeof SUPPORT_TEMPLATE.TYPES | string;
-  format: keyof typeof SUPPORT_TEMPLATE.TEMPLATE_FORMATS | string;
-  subject: string;
-  content: string;
-  variables: string[];
-  isActive: boolean;
-  isDefault: boolean;
-  metadata: Record<string, unknown>;
+import type { BaseEntity } from '../common/base';
+
+export type SupportTemplateTypeValue =
+  'email' | 'sms' | 'push' | 'in_app' | 'auto_reply' | 'signature' | 'macro';
+
+export type SupportTemplateStatusValue = 'draft' | 'active' | 'inactive' | 'archived';
+
+export interface SupportTemplate extends BaseEntity<string> {
+  readonly name: string;
+  readonly slug: string;
+  readonly type: SupportTemplateTypeValue;
+  readonly status: SupportTemplateStatusValue;
+  readonly locale: string;
+  readonly subject?: string;
+  readonly body: string;
+  readonly variables: readonly SupportTemplateVariable[];
+  readonly version: number;
+  readonly createdBy: string;
+  readonly updatedBy?: string;
+}
+
+export interface SupportTemplateVariable {
+  readonly name: string;
+  readonly type: 'string' | 'number' | 'boolean' | 'date';
+  readonly required: boolean;
+  readonly defaultValue?: string;
+  readonly description?: string;
+}
+
+export interface SupportTemplatePublic {
+  readonly id: string;
+  readonly name: string;
+  readonly slug: string;
+  readonly type: SupportTemplateTypeValue;
+  readonly status: SupportTemplateStatusValue;
+  readonly locale: string;
+  readonly version: number;
 }

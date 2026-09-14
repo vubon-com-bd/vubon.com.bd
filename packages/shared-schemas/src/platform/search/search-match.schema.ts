@@ -1,22 +1,29 @@
-import { z } from 'zod';
-import { SEARCH_MATCH } from '@vubon/shared-constants/src/platform/search/search-match.constants';
+/**
+ * Search Match Schema
+ * @module shared-schemas/platform/search
+ *
+ * Values আসে shared-constants/platform/search-match.constants থেকে।
+ */
 
-const searchMatchTypeKeys = Object.keys(SEARCH_MATCH.TYPES) as [string, ...string[]];
-const searchMatchPriorityKeys = Object.keys(SEARCH_MATCH.MATCH_PRIORITIES) as [string, ...string[]];
+import { z } from 'zod';
+import { SEARCH_MATCH_TYPE, SEARCH_FUZZINESS } from '@vubon/shared-constants/platform';
+
+export const SearchMatchTypeSchema = z.enum(
+  Object.values(SEARCH_MATCH_TYPE) as [string, ...string[]]
+);
+
+export const SearchFuzzinessSchema = z.enum(
+  Object.values(SEARCH_FUZZINESS) as [string, ...string[]]
+);
 
 export const SearchMatchSchema = z.object({
-  match: z.enum(searchMatchTypeKeys),
-  category: z.literal('search_match'),
-  priority: z.enum(searchMatchPriorityKeys),
-  isExact: z.boolean().default(false),
-  isPrefix: z.boolean().default(false),
-  isSuffix: z.boolean().default(false),
-  isContains: z.boolean().default(false),
-  isFuzzy: z.boolean().default(false),
-  isWildcard: z.boolean().default(false),
-  isRegex: z.boolean().default(false),
-  isSynonym: z.boolean().default(false),
-  isStemmed: z.boolean().default(false),
+  type: SearchMatchTypeSchema,
+  field: z.string().min(1).max(100),
+  value: z.string().min(1).max(1000),
+  fuzziness: SearchFuzzinessSchema.optional(),
+  boost: z.number().min(0.1).max(10).optional(),
 });
 
-export const SearchMatchEnumSchema = z.enum(searchMatchTypeKeys);
+export type SearchMatchTypeSchemaType = z.infer<typeof SearchMatchTypeSchema>;
+export type SearchFuzzinessSchemaType = z.infer<typeof SearchFuzzinessSchema>;
+export type SearchMatchSchemaType = z.infer<typeof SearchMatchSchema>;

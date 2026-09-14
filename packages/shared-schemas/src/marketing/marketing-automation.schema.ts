@@ -1,61 +1,78 @@
+/**
+ * Marketing Automation Schema
+ * @module shared-schemas/marketing
+ *
+ * Values আসে shared-constants/marketing/marketing-automation.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { CampaignSchema } from './campaign.schema';
-import { MARKETING_AUTOMATION } from '@vubon/shared-constants/src/marketing/marketing-automation.constants';
+import {
+  MARKETING_AUTOMATION_TYPE,
+  MARKETING_AUTOMATION_TRIGGER,
+  MARKETING_AUTOMATION_ACTION,
+  MARKETING_AUTOMATION_STATUS,
+} from '@vubon/shared-constants/marketing';
 
-const marketingAutomationStatusKeys = Object.keys(MARKETING_AUTOMATION.STATUS) as [
-  string,
-  ...string[],
-];
-const marketingAutomationTypeKeys = Object.keys(MARKETING_AUTOMATION.TYPES) as [
-  string,
-  ...string[],
-];
-const marketingAutomationTriggerKeys = Object.keys(MARKETING_AUTOMATION.TRIGGER_TYPES) as [
-  string,
-  ...string[],
-];
-const marketingAutomationExecutionKeys = Object.keys(MARKETING_AUTOMATION.EXECUTION_TIMES) as [
-  string,
-  ...string[],
-];
+export const MarketingAutomationTypeSchema = z.enum(
+  Object.values(MARKETING_AUTOMATION_TYPE) as [string, ...string[]]
+);
 
-export const MarketingAutomationSchema = BaseSchema.extend({
-  automationId: z.string().uuid(),
-  name: z.string().min(1).max(100),
-  description: z.string().optional(),
-  status: z.enum(marketingAutomationStatusKeys),
-  type: z.enum(marketingAutomationTypeKeys),
-  trigger: z.enum(marketingAutomationTriggerKeys),
-  executionTime: z.enum(marketingAutomationExecutionKeys),
-  campaignId: z.string().uuid().optional(),
-  campaign: CampaignSchema.optional(),
-  conditions: z.array(
-    z.object({
-      field: z.string(),
-      operator: z.enum([
-        'eq',
-        'ne',
-        'gt',
-        'gte',
-        'lt',
-        'lte',
-        'contains',
-        'starts_with',
-        'ends_with',
-        'in',
-        'not_in',
-      ]),
-      value: z.unknown(),
-    })
-  ),
-  actions: z.array(
-    z.object({
-      type: z.string(),
-      value: z.unknown(),
-    })
-  ),
-  isActive: z.boolean().default(true),
-  isError: z.boolean().default(false),
-  metadata: z.record(z.unknown()).optional(),
+export const MarketingAutomationTriggerSchema = z.enum(
+  Object.values(MARKETING_AUTOMATION_TRIGGER) as [string, ...string[]]
+);
+
+export const MarketingAutomationActionSchema = z.enum(
+  Object.values(MARKETING_AUTOMATION_ACTION) as [string, ...string[]]
+);
+
+export const MarketingAutomationStatusSchema = z.enum(
+  Object.values(MARKETING_AUTOMATION_STATUS) as [string, ...string[]]
+);
+
+export const AutomationTriggerSchema = z.object({
+  type: MarketingAutomationTriggerSchema,
+  conditions: z.record(z.string(), z.unknown()).optional(),
 });
+
+export const AutomationStepSchema = z.object({
+  id: z.string().min(1).max(50),
+  order: z.number().int().nonnegative(),
+  action: MarketingAutomationActionSchema,
+  params: z.record(z.string(), z.unknown()),
+  delayMinutes: z.number().int().nonnegative().max(525600).optional(),
+  conditions: z.record(z.string(), z.unknown()).optional(),
+});
+
+export const MarketingAutomationSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1).max(150),
+  description: z.string().max(1000).optional(),
+  type: MarketingAutomationTypeSchema,
+  status: MarketingAutomationStatusSchema,
+  trigger: AutomationTriggerSchema,
+  steps: z.array(AutomationStepSchema).min(1).max(50),
+  isActive: z.boolean(),
+  executionCount: z.number().int().nonnegative(),
+  successCount: z.number().int().nonnegative(),
+  failureCount: z.number().int().nonnegative(),
+  createdBy: z.string().min(1),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+
+export const AutomationExecutionSchema = z.object({
+  id: z.string().min(1),
+  automationId: z.string().min(1),
+  userId: z.string().optional(),
+  status: z.enum(['success', 'failed', 'partial']),
+  stepsExecuted: z.number().int().nonnegative(),
+  error: z.string().max(1000).optional(),
+  startedAt: z.string().datetime(),
+  completedAt: z.string().datetime().optional(),
+});
+
+export type MarketingAutomationTypeSchemaType = z.infer<typeof MarketingAutomationTypeSchema>;
+export type MarketingAutomationTriggerSchemaType = z.infer<typeof MarketingAutomationTriggerSchema>;
+export type MarketingAutomationActionSchemaType = z.infer<typeof MarketingAutomationActionSchema>;
+export type MarketingAutomationSchemaType = z.infer<typeof MarketingAutomationSchema>;
+export type AutomationExecutionSchemaType = z.infer<typeof AutomationExecutionSchema>;

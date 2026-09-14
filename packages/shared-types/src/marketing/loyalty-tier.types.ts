@@ -1,17 +1,24 @@
-import { TypeObject } from '../common/types.types';
-import { LOYALTY_TIER } from '@vubon/shared-constants/src/marketing/loyalty-tier.constants';
+/**
+ * Loyalty Tier Types
+ * @module shared-types/marketing
+ */
 
-export interface LoyaltyTier extends TypeObject {
-  type: keyof typeof LOYALTY_TIER.TYPES | string;
-  category: 'loyalty_tier';
-  minPoints: number;
-  discount: number;
-  benefits: string[];
-  isBasic: boolean;
-  isSilver: boolean;
-  isGold: boolean;
-  isPlatinum: boolean;
-  isDiamond: boolean;
+import type { LOYALTY_TIER } from '@vubon/shared-constants/marketing';
+
+export type LoyaltyTierValue = (typeof LOYALTY_TIER)[keyof typeof LOYALTY_TIER];
+
+export interface LoyaltyTierMetadata {
+  readonly value: LoyaltyTierValue;
+  readonly label: string;
+  readonly minPoints: number;
+  readonly maxPoints: number | null;
+  readonly earnMultiplier: number;
 }
 
-export type LoyaltyTierKey = keyof typeof LOYALTY_TIER.TYPES;
+export interface LoyaltyTierHistory {
+  readonly userId: string;
+  readonly previousTier: LoyaltyTierValue;
+  readonly newTier: LoyaltyTierValue;
+  readonly reason: string;
+  readonly changedAt: string;
+}

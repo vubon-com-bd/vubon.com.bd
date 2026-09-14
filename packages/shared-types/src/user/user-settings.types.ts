@@ -1,51 +1,44 @@
-import { BaseEntity } from '../common/base.types';
-import { USER_SETTINGS } from '@vubon/shared-constants/src/user/user-settings.constants';
-import { USER_PROFILE } from '@vubon/shared-constants/src/user/user-profile.constants';
-import { LANGUAGE } from '@vubon/shared-constants/src/common/language.constants';
-import { TIMEZONE } from '@vubon/shared-constants/src/common/timezone.constants';
-import { CurrencyCode } from '@vubon/shared-constants/src/common/currency.constants';
-
 /**
- * Notification preferences — moved to user scope (was in auth)
+ * User Settings Types
+ * @module shared-types/user
+ *
+ * Values আসে shared-constants/user/user-settings.constants থেকে।
  */
-export interface NotificationPreferences {
-  email: boolean;
-  sms: boolean;
-  push: boolean;
-  inApp: boolean;
+
+import type { USER_SETTINGS, USER_SETTINGS_KEY } from '@vubon/shared-constants/user';
+import type { UserId } from '../common/primitives';
+import type { LanguageCode } from '../common/primitives/language.types';
+import type { LocaleCode } from '../common/primitives/locale.types';
+import type { CurrencyCode } from '../common/primitives/currency.types';
+import type { TimezoneValue } from '../common/geo';
+
+export type ThemeValue = (typeof USER_SETTINGS)[keyof typeof USER_SETTINGS];
+export type SettingsKey = (typeof USER_SETTINGS_KEY)[keyof typeof USER_SETTINGS_KEY];
+
+export interface UserSettings {
+  readonly userId: UserId;
+  readonly theme: ThemeValue;
+  readonly language: LanguageCode;
+  readonly locale: LocaleCode;
+  readonly timezone: TimezoneValue;
+  readonly currency: CurrencyCode;
+  readonly dateFormat: string;
+  readonly timeFormat: string;
+  readonly itemsPerPage: number;
+  readonly notifications: boolean;
+  readonly twoFactor: boolean;
+  readonly updatedAt: string;
 }
 
-/**
- * Privacy settings interface
- * profileVisibility now uses USER_PROFILE values (public/private/friends).
- */
-export interface PrivacySettings {
-  profileVisibility: (typeof USER_PROFILE)[keyof typeof USER_PROFILE];
-  emailVisibility: boolean;
-  phoneVisibility: boolean;
-  addressVisibility: boolean;
-}
-
-/**
- * Value types
- */
-export type UserSettingType = (typeof USER_SETTINGS)[keyof typeof USER_SETTINGS];
-export type UserSettingKey = keyof typeof USER_SETTINGS;
-export type LanguageValue = (typeof LANGUAGE)[keyof typeof LANGUAGE];
-export type TimezoneValue = (typeof TIMEZONE)[keyof typeof TIMEZONE];
-export type CurrencyValue = CurrencyCode;
-
-/**
- * User settings interface
- */
-export interface UserSettings extends BaseEntity {
-  settingsId: string;
-  userId: string;
-  theme: 'light' | 'dark' | 'system';
-  language: LanguageValue;
-  timezone: TimezoneValue;
-  currency: CurrencyValue;
-  notifications: NotificationPreferences;
-  privacy: PrivacySettings;
-  metadata: Record<string, unknown>;
+export interface UserSettingsInput {
+  readonly theme?: ThemeValue;
+  readonly language?: LanguageCode;
+  readonly locale?: LocaleCode;
+  readonly timezone?: string;
+  readonly currency?: CurrencyCode;
+  readonly dateFormat?: string;
+  readonly timeFormat?: string;
+  readonly itemsPerPage?: number;
+  readonly notifications?: boolean;
+  readonly twoFactor?: boolean;
 }

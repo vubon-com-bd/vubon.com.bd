@@ -1,35 +1,61 @@
+/**
+ * Auth Social Schema
+ * @module shared-schemas/auth
+ *
+ * Values আসে shared-constants/auth/auth-social.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { AUTH_SOCIAL } from '@vubon/shared-constants/src/auth/auth-social.constants';
+import { AUTH_SOCIAL } from '@vubon/shared-constants/auth';
+import { UuidSchema } from '../common/primitives/uuid.schema';
 
-const authSocialValues = Object.values(AUTH_SOCIAL) as [string, ...string[]];
+export const SocialProviderSchema = z.enum(Object.values(AUTH_SOCIAL) as [string, ...string[]]);
 
-/**
- * Internal AuthSocial entity.
- * ⚠️ Access/refresh tokens are stored encrypted — never plain.
- */
-export const AuthSocialSchema = BaseSchema.extend({
-  socialId: z.string().uuid(),
-  userId: z.string().uuid(),
-  provider: z.enum(authSocialValues),
-  providerUserId: z.string(),
-  providerEmail: z.string().email(),
-  displayName: z.string(),
-  profileUrl: z.string().url().optional(),
+export const SocialAccountSchema = z.object({
+  id: z.string().min(1),
+  userId: UuidSchema,
+  provider: SocialProviderSchema,
+  providerUserId: z.string().min(1).max(255),
+  email: z.string().email().optional(),
+  name: z.string().max(200).optional(),
   avatarUrl: z.string().url().optional(),
-  /** @internal AES-256 encrypted */
-  encryptedAccessToken: z.string(),
-  /** @internal AES-256 encrypted */
-  encryptedRefreshToken: z.string().optional(),
-  expiresAt: z.date(),
-  metadata: z.record(z.unknown()).optional(),
+  connectedAt: z.string().datetime(),
+  lastUsedAt: z.string().datetime().optional(),
+  isActive: z.boolean(),
 });
 
-/**
- * Public-safe AuthSocial DTO — no tokens.
- */
-export const AuthSocialPublicSchema = AuthSocialSchema.omit({
-  encryptedAccessToken: true,
-  encryptedRefreshToken: true,
-  metadata: true,
+export const SocialLoginInputSchema = z.object({
+  provider: SocialProviderSchema,
+  code: z.string().min(1, 'Authorization code is required'),
+  redirectUri: z.string().url(),
+  state: z.string().max(255).optional(),
 });
+
+export const SocialLoginResultSchema = z.object({
+  success: z.boolean(),
+  userId: UuidSchema.optional(),
+  isNewUser: z.boolean(),
+  isEmailVerified: z.boolean(),
+  accessToken: z.string().optional(),
+  refreshToken: z.string().optional(),
+  error: z.string().optional(),
+});
+
+export const SocialAccountLinkInputSchema = z.object({
+  userId: UuidSchema,
+  provider: SocialProviderSchema,
+  code: z.string().min(1),
+  redirectUri: z.string().url(),
+});
+
+export const SocialAccountUnlinkInputSchema = z.object({
+  userId: UuidSchema,
+  provider: SocialProviderSchema,
+});
+
+export type SocialProviderSchemaType = z.infer<typeof SocialProviderSchema>;
+export type SocialAccountSchemaType = z.infer<typeof SocialAccountSchema>;
+export type SocialLoginInputSchemaType = z.infer<typeof SocialLoginInputSchema>;
+export type SocialLoginResultSchemaType = z.infer<typeof SocialLoginResultSchema>;
+export type SocialAccountLinkInputSchemaType = z.infer<typeof SocialAccountLinkInputSchema>;
+export type SocialAccountUnlinkInputSchemaType = z.infer<typeof SocialAccountUnlinkInputSchema>;

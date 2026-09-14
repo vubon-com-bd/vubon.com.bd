@@ -1,16 +1,22 @@
-/**
- * User Preferences Constants
- * @module shared-constants/user/user-preferences
- */
+export const USER_PREFERENCE = {
+  NEWSLETTER: 'newsletter',
+  PROMOTIONS: 'promotions',
+  ORDER_UPDATES: 'order_updates',
+  PRODUCT_RECOMMENDATIONS: 'product_recommendations',
+  SECURITY_ALERTS: 'security_alerts',
+  SMS_NOTIFICATIONS: 'sms_notifications',
+  EMAIL_NOTIFICATIONS: 'email_notifications',
+  PUSH_NOTIFICATIONS: 'push_notifications',
+} as const;
 
-export const USER_PREFERENCES = {
+export const USER_PREFERENCE_CHANNEL = {
   EMAIL: 'email',
   SMS: 'sms',
   PUSH: 'push',
   IN_APP: 'in_app',
-  NEWSLETTER: 'newsletter',
-  PROMOTIONS: 'promotions',
-  ORDER_UPDATES: 'order_updates',
+  WEBHOOK: 'webhook',
 } as const;
 
-export type UserPreferenceType = (typeof USER_PREFERENCES)[keyof typeof USER_PREFERENCES];
+export type UserPreferenceType = (typeof USER_PREFERENCE)[keyof typeof USER_PREFERENCE];
+export type UserPreferenceChannelType =
+  (typeof USER_PREFERENCE_CHANNEL)[keyof typeof USER_PREFERENCE_CHANNEL];

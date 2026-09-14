@@ -1,37 +1,51 @@
-import { BaseEntity } from '../common/base.types';
-import { DISPATCH } from '@vubon/shared-constants/src/logistics/dispatch.constants';
-import { Vehicle } from './vehicle.types';
-import { Driver } from './driver.types';
-import { Route } from './route.types';
-import { Shipment } from './shipment.types';
+/**
+ * Dispatch Types
+ * @module shared-types/logistics
+ *
+ * Values আসে shared-constants/logistics/dispatch.constants থেকে।
+ */
 
-export interface DispatchMetadata {
-  isUrgent: boolean;
-  isScheduled: boolean;
-  temperatureControlled: boolean;
-  requiresSignature: boolean;
-  requiresPhoto: boolean;
+import type { DISPATCH_STATUS, DISPATCH_TYPE } from '@vubon/shared-constants/logistics';
+import type { BaseEntity } from '../common/base';
+
+export type DispatchStatusValue = (typeof DISPATCH_STATUS)[keyof typeof DISPATCH_STATUS];
+
+export type DispatchTypeValue = (typeof DISPATCH_TYPE)[keyof typeof DISPATCH_TYPE];
+
+export interface Dispatch extends BaseEntity<string> {
+  readonly dispatchNumber: string;
+  readonly status: DispatchStatusValue;
+  readonly type: DispatchTypeValue;
+  readonly shipmentIds: readonly string[];
+  readonly courierId?: string;
+  readonly vehicleId?: string;
+  readonly driverId?: string;
+  readonly warehouseId?: string;
+  readonly manifestUrl?: string;
+  readonly itemCount: number;
+  readonly totalWeight?: number;
+  readonly dispatchedAt?: string;
+  readonly estimatedArrivalAt?: string;
+  readonly deliveredAt?: string;
+  readonly cancelledAt?: string;
+  readonly notes?: string;
 }
 
-export interface Dispatch extends BaseEntity {
-  dispatchId: string;
-  dispatchNumber: string;
-  status: keyof typeof DISPATCH.STATUS | string;
-  type: keyof typeof DISPATCH.DISPATCH_TYPES | string;
-  priority: keyof typeof DISPATCH.DISPATCH_PRIORITY | string;
-  vehicle: Vehicle;
-  driver: Driver;
-  route: Route;
-  shipments: Shipment[];
-  shipmentCount: number;
-  totalItems: number;
-  totalWeight: number;
-  scheduledAt: Date;
-  departedAt?: Date;
-  arrivedAt?: Date;
-  completedAt?: Date;
-  isCompleted: boolean;
-  isCancelled: boolean;
-  notes?: string;
-  metadata: DispatchMetadata;
+export interface DispatchPublic {
+  readonly id: string;
+  readonly dispatchNumber: string;
+  readonly status: DispatchStatusValue;
+  readonly type: DispatchTypeValue;
+  readonly itemCount: number;
+  readonly dispatchedAt?: string;
+}
+
+export interface DispatchCreateInput {
+  readonly type: DispatchTypeValue;
+  readonly shipmentIds: readonly string[];
+  readonly courierId?: string;
+  readonly vehicleId?: string;
+  readonly driverId?: string;
+  readonly warehouseId?: string;
+  readonly notes?: string;
 }

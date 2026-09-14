@@ -1,34 +1,62 @@
+/**
+ * Support Agent Schema
+ * @module shared-schemas/support
+ *
+ * Values আসে shared-constants/support/support-agent.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { UserSchema } from '../user/user.schema';
-import { SUPPORT_AGENT } from '@vubon/shared-constants/src/support/support-agent.constants';
+import { SUPPORT_AGENT_STATUS, SUPPORT_AGENT_SKILL } from '@vubon/shared-constants/support';
+import { UuidSchema } from '../common/primitives/uuid.schema';
+import { EmailSchema } from '../common/primitives/email.schema';
+import { SupportAgentLevelSchema } from './ticket-escalation.schema';
 
-const supportAgentStatusKeys = Object.keys(SUPPORT_AGENT.STATUS) as [string, ...string[]];
-const supportAgentRoleKeys = Object.keys(SUPPORT_AGENT.ROLES) as [string, ...string[]];
-const supportAgentTypeKeys = Object.keys(SUPPORT_AGENT.AGENT_TYPES) as [string, ...string[]];
+export const SupportAgentStatusSchema = z.enum(
+  Object.values(SUPPORT_AGENT_STATUS) as [string, ...string[]]
+);
 
-export const SupportAgentSchema = BaseSchema.extend({
-  agentId: z.string().uuid(),
-  userId: z.string().uuid(),
-  user: UserSchema,
-  status: z.enum(supportAgentStatusKeys),
-  role: z.enum(supportAgentRoleKeys),
-  type: z.enum(supportAgentTypeKeys),
-  teamId: z.string().uuid().optional(),
-  skills: z.array(z.string()),
-  languages: z.array(z.string()),
-  timezone: z.string(),
-  shiftStart: z.string(),
-  shiftEnd: z.string(),
-  maxTickets: z.number().int().min(1),
-  maxChats: z.number().int().min(1),
-  currentTickets: z.number().int().min(0).default(0),
-  currentChats: z.number().int().min(0).default(0),
-  totalResolved: z.number().int().min(0).default(0),
-  averageRating: z.number().min(0).max(5).default(0),
-  satisfactionScore: z.number().min(0).max(100).default(0),
-  isAvailable: z.boolean().default(true),
-  isOnDuty: z.boolean().default(false),
-  isOnLeave: z.boolean().default(false),
-  metadata: z.record(z.unknown()).optional(),
+export const SupportAgentSkillSchema = z.enum(
+  Object.values(SUPPORT_AGENT_SKILL) as [string, ...string[]]
+);
+
+export const SupportAgentSchema = z.object({
+  userId: UuidSchema,
+  name: z.string().min(1).max(150),
+  email: EmailSchema,
+  status: SupportAgentStatusSchema,
+  level: SupportAgentLevelSchema,
+  skills: z.array(SupportAgentSkillSchema).max(20),
+  teamIds: z.array(UuidSchema).max(20),
+  languages: z.array(z.string().min(2).max(10)).max(10),
+  activeTicketCount: z.number().int().nonnegative(),
+  activeChatCount: z.number().int().nonnegative(),
+  maxConcurrentTickets: z.number().int().positive(),
+  maxConcurrentChats: z.number().int().positive(),
+  resolvedToday: z.number().int().nonnegative(),
+  averageResolutionMinutes: z.number().nonnegative(),
+  satisfactionScore: z.number().min(0).max(5),
+  lastActiveAt: z.string().datetime(),
+  isAvailable: z.boolean(),
 });
+
+export const SupportAgentPublicSchema = SupportAgentSchema.pick({
+  userId: true,
+  name: true,
+  status: true,
+  level: true,
+  isAvailable: true,
+});
+
+export const SupportAgentAvailabilitySchema = z.object({
+  userId: UuidSchema,
+  isOnline: z.boolean(),
+  status: SupportAgentStatusSchema,
+  activeTicketCount: z.number().int().nonnegative(),
+  canAcceptNewTicket: z.boolean(),
+  checkedAt: z.string().datetime(),
+});
+
+export type SupportAgentStatusSchemaType = z.infer<typeof SupportAgentStatusSchema>;
+export type SupportAgentSkillSchemaType = z.infer<typeof SupportAgentSkillSchema>;
+export type SupportAgentSchemaType = z.infer<typeof SupportAgentSchema>;
+export type SupportAgentPublicSchemaType = z.infer<typeof SupportAgentPublicSchema>;

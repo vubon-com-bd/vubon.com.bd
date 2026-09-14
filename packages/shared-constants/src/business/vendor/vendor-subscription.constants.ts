@@ -1,27 +1,43 @@
-import { STATUS as COMMON_STATUS } from '../../common/status.constants';
-import { PAYMENT_SUBSCRIPTION } from '../payment/payment-subscription.constants';
-import { VENDOR_TIER } from './vendor-tier.constants';
+export const VENDOR_SUBSCRIPTION_PLAN = {
+  FREE: 'free',
+  BASIC: 'basic',
+  STANDARD: 'standard',
+  PREMIUM: 'premium',
+  ENTERPRISE: 'enterprise',
+} as const;
+
+export const VENDOR_SUBSCRIPTION_STATUS = {
+  TRIAL: 'trial',
+  ACTIVE: 'active',
+  PAST_DUE: 'past_due',
+  CANCELLED: 'cancelled',
+  EXPIRED: 'expired',
+  SUSPENDED: 'suspended',
+} as const;
+
+export const VENDOR_SUBSCRIPTION_CYCLE = {
+  MONTHLY: 'monthly',
+  QUARTERLY: 'quarterly',
+  HALF_YEARLY: 'half_yearly',
+  YEARLY: 'yearly',
+  LIFETIME: 'lifetime',
+} as const;
 
 export const VENDOR_SUBSCRIPTION = {
-  STATUS: {
-    ...COMMON_STATUS,
-    ...PAYMENT_SUBSCRIPTION.STATUS,
-    TRIAL: 'trial',
-    ACTIVE: 'active',
-    PAUSED: 'paused',
-    CANCELLED: 'cancelled',
-    EXPIRED: 'expired',
-  },
-  PAYMENT_SUBSCRIPTION: { ...PAYMENT_SUBSCRIPTION },
-  VENDOR_TIER: { ...VENDOR_TIER },
-  SUBSCRIPTION_TYPES: {
-    MONTHLY: 'monthly',
-    QUARTERLY: 'quarterly',
-    ANNUAL: 'annual',
-    CUSTOM: 'custom',
-  },
-  TRIAL_PERIOD_DAYS: 14,
+  TRIAL_DAYS: 14,
   GRACE_PERIOD_DAYS: 7,
   AUTO_RENEW: true,
-  CANCELLATION_NOTICE_DAYS: 30,
+  CANCEL_AT_PERIOD_END: true,
+  MAX_PRODUCTS_FREE: 50,
+  MAX_PRODUCTS_BASIC: 500,
+  MAX_PRODUCTS_STANDARD: 5000,
+  MAX_PRODUCTS_PREMIUM: 50000,
+  MAX_PRODUCTS_ENTERPRISE: null,
 } as const;
+
+export type VendorSubscriptionPlanType =
+  (typeof VENDOR_SUBSCRIPTION_PLAN)[keyof typeof VENDOR_SUBSCRIPTION_PLAN];
+export type VendorSubscriptionStatusType =
+  (typeof VENDOR_SUBSCRIPTION_STATUS)[keyof typeof VENDOR_SUBSCRIPTION_STATUS];
+export type VendorSubscriptionCycleType =
+  (typeof VENDOR_SUBSCRIPTION_CYCLE)[keyof typeof VENDOR_SUBSCRIPTION_CYCLE];

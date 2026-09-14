@@ -1,10 +1,17 @@
+/**
+ * User Role Schema
+ * @module shared-schemas/user
+ */
+
 import { z } from 'zod';
-import { RoleSchema } from '../common/role.schema';
-import { USER_ROLES } from '@vubon/shared-constants/src/user/user-role.constants';
+import { USER_ROLE } from '@vubon/shared-constants/user';
 
-const userRoleValues = Object.values(USER_ROLES) as [string, ...string[]];
+export const UserRoleSchema = z.enum(Object.values(USER_ROLE) as [string, ...string[]]);
 
-export const UserRoleSchema = RoleSchema.extend({
-  role: z.enum(userRoleValues),
-  category: z.literal('user'),
-});
+export const UserRoleListSchema = z
+  .array(UserRoleSchema)
+  .min(1, 'At least one role required')
+  .max(20, 'Too many roles');
+
+export type UserRoleSchemaType = z.infer<typeof UserRoleSchema>;
+export type UserRoleListSchemaType = z.infer<typeof UserRoleListSchema>;

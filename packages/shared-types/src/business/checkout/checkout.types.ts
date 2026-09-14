@@ -1,46 +1,104 @@
-import { BaseEntity } from '../../common/base.types';
-import { Money } from '../../common/money.types';
-import { Cart } from '../cart/cart.types';
-import { User } from '../../user/user.types';
-import { CHECKOUT_STATUS } from '@vubon/shared-constants/src/business/checkout/checkout-status.constants';
-import { BillingAddress } from './billing-address.types';
-import { ShippingAddress } from './shipping-address.types';
-import { DeliveryMethod } from './delivery-method.types';
-import { CheckoutStep } from './checkout-step.types';
-import { CheckoutSession } from './checkout-session.types';
+/**
+ * Checkout Core Types
+ * @module shared-types/business/checkout
+ *
+ * Checkout session — cart → order-এ যাওয়ার মাঝের state।
+ */
 
-export interface CheckoutMetadata {
-  ipAddress: string;
-  userAgent: string;
-  deviceId: string;
-  sessionId: string;
-  utmSource?: string;
-  utmMedium?: string;
-  utmCampaign?: string;
+import type { CartId, UserId, Money, Email, Phone } from '../../common/primitives';
+import type { BaseEntity } from '../../common/base';
+import type { Address } from '../../common/geo';
+import type { CartItem } from '../cart/cart-item.types';
+import type { CartTotals } from '../cart/cart.types';
+import type { CheckoutStatusValue } from './checkout-status.types';
+import type { CheckoutStepValue, CheckoutStepState } from './checkout-step.types';
+
+export type CheckoutTypeValue = 'guest' | 'registered' | 'express' | 'one_click' | 'subscription';
+
+export interface Checkout extends BaseEntity<string> {
+  readonly cartId: CartId;
+  readonly userId?: UserId;
+  readonly type: CheckoutTypeValue;
+  readonly status: CheckoutStatusValue;
+  readonly currentStep: CheckoutStepValue;
+  readonly steps: readonly CheckoutStepState[];
+  readonly email?: Email;
+  readonly phone?: Phone;
+  readonly shippingAddress?: Address;
+  readonly billingAddress?: Address;
+  readonly items: readonly CartItem[];
+  readonly totals: CartTotals;
+  readonly currency: string;
+  readonly paymentMethod?: string;
+  readonly paymentIntentId?: string;
+  readonly shippingMethodId?: string;
+  readonly notes?: string;
+  readonly reservedUntil?: string;
+  readonly expiresAt: string;
+  readonly completedAt?: string;
 }
 
-export interface Checkout extends BaseEntity {
-  checkoutId: string;
-  cartId: string;
-  cart: Cart;
-  userId: string;
-  user: User;
-  status: keyof typeof CHECKOUT_STATUS | string;
-  steps: CheckoutStep[];
-  currentStep: number;
-  session: CheckoutSession;
-  billingAddress: BillingAddress;
-  shippingAddress: ShippingAddress;
-  deliveryMethod: DeliveryMethod;
-  subtotal: Money;
-  discountTotal: Money;
-  taxTotal: Money;
-  shippingCost: Money;
-  grandTotal: Money;
-  currency: string;
-  isComplete: boolean;
-  isExpired: boolean;
-  expiresAt: Date;
-  completedAt?: Date;
-  metadata: CheckoutMetadata;
+export interface CheckoutPublic {
+  readonly id: string;
+  readonly status: CheckoutStatusValue;
+  readonly currentStep: CheckoutStepValue;
+  readonly steps: readonly CheckoutStepState[];
+  readonly items: readonly CartItem[];
+  readonly totals: CartTotals;
+  readonly currency: string;
+}
+
+export interface CheckoutSummary {
+  readonly id: string;
+  readonly status: CheckoutStatusValue;
+  readonly itemCount: number;
+  readonly total: Money;
+  readonly currency: string;
+  readonly expiresAt: string;
+}
+
+export interface CheckoutCreateInput {
+  readonly cartId: CartId;
+  readonly userId?: UserId;
+  readonly type: CheckoutTypeValue;
+  readonly email: Email;
+  readonly phone?: Phone;
+}
+
+export interface CheckoutShippingInput {
+  readonly shippingAddress: Address;
+  readonly billingAddress?: Address;
+  readonly shippingMethodId?: string;
+}
+
+export interface CheckoutPaymentInput {
+  readonly paymentMethod: string;
+  readonly paymentGateway?: string;
+  readonly returnUrl?: string;
+}
+
+export interface CheckoutCompleteInput {
+  readonly checkoutId: string;
+  readonly paymentIntentId: string;
+  readonly idempotencyKey?: string;
+}
+
+export interface CheckoutCompleteResult {
+  readonly success: boolean;
+  readonly orderId?: string;
+  readonly orderNumber?: string;
+  readonly redirectUrl?: string;
+  readonly error?: string;
+}
+
+export interface CheckoutValidationResult {
+  readonly valid: boolean;
+  readonly errors: readonly CheckoutValidationError[];
+}
+
+export interface CheckoutValidationError {
+  readonly step: CheckoutStepValue;
+  readonly field: string;
+  readonly message: string;
+  readonly code?: string;
 }

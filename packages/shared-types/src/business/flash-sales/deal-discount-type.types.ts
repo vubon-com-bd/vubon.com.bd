@@ -1,14 +1,17 @@
-import { TypeObject } from '../../common/types.types';
-import { DEAL_DISCOUNT_TYPE } from '@vubon/shared-constants/src/business/flash-sales/deal-discount-type.constants';
+/**
+ * Deal Discount Type Value Types
+ * @module shared-types/business/flash-sales
+ *
+ * Values আসে shared-constants/business/flash-sales/deal-discount-type.constants থেকে।
+ */
 
-export interface DealDiscountType extends TypeObject {
-  type: keyof typeof DEAL_DISCOUNT_TYPE | string;
-  category: 'deal_discount';
-  isPercentage: boolean;
-  isFixed: boolean;
-  isTiered: boolean;
-  isVolume: boolean;
-  isBundle: boolean;
+import type { DEAL_DISCOUNT_TYPE } from '@vubon/shared-constants/business';
+
+export type DealDiscountTypeValue = (typeof DEAL_DISCOUNT_TYPE)[keyof typeof DEAL_DISCOUNT_TYPE];
+
+export interface DealDiscountTypeMetadata {
+  readonly value: DealDiscountTypeValue;
+  readonly label: string;
+  readonly isPercentage: boolean;
+  readonly isFixed: boolean;
 }
-
-export type DealDiscountTypeKey = keyof typeof DEAL_DISCOUNT_TYPE;

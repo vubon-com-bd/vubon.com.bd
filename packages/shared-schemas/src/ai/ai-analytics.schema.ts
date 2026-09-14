@@ -1,23 +1,45 @@
+/**
+ * AI Analytics Schema
+ * @module shared-schemas/ai
+ *
+ * Values আসে shared-constants/ai/ai-analytics.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { AI_ANALYTICS } from '@vubon/shared-constants/src/ai/ai-analytics.constants';
+import { AI_ANALYTICS_METRIC, AI_ANALYTICS_PERIOD } from '@vubon/shared-constants/ai';
 
-const aiAnalyticsTypeKeys = Object.keys(AI_ANALYTICS.TYPES) as [string, ...string[]];
-const aiAnalyticsAlgorithmKeys = Object.keys(AI_ANALYTICS.ANALYTICS_ALGORITHMS) as [
-  string,
-  ...string[],
-];
-const aiAnalyticsMetricKeys = Object.keys(AI_ANALYTICS.METRICS) as [string, ...string[]];
+export const AiAnalyticsMetricSchema = z.enum(
+  Object.values(AI_ANALYTICS_METRIC) as [string, ...string[]]
+);
 
-export const AIAnalyticsSchema = BaseSchema.extend({
-  analyticsId: z.string().uuid(),
-  aiId: z.string().uuid(),
-  type: z.enum(aiAnalyticsTypeKeys),
-  algorithm: z.enum(aiAnalyticsAlgorithmKeys),
-  metric: z.enum(aiAnalyticsMetricKeys),
+export const AiAnalyticsPeriodSchema = z.enum(
+  Object.values(AI_ANALYTICS_PERIOD) as [string, ...string[]]
+);
+
+export const AiAnalyticsSchema = z.object({
+  metric: AiAnalyticsMetricSchema,
+  period: AiAnalyticsPeriodSchema,
   value: z.number(),
-  confidence: z.number().min(0).max(1),
-  period: z.enum(['hourly', 'daily', 'weekly', 'monthly', 'yearly']),
-  timestamp: z.date(),
-  metadata: z.record(z.unknown()).optional(),
+  previousValue: z.number().optional(),
+  changePercent: z.number().optional(),
+  periodStart: z.string().datetime(),
+  periodEnd: z.string().datetime(),
+  capturedAt: z.string().datetime(),
 });
+
+export const AiModelUsageSchema = z.object({
+  model: z.string().min(1).max(100),
+  requestCount: z.number().int().nonnegative(),
+  tokenCount: z.number().int().nonnegative(),
+  cost: z.number().nonnegative(),
+  currency: z.string().length(3),
+  averageLatencyMs: z.number().nonnegative(),
+  errorCount: z.number().int().nonnegative(),
+  periodStart: z.string().datetime(),
+  periodEnd: z.string().datetime(),
+});
+
+export type AiAnalyticsMetricSchemaType = z.infer<typeof AiAnalyticsMetricSchema>;
+export type AiAnalyticsPeriodSchemaType = z.infer<typeof AiAnalyticsPeriodSchema>;
+export type AiAnalyticsSchemaType = z.infer<typeof AiAnalyticsSchema>;
+export type AiModelUsageSchemaType = z.infer<typeof AiModelUsageSchema>;

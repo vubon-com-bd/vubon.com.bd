@@ -1,52 +1,54 @@
+/**
+ * Deal Core Schema
+ * @module shared-schemas/business/flash-sales
+ *
+ * Deal entity + aggregator।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { MoneySchema } from '../../common/money.schema';
-import { ProductSchema } from '../product/product.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema';
+import { MoneySchema } from '../../common/primitives/money.schema';
+import { DealStatusSchema } from './deal-status.schema';
 import { DealDiscountTypeSchema } from './deal-discount-type.schema';
-import { DealRuleSchema } from './deal-rule.schema';
-import { DEAL_STATUS } from '@vubon/shared-constants/src/business/flash-sales/deal-status.constants';
-import { DEAL } from '@vubon/shared-constants/src/business/flash-sales/deal.constants';
 
-const dealStatusKeys = Object.keys(DEAL_STATUS) as [string, ...string[]];
-const dealTypeKeys = Object.keys(DEAL.TYPES) as [string, ...string[]];
+export const DealTypeSchema = z.enum(['product', 'bundle', 'category', 'brand', 'cart', 'order']);
 
-export const DealSchema = BaseSchema.extend({
-  dealId: z.string().uuid(),
-  name: z.string().min(1).max(255),
-  slug: z
-    .string()
-    .min(1)
-    .max(255)
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-  description: z.string().optional(),
-  status: z.enum(dealStatusKeys),
-  type: z.enum(dealTypeKeys),
-  products: z.array(ProductSchema),
-  productCount: z.number().int().min(0).default(0),
+export const DealSchema = BaseEntitySchema.extend({
+  flashSaleId: z.string().min(1),
+  name: z.string().min(1).max(150),
+  description: z.string().max(1000).optional(),
+  type: DealTypeSchema,
+  status: DealStatusSchema,
   discountType: DealDiscountTypeSchema,
-  discountValue: z.number().min(0),
-  discountAmount: MoneySchema,
-  minPurchaseAmount: MoneySchema.optional(),
-  maxPurchaseAmount: MoneySchema.optional(),
-  perUserLimit: z.number().int().min(1).default(1),
-  totalLimit: z.number().int().min(1),
-  usedCount: z.number().int().min(0).default(0),
-  remainingCount: z.number().int().min(0).default(0),
-  isActive: z.boolean().default(true),
-  isFeatured: z.boolean().default(false),
-  startsAt: z.date(),
-  endsAt: z.date(),
-  rules: z.array(DealRuleSchema),
-  metadata: z.record(z.unknown()).optional(),
+  discountValue: z.number().positive(),
+  maxDiscountAmount: MoneySchema.optional(),
+  minOrderAmount: MoneySchema.optional(),
+  applicableProductIds: z.array(z.string()).max(1000).optional(),
+  applicableCategoryIds: z.array(z.string()).max(100).optional(),
+  applicableBrandIds: z.array(z.string()).max(100).optional(),
+  excludedProductIds: z.array(z.string()).max(1000).optional(),
+  perUserLimit: z.number().int().positive().max(100),
+  totalQuantityLimit: z.number().int().positive().optional(),
+  soldQuantity: z.number().int().nonnegative(),
+  priority: z.number().int().min(1).max(100),
+  isStackable: z.boolean(),
+  startAt: z.string().datetime(),
+  endAt: z.string().datetime(),
 });
 
-export const DealCreateSchema = DealSchema.omit({
+export const DealPublicSchema = DealSchema.pick({
   id: true,
-  createdAt: true,
-  updatedAt: true,
-  productCount: true,
-  usedCount: true,
-  remainingCount: true,
+  flashSaleId: true,
+  name: true,
+  type: true,
+  discountType: true,
+  discountValue: true,
+  maxDiscountAmount: true,
+  minOrderAmount: true,
+  startAt: true,
+  endAt: true,
 });
 
-export const DealUpdateSchema = DealCreateSchema.partial();
+export type DealTypeSchemaType = z.infer<typeof DealTypeSchema>;
+export type DealSchemaType = z.infer<typeof DealSchema>;
+export type DealPublicSchemaType = z.infer<typeof DealPublicSchema>;

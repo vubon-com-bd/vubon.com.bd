@@ -1,26 +1,54 @@
-import { BaseEntity } from '../common/base.types';
-import { AuthLoginAttemptStatus } from '@vubon/shared-constants/src/auth/auth-login-attempt.constants';
-
 /**
- * Login attempt status — re-export from constants
- */
-export type { AuthLoginAttemptStatus as LoginAttemptStatus };
-
-/**
- * Auth login attempt interface
+ * Auth Login Attempt Types
+ * @module shared-types/auth
  *
- * Design notes:
- * - Uses `AuthLoginAttemptStatus` from constants (single source of truth).
- * - `status` is limited to: success | failed | blocked.
+ * Values আসে shared-constants/auth/auth-login-attempt.constants থেকে।
  */
-export interface AuthLoginAttempt extends Omit<BaseEntity, 'status'> {
-  attemptId: string;
-  userId: string;
-  email: string;
-  ipAddress: string;
-  userAgent: string;
-  status: AuthLoginAttemptStatus;
-  failureReason?: string;
-  attemptedAt: Date;
-  metadata: Record<string, unknown>;
+
+import type { AUTH_LOGIN_ATTEMPT, AUTH_LOGIN_ATTEMPT_STATUS } from '@vubon/shared-constants/auth';
+import type { UserId, Email, Phone, IpAddress } from '../common/primitives';
+
+export type LoginAttemptStatusValue =
+  (typeof AUTH_LOGIN_ATTEMPT_STATUS)[keyof typeof AUTH_LOGIN_ATTEMPT_STATUS];
+
+export type MaxLoginAttempts = typeof AUTH_LOGIN_ATTEMPT.MAX_ATTEMPTS;
+export type LockoutDuration = typeof AUTH_LOGIN_ATTEMPT.LOCKOUT_DURATION_SECONDS;
+
+export interface LoginAttempt {
+  readonly id: string;
+  readonly userId?: UserId;
+  readonly identifier: Email | Phone | string;
+  readonly status: LoginAttemptStatusValue;
+  readonly ipAddress?: IpAddress;
+  readonly userAgent?: string;
+  readonly deviceId?: string;
+  readonly failureReason?: string;
+  readonly attemptedAt: string;
+}
+
+export interface LoginAttemptSummary {
+  readonly identifier: string;
+  readonly totalAttempts: number;
+  readonly failedAttempts: number;
+  readonly lastAttemptAt: string;
+  readonly isLocked: boolean;
+  readonly lockedUntil?: string;
+  readonly lockoutRemainingSeconds?: number;
+}
+
+export interface AccountLockout {
+  readonly userId: UserId;
+  readonly reason: string;
+  readonly lockedAt: string;
+  readonly lockedUntil: string;
+  readonly attemptCount: number;
+  readonly ipAddress?: IpAddress;
+}
+
+export interface LoginAttemptFilter {
+  readonly userId?: UserId;
+  readonly identifier?: string;
+  readonly status?: LoginAttemptStatusValue;
+  readonly fromDate?: string;
+  readonly toDate?: string;
 }

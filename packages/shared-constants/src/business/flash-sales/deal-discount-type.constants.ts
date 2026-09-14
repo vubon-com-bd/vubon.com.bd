@@ -1,17 +1,12 @@
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
-import { DISCOUNT } from '../../common/discount.constants';
-
 export const DEAL_DISCOUNT_TYPE = {
-  ...COMMON_TYPES,
-  ...DISCOUNT,
   PERCENTAGE: 'percentage',
-  FIXED_AMOUNT: 'fixed_amount',
+  FIXED: 'fixed',
+  BUY_ONE_GET_ONE: 'buy_one_get_one',
   BUY_X_GET_Y: 'buy_x_get_y',
+  BUNDLE_PRICE: 'bundle_price',
   TIERED: 'tiered',
-  VOLUME: 'volume',
-  BUNDLE: 'bundle',
-  FLASH: 'flash',
-  EARLY_BIRD: 'early_bird',
-  LAST_MINUTE: 'last_minute',
-  VIP: 'vip',
+  FREE_SHIPPING: 'free_shipping',
+  CASHBACK: 'cashback',
 } as const;
+
+export type DealDiscountTypeType = (typeof DEAL_DISCOUNT_TYPE)[keyof typeof DEAL_DISCOUNT_TYPE];

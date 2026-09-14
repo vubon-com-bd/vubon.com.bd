@@ -1,38 +1,68 @@
+/**
+ * Report Dashboard Schema
+ * @module shared-schemas/platform/reporting
+ *
+ * Values আসে shared-constants/platform/report-dashboard.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { UserSchema } from '../../user/user.schema';
-import { ReportWidgetSchema } from './report-widget.schema';
-import { REPORT_DASHBOARD } from '@vubon/shared-constants/src/platform/reporting/report-dashboard.constants';
+import {
+  REPORT_DASHBOARD_TYPE,
+  REPORT_DASHBOARD_STATUS,
+  REPORT_DASHBOARD_LAYOUT,
+} from '@vubon/shared-constants/platform';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { ReportWidgetPublicSchema } from './report-widget.schema';
 
-const dashboardStatusKeys = Object.keys(REPORT_DASHBOARD.STATUS) as [string, ...string[]];
-const dashboardTypeKeys = Object.keys(REPORT_DASHBOARD.DASHBOARD_TYPES) as [string, ...string[]];
+export const ReportDashboardTypeSchema = z.enum(
+  Object.values(REPORT_DASHBOARD_TYPE) as [string, ...string[]]
+);
 
-export const ReportDashboardSchema = BaseSchema.extend({
-  dashboardId: z.string().uuid(),
-  name: z.string().min(1).max(100),
-  description: z.string().optional(),
-  status: z.enum(dashboardStatusKeys),
-  type: z.enum(dashboardTypeKeys),
-  widgets: z.array(ReportWidgetSchema),
-  widgetCount: z.number().int().min(0).default(0),
-  layout: z.object({
-    columns: z.number().int().min(1),
-    rows: z.number().int().min(1),
-    items: z.array(
-      z.object({
-        widgetId: z.string().uuid(),
-        x: z.number().int().min(0),
-        y: z.number().int().min(0),
-        w: z.number().int().min(1),
-        h: z.number().int().min(1),
-      })
-    ),
-  }),
-  createdBy: z.string().uuid(),
-  createdByUser: UserSchema,
-  isActive: z.boolean().default(true),
-  isPublished: z.boolean().default(false),
-  isShared: z.boolean().default(false),
-  sharedWith: z.array(z.string().uuid()),
-  metadata: z.record(z.unknown()).optional(),
+export const ReportDashboardStatusSchema = z.enum(
+  Object.values(REPORT_DASHBOARD_STATUS) as [string, ...string[]]
+);
+
+export const ReportDashboardLayoutSchema = z.enum(
+  Object.values(REPORT_DASHBOARD_LAYOUT) as [string, ...string[]]
+);
+
+export const ReportDashboardSchema = BaseEntitySchema.extend({
+  name: z.string().min(1).max(150),
+  description: z.string().max(1000).optional(),
+  type: ReportDashboardTypeSchema,
+  status: ReportDashboardStatusSchema,
+  layout: ReportDashboardLayoutSchema,
+  ownerId: UuidSchema,
+  widgets: z.array(ReportWidgetPublicSchema).max(50),
+  sharedWith: z.array(UuidSchema).max(100).optional(),
+  isPublic: z.boolean(),
+  isDefault: z.boolean(),
+  theme: z.string().max(50).optional(),
+  autoRefresh: z.boolean(),
+  refreshIntervalSeconds: z.number().int().positive().max(86400),
 });
+
+export const ReportDashboardPublicSchema = ReportDashboardSchema.pick({
+  id: true,
+  name: true,
+  description: true,
+  type: true,
+  layout: true,
+  widgets: true,
+  isPublic: true,
+});
+
+export const ReportDashboardListFilterSchema = z.object({
+  type: ReportDashboardTypeSchema.optional(),
+  status: ReportDashboardStatusSchema.optional(),
+  ownerId: UuidSchema.optional(),
+  isPublic: z.boolean().optional(),
+  search: z.string().max(200).optional(),
+});
+
+export type ReportDashboardTypeSchemaType = z.infer<typeof ReportDashboardTypeSchema>;
+export type ReportDashboardStatusSchemaType = z.infer<typeof ReportDashboardStatusSchema>;
+export type ReportDashboardLayoutSchemaType = z.infer<typeof ReportDashboardLayoutSchema>;
+export type ReportDashboardSchemaType = z.infer<typeof ReportDashboardSchema>;
+export type ReportDashboardPublicSchemaType = z.infer<typeof ReportDashboardPublicSchema>;

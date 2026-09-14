@@ -1,26 +1,27 @@
-import { STATUS as COMMON_STATUS } from '../../common/status.constants';
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
-import { PRODUCT_STATUS } from '../product/product-status.constants';
-import { DEAL_STATUS } from './deal-status.constants';
+export const BUNDLE_DEAL_STATUS = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+  SCHEDULED: 'scheduled',
+  SOLD_OUT: 'sold_out',
+  EXPIRED: 'expired',
+  CANCELLED: 'cancelled',
+} as const;
+
+export const BUNDLE_DEAL_TYPE = {
+  FIXED_PRICE: 'fixed_price',
+  PERCENTAGE_OFF: 'percentage_off',
+  BUY_MORE_SAVE_MORE: 'buy_more_save_more',
+  MIX_AND_MATCH: 'mix_and_match',
+} as const;
 
 export const BUNDLE_DEAL = {
-  STATUS: {
-    ...COMMON_STATUS,
-    ...DEAL_STATUS,
-    ACTIVE: 'active',
-    SOLD_OUT: 'sold_out',
-  },
-  TYPES: {
-    ...COMMON_TYPES,
-    FIXED: 'fixed',
-    CUSTOMIZABLE: 'customizable',
-    MIXED: 'mixed',
-  },
-  PRODUCT_STATUS: { ...PRODUCT_STATUS },
-  DEAL_STATUS: { ...DEAL_STATUS },
-  MAX_ITEMS_PER_BUNDLE: 20,
-  MIN_ITEMS_PER_BUNDLE: 2,
-  MAX_BUNDLES_PER_DEAL: 50,
-  DISCOUNT_PERCENTAGE_MIN: 10,
-  DISCOUNT_PERCENTAGE_MAX: 70,
+  MIN_ITEMS: 2,
+  MAX_ITEMS: 20,
+  MIN_DISCOUNT_PERCENT: 1,
+  MAX_DISCOUNT_PERCENT: 90,
+  ALLOW_MIX_CATEGORIES: true,
+  PER_USER_LIMIT: 5,
 } as const;
+
+export type BundleDealStatusType = (typeof BUNDLE_DEAL_STATUS)[keyof typeof BUNDLE_DEAL_STATUS];
+export type BundleDealTypeType = (typeof BUNDLE_DEAL_TYPE)[keyof typeof BUNDLE_DEAL_TYPE];

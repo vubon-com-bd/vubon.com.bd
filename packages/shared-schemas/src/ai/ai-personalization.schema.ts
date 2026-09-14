@@ -1,29 +1,48 @@
+/**
+ * AI Personalization Schema
+ * @module shared-schemas/ai
+ *
+ * Values আসে shared-constants/ai/ai-personalization.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { UserSchema } from '../user/user.schema';
-import { AI_PERSONALIZATION } from '@vubon/shared-constants/src/ai/ai-personalization.constants';
-import { USER_PREFERENCES } from '@vubon/shared-constants/src/user/user-preferences.constants';
+import { AI_PERSONALIZATION_TYPE, AI_PERSONALIZATION_SIGNAL } from '@vubon/shared-constants/ai';
+import { UuidSchema } from '../common/primitives/uuid.schema';
 
-const aiPersonalizationTypeKeys = Object.keys(AI_PERSONALIZATION.TYPES) as [string, ...string[]];
-const aiPersonalizationAlgorithmKeys = Object.keys(
-  AI_PERSONALIZATION.PERSONALIZATION_ALGORITHMS
-) as [string, ...string[]];
-const aiPersonalizationFactorKeys = Object.keys(AI_PERSONALIZATION.PERSONALIZATION_FACTORS) as [
-  string,
-  ...string[],
-];
-const userPreferenceKeys = Object.keys(USER_PREFERENCES) as [string, ...string[]];
+export const AiPersonalizationTypeSchema = z.enum(
+  Object.values(AI_PERSONALIZATION_TYPE) as [string, ...string[]]
+);
 
-export const AIPersonalizationSchema = BaseSchema.extend({
-  personalizationId: z.string().uuid(),
-  aiId: z.string().uuid(),
-  userId: z.string().uuid(),
-  user: UserSchema,
-  type: z.enum(aiPersonalizationTypeKeys),
-  algorithm: z.enum(aiPersonalizationAlgorithmKeys),
-  factors: z.array(z.enum(aiPersonalizationFactorKeys)),
-  preferences: z.enum(userPreferenceKeys),
-  score: z.number().min(0).max(1),
-  isActive: z.boolean().default(true),
-  metadata: z.record(z.unknown()).optional(),
+export const AiPersonalizationSignalSchema = z.enum(
+  Object.values(AI_PERSONALIZATION_SIGNAL) as [string, ...string[]]
+);
+
+export const AiPersonalizationSignalItemSchema = z.object({
+  signal: AiPersonalizationSignalSchema,
+  weight: z.number(),
+  targetId: z.string().max(100).optional(),
+  occurredAt: z.string().datetime(),
 });
+
+export const AiPersonalizationProfileSchema = z.object({
+  userId: UuidSchema,
+  type: AiPersonalizationTypeSchema,
+  interests: z.array(z.string().max(100)).max(50),
+  categories: z.array(z.string().max(100)).max(50),
+  brands: z.array(z.string().max(100)).max(50),
+  signals: z.array(AiPersonalizationSignalItemSchema).max(1000),
+  confidence: z.number().min(0).max(1),
+  lastUpdatedAt: z.string().datetime(),
+});
+
+export const AiPersonalizationUpdateSchema = z.object({
+  userId: UuidSchema,
+  type: AiPersonalizationTypeSchema.optional(),
+  interests: z.array(z.string().max(100)).max(50).optional(),
+  categories: z.array(z.string().max(100)).max(50).optional(),
+  brands: z.array(z.string().max(100)).max(50).optional(),
+});
+
+export type AiPersonalizationTypeSchemaType = z.infer<typeof AiPersonalizationTypeSchema>;
+export type AiPersonalizationSignalSchemaType = z.infer<typeof AiPersonalizationSignalSchema>;
+export type AiPersonalizationProfileSchemaType = z.infer<typeof AiPersonalizationProfileSchema>;

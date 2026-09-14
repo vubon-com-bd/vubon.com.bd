@@ -1,17 +1,16 @@
+// shared-schemas/business/checkout/index.ts
+// Checkout sub-domain barrel export
+
+// Base
 export * from './checkout.schema';
 export * from './checkout-status.schema';
 export * from './checkout-step.schema';
-export * from './checkout-session.schema';
-export * from './billing-address.schema';
-export * from './shipping-address.schema';
-export * from './delivery-method.schema';
-export * from './order.schema';
-export * from './order-status.schema';
-export * from './order-item.schema';
-export * from './order-history.schema';
-export * from './order-tracking.schema';
-export * from './order-return.schema';
-export * from './order-cancel.schema';
-export * from './order-fulfillment.schema';
-export * from './delivery.schema';
-export * from './checkout-validation.schema';
+
+// Requests
+export * from './start-checkout.schema';
+export * from './select-address.schema';
+export * from './select-shipping.schema';
+export * from './confirm-order.schema';
+
+// Responses
+export * from './checkout-response.schema';

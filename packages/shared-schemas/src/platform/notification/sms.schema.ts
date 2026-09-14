@@ -1,25 +1,40 @@
+/**
+ * SMS Schema
+ * @module shared-schemas/platform/notification
+ *
+ * Values আসে shared-constants/platform/sms.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { SMS } from '@vubon/shared-constants/src/platform/notification/sms.constants';
+import { SMS_PROVIDER, SMS_STATUS, SMS_TYPE } from '@vubon/shared-constants/platform';
+import { PhoneSchema } from '../../common/primitives/phone.schema';
 
-const smsStatusKeys = Object.keys(SMS.STATUS) as [string, ...string[]];
-const smsTypeKeys = Object.keys(SMS.TYPES) as [string, ...string[]];
-const smsProviderKeys = Object.keys(SMS.SMS_PROVIDERS) as [string, ...string[]];
+export const SmsProviderSchema = z.enum(Object.values(SMS_PROVIDER) as [string, ...string[]]);
 
-export const SmsSchema = BaseSchema.extend({
-  smsId: z.string().uuid(),
-  notificationId: z.string().uuid(),
-  status: z.enum(smsStatusKeys),
-  type: z.enum(smsTypeKeys),
-  provider: z.enum(smsProviderKeys),
-  from: z.string(),
-  to: z.array(z.string()),
-  body: z.string().min(1).max(160),
-  length: z.number().int().min(0),
-  parts: z.number().int().min(1),
-  sentAt: z.date().optional(),
-  deliveredAt: z.date().optional(),
-  failedAt: z.date().optional(),
-  failureReason: z.string().optional(),
-  metadata: z.record(z.unknown()).optional(),
+export const SmsStatusSchema = z.enum(Object.values(SMS_STATUS) as [string, ...string[]]);
+
+export const SmsTypeSchema = z.enum(Object.values(SMS_TYPE) as [string, ...string[]]);
+
+export const SmsMessageSchema = z.object({
+  id: z.string().min(1),
+  to: PhoneSchema,
+  from: z.string().max(20).optional(),
+  message: z.string().min(1).max(1600),
+  type: SmsTypeSchema,
+  provider: SmsProviderSchema.optional(),
+  status: SmsStatusSchema,
+  segments: z.number().int().positive().max(10),
+  encoding: z.enum(['gsm', 'unicode']),
+  sentAt: z.string().datetime().optional(),
+  deliveredAt: z.string().datetime().optional(),
+  failedAt: z.string().datetime().optional(),
+  failureReason: z.string().max(500).optional(),
+  cost: z.number().nonnegative().optional(),
+  currency: z.string().length(3).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
+
+export type SmsProviderSchemaType = z.infer<typeof SmsProviderSchema>;
+export type SmsStatusSchemaType = z.infer<typeof SmsStatusSchema>;
+export type SmsTypeSchemaType = z.infer<typeof SmsTypeSchema>;
+export type SmsMessageSchemaType = z.infer<typeof SmsMessageSchema>;

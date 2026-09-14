@@ -1,29 +1,46 @@
-import { BaseEntity } from '../../common/base.types';
-import { User } from '../../user/user.types';
-import { ABANDONED_CART } from '@vubon/shared-constants/src/business/cart/abandoned-cart.constants';
-import { Cart } from './cart.types';
+/**
+ * Abandoned Cart Types
+ * @module shared-types/business/cart
+ *
+ * Values আসে shared-constants/business/cart/abandoned-cart.constants থেকে।
+ */
 
-export interface ReminderHistory {
-  sentAt: Date;
-  type: 'email' | 'sms' | 'push';
-  status: 'sent' | 'delivered' | 'opened' | 'clicked' | 'failed';
-  metadata: Record<string, unknown>;
+import type { ABANDONED_CART_STATUS } from '@vubon/shared-constants/business';
+import type { CartId, UserId, Email, Money } from '../../common/primitives';
+
+export type AbandonedCartStatusValue =
+  (typeof ABANDONED_CART_STATUS)[keyof typeof ABANDONED_CART_STATUS];
+
+export interface AbandonedCart {
+  readonly id: string;
+  readonly cartId: CartId;
+  readonly userId?: UserId;
+  readonly email?: Email;
+  readonly status: AbandonedCartStatusValue;
+  readonly itemCount: number;
+  readonly cartValue: Money;
+  readonly currency: string;
+  readonly abandonedAt: string;
+  readonly remindersSent: number;
+  readonly lastReminderAt?: string;
+  readonly recoveredAt?: string;
+  readonly recoveredOrderId?: string;
+  readonly recoveryDiscountPercent?: number;
 }
 
-export interface AbandonedCart extends BaseEntity {
-  abandonedId: string;
-  cartId: string;
-  cart: Cart;
-  userId?: string;
-  user?: User;
-  email: string;
-  phone?: string;
-  status: keyof typeof ABANDONED_CART.STATUS | string;
-  abandonedAt: Date;
-  lastReminderSentAt?: Date;
-  reminderCount: number;
-  reminderHistory: ReminderHistory[];
-  recoveredAt?: Date;
-  recoveryMethod?: string;
-  metadata: Record<string, unknown>;
+export interface AbandonedCartReminder {
+  readonly abandonedCartId: string;
+  readonly channel: 'email' | 'sms' | 'push';
+  readonly sentAt: string;
+  readonly openedAt?: string;
+  readonly clickedAt?: string;
+  readonly convertedAt?: string;
+}
+
+export interface AbandonedCartRecovery {
+  readonly abandonedCartId: string;
+  readonly recoveredAt: string;
+  readonly orderId: string;
+  readonly recoveredValue: Money;
+  readonly discountApplied?: Money;
 }

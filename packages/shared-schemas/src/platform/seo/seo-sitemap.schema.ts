@@ -1,22 +1,40 @@
+/**
+ * SEO Sitemap Schema
+ * @module shared-schemas/platform/seo
+ *
+ * Values আসে shared-constants/platform/seo-sitemap.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { SEO_SITEMAP } from '@vubon/shared-constants/src/platform/seo/seo-sitemap.constants';
+import { SEO_SITEMAP_TYPE, SEO_SITEMAP_CHANGEFREQ } from '@vubon/shared-constants/platform';
 
-const sitemapTypeKeys = Object.keys(SEO_SITEMAP.TYPES) as [string, ...string[]];
-const sitemapChangeFrequencyKeys = Object.keys(SEO_SITEMAP.SITEMAP_CHANGE_FREQUENCIES) as [
-  string,
-  ...string[],
-];
-const sitemapPriorityKeys = Object.keys(SEO_SITEMAP.SITEMAP_PRIORITIES) as [string, ...string[]];
+export const SeoSitemapTypeSchema = z.enum(
+  Object.values(SEO_SITEMAP_TYPE) as [string, ...string[]]
+);
 
-export const SEOSitemapSchema = BaseSchema.extend({
-  sitemapId: z.string().uuid(),
-  seoId: z.string().uuid(),
-  type: z.enum(sitemapTypeKeys),
-  url: z.string().url(),
-  changeFrequency: z.enum(sitemapChangeFrequencyKeys),
-  priority: z.enum(sitemapPriorityKeys),
-  lastModified: z.date(),
-  isActive: z.boolean().default(true),
-  metadata: z.record(z.unknown()).optional(),
+export const SeoSitemapChangefreqSchema = z.enum(
+  Object.values(SEO_SITEMAP_CHANGEFREQ) as [string, ...string[]]
+);
+
+export const SeoSitemapEntrySchema = z.object({
+  loc: z.string().url(),
+  lastmod: z.string().datetime().optional(),
+  changefreq: SeoSitemapChangefreqSchema.optional(),
+  priority: z.number().min(0).max(1).optional(),
 });
+
+export const SeoSitemapSchema = z.object({
+  id: z.string().min(1),
+  url: z.string().url(),
+  type: SeoSitemapTypeSchema,
+  urlCount: z.number().int().nonnegative(),
+  fileSize: z.number().int().nonnegative(),
+  isIndex: z.boolean(),
+  childSitemaps: z.array(z.string().url()).max(1000).optional(),
+  generatedAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+
+export type SeoSitemapTypeSchemaType = z.infer<typeof SeoSitemapTypeSchema>;
+export type SeoSitemapChangefreqSchemaType = z.infer<typeof SeoSitemapChangefreqSchema>;
+export type SeoSitemapSchemaType = z.infer<typeof SeoSitemapSchema>;

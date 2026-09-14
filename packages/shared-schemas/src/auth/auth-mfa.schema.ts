@@ -1,66 +1,86 @@
+/**
+ * Auth MFA Schema
+ * @module shared-schemas/auth
+ *
+ * Values আসে shared-constants/auth/auth-mfa.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { AUTH_MFA } from '@vubon/shared-constants/src/auth/auth-mfa.constants';
+import { AUTH_MFA, AUTH_MFA_METHOD } from '@vubon/shared-constants/auth';
 
-const authMfaValues = Object.values(AUTH_MFA) as [string, ...string[]];
+export const MfaMethodSchema = z.enum(Object.values(AUTH_MFA_METHOD) as [string, ...string[]]);
 
-/**
- * Internal AuthMfa entity.
- * ⚠️ Secret + backup codes are encrypted/hashed — never plain.
- */
-export const AuthMfaSchema = BaseSchema.extend({
-  mfaId: z.string().uuid(),
-  userId: z.string().uuid(),
-  type: z.enum(authMfaValues),
-  /** @internal AES-256 encrypted TOTP secret */
-  encryptedSecret: z.string(),
-  /** @internal bcrypt-hashed backup codes */
-  backupCodeHashes: z.array(z.string()).min(5).max(20),
-  isEnabled: z.boolean().default(false),
-  isVerified: z.boolean().default(false),
-  metadata: z.record(z.unknown()).optional(),
+export const MfaConfigSchema = z.object({
+  userId: z.string().min(1),
+  enabled: z.boolean(),
+  primaryMethod: MfaMethodSchema,
+  backupMethods: z.array(MfaMethodSchema).max(5),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
 });
 
-/**
- * Public-safe AuthMfa DTO — no secret or code hashes.
- */
-export const AuthMfaPublicSchema = AuthMfaSchema.omit({
-  encryptedSecret: true,
-  backupCodeHashes: true,
-  metadata: true,
-}).extend({
-  hasBackupCodes: z.boolean(),
+export const MfaSecretSchema = z.object({
+  userId: z.string().min(1),
+  secret: z.string().min(16).max(255),
+  method: MfaMethodSchema,
+  verified: z.boolean(),
+  createdAt: z.string().datetime(),
+  verifiedAt: z.string().datetime().optional(),
 });
 
-/**
- * MFA SETUP REQUEST — client sends type; server returns secret + QR once.
- * Formerly named MfaSetupSchema (renamed for clarity).
- */
-export const MfaSetupRequestSchema = z.object({
-  type: z.enum(authMfaValues),
+export const MfaSetupResultSchema = z.object({
+  secret: z.string().min(16),
+  qrCodeUrl: z.string().url(),
+  otpauthUrl: z.string().url(),
+  backupCodes: z
+    .array(z.string().min(8).max(20))
+    .length(
+      AUTH_MFA.BACKUP_CODES_COUNT,
+      `Exactly ${AUTH_MFA.BACKUP_CODES_COUNT} backup codes required`
+    ),
 });
 
-/** @deprecated Use MfaSetupRequestSchema. */
-export const MfaSetupSchema = MfaSetupRequestSchema;
-
-/**
- * MFA SETUP RESPONSE — one-time payload shown to the user.
- * Mirrors MfaSetupResponse in shared-types.
- */
-export const MfaSetupResponseSchema = z.object({
-  secret: z.string(),
-  qrCode: z.string().url(),
-  backupCodes: z.array(z.string()).min(5).max(20),
-  recoveryUrl: z.string().url(),
-});
-
-/**
- * MFA VERIFY REQUEST — client sends the OTP code.
- */
-export const MfaVerifyRequestSchema = z.object({
-  type: z.enum(authMfaValues),
+export const MfaVerifyInputSchema = z.object({
+  userId: z.string().min(1),
   code: z
     .string()
-    .length(6)
-    .regex(/^\d{6}$/, 'OTP must be 6 digits'),
+    .regex(
+      new RegExp(`^\\d{${AUTH_MFA.OTP_LENGTH}}$`),
+      `MFA code must be ${AUTH_MFA.OTP_LENGTH} digits`
+    ),
+  method: MfaMethodSchema,
 });
+
+export const MfaVerifyResultSchema = z.object({
+  verified: z.boolean(),
+  method: MfaMethodSchema,
+  usedBackupCode: z.boolean(),
+  remainingBackupCodes: z.number().int().nonnegative(),
+  verifiedAt: z.string().datetime(),
+});
+
+export const MfaBackupCodeSchema = z.object({
+  userId: z.string().min(1),
+  code: z.string().min(8).max(20),
+  used: z.boolean(),
+  usedAt: z.string().datetime().optional(),
+  createdAt: z.string().datetime(),
+});
+
+export const MfaChallengeSchema = z.object({
+  challengeId: z.string().min(1),
+  userId: z.string().min(1),
+  method: MfaMethodSchema,
+  createdAt: z.string().datetime(),
+  expiresAt: z.string().datetime(),
+  attempts: z.number().int().nonnegative(),
+});
+
+export type MfaMethodSchemaType = z.infer<typeof MfaMethodSchema>;
+export type MfaConfigSchemaType = z.infer<typeof MfaConfigSchema>;
+export type MfaSecretSchemaType = z.infer<typeof MfaSecretSchema>;
+export type MfaSetupResultSchemaType = z.infer<typeof MfaSetupResultSchema>;
+export type MfaVerifyInputSchemaType = z.infer<typeof MfaVerifyInputSchema>;
+export type MfaVerifyResultSchemaType = z.infer<typeof MfaVerifyResultSchema>;
+export type MfaBackupCodeSchemaType = z.infer<typeof MfaBackupCodeSchema>;
+export type MfaChallengeSchemaType = z.infer<typeof MfaChallengeSchema>;

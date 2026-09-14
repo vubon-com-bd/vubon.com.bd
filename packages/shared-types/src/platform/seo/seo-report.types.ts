@@ -1,43 +1,37 @@
-import { BaseEntity } from '../../common/base.types';
-import { SEO_REPORT } from '@vubon/shared-constants/src/platform/seo/seo-report.constants';
-import { SEOAnalytics } from './seo-analytics.types';
-import { SEORanking } from './seo-ranking.types';
-import { SEOScore } from './seo-score.types';
+/**
+ * SEO Report Types
+ * @module shared-types/platform/seo
+ */
 
-export interface SEOReportSummary {
-  totalKeywords: number;
-  totalRankings: number;
-  averagePosition: number;
-  top3Keywords: number;
-  top10Keywords: number;
-  top20Keywords: number;
-  averageScore: number;
-  organicTraffic: number;
-  organicConversions: number;
-  bounceRate: number;
-  pageViews: number;
-  backlinkCount: number;
-  domainAuthority: number;
+import type {
+  SEO_REPORT_TYPE,
+  SEO_REPORT_FORMAT,
+  SEO_REPORT_SCHEDULE,
+} from '@vubon/shared-constants/platform';
+
+export type SeoReportTypeValue = (typeof SEO_REPORT_TYPE)[keyof typeof SEO_REPORT_TYPE];
+
+export type SeoReportFormatValue = (typeof SEO_REPORT_FORMAT)[keyof typeof SEO_REPORT_FORMAT];
+
+export type SeoReportScheduleValue = (typeof SEO_REPORT_SCHEDULE)[keyof typeof SEO_REPORT_SCHEDULE];
+
+export interface SeoReport {
+  readonly id: string;
+  readonly type: SeoReportTypeValue;
+  readonly format: SeoReportFormatValue;
+  readonly schedule?: SeoReportScheduleValue;
+  readonly periodStart: string;
+  readonly periodEnd: string;
+  readonly fileUrl?: string;
+  readonly fileSize?: number;
+  readonly generatedAt: string;
+  readonly expiresAt?: string;
+  readonly generatedBy?: string;
 }
 
-export interface SEOReportInsight {
-  type: string;
-  title: string;
-  description: string;
-  severity: 'info' | 'warning' | 'success' | 'error';
-}
-
-export interface SEOReport extends BaseEntity {
-  reportId: string;
-  type: keyof typeof SEO_REPORT.TYPES | string;
-  format: keyof typeof SEO_REPORT.REPORT_FORMATS | string;
-  analytics: SEOAnalytics[];
-  rankings: SEORanking[];
-  scores: SEOScore[];
-  summary: SEOReportSummary;
-  insights: SEOReportInsight[];
-  recommendations: string[];
-  schedule: keyof typeof SEO_REPORT.REPORT_SCHEDULE | string;
-  generatedAt: Date;
-  metadata: Record<string, unknown>;
+export interface SeoReportRequest {
+  readonly type: SeoReportTypeValue;
+  readonly format: SeoReportFormatValue;
+  readonly periodStart: string;
+  readonly periodEnd: string;
 }

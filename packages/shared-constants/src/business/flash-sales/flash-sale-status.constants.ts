@@ -1,16 +1,14 @@
 import { STATUS as COMMON_STATUS } from '../../common/status.constants';
 
 export const FLASH_SALE_STATUS = {
-  ...COMMON_STATUS,
-  DRAFT: 'draft',
+  DRAFT: COMMON_STATUS.DRAFT,
   SCHEDULED: 'scheduled',
-  UPCOMING: 'upcoming',
-  LIVE: 'live',
-  ACTIVE: 'active',
+  ACTIVE: COMMON_STATUS.ACTIVE,
   PAUSED: 'paused',
   ENDED: 'ended',
-  EXPIRED: 'expired',
+  EXPIRED: COMMON_STATUS.EXPIRED,
   CANCELLED: 'cancelled',
-  COMPLETED: 'completed',
-  ARCHIVED: 'archived',
+  ARCHIVED: COMMON_STATUS.ARCHIVED,
 } as const;
+
+export type FlashSaleStatusType = (typeof FLASH_SALE_STATUS)[keyof typeof FLASH_SALE_STATUS];

@@ -1,23 +1,31 @@
-import { BaseEntity } from '../common/base.types';
-import { USER_VERIFICATION } from '@vubon/shared-constants/src/user/user-verification.constants';
-import { STATUS } from '@vubon/shared-constants/src/common/status.constants';
-
 /**
- * Verification type and status values
+ * User Verification Types
+ * @module shared-types/user
+ *
+ * Values আসে shared-constants/user/user-verification.constants থেকে।
  */
-export type UserVerificationType = (typeof USER_VERIFICATION)[keyof typeof USER_VERIFICATION];
-export type UserVerificationStatus = (typeof STATUS.VERIFICATION)[keyof typeof STATUS.VERIFICATION];
 
-/**
- * User verification interface
- */
-export interface UserVerification extends BaseEntity {
-  verificationId: string;
-  userId: string;
-  type: UserVerificationType;
-  status: UserVerificationStatus;
-  documentId?: string;
-  verifiedAt?: Date;
-  expiresAt?: Date;
-  metadata: Record<string, unknown>;
+import type { USER_VERIFICATION_STATUS } from '@vubon/shared-constants/user';
+import type { UserId } from '../common/primitives';
+
+export type UserVerificationStatusValue =
+  (typeof USER_VERIFICATION_STATUS)[keyof typeof USER_VERIFICATION_STATUS];
+
+export interface UserVerification {
+  readonly userId: UserId;
+  readonly emailVerified: boolean;
+  readonly phoneVerified: boolean;
+  readonly identityVerified: boolean;
+  readonly addressVerified: boolean;
+  readonly status: UserVerificationStatusValue;
+  readonly verifiedAt?: string;
+  readonly expiresAt?: string;
+  readonly updatedAt: string;
+}
+
+export interface UserVerificationSummary {
+  readonly userId: UserId;
+  readonly status: UserVerificationStatusValue;
+  readonly verificationCount: number;
+  readonly isFullyVerified: boolean;
 }

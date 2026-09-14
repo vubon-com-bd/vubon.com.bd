@@ -1,20 +1,25 @@
-import { RoleObject } from '../common/role.types';
-import { USER_ROLES } from '@vubon/shared-constants/src/user/user-role.constants';
-
 /**
- * User role value
+ * User Role Value Types
+ * @module shared-types/user
+ *
+ * Values আসে shared-constants/user/user-role.constants থেকে।
  */
-export type UserRoleValue = (typeof USER_ROLES)[keyof typeof USER_ROLES];
 
-/**
- * User role interface
- */
-export interface UserRole extends Omit<RoleObject, 'type'> {
-  type: UserRoleValue;
-  category: 'user';
+import type { USER_ROLE } from '@vubon/shared-constants/user';
+
+export type UserRoleValue = (typeof USER_ROLE)[keyof typeof USER_ROLE];
+
+export interface UserRoleMetadata {
+  readonly value: UserRoleValue;
+  readonly label: string;
+  readonly level: number;
+  readonly isPrimary: boolean;
 }
 
-/**
- * User role key type
- */
-export type UserRoleKey = keyof typeof USER_ROLES;
+export interface UserRoleAssignment {
+  readonly userId: string;
+  readonly role: UserRoleValue;
+  readonly assignedAt: string;
+  readonly assignedBy?: string;
+  readonly expiresAt?: string;
+}

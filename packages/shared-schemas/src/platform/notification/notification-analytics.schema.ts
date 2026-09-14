@@ -1,34 +1,51 @@
+/**
+ * Notification Analytics Schema
+ * @module shared-schemas/platform/notification
+ *
+ * Values আসে shared-constants/platform/notification-analytics.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { NOTIFICATION_ANALYTICS } from '@vubon/shared-constants/src/platform/notification/notification-analytics.constants';
-import { NOTIFICATION_STATUS } from '@vubon/shared-constants/src/platform/notification/notification-status.constants';
-import { NOTIFICATION_TYPE } from '@vubon/shared-constants/src/platform/notification/notification-type.constants';
-import { NOTIFICATION_CHANNEL } from '@vubon/shared-constants/src/platform/notification/notification-channel.constants';
+import {
+  NOTIFICATION_ANALYTICS_METRIC,
+  NOTIFICATION_ANALYTICS_PERIOD,
+} from '@vubon/shared-constants/platform';
 
-const notificationAnalyticsTypeKeys = Object.keys(NOTIFICATION_ANALYTICS.TYPES) as [
-  string,
-  ...string[],
-];
-const notificationAnalyticsMetricKeys = Object.keys(NOTIFICATION_ANALYTICS.METRICS) as [
-  string,
-  ...string[],
-];
-const notificationAnalyticsGranularityKeys = Object.keys(
-  NOTIFICATION_ANALYTICS.ANALYTICS_GRANULARITY
-) as [string, ...string[]];
-const notificationStatusKeys = Object.keys(NOTIFICATION_STATUS) as [string, ...string[]];
-const notificationTypeKeys = Object.keys(NOTIFICATION_TYPE.TYPES) as [string, ...string[]];
-const notificationChannelKeys = Object.keys(NOTIFICATION_CHANNEL.TYPES) as [string, ...string[]];
+export const NotificationAnalyticsMetricSchema = z.enum(
+  Object.values(NOTIFICATION_ANALYTICS_METRIC) as [string, ...string[]]
+);
 
-export const NotificationAnalyticsSchema = BaseSchema.extend({
-  analyticsId: z.string().uuid(),
-  type: z.enum(notificationAnalyticsTypeKeys),
-  metric: z.enum(notificationAnalyticsMetricKeys),
+export const NotificationAnalyticsPeriodSchema = z.enum(
+  Object.values(NOTIFICATION_ANALYTICS_PERIOD) as [string, ...string[]]
+);
+
+export const NotificationAnalyticsSchema = z.object({
+  metric: NotificationAnalyticsMetricSchema,
+  period: NotificationAnalyticsPeriodSchema,
   value: z.number(),
-  status: z.enum(notificationStatusKeys),
-  notificationType: z.enum(notificationTypeKeys),
-  channel: z.enum(notificationChannelKeys),
-  period: z.enum(notificationAnalyticsGranularityKeys),
-  timestamp: z.date(),
-  metadata: z.record(z.unknown()).optional(),
+  previousValue: z.number().optional(),
+  changePercent: z.number().optional(),
+  periodStart: z.string().datetime(),
+  periodEnd: z.string().datetime(),
+  capturedAt: z.string().datetime(),
 });
+
+export const NotificationChannelStatsSchema = z.object({
+  channel: z.string().min(1).max(50),
+  sent: z.number().int().nonnegative(),
+  delivered: z.number().int().nonnegative(),
+  opened: z.number().int().nonnegative(),
+  clicked: z.number().int().nonnegative(),
+  failed: z.number().int().nonnegative(),
+  deliveryRate: z.number().min(0).max(1),
+  openRate: z.number().min(0).max(1),
+  clickRate: z.number().min(0).max(1),
+});
+
+export type NotificationAnalyticsMetricSchemaType = z.infer<
+  typeof NotificationAnalyticsMetricSchema
+>;
+export type NotificationAnalyticsPeriodSchemaType = z.infer<
+  typeof NotificationAnalyticsPeriodSchema
+>;
+export type NotificationAnalyticsSchemaType = z.infer<typeof NotificationAnalyticsSchema>;

@@ -1,19 +1,28 @@
-import { BaseEntity } from '../common/base.types';
-import { Money } from '../common/money.types';
-import { AFFILIATE_COMMISSION } from '@vubon/shared-constants/src/marketing/affiliate-commission.constants';
-import { Affiliate } from './affiliate.types';
+/**
+ * Affiliate Commission Types
+ * @module shared-types/marketing
+ */
 
-export interface AffiliateCommission extends BaseEntity {
-  commissionId: string;
-  affiliateId: string;
-  affiliate: Affiliate;
-  type: keyof typeof AFFILIATE_COMMISSION.TYPES | string;
-  rate: number;
-  tier: keyof typeof AFFILIATE_COMMISSION.COMMISSION_TIERS | string;
-  amount: Money;
-  minAmount: Money;
-  maxAmount: Money;
-  isActive: boolean;
-  isDefault: boolean;
-  metadata: Record<string, unknown>;
+import type { AFFILIATE_COMMISSION_TYPE } from '@vubon/shared-constants/marketing';
+import type { Money } from '../common/primitives';
+
+export type AffiliateCommissionTypeValue =
+  (typeof AFFILIATE_COMMISSION_TYPE)[keyof typeof AFFILIATE_COMMISSION_TYPE];
+
+export interface AffiliateCommission {
+  readonly affiliateId: string;
+  readonly type: AffiliateCommissionTypeValue;
+  readonly percent?: number;
+  readonly fixedAmount?: Money;
+  readonly currency: string;
+  readonly tier?: string;
+  readonly isActive: boolean;
+  readonly updatedAt: string;
+}
+
+export interface AffiliateCommissionTier {
+  readonly tier: string;
+  readonly minSales: number;
+  readonly maxSales: number | null;
+  readonly percent: number;
 }

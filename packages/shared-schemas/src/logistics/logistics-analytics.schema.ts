@@ -1,32 +1,56 @@
+/**
+ * Logistics Analytics Schema
+ * @module shared-schemas/logistics
+ *
+ * Values আসে shared-constants/logistics/logistics-analytics.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { LOGISTICS_ANALYTICS } from '@vubon/shared-constants/src/logistics/logistics-analytics.constants';
+import {
+  LOGISTICS_ANALYTICS_METRIC,
+  LOGISTICS_ANALYTICS_PERIOD,
+} from '@vubon/shared-constants/logistics';
+import { ShipmentStatusSchema, ShipmentPrioritySchema } from './shipment-status.schema';
 
-const analyticsTypeKeys = Object.keys(LOGISTICS_ANALYTICS.TYPES) as [string, ...string[]];
-const analyticsMetricKeys = Object.keys(LOGISTICS_ANALYTICS.METRICS) as [string, ...string[]];
-const analyticsGranularityKeys = Object.keys(LOGISTICS_ANALYTICS.ANALYTICS_GRANULARITY) as [
-  string,
-  ...string[],
-];
+export const LogisticsAnalyticsMetricSchema = z.enum(
+  Object.values(LOGISTICS_ANALYTICS_METRIC) as [string, ...string[]]
+);
 
-export const LogisticsAnalyticsSchema = BaseSchema.extend({
-  analyticsId: z.string().uuid(),
-  logisticsId: z.string().uuid(),
-  type: z.enum(analyticsTypeKeys),
-  metric: z.enum(analyticsMetricKeys),
+export const LogisticsAnalyticsPeriodSchema = z.enum(
+  Object.values(LOGISTICS_ANALYTICS_PERIOD) as [string, ...string[]]
+);
+
+export const LogisticsAnalyticsSchema = z.object({
+  metric: LogisticsAnalyticsMetricSchema,
+  period: LogisticsAnalyticsPeriodSchema,
   value: z.number(),
-  period: z.enum(analyticsGranularityKeys),
-  timestamp: z.date(),
-  metadata: z.record(z.unknown()).optional(),
+  previousValue: z.number().optional(),
+  changePercent: z.number().optional(),
+  periodStart: z.string().datetime(),
+  periodEnd: z.string().datetime(),
+  capturedAt: z.string().datetime(),
 });
 
-export const LogisticsPerformanceSchema = z.object({
-  totalShipments: z.number().int().min(0),
-  onTimeDelivery: z.number().min(0).max(100),
-  deliverySuccessRate: z.number().min(0).max(100),
-  averageDeliveryTime: z.number().min(0),
-  averageShippingCost: z.number().min(0),
-  returnRate: z.number().min(0).max(100),
-  damageRate: z.number().min(0).max(100),
-  courierPerformance: z.record(z.number()),
+export const LogisticsMetricsSchema = z.object({
+  period: z.string().min(1).max(50),
+  shipmentsCreated: z.number().int().nonnegative(),
+  shipmentsDelivered: z.number().int().nonnegative(),
+  shipmentsInTransit: z.number().int().nonnegative(),
+  shipmentsFailed: z.number().int().nonnegative(),
+  onTimeDeliveryRate: z.number().min(0).max(1),
+  averageDeliveryMinutes: z.number().nonnegative(),
+  averageTransitMinutes: z.number().nonnegative(),
+  firstAttemptSuccessRate: z.number().min(0).max(1),
+  returnRate: z.number().min(0).max(1),
+  damageRate: z.number().min(0).max(1),
+  lossRate: z.number().min(0).max(1),
+  costPerShipment: z.number().nonnegative(),
+  currency: z.string().length(3),
+  byStatus: z.record(z.string(), z.number().int().nonnegative()),
+  byPriority: z.record(z.string(), z.number().int().nonnegative()),
 });
+
+export type LogisticsAnalyticsMetricSchemaType = z.infer<typeof LogisticsAnalyticsMetricSchema>;
+export type LogisticsAnalyticsPeriodSchemaType = z.infer<typeof LogisticsAnalyticsPeriodSchema>;
+export type LogisticsAnalyticsSchemaType = z.infer<typeof LogisticsAnalyticsSchema>;
+export type LogisticsMetricsSchemaType = z.infer<typeof LogisticsMetricsSchema>;

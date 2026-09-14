@@ -1,35 +1,36 @@
-import { BaseEntity } from '../../common/base.types';
-import { SEARCH_ANALYTICS } from '@vubon/shared-constants/src/platform/search/search-analytics.constants';
+/**
+ * Search Analytics Types
+ * @module shared-types/platform/search
+ */
 
-export interface PopularQuery {
-  query: string;
-  count: number;
-  resultCount: number;
-  clickRate: number;
+import type {
+  SEARCH_ANALYTICS_METRIC,
+  SEARCH_ANALYTICS_PERIOD,
+} from '@vubon/shared-constants/platform';
+
+export type SearchAnalyticsMetricValue =
+  (typeof SEARCH_ANALYTICS_METRIC)[keyof typeof SEARCH_ANALYTICS_METRIC];
+
+export type SearchAnalyticsPeriodValue =
+  (typeof SEARCH_ANALYTICS_PERIOD)[keyof typeof SEARCH_ANALYTICS_PERIOD];
+
+export interface SearchAnalytics {
+  readonly metric: SearchAnalyticsMetricValue;
+  readonly period: SearchAnalyticsPeriodValue;
+  readonly value: number;
+  readonly previousValue?: number;
+  readonly changePercent?: number;
+  readonly periodStart: string;
+  readonly periodEnd: string;
+  readonly capturedAt: string;
 }
 
-export interface SearchAnalyticsSummary {
-  totalSearches: number;
-  uniqueSearches: number;
-  zeroResults: number;
-  clickThroughRate: number;
-  conversionRate: number;
-  averageClickPosition: number;
-  averageSearchTime: number;
-  popularQueries: PopularQuery[];
-  fallbackQueries: string[];
-}
-
-export interface SearchAnalytics extends BaseEntity {
-  analyticsId: string;
-  type: keyof typeof SEARCH_ANALYTICS.TYPES | string;
-  metric: keyof typeof SEARCH_ANALYTICS.METRICS | string;
-  value: number;
-  query?: string;
-  userId?: string;
-  sessionId?: string;
-  ipAddress?: string;
-  period: keyof typeof SEARCH_ANALYTICS.ANALYTICS_GRANULARITY | string;
-  timestamp: Date;
-  metadata: Record<string, unknown>;
+export interface SearchQueryStats {
+  readonly query: string;
+  readonly count: number;
+  readonly zeroResultCount: number;
+  readonly averageResultsCount: number;
+  readonly clickThroughRate: number;
+  readonly conversionRate: number;
+  readonly lastSearchedAt: string;
 }

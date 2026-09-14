@@ -1,23 +1,46 @@
-import { BaseEntity } from '../../common/base.types';
-import { Money } from '../../common/money.types';
-import { FLASH_SALE_PRICE } from '@vubon/shared-constants/src/business/flash-sales/flash-sale-price.constants';
-import { Product } from '../product/product.types';
-import { FlashSale } from './flash-sale.types';
+/**
+ * Flash Sale Price Types
+ * @module shared-types/business/flash-sales
+ *
+ * Values আসে shared-constants/business/flash-sales/flash-sale-price.constants থেকে।
+ */
 
-export interface FlashSalePrice extends BaseEntity {
-  priceId: string;
-  flashSaleId: string;
-  flashSale: FlashSale;
-  productId: string;
-  product: Product;
-  type: keyof typeof FLASH_SALE_PRICE.PRICE_TYPES | string;
-  originalPrice: Money;
-  flashPrice: Money;
-  discountAmount: Money;
-  discountPercentage: number;
-  isActive: boolean;
-  isValid: boolean;
-  startsAt: Date;
-  endsAt: Date;
-  metadata: Record<string, unknown>;
+import type { FLASH_SALE_PRICE_TYPE } from '@vubon/shared-constants/business';
+import type { ProductId, Money } from '../../common/primitives';
+
+export type FlashSalePriceTypeValue =
+  (typeof FLASH_SALE_PRICE_TYPE)[keyof typeof FLASH_SALE_PRICE_TYPE];
+
+export interface FlashSalePrice {
+  readonly id: string;
+  readonly flashSaleId: string;
+  readonly productId: ProductId;
+  readonly variantId?: string;
+  readonly type: FlashSalePriceTypeValue;
+  readonly originalPrice: Money;
+  readonly salePrice: Money;
+  readonly discountAmount: Money;
+  readonly discountPercent: number;
+  readonly currency: string;
+  readonly maxQuantity?: number;
+  readonly minQuantity?: number;
+  readonly tierPrices?: readonly FlashSalePriceTier[];
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
+export interface FlashSalePriceTier {
+  readonly minQuantity: number;
+  readonly maxQuantity?: number;
+  readonly unitPrice: Money;
+  readonly discountPercent: number;
+}
+
+export interface FlashSalePricePublic {
+  readonly productId: ProductId;
+  readonly variantId?: string;
+  readonly originalPrice: Money;
+  readonly salePrice: Money;
+  readonly discountPercent: number;
+  readonly currency: string;
 }

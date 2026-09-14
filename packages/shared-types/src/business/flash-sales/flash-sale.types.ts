@@ -1,50 +1,110 @@
-import { BaseEntity } from '../../common/base.types';
-import { Money } from '../../common/money.types';
-import { Product } from '../product/product.types';
-import { FLASH_SALE_STATUS } from '@vubon/shared-constants/src/business/flash-sales/flash-sale-status.constants';
-import { FLASH_SALE_TYPE } from '@vubon/shared-constants/src/business/flash-sales/flash-sale-type.constants';
-import { FlashSaleSchedule } from './flash-sale-schedule.types';
-import { FlashSaleParticipant } from './flash-sale-participant.types';
-import { FlashSaleRule } from './flash-sale-rule.types';
-import { FlashSaleInventory } from './flash-sale-inventory.types';
-import { FlashSalePrice } from './flash-sale-price.types';
+/**
+ * Flash Sale Core Types
+ * @module shared-types/business/flash-sales
+ *
+ * Flash Sale entity + aggregator।
+ */
 
-export interface FlashSaleMetadata {
-  bannerImage?: string;
-  bannerVideo?: string;
-  seoTitle?: string;
-  seoDescription?: string;
-  isPublic: boolean;
-  viewCount: number;
-  shareCount: number;
+import type { Money } from '../../common/primitives';
+import type { BaseEntity } from '../../common/base';
+import type { FlashSaleStatusValue } from './flash-sale-status.types';
+import type { FlashSaleTypeValue } from './flash-sale-type.types';
+import type { FlashSaleSchedule, FlashSaleRecurrenceValue } from './flash-sale-schedule.types';
+import type { FlashSalePricePublic } from './flash-sale-price.types';
+import type { ProductDealPublic } from './product-deal.types';
+import type { BundleDealPublic } from './bundle-deal.types';
+
+export interface FlashSale extends BaseEntity<string> {
+  readonly name: string;
+  readonly slug: string;
+  readonly description?: string;
+  readonly type: FlashSaleTypeValue;
+  readonly status: FlashSaleStatusValue;
+  readonly schedule: FlashSaleSchedule;
+  readonly bannerUrl?: string;
+  readonly thumbnailUrl?: string;
+  readonly theme?: string;
+  readonly maxProducts: number;
+  readonly maxParticipants: number;
+  readonly minDiscountPercent: number;
+  readonly maxDiscountPercent: number;
+  readonly products: readonly ProductDealPublic[];
+  readonly bundles: readonly BundleDealPublic[];
+  readonly prices: readonly FlashSalePricePublic[];
+  readonly participantCount: number;
+  readonly productCount: number;
+  readonly isFeatured: boolean;
+  readonly createdBy: string;
 }
 
-export interface FlashSale extends BaseEntity {
-  flashSaleId: string;
-  name: string;
-  slug: string;
-  description?: string;
-  status: keyof typeof FLASH_SALE_STATUS | string;
-  type: keyof typeof FLASH_SALE_TYPE | string;
-  products: Product[];
-  productCount: number;
-  schedule: FlashSaleSchedule;
-  participants: FlashSaleParticipant[];
-  participantCount: number;
-  rules: FlashSaleRule[];
-  inventory: FlashSaleInventory;
-  pricing: FlashSalePrice;
-  discountPercentage: number;
-  maxDiscountAmount?: Money;
-  minPurchaseAmount?: Money;
-  maxPurchaseAmount?: Money;
-  perUserLimit: number;
-  totalLimit: number;
-  soldCount: number;
-  remainingCount: number;
-  isActive: boolean;
-  isPublished: boolean;
-  isFeatured: boolean;
-  publishedAt?: Date;
-  metadata: FlashSaleMetadata;
+export interface FlashSalePublic {
+  readonly id: string;
+  readonly name: string;
+  readonly slug: string;
+  readonly type: FlashSaleTypeValue;
+  readonly status: FlashSaleStatusValue;
+  readonly startAt: string;
+  readonly endAt: string;
+  readonly bannerUrl?: string;
+  readonly thumbnailUrl?: string;
+  readonly theme?: string;
+  readonly productCount: number;
+  readonly isFeatured: boolean;
+}
+
+export interface FlashSaleSummary {
+  readonly id: string;
+  readonly name: string;
+  readonly status: FlashSaleStatusValue;
+  readonly startAt: string;
+  readonly endAt: string;
+  readonly productCount: number;
+  readonly remainingSeconds: number;
+}
+
+export interface FlashSaleCreateInput {
+  readonly name: string;
+  readonly slug: string;
+  readonly description?: string;
+  readonly type: FlashSaleTypeValue;
+  readonly schedule: {
+    readonly startAt: string;
+    readonly endAt: string;
+    readonly timezone: string;
+    readonly recurrence: FlashSaleRecurrenceValue;
+  };
+  readonly bannerUrl?: string;
+  readonly thumbnailUrl?: string;
+  readonly theme?: string;
+  readonly minDiscountPercent?: number;
+  readonly maxDiscountPercent?: number;
+}
+
+export interface FlashSaleUpdateInput {
+  readonly name?: string;
+  readonly description?: string;
+  readonly bannerUrl?: string;
+  readonly thumbnailUrl?: string;
+  readonly theme?: string;
+  readonly isFeatured?: boolean;
+}
+
+export interface FlashSaleFilter {
+  readonly status?: FlashSaleStatusValue;
+  readonly type?: FlashSaleTypeValue;
+  readonly isFeatured?: boolean;
+  readonly activeNow?: boolean;
+  readonly fromDate?: string;
+  readonly toDate?: string;
+  readonly search?: string;
+}
+
+export interface FlashSaleStats {
+  readonly flashSaleId: string;
+  readonly totalProducts: number;
+  readonly totalSold: number;
+  readonly totalRevenue: Money;
+  readonly currency: string;
+  readonly averageDiscountPercent: number;
+  readonly participantCount: number;
 }

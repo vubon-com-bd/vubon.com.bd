@@ -1,20 +1,64 @@
+/**
+ * AI Prompt Schema
+ * @module shared-schemas/ai
+ *
+ * Values আসে shared-constants/ai/ai-prompt.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { AI_PROMPT } from '@vubon/shared-constants/src/ai/ai-prompt.constants';
+import { AI_PROMPT_TYPE, AI_PROMPT_STATUS, AI_PROMPT_ROLE } from '@vubon/shared-constants/ai';
+import { BaseEntitySchema } from '../common/base/base-entity.schema';
 
-const aiPromptTypeKeys = Object.keys(AI_PROMPT.TYPES) as [string, ...string[]];
+export const AiPromptTypeSchema = z.enum(Object.values(AI_PROMPT_TYPE) as [string, ...string[]]);
 
-export const AIPromptSchema = BaseSchema.extend({
-  promptId: z.string().uuid(),
-  aiId: z.string().uuid(),
-  type: z.enum(aiPromptTypeKeys),
-  template: z.string().min(1),
-  variables: z.array(z.string()),
-  temperature: z.number().min(0).max(1).default(0.7),
-  topP: z.number().min(0).max(1).default(0.9),
-  frequencyPenalty: z.number().min(-2).max(2).default(0),
-  presencePenalty: z.number().min(-2).max(2).default(0),
-  maxLength: z.number().int().min(1).default(4096),
-  isActive: z.boolean().default(true),
-  metadata: z.record(z.unknown()).optional(),
+export const AiPromptStatusSchema = z.enum(
+  Object.values(AI_PROMPT_STATUS) as [string, ...string[]]
+);
+
+export const AiPromptRoleSchema = z.enum(Object.values(AI_PROMPT_ROLE) as [string, ...string[]]);
+
+export const AiPromptVariableSchema = z.object({
+  name: z.string().min(1).max(50),
+  type: z.enum(['string', 'number', 'boolean', 'array', 'object']),
+  required: z.boolean(),
+  defaultValue: z.string().max(500).optional(),
+  description: z.string().max(500).optional(),
 });
+
+export const AiPromptMessageSchema = z.object({
+  role: AiPromptRoleSchema,
+  content: z.string().min(1).max(100000),
+  name: z.string().max(100).optional(),
+});
+
+export const AiPromptSchema = BaseEntitySchema.extend({
+  name: z.string().min(1).max(150),
+  slug: z.string().min(1).max(150),
+  type: AiPromptTypeSchema,
+  status: AiPromptStatusSchema,
+  template: z.string().min(1).max(100000),
+  systemMessage: z.string().max(50000).optional(),
+  variables: z.array(AiPromptVariableSchema).max(50),
+  model: z.string().max(100).optional(),
+  temperature: z.number().min(0).max(2).optional(),
+  maxTokens: z.number().int().positive().max(200000).optional(),
+  topP: z.number().min(0).max(1).optional(),
+  version: z.number().int().positive(),
+  createdBy: z.string().min(1),
+  updatedBy: z.string().optional(),
+});
+
+export const AiPromptRenderInputSchema = z.object({
+  promptId: z.string().min(1),
+  variables: z.record(z.string(), z.unknown()),
+});
+
+export const AiPromptRenderResultSchema = z.object({
+  messages: z.array(AiPromptMessageSchema).min(1).max(100),
+  missingVariables: z.array(z.string().max(50)).optional(),
+});
+
+export type AiPromptTypeSchemaType = z.infer<typeof AiPromptTypeSchema>;
+export type AiPromptStatusSchemaType = z.infer<typeof AiPromptStatusSchema>;
+export type AiPromptRoleSchemaType = z.infer<typeof AiPromptRoleSchema>;
+export type AiPromptSchemaType = z.infer<typeof AiPromptSchema>;

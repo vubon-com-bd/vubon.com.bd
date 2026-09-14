@@ -1,24 +1,48 @@
-import { BaseEntity } from '../../common/base.types';
-import { Quantity } from '../../common/quantity.types';
-import { FLASH_SALE_INVENTORY } from '@vubon/shared-constants/src/business/flash-sales/flash-sale-inventory.constants';
-import { Product } from '../product/product.types';
-import { FlashSale } from './flash-sale.types';
+/**
+ * Flash Sale Inventory Types
+ * @module shared-types/business/flash-sales
+ *
+ * Values আসে shared-constants/business/flash-sales/flash-sale-inventory.constants থেকে।
+ */
 
-export interface FlashSaleInventory extends BaseEntity {
-  inventoryId: string;
-  flashSaleId: string;
-  flashSale: FlashSale;
-  productId: string;
-  product: Product;
-  status: keyof typeof FLASH_SALE_INVENTORY.STATUS | string;
-  type: keyof typeof FLASH_SALE_INVENTORY.INVENTORY_TYPES | string;
-  totalQuantity: Quantity;
-  reservedQuantity: Quantity;
-  soldQuantity: Quantity;
-  availableQuantity: Quantity;
-  isAvailable: boolean;
-  isReserved: boolean;
-  isSoldOut: boolean;
-  lastUpdated: Date;
-  metadata: Record<string, unknown>;
+import type { FLASH_SALE_INVENTORY_STATUS } from '@vubon/shared-constants/business';
+import type { ProductId } from '../../common/primitives';
+
+export type FlashSaleInventoryStatusValue =
+  (typeof FLASH_SALE_INVENTORY_STATUS)[keyof typeof FLASH_SALE_INVENTORY_STATUS];
+
+export interface FlashSaleInventory {
+  readonly id: string;
+  readonly flashSaleId: string;
+  readonly productId: ProductId;
+  readonly variantId?: string;
+  readonly status: FlashSaleInventoryStatusValue;
+  readonly totalStock: number;
+  readonly reservedStock: number;
+  readonly soldStock: number;
+  readonly availableStock: number;
+  readonly maxPerUser: number;
+  readonly syncIntervalSeconds: number;
+  readonly lastSyncedAt: string;
+  readonly updatedAt: string;
+}
+
+export interface InventoryReservation {
+  readonly inventoryId: string;
+  readonly userId: string;
+  readonly quantity: number;
+  readonly reservedAt: string;
+  readonly expiresAt: string;
+  readonly cartId?: string;
+  readonly releasedAt?: string;
+  readonly convertedAt?: string;
+}
+
+export interface InventorySnapshot {
+  readonly inventoryId: string;
+  readonly totalStock: number;
+  readonly reservedStock: number;
+  readonly soldStock: number;
+  readonly availableStock: number;
+  readonly capturedAt: string;
 }

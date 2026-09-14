@@ -1,14 +1,22 @@
-import { BaseEntity } from '../../common/base.types';
-import { Product } from '../../business/product/product.types';
-import { UPSELLING } from '@vubon/shared-constants/src/platform/discovery/upselling.constants';
+/**
+ * Upselling Types
+ * @module shared-types/platform/discovery
+ */
 
-export interface Upselling extends BaseEntity {
-  upsellingId: string;
-  productId: string;
-  product: Product;
-  type: keyof typeof UPSELLING.TYPES | string;
-  upsellProducts: string[];
-  score: number;
-  isActive: boolean;
-  metadata: Record<string, unknown>;
+import type { UPSELL_TYPE } from '@vubon/shared-constants/platform';
+
+export type UpsellTypeValue = (typeof UPSELL_TYPE)[keyof typeof UPSELL_TYPE];
+
+export interface UpsellItem {
+  readonly productId: string;
+  readonly type: UpsellTypeValue;
+  readonly priceIncrease: number;
+  readonly priceIncreasePercent: number;
+  readonly reason: string;
+}
+
+export interface UpsellResult {
+  readonly sourceProductId: string;
+  readonly items: readonly UpsellItem[];
+  readonly generatedAt: string;
 }

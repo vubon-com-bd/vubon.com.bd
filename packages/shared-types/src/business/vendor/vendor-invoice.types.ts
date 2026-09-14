@@ -1,24 +1,54 @@
-import { BaseEntity } from '../../common/base.types';
-import { Money } from '../../common/money.types';
-import { VENDOR_INVOICE } from '@vubon/shared-constants/src/business/vendor/vendor-invoice.constants';
-import { Vendor } from './vendor.types';
-import { VendorCommission } from './vendor-commission.types';
+/**
+ * Vendor Invoice Types
+ * @module shared-types/business/vendor
+ *
+ * Values আসে shared-constants/business/vendor/vendor-invoice.constants থেকে।
+ */
 
-export interface VendorInvoice extends BaseEntity {
-  invoiceId: string;
-  invoiceNumber: string;
-  vendorId: string;
-  vendor: Vendor;
-  status: keyof typeof VENDOR_INVOICE.STATUS | string;
-  type: keyof typeof VENDOR_INVOICE.INVOICE_TYPES | string;
-  amount: Money;
-  tax: Money;
-  discount: Money;
-  total: Money;
-  commission: VendorCommission;
-  issuedDate: Date;
-  dueDate: Date;
-  paidDate?: Date;
-  notes?: string;
-  metadata: Record<string, unknown>;
+import type { VENDOR_INVOICE_STATUS, VENDOR_INVOICE_TYPE } from '@vubon/shared-constants/business';
+import type { VendorId, Money } from '../../common/primitives';
+import type { BaseEntity } from '../../common/base';
+
+export type VendorInvoiceStatusValue =
+  (typeof VENDOR_INVOICE_STATUS)[keyof typeof VENDOR_INVOICE_STATUS];
+
+export type VendorInvoiceTypeValue = (typeof VENDOR_INVOICE_TYPE)[keyof typeof VENDOR_INVOICE_TYPE];
+
+export interface VendorInvoice extends BaseEntity<string> {
+  readonly vendorId: VendorId;
+  readonly invoiceNumber: string;
+  readonly type: VendorInvoiceTypeValue;
+  readonly status: VendorInvoiceStatusValue;
+  readonly amount: Money;
+  readonly taxAmount?: Money;
+  readonly totalAmount: Money;
+  readonly currency: string;
+  readonly issueDate: string;
+  readonly dueDate: string;
+  readonly paidAt?: string;
+  readonly periodStart?: string;
+  readonly periodEnd?: string;
+  readonly orderIds?: readonly string[];
+  readonly notes?: string;
+  readonly pdfUrl?: string;
+}
+
+export interface VendorInvoicePublic {
+  readonly id: string;
+  readonly invoiceNumber: string;
+  readonly type: VendorInvoiceTypeValue;
+  readonly status: VendorInvoiceStatusValue;
+  readonly totalAmount: Money;
+  readonly currency: string;
+  readonly issueDate: string;
+  readonly dueDate: string;
+  readonly paidAt?: string;
+}
+
+export interface VendorInvoiceFilter {
+  readonly vendorId?: VendorId;
+  readonly type?: VendorInvoiceTypeValue;
+  readonly status?: VendorInvoiceStatusValue;
+  readonly fromDate?: string;
+  readonly toDate?: string;
 }

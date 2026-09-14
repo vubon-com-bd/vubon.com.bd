@@ -1,19 +1,31 @@
-import { TypeObject } from '../../common/types.types';
-import { NOTIFICATION_ACTION } from '@vubon/shared-constants/src/platform/notification/notification-action.constants';
-import { Notification } from './notification.types';
+/**
+ * Notification Action Types
+ * @module shared-types/platform/notification
+ */
 
-export interface NotificationAction extends TypeObject {
-  actionId: string;
-  notificationId: string;
-  notification: Notification;
-  type: keyof typeof NOTIFICATION_ACTION.TYPES | string;
-  label: string;
-  url?: string;
-  icon?: string;
-  handler: keyof typeof NOTIFICATION_ACTION.ACTION_HANDLERS | string;
-  isPrimary: boolean;
-  isDanger: boolean;
-  metadata: Record<string, unknown>;
+import type {
+  NOTIFICATION_ACTION,
+  NOTIFICATION_ACTION_TYPE,
+} from '@vubon/shared-constants/platform';
+
+export type NotificationActionValue =
+  (typeof NOTIFICATION_ACTION)[keyof typeof NOTIFICATION_ACTION];
+
+export type NotificationActionTypeValue =
+  (typeof NOTIFICATION_ACTION_TYPE)[keyof typeof NOTIFICATION_ACTION_TYPE];
+
+export interface NotificationAction {
+  readonly action: NotificationActionValue;
+  readonly type: NotificationActionTypeValue;
+  readonly label: string;
+  readonly url?: string;
+  readonly payload?: Readonly<Record<string, unknown>>;
 }
 
-export type NotificationActionKey = keyof typeof NOTIFICATION_ACTION.TYPES;
+export interface NotificationActionEvent {
+  readonly notificationId: string;
+  readonly action: NotificationActionValue;
+  readonly userId?: string;
+  readonly occurredAt: string;
+  readonly metadata?: Readonly<Record<string, unknown>>;
+}

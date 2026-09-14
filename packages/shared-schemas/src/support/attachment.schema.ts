@@ -1,22 +1,32 @@
+/**
+ * Attachment Schema
+ * @module shared-schemas/support
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { ATTACHMENT } from '@vubon/shared-constants/src/support/attachment.constants';
+import { UuidSchema } from '../common/primitives/uuid.schema';
 
-const attachmentTypeKeys = Object.keys(ATTACHMENT.TYPES) as [string, ...string[]];
-
-export const AttachmentSchema = BaseSchema.extend({
-  attachmentId: z.string().uuid(),
-  messageId: z.string().uuid(),
-  type: z.enum(attachmentTypeKeys),
-  name: z.string().min(1).max(255),
-  filename: z.string().min(1).max(255),
-  url: z.string().url(),
-  size: z.number().min(0),
-  mimeType: z.string(),
-  extension: z.string(),
-  width: z.number().int().min(0).optional(),
-  height: z.number().int().min(0).optional(),
-  duration: z.number().min(0).optional(),
-  metadata: z.record(z.unknown()).optional(),
-  uploadedAt: z.date(),
+export const AttachmentSchema = z.object({
+  id: UuidSchema,
+  messageId: UuidSchema.optional(),
+  ticketId: UuidSchema.optional(),
+  fileName: z.string().min(1).max(255),
+  fileUrl: z.string().url(),
+  fileSize: z.number().int().nonnegative(),
+  mimeType: z.string().min(1).max(100),
+  thumbnailUrl: z.string().url().optional(),
+  uploadedBy: UuidSchema,
+  uploadedAt: z.string().datetime(),
 });
+
+export const AttachmentPublicSchema = AttachmentSchema.pick({
+  id: true,
+  fileName: true,
+  fileUrl: true,
+  fileSize: true,
+  mimeType: true,
+  thumbnailUrl: true,
+});
+
+export type AttachmentSchemaType = z.infer<typeof AttachmentSchema>;
+export type AttachmentPublicSchemaType = z.infer<typeof AttachmentPublicSchema>;

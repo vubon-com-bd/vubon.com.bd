@@ -1,32 +1,33 @@
-// Common Types
+// packages/shared-types/src/index.ts
+// Root barrel — FINAL
+
+// ─────────────────────────────────────────────
+// Level 1 — Foundation
+// ─────────────────────────────────────────────
 export * from './common';
 
-// Auth Types
+// ─────────────────────────────────────────────
+// Level 2 — Infrastructure + Security
+// ─────────────────────────────────────────────
+export * from './infrastructure';
+export * from './security';
+
+// ─────────────────────────────────────────────
+// Level 3 — Domain
+// ─────────────────────────────────────────────
 export * from './auth';
-
-// User Types
 export * from './user';
-
-// Admin Types
-export * from './admin';
-
-// Admin Types
 export * from './business';
 
-// Logistics Types
-export * from './logistics';
-
-// content Types
-export * from './content';
-
-// support Types
-export * from './support';
-
-// marketing Types
-export * from './marketing';
-
-// platform Types
+// ─────────────────────────────────────────────
+// Level 4 — Platform
+// ─────────────────────────────────────────────
 export * from './platform';
 
-// ai Types
+// ─────────────────────────────────────────────
+// Cross-cutting Domains
+// ─────────────────────────────────────────────
 export * from './ai';
+export * from './marketing';
+export * from './support';
+export * from './logistics';

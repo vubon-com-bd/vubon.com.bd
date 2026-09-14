@@ -1,17 +1,22 @@
+/**
+ * Vendor Tier Schema
+ * @module shared-schemas/business/vendor
+ *
+ * Values আসে shared-constants/business/vendor-tier.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { VENDOR_TIER } from '@vubon/shared-constants/src/business/vendor/vendor-tier.constants';
+import { VENDOR_TIER } from '@vubon/shared-constants/business';
 
-const vendorTierKeys = Object.keys(VENDOR_TIER) as [string, ...string[]];
+export const VendorTierSchema = z.enum(Object.values(VENDOR_TIER) as [string, ...string[]]);
 
-export const VendorTierSchema = z.object({
-  type: z.enum(vendorTierKeys),
-  category: z.literal('vendor_tier'),
-  commissionRate: z.number().min(0).max(100),
-  maxProducts: z.number().int().min(0),
-  maxTeamMembers: z.number().int().min(0),
-  prioritySupport: z.boolean().default(false),
-  apiAccess: z.boolean().default(false),
-  customBranding: z.boolean().default(false),
+export const VendorTierHistorySchema = z.object({
+  vendorId: z.string().min(1),
+  previousTier: VendorTierSchema,
+  newTier: VendorTierSchema,
+  reason: z.string().min(1).max(500),
+  changedAt: z.string().datetime(),
 });
 
-export const VendorTierEnumSchema = z.enum(vendorTierKeys);
+export type VendorTierSchemaType = z.infer<typeof VendorTierSchema>;
+export type VendorTierHistorySchemaType = z.infer<typeof VendorTierHistorySchema>;

@@ -1,3 +1,5 @@
+// business/product/index.ts — Product sub-domain barrel export
+
 export * from './product.constants';
 export * from './product-status.constants';
 export * from './product-type.constants';
@@ -7,9 +9,5 @@ export * from './variant.constants';
 export * from './attribute.constants';
 export * from './inventory.constants';
 export * from './pricing.constants';
-export * from './product-review.constants';
+export * from './review.constants';
 export * from './collection.constants';
-export * from './tag.constants';
-export * from './price-history.constants';
-export * from './comparison.constants';
-export * from './pricing-rule.constants';

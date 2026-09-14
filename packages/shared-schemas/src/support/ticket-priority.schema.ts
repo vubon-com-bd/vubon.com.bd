@@ -1,23 +1,13 @@
+/**
+ * Ticket Priority Schema
+ * @module shared-schemas/support
+ *
+ * Values আসে shared-constants/support/ticket.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { TICKET_PRIORITY } from '@vubon/shared-constants/src/support/ticket-priority.constants';
+import { TICKET_PRIORITY } from '@vubon/shared-constants/support';
 
-const ticketPriorityTypeKeys = Object.keys(TICKET_PRIORITY.TYPES) as [string, ...string[]];
-const ticketPriorityLevelKeys = Object.keys(TICKET_PRIORITY.PRIORITY_LEVELS) as [
-  string,
-  ...string[],
-];
+export const TicketPrioritySchema = z.enum(Object.values(TICKET_PRIORITY) as [string, ...string[]]);
 
-export const TicketPrioritySchema = z.object({
-  priority: z.enum(ticketPriorityTypeKeys),
-  category: z.literal('ticket_priority'),
-  level: z.enum(ticketPriorityLevelKeys),
-  responseTimeMinutes: z.number().int().min(1),
-  resolutionTimeHours: z.number().int().min(1),
-  isLow: z.boolean().default(false),
-  isMedium: z.boolean().default(false),
-  isHigh: z.boolean().default(false),
-  isUrgent: z.boolean().default(false),
-  isCritical: z.boolean().default(false),
-});
-
-export const TicketPriorityEnumSchema = z.enum(ticketPriorityTypeKeys);
+export type TicketPrioritySchemaType = z.infer<typeof TicketPrioritySchema>;

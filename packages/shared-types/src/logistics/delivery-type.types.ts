@@ -1,17 +1,15 @@
-import { TypeObject } from '../common/types.types';
-import { DELIVERY_TYPE } from '@vubon/shared-constants/src/logistics/delivery-type.constants';
+/**
+ * Delivery Type Value Types
+ * @module shared-types/logistics
+ */
 
-export interface DeliveryType extends TypeObject {
-  type: keyof typeof DELIVERY_TYPE | string;
-  category: 'delivery';
-  isStandard: boolean;
-  isExpress: boolean;
-  isSameDay: boolean;
-  isNextDay: boolean;
-  isScheduled: boolean;
-  isInstant: boolean;
-  isEconomy: boolean;
-  isPriority: boolean;
+import type { DELIVERY_TYPE } from '@vubon/shared-constants/logistics';
+
+export type DeliveryTypeValue = (typeof DELIVERY_TYPE)[keyof typeof DELIVERY_TYPE];
+
+export interface DeliveryTypeMetadata {
+  readonly value: DeliveryTypeValue;
+  readonly label: string;
+  readonly isPickupPoint: boolean;
+  readonly requiresSignature: boolean;
 }
-
-export type DeliveryTypeKey = keyof typeof DELIVERY_TYPE;

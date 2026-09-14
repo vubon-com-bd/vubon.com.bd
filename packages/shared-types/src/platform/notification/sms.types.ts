@@ -1,22 +1,47 @@
-import { BaseEntity } from '../../common/base.types';
-import { SMS } from '@vubon/shared-constants/src/platform/notification/sms.constants';
-import { Notification } from './notification.types';
+/**
+ * SMS Types
+ * @module shared-types/platform/notification
+ */
 
-export interface Sms extends BaseEntity {
-  smsId: string;
-  notificationId: string;
-  notification: Notification;
-  status: keyof typeof SMS.STATUS | string;
-  type: keyof typeof SMS.TYPES | string;
-  provider: keyof typeof SMS.SMS_PROVIDERS | string;
-  from: string;
-  to: string[];
-  body: string;
-  length: number;
-  parts: number;
-  sentAt?: Date;
-  deliveredAt?: Date;
-  failedAt?: Date;
-  failureReason?: string;
-  metadata: Record<string, unknown>;
+import type { SMS_PROVIDER, SMS_STATUS, SMS_TYPE } from '@vubon/shared-constants/platform';
+import type { Phone } from '../../common/primitives';
+
+export type SmsProviderValue = (typeof SMS_PROVIDER)[keyof typeof SMS_PROVIDER];
+
+export type SmsStatusValue = (typeof SMS_STATUS)[keyof typeof SMS_STATUS];
+
+export type SmsTypeValue = (typeof SMS_TYPE)[keyof typeof SMS_TYPE];
+
+export interface SmsMessage {
+  readonly id: string;
+  readonly to: Phone;
+  readonly from?: string;
+  readonly message: string;
+  readonly type: SmsTypeValue;
+  readonly provider?: SmsProviderValue;
+  readonly status: SmsStatusValue;
+  readonly segments: number;
+  readonly encoding: 'gsm' | 'unicode';
+  readonly sentAt?: string;
+  readonly deliveredAt?: string;
+  readonly failedAt?: string;
+  readonly failureReason?: string;
+  readonly cost?: number;
+  readonly currency?: string;
+  readonly metadata?: Readonly<Record<string, unknown>>;
+}
+
+export interface SmsSendInput {
+  readonly to: string | readonly string[];
+  readonly message: string;
+  readonly type: SmsTypeValue;
+  readonly senderId?: string;
+}
+
+export interface SmsSendResult {
+  readonly success: boolean;
+  readonly messageId?: string;
+  readonly status: SmsStatusValue;
+  readonly segments: number;
+  readonly error?: string;
 }

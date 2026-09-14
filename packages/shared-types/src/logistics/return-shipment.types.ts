@@ -1,41 +1,55 @@
-import { BaseEntity } from '../common/base.types';
-import { Money } from '../common/money.types';
-import { RETURN_SHIPMENT } from '@vubon/shared-constants/src/logistics/return-shipment.constants';
-import { Shipment } from './shipment.types';
-import { ReturnReason } from './return-reason.types';
-import { Courier } from './courier.types';
+/**
+ * Return Shipment Types
+ * @module shared-types/logistics
+ */
 
-export interface ReturnShipmentItem {
-  itemId: string;
-  productId: string;
-  productName: string;
-  quantity: number;
-  reason: string;
-  condition: string;
-  refundAmount: Money;
+import type { BaseEntity } from '../common/base';
+import type { OrderId, ShipmentId, UserId } from '../common/primitives';
+import type {
+  ReturnShipmentStatusValue,
+  ReturnShipmentTypeValue,
+  ReturnReasonValue,
+} from './return-reason.types';
+
+export interface ReturnShipment extends BaseEntity<string> {
+  readonly rmaNumber: string;
+  readonly orderId: OrderId;
+  readonly originalShipmentId?: ShipmentId;
+  readonly userId: UserId;
+  readonly status: ReturnShipmentStatusValue;
+  readonly type: ReturnShipmentTypeValue;
+  readonly reason: ReturnReasonValue;
+  readonly description?: string;
+  readonly images?: readonly string[];
+  readonly itemIds: readonly string[];
+  readonly pickupAddress: string;
+  readonly pickupScheduledAt?: string;
+  readonly pickedUpAt?: string;
+  readonly receivedAt?: string;
+  readonly inspectedAt?: string;
+  readonly inspectedBy?: UserId;
+  readonly restockable: boolean;
+  readonly refundAmount?: number;
+  readonly refundCurrency?: string;
+  readonly restockFeeAmount?: number;
+  readonly trackingNumber?: string;
+  readonly notes?: string;
 }
 
-export interface ReturnShipment extends BaseEntity {
-  returnShipmentId: string;
-  orderId: string;
-  originalShipmentId: string;
-  originalShipment: Shipment;
-  status: keyof typeof RETURN_SHIPMENT.STATUS | string;
-  type: keyof typeof RETURN_SHIPMENT.RETURN_SHIPMENT_TYPES | string;
-  reason: ReturnReason;
-  items: ReturnShipmentItem[];
-  totalItems: number;
-  totalWeight: number;
-  returnCost: Money;
-  shippingCost: keyof typeof RETURN_SHIPMENT.RETURN_SHIPPING_COST | string;
-  courier: Courier;
-  trackingNumber: string;
-  requestedAt: Date;
-  approvedAt?: Date;
-  pickedUpAt?: Date;
-  receivedAt?: Date;
-  inspectedAt?: Date;
-  completedAt?: Date;
-  isCompleted: boolean;
-  metadata: Record<string, unknown>;
+export interface ReturnShipmentPublic {
+  readonly id: string;
+  readonly rmaNumber: string;
+  readonly status: ReturnShipmentStatusValue;
+  readonly type: ReturnShipmentTypeValue;
+  readonly reason: ReturnReasonValue;
+  readonly createdAt: string;
+}
+
+export interface ReturnShipmentCreateInput {
+  readonly orderId: OrderId;
+  readonly type: ReturnShipmentTypeValue;
+  readonly reason: ReturnReasonValue;
+  readonly itemIds: readonly string[];
+  readonly description?: string;
+  readonly images?: readonly string[];
 }

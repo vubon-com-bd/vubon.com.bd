@@ -1,19 +1,29 @@
+/**
+ * SEO Twitter Card Schema
+ * @module shared-schemas/platform/seo
+ *
+ * Values আসে shared-constants/platform/seo-twitter-card.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { SEO_TWITTER_CARD } from '@vubon/shared-constants/src/platform/seo/seo-twitter-card.constants';
+import { SEO_TWITTER_CARD_TYPE } from '@vubon/shared-constants/platform';
 
-const twitterCardTypeKeys = Object.keys(SEO_TWITTER_CARD.TYPES) as [string, ...string[]];
+export const SeoTwitterCardTypeSchema = z.enum(
+  Object.values(SEO_TWITTER_CARD_TYPE) as [string, ...string[]]
+);
 
-export const SEOTwitterCardSchema = BaseSchema.extend({
-  twitterCardId: z.string().uuid(),
-  seoId: z.string().uuid(),
-  type: z.enum(twitterCardTypeKeys),
-  card: z.string(),
-  site: z.string(),
-  title: z.string().max(60),
-  description: z.string().max(160),
-  image: z.string().url(),
-  creator: z.string(),
-  isActive: z.boolean().default(true),
-  metadata: z.record(z.unknown()).optional(),
+export const SeoTwitterCardSchema = z.object({
+  card: SeoTwitterCardTypeSchema,
+  site: z.string().max(50).optional(),
+  siteId: z.string().max(50).optional(),
+  creator: z.string().max(50).optional(),
+  creatorId: z.string().max(50).optional(),
+  title: z.string().min(1).max(200),
+  description: z.string().max(500).optional(),
+  image: z.string().url().optional(),
+  imageAlt: z.string().max(200).optional(),
+  url: z.string().url().optional(),
 });
+
+export type SeoTwitterCardTypeSchemaType = z.infer<typeof SeoTwitterCardTypeSchema>;
+export type SeoTwitterCardSchemaType = z.infer<typeof SeoTwitterCardSchema>;

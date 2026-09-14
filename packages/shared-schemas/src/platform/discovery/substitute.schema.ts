@@ -1,17 +1,29 @@
+/**
+ * Substitute Schema
+ * @module shared-schemas/platform/discovery
+ *
+ * Values আসে shared-constants/platform/substitute.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { ProductSchema } from '../../business/product/product.schema';
-import { SUBSTITUTE } from '@vubon/shared-constants/src/platform/discovery/substitute.constants';
+import { SUBSTITUTE_TYPE } from '@vubon/shared-constants/platform';
 
-const substituteTypeKeys = Object.keys(SUBSTITUTE.TYPES) as [string, ...string[]];
+export const SubstituteTypeSchema = z.enum(Object.values(SUBSTITUTE_TYPE) as [string, ...string[]]);
 
-export const SubstituteSchema = BaseSchema.extend({
-  substituteId: z.string().uuid(),
-  productId: z.string().uuid(),
-  product: ProductSchema,
-  type: z.enum(substituteTypeKeys),
-  substituteProducts: z.array(z.string()),
-  score: z.number().min(0).max(1),
-  isActive: z.boolean().default(true),
-  metadata: z.record(z.unknown()).optional(),
+export const SubstituteItemSchema = z.object({
+  productId: z.string().min(1),
+  type: SubstituteTypeSchema,
+  similarity: z.number().min(0).max(1),
+  priceDifference: z.number().optional(),
+  ratingDifference: z.number().optional(),
 });
+
+export const SubstituteResultSchema = z.object({
+  sourceProductId: z.string().min(1),
+  items: z.array(SubstituteItemSchema).max(20),
+  generatedAt: z.string().datetime(),
+});
+
+export type SubstituteTypeSchemaType = z.infer<typeof SubstituteTypeSchema>;
+export type SubstituteItemSchemaType = z.infer<typeof SubstituteItemSchema>;
+export type SubstituteResultSchemaType = z.infer<typeof SubstituteResultSchema>;

@@ -1,44 +1,105 @@
-import { STATUS } from '../../common/status.constants';
-import { PERMISSIONS } from '../../common/permissions.constants';
-import { ADMIN_PERMISSIONS } from '../../admin/admin-permission.constants';
-import { PRODUCT_STATUS } from '../../business/product/product-status.constants';
-import { USER_STATUS } from '../../user/user-status.constants';
+import { RECOMMENDATION } from './recommendation.constants';
+import { RECOMMENDATION_TYPE } from './recommendation-type.constants';
+import {
+  RECOMMENDATION_STRATEGY,
+  RECOMMENDATION_STRATEGY_WEIGHT,
+  RECOMMENDATION_STRATEGY_STATUS,
+} from './recommendation-strategy.constants';
+import {
+  PERSONALIZATION_TYPE,
+  PERSONALIZATION_STATUS,
+  PERSONALIZATION,
+} from './personalization.constants';
+import { TRENDING_TYPE, TRENDING_PERIOD, TRENDING_STATUS, TRENDING } from './trending.constants';
+import { POPULAR_TYPE, POPULAR_PERIOD, POPULAR_METRIC, POPULAR } from './popular.constants';
+import { RECENTLY_VIEWED_TYPE, RECENTLY_VIEWED } from './recently-viewed.constants';
+import { FREQUENTLY_BOUGHT_TYPE, FREQUENTLY_BOUGHT } from './frequently-bought.constants';
+import { COMPLEMENTARY_TYPE, COMPLEMENTARY } from './complementary.constants';
+import { SUBSTITUTE_TYPE, SUBSTITUTE } from './substitute.constants';
+import { UPSELL_TYPE, UPSELL } from './upselling.constants';
+import { CROSS_SELL_TYPE, CROSS_SELL_LOCATION, CROSS_SELL } from './cross-selling.constants';
+import { BUNDLE_TYPE, BUNDLE_STATUS, BUNDLE_PRICING, BUNDLE } from './bundle.constants';
+
+export const DISCOVERY_LIMIT = {
+  MAX_RECOMMENDATIONS: 50,
+  MAX_TRENDING: 100,
+  MAX_POPULAR: 100,
+  MAX_RECENTLY_VIEWED: 100,
+  MAX_BUNDLES: 1000,
+  MIN_INTERACTIONS: 5,
+  CACHE_TTL_SECONDS: 300,
+  RETENTION_DAYS: 365,
+  REFRESH_INTERVAL_HOURS: 6,
+} as const;
 
 export const DISCOVERY = {
-  STATUS: {
-    ...STATUS,
-    ACTIVE: 'active',
-    INACTIVE: 'inactive',
-    COMPUTING: 'computing',
-    OPTIMIZING: 'optimizing',
-    MAINTENANCE: 'maintenance',
+  LIMIT: DISCOVERY_LIMIT,
+
+  RECOMMENDATION: {
+    TYPE: RECOMMENDATION_TYPE,
+    STRATEGY: RECOMMENDATION_STRATEGY,
+    STRATEGY_WEIGHT: RECOMMENDATION_STRATEGY_WEIGHT,
+    STRATEGY_STATUS: RECOMMENDATION_STRATEGY_STATUS,
+    LIMIT: RECOMMENDATION,
   },
-  PERMISSIONS: {
-    ...PERMISSIONS,
-    ...ADMIN_PERMISSIONS,
-    VIEW: 'discovery:view',
-    MANAGE: 'discovery:manage',
-    CONFIGURE: 'discovery:configure',
-    PERSONALIZE: 'discovery:personalize',
+
+  PERSONALIZATION: {
+    TYPE: PERSONALIZATION_TYPE,
+    STATUS: PERSONALIZATION_STATUS,
+    LIMIT: PERSONALIZATION,
   },
-  PRODUCT_STATUS: { ...PRODUCT_STATUS },
-  USER_STATUS: { ...USER_STATUS },
-  DISCOVERY_TYPES: {
-    TRENDING: 'trending',
-    POPULAR: 'popular',
-    RECOMMENDED: 'recommended',
-    PERSONALIZED: 'personalized',
-    RECENTLY_VIEWED: 'recently_viewed',
-    FREQUENTLY_BOUGHT: 'frequently_bought',
-    COMPLEMENTARY: 'complementary',
-    SUBSTITUTE: 'substitute',
-    UPSELLING: 'upselling',
-    CROSS_SELLING: 'cross_selling',
-    BUNDLE: 'bundle',
-    NEW_ARRIVALS: 'new_arrivals',
+
+  TRENDING: {
+    TYPE: TRENDING_TYPE,
+    PERIOD: TRENDING_PERIOD,
+    STATUS: TRENDING_STATUS,
+    LIMIT: TRENDING,
   },
-  MAX_RECOMMENDATIONS: 20,
-  MIN_RECOMMENDATIONS: 3,
-  DISCOVERY_CACHE_TTL_HOURS: 24,
-  COMPUTATION_TIMEOUT_MINUTES: 30,
+
+  POPULAR: {
+    TYPE: POPULAR_TYPE,
+    PERIOD: POPULAR_PERIOD,
+    METRIC: POPULAR_METRIC,
+    LIMIT: POPULAR,
+  },
+
+  RECENTLY_VIEWED: {
+    TYPE: RECENTLY_VIEWED_TYPE,
+    LIMIT: RECENTLY_VIEWED,
+  },
+
+  FREQUENTLY_BOUGHT: {
+    TYPE: FREQUENTLY_BOUGHT_TYPE,
+    LIMIT: FREQUENTLY_BOUGHT,
+  },
+
+  COMPLEMENTARY: {
+    TYPE: COMPLEMENTARY_TYPE,
+    LIMIT: COMPLEMENTARY,
+  },
+
+  SUBSTITUTE: {
+    TYPE: SUBSTITUTE_TYPE,
+    LIMIT: SUBSTITUTE,
+  },
+
+  UPSELL: {
+    TYPE: UPSELL_TYPE,
+    LIMIT: UPSELL,
+  },
+
+  CROSS_SELL: {
+    TYPE: CROSS_SELL_TYPE,
+    LOCATION: CROSS_SELL_LOCATION,
+    LIMIT: CROSS_SELL,
+  },
+
+  BUNDLE: {
+    TYPE: BUNDLE_TYPE,
+    STATUS: BUNDLE_STATUS,
+    PRICING: BUNDLE_PRICING,
+    LIMIT: BUNDLE,
+  },
 } as const;
+
+export type DiscoveryType = typeof DISCOVERY;

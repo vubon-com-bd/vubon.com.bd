@@ -1,47 +1,61 @@
+/**
+ * Auth Session Schema
+ * @module shared-schemas/auth
+ *
+ * Values আসে shared-constants/auth/auth-session.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { SESSION } from '@vubon/shared-constants/src/common/session.constants';
-import { AUTH_SESSION } from '@vubon/shared-constants/src/auth/auth-session.constants';
-import { AUTH_DEVICE } from '@vubon/shared-constants/src/auth/auth-device.constants';
+import { AUTH_SESSION } from '@vubon/shared-constants/auth';
+import { SESSION_STATUS } from '@vubon/shared-constants/infrastructure';
+import { UuidSchema } from '../common/primitives/uuid.schema';
 
-const authSessionValues = Object.values(AUTH_SESSION) as [string, ...string[]];
-const sessionTypeValues = Object.values(SESSION.TYPE) as [string, ...string[]];
-const deviceTypeValues = Object.values(AUTH_DEVICE) as [string, ...string[]];
+export const AuthSessionStatusSchema = z.enum(
+  Object.values(SESSION_STATUS) as [string, ...string[]]
+);
 
-/**
- * Internal AuthSession entity.
- * ⚠️ `token` is a raw secret — never serialize this to clients.
- */
-export const AuthSessionSchema = BaseSchema.extend({
-  sessionId: z.string().uuid(),
-  userId: z.string().uuid(),
-  token: z.string().min(20),
-  status: z.enum(authSessionValues),
-  type: z.enum(sessionTypeValues),
-  expiresAt: z.date(),
-  lastActivity: z.date(),
-  deviceInfo: z.object({
-    deviceId: z.string(),
-    deviceName: z.string(),
-    deviceType: z.enum(deviceTypeValues),
-    browser: z.string(),
-    os: z.string(),
-  }),
-  /** @internal filled by server from request */
-  ipAddress: z.string(),
-  userAgent: z.string(),
-  metadata: z.record(z.unknown()).optional(),
+export const AuthSessionDataSchema = z.object({
+  id: UuidSchema,
+  userId: UuidSchema,
+  status: AuthSessionStatusSchema,
+  ipAddress: z.string().ip().optional(),
+  userAgent: z.string().max(500).optional(),
+  deviceId: z.string().max(128).optional(),
+  createdAt: z.string().datetime(),
+  expiresAt: z.string().datetime(),
+  lastAccessedAt: z.string().datetime(),
+  refreshedAt: z.string().datetime().optional(),
 });
 
-export const AuthSessionCreateSchema = AuthSessionSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+export const AuthSessionPublicSchema = AuthSessionDataSchema.omit({
+  userId: true,
+}).extend({
+  isCurrent: z.boolean(),
 });
 
-/**
- * Public-safe AuthSession DTO.
- */
-export const AuthSessionPublicSchema = AuthSessionSchema.omit({ token: true }).extend({
-  tokenPreview: z.string().max(12),
+export const AuthSessionCreateInputSchema = z.object({
+  userId: UuidSchema,
+  ipAddress: z.string().ip().optional(),
+  userAgent: z.string().max(500).optional(),
+  deviceId: z.string().max(128).optional(),
+  rememberMe: z.boolean().optional().default(false),
 });
+
+export const AuthSessionRefreshResultSchema = z.object({
+  sessionId: UuidSchema,
+  accessToken: z.string().min(1),
+  refreshToken: z.string().min(1),
+  expiresAt: z.number().int().positive(),
+  refreshedAt: z.string().datetime(),
+});
+
+export const AuthSessionMaxAgeSchema = z
+  .number()
+  .int()
+  .positive()
+  .max(AUTH_SESSION.REMEMBER_ME_EXPIRY_SECONDS);
+
+export type AuthSessionDataSchemaType = z.infer<typeof AuthSessionDataSchema>;
+export type AuthSessionPublicSchemaType = z.infer<typeof AuthSessionPublicSchema>;
+export type AuthSessionCreateInputSchemaType = z.infer<typeof AuthSessionCreateInputSchema>;
+export type AuthSessionRefreshResultSchemaType = z.infer<typeof AuthSessionRefreshResultSchema>;

@@ -1,43 +1,40 @@
-import { STATUS as COMMON_STATUS } from '../common/status.constants';
-import { TYPES as COMMON_TYPES } from '../common/types.constants';
-import { AI_MODEL } from './ai-model.constants';
+export const AI_TRAINING_STATUS = {
+  PENDING: 'pending',
+  QUEUED: 'queued',
+  RUNNING: 'running',
+  COMPLETED: 'completed',
+  FAILED: 'failed',
+  CANCELLED: 'cancelled',
+  PAUSED: 'paused',
+} as const;
+
+export const AI_TRAINING_TYPE = {
+  FINE_TUNING: 'fine_tuning',
+  FULL_TRAINING: 'full_training',
+  TRANSFER_LEARNING: 'transfer_learning',
+  RLHF: 'rlhf',
+  LORA: 'lora',
+  QLORA: 'qlora',
+  DISTILLATION: 'distillation',
+} as const;
 
 export const AI_TRAINING = {
-  STATUS: {
-    ...COMMON_STATUS,
-    QUEUED: 'queued',
-    PREPARING: 'preparing',
-    RUNNING: 'running',
-    EVALUATING: 'evaluating',
-    COMPLETED: 'completed',
-    FAILED: 'failed',
-    CANCELLED: 'cancelled',
-    PAUSED: 'paused',
-  },
-  TYPES: {
-    ...COMMON_TYPES,
-    SUPERVISED: 'supervised',
-    UNSUPERVISED: 'unsupervised',
-    SEMI_SUPERVISED: 'semi_supervised',
-    REINFORCEMENT: 'reinforcement',
-    TRANSFER: 'transfer',
-    FINE_TUNING: 'fine_tuning',
-  },
-  AI_MODEL: { ...AI_MODEL },
-  TRAINING_CONFIGS: {
-    BATCH_SIZE: 32,
-    EPOCHS: 100,
-    LEARNING_RATE: 0.001,
-    OPTIMIZER: 'adam',
-    LOSS_FUNCTION: 'cross_entropy',
-  },
-  TRAINING_DATA_SPLIT: {
-    TRAIN: 0.7,
-    VALIDATION: 0.15,
-    TEST: 0.15,
-  },
-  MAX_TRAINING_EPOCHS: 1000,
-  EARLY_STOPPING_PATIENCE: 10,
-  MIN_TRAINING_DATA_SIZE: 100,
-  MAX_TRAINING_DATA_SIZE: 1000000,
+  MAX_EPOCHS: 100,
+  MIN_EPOCHS: 1,
+  DEFAULT_EPOCHS: 10,
+  MAX_BATCH_SIZE: 512,
+  DEFAULT_BATCH_SIZE: 32,
+  MIN_LEARNING_RATE: 0.0000001,
+  MAX_LEARNING_RATE: 1.0,
+  DEFAULT_LEARNING_RATE: 0.0001,
+  MAX_TRAINING_HOURS: 168,
+  VALIDATION_SPLIT: 0.2,
+  TEST_SPLIT: 0.1,
+  RANDOM_SEED: 42,
+  EARLY_STOPPING_PATIENCE: 5,
+  CHECKPOINT_INTERVAL: 1000,
+  MAX_CHECKPOINTS: 5,
 } as const;
+
+export type AiTrainingStatusType = (typeof AI_TRAINING_STATUS)[keyof typeof AI_TRAINING_STATUS];
+export type AiTrainingTypeType = (typeof AI_TRAINING_TYPE)[keyof typeof AI_TRAINING_TYPE];

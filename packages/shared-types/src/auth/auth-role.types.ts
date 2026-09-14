@@ -1,22 +1,42 @@
-import { RoleObject } from '../common/role.types';
-import { AUTH_ROLES } from '@vubon/shared-constants/src/auth/auth-role.constants';
-
 /**
- * Auth role value
+ * Auth Role Value Types
+ * @module shared-types/auth
+ *
+ * Values আসে shared-constants/auth/auth-role.constants থেকে।
+ * এবং shared-constants/common/role.constants।
  */
-export type AuthRoleValue = (typeof AUTH_ROLES)[keyof typeof AUTH_ROLES];
 
-/**
- * Auth role interface
- * Note: `type` here is the role value (e.g. 'admin'),
- * while parent `RoleObject.type` is the category.
- */
-export interface AuthRole extends Omit<RoleObject, 'type'> {
-  type: AuthRoleValue;
-  category: 'auth';
+import type { AUTH_ROLE } from '@vubon/shared-constants/auth';
+import type { RoleValue } from '../common/enums';
+
+export type AuthRoleValue = (typeof AUTH_ROLE)[keyof typeof AUTH_ROLE];
+
+export interface AuthRoleMetadata {
+  readonly value: AuthRoleValue;
+  readonly label: string;
+  readonly level: number;
+  readonly isSystemRole: boolean;
+  readonly isAdminRole: boolean;
 }
 
-/**
- * Auth role key type
- */
-export type AuthRoleKey = keyof typeof AUTH_ROLES;
+export interface AuthRoleAssignment {
+  readonly userId: string;
+  readonly role: RoleValue | AuthRoleValue;
+  readonly assignedBy: string;
+  readonly assignedAt: string;
+  readonly expiresAt?: string;
+  readonly isPrimary: boolean;
+}
+
+export interface AuthRoleHierarchy {
+  readonly role: RoleValue | AuthRoleValue;
+  readonly level: number;
+  readonly inheritsFrom?: readonly (RoleValue | AuthRoleValue)[];
+}
+
+export interface AuthRoleCheck {
+  readonly userId: string;
+  readonly role: RoleValue | AuthRoleValue;
+  readonly hasRole: boolean;
+  readonly checkedAt: string;
+}

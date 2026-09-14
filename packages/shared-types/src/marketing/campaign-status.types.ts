@@ -1,19 +1,17 @@
-import { StatusObject } from '../common/status.types';
-import { CAMPAIGN_STATUS } from '@vubon/shared-constants/src/marketing/campaign-status.constants';
+/**
+ * Campaign Status Value Types
+ * @module shared-types/marketing
+ */
 
-export interface CampaignStatus extends StatusObject {
-  type: keyof typeof CAMPAIGN_STATUS | string;
-  category: 'campaign';
-  isDraft: boolean;
-  isPendingReview: boolean;
-  isApproved: boolean;
-  isRejected: boolean;
-  isScheduled: boolean;
-  isLive: boolean;
-  isPaused: boolean;
-  isEnded: boolean;
-  isCancelled: boolean;
-  isArchived: boolean;
+import type { CAMPAIGN_STATUS, CAMPAIGN_GOAL } from '@vubon/shared-constants/marketing';
+
+export type CampaignStatusValue = (typeof CAMPAIGN_STATUS)[keyof typeof CAMPAIGN_STATUS];
+
+export type CampaignGoalValue = (typeof CAMPAIGN_GOAL)[keyof typeof CAMPAIGN_GOAL];
+
+export interface CampaignStatusMetadata {
+  readonly value: CampaignStatusValue;
+  readonly label: string;
+  readonly isActive: boolean;
+  readonly isFinal: boolean;
 }
-
-export type CampaignStatusKey = keyof typeof CAMPAIGN_STATUS;

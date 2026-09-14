@@ -1,14 +1,24 @@
-import { BaseEntity } from '../../common/base.types';
-import { Product } from '../../business/product/product.types';
-import { CROSS_SELLING } from '@vubon/shared-constants/src/platform/discovery/cross-selling.constants';
+/**
+ * Cross-Selling Types
+ * @module shared-types/platform/discovery
+ */
 
-export interface CrossSelling extends BaseEntity {
-  crossSellingId: string;
-  productId: string;
-  product: Product;
-  type: keyof typeof CROSS_SELLING.TYPES | string;
-  crossSellProducts: string[];
-  score: number;
-  isActive: boolean;
-  metadata: Record<string, unknown>;
+import type { CROSS_SELL_TYPE, CROSS_SELL_LOCATION } from '@vubon/shared-constants/platform';
+
+export type CrossSellTypeValue = (typeof CROSS_SELL_TYPE)[keyof typeof CROSS_SELL_TYPE];
+
+export type CrossSellLocationValue = (typeof CROSS_SELL_LOCATION)[keyof typeof CROSS_SELL_LOCATION];
+
+export interface CrossSellItem {
+  readonly productId: string;
+  readonly type: CrossSellTypeValue;
+  readonly affinity: number;
+  readonly reason?: string;
+}
+
+export interface CrossSellResult {
+  readonly sourceProductId: string;
+  readonly location?: CrossSellLocationValue;
+  readonly items: readonly CrossSellItem[];
+  readonly generatedAt: string;
 }

@@ -1,17 +1,17 @@
-import { StatusObject } from '../common/status.types';
-import { AI_MODEL_STATUS } from '@vubon/shared-constants/src/ai/ai-model-status.constants';
+/**
+ * AI Model Status Value Types
+ * @module shared-types/ai
+ *
+ * Values আসে shared-constants/ai/ai-model-status.constants থেকে।
+ */
 
-export interface AIModelStatus extends StatusObject {
-  type: keyof typeof AI_MODEL_STATUS | string;
-  category: 'ai_model';
-  isDraft: boolean;
-  isTraining: boolean;
-  isEvaluating: boolean;
-  isDeployed: boolean;
-  isFailed: boolean;
-  isDeprecated: boolean;
-  isArchived: boolean;
-  isPaused: boolean;
+import type { AI_MODEL_STATUS } from '@vubon/shared-constants/ai';
+
+export type AiModelStatusValue = (typeof AI_MODEL_STATUS)[keyof typeof AI_MODEL_STATUS];
+
+export interface AiModelStatusMetadata {
+  readonly value: AiModelStatusValue;
+  readonly label: string;
+  readonly isActive: boolean;
+  readonly isFinal: boolean;
 }
-
-export type AIModelStatusKey = keyof typeof AI_MODEL_STATUS;

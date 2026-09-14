@@ -1,23 +1,34 @@
-import { STATUS as COMMON_STATUS } from '../../common/status.constants';
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
+export const NOTIFICATION_DEVICE_TYPE = {
+  ANDROID: 'android',
+  IOS: 'ios',
+  WEB: 'web',
+  WINDOWS: 'windows',
+  MACOS: 'macos',
+  LINUX: 'linux',
+  TABLET: 'tablet',
+  WEARABLE: 'wearable',
+} as const;
+
+export const NOTIFICATION_DEVICE_STATUS = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+  UNREGISTERED: 'unregistered',
+  BLOCKED: 'blocked',
+  INVALID: 'invalid',
+} as const;
 
 export const NOTIFICATION_DEVICE = {
-  STATUS: {
-    ...COMMON_STATUS,
-    ACTIVE: 'active',
-    INACTIVE: 'inactive',
-    REGISTERED: 'registered',
-    UNREGISTERED: 'unregistered',
-    EXPIRED: 'expired',
-  },
-  TYPES: {
-    ...COMMON_TYPES,
-    WEB: 'web',
-    ANDROID: 'android',
-    IOS: 'ios',
-    DESKTOP: 'desktop',
-  },
   MAX_DEVICES_PER_USER: 10,
-  DEVICE_TOKEN_EXPIRY_DAYS: 30,
-  DEVICE_REGISTRATION_TIMEOUT_MINUTES: 5,
+  TOKEN_MAX_LENGTH: 500,
+  TOKEN_REFRESH_DAYS: 30,
+  INACTIVE_DAYS_THRESHOLD: 90,
+  AUTO_CLEANUP: true,
+  TRACK_LAST_ACTIVE: true,
+  TRACK_APP_VERSION: true,
+  TRACK_OS_VERSION: true,
 } as const;
+
+export type NotificationDeviceTypeType =
+  (typeof NOTIFICATION_DEVICE_TYPE)[keyof typeof NOTIFICATION_DEVICE_TYPE];
+export type NotificationDeviceStatusType =
+  (typeof NOTIFICATION_DEVICE_STATUS)[keyof typeof NOTIFICATION_DEVICE_STATUS];

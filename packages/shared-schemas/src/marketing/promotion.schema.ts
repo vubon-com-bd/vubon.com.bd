@@ -1,51 +1,70 @@
+/**
+ * Promotion Core Schema
+ * @module shared-schemas/marketing
+ *
+ * Promotion entity + aggregator।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { MoneySchema } from '../common/money.schema';
-import { ProductSchema } from '../business/product/product.schema';
-import { PromotionTypeSchema } from './promotion-type.schema';
-import { PromotionDiscountTypeSchema } from './promotion-discount-type.schema';
-import { PROMOTION_STATUS } from '@vubon/shared-constants/src/marketing/promotion-status.constants';
+import { BaseEntitySchema } from '../common/base/base-entity.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema';
+import { MoneySchema } from '../common/primitives/money.schema';
+import { PROMOTION } from '@vubon/shared-constants/marketing';
+import { PromotionTypeSchema, PromotionAppliesToSchema } from './promotion-type.schema';
+import { PromotionStatusSchema } from './promotion-status.schema';
+import { PromotionDiscountTypeValueSchema } from './promotion-discount-type.schema';
 
-const promotionStatusKeys = Object.keys(PROMOTION_STATUS) as [string, ...string[]];
-
-export const PromotionSchema = BaseSchema.extend({
-  promotionId: z.string().uuid(),
-  name: z.string().min(1).max(100),
-  slug: z
-    .string()
-    .min(1)
-    .max(100)
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-  description: z.string().optional(),
-  status: z.enum(promotionStatusKeys),
+export const PromotionSchema = BaseEntitySchema.extend({
+  name: z.string().min(1).max(PROMOTION.NAME_MAX_LENGTH),
+  description: z.string().max(PROMOTION.DESCRIPTION_MAX_LENGTH).optional(),
   type: PromotionTypeSchema,
-  discountType: PromotionDiscountTypeSchema,
-  discountValue: z.number().min(0),
-  discountAmount: MoneySchema,
-  minPurchaseAmount: MoneySchema.optional(),
+  status: PromotionStatusSchema,
+  discountType: PromotionDiscountTypeValueSchema,
+  appliesTo: PromotionAppliesToSchema,
+  discountValue: z.number().positive(),
   maxDiscountAmount: MoneySchema.optional(),
-  products: z.array(ProductSchema),
-  productCount: z.number().int().min(0).default(0),
-  campaignId: z.string().uuid().optional(),
-  usageLimit: z.number().int().min(1),
-  usageCount: z.number().int().min(0).default(0),
-  perUserLimit: z.number().int().min(1),
-  perUserCount: z.number().int().min(0).default(0),
-  isActive: z.boolean().default(true),
-  isValid: z.boolean().default(true),
-  isStackable: z.boolean().default(false),
-  startsAt: z.date(),
-  endsAt: z.date(),
-  metadata: z.record(z.unknown()).optional(),
+  minOrderAmount: MoneySchema.optional(),
+  maxUses: z.number().int().positive().max(PROMOTION.MAX_USES),
+  usedCount: z.number().int().nonnegative(),
+  maxUsesPerUser: z.number().int().positive().max(PROMOTION.MAX_USES_PER_USER),
+  applicableIds: z.array(UuidSchema).max(1000).optional(),
+  excludedIds: z.array(UuidSchema).max(1000).optional(),
+  startAt: z.string().datetime(),
+  endAt: z.string().datetime(),
+  isStackable: z.boolean(),
+  isActive: z.boolean(),
+  createdBy: UuidSchema,
 });
 
-export const PromotionCreateSchema = PromotionSchema.omit({
+export const PromotionPublicSchema = PromotionSchema.pick({
   id: true,
-  createdAt: true,
-  updatedAt: true,
-  usageCount: true,
-  perUserCount: true,
-  productCount: true,
+  name: true,
+  type: true,
+  discountType: true,
+  appliesTo: true,
+  discountValue: true,
+  startAt: true,
+  endAt: true,
 });
 
-export const PromotionUpdateSchema = PromotionCreateSchema.partial();
+export const PromotionSummarySchema = PromotionSchema.pick({
+  id: true,
+  name: true,
+  type: true,
+  status: true,
+  discountType: true,
+  discountValue: true,
+});
+
+export const PromotionListFilterSchema = z.object({
+  type: PromotionTypeSchema.optional(),
+  status: PromotionStatusSchema.optional(),
+  appliesTo: PromotionAppliesToSchema.optional(),
+  fromDate: z.string().datetime().optional(),
+  toDate: z.string().datetime().optional(),
+});
+
+export type PromotionSchemaType = z.infer<typeof PromotionSchema>;
+export type PromotionPublicSchemaType = z.infer<typeof PromotionPublicSchema>;
+export type PromotionSummarySchemaType = z.infer<typeof PromotionSummarySchema>;
+export type PromotionListFilterSchemaType = z.infer<typeof PromotionListFilterSchema>;

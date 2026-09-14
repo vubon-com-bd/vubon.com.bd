@@ -1,23 +1,39 @@
-import { BaseEntity } from '../common/base.types';
-import { Money } from '../common/money.types';
-import { AFFILIATE_PAYOUT } from '@vubon/shared-constants/src/marketing/affiliate-payout.constants';
-import { Affiliate } from './affiliate.types';
+/**
+ * Affiliate Payout Types
+ * @module shared-types/marketing
+ */
 
-export interface AffiliatePayout extends BaseEntity {
-  payoutId: string;
-  affiliateId: string;
-  affiliate: Affiliate;
-  status: keyof typeof AFFILIATE_PAYOUT.STATUS | string;
-  method: keyof typeof AFFILIATE_PAYOUT.PAYOUT_METHODS | string;
-  amount: Money;
-  fee: Money;
-  netAmount: Money;
-  reference: string;
-  description?: string;
-  requestedAt: Date;
-  processedAt?: Date;
-  completedAt?: Date;
-  failedAt?: Date;
-  failureReason?: string;
-  metadata: Record<string, unknown>;
+import type { Money } from '../common/primitives';
+import type { BaseEntity } from '../common/base';
+
+export type AffiliatePayoutStatusValue =
+  'pending' | 'approved' | 'processing' | 'paid' | 'rejected' | 'failed' | 'on_hold';
+
+export interface AffiliatePayout extends BaseEntity<string> {
+  readonly affiliateId: string;
+  readonly status: AffiliatePayoutStatusValue;
+  readonly amount: Money;
+  readonly currency: string;
+  readonly method: string;
+  readonly periodStart: string;
+  readonly periodEnd: string;
+  readonly reference?: string;
+  readonly notes?: string;
+  readonly paidAt?: string;
+  readonly failureReason?: string;
+}
+
+export interface AffiliatePayoutRequest {
+  readonly affiliateId: string;
+  readonly amount: Money;
+  readonly method: string;
+  readonly notes?: string;
+}
+
+export interface AffiliatePayoutPublic {
+  readonly id: string;
+  readonly status: AffiliatePayoutStatusValue;
+  readonly amount: Money;
+  readonly currency: string;
+  readonly paidAt?: string;
 }

@@ -1,19 +1,18 @@
 import { STATUS as COMMON_STATUS } from '../../common/status.constants';
 
 export const PAYMENT_STATUS = {
-  ...COMMON_STATUS,
-  PENDING: 'pending',
+  PENDING: COMMON_STATUS.PENDING,
   PROCESSING: 'processing',
-  SUCCESS: 'success',
-  FAILED: 'failed',
-  CANCELLED: 'cancelled',
-  REFUNDED: 'refunded',
-  PARTIAL_REFUND: 'partial_refund',
-  CHARGEBACK: 'chargeback',
-  DISPUTED: 'disputed',
-  ON_HOLD: 'on_hold',
-  EXPIRED: 'expired',
   AUTHORIZED: 'authorized',
   CAPTURED: 'captured',
-  SETTLED: 'settled',
+  PAID: 'paid',
+  FAILED: 'failed',
+  DECLINED: 'declined',
+  CANCELLED: 'cancelled',
+  REFUNDED: 'refunded',
+  PARTIALLY_REFUNDED: 'partially_refunded',
+  CHARGEBACK: 'chargeback',
+  EXPIRED: COMMON_STATUS.EXPIRED,
 } as const;
+
+export type PaymentStatusType = (typeof PAYMENT_STATUS)[keyof typeof PAYMENT_STATUS];

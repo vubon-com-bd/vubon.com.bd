@@ -1,24 +1,28 @@
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
+export const SEARCH_SUGGESTION_TYPE = {
+  QUERY: 'query',
+  PRODUCT: 'product',
+  CATEGORY: 'category',
+  BRAND: 'brand',
+  VENDOR: 'vendor',
+  TRENDING: 'trending',
+  RECENT: 'recent',
+  POPULAR: 'popular',
+  PERSONALIZED: 'personalized',
+} as const;
 
 export const SEARCH_SUGGESTION = {
-  TYPES: {
-    ...COMMON_TYPES,
-    POPULAR: 'popular',
-    RELATED: 'related',
-    TRENDING: 'trending',
-    CORRECTION: 'correction',
-    COMPLETION: 'completion',
-    HISTORICAL: 'historical',
-  },
-  SUGGESTION_WEIGHTS: {
-    POPULAR: 2.0,
-    TRENDING: 1.8,
-    RELATED: 1.5,
-    HISTORICAL: 1.2,
-    COMPLETION: 1.0,
-  },
   MAX_SUGGESTIONS: 10,
-  MIN_SUGGESTION_LENGTH: 2,
-  SUGGESTION_CACHE_TTL_HOURS: 24,
-  AUTO_CORRECT_THRESHOLD: 0.8,
+  MIN_QUERY_LENGTH: 2,
+  MAX_QUERY_LENGTH: 100,
+  DEBOUNCE_MS: 300,
+  CACHE_TTL_SECONDS: 300,
+  PERSONALIZE: true,
+  INCLUDE_TRENDING: true,
+  INCLUDE_RECENT: true,
+  INCLUDE_POPULAR: true,
+  MAX_RECENT: 5,
+  DIVERSITY_ENABLED: true,
 } as const;
+
+export type SearchSuggestionTypeType =
+  (typeof SEARCH_SUGGESTION_TYPE)[keyof typeof SEARCH_SUGGESTION_TYPE];

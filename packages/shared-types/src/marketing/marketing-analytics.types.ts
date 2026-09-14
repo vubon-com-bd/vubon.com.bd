@@ -1,35 +1,40 @@
-import { BaseEntity } from '../common/base.types';
-import { MARKETING_ANALYTICS } from '@vubon/shared-constants/src/marketing/marketing-analytics.constants';
-import { Campaign } from './campaign.types';
-import { Promotion } from './promotion.types';
+/**
+ * Marketing Analytics Types
+ * @module shared-types/marketing
+ */
 
-export interface BusinessMarketingAnalytics extends BaseEntity {
-  analyticsId: string;
-  campaignId?: string;
-  campaign?: Campaign;
-  promotionId?: string;
-  promotion?: Promotion;
-  type: keyof typeof MARKETING_ANALYTICS.TYPES | string;
-  metric: keyof typeof MARKETING_ANALYTICS.METRICS | string;
-  value: number;
-  period: keyof typeof MARKETING_ANALYTICS.ANALYTICS_GRANULARITY | string;
-  timestamp: Date;
-  metadata: Record<string, unknown>;
+import type {
+  MARKETING_ANALYTICS_METRIC,
+  MARKETING_ANALYTICS_PERIOD,
+  MARKETING_ANALYTICS_ATTRIBUTION,
+} from '@vubon/shared-constants/marketing';
+
+export type MarketingAnalyticsMetricValue =
+  (typeof MARKETING_ANALYTICS_METRIC)[keyof typeof MARKETING_ANALYTICS_METRIC];
+
+export type MarketingAnalyticsPeriodValue =
+  (typeof MARKETING_ANALYTICS_PERIOD)[keyof typeof MARKETING_ANALYTICS_PERIOD];
+
+export type MarketingAnalyticsAttributionValue =
+  (typeof MARKETING_ANALYTICS_ATTRIBUTION)[keyof typeof MARKETING_ANALYTICS_ATTRIBUTION];
+
+export interface MarketingAnalytics {
+  readonly metric: MarketingAnalyticsMetricValue;
+  readonly period: MarketingAnalyticsPeriodValue;
+  readonly value: number;
+  readonly previousValue?: number;
+  readonly changePercent?: number;
+  readonly periodStart: string;
+  readonly periodEnd: string;
+  readonly capturedAt: string;
 }
 
-export interface MarketingAnalyticsSummary {
-  impressions: number;
-  reach: number;
-  clicks: number;
-  ctr: number;
-  conversions: number;
-  conversionRate: number;
-  revenue: number;
-  roi: number;
-  cpa: number;
-  cpc: number;
-  cpm: number;
-  ltv: number;
-  cac: number;
-  engagementRate: number;
+export interface MarketingAttribution {
+  readonly channel: string;
+  readonly source: string;
+  readonly campaignId?: string;
+  readonly conversions: number;
+  readonly revenue: number;
+  readonly currency: string;
+  readonly attributionModel: MarketingAnalyticsAttributionValue;
 }

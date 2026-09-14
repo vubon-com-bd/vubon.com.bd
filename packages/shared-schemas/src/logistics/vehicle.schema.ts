@@ -1,46 +1,55 @@
+/**
+ * Vehicle Schema
+ * @module shared-schemas/logistics
+ *
+ * Values আসে shared-constants/logistics/vehicle.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { VEHICLE } from '@vubon/shared-constants/src/logistics/vehicle.constants';
+import { BaseEntitySchema } from '../common/base/base-entity.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema';
+import { VEHICLE_STATUS, VEHICLE_TYPE, VEHICLE_FUEL_TYPE } from '@vubon/shared-constants/logistics';
 
-const vehicleStatusKeys = Object.keys(VEHICLE.STATUS) as [string, ...string[]];
-const vehicleTypeKeys = Object.keys(VEHICLE.TYPES) as [string, ...string[]];
-const fuelTypeKeys = Object.keys(VEHICLE.FUEL_TYPES) as [string, ...string[]];
+export const VehicleStatusSchema = z.enum(Object.values(VEHICLE_STATUS) as [string, ...string[]]);
 
-export const VehicleSchema = BaseSchema.extend({
-  vehicleId: z.string().uuid(),
-  registrationNumber: z.string().min(1).max(50),
-  status: z.enum(vehicleStatusKeys),
-  type: z.enum(vehicleTypeKeys),
-  brand: z.string().min(1).max(50),
+export const VehicleTypeSchema = z.enum(Object.values(VEHICLE_TYPE) as [string, ...string[]]);
+
+export const VehicleFuelTypeSchema = z.enum(
+  Object.values(VEHICLE_FUEL_TYPE) as [string, ...string[]]
+);
+
+export const VehicleSchema = BaseEntitySchema.extend({
+  registrationNumber: z.string().min(1).max(30),
+  type: VehicleTypeSchema,
+  status: VehicleStatusSchema,
+  fuelType: VehicleFuelTypeSchema,
+  make: z.string().min(1).max(50),
   model: z.string().min(1).max(50),
-  year: z
-    .number()
-    .int()
-    .min(1900)
-    .max(new Date().getFullYear() + 1),
-  color: z.string(),
-  capacity: z.number().positive(),
-  weightLimit: z.number().positive(),
-  dimensions: z.object({
-    length: z.number().positive(),
-    width: z.number().positive(),
-    height: z.number().positive(),
-  }),
-  fuelType: z.enum(fuelTypeKeys),
-  fuelEfficiency: z.number().positive(),
-  insuranceExpiry: z.date(),
-  registrationExpiry: z.date(),
-  licensePlate: z.string().min(1).max(20),
-  isActive: z.boolean().default(true),
-  isAvailable: z.boolean().default(true),
-  isOnRoute: z.boolean().default(false),
-  lastMaintenanceDate: z.date().optional(),
-  nextMaintenanceDate: z.date().optional(),
-  metadata: z.object({
-    gpsTrackerId: z.string().optional(),
-    simCardNumber: z.string().optional(),
-    colorHex: z.string(),
-    photoUrl: z.string().url().optional(),
-    documents: z.array(z.string()),
-  }),
+  year: z.number().int().min(1900).max(2100),
+  color: z.string().max(30).optional(),
+  maxWeightKg: z.number().positive(),
+  maxVolumeM3: z.number().positive().optional(),
+  capacity: z.number().int().positive().optional(),
+  mileageKm: z.number().nonnegative().optional(),
+  lastServiceAt: z.string().datetime().optional(),
+  nextServiceAt: z.string().datetime().optional(),
+  insuranceExpiresAt: z.string().datetime().optional(),
+  registrationExpiresAt: z.string().datetime().optional(),
+  assignedDriverId: UuidSchema.optional(),
+  isActive: z.boolean(),
 });
+
+export const VehiclePublicSchema = VehicleSchema.pick({
+  id: true,
+  registrationNumber: true,
+  type: true,
+  status: true,
+  make: true,
+  model: true,
+});
+
+export type VehicleStatusSchemaType = z.infer<typeof VehicleStatusSchema>;
+export type VehicleTypeSchemaType = z.infer<typeof VehicleTypeSchema>;
+export type VehicleFuelTypeSchemaType = z.infer<typeof VehicleFuelTypeSchema>;
+export type VehicleSchemaType = z.infer<typeof VehicleSchema>;
+export type VehiclePublicSchemaType = z.infer<typeof VehiclePublicSchema>;

@@ -1,28 +1,45 @@
+/**
+ * Affiliate Payout Schema
+ * @module shared-schemas/marketing
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { MoneySchema } from '../common/money.schema';
-import { AFFILIATE_PAYOUT } from '@vubon/shared-constants/src/marketing/affiliate-payout.constants';
+import { BaseEntitySchema } from '../common/base/base-entity.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema';
+import { PositiveMoneySchema } from '../common/primitives/money.schema';
 
-const affiliatePayoutStatusKeys = Object.keys(AFFILIATE_PAYOUT.STATUS) as [string, ...string[]];
-const affiliatePayoutMethodKeys = Object.keys(AFFILIATE_PAYOUT.PAYOUT_METHODS) as [
-  string,
-  ...string[],
-];
+export const AffiliatePayoutStatusSchema = z.enum([
+  'pending',
+  'approved',
+  'processing',
+  'paid',
+  'rejected',
+  'failed',
+  'on_hold',
+]);
 
-export const AffiliatePayoutSchema = BaseSchema.extend({
-  payoutId: z.string().uuid(),
-  affiliateId: z.string().uuid(),
-  status: z.enum(affiliatePayoutStatusKeys),
-  method: z.enum(affiliatePayoutMethodKeys),
-  amount: MoneySchema,
-  fee: MoneySchema,
-  netAmount: MoneySchema,
-  reference: z.string(),
-  description: z.string().optional(),
-  requestedAt: z.date(),
-  processedAt: z.date().optional(),
-  completedAt: z.date().optional(),
-  failedAt: z.date().optional(),
-  failureReason: z.string().optional(),
-  metadata: z.record(z.unknown()).optional(),
+export const AffiliatePayoutSchema = BaseEntitySchema.extend({
+  affiliateId: UuidSchema,
+  status: AffiliatePayoutStatusSchema,
+  amount: PositiveMoneySchema,
+  currency: z.string().length(3),
+  method: z.string().min(1).max(50),
+  periodStart: z.string().datetime(),
+  periodEnd: z.string().datetime(),
+  reference: z.string().max(255).optional(),
+  notes: z.string().max(1000).optional(),
+  paidAt: z.string().datetime().optional(),
+  failureReason: z.string().max(500).optional(),
 });
+
+export const AffiliatePayoutPublicSchema = AffiliatePayoutSchema.pick({
+  id: true,
+  status: true,
+  amount: true,
+  currency: true,
+  paidAt: true,
+});
+
+export type AffiliatePayoutStatusSchemaType = z.infer<typeof AffiliatePayoutStatusSchema>;
+export type AffiliatePayoutSchemaType = z.infer<typeof AffiliatePayoutSchema>;
+export type AffiliatePayoutPublicSchemaType = z.infer<typeof AffiliatePayoutPublicSchema>;

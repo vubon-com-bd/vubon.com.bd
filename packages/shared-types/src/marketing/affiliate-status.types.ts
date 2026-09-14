@@ -1,16 +1,15 @@
-import { StatusObject } from '../common/status.types';
-import { AFFILIATE_STATUS } from '@vubon/shared-constants/src/marketing/affiliate-status.constants';
+/**
+ * Affiliate Status Value Types
+ * @module shared-types/marketing
+ */
 
-export interface AffiliateStatus extends StatusObject {
-  type: keyof typeof AFFILIATE_STATUS | string;
-  category: 'affiliate';
-  isPending: boolean;
-  isApproved: boolean;
-  isRejected: boolean;
-  isActive: boolean;
-  isInactive: boolean;
-  isSuspended: boolean;
-  isBanned: boolean;
+import type { AFFILIATE_STATUS } from '@vubon/shared-constants/marketing';
+
+export type AffiliateStatusValue = (typeof AFFILIATE_STATUS)[keyof typeof AFFILIATE_STATUS];
+
+export interface AffiliateStatusMetadata {
+  readonly value: AffiliateStatusValue;
+  readonly label: string;
+  readonly isActive: boolean;
+  readonly isFinal: boolean;
 }
-
-export type AffiliateStatusKey = keyof typeof AFFILIATE_STATUS;

@@ -1,18 +1,23 @@
-import { BaseEntity } from '../common/base.types';
-import { TICKET_SATISFACTION } from '@vubon/shared-constants/src/support/ticket-satisfaction.constants';
-import { Ticket } from './ticket.types';
+/**
+ * Ticket Satisfaction Types
+ * @module shared-types/support
+ */
 
-export interface TicketSatisfaction extends BaseEntity {
-  satisfactionId: string;
-  ticketId: string;
-  ticket: Ticket;
-  rating: keyof typeof TICKET_SATISFACTION.TYPES | string;
-  score: keyof typeof TICKET_SATISFACTION.SATISFACTION_SCORES | string;
-  comment?: string;
-  agentId?: string;
-  feedback: string[];
-  isGood: boolean;
-  isExcellent: boolean;
-  submittedAt: Date;
-  metadata: Record<string, unknown>;
+export interface TicketSatisfaction {
+  readonly ticketId: string;
+  readonly rating: number;
+  readonly scale: 'csat' | 'nps' | 'ces';
+  readonly comment?: string;
+  readonly feedback?: readonly string[];
+  readonly ratedBy: string;
+  readonly ratedAt: string;
+}
+
+export interface SatisfactionStats {
+  readonly period: string;
+  readonly averageRating: number;
+  readonly totalResponses: number;
+  readonly csat: number;
+  readonly nps: number;
+  readonly ces: number;
 }

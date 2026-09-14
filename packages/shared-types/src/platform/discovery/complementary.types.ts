@@ -1,14 +1,21 @@
-import { BaseEntity } from '../../common/base.types';
-import { Product } from '../../business/product/product.types';
-import { COMPLEMENTARY } from '@vubon/shared-constants/src/platform/discovery/complementary.constants';
+/**
+ * Complementary Types
+ * @module shared-types/platform/discovery
+ */
 
-export interface Complementary extends BaseEntity {
-  complementaryId: string;
-  productId: string;
-  product: Product;
-  type: keyof typeof COMPLEMENTARY.TYPES | string;
-  complementaryProducts: string[];
-  score: number;
-  isActive: boolean;
-  metadata: Record<string, unknown>;
+import type { COMPLEMENTARY_TYPE } from '@vubon/shared-constants/platform';
+
+export type ComplementaryTypeValue = (typeof COMPLEMENTARY_TYPE)[keyof typeof COMPLEMENTARY_TYPE];
+
+export interface ComplementaryItem {
+  readonly productId: string;
+  readonly type: ComplementaryTypeValue;
+  readonly affinity: number;
+  readonly reason?: string;
+}
+
+export interface ComplementaryResult {
+  readonly sourceProductId: string;
+  readonly items: readonly ComplementaryItem[];
+  readonly generatedAt: string;
 }

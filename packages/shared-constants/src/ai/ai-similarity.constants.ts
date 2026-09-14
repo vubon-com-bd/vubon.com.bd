@@ -1,25 +1,28 @@
-import { TYPES as COMMON_TYPES } from '../common/types.constants';
-import { AI_VECTOR } from './ai-vector.constants';
+export const AI_SIMILARITY_METRIC = {
+  COSINE: 'cosine',
+  EUCLIDEAN: 'euclidean',
+  DOT_PRODUCT: 'dot_product',
+  JACCARD: 'jaccard',
+  MANHATTAN: 'manhattan',
+  HAMMING: 'hamming',
+} as const;
+
+export const AI_SIMILARITY_THRESHOLD = {
+  VERY_HIGH: 0.95,
+  HIGH: 0.85,
+  MEDIUM: 0.7,
+  LOW: 0.5,
+  VERY_LOW: 0.3,
+} as const;
 
 export const AI_SIMILARITY = {
-  TYPES: {
-    ...COMMON_TYPES,
-    COSINE: 'cosine',
-    EUCLIDEAN: 'euclidean',
-    DOT_PRODUCT: 'dot_product',
-    MANHATTAN: 'manhattan',
-    JACCARD: 'jaccard',
-    PEARSON: 'pearson',
-  },
-  AI_VECTOR: { ...AI_VECTOR },
-  SIMILARITY_THRESHOLDS: {
-    EXACT: 0.95,
-    HIGH: 0.8,
-    MEDIUM: 0.6,
-    LOW: 0.4,
-  },
-  DEFAULT_SIMILARITY_METRIC: 'cosine',
-  MAX_SIMILARITY_RESULTS: 100,
-  MIN_SIMILARITY_SCORE: 0.3,
-  SIMILARITY_CACHE_TTL_HOURS: 6,
+  METRIC: AI_SIMILARITY_METRIC,
+  THRESHOLD: AI_SIMILARITY_THRESHOLD,
+  DEFAULT_METRIC: AI_SIMILARITY_METRIC.COSINE,
+  DEFAULT_THRESHOLD: AI_SIMILARITY_THRESHOLD.MEDIUM,
+  MAX_TOP_K: 1000,
+  DEFAULT_TOP_K: 10,
+  MAX_CANDIDATES: 100000,
 } as const;
+
+export type AiSimilarityType = typeof AI_SIMILARITY;

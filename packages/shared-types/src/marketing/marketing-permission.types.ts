@@ -1,11 +1,17 @@
-import { PermissionObject } from '../common/permission.types';
-import { MARKETING_PERMISSION } from '@vubon/shared-constants/src/marketing/marketing-permission.constants';
+/**
+ * Marketing Permission Value Types
+ * @module shared-types/marketing
+ */
 
-export interface MarketingPermission extends PermissionObject {
-  type: keyof typeof MARKETING_PERMISSION | string;
-  category: 'marketing';
-  module: string;
-  action: string; // Use string to accommodate all marketing actions
+import type { MARKETING_PERMISSION } from '@vubon/shared-constants/marketing';
+
+export type MarketingPermissionValue =
+  (typeof MARKETING_PERMISSION)[keyof typeof MARKETING_PERMISSION];
+
+export interface MarketingPermissionGrant {
+  readonly userId: string;
+  readonly permission: MarketingPermissionValue;
+  readonly grantedBy: string;
+  readonly grantedAt: string;
+  readonly expiresAt?: string;
 }
-
-export type MarketingPermissionKey = keyof typeof MARKETING_PERMISSION;

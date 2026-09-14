@@ -1,15 +1,31 @@
+/**
+ * Search Suggestion Schema
+ * @module shared-schemas/platform/search
+ *
+ * Values আসে shared-constants/platform/search-suggestion.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { SEARCH_SUGGESTION } from '@vubon/shared-constants/src/platform/search/search-suggestion.constants';
+import { SEARCH_SUGGESTION_TYPE } from '@vubon/shared-constants/platform';
 
-const suggestionTypeKeys = Object.keys(SEARCH_SUGGESTION.TYPES) as [string, ...string[]];
+export const SearchSuggestionTypeSchema = z.enum(
+  Object.values(SEARCH_SUGGESTION_TYPE) as [string, ...string[]]
+);
 
-export const SearchSuggestionSchema = BaseSchema.extend({
-  suggestionId: z.string().uuid(),
-  type: z.enum(suggestionTypeKeys),
-  text: z.string().min(1).max(100),
-  weight: z.number().min(0),
-  count: z.number().int().min(0),
-  isActive: z.boolean().default(true),
-  metadata: z.record(z.unknown()).optional(),
+export const SearchSuggestionSchema = z.object({
+  text: z.string().min(1).max(200),
+  type: SearchSuggestionTypeSchema,
+  score: z.number().nonnegative(),
+  highlight: z.string().max(200).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
+
+export const SearchSuggestionResultSchema = z.object({
+  query: z.string().min(1).max(200),
+  suggestions: z.array(SearchSuggestionSchema).max(10),
+  took: z.number().nonnegative(),
+});
+
+export type SearchSuggestionTypeSchemaType = z.infer<typeof SearchSuggestionTypeSchema>;
+export type SearchSuggestionSchemaType = z.infer<typeof SearchSuggestionSchema>;
+export type SearchSuggestionResultSchemaType = z.infer<typeof SearchSuggestionResultSchema>;

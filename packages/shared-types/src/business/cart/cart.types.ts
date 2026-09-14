@@ -1,57 +1,94 @@
-import { BaseEntity } from '../../common/base.types';
-import { Money } from '../../common/money.types';
-import { User } from '../../user/user.types';
-import { CART_STATUS } from '@vubon/shared-constants/src/business/cart/cart-status.constants';
-import { CartItem } from './cart-item.types';
-import { CartCoupon } from './cart-coupon.types';
-import { CartPromotion } from './cart-promotion.types';
-import { CartGuest } from './cart-guest.types';
+/**
+ * Cart Core Types
+ * @module shared-types/business/cart
+ *
+ * Cart entity + aggregator।
+ */
 
-export interface CartMetadata {
-  source: string;
-  device: string;
-  ipAddress: string;
-  userAgent: string;
-  referrer?: string;
-  utmSource?: string;
-  utmMedium?: string;
-  utmCampaign?: string;
-  utmTerm?: string;
-  utmContent?: string;
+import type { CartId, UserId, Money, CouponId, VoucherId } from '../../common/primitives';
+import type { BaseEntity } from '../../common/base';
+import type { CartStatusValue } from './cart-status.types';
+import type { CartItem } from './cart-item.types';
+import type { CouponPublic } from './coupon.types';
+import type { VoucherPublic } from './voucher.types';
+
+export type CartTypeValue = 'guest' | 'user' | 'wishlist' | 'saved' | 'subscription';
+
+export interface Cart extends BaseEntity<CartId> {
+  readonly userId?: UserId;
+  readonly sessionId?: string;
+  readonly type: CartTypeValue;
+  readonly status: CartStatusValue;
+  readonly items: readonly CartItem[];
+  readonly itemCount: number;
+  readonly subtotal: Money;
+  readonly discountAmount: Money;
+  readonly taxAmount: Money;
+  readonly shippingAmount: Money;
+  readonly total: Money;
+  readonly currency: string;
+  readonly couponId?: CouponId;
+  readonly coupon?: CouponPublic;
+  readonly voucherId?: VoucherId;
+  readonly voucher?: VoucherPublic;
+  readonly notes?: string;
+  readonly expiresAt: string;
+  readonly lastActivityAt: string;
+}
+
+export interface CartPublic {
+  readonly id: CartId;
+  readonly type: CartTypeValue;
+  readonly status: CartStatusValue;
+  readonly items: readonly CartItem[];
+  readonly itemCount: number;
+  readonly subtotal: Money;
+  readonly discountAmount: Money;
+  readonly taxAmount: Money;
+  readonly shippingAmount: Money;
+  readonly total: Money;
+  readonly currency: string;
+  readonly coupon?: CouponPublic;
+  readonly voucher?: VoucherPublic;
 }
 
 export interface CartSummary {
-  subtotal: Money;
-  discountTotal: Money;
-  taxTotal: Money;
-  shippingTotal: Money;
-  grandTotal: Money;
-  itemCount: number;
-  totalQuantity: number;
+  readonly id: CartId;
+  readonly itemCount: number;
+  readonly total: Money;
+  readonly currency: string;
 }
 
-export interface Cart extends BaseEntity {
-  cartId: string;
-  userId?: string;
-  user?: User;
-  guestId?: string;
-  guest?: CartGuest;
-  status: keyof typeof CART_STATUS | string;
-  items: CartItem[];
-  itemCount: number;
-  totalQuantity: number;
-  subtotal: Money;
-  discountTotal: Money;
-  taxTotal: Money;
-  shippingTotal: Money;
-  grandTotal: Money;
-  coupons: CartCoupon[];
-  promotions: CartPromotion[];
-  currency: string;
-  isActive: boolean;
-  isLocked: boolean;
-  isExpired: boolean;
-  expiresAt?: Date;
-  lastActivity: Date;
-  metadata: CartMetadata;
+export interface CartAddItemInput {
+  readonly productId: string;
+  readonly variantId?: string;
+  readonly quantity: number;
+  readonly attributes?: Readonly<Record<string, string>>;
+}
+
+export interface CartUpdateItemInput {
+  readonly itemId: string;
+  readonly quantity: number;
+}
+
+export interface CartApplyCouponInput {
+  readonly code: string;
+}
+
+export interface CartApplyVoucherInput {
+  readonly code: string;
+}
+
+export interface CartMergeInput {
+  readonly guestCartId: CartId;
+  readonly userId: UserId;
+}
+
+export interface CartTotals {
+  readonly subtotal: Money;
+  readonly discountAmount: Money;
+  readonly taxAmount: Money;
+  readonly shippingAmount: Money;
+  readonly total: Money;
+  readonly currency: string;
 }

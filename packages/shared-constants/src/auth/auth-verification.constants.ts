@@ -1,16 +1,20 @@
-/**
- * Auth Verification Constants
- * @module shared-constants/auth/auth-verification
- *
- * Note: Does NOT spread COMMON_VERIFICATION — nested objects would leak.
- */
-
 export const AUTH_VERIFICATION = {
-  EMAIL: 'email',
-  PHONE: 'phone',
-  DOCUMENT: 'document',
-  TWO_FACTOR: 'two_factor',
-  RECOVERY: 'recovery',
+  OTP_LENGTH: 6,
+  OTP_EXPIRY_SECONDS: 300,
+  OTP_MAX_ATTEMPTS: 5,
+  OTP_RESEND_COOLDOWN_SECONDS: 60,
+  OTP_MAX_RESEND: 3,
+  EMAIL_TOKEN_EXPIRY_SECONDS: 86400,
+  PHONE_TOKEN_EXPIRY_SECONDS: 600,
+  MAGIC_LINK_EXPIRY_SECONDS: 900,
 } as const;
 
-export type AuthVerificationType = (typeof AUTH_VERIFICATION)[keyof typeof AUTH_VERIFICATION];
+export const AUTH_VERIFICATION_CHANNEL = {
+  EMAIL: 'email',
+  SMS: 'sms',
+  WHATSAPP: 'whatsapp',
+  PUSH: 'push',
+} as const;
+
+export type AuthVerificationChannelType =
+  (typeof AUTH_VERIFICATION_CHANNEL)[keyof typeof AUTH_VERIFICATION_CHANNEL];

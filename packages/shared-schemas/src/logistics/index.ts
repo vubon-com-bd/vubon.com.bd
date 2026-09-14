@@ -1,8 +1,11 @@
+// shared-schemas/logistics/index.ts
+// Logistics domain barrel export
+
 export * from './logistics.schema';
 export * from './shipment.schema';
 export * from './shipment-status.schema';
 export * from './shipment-type.schema';
-export * from './logistics-delivery.schema';
+export * from './delivery.schema';
 export * from './delivery-status.schema';
 export * from './delivery-type.schema';
 export * from './courier.schema';

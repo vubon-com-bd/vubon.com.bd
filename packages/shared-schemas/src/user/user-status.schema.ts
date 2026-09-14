@@ -1,11 +1,13 @@
+/**
+ * User Status Schema
+ * @module shared-schemas/user
+ *
+ * Values আসে shared-constants/user/user-status.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { USER_STATUS } from '@vubon/shared-constants/src/user/user-status.constants';
+import { USER_STATUS } from '@vubon/shared-constants/user';
 
-const userStatusValues = Object.values(USER_STATUS) as [string, ...string[]];
+export const UserStatusSchema = z.enum(Object.values(USER_STATUS) as [string, ...string[]]);
 
-export const UserStatusSchema = z.object({
-  status: z.enum(userStatusValues),
-  category: z.literal('user'),
-});
-
-export const UserStatusEnumSchema = z.enum(userStatusValues);
+export type UserStatusSchemaType = z.infer<typeof UserStatusSchema>;

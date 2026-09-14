@@ -1,12 +1,16 @@
+// shared-schemas/platform/notification/index.ts
+// Notification sub-service barrel export
+
 export * from './notification.schema';
 export * from './notification-type.schema';
 export * from './notification-channel.schema';
 export * from './notification-status.schema';
 export * from './notification-priority.schema';
+export * from './notification-category.schema';
 export * from './notification-delivery-status.schema';
 export * from './notification-read-status.schema';
+export * from './notification-action.schema';
 export * from './email.schema';
-export * from './email-template.schema';
 export * from './sms.schema';
 export * from './push.schema';
 export * from './in-app.schema';
@@ -20,5 +24,3 @@ export * from './notification-preference.schema';
 export * from './notification-device.schema';
 export * from './notification-analytics.schema';
 export * from './notification-report.schema';
-export * from './notification-settings.schema';
-export * from './notification-preferences.schema';

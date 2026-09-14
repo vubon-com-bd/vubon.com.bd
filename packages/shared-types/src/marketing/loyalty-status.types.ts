@@ -1,13 +1,15 @@
-import { StatusObject } from '../common/status.types';
-import { LOYALTY_STATUS } from '@vubon/shared-constants/src/marketing/loyalty-status.constants';
+/**
+ * Loyalty Status Value Types
+ * @module shared-types/marketing
+ */
 
-export interface LoyaltyStatus extends StatusObject {
-  type: keyof typeof LOYALTY_STATUS | string;
-  category: 'loyalty';
-  isActive: boolean;
-  isInactive: boolean;
-  isSuspended: boolean;
-  isExpired: boolean;
+import type { LOYALTY_STATUS } from '@vubon/shared-constants/marketing';
+
+export type LoyaltyStatusValue = (typeof LOYALTY_STATUS)[keyof typeof LOYALTY_STATUS];
+
+export interface LoyaltyStatusMetadata {
+  readonly value: LoyaltyStatusValue;
+  readonly label: string;
+  readonly isActive: boolean;
+  readonly isFinal: boolean;
 }
-
-export type LoyaltyStatusKey = keyof typeof LOYALTY_STATUS;

@@ -1,12 +1,17 @@
-import { TypeObject } from '../../common/types.types';
-import { PRODUCT_TYPES } from '@vubon/shared-constants/src/business/product/product-type.constants';
+/**
+ * Product Type Value Types
+ * @module shared-types/business/product
+ *
+ * Values আসে shared-constants/business/product/product-type.constants থেকে।
+ */
 
-export interface ProductType extends TypeObject {
-  category: 'product';
-  hasVariants: boolean;
-  hasInventory: boolean;
-  isPhysical: boolean;
-  isDigital: boolean;
+import type { PRODUCT_TYPE } from '@vubon/shared-constants/business';
+
+export type ProductTypeValue = (typeof PRODUCT_TYPE)[keyof typeof PRODUCT_TYPE];
+
+export interface ProductTypeMetadata {
+  readonly value: ProductTypeValue;
+  readonly label: string;
+  readonly isDigital: boolean;
+  readonly requiresShipping: boolean;
 }
-
-export type ProductTypeKey = keyof typeof PRODUCT_TYPES;

@@ -1,24 +1,51 @@
-import { BaseEntity } from '../../common/base.types';
-import { REPORT_SCHEDULE } from '@vubon/shared-constants/src/platform/reporting/report-schedule.constants';
-import { REPORT_SCHEDULE_FREQUENCY } from '@vubon/shared-constants/src/platform/reporting/report-schedule-frequency.constants';
-import { Report } from './report.types';
+/**
+ * Report Schedule Types
+ * @module shared-types/platform/reporting
+ */
 
-export interface ReportSchedule extends BaseEntity {
-  scheduleId: string;
-  reportId: string;
-  report: Report;
-  status: keyof typeof REPORT_SCHEDULE.STATUS | string;
-  type: keyof typeof REPORT_SCHEDULE.SCHEDULE_TYPES | string;
-  frequency: keyof typeof REPORT_SCHEDULE_FREQUENCY.TYPES | string;
-  cronExpression?: string;
-  startDate: Date;
-  endDate?: Date;
-  lastRunAt?: Date;
-  nextRunAt: Date;
-  runCount: number;
-  maxRuns?: number;
-  isActive: boolean;
-  isPaused: boolean;
-  isCompleted: boolean;
-  metadata: Record<string, unknown>;
+import type {
+  REPORT_SCHEDULE_TYPE,
+  REPORT_SCHEDULE_FREQUENCY,
+  REPORT_SCHEDULE_STATUS,
+} from '@vubon/shared-constants/platform';
+
+export type ReportScheduleTypeValue =
+  (typeof REPORT_SCHEDULE_TYPE)[keyof typeof REPORT_SCHEDULE_TYPE];
+
+export type ReportScheduleFrequencyValue =
+  (typeof REPORT_SCHEDULE_FREQUENCY)[keyof typeof REPORT_SCHEDULE_FREQUENCY];
+
+export type ReportScheduleStatusValue =
+  (typeof REPORT_SCHEDULE_STATUS)[keyof typeof REPORT_SCHEDULE_STATUS];
+
+export interface ReportSchedule {
+  readonly id: string;
+  readonly name: string;
+  readonly type: ReportScheduleTypeValue;
+  readonly frequency: ReportScheduleFrequencyValue;
+  readonly status: ReportScheduleStatusValue;
+  readonly reportType: string;
+  readonly format: string;
+  readonly cronExpression?: string;
+  readonly scheduledAt?: string;
+  readonly timezone: string;
+  readonly recipients: readonly string[];
+  readonly filters?: Readonly<Record<string, unknown>>;
+  readonly nextRunAt?: string;
+  readonly lastRunAt?: string;
+  readonly runCount: number;
+  readonly createdBy: string;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
+export interface ReportScheduleCreateInput {
+  readonly name: string;
+  readonly type: ReportScheduleTypeValue;
+  readonly frequency: ReportScheduleFrequencyValue;
+  readonly reportType: string;
+  readonly format: string;
+  readonly scheduledAt?: string;
+  readonly timezone: string;
+  readonly recipients: readonly string[];
 }

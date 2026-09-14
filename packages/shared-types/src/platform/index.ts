@@ -1,13 +1,9 @@
-// Search & Discovery
+// shared-types/platform/index.ts
+// Platform layer barrel export — FINAL
+
+export * from './seo';
+export * from './analytics';
+export * from './notification';
+export * from './reporting';
 export * from './search';
 export * from './discovery';
-
-// Reporting & Analytics
-export * from './reporting';
-export * from './analytics';
-
-// Notification
-export * from './notification';
-
-// SEO
-export * from './seo';

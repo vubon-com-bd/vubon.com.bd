@@ -1,17 +1,38 @@
-import { BaseEntity } from '../../common/base.types';
-import { VENDOR_RETURN_POLICY } from '@vubon/shared-constants/src/business/vendor/vendor-return-policy.constants';
-import { Vendor } from './vendor.types';
+/**
+ * Vendor Return Policy Types
+ * @module shared-types/business/vendor
+ *
+ * Values আসে shared-constants/business/vendor/vendor-return-policy.constants থেকে।
+ */
 
-export interface VendorReturnPolicy extends BaseEntity {
-  policyId: string;
-  vendorId: string;
-  vendor: Vendor;
-  type: keyof typeof VENDOR_RETURN_POLICY.TYPES | string;
-  windowDays: number;
-  conditions: string[];
-  restockingFee: number;
-  shippingCost: keyof typeof VENDOR_RETURN_POLICY.RETURN_SHIPPING_COST | string;
-  isActive: boolean;
-  isDefault: boolean;
-  metadata: Record<string, unknown>;
+import type { VENDOR_RETURN_TYPE } from '@vubon/shared-constants/business';
+import type { VendorId, Money } from '../../common/primitives';
+
+export type VendorReturnTypeValue = (typeof VENDOR_RETURN_TYPE)[keyof typeof VENDOR_RETURN_TYPE];
+
+export interface VendorReturnPolicy {
+  readonly vendorId: VendorId;
+  readonly type: VendorReturnTypeValue;
+  readonly windowDays: number;
+  readonly freeReturn: boolean;
+  readonly restockFeePercent: number;
+  readonly maxRestockFee?: Money;
+  readonly requireReason: boolean;
+  readonly requireImages: boolean;
+  readonly maxImages: number;
+  readonly autoApprove: boolean;
+  readonly approvalSlaHours: number;
+  readonly exclusions?: readonly string[];
+  readonly notes?: string;
+  readonly updatedAt: string;
+}
+
+export interface VendorReturnPolicyInput {
+  readonly vendorId: VendorId;
+  readonly type: VendorReturnTypeValue;
+  readonly windowDays: number;
+  readonly freeReturn?: boolean;
+  readonly restockFeePercent?: number;
+  readonly requireReason?: boolean;
+  readonly requireImages?: boolean;
 }

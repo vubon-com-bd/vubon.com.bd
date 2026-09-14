@@ -1,27 +1,71 @@
+/**
+ * Vendor Payout Schema
+ * @module shared-schemas/business/vendor
+ *
+ * Values আসে shared-constants/business/vendor-payout.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { MoneySchema } from '../../common/money.schema';
-import { VENDOR_PAYOUT } from '@vubon/shared-constants/src/business/vendor/vendor-payout.constants';
-import { VendorBankAccountSchema } from './vendor-bank-account.schema';
+import { VENDOR_PAYOUT_METHOD, VENDOR_PAYOUT_CYCLE } from '@vubon/shared-constants/business';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { PositiveMoneySchema, MoneySchema } from '../../common/primitives/money.schema';
+import { VendorPayoutStatusSchema } from './vendor-payout-status.schema';
 
-const vendorPayoutStatusKeys = Object.keys(VENDOR_PAYOUT.STATUS) as [string, ...string[]];
-const vendorPayoutTypeKeys = Object.keys(VENDOR_PAYOUT.PAYOUT_TYPES) as [string, ...string[]];
+export const VendorPayoutMethodSchema = z.enum(
+  Object.values(VENDOR_PAYOUT_METHOD) as [string, ...string[]]
+);
 
-export const VendorPayoutSchema = BaseSchema.extend({
-  payoutId: z.string().uuid(),
-  vendorId: z.string().uuid(),
-  status: z.enum(vendorPayoutStatusKeys),
-  type: z.enum(vendorPayoutTypeKeys),
-  amount: MoneySchema,
-  fee: MoneySchema,
-  netAmount: MoneySchema,
-  bankAccount: VendorBankAccountSchema,
-  reference: z.string().min(1).max(100),
-  description: z.string().optional(),
-  requestedAt: z.date(),
-  processedAt: z.date().optional(),
-  completedAt: z.date().optional(),
-  failedAt: z.date().optional(),
-  failureReason: z.string().optional(),
-  metadata: z.record(z.unknown()).optional(),
+export const VendorPayoutCycleSchema = z.enum(
+  Object.values(VENDOR_PAYOUT_CYCLE) as [string, ...string[]]
+);
+
+export const VendorPayoutSchema = BaseEntitySchema.extend({
+  vendorId: UuidSchema,
+  payoutNumber: z.string().min(1).max(50),
+  status: VendorPayoutStatusSchema,
+  method: VendorPayoutMethodSchema,
+  cycle: VendorPayoutCycleSchema,
+  amount: PositiveMoneySchema,
+  currency: z.string().length(3),
+  fee: MoneySchema.optional(),
+  netAmount: PositiveMoneySchema,
+  periodStart: z.string().datetime(),
+  periodEnd: z.string().datetime(),
+  transactionId: z.string().max(255).optional(),
+  reference: z.string().max(255).optional(),
+  bankAccountId: UuidSchema.optional(),
+  notes: z.string().max(1000).optional(),
+  requestedAt: z.string().datetime(),
+  approvedAt: z.string().datetime().optional(),
+  paidAt: z.string().datetime().optional(),
+  failedAt: z.string().datetime().optional(),
+  failureReason: z.string().max(500).optional(),
 });
+
+export const VendorPayoutPublicSchema = VendorPayoutSchema.pick({
+  id: true,
+  payoutNumber: true,
+  status: true,
+  method: true,
+  amount: true,
+  netAmount: true,
+  currency: true,
+  requestedAt: true,
+  paidAt: true,
+});
+
+export const VendorPayoutSummarySchema = z.object({
+  vendorId: UuidSchema,
+  totalPaid: MoneySchema,
+  totalPending: MoneySchema,
+  currency: z.string().length(3),
+  lastPayoutAt: z.string().datetime().optional(),
+  nextPayoutAt: z.string().datetime().optional(),
+});
+
+export type VendorPayoutMethodSchemaType = z.infer<typeof VendorPayoutMethodSchema>;
+export type VendorPayoutCycleSchemaType = z.infer<typeof VendorPayoutCycleSchema>;
+export type VendorPayoutSchemaType = z.infer<typeof VendorPayoutSchema>;
+export type VendorPayoutPublicSchemaType = z.infer<typeof VendorPayoutPublicSchema>;
+export type VendorPayoutSummarySchemaType = z.infer<typeof VendorPayoutSummarySchema>;

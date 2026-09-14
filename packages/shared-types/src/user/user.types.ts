@@ -1,72 +1,83 @@
-import { BaseEntity } from '../common/base.types';
-import { Email } from '../common/email.types';
-import { PhoneNumber } from '../common/phone.types';
-import { Address } from '../common/address.types';
-import { Name } from '../common/name.types';
-import { USER_STATUS } from '@vubon/shared-constants/src/user/user-status.constants';
-import { USER_TYPES } from '@vubon/shared-constants/src/user/user-type.constants';
-import { USER_ROLES } from '@vubon/shared-constants/src/user/user-role.constants';
-import { USER_PERMISSIONS } from '@vubon/shared-constants/src/user/user-permission.constants';
-import { AuthPublic } from '../auth/auth.types';
-
 /**
- * Social links interface
- */
-export interface SocialLinks {
-  facebook?: string;
-  twitter?: string;
-  instagram?: string;
-  linkedin?: string;
-  youtube?: string;
-}
-
-/**
- * User metadata interface
- */
-export interface UserMetadata {
-  avatar?: string;
-  bio?: string;
-  website?: string;
-  socialLinks?: SocialLinks;
-  preferences?: Record<string, unknown>;
-}
-
-/**
- * User status and type values (unique to user.types)
- */
-export type UserStatusValue = (typeof USER_STATUS)[keyof typeof USER_STATUS];
-export type UserTypeValue = (typeof USER_TYPES)[keyof typeof USER_TYPES];
-
-/**
- * User interface (internal)
+ * User Core Types
+ * @module shared-types/user
  *
- * Note: `authId` is a reference, not an embedded Auth entity.
- * Prevents data duplication and cross-table sync issues.
+ * Base entity + aggregator।
  */
-export interface User extends Omit<BaseEntity, 'status'> {
-  userId: string;
-  email: Email;
-  phone?: PhoneNumber;
-  name: Name;
-  address?: Address;
-  status: UserStatusValue;
-  type: UserTypeValue;
-  role: (typeof USER_ROLES)[keyof typeof USER_ROLES];
-  permissions: Array<(typeof USER_PERMISSIONS)[keyof typeof USER_PERMISSIONS]>;
-  /** @internal — reference to Auth entity */
-  authId: string;
-  isVerified: boolean;
-  isActive: boolean;
-  lastLoginAt?: Date;
-  registeredAt: Date;
-  metadata: UserMetadata;
+
+import type { UserId, Email, Phone, PasswordHash } from '../common/primitives';
+import type { BaseEntity } from '../common/base';
+import type { UserStatusValue } from './user-status.types';
+import type { UserTypeValue } from './user-type.types';
+import type { UserRoleValue } from './user-role.types';
+import type { UserProfile } from './user-profile.types';
+import type { UserSettings } from './user-settings.types';
+import type { UserPreferences } from './user-preferences.types';
+import type { UserKyc } from './user-kyc.types';
+
+export interface User extends BaseEntity<UserId> {
+  readonly email: Email;
+  readonly phone?: Phone;
+  readonly username?: string;
+  readonly status: UserStatusValue;
+  readonly type: UserTypeValue;
+  readonly roles: readonly UserRoleValue[];
+  readonly emailVerified: boolean;
+  readonly phoneVerified: boolean;
+  readonly isMfaEnabled: boolean;
+  readonly lastLoginAt?: string;
+  readonly lastActiveAt?: string;
+
+  /** @internal */
+  readonly passwordHash?: PasswordHash;
+
+  readonly profile?: UserProfile;
+  readonly settings?: UserSettings;
+  readonly preferences?: UserPreferences;
+  readonly kyc?: UserKyc;
 }
 
-/**
- * Public-safe User DTO
- * Note: authId replaced with AuthPublic summary when needed.
- */
-export type UserPublic = Omit<User, 'authId' | 'metadata'> & {
-  auth?: AuthPublic;
-  metadata?: Omit<UserMetadata, 'preferences'>;
-};
+export interface UserPublic {
+  readonly id: UserId;
+  readonly email: Email;
+  readonly username?: string;
+  readonly status: UserStatusValue;
+  readonly type: UserTypeValue;
+  readonly roles: readonly UserRoleValue[];
+  readonly emailVerified: boolean;
+  readonly profile?: UserProfile;
+}
+
+export interface UserSummary {
+  readonly id: UserId;
+  readonly email: Email;
+  readonly username?: string;
+  readonly displayName?: string;
+  readonly avatarUrl?: string;
+  readonly status: UserStatusValue;
+  readonly type: UserTypeValue;
+}
+
+export interface UserCreateInput {
+  readonly email: Email;
+  readonly phone?: Phone;
+  readonly username?: string;
+  readonly password: string;
+  readonly type: UserTypeValue;
+  readonly role?: UserRoleValue;
+}
+
+export interface UserUpdateInput {
+  readonly username?: string;
+  readonly profile?: Partial<UserProfile>;
+  readonly settings?: Partial<UserSettings>;
+  readonly preferences?: Partial<UserPreferences>;
+}
+
+export interface UserListFilter {
+  readonly status?: UserStatusValue;
+  readonly type?: UserTypeValue;
+  readonly role?: UserRoleValue;
+  readonly emailVerified?: boolean;
+  readonly search?: string;
+}

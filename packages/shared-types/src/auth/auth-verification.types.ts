@@ -1,27 +1,55 @@
-import { BaseEntity } from '../common/base.types';
-import { AUTH_VERIFICATION } from '@vubon/shared-constants/src/auth/auth-verification.constants';
-import { STATUS } from '@vubon/shared-constants/src/common/status.constants';
-
 /**
- * Verification type and status values
+ * Auth Verification Types
+ * @module shared-types/auth
+ *
+ * Values আসে shared-constants/auth/auth-verification.constants থেকে।
+ *
+ * ⚠️ Note: OtpLength security/-তে আছে।
+ * এখানে AuthOtpLength।
  */
-export type AuthVerificationType = (typeof AUTH_VERIFICATION)[keyof typeof AUTH_VERIFICATION];
-export type VerificationStatus = (typeof STATUS.VERIFICATION)[keyof typeof STATUS.VERIFICATION];
 
-/**
- * Auth verification interface
- * @internal — code is hashed, never stored plain.
- */
-export interface AuthVerification extends BaseEntity {
-  verificationId: string;
-  userId: string;
-  type: AuthVerificationType;
-  /** @internal bcrypt hash of code */
-  codeHash: string;
-  status: VerificationStatus;
-  expiresAt: Date;
-  verifiedAt?: Date;
-  attempts: number;
-  maxAttempts: number;
-  metadata: Record<string, unknown>;
+import type { AUTH_VERIFICATION } from '@vubon/shared-constants/auth';
+import type { VERIFICATION_STATUS } from '@vubon/shared-constants/security';
+import type { UserId, Email, Phone, OtpCode, VerifyToken } from '../common/primitives';
+
+export type AuthVerificationStatus = (typeof VERIFICATION_STATUS)[keyof typeof VERIFICATION_STATUS];
+
+export type AuthOtpLength = typeof AUTH_VERIFICATION.OTP_LENGTH;
+export type AuthOtpExpiry = typeof AUTH_VERIFICATION.OTP_EXPIRY_SECONDS;
+
+export interface AuthVerificationData {
+  readonly id: string;
+  readonly userId: UserId;
+  readonly status: AuthVerificationStatus;
+  readonly target: Email | Phone;
+  readonly channel: 'email' | 'sms' | 'whatsapp' | 'push';
+  readonly code?: OtpCode;
+  readonly token?: VerifyToken;
+  readonly attempts: number;
+  readonly maxAttempts: number;
+  readonly resendCount: number;
+  readonly createdAt: string;
+  readonly expiresAt: string;
+  readonly verifiedAt?: string;
+}
+
+export interface AuthVerificationRequest {
+  readonly userId: UserId;
+  readonly target: Email | Phone;
+  readonly channel: 'email' | 'sms' | 'whatsapp' | 'push';
+  readonly purpose: 'email_verify' | 'phone_verify' | 'login' | 'password_reset';
+}
+
+export interface AuthVerificationResult {
+  readonly verified: boolean;
+  readonly status: AuthVerificationStatus;
+  readonly userId?: UserId;
+  readonly message?: string;
+  readonly verifiedAt?: string;
+}
+
+export interface AuthVerifyInput {
+  readonly userId: UserId;
+  readonly code?: OtpCode;
+  readonly token?: VerifyToken;
 }

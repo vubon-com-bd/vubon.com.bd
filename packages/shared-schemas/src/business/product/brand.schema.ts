@@ -1,28 +1,41 @@
+/**
+ * Brand Schema
+ * @module shared-schemas/business/product
+ *
+ * Values আসে shared-constants/business/brand.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { BRAND } from '@vubon/shared-constants/src/business/product/brand.constants';
+import { BRAND_STATUS, BRAND } from '@vubon/shared-constants/business';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { SlugSchema } from '../../common/primitives/slug.schema';
 
-const brandStatusKeys = Object.keys(BRAND.STATUS) as [string, ...string[]];
+export const BrandStatusSchema = z.enum(Object.values(BRAND_STATUS) as [string, ...string[]]);
 
-export const BrandSchema = BaseSchema.extend({
-  brandId: z.string().uuid(),
-  name: z.string().min(1).max(100),
-  slug: z
-    .string()
-    .min(1)
-    .max(100)
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-  description: z.string().max(500).optional(),
-  status: z.enum(brandStatusKeys),
-  logo: z.string().url().optional(),
-  website: z.string().url().optional(),
-  productCount: z.number().int().min(0).default(0),
-  isActive: z.boolean().default(true),
-  metadata: z
-    .object({
-      seoTitle: z.string().max(60).optional(),
-      seoDescription: z.string().max(160).optional(),
-      isFeatured: z.boolean().default(false),
-    })
-    .optional(),
+export const BrandSchema = z.object({
+  id: UuidSchema,
+  name: z.string().trim().min(BRAND.NAME_MIN_LENGTH).max(BRAND.NAME_MAX_LENGTH),
+  slug: SlugSchema,
+  description: z.string().trim().max(BRAND.DESCRIPTION_MAX_LENGTH).optional(),
+  logoUrl: z.string().url().optional(),
+  bannerUrl: z.string().url().optional(),
+  website: z.string().url().max(BRAND.WEBSITE_MAX_LENGTH).optional(),
+  status: BrandStatusSchema,
+  isFeatured: z.boolean(),
+  productCount: z.number().int().nonnegative(),
+  country: z.string().length(2).optional(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
 });
+
+export const BrandPublicSchema = BrandSchema.pick({
+  id: true,
+  name: true,
+  slug: true,
+  logoUrl: true,
+  productCount: true,
+});
+
+export type BrandStatusSchemaType = z.infer<typeof BrandStatusSchema>;
+export type BrandSchemaType = z.infer<typeof BrandSchema>;
+export type BrandPublicSchemaType = z.infer<typeof BrandPublicSchema>;

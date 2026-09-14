@@ -1,32 +1,23 @@
-// Common Schemas
+// packages/shared-schemas/src/index.ts
+// Root barrel — FINAL
+
+// Foundation
 export * from './common';
 
-// Auth Schemas
+// Infrastructure + Security
+export * from './infrastructure';
+export * from './security';
+
+// Domain
 export * from './auth';
-
-// User Schemas
 export * from './user';
-
-// Admin Schemas
-export * from './admin';
-
-// Business Domain Schemas
 export * from './business';
 
-// Logistics Schemas
-export * from './logistics';
-
-// Content Schemas
-export * from './content';
-
-// support Schemas
-export * from './support';
-
-// Marketing Schemas
-export * from './marketing';
-
-// platform Schemas
+// Platform
 export * from './platform';
 
-// AI Schemas
+// Cross-cutting
 export * from './ai';
+export * from './marketing';
+export * from './support';
+export * from './logistics';

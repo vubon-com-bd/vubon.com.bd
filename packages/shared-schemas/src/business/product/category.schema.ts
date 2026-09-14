@@ -1,56 +1,50 @@
+/**
+ * Category Schema
+ * @module shared-schemas/business/product
+ *
+ * Values আসে shared-constants/business/category.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { CATEGORY } from '@vubon/shared-constants/src/business/product/category.constants';
+import { CATEGORY_STATUS, CATEGORY } from '@vubon/shared-constants/business';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { SlugSchema } from '../../common/primitives/slug.schema';
 
-const categoryStatusKeys = Object.keys(CATEGORY.STATUS) as [string, ...string[]];
+export const CategoryStatusSchema = z.enum(Object.values(CATEGORY_STATUS) as [string, ...string[]]);
 
-// Define the base schema first
-const CategoryBaseSchema = BaseSchema.extend({
-  categoryId: z.string().uuid(),
-  name: z.string().min(1).max(100),
-  slug: z
-    .string()
-    .min(1)
-    .max(100)
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-  description: z.string().max(500).optional(),
-  status: z.enum(categoryStatusKeys),
-  parentId: z.string().uuid().optional(),
-  productCount: z.number().int().min(0).default(0),
-  order: z.number().int().min(0).default(0),
-  icon: z.string().optional(),
-  image: z.string().url().optional(),
-  metadata: z
-    .object({
-      seoTitle: z.string().max(60).optional(),
-      seoDescription: z.string().max(160).optional(),
-      isFeatured: z.boolean().default(false),
-      isActive: z.boolean().default(true),
-    })
-    .optional(),
+export const CategorySchema = z.object({
+  id: UuidSchema,
+  name: z.string().trim().min(CATEGORY.NAME_MIN_LENGTH).max(CATEGORY.NAME_MAX_LENGTH),
+  slug: SlugSchema,
+  description: z.string().trim().max(CATEGORY.DESCRIPTION_MAX_LENGTH).optional(),
+  parentId: UuidSchema.optional(),
+  path: z.array(UuidSchema).max(CATEGORY.MAX_DEPTH),
+  depth: z.number().int().min(0).max(CATEGORY.MAX_DEPTH),
+  status: CategoryStatusSchema,
+  imageUrl: z.string().url().optional(),
+  iconUrl: z.string().url().optional(),
+  sortOrder: z.number().int().min(0),
+  productCount: z.number().int().nonnegative(),
+  isFeatured: z.boolean(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
 });
 
-// Create a function to get the schema with lazy references
-function getCategorySchema(): z.ZodObject<z.ZodRawShape> {
-  return CategoryBaseSchema.extend({
-    parent: z.lazy(() => getCategorySchema()).optional(),
-    children: z.array(z.lazy(() => getCategorySchema())).default([]),
-  }) as z.ZodObject<z.ZodRawShape>;
-}
-
-// Export the schema
-export const CategorySchema = getCategorySchema();
-
-export const CategoryCreateSchema = CategorySchema.omit({
+export const CategoryPublicSchema = CategorySchema.pick({
   id: true,
-  createdAt: true,
-  updatedAt: true,
-  children: true,
+  name: true,
+  slug: true,
+  parentId: true,
+  imageUrl: true,
   productCount: true,
 });
 
-export const CategoryUpdateSchema = CategoryCreateSchema.partial();
+export const CategoryTreeSchema: z.ZodType<unknown> = z.lazy(() =>
+  CategorySchema.extend({
+    children: z.array(CategoryTreeSchema).max(CATEGORY.MAX_CHILDREN),
+  })
+);
 
-export type Category = z.infer<typeof CategorySchema>;
-export type CategoryCreate = z.infer<typeof CategoryCreateSchema>;
-export type CategoryUpdate = z.infer<typeof CategoryUpdateSchema>;
+export type CategoryStatusSchemaType = z.infer<typeof CategoryStatusSchema>;
+export type CategorySchemaType = z.infer<typeof CategorySchema>;
+export type CategoryPublicSchemaType = z.infer<typeof CategoryPublicSchema>;

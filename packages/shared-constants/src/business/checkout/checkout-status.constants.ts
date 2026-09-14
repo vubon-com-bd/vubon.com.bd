@@ -1,13 +1,13 @@
 import { STATUS as COMMON_STATUS } from '../../common/status.constants';
 
 export const CHECKOUT_STATUS = {
-  ...COMMON_STATUS,
-  PENDING: 'pending',
-  PROCESSING: 'processing',
-  PAYMENT_PENDING: 'payment_pending',
-  PAYMENT_COMPLETED: 'payment_completed',
-  PAYMENT_FAILED: 'payment_failed',
+  PENDING: COMMON_STATUS.PENDING,
+  IN_PROGRESS: 'in_progress',
   COMPLETED: 'completed',
+  ABANDONED: 'abandoned',
+  FAILED: 'failed',
+  EXPIRED: COMMON_STATUS.EXPIRED,
   CANCELLED: 'cancelled',
-  EXPIRED: 'expired',
 } as const;
+
+export type CheckoutStatusType = (typeof CHECKOUT_STATUS)[keyof typeof CHECKOUT_STATUS];

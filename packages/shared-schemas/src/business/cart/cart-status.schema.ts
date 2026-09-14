@@ -1,16 +1,13 @@
+/**
+ * Cart Status Schema
+ * @module shared-schemas/business/cart
+ *
+ * Values আসে shared-constants/business/cart-status.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { StatusSchema } from '../../common/status.schema';
-import { CART_STATUS } from '@vubon/shared-constants/src/business/cart/cart-status.constants';
+import { CART_STATUS } from '@vubon/shared-constants/business';
 
-const cartStatusKeys = Object.keys(CART_STATUS) as [string, ...string[]];
+export const CartStatusSchema = z.enum(Object.values(CART_STATUS) as [string, ...string[]]);
 
-export const CartStatusSchema = StatusSchema.extend({
-  status: z.enum(cartStatusKeys),
-  category: z.literal('cart'),
-  isActive: z.boolean().default(true),
-  isExpired: z.boolean().default(false),
-  isAbandoned: z.boolean().default(false),
-  isCheckedOut: z.boolean().default(false),
-});
-
-export const CartStatusEnumSchema = z.enum(cartStatusKeys);
+export type CartStatusSchemaType = z.infer<typeof CartStatusSchema>;

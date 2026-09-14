@@ -1,25 +1,40 @@
-import { BaseEntity } from '../../common/base.types';
-import { VENDOR_RATING } from '@vubon/shared-constants/src/business/vendor/vendor-rating.constants';
-import { Vendor } from './vendor.types';
+/**
+ * Vendor Rating Types
+ * @module shared-types/business/vendor
+ *
+ * Values আসে shared-constants/business/vendor/vendor-rating.constants থেকে।
+ */
 
-export interface VendorRatingCriteria {
-  productQuality: number;
-  shippingSpeed: number;
-  customerService: number;
-  valueForMoney: number;
-  packaging: number;
-  accuracy: number;
+import type { VENDOR_RATING_CATEGORY } from '@vubon/shared-constants/business';
+import type { VendorId, UserId } from '../../common/primitives';
+
+export type VendorRatingCategoryValue =
+  (typeof VENDOR_RATING_CATEGORY)[keyof typeof VENDOR_RATING_CATEGORY];
+
+export interface VendorRating {
+  readonly vendorId: VendorId;
+  readonly overall: number;
+  readonly totalReviews: number;
+  readonly distribution: Readonly<Record<1 | 2 | 3 | 4 | 5, number>>;
+  readonly categories: readonly VendorRatingCategory[];
+  readonly recentWeight: number;
+  readonly updatedAt: string;
 }
 
-export interface VendorRating extends BaseEntity {
-  ratingId: string;
-  vendorId: string;
-  vendor: Vendor;
-  type: keyof typeof VENDOR_RATING.TYPES | string;
-  score: number;
-  criteria: VendorRatingCriteria;
-  count: number;
-  average: number;
-  isActive: boolean;
-  metadata: Record<string, unknown>;
+export interface VendorRatingCategory {
+  readonly category: VendorRatingCategoryValue;
+  readonly score: number;
+  readonly count: number;
+}
+
+export interface VendorRatingReview {
+  readonly id: string;
+  readonly vendorId: VendorId;
+  readonly userId: UserId;
+  readonly orderId: string;
+  readonly rating: number;
+  readonly comment?: string;
+  readonly categories?: readonly VendorRatingCategory[];
+  readonly isVerifiedPurchase: boolean;
+  readonly createdAt: string;
 }

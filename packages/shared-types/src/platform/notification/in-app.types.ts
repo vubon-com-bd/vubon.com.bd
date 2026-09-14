@@ -1,22 +1,56 @@
-import { BaseEntity } from '../../common/base.types';
-import { IN_APP } from '@vubon/shared-constants/src/platform/notification/in-app.constants';
-import { Notification } from './notification.types';
+/**
+ * In-App Notification Types
+ * @module shared-types/platform/notification
+ */
 
-export interface InApp extends BaseEntity {
-  inAppId: string;
-  notificationId: string;
-  notification: Notification;
-  status: keyof typeof IN_APP.STATUS | string;
-  type: keyof typeof IN_APP.TYPES | string;
-  title: string;
-  message: string;
-  icon?: string;
-  image?: string;
-  action?: string;
-  actionUrl?: string;
-  displayedAt?: Date;
-  interactedAt?: Date;
-  dismissedAt?: Date;
-  expiredAt?: Date;
-  metadata: Record<string, unknown>;
+import type { IN_APP_TYPE, IN_APP_POSITION, IN_APP_STATUS } from '@vubon/shared-constants/platform';
+
+export type InAppTypeValue = (typeof IN_APP_TYPE)[keyof typeof IN_APP_TYPE];
+
+export type InAppPositionValue = (typeof IN_APP_POSITION)[keyof typeof IN_APP_POSITION];
+
+export type InAppStatusValue = (typeof IN_APP_STATUS)[keyof typeof IN_APP_STATUS];
+
+export interface InAppNotification {
+  readonly id: string;
+  readonly userId: string;
+  readonly type: InAppTypeValue;
+  readonly position?: InAppPositionValue;
+  readonly title: string;
+  readonly body: string;
+  readonly imageUrl?: string;
+  readonly iconUrl?: string;
+  readonly actions?: readonly InAppAction[];
+  readonly status: InAppStatusValue;
+  readonly displayDurationSeconds?: number;
+  readonly autoDismiss: boolean;
+  readonly readAt?: string;
+  readonly dismissedAt?: string;
+  readonly clickedAt?: string;
+  readonly createdAt: string;
+  readonly expiresAt?: string;
+  readonly metadata?: Readonly<Record<string, unknown>>;
+}
+
+export interface InAppAction {
+  readonly id: string;
+  readonly label: string;
+  readonly url?: string;
+  readonly action?: string;
+}
+
+export interface InAppSendInput {
+  readonly userId: string;
+  readonly type: InAppTypeValue;
+  readonly title: string;
+  readonly body: string;
+  readonly imageUrl?: string;
+  readonly actions?: readonly InAppAction[];
+}
+
+export interface InAppInbox {
+  readonly userId: string;
+  readonly unreadCount: number;
+  readonly totalCount: number;
+  readonly notifications: readonly InAppNotification[];
 }

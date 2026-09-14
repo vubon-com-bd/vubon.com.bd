@@ -1,33 +1,39 @@
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
-import { SEO } from './seo.constants';
+export const SEO_SCHEMA_TYPE = {
+  ORGANIZATION: 'Organization',
+  WEBSITE: 'WebSite',
+  WEBPAGE: 'WebPage',
+  BREADCRUMB: 'BreadcrumbList',
+  PRODUCT: 'Product',
+  OFFER: 'Offer',
+  REVIEW: 'Review',
+  ARTICLE: 'Article',
+  BLOG_POSTING: 'BlogPosting',
+  FAQ: 'FAQPage',
+  HOW_TO: 'HowTo',
+  EVENT: 'Event',
+  LOCAL_BUSINESS: 'LocalBusiness',
+  PERSON: 'Person',
+  VIDEO: 'VideoObject',
+  IMAGE: 'ImageObject',
+  ITEM_LIST: 'ItemList',
+  SEARCH_ACTION: 'SearchAction',
+} as const;
+
+export const SEO_SCHEMA_FORMAT = {
+  JSON_LD: 'json_ld',
+  MICRODATA: 'microdata',
+  RDFA: 'rdfa',
+} as const;
 
 export const SEO_SCHEMA = {
-  TYPES: {
-    ...COMMON_TYPES,
-    PRODUCT: 'product',
-    ARTICLE: 'article',
-    BLOG_POSTING: 'blog_posting',
-    REVIEW: 'review',
-    RATING: 'rating',
-    ORGANIZATION: 'organization',
-    PERSON: 'person',
-    PLACE: 'place',
-    EVENT: 'event',
-    FAQ: 'faq',
-    HOW_TO: 'how_to',
-    BREADCRUMB: 'breadcrumb',
-    SITENAVIGATION: 'sitenavigation',
-    VIDEO: 'video',
-    AUDIO: 'audio',
-    IMAGE: 'image',
-  },
-  SEO: { ...SEO },
-  SCHEMA_PROPERTIES: {
-    PRODUCT: ['name', 'description', 'brand', 'offers', 'aggregateRating'],
-    ARTICLE: ['headline', 'author', 'datePublished', 'dateModified'],
-    FAQ: ['mainEntity', 'question', 'answer'],
-    HOW_TO: ['name', 'step', 'totalTime'],
-  },
-  MAX_SCHEMAS_PER_PAGE: 10,
-  SCHEMA_VERSION: '1.0',
+  DEFAULT_FORMAT: SEO_SCHEMA_FORMAT.JSON_LD,
+  AUTO_GENERATE: true,
+  VALIDATE: true,
+  MAX_NESTED_DEPTH: 5,
+  INCLUDE_BREADCRUMB: true,
+  INCLUDE_ORGANIZATION: true,
+  INCLUDE_WEBSITE: true,
 } as const;
+
+export type SeoSchemaTypeType = (typeof SEO_SCHEMA_TYPE)[keyof typeof SEO_SCHEMA_TYPE];
+export type SeoSchemaFormatType = (typeof SEO_SCHEMA_FORMAT)[keyof typeof SEO_SCHEMA_FORMAT];

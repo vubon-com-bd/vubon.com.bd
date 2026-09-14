@@ -1,54 +1,92 @@
+/**
+ * Search Core Schema
+ * @module shared-schemas/platform/search
+ *
+ * Search entity + aggregator।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { UserSchema } from '../../user/user.schema';
-import { ProductSchema } from '../../business/product/product.schema';
-import { SearchFilterSchema } from './search-filter.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { SearchTypeSchema, SearchScopeSchema } from './search-type.schema';
 import { SearchSortSchema } from './search-sort.schema';
-import { SearchOperatorSchema } from './search-operator.schema';
+import { SearchFilterSchema } from './search-filter.schema';
 import { SearchMatchSchema } from './search-match.schema';
 import { SearchBoostSchema } from './search-boost.schema';
-import { PLATFORM_SEARCH } from '@vubon/shared-constants/src/platform/search/search.constants';
+import { FacetSchema } from './facet.schema';
 
-const searchTypeKeys = Object.keys(PLATFORM_SEARCH.SEARCH_TYPES) as [string, ...string[]];
-const searchStatusKeys = Object.keys(PLATFORM_SEARCH.STATUS) as [string, ...string[]];
-
-export const PlatformSearchSchema = BaseSchema.extend({
-  searchId: z.string().uuid(),
-  query: z.string().min(1).max(100),
-  type: z.enum(searchTypeKeys),
-  filters: z.array(SearchFilterSchema),
-  sorts: z.array(SearchSortSchema),
-  operators: z.array(SearchOperatorSchema),
-  matches: z.array(SearchMatchSchema),
-  boosts: z.array(SearchBoostSchema),
-  results: z.array(ProductSchema),
-  resultCount: z.number().int().min(0).default(0),
-  totalResults: z.number().int().min(0).default(0),
-  page: z.number().int().min(1).default(1),
-  limit: z.number().int().min(1).max(100).default(20),
-  took: z.number().min(0),
-  userId: z.string().uuid().optional(),
-  user: UserSchema.optional(),
-  status: z.enum(searchStatusKeys),
-  isActive: z.boolean().default(true),
-  metadata: z.object({
-    ipAddress: z.string().optional(),
-    userAgent: z.string().optional(),
-    deviceId: z.string().optional(),
-    sessionId: z.string().optional(),
-    location: z.string().optional(),
-    language: z.string().optional(),
-    timezone: z.string().optional(),
-  }),
+export const SearchRequestSchema = z.object({
+  query: z.string().min(2).max(200),
+  type: SearchTypeSchema.optional(),
+  scope: SearchScopeSchema.optional(),
+  fields: z.array(z.string().min(1).max(100)).max(50).optional(),
+  filters: z.array(SearchFilterSchema).max(50).optional(),
+  sorts: z.array(SearchSortSchema).max(10).optional(),
+  boosts: z.array(SearchBoostSchema).max(20).optional(),
+  matches: z.array(SearchMatchSchema).max(20).optional(),
+  facets: z.array(z.string().max(100)).max(30).optional(),
+  page: z.number().int().positive().optional(),
+  limit: z.number().int().min(1).max(100).optional(),
+  cursor: z.string().max(500).optional(),
+  userId: UuidSchema.optional(),
+  sessionId: z.string().max(128).optional(),
 });
 
-export const PlatformSearchCreateSchema = PlatformSearchSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+export const SearchResultSchema = z.object({
+  items: z.array(z.unknown()).max(10000),
+  total: z.number().int().nonnegative(),
+  page: z.number().int().positive(),
+  limit: z.number().int().positive(),
+  totalPages: z.number().int().nonnegative(),
+  hasNext: z.boolean(),
+  hasPrev: z.boolean(),
+  query: z.string().min(1).max(200),
+  took: z.number().nonnegative(),
+  maxScore: z.number().optional(),
+  facets: z.array(FacetSchema).max(30).optional(),
+  suggestions: z.array(z.string().max(200)).max(20).optional(),
+  cached: z.boolean(),
+});
+
+export const SearchSchema = BaseEntitySchema.extend({
+  query: z.string().min(1).max(200),
+  type: SearchTypeSchema,
+  scope: SearchScopeSchema,
+  userId: UuidSchema.optional(),
+  sessionId: z.string().max(128).optional(),
+  resultCount: z.number().int().nonnegative(),
+  took: z.number().nonnegative(),
+  filters: z.array(SearchFilterSchema).max(50).optional(),
+  sorts: z.array(SearchSortSchema).max(10).optional(),
+  page: z.number().int().positive(),
+  limit: z.number().int().positive(),
+  hasResults: z.boolean(),
+  clickedResultId: z.string().max(200).optional(),
+  clickedAt: z.string().datetime().optional(),
+  searchedAt: z.string().datetime(),
+});
+
+export const SearchPublicSchema = SearchSchema.pick({
+  query: true,
+  type: true,
+  scope: true,
   resultCount: true,
-  totalResults: true,
   took: true,
+  hasResults: true,
 });
 
-export const PlatformSearchUpdateSchema = PlatformSearchCreateSchema.partial();
+export const SearchListFilterSchema = z.object({
+  userId: UuidSchema.optional(),
+  type: SearchTypeSchema.optional(),
+  scope: SearchScopeSchema.optional(),
+  hasResults: z.boolean().optional(),
+  fromDate: z.string().datetime().optional(),
+  toDate: z.string().datetime().optional(),
+  query: z.string().max(200).optional(),
+});
+
+export type SearchRequestSchemaType = z.infer<typeof SearchRequestSchema>;
+export type SearchResultSchemaType = z.infer<typeof SearchResultSchema>;
+export type SearchSchemaType = z.infer<typeof SearchSchema>;
+export type SearchPublicSchemaType = z.infer<typeof SearchPublicSchema>;
+export type SearchListFilterSchemaType = z.infer<typeof SearchListFilterSchema>;

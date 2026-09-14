@@ -1,42 +1,35 @@
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
-import { METRICS } from '../../common/types.constants';
-import { ORDER_STATUS } from '../checkout/order-status.constants';
-import { PAYMENT_STATUS } from '../payment/payment-status.constants';
+export const VENDOR_PERFORMANCE_METRIC = {
+  ORDER_FULFILLMENT_RATE: 'order_fulfillment_rate',
+  ON_TIME_SHIPPING_RATE: 'on_time_shipping_rate',
+  ORDER_CANCELLATION_RATE: 'order_cancellation_rate',
+  RETURN_RATE: 'return_rate',
+  CUSTOMER_SATISFACTION: 'customer_satisfaction',
+  RESPONSE_TIME: 'response_time',
+  RESOLUTION_TIME: 'resolution_time',
+} as const;
+
+export const VENDOR_PERFORMANCE_GRADE = {
+  A_PLUS: 'a_plus',
+  A: 'a',
+  B: 'b',
+  C: 'c',
+  D: 'd',
+  F: 'f',
+} as const;
 
 export const VENDOR_PERFORMANCE = {
-  TYPES: {
-    ...COMMON_TYPES,
-    SALES: 'sales',
-    REVENUE: 'revenue',
-    CUSTOMER: 'customer',
-    QUALITY: 'quality',
-    EFFICIENCY: 'efficiency',
-  },
-  METRICS: {
-    ...METRICS,
-    TOTAL_SALES: 'total_sales',
-    TOTAL_REVENUE: 'total_revenue',
-    ORDERS_FULFILLED: 'orders_fulfilled',
-    AVERAGE_RATING: 'average_rating',
-    CUSTOMER_SATISFACTION: 'customer_satisfaction',
-    RETURN_RATE: 'return_rate',
-    RESPONSE_TIME: 'response_time',
-    CONVERSION_RATE: 'conversion_rate',
-  },
-  ORDER_STATUS: { ...ORDER_STATUS },
-  PAYMENT_STATUS: { ...PAYMENT_STATUS },
-  PERFORMANCE_WEIGHTS: {
-    SALES: 0.3,
-    REVENUE: 0.25,
-    CUSTOMER: 0.25,
-    QUALITY: 0.2,
-  },
-  MIN_ORDERS_FOR_RATING: 10,
-  PERFORMANCE_THRESHOLDS: {
-    EXCELLENT: 90,
-    GOOD: 75,
-    AVERAGE: 60,
-    POOR: 40,
-  },
-  REVIEW_PERIOD_DAYS: 30,
+  EVALUATION_PERIOD_DAYS: 30,
+  MIN_ORDERS_FOR_EVALUATION: 10,
+  A_PLUS_THRESHOLD: 95,
+  A_THRESHOLD: 90,
+  B_THRESHOLD: 80,
+  C_THRESHOLD: 70,
+  D_THRESHOLD: 60,
+  AUTO_SUSPEND_BELOW: 40,
+  WARNING_BELOW: 60,
 } as const;
+
+export type VendorPerformanceMetricType =
+  (typeof VENDOR_PERFORMANCE_METRIC)[keyof typeof VENDOR_PERFORMANCE_METRIC];
+export type VendorPerformanceGradeType =
+  (typeof VENDOR_PERFORMANCE_GRADE)[keyof typeof VENDOR_PERFORMANCE_GRADE];

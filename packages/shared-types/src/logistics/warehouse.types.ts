@@ -1,47 +1,62 @@
-import { BaseEntity } from '../common/base.types';
-import { Address } from '../common/address.types';
-import { WAREHOUSE } from '@vubon/shared-constants/src/logistics/warehouse.constants';
-import { InventoryLocation } from './inventory-location.types';
+/**
+ * Warehouse Types
+ * @module shared-types/logistics
+ *
+ * Values আসে shared-constants/logistics/warehouse.constants থেকে।
+ */
 
-export interface WarehouseHours {
-  monday: string;
-  tuesday: string;
-  wednesday: string;
-  thursday: string;
-  friday: string;
-  saturday: string;
-  sunday: string;
+import type {
+  WAREHOUSE_STATUS,
+  WAREHOUSE_TYPE,
+  WAREHOUSE_ZONE,
+} from '@vubon/shared-constants/logistics';
+import type { BaseEntity } from '../common/base';
+import type { Address } from '../common/geo';
+import type { UserId, Email, Phone } from '../common/primitives';
+
+export type WarehouseStatusValue = (typeof WAREHOUSE_STATUS)[keyof typeof WAREHOUSE_STATUS];
+
+export type WarehouseTypeValue = (typeof WAREHOUSE_TYPE)[keyof typeof WAREHOUSE_TYPE];
+
+export type WarehouseZoneValue = (typeof WAREHOUSE_ZONE)[keyof typeof WAREHOUSE_ZONE];
+
+export interface Warehouse extends BaseEntity<string> {
+  readonly name: string;
+  readonly code: string;
+  readonly type: WarehouseTypeValue;
+  readonly status: WarehouseStatusValue;
+  readonly address: Address;
+  readonly contactName?: string;
+  readonly contactPhone?: Phone;
+  readonly contactEmail?: Email;
+  readonly managerId?: UserId;
+  readonly capacityM3?: number;
+  readonly capacityKg?: number;
+  readonly usedCapacityM3?: number;
+  readonly usedCapacityKg?: number;
+  readonly maxSkus?: number;
+  readonly zone: WarehouseZoneValue;
+  readonly operatingHoursStart?: number;
+  readonly operatingHoursEnd?: number;
+  readonly timezone: string;
+  readonly isDefault: boolean;
 }
 
-export interface WarehouseMetadata {
-  capacityUnit: string;
-  temperatureControlled: boolean;
-  minTemperature?: number;
-  maxTemperature?: number;
-  hasLoadingDock: boolean;
-  hasForklift: boolean;
-  hasPalletRacks: boolean;
-  securityLevel: string;
+export interface WarehousePublic {
+  readonly id: string;
+  readonly name: string;
+  readonly code: string;
+  readonly type: WarehouseTypeValue;
+  readonly status: WarehouseStatusValue;
+  readonly address: Address;
 }
 
-export interface Warehouse extends BaseEntity {
-  warehouseId: string;
-  name: string;
-  code: string;
-  status: keyof typeof WAREHOUSE.STATUS | string;
-  type: keyof typeof WAREHOUSE.TYPES | string;
-  address: Address;
-  vendorId?: string;
-  capacity: number;
-  usedCapacity: number;
-  availableCapacity: number;
-  locations: InventoryLocation[];
-  locationCount: number;
-  isActive: boolean;
-  isDefault: boolean;
-  managerName: string;
-  managerPhone: string;
-  managerEmail: string;
-  operatingHours: WarehouseHours;
-  metadata: WarehouseMetadata;
+export interface WarehouseCapacity {
+  readonly warehouseId: string;
+  readonly capacityM3: number;
+  readonly usedCapacityM3: number;
+  readonly capacityKg: number;
+  readonly usedCapacityKg: number;
+  readonly utilizationPercent: number;
+  readonly isFull: boolean;
 }

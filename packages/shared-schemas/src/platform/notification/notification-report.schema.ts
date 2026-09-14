@@ -1,40 +1,44 @@
+/**
+ * Notification Report Schema
+ * @module shared-schemas/platform/notification
+ *
+ * Values আসে shared-constants/platform/notification-report.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { NOTIFICATION_REPORT } from '@vubon/shared-constants/src/platform/notification/notification-report.constants';
-import { NotificationAnalyticsSchema } from './notification-analytics.schema';
+import {
+  NOTIFICATION_REPORT_TYPE,
+  NOTIFICATION_REPORT_FORMAT,
+  NOTIFICATION_REPORT_SCHEDULE,
+} from '@vubon/shared-constants/platform';
 
-const notificationReportTypeKeys = Object.keys(NOTIFICATION_REPORT.TYPES) as [string, ...string[]];
-const notificationReportFormatKeys = Object.keys(NOTIFICATION_REPORT.REPORT_FORMATS) as [
-  string,
-  ...string[],
-];
+export const NotificationReportTypeSchema = z.enum(
+  Object.values(NOTIFICATION_REPORT_TYPE) as [string, ...string[]]
+);
 
-export const NotificationReportSchema = BaseSchema.extend({
-  reportId: z.string().uuid(),
-  type: z.enum(notificationReportTypeKeys),
-  format: z.enum(notificationReportFormatKeys),
-  analytics: z.array(NotificationAnalyticsSchema),
-  summary: z.object({
-    totalSent: z.number().int().min(0),
-    totalDelivered: z.number().int().min(0),
-    deliveryRate: z.number().min(0).max(100),
-    openRate: z.number().min(0).max(100),
-    clickRate: z.number().min(0).max(100),
-    conversionRate: z.number().min(0).max(100),
-    bounceRate: z.number().min(0).max(100),
-    unsubscribeRate: z.number().min(0).max(100),
-    channelPerformance: z.record(z.number()),
-    typePerformance: z.record(z.number()),
-  }),
-  insights: z.array(
-    z.object({
-      type: z.string(),
-      title: z.string(),
-      description: z.string(),
-      severity: z.enum(['info', 'warning', 'success', 'error']),
-    })
-  ),
-  recommendations: z.array(z.string()),
-  generatedAt: z.date(),
-  metadata: z.record(z.unknown()).optional(),
+export const NotificationReportFormatSchema = z.enum(
+  Object.values(NOTIFICATION_REPORT_FORMAT) as [string, ...string[]]
+);
+
+export const NotificationReportScheduleSchema = z.enum(
+  Object.values(NOTIFICATION_REPORT_SCHEDULE) as [string, ...string[]]
+);
+
+export const NotificationReportSchema = z.object({
+  id: z.string().min(1),
+  type: NotificationReportTypeSchema,
+  format: NotificationReportFormatSchema,
+  schedule: NotificationReportScheduleSchema.optional(),
+  periodStart: z.string().datetime(),
+  periodEnd: z.string().datetime(),
+  fileUrl: z.string().url().optional(),
+  fileSize: z.number().int().nonnegative().optional(),
+  generatedAt: z.string().datetime(),
+  expiresAt: z.string().datetime().optional(),
+  generatedBy: z.string().optional(),
 });
+
+export type NotificationReportTypeSchemaType = z.infer<typeof NotificationReportTypeSchema>;
+export type NotificationReportFormatSchemaType = z.infer<typeof NotificationReportFormatSchema>;
+export type NotificationReportScheduleSchemaType = z.infer<typeof NotificationReportScheduleSchema>;
+export type NotificationReportSchemaType = z.infer<typeof NotificationReportSchema>;

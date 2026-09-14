@@ -1,40 +1,62 @@
-import { BaseEntity } from '../common/base.types';
-import { AI_MODEL } from '@vubon/shared-constants/src/ai/ai-model.constants';
-import { AIModelType } from './ai-model-type.types';
-import { AIModelProvider } from './ai-model-provider.types';
-import { AIFeature } from './ai-feature.types';
-import { AI } from './ai.types';
+/**
+ * AI Model Types
+ * @module shared-types/ai
+ *
+ * AI model definition + configuration।
+ */
 
-export interface AIModelMetadata {
-  description?: string;
-  tags: string[];
-  hyperparameters: Record<string, unknown>;
-  evaluationMetrics: Record<string, number>;
-  limitations: string[];
-  useCases: string[];
+import type { BaseEntity } from '../common/base';
+import type { Url } from '../common/primitives';
+import type { AiModelTypeValue } from './ai-model-type.types';
+import type { AiModelStatusValue } from './ai-model-status.types';
+import type { AiModelProviderValue } from './ai-model-provider.types';
+
+export interface AiModel extends BaseEntity<string> {
+  readonly name: string;
+  readonly displayName: string;
+  readonly type: AiModelTypeValue;
+  readonly provider: AiModelProviderValue;
+  readonly status: AiModelStatusValue;
+  readonly version: string;
+  readonly description?: string;
+  readonly contextWindow?: number;
+  readonly maxOutputTokens?: number;
+  readonly embeddingDimension?: number;
+  readonly supportsStreaming: boolean;
+  readonly supportsFunctionCalling: boolean;
+  readonly supportsVision: boolean;
+  readonly costPerInputToken?: number;
+  readonly costPerOutputToken?: number;
+  readonly currency?: string;
+  readonly documentationUrl?: Url;
+  readonly isDefault: boolean;
 }
 
-export interface AIModel extends BaseEntity {
-  modelId: string;
-  aiId: string;
-  ai: AI;
-  name: string;
-  version: string;
-  type: AIModelType;
-  status: keyof typeof AI_MODEL.STATUS | string;
-  provider: AIModelProvider;
-  features: AIFeature[];
-  modelSize: number;
-  accuracy: number;
-  precision: number;
-  recall: number;
-  f1Score: number;
-  trainingDataSize: number;
-  trainingTime: number;
-  isActive: boolean;
-  isDeployed: boolean;
-  isDeprecated: boolean;
-  deployedAt?: Date;
-  deprecatedAt?: Date;
-  metadata: AIModelMetadata;
+export interface AiModelPublic {
+  readonly id: string;
+  readonly name: string;
+  readonly displayName: string;
+  readonly type: AiModelTypeValue;
+  readonly provider: AiModelProviderValue;
+  readonly version: string;
+  readonly contextWindow?: number;
+  readonly supportsStreaming: boolean;
+}
+
+export interface AiModelConfig {
+  readonly modelId: string;
+  readonly temperature: number;
+  readonly maxTokens: number;
+  readonly topP: number;
+  readonly frequencyPenalty?: number;
+  readonly presencePenalty?: number;
+  readonly stopSequences?: readonly string[];
+}
+
+export interface AiModelListFilter {
+  readonly type?: AiModelTypeValue;
+  readonly provider?: AiModelProviderValue;
+  readonly status?: AiModelStatusValue;
+  readonly isDefault?: boolean;
+  readonly search?: string;
 }

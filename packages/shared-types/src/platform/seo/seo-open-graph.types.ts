@@ -1,18 +1,30 @@
-import { BaseEntity } from '../../common/base.types';
-import { SEO_OPEN_GRAPH } from '@vubon/shared-constants/src/platform/seo/seo-open-graph.constants';
-import { SEO } from './seo.types';
+/**
+ * SEO Open Graph Types
+ * @module shared-types/platform/seo
+ */
 
-export interface SEOOpenGraph extends BaseEntity {
-  openGraphId: string;
-  seoId: string;
-  seo: SEO;
-  type: keyof typeof SEO_OPEN_GRAPH.TYPES | string;
-  title: string;
-  description: string;
-  url: string;
-  image: string;
-  siteName: string;
-  locale: string;
-  isActive: boolean;
-  metadata: Record<string, unknown>;
+import type { SEO_OPEN_GRAPH_TYPE } from '@vubon/shared-constants/platform';
+import type { Url, ImageUrl } from '../../common/primitives';
+
+export type SeoOpenGraphTypeValue = (typeof SEO_OPEN_GRAPH_TYPE)[keyof typeof SEO_OPEN_GRAPH_TYPE];
+
+export interface SeoOpenGraph {
+  readonly type: SeoOpenGraphTypeValue;
+  readonly title: string;
+  readonly description?: string;
+  readonly url?: Url;
+  readonly image?: ImageUrl;
+  readonly imageAlt?: string;
+  readonly siteName?: string;
+  readonly locale?: string;
+  readonly article?: OpenGraphArticle;
+}
+
+export interface OpenGraphArticle {
+  readonly publishedTime?: string;
+  readonly modifiedTime?: string;
+  readonly expirationTime?: string;
+  readonly author?: string;
+  readonly section?: string;
+  readonly tags?: readonly string[];
 }

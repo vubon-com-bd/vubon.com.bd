@@ -1,18 +1,16 @@
-import { TypeObject } from '../../common/types.types';
-import { SEARCH_OPERATOR } from '@vubon/shared-constants/src/platform/search/search-operator.constants';
+/**
+ * Search Operator Value Types
+ * @module shared-types/platform/search
+ */
 
-export interface SearchOperator extends TypeObject {
-  type: keyof typeof SEARCH_OPERATOR.TYPES | string;
-  category: 'search_operator';
-  symbol: keyof typeof SEARCH_OPERATOR.OPERATOR_SYMBOLS | string;
-  isAnd: boolean;
-  isOr: boolean;
-  isNot: boolean;
-  isNear: boolean;
-  isPhrase: boolean;
-  isWildcard: boolean;
-  isRegex: boolean;
-  isFuzzy: boolean;
+import type { SEARCH_OPERATOR, SEARCH_BOOLEAN } from '@vubon/shared-constants/platform';
+
+export type SearchOperatorValue = (typeof SEARCH_OPERATOR)[keyof typeof SEARCH_OPERATOR];
+
+export type SearchBooleanValue = (typeof SEARCH_BOOLEAN)[keyof typeof SEARCH_BOOLEAN];
+
+export interface SearchOperatorMetadata {
+  readonly value: SearchOperatorValue;
+  readonly label: string;
+  readonly description: string;
 }
-
-export type SearchOperatorKey = keyof typeof SEARCH_OPERATOR.TYPES;

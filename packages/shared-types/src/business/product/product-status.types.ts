@@ -1,11 +1,17 @@
-import { StatusObject } from '../../common/status.types';
-import { PRODUCT_STATUS } from '@vubon/shared-constants/src/business/product/product-status.constants';
+/**
+ * Product Status Value Types
+ * @module shared-types/business/product
+ *
+ * Values আসে shared-constants/business/product/product-status.constants থেকে।
+ */
 
-export interface ProductStatus extends StatusObject {
-  category: 'product';
-  isActive: boolean;
-  isPublished: boolean;
-  isArchived: boolean;
+import type { PRODUCT_STATUS } from '@vubon/shared-constants/business';
+
+export type ProductStatusValue = (typeof PRODUCT_STATUS)[keyof typeof PRODUCT_STATUS];
+
+export interface ProductStatusMetadata {
+  readonly value: ProductStatusValue;
+  readonly label: string;
+  readonly isPublic: boolean;
+  readonly isFinal: boolean;
 }
-
-export type ProductStatusKey = keyof typeof PRODUCT_STATUS;

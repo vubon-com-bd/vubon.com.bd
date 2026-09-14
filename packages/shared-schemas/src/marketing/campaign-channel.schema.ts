@@ -1,37 +1,33 @@
-import { z } from 'zod';
-import { CAMPAIGN_CHANNEL } from '@vubon/shared-constants/src/marketing/campaign-channel.constants';
+/**
+ * Campaign Channel Schema
+ * @module shared-schemas/marketing
+ */
 
-const campaignChannelTypeKeys = Object.keys(CAMPAIGN_CHANNEL.TYPES) as [string, ...string[]];
-const campaignChannelCategoryKeys = Object.keys(CAMPAIGN_CHANNEL.CHANNEL_CATEGORIES) as [
-  string,
-  ...string[],
-];
+import { z } from 'zod';
+
+export const CampaignChannelValueSchema = z.enum([
+  'email',
+  'sms',
+  'push',
+  'social',
+  'display',
+  'search',
+  'affiliate',
+  'influencer',
+  'content',
+  'event',
+  'multi_channel',
+]);
 
 export const CampaignChannelSchema = z.object({
-  channel: z.enum(campaignChannelTypeKeys),
-  category: z.enum(campaignChannelCategoryKeys),
-  isEmail: z.boolean().default(false),
-  isSms: z.boolean().default(false),
-  isWhatsApp: z.boolean().default(false),
-  isFacebook: z.boolean().default(false),
-  isInstagram: z.boolean().default(false),
-  isTwitter: z.boolean().default(false),
-  isLinkedIn: z.boolean().default(false),
-  isYouTube: z.boolean().default(false),
-  isTikTok: z.boolean().default(false),
-  isSnapchat: z.boolean().default(false),
-  isGoogleAds: z.boolean().default(false),
-  isFacebookAds: z.boolean().default(false),
-  isInstagramAds: z.boolean().default(false),
-  isTikTokAds: z.boolean().default(false),
-  isYouTubeAds: z.boolean().default(false),
-  isDisplayAds: z.boolean().default(false),
-  isNativeAds: z.boolean().default(false),
-  isAffiliate: z.boolean().default(false),
-  isInfluencer: z.boolean().default(false),
-  isContent: z.boolean().default(false),
-  isSeo: z.boolean().default(false),
-  isPpc: z.boolean().default(false),
+  channel: CampaignChannelValueSchema,
+  enabled: z.boolean(),
+  budget: z.number().nonnegative().optional(),
+  spend: z.number().nonnegative().optional(),
+  impressions: z.number().int().nonnegative().optional(),
+  clicks: z.number().int().nonnegative().optional(),
+  conversions: z.number().int().nonnegative().optional(),
 });
 
-export const CampaignChannelEnumSchema = z.enum(campaignChannelTypeKeys);
+export type CampaignChannelValueSchemaType = z.infer<typeof CampaignChannelValueSchema>;
+export type CampaignChannelSchemaType = z.infer<typeof CampaignChannelSchema>;

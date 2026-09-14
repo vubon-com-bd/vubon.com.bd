@@ -1,19 +1,17 @@
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
-
 export const NOTIFICATION_CATEGORY = {
-  TYPES: {
-    ...COMMON_TYPES,
-    SYSTEM: 'system',
-    USER: 'user',
-    ORDER: 'order',
-    PAYMENT: 'payment',
-    CART: 'cart',
-    MARKETING: 'marketing',
-    VENDOR: 'vendor',
-    SUPPORT: 'support',
-    SECURITY: 'security',
-    SOCIAL: 'social',
-    PROMOTIONAL: 'promotional',
-    TRANSACTIONAL: 'transactional',
-  },
+  AUTH: 'auth',
+  USER: 'user',
+  ORDER: 'order',
+  PAYMENT: 'payment',
+  SHIPPING: 'shipping',
+  PRODUCT: 'product',
+  PROMOTION: 'promotion',
+  SUPPORT: 'support',
+  SYSTEM: 'system',
+  SECURITY: 'security',
+  MARKETING: 'marketing',
+  REMINDER: 'reminder',
 } as const;
+
+export type NotificationCategoryType =
+  (typeof NOTIFICATION_CATEGORY)[keyof typeof NOTIFICATION_CATEGORY];

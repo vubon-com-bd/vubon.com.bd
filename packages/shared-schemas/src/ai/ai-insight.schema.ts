@@ -1,25 +1,71 @@
+/**
+ * AI Insight Schema
+ * @module shared-schemas/ai
+ *
+ * Values আসে shared-constants/ai/ai-insight.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { AI_INSIGHT } from '@vubon/shared-constants/src/ai/ai-insight.constants';
-import { AIAnalyticsSchema } from './ai-analytics.schema';
-import { AIForecastSchema } from './ai-forecast.schema';
+import {
+  AI_INSIGHT_TYPE,
+  AI_INSIGHT_PRIORITY,
+  AI_INSIGHT_STATUS,
+} from '@vubon/shared-constants/ai';
+import { BaseEntitySchema } from '../common/base/base-entity.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema';
 
-const aiInsightTypeKeys = Object.keys(AI_INSIGHT.TYPES) as [string, ...string[]];
-const insightPriorityKeys = Object.keys(AI_INSIGHT.INSIGHT_PRIORITY) as [string, ...string[]];
+export const AiInsightTypeSchema = z.enum(Object.values(AI_INSIGHT_TYPE) as [string, ...string[]]);
 
-export const AIInsightSchema = BaseSchema.extend({
-  insightId: z.string().uuid(),
-  aiId: z.string().uuid(),
-  type: z.enum(aiInsightTypeKeys),
+export const AiInsightPrioritySchema = z.enum(
+  Object.values(AI_INSIGHT_PRIORITY) as [string, ...string[]]
+);
+
+export const AiInsightStatusSchema = z.enum(
+  Object.values(AI_INSIGHT_STATUS) as [string, ...string[]]
+);
+
+export const AiInsightSchema = BaseEntitySchema.extend({
+  type: AiInsightTypeSchema,
+  priority: AiInsightPrioritySchema,
+  status: AiInsightStatusSchema,
   title: z.string().min(1).max(200),
-  description: z.string().min(1).max(500),
-  priority: z.enum(insightPriorityKeys),
+  description: z.string().min(1).max(2000),
   confidence: z.number().min(0).max(1),
-  analytics: z.array(AIAnalyticsSchema),
-  forecasts: z.array(AIForecastSchema),
-  recommendations: z.array(z.string()),
-  isActive: z.boolean().default(true),
-  isActioned: z.boolean().default(false),
-  actionedAt: z.date().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  source: z.string().min(1).max(100),
+  metrics: z.record(z.string(), z.number()).optional(),
+  recommendations: z.array(z.string().max(500)).max(20).optional(),
+  referenceType: z.string().max(50).optional(),
+  referenceId: z.string().max(100).optional(),
+  actionedBy: UuidSchema.optional(),
+  actionedAt: z.string().datetime().optional(),
+  dismissedBy: UuidSchema.optional(),
+  dismissedAt: z.string().datetime().optional(),
+  expiresAt: z.string().datetime().optional(),
 });
+
+export const AiInsightPublicSchema = AiInsightSchema.pick({
+  id: true,
+  type: true,
+  priority: true,
+  status: true,
+  title: true,
+  description: true,
+  confidence: true,
+  createdAt: true,
+});
+
+export const AiInsightListFilterSchema = z.object({
+  type: AiInsightTypeSchema.optional(),
+  priority: AiInsightPrioritySchema.optional(),
+  status: AiInsightStatusSchema.optional(),
+  minConfidence: z.number().min(0).max(1).optional(),
+  fromDate: z.string().datetime().optional(),
+  toDate: z.string().datetime().optional(),
+});
+
+export type AiInsightTypeSchemaType = z.infer<typeof AiInsightTypeSchema>;
+export type AiInsightPrioritySchemaType = z.infer<typeof AiInsightPrioritySchema>;
+export type AiInsightStatusSchemaType = z.infer<typeof AiInsightStatusSchema>;
+export type AiInsightSchemaType = z.infer<typeof AiInsightSchema>;
+export type AiInsightPublicSchemaType = z.infer<typeof AiInsightPublicSchema>;
+export type AiInsightListFilterSchemaType = z.infer<typeof AiInsightListFilterSchema>;

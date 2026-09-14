@@ -1,38 +1,61 @@
-import { BaseEntity } from '../common/base.types';
-import { SESSION } from '@vubon/shared-constants/src/common/session.constants';
-import { DeviceInfo } from './auth-request.types';
-
 /**
- * Session status from SESSION.STATE (active/expired/revoked/invalid/suspended)
+ * Auth Session Types
+ * @module shared-types/auth
+ *
+ * Values আসে shared-constants/auth/auth-session.constants থেকে।
  */
-export type AuthSessionStatus = (typeof SESSION.STATE)[keyof typeof SESSION.STATE];
 
-/**
- * Session type from SESSION.TYPE (web/mobile/api/admin/bot)
- */
-export type AuthSessionType = (typeof SESSION.TYPE)[keyof typeof SESSION.TYPE];
+import type { AUTH_SESSION } from '@vubon/shared-constants/auth';
+import type { SESSION_STATUS } from '@vubon/shared-constants/infrastructure';
+import type { UserId, SessionId, IpAddress } from '../common/primitives';
 
-/**
- * Auth session interface
- */
-export interface AuthSession extends Omit<BaseEntity, 'status'> {
-  sessionId: string;
-  userId: string;
-  /** @internal */
-  token: string;
-  status: AuthSessionStatus;
-  type: AuthSessionType;
-  expiresAt: Date;
-  lastActivity: Date;
-  deviceInfo: DeviceInfo;
-  ipAddress: string;
-  userAgent: string;
-  metadata: Record<string, unknown>;
+export type AuthSessionMaxAge = typeof AUTH_SESSION.EXPIRY_SECONDS;
+export type SessionStatusValue = (typeof SESSION_STATUS)[keyof typeof SESSION_STATUS];
+
+export interface AuthSessionData {
+  readonly id: SessionId;
+  readonly userId: UserId;
+  readonly status: SessionStatusValue;
+  readonly ipAddress?: IpAddress;
+  readonly userAgent?: string;
+  readonly deviceId?: string;
+  readonly createdAt: string;
+  readonly expiresAt: string;
+  readonly lastAccessedAt: string;
+  readonly refreshedAt?: string;
 }
 
-/**
- * Public-safe session DTO
- */
-export type AuthSessionPublic = Omit<AuthSession, 'token'> & {
-  tokenPreview: string;
-};
+export interface AuthSessionPublic {
+  readonly id: SessionId;
+  readonly deviceId?: string;
+  readonly ipAddress?: string;
+  readonly userAgent?: string;
+  readonly createdAt: string;
+  readonly expiresAt: string;
+  readonly lastAccessedAt: string;
+  readonly isCurrent: boolean;
+}
+
+export interface AuthSessionCreateInput {
+  readonly userId: UserId;
+  readonly ipAddress?: string;
+  readonly userAgent?: string;
+  readonly deviceId?: string;
+  readonly rememberMe?: boolean;
+}
+
+export interface AuthSessionRefreshResult {
+  readonly sessionId: SessionId;
+  readonly accessToken: string;
+  readonly refreshToken: string;
+  readonly expiresAt: number;
+  readonly refreshedAt: string;
+}
+
+export interface AuthSessionEvent {
+  readonly sessionId: SessionId;
+  readonly userId: UserId;
+  readonly type: 'created' | 'refreshed' | 'expired' | 'revoked' | 'logout';
+  readonly occurredAt: string;
+  readonly metadata?: Readonly<Record<string, unknown>>;
+}

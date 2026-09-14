@@ -1,19 +1,15 @@
-import { TypeObject } from '../common/types.types';
-import { LEAD_SOURCE } from '@vubon/shared-constants/src/marketing/lead-source.constants';
+/**
+ * Lead Source Value Types
+ * @module shared-types/marketing
+ */
 
-export interface LeadSource extends TypeObject {
-  type: keyof typeof LEAD_SOURCE.TYPES | string;
-  category: 'lead_source';
-  isWebsite: boolean;
-  isSocialMedia: boolean;
-  isEmail: boolean;
-  isReferral: boolean;
-  isOrganic: boolean;
-  isPaid: boolean;
-  isDirect: boolean;
-  isEvent: boolean;
-  isPartner: boolean;
-  isOther: boolean;
+import type { LEAD_SOURCE } from '@vubon/shared-constants/marketing';
+
+export type LeadSourceValue = (typeof LEAD_SOURCE)[keyof typeof LEAD_SOURCE];
+
+export interface LeadSourceMetadata {
+  readonly value: LeadSourceValue;
+  readonly label: string;
+  readonly isPaid: boolean;
+  readonly isOrganic: boolean;
 }
-
-export type LeadSourceKey = keyof typeof LEAD_SOURCE.TYPES;

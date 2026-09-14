@@ -1,13 +1,17 @@
-import { TypeObject } from '../../common/types.types';
-import { FLASH_SALE_TYPE } from '@vubon/shared-constants/src/business/flash-sales/flash-sale-type.constants';
+/**
+ * Flash Sale Type Value Types
+ * @module shared-types/business/flash-sales
+ *
+ * Values আসে shared-constants/business/flash-sales/flash-sale-type.constants থেকে।
+ */
 
-export interface FlashSaleType extends TypeObject {
-  type: keyof typeof FLASH_SALE_TYPE | string;
-  category: 'flash_sale';
-  durationHours: number;
-  maxProducts: number;
-  maxDiscount: number;
-  isRecurring: boolean;
+import type { FLASH_SALE_TYPE } from '@vubon/shared-constants/business';
+
+export type FlashSaleTypeValue = (typeof FLASH_SALE_TYPE)[keyof typeof FLASH_SALE_TYPE];
+
+export interface FlashSaleTypeMetadata {
+  readonly value: FlashSaleTypeValue;
+  readonly label: string;
+  readonly defaultDurationHours: number;
+  readonly isRecurring: boolean;
 }
-
-export type FlashSaleTypeKey = keyof typeof FLASH_SALE_TYPE;

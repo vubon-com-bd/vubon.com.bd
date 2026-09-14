@@ -1,26 +1,45 @@
+/**
+ * Refund Schema
+ * @module shared-schemas/business/payment
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { MoneySchema } from '../../common/money.schema';
-import { PAYMENT_REFUND } from '@vubon/shared-constants/src/business/payment/payment-refund.constants';
-import { PaymentSchema } from './payment.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { PositiveMoneySchema } from '../../common/primitives/money.schema';
 
-const refundStatusKeys = Object.keys(PAYMENT_REFUND.STATUS) as [string, ...string[]];
-const refundTypeKeys = Object.keys(PAYMENT_REFUND.TYPES) as [string, ...string[]];
+export const RefundStatusSchema = z.enum([
+  'pending',
+  'processing',
+  'succeeded',
+  'failed',
+  'cancelled',
+]);
 
-export const RefundSchema = BaseSchema.extend({
-  refundId: z.string().uuid(),
-  paymentId: z.string().uuid(),
-  payment: PaymentSchema,
-  amount: MoneySchema,
-  reason: z.string(),
-  status: z.enum(refundStatusKeys),
-  type: z.enum(refundTypeKeys),
-  transactionId: z.string().uuid().optional(),
-  isCompleted: z.boolean().default(false),
-  isFailed: z.boolean().default(false),
-  requestedAt: z.date(),
-  approvedAt: z.date().optional(),
-  completedAt: z.date().optional(),
-  failedAt: z.date().optional(),
-  metadata: z.record(z.unknown()).optional(),
+export const RefundSchema = BaseEntitySchema.extend({
+  paymentId: UuidSchema,
+  transactionId: UuidSchema.optional(),
+  orderId: UuidSchema.optional(),
+  status: RefundStatusSchema,
+  amount: PositiveMoneySchema,
+  currency: z.string().length(3),
+  reason: z.string().max(500).optional(),
+  gatewayRefundId: z.string().max(255).optional(),
+  processedAt: z.string().datetime().optional(),
+  failedAt: z.string().datetime().optional(),
+  failureReason: z.string().max(500).optional(),
 });
+
+export const RefundPublicSchema = RefundSchema.pick({
+  id: true,
+  status: true,
+  amount: true,
+  currency: true,
+  reason: true,
+  createdAt: true,
+  processedAt: true,
+});
+
+export type RefundStatusSchemaType = z.infer<typeof RefundStatusSchema>;
+export type RefundSchemaType = z.infer<typeof RefundSchema>;
+export type RefundPublicSchemaType = z.infer<typeof RefundPublicSchema>;

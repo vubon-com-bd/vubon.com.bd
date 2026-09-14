@@ -1,75 +1,88 @@
+/**
+ * Delivery Core Schema
+ * @module shared-schemas/logistics
+ *
+ * Delivery entity + aggregator।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { MoneySchema } from '../common/money.schema';
-import { OrderSchema } from '../business/checkout/order.schema';
-import { ShipmentSchema } from './shipment.schema';
-import { DriverSchema } from './driver.schema';
-import { VehicleSchema } from './vehicle.schema';
-import { RouteSchema } from './route.schema';
-import { DELIVERY_STATUS } from '@vubon/shared-constants/src/logistics/delivery-status.constants';
-import { LOGISTICS_DELIVERY } from '@vubon/shared-constants/src/logistics/logistics-delivery.constants';
+import { BaseEntitySchema } from '../common/base/base-entity.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema';
+import { PhoneSchema } from '../common/primitives/phone.schema';
+import { AddressSchema } from '../common/geo/address.schema';
+import { DeliveryStatusSchema, DeliveryAttemptStatusSchema } from './delivery-status.schema';
+import { DeliveryTypeSchema } from './delivery-type.schema';
 
-const deliveryStatusKeys = Object.keys(DELIVERY_STATUS) as [string, ...string[]];
-const deliveryTypeKeys = Object.keys(LOGISTICS_DELIVERY.DELIVERY_TYPES) as [string, ...string[]];
-const deliveryWindowKeys = Object.keys(LOGISTICS_DELIVERY.DELIVERY_WINDOWS) as [
-  string,
-  ...string[],
-];
-
-export const DeliverySchema: z.ZodObject<z.ZodRawShape> = BaseSchema.extend({
-  deliveryId: z.string().uuid(),
-  deliveryNumber: z.string().min(1).max(50),
-  orderId: z.string().uuid(),
-  order: OrderSchema,
-  shipmentId: z.string().uuid(),
-  shipment: ShipmentSchema,
-  status: z.enum(deliveryStatusKeys),
-  type: z.enum(deliveryTypeKeys),
-  window: z.enum(deliveryWindowKeys),
-  driver: DriverSchema,
-  vehicle: VehicleSchema,
-  route: RouteSchema,
-  items: z.array(
-    z.object({
-      itemId: z.string().uuid(),
-      productId: z.string().uuid(),
-      productName: z.string(),
-      quantity: z.number().int().min(0),
-      weight: z.number().positive(),
-    })
-  ),
-  totalItems: z.number().int().min(0).default(0),
-  totalWeight: z.number().min(0).default(0),
-  deliveryCost: MoneySchema,
-  codAmount: MoneySchema,
-  isCod: z.boolean().default(false),
-  isCollected: z.boolean().default(false),
-  collectedAt: z.date().optional(),
-  collectedBy: z.string().optional(),
-  scheduledDate: z.date(),
-  scheduledTime: z.string(),
-  startedAt: z.date().optional(),
-  deliveredAt: z.date().optional(),
-  deliveryAttempts: z.array(
-    z.object({
-      attemptNumber: z.number().int().min(1),
-      attemptedAt: z.date(),
-      status: z.enum(['attempted', 'delivered', 'failed']),
-      reason: z.string().optional(),
-      notes: z.string().optional(),
-    })
-  ),
-  maxAttempts: z.number().int().min(1).default(3),
-  notes: z.string().optional(),
-  signature: z.string().optional(),
-  metadata: z.object({
-    isPriority: z.boolean().default(false),
-    isExpress: z.boolean().default(false),
-    requiresSignature: z.boolean().default(false),
-    requiresPhoto: z.boolean().default(false),
-    requiresOtp: z.boolean().default(false),
-    ageRestricted: z.boolean().default(false),
-  }),
+export const DeliveryAttemptSchema = z.object({
+  id: z.string().min(1),
+  attemptNumber: z.number().int().positive(),
+  status: DeliveryAttemptStatusSchema,
+  reason: z.string().max(500).optional(),
+  driverId: UuidSchema.optional(),
+  attemptedAt: z.string().datetime(),
+  location: z.string().max(255).optional(),
+  latitude: z.number().min(-90).max(90).optional(),
+  longitude: z.number().min(-180).max(180).optional(),
+  images: z.array(z.string().url()).max(5).optional(),
+  notes: z.string().max(500).optional(),
 });
 
+export const ProofOfDeliverySchema = z.object({
+  type: z.enum(['signature', 'otp', 'photo', 'id_verification', 'contactless']),
+  signatureUrl: z.string().url().optional(),
+  photoUrl: z.string().url().optional(),
+  otp: z
+    .string()
+    .regex(/^\d{4,8}$/)
+    .optional(),
+  idNumber: z.string().max(100).optional(),
+  recipientName: z.string().max(150).optional(),
+  capturedAt: z.string().datetime(),
+});
+
+export const DeliverySchema = BaseEntitySchema.extend({
+  shipmentId: UuidSchema,
+  orderId: UuidSchema,
+  userId: UuidSchema.optional(),
+  status: DeliveryStatusSchema,
+  type: DeliveryTypeSchema,
+  driverId: UuidSchema.optional(),
+  vehicleId: UuidSchema.optional(),
+  routeId: UuidSchema.optional(),
+  recipientName: z.string().max(150).optional(),
+  recipientPhone: PhoneSchema.optional(),
+  deliveryAddress: AddressSchema,
+  scheduledAt: z.string().datetime().optional(),
+  pickedUpAt: z.string().datetime().optional(),
+  arrivedAt: z.string().datetime().optional(),
+  deliveredAt: z.string().datetime().optional(),
+  failedAt: z.string().datetime().optional(),
+  cancelledAt: z.string().datetime().optional(),
+  attempts: z.array(DeliveryAttemptSchema).max(10),
+  proofOfDelivery: ProofOfDeliverySchema.optional(),
+  notes: z.string().max(1000).optional(),
+});
+
+export const DeliveryPublicSchema = DeliverySchema.pick({
+  id: true,
+  shipmentId: true,
+  status: true,
+  type: true,
+  deliveredAt: true,
+}).extend({
+  attempts: z.number().int().nonnegative(),
+});
+
+export const DeliveryScheduleInputSchema = z
+  .object({
+    shipmentId: UuidSchema,
+    driverId: UuidSchema,
+    vehicleId: UuidSchema.optional(),
+    scheduledAt: z.string().datetime(),
+    routeId: UuidSchema.optional(),
+  })
+  .strict();
+
 export type DeliverySchemaType = z.infer<typeof DeliverySchema>;
+export type DeliveryPublicSchemaType = z.infer<typeof DeliveryPublicSchema>;
+export type DeliveryScheduleInputSchemaType = z.infer<typeof DeliveryScheduleInputSchema>;

@@ -1,23 +1,16 @@
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
-
 export const ANALYTICS_TYPE = {
-  TYPES: {
-    ...COMMON_TYPES,
-    USER: 'user',
-    PRODUCT: 'product',
-    SALES: 'sales',
-    ORDER: 'order',
-    VENDOR: 'vendor',
-    MARKETING: 'marketing',
-    TRAFFIC: 'traffic',
-    PERFORMANCE: 'performance',
-    FINANCIAL: 'financial',
-    INVENTORY: 'inventory',
-    CUSTOMER: 'customer',
-    SUPPORT: 'support',
-    CHANNEL: 'channel',
-    ACQUISITION: 'acquisition',
-    ENGAGEMENT: 'engagement',
-    RETENTION: 'retention',
-  },
+  WEB: 'web',
+  MOBILE: 'mobile',
+  APP: 'app',
+  API: 'api',
+  ECOMMERCE: 'ecommerce',
+  MARKETING: 'marketing',
+  PRODUCT: 'product',
+  USER: 'user',
+  REVENUE: 'revenue',
+  BEHAVIOR: 'behavior',
+  REAL_TIME: 'real_time',
+  CUSTOM: 'custom',
 } as const;
+
+export type AnalyticsTypeType = (typeof ANALYTICS_TYPE)[keyof typeof ANALYTICS_TYPE];

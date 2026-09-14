@@ -1,24 +1,15 @@
-import { TypeObject } from '../common/types.types';
-import { TICKET_TYPE } from '@vubon/shared-constants/src/support/ticket-type.constants';
+/**
+ * Ticket Type Value Types
+ * @module shared-types/support
+ */
 
-export interface TicketType extends TypeObject {
-  type: keyof typeof TICKET_TYPE.TYPES | string;
-  category: 'ticket_type';
-  isGeneral: boolean;
-  isTechnical: boolean;
-  isBilling: boolean;
-  isOrder: boolean;
-  isPayment: boolean;
-  isShipping: boolean;
-  isReturn: boolean;
-  isRefund: boolean;
-  isProduct: boolean;
-  isVendor: boolean;
-  isAccount: boolean;
-  isSecurity: boolean;
-  isFeature: boolean;
-  isComplaint: boolean;
-  isFeedback: boolean;
+import type { TICKET_TYPE } from '@vubon/shared-constants/support';
+
+export type TicketTypeValue = (typeof TICKET_TYPE)[keyof typeof TICKET_TYPE];
+
+export interface TicketTypeMetadata {
+  readonly value: TicketTypeValue;
+  readonly label: string;
+  readonly requiresOrder: boolean;
+  readonly requiresProduct: boolean;
 }
-
-export type TicketTypeKey = keyof typeof TICKET_TYPE.TYPES;

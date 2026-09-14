@@ -1,26 +1,31 @@
+/**
+ * SEO Ranking Schema
+ * @module shared-schemas/platform/seo
+ *
+ * Values আসে shared-constants/platform/seo-ranking.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { SEO_RANKING } from '@vubon/shared-constants/src/platform/seo/seo-ranking.constants';
-import { SEOKeywordSchema } from './seo-keyword.schema';
-import { SEOScoreSchema } from './seo-score.schema';
+import { SEO_RANKING_TYPE } from '@vubon/shared-constants/platform';
 
-const rankingTypeKeys = Object.keys(SEO_RANKING.TYPES) as [string, ...string[]];
+export const SeoRankingTypeSchema = z.enum(
+  Object.values(SEO_RANKING_TYPE) as [string, ...string[]]
+);
 
-export const SEORankingSchema = BaseSchema.extend({
-  rankingId: z.string().uuid(),
-  keywordId: z.string().uuid(),
-  keyword: SEOKeywordSchema,
-  type: z.enum(rankingTypeKeys),
-  position: z.number().int().min(1),
-  previousPosition: z.number().int().min(1).optional(),
-  change: z.number().int(),
-  url: z.string().url(),
-  score: SEOScoreSchema,
-  isTop3: z.boolean().default(false),
-  isTop10: z.boolean().default(false),
-  isTop20: z.boolean().default(false),
-  isTop50: z.boolean().default(false),
-  isTop100: z.boolean().default(false),
-  timestamp: z.date(),
-  metadata: z.record(z.unknown()).optional(),
+export const SeoRankingSchema = z.object({
+  id: z.string().min(1),
+  keywordId: z.string().min(1),
+  keyword: z.string().min(1).max(100),
+  type: SeoRankingTypeSchema,
+  position: z.number().int().positive(),
+  previousPosition: z.number().int().positive().optional(),
+  change: z.number().int().optional(),
+  url: z.string().url().optional(),
+  searchEngine: z.string().min(1).max(50),
+  location: z.string().max(100).optional(),
+  device: z.string().max(50).optional(),
+  checkedAt: z.string().datetime(),
 });
+
+export type SeoRankingTypeSchemaType = z.infer<typeof SeoRankingTypeSchema>;
+export type SeoRankingSchemaType = z.infer<typeof SeoRankingSchema>;

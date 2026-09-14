@@ -1,41 +1,55 @@
+/**
+ * Email Schema
+ * @module shared-schemas/platform/notification
+ *
+ * Values আসে shared-constants/platform/email.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { EmailTemplateSchema } from './email-template.schema';
-import { EMAIL } from '@vubon/shared-constants/src/platform/notification/email.constants';
+import { EMAIL_PROVIDER, EMAIL_STATUS, EMAIL_PRIORITY } from '@vubon/shared-constants/platform';
+import { EmailSchema as EmailAddressSchema } from '../../common/primitives/email.schema';
 
-const emailStatusKeys = Object.keys(EMAIL.STATUS) as [string, ...string[]];
-const emailTypeKeys = Object.keys(EMAIL.TYPES) as [string, ...string[]];
-const emailProviderKeys = Object.keys(EMAIL.EMAIL_PROVIDERS) as [string, ...string[]];
+export const EmailProviderSchema = z.enum(Object.values(EMAIL_PROVIDER) as [string, ...string[]]);
 
-export const NotificationEmailSchema = BaseSchema.extend({
-  emailId: z.string().uuid(),
-  notificationId: z.string().uuid(),
-  status: z.enum(emailStatusKeys),
-  type: z.enum(emailTypeKeys),
-  provider: z.enum(emailProviderKeys),
-  from: z.string().email(),
-  to: z.array(z.string().email()),
-  cc: z.array(z.string().email()),
-  bcc: z.array(z.string().email()),
-  subject: z.string().min(1).max(100),
-  body: z.string().min(1).max(100000),
-  template: EmailTemplateSchema,
-  templateId: z.string().uuid().optional(),
-  attachments: z.array(
-    z.object({
-      name: z.string(),
-      url: z.string().url(),
-      size: z.number().min(0),
-      type: z.string(),
-    })
-  ),
-  sentAt: z.date().optional(),
-  deliveredAt: z.date().optional(),
-  openedAt: z.date().optional(),
-  clickedAt: z.date().optional(),
-  bouncedAt: z.date().optional(),
-  spamAt: z.date().optional(),
-  metadata: z.record(z.unknown()).optional(),
+export const EmailStatusSchema = z.enum(Object.values(EMAIL_STATUS) as [string, ...string[]]);
+
+export const EmailPrioritySchema = z.enum(Object.values(EMAIL_PRIORITY) as [string, ...string[]]);
+
+export const EmailAttachmentSchema = z.object({
+  filename: z.string().min(1).max(255),
+  contentType: z.string().min(1).max(100),
+  size: z.number().int().nonnegative(),
+  url: z.string().url().optional(),
+  content: z.string().optional(),
 });
 
-export type NotificationEmail = z.infer<typeof NotificationEmailSchema>;
+export const EmailMessageSchema = z.object({
+  id: z.string().min(1),
+  to: z.array(EmailAddressSchema).min(1).max(100),
+  cc: z.array(EmailAddressSchema).max(50).optional(),
+  bcc: z.array(EmailAddressSchema).max(50).optional(),
+  from: EmailAddressSchema.optional(),
+  replyTo: EmailAddressSchema.optional(),
+  subject: z.string().min(1).max(200),
+  text: z.string().max(500000).optional(),
+  html: z.string().max(500000).optional(),
+  templateId: z.string().max(100).optional(),
+  templateData: z.record(z.string(), z.unknown()).optional(),
+  attachments: z.array(EmailAttachmentSchema).max(10).optional(),
+  headers: z.record(z.string(), z.string()).optional(),
+  priority: EmailPrioritySchema.optional(),
+  provider: EmailProviderSchema.optional(),
+  status: EmailStatusSchema,
+  sentAt: z.string().datetime().optional(),
+  deliveredAt: z.string().datetime().optional(),
+  openedAt: z.string().datetime().optional(),
+  clickedAt: z.string().datetime().optional(),
+  bouncedAt: z.string().datetime().optional(),
+  failureReason: z.string().max(500).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+export type EmailProviderSchemaType = z.infer<typeof EmailProviderSchema>;
+export type EmailStatusSchemaType = z.infer<typeof EmailStatusSchema>;
+export type EmailPrioritySchemaType = z.infer<typeof EmailPrioritySchema>;
+export type EmailMessageSchemaType = z.infer<typeof EmailMessageSchema>;

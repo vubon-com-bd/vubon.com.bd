@@ -1,13 +1,11 @@
-// Product Schemas
-export * from './product';
+// shared-schemas/business/index.ts
+// Business domain barrel export — FINAL
 
-// Future business domain schemas will be added here
+export * from './product';
 export * from './cart';
 export * from './checkout';
 export * from './payment';
-export * from './vendor';
+export * from './order';
+export * from './tax';
 export * from './flash-sales';
-// export * from './logistics';
-// export * from './content';
-// export * from './support';
-// export * from './marketing';
+export * from './vendor';

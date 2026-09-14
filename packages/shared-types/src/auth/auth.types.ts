@@ -1,54 +1,82 @@
-import { BaseEntity } from '../common/base.types';
-import { AUTH_STATUS } from '@vubon/shared-constants/src/auth/auth-status.constants';
-import { AUTH_TYPES } from '@vubon/shared-constants/src/auth/auth-type.constants';
-import { AUTH_PROVIDER } from '@vubon/shared-constants/src/auth/auth-provider.constants';
-import { AUTH_METHOD } from '@vubon/shared-constants/src/auth/auth-method.constants';
-import { ROLES } from '@vubon/shared-constants/src/common/roles.constants';
-import { PERMISSIONS } from '@vubon/shared-constants/src/common/permissions.constants';
-
 /**
- * Auth metadata interface
+ * Auth Core Types
+ * @module shared-types/auth
+ *
+ * Base auth types — aggregator।
  */
-export interface AuthMetadata {
-  userAgent?: string;
-  ipAddress?: string;
-  deviceId?: string;
-  location?: string;
-}
 
-/**
- * Auth status value types
- */
-export type AuthStatusValue = (typeof AUTH_STATUS)[keyof typeof AUTH_STATUS];
-export type AuthTypeValue = (typeof AUTH_TYPES)[keyof typeof AUTH_TYPES];
-export type AuthProviderValue = (typeof AUTH_PROVIDER)[keyof typeof AUTH_PROVIDER];
-export type AuthMethodValue = (typeof AUTH_METHOD)[keyof typeof AUTH_METHOD];
+import type {
+  UserId,
+  Email,
+  Phone,
+  PasswordHash,
+  AccessToken,
+  RefreshToken,
+  SessionId,
+} from '../common/primitives';
+import type { BaseEntity } from '../common/base';
+import type { AuthStatusValue } from './auth-status.types';
+import type { AuthTypeValue } from './auth-type.types';
+import type { AuthProviderValue } from './auth-provider.types';
+import type { AuthMethodValue } from './auth-method.types';
 
-/**
- * Auth interface (internal)
- */
-export interface Auth extends Omit<BaseEntity, 'status'> {
-  userId: string;
-  email: string;
-  phone?: string;
+export interface Auth extends BaseEntity<string> {
+  readonly userId: UserId;
+  readonly type: AuthTypeValue;
+  readonly provider: AuthProviderValue;
+  readonly method: AuthMethodValue;
+  readonly status: AuthStatusValue;
+  readonly identifier: Email | Phone | string;
+
   /** @internal */
-  passwordHash: string;
-  status: AuthStatusValue;
-  type: AuthTypeValue;
-  provider: AuthProviderValue;
-  method: AuthMethodValue;
-  role: (typeof ROLES)[keyof typeof ROLES];
-  permissions: Array<(typeof PERMISSIONS)[keyof typeof PERMISSIONS]>;
-  isVerified: boolean;
-  isActive: boolean;
-  lastLoginAt?: Date;
-  loginCount: number;
-  metadata: AuthMetadata;
+  readonly passwordHash?: PasswordHash;
+
+  readonly isEmailVerified: boolean;
+  readonly isPhoneVerified: boolean;
+  readonly isMfaEnabled: boolean;
+  readonly lastLoginAt?: string;
+  readonly lastLoginIp?: string;
+  readonly failedAttempts: number;
+  readonly lockedUntil?: string;
 }
 
-/**
- * Public-safe Auth DTO
- */
-export type AuthPublic = Omit<Auth, 'passwordHash' | 'metadata'> & {
-  metadata?: Omit<AuthMetadata, 'ipAddress'>;
-};
+export interface AuthPublic {
+  readonly id: string;
+  readonly userId: UserId;
+  readonly type: AuthTypeValue;
+  readonly provider: AuthProviderValue;
+  readonly status: AuthStatusValue;
+  readonly isEmailVerified: boolean;
+  readonly isPhoneVerified: boolean;
+  readonly isMfaEnabled: boolean;
+  readonly lastLoginAt?: string;
+}
+
+export interface AuthResult {
+  readonly success: boolean;
+  readonly userId?: UserId;
+  readonly sessionId?: SessionId;
+  readonly accessToken?: AccessToken;
+  readonly refreshToken?: RefreshToken;
+  readonly expiresAt?: number;
+  readonly requiresMfa?: boolean;
+  readonly requiresVerification?: boolean;
+  readonly error?: string;
+}
+
+export interface AuthContext {
+  readonly userId: UserId;
+  readonly sessionId: SessionId;
+  readonly roles: readonly string[];
+  readonly permissions: readonly string[];
+  readonly authenticatedAt: string;
+  readonly expiresAt: string;
+}
+
+export interface AuthCredentialsInput {
+  readonly identifier: string;
+  readonly password?: string;
+  readonly otp?: string;
+  readonly provider?: AuthProviderValue;
+  readonly method?: AuthMethodValue;
+}

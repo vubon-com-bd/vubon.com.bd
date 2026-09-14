@@ -1,10 +1,11 @@
+/**
+ * Auth Provider Schema
+ * @module shared-schemas/auth
+ */
+
 import { z } from 'zod';
-import { AUTH_PROVIDER } from '@vubon/shared-constants/src/auth/auth-provider.constants';
+import { AUTH_PROVIDER } from '@vubon/shared-constants/auth';
 
-const authProviderValues = Object.values(AUTH_PROVIDER) as [string, ...string[]];
+export const AuthProviderSchema = z.enum(Object.values(AUTH_PROVIDER) as [string, ...string[]]);
 
-export const AuthProviderSchema = z.object({
-  provider: z.enum(authProviderValues),
-});
-
-export const AuthProviderEnumSchema = z.enum(authProviderValues);
+export type AuthProviderSchemaType = z.infer<typeof AuthProviderSchema>;

@@ -1,31 +1,44 @@
-import { TYPES as COMMON_TYPES } from '../common/types.constants';
-import { VENDOR_FEATURE } from '../business/vendor/vendor-feature.constants';
-
 export const AI_FEATURE = {
-  TYPES: {
-    ...COMMON_TYPES,
-    ...VENDOR_FEATURE.TYPES,
-    AI_RECOMMENDATION: 'ai_recommendation',
-    AI_PERSONALIZATION: 'ai_personalization',
-    AI_SEARCH: 'ai_search',
-    AI_RANKING: 'ai_ranking',
-    AI_ANALYTICS: 'ai_analytics',
-    AI_CHAT: 'ai_chat',
-    AI_SUPPORT: 'ai_support',
-    AI_CONTENT: 'ai_content',
-    AI_IMAGE: 'ai_image',
-    AI_VOICE: 'ai_voice',
-  },
-  VENDOR_FEATURE: { ...VENDOR_FEATURE },
-  AI_FEATURE_STATUS: {
-    ENABLED: 'enabled',
-    DISABLED: 'disabled',
-    BETA: 'beta',
-    DEPRECATED: 'deprecated',
-  },
-  FEATURE_REQUIREMENTS: {
-    AI_RECOMMENDATION: ['user_history', 'product_data'],
-    AI_PERSONALIZATION: ['user_preferences', 'behavior_data'],
-    AI_SEARCH: ['search_index', 'embedding_model'],
-  },
+  RECOMMENDATION: 'recommendation',
+  SEARCH_RANKING: 'search_ranking',
+  PRODUCT_DESCRIPTION: 'product_description',
+  CHATBOT: 'chatbot',
+  SENTIMENT_ANALYSIS: 'sentiment_analysis',
+  FRAUD_DETECTION: 'fraud_detection',
+  DEMAND_FORECASTING: 'demand_forecasting',
+  PRICE_OPTIMIZATION: 'price_optimization',
+  CUSTOMER_SEGMENTATION: 'customer_segmentation',
+  CHURN_PREDICTION: 'churn_prediction',
+  IMAGE_TAGGING: 'image_tagging',
+  CONTENT_MODERATION: 'content_moderation',
+  TRANSLATION: 'translation',
+  SUMMARIZATION: 'summarization',
+  QUESTION_ANSWERING: 'question_answering',
+  PERSONALIZATION: 'personalization',
+  DYNAMIC_PRICING: 'dynamic_pricing',
+  INVENTORY_OPTIMIZATION: 'inventory_optimization',
 } as const;
+
+export const AI_FEATURE_STATUS = {
+  ENABLED: 'enabled',
+  DISABLED: 'disabled',
+  BETA: 'beta',
+  ALPHA: 'alpha',
+  DEPRECATED: 'deprecated',
+} as const;
+
+export const AI_FEATURE_TOGGLE = {
+  recommendation: true,
+  search_ranking: true,
+  chatbot: true,
+  sentiment_analysis: true,
+  fraud_detection: false,
+  demand_forecasting: true,
+  price_optimization: false,
+  personalization: true,
+  content_moderation: true,
+  image_tagging: false,
+} as const;
+
+export type AiFeatureType = (typeof AI_FEATURE)[keyof typeof AI_FEATURE];
+export type AiFeatureStatusType = (typeof AI_FEATURE_STATUS)[keyof typeof AI_FEATURE_STATUS];

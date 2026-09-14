@@ -1,18 +1,29 @@
-import { BaseEntity } from '../../common/base.types';
-import { SEO_ANALYTICS } from '@vubon/shared-constants/src/platform/seo/seo-analytics.constants';
-import { SEOKeyword } from './seo-keyword.types';
-import { SEORanking } from './seo-ranking.types';
-import { SEOScore } from './seo-score.types';
+/**
+ * SEO Analytics Types
+ * @module shared-types/platform/seo
+ */
 
-export interface SEOAnalytics extends BaseEntity {
-  analyticsId: string;
-  type: keyof typeof SEO_ANALYTICS.TYPES | string;
-  metric: keyof typeof SEO_ANALYTICS.METRICS | string;
-  value: number;
-  keyword: SEOKeyword;
-  ranking: SEORanking;
-  score: SEOScore;
-  period: keyof typeof SEO_ANALYTICS.ANALYTICS_GRANULARITY | string;
-  timestamp: Date;
-  metadata: Record<string, unknown>;
+import type { SEO_ANALYTICS_METRIC, SEO_ANALYTICS_PERIOD } from '@vubon/shared-constants/platform';
+
+export type SeoAnalyticsMetricValue =
+  (typeof SEO_ANALYTICS_METRIC)[keyof typeof SEO_ANALYTICS_METRIC];
+
+export type SeoAnalyticsPeriodValue =
+  (typeof SEO_ANALYTICS_PERIOD)[keyof typeof SEO_ANALYTICS_PERIOD];
+
+export interface SeoAnalytics {
+  readonly metric: SeoAnalyticsMetricValue;
+  readonly period: SeoAnalyticsPeriodValue;
+  readonly value: number;
+  readonly previousValue?: number;
+  readonly changePercent?: number;
+  readonly periodStart: string;
+  readonly periodEnd: string;
+  readonly capturedAt: string;
+}
+
+export interface SeoAnalyticsSnapshot {
+  readonly period: SeoAnalyticsPeriodValue;
+  readonly metrics: readonly SeoAnalytics[];
+  readonly capturedAt: string;
 }

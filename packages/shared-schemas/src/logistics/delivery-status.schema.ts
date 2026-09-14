@@ -1,20 +1,18 @@
+/**
+ * Delivery Status Schema
+ * @module shared-schemas/logistics
+ *
+ * Values আসে shared-constants/logistics/delivery.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { StatusSchema } from '../common/status.schema';
-import { DELIVERY_STATUS } from '@vubon/shared-constants/src/logistics/delivery-status.constants';
+import { DELIVERY_STATUS, DELIVERY_ATTEMPT_STATUS } from '@vubon/shared-constants/logistics';
 
-const deliveryStatusKeys = Object.keys(DELIVERY_STATUS) as [string, ...string[]];
+export const DeliveryStatusSchema = z.enum(Object.values(DELIVERY_STATUS) as [string, ...string[]]);
 
-export const DeliveryStatusSchema = StatusSchema.extend({
-  status: z.enum(deliveryStatusKeys),
-  category: z.literal('delivery'),
-  isPending: z.boolean().default(false),
-  isAssigned: z.boolean().default(false),
-  isInTransit: z.boolean().default(false),
-  isOutForDelivery: z.boolean().default(false),
-  isDelivered: z.boolean().default(false),
-  isReturned: z.boolean().default(false),
-  isCancelled: z.boolean().default(false),
-  isFailed: z.boolean().default(false),
-});
+export const DeliveryAttemptStatusSchema = z.enum(
+  Object.values(DELIVERY_ATTEMPT_STATUS) as [string, ...string[]]
+);
 
-export const DeliveryStatusEnumSchema = z.enum(deliveryStatusKeys);
+export type DeliveryStatusSchemaType = z.infer<typeof DeliveryStatusSchema>;
+export type DeliveryAttemptStatusSchemaType = z.infer<typeof DeliveryAttemptStatusSchema>;

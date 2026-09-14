@@ -1,18 +1,16 @@
-import { BaseEntity } from '../../common/base.types';
-import { SEO_STRATEGY } from '@vubon/shared-constants/src/platform/seo/seo-strategy.constants';
-import { SEO } from './seo.types';
+/**
+ * SEO Strategy Value Types
+ * @module shared-types/platform/seo
+ */
 
-export interface SEOStrategy extends BaseEntity {
-  strategyId: string;
-  seoId: string;
-  seo: SEO;
-  type: keyof typeof SEO_STRATEGY.TYPES | string;
-  goal: keyof typeof SEO_STRATEGY.STRATEGY_GOALS | string;
-  priority: keyof typeof SEO_STRATEGY.STRATEGY_PRIORITIES | string;
-  description?: string;
-  isActive: boolean;
-  duration: number;
-  startDate: Date;
-  endDate: Date;
-  metadata: Record<string, unknown>;
+import type { SEO_STRATEGY, SEO_CRAWL_FREQUENCY } from '@vubon/shared-constants/platform';
+
+export type SeoStrategyValue = (typeof SEO_STRATEGY)[keyof typeof SEO_STRATEGY];
+
+export type SeoCrawlFrequencyValue = (typeof SEO_CRAWL_FREQUENCY)[keyof typeof SEO_CRAWL_FREQUENCY];
+
+export interface SeoStrategyMetadata {
+  readonly value: SeoStrategyValue;
+  readonly label: string;
+  readonly isWhiteHat: boolean;
 }

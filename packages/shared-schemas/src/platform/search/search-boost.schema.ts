@@ -1,25 +1,23 @@
-import { z } from 'zod';
-import { SEARCH_BOOST } from '@vubon/shared-constants/src/platform/search/search-boost.constants';
+/**
+ * Search Boost Schema
+ * @module shared-schemas/platform/search
+ *
+ * Values আসে shared-constants/platform/search-boost.constants থেকে।
+ */
 
-const searchBoostTypeKeys = Object.keys(SEARCH_BOOST.TYPES) as [string, ...string[]];
+import { z } from 'zod';
+import { SEARCH_BOOST_FIELD } from '@vubon/shared-constants/platform';
+
+export const SearchBoostFieldSchema = z.enum(
+  Object.values(SEARCH_BOOST_FIELD) as [string, ...string[]]
+);
 
 export const SearchBoostSchema = z.object({
-  boost: z.enum(searchBoostTypeKeys),
-  category: z.literal('search_boost'),
-  weight: z.number().min(0),
-  isTitle: z.boolean().default(false),
-  isDescription: z.boolean().default(false),
-  isContent: z.boolean().default(false),
-  isCategory: z.boolean().default(false),
-  isBrand: z.boolean().default(false),
-  isVendor: z.boolean().default(false),
-  isTags: z.boolean().default(false),
-  isSku: z.boolean().default(false),
-  isPopularity: z.boolean().default(false),
-  isRating: z.boolean().default(false),
-  isSales: z.boolean().default(false),
-  isNewness: z.boolean().default(false),
-  isPromotion: z.boolean().default(false),
+  field: SearchBoostFieldSchema,
+  boost: z.number().min(0.1).max(10),
+  decayEnabled: z.boolean().optional(),
+  decayScaleDays: z.number().int().positive().max(3650).optional(),
 });
 
-export const SearchBoostEnumSchema = z.enum(searchBoostTypeKeys);
+export type SearchBoostFieldSchemaType = z.infer<typeof SearchBoostFieldSchema>;
+export type SearchBoostSchemaType = z.infer<typeof SearchBoostSchema>;

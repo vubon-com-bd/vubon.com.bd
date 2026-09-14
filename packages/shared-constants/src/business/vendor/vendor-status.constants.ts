@@ -1,15 +1,14 @@
 import { STATUS as COMMON_STATUS } from '../../common/status.constants';
 
 export const VENDOR_STATUS = {
-  ...COMMON_STATUS,
-  PENDING: 'pending',
-  PENDING_APPROVAL: 'pending_approval',
-  APPROVED: 'approved',
-  REJECTED: 'rejected',
-  ACTIVE: 'active',
-  INACTIVE: 'inactive',
-  SUSPENDED: 'suspended',
-  BANNED: 'banned',
-  DELETED: 'deleted',
-  ARCHIVED: 'archived',
+  PENDING: COMMON_STATUS.PENDING,
+  APPROVED: COMMON_STATUS.APPROVED,
+  ACTIVE: COMMON_STATUS.ACTIVE,
+  INACTIVE: COMMON_STATUS.INACTIVE,
+  SUSPENDED: COMMON_STATUS.SUSPENDED,
+  REJECTED: COMMON_STATUS.REJECTED,
+  BLOCKED: COMMON_STATUS.BLOCKED,
+  DELETED: COMMON_STATUS.DELETED,
 } as const;
+
+export type VendorStatusType = (typeof VENDOR_STATUS)[keyof typeof VENDOR_STATUS];

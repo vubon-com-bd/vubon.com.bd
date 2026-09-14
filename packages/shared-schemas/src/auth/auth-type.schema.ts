@@ -1,11 +1,11 @@
+/**
+ * Auth Type Schema
+ * @module shared-schemas/auth
+ */
+
 import { z } from 'zod';
-import { AUTH_TYPES } from '@vubon/shared-constants/src/auth/auth-type.constants';
+import { AUTH_TYPE } from '@vubon/shared-constants/auth';
 
-const authTypeValues = Object.values(AUTH_TYPES) as [string, ...string[]];
+export const AuthTypeSchema = z.enum(Object.values(AUTH_TYPE) as [string, ...string[]]);
 
-export const AuthTypeSchema = z.object({
-  type: z.enum(authTypeValues),
-  category: z.literal('auth'),
-});
-
-export const AuthTypeEnumSchema = z.enum(authTypeValues);
+export type AuthTypeSchemaType = z.infer<typeof AuthTypeSchema>;

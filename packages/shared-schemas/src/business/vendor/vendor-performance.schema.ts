@@ -1,28 +1,45 @@
+/**
+ * Vendor Performance Schema
+ * @module shared-schemas/business/vendor
+ *
+ * Values আসে shared-constants/business/vendor-performance.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { VENDOR_PERFORMANCE } from '@vubon/shared-constants/src/business/vendor/vendor-performance.constants';
+import {
+  VENDOR_PERFORMANCE_METRIC,
+  VENDOR_PERFORMANCE_GRADE,
+} from '@vubon/shared-constants/business';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
 
-const vendorPerformanceTypeKeys = Object.keys(VENDOR_PERFORMANCE.TYPES) as [string, ...string[]];
+export const VendorPerformanceMetricSchema = z.enum(
+  Object.values(VENDOR_PERFORMANCE_METRIC) as [string, ...string[]]
+);
 
-export const VendorPerformanceSchema = BaseSchema.extend({
-  performanceId: z.string().uuid(),
-  vendorId: z.string().uuid(),
-  type: z.enum(vendorPerformanceTypeKeys),
-  score: z.number().min(0).max(100),
-  metrics: z.object({
-    totalOrders: z.number().int().min(0),
-    totalRevenue: z.number().min(0),
-    totalCommission: z.number().min(0),
-    averageRating: z.number().min(0).max(5),
-    reviewCount: z.number().int().min(0),
-    fulfillmentRate: z.number().min(0).max(100),
-    onTimeDelivery: z.number().min(0).max(100),
-    customerSatisfaction: z.number().min(0).max(100),
-  }),
-  rating: z.number().min(0).max(5),
-  period: z.enum(['daily', 'weekly', 'monthly', 'quarterly', 'yearly']),
-  startDate: z.date(),
-  endDate: z.date(),
-  isActive: z.boolean().default(true),
-  metadata: z.record(z.unknown()).optional(),
+export const VendorPerformanceGradeSchema = z.enum(
+  Object.values(VENDOR_PERFORMANCE_GRADE) as [string, ...string[]]
+);
+
+export const VendorPerformanceMetricsSchema = z.object({
+  metric: VendorPerformanceMetricSchema,
+  value: z.number(),
+  target: z.number(),
+  grade: VendorPerformanceGradeSchema,
 });
+
+export const VendorPerformanceSchema = z.object({
+  vendorId: UuidSchema,
+  grade: VendorPerformanceGradeSchema,
+  metrics: z.array(VendorPerformanceMetricsSchema).max(20),
+  overallScore: z.number().min(0).max(100),
+  evaluationPeriodStart: z.string().datetime(),
+  evaluationPeriodEnd: z.string().datetime(),
+  orderCount: z.number().int().nonnegative(),
+  isSuspended: z.boolean(),
+  warningIssued: z.boolean(),
+  evaluatedAt: z.string().datetime(),
+});
+
+export type VendorPerformanceMetricSchemaType = z.infer<typeof VendorPerformanceMetricSchema>;
+export type VendorPerformanceGradeSchemaType = z.infer<typeof VendorPerformanceGradeSchema>;
+export type VendorPerformanceSchemaType = z.infer<typeof VendorPerformanceSchema>;

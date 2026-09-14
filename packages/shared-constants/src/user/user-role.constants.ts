@@ -1,18 +1,14 @@
-import { ROLES as COMMON_ROLES } from '../common/roles.constants';
+import { AUTH_ROLE } from '../auth/auth-role.constants';
 
-/**
- * User Roles Constants
- * @module shared-constants/user/user-role
- *
- * Includes all common roles (admin, customer, ...) plus user-specific
- * roles. Object.values() works here because COMMON_ROLES is flat.
- */
-
-export const USER_ROLES = {
-  ...COMMON_ROLES,
-  USER: 'user',
-  PREMIUM_USER: 'premium_user',
-  GUEST: 'guest',
+export const USER_ROLE = {
+  SUPER_ADMIN: AUTH_ROLE.SUPER_ADMIN,
+  ADMIN: AUTH_ROLE.ADMIN,
+  MODERATOR: AUTH_ROLE.MODERATOR,
+  VENDOR: AUTH_ROLE.VENDOR,
+  CUSTOMER: AUTH_ROLE.CUSTOMER,
+  GUEST: AUTH_ROLE.GUEST,
+  SUPPORT_AGENT: AUTH_ROLE.SUPPORT_AGENT,
+  LOGISTICS_MANAGER: AUTH_ROLE.LOGISTICS_MANAGER,
 } as const;
 
-export type UserRoleValue = (typeof USER_ROLES)[keyof typeof USER_ROLES];
+export type UserRoleType = (typeof USER_ROLE)[keyof typeof USER_ROLE];

@@ -1,17 +1,30 @@
+/**
+ * Complementary Schema
+ * @module shared-schemas/platform/discovery
+ *
+ * Values আসে shared-constants/platform/complementary.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { ProductSchema } from '../../business/product/product.schema';
-import { COMPLEMENTARY } from '@vubon/shared-constants/src/platform/discovery/complementary.constants';
+import { COMPLEMENTARY_TYPE } from '@vubon/shared-constants/platform';
 
-const complementaryTypeKeys = Object.keys(COMPLEMENTARY.TYPES) as [string, ...string[]];
+export const ComplementaryTypeSchema = z.enum(
+  Object.values(COMPLEMENTARY_TYPE) as [string, ...string[]]
+);
 
-export const ComplementarySchema = BaseSchema.extend({
-  complementaryId: z.string().uuid(),
-  productId: z.string().uuid(),
-  product: ProductSchema,
-  type: z.enum(complementaryTypeKeys),
-  complementaryProducts: z.array(z.string()),
-  score: z.number().min(0).max(1),
-  isActive: z.boolean().default(true),
-  metadata: z.record(z.unknown()).optional(),
+export const ComplementaryItemSchema = z.object({
+  productId: z.string().min(1),
+  type: ComplementaryTypeSchema,
+  affinity: z.number().min(0).max(1),
+  reason: z.string().max(200).optional(),
 });
+
+export const ComplementaryResultSchema = z.object({
+  sourceProductId: z.string().min(1),
+  items: z.array(ComplementaryItemSchema).max(20),
+  generatedAt: z.string().datetime(),
+});
+
+export type ComplementaryTypeSchemaType = z.infer<typeof ComplementaryTypeSchema>;
+export type ComplementaryItemSchemaType = z.infer<typeof ComplementaryItemSchema>;
+export type ComplementaryResultSchemaType = z.infer<typeof ComplementaryResultSchema>;

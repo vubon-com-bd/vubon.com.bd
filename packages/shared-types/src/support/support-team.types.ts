@@ -1,20 +1,51 @@
-import { BaseEntity } from '../common/base.types';
-import { SUPPORT_TEAM } from '@vubon/shared-constants/src/support/support-team.constants';
-import { SupportAgent } from './support-agent.types';
+/**
+ * Support Team Types
+ * @module shared-types/support
+ */
 
-export interface SupportTeam extends BaseEntity {
-  teamId: string;
-  name: string;
-  description?: string;
-  status: keyof typeof SUPPORT_TEAM.STATUS | string;
-  type: keyof typeof SUPPORT_TEAM.TYPES | string;
-  leadId: string;
-  lead: SupportAgent;
-  members: SupportAgent[];
-  memberCount: number;
-  minSize: number;
-  maxSize: number;
-  shiftRotationDays: number;
-  isActive: boolean;
-  metadata: Record<string, unknown>;
+import type {
+  SUPPORT_TEAM_TYPE,
+  SUPPORT_TEAM_STATUS,
+  SUPPORT_TEAM_ROUTING,
+} from '@vubon/shared-constants/support';
+import type { BaseEntity } from '../common/base';
+import type { UserId } from '../common/primitives';
+
+export type SupportTeamTypeValue = (typeof SUPPORT_TEAM_TYPE)[keyof typeof SUPPORT_TEAM_TYPE];
+
+export type SupportTeamStatusValue = (typeof SUPPORT_TEAM_STATUS)[keyof typeof SUPPORT_TEAM_STATUS];
+
+export type SupportTeamRoutingValue =
+  (typeof SUPPORT_TEAM_ROUTING)[keyof typeof SUPPORT_TEAM_ROUTING];
+
+export interface SupportTeam extends BaseEntity<string> {
+  readonly name: string;
+  readonly description?: string;
+  readonly type: SupportTeamTypeValue;
+  readonly status: SupportTeamStatusValue;
+  readonly routing: SupportTeamRoutingValue;
+  readonly leaderId?: UserId;
+  readonly memberIds: readonly UserId[];
+  readonly skills: readonly string[];
+  readonly categories: readonly string[];
+  readonly maxTickets: number;
+  readonly activeTicketCount: number;
+  readonly isDefault: boolean;
+}
+
+export interface SupportTeamPublic {
+  readonly id: string;
+  readonly name: string;
+  readonly type: SupportTeamTypeValue;
+  readonly status: SupportTeamStatusValue;
+  readonly memberCount: number;
+  readonly activeTicketCount: number;
+}
+
+export interface SupportTeamMembership {
+  readonly teamId: string;
+  readonly userId: UserId;
+  readonly isLeader: boolean;
+  readonly joinedAt: string;
+  readonly leftAt?: string;
 }

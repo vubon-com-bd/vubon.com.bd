@@ -1,18 +1,43 @@
-import { BaseEntity } from '../common/base.types';
-import { LOYALTY_POINTS } from '@vubon/shared-constants/src/marketing/loyalty-points.constants';
-import { Loyalty } from './loyalty.types';
+/**
+ * Loyalty Points Types
+ * @module shared-types/marketing
+ */
 
-export interface LoyaltyPoints extends BaseEntity {
-  pointsId: string;
-  loyaltyId: string;
-  loyalty: Loyalty;
-  type: keyof typeof LOYALTY_POINTS.TYPES | string;
-  amount: number;
-  multiplier: number;
-  totalPoints: number;
-  minRedemption: number;
-  maxPerTransaction: number;
-  isActive: boolean;
-  expiresAt: Date;
-  metadata: Record<string, unknown>;
+import type { LOYALTY_POINT_TYPE, LOYALTY_EARN_RULE } from '@vubon/shared-constants/marketing';
+import type { UserId } from '../common/primitives';
+
+export type LoyaltyPointTypeValue = (typeof LOYALTY_POINT_TYPE)[keyof typeof LOYALTY_POINT_TYPE];
+
+export type LoyaltyEarnRuleValue = (typeof LOYALTY_EARN_RULE)[keyof typeof LOYALTY_EARN_RULE];
+
+export interface LoyaltyPoints {
+  readonly userId: UserId;
+  readonly balance: number;
+  readonly lifetimeEarned: number;
+  readonly lifetimeRedeemed: number;
+  readonly lifetimeExpired: number;
+  readonly lastEarnedAt?: string;
+  readonly lastRedeemedAt?: string;
+  readonly expiresAt?: string;
+  readonly updatedAt: string;
+}
+
+export interface LoyaltyPointsTransaction {
+  readonly id: string;
+  readonly userId: UserId;
+  readonly type: LoyaltyPointTypeValue;
+  readonly points: number;
+  readonly balanceAfter: number;
+  readonly rule?: LoyaltyEarnRuleValue;
+  readonly reference?: string;
+  readonly description?: string;
+  readonly expiresAt?: string;
+  readonly occurredAt: string;
+}
+
+export interface LoyaltyPointsAdjustment {
+  readonly userId: UserId;
+  readonly points: number;
+  readonly reason: string;
+  readonly adjustedBy: string;
 }

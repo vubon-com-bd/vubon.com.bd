@@ -1,39 +1,37 @@
-import { STATUS } from '../../common/status.constants';
-import { PERMISSIONS } from '../../common/permissions.constants';
 import { RECOMMENDATION_TYPE } from './recommendation-type.constants';
-import { RECOMMENDATION_STRATEGY } from './recommendation-strategy.constants';
-import { PRODUCT_STATUS } from '../../business/product/product-status.constants';
+import {
+  RECOMMENDATION_STRATEGY,
+  RECOMMENDATION_STRATEGY_WEIGHT,
+  RECOMMENDATION_STRATEGY_STATUS,
+} from './recommendation-strategy.constants';
+
+export const RECOMMENDATION_STATUS = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+  TRAINING: 'training',
+  DEPLOYED: 'deployed',
+  EXPIRED: 'expired',
+  ARCHIVED: 'archived',
+} as const;
 
 export const RECOMMENDATION = {
-  STATUS: {
-    ...STATUS,
-    ACTIVE: 'active',
-    INACTIVE: 'inactive',
-    COMPUTING: 'computing',
-    FAILED: 'failed',
-    EXPIRED: 'expired',
+  TYPE: RECOMMENDATION_TYPE,
+  STATUS: RECOMMENDATION_STATUS,
+  STRATEGY: {
+    TYPE: RECOMMENDATION_STRATEGY,
+    WEIGHT: RECOMMENDATION_STRATEGY_WEIGHT,
+    STATUS: RECOMMENDATION_STRATEGY_STATUS,
   },
-  PERMISSIONS: {
-    ...PERMISSIONS,
-    VIEW: 'recommendation:view',
-    CREATE: 'recommendation:create',
-    UPDATE: 'recommendation:update',
-    DELETE: 'recommendation:delete',
-  },
-  RECOMMENDATION_TYPE: { ...RECOMMENDATION_TYPE },
-  RECOMMENDATION_STRATEGY: { ...RECOMMENDATION_STRATEGY },
-  PRODUCT_STATUS: { ...PRODUCT_STATUS },
-  RECOMMENDATION_SOURCES: {
-    USER: 'user',
-    PRODUCT: 'product',
-    CATEGORY: 'category',
-    BEHAVIOR: 'behavior',
-    SIMILARITY: 'similarity',
-    COLLABORATIVE: 'collaborative',
-    CONTENT_BASED: 'content_based',
-    HYBRID: 'hybrid',
-  },
-  MAX_RECOMMENDATIONS_PER_USER: 100,
-  RECOMMENDATION_SCORE_THRESHOLD: 0.3,
-  RECOMMENDATION_CACHE_TTL_HOURS: 12,
+  MAX_RECOMMENDATIONS: 50,
+  DEFAULT_COUNT: 10,
+  MIN_SCORE: 0.1,
+  CACHE_TTL_SECONDS: 300,
+  REFRESH_INTERVAL_SECONDS: 3600,
+  PERSONALIZATION_ENABLED: true,
+  DIVERSITY_ENABLED: true,
+  EXCLUDE_OUT_OF_STOCK: true,
+  EXCLUDE_PURCHASED: false,
+  RETENTION_DAYS: 90,
 } as const;
+
+export type RecommendationType = typeof RECOMMENDATION;

@@ -1,19 +1,33 @@
+/**
+ * Frequently Bought Schema
+ * @module shared-schemas/platform/discovery
+ *
+ * Values আসে shared-constants/platform/frequently-bought.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { ProductSchema } from '../../business/product/product.schema';
-import { FREQUENTLY_BOUGHT } from '@vubon/shared-constants/src/platform/discovery/frequently-bought.constants';
+import { FREQUENTLY_BOUGHT_TYPE } from '@vubon/shared-constants/platform';
 
-const frequentlyBoughtTypeKeys = Object.keys(FREQUENTLY_BOUGHT.TYPES) as [string, ...string[]];
+export const FrequentlyBoughtTypeSchema = z.enum(
+  Object.values(FREQUENTLY_BOUGHT_TYPE) as [string, ...string[]]
+);
 
-export const FrequentlyBoughtSchema = BaseSchema.extend({
-  frequentlyBoughtId: z.string().uuid(),
-  productId: z.string().uuid(),
-  product: ProductSchema,
-  type: z.enum(frequentlyBoughtTypeKeys),
-  association: z.array(z.string()),
-  support: z.number().min(0).max(1),
+export const FrequentlyBoughtItemSchema = z.object({
+  productId: z.string().min(1),
+  coOccurrences: z.number().int().nonnegative(),
   confidence: z.number().min(0).max(1),
-  lift: z.number().min(0),
-  isActive: z.boolean().default(true),
-  metadata: z.record(z.unknown()).optional(),
+  lift: z.number().nonnegative(),
+  support: z.number().min(0).max(1),
 });
+
+export const FrequentlyBoughtResultSchema = z.object({
+  sourceProductId: z.string().min(1),
+  type: FrequentlyBoughtTypeSchema,
+  items: z.array(FrequentlyBoughtItemSchema).max(10),
+  lookbackDays: z.number().int().positive(),
+  generatedAt: z.string().datetime(),
+});
+
+export type FrequentlyBoughtTypeSchemaType = z.infer<typeof FrequentlyBoughtTypeSchema>;
+export type FrequentlyBoughtItemSchemaType = z.infer<typeof FrequentlyBoughtItemSchema>;
+export type FrequentlyBoughtResultSchemaType = z.infer<typeof FrequentlyBoughtResultSchema>;

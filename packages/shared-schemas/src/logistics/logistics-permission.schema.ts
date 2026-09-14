@@ -1,24 +1,24 @@
+/**
+ * Logistics Permission Schema
+ * @module shared-schemas/logistics
+ *
+ * Values আসে shared-constants/logistics/logistics-permission.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { PermissionSchema } from '../common/permission.schema';
-import { LOGISTICS_PERMISSION } from '@vubon/shared-constants/src/logistics/logistics-permission.constants';
+import { LOGISTICS_PERMISSION } from '@vubon/shared-constants/logistics';
 
-const logisticsPermissionKeys = Object.keys(LOGISTICS_PERMISSION) as [string, ...string[]];
+export const LogisticsPermissionSchema = z.enum(
+  Object.values(LOGISTICS_PERMISSION) as [string, ...string[]]
+);
 
-export const LogisticsPermissionSchema = PermissionSchema.extend({
-  permission: z.enum(logisticsPermissionKeys),
-  category: z.literal('logistics'),
-  module: z.string(),
-  action: z.enum([
-    'view',
-    'create',
-    'update',
-    'delete',
-    'manage',
-    'assign',
-    'track',
-    'dispatch',
-    'complete',
-  ]),
+export const LogisticsPermissionGrantSchema = z.object({
+  userId: z.string().min(1),
+  permission: LogisticsPermissionSchema,
+  grantedBy: z.string().min(1),
+  grantedAt: z.string().datetime(),
+  expiresAt: z.string().datetime().optional(),
 });
 
-export const LogisticsPermissionEnumSchema = z.enum(logisticsPermissionKeys);
+export type LogisticsPermissionSchemaType = z.infer<typeof LogisticsPermissionSchema>;
+export type LogisticsPermissionGrantSchemaType = z.infer<typeof LogisticsPermissionGrantSchema>;

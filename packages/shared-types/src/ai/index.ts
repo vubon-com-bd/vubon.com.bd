@@ -1,11 +1,12 @@
+// shared-types/ai/index.ts
+// AI domain barrel export
+
 export * from './ai.types';
 export * from './ai-model.types';
 export * from './ai-model-type.types';
 export * from './ai-model-status.types';
 export * from './ai-model-provider.types';
-export * from './ai-recommendation.types';
 export * from './ai-personalization.types';
-export * from './ai-search.types';
 export * from './ai-ranking.types';
 export * from './ai-analytics.types';
 export * from './ai-training.types';

@@ -1,19 +1,43 @@
-import { BaseEntity } from '../../common/base.types';
-import { NOTIFICATION_DIGEST } from '@vubon/shared-constants/src/platform/notification/notification-digest.constants';
-import { Notification } from './notification.types';
+/**
+ * Notification Digest Types
+ * @module shared-types/platform/notification
+ */
 
-export interface NotificationDigest extends BaseEntity {
-  digestId: string;
-  notificationId: string;
-  notification: Notification;
-  status: keyof typeof NOTIFICATION_DIGEST.STATUS | string;
-  type: keyof typeof NOTIFICATION_DIGEST.TYPES | string;
-  notifications: string[];
-  notificationCount: number;
-  summary: string;
-  generatedAt?: Date;
-  sentAt?: Date;
-  failedAt?: Date;
-  failureReason?: string;
-  metadata: Record<string, unknown>;
+import type {
+  NOTIFICATION_DIGEST_FREQUENCY,
+  NOTIFICATION_DIGEST_TYPE,
+  NOTIFICATION_DIGEST_STATUS,
+} from '@vubon/shared-constants/platform';
+
+export type NotificationDigestFrequencyValue =
+  (typeof NOTIFICATION_DIGEST_FREQUENCY)[keyof typeof NOTIFICATION_DIGEST_FREQUENCY];
+
+export type NotificationDigestTypeValue =
+  (typeof NOTIFICATION_DIGEST_TYPE)[keyof typeof NOTIFICATION_DIGEST_TYPE];
+
+export type NotificationDigestStatusValue =
+  (typeof NOTIFICATION_DIGEST_STATUS)[keyof typeof NOTIFICATION_DIGEST_STATUS];
+
+export interface NotificationDigest {
+  readonly id: string;
+  readonly userId: string;
+  readonly frequency: NotificationDigestFrequencyValue;
+  readonly type: NotificationDigestTypeValue;
+  readonly status: NotificationDigestStatusValue;
+  readonly categories: readonly string[];
+  readonly sendHour: number;
+  readonly timezone: string;
+  readonly itemCount: number;
+  readonly generatedAt?: string;
+  readonly sentAt?: string;
+  readonly lastDeliveredAt?: string;
+}
+
+export interface DigestPreference {
+  readonly userId: string;
+  readonly enabled: boolean;
+  readonly frequency: NotificationDigestFrequencyValue;
+  readonly categories: readonly string[];
+  readonly sendHour: number;
+  readonly timezone: string;
 }

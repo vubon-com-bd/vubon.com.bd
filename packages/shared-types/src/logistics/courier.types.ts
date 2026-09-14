@@ -1,36 +1,67 @@
-import { BaseEntity } from '../common/base.types';
-import { Money } from '../common/money.types';
-import { COURIER } from '@vubon/shared-constants/src/logistics/courier.constants';
-import { Dimensions } from './shipment.types';
+/**
+ * Courier Types
+ * @module shared-types/logistics
+ *
+ * Values আসে shared-constants/logistics/courier.constants থেকে।
+ */
 
-export interface CourierRate {
-  zone: string;
-  baseRate: Money;
-  perKgRate: Money;
-  perItemRate: Money;
-  fuelSurcharge: number;
+import type { COURIER_STATUS, COURIER_TYPE, COURIER_NAME } from '@vubon/shared-constants/logistics';
+import type { BaseEntity } from '../common/base';
+import type { Url, Phone, Email } from '../common/primitives';
+
+export type CourierStatusValue = (typeof COURIER_STATUS)[keyof typeof COURIER_STATUS];
+
+export type CourierTypeValue = (typeof COURIER_TYPE)[keyof typeof COURIER_TYPE];
+
+export type CourierNameValue = (typeof COURIER_NAME)[keyof typeof COURIER_NAME];
+
+export interface Courier extends BaseEntity<string> {
+  readonly name: string;
+  readonly code: CourierNameValue | string;
+  readonly displayName: string;
+  readonly type: CourierTypeValue;
+  readonly status: CourierStatusValue;
+  readonly logoUrl?: Url;
+  readonly website?: Url;
+  readonly contactPhone?: Phone;
+  readonly contactEmail?: Email;
+  readonly trackingUrlTemplate?: string;
+  readonly apiEnabled: boolean;
+  readonly coverageZones?: readonly string[];
+  readonly supportsCOD: boolean;
+  readonly supportsInsurance: boolean;
+  readonly supportsInternational: boolean;
+  readonly averageDeliveryDays: number;
+  readonly isDefault: boolean;
+  readonly priority: number;
+  readonly createdAt: string;
+  readonly updatedAt: string;
 }
 
-export interface Courier extends BaseEntity {
-  courierId: string;
-  name: string;
-  code: string;
-  status: keyof typeof COURIER.STATUS | string;
-  type: keyof typeof COURIER.TYPES | string;
-  serviceType: keyof typeof COURIER.SERVICE_TYPES | string;
-  phone: string;
-  email: string;
-  address: string;
-  website?: string;
-  logo?: string;
-  trackingUrl: string;
-  apiKey?: string;
-  apiSecret?: string;
-  maxWeight: number;
-  maxDimensions: Dimensions;
-  supportedZones: string[];
-  rates: CourierRate[];
-  isActive: boolean;
-  isDefault: boolean;
-  metadata: Record<string, unknown>;
+export interface CourierPublic {
+  readonly id: string;
+  readonly name: string;
+  readonly displayName: string;
+  readonly type: CourierTypeValue;
+  readonly status: CourierStatusValue;
+  readonly logoUrl?: Url;
+  readonly supportsCOD: boolean;
+}
+
+export interface CourierApiConfig {
+  readonly courierId: string;
+  readonly apiKeyName: string;
+  readonly baseUrl: string;
+  readonly webhookSecretName?: string;
+  readonly timeout: number;
+  readonly retryAttempts: number;
+  readonly isEnabled: boolean;
+}
+
+export interface CourierListFilter {
+  readonly status?: CourierStatusValue;
+  readonly type?: CourierTypeValue;
+  readonly supportsCOD?: boolean;
+  readonly supportsInternational?: boolean;
+  readonly search?: string;
 }

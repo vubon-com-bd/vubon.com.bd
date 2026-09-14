@@ -1,25 +1,39 @@
-import { BaseEntity } from '../common/base.types';
-import { USER_PREFERENCES } from '@vubon/shared-constants/src/user/user-preferences.constants';
-
 /**
- * User preference type value
+ * User Preferences Types
+ * @module shared-types/user
+ *
+ * Values আসে shared-constants/user/user-preferences.constants থেকে।
  */
-export type UserPreferenceType = (typeof USER_PREFERENCES)[keyof typeof USER_PREFERENCES];
 
-/**
- * Allowed primitive shapes for a preference value.
- * Keeps type-safety while remaining flexible.
- */
-export type UserPreferenceValue = string | number | boolean | string[] | number[];
+import type { USER_PREFERENCE, USER_PREFERENCE_CHANNEL } from '@vubon/shared-constants/user';
+import type { UserId } from '../common/primitives';
 
-/**
- * User preferences interface
- */
-export interface UserPreferences extends BaseEntity {
-  preferenceId: string;
-  userId: string;
-  type: UserPreferenceType;
-  value: UserPreferenceValue;
-  isDefault: boolean;
-  metadata: Record<string, unknown>;
+export type PreferenceKey = (typeof USER_PREFERENCE)[keyof typeof USER_PREFERENCE];
+
+export type PreferenceChannelValue =
+  (typeof USER_PREFERENCE_CHANNEL)[keyof typeof USER_PREFERENCE_CHANNEL];
+
+export interface UserPreferences {
+  readonly userId: UserId;
+  readonly newsletter: boolean;
+  readonly promotions: boolean;
+  readonly orderUpdates: boolean;
+  readonly productRecommendations: boolean;
+  readonly securityAlerts: boolean;
+  readonly channels: PreferenceChannelSetting[];
+  readonly updatedAt: string;
+}
+
+export interface PreferenceChannelSetting {
+  readonly channel: PreferenceChannelValue;
+  readonly enabled: boolean;
+}
+
+export interface UserPreferenceInput {
+  readonly newsletter?: boolean;
+  readonly promotions?: boolean;
+  readonly orderUpdates?: boolean;
+  readonly productRecommendations?: boolean;
+  readonly securityAlerts?: boolean;
+  readonly channels?: readonly PreferenceChannelSetting[];
 }

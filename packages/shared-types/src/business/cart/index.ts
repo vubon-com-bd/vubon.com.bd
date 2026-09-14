@@ -1,10 +1,11 @@
+// shared-types/business/cart/index.ts
+// Cart sub-domain barrel export
+
 export * from './cart.types';
 export * from './cart-status.types';
 export * from './cart-item.types';
-export * from './saved-for-later.types';
-export * from './cart-coupon.types';
-export * from './cart-promotion.types';
+export * from './coupon.types';
+export * from './coupon-type.types';
+export * from './coupon-discount-type.types';
+export * from './voucher.types';
 export * from './abandoned-cart.types';
-export * from './cart-guest.types';
-export * from './cart-merger.types';
-export * from './cart-settings.types';

@@ -1,20 +1,25 @@
+/**
+ * SEO Score Schema
+ * @module shared-schemas/platform/seo
+ *
+ * Values আসে shared-constants/platform/seo-score.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { SEO_SCORE } from '@vubon/shared-constants/src/platform/seo/seo-score.constants';
+import { SEO_SCORE_GRADE } from '@vubon/shared-constants/platform';
 
-const scoreTypeKeys = Object.keys(SEO_SCORE.TYPES) as [string, ...string[]];
-const scoreRangeKeys = Object.keys(SEO_SCORE.SCORE_RANGES) as [string, ...string[]];
-const scoreWeightKeys = Object.keys(SEO_SCORE.SCORE_WEIGHTS) as [string, ...string[]];
+export const SeoScoreGradeSchema = z.enum(Object.values(SEO_SCORE_GRADE) as [string, ...string[]]);
 
-export const SEOScoreSchema = z.object({
-  scoreId: z.string().uuid(),
-  seoId: z.string().uuid(),
-  type: z.enum(scoreTypeKeys),
-  value: z.number().min(0).max(100),
-  range: z.enum(scoreRangeKeys),
-  weight: z.enum(scoreWeightKeys),
-  isGood: z.boolean().default(false),
-  isExcellent: z.boolean().default(false),
-  isPoor: z.boolean().default(false),
-  timestamp: z.date(),
-  metadata: z.record(z.unknown()).optional(),
+export const SeoScoreSchema = z.object({
+  overall: z.number().min(0).max(100),
+  grade: SeoScoreGradeSchema,
+  content: z.number().min(0).max(100),
+  technical: z.number().min(0).max(100),
+  performance: z.number().min(0).max(100),
+  mobile: z.number().min(0).max(100),
+  backlinks: z.number().min(0).max(100),
+  calculatedAt: z.string().datetime(),
 });
+
+export type SeoScoreGradeSchemaType = z.infer<typeof SeoScoreGradeSchema>;
+export type SeoScoreSchemaType = z.infer<typeof SeoScoreSchema>;

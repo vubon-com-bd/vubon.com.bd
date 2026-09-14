@@ -1,20 +1,45 @@
-import { BaseEntity } from '../../common/base.types';
-import { Content } from '../../content/content.types';
-import { SEO_CONTENT } from '@vubon/shared-constants/src/platform/seo/seo-content.constants';
-import { SEOKeyword } from './seo-keyword.types';
-import { SEO } from './seo.types';
+/**
+ * SEO Content Types
+ * @module shared-types/platform/seo
+ */
 
-export interface SEOContent extends BaseEntity {
-  contentId: string;
-  seoId: string;
-  seo: SEO;
-  type: keyof typeof SEO_CONTENT.TYPES | string;
-  content: Content;
-  keywords: SEOKeyword[];
-  wordCount: number;
-  readabilityScore: number;
-  length: keyof typeof SEO_CONTENT.CONTENT_LENGTH | string;
-  isActive: boolean;
-  isOptimized: boolean;
-  metadata: Record<string, unknown>;
+import type { SEO_CONTENT_TYPE, SEO_META_TAG } from '@vubon/shared-constants/platform';
+
+export type SeoContentTypeValue = (typeof SEO_CONTENT_TYPE)[keyof typeof SEO_CONTENT_TYPE];
+
+export type SeoMetaTagValue = (typeof SEO_META_TAG)[keyof typeof SEO_META_TAG];
+
+export interface SeoContent {
+  readonly id: string;
+  readonly url: string;
+  readonly type: SeoContentTypeValue;
+  readonly title: string;
+  readonly description: string;
+  readonly keywords: readonly string[];
+  readonly canonicalUrl?: string;
+  readonly headings: readonly SeoHeading[];
+  readonly wordCount: number;
+  readonly readabilityScore?: number;
+  readonly language: string;
+  readonly metaTags: readonly SeoMetaTag[];
+  readonly updatedAt: string;
+}
+
+export interface SeoHeading {
+  readonly level: number;
+  readonly text: string;
+}
+
+export interface SeoMetaTag {
+  readonly name: SeoMetaTagValue;
+  readonly value: string;
+}
+
+export interface SeoContentInput {
+  readonly url: string;
+  readonly type: SeoContentTypeValue;
+  readonly title: string;
+  readonly description: string;
+  readonly keywords?: readonly string[];
+  readonly canonicalUrl?: string;
 }

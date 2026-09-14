@@ -1,12 +1,16 @@
+/**
+ * Auth Permission Schema
+ * @module shared-schemas/auth
+ */
+
 import { z } from 'zod';
-import { PermissionSchema } from '../common/permission.schema';
-import { AUTH_PERMISSIONS } from '@vubon/shared-constants/src/auth/auth-permission.constants';
+import { AUTH_PERMISSION } from '@vubon/shared-constants/auth';
 
-const authPermissionValues = Object.values(AUTH_PERMISSIONS) as [string, ...string[]];
+export const AuthPermissionSchema = z.enum(Object.values(AUTH_PERMISSION) as [string, ...string[]]);
 
-export const AuthPermissionSchema = PermissionSchema.extend({
-  permission: z.enum(authPermissionValues),
-  category: z.literal('auth'),
-});
+export const AuthPermissionListSchema = z
+  .array(AuthPermissionSchema)
+  .max(500, 'Too many permissions');
 
-export const AuthPermissionEnumSchema = z.enum(authPermissionValues);
+export type AuthPermissionSchemaType = z.infer<typeof AuthPermissionSchema>;
+export type AuthPermissionListSchemaType = z.infer<typeof AuthPermissionListSchema>;

@@ -1,12 +1,26 @@
-import { BaseEntity } from '../../common/base.types';
-import { SEARCH_SYNONYM } from '@vubon/shared-constants/src/platform/search/search-synonym.constants';
+/**
+ * Search Synonym Types
+ * @module shared-types/platform/search
+ */
 
-export interface SearchSynonym extends BaseEntity {
-  synonymId: string;
-  type: keyof typeof SEARCH_SYNONYM.TYPES | string;
-  term: string;
-  synonyms: string[];
-  weight: number;
-  isActive: boolean;
-  metadata: Record<string, unknown>;
+import type { SEARCH_SYNONYM_TYPE } from '@vubon/shared-constants/platform';
+
+export type SearchSynonymTypeValue = (typeof SEARCH_SYNONYM_TYPE)[keyof typeof SEARCH_SYNONYM_TYPE];
+
+export interface SearchSynonym {
+  readonly id: string;
+  readonly term: string;
+  readonly synonyms: readonly string[];
+  readonly type: SearchSynonymTypeValue;
+  readonly language: string;
+  readonly isActive: boolean;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
+export interface SearchSynonymInput {
+  readonly term: string;
+  readonly synonyms: readonly string[];
+  readonly type: SearchSynonymTypeValue;
+  readonly language: string;
 }

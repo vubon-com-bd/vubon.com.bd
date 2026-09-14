@@ -1,26 +1,48 @@
-import { BaseEntity } from '../common/base.types';
-import { LOGISTICS_ANALYTICS } from '@vubon/shared-constants/src/logistics/logistics-analytics.constants';
-import { Logistics } from './logistics.types';
+/**
+ * Logistics Analytics Types
+ * @module shared-types/logistics
+ *
+ * Values আসে shared-constants/logistics/logistics-analytics.constants থেকে।
+ */
 
-export interface LogisticsPerformance {
-  totalShipments: number;
-  onTimeDelivery: number;
-  deliverySuccessRate: number;
-  averageDeliveryTime: number;
-  averageShippingCost: number;
-  returnRate: number;
-  damageRate: number;
-  courierPerformance: Record<string, number>;
+import type {
+  LOGISTICS_ANALYTICS_METRIC,
+  LOGISTICS_ANALYTICS_PERIOD,
+} from '@vubon/shared-constants/logistics';
+import type { ShipmentStatusValue, ShipmentPriorityValue } from './shipment-status.types';
+
+export type LogisticsAnalyticsMetricValue =
+  (typeof LOGISTICS_ANALYTICS_METRIC)[keyof typeof LOGISTICS_ANALYTICS_METRIC];
+
+export type LogisticsAnalyticsPeriodValue =
+  (typeof LOGISTICS_ANALYTICS_PERIOD)[keyof typeof LOGISTICS_ANALYTICS_PERIOD];
+
+export interface LogisticsAnalytics {
+  readonly metric: LogisticsAnalyticsMetricValue;
+  readonly period: LogisticsAnalyticsPeriodValue;
+  readonly value: number;
+  readonly previousValue?: number;
+  readonly changePercent?: number;
+  readonly periodStart: string;
+  readonly periodEnd: string;
+  readonly capturedAt: string;
 }
 
-export interface LogisticsAnalytics extends BaseEntity {
-  analyticsId: string;
-  logisticsId: string;
-  logistics: Logistics;
-  type: keyof typeof LOGISTICS_ANALYTICS.TYPES | string;
-  metric: keyof typeof LOGISTICS_ANALYTICS.METRICS | string;
-  value: number;
-  period: keyof typeof LOGISTICS_ANALYTICS.ANALYTICS_GRANULARITY | string;
-  timestamp: Date;
-  metadata: Record<string, unknown>;
+export interface LogisticsMetrics {
+  readonly period: string;
+  readonly shipmentsCreated: number;
+  readonly shipmentsDelivered: number;
+  readonly shipmentsInTransit: number;
+  readonly shipmentsFailed: number;
+  readonly onTimeDeliveryRate: number;
+  readonly averageDeliveryMinutes: number;
+  readonly averageTransitMinutes: number;
+  readonly firstAttemptSuccessRate: number;
+  readonly returnRate: number;
+  readonly damageRate: number;
+  readonly lossRate: number;
+  readonly costPerShipment: number;
+  readonly currency: string;
+  readonly byStatus: Readonly<Record<ShipmentStatusValue, number>>;
+  readonly byPriority: Readonly<Record<ShipmentPriorityValue, number>>;
 }

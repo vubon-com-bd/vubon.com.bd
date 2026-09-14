@@ -1,18 +1,43 @@
-import { BaseEntity } from '../../common/base.types';
-import { Money } from '../../common/money.types';
-import { VENDOR_COMMISSION } from '@vubon/shared-constants/src/business/vendor/vendor-commission.constants';
-import { Vendor } from './vendor.types';
+/**
+ * Vendor Commission Types
+ * @module shared-types/business/vendor
+ *
+ * Values আসে shared-constants/business/vendor/vendor-commission.constants থেকে।
+ */
 
-export interface VendorCommission extends BaseEntity {
-  commissionId: string;
-  vendorId: string;
-  vendor: Vendor;
-  type: keyof typeof VENDOR_COMMISSION.TYPES | string;
-  rate: number;
-  fixedAmount?: Money;
-  minAmount?: Money;
-  maxAmount?: Money;
-  isActive: boolean;
-  isDefault: boolean;
-  metadata: Record<string, unknown>;
+import type { VENDOR_COMMISSION_TYPE } from '@vubon/shared-constants/business';
+import type { VendorId, Money } from '../../common/primitives';
+
+export type VendorCommissionTypeValue =
+  (typeof VENDOR_COMMISSION_TYPE)[keyof typeof VENDOR_COMMISSION_TYPE];
+
+export interface VendorCommission {
+  readonly vendorId: VendorId;
+  readonly type: VendorCommissionTypeValue;
+  readonly percent: number;
+  readonly fixedAmount?: Money;
+  readonly currency: string;
+  readonly minPercent: number;
+  readonly maxPercent: number;
+  readonly applyOnShipping: boolean;
+  readonly applyOnTax: boolean;
+  readonly effectiveFrom: string;
+  readonly effectiveTo?: string;
+  readonly updatedAt: string;
+}
+
+export interface VendorCommissionCalculation {
+  readonly vendorId: VendorId;
+  readonly orderId: string;
+  readonly orderAmount: Money;
+  readonly commissionAmount: Money;
+  readonly vendorEarning: Money;
+  readonly currency: string;
+  readonly calculatedAt: string;
+}
+
+export interface CommissionTier {
+  readonly minSales: number;
+  readonly maxSales: number | null;
+  readonly percent: number;
 }

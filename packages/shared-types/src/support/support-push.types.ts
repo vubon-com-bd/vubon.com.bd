@@ -1,16 +1,30 @@
-import { BaseEntity } from '../common/base.types';
-import { PUSH } from '@vubon/shared-constants/src/platform/notification/push.constants';
+/**
+ * Support Push Notification Types
+ * @module shared-types/support
+ */
 
-export interface SupportPush extends BaseEntity {
-  pushId: string;
-  ticketId?: string;
-  title: string;
-  body: string;
-  status: keyof typeof PUSH.STATUS | string;
-  type: keyof typeof PUSH.TYPES | string;
-  sentBy: string;
-  sentAt: Date;
-  deliveredAt?: Date;
-  openedAt?: Date;
-  metadata: Record<string, unknown>;
+import type { UserId } from '../common/primitives';
+import type { BaseEntity } from '../common/base';
+
+export type SupportPushStatusValue = 'pending' | 'queued' | 'sent' | 'delivered' | 'failed';
+
+export interface SupportPush extends BaseEntity<string> {
+  readonly ticketId?: string;
+  readonly userId: UserId;
+  readonly title: string;
+  readonly body: string;
+  readonly data?: Readonly<Record<string, unknown>>;
+  readonly status: SupportPushStatusValue;
+  readonly sentAt?: string;
+  readonly deliveredAt?: string;
+  readonly failureReason?: string;
+}
+
+export interface SupportPushPublic {
+  readonly id: string;
+  readonly userId: UserId;
+  readonly title: string;
+  readonly body: string;
+  readonly status: SupportPushStatusValue;
+  readonly sentAt?: string;
 }

@@ -1,19 +1,20 @@
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
+export const SEARCH_SYNONYM_TYPE = {
+  EQUIVALENT: 'equivalent',
+  EXPLICIT: 'explicit',
+  ONE_WAY: 'one_way',
+  MULTI_WAY: 'multi_way',
+  HYPERNYM: 'hypernym',
+  HYPONYM: 'hyponym',
+} as const;
 
 export const SEARCH_SYNONYM = {
-  TYPES: {
-    ...COMMON_TYPES,
-    EQUIVALENT: 'equivalent',
-    EXPLICIT: 'explicit',
-    ALIAS: 'alias',
-    ACROSS: 'across',
-  },
-  SYNONYM_WEIGHTS: {
-    EXACT_MATCH: 1.0,
-    SYNONYM: 0.8,
-    BROAD: 0.6,
-    RELATED: 0.4,
-  },
-  MAX_SYNONYMS_PER_TERM: 20,
-  SYNONYM_CACHE_TTL_HOURS: 24,
+  MAX_SYNONYMS_PER_GROUP: 50,
+  MAX_SYNONYM_GROUPS: 10000,
+  MAX_TERM_LENGTH: 100,
+  CASE_SENSITIVE: false,
+  EXPAND: true,
+  LANGUAGES: ['bn', 'en'],
+  RETENTION_DAYS: 365,
 } as const;
+
+export type SearchSynonymTypeType = (typeof SEARCH_SYNONYM_TYPE)[keyof typeof SEARCH_SYNONYM_TYPE];

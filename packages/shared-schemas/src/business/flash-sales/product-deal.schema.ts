@@ -1,29 +1,52 @@
+/**
+ * Product Deal Schema
+ * @module shared-schemas/business/flash-sales
+ *
+ * Values আসে shared-constants/business/product-deal.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { MoneySchema } from '../../common/money.schema';
-import { ProductSchema } from '../product/product.schema';
-import { VariantSchema } from '../product/variant.schema';
-import { PRODUCT_DEAL } from '@vubon/shared-constants/src/business/flash-sales/product-deal.constants';
+import { PRODUCT_DEAL_STATUS } from '@vubon/shared-constants/business';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { PositiveMoneySchema } from '../../common/primitives/money.schema';
+import { DealDiscountTypeSchema } from './deal-discount-type.schema';
 
-const productDealStatusKeys = Object.keys(PRODUCT_DEAL.STATUS) as [string, ...string[]];
+export const ProductDealStatusSchema = z.enum(
+  Object.values(PRODUCT_DEAL_STATUS) as [string, ...string[]]
+);
 
-export const ProductDealSchema = BaseSchema.extend({
-  productDealId: z.string().uuid(),
-  dealId: z.string().uuid(),
-  productId: z.string().uuid(),
-  product: ProductSchema,
-  variantId: z.string().uuid().optional(),
-  variant: VariantSchema.optional(),
-  status: z.enum(productDealStatusKeys),
-  originalPrice: MoneySchema,
-  dealPrice: MoneySchema,
-  discountAmount: MoneySchema,
-  discountPercentage: z.number().min(0).max(100),
-  minQuantity: z.number().int().min(1),
-  maxQuantity: z.number().int().min(1),
-  availableQuantity: z.number().int().min(0),
-  soldQuantity: z.number().int().min(0).default(0),
-  isActive: z.boolean().default(true),
-  isSoldOut: z.boolean().default(false),
-  metadata: z.record(z.unknown()).optional(),
+export const ProductDealSchema = z.object({
+  id: UuidSchema,
+  dealId: UuidSchema,
+  productId: UuidSchema,
+  variantId: UuidSchema.optional(),
+  vendorId: UuidSchema.optional(),
+  status: ProductDealStatusSchema,
+  discountType: DealDiscountTypeSchema,
+  discountValue: z.number().positive(),
+  originalPrice: PositiveMoneySchema,
+  dealPrice: PositiveMoneySchema,
+  currency: z.string().length(3),
+  minQuantity: z.number().int().min(1).max(100),
+  maxQuantity: z.number().int().positive().max(100).optional(),
+  perUserLimit: z.number().int().positive().max(100),
+  totalQuantityLimit: z.number().int().positive().optional(),
+  soldQuantity: z.number().int().nonnegative(),
+  startAt: z.string().datetime(),
+  endAt: z.string().datetime(),
 });
+
+export const ProductDealPublicSchema = ProductDealSchema.pick({
+  productId: true,
+  variantId: true,
+  originalPrice: true,
+  dealPrice: true,
+  currency: true,
+}).extend({
+  discountPercent: z.number().min(0).max(100),
+  remaining: z.number().int().nonnegative(),
+});
+
+export type ProductDealStatusSchemaType = z.infer<typeof ProductDealStatusSchema>;
+export type ProductDealSchemaType = z.infer<typeof ProductDealSchema>;
+export type ProductDealPublicSchemaType = z.infer<typeof ProductDealPublicSchema>;

@@ -1,64 +1,87 @@
-import { BaseEntity } from '../common/base.types';
-import { Money } from '../common/money.types';
-import { DELIVERY_STATUS } from '@vubon/shared-constants/src/logistics/delivery-status.constants';
-import { Shipment } from './shipment.types';
-import { Driver } from './driver.types';
-import { Vehicle } from './vehicle.types';
-import { Route } from './route.types';
+/**
+ * Delivery Core Types
+ * @module shared-types/logistics
+ */
 
-export interface DeliveryItem {
-  itemId: string;
-  productId: string;
-  productName: string;
-  quantity: number;
-  weight: number;
+import type { BaseEntity } from '../common/base';
+import type { ShipmentId, OrderId, UserId, Phone } from '../common/primitives';
+import type { Address } from '../common/geo';
+import type { DeliveryStatusValue, DeliveryAttemptStatusValue } from './delivery-status.types';
+import type { DeliveryTypeValue } from './delivery-type.types';
+
+export interface Delivery extends BaseEntity<string> {
+  readonly shipmentId: ShipmentId;
+  readonly orderId: OrderId;
+  readonly userId?: UserId;
+  readonly status: DeliveryStatusValue;
+  readonly type: DeliveryTypeValue;
+  readonly driverId?: string;
+  readonly vehicleId?: string;
+  readonly routeId?: string;
+  readonly recipientName?: string;
+  readonly recipientPhone?: Phone;
+  readonly deliveryAddress: Address;
+  readonly scheduledAt?: string;
+  readonly pickedUpAt?: string;
+  readonly arrivedAt?: string;
+  readonly deliveredAt?: string;
+  readonly failedAt?: string;
+  readonly cancelledAt?: string;
+  readonly attempts: readonly DeliveryAttempt[];
+  readonly proofOfDelivery?: ProofOfDelivery;
+  readonly notes?: string;
 }
 
 export interface DeliveryAttempt {
-  attemptNumber: number;
-  attemptedAt: Date;
-  status: 'attempted' | 'delivered' | 'failed';
-  reason?: string;
-  notes?: string;
+  readonly id: string;
+  readonly attemptNumber: number;
+  readonly status: DeliveryAttemptStatusValue;
+  readonly reason?: string;
+  readonly driverId?: string;
+  readonly attemptedAt: string;
+  readonly location?: string;
+  readonly latitude?: number;
+  readonly longitude?: number;
+  readonly images?: readonly string[];
+  readonly notes?: string;
 }
 
-export interface DeliveryMetadata {
-  isPriority: boolean;
-  isExpress: boolean;
-  requiresSignature: boolean;
-  requiresPhoto: boolean;
-  requiresOtp: boolean;
-  ageRestricted: boolean;
+export interface ProofOfDelivery {
+  readonly type: 'signature' | 'otp' | 'photo' | 'id_verification' | 'contactless';
+  readonly signatureUrl?: string;
+  readonly photoUrl?: string;
+  readonly otp?: string;
+  readonly idNumber?: string;
+  readonly recipientName?: string;
+  readonly capturedAt: string;
 }
 
-export interface Delivery extends BaseEntity {
-  deliveryId: string;
-  deliveryNumber: string;
-  orderId: string;
-  shipmentId: string;
-  shipment: Shipment;
-  status: keyof typeof DELIVERY_STATUS | string;
-  type: string;
-  window: string;
-  driver: Driver;
-  vehicle: Vehicle;
-  route: Route;
-  items: DeliveryItem[];
-  totalItems: number;
-  totalWeight: number;
-  deliveryCost: Money;
-  codAmount: Money;
-  isCod: boolean;
-  isCollected: boolean;
-  collectedAt?: Date;
-  collectedBy?: string;
-  scheduledDate: Date;
-  scheduledTime: string;
-  startedAt?: Date;
-  deliveredAt?: Date;
-  deliveryAttempts: DeliveryAttempt[];
-  maxAttempts: number;
-  notes?: string;
-  signature?: string;
-  metadata: DeliveryMetadata;
+export interface DeliveryPublic {
+  readonly id: string;
+  readonly shipmentId: ShipmentId;
+  readonly status: DeliveryStatusValue;
+  readonly type: DeliveryTypeValue;
+  readonly deliveredAt?: string;
+  readonly attempts: number;
+}
+
+export interface DeliveryScheduleInput {
+  readonly shipmentId: ShipmentId;
+  readonly driverId: string;
+  readonly vehicleId?: string;
+  readonly scheduledAt: string;
+  readonly routeId?: string;
+}
+
+export interface DeliveryCompleteInput {
+  readonly deliveryId: string;
+  readonly proof: ProofOfDelivery;
+  readonly notes?: string;
+}
+
+export interface DeliveryFailInput {
+  readonly deliveryId: string;
+  readonly reason: string;
+  readonly images?: readonly string[];
+  readonly notes?: string;
 }

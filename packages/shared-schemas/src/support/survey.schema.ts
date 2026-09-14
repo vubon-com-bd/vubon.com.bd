@@ -1,35 +1,86 @@
+/**
+ * Survey Schema
+ * @module shared-schemas/support
+ *
+ * Values আসে shared-constants/support/survey.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { UserSchema } from '../user/user.schema';
-import { SURVEY } from '@vubon/shared-constants/src/support/survey.constants';
+import { BaseEntitySchema } from '../common/base/base-entity.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema';
+import {
+  SURVEY_TYPE,
+  SURVEY_STATUS,
+  SURVEY_QUESTION_TYPE,
+  SURVEY,
+} from '@vubon/shared-constants/support';
 
-const surveyTypeKeys = Object.keys(SURVEY.SURVEY_TYPES) as [string, ...string[]];
-const surveyStatusKeys = Object.keys(SURVEY.STATUS) as [string, ...string[]];
+export const SurveyTypeSchema = z.enum(Object.values(SURVEY_TYPE) as [string, ...string[]]);
 
-export const SurveySchema = BaseSchema.extend({
-  surveyId: z.string().uuid(),
-  title: z.string().min(1).max(200),
-  description: z.string().optional(),
-  type: z.enum(surveyTypeKeys),
-  status: z.enum(surveyStatusKeys),
-  questions: z.array(
-    z.object({
-      questionId: z.string().uuid(),
-      type: z.enum(['text', 'textarea', 'radio', 'checkbox', 'select', 'rating', 'scale']),
-      question: z.string(),
-      description: z.string().optional(),
-      options: z.array(z.string()).optional(),
-      required: z.boolean().default(false),
-      order: z.number().int().min(0),
-    })
-  ),
-  createdBy: z.string().uuid(),
-  createdByUser: UserSchema,
-  targetAudience: z.array(z.string()),
-  responseCount: z.number().int().min(0).default(0),
-  maxResponses: z.number().int().min(0).optional(),
-  startsAt: z.date(),
-  endsAt: z.date(),
-  isActive: z.boolean().default(true),
-  metadata: z.record(z.unknown()).optional(),
+export const SurveyStatusSchema = z.enum(Object.values(SURVEY_STATUS) as [string, ...string[]]);
+
+export const SurveyQuestionTypeSchema = z.enum(
+  Object.values(SURVEY_QUESTION_TYPE) as [string, ...string[]]
+);
+
+export const SurveyOptionSchema = z.object({
+  id: z.string().min(1).max(50),
+  label: z.string().min(1).max(200),
+  value: z.string().min(1).max(200),
+  order: z.number().int().nonnegative(),
 });
+
+export const SurveyQuestionSchema = z.object({
+  id: z.string().min(1).max(50),
+  type: SurveyQuestionTypeSchema,
+  text: z.string().min(1).max(500),
+  required: z.boolean(),
+  options: z.array(SurveyOptionSchema).max(SURVEY.MAX_OPTIONS_PER_QUESTION).optional(),
+  order: z.number().int().nonnegative(),
+  minValue: z.number().optional(),
+  maxValue: z.number().optional(),
+});
+
+export const SurveySchema = BaseEntitySchema.extend({
+  title: z.string().min(1).max(SURVEY.TITLE_MAX_LENGTH),
+  description: z.string().max(SURVEY.DESCRIPTION_MAX_LENGTH).optional(),
+  type: SurveyTypeSchema,
+  status: SurveyStatusSchema,
+  questions: z.array(SurveyQuestionSchema).min(1).max(SURVEY.MAX_QUESTIONS),
+  isAnonymous: z.boolean(),
+  targetAudience: z.array(z.string().max(100)).max(20).optional(),
+  startAt: z.string().datetime(),
+  endAt: z.string().datetime().optional(),
+  responseCount: z.number().int().nonnegative(),
+  createdBy: UuidSchema,
+});
+
+export const SurveyAnswerSchema = z.object({
+  questionId: z.string().min(1).max(50),
+  value: z.union([z.string(), z.number(), z.array(z.string())]),
+});
+
+export const SurveyResponseSchema = z.object({
+  id: z.string().min(1),
+  surveyId: z.string().min(1),
+  userId: UuidSchema.optional(),
+  answers: z.array(SurveyAnswerSchema).min(1).max(SURVEY.MAX_QUESTIONS),
+  submittedAt: z.string().datetime(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+export const SurveyPublicSchema = SurveySchema.pick({
+  id: true,
+  title: true,
+  type: true,
+  status: true,
+  startAt: true,
+  endAt: true,
+});
+
+export type SurveyTypeSchemaType = z.infer<typeof SurveyTypeSchema>;
+export type SurveyStatusSchemaType = z.infer<typeof SurveyStatusSchema>;
+export type SurveyQuestionTypeSchemaType = z.infer<typeof SurveyQuestionTypeSchema>;
+export type SurveySchemaType = z.infer<typeof SurveySchema>;
+export type SurveyResponseSchemaType = z.infer<typeof SurveyResponseSchema>;
+export type SurveyPublicSchemaType = z.infer<typeof SurveyPublicSchema>;

@@ -1,23 +1,31 @@
-import { BaseEntity } from '../../common/base.types';
-import { SEO_RANKING } from '@vubon/shared-constants/src/platform/seo/seo-ranking.constants';
-import { SEOKeyword } from './seo-keyword.types';
-import { SEOScore } from './seo-score.types';
+/**
+ * SEO Ranking Types
+ * @module shared-types/platform/seo
+ */
 
-export interface SEORanking extends BaseEntity {
-  rankingId: string;
-  keywordId: string;
-  keyword: SEOKeyword;
-  type: keyof typeof SEO_RANKING.TYPES | string;
-  position: number;
-  previousPosition?: number;
-  change: number;
-  url: string;
-  score: SEOScore;
-  isTop3: boolean;
-  isTop10: boolean;
-  isTop20: boolean;
-  isTop50: boolean;
-  isTop100: boolean;
-  timestamp: Date;
-  metadata: Record<string, unknown>;
+import type { SEO_RANKING_TYPE } from '@vubon/shared-constants/platform';
+
+export type SeoRankingTypeValue = (typeof SEO_RANKING_TYPE)[keyof typeof SEO_RANKING_TYPE];
+
+export interface SeoRanking {
+  readonly id: string;
+  readonly keywordId: string;
+  readonly keyword: string;
+  readonly type: SeoRankingTypeValue;
+  readonly position: number;
+  readonly previousPosition?: number;
+  readonly change?: number;
+  readonly url?: string;
+  readonly searchEngine: string;
+  readonly location?: string;
+  readonly device?: string;
+  readonly checkedAt: string;
+}
+
+export interface SeoRankingHistory {
+  readonly keywordId: string;
+  readonly entries: readonly {
+    readonly position: number;
+    readonly checkedAt: string;
+  }[];
 }

@@ -1,15 +1,17 @@
-import { StatusObject } from '../../common/status.types';
-import { FLASH_SALE_STATUS } from '@vubon/shared-constants/src/business/flash-sales/flash-sale-status.constants';
+/**
+ * Flash Sale Status Value Types
+ * @module shared-types/business/flash-sales
+ *
+ * Values আসে shared-constants/business/flash-sales/flash-sale-status.constants থেকে।
+ */
 
-export interface FlashSaleStatus extends StatusObject {
-  type: keyof typeof FLASH_SALE_STATUS | string;
-  category: 'flash_sale';
-  isDraft: boolean;
-  isScheduled: boolean;
-  isActive: boolean;
-  isEnded: boolean;
-  isCancelled: boolean;
-  isCompleted: boolean;
+import type { FLASH_SALE_STATUS } from '@vubon/shared-constants/business';
+
+export type FlashSaleStatusValue = (typeof FLASH_SALE_STATUS)[keyof typeof FLASH_SALE_STATUS];
+
+export interface FlashSaleStatusMetadata {
+  readonly value: FlashSaleStatusValue;
+  readonly label: string;
+  readonly isActive: boolean;
+  readonly isFinal: boolean;
 }
-
-export type FlashSaleStatusKey = keyof typeof FLASH_SALE_STATUS;

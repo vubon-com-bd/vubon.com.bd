@@ -1,17 +1,39 @@
-import { BaseEntity } from '../../common/base.types';
-import { SEO_LINK } from '@vubon/shared-constants/src/platform/seo/seo-link.constants';
-import { SEO } from './seo.types';
+/**
+ * SEO Link Types
+ * @module shared-types/platform/seo
+ */
 
-export interface SEOLink extends BaseEntity {
-  linkId: string;
-  seoId: string;
-  seo: SEO;
-  type: keyof typeof SEO_LINK.TYPES | string;
-  url: string;
-  anchor: string;
-  rel: keyof typeof SEO_LINK.LINK_ATTRIBUTES | string;
-  isActive: boolean;
-  isFollow: boolean;
-  isNoFollow: boolean;
-  metadata: Record<string, unknown>;
+import type { SEO_LINK_TYPE } from '@vubon/shared-constants/platform';
+
+export type SeoLinkTypeValue = (typeof SEO_LINK_TYPE)[keyof typeof SEO_LINK_TYPE];
+
+export interface SeoLink {
+  readonly id: string;
+  readonly sourceUrl: string;
+  readonly targetUrl: string;
+  readonly type: SeoLinkTypeValue;
+  readonly anchorText?: string;
+  readonly rel?: string;
+  readonly status?: number;
+  readonly isBroken: boolean;
+  readonly lastCheckedAt?: string;
+  readonly discoveredAt: string;
+}
+
+export interface SeoLinkAnalysis {
+  readonly url: string;
+  readonly internalLinks: number;
+  readonly externalLinks: number;
+  readonly brokenLinks: number;
+  readonly nofollowLinks: number;
+  readonly analyzedAt: string;
+}
+
+export interface SeoBacklink {
+  readonly sourceUrl: string;
+  readonly targetUrl: string;
+  readonly anchorText?: string;
+  readonly domainAuthority?: number;
+  readonly isDofollow: boolean;
+  readonly discoveredAt: string;
 }

@@ -1,54 +1,73 @@
+/**
+ * Discovery Core Schema
+ * @module shared-schemas/platform/discovery
+ *
+ * Discovery aggregator।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { UserSchema } from '../../user/user.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
 import { RecommendationSchema } from './recommendation.schema';
-import { PersonalizationSchema } from './personalization.schema';
-import { TrendingSchema } from './trending.schema';
-import { PopularSchema } from './popular.schema';
-import { RecentlyViewedSchema } from './recently-viewed.schema';
-import { FrequentlyBoughtSchema } from './frequently-bought.schema';
-import { ComplementarySchema } from './complementary.schema';
-import { SubstituteSchema } from './substitute.schema';
-import { UpsellingSchema } from './upselling.schema';
-import { CrossSellingSchema } from './cross-selling.schema';
-import { BundleSchema } from './bundle.schema';
-import { DISCOVERY } from '@vubon/shared-constants/src/platform/discovery/discovery.constants';
+import { TrendingListSchema } from './trending.schema';
+import { PopularListSchema } from './popular.schema';
+import { RecentlyViewedListSchema } from './recently-viewed.schema';
+import { FrequentlyBoughtResultSchema } from './frequently-bought.schema';
+import { ComplementaryResultSchema } from './complementary.schema';
+import { SubstituteResultSchema } from './substitute.schema';
+import { UpsellResultSchema } from './upselling.schema';
+import { CrossSellResultSchema } from './cross-selling.schema';
+import { DiscoveryBundleSchema } from './bundle.schema';
 
-const discoveryStatusKeys = Object.keys(DISCOVERY.STATUS) as [string, ...string[]];
-const discoveryTypeKeys = Object.keys(DISCOVERY.DISCOVERY_TYPES) as [string, ...string[]];
+export const DiscoverySectionSchema = z.enum([
+  'recommendations',
+  'trending',
+  'popular',
+  'recently_viewed',
+  'frequently_bought',
+  'complementary',
+  'substitute',
+  'upsell',
+  'cross_sell',
+  'bundles',
+]);
 
-const discoveryBaseSchema = BaseSchema.extend({
-  discoveryId: z.string().uuid(),
-  recommendations: z.array(RecommendationSchema),
-  personalization: PersonalizationSchema,
-  trending: TrendingSchema,
-  popular: PopularSchema,
-  recentlyViewed: z.array(RecentlyViewedSchema),
-  frequentlyBought: z.array(FrequentlyBoughtSchema),
-  complementary: z.array(ComplementarySchema),
-  substitutes: z.array(SubstituteSchema),
-  upsellings: z.array(UpsellingSchema),
-  crossSellings: z.array(CrossSellingSchema),
-  bundles: z.array(BundleSchema),
-  userId: z.string().uuid().optional(),
-  user: UserSchema.optional(),
-  status: z.enum(discoveryStatusKeys),
-  type: z.enum(discoveryTypeKeys),
-  isActive: z.boolean().default(true),
-  metadata: z.object({
-    sessionId: z.string().optional(),
-    deviceId: z.string().optional(),
-    ipAddress: z.string().optional(),
-    location: z.string().optional(),
-    timezone: z.string().optional(),
-    language: z.string().optional(),
-  }),
+export const DiscoveryRequestSchema = z.object({
+  userId: UuidSchema.optional(),
+  sessionId: z.string().max(128).optional(),
+  include: z.array(DiscoverySectionSchema).max(10).optional(),
+  limit: z.number().int().min(1).max(100).optional(),
+  excludeOutOfStock: z.boolean().optional(),
+  personalize: z.boolean().optional(),
 });
 
-export const DiscoverySchema: z.ZodType<Record<string, unknown>> = discoveryBaseSchema;
-
-export const DiscoveryCreateSchema: z.ZodType<Record<string, unknown>> = discoveryBaseSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+export const DiscoveryResultSchema = z.object({
+  userId: UuidSchema.optional(),
+  recommendations: RecommendationSchema.optional(),
+  trending: TrendingListSchema.optional(),
+  popular: PopularListSchema.optional(),
+  recentlyViewed: RecentlyViewedListSchema.optional(),
+  frequentlyBought: FrequentlyBoughtResultSchema.optional(),
+  complementary: ComplementaryResultSchema.optional(),
+  substitute: SubstituteResultSchema.optional(),
+  upsell: UpsellResultSchema.optional(),
+  crossSell: CrossSellResultSchema.optional(),
+  bundles: z.array(DiscoveryBundleSchema).max(100).optional(),
+  generatedAt: z.string().datetime(),
+  cached: z.boolean(),
 });
+
+export const DiscoveryMetricsSchema = z.object({
+  userId: UuidSchema.optional(),
+  totalRecommendations: z.number().int().nonnegative(),
+  totalClicks: z.number().int().nonnegative(),
+  totalConversions: z.number().int().nonnegative(),
+  clickThroughRate: z.number().min(0).max(1),
+  conversionRate: z.number().min(0).max(1),
+  periodStart: z.string().datetime(),
+  periodEnd: z.string().datetime(),
+});
+
+export type DiscoverySectionSchemaType = z.infer<typeof DiscoverySectionSchema>;
+export type DiscoveryRequestSchemaType = z.infer<typeof DiscoveryRequestSchema>;
+export type DiscoveryResultSchemaType = z.infer<typeof DiscoveryResultSchema>;
+export type DiscoveryMetricsSchemaType = z.infer<typeof DiscoveryMetricsSchema>;

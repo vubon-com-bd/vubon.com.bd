@@ -1,26 +1,42 @@
+/**
+ * Flash Sale Participant Schema
+ * @module shared-schemas/business/flash-sales
+ *
+ * Values আসে shared-constants/business/flash-sale-participant.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { UserSchema } from '../../user/user.schema';
-import { FLASH_SALE_PARTICIPANT } from '@vubon/shared-constants/src/business/flash-sales/flash-sale-participant.constants';
+import {
+  FLASH_SALE_PARTICIPANT_TYPE,
+  FLASH_SALE_PARTICIPANT_STATUS,
+} from '@vubon/shared-constants/business';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
 
-const participantStatusKeys = Object.keys(FLASH_SALE_PARTICIPANT.STATUS) as [string, ...string[]];
-const participationTypeKeys = Object.keys(FLASH_SALE_PARTICIPANT.PARTICIPATION_TYPES) as [
-  string,
-  ...string[],
-];
+export const ParticipantTypeSchema = z.enum(
+  Object.values(FLASH_SALE_PARTICIPANT_TYPE) as [string, ...string[]]
+);
 
-export const FlashSaleParticipantSchema = BaseSchema.extend({
-  participantId: z.string().uuid(),
-  flashSaleId: z.string().uuid(),
-  userId: z.string().uuid(),
-  user: UserSchema,
-  status: z.enum(participantStatusKeys),
-  type: z.enum(participationTypeKeys),
-  registeredAt: z.date(),
-  confirmedAt: z.date().optional(),
-  completedAt: z.date().optional(),
-  cancelledAt: z.date().optional(),
-  purchaseCount: z.number().int().min(0).default(0),
-  totalAmount: z.number().min(0).default(0),
-  metadata: z.record(z.unknown()).optional(),
+export const ParticipantStatusSchema = z.enum(
+  Object.values(FLASH_SALE_PARTICIPANT_STATUS) as [string, ...string[]]
+);
+
+export const FlashSaleParticipantSchema = z.object({
+  id: UuidSchema,
+  flashSaleId: UuidSchema,
+  type: ParticipantTypeSchema,
+  status: ParticipantStatusSchema,
+  vendorId: UuidSchema.optional(),
+  productId: UuidSchema.optional(),
+  variantId: UuidSchema.optional(),
+  categoryId: UuidSchema.optional(),
+  brandId: UuidSchema.optional(),
+  invitedAt: z.string().datetime(),
+  respondedAt: z.string().datetime().optional(),
+  approvedBy: UuidSchema.optional(),
+  rejectedReason: z.string().max(500).optional(),
+  notes: z.string().max(1000).optional(),
 });
+
+export type ParticipantTypeSchemaType = z.infer<typeof ParticipantTypeSchema>;
+export type ParticipantStatusSchemaType = z.infer<typeof ParticipantStatusSchema>;
+export type FlashSaleParticipantSchemaType = z.infer<typeof FlashSaleParticipantSchema>;

@@ -1,3 +1,5 @@
+// auth/index.ts — Auth domain barrel export
+
 export * from './auth.constants';
 export * from './auth-status.constants';
 export * from './auth-type.constants';
@@ -15,4 +17,3 @@ export * from './auth-device.constants';
 export * from './auth-social.constants';
 export * from './auth-oauth.constants';
 export * from './auth-sso.constants';
-export * from './auth-biometric.constants';

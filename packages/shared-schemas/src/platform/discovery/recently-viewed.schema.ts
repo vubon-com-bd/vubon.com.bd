@@ -1,20 +1,34 @@
+/**
+ * Recently Viewed Schema
+ * @module shared-schemas/platform/discovery
+ *
+ * Values আসে shared-constants/platform/recently-viewed.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { UserSchema } from '../../user/user.schema';
-import { ProductSchema } from '../../business/product/product.schema';
-import { RECENTLY_VIEWED } from '@vubon/shared-constants/src/platform/discovery/recently-viewed.constants';
+import { RECENTLY_VIEWED_TYPE } from '@vubon/shared-constants/platform';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
 
-const recentlyViewedTypeKeys = Object.keys(RECENTLY_VIEWED.TYPES) as [string, ...string[]];
+export const RecentlyViewedTypeSchema = z.enum(
+  Object.values(RECENTLY_VIEWED_TYPE) as [string, ...string[]]
+);
 
-export const RecentlyViewedSchema = BaseSchema.extend({
-  viewedId: z.string().uuid(),
-  userId: z.string().uuid(),
-  user: UserSchema,
-  productId: z.string().uuid(),
-  product: ProductSchema,
-  type: z.enum(recentlyViewedTypeKeys),
-  viewedAt: z.date(),
-  duration: z.number().min(0),
-  isActive: z.boolean().default(true),
-  metadata: z.record(z.unknown()).optional(),
+export const RecentlyViewedItemSchema = z.object({
+  id: z.string().min(1),
+  userId: UuidSchema.optional(),
+  sessionId: z.string().max(128).optional(),
+  type: RecentlyViewedTypeSchema,
+  referenceId: z.string().min(1),
+  viewedAt: z.string().datetime(),
+  viewCount: z.number().int().positive(),
 });
+
+export const RecentlyViewedListSchema = z.object({
+  type: RecentlyViewedTypeSchema,
+  items: z.array(RecentlyViewedItemSchema).max(100),
+  total: z.number().int().nonnegative(),
+});
+
+export type RecentlyViewedTypeSchemaType = z.infer<typeof RecentlyViewedTypeSchema>;
+export type RecentlyViewedItemSchemaType = z.infer<typeof RecentlyViewedItemSchema>;
+export type RecentlyViewedListSchemaType = z.infer<typeof RecentlyViewedListSchema>;

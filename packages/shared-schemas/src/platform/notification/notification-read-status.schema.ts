@@ -1,12 +1,23 @@
+/**
+ * Notification Read Status Schema
+ * @module shared-schemas/platform/notification
+ *
+ * Values আসে shared-constants/platform/notification-read-status.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { StatusSchema } from '../../common/status.schema';
-import { NOTIFICATION_READ_STATUS } from '@vubon/shared-constants/src/platform/notification/notification-read-status.constants';
+import { NOTIFICATION_READ_STATUS } from '@vubon/shared-constants/platform';
 
-const notificationReadStatusKeys = Object.keys(NOTIFICATION_READ_STATUS) as [string, ...string[]];
+export const NotificationReadStatusSchema = z.enum(
+  Object.values(NOTIFICATION_READ_STATUS) as [string, ...string[]]
+);
 
-export const NotificationReadStatusSchema = StatusSchema.extend({
-  status: z.enum(notificationReadStatusKeys),
-  category: z.literal('notification_read'),
+export const NotificationReadMetadataSchema = z.object({
+  status: NotificationReadStatusSchema,
+  readAt: z.string().datetime().optional(),
+  archivedAt: z.string().datetime().optional(),
+  snoozedUntil: z.string().datetime().optional(),
 });
 
-export const NotificationReadStatusEnumSchema = z.enum(notificationReadStatusKeys);
+export type NotificationReadStatusSchemaType = z.infer<typeof NotificationReadStatusSchema>;
+export type NotificationReadMetadataSchemaType = z.infer<typeof NotificationReadMetadataSchema>;

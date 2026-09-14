@@ -1,19 +1,27 @@
+/**
+ * Affiliate Status Schema
+ * @module shared-schemas/marketing
+ *
+ * Values আসে shared-constants/marketing/affiliate.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { StatusSchema } from '../common/status.schema';
-import { AFFILIATE_STATUS } from '@vubon/shared-constants/src/marketing/affiliate-status.constants';
+import {
+  AFFILIATE_STATUS,
+  AFFILIATE_TYPE,
+  AFFILIATE_COMMISSION_TYPE,
+} from '@vubon/shared-constants/marketing';
 
-const affiliateStatusKeys = Object.keys(AFFILIATE_STATUS) as [string, ...string[]];
+export const AffiliateStatusSchema = z.enum(
+  Object.values(AFFILIATE_STATUS) as [string, ...string[]]
+);
 
-export const AffiliateStatusSchema = StatusSchema.extend({
-  status: z.enum(affiliateStatusKeys),
-  category: z.literal('affiliate'),
-  isPending: z.boolean().default(false),
-  isApproved: z.boolean().default(false),
-  isRejected: z.boolean().default(false),
-  isActive: z.boolean().default(false),
-  isInactive: z.boolean().default(false),
-  isSuspended: z.boolean().default(false),
-  isBanned: z.boolean().default(false),
-});
+export const AffiliateTypeSchema = z.enum(Object.values(AFFILIATE_TYPE) as [string, ...string[]]);
 
-export const AffiliateStatusEnumSchema = z.enum(affiliateStatusKeys);
+export const AffiliateCommissionTypeSchema = z.enum(
+  Object.values(AFFILIATE_COMMISSION_TYPE) as [string, ...string[]]
+);
+
+export type AffiliateStatusSchemaType = z.infer<typeof AffiliateStatusSchema>;
+export type AffiliateTypeSchemaType = z.infer<typeof AffiliateTypeSchema>;
+export type AffiliateCommissionTypeSchemaType = z.infer<typeof AffiliateCommissionTypeSchema>;

@@ -1,25 +1,39 @@
+/**
+ * Vendor Shipping Schema
+ * @module shared-schemas/business/vendor
+ *
+ * Values আসে shared-constants/business/vendor-shipping.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { MoneySchema } from '../../common/money.schema';
-import { SHIPPING_METHODS } from '@vubon/shared-constants/src/common/shipping-methods.constants';
-import { VENDOR_SHIPPING } from '@vubon/shared-constants/src/business/vendor/vendor-shipping.constants';
-import { VendorAddressSchema } from './vendor-address.schema';
+import { VENDOR_SHIPPING_METHOD, VENDOR_SHIPPING_ZONE } from '@vubon/shared-constants/business';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { MoneySchema } from '../../common/primitives/money.schema';
 
-const vendorShippingTypeKeys = Object.keys(VENDOR_SHIPPING.TYPES) as [string, ...string[]];
-const shippingMethodKeys = Object.keys(SHIPPING_METHODS) as [string, ...string[]];
+export const VendorShippingMethodSchema = z.enum(
+  Object.values(VENDOR_SHIPPING_METHOD) as [string, ...string[]]
+);
 
-export const VendorShippingSchema = BaseSchema.extend({
-  shippingId: z.string().uuid(),
-  vendorId: z.string().uuid(),
-  type: z.enum(vendorShippingTypeKeys),
-  method: z.enum(shippingMethodKeys),
+export const VendorShippingZoneSchema = z.enum(
+  Object.values(VENDOR_SHIPPING_ZONE) as [string, ...string[]]
+);
+
+export const VendorShippingSchema = z.object({
+  id: UuidSchema,
+  vendorId: UuidSchema,
+  method: VendorShippingMethodSchema,
+  zone: VendorShippingZoneSchema,
   cost: MoneySchema,
-  freeShippingThreshold: MoneySchema.optional(),
-  estimatedDays: z.number().int().min(1),
-  zones: z.array(z.string()),
-  weightLimit: z.number().min(0).optional(),
-  isActive: z.boolean().default(true),
-  isDefault: z.boolean().default(false),
-  address: VendorAddressSchema,
-  metadata: z.record(z.unknown()).optional(),
+  currency: z.string().length(3),
+  freeAbove: MoneySchema.optional(),
+  minDeliveryDays: z.number().int().min(0).max(30),
+  maxDeliveryDays: z.number().int().min(0).max(60),
+  isActive: z.boolean(),
+  trackingRequired: z.boolean(),
+  allowPickup: z.boolean(),
+  allowCourier: z.boolean(),
 });
+
+export type VendorShippingMethodSchemaType = z.infer<typeof VendorShippingMethodSchema>;
+export type VendorShippingZoneSchemaType = z.infer<typeof VendorShippingZoneSchema>;
+export type VendorShippingSchemaType = z.infer<typeof VendorShippingSchema>;

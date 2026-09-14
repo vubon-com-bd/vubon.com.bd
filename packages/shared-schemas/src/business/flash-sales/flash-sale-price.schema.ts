@@ -1,24 +1,60 @@
+/**
+ * Flash Sale Price Schema
+ * @module shared-schemas/business/flash-sales
+ *
+ * Values আসে shared-constants/business/flash-sale-price.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { MoneySchema } from '../../common/money.schema';
-import { ProductSchema } from '../product/product.schema';
-import { FLASH_SALE_PRICE } from '@vubon/shared-constants/src/business/flash-sales/flash-sale-price.constants';
+import { FLASH_SALE_PRICE_TYPE, FLASH_SALE_PRICE } from '@vubon/shared-constants/business';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { PositiveMoneySchema } from '../../common/primitives/money.schema';
 
-const priceTypeKeys = Object.keys(FLASH_SALE_PRICE.PRICE_TYPES) as [string, ...string[]];
+export const FlashSalePriceTypeSchema = z.enum(
+  Object.values(FLASH_SALE_PRICE_TYPE) as [string, ...string[]]
+);
 
-export const FlashSalePriceSchema = BaseSchema.extend({
-  priceId: z.string().uuid(),
-  flashSaleId: z.string().uuid(),
-  productId: z.string().uuid(),
-  product: ProductSchema,
-  type: z.enum(priceTypeKeys),
-  originalPrice: MoneySchema,
-  flashPrice: MoneySchema,
-  discountAmount: MoneySchema,
-  discountPercentage: z.number().min(0).max(100),
-  isActive: z.boolean().default(true),
-  isValid: z.boolean().default(true),
-  startsAt: z.date(),
-  endsAt: z.date(),
-  metadata: z.record(z.unknown()).optional(),
+export const FlashSalePriceTierSchema = z.object({
+  minQuantity: z.number().int().positive().max(1000),
+  maxQuantity: z.number().int().positive().max(1000).optional(),
+  unitPrice: PositiveMoneySchema,
+  discountPercent: z
+    .number()
+    .min(FLASH_SALE_PRICE.MIN_DISCOUNT_PERCENT)
+    .max(FLASH_SALE_PRICE.MAX_DISCOUNT_PERCENT),
 });
+
+export const FlashSalePriceSchema = z.object({
+  id: UuidSchema,
+  flashSaleId: UuidSchema,
+  productId: UuidSchema,
+  variantId: UuidSchema.optional(),
+  type: FlashSalePriceTypeSchema,
+  originalPrice: PositiveMoneySchema,
+  salePrice: PositiveMoneySchema,
+  discountAmount: PositiveMoneySchema,
+  discountPercent: z
+    .number()
+    .min(FLASH_SALE_PRICE.MIN_DISCOUNT_PERCENT)
+    .max(FLASH_SALE_PRICE.MAX_DISCOUNT_PERCENT),
+  currency: z.string().length(3),
+  maxQuantity: z.number().int().positive().max(1000).optional(),
+  minQuantity: z.number().int().positive().max(1000).optional(),
+  tierPrices: z.array(FlashSalePriceTierSchema).max(10).optional(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+
+export const FlashSalePricePublicSchema = FlashSalePriceSchema.pick({
+  productId: true,
+  variantId: true,
+  originalPrice: true,
+  salePrice: true,
+  discountPercent: true,
+  currency: true,
+});
+
+export type FlashSalePriceTypeSchemaType = z.infer<typeof FlashSalePriceTypeSchema>;
+export type FlashSalePriceTierSchemaType = z.infer<typeof FlashSalePriceTierSchema>;
+export type FlashSalePriceSchemaType = z.infer<typeof FlashSalePriceSchema>;
+export type FlashSalePricePublicSchemaType = z.infer<typeof FlashSalePricePublicSchema>;

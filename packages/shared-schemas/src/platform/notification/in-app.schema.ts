@@ -1,24 +1,49 @@
+/**
+ * In-App Notification Schema
+ * @module shared-schemas/platform/notification
+ *
+ * Values আসে shared-constants/platform/in-app.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { IN_APP } from '@vubon/shared-constants/src/platform/notification/in-app.constants';
+import { IN_APP_TYPE, IN_APP_POSITION, IN_APP_STATUS } from '@vubon/shared-constants/platform';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
 
-const inAppStatusKeys = Object.keys(IN_APP.STATUS) as [string, ...string[]];
-const inAppTypeKeys = Object.keys(IN_APP.TYPES) as [string, ...string[]];
+export const InAppTypeSchema = z.enum(Object.values(IN_APP_TYPE) as [string, ...string[]]);
 
-export const InAppSchema = BaseSchema.extend({
-  inAppId: z.string().uuid(),
-  notificationId: z.string().uuid(),
-  status: z.enum(inAppStatusKeys),
-  type: z.enum(inAppTypeKeys),
-  title: z.string().min(1).max(100),
-  message: z.string().min(1).max(500),
-  icon: z.string().url().optional(),
-  image: z.string().url().optional(),
-  action: z.string().optional(),
-  actionUrl: z.string().url().optional(),
-  displayedAt: z.date().optional(),
-  interactedAt: z.date().optional(),
-  dismissedAt: z.date().optional(),
-  expiredAt: z.date().optional(),
-  metadata: z.record(z.unknown()).optional(),
+export const InAppPositionSchema = z.enum(Object.values(IN_APP_POSITION) as [string, ...string[]]);
+
+export const InAppStatusSchema = z.enum(Object.values(IN_APP_STATUS) as [string, ...string[]]);
+
+export const InAppActionSchema = z.object({
+  id: z.string().min(1).max(50),
+  label: z.string().min(1).max(50),
+  url: z.string().url().optional(),
+  action: z.string().max(50).optional(),
 });
+
+export const InAppNotificationSchema = z.object({
+  id: UuidSchema,
+  userId: UuidSchema,
+  type: InAppTypeSchema,
+  position: InAppPositionSchema.optional(),
+  title: z.string().min(1).max(100),
+  body: z.string().min(1).max(500),
+  imageUrl: z.string().url().optional(),
+  iconUrl: z.string().url().optional(),
+  actions: z.array(InAppActionSchema).max(2).optional(),
+  status: InAppStatusSchema,
+  displayDurationSeconds: z.number().int().positive().max(60).optional(),
+  autoDismiss: z.boolean(),
+  readAt: z.string().datetime().optional(),
+  dismissedAt: z.string().datetime().optional(),
+  clickedAt: z.string().datetime().optional(),
+  createdAt: z.string().datetime(),
+  expiresAt: z.string().datetime().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+export type InAppTypeSchemaType = z.infer<typeof InAppTypeSchema>;
+export type InAppPositionSchemaType = z.infer<typeof InAppPositionSchema>;
+export type InAppStatusSchemaType = z.infer<typeof InAppStatusSchema>;
+export type InAppNotificationSchemaType = z.infer<typeof InAppNotificationSchema>;

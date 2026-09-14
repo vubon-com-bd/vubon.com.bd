@@ -1,20 +1,15 @@
-import { TypeObject } from '../common/types.types';
-import { TICKET_CHANNEL } from '@vubon/shared-constants/src/support/ticket-channel.constants';
+/**
+ * Ticket Channel Value Types
+ * @module shared-types/support
+ */
 
-export interface TicketChannel extends TypeObject {
-  type: keyof typeof TICKET_CHANNEL.TYPES | string;
-  category: 'ticket_channel';
-  priority: keyof typeof TICKET_CHANNEL.CHANNEL_PRIORITY | string;
-  isEmail: boolean;
-  isPhone: boolean;
-  isChat: boolean;
-  isWhatsApp: boolean;
-  isMessenger: boolean;
-  isSocial: boolean;
-  isWeb: boolean;
-  isMobile: boolean;
-  isApi: boolean;
-  isBot: boolean;
+import type { TICKET_CHANNEL } from '@vubon/shared-constants/support';
+
+export type TicketChannelValue = (typeof TICKET_CHANNEL)[keyof typeof TICKET_CHANNEL];
+
+export interface TicketChannelMetadata {
+  readonly value: TicketChannelValue;
+  readonly label: string;
+  readonly isAsync: boolean;
+  readonly isRealtime: boolean;
 }
-
-export type TicketChannelKey = keyof typeof TICKET_CHANNEL.TYPES;

@@ -1,20 +1,21 @@
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
+export const FREQUENTLY_BOUGHT_TYPE = {
+  TOGETHER: 'together',
+  AFTER_VIEWING: 'after_viewing',
+  AFTER_PURCHASE: 'after_purchase',
+  SAME_SESSION: 'same_session',
+} as const;
 
 export const FREQUENTLY_BOUGHT = {
-  TYPES: {
-    ...COMMON_TYPES,
-    TOGETHER: 'together',
-    WITH: 'with',
-    AFTER: 'after',
-    INSTEAD: 'instead',
-  },
-  ASSOCIATION_RULES: {
-    SUPPORT: 0.02,
-    CONFIDENCE: 0.5,
-    LIFT: 1.5,
-  },
-  MIN_TRANSACTIONS: 10,
-  MAX_ASSOCIATIONS: 10,
-  ANALYSIS_WINDOW_DAYS: 90,
-  ASSOCIATION_UPDATE_INTERVAL_DAYS: 7,
+  MAX_ITEMS: 10,
+  DEFAULT_ITEMS: 5,
+  MIN_CO_OCCURRENCES: 3,
+  MIN_CONFIDENCE: 0.1,
+  MIN_LIFT: 1.0,
+  LOOKBACK_DAYS: 90,
+  REFRESH_INTERVAL_HOURS: 24,
+  INCLUDE_OUT_OF_STOCK: false,
+  RETENTION_DAYS: 90,
 } as const;
+
+export type FrequentlyBoughtTypeType =
+  (typeof FREQUENTLY_BOUGHT_TYPE)[keyof typeof FREQUENTLY_BOUGHT_TYPE];

@@ -1,31 +1,44 @@
-import { TYPES as COMMON_TYPES } from '../common/types.constants';
-import { AI_EMBEDDING } from './ai-embedding.constants';
+export const AI_VECTOR_DB = {
+  PINECONE: 'pinecone',
+  WEAVIATE: 'weaviate',
+  QDRANT: 'qdrant',
+  MILVUS: 'milvus',
+  CHROMA: 'chroma',
+  PGVECTOR: 'pgvector',
+  REDIS_VECTOR: 'redis_vector',
+  ELASTICSEARCH: 'elasticsearch',
+  FAISS: 'faiss',
+} as const;
+
+export const AI_VECTOR_INDEX_TYPE = {
+  FLAT: 'flat',
+  IVF_FLAT: 'ivf_flat',
+  IVF_PQ: 'ivf_pq',
+  HNSW: 'hnsw',
+  ANNOY: 'annoy',
+  SCANN: 'scann',
+} as const;
+
+export const AI_VECTOR_METRIC = {
+  COSINE: 'cosine',
+  EUCLIDEAN: 'euclidean',
+  DOT_PRODUCT: 'dot_product',
+  MANHATTAN: 'manhattan',
+} as const;
 
 export const AI_VECTOR = {
-  TYPES: {
-    ...COMMON_TYPES,
-    ...AI_EMBEDDING.TYPES,
-    DENSE: 'dense',
-    SPARSE: 'sparse',
-    BINARY: 'binary',
-    QUANTIZED: 'quantized',
-  },
-  AI_EMBEDDING: { ...AI_EMBEDDING },
-  VECTOR_INDEX_TYPES: {
-    FLAT: 'flat',
-    IVFFLAT: 'ivfflat',
-    IVFPQ: 'ivfpq',
-    HNSW: 'hnsw',
-    SCANN: 'scann',
-  },
-  VECTOR_INDEX_PARAMS: {
-    HNSW_M: 16,
-    HNSW_EF_CONSTRUCTION: 200,
-    HNSW_EF_SEARCH: 50,
-    IVF_NLIST: 1024,
-    IVF_NPROBE: 10,
-  },
-  MAX_VECTORS_PER_INDEX: 1000000,
-  VECTOR_DIMENSION_DEFAULT: 768,
-  INDEX_UPDATE_INTERVAL_HOURS: 12,
+  DB: AI_VECTOR_DB,
+  INDEX_TYPE: AI_VECTOR_INDEX_TYPE,
+  METRIC: AI_VECTOR_METRIC,
+  DEFAULT_DB: AI_VECTOR_DB.PGVECTOR,
+  DEFAULT_INDEX: AI_VECTOR_INDEX_TYPE.HNSW,
+  DEFAULT_METRIC: AI_VECTOR_METRIC.COSINE,
+  MAX_VECTORS: 10000000,
+  MAX_DIMENSION: 4096,
+  MAX_BATCH_SIZE: 1000,
+  HNSW_M: 16,
+  HNSW_EF_CONSTRUCTION: 200,
+  HNSW_EF_SEARCH: 100,
 } as const;
+
+export type AiVectorType = typeof AI_VECTOR;

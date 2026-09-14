@@ -1,47 +1,52 @@
-import { TYPES as COMMON_TYPES } from '../common/types.constants';
-import { METRICS } from '../common/types.constants';
-import { TICKET_STATUS } from './ticket-status.constants';
-import { TICKET_PRIORITY } from './ticket-priority.constants';
-import { TICKET_SATISFACTION } from './ticket-satisfaction.constants';
-import { SUPPORT_AGENT } from './support-agent.constants';
+export const SUPPORT_ANALYTICS_METRIC = {
+  TICKETS_CREATED: 'tickets_created',
+  TICKETS_RESOLVED: 'tickets_resolved',
+  TICKETS_OPEN: 'tickets_open',
+  TICKETS_ESCALATED: 'tickets_escalated',
+  TICKETS_REOPENED: 'tickets_reopened',
+  AVG_FIRST_RESPONSE_TIME: 'avg_first_response_time',
+  AVG_RESOLUTION_TIME: 'avg_resolution_time',
+  FIRST_CONTACT_RESOLUTION: 'first_contact_resolution',
+  CUSTOMER_SATISFACTION: 'customer_satisfaction',
+  CSAT_SCORE: 'csat_score',
+  NPS_SCORE: 'nps_score',
+  CES_SCORE: 'ces_score',
+  SLA_COMPLIANCE: 'sla_compliance',
+  SLA_BREACHES: 'sla_breaches',
+  AGENT_UTILIZATION: 'agent_utilization',
+  TICKET_BACKLOG: 'ticket_backlog',
+  RESOLUTION_RATE: 'resolution_rate',
+  REOPEN_RATE: 'reopen_rate',
+  AVG_HANDLING_TIME: 'avg_handling_time',
+} as const;
+
+export const SUPPORT_ANALYTICS_PERIOD = {
+  TODAY: 'today',
+  YESTERDAY: 'yesterday',
+  LAST_7_DAYS: 'last_7_days',
+  LAST_30_DAYS: 'last_30_days',
+  LAST_90_DAYS: 'last_90_days',
+  THIS_MONTH: 'this_month',
+  LAST_MONTH: 'last_month',
+  THIS_QUARTER: 'this_quarter',
+  THIS_YEAR: 'this_year',
+  CUSTOM: 'custom',
+} as const;
 
 export const SUPPORT_ANALYTICS = {
-  TYPES: {
-    ...COMMON_TYPES,
-    TICKET: 'ticket',
-    RESPONSE: 'response',
-    RESOLUTION: 'resolution',
-    SATISFACTION: 'satisfaction',
-    AGENT: 'agent',
-    PERFORMANCE: 'performance',
-  },
-  METRICS: {
-    ...METRICS,
-    TOTAL_TICKETS: 'total_tickets',
-    OPEN_TICKETS: 'open_tickets',
-    RESOLVED_TICKETS: 'resolved_tickets',
-    AVERAGE_RESPONSE_TIME: 'average_response_time',
-    AVERAGE_RESOLUTION_TIME: 'average_resolution_time',
-    FIRST_RESPONSE_TIME: 'first_response_time',
-    SATISFACTION_SCORE: 'satisfaction_score',
-    ESCALATION_RATE: 'escalation_rate',
-    REOPEN_RATE: 'reopen_rate',
-  },
-  TICKET_STATUS: { ...TICKET_STATUS },
-  TICKET_PRIORITY: { ...TICKET_PRIORITY },
-  TICKET_SATISFACTION: { ...TICKET_SATISFACTION },
-  SUPPORT_AGENT: { ...SUPPORT_AGENT },
-  ANALYTICS_GRANULARITY: {
-    HOURLY: 'hourly',
-    DAILY: 'daily',
-    WEEKLY: 'weekly',
-    MONTHLY: 'monthly',
-  },
-  PERFORMANCE_THRESHOLDS: {
-    EXCELLENT: 95,
-    GOOD: 85,
-    AVERAGE: 70,
-    POOR: 50,
-  },
-  REPORT_RETENTION_DAYS: 365,
+  METRIC: SUPPORT_ANALYTICS_METRIC,
+  PERIOD: SUPPORT_ANALYTICS_PERIOD,
+  RETENTION_DAYS: 730,
+  REFRESH_INTERVAL_SECONDS: 300,
+  TRACK_SLA: true,
+  TRACK_SATISFACTION: true,
+  TRACK_AGENT_PERFORMANCE: true,
+  TRACK_CHANNEL_PERFORMANCE: true,
+  ANONYMIZE_DATA: true,
+  MAX_DATE_RANGE_DAYS: 730,
 } as const;
+
+export type SupportAnalyticsMetricType =
+  (typeof SUPPORT_ANALYTICS_METRIC)[keyof typeof SUPPORT_ANALYTICS_METRIC];
+export type SupportAnalyticsPeriodType =
+  (typeof SUPPORT_ANALYTICS_PERIOD)[keyof typeof SUPPORT_ANALYTICS_PERIOD];

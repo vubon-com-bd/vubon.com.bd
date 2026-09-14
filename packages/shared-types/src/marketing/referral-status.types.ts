@@ -1,14 +1,15 @@
-import { StatusObject } from '../common/status.types';
-import { REFERRAL_STATUS } from '@vubon/shared-constants/src/marketing/referral-status.constants';
+/**
+ * Referral Status Value Types
+ * @module shared-types/marketing
+ */
 
-export interface ReferralStatus extends StatusObject {
-  type: keyof typeof REFERRAL_STATUS | string;
-  category: 'referral';
-  isPending: boolean;
-  isActive: boolean;
-  isCompleted: boolean;
-  isExpired: boolean;
-  isCancelled: boolean;
+import type { REFERRAL_STATUS } from '@vubon/shared-constants/marketing';
+
+export type ReferralStatusValue = (typeof REFERRAL_STATUS)[keyof typeof REFERRAL_STATUS];
+
+export interface ReferralStatusMetadata {
+  readonly value: ReferralStatusValue;
+  readonly label: string;
+  readonly isActive: boolean;
+  readonly isFinal: boolean;
 }
-
-export type ReferralStatusKey = keyof typeof REFERRAL_STATUS;

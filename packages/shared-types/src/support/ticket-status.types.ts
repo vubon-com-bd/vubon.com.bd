@@ -1,20 +1,17 @@
-import { StatusObject } from '../common/status.types';
-import { TICKET_STATUS } from '@vubon/shared-constants/src/support/ticket-status.constants';
+/**
+ * Ticket Status Value Types
+ * @module shared-types/support
+ *
+ * Values আসে shared-constants/support/ticket.constants থেকে।
+ */
 
-export interface TicketStatus extends StatusObject {
-  type: keyof typeof TICKET_STATUS | string;
-  category: 'ticket';
-  isOpen: boolean;
-  isInProgress: boolean;
-  isOnHold: boolean;
-  isPendingCustomer: boolean;
-  isPendingAgent: boolean;
-  isResolved: boolean;
-  isClosed: boolean;
-  isReopened: boolean;
-  isEscalated: boolean;
-  isAssigned: boolean;
-  isUnassigned: boolean;
+import type { TICKET_STATUS } from '@vubon/shared-constants/support';
+
+export type TicketStatusValue = (typeof TICKET_STATUS)[keyof typeof TICKET_STATUS];
+
+export interface TicketStatusMetadata {
+  readonly value: TicketStatusValue;
+  readonly label: string;
+  readonly isFinal: boolean;
+  readonly isOpen: boolean;
 }
-
-export type TicketStatusKey = keyof typeof TICKET_STATUS;

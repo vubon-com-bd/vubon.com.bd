@@ -1,12 +1,30 @@
-import { BaseEntity } from '../../common/base.types';
-import { AUTOCOMPLETE } from '@vubon/shared-constants/src/platform/search/autocomplete.constants';
+/**
+ * Autocomplete Types
+ * @module shared-types/platform/search
+ */
 
-export interface Autocomplete extends BaseEntity {
-  autocompleteId: string;
-  type: keyof typeof AUTOCOMPLETE.TYPES | string;
-  text: string;
-  weight: number;
-  count: number;
-  isActive: boolean;
-  metadata: Record<string, unknown>;
+import type { AUTOCOMPLETE_TYPE } from '@vubon/shared-constants/platform';
+
+export type AutocompleteTypeValue = (typeof AUTOCOMPLETE_TYPE)[keyof typeof AUTOCOMPLETE_TYPE];
+
+export interface AutocompleteSuggestion {
+  readonly text: string;
+  readonly type: AutocompleteTypeValue;
+  readonly score: number;
+  readonly highlightedText?: string;
+  readonly metadata?: Readonly<Record<string, unknown>>;
+}
+
+export interface AutocompleteRequest {
+  readonly query: string;
+  readonly types?: readonly AutocompleteTypeValue[];
+  readonly limit?: number;
+  readonly fuzzy?: boolean;
+}
+
+export interface AutocompleteResponse {
+  readonly query: string;
+  readonly suggestions: readonly AutocompleteSuggestion[];
+  readonly took: number;
+  readonly cached: boolean;
 }

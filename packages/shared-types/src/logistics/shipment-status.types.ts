@@ -1,19 +1,19 @@
-import { StatusObject } from '../common/status.types';
-import { SHIPMENT_STATUS } from '@vubon/shared-constants/src/logistics/shipment-status.constants';
+/**
+ * Shipment Status Value Types
+ * @module shared-types/logistics
+ *
+ * Values আসে shared-constants/logistics/shipment.constants থেকে।
+ */
 
-export interface ShipmentStatus extends StatusObject {
-  type: keyof typeof SHIPMENT_STATUS | string;
-  category: 'shipment';
-  isCreated: boolean;
-  isPending: boolean;
-  isProcessing: boolean;
-  isShipped: boolean;
-  isDelivered: boolean;
-  isReturned: boolean;
-  isCancelled: boolean;
-  isFailed: boolean;
-  isLost: boolean;
-  isDamaged: boolean;
+import type { SHIPMENT_STATUS, SHIPMENT_PRIORITY } from '@vubon/shared-constants/logistics';
+
+export type ShipmentStatusValue = (typeof SHIPMENT_STATUS)[keyof typeof SHIPMENT_STATUS];
+
+export type ShipmentPriorityValue = (typeof SHIPMENT_PRIORITY)[keyof typeof SHIPMENT_PRIORITY];
+
+export interface ShipmentStatusMetadata {
+  readonly value: ShipmentStatusValue;
+  readonly label: string;
+  readonly isFinal: boolean;
+  readonly isInTransit: boolean;
 }
-
-export type ShipmentStatusKey = keyof typeof SHIPMENT_STATUS;

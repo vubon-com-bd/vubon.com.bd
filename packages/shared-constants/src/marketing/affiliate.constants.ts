@@ -1,33 +1,57 @@
-import { STATUS } from '../common/status.constants';
-import { PERMISSIONS } from '../common/permissions.constants';
-import { AFFILIATE_STATUS } from './affiliate-status.constants';
-import { AFFILIATE_COMMISSION } from './affiliate-commission.constants';
-import { AFFILIATE_PAYOUT } from './affiliate-payout.constants';
-import { USER_STATUS } from '../user/user-status.constants';
+export const AFFILIATE_STATUS = {
+  PENDING: 'pending',
+  APPROVED: 'approved',
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+  SUSPENDED: 'suspended',
+  REJECTED: 'rejected',
+  BLOCKED: 'blocked',
+} as const;
+
+export const AFFILIATE_TYPE = {
+  INDIVIDUAL: 'individual',
+  BUSINESS: 'business',
+  INFLUENCER: 'influencer',
+  BLOGGER: 'blogger',
+  COUPON_SITE: 'coupon_site',
+  CASHBACK_SITE: 'cashback_site',
+  COMPARISON_SITE: 'comparison_site',
+  AGENCY: 'agency',
+} as const;
+
+export const AFFILIATE_COMMISSION_TYPE = {
+  PERCENTAGE: 'percentage',
+  FIXED: 'fixed',
+  TIERED: 'tiered',
+  HYBRID: 'hybrid',
+  CPA: 'cpa',
+  CPL: 'cpl',
+  CPS: 'cps',
+} as const;
 
 export const AFFILIATE = {
-  STATUS: {
-    ...STATUS,
-    ...AFFILIATE_STATUS,
-    ACTIVE: 'active',
-    INACTIVE: 'inactive',
-    SUSPENDED: 'suspended',
-    BANNED: 'banned',
+  STATUS: AFFILIATE_STATUS,
+  TYPE: AFFILIATE_TYPE,
+  COMMISSION_TYPE: AFFILIATE_COMMISSION_TYPE,
+  MIN_COMMISSION_PERCENT: 1,
+  MAX_COMMISSION_PERCENT: 50,
+  DEFAULT_COMMISSION_PERCENT: 10,
+  COOKIE_DURATION_DAYS: 30,
+  MAX_COOKIE_DURATION_DAYS: 90,
+  MIN_PAYOUT_AMOUNT: 1000,
+  PAYOUT_HOLD_DAYS: 30,
+  MAX_PAYOUT_AMOUNT: 10000000,
+  REQUIRE_APPROVAL: true,
+  AUTO_APPROVE_VERIFIED: false,
+  TIER_THRESHOLDS: {
+    bronze: 0,
+    silver: 50000,
+    gold: 200000,
+    platinum: 1000000,
   },
-  PERMISSIONS: {
-    ...PERMISSIONS,
-    VIEW: 'affiliate:view',
-    CREATE: 'affiliate:create',
-    UPDATE: 'affiliate:update',
-    DELETE: 'affiliate:delete',
-    APPROVE: 'affiliate:approve',
-  },
-  AFFILIATE_STATUS: { ...AFFILIATE_STATUS },
-  AFFILIATE_COMMISSION: { ...AFFILIATE_COMMISSION },
-  AFFILIATE_PAYOUT: { ...AFFILIATE_PAYOUT },
-  USER_STATUS: { ...USER_STATUS },
-  REFERRAL_COOKIE_DAYS: 30,
-  MIN_WITHDRAWAL_AMOUNT: 500,
-  MAX_COMMISSION_RATE: 50,
-  DEFAULT_COMMISSION_RATE: 10,
 } as const;
+
+export type AffiliateStatusType = (typeof AFFILIATE_STATUS)[keyof typeof AFFILIATE_STATUS];
+export type AffiliateTypeType = (typeof AFFILIATE_TYPE)[keyof typeof AFFILIATE_TYPE];
+export type AffiliateCommissionTypeType =
+  (typeof AFFILIATE_COMMISSION_TYPE)[keyof typeof AFFILIATE_COMMISSION_TYPE];

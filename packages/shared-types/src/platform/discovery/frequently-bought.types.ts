@@ -1,16 +1,25 @@
-import { BaseEntity } from '../../common/base.types';
-import { Product } from '../../business/product/product.types';
-import { FREQUENTLY_BOUGHT } from '@vubon/shared-constants/src/platform/discovery/frequently-bought.constants';
+/**
+ * Frequently Bought Types
+ * @module shared-types/platform/discovery
+ */
 
-export interface FrequentlyBought extends BaseEntity {
-  frequentlyBoughtId: string;
-  productId: string;
-  product: Product;
-  type: keyof typeof FREQUENTLY_BOUGHT.TYPES | string;
-  association: string[];
-  support: number;
-  confidence: number;
-  lift: number;
-  isActive: boolean;
-  metadata: Record<string, unknown>;
+import type { FREQUENTLY_BOUGHT_TYPE } from '@vubon/shared-constants/platform';
+
+export type FrequentlyBoughtTypeValue =
+  (typeof FREQUENTLY_BOUGHT_TYPE)[keyof typeof FREQUENTLY_BOUGHT_TYPE];
+
+export interface FrequentlyBoughtItem {
+  readonly productId: string;
+  readonly coOccurrences: number;
+  readonly confidence: number;
+  readonly lift: number;
+  readonly support: number;
+}
+
+export interface FrequentlyBoughtResult {
+  readonly sourceProductId: string;
+  readonly type: FrequentlyBoughtTypeValue;
+  readonly items: readonly FrequentlyBoughtItem[];
+  readonly lookbackDays: number;
+  readonly generatedAt: string;
 }

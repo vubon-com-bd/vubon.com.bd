@@ -1,20 +1,44 @@
+/**
+ * Report Filter Schema
+ * @module shared-schemas/platform/reporting
+ *
+ * Values আসে shared-constants/platform/report-filter.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { FilterSchema } from '../../common/filter.schema';
-import { REPORT_FILTER } from '@vubon/shared-constants/src/platform/reporting/report-filter.constants';
-import { REPORT_FILTER_OPERATOR } from '@vubon/shared-constants/src/platform/reporting/report-filter-operator.constants';
+import {
+  REPORT_FILTER_OPERATOR,
+  REPORT_FILTER_LOGIC,
+  REPORT_FILTER_TYPE,
+} from '@vubon/shared-constants/platform';
 
-const reportFilterTypeKeys = Object.keys(REPORT_FILTER.TYPES) as [string, ...string[]];
-const reportFilterOperatorKeys = Object.keys(REPORT_FILTER_OPERATOR.TYPES) as [string, ...string[]];
-const reportFilterGroupKeys = Object.keys(REPORT_FILTER.FILTER_GROUPS) as [string, ...string[]];
+export const ReportFilterOperatorSchema = z.enum(
+  Object.values(REPORT_FILTER_OPERATOR) as [string, ...string[]]
+);
 
-export const ReportFilterSchema = FilterSchema.extend({
-  filterId: z.string().uuid(),
-  reportId: z.string().uuid(),
-  type: z.enum(reportFilterTypeKeys),
-  operator: z.enum(reportFilterOperatorKeys),
-  group: z.enum(reportFilterGroupKeys),
-  field: z.string(),
+export const ReportFilterLogicSchema = z.enum(
+  Object.values(REPORT_FILTER_LOGIC) as [string, ...string[]]
+);
+
+export const ReportFilterTypeSchema = z.enum(
+  Object.values(REPORT_FILTER_TYPE) as [string, ...string[]]
+);
+
+export const ReportFilterSchema = z.object({
+  field: z.string().min(1).max(100),
+  operator: ReportFilterOperatorSchema,
   value: z.unknown(),
-  isActive: z.boolean().default(true),
-  metadata: z.record(z.unknown()).optional(),
+  type: ReportFilterTypeSchema,
 });
+
+export const ReportFilterGroupSchema: z.ZodType<unknown> = z.lazy(() =>
+  z.object({
+    logic: ReportFilterLogicSchema,
+    filters: z.array(z.union([ReportFilterSchema, ReportFilterGroupSchema])).max(30),
+  })
+);
+
+export type ReportFilterOperatorSchemaType = z.infer<typeof ReportFilterOperatorSchema>;
+export type ReportFilterLogicSchemaType = z.infer<typeof ReportFilterLogicSchema>;
+export type ReportFilterTypeSchemaType = z.infer<typeof ReportFilterTypeSchema>;
+export type ReportFilterSchemaType = z.infer<typeof ReportFilterSchema>;

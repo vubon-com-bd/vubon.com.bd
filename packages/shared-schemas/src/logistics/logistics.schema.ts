@@ -1,51 +1,81 @@
+/**
+ * Logistics Core Schema
+ * @module shared-schemas/logistics
+ *
+ * Logistics entity + aggregator।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { LOGISTICS } from '@vubon/shared-constants/src/logistics/logistics.constants';
+import { BaseEntitySchema } from '../common/base/base-entity.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema';
+import { ShipmentStatusSchema, ShipmentPrioritySchema } from './shipment-status.schema';
 import { ShipmentSchema } from './shipment.schema';
-import { LogisticsDeliverySchema } from './logistics-delivery.schema';
+import { DeliverySchema } from './delivery.schema';
+import { CourierSchema } from './courier.schema';
+import { TrackingInfoSchema } from './tracking.schema';
 import { WarehouseSchema } from './warehouse.schema';
 import { FulfillmentSchema } from './fulfillment.schema';
+import { DispatchSchema } from './dispatch.schema';
+import { VehicleSchema } from './vehicle.schema';
+import { DriverSchema } from './driver.schema';
+import { RouteSchema } from './route.schema';
+import { LogisticsMetricsSchema } from './logistics-analytics.schema';
 
-const logisticsStatusKeys = Object.keys(LOGISTICS.STATUS) as [string, ...string[]];
-
-export const LogisticsSchema: z.ZodObject<z.ZodRawShape> = BaseSchema.extend({
-  logisticsId: z.string().uuid(),
-  shipments: z.array(ShipmentSchema),
-  deliveries: z.array(LogisticsDeliverySchema),
-  warehouses: z.array(WarehouseSchema),
-  fulfillments: z.array(FulfillmentSchema),
-  status: z.enum(logisticsStatusKeys),
-  totalShipments: z.number().int().min(0).default(0),
-  totalDeliveries: z.number().int().min(0).default(0),
-  totalWarehouses: z.number().int().min(0).default(0),
-  totalFulfillments: z.number().int().min(0).default(0),
-  isActive: z.boolean().default(true),
-  metadata: z.object({
-    timezone: z.string(),
-    currency: z.string().min(3).max(3),
-    defaultWarehouse: z.string().optional(),
-    defaultCourier: z.string().optional(),
-    shippingZones: z.array(z.string()),
-    holidays: z.array(
-      z.object({
-        date: z.date(),
-        name: z.string(),
-        isClosed: z.boolean(),
-      })
-    ),
-  }),
+export const LogisticsSchema = BaseEntitySchema.extend({
+  shipmentId: UuidSchema.optional(),
+  orderId: UuidSchema.optional(),
+  userId: UuidSchema.optional(),
+  status: ShipmentStatusSchema,
+  priority: ShipmentPrioritySchema,
+  isCOD: z.boolean(),
+  isInsured: z.boolean(),
+  courierId: UuidSchema.optional(),
+  warehouseId: UuidSchema.optional(),
+  driverId: UuidSchema.optional(),
+  vehicleId: UuidSchema.optional(),
+  routeId: UuidSchema.optional(),
+  trackingNumber: z.string().max(100).optional(),
 });
 
-export const LogisticsCreateSchema: z.ZodObject<z.ZodRawShape> = LogisticsSchema.omit({
+export const LogisticsPublicSchema = LogisticsSchema.pick({
   id: true,
+  shipmentId: true,
+  status: true,
+  priority: true,
+  trackingNumber: true,
   createdAt: true,
-  updatedAt: true,
-  totalShipments: true,
-  totalDeliveries: true,
-  totalWarehouses: true,
-  totalFulfillments: true,
 });
 
-export const LogisticsUpdateSchema: z.ZodObject<z.ZodRawShape> = LogisticsCreateSchema.partial();
+export const LogisticsOverviewSchema = z.object({
+  shipments: z.array(ShipmentSchema).max(100),
+  deliveries: z.array(DeliverySchema).max(100),
+  couriers: z.array(CourierSchema).max(50),
+  tracking: z.array(TrackingInfoSchema).max(100),
+  warehouses: z.array(WarehouseSchema).max(50),
+  fulfillments: z.array(FulfillmentSchema).max(100),
+  dispatches: z.array(DispatchSchema).max(100),
+  vehicles: z.array(VehicleSchema).max(100),
+  drivers: z.array(DriverSchema).max(100),
+  routes: z.array(RouteSchema).max(100),
+  metrics: LogisticsMetricsSchema,
+  generatedAt: z.string().datetime(),
+});
+
+export const LogisticsListFilterSchema = z.object({
+  status: ShipmentStatusSchema.optional(),
+  priority: ShipmentPrioritySchema.optional(),
+  orderId: UuidSchema.optional(),
+  userId: UuidSchema.optional(),
+  courierId: UuidSchema.optional(),
+  warehouseId: UuidSchema.optional(),
+  driverId: UuidSchema.optional(),
+  isCOD: z.boolean().optional(),
+  fromDate: z.string().datetime().optional(),
+  toDate: z.string().datetime().optional(),
+  search: z.string().max(200).optional(),
+});
 
 export type LogisticsSchemaType = z.infer<typeof LogisticsSchema>;
+export type LogisticsPublicSchemaType = z.infer<typeof LogisticsPublicSchema>;
+export type LogisticsOverviewSchemaType = z.infer<typeof LogisticsOverviewSchema>;
+export type LogisticsListFilterSchemaType = z.infer<typeof LogisticsListFilterSchema>;

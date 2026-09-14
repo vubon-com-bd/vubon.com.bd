@@ -1,27 +1,50 @@
-import { BaseEntity } from '../../common/base.types';
-import { CATEGORY } from '@vubon/shared-constants/src/business/product/category.constants';
-import { Product } from './product.types';
+/**
+ * Category Types
+ * @module shared-types/business/product
+ *
+ * Values আসে shared-constants/business/product/category.constants থেকে।
+ */
 
-export interface CategoryMetadata {
-  seoTitle?: string;
-  seoDescription?: string;
-  isFeatured: boolean;
-  isActive: boolean;
+import type { CATEGORY_STATUS } from '@vubon/shared-constants/business';
+import type { CategoryId } from '../../common/primitives';
+import type { BaseEntity } from '../../common/base';
+import type { Slug, Url } from '../../common/primitives';
+
+export type CategoryStatusValue = (typeof CATEGORY_STATUS)[keyof typeof CATEGORY_STATUS];
+
+export interface Category extends BaseEntity<CategoryId> {
+  readonly name: string;
+  readonly slug: Slug;
+  readonly description?: string;
+  readonly parentId?: CategoryId;
+  readonly path: readonly CategoryId[];
+  readonly depth: number;
+  readonly status: CategoryStatusValue;
+  readonly imageUrl?: Url;
+  readonly iconUrl?: Url;
+  readonly sortOrder: number;
+  readonly productCount: number;
+  readonly isFeatured: boolean;
 }
 
-export interface Category extends BaseEntity {
-  categoryId: string;
-  name: string;
-  slug: string;
-  description?: string;
-  status: keyof typeof CATEGORY.STATUS | string;
-  parentId?: string;
-  parent?: Category;
-  children: Category[];
-  products: Product[];
-  productCount: number;
-  order: number;
-  icon?: string;
-  image?: string;
-  metadata: CategoryMetadata;
+export interface CategoryPublic {
+  readonly id: CategoryId;
+  readonly name: string;
+  readonly slug: Slug;
+  readonly parentId?: CategoryId;
+  readonly imageUrl?: Url;
+  readonly productCount: number;
+}
+
+export interface CategoryTree extends Category {
+  readonly children: readonly CategoryTree[];
+}
+
+export interface CategoryCreateInput {
+  readonly name: string;
+  readonly slug: string;
+  readonly description?: string;
+  readonly parentId?: CategoryId;
+  readonly imageUrl?: string;
+  readonly sortOrder?: number;
 }

@@ -1,3 +1,6 @@
+// shared-types/logistics/index.ts
+// Logistics domain barrel export
+
 export * from './logistics.types';
 export * from './shipment.types';
 export * from './shipment-status.types';

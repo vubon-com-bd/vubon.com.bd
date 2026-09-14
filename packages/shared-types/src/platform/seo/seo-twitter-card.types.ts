@@ -1,18 +1,23 @@
-import { BaseEntity } from '../../common/base.types';
-import { SEO_TWITTER_CARD } from '@vubon/shared-constants/src/platform/seo/seo-twitter-card.constants';
-import { SEO } from './seo.types';
+/**
+ * SEO Twitter Card Types
+ * @module shared-types/platform/seo
+ */
 
-export interface SEOTwitterCard extends BaseEntity {
-  twitterCardId: string;
-  seoId: string;
-  seo: SEO;
-  type: keyof typeof SEO_TWITTER_CARD.TYPES | string;
-  card: string;
-  site: string;
-  title: string;
-  description: string;
-  image: string;
-  creator: string;
-  isActive: boolean;
-  metadata: Record<string, unknown>;
+import type { SEO_TWITTER_CARD_TYPE } from '@vubon/shared-constants/platform';
+import type { Url, ImageUrl } from '../../common/primitives';
+
+export type SeoTwitterCardTypeValue =
+  (typeof SEO_TWITTER_CARD_TYPE)[keyof typeof SEO_TWITTER_CARD_TYPE];
+
+export interface SeoTwitterCard {
+  readonly card: SeoTwitterCardTypeValue;
+  readonly site?: string;
+  readonly siteId?: string;
+  readonly creator?: string;
+  readonly creatorId?: string;
+  readonly title: string;
+  readonly description?: string;
+  readonly image?: ImageUrl;
+  readonly imageAlt?: string;
+  readonly url?: Url;
 }

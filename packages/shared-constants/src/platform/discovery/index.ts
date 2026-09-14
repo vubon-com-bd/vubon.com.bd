@@ -1,3 +1,5 @@
+// platform/discovery/index.ts — Discovery sub-service barrel export
+
 export * from './discovery.constants';
 export * from './recommendation.constants';
 export * from './recommendation-type.constants';

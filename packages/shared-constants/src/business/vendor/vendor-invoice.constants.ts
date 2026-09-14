@@ -1,28 +1,34 @@
-import { STATUS as COMMON_STATUS } from '../../common/status.constants';
-import { INVOICE } from '../payment/invoice.constants';
-import { VENDOR_COMMISSION } from './vendor-commission.constants';
+export const VENDOR_INVOICE_STATUS = {
+  DRAFT: 'draft',
+  SENT: 'sent',
+  VIEWED: 'viewed',
+  PAID: 'paid',
+  OVERDUE: 'overdue',
+  CANCELLED: 'cancelled',
+  REFUNDED: 'refunded',
+} as const;
+
+export const VENDOR_INVOICE_TYPE = {
+  ORDER: 'order',
+  COMMISSION: 'commission',
+  SUBSCRIPTION: 'subscription',
+  PENALTY: 'penalty',
+  ADJUSTMENT: 'adjustment',
+  PAYOUT: 'payout',
+} as const;
 
 export const VENDOR_INVOICE = {
-  STATUS: {
-    ...COMMON_STATUS,
-    ...INVOICE.STATUS,
-    GENERATED: 'generated',
-    SENT: 'sent',
-    PAID: 'paid',
-    OVERDUE: 'overdue',
-    CANCELLED: 'cancelled',
-  },
-  INVOICE: { ...INVOICE },
-  VENDOR_COMMISSION: { ...VENDOR_COMMISSION },
-  INVOICE_TYPES: {
-    COMMISSION: 'commission',
-    SUBSCRIPTION: 'subscription',
-    SERVICE: 'service',
-    ADJUSTMENT: 'adjustment',
-  },
-  INVOICE_PREFIX: 'VINV',
-  INVOICE_LENGTH: 10,
+  PREFIX: 'INV',
+  NUMBER_LENGTH: 10,
   DUE_DAYS: 15,
-  TAX_RATE: 0.15,
-  DISCOUNT_RATE: 0.05,
+  GRACE_PERIOD_DAYS: 5,
+  MAX_AMOUNT: 10000000,
+  TAX_INCLUSIVE: false,
+  AUTO_GENERATE: true,
+  SEND_EMAIL: true,
+  MAX_ATTACHMENTS: 5,
 } as const;
+
+export type VendorInvoiceStatusType =
+  (typeof VENDOR_INVOICE_STATUS)[keyof typeof VENDOR_INVOICE_STATUS];
+export type VendorInvoiceTypeType = (typeof VENDOR_INVOICE_TYPE)[keyof typeof VENDOR_INVOICE_TYPE];

@@ -1,26 +1,21 @@
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
-import { CURRENCY } from '../../common/currency.constants';
-import { PRICING } from '../product/pricing.constants';
-import { FLASH_SALE_STATUS } from './flash-sale-status.constants';
+export const FLASH_SALE_PRICE_TYPE = {
+  PERCENTAGE: 'percentage',
+  FIXED: 'fixed',
+  FIXED_PRICE: 'fixed_price',
+  TIERED: 'tiered',
+  BOGO: 'bogo',
+} as const;
 
 export const FLASH_SALE_PRICE = {
-  TYPES: {
-    ...COMMON_TYPES,
-    ...PRICING.TYPES,
-    FLASH_SALE: 'flash_sale',
-    EARLY_BIRD: 'early_bird',
-    LAST_MINUTE: 'last_minute',
-  },
-  CURRENCY: { ...CURRENCY },
-  PRICING: { ...PRICING },
-  FLASH_SALE_STATUS: { ...FLASH_SALE_STATUS },
-  PRICE_TYPES: {
-    REGULAR: 'regular',
-    FLASH_SALE: 'flash_sale',
-    EARLY_ACCESS: 'early_access',
-    VIP: 'vip',
-  },
-  MIN_PRICE_DROP_PERCENTAGE: 5,
-  MAX_PRICE_DROP_PERCENTAGE: 90,
-  PRICE_VALIDITY_MINUTES: 60,
+  MIN_DISCOUNT_PERCENT: 1,
+  MAX_DISCOUNT_PERCENT: 90,
+  MIN_PRICE: 1,
+  MAX_PRICE: 10000000,
+  DECIMAL_PLACES: 2,
+  SHOW_ORIGINAL_PRICE: true,
+  SHOW_DISCOUNT_BADGE: true,
+  PRICE_DROP_ALERT: true,
 } as const;
+
+export type FlashSalePriceTypeType =
+  (typeof FLASH_SALE_PRICE_TYPE)[keyof typeof FLASH_SALE_PRICE_TYPE];

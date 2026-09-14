@@ -1,49 +1,61 @@
+/**
+ * Notification Rule Schema
+ * @module shared-schemas/platform/notification
+ *
+ * Values আসে shared-constants/platform/notification-rule.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { NOTIFICATION_RULE } from '@vubon/shared-constants/src/platform/notification/notification-rule.constants';
+import {
+  NOTIFICATION_RULE_TYPE,
+  NOTIFICATION_RULE_CONDITION,
+  NOTIFICATION_RULE_ACTION,
+  NOTIFICATION_RULE_STATUS,
+} from '@vubon/shared-constants/platform';
 
-const notificationRuleTypeKeys = Object.keys(NOTIFICATION_RULE.TYPES) as [string, ...string[]];
-const notificationRuleConditionKeys = Object.keys(NOTIFICATION_RULE.RULE_CONDITIONS) as [
-  string,
-  ...string[],
-];
-const notificationRuleActionKeys = Object.keys(NOTIFICATION_RULE.RULE_ACTIONS) as [
-  string,
-  ...string[],
-];
+export const NotificationRuleTypeSchema = z.enum(
+  Object.values(NOTIFICATION_RULE_TYPE) as [string, ...string[]]
+);
 
-export const NotificationRuleSchema = BaseSchema.extend({
-  ruleId: z.string().uuid(),
-  notificationId: z.string().uuid(),
-  type: z.enum(notificationRuleTypeKeys),
-  condition: z.enum(notificationRuleConditionKeys),
-  action: z.enum(notificationRuleActionKeys),
-  conditions: z.array(
-    z.object({
-      field: z.string(),
-      operator: z.enum([
-        'eq',
-        'ne',
-        'gt',
-        'gte',
-        'lt',
-        'lte',
-        'contains',
-        'starts_with',
-        'ends_with',
-        'in',
-        'not_in',
-      ]),
-      value: z.unknown(),
-    })
-  ),
-  actions: z.array(
-    z.object({
-      type: z.string(),
-      value: z.unknown(),
-    })
-  ),
-  isActive: z.boolean().default(true),
-  order: z.number().int().min(0),
-  metadata: z.record(z.unknown()).optional(),
+export const NotificationRuleConditionSchema = z.enum(
+  Object.values(NOTIFICATION_RULE_CONDITION) as [string, ...string[]]
+);
+
+export const NotificationRuleActionSchema = z.enum(
+  Object.values(NOTIFICATION_RULE_ACTION) as [string, ...string[]]
+);
+
+export const NotificationRuleStatusSchema = z.enum(
+  Object.values(NOTIFICATION_RULE_STATUS) as [string, ...string[]]
+);
+
+export const RuleConditionSchema = z.object({
+  field: z.string().min(1).max(100),
+  operator: NotificationRuleConditionSchema,
+  value: z.unknown(),
 });
+
+export const RuleActionSchema = z.object({
+  action: NotificationRuleActionSchema,
+  params: z.record(z.string(), z.unknown()).optional(),
+});
+
+export const NotificationRuleSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1).max(150),
+  type: NotificationRuleTypeSchema,
+  status: NotificationRuleStatusSchema,
+  priority: z.number().int().min(1).max(100),
+  conditions: z.array(RuleConditionSchema).min(1).max(20),
+  actions: z.array(RuleActionSchema).min(1).max(10),
+  isActive: z.boolean(),
+  createdBy: z.string().min(1),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+
+export type NotificationRuleTypeSchemaType = z.infer<typeof NotificationRuleTypeSchema>;
+export type NotificationRuleConditionSchemaType = z.infer<typeof NotificationRuleConditionSchema>;
+export type NotificationRuleActionSchemaType = z.infer<typeof NotificationRuleActionSchema>;
+export type NotificationRuleStatusSchemaType = z.infer<typeof NotificationRuleStatusSchema>;
+export type NotificationRuleSchemaType = z.infer<typeof NotificationRuleSchema>;

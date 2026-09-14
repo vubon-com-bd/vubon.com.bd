@@ -1,9 +1,13 @@
+// shared-schemas/platform/seo/index.ts
+// SEO sub-service barrel export
+
 export * from './seo.schema';
+export * from './seo-status.schema';
+export * from './seo-type.schema';
+export * from './seo-priority.schema';
 export * from './seo-strategy.schema';
 export * from './seo-keyword.schema';
-export * from './seo-keyword-research.schema';
 export * from './seo-content.schema';
-export * from './seo-content-optimization.schema';
 export * from './seo-link.schema';
 export * from './seo-audit.schema';
 export * from './seo-score.schema';
@@ -15,5 +19,3 @@ export * from './seo-open-graph.schema';
 export * from './seo-twitter-card.schema';
 export * from './seo-analytics.schema';
 export * from './seo-report.schema';
-export * from './seo-settings.schema';
-export * from './seo-preferences.schema';

@@ -1,21 +1,34 @@
-import { BaseEntity } from '../common/base.types';
-import { TICKET_ESCALATION } from '@vubon/shared-constants/src/support/ticket-escalation.constants';
-import { Ticket } from './ticket.types';
+/**
+ * Ticket Escalation Types
+ * @module shared-types/support
+ *
+ * ⚠️ Note: SupportAgentLevelValue support-agent.types.ts থেকে import।
+ */
 
-export interface TicketEscalation extends BaseEntity {
-  escalationId: string;
-  ticketId: string;
-  ticket: Ticket;
-  status: keyof typeof TICKET_ESCALATION.STATUS | string;
-  level: keyof typeof TICKET_ESCALATION.ESCALATION_LEVELS | string;
-  trigger: keyof typeof TICKET_ESCALATION.ESCALATION_TRIGGERS | string;
-  reason: string;
-  escalatedBy: string;
-  escalatedTo: string;
-  escalatedAt: Date;
-  approvedAt?: Date;
-  rejectedAt?: Date;
-  rejectedReason?: string;
-  resolvedAt?: Date;
-  metadata: Record<string, unknown>;
+import type { SupportAgentLevelValue } from './support-agent.types';
+
+export interface TicketEscalation {
+  readonly id: string;
+  readonly ticketId: string;
+  readonly fromLevel?: SupportAgentLevelValue;
+  readonly toLevel: SupportAgentLevelValue;
+  readonly reason: string;
+  readonly escalatedBy: string;
+  readonly escalatedTo?: string;
+  readonly escalatedAt: string;
+  readonly resolvedAt?: string;
+  readonly notes?: string;
+}
+
+export interface EscalationRule {
+  readonly id: string;
+  readonly name: string;
+  readonly condition: EscalationCondition;
+  readonly targetLevel: SupportAgentLevelValue;
+  readonly isActive: boolean;
+}
+
+export interface EscalationCondition {
+  readonly type: 'priority' | 'time_elapsed' | 'no_response' | 'sla_breach' | 'keyword';
+  readonly value: string | number;
 }

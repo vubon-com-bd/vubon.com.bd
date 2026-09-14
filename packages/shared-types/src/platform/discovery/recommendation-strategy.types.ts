@@ -1,21 +1,25 @@
-import { TypeObject } from '../../common/types.types';
-import { RECOMMENDATION_STRATEGY } from '@vubon/shared-constants/src/platform/discovery/recommendation-strategy.constants';
+/**
+ * Recommendation Strategy Value Types
+ * @module shared-types/platform/discovery
+ */
 
-export interface RecommendationStrategy extends TypeObject {
-  type: keyof typeof RECOMMENDATION_STRATEGY.TYPES | string;
-  category: 'recommendation_strategy';
-  weight: keyof typeof RECOMMENDATION_STRATEGY.STRATEGY_WEIGHTS | string;
-  isCollaborativeFiltering: boolean;
-  isContentBased: boolean;
-  isHybrid: boolean;
-  isPopularity: boolean;
-  isTrending: boolean;
-  isPersonalized: boolean;
-  isRuleBased: boolean;
-  isAiBased: boolean;
-  isAssociation: boolean;
-  isSequential: boolean;
-  isContextual: boolean;
+import type {
+  RECOMMENDATION_STRATEGY,
+  RECOMMENDATION_STRATEGY_WEIGHT,
+  RECOMMENDATION_STRATEGY_STATUS,
+} from '@vubon/shared-constants/platform';
+
+export type RecommendationStrategyValue =
+  (typeof RECOMMENDATION_STRATEGY)[keyof typeof RECOMMENDATION_STRATEGY];
+
+export type RecommendationStrategyWeight = typeof RECOMMENDATION_STRATEGY_WEIGHT;
+
+export type RecommendationStrategyStatusValue =
+  (typeof RECOMMENDATION_STRATEGY_STATUS)[keyof typeof RECOMMENDATION_STRATEGY_STATUS];
+
+export interface RecommendationStrategyMetadata {
+  readonly value: RecommendationStrategyValue;
+  readonly label: string;
+  readonly weight: number;
+  readonly status: RecommendationStrategyStatusValue;
 }
-
-export type RecommendationStrategyKey = keyof typeof RECOMMENDATION_STRATEGY.TYPES;

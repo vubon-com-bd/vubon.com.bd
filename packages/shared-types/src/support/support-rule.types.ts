@@ -1,28 +1,45 @@
-import { BaseEntity } from '../common/base.types';
-import { SUPPORT_RULE } from '@vubon/shared-constants/src/support/support-rule.constants';
-import { TicketPriority } from './ticket-priority.types';
+/**
+ * Support Rule Types
+ * @module shared-types/support
+ */
+
+import type {
+  SUPPORT_RULE_TYPE,
+  SUPPORT_RULE_CONDITION,
+  SUPPORT_RULE_ACTION,
+  SUPPORT_RULE_STATUS,
+} from '@vubon/shared-constants/support';
+import type { BaseEntity } from '../common/base';
+
+export type SupportRuleTypeValue = (typeof SUPPORT_RULE_TYPE)[keyof typeof SUPPORT_RULE_TYPE];
+
+export type SupportRuleConditionValue =
+  (typeof SUPPORT_RULE_CONDITION)[keyof typeof SUPPORT_RULE_CONDITION];
+
+export type SupportRuleActionValue = (typeof SUPPORT_RULE_ACTION)[keyof typeof SUPPORT_RULE_ACTION];
+
+export type SupportRuleStatusValue = (typeof SUPPORT_RULE_STATUS)[keyof typeof SUPPORT_RULE_STATUS];
+
+export interface SupportRule extends BaseEntity<string> {
+  readonly name: string;
+  readonly description?: string;
+  readonly type: SupportRuleTypeValue;
+  readonly status: SupportRuleStatusValue;
+  readonly priority: number;
+  readonly conditions: readonly SupportRuleCondition[];
+  readonly actions: readonly SupportRuleAction[];
+  readonly stopOnMatch: boolean;
+  readonly isActive: boolean;
+  readonly createdBy: string;
+}
 
 export interface SupportRuleCondition {
-  type: keyof typeof SUPPORT_RULE.RULE_CONDITIONS | string;
-  field: string;
-  operator: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'contains' | 'starts_with' | 'ends_with';
-  value: unknown;
+  readonly field: string;
+  readonly operator: SupportRuleConditionValue;
+  readonly value: unknown;
 }
 
 export interface SupportRuleAction {
-  type: keyof typeof SUPPORT_RULE.RULE_ACTIONS | string;
-  value: unknown;
-}
-
-export interface SupportRule extends BaseEntity {
-  ruleId: string;
-  name: string;
-  description?: string;
-  type: keyof typeof SUPPORT_RULE.TYPES | string;
-  priority: TicketPriority;
-  conditions: SupportRuleCondition[];
-  actions: SupportRuleAction[];
-  isActive: boolean;
-  order: number;
-  metadata: Record<string, unknown>;
+  readonly action: SupportRuleActionValue;
+  readonly params?: Readonly<Record<string, unknown>>;
 }

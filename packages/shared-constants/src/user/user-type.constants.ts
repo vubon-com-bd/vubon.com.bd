@@ -1,9 +1,11 @@
-import { TYPES as COMMON_TYPES } from '../common/types.constants';
-
-export const USER_TYPES = {
-  ...COMMON_TYPES,
+export const USER_TYPE = {
   INDIVIDUAL: 'individual',
   BUSINESS: 'business',
-  STUDENT: 'student',
-  TEACHER: 'teacher',
+  VENDOR: 'vendor',
+  ADMIN: 'admin',
+  STAFF: 'staff',
+  GUEST: 'guest',
+  SYSTEM: 'system',
 } as const;
+
+export type UserTypeType = (typeof USER_TYPE)[keyof typeof USER_TYPE];

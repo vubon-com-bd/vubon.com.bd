@@ -1,22 +1,50 @@
-import { BaseEntity } from '../../common/base.types';
-import { REPORT_EXPORT } from '@vubon/shared-constants/src/platform/reporting/report-export.constants';
-import { REPORT_FORMAT } from '@vubon/shared-constants/src/platform/reporting/report-format.constants';
-import { Report } from './report.types';
+/**
+ * Report Export Types
+ * @module shared-types/platform/reporting
+ */
 
-export interface ReportExport extends BaseEntity {
-  exportId: string;
-  reportId: string;
-  report: Report;
-  type: keyof typeof REPORT_EXPORT.TYPES | string;
-  format: keyof typeof REPORT_FORMAT.TYPES | string;
-  destination: keyof typeof REPORT_EXPORT.EXPORT_DESTINATIONS | string;
-  fileUrl?: string;
-  fileSize: number;
-  rowCount: number;
-  isCompleted: boolean;
-  isFailed: boolean;
-  exportedAt?: Date;
-  failedAt?: Date;
-  failureReason?: string;
-  metadata: Record<string, unknown>;
+import type {
+  REPORT_EXPORT_TYPE,
+  REPORT_EXPORT_STATUS,
+  REPORT_EXPORT_DESTINATION,
+} from '@vubon/shared-constants/platform';
+
+export type ReportExportTypeValue = (typeof REPORT_EXPORT_TYPE)[keyof typeof REPORT_EXPORT_TYPE];
+
+export type ReportExportStatusValue =
+  (typeof REPORT_EXPORT_STATUS)[keyof typeof REPORT_EXPORT_STATUS];
+
+export type ReportExportDestinationValue =
+  (typeof REPORT_EXPORT_DESTINATION)[keyof typeof REPORT_EXPORT_DESTINATION];
+
+export interface ReportExport {
+  readonly id: string;
+  readonly reportId: string;
+  readonly type: ReportExportTypeValue;
+  readonly status: ReportExportStatusValue;
+  readonly destination: ReportExportDestinationValue;
+  readonly format: string;
+  readonly fileUrl?: string;
+  readonly fileSize?: number;
+  readonly rowCount?: number;
+  readonly expiresAt?: string;
+  readonly completedAt?: string;
+  readonly error?: string;
+  readonly requestedBy: string;
+  readonly createdAt: string;
+}
+
+export interface ReportExportInput {
+  readonly reportId: string;
+  readonly type: ReportExportTypeValue;
+  readonly format: string;
+  readonly destination: ReportExportDestinationValue;
+  readonly filters?: Readonly<Record<string, unknown>>;
+}
+
+export interface ReportExportResult {
+  readonly success: boolean;
+  readonly exportId?: string;
+  readonly fileUrl?: string;
+  readonly error?: string;
 }

@@ -1,18 +1,43 @@
-import { BaseEntity } from '../../common/base.types';
-import { VENDOR_VERIFICATION } from '@vubon/shared-constants/src/business/vendor/vendor-verification.constants';
-import { Vendor } from './vendor.types';
+/**
+ * Vendor Verification Types
+ * @module shared-types/business/vendor
+ *
+ * Values আসে shared-constants/business/vendor/vendor-verification.constants থেকে।
+ */
 
-export interface VendorVerification extends BaseEntity {
-  verificationId: string;
-  vendorId: string;
-  vendor: Vendor;
-  level: keyof typeof VENDOR_VERIFICATION.VERIFICATION_LEVELS | string;
-  status: keyof typeof VENDOR_VERIFICATION.STATUS | string;
-  documents: string[];
-  verifiedBy: string;
-  verifiedAt?: Date;
-  rejectedAt?: Date;
-  rejectedReason?: string;
-  expiresAt?: Date;
-  metadata: Record<string, unknown>;
+import type {
+  VENDOR_VERIFICATION_STATUS,
+  VENDOR_VERIFICATION_TYPE,
+} from '@vubon/shared-constants/business';
+import type { VendorId } from '../../common/primitives';
+
+export type VendorVerificationStatusValue =
+  (typeof VENDOR_VERIFICATION_STATUS)[keyof typeof VENDOR_VERIFICATION_STATUS];
+
+export type VendorVerificationTypeValue =
+  (typeof VENDOR_VERIFICATION_TYPE)[keyof typeof VENDOR_VERIFICATION_TYPE];
+
+export interface VendorVerification {
+  readonly vendorId: VendorId;
+  readonly status: VendorVerificationStatusValue;
+  readonly checks: readonly VendorVerificationCheck[];
+  readonly submittedAt?: string;
+  readonly reviewedAt?: string;
+  readonly reviewedBy?: string;
+  readonly rejectionReason?: string;
+  readonly expiresAt?: string;
+  readonly updatedAt: string;
+}
+
+export interface VendorVerificationCheck {
+  readonly type: VendorVerificationTypeValue;
+  readonly status: VendorVerificationStatusValue;
+  readonly verifiedAt?: string;
+  readonly expiresAt?: string;
+}
+
+export interface VendorVerificationInput {
+  readonly vendorId: VendorId;
+  readonly type: VendorVerificationTypeValue;
+  readonly data: Readonly<Record<string, unknown>>;
 }

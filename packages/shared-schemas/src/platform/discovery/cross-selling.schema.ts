@@ -1,17 +1,34 @@
+/**
+ * Cross-Selling Schema
+ * @module shared-schemas/platform/discovery
+ *
+ * Values আসে shared-constants/platform/cross-selling.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { ProductSchema } from '../../business/product/product.schema';
-import { CROSS_SELLING } from '@vubon/shared-constants/src/platform/discovery/cross-selling.constants';
+import { CROSS_SELL_TYPE, CROSS_SELL_LOCATION } from '@vubon/shared-constants/platform';
 
-const crossSellingTypeKeys = Object.keys(CROSS_SELLING.TYPES) as [string, ...string[]];
+export const CrossSellTypeSchema = z.enum(Object.values(CROSS_SELL_TYPE) as [string, ...string[]]);
 
-export const CrossSellingSchema = BaseSchema.extend({
-  crossSellingId: z.string().uuid(),
-  productId: z.string().uuid(),
-  product: ProductSchema,
-  type: z.enum(crossSellingTypeKeys),
-  crossSellProducts: z.array(z.string()),
-  score: z.number().min(0).max(1),
-  isActive: z.boolean().default(true),
-  metadata: z.record(z.unknown()).optional(),
+export const CrossSellLocationSchema = z.enum(
+  Object.values(CROSS_SELL_LOCATION) as [string, ...string[]]
+);
+
+export const CrossSellItemSchema = z.object({
+  productId: z.string().min(1),
+  type: CrossSellTypeSchema,
+  affinity: z.number().min(0).max(1),
+  reason: z.string().max(200).optional(),
 });
+
+export const CrossSellResultSchema = z.object({
+  sourceProductId: z.string().min(1),
+  location: CrossSellLocationSchema.optional(),
+  items: z.array(CrossSellItemSchema).max(20),
+  generatedAt: z.string().datetime(),
+});
+
+export type CrossSellTypeSchemaType = z.infer<typeof CrossSellTypeSchema>;
+export type CrossSellLocationSchemaType = z.infer<typeof CrossSellLocationSchema>;
+export type CrossSellItemSchemaType = z.infer<typeof CrossSellItemSchema>;
+export type CrossSellResultSchemaType = z.infer<typeof CrossSellResultSchema>;

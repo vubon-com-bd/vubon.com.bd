@@ -1,17 +1,35 @@
-import { BaseEntity } from '../common/base.types';
-import { AI_ANALYTICS } from '@vubon/shared-constants/src/ai/ai-analytics.constants';
-import { AI } from './ai.types';
+/**
+ * AI Analytics Types
+ * @module shared-types/ai
+ *
+ * Values আসে shared-constants/ai/ai-analytics.constants থেকে।
+ */
 
-export interface AIAnalytics extends BaseEntity {
-  analyticsId: string;
-  aiId: string;
-  ai: AI;
-  type: keyof typeof AI_ANALYTICS.TYPES | string;
-  algorithm: keyof typeof AI_ANALYTICS.ANALYTICS_ALGORITHMS | string;
-  metric: keyof typeof AI_ANALYTICS.METRICS | string;
-  value: number;
-  confidence: number;
-  period: 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly';
-  timestamp: Date;
-  metadata: Record<string, unknown>;
+import type { AI_ANALYTICS_METRIC, AI_ANALYTICS_PERIOD } from '@vubon/shared-constants/ai';
+
+export type AiAnalyticsMetricValue = (typeof AI_ANALYTICS_METRIC)[keyof typeof AI_ANALYTICS_METRIC];
+
+export type AiAnalyticsPeriodValue = (typeof AI_ANALYTICS_PERIOD)[keyof typeof AI_ANALYTICS_PERIOD];
+
+export interface AiAnalytics {
+  readonly metric: AiAnalyticsMetricValue;
+  readonly period: AiAnalyticsPeriodValue;
+  readonly value: number;
+  readonly previousValue?: number;
+  readonly changePercent?: number;
+  readonly periodStart: string;
+  readonly periodEnd: string;
+  readonly capturedAt: string;
+}
+
+export interface AiModelUsage {
+  readonly model: string;
+  readonly requestCount: number;
+  readonly tokenCount: number;
+  readonly cost: number;
+  readonly currency: string;
+  readonly averageLatencyMs: number;
+  readonly errorCount: number;
+  readonly periodStart: string;
+  readonly periodEnd: string;
 }

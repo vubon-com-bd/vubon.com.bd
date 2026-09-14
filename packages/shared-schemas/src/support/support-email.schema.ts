@@ -1,28 +1,50 @@
+/**
+ * Support Email Schema
+ * @module shared-schemas/support
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { UserSchema } from '../user/user.schema';
-import { EMAIL } from '@vubon/shared-constants/src/platform/notification/email.constants';
+import { BaseEntitySchema } from '../common/base/base-entity.schema';
+import { EmailSchema } from '../common/primitives/email.schema';
 
-const emailStatusKeys = Object.keys(EMAIL.STATUS) as [string, ...string[]];
-const emailTypeKeys = Object.keys(EMAIL.TYPES) as [string, ...string[]];
+export const SupportEmailStatusSchema = z.enum([
+  'pending',
+  'queued',
+  'sent',
+  'delivered',
+  'failed',
+  'bounced',
+  'opened',
+  'clicked',
+]);
 
-export const SupportEmailSchema = BaseSchema.extend({
-  emailId: z.string().uuid(),
-  ticketId: z.string().uuid().optional(),
-  from: z.string().email(),
-  to: z.array(z.string().email()),
-  cc: z.array(z.string().email()),
-  bcc: z.array(z.string().email()),
+export const SupportEmailSchema = BaseEntitySchema.extend({
+  ticketId: z.string().optional(),
+  to: z.array(EmailSchema).min(1).max(100),
+  cc: z.array(EmailSchema).max(50).optional(),
+  bcc: z.array(EmailSchema).max(50).optional(),
+  from: EmailSchema,
+  replyTo: EmailSchema.optional(),
   subject: z.string().min(1).max(200),
-  body: z.string().min(1).max(10000),
-  status: z.enum(emailStatusKeys),
-  type: z.enum(emailTypeKeys),
-  sentBy: z.string().uuid(),
-  sentByUser: UserSchema,
-  attachments: z.array(z.string().url()),
-  sentAt: z.date(),
-  deliveredAt: z.date().optional(),
-  readAt: z.date().optional(),
-  repliedAt: z.date().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  body: z.string().min(1).max(500000),
+  bodyHtml: z.string().max(500000).optional(),
+  templateId: z.string().max(100).optional(),
+  status: SupportEmailStatusSchema,
+  sentAt: z.string().datetime().optional(),
+  deliveredAt: z.string().datetime().optional(),
+  openedAt: z.string().datetime().optional(),
+  clickedAt: z.string().datetime().optional(),
+  failureReason: z.string().max(500).optional(),
 });
+
+export const SupportEmailPublicSchema = SupportEmailSchema.pick({
+  id: true,
+  to: true,
+  subject: true,
+  status: true,
+  sentAt: true,
+});
+
+export type SupportEmailStatusSchemaType = z.infer<typeof SupportEmailStatusSchema>;
+export type SupportEmailSchemaType = z.infer<typeof SupportEmailSchema>;
+export type SupportEmailPublicSchemaType = z.infer<typeof SupportEmailPublicSchema>;

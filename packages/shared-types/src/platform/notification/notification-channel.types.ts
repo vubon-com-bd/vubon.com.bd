@@ -1,20 +1,21 @@
-import { TypeObject } from '../../common/types.types';
-import { NOTIFICATION_CHANNEL } from '@vubon/shared-constants/src/platform/notification/notification-channel.constants';
+/**
+ * Notification Channel Value Types
+ * @module shared-types/platform/notification
+ */
 
-export interface NotificationChannel extends TypeObject {
-  type: keyof typeof NOTIFICATION_CHANNEL.TYPES | string;
-  category: 'notification_channel';
-  priority: keyof typeof NOTIFICATION_CHANNEL.CHANNEL_PRIORITIES | string;
-  isEmail: boolean;
-  isSms: boolean;
-  isPush: boolean;
-  isInApp: boolean;
-  isWebhook: boolean;
-  isWhatsApp: boolean;
-  isMessenger: boolean;
-  isTelegram: boolean;
-  isSlack: boolean;
-  isDiscord: boolean;
+import type {
+  NOTIFICATION_CHANNEL,
+  NOTIFICATION_CHANNEL_PRIORITY,
+} from '@vubon/shared-constants/platform';
+
+export type NotificationChannelValue =
+  (typeof NOTIFICATION_CHANNEL)[keyof typeof NOTIFICATION_CHANNEL];
+
+export type NotificationChannelPriority = typeof NOTIFICATION_CHANNEL_PRIORITY;
+
+export interface NotificationChannelMetadata {
+  readonly value: NotificationChannelValue;
+  readonly label: string;
+  readonly priority: number;
+  readonly isInstant: boolean;
 }
-
-export type NotificationChannelKey = keyof typeof NOTIFICATION_CHANNEL.TYPES;

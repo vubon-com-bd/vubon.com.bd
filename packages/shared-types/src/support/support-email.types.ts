@@ -1,24 +1,37 @@
-import { BaseEntity } from '../common/base.types';
-import { User } from '../user/user.types';
-import { EMAIL } from '@vubon/shared-constants/src/platform/notification/email.constants';
+/**
+ * Support Email Types
+ * @module shared-types/support
+ */
 
-export interface SupportEmail extends BaseEntity {
-  emailId: string;
-  ticketId?: string;
-  from: string;
-  to: string[];
-  cc: string[];
-  bcc: string[];
-  subject: string;
-  body: string;
-  status: keyof typeof EMAIL.STATUS | string;
-  type: keyof typeof EMAIL.TYPES | string;
-  sentBy: string;
-  sentByUser: User;
-  attachments: string[];
-  sentAt: Date;
-  deliveredAt?: Date;
-  readAt?: Date;
-  repliedAt?: Date;
-  metadata: Record<string, unknown>;
+import type { Email } from '../common/primitives';
+import type { BaseEntity } from '../common/base';
+
+export type SupportEmailStatusValue =
+  'pending' | 'queued' | 'sent' | 'delivered' | 'failed' | 'bounced' | 'opened' | 'clicked';
+
+export interface SupportEmail extends BaseEntity<string> {
+  readonly ticketId?: string;
+  readonly to: readonly Email[];
+  readonly cc?: readonly Email[];
+  readonly bcc?: readonly Email[];
+  readonly from: Email;
+  readonly replyTo?: Email;
+  readonly subject: string;
+  readonly body: string;
+  readonly bodyHtml?: string;
+  readonly templateId?: string;
+  readonly status: SupportEmailStatusValue;
+  readonly sentAt?: string;
+  readonly deliveredAt?: string;
+  readonly openedAt?: string;
+  readonly clickedAt?: string;
+  readonly failureReason?: string;
+}
+
+export interface SupportEmailPublic {
+  readonly id: string;
+  readonly to: readonly Email[];
+  readonly subject: string;
+  readonly status: SupportEmailStatusValue;
+  readonly sentAt?: string;
 }

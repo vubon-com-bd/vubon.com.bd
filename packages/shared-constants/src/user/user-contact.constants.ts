@@ -1,14 +1,19 @@
-/**
- * User Contact Constants
- * @module shared-constants/user/user-contact
- */
-
-export const USER_CONTACT = {
-  PRIMARY: 'primary',
-  SECONDARY: 'secondary',
-  EMERGENCY: 'emergency',
-  WORK: 'work',
-  PERSONAL: 'personal',
+export const USER_CONTACT_TYPE = {
+  EMAIL: 'email',
+  PHONE: 'phone',
+  WHATSAPP: 'whatsapp',
+  TELEGRAM: 'telegram',
+  MESSENGER: 'messenger',
+  SKYPE: 'skype',
+  WEBSITE: 'website',
+  SOCIAL: 'social',
 } as const;
 
-export type UserContactType = (typeof USER_CONTACT)[keyof typeof USER_CONTACT];
+export const USER_CONTACT = {
+  MAX_CONTACTS: 10,
+  MAX_EMAILS: 3,
+  MAX_PHONES: 3,
+  PRIMARY_REQUIRED: true,
+} as const;
+
+export type UserContactType = (typeof USER_CONTACT_TYPE)[keyof typeof USER_CONTACT_TYPE];

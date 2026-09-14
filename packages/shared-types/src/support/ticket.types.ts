@@ -1,55 +1,105 @@
-import { BaseEntity } from '../common/base.types';
-import { User } from '../user/user.types';
-import { Vendor } from '../business/vendor/vendor.types';
-import { Order } from '../business/checkout/order.types';
-import { TICKET_STATUS } from '@vubon/shared-constants/src/support/ticket-status.constants';
-import { TicketPriority } from './ticket-priority.types';
-import { TicketType } from './ticket-type.types';
-import { TicketChannel } from './ticket-channel.types';
-import { TicketCategory } from './ticket-category.types';
-import { TicketEscalation } from './ticket-escalation.types';
-import { Conversation } from './conversation.types';
-import { Attachment } from './attachment.types';
+/**
+ * Ticket Core Types
+ * @module shared-types/support
+ */
 
-export interface TicketMetadata {
-  ipAddress?: string;
-  userAgent?: string;
-  deviceId?: string;
-  sessionId?: string;
-  browser?: string;
-  os?: string;
-  language?: string;
-  timezone?: string;
+import type { BaseEntity } from '../common/base';
+import type { UserId } from '../common/primitives';
+import type { TicketStatusValue } from './ticket-status.types';
+import type { TicketPriorityValue } from './ticket-priority.types';
+import type { TicketTypeValue } from './ticket-type.types';
+import type { TicketChannelValue } from './ticket-channel.types';
+import type { TicketCategoryValue } from './ticket-category.types';
+
+export interface Ticket extends BaseEntity<string> {
+  readonly ticketNumber: string;
+  readonly subject: string;
+  readonly description: string;
+  readonly status: TicketStatusValue;
+  readonly priority: TicketPriorityValue;
+  readonly type: TicketTypeValue;
+  readonly channel: TicketChannelValue;
+  readonly category: TicketCategoryValue;
+  readonly customerId?: UserId;
+  readonly customerEmail?: string;
+  readonly customerName?: string;
+  readonly assignedTo?: UserId;
+  readonly teamId?: string;
+  readonly orderId?: string;
+  readonly productId?: string;
+  readonly tags?: readonly string[];
+  readonly watchers?: readonly UserId[];
+  readonly attachments?: readonly string[];
+  readonly firstResponseAt?: string;
+  readonly resolvedAt?: string;
+  readonly closedAt?: string;
+  readonly reopenedAt?: string;
+  readonly dueAt?: string;
+  readonly slaBreachedAt?: string;
+  readonly satisfactionRating?: number;
+  readonly satisfactionComment?: string;
 }
 
-export interface Ticket extends BaseEntity {
-  ticketId: string;
-  ticketNumber: string;
-  subject: string;
-  description: string;
-  status: keyof typeof TICKET_STATUS | string;
-  priority: TicketPriority;
-  type: TicketType;
-  channel: TicketChannel;
-  category: TicketCategory;
-  userId: string;
-  user: User;
-  vendorId?: string;
-  vendor?: Vendor;
-  orderId?: string;
-  order?: Order;
-  assignedTo?: string;
-  assignedToUser?: User;
-  escalation: TicketEscalation;
-  conversation: Conversation;
-  attachments: Attachment[];
-  isResolved: boolean;
-  isClosed: boolean;
-  isReopened: boolean;
-  isEscalated: boolean;
-  resolvedAt?: Date;
-  closedAt?: Date;
-  reopenedAt?: Date;
-  escalatedAt?: Date;
-  metadata: TicketMetadata;
+export interface TicketPublic {
+  readonly id: string;
+  readonly ticketNumber: string;
+  readonly subject: string;
+  readonly status: TicketStatusValue;
+  readonly priority: TicketPriorityValue;
+  readonly type: TicketTypeValue;
+  readonly category: TicketCategoryValue;
+  readonly createdAt: string;
+  readonly resolvedAt?: string;
+  readonly closedAt?: string;
+}
+
+export interface TicketSummary {
+  readonly id: string;
+  readonly ticketNumber: string;
+  readonly subject: string;
+  readonly status: TicketStatusValue;
+  readonly priority: TicketPriorityValue;
+  readonly customerName?: string;
+  readonly createdAt: string;
+}
+
+export interface TicketCreateInput {
+  readonly subject: string;
+  readonly description: string;
+  readonly type: TicketTypeValue;
+  readonly priority: TicketPriorityValue;
+  readonly channel: TicketChannelValue;
+  readonly category: TicketCategoryValue;
+  readonly customerEmail?: string;
+  readonly customerName?: string;
+  readonly orderId?: string;
+  readonly productId?: string;
+  readonly attachments?: readonly string[];
+  readonly tags?: readonly string[];
+}
+
+export interface TicketUpdateInput {
+  readonly subject?: string;
+  readonly description?: string;
+  readonly status?: TicketStatusValue;
+  readonly priority?: TicketPriorityValue;
+  readonly category?: TicketCategoryValue;
+  readonly assignedTo?: string;
+  readonly teamId?: string;
+  readonly tags?: readonly string[];
+}
+
+export interface TicketListFilter {
+  readonly status?: TicketStatusValue;
+  readonly priority?: TicketPriorityValue;
+  readonly type?: TicketTypeValue;
+  readonly channel?: TicketChannelValue;
+  readonly category?: TicketCategoryValue;
+  readonly assignedTo?: UserId;
+  readonly customerId?: UserId;
+  readonly teamId?: string;
+  readonly fromDate?: string;
+  readonly toDate?: string;
+  readonly slaBreached?: boolean;
+  readonly search?: string;
 }

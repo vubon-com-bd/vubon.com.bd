@@ -1,15 +1,17 @@
-/**
- * Auth Password Constants
- * @module shared-constants/auth/auth-password.constants
- *
- * Password policy is derived from SECURITY.PASSWORD (single source of truth).
- */
-
-import { SECURITY } from '../common/security.constants';
+import { SECURITY } from '../security/security.constants';
 
 export const AUTH_PASSWORD = {
-  ...SECURITY.PASSWORD,
+  MIN_LENGTH: SECURITY.PASSWORD_MIN_LENGTH,
+  MAX_LENGTH: SECURITY.PASSWORD_MAX_LENGTH,
+  REQUIRE_UPPERCASE: SECURITY.PASSWORD_REQUIRE_UPPERCASE,
+  REQUIRE_LOWERCASE: SECURITY.PASSWORD_REQUIRE_LOWERCASE,
+  REQUIRE_NUMBER: SECURITY.PASSWORD_REQUIRE_NUMBER,
+  REQUIRE_SYMBOL: SECURITY.PASSWORD_REQUIRE_SYMBOL,
+  HISTORY_COUNT: SECURITY.PASSWORD_HISTORY_COUNT,
+  EXPIRY_DAYS: SECURITY.PASSWORD_EXPIRY_DAYS,
+  BCRYPT_ROUNDS: SECURITY.BCRYPT_ROUNDS,
+  RESET_TOKEN_EXPIRY_SECONDS: 3600,
+  MAX_RESET_ATTEMPTS: 3,
 } as const;
 
-export type AuthPasswordPolicy = typeof AUTH_PASSWORD;
-export type AuthPassword = AuthPasswordPolicy;
+export type AuthPasswordType = typeof AUTH_PASSWORD;

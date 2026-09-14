@@ -1,27 +1,30 @@
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
+export const SEARCH_MATCH_TYPE = {
+  EXACT: 'exact',
+  FUZZY: 'fuzzy',
+  PHRASE: 'phrase',
+  PREFIX: 'prefix',
+  WILDCARD: 'wildcard',
+  REGEXP: 'regexp',
+  PARTIAL: 'partial',
+  COMPLEMENT: 'complement',
+} as const;
+
+export const SEARCH_FUZZINESS = {
+  OFF: 0,
+  LOW: 1,
+  MEDIUM: 2,
+  HIGH: 'AUTO',
+} as const;
 
 export const SEARCH_MATCH = {
-  TYPES: {
-    ...COMMON_TYPES,
-    EXACT: 'exact',
-    PREFIX: 'prefix',
-    SUFFIX: 'suffix',
-    CONTAINS: 'contains',
-    FUZZY: 'fuzzy',
-    WILDCARD: 'wildcard',
-    REGEX: 'regex',
-    SYNONYM: 'synonym',
-    STEMMED: 'stemmed',
-  },
-  MATCH_PRIORITIES: {
-    EXACT: 10,
-    PREFIX: 8,
-    CONTAINS: 6,
-    FUZZY: 4,
-    STEMMED: 3,
-    SYNONYM: 2,
-    WILDCARD: 1,
-  },
-  MIN_FUZZY_SIMILARITY: 0.7,
-  MAX_FUZZY_EDIT_DISTANCE: 2,
+  MIN_TERM_LENGTH: 1,
+  MAX_FUZZY_EXPANSIONS: 50,
+  MAX_PHRASE_SLOP: 3,
+  PREFIX_LENGTH: 3,
+  MAX_WILDCARD_EXPANSIONS: 100,
+  CASE_SENSITIVE: false,
+  DIACRITICS_INSENSITIVE: true,
 } as const;
+
+export type SearchMatchTypeType = (typeof SEARCH_MATCH_TYPE)[keyof typeof SEARCH_MATCH_TYPE];
+export type SearchFuzzinessType = (typeof SEARCH_FUZZINESS)[keyof typeof SEARCH_FUZZINESS];

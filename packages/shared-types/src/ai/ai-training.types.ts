@@ -1,31 +1,64 @@
-import { BaseEntity } from '../common/base.types';
-import { AI_TRAINING } from '@vubon/shared-constants/src/ai/ai-training.constants';
-import { AIModel } from './ai-model.types';
-import { AI } from './ai.types';
+/**
+ * AI Training Types
+ * @module shared-types/ai
+ *
+ * Values আসে shared-constants/ai/ai-training.constants থেকে।
+ */
 
-export interface AITraining extends BaseEntity {
-  trainingId: string;
-  aiId: string;
-  ai: AI;
-  modelId: string;
-  model: AIModel;
-  status: keyof typeof AI_TRAINING.STATUS | string;
-  type: keyof typeof AI_TRAINING.TYPES | string;
-  dataSize: number;
-  epochs: number;
-  batchSize: number;
-  learningRate: number;
-  optimizer: string;
-  lossFunction: string;
-  trainSplit: number;
-  validationSplit: number;
-  testSplit: number;
-  accuracy: number;
-  loss: number;
-  trainingTime: number;
-  startedAt: Date;
-  completedAt?: Date;
-  failedAt?: Date;
-  failureReason?: string;
-  metadata: Record<string, unknown>;
+import type { AI_TRAINING_STATUS, AI_TRAINING_TYPE } from '@vubon/shared-constants/ai';
+import type { BaseEntity } from '../common/base';
+import type { Url } from '../common/primitives';
+
+export type AiTrainingStatusValue = (typeof AI_TRAINING_STATUS)[keyof typeof AI_TRAINING_STATUS];
+
+export type AiTrainingTypeValue = (typeof AI_TRAINING_TYPE)[keyof typeof AI_TRAINING_TYPE];
+
+export interface AiTraining extends BaseEntity<string> {
+  readonly name: string;
+  readonly type: AiTrainingTypeValue;
+  readonly status: AiTrainingStatusValue;
+  readonly baseModel: string;
+  readonly datasetUrl?: Url;
+  readonly datasetSize?: number;
+  readonly epochs: number;
+  readonly completedEpochs?: number;
+  readonly batchSize: number;
+  readonly learningRate: number;
+  readonly validationSplit: number;
+  readonly testSplit?: number;
+  readonly checkpoints: readonly AiTrainingCheckpoint[];
+  readonly metrics?: AiTrainingMetrics;
+  readonly startedAt?: string;
+  readonly completedAt?: string;
+  readonly failedAt?: string;
+  readonly error?: string;
+  readonly durationMs?: number;
+  readonly createdBy: string;
+}
+
+export interface AiTrainingCheckpoint {
+  readonly step: number;
+  readonly loss: number;
+  readonly createdAt: string;
+  readonly url?: Url;
+}
+
+export interface AiTrainingMetrics {
+  readonly trainLoss: number;
+  readonly validationLoss?: number;
+  readonly trainAccuracy?: number;
+  readonly validationAccuracy?: number;
+  readonly f1Score?: number;
+  readonly precision?: number;
+  readonly recall?: number;
+}
+
+export interface AiTrainingRequest {
+  readonly name: string;
+  readonly type: AiTrainingTypeValue;
+  readonly baseModel: string;
+  readonly datasetUrl?: string;
+  readonly epochs?: number;
+  readonly batchSize?: number;
+  readonly learningRate?: number;
 }

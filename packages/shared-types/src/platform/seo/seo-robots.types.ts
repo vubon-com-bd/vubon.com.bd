@@ -1,14 +1,26 @@
-import { BaseEntity } from '../../common/base.types';
-import { SEO_ROBOTS } from '@vubon/shared-constants/src/platform/seo/seo-robots.constants';
-import { SEO } from './seo.types';
+/**
+ * SEO Robots Types
+ * @module shared-types/platform/seo
+ */
 
-export interface SEORobots extends BaseEntity {
-  robotsId: string;
-  seoId: string;
-  seo: SEO;
-  type: keyof typeof SEO_ROBOTS.TYPES | string;
-  directive: keyof typeof SEO_ROBOTS.ROBOTS_DIRECTIVES | string;
-  value: string;
-  isActive: boolean;
-  metadata: Record<string, unknown>;
+import type { SEO_ROBOTS_DIRECTIVE, SEO_ROBOTS_USER_AGENT } from '@vubon/shared-constants/platform';
+
+export type SeoRobotsDirectiveValue =
+  (typeof SEO_ROBOTS_DIRECTIVE)[keyof typeof SEO_ROBOTS_DIRECTIVE];
+
+export type SeoRobotsUserAgentValue =
+  (typeof SEO_ROBOTS_USER_AGENT)[keyof typeof SEO_ROBOTS_USER_AGENT];
+
+export interface SeoRobots {
+  readonly userAgent: SeoRobotsUserAgentValue | string;
+  readonly allow: readonly string[];
+  readonly disallow: readonly string[];
+  readonly crawlDelay?: number;
+  readonly sitemap?: string;
+}
+
+export interface SeoRobotsMeta {
+  readonly directives: readonly SeoRobotsDirectiveValue[];
+  readonly maxSnippet?: number;
+  readonly maxImagePreview?: 'none' | 'standard' | 'large';
 }

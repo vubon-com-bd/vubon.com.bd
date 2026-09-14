@@ -1,15 +1,13 @@
-import { z } from 'zod';
-import { AUTH_STATUS } from '@vubon/shared-constants/src/auth/auth-status.constants';
-
 /**
- * Auth status VALUES only.
- * AUTH_STATUS is a flat object — Object.values gives 'active', 'locked', etc.
+ * Auth Status Schema
+ * @module shared-schemas/auth
+ *
+ * Values আসে shared-constants/auth/auth-status.constants থেকে।
  */
-const authStatusValues = Object.values(AUTH_STATUS) as [string, ...string[]];
 
-export const AuthStatusSchema = z.object({
-  status: z.enum(authStatusValues),
-  category: z.literal('auth'),
-});
+import { z } from 'zod';
+import { AUTH_STATUS } from '@vubon/shared-constants/auth';
 
-export const AuthStatusEnumSchema = z.enum(authStatusValues);
+export const AuthStatusSchema = z.enum(Object.values(AUTH_STATUS) as [string, ...string[]]);
+
+export type AuthStatusSchemaType = z.infer<typeof AuthStatusSchema>;

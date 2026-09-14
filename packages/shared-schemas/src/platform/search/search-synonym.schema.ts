@@ -1,15 +1,27 @@
+/**
+ * Search Synonym Schema
+ * @module shared-schemas/platform/search
+ *
+ * Values আসে shared-constants/platform/search-synonym.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { SEARCH_SYNONYM } from '@vubon/shared-constants/src/platform/search/search-synonym.constants';
+import { SEARCH_SYNONYM_TYPE } from '@vubon/shared-constants/platform';
 
-const synonymTypeKeys = Object.keys(SEARCH_SYNONYM.TYPES) as [string, ...string[]];
+export const SearchSynonymTypeSchema = z.enum(
+  Object.values(SEARCH_SYNONYM_TYPE) as [string, ...string[]]
+);
 
-export const SearchSynonymSchema = BaseSchema.extend({
-  synonymId: z.string().uuid(),
-  type: z.enum(synonymTypeKeys),
+export const SearchSynonymSchema = z.object({
+  id: z.string().min(1),
   term: z.string().min(1).max(100),
-  synonyms: z.array(z.string()),
-  weight: z.number().min(0),
-  isActive: z.boolean().default(true),
-  metadata: z.record(z.unknown()).optional(),
+  synonyms: z.array(z.string().min(1).max(100)).min(1).max(50),
+  type: SearchSynonymTypeSchema,
+  language: z.string().min(2).max(10),
+  isActive: z.boolean(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
 });
+
+export type SearchSynonymTypeSchemaType = z.infer<typeof SearchSynonymTypeSchema>;
+export type SearchSynonymSchemaType = z.infer<typeof SearchSynonymSchema>;

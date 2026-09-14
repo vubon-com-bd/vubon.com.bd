@@ -1,16 +1,36 @@
+/**
+ * SEO Robots Schema
+ * @module shared-schemas/platform/seo
+ *
+ * Values আসে shared-constants/platform/seo-robots.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { SEO_ROBOTS } from '@vubon/shared-constants/src/platform/seo/seo-robots.constants';
+import { SEO_ROBOTS_DIRECTIVE, SEO_ROBOTS_USER_AGENT } from '@vubon/shared-constants/platform';
 
-const robotsTypeKeys = Object.keys(SEO_ROBOTS.TYPES) as [string, ...string[]];
-const robotsDirectiveKeys = Object.keys(SEO_ROBOTS.ROBOTS_DIRECTIVES) as [string, ...string[]];
+export const SeoRobotsDirectiveSchema = z.enum(
+  Object.values(SEO_ROBOTS_DIRECTIVE) as [string, ...string[]]
+);
 
-export const SEORobotsSchema = BaseSchema.extend({
-  robotsId: z.string().uuid(),
-  seoId: z.string().uuid(),
-  type: z.enum(robotsTypeKeys),
-  directive: z.enum(robotsDirectiveKeys),
-  value: z.string(),
-  isActive: z.boolean().default(true),
-  metadata: z.record(z.unknown()).optional(),
+export const SeoRobotsUserAgentSchema = z.enum(
+  Object.values(SEO_ROBOTS_USER_AGENT) as [string, ...string[]]
+);
+
+export const SeoRobotsSchema = z.object({
+  userAgent: z.union([SeoRobotsUserAgentSchema, z.string().min(1).max(100)]),
+  allow: z.array(z.string().max(500)).max(100),
+  disallow: z.array(z.string().max(500)).max(100),
+  crawlDelay: z.number().int().nonnegative().max(60).optional(),
+  sitemap: z.string().url().optional(),
 });
+
+export const SeoRobotsMetaSchema = z.object({
+  directives: z.array(SeoRobotsDirectiveSchema).max(10),
+  maxSnippet: z.number().int().nonnegative().optional(),
+  maxImagePreview: z.enum(['none', 'standard', 'large']).optional(),
+});
+
+export type SeoRobotsDirectiveSchemaType = z.infer<typeof SeoRobotsDirectiveSchema>;
+export type SeoRobotsUserAgentSchemaType = z.infer<typeof SeoRobotsUserAgentSchema>;
+export type SeoRobotsSchemaType = z.infer<typeof SeoRobotsSchema>;
+export type SeoRobotsMetaSchemaType = z.infer<typeof SeoRobotsMetaSchema>;

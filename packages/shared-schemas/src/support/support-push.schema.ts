@@ -1,20 +1,35 @@
+/**
+ * Support Push Notification Schema
+ * @module shared-schemas/support
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { PUSH } from '@vubon/shared-constants/src/platform/notification/push.constants';
+import { BaseEntitySchema } from '../common/base/base-entity.schema';
+import { UuidSchema } from '../common/primitives/uuid.schema';
 
-const pushStatusKeys = Object.keys(PUSH.STATUS) as [string, ...string[]];
-const pushTypeKeys = Object.keys(PUSH.TYPES) as [string, ...string[]];
+export const SupportPushStatusSchema = z.enum(['pending', 'queued', 'sent', 'delivered', 'failed']);
 
-export const SupportPushSchema = BaseSchema.extend({
-  pushId: z.string().uuid(),
-  ticketId: z.string().uuid().optional(),
-  title: z.string().min(1).max(100),
-  body: z.string().min(1).max(200),
-  status: z.enum(pushStatusKeys),
-  type: z.enum(pushTypeKeys),
-  sentBy: z.string().uuid(),
-  sentAt: z.date(),
-  deliveredAt: z.date().optional(),
-  openedAt: z.date().optional(),
-  metadata: z.record(z.unknown()).optional(),
+export const SupportPushSchema = BaseEntitySchema.extend({
+  ticketId: z.string().optional(),
+  userId: UuidSchema,
+  title: z.string().min(1).max(65),
+  body: z.string().min(1).max(240),
+  data: z.record(z.string(), z.unknown()).optional(),
+  status: SupportPushStatusSchema,
+  sentAt: z.string().datetime().optional(),
+  deliveredAt: z.string().datetime().optional(),
+  failureReason: z.string().max(500).optional(),
 });
+
+export const SupportPushPublicSchema = SupportPushSchema.pick({
+  id: true,
+  userId: true,
+  title: true,
+  body: true,
+  status: true,
+  sentAt: true,
+});
+
+export type SupportPushStatusSchemaType = z.infer<typeof SupportPushStatusSchema>;
+export type SupportPushSchemaType = z.infer<typeof SupportPushSchema>;
+export type SupportPushPublicSchemaType = z.infer<typeof SupportPushPublicSchema>;

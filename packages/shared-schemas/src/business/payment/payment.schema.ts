@@ -1,57 +1,80 @@
+/**
+ * Payment Core Schema
+ * @module shared-schemas/business/payment
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { MoneySchema } from '../../common/money.schema';
-import { UserSchema } from '../../user/user.schema';
-import { OrderSchema } from '../checkout/order.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { PositiveMoneySchema } from '../../common/primitives/money.schema';
+import { PaymentStatusSchema } from './payment-status.schema';
 import { PaymentMethodSchema } from './payment-method.schema';
-import { PaymentVerificationSchema } from './payment-verification.schema';
-import { PaymentRefundSchema } from './payment-refund.schema';
-import { TransactionSchema } from './transaction.schema';
-import { PAYMENT_STATUS } from '@vubon/shared-constants/src/business/payment/payment-status.constants';
+import { PaymentGatewaySchema } from './payment-gateway.schema';
+import { TransactionPublicSchema } from './transaction.schema';
 
-const paymentStatusKeys = Object.keys(PAYMENT_STATUS) as [string, ...string[]];
+export const PaymentTypeSchema = z.enum([
+  'one_time',
+  'recurring',
+  'installment',
+  'subscription',
+  'prepaid',
+  'postpaid',
+]);
 
-export const PaymentSchema = BaseSchema.extend({
-  paymentId: z.string().uuid(),
-  orderId: z.string().uuid(),
-  order: OrderSchema,
-  userId: z.string().uuid(),
-  user: UserSchema,
+export const PaymentSchema = BaseEntitySchema.extend({
+  orderId: UuidSchema,
+  userId: UuidSchema,
+  type: PaymentTypeSchema,
+  status: PaymentStatusSchema,
   method: PaymentMethodSchema,
-  status: z.enum(paymentStatusKeys),
-  amount: MoneySchema,
-  currency: z.string().min(3).max(3),
-  transactionId: z.string().uuid().optional(),
-  transaction: TransactionSchema.optional(),
-  verification: PaymentVerificationSchema,
-  refunds: z.array(PaymentRefundSchema),
-  isCompleted: z.boolean().default(false),
-  isFailed: z.boolean().default(false),
-  isRefunded: z.boolean().default(false),
-  isPartialRefunded: z.boolean().default(false),
-  initiatedAt: z.date(),
-  completedAt: z.date().optional(),
-  failedAt: z.date().optional(),
-  metadata: z.object({
-    ipAddress: z.string(),
-    userAgent: z.string(),
-    deviceId: z.string(),
-    sessionId: z.string(),
-    gatewayResponse: z.record(z.unknown()).optional(),
-    errorMessage: z.string().optional(),
-  }),
+  gateway: PaymentGatewaySchema.optional(),
+  amount: PositiveMoneySchema,
+  currency: z.string().length(3),
+  gatewayPaymentId: z.string().max(255).optional(),
+  gatewayOrderId: z.string().max(255).optional(),
+  gatewaySignature: z.string().max(500).optional(),
+  authorizedAt: z.string().datetime().optional(),
+  capturedAt: z.string().datetime().optional(),
+  refundedAmount: PositiveMoneySchema.optional(),
+  transactions: z.array(TransactionPublicSchema).max(50),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+  failureReason: z.string().max(500).optional(),
+  failureCode: z.string().max(50).optional(),
 });
 
-export const PaymentCreateSchema = PaymentSchema.omit({
+export const PaymentPublicSchema = PaymentSchema.pick({
   id: true,
+  orderId: true,
+  status: true,
+  method: true,
+  gateway: true,
+  amount: true,
+  currency: true,
+  refundedAmount: true,
   createdAt: true,
-  updatedAt: true,
-  isCompleted: true,
-  isFailed: true,
-  isRefunded: true,
-  isPartialRefunded: true,
-  completedAt: true,
-  failedAt: true,
+  capturedAt: true,
 });
 
-export const PaymentUpdateSchema = PaymentCreateSchema.partial();
+export const PaymentSummarySchema = PaymentSchema.pick({
+  id: true,
+  orderId: true,
+  status: true,
+  amount: true,
+  currency: true,
+});
+
+export const PaymentListFilterSchema = z.object({
+  orderId: UuidSchema.optional(),
+  userId: UuidSchema.optional(),
+  status: PaymentStatusSchema.optional(),
+  method: PaymentMethodSchema.optional(),
+  gateway: PaymentGatewaySchema.optional(),
+  fromDate: z.string().datetime().optional(),
+  toDate: z.string().datetime().optional(),
+});
+
+export type PaymentTypeSchemaType = z.infer<typeof PaymentTypeSchema>;
+export type PaymentSchemaType = z.infer<typeof PaymentSchema>;
+export type PaymentPublicSchemaType = z.infer<typeof PaymentPublicSchema>;
+export type PaymentSummarySchemaType = z.infer<typeof PaymentSummarySchema>;
+export type PaymentListFilterSchemaType = z.infer<typeof PaymentListFilterSchema>;

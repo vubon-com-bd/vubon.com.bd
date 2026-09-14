@@ -1,34 +1,32 @@
-/**
- * Shared Constants Main Index
- * @module shared-constants
- */
+// packages/shared-constants/src/index.ts — Root barrel (FINAL)
 
-// Export common constants
+// ─────────────────────────────────────────────
+// Level 1 — Foundation
+// ─────────────────────────────────────────────
 export * from './common';
 
-// Export auth constants
+// ─────────────────────────────────────────────
+// Level 2 — Infrastructure + Security
+// ─────────────────────────────────────────────
+export * from './infrastructure';
+export * from './security';
+
+// ─────────────────────────────────────────────
+// Level 3 — Domain
+// ─────────────────────────────────────────────
 export * from './auth';
-
-// Export user constants
 export * from './user';
-
-// Export admin constants
-export * from './admin';
-
-// Export business constants
 export * from './business';
 
-// Export logistics constants
-export * from './logistics';
-
-// Export content constants
-export * from './content';
-
-// Export marketing constants
-export * from './marketing';
-
-// Export platform  constants
+// ─────────────────────────────────────────────
+// Level 4 — Platform
+// ─────────────────────────────────────────────
 export * from './platform';
 
-// Export ai constants
+// ─────────────────────────────────────────────
+// Cross-cutting Domains
+// ─────────────────────────────────────────────
 export * from './ai';
+export * from './marketing';
+export * from './support';
+export * from './logistics';

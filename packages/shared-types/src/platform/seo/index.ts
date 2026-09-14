@@ -1,9 +1,13 @@
+// shared-types/platform/seo/index.ts
+// SEO sub-service barrel export
+
 export * from './seo.types';
+export * from './seo-status.types';
+export * from './seo-type.types';
+export * from './seo-priority.types';
 export * from './seo-strategy.types';
 export * from './seo-keyword.types';
-export * from './seo-keyword-research.types';
 export * from './seo-content.types';
-export * from './seo-content-optimization.types';
 export * from './seo-link.types';
 export * from './seo-audit.types';
 export * from './seo-score.types';
@@ -15,5 +19,3 @@ export * from './seo-open-graph.types';
 export * from './seo-twitter-card.types';
 export * from './seo-analytics.types';
 export * from './seo-report.types';
-export * from './seo-settings.types';
-export * from './seo-preferences.types';

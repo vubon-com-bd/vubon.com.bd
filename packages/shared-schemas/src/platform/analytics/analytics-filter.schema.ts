@@ -1,20 +1,37 @@
+/**
+ * Analytics Filter Schema
+ * @module shared-schemas/platform/analytics
+ *
+ * Values আসে shared-constants/platform/analytics-filter.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { FilterSchema } from '../../common/filter.schema';
-import { ANALYTICS_FILTER } from '@vubon/shared-constants/src/platform/analytics/analytics-filter.constants';
+import {
+  ANALYTICS_FILTER_OPERATOR,
+  ANALYTICS_FILTER_LOGIC,
+} from '@vubon/shared-constants/platform';
 
-const analyticsFilterTypeKeys = Object.keys(ANALYTICS_FILTER.TYPES) as [string, ...string[]];
-const analyticsFilterOperatorKeys = Object.keys(ANALYTICS_FILTER.FILTER_OPERATORS) as [
-  string,
-  ...string[],
-];
+export const AnalyticsFilterOperatorSchema = z.enum(
+  Object.values(ANALYTICS_FILTER_OPERATOR) as [string, ...string[]]
+);
 
-export const AnalyticsFilterSchema = FilterSchema.extend({
-  filterId: z.string().uuid(),
-  analyticsId: z.string().uuid(),
-  type: z.enum(analyticsFilterTypeKeys),
-  operator: z.enum(analyticsFilterOperatorKeys),
-  field: z.string(),
+export const AnalyticsFilterLogicSchema = z.enum(
+  Object.values(ANALYTICS_FILTER_LOGIC) as [string, ...string[]]
+);
+
+export const AnalyticsFilterSchema = z.object({
+  field: z.string().min(1).max(100),
+  operator: AnalyticsFilterOperatorSchema,
   value: z.unknown(),
-  isActive: z.boolean().default(true),
-  metadata: z.record(z.unknown()).optional(),
 });
+
+export const AnalyticsFilterGroupSchema: z.ZodType<unknown> = z.lazy(() =>
+  z.object({
+    logic: AnalyticsFilterLogicSchema,
+    filters: z.array(z.union([AnalyticsFilterSchema, AnalyticsFilterGroupSchema])).max(20),
+  })
+);
+
+export type AnalyticsFilterOperatorSchemaType = z.infer<typeof AnalyticsFilterOperatorSchema>;
+export type AnalyticsFilterLogicSchemaType = z.infer<typeof AnalyticsFilterLogicSchema>;
+export type AnalyticsFilterSchemaType = z.infer<typeof AnalyticsFilterSchema>;

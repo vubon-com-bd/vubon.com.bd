@@ -1,12 +1,23 @@
-import { BaseEntity } from '../../common/base.types';
-import { SEARCH_SUGGESTION } from '@vubon/shared-constants/src/platform/search/search-suggestion.constants';
+/**
+ * Search Suggestion Types
+ * @module shared-types/platform/search
+ */
 
-export interface SearchSuggestion extends BaseEntity {
-  suggestionId: string;
-  type: keyof typeof SEARCH_SUGGESTION.TYPES | string;
-  text: string;
-  weight: number;
-  count: number;
-  isActive: boolean;
-  metadata: Record<string, unknown>;
+import type { SEARCH_SUGGESTION_TYPE } from '@vubon/shared-constants/platform';
+
+export type SearchSuggestionTypeValue =
+  (typeof SEARCH_SUGGESTION_TYPE)[keyof typeof SEARCH_SUGGESTION_TYPE];
+
+export interface SearchSuggestion {
+  readonly text: string;
+  readonly type: SearchSuggestionTypeValue;
+  readonly score: number;
+  readonly highlight?: string;
+  readonly metadata?: Readonly<Record<string, unknown>>;
+}
+
+export interface SearchSuggestionResult {
+  readonly query: string;
+  readonly suggestions: readonly SearchSuggestion[];
+  readonly took: number;
 }

@@ -1,43 +1,64 @@
+/**
+ * Review Schema
+ * @module shared-schemas/business/product
+ *
+ * Values আসে shared-constants/business/review.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { UserSchema } from '../../user/user.schema';
-import { RATING } from '@vubon/shared-constants/src/common/rating.constants';
-import { PRODUCT_REVIEW } from '@vubon/shared-constants/src/business/product/product-review.constants';
+import { REVIEW_STATUS, REVIEW_RATING, REVIEW } from '@vubon/shared-constants/business';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
 
-const ratingKeys = Object.keys(RATING) as [string, ...string[]];
-const reviewStatusKeys = Object.keys(PRODUCT_REVIEW.STATUS) as [string, ...string[]];
+export const ReviewStatusSchema = z.enum(Object.values(REVIEW_STATUS) as [string, ...string[]]);
 
-export const ReviewSchema = BaseSchema.extend({
-  reviewId: z.string().uuid(),
-  productId: z.string().uuid(),
-  userId: z.string().uuid(),
-  user: UserSchema,
-  rating: z.enum(ratingKeys),
-  title: z.string().min(1).max(100),
-  content: z.string().min(10).max(1000),
-  status: z.enum(reviewStatusKeys),
-  images: z.array(z.string().url()),
-  video: z.string().url().optional(),
-  pros: z.array(z.string()).optional(),
-  cons: z.array(z.string()).optional(),
-  isVerifiedPurchase: z.boolean().default(false),
-  isHelpful: z.boolean().default(false),
-  helpfulCount: z.number().int().min(0).default(0),
-  notHelpfulCount: z.number().int().min(0).default(0),
-  reportedCount: z.number().int().min(0).default(0),
-  repliedAt: z.date().optional(),
-  replyContent: z.string().optional(),
-  metadata: z.record(z.unknown()).optional(),
+export const ReviewRatingSchema = z.number().int().min(REVIEW_RATING.MIN).max(REVIEW_RATING.MAX);
+
+export const ReviewSchema = z.object({
+  id: UuidSchema,
+  productId: UuidSchema,
+  userId: UuidSchema,
+  orderId: UuidSchema.optional(),
+  rating: ReviewRatingSchema,
+  title: z.string().trim().max(REVIEW.TITLE_MAX_LENGTH).optional(),
+  comment: z
+    .string()
+    .trim()
+    .min(REVIEW.COMMENT_MIN_LENGTH)
+    .max(REVIEW.COMMENT_MAX_LENGTH)
+    .optional(),
+  images: z.array(z.string().url()).max(REVIEW.MAX_IMAGES).optional(),
+  status: ReviewStatusSchema,
+  isVerifiedPurchase: z.boolean(),
+  helpfulCount: z.number().int().nonnegative(),
+  reportCount: z.number().int().nonnegative(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
 });
 
-export const ReviewCreateSchema = ReviewSchema.omit({
+export const ReviewPublicSchema = ReviewSchema.pick({
   id: true,
-  createdAt: true,
-  updatedAt: true,
+  userId: true,
+  rating: true,
+  title: true,
+  comment: true,
+  images: true,
+  isVerifiedPurchase: true,
   helpfulCount: true,
-  notHelpfulCount: true,
-  reportedCount: true,
+  createdAt: true,
+}).extend({
+  userName: z.string().max(150),
+  userAvatar: z.string().url().optional(),
 });
 
-export type Review = z.infer<typeof ReviewSchema>;
-export type ReviewCreate = z.infer<typeof ReviewCreateSchema>;
+export const ReviewSummarySchema = z.object({
+  productId: UuidSchema,
+  averageRating: z.number().min(0).max(5),
+  totalReviews: z.number().int().nonnegative(),
+  ratingDistribution: z.record(z.string(), z.number().int().nonnegative()),
+});
+
+export type ReviewStatusSchemaType = z.infer<typeof ReviewStatusSchema>;
+export type ReviewRatingSchemaType = z.infer<typeof ReviewRatingSchema>;
+export type ReviewSchemaType = z.infer<typeof ReviewSchema>;
+export type ReviewPublicSchemaType = z.infer<typeof ReviewPublicSchema>;
+export type ReviewSummarySchemaType = z.infer<typeof ReviewSummarySchema>;

@@ -1,72 +1,88 @@
-import { BaseEntity } from '../common/base.types';
-import { Money } from '../common/money.types';
-import { Quantity } from '../common/quantity.types';
-import { SHIPMENT_STATUS } from '@vubon/shared-constants/src/logistics/shipment-status.constants';
-import { SHIPMENT } from '@vubon/shared-constants/src/logistics/shipment.constants';
-import { Courier } from './courier.types';
-import { Tracking } from './tracking.types';
+/**
+ * Shipment Core Types
+ * @module shared-types/logistics
+ */
 
-export interface Dimensions {
-  length: number;
-  width: number;
-  height: number;
-  unit: string;
+import type { BaseEntity } from '../common/base';
+import type { ShipmentId, OrderId, VendorId, WarehouseId, UserId } from '../common/primitives';
+import type { Address } from '../common/geo';
+import type { ShipmentStatusValue, ShipmentPriorityValue } from './shipment-status.types';
+import type { ShipmentTypeValue } from './shipment-type.types';
+
+export interface Shipment extends BaseEntity<ShipmentId> {
+  readonly trackingNumber: string;
+  readonly orderId: OrderId;
+  readonly userId?: UserId;
+  readonly vendorId?: VendorId;
+  readonly warehouseId?: WarehouseId;
+  readonly status: ShipmentStatusValue;
+  readonly type: ShipmentTypeValue;
+  readonly priority: ShipmentPriorityValue;
+  readonly courierId?: string;
+  readonly courierTrackingNumber?: string;
+  readonly shippingAddress: Address;
+  readonly pickupAddress?: Address;
+  readonly itemCount: number;
+  readonly totalWeightKg?: number;
+  readonly totalVolumeM3?: number;
+  readonly declaredValue?: number;
+  readonly currency?: string;
+  readonly shippingCost?: number;
+  readonly codAmount?: number;
+  readonly isCOD: boolean;
+  readonly isInsured: boolean;
+  readonly labelUrl?: string;
+  readonly estimatedDeliveryAt?: string;
+  readonly pickedUpAt?: string;
+  readonly deliveredAt?: string;
+  readonly returnedAt?: string;
+  readonly cancelledAt?: string;
+  readonly notes?: string;
 }
 
-export interface ShipmentAddress {
-  name: string;
-  phone: string;
-  addressLine1: string;
-  addressLine2?: string;
-  city: string;
-  state?: string;
-  postalCode: string;
-  country: string;
+export interface ShipmentPublic {
+  readonly id: ShipmentId;
+  readonly trackingNumber: string;
+  readonly status: ShipmentStatusValue;
+  readonly type: ShipmentTypeValue;
+  readonly priority: ShipmentPriorityValue;
+  readonly estimatedDeliveryAt?: string;
+  readonly deliveredAt?: string;
 }
 
-export interface ShipmentItem {
-  itemId: string;
-  productId: string;
-  productName: string;
-  sku: string;
-  quantity: Quantity;
-  weight: number;
-  dimensions: Dimensions;
-  price: Money;
+export interface ShipmentSummary {
+  readonly id: ShipmentId;
+  readonly trackingNumber: string;
+  readonly status: ShipmentStatusValue;
+  readonly itemCount: number;
+  readonly createdAt: string;
 }
 
-export interface ShipmentMetadata {
-  notes?: string;
-  specialInstructions?: string;
-  isFragile: boolean;
-  isHazardous: boolean;
-  temperatureSensitive: boolean;
-  temperatureRange?: string;
+export interface ShipmentCreateInput {
+  readonly orderId: OrderId;
+  readonly type: ShipmentTypeValue;
+  readonly priority?: ShipmentPriorityValue;
+  readonly shippingAddress: Address;
+  readonly pickupAddress?: Address;
+  readonly courierId?: string;
+  readonly warehouseId?: WarehouseId;
+  readonly itemIds: readonly string[];
+  readonly isCOD?: boolean;
+  readonly isInsured?: boolean;
+  readonly notes?: string;
 }
 
-export interface Shipment extends BaseEntity {
-  shipmentId: string;
-  shipmentNumber: string;
-  orderId: string;
-  status: keyof typeof SHIPMENT_STATUS | string;
-  type: keyof typeof SHIPMENT.SHIPMENT_TYPES | string;
-  priority: keyof typeof SHIPMENT.SHIPMENT_PRIORITY | string;
-  courier: Courier;
-  tracking: Tracking;
-  items: ShipmentItem[];
-  totalItems: number;
-  totalWeight: number;
-  totalVolume: number;
-  packaging: unknown;
-  originAddress: ShipmentAddress;
-  destinationAddress: ShipmentAddress;
-  shippingCost: Money;
-  insuranceCost: Money;
-  totalCost: Money;
-  estimatedDeliveryDate: Date;
-  actualDeliveryDate?: Date;
-  isDelivered: boolean;
-  isCancelled: boolean;
-  isReturned: boolean;
-  metadata: ShipmentMetadata;
+export interface ShipmentListFilter {
+  readonly status?: ShipmentStatusValue;
+  readonly type?: ShipmentTypeValue;
+  readonly priority?: ShipmentPriorityValue;
+  readonly orderId?: OrderId;
+  readonly userId?: UserId;
+  readonly vendorId?: VendorId;
+  readonly courierId?: string;
+  readonly warehouseId?: WarehouseId;
+  readonly isCOD?: boolean;
+  readonly fromDate?: string;
+  readonly toDate?: string;
+  readonly search?: string;
 }

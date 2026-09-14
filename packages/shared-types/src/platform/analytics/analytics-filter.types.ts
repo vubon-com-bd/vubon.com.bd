@@ -1,31 +1,26 @@
-import { Filter } from '../../common/filter.types';
-import { ANALYTICS_FILTER } from '@vubon/shared-constants/src/platform/analytics/analytics-filter.constants';
-import { Analytics } from './analytics.types';
-
 /**
- * Analytics filter type — derived from ANALYTICS_FILTER.TYPES values
+ * Analytics Filter Types
+ * @module shared-types/platform/analytics
  */
-export type AnalyticsFilterType =
-  (typeof ANALYTICS_FILTER.TYPES)[keyof typeof ANALYTICS_FILTER.TYPES];
 
-/**
- * Analytics filter operator — derived from ANALYTICS_FILTER.FILTER_OPERATORS values
- */
-export type AnalyticsFilterOperator =
-  (typeof ANALYTICS_FILTER.FILTER_OPERATORS)[keyof typeof ANALYTICS_FILTER.FILTER_OPERATORS];
+import type {
+  ANALYTICS_FILTER_OPERATOR,
+  ANALYTICS_FILTER_LOGIC,
+} from '@vubon/shared-constants/platform';
 
-/**
- * Analytics filter interface
- * Uses Omit<Filter, 'operator'> because `operator` is a more specific union here.
- */
-export interface AnalyticsFilter extends Omit<Filter, 'operator'> {
-  filterId: string;
-  analyticsId: string;
-  analytics: Analytics;
-  type: AnalyticsFilterType;
-  operator: AnalyticsFilterOperator;
-  field: string;
-  value: unknown;
-  isActive: boolean;
-  metadata: Record<string, unknown>;
+export type AnalyticsFilterOperatorValue =
+  (typeof ANALYTICS_FILTER_OPERATOR)[keyof typeof ANALYTICS_FILTER_OPERATOR];
+
+export type AnalyticsFilterLogicValue =
+  (typeof ANALYTICS_FILTER_LOGIC)[keyof typeof ANALYTICS_FILTER_LOGIC];
+
+export interface AnalyticsFilter {
+  readonly field: string;
+  readonly operator: AnalyticsFilterOperatorValue;
+  readonly value: unknown;
+}
+
+export interface AnalyticsFilterGroup {
+  readonly logic: AnalyticsFilterLogicValue;
+  readonly filters: readonly (AnalyticsFilter | AnalyticsFilterGroup)[];
 }

@@ -1,31 +1,49 @@
-import { STATUS as COMMON_STATUS } from '../common/status.constants';
-import { ROLES } from '../common/roles.constants';
-import { USER_STATUS } from '../user/user-status.constants';
+export const SUPPORT_AGENT_STATUS = {
+  ONLINE: 'online',
+  OFFLINE: 'offline',
+  AWAY: 'away',
+  BUSY: 'busy',
+  BREAK: 'break',
+  IN_MEETING: 'in_meeting',
+} as const;
+
+export const SUPPORT_AGENT_LEVEL = {
+  L1: 'l1',
+  L2: 'l2',
+  L3: 'l3',
+  SPECIALIST: 'specialist',
+  TEAM_LEAD: 'team_lead',
+  MANAGER: 'manager',
+} as const;
+
+export const SUPPORT_AGENT_SKILL = {
+  GENERAL: 'general',
+  TECHNICAL: 'technical',
+  BILLING: 'billing',
+  ORDER: 'order',
+  PAYMENT: 'payment',
+  RETURNS: 'returns',
+  PRODUCT: 'product',
+  LANGUAGE_BN: 'language_bn',
+  LANGUAGE_EN: 'language_en',
+} as const;
 
 export const SUPPORT_AGENT = {
-  STATUS: {
-    ...COMMON_STATUS,
-    AVAILABLE: 'available',
-    BUSY: 'busy',
-    OFFLINE: 'offline',
-    ON_LEAVE: 'on_leave',
-  },
-  ROLES: {
-    ...ROLES,
-    SUPPORT_AGENT: 'support_agent',
-    SENIOR_AGENT: 'senior_agent',
-    TEAM_LEAD: 'team_lead',
-    SUPPORT_MANAGER: 'support_manager',
-  },
-  USER_STATUS: { ...USER_STATUS },
-  AGENT_TYPES: {
-    FULL_TIME: 'full_time',
-    PART_TIME: 'part_time',
-    CONTRACTOR: 'contractor',
-    FREELANCE: 'freelance',
-  },
-  MAX_TICKETS_PER_AGENT: 50,
-  MAX_CHATS_PER_AGENT: 5,
-  SHIFT_HOURS: 8,
-  BREAK_INTERVAL_HOURS: 4,
+  STATUS: SUPPORT_AGENT_STATUS,
+  LEVEL: SUPPORT_AGENT_LEVEL,
+  SKILL: SUPPORT_AGENT_SKILL,
+  MAX_CONCURRENT_TICKETS: 10,
+  MAX_CONCURRENT_CHATS: 5,
+  MAX_TICKETS_PER_DAY: 100,
+  AUTO_ASSIGN: true,
+  ROUND_ROBIN: true,
+  SKILL_BASED_ROUTING: true,
+  LANGUAGE_ROUTING: true,
+  AVAILABILITY_CHECK: true,
+  IDLE_TIMEOUT_MINUTES: 15,
 } as const;
+
+export type SupportAgentStatusType =
+  (typeof SUPPORT_AGENT_STATUS)[keyof typeof SUPPORT_AGENT_STATUS];
+export type SupportAgentLevelType = (typeof SUPPORT_AGENT_LEVEL)[keyof typeof SUPPORT_AGENT_LEVEL];
+export type SupportAgentSkillType = (typeof SUPPORT_AGENT_SKILL)[keyof typeof SUPPORT_AGENT_SKILL];

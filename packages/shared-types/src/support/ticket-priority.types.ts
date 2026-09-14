@@ -1,17 +1,17 @@
-import { TypeObject } from '../common/types.types';
-import { TICKET_PRIORITY } from '@vubon/shared-constants/src/support/ticket-priority.constants';
+/**
+ * Ticket Priority Value Types
+ * @module shared-types/support
+ */
 
-export interface TicketPriority extends TypeObject {
-  type: keyof typeof TICKET_PRIORITY.TYPES | string;
-  category: 'ticket_priority';
-  level: keyof typeof TICKET_PRIORITY.PRIORITY_LEVELS | string;
-  responseTimeMinutes: number;
-  resolutionTimeHours: number;
-  isLow: boolean;
-  isMedium: boolean;
-  isHigh: boolean;
-  isUrgent: boolean;
-  isCritical: boolean;
+import type { TICKET_PRIORITY, TICKET_PRIORITY_WEIGHT } from '@vubon/shared-constants/support';
+
+export type TicketPriorityValue = (typeof TICKET_PRIORITY)[keyof typeof TICKET_PRIORITY];
+
+export type TicketPriorityWeight = typeof TICKET_PRIORITY_WEIGHT;
+
+export interface TicketPriorityMetadata {
+  readonly value: TicketPriorityValue;
+  readonly weight: number;
+  readonly label: string;
+  readonly slaMinutes: number;
 }
-
-export type TicketPriorityKey = keyof typeof TICKET_PRIORITY.TYPES;

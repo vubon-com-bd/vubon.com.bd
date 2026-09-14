@@ -1,17 +1,26 @@
+/**
+ * Checkout Step Schema
+ * @module shared-schemas/business/checkout
+ *
+ * Values আসে shared-constants/business/checkout-step.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { CHECKOUT_STEP } from '@vubon/shared-constants/src/business/checkout/checkout-step.constants';
+import { CHECKOUT_STEP, CHECKOUT_STEP_STATUS } from '@vubon/shared-constants/business';
 
-const checkoutStepKeys = Object.keys(CHECKOUT_STEP) as [string, ...string[]];
+export const CheckoutStepSchema = z.enum(Object.values(CHECKOUT_STEP) as [string, ...string[]]);
 
-export const CheckoutStepSchema = BaseSchema.extend({
-  stepId: z.string().uuid(),
-  checkoutId: z.string().uuid(),
-  type: z.enum(checkoutStepKeys),
-  order: z.number().int().min(0),
-  isCompleted: z.boolean().default(false),
-  isActive: z.boolean().default(false),
-  startedAt: z.date().optional(),
-  completedAt: z.date().optional(),
-  metadata: z.record(z.unknown()).optional(),
+export const CheckoutStepStatusSchema = z.enum(
+  Object.values(CHECKOUT_STEP_STATUS) as [string, ...string[]]
+);
+
+export const CheckoutStepStateSchema = z.object({
+  step: CheckoutStepSchema,
+  status: CheckoutStepStatusSchema,
+  completedAt: z.string().datetime().optional(),
+  data: z.record(z.string(), z.unknown()).optional(),
 });
+
+export type CheckoutStepSchemaType = z.infer<typeof CheckoutStepSchema>;
+export type CheckoutStepStatusSchemaType = z.infer<typeof CheckoutStepStatusSchema>;
+export type CheckoutStepStateSchemaType = z.infer<typeof CheckoutStepStateSchema>;

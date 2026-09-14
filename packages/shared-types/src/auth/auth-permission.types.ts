@@ -1,20 +1,42 @@
-import { PermissionObject } from '../common/permission.types';
-import { AUTH_PERMISSIONS } from '@vubon/shared-constants/src/auth/auth-permission.constants';
-
 /**
- * Auth permission value
+ * Auth Permission Value Types
+ * @module shared-types/auth
+ *
+ * Values আসে shared-constants/auth/auth-permission.constants থেকে।
  */
-export type AuthPermissionValue = (typeof AUTH_PERMISSIONS)[keyof typeof AUTH_PERMISSIONS];
 
-/**
- * Auth permission interface
- */
-export interface AuthPermission extends Omit<PermissionObject, 'type'> {
-  type: AuthPermissionValue;
-  category: 'auth';
+import type { AUTH_PERMISSION } from '@vubon/shared-constants/auth';
+import type { PermissionValue } from '../common/enums';
+
+export type AuthPermissionValue = (typeof AUTH_PERMISSION)[keyof typeof AUTH_PERMISSION];
+
+export interface AuthPermissionMetadata {
+  readonly value: AuthPermissionValue;
+  readonly label: string;
+  readonly category: string;
+  readonly isSensitive: boolean;
 }
 
-/**
- * Auth permission key type
- */
-export type AuthPermissionKey = keyof typeof AUTH_PERMISSIONS;
+export interface AuthPermissionCheck {
+  readonly role: string;
+  readonly permission: PermissionValue | AuthPermissionValue;
+  readonly granted: boolean;
+  readonly checkedAt: string;
+}
+
+export interface AuthPermissionGrant {
+  readonly userId: string;
+  readonly permission: PermissionValue | AuthPermissionValue;
+  readonly grantedBy: string;
+  readonly grantedAt: string;
+  readonly expiresAt?: string;
+  readonly reason?: string;
+}
+
+export interface AuthPermissionRevoke {
+  readonly userId: string;
+  readonly permission: PermissionValue | AuthPermissionValue;
+  readonly revokedBy: string;
+  readonly revokedAt: string;
+  readonly reason?: string;
+}

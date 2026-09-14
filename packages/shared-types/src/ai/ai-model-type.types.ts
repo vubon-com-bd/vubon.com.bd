@@ -1,30 +1,15 @@
-import { TypeObject } from '../common/types.types';
-import { AI_MODEL_TYPE } from '@vubon/shared-constants/src/ai/ai-model-type.constants';
+/**
+ * AI Model Type Value Types
+ * @module shared-types/ai
+ */
 
-export interface AIModelType extends TypeObject {
-  type: keyof typeof AI_MODEL_TYPE.TYPES | string;
-  category: 'ai_model_type';
-  isCollaborativeFiltering: boolean;
-  isContentBased: boolean;
-  isHybrid: boolean;
-  isDeepLearning: boolean;
-  isNeuralNetwork: boolean;
-  isTransformer: boolean;
-  isBert: boolean;
-  isGpt: boolean;
-  isClip: boolean;
-  isResnet: boolean;
-  isCnn: boolean;
-  isRnn: boolean;
-  isLstm: boolean;
-  isGru: boolean;
-  isXgboost: boolean;
-  isRandomForest: boolean;
-  isSvm: boolean;
-  isKmeans: boolean;
-  isDbscan: boolean;
-  isPca: boolean;
-  isTsne: boolean;
+import type { AI_MODEL_TYPE } from '@vubon/shared-constants/ai';
+
+export type AiModelTypeValue = (typeof AI_MODEL_TYPE)[keyof typeof AI_MODEL_TYPE];
+
+export interface AiModelTypeMetadata {
+  readonly value: AiModelTypeValue;
+  readonly label: string;
+  readonly isGenerative: boolean;
+  readonly isEmbedding: boolean;
 }
-
-export type AIModelTypeKey = keyof typeof AI_MODEL_TYPE.TYPES;

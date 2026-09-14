@@ -1,14 +1,22 @@
-import { BaseEntity } from '../../common/base.types';
-import { Product } from '../../business/product/product.types';
-import { SUBSTITUTE } from '@vubon/shared-constants/src/platform/discovery/substitute.constants';
+/**
+ * Substitute Types
+ * @module shared-types/platform/discovery
+ */
 
-export interface Substitute extends BaseEntity {
-  substituteId: string;
-  productId: string;
-  product: Product;
-  type: keyof typeof SUBSTITUTE.TYPES | string;
-  substituteProducts: string[];
-  score: number;
-  isActive: boolean;
-  metadata: Record<string, unknown>;
+import type { SUBSTITUTE_TYPE } from '@vubon/shared-constants/platform';
+
+export type SubstituteTypeValue = (typeof SUBSTITUTE_TYPE)[keyof typeof SUBSTITUTE_TYPE];
+
+export interface SubstituteItem {
+  readonly productId: string;
+  readonly type: SubstituteTypeValue;
+  readonly similarity: number;
+  readonly priceDifference?: number;
+  readonly ratingDifference?: number;
+}
+
+export interface SubstituteResult {
+  readonly sourceProductId: string;
+  readonly items: readonly SubstituteItem[];
+  readonly generatedAt: string;
 }

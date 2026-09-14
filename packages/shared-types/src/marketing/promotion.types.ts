@@ -1,35 +1,51 @@
-import { BaseEntity } from '../common/base.types';
-import { Money } from '../common/money.types';
-import { PROMOTION_STATUS } from '@vubon/shared-constants/src/marketing/promotion-status.constants';
-import { PromotionType } from './promotion-type.types';
-import { PromotionDiscountType } from './promotion-discount-type.types';
-import { Product } from '../business/product/product.types';
-import { Campaign } from './campaign.types';
+/**
+ * Promotion Core Types
+ * @module shared-types/marketing
+ */
 
-export interface Promotion extends BaseEntity {
-  promotionId: string;
-  name: string;
-  slug: string;
-  description?: string;
-  status: keyof typeof PROMOTION_STATUS | string;
-  type: PromotionType;
-  discountType: PromotionDiscountType;
-  discountValue: number;
-  discountAmount: Money;
-  minPurchaseAmount?: Money;
-  maxDiscountAmount?: Money;
-  products: Product[];
-  productCount: number;
-  campaignId?: string;
-  campaign?: Campaign;
-  usageLimit: number;
-  usageCount: number;
-  perUserLimit: number;
-  perUserCount: number;
-  isActive: boolean;
-  isValid: boolean;
-  isStackable: boolean;
-  startsAt: Date;
-  endsAt: Date;
-  metadata: Record<string, unknown>;
+import type { BaseEntity } from '../common/base';
+import type { UserId, Money } from '../common/primitives';
+import type { PromotionTypeValue, PromotionAppliesToValue } from './promotion-type.types';
+import type { PromotionStatusValue } from './promotion-status.types';
+import type { PromotionDiscountTypeValue } from './promotion-discount-type.types';
+
+export interface Promotion extends BaseEntity<string> {
+  readonly name: string;
+  readonly description?: string;
+  readonly type: PromotionTypeValue;
+  readonly status: PromotionStatusValue;
+  readonly discountType: PromotionDiscountTypeValue;
+  readonly appliesTo: PromotionAppliesToValue;
+  readonly discountValue: number;
+  readonly maxDiscountAmount?: Money;
+  readonly minOrderAmount?: Money;
+  readonly maxUses: number;
+  readonly usedCount: number;
+  readonly maxUsesPerUser: number;
+  readonly applicableIds?: readonly string[];
+  readonly excludedIds?: readonly string[];
+  readonly startAt: string;
+  readonly endAt: string;
+  readonly isStackable: boolean;
+  readonly isActive: boolean;
+  readonly createdBy: UserId;
+}
+
+export interface PromotionPublic {
+  readonly id: string;
+  readonly name: string;
+  readonly type: PromotionTypeValue;
+  readonly discountType: PromotionDiscountTypeValue;
+  readonly appliesTo: PromotionAppliesToValue;
+  readonly discountValue: number;
+  readonly startAt: string;
+  readonly endAt: string;
+}
+
+export interface PromotionListFilter {
+  readonly type?: PromotionTypeValue;
+  readonly status?: PromotionStatusValue;
+  readonly appliesTo?: PromotionAppliesToValue;
+  readonly fromDate?: string;
+  readonly toDate?: string;
 }

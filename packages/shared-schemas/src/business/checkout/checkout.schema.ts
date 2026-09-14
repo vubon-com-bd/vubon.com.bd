@@ -1,59 +1,84 @@
+/**
+ * Checkout Core Schema
+ * @module shared-schemas/business/checkout
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { MoneySchema } from '../../common/money.schema';
-import { UserSchema } from '../../user/user.schema';
-import { CartSchema } from '../cart/cart.schema';
-import { CheckoutStepSchema } from './checkout-step.schema';
-import { CheckoutSessionSchema } from './checkout-session.schema';
-import { BillingAddressSchema } from './billing-address.schema';
-import { ShippingAddressSchema } from './shipping-address.schema';
-import { DeliveryMethodSchema } from './delivery-method.schema';
-import { CHECKOUT_STATUS } from '@vubon/shared-constants/src/business/checkout/checkout-status.constants';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { EmailSchema } from '../../common/primitives/email.schema';
+import { PhoneSchema } from '../../common/primitives/phone.schema';
+import { AddressSchema } from '../../common/geo/address.schema';
+import { CartItemPublicSchema } from '../cart/cart-item.schema';
+import { CartTotalsSchema } from '../cart/cart.schema';
+import { CheckoutStatusSchema } from './checkout-status.schema';
+import { CheckoutStepSchema, CheckoutStepStateSchema } from './checkout-step.schema';
 
-const checkoutStatusKeys = Object.keys(CHECKOUT_STATUS) as [string, ...string[]];
+export const CheckoutTypeSchema = z.enum([
+  'guest',
+  'registered',
+  'express',
+  'one_click',
+  'subscription',
+]);
 
-export const CheckoutSchema = BaseSchema.extend({
-  checkoutId: z.string().uuid(),
-  cartId: z.string().uuid(),
-  cart: CartSchema,
-  userId: z.string().uuid(),
-  user: UserSchema,
-  status: z.enum(checkoutStatusKeys),
-  steps: z.array(CheckoutStepSchema),
-  currentStep: z.number().int().min(0),
-  session: CheckoutSessionSchema,
-  billingAddress: BillingAddressSchema,
-  shippingAddress: ShippingAddressSchema,
-  deliveryMethod: DeliveryMethodSchema,
-  subtotal: MoneySchema,
-  discountTotal: MoneySchema,
-  taxTotal: MoneySchema,
-  shippingCost: MoneySchema,
-  grandTotal: MoneySchema,
-  currency: z.string().min(3).max(3),
-  isComplete: z.boolean().default(false),
-  isExpired: z.boolean().default(false),
-  expiresAt: z.date(),
-  completedAt: z.date().optional(),
-  metadata: z.object({
-    ipAddress: z.string(),
-    userAgent: z.string(),
-    deviceId: z.string(),
-    sessionId: z.string(),
-    utmSource: z.string().optional(),
-    utmMedium: z.string().optional(),
-    utmCampaign: z.string().optional(),
-  }),
+export const CheckoutSchema = BaseEntitySchema.extend({
+  cartId: UuidSchema,
+  userId: UuidSchema.optional(),
+  type: CheckoutTypeSchema,
+  status: CheckoutStatusSchema,
+  currentStep: CheckoutStepSchema,
+  steps: z.array(CheckoutStepStateSchema).max(20),
+  email: EmailSchema.optional(),
+  phone: PhoneSchema.optional(),
+  shippingAddress: AddressSchema.optional(),
+  billingAddress: AddressSchema.optional(),
+  items: z.array(CartItemPublicSchema).max(100),
+  totals: CartTotalsSchema,
+  currency: z.string().length(3),
+  paymentMethod: z.string().max(50).optional(),
+  paymentIntentId: z.string().max(255).optional(),
+  shippingMethodId: UuidSchema.optional(),
+  notes: z.string().max(1000).optional(),
+  reservedUntil: z.string().datetime().optional(),
+  expiresAt: z.string().datetime(),
+  completedAt: z.string().datetime().optional(),
 });
 
-export const CheckoutCreateSchema = CheckoutSchema.omit({
+export const CheckoutPublicSchema = CheckoutSchema.pick({
   id: true,
-  createdAt: true,
-  updatedAt: true,
+  status: true,
   currentStep: true,
-  isComplete: true,
-  isExpired: true,
-  completedAt: true,
+  steps: true,
+  items: true,
+  totals: true,
+  currency: true,
 });
 
-export const CheckoutUpdateSchema = CheckoutCreateSchema.partial();
+export const CheckoutSummarySchema = z.object({
+  id: UuidSchema,
+  status: CheckoutStatusSchema,
+  itemCount: z.number().int().nonnegative(),
+  total: z.number().nonnegative(),
+  currency: z.string().length(3),
+  expiresAt: z.string().datetime(),
+});
+
+export const CheckoutValidationErrorSchema = z.object({
+  step: CheckoutStepSchema,
+  field: z.string().min(1).max(100),
+  message: z.string().min(1).max(500),
+  code: z.string().max(50).optional(),
+});
+
+export const CheckoutValidationResultSchema = z.object({
+  valid: z.boolean(),
+  errors: z.array(CheckoutValidationErrorSchema).max(50),
+});
+
+export type CheckoutTypeSchemaType = z.infer<typeof CheckoutTypeSchema>;
+export type CheckoutSchemaType = z.infer<typeof CheckoutSchema>;
+export type CheckoutPublicSchemaType = z.infer<typeof CheckoutPublicSchema>;
+export type CheckoutSummarySchemaType = z.infer<typeof CheckoutSummarySchema>;
+export type CheckoutValidationErrorSchemaType = z.infer<typeof CheckoutValidationErrorSchema>;
+export type CheckoutValidationResultSchemaType = z.infer<typeof CheckoutValidationResultSchema>;

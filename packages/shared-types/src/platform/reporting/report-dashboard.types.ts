@@ -1,36 +1,64 @@
-import { BaseEntity } from '../../common/base.types';
-import { User } from '../../user/user.types';
-import { REPORT_DASHBOARD } from '@vubon/shared-constants/src/platform/reporting/report-dashboard.constants';
-import { ReportWidget } from './report-widget.types';
+/**
+ * Report Dashboard Types
+ * @module shared-types/platform/reporting
+ */
 
-export interface DashboardLayoutItem {
-  widgetId: string;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
+import type {
+  REPORT_DASHBOARD_TYPE,
+  REPORT_DASHBOARD_STATUS,
+  REPORT_DASHBOARD_LAYOUT,
+} from '@vubon/shared-constants/platform';
+import type { UserId } from '../../common/primitives';
+import type { BaseEntity } from '../../common/base';
+import type { ReportWidgetPublic } from './report-widget.types';
+
+export type ReportDashboardTypeValue =
+  (typeof REPORT_DASHBOARD_TYPE)[keyof typeof REPORT_DASHBOARD_TYPE];
+
+export type ReportDashboardStatusValue =
+  (typeof REPORT_DASHBOARD_STATUS)[keyof typeof REPORT_DASHBOARD_STATUS];
+
+export type ReportDashboardLayoutValue =
+  (typeof REPORT_DASHBOARD_LAYOUT)[keyof typeof REPORT_DASHBOARD_LAYOUT];
+
+export interface ReportDashboard extends BaseEntity<string> {
+  readonly name: string;
+  readonly description?: string;
+  readonly type: ReportDashboardTypeValue;
+  readonly status: ReportDashboardStatusValue;
+  readonly layout: ReportDashboardLayoutValue;
+  readonly ownerId: UserId;
+  readonly widgets: readonly ReportWidgetPublic[];
+  readonly sharedWith?: readonly UserId[];
+  readonly isPublic: boolean;
+  readonly isDefault: boolean;
+  readonly theme?: string;
+  readonly autoRefresh: boolean;
+  readonly refreshIntervalSeconds: number;
 }
 
-export interface DashboardLayout {
-  columns: number;
-  rows: number;
-  items: DashboardLayoutItem[];
+export interface ReportDashboardPublic {
+  readonly id: string;
+  readonly name: string;
+  readonly description?: string;
+  readonly type: ReportDashboardTypeValue;
+  readonly layout: ReportDashboardLayoutValue;
+  readonly widgets: readonly ReportWidgetPublic[];
+  readonly isPublic: boolean;
 }
 
-export interface ReportDashboard extends BaseEntity {
-  dashboardId: string;
-  name: string;
-  description?: string;
-  status: keyof typeof REPORT_DASHBOARD.STATUS | string;
-  type: keyof typeof REPORT_DASHBOARD.DASHBOARD_TYPES | string;
-  widgets: ReportWidget[];
-  widgetCount: number;
-  layout: DashboardLayout;
-  createdBy: string;
-  createdByUser: User;
-  isActive: boolean;
-  isPublished: boolean;
-  isShared: boolean;
-  sharedWith: string[];
-  metadata: Record<string, unknown>;
+export interface ReportDashboardCreateInput {
+  readonly name: string;
+  readonly description?: string;
+  readonly type: ReportDashboardTypeValue;
+  readonly layout: ReportDashboardLayoutValue;
+  readonly widgets?: readonly string[];
+}
+
+export interface ReportDashboardFilter {
+  readonly type?: ReportDashboardTypeValue;
+  readonly status?: ReportDashboardStatusValue;
+  readonly ownerId?: UserId;
+  readonly isPublic?: boolean;
+  readonly search?: string;
 }

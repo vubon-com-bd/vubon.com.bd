@@ -1,27 +1,22 @@
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
-import { ORDER_RETURN } from '../checkout/order-return.constants';
+export const VENDOR_RETURN_TYPE = {
+  NO_RETURN: 'no_return',
+  FULL_RETURN: 'full_return',
+  EXCHANGE_ONLY: 'exchange_only',
+  PARTIAL_RETURN: 'partial_return',
+  CONDITIONAL: 'conditional',
+} as const;
 
 export const VENDOR_RETURN_POLICY = {
-  TYPES: {
-    ...COMMON_TYPES,
-    ...ORDER_RETURN.TYPES,
-    FULL_REFUND: 'full_refund',
-    PARTIAL_REFUND: 'partial_refund',
-    EXCHANGE: 'exchange',
-    STORE_CREDIT: 'store_credit',
-  },
-  ORDER_RETURN: { ...ORDER_RETURN },
-  RETURN_WINDOW_DAYS: {
-    DEFAULT: 30,
-    ELECTRONICS: 14,
-    CLOTHING: 45,
-    FOOD: 7,
-    DIGITAL: 0,
-  },
-  RETURN_CONDITIONS: ['unused', 'original_packaging', 'tags_attached', 'proof_of_purchase'],
-  RESTOCKING_FEE_PERCENTAGE: 10,
-  RETURN_SHIPPING_COST: {
-    CUSTOMER_PAYS: 'customer_pays',
-    VENDOR_PAYS: 'vendor_pays',
-  },
+  DEFAULT_WINDOW_DAYS: 7,
+  MIN_WINDOW_DAYS: 0,
+  MAX_WINDOW_DAYS: 30,
+  FREE_RETURN: true,
+  RESTOCK_FEE_PERCENT: 0,
+  REQUIRE_REASON: true,
+  REQUIRE_IMAGES: false,
+  MAX_IMAGES: 5,
+  AUTO_APPROVE: false,
+  APPROVAL_SLA_HOURS: 48,
 } as const;
+
+export type VendorReturnTypeType = (typeof VENDOR_RETURN_TYPE)[keyof typeof VENDOR_RETURN_TYPE];

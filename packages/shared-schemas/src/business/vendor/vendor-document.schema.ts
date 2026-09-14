@@ -1,25 +1,50 @@
+/**
+ * Vendor Document Schema
+ * @module shared-schemas/business/vendor
+ *
+ * Values আসে shared-constants/business/vendor-document.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { VENDOR_DOCUMENT } from '@vubon/shared-constants/src/business/vendor/vendor-document.constants';
+import { VENDOR_DOCUMENT_TYPE, VENDOR_DOCUMENT_STATUS } from '@vubon/shared-constants/business';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
 
-const vendorDocumentTypeKeys = Object.keys(VENDOR_DOCUMENT.TYPES) as [string, ...string[]];
-const vendorDocumentStatusKeys = Object.keys(VENDOR_DOCUMENT.DOCUMENT_STATUS) as [
-  string,
-  ...string[],
-];
+export const VendorDocumentTypeSchema = z.enum(
+  Object.values(VENDOR_DOCUMENT_TYPE) as [string, ...string[]]
+);
 
-export const VendorDocumentSchema = BaseSchema.extend({
-  documentId: z.string().uuid(),
-  vendorId: z.string().uuid(),
-  type: z.enum(vendorDocumentTypeKeys),
-  name: z.string().min(1).max(255),
-  description: z.string().optional(),
+export const VendorDocumentStatusSchema = z.enum(
+  Object.values(VENDOR_DOCUMENT_STATUS) as [string, ...string[]]
+);
+
+export const VendorDocumentSchema = BaseEntitySchema.extend({
+  vendorId: UuidSchema,
+  type: VendorDocumentTypeSchema,
+  status: VendorDocumentStatusSchema,
   fileUrl: z.string().url(),
-  fileSize: z.number().int().min(0),
-  mimeType: z.string(),
-  status: z.enum(vendorDocumentStatusKeys),
-  isVerified: z.boolean().default(false),
-  verifiedAt: z.date().optional(),
-  expiresAt: z.date().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  fileName: z.string().min(1).max(255),
+  fileSize: z.number().int().positive(),
+  mimeType: z.string().min(1).max(100),
+  documentNumber: z.string().max(100).optional(),
+  issuedAt: z.string().datetime().optional(),
+  expiresAt: z.string().datetime().optional(),
+  verifiedAt: z.string().datetime().optional(),
+  verifiedBy: UuidSchema.optional(),
+  rejectionReason: z.string().max(500).optional(),
+  notes: z.string().max(1000).optional(),
 });
+
+export const VendorDocumentPublicSchema = VendorDocumentSchema.pick({
+  id: true,
+  type: true,
+  status: true,
+  fileName: true,
+  createdAt: true,
+  expiresAt: true,
+});
+
+export type VendorDocumentTypeSchemaType = z.infer<typeof VendorDocumentTypeSchema>;
+export type VendorDocumentStatusSchemaType = z.infer<typeof VendorDocumentStatusSchema>;
+export type VendorDocumentSchemaType = z.infer<typeof VendorDocumentSchema>;
+export type VendorDocumentPublicSchemaType = z.infer<typeof VendorDocumentPublicSchema>;

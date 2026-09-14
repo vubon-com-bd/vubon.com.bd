@@ -1,28 +1,32 @@
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
-
 export const RECOMMENDATION_STRATEGY = {
-  TYPES: {
-    ...COMMON_TYPES,
-    COLLABORATIVE_FILTERING: 'collaborative_filtering',
-    CONTENT_BASED: 'content_based',
-    HYBRID: 'hybrid',
-    POPULARITY: 'popularity',
-    TRENDING: 'trending',
-    PERSONALIZED: 'personalized',
-    RULE_BASED: 'rule_based',
-    AI_BASED: 'ai_based',
-    ASSOCIATION: 'association',
-    SEQUENTIAL: 'sequential',
-    CONTEXTUAL: 'contextual',
-  },
-  STRATEGY_WEIGHTS: {
-    COLLABORATIVE_FILTERING: 0.3,
-    CONTENT_BASED: 0.25,
-    POPULARITY: 0.15,
-    TRENDING: 0.1,
-    CONTEXTUAL: 0.1,
-    SEQUENTIAL: 0.1,
-  },
-  MIN_SAMPLES_FOR_STRATEGY: 10,
-  MODEL_UPDATE_INTERVAL_HOURS: 6,
+  COLLABORATIVE_FILTERING: 'collaborative_filtering',
+  CONTENT_BASED: 'content_based',
+  HYBRID: 'hybrid',
+  MATRIX_FACTORIZATION: 'matrix_factorization',
+  DEEP_LEARNING: 'deep_learning',
+  KNOWLEDGE_BASED: 'knowledge_based',
+  DEMOGRAPHIC: 'demographic',
+  CONTEXTUAL: 'contextual',
+  SESSION_BASED: 'session_based',
+  REINFORCEMENT: 'reinforcement',
 } as const;
+
+export const RECOMMENDATION_STRATEGY_WEIGHT = {
+  collaborative_filtering: 0.3,
+  content_based: 0.25,
+  trending: 0.2,
+  personalized: 0.25,
+} as const;
+
+export const RECOMMENDATION_STRATEGY_STATUS = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+  TRAINING: 'training',
+  DEPLOYED: 'deployed',
+  ARCHIVED: 'archived',
+} as const;
+
+export type RecommendationStrategyType =
+  (typeof RECOMMENDATION_STRATEGY)[keyof typeof RECOMMENDATION_STRATEGY];
+export type RecommendationStrategyStatusType =
+  (typeof RECOMMENDATION_STRATEGY_STATUS)[keyof typeof RECOMMENDATION_STRATEGY_STATUS];

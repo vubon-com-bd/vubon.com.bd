@@ -1,39 +1,52 @@
+/**
+ * Variant Schema
+ * @module shared-schemas/business/product
+ *
+ * Values আসে shared-constants/business/variant.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { VARIANT } from '@vubon/shared-constants/src/business/product/variant.constants';
-import { PricingSchema } from './pricing.schema';
-import { InventorySchema } from './inventory.schema';
+import { VARIANT_STATUS, VARIANT_TYPE, VARIANT } from '@vubon/shared-constants/business';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { MoneySchema, PositiveMoneySchema } from '../../common/primitives/money.schema';
 
-const variantStatusKeys = Object.keys(VARIANT.STATUS) as [string, ...string[]];
-const variantTypeKeys = Object.keys(VARIANT.TYPES) as [string, ...string[]];
+export const VariantStatusSchema = z.enum(Object.values(VARIANT_STATUS) as [string, ...string[]]);
 
-export const VariantSchema = BaseSchema.extend({
-  variantId: z.string().uuid(),
-  productId: z.string().uuid(),
-  name: z.string().min(1).max(255),
-  sku: z.string().min(1).max(100),
-  status: z.enum(variantStatusKeys),
-  type: z.enum(variantTypeKeys),
-  attributes: z.array(
-    z.object({
-      name: z.string(),
-      value: z.string(),
-    })
-  ),
-  pricing: PricingSchema,
-  inventory: InventorySchema,
-  images: z.array(z.string().url()),
-  isDefault: z.boolean().default(false),
-  isActive: z.boolean().default(true),
-  order: z.number().int().min(0).default(0),
-  metadata: z.record(z.unknown()).optional(),
+export const VariantTypeSchema = z.enum(Object.values(VARIANT_TYPE) as [string, ...string[]]);
+
+export const VariantOptionSchema = z.object({
+  name: z.string().trim().min(1).max(100),
+  value: z.string().trim().min(1).max(100),
 });
 
-export const VariantCreateSchema = VariantSchema.omit({
+export const VariantSchema = z.object({
+  id: UuidSchema,
+  productId: UuidSchema,
+  name: z.string().trim().min(1).max(VARIANT.NAME_MAX_LENGTH),
+  sku: z.string().trim().min(1).max(VARIANT.SKU_MAX_LENGTH),
+  barcode: z.string().trim().max(VARIANT.BARCODE_MAX_LENGTH).optional(),
+  type: VariantTypeSchema,
+  options: z.array(VariantOptionSchema).min(1).max(VARIANT.MAX_OPTIONS_PER_VARIANT),
+  price: PositiveMoneySchema,
+  compareAtPrice: MoneySchema.optional(),
+  cost: MoneySchema.optional(),
+  weight: z.number().positive().optional(),
+  imageUrl: z.string().url().optional(),
+  status: VariantStatusSchema,
+  stock: z.number().int().nonnegative(),
+});
+
+export const VariantPublicSchema = VariantSchema.pick({
   id: true,
-  createdAt: true,
-  updatedAt: true,
+  name: true,
+  sku: true,
+  options: true,
+  price: true,
+  imageUrl: true,
+  stock: true,
 });
 
-export type Variant = z.infer<typeof VariantSchema>;
-export type VariantCreate = z.infer<typeof VariantCreateSchema>;
+export type VariantStatusSchemaType = z.infer<typeof VariantStatusSchema>;
+export type VariantTypeSchemaType = z.infer<typeof VariantTypeSchema>;
+export type VariantSchemaType = z.infer<typeof VariantSchema>;
+export type VariantPublicSchemaType = z.infer<typeof VariantPublicSchema>;

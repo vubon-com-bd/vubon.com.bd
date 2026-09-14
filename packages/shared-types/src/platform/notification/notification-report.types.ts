@@ -1,35 +1,40 @@
-import { BaseEntity } from '../../common/base.types';
-import { NOTIFICATION_REPORT } from '@vubon/shared-constants/src/platform/notification/notification-report.constants';
-import { NotificationAnalytics } from './notification-analytics.types';
+/**
+ * Notification Report Types
+ * @module shared-types/platform/notification
+ */
 
-export interface NotificationReportSummary {
-  totalSent: number;
-  totalDelivered: number;
-  deliveryRate: number;
-  openRate: number;
-  clickRate: number;
-  conversionRate: number;
-  bounceRate: number;
-  unsubscribeRate: number;
-  channelPerformance: Record<string, number>;
-  typePerformance: Record<string, number>;
+import type {
+  NOTIFICATION_REPORT_TYPE,
+  NOTIFICATION_REPORT_FORMAT,
+  NOTIFICATION_REPORT_SCHEDULE,
+} from '@vubon/shared-constants/platform';
+
+export type NotificationReportTypeValue =
+  (typeof NOTIFICATION_REPORT_TYPE)[keyof typeof NOTIFICATION_REPORT_TYPE];
+
+export type NotificationReportFormatValue =
+  (typeof NOTIFICATION_REPORT_FORMAT)[keyof typeof NOTIFICATION_REPORT_FORMAT];
+
+export type NotificationReportScheduleValue =
+  (typeof NOTIFICATION_REPORT_SCHEDULE)[keyof typeof NOTIFICATION_REPORT_SCHEDULE];
+
+export interface NotificationReport {
+  readonly id: string;
+  readonly type: NotificationReportTypeValue;
+  readonly format: NotificationReportFormatValue;
+  readonly schedule?: NotificationReportScheduleValue;
+  readonly periodStart: string;
+  readonly periodEnd: string;
+  readonly fileUrl?: string;
+  readonly fileSize?: number;
+  readonly generatedAt: string;
+  readonly expiresAt?: string;
+  readonly generatedBy?: string;
 }
 
-export interface NotificationReportInsight {
-  type: string;
-  title: string;
-  description: string;
-  severity: 'info' | 'warning' | 'success' | 'error';
-}
-
-export interface NotificationReport extends BaseEntity {
-  reportId: string;
-  type: keyof typeof NOTIFICATION_REPORT.TYPES | string;
-  format: keyof typeof NOTIFICATION_REPORT.REPORT_FORMATS | string;
-  analytics: NotificationAnalytics[];
-  summary: NotificationReportSummary;
-  insights: NotificationReportInsight[];
-  recommendations: string[];
-  generatedAt: Date;
-  metadata: Record<string, unknown>;
+export interface NotificationReportRequest {
+  readonly type: NotificationReportTypeValue;
+  readonly format: NotificationReportFormatValue;
+  readonly periodStart: string;
+  readonly periodEnd: string;
 }

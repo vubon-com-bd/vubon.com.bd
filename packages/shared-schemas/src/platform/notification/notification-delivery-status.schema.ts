@@ -1,15 +1,35 @@
+/**
+ * Notification Delivery Status Schema
+ * @module shared-schemas/platform/notification
+ *
+ * Values আসে shared-constants/platform/notification-delivery-status.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { StatusSchema } from '../../common/status.schema';
-import { NOTIFICATION_DELIVERY_STATUS } from '@vubon/shared-constants/src/platform/notification/notification-delivery-status.constants';
+import {
+  NOTIFICATION_DELIVERY_STATUS,
+  NOTIFICATION_DELIVERY_FAILURE_REASON,
+} from '@vubon/shared-constants/platform';
 
-const notificationDeliveryStatusKeys = Object.keys(NOTIFICATION_DELIVERY_STATUS) as [
-  string,
-  ...string[],
-];
+export const NotificationDeliveryStatusSchema = z.enum(
+  Object.values(NOTIFICATION_DELIVERY_STATUS) as [string, ...string[]]
+);
 
-export const NotificationDeliveryStatusSchema = StatusSchema.extend({
-  status: z.enum(notificationDeliveryStatusKeys),
-  category: z.literal('notification_delivery'),
+export const NotificationDeliveryFailureReasonSchema = z.enum(
+  Object.values(NOTIFICATION_DELIVERY_FAILURE_REASON) as [string, ...string[]]
+);
+
+export const NotificationDeliveryMetadataSchema = z.object({
+  status: NotificationDeliveryStatusSchema,
+  failureReason: NotificationDeliveryFailureReasonSchema.optional(),
+  attemptCount: z.number().int().nonnegative(),
+  deliveredAt: z.string().datetime().optional(),
 });
 
-export const NotificationDeliveryStatusEnumSchema = z.enum(notificationDeliveryStatusKeys);
+export type NotificationDeliveryStatusSchemaType = z.infer<typeof NotificationDeliveryStatusSchema>;
+export type NotificationDeliveryFailureReasonSchemaType = z.infer<
+  typeof NotificationDeliveryFailureReasonSchema
+>;
+export type NotificationDeliveryMetadataSchemaType = z.infer<
+  typeof NotificationDeliveryMetadataSchema
+>;

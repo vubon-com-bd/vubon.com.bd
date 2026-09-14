@@ -1,23 +1,39 @@
-import { BaseEntity } from '../common/base.types';
-import { USER_CONTACT } from '@vubon/shared-constants/src/user/user-contact.constants';
-
 /**
- * User contact type value
+ * User Contact Types
+ * @module shared-types/user
+ *
+ * Values আসে shared-constants/user/user-contact.constants থেকে।
  */
-export type UserContactType = (typeof USER_CONTACT)[keyof typeof USER_CONTACT];
 
-/**
- * User contact interface
- * Note: email/phone stored as plain strings for serialization.
- * Use `Email` / `PhoneNumber` value objects in domain logic.
- */
-export interface UserContact extends BaseEntity {
-  contactId: string;
-  userId: string;
-  type: UserContactType;
-  email?: string;
-  phone?: string;
-  isPrimary: boolean;
-  isVerified: boolean;
-  metadata: Record<string, unknown>;
+import type { USER_CONTACT_TYPE } from '@vubon/shared-constants/user';
+import type { UserId, Email, Phone, Url } from '../common/primitives';
+
+export type ContactTypeValue = (typeof USER_CONTACT_TYPE)[keyof typeof USER_CONTACT_TYPE];
+
+export interface UserContact {
+  readonly id: string;
+  readonly userId: UserId;
+  readonly type: ContactTypeValue;
+  readonly value: Email | Phone | Url | string;
+  readonly label?: string;
+  readonly isPrimary: boolean;
+  readonly isVerified: boolean;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
+export interface UserContactInput {
+  readonly type: ContactTypeValue;
+  readonly value: string;
+  readonly label?: string;
+  readonly isPrimary?: boolean;
+}
+
+export interface UserContactPublic {
+  readonly id: string;
+  readonly type: ContactTypeValue;
+  readonly value: string;
+  readonly label?: string;
+  readonly isPrimary: boolean;
+  readonly isVerified: boolean;
 }

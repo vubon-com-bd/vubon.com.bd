@@ -1,21 +1,28 @@
-import { TypeObject } from '../common/types.types';
-import { RETURN_REASON } from '@vubon/shared-constants/src/logistics/return-reason.constants';
+/**
+ * Return Reason Value Types
+ * @module shared-types/logistics
+ *
+ * Values আসে shared-constants/logistics/return-shipment.constants থেকে।
+ */
 
-export interface ReturnReason extends TypeObject {
-  type: keyof typeof RETURN_REASON.TYPES | string;
-  category: keyof typeof RETURN_REASON.REASON_CATEGORIES | string;
-  priority: keyof typeof RETURN_REASON.REASON_PRIORITY | string;
-  isDefective: boolean;
-  isDamaged: boolean;
-  isWrongItem: boolean;
-  isMissingParts: boolean;
-  isNotAsDescribed: boolean;
-  isSizeIssue: boolean;
-  isColorIssue: boolean;
-  isQualityIssue: boolean;
-  isDeliveryIssue: boolean;
-  isCustomerRequest: boolean;
-  isOther: boolean;
+import type {
+  RETURN_SHIPMENT_STATUS,
+  RETURN_SHIPMENT_TYPE,
+  RETURN_SHIPMENT_REASON,
+} from '@vubon/shared-constants/logistics';
+
+export type ReturnShipmentStatusValue =
+  (typeof RETURN_SHIPMENT_STATUS)[keyof typeof RETURN_SHIPMENT_STATUS];
+
+export type ReturnShipmentTypeValue =
+  (typeof RETURN_SHIPMENT_TYPE)[keyof typeof RETURN_SHIPMENT_TYPE];
+
+export type ReturnReasonValue =
+  (typeof RETURN_SHIPMENT_REASON)[keyof typeof RETURN_SHIPMENT_REASON];
+
+export interface ReturnReasonMetadata {
+  readonly value: ReturnReasonValue;
+  readonly label: string;
+  readonly requiresPhotos: boolean;
+  readonly restockable: boolean;
 }
-
-export type ReturnReasonKey = keyof typeof RETURN_REASON.TYPES;

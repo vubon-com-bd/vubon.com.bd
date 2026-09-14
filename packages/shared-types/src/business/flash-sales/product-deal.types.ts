@@ -1,28 +1,43 @@
-import { BaseEntity } from '../../common/base.types';
-import { Money } from '../../common/money.types';
-import { PRODUCT_DEAL } from '@vubon/shared-constants/src/business/flash-sales/product-deal.constants';
-import { Product } from '../product/product.types';
-import { Variant } from '../product/variant.types';
-import { Deal } from './deal.types';
+/**
+ * Product Deal Types
+ * @module shared-types/business/flash-sales
+ *
+ * Values আসে shared-constants/business/flash-sales/product-deal.constants থেকে।
+ */
 
-export interface ProductDeal extends BaseEntity {
-  productDealId: string;
-  dealId: string;
-  deal: Deal;
-  productId: string;
-  product: Product;
-  variantId?: string;
-  variant?: Variant;
-  status: keyof typeof PRODUCT_DEAL.STATUS | string;
-  originalPrice: Money;
-  dealPrice: Money;
-  discountAmount: Money;
-  discountPercentage: number;
-  minQuantity: number;
-  maxQuantity: number;
-  availableQuantity: number;
-  soldQuantity: number;
-  isActive: boolean;
-  isSoldOut: boolean;
-  metadata: Record<string, unknown>;
+import type { PRODUCT_DEAL_STATUS } from '@vubon/shared-constants/business';
+import type { ProductId, VendorId, Money } from '../../common/primitives';
+import type { DealDiscountTypeValue } from './deal-discount-type.types';
+
+export type ProductDealStatusValue = (typeof PRODUCT_DEAL_STATUS)[keyof typeof PRODUCT_DEAL_STATUS];
+
+export interface ProductDeal {
+  readonly id: string;
+  readonly dealId: string;
+  readonly productId: ProductId;
+  readonly variantId?: string;
+  readonly vendorId?: VendorId;
+  readonly status: ProductDealStatusValue;
+  readonly discountType: DealDiscountTypeValue;
+  readonly discountValue: number;
+  readonly originalPrice: Money;
+  readonly dealPrice: Money;
+  readonly currency: string;
+  readonly minQuantity: number;
+  readonly maxQuantity?: number;
+  readonly perUserLimit: number;
+  readonly totalQuantityLimit?: number;
+  readonly soldQuantity: number;
+  readonly startAt: string;
+  readonly endAt: string;
+}
+
+export interface ProductDealPublic {
+  readonly productId: ProductId;
+  readonly variantId?: string;
+  readonly originalPrice: Money;
+  readonly dealPrice: Money;
+  readonly discountPercent: number;
+  readonly currency: string;
+  readonly remaining: number;
 }

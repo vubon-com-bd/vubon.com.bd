@@ -1,18 +1,38 @@
-import { BaseEntity } from '../../common/base.types';
-import { NOTIFICATION_ANALYTICS } from '@vubon/shared-constants/src/platform/notification/notification-analytics.constants';
-import { NOTIFICATION_STATUS } from '@vubon/shared-constants/src/platform/notification/notification-status.constants';
-import { NOTIFICATION_TYPE } from '@vubon/shared-constants/src/platform/notification/notification-type.constants';
-import { NOTIFICATION_CHANNEL } from '@vubon/shared-constants/src/platform/notification/notification-channel.constants';
+/**
+ * Notification Analytics Types
+ * @module shared-types/platform/notification
+ */
 
-export interface NotificationAnalytics extends BaseEntity {
-  analyticsId: string;
-  type: keyof typeof NOTIFICATION_ANALYTICS.TYPES | string;
-  metric: keyof typeof NOTIFICATION_ANALYTICS.METRICS | string;
-  value: number;
-  status: keyof typeof NOTIFICATION_STATUS | string;
-  notificationType: keyof typeof NOTIFICATION_TYPE.TYPES | string;
-  channel: keyof typeof NOTIFICATION_CHANNEL.TYPES | string;
-  period: keyof typeof NOTIFICATION_ANALYTICS.ANALYTICS_GRANULARITY | string;
-  timestamp: Date;
-  metadata: Record<string, unknown>;
+import type {
+  NOTIFICATION_ANALYTICS_METRIC,
+  NOTIFICATION_ANALYTICS_PERIOD,
+} from '@vubon/shared-constants/platform';
+
+export type NotificationAnalyticsMetricValue =
+  (typeof NOTIFICATION_ANALYTICS_METRIC)[keyof typeof NOTIFICATION_ANALYTICS_METRIC];
+
+export type NotificationAnalyticsPeriodValue =
+  (typeof NOTIFICATION_ANALYTICS_PERIOD)[keyof typeof NOTIFICATION_ANALYTICS_PERIOD];
+
+export interface NotificationAnalytics {
+  readonly metric: NotificationAnalyticsMetricValue;
+  readonly period: NotificationAnalyticsPeriodValue;
+  readonly value: number;
+  readonly previousValue?: number;
+  readonly changePercent?: number;
+  readonly periodStart: string;
+  readonly periodEnd: string;
+  readonly capturedAt: string;
+}
+
+export interface NotificationChannelStats {
+  readonly channel: string;
+  readonly sent: number;
+  readonly delivered: number;
+  readonly opened: number;
+  readonly clicked: number;
+  readonly failed: number;
+  readonly deliveryRate: number;
+  readonly openRate: number;
+  readonly clickRate: number;
 }

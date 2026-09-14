@@ -1,16 +1,16 @@
+/**
+ * Vendor Type Schema
+ * @module shared-schemas/business/vendor
+ */
+
 import { z } from 'zod';
-import { VENDOR_TYPE } from '@vubon/shared-constants/src/business/vendor/vendor-type.constants';
+import { VENDOR_TYPE, VENDOR_BUSINESS_TYPE } from '@vubon/shared-constants/business';
 
-const vendorTypeKeys = Object.keys(VENDOR_TYPE) as [string, ...string[]];
+export const VendorTypeSchema = z.enum(Object.values(VENDOR_TYPE) as [string, ...string[]]);
 
-export const VendorTypeSchema = z.object({
-  type: z.enum(vendorTypeKeys),
-  category: z.literal('vendor'),
-  isIndividual: z.boolean().default(false),
-  isBusiness: z.boolean().default(false),
-  isEnterprise: z.boolean().default(false),
-  isPartnership: z.boolean().default(false),
-  isCorporation: z.boolean().default(false),
-});
+export const VendorBusinessTypeSchema = z.enum(
+  Object.values(VENDOR_BUSINESS_TYPE) as [string, ...string[]]
+);
 
-export const VendorTypeEnumSchema = z.enum(vendorTypeKeys);
+export type VendorTypeSchemaType = z.infer<typeof VendorTypeSchema>;
+export type VendorBusinessTypeSchemaType = z.infer<typeof VendorBusinessTypeSchema>;

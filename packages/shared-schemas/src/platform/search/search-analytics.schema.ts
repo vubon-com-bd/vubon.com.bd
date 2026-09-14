@@ -1,43 +1,43 @@
+/**
+ * Search Analytics Schema
+ * @module shared-schemas/platform/search
+ *
+ * Values আসে shared-constants/platform/search-analytics.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { SEARCH_ANALYTICS } from '@vubon/shared-constants/src/platform/search/search-analytics.constants';
+import { SEARCH_ANALYTICS_METRIC, SEARCH_ANALYTICS_PERIOD } from '@vubon/shared-constants/platform';
 
-const analyticsTypeKeys = Object.keys(SEARCH_ANALYTICS.TYPES) as [string, ...string[]];
-const analyticsMetricKeys = Object.keys(SEARCH_ANALYTICS.METRICS) as [string, ...string[]];
-const analyticsGranularityKeys = Object.keys(SEARCH_ANALYTICS.ANALYTICS_GRANULARITY) as [
-  string,
-  ...string[],
-];
+export const SearchAnalyticsMetricSchema = z.enum(
+  Object.values(SEARCH_ANALYTICS_METRIC) as [string, ...string[]]
+);
 
-export const SearchAnalyticsSchema = BaseSchema.extend({
-  analyticsId: z.string().uuid(),
-  type: z.enum(analyticsTypeKeys),
-  metric: z.enum(analyticsMetricKeys),
+export const SearchAnalyticsPeriodSchema = z.enum(
+  Object.values(SEARCH_ANALYTICS_PERIOD) as [string, ...string[]]
+);
+
+export const SearchAnalyticsSchema = z.object({
+  metric: SearchAnalyticsMetricSchema,
+  period: SearchAnalyticsPeriodSchema,
   value: z.number(),
-  query: z.string().optional(),
-  userId: z.string().uuid().optional(),
-  sessionId: z.string().optional(),
-  ipAddress: z.string().optional(),
-  period: z.enum(analyticsGranularityKeys),
-  timestamp: z.date(),
-  metadata: z.record(z.unknown()).optional(),
+  previousValue: z.number().optional(),
+  changePercent: z.number().optional(),
+  periodStart: z.string().datetime(),
+  periodEnd: z.string().datetime(),
+  capturedAt: z.string().datetime(),
 });
 
-export const SearchAnalyticsSummarySchema = z.object({
-  totalSearches: z.number().int().min(0),
-  uniqueSearches: z.number().int().min(0),
-  zeroResults: z.number().int().min(0),
-  clickThroughRate: z.number().min(0).max(100),
-  conversionRate: z.number().min(0).max(100),
-  averageClickPosition: z.number().min(0),
-  averageSearchTime: z.number().min(0),
-  popularQueries: z.array(
-    z.object({
-      query: z.string(),
-      count: z.number().int().min(0),
-      resultCount: z.number().int().min(0),
-      clickRate: z.number().min(0).max(100),
-    })
-  ),
-  fallbackQueries: z.array(z.string()),
+export const SearchQueryStatsSchema = z.object({
+  query: z.string().min(1).max(200),
+  count: z.number().int().nonnegative(),
+  zeroResultCount: z.number().int().nonnegative(),
+  averageResultsCount: z.number().nonnegative(),
+  clickThroughRate: z.number().min(0).max(1),
+  conversionRate: z.number().min(0).max(1),
+  lastSearchedAt: z.string().datetime(),
 });
+
+export type SearchAnalyticsMetricSchemaType = z.infer<typeof SearchAnalyticsMetricSchema>;
+export type SearchAnalyticsPeriodSchemaType = z.infer<typeof SearchAnalyticsPeriodSchema>;
+export type SearchAnalyticsSchemaType = z.infer<typeof SearchAnalyticsSchema>;
+export type SearchQueryStatsSchemaType = z.infer<typeof SearchQueryStatsSchema>;

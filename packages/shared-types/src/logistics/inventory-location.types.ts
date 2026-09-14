@@ -1,22 +1,45 @@
-import { BaseEntity } from '../common/base.types';
-import { Quantity } from '../common/quantity.types';
-import { INVENTORY_LOCATION } from '@vubon/shared-constants/src/logistics/inventory-location.constants';
-import { Warehouse } from './warehouse.types';
+/**
+ * Inventory Location Types
+ * @module shared-types/logistics
+ */
 
-export interface InventoryLocation extends BaseEntity {
-  locationId: string;
-  warehouseId: string;
-  warehouse: Warehouse;
-  productId: string;
-  status: keyof typeof INVENTORY_LOCATION.STATUS | string;
-  type: keyof typeof INVENTORY_LOCATION.TYPES | string;
-  locationCode: string;
-  quantity: Quantity;
-  reservedQuantity: Quantity;
-  availableQuantity: Quantity;
-  isAvailable: boolean;
-  isReserved: boolean;
-  isOccupied: boolean;
-  lastUpdated: Date;
-  metadata: Record<string, unknown>;
+import type { ProductId } from '../common/primitives';
+
+export interface InventoryLocation {
+  readonly id: string;
+  readonly warehouseId: string;
+  readonly zone: string;
+  readonly aisle?: string;
+  readonly rack?: string;
+  readonly shelf?: string;
+  readonly bin?: string;
+  readonly barcode?: string;
+  readonly isActive: boolean;
+}
+
+export interface InventoryStock {
+  readonly id: string;
+  readonly productId: ProductId;
+  readonly variantId?: string;
+  readonly locationId: string;
+  readonly warehouseId: string;
+  readonly quantity: number;
+  readonly reserved: number;
+  readonly available: number;
+  readonly lastCountedAt?: string;
+  readonly updatedAt: string;
+}
+
+export interface InventoryMovement {
+  readonly id: string;
+  readonly stockId: string;
+  readonly type: 'inbound' | 'outbound' | 'transfer' | 'adjustment' | 'return';
+  readonly quantity: number;
+  readonly fromLocationId?: string;
+  readonly toLocationId?: string;
+  readonly referenceType?: string;
+  readonly referenceId?: string;
+  readonly reason?: string;
+  readonly movedBy: string;
+  readonly movedAt: string;
 }

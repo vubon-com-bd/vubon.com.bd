@@ -1,37 +1,53 @@
+/**
+ * Marketing Report Schema
+ * @module shared-schemas/marketing
+ *
+ * Values আসে shared-constants/marketing/marketing-report.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { MARKETING_REPORT } from '@vubon/shared-constants/src/marketing/marketing-report.constants';
-import { MarketingAnalyticsSchema } from './marketing-analytics.schema';
+import {
+  MARKETING_REPORT_TYPE,
+  MARKETING_REPORT_FORMAT,
+  MARKETING_REPORT_SCHEDULE,
+} from '@vubon/shared-constants/marketing';
 
-const marketingReportTypeKeys = Object.keys(MARKETING_REPORT.TYPES) as [string, ...string[]];
-const marketingReportFormatKeys = Object.keys(MARKETING_REPORT.REPORT_FORMATS) as [
-  string,
-  ...string[],
-];
+export const MarketingReportTypeSchema = z.enum(
+  Object.values(MARKETING_REPORT_TYPE) as [string, ...string[]]
+);
 
-export const MarketingReportSchema = BaseSchema.extend({
-  reportId: z.string().uuid(),
-  type: z.enum(marketingReportTypeKeys),
-  format: z.enum(marketingReportFormatKeys),
-  analytics: z.array(MarketingAnalyticsSchema),
-  summary: z.object({
-    totalCampaigns: z.number().int().min(0),
-    activeCampaigns: z.number().int().min(0),
-    totalRevenue: z.number().min(0),
-    totalCost: z.number().min(0),
-    totalRoi: z.number().min(0),
-    topChannels: z.record(z.number()),
-    topCampaigns: z.record(z.number()),
-  }),
-  insights: z.array(
-    z.object({
-      type: z.string(),
-      title: z.string(),
-      description: z.string(),
-      severity: z.enum(['info', 'warning', 'success', 'error']),
-    })
-  ),
-  recommendations: z.array(z.string()),
-  generatedAt: z.date(),
-  metadata: z.record(z.unknown()).optional(),
+export const MarketingReportFormatSchema = z.enum(
+  Object.values(MARKETING_REPORT_FORMAT) as [string, ...string[]]
+);
+
+export const MarketingReportScheduleSchema = z.enum(
+  Object.values(MARKETING_REPORT_SCHEDULE) as [string, ...string[]]
+);
+
+export const MarketingReportSchema = z.object({
+  id: z.string().min(1),
+  type: MarketingReportTypeSchema,
+  format: MarketingReportFormatSchema,
+  schedule: MarketingReportScheduleSchema.optional(),
+  periodStart: z.string().datetime(),
+  periodEnd: z.string().datetime(),
+  fileUrl: z.string().url().optional(),
+  fileSize: z.number().int().nonnegative().optional(),
+  generatedAt: z.string().datetime(),
+  expiresAt: z.string().datetime().optional(),
+  generatedBy: z.string().optional(),
 });
+
+export const MarketingReportRequestSchema = z
+  .object({
+    type: MarketingReportTypeSchema,
+    format: MarketingReportFormatSchema,
+    periodStart: z.string().datetime(),
+    periodEnd: z.string().datetime(),
+    filters: z.record(z.string(), z.unknown()).optional(),
+  })
+  .strict();
+
+export type MarketingReportTypeSchemaType = z.infer<typeof MarketingReportTypeSchema>;
+export type MarketingReportFormatSchemaType = z.infer<typeof MarketingReportFormatSchema>;
+export type MarketingReportSchemaType = z.infer<typeof MarketingReportSchema>;

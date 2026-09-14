@@ -1,3 +1,5 @@
+// platform/search/index.ts — Search sub-service barrel export
+
 export * from './search.constants';
 export * from './search-type.constants';
 export * from './search-sort.constants';
@@ -12,4 +14,3 @@ export * from './search-index.constants';
 export * from './search-relevance.constants';
 export * from './autocomplete.constants';
 export * from './facet.constants';
-export * from './sort.constants';

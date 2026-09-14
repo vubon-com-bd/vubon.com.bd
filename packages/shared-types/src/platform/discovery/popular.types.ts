@@ -1,12 +1,34 @@
-import { BaseEntity } from '../../common/base.types';
-import { POPULAR } from '@vubon/shared-constants/src/platform/discovery/popular.constants';
+/**
+ * Popular Types
+ * @module shared-types/platform/discovery
+ */
 
-export interface Popular extends BaseEntity {
-  popularId: string;
-  type: keyof typeof POPULAR.TYPES | string;
-  metric: keyof typeof POPULAR.POPULARITY_METRICS | string;
-  score: number;
-  rank: number;
-  isActive: boolean;
-  metadata: Record<string, unknown>;
+import type {
+  POPULAR_TYPE,
+  POPULAR_PERIOD,
+  POPULAR_METRIC,
+} from '@vubon/shared-constants/platform';
+
+export type PopularTypeValue = (typeof POPULAR_TYPE)[keyof typeof POPULAR_TYPE];
+
+export type PopularPeriodValue = (typeof POPULAR_PERIOD)[keyof typeof POPULAR_PERIOD];
+
+export type PopularMetricValue = (typeof POPULAR_METRIC)[keyof typeof POPULAR_METRIC];
+
+export interface PopularItem {
+  readonly id: string;
+  readonly type: PopularTypeValue;
+  readonly referenceId: string;
+  readonly period: PopularPeriodValue;
+  readonly metric: PopularMetricValue;
+  readonly value: number;
+  readonly rank: number;
+  readonly capturedAt: string;
+}
+
+export interface PopularList {
+  readonly type: PopularTypeValue;
+  readonly period: PopularPeriodValue;
+  readonly items: readonly PopularItem[];
+  readonly generatedAt: string;
 }

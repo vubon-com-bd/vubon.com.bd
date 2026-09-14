@@ -1,16 +1,35 @@
-import { BaseEntity } from '../common/base.types';
-import { AI_RANKING } from '@vubon/shared-constants/src/ai/ai-ranking.constants';
-import { AI } from './ai.types';
+/**
+ * AI Ranking Types
+ * @module shared-types/ai
+ *
+ * Values আসে shared-constants/ai/ai-ranking.constants থেকে।
+ */
 
-export interface AIRanking extends BaseEntity {
-  rankingId: string;
-  aiId: string;
-  ai: AI;
-  type: keyof typeof AI_RANKING.TYPES | string;
-  algorithm: keyof typeof AI_RANKING.LEARNING_TO_RANK_ALGORITHMS | string;
-  features: (keyof typeof AI_RANKING.RANKING_FEATURES | string)[];
-  weights: Record<string, number>;
-  score: number;
-  isActive: boolean;
-  metadata: Record<string, unknown>;
+import type { AI_RANKING_ALGORITHM, AI_RANKING_FEATURE } from '@vubon/shared-constants/ai';
+
+export type AiRankingAlgorithmValue =
+  (typeof AI_RANKING_ALGORITHM)[keyof typeof AI_RANKING_ALGORITHM];
+
+export type AiRankingFeatureValue = (typeof AI_RANKING_FEATURE)[keyof typeof AI_RANKING_FEATURE];
+
+export interface AiRankingRequest {
+  readonly sourceType: string;
+  readonly candidateIds: readonly string[];
+  readonly algorithm?: AiRankingAlgorithmValue;
+  readonly features?: readonly AiRankingFeatureValue[];
+  readonly topK?: number;
+  readonly userId?: string;
+}
+
+export interface AiRankingResult {
+  readonly ranked: readonly AiRankingItem[];
+  readonly algorithm: AiRankingAlgorithmValue;
+  readonly took: number;
+}
+
+export interface AiRankingItem {
+  readonly id: string;
+  readonly score: number;
+  readonly rank: number;
+  readonly features?: Readonly<Record<string, number>>;
 }

@@ -1,59 +1,90 @@
+/**
+ * Notification Core Schema
+ * @module shared-schemas/platform/notification
+ *
+ * Notification entity + aggregator।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { UserSchema } from '../../user/user.schema';
+import { BaseEntitySchema } from '../../common/base/base-entity.schema';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
+import { NotificationTypeSchema } from './notification-type.schema';
 import { NotificationChannelSchema } from './notification-channel.schema';
-import { NotificationDeliveryStatusSchema } from './notification-delivery-status.schema';
-import { NotificationTemplateSchema } from './notification-template.schema';
-import { NotificationScheduleSchema } from './notification-schedule.schema';
-import { NOTIFICATION_STATUS } from '@vubon/shared-constants/src/platform/notification/notification-status.constants';
-import { PLATFORM_NOTIFICATION } from '@vubon/shared-constants/src/platform/notification/platform-notification.constants';
+import { NotificationStatusSchema } from './notification-status.schema';
+import { NotificationPrioritySchema } from './notification-priority.schema';
+import { NotificationCategorySchema } from './notification-category.schema';
+import { NotificationDeliveryMetadataSchema } from './notification-delivery-status.schema';
+import { NotificationReadMetadataSchema } from './notification-read-status.schema';
+import { NotificationActionSchema } from './notification-action.schema';
 
-const notificationStatusKeys = Object.keys(NOTIFICATION_STATUS) as [string, ...string[]];
-const notificationTypeKeys = Object.keys(PLATFORM_NOTIFICATION.NOTIFICATION_TYPES) as [
-  string,
-  ...string[],
-];
-
-export const NotificationSchema = BaseSchema.extend({
-  notificationId: z.string().uuid(),
-  userId: z.string().uuid(),
-  user: UserSchema,
-  title: z.string().min(1).max(255),
-  body: z.string().min(1).max(1000),
-  status: z.enum(notificationStatusKeys),
-  type: z.enum(notificationTypeKeys),
+export const NotificationSchema = BaseEntitySchema.extend({
+  userId: UuidSchema,
+  type: NotificationTypeSchema,
+  category: NotificationCategorySchema,
   channel: NotificationChannelSchema,
-  delivery: NotificationDeliveryStatusSchema,
-  template: NotificationTemplateSchema,
-  schedule: NotificationScheduleSchema,
-  metadata: z.object({
-    source: z.string(),
-    sourceId: z.string().optional(),
-    ipAddress: z.string().optional(),
-    deviceId: z.string().optional(),
-    sessionId: z.string().optional(),
-    language: z.string().optional(),
-    timezone: z.string().optional(),
-    customData: z.record(z.unknown()),
-  }),
-  sentAt: z.date().optional(),
-  deliveredAt: z.date().optional(),
-  readAt: z.date().optional(),
-  isRead: z.boolean().default(false),
-  isDismissed: z.boolean().default(false),
-  isArchived: z.boolean().default(false),
+  priority: NotificationPrioritySchema,
+  status: NotificationStatusSchema,
+  title: z.string().min(1).max(200),
+  body: z.string().min(1).max(2000),
+  imageUrl: z.string().url().optional(),
+  iconUrl: z.string().url().optional(),
+  actionUrl: z.string().url().optional(),
+  actions: z.array(NotificationActionSchema).max(5).optional(),
+  data: z.record(z.string(), z.unknown()).optional(),
+  delivery: NotificationDeliveryMetadataSchema.optional(),
+  read: NotificationReadMetadataSchema.optional(),
+  scheduledAt: z.string().datetime().optional(),
+  sentAt: z.string().datetime().optional(),
+  expiresAt: z.string().datetime().optional(),
+  reference: z
+    .object({
+      type: z.string().min(1).max(50),
+      id: z.string().min(1).max(100),
+      url: z.string().url().optional(),
+    })
+    .optional(),
 });
 
-export const NotificationCreateSchema = NotificationSchema.omit({
+export const NotificationPublicSchema = NotificationSchema.pick({
   id: true,
+  type: true,
+  category: true,
+  channel: true,
+  priority: true,
+  status: true,
+  title: true,
+  body: true,
+  imageUrl: true,
+  actionUrl: true,
+  actions: true,
   createdAt: true,
-  updatedAt: true,
-  isRead: true,
-  isDismissed: true,
-  isArchived: true,
-  sentAt: true,
-  deliveredAt: true,
-  readAt: true,
+  read: true,
 });
 
-export const NotificationUpdateSchema = NotificationCreateSchema.partial();
+export const NotificationSummarySchema = NotificationSchema.pick({
+  id: true,
+  title: true,
+  type: true,
+  channel: true,
+  status: true,
+  createdAt: true,
+}).extend({
+  isRead: z.boolean(),
+});
+
+export const NotificationListFilterSchema = z.object({
+  userId: UuidSchema.optional(),
+  type: NotificationTypeSchema.optional(),
+  category: NotificationCategorySchema.optional(),
+  channel: NotificationChannelSchema.optional(),
+  status: NotificationStatusSchema.optional(),
+  priority: NotificationPrioritySchema.optional(),
+  isRead: z.boolean().optional(),
+  fromDate: z.string().datetime().optional(),
+  toDate: z.string().datetime().optional(),
+});
+
+export type NotificationSchemaType = z.infer<typeof NotificationSchema>;
+export type NotificationPublicSchemaType = z.infer<typeof NotificationPublicSchema>;
+export type NotificationSummarySchemaType = z.infer<typeof NotificationSummarySchema>;
+export type NotificationListFilterSchemaType = z.infer<typeof NotificationListFilterSchema>;

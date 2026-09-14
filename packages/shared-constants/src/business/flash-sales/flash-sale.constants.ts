@@ -1,45 +1,81 @@
-import { STATUS } from '../../common/status.constants';
-import { TYPES } from '../../common/types.constants';
-import { PERMISSIONS } from '../../common/permissions.constants';
-import { ADMIN_PERMISSIONS } from '../../admin/admin-permission.constants';
-import { PRODUCT_STATUS } from '../product/product-status.constants';
-import { CART_STATUS } from '../cart/cart-status.constants';
+import { FLASH_SALE_STATUS } from './flash-sale-status.constants';
+import { FLASH_SALE_TYPE } from './flash-sale-type.constants';
+import { DEAL, DEAL_TYPE } from './deal.constants';
+import { DEAL_STATUS } from './deal-status.constants';
+import { DEAL_DISCOUNT_TYPE } from './deal-discount-type.constants';
+import { PRODUCT_DEAL_STATUS, PRODUCT_DEAL } from './product-deal.constants';
+import { BUNDLE_DEAL_STATUS, BUNDLE_DEAL_TYPE, BUNDLE_DEAL } from './bundle-deal.constants';
+import { FLASH_SALE_SCHEDULE, FLASH_SALE_RECURRENCE } from './flash-sale-schedule.constants';
+import {
+  FLASH_SALE_PARTICIPANT_TYPE,
+  FLASH_SALE_PARTICIPANT_STATUS,
+  FLASH_SALE_PARTICIPANT,
+} from './flash-sale-participant.constants';
+import {
+  FLASH_SALE_INVENTORY_STATUS,
+  FLASH_SALE_INVENTORY,
+} from './flash-sale-inventory.constants';
+import { FLASH_SALE_PRICE_TYPE, FLASH_SALE_PRICE } from './flash-sale-price.constants';
+import { FLASH_SALE_COUPON_TYPE, FLASH_SALE_COUPON } from './flash-sale-coupon.constants';
+import {
+  FLASH_SALE_VOUCHER_TYPE,
+  FLASH_SALE_VOUCHER_STATUS,
+  FLASH_SALE_VOUCHER,
+} from './flash-sale-voucher.constants';
+
+export const FLASH_SALE_LIMIT = {
+  MAX_PRODUCTS: 5000,
+  MAX_PARTICIPANTS: 10000,
+  MIN_DURATION_MINUTES: 15,
+  MAX_DURATION_HOURS: 168,
+  MIN_DISCOUNT_PERCENT: 1,
+  MAX_DISCOUNT_PERCENT: 90,
+  MAX_CONCURRENT_SALES: 50,
+} as const;
 
 export const FLASH_SALE = {
-  STATUS: {
-    ...STATUS,
-    DRAFT: 'draft',
-    SCHEDULED: 'scheduled',
-    ACTIVE: 'active',
-    PAUSED: 'paused',
-    ENDED: 'ended',
-    CANCELLED: 'cancelled',
-    COMPLETED: 'completed',
+  TYPE: FLASH_SALE_TYPE,
+  STATUS: FLASH_SALE_STATUS,
+  LIMIT: FLASH_SALE_LIMIT,
+  DEAL: {
+    ...DEAL,
+    TYPE: DEAL_TYPE,
   },
-  TYPES: {
-    ...TYPES,
-    DAILY: 'daily',
-    WEEKLY: 'weekly',
-    MONTHLY: 'monthly',
-    SEASONAL: 'seasonal',
-    HOLIDAY: 'holiday',
-    CUSTOM: 'custom',
+  DEAL_STATUS,
+  DEAL_DISCOUNT_TYPE,
+  PRODUCT_DEAL: {
+    STATUS: PRODUCT_DEAL_STATUS,
+    LIMIT: PRODUCT_DEAL,
   },
-  PERMISSIONS: {
-    ...PERMISSIONS,
-    ...ADMIN_PERMISSIONS,
-    VIEW: 'flash_sale:view',
-    CREATE: 'flash_sale:create',
-    UPDATE: 'flash_sale:update',
-    DELETE: 'flash_sale:delete',
-    MANAGE: 'flash_sale:manage',
-    PARTICIPATE: 'flash_sale:participate',
+  BUNDLE_DEAL: {
+    STATUS: BUNDLE_DEAL_STATUS,
+    TYPE: BUNDLE_DEAL_TYPE,
+    LIMIT: BUNDLE_DEAL,
   },
-  PRODUCT_STATUS: { ...PRODUCT_STATUS },
-  CART_STATUS: { ...CART_STATUS },
-  MAX_PRODUCTS_PER_SALE: 100,
-  MIN_PRODUCTS_PER_SALE: 1,
-  DURATION_MINUTES: 60,
-  MIN_DISCOUNT_PERCENTAGE: 5,
-  MAX_DISCOUNT_PERCENTAGE: 90,
+  SCHEDULE: FLASH_SALE_SCHEDULE,
+  RECURRENCE: FLASH_SALE_RECURRENCE,
+  PARTICIPANT: {
+    TYPE: FLASH_SALE_PARTICIPANT_TYPE,
+    STATUS: FLASH_SALE_PARTICIPANT_STATUS,
+    LIMIT: FLASH_SALE_PARTICIPANT,
+  },
+  INVENTORY: {
+    STATUS: FLASH_SALE_INVENTORY_STATUS,
+    LIMIT: FLASH_SALE_INVENTORY,
+  },
+  PRICE: {
+    TYPE: FLASH_SALE_PRICE_TYPE,
+    LIMIT: FLASH_SALE_PRICE,
+  },
+  COUPON: {
+    TYPE: FLASH_SALE_COUPON_TYPE,
+    LIMIT: FLASH_SALE_COUPON,
+  },
+  VOUCHER: {
+    TYPE: FLASH_SALE_VOUCHER_TYPE,
+    STATUS: FLASH_SALE_VOUCHER_STATUS,
+    LIMIT: FLASH_SALE_VOUCHER,
+  },
 } as const;
+
+export type FlashSaleType = typeof FLASH_SALE;

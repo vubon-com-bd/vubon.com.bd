@@ -1,24 +1,24 @@
+/**
+ * Marketing Permission Schema
+ * @module shared-schemas/marketing
+ *
+ * Values আসে shared-constants/marketing/marketing-permission.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { PermissionSchema } from '../common/permission.schema';
-import { MARKETING_PERMISSION } from '@vubon/shared-constants/src/marketing/marketing-permission.constants';
+import { MARKETING_PERMISSION } from '@vubon/shared-constants/marketing';
 
-const marketingPermissionKeys = Object.keys(MARKETING_PERMISSION) as [string, ...string[]];
+export const MarketingPermissionSchema = z.enum(
+  Object.values(MARKETING_PERMISSION) as [string, ...string[]]
+);
 
-export const MarketingPermissionSchema = PermissionSchema.extend({
-  permission: z.enum(marketingPermissionKeys),
-  category: z.literal('marketing'),
-  module: z.string(),
-  action: z.enum([
-    'view',
-    'create',
-    'update',
-    'delete',
-    'manage',
-    'launch',
-    'pause',
-    'analyze',
-    'optimize',
-  ]),
+export const MarketingPermissionGrantSchema = z.object({
+  userId: z.string().min(1),
+  permission: MarketingPermissionSchema,
+  grantedBy: z.string().min(1),
+  grantedAt: z.string().datetime(),
+  expiresAt: z.string().datetime().optional(),
 });
 
-export const MarketingPermissionEnumSchema = z.enum(marketingPermissionKeys);
+export type MarketingPermissionSchemaType = z.infer<typeof MarketingPermissionSchema>;
+export type MarketingPermissionGrantSchemaType = z.infer<typeof MarketingPermissionGrantSchema>;

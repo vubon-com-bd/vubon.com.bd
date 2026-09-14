@@ -1,19 +1,24 @@
-import { TypeObject } from '../../common/types.types';
-import { SEARCH_MATCH } from '@vubon/shared-constants/src/platform/search/search-match.constants';
+/**
+ * Search Match Value Types
+ * @module shared-types/platform/search
+ */
 
-export interface SearchMatch extends TypeObject {
-  type: keyof typeof SEARCH_MATCH.TYPES | string;
-  category: 'search_match';
-  priority: keyof typeof SEARCH_MATCH.MATCH_PRIORITIES | string;
-  isExact: boolean;
-  isPrefix: boolean;
-  isSuffix: boolean;
-  isContains: boolean;
-  isFuzzy: boolean;
-  isWildcard: boolean;
-  isRegex: boolean;
-  isSynonym: boolean;
-  isStemmed: boolean;
+import type { SEARCH_MATCH_TYPE, SEARCH_FUZZINESS } from '@vubon/shared-constants/platform';
+
+export type SearchMatchTypeValue = (typeof SEARCH_MATCH_TYPE)[keyof typeof SEARCH_MATCH_TYPE];
+
+export type SearchFuzzinessValue = (typeof SEARCH_FUZZINESS)[keyof typeof SEARCH_FUZZINESS];
+
+export interface SearchMatch {
+  readonly type: SearchMatchTypeValue;
+  readonly field: string;
+  readonly value: string;
+  readonly fuzziness?: SearchFuzzinessValue;
+  readonly boost?: number;
 }
 
-export type SearchMatchKey = keyof typeof SEARCH_MATCH.TYPES;
+export interface SearchMatchMetadata {
+  readonly value: SearchMatchTypeValue;
+  readonly label: string;
+  readonly exactMatch: boolean;
+}

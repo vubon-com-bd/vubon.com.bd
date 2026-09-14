@@ -1,27 +1,37 @@
+/**
+ * Affiliate Commission Schema
+ * @module shared-schemas/marketing
+ *
+ * Values আসে shared-constants/marketing/affiliate.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { MoneySchema } from '../common/money.schema';
-import { AFFILIATE_COMMISSION } from '@vubon/shared-constants/src/marketing/affiliate-commission.constants';
+import { UuidSchema } from '../common/primitives/uuid.schema';
+import { MoneySchema } from '../common/primitives/money.schema';
+import { AFFILIATE } from '@vubon/shared-constants/marketing';
+import { AffiliateCommissionTypeSchema } from './affiliate-status.schema';
 
-const affiliateCommissionTypeKeys = Object.keys(AFFILIATE_COMMISSION.TYPES) as [
-  string,
-  ...string[],
-];
-const affiliateCommissionTierKeys = Object.keys(AFFILIATE_COMMISSION.COMMISSION_TIERS) as [
-  string,
-  ...string[],
-];
-
-export const AffiliateCommissionSchema = BaseSchema.extend({
-  commissionId: z.string().uuid(),
-  affiliateId: z.string().uuid(),
-  type: z.enum(affiliateCommissionTypeKeys),
-  rate: z.number().min(0).max(100),
-  tier: z.enum(affiliateCommissionTierKeys),
-  amount: MoneySchema,
-  minAmount: MoneySchema,
-  maxAmount: MoneySchema,
-  isActive: z.boolean().default(true),
-  isDefault: z.boolean().default(false),
-  metadata: z.record(z.unknown()).optional(),
+export const AffiliateCommissionSchema = z.object({
+  affiliateId: UuidSchema,
+  type: AffiliateCommissionTypeSchema,
+  percent: z
+    .number()
+    .min(AFFILIATE.MIN_COMMISSION_PERCENT)
+    .max(AFFILIATE.MAX_COMMISSION_PERCENT)
+    .optional(),
+  fixedAmount: MoneySchema.optional(),
+  currency: z.string().length(3),
+  tier: z.string().max(50).optional(),
+  isActive: z.boolean(),
+  updatedAt: z.string().datetime(),
 });
+
+export const AffiliateCommissionTierSchema = z.object({
+  tier: z.string().min(1).max(50),
+  minSales: z.number().nonnegative(),
+  maxSales: z.number().nonnegative().nullable(),
+  percent: z.number().min(0).max(100),
+});
+
+export type AffiliateCommissionSchemaType = z.infer<typeof AffiliateCommissionSchema>;
+export type AffiliateCommissionTierSchemaType = z.infer<typeof AffiliateCommissionTierSchema>;

@@ -1,24 +1,47 @@
+/**
+ * Notification Digest Schema
+ * @module shared-schemas/platform/notification
+ *
+ * Values আসে shared-constants/platform/notification-digest.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { NOTIFICATION_DIGEST } from '@vubon/shared-constants/src/platform/notification/notification-digest.constants';
+import {
+  NOTIFICATION_DIGEST_FREQUENCY,
+  NOTIFICATION_DIGEST_TYPE,
+  NOTIFICATION_DIGEST_STATUS,
+} from '@vubon/shared-constants/platform';
 
-const notificationDigestStatusKeys = Object.keys(NOTIFICATION_DIGEST.STATUS) as [
-  string,
-  ...string[],
-];
-const notificationDigestTypeKeys = Object.keys(NOTIFICATION_DIGEST.TYPES) as [string, ...string[]];
+export const NotificationDigestFrequencySchema = z.enum(
+  Object.values(NOTIFICATION_DIGEST_FREQUENCY) as [string, ...string[]]
+);
 
-export const NotificationDigestSchema = BaseSchema.extend({
-  digestId: z.string().uuid(),
-  notificationId: z.string().uuid(),
-  status: z.enum(notificationDigestStatusKeys),
-  type: z.enum(notificationDigestTypeKeys),
-  notifications: z.array(z.string().uuid()),
-  notificationCount: z.number().int().min(0).default(0),
-  summary: z.string(),
-  generatedAt: z.date().optional(),
-  sentAt: z.date().optional(),
-  failedAt: z.date().optional(),
-  failureReason: z.string().optional(),
-  metadata: z.record(z.unknown()).optional(),
+export const NotificationDigestTypeSchema = z.enum(
+  Object.values(NOTIFICATION_DIGEST_TYPE) as [string, ...string[]]
+);
+
+export const NotificationDigestStatusSchema = z.enum(
+  Object.values(NOTIFICATION_DIGEST_STATUS) as [string, ...string[]]
+);
+
+export const NotificationDigestSchema = z.object({
+  id: z.string().min(1),
+  userId: z.string().min(1),
+  frequency: NotificationDigestFrequencySchema,
+  type: NotificationDigestTypeSchema,
+  status: NotificationDigestStatusSchema,
+  categories: z.array(z.string()).max(50),
+  sendHour: z.number().int().min(0).max(23),
+  timezone: z.string().min(1).max(64),
+  itemCount: z.number().int().nonnegative(),
+  generatedAt: z.string().datetime().optional(),
+  sentAt: z.string().datetime().optional(),
+  lastDeliveredAt: z.string().datetime().optional(),
 });
+
+export type NotificationDigestFrequencySchemaType = z.infer<
+  typeof NotificationDigestFrequencySchema
+>;
+export type NotificationDigestTypeSchemaType = z.infer<typeof NotificationDigestTypeSchema>;
+export type NotificationDigestStatusSchemaType = z.infer<typeof NotificationDigestStatusSchema>;
+export type NotificationDigestSchemaType = z.infer<typeof NotificationDigestSchema>;

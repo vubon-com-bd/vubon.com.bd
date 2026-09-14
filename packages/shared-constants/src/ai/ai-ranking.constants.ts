@@ -1,30 +1,40 @@
-import { TYPES as COMMON_TYPES } from '../common/types.constants';
-import { SEARCH_SORT } from '../platform/search/search-sort.constants';
+export const AI_RANKING_ALGORITHM = {
+  LEARNING_TO_RANK: 'learning_to_rank',
+  PAIRWISE: 'pairwise',
+  LISTWISE: 'listwise',
+  POINTWISE: 'pointwise',
+  LAMBDAMART: 'lambdamart',
+  RANKNET: 'ranknet',
+  NEURAL_RANKING: 'neural_ranking',
+} as const;
+
+export const AI_RANKING_FEATURE = {
+  RELEVANCE: 'relevance',
+  POPULARITY: 'popularity',
+  RECENCY: 'recency',
+  PRICE: 'price',
+  RATING: 'rating',
+  CLICK_THROUGH: 'click_through',
+  CONVERSION: 'conversion',
+  PERSONALIZATION: 'personalization',
+  DIVERSITY: 'diversity',
+  FRESHNESS: 'freshness',
+} as const;
 
 export const AI_RANKING = {
-  TYPES: {
-    ...COMMON_TYPES,
-    ...SEARCH_SORT.TYPES,
-    LEARNING_TO_RANK: 'learning_to_rank',
-    NEURAL_RANKING: 'neural_ranking',
-    PERSONALIZED: 'personalized',
-    CONTEXTUAL: 'contextual',
-  },
-  SEARCH_SORT: { ...SEARCH_SORT },
-  RANKING_FEATURES: {
-    RELEVANCE: 0.3,
-    POPULARITY: 0.2,
-    RATING: 0.15,
-    RECENCY: 0.1,
-    PERSONALIZATION: 0.15,
-    CONTEXT: 0.1,
-  },
-  LEARNING_TO_RANK_ALGORITHMS: {
-    LAMBDA_MART: 'lambda_mart',
-    RANK_SVM: 'rank_svm',
-    RANK_NET: 'rank_net',
-    LIST_NET: 'list_net',
-  },
-  MAX_RANKING_RESULTS: 100,
-  RANKING_MODEL_UPDATE_INTERVAL_HOURS: 6,
+  ALGORITHM: AI_RANKING_ALGORITHM,
+  FEATURE: AI_RANKING_FEATURE,
+  DEFAULT_ALGORITHM: AI_RANKING_ALGORITHM.LAMBDAMART,
+  DEFAULT_TOP_K: 100,
+  MAX_TOP_K: 1000,
+  MIN_SCORE: 0.0,
+  MAX_SCORE: 1.0,
+  DIVERSITY_ENABLED: true,
+  DIVERSITY_FACTOR: 0.3,
+  PERSONALIZATION_ENABLED: true,
+  FRESHNESS_BOOST: true,
+  FRESHNESS_DECAY_DAYS: 30,
+  CACHE_TTL_SECONDS: 300,
 } as const;
+
+export type AiRankingType = typeof AI_RANKING;

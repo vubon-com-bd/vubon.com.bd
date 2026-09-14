@@ -1,26 +1,48 @@
-import { BaseEntity } from '../../common/base.types';
-import { REPORT_EMAIL } from '@vubon/shared-constants/src/platform/reporting/report-email.constants';
-import { REPORT_FORMAT } from '@vubon/shared-constants/src/platform/reporting/report-format.constants';
-import { Report } from './report.types';
+/**
+ * Report Email Types
+ * @module shared-types/platform/reporting
+ */
 
-export interface ReportEmail extends BaseEntity {
-  emailId: string;
-  reportId: string;
-  report: Report;
-  status: keyof typeof REPORT_EMAIL.STATUS | string;
-  type: keyof typeof REPORT_EMAIL.TYPES | string;
-  template: keyof typeof REPORT_EMAIL.EMAIL_TEMPLATES | string;
-  from: string;
-  to: string[];
-  cc: string[];
-  bcc: string[];
-  subject: string;
-  body: string;
-  format: keyof typeof REPORT_FORMAT.TYPES | string;
-  isSent: boolean;
-  isFailed: boolean;
-  sentAt?: Date;
-  failedAt?: Date;
-  failureReason?: string;
-  metadata: Record<string, unknown>;
+import type {
+  REPORT_EMAIL_TYPE,
+  REPORT_EMAIL_STATUS,
+  REPORT_EMAIL_FORMAT,
+} from '@vubon/shared-constants/platform';
+import type { Email } from '../../common/primitives';
+
+export type ReportEmailTypeValue = (typeof REPORT_EMAIL_TYPE)[keyof typeof REPORT_EMAIL_TYPE];
+
+export type ReportEmailStatusValue = (typeof REPORT_EMAIL_STATUS)[keyof typeof REPORT_EMAIL_STATUS];
+
+export type ReportEmailFormatValue = (typeof REPORT_EMAIL_FORMAT)[keyof typeof REPORT_EMAIL_FORMAT];
+
+export interface ReportEmail {
+  readonly id: string;
+  readonly reportId: string;
+  readonly scheduleId?: string;
+  readonly type: ReportEmailTypeValue;
+  readonly status: ReportEmailStatusValue;
+  readonly format: ReportEmailFormatValue;
+  readonly to: readonly Email[];
+  readonly cc?: readonly Email[];
+  readonly bcc?: readonly Email[];
+  readonly subject: string;
+  readonly body?: string;
+  readonly attachmentUrl?: string;
+  readonly sentAt?: string;
+  readonly deliveredAt?: string;
+  readonly openedAt?: string;
+  readonly failedAt?: string;
+  readonly error?: string;
+  readonly createdAt: string;
+}
+
+export interface ReportEmailSendInput {
+  readonly reportId: string;
+  readonly to: readonly string[];
+  readonly cc?: readonly string[];
+  readonly bcc?: readonly string[];
+  readonly subject?: string;
+  readonly body?: string;
+  readonly format?: ReportEmailFormatValue;
 }

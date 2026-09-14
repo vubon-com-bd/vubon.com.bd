@@ -1,47 +1,35 @@
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
-import { FILTER } from '../../common/filter.constants';
-import { PRODUCT_STATUS } from '../../business/product/product-status.constants';
-import { VENDOR_STATUS } from '../../business/vendor/vendor-status.constants';
+export const SEARCH_FILTER_TYPE = {
+  TERM: 'term',
+  TERMS: 'terms',
+  RANGE: 'range',
+  EXISTS: 'exists',
+  MISSING: 'missing',
+  PREFIX: 'prefix',
+  WILDCARD: 'wildcard',
+  REGEXP: 'regexp',
+  NESTED: 'nested',
+  GEO_DISTANCE: 'geo_distance',
+  GEO_BOUNDING_BOX: 'geo_bounding_box',
+} as const;
+
+export const SEARCH_FILTER_RANGE = {
+  PRICE: 'price',
+  RATING: 'rating',
+  DATE: 'date',
+  STOCK: 'stock',
+  DISCOUNT: 'discount',
+  WEIGHT: 'weight',
+  DISTANCE: 'distance',
+} as const;
 
 export const SEARCH_FILTER = {
-  TYPES: {
-    ...COMMON_TYPES,
-    ...FILTER,
-    CATEGORY: 'category',
-    BRAND: 'brand',
-    PRICE_RANGE: 'price_range',
-    RATING: 'rating',
-    COLOR: 'color',
-    SIZE: 'size',
-    MATERIAL: 'material',
-    STYLE: 'style',
-    GENDER: 'gender',
-    AGE_GROUP: 'age_group',
-    AVAILABILITY: 'availability',
-    DISCOUNT: 'discount',
-    SHIPPING: 'shipping',
-    VENDOR: 'vendor',
-    LOCATION: 'location',
-    DATE_RANGE: 'date_range',
-    STATUS: 'status',
-  },
-  FILTER: { ...FILTER },
-  PRODUCT_STATUS: { ...PRODUCT_STATUS },
-  VENDOR_STATUS: { ...VENDOR_STATUS },
-  FILTER_OPERATORS: {
-    EQUAL: 'eq',
-    NOT_EQUAL: 'ne',
-    GREATER_THAN: 'gt',
-    GREATER_THAN_EQUAL: 'gte',
-    LESS_THAN: 'lt',
-    LESS_THAN_EQUAL: 'lte',
-    BETWEEN: 'between',
-    IN: 'in',
-    NOT_IN: 'nin',
-    CONTAINS: 'contains',
-    STARTS_WITH: 'starts_with',
-    ENDS_WITH: 'ends_with',
-  },
-  MAX_FILTERS: 20,
-  MAX_FILTER_VALUES: 50,
+  MAX_FILTERS: 50,
+  MAX_VALUES_PER_FILTER: 1000,
+  MAX_RANGE_VALUES: 100,
+  MAX_NESTED_DEPTH: 5,
+  CACHE_ENABLED: true,
+  AUTO_AGGREGATE: true,
 } as const;
+
+export type SearchFilterTypeType = (typeof SEARCH_FILTER_TYPE)[keyof typeof SEARCH_FILTER_TYPE];
+export type SearchFilterRangeType = (typeof SEARCH_FILTER_RANGE)[keyof typeof SEARCH_FILTER_RANGE];

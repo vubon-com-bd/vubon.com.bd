@@ -1,29 +1,27 @@
-import { TypeObject } from '../../common/types.types';
-import { SEARCH_FILTER } from '@vubon/shared-constants/src/platform/search/search-filter.constants';
+/**
+ * Search Filter Value Types
+ * @module shared-types/platform/search
+ */
 
-export interface SearchFilter extends TypeObject {
-  type: keyof typeof SEARCH_FILTER.TYPES | string;
-  category: 'search_filter';
-  operator: keyof typeof SEARCH_FILTER.FILTER_OPERATORS | string;
-  field: string;
-  value: string; // TypeObject-এ value: string, তাই string করতে হবে
-  isCategory: boolean;
-  isBrand: boolean;
-  isPriceRange: boolean;
-  isRating: boolean;
-  isColor: boolean;
-  isSize: boolean;
-  isMaterial: boolean;
-  isStyle: boolean;
-  isGender: boolean;
-  isAgeGroup: boolean;
-  isAvailability: boolean;
-  isDiscount: boolean;
-  isShipping: boolean;
-  isVendor: boolean;
-  isLocation: boolean;
-  isDateRange: boolean;
-  isStatus: boolean;
+import type { SEARCH_FILTER_TYPE, SEARCH_FILTER_RANGE } from '@vubon/shared-constants/platform';
+
+export type SearchFilterTypeValue = (typeof SEARCH_FILTER_TYPE)[keyof typeof SEARCH_FILTER_TYPE];
+
+export type SearchFilterRangeValue = (typeof SEARCH_FILTER_RANGE)[keyof typeof SEARCH_FILTER_RANGE];
+
+export interface SearchFilter {
+  readonly field: string;
+  readonly type: SearchFilterTypeValue;
+  readonly value: unknown;
 }
 
-export type SearchFilterKey = keyof typeof SEARCH_FILTER.TYPES;
+export interface SearchRangeFilter {
+  readonly field: SearchFilterRangeValue;
+  readonly min?: number;
+  readonly max?: number;
+}
+
+export interface SearchTermsFilter {
+  readonly field: string;
+  readonly values: readonly (string | number | boolean)[];
+}

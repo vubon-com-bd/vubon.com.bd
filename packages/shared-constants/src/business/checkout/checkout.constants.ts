@@ -1,29 +1,38 @@
-import { STATUS } from '../../common/status.constants';
-import { PERMISSIONS } from '../../common/permissions.constants';
-import { USER_STATUS } from '../../user/user-status.constants';
-import { CART_STATUS } from '../cart/cart-status.constants';
-import { PAYMENT_METHODS } from '../../common/payment-methods.constants';
+import { CHECKOUT_STATUS } from './checkout-status.constants';
+import {
+  CHECKOUT_STEP,
+  CHECKOUT_STEP_ORDER,
+  CHECKOUT_STEP_STATUS,
+} from './checkout-step.constants';
+
+export const CHECKOUT_TYPE = {
+  GUEST: 'guest',
+  REGISTERED: 'registered',
+  EXPRESS: 'express',
+  ONE_CLICK: 'one_click',
+  SUBSCRIPTION: 'subscription',
+} as const;
+
+export const CHECKOUT_LIMIT = {
+  SESSION_TTL_SECONDS: 3600,
+  MAX_ATTEMPTS: 3,
+  RESERVE_STOCK_MINUTES: 15,
+  MIN_ORDER_AMOUNT: 1,
+  MAX_ORDER_AMOUNT: 10000000,
+  MAX_ITEMS: 100,
+  ALLOW_GUEST: true,
+  REQUIRE_PHONE: true,
+  REQUIRE_EMAIL: true,
+  ALLOW_SHIPPING_BILLING_DIFF: true,
+} as const;
 
 export const CHECKOUT = {
-  STATUS: {
-    ...STATUS,
-    INITIATED: 'initiated',
-    IN_PROGRESS: 'in_progress',
-    COMPLETED: 'completed',
-    FAILED: 'failed',
-    ABANDONED: 'abandoned',
-  },
-  PERMISSIONS: {
-    ...PERMISSIONS,
-    VIEW: 'checkout:view',
-    CREATE: 'checkout:create',
-    UPDATE: 'checkout:update',
-    CANCEL: 'checkout:cancel',
-    MANAGE: 'checkout:manage',
-  },
-  USER_STATUS: { ...USER_STATUS },
-  CART_STATUS: { ...CART_STATUS },
-  PAYMENT_METHODS: { ...PAYMENT_METHODS },
-  TIMEOUT_MINUTES: 30,
-  MAX_RETRY: 3,
+  TYPE: CHECKOUT_TYPE,
+  STATUS: CHECKOUT_STATUS,
+  STEP: CHECKOUT_STEP,
+  STEP_ORDER: CHECKOUT_STEP_ORDER,
+  STEP_STATUS: CHECKOUT_STEP_STATUS,
+  LIMIT: CHECKOUT_LIMIT,
 } as const;
+
+export type CheckoutType = typeof CHECKOUT;

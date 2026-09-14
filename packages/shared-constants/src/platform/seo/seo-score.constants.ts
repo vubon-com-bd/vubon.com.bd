@@ -1,32 +1,29 @@
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
-import { SEO } from './seo.constants';
+export const SEO_SCORE_GRADE = {
+  A_PLUS: 'a_plus',
+  A: 'a',
+  B: 'b',
+  C: 'c',
+  D: 'd',
+  F: 'f',
+} as const;
 
 export const SEO_SCORE = {
-  TYPES: {
-    ...COMMON_TYPES,
-    ...SEO.SEO_TYPES,
-    OVERALL: 'overall',
-    PAGE_SPEED: 'page_speed',
-    MOBILE_FRIENDLY: 'mobile_friendly',
-    CONTENT_QUALITY: 'content_quality',
-    BACKLINK_QUALITY: 'backlink_quality',
-    USER_EXPERIENCE: 'user_experience',
-  },
-  SEO: { ...SEO },
-  SCORE_RANGES: {
-    EXCELLENT: 90,
-    GOOD: 75,
-    AVERAGE: 60,
-    POOR: 40,
-    CRITICAL: 20,
-  },
-  SCORE_WEIGHTS: {
-    TECHNICAL: 0.2,
-    ON_PAGE: 0.25,
-    CONTENT: 0.25,
-    LINKS: 0.15,
-    USER_EXPERIENCE: 0.15,
-  },
-  MIN_SCORE_THRESHOLD: 60,
-  TARGET_SCORE: 80,
+  MIN: 0,
+  MAX: 100,
+  EXCELLENT_THRESHOLD: 90,
+  GOOD_THRESHOLD: 80,
+  FAIR_THRESHOLD: 60,
+  POOR_THRESHOLD: 40,
+  CRITICAL_THRESHOLD: 20,
+  DEFAULT: 0,
 } as const;
+
+export const SEO_SCORE_WEIGHT = {
+  content: 30,
+  technical: 25,
+  performance: 20,
+  mobile: 15,
+  backlinks: 10,
+} as const;
+
+export type SeoScoreGradeType = (typeof SEO_SCORE_GRADE)[keyof typeof SEO_SCORE_GRADE];

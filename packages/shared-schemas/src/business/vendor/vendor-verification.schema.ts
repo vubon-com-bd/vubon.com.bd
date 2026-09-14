@@ -1,26 +1,44 @@
+/**
+ * Vendor Verification Schema
+ * @module shared-schemas/business/vendor
+ *
+ * Values আসে shared-constants/business/vendor-verification.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { VENDOR_VERIFICATION } from '@vubon/shared-constants/src/business/vendor/vendor-verification.constants';
+import {
+  VENDOR_VERIFICATION_STATUS,
+  VENDOR_VERIFICATION_TYPE,
+} from '@vubon/shared-constants/business';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
 
-const vendorVerificationLevelKeys = Object.keys(VENDOR_VERIFICATION.VERIFICATION_LEVELS) as [
-  string,
-  ...string[],
-];
-const vendorVerificationStatusKeys = Object.keys(VENDOR_VERIFICATION.STATUS) as [
-  string,
-  ...string[],
-];
+export const VendorVerificationStatusSchema = z.enum(
+  Object.values(VENDOR_VERIFICATION_STATUS) as [string, ...string[]]
+);
 
-export const VendorVerificationSchema = BaseSchema.extend({
-  verificationId: z.string().uuid(),
-  vendorId: z.string().uuid(),
-  level: z.enum(vendorVerificationLevelKeys),
-  status: z.enum(vendorVerificationStatusKeys),
-  documents: z.array(z.string().uuid()),
-  verifiedBy: z.string().uuid(),
-  verifiedAt: z.date().optional(),
-  rejectedAt: z.date().optional(),
-  rejectedReason: z.string().optional(),
-  expiresAt: z.date().optional(),
-  metadata: z.record(z.unknown()).optional(),
+export const VendorVerificationTypeSchema = z.enum(
+  Object.values(VENDOR_VERIFICATION_TYPE) as [string, ...string[]]
+);
+
+export const VendorVerificationCheckSchema = z.object({
+  type: VendorVerificationTypeSchema,
+  status: VendorVerificationStatusSchema,
+  verifiedAt: z.string().datetime().optional(),
+  expiresAt: z.string().datetime().optional(),
 });
+
+export const VendorVerificationSchema = z.object({
+  vendorId: UuidSchema,
+  status: VendorVerificationStatusSchema,
+  checks: z.array(VendorVerificationCheckSchema).max(20),
+  submittedAt: z.string().datetime().optional(),
+  reviewedAt: z.string().datetime().optional(),
+  reviewedBy: z.string().optional(),
+  rejectionReason: z.string().max(500).optional(),
+  expiresAt: z.string().datetime().optional(),
+  updatedAt: z.string().datetime(),
+});
+
+export type VendorVerificationStatusSchemaType = z.infer<typeof VendorVerificationStatusSchema>;
+export type VendorVerificationTypeSchemaType = z.infer<typeof VendorVerificationTypeSchema>;
+export type VendorVerificationSchemaType = z.infer<typeof VendorVerificationSchema>;

@@ -1,11 +1,11 @@
+// ai/index.ts — AI domain barrel export
+
 export * from './ai.constants';
 export * from './ai-model.constants';
 export * from './ai-model-type.constants';
 export * from './ai-model-status.constants';
 export * from './ai-model-provider.constants';
-export * from './ai-recommendation.constants';
 export * from './ai-personalization.constants';
-export * from './ai-search.constants';
 export * from './ai-ranking.constants';
 export * from './ai-analytics.constants';
 export * from './ai-training.constants';

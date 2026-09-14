@@ -1,4 +1,6 @@
-export * from './platform-notification.constants';
+// platform/notification/index.ts — Notification sub-service barrel export
+
+export * from './notification.constants';
 export * from './notification-type.constants';
 export * from './notification-channel.constants';
 export * from './notification-status.constants';
@@ -8,7 +10,6 @@ export * from './notification-delivery-status.constants';
 export * from './notification-read-status.constants';
 export * from './notification-action.constants';
 export * from './email.constants';
-export * from './email-template.constants';
 export * from './sms.constants';
 export * from './push.constants';
 export * from './in-app.constants';
@@ -22,5 +23,3 @@ export * from './notification-preference.constants';
 export * from './notification-device.constants';
 export * from './notification-analytics.constants';
 export * from './notification-report.constants';
-export * from './notification-settings.constants';
-export * from './notification-preferences.constants';

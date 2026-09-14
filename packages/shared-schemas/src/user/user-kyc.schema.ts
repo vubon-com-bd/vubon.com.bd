@@ -1,49 +1,65 @@
+/**
+ * User KYC Schema
+ * @module shared-schemas/user
+ *
+ * Values আসে shared-constants/user/user-kyc.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { USER_KYC } from '@vubon/shared-constants/src/user/user-kyc.constants';
-import { STATUS } from '@vubon/shared-constants/src/common/status.constants';
-import { DOCUMENT } from '@vubon/shared-constants/src/common/document.constants';
+import {
+  USER_KYC_STATUS,
+  USER_KYC_LEVEL,
+  USER_KYC_DOCUMENT,
+  USER_KYC,
+} from '@vubon/shared-constants/user';
+import { UuidSchema } from '../common/primitives/uuid.schema';
 
-const userKycValues = Object.values(USER_KYC) as [string, ...string[]];
-const verificationStatusValues = Object.values(STATUS.VERIFICATION) as [string, ...string[]];
-const documentTypeValues = Object.values(DOCUMENT.TYPES) as [string, ...string[]];
+export const KycStatusSchema = z.enum(Object.values(USER_KYC_STATUS) as [string, ...string[]]);
 
-/**
- * Internal UserKyc entity.
- * ⚠️ documentNumberHash and documentImageUrl are @internal — never expose.
- */
-export const UserKycSchema = BaseSchema.extend({
-  kycId: z.string().uuid(),
-  userId: z.string().uuid(),
-  type: z.enum(userKycValues),
-  documentType: z.enum(documentTypeValues),
-  /** @internal bcrypt/SHA-256 hash of the document number */
-  documentNumberHash: z.string().min(20).max(512),
-  /** @internal S3 / secure storage URL (not base64) */
-  documentImageUrl: z.string().url(),
-  status: z.enum(verificationStatusValues),
-  submittedAt: z.date(),
-  verifiedAt: z.date().optional(),
-  rejectedReason: z.string().optional(),
-  metadata: z.record(z.unknown()).optional(),
+export const KycLevelSchema = z.number().int().min(USER_KYC_LEVEL.NONE).max(USER_KYC_LEVEL.FULL);
+
+export const KycDocumentTypeSchema = z.enum(
+  Object.values(USER_KYC_DOCUMENT) as [string, ...string[]]
+);
+
+export const KycDocumentSchema = z.object({
+  id: UuidSchema,
+  type: KycDocumentTypeSchema,
+  number: z.string().max(100).optional(),
+  frontUrl: z.string().url(),
+  backUrl: z.string().url().optional(),
+  selfieUrl: z.string().url().optional(),
+  verified: z.boolean(),
+  uploadedAt: z.string().datetime(),
 });
 
-/**
- * Input schema — client sends the raw document number; server hashes it.
- */
+export const UserKycSchema = z.object({
+  userId: UuidSchema,
+  status: KycStatusSchema,
+  level: KycLevelSchema,
+  documents: z.array(KycDocumentSchema).max(USER_KYC.MAX_DOCUMENTS),
+  submittedAt: z.string().datetime().optional(),
+  reviewedAt: z.string().datetime().optional(),
+  reviewedBy: z.string().optional(),
+  rejectionReason: z.string().max(500).optional(),
+  expiresAt: z.string().datetime().optional(),
+  updatedAt: z.string().datetime(),
+});
+
+export const KycDocumentInputSchema = KycDocumentSchema.omit({
+  id: true,
+  verified: true,
+  uploadedAt: true,
+});
+
 export const UserKycInputSchema = z.object({
-  userId: z.string().uuid(),
-  type: z.enum(userKycValues),
-  documentType: z.enum(documentTypeValues),
-  documentNumber: z.string().min(4).max(64),
-  documentImageUrl: z.string().url(),
+  userId: UuidSchema,
+  documents: z.array(KycDocumentInputSchema).min(1).max(USER_KYC.MAX_DOCUMENTS),
 });
 
-/**
- * Public-safe UserKyc DTO — no document hash/URL.
- */
-export const UserKycPublicSchema = UserKycSchema.omit({
-  documentNumberHash: true,
-  documentImageUrl: true,
-  metadata: true,
-});
+export type KycStatusSchemaType = z.infer<typeof KycStatusSchema>;
+export type KycLevelSchemaType = z.infer<typeof KycLevelSchema>;
+export type KycDocumentTypeSchemaType = z.infer<typeof KycDocumentTypeSchema>;
+export type KycDocumentSchemaType = z.infer<typeof KycDocumentSchema>;
+export type UserKycSchemaType = z.infer<typeof UserKycSchema>;
+export type UserKycInputSchemaType = z.infer<typeof UserKycInputSchema>;

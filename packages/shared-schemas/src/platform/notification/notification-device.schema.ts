@@ -1,31 +1,50 @@
+/**
+ * Notification Device Schema
+ * @module shared-schemas/platform/notification
+ *
+ * Values আসে shared-constants/platform/notification-device.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../../common/base.schema';
-import { UserSchema } from '../../user/user.schema';
-import { NOTIFICATION_DEVICE } from '@vubon/shared-constants/src/platform/notification/notification-device.constants';
+import {
+  NOTIFICATION_DEVICE_TYPE,
+  NOTIFICATION_DEVICE_STATUS,
+} from '@vubon/shared-constants/platform';
+import { UuidSchema } from '../../common/primitives/uuid.schema';
 
-const notificationDeviceStatusKeys = Object.keys(NOTIFICATION_DEVICE.STATUS) as [
-  string,
-  ...string[],
-];
-const notificationDeviceTypeKeys = Object.keys(NOTIFICATION_DEVICE.TYPES) as [string, ...string[]];
+export const NotificationDeviceTypeSchema = z.enum(
+  Object.values(NOTIFICATION_DEVICE_TYPE) as [string, ...string[]]
+);
 
-export const NotificationDeviceSchema = BaseSchema.extend({
-  deviceId: z.string().uuid(),
-  userId: z.string().uuid(),
-  user: UserSchema,
-  status: z.enum(notificationDeviceStatusKeys),
-  type: z.enum(notificationDeviceTypeKeys),
-  token: z.string(),
-  name: z.string().min(1).max(100),
-  model: z.string().optional(),
-  os: z.string(),
-  osVersion: z.string(),
-  browser: z.string(),
-  browserVersion: z.string(),
-  isActive: z.boolean().default(true),
-  isRegistered: z.boolean().default(false),
-  registeredAt: z.date(),
-  lastUsed: z.date(),
-  expiresAt: z.date(),
-  metadata: z.record(z.unknown()).optional(),
+export const NotificationDeviceStatusSchema = z.enum(
+  Object.values(NOTIFICATION_DEVICE_STATUS) as [string, ...string[]]
+);
+
+export const NotificationDeviceSchema = z.object({
+  id: UuidSchema,
+  userId: UuidSchema,
+  type: NotificationDeviceTypeSchema,
+  status: NotificationDeviceStatusSchema,
+  token: z.string().min(1).max(500),
+  appVersion: z.string().max(20).optional(),
+  osVersion: z.string().max(50).optional(),
+  deviceName: z.string().max(100).optional(),
+  lastActiveAt: z.string().datetime(),
+  registeredAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
 });
+
+export const DeviceRegisterInputSchema = z
+  .object({
+    userId: UuidSchema,
+    type: NotificationDeviceTypeSchema,
+    token: z.string().min(1).max(500),
+    appVersion: z.string().max(20).optional(),
+    osVersion: z.string().max(50).optional(),
+    deviceName: z.string().max(100).optional(),
+  })
+  .strict();
+
+export type NotificationDeviceTypeSchemaType = z.infer<typeof NotificationDeviceTypeSchema>;
+export type NotificationDeviceStatusSchemaType = z.infer<typeof NotificationDeviceStatusSchema>;
+export type NotificationDeviceSchemaType = z.infer<typeof NotificationDeviceSchema>;

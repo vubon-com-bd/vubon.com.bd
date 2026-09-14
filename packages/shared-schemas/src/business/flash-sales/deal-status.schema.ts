@@ -1,17 +1,11 @@
+/**
+ * Deal Status Schema
+ * @module shared-schemas/business/flash-sales
+ */
+
 import { z } from 'zod';
-import { StatusSchema } from '../../common/status.schema';
-import { DEAL_STATUS } from '@vubon/shared-constants/src/business/flash-sales/deal-status.constants';
+import { DEAL_STATUS } from '@vubon/shared-constants/business';
 
-const dealStatusKeys = Object.keys(DEAL_STATUS) as [string, ...string[]];
+export const DealStatusSchema = z.enum(Object.values(DEAL_STATUS) as [string, ...string[]]);
 
-export const DealStatusSchema = StatusSchema.extend({
-  status: z.enum(dealStatusKeys),
-  category: z.literal('deal'),
-  isDraft: z.boolean().default(false),
-  isActive: z.boolean().default(false),
-  isExpired: z.boolean().default(false),
-  isCancelled: z.boolean().default(false),
-  isCompleted: z.boolean().default(false),
-});
-
-export const DealStatusEnumSchema = z.enum(dealStatusKeys);
+export type DealStatusSchemaType = z.infer<typeof DealStatusSchema>;

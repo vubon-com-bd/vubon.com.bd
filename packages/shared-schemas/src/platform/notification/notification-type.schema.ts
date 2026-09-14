@@ -1,11 +1,13 @@
+/**
+ * Notification Type Schema
+ * @module shared-schemas/platform/notification
+ */
+
 import { z } from 'zod';
-import { NOTIFICATION_TYPE } from '@vubon/shared-constants/src/platform/notification/notification-type.constants';
+import { NOTIFICATION_TYPE } from '@vubon/shared-constants/platform';
 
-const notificationTypeKeys = Object.keys(NOTIFICATION_TYPE.TYPES) as [string, ...string[]];
+export const NotificationTypeSchema = z.enum(
+  Object.values(NOTIFICATION_TYPE) as [string, ...string[]]
+);
 
-export const NotificationTypeSchema = z.object({
-  type: z.enum(notificationTypeKeys),
-  category: z.literal('notification_type'),
-});
-
-export const NotificationTypeEnumSchema = z.enum(notificationTypeKeys);
+export type NotificationTypeSchemaType = z.infer<typeof NotificationTypeSchema>;

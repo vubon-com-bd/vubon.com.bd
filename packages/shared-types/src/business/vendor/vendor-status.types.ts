@@ -1,14 +1,17 @@
-import { StatusObject } from '../../common/status.types';
-import { VENDOR_STATUS } from '@vubon/shared-constants/src/business/vendor/vendor-status.constants';
+/**
+ * Vendor Status Value Types
+ * @module shared-types/business/vendor
+ *
+ * Values আসে shared-constants/business/vendor/vendor-status.constants থেকে।
+ */
 
-export interface VendorStatus extends StatusObject {
-  type: keyof typeof VENDOR_STATUS | string;
-  category: 'vendor';
-  isPending: boolean;
-  isActive: boolean;
-  isSuspended: boolean;
-  isBanned: boolean;
-  isDeleted: boolean;
+import type { VENDOR_STATUS } from '@vubon/shared-constants/business';
+
+export type VendorStatusValue = (typeof VENDOR_STATUS)[keyof typeof VENDOR_STATUS];
+
+export interface VendorStatusMetadata {
+  readonly value: VendorStatusValue;
+  readonly label: string;
+  readonly isActive: boolean;
+  readonly isFinal: boolean;
 }
-
-export type VendorStatusKey = keyof typeof VENDOR_STATUS;

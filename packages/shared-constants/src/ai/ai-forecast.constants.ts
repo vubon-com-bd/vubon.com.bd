@@ -1,48 +1,46 @@
-import { TYPES as COMMON_TYPES } from '../common/types.constants';
-import { AI_ANALYTICS } from './ai-analytics.constants';
+export const AI_FORECAST_TYPE = {
+  DEMAND: 'demand',
+  SALES: 'sales',
+  REVENUE: 'revenue',
+  INVENTORY: 'inventory',
+  TRAFFIC: 'traffic',
+  CHURN: 'churn',
+  PRICE: 'price',
+  TREND: 'trend',
+} as const;
 
-// AI-নির্দিষ্ট TIME_FRAME (নাম পরিবর্তন করে AI_TIME_FRAME)
-export const AI_TIME_FRAME = {
-  LAST_HOUR: 'last_hour',
-  LAST_DAY: 'last_day',
-  LAST_WEEK: 'last_week',
-  LAST_MONTH: 'last_month',
-  LAST_QUARTER: 'last_quarter',
-  LAST_YEAR: 'last_year',
+export const AI_FORECAST_MODEL = {
+  ARIMA: 'arima',
+  PROPHET: 'prophet',
+  LSTM: 'lstm',
+  XGBOOST: 'xgboost',
+  LINEAR_REGRESSION: 'linear_regression',
+  RANDOM_FOREST: 'random_forest',
+  TRANSFORMER: 'transformer',
+  ENSEMBLE: 'ensemble',
+} as const;
+
+export const AI_FORECAST_HORIZON = {
+  DAY: 1,
+  WEEK: 7,
+  MONTH: 30,
+  QUARTER: 90,
+  HALF_YEAR: 180,
+  YEAR: 365,
 } as const;
 
 export const AI_FORECAST = {
-  TYPES: {
-    ...COMMON_TYPES,
-    SALES: 'sales',
-    DEMAND: 'demand',
-    REVENUE: 'revenue',
-    TRAFFIC: 'traffic',
-    CONVERSION: 'conversion',
-    INVENTORY: 'inventory',
-    PRICE: 'price',
-    TREND: 'trend',
-  },
-  TIME_FRAMES: {
-    ...AI_TIME_FRAME,
-    NEXT_HOUR: 'next_hour',
-    NEXT_DAY: 'next_day',
-    NEXT_WEEK: 'next_week',
-    NEXT_MONTH: 'next_month',
-    NEXT_QUARTER: 'next_quarter',
-    NEXT_YEAR: 'next_year',
-  },
-  AI_ANALYTICS: { ...AI_ANALYTICS },
-  FORECAST_MODELS: {
-    ARIMA: 'arima',
-    SARIMA: 'sarima',
-    PROPHET: 'prophet',
-    LSTM: 'lstm',
-    GRU: 'gru',
-    TRANSFORMER: 'transformer',
-  },
-  FORECAST_HORIZON_DAYS: 90,
+  TYPE: AI_FORECAST_TYPE,
+  MODEL: AI_FORECAST_MODEL,
+  HORIZON: AI_FORECAST_HORIZON,
+  DEFAULT_MODEL: AI_FORECAST_MODEL.PROPHET,
+  DEFAULT_HORIZON_DAYS: AI_FORECAST_HORIZON.MONTH,
+  MIN_HISTORY_DAYS: 30,
+  MAX_HISTORY_DAYS: 1095,
   CONFIDENCE_INTERVAL: 0.95,
-  MIN_HISTORICAL_DATA_DAYS: 30,
-  FORECAST_UPDATE_INTERVAL_HOURS: 6,
+  SEASONALITY_ENABLED: true,
+  OUTLIER_DETECTION: true,
+  MISSING_DATA_STRATEGY: 'interpolate',
 } as const;
+
+export type AiForecastType = typeof AI_FORECAST;

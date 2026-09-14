@@ -1,12 +1,23 @@
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
-
 export const VENDOR_TYPE = {
-  ...COMMON_TYPES,
   INDIVIDUAL: 'individual',
-  BUSINESS: 'business',
-  ENTERPRISE: 'enterprise',
+  SOLE_PROPRIETOR: 'sole_proprietor',
   PARTNERSHIP: 'partnership',
+  LIMITED_COMPANY: 'limited_company',
   CORPORATION: 'corporation',
-  NON_PROFIT: 'non_profit',
-  FREELANCER: 'freelancer',
+  COOPERATIVE: 'cooperative',
+  GOVERNMENT: 'government',
 } as const;
+
+export const VENDOR_BUSINESS_TYPE = {
+  MANUFACTURER: 'manufacturer',
+  WHOLESALER: 'wholesaler',
+  RETAILER: 'retailer',
+  DISTRIBUTOR: 'distributor',
+  RESELLER: 'reseller',
+  SERVICE_PROVIDER: 'service_provider',
+  DROPSHIPPER: 'dropshipper',
+} as const;
+
+export type VendorTypeType = (typeof VENDOR_TYPE)[keyof typeof VENDOR_TYPE];
+export type VendorBusinessTypeType =
+  (typeof VENDOR_BUSINESS_TYPE)[keyof typeof VENDOR_BUSINESS_TYPE];

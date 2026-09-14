@@ -1,35 +1,60 @@
+/**
+ * Logistics Report Schema
+ * @module shared-schemas/logistics
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { LOGISTICS_REPORT } from '@vubon/shared-constants/src/logistics/logistics-report.constants';
-import { LogisticsAnalyticsSchema } from './logistics-analytics.schema';
+import { LogisticsAnalyticsPeriodSchema } from './logistics-analytics.schema';
 
-const reportTypeKeys = Object.keys(LOGISTICS_REPORT.TYPES) as [string, ...string[]];
-const reportFormatKeys = Object.keys(LOGISTICS_REPORT.REPORT_FORMATS) as [string, ...string[]];
+export const LogisticsReportTypeSchema = z.enum([
+  'shipments',
+  'deliveries',
+  'couriers',
+  'warehouses',
+  'drivers',
+  'vehicles',
+  'routes',
+  'performance',
+  'costs',
+  'custom',
+]);
 
-export const LogisticsReportSchema = BaseSchema.extend({
-  reportId: z.string().uuid(),
-  logisticsId: z.string().uuid(),
-  type: z.enum(reportTypeKeys),
-  format: z.enum(reportFormatKeys),
-  analytics: z.array(LogisticsAnalyticsSchema),
-  summary: z.object({
-    totalShipments: z.number().int().min(0),
-    totalDeliveries: z.number().int().min(0),
-    onTimeDelivery: z.number().min(0).max(100),
-    averageDeliveryTime: z.number().min(0),
-    totalCost: z.number().min(0),
-    courierPerformance: z.record(z.number()),
-    zonePerformance: z.record(z.number()),
-  }),
-  insights: z.array(
-    z.object({
-      type: z.string(),
-      title: z.string(),
-      description: z.string(),
-      severity: z.enum(['info', 'warning', 'success', 'error']),
-    })
-  ),
-  recommendations: z.array(z.string()),
-  generatedAt: z.date(),
-  metadata: z.record(z.unknown()).optional(),
+export const LogisticsReportFormatSchema = z.enum(['pdf', 'csv', 'xlsx', 'json']);
+
+export const LogisticsReportScheduleSchema = z.enum([
+  'daily',
+  'weekly',
+  'monthly',
+  'quarterly',
+  'yearly',
+  'on_demand',
+]);
+
+export const LogisticsReportSchema = z.object({
+  id: z.string().min(1),
+  type: LogisticsReportTypeSchema,
+  format: LogisticsReportFormatSchema,
+  schedule: LogisticsReportScheduleSchema.optional(),
+  period: LogisticsAnalyticsPeriodSchema,
+  periodStart: z.string().datetime(),
+  periodEnd: z.string().datetime(),
+  fileUrl: z.string().url().optional(),
+  fileSize: z.number().int().nonnegative().optional(),
+  generatedAt: z.string().datetime(),
+  expiresAt: z.string().datetime().optional(),
+  generatedBy: z.string().optional(),
 });
+
+export const LogisticsReportRequestSchema = z
+  .object({
+    type: LogisticsReportTypeSchema,
+    format: LogisticsReportFormatSchema,
+    periodStart: z.string().datetime(),
+    periodEnd: z.string().datetime(),
+    filters: z.record(z.string(), z.unknown()).optional(),
+  })
+  .strict();
+
+export type LogisticsReportTypeSchemaType = z.infer<typeof LogisticsReportTypeSchema>;
+export type LogisticsReportFormatSchemaType = z.infer<typeof LogisticsReportFormatSchema>;
+export type LogisticsReportSchemaType = z.infer<typeof LogisticsReportSchema>;

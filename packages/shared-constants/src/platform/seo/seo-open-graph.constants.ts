@@ -1,31 +1,24 @@
-import { TYPES as COMMON_TYPES } from '../../common/types.constants';
-import { SEO } from './seo.constants';
+export const SEO_OPEN_GRAPH_TYPE = {
+  WEBSITE: 'website',
+  ARTICLE: 'article',
+  PRODUCT: 'product',
+  PROFILE: 'profile',
+  VIDEO_MOVIE: 'video.movie',
+  VIDEO_EPISODE: 'video.episode',
+  MUSIC_SONG: 'music.song',
+  BOOK: 'book',
+} as const;
 
 export const SEO_OPEN_GRAPH = {
-  TYPES: {
-    ...COMMON_TYPES,
-    WEBSITE: 'website',
-    ARTICLE: 'article',
-    PRODUCT: 'product',
-    VIDEO: 'video',
-    AUDIO: 'audio',
-    IMAGE: 'image',
-    BOOK: 'book',
-    MUSIC: 'music',
-  },
-  SEO: { ...SEO },
-  OPEN_GRAPH_PROPERTIES: {
-    TITLE: 'og:title',
-    DESCRIPTION: 'og:description',
-    URL: 'og:url',
-    IMAGE: 'og:image',
-    TYPE: 'og:type',
-    SITE_NAME: 'og:site_name',
-    LOCALE: 'og:locale',
-    VIDEO: 'og:video',
-    AUDIO: 'og:audio',
-  },
-  MAX_OPEN_GRAPH_TAGS: 20,
-  RECOMMENDED_IMAGE_SIZE: '1200x630',
-  MIN_IMAGE_SIZE: '200x200',
+  TITLE_MAX_LENGTH: 60,
+  DESCRIPTION_MAX_LENGTH: 200,
+  IMAGE_WIDTH: 1200,
+  IMAGE_HEIGHT: 630,
+  IMAGE_MAX_SIZE_MB: 8,
+  IMAGE_FORMAT: 'jpeg',
+  LOCALE_DEFAULT: 'bn_BD',
+  SITE_NAME_MAX_LENGTH: 100,
+  URL_MAX_LENGTH: 2000,
 } as const;
+
+export type SeoOpenGraphTypeType = (typeof SEO_OPEN_GRAPH_TYPE)[keyof typeof SEO_OPEN_GRAPH_TYPE];

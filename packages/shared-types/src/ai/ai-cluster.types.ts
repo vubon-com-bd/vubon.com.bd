@@ -1,17 +1,45 @@
-import { BaseEntity } from '../common/base.types';
-import { AI_CLUSTER } from '@vubon/shared-constants/src/ai/ai-cluster.constants';
-import { AIVector } from './ai-vector.types';
-import { AI } from './ai.types';
+/**
+ * AI Cluster Types
+ * @module shared-types/ai
+ *
+ * Values আসে shared-constants/ai/ai-cluster.constants থেকে।
+ */
 
-export interface AICluster extends BaseEntity {
-  clusterId: string;
-  aiId: string;
-  ai: AI;
-  type: keyof typeof AI_CLUSTER.TYPES | string;
-  vectors: AIVector[];
-  centroid: AIVector;
-  size: number;
-  silhouetteScore: number;
-  isActive: boolean;
-  metadata: Record<string, unknown>;
+import type { AI_CLUSTER_ALGORITHM, AI_CLUSTER_STATUS } from '@vubon/shared-constants/ai';
+
+export type AiClusterAlgorithmValue =
+  (typeof AI_CLUSTER_ALGORITHM)[keyof typeof AI_CLUSTER_ALGORITHM];
+
+export type AiClusterStatusValue = (typeof AI_CLUSTER_STATUS)[keyof typeof AI_CLUSTER_STATUS];
+
+export interface AiClusterJob {
+  readonly id: string;
+  readonly algorithm: AiClusterAlgorithmValue;
+  readonly status: AiClusterStatusValue;
+  readonly clusterCount: number;
+  readonly sourceCount: number;
+  readonly sourceType: string;
+  readonly iterations?: number;
+  readonly startedAt: string;
+  readonly completedAt?: string;
+  readonly durationMs?: number;
+  readonly error?: string;
+  readonly createdBy?: string;
+}
+
+export interface AiCluster {
+  readonly id: string;
+  readonly jobId: string;
+  readonly label: string;
+  readonly centroid: readonly number[];
+  readonly size: number;
+  readonly memberIds: readonly string[];
+  readonly metadata?: Readonly<Record<string, unknown>>;
+}
+
+export interface AiClusterRequest {
+  readonly algorithm: AiClusterAlgorithmValue;
+  readonly sourceType: string;
+  readonly clusterCount?: number;
+  readonly maxIterations?: number;
 }

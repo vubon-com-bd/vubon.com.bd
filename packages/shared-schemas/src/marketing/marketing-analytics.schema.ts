@@ -1,45 +1,51 @@
+/**
+ * Marketing Analytics Schema
+ * @module shared-schemas/marketing
+ *
+ * Values আসে shared-constants/marketing/marketing-analytics.constants থেকে।
+ */
+
 import { z } from 'zod';
-import { BaseSchema } from '../common/base.schema';
-import { MARKETING_ANALYTICS } from '@vubon/shared-constants/src/marketing/marketing-analytics.constants';
-import { CampaignSchema } from './campaign.schema';
-import { PromotionSchema } from './promotion.schema';
+import {
+  MARKETING_ANALYTICS_METRIC,
+  MARKETING_ANALYTICS_PERIOD,
+  MARKETING_ANALYTICS_ATTRIBUTION,
+} from '@vubon/shared-constants/marketing';
 
-const marketingAnalyticsTypeKeys = Object.keys(MARKETING_ANALYTICS.TYPES) as [string, ...string[]];
-const marketingAnalyticsMetricKeys = Object.keys(MARKETING_ANALYTICS.METRICS) as [
-  string,
-  ...string[],
-];
-const marketingAnalyticsGranularityKeys = Object.keys(
-  MARKETING_ANALYTICS.ANALYTICS_GRANULARITY
-) as [string, ...string[]];
+export const MarketingAnalyticsMetricSchema = z.enum(
+  Object.values(MARKETING_ANALYTICS_METRIC) as [string, ...string[]]
+);
 
-export const MarketingAnalyticsSchema = BaseSchema.extend({
-  analyticsId: z.string().uuid(),
-  campaignId: z.string().uuid().optional(),
-  campaign: CampaignSchema.optional(),
-  promotionId: z.string().uuid().optional(),
-  promotion: PromotionSchema.optional(),
-  type: z.enum(marketingAnalyticsTypeKeys),
-  metric: z.enum(marketingAnalyticsMetricKeys),
+export const MarketingAnalyticsPeriodSchema = z.enum(
+  Object.values(MARKETING_ANALYTICS_PERIOD) as [string, ...string[]]
+);
+
+export const MarketingAnalyticsAttributionSchema = z.enum(
+  Object.values(MARKETING_ANALYTICS_ATTRIBUTION) as [string, ...string[]]
+);
+
+export const MarketingAnalyticsSchema = z.object({
+  metric: MarketingAnalyticsMetricSchema,
+  period: MarketingAnalyticsPeriodSchema,
   value: z.number(),
-  period: z.enum(marketingAnalyticsGranularityKeys),
-  timestamp: z.date(),
-  metadata: z.record(z.unknown()).optional(),
+  previousValue: z.number().optional(),
+  changePercent: z.number().optional(),
+  periodStart: z.string().datetime(),
+  periodEnd: z.string().datetime(),
+  capturedAt: z.string().datetime(),
 });
 
-export const MarketingAnalyticsSummarySchema = z.object({
-  impressions: z.number().min(0),
-  reach: z.number().min(0),
-  clicks: z.number().min(0),
-  ctr: z.number().min(0).max(100),
-  conversions: z.number().min(0),
-  conversionRate: z.number().min(0).max(100),
-  revenue: z.number().min(0),
-  roi: z.number().min(0),
-  cpa: z.number().min(0),
-  cpc: z.number().min(0),
-  cpm: z.number().min(0),
-  ltv: z.number().min(0),
-  cac: z.number().min(0),
-  engagementRate: z.number().min(0).max(100),
+export const MarketingAttributionSchema = z.object({
+  channel: z.string().min(1).max(100),
+  source: z.string().min(1).max(100),
+  campaignId: z.string().max(100).optional(),
+  conversions: z.number().int().nonnegative(),
+  revenue: z.number().nonnegative(),
+  currency: z.string().length(3),
+  attributionModel: MarketingAnalyticsAttributionSchema,
 });
+
+export type MarketingAnalyticsMetricSchemaType = z.infer<typeof MarketingAnalyticsMetricSchema>;
+export type MarketingAnalyticsPeriodSchemaType = z.infer<typeof MarketingAnalyticsPeriodSchema>;
+export type MarketingAnalyticsSchemaType = z.infer<typeof MarketingAnalyticsSchema>;
+export type MarketingAttributionSchemaType = z.infer<typeof MarketingAttributionSchema>;

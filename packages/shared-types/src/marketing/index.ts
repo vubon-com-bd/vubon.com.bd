@@ -1,3 +1,6 @@
+// shared-types/marketing/index.ts
+// Marketing domain barrel export
+
 export * from './marketing.types';
 export * from './campaign.types';
 export * from './campaign-type.types';

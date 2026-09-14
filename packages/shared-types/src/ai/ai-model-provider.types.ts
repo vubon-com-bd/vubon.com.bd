@@ -1,26 +1,24 @@
-import { TypeObject } from '../common/types.types';
-import { AI_MODEL_PROVIDER } from '@vubon/shared-constants/src/ai/ai-model-provider.constants';
+/**
+ * AI Model Provider Value Types
+ * @module shared-types/ai
+ */
 
-export interface AIModelProvider extends TypeObject {
-  type: keyof typeof AI_MODEL_PROVIDER.TYPES | string;
-  category: 'ai_model_provider';
-  apiEndpoint: string;
-  apiVersion: string;
-  isOpenAI: boolean;
-  isGoogle: boolean;
-  isAws: boolean;
-  isAzure: boolean;
-  isMeta: boolean;
-  isAnthropic: boolean;
-  isCohere: boolean;
-  isHuggingFace: boolean;
-  isReka: boolean;
-  isMistral: boolean;
-  isGemini: boolean;
-  isClaude: boolean;
-  isLlama: boolean;
-  isBert: boolean;
-  isT5: boolean;
+import type {
+  AI_MODEL_PROVIDER,
+  AI_PROVIDER_ENV_KEY,
+  AI_PROVIDER_REGION,
+} from '@vubon/shared-constants/ai';
+
+export type AiModelProviderValue = (typeof AI_MODEL_PROVIDER)[keyof typeof AI_MODEL_PROVIDER];
+
+export type AiProviderEnvKeyValue = (typeof AI_PROVIDER_ENV_KEY)[keyof typeof AI_PROVIDER_ENV_KEY];
+
+export type AiProviderRegionValue = (typeof AI_PROVIDER_REGION)[keyof typeof AI_PROVIDER_REGION];
+
+export interface AiModelProviderMetadata {
+  readonly value: AiModelProviderValue;
+  readonly label: string;
+  readonly envKey: AiProviderEnvKeyValue;
+  readonly region: AiProviderRegionValue;
+  readonly supportsStreaming: boolean;
 }
-
-export type AIModelProviderKey = keyof typeof AI_MODEL_PROVIDER.TYPES;
