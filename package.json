@@ -14,7 +14,11 @@
     "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules"
   },
   "devDependencies": {
+    "@types/bcrypt": "6.0.0",
     "@types/node": "^20.0.0",
+    "@types/passport-facebook": "3.0.4",
+    "@types/passport-github2": "1.2.9",
+    "@types/passport-google-oauth20": "2.0.17",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.5",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
@@ -30,6 +34,9 @@
   },
   "packageManager": "pnpm@9.0.0",
   "dependencies": {
+    "passport-facebook": "3.0.0",
+    "passport-github2": "0.1.12",
+    "passport-google-oauth20": "2.0.0",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   }

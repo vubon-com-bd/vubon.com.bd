@@ -1,0 +1,10 @@
+export { PermissionGate } from './permission-gate';
+export type { PermissionGateProps } from './permission-gate';
+export { RoleGate } from './role-gate';
+export type { RoleGateProps } from './role-gate';
+export { AuthGate } from './auth-gate';
+export type { AuthGateProps } from './auth-gate';
+export { LoginWall } from './LoginWall';
+export type { LoginWallProps } from './LoginWall';
+export { BaseGate } from './base.component';
+export type { BaseGateProps } from './base.component';
