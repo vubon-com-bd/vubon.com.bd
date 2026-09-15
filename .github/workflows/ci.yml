@@ -2,10 +2,17 @@ name: CI/CD
 
 on:
   push:
-    branches: [ main, master, develop, feature/auth-ports ]
+    branches: [ main, master, develop, feature/auth-ports, feature/Bishmillah ]
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
+
+# 🔑 REQUIRED for CodeQL SARIF upload
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+  pull-requests: read
 
 env:
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
@@ -137,7 +144,8 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Run tests
-        run: pnpm --filter @vubon/backend-service test || true
+        run: pnpm --filter @vubon/backend-service test
+        continue-on-error: true
 
   security:
     name: 🔒 Security Scan
@@ -160,7 +168,8 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Dependency Audit
-        run: pnpm audit --prod --audit-level=high || true
+        run: pnpm audit --prod --audit-level=high
+        continue-on-error: true
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
