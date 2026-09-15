@@ -37,3 +37,4 @@ export * from './device.constants';
 // Cross-cutting
 export * from './audit.constants';
 export * from './settings.constants';
+export * from './api-routes';

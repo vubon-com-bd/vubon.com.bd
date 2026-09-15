@@ -40,6 +40,6 @@
     "@vubon/shared-schemas": "workspace:*",
     "@vubon/shared-types": "workspace:*",
     "@vubon/shared-utils": "workspace:*",
-    "zod": "4.5.4"
+    "zod": "3.25.76"
   }
 }

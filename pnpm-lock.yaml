@@ -64,8 +64,8 @@ importers:
         specifier: workspace:*
         version: link:../shared-utils
       zod:
-        specifier: 4.5.4
-        version: 4.5.4
+        specifier: 3.25.76
+        version: 3.25.76
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
