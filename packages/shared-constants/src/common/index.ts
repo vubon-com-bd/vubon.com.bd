@@ -38,3 +38,4 @@ export * from './device.constants';
 export * from './audit.constants';
 export * from './settings.constants';
 export * from './api-routes';
+export * from './breakpoints';

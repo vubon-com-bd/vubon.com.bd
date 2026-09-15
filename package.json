@@ -25,7 +25,8 @@
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
-    "globals": "^15.0.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^15.15.0",
     "prettier": "^3.0.0",
     "typescript": "^5.0.0"
   },
@@ -34,10 +35,13 @@
   },
   "packageManager": "pnpm@9.0.0",
   "dependencies": {
+    "@tanstack/react-query": "^5.102.8",
+    "idb": "8.0.3",
     "passport-facebook": "3.0.0",
     "passport-github2": "0.1.12",
     "passport-google-oauth20": "2.0.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "socket.io-client": "4.8.3"
   }
 }
