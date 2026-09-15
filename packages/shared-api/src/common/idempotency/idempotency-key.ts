@@ -2,14 +2,19 @@ import type { IdempotencyRecord } from './idempotency.types';
 
 const DEFAULT_TTL_MS = 24 * 60 * 60 * 1000; // 24h
 
-/** Generate a UUID v4-ish idempotency key. */
+/**
+ * Generate a cryptographically secure idempotency key.
+ * No Math.random fallback — throws if Web Crypto is unavailable.
+ */
 export function generateIdempotencyKey(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return crypto.randomUUID();
+  const c = globalThis.crypto as Crypto | undefined;
+  if (!c) {
+    throw new Error('Web Crypto unavailable — cannot generate secure idempotency key');
   }
-  // Fallback (non-crypto, still unique enough for idempotency)
-  const rnd = () => Math.random().toString(36).slice(2, 10);
-  return `${Date.now().toString(36)}-${rnd()}-${rnd()}-${rnd()}`;
+  if (typeof c.randomUUID === 'function') return c.randomUUID();
+  const bytes = new Uint8Array(16);
+  c.getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 /** In-memory store to deduplicate in-flight + recent keys. */
@@ -28,11 +33,7 @@ export class IdempotencyStore {
 
   remember(key: string, ttlMs: number = DEFAULT_TTL_MS): void {
     const now = Date.now();
-    this.records.set(key, {
-      key,
-      createdAt: now,
-      expiresAt: now + ttlMs,
-    });
+    this.records.set(key, { key, createdAt: now, expiresAt: now + ttlMs });
   }
 
   forget(key: string): void {

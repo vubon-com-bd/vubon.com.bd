@@ -6,3 +6,5 @@ export { redirectMiddleware } from './redirect.middleware';
 export type { RedirectRule } from './redirect.middleware';
 export { composeMiddleware, baseMiddleware } from './base.middleware';
 export type { MiddlewareHandler, ComposeMiddlewareOptions } from './base.middleware';
+export { hstsMiddleware } from './hsts.middleware';
+export type { HstsOptions } from './hsts.middleware';

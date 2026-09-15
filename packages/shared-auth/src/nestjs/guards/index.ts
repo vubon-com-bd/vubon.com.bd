@@ -8,3 +8,4 @@ export { PublicGuard } from './public.guard';
 export { OwnerGuard } from './owner.guard';
 export type { OwnerGuardOptions } from './owner.guard';
 export { DeviceGuard } from './device.guard';
+export { CsrfGuard } from './csrf.guard';

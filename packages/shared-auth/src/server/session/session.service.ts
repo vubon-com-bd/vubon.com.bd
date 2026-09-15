@@ -1,7 +1,18 @@
+import { randomBytes } from 'node:crypto';
 import type { SessionInfo } from '../../common/session/session.types';
 import { MemorySessionStore } from './session-store.memory';
 import type { SessionStore } from './session-store.interface';
 import type { SessionServiceContract } from './session.service.interface';
+
+/**
+ * Cryptographically secure session id.
+ * Format: sess_<base36-time>_<16 random bytes hex>
+ */
+function generateSessionId(): string {
+  const time = Date.now().toString(36);
+  const rand = randomBytes(16).toString('hex');
+  return `sess_${time}_${rand}`;
+}
 
 /**
  * Server-side session service.
@@ -18,7 +29,7 @@ export class SessionService implements SessionServiceContract {
     ttlSeconds: number;
   }): Promise<SessionInfo> {
     const now = Date.now();
-    const sessionId = `sess_${now.toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+    const sessionId = generateSessionId();
     const session: SessionInfo = {
       sessionId: sessionId as SessionInfo['sessionId'],
       userId: input.userId as SessionInfo['userId'],

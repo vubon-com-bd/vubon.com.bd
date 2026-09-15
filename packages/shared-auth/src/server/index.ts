@@ -1,8 +1,6 @@
 /**
  * Server-side auth services.
- * ⚠️ SERVER-ONLY. Do NOT import from client / react bundles.
- * Layer: Server
- * Owner: Security Team
+ * ⚠️ SERVER-ONLY.
  */
 export * from './jwt';
 export * from './password';
@@ -16,3 +14,4 @@ export * from './sso';
 export * from './biometric';
 export * from './verification';
 export * from './rbac';
+export * from './csrf';

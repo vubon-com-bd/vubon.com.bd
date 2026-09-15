@@ -16,10 +16,17 @@ export function readCsrfCookie(config: CsrfConfig = DEFAULT_CSRF_CONFIG): string
   return decodeURIComponent(match.split('=')[1] ?? '');
 }
 
-/** Generate a random CSRF token (fallback if no cookie available). */
+/**
+ * Generate a random CSRF token using Web Crypto.
+ * Throws if Web Crypto is unavailable.
+ */
 export function generateCsrfToken(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return crypto.randomUUID();
+  const c = globalThis.crypto as Crypto | undefined;
+  if (!c) {
+    throw new Error('Web Crypto unavailable — cannot generate secure CSRF token');
   }
-  return `csrf_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+  if (typeof c.randomUUID === 'function') return c.randomUUID();
+  const bytes = new Uint8Array(32);
+  c.getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 }

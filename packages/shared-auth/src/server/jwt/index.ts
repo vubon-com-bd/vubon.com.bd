@@ -5,3 +5,4 @@ export { verifyJwt, decodeJwtServer } from './jwt-verifier';
 export { JwtService, jwtService } from './jwt.service';
 export { InMemoryJwtBlacklist, jwtBlacklist } from './jwt-blacklist';
 export type { JwtBlacklistStore } from './jwt-blacklist';
+export { verifyJwtWithBlacklist } from './jwt-verify-with-blacklist';

@@ -10,4 +10,10 @@ export type { EmailVerificationRecord, EmailVerificationSender } from './email-v
 export { createPhoneVerification, InMemoryPhoneVerificationStore } from './phone-verification';
 export type { PhoneVerificationRecord, PhoneVerificationSender } from './phone-verification';
 export type { OtpSender, OtpRecord, OtpStore } from './otp.interface';
+export {
+  burnPasswordTiming,
+  constantLoginResponse,
+  constantForgotPasswordResponse,
+} from './enumeration-guard';
+export type { ConstantAuthResponse } from './enumeration-guard';
 export { VerificationService, verificationService } from './verification.service';

@@ -5,14 +5,28 @@ import type { HttpRequestConfig } from '../client/client.types';
  * MUST run FIRST in the request chain, LAST in the response chain.
  * Ensures every request carries X-Request-Id + X-Correlation-Id.
  */
+function generateRequestId(): string {
+  const time = Date.now().toString(36);
+  const c = globalThis.crypto as Crypto | undefined;
+  if (!c || typeof c.getRandomValues !== 'function') {
+    return `req_${time}`;
+  }
+  const bytes = new Uint8Array(8);
+  c.getRandomValues(bytes);
+  const rand = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+  return `req_${time}_${rand}`;
+}
+
 export function correlationInterceptor(config: HttpRequestConfig): HttpRequestConfig {
   const requestId =
     config.headers?.['X-Request-Id'] ??
-    config.meta?.requestId ??
-    `req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+    (config.meta?.requestId as string | undefined) ??
+    generateRequestId();
 
   const correlationId =
-    config.headers?.['X-Correlation-Id'] ?? config.meta?.correlationId ?? requestId;
+    config.headers?.['X-Correlation-Id'] ??
+    (config.meta?.correlationId as string | undefined) ??
+    requestId;
 
   return {
     ...config,

@@ -1,10 +1,14 @@
-import { generateOpaqueToken } from '../../common/token/token.generator';
+import { randomBytes } from 'node:crypto';
 import { createOtp, verifyOtp } from './otp';
 import type {
   VerificationRecord,
   VerificationRequest,
   VerificationServiceContract,
 } from './verification.service.interface';
+
+function generateVerificationId(): string {
+  return `ver_${randomBytes(16).toString('hex')}`;
+}
 
 /**
  * Server-side email/phone verification service.
@@ -14,7 +18,7 @@ export class VerificationService implements VerificationServiceContract {
   private readonly store = new Map<string, VerificationRecord>();
 
   async start(input: VerificationRequest): Promise<{ id: string; expiresAt: number }> {
-    const id = generateOpaqueToken(16);
+    const id = generateVerificationId();
     const { code, hash } = await createOtp(6);
     const expiresAt = Date.now() + 10 * 60 * 1000;
     this.store.set(id, {
@@ -27,7 +31,7 @@ export class VerificationService implements VerificationServiceContract {
       attempts: 0,
       maxAttempts: 5,
     });
-    // NOTE: `code` must be delivered via email/SMS — do NOT log it.
+    // `code` must be delivered via email/SMS — do NOT log it.
     void code;
     return { id, expiresAt };
   }

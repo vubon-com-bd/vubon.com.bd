@@ -10,3 +10,5 @@ export {
   tokenRotationTracker,
 } from './token-rotation';
 export type { RotationRecord, RotationStore } from './token-rotation';
+export { handleRefreshFlow } from './refresh-flow.hook';
+export type { RefreshFlowDeps } from './refresh-flow.hook';

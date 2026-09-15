@@ -4,13 +4,12 @@ import type { DeviceInfo } from './device.types';
 const DEVICE_ID_KEY = 'vubon:device-id';
 
 function randomDeviceId(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return crypto.randomUUID();
+  if (typeof crypto === 'undefined' || !('randomUUID' in crypto)) {
+    throw new Error('Web Crypto unavailable — cannot generate secure device id');
   }
-  return `dev_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+  return crypto.randomUUID();
 }
 
-/** Reads/writes device id in localStorage (safe — not a secret). */
 export class DeviceTracker {
   private cached: DeviceInfo | null = null;
 
