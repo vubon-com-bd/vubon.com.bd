@@ -10,10 +10,55 @@
       "require": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./common": {
-      "import": "./dist/common/index.js",
-      "require": "./dist/common/index.js",
-      "types": "./dist/common/index.d.ts"
+    "./primitive": {
+      "import": "./dist/primitive/index.js",
+      "require": "./dist/primitive/index.js",
+      "types": "./dist/primitive/index.d.ts"
+    },
+    "./utility": {
+      "import": "./dist/utility/index.js",
+      "require": "./dist/utility/index.js",
+      "types": "./dist/utility/index.d.ts"
+    },
+    "./integration": {
+      "import": "./dist/integration/index.js",
+      "require": "./dist/integration/index.js",
+      "types": "./dist/integration/index.d.ts"
+    },
+    "./table": {
+      "import": "./dist/table/index.js",
+      "require": "./dist/table/index.js",
+      "types": "./dist/table/index.d.ts"
+    },
+    "./form": {
+      "import": "./dist/form/index.js",
+      "require": "./dist/form/index.js",
+      "types": "./dist/form/index.d.ts"
+    },
+    "./ui": {
+      "import": "./dist/ui/index.js",
+      "require": "./dist/ui/index.js",
+      "types": "./dist/ui/index.d.ts"
+    },
+    "./business": {
+      "import": "./dist/business/index.js",
+      "require": "./dist/business/index.js",
+      "types": "./dist/business/index.d.ts"
+    },
+    "./admin": {
+      "import": "./dist/admin/index.js",
+      "require": "./dist/admin/index.js",
+      "types": "./dist/admin/index.d.ts"
+    },
+    "./seller": {
+      "import": "./dist/seller/index.js",
+      "require": "./dist/seller/index.js",
+      "types": "./dist/seller/index.d.ts"
+    },
+    "./customer": {
+      "import": "./dist/customer/index.js",
+      "require": "./dist/customer/index.js",
+      "types": "./dist/customer/index.d.ts"
     }
   },
   "scripts": {

@@ -39,3 +39,4 @@ export * from './audit.constants';
 export * from './settings.constants';
 export * from './api-routes';
 export * from './breakpoints';
+export * from './ui-labels';

@@ -1,20 +1,23 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
+    "rootDir": "./src",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "composite": false,
-    "module": "CommonJS",
-    "target": "ES2020",
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "target": "ES2022",
+    "moduleResolution": "Bundler",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "skipLibCheck": true,
     "jsx": "react-jsx",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": ["node", "react"],
+    "resolveJsonModule": true,
+    "isolatedModules": true,
     "baseUrl": ".",
     "paths": {
       "@vubon/shared-constants": ["../shared-constants/src/index.ts"],
@@ -28,11 +31,15 @@
       "@vubon/shared-config": ["../shared-config/src/index.ts"],
       "@vubon/shared-config/*": ["../shared-config/src/*"],
       "@vubon/shared-api": ["../shared-api/src/index.ts"],
+      "@vubon/shared-api/common": ["../shared-api/src/common/index.ts"],
+      "@vubon/shared-api/common/*": ["../shared-api/src/common/*"],
       "@vubon/shared-api/*": ["../shared-api/src/*"],
       "@vubon/shared-auth": ["../shared-auth/src/index.ts"],
+      "@vubon/shared-auth/common": ["../shared-auth/src/common/index.ts"],
+      "@vubon/shared-auth/common/*": ["../shared-auth/src/common/*"],
       "@vubon/shared-auth/*": ["../shared-auth/src/*"]
     }
   },
-  "include": ["src/**/*", "../shared-constants/src/**/*", "../shared-types/src/**/*", "../shared-schemas/src/**/*", "../shared-utils/src/**/*", "../shared-config/src/**/*", "../shared-api/src/**/*", "../shared-auth/src/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"]
 }
