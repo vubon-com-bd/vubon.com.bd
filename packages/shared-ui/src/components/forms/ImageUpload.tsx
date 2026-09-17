@@ -10,15 +10,6 @@ export interface ImageUploadProps {
   readonly size?: number;
 }
 
-/**
- * Validate that a URL is a safe blob URL
- * Only allows blob: protocol to prevent any HTML injection
- */
-function isSafeBlobUrl(url: string | null): url is string {
-  if (!url) return false;
-  return url.startsWith('blob:');
-}
-
 export const ImageUpload = forwardRef<HTMLInputElement, ImageUploadProps>(
   function ImageUpload(
     { onFile, accept = 'image/*', disabled, className, size = 96 },
@@ -47,8 +38,6 @@ export const ImageUpload = forwardRef<HTMLInputElement, ImageUploadProps>(
       onFile?.(file);
     };
 
-    const safePreview = isSafeBlobUrl(preview) ? preview : null;
-
     return (
       <div className={cn('inline-flex flex-col items-center gap-2', className)}>
         <button
@@ -56,12 +45,17 @@ export const ImageUpload = forwardRef<HTMLInputElement, ImageUploadProps>(
           disabled={disabled}
           onClick={() => innerRef.current?.click()}
           aria-label="Upload image"
-          style={{ width: size, height: size }}
+          style={{
+            width: size,
+            height: size,
+            backgroundImage: preview ? `url("${preview}")` : undefined,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+          }}
           className="overflow-hidden rounded-full border-2 border-dashed border-slate-300 bg-slate-50 text-slate-400 hover:border-slate-400 disabled:opacity-50"
         >
-          {safePreview ? (
-            <img src={safePreview} alt="" className="h-full w-full object-cover" />
-          ) : (
+          {!preview && (
             <span aria-hidden="true" className="text-2xl">
               +
             </span>
