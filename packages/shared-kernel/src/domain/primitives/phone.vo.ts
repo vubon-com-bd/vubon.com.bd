@@ -1,46 +1,34 @@
-/**
- * Phone Value Object (BD + international)
- * @module shared-kernel/domain/primitives
- *
- * Values আসে shared-constants/common থেকে।
- */
-import { REGEX } from '@vubon/shared-constants/common';
-import { VALIDATION } from '@vubon/shared-constants/common';
+import { REGEX, VALIDATION } from '@vubon/shared-constants/common';
 import type { Phone } from '@vubon/shared-types/common';
 import { BaseVO } from '../base/base.vo';
 
-export class PhoneVO extends BaseVO<Phone> {
+export abstract class BasePhoneVO extends BaseVO<Phone> {
+  protected constructor(value: Phone) {
+    super(value);
+  }
+
+  protected static normalize(raw: string): Phone {
+    return raw.replace(/\s+/g, '') as Phone;
+  }
+
+  protected static validate(raw: string): void {
+    const normalized = raw.replace(/\s+/g, '');
+    if (!REGEX.PHONE_BD.test(normalized) && !REGEX.PHONE_INTL.test(normalized)) {
+      throw new Error(`Invalid phone: ${normalized}`);
+    }
+    if (normalized.length > VALIDATION.PHONE_MAX_LENGTH) {
+      throw new Error(`Phone too long (max ${VALIDATION.PHONE_MAX_LENGTH})`);
+    }
+  }
+}
+
+export class PhoneVO extends BasePhoneVO {
   private constructor(value: Phone) {
     super(value);
   }
 
-  static ofBd(raw: string): PhoneVO {
-    if (typeof raw !== 'string') {
-      throw new Error('Phone must be a string');
-    }
-    const cleaned = raw.replace(/[\s-]/g, '');
-    if (!REGEX.PHONE_BD.test(cleaned)) {
-      throw new Error(`Invalid BD phone number: ${raw}`);
-    }
-    return new PhoneVO(cleaned as Phone);
-  }
-
-  static ofInternational(raw: string): PhoneVO {
-    if (typeof raw !== 'string') {
-      throw new Error('Phone must be a string');
-    }
-    const cleaned = raw.replace(/[\s-]/g, '');
-    if (
-      cleaned.length < VALIDATION.PHONE_MIN_LENGTH ||
-      cleaned.length > VALIDATION.PHONE_MAX_LENGTH
-    ) {
-      throw new Error(
-        `Phone length must be between ${VALIDATION.PHONE_MIN_LENGTH} and ${VALIDATION.PHONE_MAX_LENGTH}`
-      );
-    }
-    if (!REGEX.PHONE_INTL.test(cleaned)) {
-      throw new Error(`Invalid international phone: ${raw}`);
-    }
-    return new PhoneVO(cleaned as Phone);
+  static of(raw: string): PhoneVO {
+    BasePhoneVO.validate(raw);
+    return new PhoneVO(BasePhoneVO.normalize(raw));
   }
 }

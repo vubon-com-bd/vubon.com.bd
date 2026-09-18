@@ -1,13 +1,22 @@
-/**
- * Code Value Object (OTP, PIN, Verification Code)
- * @module shared-kernel/domain/primitives
- *
- * Values আসে shared-constants/common থেকে।
- */
-import { REGEX } from '@vubon/shared-constants/common';
 import { BaseVO } from '../base/base.vo';
 
-export class OtpCodeVO extends BaseVO<string> {
+export abstract class BaseCodeVO extends BaseVO<string> {
+  protected constructor(value: string) {
+    super(value);
+  }
+
+  protected static validateNonEmpty(raw: string, field = 'code'): void {
+    if (!raw || raw.trim().length === 0) {
+      throw new Error(`${field} cannot be empty`);
+    }
+  }
+
+  get length(): number {
+    return this.value.length;
+  }
+}
+
+export class OtpCodeVO extends BaseCodeVO {
   private static readonly MIN = 4;
   private static readonly MAX = 8;
 
@@ -16,21 +25,18 @@ export class OtpCodeVO extends BaseVO<string> {
   }
 
   static of(raw: string): OtpCodeVO {
-    if (typeof raw !== 'string') {
-      throw new Error('OTP must be a string');
+    BaseCodeVO.validateNonEmpty(raw, 'OTP');
+    if (raw.length < OtpCodeVO.MIN || raw.length > OtpCodeVO.MAX) {
+      throw new Error(`OTP must be between ${OtpCodeVO.MIN} and ${OtpCodeVO.MAX} chars`);
     }
-    const trimmed = raw.trim();
-    if (trimmed.length < OtpCodeVO.MIN || trimmed.length > OtpCodeVO.MAX) {
-      throw new Error(`OTP length must be ${OtpCodeVO.MIN}-${OtpCodeVO.MAX} digits`);
+    if (!/^\d+$/.test(raw)) {
+      throw new Error('OTP must contain digits only');
     }
-    if (!REGEX.OTP.test(trimmed)) {
-      throw new Error('OTP must contain only digits');
-    }
-    return new OtpCodeVO(trimmed);
+    return new OtpCodeVO(raw);
   }
 }
 
-export class PinCodeVO extends BaseVO<string> {
+export class PinCodeVO extends BaseCodeVO {
   private static readonly LENGTH = 6;
 
   private constructor(value: string) {
@@ -38,21 +44,15 @@ export class PinCodeVO extends BaseVO<string> {
   }
 
   static of(raw: string): PinCodeVO {
-    if (typeof raw !== 'string') {
-      throw new Error('PIN must be a string');
-    }
-    const trimmed = raw.trim();
-    if (trimmed.length !== PinCodeVO.LENGTH) {
+    BaseCodeVO.validateNonEmpty(raw, 'PIN');
+    if (raw.length !== PinCodeVO.LENGTH) {
       throw new Error(`PIN must be exactly ${PinCodeVO.LENGTH} digits`);
     }
-    if (!/^\d+$/.test(trimmed)) {
-      throw new Error('PIN must contain only digits');
+    if (!/^\d+$/.test(raw)) {
+      throw new Error('PIN must contain digits only');
     }
-    return new PinCodeVO(trimmed);
+    return new PinCodeVO(raw);
   }
 }
 
-/**
- * Reference to satisfy import contract (REGEX.PIN may not exist yet).
- */
 export const PIN_PATTERN = /^\d{6}$/;

@@ -1,8 +1,8 @@
+import { ERROR_CODE, type ErrorCodeType } from '@vubon/shared-constants/common';
 import { DomainError } from '@vubon/shared-kernel/domain/errors/domain.error';
-import type { ErrorCodeType } from '@vubon/shared-constants/common';
 
 export class SessionExpiredError extends DomainError {
-  readonly code: ErrorCodeType = 'AUTH-002';
+  readonly code: ErrorCodeType = ERROR_CODE.AUTH_SESSION_EXPIRED;
   readonly httpStatus = 401;
 
   constructor(sessionId: string) {
@@ -11,7 +11,7 @@ export class SessionExpiredError extends DomainError {
 }
 
 export class SessionRevokedError extends DomainError {
-  readonly code: ErrorCodeType = 'AUTH-003';
+  readonly code: ErrorCodeType = ERROR_CODE.AUTH_SESSION_REVOKED;
   readonly httpStatus = 401;
 
   constructor(sessionId: string) {

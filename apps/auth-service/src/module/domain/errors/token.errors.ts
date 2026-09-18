@@ -1,20 +1,20 @@
+import { ERROR_CODE, type ErrorCodeType } from '@vubon/shared-constants/common';
 import { DomainError } from '@vubon/shared-kernel/domain/errors/domain.error';
-import type { ErrorCodeType } from '@vubon/shared-constants/common';
 
 export class TokenExpiredError extends DomainError {
-  readonly code: ErrorCodeType = 'AUTH-002';
+  readonly code: ErrorCodeType = ERROR_CODE.AUTH_TOKEN_EXPIRED;
   readonly httpStatus = 401;
 
-  constructor() {
-    super('Token has expired');
+  constructor(tokenId: string) {
+    super(`Token expired: ${tokenId}`, { tokenId });
   }
 }
 
 export class InvalidTokenError extends DomainError {
-  readonly code: ErrorCodeType = 'AUTH-003';
+  readonly code: ErrorCodeType = ERROR_CODE.AUTH_TOKEN_INVALID;
   readonly httpStatus = 401;
 
-  constructor() {
-    super('Token is invalid');
+  constructor(reason: string) {
+    super(`Invalid token: ${reason}`, { reason });
   }
 }

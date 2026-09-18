@@ -1,11 +1,11 @@
+import { ERROR_CODE, type ErrorCodeType } from '@vubon/shared-constants/common';
 import { DomainError } from '@vubon/shared-kernel/domain/errors/domain.error';
-import type { ErrorCodeType } from '@vubon/shared-constants/common';
 
 export class OAuthFailedError extends DomainError {
-  readonly code: ErrorCodeType = 'AUTH-001';
+  readonly code: ErrorCodeType = ERROR_CODE.AUTH_OAUTH_FAILED;
   readonly httpStatus = 401;
 
-  constructor(provider: string) {
-    super(`OAuth failed for provider: ${provider}`, { provider });
+  constructor(provider: string, reason: string) {
+    super(`OAuth failed for ${provider}: ${reason}`, { provider, reason });
   }
 }

@@ -1,11 +1,11 @@
+import { ERROR_CODE, type ErrorCodeType } from '@vubon/shared-constants/common';
 import { DomainError } from '@vubon/shared-kernel/domain/errors/domain.error';
-import type { ErrorCodeType } from '@vubon/shared-constants/common';
 
 export class BiometricFailedError extends DomainError {
-  readonly code: ErrorCodeType = 'AUTH-001';
+  readonly code: ErrorCodeType = ERROR_CODE.AUTH_BIOMETRIC_FAILED;
   readonly httpStatus = 401;
 
-  constructor() {
-    super('Biometric authentication failed');
+  constructor(reason: string) {
+    super(`Biometric failed: ${reason}`, { reason });
   }
 }

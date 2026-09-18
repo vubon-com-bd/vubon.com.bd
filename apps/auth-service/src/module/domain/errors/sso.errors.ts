@@ -1,11 +1,11 @@
+import { ERROR_CODE, type ErrorCodeType } from '@vubon/shared-constants/common';
 import { DomainError } from '@vubon/shared-kernel/domain/errors/domain.error';
-import type { ErrorCodeType } from '@vubon/shared-constants/common';
 
 export class SsoFailedError extends DomainError {
-  readonly code: ErrorCodeType = 'AUTH-001';
+  readonly code: ErrorCodeType = ERROR_CODE.AUTH_SSO_FAILED;
   readonly httpStatus = 401;
 
-  constructor(provider: string) {
-    super(`SSO failed for provider: ${provider}`, { provider });
+  constructor(provider: string, reason: string) {
+    super(`SSO failed for ${provider}: ${reason}`, { provider, reason });
   }
 }

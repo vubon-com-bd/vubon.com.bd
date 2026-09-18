@@ -14,9 +14,10 @@ export abstract class AggregateRoot<TId = string> extends BaseEntity<TId> {
   protected constructor(
     id: TId,
     createdAt: BaseEntity<TId>['createdAt'],
-    updatedAt: BaseEntity<TId>['updatedAt']
+    updatedAt: BaseEntity<TId>['updatedAt'],
+    deletedAt?: string | null,
   ) {
-    super(id, createdAt, updatedAt);
+    super(id, createdAt, updatedAt, deletedAt);
   }
 
   get version(): number {

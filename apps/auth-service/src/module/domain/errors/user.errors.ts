@@ -1,8 +1,8 @@
+import { ERROR_CODE, type ErrorCodeType } from '@vubon/shared-constants/common';
 import { DomainError } from '@vubon/shared-kernel/domain/errors/domain.error';
-import type { ErrorCodeType } from '@vubon/shared-constants/common';
 
 export class UserNotFoundError extends DomainError {
-  readonly code: ErrorCodeType = 'USR-001';
+  readonly code: ErrorCodeType = ERROR_CODE.USER_NOT_FOUND;
   readonly httpStatus = 404;
 
   constructor(userId: string) {
@@ -11,7 +11,7 @@ export class UserNotFoundError extends DomainError {
 }
 
 export class UserExistsError extends DomainError {
-  readonly code: ErrorCodeType = 'USR-002';
+  readonly code: ErrorCodeType = ERROR_CODE.USER_ALREADY_EXISTS;
   readonly httpStatus = 409;
 
   constructor(email: string) {
@@ -19,9 +19,18 @@ export class UserExistsError extends DomainError {
   }
 }
 
+export class InvalidEmailError extends DomainError {
+  readonly code: ErrorCodeType = ERROR_CODE.AUTH_INVALID_EMAIL;
+  readonly httpStatus = 400;
+
+  constructor(email: string) {
+    super(`Invalid email: ${email}`, { email });
+  }
+}
+
 export class InvalidNameError extends DomainError {
-  readonly code: ErrorCodeType = 'VAL-001';
-  readonly httpStatus = 422;
+  readonly code: ErrorCodeType = ERROR_CODE.AUTH_INVALID_NAME;
+  readonly httpStatus = 400;
 
   constructor(name: string) {
     super(`Invalid name: ${name}`, { name });
@@ -29,8 +38,8 @@ export class InvalidNameError extends DomainError {
 }
 
 export class InvalidPhoneError extends DomainError {
-  readonly code: ErrorCodeType = 'VAL-001';
-  readonly httpStatus = 422;
+  readonly code: ErrorCodeType = ERROR_CODE.AUTH_INVALID_PHONE;
+  readonly httpStatus = 400;
 
   constructor(phone: string) {
     super(`Invalid phone: ${phone}`, { phone });
@@ -38,8 +47,8 @@ export class InvalidPhoneError extends DomainError {
 }
 
 export class InvalidStatusError extends DomainError {
-  readonly code: ErrorCodeType = 'VAL-001';
-  readonly httpStatus = 422;
+  readonly code: ErrorCodeType = ERROR_CODE.AUTH_INVALID_STATUS;
+  readonly httpStatus = 400;
 
   constructor(status: string) {
     super(`Invalid status: ${status}`, { status });
@@ -47,8 +56,8 @@ export class InvalidStatusError extends DomainError {
 }
 
 export class InvalidTypeError extends DomainError {
-  readonly code: ErrorCodeType = 'VAL-001';
-  readonly httpStatus = 422;
+  readonly code: ErrorCodeType = ERROR_CODE.AUTH_INVALID_TYPE;
+  readonly httpStatus = 400;
 
   constructor(type: string) {
     super(`Invalid type: ${type}`, { type });

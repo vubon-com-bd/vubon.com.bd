@@ -1,20 +1,20 @@
+import { ERROR_CODE, type ErrorCodeType } from '@vubon/shared-constants/common';
 import { DomainError } from '@vubon/shared-kernel/domain/errors/domain.error';
-import type { ErrorCodeType } from '@vubon/shared-constants/common';
 
 export class MfaRequiredError extends DomainError {
-  readonly code: ErrorCodeType = 'AUTH-006';
-  readonly httpStatus = 403;
+  readonly code: ErrorCodeType = ERROR_CODE.AUTH_MFA_REQUIRED;
+  readonly httpStatus = 401;
 
-  constructor() {
-    super('MFA is required');
+  constructor(userId: string) {
+    super(`MFA required for user: ${userId}`, { userId });
   }
 }
 
 export class MfaInvalidError extends DomainError {
-  readonly code: ErrorCodeType = 'VAL-001';
-  readonly httpStatus = 422;
+  readonly code: ErrorCodeType = ERROR_CODE.AUTH_MFA_INVALID;
+  readonly httpStatus = 400;
 
-  constructor() {
-    super('MFA code is invalid');
+  constructor(reason: string) {
+    super(`MFA invalid: ${reason}`, { reason });
   }
 }
