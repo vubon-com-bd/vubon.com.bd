@@ -10,7 +10,6 @@ import {
   LOGISTICS_ANALYTICS_METRIC,
   LOGISTICS_ANALYTICS_PERIOD,
 } from '@vubon/shared-constants/logistics';
-import { ShipmentStatusSchema, ShipmentPrioritySchema } from './shipment-status.schema';
 
 export const LogisticsAnalyticsMetricSchema = z.enum(
   Object.values(LOGISTICS_ANALYTICS_METRIC) as [string, ...string[]]
