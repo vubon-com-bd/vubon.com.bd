@@ -59,7 +59,27 @@
       "import": "./dist/common/server.config.js",
       "require": "./dist/common/server.config.js",
       "types": "./dist/common/server.config.d.ts"
-    }
+    },
+    "./infrastructure": {
+     "types": "./dist/infrastructure/index.d.ts",
+     "import": "./dist/infrastructure/index.js",
+     "require": "./dist/infrastructure/index.js"
+    },
+    "./platform": {
+     "types": "./dist/platform/index.d.ts",
+     "import": "./dist/platform/index.js",
+     "require": "./dist/platform/index.js"
+   },
+   "./auth": {
+     "types": "./dist/auth/index.d.ts",
+     "import": "./dist/auth/index.js",
+     "require": "./dist/auth/index.js"
+   },
+   "./security": {
+     "types": "./dist/security/index.d.ts",
+     "import": "./dist/security/index.js",
+     "require": "./dist/security/index.js"
+   }
   },
   "scripts": {
     "build": "tsc",

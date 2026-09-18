@@ -10,6 +10,16 @@
       "require": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
+    "./infrastructure": {
+      "types": "./dist/infrastructure/index.d.ts",
+      "import": "./dist/infrastructure/index.js",
+      "require": "./dist/infrastructure/index.js"
+    },
+    "./security": {
+      "types": "./dist/security/index.d.ts",
+      "import": "./dist/security/index.js",
+      "require": "./dist/security/index.js"
+    },
     "./common": {
       "import": "./dist/common/index.js",
       "require": "./dist/common/index.js",

@@ -1,0 +1,185 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String?
+  status    String   @default("ACTIVE")
+  type      String   @default("CUSTOMER")
+  role      String   @default("USER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions     AuthSession[]
+  tokens       AuthToken[]
+  mfa          AuthMfa?
+  devices      AuthDevice[]
+  socials      AuthSocial[]
+  oauths       AuthOAuth[]
+  ssos         AuthSso[]
+  loginAttempts AuthLoginAttempt[]
+  accountLock  AuthAccountLock?
+  recoveryCodes AuthRecoveryCode[]
+  activities   UserActivity[]
+
+  @@map("users")
+}
+
+model AuthSession {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiry    DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("auth_sessions")
+}
+
+model AuthToken {
+  id        String   @id @default(uuid())
+  userId    String
+  value     String   @unique
+  type      String
+  expiry    DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("auth_tokens")
+}
+
+model AuthMfa {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  secret    String
+  type      String
+  status    String   @default("DISABLED")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("auth_mfa")
+}
+
+model AuthRecoveryCode {
+  id        String   @id @default(uuid())
+  userId    String
+  code      String
+  status    String   @default("ACTIVE")
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("auth_recovery_codes")
+}
+
+model AuthAccountLock {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  reason    String
+  lockedAt  DateTime @default(now())
+  expiresAt DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("auth_account_locks")
+}
+
+model AuthLoginAttempt {
+  id        String   @id @default(uuid())
+  userId    String?
+  ip        String
+  status    String
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("auth_login_attempts")
+}
+
+model AuthDevice {
+  id          String   @id @default(uuid())
+  userId      String
+  fingerprint String
+  type        String
+  status      String   @default("ACTIVE")
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("auth_devices")
+}
+
+model AuthSocial {
+  id         String   @id @default(uuid())
+  userId     String
+  provider   String
+  token      String
+  status     String   @default("ACTIVE")
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("auth_socials")
+}
+
+model AuthOAuth {
+  id         String   @id @default(uuid())
+  userId     String
+  provider   String
+  token      String
+  status     String   @default("ACTIVE")
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("auth_oauths")
+}
+
+model AuthSso {
+  id         String   @id @default(uuid())
+  userId     String
+  provider   String
+  token      String
+  status     String   @default("ACTIVE")
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("auth_ssos")
+}
+
+model UserActivity {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  timestamp DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("user_activities")
+}
