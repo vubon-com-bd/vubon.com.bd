@@ -18,13 +18,13 @@ export function PermissionProvider({
   const checkRole = useCallback(
     (role: string | readonly string[]) =>
       hasRole(roles as readonly Role[], role as Role | readonly Role[], 'any'),
-    [roles],
+    [roles]
   );
 
   const checkPermission = useCallback(
     (permission: string | readonly string[], mode: 'any' | 'all' = 'all') =>
       hasPermission(permissions, permission, mode),
-    [permissions],
+    [permissions]
   );
 
   const value = useMemo(
@@ -34,12 +34,8 @@ export function PermissionProvider({
       hasRole: checkRole,
       hasPermission: checkPermission,
     }),
-    [roles, permissions, checkRole, checkPermission],
+    [roles, permissions, checkRole, checkPermission]
   );
 
-  return (
-    <PermissionContext.Provider value={value}>
-      {children}
-    </PermissionContext.Provider>
-  );
+  return <PermissionContext.Provider value={value}>{children}</PermissionContext.Provider>;
 }

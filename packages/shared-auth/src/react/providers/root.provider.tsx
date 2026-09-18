@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import { AuthProvider, type AuthProviderProps } from './auth.provider';
 import { PermissionProvider } from './permission.provider';
 import { SessionProvider } from './session.provider';

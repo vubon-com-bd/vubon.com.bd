@@ -15,7 +15,7 @@ export function UserProvider({ children, user }: UserProviderProps): JSX.Element
       displayName: user?.name ?? null,
       avatarUrl: user?.avatarUrl ?? null,
     }),
-    [user],
+    [user]
   );
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }

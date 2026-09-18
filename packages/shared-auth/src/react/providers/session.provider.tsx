@@ -15,7 +15,7 @@ export function SessionProvider({ children, session }: SessionProviderProps): JS
       expiresAt: session?.expiresAt ?? null,
       isActive: isSessionActive(session),
     }),
-    [session],
+    [session]
   );
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }

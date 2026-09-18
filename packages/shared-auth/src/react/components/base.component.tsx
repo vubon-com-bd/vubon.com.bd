@@ -9,10 +9,6 @@ export interface BaseGateProps {
 /**
  * Base gate component — primitive used by all *Gate components.
  */
-export function BaseGate({
-  children,
-  when,
-  fallback = null,
-}: BaseGateProps): JSX.Element {
+export function BaseGate({ children, when, fallback = null }: BaseGateProps): JSX.Element {
   return <>{when ? children : fallback}</>;
 }

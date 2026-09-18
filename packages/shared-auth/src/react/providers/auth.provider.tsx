@@ -34,7 +34,7 @@ export function AuthProvider({
         setIsLoading(false);
       }
     },
-    [login],
+    [login]
   );
 
   const wrappedLogout = useCallback(async () => {
@@ -58,7 +58,7 @@ export function AuthProvider({
       logout: wrappedLogout,
       refresh,
     }),
-    [user, isLoading, initialRoles, initialPermissions, wrappedLogin, wrappedLogout, refresh],
+    [user, isLoading, initialRoles, initialPermissions, wrappedLogin, wrappedLogout, refresh]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
