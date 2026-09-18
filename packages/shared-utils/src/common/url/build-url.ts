@@ -10,11 +10,8 @@ export function buildUrl(
   base: string,
   path = '',
   query?: Readonly<
-    Record<
-      string,
-      string | number | boolean | null | undefined | readonly (string | number)[]
-    >
-  >,
+    Record<string, string | number | boolean | null | undefined | readonly (string | number)[]>
+  >
 ): string {
   const normalizedBase = stripTrailingSlashes(base);
   const normalizedPath = path.startsWith('/') ? path : path ? `/${path}` : '';

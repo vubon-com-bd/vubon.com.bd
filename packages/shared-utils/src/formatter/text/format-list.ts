@@ -5,7 +5,7 @@
 export function formatList(
   items: readonly string[],
   locale = 'en',
-  type: 'conjunction' | 'disjunction' = 'conjunction',
+  type: 'conjunction' | 'disjunction' = 'conjunction'
 ): string {
   if (items.length === 0) return '';
 
@@ -13,7 +13,7 @@ export function formatList(
     Intl as unknown as {
       ListFormat?: new (
         locale: string,
-        opts: { type: string; style: string },
+        opts: { type: string; style: string }
       ) => { format: (arr: readonly string[]) => string };
     }
   ).ListFormat;
