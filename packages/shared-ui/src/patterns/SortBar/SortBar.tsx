@@ -8,8 +8,7 @@ export interface SortOption {
   readonly label: string;
 }
 
-export interface SortBarProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
+export interface SortBarProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
   readonly options: readonly SortOption[];
   readonly value: string;
   readonly onChange: (value: string) => void;
@@ -19,7 +18,7 @@ export interface SortBarProps
 
 export const SortBar = forwardRef<HTMLDivElement, SortBarProps>(function SortBar(
   { options, value, onChange, label = 'Sort by', disabled, className, ...rest },
-  ref,
+  ref
 ) {
   const selectOptions: SelectOption[] = options.map((o) => ({
     value: o.value,

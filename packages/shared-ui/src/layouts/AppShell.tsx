@@ -16,33 +16,27 @@ export interface AppShellProps extends HTMLAttributes<HTMLDivElement> {
  * - Provides skip-to-content link
  * - Renders header/sidebar/main/footer slots
  */
-export const AppShell = forwardRef<HTMLDivElement, AppShellProps>(
-  function AppShell(
-    { header, sidebar, footer, children, mainId = 'main-content', className, ...rest },
-    ref,
-  ) {
-    return (
-      <div
-        ref={ref}
-        className={cn('flex min-h-screen flex-col bg-slate-50 text-slate-900', className)}
-        {...rest}
-      >
-        <SkipToContent targetId={mainId} />
-        {header}
-        <div className="flex flex-1">
-          {sidebar}
-          <main
-            id={mainId}
-            tabIndex={-1}
-            className="flex flex-1 flex-col focus-visible:outline-none"
-          >
-            {children}
-          </main>
-        </div>
-        {footer}
+export const AppShell = forwardRef<HTMLDivElement, AppShellProps>(function AppShell(
+  { header, sidebar, footer, children, mainId = 'main-content', className, ...rest },
+  ref
+) {
+  return (
+    <div
+      ref={ref}
+      className={cn('flex min-h-screen flex-col bg-slate-50 text-slate-900', className)}
+      {...rest}
+    >
+      <SkipToContent targetId={mainId} />
+      {header}
+      <div className="flex flex-1">
+        {sidebar}
+        <main id={mainId} tabIndex={-1} className="flex flex-1 flex-col focus-visible:outline-none">
+          {children}
+        </main>
       </div>
-    );
-  },
-);
+      {footer}
+    </div>
+  );
+});
 
 AppShell.displayName = 'AppShell';

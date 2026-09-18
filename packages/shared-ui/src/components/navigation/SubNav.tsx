@@ -9,15 +9,14 @@ export interface SubNavItem {
   readonly active?: boolean;
 }
 
-export interface SubNavProps
-  extends Omit<HTMLAttributes<HTMLElement>, 'onSelect'> {
+export interface SubNavProps extends Omit<HTMLAttributes<HTMLElement>, 'onSelect'> {
   readonly items: readonly SubNavItem[];
   readonly onSelect?: (id: string) => void;
 }
 
 export const SubNav = forwardRef<HTMLElement, SubNavProps>(function SubNav(
   { items, onSelect, className, ...rest },
-  ref,
+  ref
 ) {
   return (
     <nav
@@ -36,7 +35,7 @@ export const SubNav = forwardRef<HTMLElement, SubNavProps>(function SubNav(
               'border-b-2 px-1 pb-2 text-sm',
               item.active
                 ? 'border-blue-600 font-medium text-blue-700'
-                : 'border-transparent text-slate-600 hover:text-slate-900',
+                : 'border-transparent text-slate-600 hover:text-slate-900'
             )}
           >
             {item.label}
@@ -51,12 +50,12 @@ export const SubNav = forwardRef<HTMLElement, SubNavProps>(function SubNav(
               'border-b-2 px-1 pb-2 text-sm',
               item.active
                 ? 'border-blue-600 font-medium text-blue-700'
-                : 'border-transparent text-slate-600 hover:text-slate-900',
+                : 'border-transparent text-slate-600 hover:text-slate-900'
             )}
           >
             {item.label}
           </button>
-        ),
+        )
       )}
     </nav>
   );

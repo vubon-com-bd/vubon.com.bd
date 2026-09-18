@@ -53,7 +53,7 @@ export const Stack = forwardRef<HTMLDivElement, StackProps>(function Stack(
     className,
     ...rest
   },
-  ref,
+  ref
 ) {
   return (
     <Tag
@@ -65,7 +65,7 @@ export const Stack = forwardRef<HTMLDivElement, StackProps>(function Stack(
         alignClasses[align],
         justifyClasses[justify],
         wrap && 'flex-wrap',
-        className,
+        className
       )}
       {...rest}
     >

@@ -32,7 +32,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         </span>
       </div>
     );
-  },
+  }
 );
 
 PasswordInput.displayName = 'PasswordInput';

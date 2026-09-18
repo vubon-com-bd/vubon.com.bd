@@ -25,7 +25,7 @@ const gapClasses = {
 
 export const Grid = forwardRef<HTMLDivElement, GridProps>(function Grid(
   { children, cols = 1, gap = 4, responsiveCols, className, ...rest },
-  ref,
+  ref
 ) {
   const baseClass = `grid-cols-${cols}`;
   const smClass = responsiveCols?.sm ? `sm:grid-cols-${responsiveCols.sm}` : '';
@@ -35,15 +35,7 @@ export const Grid = forwardRef<HTMLDivElement, GridProps>(function Grid(
   return (
     <div
       ref={ref}
-      className={cn(
-        'grid',
-        baseClass,
-        gapClasses[gap],
-        smClass,
-        mdClass,
-        lgClass,
-        className,
-      )}
+      className={cn('grid', baseClass, gapClasses[gap], smClass, mdClass, lgClass, className)}
       {...rest}
     >
       {children}

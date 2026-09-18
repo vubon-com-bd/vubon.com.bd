@@ -7,22 +7,23 @@ export interface CodeBlockProps extends HTMLAttributes<HTMLPreElement> {
   readonly language?: string;
 }
 
-export const CodeBlock = forwardRef<HTMLPreElement, CodeBlockProps>(
-  function CodeBlock({ code, language, className, ...rest }, ref) {
-    return (
-      <pre
-        ref={ref}
-        className={cn(
-          'overflow-x-auto rounded-md bg-slate-900 p-3 text-xs text-slate-100',
-          className,
-        )}
-        data-language={language}
-        {...rest}
-      >
-        <code>{code}</code>
-      </pre>
-    );
-  },
-);
+export const CodeBlock = forwardRef<HTMLPreElement, CodeBlockProps>(function CodeBlock(
+  { code, language, className, ...rest },
+  ref
+) {
+  return (
+    <pre
+      ref={ref}
+      className={cn(
+        'overflow-x-auto rounded-md bg-slate-900 p-3 text-xs text-slate-100',
+        className
+      )}
+      data-language={language}
+      {...rest}
+    >
+      <code>{code}</code>
+    </pre>
+  );
+});
 
 CodeBlock.displayName = 'CodeBlock';

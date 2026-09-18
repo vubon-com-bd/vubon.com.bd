@@ -26,20 +26,13 @@ export const CustomerLayout = forwardRef<HTMLDivElement, CustomerLayoutProps>(
       className,
       ...rest
     },
-    ref,
+    ref
   ) {
     return (
       <AppShell
         ref={ref}
         className={cn('bg-white', className)}
-        header={
-          <Navbar
-            left={navbarLeft}
-            center={navbarCenter}
-            right={navbarRight}
-            sticky
-          />
-        }
+        header={<Navbar left={navbarLeft} center={navbarCenter} right={navbarRight} sticky />}
         footer={footer}
         {...rest}
       >
@@ -48,7 +41,7 @@ export const CustomerLayout = forwardRef<HTMLDivElement, CustomerLayoutProps>(
         </Container>
       </AppShell>
     );
-  },
+  }
 );
 
 CustomerLayout.displayName = 'CustomerLayout';

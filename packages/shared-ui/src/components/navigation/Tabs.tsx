@@ -8,8 +8,7 @@ export interface TabItem {
   readonly disabled?: boolean;
 }
 
-export interface TabsProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
+export interface TabsProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
   readonly items: readonly TabItem[];
   readonly value: string;
   readonly onChange: (value: string) => void;
@@ -18,7 +17,7 @@ export interface TabsProps
 
 export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
   { items, value, onChange, orientation = 'horizontal', className, ...rest },
-  ref,
+  ref
 ) {
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>): void => {
     const enabled = items.filter((t) => !t.disabled);
@@ -49,7 +48,7 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
         orientation === 'horizontal'
           ? 'flex-row border-b border-slate-200'
           : 'flex-col border-r border-slate-200',
-        className,
+        className
       )}
       {...rest}
     >
@@ -67,7 +66,7 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
             orientation === 'horizontal' ? '-mb-px border-b-2' : '-mr-px border-r-2',
             item.value === value
               ? 'border-blue-600 text-blue-700'
-              : 'border-transparent text-slate-600 hover:text-slate-900',
+              : 'border-transparent text-slate-600 hover:text-slate-900'
           )}
         >
           {item.label}
@@ -85,15 +84,16 @@ export interface TabPanelProps extends HTMLAttributes<HTMLDivElement> {
   readonly children: ReactNode;
 }
 
-export const TabPanel = forwardRef<HTMLDivElement, TabPanelProps>(
-  function TabPanel({ value, activeValue, children, className, ...rest }, ref) {
-    if (value !== activeValue) return null;
-    return (
-      <div ref={ref} role="tabpanel" className={cn('p-3', className)} {...rest}>
-        {children}
-      </div>
-    );
-  },
-);
+export const TabPanel = forwardRef<HTMLDivElement, TabPanelProps>(function TabPanel(
+  { value, activeValue, children, className, ...rest },
+  ref
+) {
+  if (value !== activeValue) return null;
+  return (
+    <div ref={ref} role="tabpanel" className={cn('p-3', className)} {...rest}>
+      {children}
+    </div>
+  );
+});
 
 TabPanel.displayName = 'TabPanel';

@@ -20,26 +20,24 @@ const sizeClasses: Record<ContainerSize, string> = {
   full: 'max-w-full',
 };
 
-export const Container = forwardRef<HTMLDivElement, ContainerProps>(
-  function Container(
-    { children, size = 'lg', centered = true, padded = true, className, ...rest },
-    ref,
-  ) {
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          sizeClasses[size],
-          centered && 'mx-auto',
-          padded && 'px-4 sm:px-6 lg:px-8',
-          className,
-        )}
-        {...rest}
-      >
-        {children}
-      </div>
-    );
-  },
-);
+export const Container = forwardRef<HTMLDivElement, ContainerProps>(function Container(
+  { children, size = 'lg', centered = true, padded = true, className, ...rest },
+  ref
+) {
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        sizeClasses[size],
+        centered && 'mx-auto',
+        padded && 'px-4 sm:px-6 lg:px-8',
+        className
+      )}
+      {...rest}
+    >
+      {children}
+    </div>
+  );
+});
 
 Container.displayName = 'Container';

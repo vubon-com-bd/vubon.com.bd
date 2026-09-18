@@ -10,11 +10,7 @@ const sizeClasses: Record<SpinnerSize, string> = {
   xl: 'h-12 w-12 border-4',
 };
 
-export function Spinner({
-  size = 'md',
-  label = 'Loading',
-  className,
-}: SpinnerProps): JSX.Element {
+export function Spinner({ size = 'md', label = 'Loading', className }: SpinnerProps): JSX.Element {
   return (
     <span
       role="status"
@@ -22,7 +18,7 @@ export function Spinner({
       className={cn(
         'inline-block animate-spin rounded-full border-slate-300 border-t-blue-600',
         sizeClasses[size],
-        className,
+        className
       )}
     />
   );

@@ -10,17 +10,13 @@ export interface CenterProps extends HTMLAttributes<HTMLDivElement> {
 
 export const Center = forwardRef<HTMLDivElement, CenterProps>(function Center(
   { children, inline, minHeight, className, style, ...rest },
-  ref,
+  ref
 ) {
   return (
     <div
       ref={ref}
       style={{ minHeight, ...style }}
-      className={cn(
-        inline ? 'inline-flex' : 'flex',
-        'items-center justify-center',
-        className,
-      )}
+      className={cn(inline ? 'inline-flex' : 'flex', 'items-center justify-center', className)}
       {...rest}
     >
       {children}

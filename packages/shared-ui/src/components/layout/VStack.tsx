@@ -11,7 +11,7 @@ export interface VStackProps extends HTMLAttributes<HTMLDivElement> {
 
 export const VStack = forwardRef<HTMLDivElement, VStackProps>(function VStack(
   { children, gap = 3, align = 'stretch', justify, ...rest },
-  ref,
+  ref
 ) {
   return (
     <Stack

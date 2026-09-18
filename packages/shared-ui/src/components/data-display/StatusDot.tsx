@@ -19,26 +19,27 @@ const colorClasses: Record<StatusDotColor, string> = {
   warning: 'bg-amber-500',
 };
 
-export const StatusDot = forwardRef<HTMLSpanElement, StatusDotProps>(
-  function StatusDot({ status, label, pulse, className, ...rest }, ref) {
-    return (
+export const StatusDot = forwardRef<HTMLSpanElement, StatusDotProps>(function StatusDot(
+  { status, label, pulse, className, ...rest },
+  ref
+) {
+  return (
+    <span
+      ref={ref}
+      className={cn('inline-flex items-center gap-2 text-sm text-slate-700', className)}
+      {...rest}
+    >
       <span
-        ref={ref}
-        className={cn('inline-flex items-center gap-2 text-sm text-slate-700', className)}
-        {...rest}
-      >
-        <span
-          className={cn(
-            'inline-block h-2 w-2 rounded-full',
-            colorClasses[status],
-            pulse && 'animate-pulse',
-          )}
-          aria-hidden="true"
-        />
-        {label}
-      </span>
-    );
-  },
-);
+        className={cn(
+          'inline-block h-2 w-2 rounded-full',
+          colorClasses[status],
+          pulse && 'animate-pulse'
+        )}
+        aria-hidden="true"
+      />
+      {label}
+    </span>
+  );
+});
 
 StatusDot.displayName = 'StatusDot';

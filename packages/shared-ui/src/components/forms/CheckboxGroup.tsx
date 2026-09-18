@@ -21,16 +21,8 @@ export interface CheckboxGroupProps {
 
 export const CheckboxGroup = forwardRef<HTMLFieldSetElement, CheckboxGroupProps>(
   function CheckboxGroup(
-    {
-      options,
-      value,
-      onChange,
-      label,
-      disabled,
-      className,
-      orientation = 'vertical',
-    },
-    ref,
+    { options, value, onChange, label, disabled, className, orientation = 'vertical' },
+    ref
   ) {
     const groupId = useId();
 
@@ -53,7 +45,7 @@ export const CheckboxGroup = forwardRef<HTMLFieldSetElement, CheckboxGroupProps>
         <div
           className={cn(
             'flex gap-3',
-            orientation === 'vertical' ? 'flex-col' : 'flex-row flex-wrap',
+            orientation === 'vertical' ? 'flex-col' : 'flex-row flex-wrap'
           )}
         >
           {options.map((opt) => (
@@ -68,7 +60,7 @@ export const CheckboxGroup = forwardRef<HTMLFieldSetElement, CheckboxGroupProps>
         </div>
       </fieldset>
     );
-  },
+  }
 );
 
 CheckboxGroup.displayName = 'CheckboxGroup';

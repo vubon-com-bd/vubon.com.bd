@@ -13,10 +13,7 @@ const paths: Record<ChevronDirection, string> = {
   right: 'M9 18l6-6-6-6',
 };
 
-export function ChevronIcon({
-  direction = 'down',
-  ...props
-}: ChevronIconProps): JSX.Element {
+export function ChevronIcon({ direction = 'down', ...props }: ChevronIconProps): JSX.Element {
   return (
     <Icon {...props}>
       <polyline points={paths[direction]} />

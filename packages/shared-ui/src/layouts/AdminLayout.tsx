@@ -2,8 +2,10 @@
 import { forwardRef, type ReactNode } from 'react';
 import { DashboardLayout, type DashboardLayoutProps } from './DashboardLayout';
 
-export interface AdminLayoutProps
-  extends Omit<DashboardLayoutProps, 'navbarLeft' | 'navbarRight' | 'sidebar'> {
+export interface AdminLayoutProps extends Omit<
+  DashboardLayoutProps,
+  'navbarLeft' | 'navbarRight' | 'sidebar'
+> {
   readonly navbarLeft?: ReactNode;
   readonly navbarRight?: ReactNode;
   readonly sidebar?: ReactNode;
@@ -16,7 +18,7 @@ export interface AdminLayoutProps
 export const AdminLayout = forwardRef<HTMLDivElement, AdminLayoutProps>(
   function AdminLayout(props, ref) {
     return <DashboardLayout ref={ref} {...props} />;
-  },
+  }
 );
 
 AdminLayout.displayName = 'AdminLayout';

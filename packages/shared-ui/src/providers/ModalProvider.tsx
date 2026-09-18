@@ -39,12 +39,7 @@ export function ModalProvider({ children }: ModalProviderProps): JSX.Element {
     <ModalContext.Provider value={value}>
       {children}
       {openModals.map((m) => (
-        <Modal
-          key={m.id}
-          open
-          onClose={() => closeModal(m.id)}
-          size="md"
-        >
+        <Modal key={m.id} open onClose={() => closeModal(m.id)} size="md">
           {m.content}
         </Modal>
       ))}

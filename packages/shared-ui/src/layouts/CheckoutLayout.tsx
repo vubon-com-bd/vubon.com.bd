@@ -3,8 +3,7 @@ import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { Container } from '../components/layout/Container';
 import { cn } from '../utils/cn';
 
-export interface CheckoutLayoutProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
+export interface CheckoutLayoutProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
   readonly summary?: ReactNode;
   readonly children: ReactNode;
   readonly title?: ReactNode;
@@ -12,19 +11,14 @@ export interface CheckoutLayoutProps
 }
 
 export const CheckoutLayout = forwardRef<HTMLDivElement, CheckoutLayoutProps>(
-  function CheckoutLayout(
-    { summary, children, title, backLink, className, ...rest },
-    ref,
-  ) {
+  function CheckoutLayout({ summary, children, title, backLink, className, ...rest }, ref) {
     return (
       <div ref={ref} className={cn('bg-slate-50 py-6', className)} {...rest}>
         <Container size="lg">
           {(backLink || title) && (
             <div className="mb-4 flex flex-col gap-2">
               {backLink}
-              {title && (
-                <h1 className="text-xl font-semibold text-slate-900">{title}</h1>
-              )}
+              {title && <h1 className="text-xl font-semibold text-slate-900">{title}</h1>}
             </div>
           )}
           <div className="grid gap-6 md:grid-cols-[1fr_320px]">
@@ -41,7 +35,7 @@ export const CheckoutLayout = forwardRef<HTMLDivElement, CheckoutLayoutProps>(
         </Container>
       </div>
     );
-  },
+  }
 );
 
 CheckoutLayout.displayName = 'CheckoutLayout';

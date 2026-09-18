@@ -6,10 +6,7 @@ export interface SortIconProps extends Omit<IconProps, 'children'> {
   readonly direction?: SortDirection;
 }
 
-export function SortIcon({
-  direction = 'none',
-  ...props
-}: SortIconProps): JSX.Element {
+export function SortIcon({ direction = 'none', ...props }: SortIconProps): JSX.Element {
   return (
     <Icon {...props}>
       <polyline

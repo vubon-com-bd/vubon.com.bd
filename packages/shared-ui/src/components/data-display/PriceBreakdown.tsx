@@ -35,7 +35,7 @@ export const PriceBreakdown = forwardRef<HTMLDivElement, PriceBreakdownProps>(
             key={i}
             className={cn(
               'flex justify-between',
-              item.emphasis ? 'font-medium text-slate-900' : 'text-slate-600',
+              item.emphasis ? 'font-medium text-slate-900' : 'text-slate-600'
             )}
           >
             <span>{item.label}</span>
@@ -48,7 +48,7 @@ export const PriceBreakdown = forwardRef<HTMLDivElement, PriceBreakdownProps>(
         </div>
       </div>
     );
-  },
+  }
 );
 
 PriceBreakdown.displayName = 'PriceBreakdown';

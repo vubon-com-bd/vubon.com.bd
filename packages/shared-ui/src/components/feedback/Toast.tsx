@@ -4,8 +4,7 @@ import { cn } from '../../utils/cn';
 
 export type ToastVariant = 'info' | 'success' | 'warning' | 'error';
 
-export interface ToastProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
+export interface ToastProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
   readonly variant?: ToastVariant;
   readonly title?: ReactNode;
   readonly description?: ReactNode;
@@ -36,7 +35,7 @@ const ariaLiveMap: Record<ToastVariant, 'polite' | 'assertive'> = {
 
 export const Toast = forwardRef<HTMLDivElement, ToastProps>(function Toast(
   { variant = 'info', title, description, icon, onClose, className, children, ...rest },
-  ref,
+  ref
 ) {
   return (
     <div
@@ -46,11 +45,15 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(function Toast(
       className={cn(
         'flex items-start gap-3 rounded-md border p-3 text-sm shadow-lg',
         variantClasses[variant],
-        className,
+        className
       )}
       {...rest}
     >
-      {icon && <span className="mt-0.5 shrink-0" aria-hidden="true">{icon}</span>}
+      {icon && (
+        <span className="mt-0.5 shrink-0" aria-hidden="true">
+          {icon}
+        </span>
+      )}
       <div className="flex flex-1 flex-col gap-0.5">
         {title && <p className="font-medium">{title}</p>}
         {description && <p className="text-xs text-slate-500">{description}</p>}
@@ -75,12 +78,7 @@ Toast.displayName = 'Toast';
 export interface ToastViewportProps extends HTMLAttributes<HTMLDivElement> {
   readonly children: ReactNode;
   readonly position?:
-    | 'top-right'
-    | 'top-left'
-    | 'bottom-right'
-    | 'bottom-left'
-    | 'top-center'
-    | 'bottom-center';
+    'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center';
 }
 
 const positionClasses = {
@@ -92,24 +90,25 @@ const positionClasses = {
   'bottom-center': 'bottom-4 left-1/2 -translate-x-1/2',
 } as const;
 
-export const ToastViewport = forwardRef<HTMLDivElement, ToastViewportProps>(
-  function ToastViewport({ children, position = 'top-right', className, ...rest }, ref) {
-    return (
-      <div
-        ref={ref}
-        aria-live="polite"
-        aria-atomic="false"
-        className={cn(
-          'pointer-events-none fixed z-[1700] flex flex-col gap-2',
-          positionClasses[position],
-          className,
-        )}
-        {...rest}
-      >
-        {children}
-      </div>
-    );
-  },
-);
+export const ToastViewport = forwardRef<HTMLDivElement, ToastViewportProps>(function ToastViewport(
+  { children, position = 'top-right', className, ...rest },
+  ref
+) {
+  return (
+    <div
+      ref={ref}
+      aria-live="polite"
+      aria-atomic="false"
+      className={cn(
+        'pointer-events-none fixed z-[1700] flex flex-col gap-2',
+        positionClasses[position],
+        className
+      )}
+      {...rest}
+    >
+      {children}
+    </div>
+  );
+});
 
 ToastViewport.displayName = 'ToastViewport';

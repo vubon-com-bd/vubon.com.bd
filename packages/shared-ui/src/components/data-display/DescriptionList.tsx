@@ -21,11 +21,7 @@ const columnClasses = {
 export const DescriptionList = forwardRef<HTMLDListElement, DescriptionListProps>(
   function DescriptionList({ items, columns = 1, className, ...rest }, ref) {
     return (
-      <dl
-        ref={ref}
-        className={cn('grid gap-4', columnClasses[columns], className)}
-        {...rest}
-      >
+      <dl ref={ref} className={cn('grid gap-4', columnClasses[columns], className)} {...rest}>
         {items.map((item, i) => (
           <div key={i} className="flex flex-col gap-0.5">
             <dt className="text-xs uppercase text-slate-500">{item.term}</dt>
@@ -34,7 +30,7 @@ export const DescriptionList = forwardRef<HTMLDListElement, DescriptionListProps
         ))}
       </dl>
     );
-  },
+  }
 );
 
 DescriptionList.displayName = 'DescriptionList';

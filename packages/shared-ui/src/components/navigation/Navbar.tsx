@@ -11,7 +11,7 @@ export interface NavbarProps extends HTMLAttributes<HTMLElement> {
 
 export const Navbar = forwardRef<HTMLElement, NavbarProps>(function Navbar(
   { left, center, right, sticky, className, children, ...rest },
-  ref,
+  ref
 ) {
   return (
     <header
@@ -19,7 +19,7 @@ export const Navbar = forwardRef<HTMLElement, NavbarProps>(function Navbar(
       className={cn(
         'flex h-14 items-center justify-between gap-4 border-b border-slate-200 bg-white px-4',
         sticky && 'sticky top-0 z-[1100]',
-        className,
+        className
       )}
       {...rest}
     >

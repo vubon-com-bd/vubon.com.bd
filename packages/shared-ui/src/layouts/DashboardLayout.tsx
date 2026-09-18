@@ -31,7 +31,7 @@ export const DashboardLayout = forwardRef<HTMLDivElement, DashboardLayoutProps>(
       className,
       ...rest
     },
-    ref,
+    ref
   ) {
     return (
       <AppShell
@@ -56,7 +56,7 @@ export const DashboardLayout = forwardRef<HTMLDivElement, DashboardLayoutProps>(
         </Container>
       </AppShell>
     );
-  },
+  }
 );
 
 DashboardLayout.displayName = 'DashboardLayout';

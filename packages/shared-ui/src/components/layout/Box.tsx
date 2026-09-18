@@ -49,17 +49,8 @@ const shadowClasses = {
 } as const;
 
 export const Box = forwardRef<HTMLDivElement, BoxProps>(function Box(
-  {
-    children,
-    padding,
-    margin,
-    rounded,
-    border,
-    shadow,
-    className,
-    ...rest
-  },
-  ref,
+  { children, padding, margin, rounded, border, shadow, className, ...rest },
+  ref
 ) {
   return (
     <div
@@ -70,7 +61,7 @@ export const Box = forwardRef<HTMLDivElement, BoxProps>(function Box(
         rounded !== undefined && roundedClasses[rounded],
         border && 'border border-slate-200',
         shadow !== undefined && shadowClasses[shadow],
-        className,
+        className
       )}
       {...rest}
     >

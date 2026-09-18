@@ -11,23 +11,24 @@ export interface RowActionsProps extends HTMLAttributes<HTMLDivElement> {
   readonly label?: string;
 }
 
-export const RowActions = forwardRef<HTMLDivElement, RowActionsProps>(
-  function RowActions({ actions, label = 'Row actions', className, ...rest }, ref) {
-    if (actions.length === 0) return null;
-    return (
-      <div ref={ref} className={cn('inline-flex', className)} {...rest}>
-        <DropdownMenu
-          align="right"
-          items={actions}
-          trigger={
-            <IconButton variant="ghost" size="icon" aria-label={label}>
-              <MoreIcon />
-            </IconButton>
-          }
-        />
-      </div>
-    );
-  },
-);
+export const RowActions = forwardRef<HTMLDivElement, RowActionsProps>(function RowActions(
+  { actions, label = 'Row actions', className, ...rest },
+  ref
+) {
+  if (actions.length === 0) return null;
+  return (
+    <div ref={ref} className={cn('inline-flex', className)} {...rest}>
+      <DropdownMenu
+        align="right"
+        items={actions}
+        trigger={
+          <IconButton variant="ghost" size="icon" aria-label={label}>
+            <MoreIcon />
+          </IconButton>
+        }
+      />
+    </div>
+  );
+});
 
 RowActions.displayName = 'RowActions';

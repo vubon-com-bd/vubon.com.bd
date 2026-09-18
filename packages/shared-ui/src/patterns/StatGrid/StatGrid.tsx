@@ -24,7 +24,7 @@ const columnClasses = {
 
 export const StatGrid = forwardRef<HTMLDivElement, StatGridProps>(function StatGrid(
   { items, columns = 4, className, ...rest },
-  ref,
+  ref
 ) {
   return (
     <div ref={ref} className={cn('grid gap-3', columnClasses[columns], className)} {...rest}>

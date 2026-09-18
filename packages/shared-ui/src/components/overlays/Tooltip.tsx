@@ -19,48 +19,46 @@ const placementClasses: Record<TooltipPlacement, string> = {
   right: 'left-full top-1/2 -translate-y-1/2 ml-1',
 };
 
-export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
-  function Tooltip(
-    { content, children, placement = 'top', delayMs = 300, className },
-    ref,
-  ) {
-    const [open, setOpen] = useState(false);
-    const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip(
+  { content, children, placement = 'top', delayMs = 300, className },
+  ref
+) {
+  const [open, setOpen] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const show = (): void => {
-      if (timer.current) clearTimeout(timer.current);
-      timer.current = setTimeout(() => setOpen(true), delayMs);
-    };
-    const hide = (): void => {
-      if (timer.current) clearTimeout(timer.current);
-      setOpen(false);
-    };
+  const show = (): void => {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => setOpen(true), delayMs);
+  };
+  const hide = (): void => {
+    if (timer.current) clearTimeout(timer.current);
+    setOpen(false);
+  };
 
-    return (
-      <span
-        ref={ref}
-        className="relative inline-flex"
-        onMouseEnter={show}
-        onMouseLeave={hide}
-        onFocus={show}
-        onBlur={hide}
-      >
-        {children}
-        {open && (
-          <span
-            role="tooltip"
-            className={cn(
-              'pointer-events-none absolute z-[1800] whitespace-nowrap rounded bg-slate-900 px-2 py-1 text-xs text-white shadow-md',
-              placementClasses[placement],
-              className,
-            )}
-          >
-            {content}
-          </span>
-        )}
-      </span>
-    );
-  },
-);
+  return (
+    <span
+      ref={ref}
+      className="relative inline-flex"
+      onMouseEnter={show}
+      onMouseLeave={hide}
+      onFocus={show}
+      onBlur={hide}
+    >
+      {children}
+      {open && (
+        <span
+          role="tooltip"
+          className={cn(
+            'pointer-events-none absolute z-[1800] whitespace-nowrap rounded bg-slate-900 px-2 py-1 text-xs text-white shadow-md',
+            placementClasses[placement],
+            className
+          )}
+        >
+          {content}
+        </span>
+      )}
+    </span>
+  );
+});
 
 Tooltip.displayName = 'Tooltip';

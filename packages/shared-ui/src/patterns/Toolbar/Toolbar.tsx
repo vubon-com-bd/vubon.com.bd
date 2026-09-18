@@ -11,7 +11,7 @@ export interface ToolbarProps extends HTMLAttributes<HTMLDivElement> {
 
 export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(function Toolbar(
   { left, center, right, sticky, className, children, ...rest },
-  ref,
+  ref
 ) {
   return (
     <div
@@ -20,14 +20,12 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(function Toolbar
       className={cn(
         'flex flex-wrap items-center gap-2 rounded-md border border-slate-200 bg-white p-2',
         sticky && 'sticky top-14 z-[1100]',
-        className,
+        className
       )}
       {...rest}
     >
       {left && <div className="flex items-center gap-2">{left}</div>}
-      {center && (
-        <div className="flex flex-1 items-center justify-center gap-2">{center}</div>
-      )}
+      {center && <div className="flex flex-1 items-center justify-center gap-2">{center}</div>}
       {right && <div className="ml-auto flex items-center gap-2">{right}</div>}
       {children}
     </div>

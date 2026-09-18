@@ -10,7 +10,7 @@ export interface SpacerProps extends HTMLAttributes<HTMLDivElement> {
 
 export const Spacer = forwardRef<HTMLDivElement, SpacerProps>(function Spacer(
   { size, axis = 'vertical', flex, className, style, ...rest },
-  ref,
+  ref
 ) {
   if (flex) {
     return (

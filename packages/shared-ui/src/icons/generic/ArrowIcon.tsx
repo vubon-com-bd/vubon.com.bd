@@ -13,10 +13,7 @@ const rotation: Record<ArrowDirection, number> = {
   left: 270,
 };
 
-export function ArrowIcon({
-  direction = 'right',
-  ...props
-}: ArrowIconProps): JSX.Element {
+export function ArrowIcon({ direction = 'right', ...props }: ArrowIconProps): JSX.Element {
   return (
     <Icon {...props} style={{ transform: `rotate(${rotation[direction]}deg)`, ...props.style }}>
       <line x1="12" y1="19" x2="12" y2="5" />

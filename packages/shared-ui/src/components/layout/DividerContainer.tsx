@@ -17,7 +17,7 @@ export const DividerContainer = forwardRef<HTMLDivElement, DividerContainerProps
         {children}
       </div>
     );
-  },
+  }
 );
 
 DividerContainer.displayName = 'DividerContainer';

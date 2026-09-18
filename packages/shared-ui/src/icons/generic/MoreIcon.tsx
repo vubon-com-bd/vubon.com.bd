@@ -6,10 +6,7 @@ export interface MoreIconProps extends Omit<IconProps, 'children'> {
   readonly orientation?: MoreOrientation;
 }
 
-export function MoreIcon({
-  orientation = 'vertical',
-  ...props
-}: MoreIconProps): JSX.Element {
+export function MoreIcon({ orientation = 'vertical', ...props }: MoreIconProps): JSX.Element {
   if (orientation === 'horizontal') {
     return (
       <Icon {...props}>

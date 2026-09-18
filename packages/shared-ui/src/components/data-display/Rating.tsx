@@ -18,7 +18,7 @@ const sizeClasses = {
 
 export const Rating = forwardRef<HTMLDivElement, RatingProps>(function Rating(
   { value, max = 5, readOnly, onChange, size = 'md', className, ...rest },
-  ref,
+  ref
 ) {
   return (
     <div
@@ -43,7 +43,7 @@ export const Rating = forwardRef<HTMLDivElement, RatingProps>(function Rating(
             className={cn(
               'transition-transform',
               readOnly ? 'cursor-default' : 'cursor-pointer hover:scale-110',
-              filled ? 'text-amber-500' : 'text-slate-300',
+              filled ? 'text-amber-500' : 'text-slate-300'
             )}
           >
             <span aria-hidden="true">★</span>

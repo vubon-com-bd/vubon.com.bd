@@ -17,24 +17,25 @@ const variantClasses: Record<StatusBannerVariant, string> = {
   error: 'bg-red-600 text-white',
 };
 
-export const StatusBanner = forwardRef<HTMLDivElement, StatusBannerProps>(
-  function StatusBanner({ variant = 'info', children, sticky, className, ...rest }, ref) {
-    return (
-      <div
-        ref={ref}
-        role="status"
-        className={cn(
-          'flex items-center justify-center gap-2 px-4 py-2 text-sm',
-          variantClasses[variant],
-          sticky && 'sticky top-0 z-[1200]',
-          className,
-        )}
-        {...rest}
-      >
-        {children}
-      </div>
-    );
-  },
-);
+export const StatusBanner = forwardRef<HTMLDivElement, StatusBannerProps>(function StatusBanner(
+  { variant = 'info', children, sticky, className, ...rest },
+  ref
+) {
+  return (
+    <div
+      ref={ref}
+      role="status"
+      className={cn(
+        'flex items-center justify-center gap-2 px-4 py-2 text-sm',
+        variantClasses[variant],
+        sticky && 'sticky top-0 z-[1200]',
+        className
+      )}
+      {...rest}
+    >
+      {children}
+    </div>
+  );
+});
 
 StatusBanner.displayName = 'StatusBanner';

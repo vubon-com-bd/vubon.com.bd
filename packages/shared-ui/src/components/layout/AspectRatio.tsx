@@ -16,20 +16,21 @@ function parseRatio(ratio: AspectRatioValue | number): number {
   return w / h;
 }
 
-export const AspectRatio = forwardRef<HTMLDivElement, AspectRatioProps>(
-  function AspectRatio({ ratio = '16/9', children, className, style, ...rest }, ref) {
-    const value = parseRatio(ratio);
-    return (
-      <div
-        ref={ref}
-        className={cn('relative w-full overflow-hidden', className)}
-        style={{ aspectRatio: `${value}`, ...style }}
-        {...rest}
-      >
-        <div className="absolute inset-0">{children}</div>
-      </div>
-    );
-  },
-);
+export const AspectRatio = forwardRef<HTMLDivElement, AspectRatioProps>(function AspectRatio(
+  { ratio = '16/9', children, className, style, ...rest },
+  ref
+) {
+  const value = parseRatio(ratio);
+  return (
+    <div
+      ref={ref}
+      className={cn('relative w-full overflow-hidden', className)}
+      style={{ aspectRatio: `${value}`, ...style }}
+      {...rest}
+    >
+      <div className="absolute inset-0">{children}</div>
+    </div>
+  );
+});
 
 AspectRatio.displayName = 'AspectRatio';

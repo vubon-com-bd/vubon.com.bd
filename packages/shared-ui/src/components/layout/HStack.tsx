@@ -12,7 +12,7 @@ export interface HStackProps extends HTMLAttributes<HTMLDivElement> {
 
 export const HStack = forwardRef<HTMLDivElement, HStackProps>(function HStack(
   { children, gap = 3, align = 'center', justify, wrap, ...rest },
-  ref,
+  ref
 ) {
   return (
     <Stack

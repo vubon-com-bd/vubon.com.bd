@@ -27,34 +27,32 @@ export interface LiveRegionProps extends HTMLAttributes<HTMLDivElement> {
 /**
  * ARIA live region for screen reader announcements.
  */
-export const LiveRegion = forwardRef<HTMLDivElement, LiveRegionProps>(
-  function LiveRegion(
-    {
-      children,
-      politeness = 'polite',
-      atomic = true,
-      busy = false,
-      relevant = 'additions text',
-      className,
-      ...rest
-    },
-    ref,
-  ) {
-    return (
-      <div
-        ref={ref}
-        role="status"
-        aria-live={politeness}
-        aria-atomic={atomic}
-        aria-busy={busy || undefined}
-        aria-relevant={relevant}
-        className={cn('sr-only', className)}
-        {...rest}
-      >
-        {children}
-      </div>
-    );
+export const LiveRegion = forwardRef<HTMLDivElement, LiveRegionProps>(function LiveRegion(
+  {
+    children,
+    politeness = 'polite',
+    atomic = true,
+    busy = false,
+    relevant = 'additions text',
+    className,
+    ...rest
   },
-);
+  ref
+) {
+  return (
+    <div
+      ref={ref}
+      role="status"
+      aria-live={politeness}
+      aria-atomic={atomic}
+      aria-busy={busy || undefined}
+      aria-relevant={relevant}
+      className={cn('sr-only', className)}
+      {...rest}
+    >
+      {children}
+    </div>
+  );
+});
 
 LiveRegion.displayName = 'LiveRegion';

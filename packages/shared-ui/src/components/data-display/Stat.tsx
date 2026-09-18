@@ -11,7 +11,7 @@ export interface StatProps extends HTMLAttributes<HTMLDivElement> {
 
 export const Stat = forwardRef<HTMLDivElement, StatProps>(function Stat(
   { label, value, delta, icon, className, ...rest },
-  ref,
+  ref
 ) {
   const trendColor =
     delta?.trend === 'up'
@@ -33,8 +33,7 @@ export const Stat = forwardRef<HTMLDivElement, StatProps>(function Stat(
       <p className="mt-2 text-2xl font-semibold text-slate-900">{value}</p>
       {delta && (
         <p className={cn('mt-1 text-xs', trendColor)}>
-          {delta.trend === 'up' ? '▲' : delta.trend === 'down' ? '▼' : '■'}{' '}
-          {delta.value}
+          {delta.trend === 'up' ? '▲' : delta.trend === 'down' ? '▼' : '■'} {delta.value}
         </p>
       )}
     </div>

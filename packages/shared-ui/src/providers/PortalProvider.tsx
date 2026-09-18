@@ -22,9 +22,7 @@ export function PortalProvider({ children, container }: PortalProviderProps): JS
   return (
     <PortalContext.Provider value={{ container: container ?? ref.current }}>
       {children}
-      {container === undefined && (
-        <div ref={ref} data-portal-root aria-hidden="true" />
-      )}
+      {container === undefined && <div ref={ref} data-portal-root aria-hidden="true" />}
     </PortalContext.Provider>
   );
 }

@@ -1,19 +1,19 @@
 'use client';
 import { createContext, useContext, type ReactNode } from 'react';
 import { Toast, ToastViewport } from '../components/feedback/Toast';
-import { useToast, type UseToastResult, type ShowToastInput, type UiToastVariant } from '../hooks/use-toast';
+import {
+  useToast,
+  type UseToastResult,
+  type ShowToastInput,
+  type UiToastVariant,
+} from '../hooks/use-toast';
 
 const ToastContext = createContext<UseToastResult | null>(null);
 
 export interface ToastProviderProps {
   readonly children: ReactNode;
   readonly position?:
-    | 'top-right'
-    | 'top-left'
-    | 'bottom-right'
-    | 'bottom-left'
-    | 'top-center'
-    | 'bottom-center';
+    'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center';
 }
 
 export function ToastProvider({

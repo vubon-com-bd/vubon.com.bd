@@ -1,12 +1,5 @@
 'use client';
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useRef,
-  useState,
-  type ReactNode,
-} from 'react';
+import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from 'react';
 import { ConfirmDialog } from '../components/feedback/ConfirmDialog';
 
 export interface ConfirmOptions {

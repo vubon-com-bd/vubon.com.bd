@@ -14,33 +14,34 @@ export interface IconProps extends Omit<SVGProps<SVGSVGElement>, 'size'> {
  * - `aria-hidden` by default; `label` → `role="img"`
  * - `focusable="false"` (IE)
  */
-export const Icon = forwardRef<SVGSVGElement, IconProps>(
-  function Icon({ size = 'md', label, children, ...rest }, ref) {
-    const px = typeof size === 'number' ? size : iconSizes[size];
-    const isDecorative = !label;
+export const Icon = forwardRef<SVGSVGElement, IconProps>(function Icon(
+  { size = 'md', label, children, ...rest },
+  ref
+) {
+  const px = typeof size === 'number' ? size : iconSizes[size];
+  const isDecorative = !label;
 
-    return (
-      <svg
-        ref={ref}
-        width={px}
-        height={px}
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        focusable="false"
-        aria-hidden={isDecorative || undefined}
-        role={isDecorative ? undefined : 'img'}
-        aria-label={label}
-        {...rest}
-      >
-        {children}
-      </svg>
-    );
-  },
-);
+  return (
+    <svg
+      ref={ref}
+      width={px}
+      height={px}
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      focusable="false"
+      aria-hidden={isDecorative || undefined}
+      role={isDecorative ? undefined : 'img'}
+      aria-label={label}
+      {...rest}
+    >
+      {children}
+    </svg>
+  );
+});
 
 Icon.displayName = 'Icon';

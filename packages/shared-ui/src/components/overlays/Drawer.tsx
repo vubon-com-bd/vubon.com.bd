@@ -37,7 +37,7 @@ export const Drawer = forwardRef<HTMLDivElement, DrawerProps>(function Drawer(
     className,
     ...rest
   },
-  ref,
+  ref
 ) {
   useEffect(() => {
     if (!open || !closeOnEsc) return;
@@ -78,11 +78,7 @@ export const Drawer = forwardRef<HTMLDivElement, DrawerProps>(function Drawer(
           aria-modal="true"
           aria-labelledby={title ? 'drawer-title' : undefined}
           style={sizeStyle}
-          className={cn(
-            'absolute flex flex-col bg-white shadow-xl',
-            sideClasses[side],
-            className,
-          )}
+          className={cn('absolute flex flex-col bg-white shadow-xl', sideClasses[side], className)}
           {...rest}
         >
           {title && (
@@ -104,7 +100,7 @@ export const Drawer = forwardRef<HTMLDivElement, DrawerProps>(function Drawer(
         </div>
       </FocusTrap>
     </div>,
-    document.body,
+    document.body
   );
 });
 

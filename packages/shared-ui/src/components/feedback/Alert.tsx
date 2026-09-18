@@ -4,8 +4,7 @@ import { cn } from '../../utils/cn';
 
 export type AlertVariant = 'info' | 'success' | 'warning' | 'error';
 
-export interface AlertProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
+export interface AlertProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
   readonly variant?: AlertVariant;
   readonly title?: ReactNode;
   readonly description?: ReactNode;
@@ -30,7 +29,7 @@ const roleMap: Record<AlertVariant, 'status' | 'alert'> = {
 
 export const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
   { variant = 'info', title, description, icon, onClose, closable, className, children, ...rest },
-  ref,
+  ref
 ) {
   const showClose = closable || Boolean(onClose);
   return (
@@ -40,11 +39,15 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
       className={cn(
         'flex items-start gap-3 rounded-md border p-3 text-sm',
         variantClasses[variant],
-        className,
+        className
       )}
       {...rest}
     >
-      {icon && <span className="mt-0.5 shrink-0" aria-hidden="true">{icon}</span>}
+      {icon && (
+        <span className="mt-0.5 shrink-0" aria-hidden="true">
+          {icon}
+        </span>
+      )}
       <div className="flex flex-1 flex-col gap-0.5">
         {title && <p className="font-medium">{title}</p>}
         {description && <p className="text-xs opacity-90">{description}</p>}

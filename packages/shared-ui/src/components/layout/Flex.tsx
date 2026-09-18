@@ -40,7 +40,7 @@ export const Flex = forwardRef<HTMLDivElement, FlexProps>(function Flex(
     style,
     ...rest
   },
-  ref,
+  ref
 ) {
   const flexStyle: CSSProperties = {
     display: inline ? 'inline-flex' : 'flex',
@@ -53,11 +53,7 @@ export const Flex = forwardRef<HTMLDivElement, FlexProps>(function Flex(
     <div
       ref={ref}
       style={flexStyle}
-      className={cn(
-        alignClasses[align],
-        justifyClasses[justify],
-        className,
-      )}
+      className={cn(alignClasses[align], justifyClasses[justify], className)}
       {...rest}
     >
       {children}

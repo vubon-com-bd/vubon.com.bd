@@ -40,7 +40,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
     className,
     ...rest
   },
-  ref,
+  ref
 ) {
   useEffect(() => {
     if (!open || !closeOnEsc) return;
@@ -77,11 +77,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
           aria-modal="true"
           aria-labelledby={title ? 'modal-title' : undefined}
           aria-describedby={description ? 'modal-desc' : undefined}
-          className={cn(
-            'w-full rounded-lg bg-white shadow-xl',
-            sizeClasses[size],
-            className,
-          )}
+          className={cn('w-full rounded-lg bg-white shadow-xl', sizeClasses[size], className)}
           {...rest}
         >
           {(title || showCloseButton) && (
@@ -114,7 +110,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
         </div>
       </FocusTrap>
     </div>,
-    document.body,
+    document.body
   );
 });
 

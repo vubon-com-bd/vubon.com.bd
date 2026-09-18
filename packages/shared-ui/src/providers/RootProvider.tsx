@@ -10,12 +10,7 @@ import { PortalProvider } from './PortalProvider';
 export interface RootProviderProps {
   readonly children: ReactNode;
   readonly toastPosition?:
-    | 'top-right'
-    | 'top-left'
-    | 'bottom-right'
-    | 'bottom-left'
-    | 'top-center'
-    | 'bottom-center';
+    'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center';
 }
 
 /**

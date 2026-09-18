@@ -9,24 +9,21 @@ export interface OverlayProps extends HTMLAttributes<HTMLDivElement> {
   readonly blur?: boolean;
 }
 
-export const Overlay = forwardRef<HTMLDivElement, OverlayProps>(
-  function Overlay({ open, onClose, blur, className, ...rest }, ref) {
-    if (!open || typeof document === 'undefined') return null;
-    return createPortal(
-      <div
-        ref={ref}
-        aria-hidden="true"
-        onClick={onClose}
-        className={cn(
-          'fixed inset-0 z-[1300] bg-black/50',
-          blur && 'backdrop-blur-sm',
-          className,
-        )}
-        {...rest}
-      />,
-      document.body,
-    );
-  },
-);
+export const Overlay = forwardRef<HTMLDivElement, OverlayProps>(function Overlay(
+  { open, onClose, blur, className, ...rest },
+  ref
+) {
+  if (!open || typeof document === 'undefined') return null;
+  return createPortal(
+    <div
+      ref={ref}
+      aria-hidden="true"
+      onClick={onClose}
+      className={cn('fixed inset-0 z-[1300] bg-black/50', blur && 'backdrop-blur-sm', className)}
+      {...rest}
+    />,
+    document.body
+  );
+});
 
 Overlay.displayName = 'Overlay';

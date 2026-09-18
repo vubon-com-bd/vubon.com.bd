@@ -47,7 +47,7 @@ export function DataTable<T>({
                 className={cn(
                   'border-b border-slate-200 px-3 py-2 font-medium text-slate-700',
                   alignClasses[col.align ?? 'left'],
-                  col.className,
+                  col.className
                 )}
               >
                 {col.header}
@@ -77,7 +77,7 @@ export function DataTable<T>({
                     className={cn(
                       'border-b border-slate-100 px-3 py-2 text-slate-700',
                       alignClasses[col.align ?? 'left'],
-                      col.className,
+                      col.className
                     )}
                   >
                     {col.render(row)}

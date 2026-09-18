@@ -11,16 +11,11 @@ export const InlineSuccess = forwardRef<HTMLParagraphElement, InlineSuccessProps
     const content = message ?? children;
     if (!content) return null;
     return (
-      <p
-        ref={ref}
-        role="status"
-        className={cn('text-xs text-green-600', className)}
-        {...rest}
-      >
+      <p ref={ref} role="status" className={cn('text-xs text-green-600', className)} {...rest}>
         {content}
       </p>
     );
-  },
+  }
 );
 
 InlineSuccess.displayName = 'InlineSuccess';

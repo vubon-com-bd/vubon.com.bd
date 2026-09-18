@@ -1,5 +1,11 @@
 'use client';
-import { forwardRef, type HTMLAttributes, type ReactNode, type ThHTMLAttributes, type TdHTMLAttributes } from 'react';
+import {
+  forwardRef,
+  type HTMLAttributes,
+  type ReactNode,
+  type ThHTMLAttributes,
+  type TdHTMLAttributes,
+} from 'react';
 import { cn } from '../../utils/cn';
 
 export interface TableProps extends HTMLAttributes<HTMLTableElement> {
@@ -9,16 +15,14 @@ export interface TableProps extends HTMLAttributes<HTMLTableElement> {
 
 export const Table = forwardRef<HTMLTableElement, TableProps>(function Table(
   { children, caption, className, ...rest },
-  ref,
+  ref
 ) {
   return (
     <div className="w-full overflow-x-auto">
-      <table
-        ref={ref}
-        className={cn('w-full border-collapse text-sm', className)}
-        {...rest}
-      >
-        {caption && <caption className="caption-bottom py-2 text-xs text-slate-500">{caption}</caption>}
+      <table ref={ref} className={cn('w-full border-collapse text-sm', className)} {...rest}>
+        {caption && (
+          <caption className="caption-bottom py-2 text-xs text-slate-500">{caption}</caption>
+        )}
         {children}
       </table>
     </div>
@@ -33,13 +37,16 @@ export interface ThProps extends ThHTMLAttributes<HTMLTableCellElement> {
 
 export const Th = forwardRef<HTMLTableCellElement, ThProps>(function Th(
   { scope = 'col', className, children, ...rest },
-  ref,
+  ref
 ) {
   return (
     <th
       ref={ref}
       scope={scope}
-      className={cn('border-b border-slate-200 px-3 py-2 text-left font-medium text-slate-700', className)}
+      className={cn(
+        'border-b border-slate-200 px-3 py-2 text-left font-medium text-slate-700',
+        className
+      )}
       {...rest}
     >
       {children}
@@ -55,7 +62,7 @@ export interface TdProps extends TdHTMLAttributes<HTMLTableCellElement> {
 
 export const Td = forwardRef<HTMLTableCellElement, TdProps>(function Td(
   { className, children, ...rest },
-  ref,
+  ref
 ) {
   return (
     <td

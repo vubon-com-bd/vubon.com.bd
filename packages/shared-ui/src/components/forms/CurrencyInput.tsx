@@ -23,7 +23,7 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
         />
       </div>
     );
-  },
+  }
 );
 
 CurrencyInput.displayName = 'CurrencyInput';

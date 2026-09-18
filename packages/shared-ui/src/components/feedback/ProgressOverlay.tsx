@@ -11,10 +11,7 @@ export interface ProgressOverlayProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const ProgressOverlay = forwardRef<HTMLDivElement, ProgressOverlayProps>(
-  function ProgressOverlay(
-    { value, max = 100, label, fullscreen, className, ...rest },
-    ref,
-  ) {
+  function ProgressOverlay({ value, max = 100, label, fullscreen, className, ...rest }, ref) {
     return (
       <div
         ref={ref}
@@ -25,7 +22,7 @@ export const ProgressOverlay = forwardRef<HTMLDivElement, ProgressOverlayProps>(
         className={cn(
           'flex flex-col items-center justify-center gap-3',
           fullscreen ? 'fixed inset-0 z-[1400] bg-white/80 backdrop-blur-sm' : 'py-6',
-          className,
+          className
         )}
         {...rest}
       >
@@ -35,7 +32,7 @@ export const ProgressOverlay = forwardRef<HTMLDivElement, ProgressOverlayProps>(
         </div>
       </div>
     );
-  },
+  }
 );
 
 ProgressOverlay.displayName = 'ProgressOverlay';

@@ -17,7 +17,7 @@ export interface MenuProps extends HTMLAttributes<HTMLUListElement> {
 
 export const Menu = forwardRef<HTMLUListElement, MenuProps>(function Menu(
   { items, className, ...rest },
-  ref,
+  ref
 ) {
   return (
     <ul
@@ -25,7 +25,7 @@ export const Menu = forwardRef<HTMLUListElement, MenuProps>(function Menu(
       role="menu"
       className={cn(
         'flex min-w-[10rem] flex-col rounded-md border border-slate-200 bg-white p-1 shadow-md',
-        className,
+        className
       )}
       {...rest}
     >
@@ -38,8 +38,10 @@ export const Menu = forwardRef<HTMLUListElement, MenuProps>(function Menu(
             onClick={item.onSelect}
             className={cn(
               'flex w-full items-center gap-2 rounded px-2.5 py-1.5 text-left text-sm transition-colors',
-              item.destructive ? 'text-red-600 hover:bg-red-50' : 'text-slate-700 hover:bg-slate-100',
-              item.disabled && 'cursor-not-allowed opacity-50',
+              item.destructive
+                ? 'text-red-600 hover:bg-red-50'
+                : 'text-slate-700 hover:bg-slate-100',
+              item.disabled && 'cursor-not-allowed opacity-50'
             )}
           >
             {item.icon && <span aria-hidden="true">{item.icon}</span>}

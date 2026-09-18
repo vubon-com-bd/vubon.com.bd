@@ -23,17 +23,12 @@ const variantClasses = {
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
   { children, padding = 'md', variant = 'default', className, ...rest },
-  ref,
+  ref
 ) {
   return (
     <div
       ref={ref}
-      className={cn(
-        'rounded-lg',
-        paddingClasses[padding],
-        variantClasses[variant],
-        className,
-      )}
+      className={cn('rounded-lg', paddingClasses[padding], variantClasses[variant], className)}
       {...rest}
     >
       {children}
