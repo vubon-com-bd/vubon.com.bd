@@ -60,6 +60,54 @@
       "require": "./dist/application/index.js",
       "default": "./dist/application/index.js"
     },
+    "./application/errors/*": {
+      "types": "./dist/application/errors/*.d.ts",
+      "import": "./dist/application/errors/*.js",
+      "require": "./dist/application/errors/*.js",
+      "default": "./dist/application/errors/*.js"
+    },
+    "./application/commands/*": {
+      "types": "./dist/application/commands/*.d.ts",
+      "import": "./dist/application/commands/*.js",
+      "require": "./dist/application/commands/*.js",
+      "default": "./dist/application/commands/*.js"
+    },
+    "./application/queries/*": {
+      "types": "./dist/application/queries/*.d.ts",
+      "import": "./dist/application/queries/*.js",
+      "require": "./dist/application/queries/*.js",
+      "default": "./dist/application/queries/*.js"
+    },
+    "./application/services/*": {
+      "types": "./dist/application/services/*.d.ts",
+      "import": "./dist/application/services/*.js",
+      "require": "./dist/application/services/*.js",
+      "default": "./dist/application/services/*.js"
+    },
+    "./application/sagas/*": {
+      "types": "./dist/application/sagas/*.d.ts",
+      "import": "./dist/application/sagas/*.js",
+      "require": "./dist/application/sagas/*.js",
+      "default": "./dist/application/sagas/*.js"
+    },
+    "./application/mappers/*": {
+      "types": "./dist/application/mappers/*.d.ts",
+      "import": "./dist/application/mappers/*.js",
+      "require": "./dist/application/mappers/*.js",
+      "default": "./dist/application/mappers/*.js"
+    },
+    "./application/dtos/*": {
+      "types": "./dist/application/dtos/*.d.ts",
+      "import": "./dist/application/dtos/*.js",
+      "require": "./dist/application/dtos/*.js",
+      "default": "./dist/application/dtos/*.js"
+    },
+    "./application/events/*": {
+      "types": "./dist/application/events/*.d.ts",
+      "import": "./dist/application/events/*.js",
+      "require": "./dist/application/events/*.js",
+      "default": "./dist/application/events/*.js"
+    },
     "./application/*": {
       "types": "./dist/application/*/index.d.ts",
       "import": "./dist/application/*/index.js",

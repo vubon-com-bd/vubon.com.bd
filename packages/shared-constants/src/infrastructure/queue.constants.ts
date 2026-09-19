@@ -1,4 +1,11 @@
 export const QUEUE_NAME = {
+  // ─── Auth Service (নতুন) ──────────────────────────
+  AUTH: 'auth',
+  SESSION: 'session',
+  TOKEN: 'token',
+  SYNC: 'sync',
+
+  // ─── Existing ─────────────────────────────────────
   EMAIL: 'email',
   SMS: 'sms',
   PUSH: 'push',

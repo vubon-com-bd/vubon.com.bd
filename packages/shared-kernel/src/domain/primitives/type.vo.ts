@@ -9,9 +9,7 @@ const VALID_TYPES = new Set<string>(Object.values(DATA_TYPE));
  * Generic domain type VO.
  * Subclass may override `allowedValues()` to constrain.
  */
-export abstract class BaseTypeVO<T extends string = string>
-  extends BaseVO<T>
-{
+export abstract class BaseTypeVO<T extends string = string> extends BaseVO<T> {
   protected constructor(value: T) {
     super(value);
   }
@@ -31,11 +29,7 @@ export abstract class BaseTypeVO<T extends string = string>
   }
 
   isPrimitive(): boolean {
-    const primitives: readonly string[] = [
-      DATA_TYPE.STRING,
-      DATA_TYPE.NUMBER,
-      DATA_TYPE.BOOLEAN,
-    ];
+    const primitives: readonly string[] = [DATA_TYPE.STRING, DATA_TYPE.NUMBER, DATA_TYPE.BOOLEAN];
     return primitives.includes(this.value);
   }
 

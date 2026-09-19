@@ -9,9 +9,7 @@ const VALID_STATUSES = new Set<string>(Object.values(STATUS));
  * Generic domain status VO.
  * Subclass may override `allowedValues()` to constrain.
  */
-export abstract class BaseStatusVO<T extends string = StatusValue>
-  extends BaseVO<T>
-{
+export abstract class BaseStatusVO<T extends string = StatusValue> extends BaseVO<T> {
   protected constructor(value: T) {
     super(value);
   }

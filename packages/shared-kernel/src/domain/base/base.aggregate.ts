@@ -15,7 +15,7 @@ export abstract class AggregateRoot<TId = string> extends BaseEntity<TId> {
     id: TId,
     createdAt: BaseEntity<TId>['createdAt'],
     updatedAt: BaseEntity<TId>['updatedAt'],
-    deletedAt?: string | null,
+    deletedAt?: string | null
   ) {
     super(id, createdAt, updatedAt, deletedAt);
   }
