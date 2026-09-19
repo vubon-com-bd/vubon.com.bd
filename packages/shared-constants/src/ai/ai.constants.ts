@@ -1,0 +1,137 @@
+import { AI_MODEL } from './ai-model.constants';
+import { AI_MODEL_TYPE } from './ai-model-type.constants';
+import { AI_MODEL_STATUS } from './ai-model-status.constants';
+import {
+  AI_MODEL_PROVIDER,
+  AI_PROVIDER_ENV_KEY,
+  AI_PROVIDER_REGION,
+} from './ai-model-provider.constants';
+import { AI_PERSONALIZATION } from './ai-personalization.constants';
+import { AI_RANKING } from './ai-ranking.constants';
+import { AI_ANALYTICS } from './ai-analytics.constants';
+import { AI_TRAINING_STATUS, AI_TRAINING_TYPE, AI_TRAINING } from './ai-training.constants';
+import { AI_FEATURE, AI_FEATURE_STATUS, AI_FEATURE_TOGGLE } from './ai-feature.constants';
+import { AI_PROMPT_TYPE, AI_PROMPT_STATUS, AI_PROMPT, AI_PROMPT_ROLE } from './ai-prompt.constants';
+import {
+  AI_EMBEDDING_TYPE,
+  AI_EMBEDDING_MODEL,
+  AI_EMBEDDING_DIMENSION,
+  AI_EMBEDDING,
+} from './ai-embedding.constants';
+import {
+  AI_VECTOR_DB,
+  AI_VECTOR_INDEX_TYPE,
+  AI_VECTOR_METRIC,
+  AI_VECTOR,
+} from './ai-vector.constants';
+import {
+  AI_SIMILARITY_METRIC,
+  AI_SIMILARITY_THRESHOLD,
+  AI_SIMILARITY,
+} from './ai-similarity.constants';
+import { AI_CLUSTER_ALGORITHM, AI_CLUSTER_STATUS, AI_CLUSTER } from './ai-cluster.constants';
+import {
+  AI_FORECAST_TYPE,
+  AI_FORECAST_MODEL,
+  AI_FORECAST_HORIZON,
+  AI_FORECAST,
+} from './ai-forecast.constants';
+import {
+  AI_INSIGHT_TYPE,
+  AI_INSIGHT_PRIORITY,
+  AI_INSIGHT_STATUS,
+  AI_INSIGHT,
+} from './ai-insight.constants';
+
+export const AI_LIMIT = {
+  MAX_MODELS: 100,
+  MAX_PROMPTS: 1000,
+  MAX_TRAINING_JOBS: 50,
+  MAX_EMBEDDINGS: 10000000,
+  MAX_VECTORS: 10000000,
+  MAX_TOKENS_PER_REQUEST: 128000,
+  MAX_REQUESTS_PER_MINUTE: 1000,
+  MAX_REQUESTS_PER_DAY: 100000,
+  MAX_CONCURRENT_REQUESTS: 100,
+  REQUEST_TIMEOUT_SECONDS: 60,
+  RETENTION_DAYS: 365,
+  COST_BUDGET_DAILY: 1000,
+} as const;
+
+export const AI = {
+  LIMIT: AI_LIMIT,
+
+  MODEL: {
+    TYPE: AI_MODEL_TYPE,
+    STATUS: AI_MODEL_STATUS,
+    PROVIDER: AI_MODEL_PROVIDER,
+    PROVIDER_ENV_KEY: AI_PROVIDER_ENV_KEY,
+    PROVIDER_REGION: AI_PROVIDER_REGION,
+    AGGREGATE: AI_MODEL,
+  },
+
+  TRAINING: {
+    STATUS: AI_TRAINING_STATUS,
+    TYPE: AI_TRAINING_TYPE,
+    LIMIT: AI_TRAINING,
+  },
+
+  FEATURE: {
+    TYPE: AI_FEATURE,
+    STATUS: AI_FEATURE_STATUS,
+    TOGGLE: AI_FEATURE_TOGGLE,
+  },
+
+  PROMPT: {
+    TYPE: AI_PROMPT_TYPE,
+    STATUS: AI_PROMPT_STATUS,
+    ROLE: AI_PROMPT_ROLE,
+    LIMIT: AI_PROMPT,
+  },
+
+  EMBEDDING: {
+    TYPE: AI_EMBEDDING_TYPE,
+    MODEL: AI_EMBEDDING_MODEL,
+    DIMENSION: AI_EMBEDDING_DIMENSION,
+    LIMIT: AI_EMBEDDING,
+  },
+
+  VECTOR: {
+    DB: AI_VECTOR_DB,
+    INDEX_TYPE: AI_VECTOR_INDEX_TYPE,
+    METRIC: AI_VECTOR_METRIC,
+    LIMIT: AI_VECTOR,
+  },
+
+  SIMILARITY: {
+    METRIC: AI_SIMILARITY_METRIC,
+    THRESHOLD: AI_SIMILARITY_THRESHOLD,
+    LIMIT: AI_SIMILARITY,
+  },
+
+  CLUSTER: {
+    ALGORITHM: AI_CLUSTER_ALGORITHM,
+    STATUS: AI_CLUSTER_STATUS,
+    LIMIT: AI_CLUSTER,
+  },
+
+  FORECAST: {
+    TYPE: AI_FORECAST_TYPE,
+    MODEL: AI_FORECAST_MODEL,
+    HORIZON: AI_FORECAST_HORIZON,
+    LIMIT: AI_FORECAST,
+  },
+
+  RANKING: AI_RANKING,
+  PERSONALIZATION: AI_PERSONALIZATION,
+  ANALYTICS: AI_ANALYTICS,
+
+  INSIGHT: {
+    TYPE: AI_INSIGHT_TYPE,
+    PRIORITY: AI_INSIGHT_PRIORITY,
+    STATUS: AI_INSIGHT_STATUS,
+    LIMIT: AI_INSIGHT,
+  },
+} as const;
+
+export type AiType = typeof AI;

@@ -1,0 +1,16 @@
+// user/index.ts — User domain barrel export
+
+export * from './user.constants';
+export * from './user-status.constants';
+export * from './user-type.constants';
+export * from './user-role.constants';
+export * from './user-permission.constants';
+export * from './user-profile.constants';
+export * from './user-settings.constants';
+export * from './user-preferences.constants';
+export * from './user-address.constants';
+export * from './user-contact.constants';
+export * from './user-verification.constants';
+export * from './user-kyc.constants';
+export * from './user-activity.constants';
+export * from './user-log.constants';

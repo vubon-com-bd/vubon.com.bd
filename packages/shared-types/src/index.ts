@@ -1,13 +1,33 @@
-/**
- * Shared types module entry point
- * Exports all types from all sub-modules
- */
+// packages/shared-types/src/index.ts
+// Root barrel — FINAL
 
-// Export all auth types
-export * from './auth';
-
-// Export all common types
+// ─────────────────────────────────────────────
+// Level 1 — Foundation
+// ─────────────────────────────────────────────
 export * from './common';
 
-// Re-export specific types/constants from shared-constants if needed
-export { DefaultRole } from '@vubon/shared-constants';
+// ─────────────────────────────────────────────
+// Level 2 — Infrastructure + Security
+// ─────────────────────────────────────────────
+export * from './infrastructure';
+export * from './security';
+
+// ─────────────────────────────────────────────
+// Level 3 — Domain
+// ─────────────────────────────────────────────
+export * from './auth';
+export * from './user';
+export * from './business';
+
+// ─────────────────────────────────────────────
+// Level 4 — Platform
+// ─────────────────────────────────────────────
+export * from './platform';
+
+// ─────────────────────────────────────────────
+// Cross-cutting Domains
+// ─────────────────────────────────────────────
+export * from './ai';
+export * from './marketing';
+export * from './support';
+export * from './logistics';

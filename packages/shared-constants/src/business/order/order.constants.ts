@@ -1,0 +1,63 @@
+import { ORDER_STATUS, ORDER_PRIORITY } from './order-status.constants';
+import { ORDER_ITEM_STATUS, ORDER_ITEM_TYPE, ORDER_ITEM_LIMIT } from './order-item.constants';
+import { ORDER_CANCEL_REASON, ORDER_CANCEL_STATUS, ORDER_CANCEL } from './order-cancel.constants';
+import { ORDER_RETURN_STATUS, ORDER_RETURN_REASON, ORDER_RETURN } from './order-return.constants';
+import { ORDER_TRACKING_EVENT, ORDER_TRACKING } from './order-tracking.constants';
+import {
+  ORDER_FULFILLMENT_STATUS,
+  ORDER_FULFILLMENT_TYPE,
+  ORDER_FULFILLMENT,
+} from './order-fulfillment.constants';
+
+export const ORDER_TYPE = {
+  REGULAR: 'regular',
+  PRE_ORDER: 'pre_order',
+  BACKORDER: 'backorder',
+  SUBSCRIPTION: 'subscription',
+  EXCHANGE: 'exchange',
+  REPLACEMENT: 'replacement',
+} as const;
+
+export const ORDER_LIMIT = {
+  MIN_AMOUNT: 1,
+  MAX_AMOUNT: 10000000,
+  MAX_ITEMS: 100,
+  MAX_NOTES_LENGTH: 1000,
+  PAYMENT_WINDOW_MINUTES: 30,
+  CONFIRMATION_WINDOW_HOURS: 24,
+  AUTO_CANCEL_HOURS: 48,
+  ALLOW_GUEST_ORDER: true,
+} as const;
+
+export const ORDER = {
+  TYPE: ORDER_TYPE,
+  STATUS: ORDER_STATUS,
+  PRIORITY: ORDER_PRIORITY,
+  ITEM: {
+    STATUS: ORDER_ITEM_STATUS,
+    TYPE: ORDER_ITEM_TYPE,
+    LIMIT: ORDER_ITEM_LIMIT,
+  },
+  CANCEL: {
+    REASON: ORDER_CANCEL_REASON,
+    STATUS: ORDER_CANCEL_STATUS,
+    LIMIT: ORDER_CANCEL,
+  },
+  RETURN: {
+    STATUS: ORDER_RETURN_STATUS,
+    REASON: ORDER_RETURN_REASON,
+    LIMIT: ORDER_RETURN,
+  },
+  TRACKING: {
+    EVENT: ORDER_TRACKING_EVENT,
+    LIMIT: ORDER_TRACKING,
+  },
+  FULFILLMENT: {
+    STATUS: ORDER_FULFILLMENT_STATUS,
+    TYPE: ORDER_FULFILLMENT_TYPE,
+    LIMIT: ORDER_FULFILLMENT,
+  },
+  LIMIT: ORDER_LIMIT,
+} as const;
+
+export type OrderType = typeof ORDER;
