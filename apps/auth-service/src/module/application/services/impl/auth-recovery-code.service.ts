@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { AuthRecoveryCodeServiceInterface } from '../interfaces/auth-recovery-code.service.interface';
@@ -18,8 +18,8 @@ export class AuthRecoveryCodeService
   readonly name = 'AuthRecoveryCodeService';
 
   constructor(
-    private readonly recoveryCodeRepo: AuthRecoveryCodeRepository,
-    private readonly recoveryCodeGenerator: RecoveryCodeGeneratorPort,
+    @Inject('AuthRecoveryCodeRepository') private readonly recoveryCodeRepo: AuthRecoveryCodeRepository,
+    @Inject('RecoveryCodeGeneratorPort') private readonly recoveryCodeGenerator: RecoveryCodeGeneratorPort,
     private readonly eventBus: EventBus,
   ) {
     super();

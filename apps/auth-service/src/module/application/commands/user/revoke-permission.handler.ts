@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { RevokePermissionCommand } from './revoke-permission.command';
@@ -11,7 +12,7 @@ export class RevokePermissionHandler
   readonly commandType = 'user.revoke-permission';
 
   constructor(
-    private readonly permissionService: UserPermissionServiceInterface,
+    @Inject('UserPermissionService') private readonly permissionService: UserPermissionServiceInterface,
     private readonly eventBus: EventBus,
   ) {
     super();

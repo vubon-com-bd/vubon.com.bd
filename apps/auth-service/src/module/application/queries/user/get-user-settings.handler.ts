@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { GetUserSettingsQuery } from './get-user-settings.query';
@@ -12,7 +13,7 @@ export class GetUserSettingsHandler
 {
   readonly queryType = 'user.get-settings';
 
-  constructor(private readonly settingsRepo: UserSettingsRepository) {
+  constructor(@Inject('UserSettingsRepository') private readonly settingsRepo: UserSettingsRepository) {
     super();
   }
 

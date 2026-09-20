@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { AuthAccountLockServiceInterface } from '../interfaces/auth-account-lock.service.interface';
@@ -17,7 +17,7 @@ export class AuthAccountLockService
   readonly name = 'AuthAccountLockService';
 
   constructor(
-    private readonly lockRepo: AuthAccountLockRepository,
+    @Inject('AuthAccountLockRepository') private readonly lockRepo: AuthAccountLockRepository,
     private readonly eventBus: EventBus,
   ) {
     super();

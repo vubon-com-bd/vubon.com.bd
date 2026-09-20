@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { UpdateContactCommand } from './update-contact.command';
@@ -11,7 +12,7 @@ export class UpdateContactHandler
   readonly commandType = 'user.update-contact';
 
   constructor(
-    private readonly contactService: UserContactServiceInterface,
+    @Inject('UserContactService') private readonly contactService: UserContactServiceInterface,
     private readonly eventBus: EventBus,
   ) {
     super();

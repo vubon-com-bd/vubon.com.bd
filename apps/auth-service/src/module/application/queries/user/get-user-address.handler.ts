@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { GetUserAddressQuery } from './get-user-address.query';
@@ -12,7 +13,7 @@ export class GetUserAddressHandler
 {
   readonly queryType = 'user.get-address';
 
-  constructor(private readonly addressRepo: UserAddressRepository) {
+  constructor(@Inject('UserAddressRepository') private readonly addressRepo: UserAddressRepository) {
     super();
   }
 

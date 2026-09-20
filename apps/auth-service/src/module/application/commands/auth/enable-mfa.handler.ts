@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { EnableMfaCommand } from './enable-mfa.command';
@@ -12,7 +13,7 @@ export class EnableMfaHandler
   readonly commandType = 'auth.enable-mfa';
 
   constructor(
-    private readonly mfaService: AuthMfaServiceInterface,
+    @Inject('AuthMfaService') @Inject('AuthMfaService') private readonly mfaService: AuthMfaServiceInterface,
     private readonly eventBus: EventBus,
   ) {
     super();

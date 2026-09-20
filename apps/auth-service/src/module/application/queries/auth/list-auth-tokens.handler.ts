@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { ListAuthTokensQuery } from './list-auth-tokens.query';
@@ -10,7 +11,7 @@ export class ListAuthTokensHandler
 {
   readonly queryType = 'auth.list-tokens';
 
-  constructor(private readonly tokenRepo: AuthTokenRepository) {
+  constructor(@Inject('AuthTokenRepository') private readonly tokenRepo: AuthTokenRepository) {
     super();
   }
 

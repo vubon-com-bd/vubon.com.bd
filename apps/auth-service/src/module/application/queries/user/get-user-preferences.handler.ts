@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { GetUserPreferencesQuery } from './get-user-preferences.query';
@@ -12,7 +13,7 @@ export class GetUserPreferencesHandler
 {
   readonly queryType = 'user.get-preferences';
 
-  constructor(private readonly preferencesRepo: UserPreferencesRepository) {
+  constructor(@Inject('UserPreferencesRepository') private readonly preferencesRepo: UserPreferencesRepository) {
     super();
   }
 

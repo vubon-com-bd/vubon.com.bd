@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { GetAuthSettingsQuery } from './get-auth-settings.query';
@@ -11,7 +12,7 @@ export class GetAuthSettingsHandler
 {
   readonly queryType = 'auth.get-settings';
 
-  constructor(private readonly settingsService: AuthSettingsServiceInterface) {
+  constructor(@Inject('AuthSettingsService') private readonly settingsService: AuthSettingsServiceInterface) {
     super();
   }
 

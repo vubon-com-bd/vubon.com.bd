@@ -1,11 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { User as PrismaUser } from '@prisma/client';
 import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
 import { PrismaService } from '../prisma.service';
 import { UserEntity } from '../../../../domain/entities/user.entity';
 import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
 import { UserEmailVO } from '../../../../domain/value-objects/primitives/user-email.vo';
-import { UserPasswordVO } from '../../../../domain/value-objects/primitives/user-password.vo';
 import { UserNameVO } from '../../../../domain/value-objects/primitives/user-name.vo';
 import { UserPhoneVO } from '../../../../domain/value-objects/primitives/user-phone.vo';
 import { UserStatusVO } from '../../../../domain/value-objects/primitives/user-status.vo';
@@ -18,7 +17,7 @@ export class UserPrismaRepository
   extends BasePrismaRepository<UserEntity, UserIdVO>
   implements UserRepository
 {
-  constructor(protected readonly prisma: PrismaService) {
+  constructor(@Inject('PrismaService') protected readonly prisma: PrismaService) {
     super(prisma);
   }
 
@@ -53,7 +52,6 @@ export class UserPrismaRepository
   async save(entity: UserEntity): Promise<UserEntity> {
     const data = {
       email: entity.email.value,
-      password: '',
       name: entity.name.value,
       phone: entity.phone?.value ?? null,
       status: entity.status.value,
@@ -65,8 +63,12 @@ export class UserPrismaRepository
     };
     const raw = await this.prisma.user.upsert({
       where: { id: entity.id.value },
-      create: { id: entity.id.value, ...data },
       update: data,
+      create: {
+        id: entity.id.value,
+        password: '',
+        ...data,
+      },
     });
     return this.toDomain(raw);
   }
@@ -92,5 +94,37 @@ export class UserPrismaRepository
   async findByRole(role: string): Promise<readonly UserEntity[]> {
     const rows = await this.prisma.user.findMany({ where: { role } });
     return rows.map((r) => this.toDomain(r));
+  }
+
+  async getPasswordHash(userId: UserIdVO): Promise<string | null> {
+    const raw = await this.prisma.user.findUnique({
+      where: { id: userId.value },
+      select: { password: true },
+    });
+    return raw?.password ?? null;
+  }
+
+  async createWithPassword(entity: UserEntity, passwordHash: string): Promise<UserEntity> {
+    const raw = await this.prisma.user.create({
+      data: {
+        id: entity.id.value,
+        email: entity.email.value,
+        password: passwordHash,
+        name: entity.name.value,
+        phone: entity.phone?.value ?? null,
+        status: entity.status.value,
+        type: entity.type.value,
+        role: entity.role.value,
+        emailVerified: entity.emailVerified,
+        updatedAt: new Date(),
+      },
+    });
+    return this.toDomain(raw);
+  }
+  async updatePassword(userId: UserIdVO, passwordHash: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId.value },
+      data: { password: passwordHash, updatedAt: new Date() },
+    });
   }
 }

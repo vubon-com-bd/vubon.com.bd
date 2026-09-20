@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { LoginCommand } from './login.command';
@@ -13,7 +14,7 @@ export class LoginHandler
   readonly commandType = 'auth.login';
 
   constructor(
-    private readonly authService: AuthServiceInterface,
+    @Inject('AuthService') private readonly authService: AuthServiceInterface,
     private readonly eventBus: EventBus,
   ) {
     super();

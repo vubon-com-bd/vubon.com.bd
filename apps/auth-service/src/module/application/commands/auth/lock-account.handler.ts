@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { LockAccountCommand } from './lock-account.command';
@@ -12,7 +13,7 @@ export class LockAccountHandler
   readonly commandType = 'auth.lock-account';
 
   constructor(
-    private readonly lockService: AuthAccountLockServiceInterface,
+    @Inject('AuthAccountLockService') @Inject('AuthAccountLockService') private readonly lockService: AuthAccountLockServiceInterface,
     private readonly eventBus: EventBus,
   ) {
     super();

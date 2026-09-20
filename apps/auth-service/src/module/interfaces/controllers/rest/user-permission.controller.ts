@@ -24,7 +24,7 @@ import {
 } from '../../dtos/requests/permission.request.dto';
 
 @ApiTags('User Permissions')
-@Controller('users/:userId/permissions')
+@Controller('user-permissions/:userId')
 @UseGuards(JwtAuthGuard)
 export class UserPermissionController {
   constructor(

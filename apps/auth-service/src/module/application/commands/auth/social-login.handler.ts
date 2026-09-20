@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { SocialLoginCommand } from './social-login.command';
@@ -12,7 +13,7 @@ export class SocialLoginHandler
   readonly commandType = 'auth.social-login';
 
   constructor(
-    private readonly socialService: AuthSocialServiceInterface,
+    @Inject('AuthSocialService') @Inject('AuthSocialService') private readonly socialService: AuthSocialServiceInterface,
     private readonly eventBus: EventBus,
   ) {
     super();

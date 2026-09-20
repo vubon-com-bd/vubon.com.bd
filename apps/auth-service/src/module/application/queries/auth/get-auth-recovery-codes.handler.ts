@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { GetAuthRecoveryCodesQuery } from './get-auth-recovery-codes.query';
@@ -16,7 +17,7 @@ export class GetAuthRecoveryCodesHandler
 {
   readonly queryType = 'auth.get-recovery-codes';
 
-  constructor(private readonly recoveryRepo: AuthRecoveryCodeRepository) {
+  constructor(@Inject('AuthRecoveryCodeRepository') private readonly recoveryRepo: AuthRecoveryCodeRepository) {
     super();
   }
 

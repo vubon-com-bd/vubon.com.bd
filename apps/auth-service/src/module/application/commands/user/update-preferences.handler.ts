@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { UpdatePreferencesCommand } from './update-preferences.command';
@@ -13,7 +14,7 @@ export class UpdatePreferencesHandler
   readonly commandType = 'user.update-preferences';
 
   constructor(
-    private readonly preferencesService: UserPreferencesServiceInterface,
+    @Inject('UserPreferencesService') private readonly preferencesService: UserPreferencesServiceInterface,
     private readonly eventBus: EventBus,
   ) {
     super();

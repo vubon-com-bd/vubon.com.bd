@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { AuthSsoServiceInterface } from '../interfaces/auth-sso.service.interface';
@@ -19,7 +19,7 @@ export class AuthSsoService
   readonly name = 'AuthSsoService';
 
   constructor(
-    private readonly ssoRepo: AuthSsoRepository,
+    @Inject('AuthSsoRepository') private readonly ssoRepo: AuthSsoRepository,
     private readonly eventBus: EventBus,
   ) {
     super();

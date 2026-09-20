@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { AuthSessionServiceInterface } from '../interfaces/auth-session.service.interface';
@@ -21,8 +21,8 @@ export class AuthSessionService
   readonly name = 'AuthSessionService';
 
   constructor(
-    private readonly sessionRepo: AuthSessionRepository,
-    private readonly sessionTokenGenerator: SessionTokenGeneratorPort,
+    @Inject('AuthSessionRepository') private readonly sessionRepo: AuthSessionRepository,
+    @Inject('SessionTokenGeneratorPort') private readonly sessionTokenGenerator: SessionTokenGeneratorPort,
     private readonly eventBus: EventBus,
   ) {
     super();

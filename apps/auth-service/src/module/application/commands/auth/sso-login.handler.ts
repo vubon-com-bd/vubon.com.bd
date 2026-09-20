@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { SsoLoginCommand } from './sso-login.command';
@@ -12,7 +13,7 @@ export class SsoLoginHandler
   readonly commandType = 'auth.sso-login';
 
   constructor(
-    private readonly ssoService: AuthSsoServiceInterface,
+    @Inject('AuthSsoService') @Inject('AuthSsoService') private readonly ssoService: AuthSsoServiceInterface,
     private readonly eventBus: EventBus,
   ) {
     super();

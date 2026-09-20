@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { EnableBiometricCommand } from './enable-biometric.command';
@@ -12,7 +13,7 @@ export class EnableBiometricHandler
   readonly commandType = 'auth.enable-biometric';
 
   constructor(
-    private readonly biometricService: AuthBiometricServiceInterface,
+    @Inject('AuthBiometricService') @Inject('AuthBiometricService') private readonly biometricService: AuthBiometricServiceInterface,
     private readonly eventBus: EventBus,
   ) {
     super();

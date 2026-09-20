@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { RejectKycCommand } from './reject-kyc.command';
@@ -12,7 +13,7 @@ export class RejectKycHandler
   readonly commandType = 'user.reject-kyc';
 
   constructor(
-    private readonly kycService: UserKycServiceInterface,
+    @Inject('UserKycService') private readonly kycService: UserKycServiceInterface,
     private readonly eventBus: EventBus,
   ) {
     super();

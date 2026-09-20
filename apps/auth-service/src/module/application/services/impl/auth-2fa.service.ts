@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { Auth2FaServiceInterface } from '../interfaces/auth-2fa.service.interface';
@@ -14,7 +14,7 @@ export class Auth2FaService
   readonly name = 'Auth2FaService';
 
   constructor(
-    private readonly twoFaRepo: Auth2FaRepository,
+    @Inject('Auth2FaRepository') private readonly twoFaRepo: Auth2FaRepository,
     private readonly eventBus: EventBus,
   ) {
     super();

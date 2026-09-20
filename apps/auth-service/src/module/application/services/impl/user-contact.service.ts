@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserContactServiceInterface } from '../interfaces/user-contact.service.interface';
@@ -19,7 +19,7 @@ export class UserContactService
   readonly name = 'UserContactService';
 
   constructor(
-    private readonly contactRepo: UserContactRepository,
+    @Inject('UserContactRepository') private readonly contactRepo: UserContactRepository,
     private readonly eventBus: EventBus,
   ) {
     super();

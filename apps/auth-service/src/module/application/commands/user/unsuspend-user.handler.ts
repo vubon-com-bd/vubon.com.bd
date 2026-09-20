@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { UnsuspendUserCommand } from './unsuspend-user.command';
@@ -13,7 +14,7 @@ export class UnsuspendUserHandler
   readonly commandType = 'user.unsuspend';
 
   constructor(
-    private readonly userRepo: UserRepository,
+    @Inject('UserRepository') private readonly userRepo: UserRepository,
     private readonly eventBus: EventBus,
   ) {
     super();

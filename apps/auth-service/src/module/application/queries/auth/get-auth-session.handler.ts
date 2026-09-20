@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { GetAuthSessionQuery } from './get-auth-session.query';
@@ -12,7 +13,7 @@ export class GetAuthSessionHandler
 {
   readonly queryType = 'auth.get-session';
 
-  constructor(private readonly sessionRepo: AuthSessionRepository) {
+  constructor(@Inject('AuthSessionRepository') private readonly sessionRepo: AuthSessionRepository) {
     super();
   }
 

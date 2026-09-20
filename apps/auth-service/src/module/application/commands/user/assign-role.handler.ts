@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { AssignRoleCommand } from './assign-role.command';
@@ -11,7 +12,7 @@ export class AssignRoleHandler
   readonly commandType = 'user.assign-role';
 
   constructor(
-    private readonly roleService: AuthRoleServiceInterface,
+    @Inject('AuthRoleService') private readonly roleService: AuthRoleServiceInterface,
     private readonly eventBus: EventBus,
   ) {
     super();

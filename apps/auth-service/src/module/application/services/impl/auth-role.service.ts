@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { AuthRoleServiceInterface } from '../interfaces/auth-role.service.interface';
 import type { AuthRoleRepository } from '../../../domain/repositories/auth-role.repository.interface';
+import type { UserRoleRepository } from '../../../domain/repositories/user-role.repository.interface';
 import { AuthRoleEntity } from '../../../domain/entities/auth-role.entity';
 import { RoleNameVO } from '../../../domain/value-objects/primitives/role-name.vo';
+import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
 import type { UserRoleResponseDTO } from '../../dtos/responses/user-role-response.dto';
 
 @Injectable()
@@ -15,7 +17,8 @@ export class AuthRoleService
   readonly name = 'AuthRoleService';
 
   constructor(
-    private readonly roleRepo: AuthRoleRepository,
+    @Inject('AuthRoleRepository') private readonly roleRepo: AuthRoleRepository,
+    @Inject('UserRoleRepository') private readonly userRoleRepo: UserRoleRepository,
     private readonly eventBus: EventBus,
   ) {
     super();
@@ -32,14 +35,16 @@ export class AuthRoleService
   }
 
   async assign(userId: string, roleName: string): Promise<void> {
-    void userId;
-    void roleName;
-    throw new Error('role assignment orchestration not yet wired');
+    await this.userRoleRepo.assign(
+      UserIdVO.create(userId),
+      RoleNameVO.create(roleName),
+    );
   }
 
   async revoke(userId: string, roleName: string): Promise<void> {
-    void userId;
-    void roleName;
-    throw new Error('role revoke orchestration not yet wired');
+    await this.userRoleRepo.revoke(
+      UserIdVO.create(userId),
+      RoleNameVO.create(roleName),
+    );
   }
 }

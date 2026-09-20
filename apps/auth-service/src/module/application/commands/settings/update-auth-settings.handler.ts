@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { UpdateAuthSettingsCommand } from './update-auth-settings.command';
@@ -12,7 +13,7 @@ export class UpdateAuthSettingsHandler
   readonly commandType = 'settings.update-auth';
 
   constructor(
-    private readonly settingsService: AuthSettingsServiceInterface,
+    @Inject('AuthSettingsService') private readonly settingsService: AuthSettingsServiceInterface,
     private readonly eventBus: EventBus,
   ) {
     super();

@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { GetAuthMfaSettingsQuery } from './get-auth-mfa-settings.query';
@@ -17,7 +18,7 @@ export class GetAuthMfaSettingsHandler
 {
   readonly queryType = 'auth.get-mfa-settings';
 
-  constructor(private readonly mfaRepo: AuthMfaRepository) {
+  constructor(@Inject('AuthMfaRepository') private readonly mfaRepo: AuthMfaRepository) {
     super();
   }
 

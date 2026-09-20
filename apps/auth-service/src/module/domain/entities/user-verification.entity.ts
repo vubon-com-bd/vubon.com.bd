@@ -2,10 +2,12 @@ import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
 import { UserIdVO } from '../value-objects/primitives/user-id.vo';
 import { VerificationTypeVO } from '../value-objects/primitives/verification-type.vo';
 import { VerificationStatusVO } from '../value-objects/primitives/verification-status.vo';
+import { VerificationCodeVO } from '../value-objects/primitives/verification-code.vo';
 
 export interface UserVerificationEntityProps {
   readonly userId: UserIdVO;
   readonly type: VerificationTypeVO;
+  readonly code: VerificationCodeVO;
   readonly status: VerificationStatusVO;
   readonly verifiedAt: Date | null;
   readonly expiresAt: Date | null;
@@ -14,6 +16,7 @@ export interface UserVerificationEntityProps {
 export class UserVerificationEntity extends BaseEntity<UserIdVO> {
   private readonly _userId: UserIdVO;
   private readonly _type: VerificationTypeVO;
+  private readonly _code: VerificationCodeVO;
   private readonly _status: VerificationStatusVO;
   private readonly _verifiedAt: Date | null;
   private readonly _expiresAt: Date | null;
@@ -28,6 +31,7 @@ export class UserVerificationEntity extends BaseEntity<UserIdVO> {
     super(id, createdAt, updatedAt, deletedAt);
     this._userId = props.userId;
     this._type = props.type;
+    this._code = props.code;
     this._status = props.status;
     this._verifiedAt = props.verifiedAt;
     this._expiresAt = props.expiresAt;
@@ -74,6 +78,7 @@ export class UserVerificationEntity extends BaseEntity<UserIdVO> {
 
   get userId(): UserIdVO { return this._userId; }
   get type(): VerificationTypeVO { return this._type; }
+  get code(): VerificationCodeVO { return this._code; }
   get status(): VerificationStatusVO { return this._status; }
   get verifiedAt(): Date | null { return this._verifiedAt; }
   get expiresAt(): Date | null { return this._expiresAt; }
@@ -82,10 +87,16 @@ export class UserVerificationEntity extends BaseEntity<UserIdVO> {
     return this._status.value === 'verified';
   }
 
+  get isExpired(): boolean {
+    if (!this._expiresAt) return false;
+    return this._expiresAt.getTime() <= Date.now();
+  }
+
   private _toProps(): UserVerificationEntityProps {
     return {
       userId: this._userId,
       type: this._type,
+      code: this._code,
       status: this._status,
       verifiedAt: this._verifiedAt,
       expiresAt: this._expiresAt,

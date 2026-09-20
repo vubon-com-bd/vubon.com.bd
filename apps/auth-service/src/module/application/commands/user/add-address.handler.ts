@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { AddAddressCommand } from './add-address.command';
@@ -13,7 +14,7 @@ export class AddAddressHandler
   readonly commandType = 'user.add-address';
 
   constructor(
-    private readonly addressService: UserAddressServiceInterface,
+    @Inject('UserAddressService') private readonly addressService: UserAddressServiceInterface,
     private readonly eventBus: EventBus,
   ) {
     super();

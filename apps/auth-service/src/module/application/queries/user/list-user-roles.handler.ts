@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { ListUserRolesQuery } from './list-user-roles.query';
@@ -10,7 +11,7 @@ export class ListUserRolesHandler
 {
   readonly queryType = 'user.list-roles';
 
-  constructor(private readonly roleRepo: AuthRoleRepository) {
+  constructor(@Inject('AuthRoleRepository') private readonly roleRepo: AuthRoleRepository) {
     super();
   }
 

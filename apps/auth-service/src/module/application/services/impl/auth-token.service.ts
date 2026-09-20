@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { AuthTokenServiceInterface } from '../interfaces/auth-token.service.interface';
@@ -23,8 +23,8 @@ export class AuthTokenService
   readonly name = 'AuthTokenService';
 
   constructor(
-    private readonly tokenRepo: AuthTokenRepository,
-    private readonly tokenGenerator: TokenGeneratorPort,
+    @Inject('AuthTokenRepository') private readonly tokenRepo: AuthTokenRepository,
+    @Inject('TokenGeneratorPort') private readonly tokenGenerator: TokenGeneratorPort,
     private readonly eventBus: EventBus,
   ) {
     super();

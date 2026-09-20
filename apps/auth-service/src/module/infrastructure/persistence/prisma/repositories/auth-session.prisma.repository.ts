@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { AuthSession as PrismaAuthSession } from '@prisma/client';
 import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
 import { PrismaService } from '../prisma.service';
@@ -13,7 +13,7 @@ export class AuthSessionPrismaRepository
   extends BasePrismaRepository<AuthSessionEntity, string>
   implements AuthSessionRepository
 {
-  constructor(protected readonly prisma: PrismaService) {
+  constructor(@Inject('PrismaService') protected readonly prisma: PrismaService) {
     super(prisma);
   }
 

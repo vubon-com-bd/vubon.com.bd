@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { AuthOAuthServiceInterface } from '../interfaces/auth-oauth.service.interface';
@@ -15,7 +15,7 @@ export class AuthOAuthService
   readonly name = 'AuthOAuthService';
 
   constructor(
-    private readonly oauthRepo: AuthOAuthRepository,
+    @Inject('AuthOAuthRepository') private readonly oauthRepo: AuthOAuthRepository,
     private readonly eventBus: EventBus,
   ) {
     super();

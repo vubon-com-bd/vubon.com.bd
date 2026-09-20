@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { GetUserProfileQuery } from './get-user-profile.query';
@@ -12,7 +13,7 @@ export class GetUserProfileHandler
 {
   readonly queryType = 'user.get-profile';
 
-  constructor(private readonly profileRepo: UserProfileRepository) {
+  constructor(@Inject('UserProfileRepository') private readonly profileRepo: UserProfileRepository) {
     super();
   }
 

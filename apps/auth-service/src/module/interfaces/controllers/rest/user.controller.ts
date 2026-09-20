@@ -1,21 +1,10 @@
 import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  Patch,
-  Post,
-  UseGuards,
+  Body, Controller, Delete, Get, HttpCode, HttpStatus,
+  Param, Patch, Post, UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import {
-  JwtAuthGuard,
-  Permissions,
-} from '@vubon/shared-kernel/interfaces';
+import { JwtAuthGuard, Permissions } from '@vubon/shared-kernel/interfaces';
 import { PERMISSION } from '@vubon/shared-constants/common';
 import { CreateUserCommand } from '../../../application/commands/user/create-user.command';
 import { UpdateUserCommand } from '../../../application/commands/user/update-user.command';
@@ -63,14 +52,15 @@ export class UserController {
     return this.queryBus.execute(new ListUsersQuery());
   }
 
-  @Get(':id')
+  // ⚠️ IMPORTANT: This route must be AFTER all static sub-routes
+  @Get('id/:id')
   @Permissions(PERMISSION.USER_VIEW)
   @UserSwagger.Get()
   async get(@Param('id') id: string): Promise<unknown> {
     return this.queryBus.execute(new GetUserQuery(id));
   }
 
-  @Patch(':id')
+  @Patch('id/:id')
   @Permissions(PERMISSION.USER_UPDATE)
   async update(
     @Param('id') id: string,
@@ -90,7 +80,7 @@ export class UserController {
     );
   }
 
-  @Delete(':id')
+  @Delete('id/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Permissions(PERMISSION.USER_DELETE)
   async delete(@Param('id') id: string): Promise<void> {

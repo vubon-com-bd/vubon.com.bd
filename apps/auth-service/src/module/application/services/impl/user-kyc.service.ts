@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserKycServiceInterface } from '../interfaces/user-kyc.service.interface';
@@ -17,7 +17,7 @@ export class UserKycService
   readonly name = 'UserKycService';
 
   constructor(
-    private readonly kycRepo: UserKycRepository,
+    @Inject('UserKycRepository') private readonly kycRepo: UserKycRepository,
     private readonly eventBus: EventBus,
   ) {
     super();

@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { GetUserQuery } from './get-user.query';
@@ -13,7 +14,7 @@ export class GetUserHandler
 {
   readonly queryType = 'user.get';
 
-  constructor(private readonly userRepo: UserRepository) {
+  constructor(@Inject('UserRepository') private readonly userRepo: UserRepository) {
     super();
   }
 

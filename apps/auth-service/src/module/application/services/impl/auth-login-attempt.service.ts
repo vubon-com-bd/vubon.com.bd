@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { AuthLoginAttemptServiceInterface } from '../interfaces/auth-login-attempt.service.interface';
@@ -16,7 +16,7 @@ export class AuthLoginAttemptService
   readonly name = 'AuthLoginAttemptService';
 
   constructor(
-    private readonly attemptRepo: AuthLoginAttemptRepository,
+    @Inject('AuthLoginAttemptRepository') private readonly attemptRepo: AuthLoginAttemptRepository,
     private readonly eventBus: EventBus,
   ) {
     super();

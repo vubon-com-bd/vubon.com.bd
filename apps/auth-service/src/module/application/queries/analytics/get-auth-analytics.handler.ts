@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { GetAuthAnalyticsQuery } from './get-auth-analytics.query';
@@ -20,7 +21,7 @@ export class GetAuthAnalyticsHandler
   readonly queryType = 'analytics.get-auth';
 
   constructor(
-    private readonly attemptRepo: AuthLoginAttemptRepository,
+    @Inject('AuthLoginAttemptRepository') private readonly attemptRepo: AuthLoginAttemptRepository,
     private readonly sessionRepo: AuthSessionRepository,
   ) {
     super();

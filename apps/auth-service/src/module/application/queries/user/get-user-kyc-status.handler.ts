@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { GetUserKycStatusQuery } from './get-user-kyc-status.query';
@@ -12,7 +13,7 @@ export class GetUserKycStatusHandler
 {
   readonly queryType = 'user.get-kyc-status';
 
-  constructor(private readonly kycRepo: UserKycRepository) {
+  constructor(@Inject('UserKycRepository') private readonly kycRepo: UserKycRepository) {
     super();
   }
 

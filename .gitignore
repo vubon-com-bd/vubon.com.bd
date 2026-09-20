@@ -23,3 +23,20 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# Test/Scratch files (never commit)
+*.cjs
+*.bak
+*.direct
+test-db.cjs
+test-client.cjs
+check-env.cjs
+check-code.cjs
+exec-sql.cjs
+fix-type.cjs
+add-code-column.cjs
+add-user-roles.sql
+*-check.cjs
+test-*.cjs
+add-*.cjs
+check-*.cjs

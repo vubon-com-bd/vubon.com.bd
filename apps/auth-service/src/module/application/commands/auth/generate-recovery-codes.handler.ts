@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { GenerateRecoveryCodesCommand } from './generate-recovery-codes.command';
@@ -12,7 +13,7 @@ export class GenerateRecoveryCodesHandler
   readonly commandType = 'auth.generate-recovery-codes';
 
   constructor(
-    private readonly recoveryCodeService: AuthRecoveryCodeServiceInterface,
+    @Inject('AuthRecoveryCodeService') @Inject('AuthRecoveryCodeService') private readonly recoveryCodeService: AuthRecoveryCodeServiceInterface,
     private readonly eventBus: EventBus,
   ) {
     super();

@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { ListUserPermissionsQuery } from './list-user-permissions.query';
@@ -10,7 +11,7 @@ export class ListUserPermissionsHandler
 {
   readonly queryType = 'user.list-permissions';
 
-  constructor(private readonly permissionRepo: AuthPermissionRepository) {
+  constructor(@Inject('AuthPermissionRepository') private readonly permissionRepo: AuthPermissionRepository) {
     super();
   }
 

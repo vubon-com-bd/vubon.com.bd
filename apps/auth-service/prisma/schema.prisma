@@ -1,18 +1,13 @@
-// ═══════════════════════════════════════════════════════════════
-// Auth Service — Prisma Schema (FULL)
-// Domain Layer ২৩টি entity — সব model exact match
-// ═══════════════════════════════════════════════════════════════
-
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-arm64-openssl-3.0.x", "debian-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL")
 }
-
-// ═══════════════════ USER AGGREGATE ═══════════════════
 
 model User {
   id            String    @id @default(uuid())
@@ -27,8 +22,17 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?
-
-  // Relations
+  sessions       AuthSession[]
+  tokens         AuthToken[]
+  mfa            AuthMfa?
+  devices        AuthDevice[]
+  socials        AuthSocial[]
+  oauths         AuthOAuth[]
+  ssos           AuthSso[]
+  loginAttempts  AuthLoginAttempt[]
+  accountLock    AuthAccountLock?
+  recoveryCodes  AuthRecoveryCode[]
+  activities     UserActivity[]
   profile        UserProfile?
   settings       UserSettings?
   preferences    UserPreferences?
@@ -36,20 +40,10 @@ model User {
   contacts       UserContact[]
   verifications  UserVerification[]
   kyc            UserKyc?
-  activities     UserActivity[]
-  sessions       AuthSession[]
-  tokens         AuthToken[]
-  mfa            AuthMfa?
-  recoveryCodes  AuthRecoveryCode[]
-  accountLock    AuthAccountLock?
-  loginAttempts  AuthLoginAttempt[]
-  devices        AuthDevice[]
-  socials        AuthSocial[]
-  oauths         AuthOAuth[]
-  ssos           AuthSso[]
   twoFa          Auth2Fa?
+  userRoles      UserRole[]
+  userPermissions UserPermission[]
   biometrics     AuthBiometric[]
-
   @@index([email])
   @@index([status])
   @@map("users")
@@ -67,9 +61,7 @@ model UserProfile {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@map("user_profiles")
 }
 
@@ -86,9 +78,7 @@ model UserSettings {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
   deletedAt           DateTime?
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@map("user_settings")
 }
 
@@ -103,9 +93,7 @@ model UserPreferences {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
   deletedAt             DateTime?
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@map("user_preferences")
 }
 
@@ -124,9 +112,7 @@ model UserAddress {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   deletedAt    DateTime?
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@index([userId])
   @@map("user_addresses")
 }
@@ -141,9 +127,7 @@ model UserContact {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   deletedAt      DateTime?
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@map("user_contacts")
 }
 
@@ -151,15 +135,14 @@ model UserVerification {
   id         String    @id @default(uuid())
   userId     String
   type       String
+  code       String
   status     String    @default("pending")
   verifiedAt DateTime?
   expiresAt  DateTime?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   deletedAt  DateTime?
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@index([userId])
   @@map("user_verifications")
 }
@@ -177,9 +160,7 @@ model UserKyc {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   deletedAt       DateTime?
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@map("user_kyc")
 }
 
@@ -195,14 +176,10 @@ model UserActivity {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@index([userId])
   @@map("user_activities")
 }
-
-// ═══════════════════ AUTH AGGREGATES ═══════════════════
 
 model AuthSession {
   id           String    @id @default(uuid())
@@ -217,9 +194,7 @@ model AuthSession {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@index([userId])
   @@index([token])
   @@map("auth_sessions")
@@ -236,9 +211,7 @@ model AuthToken {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   deletedAt  DateTime?
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@index([userId])
   @@map("auth_tokens")
 }
@@ -254,9 +227,7 @@ model AuthMfa {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   deletedAt      DateTime?
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@map("auth_mfa")
 }
 
@@ -269,9 +240,7 @@ model AuthRecoveryCode {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@index([userId])
   @@map("auth_recovery_codes")
 }
@@ -286,9 +255,7 @@ model AuthAccountLock {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   deletedAt  DateTime?
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@map("auth_account_locks")
 }
 
@@ -302,9 +269,7 @@ model AuthLoginAttempt {
   attemptedAt DateTime @default(now())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
   user User? @relation(fields: [userId], references: [id])
-
   @@index([userId])
   @@index([ip])
   @@map("auth_login_attempts")
@@ -322,9 +287,7 @@ model AuthDevice {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@index([userId])
   @@index([fingerprint])
   @@map("auth_devices")
@@ -342,9 +305,7 @@ model AuthSocial {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   deletedAt      DateTime?
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@unique([userId, provider])
   @@index([userId])
   @@map("auth_socials")
@@ -362,9 +323,7 @@ model AuthOAuth {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@unique([userId, provider])
   @@index([userId])
   @@map("auth_oauths")
@@ -381,9 +340,7 @@ model AuthSso {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   deletedAt    DateTime?
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@unique([userId, provider])
   @@unique([externalId])
   @@index([userId])
@@ -400,9 +357,7 @@ model Auth2Fa {
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
   deletedAt            DateTime?
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@map("auth_2fa")
 }
 
@@ -417,14 +372,10 @@ model AuthBiometric {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@index([userId])
   @@map("auth_biometrics")
 }
-
-// ═══════════════════ RBAC AGGREGATES ═══════════════════
 
 model AuthPermission {
   id          String   @id @default(uuid())
@@ -435,9 +386,8 @@ model AuthPermission {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   deletedAt   DateTime?
-
   roles AuthRolePermission[]
-
+  userPermissions UserPermission[]
   @@index([resource])
   @@map("auth_permissions")
 }
@@ -450,9 +400,8 @@ model AuthRole {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   deletedAt   DateTime?
-
   permissions AuthRolePermission[]
-
+  userRoles   UserRole[]
   @@map("auth_roles")
 }
 
@@ -460,10 +409,8 @@ model AuthRolePermission {
   roleId       String
   permissionId String
   createdAt    DateTime @default(now())
-
   role       AuthRole       @relation(fields: [roleId], references: [id], onDelete: Cascade)
   permission AuthPermission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
-
   @@id([roleId, permissionId])
   @@map("auth_role_permissions")
 }
@@ -478,6 +425,29 @@ model AuthSettings {
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
   deletedAt              DateTime?
-
   @@map("auth_settings")
+}
+
+model UserRole {
+  id        String   @id @default(uuid())
+  userId    String
+  roleId    String
+  createdAt DateTime @default(now())
+  user User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role AuthRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  @@unique([userId, roleId])
+  @@index([userId])
+  @@map("user_roles")
+}
+
+model UserPermission {
+  id           String   @id @default(uuid())
+  userId       String
+  permissionId String
+  createdAt    DateTime @default(now())
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission AuthPermission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  @@unique([userId, permissionId])
+  @@index([userId])
+  @@map("user_permissions")
 }

@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { ListUserContactsQuery } from './list-user-contacts.query';
@@ -12,7 +13,7 @@ export class ListUserContactsHandler
 {
   readonly queryType = 'user.list-contacts';
 
-  constructor(private readonly contactRepo: UserContactRepository) {
+  constructor(@Inject('UserContactRepository') private readonly contactRepo: UserContactRepository) {
     super();
   }
 

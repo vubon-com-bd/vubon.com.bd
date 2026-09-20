@@ -4,3 +4,4 @@ export { AuthMfaSaga } from './auth-mfa.saga';
 export { AuthSocialSaga } from './auth-social.saga';
 
 export * from './commands';
+export * from './handlers';

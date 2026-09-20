@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { UpdateProfileCommand } from './update-profile.command';
@@ -13,7 +14,7 @@ export class UpdateProfileHandler
   readonly commandType = 'user.update-profile';
 
   constructor(
-    private readonly profileService: UserProfileServiceInterface,
+    @Inject('UserProfileService') private readonly profileService: UserProfileServiceInterface,
     private readonly eventBus: EventBus,
   ) {
     super();

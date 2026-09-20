@@ -1,42 +1,43 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserPermissionServiceInterface } from '../interfaces/user-permission.service.interface';
-import type { AuthPermissionRepository } from '../../../domain/repositories/auth-permission.repository.interface';
-import { AuthPermissionEntity } from '../../../domain/entities/auth-permission.entity';
-import { PermissionNameVO } from '../../../domain/value-objects/primitives/permission-name.vo';
+import type { UserPermissionRepository } from '../../../domain/repositories/user-permission.repository.interface';
 import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
+import { PermissionNameVO } from '../../../domain/value-objects/primitives/permission-name.vo';
 import type { UserPermissionResponseDTO } from '../../dtos/responses/user-permission-response.dto';
 
 @Injectable()
 export class UserPermissionService
-  extends BaseService<AuthPermissionEntity, string>
+  extends BaseService<unknown, string>
   implements UserPermissionServiceInterface
 {
   readonly name = 'UserPermissionService';
 
   constructor(
-    private readonly permissionRepo: AuthPermissionRepository,
+    @Inject('UserPermissionRepository')
+    private readonly userPermissionRepo: UserPermissionRepository,
     private readonly eventBus: EventBus,
   ) {
     super();
   }
 
   async listForUser(userId: string): Promise<UserPermissionResponseDTO> {
-    void userId;
-    const entities = await this.permissionRepo.findAll();
-    return entities.map((e) => e.name.value);
+    const rows = await this.userPermissionRepo.findByUser(UserIdVO.create(userId));
+    return rows.map((r) => r.permissionName);
   }
 
   async assign(userId: string, permission: string): Promise<void> {
-    void userId;
-    void permission;
-    throw new Error('permission assignment orchestration not yet wired');
+    await this.userPermissionRepo.assign(
+      UserIdVO.create(userId),
+      PermissionNameVO.create(permission),
+    );
   }
 
   async revoke(userId: string, permission: string): Promise<void> {
-    void userId;
-    void permission;
-    throw new Error('permission revoke orchestration not yet wired');
+    await this.userPermissionRepo.revoke(
+      UserIdVO.create(userId),
+      PermissionNameVO.create(permission),
+    );
   }
 }

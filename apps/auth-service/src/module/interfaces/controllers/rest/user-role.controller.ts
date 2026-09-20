@@ -24,7 +24,7 @@ import {
 } from '../../dtos/requests/role.request.dto';
 
 @ApiTags('User Roles')
-@Controller('users/:userId/roles')
+@Controller('user-roles/:userId')
 @UseGuards(JwtAuthGuard)
 export class UserRoleController {
   constructor(

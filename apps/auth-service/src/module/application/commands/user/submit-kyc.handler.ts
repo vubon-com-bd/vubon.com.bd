@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { SubmitKycCommand } from './submit-kyc.command';
@@ -13,7 +14,7 @@ export class SubmitKycHandler
   readonly commandType = 'user.submit-kyc';
 
   constructor(
-    private readonly kycService: UserKycServiceInterface,
+    @Inject('UserKycService') private readonly kycService: UserKycServiceInterface,
     private readonly eventBus: EventBus,
   ) {
     super();

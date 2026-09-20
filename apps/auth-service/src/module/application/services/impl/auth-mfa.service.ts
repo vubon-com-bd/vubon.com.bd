@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { AuthMfaServiceInterface } from '../interfaces/auth-mfa.service.interface';
@@ -20,8 +20,8 @@ export class AuthMfaService
   readonly name = 'AuthMfaService';
 
   constructor(
-    private readonly mfaRepo: AuthMfaRepository,
-    private readonly mfaValidator: MfaValidatorPort,
+    @Inject('AuthMfaRepository') private readonly mfaRepo: AuthMfaRepository,
+    @Inject('MfaValidatorPort') private readonly mfaValidator: MfaValidatorPort,
     private readonly eventBus: EventBus,
   ) {
     super();

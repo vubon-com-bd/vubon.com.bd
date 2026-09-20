@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { ListUserActivitiesQuery } from './list-user-activities.query';
@@ -12,7 +13,7 @@ export class ListUserActivitiesHandler
 {
   readonly queryType = 'user.list-activities';
 
-  constructor(private readonly activityRepo: UserActivityRepository) {
+  constructor(@Inject('UserActivityRepository') private readonly activityRepo: UserActivityRepository) {
     super();
   }
 

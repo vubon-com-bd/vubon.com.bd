@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { GetAuthAccountLockStatusQuery } from './get-auth-account-lock-status.query';
@@ -12,7 +13,7 @@ export class GetAuthAccountLockStatusHandler
 {
   readonly queryType = 'auth.get-account-lock-status';
 
-  constructor(private readonly lockRepo: AuthAccountLockRepository) {
+  constructor(@Inject('AuthAccountLockRepository') private readonly lockRepo: AuthAccountLockRepository) {
     super();
   }
 

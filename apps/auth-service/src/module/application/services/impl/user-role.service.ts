@@ -1,40 +1,43 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserRoleServiceInterface } from '../interfaces/user-role.service.interface';
-import type { AuthRoleRepository } from '../../../domain/repositories/auth-role.repository.interface';
-import { AuthRoleEntity } from '../../../domain/entities/auth-role.entity';
+import type { UserRoleRepository } from '../../../domain/repositories/user-role.repository.interface';
+import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
+import { RoleNameVO } from '../../../domain/value-objects/primitives/role-name.vo';
 import type { UserRoleResponseDTO } from '../../dtos/responses/user-role-response.dto';
 
 @Injectable()
 export class UserRoleService
-  extends BaseService<AuthRoleEntity, string>
+  extends BaseService<unknown, string>
   implements UserRoleServiceInterface
 {
   readonly name = 'UserRoleService';
 
   constructor(
-    private readonly roleRepo: AuthRoleRepository,
+    @Inject('UserRoleRepository')
+    private readonly userRoleRepo: UserRoleRepository,
     private readonly eventBus: EventBus,
   ) {
     super();
   }
 
   async listForUser(userId: string): Promise<UserRoleResponseDTO> {
-    void userId;
-    const entities = await this.roleRepo.findAll();
-    return entities.map((e) => e.name.value);
+    const rows = await this.userRoleRepo.findByUser(UserIdVO.create(userId));
+    return rows.map((r) => r.roleName);
   }
 
   async assign(userId: string, role: string): Promise<void> {
-    void userId;
-    void role;
-    throw new Error('role assignment orchestration not yet wired');
+    await this.userRoleRepo.assign(
+      UserIdVO.create(userId),
+      RoleNameVO.create(role),
+    );
   }
 
   async revoke(userId: string, role: string): Promise<void> {
-    void userId;
-    void role;
-    throw new Error('role revoke orchestration not yet wired');
+    await this.userRoleRepo.revoke(
+      UserIdVO.create(userId),
+      RoleNameVO.create(role),
+    );
   }
 }

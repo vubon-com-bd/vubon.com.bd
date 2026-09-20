@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { GetAuthDeviceQuery } from './get-auth-device.query';
@@ -11,7 +12,7 @@ export class GetAuthDeviceHandler
 {
   readonly queryType = 'auth.get-device';
 
-  constructor(private readonly deviceRepo: AuthDeviceRepository) {
+  constructor(@Inject('AuthDeviceRepository') private readonly deviceRepo: AuthDeviceRepository) {
     super();
   }
 

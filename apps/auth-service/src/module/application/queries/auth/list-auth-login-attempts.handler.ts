@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { ListAuthLoginAttemptsQuery } from './list-auth-login-attempts.query';
@@ -18,7 +19,7 @@ export class ListAuthLoginAttemptsHandler
 {
   readonly queryType = 'auth.list-login-attempts';
 
-  constructor(private readonly attemptRepo: AuthLoginAttemptRepository) {
+  constructor(@Inject('AuthLoginAttemptRepository') private readonly attemptRepo: AuthLoginAttemptRepository) {
     super();
   }
 

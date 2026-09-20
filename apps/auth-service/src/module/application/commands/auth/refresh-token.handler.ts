@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { RefreshTokenCommand } from './refresh-token.command';
@@ -12,7 +13,7 @@ export class RefreshTokenHandler
   readonly commandType = 'auth.refresh-token';
 
   constructor(
-    private readonly tokenService: AuthTokenServiceInterface,
+    @Inject('AuthTokenService') @Inject('AuthTokenService') private readonly tokenService: AuthTokenServiceInterface,
     private readonly eventBus: EventBus,
   ) {
     super();

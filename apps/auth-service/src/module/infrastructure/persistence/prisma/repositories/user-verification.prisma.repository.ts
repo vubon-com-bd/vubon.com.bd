@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { UserVerification as PrismaUserVerification } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+import { BasePrismaRepository, PrismaService } from '@vubon/shared-kernel/infrastructure';
 import { UserVerificationEntity } from '../../../../domain/entities/user-verification.entity';
 import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
 import { VerificationTypeVO } from '../../../../domain/value-objects/primitives/verification-type.vo';
 import { VerificationStatusVO } from '../../../../domain/value-objects/primitives/verification-status.vo';
+import { VerificationCodeVO } from '../../../../domain/value-objects/primitives/verification-code.vo';
 import type { UserVerificationRepository } from '../../../../domain/repositories/user-verification.repository.interface';
 
 @Injectable()
@@ -13,7 +13,7 @@ export class UserVerificationPrismaRepository
   extends BasePrismaRepository<UserVerificationEntity, UserIdVO>
   implements UserVerificationRepository
 {
-  constructor(protected readonly prisma: PrismaService) {
+  constructor(@Inject(PrismaService) prisma: PrismaService) {
     super(prisma);
   }
 
@@ -23,6 +23,7 @@ export class UserVerificationPrismaRepository
       {
         userId: UserIdVO.create(raw.userId),
         type: VerificationTypeVO.create(raw.type),
+        code: VerificationCodeVO.create(raw.code),
         status: VerificationStatusVO.create(raw.status),
         verifiedAt: raw.verifiedAt,
         expiresAt: raw.expiresAt,
@@ -49,6 +50,7 @@ export class UserVerificationPrismaRepository
     const data = {
       userId: entity.userId.value,
       type: entity.type.value,
+      code: entity.code.value,
       status: entity.status.value,
       verifiedAt: entity.verifiedAt,
       expiresAt: entity.expiresAt,
@@ -81,6 +83,7 @@ export class UserVerificationPrismaRepository
   ): Promise<UserVerificationEntity | null> {
     const raw = await this.prisma.userVerification.findFirst({
       where: { userId: userId.value, type: type.value },
+      orderBy: { createdAt: 'desc' },
     });
     return raw ? this.toDomain(raw) : null;
   }
