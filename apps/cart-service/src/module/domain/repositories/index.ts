@@ -1,0 +1,10 @@
+export type { CartRepository } from './cart.repository.interface';
+export type { CartItemRepository } from './cart-item.repository.interface';
+export type { CartCouponRepository } from './cart-coupon.repository.interface';
+export type { CartVoucherRepository } from './cart-voucher.repository.interface';
+export type { CartTaxRepository } from './cart-tax.repository.interface';
+export type { CartShippingRepository } from './cart-shipping.repository.interface';
+export type { SavedForLaterRepository } from './saved-for-later.repository.interface';
+export type { AbandonedCartRepository } from './abandoned-cart.repository.interface';
+export type { GuestCartRepository } from './guest-cart.repository.interface';
+export type { CartMergerRepository } from './cart-merger.repository.interface';

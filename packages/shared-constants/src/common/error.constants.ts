@@ -92,6 +92,55 @@ export const ERROR_CODE = {
   WEBHOOK_PROCESSING_FAILED: 'WHK-001',
   WEBHOOK_SIGNATURE_INVALID: 'WHK-002',
 
+  // ─── Vendor (NEW) ──────────────────────────────────────
+  VENDOR_NOT_FOUND: 'VND-001',
+  VENDOR_SLUG_EXISTS: 'VND-002',
+  VENDOR_NOT_APPROVED: 'VND-003',
+  VENDOR_NOT_ACTIVE: 'VND-004',
+  VENDOR_SUSPENDED: 'VND-005',
+  VENDOR_INVALID_STATE: 'VND-006',
+
+  // ─── Vendor Verification (NEW) ─────────────────────────
+  VENDOR_VERIFICATION_NOT_FOUND: 'VND-V01',
+  VENDOR_VERIFICATION_EXPIRED: 'VND-V02',
+  VENDOR_VERIFICATION_NOT_ALLOWED: 'VND-V03',
+
+  // ─── Vendor Approval (NEW) ─────────────────────────────
+  VENDOR_APPROVAL_NOT_FOUND: 'VND-A01',
+  VENDOR_APPROVAL_INVALID_STATE: 'VND-A02',
+
+  // ─── Vendor Suspension (NEW) ───────────────────────────
+  VENDOR_SUSPENSION_NOT_FOUND: 'VND-S01',
+  VENDOR_ALREADY_SUSPENDED: 'VND-S02',
+
+  // ─── Vendor Commission (NEW) ───────────────────────────
+  VENDOR_COMMISSION_NOT_CALCULATED: 'VND-C01',
+  VENDOR_COMMISSION_NOT_FOUND: 'VND-C02',
+
+  // ─── Vendor Payout (NEW) ───────────────────────────────
+  VENDOR_PAYOUT_NOT_FOUND: 'VND-P01',
+  VENDOR_PAYOUT_LIMIT_EXCEEDED: 'VND-P02',
+  VENDOR_PAYOUT_NOT_ALLOWED: 'VND-P03',
+
+  // ─── Vendor Settlement (NEW) ───────────────────────────
+  VENDOR_SETTLEMENT_NOT_FOUND: 'VND-ST1',
+  VENDOR_SETTLEMENT_NOT_DUE: 'VND-ST2',
+
+  // ─── Vendor Document (NEW) ─────────────────────────────
+  VENDOR_DOCUMENT_NOT_FOUND: 'VND-D01',
+  VENDOR_DOCUMENT_EXPIRED: 'VND-D02',
+
+  // ─── Vendor Team (NEW) ─────────────────────────────────
+  VENDOR_TEAM_MEMBER_NOT_FOUND: 'VND-T01',
+  VENDOR_TEAM_LIMIT_EXCEEDED: 'VND-T02',
+
+  // ─── Vendor Subscription (NEW) ─────────────────────────
+  VENDOR_SUBSCRIPTION_NOT_FOUND: 'VND-SUB1',
+  VENDOR_SUBSCRIPTION_EXPIRED: 'VND-SUB2',
+
+  // ─── Vendor Tier (NEW) ─────────────────────────────────
+  VENDOR_TIER_REQUIREMENT_NOT_MET: 'VND-TR1',
+
   // ─── Server ────────────────────────────────────────────
   SERVER_INTERNAL: 'SRV-001',
   SERVER_UNAVAILABLE: 'SRV-002',

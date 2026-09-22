@@ -106,9 +106,9 @@
       "types": "./dist/payment/index.d.ts"
     },
     "./cart": {
-      "import": "./dist/cart/index.js",
-      "require": "./dist/cart/index.js",
-      "types": "./dist/cart/index.d.ts"
+      "import": "./dist/business/cart/index.js",
+      "require": "./dist/business/cart/index.js",
+      "types": "./dist/business/cart/index.d.ts"
     },
     "./product-catalog": {
       "import": "./dist/product-catalog/index.js",
@@ -129,6 +129,11 @@
       "types": "./dist/business/payment/index.d.ts",
       "import": "./dist/business/payment/index.js",
       "require": "./dist/business/payment/index.js"
+    },
+    "./business/vendor": {
+      "types": "./dist/business/vendor/index.d.ts",
+      "import": "./dist/business/vendor/index.js",
+      "require": "./dist/business/vendor/index.js"
     }
   },
   "scripts": {

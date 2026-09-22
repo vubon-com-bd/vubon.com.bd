@@ -1,0 +1,113 @@
+// ═══════════════════════════════════════════════════
+// Cart Service — Prisma Schema
+// NOTE: Cart itself is Redis-primary.
+// Prisma stores only: SavedItem, AbandonedCart, CartMerger, CartAudit
+// ═══════════════════════════════════════════════════
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════ Cart (persistent mirror for analytics) ═══════════
+model Cart {
+  id             String    @id @default(uuid())
+  userId         String?
+  type           String    @default("user")
+  status         String    @default("active")
+  itemCount      Int       @default(0)
+  subtotal       Decimal   @default(0) @db.Decimal(19, 4)
+  discountTotal  Decimal   @default(0) @db.Decimal(19, 4)
+  taxTotal       Decimal   @default(0) @db.Decimal(19, 4)
+  shippingTotal  Decimal   @default(0) @db.Decimal(19, 4)
+  grandTotal     Decimal   @default(0) @db.Decimal(19, 4)
+  currency       String    @db.VarChar(3)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  @@index([userId])
+  @@index([status])
+  @@map("carts")
+}
+
+// ═══════════ Saved For Later ═══════════
+model SavedItem {
+  id          String    @id @default(uuid())
+  cartId      String
+  userId      String
+  productId   String
+  variantId   String?
+  vendorId    String?
+  quantity    Int       @default(1)
+  note        String?
+  status      String    @default("saved")
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@index([userId])
+  @@index([cartId])
+  @@map("saved_items")
+}
+
+// ═══════════ Abandoned Cart ═══════════
+model AbandonedCart {
+  id                String    @id @default(uuid())
+  cartId            String    @unique
+  userId            String?
+  guestToken        String?
+  itemCount         Int       @default(0)
+  subtotalAmount    Decimal   @db.Decimal(19, 4)
+  currency          String    @db.VarChar(3)
+  status            String    @default("abandoned")
+  abandonedAt       DateTime  @default(now())
+  reminderCount     Int       @default(0)
+  lastReminderAt    DateTime?
+  recoveredAt       DateTime?
+  metadata          Json?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status, abandonedAt])
+  @@map("abandoned_carts")
+}
+
+// ═══════════ Cart Merger ═══════════
+model CartMerger {
+  id                String    @id @default(uuid())
+  sourceCartId      String
+  targetCartId      String
+  userId            String
+  strategy          String    @default("merge")
+  itemCountAdded    Int       @default(0)
+  itemCountReplaced Int       @default(0)
+  itemCountSkipped  Int       @default(0)
+  conflictCount     Int       @default(0)
+  status            String    @default("completed")
+  metadata          Json?
+  mergedAt          DateTime  @default(now())
+  createdAt         DateTime  @default(now())
+
+  @@index([userId])
+  @@map("cart_mergers")
+}
+
+// ═══════════ Cart Audit ═══════════
+model CartAudit {
+  id          String    @id @default(uuid())
+  cartId      String
+  userId      String?
+  action      String
+  payload     Json?
+  createdAt   DateTime  @default(now())
+
+  @@index([cartId])
+  @@map("cart_audit")
+}

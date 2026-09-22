@@ -20,3 +20,9 @@ export * from './vendor-role.constants';
 export * from './vendor-permission.constants';
 export * from './vendor-team.constants';
 export * from './vendor-report.constants';
+
+// New additions for vendor-service
+export * from './vendor-approval.constants';
+export * from './vendor-suspension.constants';
+export * from './vendor-settlement.constants';
+export * from './vendor-review.constants';
