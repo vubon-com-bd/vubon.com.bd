@@ -49,9 +49,48 @@ export const ERROR_CODE = {
   ORDER_NOT_FOUND: 'ORD-001',
   ORDER_ALREADY_CANCELLED: 'ORD-002',
 
-  // ─── Payment ───────────────────────────────────────────
+  // ─── Payment (Basic) ───────────────────────────────────
   PAYMENT_FAILED: 'PAY-001',
   PAYMENT_DECLINED: 'PAY-002',
+
+  // ─── Payment (Extended) ────────────────────────────────
+  PAYMENT_NOT_FOUND: 'PAY-003',
+  PAYMENT_ALREADY_COMPLETED: 'PAY-004',
+  PAYMENT_OPERATION_FAILED: 'PAY-005',
+  PAYMENT_INVALID_METHOD: 'PAY-006',
+  PAYMENT_METHOD_NOT_SUPPORTED: 'PAY-007',
+  PAYMENT_METHOD_OPERATION_FAILED: 'PAY-008',
+  PAYMENT_GATEWAY_TIMEOUT: 'PAY-009',
+  PAYMENT_GATEWAY_UNAVAILABLE: 'PAY-010',
+  PAYMENT_VERIFICATION_FAILED: 'PAY-011',
+  PAYMENT_SIGNATURE_INVALID: 'PAY-012',
+
+  // ─── Transaction ───────────────────────────────────────
+  TRANSACTION_NOT_FOUND: 'TXN-001',
+  TRANSACTION_CONFLICT: 'TXN-002',
+  TRANSACTION_OPERATION_FAILED: 'TXN-003',
+
+  // ─── Refund ────────────────────────────────────────────
+  REFUND_NOT_FOUND: 'RFD-001',
+  REFUND_WINDOW_EXPIRED: 'RFD-002',
+  REFUND_OPERATION_FAILED: 'RFD-003',
+
+  // ─── Subscription ──────────────────────────────────────
+  SUBSCRIPTION_NOT_FOUND: 'SUB-001',
+  SUBSCRIPTION_EXPIRED: 'SUB-002',
+  SUBSCRIPTION_OPERATION_FAILED: 'SUB-003',
+
+  // ─── Invoice ───────────────────────────────────────────
+  INVOICE_NOT_FOUND: 'INV-001',
+  INVOICE_OVERDUE: 'INV-002',
+  INVOICE_OPERATION_FAILED: 'INV-003',
+
+  // ─── Idempotency ───────────────────────────────────────
+  DUPLICATE_REQUEST: 'IDP-001',
+
+  // ─── Webhook ───────────────────────────────────────────
+  WEBHOOK_PROCESSING_FAILED: 'WHK-001',
+  WEBHOOK_SIGNATURE_INVALID: 'WHK-002',
 
   // ─── Server ────────────────────────────────────────────
   SERVER_INTERNAL: 'SRV-001',

@@ -1,0 +1,11 @@
+export { ProductPrismaRepository } from './product.prisma.repository';
+export { ProductVariantPrismaRepository } from './product-variant.prisma.repository';
+export { ProductAttributePrismaRepository } from './product-attribute.prisma.repository';
+export { ProductInventoryPrismaRepository } from './product-inventory.prisma.repository';
+export { ProductPricingPrismaRepository } from './product-pricing.prisma.repository';
+export { ProductPricingRulePrismaRepository } from './product-pricing-rule.prisma.repository';
+export { ProductCollectionPrismaRepository } from './product-collection.prisma.repository';
+export { ProductReviewPrismaRepository } from './product-review.prisma.repository';
+export { ProductMediaPrismaRepository } from './product-media.prisma.repository';
+export { BrandPrismaRepository } from './brand.prisma.repository';
+export { CategoryPrismaRepository } from './category.prisma.repository';

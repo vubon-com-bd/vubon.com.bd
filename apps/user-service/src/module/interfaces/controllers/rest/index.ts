@@ -1,0 +1,9 @@
+export { UserController } from './user.controller';
+export { UserProfileController } from './user-profile.controller';
+export { UserSettingsController } from './user-settings.controller';
+export { UserPreferencesController } from './user-preferences.controller';
+export { UserAddressController } from './user-address.controller';
+export { UserContactController } from './user-contact.controller';
+export { UserKycController } from './user-kyc.controller';
+export { UserActivityController } from './user-activity.controller';
+export { PublicProfileController } from './public-profile.controller';

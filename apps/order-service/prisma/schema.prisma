@@ -1,0 +1,226 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════ ORDER AGGREGATE ═══════════════════
+
+model Order {
+  id            String    @id @default(uuid())
+  orderNumber   String    @unique
+  customerId    String
+  vendorId      String?
+  status        String    @default("pending")
+  channel       String    @default("web")
+  source        String    @default("direct")
+  subtotal      Decimal   @db.Decimal(12, 2)
+  discount      Decimal   @default(0) @db.Decimal(12, 2)
+  tax           Decimal   @default(0) @db.Decimal(12, 2)
+  shipping      Decimal   @default(0) @db.Decimal(12, 2)
+  total         Decimal   @db.Decimal(12, 2)
+  currency      String    @default("BDT")
+  note          String?
+  paymentId     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  items         OrderItem[]
+  checkout      Checkout?
+  delivery      Delivery?
+  cancel        OrderCancel?
+  orderReturn   OrderReturn?
+  fulfillment   OrderFulfillment?
+  history       OrderHistory[]
+  tracking      OrderTracking[]
+
+  @@index([customerId])
+  @@index([vendorId])
+  @@index([status])
+  @@map("orders")
+}
+
+model OrderItem {
+  id             String   @id @default(uuid())
+  orderId        String
+  productId      String
+  variantId      String?
+  productName    String
+  quantity       Int
+  priceAtPurchase Decimal @db.Decimal(12, 2)
+  currency       String   @default("BDT")
+  status         String   @default("pending")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model Checkout {
+  id         String    @id @default(uuid())
+  customerId String
+  status     String    @default("started")
+  step       String    @default("address")
+  addressId  String?
+  shippingId String?
+  paymentId  String?
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  orderId String? @unique
+  order   Order?  @relation(fields: [orderId], references: [id])
+
+  @@index([customerId])
+  @@map("checkouts")
+}
+
+model Delivery {
+  id               String    @id @default(uuid())
+  orderId          String    @unique
+  status           String    @default("scheduled")
+  type             String    @default("standard")
+  deliveryMethodId String?
+  scheduledAt      DateTime?
+  attemptedAt      DateTime?
+  deliveredAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("deliveries")
+}
+
+model DeliveryMethod {
+  id          String   @id @default(uuid())
+  type        String
+  name        String
+  description String?
+  basePrice   Decimal  @db.Decimal(12, 2)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("delivery_methods")
+}
+
+model ShippingAddress {
+  id         String   @id @default(uuid())
+  orderId    String
+  customerId String
+  line1      String
+  line2      String?
+  city       String
+  district   String
+  division   String
+  postalCode String?
+  country    String   @default("BD")
+  createdAt  DateTime @default(now())
+
+  @@index([orderId])
+  @@map("shipping_addresses")
+}
+
+model BillingAddress {
+  id         String   @id @default(uuid())
+  orderId    String
+  customerId String
+  line1      String
+  line2      String?
+  city       String
+  district   String
+  division   String
+  postalCode String?
+  country    String   @default("BD")
+  createdAt  DateTime @default(now())
+
+  @@index([orderId])
+  @@map("billing_addresses")
+}
+
+model OrderCancel {
+  id         String    @id @default(uuid())
+  orderId    String    @unique
+  customerId String
+  reason     String
+  status     String    @default("requested")
+  approvedAt DateTime?
+  rejectedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_cancels")
+}
+
+model OrderReturn {
+  id          String    @id @default(uuid())
+  orderId     String    @unique
+  customerId  String
+  reason      String
+  status      String    @default("requested")
+  approvedAt  DateTime?
+  rejectedAt  DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_returns")
+}
+
+model OrderFulfillment {
+  id          String    @id @default(uuid())
+  orderId     String    @unique
+  vendorId    String?
+  status      String    @default("pending")
+  startedAt   DateTime?
+  packedAt    DateTime?
+  shippedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_fulfillments")
+}
+
+model OrderHistory {
+  id        String   @id @default(uuid())
+  orderId   String
+  type      String
+  payload   Json?
+  createdAt DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@map("order_histories")
+}
+
+model OrderTracking {
+  id             String   @id @default(uuid())
+  orderId        String
+  status         String   @default("pending")
+  trackingNumber String?
+  carrier        String?
+  events         Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@map("order_trackings")
+}

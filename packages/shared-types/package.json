@@ -114,6 +114,11 @@
       "import": "./dist/product-catalog/index.js",
       "require": "./dist/product-catalog/index.js",
       "types": "./dist/product-catalog/index.d.ts"
+    },
+    "./business/payment": {
+      "types": "./dist/business/payment/index.d.ts",
+      "import": "./dist/business/payment/index.js",
+      "require": "./dist/business/payment/index.js"
     }
   },
   "scripts": {

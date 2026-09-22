@@ -1,0 +1,12 @@
+export { CreateProductCommand } from './create-product.command';
+export { CreateProductHandler } from './create-product.handler';
+export { UpdateProductCommand } from './update-product.command';
+export { UpdateProductHandler } from './update-product.handler';
+export { DeleteProductCommand } from './delete-product.command';
+export { DeleteProductHandler } from './delete-product.handler';
+export { PublishProductCommand } from './publish-product.command';
+export { PublishProductHandler } from './publish-product.handler';
+export { ArchiveProductCommand } from './archive-product.command';
+export { ArchiveProductHandler } from './archive-product.handler';
+export { DuplicateProductCommand } from './duplicate-product.command';
+export { DuplicateProductHandler } from './duplicate-product.handler';
