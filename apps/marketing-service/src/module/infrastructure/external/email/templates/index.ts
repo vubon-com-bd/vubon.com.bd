@@ -1,0 +1,10 @@
+export { WelcomeEmailTemplate } from './welcome.email';
+export { AbandonedCart1EmailTemplate } from './abandoned-cart-1.email';
+export { AbandonedCart2EmailTemplate } from './abandoned-cart-2.email';
+export { AbandonedCart3EmailTemplate } from './abandoned-cart-3.email';
+export { PromotionEmailTemplate } from './promotion.email';
+export { ReferralInviteEmailTemplate } from './referral-invite.email';
+export { LoyaltyTierUpgradedEmailTemplate } from './loyalty-tier-upgraded.email';
+export { LoyaltyPointsEarnedEmailTemplate } from './loyalty-points-earned.email';
+export { ReviewRequestEmailTemplate } from './review-request.email';
+export { ReEngagementEmailTemplate } from './re-engagement.email';

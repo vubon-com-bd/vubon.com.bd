@@ -1,0 +1,10 @@
+export { CanLaunchCampaignSpecification } from './can-launch-campaign.specification';
+export { CanApplyPromotionSpecification } from './can-apply-promotion.specification';
+export { CanStackPromotionSpecification } from './can-stack-promotion.specification';
+export { CanRegisterAffiliateSpecification } from './can-register-affiliate.specification';
+export { CanRequestPayoutSpecification } from './can-request-payout.specification';
+export { CanEarnLoyaltySpecification } from './can-earn-loyalty.specification';
+export { CanRedeemLoyaltySpecification } from './can-redeem-loyalty.specification';
+export { CanUpgradeTierSpecification } from './can-upgrade-tier.specification';
+export { CanConvertLeadSpecification } from './can-convert-lead.specification';
+export { CanSendEmailSpecification } from './can-send-email.specification';

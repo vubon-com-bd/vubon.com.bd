@@ -180,6 +180,65 @@ export const ERROR_CODE = {
   INSURANCE_NOT_AVAILABLE: 'LOG-030',
   INSURANCE_CLAIM_FAILED: 'LOG-031',
 
+  // ─── Marketing (Campaign) ─────────────────────────────
+  CAMPAIGN_NOT_FOUND: 'MKT-001',
+  CAMPAIGN_ALREADY_LAUNCHED: 'MKT-002',
+  CAMPAIGN_INVALID_STATE: 'MKT-003',
+  MARKETING_BUDGET_EXCEEDED: 'MKT-004',
+
+  // ─── Marketing (Promotion) ─────────────────────────────
+  PROMOTION_NOT_FOUND: 'MKT-010',
+  PROMOTION_NOT_APPLICABLE: 'MKT-011',
+  PROMOTION_STACKING_ERROR: 'MKT-012',
+  PROMOTION_CODE_DUPLICATE: 'MKT-013',
+  PROMOTION_EXPIRED: 'MKT-014',
+
+  // ─── Marketing (Affiliate) ─────────────────────────────
+  AFFILIATE_NOT_FOUND: 'MKT-020',
+  AFFILIATE_PAYOUT_ERROR: 'MKT-021',
+  AFFILIATE_CODE_DUPLICATE: 'MKT-022',
+  AFFILIATE_INVALID_STATE: 'MKT-023',
+
+  // ─── Marketing (Referral) ──────────────────────────────
+  REFERRAL_NOT_FOUND: 'MKT-030',
+  REFERRAL_EXPIRED: 'MKT-031',
+  REFERRAL_INVALID_STATE: 'MKT-032',
+
+  // ─── Marketing (Loyalty) ───────────────────────────────
+  LOYALTY_NOT_FOUND: 'MKT-040',
+  LOYALTY_INSUFFICIENT_POINTS: 'MKT-041',
+  LOYALTY_TIER_NOT_MET: 'MKT-042',
+  LOYALTY_REWARD_NOT_FOUND: 'MKT-043',
+
+  // ─── Marketing (Email) ─────────────────────────────────
+  EMAIL_MARKETING_NOT_FOUND: 'MKT-050',
+  EMAIL_ALREADY_SENT: 'MKT-051',
+  EMAIL_SPAM_SCORE_TOO_HIGH: 'MKT-052',
+  EMAIL_TEMPLATE_NOT_FOUND: 'MKT-053',
+
+  // ─── Marketing (SMS) ───────────────────────────────────
+  SMS_MARKETING_NOT_FOUND: 'MKT-060',
+  SMS_ALREADY_SENT: 'MKT-061',
+
+  // ─── Marketing (Social) ────────────────────────────────
+  SOCIAL_POST_NOT_FOUND: 'MKT-070',
+  SOCIAL_PLATFORM_UNSUPPORTED: 'MKT-071',
+
+  // ─── Marketing (SEO) ───────────────────────────────────
+  SEO_KEYWORD_ERROR: 'MKT-080',
+  SEO_SCORE_TOO_LOW: 'MKT-081',
+
+  // ─── Marketing (Lead) ──────────────────────────────────
+  LEAD_NOT_FOUND: 'MKT-090',
+  LEAD_INVALID_STATE: 'MKT-091',
+  LEAD_ALREADY_CONVERTED: 'MKT-092',
+  LEAD_SCORE_TOO_LOW: 'MKT-093',
+
+  // ─── Marketing (Automation) ────────────────────────────
+  AUTOMATION_NOT_FOUND: 'MKT-100',
+  WORKFLOW_FAILED: 'MKT-101',
+  WORKFLOW_INVALID_STATE: 'MKT-102',
+
   // ─── Server ────────────────────────────────────────────
   SERVER_INTERNAL: 'SRV-001',
   SERVER_UNAVAILABLE: 'SRV-002',

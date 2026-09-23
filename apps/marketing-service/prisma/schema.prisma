@@ -1,0 +1,567 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════════════════════════════════════════════
+// MARKETING SERVICE — PRISMA SCHEMA
+// ═══════════════════════════════════════════════════════════
+
+model Campaign {
+  id          String   @id @default(uuid())
+  name        String
+  status      String   @default("draft")
+  type        String
+  channel     String
+  goal        String?
+  budgetId    String?  @unique
+  audienceId  String?  @unique
+  startDate   DateTime?
+  endDate     DateTime?
+  launchedAt  DateTime?
+  completedAt DateTime?
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  budget       CampaignBudget?       @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  audience     CampaignAudience?     @relation(fields: [audienceId], references: [id], onDelete: Cascade)
+  performances CampaignPerformance[]
+
+  @@index([status])
+  @@index([createdBy])
+  @@map("campaigns")
+}
+
+model CampaignBudget {
+  id         String   @id @default(uuid())
+  campaignId String?  @unique
+  amount     Float
+  currency   String   @default("BDT")
+  spent      Float    @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  campaign Campaign? @relation
+
+  @@map("campaign_budgets")
+}
+
+model CampaignAudience {
+  id         String   @id @default(uuid())
+  campaignId String?  @unique
+  targetType String
+  filters    Json?
+  estimated  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  campaign Campaign? @relation
+
+  @@map("campaign_audiences")
+}
+
+model CampaignPerformance {
+  id          String   @id @default(uuid())
+  campaignId  String
+  metric      String
+  value       Float
+  granularity String   @default("daily")
+  recordedAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@map("campaign_performances")
+}
+
+model Promotion {
+  id            String   @id @default(uuid())
+  name          String
+  code          String   @unique
+  status        String   @default("active")
+  type          String
+  discountType  String
+  discountValue Float
+  maxUsage      Int?
+  usedCount     Int      @default(0)
+  startDate     DateTime?
+  endDate       DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
+
+  rules     PromotionRule[]
+  discounts PromotionDiscount[]
+
+  @@index([code])
+  @@index([status])
+  @@map("promotions")
+}
+
+model PromotionRule {
+  id          String   @id @default(uuid())
+  promotionId String
+  ruleType    String
+  conditions  Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  promotion Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+
+  @@index([promotionId])
+  @@map("promotion_rules")
+}
+
+model PromotionDiscount {
+  id           String   @id @default(uuid())
+  promotionId  String
+  discountType String
+  value        Float
+  maxDiscount  Float?
+  minPurchase  Float?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  promotion Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+
+  @@index([promotionId])
+  @@map("promotion_discounts")
+}
+
+model Affiliate {
+  id         String   @id @default(uuid())
+  userId     String   @unique
+  code       String   @unique
+  status     String   @default("pending")
+  commission Float    @default(0)
+  approvedAt DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  deletedAt  DateTime?
+
+  commissions AffiliateCommission[]
+  payouts     AffiliatePayout[]
+  links       AffiliateLink[]
+
+  @@index([code])
+  @@index([status])
+  @@map("affiliates")
+}
+
+model AffiliateCommission {
+  id          String   @id @default(uuid())
+  affiliateId String
+  orderId     String
+  amount      Float
+  currency    String   @default("BDT")
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  affiliate Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+
+  @@index([affiliateId])
+  @@map("affiliate_commissions")
+}
+
+model AffiliatePayout {
+  id          String    @id @default(uuid())
+  affiliateId String
+  amount      Float
+  currency    String    @default("BDT")
+  status      String    @default("pending")
+  processedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  affiliate Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+
+  @@index([affiliateId])
+  @@map("affiliate_payouts")
+}
+
+model AffiliateLink {
+  id          String   @id @default(uuid())
+  affiliateId String
+  productId   String?
+  url         String
+  clicks      Int      @default(0)
+  conversions Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  affiliate Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+
+  @@index([affiliateId])
+  @@map("affiliate_links")
+}
+
+model Referral {
+  id          String    @id @default(uuid())
+  referrerId  String
+  refereeId   String?
+  code        String    @unique
+  status      String    @default("pending")
+  convertedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  rewards ReferralReward[]
+
+  @@index([code])
+  @@index([referrerId])
+  @@map("referrals")
+}
+
+model ReferralReward {
+  id         String   @id @default(uuid())
+  referralId String
+  userId     String
+  rewardType String
+  value      Float
+  status     String   @default("pending")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  referral Referral @relation(fields: [referralId], references: [id], onDelete: Cascade)
+
+  @@index([referralId])
+  @@map("referral_rewards")
+}
+
+model Loyalty {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  points    Int      @default(0)
+  tier      String   @default("bronze")
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions LoyaltyTransaction[]
+
+  @@index([userId])
+  @@map("loyalties")
+}
+
+model LoyaltyPoints {
+  id        String   @id @default(uuid())
+  loyaltyId String
+  points    Int
+  type      String
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@index([loyaltyId])
+  @@map("loyalty_points")
+}
+
+model LoyaltyTier {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  minPoints Int
+  benefits  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("loyalty_tiers")
+}
+
+model LoyaltyReward {
+  id         String   @id @default(uuid())
+  name       String
+  type       String
+  value      Float
+  pointsCost Int
+  status     String   @default("active")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("loyalty_rewards")
+}
+
+model LoyaltyTransaction {
+  id        String   @id @default(uuid())
+  loyaltyId String
+  orderId   String?
+  points    Int
+  type      String
+  createdAt DateTime @default(now())
+
+  loyalty Loyalty @relation(fields: [loyaltyId], references: [id], onDelete: Cascade)
+
+  @@index([loyaltyId])
+  @@map("loyalty_transactions")
+}
+
+model EmailMarketing {
+  id          String    @id @default(uuid())
+  name        String
+  status      String    @default("draft")
+  subject     String
+  content     String
+  templateId  String?
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status])
+  @@map("email_marketings")
+}
+
+model EmailCampaign {
+  id             String    @id @default(uuid())
+  name           String
+  status         String    @default("draft")
+  subject        String
+  content        String
+  templateId     String?
+  scheduledAt    DateTime?
+  sentAt         DateTime?
+  recipientCount Int       @default(0)
+  openCount      Int       @default(0)
+  clickCount     Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([status])
+  @@map("email_campaigns")
+}
+
+model EmailTemplate {
+  id        String   @id @default(uuid())
+  name      String
+  subject   String
+  html      String
+  language  String   @default("en")
+  variables Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("email_templates")
+}
+
+model EmailSubscriber {
+  id             String    @id @default(uuid())
+  email          String    @unique
+  userId         String?
+  status         String    @default("active")
+  subscribedAt   DateTime  @default(now())
+  unsubscribedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([email])
+  @@map("email_subscribers")
+}
+
+model SmsMarketing {
+  id          String    @id @default(uuid())
+  name        String
+  status      String    @default("draft")
+  content     String
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status])
+  @@map("sms_marketings")
+}
+
+model SmsCampaign {
+  id             String    @id @default(uuid())
+  name           String
+  status         String    @default("draft")
+  content        String
+  scheduledAt    DateTime?
+  sentAt         DateTime?
+  recipientCount Int       @default(0)
+  deliveredCount Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([status])
+  @@map("sms_campaigns")
+}
+
+model SocialMedia {
+  id        String   @id @default(uuid())
+  name      String
+  platform  String
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  posts SocialPost[]
+
+  @@map("social_medias")
+}
+
+model SocialPost {
+  id            String    @id @default(uuid())
+  socialMediaId String
+  content       String
+  status        String    @default("draft")
+  scheduledAt   DateTime?
+  publishedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  socialMedia SocialMedia @relation(fields: [socialMediaId], references: [id], onDelete: Cascade)
+
+  @@index([socialMediaId])
+  @@map("social_posts")
+}
+
+model SeoMarketing {
+  id           String   @id @default(uuid())
+  pageUrl      String
+  title        String?
+  description  String?
+  keywords     String?
+  score        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  keywords_rel SeoKeyword[]
+
+  @@map("seo_marketings")
+}
+
+model SeoKeyword {
+  id             String   @id @default(uuid())
+  seoMarketingId String
+  keyword        String
+  volume         Int?
+  difficulty     Int?
+  rank           Int?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  seoMarketing SeoMarketing @relation(fields: [seoMarketingId], references: [id], onDelete: Cascade)
+
+  @@index([seoMarketingId])
+  @@map("seo_keywords")
+}
+
+model Lead {
+  id         String    @id @default(uuid())
+  name       String
+  email      String
+  status     String    @default("new")
+  source     String
+  score      Int       @default(0)
+  assignedTo String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  scores  LeadScore[]
+  sources LeadSource[]
+
+  @@index([email])
+  @@index([status])
+  @@map("leads")
+}
+
+model LeadScore {
+  id        String   @id @default(uuid())
+  leadId    String
+  score     Int
+  reason    String?
+  createdAt DateTime @default(now())
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+  @@map("lead_scores")
+}
+
+model LeadSource {
+  id        String   @id @default(uuid())
+  leadId    String
+  source    String
+  utmData   Json?
+  createdAt DateTime @default(now())
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+  @@map("lead_sources")
+}
+
+model MarketingAnalytics {
+  id          String   @id @default(uuid())
+  metric      String
+  value       Float
+  granularity String   @default("daily")
+  recordedAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  @@index([metric])
+  @@map("marketing_analytics")
+}
+
+model MarketingReport {
+  id          String   @id @default(uuid())
+  name        String
+  type        String
+  format      String   @default("json")
+  data        Json?
+  generatedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("marketing_reports")
+}
+
+model MarketingAutomation {
+  id        String   @id @default(uuid())
+  name      String
+  type      String
+  trigger   String
+  config    Json?
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workflows MarketingWorkflow[]
+
+  @@map("marketing_automations")
+}
+
+model MarketingWorkflow {
+  id           String   @id @default(uuid())
+  automationId String
+  name         String
+  steps        Json
+  status       String   @default("active")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  automation MarketingAutomation @relation(fields: [automationId], references: [id], onDelete: Cascade)
+
+  @@index([automationId])
+  @@map("marketing_workflows")
+}
+
+model MarketingPermission {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  resource  String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("marketing_permissions")
+}

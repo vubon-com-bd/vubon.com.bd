@@ -1,0 +1,15 @@
+export { CampaignProcessorWorker } from './campaign-processor.worker';
+export { CampaignOptimizerWorker } from './campaign-optimizer.worker';
+export { PromotionExpiryWorker } from './promotion-expiry.worker';
+export { AffiliateAttributionWorker } from './affiliate-attribution.worker';
+export { LoyaltyPointsCalculatorWorker } from './loyalty-points-calculator.worker';
+export { LoyaltyPointsExpiryWorker } from './loyalty-points-expiry.worker';
+export { LoyaltyTierEvaluatorWorker } from './loyalty-tier-evaluator.worker';
+export { EmailSenderWorker } from './email-sender.worker';
+export { SmsSenderWorker } from './sms-sender.worker';
+export { SocialSchedulerWorker } from './social-scheduler.worker';
+export { LeadScorerWorker } from './lead-scorer.worker';
+export { AbandonedCartRecoveryWorker } from './abandoned-cart-recovery.worker';
+export { AnalyticsProcessorWorker } from './analytics-processor.worker';
+export { ReportGeneratorWorker } from './report-generator.worker';
+export { NotificationWorker } from './notification.worker';
