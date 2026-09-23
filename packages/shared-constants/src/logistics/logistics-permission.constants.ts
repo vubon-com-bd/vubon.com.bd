@@ -8,6 +8,7 @@ export const LOGISTICS_PERMISSION = {
   SHIPMENT_DISPATCH: 'logistics:shipment:dispatch',
 
   DELIVERY_VIEW: 'logistics:delivery:view',
+  DELIVERY_MANAGE: 'logistics:delivery:manage',
   DELIVERY_ASSIGN: 'logistics:delivery:assign',
   DELIVERY_UPDATE: 'logistics:delivery:update',
   DELIVERY_COMPLETE: 'logistics:delivery:complete',

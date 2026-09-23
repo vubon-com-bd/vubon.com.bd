@@ -1,11 +1,19 @@
 export const QUEUE_NAME = {
-  // ─── Auth Service (নতুন) ──────────────────────────
+  // ─── Auth Service ─────────────────────────────────
   AUTH: 'auth',
   SESSION: 'session',
   TOKEN: 'token',
   SYNC: 'sync',
 
-  // ─── Existing ─────────────────────────────────────
+  // ─── Logistics Service ────────────────────────────
+  SHIPPING: 'shipping',
+  DELIVERY: 'delivery',
+  TRACKING: 'tracking',
+  COURIER: 'courier',
+  FULFILLMENT: 'fulfillment',
+  DISPATCH: 'dispatch',
+
+  // ─── Shared / Existing ────────────────────────────
   EMAIL: 'email',
   SMS: 'sms',
   PUSH: 'push',

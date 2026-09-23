@@ -1,0 +1,424 @@
+// ═══════════════════════════════════════════════════════════════
+// Logistics Service — Prisma Schema
+// ২২টি model — Domain Layer-এর exact match
+// ═══════════════════════════════════════════════════════════════
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════ SHIPMENT AGGREGATE ═══════════════════
+
+model Shipment {
+  id              String    @id @default(uuid())
+  shipmentNumber  String    @unique
+  orderId         String
+  vendorId        String?
+  userId          String
+  status          String    @default("pending")
+  type            String    @default("standard")
+  priority        String    @default("normal")
+  weight          Float?
+  dimension       String?
+  insuranceId     String?
+  courier         Courier?  @relation(fields: [courierId], references: [id])
+  trackingId      String?
+  courierId       String?
+  warehouseId     String?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  items            ShipmentItem[]
+  deliveries       Delivery[]
+  returnShipments  ReturnShipment[]
+
+  @@index([orderId])
+  @@index([userId])
+  @@index([status])
+  @@map("shipments")
+}
+
+model ShipmentItem {
+  id          String   @id @default(uuid())
+  shipmentId  String
+  productId   String
+  quantity    Int
+  weight      Float?
+  dimension   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  shipment Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@index([shipmentId])
+  @@index([productId])
+  @@map("shipment_items")
+}
+
+// ═══════════════════ COURIER AGGREGATE ═══════════════════
+
+model Courier {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  type        String
+  status      String    @default("active")
+  apiKey      String?
+  apiUrl      String?
+  webhookUrl  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  rates      CourierRate[]
+  shipments  Shipment[]
+
+  @@index([status])
+  @@map("couriers")
+}
+
+model CourierRate {
+  id         String   @id @default(uuid())
+  courierId  String
+  zoneId     String?
+  weightMin  Float
+  weightMax  Float
+  baseRate   Float
+  perKgRate  Float
+  currency   String   @default("BDT")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  deletedAt  DateTime?
+
+  courier Courier @relation(fields: [courierId], references: [id], onDelete: Cascade)
+
+  @@index([courierId])
+  @@map("courier_rates")
+}
+
+// ═══════════════════ DELIVERY AGGREGATE ═══════════════════
+
+model Delivery {
+  id              String    @id @default(uuid())
+  shipmentId      String
+  status          String    @default("scheduled")
+  type            String    @default("standard")
+  scheduledAt     DateTime?
+  deliveredAt     DateTime?
+  window          String?
+  attempts        Int       @default(0)
+  maxAttempts     Int       @default(3)
+  note            String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  shipment Shipment         @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  attemptsRel DeliveryAttempt[]
+
+  @@index([shipmentId])
+  @@index([status])
+  @@map("deliveries")
+}
+
+model DeliveryAttempt {
+  id           String   @id @default(uuid())
+  deliveryId   String
+  attemptNo    Int
+  status       String
+  note         String?
+  attemptedAt  DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  delivery Delivery @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+
+  @@index([deliveryId])
+  @@map("delivery_attempts")
+}
+
+// ═══════════════════ TRACKING AGGREGATE ═══════════════════
+
+model Tracking {
+  id             String   @id @default(uuid())
+  trackingNumber String   @unique
+  shipmentId     String
+  status         String   @default("pending")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+
+  events TrackingEvent[]
+
+  @@index([shipmentId])
+  @@map("trackings")
+}
+
+model TrackingEvent {
+  id          String   @id @default(uuid())
+  trackingId  String
+  eventType   String
+  location    String?
+  note        String?
+  occurredAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  tracking Tracking @relation(fields: [trackingId], references: [id], onDelete: Cascade)
+
+  @@index([trackingId])
+  @@map("tracking_events")
+}
+
+// ═══════════════════ WAREHOUSE AGGREGATE ═══════════════════
+
+model Warehouse {
+  id          String    @id @default(uuid())
+  code        String    @unique
+  name        String
+  type        String
+  status      String    @default("active")
+  division    String?
+  district    String?
+  address     String?
+  latitude    Float?
+  longitude   Float?
+  capacity    Int?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  locations WarehouseLocation[]
+
+  @@index([status])
+  @@map("warehouses")
+}
+
+model WarehouseLocation {
+  id          String   @id @default(uuid())
+  warehouseId String
+  code        String
+  name        String?
+  type        String
+  status      String   @default("available")
+  capacity    Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  @@index([warehouseId])
+  @@map("warehouse_locations")
+}
+
+// ═══════════════════ FULFILLMENT AGGREGATE ═══════════════════
+
+model Fulfillment {
+  id           String    @id @default(uuid())
+  orderId      String
+  warehouseId  String
+  status       String    @default("pending")
+  type         String    @default("standard")
+  strategy     String?
+  startedAt    DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  @@index([orderId])
+  @@index([warehouseId])
+  @@index([status])
+  @@map("fulfillments")
+}
+
+// ═══════════════════ DISPATCH AGGREGATE ═══════════════════
+
+model Dispatch {
+  id          String    @id @default(uuid())
+  shipmentId  String
+  vehicleId   String?
+  driverId    String?
+  routeId     String?
+  status      String    @default("pending")
+  type        String    @default("standard")
+  departedAt  DateTime?
+  arrivedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@index([shipmentId])
+  @@index([vehicleId])
+  @@index([driverId])
+  @@index([status])
+  @@map("dispatches")
+}
+
+// ═══════════════════ VEHICLE AGGREGATE ═══════════════════
+
+model Vehicle {
+  id          String    @id @default(uuid())
+  vehicleNo   String    @unique
+  type        String
+  status      String    @default("available")
+  capacity    Float?
+  fuelType    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@index([status])
+  @@map("vehicles")
+}
+
+// ═══════════════════ DRIVER AGGREGATE ═══════════════════
+
+model Driver {
+  id           String    @id @default(uuid())
+  name         String
+  phone        String    @unique
+  licenseNo    String    @unique
+  type         String
+  status       String    @default("available")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  @@index([status])
+  @@map("drivers")
+}
+
+// ═══════════════════ ROUTE AGGREGATE ═══════════════════
+
+model Route {
+  id          String    @id @default(uuid())
+  name        String
+  status      String    @default("active")
+  type        String
+  distanceKm  Float?
+  durationMin Int?
+  optimized   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@map("routes")
+}
+
+// ═══════════════════ ZONE AGGREGATE ═══════════════════
+
+model Zone {
+  id          String    @id @default(uuid())
+  code        String    @unique
+  name        String
+  type        String
+  status      String    @default("active")
+  divisions   String[]
+  districts   String[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@map("zones")
+}
+
+// ═══════════════════ SHIPPING METHOD ═══════════════════
+
+model ShippingMethod {
+  id          String    @id @default(uuid())
+  name        String
+  type        String
+  status      String    @default("active")
+  baseRate    Float
+  perKgRate   Float?
+  currency    String    @default("BDT")
+  estimatedDays Int?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@map("shipping_methods")
+}
+
+// ═══════════════════ PACKAGING ═══════════════════
+
+model Packaging {
+  id          String    @id @default(uuid())
+  type        String
+  material    String
+  size        String
+  maxWeight   Float?
+  cost        Float
+  currency    String    @default("BDT")
+  status      String    @default("available")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@map("packagings")
+}
+
+// ═══════════════════ RETURN SHIPMENT AGGREGATE ═══════════════════
+
+model ReturnShipment {
+  id          String    @id @default(uuid())
+  shipmentId  String
+  reason      String
+  reasonType  String
+  status      String    @default("requested")
+  requestedAt DateTime  @default(now())
+  approvedAt  DateTime?
+  receivedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  shipment Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@index([shipmentId])
+  @@index([status])
+  @@map("return_shipments")
+}
+
+// ═══════════════════ RETURN REASON ═══════════════════
+
+model ReturnReason {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  label       String
+  type        String
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("return_reasons")
+}
+
+// ═══════════════════ INSURANCE AGGREGATE ═══════════════════
+
+model Insurance {
+  id           String    @id @default(uuid())
+  shipmentId   String
+  provider     String
+  coverage     Float
+  premium      Float
+  currency     String    @default("BDT")
+  status       String    @default("active")
+  purchasedAt  DateTime  @default(now())
+  claimedAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  @@index([shipmentId])
+  @@index([status])
+  @@map("insurances")
+}

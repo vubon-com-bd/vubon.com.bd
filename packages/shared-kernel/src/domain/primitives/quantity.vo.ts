@@ -7,7 +7,50 @@
 import { VALIDATION } from '@vubon/shared-constants/common';
 import { BaseVO } from '../base/base.vo';
 
-export class QuantityVO extends BaseVO<number> {
+/**
+ * Base Quantity VO — abstract, extend করার জন্য।
+ * Subclass-এ specific validation + factory।
+ */
+export abstract class BaseQuantityVO extends BaseVO<number> {
+  protected constructor(value: number) {
+    super(value);
+  }
+
+  protected static validateNonNegative(raw: number, field = 'quantity'): void {
+    if (!Number.isFinite(raw)) {
+      throw new Error(`${field} must be a finite number`);
+    }
+    if (raw < 0) {
+      throw new Error(`${field} cannot be negative`);
+    }
+  }
+
+  protected static validatePositive(raw: number, field = 'quantity'): void {
+    if (!Number.isFinite(raw)) {
+      throw new Error(`${field} must be a finite number`);
+    }
+    if (raw <= 0) {
+      throw new Error(`${field} must be positive`);
+    }
+  }
+
+  get isZero(): boolean {
+    return this.value === 0;
+  }
+
+  get isPositive(): boolean {
+    return this.value > 0;
+  }
+
+  toNumber(): number {
+    return this.value;
+  }
+}
+
+/**
+ * Concrete QuantityVO — general purpose, integer only।
+ */
+export class QuantityVO extends BaseQuantityVO {
   private static readonly MIN = 1;
   private static readonly MAX = 999999;
 
