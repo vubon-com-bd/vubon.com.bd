@@ -1,0 +1,9 @@
+export { TicketProcessorWorker } from './ticket-processor.worker';
+export { SlaMonitorWorker } from './sla-monitor.worker';
+export { EscalationProcessorWorker } from './escalation-processor.worker';
+export { AutoCloseProcessorWorker } from './auto-close-processor.worker';
+export { FeedbackProcessorWorker } from './feedback-processor.worker';
+export { ChatbotTrainerWorker } from './chatbot-trainer.worker';
+export { SentimentProcessorWorker } from './sentiment-processor.worker';
+export { SatisfactionSurveyWorker } from './satisfaction-survey.worker';
+export { AnalyticsProcessorWorker } from './analytics-processor.worker';

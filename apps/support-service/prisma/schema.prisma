@@ -1,0 +1,414 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════ TICKET AGGREGATE ═══════════════════
+
+model Ticket {
+  id              String    @id @default(uuid())
+  number          String    @unique
+  subject         String
+  description     String
+  status          String    @default("open")
+  priority        String    @default("normal")
+  type            String
+  channel         String
+  userId          String
+  assignedAgentId String?
+  categoryId      String?
+  tags            String[]
+  metadata        Json?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  resolvedAt      DateTime?
+  closedAt        DateTime?
+  deletedAt       DateTime?
+
+  messages      TicketMessage[]
+  attachments   TicketAttachment[]
+  escalations   TicketEscalation[]
+  satisfaction  TicketSatisfaction?
+
+  @@index([userId])
+  @@index([assignedAgentId])
+  @@index([status])
+  @@map("tickets")
+}
+
+model TicketMessage {
+  id          String   @id @default(uuid())
+  ticketId    String
+  senderId    String
+  content     String
+  type        String   @default("text")
+  status      String   @default("sent")
+  isInternal  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@map("ticket_messages")
+}
+
+model TicketAttachment {
+  id         String   @id @default(uuid())
+  ticketId   String
+  messageId  String?
+  type       String
+  url        String
+  size       Int
+  createdAt  DateTime @default(now())
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@map("ticket_attachments")
+}
+
+model TicketEscalation {
+  id          String    @id @default(uuid())
+  ticketId    String
+  level       Int
+  reason      String
+  escalatedAt DateTime  @default(now())
+  resolvedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@map("ticket_escalations")
+}
+
+model TicketSatisfaction {
+  id        String   @id @default(uuid())
+  ticketId  String   @unique
+  score     Int
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@map("ticket_satisfactions")
+}
+
+// ═══════════════════ CONVERSATION / CHAT ═══════════════════
+
+model Conversation {
+  id        String    @id @default(uuid())
+  userId    String
+  agentId   String?
+  status    String    @default("active")
+  type      String
+  startedAt DateTime  @default(now())
+  endedAt   DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  messages Message[]
+
+  @@index([userId])
+  @@index([agentId])
+  @@map("conversations")
+}
+
+model Message {
+  id             String   @id @default(uuid())
+  conversationId String
+  senderId       String
+  content        String
+  type           String   @default("text")
+  status         String   @default("sent")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  attachments  Attachment[]
+
+  @@index([conversationId])
+  @@map("messages")
+}
+
+model Attachment {
+  id        String   @id @default(uuid())
+  messageId String
+  type      String
+  url       String
+  size      Int
+  createdAt DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+  @@map("attachments")
+}
+
+// ═══════════════════ KNOWLEDGE BASE ═══════════════════
+
+model Faq {
+  id         String    @id @default(uuid())
+  question   String
+  answer     String
+  status     String    @default("draft")
+  categoryId String?
+  keywords   String[]
+  viewCount  Int       @default(0)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  @@index([status])
+  @@map("faqs")
+}
+
+model FaqCategory {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("faq_categories")
+}
+
+model KnowledgeArticle {
+  id         String    @id @default(uuid())
+  title      String
+  body       String
+  status     String    @default("draft")
+  categoryId String?
+  tags       String[]
+  viewCount  Int       @default(0)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  @@index([status])
+  @@map("knowledge_articles")
+}
+
+model KnowledgeCategory {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("knowledge_categories")
+}
+
+// ═══════════════════ FEEDBACK / COMPLAINT / SURVEY ═══════════════════
+
+model Feedback {
+  id        String    @id @default(uuid())
+  userId    String
+  type      String
+  content   String
+  status    String    @default("pending")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([userId])
+  @@map("feedbacks")
+}
+
+model Complaint {
+  id        String    @id @default(uuid())
+  userId    String
+  type      String
+  severity  String
+  status    String    @default("open")
+  content   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([userId])
+  @@map("complaints")
+}
+
+model Survey {
+  id        String    @id @default(uuid())
+  title     String
+  type      String
+  status    String    @default("draft")
+  questions Json
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  responses SurveyResponse[]
+
+  @@map("surveys")
+}
+
+model SurveyResponse {
+  id         String   @id @default(uuid())
+  surveyId   String
+  userId     String
+  answers    Json
+  createdAt  DateTime @default(now())
+
+  survey Survey @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  @@index([surveyId])
+  @@map("survey_responses")
+}
+
+// ═══════════════════ LIVE CHAT + CHATBOT ═══════════════════
+
+model LiveChat {
+  id        String    @id @default(uuid())
+  userId    String
+  agentId   String?
+  status    String    @default("waiting")
+  type      String
+  startedAt DateTime  @default(now())
+  endedAt   DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([agentId])
+  @@map("live_chats")
+}
+
+model Chatbot {
+  id        String   @id @default(uuid())
+  name      String
+  status    String   @default("active")
+  type      String
+  config    Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("chatbots")
+}
+
+model ChatbotIntent {
+  id        String   @id @default(uuid())
+  chatbotId String
+  name      String
+  patterns  String[]
+  response  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([chatbotId])
+  @@map("chatbot_intents")
+}
+
+model ChatbotEntity {
+  id        String   @id @default(uuid())
+  chatbotId String
+  name      String
+  type      String
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([chatbotId])
+  @@map("chatbot_entities")
+}
+
+// ═══════════════════ SUPPORT AGENT / TEAM ═══════════════════
+
+model SupportAgent {
+  id           String    @id @default(uuid())
+  userId       String    @unique
+  teamId       String?
+  status       String    @default("available")
+  type         String
+  skills       String[]
+  currentLoad  Int       @default(0)
+  maxLoad      Int       @default(10)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  @@index([teamId])
+  @@map("support_agents")
+}
+
+model SupportTeam {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  type        String
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("support_teams")
+}
+
+// ═══════════════════ SLA / RULES / AUTOMATION / TEMPLATE ═══════════════════
+
+model Sla {
+  id               String   @id @default(uuid())
+  name             String
+  type             String
+  targetMinutes    Int
+  priority         String
+  status           String   @default("active")
+  businessHoursOnly Boolean @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("slas")
+}
+
+model SupportRule {
+  id         String   @id @default(uuid())
+  name       String
+  type       String
+  condition  String
+  action     String
+  priority   Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("support_rules")
+}
+
+model SupportAutomation {
+  id          String   @id @default(uuid())
+  name        String
+  type        String
+  trigger     String
+  action      String
+  status      String   @default("active")
+  config      Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("support_automations")
+}
+
+model SupportTemplate {
+  id        String   @id @default(uuid())
+  name      String
+  type      String
+  content   String
+  variables String[]
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("support_templates")
+}

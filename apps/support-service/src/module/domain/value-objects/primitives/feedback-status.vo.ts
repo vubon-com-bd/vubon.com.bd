@@ -1,0 +1,16 @@
+import { BaseStatusVO } from '@vubon/shared-kernel/domain/primitives/status.vo';
+import { FEEDBACK_STATUS } from '@vubon/shared-constants/support';
+
+const VALID = new Set<string>(Object.values(FEEDBACK_STATUS));
+
+export class FeedbackStatusVO extends BaseStatusVO<string> {
+  static create(value: string): FeedbackStatusVO {
+    if (!VALID.has(value)) {
+      throw new Error(`Invalid feedback status: ${value}`);
+    }
+    return new FeedbackStatusVO(value);
+  }
+  private constructor(value: string) {
+    super(value);
+  }
+}

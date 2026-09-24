@@ -1,0 +1,296 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════════════════════════════════════════
+// Notification Service — Prisma Schema
+// ═══════════════════════════════════════════════════════
+
+model Notification {
+  id          String    @id @default(uuid())
+  userId      String
+  type        String
+  channel     String
+  status      String    @default("pending")
+  priority    String    @default("normal")
+  category    String
+  subject     String?
+  body        String
+  data        Json?
+  readAt      DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  content     NotificationContent?
+  recipient   NotificationRecipient?
+  actions     NotificationAction[]
+  delivery    NotificationDelivery?
+
+  @@index([userId])
+  @@index([status])
+  @@map("notifications")
+}
+
+model NotificationContent {
+  id              String   @id @default(uuid())
+  notificationId  String   @unique
+  subject         String
+  body            String
+  bodyHtml        String?
+  variables       Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@map("notification_contents")
+}
+
+model NotificationRecipient {
+  id              String   @id @default(uuid())
+  notificationId  String   @unique
+  userId          String
+  email           String?
+  phone           String?
+  deviceTokens    String[]
+  createdAt       DateTime @default(now())
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@map("notification_recipients")
+}
+
+model NotificationAction {
+  id              String   @id @default(uuid())
+  notificationId  String
+  type            String
+  url             String
+  label           String
+  createdAt       DateTime @default(now())
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@index([notificationId])
+  @@map("notification_actions")
+}
+
+model NotificationDelivery {
+  id                String    @id @default(uuid())
+  notificationId    String    @unique
+  providerName      String
+  providerMessageId String?
+  status            String    @default("pending")
+  attemptCount      Int       @default(0)
+  lastError         String?
+  deliveredAt       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@map("notification_deliveries")
+}
+
+model Template {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  channel     String
+  language    String   @default("en")
+  subject     String?
+  content     String
+  format      String   @default("html")
+  variables   Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  templateVariables TemplateVariable[]
+
+  @@index([channel])
+  @@map("templates")
+}
+
+model TemplateVariable {
+  id          String   @id @default(uuid())
+  templateId  String
+  name        String
+  required    Boolean  @default(false)
+  defaultValue String?
+  createdAt   DateTime @default(now())
+
+  template Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@index([templateId])
+  @@map("template_variables")
+}
+
+model Schedule {
+  id             String    @id @default(uuid())
+  userId         String
+  type           String
+  status         String    @default("active")
+  frequency      String
+  nextRunAt      DateTime
+  lastRunAt      DateTime?
+  payload        Json?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([nextRunAt])
+  @@map("schedules")
+}
+
+model Broadcast {
+  id          String    @id @default(uuid())
+  type        String
+  status      String    @default("draft")
+  audience    String
+  templateId  String?
+  subject     String?
+  content     String
+  scheduledAt DateTime?
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  results BroadcastResult[]
+
+  @@map("broadcasts")
+}
+
+model BroadcastResult {
+  id             String   @id @default(uuid())
+  broadcastId    String
+  userId         String
+  status         String
+  deliveredAt    DateTime?
+  error          String?
+  createdAt      DateTime @default(now())
+
+  broadcast Broadcast @relation(fields: [broadcastId], references: [id], onDelete: Cascade)
+
+  @@index([broadcastId])
+  @@map("broadcast_results")
+}
+
+model Digest {
+  id          String    @id @default(uuid())
+  userId      String
+  type        String
+  status      String    @default("pending")
+  period      String
+  scheduledAt DateTime
+  sentAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  items DigestItem[]
+
+  @@index([userId])
+  @@map("digests")
+}
+
+model DigestItem {
+  id          String   @id @default(uuid())
+  digestId    String
+  userId      String
+  title       String
+  body        String
+  createdAt   DateTime @default(now())
+
+  digest Digest @relation(fields: [digestId], references: [id], onDelete: Cascade)
+
+  @@index([digestId])
+  @@map("digest_items")
+}
+
+model Preference {
+  id          String   @id @default(uuid())
+  userId      String
+  type        String
+  option      String
+  value       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, type, option])
+  @@index([userId])
+  @@map("preferences")
+}
+
+model PreferenceMatrix {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  emailOptIn  Boolean  @default(true)
+  smsOptIn    Boolean  @default(true)
+  pushOptIn   Boolean  @default(true)
+  inAppOptIn  Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("preference_matrices")
+}
+
+model Device {
+  id          String   @id @default(uuid())
+  userId      String
+  type        String
+  platform    String
+  status      String   @default("active")
+  fingerprint String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tokens DeviceToken[]
+
+  @@index([userId])
+  @@map("devices")
+}
+
+model DeviceToken {
+  id          String   @id @default(uuid())
+  deviceId    String
+  token       String   @unique
+  createdAt   DateTime @default(now())
+  lastUsedAt  DateTime @default(now())
+
+  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId])
+  @@map("device_tokens")
+}
+
+model Webhook {
+  id          String   @id @default(uuid())
+  userId      String
+  type        String
+  url         String
+  secret      String
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@index([userId])
+  @@map("webhooks")
+}
+
+model NotificationAttempt {
+  id            String    @id @default(uuid())
+  deliveryId    String
+  attemptNumber Int
+  status        String
+  error         String?
+  attemptedAt   DateTime  @default(now())
+  createdAt     DateTime  @default(now())
+
+  @@index([deliveryId])
+  @@map("notification_attempts")
+}

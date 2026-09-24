@@ -18,3 +18,4 @@ export * from './support-team.constants';
 export * from './support-rule.constants';
 export * from './support-automation.constants';
 export * from './support-permission.constants';
+export * from './support-template.constants';
