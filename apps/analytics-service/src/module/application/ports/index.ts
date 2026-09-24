@@ -1,0 +1,10 @@
+export type { UserClient } from './user-client.port';
+export type { OrderClient } from './order-client.port';
+export type { ProductClient } from './product-client.port';
+export type { PaymentClient } from './payment-client.port';
+export type { VendorClient } from './vendor-client.port';
+export type { CartClient } from './cart-client.port';
+export type { LogisticsClient } from './logistics-client.port';
+export type { SupportClient } from './support-client.port';
+export type { MarketingClient } from './marketing-client.port';
+export type { NotificationClient } from './notification-client.port';

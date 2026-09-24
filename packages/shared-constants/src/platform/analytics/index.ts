@@ -17,3 +17,4 @@ export * from './analytics-comparison.constants';
 export * from './analytics-trend.constants';
 export * from './analytics-status.constants';
 export * from './analytics-permission.constants';
+export * from './analytics-report.constants';

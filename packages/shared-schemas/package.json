@@ -134,6 +134,16 @@
       "types": "./dist/business/vendor/index.d.ts",
       "import": "./dist/business/vendor/index.js",
       "require": "./dist/business/vendor/index.js"
+    },
+    "./platform/analytics": {
+      "types": "./dist/platform/analytics/index.d.ts",
+      "import": "./dist/platform/analytics/index.js",
+      "require": "./dist/platform/analytics/index.js"
+    },
+    "./platform": {
+      "types": "./dist/platform/index.d.ts",
+      "import": "./dist/platform/index.js",
+      "require": "./dist/platform/index.js"
     }
   },
   "scripts": {
