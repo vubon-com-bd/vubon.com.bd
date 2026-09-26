@@ -1,0 +1,11 @@
+export type { ProductServiceInterface } from './product.service.interface';
+export type { ProductVariantServiceInterface } from './product-variant.service.interface';
+export type { ProductAttributeServiceInterface } from './product-attribute.service.interface';
+export type { ProductInventoryServiceInterface } from './product-inventory.service.interface';
+export type { ProductPricingServiceInterface } from './product-pricing.service.interface';
+export type { ProductPricingRuleServiceInterface } from './product-pricing-rule.service.interface';
+export type { ProductCollectionServiceInterface } from './product-collection.service.interface';
+export type { ProductReviewServiceInterface } from './product-review.service.interface';
+export type { ProductMediaServiceInterface } from './product-media.service.interface';
+export type { BrandServiceInterface } from './brand.service.interface';
+export type { CategoryServiceInterface } from './category.service.interface';

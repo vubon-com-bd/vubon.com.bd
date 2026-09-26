@@ -1,0 +1,446 @@
+// ═══════════════════════════════════════════════════════════════
+// Vendor Service — Prisma Schema (FULL)
+// Domain Layer ২৩টি entity — সব model exact match
+// ═══════════════════════════════════════════════════════════════
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════ VENDOR AGGREGATE ═══════════════════
+
+model Vendor {
+  id        String    @id @default(uuid())
+  ownerId   String
+  name      String
+  slug      String    @unique
+  status    String    @default("pending_verification")
+  type      String    @default("individual")
+  tier      String    @default("bronze")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  profile       VendorProfile?
+  business      VendorBusiness?
+  contacts      VendorContact[]
+  addresses     VendorAddress[]
+  bankAccounts  VendorBankAccount[]
+  documents     VendorDocument[]
+  verifications VendorVerification[]
+  approvals     VendorApproval[]
+  suspensions   VendorSuspension[]
+  commissions   VendorCommission[]
+  payouts       VendorPayout[]
+  settlements   VendorSettlement[]
+  performances  VendorPerformance[]
+  ratings       VendorRating[]
+  reviews       VendorReview[]
+  shippings     VendorShipping?
+  returnPolicy  VendorReturnPolicy?
+  warranty      VendorWarranty?
+  teamMembers   VendorTeam[]
+  features      VendorFeature[]
+  subscriptions VendorSubscription[]
+
+  @@index([ownerId])
+  @@index([status])
+  @@index([tier])
+  @@map("vendors")
+}
+
+model VendorProfile {
+  id          String    @id @default(uuid())
+  vendorId    String    @unique
+  displayName String
+  bio         String?
+  avatarUrl   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@map("vendor_profiles")
+}
+
+model VendorBusiness {
+  id                 String    @id @default(uuid())
+  vendorId           String    @unique
+  businessName       String
+  businessType       String
+  registrationNumber String
+  description        String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@map("vendor_businesses")
+}
+
+model VendorContact {
+  id        String    @id @default(uuid())
+  vendorId  String
+  type      String
+  value     String
+  isPrimary Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@map("vendor_contacts")
+}
+
+model VendorAddress {
+  id          String    @id @default(uuid())
+  vendorId    String
+  label       String
+  division    String
+  district    String
+  upazila     String
+  addressLine String
+  postalCode  String?
+  isDefault   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@map("vendor_addresses")
+}
+
+model VendorBankAccount {
+  id                String    @id @default(uuid())
+  vendorId          String
+  accountNumber     String
+  bankName          String
+  accountHolderName String
+  branchName        String?
+  routingNumber     String?
+  isDefault         Boolean   @default(false)
+  isVerified        Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@map("vendor_bank_accounts")
+}
+
+model VendorDocument {
+  id        String    @id @default(uuid())
+  vendorId  String
+  type      String
+  status    String    @default("pending")
+  url       String
+  number    String?
+  issuedAt  DateTime?
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@map("vendor_documents")
+}
+
+model VendorVerification {
+  id          String    @id @default(uuid())
+  vendorId    String
+  status      String    @default("pending")
+  submittedAt DateTime?
+  verifiedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@map("vendor_verifications")
+}
+
+model VendorApproval {
+  id         String    @id @default(uuid())
+  vendorId   String
+  status     String    @default("pending")
+  reason     String?
+  reviewedBy String?
+  reviewedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@map("vendor_approvals")
+}
+
+model VendorSuspension {
+  id           String    @id @default(uuid())
+  vendorId     String
+  reason       String
+  status       String    @default("active")
+  suspendedBy  String
+  suspendedAt  DateTime  @default(now())
+  reinstatedAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@map("vendor_suspensions")
+}
+
+model VendorCommission {
+  id               String    @id @default(uuid())
+  vendorId         String
+  orderId          String
+  rate             Float
+  type             String
+  orderAmount      Float
+  commissionAmount Float
+  currency         String    @default("BDT")
+  isSettled        Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@index([orderId])
+  @@map("vendor_commissions")
+}
+
+model VendorPayout {
+  id            String    @id @default(uuid())
+  vendorId      String
+  bankAccountId String
+  amount        Float
+  currency      String    @default("BDT")
+  status        String    @default("pending")
+  requestedAt   DateTime  @default(now())
+  processedAt   DateTime?
+  failureReason String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@map("vendor_payouts")
+}
+
+model VendorSettlement {
+  id               String    @id @default(uuid())
+  vendorId         String
+  status           String    @default("pending")
+  totalAmount      Float
+  commissionAmount Float
+  netAmount        Float
+  currency         String    @default("BDT")
+  periodStart      DateTime
+  periodEnd        DateTime
+  settledAt        DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@map("vendor_settlements")
+}
+
+model VendorPerformance {
+  id                   String    @id @default(uuid())
+  vendorId             String    @unique
+  overallScore         Float     @default(0)
+  rating               Float     @default(0)
+  totalOrders          Int       @default(0)
+  completedOrders      Int       @default(0)
+  cancelledOrders      Int       @default(0)
+  avgResponseTimeHours Float     @default(0)
+  onTimeDeliveryRate   Float     @default(0)
+  periodStart          DateTime
+  periodEnd            DateTime
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  deletedAt            DateTime?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@map("vendor_performances")
+}
+
+model VendorRating {
+  id             String    @id @default(uuid())
+  vendorId       String    @unique
+  averageRating  Float     @default(0)
+  totalRatings   Int       @default(0)
+  fiveStarCount  Int       @default(0)
+  fourStarCount  Int       @default(0)
+  threeStarCount Int       @default(0)
+  twoStarCount   Int       @default(0)
+  oneStarCount   Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@map("vendor_ratings")
+}
+
+model VendorReview {
+  id        String    @id @default(uuid())
+  vendorId  String
+  userId    String
+  orderId   String
+  rating    Float
+  content   String?
+  status    String    @default("pending")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@index([userId])
+  @@map("vendor_reviews")
+}
+
+model VendorShipping {
+  id                    String    @id @default(uuid())
+  vendorId              String    @unique
+  methods               Json      @default("[]")
+  freeShippingThreshold Float?
+  defaultShippingCost   Float     @default(0)
+  shipsInternationally  Boolean   @default(false)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@map("vendor_shippings")
+}
+
+model VendorReturnPolicy {
+  id               String    @id @default(uuid())
+  vendorId         String    @unique
+  type             String
+  returnWindowDays Int       @default(7)
+  conditions       String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@map("vendor_return_policies")
+}
+
+model VendorWarranty {
+  id           String    @id @default(uuid())
+  vendorId     String    @unique
+  type         String
+  durationDays Int       @default(0)
+  terms        String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@map("vendor_warranties")
+}
+
+model VendorTeam {
+  id          String    @id @default(uuid())
+  vendorId    String
+  userId      String
+  role        String
+  permissions Json      @default("[]")
+  invitedAt   DateTime  @default(now())
+  joinedAt    DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@index([userId])
+  @@map("vendor_teams")
+}
+
+model VendorFeature {
+  id        String    @id @default(uuid())
+  vendorId  String
+  type      String
+  enabled   Boolean   @default(false)
+  enabledAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@map("vendor_features")
+}
+
+model VendorSubscription {
+  id          String    @id @default(uuid())
+  vendorId    String
+  plan        String
+  price       Float     @default(0)
+  currency    String    @default("BDT")
+  startedAt   DateTime  @default(now())
+  expiresAt   DateTime
+  autoRenew   Boolean   @default(true)
+  cancelledAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+  @@map("vendor_subscriptions")
+}
+
+model VendorPermission {
+  id          String    @id @default(uuid())
+  role        String    @unique
+  permissions Json      @default("[]")
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@map("vendor_permissions")
+}

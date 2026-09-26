@@ -1,0 +1,58 @@
+/**
+ * Typography base styles.
+ */
+
+h1 {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+}
+
+h2 {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+h3 {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.375;
+}
+
+h4 {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.375;
+}
+
+h5 {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+h6 {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+p {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+small {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875em;
+}

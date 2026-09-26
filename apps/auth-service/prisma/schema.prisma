@@ -1,0 +1,453 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-arm64-openssl-3.0.x", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String
+  name          String
+  phone         String?
+  status        String    @default("active")
+  type          String    @default("customer")
+  role          String    @default("user")
+  emailVerified Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+  sessions       AuthSession[]
+  tokens         AuthToken[]
+  mfa            AuthMfa?
+  devices        AuthDevice[]
+  socials        AuthSocial[]
+  oauths         AuthOAuth[]
+  ssos           AuthSso[]
+  loginAttempts  AuthLoginAttempt[]
+  accountLock    AuthAccountLock?
+  recoveryCodes  AuthRecoveryCode[]
+  activities     UserActivity[]
+  profile        UserProfile?
+  settings       UserSettings?
+  preferences    UserPreferences?
+  addresses      UserAddress[]
+  contacts       UserContact[]
+  verifications  UserVerification[]
+  kyc            UserKyc?
+  twoFa          Auth2Fa?
+  userRoles      UserRole[]
+  userPermissions UserPermission[]
+  biometrics     AuthBiometric[]
+  @@index([email])
+  @@index([status])
+  @@map("users")
+}
+
+model UserProfile {
+  id           String    @id @default(uuid())
+  userId       String    @unique
+  firstName    String
+  lastName     String
+  bio          String?
+  avatarUrl    String?
+  dateOfBirth  DateTime?
+  gender       String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("user_profiles")
+}
+
+model UserSettings {
+  id                  String   @id @default(uuid())
+  userId              String   @unique
+  language            String   @default("en")
+  timezone            String   @default("UTC")
+  currency            String   @default("BDT")
+  theme               String   @default("system")
+  emailNotifications  Boolean  @default(true)
+  smsNotifications    Boolean  @default(false)
+  pushNotifications   Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  deletedAt           DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("user_settings")
+}
+
+model UserPreferences {
+  id                    String   @id @default(uuid())
+  userId                String   @unique
+  marketingEmails       Boolean  @default(false)
+  productUpdates        Boolean  @default(true)
+  orderUpdates          Boolean  @default(true)
+  securityAlerts        Boolean  @default(true)
+  newsletter            Boolean  @default(false)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  deletedAt             DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("user_preferences")
+}
+
+model UserAddress {
+  id           String   @id @default(uuid())
+  userId       String
+  label        String   @default("Home")
+  fullName     String
+  phone        String
+  division     String
+  district     String
+  upazila      String
+  addressLine  String
+  postalCode   String?
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  deletedAt    DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@map("user_addresses")
+}
+
+model UserContact {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  phone          String
+  email          String
+  alternatePhone String?
+  alternateEmail String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("user_contacts")
+}
+
+model UserVerification {
+  id         String    @id @default(uuid())
+  userId     String
+  type       String
+  code       String
+  status     String    @default("pending")
+  verifiedAt DateTime?
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@map("user_verifications")
+}
+
+model UserKyc {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  status          String    @default("pending")
+  documentType    String
+  documentNumber  String
+  documentUrl     String
+  submittedAt     DateTime?
+  reviewedAt      DateTime?
+  rejectionReason String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("user_kyc")
+}
+
+model UserActivity {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  category  String
+  ip        String?
+  userAgent String?
+  metadata  Json?
+  timestamp DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@map("user_activities")
+}
+
+model AuthSession {
+  id           String    @id @default(uuid())
+  userId       String
+  token        String    @unique
+  expiry       DateTime
+  ip           String
+  userAgent    String
+  deviceId     String?
+  revokedAt    DateTime?
+  revokeReason String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@index([token])
+  @@map("auth_sessions")
+}
+
+model AuthToken {
+  id         String    @id @default(uuid())
+  userId     String
+  tokenValue String    @unique
+  tokenType  String
+  expiry     DateTime
+  issuedAt   DateTime  @default(now())
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@map("auth_tokens")
+}
+
+model AuthMfa {
+  id             String    @id @default(uuid())
+  userId         String    @unique
+  secret         String
+  type           String
+  status         String    @default("pending")
+  enabledAt      DateTime?
+  lastVerifiedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("auth_mfa")
+}
+
+model AuthRecoveryCode {
+  id        String    @id @default(uuid())
+  userId    String
+  code      String
+  status    String    @default("active")
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@map("auth_recovery_codes")
+}
+
+model AuthAccountLock {
+  id         String    @id @default(uuid())
+  userId     String    @unique
+  reason     String
+  lockedAt   DateTime  @default(now())
+  expiresAt  DateTime
+  unlockedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("auth_account_locks")
+}
+
+model AuthLoginAttempt {
+  id          String   @id @default(uuid())
+  userId      String?
+  email       String?
+  ip          String
+  userAgent   String
+  status      String
+  attemptedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user User? @relation(fields: [userId], references: [id])
+  @@index([userId])
+  @@index([ip])
+  @@map("auth_login_attempts")
+}
+
+model AuthDevice {
+  id          String    @id @default(uuid())
+  userId      String
+  fingerprint String
+  type        String
+  status      String    @default("untrusted")
+  name        String?
+  lastSeenAt  DateTime  @default(now())
+  trustedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@index([fingerprint])
+  @@map("auth_devices")
+}
+
+model AuthSocial {
+  id             String   @id @default(uuid())
+  userId         String
+  provider       String
+  providerUserId String
+  accessToken    String
+  refreshToken   String?
+  status         String   @default("linked")
+  linkedAt       DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, provider])
+  @@index([userId])
+  @@map("auth_socials")
+}
+
+model AuthOAuth {
+  id           String    @id @default(uuid())
+  userId       String
+  provider     String
+  accessToken  String
+  refreshToken String?
+  scope        String
+  status       String    @default("active")
+  expiresAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, provider])
+  @@index([userId])
+  @@map("auth_oauths")
+}
+
+model AuthSso {
+  id           String   @id @default(uuid())
+  userId       String
+  provider     String
+  externalId   String
+  sessionToken String
+  status       String   @default("active")
+  linkedAt     DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  deletedAt    DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, provider])
+  @@unique([externalId])
+  @@index([userId])
+  @@map("auth_ssos")
+}
+
+model Auth2Fa {
+  id                   String    @id @default(uuid())
+  userId               String    @unique
+  isEnabled            Boolean   @default(false)
+  method               String    @default("totp")
+  backupCodesRemaining Int       @default(0)
+  enabledAt            DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  deletedAt            DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("auth_2fa")
+}
+
+model AuthBiometric {
+  id          String    @id @default(uuid())
+  userId      String
+  biometricId String
+  type        String
+  isEnabled   Boolean   @default(false)
+  enrolledAt  DateTime?
+  lastUsedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@map("auth_biometrics")
+}
+
+model AuthPermission {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  action      String
+  resource    String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  roles AuthRolePermission[]
+  userPermissions UserPermission[]
+  @@index([resource])
+  @@map("auth_permissions")
+}
+
+model AuthRole {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String
+  isSystem    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  permissions AuthRolePermission[]
+  userRoles   UserRole[]
+  @@map("auth_roles")
+}
+
+model AuthRolePermission {
+  roleId       String
+  permissionId String
+  createdAt    DateTime @default(now())
+  role       AuthRole       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission AuthPermission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  @@id([roleId, permissionId])
+  @@map("auth_role_permissions")
+}
+
+model AuthSettings {
+  id                     String   @id @default(uuid())
+  userId                 String   @unique
+  mfaRequired            Boolean  @default(false)
+  sessionTimeoutMinutes  Int      @default(60)
+  passwordExpiryDays     Int      @default(90)
+  loginNotifications     Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  deletedAt              DateTime?
+  @@map("auth_settings")
+}
+
+model UserRole {
+  id        String   @id @default(uuid())
+  userId    String
+  roleId    String
+  createdAt DateTime @default(now())
+  user User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role AuthRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  @@unique([userId, roleId])
+  @@index([userId])
+  @@map("user_roles")
+}
+
+model UserPermission {
+  id           String   @id @default(uuid())
+  userId       String
+  permissionId String
+  createdAt    DateTime @default(now())
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission AuthPermission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  @@unique([userId, permissionId])
+  @@index([userId])
+  @@map("user_permissions")
+}

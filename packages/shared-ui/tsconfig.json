@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "noImplicitAny": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "baseUrl": ".",
+    "paths": {
+      "@vubon/shared-constants": ["../shared-constants/dist/index.d.ts"],
+      "@vubon/shared-constants/*": ["../shared-constants/dist/*"],
+      "@vubon/shared-types": ["../shared-types/dist/index.d.ts"],
+      "@vubon/shared-types/*": ["../shared-types/dist/*"],
+      "@vubon/shared-utils": ["../shared-utils/dist/index.d.ts"],
+      "@vubon/shared-utils/*": ["../shared-utils/dist/*"],
+      "@vubon/shared-hooks": ["../shared-hooks/dist/index.d.ts"],
+      "@vubon/shared-hooks/utility": ["../shared-hooks/dist/utility/index.d.ts"],
+      "@vubon/shared-hooks/utility/*": ["../shared-hooks/dist/utility/*"],
+      "@vubon/shared-hooks/*": ["../shared-hooks/dist/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"]
+}

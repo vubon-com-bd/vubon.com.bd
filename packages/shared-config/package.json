@@ -4,20 +4,125 @@
   "private": true,
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./common": {
+      "import": "./dist/common/index.js",
+      "require": "./dist/common/index.js",
+      "types": "./dist/common/index.d.ts"
+    },
+    "./database": {
+      "import": "./dist/common/database.config.js",
+      "require": "./dist/common/database.config.js",
+      "types": "./dist/common/database.config.d.ts"
+    },
+    "./redis": {
+      "import": "./dist/common/redis.config.js",
+      "require": "./dist/common/redis.config.js",
+      "types": "./dist/common/redis.config.d.ts"
+    },
+    "./jwt": {
+      "import": "./dist/common/jwt.config.js",
+      "require": "./dist/common/jwt.config.js",
+      "types": "./dist/common/jwt.config.d.ts"
+    },
+    "./rate-limit": {
+      "import": "./dist/common/rate-limit.config.js",
+      "require": "./dist/common/rate-limit.config.js",
+      "types": "./dist/common/rate-limit.config.d.ts"
+    },
+    "./cors": {
+      "import": "./dist/common/cors.config.js",
+      "require": "./dist/common/cors.config.js",
+      "types": "./dist/common/cors.config.d.ts"
+    },
+    "./payment": {
+      "import": "./dist/common/payment.config.js",
+      "require": "./dist/common/payment.config.js",
+      "types": "./dist/common/payment.config.d.ts"
+    },
+    "./sms": {
+      "import": "./dist/common/sms.config.js",
+      "require": "./dist/common/sms.config.js",
+      "types": "./dist/common/sms.config.d.ts"
+    },
+    "./email": {
+      "import": "./dist/common/email.config.js",
+      "require": "./dist/common/email.config.js",
+      "types": "./dist/common/email.config.d.ts"
+    },
+    "./server": {
+      "import": "./dist/common/server.config.js",
+      "require": "./dist/common/server.config.js",
+      "types": "./dist/common/server.config.d.ts"
+    },
+    "./infrastructure": {
+      "types": "./dist/infrastructure/index.d.ts",
+      "import": "./dist/infrastructure/index.js",
+      "require": "./dist/infrastructure/index.js"
+    },
+    "./platform": {
+      "types": "./dist/platform/index.d.ts",
+      "import": "./dist/platform/index.js",
+      "require": "./dist/platform/index.js"
+    },
+    "./auth": {
+      "types": "./dist/auth/index.d.ts",
+      "import": "./dist/auth/index.js",
+      "require": "./dist/auth/index.js"
+    },
+    "./security": {
+      "types": "./dist/security/index.d.ts",
+      "import": "./dist/security/index.js",
+      "require": "./dist/security/index.js"
+    },
+    "./logistics": {
+      "types": "./dist/logistics/index.d.ts",
+      "import": "./dist/logistics/index.js",
+      "require": "./dist/logistics/index.js"
+    },
+    "./integration": {
+      "types": "./dist/integration/index.d.ts",
+      "import": "./dist/integration/index.js",
+      "require": "./dist/integration/index.js"
+    },
+    "./business": {
+      "types": "./dist/business/index.d.ts",
+      "import": "./dist/business/index.js",
+      "require": "./dist/business/index.js"
+    },
+    "./ai": {
+      "types": "./dist/ai/index.d.ts",
+      "import": "./dist/ai/index.js",
+      "require": "./dist/ai/index.js"
+    },
+    "./marketing": {
+      "types": "./dist/marketing/index.d.ts",
+      "import": "./dist/marketing/index.js",
+      "require": "./dist/marketing/index.js"
+    },
+    "./support": {
+      "types": "./dist/support/index.d.ts",
+      "import": "./dist/support/index.js",
+      "require": "./dist/support/index.js"
+    },
+    "./media": {
+      "types": "./dist/media/index.d.ts",
+      "import": "./dist/media/index.js",
+      "require": "./dist/media/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc",
-    "type-check": "pnpm --filter @vubon/shared-types build && tsc --noEmit",
+    "type-check": "tsc --noEmit",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "format:write": "prettier --write \"src/**/*.ts\"",
     "test": "echo \"No tests yet\" && exit 0"
-  },
-  "dependencies": {
-    "@vubon/shared-constants": "workspace:*",
-    "@vubon/shared-types": "workspace:*",
-    "dotenv": "^16.0.0",
-    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
@@ -27,6 +132,11 @@
     "eslint-plugin-prettier": "^5.0.0",
     "globals": "^15.0.0",
     "prettier": "^3.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "zod": "^3.25.76"
+  },
+  "dependencies": {
+    "@vubon/shared-constants": "workspace:*",
+    "dotenv": "18.0.1"
   }
 }

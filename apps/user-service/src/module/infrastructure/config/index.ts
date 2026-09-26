@@ -1,0 +1,9 @@
+export { USER_CONFIG } from './user.config';
+export { PROFILE_CONFIG } from './profile.config';
+export { ADDRESS_CONFIG } from './address.config';
+export { CONTACT_CONFIG } from './contact.config';
+export { PREFERENCES_CONFIG } from './preferences.config';
+export { SETTINGS_CONFIG } from './settings.config';
+export { KYC_CONFIG } from './kyc.config';
+export { ACTIVITY_CONFIG } from './activity.config';
+export { AVATAR_CONFIG } from './avatar.config';

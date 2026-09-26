@@ -1,0 +1,53 @@
+{
+  "name": "@vubon/ai-service",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "nest build",
+    "type-check": "tsc --noEmit",
+    "start": "nest start",
+    "start:dev": "nest start --watch"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "0.128.0",
+    "@apollo/server": "4.13.0",
+    "@google/generative-ai": "0.24.1",
+    "@huggingface/inference": "4.13.30",
+    "@nestjs/common": "^10.3.0",
+    "@nestjs/config": "^3.2.0",
+    "@nestjs/core": "^10.3.0",
+    "@nestjs/cqrs": "^10.2.0",
+    "@nestjs/graphql": "12.2.2",
+    "@nestjs/platform-express": "^10.3.0",
+    "@nestjs/swagger": "^7.3.0",
+    "@pinecone-database/pinecone": "9.0.0",
+    "@prisma/client": "^5.10.0",
+    "@qdrant/js-client-rest": "1.19.0",
+    "@vubon/shared-config": "workspace:*",
+    "@vubon/shared-constants": "workspace:*",
+    "@vubon/shared-kernel": "workspace:*",
+    "@vubon/shared-schemas": "workspace:*",
+    "@vubon/shared-types": "workspace:*",
+    "@vubon/shared-utils": "workspace:*",
+    "@zilliz/milvus2-sdk-node": "3.0.6",
+    "axios": "1.20.0",
+    "bullmq": "^5.4.0",
+    "chromadb": "3.5.0",
+    "cohere-ai": "8.1.0",
+    "graphql": "16.14.2",
+    "ioredis": "^5.3.2",
+    "openai": "7.23.0",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.0",
+    "weaviate-ts-client": "2.2.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^10.0.0",
+    "@nestjs/schematics": "^10.0.0",
+    "@types/express": "5.0.6",
+    "@types/node": "^20.19.43",
+    "prisma": "^5.10.0",
+    "typescript": "^5.0.0"
+  }
+}

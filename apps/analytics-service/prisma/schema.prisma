@@ -1,0 +1,410 @@
+// ═══════════════════════════════════════════════════════════════
+// Analytics Service — Prisma Schema (FULL)
+// 20 domain models — exact match with domain entities
+// ═══════════════════════════════════════════════════════════════
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════ EVENT AGGREGATE ═══════════════════
+
+model Event {
+  id             String    @id @default(uuid())
+  name           String
+  source         String
+  timestamp      DateTime
+  payloadJson    Json?
+  payloadSize    Int       @default(0)
+  processed      Boolean   @default(false)
+  processedAt    DateTime?
+  userId         String?
+  sessionId      String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  @@index([name])
+  @@index([source])
+  @@index([timestamp])
+  @@index([processed])
+  @@index([userId])
+  @@map("events")
+}
+
+model EventPayload {
+  id          String    @id @default(uuid())
+  eventId     String    @unique
+  payloadJson Json
+  sizeBytes   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("event_payloads")
+}
+
+// ═══════════════════ METRIC AGGREGATE ═══════════════════
+
+model Metric {
+  id             String    @id @default(uuid())
+  name           String
+  value          Float
+  unit           String
+  type           String
+  windowStartMs  BigInt?
+  windowEndMs    BigInt?
+  userId         String?
+  source         String?
+  dimensions     Json?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  aggregations MetricAggregation[]
+
+  @@index([name])
+  @@index([type])
+  @@index([createdAt])
+  @@map("metrics")
+}
+
+model MetricAggregation {
+  id             String    @id @default(uuid())
+  metricId       String
+  aggregation    String
+  value          Float
+  unit           String
+  sampleSize     Int       @default(0)
+  intervalValue  String?
+  windowStartMs  BigInt
+  windowEndMs    BigInt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  metric Metric @relation(fields: [metricId], references: [id], onDelete: Cascade)
+
+  @@index([metricId])
+  @@index([aggregation])
+  @@map("metric_aggregations")
+}
+
+// ═══════════════════ DIMENSION ═══════════════════
+
+model Dimension {
+  id            String    @id @default(uuid())
+  name          String    @unique
+  cardinality   Int       @default(0)
+  dataType      String    @default("string")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  values DimensionValue[]
+
+  @@map("dimensions")
+}
+
+model DimensionValue {
+  id           String    @id @default(uuid())
+  dimensionId  String
+  value        String
+  frequency    Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  dimension Dimension @relation(fields: [dimensionId], references: [id], onDelete: Cascade)
+
+  @@unique([dimensionId, value])
+  @@index([dimensionId])
+  @@index([frequency])
+  @@map("dimension_values")
+}
+
+// ═══════════════════ KPI AGGREGATE ═══════════════════
+
+model Kpi {
+  id           String    @id @default(uuid())
+  name         String
+  metricName   String
+  target       Float
+  threshold    Float
+  ownerId      String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  results KpiResult[]
+
+  @@index([name])
+  @@index([metricName])
+  @@index([ownerId])
+  @@map("kpis")
+}
+
+model KpiResult {
+  id                 String    @id @default(uuid())
+  kpiId              String
+  actual             Float
+  target             Float
+  achievementPercent Float
+  status             String
+  evaluatedAt        DateTime
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  kpi Kpi @relation(fields: [kpiId], references: [id], onDelete: Cascade)
+
+  @@index([kpiId])
+  @@index([status])
+  @@index([evaluatedAt])
+  @@map("kpi_results")
+}
+
+// ═══════════════════ DASHBOARD AGGREGATE ═══════════════════
+
+model Dashboard {
+  id           String    @id @default(uuid())
+  name         String
+  layout       String    @default("grid")
+  ownerId      String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  widgets Widget[]
+
+  @@index([ownerId])
+  @@map("dashboards")
+}
+
+model Widget {
+  id           String    @id @default(uuid())
+  dashboardId  String
+  type         String
+  metricName   String
+  position     Int       @default(0)
+  configJson   Json?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  dashboard Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+
+  @@index([dashboardId])
+  @@map("widgets")
+}
+
+// ═══════════════════ REPORT AGGREGATE ═══════════════════
+
+model Report {
+  id             String    @id @default(uuid())
+  type           String
+  format         String
+  status         String    @default("pending")
+  frequency      String?
+  ownerId        String
+  generatedAt    DateTime?
+  nextRunAt      DateTime?
+  cronExpression String?
+  recipients     Json?
+  rowCount       Int       @default(0)
+  filterCount    Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  filters ReportFilter[]
+
+  @@index([ownerId])
+  @@index([status])
+  @@index([nextRunAt])
+  @@map("reports")
+}
+
+model ReportFilter {
+  id         String    @id @default(uuid())
+  reportId   String
+  field      String
+  operator   String
+  valueJson  Json
+  logic      String    @default("and")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+  @@map("report_filters")
+}
+
+// ═══════════════════ COHORT AGGREGATE ═══════════════════
+
+model Cohort {
+  id         String    @id @default(uuid())
+  name       String
+  period     String
+  startDate  DateTime
+  endDate    DateTime
+  userIds    Json
+  bucketKey  String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  analyses CohortAnalysis[]
+
+  @@index([period])
+  @@index([bucketKey])
+  @@index([startDate])
+  @@map("cohorts")
+}
+
+model CohortAnalysis {
+  id             String    @id @default(uuid())
+  cohortId       String
+  initialSize    Int
+  retainedJson   Json
+  day1Retention  Float?
+  day7Retention  Float?
+  day30Retention Float?
+  analyzedAt     DateTime
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  cohort Cohort @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+
+  @@index([cohortId])
+  @@index([analyzedAt])
+  @@map("cohort_analyses")
+}
+
+// ═══════════════════ FUNNEL AGGREGATE ═══════════════════
+
+model Funnel {
+  id        String    @id @default(uuid())
+  name      String
+  steps     Json
+  ownerId   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  analyses FunnelAnalysis[]
+
+  @@index([name])
+  @@index([ownerId])
+  @@map("funnels")
+}
+
+model FunnelAnalysis {
+  id                   String    @id @default(uuid())
+  funnelId             String
+  stepCounts           Json
+  overallConversion    Float?
+  biggestDropOffIndex  Int?
+  analyzedAt           DateTime
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  deletedAt            DateTime?
+
+  funnel Funnel @relation(fields: [funnelId], references: [id], onDelete: Cascade)
+
+  @@index([funnelId])
+  @@index([analyzedAt])
+  @@map("funnel_analyses")
+}
+
+// ═══════════════════ SESSION AGGREGATE ═══════════════════
+
+model Session {
+  id             String    @id @default(uuid())
+  userId         String?
+  entryPage      String
+  exitPage       String
+  pageViewCount  Int       @default(1)
+  startedAt      DateTime
+  endedAt        DateTime?
+  isBounce       Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  pageViews PageView[]
+
+  @@index([userId])
+  @@index([startedAt])
+  @@index([endedAt])
+  @@map("sessions")
+}
+
+// ═══════════════════ PAGE VIEW ═══════════════════
+
+model PageView {
+  id                String    @id @default(uuid())
+  sessionId         String
+  path              String
+  referrer          String
+  userAgent         String
+  timeOnPageSeconds Int       @default(0)
+  viewedAt          DateTime
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([path])
+  @@index([viewedAt])
+  @@map("page_views")
+}
+
+// ═══════════════════ TRAFFIC SOURCE ═══════════════════
+
+model TrafficSource {
+  id          String    @id @default(uuid())
+  source      String?
+  medium      String?
+  campaign    String?
+  referrer    String
+  sessions    Int       @default(0)
+  isDirect    Boolean   @default(false)
+  isPaid      Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@index([source])
+  @@index([medium])
+  @@index([sessions])
+  @@map("traffic_sources")
+}
+
+// ═══════════════════ ATTRIBUTION AGGREGATE ═══════════════════
+
+model Attribution {
+  id              String    @id @default(uuid())
+  model           String
+  conversionId    String    @unique
+  touchpoints     Json
+  conversionValue Float
+  credits         Json?
+  topTouchpoint   String?
+  computedAt      DateTime
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@index([model])
+  @@index([conversionId])
+  @@map("attributions")
+}

@@ -4,6 +4,283 @@
   "private": true,
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./common": {
+      "types": "./dist/common/index.d.ts",
+      "import": "./dist/common/index.js",
+      "require": "./dist/common/index.js"
+    },
+    "./infrastructure": {
+      "types": "./dist/infrastructure/index.d.ts",
+      "import": "./dist/infrastructure/index.js",
+      "require": "./dist/infrastructure/index.js"
+    },
+    "./security": {
+      "types": "./dist/security/index.d.ts",
+      "import": "./dist/security/index.js",
+      "require": "./dist/security/index.js"
+    },
+    "./auth": {
+      "types": "./dist/auth/index.d.ts",
+      "import": "./dist/auth/index.js",
+      "require": "./dist/auth/index.js"
+    },
+    "./user": {
+      "types": "./dist/user/index.d.ts",
+      "import": "./dist/user/index.js",
+      "require": "./dist/user/index.js"
+    },
+    "./business": {
+      "types": "./dist/business/index.d.ts",
+      "import": "./dist/business/index.js",
+      "require": "./dist/business/index.js"
+    },
+    "./business/product": {
+      "types": "./dist/business/product/index.d.ts",
+      "import": "./dist/business/product/index.js",
+      "require": "./dist/business/product/index.js"
+    },
+    "./business/payment": {
+      "types": "./dist/business/payment/index.d.ts",
+      "import": "./dist/business/payment/index.js",
+      "require": "./dist/business/payment/index.js"
+    },
+    "./platform": {
+      "types": "./dist/platform/index.d.ts",
+      "import": "./dist/platform/index.js",
+      "require": "./dist/platform/index.js"
+    },
+    "./ai": {
+      "types": "./dist/ai/index.d.ts",
+      "import": "./dist/ai/index.js",
+      "require": "./dist/ai/index.js"
+    },
+    "./marketing": {
+      "types": "./dist/marketing/index.d.ts",
+      "import": "./dist/marketing/index.js",
+      "require": "./dist/marketing/index.js"
+    },
+    "./support": {
+      "types": "./dist/support/index.d.ts",
+      "import": "./dist/support/index.js",
+      "require": "./dist/support/index.js"
+    },
+    "./logistics": {
+      "types": "./dist/logistics/index.d.ts",
+      "import": "./dist/logistics/index.js",
+      "require": "./dist/logistics/index.js"
+    },
+    "./admin": {
+      "types": "./dist/admin/index.d.ts",
+      "import": "./dist/admin/index.js",
+      "require": "./dist/admin/index.js"
+    },
+    "./seo": {
+      "types": "./dist/seo/index.d.ts",
+      "import": "./dist/seo/index.js",
+      "require": "./dist/seo/index.js"
+    },
+    "./analytics": {
+      "types": "./dist/analytics/index.d.ts",
+      "import": "./dist/analytics/index.js",
+      "require": "./dist/analytics/index.js"
+    },
+    "./reporting": {
+      "types": "./dist/reporting/index.d.ts",
+      "import": "./dist/reporting/index.js",
+      "require": "./dist/reporting/index.js"
+    },
+    "./flash-sales": {
+      "types": "./dist/flash-sales/index.d.ts",
+      "import": "./dist/flash-sales/index.js",
+      "require": "./dist/flash-sales/index.js"
+    },
+    "./content": {
+      "types": "./dist/content/index.d.ts",
+      "import": "./dist/content/index.js",
+      "require": "./dist/content/index.js"
+    },
+    "./notification": {
+      "types": "./dist/notification/index.d.ts",
+      "import": "./dist/notification/index.js",
+      "require": "./dist/notification/index.js"
+    },
+    "./search": {
+      "types": "./dist/search/index.d.ts",
+      "import": "./dist/search/index.js",
+      "require": "./dist/search/index.js"
+    },
+    "./discovery": {
+      "types": "./dist/discovery/index.d.ts",
+      "import": "./dist/discovery/index.js",
+      "require": "./dist/discovery/index.js"
+    },
+    "./cart": {
+      "types": "./dist/business/cart/index.d.ts",
+      "import": "./dist/business/cart/index.js",
+      "require": "./dist/business/cart/index.js"
+    },
+    "./checkout": {
+      "types": "./dist/checkout/index.d.ts",
+      "import": "./dist/checkout/index.js",
+      "require": "./dist/checkout/index.js"
+    },
+    "./product": {
+      "types": "./dist/product/index.d.ts",
+      "import": "./dist/product/index.js",
+      "require": "./dist/product/index.js"
+    },
+    "./analytics/ai": {
+      "types": "./dist/analytics/ai/index.d.ts",
+      "import": "./dist/analytics/ai/index.js",
+      "require": "./dist/analytics/ai/index.js"
+    },
+    "./analytics/logistics": {
+      "types": "./dist/analytics/logistics/index.d.ts",
+      "import": "./dist/analytics/logistics/index.js",
+      "require": "./dist/analytics/logistics/index.js"
+    },
+    "./analytics/flash-sales": {
+      "types": "./dist/analytics/flash-sales-analytics/index.d.ts",
+      "import": "./dist/analytics/flash-sales-analytics/index.js",
+      "require": "./dist/analytics/flash-sales-analytics/index.js"
+    },
+    "./analytics/notification": {
+      "types": "./dist/analytics/notification-analytics/index.d.ts",
+      "import": "./dist/analytics/notification-analytics/index.js",
+      "require": "./dist/analytics/notification-analytics/index.js"
+    },
+    "./analytics/seo": {
+      "types": "./dist/analytics/seo-analytics/index.d.ts",
+      "import": "./dist/analytics/seo-analytics/index.js",
+      "require": "./dist/analytics/seo-analytics/index.js"
+    },
+    "./reporting/admin": {
+      "types": "./dist/reporting/report-admin/index.d.ts",
+      "import": "./dist/reporting/report-admin/index.js",
+      "require": "./dist/reporting/report-admin/index.js"
+    },
+    "./reporting/logistics": {
+      "types": "./dist/reporting/logistics/index.d.ts",
+      "import": "./dist/reporting/logistics/index.js",
+      "require": "./dist/reporting/logistics/index.js"
+    },
+    "./reporting/notification": {
+      "types": "./dist/reporting/report-notification/index.d.ts",
+      "import": "./dist/reporting/report-notification/index.js",
+      "require": "./dist/reporting/report-notification/index.js"
+    },
+    "./reporting/seo": {
+      "types": "./dist/reporting/report-seo/index.d.ts",
+      "import": "./dist/reporting/report-seo/index.js",
+      "require": "./dist/reporting/report-seo/index.js"
+    },
+    "./reporting/support": {
+      "types": "./dist/reporting/report-support/index.d.ts",
+      "import": "./dist/reporting/report-support/index.js",
+      "require": "./dist/reporting/report-support/index.js"
+    },
+    "./reporting/vendor": {
+      "types": "./dist/reporting/report-vendor/index.d.ts",
+      "import": "./dist/reporting/report-vendor/index.js",
+      "require": "./dist/reporting/report-vendor/index.js"
+    },
+    "./logistics/shipment": {
+      "types": "./dist/logistics/shipment/index.d.ts",
+      "import": "./dist/logistics/shipment/index.js",
+      "require": "./dist/logistics/shipment/index.js"
+    },
+    "./logistics/delivery": {
+      "types": "./dist/logistics/delivery/index.d.ts",
+      "import": "./dist/logistics/delivery/index.js",
+      "require": "./dist/logistics/delivery/index.js"
+    },
+    "./logistics/courier": {
+      "types": "./dist/logistics/courier/index.d.ts",
+      "import": "./dist/logistics/courier/index.js",
+      "require": "./dist/logistics/courier/index.js"
+    },
+    "./logistics/tracking": {
+      "types": "./dist/logistics/tracking/index.d.ts",
+      "import": "./dist/logistics/tracking/index.js",
+      "require": "./dist/logistics/tracking/index.js"
+    },
+    "./logistics/warehouse": {
+      "types": "./dist/logistics/warehouse/index.d.ts",
+      "import": "./dist/logistics/warehouse/index.js",
+      "require": "./dist/logistics/warehouse/index.js"
+    },
+    "./logistics/inventory": {
+      "types": "./dist/logistics/inventory/index.d.ts",
+      "import": "./dist/logistics/inventory/index.js",
+      "require": "./dist/logistics/inventory/index.js"
+    },
+    "./logistics/fulfillment": {
+      "types": "./dist/logistics/fulfillment/index.d.ts",
+      "import": "./dist/logistics/fulfillment/index.js",
+      "require": "./dist/logistics/fulfillment/index.js"
+    },
+    "./logistics/dispatch": {
+      "types": "./dist/logistics/dispatch/index.d.ts",
+      "import": "./dist/logistics/dispatch/index.js",
+      "require": "./dist/logistics/dispatch/index.js"
+    },
+    "./logistics/vehicle": {
+      "types": "./dist/logistics/vehicle/index.d.ts",
+      "import": "./dist/logistics/vehicle/index.js",
+      "require": "./dist/logistics/vehicle/index.js"
+    },
+    "./logistics/driver": {
+      "types": "./dist/logistics/driver/index.d.ts",
+      "import": "./dist/logistics/driver/index.js",
+      "require": "./dist/logistics/driver/index.js"
+    },
+    "./logistics/route": {
+      "types": "./dist/logistics/route/index.d.ts",
+      "import": "./dist/logistics/route/index.js",
+      "require": "./dist/logistics/route/index.js"
+    },
+    "./logistics/zone": {
+      "types": "./dist/logistics/zone/index.d.ts",
+      "import": "./dist/logistics/zone/index.js",
+      "require": "./dist/logistics/zone/index.js"
+    },
+    "./logistics/shipping": {
+      "types": "./dist/logistics/shipping/index.d.ts",
+      "import": "./dist/logistics/shipping/index.js",
+      "require": "./dist/logistics/shipping/index.js"
+    },
+    "./logistics/packaging": {
+      "types": "./dist/logistics/packaging/index.d.ts",
+      "import": "./dist/logistics/packaging/index.js",
+      "require": "./dist/logistics/packaging/index.js"
+    },
+    "./logistics/return": {
+      "types": "./dist/logistics/return/index.d.ts",
+      "import": "./dist/logistics/return/index.js",
+      "require": "./dist/logistics/return/index.js"
+    },
+    "./logistics/insurance": {
+      "types": "./dist/logistics/insurance/index.d.ts",
+      "import": "./dist/logistics/insurance/index.js",
+      "require": "./dist/logistics/insurance/index.js"
+    },
+    "./business/vendor": {
+      "types": "./dist/business/vendor/index.d.ts",
+      "import": "./dist/business/vendor/index.js",
+      "require": "./dist/business/vendor/index.js"
+    },
+    "./platform/analytics": {
+      "types": "./dist/platform/analytics/index.d.ts",
+      "import": "./dist/platform/analytics/index.js",
+      "require": "./dist/platform/analytics/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc",
     "type-check": "tsc --noEmit",
@@ -21,5 +298,8 @@
     "globals": "^15.0.0",
     "prettier": "^3.0.0",
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "zod": "4.5.4"
   }
 }

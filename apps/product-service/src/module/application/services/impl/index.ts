@@ -1,0 +1,11 @@
+export { ProductService } from './product.service';
+export { ProductVariantService } from './product-variant.service';
+export { ProductAttributeService } from './product-attribute.service';
+export { ProductInventoryService } from './product-inventory.service';
+export { ProductPricingService } from './product-pricing.service';
+export { ProductPricingRuleService } from './product-pricing-rule.service';
+export { ProductCollectionService } from './product-collection.service';
+export { ProductReviewService } from './product-review.service';
+export { ProductMediaService } from './product-media.service';
+export { BrandService } from './brand.service';
+export { CategoryService } from './category.service';

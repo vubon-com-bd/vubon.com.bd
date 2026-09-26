@@ -1,0 +1,9 @@
+export { PRODUCT_CONFIG } from './product.config';
+export { VARIANT_CONFIG } from './variant.config';
+export { INVENTORY_CONFIG } from './inventory.config';
+export { PRICING_CONFIG } from './pricing.config';
+export { REVIEW_CONFIG } from './review.config';
+export { MEDIA_CONFIG } from './media.config';
+export { SEARCH_CONFIG } from './search.config';
+export { BRAND_CONFIG } from './brand.config';
+export { CATEGORY_CONFIG } from './category.config';

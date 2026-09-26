@@ -1,0 +1,11 @@
+export { CampaignQueue, type CampaignJobPayload } from './campaign.queue';
+export { PromotionQueue, type PromotionJobPayload } from './promotion.queue';
+export { AffiliateQueue, type AffiliateJobPayload } from './affiliate.queue';
+export { LoyaltyQueue, type LoyaltyJobPayload } from './loyalty.queue';
+export { EmailQueue, type EmailJobPayload } from './email.queue';
+export { SmsQueue, type SmsJobPayload } from './sms.queue';
+export { SocialQueue, type SocialJobPayload } from './social.queue';
+export { LeadQueue, type LeadJobPayload } from './lead.queue';
+export { NotificationQueue, type NotificationJobPayload } from './notification.queue';
+export { AnalyticsQueue, type AnalyticsJobPayload } from './analytics.queue';
+export { ReportQueue, type ReportJobPayload } from './report.queue';

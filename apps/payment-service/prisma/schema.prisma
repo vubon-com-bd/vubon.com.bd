@@ -1,0 +1,256 @@
+// ═══════════════════════════════════════════════════════════════
+// Payment Service — Prisma Schema
+// Domain Layer ১০টি entity — সব model exact match
+// ═══════════════════════════════════════════════════════════════
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════ PAYMENT AGGREGATE ═══════════════════
+
+model Payment {
+  id                  String    @id @default(uuid())
+  orderId             String
+  userId              String
+  type                String    @default("one_time")
+  status              String    @default("pending")
+  method              String
+  gateway             String?
+  amount              Decimal   @db.Decimal(19, 4)
+  currency            String    @db.VarChar(3)
+  gatewayPaymentId    String?
+  gatewayOrderId      String?
+  gatewaySignature    String?
+  authorizedAt        DateTime?
+  capturedAt          DateTime?
+  refundedAmount      Decimal?  @db.Decimal(19, 4)
+  metadata            Json?
+  failureReason       String?
+  failureCode         String?
+  idempotencyKey      String?   @unique
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
+
+  transactions        Transaction[]
+  refunds             Refund[]
+
+  @@index([orderId])
+  @@index([userId])
+  @@index([status])
+  @@index([idempotencyKey])
+  @@map("payments")
+}
+
+// ═══════════════════ PAYMENT METHOD ═══════════════════
+
+model PaymentMethod {
+  id                String    @id @default(uuid())
+  userId            String
+  type              String
+  provider          String?
+  cardToken         String?
+  cardLast4         String?   @db.VarChar(4)
+  cardBrand         String?
+  cardExpiry        String?
+  walletAddress     String?
+  isDefault         Boolean   @default(false)
+  isActive          Boolean   @default(true)
+  metadata          Json?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+
+  @@index([userId])
+  @@index([userId, isDefault])
+  @@map("payment_methods")
+}
+
+// ═══════════════════ PAYMENT GATEWAY ═══════════════════
+
+model PaymentGateway {
+  id                  String    @id @default(uuid())
+  gateway             String    @unique
+  status              String    @default("active")
+  env                 String    @default("sandbox")
+  isLocal             Boolean   @default(false)
+  supportedCurrencies String[]
+  metadata            Json?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@map("payment_gateways")
+}
+
+// ═══════════════════ TRANSACTION ═══════════════════
+
+model Transaction {
+  id                    String    @id @default(uuid())
+  paymentId             String
+  orderId               String?
+  userId                String?
+  type                  String
+  status                String
+  amount                Decimal   @db.Decimal(19, 4)
+  currency              String    @db.VarChar(3)
+  gateway               String?
+  gatewayTransactionId  String?
+  reference             String?
+  idempotencyKey        String?   @unique
+  errorCode             String?
+  errorMessage          String?
+  metadata              Json?
+  processedAt           DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId])
+  @@index([orderId])
+  @@index([userId])
+  @@map("transactions")
+}
+
+// ═══════════════════ REFUND ═══════════════════
+
+model Refund {
+  id              String    @id @default(uuid())
+  paymentId       String
+  transactionId   String?
+  orderId         String?
+  status          String    @default("pending")
+  amount          Decimal   @db.Decimal(19, 4)
+  currency        String    @db.VarChar(3)
+  reason          String?
+  gatewayRefundId String?
+  processedAt     DateTime?
+  failedAt        DateTime?
+  failureReason   String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId])
+  @@index([status])
+  @@map("refunds")
+}
+
+// ═══════════════════ SPLIT PAYMENT ═══════════════════
+
+model SplitPayment {
+  id           String    @id @default(uuid())
+  paymentId    String
+  splitType    String
+  amount       Decimal   @db.Decimal(19, 4)
+  percentage   Decimal?  @db.Decimal(5, 2)
+  recipientId  String
+  currency     String    @db.VarChar(3)
+  status       String    @default("pending")
+  metadata     Json?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([paymentId])
+  @@map("split_payments")
+}
+
+// ═══════════════════ RECURRING PAYMENT ═══════════════════
+
+model RecurringPayment {
+  id              String    @id @default(uuid())
+  paymentId       String
+  frequency       String
+  status          String    @default("active")
+  nextRunAt       DateTime
+  lastRunAt       DateTime?
+  amount          Decimal   @db.Decimal(19, 4)
+  currency        String    @db.VarChar(3)
+  maxCycles       Int?
+  completedCycles Int       @default(0)
+  metadata        Json?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([paymentId])
+  @@index([status, nextRunAt])
+  @@map("recurring_payments")
+}
+
+// ═══════════════════ SUBSCRIPTION ═══════════════════
+
+model Subscription {
+  id                String    @id @default(uuid())
+  userId            String
+  plan              String
+  status            String    @default("active")
+  paymentMethodId   String?
+  currentPeriodFrom DateTime
+  currentPeriodTo   DateTime
+  cancelledAt       DateTime?
+  expiresAt         DateTime?
+  metadata          Json?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+
+  invoices Invoice[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([currentPeriodTo])
+  @@map("subscriptions")
+}
+
+// ═══════════════════ INVOICE ═══════════════════
+
+model Invoice {
+  id              String    @id @default(uuid())
+  subscriptionId  String?
+  paymentId       String?
+  orderId         String?
+  userId          String?
+  number          String    @unique
+  status          String    @default("draft")
+  amount          Decimal   @db.Decimal(19, 4)
+  currency        String    @db.VarChar(3)
+  taxAmount       Decimal?  @db.Decimal(19, 4)
+  dueAt           DateTime?
+  paidAt          DateTime?
+  overdueAt       DateTime?
+  pdfUrl          String?
+  metadata        Json?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@index([number])
+  @@map("invoices")
+}
+
+// ═══════════════════ VERIFICATION ═══════════════════
+
+model Verification {
+  id                String    @id @default(uuid())
+  paymentId         String    @unique
+  status            String    @default("pending")
+  method            String
+  gatewaySignature  String?
+  gatewayData       Json?
+  verifiedAt        DateTime?
+  failureReason     String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("verifications")
+}

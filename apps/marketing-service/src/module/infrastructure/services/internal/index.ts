@@ -1,0 +1,13 @@
+export { AttributionTrackerService, type Touchpoint, type AttributionResult } from './attribution-tracker.service';
+export { UtmParserService, type UtmParams } from './utm-parser.service';
+export { CouponGeneratorService } from './coupon-generator.service';
+export { ReferralCodeGeneratorService } from './referral-code-generator.service';
+export { AffiliateLinkGeneratorService } from './affiliate-link-generator.service';
+export { LoyaltyPointsCalculatorService } from './loyalty-points-calculator.service';
+export { LeadScoringService, type LeadScoreInput } from './lead-scoring.service';
+export { AudienceSegmenterService, type Segment } from './audience-segmenter.service';
+export { BudgetOptimizerService } from './budget-optimizer.service';
+export { RoiCalculatorService } from './roi-calculator.service';
+export { ClvCalculatorService } from './clv-calculator.service';
+export { CacCalculatorService } from './cac-calculator.service';
+export { AbTestingService, type AbTestVariant } from './a-b-testing.service';

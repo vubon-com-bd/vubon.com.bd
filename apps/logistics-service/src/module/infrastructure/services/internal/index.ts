@@ -1,0 +1,12 @@
+export { ShipmentNumberGeneratorService } from './shipment-number-generator.service';
+export { TrackingNumberGeneratorService } from './tracking-number-generator.service';
+export { ShippingRateCalculatorService } from './shipping-rate-calculator.service';
+export { RouteOptimizerService } from './route-optimizer.service';
+export { DistanceCalculatorService } from './distance-calculator.service';
+export { EtaCalculatorService } from './eta-calculator.service';
+export { PackagingSelectorService } from './packaging-selector.service';
+export { InsuranceCalculatorService } from './insurance-calculator.service';
+export { ZoneClassifierService } from './zone-classifier.service';
+export { WarehouseAllocatorService } from './warehouse-allocator.service';
+export { FulfillmentAllocatorService } from './fulfillment-allocator.service';
+export { WeightCalculatorService } from './weight-calculator.service';

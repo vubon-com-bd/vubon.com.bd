@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "paths": {
+      "@vubon/shared-kernel/*": ["../../packages/shared-kernel/src/*"],
+      "@vubon/shared-constants/*": ["../../packages/shared-constants/src/*"],
+      "@vubon/shared-types/*": ["../../packages/shared-types/src/*"],
+      "@vubon/shared-schemas/*": ["../../packages/shared-schemas/src/*"],
+      "@vubon/shared-utils/*": ["../../packages/shared-utils/src/*"],
+      "@vubon/shared-config/*": ["../../packages/shared-config/src/*"]
+    }
+  },
+  "include": ["src/**/*"]
+}

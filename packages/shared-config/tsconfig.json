@@ -1,25 +1,40 @@
 {
-  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "composite": false,
-    "module": "CommonJS",
+    "incremental": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "module": "node16",
+    "moduleResolution": "node16",
     "target": "ES2020",
-    "moduleResolution": "node",
+    "lib": ["ES2022", "DOM"],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
     "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
-    "paths": {
-      "@vubon/shared-constants": ["../shared-constants/src/index.ts"],
-      "@vubon/shared-types": ["../shared-types/src/index.ts"],
-      "@vubon/shared-config": ["./src/index.ts"]
-    }
+    
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "types": ["node"]
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/.l2s",
+    "**/rootfs",
+    "**/.d.ts",
+    "**/*.spec.ts"
+  ]
 }

@@ -1,0 +1,12 @@
+export { ProductController } from './product.controller';
+export { ProductVariantController } from './product-variant.controller';
+export { ProductInventoryController } from './product-inventory.controller';
+export { ProductPricingController } from './product-pricing.controller';
+export { ProductAttributeController } from './product-attribute.controller';
+export { ProductPricingRuleController } from './product-pricing-rule.controller';
+export { ProductCollectionController } from './product-collection.controller';
+export { ProductReviewController } from './product-review.controller';
+export { ProductMediaController } from './product-media.controller';
+export { BrandController } from './brand.controller';
+export { CategoryController } from './category.controller';
+export { PublicProductController } from './public-product.controller';

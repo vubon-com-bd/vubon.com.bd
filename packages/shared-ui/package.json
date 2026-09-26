@@ -1,0 +1,124 @@
+{
+  "name": "@vubon/shared-ui",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared design system — tokens, primitives, components, patterns, layouts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./common": {
+      "import": "./dist/common/index.js",
+      "require": "./dist/common/index.js",
+      "types": "./dist/common/index.d.ts"
+    },
+    "./components": {
+      "import": "./dist/common/components/index.js",
+      "require": "./dist/common/components/index.js",
+      "types": "./dist/common/components/index.d.ts"
+    },
+    "./bangladesh": {
+      "import": "./dist/common/bangladesh/index.js",
+      "require": "./dist/common/bangladesh/index.js",
+      "types": "./dist/common/bangladesh/index.d.ts"
+    },
+    "./tokens": {
+      "import": "./dist/common/tokens/index.js",
+      "require": "./dist/common/tokens/index.js",
+      "types": "./dist/common/tokens/index.d.ts"
+    },
+    "./styles": {
+      "import": "./dist/common/styles/index.js",
+      "require": "./dist/common/styles/index.js",
+      "types": "./dist/common/styles/index.d.ts"
+    },
+    "./utils": {
+      "import": "./dist/common/utils/index.js",
+      "require": "./dist/common/utils/index.js",
+      "types": "./dist/common/utils/index.d.ts"
+    },
+    "./primitives": {
+      "import": "./dist/common/primitives/index.js",
+      "require": "./dist/common/primitives/index.js",
+      "types": "./dist/common/primitives/index.d.ts"
+    },
+    "./patterns": {
+      "import": "./dist/common/patterns/index.js",
+      "require": "./dist/common/patterns/index.js",
+      "types": "./dist/common/patterns/index.d.ts"
+    },
+    "./icons": {
+      "import": "./dist/common/icons/index.js",
+      "require": "./dist/common/icons/index.js",
+      "types": "./dist/common/icons/index.d.ts"
+    },
+    "./hooks": {
+      "import": "./dist/common/hooks/index.js",
+      "require": "./dist/common/hooks/index.js",
+      "types": "./dist/common/hooks/index.d.ts"
+    },
+    "./providers": {
+      "import": "./dist/common/providers/index.js",
+      "require": "./dist/common/providers/index.js",
+      "types": "./dist/common/providers/index.d.ts"
+    },
+    "./layouts": {
+      "import": "./dist/common/layouts/index.js",
+      "require": "./dist/common/layouts/index.js",
+      "types": "./dist/common/layouts/index.d.ts"
+    },
+    "./a11y": {
+      "import": "./dist/common/a11y/index.js",
+      "require": "./dist/common/a11y/index.js",
+      "types": "./dist/common/a11y/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "lint": "eslint .",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\"",
+    "format:write": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-react": "^7.34.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "globals": "^15.0.0",
+    "prettier": "^3.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@vubon/shared-api": "workspace:*",
+    "@vubon/shared-auth": "workspace:*",
+    "@vubon/shared-config": "workspace:*",
+    "@vubon/shared-constants": "workspace:*",
+    "@vubon/shared-hooks": "workspace:*",
+    "@vubon/shared-schemas": "workspace:*",
+    "@vubon/shared-types": "workspace:*",
+    "@vubon/shared-utils": "workspace:*",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.5.0",
+    "zod": "4.5.4"
+  }
+}

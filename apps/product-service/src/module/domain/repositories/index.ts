@@ -1,0 +1,11 @@
+export type { ProductRepository } from './product.repository.interface';
+export type { ProductVariantRepository } from './product-variant.repository.interface';
+export type { ProductAttributeRepository } from './product-attribute.repository.interface';
+export type { ProductInventoryRepository } from './product-inventory.repository.interface';
+export type { ProductPricingRepository } from './product-pricing.repository.interface';
+export type { ProductPricingRuleRepository } from './product-pricing-rule.repository.interface';
+export type { ProductCollectionRepository } from './product-collection.repository.interface';
+export type { ProductReviewRepository } from './product-review.repository.interface';
+export type { ProductMediaRepository } from './product-media.repository.interface';
+export type { BrandRepository } from './brand.repository.interface';
+export type { CategoryRepository } from './category.repository.interface';

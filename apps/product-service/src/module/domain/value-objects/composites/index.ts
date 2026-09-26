@@ -1,0 +1,12 @@
+export { ProductVO, type ProductProps } from './product.vo';
+export { ProductVariantVO, type ProductVariantProps } from './product-variant.vo';
+export { ProductAttributeVO, type ProductAttributeProps } from './product-attribute.vo';
+export { ProductInventoryVO, type ProductInventoryProps } from './product-inventory.vo';
+export { ProductPricingVO, type ProductPricingProps } from './product-pricing.vo';
+export { ProductPricingRuleVO, type ProductPricingRuleProps } from './product-pricing-rule.vo';
+export { ProductCollectionVO, type ProductCollectionProps } from './product-collection.vo';
+export { ProductReviewVO, type ProductReviewProps } from './product-review.vo';
+export { ProductMediaVO, type ProductMediaProps } from './product-media.vo';
+export { ProductSeoVO, type ProductSeoProps } from './product-seo.vo';
+export { BrandVO, type BrandProps } from './brand.vo';
+export { CategoryVO, type CategoryProps } from './category.vo';

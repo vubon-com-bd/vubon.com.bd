@@ -1,0 +1,15 @@
+export { CAMPAIGN_CONFIG } from './campaign.config';
+export { PROMOTION_CONFIG } from './promotion.config';
+export { AFFILIATE_CONFIG } from './affiliate.config';
+export { REFERRAL_CONFIG } from './referral.config';
+export { LOYALTY_CONFIG } from './loyalty.config';
+export { EMAIL_CONFIG } from './email.config';
+export { SMS_CONFIG } from './sms.config';
+export { SOCIAL_CONFIG } from './social.config';
+export { SEO_CONFIG } from './seo.config';
+export { LEAD_CONFIG } from './lead.config';
+export { AUTOMATION_CONFIG } from './automation.config';
+export { ATTRIBUTION_CONFIG } from './attribution.config';
+export { ANALYTICS_CONFIG } from './analytics.config';
+export { REPORT_CONFIG } from './report.config';
+export { QUEUE_CONFIG } from './queue.config';

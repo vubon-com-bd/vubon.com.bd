@@ -1,0 +1,18 @@
+// shared-kernel Prisma Schema
+// Base schema — শুধু PrismaClient generate করার জন্য।
+// Actual models auth-service-এর schema-তে থাকবে।
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Dummy model — শুধু Prisma Client generate করার জন্য
+model KernelPlaceholder {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+}

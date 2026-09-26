@@ -1,0 +1,43 @@
+export const ANALYTICS_PERIOD = {
+  TODAY: 'today',
+  YESTERDAY: 'yesterday',
+  LAST_7_DAYS: 'last_7_days',
+  LAST_14_DAYS: 'last_14_days',
+  LAST_30_DAYS: 'last_30_days',
+  LAST_60_DAYS: 'last_60_days',
+  LAST_90_DAYS: 'last_90_days',
+  LAST_180_DAYS: 'last_180_days',
+  LAST_365_DAYS: 'last_365_days',
+  THIS_WEEK: 'this_week',
+  LAST_WEEK: 'last_week',
+  THIS_MONTH: 'this_month',
+  LAST_MONTH: 'last_month',
+  THIS_QUARTER: 'this_quarter',
+  LAST_QUARTER: 'last_quarter',
+  THIS_YEAR: 'this_year',
+  LAST_YEAR: 'last_year',
+  CUSTOM: 'custom',
+  ALL_TIME: 'all_time',
+} as const;
+
+export const ANALYTICS_PERIOD_DAYS = {
+  today: 1,
+  yesterday: 1,
+  last_7_days: 7,
+  last_14_days: 14,
+  last_30_days: 30,
+  last_60_days: 60,
+  last_90_days: 90,
+  last_180_days: 180,
+  last_365_days: 365,
+  this_week: 7,
+  last_week: 7,
+  this_month: 30,
+  last_month: 30,
+  this_quarter: 90,
+  last_quarter: 90,
+  this_year: 365,
+  last_year: 365,
+} as const;
+
+export type AnalyticsPeriodType = (typeof ANALYTICS_PERIOD)[keyof typeof ANALYTICS_PERIOD];

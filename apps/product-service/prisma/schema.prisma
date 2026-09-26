@@ -1,0 +1,217 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════ PRODUCT AGGREGATE ═══════════════════
+
+model Product {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  slug        String    @unique
+  sku         String    @unique
+  barcode     String?
+  status      String    @default("draft")
+  type        String    @default("simple")
+  vendorId    String
+  categoryId  String?
+  brandId     String?
+  weight      Float?
+  dimension   String?
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  variants    ProductVariant[]
+  attributes  ProductAttribute[]
+  inventory   ProductInventory[]
+  pricing     ProductPricing?
+  collections ProductCollection[]
+  reviews     ProductReview[]
+  media       ProductMedia[]
+  brand       Brand?             @relation(fields: [brandId], references: [id])
+  category    Category?          @relation(fields: [categoryId], references: [id])
+
+  @@index([vendorId])
+  @@index([categoryId])
+  @@index([brandId])
+  @@index([status])
+  @@map("products")
+}
+
+model ProductVariant {
+  id        String   @id @default(uuid())
+  productId String
+  name      String
+  sku       String   @unique
+  price     Float
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  product    Product                   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  inventory  ProductInventory[]
+  attributes ProductVariantAttribute[]
+
+  @@index([productId])
+  @@map("product_variants")
+}
+
+model ProductVariantAttribute {
+  variantId   String
+  attributeId String
+  createdAt   DateTime @default(now())
+
+  variant   ProductVariant   @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  attribute ProductAttribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+
+  @@id([variantId, attributeId])
+  @@map("product_variant_attributes")
+}
+
+model ProductAttribute {
+  id        String   @id @default(uuid())
+  productId String
+  name      String
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product  Product                   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variants ProductVariantAttribute[]
+
+  @@index([productId])
+  @@map("product_attributes")
+}
+
+model ProductInventory {
+  id        String   @id @default(uuid())
+  productId String
+  variantId String?
+  quantity  Int      @default(0)
+  reserved  Int      @default(0)
+  status    String   @default("in_stock")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([variantId])
+  @@map("product_inventory")
+}
+
+model ProductPricing {
+  id        String   @id @default(uuid())
+  productId String   @unique
+  amount    Float
+  currency  String   @default("BDT")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  rules   ProductPricingRule[]
+
+  @@map("product_pricing")
+}
+
+model ProductPricingRule {
+  id        String    @id @default(uuid())
+  pricingId String
+  type      String
+  value     String
+  startAt   DateTime?
+  endAt     DateTime?
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  pricing ProductPricing @relation(fields: [pricingId], references: [id], onDelete: Cascade)
+
+  @@index([pricingId])
+  @@map("product_pricing_rules")
+}
+
+model ProductCollection {
+  id        String   @id @default(uuid())
+  productId String
+  name      String
+  type      String   @default("manual")
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("product_collections")
+}
+
+model ProductReview {
+  id        String   @id @default(uuid())
+  productId String
+  userId    String
+  rating    Int
+  content   String?
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([userId])
+  @@map("product_reviews")
+}
+
+model ProductMedia {
+  id        String   @id @default(uuid())
+  productId String
+  url       String
+  type      String   @default("image")
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("product_media")
+}
+
+model Brand {
+  id        String    @id @default(uuid())
+  name      String
+  slug      String    @unique
+  logo      String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  products Product[]
+
+  @@map("brands")
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  name      String
+  slug      String    @unique
+  path      String
+  parentId  String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  products Product[]
+  children Category[] @relation("CategoryToCategory")
+  parent   Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
+
+  @@index([parentId])
+  @@map("categories")
+}

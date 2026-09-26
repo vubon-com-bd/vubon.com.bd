@@ -1,0 +1,14 @@
+import { STATUS as COMMON_STATUS } from '../common/status.constants';
+
+export const USER_STATUS = {
+  ACTIVE: COMMON_STATUS.ACTIVE,
+  INACTIVE: COMMON_STATUS.INACTIVE,
+  PENDING: COMMON_STATUS.PENDING,
+  SUSPENDED: COMMON_STATUS.SUSPENDED,
+  BLOCKED: COMMON_STATUS.BLOCKED,
+  DELETED: COMMON_STATUS.DELETED,
+  DEACTIVATED: 'deactivated',
+  UNVERIFIED: 'unverified',
+} as const;
+
+export type UserStatusType = (typeof USER_STATUS)[keyof typeof USER_STATUS];

@@ -1,0 +1,10 @@
+export { CartCalculationService, type CartTotals } from './cart-calculation.service';
+export { CartValidationService } from './cart-validation.service';
+export { CartMergeService, type MergeResult } from './cart-merge.service';
+export { CartEligibilityService } from './cart-eligibility.service';
+export { CouponValidationService } from './coupon-validation.service';
+export { VoucherValidationService } from './voucher-validation.service';
+export { CartLimitsService } from './cart-limits.service';
+export { AbandonedCartDetectorService, type AbandonmentThreshold } from './abandoned-cart-detector.service';
+export { PriceSyncService, type PriceChange } from './price-sync.service';
+export { StockCheckService, type StockStatus } from './stock-check.service';
