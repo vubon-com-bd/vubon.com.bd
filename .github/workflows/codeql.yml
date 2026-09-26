@@ -32,6 +32,8 @@ jobs:
       # ✅ pnpm ইনস্টল করুন (setup-node এর আগে)
       - name: Install pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
