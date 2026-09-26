@@ -1,22 +1,25 @@
+/**
+ * UserPreferencesController
+ * @module auth-service/interfaces/controllers/rest
+ */
 import {
-  Body,
   Controller,
   Get,
-  Patch,
+  Put,
+  Body,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import {
-  CurrentUser,
-  JwtAuthGuard,
-  type CurrentUserShape,
-} from '@vubon/shared-kernel/interfaces';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
+import type { UserId } from '@vubon/shared-types/common';
+
 import { UpdatePreferencesCommand } from '../../../application/commands/user/update-preferences.command';
 import { GetUserPreferencesQuery } from '../../../application/queries/user/get-user-preferences.query';
-import { PreferencesUpdateRequestDTO } from '../../dtos/requests/preferences.request.dto';
+import { UpdatePreferencesRequestDTO } from '../../dtos/requests/preferences.request.dto';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
 
-@ApiTags('Preferences')
+@ApiTags('Users Preferences')
 @Controller('users/preferences')
 @UseGuards(JwtAuthGuard)
 export class UserPreferencesController {
@@ -26,24 +29,17 @@ export class UserPreferencesController {
   ) {}
 
   @Get()
-  async get(@CurrentUser() user: CurrentUserShape): Promise<unknown> {
-    return this.queryBus.execute(new GetUserPreferencesQuery(user.userId));
+  async get(@CurrentUser() user: AuthenticatedUser) {
+    return this.queryBus.execute(new GetUserPreferencesQuery(user.id as UserId));
   }
 
-  @Patch()
+  @Put()
   async update(
-    @CurrentUser() user: CurrentUserShape,
-    @Body() body: PreferencesUpdateRequestDTO,
-  ): Promise<unknown> {
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: UpdatePreferencesRequestDTO,
+  ) {
     return this.commandBus.execute(
-      new UpdatePreferencesCommand(
-        user.userId,
-        body.newsletter,
-        body.promotions,
-        body.orderUpdates,
-        body.productRecommendations,
-        body.securityAlerts,
-      ),
+      new UpdatePreferencesCommand(user.id as UserId, body as never),
     );
   }
 }

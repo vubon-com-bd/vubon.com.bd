@@ -2,11 +2,10 @@ import { BaseSagaCommand } from '@vubon/shared-kernel/application/sagas/base.sag
 
 export class SendVerificationEmailCommand extends BaseSagaCommand {
   readonly type = 'saga.send-verification-email';
-
   constructor(
     public readonly userId: string,
     public readonly email: string,
-  ) {
-    super();
-  }
+    public readonly code: string,
+    public readonly expiresAt: string,
+  ) { super(); }
 }

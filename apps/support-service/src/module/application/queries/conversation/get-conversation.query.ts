@@ -1,3 +1,7 @@
+/**
+ * GetConversationQuery
+ * @module support-service/application/queries/conversation
+ */
 import { BaseQuery } from '@vubon/shared-kernel/application/queries/base.query';
 
 export class GetConversationQuery extends BaseQuery {

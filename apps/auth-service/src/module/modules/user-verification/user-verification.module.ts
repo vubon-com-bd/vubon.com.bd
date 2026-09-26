@@ -1,24 +1,28 @@
-import { PrismaService } from '../../infrastructure/persistence/prisma/prisma.service';
-import { PrismaModule, RedisModule } from '@vubon/shared-kernel/infrastructure';
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-
 import { UserVerificationController } from '../../interfaces/controllers/rest/user-verification.controller';
 import { UserVerificationService } from '../../application/services/impl/user-verification.service';
-import { VerifiedGuard } from '../../interfaces/guards/verified.guard';
 import { UserVerificationPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/user-verification.prisma.repository';
+import { VerifiedGuard } from '../../interfaces/guards/verified.guard';
+import {
+  USER_VERIFICATION_REPO,
+  USER_VERIFICATION_SERVICE,
+} from '../../application/services/tokens';
+
+const TOKEN_BINDINGS = [
+  { provide: USER_VERIFICATION_REPO, useExisting: UserVerificationPrismaRepository },
+  { provide: USER_VERIFICATION_SERVICE, useExisting: UserVerificationService },
+];
 
 @Module({
-  imports: [CqrsModule, PrismaModule, RedisModule],
+  imports: [CqrsModule],
   controllers: [UserVerificationController],
-  providers: [PrismaService, { provide: 'PrismaService', useClass: PrismaService },
-    { provide: 'UserVerificationRepository', useExisting: UserVerificationPrismaRepository },
-    { provide: 'UserVerificationService', useExisting: UserVerificationService },
-
-    UserVerificationPrismaRepository,
+  providers: [
     UserVerificationService,
+    UserVerificationPrismaRepository,
     VerifiedGuard,
+    ...TOKEN_BINDINGS,
   ],
-  exports: [UserVerificationService, UserVerificationPrismaRepository, VerifiedGuard],
+  exports: [UserVerificationService, UserVerificationPrismaRepository, VerifiedGuard, ...TOKEN_BINDINGS.map((b) => b.provide)],
 })
 export class UserVerificationModule {}

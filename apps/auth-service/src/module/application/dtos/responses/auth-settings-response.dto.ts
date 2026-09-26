@@ -1,12 +1,12 @@
-import { z } from 'zod';
-
-export const AuthSettingsResponseSchema = z.object({
-  userId: z.string(),
-  mfaRequired: z.boolean(),
-  sessionTimeoutMinutes: z.number(),
-  passwordExpiryDays: z.number(),
-  loginNotifications: z.boolean(),
-  updatedAt: z.string().datetime(),
-});
-
-export type AuthSettingsResponseDTO = z.infer<typeof AuthSettingsResponseSchema>;
+/**
+ * AuthSettingsResponseDTO
+ * @module auth-service/application/dtos/responses
+ */
+export interface AuthSettingsResponseDTO {
+  readonly userId: string;
+  readonly sessionTimeoutMinutes: number;
+  readonly maxConcurrentSessions: number;
+  readonly mfaRequired: boolean;
+  readonly allowedProviders: readonly string[];
+  readonly updatedAt: string;
+}

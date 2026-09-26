@@ -1,19 +1,17 @@
-import {
-  Controller,
-  Get,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+/**
+ * UserActivityController
+ * @module auth-service/interfaces/controllers/rest
+ */
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import {
-  CurrentUser,
-  JwtAuthGuard,
-  type CurrentUserShape,
-} from '@vubon/shared-kernel/interfaces';
-import { ListUserActivitiesQuery } from '../../../application/queries/user/list-user-activities.query';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
+import type { UserId } from '@vubon/shared-types/common';
 
-@ApiTags('Activity')
+import { ListUserActivitiesQuery } from '../../../application/queries/user/list-user-activities.query';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
+
+@ApiTags('Users Activity')
 @Controller('users/activity')
 @UseGuards(JwtAuthGuard)
 export class UserActivityController {
@@ -21,12 +19,12 @@ export class UserActivityController {
 
   @Get()
   async list(
-    @CurrentUser() user: CurrentUserShape,
+    @CurrentUser() user: AuthenticatedUser,
     @Query('limit') limit?: string,
-  ): Promise<unknown> {
-    const parsed = limit ? Number(limit) : 50;
+  ) {
+    const parsed = limit ? Math.min(Number(limit) || 50, 200) : 50;
     return this.queryBus.execute(
-      new ListUserActivitiesQuery(user.userId, Number.isFinite(parsed) ? parsed : 50),
+      new ListUserActivitiesQuery(user.id as UserId, parsed),
     );
   }
 }

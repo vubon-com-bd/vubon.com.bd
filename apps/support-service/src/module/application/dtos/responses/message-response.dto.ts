@@ -1,13 +1,27 @@
-import type { SupportMessage } from '@vubon/shared-types/support';
+/**
+ * MessageResponseDTO
+ * @module support-service/application/dtos/responses
+ */
+import type {
+  SupportMessageTypeValue,
+  SupportMessageStatusValue,
+  SupportMessageSenderTypeValue,
+} from '@vubon/shared-types/support';
 
 export interface MessageResponseDTO {
   readonly id: string;
   readonly conversationId: string;
-  readonly senderId: string;
-  readonly content: string;
-  readonly type: string;
-  readonly status: string;
+  readonly ticketId?: string;
+  readonly senderId?: string;
+  readonly senderType: SupportMessageSenderTypeValue;
+  readonly senderName?: string;
+  readonly type: SupportMessageTypeValue;
+  readonly status: SupportMessageStatusValue;
+  readonly content?: string;
+  readonly attachments?: readonly string[];
+  readonly isInternal: boolean;
+  readonly readAt?: string;
+  readonly editedAt?: string;
   readonly createdAt: string;
+  readonly updatedAt: string;
 }
-
-export type MessageResponseShape = SupportMessage;

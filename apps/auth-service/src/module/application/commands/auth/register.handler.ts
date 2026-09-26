@@ -1,38 +1,21 @@
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { RegisterCommand } from './register.command';
 import type { AuthServiceInterface } from '../../services/interfaces/auth.service.interface';
 import type { RegisterResponseDTO } from '../../dtos/responses/register-response.dto';
-import type { RegisterRequestDTO } from '../../dtos/requests/auth/register.dto';
+import { AUTH_SERVICE } from '../../tokens';
 
 @CommandHandler(RegisterCommand)
 export class RegisterHandler
   extends BaseCommandHandler<RegisterCommand, RegisterResponseDTO>
-  implements ICommandHandler<RegisterCommand>
-{
-  readonly commandType = 'auth.register';
-
+  implements ICommandHandler<RegisterCommand> {
+  readonly commandType = 'RegisterCommand';
   constructor(
-    @Inject('AuthService') private readonly authService: AuthServiceInterface,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
-  }
+    @Inject(AUTH_SERVICE) private readonly authService: AuthServiceInterface,
+  ) { super(); }
 
   async execute(command: RegisterCommand): Promise<RegisterResponseDTO> {
-    const input: RegisterRequestDTO = {
-      email: command.email,
-      password: command.password,
-      confirmPassword: command.confirmPassword,
-      acceptTerms: command.acceptTerms,
-      acceptMarketing: command.acceptMarketing,
-      phone: command.phone,
-      username: command.username,
-      firstName: command.firstName,
-      lastName: command.lastName,
-      deviceId: command.deviceId,
-    };
-    return this.authService.register(input);
+    return this.authService.register(command.input, command.ctx);
   }
 }

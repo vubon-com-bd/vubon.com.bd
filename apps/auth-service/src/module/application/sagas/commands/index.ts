@@ -1,8 +1,12 @@
-export { SendWelcomeEmailCommand } from './send-welcome-email.command';
-export { SendVerificationEmailCommand } from './send-verification-email.command';
-export { SendPasswordResetEmailCommand } from './send-password-reset-email.command';
-export { SendMfaCodeCommand } from './send-mfa-code.command';
-export { SendRecoveryCodeCommand } from './send-recovery-code.command';
-export { NotifyLoginCommand } from './notify-login.command';
-export { UpdateAnalyticsCommand } from './update-analytics.command';
-export { SendAccountLockEmailCommand } from './send-account-lock-email.command';
+/**
+ * Saga Commands — Barrel
+ * @module auth-service/application/sagas/commands
+ */
+export * from './send-welcome-email.command';
+export * from './send-verification-email.command';
+export * from './send-password-reset-email.command';
+export * from './send-mfa-code.command';
+export * from './send-recovery-code.command';
+export * from './notify-login.command';
+export * from './update-analytics.command';
+export * from './send-account-lock-email.command';

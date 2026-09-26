@@ -1,18 +1,38 @@
+/**
+ * SocialProviderVO — External social identity provider
+ * @module auth-service/domain/value-objects/primitives
+ */
 import { BaseTypeVO } from '@vubon/shared-kernel/domain/primitives/type.vo';
-import { AUTH_PROVIDER } from '@vubon/shared-constants/auth';
-import { SocialAlreadyLinkedError } from '../../errors/social.errors';
 
-const VALID = new Set<string>(Object.values(AUTH_PROVIDER));
+export type SocialProviderValue =
+  | 'google'
+  | 'facebook'
+  | 'apple'
+  | 'twitter'
+  | 'github'
+  | 'linkedin'
+  | 'tiktok'
+  | 'instagram';
 
-export class SocialProviderVO extends BaseTypeVO<string> {
-  private constructor(value: string) {
+const ALLOWED: ReadonlySet<string> = new Set<string>([
+  'google', 'facebook', 'apple', 'twitter',
+  'github', 'linkedin', 'tiktok', 'instagram',
+]);
+
+export class SocialProviderVO extends BaseTypeVO<SocialProviderValue> {
+  private constructor(value: SocialProviderValue) {
     super(value);
   }
 
-  static create(raw: string): SocialProviderVO {
-    if (!VALID.has(raw)) {
-      throw new SocialAlreadyLinkedError(raw);
+  static of(raw: string): SocialProviderVO {
+    const lower = raw.trim().toLowerCase();
+    if (!ALLOWED.has(lower)) {
+      throw new Error(`Unsupported social provider: ${raw}`);
     }
-    return new SocialProviderVO(raw);
+    return new SocialProviderVO(lower as SocialProviderValue);
+  }
+
+  isEnterprise(): boolean {
+    return this.value === 'linkedin' || this.value === 'github';
   }
 }

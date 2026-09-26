@@ -1,76 +1,74 @@
+/**
+ * UserProfilePrismaRepository — UserProfileEntity ↔ Prisma UserProfile
+ * @module auth-service/infrastructure/persistence/prisma/repositories
+ *
+ * NOTE: Domain entity uses displayName, Prisma stores firstName + lastName.
+ * Concatenation/splitting happens in the mapper.
+ */
 import { Injectable } from '@nestjs/common';
-import { UserProfile as PrismaUserProfile } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+import type { UserProfile as PrismaUserProfile } from '@prisma/client';
+import {
+  BasePrismaRepository,
+  type PrismaDelegate,
+} from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
+import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
+import type { UserId } from '@vubon/shared-types/common';
 import { UserProfileEntity } from '../../../../domain/entities/user-profile.entity';
-import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
 import { UserNameVO } from '../../../../domain/value-objects/primitives/user-name.vo';
 import type { UserProfileRepository } from '../../../../domain/repositories/user-profile.repository.interface';
 
 @Injectable()
 export class UserProfilePrismaRepository
-  extends BasePrismaRepository<UserProfileEntity, UserIdVO>
-  implements UserProfileRepository
-{
+  extends BasePrismaRepository<UserProfileEntity, PrismaUserProfile, UserId>
+  implements UserProfileRepository {
+  protected readonly model: PrismaDelegate<PrismaUserProfile>;
+
   constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
+    super();
+    this.model = prisma.userProfile as unknown as PrismaDelegate<PrismaUserProfile>;
   }
 
-  private toDomain(raw: PrismaUserProfile): UserProfileEntity {
-    return UserProfileEntity.reconstitute(
-      UserIdVO.create(raw.userId),
-      {
-        userId: UserIdVO.create(raw.userId),
-        firstName: UserNameVO.create(raw.firstName),
-        lastName: UserNameVO.create(raw.lastName),
-        bio: raw.bio,
-        avatarUrl: raw.avatarUrl,
-        dateOfBirth: raw.dateOfBirth,
-        gender: raw.gender,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      raw.deletedAt?.toISOString() ?? null,
-    );
+  protected idOf(domain: UserProfileEntity): UserId {
+    return domain.userId;
   }
 
-  async findById(id: UserIdVO): Promise<UserProfileEntity | null> {
-    const raw = await this.prisma.userProfile.findUnique({
-      where: { userId: id.value },
+  protected whereForId(id: UserId): Record<string, unknown> {
+    return { userId: id };
+  }
+
+  protected toDomain(raw: PrismaUserProfile): UserProfileEntity {
+    return UserProfileEntity.create({
+      id: raw.userId as UserId,
+      userId: raw.userId as UserId,
+      displayName: UserNameVO.of(
+        `${raw.firstName} ${raw.lastName}`.trim() || 'User',
+      ),
+      bio: raw.bio ?? undefined,
+      avatarUrl: raw.avatarUrl ?? undefined,
+      locale: 'bn-BD',
+      createdAt: raw.createdAt.toISOString(),
+      updatedAt: raw.updatedAt.toISOString(),
+      deletedAt: raw.deletedAt ? raw.deletedAt.toISOString() : null,
     });
-    return raw ? this.toDomain(raw) : null;
   }
 
-  async findAll(): Promise<readonly UserProfileEntity[]> {
-    const rows = await this.prisma.userProfile.findMany();
-    return rows.map((r) => this.toDomain(r));
-  }
-
-  async save(entity: UserProfileEntity): Promise<UserProfileEntity> {
-    const data = {
-      firstName: entity.firstName.value,
-      lastName: entity.lastName.value,
-      bio: entity.bio,
-      avatarUrl: entity.avatarUrl,
-      dateOfBirth: entity.dateOfBirth,
-      gender: entity.gender,
+  protected toPersistence(domain: UserProfileEntity): Record<string, unknown> {
+    const parts = domain.displayName.value.split(' ').filter(Boolean);
+    const firstName = parts[0] ?? 'User';
+    const lastName = parts.slice(1).join(' ') || '-';
+    return {
+      userId: domain.userId,
+      firstName,
+      lastName,
+      bio: domain.bio ?? null,
+      avatarUrl: domain.avatarUrl ?? null,
       updatedAt: new Date(),
     };
-    const raw = await this.prisma.userProfile.upsert({
-      where: { userId: entity.userId.value },
-      create: { id: entity.id.value, userId: entity.userId.value, ...data },
-      update: data,
-    });
-    return this.toDomain(raw);
   }
 
-  async delete(id: UserIdVO): Promise<void> {
-    await this.prisma.userProfile.delete({ where: { userId: id.value } });
-  }
-
-  async findByUserId(userId: UserIdVO): Promise<UserProfileEntity | null> {
+  async findByUserId(userId: UserId): Promise<UserProfileEntity | null> {
     const raw = await this.prisma.userProfile.findUnique({
-      where: { userId: userId.value },
+      where: { userId },
     });
     return raw ? this.toDomain(raw) : null;
   }

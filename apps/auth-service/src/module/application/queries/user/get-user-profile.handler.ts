@@ -1,37 +1,32 @@
-import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
+import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { GetUserProfileQuery } from './get-user-profile.query';
 import type { UserProfileRepository } from '../../../domain/repositories/user-profile.repository.interface';
 import type { UserProfileResponseDTO } from '../../dtos/responses/user-profile-response.dto';
-import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
+import { USER_PROFILE_REPO } from '../../tokens';
 
 @QueryHandler(GetUserProfileQuery)
 export class GetUserProfileHandler
   extends BaseQueryHandler<GetUserProfileQuery, UserProfileResponseDTO | null>
-  implements IQueryHandler<GetUserProfileQuery>
-{
-  readonly queryType = 'user.get-profile';
+  implements IQueryHandler<GetUserProfileQuery> {
+  readonly queryType = 'GetUserProfileQuery';
+  constructor(
+    @Inject(USER_PROFILE_REPO) private readonly repo: UserProfileRepository,
+  ) { super(); }
 
-  constructor(@Inject('UserProfileRepository') private readonly profileRepo: UserProfileRepository) {
-    super();
-  }
-
-  async execute(query: GetUserProfileQuery): Promise<UserProfileResponseDTO | null> {
-    const entity = await this.profileRepo.findByUserId(UserIdVO.create(query.userId));
-    if (!entity) return null;
+  async execute(
+    query: GetUserProfileQuery,
+  ): Promise<UserProfileResponseDTO | null> {
+    const profile = await this.repo.findByUserId(query.userId);
+    if (!profile) return null;
     return {
-      success: true,
-      profile: {
-        userId: entity.userId.value,
-        visibility: 'public',
-        firstName: entity.firstName.value,
-        lastName: entity.lastName.value,
-        displayName: `${entity.firstName.value} ${entity.lastName.value}`.trim(),
-        avatarUrl: entity.avatarUrl ?? undefined,
-        bio: entity.bio ?? undefined,
-        updatedAt: entity.updatedAt,
-      },
+      userId: profile.userId,
+      displayName: profile.displayName.value,
+      bio: profile.bio,
+      avatarUrl: profile.avatarUrl,
+      locale: profile.locale,
+      updatedAt: profile.updatedAt,
     };
   }
 }

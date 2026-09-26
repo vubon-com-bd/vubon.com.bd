@@ -1,9 +1,15 @@
+/**
+ * AuthTokenPrismaRepository
+ * @module auth-service/infrastructure/persistence/prisma/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { AuthToken as PrismaAuthToken } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+import type { AuthToken as PrismaAuthToken } from '@prisma/client';
+import {
+  BasePrismaRepository,
+  type PrismaDelegate,
+} from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
+import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
 import { AuthTokenEntity } from '../../../../domain/entities/auth-token.entity';
-import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
 import { TokenValueVO } from '../../../../domain/value-objects/primitives/token-value.vo';
 import { TokenTypeVO } from '../../../../domain/value-objects/primitives/token-type.vo';
 import { TokenExpiryVO } from '../../../../domain/value-objects/primitives/token-expiry.vo';
@@ -11,60 +17,49 @@ import type { AuthTokenRepository } from '../../../../domain/repositories/auth-t
 
 @Injectable()
 export class AuthTokenPrismaRepository
-  extends BasePrismaRepository<AuthTokenEntity, string>
-  implements AuthTokenRepository
-{
+  extends BasePrismaRepository<AuthTokenEntity, PrismaAuthToken, string>
+  implements AuthTokenRepository {
+  protected readonly model: PrismaDelegate<PrismaAuthToken>;
+
   constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
+    super();
+    this.model = prisma.authToken as unknown as PrismaDelegate<PrismaAuthToken>;
   }
 
-  private toDomain(raw: PrismaAuthToken): AuthTokenEntity {
-    return AuthTokenEntity.reconstitute(
-      raw.id,
-      {
-        userId: UserIdVO.create(raw.userId),
-        tokenValue: TokenValueVO.create(raw.tokenValue),
-        tokenType: TokenTypeVO.create(raw.tokenType),
-        expiry: TokenExpiryVO.create(raw.expiry),
-        issuedAt: raw.issuedAt,
-        revokedAt: raw.revokedAt,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      raw.deletedAt?.toISOString() ?? null,
-    );
+  protected idOf(domain: AuthTokenEntity): string {
+    return domain.id;
   }
 
-  async findById(id: string): Promise<AuthTokenEntity | null> {
-    const raw = await this.prisma.authToken.findUnique({ where: { id } });
-    return raw ? this.toDomain(raw) : null;
+  protected whereForId(id: string): Record<string, unknown> {
+    return { id };
   }
 
-  async findAll(): Promise<readonly AuthTokenEntity[]> {
-    const rows = await this.prisma.authToken.findMany();
-    return rows.map((r) => this.toDomain(r));
+  protected toDomain(raw: PrismaAuthToken): AuthTokenEntity {
+    return AuthTokenEntity.create({
+      id: raw.id,
+      subjectId: raw.userId,
+      value: TokenValueVO.of(raw.tokenValue),
+      type: TokenTypeVO.of(raw.tokenType),
+      expiry: TokenExpiryVO.fromEpoch(raw.expiry.getTime()),
+      revokedAt: raw.revokedAt ? raw.revokedAt.getTime() : undefined,
+      parentTokenId: undefined,
+      createdAt: raw.createdAt.toISOString(),
+      updatedAt: raw.updatedAt.toISOString(),
+      deletedAt: raw.deletedAt ? raw.deletedAt.toISOString() : null,
+    });
   }
 
-  async save(entity: AuthTokenEntity): Promise<AuthTokenEntity> {
-    const data = {
-      userId: entity.userId.value,
-      tokenValue: entity.tokenValue.value,
-      tokenType: entity.tokenType.value,
-      expiry: new Date(entity.expiry.epochMs),
-      issuedAt: entity.issuedAt,
-      revokedAt: entity.revokedAt,
+  protected toPersistence(domain: AuthTokenEntity): Record<string, unknown> {
+    return {
+      id: domain.id,
+      userId: domain.subjectId,
+      tokenValue: domain.value.value,
+      tokenType: domain.type.value,
+      expiry: new Date(domain.expiry.epochMs),
+      issuedAt: new Date(domain.createdAt),
+      revokedAt: domain.revokedAt ? new Date(domain.revokedAt) : null,
       updatedAt: new Date(),
     };
-    const raw = await this.prisma.authToken.upsert({
-      where: { id: entity.id },
-      create: { id: entity.id, ...data },
-      update: data,
-    });
-    return this.toDomain(raw);
-  }
-
-  async delete(id: string): Promise<void> {
-    await this.prisma.authToken.delete({ where: { id } });
   }
 
   async findByValue(value: TokenValueVO): Promise<AuthTokenEntity | null> {
@@ -74,10 +69,35 @@ export class AuthTokenPrismaRepository
     return raw ? this.toDomain(raw) : null;
   }
 
-  async revokeAllForUser(userId: UserIdVO): Promise<void> {
-    await this.prisma.authToken.updateMany({
-      where: { userId: userId.value, revokedAt: null },
-      data: { revokedAt: new Date() },
+  async findActiveBySubject(
+    subjectId: string,
+    type: string,
+    now: number,
+  ): Promise<readonly AuthTokenEntity[]> {
+    const rows = await this.prisma.authToken.findMany({
+      where: {
+        userId: subjectId,
+        tokenType: type,
+        revokedAt: null,
+        expiry: { gt: new Date(now) },
+      },
+      orderBy: { createdAt: 'desc' },
     });
+    return rows.map((r) => this.toDomain(r));
+  }
+
+  async revokeAllForSubject(subjectId: string, at: number): Promise<number> {
+    const result = await this.prisma.authToken.updateMany({
+      where: { userId: subjectId, revokedAt: null },
+      data: { revokedAt: new Date(at), updatedAt: new Date() },
+    });
+    return result.count;
+  }
+
+  async deleteExpired(beforeEpochMs: number): Promise<number> {
+    const result = await this.prisma.authToken.deleteMany({
+      where: { expiry: { lt: new Date(beforeEpochMs) } },
+    });
+    return result.count;
   }
 }

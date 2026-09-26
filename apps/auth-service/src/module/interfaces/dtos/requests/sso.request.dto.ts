@@ -1,30 +1,35 @@
-import { ApiProperty } from '@nestjs/swagger';
+/**
+ * SsoRequestDTO
+ * @module auth-service/interfaces/dtos/requests
+ */
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+const SSO_PROVIDERS = ['saml', 'oidc', 'azure_ad', 'okta', 'keycloak', 'auth0', 'google_workspace', 'custom'];
 
 export class SsoLoginRequestDTO {
-  @ApiProperty({ example: 'oidc' })
+  @ApiProperty({ enum: SSO_PROVIDERS })
   provider!: string;
 
-  @ApiProperty()
-  externalId!: string;
+  @ApiProperty({ minLength: 1, maxLength: 255 })
+  tenantId!: string;
+
+  @ApiPropertyOptional({ format: 'url' })
+  redirectUri?: string;
 }
 
 export class SsoCallbackRequestDTO {
-  @ApiProperty()
+  @ApiProperty({ enum: SSO_PROVIDERS })
   provider!: string;
 
-  @ApiProperty()
-  token!: string;
-}
+  @ApiProperty({ minLength: 1, maxLength: 255 })
+  tenantId!: string;
 
-export class SsoLinkRequestDTO {
-  @ApiProperty()
-  provider!: string;
+  @ApiPropertyOptional()
+  samlResponse?: string;
 
-  @ApiProperty()
-  externalId!: string;
-}
+  @ApiPropertyOptional()
+  code?: string;
 
-export class SsoUnlinkRequestDTO {
-  @ApiProperty()
-  provider!: string;
+  @ApiPropertyOptional()
+  state?: string;
 }

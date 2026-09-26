@@ -1,3 +1,7 @@
+/**
+ * AgentController — HTTP adapter
+ * @module support-service/interfaces/controllers/rest
+ */
 import {
   Body,
   Controller,
@@ -5,86 +9,103 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  Patch,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiTags } from '@nestjs/swagger';
-import {
-  JwtAuthGuard,
-  Permissions,
-} from '@vubon/shared-kernel/interfaces';
-import { PERMISSION } from '@vubon/shared-constants/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
+
 import { RegisterAgentCommand } from '../../../application/commands/agent/register-agent.command';
 import { UpdateAgentCommand } from '../../../application/commands/agent/update-agent.command';
 import { SetAgentStatusCommand } from '../../../application/commands/agent/set-agent-status.command';
 import { GetAgentQuery } from '../../../application/queries/agent/get-agent.query';
 import { ListAgentsQuery } from '../../../application/queries/agent/list-agents.query';
-import { ListAvailableAgentsQuery } from '../../../application/queries/agent/list-available-agents.query';
-import {
-  RegisterAgentRequestDto,
-  SetAgentStatusRequestDto,
-} from '../../dtos/requests/agent.request.dto';
-import { AgentSwagger } from '../../swagger/agent.swagger';
+
+import { RegisterAgentRequestDTO } from '../../dtos/requests/agent/register-agent.dto';
+import { UpdateAgentRequestDTO } from '../../dtos/requests/agent/update-agent.dto';
+import { SetAgentStatusRequestDTO } from '../../dtos/requests/agent/set-agent-status.dto';
+import { AgentResponseDTO } from '../../dtos/responses/agent-response.dto';
+import { AgentControllerMapper } from '../../mappers/agent.controller.mapper';
 
 @ApiTags('Agents')
-@Controller('agents')
-@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+@Controller({ path: 'agents', version: '1' })
 export class AgentController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
+    private readonly mapper: AgentControllerMapper,
   ) {}
 
-  @Get()
-  @AgentSwagger.List()
-  async list(): Promise<unknown> {
-    return this.queryBus.execute(new ListAgentsQuery());
-  }
-
-  @Get('available')
-  async listAvailable(): Promise<unknown> {
-    return this.queryBus.execute(new ListAvailableAgentsQuery());
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  async register(
+    @Body() body: RegisterAgentRequestDTO,
+  ): Promise<AgentResponseDTO> {
+    const result = await this.commandBus.execute(
+      new RegisterAgentCommand({
+        userId: body.userId,
+        name: body.name,
+        email: body.email,
+        level: body.level as never,
+        skills: body.skills as never,
+        teamIds: body.teamIds,
+        languages: body.languages,
+        maxConcurrentTickets: body.maxConcurrentTickets,
+      }),
+    );
+    return this.mapper.toResponse(result);
   }
 
   @Get(':id')
-  async get(@Param('id') id: string): Promise<unknown> {
-    return this.queryBus.execute(new GetAgentQuery(id));
+  @UseGuards(JwtAuthGuard)
+  async findOne(@Param('id') id: string): Promise<AgentResponseDTO> {
+    const result = await this.queryBus.execute(new GetAgentQuery(id));
+    return this.mapper.toResponse(result);
   }
 
-  @Post()
-  @Permissions(PERMISSION.ADMIN_MANAGE)
-  @AgentSwagger.Register()
-  async register(@Body() body: RegisterAgentRequestDto): Promise<unknown> {
-    return this.commandBus.execute(
-      new RegisterAgentCommand(
-        body.userId,
-        body.type,
-        body.teamId,
-        body.skills ?? [],
-        body.maxLoad,
-      ),
-    );
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async list(): Promise<readonly AgentResponseDTO[]> {
+    const result = await this.queryBus.execute(new ListAgentsQuery(1, 20));
+    return result.items.map((item: never) => this.mapper.toResponse(item));
   }
 
-  @Patch(':id')
-  @Permissions(PERMISSION.ADMIN_MANAGE)
+  @Put(':id')
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id') id: string,
-    @Body() body: { teamId?: string | null; type?: string; skills?: string[]; maxLoad?: number },
-  ): Promise<void> {
-    return this.commandBus.execute(
-      new UpdateAgentCommand(id, body.teamId, body.type, body.skills, body.maxLoad),
+    @Body() body: UpdateAgentRequestDTO,
+  ): Promise<AgentResponseDTO> {
+    const result = await this.commandBus.execute(
+      new UpdateAgentCommand({
+        agentId: id,
+        name: body.name,
+        level: body.level as never,
+        skills: body.skills as never,
+        languages: body.languages,
+        maxConcurrentTickets: body.maxConcurrentTickets,
+      }),
     );
+    return this.mapper.toResponse(result);
   }
 
   @Post(':id/status')
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
   async setStatus(
     @Param('id') id: string,
-    @Body() body: SetAgentStatusRequestDto,
-  ): Promise<void> {
-    return this.commandBus.execute(new SetAgentStatusCommand(id, body.status));
+    @Body() body: SetAgentStatusRequestDTO,
+  ): Promise<AgentResponseDTO> {
+    const result = await this.commandBus.execute(
+      new SetAgentStatusCommand({
+        agentId: id,
+        status: body.status as never,
+      }),
+    );
+    return this.mapper.toResponse(result);
   }
 }

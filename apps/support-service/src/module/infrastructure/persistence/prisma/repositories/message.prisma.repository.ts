@@ -1,76 +1,89 @@
+/**
+ * MessagePrismaRepository
+ * @module support-service/infrastructure/persistence/prisma/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { Message as PrismaMessage } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+import { SupportPrismaService } from '../prisma.service';
+import { MessageRepository } from '../../../../domain/repositories/message.repository.interface';
 import { MessageEntity } from '../../../../domain/entities/message.entity';
 import { MessageIdVO } from '../../../../domain/value-objects/primitives/message-id.vo';
-import { MessageContentVO } from '../../../../domain/value-objects/primitives/message-content.vo';
-import { MessageTypeVO } from '../../../../domain/value-objects/primitives/message-type.vo';
-import { MessageStatusVO } from '../../../../domain/value-objects/primitives/message-status.vo';
 import { ConversationIdVO } from '../../../../domain/value-objects/primitives/conversation-id.vo';
-import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
-import type { MessageRepository } from '../../../../domain/repositories/message.repository.interface';
+import { MessageMapper } from '../mappers/message.mapper';
 
 @Injectable()
-export class MessagePrismaRepository
-  extends BasePrismaRepository<MessageEntity, MessageIdVO>
-  implements MessageRepository
-{
-  constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
-  }
-
-  private toDomain(raw: PrismaMessage): MessageEntity {
-    return MessageEntity.reconstitute(
-      MessageIdVO.create(raw.id),
-      {
-        conversationId: ConversationIdVO.create(raw.conversationId),
-        senderId: UserIdVO.create(raw.senderId),
-        content: MessageContentVO.create(raw.content),
-        type: MessageTypeVO.create(raw.type),
-        status: MessageStatusVO.create(raw.status),
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      null,
-    );
-  }
+export class MessagePrismaRepository implements MessageRepository {
+  constructor(
+    private readonly prisma: SupportPrismaService,
+    private readonly mapper: MessageMapper,
+  ) {}
 
   async findById(id: MessageIdVO): Promise<MessageEntity | null> {
-    const raw = await this.prisma.message.findUnique({ where: { id: id.value } });
-    return raw ? this.toDomain(raw) : null;
+    const raw = await this.prisma.supportMessage.findUnique({
+      where: { id: id.value },
+    });
+    return raw ? this.mapper.toDomain(raw) : null;
   }
 
   async findAll(): Promise<readonly MessageEntity[]> {
-    const rows = await this.prisma.message.findMany();
-    return rows.map((r) => this.toDomain(r));
+    const rows = await this.prisma.supportMessage.findMany({
+      orderBy: { createdAt: 'asc' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
   }
 
   async save(entity: MessageEntity): Promise<MessageEntity> {
-    const data = {
-      conversationId: entity.conversationId.value,
-      senderId: entity.senderId.value,
-      content: entity.content.value,
-      type: entity.type.value,
-      status: entity.status.value,
-      updatedAt: new Date(),
-    };
-    const raw = await this.prisma.message.upsert({
-      where: { id: entity.id.value },
-      create: { id: entity.id.value, ...data },
-      update: data,
+    const data = this.mapper.toPersistence(entity);
+    const raw = await this.prisma.supportMessage.upsert({
+      where: { id: data.id },
+      create: { ...data, attachments: [...data.attachments] },
+      update: {
+        status: data.status,
+        readAt: data.readAt,
+        editedAt: data.editedAt,
+        updatedAt: new Date(),
+      },
     });
-    return this.toDomain(raw);
+    return this.mapper.toDomain(raw);
   }
 
   async delete(id: MessageIdVO): Promise<void> {
-    await this.prisma.message.delete({ where: { id: id.value } });
+    await this.prisma.supportMessage.delete({ where: { id: id.value } });
+  }
+
+  async exists(id: MessageIdVO): Promise<boolean> {
+    const count = await this.prisma.supportMessage.count({
+      where: { id: id.value },
+    });
+    return count > 0;
   }
 
   async findByConversation(conversationId: ConversationIdVO): Promise<readonly MessageEntity[]> {
-    const rows = await this.prisma.message.findMany({
+    const rows = await this.prisma.supportMessage.findMany({
+      where: { conversationId: conversationId.value },
+      orderBy: { createdAt: 'asc' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findUnreadByConversation(conversationId: ConversationIdVO): Promise<readonly MessageEntity[]> {
+    const rows = await this.prisma.supportMessage.findMany({
+      where: { conversationId: conversationId.value, readAt: null },
+      orderBy: { createdAt: 'asc' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async countByConversation(conversationId: ConversationIdVO): Promise<number> {
+    return this.prisma.supportMessage.count({
       where: { conversationId: conversationId.value },
     });
-    return rows.map((r) => this.toDomain(r));
+  }
+
+  async latestByConversation(conversationId: ConversationIdVO): Promise<MessageEntity | null> {
+    const raw = await this.prisma.supportMessage.findFirst({
+      where: { conversationId: conversationId.value },
+      orderBy: { createdAt: 'desc' },
+    });
+    return raw ? this.mapper.toDomain(raw) : null;
   }
 }

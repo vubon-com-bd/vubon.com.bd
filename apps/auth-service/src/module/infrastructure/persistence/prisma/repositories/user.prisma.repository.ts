@@ -1,7 +1,15 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { User as PrismaUser } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+/**
+ * UserPrismaRepository — UserEntity ↔ Prisma User
+ * @module auth-service/infrastructure/persistence/prisma/repositories
+ */
+import { Injectable } from '@nestjs/common';
+import type { User as PrismaUser } from '@prisma/client';
+import {
+  BasePrismaRepository,
+  type PrismaDelegate,
+} from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
+import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
+import type { UserId } from '@vubon/shared-types/common';
 import { UserEntity } from '../../../../domain/entities/user.entity';
 import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
 import { UserEmailVO } from '../../../../domain/value-objects/primitives/user-email.vo';
@@ -14,67 +22,54 @@ import type { UserRepository } from '../../../../domain/repositories/user.reposi
 
 @Injectable()
 export class UserPrismaRepository
-  extends BasePrismaRepository<UserEntity, UserIdVO>
-  implements UserRepository
-{
-  constructor(@Inject('PrismaService') protected readonly prisma: PrismaService) {
-    super(prisma);
+  extends BasePrismaRepository<UserEntity, PrismaUser, UserId>
+  implements UserRepository {
+  protected readonly model: PrismaDelegate<PrismaUser>;
+
+  constructor(protected readonly prisma: PrismaService) {
+    super();
+    this.model = prisma.user as unknown as PrismaDelegate<PrismaUser>;
   }
 
-  private toDomain(raw: PrismaUser): UserEntity {
-    return UserEntity.reconstitute(
-      UserIdVO.create(raw.id),
-      {
-        email: UserEmailVO.create(raw.email),
-        name: UserNameVO.create(raw.name),
-        phone: raw.phone ? UserPhoneVO.create(raw.phone) : null,
-        status: UserStatusVO.create(raw.status),
-        type: UserTypeVO.create(raw.type),
-        role: UserRoleVO.create(raw.role),
-        emailVerified: raw.emailVerified,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      raw.deletedAt?.toISOString() ?? null,
-    );
+  protected idOf(domain: UserEntity): UserId {
+    return domain.id;
   }
 
-  async findById(id: UserIdVO): Promise<UserEntity | null> {
-    const raw = await this.prisma.user.findUnique({ where: { id: id.value } });
-    return raw ? this.toDomain(raw) : null;
+  protected whereForId(id: UserId): Record<string, unknown> {
+    return { id };
   }
 
-  async findAll(): Promise<readonly UserEntity[]> {
-    const rows = await this.prisma.user.findMany();
-    return rows.map((r) => this.toDomain(r));
-  }
-
-  async save(entity: UserEntity): Promise<UserEntity> {
-    const data = {
-      email: entity.email.value,
-      name: entity.name.value,
-      phone: entity.phone?.value ?? null,
-      status: entity.status.value,
-      type: entity.type.value,
-      role: entity.role.value,
-      emailVerified: entity.emailVerified,
-      updatedAt: new Date(),
-      deletedAt: entity.deletedAt ? new Date(entity.deletedAt) : null,
-    };
-    const raw = await this.prisma.user.upsert({
-      where: { id: entity.id.value },
-      update: data,
-      create: {
-        id: entity.id.value,
-        password: '',
-        ...data,
-      },
+  protected toDomain(raw: PrismaUser): UserEntity {
+    return UserEntity.create({
+      id: raw.id as UserId,
+      email: UserEmailVO.of(raw.email),
+      passwordHash: raw.password,
+      name: UserNameVO.of(raw.name),
+      phone: raw.phone ? UserPhoneVO.of(raw.phone) : undefined,
+      status: UserStatusVO.of(raw.status),
+      type: UserTypeVO.of(raw.type),
+      roles: [UserRoleVO.of(raw.role)],
+      emailVerified: raw.emailVerified,
+      phoneVerified: false,
+      createdAt: raw.createdAt.toISOString(),
+      updatedAt: raw.updatedAt.toISOString(),
+      deletedAt: raw.deletedAt ? raw.deletedAt.toISOString() : null,
     });
-    return this.toDomain(raw);
   }
 
-  async delete(id: UserIdVO): Promise<void> {
-    await this.prisma.user.delete({ where: { id: id.value } });
+  protected toPersistence(domain: UserEntity): Record<string, unknown> {
+    return {
+      id: domain.id,
+      email: domain.email.value,
+      password: domain.passwordHash,
+      name: domain.name.value,
+      phone: domain.phone?.value ?? null,
+      status: domain.status.value,
+      type: domain.type.value,
+      role: domain.roles[0]?.value ?? 'user',
+      emailVerified: domain.emailVerified,
+      updatedAt: new Date(),
+    };
   }
 
   async findByEmail(email: UserEmailVO): Promise<UserEntity | null> {
@@ -91,40 +86,15 @@ export class UserPrismaRepository
     return count > 0;
   }
 
-  async findByRole(role: string): Promise<readonly UserEntity[]> {
-    const rows = await this.prisma.user.findMany({ where: { role } });
+  async findByIds(ids: readonly UserId[]): Promise<readonly UserEntity[]> {
+    if (ids.length === 0) return [];
+    const rows = await this.prisma.user.findMany({
+      where: { id: { in: [...ids] } },
+    });
     return rows.map((r) => this.toDomain(r));
   }
 
-  async getPasswordHash(userId: UserIdVO): Promise<string | null> {
-    const raw = await this.prisma.user.findUnique({
-      where: { id: userId.value },
-      select: { password: true },
-    });
-    return raw?.password ?? null;
-  }
-
-  async createWithPassword(entity: UserEntity, passwordHash: string): Promise<UserEntity> {
-    const raw = await this.prisma.user.create({
-      data: {
-        id: entity.id.value,
-        email: entity.email.value,
-        password: passwordHash,
-        name: entity.name.value,
-        phone: entity.phone?.value ?? null,
-        status: entity.status.value,
-        type: entity.type.value,
-        role: entity.role.value,
-        emailVerified: entity.emailVerified,
-        updatedAt: new Date(),
-      },
-    });
-    return this.toDomain(raw);
-  }
-  async updatePassword(userId: UserIdVO, passwordHash: string): Promise<void> {
-    await this.prisma.user.update({
-      where: { id: userId.value },
-      data: { password: passwordHash, updatedAt: new Date() },
-    });
+  async countByStatus(status: string): Promise<number> {
+    return this.prisma.user.count({ where: { status } });
   }
 }

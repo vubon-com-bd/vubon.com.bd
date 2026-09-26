@@ -1,5 +1,10 @@
+/**
+ * @BiometricRequired — route needs an active biometric binding
+ * @module auth-service/interfaces/decorators
+ */
 import { SetMetadata } from '@nestjs/common';
-import { BIOMETRIC_REQUIRED_KEY } from '../guards/biometric.guard';
 
-export const BiometricRequired = (): MethodDecorator & ClassDecorator =>
+export const BIOMETRIC_REQUIRED_KEY = 'auth:biometricRequired';
+
+export const BiometricRequired = () =>
   SetMetadata(BIOMETRIC_REQUIRED_KEY, true);

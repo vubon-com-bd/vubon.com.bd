@@ -1,16 +1,20 @@
-export { AUTH_CONFIG } from './auth.config';
-export { JWT_CONFIG } from './jwt.config';
-export { OAUTH_CONFIG } from './oauth.config';
-export { SSO_CONFIG } from './sso.config';
-export { MFA_CONFIG } from './mfa.config';
-export { SESSION_CONFIG } from './session.config';
-export { TOKEN_CONFIG } from './token.config';
-export { PASSWORD_CONFIG } from './password.config';
-export { ACCOUNT_LOCK_CONFIG } from './account-lock.config';
-export { LOGIN_ATTEMPT_CONFIG } from './login-attempt.config';
-export { DEVICE_CONFIG } from './device.config';
-export { SOCIAL_CONFIG } from './social.config';
-export { TWO_FA_CONFIG } from './2fa.config';
-export { BIOMETRIC_CONFIG } from './biometric.config';
-export { RATE_LIMIT_CONFIG } from './rate-limit.config';
-export { USER_CONFIG } from './user.config';
+/**
+ * Infrastructure Config — Barrel
+ * @module auth-service/infrastructure/config
+ */
+export * from './auth.config';
+export * from './jwt.config';
+export * from './oauth.config';
+export * from './sso.config';
+export * from './mfa.config';
+export * from './session.config';
+export * from './token.config';
+export * from './password.config';
+export * from './account-lock.config';
+export * from './login-attempt.config';
+export * from './device.config';
+export * from './social.config';
+export * from './2fa.config';
+export * from './biometric.config';
+export * from './rate-limit.config';
+export * from './user.config';

@@ -1,17 +1,22 @@
-import { Injectable } from '@nestjs/common';
-import type { CreateTicketRequestDto } from '../dtos/requests/ticket.request.dto';
+/**
+ * TicketValidator — schema-based validation at interface layer
+ * @module support-service/interfaces/validators
+ *
+ * Rule: uses class-validator through DTO + optional Zod schema bridge
+ */
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { TicketCreateInputSchema } from '@vubon/shared-schemas/support';
 
 @Injectable()
 export class TicketValidator {
-  validateCreate(input: CreateTicketRequestDto): void {
-    if (!input.subject || input.subject.trim().length < 3) {
-      throw new Error('Ticket subject must be at least 3 characters');
-    }
-    if (!input.description || input.description.trim().length === 0) {
-      throw new Error('Ticket description is required');
-    }
-    if (input.subject.length > 200) {
-      throw new Error('Ticket subject must not exceed 200 characters');
+  validateCreate(input: unknown): void {
+    const result = TicketCreateInputSchema.safeParse(input);
+    if (!result.success) {
+      throw new BadRequestException({
+        statusCode: 400,
+        message: 'Validation failed',
+        errors: result.error.issues,
+      });
     }
   }
 }

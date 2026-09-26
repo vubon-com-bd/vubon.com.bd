@@ -1,17 +1,32 @@
+/**
+ * SocialStatusVO — Status of a social link
+ * @module auth-service/domain/value-objects/primitives
+ */
 import { BaseStatusVO } from '@vubon/shared-kernel/domain/primitives/status.vo';
-import { InvalidStatusError } from '../../errors/user.errors';
 
-const VALID = new Set<string>(['linked', 'unlinked', 'pending', 'revoked']);
+export type SocialStatusValue =
+  | 'active'
+  | 'revoked'
+  | 'expired'
+  | 'pending';
 
-export class SocialStatusVO extends BaseStatusVO<string> {
-  private constructor(value: string) {
+const ALLOWED: ReadonlySet<string> = new Set<string>([
+  'active', 'revoked', 'expired', 'pending',
+]);
+
+export class SocialStatusVO extends BaseStatusVO<SocialStatusValue> {
+  private constructor(value: SocialStatusValue) {
     super(value);
   }
 
-  static create(raw: string): SocialStatusVO {
-    if (!VALID.has(raw)) {
-      throw new InvalidStatusError(raw);
+  static of(raw: string): SocialStatusVO {
+    if (!ALLOWED.has(raw)) {
+      throw new Error(`Unknown social status: ${raw}`);
     }
-    return new SocialStatusVO(raw);
+    return new SocialStatusVO(raw as SocialStatusValue);
+  }
+
+  override isActive(): boolean {
+    return this.value === 'active';
   }
 }

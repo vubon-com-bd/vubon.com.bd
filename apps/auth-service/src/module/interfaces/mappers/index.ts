@@ -1,4 +1,8 @@
-export { AuthControllerMapper } from './auth.controller.mapper';
-export { UserControllerMapper } from './user.controller.mapper';
-export { SessionControllerMapper } from './session.controller.mapper';
-export { MfaControllerMapper } from './mfa.controller.mapper';
+/**
+ * Interface Mappers — Barrel
+ * @module auth-service/interfaces/mappers
+ */
+export * from './auth.controller.mapper';
+export * from './user.controller.mapper';
+export * from './session.controller.mapper';
+export * from './mfa.controller.mapper';

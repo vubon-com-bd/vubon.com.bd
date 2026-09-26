@@ -1,40 +1,75 @@
-import { BaseDomainEvent, type DomainEventMetadata } from '@vubon/shared-kernel/domain/base/base.event';
-import { toTimestamp } from '@vubon/shared-types/common';
+/**
+ * Conversation Domain Events
+ * @module support-service/domain/events
+ */
+import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
+import { toTimestamp, type Timestamp } from '@vubon/shared-types/common';
+import { ConversationIdVO } from '../value-objects/primitives/conversation-id.vo';
+import { UserIdVO } from '../value-objects/primitives/user-id.vo';
 
-const AGGREGATE = 'Conversation';
+interface MetaFields {
+  readonly id: string;
+  readonly aggregateId: string;
+  readonly aggregateType: string;
+  readonly occurredAt: Timestamp;
+  readonly version: number;
+}
+
+const meta = (
+  aggregateId: string,
+  aggregateType: string,
+  version: number,
+  occurredAt: number,
+): MetaFields => ({
+  id: `${aggregateId}-${version}-${occurredAt}`,
+  aggregateId,
+  aggregateType,
+  occurredAt: toTimestamp(occurredAt),
+  version,
+});
+
+export interface ConversationStartedPayload {
+  readonly userId: string;
+  readonly type: string;
+}
 
 export class ConversationStartedEvent extends BaseDomainEvent<
   'support.conversation.started',
-  { conversationId: string; userId: string; type: string }
+  ConversationStartedPayload
 > {
-  constructor(aggregateId: string, userId: string, type: string, version: number, metadata?: DomainEventMetadata) {
+  constructor(
+    id: ConversationIdVO,
+    userId: UserIdVO,
+    type: string,
+    occurredAt: number,
+    version = 1,
+  ) {
     super({
-      id: crypto.randomUUID(),
+      ...meta(id.value, 'conversation', version, occurredAt),
       type: 'support.conversation.started',
-      aggregateId,
-      aggregateType: AGGREGATE,
-      payload: { conversationId: aggregateId, userId, type },
-      occurredAt: toTimestamp(Date.now()),
-      version,
-      metadata,
+      payload: { userId: userId.value, type },
     });
   }
 }
 
+export interface ConversationEndedPayload {
+  readonly reason?: string;
+}
+
 export class ConversationEndedEvent extends BaseDomainEvent<
   'support.conversation.ended',
-  { conversationId: string }
+  ConversationEndedPayload
 > {
-  constructor(aggregateId: string, version: number, metadata?: DomainEventMetadata) {
+  constructor(
+    id: ConversationIdVO,
+    occurredAt: number,
+    reason?: string,
+    version = 1,
+  ) {
     super({
-      id: crypto.randomUUID(),
+      ...meta(id.value, 'conversation', version, occurredAt),
       type: 'support.conversation.ended',
-      aggregateId,
-      aggregateType: AGGREGATE,
-      payload: { conversationId: aggregateId },
-      occurredAt: toTimestamp(Date.now()),
-      version,
-      metadata,
+      payload: { reason },
     });
   }
 }

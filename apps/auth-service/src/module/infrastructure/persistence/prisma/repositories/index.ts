@@ -1,23 +1,30 @@
-export { UserPrismaRepository } from './user.prisma.repository';
-export { UserProfilePrismaRepository } from './user-profile.prisma.repository';
-export { UserSettingsPrismaRepository } from './user-settings.prisma.repository';
-export { UserPreferencesPrismaRepository } from './user-preferences.prisma.repository';
-export { UserAddressPrismaRepository } from './user-address.prisma.repository';
-export { UserContactPrismaRepository } from './user-contact.prisma.repository';
-export { UserVerificationPrismaRepository } from './user-verification.prisma.repository';
-export { UserKycPrismaRepository } from './user-kyc.prisma.repository';
-export { UserActivityPrismaRepository } from './user-activity.prisma.repository';
-export { AuthSessionPrismaRepository } from './auth-session.prisma.repository';
-export { AuthTokenPrismaRepository } from './auth-token.prisma.repository';
-export { AuthMfaPrismaRepository } from './auth-mfa.prisma.repository';
-export { AuthRecoveryCodePrismaRepository } from './auth-recovery-code.prisma.repository';
-export { AuthAccountLockPrismaRepository } from './auth-account-lock.prisma.repository';
-export { AuthLoginAttemptPrismaRepository } from './auth-login-attempt.prisma.repository';
-export { AuthDevicePrismaRepository } from './auth-device.prisma.repository';
-export { AuthSocialPrismaRepository } from './auth-social.prisma.repository';
-export { AuthOAuthPrismaRepository } from './auth-oauth.prisma.repository';
-export { AuthSsoPrismaRepository } from './auth-sso.prisma.repository';
-export { Auth2FaPrismaRepository } from './auth-2fa.prisma.repository';
-export { AuthBiometricPrismaRepository } from './auth-biometric.prisma.repository';
-export { AuthPermissionPrismaRepository } from './auth-permission.prisma.repository';
-export { AuthRolePrismaRepository } from './auth-role.prisma.repository';
+/**
+ * Prisma Repositories — Barrel
+ * @module auth-service/infrastructure/persistence/prisma/repositories
+ */
+// User domain
+export * from './user.prisma.repository';
+export * from './user-profile.prisma.repository';
+export * from './user-settings.prisma.repository';
+export * from './user-preferences.prisma.repository';
+export * from './user-address.prisma.repository';
+export * from './user-contact.prisma.repository';
+export * from './user-verification.prisma.repository';
+export * from './user-kyc.prisma.repository';
+export * from './user-activity.prisma.repository';
+
+// Auth domain
+export * from './auth-session.prisma.repository';
+export * from './auth-token.prisma.repository';
+export * from './auth-mfa.prisma.repository';
+export * from './auth-recovery-code.prisma.repository';
+export * from './auth-account-lock.prisma.repository';
+export * from './auth-login-attempt.prisma.repository';
+export * from './auth-device.prisma.repository';
+export * from './auth-social.prisma.repository';
+export * from './auth-oauth.prisma.repository';
+export * from './auth-sso.prisma.repository';
+export * from './auth-2fa.prisma.repository';
+export * from './auth-biometric.prisma.repository';
+export * from './auth-permission.prisma.repository';
+export * from './auth-role.prisma.repository';

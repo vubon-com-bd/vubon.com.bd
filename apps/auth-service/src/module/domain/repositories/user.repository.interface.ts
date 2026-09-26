@@ -1,13 +1,15 @@
-import type { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
+/**
+ * UserRepository — Contract for persisting UserEntity
+ * @module auth-service/domain/repositories
+ */
+import { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
+import type { UserId } from '@vubon/shared-types/common';
 import { UserEntity } from '../entities/user.entity';
-import { UserIdVO } from '../value-objects/primitives/user-id.vo';
 import { UserEmailVO } from '../value-objects/primitives/user-email.vo';
 
-export interface UserRepository extends BaseRepository<UserEntity, UserIdVO> {
+export interface UserRepository extends BaseRepository<UserEntity, UserId> {
   findByEmail(email: UserEmailVO): Promise<UserEntity | null>;
   existsByEmail(email: UserEmailVO): Promise<boolean>;
-  findByRole(role: string): Promise<readonly UserEntity[]>;
-  getPasswordHash(userId: UserIdVO): Promise<string | null>;
-  createWithPassword(entity: UserEntity, passwordHash: string): Promise<UserEntity>;
-  updatePassword(userId: UserIdVO, passwordHash: string): Promise<void>;
+  findByIds(ids: readonly UserId[]): Promise<readonly UserEntity[]>;
+  countByStatus(status: string): Promise<number>;
 }

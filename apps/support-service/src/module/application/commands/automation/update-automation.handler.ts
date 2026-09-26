@@ -1,25 +1,23 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+/**
+ * UpdateAutomationHandler
+ * @module support-service/application/commands/automation
+ */
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { UpdateAutomationCommand } from './update-automation.command';
-import type { SupportAutomationRepository } from '../../../domain/repositories/support-automation.repository.interface';
-import { AutomationIdVO } from '../../../domain/value-objects/primitives/automation-id.vo';
-import { AutomationNotFoundError } from '../../../domain/errors/automation.errors';
+import type { AutomationResponseDTO } from '../../dtos/responses/automation-response.dto';
+import type { AutomationServiceInterface } from '../../services/interfaces/automation.service.interface';
 
-@CommandHandler(UpdateAutomationCommand)
-export class UpdateAutomationHandler
-  extends BaseCommandHandler<UpdateAutomationCommand, void>
-  implements ICommandHandler<UpdateAutomationCommand>
-{
+export class UpdateAutomationHandler extends BaseCommandHandler<
+  UpdateAutomationCommand,
+  AutomationResponseDTO
+> {
   readonly commandType = 'support.automation.update';
 
-  constructor(private readonly automationRepo: SupportAutomationRepository) {
+  constructor(private readonly automationService: AutomationServiceInterface) {
     super();
   }
 
-  async execute(command: UpdateAutomationCommand): Promise<void> {
-    const existing = await this.automationRepo.findById(
-      AutomationIdVO.create(command.automationId),
-    );
-    if (!existing) throw new AutomationNotFoundError(command.automationId);
+  async execute(command: UpdateAutomationCommand): Promise<AutomationResponseDTO> {
+    return this.automationService.update(command.payload);
   }
 }

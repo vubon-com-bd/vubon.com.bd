@@ -1,6 +1,8 @@
-export { SendChatbotMessageCommand } from './send-chatbot-message.command';
-export { SendChatbotMessageHandler } from './send-chatbot-message.handler';
-export { TrainIntentCommand } from './train-intent.command';
-export { TrainIntentHandler } from './train-intent.handler';
-export { TrainEntityCommand } from './train-entity.command';
-export { TrainEntityHandler } from './train-entity.handler';
+// support-service/application/commands/chatbot/index.ts
+
+export * from './send-chatbot-message.command';
+export * from './send-chatbot-message.handler';
+export * from './train-intent.command';
+export * from './train-intent.handler';
+export * from './train-entity.command';
+export * from './train-entity.handler';

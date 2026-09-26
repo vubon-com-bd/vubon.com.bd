@@ -1,10 +1,20 @@
-import type { MessageEntity } from '../../../domain/entities/message.entity';
-import type { MessageIdVO } from '../../../domain/value-objects/primitives/message-id.vo';
-import type { SendMessageRequestDTO } from '../../dtos/requests/message';
+/**
+ * MessageServiceInterface
+ * @module support-service/application/services/interfaces
+ */
+import type { SendMessageRequestDTO } from '../../dtos/requests/message/send-message.dto';
+import type { MarkMessageReadRequestDTO } from '../../dtos/requests/message/mark-read.dto';
+import type { AttachFileRequestDTO } from '../../dtos/requests/message/attach-file.dto';
 import type { MessageResponseDTO } from '../../dtos/responses/message-response.dto';
+import type { MessageListResponseDTO } from '../../dtos/responses/message-list-response.dto';
 
 export interface MessageServiceInterface {
   send(input: SendMessageRequestDTO): Promise<MessageResponseDTO>;
-  findById(id: MessageIdVO): Promise<MessageEntity | null>;
-  delete(id: MessageIdVO): Promise<void>;
+  markRead(input: MarkMessageReadRequestDTO): Promise<MessageResponseDTO>;
+  attachFile(input: AttachFileRequestDTO): Promise<MessageResponseDTO>;
+  listByConversation(
+    conversationId: string,
+    page: number,
+    limit: number,
+  ): Promise<MessageListResponseDTO>;
 }

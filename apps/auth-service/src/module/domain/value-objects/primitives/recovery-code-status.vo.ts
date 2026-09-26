@@ -1,22 +1,32 @@
+/**
+ * RecoveryCodeStatusVO — Status of a recovery code
+ * @module auth-service/domain/value-objects/primitives
+ */
 import { BaseStatusVO } from '@vubon/shared-kernel/domain/primitives/status.vo';
-import { MfaInvalidError } from '../../errors/mfa.errors';
 
-const VALID_RECOVERY_STATUSES = new Set<string>([
-  'active',
-  'used',
-  'expired',
-  'revoked',
+export type RecoveryCodeStatusValue = 'active' | 'used' | 'expired';
+
+const ALLOWED: ReadonlySet<string> = new Set<string>([
+  'active', 'used', 'expired',
 ]);
 
-export class RecoveryCodeStatusVO extends BaseStatusVO<string> {
-  private constructor(value: string) {
+export class RecoveryCodeStatusVO extends BaseStatusVO<RecoveryCodeStatusValue> {
+  private constructor(value: RecoveryCodeStatusValue) {
     super(value);
   }
 
-  static create(raw: string): RecoveryCodeStatusVO {
-    if (!VALID_RECOVERY_STATUSES.has(raw)) {
-      throw new MfaInvalidError(`invalid recovery code status: ${raw}`);
+  static of(raw: string): RecoveryCodeStatusVO {
+    if (!ALLOWED.has(raw)) {
+      throw new Error(`Unknown recovery code status: ${raw}`);
     }
-    return new RecoveryCodeStatusVO(raw);
+    return new RecoveryCodeStatusVO(raw as RecoveryCodeStatusValue);
+  }
+
+  static active(): RecoveryCodeStatusVO {
+    return new RecoveryCodeStatusVO('active');
+  }
+
+  canBeUsed(): boolean {
+    return this.value === 'active';
   }
 }

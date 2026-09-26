@@ -1,26 +1,23 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+/**
+ * CreateRuleHandler
+ * @module support-service/application/commands/rule
+ */
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { CreateRuleCommand } from './create-rule.command';
+import type { RuleResponseDTO } from '../../dtos/responses/rule-response.dto';
 import type { RuleServiceInterface } from '../../services/interfaces/rule.service.interface';
 
-@CommandHandler(CreateRuleCommand)
-export class CreateRuleHandler
-  extends BaseCommandHandler<CreateRuleCommand, { id: string }>
-  implements ICommandHandler<CreateRuleCommand>
-{
+export class CreateRuleHandler extends BaseCommandHandler<
+  CreateRuleCommand,
+  RuleResponseDTO
+> {
   readonly commandType = 'support.rule.create';
 
   constructor(private readonly ruleService: RuleServiceInterface) {
     super();
   }
 
-  async execute(command: CreateRuleCommand): Promise<{ id: string }> {
-    return this.ruleService.create({
-      name: command.name,
-      type: command.type_,
-      condition: command.condition,
-      action: command.action,
-      priority: command.priority,
-    });
+  async execute(command: CreateRuleCommand): Promise<RuleResponseDTO> {
+    return this.ruleService.create(command.payload);
   }
 }

@@ -1,9 +1,16 @@
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '@vubon/shared-config/common';
+/**
+ * TWO_FA_CONFIG — 2FA policy configuration
+ * @module auth-service/infrastructure/config
+ */
+import { getOptionalEnv, getOptionalEnvInt, getOptionalEnvBool } from '@vubon/shared-config/common';
 import { AUTH_MFA } from '@vubon/shared-constants/auth';
 
 export const TWO_FA_CONFIG = Object.freeze({
-  enabledByDefault: getOptionalEnvBool('2FA_ENABLED_DEFAULT', AUTH_MFA.ENABLED_DEFAULT),
-  defaultMethod: getOptionalEnv('2FA_DEFAULT_METHOD', 'totp'),
-  challengeTtlSeconds: getOptionalEnvInt('2FA_CHALLENGE_TTL', 300),
-  maxChallengeAttempts: getOptionalEnvInt('2FA_MAX_CHALLENGE_ATTEMPTS', 5),
+  defaultMethod: getOptionalEnv('2FA_DEFAULT_METHOD', 'totp') as string,
+  requiredForAdmin: getOptionalEnvBool('2FA_REQUIRED_ADMIN', true),
+  requiredForVendor: getOptionalEnvBool('2FA_REQUIRED_VENDOR', false),
+  backupCodeCount: getOptionalEnvInt('2FA_BACKUP_COUNT', AUTH_MFA.BACKUP_CODES_COUNT),
+  challengeExpirySeconds: getOptionalEnvInt('2FA_CHALLENGE_EXPIRY', AUTH_MFA.OTP_EXPIRY_SECONDS),
+  allowRememberDevice: getOptionalEnvBool('2FA_REMEMBER_DEVICE', true),
+  rememberDeviceTtlDays: getOptionalEnvInt('2FA_REMEMBER_DEVICE_TTL_DAYS', 30),
 } as const);

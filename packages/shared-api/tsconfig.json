@@ -12,6 +12,7 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "skipLibCheck": true,
+    "noEmit": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "types": ["node"],
     "baseUrl": ".",

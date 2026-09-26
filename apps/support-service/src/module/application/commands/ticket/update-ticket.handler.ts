@@ -1,15 +1,16 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+/**
+ * UpdateTicketHandler
+ * @module support-service/application/commands/ticket
+ */
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { UpdateTicketCommand } from './update-ticket.command';
-import type { TicketServiceInterface } from '../../services/interfaces/ticket.service.interface';
-import { TicketIdVO } from '../../../domain/value-objects/primitives/ticket-id.vo';
 import type { TicketResponseDTO } from '../../dtos/responses/ticket-response.dto';
+import type { TicketServiceInterface } from '../../services/interfaces/ticket.service.interface';
 
-@CommandHandler(UpdateTicketCommand)
-export class UpdateTicketHandler
-  extends BaseCommandHandler<UpdateTicketCommand, TicketResponseDTO>
-  implements ICommandHandler<UpdateTicketCommand>
-{
+export class UpdateTicketHandler extends BaseCommandHandler<
+  UpdateTicketCommand,
+  TicketResponseDTO
+> {
   readonly commandType = 'support.ticket.update';
 
   constructor(private readonly ticketService: TicketServiceInterface) {
@@ -17,11 +18,6 @@ export class UpdateTicketHandler
   }
 
   async execute(command: UpdateTicketCommand): Promise<TicketResponseDTO> {
-    return this.ticketService.update(TicketIdVO.create(command.ticketId), {
-      subject: command.subject,
-      description: command.description,
-      priority: command.priority,
-      tags: command.tags ? [...command.tags] : undefined,
-    });
+    return this.ticketService.update(command.ticketId, command.payload);
   }
 }

@@ -1,46 +1,62 @@
+/**
+ * AuthSessionController
+ * @module auth-service/interfaces/controllers/rest
+ */
 import {
   Controller,
-  Delete,
   Get,
-  HttpCode,
-  HttpStatus,
+  Delete,
   Param,
   UseGuards,
 } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { QueryBus, CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import {
-  CurrentUser,
-  JwtAuthGuard,
-  type CurrentUserShape,
-} from '@vubon/shared-kernel/interfaces';
-import { ListAuthSessionsQuery } from '../../../application/queries/auth/list-auth-sessions.query';
-import { GetAuthSessionQuery } from '../../../application/queries/auth/get-auth-session.query';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
 
-@ApiTags('Sessions')
+import { GetAuthSessionQuery } from '../../../application/queries/auth/get-auth-session.query';
+import { ListAuthSessionsQuery } from '../../../application/queries/auth/list-auth-sessions.query';
+import type { AuthSessionResponseDTO } from '../../../application/dtos/responses/auth-session-response.dto';
+import { SessionControllerMapper } from '../../mappers/session.controller.mapper';
+import { SessionSwagger } from '../../swagger/session.swagger';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
+
+@ApiTags('Auth Sessions')
 @Controller('auth/sessions')
 @UseGuards(JwtAuthGuard)
 export class AuthSessionController {
   constructor(
-    private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
+    private readonly commandBus: CommandBus,
+    private readonly mapper: SessionControllerMapper,
   ) {}
 
-  @Get()
-  async list(@CurrentUser() user: CurrentUserShape): Promise<unknown> {
-    return this.queryBus.execute(new ListAuthSessionsQuery(user.userId));
+  @Get('me')
+  @SessionSwagger.List()
+  async listMine(@CurrentUser() user: AuthenticatedUser) {
+    const rows = await this.queryBus.execute<
+      ListAuthSessionsQuery,
+      readonly AuthSessionResponseDTO[]
+    >(new ListAuthSessionsQuery(user.id as never));
+    return this.mapper.toResponseList(rows);
   }
 
   @Get(':id')
-  async get(@Param('id') id: string): Promise<unknown> {
-    return this.queryBus.execute(new GetAuthSessionQuery(id));
+  @SessionSwagger.Get()
+  async getOne(@Param('id') id: string) {
+    const row = await this.queryBus.execute<
+      GetAuthSessionQuery,
+      AuthSessionResponseDTO
+    >(new GetAuthSessionQuery(id));
+    return this.mapper.toResponse(row);
   }
 
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @SessionSwagger.Revoke()
   async revoke(@Param('id') id: string): Promise<void> {
-    // Handled by LogoutCommand or SessionRevokeCommand
-    void this.commandBus;
-    void id;
+    // Session revocation is done through AuthService, not a command.
+    await this.commandBus.execute({
+      type: 'auth.session.revoke',
+      payload: { sessionId: id },
+    } as never);
   }
 }

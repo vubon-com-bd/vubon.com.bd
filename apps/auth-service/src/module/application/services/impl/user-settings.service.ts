@@ -1,72 +1,65 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { EventBus } from '@nestjs/cqrs';
+/**
+ * UserSettingsService
+ * @module auth-service/application/services/impl
+ */
+import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
+import type { UserId } from '@vubon/shared-types/common';
 import type { UserSettingsServiceInterface } from '../interfaces/user-settings.service.interface';
 import type { UserSettingsRepository } from '../../../domain/repositories/user-settings.repository.interface';
 import { UserSettingsEntity } from '../../../domain/entities/user-settings.entity';
-import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
-import { UserOperationFailedError } from '../../errors/user.errors';
 import type { UpdateSettingsRequestDTO } from '../../dtos/requests/user/update-settings.dto';
 import type { UserSettingsResponseDTO } from '../../dtos/responses/user-settings-response.dto';
+import { USER_SETTINGS_REPO } from '../../tokens';
 
 @Injectable()
 export class UserSettingsService
-  extends BaseService<UserSettingsEntity, string>
-  implements UserSettingsServiceInterface
-{
+  extends BaseService<UserSettingsEntity, UserId>
+  implements UserSettingsServiceInterface {
   readonly name = 'UserSettingsService';
 
   constructor(
-    @Inject('UserSettingsRepository') private readonly settingsRepo: UserSettingsRepository,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
-  }
+    @Inject(USER_SETTINGS_REPO)
+    private readonly repo: UserSettingsRepository,
+  ) { super(); }
 
-  async findByUserId(userId: string): Promise<UserSettingsResponseDTO | null> {
-    const entity = await this.settingsRepo.findByUserId(UserIdVO.create(userId));
-    return entity ? this.toDTO(entity) : null;
+  async getByUserId(userId: UserId): Promise<UserSettingsEntity> {
+    const s = await this.repo.findByUserId(userId);
+    if (!s) throw new Error('Settings not found');
+    return s;
   }
 
   async update(
-    userId: string,
+    userId: UserId,
     input: UpdateSettingsRequestDTO,
-  ): Promise<UserSettingsResponseDTO> {
-    const userIdVO = UserIdVO.create(userId);
-    const entity = await this.settingsRepo.findByUserId(userIdVO);
-    if (!entity) {
-      throw new UserOperationFailedError(`settings not found: ${userId}`);
-    }
-
-    let updated = entity;
-    if (input.theme) {
-      updated = updated.updateTheme(input.theme as never);
-    }
-    if (input.notifications !== undefined) {
-      updated = updated.toggleEmailNotifications(input.notifications);
-    }
-
-    await this.settingsRepo.save(updated);
-    return this.toDTO(updated);
+  ): Promise<UserSettingsEntity> {
+    const s = await this.getByUserId(userId);
+    const anyInput = input as {
+      emailNotifications?: boolean;
+      smsNotifications?: boolean;
+      pushNotifications?: boolean;
+      marketingEmails?: boolean;
+    };
+    s.updateNotifications({
+      email: anyInput.emailNotifications,
+      sms: anyInput.smsNotifications,
+      push: anyInput.pushNotifications,
+      marketing: anyInput.marketingEmails,
+    });
+    return this.repo.save(s);
   }
 
-  private toDTO(entity: UserSettingsEntity): UserSettingsResponseDTO {
+  toResponse(s: UserSettingsEntity): UserSettingsResponseDTO {
     return {
-      success: true,
-      settings: {
-        userId: entity.userId.value,
-        locale: entity.language,
-        language: entity.language,
-        timezone: entity.timezone,
-        currency: entity.currency,
-        theme: entity.theme,
-        dateFormat: 'YYYY-MM-DD',
-        timeFormat: '24h',
-        itemsPerPage: 20,
-        notifications: entity.emailNotifications,
-        twoFactor: false,
-        updatedAt: entity.updatedAt,
-      },
+      userId: s.userId,
+      twoFactorEnabled: s.twoFactorEnabled,
+      emailNotifications: true,
+      smsNotifications: false,
+      pushNotifications: true,
+      marketingEmails: false,
+      language: 'bn',
+      timezone: 'Asia/Dhaka',
+      updatedAt: s.updatedAt,
     };
   }
 }

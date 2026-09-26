@@ -1,9 +1,16 @@
+/**
+ * AuthOAuthPrismaRepository
+ * @module auth-service/infrastructure/persistence/prisma/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { AuthOAuth as PrismaAuthOAuth } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+import type { AuthOAuth as PrismaAuthOAuth } from '@prisma/client';
+import {
+  BasePrismaRepository,
+  type PrismaDelegate,
+} from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
+import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
+import type { UserId } from '@vubon/shared-types/common';
 import { AuthOAuthEntity } from '../../../../domain/entities/auth-oauth.entity';
-import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
 import { OAuthProviderVO } from '../../../../domain/value-objects/primitives/oauth-provider.vo';
 import { OAuthTokenVO } from '../../../../domain/value-objects/primitives/oauth-token.vo';
 import { OAuthStatusVO } from '../../../../domain/value-objects/primitives/oauth-status.vo';
@@ -11,77 +18,66 @@ import type { AuthOAuthRepository } from '../../../../domain/repositories/auth-o
 
 @Injectable()
 export class AuthOAuthPrismaRepository
-  extends BasePrismaRepository<AuthOAuthEntity, string>
-  implements AuthOAuthRepository
-{
+  extends BasePrismaRepository<AuthOAuthEntity, PrismaAuthOAuth, string>
+  implements AuthOAuthRepository {
+  protected readonly model: PrismaDelegate<PrismaAuthOAuth>;
+
   constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
+    super();
+    this.model = prisma.authOAuth as unknown as PrismaDelegate<PrismaAuthOAuth>;
   }
 
-  private toDomain(raw: PrismaAuthOAuth): AuthOAuthEntity {
-    return AuthOAuthEntity.reconstitute(
-      raw.id,
-      {
-        userId: UserIdVO.create(raw.userId),
-        provider: OAuthProviderVO.create(raw.provider),
-        accessToken: OAuthTokenVO.create(raw.accessToken),
-        refreshToken: raw.refreshToken ? OAuthTokenVO.create(raw.refreshToken) : null,
-        scope: raw.scope,
-        status: OAuthStatusVO.create(raw.status),
-        expiresAt: raw.expiresAt,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      raw.deletedAt?.toISOString() ?? null,
-    );
+  protected idOf(domain: AuthOAuthEntity): string {
+    return domain.id;
   }
 
-  async findById(id: string): Promise<AuthOAuthEntity | null> {
-    const raw = await this.prisma.authOAuth.findUnique({ where: { id } });
-    return raw ? this.toDomain(raw) : null;
+  protected whereForId(id: string): Record<string, unknown> {
+    return { id };
   }
 
-  async findAll(): Promise<readonly AuthOAuthEntity[]> {
-    const rows = await this.prisma.authOAuth.findMany();
-    return rows.map((r) => this.toDomain(r));
+  protected toDomain(raw: PrismaAuthOAuth): AuthOAuthEntity {
+    return AuthOAuthEntity.create({
+      id: raw.id,
+      userId: raw.userId as UserId,
+      provider: OAuthProviderVO.of(raw.provider),
+      providerUserId: raw.userId,
+      accessToken: raw.accessToken ? OAuthTokenVO.of(raw.accessToken) : undefined,
+      refreshToken: raw.refreshToken ? OAuthTokenVO.of(raw.refreshToken) : undefined,
+      scopes: raw.scope ? raw.scope.split(' ').filter(Boolean) : [],
+      status: OAuthStatusVO.of(raw.status),
+      linkedAt: raw.createdAt.getTime(),
+      expiresAt: raw.expiresAt ? raw.expiresAt.getTime() : undefined,
+      createdAt: raw.createdAt.toISOString(),
+      updatedAt: raw.updatedAt.toISOString(),
+      deletedAt: raw.deletedAt ? raw.deletedAt.toISOString() : null,
+    });
   }
 
-  async save(entity: AuthOAuthEntity): Promise<AuthOAuthEntity> {
-    const data = {
-      userId: entity.userId.value,
-      provider: entity.provider.value,
-      accessToken: entity.accessToken.value,
-      refreshToken: entity.refreshToken?.value ?? null,
-      scope: entity.scope,
-      status: entity.status.value,
-      expiresAt: entity.expiresAt,
+  protected toPersistence(domain: AuthOAuthEntity): Record<string, unknown> {
+    return {
+      id: domain.id,
+      userId: domain.userId,
+      provider: domain.provider.value,
+      accessToken: '',
+      refreshToken: null,
+      scope: domain.scopes.join(' '),
+      status: domain.status.value,
+      expiresAt: domain.expiresAt ? new Date(domain.expiresAt) : null,
       updatedAt: new Date(),
     };
-    const raw = await this.prisma.authOAuth.upsert({
-      where: { id: entity.id },
-      create: { id: entity.id, ...data },
-      update: data,
-    });
-    return this.toDomain(raw);
   }
 
-  async delete(id: string): Promise<void> {
-    await this.prisma.authOAuth.delete({ where: { id } });
-  }
-
-  async findByUser(userId: UserIdVO): Promise<readonly AuthOAuthEntity[]> {
-    const rows = await this.prisma.authOAuth.findMany({
-      where: { userId: userId.value },
-    });
+  async findByUser(userId: UserId): Promise<readonly AuthOAuthEntity[]> {
+    const rows = await this.prisma.authOAuth.findMany({ where: { userId } });
     return rows.map((r) => this.toDomain(r));
   }
 
   async findByProvider(
-    userId: UserIdVO,
     provider: OAuthProviderVO,
+    providerUserId: string,
   ): Promise<AuthOAuthEntity | null> {
     const raw = await this.prisma.authOAuth.findFirst({
-      where: { userId: userId.value, provider: provider.value },
+      where: { provider: provider.value, userId: providerUserId },
     });
     return raw ? this.toDomain(raw) : null;
   }

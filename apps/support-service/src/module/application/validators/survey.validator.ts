@@ -1,18 +1,29 @@
-import { Injectable } from '@nestjs/common';
+/**
+ * SurveyValidator — schema-based validation
+ * @module support-service/application/validators
+ *
+ * Registry: uses @shared/schemas/support Zod schemas
+ * Rule: no business logic, only validation
+ */
+import { ApplicationValidationError } from '@vubon/shared-kernel/application/errors/validation.error';
+import { SurveyResponseSchema } from '@vubon/shared-schemas/support';
+import type { RespondSurveyRequestDTO } from '../dtos/requests/survey/respond-survey.dto';
 
-@Injectable()
 export class SurveyValidator {
-  validate(input: unknown): unknown {
-    if (!input || typeof input !== 'object') {
-      throw new Error('Survey input must be an object');
+  validateResponse(input: unknown): RespondSurveyRequestDTO {
+    const result = SurveyResponseSchema.safeParse(input);
+    if (!result.success) {
+      const issues = result.error.issues.map((i) => ({
+        field: i.path.join('.') || 'survey',
+        message: i.message,
+      }));
+      const first = issues[0];
+      throw new ApplicationValidationError(
+        first?.message ?? 'Invalid survey response',
+        first?.field ?? 'survey',
+        issues,
+      );
     }
-    const data = input as Record<string, unknown>;
-    if (typeof data.title !== 'string' || data.title.trim().length < 3) {
-      throw new Error('Survey title must be at least 3 characters');
-    }
-    if (!Array.isArray(data.questions) || data.questions.length === 0) {
-      throw new Error('Survey must have at least one question');
-    }
-    return input;
+    return result.data as RespondSurveyRequestDTO;
   }
 }

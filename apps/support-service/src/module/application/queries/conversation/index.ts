@@ -1,6 +1,6 @@
-export { GetConversationQuery } from './get-conversation.query';
-export { GetConversationHandler } from './get-conversation.handler';
-export { ListConversationsByUserQuery } from './list-conversations-by-user.query';
-export { ListConversationsByUserHandler } from './list-conversations-by-user.handler';
-export { ListActiveConversationsQuery } from './list-active-conversations.query';
-export { ListActiveConversationsHandler } from './list-active-conversations.handler';
+// support-service/application/queries/conversation/index.ts
+
+export * from './get-conversation.query';
+export * from './get-conversation.handler';
+export * from './list-conversations.query';
+export * from './list-conversations.handler';

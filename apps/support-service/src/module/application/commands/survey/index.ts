@@ -1,6 +1,8 @@
-export { CreateSurveyCommand } from './create-survey.command';
-export { CreateSurveyHandler } from './create-survey.handler';
-export { RespondSurveyCommand } from './respond-survey.command';
-export { RespondSurveyHandler } from './respond-survey.handler';
-export { CloseSurveyCommand } from './close-survey.command';
-export { CloseSurveyHandler } from './close-survey.handler';
+// support-service/application/commands/survey/index.ts
+
+export * from './create-survey.command';
+export * from './create-survey.handler';
+export * from './respond-survey.command';
+export * from './respond-survey.handler';
+export * from './close-survey.command';
+export * from './close-survey.handler';

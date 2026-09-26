@@ -1,56 +1,46 @@
+/**
+ * AuthPreferencesController
+ * @module auth-service/interfaces/controllers/rest
+ */
 import {
-  Body,
   Controller,
   Get,
-  Patch,
+  Put,
+  Body,
   UseGuards,
 } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { QueryBus, CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import {
-  CurrentUser,
-  JwtAuthGuard,
-  type CurrentUserShape,
-} from '@vubon/shared-kernel/interfaces';
-import { GetUserPreferencesQuery } from '../../../application/queries/user/get-user-preferences.query';
-import { UpdatePreferencesCommand } from '../../../application/commands/user/update-preferences.command';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
+import type { UserId } from '@vubon/shared-types/common';
 
-interface UpdateAuthPreferencesBody {
-  newsletter?: boolean;
-  promotions?: boolean;
-  orderUpdates?: boolean;
-  productRecommendations?: boolean;
-  securityAlerts?: boolean;
-}
+import { GetUserPreferencesQuery } from '../../../application/queries/user/get-user-preferences.query';
+import { UpdateAuthPreferencesCommand } from '../../../application/commands/settings/update-auth-preferences.command';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
 
 @ApiTags('Auth Preferences')
 @Controller('auth/preferences')
 @UseGuards(JwtAuthGuard)
 export class AuthPreferencesController {
   constructor(
-    private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
+    private readonly commandBus: CommandBus,
   ) {}
 
   @Get()
-  async get(@CurrentUser() user: CurrentUserShape): Promise<unknown> {
-    return this.queryBus.execute(new GetUserPreferencesQuery(user.userId));
+  async get(@CurrentUser() user: AuthenticatedUser) {
+    return this.queryBus.execute(
+      new GetUserPreferencesQuery(user.id as UserId),
+    );
   }
 
-  @Patch()
+  @Put()
   async update(
-    @CurrentUser() user: CurrentUserShape,
-    @Body() body: UpdateAuthPreferencesBody,
-  ): Promise<unknown> {
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: Record<string, unknown>,
+  ) {
     return this.commandBus.execute(
-      new UpdatePreferencesCommand(
-        user.userId,
-        body.newsletter,
-        body.promotions,
-        body.orderUpdates,
-        body.productRecommendations,
-        body.securityAlerts,
-      ),
+      new UpdateAuthPreferencesCommand(user.id as UserId, body as never),
     );
   }
 }

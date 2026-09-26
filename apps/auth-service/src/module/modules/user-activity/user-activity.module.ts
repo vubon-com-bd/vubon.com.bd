@@ -1,24 +1,26 @@
-import { PrismaService } from '../../infrastructure/persistence/prisma/prisma.service';
-import { PrismaModule, RedisModule } from '@vubon/shared-kernel/infrastructure';
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-
 import { UserActivityController } from '../../interfaces/controllers/rest/user-activity.controller';
 import { UserActivityService } from '../../application/services/impl/user-activity.service';
-import { ListUserActivitiesHandler } from '../../application/queries/user/list-user-activities.handler';
 import { UserActivityPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/user-activity.prisma.repository';
+import { ListUserActivitiesHandler } from '../../application/queries/user/list-user-activities.handler';
+import {
+  USER_ACTIVITY_REPO,
+} from '../../application/services/tokens';
+
+const TOKEN_BINDINGS = [
+  { provide: USER_ACTIVITY_REPO, useExisting: UserActivityPrismaRepository },
+];
 
 @Module({
-  imports: [CqrsModule, PrismaModule, RedisModule],
+  imports: [CqrsModule],
   controllers: [UserActivityController],
-  providers: [PrismaService, { provide: 'PrismaService', useClass: PrismaService },
-    { provide: 'UserActivityRepository', useExisting: UserActivityPrismaRepository },
-    { provide: 'UserActivityService', useExisting: UserActivityService },
-
-    UserActivityPrismaRepository,
+  providers: [
     UserActivityService,
+    UserActivityPrismaRepository,
     ListUserActivitiesHandler,
+    ...TOKEN_BINDINGS,
   ],
-  exports: [UserActivityService, UserActivityPrismaRepository],
+  exports: [UserActivityService, UserActivityPrismaRepository, ...TOKEN_BINDINGS.map((b) => b.provide)],
 })
 export class UserActivityModule {}

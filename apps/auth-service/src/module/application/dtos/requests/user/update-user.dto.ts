@@ -1,4 +1,16 @@
-import { z } from 'zod';
-import { UpdateUserRequestSchema } from '@vubon/shared-schemas/user';
+/**
+ * UpdateUserRequest DTO
+ * @module auth-service/application/dtos/requests/user
+ */
+import {
+  UpdateUserRequestSchema,
+  type UpdateUserRequestSchemaType,
+} from '@vubon/shared-schemas/user';
 
-export type UpdateUserRequestDTO = z.infer<typeof UpdateUserRequestSchema>;
+export type UpdateUserRequestDTO = UpdateUserRequestSchemaType;
+
+export function validateUpdateUserRequest(
+  input: unknown,
+): UpdateUserRequestDTO {
+  return UpdateUserRequestSchema.parse(input);
+}

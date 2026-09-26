@@ -1,66 +1,111 @@
+/**
+ * TemplateController — HTTP adapter
+ * @module support-service/interfaces/controllers/rest
+ */
 import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
-  Patch,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
-import { ApiTags } from '@nestjs/swagger';
-import {
-  JwtAuthGuard,
-  Permissions,
-} from '@vubon/shared-kernel/interfaces';
-import { PERMISSION } from '@vubon/shared-constants/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard, CurrentUser } from '@vubon/shared-kernel/interfaces';
+
 import { CreateTemplateCommand } from '../../../application/commands/template/create-template.command';
 import { UpdateTemplateCommand } from '../../../application/commands/template/update-template.command';
+import { RenderTemplateCommand } from '../../../application/commands/template/render-template.command';
+import { GetTemplateQuery } from '../../../application/queries/template/get-template.query';
+import { ListTemplatesQuery } from '../../../application/queries/template/list-templates.query';
+
+import { CreateTemplateRequestDTO } from '../../dtos/requests/template/create-template.dto';
+import { UpdateTemplateRequestDTO } from '../../dtos/requests/template/update-template.dto';
+import { TemplateResponseDTO } from '../../dtos/responses/template-response.dto';
+import { TemplateControllerMapper } from '../../mappers/template.controller.mapper';
 
 @ApiTags('Templates')
-@Controller('templates')
-@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+@Controller({ path: 'templates', version: '1' })
 export class TemplateController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+    private readonly mapper: TemplateControllerMapper,
+  ) {}
 
-  @Get()
-  async list(): Promise<unknown> {
-    return { templates: [] };
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  async create(
+    @Body() body: CreateTemplateRequestDTO,
+    @CurrentUser('userId') userId: string,
+  ): Promise<TemplateResponseDTO> {
+    const result = await this.commandBus.execute(
+      new CreateTemplateCommand({
+        name: body.name,
+        slug: body.slug,
+        type: body.type as never,
+        locale: body.locale,
+        subject: body.subject,
+        body: body.body,
+        variables: body.variables?.map((v) => ({
+          name: v.name,
+          type: v.type as never,
+          required: v.required,
+          defaultValue: v.defaultValue,
+          description: v.description,
+        })),
+        createdBy: userId,
+      }),
+    );
+    return this.mapper.toResponse(result);
   }
 
   @Get(':id')
-  async get(@Param('id') id: string): Promise<unknown> {
-    return { id };
+  @UseGuards(JwtAuthGuard)
+  async findOne(@Param('id') id: string): Promise<TemplateResponseDTO> {
+    const result = await this.queryBus.execute(new GetTemplateQuery(id));
+    return this.mapper.toResponse(result);
   }
 
-  @Post()
-  @Permissions(PERMISSION.ADMIN_MANAGE)
-  async create(
-    @Body() body: {
-      name: string;
-      type: string;
-      content: string;
-      variables?: string[];
-    },
-  ): Promise<unknown> {
-    return this.commandBus.execute(
-      new CreateTemplateCommand(
-        body.name,
-        body.type,
-        body.content,
-        body.variables ?? [],
-      ),
-    );
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async list(): Promise<readonly TemplateResponseDTO[]> {
+    const result = await this.queryBus.execute(new ListTemplatesQuery(1, 20));
+    return result.map((item: never) => this.mapper.toResponse(item));
   }
 
-  @Patch(':id')
-  @Permissions(PERMISSION.ADMIN_MANAGE)
+  @Put(':id')
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id') id: string,
-    @Body() body: { name?: string; content?: string; isActive?: boolean },
-  ): Promise<void> {
+    @Body() body: UpdateTemplateRequestDTO,
+  ): Promise<TemplateResponseDTO> {
+    const result = await this.commandBus.execute(
+      new UpdateTemplateCommand({
+        templateId: id,
+        name: body.name,
+        subject: body.subject,
+        body: body.body,
+      }),
+    );
+    return this.mapper.toResponse(result);
+  }
+
+  @Post(':id/render')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async render(
+    @Param('id') id: string,
+    @Body() body: { values: Record<string, string | number> },
+  ): Promise<{ templateId: string; text: string }> {
     return this.commandBus.execute(
-      new UpdateTemplateCommand(id, body.name, body.content, body.isActive),
+      new RenderTemplateCommand(id, body.values),
     );
   }
 }

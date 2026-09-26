@@ -1,15 +1,28 @@
+/**
+ * SettingsRequestDTO
+ * @module auth-service/interfaces/dtos/requests
+ */
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
-export class SettingsUpdateRequestDTO {
+export class UpdateSettingsRequestDTO {
   @ApiPropertyOptional()
-  theme?: string;
+  emailNotifications?: boolean;
+
+  @ApiPropertyOptional()
+  smsNotifications?: boolean;
+
+  @ApiPropertyOptional()
+  pushNotifications?: boolean;
+
+  @ApiPropertyOptional()
+  marketingEmails?: boolean;
+
+  @ApiPropertyOptional()
+  twoFactorEnabled?: boolean;
 
   @ApiPropertyOptional()
   language?: string;
 
   @ApiPropertyOptional()
   timezone?: string;
-
-  @ApiPropertyOptional()
-  notifications?: boolean;
 }

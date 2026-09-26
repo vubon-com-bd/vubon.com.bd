@@ -1,10 +1,11 @@
-import { z } from 'zod';
-
-export const TrainEntityRequestSchema = z.object({
-  chatbotId: z.string().uuid(),
-  name: z.string().min(1).max(100),
-  type: z.string().min(1).max(50),
-  value: z.string().min(1).max(500),
-});
-
-export type TrainEntityRequestDTO = z.infer<typeof TrainEntityRequestSchema>;
+/**
+ * TrainEntityRequestDTO
+ * @module support-service/application/dtos/requests/chatbot
+ */
+export interface TrainEntityRequestDTO {
+  readonly chatbotId: string;
+  readonly name: string;
+  readonly entityType: 'text' | 'number' | 'date' | 'email' | 'phone' | 'enum';
+  readonly required?: boolean;
+  readonly enumValues?: readonly string[];
+}

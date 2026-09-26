@@ -1,9 +1,11 @@
-import { z } from 'zod';
-
-export const BiometricResponseSchema = z.object({
-  enabled: z.boolean(),
-  biometricId: z.string().optional(),
-  enrolledAt: z.string().datetime().optional(),
-});
-
-export type BiometricResponseDTO = z.infer<typeof BiometricResponseSchema>;
+/**
+ * BiometricResponseDTO
+ * @module auth-service/application/dtos/responses
+ */
+export interface BiometricResponseDTO {
+  readonly enabled: boolean;
+  readonly biometricId?: string;
+  readonly kind?: 'fingerprint' | 'face' | 'voice' | 'iris';
+  readonly enrolledAt?: string;
+  readonly deviceId?: string;
+}

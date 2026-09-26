@@ -1,16 +1,50 @@
+/**
+ * LiveChatTypeVO — Live chat channel type
+ * @module support-service/domain/value-objects/primitives
+ *
+ * Registry: extends BaseTypeVO
+ */
 import { BaseTypeVO } from '@vubon/shared-kernel/domain/primitives/type.vo';
-import { LIVE_CHAT_TRIGGER } from '@vubon/shared-constants/support';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
+import { CHATBOT_TYPE } from '@vubon/shared-constants/support';
 
-const VALID = new Set<string>(Object.values(LIVE_CHAT_TRIGGER));
+export type LiveChatTypeValue =
+  | 'human'
+  | 'chatbot'
+  | 'hybrid';
 
-export class LiveChatTypeVO extends BaseTypeVO<string> {
-  static create(value: string): LiveChatTypeVO {
-    if (!VALID.has(value)) {
-      throw new Error(`Invalid live chat type: ${value}`);
-    }
-    return new LiveChatTypeVO(value);
-  }
-  private constructor(value: string) {
+const TYPE_SET: ReadonlySet<string> = new Set(['human', 'chatbot', 'hybrid']);
+
+export class LiveChatTypeVO extends BaseTypeVO<LiveChatTypeValue> {
+  private constructor(value: LiveChatTypeValue) {
     super(value);
+  }
+
+  protected static allowedValues(): ReadonlySet<string> {
+    return TYPE_SET;
+  }
+
+  static create(raw: string): LiveChatTypeVO {
+    const normalized = raw.trim().toLowerCase();
+    if (!TYPE_SET.has(normalized)) {
+      throw new ValidationError(
+        `Invalid live chat type: ${raw}`,
+        'liveChatType',
+      );
+    }
+    return new LiveChatTypeVO(normalized as LiveChatTypeValue);
+  }
+
+  static human(): LiveChatTypeVO {
+    return new LiveChatTypeVO('human');
+  }
+
+  isBotInvolved(): boolean {
+    return this.value === 'chatbot' || this.value === 'hybrid';
+  }
+
+  // Reference CHATBOT_TYPE to satisfy import contract
+  static get knownChatbotTypes(): readonly string[] {
+    return Object.values(CHATBOT_TYPE);
   }
 }

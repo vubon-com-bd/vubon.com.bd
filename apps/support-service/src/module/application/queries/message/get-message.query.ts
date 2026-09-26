@@ -1,3 +1,7 @@
+/**
+ * GetMessageQuery
+ * @module support-service/application/queries/message
+ */
 import { BaseQuery } from '@vubon/shared-kernel/application/queries/base.query';
 
 export class GetMessageQuery extends BaseQuery {

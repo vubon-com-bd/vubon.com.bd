@@ -1,9 +1,16 @@
+/**
+ * AuthMfaPrismaRepository
+ * @module auth-service/infrastructure/persistence/prisma/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { AuthMfa as PrismaAuthMfa } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+import type { AuthMfa as PrismaAuthMfa } from '@prisma/client';
+import {
+  BasePrismaRepository,
+  type PrismaDelegate,
+} from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
+import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
+import type { UserId } from '@vubon/shared-types/common';
 import { AuthMfaEntity } from '../../../../domain/entities/auth-mfa.entity';
-import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
 import { MfaSecretVO } from '../../../../domain/value-objects/primitives/mfa-secret.vo';
 import { MfaTypeVO } from '../../../../domain/value-objects/primitives/mfa-type.vo';
 import { MfaStatusVO } from '../../../../domain/value-objects/primitives/mfa-status.vo';
@@ -11,67 +18,63 @@ import type { AuthMfaRepository } from '../../../../domain/repositories/auth-mfa
 
 @Injectable()
 export class AuthMfaPrismaRepository
-  extends BasePrismaRepository<AuthMfaEntity, UserIdVO>
-  implements AuthMfaRepository
-{
+  extends BasePrismaRepository<AuthMfaEntity, PrismaAuthMfa, string>
+  implements AuthMfaRepository {
+  protected readonly model: PrismaDelegate<PrismaAuthMfa>;
+
   constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
+    super();
+    this.model = prisma.authMfa as unknown as PrismaDelegate<PrismaAuthMfa>;
   }
 
-  private toDomain(raw: PrismaAuthMfa): AuthMfaEntity {
-    return AuthMfaEntity.reconstitute(
-      UserIdVO.create(raw.userId),
-      {
-        userId: UserIdVO.create(raw.userId),
-        secret: MfaSecretVO.create(raw.secret),
-        type: MfaTypeVO.create(raw.type),
-        status: MfaStatusVO.create(raw.status),
-        enabledAt: raw.enabledAt,
-        lastVerifiedAt: raw.lastVerifiedAt,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      raw.deletedAt?.toISOString() ?? null,
-    );
+  protected idOf(domain: AuthMfaEntity): string {
+    return domain.id;
   }
 
-  async findById(id: UserIdVO): Promise<AuthMfaEntity | null> {
-    const raw = await this.prisma.authMfa.findUnique({
-      where: { userId: id.value },
+  protected whereForId(id: string): Record<string, unknown> {
+    return { id };
+  }
+
+  protected toDomain(raw: PrismaAuthMfa): AuthMfaEntity {
+    return AuthMfaEntity.create({
+      id: raw.id,
+      userId: raw.userId as UserId,
+      type: MfaTypeVO.of(raw.type),
+      status: MfaStatusVO.of(raw.status),
+      secret: raw.secret ? MfaSecretVO.of(raw.secret) : undefined,
+      enrolledAt: raw.enabledAt ? raw.enabledAt.getTime() : undefined,
+      verifiedAt: raw.lastVerifiedAt ? raw.lastVerifiedAt.getTime() : undefined,
+      createdAt: raw.createdAt.toISOString(),
+      updatedAt: raw.updatedAt.toISOString(),
+      deletedAt: raw.deletedAt ? raw.deletedAt.toISOString() : null,
     });
-    return raw ? this.toDomain(raw) : null;
   }
 
-  async findAll(): Promise<readonly AuthMfaEntity[]> {
-    const rows = await this.prisma.authMfa.findMany();
-    return rows.map((r) => this.toDomain(r));
-  }
-
-  async save(entity: AuthMfaEntity): Promise<AuthMfaEntity> {
-    const data = {
-      secret: entity.secret.value,
-      type: entity.type.value,
-      status: entity.status.value,
-      enabledAt: entity.enabledAt,
-      lastVerifiedAt: entity.lastVerifiedAt,
+  protected toPersistence(domain: AuthMfaEntity): Record<string, unknown> {
+    return {
+      id: domain.id,
+      userId: domain.userId,
+      secret: domain.secret?.value ?? '',
+      type: domain.type.value,
+      status: domain.status.value,
+      enabledAt: domain.isEnabled() ? new Date() : null,
+      lastVerifiedAt: null,
       updatedAt: new Date(),
     };
-    const raw = await this.prisma.authMfa.upsert({
-      where: { userId: entity.userId.value },
-      create: { id: entity.userId.value, userId: entity.userId.value, ...data },
-      update: data,
-    });
-    return this.toDomain(raw);
   }
 
-  async delete(id: UserIdVO): Promise<void> {
-    await this.prisma.authMfa.delete({ where: { userId: id.value } });
-  }
-
-  async findByUserId(userId: UserIdVO): Promise<AuthMfaEntity | null> {
-    const raw = await this.prisma.authMfa.findUnique({
-      where: { userId: userId.value },
-    });
+  async findByUserId(userId: UserId): Promise<AuthMfaEntity | null> {
+    const raw = await this.prisma.authMfa.findUnique({ where: { userId } });
     return raw ? this.toDomain(raw) : null;
+  }
+
+  async findEnabledByUserIds(
+    userIds: readonly UserId[],
+  ): Promise<readonly AuthMfaEntity[]> {
+    if (userIds.length === 0) return [];
+    const rows = await this.prisma.authMfa.findMany({
+      where: { userId: { in: [...userIds] }, status: 'enabled' },
+    });
+    return rows.map((r) => this.toDomain(r));
   }
 }

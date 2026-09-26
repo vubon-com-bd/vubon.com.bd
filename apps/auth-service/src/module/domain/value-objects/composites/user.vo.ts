@@ -1,40 +1,49 @@
+/**
+ * UserVO — Composite identity of a user (immutable snapshot)
+ * @module auth-service/domain/value-objects/composites
+ *
+ * Bundles the core identifying attributes of a user into one VO.
+ * Used by events and read models — NOT the aggregate root.
+ */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
 import { UserIdVO } from '../primitives/user-id.vo';
 import { UserEmailVO } from '../primitives/user-email.vo';
 import { UserNameVO } from '../primitives/user-name.vo';
-import { UserPhoneVO } from '../primitives/user-phone.vo';
 import { UserStatusVO } from '../primitives/user-status.vo';
 import { UserTypeVO } from '../primitives/user-type.vo';
-import { UserRoleVO } from '../primitives/user-role.vo';
 
-export interface UserProps {
+export interface UserVOProps {
   readonly id: UserIdVO;
   readonly email: UserEmailVO;
   readonly name: UserNameVO;
-  readonly phone: UserPhoneVO | null;
   readonly status: UserStatusVO;
   readonly type: UserTypeVO;
-  readonly role: UserRoleVO;
-  readonly createdAt: Date;
-  readonly updatedAt: Date;
 }
 
-export class UserVO extends BaseVO<UserProps> {
-  private constructor(props: UserProps) {
-    super(Object.freeze({ ...props }));
+export class UserVO extends BaseVO<UserVOProps> {
+  private constructor(props: UserVOProps) {
+    super(props);
   }
 
-  static create(props: UserProps): UserVO {
+  static of(props: UserVOProps): UserVO {
     return new UserVO(props);
   }
 
   get id(): UserIdVO { return this.value.id; }
   get email(): UserEmailVO { return this.value.email; }
   get name(): UserNameVO { return this.value.name; }
-  get phone(): UserPhoneVO | null { return this.value.phone; }
   get status(): UserStatusVO { return this.value.status; }
   get type(): UserTypeVO { return this.value.type; }
-  get role(): UserRoleVO { return this.value.role; }
-  get createdAt(): Date { return this.value.createdAt; }
-  get updatedAt(): Date { return this.value.updatedAt; }
+
+  isActive(): boolean {
+    return this.status.isActive();
+  }
+
+  canLogin(): boolean {
+    return this.status.isLoginAllowed();
+  }
+
+  sameIdentity(other: UserVO): boolean {
+    return this.id.equals(other.id);
+  }
 }

@@ -1,40 +1,81 @@
-import { BaseDomainEvent, type DomainEventMetadata } from '@vubon/shared-kernel/domain/base/base.event';
-import { toTimestamp } from '@vubon/shared-types/common';
+/**
+ * Complaint Domain Events
+ * @module support-service/domain/events
+ */
+import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
+import { toTimestamp, type Timestamp } from '@vubon/shared-types/common';
+import { ComplaintIdVO } from '../value-objects/primitives/complaint-id.vo';
+import { ComplaintTypeVO } from '../value-objects/primitives/complaint-type.vo';
+import { ComplaintSeverityVO } from '../value-objects/primitives/complaint-severity.vo';
+import { UserIdVO } from '../value-objects/primitives/user-id.vo';
 
-const AGGREGATE = 'Complaint';
+interface MetaFields {
+  readonly id: string;
+  readonly aggregateId: string;
+  readonly aggregateType: string;
+  readonly occurredAt: Timestamp;
+  readonly version: number;
+}
+
+const meta = (
+  aggregateId: string,
+  aggregateType: string,
+  version: number,
+  occurredAt: number,
+): MetaFields => ({
+  id: `${aggregateId}-${version}-${occurredAt}`,
+  aggregateId,
+  aggregateType,
+  occurredAt: toTimestamp(occurredAt),
+  version,
+});
+
+export interface ComplaintReceivedPayload {
+  readonly userId: string;
+  readonly type: string;
+  readonly severity: string;
+}
 
 export class ComplaintReceivedEvent extends BaseDomainEvent<
   'support.complaint.received',
-  { complaintId: string; userId: string; severity: string }
+  ComplaintReceivedPayload
 > {
-  constructor(aggregateId: string, userId: string, severity: string, version: number, metadata?: DomainEventMetadata) {
+  constructor(
+    id: ComplaintIdVO,
+    userId: UserIdVO,
+    type: ComplaintTypeVO,
+    severity: ComplaintSeverityVO,
+    occurredAt: number,
+    version = 1,
+  ) {
     super({
-      id: crypto.randomUUID(),
+      ...meta(id.value, 'complaint', version, occurredAt),
       type: 'support.complaint.received',
-      aggregateId,
-      aggregateType: AGGREGATE,
-      payload: { complaintId: aggregateId, userId, severity },
-      occurredAt: toTimestamp(Date.now()),
-      version,
-      metadata,
+      payload: { userId: userId.value, type: type.value, severity: severity.value },
     });
   }
 }
 
+export interface ComplaintResolvedPayload {
+  readonly resolution: string;
+  readonly resolverId: string;
+}
+
 export class ComplaintResolvedEvent extends BaseDomainEvent<
   'support.complaint.resolved',
-  { complaintId: string }
+  ComplaintResolvedPayload
 > {
-  constructor(aggregateId: string, version: number, metadata?: DomainEventMetadata) {
+  constructor(
+    id: ComplaintIdVO,
+    resolverId: UserIdVO,
+    resolution: string,
+    occurredAt: number,
+    version = 1,
+  ) {
     super({
-      id: crypto.randomUUID(),
+      ...meta(id.value, 'complaint', version, occurredAt),
       type: 'support.complaint.resolved',
-      aggregateId,
-      aggregateType: AGGREGATE,
-      payload: { complaintId: aggregateId },
-      occurredAt: toTimestamp(Date.now()),
-      version,
-      metadata,
+      payload: { resolverId: resolverId.value, resolution },
     });
   }
 }

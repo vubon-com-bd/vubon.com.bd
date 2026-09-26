@@ -1,4 +1,17 @@
-import { z } from 'zod';
-import { MfaSetupResponseSchema } from '@vubon/shared-schemas/auth';
+/**
+ * MfaResponseDTO
+ * @module auth-service/application/dtos/responses
+ */
+export interface MfaResponseDTO {
+  readonly enabled: boolean;
+  readonly type: string;
+  readonly enrolledAt?: string;
+  readonly verifiedAt?: string;
+  readonly backupMethods?: readonly string[];
+}
 
-export type MfaResponseDTO = z.infer<typeof MfaSetupResponseSchema>;
+export interface MfaChallengeResponseDTO {
+  readonly challengeId: string;
+  readonly methods: readonly string[];
+  readonly expiresAt: string;
+}

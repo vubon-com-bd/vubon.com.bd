@@ -1,8 +1,10 @@
-import { z } from 'zod';
-
-export const AssignTicketRequestSchema = z.object({
-  ticketId: z.string().uuid(),
-  agentId: z.string().uuid(),
-});
-
-export type AssignTicketRequestDTO = z.infer<typeof AssignTicketRequestSchema>;
+/**
+ * AssignTicketRequestDTO
+ * @module support-service/application/dtos/requests/ticket
+ */
+export interface AssignTicketRequestDTO {
+  readonly ticketId: string;
+  readonly agentId: string;
+  readonly teamId?: string;
+  readonly reason?: string;
+}

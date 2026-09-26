@@ -1,25 +1,24 @@
-import { BaseMapper } from '@vubon/shared-kernel/application/mappers/base.mapper';
+/**
+ * AuthDeviceMapper
+ * @module auth-service/application/mappers
+ */
+import { OneWayMapper } from '@vubon/shared-kernel/application/mappers/base.mapper';
 import { AuthDeviceEntity } from '../../domain/entities/auth-device.entity';
 import type { AuthDeviceResponseDTO } from '../dtos/responses/auth-device-response.dto';
 
-export class AuthDeviceMapper extends BaseMapper<
-  AuthDeviceEntity,
-  AuthDeviceResponseDTO
-> {
-  toTarget(source: AuthDeviceEntity): AuthDeviceResponseDTO {
+export class AuthDeviceMapper
+  extends OneWayMapper<AuthDeviceEntity, AuthDeviceResponseDTO> {
+  map(device: AuthDeviceEntity): AuthDeviceResponseDTO {
     return {
-      id: source.id,
-      type: source.type.value,
-      name: source.name ?? undefined,
-      trusted: source.isTrusted,
-      lastActiveAt: source.lastSeenAt.toISOString(),
-      createdAt: source.createdAt,
-      isCurrent: false,
+      id: device.id,
+      userId: device.userId,
+      name: device.name,
+      type: device.type.value,
+      status: device.status.value,
+      fingerprintMasked: device.fingerprint.masked,
+      firstSeenAt: new Date(device.createdAt).toISOString(),
+      lastSeenAt: new Date(device.lastSeenAt).toISOString(),
+      isTrusted: device.isTrusted(),
     };
-  }
-
-  toSource(target: AuthDeviceResponseDTO): AuthDeviceEntity {
-    void target;
-    throw new Error('AuthDeviceMapper.toSource not supported');
   }
 }

@@ -1,11 +1,25 @@
-import type { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
+/**
+ * AuthLoginAttemptRepository
+ * @module auth-service/domain/repositories
+ */
+import { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
+import type { UserId } from '@vubon/shared-types/common';
 import { AuthLoginAttemptEntity } from '../entities/auth-login-attempt.entity';
-import { UserIdVO } from '../value-objects/primitives/user-id.vo';
 import { LoginAttemptIpVO } from '../value-objects/primitives/login-attempt-ip.vo';
 
 export interface AuthLoginAttemptRepository
   extends BaseRepository<AuthLoginAttemptEntity, string> {
-  findByUser(userId: UserIdVO): Promise<readonly AuthLoginAttemptEntity[]>;
-  countRecentByIp(ip: LoginAttemptIpVO, windowMs: number): Promise<number>;
-  countRecentByEmail(email: string, windowMs: number): Promise<number>;
+  countRecentFailures(
+    email: string,
+    ip: LoginAttemptIpVO,
+    sinceEpochMs: number,
+  ): Promise<number>;
+  findRecentByUser(
+    userId: UserId,
+    limit: number,
+  ): Promise<readonly AuthLoginAttemptEntity[]>;
+  findByIp(
+    ip: LoginAttemptIpVO,
+    sinceEpochMs: number,
+  ): Promise<readonly AuthLoginAttemptEntity[]>;
 }

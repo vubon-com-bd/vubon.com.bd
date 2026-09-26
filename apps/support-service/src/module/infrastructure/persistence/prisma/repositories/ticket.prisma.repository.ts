@@ -1,113 +1,179 @@
+/**
+ * TicketPrismaRepository — Prisma-backed implementation
+ * @module support-service/infrastructure/persistence/prisma/repositories
+ *
+ * Rule: no business logic, only persistence + mapping
+ */
 import { Injectable } from '@nestjs/common';
-import { Ticket as PrismaTicket } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma';
+import { TicketRepository } from '../../../../domain/repositories/ticket.repository.interface';
 import { TicketEntity } from '../../../../domain/entities/ticket.entity';
 import { TicketIdVO } from '../../../../domain/value-objects/primitives/ticket-id.vo';
 import { TicketNumberVO } from '../../../../domain/value-objects/primitives/ticket-number.vo';
-import { TicketSubjectVO } from '../../../../domain/value-objects/primitives/ticket-subject.vo';
-import { TicketDescriptionVO } from '../../../../domain/value-objects/primitives/ticket-description.vo';
 import { TicketStatusVO } from '../../../../domain/value-objects/primitives/ticket-status.vo';
-import { TicketPriorityVO } from '../../../../domain/value-objects/primitives/ticket-priority.vo';
-import { TicketTypeVO } from '../../../../domain/value-objects/primitives/ticket-type.vo';
-import { TicketChannelVO } from '../../../../domain/value-objects/primitives/ticket-channel.vo';
 import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
 import { AgentIdVO } from '../../../../domain/value-objects/primitives/agent-id.vo';
-import type { TicketRepository } from '../../../../domain/repositories/ticket.repository.interface';
+import { TicketMapper } from '../mappers/ticket.mapper';
 
 @Injectable()
-export class TicketPrismaRepository
-  extends BasePrismaRepository<TicketEntity, TicketIdVO>
-  implements TicketRepository
-{
-  constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
-  }
-
-  private toDomain(raw: PrismaTicket): TicketEntity {
-    return TicketEntity.reconstitute(
-      TicketIdVO.create(raw.id),
-      {
-        number: TicketNumberVO.create(raw.number),
-        subject: TicketSubjectVO.create(raw.subject),
-        description: TicketDescriptionVO.create(raw.description),
-        status: TicketStatusVO.create(raw.status),
-        priority: TicketPriorityVO.create(raw.priority),
-        type: TicketTypeVO.create(raw.type),
-        channel: TicketChannelVO.create(raw.channel),
-        userId: UserIdVO.create(raw.userId),
-        assignedAgentId: raw.assignedAgentId ? AgentIdVO.create(raw.assignedAgentId) : null,
-        tags: raw.tags,
-        resolvedAt: raw.resolvedAt,
-        closedAt: raw.closedAt,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      raw.deletedAt?.toISOString() ?? null,
-    );
-  }
+export class TicketPrismaRepository implements TicketRepository {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mapper: TicketMapper,
+  ) {}
 
   async findById(id: TicketIdVO): Promise<TicketEntity | null> {
-    const raw = await this.prisma.ticket.findUnique({ where: { id: id.value } });
-    return raw ? this.toDomain(raw) : null;
+    const raw = await this.prisma.ticket.findUnique({
+      where: { id: id.value, deletedAt: null },
+    });
+    return raw ? this.mapper.toDomain(raw) : null;
   }
 
   async findAll(): Promise<readonly TicketEntity[]> {
-    const rows = await this.prisma.ticket.findMany();
-    return rows.map((r) => this.toDomain(r));
+    const rows = await this.prisma.ticket.findMany({
+      where: { deletedAt: null },
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map((row) => this.mapper.toDomain(row));
   }
 
   async save(entity: TicketEntity): Promise<TicketEntity> {
-    const data = {
-      number: entity.number.value,
-      subject: entity.subject.value,
-      description: entity.description.value,
-      status: entity.status.value,
-      priority: entity.priority.value,
-      type: entity.type.value,
-      channel: entity.channel.value,
-      userId: entity.userId.value,
-      assignedAgentId: entity.assignedAgentId?.value ?? null,
-      tags: [...entity.tags],
-      resolvedAt: entity.resolvedAt,
-      closedAt: entity.closedAt,
-      updatedAt: new Date(),
-      deletedAt: entity.deletedAt ? new Date(entity.deletedAt) : null,
-    };
+    const data = this.mapper.toPersistence(entity);
     const raw = await this.prisma.ticket.upsert({
-      where: { id: entity.id.value },
-      create: { id: entity.id.value, ...data },
-      update: data,
+      where: { id: data.id },
+      create: { ...data, tags: [...data.tags] },
+      update: {
+        subject: data.subject,
+        description: data.description,
+        status: data.status,
+        priority: data.priority,
+        type: data.type,
+        channel: data.channel,
+        categoryId: data.categoryId,
+        assignedAgentId: data.assignedAgentId,
+        orderId: data.orderId,
+        productId: data.productId,
+        tags: [...data.tags],
+        updatedAt: new Date(),
+        resolvedAt: data.resolvedAt,
+        closedAt: data.closedAt,
+        reopenedAt: data.reopenedAt,
+      },
     });
-    return this.toDomain(raw);
+    return this.mapper.toDomain(raw);
   }
 
   async delete(id: TicketIdVO): Promise<void> {
-    await this.prisma.ticket.delete({ where: { id: id.value } });
+    await this.prisma.ticket.update({
+      where: { id: id.value },
+      data: { deletedAt: new Date() },
+    });
+  }
+
+  async exists(id: TicketIdVO): Promise<boolean> {
+    const count = await this.prisma.ticket.count({
+      where: { id: id.value, deletedAt: null },
+    });
+    return count > 0;
   }
 
   async findByNumber(number: TicketNumberVO): Promise<TicketEntity | null> {
-    const raw = await this.prisma.ticket.findUnique({ where: { number: number.value } });
-    return raw ? this.toDomain(raw) : null;
+    const raw = await this.prisma.ticket.findUnique({
+      where: { number: number.value },
+    });
+    return raw ? this.mapper.toDomain(raw) : null;
   }
 
   async findByUser(userId: UserIdVO): Promise<readonly TicketEntity[]> {
-    const rows = await this.prisma.ticket.findMany({ where: { userId: userId.value } });
-    return rows.map((r) => this.toDomain(r));
+    const rows = await this.prisma.ticket.findMany({
+      where: { userId: userId.value, deletedAt: null },
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findByAgent(agentId: AgentIdVO): Promise<readonly TicketEntity[]> {
+    const rows = await this.prisma.ticket.findMany({
+      where: { assignedAgentId: agentId.value, deletedAt: null },
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
   }
 
   async findByStatus(status: TicketStatusVO): Promise<readonly TicketEntity[]> {
-    const rows = await this.prisma.ticket.findMany({ where: { status: status.value } });
-    return rows.map((r) => this.toDomain(r));
-  }
-
-  async findAssignedTo(agentId: AgentIdVO): Promise<readonly TicketEntity[]> {
-    const rows = await this.prisma.ticket.findMany({ where: { assignedAgentId: agentId.value } });
-    return rows.map((r) => this.toDomain(r));
+    const rows = await this.prisma.ticket.findMany({
+      where: { status: status.value, deletedAt: null },
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
   }
 
   async findUnassigned(): Promise<readonly TicketEntity[]> {
-    const rows = await this.prisma.ticket.findMany({ where: { assignedAgentId: null } });
-    return rows.map((r) => this.toDomain(r));
+    const rows = await this.prisma.ticket.findMany({
+      where: { assignedAgentId: null, deletedAt: null },
+      orderBy: { priority: 'desc' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findOpen(): Promise<readonly TicketEntity[]> {
+    const rows = await this.prisma.ticket.findMany({
+      where: {
+        status: { in: ['open', 'pending', 'in_progress', 'on_hold'] },
+        deletedAt: null,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findOverdue(_resolvedBefore: string): Promise<readonly TicketEntity[]> {
+    const rows = await this.prisma.ticket.findMany({
+      where: {
+        status: { in: ['open', 'in_progress'] },
+        deletedAt: null,
+      },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async search(filter: {
+    readonly userId?: UserIdVO;
+    readonly agentId?: AgentIdVO;
+    readonly status?: readonly TicketStatusVO[];
+    readonly from?: string;
+    readonly to?: string;
+  }): Promise<readonly TicketEntity[]> {
+    const rows = await this.prisma.ticket.findMany({
+      where: {
+        deletedAt: null,
+        ...(filter.userId ? { userId: filter.userId.value } : {}),
+        ...(filter.agentId ? { assignedAgentId: filter.agentId.value } : {}),
+        ...(filter.status
+          ? { status: { in: filter.status.map((s) => s.value) } }
+          : {}),
+        ...(filter.from || filter.to
+          ? {
+              createdAt: {
+                ...(filter.from ? { gte: new Date(filter.from) } : {}),
+                ...(filter.to ? { lte: new Date(filter.to) } : {}),
+              },
+            }
+          : {}),
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async countByStatus(status: TicketStatusVO): Promise<number> {
+    return this.prisma.ticket.count({
+      where: { status: status.value, deletedAt: null },
+    });
+  }
+
+  async nextTicketSequence(): Promise<number> {
+    const count = await this.prisma.ticket.count();
+    return count + 1;
   }
 }

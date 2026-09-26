@@ -1,138 +1,75 @@
-import { AggregateRoot } from '@vubon/shared-kernel/domain/base/base.aggregate';
-import { UserIdVO } from '../value-objects/primitives/user-id.vo';
+/**
+ * AuthMfaEntity — MFA configuration for a user (aggregate)
+ * @module auth-service/domain/entities
+ */
+import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
+import type { UserId } from '@vubon/shared-types/common';
 import { MfaSecretVO } from '../value-objects/primitives/mfa-secret.vo';
 import { MfaTypeVO } from '../value-objects/primitives/mfa-type.vo';
 import { MfaStatusVO } from '../value-objects/primitives/mfa-status.vo';
-import {
-  MfaEnabledEvent,
-  MfaDisabledEvent,
-  MfaVerifiedEvent,
-} from '../events/auth-mfa.events';
+import { MfaAlreadyEnabledError } from '../errors/mfa.errors';
 
 export interface AuthMfaEntityProps {
-  readonly userId: UserIdVO;
-  readonly secret: MfaSecretVO;
+  readonly id: string;
+  readonly userId: UserId;
   readonly type: MfaTypeVO;
   readonly status: MfaStatusVO;
-  readonly enabledAt: Date | null;
-  readonly lastVerifiedAt: Date | null;
+  readonly secret?: MfaSecretVO;
+  readonly enrolledAt?: number;
+  readonly verifiedAt?: number;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+  readonly deletedAt?: string | null;
 }
 
-export class AuthMfaEntity extends AggregateRoot<UserIdVO> {
-  private readonly _userId: UserIdVO;
-  private readonly _secret: MfaSecretVO;
-  private readonly _type: MfaTypeVO;
-  private readonly _status: MfaStatusVO;
-  private readonly _enabledAt: Date | null;
-  private readonly _lastVerifiedAt: Date | null;
+export class AuthMfaEntity extends BaseEntity<string> {
+  readonly userId: UserId;
+  private _type: MfaTypeVO;
+  private _status: MfaStatusVO;
+  private _secret?: MfaSecretVO;
+  private _enrolledAt?: number;
+  private _verifiedAt?: number;
 
-  private constructor(
-    id: UserIdVO,
-    props: AuthMfaEntityProps,
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null,
-  ) {
-    super(id, createdAt, updatedAt, deletedAt);
-    this._userId = props.userId;
-    this._secret = props.secret;
+  private constructor(props: AuthMfaEntityProps) {
+    super(props.id, props.createdAt, props.updatedAt, props.deletedAt ?? null);
+    this.userId = props.userId;
     this._type = props.type;
     this._status = props.status;
-    this._enabledAt = props.enabledAt;
-    this._lastVerifiedAt = props.lastVerifiedAt;
+    this._secret = props.secret;
+    this._enrolledAt = props.enrolledAt;
+    this._verifiedAt = props.verifiedAt;
   }
 
   static create(props: AuthMfaEntityProps): AuthMfaEntity {
-    const now = new Date().toISOString();
-    return new AuthMfaEntity(props.userId, props, now, now, null);
+    return new AuthMfaEntity(props);
   }
 
-  static reconstitute(
-    id: UserIdVO,
-    props: AuthMfaEntityProps,
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null,
-  ): AuthMfaEntity {
-    return new AuthMfaEntity(id, props, createdAt, updatedAt, deletedAt);
-  }
-
-  enable(): AuthMfaEntity {
-    const now = new Date();
-    const updated = new AuthMfaEntity(
-      this.id,
-      {
-        ...this._toProps(),
-        status: MfaStatusVO.create('enabled'),
-        enabledAt: now,
-      },
-      this.createdAt,
-      now.toISOString(),
-      this.deletedAt ?? null,
-    );
-    updated.addDomainEvent(
-      new MfaEnabledEvent(
-        this.id.value,
-        this.id.value,
-        this._type.value,
-        this.version + 1,
-      ),
-    );
-    return updated;
-  }
-
-  disable(): AuthMfaEntity {
-    const now = new Date();
-    const updated = new AuthMfaEntity(
-      this.id,
-      { ...this._toProps(), status: MfaStatusVO.create('disabled') },
-      this.createdAt,
-      now.toISOString(),
-      this.deletedAt ?? null,
-    );
-    updated.addDomainEvent(
-      new MfaDisabledEvent(this.id.value, this.id.value, this.version + 1),
-    );
-    return updated;
-  }
-
-  verify(): AuthMfaEntity {
-    const now = new Date();
-    const updated = new AuthMfaEntity(
-      this.id,
-      { ...this._toProps(), lastVerifiedAt: now },
-      this.createdAt,
-      now.toISOString(),
-      this.deletedAt ?? null,
-    );
-    updated.addDomainEvent(
-      new MfaVerifiedEvent(
-        this.id.value,
-        this.id.value,
-        this._type.value,
-        this.version + 1,
-      ),
-    );
-    return updated;
-  }
-
-  get userId(): UserIdVO { return this._userId; }
-  get secret(): MfaSecretVO { return this._secret; }
   get type(): MfaTypeVO { return this._type; }
   get status(): MfaStatusVO { return this._status; }
-  get enabledAt(): Date | null { return this._enabledAt; }
-  get lastVerifiedAt(): Date | null { return this._lastVerifiedAt; }
+  get secret(): MfaSecretVO | undefined { return this._secret; }
 
-  get isEnabled(): boolean { return this._status.value === 'enabled'; }
+  isEnabled(): boolean { return this._status.isActive(); }
 
-  private _toProps(): AuthMfaEntityProps {
-    return {
-      userId: this._userId,
-      secret: this._secret,
-      type: this._type,
-      status: this._status,
-      enabledAt: this._enabledAt,
-      lastVerifiedAt: this._lastVerifiedAt,
-    };
+  beginEnrollment(at: number, secret?: MfaSecretVO): void {
+    if (this.isEnabled()) {
+      throw new MfaAlreadyEnabledError(this.userId);
+    }
+    this._secret = secret;
+    this._enrolledAt = at;
+    this._status = MfaStatusVO.of('pending');
+  }
+
+  confirmEnrollment(at: number): void {
+    if (this._status.value !== 'pending') {
+      throw new Error('MFA not pending enrollment');
+    }
+    this._verifiedAt = at;
+    this._status = MfaStatusVO.enabled();
+  }
+
+  disable(): void {
+    this._status = MfaStatusVO.disabled();
+    this._secret = undefined;
+    this._verifiedAt = undefined;
   }
 }

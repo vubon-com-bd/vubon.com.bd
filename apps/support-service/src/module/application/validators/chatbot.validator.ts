@@ -1,15 +1,25 @@
-import { Injectable } from '@nestjs/common';
+/**
+ * ChatbotValidator — schema-based validation
+ * @module support-service/application/validators
+ */
+import { ApplicationValidationError } from '@vubon/shared-kernel/application/errors/validation.error';
+import { ChatbotMessageSchema } from '@vubon/shared-schemas/support';
 
-@Injectable()
 export class ChatbotValidator {
-  validate(input: unknown): unknown {
-    if (!input || typeof input !== 'object') {
-      throw new Error('Chatbot input must be an object');
+  validateMessage(input: unknown): Readonly<Record<string, unknown>> {
+    const result = ChatbotMessageSchema.safeParse(input);
+    if (!result.success) {
+      const issues = result.error.issues.map((i) => ({
+        field: i.path.join('.') || 'chatbot',
+        message: i.message,
+      }));
+      const first = issues[0];
+      throw new ApplicationValidationError(
+        first?.message ?? 'Invalid chatbot message',
+        first?.field ?? 'chatbot',
+        issues,
+      );
     }
-    const data = input as Record<string, unknown>;
-    if (typeof data.message !== 'string' || data.message.trim().length === 0) {
-      throw new Error('Chatbot message is required');
-    }
-    return input;
+    return result.data;
   }
 }

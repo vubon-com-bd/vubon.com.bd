@@ -1,40 +1,78 @@
-import { BaseDomainEvent, type DomainEventMetadata } from '@vubon/shared-kernel/domain/base/base.event';
-import { toTimestamp } from '@vubon/shared-types/common';
+/**
+ * Ticket Escalation Domain Events
+ * @module support-service/domain/events
+ */
+import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
+import { toTimestamp, type Timestamp } from '@vubon/shared-types/common';
+import { TicketEscalationIdVO } from '../value-objects/primitives/ticket-escalation-id.vo';
+import { TicketIdVO } from '../value-objects/primitives/ticket-id.vo';
+import { TicketEscalationLevelVO } from '../value-objects/primitives/ticket-escalation-level.vo';
 
-const AGGREGATE = 'TicketEscalation';
+interface MetaFields {
+  readonly id: string;
+  readonly aggregateId: string;
+  readonly aggregateType: string;
+  readonly occurredAt: Timestamp;
+  readonly version: number;
+}
+
+const meta = (
+  aggregateId: string,
+  aggregateType: string,
+  version: number,
+  occurredAt: number,
+): MetaFields => ({
+  id: `${aggregateId}-${version}-${occurredAt}`,
+  aggregateId,
+  aggregateType,
+  occurredAt: toTimestamp(occurredAt),
+  version,
+});
+
+export interface TicketEscalatedPayload {
+  readonly ticketId: string;
+  readonly level: string;
+  readonly reason: string;
+}
 
 export class TicketEscalatedEvent extends BaseDomainEvent<
   'support.ticket.escalated',
-  { ticketId: string; level: string; reason: string }
+  TicketEscalatedPayload
 > {
-  constructor(aggregateId: string, ticketId: string, level: string, reason: string, version: number, metadata?: DomainEventMetadata) {
+  constructor(
+    escalationId: TicketEscalationIdVO,
+    ticketId: TicketIdVO,
+    level: TicketEscalationLevelVO,
+    reason: string,
+    occurredAt: number,
+    version = 1,
+  ) {
     super({
-      id: crypto.randomUUID(),
+      ...meta(escalationId.value, 'ticket-escalation', version, occurredAt),
       type: 'support.ticket.escalated',
-      aggregateId,
-      aggregateType: AGGREGATE,
-      payload: { ticketId, level, reason },
-      occurredAt: toTimestamp(Date.now()),
-      version,
-      metadata,
+      payload: { ticketId: ticketId.value, level: level.value, reason },
     });
   }
 }
 
+export interface EscalationResolvedPayload {
+  readonly resolution: string;
+}
+
 export class EscalationResolvedEvent extends BaseDomainEvent<
-  'support.escalation.resolved',
-  { ticketId: string }
+  'support.ticket.escalation_resolved',
+  EscalationResolvedPayload
 > {
-  constructor(aggregateId: string, ticketId: string, version: number, metadata?: DomainEventMetadata) {
+  constructor(
+    escalationId: TicketEscalationIdVO,
+    resolution: string,
+    occurredAt: number,
+    version = 1,
+  ) {
     super({
-      id: crypto.randomUUID(),
-      type: 'support.escalation.resolved',
-      aggregateId,
-      aggregateType: AGGREGATE,
-      payload: { ticketId },
-      occurredAt: toTimestamp(Date.now()),
-      version,
-      metadata,
+      ...meta(escalationId.value, 'ticket-escalation', version, occurredAt),
+      type: 'support.ticket.escalation_resolved',
+      payload: { resolution },
     });
   }
 }

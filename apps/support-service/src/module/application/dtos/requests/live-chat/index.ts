@@ -1,4 +1,6 @@
-export type { StartChatRequestDTO } from './start-chat.dto';
-export type { SendChatMessageRequestDTO } from './send-chat-message.dto';
-export type { TransferChatRequestDTO } from './transfer-chat.dto';
-export type { EndChatRequestDTO } from './end-chat.dto';
+// support-service/application/dtos/requests/live-chat/index.ts
+
+export * from './start-chat.dto';
+export * from './send-chat-message.dto';
+export * from './transfer-chat.dto';
+export * from './end-chat.dto';

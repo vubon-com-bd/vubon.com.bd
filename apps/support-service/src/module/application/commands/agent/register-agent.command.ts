@@ -1,15 +1,14 @@
+/**
+ * RegisterAgentCommand
+ * @module support-service/application/commands/agent
+ */
 import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
+import type { RegisterAgentRequestDTO } from '../../dtos/requests/agent/register-agent.dto';
 
 export class RegisterAgentCommand extends BaseCommand {
   readonly type = 'support.agent.register';
 
-  constructor(
-    public readonly userId: string,
-    public readonly type_: string,
-    public readonly teamId?: string,
-    public readonly skills: readonly string[] = [],
-    public readonly maxLoad?: number,
-  ) {
+  constructor(public readonly payload: RegisterAgentRequestDTO) {
     super();
   }
 }

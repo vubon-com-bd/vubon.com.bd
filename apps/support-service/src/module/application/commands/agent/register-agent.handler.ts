@@ -1,14 +1,16 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+/**
+ * RegisterAgentHandler
+ * @module support-service/application/commands/agent
+ */
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { RegisterAgentCommand } from './register-agent.command';
-import type { AgentServiceInterface } from '../../services/interfaces/agent.service.interface';
 import type { AgentResponseDTO } from '../../dtos/responses/agent-response.dto';
+import type { AgentServiceInterface } from '../../services/interfaces/agent.service.interface';
 
-@CommandHandler(RegisterAgentCommand)
-export class RegisterAgentHandler
-  extends BaseCommandHandler<RegisterAgentCommand, AgentResponseDTO>
-  implements ICommandHandler<RegisterAgentCommand>
-{
+export class RegisterAgentHandler extends BaseCommandHandler<
+  RegisterAgentCommand,
+  AgentResponseDTO
+> {
   readonly commandType = 'support.agent.register';
 
   constructor(private readonly agentService: AgentServiceInterface) {
@@ -16,12 +18,6 @@ export class RegisterAgentHandler
   }
 
   async execute(command: RegisterAgentCommand): Promise<AgentResponseDTO> {
-    return this.agentService.register({
-      userId: command.userId,
-      type: command.type_,
-      teamId: command.teamId,
-      skills: [...command.skills],
-      maxLoad: command.maxLoad,
-    });
+    return this.agentService.register(command.payload);
   }
 }

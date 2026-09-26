@@ -1,22 +1,43 @@
-export type { CreateUserRequestDTO } from './create-user.dto';
-export type { UpdateUserRequestDTO } from './update-user.dto';
-export type { UpdateProfileRequestDTO } from './update-profile.dto';
-export type { UpdateSettingsRequestDTO } from './update-settings.dto';
-export type { UpdatePreferencesRequestDTO } from './update-preferences.dto';
-export type { AddAddressRequestDTO } from './add-address.dto';
-export type { UpdateAddressRequestDTO } from './update-address.dto';
-export type { DeleteAddressRequestDTO } from './delete-address.dto';
-export type { AddContactRequestDTO } from './add-contact.dto';
-export type { UpdateContactRequestDTO } from './update-contact.dto';
-export type { DeleteContactRequestDTO } from './delete-contact.dto';
-export type { SubmitKycRequestDTO } from './submit-kyc.dto';
-export type { VerifyKycRequestDTO } from './verify-kyc.dto';
-export type { RejectKycRequestDTO } from './reject-kyc.dto';
-export type { AssignRoleRequestDTO } from './assign-role.dto';
-export type { RevokeRoleRequestDTO } from './revoke-role.dto';
-export type { AssignPermissionRequestDTO } from './assign-permission.dto';
-export type { RevokePermissionRequestDTO } from './revoke-permission.dto';
-export type { ActivateUserRequestDTO } from './activate-user.dto';
-export type { DeactivateUserRequestDTO } from './deactivate-user.dto';
-export type { SuspendUserRequestDTO } from './suspend-user.dto';
-export type { UnsuspendUserRequestDTO } from './unsuspend-user.dto';
+/**
+ * User Request DTOs — Barrel
+ * @module auth-service/application/dtos/requests/user
+ */
+// Core user
+export * from './create-user.dto';
+export * from './update-user.dto';
+export * from './update-profile.dto';
+export * from './update-settings.dto';
+export * from './update-preferences.dto';
+export * from './change-password.dto';
+export * from './delete-user.dto';
+
+// Address
+export * from './add-address.dto';
+export * from './update-address.dto';
+export * from './delete-address.dto';
+
+// Contact
+export * from './add-contact.dto';
+export * from './update-contact.dto';
+export * from './delete-contact.dto';
+
+// KYC
+export * from './submit-kyc.dto';
+export * from './verify-kyc.dto';
+export * from './reject-kyc.dto';
+
+// Role / permission
+export * from './assign-role.dto';
+export * from './revoke-role.dto';
+export * from './assign-permission.dto';
+export * from './revoke-permission.dto';
+
+// Lifecycle
+export * from './activate-user.dto';
+export * from './deactivate-user.dto';
+export * from './suspend-user.dto';
+export * from './unsuspend-user.dto';
+
+// Verification (admin)
+export * from './verify-user-email.dto';
+export * from './verify-user-phone.dto';

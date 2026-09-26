@@ -1,20 +1,27 @@
+/**
+ * UserController — CRUD
+ * @module auth-service/interfaces/controllers/rest
+ */
 import {
-  Body, Controller, Delete, Get, HttpCode, HttpStatus,
-  Param, Patch, Post, UseGuards,
+  Controller, Get, Post, Put, Delete, Body, Param, Query,
+  HttpCode, HttpStatus, UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard, Permissions } from '@vubon/shared-kernel/interfaces';
-import { PERMISSION } from '@vubon/shared-constants/common';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
+import type { UserId } from '@vubon/shared-types/common';
+
 import { CreateUserCommand } from '../../../application/commands/user/create-user.command';
 import { UpdateUserCommand } from '../../../application/commands/user/update-user.command';
 import { DeleteUserCommand } from '../../../application/commands/user/delete-user.command';
 import { GetUserQuery } from '../../../application/queries/user/get-user.query';
 import { ListUsersQuery } from '../../../application/queries/user/list-users.query';
 import {
-  UserCreateRequestDTO,
-  UserUpdateRequestDTO,
+  CreateUserRequestDTO,
+  UpdateUserRequestDTO,
+  DeleteUserRequestDTO,
 } from '../../dtos/requests/user.request.dto';
+import { UserControllerMapper } from '../../mappers/user.controller.mapper';
 import { UserSwagger } from '../../swagger/user.swagger';
 
 @ApiTags('Users')
@@ -24,66 +31,58 @@ export class UserController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
+    private readonly mapper: UserControllerMapper,
   ) {}
 
   @Post()
-  @Permissions(PERMISSION.USER_CREATE)
+  @HttpCode(HttpStatus.CREATED)
   @UserSwagger.Create()
-  async create(@Body() body: UserCreateRequestDTO): Promise<unknown> {
-    return this.commandBus.execute(
-      new CreateUserCommand(
-        body.email,
-        body.password,
-        body.acceptTerms,
-        body.sendVerificationEmail ?? true,
-        body.type,
-        body.phone,
-        body.role,
-        body.firstName,
-        body.lastName,
-        body.username,
-      ),
+  async create(@Body() body: CreateUserRequestDTO) {
+    const result = await this.commandBus.execute(
+      new CreateUserCommand(body as never),
     );
+    return this.mapper.toResponse(result as never);
   }
 
   @Get()
-  @Permissions(PERMISSION.USER_VIEW)
-  async list(): Promise<unknown> {
-    return this.queryBus.execute(new ListUsersQuery());
-  }
-
-  // ⚠️ IMPORTANT: This route must be AFTER all static sub-routes
-  @Get('id/:id')
-  @Permissions(PERMISSION.USER_VIEW)
-  @UserSwagger.Get()
-  async get(@Param('id') id: string): Promise<unknown> {
-    return this.queryBus.execute(new GetUserQuery(id));
-  }
-
-  @Patch('id/:id')
-  @Permissions(PERMISSION.USER_UPDATE)
-  async update(
-    @Param('id') id: string,
-    @Body() body: UserUpdateRequestDTO,
-  ): Promise<unknown> {
-    return this.commandBus.execute(
-      new UpdateUserCommand(
-        id,
-        body.emailVerified,
-        body.type,
-        body.status,
-        body.phone,
-        body.isMfaEnabled,
-        body.username,
-        body.phoneVerified,
-      ),
+  @UserSwagger.List()
+  async list(@Query('limit') limit?: string, @Query('offset') offset?: string) {
+    const rows = await this.queryBus.execute(
+      new ListUsersQuery(Number(limit) || 50, Number(offset) || 0),
     );
+    return this.mapper.toResponseList(rows as never);
   }
 
-  @Delete('id/:id')
+  @Get(':id')
+  @UserSwagger.Get()
+  async get(@Param('id') id: string) {
+    const result = await this.queryBus.execute(
+      new GetUserQuery(id as UserId),
+    );
+    return this.mapper.toResponse(result as never);
+  }
+
+  @Put(':id')
+  @UserSwagger.Update()
+  async update(@Param('id') id: string, @Body() body: UpdateUserRequestDTO) {
+    const result = await this.commandBus.execute(
+      new UpdateUserCommand(id as UserId, body as never),
+    );
+    return this.mapper.toResponse(result as never);
+  }
+
+  @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Permissions(PERMISSION.USER_DELETE)
-  async delete(@Param('id') id: string): Promise<void> {
-    return this.commandBus.execute(new DeleteUserCommand(id));
+  @UserSwagger.Delete()
+  async remove(
+    @Param('id') id: string,
+    @Body() body: DeleteUserRequestDTO,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new DeleteUserCommand(id as UserId, {
+        reason: body.reason,
+        hardDelete: body.hardDelete ?? false,
+      }),
+    );
   }
 }

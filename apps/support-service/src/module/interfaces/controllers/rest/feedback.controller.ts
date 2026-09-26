@@ -1,67 +1,94 @@
+/**
+ * FeedbackController — HTTP adapter
+ * @module support-service/interfaces/controllers/rest
+ */
 import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiTags } from '@nestjs/swagger';
-import {
-  CurrentUser,
-  JwtAuthGuard,
-  Permissions,
-  type CurrentUserShape,
-} from '@vubon/shared-kernel/interfaces';
-import { PERMISSION } from '@vubon/shared-constants/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard, CurrentUser } from '@vubon/shared-kernel/interfaces';
+
 import { SubmitFeedbackCommand } from '../../../application/commands/feedback/submit-feedback.command';
 import { ReviewFeedbackCommand } from '../../../application/commands/feedback/review-feedback.command';
 import { GetFeedbackQuery } from '../../../application/queries/feedback/get-feedback.query';
-import { ListFeedbackByUserQuery } from '../../../application/queries/feedback/list-feedback-by-user.query';
-import { SubmitFeedbackRequestDto } from '../../dtos/requests/feedback.request.dto';
-import { FeedbackSwagger } from '../../swagger/feedback.swagger';
+import { ListFeedbacksQuery } from '../../../application/queries/feedback/list-feedbacks.query';
+
+import { SubmitFeedbackRequestDTO } from '../../dtos/requests/feedback/submit-feedback.dto';
+import { ReviewFeedbackRequestDTO } from '../../dtos/requests/feedback/review-feedback.dto';
+import { FeedbackResponseDTO } from '../../dtos/responses/feedback-response.dto';
+import { FeedbackControllerMapper } from '../../mappers/feedback.controller.mapper';
 
 @ApiTags('Feedback')
-@Controller('feedback')
-@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+@Controller({ path: 'feedback', version: '1' })
 export class FeedbackController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
+    private readonly mapper: FeedbackControllerMapper,
   ) {}
 
-  @Get()
-  async listMy(@CurrentUser() user: CurrentUserShape): Promise<unknown> {
-    return this.queryBus.execute(new ListFeedbackByUserQuery(user.userId));
-  }
-
-  @Get(':id')
-  @Permissions(PERMISSION.ADMIN_MANAGE)
-  async get(@Param('id') id: string): Promise<unknown> {
-    return this.queryBus.execute(new GetFeedbackQuery(id));
-  }
-
   @Post()
-  @FeedbackSwagger.Submit()
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
   async submit(
-    @CurrentUser() user: CurrentUserShape,
-    @Body() body: SubmitFeedbackRequestDto,
-  ): Promise<unknown> {
-    return this.commandBus.execute(
-      new SubmitFeedbackCommand(user.userId, body.type, body.content),
+    @Body() body: SubmitFeedbackRequestDTO,
+    @CurrentUser('userId') userId: string,
+  ): Promise<FeedbackResponseDTO> {
+    const result = await this.commandBus.execute(
+      new SubmitFeedbackCommand({
+        type: body.type as never,
+        title: body.title,
+        message: body.message,
+        rating: body.rating,
+        attachments: body.attachments,
+        isAnonymous: body.isAnonymous,
+        referenceId: body.referenceId,
+        referenceType: body.referenceType,
+        userId,
+      }),
     );
+    return this.mapper.toResponse(result);
   }
 
   @Post(':id/review')
-  @Permissions(PERMISSION.ADMIN_MANAGE)
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
   async review(
     @Param('id') id: string,
-    @Body() body: { status: string; notes?: string },
-  ): Promise<void> {
-    return this.commandBus.execute(
-      new ReviewFeedbackCommand(id, body.status, body.notes),
+    @Body() body: ReviewFeedbackRequestDTO,
+    @CurrentUser('userId') userId: string,
+  ): Promise<FeedbackResponseDTO> {
+    const result = await this.commandBus.execute(
+      new ReviewFeedbackCommand({
+        feedbackId: id,
+        reviewerId: userId,
+        status: body.status as never,
+        note: body.note,
+      }),
     );
+    return this.mapper.toResponse(result);
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  async findOne(@Param('id') id: string): Promise<FeedbackResponseDTO> {
+    const result = await this.queryBus.execute(new GetFeedbackQuery(id));
+    return this.mapper.toResponse(result);
+  }
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async list(): Promise<readonly FeedbackResponseDTO[]> {
+    const result = await this.queryBus.execute(new ListFeedbacksQuery(1, 20));
+    return result.items.map((item: never) => this.mapper.toResponse(item));
   }
 }

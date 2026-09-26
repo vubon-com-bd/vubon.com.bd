@@ -1,37 +1,37 @@
-import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
+import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { GetAuthSessionQuery } from './get-auth-session.query';
 import type { AuthSessionRepository } from '../../../domain/repositories/auth-session.repository.interface';
 import type { AuthSessionResponseDTO } from '../../dtos/responses/auth-session-response.dto';
-import { SessionNotFoundError } from '../../errors/session.errors';
+import { SessionNotFoundAppError } from '../../errors/session.errors';
+import { AUTH_SESSION_REPO } from '../../tokens';
 
 @QueryHandler(GetAuthSessionQuery)
 export class GetAuthSessionHandler
   extends BaseQueryHandler<GetAuthSessionQuery, AuthSessionResponseDTO>
-  implements IQueryHandler<GetAuthSessionQuery>
-{
-  readonly queryType = 'auth.get-session';
-
-  constructor(@Inject('AuthSessionRepository') private readonly sessionRepo: AuthSessionRepository) {
-    super();
-  }
+  implements IQueryHandler<GetAuthSessionQuery> {
+  readonly queryType = 'GetAuthSessionQuery';
+  constructor(
+    @Inject(AUTH_SESSION_REPO) private readonly repo: AuthSessionRepository,
+  ) { super(); }
 
   async execute(query: GetAuthSessionQuery): Promise<AuthSessionResponseDTO> {
-    const entity = await this.sessionRepo.findById(query.sessionId);
-    if (!entity) {
-      throw new SessionNotFoundError(query.sessionId);
-    }
+    const session = await this.repo.findById(query.sessionId);
+    if (!session) throw new SessionNotFoundAppError(query.sessionId);
+    const now = Date.now();
     return {
-      id: entity.id,
-      status: entity.isActive ? 'active' : 'expired',
-      ipAddress: entity.ip,
-      userAgent: entity.userAgent,
-      deviceId: entity.deviceId ?? undefined,
-      createdAt: entity.createdAt,
-      expiresAt: new Date(entity.expiry.epochMs).toISOString(),
-      lastAccessedAt: entity.updatedAt,
-      isCurrent: false,
+      sessionId: session.id,
+      userId: session.userId,
+      ipAddress: session.ipAddress,
+      userAgent: session.userAgent,
+      deviceId: session.deviceId,
+      createdAt: session.createdAt,
+      expiresAt: session.expiry.toISOString(),
+      revokedAt: session.revokedAt
+        ? new Date(session.revokedAt).toISOString()
+        : undefined,
+      isActive: session.isActive(now),
     };
   }
 }

@@ -1,8 +1,14 @@
+/**
+ * WebSocketModule — wires all gateways
+ * @module support-service/modules/websocket
+ */
 import { Module } from '@nestjs/common';
-import { ChatWebSocketGateway } from '../../infrastructure/websocket';
+import { SupportWebSocketGateway } from '../../infrastructure/websocket/websocket.gateway';
+import { LiveChatModule } from '../live-chat';
 
 @Module({
-  providers: [ChatWebSocketGateway],
-  exports: [ChatWebSocketGateway],
+  imports: [LiveChatModule],
+  providers: [SupportWebSocketGateway],
+  exports: [SupportWebSocketGateway],
 })
 export class WebSocketModule {}

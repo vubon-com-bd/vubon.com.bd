@@ -1,27 +1,39 @@
-export { AuthService } from './auth.service';
-export { AuthSessionService } from './auth-session.service';
-export { AuthTokenService } from './auth-token.service';
-export { AuthMfaService } from './auth-mfa.service';
-export { AuthRecoveryCodeService } from './auth-recovery-code.service';
-export { AuthAccountLockService } from './auth-account-lock.service';
-export { AuthLoginAttemptService } from './auth-login-attempt.service';
-export { AuthDeviceService } from './auth-device.service';
-export { AuthSocialService } from './auth-social.service';
-export { AuthOAuthService } from './auth-oauth.service';
-export { AuthSsoService } from './auth-sso.service';
-export { Auth2FaService } from './auth-2fa.service';
-export { AuthBiometricService } from './auth-biometric.service';
-export { AuthPermissionService } from './auth-permission.service';
-export { AuthRoleService } from './auth-role.service';
-export { AuthSettingsService } from './auth-settings.service';
-export { UserService } from './user.service';
-export { UserProfileService } from './user-profile.service';
-export { UserSettingsService } from './user-settings.service';
-export { UserPreferencesService } from './user-preferences.service';
-export { UserAddressService } from './user-address.service';
-export { UserContactService } from './user-contact.service';
-export { UserVerificationService } from './user-verification.service';
-export { UserKycService } from './user-kyc.service';
-export { UserActivityService } from './user-activity.service';
-export { UserPermissionService } from './user-permission.service';
-export { UserRoleService } from './user-role.service';
+/**
+ * Service Implementations — Barrel
+ * @module auth-service/application/services/impl
+ */
+// Core services
+export * from './auth-token.service';
+export * from './auth-session.service';
+export * from './auth-mfa.service';
+export * from './auth.service';
+export * from './user.service';
+export * from './auth-recovery-code.service';
+export * from './auth-account-lock.service';
+export * from './auth-login-attempt.service';
+
+// Social / OAuth / SSO
+export * from './auth-social.service';
+export * from './auth-oauth.service';
+export * from './auth-sso.service';
+
+// 2FA / Biometric
+export * from './auth-2fa.service';
+export * from './auth-biometric.service';
+
+// Permission / Role / Settings
+export * from './auth-permission.service';
+export * from './auth-role.service';
+export * from './auth-settings.service';
+
+// User services
+export * from './user-profile.service';
+export * from './user-settings.service';
+export * from './user-preferences.service';
+export * from './user-address.service';
+export * from './user-contact.service';
+export * from './user-verification.service';
+export * from './user-kyc.service';
+export * from './user-activity.service';
+export * from './user-permission.service';
+export * from './user-role.service';

@@ -1,9 +1,19 @@
-import { z } from 'zod';
+/**
+ * CreateTeamRequestDTO
+ * @module support-service/application/dtos/requests/team
+ */
+import type {
+  SupportTeamTypeValue,
+  SupportTeamRoutingValue,
+} from '@vubon/shared-types/support';
 
-export const CreateTeamRequestSchema = z.object({
-  name: z.string().min(2).max(100),
-  type: z.string().min(1).max(50),
-  description: z.string().max(500).optional(),
-});
-
-export type CreateTeamRequestDTO = z.infer<typeof CreateTeamRequestSchema>;
+export interface CreateTeamRequestDTO {
+  readonly name: string;
+  readonly description?: string;
+  readonly type: SupportTeamTypeValue;
+  readonly routing?: SupportTeamRoutingValue;
+  readonly leaderId?: string;
+  readonly skills?: readonly string[];
+  readonly categories?: readonly string[];
+  readonly maxTickets?: number;
+}

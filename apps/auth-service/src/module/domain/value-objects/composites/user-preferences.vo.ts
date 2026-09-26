@@ -1,28 +1,45 @@
+/**
+ * UserPreferencesVO — User behavior preferences (non-critical toggles)
+ * @module auth-service/domain/value-objects/composites
+ */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
 import { UserIdVO } from '../primitives/user-id.vo';
 
-export interface UserPreferencesProps {
+export interface UserPreferencesVOProps {
   readonly userId: UserIdVO;
-  readonly marketingEmails: boolean;
-  readonly productUpdates: boolean;
-  readonly orderUpdates: boolean;
-  readonly securityAlerts: boolean;
-  readonly newsletter: boolean;
+  readonly theme: 'light' | 'dark' | 'system';
+  readonly currency: string;
+  readonly dateFormat: string;
+  readonly reduceMotion: boolean;
 }
 
-export class UserPreferencesVO extends BaseVO<UserPreferencesProps> {
-  private constructor(props: UserPreferencesProps) {
-    super(Object.freeze({ ...props }));
+export class UserPreferencesVO extends BaseVO<UserPreferencesVOProps> {
+  private constructor(props: UserPreferencesVOProps) {
+    super(props);
   }
 
-  static create(props: UserPreferencesProps): UserPreferencesVO {
+  static of(props: UserPreferencesVOProps): UserPreferencesVO {
+    if (!['light', 'dark', 'system'].includes(props.theme)) {
+      throw new Error(`Invalid theme: ${props.theme}`);
+    }
+    if (props.currency.length !== 3) {
+      throw new Error('Currency must be ISO 4217 (3 letters)');
+    }
     return new UserPreferencesVO(props);
   }
 
+  static defaults(userId: UserIdVO): UserPreferencesVO {
+    return new UserPreferencesVO({
+      userId,
+      theme: 'system',
+      currency: 'BDT',
+      dateFormat: 'DD/MM/YYYY',
+      reduceMotion: false,
+    });
+  }
+
   get userId(): UserIdVO { return this.value.userId; }
-  get marketingEmails(): boolean { return this.value.marketingEmails; }
-  get productUpdates(): boolean { return this.value.productUpdates; }
-  get orderUpdates(): boolean { return this.value.orderUpdates; }
-  get securityAlerts(): boolean { return this.value.securityAlerts; }
-  get newsletter(): boolean { return this.value.newsletter; }
+  get theme(): 'light' | 'dark' | 'system' { return this.value.theme; }
+
+  isDark(): boolean { return this.value.theme === 'dark'; }
 }

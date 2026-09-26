@@ -1,24 +1,20 @@
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { LogoutCommand } from './logout.command';
 import type { AuthServiceInterface } from '../../services/interfaces/auth.service.interface';
+import { AUTH_SERVICE } from '../../tokens';
 
 @CommandHandler(LogoutCommand)
 export class LogoutHandler
   extends BaseCommandHandler<LogoutCommand, void>
-  implements ICommandHandler<LogoutCommand>
-{
-  readonly commandType = 'auth.logout';
-
+  implements ICommandHandler<LogoutCommand> {
+  readonly commandType = 'LogoutCommand';
   constructor(
-    @Inject('AuthService') private readonly authService: AuthServiceInterface,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
-  }
+    @Inject(AUTH_SERVICE) private readonly authService: AuthServiceInterface,
+  ) { super(); }
 
   async execute(command: LogoutCommand): Promise<void> {
-    await this.authService.logout(command.sessionId);
+    await this.authService.logout(command.input);
   }
 }

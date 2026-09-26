@@ -1,4 +1,8 @@
-export { StartConversationCommand } from './start-conversation.command';
-export { StartConversationHandler } from './start-conversation.handler';
-export { EndConversationCommand } from './end-conversation.command';
-export { EndConversationHandler } from './end-conversation.handler';
+// support-service/application/commands/conversation/index.ts
+
+export * from './start-conversation.command';
+export * from './start-conversation.handler';
+export * from './end-conversation.command';
+export * from './end-conversation.handler';
+export * from './update-conversation.command';
+export * from './update-conversation.handler';

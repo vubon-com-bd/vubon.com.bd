@@ -1,6 +1,8 @@
-export { SendMessageCommand } from './send-message.command';
-export { SendMessageHandler } from './send-message.handler';
-export { MarkMessageReadCommand } from './mark-read.command';
-export { MarkMessageReadHandler } from './mark-read.handler';
-export { AttachFileCommand } from './attach-file.command';
-export { AttachFileHandler } from './attach-file.handler';
+// support-service/application/commands/message/index.ts
+
+export * from './send-message.command';
+export * from './send-message.handler';
+export * from './mark-read.command';
+export * from './mark-read.handler';
+export * from './attach-file.command';
+export * from './attach-file.handler';

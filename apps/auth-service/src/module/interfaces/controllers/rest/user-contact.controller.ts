@@ -1,28 +1,36 @@
+/**
+ * UserContactController
+ * @module auth-service/interfaces/controllers/rest
+ */
 import {
-  Body,
   Controller,
-  Delete,
   Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
   HttpCode,
   HttpStatus,
-  Param,
-  Post,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import {
-  CurrentUser,
-  JwtAuthGuard,
-  type CurrentUserShape,
-} from '@vubon/shared-kernel/interfaces';
-import { AddContactCommand } from '../../../application/commands/user/add-contact.command';
-import { DeleteContactCommand } from '../../../application/commands/user/delete-contact.command';
-import { GetUserContactQuery } from '../../../application/queries/user/get-user-contact.query';
-import { ListUserContactsQuery } from '../../../application/queries/user/list-user-contacts.query';
-import { ContactCreateRequestDTO } from '../../dtos/requests/contact.request.dto';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
+import type { UserId } from '@vubon/shared-types/common';
 
-@ApiTags('Contacts')
+import { AddContactCommand } from '../../../application/commands/user/add-contact.command';
+import { UpdateContactCommand } from '../../../application/commands/user/update-contact.command';
+import { DeleteContactCommand } from '../../../application/commands/user/delete-contact.command';
+import { ListUserContactsQuery } from '../../../application/queries/user/list-user-contacts.query';
+import { GetUserContactQuery } from '../../../application/queries/user/get-user-contact.query';
+import {
+  AddContactRequestDTO,
+  UpdateContactRequestDTO,
+} from '../../dtos/requests/contact.request.dto';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
+
+@ApiTags('Users Contacts')
 @Controller('users/contacts')
 @UseGuards(JwtAuthGuard)
 export class UserContactController {
@@ -32,28 +40,38 @@ export class UserContactController {
   ) {}
 
   @Get()
-  async list(@CurrentUser() user: CurrentUserShape): Promise<unknown> {
-    return this.queryBus.execute(new ListUserContactsQuery(user.userId));
-  }
-
-  @Get(':id')
-  async get(@Param('id') id: string): Promise<unknown> {
-    return this.queryBus.execute(new GetUserContactQuery(id));
+  async list(@CurrentUser() user: AuthenticatedUser) {
+    return this.queryBus.execute(new ListUserContactsQuery(user.id as UserId));
   }
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   async add(
-    @CurrentUser() user: CurrentUserShape,
-    @Body() body: ContactCreateRequestDTO,
-  ): Promise<unknown> {
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: AddContactRequestDTO,
+  ) {
     return this.commandBus.execute(
-      new AddContactCommand(user.userId, body.phone, body.email),
+      new AddContactCommand(user.id as UserId, body as never),
+    );
+  }
+
+  @Get(':id')
+  async get(@Param('id') id: string) {
+    return this.queryBus.execute(new GetUserContactQuery(id));
+  }
+
+  @Put()
+  async update(@Body() body: UpdateContactRequestDTO) {
+    return this.commandBus.execute(
+      new UpdateContactCommand(body as never),
     );
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async delete(@Param('id') id: string): Promise<void> {
-    return this.commandBus.execute(new DeleteContactCommand(id));
+  async remove(@Param('id') id: string): Promise<void> {
+    await this.commandBus.execute(
+      new DeleteContactCommand({ contactId: id }),
+    );
   }
 }

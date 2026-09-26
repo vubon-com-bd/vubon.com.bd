@@ -1,31 +1,20 @@
 /**
- * Domain Layer — Barrel Export
- *
- * Auth-service domain layer complete public API.
- * Pure business logic — framework-free.
+ * Domain Layer — Barrel
+ * @module auth-service/domain
  */
-
-// Errors
 export * from './errors';
-
-// Value Objects
-export * from './value-objects/primitives';
-export * from './value-objects/composites';
-
-// Entities
-export * from './entities';
-
-// Events
-export * from './events';
-
-// Repositories (interfaces only)
+export * from './value-objects';
 export * from './repositories';
-
-// Event Stores (interfaces only)
+export * from './events';
 export * from './event-store';
-
-// Domain Services
 export * from './services';
-
-// Specifications
 export * from './specifications';
+
+// Re-export the colliding names explicitly so TS knows they are the same.
+export type {
+  BiometricKind,
+  KycStatus,
+  KycDocumentType,
+} from './value-objects';
+
+export * from './entities';

@@ -1,22 +1,18 @@
-import { ApiProperty } from '@nestjs/swagger';
-import type { UserKycResponseDTO } from '../../../application/dtos/responses/user-kyc-response.dto';
+/**
+ * KycResponseDTO
+ * @module auth-service/interfaces/dtos/responses
+ */
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class KycResponseDTO implements UserKycResponseDTO {
-  @ApiProperty()
-  success!: true;
-
-  @ApiProperty({
-    type: 'object',
-    properties: {
-      userId: { type: 'string' },
-      status: { type: 'string' },
-      level: { type: 'number' },
-      documents: { type: 'array', items: { type: 'object' } },
-      submittedAt: { type: 'string', nullable: true },
-      reviewedAt: { type: 'string', nullable: true },
-      rejectionReason: { type: 'string', nullable: true },
-      updatedAt: { type: 'string' },
-    },
-  })
-  kyc!: UserKycResponseDTO['kyc'];
+export class KycResponseDTO {
+  @ApiProperty() id!: string;
+  @ApiProperty() userId!: string;
+  @ApiProperty({ enum: ['not_submitted', 'pending', 'approved', 'rejected'] })
+  status!: string;
+  @ApiProperty({ enum: ['nid', 'passport', 'driving_license', 'birth_certificate'] })
+  documentType!: string;
+  @ApiProperty({ example: '****1234' }) documentNumberMasked!: string;
+  @ApiPropertyOptional() submittedAt?: string;
+  @ApiPropertyOptional() reviewedAt?: string;
+  @ApiPropertyOptional() rejectionReason?: string;
 }

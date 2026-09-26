@@ -1,67 +1,47 @@
+/**
+ * AddressRequestDTO
+ * @module auth-service/interfaces/dtos/requests
+ */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class AddressCreateRequestDTO {
-  @ApiProperty({ example: 'home' })
-  type!: string;
+export class AddAddressRequestDTO {
+  @ApiProperty({ default: 'Home' })
+  label!: string;
 
   @ApiProperty()
   line1!: string;
 
-  @ApiProperty()
-  city!: string;
-
-  @ApiProperty()
-  country!: string;
-
-  @ApiProperty({ example: false })
-  isDefault!: boolean;
-
-  @ApiProperty({ example: false })
-  isDefaultShipping!: boolean;
-
-  @ApiProperty({ example: false })
-  isDefaultBilling!: boolean;
-
   @ApiPropertyOptional()
   line2?: string;
 
-  @ApiPropertyOptional()
-  state?: string;
+  @ApiProperty()
+  division!: string;
 
-  @ApiPropertyOptional()
-  postalCode?: string;
+  @ApiProperty()
+  district!: string;
 
-  @ApiPropertyOptional()
-  label?: string;
+  @ApiProperty()
+  upazila!: string;
+
+  @ApiProperty({ pattern: '^\\d{4}$' })
+  postalCode!: string;
+
+  @ApiPropertyOptional({ default: false })
+  isDefault?: boolean;
 }
 
-export class AddressUpdateRequestDTO {
+export class UpdateAddressRequestDTO {
   @ApiPropertyOptional()
   line1?: string;
 
   @ApiPropertyOptional()
-  city?: string;
-
-  @ApiPropertyOptional()
-  country?: string;
-
-  @ApiPropertyOptional()
-  isDefault?: boolean;
-
-  @ApiPropertyOptional()
   line2?: string;
 
   @ApiPropertyOptional()
-  state?: string;
-
-  @ApiPropertyOptional()
-  postalCode?: string;
-
-  @ApiPropertyOptional()
-  label?: string;
+  isDefault?: boolean;
 }
 
-export class AddressDeleteRequestDTO {
-  @ApiProperty()
+export class DeleteAddressRequestDTO {
+  @ApiProperty({ format: 'uuid' })
   addressId!: string;
 }

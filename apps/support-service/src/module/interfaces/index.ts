@@ -1,34 +1,12 @@
-// ═══════════════════════════════════════════════════════
-// Interfaces Layer — Barrel Export
-// ═══════════════════════════════════════════════════════
+// support-service/interfaces/index.ts
+// NOTE: interfaces.module.ts was removed in favor of per-feature modules
+//       under src/module/modules/*
 
-// Controllers
-export * from './controllers/rest';
-export * from './controllers/graphql';
-
-// WebSocket
-export * from './websocket';
-
-// Guards
-export * from './guards';
-
-// Interceptors
-export * from './interceptors';
-
-// Decorators
-export * from './decorators';
-
-// DTOs
+export * from './controllers';
 export * from './dtos';
-
-// Mappers
 export * from './mappers';
-
-// Validators
 export * from './validators';
-
-// Middlewares
-export * from './middlewares';
-
-// Swagger
+export * from './guards';
+export * from './decorators';
+export * from './interceptors';
 export * from './swagger';

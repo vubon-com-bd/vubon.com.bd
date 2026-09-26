@@ -1,9 +1,9 @@
-import { z } from 'zod';
-import { MfaBackupCodeSchema } from '@vubon/shared-schemas/auth';
-
-export const RecoveryCodesResponseSchema = z.object({
-  codes: z.array(MfaBackupCodeSchema),
-  generatedAt: z.string().datetime(),
-});
-
-export type RecoveryCodesResponseDTO = z.infer<typeof RecoveryCodesResponseSchema>;
+/**
+ * RecoveryCodesResponseDTO — Plain codes only returned once at generation
+ * @module auth-service/application/dtos/responses
+ */
+export interface RecoveryCodesResponseDTO {
+  readonly codes: readonly string[];
+  readonly generatedAt: string;
+  readonly expiresAt?: string;
+}

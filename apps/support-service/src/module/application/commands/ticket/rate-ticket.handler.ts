@@ -1,24 +1,23 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+/**
+ * RateTicketHandler
+ * @module support-service/application/commands/ticket
+ */
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { RateTicketCommand } from './rate-ticket.command';
-import type { TicketSatisfactionServiceInterface } from '../../services/interfaces/ticket-satisfaction.service.interface';
+import type { TicketResponseDTO } from '../../dtos/responses/ticket-response.dto';
+import type { TicketServiceInterface } from '../../services/interfaces/ticket.service.interface';
 
-@CommandHandler(RateTicketCommand)
-export class RateTicketHandler
-  extends BaseCommandHandler<RateTicketCommand, { id: string; score: number }>
-  implements ICommandHandler<RateTicketCommand>
-{
+export class RateTicketHandler extends BaseCommandHandler<
+  RateTicketCommand,
+  TicketResponseDTO
+> {
   readonly commandType = 'support.ticket.rate';
 
-  constructor(private readonly satisfactionService: TicketSatisfactionServiceInterface) {
+  constructor(private readonly ticketService: TicketServiceInterface) {
     super();
   }
 
-  async execute(command: RateTicketCommand): Promise<{ id: string; score: number }> {
-    return this.satisfactionService.rate({
-      ticketId: command.ticketId,
-      score: command.score,
-      comment: command.comment,
-    });
+  async execute(command: RateTicketCommand): Promise<TicketResponseDTO> {
+    return this.ticketService.rate(command.payload);
   }
 }

@@ -1,8 +1,11 @@
-import type { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
+/**
+ * UserSettingsRepository
+ * @module auth-service/domain/repositories
+ */
+import { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
+import type { UserId } from '@vubon/shared-types/common';
 import { UserSettingsEntity } from '../entities/user-settings.entity';
-import { UserIdVO } from '../value-objects/primitives/user-id.vo';
 
-export interface UserSettingsRepository
-  extends BaseRepository<UserSettingsEntity, UserIdVO> {
-  findByUserId(userId: UserIdVO): Promise<UserSettingsEntity | null>;
+export interface UserSettingsRepository extends BaseRepository<UserSettingsEntity, UserId> {
+  findByUserId(userId: UserId): Promise<UserSettingsEntity | null>;
 }

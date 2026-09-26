@@ -1,3 +1,7 @@
+/**
+ * GetFeedbackQuery
+ * @module support-service/application/queries/feedback
+ */
 import { BaseQuery } from '@vubon/shared-kernel/application/queries/base.query';
 
 export class GetFeedbackQuery extends BaseQuery {

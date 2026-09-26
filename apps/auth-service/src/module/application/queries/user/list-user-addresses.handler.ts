@@ -1,41 +1,36 @@
-import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
+import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { ListUserAddressesQuery } from './list-user-addresses.query';
 import type { UserAddressRepository } from '../../../domain/repositories/user-address.repository.interface';
 import type { UserAddressResponseDTO } from '../../dtos/responses/user-address-response.dto';
-import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
+import { USER_ADDRESS_REPO } from '../../tokens';
 
 @QueryHandler(ListUserAddressesQuery)
 export class ListUserAddressesHandler
   extends BaseQueryHandler<ListUserAddressesQuery, readonly UserAddressResponseDTO[]>
-  implements IQueryHandler<ListUserAddressesQuery>
-{
-  readonly queryType = 'user.list-addresses';
+  implements IQueryHandler<ListUserAddressesQuery> {
+  readonly queryType = 'ListUserAddressesQuery';
+  constructor(
+    @Inject(USER_ADDRESS_REPO) private readonly repo: UserAddressRepository,
+  ) { super(); }
 
-  constructor(@Inject('UserAddressRepository') private readonly addressRepo: UserAddressRepository) {
-    super();
-  }
-
-  async execute(query: ListUserAddressesQuery): Promise<readonly UserAddressResponseDTO[]> {
-    const entities = await this.addressRepo.findByUserId(UserIdVO.create(query.userId));
-    return entities.map((entity) => ({
-      success: true,
-      address: {
-        id: entity.id.value,
-        userId: entity.userId.value,
-        type: 'home',
-        label: entity.label,
-        line1: entity.addressLine,
-        city: entity.district,
-        state: entity.division,
-        country: 'BD',
-        isDefault: entity.isDefault,
-        isDefaultShipping: entity.isDefault,
-        isDefaultBilling: false,
-        createdAt: entity.createdAt,
-        updatedAt: entity.updatedAt,
-      },
+  async execute(
+    query: ListUserAddressesQuery,
+  ): Promise<readonly UserAddressResponseDTO[]> {
+    const rows = await this.repo.findByUserId(query.userId);
+    return rows.map((a) => ({
+      id: a.id,
+      userId: a.userId,
+      label: a.label,
+      line1: '',
+      division: '',
+      district: '',
+      upazila: '',
+      postalCode: a.postalCode,
+      isDefault: a.isDefault,
+      createdAt: a.createdAt,
+      updatedAt: a.updatedAt,
     }));
   }
 }

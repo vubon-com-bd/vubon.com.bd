@@ -1,22 +1,10 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import type { SsoLoginResponseDTO } from '../../../application/dtos/responses/sso-login-response.dto';
+/**
+ * SsoResponseDTO
+ * @module auth-service/interfaces/dtos/responses
+ */
+import { ApiProperty } from '@nestjs/swagger';
+import { AuthResponseDTO } from './auth.response.dto';
 
-export class SsoLoginResponseDTO_ implements SsoLoginResponseDTO {
-  @ApiProperty()
-  success!: boolean;
-
-  @ApiProperty()
-  isNewUser!: boolean;
-
-  @ApiPropertyOptional()
-  userId?: string;
-
-  @ApiPropertyOptional()
-  sessionId?: string;
-
-  @ApiPropertyOptional()
-  error?: string;
-
-  @ApiPropertyOptional()
-  attributes?: Record<string, string>;
+export class SsoLoginResponseDTO extends AuthResponseDTO {
+  @ApiProperty() tenantId!: string;
 }

@@ -1,29 +1,36 @@
-import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
+import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { GetAuthRecoveryCodesQuery } from './get-auth-recovery-codes.query';
 import type { AuthRecoveryCodeRepository } from '../../../domain/repositories/auth-recovery-code.repository.interface';
-import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
+import { AUTH_RECOVERY_CODE_REPO } from '../../tokens';
 
-export interface RecoveryCodesStatusView {
-  readonly total: number;
-  readonly remaining: number;
+export interface RecoveryCodeSummaryDTO {
+  readonly id: string;
+  readonly masked: string;
+  readonly status: string;
+  readonly createdAt: string;
 }
 
 @QueryHandler(GetAuthRecoveryCodesQuery)
 export class GetAuthRecoveryCodesHandler
-  extends BaseQueryHandler<GetAuthRecoveryCodesQuery, RecoveryCodesStatusView>
-  implements IQueryHandler<GetAuthRecoveryCodesQuery>
-{
-  readonly queryType = 'auth.get-recovery-codes';
+  extends BaseQueryHandler<GetAuthRecoveryCodesQuery, readonly RecoveryCodeSummaryDTO[]>
+  implements IQueryHandler<GetAuthRecoveryCodesQuery> {
+  readonly queryType = 'GetAuthRecoveryCodesQuery';
+  constructor(
+    @Inject(AUTH_RECOVERY_CODE_REPO)
+    private readonly repo: AuthRecoveryCodeRepository,
+  ) { super(); }
 
-  constructor(@Inject('AuthRecoveryCodeRepository') private readonly recoveryRepo: AuthRecoveryCodeRepository) {
-    super();
-  }
-
-  async execute(query: GetAuthRecoveryCodesQuery): Promise<RecoveryCodesStatusView> {
-    const all = await this.recoveryRepo.findByUserId(UserIdVO.create(query.userId));
-    const remaining = all.filter((c) => !c.isUsed).length;
-    return { total: all.length, remaining };
+  async execute(
+    query: GetAuthRecoveryCodesQuery,
+  ): Promise<readonly RecoveryCodeSummaryDTO[]> {
+    const codes = await this.repo.findByUserId(query.userId);
+    return codes.map((c) => ({
+      id: c.id,
+      masked: c.code.masked,
+      status: c.status.value,
+      createdAt: c.createdAt,
+    }));
   }
 }

@@ -1,30 +1,23 @@
-import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
+/**
+ * ListSurveysHandler
+ * @module support-service/application/queries/survey
+ */
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { ListSurveysQuery } from './list-surveys.query';
-import type { SurveyRepository } from '../../../domain/repositories/survey.repository.interface';
-import type { SurveyResponseDTO } from '../../dtos/responses/survey-response.dto';
+import type { SurveyListResponseDTO } from '../../dtos/responses/survey-list-response.dto';
+import type { SurveyServiceInterface } from '../../services/interfaces/survey.service.interface';
 
-@QueryHandler(ListSurveysQuery)
-export class ListSurveysHandler
-  extends BaseQueryHandler<ListSurveysQuery, readonly SurveyResponseDTO[]>
-  implements IQueryHandler<ListSurveysQuery>
-{
+export class ListSurveysHandler extends BaseQueryHandler<
+  ListSurveysQuery,
+  SurveyListResponseDTO
+> {
   readonly queryType = 'support.survey.list';
 
-  constructor(private readonly surveyRepo: SurveyRepository) {
+  constructor(private readonly surveyService: SurveyServiceInterface) {
     super();
   }
 
-  async execute(_query: ListSurveysQuery): Promise<readonly SurveyResponseDTO[]> {
-    const surveys = await this.surveyRepo.findAll();
-    return surveys.map((s) => ({
-      id: s.id.value,
-      title: s.title,
-      type: s.type.value,
-      status: s.status.value,
-      questions: s.questions,
-      createdAt: s.createdAt,
-      updatedAt: s.updatedAt,
-    }));
+  async execute(query: ListSurveysQuery): Promise<SurveyListResponseDTO> {
+    return this.surveyService.list(query.page, query.limit);
   }
 }

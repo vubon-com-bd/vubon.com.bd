@@ -1,11 +1,13 @@
-import { ApiProperty } from '@nestjs/swagger';
+/**
+ * TokenRequestDTO
+ * @module auth-service/interfaces/dtos/requests
+ */
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class TokenListByUserRequestDTO {
-  @ApiProperty()
-  userId!: string;
-}
+export class TokenRequestDTO {
+  @ApiProperty({ example: 'refresh-token-value' })
+  refreshToken!: string;
 
-export class TokenRevokeRequestDTO {
-  @ApiProperty()
-  tokenId!: string;
+  @ApiPropertyOptional({ example: 'device-uuid' })
+  deviceId?: string;
 }

@@ -1,26 +1,43 @@
+/**
+ * PermissionActionVO — Action segment of a permission
+ * @module auth-service/domain/value-objects/primitives
+ */
 import { BaseCodeVO } from '@vubon/shared-kernel/domain/primitives/code.vo';
 
-const VALID = new Set<string>([
-  'view',
-  'create',
-  'update',
-  'delete',
-  'manage',
-  'export',
-  'refund',
-  'cancel',
+export type PermissionActionValue =
+  | 'view'
+  | 'create'
+  | 'update'
+  | 'delete'
+  | 'manage'
+  | 'approve'
+  | 'export'
+  | 'process'
+  | 'refund'
+  | 'cancel'
+  | 'assign'
+  | '*';
+
+const ALLOWED: ReadonlySet<string> = new Set<string>([
+  'view', 'create', 'update', 'delete', 'manage',
+  'approve', 'export', 'process', 'refund',
+  'cancel', 'assign', '*',
 ]);
 
 export class PermissionActionVO extends BaseCodeVO {
-  private constructor(value: string) {
+  private constructor(value: PermissionActionValue) {
     super(value);
   }
 
-  static create(raw: string): PermissionActionVO {
-    BaseCodeVO.validateNonEmpty(raw, 'PermissionAction');
-    if (!VALID.has(raw)) {
-      throw new Error(`Invalid permission action: ${raw}`);
+  static of(raw: string): PermissionActionVO {
+    const lower = raw.trim().toLowerCase();
+    if (!ALLOWED.has(lower)) {
+      throw new Error(`Unknown permission action: ${raw}`);
     }
-    return new PermissionActionVO(raw);
+    return new PermissionActionVO(lower as PermissionActionValue);
+  }
+
+  isWrite(): boolean {
+    return this.value !== 'view' && this.value !== 'export' && this.value !== '*';
   }
 }

@@ -1,9 +1,24 @@
+/**
+ * AssignRoleRequest DTO — inline
+ * @module auth-service/application/dtos/requests/user
+ */
 import { z } from 'zod';
-import { UserRoleSchema } from '@vubon/shared-schemas/user';
+import { UuidSchema } from '@vubon/shared-schemas/common';
+import { AuthRoleSchema } from '@vubon/shared-schemas/auth';
 
-export const AssignRoleRequestSchema = z.object({
-  userId: z.string().min(1),
-  role: UserRoleSchema,
-});
+export const AssignRoleSchema = z
+  .object({
+    userId: UuidSchema,
+    role: AuthRoleSchema,
+    expiresAt: z.string().datetime().optional(),
+    note: z.string().max(500).optional(),
+  })
+  .strict();
 
-export type AssignRoleRequestDTO = z.infer<typeof AssignRoleRequestSchema>;
+export type AssignRoleRequestDTO = z.infer<typeof AssignRoleSchema>;
+
+export function validateAssignRoleRequest(
+  input: unknown,
+): AssignRoleRequestDTO {
+  return AssignRoleSchema.parse(input);
+}

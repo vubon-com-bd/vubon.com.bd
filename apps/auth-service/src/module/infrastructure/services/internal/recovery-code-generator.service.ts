@@ -1,20 +1,66 @@
+/**
+ * RecoveryCodeGeneratorService — generates & hashes recovery codes
+ * @module auth-service/infrastructure/services/internal
+ */
 import { Injectable } from '@nestjs/common';
-import { randomBytes } from 'node:crypto';
-import type { RecoveryCodeGeneratorPort } from '../../../application/ports/recovery-code-generator.port';
+import { randomBytes, createHash, timingSafeEqual } from 'node:crypto';
+import * as bcrypt from 'bcryptjs';
+import type { RecoveryCodeGeneratorServiceInterface } from '../../../application/services/interfaces/recovery-code-generator.service.interface';
+
+const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I
+const BLOCK = 4;
+const BLOCKS = 2;
+const BCRYPT_ROUNDS = 10;
 
 @Injectable()
-export class RecoveryCodeGeneratorService implements RecoveryCodeGeneratorPort {
-  generate(count: number): readonly string[] {
-    const codes: string[] = [];
-    for (let i = 0; i < count; i++) {
-      const raw = randomBytes(6).toString('hex').toUpperCase();
-      const formatted = `${raw.slice(0, 4)}-${raw.slice(4, 8)}-${raw.slice(8, 12)}`;
-      codes.push(formatted);
+export class RecoveryCodeGeneratorService
+  implements RecoveryCodeGeneratorServiceInterface {
+  readonly name = 'RecoveryCodeGeneratorService';
+
+  async generate(count: number): Promise<readonly string[]> {
+    const set = new Set<string>();
+    while (set.size < count) {
+      set.add(RecoveryCodeGeneratorService.randomCode());
     }
-    return codes;
+    return Array.from(set);
   }
 
-  normalize(code: string): string {
-    return code.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+  async hash(code: string): Promise<string> {
+    return bcrypt.hash(RecoveryCodeGeneratorService.normalize(code), BCRYPT_ROUNDS);
+  }
+
+  async verify(code: string, hash: string): Promise<boolean> {
+    if (!code || !hash) return false;
+    try {
+      return await bcrypt.compare(RecoveryCodeGeneratorService.normalize(code), hash);
+    } catch {
+      return false;
+    }
+  }
+
+  // ---------- internals ----------
+
+  private static randomCode(): string {
+    const groups: string[] = [];
+    for (let g = 0; g < BLOCKS; g += 1) {
+      const bytes = randomBytes(BLOCK);
+      let block = '';
+      for (const b of bytes) {
+        block += ALPHABET[b % ALPHABET.length];
+      }
+      groups.push(block);
+    }
+    return groups.join('-');
+  }
+
+  private static normalize(code: string): string {
+    return code.trim().toUpperCase().replace(/\s/g, '');
+  }
+
+  /** Reserved — used by callers comparing timing-safe. */
+  static constantTimeEquals(a: string, b: string): boolean {
+    const ha = createHash('sha256').update(a).digest();
+    const hb = createHash('sha256').update(b).digest();
+    return timingSafeEqual(ha, hb);
   }
 }

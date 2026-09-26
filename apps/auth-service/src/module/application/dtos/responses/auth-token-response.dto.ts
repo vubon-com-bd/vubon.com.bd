@@ -1,17 +1,12 @@
-import { z } from 'zod';
-
 /**
- * Auth Token Response DTO
- *
- * Note: shared-schemas-এ dedicated AuthTokenPairSchema নেই।
- * তাই এখানে inline define করা হলো।
+ * AuthTokenResponseDTO — Issued token bundle (only sent once)
+ * @module auth-service/application/dtos/responses
  */
-export const AuthTokenResponseSchema = z.object({
-  accessToken: z.string().min(1),
-  refreshToken: z.string().min(1),
-  accessExpiresAt: z.number().int().positive(),
-  refreshExpiresAt: z.number().int().positive(),
-  tokenType: z.literal('Bearer').default('Bearer'),
-});
-
-export type AuthTokenResponseDTO = z.infer<typeof AuthTokenResponseSchema>;
+export interface AuthTokenResponseDTO {
+  readonly accessToken: string;
+  readonly refreshToken: string;
+  readonly tokenType: 'Bearer';
+  readonly expiresIn: number;       // seconds
+  readonly expiresAt: number;       // epoch ms
+  readonly scope?: string;
+}

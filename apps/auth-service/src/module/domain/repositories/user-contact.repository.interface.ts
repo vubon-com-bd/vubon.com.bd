@@ -1,8 +1,12 @@
-import type { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
+/**
+ * UserContactRepository
+ * @module auth-service/domain/repositories
+ */
+import { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
+import type { UserId } from '@vubon/shared-types/common';
 import { UserContactEntity } from '../entities/user-contact.entity';
-import { UserIdVO } from '../value-objects/primitives/user-id.vo';
 
-export interface UserContactRepository
-  extends BaseRepository<UserContactEntity, UserIdVO> {
-  findByUserId(userId: UserIdVO): Promise<UserContactEntity | null>;
+export interface UserContactRepository extends BaseRepository<UserContactEntity, string> {
+  findByUserId(userId: UserId): Promise<readonly UserContactEntity[]>;
+  findVerifiedByUserId(userId: UserId): Promise<readonly UserContactEntity[]>;
 }

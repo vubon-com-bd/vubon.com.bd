@@ -1,100 +1,193 @@
-import {
-  BaseDomainEvent,
-  type DomainEventMetadata,
-} from '@vubon/shared-kernel/domain/base/base.event';
-import { toTimestamp } from '@vubon/shared-types/common';
+/**
+ * Ticket Domain Events
+ * @module support-service/domain/events
+ */
+import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
+import { toTimestamp, type Timestamp } from '@vubon/shared-types/common';
+import { TicketIdVO } from '../value-objects/primitives/ticket-id.vo';
+import { TicketStatusVO } from '../value-objects/primitives/ticket-status.vo';
+import { TicketPriorityVO } from '../value-objects/primitives/ticket-priority.vo';
+import { UserIdVO } from '../value-objects/primitives/user-id.vo';
+import { AgentIdVO } from '../value-objects/primitives/agent-id.vo';
 
-const AGGREGATE = 'Ticket';
+interface MetaFields {
+  readonly id: string;
+  readonly aggregateId: string;
+  readonly aggregateType: string;
+  readonly occurredAt: Timestamp;
+  readonly version: number;
+}
+
+const meta = (
+  aggregateId: string,
+  aggregateType: string,
+  version: number,
+  occurredAt: number,
+): MetaFields => ({
+  id: `${aggregateId}-${version}-${occurredAt}`,
+  aggregateId,
+  aggregateType,
+  occurredAt: toTimestamp(occurredAt),
+  version,
+});
+
+export interface TicketCreatedPayload {
+  readonly userId: string;
+  readonly priority: string;
+  readonly status: string;
+}
 
 export class TicketCreatedEvent extends BaseDomainEvent<
   'support.ticket.created',
-  { ticketId: string; userId: string; priority: string }
+  TicketCreatedPayload
 > {
   constructor(
-    aggregateId: string,
-    userId: string,
-    priority: string,
-    version: number,
-    metadata?: DomainEventMetadata,
+    public readonly ticketId: TicketIdVO,
+    userId: UserIdVO,
+    priority: TicketPriorityVO,
+    status: TicketStatusVO,
+    occurredAt: number,
+    version = 1,
   ) {
     super({
-      id: crypto.randomUUID(),
+      ...meta(ticketId.value, 'ticket', version, occurredAt),
       type: 'support.ticket.created',
-      aggregateId,
-      aggregateType: AGGREGATE,
-      payload: { ticketId: aggregateId, userId, priority },
-      occurredAt: toTimestamp(Date.now()),
-      version,
-      metadata,
+      payload: {
+        userId: userId.value,
+        priority: priority.value,
+        status: status.value,
+      },
     });
   }
 }
 
+export interface TicketUpdatedPayload {
+  readonly fields: readonly string[];
+}
+
 export class TicketUpdatedEvent extends BaseDomainEvent<
   'support.ticket.updated',
-  { ticketId: string; fields: readonly string[] }
+  TicketUpdatedPayload
 > {
   constructor(
-    aggregateId: string,
+    ticketId: TicketIdVO,
     fields: readonly string[],
-    version: number,
-    metadata?: DomainEventMetadata,
+    occurredAt: number,
+    version = 1,
   ) {
     super({
-      id: crypto.randomUUID(),
+      ...meta(ticketId.value, 'ticket', version, occurredAt),
       type: 'support.ticket.updated',
-      aggregateId,
-      aggregateType: AGGREGATE,
-      payload: { ticketId: aggregateId, fields },
-      occurredAt: toTimestamp(Date.now()),
-      version,
-      metadata,
+      payload: { fields: [...fields] },
+    });
+  }
+}
+
+export interface TicketAssignedPayload {
+  readonly agentId: string;
+}
+
+export class TicketAssignedEvent extends BaseDomainEvent<
+  'support.ticket.assigned',
+  TicketAssignedPayload
+> {
+  constructor(
+    ticketId: TicketIdVO,
+    agentId: AgentIdVO,
+    occurredAt: number,
+    version = 1,
+  ) {
+    super({
+      ...meta(ticketId.value, 'ticket', version, occurredAt),
+      type: 'support.ticket.assigned',
+      payload: { agentId: agentId.value },
+    });
+  }
+}
+
+export interface TicketStatusChangedPayload {
+  readonly from: string;
+  readonly to: string;
+}
+
+export class TicketStatusChangedEvent extends BaseDomainEvent<
+  'support.ticket.status_changed',
+  TicketStatusChangedPayload
+> {
+  constructor(
+    ticketId: TicketIdVO,
+    from: TicketStatusVO,
+    to: TicketStatusVO,
+    occurredAt: number,
+    version = 1,
+  ) {
+    super({
+      ...meta(ticketId.value, 'ticket', version, occurredAt),
+      type: 'support.ticket.status_changed',
+      payload: { from: from.value, to: to.value },
+    });
+  }
+}
+
+export interface TicketPriorityChangedPayload {
+  readonly from: string;
+  readonly to: string;
+}
+
+export class TicketPriorityChangedEvent extends BaseDomainEvent<
+  'support.ticket.priority_changed',
+  TicketPriorityChangedPayload
+> {
+  constructor(
+    ticketId: TicketIdVO,
+    from: TicketPriorityVO,
+    to: TicketPriorityVO,
+    occurredAt: number,
+    version = 1,
+  ) {
+    super({
+      ...meta(ticketId.value, 'ticket', version, occurredAt),
+      type: 'support.ticket.priority_changed',
+      payload: { from: from.value, to: to.value },
     });
   }
 }
 
 export class TicketResolvedEvent extends BaseDomainEvent<
   'support.ticket.resolved',
-  { ticketId: string; userId: string }
+  { readonly resolvedAt: number }
 > {
-  constructor(
-    aggregateId: string,
-    userId: string,
-    version: number,
-    metadata?: DomainEventMetadata,
-  ) {
+  constructor(ticketId: TicketIdVO, occurredAt: number, version = 1) {
     super({
-      id: crypto.randomUUID(),
+      ...meta(ticketId.value, 'ticket', version, occurredAt),
       type: 'support.ticket.resolved',
-      aggregateId,
-      aggregateType: AGGREGATE,
-      payload: { ticketId: aggregateId, userId },
-      occurredAt: toTimestamp(Date.now()),
-      version,
-      metadata,
+      payload: { resolvedAt: occurredAt },
     });
   }
 }
 
 export class TicketClosedEvent extends BaseDomainEvent<
   'support.ticket.closed',
-  { ticketId: string; userId: string }
+  { readonly closedAt: number }
 > {
-  constructor(
-    aggregateId: string,
-    userId: string,
-    version: number,
-    metadata?: DomainEventMetadata,
-  ) {
+  constructor(ticketId: TicketIdVO, occurredAt: number, version = 1) {
     super({
-      id: crypto.randomUUID(),
+      ...meta(ticketId.value, 'ticket', version, occurredAt),
       type: 'support.ticket.closed',
-      aggregateId,
-      aggregateType: AGGREGATE,
-      payload: { ticketId: aggregateId, userId },
-      occurredAt: toTimestamp(Date.now()),
-      version,
-      metadata,
+      payload: { closedAt: occurredAt },
+    });
+  }
+}
+
+export class TicketReopenedEvent extends BaseDomainEvent<
+  'support.ticket.reopened',
+  { readonly reopenedAt: number }
+> {
+  constructor(ticketId: TicketIdVO, occurredAt: number, version = 1) {
+    super({
+      ...meta(ticketId.value, 'ticket', version, occurredAt),
+      type: 'support.ticket.reopened',
+      payload: { reopenedAt: occurredAt },
     });
   }
 }

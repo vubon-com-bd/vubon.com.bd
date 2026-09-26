@@ -1,4 +1,12 @@
-import { z } from 'zod';
-import { ProfileResponseSchema } from '@vubon/shared-schemas/user';
-
-export type UserProfileResponseDTO = z.infer<typeof ProfileResponseSchema>;
+/**
+ * UserProfileResponseDTO
+ * @module auth-service/application/dtos/responses
+ */
+export interface UserProfileResponseDTO {
+  readonly userId: string;
+  readonly displayName: string;
+  readonly bio?: string;
+  readonly avatarUrl?: string;
+  readonly locale: string;
+  readonly updatedAt: string;
+}

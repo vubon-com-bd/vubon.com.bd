@@ -1,14 +1,16 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+/**
+ * SubmitFeedbackHandler
+ * @module support-service/application/commands/feedback
+ */
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { SubmitFeedbackCommand } from './submit-feedback.command';
-import type { FeedbackServiceInterface } from '../../services/interfaces/feedback.service.interface';
 import type { FeedbackResponseDTO } from '../../dtos/responses/feedback-response.dto';
+import type { FeedbackServiceInterface } from '../../services/interfaces/feedback.service.interface';
 
-@CommandHandler(SubmitFeedbackCommand)
-export class SubmitFeedbackHandler
-  extends BaseCommandHandler<SubmitFeedbackCommand, FeedbackResponseDTO>
-  implements ICommandHandler<SubmitFeedbackCommand>
-{
+export class SubmitFeedbackHandler extends BaseCommandHandler<
+  SubmitFeedbackCommand,
+  FeedbackResponseDTO
+> {
   readonly commandType = 'support.feedback.submit';
 
   constructor(private readonly feedbackService: FeedbackServiceInterface) {
@@ -16,10 +18,6 @@ export class SubmitFeedbackHandler
   }
 
   async execute(command: SubmitFeedbackCommand): Promise<FeedbackResponseDTO> {
-    return this.feedbackService.submit({
-      userId: command.userId,
-      type: command.type_,
-      content: command.content,
-    });
+    return this.feedbackService.submit(command.payload);
   }
 }

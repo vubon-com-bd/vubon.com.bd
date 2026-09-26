@@ -1,62 +1,48 @@
+/**
+ * AuthAccountLockCacheRepository
+ * @module auth-service/infrastructure/persistence/cache/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { BaseCacheRepository, RedisService } from '@vubon/shared-kernel/infrastructure';
+import { RedisService } from '@vubon/shared-kernel/infrastructure/persistence/cache/redis.service';
+import { BaseCacheRepository } from '@vubon/shared-kernel/infrastructure/persistence/cache/base.cache.repository';
+import { CACHE_TTL } from '@vubon/shared-constants/infrastructure';
+import type { UserId } from '@vubon/shared-types/common';
 import { AuthAccountLockEntity } from '../../../../domain/entities/auth-account-lock.entity';
-import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
 import { AccountLockReasonVO } from '../../../../domain/value-objects/primitives/account-lock-reason.vo';
 import { AccountLockDurationVO } from '../../../../domain/value-objects/primitives/account-lock-duration.vo';
 
-interface SerializedLock {
+interface CachedLock {
+  readonly id: string;
   readonly userId: string;
   readonly reason: string;
-  readonly duration: string;
-  readonly lockedAt: string;
-  readonly unlockedAt: string | null;
+  readonly lockedAt: number;
+  readonly durationMs: number | null;
+  readonly unlockedAt: number | null;
   readonly createdAt: string;
   readonly updatedAt: string;
-  readonly deletedAt: string | null;
 }
 
-const PREFIX = 'auth:account-lock';
-const TTL_SECONDS = 60 * 15; // 15 minutes
-
 @Injectable()
-export class AuthAccountLockCacheRepository extends BaseCacheRepository<AuthAccountLockEntity, UserIdVO> {
+export class AuthAccountLockCacheRepository extends BaseCacheRepository<
+  AuthAccountLockEntity,
+  string
+> {
+  private static readonly PREFIX = 'cache:account-lock';
+
   constructor(redis: RedisService) {
-    super(redis, PREFIX, TTL_SECONDS);
+    super(redis, AuthAccountLockCacheRepository.PREFIX, CACHE_TTL.FIVE_MINUTES);
   }
 
-  private serialize(entity: AuthAccountLockEntity): SerializedLock {
-    return {
-      userId: entity.userId.value,
-      reason: entity.reason.value,
-      duration: new Date(entity.duration.epochMs).toISOString(),
-      lockedAt: entity.lockedAt.toISOString(),
-      unlockedAt: entity.unlockedAt?.toISOString() ?? null,
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
-      deletedAt: entity.deletedAt ?? null,
-    };
+  async findById(id: string): Promise<AuthAccountLockEntity | null> {
+    const cached = await this.redis.get<CachedLock>(this.keyFor(id));
+    return cached ? this.toDomain(cached) : null;
   }
 
-  private deserialize(data: SerializedLock): AuthAccountLockEntity {
-    return AuthAccountLockEntity.reconstitute(
-      UserIdVO.create(data.userId),
-      {
-        userId: UserIdVO.create(data.userId),
-        reason: AccountLockReasonVO.create(data.reason),
-        duration: AccountLockDurationVO.create(new Date(data.duration)),
-        lockedAt: new Date(data.lockedAt),
-        unlockedAt: data.unlockedAt ? new Date(data.unlockedAt) : null,
-      },
-      data.createdAt,
-      data.updatedAt,
-      data.deletedAt,
+  async findByUserId(userId: UserId): Promise<AuthAccountLockEntity | null> {
+    const cached = await this.redis.get<CachedLock>(
+      `${AuthAccountLockCacheRepository.PREFIX}:user:${userId}`,
     );
-  }
-
-  async findById(id: UserIdVO): Promise<AuthAccountLockEntity | null> {
-    const raw = await this.redis.get<SerializedLock>(this.keyFor(id));
-    return raw ? this.deserialize(raw) : null;
+    return cached ? this.toDomain(cached) : null;
   }
 
   async findAll(): Promise<readonly AuthAccountLockEntity[]> {
@@ -64,18 +50,49 @@ export class AuthAccountLockCacheRepository extends BaseCacheRepository<AuthAcco
   }
 
   async save(entity: AuthAccountLockEntity): Promise<AuthAccountLockEntity> {
-    await this.redis.set(this.keyFor(entity.userId), this.serialize(entity), TTL_SECONDS);
+    const snapshot = this.serialize(entity);
+    await this.redis.set(this.keyFor(entity.id), snapshot, CACHE_TTL.FIVE_MINUTES);
+    await this.redis.set(
+      `${AuthAccountLockCacheRepository.PREFIX}:user:${entity.userId}`,
+      snapshot,
+      CACHE_TTL.FIVE_MINUTES,
+    );
     return entity;
   }
 
-  async delete(id: UserIdVO): Promise<void> {
+  async delete(id: string): Promise<void> {
+    const cached = await this.redis.get<CachedLock>(this.keyFor(id));
     await this.redis.del(this.keyFor(id));
+    if (cached) {
+      await this.redis.del(`${AuthAccountLockCacheRepository.PREFIX}:user:${cached.userId}`);
+    }
   }
 
-  async findActiveByUser(userId: UserIdVO): Promise<AuthAccountLockEntity | null> {
-    const raw = await this.redis.get<SerializedLock>(this.keyFor(userId));
-    if (!raw) return null;
-    const entity = this.deserialize(raw);
-    return entity.isActive ? entity : null;
+  private serialize(entity: AuthAccountLockEntity): CachedLock {
+    return {
+      id: entity.id,
+      userId: entity.userId,
+      reason: entity.reason.value,
+      lockedAt: entity.lockedAt,
+      durationMs: entity.duration?.value ?? null,
+      unlockedAt: entity.unlockedAt ?? null,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    };
+  }
+
+  private toDomain(raw: CachedLock): AuthAccountLockEntity {
+    return AuthAccountLockEntity.create({
+      id: raw.id,
+      userId: raw.userId as UserId,
+      reason: AccountLockReasonVO.of(raw.reason),
+      lockedAt: raw.lockedAt,
+      duration: raw.durationMs ? AccountLockDurationVO.ofMs(raw.durationMs) : undefined,
+      unlockedAt: raw.unlockedAt ?? undefined,
+      unlockedBy: undefined,
+      createdAt: raw.createdAt,
+      updatedAt: raw.updatedAt,
+      deletedAt: null,
+    });
   }
 }

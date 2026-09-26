@@ -2,11 +2,10 @@ import { BaseSagaCommand } from '@vubon/shared-kernel/application/sagas/base.sag
 
 export class SendAccountLockEmailCommand extends BaseSagaCommand {
   readonly type = 'saga.send-account-lock-email';
-
   constructor(
     public readonly userId: string,
+    public readonly email: string,
     public readonly reason: string,
-  ) {
-    super();
-  }
+    public readonly unlockAt?: string,
+  ) { super(); }
 }

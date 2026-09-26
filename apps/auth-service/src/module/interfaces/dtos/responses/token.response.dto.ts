@@ -1,19 +1,14 @@
-import { ApiProperty } from '@nestjs/swagger';
-import type { AuthTokenResponseDTO } from '../../../application/dtos/responses/auth-token-response.dto';
+/**
+ * TokenResponseDTO
+ * @module auth-service/interfaces/dtos/responses
+ */
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class TokenResponseDTO implements AuthTokenResponseDTO {
-  @ApiProperty()
-  accessToken!: string;
-
-  @ApiProperty()
-  refreshToken!: string;
-
-  @ApiProperty()
-  accessExpiresAt!: number;
-
-  @ApiProperty()
-  refreshExpiresAt!: number;
-
-  @ApiProperty({ example: 'Bearer' })
-  tokenType!: 'Bearer';
+export class TokenResponseDTO {
+  @ApiProperty() accessToken!: string;
+  @ApiProperty() refreshToken!: string;
+  @ApiProperty({ example: 'Bearer' }) tokenType!: 'Bearer';
+  @ApiProperty({ example: 900 }) expiresIn!: number;
+  @ApiProperty({ example: 1735689600000 }) expiresAt!: number;
+  @ApiPropertyOptional() scope?: string;
 }

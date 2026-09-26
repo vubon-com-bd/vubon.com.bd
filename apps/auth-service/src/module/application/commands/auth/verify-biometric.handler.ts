@@ -1,32 +1,20 @@
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { VerifyBiometricCommand } from './verify-biometric.command';
 import type { AuthBiometricServiceInterface } from '../../services/interfaces/auth-biometric.service.interface';
-import { BiometricOperationFailedError } from '../../errors/biometric.errors';
+import { AUTH_BIOMETRIC_SERVICE } from '../../tokens';
 
 @CommandHandler(VerifyBiometricCommand)
 export class VerifyBiometricHandler
   extends BaseCommandHandler<VerifyBiometricCommand, boolean>
-  implements ICommandHandler<VerifyBiometricCommand>
-{
-  readonly commandType = 'auth.verify-biometric';
-
+  implements ICommandHandler<VerifyBiometricCommand> {
+  readonly commandType = 'VerifyBiometricCommand';
   constructor(
-    @Inject('AuthBiometricService') @Inject('AuthBiometricService') private readonly biometricService: AuthBiometricServiceInterface,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
-  }
+    @Inject(AUTH_BIOMETRIC_SERVICE) private readonly biometricService: AuthBiometricServiceInterface,
+  ) { super(); }
 
   async execute(command: VerifyBiometricCommand): Promise<boolean> {
-    const ok = await this.biometricService.verify(
-      command.userId,
-      command.biometricId,
-    );
-    if (!ok) {
-      throw new BiometricOperationFailedError('biometric verification failed');
-    }
-    return true;
+    return this.biometricService.verify(command.input);
   }
 }

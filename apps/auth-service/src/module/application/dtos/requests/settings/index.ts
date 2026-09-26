@@ -1,2 +1,6 @@
-export type { UpdateAuthSettingsRequestDTO } from './update-auth-settings.dto';
-export type { UpdateAuthPreferencesRequestDTO } from './update-auth-preferences.dto';
+/**
+ * Settings Request DTOs — Barrel
+ * @module auth-service/application/dtos/requests/settings
+ */
+export * from './update-auth-settings.dto';
+export * from './update-auth-preferences.dto';

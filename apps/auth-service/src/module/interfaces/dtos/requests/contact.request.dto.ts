@@ -1,22 +1,32 @@
+/**
+ * ContactRequestDTO
+ * @module auth-service/interfaces/dtos/requests
+ */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class ContactCreateRequestDTO {
-  @ApiProperty()
-  phone!: string;
+export class AddContactRequestDTO {
+  @ApiPropertyOptional({ format: 'email' })
+  email?: string;
 
-  @ApiProperty()
-  email!: string;
+  @ApiPropertyOptional()
+  phone?: string;
 }
 
-export class ContactUpdateRequestDTO {
+export class UpdateContactRequestDTO {
+  @ApiProperty({ format: 'uuid' })
+  contactId!: string;
+
+  @ApiPropertyOptional({ format: 'email' })
+  email?: string;
+
   @ApiPropertyOptional()
   phone?: string;
 
   @ApiPropertyOptional()
-  email?: string;
+  verified?: boolean;
 }
 
-export class ContactDeleteRequestDTO {
-  @ApiProperty()
+export class DeleteContactRequestDTO {
+  @ApiProperty({ format: 'uuid' })
   contactId!: string;
 }

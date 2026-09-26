@@ -1,24 +1,23 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+/**
+ * UpdateTemplateHandler
+ * @module support-service/application/commands/template
+ */
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { UpdateTemplateCommand } from './update-template.command';
-import type { SupportTemplateRepository } from '../../../domain/repositories/support-template.repository.interface';
-import { TemplateIdVO } from '../../../domain/value-objects/primitives/template-id.vo';
+import type { TemplateResponseDTO } from '../../dtos/responses/template-response.dto';
+import type { TemplateServiceInterface } from '../../services/interfaces/template.service.interface';
 
-@CommandHandler(UpdateTemplateCommand)
-export class UpdateTemplateHandler
-  extends BaseCommandHandler<UpdateTemplateCommand, void>
-  implements ICommandHandler<UpdateTemplateCommand>
-{
+export class UpdateTemplateHandler extends BaseCommandHandler<
+  UpdateTemplateCommand,
+  TemplateResponseDTO
+> {
   readonly commandType = 'support.template.update';
 
-  constructor(private readonly templateRepo: SupportTemplateRepository) {
+  constructor(private readonly templateService: TemplateServiceInterface) {
     super();
   }
 
-  async execute(command: UpdateTemplateCommand): Promise<void> {
-    const existing = await this.templateRepo.findById(
-      TemplateIdVO.create(command.templateId),
-    );
-    if (!existing) return;
+  async execute(command: UpdateTemplateCommand): Promise<TemplateResponseDTO> {
+    return this.templateService.update(command.payload);
   }
 }

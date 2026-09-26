@@ -1,22 +1,40 @@
+/**
+ * VerificationStatusVO — Status of a verification request
+ * @module auth-service/domain/value-objects/primitives
+ */
 import { BaseStatusVO } from '@vubon/shared-kernel/domain/primitives/status.vo';
-import { InvalidStatusError } from '../../errors/user.errors';
 
-const VALID = new Set<string>([
-  'pending',
-  'verified',
-  'rejected',
-  'expired',
+export type VerificationStatusValue =
+  | 'pending'
+  | 'verified'
+  | 'rejected'
+  | 'expired';
+
+const ALLOWED: ReadonlySet<string> = new Set<string>([
+  'pending', 'verified', 'rejected', 'expired',
 ]);
 
-export class VerificationStatusVO extends BaseStatusVO<string> {
-  private constructor(value: string) {
+export class VerificationStatusVO extends BaseStatusVO<VerificationStatusValue> {
+  private constructor(value: VerificationStatusValue) {
     super(value);
   }
 
-  static create(raw: string): VerificationStatusVO {
-    if (!VALID.has(raw)) {
-      throw new InvalidStatusError(raw);
+  static of(raw: string): VerificationStatusVO {
+    if (!ALLOWED.has(raw)) {
+      throw new Error(`Unknown verification status: ${raw}`);
     }
-    return new VerificationStatusVO(raw);
+    return new VerificationStatusVO(raw as VerificationStatusValue);
+  }
+
+  static pending(): VerificationStatusVO {
+    return new VerificationStatusVO('pending');
+  }
+
+  override isActive(): boolean {
+    return this.value === 'verified';
+  }
+
+  canRetry(): boolean {
+    return this.value === 'pending' || this.value === 'expired';
   }
 }

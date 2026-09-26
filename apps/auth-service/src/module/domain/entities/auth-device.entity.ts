@@ -1,117 +1,70 @@
-import { AggregateRoot } from '@vubon/shared-kernel/domain/base/base.aggregate';
-import { UserIdVO } from '../value-objects/primitives/user-id.vo';
+/**
+ * AuthDeviceEntity — Registered device (aggregate)
+ * @module auth-service/domain/entities
+ */
+import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
+import type { UserId } from '@vubon/shared-types/common';
 import { DeviceFingerprintVO } from '../value-objects/primitives/device-fingerprint.vo';
 import { DeviceTypeVO } from '../value-objects/primitives/device-type.vo';
 import { DeviceStatusVO } from '../value-objects/primitives/device-status.vo';
-import { DeviceRegisteredEvent } from '../events/auth-account-lock.events';
 
 export interface AuthDeviceEntityProps {
-  readonly userId: UserIdVO;
+  readonly id: string;
+  readonly userId: UserId;
   readonly fingerprint: DeviceFingerprintVO;
   readonly type: DeviceTypeVO;
   readonly status: DeviceStatusVO;
-  readonly name: string | null;
-  readonly lastSeenAt: Date;
-  readonly trustedAt: Date | null;
+  readonly name: string;
+  readonly firstSeenAt: number;
+  readonly lastSeenAt: number;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+  readonly deletedAt?: string | null;
 }
 
-export class AuthDeviceEntity extends AggregateRoot<string> {
-  private readonly _userId: UserIdVO;
-  private readonly _fingerprint: DeviceFingerprintVO;
-  private readonly _type: DeviceTypeVO;
-  private readonly _status: DeviceStatusVO;
-  private readonly _name: string | null;
-  private readonly _lastSeenAt: Date;
-  private readonly _trustedAt: Date | null;
+export class AuthDeviceEntity extends BaseEntity<string> {
+  readonly userId: UserId;
+  private _fingerprint: DeviceFingerprintVO;
+  private _type: DeviceTypeVO;
+  private _status: DeviceStatusVO;
+  private _name: string;
+  private _firstSeenAt: number;
+  private _lastSeenAt: number;
 
-  private constructor(
-    id: string,
-    props: AuthDeviceEntityProps,
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null,
-  ) {
-    super(id, createdAt, updatedAt, deletedAt);
-    this._userId = props.userId;
+  private constructor(props: AuthDeviceEntityProps) {
+    super(props.id, props.createdAt, props.updatedAt, props.deletedAt ?? null);
+    this.userId = props.userId;
     this._fingerprint = props.fingerprint;
     this._type = props.type;
     this._status = props.status;
     this._name = props.name;
+    this._firstSeenAt = props.firstSeenAt;
     this._lastSeenAt = props.lastSeenAt;
-    this._trustedAt = props.trustedAt;
   }
 
   static create(props: AuthDeviceEntityProps): AuthDeviceEntity {
-    const now = new Date().toISOString();
-    const id = crypto.randomUUID();
-    const entity = new AuthDeviceEntity(id, props, now, now, null);
-    entity.addDomainEvent(
-      new DeviceRegisteredEvent(
-        id,
-        props.userId.value,
-        id,
-        props.fingerprint.value,
-        0,
-      ),
-    );
-    return entity;
+    return new AuthDeviceEntity(props);
   }
 
-  static reconstitute(
-    id: string,
-    props: AuthDeviceEntityProps,
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null,
-  ): AuthDeviceEntity {
-    return new AuthDeviceEntity(id, props, createdAt, updatedAt, deletedAt);
-  }
-
-  trust(): AuthDeviceEntity {
-    const now = new Date();
-    return new AuthDeviceEntity(
-      this.id,
-      {
-        ...this._toProps(),
-        status: DeviceStatusVO.create('trusted'),
-        trustedAt: now,
-      },
-      this.createdAt,
-      now.toISOString(),
-      this.deletedAt ?? null,
-    );
-  }
-
-  touchLastSeen(): AuthDeviceEntity {
-    const now = new Date();
-    return new AuthDeviceEntity(
-      this.id,
-      { ...this._toProps(), lastSeenAt: now },
-      this.createdAt,
-      now.toISOString(),
-      this.deletedAt ?? null,
-    );
-  }
-
-  get userId(): UserIdVO { return this._userId; }
   get fingerprint(): DeviceFingerprintVO { return this._fingerprint; }
   get type(): DeviceTypeVO { return this._type; }
   get status(): DeviceStatusVO { return this._status; }
-  get name(): string | null { return this._name; }
-  get lastSeenAt(): Date { return this._lastSeenAt; }
-  get trustedAt(): Date | null { return this._trustedAt; }
+  get name(): string { return this._name; }
+  get lastSeenAt(): number { return this._lastSeenAt; }
 
-  get isTrusted(): boolean { return this._status.value === 'trusted'; }
+  isTrusted(): boolean { return this._status.isActive(); }
+  canLogin(): boolean { return this._status.canLogin(); }
 
-  private _toProps(): AuthDeviceEntityProps {
-    return {
-      userId: this._userId,
-      fingerprint: this._fingerprint,
-      type: this._type,
-      status: this._status,
-      name: this._name,
-      lastSeenAt: this._lastSeenAt,
-      trustedAt: this._trustedAt,
-    };
+  touch(now: number): void { this._lastSeenAt = now; }
+
+  trust(): void { this._status = DeviceStatusVO.trusted(); }
+
+  block(): void { this._status = DeviceStatusVO.of('blocked'); }
+
+  revoke(): void { this._status = DeviceStatusVO.of('revoked'); }
+
+  rename(newName: string): void {
+    if (!newName.trim()) throw new Error('Device name required');
+    this._name = newName.trim().slice(0, 80);
   }
 }

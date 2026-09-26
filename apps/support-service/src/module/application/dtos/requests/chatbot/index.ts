@@ -1,3 +1,5 @@
-export type { SendChatbotMessageRequestDTO } from './send-chatbot-message.dto';
-export type { TrainIntentRequestDTO } from './train-intent.dto';
-export type { TrainEntityRequestDTO } from './train-entity.dto';
+// support-service/application/dtos/requests/chatbot/index.ts
+
+export * from './send-chatbot-message.dto';
+export * from './train-intent.dto';
+export * from './train-entity.dto';

@@ -1,24 +1,20 @@
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { VerifyEmailCommand } from './verify-email.command';
-import type { UserVerificationServiceInterface } from '../../services/interfaces/user-verification.service.interface';
+import type { AuthServiceInterface } from '../../services/interfaces/auth.service.interface';
+import { AUTH_SERVICE } from '../../tokens';
 
 @CommandHandler(VerifyEmailCommand)
 export class VerifyEmailHandler
   extends BaseCommandHandler<VerifyEmailCommand, void>
-  implements ICommandHandler<VerifyEmailCommand>
-{
-  readonly commandType = 'auth.verify-email';
-
+  implements ICommandHandler<VerifyEmailCommand> {
+  readonly commandType = 'VerifyEmailCommand';
   constructor(
-    @Inject('UserVerificationService') @Inject('UserVerificationService') private readonly verificationService: UserVerificationServiceInterface,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
-  }
+    @Inject(AUTH_SERVICE) private readonly authService: AuthServiceInterface,
+  ) { super(); }
 
   async execute(command: VerifyEmailCommand): Promise<void> {
-    await this.verificationService.verify(command.userId, 'email', command.code);
+    await this.authService.verifyEmail(command.input);
   }
 }

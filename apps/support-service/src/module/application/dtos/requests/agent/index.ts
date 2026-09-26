@@ -1,3 +1,5 @@
-export type { RegisterAgentRequestDTO } from './register-agent.dto';
-export type { UpdateAgentRequestDTO } from './update-agent.dto';
-export type { SetAgentStatusRequestDTO } from './set-agent-status.dto';
+// support-service/application/dtos/requests/agent/index.ts
+
+export * from './register-agent.dto';
+export * from './update-agent.dto';
+export * from './set-agent-status.dto';

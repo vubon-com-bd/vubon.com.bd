@@ -1,17 +1,28 @@
+/**
+ * SsoStatusVO — SSO session status
+ * @module auth-service/domain/value-objects/primitives
+ */
 import { BaseStatusVO } from '@vubon/shared-kernel/domain/primitives/status.vo';
-import { InvalidStatusError } from '../../errors/user.errors';
 
-const VALID = new Set<string>(['pending', 'active', 'revoked', 'expired']);
+export type SsoStatusValue = 'active' | 'expired' | 'revoked' | 'pending';
 
-export class SsoStatusVO extends BaseStatusVO<string> {
-  private constructor(value: string) {
+const ALLOWED: ReadonlySet<string> = new Set<string>([
+  'active', 'expired', 'revoked', 'pending',
+]);
+
+export class SsoStatusVO extends BaseStatusVO<SsoStatusValue> {
+  private constructor(value: SsoStatusValue) {
     super(value);
   }
 
-  static create(raw: string): SsoStatusVO {
-    if (!VALID.has(raw)) {
-      throw new InvalidStatusError(raw);
+  static of(raw: string): SsoStatusVO {
+    if (!ALLOWED.has(raw)) {
+      throw new Error(`Unknown SSO status: ${raw}`);
     }
-    return new SsoStatusVO(raw);
+    return new SsoStatusVO(raw as SsoStatusValue);
+  }
+
+  override isActive(): boolean {
+    return this.value === 'active';
   }
 }

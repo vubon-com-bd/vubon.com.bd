@@ -1,83 +1,53 @@
+/**
+ * SupportInfrastructureModule — root infra module
+ * @module support-service/infrastructure
+ *
+ * Wires persistence (Prisma + Cache), workers, services, websocket.
+ * Rule: does not import interfaces/modules.
+ */
 import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bullmq';
 
-// Kernel modules (global)
-import {
-  PrismaModule,
-  RedisModule,
-  EmailModule,
-  SmsModule,
-  PushModule,
-  QueueModule,
-} from '@vubon/shared-kernel/infrastructure';
-
-// App-level
-import { PrismaModule as AppPrismaModule } from './persistence/prisma/prisma.module';
-import { WebSocketModule } from './websocket/websocket.module';
-import { ChatbotEngineModule } from './chatbot-engine/chatbot.module';
-import { EmailModule as AppEmailModule } from './external/email/email.module';
-import { SmsModule as AppSmsModule } from './external/sms/sms.module';
-import { PushModule as AppPushModule } from './external/push/push.module';
-import { StorageModule } from './external/storage/storage.module';
-import { AiModule } from './external/ai/ai.module';
-
-// Repositories
-import * as PrismaRepos from './persistence/prisma/repositories';
-import * as CacheRepos from './persistence/cache/repositories';
-
-// Services
-import * as InternalServices from './services/internal';
-import * as ExternalClients from './services/external';
-
-// Queues + Workers
-import * as Queues from './queues';
-import * as Workers from './workers';
-
-const PRISMA_REPOSITORIES = Object.values(PrismaRepos);
-const CACHE_REPOSITORIES = Object.values(CacheRepos);
-const INTERNAL_SERVICES = Object.values(InternalServices);
-const EXTERNAL_CLIENTS = Object.values(ExternalClients);
-const QUEUE_PROVIDERS = Object.values(Queues);
-const WORKER_PROVIDERS = Object.values(Workers);
+import { SupportPrismaModule } from './persistence/prisma/prisma.module';
+import { SupportRedisModule } from './persistence/cache/redis.module';
+import { TicketProcessorWorker } from './workers/ticket-processor.worker';
+import { UserClient } from './services/external/user.client';
+import { NotificationClient } from './services/external/notification.client';
+import { TicketNumberGeneratorService } from './services/internal/ticket-number-generator.service';
+import { SupportWebSocketGateway } from './websocket/websocket.gateway';
+import { SUPPORT_QUEUE } from './queues/support-queue.constants';
 
 @Module({
   imports: [
-    PrismaModule,
-    AppPrismaModule,
-    RedisModule,
-    QueueModule,
-    EmailModule,
-    SmsModule,
-    PushModule,
-    AppEmailModule,
-    AppSmsModule,
-    AppPushModule,
-    StorageModule,
-    AiModule,
-    WebSocketModule,
-    ChatbotEngineModule,
+    SupportPrismaModule,
+    SupportRedisModule,
+    BullModule.forRoot({
+      connection: {
+        host: process.env.REDIS_HOST ?? '127.0.0.1',
+        port: Number(process.env.REDIS_PORT ?? 6379),
+      },
+    }),
+    BullModule.registerQueue({ name: SUPPORT_QUEUE.TICKET }),
+    BullModule.registerQueue({ name: SUPPORT_QUEUE.SLA }),
+    BullModule.registerQueue({ name: SUPPORT_QUEUE.ESCALATION }),
+    BullModule.registerQueue({ name: SUPPORT_QUEUE.FEEDBACK }),
+    BullModule.registerQueue({ name: SUPPORT_QUEUE.CHATBOT }),
+    BullModule.registerQueue({ name: SUPPORT_QUEUE.LIVE_CHAT }),
   ],
   providers: [
-    ...PRISMA_REPOSITORIES,
-    ...CACHE_REPOSITORIES,
-    ...INTERNAL_SERVICES,
-    ...EXTERNAL_CLIENTS,
-    ...QUEUE_PROVIDERS,
-    ...WORKER_PROVIDERS,
+    TicketProcessorWorker,
+    UserClient,
+    NotificationClient,
+    TicketNumberGeneratorService,
+    SupportWebSocketGateway,
   ],
   exports: [
-    AppPrismaModule,
-    AppEmailModule,
-    AppSmsModule,
-    AppPushModule,
-    StorageModule,
-    AiModule,
-    WebSocketModule,
-    ChatbotEngineModule,
-    ...PRISMA_REPOSITORIES,
-    ...CACHE_REPOSITORIES,
-    ...INTERNAL_SERVICES,
-    ...EXTERNAL_CLIENTS,
-    ...QUEUE_PROVIDERS,
+    SupportPrismaModule,
+    SupportRedisModule,
+    UserClient,
+    NotificationClient,
+    TicketNumberGeneratorService,
+    SupportWebSocketGateway,
   ],
 })
-export class InfrastructureModule {}
+export class SupportInfrastructureModule {}

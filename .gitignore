@@ -1,42 +1,108 @@
-# Dependencies
+# ═══════════════════════════════════════════════════════════════
+# Vubon.com.bd — Git Ignore Rules
+# ═══════════════════════════════════════════════════════════════
+
+# ─── Dependencies ──────────────────────────────────────────────
 node_modules/
 .pnpm-store/
 
-# Build outputs
+# ─── Environment Files ─────────────────────────────────────────
+# Ignore all .env files
+.env
+.env.local
+.env.*.local
+.env.development
+.env.staging
+.env.production
+.env.test
+
+# But KEEP template files
+!.env.example
+!**/.env.example
+
+# ─── Build Output ──────────────────────────────────────────────
 dist/
-.next/
-out/
 build/
+out/
 *.tsbuildinfo
 
-# Environment files
-.env*
-.env.*.local
+# ─── Prisma ────────────────────────────────────────────────────
+prisma/migrations/**/*.sql
+!prisma/migrations/migration_lock.toml
 
-# Logs
+# ─── Test Coverage ─────────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ─── Logs ──────────────────────────────────────────────────────
 *.log
+logs/
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# OS files
+# ─── OS Files ──────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
 
-# IDE
+# ─── IDE / Editor ──────────────────────────────────────────────
 .vscode/
 .idea/
+*.iml
+*.sublime-*
 
-# Test/Scratch files (never commit)
-*.cjs
+# ─── Test / Scratch Files ──────────────────────────────────────
+*.test.ts.snap
+__snapshots__/
+.scratch/
+tmp/
+temp/
+
+# ─── Cache ─────────────────────────────────────────────────────
+.cache/
+.eslintcache
+.prettier-cache
+.turbo/
+.parcel-cache/
+
+# ─── Local Storage ─────────────────────────────────────────────
+storage/
+uploads/
+
+# Backup files
 *.bak
-*.direct
-test-db.cjs
-test-client.cjs
-check-env.cjs
-check-code.cjs
-exec-sql.cjs
-fix-type.cjs
-add-code-column.cjs
-add-user-roles.sql
-*-check.cjs
-test-*.cjs
-add-*.cjs
-check-*.cjs
+*.bak.*
+.env.backup.*
+package.json.backup.*
+
+# Jest
+.skip/
+
+# Redis
+dump.rdb
+
+# tsbuildinfo
+*.tsbuildinfo
+
+
+# Backup files
+*.bak
+*.bak.*
+.env.backup.*
+package.json.backup.*
+
+# Jest
+.skip/
+
+# Redis
+dump.rdb
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Auth-service test outputs
+apps/auth-service/coverage/
+

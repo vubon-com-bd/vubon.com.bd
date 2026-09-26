@@ -1,6 +1,8 @@
+// support-service/application/commands/index.ts
+
 export * from './ticket';
-export * from './message';
 export * from './conversation';
+export * from './message';
 export * from './feedback';
 export * from './complaint';
 export * from './survey';
@@ -12,4 +14,3 @@ export * from './sla';
 export * from './rule';
 export * from './automation';
 export * from './template';
-export * from './attachment';

@@ -1,50 +1,94 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { EventBus } from '@nestjs/cqrs';
+/**
+ * AuthRoleService
+ * @module auth-service/application/services/impl
+ */
+import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
+import type { UserId } from '@vubon/shared-types/common';
 import type { AuthRoleServiceInterface } from '../interfaces/auth-role.service.interface';
 import type { AuthRoleRepository } from '../../../domain/repositories/auth-role.repository.interface';
-import type { UserRoleRepository } from '../../../domain/repositories/user-role.repository.interface';
+import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
 import { AuthRoleEntity } from '../../../domain/entities/auth-role.entity';
 import { RoleNameVO } from '../../../domain/value-objects/primitives/role-name.vo';
-import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
+import { UserRoleVO } from '../../../domain/value-objects/primitives/user-role.vo';
+import { PermissionNameVO } from '../../../domain/value-objects/primitives/permission-name.vo';
+import { RoleAssignmentService } from '../../../domain/services/role-assignment.service';
 import type { UserRoleResponseDTO } from '../../dtos/responses/user-role-response.dto';
+import { USER_REPO } from '../../tokens';
+import { AUTH_ROLE_REPO } from '../../tokens';
 
 @Injectable()
 export class AuthRoleService
   extends BaseService<AuthRoleEntity, string>
-  implements AuthRoleServiceInterface
-{
+  implements AuthRoleServiceInterface {
   readonly name = 'AuthRoleService';
 
   constructor(
-    @Inject('AuthRoleRepository') private readonly roleRepo: AuthRoleRepository,
-    @Inject('UserRoleRepository') private readonly userRoleRepo: UserRoleRepository,
-    private readonly eventBus: EventBus,
+    @Inject(AUTH_ROLE_REPO) private readonly roleRepo: AuthRoleRepository,
+    @Inject(USER_REPO) private readonly userRepo: UserRepository,
   ) {
     super();
   }
 
-  async listAll(): Promise<UserRoleResponseDTO> {
-    const entities = await this.roleRepo.findAll();
-    return entities.map((e) => e.name.value);
+  async findByNames(
+    names: readonly string[],
+  ): Promise<readonly AuthRoleEntity[]> {
+    return this.roleRepo.findManyByNames(names.map((n) => RoleNameVO.of(n)));
   }
 
-  async findByName(name: string): Promise<UserRoleResponseDTO | null> {
-    const entity = await this.roleRepo.findByName(RoleNameVO.create(name));
-    return entity ? [entity.name.value] : null;
+  async assignToUser(userId: UserId, roleName: string): Promise<void> {
+    const [user, role] = await Promise.all([
+      this.userRepo.findById(userId),
+      this.roleRepo.findByName(RoleNameVO.of(roleName)),
+    ]);
+    if (!user || !role) throw new Error('User or role not found');
+
+    const userRole = UserRoleVO.of(role.name.value);
+    RoleAssignmentService.assertCanAssign(user, user, userRole);
+    user.assignRole(userRole);
+    await this.userRepo.save(user);
   }
 
-  async assign(userId: string, roleName: string): Promise<void> {
-    await this.userRoleRepo.assign(
-      UserIdVO.create(userId),
-      RoleNameVO.create(roleName),
+  async revokeFromUser(userId: UserId, roleName: string): Promise<void> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) return;
+    const userRole = UserRoleVO.of(roleName);
+    RoleAssignmentService.assertCanRevoke(user, user, userRole);
+    user.revokeRole(userRole);
+    await this.userRepo.save(user);
+  }
+
+  async addPermission(roleId: string, permission: string): Promise<void> {
+    await this.roleRepo.addPermissionToRole(
+      roleId,
+      PermissionNameVO.of(permission),
     );
   }
 
-  async revoke(userId: string, roleName: string): Promise<void> {
-    await this.userRoleRepo.revoke(
-      UserIdVO.create(userId),
-      RoleNameVO.create(roleName),
+  async removePermission(roleId: string, permission: string): Promise<void> {
+    await this.roleRepo.removePermissionFromRole(
+      roleId,
+      PermissionNameVO.of(permission),
     );
+  }
+
+  async listForUser(userId: UserId): Promise<readonly AuthRoleEntity[]> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) return [];
+    return this.roleRepo.findManyByNames(
+      user.roles.map((r) => RoleNameVO.of(r.value)),
+    );
+  }
+
+  toResponse(role: AuthRoleEntity): UserRoleResponseDTO {
+    return {
+      id: role.id,
+      name: role.name.value,
+      description: role.description.value,
+      permissions: role.permissions.map((p) => p.value),
+      isSystem: role.isSystem,
+      createdAt: role.createdAt,
+      updatedAt: role.updatedAt,
+    };
   }
 }

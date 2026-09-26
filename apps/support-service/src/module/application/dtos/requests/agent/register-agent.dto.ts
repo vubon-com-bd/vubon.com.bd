@@ -1,11 +1,20 @@
-import { z } from 'zod';
+/**
+ * RegisterAgentRequestDTO
+ * @module support-service/application/dtos/requests/agent
+ */
+import type {
+  SupportAgentLevelValue,
+  SupportAgentSkillValue,
+} from '@vubon/shared-types/support';
 
-export const RegisterAgentRequestSchema = z.object({
-  userId: z.string().uuid(),
-  teamId: z.string().uuid().optional(),
-  type: z.string().min(1).max(50),
-  skills: z.array(z.string()).optional(),
-  maxLoad: z.number().int().positive().optional(),
-});
-
-export type RegisterAgentRequestDTO = z.infer<typeof RegisterAgentRequestSchema>;
+export interface RegisterAgentRequestDTO {
+  readonly userId: string;
+  readonly name: string;
+  readonly email: string;
+  readonly level: SupportAgentLevelValue;
+  readonly skills?: readonly SupportAgentSkillValue[];
+  readonly teamIds?: readonly string[];
+  readonly languages?: readonly string[];
+  readonly maxConcurrentTickets?: number;
+  readonly maxConcurrentChats?: number;
+}

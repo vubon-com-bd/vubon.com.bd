@@ -1,95 +1,75 @@
-import { AggregateRoot } from '@vubon/shared-kernel/domain/base/base.aggregate';
+/**
+ * AuthRoleEntity — Role aggregate with permissions
+ * @module auth-service/domain/entities
+ */
+import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
 import { RoleNameVO } from '../value-objects/primitives/role-name.vo';
 import { RoleDescriptionVO } from '../value-objects/primitives/role-description.vo';
 import { PermissionNameVO } from '../value-objects/primitives/permission-name.vo';
+import { RoleAlreadyAssignedError } from '../errors/permission.errors';
 
 export interface AuthRoleEntityProps {
+  readonly id: string;
   readonly name: RoleNameVO;
   readonly description: RoleDescriptionVO;
-  readonly permissions: ReadonlyArray<PermissionNameVO>;
+  readonly permissions: readonly PermissionNameVO[];
   readonly isSystem: boolean;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+  readonly deletedAt?: string | null;
 }
 
-export class AuthRoleEntity extends AggregateRoot<string> {
-  private readonly _name: RoleNameVO;
-  private readonly _description: RoleDescriptionVO;
-  private readonly _permissions: ReadonlyArray<PermissionNameVO>;
-  private readonly _isSystem: boolean;
+export class AuthRoleEntity extends BaseEntity<string> {
+  private _name: RoleNameVO;
+  private _description: RoleDescriptionVO;
+  private _permissions: PermissionNameVO[];
+  private _isSystem: boolean;
 
-  private constructor(
-    id: string,
-    props: AuthRoleEntityProps,
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null,
-  ) {
-    super(id, createdAt, updatedAt, deletedAt);
+  private constructor(props: AuthRoleEntityProps) {
+    super(props.id, props.createdAt, props.updatedAt, props.deletedAt ?? null);
     this._name = props.name;
     this._description = props.description;
-    this._permissions = Object.freeze([...props.permissions]);
+    this._permissions = [...props.permissions];
     this._isSystem = props.isSystem;
   }
 
   static create(props: AuthRoleEntityProps): AuthRoleEntity {
-    const now = new Date().toISOString();
-    const id = crypto.randomUUID();
-    return new AuthRoleEntity(id, props, now, now, null);
-  }
-
-  static reconstitute(
-    id: string,
-    props: AuthRoleEntityProps,
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null,
-  ): AuthRoleEntity {
-    return new AuthRoleEntity(id, props, createdAt, updatedAt, deletedAt);
-  }
-
-  addPermission(permission: PermissionNameVO): AuthRoleEntity {
-    if (this._permissions.some((p) => p.value === permission.value)) {
-      return this;
+    const names = props.permissions.map((p) => p.value);
+    if (new Set(names).size !== names.length) {
+      throw new Error('Duplicate permissions in role');
     }
-    return new AuthRoleEntity(
-      this.id,
-      {
-        ...this._toProps(),
-        permissions: [...this._permissions, permission],
-      },
-      this.createdAt,
-      new Date().toISOString(),
-      this.deletedAt ?? null,
-    );
-  }
-
-  removePermission(permission: PermissionNameVO): AuthRoleEntity {
-    return new AuthRoleEntity(
-      this.id,
-      {
-        ...this._toProps(),
-        permissions: this._permissions.filter((p) => p.value !== permission.value),
-      },
-      this.createdAt,
-      new Date().toISOString(),
-      this.deletedAt ?? null,
-    );
+    return new AuthRoleEntity(props);
   }
 
   get name(): RoleNameVO { return this._name; }
   get description(): RoleDescriptionVO { return this._description; }
-  get permissions(): ReadonlyArray<PermissionNameVO> { return this._permissions; }
+  get permissions(): readonly PermissionNameVO[] { return [...this._permissions]; }
   get isSystem(): boolean { return this._isSystem; }
 
-  hasPermission(name: PermissionNameVO): boolean {
-    return this._permissions.some((p) => p.value === name.value);
+  isSuperAdmin(): boolean { return this._name.isSuperAdmin(); }
+
+  hasPermission(required: PermissionNameVO): boolean {
+    return this._permissions.some((p) => p.matches(required));
   }
 
-  private _toProps(): AuthRoleEntityProps {
-    return {
-      name: this._name,
-      description: this._description,
-      permissions: this._permissions,
-      isSystem: this._isSystem,
-    };
+  addPermission(permission: PermissionNameVO): void {
+    if (this._permissions.some((p) => p.equals(permission))) {
+      throw new RoleAlreadyAssignedError(this.id, permission.value);
+    }
+    this._permissions = [...this._permissions, permission];
+  }
+
+  removePermission(permission: PermissionNameVO): void {
+    if (this._isSystem) {
+      throw new Error('Cannot modify permissions of a system role');
+    }
+    this._permissions = this._permissions.filter((p) => !p.equals(permission));
+  }
+
+  rename(next: RoleNameVO): void {
+    if (this._isSystem) {
+      throw new Error('Cannot rename a system role');
+    }
+    this._name = next;
   }
 }

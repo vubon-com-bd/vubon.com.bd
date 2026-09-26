@@ -1,7 +1,8 @@
-import { z } from 'zod';
-
-export const CloseSurveyRequestSchema = z.object({
-  surveyId: z.string().uuid(),
-});
-
-export type CloseSurveyRequestDTO = z.infer<typeof CloseSurveyRequestSchema>;
+/**
+ * CloseSurveyRequestDTO
+ * @module support-service/application/dtos/requests/survey
+ */
+export interface CloseSurveyRequestDTO {
+  readonly surveyId: string;
+  readonly reason?: string;
+}

@@ -1,10 +1,8 @@
-import { z } from 'zod';
-
-export const AttachFileRequestSchema = z.object({
-  messageId: z.string().uuid(),
-  url: z.string().url(),
-  type: z.enum(['image', 'video', 'audio', 'document', 'archive', 'other']),
-  size: z.number().int().positive(),
-});
-
-export type AttachFileRequestDTO = z.infer<typeof AttachFileRequestSchema>;
+/**
+ * AttachFileRequestDTO
+ * @module support-service/application/dtos/requests/message
+ */
+export interface AttachFileRequestDTO {
+  readonly messageId: string;
+  readonly attachments: readonly string[];
+}

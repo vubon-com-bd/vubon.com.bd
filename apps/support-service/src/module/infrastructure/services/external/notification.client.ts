@@ -1,31 +1,46 @@
+/**
+ * NotificationClient — sends notifications via notification-service
+ * @module support-service/infrastructure/services/external
+ */
 import { Injectable, Logger } from '@nestjs/common';
-import type { ExternalClient, ClientResponse } from './http-client.types';
 
 export interface SendNotificationInput {
-  readonly userId: string;
+  readonly recipientId: string;
+  readonly channel: 'email' | 'sms' | 'push' | 'in_app';
   readonly template: string;
-  readonly variables: Readonly<Record<string, string>>;
+  readonly data: Readonly<Record<string, unknown>>;
 }
 
 @Injectable()
 export class NotificationClient {
   private readonly logger = new Logger(NotificationClient.name);
+  private readonly baseUrl: string;
 
-  constructor(private readonly http: ExternalClient) {}
+  constructor() {
+    this.baseUrl =
+      process.env.NOTIFICATION_SERVICE_URL ?? 'http://localhost:3005';
+  }
 
-  async send(input: SendNotificationInput): Promise<boolean> {
+  async send(input: SendNotificationInput): Promise<void> {
     try {
-      const res: ClientResponse<{ success: boolean }> =
-        await this.http.post<{ success: boolean }>(
-          '/notifications/send',
-          input,
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000);
+      const response = await fetch(`${this.baseUrl}/notifications/send`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(input),
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+      if (!response.ok) {
+        this.logger.warn(
+          `NotificationClient.send failed: ${response.status}`,
         );
-      return res.data.success;
+      }
     } catch (error) {
       this.logger.warn(
-        `Failed to send notification: ${error instanceof Error ? error.message : 'unknown'}`,
+        `NotificationClient.send error: ${(error as Error).message}`,
       );
-      return false;
     }
   }
 }

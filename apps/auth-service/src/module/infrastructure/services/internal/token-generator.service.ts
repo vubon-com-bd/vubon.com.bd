@@ -1,42 +1,37 @@
+/**
+ * TokenGeneratorService — Opaque token generation (not JWT)
+ * @module auth-service/infrastructure/services/internal
+ *
+ * Used for session tokens, verification codes, password reset tokens.
+ */
 import { Injectable } from '@nestjs/common';
-import * as jwt from 'jsonwebtoken';
-import { JWT_CONFIG } from '@vubon/shared-config/security';
-import { SECURITY } from '@vubon/shared-constants/security';
-import type {
-  TokenGeneratorPort,
-  TokenPayload,
-} from '../../../application/ports/token-generator.port';
+import { randomBytes, randomInt } from 'node:crypto';
 
 @Injectable()
-export class TokenGeneratorService implements TokenGeneratorPort {
-  async generateAccessToken(payload: TokenPayload): Promise<string> {
-    return jwt.sign(payload, JWT_CONFIG.secret, {
-      algorithm: JWT_CONFIG.algorithm as 'HS256',
-      issuer: JWT_CONFIG.issuer,
-      audience: JWT_CONFIG.audience,
-      expiresIn: SECURITY.JWT_ACCESS_EXPIRY,
-    });
+export class TokenGeneratorService {
+  readonly name = 'TokenGeneratorService';
+
+  /** URL-safe opaque token (e.g. session tokens). */
+  generateOpaque(bytes = 32): string {
+    return randomBytes(bytes).toString('base64url');
   }
 
-  async generateRefreshToken(payload: TokenPayload): Promise<string> {
-    return jwt.sign(payload, JWT_CONFIG.secret, {
-      algorithm: JWT_CONFIG.algorithm as 'HS256',
-      issuer: JWT_CONFIG.issuer,
-      audience: JWT_CONFIG.audience,
-      expiresIn: SECURITY.JWT_REFRESH_EXPIRY,
-    });
+  /** Numeric OTP code, 4–8 digits. */
+  generateOtp(digits = 6): string {
+    const max = 10 ** digits;
+    return randomInt(0, max).toString().padStart(digits, '0');
   }
 
-  async verify(token: string): Promise<TokenPayload> {
-    const decoded = jwt.verify(token, JWT_CONFIG.secret, {
-      issuer: JWT_CONFIG.issuer,
-      audience: JWT_CONFIG.audience,
-    });
-    return decoded as TokenPayload;
-  }
-
-  decode(token: string): TokenPayload | null {
-    const decoded = jwt.decode(token);
-    return decoded ? (decoded as TokenPayload) : null;
+  /** Human-friendly recovery code: XXXX-XXXX (uppercase, no 0/O/1/I). */
+  generateRecoveryCode(): string {
+    const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const block = (): string => {
+      let out = '';
+      for (let i = 0; i < 4; i += 1) {
+        out += alphabet[randomInt(0, alphabet.length)];
+      }
+      return out;
+    };
+    return `${block()}-${block()}`;
   }
 }

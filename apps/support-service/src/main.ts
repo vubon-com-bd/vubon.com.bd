@@ -1,21 +1,46 @@
+/**
+ * support-service entry point
+ * @module support-service/main
+ *
+ * Rule: bootstrapEnvFiles() BEFORE NestFactory — loads root + service .env
+ * Rule: global pipes, filters, middlewares — no business logic
+ */
 import { NestFactory } from '@nestjs/core';
-import { Logger } from '@nestjs/common';
-import { APP_CONFIG } from '@vubon/shared-config/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
+import { bootstrapEnvFiles } from '@vubon/shared-config/common';
 import { AppModule } from './app.module';
+import { DomainExceptionFilter } from '@vubon/shared-kernel/interfaces/filters';
+
+// ⚠️ MUST run before NestFactory — loads root + service + service.local env
+bootstrapEnvFiles();
 
 async function bootstrap(): Promise<void> {
-  const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule, {
-    logger: ['error', 'warn', 'log', 'debug', 'verbose'],
+    cors: {
+      origin: process.env.CORS_ORIGINS?.split(',') ?? '*',
+      credentials: true,
+    },
   });
 
-  app.enableCors();
-  app.setGlobalPrefix('api/v1');
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
 
-  const port = Number(APP_CONFIG.port ?? 3002);
+  app.useGlobalFilters(new DomainExceptionFilter());
+
+  const port = Number(process.env.PORT ?? 3007);
   await app.listen(port);
 
-  logger.log(`🚀 Support Service running on http://localhost:${port}/api/v1`);
+  Logger.log(`support-service running on http://localhost:${port}`, 'Bootstrap');
+  Logger.log(`Environment: ${process.env.NODE_ENV ?? 'development'}`, 'Bootstrap');
+  Logger.log(
+    `Database host: ${process.env.DATABASE_URL?.split('@')[1]?.split('/')[0] ?? 'unknown'}`,
+    'Bootstrap',
+  );
 }
 
 void bootstrap();

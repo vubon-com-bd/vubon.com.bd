@@ -1,78 +1,91 @@
+/**
+ * TicketEscalationPrismaRepository
+ * @module support-service/infrastructure/persistence/prisma/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { TicketEscalation as PrismaTicketEscalation } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+import { SupportPrismaService } from '../prisma.service';
+import { TicketEscalationRepository } from '../../../../domain/repositories/ticket-escalation.repository.interface';
 import { TicketEscalationEntity } from '../../../../domain/entities/ticket-escalation.entity';
 import { TicketEscalationIdVO } from '../../../../domain/value-objects/primitives/ticket-escalation-id.vo';
 import { TicketEscalationLevelVO } from '../../../../domain/value-objects/primitives/ticket-escalation-level.vo';
 import { TicketIdVO } from '../../../../domain/value-objects/primitives/ticket-id.vo';
-import type { TicketEscalationRepository } from '../../../../domain/repositories/ticket-escalation.repository.interface';
-
-const LEVEL_MAP: Record<number, 'L1' | 'L2' | 'L3' | 'L4'> = {
-  1: 'L1', 2: 'L2', 3: 'L3', 4: 'L4',
-};
+import { TicketEscalationMapper } from '../mappers/ticket-escalation.mapper';
 
 @Injectable()
 export class TicketEscalationPrismaRepository
-  extends BasePrismaRepository<TicketEscalationEntity, TicketEscalationIdVO>
   implements TicketEscalationRepository
 {
-  constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
-  }
-
-  private toDomain(raw: PrismaTicketEscalation): TicketEscalationEntity {
-    return TicketEscalationEntity.reconstitute(
-      TicketEscalationIdVO.create(raw.id),
-      {
-        ticketId: TicketIdVO.create(raw.ticketId),
-        level: TicketEscalationLevelVO.create(LEVEL_MAP[raw.level] ?? 'L1'),
-        reason: raw.reason,
-        escalatedAt: raw.escalatedAt,
-        resolvedAt: raw.resolvedAt,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      null,
-    );
-  }
+  constructor(
+    private readonly prisma: SupportPrismaService,
+    private readonly mapper: TicketEscalationMapper,
+  ) {}
 
   async findById(id: TicketEscalationIdVO): Promise<TicketEscalationEntity | null> {
-    const raw = await this.prisma.ticketEscalation.findUnique({ where: { id: id.value } });
-    return raw ? this.toDomain(raw) : null;
+    const raw = await this.prisma.ticketEscalation.findUnique({
+      where: { id: id.value },
+    });
+    return raw ? this.mapper.toDomain(raw) : null;
   }
 
   async findAll(): Promise<readonly TicketEscalationEntity[]> {
-    const rows = await this.prisma.ticketEscalation.findMany();
-    return rows.map((r) => this.toDomain(r));
+    const rows = await this.prisma.ticketEscalation.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
   }
 
   async save(entity: TicketEscalationEntity): Promise<TicketEscalationEntity> {
-    const levelNum = parseInt(entity.level.value.replace('L', ''), 10);
-    const data = {
-      ticketId: entity.ticketId.value,
-      level: levelNum,
-      reason: entity.reason,
-      escalatedAt: entity.escalatedAt,
-      resolvedAt: entity.resolvedAt,
-      updatedAt: new Date(),
-    };
+    const data = this.mapper.toPersistence(entity);
     const raw = await this.prisma.ticketEscalation.upsert({
-      where: { id: entity.id.value },
-      create: { id: entity.id.value, ...data },
-      update: data,
+      where: { id: data.id },
+      create: { ...data },
+      update: {
+        level: data.level,
+        resolvedAt: data.resolvedAt,
+        resolution: data.resolution,
+        updatedAt: new Date(),
+      },
     });
-    return this.toDomain(raw);
+    return this.mapper.toDomain(raw);
   }
 
   async delete(id: TicketEscalationIdVO): Promise<void> {
     await this.prisma.ticketEscalation.delete({ where: { id: id.value } });
   }
 
+  async exists(id: TicketEscalationIdVO): Promise<boolean> {
+    const count = await this.prisma.ticketEscalation.count({
+      where: { id: id.value },
+    });
+    return count > 0;
+  }
+
   async findByTicket(ticketId: TicketIdVO): Promise<readonly TicketEscalationEntity[]> {
     const rows = await this.prisma.ticketEscalation.findMany({
       where: { ticketId: ticketId.value },
+      orderBy: { createdAt: 'desc' },
     });
-    return rows.map((r) => this.toDomain(r));
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findUnresolvedByTicket(ticketId: TicketIdVO): Promise<readonly TicketEscalationEntity[]> {
+    const rows = await this.prisma.ticketEscalation.findMany({
+      where: { ticketId: ticketId.value, resolvedAt: null },
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findByLevel(level: TicketEscalationLevelVO): Promise<readonly TicketEscalationEntity[]> {
+    const rows = await this.prisma.ticketEscalation.findMany({
+      where: { level: level.value },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async countByTicket(ticketId: TicketIdVO): Promise<number> {
+    return this.prisma.ticketEscalation.count({
+      where: { ticketId: ticketId.value },
+    });
   }
 }

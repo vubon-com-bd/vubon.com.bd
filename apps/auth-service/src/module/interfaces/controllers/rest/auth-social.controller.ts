@@ -1,32 +1,29 @@
+/**
+ * AuthSocialController
+ * @module auth-service/interfaces/controllers/rest
+ */
 import {
-  Body,
-  Controller,
-  Delete,
-  HttpCode,
-  HttpStatus,
-  Post,
-  UseGuards,
+  Controller, Post, Delete, Body, HttpCode, HttpStatus, UseGuards,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import {
-  CurrentUser,
-  JwtAuthGuard,
-  Public,
-  type CurrentUserShape,
-} from '@vubon/shared-kernel/interfaces';
+import { JwtAuthGuard, Public } from '@vubon/shared-kernel/interfaces';
+
 import { SocialLoginCommand } from '../../../application/commands/auth/social-login.command';
 import { SocialCallbackCommand } from '../../../application/commands/auth/social-callback.command';
 import { LinkSocialCommand } from '../../../application/commands/auth/link-social.command';
 import { UnlinkSocialCommand } from '../../../application/commands/auth/unlink-social.command';
+import type { UserId } from '@vubon/shared-types/common';
+
 import {
   SocialLoginRequestDTO,
-  SocialLinkRequestDTO,
-  SocialUnlinkRequestDTO,
   SocialCallbackRequestDTO,
+  LinkSocialRequestDTO,
+  UnlinkSocialRequestDTO,
 } from '../../dtos/requests/social.request.dto';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
 
-@ApiTags('Social')
+@ApiTags('Auth Social')
 @Controller('auth/social')
 export class AuthSocialController {
   constructor(private readonly commandBus: CommandBus) {}
@@ -34,18 +31,28 @@ export class AuthSocialController {
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() body: SocialLoginRequestDTO): Promise<unknown> {
+  async login(@Body() body: SocialLoginRequestDTO) {
+    // Initiate social login — only provider + redirect needed here.
     return this.commandBus.execute(
-      new SocialLoginCommand(body.provider, body.providerUserId),
+      new SocialLoginCommand({
+        provider: body.provider,
+        redirectUri: body.redirectUri ?? '',
+        deviceId: body.deviceId,
+      } as never),
     );
   }
 
   @Public()
   @Post('callback')
   @HttpCode(HttpStatus.OK)
-  async callback(@Body() body: SocialCallbackRequestDTO): Promise<unknown> {
+  async callback(@Body() body: SocialCallbackRequestDTO) {
     return this.commandBus.execute(
-      new SocialCallbackCommand(body.provider, body.code, body.state),
+      new SocialCallbackCommand({
+        provider: body.provider,
+        code: body.code,
+        state: body.state,
+        deviceId: body.deviceId,
+      } as never),
     );
   }
 
@@ -53,11 +60,17 @@ export class AuthSocialController {
   @Post('link')
   @HttpCode(HttpStatus.NO_CONTENT)
   async link(
-    @CurrentUser() user: CurrentUserShape,
-    @Body() body: SocialLinkRequestDTO,
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: LinkSocialRequestDTO,
   ): Promise<void> {
-    return this.commandBus.execute(
-      new LinkSocialCommand(user.userId, body.provider, body.providerUserId),
+    await this.commandBus.execute(
+      new LinkSocialCommand(user.id as UserId, {
+        provider: body.provider,
+        accessToken: body.accessToken,
+        refreshToken: undefined,
+        providerUserId: body.providerUserId,
+        scopes: body.scopes,
+      } as never),
     );
   }
 
@@ -65,11 +78,14 @@ export class AuthSocialController {
   @Delete('unlink')
   @HttpCode(HttpStatus.NO_CONTENT)
   async unlink(
-    @CurrentUser() user: CurrentUserShape,
-    @Body() body: SocialUnlinkRequestDTO,
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: UnlinkSocialRequestDTO,
   ): Promise<void> {
-    return this.commandBus.execute(
-      new UnlinkSocialCommand(user.userId, body.provider),
+    await this.commandBus.execute(
+      new UnlinkSocialCommand(user.id as UserId, {
+        provider: body.provider,
+        password: body.password,
+      } as never),
     );
   }
 }

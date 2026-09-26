@@ -1,37 +1,26 @@
+/**
+ * AuthAccountLockController
+ * @module auth-service/interfaces/controllers/rest
+ */
 import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Post,
-  UseGuards,
+  Controller, Get, Post, Body, HttpCode, HttpStatus, UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import { PERMISSION } from '@vubon/shared-constants/common';
-import {
-  CurrentUser,
-  JwtAuthGuard,
-  Permissions,
-  type CurrentUserShape,
-} from '@vubon/shared-kernel/interfaces';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
+
 import { LockAccountCommand } from '../../../application/commands/auth/lock-account.command';
 import { UnlockAccountCommand } from '../../../application/commands/auth/unlock-account.command';
 import { GetAuthAccountLockStatusQuery } from '../../../application/queries/auth/get-auth-account-lock-status.query';
+import type { UserId } from '@vubon/shared-types/common';
 
-interface LockRequest {
-  userId: string;
-  reason: string;
-  durationMs: number;
-}
+import {
+  LockAccountRequestDTO,
+  UnlockAccountRequestDTO,
+} from '../../dtos/requests/lock.request.dto';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
 
-interface UnlockRequest {
-  userId: string;
-  reason: string;
-}
-
-@ApiTags('Account Lock')
+@ApiTags('Auth Account Lock')
 @Controller('auth/account-lock')
 @UseGuards(JwtAuthGuard)
 export class AuthAccountLockController {
@@ -41,24 +30,33 @@ export class AuthAccountLockController {
   ) {}
 
   @Post('lock')
-  @Permissions(PERMISSION.ADMIN_MANAGE)
-  async lock(@Body() body: LockRequest): Promise<unknown> {
+  @HttpCode(HttpStatus.OK)
+  async lock(@Body() body: LockAccountRequestDTO) {
     return this.commandBus.execute(
-      new LockAccountCommand(body.userId, body.reason, body.durationMs),
+      new LockAccountCommand({
+        userId: body.userId,
+        reason: body.reason as never,
+        durationMinutes: body.durationMinutes,
+        note: body.note,
+      }),
     );
   }
 
   @Post('unlock')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Permissions(PERMISSION.ADMIN_MANAGE)
-  async unlock(@Body() body: UnlockRequest): Promise<void> {
+  @HttpCode(HttpStatus.OK)
+  async unlock(@Body() body: UnlockAccountRequestDTO) {
     return this.commandBus.execute(
-      new UnlockAccountCommand(body.userId, body.reason),
+      new UnlockAccountCommand({
+        userId: body.userId,
+        note: body.note,
+      }),
     );
   }
 
-  @Get('status')
-  async status(@CurrentUser() user: CurrentUserShape): Promise<unknown> {
-    return this.queryBus.execute(new GetAuthAccountLockStatusQuery(user.userId));
+  @Get('me')
+  async myLockStatus(@CurrentUser() user: AuthenticatedUser) {
+    return this.queryBus.execute(
+      new GetAuthAccountLockStatusQuery(user.id as UserId),
+    );
   }
 }

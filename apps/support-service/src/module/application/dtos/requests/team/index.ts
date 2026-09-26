@@ -1,3 +1,5 @@
-export type { CreateTeamRequestDTO } from './create-team.dto';
-export type { UpdateTeamRequestDTO } from './update-team.dto';
-export type { AddTeamMemberRequestDTO } from './add-team-member.dto';
+// support-service/application/dtos/requests/team/index.ts
+
+export * from './create-team.dto';
+export * from './update-team.dto';
+export * from './add-team-member.dto';

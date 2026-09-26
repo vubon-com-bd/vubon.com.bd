@@ -1,86 +1,108 @@
+/**
+ * SupportAutomationPrismaRepository
+ * @module support-service/infrastructure/persistence/prisma/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { SupportAutomation as PrismaSupportAutomation, Prisma } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+import { SupportPrismaService } from '../prisma.service';
+import { SupportAutomationRepository } from '../../../../domain/repositories/support-automation.repository.interface';
 import { SupportAutomationEntity } from '../../../../domain/entities/support-automation.entity';
 import { AutomationIdVO } from '../../../../domain/value-objects/primitives/automation-id.vo';
-import { AutomationTypeVO } from '../../../../domain/value-objects/primitives/automation-type.vo';
 import { AutomationStatusVO } from '../../../../domain/value-objects/primitives/automation-status.vo';
-import type { SupportAutomationRepository } from '../../../../domain/repositories/support-automation.repository.interface';
+import { AutomationTypeVO } from '../../../../domain/value-objects/primitives/automation-type.vo';
+import { SupportAutomationMapper } from '../mappers/support-automation.mapper';
 
 @Injectable()
 export class SupportAutomationPrismaRepository
-  extends BasePrismaRepository<SupportAutomationEntity, AutomationIdVO>
   implements SupportAutomationRepository
 {
-  constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
-  }
-
-  private toDomain(raw: PrismaSupportAutomation): SupportAutomationEntity {
-    const config =
-      raw.config && typeof raw.config === 'object'
-        ? (raw.config as Record<string, unknown>)
-        : null;
-    return SupportAutomationEntity.reconstitute(
-      AutomationIdVO.create(raw.id),
-      {
-        name: raw.name,
-        type: AutomationTypeVO.create(raw.type),
-        trigger: raw.trigger,
-        action: raw.action,
-        status: AutomationStatusVO.create(raw.status),
-        config,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      null,
-    );
-  }
-
-  private toConfig(
-    config: Readonly<Record<string, unknown>> | null,
-  ): Prisma.InputJsonValue | typeof Prisma.JsonNull {
-    if (config === null) return Prisma.JsonNull;
-    return config as Prisma.InputJsonValue;
-  }
+  constructor(
+    private readonly prisma: SupportPrismaService,
+    private readonly mapper: SupportAutomationMapper,
+  ) {}
 
   async findById(id: AutomationIdVO): Promise<SupportAutomationEntity | null> {
-    const raw = await this.prisma.supportAutomation.findUnique({ where: { id: id.value } });
-    return raw ? this.toDomain(raw) : null;
+    const raw = await this.prisma.supportAutomation.findUnique({
+      where: { id: id.value },
+    });
+    return raw ? this.mapper.toDomain(raw) : null;
   }
 
   async findAll(): Promise<readonly SupportAutomationEntity[]> {
-    const rows = await this.prisma.supportAutomation.findMany();
-    return rows.map((r) => this.toDomain(r));
+    const rows = await this.prisma.supportAutomation.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
   }
 
   async save(entity: SupportAutomationEntity): Promise<SupportAutomationEntity> {
-    const data = {
-      name: entity.name,
-      type: entity.type.value,
-      trigger: entity.trigger,
-      action: entity.action,
-      status: entity.status.value,
-      config: this.toConfig(entity.config),
-      updatedAt: new Date(),
-    };
+    const data = this.mapper.toPersistence(entity);
     const raw = await this.prisma.supportAutomation.upsert({
-      where: { id: entity.id.value },
-      create: { id: entity.id.value, ...data },
-      update: data,
+      where: { id: data.id },
+      create: { ...data },
+      update: {
+        name: data.name,
+        status: data.status,
+        schedule: data.schedule,
+        lastRunAt: data.lastRunAt,
+        nextRunAt: data.nextRunAt,
+        totalRuns: data.totalRuns,
+        failureCount: data.failureCount,
+        updatedAt: new Date(),
+      },
     });
-    return this.toDomain(raw);
+    return this.mapper.toDomain(raw);
   }
 
   async delete(id: AutomationIdVO): Promise<void> {
     await this.prisma.supportAutomation.delete({ where: { id: id.value } });
   }
 
+  async exists(id: AutomationIdVO): Promise<boolean> {
+    const count = await this.prisma.supportAutomation.count({
+      where: { id: id.value },
+    });
+    return count > 0;
+  }
+
   async findActive(): Promise<readonly SupportAutomationEntity[]> {
     const rows = await this.prisma.supportAutomation.findMany({
       where: { status: 'active' },
     });
-    return rows.map((r) => this.toDomain(r));
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findByStatus(status: AutomationStatusVO): Promise<readonly SupportAutomationEntity[]> {
+    const rows = await this.prisma.supportAutomation.findMany({
+      where: { status: status.value },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findByType(type: AutomationTypeVO): Promise<readonly SupportAutomationEntity[]> {
+    const rows = await this.prisma.supportAutomation.findMany({
+      where: { type: type.value },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findScheduled(): Promise<readonly SupportAutomationEntity[]> {
+    const rows = await this.prisma.supportAutomation.findMany({
+      where: { schedule: { not: null } },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findDueBefore(isoTime: string): Promise<readonly SupportAutomationEntity[]> {
+    const rows = await this.prisma.supportAutomation.findMany({
+      where: { nextRunAt: { lte: new Date(isoTime) } },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findFailing(): Promise<readonly SupportAutomationEntity[]> {
+    const rows = await this.prisma.supportAutomation.findMany({
+      where: { failureCount: { gt: 0 } },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
   }
 }

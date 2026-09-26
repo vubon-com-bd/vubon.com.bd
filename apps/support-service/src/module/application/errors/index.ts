@@ -1,39 +1,16 @@
-export {
-  TicketNotFoundError,
-  TicketOperationFailedError,
-} from './ticket.errors';
+// support-service/application/errors/index.ts
 
-export {
-  MessageNotFoundError,
-  MessageOperationFailedError,
-} from './message.errors';
-
-export {
-  FeedbackNotFoundError,
-  FeedbackOperationFailedError,
-} from './feedback.errors';
-
-export {
-  ComplaintNotFoundError,
-  ComplaintOperationFailedError,
-} from './complaint.errors';
-
-export {
-  SurveyNotFoundError,
-  SurveyOperationFailedError,
-} from './survey.errors';
-
-export {
-  ChatNotFoundError,
-  ChatOperationFailedError,
-} from './chat.errors';
-
-export {
-  ChatbotNotFoundError,
-  ChatbotOperationFailedError,
-} from './chatbot.errors';
-
-export {
-  AgentNotFoundError,
-  NoAgentAvailableError,
-} from './agent.errors';
+export * from './ticket.errors';
+export * from './conversation.errors';
+export * from './message.errors';
+export * from './feedback.errors';
+export * from './complaint.errors';
+export * from './survey.errors';
+export * from './chat.errors';
+export * from './chatbot.errors';
+export * from './agent.errors';
+export * from './team.errors';
+export * from './sla.errors';
+export * from './rule.errors';
+export * from './automation.errors';
+export * from './template.errors';

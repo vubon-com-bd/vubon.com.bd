@@ -1,28 +1,20 @@
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { SocialLoginCommand } from './social-login.command';
 import type { AuthSocialServiceInterface } from '../../services/interfaces/auth-social.service.interface';
-import type { SocialLoginResponseDTO } from '../../dtos/responses/social-login-response.dto';
+import { AUTH_SOCIAL_SERVICE } from '../../tokens';
 
 @CommandHandler(SocialLoginCommand)
 export class SocialLoginHandler
-  extends BaseCommandHandler<SocialLoginCommand, SocialLoginResponseDTO>
-  implements ICommandHandler<SocialLoginCommand>
-{
-  readonly commandType = 'auth.social-login';
-
+  extends BaseCommandHandler<SocialLoginCommand, { authUrl: string; state: string }>
+  implements ICommandHandler<SocialLoginCommand> {
+  readonly commandType = 'SocialLoginCommand';
   constructor(
-    @Inject('AuthSocialService') @Inject('AuthSocialService') private readonly socialService: AuthSocialServiceInterface,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
-  }
+    @Inject(AUTH_SOCIAL_SERVICE) private readonly socialService: AuthSocialServiceInterface,
+  ) { super(); }
 
-  async execute(command: SocialLoginCommand): Promise<SocialLoginResponseDTO> {
-    return this.socialService.login({
-      provider: command.provider,
-      providerUserId: command.providerUserId,
-    });
+  async execute(command: SocialLoginCommand) {
+    return this.socialService.initiateLogin(command.input);
   }
 }

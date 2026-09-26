@@ -1,22 +1,18 @@
-import { PrismaService } from '../../infrastructure/persistence/prisma/prisma.service';
-import { PrismaModule, RedisModule } from '@vubon/shared-kernel/infrastructure';
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-
 import { Auth2FaController } from '../../interfaces/controllers/rest/auth-2fa.controller';
 import { Auth2FaService } from '../../application/services/impl/auth-2fa.service';
 import { Auth2FaPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/auth-2fa.prisma.repository';
+import { AUTH_2FA_REPO } from '../../application/services/tokens';
+
+const TOKEN_BINDINGS = [
+  { provide: AUTH_2FA_REPO, useExisting: Auth2FaPrismaRepository },
+];
 
 @Module({
-  imports: [CqrsModule, PrismaModule, RedisModule],
+  imports: [CqrsModule],
   controllers: [Auth2FaController],
-  providers: [PrismaService, { provide: 'PrismaService', useClass: PrismaService },
-    { provide: 'Auth2FaRepository', useExisting: Auth2FaPrismaRepository },
-    { provide: 'Auth2FaService', useExisting: Auth2FaService },
-
-    Auth2FaPrismaRepository,
-    Auth2FaService,
-  ],
-  exports: [Auth2FaService, Auth2FaPrismaRepository],
+  providers: [Auth2FaService, Auth2FaPrismaRepository, ...TOKEN_BINDINGS],
+  exports: [Auth2FaService, Auth2FaPrismaRepository, ...TOKEN_BINDINGS.map((b) => b.provide)],
 })
 export class Auth2FaModule {}

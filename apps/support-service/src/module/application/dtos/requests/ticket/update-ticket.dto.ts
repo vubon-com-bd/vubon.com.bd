@@ -1,11 +1,20 @@
-import { z } from 'zod';
+/**
+ * UpdateTicketRequestDTO
+ * @module support-service/application/dtos/requests/ticket
+ */
+import type {
+  TicketStatusValue,
+  TicketPriorityValue,
+  TicketCategoryValue,
+} from '@vubon/shared-types/support';
 
-export const UpdateTicketRequestSchema = z.object({
-  subject: z.string().min(3).max(200).optional(),
-  description: z.string().max(5000).optional(),
-  priority: z.string().optional(),
-  categoryId: z.string().uuid().optional(),
-  tags: z.array(z.string()).optional(),
-});
-
-export type UpdateTicketRequestDTO = z.infer<typeof UpdateTicketRequestSchema>;
+export interface UpdateTicketRequestDTO {
+  readonly subject?: string;
+  readonly description?: string;
+  readonly status?: TicketStatusValue;
+  readonly priority?: TicketPriorityValue;
+  readonly category?: TicketCategoryValue;
+  readonly assignedTo?: string;
+  readonly teamId?: string;
+  readonly tags?: readonly string[];
+}

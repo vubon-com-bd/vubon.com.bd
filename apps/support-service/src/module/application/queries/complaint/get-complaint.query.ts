@@ -1,3 +1,7 @@
+/**
+ * GetComplaintQuery
+ * @module support-service/application/queries/complaint
+ */
 import { BaseQuery } from '@vubon/shared-kernel/application/queries/base.query';
 
 export class GetComplaintQuery extends BaseQuery {

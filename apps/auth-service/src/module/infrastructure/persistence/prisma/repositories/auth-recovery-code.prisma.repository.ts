@@ -1,84 +1,94 @@
+/**
+ * AuthRecoveryCodePrismaRepository
+ * @module auth-service/infrastructure/persistence/prisma/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { AuthRecoveryCode as PrismaAuthRecoveryCode } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+import type { AuthRecoveryCode as PrismaAuthRecoveryCode } from '@prisma/client';
+import {
+  BasePrismaRepository,
+  type PrismaDelegate,
+} from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
+import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
+import type { UserId } from '@vubon/shared-types/common';
 import { AuthRecoveryCodeEntity } from '../../../../domain/entities/auth-recovery-code.entity';
-import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
 import { RecoveryCodeVO } from '../../../../domain/value-objects/primitives/recovery-code.vo';
 import { RecoveryCodeStatusVO } from '../../../../domain/value-objects/primitives/recovery-code-status.vo';
 import type { AuthRecoveryCodeRepository } from '../../../../domain/repositories/auth-recovery-code.repository.interface';
 
 @Injectable()
 export class AuthRecoveryCodePrismaRepository
-  extends BasePrismaRepository<AuthRecoveryCodeEntity, string>
-  implements AuthRecoveryCodeRepository
-{
+  extends BasePrismaRepository<AuthRecoveryCodeEntity, PrismaAuthRecoveryCode, string>
+  implements AuthRecoveryCodeRepository {
+  protected readonly model: PrismaDelegate<PrismaAuthRecoveryCode>;
+
   constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
+    super();
+    this.model = prisma.authRecoveryCode as unknown as PrismaDelegate<PrismaAuthRecoveryCode>;
   }
 
-  private toDomain(raw: PrismaAuthRecoveryCode): AuthRecoveryCodeEntity {
-    return AuthRecoveryCodeEntity.reconstitute(
-      raw.id,
-      {
-        userId: UserIdVO.create(raw.userId),
-        code: RecoveryCodeVO.create(raw.code),
-        status: RecoveryCodeStatusVO.create(raw.status),
-        usedAt: raw.usedAt,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      raw.deletedAt?.toISOString() ?? null,
-    );
+  protected idOf(domain: AuthRecoveryCodeEntity): string {
+    return domain.id;
   }
 
-  async findById(id: string): Promise<AuthRecoveryCodeEntity | null> {
-    const raw = await this.prisma.authRecoveryCode.findUnique({ where: { id } });
+  protected whereForId(id: string): Record<string, unknown> {
+    return { id };
+  }
+
+  protected toDomain(raw: PrismaAuthRecoveryCode): AuthRecoveryCodeEntity {
+    return AuthRecoveryCodeEntity.create({
+      id: raw.id,
+      userId: raw.userId as UserId,
+      code: RecoveryCodeVO.of(raw.code),
+      status: RecoveryCodeStatusVO.of(raw.status),
+      usedAt: raw.usedAt ? raw.usedAt.getTime() : undefined,
+      createdAt: raw.createdAt.toISOString(),
+      updatedAt: raw.updatedAt.toISOString(),
+      deletedAt: raw.deletedAt ? raw.deletedAt.toISOString() : null,
+    });
+  }
+
+  protected toPersistence(domain: AuthRecoveryCodeEntity): Record<string, unknown> {
+    return {
+      id: domain.id,
+      userId: domain.userId,
+      code: '****-****',
+      status: domain.status.value,
+      usedAt: domain.usedAt ? new Date(domain.usedAt) : null,
+      updatedAt: new Date(),
+    };
+  }
+
+  async findByUserId(userId: UserId): Promise<readonly AuthRecoveryCodeEntity[]> {
+    const rows = await this.prisma.authRecoveryCode.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'asc' },
+    });
+    return rows.map((r) => this.toDomain(r));
+  }
+
+  async findActiveByUserId(userId: UserId): Promise<readonly AuthRecoveryCodeEntity[]> {
+    const rows = await this.prisma.authRecoveryCode.findMany({
+      where: { userId, status: 'active' },
+      orderBy: { createdAt: 'asc' },
+    });
+    return rows.map((r) => this.toDomain(r));
+  }
+
+  async findByCode(
+    userId: UserId,
+    code: RecoveryCodeVO,
+  ): Promise<AuthRecoveryCodeEntity | null> {
+    const raw = await this.prisma.authRecoveryCode.findFirst({
+      where: { userId, code: code.value },
+    });
     return raw ? this.toDomain(raw) : null;
   }
 
-  async findAll(): Promise<readonly AuthRecoveryCodeEntity[]> {
-    const rows = await this.prisma.authRecoveryCode.findMany();
-    return rows.map((r) => this.toDomain(r));
-  }
-
-  async save(entity: AuthRecoveryCodeEntity): Promise<AuthRecoveryCodeEntity> {
-    const data = {
-      userId: entity.userId.value,
-      code: entity.code.value,
-      status: entity.status.value,
-      usedAt: entity.usedAt,
-      updatedAt: new Date(),
-    };
-    const raw = await this.prisma.authRecoveryCode.upsert({
-      where: { id: entity.id },
-      create: { id: entity.id, ...data },
-      update: data,
+  async invalidateAllForUser(userId: UserId, at: number): Promise<number> {
+    const result = await this.prisma.authRecoveryCode.updateMany({
+      where: { userId, status: 'active' },
+      data: { status: 'expired', usedAt: new Date(at), updatedAt: new Date() },
     });
-    return this.toDomain(raw);
-  }
-
-  async delete(id: string): Promise<void> {
-    await this.prisma.authRecoveryCode.delete({ where: { id } });
-  }
-
-  async findByUserId(userId: UserIdVO): Promise<readonly AuthRecoveryCodeEntity[]> {
-    const rows = await this.prisma.authRecoveryCode.findMany({
-      where: { userId: userId.value },
-    });
-    return rows.map((r) => this.toDomain(r));
-  }
-
-  async markUsed(id: string): Promise<void> {
-    await this.prisma.authRecoveryCode.update({
-      where: { id },
-      data: { status: 'used', usedAt: new Date(), updatedAt: new Date() },
-    });
-  }
-
-  async deleteAllForUser(userId: UserIdVO): Promise<void> {
-    await this.prisma.authRecoveryCode.deleteMany({
-      where: { userId: userId.value },
-    });
+    return result.count;
   }
 }

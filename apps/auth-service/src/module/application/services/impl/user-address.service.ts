@@ -1,97 +1,130 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { EventBus } from '@nestjs/cqrs';
+/**
+ * UserAddressService
+ * @module auth-service/application/services/impl
+ *
+ * NOTE: `AddAddressRequestSchema` uses generic fields (city, country, state).
+ * Our BD-specific UserAddressEntity keeps `division/district/upazila` for
+ * legacy reasons. This service maps schema→entity fields best-effort.
+ */
+import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
+import type { UserId } from '@vubon/shared-types/common';
 import type { UserAddressServiceInterface } from '../interfaces/user-address.service.interface';
 import type { UserAddressRepository } from '../../../domain/repositories/user-address.repository.interface';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
 import { UserAddressEntity } from '../../../domain/entities/user-address.entity';
-import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
-import { AddressIdVO } from '../../../domain/value-objects/primitives/address-id.vo';
-import { UserOperationFailedError } from '../../errors/user.errors';
 import type { AddAddressRequestDTO } from '../../dtos/requests/user/add-address.dto';
 import type { UpdateAddressRequestDTO } from '../../dtos/requests/user/update-address.dto';
 import type { UserAddressResponseDTO } from '../../dtos/responses/user-address-response.dto';
+import { ID_GENERATOR } from '../tokens';
+import { USER_ADDRESS_REPO } from '../../tokens';
+
+type AddAddressInput = AddAddressRequestDTO & {
+  line1: string;
+  city: string;
+  country: string;
+  postalCode?: string;
+  state?: string;
+  line2?: string;
+  label?: string;
+  isDefault?: boolean;
+  type?: string;
+};
+
+type UpdateAddressInput = UpdateAddressRequestDTO & {
+  line1?: string;
+  line2?: string;
+  isDefault?: boolean;
+};
 
 @Injectable()
 export class UserAddressService
   extends BaseService<UserAddressEntity, string>
-  implements UserAddressServiceInterface
-{
+  implements UserAddressServiceInterface {
   readonly name = 'UserAddressService';
 
   constructor(
-    @Inject('UserAddressRepository') private readonly addressRepo: UserAddressRepository,
-    private readonly eventBus: EventBus,
+    @Inject(USER_ADDRESS_REPO) private readonly repo: UserAddressRepository,
+    @Inject(ID_GENERATOR) private readonly idGen: IdGeneratorServiceInterface,
   ) {
     super();
   }
 
-  async listByUser(userId: string): Promise<readonly UserAddressResponseDTO[]> {
-    const entities = await this.addressRepo.findByUserId(UserIdVO.create(userId));
-    return entities.map((e) => this.toDTO(e));
+  async listForUser(userId: UserId): Promise<readonly UserAddressEntity[]> {
+    return this.repo.findByUserId(userId);
   }
 
   async add(
-    userId: string,
+    userId: UserId,
     input: AddAddressRequestDTO,
-  ): Promise<UserAddressResponseDTO> {
+  ): Promise<UserAddressEntity> {
+    const src = input as unknown as AddAddressInput;
+    const now = new Date().toISOString();
+
+    // Best-effort mapping from generic schema into BD entity fields.
     const entity = UserAddressEntity.create({
-      userId: UserIdVO.create(userId),
-      label: input.label ?? 'Home',
-      fullName: '',
-      phone: '',
-      division: input.state ?? '',
-      district: input.city,
-      upazila: '',
-      addressLine: input.line1,
-      postalCode: input.postalCode ?? null,
-      isDefault: input.isDefault,
+      id: this.idGen.generate(),
+      userId,
+      label: src.label ?? src.type ?? 'home',
+      line1: src.line1,
+      line2: src.line2,
+      division: src.state ?? src.city,
+      district: src.city,
+      upazila: src.city,
+      postalCode: src.postalCode ?? '0000',
+      isDefault: src.isDefault ?? false,
+      createdAt: now,
+      updatedAt: now,
     });
-    await this.addressRepo.save(entity);
-    return this.toDTO(entity);
+    if (entity.isDefault) {
+      await this.repo.clearDefaultForUser(userId);
+    }
+    return this.repo.save(entity);
   }
 
   async update(
     addressId: string,
     input: UpdateAddressRequestDTO,
-  ): Promise<UserAddressResponseDTO> {
-    const entity = await this.addressRepo.findById(AddressIdVO.create(addressId));
-    if (!entity) {
-      throw new UserOperationFailedError(`address not found: ${addressId}`);
+  ): Promise<UserAddressEntity> {
+    const found = await this.repo.findById(addressId);
+    if (!found) throw new Error('Address not found');
+    const src = input as unknown as UpdateAddressInput;
+    if (src.line1) found.updateLines(src.line1, src.line2);
+    if (src.isDefault) {
+      await this.repo.clearDefaultForUser(found.userId);
+      found.markDefault();
     }
-    const updated = entity.update({
-      label: input.label,
-      district: input.city,
-      division: input.state,
-      addressLine: input.line1,
-      postalCode: input.postalCode,
-      isDefault: input.isDefault,
-    } as never);
-    await this.addressRepo.save(updated);
-    return this.toDTO(updated);
+    return this.repo.save(found);
   }
 
-  async delete(addressId: string): Promise<void> {
-    await this.addressRepo.delete(AddressIdVO.create(addressId));
+  async remove(addressId: string): Promise<void> {
+    await this.repo.delete(addressId);
   }
 
-  private toDTO(entity: UserAddressEntity): UserAddressResponseDTO {
+  async setDefault(userId: UserId, addressId: string): Promise<void> {
+    const found = await this.repo.findById(addressId);
+    if (!found || found.userId !== userId) {
+      throw new Error('Address not found');
+    }
+    await this.repo.clearDefaultForUser(userId);
+    found.markDefault();
+    await this.repo.save(found);
+  }
+
+  toResponse(address: UserAddressEntity): UserAddressResponseDTO {
     return {
-      success: true,
-      address: {
-        id: entity.id.value,
-        userId: entity.userId.value,
-        type: 'home',
-        label: entity.label,
-        line1: entity.addressLine,
-        city: entity.district,
-        state: entity.division,
-        country: 'BD',
-        isDefault: entity.isDefault,
-        isDefaultShipping: entity.isDefault,
-        isDefaultBilling: false,
-        createdAt: entity.createdAt,
-        updatedAt: entity.updatedAt,
-      },
+      id: address.id,
+      userId: address.userId,
+      label: address.label,
+      line1: address.line1,
+      line2: address.line2,
+      division: address.division,
+      district: address.district,
+      upazila: address.upazila,
+      postalCode: address.postalCode,
+      isDefault: address.isDefault,
+      createdAt: address.createdAt,
+      updatedAt: address.updatedAt,
     };
   }
 }

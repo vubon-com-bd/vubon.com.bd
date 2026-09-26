@@ -1,4 +1,8 @@
-export { MfaGuard, MFA_REQUIRED_KEY } from './mfa.guard';
-export { BiometricGuard, BIOMETRIC_REQUIRED_KEY } from './biometric.guard';
-export { VerifiedGuard, VERIFIED_REQUIRED_KEY } from './verified.guard';
-export { DeviceGuard } from './device.guard';
+/**
+ * Auth-specific Guards — Barrel
+ * @module auth-service/interfaces/guards
+ */
+export * from './mfa.guard';
+export * from './biometric.guard';
+export * from './verified.guard';
+export * from './device.guard';

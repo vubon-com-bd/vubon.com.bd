@@ -1,49 +1,29 @@
+/**
+ * SocialValidatorService — Validates social providers + linked data
+ * @module auth-service/infrastructure/services/internal
+ */
 import { Injectable } from '@nestjs/common';
-import axios from 'axios';
-import type {
-  SocialValidatorPort,
-  SocialProfile,
-} from '../../../application/ports/social-validator.port';
+import { SocialProviderVO } from '../../../domain/value-objects/primitives/social-provider.vo';
+import { SocialProviderAppError } from '../../../application/errors/social.errors';
+
+const SUPPORTED = new Set<string>([
+  'google', 'facebook', 'apple', 'twitter',
+  'github', 'linkedin', 'tiktok', 'instagram',
+]);
 
 @Injectable()
-export class SocialValidatorService implements SocialValidatorPort {
-  async verify(provider: string, accessToken: string): Promise<SocialProfile> {
-    switch (provider) {
-      case 'google': {
-        const { data } = await axios.get(
-          'https://www.googleapis.com/oauth2/v3/userinfo',
-          { headers: { Authorization: `Bearer ${accessToken}` } },
-        );
-        return {
-          providerUserId: data.sub,
-          email: data.email,
-          name: data.name,
-          avatarUrl: data.picture,
-        };
-      }
-      case 'facebook': {
-        const { data } = await axios.get(
-          `https://graph.facebook.com/me?fields=id,name,email&access_token=${accessToken}`,
-        );
-        return {
-          providerUserId: data.id,
-          email: data.email,
-          name: data.name,
-        };
-      }
-      case 'github': {
-        const { data } = await axios.get('https://api.github.com/user', {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-        return {
-          providerUserId: String(data.id),
-          email: data.email ?? undefined,
-          name: data.name ?? data.login,
-          avatarUrl: data.avatar_url,
-        };
-      }
-      default:
-        throw new Error(`Unsupported social provider: ${provider}`);
+export class SocialValidatorService {
+  readonly name = 'SocialValidatorService';
+
+  assertSupported(provider: string): SocialProviderVO {
+    const lower = provider.trim().toLowerCase();
+    if (!SUPPORTED.has(lower)) {
+      throw new SocialProviderAppError(provider, 'Unsupported provider');
     }
+    return SocialProviderVO.of(lower);
+  }
+
+  isSupported(provider: string): boolean {
+    return SUPPORTED.has(provider.trim().toLowerCase());
   }
 }

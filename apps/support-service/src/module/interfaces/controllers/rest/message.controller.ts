@@ -1,51 +1,94 @@
+/**
+ * MessageController — HTTP adapter
+ * @module support-service/interfaces/controllers/rest
+ */
 import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiTags } from '@nestjs/swagger';
-import {
-  CurrentUser,
-  JwtAuthGuard,
-  type CurrentUserShape,
-} from '@vubon/shared-kernel/interfaces';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard, CurrentUser } from '@vubon/shared-kernel/interfaces';
+
 import { SendMessageCommand } from '../../../application/commands/message/send-message.command';
+import { MarkMessageReadCommand } from '../../../application/commands/message/mark-read.command';
 import { GetMessageQuery } from '../../../application/queries/message/get-message.query';
-import { SendMessageRequestDto } from '../../dtos/requests/message.request.dto';
-import { MessageSwagger } from '../../swagger/message.swagger';
+import { ListMessagesQuery } from '../../../application/queries/message/list-messages.query';
+
+import { SendMessageRequestDTO } from '../../dtos/requests/message/send-message.dto';
+import { MarkMessageReadRequestDTO } from '../../dtos/requests/message/mark-read.dto';
+import { MessageResponseDTO } from '../../dtos/responses/message-response.dto';
+import { MessageControllerMapper } from '../../mappers/message.controller.mapper';
 
 @ApiTags('Messages')
-@Controller('messages')
-@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+@Controller({ path: 'conversations/:conversationId/messages', version: '1' })
 export class MessageController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
+    private readonly mapper: MessageControllerMapper,
   ) {}
 
-  @Get(':id')
-  async get(@Param('id') id: string): Promise<unknown> {
-    return this.queryBus.execute(new GetMessageQuery(id));
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  async send(
+    @Param('conversationId') conversationId: string,
+    @Body() body: SendMessageRequestDTO,
+    @CurrentUser('userId') userId: string,
+  ): Promise<MessageResponseDTO> {
+    const result = await this.commandBus.execute(
+      new SendMessageCommand({
+        conversationId,
+        content: body.content,
+        type: body.type as never,
+        attachments: body.attachments,
+        isInternal: body.isInternal,
+        senderId: userId,
+        senderType: 'customer',
+      }),
+    );
+    return this.mapper.toResponse(result);
   }
 
-  @Post()
-  @MessageSwagger.Send()
-  async send(
-    @CurrentUser() user: CurrentUserShape,
-    @Body() body: SendMessageRequestDto,
-  ): Promise<unknown> {
-    return this.commandBus.execute(
-      new SendMessageCommand(
-        body.ticketId,
-        user.userId,
-        body.content,
-        body.type ?? 'text',
-        body.isInternal ?? false,
-      ),
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async list(
+    @Param('conversationId') conversationId: string,
+  ): Promise<readonly MessageResponseDTO[]> {
+    const result = await this.queryBus.execute(
+      new ListMessagesQuery(conversationId, 1, 50),
     );
+    return result.items.map((item: never) => this.mapper.toResponse(item));
+  }
+
+  @Get(':messageId')
+  @UseGuards(JwtAuthGuard)
+  async findOne(
+    @Param('messageId') messageId: string,
+  ): Promise<MessageResponseDTO> {
+    const result = await this.queryBus.execute(new GetMessageQuery(messageId));
+    return this.mapper.toResponse(result);
+  }
+
+  @Post(':messageId/read')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async markRead(
+    @Param('messageId') messageId: string,
+    @Body() _body: MarkMessageReadRequestDTO,
+    @CurrentUser('userId') userId: string,
+  ): Promise<MessageResponseDTO> {
+    const result = await this.commandBus.execute(
+      new MarkMessageReadCommand({ messageId, readerId: userId }),
+    );
+    return this.mapper.toResponse(result);
   }
 }

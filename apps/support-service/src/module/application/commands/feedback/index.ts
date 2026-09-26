@@ -1,4 +1,6 @@
-export { SubmitFeedbackCommand } from './submit-feedback.command';
-export { SubmitFeedbackHandler } from './submit-feedback.handler';
-export { ReviewFeedbackCommand } from './review-feedback.command';
-export { ReviewFeedbackHandler } from './review-feedback.handler';
+// support-service/application/commands/feedback/index.ts
+
+export * from './submit-feedback.command';
+export * from './submit-feedback.handler';
+export * from './review-feedback.command';
+export * from './review-feedback.handler';

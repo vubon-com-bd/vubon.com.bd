@@ -1,4 +1,6 @@
-export { GetFeedbackQuery } from './get-feedback.query';
-export { GetFeedbackHandler } from './get-feedback.handler';
-export { ListFeedbackByUserQuery } from './list-feedback-by-user.query';
-export { ListFeedbackByUserHandler } from './list-feedback-by-user.handler';
+// support-service/application/queries/feedback/index.ts
+
+export * from './get-feedback.query';
+export * from './get-feedback.handler';
+export * from './list-feedbacks.query';
+export * from './list-feedbacks.handler';

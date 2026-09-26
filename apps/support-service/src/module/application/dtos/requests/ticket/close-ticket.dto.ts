@@ -1,8 +1,9 @@
-import { z } from 'zod';
-
-export const CloseTicketRequestSchema = z.object({
-  ticketId: z.string().uuid(),
-  reason: z.string().max(500).optional(),
-});
-
-export type CloseTicketRequestDTO = z.infer<typeof CloseTicketRequestSchema>;
+/**
+ * CloseTicketRequestDTO
+ * @module support-service/application/dtos/requests/ticket
+ */
+export interface CloseTicketRequestDTO {
+  readonly ticketId: string;
+  readonly closingNote?: string;
+  readonly closedBy?: string;
+}

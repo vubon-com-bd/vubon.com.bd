@@ -1,12 +1,5 @@
-export { ChatWebSocketGateway } from './websocket.gateway';
-export { WebSocketModule } from './websocket.module';
-export { WebSocketAdapter } from './websocket.adapter';
-export type {
-  AuthenticatedSocketUser,
-  ChatMessagePayload,
-  TypingPayload,
-  PresencePayload,
-  JoinRoomPayload,
-} from './websocket.types';
-export * from './rooms';
-export * from './events';
+// support-service/infrastructure/websocket/index.ts
+
+export * from './websocket.gateway';
+export * from './rooms/chat.room';
+export * from './events/message.events';

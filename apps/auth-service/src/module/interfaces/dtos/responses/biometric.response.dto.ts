@@ -1,13 +1,14 @@
+/**
+ * BiometricResponseDTO
+ * @module auth-service/interfaces/dtos/responses
+ */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import type { BiometricResponseDTO } from '../../../application/dtos/responses/biometric-response.dto';
 
-export class BiometricResponseDTO_ implements BiometricResponseDTO {
-  @ApiProperty()
-  enabled!: boolean;
-
-  @ApiPropertyOptional()
-  biometricId?: string;
-
-  @ApiPropertyOptional()
-  enrolledAt?: string;
+export class BiometricResponseDTO {
+  @ApiProperty() enabled!: boolean;
+  @ApiPropertyOptional() biometricId?: string;
+  @ApiPropertyOptional({ enum: ['fingerprint', 'face', 'voice', 'iris'] })
+  kind?: string;
+  @ApiPropertyOptional() enrolledAt?: string;
+  @ApiPropertyOptional() deviceId?: string;
 }

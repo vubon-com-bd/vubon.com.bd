@@ -1,4 +1,6 @@
-export { GetComplaintQuery } from './get-complaint.query';
-export { GetComplaintHandler } from './get-complaint.handler';
-export { ListComplaintsByUserQuery } from './list-complaints-by-user.query';
-export { ListComplaintsByUserHandler } from './list-complaints-by-user.handler';
+// support-service/application/queries/complaint/index.ts
+
+export * from './get-complaint.query';
+export * from './get-complaint.handler';
+export * from './list-complaints.query';
+export * from './list-complaints.handler';

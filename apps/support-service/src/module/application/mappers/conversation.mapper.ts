@@ -1,18 +1,33 @@
-import { Injectable } from '@nestjs/common';
+/**
+ * ConversationMapper — domain ↔ DTO
+ * @module support-service/application/mappers
+ */
+import { OneWayMapper } from '@vubon/shared-kernel/application/mappers';
 import { ConversationEntity } from '../../domain/entities/conversation.entity';
 import type { ConversationResponseDTO } from '../dtos/responses/conversation-response.dto';
 
-@Injectable()
-export class ConversationMapper {
-  toDTO(entity: ConversationEntity): ConversationResponseDTO {
+export class ConversationMapper extends OneWayMapper<
+  ConversationEntity,
+  ConversationResponseDTO
+> {
+  map(entity: ConversationEntity): ConversationResponseDTO {
+    const snapshot = entity.toSnapshot();
     return {
-      id: entity.id.value,
-      userId: entity.userId.value,
-      agentId: entity.agentId?.value ?? null,
-      status: entity.status.value,
-      type: entity.type.value,
-      startedAt: entity.startedAt.toISOString(),
-      endedAt: entity.endedAt?.toISOString() ?? null,
+      id: snapshot.id,
+      type: snapshot.type as ConversationResponseDTO['type'],
+      status: snapshot.status as ConversationResponseDTO['status'],
+      ticketId: snapshot.ticketId,
+      participantIds: [snapshot.userId],
+      messageCount: 0,
+      unreadCount: 0,
+      isLocked: false,
+      isPinned: false,
+      createdAt: snapshot.createdAt,
+      updatedAt: snapshot.updatedAt,
     };
+  }
+
+  toList(entities: readonly ConversationEntity[]): readonly ConversationResponseDTO[] {
+    return entities.map((e) => this.map(e));
   }
 }

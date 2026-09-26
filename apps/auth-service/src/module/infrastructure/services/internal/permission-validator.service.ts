@@ -1,25 +1,22 @@
+/**
+ * PermissionValidatorService
+ * @module auth-service/infrastructure/services/internal
+ */
 import { Injectable } from '@nestjs/common';
-import { AuthRoleEntity } from '../../../domain/entities/auth-role.entity';
 import { PermissionNameVO } from '../../../domain/value-objects/primitives/permission-name.vo';
-import { PermissionDeniedError } from '../../../domain/errors/permission.errors';
+import { PermissionDeniedAppError } from '../../../application/errors/permission.errors';
 
 @Injectable()
 export class PermissionValidatorService {
-  assertHas(role: AuthRoleEntity, permission: PermissionNameVO): void {
-    if (!role.hasPermission(permission)) {
-      throw new PermissionDeniedError(permission.value, role.name.value);
+  readonly name = 'PermissionValidatorService';
+
+  assertFormat(permission: string): PermissionNameVO {
+    return PermissionNameVO.of(permission);
+  }
+
+  assertGranted(granted: boolean, permission: string): void {
+    if (!granted) {
+      throw new PermissionDeniedAppError(permission);
     }
-  }
-
-  has(role: AuthRoleEntity, permission: PermissionNameVO): boolean {
-    return role.hasPermission(permission);
-  }
-
-  hasAny(role: AuthRoleEntity, permissions: readonly PermissionNameVO[]): boolean {
-    return permissions.some((p) => role.hasPermission(p));
-  }
-
-  hasAll(role: AuthRoleEntity, permissions: readonly PermissionNameVO[]): boolean {
-    return permissions.every((p) => role.hasPermission(p));
   }
 }

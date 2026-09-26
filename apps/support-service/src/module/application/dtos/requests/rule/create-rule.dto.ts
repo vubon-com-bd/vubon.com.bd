@@ -1,11 +1,31 @@
-import { z } from 'zod';
+/**
+ * CreateRuleRequestDTO
+ * @module support-service/application/dtos/requests/rule
+ */
+import type {
+  SupportRuleTypeValue,
+  SupportRuleConditionValue,
+  SupportRuleActionValue,
+} from '@vubon/shared-types/support';
 
-export const CreateRuleRequestSchema = z.object({
-  name: z.string().min(2).max(100),
-  type: z.string().min(1).max(50),
-  condition: z.string().min(1).max(2000),
-  action: z.string().min(1).max(2000),
-  priority: z.number().int().min(1).max(100).optional(),
-});
+export interface RuleConditionInput {
+  readonly field: string;
+  readonly operator: SupportRuleConditionValue;
+  readonly value: unknown;
+}
 
-export type CreateRuleRequestDTO = z.infer<typeof CreateRuleRequestSchema>;
+export interface RuleActionInput {
+  readonly action: SupportRuleActionValue;
+  readonly params?: Readonly<Record<string, unknown>>;
+}
+
+export interface CreateRuleRequestDTO {
+  readonly name: string;
+  readonly description?: string;
+  readonly type: SupportRuleTypeValue;
+  readonly priority: number;
+  readonly conditions: readonly RuleConditionInput[];
+  readonly actions: readonly RuleActionInput[];
+  readonly stopOnMatch?: boolean;
+  readonly createdBy: string;
+}

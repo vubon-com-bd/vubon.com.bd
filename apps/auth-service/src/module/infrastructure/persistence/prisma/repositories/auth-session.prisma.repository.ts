@@ -1,73 +1,68 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { AuthSession as PrismaAuthSession } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+/**
+ * AuthSessionPrismaRepository
+ * @module auth-service/infrastructure/persistence/prisma/repositories
+ */
+import { Injectable } from '@nestjs/common';
+import type { AuthSession as PrismaAuthSession } from '@prisma/client';
+import {
+  BasePrismaRepository,
+  type PrismaDelegate,
+} from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
+import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
+import type { UserId } from '@vubon/shared-types/common';
 import { AuthSessionEntity } from '../../../../domain/entities/auth-session.entity';
-import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
 import { SessionTokenVO } from '../../../../domain/value-objects/primitives/session-token.vo';
 import { SessionExpiryVO } from '../../../../domain/value-objects/primitives/session-expiry.vo';
 import type { AuthSessionRepository } from '../../../../domain/repositories/auth-session.repository.interface';
 
 @Injectable()
 export class AuthSessionPrismaRepository
-  extends BasePrismaRepository<AuthSessionEntity, string>
-  implements AuthSessionRepository
-{
-  constructor(@Inject('PrismaService') protected readonly prisma: PrismaService) {
-    super(prisma);
+  extends BasePrismaRepository<AuthSessionEntity, PrismaAuthSession, string>
+  implements AuthSessionRepository {
+  protected readonly model: PrismaDelegate<PrismaAuthSession>;
+
+  constructor(protected readonly prisma: PrismaService) {
+    super();
+    this.model = prisma.authSession as unknown as PrismaDelegate<PrismaAuthSession>;
   }
 
-  private toDomain(raw: PrismaAuthSession): AuthSessionEntity {
-    return AuthSessionEntity.reconstitute(
-      raw.id,
-      {
-        userId: UserIdVO.create(raw.userId),
-        token: SessionTokenVO.create(raw.token),
-        expiry: SessionExpiryVO.create(raw.expiry),
-        ip: raw.ip,
-        userAgent: raw.userAgent,
-        deviceId: raw.deviceId,
-        revokedAt: raw.revokedAt,
-        revokeReason: raw.revokeReason,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      raw.deletedAt?.toISOString() ?? null,
-    );
+  protected idOf(domain: AuthSessionEntity): string {
+    return domain.id;
   }
 
-  async findById(id: string): Promise<AuthSessionEntity | null> {
-    const raw = await this.prisma.authSession.findUnique({ where: { id } });
-    return raw ? this.toDomain(raw) : null;
+  protected whereForId(id: string): Record<string, unknown> {
+    return { id };
   }
 
-  async findAll(): Promise<readonly AuthSessionEntity[]> {
-    const rows = await this.prisma.authSession.findMany();
-    return rows.map((r) => this.toDomain(r));
+  protected toDomain(raw: PrismaAuthSession): AuthSessionEntity {
+    return AuthSessionEntity.create({
+      id: raw.id,
+      userId: raw.userId as UserId,
+      token: SessionTokenVO.of(raw.token),
+      expiry: SessionExpiryVO.fromEpoch(raw.expiry.getTime()),
+      ipAddress: raw.ip,
+      userAgent: raw.userAgent,
+      deviceId: raw.deviceId ?? undefined,
+      revokedAt: raw.revokedAt ? raw.revokedAt.getTime() : undefined,
+      revokedReason: raw.revokeReason ?? undefined,
+      createdAt: raw.createdAt.toISOString(),
+      updatedAt: raw.updatedAt.toISOString(),
+      deletedAt: raw.deletedAt ? raw.deletedAt.toISOString() : null,
+    });
   }
 
-  async save(entity: AuthSessionEntity): Promise<AuthSessionEntity> {
-    const data = {
-      userId: entity.userId.value,
-      token: entity.token.value,
-      expiry: new Date(entity.expiry.epochMs),
-      ip: entity.ip,
-      userAgent: entity.userAgent,
-      deviceId: entity.deviceId,
-      revokedAt: entity.revokedAt,
-      revokeReason: entity.revokeReason,
+  protected toPersistence(domain: AuthSessionEntity): Record<string, unknown> {
+    return {
+      id: domain.id,
+      userId: domain.userId,
+      token: domain.token.value,
+      expiry: new Date(domain.expiry.epochMs),
+      ip: domain.ipAddress,
+      userAgent: domain.userAgent,
+      deviceId: domain.deviceId ?? null,
+      revokedAt: domain.revokedAt ? new Date(domain.revokedAt) : null,
       updatedAt: new Date(),
     };
-    const raw = await this.prisma.authSession.upsert({
-      where: { id: entity.id },
-      create: { id: entity.id, ...data },
-      update: data,
-    });
-    return this.toDomain(raw);
-  }
-
-  async delete(id: string): Promise<void> {
-    await this.prisma.authSession.delete({ where: { id } });
   }
 
   async findByToken(token: SessionTokenVO): Promise<AuthSessionEntity | null> {
@@ -77,17 +72,41 @@ export class AuthSessionPrismaRepository
     return raw ? this.toDomain(raw) : null;
   }
 
-  async findActiveByUser(userId: UserIdVO): Promise<readonly AuthSessionEntity[]> {
+  async findActiveByUser(
+    userId: UserId,
+    now: number,
+  ): Promise<readonly AuthSessionEntity[]> {
     const rows = await this.prisma.authSession.findMany({
-      where: { userId: userId.value, revokedAt: null },
+      where: {
+        userId,
+        revokedAt: null,
+        expiry: { gt: new Date(now) },
+      },
+      orderBy: { createdAt: 'desc' },
     });
     return rows.map((r) => this.toDomain(r));
   }
 
-  async revokeAllForUser(userId: UserIdVO): Promise<void> {
-    await this.prisma.authSession.updateMany({
-      where: { userId: userId.value, revokedAt: null },
-      data: { revokedAt: new Date(), revokeReason: 'bulk_revoke' },
+  async revokeAllForUser(
+    userId: UserId,
+    at: number,
+    reason?: string,
+  ): Promise<number> {
+    const result = await this.prisma.authSession.updateMany({
+      where: { userId, revokedAt: null },
+      data: {
+        revokedAt: new Date(at),
+        revokeReason: reason ?? 'revoked',
+        updatedAt: new Date(),
+      },
     });
+    return result.count;
+  }
+
+  async deleteExpired(beforeEpochMs: number): Promise<number> {
+    const result = await this.prisma.authSession.deleteMany({
+      where: { expiry: { lt: new Date(beforeEpochMs) } },
+    });
+    return result.count;
   }
 }

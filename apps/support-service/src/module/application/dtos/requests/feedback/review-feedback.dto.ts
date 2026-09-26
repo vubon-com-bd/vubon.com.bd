@@ -1,9 +1,12 @@
-import { z } from 'zod';
+/**
+ * ReviewFeedbackRequestDTO
+ * @module support-service/application/dtos/requests/feedback
+ */
+import type { FeedbackStatusValue } from '@vubon/shared-types/support';
 
-export const ReviewFeedbackRequestSchema = z.object({
-  feedbackId: z.string().uuid(),
-  status: z.string().min(1).max(50),
-  notes: z.string().max(2000).optional(),
-});
-
-export type ReviewFeedbackRequestDTO = z.infer<typeof ReviewFeedbackRequestSchema>;
+export interface ReviewFeedbackRequestDTO {
+  readonly feedbackId: string;
+  readonly reviewerId: string;
+  readonly status: FeedbackStatusValue;
+  readonly note?: string;
+}

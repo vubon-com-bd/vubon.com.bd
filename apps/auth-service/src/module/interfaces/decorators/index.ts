@@ -1,14 +1,9 @@
-export { MfaRequired } from './mfa-required.decorator';
-export { BiometricRequired } from './biometric-required.decorator';
-export { VerifiedRequired } from './verified-required.decorator';
-
-// Re-export kernel decorators for controller convenience
-export {
-  Public,
-  Roles,
-  Permissions,
-  RateLimit,
-  Owner,
-  CurrentUser,
-  type CurrentUserShape,
-} from '@vubon/shared-kernel/interfaces';
+/**
+ * Auth-specific Decorators — Barrel
+ * @module auth-service/interfaces/decorators
+ */
+export * from './current-user.decorator';
+export * from './mfa-required.decorator';
+export * from './biometric-required.decorator';
+export * from './verified-required.decorator';
+export * from './device-trusted.decorator';

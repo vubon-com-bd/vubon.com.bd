@@ -1,7 +1,6 @@
-// Requests
-export * from './requests/auth';
-export * from './requests/user';
-export * from './requests/settings';
-
-// Responses
+/**
+ * DTOs — Barrel
+ * @module auth-service/application/dtos
+ */
+export * from './requests';
 export * from './responses';

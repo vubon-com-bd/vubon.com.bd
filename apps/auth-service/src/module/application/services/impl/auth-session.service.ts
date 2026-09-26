@@ -1,90 +1,103 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { EventBus } from '@nestjs/cqrs';
+/**
+ * AuthSessionService — Session lifecycle
+ * @module auth-service/application/services/impl
+ */
+import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
+import type { UserId } from '@vubon/shared-types/common';
 import type { AuthSessionServiceInterface } from '../interfaces/auth-session.service.interface';
 import type { AuthSessionRepository } from '../../../domain/repositories/auth-session.repository.interface';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
 import { AuthSessionEntity } from '../../../domain/entities/auth-session.entity';
-import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
 import { SessionTokenVO } from '../../../domain/value-objects/primitives/session-token.vo';
 import { SessionExpiryVO } from '../../../domain/value-objects/primitives/session-expiry.vo';
-import { SessionNotFoundError } from '../../errors/session.errors';
 import type { AuthSessionResponseDTO } from '../../dtos/responses/auth-session-response.dto';
-import type { SessionTokenGeneratorPort } from '../../ports/session-token-generator.port';
+import { ID_GENERATOR } from '../tokens';
+import { AUTH_SESSION_REPO } from '../../tokens';
 
-const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const DEFAULT_SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 @Injectable()
 export class AuthSessionService
   extends BaseService<AuthSessionEntity, string>
-  implements AuthSessionServiceInterface
-{
+  implements AuthSessionServiceInterface {
   readonly name = 'AuthSessionService';
 
   constructor(
-    @Inject('AuthSessionRepository') private readonly sessionRepo: AuthSessionRepository,
-    @Inject('SessionTokenGeneratorPort') private readonly sessionTokenGenerator: SessionTokenGeneratorPort,
-    private readonly eventBus: EventBus,
+    @Inject(AUTH_SESSION_REPO)
+    private readonly sessionRepo: AuthSessionRepository,
+    @Inject(ID_GENERATOR)
+    private readonly idGen: IdGeneratorServiceInterface,
   ) {
     super();
   }
 
-  async create(
-    userId: string,
-    ip: string,
-    userAgent: string,
-  ): Promise<AuthSessionResponseDTO> {
+  async create(input: {
+    userId: UserId;
+    ipAddress: string;
+    userAgent: string;
+    deviceId?: string;
+    ttlMs?: number;
+  }): Promise<AuthSessionEntity> {
+    const sessionId = this.idGen.generate();
+    const now = Date.now();
+    const expiry = SessionExpiryVO.fromNow(
+      input.ttlMs ?? DEFAULT_SESSION_TTL_MS,
+      now,
+    );
+
+    // Opaque session token (not JWT)
+    const rawToken = `${this.idGen.generateUuid()}.${this.idGen.generateUuid()}`;
+    const token = SessionTokenVO.of(rawToken);
+
     const entity = AuthSessionEntity.create({
-      userId: UserIdVO.create(userId),
-      token: SessionTokenVO.create(this.sessionTokenGenerator.generate()),
-      expiry: SessionExpiryVO.fromNow(SESSION_TTL_MS),
-      ip,
-      userAgent,
-      deviceId: null,
-      revokedAt: null,
-      revokeReason: null,
+      id: sessionId,
+      userId: input.userId,
+      token,
+      expiry,
+      ipAddress: input.ipAddress,
+      userAgent: input.userAgent,
+      deviceId: input.deviceId,
+      createdAt: new Date(now).toISOString(),
+      updatedAt: new Date(now).toISOString(),
     });
-    await this.sessionRepo.save(entity);
-    await this.publishEvents(entity);
-    return this.toDTO(entity);
+
+    return this.sessionRepo.save(entity);
   }
 
-  async findActiveByUser(userId: string): Promise<readonly AuthSessionResponseDTO[]> {
-    const entities = await this.sessionRepo.findActiveByUser(UserIdVO.create(userId));
-    return entities.map((e) => this.toDTO(e));
+  async findActiveByUser(userId: UserId): Promise<readonly AuthSessionEntity[]> {
+    return this.sessionRepo.findActiveByUser(userId, Date.now());
   }
 
-  async revoke(sessionId: string, reason: string): Promise<void> {
+  async revoke(sessionId: string, reason?: string): Promise<void> {
     const entity = await this.sessionRepo.findById(sessionId);
-    if (!entity) {
-      throw new SessionNotFoundError(sessionId);
-    }
-    const revoked = entity.revoke(reason);
-    await this.sessionRepo.save(revoked);
-    await this.publishEvents(revoked);
+    if (!entity) return;
+    entity.revoke(Date.now(), reason);
+    await this.sessionRepo.save(entity);
   }
 
-  async revokeAllForUser(userId: string): Promise<void> {
-    await this.sessionRepo.revokeAllForUser(UserIdVO.create(userId));
+  async revokeAllForUser(userId: UserId, reason?: string): Promise<number> {
+    return this.sessionRepo.revokeAllForUser(userId, Date.now(), reason);
   }
 
-  private toDTO(entity: AuthSessionEntity): AuthSessionResponseDTO {
+  async findByToken(token: string): Promise<AuthSessionEntity | null> {
+    return this.sessionRepo.findByToken(SessionTokenVO.of(token));
+  }
+
+  toResponse(session: AuthSessionEntity): AuthSessionResponseDTO {
+    const now = Date.now();
     return {
-      id: entity.id,
-      status: entity.isActive ? 'active' : 'expired',
-      ipAddress: entity.ip,
-      userAgent: entity.userAgent,
-      deviceId: entity.deviceId ?? undefined,
-      createdAt: entity.createdAt,
-      expiresAt: new Date(entity.expiry.epochMs).toISOString(),
-      lastAccessedAt: entity.updatedAt,
-      isCurrent: false,
+      sessionId: session.id,
+      userId: session.userId,
+      ipAddress: session.ipAddress,
+      userAgent: session.userAgent,
+      deviceId: session.deviceId,
+      createdAt: session.createdAt,
+      expiresAt: session.expiry.toISOString(),
+      revokedAt: session.revokedAt
+        ? new Date(session.revokedAt).toISOString()
+        : undefined,
+      isActive: session.isActive(now),
     };
-  }
-
-  private async publishEvents(entity: AuthSessionEntity): Promise<void> {
-    const events = entity.pullDomainEvents();
-    for (const event of events) {
-      this.eventBus.publish(event as never);
-    }
   }
 }

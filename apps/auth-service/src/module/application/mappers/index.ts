@@ -1,5 +1,9 @@
-export { UserMapper } from './user.mapper';
-export { AuthSessionMapper } from './auth-session.mapper';
-export { AuthTokenMapper } from './auth-token.mapper';
-export { AuthMfaMapper } from './auth-mfa.mapper';
-export { AuthDeviceMapper } from './auth-device.mapper';
+/**
+ * Mappers — Barrel
+ * @module auth-service/application/mappers
+ */
+export * from './user.mapper';
+export * from './auth-session.mapper';
+export * from './auth-token.mapper';
+export * from './auth-mfa.mapper';
+export * from './auth-device.mapper';

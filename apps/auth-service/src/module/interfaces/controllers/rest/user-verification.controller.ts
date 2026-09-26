@@ -1,42 +1,29 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
+/**
+ * UserVerificationController
+ * @module auth-service/interfaces/controllers/rest
+ */
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import {
-  CurrentUser,
-  JwtAuthGuard,
-  type CurrentUserShape,
-} from '@vubon/shared-kernel/interfaces';
-import { VerifyEmailCommand } from '../../../application/commands/auth/verify-email.command';
-import { ListUserActivitiesQuery } from '../../../application/queries/user/list-user-activities.query';
-import { VerificationSubmitRequestDTO } from '../../dtos/requests/verification.request.dto';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
+import type { UserId } from '@vubon/shared-types/common';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
 
-@ApiTags('Verification')
+@ApiTags('Users Verification')
 @Controller('users/verification')
 @UseGuards(JwtAuthGuard)
 export class UserVerificationController {
-  constructor(
-    private readonly commandBus: CommandBus,
-    private readonly queryBus: QueryBus,
-  ) {}
+  constructor(private readonly queryBus: QueryBus) {}
 
-  @Get()
-  async status(@CurrentUser() user: CurrentUserShape): Promise<unknown> {
-    return this.queryBus.execute(new ListUserActivitiesQuery(user.userId, 5));
-  }
-
-  @Post('submit')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async submit(@Body() body: VerificationSubmitRequestDTO): Promise<void> {
-    return this.commandBus.execute(
-      new VerifyEmailCommand(body.userId, body.code),
-    );
+  @Get(':type/status')
+  async status(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('type') type: string,
+  ) {
+    return this.queryBus.execute({
+      type: 'GetUserVerificationStatusQuery',
+      userId: user.id,
+      verificationType: type,
+    } as never);
   }
 }

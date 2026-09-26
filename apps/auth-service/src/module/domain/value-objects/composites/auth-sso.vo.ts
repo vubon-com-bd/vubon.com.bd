@@ -1,31 +1,40 @@
+/**
+ * AuthSsoVO — Snapshot of an SSO binding
+ * @module auth-service/domain/value-objects/composites
+ */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
 import { UserIdVO } from '../primitives/user-id.vo';
 import { SsoProviderVO } from '../primitives/sso-provider.vo';
-import { SsoTokenVO } from '../primitives/sso-token.vo';
 import { SsoStatusVO } from '../primitives/sso-status.vo';
 
-export interface AuthSsoProps {
+export interface AuthSsoVOProps {
+  readonly ssoId: string;
   readonly userId: UserIdVO;
   readonly provider: SsoProviderVO;
-  readonly externalId: string;
-  readonly sessionToken: SsoTokenVO;
+  readonly tenantId: string;
+  readonly providerUserId: string;
   readonly status: SsoStatusVO;
-  readonly linkedAt: Date;
+  readonly linkedAt: number;
 }
 
-export class AuthSsoVO extends BaseVO<AuthSsoProps> {
-  private constructor(props: AuthSsoProps) {
-    super(Object.freeze({ ...props }));
+export class AuthSsoVO extends BaseVO<AuthSsoVOProps> {
+  private constructor(props: AuthSsoVOProps) {
+    super(props);
   }
 
-  static create(props: AuthSsoProps): AuthSsoVO {
+  static of(props: AuthSsoVOProps): AuthSsoVO {
+    if (!props.tenantId) {
+      throw new Error('SSO tenantId is required');
+    }
+    if (!props.providerUserId) {
+      throw new Error('SSO providerUserId is required');
+    }
     return new AuthSsoVO(props);
   }
 
   get userId(): UserIdVO { return this.value.userId; }
   get provider(): SsoProviderVO { return this.value.provider; }
-  get externalId(): string { return this.value.externalId; }
-  get sessionToken(): SsoTokenVO { return this.value.sessionToken; }
-  get status(): SsoStatusVO { return this.value.status; }
-  get linkedAt(): Date { return this.value.linkedAt; }
+  get tenantId(): string { return this.value.tenantId; }
+
+  isActive(): boolean { return this.value.status.isActive(); }
 }

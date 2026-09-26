@@ -1,34 +1,29 @@
+/**
+ * SmsService — Auth-service SMS adapter
+ * @module auth-service/infrastructure/services/external
+ */
 import { Injectable } from '@nestjs/common';
-import {
-  SmsService as KernelSmsService,
-  type SmsMessageInput,
-  type SmsSendResult,
-} from '@vubon/shared-kernel/infrastructure';
+import { SmsService as KernelSmsService } from '@vubon/shared-kernel/infrastructure/external/sms/index';
 
 @Injectable()
-export class SmsService extends KernelSmsService {
-  async sendVerificationCode(to: string, code: string): Promise<SmsSendResult> {
-    return this.send({
-      to,
-      message: `Your Vubon verification code is ${code}`,
-    });
+export class SmsService {
+  constructor(private readonly base: KernelSmsService) {}
+
+  async sendOtp(to: string, code: string): Promise<void> {
+    await this.send(to, `Your Vubon verification code: ${code}`);
   }
 
-  async sendOtp(to: string, otp: string): Promise<SmsSendResult> {
-    return this.send({
-      to,
-      message: `Your OTP is ${otp}. Do not share it with anyone.`,
-    });
+  async sendMfaCode(to: string, code: string): Promise<void> {
+    await this.send(to, `Your Vubon login code: ${code}`);
   }
 
-  async sendAccountLockAlert(to: string): Promise<SmsSendResult> {
-    return this.send({
-      to,
-      message: 'Your Vubon account has been locked due to too many attempts.',
-    });
+  async sendAccountLocked(to: string, reason: string): Promise<void> {
+    await this.send(to, `Your account has been locked. Reason: ${reason}`);
   }
 
-  async sendRaw(input: SmsMessageInput): Promise<SmsSendResult> {
-    return this.send(input);
+  private async send(to: string, message: string): Promise<void> {
+    await (this.base as unknown as {
+      send(input: { to: string; message: string }): Promise<unknown>;
+    }).send({ to, message });
   }
 }

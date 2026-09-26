@@ -1,3 +1,7 @@
-export { AuthValidator } from './auth.validator';
-export { UserValidator } from './user.validator';
-export { MfaValidator } from './mfa.validator';
+/**
+ * Validators — Barrel
+ * @module auth-service/application/validators
+ */
+export * from './auth.validator';
+export * from './user.validator';
+export * from './mfa.validator';

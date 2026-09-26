@@ -1,78 +1,104 @@
+/**
+ * TicketMessagePrismaRepository
+ * @module support-service/infrastructure/persistence/prisma/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { TicketMessage as PrismaTicketMessage } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+import { SupportPrismaService } from '../prisma.service';
+import { TicketMessageRepository } from '../../../../domain/repositories/ticket-message.repository.interface';
 import { TicketMessageEntity } from '../../../../domain/entities/ticket-message.entity';
 import { MessageIdVO } from '../../../../domain/value-objects/primitives/message-id.vo';
-import { MessageContentVO } from '../../../../domain/value-objects/primitives/message-content.vo';
-import { MessageTypeVO } from '../../../../domain/value-objects/primitives/message-type.vo';
-import { MessageStatusVO } from '../../../../domain/value-objects/primitives/message-status.vo';
 import { TicketIdVO } from '../../../../domain/value-objects/primitives/ticket-id.vo';
 import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
-import type { TicketMessageRepository } from '../../../../domain/repositories/ticket-message.repository.interface';
+import { TicketMessageMapper } from '../mappers/ticket-message.mapper';
 
 @Injectable()
-export class TicketMessagePrismaRepository
-  extends BasePrismaRepository<TicketMessageEntity, MessageIdVO>
-  implements TicketMessageRepository
-{
-  constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
-  }
-
-  private toDomain(raw: PrismaTicketMessage): TicketMessageEntity {
-    return TicketMessageEntity.reconstitute(
-      MessageIdVO.create(raw.id),
-      {
-        ticketId: TicketIdVO.create(raw.ticketId),
-        senderId: UserIdVO.create(raw.senderId),
-        content: MessageContentVO.create(raw.content),
-        type: MessageTypeVO.create(raw.type),
-        status: MessageStatusVO.create(raw.status),
-        isInternal: raw.isInternal,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      null,
-    );
-  }
+export class TicketMessagePrismaRepository implements TicketMessageRepository {
+  constructor(
+    private readonly prisma: SupportPrismaService,
+    private readonly mapper: TicketMessageMapper,
+  ) {}
 
   async findById(id: MessageIdVO): Promise<TicketMessageEntity | null> {
-    const raw = await this.prisma.ticketMessage.findUnique({ where: { id: id.value } });
-    return raw ? this.toDomain(raw) : null;
+    const raw = await this.prisma.ticketMessage.findUnique({
+      where: { id: id.value, deletedAt: null },
+    });
+    return raw ? this.mapper.toDomain(raw) : null;
   }
 
   async findAll(): Promise<readonly TicketMessageEntity[]> {
-    const rows = await this.prisma.ticketMessage.findMany();
-    return rows.map((r) => this.toDomain(r));
+    const rows = await this.prisma.ticketMessage.findMany({
+      where: { deletedAt: null },
+      orderBy: { createdAt: 'asc' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
   }
 
   async save(entity: TicketMessageEntity): Promise<TicketMessageEntity> {
-    const data = {
-      ticketId: entity.ticketId.value,
-      senderId: entity.senderId.value,
-      content: entity.content.value,
-      type: entity.type.value,
-      status: entity.status.value,
-      isInternal: entity.isInternal,
-      updatedAt: new Date(),
-    };
+    const data = this.mapper.toPersistence(entity);
     const raw = await this.prisma.ticketMessage.upsert({
-      where: { id: entity.id.value },
-      create: { id: entity.id.value, ...data },
-      update: data,
+      where: { id: data.id },
+      create: { ...data, attachments: [...data.attachments] },
+      update: {
+        content: data.content,
+        status: data.status,
+        readAt: data.readAt,
+        editedAt: data.editedAt,
+        attachments: [...data.attachments],
+        updatedAt: new Date(),
+      },
     });
-    return this.toDomain(raw);
+    return this.mapper.toDomain(raw);
   }
 
   async delete(id: MessageIdVO): Promise<void> {
-    await this.prisma.ticketMessage.delete({ where: { id: id.value } });
+    await this.prisma.ticketMessage.update({
+      where: { id: id.value },
+      data: { deletedAt: new Date() },
+    });
+  }
+
+  async exists(id: MessageIdVO): Promise<boolean> {
+    const count = await this.prisma.ticketMessage.count({
+      where: { id: id.value, deletedAt: null },
+    });
+    return count > 0;
   }
 
   async findByTicket(ticketId: TicketIdVO): Promise<readonly TicketMessageEntity[]> {
     const rows = await this.prisma.ticketMessage.findMany({
-      where: { ticketId: ticketId.value },
+      where: { ticketId: ticketId.value, deletedAt: null },
+      orderBy: { createdAt: 'asc' },
     });
-    return rows.map((r) => this.toDomain(r));
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findPublicByTicket(ticketId: TicketIdVO): Promise<readonly TicketMessageEntity[]> {
+    const rows = await this.prisma.ticketMessage.findMany({
+      where: { ticketId: ticketId.value, isInternal: false, deletedAt: null },
+      orderBy: { createdAt: 'asc' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findInternalByTicket(ticketId: TicketIdVO): Promise<readonly TicketMessageEntity[]> {
+    const rows = await this.prisma.ticketMessage.findMany({
+      where: { ticketId: ticketId.value, isInternal: true, deletedAt: null },
+      orderBy: { createdAt: 'asc' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findByAuthor(userId: UserIdVO): Promise<readonly TicketMessageEntity[]> {
+    const rows = await this.prisma.ticketMessage.findMany({
+      where: { authorUserId: userId.value, deletedAt: null },
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async countByTicket(ticketId: TicketIdVO): Promise<number> {
+    return this.prisma.ticketMessage.count({
+      where: { ticketId: ticketId.value, deletedAt: null },
+    });
   }
 }

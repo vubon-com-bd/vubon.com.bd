@@ -1,35 +1,62 @@
+/**
+ * SatisfactionScoreVO — CSAT score 1-5
+ * @module support-service/domain/value-objects/primitives
+ *
+ * Registry: extends BaseRatingVO (actual: extends BaseVO<number> via RatingVO pattern)
+ * Business: 1=very bad, 2=bad, 3=neutral, 4=good, 5=very good
+ */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
 
 const MIN_SCORE = 1;
 const MAX_SCORE = 5;
 
 export class SatisfactionScoreVO extends BaseVO<number> {
-  static create(value: number): SatisfactionScoreVO {
-    if (!Number.isFinite(value)) {
-      throw new Error('Satisfaction score must be a finite number');
-    }
-    if (!Number.isInteger(value)) {
-      throw new Error('Satisfaction score must be an integer');
-    }
-    if (value < MIN_SCORE || value > MAX_SCORE) {
-      throw new Error(`Satisfaction score must be between ${MIN_SCORE} and ${MAX_SCORE}`);
-    }
-    return new SatisfactionScoreVO(value);
-  }
-
   private constructor(value: number) {
     super(value);
   }
 
-  isPositive(): boolean {
+  static create(raw: number): SatisfactionScoreVO {
+    if (typeof raw !== 'number' || !Number.isFinite(raw)) {
+      throw new ValidationError('SatisfactionScore must be a finite number', 'satisfactionScore');
+    }
+    if (!Number.isInteger(raw)) {
+      throw new ValidationError('SatisfactionScore must be an integer', 'satisfactionScore');
+    }
+    if (raw < MIN_SCORE || raw > MAX_SCORE) {
+      throw new ValidationError(
+        `SatisfactionScore must be between ${MIN_SCORE} and ${MAX_SCORE}`,
+        'satisfactionScore',
+      );
+    }
+    return new SatisfactionScoreVO(raw);
+  }
+
+  static veryBad(): SatisfactionScoreVO {
+    return new SatisfactionScoreVO(1);
+  }
+
+  static veryGood(): SatisfactionScoreVO {
+    return new SatisfactionScoreVO(5);
+  }
+
+  get isPositive(): boolean {
     return this.value >= 4;
   }
 
-  isNeutral(): boolean {
+  get isNeutral(): boolean {
     return this.value === 3;
   }
 
-  isNegative(): boolean {
+  get isNegative(): boolean {
     return this.value <= 2;
+  }
+
+  get percentage(): number {
+    return (this.value / MAX_SCORE) * 100;
+  }
+
+  isHigherThan(other: SatisfactionScoreVO): boolean {
+    return this.value > other.value;
   }
 }

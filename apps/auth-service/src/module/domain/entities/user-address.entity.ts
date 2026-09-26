@@ -1,111 +1,75 @@
+/**
+ * UserAddressEntity — A single user address
+ * @module auth-service/domain/entities
+ */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
-import { UserIdVO } from '../value-objects/primitives/user-id.vo';
-import { AddressIdVO } from '../value-objects/primitives/address-id.vo';
+import type { UserId } from '@vubon/shared-types/common';
 
 export interface UserAddressEntityProps {
-  readonly userId: UserIdVO;
+  readonly id: string;
+  readonly userId: UserId;
   readonly label: string;
-  readonly fullName: string;
-  readonly phone: string;
+  readonly line1: string;
+  readonly line2?: string;
   readonly division: string;
   readonly district: string;
   readonly upazila: string;
-  readonly addressLine: string;
-  readonly postalCode: string | null;
+  readonly postalCode: string;
   readonly isDefault: boolean;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+  readonly deletedAt?: string | null;
 }
 
-export class UserAddressEntity extends BaseEntity<AddressIdVO> {
-  private readonly _userId: UserIdVO;
-  private readonly _label: string;
-  private readonly _fullName: string;
-  private readonly _phone: string;
-  private readonly _division: string;
-  private readonly _district: string;
-  private readonly _upazila: string;
-  private readonly _addressLine: string;
-  private readonly _postalCode: string | null;
-  private readonly _isDefault: boolean;
+export class UserAddressEntity extends BaseEntity<string> {
+  readonly userId: UserId;
+  private _label: string;
+  private _line1: string;
+  private _line2?: string;
+  private _division: string;
+  private _district: string;
+  private _upazila: string;
+  private _postalCode: string;
+  private _isDefault: boolean;
 
-  private constructor(
-    id: AddressIdVO,
-    props: UserAddressEntityProps,
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null,
-  ) {
-    super(id, createdAt, updatedAt, deletedAt);
-    this._userId = props.userId;
+  private constructor(props: UserAddressEntityProps) {
+    super(props.id, props.createdAt, props.updatedAt, props.deletedAt ?? null);
+    this.userId = props.userId;
     this._label = props.label;
-    this._fullName = props.fullName;
-    this._phone = props.phone;
+    this._line1 = props.line1;
+    this._line2 = props.line2;
     this._division = props.division;
     this._district = props.district;
     this._upazila = props.upazila;
-    this._addressLine = props.addressLine;
     this._postalCode = props.postalCode;
     this._isDefault = props.isDefault;
   }
 
   static create(props: UserAddressEntityProps): UserAddressEntity {
-    const now = new Date().toISOString();
-    const id = AddressIdVO.create(crypto.randomUUID());
-    return new UserAddressEntity(id, props, now, now, null);
+    if (!/^\d{4}$/.test(props.postalCode)) {
+      throw new Error('Postal code must be 4 digits');
+    }
+    if (!props.line1.trim()) {
+      throw new Error('Address line1 is required');
+    }
+    return new UserAddressEntity(props);
   }
 
-  static reconstitute(
-    id: AddressIdVO,
-    props: UserAddressEntityProps,
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null,
-  ): UserAddressEntity {
-    return new UserAddressEntity(id, props, createdAt, updatedAt, deletedAt);
-  }
-
-  update(props: Partial<Omit<UserAddressEntityProps, 'userId'>>): UserAddressEntity {
-    return new UserAddressEntity(
-      this.id,
-      { ...this._toProps(), ...props },
-      this.createdAt,
-      new Date().toISOString(),
-      this.deletedAt ?? null,
-    );
-  }
-
-  markAsDefault(): UserAddressEntity {
-    return new UserAddressEntity(
-      this.id,
-      { ...this._toProps(), isDefault: true },
-      this.createdAt,
-      new Date().toISOString(),
-      this.deletedAt ?? null,
-    );
-  }
-
-  get userId(): UserIdVO { return this._userId; }
   get label(): string { return this._label; }
-  get fullName(): string { return this._fullName; }
-  get phone(): string { return this._phone; }
+  get line1(): string { return this._line1; }
+  get line2(): string | undefined { return this._line2; }
   get division(): string { return this._division; }
   get district(): string { return this._district; }
   get upazila(): string { return this._upazila; }
-  get addressLine(): string { return this._addressLine; }
-  get postalCode(): string | null { return this._postalCode; }
+  get postalCode(): string { return this._postalCode; }
   get isDefault(): boolean { return this._isDefault; }
 
-  private _toProps(): UserAddressEntityProps {
-    return {
-      userId: this._userId,
-      label: this._label,
-      fullName: this._fullName,
-      phone: this._phone,
-      division: this._division,
-      district: this._district,
-      upazila: this._upazila,
-      addressLine: this._addressLine,
-      postalCode: this._postalCode,
-      isDefault: this._isDefault,
-    };
+  markDefault(): void { this._isDefault = true; }
+  unmarkDefault(): void { this._isDefault = false; }
+
+  updateLines(line1: string, line2?: string): void {
+    if (!line1.trim()) throw new Error('line1 required');
+    this._line1 = line1;
+    this._line2 = line2;
   }
 }

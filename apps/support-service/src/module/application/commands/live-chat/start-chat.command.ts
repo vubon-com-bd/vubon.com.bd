@@ -1,13 +1,14 @@
+/**
+ * StartChatCommand
+ * @module support-service/application/commands/live-chat
+ */
 import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
+import type { StartChatRequestDTO } from '../../dtos/requests/live-chat/start-chat.dto';
 
 export class StartChatCommand extends BaseCommand {
-  readonly type = 'support.chat.start';
+  readonly type = 'support.livechat.start';
 
-  constructor(
-    public readonly userId: string,
-    public readonly type_?: string,
-    public readonly initialMessage?: string,
-  ) {
+  constructor(public readonly payload: StartChatRequestDTO) {
     super();
   }
 }

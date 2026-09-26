@@ -1,14 +1,13 @@
-import type { EmailTemplate } from '@vubon/shared-kernel/infrastructure';
-
-export const MfaCodeEmailTemplate: EmailTemplate = {
+/**
+ * MFA Code Template
+ * @module auth-service/infrastructure/external/email/templates
+ */
+export const MfaCodeEmailTemplate = {
   name: 'mfa-code',
   subject: 'Your Vubon verification code',
-  html: `
-    <h2>Two-Factor Authentication</h2>
-    <p>Your verification code is: <strong>{{code}}</strong></p>
-    <p>This code expires in {{expiryMinutes}} minutes.</p>
-    <p>Do not share this code with anyone.</p>
+  body: `
+    <h2>Your login code</h2>
+    <h1 style="letter-spacing: 6px;">{{code}}</h1>
+    <p>This code expires in 5 minutes.</p>
   `,
-  text: 'Your MFA code is {{code}}. Expires in {{expiryMinutes}} minutes.',
-  variables: ['code', 'expiryMinutes'],
-};
+} as const;

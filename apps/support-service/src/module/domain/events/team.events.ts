@@ -1,40 +1,76 @@
-import { BaseDomainEvent, type DomainEventMetadata } from '@vubon/shared-kernel/domain/base/base.event';
-import { toTimestamp } from '@vubon/shared-types/common';
+/**
+ * Support Team Domain Events
+ * @module support-service/domain/events
+ */
+import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
+import { toTimestamp, type Timestamp } from '@vubon/shared-types/common';
+import { TeamIdVO } from '../value-objects/primitives/team-id.vo';
+import { TeamNameVO } from '../value-objects/primitives/team-name.vo';
+import { AgentIdVO } from '../value-objects/primitives/agent-id.vo';
 
-const AGGREGATE = 'SupportTeam';
+interface MetaFields {
+  readonly id: string;
+  readonly aggregateId: string;
+  readonly aggregateType: string;
+  readonly occurredAt: Timestamp;
+  readonly version: number;
+}
+
+const meta = (
+  aggregateId: string,
+  aggregateType: string,
+  version: number,
+  occurredAt: number,
+): MetaFields => ({
+  id: `${aggregateId}-${version}-${occurredAt}`,
+  aggregateId,
+  aggregateType,
+  occurredAt: toTimestamp(occurredAt),
+  version,
+});
+
+export interface TeamCreatedPayload {
+  readonly name: string;
+  readonly type: string;
+}
 
 export class TeamCreatedEvent extends BaseDomainEvent<
   'support.team.created',
-  { teamId: string; name: string }
+  TeamCreatedPayload
 > {
-  constructor(aggregateId: string, name: string, version: number, metadata?: DomainEventMetadata) {
+  constructor(
+    id: TeamIdVO,
+    name: TeamNameVO,
+    type: string,
+    occurredAt: number,
+    version = 1,
+  ) {
     super({
-      id: crypto.randomUUID(),
+      ...meta(id.value, 'support-team', version, occurredAt),
       type: 'support.team.created',
-      aggregateId,
-      aggregateType: AGGREGATE,
-      payload: { teamId: aggregateId, name },
-      occurredAt: toTimestamp(Date.now()),
-      version,
-      metadata,
+      payload: { name: name.value, type },
     });
   }
 }
 
+export interface TeamMemberAddedPayload {
+  readonly agentId: string;
+}
+
 export class TeamMemberAddedEvent extends BaseDomainEvent<
-  'support.team.member.added',
-  { teamId: string; agentId: string }
+  'support.team.member_added',
+  TeamMemberAddedPayload
 > {
-  constructor(aggregateId: string, agentId: string, version: number, metadata?: DomainEventMetadata) {
+  constructor(
+    id: TeamIdVO,
+    agentId: AgentIdVO,
+    occurredAt: number,
+    version = 1,
+  ) {
     super({
-      id: crypto.randomUUID(),
-      type: 'support.team.member.added',
-      aggregateId,
-      aggregateType: AGGREGATE,
-      payload: { teamId: aggregateId, agentId },
-      occurredAt: toTimestamp(Date.now()),
-      version,
-      metadata,
+      ...meta(id.value, 'support-team', version, occurredAt),
+      type: 'support.team.member_added',
+      payload: { agentId: agentId.value },
     });
   }
 }

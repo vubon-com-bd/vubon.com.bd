@@ -1,104 +1,147 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { EventBus } from '@nestjs/cqrs';
+import {
+  AUTH_TOKEN_REPO,
+  TOKEN_SIGNER,
+  ID_GENERATOR,
+} from '../tokens';
+
+/**
+ * AuthTokenService — Token generation, verification, refresh
+ * @module auth-service/application/services/impl
+ */
+import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
-import type { AuthTokenServiceInterface } from '../interfaces/auth-token.service.interface';
+import type {
+  AuthTokenServiceInterface,
+  TokenPurpose,
+} from '../interfaces/auth-token.service.interface';
 import type { AuthTokenRepository } from '../../../domain/repositories/auth-token.repository.interface';
+import type { TokenSignerServiceInterface } from '../interfaces/token-signer.service.interface';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
 import { AuthTokenEntity } from '../../../domain/entities/auth-token.entity';
-import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
 import { TokenValueVO } from '../../../domain/value-objects/primitives/token-value.vo';
 import { TokenTypeVO } from '../../../domain/value-objects/primitives/token-type.vo';
-import { TokenExpiryVO } from '../../../domain/value-objects/primitives/token-expiry.vo';
-import { InvalidTokenError } from '../../../domain/errors/token.errors';
+import {
+  TokenExpiryVO,
+  type TokenTypeHint,
+} from '../../../domain/value-objects/primitives/token-expiry.vo';
+import {
+  TokenExpiredAppError,
+  TokenInvalidAppError,
+} from '../../errors/token.errors';
 import type { AuthTokenResponseDTO } from '../../dtos/responses/auth-token-response.dto';
-import type { TokenGeneratorPort } from '../../ports/token-generator.port';
 
-const ACCESS_TTL_MS = 15 * 60 * 1000;
-const REFRESH_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 @Injectable()
 export class AuthTokenService
   extends BaseService<AuthTokenEntity, string>
-  implements AuthTokenServiceInterface
-{
+  implements AuthTokenServiceInterface {
   readonly name = 'AuthTokenService';
 
   constructor(
-    @Inject('AuthTokenRepository') private readonly tokenRepo: AuthTokenRepository,
-    @Inject('TokenGeneratorPort') private readonly tokenGenerator: TokenGeneratorPort,
-    private readonly eventBus: EventBus,
+    @Inject(AUTH_TOKEN_REPO) private readonly tokenRepo: AuthTokenRepository,
+    @Inject(TOKEN_SIGNER) private readonly signer: TokenSignerServiceInterface,
+    @Inject(ID_GENERATOR) private readonly idGen: IdGeneratorServiceInterface,
   ) {
     super();
   }
 
-  async generatePair(userId: string): Promise<AuthTokenResponseDTO> {
-    const jti = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-    const access = await this.tokenGenerator.generateAccessToken({
-      sub: userId,
-      type: 'access',
-      jti,
-    });
-    const refresh = await this.tokenGenerator.generateRefreshToken({
-      sub: userId,
-      type: 'refresh',
-      jti,
-    });
-
+  async generate(input: {
+    subjectId: string;
+    purpose: TokenPurpose;
+    metadata?: Readonly<Record<string, unknown>>;
+    parentTokenId?: string;
+  }): Promise<AuthTokenEntity> {
+    const tokenId = this.idGen.generate();
     const now = Date.now();
-    const accessEntity = AuthTokenEntity.create({
-      userId: UserIdVO.create(userId),
-      tokenValue: TokenValueVO.create(access),
-      tokenType: TokenTypeVO.create('access'),
-      expiry: TokenExpiryVO.fromNow(ACCESS_TTL_MS),
-      issuedAt: new Date(now),
-      revokedAt: null,
-    });
-    const refreshEntity = AuthTokenEntity.create({
-      userId: UserIdVO.create(userId),
-      tokenValue: TokenValueVO.create(refresh),
-      tokenType: TokenTypeVO.create('refresh'),
-      expiry: TokenExpiryVO.fromNow(REFRESH_TTL_MS),
-      issuedAt: new Date(now),
-      revokedAt: null,
+    const expiry = TokenExpiryVO.forType(input.purpose as TokenTypeHint, now);
+
+    const jwt = await this.signer.sign({
+      sub: input.subjectId,
+      jti: tokenId,
+      type: input.purpose,
+      iat: Math.floor(now / 1000),
+      exp: Math.floor(expiry.epochMs / 1000),
+      meta: input.metadata,
     });
 
-    await this.tokenRepo.save(accessEntity);
-    await this.tokenRepo.save(refreshEntity);
+    const entity = AuthTokenEntity.create({
+      id: tokenId,
+      subjectId: input.subjectId,
+      value: TokenValueVO.of(jwt),
+      type: TokenTypeVO.of(input.purpose),
+      expiry,
+      parentTokenId: input.parentTokenId,
+      createdAt: new Date(now).toISOString(),
+      updatedAt: new Date(now).toISOString(),
+    });
+
+    return this.tokenRepo.save(entity);
+  }
+
+  async generatePair(subjectId: string): Promise<AuthTokenResponseDTO> {
+    const access = await this.generate({ subjectId, purpose: 'access' });
+    const refresh = await this.generate({
+      subjectId,
+      purpose: 'refresh',
+      parentTokenId: access.id,
+    });
 
     return {
-      accessToken: access,
-      refreshToken: refresh,
-      accessExpiresAt: now + ACCESS_TTL_MS,
-      refreshExpiresAt: now + REFRESH_TTL_MS,
+      accessToken: access.value.value,
+      refreshToken: refresh.value.value,
       tokenType: 'Bearer',
+      expiresIn: Math.floor(access.expiry.remainingMs(Date.now()) / 1000),
+      expiresAt: access.expiry.epochMs,
     };
   }
 
-  async refresh(refreshToken: string): Promise<AuthTokenResponseDTO> {
-    const payload = await this.tokenGenerator.verify(refreshToken);
-    if (payload.type !== 'refresh') {
-      throw new InvalidTokenError('not a refresh token');
+  async verify(
+    token: string,
+    purpose?: TokenPurpose,
+  ): Promise<AuthTokenEntity> {
+    let payload;
+    try {
+      payload = await this.signer.verify(token);
+    } catch {
+      throw new TokenInvalidAppError('Signature verification failed');
     }
-    const stored = await this.tokenRepo.findByValue(
-      TokenValueVO.create(refreshToken),
-    );
-    if (!stored || !stored.isActive) {
-      throw new InvalidTokenError('refresh token not active');
+
+    if (payload.exp * 1000 <= Date.now()) {
+      throw new TokenExpiredAppError(
+        new Date(payload.exp * 1000).toISOString(),
+      );
     }
-    const revoked = stored.revoke();
-    await this.tokenRepo.save(revoked);
-    return this.generatePair(payload.sub);
+    if (purpose && payload.type !== purpose) {
+      throw new TokenInvalidAppError(
+        `Expected ${purpose}, got ${payload.type}`,
+      );
+    }
+
+    const entity = await this.tokenRepo.findById(payload.jti);
+    if (!entity) {
+      throw new TokenInvalidAppError('Token not found in store');
+    }
+    if (entity.isRevoked()) {
+      throw new TokenInvalidAppError('Token has been revoked');
+    }
+    return entity;
   }
 
   async revoke(tokenId: string): Promise<void> {
     const entity = await this.tokenRepo.findById(tokenId);
-    if (!entity) {
-      throw new InvalidTokenError('token not found');
-    }
-    const revoked = entity.revoke();
-    await this.tokenRepo.save(revoked);
+    if (!entity) return;
+    entity.revoke(Date.now());
+    await this.tokenRepo.save(entity);
   }
 
-  async revokeAllForUser(userId: string): Promise<void> {
-    await this.tokenRepo.revokeAllForUser(UserIdVO.create(userId));
+  async revokeAllForSubject(subjectId: string): Promise<number> {
+    return this.tokenRepo.revokeAllForSubject(subjectId, Date.now());
+  }
+
+  async refresh(refreshToken: string): Promise<AuthTokenResponseDTO> {
+    const entity = await this.verify(refreshToken, 'refresh');
+    entity.revoke(Date.now());
+    await this.tokenRepo.save(entity);
+    return this.generatePair(entity.subjectId);
   }
 }

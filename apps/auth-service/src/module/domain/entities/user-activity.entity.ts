@@ -1,65 +1,60 @@
+/**
+ * UserActivityEntity — A single activity record for a user
+ * @module auth-service/domain/entities
+ */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
-import { UserIdVO } from '../value-objects/primitives/user-id.vo';
-import { ActivityTypeVO } from '../value-objects/primitives/activity-type.vo';
-import { ActivityTimestampVO } from '../value-objects/primitives/activity-timestamp.vo';
+import type { UserId } from '@vubon/shared-types/common';
+
+export type ActivityType =
+  | 'login'
+  | 'logout'
+  | 'register'
+  | 'password_change'
+  | 'email_change'
+  | 'profile_update'
+  | 'mfa_enabled'
+  | 'mfa_disabled'
+  | 'session_revoked'
+  | 'failed_login';
 
 export interface UserActivityEntityProps {
-  readonly userId: UserIdVO;
-  readonly type: ActivityTypeVO;
-  readonly category: string;
-  readonly ip: string | null;
-  readonly userAgent: string | null;
-  readonly metadata: Readonly<Record<string, unknown>>;
-  readonly timestamp: ActivityTimestampVO;
+  readonly id: string;
+  readonly userId: UserId;
+  readonly type: ActivityType;
+  readonly ipAddress?: string;
+  readonly userAgent?: string;
+  readonly metadata?: Readonly<Record<string, string>>;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+  readonly deletedAt?: string | null;
 }
 
 export class UserActivityEntity extends BaseEntity<string> {
-  private readonly _userId: UserIdVO;
-  private readonly _type: ActivityTypeVO;
-  private readonly _category: string;
-  private readonly _ip: string | null;
-  private readonly _userAgent: string | null;
-  private readonly _metadata: Readonly<Record<string, unknown>>;
-  private readonly _timestamp: ActivityTimestampVO;
+  readonly userId: UserId;
+  private _type: ActivityType;
+  private _ipAddress?: string;
+  private _userAgent?: string;
+  private _metadata?: Readonly<Record<string, string>>;
 
-  private constructor(
-    id: string,
-    props: UserActivityEntityProps,
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null,
-  ) {
-    super(id, createdAt, updatedAt, deletedAt);
-    this._userId = props.userId;
+  private constructor(props: UserActivityEntityProps) {
+    super(props.id, props.createdAt, props.updatedAt, props.deletedAt ?? null);
+    this.userId = props.userId;
     this._type = props.type;
-    this._category = props.category;
-    this._ip = props.ip;
+    this._ipAddress = props.ipAddress;
     this._userAgent = props.userAgent;
-    this._metadata = Object.freeze({ ...props.metadata });
-    this._timestamp = props.timestamp;
+    this._metadata = props.metadata;
   }
 
   static create(props: UserActivityEntityProps): UserActivityEntity {
-    const now = new Date().toISOString();
-    const id = crypto.randomUUID();
-    return new UserActivityEntity(id, props, now, now, null);
+    return new UserActivityEntity(props);
   }
 
-  static reconstitute(
-    id: string,
-    props: UserActivityEntityProps,
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null,
-  ): UserActivityEntity {
-    return new UserActivityEntity(id, props, createdAt, updatedAt, deletedAt);
-  }
+  get type(): ActivityType { return this._type; }
+  get ipAddress(): string | undefined { return this._ipAddress; }
+  get userAgent(): string | undefined { return this._userAgent; }
+  get metadata(): Readonly<Record<string, string>> | undefined { return this._metadata; }
 
-  get userId(): UserIdVO { return this._userId; }
-  get type(): ActivityTypeVO { return this._type; }
-  get category(): string { return this._category; }
-  get ip(): string | null { return this._ip; }
-  get userAgent(): string | null { return this._userAgent; }
-  get metadata(): Readonly<Record<string, unknown>> { return this._metadata; }
-  get timestamp(): ActivityTimestampVO { return this._timestamp; }
+  isSecurityRelevant(): boolean {
+    return this._type === 'failed_login' || this._type === 'password_change';
+  }
 }

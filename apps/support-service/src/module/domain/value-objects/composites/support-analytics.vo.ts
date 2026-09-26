@@ -1,27 +1,61 @@
+/**
+ * SupportAnalyticsVO — Aggregate metrics view
+ * @module support-service/domain/value-objects/composites
+ */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
 
-export interface SupportAnalyticsProps {
-  readonly metric: string;
-  readonly period: string;
-  readonly metricValue: number;
-  readonly previousValue: number | null;
-  readonly trend: 'up' | 'down' | 'flat';
-  readonly computedAt: Date;
+export interface SupportAnalyticsVOProps {
+  readonly totalTickets: number;
+  readonly openTickets: number;
+  readonly resolvedTickets: number;
+  readonly breachedSlaCount: number;
+  readonly averageSatisfaction: number;
+  readonly averageResolutionMinutes: number;
 }
 
-export class SupportAnalyticsVO extends BaseVO<SupportAnalyticsProps> {
-  private constructor(props: SupportAnalyticsProps) {
+export class SupportAnalyticsVO extends BaseVO<Readonly<SupportAnalyticsVOProps>> {
+  private constructor(props: SupportAnalyticsVOProps) {
     super(Object.freeze({ ...props }));
   }
 
-  static create(props: SupportAnalyticsProps): SupportAnalyticsVO {
+  static create(props: SupportAnalyticsVOProps): SupportAnalyticsVO {
+    const numericKeys: readonly (keyof SupportAnalyticsVOProps)[] = [
+      'totalTickets',
+      'openTickets',
+      'resolvedTickets',
+      'breachedSlaCount',
+      'averageSatisfaction',
+      'averageResolutionMinutes',
+    ];
+    for (const key of numericKeys) {
+      const value = props[key];
+      if (typeof value !== 'number' || !Number.isFinite(value)) {
+        throw new ValidationError(
+          `SupportAnalyticsVO.${key} must be a finite number`,
+          'supportAnalytics',
+        );
+      }
+    }
     return new SupportAnalyticsVO(props);
   }
 
-  get metric(): string { return this.value.metric; }
-  get period(): string { return this.value.period; }
-  get metricValue(): number { return this.value.metricValue; }
-  get previousValue(): number | null { return this.value.previousValue; }
-  get trend(): SupportAnalyticsProps['trend'] { return this.value.trend; }
-  get computedAt(): Date { return this.value.computedAt; }
+  get resolutionRate(): number {
+    if (this.value.totalTickets === 0) return 0;
+    return (this.value.resolvedTickets / this.value.totalTickets) * 100;
+  }
+
+  get slaBreachRate(): number {
+    if (this.value.totalTickets === 0) return 0;
+    return (this.value.breachedSlaCount / this.value.totalTickets) * 100;
+  }
+
+  get isHealthy(): boolean {
+    return this.slaBreachRate < 5 && this.value.averageSatisfaction >= 4;
+  }
+
+  get backlogRatio(): number {
+    if (this.value.totalTickets === 0) return 0;
+    return (this.value.openTickets / this.value.totalTickets) * 100;
+  }
 }

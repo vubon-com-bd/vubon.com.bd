@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -18,6 +17,7 @@
     "types": ["node", "react"],
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "noEmit": true,
     "baseUrl": ".",
     "paths": {
       "@vubon/shared-constants": ["../shared-constants/src/index.ts"],

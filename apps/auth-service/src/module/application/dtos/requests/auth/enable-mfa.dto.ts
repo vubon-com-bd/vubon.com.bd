@@ -1,4 +1,16 @@
-import { z } from 'zod';
-import { EnableMfaRequestSchema } from '@vubon/shared-schemas/auth';
+/**
+ * EnableMfaRequest DTO
+ * @module auth-service/application/dtos/requests/auth
+ */
+import {
+  EnableMfaRequestSchema,
+  type EnableMfaRequestSchemaType,
+} from '@vubon/shared-schemas/auth';
 
-export type EnableMfaRequestDTO = z.infer<typeof EnableMfaRequestSchema>;
+export type EnableMfaRequestDTO = EnableMfaRequestSchemaType;
+
+export function validateEnableMfaRequest(
+  input: unknown,
+): EnableMfaRequestDTO {
+  return EnableMfaRequestSchema.parse(input);
+}

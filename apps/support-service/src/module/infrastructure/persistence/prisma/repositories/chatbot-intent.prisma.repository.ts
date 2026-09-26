@@ -1,70 +1,83 @@
+/**
+ * ChatbotIntentPrismaRepository
+ * @module support-service/infrastructure/persistence/prisma/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { ChatbotIntent as PrismaChatbotIntent } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+import { SupportPrismaService } from '../prisma.service';
+import { ChatbotIntentRepository } from '../../../../domain/repositories/chatbot-intent.repository.interface';
 import { ChatbotIntentEntity } from '../../../../domain/entities/chatbot-intent.entity';
 import { ChatbotIntentIdVO } from '../../../../domain/value-objects/primitives/chatbot-intent-id.vo';
 import { ChatbotIdVO } from '../../../../domain/value-objects/primitives/chatbot-id.vo';
-import type { ChatbotIntentRepository } from '../../../../domain/repositories/chatbot-intent.repository.interface';
+import { ChatbotIntentMapper } from '../mappers/chatbot-intent.mapper';
 
 @Injectable()
-export class ChatbotIntentPrismaRepository
-  extends BasePrismaRepository<ChatbotIntentEntity, ChatbotIntentIdVO>
-  implements ChatbotIntentRepository
-{
-  constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
-  }
-
-  private toDomain(raw: PrismaChatbotIntent): ChatbotIntentEntity {
-    return ChatbotIntentEntity.reconstitute(
-      ChatbotIntentIdVO.create(raw.id),
-      {
-        chatbotId: ChatbotIdVO.create(raw.chatbotId),
-        name: raw.name,
-        patterns: raw.patterns,
-        response: raw.response,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      null,
-    );
-  }
+export class ChatbotIntentPrismaRepository implements ChatbotIntentRepository {
+  constructor(
+    private readonly prisma: SupportPrismaService,
+    private readonly mapper: ChatbotIntentMapper,
+  ) {}
 
   async findById(id: ChatbotIntentIdVO): Promise<ChatbotIntentEntity | null> {
-    const raw = await this.prisma.chatbotIntent.findUnique({ where: { id: id.value } });
-    return raw ? this.toDomain(raw) : null;
+    const raw = await this.prisma.chatbotIntent.findUnique({
+      where: { id: id.value },
+    });
+    return raw ? this.mapper.toDomain(raw) : null;
   }
 
   async findAll(): Promise<readonly ChatbotIntentEntity[]> {
-    const rows = await this.prisma.chatbotIntent.findMany();
-    return rows.map((r) => this.toDomain(r));
+    const rows = await this.prisma.chatbotIntent.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
   }
 
   async save(entity: ChatbotIntentEntity): Promise<ChatbotIntentEntity> {
-    const data = {
-      chatbotId: entity.chatbotId.value,
-      name: entity.name,
-      patterns: [...entity.patterns],
-      response: entity.response,
-      updatedAt: new Date(),
-    };
+    const data = this.mapper.toPersistence(entity);
     const raw = await this.prisma.chatbotIntent.upsert({
-      where: { id: entity.id.value },
-      create: { id: entity.id.value, ...data },
-      update: data,
+      where: { id: data.id },
+      create: { ...data, patterns: [...data.patterns] },
+      update: {
+        name: data.name,
+        patterns: [...data.patterns],
+        response: data.response,
+        priority: data.priority,
+        updatedAt: new Date(),
+      },
     });
-    return this.toDomain(raw);
+    return this.mapper.toDomain(raw);
   }
 
   async delete(id: ChatbotIntentIdVO): Promise<void> {
     await this.prisma.chatbotIntent.delete({ where: { id: id.value } });
   }
 
-  async findByChatbot(chatbotId: ChatbotIdVO): Promise<readonly ChatbotIntentEntity[]> {
-    const rows = await this.prisma.chatbotIntent.findMany({
-      where: { chatbotId: chatbotId.value },
+  async exists(id: ChatbotIntentIdVO): Promise<boolean> {
+    const count = await this.prisma.chatbotIntent.count({
+      where: { id: id.value },
     });
-    return rows.map((r) => this.toDomain(r));
+    return count > 0;
+  }
+
+  async findByChatbot(_chatbotId: ChatbotIdVO): Promise<readonly ChatbotIntentEntity[]> {
+    const rows = await this.prisma.chatbotIntent.findMany({
+      orderBy: { priority: 'desc' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findByName(_chatbotId: ChatbotIdVO, name: string): Promise<ChatbotIntentEntity | null> {
+    const raw = await this.prisma.chatbotIntent.findFirst({ where: { name } });
+    return raw ? this.mapper.toDomain(raw) : null;
+  }
+
+  async search(_chatbotId: ChatbotIdVO, text: string): Promise<readonly ChatbotIntentEntity[]> {
+    const rows = await this.prisma.chatbotIntent.findMany({
+      where: { patterns: { has: text } },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async countByChatbot(_chatbotId: ChatbotIdVO): Promise<number> {
+    return this.prisma.chatbotIntent.count();
   }
 }

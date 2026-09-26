@@ -1,25 +1,23 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+/**
+ * TrainEntityHandler
+ * @module support-service/application/commands/chatbot
+ */
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { TrainEntityCommand } from './train-entity.command';
-import type { ChatbotEntityServiceInterface } from '../../services/interfaces/chatbot-entity.service.interface';
+import type { ChatbotResponseDTO } from '../../dtos/responses/chatbot-response.dto';
+import type { ChatbotServiceInterface } from '../../services/interfaces/chatbot.service.interface';
 
-@CommandHandler(TrainEntityCommand)
-export class TrainEntityHandler
-  extends BaseCommandHandler<TrainEntityCommand, { id: string }>
-  implements ICommandHandler<TrainEntityCommand>
-{
-  readonly commandType = 'support.chatbot.entity.train';
+export class TrainEntityHandler extends BaseCommandHandler<
+  TrainEntityCommand,
+  ChatbotResponseDTO
+> {
+  readonly commandType = 'support.chatbot.train_entity';
 
-  constructor(private readonly entityService: ChatbotEntityServiceInterface) {
+  constructor(private readonly chatbotService: ChatbotServiceInterface) {
     super();
   }
 
-  async execute(command: TrainEntityCommand): Promise<{ id: string }> {
-    return this.entityService.train({
-      chatbotId: command.chatbotId,
-      name: command.name,
-      type: command.type_,
-      value: command.value,
-    });
+  async execute(command: TrainEntityCommand): Promise<ChatbotResponseDTO> {
+    return this.chatbotService.trainEntity(command.payload);
   }
 }

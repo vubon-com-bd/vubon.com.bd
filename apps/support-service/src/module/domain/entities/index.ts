@@ -1,26 +1,42 @@
-export { TicketEntity, type TicketEntityProps } from './ticket.entity';
-export { TicketMessageEntity, type TicketMessageEntityProps } from './ticket-message.entity';
-export { TicketAttachmentEntity, type TicketAttachmentEntityProps } from './ticket-attachment.entity';
-export { TicketEscalationEntity, type TicketEscalationEntityProps } from './ticket-escalation.entity';
-export { TicketSatisfactionEntity, type TicketSatisfactionEntityProps } from './ticket-satisfaction.entity';
-export { ConversationEntity, type ConversationEntityProps } from './conversation.entity';
-export { MessageEntity, type MessageEntityProps } from './message.entity';
-export { AttachmentEntity, type AttachmentEntityProps } from './attachment.entity';
-export { FaqEntity, type FaqEntityProps } from './faq.entity';
-export { FaqCategoryEntity, type FaqCategoryEntityProps } from './faq-category.entity';
-export { KnowledgeArticleEntity, type KnowledgeArticleEntityProps } from './knowledge-article.entity';
-export { KnowledgeCategoryEntity, type KnowledgeCategoryEntityProps } from './knowledge-category.entity';
-export { FeedbackEntity, type FeedbackEntityProps } from './feedback.entity';
-export { ComplaintEntity, type ComplaintEntityProps } from './complaint.entity';
-export { SurveyEntity, type SurveyEntityProps } from './survey.entity';
-export { SurveyResponseEntity, type SurveyResponseEntityProps } from './survey-response.entity';
-export { LiveChatEntity, type LiveChatEntityProps } from './live-chat.entity';
-export { ChatbotEntity, type ChatbotEntityProps } from './chatbot.entity';
-export { ChatbotIntentEntity, type ChatbotIntentEntityProps } from './chatbot-intent.entity';
-export { ChatbotEntityEntity, type ChatbotEntityEntityProps } from './chatbot-entity.entity';
-export { SupportAgentEntity, type SupportAgentEntityProps } from './support-agent.entity';
-export { SupportTeamEntity, type SupportTeamEntityProps } from './support-team.entity';
-export { SlaEntity, type SlaEntityProps } from './sla.entity';
-export { SupportRuleEntity, type SupportRuleEntityProps } from './support-rule.entity';
-export { SupportAutomationEntity, type SupportAutomationEntityProps } from './support-automation.entity';
-export { SupportTemplateEntity, type SupportTemplateEntityProps } from './support-template.entity';
+// support-service/domain/entities/index.ts
+// Entity barrel — final
+
+// Ticket domain
+export * from './ticket.entity';
+export * from './ticket-message.entity';
+export * from './ticket-attachment.entity';
+export * from './ticket-escalation.entity';
+export * from './ticket-satisfaction.entity';
+
+// Conversation domain
+export * from './conversation.entity';
+export * from './message.entity';
+export * from './attachment.entity';
+
+// FAQ / KB domain
+export * from './faq.entity';
+export * from './faq-category.entity';
+export * from './knowledge-article.entity';
+export * from './knowledge-category.entity';
+
+// Feedback / Complaint / Survey
+export * from './feedback.entity';
+export * from './complaint.entity';
+export * from './survey.entity';
+export * from './survey-response.entity';
+
+// Chat / Chatbot
+export * from './live-chat.entity';
+export * from './chatbot.entity';
+export * from './chatbot-intent.entity';
+export * from './chatbot-entity.entity';
+
+// Agent / Team
+export * from './support-agent.entity';
+export * from './support-team.entity';
+
+// SLA / Rule / Automation / Template
+export * from './sla.entity';
+export * from './support-rule.entity';
+export * from './support-automation.entity';
+export * from './support-template.entity';

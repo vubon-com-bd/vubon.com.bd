@@ -1,24 +1,22 @@
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { UnlockAccountCommand } from './unlock-account.command';
 import type { AuthAccountLockServiceInterface } from '../../services/interfaces/auth-account-lock.service.interface';
+import type { AuthAccountLockEntity } from '../../../domain/entities/auth-account-lock.entity';
+import { AUTH_ACCOUNT_LOCK_SERVICE } from '../../tokens';
 
 @CommandHandler(UnlockAccountCommand)
 export class UnlockAccountHandler
-  extends BaseCommandHandler<UnlockAccountCommand, void>
-  implements ICommandHandler<UnlockAccountCommand>
-{
-  readonly commandType = 'auth.unlock-account';
-
+  extends BaseCommandHandler<UnlockAccountCommand, AuthAccountLockEntity>
+  implements ICommandHandler<UnlockAccountCommand> {
+  readonly commandType = 'UnlockAccountCommand';
   constructor(
-    @Inject('AuthAccountLockService') @Inject('AuthAccountLockService') private readonly lockService: AuthAccountLockServiceInterface,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
-  }
+    @Inject(AUTH_ACCOUNT_LOCK_SERVICE)
+    private readonly lockService: AuthAccountLockServiceInterface,
+  ) { super(); }
 
-  async execute(command: UnlockAccountCommand): Promise<void> {
-    await this.lockService.unlock(command.userId, command.reason);
+  async execute(command: UnlockAccountCommand): Promise<AuthAccountLockEntity> {
+    return this.lockService.unlock(command.input);
   }
 }

@@ -1,24 +1,20 @@
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { UnlinkSocialCommand } from './unlink-social.command';
 import type { AuthSocialServiceInterface } from '../../services/interfaces/auth-social.service.interface';
+import { AUTH_SOCIAL_SERVICE } from '../../tokens';
 
 @CommandHandler(UnlinkSocialCommand)
 export class UnlinkSocialHandler
   extends BaseCommandHandler<UnlinkSocialCommand, void>
-  implements ICommandHandler<UnlinkSocialCommand>
-{
-  readonly commandType = 'auth.unlink-social';
-
+  implements ICommandHandler<UnlinkSocialCommand> {
+  readonly commandType = 'UnlinkSocialCommand';
   constructor(
-    @Inject('AuthSocialService') @Inject('AuthSocialService') private readonly socialService: AuthSocialServiceInterface,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
-  }
+    @Inject(AUTH_SOCIAL_SERVICE) private readonly socialService: AuthSocialServiceInterface,
+  ) { super(); }
 
   async execute(command: UnlinkSocialCommand): Promise<void> {
-    await this.socialService.unlink(command.userId, command.provider);
+    await this.socialService.unlink(command.userId, command.input);
   }
 }

@@ -1,9 +1,10 @@
-import { z } from 'zod';
-
-export const SendChatMessageRequestSchema = z.object({
-  chatId: z.string().uuid(),
-  content: z.string().min(1).max(10000),
-  type: z.string().optional(),
-});
-
-export type SendChatMessageRequestDTO = z.infer<typeof SendChatMessageRequestSchema>;
+/**
+ * SendChatMessageRequestDTO
+ * @module support-service/application/dtos/requests/live-chat
+ */
+export interface SendChatMessageRequestDTO {
+  readonly sessionId: string;
+  readonly senderId?: string;
+  readonly senderType: 'customer' | 'agent' | 'bot' | 'system';
+  readonly content: string;
+}

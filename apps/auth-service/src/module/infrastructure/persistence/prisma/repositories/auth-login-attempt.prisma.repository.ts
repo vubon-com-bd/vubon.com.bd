@@ -1,89 +1,103 @@
+/**
+ * AuthLoginAttemptPrismaRepository
+ * @module auth-service/infrastructure/persistence/prisma/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { AuthLoginAttempt as PrismaAuthLoginAttempt } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+import type { AuthLoginAttempt as PrismaAuthLoginAttempt } from '@prisma/client';
+import {
+  BasePrismaRepository,
+  type PrismaDelegate,
+} from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
+import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
+import type { UserId } from '@vubon/shared-types/common';
 import { AuthLoginAttemptEntity } from '../../../../domain/entities/auth-login-attempt.entity';
-import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
 import { LoginAttemptIpVO } from '../../../../domain/value-objects/primitives/login-attempt-ip.vo';
 import { LoginAttemptStatusVO } from '../../../../domain/value-objects/primitives/login-attempt-status.vo';
 import type { AuthLoginAttemptRepository } from '../../../../domain/repositories/auth-login-attempt.repository.interface';
 
 @Injectable()
 export class AuthLoginAttemptPrismaRepository
-  extends BasePrismaRepository<AuthLoginAttemptEntity, string>
-  implements AuthLoginAttemptRepository
-{
+  extends BasePrismaRepository<AuthLoginAttemptEntity, PrismaAuthLoginAttempt, string>
+  implements AuthLoginAttemptRepository {
+  protected readonly model: PrismaDelegate<PrismaAuthLoginAttempt>;
+
   constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
+    super();
+    this.model = prisma.authLoginAttempt as unknown as PrismaDelegate<PrismaAuthLoginAttempt>;
   }
 
-  private toDomain(raw: PrismaAuthLoginAttempt): AuthLoginAttemptEntity {
-    return AuthLoginAttemptEntity.reconstitute(
-      raw.id,
-      {
-        userId: raw.userId ? UserIdVO.create(raw.userId) : null,
-        email: raw.email,
-        ip: LoginAttemptIpVO.create(raw.ip),
-        userAgent: raw.userAgent,
-        status: LoginAttemptStatusVO.create(raw.status),
-        attemptedAt: raw.attemptedAt,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      null,
-    );
+  protected idOf(domain: AuthLoginAttemptEntity): string {
+    return domain.id;
   }
 
-  async findById(id: string): Promise<AuthLoginAttemptEntity | null> {
-    const raw = await this.prisma.authLoginAttempt.findUnique({ where: { id } });
-    return raw ? this.toDomain(raw) : null;
+  protected whereForId(id: string): Record<string, unknown> {
+    return { id };
   }
 
-  async findAll(): Promise<readonly AuthLoginAttemptEntity[]> {
-    const rows = await this.prisma.authLoginAttempt.findMany();
-    return rows.map((r) => this.toDomain(r));
+  protected toDomain(raw: PrismaAuthLoginAttempt): AuthLoginAttemptEntity {
+    return AuthLoginAttemptEntity.create({
+      id: raw.id,
+      userId: (raw.userId ?? undefined) as UserId | undefined,
+      email: raw.email ?? undefined,
+      ip: LoginAttemptIpVO.of(raw.ip),
+      userAgent: raw.userAgent,
+      status: LoginAttemptStatusVO.of(raw.status),
+      attemptedAt: raw.attemptedAt.getTime(),
+      failureReason: undefined,
+      createdAt: raw.createdAt.toISOString(),
+      updatedAt: raw.updatedAt.toISOString(),
+      deletedAt: null,
+    });
   }
 
-  async save(entity: AuthLoginAttemptEntity): Promise<AuthLoginAttemptEntity> {
-    const data = {
-      userId: entity.userId?.value ?? null,
-      email: entity.email,
-      ip: entity.ip.value,
-      userAgent: entity.userAgent,
-      status: entity.status.value,
-      attemptedAt: entity.attemptedAt,
+  protected toPersistence(domain: AuthLoginAttemptEntity): Record<string, unknown> {
+    return {
+      id: domain.id,
+      userId: domain.userId ?? null,
+      email: domain.email ?? null,
+      ip: domain.ip.value,
+      userAgent: domain.userAgent,
+      status: domain.status.value,
+      attemptedAt: new Date(domain.attemptedAt),
       updatedAt: new Date(),
     };
-    const raw = await this.prisma.authLoginAttempt.upsert({
-      where: { id: entity.id },
-      create: { id: entity.id, ...data },
-      update: data,
+  }
+
+  async countRecentFailures(
+    email: string,
+    ip: LoginAttemptIpVO,
+    sinceEpochMs: number,
+  ): Promise<number> {
+    return this.prisma.authLoginAttempt.count({
+      where: {
+        email,
+        ip: ip.value,
+        status: { in: ['failure', 'mfa_failed'] },
+        attemptedAt: { gte: new Date(sinceEpochMs) },
+      },
     });
-    return this.toDomain(raw);
   }
 
-  async delete(id: string): Promise<void> {
-    await this.prisma.authLoginAttempt.delete({ where: { id } });
-  }
-
-  async findByUser(userId: UserIdVO): Promise<readonly AuthLoginAttemptEntity[]> {
+  async findRecentByUser(
+    userId: UserId,
+    limit: number,
+  ): Promise<readonly AuthLoginAttemptEntity[]> {
     const rows = await this.prisma.authLoginAttempt.findMany({
-      where: { userId: userId.value },
+      where: { userId },
+      orderBy: { attemptedAt: 'desc' },
+      take: limit,
     });
     return rows.map((r) => this.toDomain(r));
   }
 
-  async countRecentByIp(ip: LoginAttemptIpVO, windowMs: number): Promise<number> {
-    const since = new Date(Date.now() - windowMs);
-    return this.prisma.authLoginAttempt.count({
-      where: { ip: ip.value, attemptedAt: { gte: since } },
+  async findByIp(
+    ip: LoginAttemptIpVO,
+    sinceEpochMs: number,
+  ): Promise<readonly AuthLoginAttemptEntity[]> {
+    const rows = await this.prisma.authLoginAttempt.findMany({
+      where: { ip: ip.value, attemptedAt: { gte: new Date(sinceEpochMs) } },
+      orderBy: { attemptedAt: 'desc' },
     });
-  }
-
-  async countRecentByEmail(email: string, windowMs: number): Promise<number> {
-    const since = new Date(Date.now() - windowMs);
-    return this.prisma.authLoginAttempt.count({
-      where: { email, attemptedAt: { gte: since } },
-    });
+    return rows.map((r) => this.toDomain(r));
   }
 }

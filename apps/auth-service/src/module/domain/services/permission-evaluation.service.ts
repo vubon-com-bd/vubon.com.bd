@@ -1,30 +1,74 @@
-import { AuthPermissionEntity } from '../entities/auth-permission.entity';
+/**
+ * PermissionEvaluationService — RBAC evaluation (pure)
+ * @module auth-service/domain/services
+ *
+ * Rules:
+ * - SUPER_ADMIN implicitly has all permissions
+ * - "*" (wildcard) matches everything
+ * - "user:*" matches all user actions
+ * - Exact match: "user:view" === "user:view"
+ */
 import { AuthRoleEntity } from '../entities/auth-role.entity';
 import { PermissionNameVO } from '../value-objects/primitives/permission-name.vo';
+import { ROLE } from '@vubon/shared-constants/common';
+
+export interface PermissionCheckInput {
+  readonly roles: readonly AuthRoleEntity[];
+  readonly required: PermissionNameVO;
+}
 
 export class PermissionEvaluationService {
-  evaluate(role: AuthRoleEntity, required: PermissionNameVO): boolean {
-    return role.permissions.some((p) => p.value === required.value);
+  static hasPermission(input: PermissionCheckInput): boolean {
+    // Super admin short-circuit
+    if (input.roles.some((r) => r.isSuperAdmin())) return true;
+
+    for (const role of input.roles) {
+      for (const perm of role.permissions) {
+        if (perm.matches(input.required)) return true;
+      }
+    }
+    return false;
   }
 
-  evaluateAll(
-    role: AuthRoleEntity,
+  static hasAnyPermission(
+    roles: readonly AuthRoleEntity[],
     required: readonly PermissionNameVO[],
   ): boolean {
-    return required.every((perm) => this.evaluate(role, perm));
+    return required.some((r) =>
+      PermissionEvaluationService.hasPermission({ roles, required: r }),
+    );
   }
 
-  evaluateAny(
-    role: AuthRoleEntity,
+  static hasAllPermissions(
+    roles: readonly AuthRoleEntity[],
     required: readonly PermissionNameVO[],
   ): boolean {
-    return required.some((perm) => this.evaluate(role, perm));
+    return required.every((r) =>
+      PermissionEvaluationService.hasPermission({ roles, required: r }),
+    );
   }
 
-  filterGranted(
-    role: AuthRoleEntity,
-    permissions: readonly AuthPermissionEntity[],
-  ): readonly AuthPermissionEntity[] {
-    return permissions.filter((p) => this.evaluate(role, p.name));
+  /** Flatten effective permissions for a set of roles. */
+  static effectivePermissions(
+    roles: readonly AuthRoleEntity[],
+  ): readonly PermissionNameVO[] {
+    if (roles.some((r) => r.isSuperAdmin())) {
+      return [PermissionNameVO.wildcard()];
+    }
+    const seen = new Set<string>();
+    const out: PermissionNameVO[] = [];
+    for (const role of roles) {
+      for (const perm of role.permissions) {
+        if (!seen.has(perm.value)) {
+          seen.add(perm.value);
+          out.push(perm);
+        }
+      }
+    }
+    return out;
+  }
+
+  static isSuperAdmin(roles: readonly AuthRoleEntity[]): boolean {
+    return roles.some((r) => r.name.value === ROLE.SUPER_ADMIN);
   }
 }

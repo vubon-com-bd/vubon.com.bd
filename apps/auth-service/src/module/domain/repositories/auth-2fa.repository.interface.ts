@@ -1,8 +1,12 @@
-import type { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
+/**
+ * Auth2FaRepository
+ * @module auth-service/domain/repositories
+ */
+import { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
+import type { UserId } from '@vubon/shared-types/common';
 import { Auth2FaEntity } from '../entities/auth-2fa.entity';
-import { UserIdVO } from '../value-objects/primitives/user-id.vo';
 
-export interface Auth2FaRepository
-  extends BaseRepository<Auth2FaEntity, UserIdVO> {
-  findByUser(userId: UserIdVO): Promise<Auth2FaEntity | null>;
+export interface Auth2FaRepository extends BaseRepository<Auth2FaEntity, string> {
+  findByUser(userId: UserId): Promise<Auth2FaEntity | null>;
+  findEnabledByUsers(userIds: readonly UserId[]): Promise<readonly Auth2FaEntity[]>;
 }

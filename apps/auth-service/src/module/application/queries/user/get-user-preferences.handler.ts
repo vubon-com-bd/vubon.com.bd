@@ -1,37 +1,32 @@
-import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
+import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { GetUserPreferencesQuery } from './get-user-preferences.query';
 import type { UserPreferencesRepository } from '../../../domain/repositories/user-preferences.repository.interface';
 import type { UserPreferencesResponseDTO } from '../../dtos/responses/user-preferences-response.dto';
-import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
+import { USER_PREFERENCES_REPO } from '../../tokens';
 
 @QueryHandler(GetUserPreferencesQuery)
 export class GetUserPreferencesHandler
   extends BaseQueryHandler<GetUserPreferencesQuery, UserPreferencesResponseDTO | null>
-  implements IQueryHandler<GetUserPreferencesQuery>
-{
-  readonly queryType = 'user.get-preferences';
+  implements IQueryHandler<GetUserPreferencesQuery> {
+  readonly queryType = 'GetUserPreferencesQuery';
+  constructor(
+    @Inject(USER_PREFERENCES_REPO) private readonly repo: UserPreferencesRepository,
+  ) { super(); }
 
-  constructor(@Inject('UserPreferencesRepository') private readonly preferencesRepo: UserPreferencesRepository) {
-    super();
-  }
-
-  async execute(query: GetUserPreferencesQuery): Promise<UserPreferencesResponseDTO | null> {
-    const entity = await this.preferencesRepo.findByUserId(UserIdVO.create(query.userId));
-    if (!entity) return null;
+  async execute(
+    query: GetUserPreferencesQuery,
+  ): Promise<UserPreferencesResponseDTO | null> {
+    const p = await this.repo.findByUserId(query.userId);
+    if (!p) return null;
     return {
-      success: true,
-      preferences: {
-        userId: entity.userId.value,
-        newsletter: entity.newsletter,
-        promotions: entity.marketingEmails,
-        orderUpdates: entity.orderUpdates,
-        productRecommendations: entity.productUpdates,
-        securityAlerts: entity.securityAlerts,
-        channels: [],
-        updatedAt: entity.updatedAt,
-      },
+      userId: p.userId,
+      theme: p.theme,
+      currency: p.currency,
+      dateFormat: 'DD/MM/YYYY',
+      reduceMotion: false,
+      updatedAt: p.updatedAt,
     };
   }
 }

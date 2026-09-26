@@ -1,9 +1,12 @@
-import { z } from 'zod';
+/**
+ * StartChatRequestDTO — matches LiveChatSessionSchema
+ * @module support-service/application/dtos/requests/live-chat
+ */
+import type { LiveChatTriggerValue } from '@vubon/shared-types/support';
 
-export const StartChatRequestSchema = z.object({
-  userId: z.string().uuid(),
-  type: z.string().min(1).max(50).optional(),
-  initialMessage: z.string().max(5000).optional(),
-});
-
-export type StartChatRequestDTO = z.infer<typeof StartChatRequestSchema>;
+export interface StartChatRequestDTO {
+  readonly userId?: string;
+  readonly visitorId?: string;
+  readonly trigger: LiveChatTriggerValue;
+  readonly subject?: string;
+}

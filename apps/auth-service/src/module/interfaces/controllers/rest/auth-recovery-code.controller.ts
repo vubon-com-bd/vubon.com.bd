@@ -1,59 +1,74 @@
+/**
+ * AuthRecoveryCodeController
+ * @module auth-service/interfaces/controllers/rest
+ */
 import {
-  Body,
   Controller,
   Get,
+  Post,
+  Body,
   HttpCode,
   HttpStatus,
-  Post,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import {
-  CurrentUser,
-  JwtAuthGuard,
-  type CurrentUserShape,
-} from '@vubon/shared-kernel/interfaces';
+import { JwtAuthGuard, Public } from '@vubon/shared-kernel/interfaces';
+
 import { GenerateRecoveryCodesCommand } from '../../../application/commands/auth/generate-recovery-codes.command';
 import { RecoverAccountCommand } from '../../../application/commands/auth/recover-account.command';
 import { GetAuthRecoveryCodesQuery } from '../../../application/queries/auth/get-auth-recovery-codes.query';
-import {
-  RecoveryCodeGenerateRequestDTO,
-  RecoveryCodeConsumeRequestDTO,
-} from '../../dtos/requests/recovery-code.request.dto';
+import type { UserId } from '@vubon/shared-types/common';
 
-@ApiTags('Recovery Codes')
+import {
+  GenerateRecoveryCodesRequestDTO,
+  RecoverAccountRequestDTO,
+} from '../../dtos/requests/recovery-code.request.dto';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
+
+@ApiTags('Auth Recovery')
 @Controller('auth/recovery-codes')
-@UseGuards(JwtAuthGuard)
 export class AuthRecoveryCodeController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post('generate')
+  @HttpCode(HttpStatus.OK)
   async generate(
-    @CurrentUser() user: CurrentUserShape,
-    @Body() body: RecoveryCodeGenerateRequestDTO,
-  ): Promise<unknown> {
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: GenerateRecoveryCodesRequestDTO,
+  ) {
     return this.commandBus.execute(
-      new GenerateRecoveryCodesCommand(user.userId, body.count ?? 10),
+      new GenerateRecoveryCodesCommand(user.id as UserId, {
+        password: body.password,
+        count: body.count ?? 10,
+        invalidatePrevious: true,
+      }),
     );
   }
 
-  @Get()
-  async list(@CurrentUser() user: CurrentUserShape): Promise<unknown> {
-    return this.queryBus.execute(new GetAuthRecoveryCodesQuery(user.userId));
+  @Public()
+  @Post('recover')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async recover(@Body() body: RecoverAccountRequestDTO): Promise<void> {
+    await this.commandBus.execute(
+      new RecoverAccountCommand({
+        email: body.email,
+        recoveryCode: body.recoveryCode,
+        newPassword: body.newPassword,
+        confirmPassword: body.confirmPassword,
+      }),
+    );
   }
 
-  @Post('recover')
-  @HttpCode(HttpStatus.OK)
-  async recover(
-    @CurrentUser() user: CurrentUserShape,
-    @Body() body: RecoveryCodeConsumeRequestDTO,
-  ): Promise<unknown> {
-    return this.commandBus.execute(
-      new RecoverAccountCommand(user.userId, body.code),
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async listMine(@CurrentUser() user: AuthenticatedUser) {
+    return this.queryBus.execute(
+      new GetAuthRecoveryCodesQuery(user.id as UserId),
     );
   }
 }

@@ -1,16 +1,16 @@
-import { ApiProperty } from '@nestjs/swagger';
-import type { UserVerificationResponseDTO } from '../../../application/dtos/responses/user-verification-response.dto';
+/**
+ * VerificationResponseDTO
+ * @module auth-service/interfaces/dtos/responses
+ */
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class VerificationResponseDTO implements UserVerificationResponseDTO {
-  @ApiProperty()
-  userId!: string;
-
-  @ApiProperty()
+export class VerificationResponseDTO {
+  @ApiProperty() id!: string;
+  @ApiProperty() userId!: string;
+  @ApiProperty() type!: string;
+  @ApiProperty({ enum: ['pending', 'verified', 'rejected', 'expired'] })
   status!: string;
-
-  @ApiProperty()
-  verificationCount!: number;
-
-  @ApiProperty()
-  isFullyVerified!: boolean;
+  @ApiProperty() expiresAt!: string;
+  @ApiProperty() createdAt!: string;
+  @ApiPropertyOptional() completedAt?: string;
 }

@@ -1,87 +1,220 @@
+/**
+ * LiveChatEntity — Live chat session aggregate
+ * @module support-service/domain/entities
+ *
+ * Registry: extends AggregateRoot<LiveChatIdVO>
+ */
 import { AggregateRoot } from '@vubon/shared-kernel/domain/base/base.aggregate';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
+import { BusinessRuleError } from '@vubon/shared-kernel/domain/errors/business-rule.error';
 import { LiveChatIdVO } from '../value-objects/primitives/live-chat-id.vo';
 import { LiveChatStatusVO } from '../value-objects/primitives/live-chat-status.vo';
+import { LiveChatTypeVO } from '../value-objects/primitives/live-chat-type.vo';
 import { UserIdVO } from '../value-objects/primitives/user-id.vo';
 import { AgentIdVO } from '../value-objects/primitives/agent-id.vo';
+import { MessageIdVO } from '../value-objects/primitives/message-id.vo';
+import {
+  ChatStartedEvent,
+  AgentJoinedEvent,
+  ChatEndedEvent,
+} from '../events/live-chat.events';
 
-export interface LiveChatEntityProps {
+export interface CreateLiveChatInput {
+  readonly id: LiveChatIdVO;
   readonly userId: UserIdVO;
-  readonly agentId: AgentIdVO | null;
-  readonly status: LiveChatStatusVO;
+  readonly type: LiveChatTypeVO;
+  readonly now: string;
+}
+
+export interface LiveChatSnapshot {
+  readonly id: string;
+  readonly userId: string;
   readonly type: string;
-  readonly startedAt: Date;
-  readonly endedAt: Date | null;
+  readonly status: string;
+  readonly agentId?: string;
+  readonly messageIds: readonly string[];
+  readonly startedAt: string;
+  readonly endedAt?: string;
+  readonly endedReason?: string;
+  readonly createdAt: string;
+  readonly updatedAt: string;
 }
 
 export class LiveChatEntity extends AggregateRoot<LiveChatIdVO> {
   private readonly _userId: UserIdVO;
-  private readonly _agentId: AgentIdVO | null;
-  private readonly _status: LiveChatStatusVO;
-  private readonly _type: string;
-  private readonly _startedAt: Date;
-  private readonly _endedAt: Date | null;
+  private readonly _type: LiveChatTypeVO;
+  private _status: LiveChatStatusVO;
+  private _agentId?: AgentIdVO;
+  private _messageIds: readonly MessageIdVO[];
+  private readonly _startedAt: string;
+  private _endedAt?: string;
+  private _endedReason?: string;
 
   private constructor(
     id: LiveChatIdVO,
-    props: LiveChatEntityProps,
+    userId: UserIdVO,
+    type: LiveChatTypeVO,
+    status: LiveChatStatusVO,
+    startedAt: string,
     createdAt: string,
     updatedAt: string,
-    deletedAt: string | null,
+    agentId?: AgentIdVO,
   ) {
-    super(id, createdAt, updatedAt, deletedAt);
-    this._userId = props.userId;
-    this._agentId = props.agentId;
-    this._status = props.status;
-    this._type = props.type;
-    this._startedAt = props.startedAt;
-    this._endedAt = props.endedAt;
+    super(id, createdAt, updatedAt);
+    this._userId = userId;
+    this._type = type;
+    this._status = status;
+    this._startedAt = startedAt;
+    this._agentId = agentId;
+    this._messageIds = Object.freeze([]);
   }
 
-  static create(props: LiveChatEntityProps): LiveChatEntity {
-    const now = new Date().toISOString();
-    const id = LiveChatIdVO.create(crypto.randomUUID());
-    return new LiveChatEntity(id, props, now, now, null);
+  static create(input: CreateLiveChatInput): LiveChatEntity {
+    if (!input.id || !input.userId) {
+      throw new ValidationError(
+        'LiveChat requires id and userId',
+        'liveChat',
+      );
+    }
+    const now = input.now;
+    const chat = new LiveChatEntity(
+      input.id,
+      input.userId,
+      input.type,
+      LiveChatStatusVO.create('active'),
+      now,
+      now,
+      now,
+    );
+    chat.addDomainEvent(
+      new ChatStartedEvent(input.id, input.userId, input.type.value, Date.parse(now)),
+    );
+    return chat;
   }
 
-  static reconstitute(
-    id: LiveChatIdVO,
-    props: LiveChatEntityProps,
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null,
-  ): LiveChatEntity {
-    return new LiveChatEntity(id, props, createdAt, updatedAt, deletedAt);
+  static rehydrate(snapshot: LiveChatSnapshot): LiveChatEntity {
+    const chat = new LiveChatEntity(
+      LiveChatIdVO.create(snapshot.id),
+      UserIdVO.create(snapshot.userId),
+      LiveChatTypeVO.create(snapshot.type),
+      LiveChatStatusVO.create(snapshot.status),
+      snapshot.startedAt,
+      snapshot.createdAt,
+      snapshot.updatedAt,
+      snapshot.agentId ? AgentIdVO.create(snapshot.agentId) : undefined,
+    );
+    chat._messageIds = Object.freeze(snapshot.messageIds.map((id) => MessageIdVO.create(id)));
+    chat._endedAt = snapshot.endedAt;
+    chat._endedReason = snapshot.endedReason;
+    return chat;
   }
 
-  end(): LiveChatEntity {
-    return new LiveChatEntity(
-      this.id,
-      {
-        ...this._toProps(),
-        status: LiveChatStatusVO.create('offline'),
-        endedAt: new Date(),
-      },
-      this.createdAt,
-      new Date().toISOString(),
-      this.deletedAt ?? null,
+  get userId(): UserIdVO {
+    return this._userId;
+  }
+
+  get type(): LiveChatTypeVO {
+    return this._type;
+  }
+
+  get status(): LiveChatStatusVO {
+    return this._status;
+  }
+
+  get agentId(): AgentIdVO | undefined {
+    return this._agentId;
+  }
+
+  get startedAt(): string {
+    return this._startedAt;
+  }
+
+  get messageCount(): number {
+    return this._messageIds.length;
+  }
+
+  get isActive(): boolean {
+    return this._status.isActive();
+  }
+
+  get isTerminal(): boolean {
+    return this._status.isTerminal();
+  }
+
+  get hasAgent(): boolean {
+    return this._agentId !== undefined;
+  }
+
+  get isBotInvolved(): boolean {
+    return this._type.isBotInvolved();
+  }
+
+  assignAgent(agentId: AgentIdVO, now: string): void {
+    if (!this.isActive) {
+      throw new BusinessRuleError(
+        'Cannot assign agent to a terminal chat',
+        'liveChat.terminal',
+      );
+    }
+    if (this._agentId?.equals(agentId)) {
+      throw new BusinessRuleError(
+        'Agent already assigned',
+        'liveChat.agent.duplicate',
+      );
+    }
+    this._agentId = agentId;
+    (this as unknown as { updatedAt: string }).updatedAt = now;
+    this.incrementVersion();
+    this.addDomainEvent(
+      new AgentJoinedEvent(this.id, agentId, Date.parse(now), this.version + 1),
     );
   }
 
-  get userId(): UserIdVO { return this._userId; }
-  get agentId(): AgentIdVO | null { return this._agentId; }
-  get status(): LiveChatStatusVO { return this._status; }
-  get type(): string { return this._type; }
-  get startedAt(): Date { return this._startedAt; }
-  get endedAt(): Date | null { return this._endedAt; }
+  appendMessage(messageId: MessageIdVO, now: string): void {
+    if (!this.isActive) {
+      throw new BusinessRuleError(
+        'Cannot add message to a terminal chat',
+        'liveChat.terminal',
+      );
+    }
+    if (this._messageIds.some((m) => m.equals(messageId))) return;
+    this._messageIds = Object.freeze([...this._messageIds, messageId]);
+    (this as unknown as { updatedAt: string }).updatedAt = now;
+  }
 
-  private _toProps(): LiveChatEntityProps {
+  end(reason: string | undefined, now: string): void {
+    if (this.isTerminal) {
+      throw new BusinessRuleError(
+        'LiveChat already ended',
+        'liveChat.already.ended',
+      );
+    }
+    const durationMinutes = Math.round(
+      (Date.parse(now) - Date.parse(this._startedAt)) / (1000 * 60),
+    );
+    this._status = LiveChatStatusVO.create('ended');
+    this._endedAt = now;
+    this._endedReason = reason;
+    (this as unknown as { updatedAt: string }).updatedAt = now;
+    this.incrementVersion();
+    this.addDomainEvent(
+      new ChatEndedEvent(this.id, Date.parse(now), reason, durationMinutes, this.version + 1),
+    );
+  }
+
+  toSnapshot(): LiveChatSnapshot {
     return {
-      userId: this._userId,
-      agentId: this._agentId,
-      status: this._status,
-      type: this._type,
+      id: this.id.value,
+      userId: this._userId.value,
+      type: this._type.value,
+      status: this._status.value,
+      agentId: this._agentId?.value,
+      messageIds: this._messageIds.map((m) => m.value),
       startedAt: this._startedAt,
       endedAt: this._endedAt,
+      endedReason: this._endedReason,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
     };
   }
 }

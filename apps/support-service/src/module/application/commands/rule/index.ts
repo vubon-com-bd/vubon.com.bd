@@ -1,4 +1,10 @@
-export { CreateRuleCommand } from './create-rule.command';
-export { CreateRuleHandler } from './create-rule.handler';
-export { UpdateRuleCommand } from './update-rule.command';
-export { UpdateRuleHandler } from './update-rule.handler';
+// support-service/application/commands/rule/index.ts
+
+export * from './create-rule.command';
+export * from './create-rule.handler';
+export * from './update-rule.command';
+export * from './update-rule.handler';
+export * from './activate-rule.command';
+export * from './activate-rule.handler';
+export * from './deactivate-rule.command';
+export * from './deactivate-rule.handler';

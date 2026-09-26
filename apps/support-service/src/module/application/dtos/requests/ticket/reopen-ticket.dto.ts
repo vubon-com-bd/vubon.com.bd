@@ -1,8 +1,9 @@
-import { z } from 'zod';
-
-export const ReopenTicketRequestSchema = z.object({
-  ticketId: z.string().uuid(),
-  reason: z.string().min(1).max(500),
-});
-
-export type ReopenTicketRequestDTO = z.infer<typeof ReopenTicketRequestSchema>;
+/**
+ * ReopenTicketRequestDTO
+ * @module support-service/application/dtos/requests/ticket
+ */
+export interface ReopenTicketRequestDTO {
+  readonly ticketId: string;
+  readonly reason: string;
+  readonly reopenedBy?: string;
+}

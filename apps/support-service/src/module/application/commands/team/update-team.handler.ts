@@ -1,24 +1,23 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+/**
+ * UpdateTeamHandler
+ * @module support-service/application/commands/team
+ */
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { UpdateTeamCommand } from './update-team.command';
-import type { SupportTeamRepository } from '../../../domain/repositories/support-team.repository.interface';
-import { TeamIdVO } from '../../../domain/value-objects/primitives/team-id.vo';
+import type { TeamResponseDTO } from '../../dtos/responses/team-response.dto';
+import type { TeamServiceInterface } from '../../services/interfaces/team.service.interface';
 
-@CommandHandler(UpdateTeamCommand)
-export class UpdateTeamHandler
-  extends BaseCommandHandler<UpdateTeamCommand, void>
-  implements ICommandHandler<UpdateTeamCommand>
-{
+export class UpdateTeamHandler extends BaseCommandHandler<
+  UpdateTeamCommand,
+  TeamResponseDTO
+> {
   readonly commandType = 'support.team.update';
 
-  constructor(private readonly teamRepo: SupportTeamRepository) {
+  constructor(private readonly teamService: TeamServiceInterface) {
     super();
   }
 
-  async execute(command: UpdateTeamCommand): Promise<void> {
-    const existing = await this.teamRepo.findById(TeamIdVO.create(command.teamId));
-    if (!existing) {
-      throw new Error(`Team not found: ${command.teamId}`);
-    }
+  async execute(command: UpdateTeamCommand): Promise<TeamResponseDTO> {
+    return this.teamService.update(command.payload);
   }
 }

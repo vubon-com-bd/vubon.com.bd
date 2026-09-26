@@ -1,29 +1,23 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
+/**
+ * SendChatMessageHandler
+ * @module support-service/application/commands/live-chat
+ */
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { SendChatMessageCommand } from './send-chat-message.command';
-import type { LiveChatRepository } from '../../../domain/repositories/live-chat.repository.interface';
-import { LiveChatIdVO } from '../../../domain/value-objects/primitives/live-chat-id.vo';
-import { ChatNotFoundError } from '../../errors/chat.errors';
+import type { LiveChatResponseDTO } from '../../dtos/responses/live-chat-response.dto';
+import type { LiveChatServiceInterface } from '../../services/interfaces/live-chat.service.interface';
 
-@CommandHandler(SendChatMessageCommand)
-export class SendChatMessageHandler
-  extends BaseCommandHandler<SendChatMessageCommand, void>
-  implements ICommandHandler<SendChatMessageCommand>
-{
-  readonly commandType = 'support.chat.message.send';
+export class SendChatMessageHandler extends BaseCommandHandler<
+  SendChatMessageCommand,
+  LiveChatResponseDTO
+> {
+  readonly commandType = 'support.livechat.send_message';
 
-  constructor(
-    private readonly liveChatRepo: LiveChatRepository,
-    private readonly eventBus: EventBus,
-  ) {
+  constructor(private readonly chatService: LiveChatServiceInterface) {
     super();
   }
 
-  async execute(command: SendChatMessageCommand): Promise<void> {
-    void command.content;
-    void command.type_;
-    const chat = await this.liveChatRepo.findById(LiveChatIdVO.create(command.chatId));
-    if (!chat) throw new ChatNotFoundError(command.chatId);
-    void this.eventBus;
+  async execute(command: SendChatMessageCommand): Promise<LiveChatResponseDTO> {
+    return this.chatService.sendMessage(command.payload);
   }
 }

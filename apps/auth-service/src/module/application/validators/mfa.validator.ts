@@ -1,23 +1,31 @@
+/**
+ * MfaValidator
+ * @module auth-service/application/validators
+ */
 import {
   VerifyMfaRequestSchema,
+  VerifyBackupCodeRequestSchema,
   EnableMfaRequestSchema,
   DisableMfaRequestSchema,
 } from '@vubon/shared-schemas/auth';
+import type { z } from 'zod';
 
 export class MfaValidator {
-  static validateVerify(input: unknown) {
+  static verify(input: unknown): z.infer<typeof VerifyMfaRequestSchema> {
     return VerifyMfaRequestSchema.parse(input);
   }
 
-  static safeValidateVerify(input: unknown) {
-    return VerifyMfaRequestSchema.safeParse(input);
+  static verifyBackupCode(
+    input: unknown,
+  ): z.infer<typeof VerifyBackupCodeRequestSchema> {
+    return VerifyBackupCodeRequestSchema.parse(input);
   }
 
-  static validateEnable(input: unknown) {
+  static enable(input: unknown): z.infer<typeof EnableMfaRequestSchema> {
     return EnableMfaRequestSchema.parse(input);
   }
 
-  static validateDisable(input: unknown) {
+  static disable(input: unknown): z.infer<typeof DisableMfaRequestSchema> {
     return DisableMfaRequestSchema.parse(input);
   }
 }

@@ -1,32 +1,29 @@
+/**
+ * OAuthValidatorService
+ * @module auth-service/infrastructure/services/internal
+ */
 import { Injectable } from '@nestjs/common';
-import { randomBytes } from 'node:crypto';
-import { OAUTH_CONFIG } from '../../config/oauth.config';
-import { OAuthFailedError } from '../../../domain/errors/oauth.errors';
+import { OAuthProviderVO } from '../../../domain/value-objects/primitives/oauth-provider.vo';
+import { OAuthFailedAppError } from '../../../application/errors/oauth.errors';
+
+const SUPPORTED = new Set<string>([
+  'google', 'facebook', 'github', 'linkedin',
+  'microsoft', 'gitlab', 'bitbucket', 'custom',
+]);
 
 @Injectable()
 export class OAuthValidatorService {
-  generateState(): string {
-    return randomBytes(32).toString('hex');
-  }
+  readonly name = 'OAuthValidatorService';
 
-  assertSupportedProvider(provider: string): void {
-    const supported: readonly string[] = ['google', 'facebook', 'github'];
-    if (!supported.includes(provider)) {
-      throw new OAuthFailedError(provider, 'unsupported provider');
+  assertSupported(provider: string): OAuthProviderVO {
+    const lower = provider.trim().toLowerCase();
+    if (!SUPPORTED.has(lower)) {
+      throw new OAuthFailedAppError(provider, 'Unsupported provider');
     }
+    return OAuthProviderVO.of(lower);
   }
 
-  getClientConfig(provider: string): { clientId: string; clientSecret: string; redirectUri: string } {
-    this.assertSupportedProvider(provider);
-    const map: Record<string, { clientId: string; clientSecret: string; redirectUri: string }> = {
-      google: OAUTH_CONFIG.google,
-      facebook: OAUTH_CONFIG.facebook,
-      github: OAUTH_CONFIG.github,
-    };
-    return map[provider];
-  }
-
-  getStateTtlSeconds(): number {
-    return OAUTH_CONFIG.stateTtlSeconds;
+  isSupported(provider: string): boolean {
+    return SUPPORTED.has(provider.trim().toLowerCase());
   }
 }

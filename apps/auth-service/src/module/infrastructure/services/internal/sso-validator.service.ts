@@ -1,31 +1,29 @@
+/**
+ * SsoValidatorService
+ * @module auth-service/infrastructure/services/internal
+ */
 import { Injectable } from '@nestjs/common';
-import axios from 'axios';
-import type {
-  SsoValidatorPort,
-  SsoProfile,
-} from '../../../application/ports/sso-validator.port';
+import { SsoProviderVO } from '../../../domain/value-objects/primitives/sso-provider.vo';
+import { SsoFailedAppError } from '../../../application/errors/sso.errors';
+
+const SUPPORTED = new Set<string>([
+  'saml', 'oidc', 'azure_ad', 'okta', 'keycloak',
+  'auth0', 'google_workspace', 'custom',
+]);
 
 @Injectable()
-export class SsoValidatorService implements SsoValidatorPort {
-  async verify(provider: string, token: string): Promise<SsoProfile> {
-    switch (provider) {
-      case 'google_workspace':
-      case 'azure_ad':
-      case 'okta': {
-        // OIDC userinfo — token biasanya JWT
-        const { data } = await axios.get(
-          `https://${provider}.example.com/oauth2/userinfo`,
-          { headers: { Authorization: `Bearer ${token}` } },
-        );
-        return {
-          externalId: data.sub,
-          email: data.email,
-          name: data.name,
-          attributes: data,
-        };
-      }
-      default:
-        throw new Error(`Unsupported SSO provider: ${provider}`);
+export class SsoValidatorService {
+  readonly name = 'SsoValidatorService';
+
+  assertSupported(provider: string): SsoProviderVO {
+    const lower = provider.trim().toLowerCase();
+    if (!SUPPORTED.has(lower)) {
+      throw new SsoFailedAppError(provider, 'Unsupported SSO provider');
     }
+    return SsoProviderVO.of(lower);
+  }
+
+  isSupported(provider: string): boolean {
+    return SUPPORTED.has(provider.trim().toLowerCase());
   }
 }

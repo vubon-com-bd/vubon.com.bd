@@ -1,80 +1,50 @@
+/**
+ * FaqCacheRepository
+ * @module support-service/infrastructure/persistence/cache/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { BaseCacheRepository, RedisService } from '@vubon/shared-kernel/infrastructure';
+import { CACHE_TTL } from '@vubon/shared-constants/infrastructure';
 import { FaqEntity } from '../../../../domain/entities/faq.entity';
 import { FaqIdVO } from '../../../../domain/value-objects/primitives/faq-id.vo';
-import { FaqQuestionVO } from '../../../../domain/value-objects/primitives/faq-question.vo';
-import { FaqAnswerVO } from '../../../../domain/value-objects/primitives/faq-answer.vo';
-import { FaqStatusVO } from '../../../../domain/value-objects/primitives/faq-status.vo';
-
-interface SerializedFaq {
-  readonly id: string;
-  readonly question: string;
-  readonly answer: string;
-  readonly status: string;
-  readonly categoryId: string | null;
-  readonly keywords: readonly string[];
-  readonly viewCount: number;
-  readonly createdAt: string;
-  readonly updatedAt: string;
-  readonly deletedAt: string | null;
-}
-
-const PREFIX = 'support:faq';
-const TTL_SECONDS = 60 * 30;
+import { SupportRedisService } from '../redis.service';
+import { SUPPORT_CACHE_PREFIX } from '../support-cache.constants';
 
 @Injectable()
-export class FaqCacheRepository extends BaseCacheRepository<FaqEntity, FaqIdVO> {
-  constructor(redis: RedisService) {
-    super(redis, PREFIX, TTL_SECONDS);
+export class FaqCacheRepository {
+  private readonly keyPrefix = SUPPORT_CACHE_PREFIX.FAQ;
+  private readonly ttlSeconds = CACHE_TTL.ONE_DAY;
+
+  constructor(private readonly redis: SupportRedisService) {}
+
+  async findById(id: FaqIdVO): Promise<FaqEntity | null> {
+    const raw = await this.redis.get(this.keyFor(id));
+    if (!raw) return null;
+    try {
+      const snap = JSON.parse(raw) as ReturnType<FaqEntity['toSnapshot']>;
+      return FaqEntity.rehydrate(snap);
+    } catch {
+      await this.redis.del(this.keyFor(id));
+      return null;
+    }
   }
 
-  private serialize(entity: FaqEntity): SerializedFaq {
-    return {
-      id: entity.id.value,
-      question: entity.question.value,
-      answer: entity.answer.value,
-      status: entity.status.value,
-      categoryId: entity.categoryId,
-      keywords: entity.keywords,
-      viewCount: entity.viewCount,
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
-      deletedAt: entity.deletedAt ?? null,
-    };
-  }
-
-  private deserialize(data: SerializedFaq): FaqEntity {
-    return FaqEntity.reconstitute(
-      FaqIdVO.create(data.id),
-      {
-        question: FaqQuestionVO.create(data.question),
-        answer: FaqAnswerVO.create(data.answer),
-        status: FaqStatusVO.create(data.status),
-        categoryId: data.categoryId,
-        keywords: data.keywords,
-        viewCount: data.viewCount,
-      },
-      data.createdAt,
-      data.updatedAt,
-      data.deletedAt,
+  async save(entity: FaqEntity): Promise<void> {
+    await this.redis.set(
+      this.keyFor(entity.id),
+      JSON.stringify(entity.toSnapshot()),
+      this.ttlSeconds,
     );
   }
 
-  async findById(id: FaqIdVO): Promise<FaqEntity | null> {
-    const raw = await this.redis.get<SerializedFaq>(this.keyFor(id));
-    return raw ? this.deserialize(raw) : null;
-  }
-
-  async findAll(): Promise<readonly FaqEntity[]> {
-    return [];
-  }
-
-  async save(entity: FaqEntity): Promise<FaqEntity> {
-    await this.redis.set(this.keyFor(entity.id), this.serialize(entity), TTL_SECONDS);
-    return entity;
-  }
-
-  async delete(id: FaqIdVO): Promise<void> {
+  async invalidate(id: FaqIdVO): Promise<void> {
     await this.redis.del(this.keyFor(id));
+  }
+
+  async exists(id: FaqIdVO): Promise<boolean> {
+    return this.redis.exists(this.keyFor(id));
+  }
+
+  private keyFor(id: FaqIdVO): string {
+    return `${this.keyPrefix}${id.value}`;
   }
 }

@@ -1,24 +1,25 @@
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { RevokeRoleCommand } from './revoke-role.command';
-import type { AuthRoleServiceInterface } from '../../services/interfaces/auth-role.service.interface';
+import type { UserRoleServiceInterface } from '../../services/interfaces/user-role.service.interface';
+import type { UserId } from '@vubon/shared-types/common';
+import { USER_ROLE_SERVICE } from '../../tokens';
 
 @CommandHandler(RevokeRoleCommand)
 export class RevokeRoleHandler
   extends BaseCommandHandler<RevokeRoleCommand, void>
-  implements ICommandHandler<RevokeRoleCommand>
-{
-  readonly commandType = 'user.revoke-role';
-
+  implements ICommandHandler<RevokeRoleCommand> {
+  readonly commandType = 'RevokeRoleCommand';
   constructor(
-    @Inject('AuthRoleService') private readonly roleService: AuthRoleServiceInterface,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
-  }
+    @Inject(USER_ROLE_SERVICE)
+    private readonly userRoleService: UserRoleServiceInterface,
+  ) { super(); }
 
   async execute(command: RevokeRoleCommand): Promise<void> {
-    await this.roleService.revoke(command.userId, command.role);
+    await this.userRoleService.revoke(
+      command.input.userId as UserId,
+      command.input.role,
+    );
   }
 }

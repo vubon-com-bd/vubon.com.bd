@@ -1,4 +1,8 @@
-export { AuthSwagger } from './auth.swagger';
-export { UserSwagger } from './user.swagger';
-export { MfaSwagger } from './mfa.swagger';
-export { SessionSwagger } from './session.swagger';
+/**
+ * Swagger Docs — Barrel
+ * @module auth-service/interfaces/swagger
+ */
+export * from './auth.swagger';
+export * from './user.swagger';
+export * from './mfa.swagger';
+export * from './session.swagger';

@@ -1,65 +1,54 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { EventBus } from '@nestjs/cqrs';
+/**
+ * UserPreferencesService
+ * @module auth-service/application/services/impl
+ */
+import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
+import type { UserId } from '@vubon/shared-types/common';
 import type { UserPreferencesServiceInterface } from '../interfaces/user-preferences.service.interface';
 import type { UserPreferencesRepository } from '../../../domain/repositories/user-preferences.repository.interface';
 import { UserPreferencesEntity } from '../../../domain/entities/user-preferences.entity';
-import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
-import { UserOperationFailedError } from '../../errors/user.errors';
 import type { UpdatePreferencesRequestDTO } from '../../dtos/requests/user/update-preferences.dto';
 import type { UserPreferencesResponseDTO } from '../../dtos/responses/user-preferences-response.dto';
+import { USER_PREFERENCES_REPO } from '../../tokens';
 
 @Injectable()
 export class UserPreferencesService
-  extends BaseService<UserPreferencesEntity, string>
-  implements UserPreferencesServiceInterface
-{
+  extends BaseService<UserPreferencesEntity, UserId>
+  implements UserPreferencesServiceInterface {
   readonly name = 'UserPreferencesService';
 
   constructor(
-    @Inject('UserPreferencesRepository') private readonly preferencesRepo: UserPreferencesRepository,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
-  }
+    @Inject(USER_PREFERENCES_REPO)
+    private readonly repo: UserPreferencesRepository,
+  ) { super(); }
 
-  async findByUserId(userId: string): Promise<UserPreferencesResponseDTO | null> {
-    const entity = await this.preferencesRepo.findByUserId(UserIdVO.create(userId));
-    return entity ? this.toDTO(entity) : null;
+  async getByUserId(userId: UserId): Promise<UserPreferencesEntity> {
+    const p = await this.repo.findByUserId(userId);
+    if (!p) throw new Error('Preferences not found');
+    return p;
   }
 
   async update(
-    userId: string,
+    userId: UserId,
     input: UpdatePreferencesRequestDTO,
-  ): Promise<UserPreferencesResponseDTO> {
-    const userIdVO = UserIdVO.create(userId);
-    const entity = await this.preferencesRepo.findByUserId(userIdVO);
-    if (!entity) {
-      throw new UserOperationFailedError(`preferences not found: ${userId}`);
-    }
-
-    let updated = entity;
-    if (input.promotions !== undefined) {
-      updated = updated.toggleMarketing(input.promotions);
-    }
-
-    await this.preferencesRepo.save(updated);
-    return this.toDTO(updated);
+  ): Promise<UserPreferencesEntity> {
+    const p = await this.getByUserId(userId);
+    const anyInput = input as { theme?: 'light' | 'dark' | 'system'; currency?: string; reduceMotion?: boolean };
+    if (anyInput.theme) p.setTheme(anyInput.theme);
+    if (anyInput.currency) p.setCurrency(anyInput.currency);
+    if (typeof anyInput.reduceMotion === 'boolean') p.setReduceMotion(anyInput.reduceMotion);
+    return this.repo.save(p);
   }
 
-  private toDTO(entity: UserPreferencesEntity): UserPreferencesResponseDTO {
+  toResponse(p: UserPreferencesEntity): UserPreferencesResponseDTO {
     return {
-      success: true,
-      preferences: {
-        userId: entity.userId.value,
-        newsletter: entity.newsletter,
-        promotions: entity.marketingEmails,
-        orderUpdates: entity.orderUpdates,
-        productRecommendations: entity.productUpdates,
-        securityAlerts: entity.securityAlerts,
-        channels: [],
-        updatedAt: entity.updatedAt,
-      },
+      userId: p.userId,
+      theme: p.theme,
+      currency: p.currency,
+      dateFormat: 'DD/MM/YYYY',
+      reduceMotion: false,
+      updatedAt: p.updatedAt,
     };
   }
 }

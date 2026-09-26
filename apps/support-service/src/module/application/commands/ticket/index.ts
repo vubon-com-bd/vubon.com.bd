@@ -1,16 +1,19 @@
-export { CreateTicketCommand } from './create-ticket.command';
-export { CreateTicketHandler } from './create-ticket.handler';
-export { UpdateTicketCommand } from './update-ticket.command';
-export { UpdateTicketHandler } from './update-ticket.handler';
-export { AssignTicketCommand } from './assign-ticket.command';
-export { AssignTicketHandler } from './assign-ticket.handler';
-export { EscalateTicketCommand } from './escalate-ticket.command';
-export { EscalateTicketHandler } from './escalate-ticket.handler';
-export { ResolveTicketCommand } from './resolve-ticket.command';
-export { ResolveTicketHandler } from './resolve-ticket.handler';
-export { CloseTicketCommand } from './close-ticket.command';
-export { CloseTicketHandler } from './close-ticket.handler';
-export { ReopenTicketCommand } from './reopen-ticket.command';
-export { ReopenTicketHandler } from './reopen-ticket.handler';
-export { RateTicketCommand } from './rate-ticket.command';
-export { RateTicketHandler } from './rate-ticket.handler';
+// support-service/application/commands/ticket/index.ts
+// Ticket command + handler barrel
+
+export * from './create-ticket.command';
+export * from './create-ticket.handler';
+export * from './update-ticket.command';
+export * from './update-ticket.handler';
+export * from './assign-ticket.command';
+export * from './assign-ticket.handler';
+export * from './escalate-ticket.command';
+export * from './escalate-ticket.handler';
+export * from './resolve-ticket.command';
+export * from './resolve-ticket.handler';
+export * from './close-ticket.command';
+export * from './close-ticket.handler';
+export * from './reopen-ticket.command';
+export * from './reopen-ticket.handler';
+export * from './rate-ticket.command';
+export * from './rate-ticket.handler';

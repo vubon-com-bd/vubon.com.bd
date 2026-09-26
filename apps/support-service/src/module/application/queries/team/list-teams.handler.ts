@@ -1,29 +1,23 @@
-import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
+/**
+ * ListTeamsHandler
+ * @module support-service/application/queries/team
+ */
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { ListTeamsQuery } from './list-teams.query';
-import type { SupportTeamRepository } from '../../../domain/repositories/support-team.repository.interface';
-import type { TeamResponseDTO } from '../../dtos/responses/team-response.dto';
+import type { TeamListResponseDTO } from '../../dtos/responses/team-list-response.dto';
+import type { TeamServiceInterface } from '../../services/interfaces/team.service.interface';
 
-@QueryHandler(ListTeamsQuery)
-export class ListTeamsHandler
-  extends BaseQueryHandler<ListTeamsQuery, readonly TeamResponseDTO[]>
-  implements IQueryHandler<ListTeamsQuery>
-{
+export class ListTeamsHandler extends BaseQueryHandler<
+  ListTeamsQuery,
+  TeamListResponseDTO
+> {
   readonly queryType = 'support.team.list';
 
-  constructor(private readonly teamRepo: SupportTeamRepository) {
+  constructor(private readonly teamService: TeamServiceInterface) {
     super();
   }
 
-  async execute(_query: ListTeamsQuery): Promise<readonly TeamResponseDTO[]> {
-    const teams = await this.teamRepo.findActive();
-    return teams.map((t) => ({
-      id: t.id.value,
-      name: t.name.value,
-      type: t.type.value,
-      description: t.description,
-      isActive: t.isActive,
-      memberCount: t.members.length,
-    }));
+  async execute(query: ListTeamsQuery): Promise<TeamListResponseDTO> {
+    return this.teamService.list(query.page, query.limit);
   }
 }

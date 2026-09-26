@@ -1,111 +1,87 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { EventBus } from '@nestjs/cqrs';
+/**
+ * UserKycService
+ * @module auth-service/application/services/impl
+ */
+import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
+import type { UserId } from '@vubon/shared-types/common';
 import type { UserKycServiceInterface } from '../interfaces/user-kyc.service.interface';
 import type { UserKycRepository } from '../../../domain/repositories/user-kyc.repository.interface';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
 import { UserKycEntity } from '../../../domain/entities/user-kyc.entity';
-import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
-import { UserOperationFailedError } from '../../errors/user.errors';
 import type { SubmitKycRequestDTO } from '../../dtos/requests/user/submit-kyc.dto';
+import type { VerifyKycRequestDTO } from '../../dtos/requests/user/verify-kyc.dto';
+import type { RejectKycRequestDTO } from '../../dtos/requests/user/reject-kyc.dto';
 import type { UserKycResponseDTO } from '../../dtos/responses/user-kyc-response.dto';
+import { ID_GENERATOR, USER_KYC_REPO } from '../tokens';
 
 @Injectable()
 export class UserKycService
   extends BaseService<UserKycEntity, string>
-  implements UserKycServiceInterface
-{
+  implements UserKycServiceInterface {
   readonly name = 'UserKycService';
 
   constructor(
-    @Inject('UserKycRepository') private readonly kycRepo: UserKycRepository,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
-  }
+    @Inject(USER_KYC_REPO) private readonly repo: UserKycRepository,
+    @Inject(ID_GENERATOR) private readonly idGen: IdGeneratorServiceInterface,
+  ) { super(); }
 
-  async findByUserId(userId: string): Promise<UserKycResponseDTO | null> {
-    const entity = await this.kycRepo.findByUserId(UserIdVO.create(userId));
-    return entity ? this.toDTO(entity) : null;
-  }
+  async submit(userId: UserId, input: SubmitKycRequestDTO): Promise<UserKycEntity> {
+    const existing = await this.repo.findByUserId(userId);
+    const now = new Date().toISOString();
 
-  async submit(
-    userId: string,
-    input: SubmitKycRequestDTO,
-  ): Promise<UserKycResponseDTO> {
-    const firstDoc = input.documents[0];
+    if (existing) {
+      existing.submit(now, input.frontImageUrl, input.backImageUrl);
+      return this.repo.save(existing);
+    }
+
     const entity = UserKycEntity.create({
-      userId: UserIdVO.create(userId),
+      id: this.idGen.generate(),
+      userId,
       status: 'pending',
-      documentType: firstDoc?.type ?? 'national_id',
-      documentNumber: firstDoc?.number ?? '',
-      documentUrl: firstDoc?.frontUrl ?? '',
-      submittedAt: new Date(),
-      reviewedAt: null,
-      rejectionReason: null,
+      documentType: input.documentType as never,
+      documentNumber: input.documentNumber,
+      frontImageUrl: input.frontImageUrl,
+      backImageUrl: input.backImageUrl,
+      submittedAt: now,
+      createdAt: now,
+      updatedAt: now,
     });
-    await this.kycRepo.save(entity);
-    await this.publishEvents(entity);
-    return this.toDTO(entity);
+    return this.repo.save(entity);
   }
 
-  async verify(userId: string, kycId: string): Promise<UserKycResponseDTO> {
-    void kycId;
-    const entity = await this.kycRepo.findByUserId(UserIdVO.create(userId));
-    if (!entity) {
-      throw new UserOperationFailedError('KYC record not found');
-    }
-    const verified = entity.verify();
-    await this.kycRepo.save(verified);
-    await this.publishEvents(verified);
-    return this.toDTO(verified);
+  async approve(input: VerifyKycRequestDTO): Promise<UserKycEntity> {
+    const found = await this.repo.findByUserId(input.userId as UserId);
+    if (!found) throw new Error('KYC not found');
+    found.approve(new Date().toISOString());
+    return this.repo.save(found);
   }
 
-  async reject(
-    userId: string,
-    kycId: string,
-    reason: string,
-  ): Promise<UserKycResponseDTO> {
-    void kycId;
-    const entity = await this.kycRepo.findByUserId(UserIdVO.create(userId));
-    if (!entity) {
-      throw new UserOperationFailedError('KYC record not found');
-    }
-    const rejected = entity.reject(reason);
-    await this.kycRepo.save(rejected);
-    await this.publishEvents(rejected);
-    return this.toDTO(rejected);
+  async reject(input: RejectKycRequestDTO): Promise<UserKycEntity> {
+    const found = await this.repo.findByUserId(input.userId as UserId);
+    if (!found) throw new Error('KYC not found');
+    found.reject(new Date().toISOString(), input.reason);
+    return this.repo.save(found);
   }
 
-  private toDTO(entity: UserKycEntity): UserKycResponseDTO {
+  async getByUserId(userId: UserId): Promise<UserKycEntity | null> {
+    return this.repo.findByUserId(userId);
+  }
+
+  async listPending(): Promise<readonly UserKycEntity[]> {
+    return this.repo.findPending();
+  }
+
+  toResponse(kyc: UserKycEntity): UserKycResponseDTO {
+    const doc = kyc.documentNumber;
+    const masked = doc.length > 4 ? `****${doc.slice(-4)}` : '****';
     return {
-      success: true,
-      kyc: {
-        userId: entity.userId.value,
-        status: entity.status,
-        level: entity.isVerified ? 2 : 0,
-        documents: [
-          {
-            id: entity.userId.value,
-            type: entity.documentType,
-            frontUrl: entity.documentUrl,
-            number: entity.documentNumber,
-            uploadedAt:
-              entity.submittedAt?.toISOString() ?? new Date().toISOString(),
-            verified: entity.isVerified,
-          },
-        ],
-        submittedAt: entity.submittedAt?.toISOString() ?? undefined,
-        reviewedAt: entity.reviewedAt?.toISOString() ?? undefined,
-        rejectionReason: entity.rejectionReason ?? undefined,
-        updatedAt: entity.updatedAt,
-      },
+      id: kyc.id,
+      userId: kyc.userId,
+      status: kyc.status,
+      documentType: kyc.documentType as never,
+      documentNumberMasked: masked,
+      reviewedAt: undefined,
     };
-  }
-
-  private async publishEvents(entity: UserKycEntity): Promise<void> {
-    const events = entity.pullDomainEvents();
-    for (const event of events) {
-      this.eventBus.publish(event as never);
-    }
   }
 }

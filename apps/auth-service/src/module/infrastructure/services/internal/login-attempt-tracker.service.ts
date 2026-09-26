@@ -1,33 +1,23 @@
+/**
+ * LoginAttemptTrackerService — Threshold evaluation for lockouts
+ * @module auth-service/infrastructure/services/internal
+ */
 import { Injectable } from '@nestjs/common';
-import { LOGIN_ATTEMPT_CONFIG } from '../../config/login-attempt.config';
+import { AccountLockPolicyService } from '../../../domain/services/account-lock-policy.service';
 
 @Injectable()
 export class LoginAttemptTrackerService {
-  getMaxAttempts(): number {
-    return LOGIN_ATTEMPT_CONFIG.maxAttempts;
+  readonly name = 'LoginAttemptTrackerService';
+
+  decide(failedAttempts: number) {
+    return AccountLockPolicyService.decide(failedAttempts);
   }
 
-  getMaxAttemptsPerIp(): number {
-    return LOGIN_ATTEMPT_CONFIG.maxAttemptsPerIp;
-  }
-
-  getAttemptWindowMs(): number {
-    return LOGIN_ATTEMPT_CONFIG.attemptWindowSeconds * 1000;
-  }
-
-  shouldResetAfterSuccess(): boolean {
-    return LOGIN_ATTEMPT_CONFIG.resetAfterSuccess;
-  }
-
-  shouldTrackByIp(): boolean {
-    return LOGIN_ATTEMPT_CONFIG.trackByIp;
-  }
-
-  shouldTrackByEmail(): boolean {
-    return LOGIN_ATTEMPT_CONFIG.trackByEmail;
-  }
-
-  shouldTrackByDevice(): boolean {
-    return LOGIN_ATTEMPT_CONFIG.trackByDevice;
+  isSuspicious(input: {
+    attemptsFromSameIp: number;
+    distinctEmailsFromIp: number;
+    windowMs: number;
+  }): boolean {
+    return AccountLockPolicyService.isSuspicious(input);
   }
 }

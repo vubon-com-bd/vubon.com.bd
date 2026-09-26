@@ -1,34 +1,20 @@
-import { Injectable } from '@nestjs/common';
-import { QueueService } from '@vubon/shared-kernel/infrastructure';
-import { QUEUE_NAME, QUEUE_PRIORITY } from '@vubon/shared-constants/infrastructure';
+/**
+ * SessionQueue — Session lifecycle jobs
+ * @module auth-service/infrastructure/queues
+ */
+import { Queue } from 'bullmq';
+import { QUEUE_NAME, QUEUE_LIMIT } from '@vubon/shared-constants/infrastructure';
 
-export interface SessionCleanupJobPayload {
-  readonly olderThanMs: number;
-}
+export const SESSION_QUEUE_NAME = QUEUE_NAME.SESSION;
 
-export interface SessionRevokeJobPayload {
-  readonly sessionId: string;
-  readonly reason: string;
-}
-
-@Injectable()
-export class SessionQueue {
-  readonly queueName = QUEUE_NAME.SESSION;
-
-  constructor(private readonly queueService: QueueService) {}
-
-  async enqueueCleanup(olderThanMs: number): Promise<string> {
-    return this.queueService.enqueue(
-      this.queueName,
-      'session-cleanup',
-      { olderThanMs },
-      { priority: QUEUE_PRIORITY.LOW },
-    );
-  }
-
-  async enqueueRevoke(payload: SessionRevokeJobPayload): Promise<string> {
-    return this.queueService.enqueue(this.queueName, 'session-revoke', payload, {
-      priority: QUEUE_PRIORITY.HIGH,
-    });
-  }
+export function createSessionQueue(connection: { host: string; port: number }): Queue {
+  return new Queue(SESSION_QUEUE_NAME, {
+    connection,
+    defaultJobOptions: {
+      attempts: QUEUE_LIMIT.MAX_ATTEMPTS,
+      backoff: { type: 'exponential', delay: QUEUE_LIMIT.BACKOFF_DELAY },
+      removeOnComplete: QUEUE_LIMIT.REMOVE_ON_COMPLETE,
+      removeOnFail: QUEUE_LIMIT.REMOVE_ON_FAIL,
+    },
+  });
 }

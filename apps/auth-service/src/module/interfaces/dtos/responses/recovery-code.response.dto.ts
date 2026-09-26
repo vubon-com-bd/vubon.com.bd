@@ -1,22 +1,18 @@
-import { ApiProperty } from '@nestjs/swagger';
-import type { RecoveryCodesResponseDTO } from '../../../application/dtos/responses/recovery-codes-response.dto';
+/**
+ * RecoveryCodeResponseDTO
+ * @module auth-service/interfaces/dtos/responses
+ */
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class RecoveryCodeResponseDTO implements RecoveryCodesResponseDTO {
-  @ApiProperty({
-    type: 'array',
-    items: {
-      type: 'object',
-      properties: {
-        code: { type: 'string' },
-        createdAt: { type: 'string' },
-        userId: { type: 'string' },
-        used: { type: 'boolean' },
-        usedAt: { type: 'string', nullable: true },
-      },
-    },
-  })
-  codes!: RecoveryCodesResponseDTO['codes'];
+export class RecoveryCodesResponseDTO {
+  @ApiProperty({ type: [String] }) codes!: string[];
+  @ApiProperty() generatedAt!: string;
+  @ApiPropertyOptional() expiresAt?: string;
+}
 
-  @ApiProperty()
-  generatedAt!: string;
+export class RecoveryCodeSummaryDTO {
+  @ApiProperty() id!: string;
+  @ApiProperty({ example: '****-1234' }) masked!: string;
+  @ApiProperty() status!: string;
+  @ApiProperty() createdAt!: string;
 }

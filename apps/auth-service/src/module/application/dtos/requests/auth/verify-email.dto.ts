@@ -1,4 +1,16 @@
-import { z } from 'zod';
-import { VerifyEmailRequestSchema } from '@vubon/shared-schemas/auth';
+/**
+ * VerifyEmailRequest DTO
+ * @module auth-service/application/dtos/requests/auth
+ */
+import {
+  VerifyEmailRequestSchema,
+  type VerifyEmailRequestSchemaType,
+} from '@vubon/shared-schemas/auth';
 
-export type VerifyEmailRequestDTO = z.infer<typeof VerifyEmailRequestSchema>;
+export type VerifyEmailRequestDTO = VerifyEmailRequestSchemaType;
+
+export function validateVerifyEmailRequest(
+  input: unknown,
+): VerifyEmailRequestDTO {
+  return VerifyEmailRequestSchema.parse(input);
+}

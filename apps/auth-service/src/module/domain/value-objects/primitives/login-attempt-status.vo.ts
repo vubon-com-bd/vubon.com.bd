@@ -1,18 +1,41 @@
+/**
+ * LoginAttemptStatusVO — Outcome of a login attempt
+ * @module auth-service/domain/value-objects/primitives
+ */
 import { BaseStatusVO } from '@vubon/shared-kernel/domain/primitives/status.vo';
-import { AUTH_LOGIN_ATTEMPT_STATUS } from '@vubon/shared-constants/auth';
-import { InvalidStatusError } from '../../errors/user.errors';
 
-const VALID = new Set<string>(Object.values(AUTH_LOGIN_ATTEMPT_STATUS));
+export type LoginAttemptStatusValue =
+  | 'success'
+  | 'failure'
+  | 'blocked'
+  | 'mfa_pending'
+  | 'mfa_failed';
 
-export class LoginAttemptStatusVO extends BaseStatusVO<string> {
-  private constructor(value: string) {
+const ALLOWED: ReadonlySet<string> = new Set<string>([
+  'success', 'failure', 'blocked', 'mfa_pending', 'mfa_failed',
+]);
+
+export class LoginAttemptStatusVO extends BaseStatusVO<LoginAttemptStatusValue> {
+  private constructor(value: LoginAttemptStatusValue) {
     super(value);
   }
 
-  static create(raw: string): LoginAttemptStatusVO {
-    if (!VALID.has(raw)) {
-      throw new InvalidStatusError(raw);
+  static of(raw: string): LoginAttemptStatusVO {
+    if (!ALLOWED.has(raw)) {
+      throw new Error(`Unknown login attempt status: ${raw}`);
     }
-    return new LoginAttemptStatusVO(raw);
+    return new LoginAttemptStatusVO(raw as LoginAttemptStatusValue);
+  }
+
+  static success(): LoginAttemptStatusVO {
+    return new LoginAttemptStatusVO('success');
+  }
+
+  static failure(): LoginAttemptStatusVO {
+    return new LoginAttemptStatusVO('failure');
+  }
+
+  countsAsFailure(): boolean {
+    return this.value === 'failure' || this.value === 'mfa_failed';
   }
 }

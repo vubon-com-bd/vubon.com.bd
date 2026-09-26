@@ -1,26 +1,17 @@
+/**
+ * SettingsResponseDTO
+ * @module auth-service/interfaces/dtos/responses
+ */
 import { ApiProperty } from '@nestjs/swagger';
-import type { UserSettingsResponseDTO } from '../../../application/dtos/responses/user-settings-response.dto';
 
-export class SettingsResponseDTO implements UserSettingsResponseDTO {
-  @ApiProperty()
-  success!: true;
-
-  @ApiProperty({
-    type: 'object',
-    properties: {
-      userId: { type: 'string' },
-      locale: { type: 'string' },
-      language: { type: 'string' },
-      timezone: { type: 'string' },
-      currency: { type: 'string' },
-      theme: { type: 'string' },
-      dateFormat: { type: 'string' },
-      timeFormat: { type: 'string' },
-      itemsPerPage: { type: 'number' },
-      notifications: { type: 'boolean' },
-      twoFactor: { type: 'boolean' },
-      updatedAt: { type: 'string' },
-    },
-  })
-  settings!: UserSettingsResponseDTO['settings'];
+export class SettingsResponseDTO {
+  @ApiProperty() userId!: string;
+  @ApiProperty() twoFactorEnabled!: boolean;
+  @ApiProperty() emailNotifications!: boolean;
+  @ApiProperty() smsNotifications!: boolean;
+  @ApiProperty() pushNotifications!: boolean;
+  @ApiProperty() marketingEmails!: boolean;
+  @ApiProperty() language!: string;
+  @ApiProperty() timezone!: string;
+  @ApiProperty() updatedAt!: string;
 }

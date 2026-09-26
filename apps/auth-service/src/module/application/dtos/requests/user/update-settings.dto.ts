@@ -1,4 +1,16 @@
-import { z } from 'zod';
-import { UpdateSettingsRequestSchema } from '@vubon/shared-schemas/user';
+/**
+ * UpdateSettingsRequest DTO
+ * @module auth-service/application/dtos/requests/user
+ */
+import {
+  UpdateSettingsRequestSchema,
+  type UpdateSettingsRequestSchemaType,
+} from '@vubon/shared-schemas/user';
 
-export type UpdateSettingsRequestDTO = z.infer<typeof UpdateSettingsRequestSchema>;
+export type UpdateSettingsRequestDTO = UpdateSettingsRequestSchemaType;
+
+export function validateUpdateSettingsRequest(
+  input: unknown,
+): UpdateSettingsRequestDTO {
+  return UpdateSettingsRequestSchema.parse(input);
+}

@@ -1,8 +1,10 @@
-export { StartChatCommand } from './start-chat.command';
-export { StartChatHandler } from './start-chat.handler';
-export { SendChatMessageCommand } from './send-chat-message.command';
-export { SendChatMessageHandler } from './send-chat-message.handler';
-export { TransferChatCommand } from './transfer-chat.command';
-export { TransferChatHandler } from './transfer-chat.handler';
-export { EndChatCommand } from './end-chat.command';
-export { EndChatHandler } from './end-chat.handler';
+// support-service/application/commands/live-chat/index.ts
+
+export * from './start-chat.command';
+export * from './start-chat.handler';
+export * from './send-chat-message.command';
+export * from './send-chat-message.handler';
+export * from './transfer-chat.command';
+export * from './transfer-chat.handler';
+export * from './end-chat.command';
+export * from './end-chat.handler';

@@ -1,31 +1,23 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
+/**
+ * SendMessageHandler
+ * @module support-service/application/commands/message
+ */
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { SendMessageCommand } from './send-message.command';
-import type { TicketMessageServiceInterface } from '../../services/interfaces/ticket-message.service.interface';
 import type { MessageResponseDTO } from '../../dtos/responses/message-response.dto';
+import type { MessageServiceInterface } from '../../services/interfaces/message.service.interface';
 
-@CommandHandler(SendMessageCommand)
-export class SendMessageHandler
-  extends BaseCommandHandler<SendMessageCommand, MessageResponseDTO>
-  implements ICommandHandler<SendMessageCommand>
-{
+export class SendMessageHandler extends BaseCommandHandler<
+  SendMessageCommand,
+  MessageResponseDTO
+> {
   readonly commandType = 'support.message.send';
 
-  constructor(
-    private readonly messageService: TicketMessageServiceInterface,
-    private readonly eventBus: EventBus,
-  ) {
+  constructor(private readonly messageService: MessageServiceInterface) {
     super();
   }
 
   async execute(command: SendMessageCommand): Promise<MessageResponseDTO> {
-    void this.eventBus;
-    return this.messageService.send({
-      conversationId: command.ticketId,
-      senderId: command.senderId,
-      content: command.content,
-      type: command.type_,
-      isInternal: command.isInternal,
-    } as never);
+    return this.messageService.send(command.payload);
   }
 }

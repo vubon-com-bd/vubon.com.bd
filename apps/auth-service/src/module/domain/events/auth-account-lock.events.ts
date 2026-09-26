@@ -1,31 +1,37 @@
-import {
-  BaseDomainEvent,
-  type DomainEventMetadata,
-} from '@vubon/shared-kernel/domain/base/base.event';
-import { toTimestamp } from '@vubon/shared-types/common';
+/**
+ * Auth Account Lock Domain Events
+ * @module auth-service/domain/events
+ */
+import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
+import type { UserId, Timestamp } from '@vubon/shared-types/common';
 
-const AGGREGATE_TYPE = 'AuthAccountLock';
+type EventMeta = {
+  correlationId?: string;
+  causationId?: string;
+  userId?: string;
+  source?: string;
+};
+
+const AGG = 'AuthAccountLock';
 
 export class AccountLockedEvent extends BaseDomainEvent<
   'auth.account.locked',
-  { userId: string; reason: string; until: string }
+  { userId: UserId; reason: string; lockedAt: number }
 > {
   constructor(
-    aggregateId: string,
-    userId: string,
-    reason: string,
-    until: string,
-    version: number,
-    metadata?: DomainEventMetadata,
+    aggregateId: UserId,
+    payload: { userId: UserId; reason: string; lockedAt: number },
+    occurredAt: Timestamp,
+    metadata?: EventMeta,
   ) {
     super({
-      id: crypto.randomUUID(),
+      id: `evt-${aggregateId}-lock-${Date.now()}`,
       type: 'auth.account.locked',
       aggregateId,
-      aggregateType: AGGREGATE_TYPE,
-      payload: { userId, reason, until },
-      occurredAt: toTimestamp(Date.now()),
-      version,
+      aggregateType: AGG,
+      payload,
+      occurredAt,
+      version: 1,
       metadata,
     });
   }
@@ -33,47 +39,45 @@ export class AccountLockedEvent extends BaseDomainEvent<
 
 export class AccountUnlockedEvent extends BaseDomainEvent<
   'auth.account.unlocked',
-  { userId: string; reason: string }
+  { userId: UserId; unlockedBy?: string }
 > {
   constructor(
-    aggregateId: string,
-    userId: string,
-    reason: string,
-    version: number,
-    metadata?: DomainEventMetadata,
+    aggregateId: UserId,
+    payload: { userId: UserId; unlockedBy?: string },
+    occurredAt: Timestamp,
+    metadata?: EventMeta,
   ) {
     super({
-      id: crypto.randomUUID(),
+      id: `evt-${aggregateId}-unlock-${Date.now()}`,
       type: 'auth.account.unlocked',
       aggregateId,
-      aggregateType: AGGREGATE_TYPE,
-      payload: { userId, reason },
-      occurredAt: toTimestamp(Date.now()),
-      version,
+      aggregateType: AGG,
+      payload,
+      occurredAt,
+      version: 1,
       metadata,
     });
   }
 }
 
 export class TooManyAttemptsEvent extends BaseDomainEvent<
-  'auth.too_many_attempts',
-  { userId: string; attemptCount: number }
+  'auth.account.too_many_attempts',
+  { userId?: UserId; email?: string; attempts: number }
 > {
   constructor(
     aggregateId: string,
-    userId: string,
-    attemptCount: number,
-    version: number,
-    metadata?: DomainEventMetadata,
+    payload: { userId?: UserId; email?: string; attempts: number },
+    occurredAt: Timestamp,
+    metadata?: EventMeta,
   ) {
     super({
-      id: crypto.randomUUID(),
-      type: 'auth.too_many_attempts',
+      id: `evt-${aggregateId}-tm-${Date.now()}`,
+      type: 'auth.account.too_many_attempts',
       aggregateId,
-      aggregateType: AGGREGATE_TYPE,
-      payload: { userId, attemptCount },
-      occurredAt: toTimestamp(Date.now()),
-      version,
+      aggregateType: AGG,
+      payload,
+      occurredAt,
+      version: 1,
       metadata,
     });
   }
@@ -81,25 +85,29 @@ export class TooManyAttemptsEvent extends BaseDomainEvent<
 
 export class DeviceRegisteredEvent extends BaseDomainEvent<
   'auth.device.registered',
-  { userId: string; deviceId: string; fingerprint: string }
+  { userId: UserId; deviceId: string; fingerprint: string }
 > {
   constructor(
     aggregateId: string,
-    userId: string,
-    deviceId: string,
-    fingerprint: string,
-    version: number,
-    metadata?: DomainEventMetadata,
+    payload: { userId: UserId; deviceId: string; fingerprint: string },
+    occurredAt: Timestamp,
+    metadata?: EventMeta,
   ) {
     super({
-      id: crypto.randomUUID(),
+      id: `evt-${aggregateId}-dev-${Date.now()}`,
       type: 'auth.device.registered',
       aggregateId,
       aggregateType: 'AuthDevice',
-      payload: { userId, deviceId, fingerprint },
-      occurredAt: toTimestamp(Date.now()),
-      version,
+      payload,
+      occurredAt,
+      version: 1,
       metadata,
     });
   }
 }
+
+export type AuthAccountLockDomainEvent =
+  | AccountLockedEvent
+  | AccountUnlockedEvent
+  | TooManyAttemptsEvent
+  | DeviceRegisteredEvent;

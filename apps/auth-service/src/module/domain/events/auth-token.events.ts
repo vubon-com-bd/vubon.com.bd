@@ -1,31 +1,37 @@
-import {
-  BaseDomainEvent,
-  type DomainEventMetadata,
-} from '@vubon/shared-kernel/domain/base/base.event';
-import { toTimestamp } from '@vubon/shared-types/common';
+/**
+ * Auth Token Domain Events
+ * @module auth-service/domain/events
+ */
+import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
+import type { Timestamp } from '@vubon/shared-types/common';
 
-const AGGREGATE_TYPE = 'AuthToken';
+type EventMeta = {
+  correlationId?: string;
+  causationId?: string;
+  userId?: string;
+  source?: string;
+};
+
+const AGG = 'AuthToken';
 
 export class TokenGeneratedEvent extends BaseDomainEvent<
   'auth.token.generated',
-  { tokenId: string; userId: string; tokenType: string }
+  { tokenId: string; type: string; subjectId: string }
 > {
   constructor(
     aggregateId: string,
-    tokenId: string,
-    userId: string,
-    tokenType: string,
-    version: number,
-    metadata?: DomainEventMetadata,
+    payload: { tokenId: string; type: string; subjectId: string },
+    occurredAt: Timestamp,
+    metadata?: EventMeta,
   ) {
     super({
-      id: crypto.randomUUID(),
+      id: `evt-${aggregateId}-gen-${Date.now()}`,
       type: 'auth.token.generated',
       aggregateId,
-      aggregateType: AGGREGATE_TYPE,
-      payload: { tokenId, userId, tokenType },
-      occurredAt: toTimestamp(Date.now()),
-      version,
+      aggregateType: AGG,
+      payload,
+      occurredAt,
+      version: 1,
       metadata,
     });
   }
@@ -33,23 +39,22 @@ export class TokenGeneratedEvent extends BaseDomainEvent<
 
 export class TokenRefreshedEvent extends BaseDomainEvent<
   'auth.token.refreshed',
-  { tokenId: string; userId: string }
+  { oldTokenId: string; newTokenId: string }
 > {
   constructor(
     aggregateId: string,
-    tokenId: string,
-    userId: string,
-    version: number,
-    metadata?: DomainEventMetadata,
+    payload: { oldTokenId: string; newTokenId: string },
+    occurredAt: Timestamp,
+    metadata?: EventMeta,
   ) {
     super({
-      id: crypto.randomUUID(),
+      id: `evt-${aggregateId}-refresh-${Date.now()}`,
       type: 'auth.token.refreshed',
       aggregateId,
-      aggregateType: AGGREGATE_TYPE,
-      payload: { tokenId, userId },
-      occurredAt: toTimestamp(Date.now()),
-      version,
+      aggregateType: AGG,
+      payload,
+      occurredAt,
+      version: 1,
       metadata,
     });
   }
@@ -57,24 +62,28 @@ export class TokenRefreshedEvent extends BaseDomainEvent<
 
 export class TokenRevokedEvent extends BaseDomainEvent<
   'auth.token.revoked',
-  { tokenId: string; userId: string }
+  { tokenId: string; subjectId: string }
 > {
   constructor(
     aggregateId: string,
-    tokenId: string,
-    userId: string,
-    version: number,
-    metadata?: DomainEventMetadata,
+    payload: { tokenId: string; subjectId: string },
+    occurredAt: Timestamp,
+    metadata?: EventMeta,
   ) {
     super({
-      id: crypto.randomUUID(),
+      id: `evt-${aggregateId}-revoked-${Date.now()}`,
       type: 'auth.token.revoked',
       aggregateId,
-      aggregateType: AGGREGATE_TYPE,
-      payload: { tokenId, userId },
-      occurredAt: toTimestamp(Date.now()),
-      version,
+      aggregateType: AGG,
+      payload,
+      occurredAt,
+      version: 1,
       metadata,
     });
   }
 }
+
+export type AuthTokenDomainEvent =
+  | TokenGeneratedEvent
+  | TokenRefreshedEvent
+  | TokenRevokedEvent;

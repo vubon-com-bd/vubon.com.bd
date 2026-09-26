@@ -1,2 +1,6 @@
-export { AuthCacheInterceptor } from './auth.cache.interceptor';
-export { TokenRefreshInterceptor } from './token-refresh.interceptor';
+/**
+ * Auth-specific Interceptors — Barrel
+ * @module auth-service/interfaces/interceptors
+ */
+export * from './auth-cache.interceptor';
+export * from './token-refresh.interceptor';

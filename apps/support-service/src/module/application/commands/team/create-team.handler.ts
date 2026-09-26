@@ -1,14 +1,16 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+/**
+ * CreateTeamHandler
+ * @module support-service/application/commands/team
+ */
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { CreateTeamCommand } from './create-team.command';
-import type { TeamServiceInterface } from '../../services/interfaces/team.service.interface';
 import type { TeamResponseDTO } from '../../dtos/responses/team-response.dto';
+import type { TeamServiceInterface } from '../../services/interfaces/team.service.interface';
 
-@CommandHandler(CreateTeamCommand)
-export class CreateTeamHandler
-  extends BaseCommandHandler<CreateTeamCommand, TeamResponseDTO>
-  implements ICommandHandler<CreateTeamCommand>
-{
+export class CreateTeamHandler extends BaseCommandHandler<
+  CreateTeamCommand,
+  TeamResponseDTO
+> {
   readonly commandType = 'support.team.create';
 
   constructor(private readonly teamService: TeamServiceInterface) {
@@ -16,10 +18,6 @@ export class CreateTeamHandler
   }
 
   async execute(command: CreateTeamCommand): Promise<TeamResponseDTO> {
-    return this.teamService.create({
-      name: command.name,
-      type: command.type_,
-      description: command.description,
-    });
+    return this.teamService.create(command.payload);
   }
 }

@@ -1,27 +1,31 @@
+/**
+ * AuthSessionMapper
+ * @module auth-service/application/mappers
+ */
 import { BaseMapper } from '@vubon/shared-kernel/application/mappers/base.mapper';
 import { AuthSessionEntity } from '../../domain/entities/auth-session.entity';
 import type { AuthSessionResponseDTO } from '../dtos/responses/auth-session-response.dto';
 
-export class AuthSessionMapper extends BaseMapper<
-  AuthSessionEntity,
-  AuthSessionResponseDTO
-> {
-  toTarget(source: AuthSessionEntity): AuthSessionResponseDTO {
+export class AuthSessionMapper
+  extends BaseMapper<AuthSessionEntity, AuthSessionResponseDTO> {
+  toTarget(session: AuthSessionEntity): AuthSessionResponseDTO {
+    const now = Date.now();
     return {
-      id: source.id,
-      status: source.isActive ? 'active' : 'expired',
-      ipAddress: source.ip,
-      userAgent: source.userAgent,
-      deviceId: source.deviceId ?? undefined,
-      createdAt: source.createdAt,
-      expiresAt: new Date(source.expiry.epochMs).toISOString(),
-      lastAccessedAt: source.updatedAt,
-      isCurrent: false,
+      sessionId: session.id,
+      userId: session.userId,
+      ipAddress: session.ipAddress,
+      userAgent: session.userAgent,
+      deviceId: session.deviceId,
+      createdAt: session.createdAt,
+      expiresAt: session.expiry.toISOString(),
+      revokedAt: session.revokedAt
+        ? new Date(session.revokedAt).toISOString()
+        : undefined,
+      isActive: session.isActive(now),
     };
   }
 
-  toSource(target: AuthSessionResponseDTO): AuthSessionEntity {
-    void target;
-    throw new Error('AuthSessionMapper.toSource not supported');
+  toSource(_dto: AuthSessionResponseDTO): AuthSessionEntity {
+    throw new Error('AuthSessionMapper.toSource is not supported');
   }
 }

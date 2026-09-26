@@ -1,4 +1,8 @@
-export { CreateTemplateCommand } from './create-template.command';
-export { CreateTemplateHandler } from './create-template.handler';
-export { UpdateTemplateCommand } from './update-template.command';
-export { UpdateTemplateHandler } from './update-template.handler';
+// support-service/application/commands/template/index.ts
+
+export * from './create-template.command';
+export * from './create-template.handler';
+export * from './update-template.command';
+export * from './update-template.handler';
+export * from './render-template.command';
+export * from './render-template.handler';

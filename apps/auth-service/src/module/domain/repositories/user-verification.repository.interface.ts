@@ -1,13 +1,15 @@
-import type { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
+/**
+ * UserVerificationRepository
+ * @module auth-service/domain/repositories
+ */
+import { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
+import type { UserId } from '@vubon/shared-types/common';
 import { UserVerificationEntity } from '../entities/user-verification.entity';
-import { UserIdVO } from '../value-objects/primitives/user-id.vo';
-import { VerificationTypeVO } from '../value-objects/primitives/verification-type.vo';
 
-export interface UserVerificationRepository
-  extends BaseRepository<UserVerificationEntity, UserIdVO> {
-  findByUserId(userId: UserIdVO): Promise<readonly UserVerificationEntity[]>;
-  findByType(
-    userId: UserIdVO,
-    type: VerificationTypeVO,
+export interface UserVerificationRepository extends BaseRepository<UserVerificationEntity, string> {
+  findLatestByUserAndType(
+    userId: UserId,
+    type: string,
   ): Promise<UserVerificationEntity | null>;
+  deleteExpired(now: number): Promise<number>;
 }

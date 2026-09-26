@@ -1,18 +1,29 @@
-import { Injectable } from '@nestjs/common';
+/**
+ * MessageValidator — schema-based validation
+ * @module support-service/application/validators
+ *
+ * Registry: uses @shared/schemas/support Zod schemas
+ * Rule: no business logic, only validation
+ */
+import { ApplicationValidationError } from '@vubon/shared-kernel/application/errors/validation.error';
+import { SupportMessageInputSchema } from '@vubon/shared-schemas/support';
+import type { SendMessageRequestDTO } from '../dtos/requests/message/send-message.dto';
 
-@Injectable()
 export class MessageValidator {
-  validate(input: unknown): unknown {
-    if (!input || typeof input !== 'object') {
-      throw new Error('Message input must be an object');
+  validateSend(input: unknown): SendMessageRequestDTO {
+    const result = SupportMessageInputSchema.safeParse(input);
+    if (!result.success) {
+      const issues = result.error.issues.map((i) => ({
+        field: i.path.join('.') || 'message',
+        message: i.message,
+      }));
+      const first = issues[0];
+      throw new ApplicationValidationError(
+        first?.message ?? 'Invalid message input',
+        first?.field ?? 'message',
+        issues,
+      );
     }
-    const data = input as Record<string, unknown>;
-    if (typeof data.content !== 'string' || data.content.trim().length === 0) {
-      throw new Error('Message content is required');
-    }
-    if (typeof data.content === 'string' && data.content.length > 10000) {
-      throw new Error('Message content exceeds 10000 characters');
-    }
-    return input;
+    return result.data as SendMessageRequestDTO;
   }
 }

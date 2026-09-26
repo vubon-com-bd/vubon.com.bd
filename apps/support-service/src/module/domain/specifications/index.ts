@@ -1,8 +1,11 @@
-export { CanCreateTicketSpecification } from './can-create-ticket.specification';
-export { CanEscalateSpecification } from './can-escalate.specification';
-export { CanAssignSpecification } from './can-assign.specification';
-export { CanCloseSpecification } from './can-close.specification';
-export { CanReopenSpecification } from './can-reopen.specification';
-export { CanRateSpecification } from './can-rate.specification';
-export { CanFileComplaintSpecification } from './can-file-complaint.specification';
-export { CanTakeSurveySpecification } from './can-take-survey.specification';
+// support-service/domain/specifications/index.ts
+// Specification barrel
+
+export * from './can-create-ticket.specification';
+export * from './can-escalate.specification';
+export * from './can-assign.specification';
+export * from './can-close.specification';
+export * from './can-reopen.specification';
+export * from './can-rate.specification';
+export * from './can-file-complaint.specification';
+export * from './can-take-survey.specification';

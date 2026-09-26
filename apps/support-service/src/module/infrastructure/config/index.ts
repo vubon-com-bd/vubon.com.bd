@@ -1,15 +1,3 @@
-export { TICKET_CONFIG } from './ticket.config';
-export { SLA_CONFIG } from './sla.config';
-export { ESCALATION_CONFIG } from './escalation.config';
-export { FEEDBACK_CONFIG } from './feedback.config';
-export { COMPLAINT_CONFIG } from './complaint.config';
-export { SURVEY_CONFIG } from './survey.config';
-export { LIVE_CHAT_CONFIG } from './live-chat.config';
-export { CHATBOT_CONFIG } from './chatbot.config';
-export { AGENT_CONFIG } from './agent.config';
-export { TEAM_CONFIG } from './team.config';
-export { RULE_CONFIG } from './rule.config';
-export { AUTOMATION_CONFIG } from './automation.config';
-export { TEMPLATE_CONFIG } from './template.config';
-export { ATTACHMENT_CONFIG } from './attachment.config';
-export { SENTIMENT_CONFIG } from './sentiment.config';
+// support-service/infrastructure/config/index.ts
+
+export * from './ticket.config';

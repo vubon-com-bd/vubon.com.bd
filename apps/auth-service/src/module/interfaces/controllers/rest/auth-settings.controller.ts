@@ -1,54 +1,46 @@
+/**
+ * AuthSettingsController
+ * @module auth-service/interfaces/controllers/rest
+ */
 import {
-  Body,
   Controller,
   Get,
-  Patch,
+  Put,
+  Body,
   UseGuards,
 } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { QueryBus, CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import {
-  CurrentUser,
-  JwtAuthGuard,
-  type CurrentUserShape,
-} from '@vubon/shared-kernel/interfaces';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
+import type { UserId } from '@vubon/shared-types/common';
+
 import { GetAuthSettingsQuery } from '../../../application/queries/auth/get-auth-settings.query';
 import { UpdateAuthSettingsCommand } from '../../../application/commands/settings/update-auth-settings.command';
-
-interface UpdateAuthSettingsBody {
-  mfaRequired?: boolean;
-  sessionTimeoutMinutes?: number;
-  passwordExpiryDays?: number;
-  loginNotifications?: boolean;
-}
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
 
 @ApiTags('Auth Settings')
 @Controller('auth/settings')
 @UseGuards(JwtAuthGuard)
 export class AuthSettingsController {
   constructor(
-    private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
+    private readonly commandBus: CommandBus,
   ) {}
 
   @Get()
-  async get(@CurrentUser() user: CurrentUserShape): Promise<unknown> {
-    return this.queryBus.execute(new GetAuthSettingsQuery(user.userId));
+  async get(@CurrentUser() user: AuthenticatedUser) {
+    return this.queryBus.execute(
+      new GetAuthSettingsQuery(user.id as UserId),
+    );
   }
 
-  @Patch()
+  @Put()
   async update(
-    @CurrentUser() user: CurrentUserShape,
-    @Body() body: UpdateAuthSettingsBody,
-  ): Promise<unknown> {
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: Record<string, unknown>,
+  ) {
     return this.commandBus.execute(
-      new UpdateAuthSettingsCommand(
-        user.userId,
-        body.mfaRequired,
-        body.sessionTimeoutMinutes,
-        body.passwordExpiryDays,
-        body.loginNotifications,
-      ),
+      new UpdateAuthSettingsCommand(user.id as UserId, body as never),
     );
   }
 }

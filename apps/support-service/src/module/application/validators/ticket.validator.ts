@@ -1,18 +1,49 @@
-import { Injectable } from '@nestjs/common';
+/**
+ * TicketValidator — schema-based request validation
+ * @module support-service/application/validators
+ *
+ * Registry: uses @shared/schemas/support Zod schemas
+ * Rule: no business logic, only validation
+ */
+import { ApplicationValidationError } from '@vubon/shared-kernel/application/errors/validation.error';
+import {
+  TicketCreateInputSchema,
+  TicketListFilterSchema,
+} from '@vubon/shared-schemas/support';
+import type { CreateTicketRequestDTO } from '../dtos/requests/ticket/create-ticket.dto';
 
-@Injectable()
 export class TicketValidator {
-  validate(input: unknown): unknown {
-    if (!input || typeof input !== 'object') {
-      throw new Error('Ticket input must be an object');
+  validateCreate(input: unknown): CreateTicketRequestDTO {
+    const result = TicketCreateInputSchema.safeParse(input);
+    if (!result.success) {
+      const issues = result.error.issues.map((i) => ({
+        field: i.path.join('.') || 'ticket',
+        message: i.message,
+      }));
+      const first = issues[0];
+      throw new ApplicationValidationError(
+        first?.message ?? 'Invalid ticket creation input',
+        first?.field ?? 'ticket',
+        issues,
+      );
     }
-    const data = input as Record<string, unknown>;
-    if (typeof data.subject !== 'string' || data.subject.trim().length < 3) {
-      throw new Error('Ticket subject must be at least 3 characters');
+    return result.data as CreateTicketRequestDTO;
+  }
+
+  validateListFilter(input: unknown): Readonly<Record<string, unknown>> {
+    const result = TicketListFilterSchema.safeParse(input);
+    if (!result.success) {
+      const issues = result.error.issues.map((i) => ({
+        field: i.path.join('.') || 'ticket',
+        message: i.message,
+      }));
+      const first = issues[0];
+      throw new ApplicationValidationError(
+        first?.message ?? 'Invalid ticket filter',
+        first?.field ?? 'ticket',
+        issues,
+      );
     }
-    if (typeof data.description !== 'string' || data.description.trim().length === 0) {
-      throw new Error('Ticket description is required');
-    }
-    return input;
+    return result.data;
   }
 }

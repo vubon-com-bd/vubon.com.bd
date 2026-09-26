@@ -1,45 +1,35 @@
-import { ApiProperty } from '@nestjs/swagger';
+/**
+ * KycRequestDTO
+ * @module auth-service/interfaces/dtos/requests
+ */
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class KycDocumentInput {
-  @ApiProperty({ example: 'national_id' })
-  type!: string;
-
-  @ApiProperty()
-  frontUrl!: string;
-
-  @ApiProperty()
-  number?: string;
+export class SubmitKycRequestDTO {
+  @ApiProperty({ enum: ['nid', 'passport', 'driving_license', 'birth_certificate'] })
+  documentType!: string;
 
   @ApiProperty()
-  backUrl?: string;
+  documentNumber!: string;
 
-  @ApiProperty()
-  selfieUrl?: string;
+  @ApiProperty({ format: 'url' })
+  frontImageUrl!: string;
+
+  @ApiPropertyOptional({ format: 'url' })
+  backImageUrl?: string;
 }
 
-export class KycSubmitRequestDTO {
-  @ApiProperty({ type: [KycDocumentInput] })
-  documents!: KycDocumentInput[];
-
-  @ApiProperty({ example: true })
-  acceptTerms!: true;
-}
-
-export class KycVerifyRequestDTO {
-  @ApiProperty()
+export class VerifyKycRequestDTO {
+  @ApiProperty({ format: 'uuid' })
   userId!: string;
 
-  @ApiProperty()
-  kycId!: string;
+  @ApiPropertyOptional()
+  note?: string;
 }
 
-export class KycRejectRequestDTO {
-  @ApiProperty()
+export class RejectKycRequestDTO {
+  @ApiProperty({ format: 'uuid' })
   userId!: string;
 
-  @ApiProperty()
-  kycId!: string;
-
-  @ApiProperty()
+  @ApiProperty({ minLength: 3, maxLength: 500 })
   reason!: string;
 }

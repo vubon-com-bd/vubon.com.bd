@@ -1,25 +1,23 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+/**
+ * MarkMessageReadHandler
+ * @module support-service/application/commands/message
+ */
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { MarkMessageReadCommand } from './mark-read.command';
-import type { TicketMessageRepository } from '../../../domain/repositories/ticket-message.repository.interface';
-import { MessageIdVO } from '../../../domain/value-objects/primitives/message-id.vo';
-import { MessageNotFoundError } from '../../errors/message.errors';
+import type { MessageResponseDTO } from '../../dtos/responses/message-response.dto';
+import type { MessageServiceInterface } from '../../services/interfaces/message.service.interface';
 
-@CommandHandler(MarkMessageReadCommand)
-export class MarkMessageReadHandler
-  extends BaseCommandHandler<MarkMessageReadCommand, void>
-  implements ICommandHandler<MarkMessageReadCommand>
-{
-  readonly commandType = 'support.message.mark-read';
+export class MarkMessageReadHandler extends BaseCommandHandler<
+  MarkMessageReadCommand,
+  MessageResponseDTO
+> {
+  readonly commandType = 'support.message.mark_read';
 
-  constructor(private readonly messageRepo: TicketMessageRepository) {
+  constructor(private readonly messageService: MessageServiceInterface) {
     super();
   }
 
-  async execute(command: MarkMessageReadCommand): Promise<void> {
-    const existing = await this.messageRepo.findById(MessageIdVO.create(command.messageId));
-    if (!existing) throw new MessageNotFoundError(command.messageId);
-    const updated = existing.markAsRead();
-    await this.messageRepo.save(updated);
+  async execute(command: MarkMessageReadCommand): Promise<MessageResponseDTO> {
+    return this.messageService.markRead(command.payload);
   }
 }

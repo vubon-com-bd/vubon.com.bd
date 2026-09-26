@@ -1,0 +1,14 @@
+export { ModelTrainingWorker } from './model-training.worker';
+export { ModelEvaluationWorker } from './model-evaluation.worker';
+export { ModelDeploymentWorker } from './model-deployment.worker';
+export { EmbeddingGeneratorWorker } from './embedding-generator.worker';
+export { VectorIndexingWorker } from './vector-indexing.worker';
+export { VectorIndexRebuildWorker } from './vector-index-rebuild.worker';
+export { RecommendationGeneratorWorker } from './recommendation-generator.worker';
+export { PersonalizationBuilderWorker } from './personalization-builder.worker';
+export { ClusteringWorker } from './clustering.worker';
+export { ForecastGeneratorWorker } from './forecast-generator.worker';
+export { InsightGeneratorWorker } from './insight-generator.worker';
+export { DriftDetectorWorker } from './drift-detector.worker';
+export { AnalyticsProcessorWorker } from './analytics-processor.worker';
+export { WorkersModule } from './workers.module';

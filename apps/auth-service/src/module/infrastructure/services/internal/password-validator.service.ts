@@ -1,31 +1,45 @@
+/**
+ * PasswordValidatorService — Composite password strength validation
+ * @module auth-service/infrastructure/services/internal
+ */
 import { Injectable } from '@nestjs/common';
-import { SECURITY } from '@vubon/shared-constants/security';
+import { REGEX } from '@vubon/shared-constants/common';
+import { VALIDATION } from '@vubon/shared-constants/common';
 import { WeakPasswordError } from '../../../domain/errors/password.errors';
+
+const COMMON_WEAK = new Set<string>([
+  'password', 'password1', 'password123', '12345678', '123456789',
+  'qwerty123', 'admin123', 'letmein', 'welcome1', 'iloveyou',
+]);
 
 @Injectable()
 export class PasswordValidatorService {
-  validate(password: string): void {
-    if (password.length < SECURITY.PASSWORD_MIN_LENGTH) {
-      throw new WeakPasswordError(
-        `minimum length is ${SECURITY.PASSWORD_MIN_LENGTH}`,
-      );
+  readonly name = 'PasswordValidatorService';
+
+  validate(password: string, context?: { email?: string }): void {
+    const missing: string[] = [];
+
+    if (password.length < VALIDATION.PASSWORD_MIN_LENGTH) {
+      missing.push(`min length ${VALIDATION.PASSWORD_MIN_LENGTH}`);
     }
-    if (password.length > SECURITY.PASSWORD_MAX_LENGTH) {
-      throw new WeakPasswordError(
-        `maximum length is ${SECURITY.PASSWORD_MAX_LENGTH}`,
-      );
+    if (password.length > VALIDATION.PASSWORD_MAX_LENGTH) {
+      missing.push(`max length ${VALIDATION.PASSWORD_MAX_LENGTH}`);
     }
-    if (SECURITY.PASSWORD_REQUIRE_UPPERCASE && !/[A-Z]/.test(password)) {
-      throw new WeakPasswordError('uppercase letter required');
+    if (!REGEX.PASSWORD_STRONG.test(password)) {
+      missing.push('lowercase, uppercase, digit, and special char');
     }
-    if (SECURITY.PASSWORD_REQUIRE_LOWERCASE && !/[a-z]/.test(password)) {
-      throw new WeakPasswordError('lowercase letter required');
+    if (COMMON_WEAK.has(password.toLowerCase())) {
+      missing.push('not in common weak list');
     }
-    if (SECURITY.PASSWORD_REQUIRE_NUMBER && !/\d/.test(password)) {
-      throw new WeakPasswordError('digit required');
+    if (context?.email) {
+      const localPart = context.email.split('@')[0]?.toLowerCase();
+      if (localPart && localPart.length >= 3 && password.toLowerCase().includes(localPart)) {
+        missing.push('must not contain email');
+      }
     }
-    if (SECURITY.PASSWORD_REQUIRE_SYMBOL && !/[^A-Za-z0-9]/.test(password)) {
-      throw new WeakPasswordError('special character required');
+
+    if (missing.length > 0) {
+      throw new WeakPasswordError(missing);
     }
   }
 }

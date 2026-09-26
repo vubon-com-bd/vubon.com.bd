@@ -1,14 +1,16 @@
+// support-service/application/queries/index.ts
+
 export * from './ticket';
-export * from './message';
 export * from './conversation';
+export * from './message';
 export * from './feedback';
 export * from './complaint';
 export * from './survey';
 export * from './live-chat';
-export * from './faq';
-export * from './knowledge-base';
 export * from './chatbot';
 export * from './agent';
 export * from './team';
 export * from './sla';
-export * from './analytics';
+export * from './rule';
+export * from './automation';
+export * from './template';

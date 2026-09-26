@@ -1,6 +1,8 @@
-export { CreateTeamCommand } from './create-team.command';
-export { CreateTeamHandler } from './create-team.handler';
-export { UpdateTeamCommand } from './update-team.command';
-export { UpdateTeamHandler } from './update-team.handler';
-export { AddTeamMemberCommand } from './add-team-member.command';
-export { AddTeamMemberHandler } from './add-team-member.handler';
+// support-service/application/commands/team/index.ts
+
+export * from './create-team.command';
+export * from './create-team.handler';
+export * from './update-team.command';
+export * from './update-team.handler';
+export * from './add-team-member.command';
+export * from './add-team-member.handler';

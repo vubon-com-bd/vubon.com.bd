@@ -17,7 +17,7 @@ export const BCRYPT_ROUNDS = 12;
 
 export async function createBcryptAdapter(): Promise<BcryptAdapter> {
   // dynamic import so missing dep doesn't break the build
-  const mod = (await import('bcrypt').catch(() => null)) as {
+  const mod = (await import('bcryptjs').catch(() => null)) as {
     default?: BcryptAdapter;
     hash?: BcryptAdapter['hash'];
     compare?: BcryptAdapter['compare'];

@@ -1,72 +1,75 @@
+/**
+ * Auth2FaPrismaRepository
+ * @module auth-service/infrastructure/persistence/prisma/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { Auth2Fa as PrismaAuth2Fa } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
-import { Auth2FaEntity, type TwoFaMethod } from '../../../../domain/entities/auth-2fa.entity';
-import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
+import type { Auth2Fa as PrismaAuth2Fa } from '@prisma/client';
+import {
+  BasePrismaRepository,
+  type PrismaDelegate,
+} from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
+import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
+import type { UserId } from '@vubon/shared-types/common';
+import { Auth2FaEntity } from '../../../../domain/entities/auth-2fa.entity';
+import { MfaTypeVO } from '../../../../domain/value-objects/primitives/mfa-type.vo';
 import type { Auth2FaRepository } from '../../../../domain/repositories/auth-2fa.repository.interface';
 
 @Injectable()
 export class Auth2FaPrismaRepository
-  extends BasePrismaRepository<Auth2FaEntity, UserIdVO>
-  implements Auth2FaRepository
-{
+  extends BasePrismaRepository<Auth2FaEntity, PrismaAuth2Fa, string>
+  implements Auth2FaRepository {
+  protected readonly model: PrismaDelegate<PrismaAuth2Fa>;
+
   constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
+    super();
+    this.model = prisma.auth2Fa as unknown as PrismaDelegate<PrismaAuth2Fa>;
   }
 
-  private toDomain(raw: PrismaAuth2Fa): Auth2FaEntity {
-    return Auth2FaEntity.reconstitute(
-      UserIdVO.create(raw.userId),
-      {
-        userId: UserIdVO.create(raw.userId),
-        isEnabled: raw.isEnabled,
-        method: raw.method as TwoFaMethod,
-        backupCodesRemaining: raw.backupCodesRemaining,
-        enabledAt: raw.enabledAt,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      raw.deletedAt?.toISOString() ?? null,
-    );
+  protected idOf(domain: Auth2FaEntity): string {
+    return domain.id;
   }
 
-  async findById(id: UserIdVO): Promise<Auth2FaEntity | null> {
-    const raw = await this.prisma.auth2Fa.findUnique({
-      where: { userId: id.value },
+  protected whereForId(id: string): Record<string, unknown> {
+    return { id };
+  }
+
+  protected toDomain(raw: PrismaAuth2Fa): Auth2FaEntity {
+    return Auth2FaEntity.create({
+      id: raw.id,
+      userId: raw.userId as UserId,
+      primaryMethod: MfaTypeVO.of(raw.method),
+      backupMethods: [],
+      enabledAt: raw.isEnabled ? (raw.enabledAt?.getTime() ?? Date.now()) : undefined,
+      createdAt: raw.createdAt.toISOString(),
+      updatedAt: raw.updatedAt.toISOString(),
+      deletedAt: raw.deletedAt ? raw.deletedAt.toISOString() : null,
     });
-    return raw ? this.toDomain(raw) : null;
   }
 
-  async findAll(): Promise<readonly Auth2FaEntity[]> {
-    const rows = await this.prisma.auth2Fa.findMany();
-    return rows.map((r) => this.toDomain(r));
-  }
-
-  async save(entity: Auth2FaEntity): Promise<Auth2FaEntity> {
-    const data = {
-      isEnabled: entity.isEnabled,
-      method: entity.method,
-      backupCodesRemaining: entity.backupCodesRemaining,
-      enabledAt: entity.enabledAt,
+  protected toPersistence(domain: Auth2FaEntity): Record<string, unknown> {
+    return {
+      id: domain.id,
+      userId: domain.userId,
+      isEnabled: domain.isEnabled(),
+      method: domain.primaryMethod.value,
+      backupCodesRemaining: domain.backupMethods.length,
+      enabledAt: domain.isEnabled() ? new Date() : null,
       updatedAt: new Date(),
     };
-    const raw = await this.prisma.auth2Fa.upsert({
-      where: { userId: entity.userId.value },
-      create: { id: entity.id.value, userId: entity.userId.value, ...data },
-      update: data,
-    });
-    return this.toDomain(raw);
   }
 
-  async delete(id: UserIdVO): Promise<void> {
-    await this.prisma.auth2Fa.delete({ where: { userId: id.value } });
-  }
-
-  async findByUser(userId: UserIdVO): Promise<Auth2FaEntity | null> {
-    const raw = await this.prisma.auth2Fa.findUnique({
-      where: { userId: userId.value },
-    });
+  async findByUser(userId: UserId): Promise<Auth2FaEntity | null> {
+    const raw = await this.prisma.auth2Fa.findUnique({ where: { userId } });
     return raw ? this.toDomain(raw) : null;
+  }
+
+  async findEnabledByUsers(
+    userIds: readonly UserId[],
+  ): Promise<readonly Auth2FaEntity[]> {
+    if (userIds.length === 0) return [];
+    const rows = await this.prisma.auth2Fa.findMany({
+      where: { userId: { in: [...userIds] }, isEnabled: true },
+    });
+    return rows.map((r) => this.toDomain(r));
   }
 }

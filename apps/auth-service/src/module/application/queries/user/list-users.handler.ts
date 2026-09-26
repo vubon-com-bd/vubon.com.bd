@@ -1,38 +1,36 @@
-import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
+import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { ListUsersQuery } from './list-users.query';
 import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
 import type { UserResponseDTO } from '../../dtos/responses/user-response.dto';
+import { USER_REPO } from '../../tokens';
 
 @QueryHandler(ListUsersQuery)
 export class ListUsersHandler
   extends BaseQueryHandler<ListUsersQuery, readonly UserResponseDTO[]>
-  implements IQueryHandler<ListUsersQuery>
-{
-  readonly queryType = 'user.list';
+  implements IQueryHandler<ListUsersQuery> {
+  readonly queryType = 'ListUsersQuery';
+  constructor(
+    @Inject(USER_REPO) private readonly repo: UserRepository,
+  ) { super(); }
 
-  constructor(@Inject('UserRepository') private readonly userRepo: UserRepository) {
-    super();
-  }
-
-  async execute(query: ListUsersQuery): Promise<readonly UserResponseDTO[]> {
-    void query;
-    const entities = await this.userRepo.findAll();
-    return entities.map((entity) => ({
-      success: true,
-      user: {
-        id: entity.id.value,
-        email: entity.email.value,
-        type: entity.type.value,
-        status: entity.status.value,
-        roles: [entity.role.value],
-        isMfaEnabled: false,
-        emailVerified: entity.emailVerified,
-        createdAt: entity.createdAt,
-        updatedAt: entity.updatedAt,
-        deletedAt: entity.deletedAt ?? undefined,
-      },
+  async execute(_query: ListUsersQuery): Promise<readonly UserResponseDTO[]> {
+    const users = await this.repo.findAll();
+    return users.map((user) => ({
+      id: user.id,
+      email: user.email.value,
+      phone: user.phone?.value,
+      name: user.name.value,
+      status: user.status.value as
+        | 'active' | 'inactive' | 'suspended' | 'pending' | 'deleted',
+      type: user.type.value,
+      roles: user.roles.map((r) => r.value),
+      emailVerified: user.emailVerified,
+      phoneVerified: user.phoneVerified,
+      mfaEnabled: false,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     }));
   }
 }

@@ -1,22 +1,25 @@
+/**
+ * UserSettingsController
+ * @module auth-service/interfaces/controllers/rest
+ */
 import {
-  Body,
   Controller,
   Get,
-  Patch,
+  Put,
+  Body,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import {
-  CurrentUser,
-  JwtAuthGuard,
-  type CurrentUserShape,
-} from '@vubon/shared-kernel/interfaces';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
+import type { UserId } from '@vubon/shared-types/common';
+
 import { UpdateSettingsCommand } from '../../../application/commands/user/update-settings.command';
 import { GetUserSettingsQuery } from '../../../application/queries/user/get-user-settings.query';
-import { SettingsUpdateRequestDTO } from '../../dtos/requests/settings.request.dto';
+import { UpdateSettingsRequestDTO } from '../../dtos/requests/settings.request.dto';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
 
-@ApiTags('Settings')
+@ApiTags('Users Settings')
 @Controller('users/settings')
 @UseGuards(JwtAuthGuard)
 export class UserSettingsController {
@@ -26,23 +29,17 @@ export class UserSettingsController {
   ) {}
 
   @Get()
-  async get(@CurrentUser() user: CurrentUserShape): Promise<unknown> {
-    return this.queryBus.execute(new GetUserSettingsQuery(user.userId));
+  async get(@CurrentUser() user: AuthenticatedUser) {
+    return this.queryBus.execute(new GetUserSettingsQuery(user.id as UserId));
   }
 
-  @Patch()
+  @Put()
   async update(
-    @CurrentUser() user: CurrentUserShape,
-    @Body() body: SettingsUpdateRequestDTO,
-  ): Promise<unknown> {
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: UpdateSettingsRequestDTO,
+  ) {
     return this.commandBus.execute(
-      new UpdateSettingsCommand(
-        user.userId,
-        body.theme,
-        body.language,
-        body.timezone,
-        body.notifications,
-      ),
+      new UpdateSettingsCommand(user.id as UserId, body as never),
     );
   }
 }

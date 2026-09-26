@@ -1,2 +1,4 @@
-export type { CreateRuleRequestDTO } from './create-rule.dto';
-export type { UpdateRuleRequestDTO } from './update-rule.dto';
+// support-service/application/dtos/requests/rule/index.ts
+
+export * from './create-rule.dto';
+export * from './update-rule.dto';

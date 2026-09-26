@@ -1,22 +1,25 @@
+/**
+ * UserProfileController
+ * @module auth-service/interfaces/controllers/rest
+ */
 import {
-  Body,
   Controller,
   Get,
-  Patch,
+  Put,
+  Body,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import {
-  CurrentUser,
-  JwtAuthGuard,
-  type CurrentUserShape,
-} from '@vubon/shared-kernel/interfaces';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
+import type { UserId } from '@vubon/shared-types/common';
+
 import { UpdateProfileCommand } from '../../../application/commands/user/update-profile.command';
 import { GetUserProfileQuery } from '../../../application/queries/user/get-user-profile.query';
-import { ProfileUpdateRequestDTO } from '../../dtos/requests/profile.request.dto';
+import { UpdateProfileRequestDTO } from '../../dtos/requests/profile.request.dto';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
 
-@ApiTags('Profile')
+@ApiTags('Users Profile')
 @Controller('users/profile')
 @UseGuards(JwtAuthGuard)
 export class UserProfileController {
@@ -26,23 +29,17 @@ export class UserProfileController {
   ) {}
 
   @Get()
-  async get(@CurrentUser() user: CurrentUserShape): Promise<unknown> {
-    return this.queryBus.execute(new GetUserProfileQuery(user.userId));
+  async get(@CurrentUser() user: AuthenticatedUser) {
+    return this.queryBus.execute(new GetUserProfileQuery(user.id as UserId));
   }
 
-  @Patch()
+  @Put()
   async update(
-    @CurrentUser() user: CurrentUserShape,
-    @Body() body: ProfileUpdateRequestDTO,
-  ): Promise<unknown> {
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: UpdateProfileRequestDTO,
+  ) {
     return this.commandBus.execute(
-      new UpdateProfileCommand(
-        user.userId,
-        body.firstName,
-        body.lastName,
-        body.bio,
-        body.avatarUrl,
-      ),
+      new UpdateProfileCommand(user.id as UserId, body as never),
     );
   }
 }

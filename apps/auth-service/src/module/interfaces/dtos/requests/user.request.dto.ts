@@ -1,26 +1,15 @@
+/**
+ * UserRequestDTO — CRUD input for users
+ * @module auth-service/interfaces/dtos/requests
+ */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class UserCreateRequestDTO {
-  @ApiProperty({ example: 'user@example.com' })
+export class CreateUserRequestDTO {
+  @ApiProperty({ format: 'email' })
   email!: string;
 
-  @ApiProperty({ example: 'StrongP@ss123' })
+  @ApiProperty({ minLength: 8, maxLength: 128 })
   password!: string;
-
-  @ApiProperty({ example: true })
-  acceptTerms!: true;
-
-  @ApiProperty({ example: true })
-  sendVerificationEmail!: boolean;
-
-  @ApiProperty({ example: 'customer' })
-  type!: string;
-
-  @ApiPropertyOptional()
-  phone?: string;
-
-  @ApiPropertyOptional()
-  role?: string;
 
   @ApiPropertyOptional()
   firstName?: string;
@@ -29,38 +18,36 @@ export class UserCreateRequestDTO {
   lastName?: string;
 
   @ApiPropertyOptional()
-  username?: string;
+  phone?: string;
+
+  @ApiProperty({ enum: ['customer', 'vendor', 'admin', 'support', 'logistics', 'moderator'] })
+  type!: string;
+
+  @ApiPropertyOptional({ default: true })
+  sendVerificationEmail?: boolean;
+
+  @ApiProperty({ default: true })
+  acceptTerms!: boolean;
 }
 
-export class UserUpdateRequestDTO {
+export class UpdateUserRequestDTO {
   @ApiPropertyOptional()
-  emailVerified?: boolean;
-
-  @ApiPropertyOptional()
-  type?: string;
-
-  @ApiPropertyOptional()
-  status?: string;
+  name?: string;
 
   @ApiPropertyOptional()
   phone?: string;
 
-  @ApiPropertyOptional()
-  isMfaEnabled?: boolean;
+  @ApiPropertyOptional({ enum: ['active', 'inactive', 'suspended', 'pending'] })
+  status?: string;
 
-  @ApiPropertyOptional()
-  username?: string;
-
-  @ApiPropertyOptional()
-  phoneVerified?: boolean;
+  @ApiPropertyOptional({ enum: ['customer', 'vendor', 'admin', 'support', 'logistics', 'moderator'] })
+  type?: string;
 }
 
-export class UserDeleteRequestDTO {
-  @ApiProperty()
-  userId!: string;
-}
+export class DeleteUserRequestDTO {
+  @ApiPropertyOptional({ maxLength: 500 })
+  reason?: string;
 
-export class UserGetRequestDTO {
-  @ApiProperty()
-  userId!: string;
+  @ApiPropertyOptional({ default: false })
+  hardDelete?: boolean;
 }

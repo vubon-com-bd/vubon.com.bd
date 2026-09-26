@@ -1,11 +1,30 @@
-import { z } from 'zod';
+/**
+ * CreateAutomationRequestDTO
+ * @module support-service/application/dtos/requests/automation
+ */
+import type {
+  SupportAutomationTypeValue,
+  SupportAutomationTriggerValue,
+} from '@vubon/shared-types/support';
 
-export const CreateAutomationRequestSchema = z.object({
-  name: z.string().min(2).max(100),
-  type: z.string().min(1).max(50),
-  trigger: z.string().min(1).max(100),
-  action: z.string().min(1).max(100),
-  config: z.record(z.string(), z.unknown()).optional(),
-});
+export interface AutomationStepInput {
+  readonly id: string;
+  readonly order: number;
+  readonly action: string;
+  readonly params: Readonly<Record<string, unknown>>;
+  readonly delayMinutes?: number;
+}
 
-export type CreateAutomationRequestDTO = z.infer<typeof CreateAutomationRequestSchema>;
+export interface AutomationTriggerInput {
+  readonly type: SupportAutomationTriggerValue;
+  readonly conditions?: Readonly<Record<string, unknown>>;
+}
+
+export interface CreateAutomationRequestDTO {
+  readonly name: string;
+  readonly description?: string;
+  readonly type: SupportAutomationTypeValue;
+  readonly trigger: AutomationTriggerInput;
+  readonly steps: readonly AutomationStepInput[];
+  readonly createdBy: string;
+}

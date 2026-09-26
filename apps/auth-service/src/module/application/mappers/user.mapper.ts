@@ -1,28 +1,34 @@
+/**
+ * UserMapper — UserEntity → UserResponseDTO
+ * @module auth-service/application/mappers
+ */
 import { BaseMapper } from '@vubon/shared-kernel/application/mappers/base.mapper';
 import { UserEntity } from '../../domain/entities/user.entity';
 import type { UserResponseDTO } from '../dtos/responses/user-response.dto';
 
 export class UserMapper extends BaseMapper<UserEntity, UserResponseDTO> {
-  toTarget(source: UserEntity): UserResponseDTO {
+  toTarget(entity: UserEntity): UserResponseDTO {
     return {
-      success: true,
-      user: {
-        id: source.id.value,
-        email: source.email.value,
-        type: source.type.value,
-        status: source.status.value,
-        roles: [source.role.value],
-        isMfaEnabled: false,
-        emailVerified: source.emailVerified,
-        createdAt: source.createdAt,
-        updatedAt: source.updatedAt,
-        deletedAt: source.deletedAt ?? undefined,
-      },
+      id: entity.id,
+      email: entity.email.value,
+      phone: entity.phone?.value,
+      name: entity.name.value,
+      status: entity.status.value as
+        | 'active' | 'inactive' | 'suspended' | 'pending' | 'deleted',
+      type: entity.type.value,
+      roles: entity.roles.map((r) => r.value),
+      emailVerified: entity.emailVerified,
+      phoneVerified: entity.phoneVerified,
+      mfaEnabled: false,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
     };
   }
 
-  toSource(target: UserResponseDTO): UserEntity {
-    void target;
-    throw new Error('UserMapper.toSource not supported (DTO → Entity is lossy)');
+  toSource(dto: UserResponseDTO): UserEntity {
+    throw new Error(
+      'UserMapper.toSource is intentionally not implemented — mappers are one-way for entities.',
+    );
+    void dto;
   }
 }

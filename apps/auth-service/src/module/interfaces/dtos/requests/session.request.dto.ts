@@ -1,19 +1,13 @@
-import { ApiProperty } from '@nestjs/swagger';
+/**
+ * SessionRequestDTO
+ * @module auth-service/interfaces/dtos/requests
+ */
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class SessionByIdRequestDTO {
-  @ApiProperty()
-  sessionId!: string;
-}
+export class SessionRequestDTO {
+  @ApiPropertyOptional({ description: 'Filter by user id' })
+  userId?: string;
 
-export class SessionRevokeRequestDTO {
-  @ApiProperty()
-  sessionId!: string;
-
-  @ApiProperty()
-  reason!: string;
-}
-
-export class SessionListByUserRequestDTO {
-  @ApiProperty()
-  userId!: string;
+  @ApiPropertyOptional({ example: 50 })
+  limit?: number;
 }

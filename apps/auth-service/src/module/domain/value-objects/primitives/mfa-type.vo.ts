@@ -1,24 +1,33 @@
+/**
+ * MfaTypeVO — MFA method type
+ * @module auth-service/domain/value-objects/primitives
+ */
 import { BaseTypeVO } from '@vubon/shared-kernel/domain/primitives/type.vo';
 import { MfaInvalidError } from '../../errors/mfa.errors';
 
-const VALID_MFA_TYPES = new Set<string>([
-  'totp',
-  'sms',
-  'email',
-  'backup_code',
-  'push',
-  'webauthn',
+export type MfaTypeValue = 'totp' | 'sms' | 'email' | 'webauthn' | 'push';
+
+const ALLOWED: ReadonlySet<string> = new Set<string>([
+  'totp', 'sms', 'email', 'webauthn', 'push',
 ]);
 
-export class MfaTypeVO extends BaseTypeVO<string> {
-  private constructor(value: string) {
+export class MfaTypeVO extends BaseTypeVO<MfaTypeValue> {
+  private constructor(value: MfaTypeValue) {
     super(value);
   }
 
-  static create(raw: string): MfaTypeVO {
-    if (!VALID_MFA_TYPES.has(raw)) {
-      throw new MfaInvalidError(`invalid MFA type: ${raw}`);
+  static of(raw: string): MfaTypeVO {
+    if (!ALLOWED.has(raw)) {
+      throw new MfaInvalidError(`Unknown MFA type: ${raw}`);
     }
-    return new MfaTypeVO(raw);
+    return new MfaTypeVO(raw as MfaTypeValue);
+  }
+
+  isHardware(): boolean {
+    return this.value === 'webauthn';
+  }
+
+  isOutOfBand(): boolean {
+    return this.value === 'sms' || this.value === 'email' || this.value === 'push';
   }
 }

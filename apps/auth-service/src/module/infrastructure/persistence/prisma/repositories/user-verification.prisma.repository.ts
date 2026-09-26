@@ -1,90 +1,81 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { UserVerification as PrismaUserVerification } from '@prisma/client';
-import { BasePrismaRepository, PrismaService } from '@vubon/shared-kernel/infrastructure';
+/**
+ * UserVerificationPrismaRepository
+ * @module auth-service/infrastructure/persistence/prisma/repositories
+ */
+import { Injectable } from '@nestjs/common';
+import type { UserVerification as PrismaUserVerification } from '@prisma/client';
+import {
+  BasePrismaRepository,
+  type PrismaDelegate,
+} from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
+import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
+import type { UserId } from '@vubon/shared-types/common';
 import { UserVerificationEntity } from '../../../../domain/entities/user-verification.entity';
-import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
+import { VerificationCodeVO } from '../../../../domain/value-objects/primitives/verification-code.vo';
 import { VerificationTypeVO } from '../../../../domain/value-objects/primitives/verification-type.vo';
 import { VerificationStatusVO } from '../../../../domain/value-objects/primitives/verification-status.vo';
-import { VerificationCodeVO } from '../../../../domain/value-objects/primitives/verification-code.vo';
 import type { UserVerificationRepository } from '../../../../domain/repositories/user-verification.repository.interface';
 
 @Injectable()
 export class UserVerificationPrismaRepository
-  extends BasePrismaRepository<UserVerificationEntity, UserIdVO>
-  implements UserVerificationRepository
-{
-  constructor(@Inject(PrismaService) prisma: PrismaService) {
-    super(prisma);
+  extends BasePrismaRepository<UserVerificationEntity, PrismaUserVerification, string>
+  implements UserVerificationRepository {
+  protected readonly model: PrismaDelegate<PrismaUserVerification>;
+
+  constructor(protected readonly prisma: PrismaService) {
+    super();
+    this.model = prisma.userVerification as unknown as PrismaDelegate<PrismaUserVerification>;
   }
 
-  private toDomain(raw: PrismaUserVerification): UserVerificationEntity {
-    return UserVerificationEntity.reconstitute(
-      UserIdVO.create(raw.userId),
-      {
-        userId: UserIdVO.create(raw.userId),
-        type: VerificationTypeVO.create(raw.type),
-        code: VerificationCodeVO.create(raw.code),
-        status: VerificationStatusVO.create(raw.status),
-        verifiedAt: raw.verifiedAt,
-        expiresAt: raw.expiresAt,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      raw.deletedAt?.toISOString() ?? null,
-    );
+  protected idOf(domain: UserVerificationEntity): string {
+    return domain.id;
   }
 
-  async findById(id: UserIdVO): Promise<UserVerificationEntity | null> {
-    const raw = await this.prisma.userVerification.findFirst({
-      where: { userId: id.value },
+  protected whereForId(id: string): Record<string, unknown> {
+    return { id };
+  }
+
+  protected toDomain(raw: PrismaUserVerification): UserVerificationEntity {
+    return UserVerificationEntity.create({
+      id: raw.id,
+      userId: raw.userId as UserId,
+      type: VerificationTypeVO.of(raw.type as 'email' | 'phone' | 'kyc_document'),
+      code: VerificationCodeVO.of(raw.code),
+      status: VerificationStatusVO.of(raw.status),
+      expiresAt: raw.expiresAt ? raw.expiresAt.getTime() : Date.now(),
+      createdAt: raw.createdAt.toISOString(),
+      updatedAt: raw.updatedAt.toISOString(),
+      deletedAt: raw.deletedAt ? raw.deletedAt.toISOString() : null,
     });
-    return raw ? this.toDomain(raw) : null;
   }
 
-  async findAll(): Promise<readonly UserVerificationEntity[]> {
-    const rows = await this.prisma.userVerification.findMany();
-    return rows.map((r) => this.toDomain(r));
-  }
-
-  async save(entity: UserVerificationEntity): Promise<UserVerificationEntity> {
-    const data = {
-      userId: entity.userId.value,
-      type: entity.type.value,
-      code: entity.code.value,
-      status: entity.status.value,
-      verifiedAt: entity.verifiedAt,
-      expiresAt: entity.expiresAt,
+  protected toPersistence(domain: UserVerificationEntity): Record<string, unknown> {
+    return {
+      id: domain.id,
+      userId: domain.userId,
+      type: domain.type.value,
+      code: '000000',
+      status: domain.status.value,
+      expiresAt: new Date(domain.expiresAt),
       updatedAt: new Date(),
     };
-    const raw = await this.prisma.userVerification.upsert({
-      where: { id: entity.id.value },
-      create: { id: entity.id.value, ...data },
-      update: data,
-    });
-    return this.toDomain(raw);
   }
 
-  async delete(id: UserIdVO): Promise<void> {
-    await this.prisma.userVerification.deleteMany({
-      where: { userId: id.value },
-    });
-  }
-
-  async findByUserId(userId: UserIdVO): Promise<readonly UserVerificationEntity[]> {
-    const rows = await this.prisma.userVerification.findMany({
-      where: { userId: userId.value },
-    });
-    return rows.map((r) => this.toDomain(r));
-  }
-
-  async findByType(
-    userId: UserIdVO,
-    type: VerificationTypeVO,
+  async findLatestByUserAndType(
+    userId: UserId,
+    type: string,
   ): Promise<UserVerificationEntity | null> {
     const raw = await this.prisma.userVerification.findFirst({
-      where: { userId: userId.value, type: type.value },
+      where: { userId, type },
       orderBy: { createdAt: 'desc' },
     });
     return raw ? this.toDomain(raw) : null;
+  }
+
+  async deleteExpired(now: number): Promise<number> {
+    const result = await this.prisma.userVerification.deleteMany({
+      where: { expiresAt: { lt: new Date(now) } },
+    });
+    return result.count;
   }
 }

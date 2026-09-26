@@ -1,14 +1,26 @@
+/**
+ * DeviceFingerprintService — Deterministic fingerprint from request signals
+ * @module auth-service/infrastructure/services/internal
+ */
 import { Injectable } from '@nestjs/common';
 import { createHash } from 'node:crypto';
-import type {
-  DeviceFingerprintPort,
-  DeviceFingerprintInput,
-} from '../../../application/ports/device-fingerprint.port';
 
 @Injectable()
-export class DeviceFingerprintService implements DeviceFingerprintPort {
-  compute(input: DeviceFingerprintInput): string {
-    const raw = `${input.ip}|${input.userAgent}`;
-    return createHash('sha256').update(raw).digest('hex');
+export class DeviceFingerprintService {
+  readonly name = 'DeviceFingerprintService';
+
+  fingerprint(input: {
+    userAgent: string;
+    ip: string;
+    acceptLanguage?: string;
+    acceptEncoding?: string;
+  }): string {
+    const payload = [
+      input.userAgent,
+      input.ip,
+      input.acceptLanguage ?? '',
+      input.acceptEncoding ?? '',
+    ].join('|');
+    return createHash('sha256').update(payload).digest('hex');
   }
 }

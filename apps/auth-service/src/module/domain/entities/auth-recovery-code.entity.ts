@@ -1,81 +1,52 @@
+/**
+ * AuthRecoveryCodeEntity — One-time recovery code
+ * @module auth-service/domain/entities
+ */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
-import { UserIdVO } from '../value-objects/primitives/user-id.vo';
+import type { UserId } from '@vubon/shared-types/common';
 import { RecoveryCodeVO } from '../value-objects/primitives/recovery-code.vo';
 import { RecoveryCodeStatusVO } from '../value-objects/primitives/recovery-code-status.vo';
 
 export interface AuthRecoveryCodeEntityProps {
-  readonly userId: UserIdVO;
+  readonly id: string;
+  readonly userId: UserId;
   readonly code: RecoveryCodeVO;
   readonly status: RecoveryCodeStatusVO;
-  readonly usedAt: Date | null;
+  readonly usedAt?: number;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+  readonly deletedAt?: string | null;
 }
 
 export class AuthRecoveryCodeEntity extends BaseEntity<string> {
-  private readonly _userId: UserIdVO;
-  private readonly _code: RecoveryCodeVO;
-  private readonly _status: RecoveryCodeStatusVO;
-  private readonly _usedAt: Date | null;
+  readonly userId: UserId;
+  private _code: RecoveryCodeVO;
+  private _status: RecoveryCodeStatusVO;
+  private _usedAt?: number;
 
-  private constructor(
-    id: string,
-    props: AuthRecoveryCodeEntityProps,
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null,
-  ) {
-    super(id, createdAt, updatedAt, deletedAt);
-    this._userId = props.userId;
+  private constructor(props: AuthRecoveryCodeEntityProps) {
+    super(props.id, props.createdAt, props.updatedAt, props.deletedAt ?? null);
+    this.userId = props.userId;
     this._code = props.code;
     this._status = props.status;
     this._usedAt = props.usedAt;
   }
 
   static create(props: AuthRecoveryCodeEntityProps): AuthRecoveryCodeEntity {
-    const now = new Date().toISOString();
-    const id = crypto.randomUUID();
-    return new AuthRecoveryCodeEntity(id, props, now, now, null);
+    return new AuthRecoveryCodeEntity(props);
   }
 
-  static reconstitute(
-    id: string,
-    props: AuthRecoveryCodeEntityProps,
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null,
-  ): AuthRecoveryCodeEntity {
-    return new AuthRecoveryCodeEntity(id, props, createdAt, updatedAt, deletedAt);
-  }
-
-  markUsed(): AuthRecoveryCodeEntity {
-    const now = new Date();
-    return new AuthRecoveryCodeEntity(
-      this.id,
-      {
-        ...this._toProps(),
-        status: RecoveryCodeStatusVO.create('used'),
-        usedAt: now,
-      },
-      this.createdAt,
-      now.toISOString(),
-      this.deletedAt ?? null,
-    );
-  }
-
-  get userId(): UserIdVO { return this._userId; }
+  // === Getters ===
   get code(): RecoveryCodeVO { return this._code; }
   get status(): RecoveryCodeStatusVO { return this._status; }
-  get usedAt(): Date | null { return this._usedAt; }
+  get usedAt(): number | undefined { return this._usedAt; }
 
-  get isUsed(): boolean {
-    return this._usedAt !== null || this._status.value === 'used';
-  }
+  // === Business logic ===
+  isUsable(): boolean { return this._status.canBeUsed(); }
 
-  private _toProps(): AuthRecoveryCodeEntityProps {
-    return {
-      userId: this._userId,
-      code: this._code,
-      status: this._status,
-      usedAt: this._usedAt,
-    };
+  use(at: number): void {
+    if (!this.isUsable()) throw new Error('Recovery code already used');
+    this._usedAt = at;
+    this._status = RecoveryCodeStatusVO.of('used');
   }
 }

@@ -1,3 +1,7 @@
-export { EmailService } from './email.service';
-export { SmsService } from './sms.service';
-export { PushService } from './push.service';
+/**
+ * External Services — Barrel
+ * @module auth-service/infrastructure/services/external
+ */
+export * from './email.service';
+export * from './sms.service';
+export * from './push.service';

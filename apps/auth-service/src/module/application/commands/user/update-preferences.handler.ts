@@ -1,33 +1,23 @@
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { UpdatePreferencesCommand } from './update-preferences.command';
 import type { UserPreferencesServiceInterface } from '../../services/interfaces/user-preferences.service.interface';
 import type { UserPreferencesResponseDTO } from '../../dtos/responses/user-preferences-response.dto';
-import type { UpdatePreferencesRequestDTO } from '../../dtos/requests/user/update-preferences.dto';
+import { USER_PREFERENCES_SERVICE } from '../../tokens';
 
 @CommandHandler(UpdatePreferencesCommand)
 export class UpdatePreferencesHandler
   extends BaseCommandHandler<UpdatePreferencesCommand, UserPreferencesResponseDTO>
-  implements ICommandHandler<UpdatePreferencesCommand>
-{
-  readonly commandType = 'user.update-preferences';
-
+  implements ICommandHandler<UpdatePreferencesCommand> {
+  readonly commandType = 'UpdatePreferencesCommand';
   constructor(
-    @Inject('UserPreferencesService') private readonly preferencesService: UserPreferencesServiceInterface,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
-  }
+    @Inject(USER_PREFERENCES_SERVICE)
+    private readonly preferencesService: UserPreferencesServiceInterface,
+  ) { super(); }
 
   async execute(command: UpdatePreferencesCommand): Promise<UserPreferencesResponseDTO> {
-    const input: UpdatePreferencesRequestDTO = {
-      newsletter: command.newsletter,
-      promotions: command.promotions,
-      orderUpdates: command.orderUpdates,
-      productRecommendations: command.productRecommendations,
-      securityAlerts: command.securityAlerts,
-    };
-    return this.preferencesService.update(command.userId, input);
+    const entity = await this.preferencesService.update(command.userId, command.input);
+    return this.preferencesService.toResponse(entity);
   }
 }

@@ -1,10 +1,23 @@
+/**
+ * AuthRecoveryCodeServiceInterface
+ * @module auth-service/application/services/interfaces
+ */
 import type { BaseServiceInterface } from '@vubon/shared-kernel/application/services/base.service.interface';
+import type { UserId } from '@vubon/shared-types/common';
 import type { AuthRecoveryCodeEntity } from '../../../domain/entities/auth-recovery-code.entity';
 import type { RecoveryCodesResponseDTO } from '../../dtos/responses/recovery-codes-response.dto';
 
 export interface AuthRecoveryCodeServiceInterface
   extends BaseServiceInterface<AuthRecoveryCodeEntity, string> {
-  generate(userId: string, count: number): Promise<RecoveryCodesResponseDTO>;
-  consume(userId: string, code: string): Promise<boolean>;
-  revokeAll(userId: string): Promise<void>;
+  generateForUser(
+    userId: UserId,
+    count?: number,
+    invalidatePrevious?: boolean,
+  ): Promise<RecoveryCodesResponseDTO>;
+
+  consume(userId: UserId, code: string): Promise<boolean>;
+
+  listActive(userId: UserId): Promise<readonly AuthRecoveryCodeEntity[]>;
+
+  invalidateAll(userId: UserId): Promise<number>;
 }

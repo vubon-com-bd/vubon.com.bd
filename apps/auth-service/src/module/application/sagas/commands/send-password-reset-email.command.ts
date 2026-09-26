@@ -2,11 +2,10 @@ import { BaseSagaCommand } from '@vubon/shared-kernel/application/sagas/base.sag
 
 export class SendPasswordResetEmailCommand extends BaseSagaCommand {
   readonly type = 'saga.send-password-reset-email';
-
   constructor(
     public readonly userId: string,
     public readonly email: string,
-  ) {
-    super();
-  }
+    public readonly resetUrl: string,
+    public readonly expiresAt: string,
+  ) { super(); }
 }

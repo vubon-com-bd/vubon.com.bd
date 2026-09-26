@@ -1,6 +1,13 @@
-import type { BaseEventStore } from '@vubon/shared-kernel/domain/base/base.event-store';
-
 /**
- * Event store contract for AuthSession aggregate.
+ * AuthSessionEventStore
+ * @module auth-service/domain/event-store
  */
-export type AuthSessionEventStore = BaseEventStore;
+import type { DomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
+import type { AuthSessionDomainEvent } from '../events/auth-session.events';
+
+export interface AuthSessionEventStore {
+  append(event: AuthSessionDomainEvent): Promise<void>;
+  appendMany(events: readonly AuthSessionDomainEvent[]): Promise<void>;
+  loadStream(aggregateId: string): Promise<readonly DomainEvent[]>;
+  streamVersion(aggregateId: string): Promise<number>;
+}

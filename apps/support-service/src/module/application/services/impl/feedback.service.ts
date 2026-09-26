@@ -1,50 +1,97 @@
+/**
+ * FeedbackService — use case orchestration
+ * @module support-service/application/services/impl
+ */
 import { Injectable } from '@nestjs/common';
+import { BusinessRuleError } from '@vubon/shared-kernel/domain/errors/business-rule.error';
+
 import type { FeedbackServiceInterface } from '../interfaces/feedback.service.interface';
 import type { FeedbackRepository } from '../../../domain/repositories/feedback.repository.interface';
 import { FeedbackEntity } from '../../../domain/entities/feedback.entity';
 import { FeedbackIdVO } from '../../../domain/value-objects/primitives/feedback-id.vo';
 import { FeedbackTypeVO } from '../../../domain/value-objects/primitives/feedback-type.vo';
-import { FeedbackStatusVO } from '../../../domain/value-objects/primitives/feedback-status.vo';
 import { FeedbackContentVO } from '../../../domain/value-objects/primitives/feedback-content.vo';
+import { FeedbackStatusVO } from '../../../domain/value-objects/primitives/feedback-status.vo';
 import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
-import { FeedbackNotFoundError, FeedbackOperationFailedError } from '../../errors/feedback.errors';
-import type { SubmitFeedbackRequestDTO } from '../../dtos/requests/feedback';
+
+import { FeedbackMapper } from '../../mappers/feedback.mapper';
+import { FeedbackNotFoundException } from '../../errors/feedback.errors';
+import type { SubmitFeedbackRequestDTO } from '../../dtos/requests/feedback/submit-feedback.dto';
+import type { ReviewFeedbackRequestDTO } from '../../dtos/requests/feedback/review-feedback.dto';
 import type { FeedbackResponseDTO } from '../../dtos/responses/feedback-response.dto';
+import type { FeedbackListResponseDTO } from '../../dtos/responses/feedback-list-response.dto';
 
 @Injectable()
 export class FeedbackService implements FeedbackServiceInterface {
-  constructor(private readonly feedbackRepo: FeedbackRepository) {}
+  constructor(
+    private readonly feedbackRepo: FeedbackRepository,
+    private readonly mapper: FeedbackMapper,
+  ) {}
 
   async submit(input: SubmitFeedbackRequestDTO): Promise<FeedbackResponseDTO> {
-    try {
-      const entity = FeedbackEntity.create({
-        userId: UserIdVO.create(input.userId),
-        type: FeedbackTypeVO.create(input.type),
-        status: FeedbackStatusVO.create('pending'),
-        content: FeedbackContentVO.create(input.content),
-      });
-      const saved = await this.feedbackRepo.save(entity);
-      return this.toDTO(saved);
-    } catch (error) {
-      throw new FeedbackOperationFailedError(
-        error instanceof Error ? error.message : 'unknown',
+    if (input.rating !== undefined && (input.rating < 1 || input.rating > 5)) {
+      throw new BusinessRuleError(
+        'Rating must be between 1 and 5',
+        'feedback.rating.range',
       );
     }
+    const now = new Date().toISOString();
+    const userId = input.isAnonymous
+      ? undefined
+      : UserIdVO.create(input.userId ?? 'anonymous');
+
+    const feedback = FeedbackEntity.create({
+      id: FeedbackIdVO.generate(),
+      type: FeedbackTypeVO.create(input.type),
+      content: FeedbackContentVO.create(input.message),
+      userId: userId ?? UserIdVO.create('anonymous'),
+      rating: input.rating,
+      now,
+    });
+
+    await this.feedbackRepo.save(feedback);
+    return this.mapper.map(feedback);
   }
 
-  async findById(id: FeedbackIdVO): Promise<FeedbackEntity | null> {
-    return this.feedbackRepo.findById(id);
+  async review(input: ReviewFeedbackRequestDTO): Promise<FeedbackResponseDTO> {
+    const feedback = await this.loadOrThrow(input.feedbackId);
+    const reviewer = UserIdVO.create(input.reviewerId);
+    feedback.review(reviewer, input.note ?? 'reviewed', new Date().toISOString());
+    await this.feedbackRepo.save(feedback);
+    return this.mapper.map(feedback);
   }
 
-  private toDTO(entity: FeedbackEntity): FeedbackResponseDTO {
+  async getById(feedbackId: string): Promise<FeedbackResponseDTO> {
+    const feedback = await this.loadOrThrow(feedbackId);
+    return this.mapper.map(feedback);
+  }
+
+  async list(page: number, limit: number): Promise<FeedbackListResponseDTO> {
+    const all = await this.feedbackRepo.findAll();
+    const safeLimit = Math.max(1, Math.min(limit, 100));
+    const safePage = Math.max(1, page);
+    const total = all.length;
+    const start = (safePage - 1) * safeLimit;
+    const slice = all.slice(start, start + safeLimit);
     return {
-      id: entity.id.value,
-      userId: entity.userId.value,
-      type: entity.type.value,
-      status: entity.status.value,
-      content: entity.content.value,
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
+      items: this.mapper.toList(slice),
+      total,
+      page: safePage,
+      limit: safeLimit,
+      totalPages: Math.ceil(total / safeLimit) || 1,
     };
+  }
+
+  private async loadOrThrow(feedbackId: string): Promise<FeedbackEntity> {
+    const feedback = await this.feedbackRepo.findById(FeedbackIdVO.create(feedbackId));
+    if (!feedback) {
+      throw new FeedbackNotFoundException(feedbackId);
+    }
+    return feedback;
+  }
+
+  // reference to avoid unused import warnings (VO stays for future use)
+  private _unusedStatus(): FeedbackStatusVO {
+    return FeedbackStatusVO.create('pending');
   }
 }

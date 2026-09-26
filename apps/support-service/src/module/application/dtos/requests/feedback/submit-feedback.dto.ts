@@ -1,9 +1,18 @@
-import { z } from 'zod';
+/**
+ * SubmitFeedbackRequestDTO — matches FeedbackCreateInputSchema
+ * @module support-service/application/dtos/requests/feedback
+ */
+import type { FeedbackTypeValue } from '@vubon/shared-types/support';
 
-export const SubmitFeedbackRequestSchema = z.object({
-  userId: z.string().uuid(),
-  type: z.string().min(1).max(50),
-  content: z.string().min(1).max(5000),
-});
-
-export type SubmitFeedbackRequestDTO = z.infer<typeof SubmitFeedbackRequestSchema>;
+export interface SubmitFeedbackRequestDTO {
+  readonly type: FeedbackTypeValue;
+  readonly title?: string;
+  readonly message: string;
+  readonly rating?: number;
+  readonly attachments?: readonly string[];
+  readonly isAnonymous?: boolean;
+  readonly referenceId?: string;
+  readonly referenceType?: string;
+  readonly userId?: string;
+  readonly email?: string;
+}

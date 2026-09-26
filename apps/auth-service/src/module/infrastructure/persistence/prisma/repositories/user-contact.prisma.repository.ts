@@ -1,78 +1,73 @@
+/**
+ * UserContactPrismaRepository
+ * @module auth-service/infrastructure/persistence/prisma/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { UserContact as PrismaUserContact } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+import type { UserContact as PrismaUserContact } from '@prisma/client';
+import {
+  BasePrismaRepository,
+  type PrismaDelegate,
+} from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
+import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
+import type { UserId } from '@vubon/shared-types/common';
 import { UserContactEntity } from '../../../../domain/entities/user-contact.entity';
-import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
-import { UserPhoneVO } from '../../../../domain/value-objects/primitives/user-phone.vo';
 import { UserEmailVO } from '../../../../domain/value-objects/primitives/user-email.vo';
+import { UserPhoneVO } from '../../../../domain/value-objects/primitives/user-phone.vo';
 import type { UserContactRepository } from '../../../../domain/repositories/user-contact.repository.interface';
 
 @Injectable()
 export class UserContactPrismaRepository
-  extends BasePrismaRepository<UserContactEntity, UserIdVO>
-  implements UserContactRepository
-{
+  extends BasePrismaRepository<UserContactEntity, PrismaUserContact, string>
+  implements UserContactRepository {
+  protected readonly model: PrismaDelegate<PrismaUserContact>;
+
   constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
+    super();
+    this.model = prisma.userContact as unknown as PrismaDelegate<PrismaUserContact>;
   }
 
-  private toDomain(raw: PrismaUserContact): UserContactEntity {
-    return UserContactEntity.reconstitute(
-      UserIdVO.create(raw.userId),
-      {
-        userId: UserIdVO.create(raw.userId),
-        phone: UserPhoneVO.create(raw.phone),
-        email: UserEmailVO.create(raw.email),
-        alternatePhone: raw.alternatePhone
-          ? UserPhoneVO.create(raw.alternatePhone)
-          : null,
-        alternateEmail: raw.alternateEmail
-          ? UserEmailVO.create(raw.alternateEmail)
-          : null,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      raw.deletedAt?.toISOString() ?? null,
-    );
+  protected idOf(domain: UserContactEntity): string {
+    return domain.id;
   }
 
-  async findById(id: UserIdVO): Promise<UserContactEntity | null> {
-    const raw = await this.prisma.userContact.findUnique({
-      where: { userId: id.value },
+  protected whereForId(id: string): Record<string, unknown> {
+    return { id };
+  }
+
+  protected toDomain(raw: PrismaUserContact): UserContactEntity {
+    return UserContactEntity.create({
+      id: raw.id,
+      userId: raw.userId as UserId,
+      email: raw.email ? UserEmailVO.of(raw.email) : undefined,
+      phone: raw.phone ? UserPhoneVO.of(raw.phone) : undefined,
+      verified: false,
+      createdAt: raw.createdAt.toISOString(),
+      updatedAt: raw.updatedAt.toISOString(),
+      deletedAt: raw.deletedAt ? raw.deletedAt.toISOString() : null,
     });
-    return raw ? this.toDomain(raw) : null;
   }
 
-  async findAll(): Promise<readonly UserContactEntity[]> {
-    const rows = await this.prisma.userContact.findMany();
+  protected toPersistence(domain: UserContactEntity): Record<string, unknown> {
+    return {
+      id: domain.id,
+      userId: domain.userId,
+      email: domain.email?.value ?? '',
+      phone: domain.phone?.value ?? '',
+      updatedAt: new Date(),
+    };
+  }
+
+  async findByUserId(userId: UserId): Promise<readonly UserContactEntity[]> {
+    const rows = await this.prisma.userContact.findMany({
+      where: { userId },
+    });
     return rows.map((r) => this.toDomain(r));
   }
 
-  async save(entity: UserContactEntity): Promise<UserContactEntity> {
-    const data = {
-      phone: entity.phone.value,
-      email: entity.email.value,
-      alternatePhone: entity.alternatePhone?.value ?? null,
-      alternateEmail: entity.alternateEmail?.value ?? null,
-      updatedAt: new Date(),
-    };
-    const raw = await this.prisma.userContact.upsert({
-      where: { userId: entity.userId.value },
-      create: { id: entity.id.value, userId: entity.userId.value, ...data },
-      update: data,
+  async findVerifiedByUserId(userId: UserId): Promise<readonly UserContactEntity[]> {
+    const rows = await this.prisma.userContact.findMany({
+      where: { userId },
     });
-    return this.toDomain(raw);
-  }
-
-  async delete(id: UserIdVO): Promise<void> {
-    await this.prisma.userContact.delete({ where: { userId: id.value } });
-  }
-
-  async findByUserId(userId: UserIdVO): Promise<UserContactEntity | null> {
-    const raw = await this.prisma.userContact.findUnique({
-      where: { userId: userId.value },
-    });
-    return raw ? this.toDomain(raw) : null;
+    return rows.map((r) => this.toDomain(r));
   }
 }

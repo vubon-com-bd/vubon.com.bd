@@ -1,24 +1,23 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+/**
+ * EscalateTicketHandler
+ * @module support-service/application/commands/ticket
+ */
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { EscalateTicketCommand } from './escalate-ticket.command';
-import type { TicketEscalationServiceInterface } from '../../services/interfaces/ticket-escalation.service.interface';
+import type { TicketResponseDTO } from '../../dtos/responses/ticket-response.dto';
+import type { TicketServiceInterface } from '../../services/interfaces/ticket.service.interface';
 
-@CommandHandler(EscalateTicketCommand)
-export class EscalateTicketHandler
-  extends BaseCommandHandler<EscalateTicketCommand, { id: string; level: string }>
-  implements ICommandHandler<EscalateTicketCommand>
-{
+export class EscalateTicketHandler extends BaseCommandHandler<
+  EscalateTicketCommand,
+  TicketResponseDTO
+> {
   readonly commandType = 'support.ticket.escalate';
 
-  constructor(private readonly escalationService: TicketEscalationServiceInterface) {
+  constructor(private readonly ticketService: TicketServiceInterface) {
     super();
   }
 
-  async execute(command: EscalateTicketCommand): Promise<{ id: string; level: string }> {
-    return this.escalationService.escalate({
-      ticketId: command.ticketId,
-      reason: command.reason,
-      level: command.level,
-    });
+  async execute(command: EscalateTicketCommand): Promise<TicketResponseDTO> {
+    return this.ticketService.escalate(command.payload);
   }
 }

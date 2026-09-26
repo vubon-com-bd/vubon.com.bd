@@ -1,76 +1,77 @@
+/**
+ * FaqPrismaRepository
+ * @module support-service/infrastructure/persistence/prisma/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { Faq as PrismaFaq } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+import { SupportPrismaService } from '../prisma.service';
+import { FaqRepository } from '../../../../domain/repositories/faq.repository.interface';
 import { FaqEntity } from '../../../../domain/entities/faq.entity';
 import { FaqIdVO } from '../../../../domain/value-objects/primitives/faq-id.vo';
-import { FaqQuestionVO } from '../../../../domain/value-objects/primitives/faq-question.vo';
-import { FaqAnswerVO } from '../../../../domain/value-objects/primitives/faq-answer.vo';
 import { FaqStatusVO } from '../../../../domain/value-objects/primitives/faq-status.vo';
-import type { FaqRepository } from '../../../../domain/repositories/faq.repository.interface';
+import { TicketCategoryIdVO } from '../../../../domain/value-objects/primitives/ticket-category-id.vo';
+import { FaqMapper } from '../mappers/faq.mapper';
 
 @Injectable()
-export class FaqPrismaRepository
-  extends BasePrismaRepository<FaqEntity, FaqIdVO>
-  implements FaqRepository
-{
-  constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
-  }
-
-  private toDomain(raw: PrismaFaq): FaqEntity {
-    return FaqEntity.reconstitute(
-      FaqIdVO.create(raw.id),
-      {
-        question: FaqQuestionVO.create(raw.question),
-        answer: FaqAnswerVO.create(raw.answer),
-        status: FaqStatusVO.create(raw.status),
-        categoryId: raw.categoryId,
-        keywords: raw.keywords,
-        viewCount: raw.viewCount,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      raw.deletedAt?.toISOString() ?? null,
-    );
-  }
+export class FaqPrismaRepository implements FaqRepository {
+  constructor(
+    private readonly prisma: SupportPrismaService,
+    private readonly mapper: FaqMapper,
+  ) {}
 
   async findById(id: FaqIdVO): Promise<FaqEntity | null> {
     const raw = await this.prisma.faq.findUnique({ where: { id: id.value } });
-    return raw ? this.toDomain(raw) : null;
+    return raw ? this.mapper.toDomain(raw) : null;
   }
 
   async findAll(): Promise<readonly FaqEntity[]> {
-    const rows = await this.prisma.faq.findMany();
-    return rows.map((r) => this.toDomain(r));
+    const rows = await this.prisma.faq.findMany({ orderBy: { createdAt: 'desc' } });
+    return rows.map((r) => this.mapper.toDomain(r));
   }
 
   async save(entity: FaqEntity): Promise<FaqEntity> {
-    const data = {
-      question: entity.question.value,
-      answer: entity.answer.value,
-      status: entity.status.value,
-      categoryId: entity.categoryId,
-      keywords: [...entity.keywords],
-      viewCount: entity.viewCount,
-      updatedAt: new Date(),
-      deletedAt: entity.deletedAt ? new Date(entity.deletedAt) : null,
-    };
+    const data = this.mapper.toPersistence(entity);
     const raw = await this.prisma.faq.upsert({
-      where: { id: entity.id.value },
-      create: { id: entity.id.value, ...data },
-      update: data,
+      where: { id: data.id },
+      create: { ...data },
+      update: {
+        question: data.question,
+        answer: data.answer,
+        status: data.status,
+        viewCount: data.viewCount,
+        helpfulCount: data.helpfulCount,
+        updatedAt: new Date(),
+      },
     });
-    return this.toDomain(raw);
+    return this.mapper.toDomain(raw);
   }
 
   async delete(id: FaqIdVO): Promise<void> {
     await this.prisma.faq.delete({ where: { id: id.value } });
   }
 
+  async exists(id: FaqIdVO): Promise<boolean> {
+    const count = await this.prisma.faq.count({ where: { id: id.value } });
+    return count > 0;
+  }
+
   async findPublished(): Promise<readonly FaqEntity[]> {
-    const rows = await this.prisma.faq.findMany({ where: { status: 'published' } });
-    return rows.map((r) => this.toDomain(r));
+    const rows = await this.prisma.faq.findMany({
+      where: { status: 'published' },
+      orderBy: { viewCount: 'desc' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findByCategory(categoryId: TicketCategoryIdVO): Promise<readonly FaqEntity[]> {
+    const rows = await this.prisma.faq.findMany({
+      where: { categoryId: categoryId.value },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findByStatus(status: FaqStatusVO): Promise<readonly FaqEntity[]> {
+    const rows = await this.prisma.faq.findMany({ where: { status: status.value } });
+    return rows.map((r) => this.mapper.toDomain(r));
   }
 
   async searchByKeyword(keyword: string): Promise<readonly FaqEntity[]> {
@@ -79,15 +80,17 @@ export class FaqPrismaRepository
         OR: [
           { question: { contains: keyword, mode: 'insensitive' } },
           { answer: { contains: keyword, mode: 'insensitive' } },
-          { keywords: { has: keyword } },
         ],
       },
     });
-    return rows.map((r) => this.toDomain(r));
+    return rows.map((r) => this.mapper.toDomain(r));
   }
 
-  async findByCategory(categoryId: string): Promise<readonly FaqEntity[]> {
-    const rows = await this.prisma.faq.findMany({ where: { categoryId } });
-    return rows.map((r) => this.toDomain(r));
+  async findMostViewed(limit: number): Promise<readonly FaqEntity[]> {
+    const rows = await this.prisma.faq.findMany({
+      orderBy: { viewCount: 'desc' },
+      take: limit,
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
   }
 }

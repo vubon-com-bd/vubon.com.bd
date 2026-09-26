@@ -1,31 +1,53 @@
-export { TicketVO, type TicketProps } from './ticket.vo';
-export { TicketMessageVO, type TicketMessageProps } from './ticket-message.vo';
-export { TicketAttachmentVO, type TicketAttachmentProps } from './ticket-attachment.vo';
-export { TicketEscalationVO, type TicketEscalationProps } from './ticket-escalation.vo';
-export { TicketSatisfactionVO, type TicketSatisfactionProps } from './ticket-satisfaction.vo';
-export { ConversationVO, type ConversationProps } from './conversation.vo';
-export { MessageVO, type MessageProps } from './message.vo';
-export { AttachmentVO, type AttachmentProps } from './attachment.vo';
-export { FaqVO, type FaqProps } from './faq.vo';
-export { FaqCategoryVO, type FaqCategoryProps } from './faq-category.vo';
-export { KnowledgeArticleVO, type KnowledgeArticleProps } from './knowledge-article.vo';
-export { KnowledgeCategoryVO, type KnowledgeCategoryProps } from './knowledge-category.vo';
-export { FeedbackVO, type FeedbackProps } from './feedback.vo';
-export { ComplaintVO, type ComplaintProps } from './complaint.vo';
-export { ComplaintSeverityDetailVO, type ComplaintSeverityDetailProps } from './complaint-severity.vo';
-export { SurveyVO, type SurveyProps } from './survey.vo';
-export { SurveyQuestionDetailVO, type SurveyQuestionDetailProps } from './survey-question.vo';
-export { SurveyResponseVO, type SurveyResponseProps } from './survey-response.vo';
-export { LiveChatVO, type LiveChatProps } from './live-chat.vo';
-export { ChatMessageVO, type ChatMessageProps } from './chat-message.vo';
-export { ChatbotVO, type ChatbotProps } from './chatbot.vo';
-export { ChatbotIntentVO, type ChatbotIntentProps } from './chatbot-intent.vo';
-export { ChatbotEntityVO, type ChatbotEntityVOProps } from './chatbot-entity.vo';
-export { SupportAgentVO, type SupportAgentProps } from './support-agent.vo';
-export { SupportTeamVO, type SupportTeamProps } from './support-team.vo';
-export { SlaVO, type SlaProps } from './sla.vo';
-export { SupportRuleVO, type SupportRuleProps } from './support-rule.vo';
-export { SupportAutomationVO, type SupportAutomationProps } from './support-automation.vo';
-export { SupportTemplateVO, type SupportTemplateProps } from './support-template.vo';
-export { SupportAnalyticsVO, type SupportAnalyticsProps } from './support-analytics.vo';
-export { SupportSummaryVO, type SupportSummaryProps } from './support-summary.vo';
+// support-service/domain/value-objects/composites/index.ts
+// Composite VO barrel
+
+// Ticket-related
+export * from './ticket.vo';
+export * from './ticket-message.vo';
+export * from './ticket-attachment.vo';
+export * from './ticket-escalation.vo';
+export * from './ticket-satisfaction.vo';
+
+// Conversation / Message
+export * from './conversation.vo';
+export * from './message.vo';
+export * from './attachment.vo';
+
+// FAQ / KB
+export * from './faq.vo';
+export * from './faq-category.vo';
+export * from './knowledge-article.vo';
+export * from './knowledge-category.vo';
+
+// Feedback / Complaint
+export * from './feedback.vo';
+export * from './complaint.vo';
+export * from './complaint-severity.vo';
+
+// Survey
+export * from './survey.vo';
+export * from './survey-question.vo';
+export * from './survey-response.vo';
+
+// Live Chat
+export * from './live-chat.vo';
+export * from './chat-message.vo';
+
+// Chatbot
+export * from './chatbot.vo';
+export * from './chatbot-intent.vo';
+export * from './chatbot-entity.vo';
+
+// Agent / Team
+export * from './support-agent.vo';
+export * from './support-team.vo';
+
+// SLA / Rule / Automation / Template
+export * from './sla.vo';
+export * from './support-rule.vo';
+export * from './support-automation.vo';
+export * from './support-template.vo';
+
+// Analytics / Summary
+export * from './support-analytics.vo';
+export * from './support-summary.vo';

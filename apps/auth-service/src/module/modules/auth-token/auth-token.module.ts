@@ -1,37 +1,35 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { PrismaModule, RedisModule } from '@vubon/shared-kernel/infrastructure';
-
 import { AuthTokenController } from '../../interfaces/controllers/rest/auth-token.controller';
 import { AuthTokenService } from '../../application/services/impl/auth-token.service';
 import { ListAuthTokensHandler } from '../../application/queries/auth/list-auth-tokens.handler';
-import { PrismaService } from '../../infrastructure/persistence/prisma/prisma.service';
 import { AuthTokenPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/auth-token.prisma.repository';
 import { AuthTokenCacheRepository } from '../../infrastructure/persistence/cache/repositories/auth-token.cache.repository';
-import { TokenGeneratorService } from '../../infrastructure/services/internal/token-generator.service';
+import {
+  AUTH_TOKEN_REPO,
+  AUTH_TOKEN_SERVICE,
+} from '../../application/services/tokens';
+
+const TOKEN_BINDINGS = [
+  { provide: AUTH_TOKEN_REPO, useExisting: AuthTokenPrismaRepository },
+  { provide: AUTH_TOKEN_SERVICE, useExisting: AuthTokenService },
+];
 
 @Module({
-  imports: [CqrsModule, PrismaModule, RedisModule],
+  imports: [CqrsModule],
   controllers: [AuthTokenController],
   providers: [
-    PrismaService,
+    AuthTokenService,
     AuthTokenPrismaRepository,
     AuthTokenCacheRepository,
-    TokenGeneratorService,
-    AuthTokenService,
     ListAuthTokensHandler,
-    { provide: 'PrismaService', useClass: PrismaService },
-    { provide: 'AuthTokenRepository', useExisting: AuthTokenPrismaRepository },
-    { provide: 'TokenGeneratorPort', useExisting: TokenGeneratorService },
-    { provide: 'AuthTokenService', useExisting: AuthTokenService },
+    ...TOKEN_BINDINGS,
   ],
   exports: [
     AuthTokenService,
     AuthTokenPrismaRepository,
-    TokenGeneratorService,
-    { provide: 'AuthTokenService', useExisting: AuthTokenService },
-    { provide: 'AuthTokenRepository', useExisting: AuthTokenPrismaRepository },
-    { provide: 'TokenGeneratorPort', useExisting: TokenGeneratorService },
+    AuthTokenCacheRepository,
+    ...TOKEN_BINDINGS.map((b) => b.provide),
   ],
 })
 export class AuthTokenModule {}

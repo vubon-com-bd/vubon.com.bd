@@ -1,9 +1,16 @@
+/**
+ * AuthDevicePrismaRepository
+ * @module auth-service/infrastructure/persistence/prisma/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { AuthDevice as PrismaAuthDevice } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+import type { AuthDevice as PrismaAuthDevice } from '@prisma/client';
+import {
+  BasePrismaRepository,
+  type PrismaDelegate,
+} from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
+import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
+import type { UserId } from '@vubon/shared-types/common';
 import { AuthDeviceEntity } from '../../../../domain/entities/auth-device.entity';
-import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
 import { DeviceFingerprintVO } from '../../../../domain/value-objects/primitives/device-fingerprint.vo';
 import { DeviceTypeVO } from '../../../../domain/value-objects/primitives/device-type.vo';
 import { DeviceStatusVO } from '../../../../domain/value-objects/primitives/device-status.vo';
@@ -11,74 +18,74 @@ import type { AuthDeviceRepository } from '../../../../domain/repositories/auth-
 
 @Injectable()
 export class AuthDevicePrismaRepository
-  extends BasePrismaRepository<AuthDeviceEntity, string>
-  implements AuthDeviceRepository{
+  extends BasePrismaRepository<AuthDeviceEntity, PrismaAuthDevice, string>
+  implements AuthDeviceRepository {
+  protected readonly model: PrismaDelegate<PrismaAuthDevice>;
+
   constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
+    super();
+    this.model = prisma.authDevice as unknown as PrismaDelegate<PrismaAuthDevice>;
   }
 
-  private toDomain(raw: PrismaAuthDevice): AuthDeviceEntity {
-    return AuthDeviceEntity.reconstitute(
-      raw.id,
-      {
-        userId: UserIdVO.create(raw.userId),
-        fingerprint: DeviceFingerprintVO.create(raw.fingerprint),
-        type: DeviceTypeVO.create(raw.type),
-        status: DeviceStatusVO.create(raw.status),
-        name: raw.name,
-        lastSeenAt: raw.lastSeenAt,
-        trustedAt: raw.trustedAt,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      raw.deletedAt?.toISOString() ?? null,
-    );
+  protected idOf(domain: AuthDeviceEntity): string {
+    return domain.id;
   }
 
-  async findById(id: string): Promise<AuthDeviceEntity | null> {
-    const raw = await this.prisma.authDevice.findUnique({ where: { id } });
-    return raw ? this.toDomain(raw) : null;
+  protected whereForId(id: string): Record<string, unknown> {
+    return { id };
   }
 
-  async findAll(): Promise<readonly AuthDeviceEntity[]> {
-    const rows = await this.prisma.authDevice.findMany();
-    return rows.map((r) => this.toDomain(r));
+  protected toDomain(raw: PrismaAuthDevice): AuthDeviceEntity {
+    return AuthDeviceEntity.create({
+      id: raw.id,
+      userId: raw.userId as UserId,
+      fingerprint: DeviceFingerprintVO.of(raw.fingerprint),
+      type: DeviceTypeVO.of(raw.type),
+      status: DeviceStatusVO.of(raw.status),
+      name: raw.name ?? 'Unknown Device',
+      firstSeenAt: raw.createdAt.getTime(),
+      lastSeenAt: raw.lastSeenAt.getTime(),
+      createdAt: raw.createdAt.toISOString(),
+      updatedAt: raw.updatedAt.toISOString(),
+      deletedAt: raw.deletedAt ? raw.deletedAt.toISOString() : null,
+    });
   }
 
-  async save(entity: AuthDeviceEntity): Promise<AuthDeviceEntity> {
-    const data = {
-      userId: entity.userId.value,
-      fingerprint: entity.fingerprint.value,
-      type: entity.type.value,
-      status: entity.status.value,
-      name: entity.name,
-      lastSeenAt: entity.lastSeenAt,
-      trustedAt: entity.trustedAt,
+  protected toPersistence(domain: AuthDeviceEntity): Record<string, unknown> {
+    return {
+      id: domain.id,
+      userId: domain.userId,
+      fingerprint: domain.fingerprint.value,
+      type: domain.type.value,
+      status: domain.status.value,
+      name: domain.name,
+      lastSeenAt: new Date(domain.lastSeenAt),
+      trustedAt: domain.isTrusted() ? new Date() : null,
       updatedAt: new Date(),
     };
-    const raw = await this.prisma.authDevice.upsert({
-      where: { id: entity.id },
-      create: { id: entity.id, ...data },
-      update: data,
-    });
-    return this.toDomain(raw);
   }
 
-  async delete(id: string): Promise<void> {
-    await this.prisma.authDevice.delete({ where: { id } });
-  }
-
-  async findByUser(userId: UserIdVO): Promise<readonly AuthDeviceEntity[]> {
+  async findByUser(userId: UserId): Promise<readonly AuthDeviceEntity[]> {
     const rows = await this.prisma.authDevice.findMany({
-      where: { userId: userId.value },
+      where: { userId },
+      orderBy: { lastSeenAt: 'desc' },
     });
     return rows.map((r) => this.toDomain(r));
   }
 
-  async findByFingerprint(fingerprint: DeviceFingerprintVO): Promise<AuthDeviceEntity | null> {
+  async findByFingerprint(
+    userId: UserId,
+    fingerprint: DeviceFingerprintVO,
+  ): Promise<AuthDeviceEntity | null> {
     const raw = await this.prisma.authDevice.findFirst({
-      where: { fingerprint: fingerprint.value },
+      where: { userId, fingerprint: fingerprint.value },
     });
     return raw ? this.toDomain(raw) : null;
+  }
+
+  async countTrustedByUser(userId: UserId): Promise<number> {
+    return this.prisma.authDevice.count({
+      where: { userId, status: 'trusted' },
+    });
   }
 }

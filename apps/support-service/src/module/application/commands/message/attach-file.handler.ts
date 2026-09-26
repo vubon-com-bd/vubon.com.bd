@@ -1,25 +1,23 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+/**
+ * AttachFileHandler
+ * @module support-service/application/commands/message
+ */
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { AttachFileCommand } from './attach-file.command';
-import type { AttachmentServiceInterface } from '../../services/interfaces/attachment.service.interface';
+import type { MessageResponseDTO } from '../../dtos/responses/message-response.dto';
+import type { MessageServiceInterface } from '../../services/interfaces/message.service.interface';
 
-@CommandHandler(AttachFileCommand)
-export class AttachFileHandler
-  extends BaseCommandHandler<AttachFileCommand, { id: string; url: string }>
-  implements ICommandHandler<AttachFileCommand>
-{
-  readonly commandType = 'support.message.attach-file';
+export class AttachFileHandler extends BaseCommandHandler<
+  AttachFileCommand,
+  MessageResponseDTO
+> {
+  readonly commandType = 'support.message.attach_file';
 
-  constructor(private readonly attachmentService: AttachmentServiceInterface) {
+  constructor(private readonly messageService: MessageServiceInterface) {
     super();
   }
 
-  async execute(command: AttachFileCommand): Promise<{ id: string; url: string }> {
-    return this.attachmentService.upload({
-      messageId: command.messageId,
-      type: command.type_,
-      url: command.url,
-      size: command.size,
-    });
+  async execute(command: AttachFileCommand): Promise<MessageResponseDTO> {
+    return this.messageService.attachFile(command.payload);
   }
 }

@@ -1,24 +1,21 @@
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { SocialCallbackCommand } from './social-callback.command';
-import type { AuthOAuthServiceInterface } from '../../services/interfaces/auth-oauth.service.interface';
+import type { AuthSocialServiceInterface } from '../../services/interfaces/auth-social.service.interface';
+import type { SocialLoginResponseDTO } from '../../dtos/responses/social-login-response.dto';
+import { AUTH_SOCIAL_SERVICE } from '../../tokens';
 
 @CommandHandler(SocialCallbackCommand)
 export class SocialCallbackHandler
-  extends BaseCommandHandler<SocialCallbackCommand, void>
-  implements ICommandHandler<SocialCallbackCommand>
-{
-  readonly commandType = 'auth.social-callback';
-
+  extends BaseCommandHandler<SocialCallbackCommand, SocialLoginResponseDTO>
+  implements ICommandHandler<SocialCallbackCommand> {
+  readonly commandType = 'SocialCallbackCommand';
   constructor(
-    @Inject('AuthOAuthService') @Inject('AuthOAuthService') private readonly oauthService: AuthOAuthServiceInterface,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
-  }
+    @Inject(AUTH_SOCIAL_SERVICE) private readonly socialService: AuthSocialServiceInterface,
+  ) { super(); }
 
-  async execute(command: SocialCallbackCommand): Promise<void> {
-    await this.oauthService.callback(command.provider, command.code, command.state);
+  async execute(command: SocialCallbackCommand): Promise<SocialLoginResponseDTO> {
+    return this.socialService.handleCallback(command.input);
   }
 }

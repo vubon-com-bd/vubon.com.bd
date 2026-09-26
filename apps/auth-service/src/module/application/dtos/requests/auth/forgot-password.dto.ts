@@ -1,4 +1,16 @@
-import { z } from 'zod';
-import { ForgotPasswordRequestSchema } from '@vubon/shared-schemas/auth';
+/**
+ * ForgotPasswordRequest DTO
+ * @module auth-service/application/dtos/requests/auth
+ */
+import {
+  ForgotPasswordRequestSchema,
+  type ForgotPasswordRequestSchemaType,
+} from '@vubon/shared-schemas/auth';
 
-export type ForgotPasswordRequestDTO = z.infer<typeof ForgotPasswordRequestSchema>;
+export type ForgotPasswordRequestDTO = ForgotPasswordRequestSchemaType;
+
+export function validateForgotPasswordRequest(
+  input: unknown,
+): ForgotPasswordRequestDTO {
+  return ForgotPasswordRequestSchema.parse(input);
+}

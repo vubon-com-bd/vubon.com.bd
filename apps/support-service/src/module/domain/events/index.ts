@@ -1,15 +1,18 @@
-export { TicketCreatedEvent, TicketUpdatedEvent, TicketResolvedEvent, TicketClosedEvent } from './ticket.events';
-export { TicketEscalatedEvent, EscalationResolvedEvent } from './ticket-escalation.events';
-export { SatisfactionSubmittedEvent } from './ticket-satisfaction.events';
-export { MessageSentEvent, MessageReadEvent } from './message.events';
-export { ConversationStartedEvent, ConversationEndedEvent } from './conversation.events';
-export { FeedbackSubmittedEvent, FeedbackReviewedEvent } from './feedback.events';
-export { ComplaintReceivedEvent, ComplaintResolvedEvent } from './complaint.events';
-export { SurveyCompletedEvent, SurveyResponseReceivedEvent } from './survey.events';
-export { ChatStartedEvent, ChatEndedEvent, AgentJoinedEvent } from './live-chat.events';
-export { ChatbotIntentDetectedEvent, ChatbotEscalatedEvent } from './chatbot.events';
-export { AgentAssignedEvent, AgentStatusChangedEvent } from './agent.events';
-export { TeamCreatedEvent, TeamMemberAddedEvent } from './team.events';
-export { SlaBreachedEvent, SlaMetEvent, SlaWarningEvent } from './sla.events';
-export { RuleTriggeredEvent } from './rule.events';
-export { AutomationTriggeredEvent } from './automation.events';
+// support-service/domain/events/index.ts
+// Domain event barrel
+
+export * from './ticket.events';
+export * from './ticket-escalation.events';
+export * from './ticket-satisfaction.events';
+export * from './message.events';
+export * from './conversation.events';
+export * from './feedback.events';
+export * from './complaint.events';
+export * from './survey.events';
+export * from './live-chat.events';
+export * from './chatbot.events';
+export * from './agent.events';
+export * from './team.events';
+export * from './sla.events';
+export * from './rule.events';
+export * from './automation.events';

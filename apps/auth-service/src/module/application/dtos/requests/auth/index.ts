@@ -1,24 +1,43 @@
-export type { LoginRequestDTO } from './login.dto';
-export type { RegisterRequestDTO } from './register.dto';
-export type { RefreshTokenRequestDTO } from './refresh-token.dto';
-export type { LogoutRequestDTO } from './logout.dto';
-export type { ForgotPasswordRequestDTO } from './forgot-password.dto';
-export type { ResetPasswordRequestDTO } from './reset-password.dto';
-export type { VerifyEmailRequestDTO } from './verify-email.dto';
-export type { ResendVerificationRequestDTO } from './resend-verification.dto';
-export type { EnableMfaRequestDTO } from './enable-mfa.dto';
-export type { DisableMfaRequestDTO } from './disable-mfa.dto';
-export type { VerifyMfaRequestDTO } from './verify-mfa.dto';
-export type { GenerateRecoveryCodesRequestDTO } from './generate-recovery-codes.dto';
-export type { RecoverAccountRequestDTO } from './recover-account.dto';
-export type { SocialLoginRequestDTO } from './social-login.dto';
-export type { SocialCallbackRequestDTO } from './social-callback.dto';
-export type { LinkSocialRequestDTO } from './link-social.dto';
-export type { UnlinkSocialRequestDTO } from './unlink-social.dto';
-export type { SsoLoginRequestDTO } from './sso-login.dto';
-export type { SsoCallbackRequestDTO } from './sso-callback.dto';
-export type { EnableBiometricRequestDTO } from './enable-biometric.dto';
-export type { DisableBiometricRequestDTO } from './disable-biometric.dto';
-export type { VerifyBiometricRequestDTO } from './verify-biometric.dto';
-export type { LockAccountRequestDTO } from './lock-account.dto';
-export type { UnlockAccountRequestDTO } from './unlock-account.dto';
+/**
+ * Auth Request DTOs — Barrel
+ * @module auth-service/application/dtos/requests/auth
+ */
+// Core
+export * from './login.dto';
+export * from './register.dto';
+export * from './refresh-token.dto';
+export * from './logout.dto';
+export * from './forgot-password.dto';
+export * from './reset-password.dto';
+
+// Email / phone verification
+export * from './verify-email.dto';
+export * from './resend-verification.dto';
+
+// MFA
+export * from './enable-mfa.dto';
+export * from './disable-mfa.dto';
+export * from './verify-mfa.dto';
+
+// Recovery
+export * from './generate-recovery-codes.dto';
+export * from './recover-account.dto';
+
+// Social
+export * from './social-login.dto';
+export * from './social-callback.dto';
+export * from './link-social.dto';
+export * from './unlink-social.dto';
+
+// SSO
+export * from './sso-login.dto';
+export * from './sso-callback.dto';
+
+// Biometric
+export * from './enable-biometric.dto';
+export * from './disable-biometric.dto';
+export * from './verify-biometric.dto';
+
+// Account lock
+export * from './lock-account.dto';
+export * from './unlock-account.dto';

@@ -1,19 +1,42 @@
+/**
+ * KeywordExtractionService — Extract significant keywords
+ * @module support-service/domain/services
+ */
+const STOP_WORDS: ReadonlySet<string> = new Set([
+  'the', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'be', 'been',
+  'a', 'an', 'of', 'to', 'in', 'on', 'at', 'by', 'for', 'with', 'about',
+  'i', 'you', 'he', 'she', 'it', 'we', 'they', 'me', 'my', 'your',
+  'this', 'that', 'these', 'those', 'so', 'as', 'if', 'then', 'do',
+  'does', 'did', 'have', 'has', 'had', 'will', 'would', 'should', 'can',
+  'could', 'not', 'no', 'from', 'up', 'down', 'out', 'into', 'than',
+]);
+
+export interface Keyword {
+  readonly word: string;
+  readonly count: number;
+}
+
 export class KeywordExtractionService {
-  extract(text: string, max = 10): readonly string[] {
-    const stopWords = new Set([
-      'the', 'a', 'an', 'and', 'or', 'but', 'is', 'are', 'was', 'were',
-      'to', 'of', 'in', 'on', 'at', 'for', 'with', 'this', 'that',
-    ]);
-    const words = text
+  extract(text: string, limit = 10): readonly Keyword[] {
+    if (!text) return [];
+    const tokens = text
       .toLowerCase()
-      .replace(/[^\w\s\u0980-\u09FF]/g, ' ')
+      .replace(/[^\p{L}\p{N}\s]/gu, ' ')
       .split(/\s+/)
-      .filter((w) => w.length > 2 && !stopWords.has(w));
+      .filter((t) => t.length >= 3 && !STOP_WORDS.has(t));
+
     const freq = new Map<string, number>();
-    for (const w of words) freq.set(w, (freq.get(w) ?? 0) + 1);
-    return [...freq.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, max)
-      .map(([w]) => w);
+    for (const token of tokens) {
+      freq.set(token, (freq.get(token) ?? 0) + 1);
+    }
+    return Array.from(freq.entries())
+      .map(([word, count]) => ({ word, count }))
+      .sort((a, b) => b.count - a.count || a.word.localeCompare(b.word))
+      .slice(0, limit);
+  }
+
+  topWord(text: string): string | null {
+    const list = this.extract(text, 1);
+    return list[0]?.word ?? null;
   }
 }

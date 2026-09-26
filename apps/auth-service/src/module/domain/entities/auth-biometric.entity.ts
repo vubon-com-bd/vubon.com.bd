@@ -1,105 +1,55 @@
+/**
+ * AuthBiometricEntity — Biometric enrollment
+ * @module auth-service/domain/entities
+ *
+ * NOTE: BiometricKind is defined in the composite VO (single source of
+ * truth) and re-exported here for convenience.
+ */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
-import { UserIdVO } from '../value-objects/primitives/user-id.vo';
+import type { UserId } from '@vubon/shared-types/common';
 import { BiometricIdVO } from '../value-objects/primitives/biometric-id.vo';
+import type { BiometricKind } from '../value-objects/composites/auth-biometric.vo';
 
-export type BiometricType = 'fingerprint' | 'face' | 'voice' | 'iris';
+export type { BiometricKind };
 
 export interface AuthBiometricEntityProps {
-  readonly userId: UserIdVO;
+  readonly id: string;
+  readonly userId: UserId;
   readonly biometricId: BiometricIdVO;
-  readonly type: BiometricType;
-  readonly isEnabled: boolean;
-  readonly enrolledAt: Date | null;
-  readonly lastUsedAt: Date | null;
+  readonly kind: BiometricKind;
+  readonly deviceId?: string;
+  readonly enrolledAt: number;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+  readonly deletedAt?: string | null;
 }
 
-export class AuthBiometricEntity extends BaseEntity<UserIdVO> {
-  private readonly _userId: UserIdVO;
-  private readonly _biometricId: BiometricIdVO;
-  private readonly _type: BiometricType;
-  private readonly _isEnabled: boolean;
-  private readonly _enrolledAt: Date | null;
-  private readonly _lastUsedAt: Date | null;
+export class AuthBiometricEntity extends BaseEntity<string> {
+  readonly userId: UserId;
+  private _biometricId: BiometricIdVO;
+  private _kind: BiometricKind;
+  private _deviceId?: string;
+  private _enrolledAt: number;
 
-  private constructor(
-    id: UserIdVO,
-    props: AuthBiometricEntityProps,
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null,
-  ) {
-    super(id, createdAt, updatedAt, deletedAt);
-    this._userId = props.userId;
+  private constructor(props: AuthBiometricEntityProps) {
+    super(props.id, props.createdAt, props.updatedAt, props.deletedAt ?? null);
+    this.userId = props.userId;
     this._biometricId = props.biometricId;
-    this._type = props.type;
-    this._isEnabled = props.isEnabled;
+    this._kind = props.kind;
+    this._deviceId = props.deviceId;
     this._enrolledAt = props.enrolledAt;
-    this._lastUsedAt = props.lastUsedAt;
   }
 
   static create(props: AuthBiometricEntityProps): AuthBiometricEntity {
-    const now = new Date().toISOString();
-    return new AuthBiometricEntity(props.userId, props, now, now, null);
+    return new AuthBiometricEntity(props);
   }
 
-  static reconstitute(
-    id: UserIdVO,
-    props: AuthBiometricEntityProps,
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null,
-  ): AuthBiometricEntity {
-    return new AuthBiometricEntity(id, props, createdAt, updatedAt, deletedAt);
-  }
-
-  enable(): AuthBiometricEntity {
-    const now = new Date();
-    return new AuthBiometricEntity(
-      this.id,
-      { ...this._toProps(), isEnabled: true, enrolledAt: now },
-      this.createdAt,
-      now.toISOString(),
-      this.deletedAt ?? null,
-    );
-  }
-
-  disable(): AuthBiometricEntity {
-    const now = new Date();
-    return new AuthBiometricEntity(
-      this.id,
-      { ...this._toProps(), isEnabled: false },
-      this.createdAt,
-      now.toISOString(),
-      this.deletedAt ?? null,
-    );
-  }
-
-  recordUsage(): AuthBiometricEntity {
-    const now = new Date();
-    return new AuthBiometricEntity(
-      this.id,
-      { ...this._toProps(), lastUsedAt: now },
-      this.createdAt,
-      now.toISOString(),
-      this.deletedAt ?? null,
-    );
-  }
-
-  get userId(): UserIdVO { return this._userId; }
+  get kind(): BiometricKind { return this._kind; }
   get biometricId(): BiometricIdVO { return this._biometricId; }
-  get type(): BiometricType { return this._type; }
-  get isEnabled(): boolean { return this._isEnabled; }
-  get enrolledAt(): Date | null { return this._enrolledAt; }
-  get lastUsedAt(): Date | null { return this._lastUsedAt; }
+  get deviceId(): string | undefined { return this._deviceId; }
+  get enrolledAt(): number { return this._enrolledAt; }
 
-  private _toProps(): AuthBiometricEntityProps {
-    return {
-      userId: this._userId,
-      biometricId: this._biometricId,
-      type: this._type,
-      isEnabled: this._isEnabled,
-      enrolledAt: this._enrolledAt,
-      lastUsedAt: this._lastUsedAt,
-    };
-  }
+  isDeviceBound(): boolean { return this._deviceId !== undefined; }
+
+  rebindTo(deviceId: string): void { this._deviceId = deviceId; }
 }

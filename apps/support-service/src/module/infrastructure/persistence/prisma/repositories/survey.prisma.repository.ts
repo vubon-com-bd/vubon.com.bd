@@ -1,76 +1,87 @@
+/**
+ * SurveyPrismaRepository
+ * @module support-service/infrastructure/persistence/prisma/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { Survey as PrismaSurvey, Prisma } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+import { SupportPrismaService } from '../prisma.service';
+import { SurveyRepository } from '../../../../domain/repositories/survey.repository.interface';
 import { SurveyEntity } from '../../../../domain/entities/survey.entity';
 import { SurveyIdVO } from '../../../../domain/value-objects/primitives/survey-id.vo';
-import { SurveyTypeVO } from '../../../../domain/value-objects/primitives/survey-type.vo';
 import { SurveyStatusVO } from '../../../../domain/value-objects/primitives/survey-status.vo';
-import type { SurveyRepository } from '../../../../domain/repositories/survey.repository.interface';
+import { SurveyTypeVO } from '../../../../domain/value-objects/primitives/survey-type.vo';
+import { SurveyMapper } from '../mappers/survey.mapper';
 
 @Injectable()
-export class SurveyPrismaRepository
-  extends BasePrismaRepository<SurveyEntity, SurveyIdVO>
-  implements SurveyRepository
-{
-  constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
-  }
-
-  private toDomain(raw: PrismaSurvey): SurveyEntity {
-    const questions = Array.isArray(raw.questions) ? raw.questions : [];
-    return SurveyEntity.reconstitute(
-      SurveyIdVO.create(raw.id),
-      {
-        title: raw.title,
-        type: SurveyTypeVO.create(raw.type),
-        status: SurveyStatusVO.create(raw.status),
-        questions,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      raw.deletedAt?.toISOString() ?? null,
-    );
-  }
+export class SurveyPrismaRepository implements SurveyRepository {
+  constructor(
+    private readonly prisma: SupportPrismaService,
+    private readonly mapper: SurveyMapper,
+  ) {}
 
   async findById(id: SurveyIdVO): Promise<SurveyEntity | null> {
     const raw = await this.prisma.survey.findUnique({ where: { id: id.value } });
-    return raw ? this.toDomain(raw) : null;
+    return raw ? this.mapper.toDomain(raw) : null;
   }
 
   async findAll(): Promise<readonly SurveyEntity[]> {
-    const rows = await this.prisma.survey.findMany();
-    return rows.map((r) => this.toDomain(r));
+    const rows = await this.prisma.survey.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
   }
 
   async save(entity: SurveyEntity): Promise<SurveyEntity> {
-    const data = {
-      title: entity.title,
-      type: entity.type.value,
-      status: entity.status.value,
-      questions: entity.questions as Prisma.InputJsonValue,
-      updatedAt: new Date(),
-      deletedAt: entity.deletedAt ? new Date(entity.deletedAt) : null,
-    };
+    const data = this.mapper.toPersistence(entity);
     const raw = await this.prisma.survey.upsert({
-      where: { id: entity.id.value },
-      create: { id: entity.id.value, ...data },
-      update: data,
+      where: { id: data.id },
+      create: { ...data, questions: [...data.questions] },
+      update: {
+        title: data.title,
+        status: data.status,
+        questions: [...data.questions],
+        responseCount: data.responseCount,
+        publishedAt: data.publishedAt,
+        closedAt: data.closedAt,
+        updatedAt: new Date(),
+      },
     });
-    return this.toDomain(raw);
+    return this.mapper.toDomain(raw);
   }
 
   async delete(id: SurveyIdVO): Promise<void> {
     await this.prisma.survey.delete({ where: { id: id.value } });
   }
 
+  async exists(id: SurveyIdVO): Promise<boolean> {
+    const count = await this.prisma.survey.count({ where: { id: id.value } });
+    return count > 0;
+  }
+
   async findActive(): Promise<readonly SurveyEntity[]> {
-    const rows = await this.prisma.survey.findMany({ where: { status: 'active' } });
-    return rows.map((r) => this.toDomain(r));
+    const rows = await this.prisma.survey.findMany({
+      where: { status: 'active' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findByStatus(status: SurveyStatusVO): Promise<readonly SurveyEntity[]> {
+    const rows = await this.prisma.survey.findMany({
+      where: { status: status.value },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
   }
 
   async findByType(type: SurveyTypeVO): Promise<readonly SurveyEntity[]> {
-    const rows = await this.prisma.survey.findMany({ where: { type: type.value } });
-    return rows.map((r) => this.toDomain(r));
+    const rows = await this.prisma.survey.findMany({
+      where: { type: type.value },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findSatisfactionSurveys(): Promise<readonly SurveyEntity[]> {
+    const rows = await this.prisma.survey.findMany({
+      where: { type: { in: ['csat', 'nps'] } },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
   }
 }

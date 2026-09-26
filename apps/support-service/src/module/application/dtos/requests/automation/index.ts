@@ -1,2 +1,4 @@
-export type { CreateAutomationRequestDTO } from './create-automation.dto';
-export type { UpdateAutomationRequestDTO } from './update-automation.dto';
+// support-service/application/dtos/requests/automation/index.ts
+
+export * from './create-automation.dto';
+export * from './update-automation.dto';

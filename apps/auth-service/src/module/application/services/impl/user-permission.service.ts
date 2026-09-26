@@ -1,43 +1,77 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { EventBus } from '@nestjs/cqrs';
+/**
+ * UserPermissionService
+ * @module auth-service/application/services/impl
+ */
+import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
+import type { UserId } from '@vubon/shared-types/common';
 import type { UserPermissionServiceInterface } from '../interfaces/user-permission.service.interface';
-import type { UserPermissionRepository } from '../../../domain/repositories/user-permission.repository.interface';
-import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
+import type { AuthPermissionRepository } from '../../../domain/repositories/auth-permission.repository.interface';
+import type { AuthRoleRepository } from '../../../domain/repositories/auth-role.repository.interface';
+import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
+import { AuthPermissionEntity } from '../../../domain/entities/auth-permission.entity';
+import { RoleNameVO } from '../../../domain/value-objects/primitives/role-name.vo';
 import { PermissionNameVO } from '../../../domain/value-objects/primitives/permission-name.vo';
+import { PermissionEvaluationService } from '../../../domain/services/permission-evaluation.service';
 import type { UserPermissionResponseDTO } from '../../dtos/responses/user-permission-response.dto';
+import { USER_REPO } from '../../tokens';
+import { AUTH_PERMISSION_REPO } from '../../tokens';
+import { AUTH_ROLE_REPO } from '../../tokens';
 
 @Injectable()
 export class UserPermissionService
-  extends BaseService<unknown, string>
-  implements UserPermissionServiceInterface
-{
+  extends BaseService<AuthPermissionEntity, string>
+  implements UserPermissionServiceInterface {
   readonly name = 'UserPermissionService';
 
   constructor(
-    @Inject('UserPermissionRepository')
-    private readonly userPermissionRepo: UserPermissionRepository,
-    private readonly eventBus: EventBus,
+    @Inject(AUTH_PERMISSION_REPO)
+    private readonly permRepo: AuthPermissionRepository,
+    @Inject(AUTH_ROLE_REPO)
+    private readonly roleRepo: AuthRoleRepository,
+    @Inject(USER_REPO) private readonly userRepo: UserRepository,
   ) {
     super();
   }
 
-  async listForUser(userId: string): Promise<UserPermissionResponseDTO> {
-    const rows = await this.userPermissionRepo.findByUser(UserIdVO.create(userId));
-    return rows.map((r) => r.permissionName);
+  async listForUser(userId: UserId): Promise<readonly AuthPermissionEntity[]> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) return [];
+    const roles = await this.roleRepo.findManyByNames(
+      user.roles.map((r) => RoleNameVO.of(r.value)),
+    );
+    const names = PermissionEvaluationService.effectivePermissions(roles).map(
+      (p) => p,
+    );
+    return this.permRepo.findManyByNames(names);
   }
 
-  async assign(userId: string, permission: string): Promise<void> {
-    await this.userPermissionRepo.assign(
-      UserIdVO.create(userId),
-      PermissionNameVO.create(permission),
+  async effectivePermissions(
+    userId: UserId,
+  ): Promise<UserPermissionResponseDTO> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) return { permissions: [], roles: [], isSuperAdmin: false };
+    const roles = await this.roleRepo.findManyByNames(
+      user.roles.map((r) => RoleNameVO.of(r.value)),
     );
+    return {
+      permissions: PermissionEvaluationService.effectivePermissions(roles).map(
+        (p) => p.value,
+      ),
+      roles: roles.map((r) => r.name.value),
+      isSuperAdmin: PermissionEvaluationService.isSuperAdmin(roles),
+    };
   }
 
-  async revoke(userId: string, permission: string): Promise<void> {
-    await this.userPermissionRepo.revoke(
-      UserIdVO.create(userId),
-      PermissionNameVO.create(permission),
+  async hasPermission(userId: UserId, permission: string): Promise<boolean> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) return false;
+    const roles = await this.roleRepo.findManyByNames(
+      user.roles.map((r) => RoleNameVO.of(r.value)),
     );
+    return PermissionEvaluationService.hasPermission({
+      roles,
+      required: PermissionNameVO.of(permission),
+    });
   }
 }

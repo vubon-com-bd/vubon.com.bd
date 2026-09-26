@@ -1,28 +1,15 @@
-import { ApiProperty } from '@nestjs/swagger';
-import type { UserContactResponseDTO } from '../../../application/dtos/responses/user-contact-response.dto';
+/**
+ * ContactResponseDTO
+ * @module auth-service/interfaces/dtos/responses
+ */
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class ContactResponseDTO implements UserContactResponseDTO {
-  @ApiProperty()
-  id!: string;
-
-  @ApiProperty()
-  value!: string;
-
-  @ApiProperty()
-  type!: string;
-
-  @ApiProperty()
-  isPrimary!: boolean;
-
-  @ApiProperty()
-  isVerified!: boolean;
-
-  @ApiProperty({ nullable: true })
-  label?: string;
-
-  @ApiProperty()
-  createdAt!: string;
-
-  @ApiProperty()
-  updatedAt!: string;
+export class ContactResponseDTO {
+  @ApiProperty() id!: string;
+  @ApiProperty() userId!: string;
+  @ApiPropertyOptional() email?: string;
+  @ApiPropertyOptional() phone?: string;
+  @ApiProperty() verified!: boolean;
+  @ApiProperty() createdAt!: string;
+  @ApiProperty() updatedAt!: string;
 }

@@ -1,25 +1,10 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import type { SocialLoginResponseDTO } from '../../../application/dtos/responses/social-login-response.dto';
+/**
+ * SocialResponseDTO
+ * @module auth-service/interfaces/dtos/responses
+ */
+import { ApiProperty } from '@nestjs/swagger';
+import { AuthResponseDTO } from './auth.response.dto';
 
-export class SocialLoginResponseDTO_ implements SocialLoginResponseDTO {
-  @ApiProperty()
-  success!: boolean;
-
-  @ApiProperty()
-  isEmailVerified!: boolean;
-
-  @ApiProperty()
-  isNewUser!: boolean;
-
-  @ApiPropertyOptional()
-  userId?: string;
-
-  @ApiPropertyOptional()
-  error?: string;
-
-  @ApiPropertyOptional()
-  accessToken?: string;
-
-  @ApiPropertyOptional()
-  refreshToken?: string;
+export class SocialLoginResponseDTO extends AuthResponseDTO {
+  @ApiProperty() isNewUser!: boolean;
 }

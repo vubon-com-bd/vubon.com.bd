@@ -1,39 +1,14 @@
-export {
-  LoginFailedError,
-  RegisterFailedError,
-  AuthenticationRequiredError,
-} from './auth.errors';
-
-export {
-  UserOperationFailedError,
-  UserValidationFailedError,
-} from './user.errors';
-
-export {
-  SessionNotFoundError,
-  SessionOperationFailedError,
-} from './session.errors';
-
-export {
-  TokenNotFoundError,
-  TokenOperationFailedError,
-} from './token.errors';
-
-export {
-  MfaSetupFailedError,
-  MfaVerificationFailedError,
-} from './mfa.errors';
-
-export {
-  SocialLoginFailedError,
-  SocialLinkFailedError,
-} from './social.errors';
-
-export { SsoLoginFailedError } from './sso.errors';
-
-export { BiometricOperationFailedError } from './biometric.errors';
-
-export {
-  AuthorizationFailedError,
-  RoleOperationFailedError,
-} from './permission.errors';
+/**
+ * Application Errors — Barrel
+ * @module auth-service/application/errors
+ */
+export * from './auth.errors';
+export * from './user.errors';
+export * from './session.errors';
+export * from './token.errors';
+export * from './mfa.errors';
+export * from './social.errors';
+export * from './sso.errors';
+export * from './biometric.errors';
+export * from './permission.errors';
+export * from './oauth.errors';

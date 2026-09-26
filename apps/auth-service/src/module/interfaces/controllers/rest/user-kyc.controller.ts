@@ -1,29 +1,33 @@
+/**
+ * UserKycController
+ * @module auth-service/interfaces/controllers/rest
+ */
 import {
-  Body,
   Controller,
   Get,
+  Post,
+  Body,
   HttpCode,
   HttpStatus,
-  Param,
-  Post,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import {
-  CurrentUser,
-  JwtAuthGuard,
-  Permissions,
-  type CurrentUserShape,
-} from '@vubon/shared-kernel/interfaces';
-import { PERMISSION } from '@vubon/shared-constants/common';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
+import type { UserId } from '@vubon/shared-types/common';
+
 import { SubmitKycCommand } from '../../../application/commands/user/submit-kyc.command';
 import { VerifyKycCommand } from '../../../application/commands/user/verify-kyc.command';
 import { RejectKycCommand } from '../../../application/commands/user/reject-kyc.command';
 import { GetUserKycStatusQuery } from '../../../application/queries/user/get-user-kyc-status.query';
-import { KycSubmitRequestDTO } from '../../dtos/requests/kyc.request.dto';
+import {
+  SubmitKycRequestDTO,
+  VerifyKycRequestDTO,
+  RejectKycRequestDTO,
+} from '../../dtos/requests/kyc.request.dto';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
 
-@ApiTags('KYC')
+@ApiTags('Users KYC')
 @Controller('users/kyc')
 @UseGuards(JwtAuthGuard)
 export class UserKycController {
@@ -32,41 +36,31 @@ export class UserKycController {
     private readonly queryBus: QueryBus,
   ) {}
 
-  @Get()
-  async status(@CurrentUser() user: CurrentUserShape): Promise<unknown> {
-    return this.queryBus.execute(new GetUserKycStatusQuery(user.userId));
+  @Get('me')
+  async myStatus(@CurrentUser() user: AuthenticatedUser) {
+    return this.queryBus.execute(new GetUserKycStatusQuery(user.id as UserId));
   }
 
   @Post('submit')
+  @HttpCode(HttpStatus.OK)
   async submit(
-    @CurrentUser() user: CurrentUserShape,
-    @Body() body: KycSubmitRequestDTO,
-  ): Promise<unknown> {
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: SubmitKycRequestDTO,
+  ) {
     return this.commandBus.execute(
-      new SubmitKycCommand(user.userId, body.documents, body.acceptTerms),
+      new SubmitKycCommand(user.id as UserId, body as never),
     );
   }
 
-  @Post(':id/verify')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Permissions(PERMISSION.ADMIN_MANAGE)
-  async verify(
-    @CurrentUser() user: CurrentUserShape,
-    @Param('id') id: string,
-  ): Promise<void> {
-    return this.commandBus.execute(new VerifyKycCommand(user.userId, id));
+  @Post('verify')
+  @HttpCode(HttpStatus.OK)
+  async verify(@Body() body: VerifyKycRequestDTO) {
+    return this.commandBus.execute(new VerifyKycCommand(body));
   }
 
-  @Post(':id/reject')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Permissions(PERMISSION.ADMIN_MANAGE)
-  async reject(
-    @CurrentUser() user: CurrentUserShape,
-    @Param('id') id: string,
-    @Body() body: { reason: string },
-  ): Promise<void> {
-    return this.commandBus.execute(
-      new RejectKycCommand(user.userId, id, body.reason),
-    );
+  @Post('reject')
+  @HttpCode(HttpStatus.OK)
+  async reject(@Body() body: RejectKycRequestDTO) {
+    return this.commandBus.execute(new RejectKycCommand(body));
   }
 }

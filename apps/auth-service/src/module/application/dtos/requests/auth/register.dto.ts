@@ -1,4 +1,14 @@
-import { z } from 'zod';
-import { RegisterRequestSchema } from '@vubon/shared-schemas/auth';
+/**
+ * RegisterRequest DTO
+ * @module auth-service/application/dtos/requests/auth
+ */
+import {
+  RegisterRequestSchema,
+  type RegisterRequestSchemaType,
+} from '@vubon/shared-schemas/auth';
 
-export type RegisterRequestDTO = z.infer<typeof RegisterRequestSchema>;
+export type RegisterRequestDTO = RegisterRequestSchemaType;
+
+export function validateRegisterRequest(input: unknown): RegisterRequestDTO {
+  return RegisterRequestSchema.parse(input);
+}

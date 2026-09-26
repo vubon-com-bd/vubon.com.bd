@@ -1,73 +1,66 @@
+/**
+ * UserPreferencesPrismaRepository
+ * @module auth-service/infrastructure/persistence/prisma/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { UserPreferences as PrismaUserPreferences } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+import type { UserPreferences as PrismaUserPreferences } from '@prisma/client';
+import {
+  BasePrismaRepository,
+  type PrismaDelegate,
+} from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
+import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
+import type { UserId } from '@vubon/shared-types/common';
 import { UserPreferencesEntity } from '../../../../domain/entities/user-preferences.entity';
-import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
 import type { UserPreferencesRepository } from '../../../../domain/repositories/user-preferences.repository.interface';
 
 @Injectable()
 export class UserPreferencesPrismaRepository
-  extends BasePrismaRepository<UserPreferencesEntity, UserIdVO>
-  implements UserPreferencesRepository
-{
+  extends BasePrismaRepository<UserPreferencesEntity, PrismaUserPreferences, UserId>
+  implements UserPreferencesRepository {
+  protected readonly model: PrismaDelegate<PrismaUserPreferences>;
+
   constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
+    super();
+    this.model = prisma.userPreferences as unknown as PrismaDelegate<PrismaUserPreferences>;
   }
 
-  private toDomain(raw: PrismaUserPreferences): UserPreferencesEntity {
-    return UserPreferencesEntity.reconstitute(
-      UserIdVO.create(raw.userId),
-      {
-        userId: UserIdVO.create(raw.userId),
-        marketingEmails: raw.marketingEmails,
-        productUpdates: raw.productUpdates,
-        orderUpdates: raw.orderUpdates,
-        securityAlerts: raw.securityAlerts,
-        newsletter: raw.newsletter,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      raw.deletedAt?.toISOString() ?? null,
-    );
+  protected idOf(domain: UserPreferencesEntity): UserId {
+    return domain.userId;
   }
 
-  async findById(id: UserIdVO): Promise<UserPreferencesEntity | null> {
-    const raw = await this.prisma.userPreferences.findUnique({
-      where: { userId: id.value },
+  protected whereForId(id: UserId): Record<string, unknown> {
+    return { userId: id };
+  }
+
+  protected toDomain(raw: PrismaUserPreferences): UserPreferencesEntity {
+    return UserPreferencesEntity.create({
+      id: raw.userId as UserId,
+      userId: raw.userId as UserId,
+      theme: 'system',
+      currency: 'BDT',
+      dateFormat: 'DD/MM/YYYY',
+      reduceMotion: false,
+      createdAt: raw.createdAt.toISOString(),
+      updatedAt: raw.updatedAt.toISOString(),
+      deletedAt: raw.deletedAt ? raw.deletedAt.toISOString() : null,
     });
-    return raw ? this.toDomain(raw) : null;
   }
 
-  async findAll(): Promise<readonly UserPreferencesEntity[]> {
-    const rows = await this.prisma.userPreferences.findMany();
-    return rows.map((r) => this.toDomain(r));
-  }
-
-  async save(entity: UserPreferencesEntity): Promise<UserPreferencesEntity> {
-    const data = {
-      marketingEmails: entity.marketingEmails,
-      productUpdates: entity.productUpdates,
-      orderUpdates: entity.orderUpdates,
-      securityAlerts: entity.securityAlerts,
-      newsletter: entity.newsletter,
+  protected toPersistence(domain: UserPreferencesEntity): Record<string, unknown> {
+    return {
+      userId: domain.userId,
+      marketingEmails: false,
+      productUpdates: true,
+      orderUpdates: true,
+      securityAlerts: true,
+      newsletter: false,
       updatedAt: new Date(),
     };
-    const raw = await this.prisma.userPreferences.upsert({
-      where: { userId: entity.userId.value },
-      create: { id: entity.id.value, userId: entity.userId.value, ...data },
-      update: data,
-    });
-    return this.toDomain(raw);
   }
 
-  async delete(id: UserIdVO): Promise<void> {
-    await this.prisma.userPreferences.delete({ where: { userId: id.value } });
-  }
-
-  async findByUserId(userId: UserIdVO): Promise<UserPreferencesEntity | null> {
+  async findByUserId(userId: UserId): Promise<UserPreferencesEntity | null> {
     const raw = await this.prisma.userPreferences.findUnique({
-      where: { userId: userId.value },
+      where: { userId },
     });
     return raw ? this.toDomain(raw) : null;
   }

@@ -1,2 +1,4 @@
-export type { CreateTemplateRequestDTO } from './create-template.dto';
-export type { UpdateTemplateRequestDTO } from './update-template.dto';
+// support-service/application/dtos/requests/template/index.ts
+
+export * from './create-template.dto';
+export * from './update-template.dto';

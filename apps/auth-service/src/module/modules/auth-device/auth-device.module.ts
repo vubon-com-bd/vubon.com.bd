@@ -1,32 +1,30 @@
-import { PrismaService } from '../../infrastructure/persistence/prisma/prisma.service';
-import { PrismaModule, RedisModule } from '@vubon/shared-kernel/infrastructure';
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-
 import { AuthDeviceController } from '../../interfaces/controllers/rest/auth-device.controller';
-import { AuthDeviceService } from '../../application/services/impl/auth-device.service';
 import { GetAuthDeviceHandler } from '../../application/queries/auth/get-auth-device.handler';
 import { ListAuthDevicesHandler } from '../../application/queries/auth/list-auth-devices.handler';
 import { AuthDevicePrismaRepository } from '../../infrastructure/persistence/prisma/repositories/auth-device.prisma.repository';
-import { DeviceFingerprintService } from '../../infrastructure/services/internal/device-fingerprint.service';
 import { DeviceGuard } from '../../interfaces/guards/device.guard';
+import { AUTH_DEVICE_REPO } from '../../application/services/tokens';
+
+const TOKEN_BINDINGS = [
+  { provide: AUTH_DEVICE_REPO, useExisting: AuthDevicePrismaRepository },
+];
 
 @Module({
-  imports: [CqrsModule, PrismaModule, RedisModule],
+  imports: [CqrsModule],
   controllers: [AuthDeviceController],
-  providers: [PrismaService, { provide: 'PrismaService', useClass: PrismaService },
-    { provide: 'AuthDeviceRepository', useExisting: AuthDevicePrismaRepository },
-    { provide: 'DeviceFingerprintService', useExisting: DeviceFingerprintService },
-    { provide: 'AuthDeviceService', useExisting: AuthDeviceService },
-    { provide: 'DeviceGuard', useExisting: DeviceGuard },
-
+  providers: [
     AuthDevicePrismaRepository,
-    DeviceFingerprintService,
-    AuthDeviceService,
     GetAuthDeviceHandler,
     ListAuthDevicesHandler,
     DeviceGuard,
+    ...TOKEN_BINDINGS,
   ],
-  exports: [AuthDeviceService, AuthDevicePrismaRepository, DeviceGuard],
+  exports: [
+    AuthDevicePrismaRepository,
+    DeviceGuard,
+    ...TOKEN_BINDINGS.map((b) => b.provide),
+  ],
 })
 export class AuthDeviceModule {}

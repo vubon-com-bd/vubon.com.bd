@@ -1,9 +1,0 @@
-export { NotifyTicketCreatedCommand } from './notify-ticket-created.command';
-export { NotifyTicketRepliedCommand } from './notify-ticket-replied.command';
-export { NotifyTicketResolvedCommand } from './notify-ticket-resolved.command';
-export { NotifyTicketEscalatedCommand } from './notify-ticket-escalated.command';
-export { SendSatisfactionSurveyCommand } from './send-satisfaction-survey.command';
-export { TriggerSlaAlertCommand } from './trigger-sla-alert.command';
-export { NotifyAgentAssignedCommand } from './notify-agent-assigned.command';
-export { AutoCloseInactiveTicketCommand } from './auto-close-inactive-ticket.command';
-export { UpdateAnalyticsCommand } from './update-analytics.command';

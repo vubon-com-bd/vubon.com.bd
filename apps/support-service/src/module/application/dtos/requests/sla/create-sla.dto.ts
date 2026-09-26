@@ -1,11 +1,16 @@
-import { z } from 'zod';
+/**
+ * CreateSlaRequestDTO
+ * @module support-service/application/dtos/requests/sla
+ */
+import type {
+  SupportSlaMetricValue,
+  TicketPriorityValue,
+} from '@vubon/shared-types/support';
 
-export const CreateSlaRequestSchema = z.object({
-  name: z.string().min(2).max(100),
-  type: z.string().min(1).max(50),
-  target: z.number().int().positive(),
-  priority: z.string().min(1).max(50),
-  businessHoursOnly: z.boolean().optional(),
-});
-
-export type CreateSlaRequestDTO = z.infer<typeof CreateSlaRequestSchema>;
+export interface CreateSlaRequestDTO {
+  readonly ticketId: string;
+  readonly metric: SupportSlaMetricValue;
+  readonly targetMinutes: number;
+  readonly priority: TicketPriorityValue;
+  readonly warningThresholdPercent?: number;
+}

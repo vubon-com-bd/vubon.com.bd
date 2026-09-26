@@ -1,4 +1,13 @@
-import { z } from 'zod';
-import { UserRoleListSchema } from '@vubon/shared-schemas/user';
-
-export type UserRoleResponseDTO = z.infer<typeof UserRoleListSchema>;
+/**
+ * UserRoleResponseDTO
+ * @module auth-service/application/dtos/responses
+ */
+export interface UserRoleResponseDTO {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly permissions: readonly string[];
+  readonly isSystem: boolean;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}

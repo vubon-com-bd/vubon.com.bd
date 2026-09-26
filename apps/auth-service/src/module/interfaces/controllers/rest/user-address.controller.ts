@@ -1,33 +1,36 @@
+/**
+ * UserAddressController
+ * @module auth-service/interfaces/controllers/rest
+ */
 import {
-  Body,
   Controller,
-  Delete,
   Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
   HttpCode,
   HttpStatus,
-  Param,
-  Patch,
-  Post,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import {
-  CurrentUser,
-  JwtAuthGuard,
-  type CurrentUserShape,
-} from '@vubon/shared-kernel/interfaces';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
+import type { UserId } from '@vubon/shared-types/common';
+
 import { AddAddressCommand } from '../../../application/commands/user/add-address.command';
 import { UpdateAddressCommand } from '../../../application/commands/user/update-address.command';
 import { DeleteAddressCommand } from '../../../application/commands/user/delete-address.command';
 import { ListUserAddressesQuery } from '../../../application/queries/user/list-user-addresses.query';
 import { GetUserAddressQuery } from '../../../application/queries/user/get-user-address.query';
 import {
-  AddressCreateRequestDTO,
-  AddressUpdateRequestDTO,
+  AddAddressRequestDTO,
+  UpdateAddressRequestDTO,
 } from '../../dtos/requests/address.request.dto';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
 
-@ApiTags('Addresses')
+@ApiTags('Users Addresses')
 @Controller('users/addresses')
 @UseGuards(JwtAuthGuard)
 export class UserAddressController {
@@ -37,61 +40,38 @@ export class UserAddressController {
   ) {}
 
   @Get()
-  async list(@CurrentUser() user: CurrentUserShape): Promise<unknown> {
-    return this.queryBus.execute(new ListUserAddressesQuery(user.userId));
-  }
-
-  @Get(':id')
-  async get(@Param('id') id: string): Promise<unknown> {
-    return this.queryBus.execute(new GetUserAddressQuery(id));
+  async list(@CurrentUser() user: AuthenticatedUser) {
+    return this.queryBus.execute(new ListUserAddressesQuery(user.id as UserId));
   }
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   async add(
-    @CurrentUser() user: CurrentUserShape,
-    @Body() body: AddressCreateRequestDTO,
-  ): Promise<unknown> {
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: AddAddressRequestDTO,
+  ) {
     return this.commandBus.execute(
-      new AddAddressCommand(
-        user.userId,
-        body.line1,
-        body.city,
-        body.country,
-        body.isDefault,
-        body.isDefaultShipping,
-        body.isDefaultBilling,
-        body.type,
-        body.line2,
-        body.state,
-        body.postalCode,
-        body.label,
-      ),
+      new AddAddressCommand(user.id as UserId, body as never),
     );
   }
 
-  @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() body: AddressUpdateRequestDTO,
-  ): Promise<unknown> {
+  @Get(':id')
+  async get(@Param('id') id: string) {
+    return this.queryBus.execute(new GetUserAddressQuery(id));
+  }
+
+  @Put(':id')
+  async update(@Param('id') id: string, @Body() body: UpdateAddressRequestDTO) {
     return this.commandBus.execute(
-      new UpdateAddressCommand(
-        id,
-        body.line1,
-        body.city,
-        body.country,
-        body.isDefault,
-        body.line2,
-        body.state,
-        body.postalCode,
-        body.label,
-      ),
+      new UpdateAddressCommand(id, body as never),
     );
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async delete(@Param('id') id: string): Promise<void> {
-    return this.commandBus.execute(new DeleteAddressCommand(id));
+  async remove(@Param('id') id: string): Promise<void> {
+    await this.commandBus.execute(
+      new DeleteAddressCommand({ addressId: id }),
+    );
   }
 }

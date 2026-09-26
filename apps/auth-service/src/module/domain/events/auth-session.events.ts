@@ -1,31 +1,37 @@
-import {
-  BaseDomainEvent,
-  type DomainEventMetadata,
-} from '@vubon/shared-kernel/domain/base/base.event';
-import { toTimestamp } from '@vubon/shared-types/common';
+/**
+ * Auth Session Domain Events
+ * @module auth-service/domain/events
+ */
+import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
+import type { UserId, Timestamp } from '@vubon/shared-types/common';
 
-const AGGREGATE_TYPE = 'AuthSession';
+type EventMeta = {
+  correlationId?: string;
+  causationId?: string;
+  userId?: string;
+  source?: string;
+};
+
+const AGG = 'AuthSession';
 
 export class SessionCreatedEvent extends BaseDomainEvent<
   'auth.session.created',
-  { sessionId: string; userId: string; ip: string }
+  { sessionId: string; userId: UserId; ipAddress: string }
 > {
   constructor(
     aggregateId: string,
-    sessionId: string,
-    userId: string,
-    ip: string,
-    version: number,
-    metadata?: DomainEventMetadata,
+    payload: { sessionId: string; userId: UserId; ipAddress: string },
+    occurredAt: Timestamp,
+    metadata?: EventMeta,
   ) {
     super({
-      id: crypto.randomUUID(),
+      id: `evt-${aggregateId}-created-${Date.now()}`,
       type: 'auth.session.created',
       aggregateId,
-      aggregateType: AGGREGATE_TYPE,
-      payload: { sessionId, userId, ip },
-      occurredAt: toTimestamp(Date.now()),
-      version,
+      aggregateType: AGG,
+      payload,
+      occurredAt,
+      version: 1,
       metadata,
     });
   }
@@ -33,23 +39,22 @@ export class SessionCreatedEvent extends BaseDomainEvent<
 
 export class SessionExpiredEvent extends BaseDomainEvent<
   'auth.session.expired',
-  { sessionId: string; userId: string }
+  { sessionId: string; userId: UserId; expiredAt: number }
 > {
   constructor(
     aggregateId: string,
-    sessionId: string,
-    userId: string,
-    version: number,
-    metadata?: DomainEventMetadata,
+    payload: { sessionId: string; userId: UserId; expiredAt: number },
+    occurredAt: Timestamp,
+    metadata?: EventMeta,
   ) {
     super({
-      id: crypto.randomUUID(),
+      id: `evt-${aggregateId}-expired-${Date.now()}`,
       type: 'auth.session.expired',
       aggregateId,
-      aggregateType: AGGREGATE_TYPE,
-      payload: { sessionId, userId },
-      occurredAt: toTimestamp(Date.now()),
-      version,
+      aggregateType: AGG,
+      payload,
+      occurredAt,
+      version: 1,
       metadata,
     });
   }
@@ -57,25 +62,28 @@ export class SessionExpiredEvent extends BaseDomainEvent<
 
 export class SessionRevokedEvent extends BaseDomainEvent<
   'auth.session.revoked',
-  { sessionId: string; userId: string; reason: string }
+  { sessionId: string; userId: UserId; reason?: string }
 > {
   constructor(
     aggregateId: string,
-    sessionId: string,
-    userId: string,
-    reason: string,
-    version: number,
-    metadata?: DomainEventMetadata,
+    payload: { sessionId: string; userId: UserId; reason?: string },
+    occurredAt: Timestamp,
+    metadata?: EventMeta,
   ) {
     super({
-      id: crypto.randomUUID(),
+      id: `evt-${aggregateId}-revoked-${Date.now()}`,
       type: 'auth.session.revoked',
       aggregateId,
-      aggregateType: AGGREGATE_TYPE,
-      payload: { sessionId, userId, reason },
-      occurredAt: toTimestamp(Date.now()),
-      version,
+      aggregateType: AGG,
+      payload,
+      occurredAt,
+      version: 1,
       metadata,
     });
   }
 }
+
+export type AuthSessionDomainEvent =
+  | SessionCreatedEvent
+  | SessionExpiredEvent
+  | SessionRevokedEvent;

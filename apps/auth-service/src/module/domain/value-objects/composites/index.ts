@@ -1,23 +1,30 @@
-export { UserVO, type UserProps } from './user.vo';
-export { UserProfileVO, type UserProfileProps } from './user-profile.vo';
-export { UserSettingsVO, type UserSettingsProps } from './user-settings.vo';
-export { UserPreferencesVO, type UserPreferencesProps } from './user-preferences.vo';
-export { UserAddressVO, type UserAddressProps } from './user-address.vo';
-export { UserContactVO, type UserContactProps } from './user-contact.vo';
-export { UserVerificationVO, type UserVerificationProps } from './user-verification.vo';
-export { UserKycVO, type UserKycProps } from './user-kyc.vo';
-export { UserActivityVO, type UserActivityProps } from './user-activity.vo';
-export { AuthSessionVO, type AuthSessionProps } from './auth-session.vo';
-export { AuthTokenVO, type AuthTokenProps } from './auth-token.vo';
-export { AuthMfaVO, type AuthMfaProps } from './auth-mfa.vo';
-export { AuthRecoveryCodeVO, type AuthRecoveryCodeProps } from './auth-recovery-code.vo';
-export { AuthAccountLockVO, type AuthAccountLockProps } from './auth-account-lock.vo';
-export { AuthLoginAttemptVO, type AuthLoginAttemptProps } from './auth-login-attempt.vo';
-export { AuthDeviceVO, type AuthDeviceProps } from './auth-device.vo';
-export { AuthSocialVO, type AuthSocialProps } from './auth-social.vo';
-export { AuthOAuthVO, type AuthOAuthProps } from './auth-oauth.vo';
-export { AuthSsoVO, type AuthSsoProps } from './auth-sso.vo';
-export { Auth2FaVO, type Auth2FaProps } from './auth-2fa.vo';
-export { AuthBiometricVO, type AuthBiometricProps } from './auth-biometric.vo';
-export { AuthPermissionVO, type AuthPermissionProps } from './auth-permission.vo';
-export { AuthRoleVO, type AuthRoleProps } from './auth-role.vo';
+/**
+ * Composite Value Objects — Barrel
+ * @module auth-service/domain/value-objects/composites
+ */
+// User composites
+export * from './user.vo';
+export * from './user-profile.vo';
+export * from './user-settings.vo';
+export * from './user-preferences.vo';
+export * from './user-address.vo';
+export * from './user-contact.vo';
+export * from './user-verification.vo';
+export * from './user-kyc.vo';
+export * from './user-activity.vo';
+
+// Auth composites
+export * from './auth-session.vo';
+export * from './auth-token.vo';
+export * from './auth-mfa.vo';
+export * from './auth-recovery-code.vo';
+export * from './auth-account-lock.vo';
+export * from './auth-login-attempt.vo';
+export * from './auth-device.vo';
+export * from './auth-social.vo';
+export * from './auth-oauth.vo';
+export * from './auth-sso.vo';
+export * from './auth-2fa.vo';
+export * from './auth-biometric.vo';
+export * from './auth-permission.vo';
+export * from './auth-role.vo';

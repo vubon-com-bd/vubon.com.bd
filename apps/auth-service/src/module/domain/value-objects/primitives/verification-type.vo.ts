@@ -1,23 +1,35 @@
+/**
+ * VerificationTypeVO — Channel/purpose of verification
+ * @module auth-service/domain/value-objects/primitives
+ */
 import { BaseTypeVO } from '@vubon/shared-kernel/domain/primitives/type.vo';
-import { InvalidTypeError } from '../../errors/user.errors';
 
-const VALID = new Set<string>([
-  'email',
-  'phone',
-  'kyc',
-  'identity',
-  'address',
+export type VerificationTypeValue =
+  | 'email'
+  | 'phone'
+  | 'kyc_document'
+  | 'address'
+  | 'bank_account'
+  | 'business';
+
+const ALLOWED: ReadonlySet<string> = new Set<string>([
+  'email', 'phone', 'kyc_document',
+  'address', 'bank_account', 'business',
 ]);
 
-export class VerificationTypeVO extends BaseTypeVO<string> {
-  private constructor(value: string) {
+export class VerificationTypeVO extends BaseTypeVO<VerificationTypeValue> {
+  private constructor(value: VerificationTypeValue) {
     super(value);
   }
 
-  static create(raw: string): VerificationTypeVO {
-    if (!VALID.has(raw)) {
-      throw new InvalidTypeError(raw);
+  static of(raw: string): VerificationTypeVO {
+    if (!ALLOWED.has(raw)) {
+      throw new Error(`Unknown verification type: ${raw}`);
     }
-    return new VerificationTypeVO(raw);
+    return new VerificationTypeVO(raw as VerificationTypeValue);
+  }
+
+  requiresDocument(): boolean {
+    return this.value === 'kyc_document' || this.value === 'business';
   }
 }

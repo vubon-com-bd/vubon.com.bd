@@ -1,24 +1,29 @@
-export { GetAuthSessionQuery } from './get-auth-session.query';
-export { GetAuthSessionHandler } from './get-auth-session.handler';
-export { ListAuthSessionsQuery } from './list-auth-sessions.query';
-export { ListAuthSessionsHandler } from './list-auth-sessions.handler';
-export { ListAuthTokensQuery } from './list-auth-tokens.query';
-export { ListAuthTokensHandler } from './list-auth-tokens.handler';
-export { GetAuthDeviceQuery } from './get-auth-device.query';
-export { GetAuthDeviceHandler } from './get-auth-device.handler';
-export { ListAuthDevicesQuery } from './list-auth-devices.query';
-export { ListAuthDevicesHandler } from './list-auth-devices.handler';
-export { GetAuthMfaSettingsQuery } from './get-auth-mfa-settings.query';
-export { GetAuthMfaSettingsHandler, type MfaSettingsView } from './get-auth-mfa-settings.handler';
-export { GetAuthRecoveryCodesQuery } from './get-auth-recovery-codes.query';
-export { GetAuthRecoveryCodesHandler, type RecoveryCodesStatusView } from './get-auth-recovery-codes.handler';
-export { GetAuthAccountLockStatusQuery } from './get-auth-account-lock-status.query';
-export { GetAuthAccountLockStatusHandler } from './get-auth-account-lock-status.handler';
-export { ListAuthLoginAttemptsQuery } from './list-auth-login-attempts.query';
-export { ListAuthLoginAttemptsHandler, type LoginAttemptView } from './list-auth-login-attempts.handler';
-export { ListAuthPermissionsQuery } from './list-auth-permissions.query';
-export { ListAuthPermissionsHandler } from './list-auth-permissions.handler';
-export { ListAuthRolesQuery } from './list-auth-roles.query';
-export { ListAuthRolesHandler } from './list-auth-roles.handler';
-export { GetAuthSettingsQuery } from './get-auth-settings.query';
-export { GetAuthSettingsHandler } from './get-auth-settings.handler';
+/**
+ * Auth Queries + Handlers — Barrel
+ * @module auth-service/application/queries/auth
+ */
+export * from './get-auth-session.query';
+export * from './list-auth-sessions.query';
+export * from './list-auth-tokens.query';
+export * from './get-auth-device.query';
+export * from './list-auth-devices.query';
+export * from './get-auth-mfa-settings.query';
+export * from './get-auth-recovery-codes.query';
+export * from './get-auth-account-lock-status.query';
+export * from './list-auth-login-attempts.query';
+export * from './list-auth-permissions.query';
+export * from './list-auth-roles.query';
+export * from './get-auth-settings.query';
+
+export * from './get-auth-session.handler';
+export * from './list-auth-sessions.handler';
+export * from './list-auth-tokens.handler';
+export * from './get-auth-device.handler';
+export * from './list-auth-devices.handler';
+export * from './get-auth-mfa-settings.handler';
+export * from './get-auth-recovery-codes.handler';
+export * from './get-auth-account-lock-status.handler';
+export * from './list-auth-login-attempts.handler';
+export * from './list-auth-permissions.handler';
+export * from './list-auth-roles.handler';
+export * from './get-auth-settings.handler';

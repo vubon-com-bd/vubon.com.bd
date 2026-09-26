@@ -1,22 +1,17 @@
-import { BaseMapper } from '@vubon/shared-kernel/application/mappers/base.mapper';
+/**
+ * AuthMfaMapper
+ * @module auth-service/application/mappers
+ */
+import { OneWayMapper } from '@vubon/shared-kernel/application/mappers/base.mapper';
 import { AuthMfaEntity } from '../../domain/entities/auth-mfa.entity';
 import type { MfaResponseDTO } from '../dtos/responses/mfa-response.dto';
 
-export class AuthMfaMapper extends BaseMapper<AuthMfaEntity, MfaResponseDTO> {
-  toTarget(source: AuthMfaEntity): MfaResponseDTO {
+export class AuthMfaMapper extends OneWayMapper<AuthMfaEntity, MfaResponseDTO> {
+  map(entity: AuthMfaEntity): MfaResponseDTO {
     return {
-      success: true,
-      method: source.type.value,
-      secret: source.secret.value,
-      qrCodeUrl: 'https://example.com/qr',
-      otpauthUrl: 'otpauth://totp/example',
-      backupCodes: [],
-      setupAt: source.createdAt,
+      enabled: entity.isEnabled(),
+      type: entity.type.value,
+      enrolledAt: new Date(entity.createdAt).toISOString(),
     };
-  }
-
-  toSource(target: MfaResponseDTO): AuthMfaEntity {
-    void target;
-    throw new Error('AuthMfaMapper.toSource not supported');
   }
 }

@@ -1,9 +1,10 @@
-import { z } from 'zod';
-
-export const EscalateTicketRequestSchema = z.object({
-  ticketId: z.string().uuid(),
-  reason: z.string().min(1).max(500),
-  level: z.enum(['L1', 'L2', 'L3', 'L4']).optional(),
-});
-
-export type EscalateTicketRequestDTO = z.infer<typeof EscalateTicketRequestSchema>;
+/**
+ * EscalateTicketRequestDTO
+ * @module support-service/application/dtos/requests/ticket
+ */
+export interface EscalateTicketRequestDTO {
+  readonly ticketId: string;
+  readonly reason: string;
+  readonly level?: '1' | '2' | '3' | '4';
+  readonly escalatedBy?: string;
+}

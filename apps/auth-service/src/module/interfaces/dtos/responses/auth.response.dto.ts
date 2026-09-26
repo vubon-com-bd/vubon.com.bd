@@ -1,84 +1,45 @@
+/**
+ * AuthResponseDTO — Swagger-decorated login response
+ * @module auth-service/interfaces/dtos/responses
+ */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import type { LoginResponseDTO } from '../../../application/dtos/responses/login-response.dto';
-import type { RegisterResponseDTO } from '../../../application/dtos/responses/register-response.dto';
 
-export class AuthLoginResponseDTO implements LoginResponseDTO {
-  @ApiProperty()
-  success!: true;
-
-  @ApiProperty()
-  user!: LoginResponseDTO['user'];
-
-  @ApiProperty()
-  session!: LoginResponseDTO['session'];
-
-  @ApiProperty()
-  accessToken!: string;
-
-  @ApiProperty()
-  refreshToken!: string;
-
-  @ApiProperty()
-  expiresAt!: number;
-
-  @ApiProperty({ example: 'Bearer' })
-  tokenType!: 'Bearer';
-
-  @ApiPropertyOptional()
-  requiresMfa?: boolean;
-
-  @ApiPropertyOptional()
-  requiresVerification?: boolean;
-
-  @ApiPropertyOptional()
-  challengeId?: string;
+export class AuthSessionResponseShapeDTO {
+  @ApiProperty() sessionId!: string;
+  @ApiProperty() userId!: string;
+  @ApiProperty() ipAddress!: string;
+  @ApiProperty() userAgent!: string;
+  @ApiPropertyOptional() deviceId?: string;
+  @ApiProperty() createdAt!: string;
+  @ApiProperty() expiresAt!: string;
+  @ApiPropertyOptional() revokedAt?: string;
+  @ApiProperty() isActive!: boolean;
 }
 
-export class AuthRegisterResponseDTO implements RegisterResponseDTO {
-  @ApiProperty()
-  success!: true;
-
-  @ApiProperty()
-  user!: RegisterResponseDTO['user'];
-
-  @ApiProperty()
-  requiresVerification!: boolean;
-
-  @ApiProperty()
-  message!: string;
-
-  @ApiPropertyOptional()
-  session?: RegisterResponseDTO['session'];
-
-  @ApiPropertyOptional()
-  accessToken?: string;
-
-  @ApiPropertyOptional()
-  refreshToken?: string;
-
-  @ApiPropertyOptional()
-  expiresAt?: number;
-
-  @ApiPropertyOptional({ example: 'email' })
-  verificationChannel?: 'email' | 'phone' | 'both';
+export class AuthUserResponseShapeDTO {
+  @ApiProperty() id!: string;
+  @ApiProperty() email!: string;
+  @ApiPropertyOptional() phone?: string;
+  @ApiProperty() name!: string;
+  @ApiProperty() status!: string;
+  @ApiProperty() type!: string;
+  @ApiProperty({ type: [String] }) roles!: string[];
+  @ApiProperty() emailVerified!: boolean;
+  @ApiProperty() phoneVerified!: boolean;
+  @ApiProperty() mfaEnabled!: boolean;
+  @ApiProperty() createdAt!: string;
+  @ApiProperty() updatedAt!: string;
 }
 
-export class AuthRefreshTokenResponseDTO {
-  @ApiProperty()
-  success!: true;
-
-  @ApiProperty()
-  accessToken!: string;
-
-  @ApiProperty()
-  refreshToken!: string;
-
-  @ApiProperty()
-  expiresAt!: number;
-
-  @ApiProperty({ example: 'Bearer' })
-  tokenType!: 'Bearer';
-
-  @ApiProperty()
-  refreshedAt!: string;
+export class AuthResponseDTO {
+  @ApiProperty() success!: boolean;
+  @ApiProperty({ type: AuthUserResponseShapeDTO }) user!: AuthUserResponseShapeDTO;
+  @ApiProperty({ type: AuthSessionResponseShapeDTO }) session!: AuthSessionResponseShapeDTO;
+  @ApiProperty() accessToken!: string;
+  @ApiProperty() refreshToken!: string;
+  @ApiProperty({ example: 'Bearer' }) tokenType!: 'Bearer';
+  @ApiProperty({ example: 900 }) expiresAt!: number;
+  @ApiPropertyOptional() requiresMfa?: boolean;
+  @ApiPropertyOptional() requiresVerification?: boolean;
+  @ApiPropertyOptional() challengeId?: string;
 }

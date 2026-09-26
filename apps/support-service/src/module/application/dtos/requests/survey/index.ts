@@ -1,3 +1,5 @@
-export type { CreateSurveyRequestDTO } from './create-survey.dto';
-export type { RespondSurveyRequestDTO } from './respond-survey.dto';
-export type { CloseSurveyRequestDTO } from './close-survey.dto';
+// support-service/application/dtos/requests/survey/index.ts
+
+export * from './create-survey.dto';
+export * from './respond-survey.dto';
+export * from './close-survey.dto';

@@ -1,23 +1,20 @@
-import { Injectable } from '@nestjs/common';
-import { QueueService } from '@vubon/shared-kernel/infrastructure';
-import { QUEUE_NAME, QUEUE_PRIORITY } from '@vubon/shared-constants/infrastructure';
+/**
+ * TokenQueue — Token lifecycle jobs
+ * @module auth-service/infrastructure/queues
+ */
+import { Queue } from 'bullmq';
+import { QUEUE_NAME, QUEUE_LIMIT } from '@vubon/shared-constants/infrastructure';
 
-export interface TokenCleanupJobPayload {
-  readonly olderThanMs: number;
-}
+export const TOKEN_QUEUE_NAME = QUEUE_NAME.TOKEN;
 
-@Injectable()
-export class TokenQueue {
-  readonly queueName = QUEUE_NAME.TOKEN;
-
-  constructor(private readonly queueService: QueueService) {}
-
-  async enqueueCleanup(olderThanMs: number): Promise<string> {
-    return this.queueService.enqueue(
-      this.queueName,
-      'token-cleanup',
-      { olderThanMs },
-      { priority: QUEUE_PRIORITY.LOW },
-    );
-  }
+export function createTokenQueue(connection: { host: string; port: number }): Queue {
+  return new Queue(TOKEN_QUEUE_NAME, {
+    connection,
+    defaultJobOptions: {
+      attempts: QUEUE_LIMIT.MAX_ATTEMPTS,
+      backoff: { type: 'exponential', delay: QUEUE_LIMIT.BACKOFF_DELAY },
+      removeOnComplete: QUEUE_LIMIT.REMOVE_ON_COMPLETE,
+      removeOnFail: QUEUE_LIMIT.REMOVE_ON_FAIL,
+    },
+  });
 }

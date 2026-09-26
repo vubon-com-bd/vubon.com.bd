@@ -1,2 +1,4 @@
-export type { CreateSlaRequestDTO } from './create-sla.dto';
-export type { UpdateSlaRequestDTO } from './update-sla.dto';
+// support-service/application/dtos/requests/sla/index.ts
+
+export * from './create-sla.dto';
+export * from './update-sla.dto';

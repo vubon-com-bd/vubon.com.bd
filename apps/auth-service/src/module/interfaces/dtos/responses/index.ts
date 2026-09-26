@@ -1,23 +1,22 @@
-export {
-  AuthLoginResponseDTO,
-  AuthRegisterResponseDTO,
-  AuthRefreshTokenResponseDTO,
-} from './auth.response.dto';
-
-export { SessionResponseDTO, SessionListResponseDTO } from './session.response.dto';
-export { TokenResponseDTO } from './token.response.dto';
-export { MfaSetupResponseDTO } from './mfa.response.dto';
-export { RecoveryCodeResponseDTO } from './recovery-code.response.dto';
-export { SocialLoginResponseDTO_ } from './social.response.dto';
-export { SsoLoginResponseDTO_ } from './sso.response.dto';
-export { BiometricResponseDTO_ } from './biometric.response.dto';
-export { UserResponseDTO_ } from './user.response.dto';
-export { ProfileResponseDTO } from './profile.response.dto';
-export { SettingsResponseDTO } from './settings.response.dto';
-export { PreferencesResponseDTO } from './preferences.response.dto';
-export { AddressResponseDTO } from './address.response.dto';
-export { ContactResponseDTO } from './contact.response.dto';
-export { VerificationResponseDTO } from './verification.response.dto';
-export { KycResponseDTO } from './kyc.response.dto';
-export { PermissionResponseDTO } from './permission.response.dto';
-export { RoleResponseDTO } from './role.response.dto';
+/**
+ * Interface Response DTOs — Barrel
+ * @module auth-service/interfaces/dtos/responses
+ */
+export * from './auth.response.dto';
+export * from './session.response.dto';
+export * from './token.response.dto';
+export * from './mfa.response.dto';
+export * from './recovery-code.response.dto';
+export * from './social.response.dto';
+export * from './sso.response.dto';
+export * from './biometric.response.dto';
+export * from './user.response.dto';
+export * from './profile.response.dto';
+export * from './settings.response.dto';
+export * from './preferences.response.dto';
+export * from './address.response.dto';
+export * from './contact.response.dto';
+export * from './verification.response.dto';
+export * from './kyc.response.dto';
+export * from './role-permission.response.dto';
+export * from './lock.response.dto';

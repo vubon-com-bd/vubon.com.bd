@@ -1,10 +1,19 @@
-import { z } from 'zod';
+/**
+ * FileComplaintRequestDTO — matches ComplaintCreateInputSchema
+ * @module support-service/application/dtos/requests/complaint
+ */
+import type {
+  ComplaintTypeValue,
+  ComplaintSeverityValue,
+} from '@vubon/shared-types/support';
 
-export const FileComplaintRequestSchema = z.object({
-  userId: z.string().uuid(),
-  type: z.string().min(1).max(50),
-  severity: z.string().min(1).max(50),
-  content: z.string().min(1).max(5000),
-});
-
-export type FileComplaintRequestDTO = z.infer<typeof FileComplaintRequestSchema>;
+export interface FileComplaintRequestDTO {
+  readonly subject: string;
+  readonly description: string;
+  readonly type: ComplaintTypeValue;
+  readonly severity: ComplaintSeverityValue;
+  readonly userId?: string;
+  readonly orderId?: string;
+  readonly productId?: string;
+  readonly attachments?: readonly string[];
+}

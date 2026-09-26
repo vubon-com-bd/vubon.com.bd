@@ -1,25 +1,25 @@
-import { ApiProperty } from '@nestjs/swagger';
-import type { MfaResponseDTO } from '../../../application/dtos/responses/mfa-response.dto';
+/**
+ * MfaResponseDTO
+ * @module auth-service/interfaces/dtos/responses
+ */
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class MfaSetupResponseDTO implements MfaResponseDTO {
-  @ApiProperty()
-  success!: true;
+export class MfaResponseDTO {
+  @ApiProperty() enabled!: boolean;
+  @ApiProperty() type!: string;
+  @ApiPropertyOptional() enrolledAt?: string;
+  @ApiPropertyOptional() verifiedAt?: string;
+  @ApiPropertyOptional({ type: [String] }) backupMethods?: string[];
+}
 
-  @ApiProperty({ example: 'totp' })
-  method!: string;
+export class MfaChallengeResponseDTO {
+  @ApiProperty() challengeId!: string;
+  @ApiProperty({ type: [String] }) methods!: string[];
+  @ApiProperty() expiresAt!: string;
+}
 
-  @ApiProperty()
-  secret!: string;
-
-  @ApiProperty()
-  qrCodeUrl!: string;
-
-  @ApiProperty()
-  otpauthUrl!: string;
-
-  @ApiProperty({ type: [String] })
-  backupCodes!: string[];
-
-  @ApiProperty()
-  setupAt!: string;
+export class EnableMfaEnrollResponseDTO {
+  @ApiProperty() secret!: string;
+  @ApiProperty({ format: 'url' }) qrCodeUrl!: string;
+  @ApiProperty({ type: [String] }) recoveryCodes!: string[];
 }

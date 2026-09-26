@@ -1,77 +1,71 @@
+/**
+ * UserSettingsPrismaRepository
+ * @module auth-service/infrastructure/persistence/prisma/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { UserSettings as PrismaUserSettings } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+import type { UserSettings as PrismaUserSettings } from '@prisma/client';
+import {
+  BasePrismaRepository,
+  type PrismaDelegate,
+} from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
+import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
+import type { UserId } from '@vubon/shared-types/common';
 import { UserSettingsEntity } from '../../../../domain/entities/user-settings.entity';
-import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
 import type { UserSettingsRepository } from '../../../../domain/repositories/user-settings.repository.interface';
 
 @Injectable()
 export class UserSettingsPrismaRepository
-  extends BasePrismaRepository<UserSettingsEntity, UserIdVO>
-  implements UserSettingsRepository
-{
+  extends BasePrismaRepository<UserSettingsEntity, PrismaUserSettings, UserId>
+  implements UserSettingsRepository {
+  protected readonly model: PrismaDelegate<PrismaUserSettings>;
+
   constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
+    super();
+    this.model = prisma.userSettings as unknown as PrismaDelegate<PrismaUserSettings>;
   }
 
-  private toDomain(raw: PrismaUserSettings): UserSettingsEntity {
-    return UserSettingsEntity.reconstitute(
-      UserIdVO.create(raw.userId),
-      {
-        userId: UserIdVO.create(raw.userId),
-        language: raw.language,
-        timezone: raw.timezone,
-        currency: raw.currency,
-        theme: raw.theme as 'light' | 'dark' | 'system',
-        emailNotifications: raw.emailNotifications,
-        smsNotifications: raw.smsNotifications,
-        pushNotifications: raw.pushNotifications,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      raw.deletedAt?.toISOString() ?? null,
-    );
+  protected idOf(domain: UserSettingsEntity): UserId {
+    return domain.userId;
   }
 
-  async findById(id: UserIdVO): Promise<UserSettingsEntity | null> {
-    const raw = await this.prisma.userSettings.findUnique({
-      where: { userId: id.value },
+  protected whereForId(id: UserId): Record<string, unknown> {
+    return { userId: id };
+  }
+
+  protected toDomain(raw: PrismaUserSettings): UserSettingsEntity {
+    return UserSettingsEntity.create({
+      id: raw.userId as UserId,
+      userId: raw.userId as UserId,
+      twoFactorEnabled: false,
+      emailNotifications: raw.emailNotifications,
+      smsNotifications: raw.smsNotifications,
+      pushNotifications: raw.pushNotifications,
+      marketingEmails: false,
+      language: raw.language,
+      timezone: raw.timezone,
+      createdAt: raw.createdAt.toISOString(),
+      updatedAt: raw.updatedAt.toISOString(),
+      deletedAt: raw.deletedAt ? raw.deletedAt.toISOString() : null,
     });
-    return raw ? this.toDomain(raw) : null;
   }
 
-  async findAll(): Promise<readonly UserSettingsEntity[]> {
-    const rows = await this.prisma.userSettings.findMany();
-    return rows.map((r) => this.toDomain(r));
-  }
-
-  async save(entity: UserSettingsEntity): Promise<UserSettingsEntity> {
-    const data = {
-      language: entity.language,
-      timezone: entity.timezone,
-      currency: entity.currency,
-      theme: entity.theme,
-      emailNotifications: entity.emailNotifications,
-      smsNotifications: entity.smsNotifications,
-      pushNotifications: entity.pushNotifications,
+  protected toPersistence(domain: UserSettingsEntity): Record<string, unknown> {
+    return {
+      userId: domain.userId,
+      language: 'bn',
+      timezone: 'Asia/Dhaka',
+      currency: 'BDT',
+      theme: 'system',
+      emailNotifications: true,
+      smsNotifications: false,
+      pushNotifications: true,
       updatedAt: new Date(),
     };
-    const raw = await this.prisma.userSettings.upsert({
-      where: { userId: entity.userId.value },
-      create: { id: entity.id.value, userId: entity.userId.value, ...data },
-      update: data,
-    });
-    return this.toDomain(raw);
   }
 
-  async delete(id: UserIdVO): Promise<void> {
-    await this.prisma.userSettings.delete({ where: { userId: id.value } });
-  }
-
-  async findByUserId(userId: UserIdVO): Promise<UserSettingsEntity | null> {
+  async findByUserId(userId: UserId): Promise<UserSettingsEntity | null> {
     const raw = await this.prisma.userSettings.findUnique({
-      where: { userId: userId.value },
+      where: { userId },
     });
     return raw ? this.toDomain(raw) : null;
   }

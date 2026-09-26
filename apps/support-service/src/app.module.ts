@@ -1,5 +1,20 @@
+/**
+ * support-service root module
+ * @module support-service/app.module
+ *
+ * Rule: KernelCommonModule aggregator (Prisma, Redis, Queue, CQRS, Guards,
+ *       Interceptors, Filters, Pipes, Config) + Infrastructure + Feature modules
+ */
 import { Module } from '@nestjs/common';
-import { KernelCommonModule } from '@vubon/shared-kernel/modules';
+
+// Kernel aggregator — imports everything kernel-level
+import { KernelCommonModule } from '@vubon/shared-kernel/modules/common';
+
+// Infrastructure (own)
+import { SupportInfrastructureModule } from './module/infrastructure/infrastructure.module';
+
+// App-level common
+import { SharedServicesModule } from './module/modules/common';
 
 // Feature modules
 import {
@@ -31,47 +46,41 @@ import {
 
 @Module({
   imports: [
-    // Framework + Kernel (global)
+    // Kernel — Prisma, Redis, Queue, CQRS, Guards, Interceptors, Filters, Pipes, Config
     KernelCommonModule,
 
-    // Ticket family
+    // Infrastructure (own — global)
+    SupportInfrastructureModule,
+
+    // App-level shared services
+    SharedServicesModule,
+
+    // Feature modules
     TicketModule,
     TicketMessageModule,
     TicketAttachmentModule,
     TicketEscalationModule,
     TicketSatisfactionModule,
-
-    // Conversation / message
     ConversationModule,
     MessageModule,
     AttachmentModule,
-
-    // Knowledge
     FaqModule,
     KnowledgeBaseModule,
-
-    // Feedback / complaints / surveys
     FeedbackModule,
     ComplaintModule,
     SurveyModule,
-
-    // Chat
     LiveChatModule,
     ChatbotModule,
     ChatbotIntentModule,
     ChatbotEntityModule,
-
-    // Agents / teams / SLA
     AgentModule,
     TeamModule,
     SlaModule,
-
-    // Automation
     RuleModule,
     AutomationModule,
     TemplateModule,
 
-    // WebSocket (last)
+    // WebSocket last
     WebSocketModule,
   ],
 })

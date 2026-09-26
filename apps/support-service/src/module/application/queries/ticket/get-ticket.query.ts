@@ -1,3 +1,7 @@
+/**
+ * GetTicketQuery
+ * @module support-service/application/queries/ticket
+ */
 import { BaseQuery } from '@vubon/shared-kernel/application/queries/base.query';
 
 export class GetTicketQuery extends BaseQuery {

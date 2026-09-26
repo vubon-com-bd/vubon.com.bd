@@ -1,24 +1,20 @@
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { DisableBiometricCommand } from './disable-biometric.command';
 import type { AuthBiometricServiceInterface } from '../../services/interfaces/auth-biometric.service.interface';
+import { AUTH_BIOMETRIC_SERVICE } from '../../tokens';
 
 @CommandHandler(DisableBiometricCommand)
 export class DisableBiometricHandler
   extends BaseCommandHandler<DisableBiometricCommand, void>
-  implements ICommandHandler<DisableBiometricCommand>
-{
-  readonly commandType = 'auth.disable-biometric';
-
+  implements ICommandHandler<DisableBiometricCommand> {
+  readonly commandType = 'DisableBiometricCommand';
   constructor(
-    @Inject('AuthBiometricService') @Inject('AuthBiometricService') private readonly biometricService: AuthBiometricServiceInterface,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
-  }
+    @Inject(AUTH_BIOMETRIC_SERVICE) private readonly biometricService: AuthBiometricServiceInterface,
+  ) { super(); }
 
   async execute(command: DisableBiometricCommand): Promise<void> {
-    await this.biometricService.disable(command.userId);
+    await this.biometricService.remove(command.userId, command.input);
   }
 }

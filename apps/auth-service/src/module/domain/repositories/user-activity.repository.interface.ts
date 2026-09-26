@@ -1,9 +1,19 @@
-import type { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
+/**
+ * UserActivityRepository
+ * @module auth-service/domain/repositories
+ */
+import { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
+import type { UserId } from '@vubon/shared-types/common';
 import { UserActivityEntity } from '../entities/user-activity.entity';
-import { UserIdVO } from '../value-objects/primitives/user-id.vo';
 
-export interface UserActivityRepository
-  extends BaseRepository<UserActivityEntity, string> {
-  findByUserId(userId: UserIdVO): Promise<readonly UserActivityEntity[]>;
-  findRecent(userId: UserIdVO, limit: number): Promise<readonly UserActivityEntity[]>;
+export interface UserActivityRepository extends BaseRepository<UserActivityEntity, string> {
+  findByUserId(
+    userId: UserId,
+    limit?: number,
+  ): Promise<readonly UserActivityEntity[]>;
+  findRecentByUser(
+    userId: UserId,
+    sinceEpochMs: number,
+  ): Promise<readonly UserActivityEntity[]>;
+  deleteOlderThan(epochMs: number): Promise<number>;
 }

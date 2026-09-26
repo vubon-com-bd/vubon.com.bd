@@ -1,8 +1,8 @@
-import { z } from 'zod';
-
-export const EndChatRequestSchema = z.object({
-  chatId: z.string().uuid(),
-  reason: z.string().max(500).optional(),
-});
-
-export type EndChatRequestDTO = z.infer<typeof EndChatRequestSchema>;
+/**
+ * EndChatRequestDTO
+ * @module support-service/application/dtos/requests/live-chat
+ */
+export interface EndChatRequestDTO {
+  readonly sessionId: string;
+  readonly reason?: string;
+}

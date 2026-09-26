@@ -1,9 +1,16 @@
-import type { ChatbotEntity } from '../../../domain/entities/chatbot.entity';
-import type { ChatbotIdVO } from '../../../domain/value-objects/primitives/chatbot-id.vo';
-import type { SendChatbotMessageRequestDTO } from '../../dtos/requests/chatbot';
-import type { ChatbotMessageResponseDTO } from '../../dtos/responses/chatbot-response.dto';
+/**
+ * ChatbotServiceInterface
+ * @module support-service/application/services/interfaces
+ */
+import type { SendChatbotMessageRequestDTO } from '../../dtos/requests/chatbot/send-chatbot-message.dto';
+import type { TrainIntentRequestDTO } from '../../dtos/requests/chatbot/train-intent.dto';
+import type { TrainEntityRequestDTO } from '../../dtos/requests/chatbot/train-entity.dto';
+import type { ChatbotResponseDTO } from '../../dtos/responses/chatbot-response.dto';
+import type { ChatbotReplyResponseDTO } from '../../dtos/responses/chatbot-reply-response.dto';
 
 export interface ChatbotServiceInterface {
-  findById(id: ChatbotIdVO): Promise<ChatbotEntity | null>;
-  sendMessage(input: SendChatbotMessageRequestDTO): Promise<ChatbotMessageResponseDTO>;
+  sendMessage(input: SendChatbotMessageRequestDTO): Promise<ChatbotReplyResponseDTO>;
+  trainIntent(input: TrainIntentRequestDTO): Promise<ChatbotResponseDTO>;
+  trainEntity(input: TrainEntityRequestDTO): Promise<ChatbotResponseDTO>;
+  getById(chatbotId: string): Promise<ChatbotResponseDTO>;
 }

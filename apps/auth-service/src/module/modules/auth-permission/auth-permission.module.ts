@@ -1,31 +1,34 @@
-import { PrismaService } from '../../infrastructure/persistence/prisma/prisma.service';
-import { PrismaModule, RedisModule } from '@vubon/shared-kernel/infrastructure';
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-
 import { AuthPermissionController } from '../../interfaces/controllers/rest/auth-permission.controller';
 import { AuthPermissionService } from '../../application/services/impl/auth-permission.service';
 import { ListAuthPermissionsHandler } from '../../application/queries/auth/list-auth-permissions.handler';
-import { AssignPermissionHandler } from '../../application/commands/user/assign-permission.handler';
-import { RevokePermissionHandler } from '../../application/commands/user/revoke-permission.handler';
 import { AuthPermissionPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/auth-permission.prisma.repository';
-import { PermissionValidatorService } from '../../infrastructure/services/internal/permission-validator.service';
+import { AuthRolePrismaRepository } from '../../infrastructure/persistence/prisma/repositories/auth-role.prisma.repository';
+import {
+  AUTH_PERMISSION_REPO,
+  AUTH_ROLE_REPO,
+} from '../../application/services/tokens';
+
+const TOKEN_BINDINGS = [
+  { provide: AUTH_PERMISSION_REPO, useExisting: AuthPermissionPrismaRepository },
+  { provide: AUTH_ROLE_REPO, useExisting: AuthRolePrismaRepository },
+];
 
 @Module({
-  imports: [CqrsModule, PrismaModule, RedisModule],
+  imports: [CqrsModule],
   controllers: [AuthPermissionController],
-  providers: [PrismaService, { provide: 'PrismaService', useClass: PrismaService },
-    { provide: 'AuthPermissionRepository', useExisting: AuthPermissionPrismaRepository },
-    { provide: 'PermissionValidatorService', useExisting: PermissionValidatorService },
-    { provide: 'AuthPermissionService', useExisting: AuthPermissionService },
-
-    AuthPermissionPrismaRepository,
-    PermissionValidatorService,
+  providers: [
     AuthPermissionService,
+    AuthPermissionPrismaRepository,
+    AuthRolePrismaRepository,
     ListAuthPermissionsHandler,
-    AssignPermissionHandler,
-    RevokePermissionHandler,
+    ...TOKEN_BINDINGS,
   ],
-  exports: [AuthPermissionService, AuthPermissionPrismaRepository, PermissionValidatorService],
+  exports: [
+    AuthPermissionService,
+    AuthPermissionPrismaRepository,
+    ...TOKEN_BINDINGS.map((b) => b.provide),
+  ],
 })
 export class AuthPermissionModule {}

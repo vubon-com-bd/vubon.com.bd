@@ -1,20 +1,28 @@
-import { ERROR_CODE, type ErrorCodeType } from '@vubon/shared-constants/common';
+/**
+ * Agent application errors
+ * @module support-service/application/errors
+ *
+ * Note: ERROR_CODE lacks support-specific codes → mapped to closest generic
+ */
+import { ERROR_CODE } from '@vubon/shared-constants/common';
 import { ApplicationError } from '@vubon/shared-kernel/application/errors/application.error';
 
-export class AgentNotFoundError extends ApplicationError {
-  readonly code: ErrorCodeType = ERROR_CODE.SERVER_INTERNAL;
+export class AgentNotFoundException extends ApplicationError {
+  readonly code = ERROR_CODE.USER_NOT_FOUND;
   readonly httpStatus = 404;
 
-  constructor(agentId: string) {
+  constructor(public readonly agentId: string) {
     super(`Agent not found: ${agentId}`, { agentId });
+    this.name = 'AgentNotFoundException';
   }
 }
 
-export class NoAgentAvailableError extends ApplicationError {
-  readonly code: ErrorCodeType = ERROR_CODE.SERVER_INTERNAL;
-  readonly httpStatus = 503;
+export class AgentUnavailableException extends ApplicationError {
+  readonly code = ERROR_CODE.VAL_DUPLICATE;
+  readonly httpStatus = 409;
 
-  constructor(ticketId: string) {
-    super(`No agent available for ticket: ${ticketId}`, { ticketId });
+  constructor(public readonly agentId: string) {
+    super(`Agent is unavailable: ${agentId}`, { agentId });
+    this.name = 'AgentUnavailableException';
   }
 }

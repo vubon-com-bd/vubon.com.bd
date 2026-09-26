@@ -1,12 +1,21 @@
-import { ApiProperty } from '@nestjs/swagger';
+/**
+ * VerificationRequestDTO
+ * @module auth-service/interfaces/dtos/requests
+ */
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class VerificationSubmitRequestDTO {
-  @ApiProperty()
-  userId!: string;
+export class VerifyEmailRequestDTO {
+  @ApiProperty({ format: 'email' })
+  email!: string;
 
-  @ApiProperty()
-  type!: string;
-
-  @ApiProperty()
+  @ApiProperty({ pattern: '^\\d{4,8}$' })
   code!: string;
+}
+
+export class ResendVerificationRequestDTO {
+  @ApiProperty({ minLength: 3, maxLength: 255 })
+  identifier!: string;
+
+  @ApiPropertyOptional({ enum: ['email', 'phone'], default: 'email' })
+  channel?: 'email' | 'phone';
 }

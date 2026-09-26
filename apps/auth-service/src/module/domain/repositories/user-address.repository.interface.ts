@@ -1,10 +1,13 @@
-import type { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
+/**
+ * UserAddressRepository
+ * @module auth-service/domain/repositories
+ */
+import { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
+import type { UserId } from '@vubon/shared-types/common';
 import { UserAddressEntity } from '../entities/user-address.entity';
-import { AddressIdVO } from '../value-objects/primitives/address-id.vo';
-import { UserIdVO } from '../value-objects/primitives/user-id.vo';
 
-export interface UserAddressRepository
-  extends BaseRepository<UserAddressEntity, AddressIdVO> {
-  findByUserId(userId: UserIdVO): Promise<readonly UserAddressEntity[]>;
-  findDefault(userId: UserIdVO): Promise<UserAddressEntity | null>;
+export interface UserAddressRepository extends BaseRepository<UserAddressEntity, string> {
+  findByUserId(userId: UserId): Promise<readonly UserAddressEntity[]>;
+  findDefaultByUserId(userId: UserId): Promise<UserAddressEntity | null>;
+  clearDefaultForUser(userId: UserId): Promise<void>;
 }

@@ -1,26 +1,41 @@
+/**
+ * MfaSwagger
+ * @module auth-service/interfaces/swagger
+ */
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { MfaSetupResponseDTO } from '../dtos/responses/mfa.response.dto';
+import { ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { MfaResponseDTO } from '../dtos/responses/mfa.response.dto';
 
 export const MfaSwagger = {
-  Tag: () => ApiTags('MFA'),
-
-  Setup: () =>
+  Enable: () =>
     applyDecorators(
-      ApiOperation({ summary: 'Setup MFA for current user' }),
-      ApiResponse({ status: 200, type: MfaSetupResponseDTO }),
-    ),
-
-  Verify: () =>
-    applyDecorators(
-      ApiOperation({ summary: 'Verify MFA code' }),
-      ApiResponse({ status: 200, description: 'MFA verified' }),
-      ApiResponse({ status: 400, description: 'Invalid code' }),
+      ApiOperation({ summary: 'Begin MFA enrollment' }),
+      ApiBearerAuth(),
+      ApiResponse({
+        status: 200,
+        description: 'Returns secret, QR url, recovery codes',
+      }),
     ),
 
   Disable: () =>
     applyDecorators(
       ApiOperation({ summary: 'Disable MFA' }),
-      ApiResponse({ status: 204, description: 'MFA disabled' }),
+      ApiBearerAuth(),
+      ApiResponse({ status: 204 }),
+    ),
+
+  Verify: () =>
+    applyDecorators(
+      ApiOperation({ summary: 'Verify MFA code' }),
+      ApiBearerAuth(),
+      ApiResponse({ status: 200, description: 'Verified' }),
+      ApiResponse({ status: 401, description: 'Invalid code' }),
+    ),
+
+  Status: () =>
+    applyDecorators(
+      ApiOperation({ summary: 'Get MFA status' }),
+      ApiBearerAuth(),
+      ApiResponse({ status: 200, type: MfaResponseDTO }),
     ),
 };

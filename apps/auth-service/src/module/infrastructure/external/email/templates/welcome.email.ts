@@ -1,13 +1,14 @@
-import type { EmailTemplate } from '@vubon/shared-kernel/infrastructure';
-
-export const WelcomeEmailTemplate: EmailTemplate = {
+/**
+ * Welcome Email Template
+ * @module auth-service/infrastructure/external/email/templates
+ */
+export const WelcomeEmailTemplate = {
   name: 'welcome',
-  subject: 'Welcome to Vubon',
-  html: `
+  subject: 'Welcome to Vubon 🎉',
+  body: `
     <h1>Welcome, {{name}}!</h1>
-    <p>Thank you for joining Vubon. Your account is ready.</p>
+    <p>Your Vubon account is now active.</p>
+    <p>Get started by exploring the marketplace.</p>
     <p>— The Vubon Team</p>
   `,
-  text: 'Welcome, {{name}}! Thank you for joining Vubon.',
-  variables: ['name'],
-};
+} as const;

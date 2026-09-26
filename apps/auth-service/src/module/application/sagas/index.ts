@@ -1,7 +1,9 @@
-export { AuthLoginSaga } from './auth-login.saga';
-export { AuthRegisterSaga } from './auth-register.saga';
-export { AuthMfaSaga } from './auth-mfa.saga';
-export { AuthSocialSaga } from './auth-social.saga';
-
+/**
+ * Sagas — Barrel
+ * @module auth-service/application/sagas
+ */
 export * from './commands';
-export * from './handlers';
+export * from './auth-login.saga';
+export * from './auth-register.saga';
+export * from './auth-mfa.saga';
+export * from './auth-social.saga';

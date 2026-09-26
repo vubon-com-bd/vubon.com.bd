@@ -1,9 +1,23 @@
+/**
+ * RevokeRoleRequest DTO — inline
+ * @module auth-service/application/dtos/requests/user
+ */
 import { z } from 'zod';
-import { UserRoleSchema } from '@vubon/shared-schemas/user';
+import { UuidSchema } from '@vubon/shared-schemas/common';
+import { AuthRoleSchema } from '@vubon/shared-schemas/auth';
 
-export const RevokeRoleRequestSchema = z.object({
-  userId: z.string().min(1),
-  role: UserRoleSchema,
-});
+export const RevokeRoleSchema = z
+  .object({
+    userId: UuidSchema,
+    role: AuthRoleSchema,
+    note: z.string().max(500).optional(),
+  })
+  .strict();
 
-export type RevokeRoleRequestDTO = z.infer<typeof RevokeRoleRequestSchema>;
+export type RevokeRoleRequestDTO = z.infer<typeof RevokeRoleSchema>;
+
+export function validateRevokeRoleRequest(
+  input: unknown,
+): RevokeRoleRequestDTO {
+  return RevokeRoleSchema.parse(input);
+}

@@ -1,31 +1,37 @@
-import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
+import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
 import { GetAuthAccountLockStatusQuery } from './get-auth-account-lock-status.query';
 import type { AuthAccountLockRepository } from '../../../domain/repositories/auth-account-lock.repository.interface';
 import type { AuthAccountLockResponseDTO } from '../../dtos/responses/auth-account-lock-response.dto';
-import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
+import { AUTH_ACCOUNT_LOCK_REPO } from '../../tokens';
 
 @QueryHandler(GetAuthAccountLockStatusQuery)
 export class GetAuthAccountLockStatusHandler
   extends BaseQueryHandler<GetAuthAccountLockStatusQuery, AuthAccountLockResponseDTO | null>
-  implements IQueryHandler<GetAuthAccountLockStatusQuery>
-{
-  readonly queryType = 'auth.get-account-lock-status';
+  implements IQueryHandler<GetAuthAccountLockStatusQuery> {
+  readonly queryType = 'GetAuthAccountLockStatusQuery';
+  constructor(
+    @Inject(AUTH_ACCOUNT_LOCK_REPO)
+    private readonly repo: AuthAccountLockRepository,
+  ) { super(); }
 
-  constructor(@Inject('AuthAccountLockRepository') private readonly lockRepo: AuthAccountLockRepository) {
-    super();
-  }
-
-  async execute(query: GetAuthAccountLockStatusQuery): Promise<AuthAccountLockResponseDTO | null> {
-    const entity = await this.lockRepo.findActiveByUser(UserIdVO.create(query.userId));
-    if (!entity) return null;
+  async execute(
+    query: GetAuthAccountLockStatusQuery,
+  ): Promise<AuthAccountLockResponseDTO | null> {
+    const lock = await this.repo.findActiveByUser(query.userId, Date.now());
+    if (!lock) return null;
     return {
-      userId: entity.userId.value,
-      reason: entity.reason.value,
-      lockedUntil: new Date(entity.duration.epochMs).toISOString(),
-      lockedAt: entity.lockedAt.toISOString(),
-      attemptCount: 0,
+      id: lock.id,
+      userId: lock.userId,
+      reason: lock.reason.value,
+      lockedAt: new Date(lock.lockedAt).toISOString(),
+      unlockAt:
+        lock.duration && !lock.duration.isPermanent()
+          ? new Date(lock.lockedAt + lock.duration.value).toISOString()
+          : undefined,
+      isCurrentlyLocked: lock.isLocked(Date.now()),
+      isPermanent: lock.isPermanent(),
     };
   }
 }

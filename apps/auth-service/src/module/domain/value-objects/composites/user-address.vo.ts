@@ -1,51 +1,63 @@
+/**
+ * UserAddressVO — Structured BD address
+ * @module auth-service/domain/value-objects/composites
+ */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
 import { UserIdVO } from '../primitives/user-id.vo';
-import { AddressIdVO } from '../primitives/address-id.vo';
 
-export interface UserAddressProps {
-  readonly id: AddressIdVO;
+export interface UserAddressVOProps {
   readonly userId: UserIdVO;
   readonly label: string;
-  readonly fullName: string;
-  readonly phone: string;
+  readonly line1: string;
+  readonly line2?: string;
   readonly division: string;
   readonly district: string;
   readonly upazila: string;
-  readonly addressLine: string;
-  readonly postalCode: string | null;
+  readonly postalCode: string;
   readonly isDefault: boolean;
 }
 
-export class UserAddressVO extends BaseVO<UserAddressProps> {
-  private constructor(props: UserAddressProps) {
-    super(Object.freeze({ ...props }));
+const MAX_LABEL = 50;
+const MAX_LINE = 200;
+const POSTAL_REGEX = /^\d{4}$/;
+
+export class UserAddressVO extends BaseVO<UserAddressVOProps> {
+  private constructor(props: UserAddressVOProps) {
+    super(props);
   }
 
-  static create(props: UserAddressProps): UserAddressVO {
+  static of(props: UserAddressVOProps): UserAddressVO {
+    if (!props.label || props.label.length > MAX_LABEL) {
+      throw new Error('Address label invalid');
+    }
+    if (!props.line1 || props.line1.length > MAX_LINE) {
+      throw new Error('Address line1 invalid');
+    }
+    if (props.line2 && props.line2.length > MAX_LINE) {
+      throw new Error('Address line2 too long');
+    }
+    if (!props.division || !props.district || !props.upazila) {
+      throw new Error('Division/district/upazila are required');
+    }
+    if (!POSTAL_REGEX.test(props.postalCode)) {
+      throw new Error('Postal code must be 4 digits');
+    }
     return new UserAddressVO(props);
   }
 
-  get id(): AddressIdVO { return this.value.id; }
   get userId(): UserIdVO { return this.value.userId; }
-  get label(): string { return this.value.label; }
-  get fullName(): string { return this.value.fullName; }
-  get phone(): string { return this.value.phone; }
-  get division(): string { return this.value.division; }
-  get district(): string { return this.value.district; }
-  get upazila(): string { return this.value.upazila; }
-  get addressLine(): string { return this.value.addressLine; }
-  get postalCode(): string | null { return this.value.postalCode; }
   get isDefault(): boolean { return this.value.isDefault; }
 
-  get formatted(): string {
-    return [
-      this.value.addressLine,
+  /** Single-line formatted address */
+  format(): string {
+    const parts = [
+      this.value.line1,
+      this.value.line2,
       this.value.upazila,
       this.value.district,
       this.value.division,
       this.value.postalCode,
-    ]
-      .filter(Boolean)
-      .join(', ');
+    ].filter((p): p is string => typeof p === 'string' && p.length > 0);
+    return parts.join(', ');
   }
 }

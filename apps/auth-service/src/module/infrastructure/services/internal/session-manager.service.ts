@@ -1,26 +1,30 @@
+/**
+ * SessionManagerService — Session lifecycle helper
+ * @module auth-service/infrastructure/services/internal
+ */
 import { Injectable } from '@nestjs/common';
-import { SESSION_CONFIG } from '../../config/session.config';
-import { SessionExpiryVO } from '../../../domain/value-objects/primitives/session-expiry.vo';
+import { AuthSessionEntity } from '../../../domain/entities/auth-session.entity';
+
+const DEFAULT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const SLIDE_THRESHOLD_MS = 5 * 60 * 1000;
 
 @Injectable()
 export class SessionManagerService {
-  getTtlSeconds(): number {
-    return SESSION_CONFIG.ttlSeconds;
+  readonly name = 'SessionManagerService';
+
+  shouldRefresh(session: AuthSessionEntity, now: number): boolean {
+    return session.expiry.remainingMs(now) < SLIDE_THRESHOLD_MS;
   }
 
-  getRefreshTtlSeconds(): number {
-    return SESSION_CONFIG.refreshTtlSeconds;
+  touch(session: AuthSessionEntity, now: number): void {
+    session.touch(now, DEFAULT_TTL_MS);
   }
 
-  buildExpiry(): SessionExpiryVO {
-    return SessionExpiryVO.fromNow(SESSION_CONFIG.ttlSeconds * 1000);
+  assertActive(session: AuthSessionEntity, now: number): void {
+    session.assertActive(now);
   }
 
-  isExpired(entity: { expiry: SessionExpiryVO }): boolean {
-    return entity.expiry.isExpired();
-  }
-
-  getMaxSessionsPerUser(): number {
-    return SESSION_CONFIG.maxSessionsPerUser;
+  get defaultTtlMs(): number {
+    return DEFAULT_TTL_MS;
   }
 }

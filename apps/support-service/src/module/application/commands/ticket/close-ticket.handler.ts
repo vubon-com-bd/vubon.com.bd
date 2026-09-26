@@ -1,33 +1,23 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
+/**
+ * CloseTicketHandler
+ * @module support-service/application/commands/ticket
+ */
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { CloseTicketCommand } from './close-ticket.command';
-import type { TicketRepository } from '../../../domain/repositories/ticket.repository.interface';
-import { TicketIdVO } from '../../../domain/value-objects/primitives/ticket-id.vo';
-import { TicketNotFoundError } from '../../errors/ticket.errors';
+import type { TicketResponseDTO } from '../../dtos/responses/ticket-response.dto';
+import type { TicketServiceInterface } from '../../services/interfaces/ticket.service.interface';
 
-@CommandHandler(CloseTicketCommand)
-export class CloseTicketHandler
-  extends BaseCommandHandler<CloseTicketCommand, void>
-  implements ICommandHandler<CloseTicketCommand>
-{
+export class CloseTicketHandler extends BaseCommandHandler<
+  CloseTicketCommand,
+  TicketResponseDTO
+> {
   readonly commandType = 'support.ticket.close';
 
-  constructor(
-    private readonly ticketRepo: TicketRepository,
-    private readonly eventBus: EventBus,
-  ) {
+  constructor(private readonly ticketService: TicketServiceInterface) {
     super();
   }
 
-  async execute(command: CloseTicketCommand): Promise<void> {
-    void command.reason;
-    const ticket = await this.ticketRepo.findById(TicketIdVO.create(command.ticketId));
-    if (!ticket) throw new TicketNotFoundError(command.ticketId);
-    const closed = ticket.close();
-    await this.ticketRepo.save(closed);
-    const events = closed.pullDomainEvents();
-    for (const event of events) {
-      this.eventBus.publish(event as never);
-    }
+  async execute(command: CloseTicketCommand): Promise<TicketResponseDTO> {
+    return this.ticketService.close(command.payload);
   }
 }

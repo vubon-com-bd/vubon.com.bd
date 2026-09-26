@@ -1,78 +1,48 @@
+/**
+ * AuthSessionCacheRepository — Session snapshot cache
+ * @module auth-service/infrastructure/persistence/cache/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { BaseCacheRepository, RedisService } from '@vubon/shared-kernel/infrastructure';
+import { RedisService } from '@vubon/shared-kernel/infrastructure/persistence/cache/redis.service';
+import { BaseCacheRepository } from '@vubon/shared-kernel/infrastructure/persistence/cache/base.cache.repository';
+import { CACHE_TTL } from '@vubon/shared-constants/infrastructure';
+import type { UserId } from '@vubon/shared-types/common';
 import { AuthSessionEntity } from '../../../../domain/entities/auth-session.entity';
-import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
 import { SessionTokenVO } from '../../../../domain/value-objects/primitives/session-token.vo';
 import { SessionExpiryVO } from '../../../../domain/value-objects/primitives/session-expiry.vo';
 
-interface SerializedSession {
+interface CachedSession {
   readonly id: string;
   readonly userId: string;
   readonly token: string;
-  readonly expiry: string;
-  readonly ip: string;
+  readonly expiryEpochMs: number;
+  readonly ipAddress: string;
   readonly userAgent: string;
   readonly deviceId: string | null;
-  readonly revokedAt: string | null;
-  readonly revokeReason: string | null;
+  readonly revokedAt: number | null;
   readonly createdAt: string;
   readonly updatedAt: string;
-  readonly deletedAt: string | null;
 }
 
-const PREFIX = 'auth:session';
-const TTL_SECONDS = 60 * 30;
-
 @Injectable()
-export class AuthSessionCacheRepository extends BaseCacheRepository<AuthSessionEntity, string> {
+export class AuthSessionCacheRepository extends BaseCacheRepository<
+  AuthSessionEntity,
+  string
+> {
+  private static readonly PREFIX = 'cache:session';
+
   constructor(redis: RedisService) {
-    super(redis, PREFIX, TTL_SECONDS);
-  }
-
-  private serialize(entity: AuthSessionEntity): SerializedSession {
-    return {
-      id: entity.id,
-      userId: entity.userId.value,
-      token: entity.token.value,
-      expiry: new Date(entity.expiry.epochMs).toISOString(),
-      ip: entity.ip,
-      userAgent: entity.userAgent,
-      deviceId: entity.deviceId,
-      revokedAt: entity.revokedAt?.toISOString() ?? null,
-      revokeReason: entity.revokeReason,
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
-      deletedAt: entity.deletedAt ?? null,
-    };
-  }
-
-  private deserialize(data: SerializedSession): AuthSessionEntity {
-    return AuthSessionEntity.reconstitute(
-      data.id,
-      {
-        userId: UserIdVO.create(data.userId),
-        token: SessionTokenVO.create(data.token),
-        expiry: SessionExpiryVO.create(new Date(data.expiry)),
-        ip: data.ip,
-        userAgent: data.userAgent,
-        deviceId: data.deviceId,
-        revokedAt: data.revokedAt ? new Date(data.revokedAt) : null,
-        revokeReason: data.revokeReason,
-      },
-      data.createdAt,
-      data.updatedAt,
-      data.deletedAt,
-    );
+    super(redis, AuthSessionCacheRepository.PREFIX, CACHE_TTL.FIVE_MINUTES);
   }
 
   async findById(id: string): Promise<AuthSessionEntity | null> {
-    const raw = await this.redis.get<SerializedSession>(this.keyFor(id));
-    return raw ? this.deserialize(raw) : null;
+    const cached = await this.redis.get<CachedSession>(this.keyFor(id));
+    return cached ? this.toDomain(cached) : null;
   }
 
   async findByToken(token: string): Promise<AuthSessionEntity | null> {
-    const raw = await this.redis.get<SerializedSession>(`${PREFIX}:token:${token}`);
-    return raw ? this.deserialize(raw) : null;
+    const cached = await this.redis.get<CachedSession>(`${AuthSessionCacheRepository.PREFIX}:token:${token}`);
+    return cached ? this.toDomain(cached) : null;
   }
 
   async findAll(): Promise<readonly AuthSessionEntity[]> {
@@ -80,21 +50,56 @@ export class AuthSessionCacheRepository extends BaseCacheRepository<AuthSessionE
   }
 
   async save(entity: AuthSessionEntity): Promise<AuthSessionEntity> {
-    const serialized = this.serialize(entity);
-    await this.redis.set(this.keyFor(entity.id), serialized, TTL_SECONDS);
+    const snapshot = this.serialize(entity);
     await this.redis.set(
-      `${PREFIX}:token:${entity.token.value}`,
-      serialized,
-      TTL_SECONDS,
+      this.keyFor(entity.id),
+      snapshot,
+      CACHE_TTL.FIVE_MINUTES,
+    );
+    await this.redis.set(
+      `${AuthSessionCacheRepository.PREFIX}:token:${entity.token.value}`,
+      snapshot,
+      CACHE_TTL.FIVE_MINUTES,
     );
     return entity;
   }
 
   async delete(id: string): Promise<void> {
+    const cached = await this.redis.get<CachedSession>(this.keyFor(id));
     await this.redis.del(this.keyFor(id));
+    if (cached) {
+      await this.redis.del(`${AuthSessionCacheRepository.PREFIX}:token:${cached.token}`);
+    }
   }
 
-  async revokeAllForUser(userId: UserIdVO): Promise<void> {
-    void userId;
+  private serialize(entity: AuthSessionEntity): CachedSession {
+    return {
+      id: entity.id,
+      userId: entity.userId,
+      token: entity.token.value,
+      expiryEpochMs: entity.expiry.epochMs,
+      ipAddress: entity.ipAddress,
+      userAgent: entity.userAgent,
+      deviceId: entity.deviceId ?? null,
+      revokedAt: entity.revokedAt ?? null,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    };
+  }
+
+  private toDomain(raw: CachedSession): AuthSessionEntity {
+    return AuthSessionEntity.create({
+      id: raw.id,
+      userId: raw.userId as UserId,
+      token: SessionTokenVO.of(raw.token),
+      expiry: SessionExpiryVO.fromEpoch(raw.expiryEpochMs),
+      ipAddress: raw.ipAddress,
+      userAgent: raw.userAgent,
+      deviceId: raw.deviceId ?? undefined,
+      revokedAt: raw.revokedAt ?? undefined,
+      createdAt: raw.createdAt,
+      updatedAt: raw.updatedAt,
+      deletedAt: null,
+    });
   }
 }

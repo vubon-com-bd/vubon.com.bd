@@ -1,4 +1,11 @@
-import { z } from 'zod';
-import { RegisterResponseSchema } from '@vubon/shared-schemas/auth';
+/**
+ * RegisterResponseDTO
+ * @module auth-service/application/dtos/responses
+ */
+import type { UserResponseDTO } from './user-response.dto';
 
-export type RegisterResponseDTO = z.infer<typeof RegisterResponseSchema>;
+export interface RegisterResponseDTO {
+  readonly user: UserResponseDTO;
+  readonly verificationSent: boolean;
+  readonly nextStep: 'verify_email' | 'verify_phone' | 'complete_profile' | 'none';
+}

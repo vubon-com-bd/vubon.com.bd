@@ -1,78 +1,103 @@
+/**
+ * KnowledgeArticlePrismaRepository
+ * @module support-service/infrastructure/persistence/prisma/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { KnowledgeArticle as PrismaKnowledgeArticle } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+import { SupportPrismaService } from '../prisma.service';
+import { KnowledgeArticleRepository } from '../../../../domain/repositories/knowledge-article.repository.interface';
 import { KnowledgeArticleEntity } from '../../../../domain/entities/knowledge-article.entity';
 import { KnowledgeArticleIdVO } from '../../../../domain/value-objects/primitives/knowledge-article-id.vo';
-import { KnowledgeArticleTitleVO } from '../../../../domain/value-objects/primitives/knowledge-article-title.vo';
-import { KnowledgeArticleBodyVO } from '../../../../domain/value-objects/primitives/knowledge-article-body.vo';
 import { KnowledgeStatusVO } from '../../../../domain/value-objects/primitives/knowledge-status.vo';
-import type { KnowledgeArticleRepository } from '../../../../domain/repositories/knowledge-article.repository.interface';
+import { TicketCategoryIdVO } from '../../../../domain/value-objects/primitives/ticket-category-id.vo';
+import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
+import { KnowledgeArticleMapper } from '../mappers/knowledge-article.mapper';
 
 @Injectable()
 export class KnowledgeArticlePrismaRepository
-  extends BasePrismaRepository<KnowledgeArticleEntity, KnowledgeArticleIdVO>
   implements KnowledgeArticleRepository
 {
-  constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
-  }
-
-  private toDomain(raw: PrismaKnowledgeArticle): KnowledgeArticleEntity {
-    return KnowledgeArticleEntity.reconstitute(
-      KnowledgeArticleIdVO.create(raw.id),
-      {
-        title: KnowledgeArticleTitleVO.create(raw.title),
-        body: KnowledgeArticleBodyVO.create(raw.body),
-        status: KnowledgeStatusVO.create(raw.status),
-        categoryId: raw.categoryId,
-        tags: raw.tags,
-        viewCount: raw.viewCount,
-      },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      raw.deletedAt?.toISOString() ?? null,
-    );
-  }
+  constructor(
+    private readonly prisma: SupportPrismaService,
+    private readonly mapper: KnowledgeArticleMapper,
+  ) {}
 
   async findById(id: KnowledgeArticleIdVO): Promise<KnowledgeArticleEntity | null> {
-    const raw = await this.prisma.knowledgeArticle.findUnique({ where: { id: id.value } });
-    return raw ? this.toDomain(raw) : null;
+    const raw = await this.prisma.knowledgeArticle.findUnique({
+      where: { id: id.value },
+    });
+    return raw ? this.mapper.toDomain(raw) : null;
   }
 
   async findAll(): Promise<readonly KnowledgeArticleEntity[]> {
-    const rows = await this.prisma.knowledgeArticle.findMany();
-    return rows.map((r) => this.toDomain(r));
+    const rows = await this.prisma.knowledgeArticle.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
   }
 
   async save(entity: KnowledgeArticleEntity): Promise<KnowledgeArticleEntity> {
-    const data = {
-      title: entity.title.value,
-      body: entity.body.value,
-      status: entity.status.value,
-      categoryId: entity.categoryId,
-      tags: [...entity.tags],
-      viewCount: entity.viewCount,
-      updatedAt: new Date(),
-      deletedAt: entity.deletedAt ? new Date(entity.deletedAt) : null,
-    };
+    const data = this.mapper.toPersistence(entity);
     const raw = await this.prisma.knowledgeArticle.upsert({
-      where: { id: entity.id.value },
-      create: { id: entity.id.value, ...data },
-      update: data,
+      where: { id: data.id },
+      create: { ...data, tags: [...data.tags] },
+      update: {
+        title: data.title,
+        body: data.body,
+        status: data.status,
+        tags: [...data.tags],
+        viewCount: data.viewCount,
+        helpfulCount: data.helpfulCount,
+        updatedAt: new Date(),
+      },
     });
-    return this.toDomain(raw);
+    return this.mapper.toDomain(raw);
   }
 
   async delete(id: KnowledgeArticleIdVO): Promise<void> {
     await this.prisma.knowledgeArticle.delete({ where: { id: id.value } });
   }
 
+  async exists(id: KnowledgeArticleIdVO): Promise<boolean> {
+    const count = await this.prisma.knowledgeArticle.count({
+      where: { id: id.value },
+    });
+    return count > 0;
+  }
+
   async findPublished(): Promise<readonly KnowledgeArticleEntity[]> {
     const rows = await this.prisma.knowledgeArticle.findMany({
       where: { status: 'published' },
+      orderBy: { viewCount: 'desc' },
     });
-    return rows.map((r) => this.toDomain(r));
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findByCategory(categoryId: TicketCategoryIdVO): Promise<readonly KnowledgeArticleEntity[]> {
+    const rows = await this.prisma.knowledgeArticle.findMany({
+      where: { categoryId: categoryId.value },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findByStatus(status: KnowledgeStatusVO): Promise<readonly KnowledgeArticleEntity[]> {
+    const rows = await this.prisma.knowledgeArticle.findMany({
+      where: { status: status.value },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findByAuthor(authorId: UserIdVO): Promise<readonly KnowledgeArticleEntity[]> {
+    const rows = await this.prisma.knowledgeArticle.findMany({
+      where: { authorId: authorId.value },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async findByTag(tag: string): Promise<readonly KnowledgeArticleEntity[]> {
+    const rows = await this.prisma.knowledgeArticle.findMany({
+      where: { tags: { has: tag } },
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
   }
 
   async searchByKeyword(keyword: string): Promise<readonly KnowledgeArticleEntity[]> {
@@ -81,15 +106,17 @@ export class KnowledgeArticlePrismaRepository
         OR: [
           { title: { contains: keyword, mode: 'insensitive' } },
           { body: { contains: keyword, mode: 'insensitive' } },
-          { tags: { has: keyword } },
         ],
       },
     });
-    return rows.map((r) => this.toDomain(r));
+    return rows.map((r) => this.mapper.toDomain(r));
   }
 
-  async findByCategory(categoryId: string): Promise<readonly KnowledgeArticleEntity[]> {
-    const rows = await this.prisma.knowledgeArticle.findMany({ where: { categoryId } });
-    return rows.map((r) => this.toDomain(r));
+  async findMostViewed(limit: number): Promise<readonly KnowledgeArticleEntity[]> {
+    const rows = await this.prisma.knowledgeArticle.findMany({
+      orderBy: { viewCount: 'desc' },
+      take: limit,
+    });
+    return rows.map((r) => this.mapper.toDomain(r));
   }
 }

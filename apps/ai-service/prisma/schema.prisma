@@ -1,0 +1,533 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════ PROVIDER ═══════════════
+
+model AiProvider {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  status    String    @default("active")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  config AiProviderConfig?
+  models AiModel[]
+
+  @@index([status])
+  @@map("ai_providers")
+}
+
+model AiProviderConfig {
+  id         String   @id @default(uuid())
+  providerId String   @unique
+  endpoint   String
+  apiKeyRef  String?
+  timeoutMs  Int      @default(30000)
+  maxRetries Int      @default(3)
+  enabled    Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  deletedAt  DateTime?
+
+  provider AiProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@map("ai_provider_configs")
+}
+
+// ═══════════════ MODEL ═══════════════
+
+model AiModel {
+  id          String    @id @default(uuid())
+  name        String
+  version     String    @default("1.0.0")
+  status      String    @default("draft")
+  type        String
+  providerId  String
+  endpoint    String?
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  provider  AiProvider       @relation(fields: [providerId], references: [id])
+  metadata  AiModelMetadata?
+  metrics   AiModelMetrics[]
+  artifacts AiModelArtifact[]
+  trainings AiTraining[]
+
+  @@unique([name, version])
+  @@index([status])
+  @@index([type])
+  @@index([providerId])
+  @@map("ai_models")
+}
+
+model AiModelMetadata {
+  id           String   @id @default(uuid())
+  modelId      String   @unique
+  framework    String?
+  architecture String?
+  parameters   BigInt?
+  license      String?
+  tags         String[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  deletedAt    DateTime?
+
+  model AiModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  @@map("ai_model_metadata")
+}
+
+model AiModelMetrics {
+  id        String   @id @default(uuid())
+  modelId   String
+  accuracy  Float?
+  precision Float?
+  recall    Float?
+  f1Score   Float?
+  latencyMs Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  model AiModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  @@index([modelId])
+  @@map("ai_model_metrics")
+}
+
+model AiModelArtifact {
+  id        String   @id @default(uuid())
+  modelId   String
+  type      String
+  url       String
+  sizeBytes BigInt?
+  checksum  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  model AiModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  @@index([modelId])
+  @@map("ai_model_artifacts")
+}
+
+// ═══════════════ FEATURE ═══════════════
+
+model AiFeature {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  status    String    @default("disabled")
+  enabled   Boolean   @default(false)
+  config    Json?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  flag AiFeatureFlag?
+
+  @@index([status])
+  @@map("ai_features")
+}
+
+model AiFeatureFlag {
+  id              String   @id @default(uuid())
+  featureId       String   @unique
+  enabled         Boolean  @default(false)
+  rolloutPercent  Int      @default(0)
+  enabledForUsers String[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+
+  feature AiFeature @relation(fields: [featureId], references: [id], onDelete: Cascade)
+
+  @@map("ai_feature_flags")
+}
+
+// ═══════════════ RECOMMENDATION ═══════════════
+
+model AiRecommendation {
+  id        String    @id @default(uuid())
+  userId    String
+  type      String
+  strategy  String
+  status    String    @default("generated")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  context AiRecommendationContext?
+  result  AiRecommendationResult?
+
+  @@index([userId])
+  @@index([status])
+  @@map("ai_recommendations")
+}
+
+model AiRecommendationContext {
+  id               String   @id @default(uuid())
+  recommendationId String   @unique
+  sessionId        String?
+  deviceType       String?
+  location         String?
+  recentlyViewed   String[]
+  cartItems        String[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  recommendation AiRecommendation @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
+
+  @@map("ai_recommendation_contexts")
+}
+
+model AiRecommendationResult {
+  id               String   @id @default(uuid())
+  recommendationId String   @unique
+  items            Json
+  generatedAt      DateTime @default(now())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  recommendation AiRecommendation @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
+
+  @@map("ai_recommendation_results")
+}
+
+// ═══════════════ PERSONALIZATION (FIXED) ═══════════════
+
+model AiPersonalization {
+  id         String    @id @default(uuid())
+  userId     String
+  type       String
+  signal     String
+  status     String    @default("learning")
+  confidence Float     @default(0)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  profile AiPersonalizationProfile?
+
+  @@index([userId])
+  @@map("ai_personalizations")
+}
+
+model AiPersonalizationProfile {
+  id                String    @id @default(uuid())
+  userId            String    @unique
+  personalizationId String?   @unique
+  interests         String[]
+  categories        String[]
+  brandAffinity     Json
+  priceRangeMin     Float?
+  priceRangeMax     Float?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+
+  personalization AiPersonalization? @relation(fields: [personalizationId], references: [id])
+
+  @@index([userId])
+  @@map("ai_personalization_profiles")
+}
+
+// ═══════════════ SEARCH ═══════════════
+
+model AiSearch {
+  id        String    @id @default(uuid())
+  userId    String?
+  type      String
+  model     String
+  status    String    @default("completed")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  result AiSearchResult?
+
+  @@index([userId])
+  @@map("ai_searches")
+}
+
+model AiSearchResult {
+  id        String   @id @default(uuid())
+  searchId  String   @unique
+  query     String
+  items     Json
+  totalHits Int
+  tookMs    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  search AiSearch @relation(fields: [searchId], references: [id], onDelete: Cascade)
+
+  @@map("ai_search_results")
+}
+
+// ═══════════════ RANKING ═══════════════
+
+model AiRanking {
+  id        String   @id @default(uuid())
+  algorithm String
+  features  String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  result AiRankingResult?
+
+  @@map("ai_rankings")
+}
+
+model AiRankingResult {
+  id        String   @id @default(uuid())
+  rankingId String   @unique
+  items     Json
+  algorithm String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ranking AiRanking @relation(fields: [rankingId], references: [id], onDelete: Cascade)
+
+  @@map("ai_ranking_results")
+}
+
+// ═══════════════ ANALYTICS ═══════════════
+
+model AiAnalytics {
+  id        String   @id @default(uuid())
+  type      String
+  modelId   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  report AiAnalyticsReport?
+
+  @@index([type])
+  @@index([modelId])
+  @@map("ai_analytics")
+}
+
+model AiAnalyticsReport {
+  id          String   @id @default(uuid())
+  analyticsId String   @unique
+  type        String
+  entries     Json
+  periodStart DateTime
+  periodEnd   DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  analytics AiAnalytics @relation(fields: [analyticsId], references: [id], onDelete: Cascade)
+
+  @@map("ai_analytics_reports")
+}
+
+// ═══════════════ TRAINING ═══════════════
+
+model AiTraining {
+  id           String    @id @default(uuid())
+  modelId      String
+  status       String    @default("queued")
+  progress     Int       @default(0)
+  startedAt    DateTime?
+  completedAt  DateTime?
+  errorMessage String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  model  AiModel          @relation(fields: [modelId], references: [id])
+  config AiTrainingConfig?
+
+  @@index([modelId])
+  @@index([status])
+  @@map("ai_trainings")
+}
+
+model AiTrainingConfig {
+  id              String   @id @default(uuid())
+  trainingId      String   @unique
+  datasetId       String
+  epochs          Int
+  batchSize       Int
+  learningRate    Float
+  validationSplit Float
+  hyperparameters Json
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  training AiTraining @relation(fields: [trainingId], references: [id], onDelete: Cascade)
+
+  @@map("ai_training_configs")
+}
+
+// ═══════════════ EMBEDDING ═══════════════
+
+model AiEmbedding {
+  id         String    @id @default(uuid())
+  sourceId   String
+  sourceType String
+  type       String
+  model      String
+  dimension  Int
+  status     String    @default("generated")
+  vector     Json
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  @@index([sourceId, sourceType])
+  @@index([status])
+  @@map("ai_embeddings")
+}
+
+// ═══════════════ VECTOR ═══════════════
+
+model AiVector {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  dimension Int
+  values    Json
+  metadata  Json?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("ai_vectors")
+}
+
+model AiVectorIndex {
+  id         String    @id @default(uuid())
+  name       String    @unique
+  type       String
+  dimension  Int
+  provider   String
+  status     String    @default("building")
+  entryCount Int       @default(0)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  @@index([status])
+  @@map("ai_vector_indexes")
+}
+
+// ═══════════════ SIMILARITY ═══════════════
+
+model AiSimilarity {
+  id             String   @id @default(uuid())
+  sourceVectorId String
+  targetVectorId String
+  metric         String
+  threshold      Float
+  matches        Json
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([sourceVectorId])
+  @@map("ai_similarities")
+}
+
+// ═══════════════ CLUSTER ═══════════════
+
+model AiCluster {
+  id           String   @id @default(uuid())
+  vectorIds    String[]
+  algorithm    String
+  clusterCount Int      @default(0)
+  totalMembers Int      @default(0)
+  result       Json
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("ai_clusters")
+}
+
+// ═══════════════ FORECAST ═══════════════
+
+model AiForecast {
+  id          String   @id @default(uuid())
+  target      String
+  model       String
+  horizonDays Int
+  points      Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([target])
+  @@map("ai_forecasts")
+}
+
+// ═══════════════ INSIGHT ═══════════════
+
+model AiInsight {
+  id         String   @id @default(uuid())
+  type       String
+  priority   String
+  status     String   @default("active")
+  target     String
+  summary    String
+  confidence Float
+  findings   Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([type])
+  @@index([priority])
+  @@map("ai_insights")
+}
+
+// ═══════════════ PROMPT ═══════════════
+
+model AiPrompt {
+  id         String   @id @default(uuid())
+  type       String
+  text       String
+  role       String
+  tokenCount Int
+  templateId String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  completions AiCompletion[]
+
+  @@index([type])
+  @@index([templateId])
+  @@map("ai_prompts")
+}
+
+model AiPromptTemplate {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  template  String
+  role      String
+  variables String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("ai_prompt_templates")
+}
+
+model AiCompletion {
+  id           String   @id @default(uuid())
+  promptId     String
+  text         String
+  tokensUsed   Int
+  model        String
+  finishReason String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  prompt AiPrompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
+
+  @@index([promptId])
+  @@map("ai_completions")
+}

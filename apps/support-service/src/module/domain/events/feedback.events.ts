@@ -1,40 +1,80 @@
-import { BaseDomainEvent, type DomainEventMetadata } from '@vubon/shared-kernel/domain/base/base.event';
-import { toTimestamp } from '@vubon/shared-types/common';
+/**
+ * Feedback Domain Events
+ * @module support-service/domain/events
+ */
+import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
+import { toTimestamp, type Timestamp } from '@vubon/shared-types/common';
+import { FeedbackIdVO } from '../value-objects/primitives/feedback-id.vo';
+import { FeedbackTypeVO } from '../value-objects/primitives/feedback-type.vo';
+import { UserIdVO } from '../value-objects/primitives/user-id.vo';
 
-const AGGREGATE = 'Feedback';
+interface MetaFields {
+  readonly id: string;
+  readonly aggregateId: string;
+  readonly aggregateType: string;
+  readonly occurredAt: Timestamp;
+  readonly version: number;
+}
+
+const meta = (
+  aggregateId: string,
+  aggregateType: string,
+  version: number,
+  occurredAt: number,
+): MetaFields => ({
+  id: `${aggregateId}-${version}-${occurredAt}`,
+  aggregateId,
+  aggregateType,
+  occurredAt: toTimestamp(occurredAt),
+  version,
+});
+
+export interface FeedbackSubmittedPayload {
+  readonly userId: string;
+  readonly type: string;
+  readonly rating?: number;
+}
 
 export class FeedbackSubmittedEvent extends BaseDomainEvent<
   'support.feedback.submitted',
-  { feedbackId: string; userId: string; type: string }
+  FeedbackSubmittedPayload
 > {
-  constructor(aggregateId: string, userId: string, type: string, version: number, metadata?: DomainEventMetadata) {
+  constructor(
+    id: FeedbackIdVO,
+    userId: UserIdVO,
+    type: FeedbackTypeVO,
+    occurredAt: number,
+    rating?: number,
+    version = 1,
+  ) {
     super({
-      id: crypto.randomUUID(),
+      ...meta(id.value, 'feedback', version, occurredAt),
       type: 'support.feedback.submitted',
-      aggregateId,
-      aggregateType: AGGREGATE,
-      payload: { feedbackId: aggregateId, userId, type },
-      occurredAt: toTimestamp(Date.now()),
-      version,
-      metadata,
+      payload: { userId: userId.value, type: type.value, rating },
     });
   }
 }
 
+export interface FeedbackReviewedPayload {
+  readonly reviewerId: string;
+  readonly outcome: string;
+}
+
 export class FeedbackReviewedEvent extends BaseDomainEvent<
   'support.feedback.reviewed',
-  { feedbackId: string; status: string }
+  FeedbackReviewedPayload
 > {
-  constructor(aggregateId: string, status: string, version: number, metadata?: DomainEventMetadata) {
+  constructor(
+    id: FeedbackIdVO,
+    reviewerId: UserIdVO,
+    outcome: string,
+    occurredAt: number,
+    version = 1,
+  ) {
     super({
-      id: crypto.randomUUID(),
+      ...meta(id.value, 'feedback', version, occurredAt),
       type: 'support.feedback.reviewed',
-      aggregateId,
-      aggregateType: AGGREGATE,
-      payload: { feedbackId: aggregateId, status },
-      occurredAt: toTimestamp(Date.now()),
-      version,
-      metadata,
+      payload: { reviewerId: reviewerId.value, outcome },
     });
   }
 }

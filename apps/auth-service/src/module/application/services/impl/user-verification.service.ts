@@ -1,68 +1,80 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { EventBus } from '@nestjs/cqrs';
+/**
+ * UserVerificationService
+ * @module auth-service/application/services/impl
+ */
+import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
+import type { UserId } from '@vubon/shared-types/common';
 import type { UserVerificationServiceInterface } from '../interfaces/user-verification.service.interface';
 import type { UserVerificationRepository } from '../../../domain/repositories/user-verification.repository.interface';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
 import { UserVerificationEntity } from '../../../domain/entities/user-verification.entity';
-import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
+import { VerificationCodeVO } from '../../../domain/value-objects/primitives/verification-code.vo';
 import { VerificationTypeVO } from '../../../domain/value-objects/primitives/verification-type.vo';
-import { UserOperationFailedError } from '../../errors/user.errors';
-import { VerificationExpiredError } from '../../../domain/errors/verification.errors';
+import { VerificationStatusVO } from '../../../domain/value-objects/primitives/verification-status.vo';
 import type { UserVerificationResponseDTO } from '../../dtos/responses/user-verification-response.dto';
+import { ID_GENERATOR } from '../tokens';
+import { USER_VERIFICATION_REPO } from '../../tokens';
+
+const DEFAULT_TTL_MS = 15 * 60 * 1000;
 
 @Injectable()
 export class UserVerificationService
   extends BaseService<UserVerificationEntity, string>
-  implements UserVerificationServiceInterface
-{
+  implements UserVerificationServiceInterface {
   readonly name = 'UserVerificationService';
 
   constructor(
-    @Inject('UserVerificationRepository')
-    private readonly verificationRepo: UserVerificationRepository,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
+    @Inject(USER_VERIFICATION_REPO) private readonly repo: UserVerificationRepository,
+    @Inject(ID_GENERATOR) private readonly idGen: IdGeneratorServiceInterface,
+  ) { super(); }
+
+  async request(input: {
+    userId: UserId;
+    type: 'email' | 'phone' | 'kyc_document';
+    ttlMs?: number;
+  }): Promise<UserVerificationEntity> {
+    const now = Date.now();
+    // 6-digit code
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    const entity = UserVerificationEntity.create({
+      id: this.idGen.generate(),
+      userId: input.userId,
+      type: VerificationTypeVO.of(input.type),
+      code: VerificationCodeVO.of(code),
+      status: VerificationStatusVO.pending(),
+      expiresAt: now + (input.ttlMs ?? DEFAULT_TTL_MS),
+      createdAt: new Date(now).toISOString(),
+      updatedAt: new Date(now).toISOString(),
+    });
+    return this.repo.save(entity);
   }
 
-  async findByUserId(
-    userId: string,
-  ): Promise<readonly UserVerificationResponseDTO[]> {
-    const entities = await this.verificationRepo.findByUserId(
-      UserIdVO.create(userId),
-    );
-    return entities.map((e) => this.toDTO(e));
+  async verify(input: {
+    userId: UserId;
+    code: string;
+    type: 'email' | 'phone' | 'kyc_document';
+  }): Promise<boolean> {
+    const latest = await this.repo.findLatestByUserAndType(input.userId, input.type);
+    if (!latest) return false;
+    latest.verify(VerificationCodeVO.of(input.code), Date.now());
+    await this.repo.save(latest);
+    return true;
   }
 
-  async verify(userId: string, type: string, code: string): Promise<void> {
-    const userIdVO = UserIdVO.create(userId);
-    const entity = await this.verificationRepo.findByType(
-      userIdVO,
-      VerificationTypeVO.create(type),
-    );
-
-    if (!entity) {
-      throw new UserOperationFailedError('verification record not found');
-    }
-
-    if (entity.isExpired) {
-      throw new VerificationExpiredError(code);
-    }
-
-    if (entity.code.value !== code) {
-      throw new UserOperationFailedError('invalid verification code');
-    }
-
-    const verified = entity.markVerified();
-    await this.verificationRepo.save(verified);
+  async getLatest(userId: UserId, type: string): Promise<UserVerificationEntity | null> {
+    return this.repo.findLatestByUserAndType(userId, type);
   }
 
-  private toDTO(entity: UserVerificationEntity): UserVerificationResponseDTO {
+  toResponse(verification: UserVerificationEntity): UserVerificationResponseDTO {
     return {
-      userId: entity.userId.value,
-      status: entity.status.value,
-      verificationCount: 1,
-      isFullyVerified: entity.status.value === 'verified',
+      id: verification.id,
+      userId: verification.userId,
+      type: verification.type.value,
+      status: verification.status.value as
+        | 'pending' | 'verified' | 'rejected' | 'expired',
+      expiresAt: new Date(verification.expiresAt).toISOString(),
+      createdAt: verification.createdAt,
     };
   }
 }

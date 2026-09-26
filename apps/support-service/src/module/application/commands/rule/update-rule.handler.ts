@@ -1,23 +1,23 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+/**
+ * UpdateRuleHandler
+ * @module support-service/application/commands/rule
+ */
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { UpdateRuleCommand } from './update-rule.command';
-import type { SupportRuleRepository } from '../../../domain/repositories/support-rule.repository.interface';
-import { RuleIdVO } from '../../../domain/value-objects/primitives/rule-id.vo';
-import { RuleNotFoundError } from '../../../domain/errors/rule.errors';
+import type { RuleResponseDTO } from '../../dtos/responses/rule-response.dto';
+import type { RuleServiceInterface } from '../../services/interfaces/rule.service.interface';
 
-@CommandHandler(UpdateRuleCommand)
-export class UpdateRuleHandler
-  extends BaseCommandHandler<UpdateRuleCommand, void>
-  implements ICommandHandler<UpdateRuleCommand>
-{
+export class UpdateRuleHandler extends BaseCommandHandler<
+  UpdateRuleCommand,
+  RuleResponseDTO
+> {
   readonly commandType = 'support.rule.update';
 
-  constructor(private readonly ruleRepo: SupportRuleRepository) {
+  constructor(private readonly ruleService: RuleServiceInterface) {
     super();
   }
 
-  async execute(command: UpdateRuleCommand): Promise<void> {
-    const existing = await this.ruleRepo.findById(RuleIdVO.create(command.ruleId));
-    if (!existing) throw new RuleNotFoundError(command.ruleId);
+  async execute(command: UpdateRuleCommand): Promise<RuleResponseDTO> {
+    return this.ruleService.update(command.payload);
   }
 }

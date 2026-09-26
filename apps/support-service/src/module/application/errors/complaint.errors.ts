@@ -1,20 +1,29 @@
-import { ERROR_CODE, type ErrorCodeType } from '@vubon/shared-constants/common';
+/**
+ * Complaint application errors
+ * @module support-service/application/errors
+ *
+ * Registry: extends ApplicationError
+ * Rule: `code` must be a known ERROR_CODE value; `httpStatus` required
+ */
+import { ERROR_CODE } from '@vubon/shared-constants/common';
 import { ApplicationError } from '@vubon/shared-kernel/application/errors/application.error';
 
-export class ComplaintNotFoundError extends ApplicationError {
-  readonly code: ErrorCodeType = ERROR_CODE.SERVER_INTERNAL;
+export class ComplaintNotFoundException extends ApplicationError {
+  readonly code = ERROR_CODE.SUPPORT_COMPLAINT_NOT_FOUND;
   readonly httpStatus = 404;
 
-  constructor(complaintId: string) {
+  constructor(public readonly complaintId: string) {
     super(`Complaint not found: ${complaintId}`, { complaintId });
+    this.name = 'ComplaintNotFoundException';
   }
 }
 
-export class ComplaintOperationFailedError extends ApplicationError {
-  readonly code: ErrorCodeType = ERROR_CODE.SERVER_INTERNAL;
-  readonly httpStatus = 500;
+export class ComplaintAlreadyResolvedException extends ApplicationError {
+  readonly code = ERROR_CODE.SUPPORT_COMPLAINT_ALREADY_RESOLVED;
+  readonly httpStatus = 409;
 
-  constructor(reason: string) {
-    super(`Complaint operation failed: ${reason}`, { reason });
+  constructor(public readonly complaintId: string) {
+    super(`Complaint already resolved: ${complaintId}`, { complaintId });
+    this.name = 'ComplaintAlreadyResolvedException';
   }
 }

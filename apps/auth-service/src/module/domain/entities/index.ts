@@ -1,23 +1,30 @@
-export { UserEntity, type UserEntityProps } from './user.entity';
-export { UserProfileEntity, type UserProfileEntityProps } from './user-profile.entity';
-export { UserSettingsEntity, type UserSettingsEntityProps } from './user-settings.entity';
-export { UserPreferencesEntity, type UserPreferencesEntityProps } from './user-preferences.entity';
-export { UserAddressEntity, type UserAddressEntityProps } from './user-address.entity';
-export { UserContactEntity, type UserContactEntityProps } from './user-contact.entity';
-export { UserVerificationEntity, type UserVerificationEntityProps } from './user-verification.entity';
-export { UserKycEntity, type UserKycEntityProps, type KycStatus } from './user-kyc.entity';
-export { UserActivityEntity, type UserActivityEntityProps } from './user-activity.entity';
-export { AuthSessionEntity, type AuthSessionEntityProps } from './auth-session.entity';
-export { AuthTokenEntity, type AuthTokenEntityProps } from './auth-token.entity';
-export { AuthMfaEntity, type AuthMfaEntityProps } from './auth-mfa.entity';
-export { AuthRecoveryCodeEntity, type AuthRecoveryCodeEntityProps } from './auth-recovery-code.entity';
-export { AuthAccountLockEntity, type AuthAccountLockEntityProps } from './auth-account-lock.entity';
-export { AuthLoginAttemptEntity, type AuthLoginAttemptEntityProps } from './auth-login-attempt.entity';
-export { AuthDeviceEntity, type AuthDeviceEntityProps } from './auth-device.entity';
-export { AuthSocialEntity, type AuthSocialEntityProps } from './auth-social.entity';
-export { AuthOAuthEntity, type AuthOAuthEntityProps } from './auth-oauth.entity';
-export { AuthSsoEntity, type AuthSsoEntityProps } from './auth-sso.entity';
-export { Auth2FaEntity, type Auth2FaEntityProps, type TwoFaMethod } from './auth-2fa.entity';
-export { AuthBiometricEntity, type AuthBiometricEntityProps, type BiometricType } from './auth-biometric.entity';
-export { AuthPermissionEntity, type AuthPermissionEntityProps } from './auth-permission.entity';
-export { AuthRoleEntity, type AuthRoleEntityProps } from './auth-role.entity';
+/**
+ * Domain Entities — Barrel
+ * @module auth-service/domain/entities
+ */
+// User entities
+export * from './user.entity';
+export * from './user-profile.entity';
+export * from './user-settings.entity';
+export * from './user-preferences.entity';
+export * from './user-address.entity';
+export * from './user-contact.entity';
+export * from './user-verification.entity';
+export * from './user-kyc.entity';
+export * from './user-activity.entity';
+
+// Auth entities
+export * from './auth-session.entity';
+export * from './auth-token.entity';
+export * from './auth-mfa.entity';
+export * from './auth-recovery-code.entity';
+export * from './auth-account-lock.entity';
+export * from './auth-login-attempt.entity';
+export * from './auth-device.entity';
+export * from './auth-social.entity';
+export * from './auth-oauth.entity';
+export * from './auth-sso.entity';
+export * from './auth-2fa.entity';
+export * from './auth-biometric.entity';
+export * from './auth-permission.entity';
+export * from './auth-role.entity';

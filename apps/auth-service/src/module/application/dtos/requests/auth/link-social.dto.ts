@@ -1,4 +1,16 @@
-import { z } from 'zod';
-import { SocialAccountLinkInputSchema } from '@vubon/shared-schemas/auth';
+/**
+ * LinkSocialRequest DTO
+ * @module auth-service/application/dtos/requests/auth
+ */
+import {
+  SocialAccountLinkInputSchema,
+  type SocialAccountLinkInputSchemaType,
+} from '@vubon/shared-schemas/auth';
 
-export type LinkSocialRequestDTO = z.infer<typeof SocialAccountLinkInputSchema>;
+export type LinkSocialRequestDTO = SocialAccountLinkInputSchemaType;
+
+export function validateLinkSocialRequest(
+  input: unknown,
+): LinkSocialRequestDTO {
+  return SocialAccountLinkInputSchema.parse(input);
+}

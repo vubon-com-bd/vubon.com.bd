@@ -1,13 +1,26 @@
-import type { Conversation } from '@vubon/shared-types/support';
+/**
+ * ConversationResponseDTO
+ * @module support-service/application/dtos/responses
+ */
+import type {
+  ConversationStatusValue,
+  ConversationTypeValue,
+} from '@vubon/shared-types/support';
 
 export interface ConversationResponseDTO {
   readonly id: string;
-  readonly userId: string;
-  readonly agentId: string | null;
-  readonly status: string;
-  readonly type: string;
-  readonly startedAt: string;
-  readonly endedAt: string | null;
+  readonly title?: string;
+  readonly type: ConversationTypeValue;
+  readonly status: ConversationStatusValue;
+  readonly ticketId?: string;
+  readonly participantIds: readonly string[];
+  readonly messageCount: number;
+  readonly unreadCount: number;
+  readonly lastMessageAt?: string;
+  readonly lastMessagePreview?: string;
+  readonly isLocked: boolean;
+  readonly isPinned: boolean;
+  readonly archivedAt?: string;
+  readonly createdAt: string;
+  readonly updatedAt: string;
 }
-
-export type ConversationResponseShape = Conversation;

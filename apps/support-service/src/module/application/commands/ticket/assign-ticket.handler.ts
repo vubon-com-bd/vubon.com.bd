@@ -1,33 +1,23 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
+/**
+ * AssignTicketHandler
+ * @module support-service/application/commands/ticket
+ */
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { AssignTicketCommand } from './assign-ticket.command';
-import type { TicketRepository } from '../../../domain/repositories/ticket.repository.interface';
-import { TicketIdVO } from '../../../domain/value-objects/primitives/ticket-id.vo';
-import { AgentIdVO } from '../../../domain/value-objects/primitives/agent-id.vo';
-import { TicketNotFoundError } from '../../errors/ticket.errors';
+import type { TicketResponseDTO } from '../../dtos/responses/ticket-response.dto';
+import type { TicketServiceInterface } from '../../services/interfaces/ticket.service.interface';
 
-@CommandHandler(AssignTicketCommand)
-export class AssignTicketHandler
-  extends BaseCommandHandler<AssignTicketCommand, void>
-  implements ICommandHandler<AssignTicketCommand>
-{
+export class AssignTicketHandler extends BaseCommandHandler<
+  AssignTicketCommand,
+  TicketResponseDTO
+> {
   readonly commandType = 'support.ticket.assign';
 
-  constructor(
-    private readonly ticketRepo: TicketRepository,
-    private readonly eventBus: EventBus,
-  ) {
+  constructor(private readonly ticketService: TicketServiceInterface) {
     super();
   }
 
-  async execute(command: AssignTicketCommand): Promise<void> {
-    const ticket = await this.ticketRepo.findById(TicketIdVO.create(command.ticketId));
-    if (!ticket) throw new TicketNotFoundError(command.ticketId);
-    const updated = ticket.assignTo(AgentIdVO.create(command.agentId));
-    await this.ticketRepo.save(updated);
-    const events = updated.pullDomainEvents();
-    for (const event of events) {
-      this.eventBus.publish(event as never);
-    }
+  async execute(command: AssignTicketCommand): Promise<TicketResponseDTO> {
+    return this.ticketService.assign(command.payload);
   }
 }

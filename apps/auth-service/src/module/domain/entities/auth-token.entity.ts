@@ -1,88 +1,56 @@
+/**
+ * AuthTokenEntity — An issued token
+ * @module auth-service/domain/entities
+ */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
-import { UserIdVO } from '../value-objects/primitives/user-id.vo';
 import { TokenValueVO } from '../value-objects/primitives/token-value.vo';
 import { TokenTypeVO } from '../value-objects/primitives/token-type.vo';
 import { TokenExpiryVO } from '../value-objects/primitives/token-expiry.vo';
 
 export interface AuthTokenEntityProps {
-  readonly userId: UserIdVO;
-  readonly tokenValue: TokenValueVO;
-  readonly tokenType: TokenTypeVO;
+  readonly id: string;
+  readonly subjectId: string;
+  readonly value: TokenValueVO;
+  readonly type: TokenTypeVO;
   readonly expiry: TokenExpiryVO;
-  readonly issuedAt: Date;
-  readonly revokedAt: Date | null;
+  readonly revokedAt?: number;
+  readonly parentTokenId?: string;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+  readonly deletedAt?: string | null;
 }
 
 export class AuthTokenEntity extends BaseEntity<string> {
-  private readonly _userId: UserIdVO;
-  private readonly _tokenValue: TokenValueVO;
-  private readonly _tokenType: TokenTypeVO;
-  private readonly _expiry: TokenExpiryVO;
-  private readonly _issuedAt: Date;
-  private readonly _revokedAt: Date | null;
+  readonly subjectId: string;
+  private _value: TokenValueVO;
+  private _type: TokenTypeVO;
+  private _expiry: TokenExpiryVO;
+  private _revokedAt?: number;
+  private _parentTokenId?: string;
 
-  private constructor(
-    id: string,
-    props: AuthTokenEntityProps,
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null,
-  ) {
-    super(id, createdAt, updatedAt, deletedAt);
-    this._userId = props.userId;
-    this._tokenValue = props.tokenValue;
-    this._tokenType = props.tokenType;
+  private constructor(props: AuthTokenEntityProps) {
+    super(props.id, props.createdAt, props.updatedAt, props.deletedAt ?? null);
+    this.subjectId = props.subjectId;
+    this._value = props.value;
+    this._type = props.type;
     this._expiry = props.expiry;
-    this._issuedAt = props.issuedAt;
     this._revokedAt = props.revokedAt;
+    this._parentTokenId = props.parentTokenId;
   }
 
   static create(props: AuthTokenEntityProps): AuthTokenEntity {
-    const now = new Date().toISOString();
-    const id = crypto.randomUUID();
-    return new AuthTokenEntity(id, props, now, now, null);
+    return new AuthTokenEntity(props);
   }
 
-  static reconstitute(
-    id: string,
-    props: AuthTokenEntityProps,
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null,
-  ): AuthTokenEntity {
-    return new AuthTokenEntity(id, props, createdAt, updatedAt, deletedAt);
-  }
-
-  revoke(): AuthTokenEntity {
-    const now = new Date();
-    return new AuthTokenEntity(
-      this.id,
-      { ...this._toProps(), revokedAt: now },
-      this.createdAt,
-      now.toISOString(),
-      this.deletedAt ?? null,
-    );
-  }
-
-  get userId(): UserIdVO { return this._userId; }
-  get tokenValue(): TokenValueVO { return this._tokenValue; }
-  get tokenType(): TokenTypeVO { return this._tokenType; }
+  get value(): TokenValueVO { return this._value; }
+  get type(): TokenTypeVO { return this._type; }
   get expiry(): TokenExpiryVO { return this._expiry; }
-  get issuedAt(): Date { return this._issuedAt; }
-  get revokedAt(): Date | null { return this._revokedAt; }
+  get revokedAt(): number | undefined { return this._revokedAt; }
+  get parentTokenId(): string | undefined { return this._parentTokenId; }
 
-  get isRevoked(): boolean { return this._revokedAt !== null; }
-  get isExpired(): boolean { return this._expiry.isExpired(); }
-  get isActive(): boolean { return !this.isRevoked && !this.isExpired; }
+  isExpired(now: number): boolean { return this._expiry.isExpired(now); }
+  isRevoked(): boolean { return this._revokedAt !== undefined; }
+  isUsable(now: number): boolean { return !this.isExpired(now) && !this.isRevoked(); }
 
-  private _toProps(): AuthTokenEntityProps {
-    return {
-      userId: this._userId,
-      tokenValue: this._tokenValue,
-      tokenType: this._tokenType,
-      expiry: this._expiry,
-      issuedAt: this._issuedAt,
-      revokedAt: this._revokedAt,
-    };
-  }
+  revoke(at: number): void { this._revokedAt = at; }
 }

@@ -1,4 +1,19 @@
-import { z } from 'zod';
-import { UserVerificationSummarySchema } from '@vubon/shared-schemas/user';
+/**
+ * UserVerificationResponseDTO
+ * @module auth-service/application/dtos/responses
+ */
+export type VerificationStatusValue =
+  | 'pending'
+  | 'verified'
+  | 'rejected'
+  | 'expired';
 
-export type UserVerificationResponseDTO = z.infer<typeof UserVerificationSummarySchema>;
+export interface UserVerificationResponseDTO {
+  readonly id: string;
+  readonly userId: string;
+  readonly type: string;
+  readonly status: VerificationStatusValue;
+  readonly expiresAt: string;
+  readonly createdAt: string;
+  readonly completedAt?: string;
+}

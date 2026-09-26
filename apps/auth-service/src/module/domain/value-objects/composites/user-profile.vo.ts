@@ -1,35 +1,44 @@
+/**
+ * UserProfileVO — Public-facing profile information
+ * @module auth-service/domain/value-objects/composites
+ */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
 import { UserIdVO } from '../primitives/user-id.vo';
 import { UserNameVO } from '../primitives/user-name.vo';
 
-export interface UserProfileProps {
+export interface UserProfileVOProps {
   readonly userId: UserIdVO;
-  readonly firstName: UserNameVO;
-  readonly lastName: UserNameVO;
-  readonly bio: string | null;
-  readonly avatarUrl: string | null;
-  readonly dateOfBirth: Date | null;
-  readonly gender: string | null;
+  readonly displayName: UserNameVO;
+  readonly bio?: string;
+  readonly avatarUrl?: string;
+  readonly locale?: string;
 }
 
-export class UserProfileVO extends BaseVO<UserProfileProps> {
-  private constructor(props: UserProfileProps) {
-    super(Object.freeze({ ...props }));
+const MAX_BIO = 500;
+const MAX_URL = 2048;
+
+export class UserProfileVO extends BaseVO<UserProfileVOProps> {
+  private constructor(props: UserProfileVOProps) {
+    super(props);
   }
 
-  static create(props: UserProfileProps): UserProfileVO {
+  static of(props: UserProfileVOProps): UserProfileVO {
+    if (props.bio && props.bio.length > MAX_BIO) {
+      throw new Error(`Bio exceeds ${MAX_BIO} chars`);
+    }
+    if (props.avatarUrl && props.avatarUrl.length > MAX_URL) {
+      throw new Error('Avatar URL too long');
+    }
     return new UserProfileVO(props);
   }
 
   get userId(): UserIdVO { return this.value.userId; }
-  get firstName(): UserNameVO { return this.value.firstName; }
-  get lastName(): UserNameVO { return this.value.lastName; }
-  get bio(): string | null { return this.value.bio; }
-  get avatarUrl(): string | null { return this.value.avatarUrl; }
-  get dateOfBirth(): Date | null { return this.value.dateOfBirth; }
-  get gender(): string | null { return this.value.gender; }
+  get displayName(): UserNameVO { return this.value.displayName; }
+  get bio(): string | undefined { return this.value.bio; }
+  get avatarUrl(): string | undefined { return this.value.avatarUrl; }
+  get locale(): string { return this.value.locale ?? 'bn-BD'; }
 
-  get fullName(): string {
-    return `${this.value.firstName.value} ${this.value.lastName.value}`.trim();
+  hasAvatar(): boolean {
+    return typeof this.value.avatarUrl === 'string' && this.value.avatarUrl.length > 0;
   }
 }

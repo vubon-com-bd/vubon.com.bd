@@ -1,72 +1,65 @@
+/**
+ * AttachmentPrismaRepository
+ * @module support-service/infrastructure/persistence/prisma/repositories
+ */
 import { Injectable } from '@nestjs/common';
-import { Attachment as PrismaAttachment } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
+import { SupportPrismaService } from '../prisma.service';
+import { AttachmentRepository } from '../../../../domain/repositories/attachment.repository.interface';
 import { AttachmentEntity } from '../../../../domain/entities/attachment.entity';
 import { AttachmentIdVO } from '../../../../domain/value-objects/primitives/attachment-id.vo';
-import { AttachmentTypeVO } from '../../../../domain/value-objects/primitives/attachment-type.vo';
-import { AttachmentUrlVO } from '../../../../domain/value-objects/primitives/attachment-url.vo';
-import { AttachmentSizeVO } from '../../../../domain/value-objects/primitives/attachment-size.vo';
 import { MessageIdVO } from '../../../../domain/value-objects/primitives/message-id.vo';
-import type { AttachmentRepository } from '../../../../domain/repositories/attachment.repository.interface';
+import { AttachmentMapper } from '../mappers/attachment.mapper';
 
 @Injectable()
-export class AttachmentPrismaRepository
-  extends BasePrismaRepository<AttachmentEntity, AttachmentIdVO>
-  implements AttachmentRepository
-{
-  constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
-  }
-
-  private toDomain(raw: PrismaAttachment): AttachmentEntity {
-    return AttachmentEntity.reconstitute(
-      AttachmentIdVO.create(raw.id),
-      {
-        messageId: MessageIdVO.create(raw.messageId),
-        type: AttachmentTypeVO.create(raw.type),
-        url: AttachmentUrlVO.create(raw.url),
-        size: AttachmentSizeVO.create(raw.size),
-      },
-      raw.createdAt.toISOString(),
-      raw.createdAt.toISOString(),
-      null,
-    );
-  }
+export class AttachmentPrismaRepository implements AttachmentRepository {
+  constructor(
+    private readonly prisma: SupportPrismaService,
+    private readonly mapper: AttachmentMapper,
+  ) {}
 
   async findById(id: AttachmentIdVO): Promise<AttachmentEntity | null> {
-    const raw = await this.prisma.attachment.findUnique({ where: { id: id.value } });
-    return raw ? this.toDomain(raw) : null;
+    const raw = await this.prisma.supportAttachment.findUnique({
+      where: { id: id.value },
+    });
+    return raw ? this.mapper.toDomain(raw) : null;
   }
 
   async findAll(): Promise<readonly AttachmentEntity[]> {
-    const rows = await this.prisma.attachment.findMany();
-    return rows.map((r) => this.toDomain(r));
+    const rows = await this.prisma.supportAttachment.findMany();
+    return rows.map((r) => this.mapper.toDomain(r));
   }
 
   async save(entity: AttachmentEntity): Promise<AttachmentEntity> {
-    const data = {
-      messageId: entity.messageId.value,
-      type: entity.type.value,
-      url: entity.url.value,
-      size: entity.size.value,
-    };
-    const raw = await this.prisma.attachment.upsert({
-      where: { id: entity.id.value },
-      create: { id: entity.id.value, ...data },
-      update: data,
+    const data = this.mapper.toPersistence(entity);
+    const raw = await this.prisma.supportAttachment.upsert({
+      where: { id: data.id },
+      create: { ...data },
+      update: { size: data.size, updatedAt: new Date() },
     });
-    return this.toDomain(raw);
+    return this.mapper.toDomain(raw);
   }
 
   async delete(id: AttachmentIdVO): Promise<void> {
-    await this.prisma.attachment.delete({ where: { id: id.value } });
+    await this.prisma.supportAttachment.delete({ where: { id: id.value } });
+  }
+
+  async exists(id: AttachmentIdVO): Promise<boolean> {
+    const count = await this.prisma.supportAttachment.count({
+      where: { id: id.value },
+    });
+    return count > 0;
   }
 
   async findByMessage(messageId: MessageIdVO): Promise<readonly AttachmentEntity[]> {
-    const rows = await this.prisma.attachment.findMany({
+    const rows = await this.prisma.supportAttachment.findMany({
       where: { messageId: messageId.value },
     });
-    return rows.map((r) => this.toDomain(r));
+    return rows.map((r) => this.mapper.toDomain(r));
+  }
+
+  async countByMessage(messageId: MessageIdVO): Promise<number> {
+    return this.prisma.supportAttachment.count({
+      where: { messageId: messageId.value },
+    });
   }
 }

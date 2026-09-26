@@ -1,14 +1,14 @@
-import type { EmailTemplate } from '@vubon/shared-kernel/infrastructure';
-
-export const VerificationEmailTemplate: EmailTemplate = {
+/**
+ * Email Verification Template
+ * @module auth-service/infrastructure/external/email/templates
+ */
+export const VerificationEmailTemplate = {
   name: 'verification',
-  subject: 'Verify your email',
-  html: `
-    <h2>Email Verification</h2>
-    <p>Hi {{name}},</p>
-    <p>Your verification code is: <strong>{{code}}</strong></p>
-    <p>This code will expire in {{expiryMinutes}} minutes.</p>
+  subject: 'Verify your Vubon email',
+  body: `
+    <h2>Verify your email</h2>
+    <p>Your verification code is:</p>
+    <h1 style="letter-spacing: 6px;">{{code}}</h1>
+    <p>This code expires at {{expiresAt}}.</p>
   `,
-  text: 'Hi {{name}}, your verification code is {{code}}. Expires in {{expiryMinutes}} minutes.',
-  variables: ['name', 'code', 'expiryMinutes'],
-};
+} as const;

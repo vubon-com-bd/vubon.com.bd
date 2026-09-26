@@ -1,30 +1,37 @@
-import {
-  BaseDomainEvent,
-  type DomainEventMetadata,
-} from '@vubon/shared-kernel/domain/base/base.event';
-import { toTimestamp } from '@vubon/shared-types/common';
+/**
+ * Auth MFA Domain Events
+ * @module auth-service/domain/events
+ */
+import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
+import type { UserId, Timestamp } from '@vubon/shared-types/common';
 
-const AGGREGATE_TYPE = 'AuthMfa';
+type EventMeta = {
+  correlationId?: string;
+  causationId?: string;
+  userId?: string;
+  source?: string;
+};
+
+const AGG = 'AuthMfa';
 
 export class MfaEnabledEvent extends BaseDomainEvent<
   'auth.mfa.enabled',
-  { userId: string; mfaType: string }
+  { userId: UserId; type: string }
 > {
   constructor(
-    aggregateId: string,
-    userId: string,
-    mfaType: string,
-    version: number,
-    metadata?: DomainEventMetadata,
+    aggregateId: UserId,
+    payload: { userId: UserId; type: string },
+    occurredAt: Timestamp,
+    metadata?: EventMeta,
   ) {
     super({
-      id: crypto.randomUUID(),
+      id: `evt-${aggregateId}-mfa-on-${Date.now()}`,
       type: 'auth.mfa.enabled',
       aggregateId,
-      aggregateType: AGGREGATE_TYPE,
-      payload: { userId, mfaType },
-      occurredAt: toTimestamp(Date.now()),
-      version,
+      aggregateType: AGG,
+      payload,
+      occurredAt,
+      version: 1,
       metadata,
     });
   }
@@ -32,22 +39,21 @@ export class MfaEnabledEvent extends BaseDomainEvent<
 
 export class MfaDisabledEvent extends BaseDomainEvent<
   'auth.mfa.disabled',
-  { userId: string }
+  { userId: UserId }
 > {
   constructor(
-    aggregateId: string,
-    userId: string,
-    version: number,
-    metadata?: DomainEventMetadata,
+    aggregateId: UserId,
+    occurredAt: Timestamp,
+    metadata?: EventMeta,
   ) {
     super({
-      id: crypto.randomUUID(),
+      id: `evt-${aggregateId}-mfa-off-${Date.now()}`,
       type: 'auth.mfa.disabled',
       aggregateId,
-      aggregateType: AGGREGATE_TYPE,
-      payload: { userId },
-      occurredAt: toTimestamp(Date.now()),
-      version,
+      aggregateType: AGG,
+      payload: { userId: aggregateId },
+      occurredAt,
+      version: 1,
       metadata,
     });
   }
@@ -55,24 +61,28 @@ export class MfaDisabledEvent extends BaseDomainEvent<
 
 export class MfaVerifiedEvent extends BaseDomainEvent<
   'auth.mfa.verified',
-  { userId: string; mfaType: string }
+  { userId: UserId; type: string; success: boolean }
 > {
   constructor(
-    aggregateId: string,
-    userId: string,
-    mfaType: string,
-    version: number,
-    metadata?: DomainEventMetadata,
+    aggregateId: UserId,
+    payload: { userId: UserId; type: string; success: boolean },
+    occurredAt: Timestamp,
+    metadata?: EventMeta,
   ) {
     super({
-      id: crypto.randomUUID(),
+      id: `evt-${aggregateId}-mfa-v-${Date.now()}`,
       type: 'auth.mfa.verified',
       aggregateId,
-      aggregateType: AGGREGATE_TYPE,
-      payload: { userId, mfaType },
-      occurredAt: toTimestamp(Date.now()),
-      version,
+      aggregateType: AGG,
+      payload,
+      occurredAt,
+      version: 1,
       metadata,
     });
   }
 }
+
+export type AuthMfaDomainEvent =
+  | MfaEnabledEvent
+  | MfaDisabledEvent
+  | MfaVerifiedEvent;

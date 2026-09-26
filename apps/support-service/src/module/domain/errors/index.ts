@@ -1,20 +1,17 @@
-export { TicketNotFoundError, TicketAlreadyClosedError } from './ticket.errors';
-export { CannotEscalateError } from './ticket-escalation.errors';
-export { NoAgentAvailableError } from './ticket-assignment.errors';
-export { MessageNotFoundError } from './message.errors';
-export {
-  ConversationNotFoundError,
-  ConversationAlreadyClosedError,
-} from './conversation.errors';
-export {
-  FeedbackNotFoundError,
-  FeedbackAlreadySubmittedError,
-} from './feedback.errors';
-export { ComplaintNotFoundError } from './complaint.errors';
-export { SurveyNotFoundError, SurveyAlreadyCompletedError } from './survey.errors';
-export { ChatNotFoundError, ChatAlreadyEndedError } from './chat.errors';
-export { ChatbotNotFoundError, IntentNotFoundError } from './chatbot.errors';
-export { AgentNotFoundError, AgentNotAvailableError } from './agent.errors';
-export { SlaNotFoundError, SlaBreachedError } from './sla.errors';
-export { RuleNotFoundError } from './rule.errors';
-export { AutomationNotFoundError } from './automation.errors';
+// support-service/domain/errors/index.ts
+// Error barrel — final
+
+export * from './ticket.errors';
+export * from './ticket-escalation.errors';
+export * from './ticket-assignment.errors';
+export * from './message.errors';
+export * from './conversation.errors';
+export * from './feedback.errors';
+export * from './complaint.errors';
+export * from './survey.errors';
+export * from './chat.errors';
+export * from './chatbot.errors';
+export * from './agent.errors';
+export * from './sla.errors';
+export * from './rule.errors';
+export * from './automation.errors';

@@ -1,2 +1,6 @@
-export { AuthValidator } from './auth.validator';
-export { UserValidator } from './user.validator';
+/**
+ * Interface Validators — Barrel
+ * @module auth-service/interfaces/validators
+ */
+export * from './auth.validator';
+export * from './user.validator';

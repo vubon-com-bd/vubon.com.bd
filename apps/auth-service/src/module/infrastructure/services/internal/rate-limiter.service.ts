@@ -1,39 +1,46 @@
+/**
+ * RateLimiterService — Redis-backed sliding window counter
+ * @module auth-service/infrastructure/services/internal
+ *
+ * Uses INCR + EXPIRE pattern for a simple fixed window.
+ */
 import { Injectable } from '@nestjs/common';
-import { RedisService } from '@vubon/shared-kernel/infrastructure';
-import { RATE_LIMIT_CONFIG } from '../../config/rate-limit.config';
+import { RedisService } from '@vubon/shared-kernel/infrastructure/persistence/cache/redis.service';
 
 export interface RateLimitResult {
   readonly allowed: boolean;
   readonly remaining: number;
-  readonly resetAt: Date;
+  readonly resetInSec: number;
 }
 
 @Injectable()
 export class RateLimiterService {
+  readonly name = 'RateLimiterService';
+
   constructor(private readonly redis: RedisService) {}
 
-  async check(
-    key: string,
-    max = RATE_LIMIT_CONFIG.maxRequests,
-    windowSeconds = RATE_LIMIT_CONFIG.windowSeconds,
-  ): Promise<RateLimitResult> {
-    const cacheKey = `ratelimit:${key}`;
-    const current = (await this.redis.get<number>(cacheKey)) ?? 0;
-    const next = current + 1;
-    const allowed = next <= max;
-
-    if (allowed) {
-      await this.redis.set(cacheKey, next, windowSeconds);
+  async hit(input: {
+    key: string;
+    limit: number;
+    windowSec: number;
+  }): Promise<RateLimitResult> {
+    const key = `ratelimit:${input.key}`;
+    const client = this.redis.raw;
+    const count = await client.incr(key);
+    if (count === 1) {
+      await client.expire(key, input.windowSec);
     }
-
+    const ttl = await client.ttl(key);
     return {
-      allowed,
-      remaining: Math.max(0, max - next),
-      resetAt: new Date(Date.now() + windowSeconds * 1000),
+      allowed: count <= input.limit,
+      remaining: Math.max(0, input.limit - count),
+      resetInSec: ttl > 0 ? ttl : input.windowSec,
     };
   }
 
-  async reset(key: string): Promise<void> {
-    await this.redis.del(`ratelimit:${key}`);
+  async peek(input: { key: string; limit: number }): Promise<number> {
+    const raw = await this.redis.raw.get(`ratelimit:${input.key}`);
+    const used = raw ? Number(raw) : 0;
+    return Math.max(0, input.limit - used);
   }
 }

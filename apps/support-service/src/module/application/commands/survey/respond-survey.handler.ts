@@ -1,24 +1,23 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+/**
+ * RespondSurveyHandler
+ * @module support-service/application/commands/survey
+ */
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
 import { RespondSurveyCommand } from './respond-survey.command';
-import type { SurveyResponseServiceInterface } from '../../services/interfaces/survey-response.service.interface';
+import type { SurveyResponseDTO } from '../../dtos/responses/survey-response.dto';
+import type { SurveyServiceInterface } from '../../services/interfaces/survey.service.interface';
 
-@CommandHandler(RespondSurveyCommand)
-export class RespondSurveyHandler
-  extends BaseCommandHandler<RespondSurveyCommand, { id: string }>
-  implements ICommandHandler<RespondSurveyCommand>
-{
+export class RespondSurveyHandler extends BaseCommandHandler<
+  RespondSurveyCommand,
+  SurveyResponseDTO
+> {
   readonly commandType = 'support.survey.respond';
 
-  constructor(private readonly responseService: SurveyResponseServiceInterface) {
+  constructor(private readonly surveyService: SurveyServiceInterface) {
     super();
   }
 
-  async execute(command: RespondSurveyCommand): Promise<{ id: string }> {
-    return this.responseService.respond({
-      surveyId: command.surveyId,
-      userId: command.userId,
-      answers: command.answers,
-    });
+  async execute(command: RespondSurveyCommand): Promise<SurveyResponseDTO> {
+    return this.surveyService.respond(command.payload);
   }
 }

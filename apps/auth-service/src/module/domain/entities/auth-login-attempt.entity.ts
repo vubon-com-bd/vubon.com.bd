@@ -1,63 +1,55 @@
+/**
+ * AuthLoginAttemptEntity — A single login attempt
+ * @module auth-service/domain/entities
+ */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
-import { UserIdVO } from '../value-objects/primitives/user-id.vo';
+import type { UserId } from '@vubon/shared-types/common';
 import { LoginAttemptIpVO } from '../value-objects/primitives/login-attempt-ip.vo';
 import { LoginAttemptStatusVO } from '../value-objects/primitives/login-attempt-status.vo';
 
 export interface AuthLoginAttemptEntityProps {
-  readonly userId: UserIdVO | null;
-  readonly email: string | null;
+  readonly id: string;
+  readonly userId?: UserId;
+  readonly email?: string;
   readonly ip: LoginAttemptIpVO;
   readonly userAgent: string;
   readonly status: LoginAttemptStatusVO;
-  readonly attemptedAt: Date;
+  readonly attemptedAt: number;
+  readonly failureReason?: string;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+  readonly deletedAt?: string | null;
 }
 
 export class AuthLoginAttemptEntity extends BaseEntity<string> {
-  private readonly _userId: UserIdVO | null;
-  private readonly _email: string | null;
-  private readonly _ip: LoginAttemptIpVO;
-  private readonly _userAgent: string;
-  private readonly _status: LoginAttemptStatusVO;
-  private readonly _attemptedAt: Date;
+  readonly userId?: UserId;
+  readonly email?: string;
+  private _ip: LoginAttemptIpVO;
+  private _userAgent: string;
+  private _status: LoginAttemptStatusVO;
+  private _attemptedAt: number;
+  private _failureReason?: string;
 
-  private constructor(
-    id: string,
-    props: AuthLoginAttemptEntityProps,
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null,
-  ) {
-    super(id, createdAt, updatedAt, deletedAt);
-    this._userId = props.userId;
-    this._email = props.email;
+  private constructor(props: AuthLoginAttemptEntityProps) {
+    super(props.id, props.createdAt, props.updatedAt, props.deletedAt ?? null);
+    this.userId = props.userId;
+    this.email = props.email;
     this._ip = props.ip;
     this._userAgent = props.userAgent;
     this._status = props.status;
     this._attemptedAt = props.attemptedAt;
+    this._failureReason = props.failureReason;
   }
 
   static create(props: AuthLoginAttemptEntityProps): AuthLoginAttemptEntity {
-    const now = new Date().toISOString();
-    const id = crypto.randomUUID();
-    return new AuthLoginAttemptEntity(id, props, now, now, null);
+    return new AuthLoginAttemptEntity(props);
   }
 
-  static reconstitute(
-    id: string,
-    props: AuthLoginAttemptEntityProps,
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null,
-  ): AuthLoginAttemptEntity {
-    return new AuthLoginAttemptEntity(id, props, createdAt, updatedAt, deletedAt);
-  }
-
-  get userId(): UserIdVO | null { return this._userId; }
-  get email(): string | null { return this._email; }
   get ip(): LoginAttemptIpVO { return this._ip; }
-  get userAgent(): string { return this._userAgent; }
   get status(): LoginAttemptStatusVO { return this._status; }
-  get attemptedAt(): Date { return this._attemptedAt; }
+  get attemptedAt(): number { return this._attemptedAt; }
+  get userAgent(): string { return this._userAgent; }
 
-  get isSuccess(): boolean { return this._status.value === 'success'; }
+  isFailure(): boolean { return this._status.countsAsFailure(); }
+  isSuccess(): boolean { return !this.isFailure(); }
 }

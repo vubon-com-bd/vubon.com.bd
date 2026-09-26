@@ -1,8 +1,9 @@
-import { z } from 'zod';
-
-export const ResolveTicketRequestSchema = z.object({
-  ticketId: z.string().uuid(),
-  resolution: z.string().max(2000).optional(),
-});
-
-export type ResolveTicketRequestDTO = z.infer<typeof ResolveTicketRequestSchema>;
+/**
+ * ResolveTicketRequestDTO
+ * @module support-service/application/dtos/requests/ticket
+ */
+export interface ResolveTicketRequestDTO {
+  readonly ticketId: string;
+  readonly resolutionNote?: string;
+  readonly resolvedBy?: string;
+}

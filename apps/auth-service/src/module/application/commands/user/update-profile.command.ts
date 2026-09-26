@@ -1,15 +1,11 @@
 import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
+import type { UserId } from '@vubon/shared-types/common';
+import type { UpdateProfileRequestDTO } from '../../dtos/requests/user/update-profile.dto';
 
 export class UpdateProfileCommand extends BaseCommand {
   readonly type = 'user.update-profile';
-
   constructor(
-    public readonly userId: string,
-    public readonly firstName?: string,
-    public readonly lastName?: string,
-    public readonly bio?: string,
-    public readonly avatarUrl?: string,
-  ) {
-    super();
-  }
+    public readonly userId: UserId,
+    public readonly input: UpdateProfileRequestDTO,
+  ) { super(); }
 }
