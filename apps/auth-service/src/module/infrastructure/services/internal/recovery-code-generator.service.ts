@@ -3,7 +3,7 @@
  * @module auth-service/infrastructure/services/internal
  */
 import { Injectable } from '@nestjs/common';
-import { randomBytes, createHash, timingSafeEqual } from 'node:crypto';
+import { randomBytes, randomInt, createHash, timingSafeEqual } from 'node:crypto';
 import * as bcrypt from 'bcryptjs';
 import type { RecoveryCodeGeneratorServiceInterface } from '../../../application/services/interfaces/recovery-code-generator.service.interface';
 
@@ -26,13 +26,19 @@ export class RecoveryCodeGeneratorService
   }
 
   async hash(code: string): Promise<string> {
-    return bcrypt.hash(RecoveryCodeGeneratorService.normalize(code), BCRYPT_ROUNDS);
+    return bcrypt.hash(
+      RecoveryCodeGeneratorService.normalize(code),
+      BCRYPT_ROUNDS,
+    );
   }
 
   async verify(code: string, hash: string): Promise<boolean> {
     if (!code || !hash) return false;
     try {
-      return await bcrypt.compare(RecoveryCodeGeneratorService.normalize(code), hash);
+      return await bcrypt.compare(
+        RecoveryCodeGeneratorService.normalize(code),
+        hash,
+      );
     } catch {
       return false;
     }
@@ -43,10 +49,10 @@ export class RecoveryCodeGeneratorService
   private static randomCode(): string {
     const groups: string[] = [];
     for (let g = 0; g < BLOCKS; g += 1) {
-      const bytes = randomBytes(BLOCK);
       let block = '';
-      for (const b of bytes) {
-        block += ALPHABET[b % ALPHABET.length];
+      for (let i = 0; i < BLOCK; i += 1) {
+        // randomInt is cryptographically secure AND unbiased
+        block += ALPHABET[randomInt(0, ALPHABET.length)];
       }
       groups.push(block);
     }

@@ -4,6 +4,10 @@
  */
 import { UserPrismaRepository } from './user.prisma.repository';
 import { UserEmailVO } from '../../../../domain/value-objects/primitives/user-email.vo';
+import { UserNameVO } from '../../../../domain/value-objects/primitives/user-name.vo';
+import { UserStatusVO } from '../../../../domain/value-objects/primitives/user-status.vo';
+import { UserTypeVO } from '../../../../domain/value-objects/primitives/user-type.vo';
+import { UserEntity } from '../../../../domain/entities/user.entity';
 
 const mockPrisma = () => ({
   user: {
@@ -18,11 +22,22 @@ const mockPrisma = () => ({
 
 const now = new Date('2024-01-01T00:00:00.000Z');
 
-const prismaUser = (overrides: Partial<{
-  id: string; email: string; password: string; name: string;
-  phone: string | null; status: string; type: string; role: string;
-  emailVerified: boolean; createdAt: Date; updatedAt: Date; deletedAt: Date | null;
-}> = {}) => ({
+type PrismaUserOverrides = Partial<{
+  id: string;
+  email: string;
+  password: string;
+  name: string;
+  phone: string | null;
+  status: string;
+  type: string;
+  role: string;
+  emailVerified: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date | null;
+}>;
+
+const prismaUser = (overrides: PrismaUserOverrides = {}) => ({
   id: 'user-1',
   email: 'john@example.com',
   password: '$2b$12$hash',
@@ -71,7 +86,9 @@ describe('UserPrismaRepository', () => {
     it('should pass correct where clause', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
       await repo.findById('user-1' as never);
-      expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { id: 'user-1' } });
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({
+        where: { id: 'user-1' },
+      });
     });
   });
 
@@ -118,11 +135,6 @@ describe('UserPrismaRepository', () => {
 
   describe('save()', () => {
     it('should update existing user', async () => {
-      const { UserEntity } = await import('../../../../domain/entities/user.entity');
-      const { UserNameVO } = await import('../../../../domain/value-objects/primitives/user-name.vo');
-      const { UserStatusVO } = await import('../../../../domain/value-objects/primitives/user-status.vo');
-      const { UserTypeVO } = await import('../../../../domain/value-objects/primitives/user-type.vo');
-
       const user = UserEntity.create({
         id: 'user-1' as never,
         email: UserEmailVO.of('john@example.com'),
@@ -155,7 +167,9 @@ describe('UserPrismaRepository', () => {
       prisma.user.count.mockResolvedValue(5);
       const result = await repo.countByStatus('active');
       expect(result).toBe(5);
-      expect(prisma.user.count).toHaveBeenCalledWith({ where: { status: 'active' } });
+      expect(prisma.user.count).toHaveBeenCalledWith({
+        where: { status: 'active' },
+      });
     });
   });
 
@@ -172,7 +186,10 @@ describe('UserPrismaRepository', () => {
 
     it('should delegate findMany', async () => {
       prisma.user.findMany.mockResolvedValue([prismaUser()]);
-      const result = await repo.findByIds(['user-1' as never, 'user-2' as never]);
+      const result = await repo.findByIds([
+        'user-1' as never,
+        'user-2' as never,
+      ]);
       expect(result).toHaveLength(1);
     });
   });

@@ -13,7 +13,24 @@ import type { SubmitKycRequestDTO } from '../../dtos/requests/user/submit-kyc.dt
 import type { VerifyKycRequestDTO } from '../../dtos/requests/user/verify-kyc.dto';
 import type { RejectKycRequestDTO } from '../../dtos/requests/user/reject-kyc.dto';
 import type { UserKycResponseDTO } from '../../dtos/responses/user-kyc-response.dto';
-import { ID_GENERATOR, USER_KYC_REPO } from '../tokens';
+import { ID_GENERATOR } from '../tokens';
+import { USER_KYC_REPO } from './user-kyc.service.tokens';
+
+interface KycDocument {
+  readonly type: string;
+  readonly frontUrl: string;
+  readonly backUrl?: string;
+  readonly number?: string;
+  readonly selfieUrl?: string;
+}
+
+interface SubmitKycShape {
+  readonly documents?: readonly KycDocument[];
+  readonly documentType?: string;
+  readonly documentNumber?: string;
+  readonly frontImageUrl?: string;
+  readonly backImageUrl?: string;
+}
 
 @Injectable()
 export class UserKycService
@@ -27,11 +44,18 @@ export class UserKycService
   ) { super(); }
 
   async submit(userId: UserId, input: SubmitKycRequestDTO): Promise<UserKycEntity> {
-    const existing = await this.repo.findByUserId(userId);
     const now = new Date().toISOString();
+    const shape = input as unknown as SubmitKycShape;
 
+    const firstDoc = shape.documents?.[0];
+    const documentType = firstDoc?.type ?? shape.documentType ?? 'nid';
+    const documentNumber = firstDoc?.number ?? shape.documentNumber ?? '';
+    const frontImageUrl = firstDoc?.frontUrl ?? shape.frontImageUrl ?? '';
+    const backImageUrl = firstDoc?.backUrl ?? shape.backImageUrl;
+
+    const existing = await this.repo.findByUserId(userId);
     if (existing) {
-      existing.submit(now, input.frontImageUrl, input.backImageUrl);
+      existing.submit(now, frontImageUrl, backImageUrl);
       return this.repo.save(existing);
     }
 
@@ -39,10 +63,10 @@ export class UserKycService
       id: this.idGen.generate(),
       userId,
       status: 'pending',
-      documentType: input.documentType as never,
-      documentNumber: input.documentNumber,
-      frontImageUrl: input.frontImageUrl,
-      backImageUrl: input.backImageUrl,
+      documentType: documentType as never,
+      documentNumber,
+      frontImageUrl,
+      backImageUrl,
       submittedAt: now,
       createdAt: now,
       updatedAt: now,

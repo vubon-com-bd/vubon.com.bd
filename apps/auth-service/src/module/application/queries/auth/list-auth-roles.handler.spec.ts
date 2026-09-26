@@ -1,5 +1,6 @@
 /**
  * ListAuthRolesHandler — Unit Tests
+ * @module auth-service/application/queries/auth
  */
 import { ListAuthRolesHandler } from './list-auth-roles.handler';
 import { ListAuthRolesQuery } from './list-auth-roles.query';
@@ -42,9 +43,7 @@ describe('ListAuthRolesHandler', () => {
       buildRole('customer'),
     ]);
     const query = new ListAuthRolesQuery();
-
     const result = await handler.execute(query);
-
     expect(result).toHaveLength(2);
     expect(result[0]?.name).toBe('admin');
     expect(result[0]?.permissions).toContain('user:view');
@@ -53,7 +52,6 @@ describe('ListAuthRolesHandler', () => {
   it('should handle empty list', async () => {
     repo.findAll.mockResolvedValue([]);
     const query = new ListAuthRolesQuery();
-
     const result = await handler.execute(query);
     expect(result).toEqual([]);
   });

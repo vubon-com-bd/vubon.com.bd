@@ -1,0 +1,27 @@
+/**
+ * Auth Command Handlers — DI tokens
+ * @module auth-service/application/commands/auth
+ *
+ * Re-export from central tokens file for legacy imports.
+ */
+export {
+  AUTH_SERVICE,
+  AUTH_TOKEN_SERVICE,
+  AUTH_SESSION_SERVICE,
+  AUTH_MFA_SERVICE,
+  AUTH_RECOVERY_CODE_SERVICE,
+  AUTH_ACCOUNT_LOCK_SERVICE,
+  AUTH_SOCIAL_SERVICE,
+  AUTH_SSO_SERVICE,
+  AUTH_BIOMETRIC_SERVICE,
+  AUTH_SETTINGS_SERVICE,
+  AUTH_ROLE_SERVICE,
+  USER_REPO,
+  USER_VERIFICATION_REPO,
+  USER_VERIFICATION_SERVICE,
+  PASSWORD_HASHER,
+  ID_GENERATOR,
+  TOKEN_SIGNER,
+  TOTP_SERVICE,
+  RECOVERY_CODE_GENERATOR,
+} from '../../tokens';

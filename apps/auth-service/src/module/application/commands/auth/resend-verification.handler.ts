@@ -1,3 +1,7 @@
+/**
+ * ResendVerificationHandler
+ * @module auth-service/application/commands/auth
+ */
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
@@ -5,7 +9,8 @@ import { ResendVerificationCommand } from './resend-verification.command';
 import type { UserVerificationServiceInterface } from '../../services/interfaces/user-verification.service.interface';
 import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
 import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo';
-import { USER_REPO, USER_VERIFICATION_SERVICE } from '../../tokens';
+import { USER_REPO } from '../../tokens';
+import { USER_VERIFICATION_SERVICE } from '../../tokens';
 
 @CommandHandler(ResendVerificationCommand)
 export class ResendVerificationHandler
@@ -17,16 +22,19 @@ export class ResendVerificationHandler
     @Inject(USER_REPO) private readonly userRepo: UserRepository,
     @Inject(USER_VERIFICATION_SERVICE)
     private readonly verificationService: UserVerificationServiceInterface,
-  ) {
-    super();
-  }
+  ) { super(); }
 
   async execute(command: ResendVerificationCommand): Promise<void> {
-    // DTO shape: { identifier, channel? }
-    // identifier may be email or phone; treat as email for this handler.
-    const email = UserEmailVO.of(command.input.identifier);
+    const dto = command.input as unknown as {
+      email?: string;
+      identifier?: string;
+    };
+    const emailStr = dto.email ?? dto.identifier;
+    if (!emailStr) return;
+
+    const email = UserEmailVO.of(emailStr);
     const user = await this.userRepo.findByEmail(email);
-    if (!user) return; // silent — don't leak user existence
+    if (!user) return;
 
     await this.verificationService.request({
       userId: user.id,

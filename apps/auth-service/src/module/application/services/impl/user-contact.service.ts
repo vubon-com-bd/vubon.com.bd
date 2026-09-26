@@ -15,7 +15,7 @@ import type { AddContactRequestDTO } from '../../dtos/requests/user/add-contact.
 import type { UpdateContactRequestDTO } from '../../dtos/requests/user/update-contact.dto';
 import type { UserContactResponseDTO } from '../../dtos/responses/user-contact-response.dto';
 import { ID_GENERATOR } from '../tokens';
-import { USER_CONTACT_REPO } from '../tokens';
+import { USER_CONTACT_REPO } from './user-contact.service.tokens';
 
 @Injectable()
 export class UserContactService
@@ -34,10 +34,31 @@ export class UserContactService
 
   async add(userId: UserId, input: AddContactRequestDTO): Promise<UserContactEntity> {
     const now = new Date().toISOString();
-    const email =
-      input.email ? UserEmailVO.of(input.email) : undefined;
-    const phone =
-      input.phone ? UserPhoneVO.of(input.phone) : undefined;
+    const dto = input as unknown as {
+      value?: string;
+      type?: string;
+      isPrimary?: boolean;
+      label?: string;
+      email?: string;
+      phone?: string;
+    };
+
+    const value = dto.value;
+    const kind = (dto.type ?? '').toLowerCase();
+
+    let email: UserEmailVO | undefined;
+    let phone: UserPhoneVO | undefined;
+
+    if (value) {
+      if (kind === 'email' || value.includes('@')) {
+        email = UserEmailVO.of(value);
+      } else {
+        phone = UserPhoneVO.of(value);
+      }
+    } else {
+      email = dto.email ? UserEmailVO.of(dto.email) : undefined;
+      phone = dto.phone ? UserPhoneVO.of(dto.phone) : undefined;
+    }
 
     if (!email && !phone) {
       throw new Error('Contact must have at least one of: email, phone');
@@ -58,8 +79,11 @@ export class UserContactService
   async update(input: UpdateContactRequestDTO): Promise<UserContactEntity> {
     const found = await this.repo.findById(input.contactId);
     if (!found) throw new Error('Contact not found');
-    if (input.verified === true) found.markVerified();
-    if (input.verified === false) found.markUnverified();
+
+    const dto = input as unknown as { primary?: boolean; verified?: boolean };
+    if (dto.verified === true || dto.primary === true) found.markVerified();
+    else if (dto.verified === false) found.markUnverified();
+
     return this.repo.save(found);
   }
 
