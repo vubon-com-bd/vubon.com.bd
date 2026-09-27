@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -19,20 +18,21 @@
     "noImplicitAny": true,
     "baseUrl": ".",
     "paths": {
-      "@vubon/shared-constants": ["../shared-constants/dist/index.d.ts"],
-      "@vubon/shared-constants/*": ["../shared-constants/dist/*"],
-      "@vubon/shared-types": ["../shared-types/dist/index.d.ts"],
-      "@vubon/shared-types/*": ["../shared-types/dist/*"],
-      "@vubon/shared-schemas": ["../shared-schemas/dist/index.d.ts"],
-      "@vubon/shared-schemas/*": ["../shared-schemas/dist/*"],
-      "@vubon/shared-utils": ["../shared-utils/dist/index.d.ts"],
-      "@vubon/shared-utils/*": ["../shared-utils/dist/*"],
-      "@vubon/shared-config": ["../shared-config/dist/index.d.ts"],
-      "@vubon/shared-config/*": ["../shared-config/dist/*"],
-      "@vubon/shared-api": ["../shared-api/dist/index.d.ts"],
-      "@vubon/shared-api/*": ["../shared-api/dist/*"],
-      "@vubon/shared-auth": ["../shared-auth/dist/index.d.ts"],
-      "@vubon/shared-auth/*": ["../shared-auth/dist/*"]
+      "@vubon/shared-constants": ["../shared-constants/src/index.ts"],
+      "@vubon/shared-constants/*": ["../shared-constants/src/*"],
+      "@vubon/shared-types": ["../shared-types/src/index.ts"],
+      "@vubon/shared-types/*": ["../shared-types/src/*"],
+      "@vubon/shared-schemas": ["../shared-schemas/src/index.ts"],
+      "@vubon/shared-schemas/*": ["../shared-schemas/src/*"],
+      "@vubon/shared-utils": ["../shared-utils/src/index.ts"],
+      "@vubon/shared-utils/*": ["../shared-utils/src/*"],
+      "@vubon/shared-config": ["../shared-config/src/index.ts"],
+      "@vubon/shared-config/*": ["../shared-config/src/*"],
+      "@vubon/shared-api": ["../shared-api/src/index.ts"],
+      "@vubon/shared-api/*": ["../shared-api/src/*"],
+      "@vubon/shared-auth": ["../shared-auth/src/index.ts"],
+      "@vubon/shared-auth/common": ["../shared-auth/src/common/index.ts"],
+      "@vubon/shared-auth/*": ["../shared-auth/src/*"]
     }
   },
   "include": ["src/**/*"],
