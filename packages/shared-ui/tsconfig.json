@@ -1,17 +1,13 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "module": "ESNext",
     "target": "ES2022",
     "moduleResolution": "bundler",
-    "lib": [
-      "ES2022",
-      "DOM"
-    ],
+    "lib": ["ES2022", "DOM"],
     "jsx": "react-jsx",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -22,33 +18,35 @@
     "noImplicitAny": true,
     "baseUrl": ".",
     "paths": {
-      "@vubon/shared-hooks": [
-        "../shared-hooks/dist/index.d.ts"
-      ],
-      "@vubon/shared-hooks/*": [
-        "../shared-hooks/dist/*"
-      ],
-      "@vubon/shared-constants": [
-        "../shared-constants/dist/index.d.ts"
-      ],
-      "@vubon/shared-constants/*": [
-        "../shared-constants/dist/*"
-      ],
-      "@vubon/shared-types": [
-        "../shared-types/dist/index.d.ts"
-      ],
-      "@vubon/shared-types/*": [
-        "../shared-types/dist/*"
-      ]
+      "@vubon/shared-hooks": ["../shared-hooks/src/index.ts"],
+      "@vubon/shared-hooks/utility": ["../shared-hooks/src/utility/index.ts"],
+      "@vubon/shared-hooks/primitive": ["../shared-hooks/src/primitive/index.ts"],
+      "@vubon/shared-hooks/integration": ["../shared-hooks/src/integration/index.ts"],
+      "@vubon/shared-hooks/table": ["../shared-hooks/src/table/index.ts"],
+      "@vubon/shared-hooks/form": ["../shared-hooks/src/form/index.ts"],
+      "@vubon/shared-hooks/ui": ["../shared-hooks/src/ui/index.ts"],
+      "@vubon/shared-hooks/business": ["../shared-hooks/src/business/index.ts"],
+      "@vubon/shared-hooks/admin": ["../shared-hooks/src/admin/index.ts"],
+      "@vubon/shared-hooks/seller": ["../shared-hooks/src/seller/index.ts"],
+      "@vubon/shared-hooks/customer": ["../shared-hooks/src/customer/index.ts"],
+      "@vubon/shared-hooks/*": ["../shared-hooks/src/*"],
+      "@vubon/shared-constants": ["../shared-constants/src/index.ts"],
+      "@vubon/shared-constants/*": ["../shared-constants/src/*"],
+      "@vubon/shared-types": ["../shared-types/src/index.ts"],
+      "@vubon/shared-types/*": ["../shared-types/src/*"],
+      "@vubon/shared-schemas": ["../shared-schemas/src/index.ts"],
+      "@vubon/shared-schemas/*": ["../shared-schemas/src/*"],
+      "@vubon/shared-utils": ["../shared-utils/src/index.ts"],
+      "@vubon/shared-utils/*": ["../shared-utils/src/*"],
+      "@vubon/shared-config": ["../shared-config/src/index.ts"],
+      "@vubon/shared-config/*": ["../shared-config/src/*"],
+      "@vubon/shared-api": ["../shared-api/src/index.ts"],
+      "@vubon/shared-api/*": ["../shared-api/src/*"],
+      "@vubon/shared-auth": ["../shared-auth/src/index.ts"],
+      "@vubon/shared-auth/common": ["../shared-auth/src/common/index.ts"],
+      "@vubon/shared-auth/*": ["../shared-auth/src/*"]
     }
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/*.test.ts",
-    "**/*.spec.ts"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
 }
