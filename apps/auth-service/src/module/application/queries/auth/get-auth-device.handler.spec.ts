@@ -28,7 +28,7 @@ const buildDevice = () =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findById: jest.fn() as jest.Mock });
+const mockRepo = () => ({ findById: jest.fn<() => Promise<unknown>>() });
 
 describe('GetAuthDeviceHandler', () => {
   let handler: GetAuthDeviceHandler;

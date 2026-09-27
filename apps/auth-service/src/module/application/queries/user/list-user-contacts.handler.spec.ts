@@ -20,7 +20,7 @@ const buildContact = (id: string, email: string) =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findByUserId: jest.fn() as jest.Mock });
+const mockRepo = () => ({ findByUserId: jest.fn<() => Promise<unknown>>() });
 
 describe('ListUserContactsHandler', () => {
   let handler: ListUserContactsHandler;

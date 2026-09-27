@@ -8,7 +8,7 @@ import { VerifyEmailCommand } from './verify-email.command.js';
 
 const mockAuthService = () => ({
   name: 'AuthService',
-  verifyEmail: jest.fn() as jest.Mock,
+  verifyEmail: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('VerifyEmailHandler', () => {

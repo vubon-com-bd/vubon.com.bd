@@ -26,15 +26,15 @@ const buildSession = (overrides: Partial<Parameters<typeof AuthSessionEntity.cre
   });
 
 const mockSessionRepo = () => ({
-  findById: jest.fn() as jest.Mock,
-  findByToken: jest.fn() as jest.Mock,
-  findActiveByUser: jest.fn() as jest.Mock,
-  findAll: jest.fn() as jest.Mock,
+  findById: jest.fn<() => Promise<unknown>>(),
+  findByToken: jest.fn<() => Promise<unknown>>(),
+  findActiveByUser: jest.fn<() => Promise<unknown>>(),
+  findAll: jest.fn<() => Promise<unknown>>(),
   save: jest.fn((s: AuthSessionEntity) => Promise.resolve(s)),
-  delete: jest.fn() as jest.Mock,
-  exists: jest.fn() as jest.Mock,
-  revokeAllForUser: jest.fn() as jest.Mock,
-  deleteExpired: jest.fn() as jest.Mock,
+  delete: jest.fn<() => Promise<unknown>>(),
+  exists: jest.fn<() => Promise<unknown>>(),
+  revokeAllForUser: jest.fn<() => Promise<unknown>>(),
+  deleteExpired: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockIdGen = () => ({

@@ -7,8 +7,8 @@ import { UpdateProfileHandler } from './update-profile.handler.js';
 import { UpdateProfileCommand } from './update-profile.command.js';
 
 const mockProfileService = () => ({
-  update: jest.fn() as jest.Mock,
-  toResponse: jest.fn() as jest.Mock,
+  update: jest.fn<() => Promise<unknown>>(),
+  toResponse: jest.fn<() => unknown>(),
 });
 
 describe('UpdateProfileHandler', () => {

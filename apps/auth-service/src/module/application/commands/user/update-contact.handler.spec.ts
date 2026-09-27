@@ -6,7 +6,7 @@ import { jest } from '@jest/globals';
 import { UpdateContactHandler } from './update-contact.handler.js';
 import { UpdateContactCommand } from './update-contact.command.js';
 
-const mockService = () => ({ update: jest.fn() as jest.Mock, toResponse: jest.fn() as jest.Mock });
+const mockService = () => ({ update: jest.fn<() => Promise<unknown>>(), toResponse: jest.fn<() => unknown>() });
 
 describe('UpdateContactHandler', () => {
   let handler: UpdateContactHandler;

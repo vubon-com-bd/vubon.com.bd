@@ -8,7 +8,7 @@ import { VerifyBiometricCommand } from './verify-biometric.command.js';
 
 const mockService = () => ({
   name: 'AuthBiometricService',
-  verify: jest.fn() as jest.Mock,
+  verify: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('VerifyBiometricHandler', () => {

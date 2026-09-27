@@ -4,7 +4,7 @@ import { Test } from '@nestjs/testing';
 import { CommandBus } from '@nestjs/cqrs';
 import { AuthSocialController } from './auth-social.controller.js';
 
-const mockCommandBus = () => ({ execute: jest.fn() as jest.Mock });
+const mockCommandBus = () => ({ execute: jest.fn<() => Promise<unknown>>() });
 
 describe('AuthSocialController', () => {
   let controller: AuthSocialController;

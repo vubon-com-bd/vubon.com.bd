@@ -4,8 +4,8 @@ import { Test } from '@nestjs/testing';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AuthRecoveryCodeController } from './auth-recovery-code.controller.js';
 
-const mockCommandBus = () => ({ execute: jest.fn() as jest.Mock });
-const mockQueryBus = () => ({ execute: jest.fn() as jest.Mock });
+const mockCommandBus = () => ({ execute: jest.fn<() => Promise<unknown>>() });
+const mockQueryBus = () => ({ execute: jest.fn<() => Promise<unknown>>() });
 
 describe('AuthRecoveryCodeController', () => {
   let controller: AuthRecoveryCodeController;

@@ -8,7 +8,7 @@ import { ResetPasswordCommand } from './reset-password.command.js';
 
 const mockAuthService = () => ({
   name: 'AuthService',
-  resetPassword: jest.fn() as jest.Mock,
+  resetPassword: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('ResetPasswordHandler', () => {

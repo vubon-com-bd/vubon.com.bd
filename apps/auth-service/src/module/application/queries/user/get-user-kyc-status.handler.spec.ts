@@ -20,7 +20,7 @@ const buildKyc = () =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findByUserId: jest.fn() as jest.Mock });
+const mockRepo = () => ({ findByUserId: jest.fn<() => Promise<unknown>>() });
 
 describe('GetUserKycStatusHandler', () => {
   let handler: GetUserKycStatusHandler;

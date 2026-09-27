@@ -6,7 +6,7 @@ import { jest } from '@jest/globals';
 import { DeactivateUserHandler } from './deactivate-user.handler.js';
 import { DeactivateUserCommand } from './deactivate-user.command.js';
 
-const mockService = () => ({ deactivate: jest.fn() as jest.Mock });
+const mockService = () => ({ deactivate: jest.fn<() => Promise<unknown>>() });
 
 describe('DeactivateUserHandler', () => {
   let handler: DeactivateUserHandler;

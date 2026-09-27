@@ -26,14 +26,14 @@ const buildAddress = (overrides: Partial<Parameters<typeof UserAddressEntity.cre
   });
 
 const mockRepo = () => ({
-  findById: jest.fn() as jest.Mock,
-  findByUserId: jest.fn() as jest.Mock,
-  findAll: jest.fn() as jest.Mock,
+  findById: jest.fn<() => Promise<unknown>>(),
+  findByUserId: jest.fn<() => Promise<unknown>>(),
+  findAll: jest.fn<() => Promise<unknown>>(),
   save: jest.fn((a: UserAddressEntity) => Promise.resolve(a)),
-  delete: jest.fn() as jest.Mock,
-  exists: jest.fn() as jest.Mock,
-  findDefaultByUserId: jest.fn() as jest.Mock,
-  clearDefaultForUser: jest.fn() as jest.Mock,
+  delete: jest.fn<() => Promise<unknown>>(),
+  exists: jest.fn<() => Promise<unknown>>(),
+  findDefaultByUserId: jest.fn<() => Promise<unknown>>(),
+  clearDefaultForUser: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockIdGen = () => ({

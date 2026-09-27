@@ -8,7 +8,7 @@ import { SsoLoginCommand } from './sso-login.command.js';
 
 const mockSsoService = () => ({
   name: 'AuthSsoService',
-  initiateLogin: jest.fn() as jest.Mock,
+  initiateLogin: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('SsoLoginHandler', () => {

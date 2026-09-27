@@ -8,20 +8,20 @@ import { RoleNameVO } from '../../../../domain/value-objects/primitives/role-nam
 
 const mockPrisma = () => ({
   authRole: {
-    findUnique: jest.fn() as jest.Mock,
-    findMany: jest.fn() as jest.Mock,
-    create: jest.fn() as jest.Mock,
-    update: jest.fn() as jest.Mock,
-    delete: jest.fn() as jest.Mock,
-    count: jest.fn() as jest.Mock,
+    findUnique: jest.fn<() => Promise<unknown>>(),
+    findMany: jest.fn<() => Promise<unknown>>(),
+    create: jest.fn<() => Promise<unknown>>(),
+    update: jest.fn<() => Promise<unknown>>(),
+    delete: jest.fn<() => Promise<unknown>>(),
+    count: jest.fn<() => Promise<unknown>>(),
   },
   authRolePermission: {
-    findMany: jest.fn() as jest.Mock,
-    upsert: jest.fn() as jest.Mock,
-    deleteMany: jest.fn() as jest.Mock,
+    findMany: jest.fn<() => Promise<unknown>>(),
+    upsert: jest.fn<() => Promise<unknown>>(),
+    deleteMany: jest.fn<() => Promise<unknown>>(),
   },
   authPermission: {
-    findUnique: jest.fn() as jest.Mock,
+    findUnique: jest.fn<() => Promise<unknown>>(),
   },
 });
 

@@ -26,7 +26,7 @@ const buildSession = () =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findById: jest.fn() as jest.Mock });
+const mockRepo = () => ({ findById: jest.fn<() => Promise<unknown>>() });
 
 describe('GetAuthSessionHandler', () => {
   let handler: GetAuthSessionHandler;

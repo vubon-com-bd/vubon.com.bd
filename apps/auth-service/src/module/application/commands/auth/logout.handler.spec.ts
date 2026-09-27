@@ -8,7 +8,7 @@ import { LogoutCommand } from './logout.command.js';
 
 const mockAuthService = () => ({
   name: 'AuthService',
-  logout: jest.fn() as jest.Mock,
+  logout: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('LogoutHandler', () => {

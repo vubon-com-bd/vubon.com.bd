@@ -8,7 +8,7 @@ import { GenerateRecoveryCodesCommand } from './generate-recovery-codes.command.
 
 const mockRecoveryService = () => ({
   name: 'AuthRecoveryCodeService',
-  generateForUser: jest.fn() as jest.Mock,
+  generateForUser: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('GenerateRecoveryCodesHandler', () => {

@@ -29,14 +29,14 @@ const buildVerification = () =>
   });
 
 const mockRepo = () => ({
-  findById: jest.fn() as jest.Mock,
-  findByUserId: jest.fn() as jest.Mock,
-  findAll: jest.fn() as jest.Mock,
+  findById: jest.fn<() => Promise<unknown>>(),
+  findByUserId: jest.fn<() => Promise<unknown>>(),
+  findAll: jest.fn<() => Promise<unknown>>(),
   save: jest.fn((v: UserVerificationEntity) => Promise.resolve(v)),
-  delete: jest.fn() as jest.Mock,
-  exists: jest.fn() as jest.Mock,
-  findLatestByUserAndType: jest.fn() as jest.Mock,
-  deleteExpired: jest.fn() as jest.Mock,
+  delete: jest.fn<() => Promise<unknown>>(),
+  exists: jest.fn<() => Promise<unknown>>(),
+  findLatestByUserAndType: jest.fn<() => Promise<unknown>>(),
+  deleteExpired: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockIdGen = () => ({

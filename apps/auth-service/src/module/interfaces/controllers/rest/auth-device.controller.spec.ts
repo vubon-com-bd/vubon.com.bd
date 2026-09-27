@@ -4,7 +4,7 @@ import { Test } from '@nestjs/testing';
 import { QueryBus } from '@nestjs/cqrs';
 import { AuthDeviceController } from './auth-device.controller.js';
 
-const mockQueryBus = () => ({ execute: jest.fn() as jest.Mock });
+const mockQueryBus = () => ({ execute: jest.fn<() => Promise<unknown>>() });
 
 describe('AuthDeviceController', () => {
   let controller: AuthDeviceController;

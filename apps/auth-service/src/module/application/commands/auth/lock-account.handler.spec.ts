@@ -8,7 +8,7 @@ import { LockAccountCommand } from './lock-account.command.js';
 
 const mockService = () => ({
   name: 'AuthAccountLockService',
-  lock: jest.fn() as jest.Mock,
+  lock: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('LockAccountHandler', () => {

@@ -21,7 +21,7 @@ const buildMfa = (status: 'disabled' | 'enabled') =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findByUserId: jest.fn() as jest.Mock });
+const mockRepo = () => ({ findByUserId: jest.fn<() => Promise<unknown>>() });
 
 describe('GetAuthMfaSettingsHandler', () => {
   let handler: GetAuthMfaSettingsHandler;

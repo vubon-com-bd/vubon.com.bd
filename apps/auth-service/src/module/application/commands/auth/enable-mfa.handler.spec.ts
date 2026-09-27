@@ -8,7 +8,7 @@ import { EnableMfaCommand } from './enable-mfa.command.js';
 
 const mockMfaService = () => ({
   name: 'AuthMfaService',
-  beginEnrollment: jest.fn() as jest.Mock,
+  beginEnrollment: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('EnableMfaHandler', () => {

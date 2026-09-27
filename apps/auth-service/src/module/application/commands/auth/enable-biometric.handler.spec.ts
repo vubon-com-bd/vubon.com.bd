@@ -8,7 +8,7 @@ import { EnableBiometricCommand } from './enable-biometric.command.js';
 
 const mockService = () => ({
   name: 'AuthBiometricService',
-  enroll: jest.fn() as jest.Mock,
+  enroll: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('EnableBiometricHandler', () => {

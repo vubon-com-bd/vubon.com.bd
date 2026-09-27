@@ -8,7 +8,7 @@ import { UnlockAccountCommand } from './unlock-account.command.js';
 
 const mockService = () => ({
   name: 'AuthAccountLockService',
-  unlock: jest.fn() as jest.Mock,
+  unlock: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('UnlockAccountHandler', () => {

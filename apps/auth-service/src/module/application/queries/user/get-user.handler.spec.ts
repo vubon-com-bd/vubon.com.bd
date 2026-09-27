@@ -31,7 +31,7 @@ const buildUser = () =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findById: jest.fn() as jest.Mock });
+const mockRepo = () => ({ findById: jest.fn<() => Promise<unknown>>() });
 
 describe('GetUserHandler', () => {
   let handler: GetUserHandler;

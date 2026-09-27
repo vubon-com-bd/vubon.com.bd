@@ -26,12 +26,12 @@ const buildSettings = (overrides: Partial<Parameters<typeof UserSettingsEntity.c
   });
 
 const mockRepo = () => ({
-  findById: jest.fn() as jest.Mock,
-  findByUserId: jest.fn() as jest.Mock,
-  findAll: jest.fn() as jest.Mock,
+  findById: jest.fn<() => Promise<unknown>>(),
+  findByUserId: jest.fn<() => Promise<unknown>>(),
+  findAll: jest.fn<() => Promise<unknown>>(),
   save: jest.fn((s: UserSettingsEntity) => Promise.resolve(s)),
-  delete: jest.fn() as jest.Mock,
-  exists: jest.fn() as jest.Mock,
+  delete: jest.fn<() => Promise<unknown>>(),
+  exists: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('UserSettingsService', () => {

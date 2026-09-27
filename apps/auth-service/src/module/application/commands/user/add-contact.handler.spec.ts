@@ -6,7 +6,7 @@ import { jest } from '@jest/globals';
 import { AddContactHandler } from './add-contact.handler.js';
 import { AddContactCommand } from './add-contact.command.js';
 
-const mockService = () => ({ add: jest.fn() as jest.Mock, toResponse: jest.fn() as jest.Mock });
+const mockService = () => ({ add: jest.fn<() => Promise<unknown>>(), toResponse: jest.fn<() => unknown>() });
 
 describe('AddContactHandler', () => {
   let handler: AddContactHandler;

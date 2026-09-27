@@ -8,7 +8,7 @@ import { SocialLoginCommand } from './social-login.command.js';
 
 const mockSocialService = () => ({
   name: 'AuthSocialService',
-  initiateLogin: jest.fn() as jest.Mock,
+  initiateLogin: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('SocialLoginHandler', () => {

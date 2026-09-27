@@ -6,7 +6,7 @@ import { jest } from '@jest/globals';
 import { RevokeRoleHandler } from './revoke-role.handler.js';
 import { RevokeRoleCommand } from './revoke-role.command.js';
 
-const mockService = () => ({ revoke: jest.fn() as jest.Mock });
+const mockService = () => ({ revoke: jest.fn<() => Promise<unknown>>() });
 
 describe('RevokeRoleHandler', () => {
   let handler: RevokeRoleHandler;

@@ -6,7 +6,7 @@ import { jest } from '@jest/globals';
 import { ListUserPermissionsHandler } from './list-user-permissions.handler.js';
 import { ListUserPermissionsQuery } from './list-user-permissions.query.js';
 
-const mockService = () => ({ effectivePermissions: jest.fn() as jest.Mock });
+const mockService = () => ({ effectivePermissions: jest.fn<() => Promise<unknown>>() });
 
 describe('ListUserPermissionsHandler', () => {
   let handler: ListUserPermissionsHandler;

@@ -23,7 +23,7 @@ const buildRole = (name: string) =>
   });
 
 const mockService = () => ({
-  listForUser: jest.fn() as jest.Mock,
+  listForUser: jest.fn<() => Promise<unknown>>(),
   toResponse: jest.fn((r: AuthRoleEntity) => ({
     id: r.id,
     name: r.name.value,

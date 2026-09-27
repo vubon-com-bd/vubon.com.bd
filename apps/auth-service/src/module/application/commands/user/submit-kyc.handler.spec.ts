@@ -6,7 +6,7 @@ import { jest } from '@jest/globals';
 import { SubmitKycHandler } from './submit-kyc.handler.js';
 import { SubmitKycCommand } from './submit-kyc.command.js';
 
-const mockService = () => ({ submit: jest.fn() as jest.Mock, toResponse: jest.fn() as jest.Mock });
+const mockService = () => ({ submit: jest.fn<() => Promise<unknown>>(), toResponse: jest.fn<() => unknown>() });
 
 describe('SubmitKycHandler', () => {
   let handler: SubmitKycHandler;

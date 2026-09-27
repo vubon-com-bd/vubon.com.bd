@@ -6,7 +6,7 @@ import { jest } from '@jest/globals';
 import { DeleteAddressHandler } from './delete-address.handler.js';
 import { DeleteAddressCommand } from './delete-address.command.js';
 
-const mockService = () => ({ remove: jest.fn() as jest.Mock });
+const mockService = () => ({ remove: jest.fn<() => Promise<unknown>>() });
 
 describe('DeleteAddressHandler', () => {
   let handler: DeleteAddressHandler;

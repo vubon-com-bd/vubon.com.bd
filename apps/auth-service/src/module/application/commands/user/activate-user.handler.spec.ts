@@ -6,7 +6,7 @@ import { jest } from '@jest/globals';
 import { ActivateUserHandler } from './activate-user.handler.js';
 import { ActivateUserCommand } from './activate-user.command.js';
 
-const mockService = () => ({ activate: jest.fn() as jest.Mock });
+const mockService = () => ({ activate: jest.fn<() => Promise<unknown>>() });
 
 describe('ActivateUserHandler', () => {
   let handler: ActivateUserHandler;

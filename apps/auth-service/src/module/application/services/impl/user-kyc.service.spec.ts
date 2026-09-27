@@ -22,14 +22,14 @@ const buildKyc = (overrides: Partial<Parameters<typeof UserKycEntity.create>[0]>
   });
 
 const mockRepo = () => ({
-  findById: jest.fn() as jest.Mock,
-  findByUserId: jest.fn() as jest.Mock,
-  findAll: jest.fn() as jest.Mock,
+  findById: jest.fn<() => Promise<unknown>>(),
+  findByUserId: jest.fn<() => Promise<unknown>>(),
+  findAll: jest.fn<() => Promise<unknown>>(),
   save: jest.fn((k: UserKycEntity) => Promise.resolve(k)),
-  delete: jest.fn() as jest.Mock,
-  exists: jest.fn() as jest.Mock,
-  findPending: jest.fn() as jest.Mock,
-  findByDocumentNumber: jest.fn() as jest.Mock,
+  delete: jest.fn<() => Promise<unknown>>(),
+  exists: jest.fn<() => Promise<unknown>>(),
+  findPending: jest.fn<() => Promise<unknown>>(),
+  findByDocumentNumber: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockIdGen = () => ({

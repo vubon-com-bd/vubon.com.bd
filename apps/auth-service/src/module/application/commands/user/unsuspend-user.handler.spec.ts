@@ -6,7 +6,7 @@ import { jest } from '@jest/globals';
 import { UnsuspendUserHandler } from './unsuspend-user.handler.js';
 import { UnsuspendUserCommand } from './unsuspend-user.command.js';
 
-const mockService = () => ({ unsuspend: jest.fn() as jest.Mock });
+const mockService = () => ({ unsuspend: jest.fn<() => Promise<unknown>>() });
 
 describe('UnsuspendUserHandler', () => {
   let handler: UnsuspendUserHandler;

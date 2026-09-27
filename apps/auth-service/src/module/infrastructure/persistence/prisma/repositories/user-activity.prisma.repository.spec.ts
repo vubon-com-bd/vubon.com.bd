@@ -7,12 +7,12 @@ import { UserActivityPrismaRepository } from './user-activity.prisma.repository.
 
 const mockPrisma = () => ({
   userActivity: {
-    findUnique: jest.fn() as jest.Mock,
-    findMany: jest.fn() as jest.Mock,
-    create: jest.fn() as jest.Mock,
-    update: jest.fn() as jest.Mock,
-    delete: jest.fn() as jest.Mock,
-    deleteMany: jest.fn() as jest.Mock,
+    findUnique: jest.fn<(args?: { where: Record<string, unknown> }) => Promise<unknown>>(),
+    findMany: jest.fn<(args?: { where?: Record<string, unknown>; take?: number; orderBy?: Record<string, unknown> }) => Promise<unknown>>(),
+    create: jest.fn<(args?: { data: Record<string, unknown> }) => Promise<unknown>>(),
+    update: jest.fn<(args?: { where: Record<string, unknown> }) => Promise<unknown>>(),
+    delete: jest.fn<(args?: { where: Record<string, unknown> }) => Promise<unknown>>(),
+    deleteMany: jest.fn<(args?: { where?: Record<string, unknown> }) => Promise<unknown>>(),
   },
 });
 

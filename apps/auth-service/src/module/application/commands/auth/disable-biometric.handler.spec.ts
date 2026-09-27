@@ -8,7 +8,7 @@ import { DisableBiometricCommand } from './disable-biometric.command.js';
 
 const mockService = () => ({
   name: 'AuthBiometricService',
-  remove: jest.fn() as jest.Mock,
+  remove: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('DisableBiometricHandler', () => {

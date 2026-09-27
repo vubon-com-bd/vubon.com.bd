@@ -23,23 +23,23 @@ const buildCode = (overrides: Partial<Parameters<typeof AuthRecoveryCodeEntity.c
   });
 
 const mockRepo = () => ({
-  findById: jest.fn() as jest.Mock,
-  findByUserId: jest.fn() as jest.Mock,
-  findActiveByUserId: jest.fn() as jest.Mock,
-  findByCode: jest.fn() as jest.Mock,
-  invalidateAllForUser: jest.fn() as jest.Mock,
-  findAll: jest.fn() as jest.Mock,
+  findById: jest.fn<() => Promise<unknown>>(),
+  findByUserId: jest.fn<() => Promise<unknown>>(),
+  findActiveByUserId: jest.fn<() => Promise<unknown>>(),
+  findByCode: jest.fn<() => Promise<unknown>>(),
+  invalidateAllForUser: jest.fn<() => Promise<unknown>>(),
+  findAll: jest.fn<() => Promise<unknown>>(),
   save: jest.fn((c: AuthRecoveryCodeEntity) => Promise.resolve(c)),
-  delete: jest.fn() as jest.Mock,
-  exists: jest.fn() as jest.Mock,
+  delete: jest.fn<() => Promise<unknown>>(),
+  exists: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockGenerator = () => ({
   name: 'RecoveryCodeGeneratorService',
   generate: jest.fn((count: number) =>
     Promise.resolve(Array.from({ length: count }, (_, i) => `CODE-${String(i).padStart(4, '0')}`))),
-  hash: jest.fn() as jest.Mock,
-  verify: jest.fn() as jest.Mock,
+  hash: jest.fn<() => Promise<unknown>>(),
+  verify: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockIdGen = () => ({

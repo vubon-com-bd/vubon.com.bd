@@ -24,7 +24,7 @@ const buildSession = (id: string) =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findActiveByUser: jest.fn() as jest.Mock });
+const mockRepo = () => ({ findActiveByUser: jest.fn<() => Promise<unknown>>() });
 
 describe('ListAuthSessionsHandler', () => {
   let handler: ListAuthSessionsHandler;

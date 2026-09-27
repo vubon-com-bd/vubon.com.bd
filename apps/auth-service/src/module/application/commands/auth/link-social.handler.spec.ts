@@ -8,7 +8,7 @@ import { LinkSocialCommand } from './link-social.command.js';
 
 const mockSocialService = () => ({
   name: 'AuthSocialService',
-  link: jest.fn() as jest.Mock,
+  link: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('LinkSocialHandler', () => {

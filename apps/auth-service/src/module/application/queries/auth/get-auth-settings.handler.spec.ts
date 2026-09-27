@@ -6,7 +6,7 @@ import { jest } from '@jest/globals';
 import { GetAuthSettingsHandler } from './get-auth-settings.handler.js';
 import { GetAuthSettingsQuery } from './get-auth-settings.query.js';
 
-const mockService = () => ({ getSettings: jest.fn() as jest.Mock });
+const mockService = () => ({ getSettings: jest.fn<() => Promise<unknown>>() });
 
 describe('GetAuthSettingsHandler', () => {
   let handler: GetAuthSettingsHandler;

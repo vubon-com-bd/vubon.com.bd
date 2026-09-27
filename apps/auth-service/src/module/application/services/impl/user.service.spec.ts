@@ -35,22 +35,22 @@ const buildUser = (overrides: Partial<Parameters<typeof UserEntity.create>[0]> =
   });
 
 const mockUserRepo = () => ({
-  findById: jest.fn() as jest.Mock,
-  findByEmail: jest.fn() as jest.Mock,
-  existsByEmail: jest.fn() as jest.Mock,
-  findAll: jest.fn() as jest.Mock,
+  findById: jest.fn<() => Promise<unknown>>(),
+  findByEmail: jest.fn<() => Promise<unknown>>(),
+  existsByEmail: jest.fn<() => Promise<unknown>>(),
+  findAll: jest.fn<() => Promise<unknown>>(),
   save: jest.fn((u: UserEntity) => Promise.resolve(u)),
-  delete: jest.fn() as jest.Mock,
-  exists: jest.fn() as jest.Mock,
-  findByIds: jest.fn() as jest.Mock,
-  countByStatus: jest.fn() as jest.Mock,
+  delete: jest.fn<() => Promise<unknown>>(),
+  exists: jest.fn<() => Promise<unknown>>(),
+  findByIds: jest.fn<() => Promise<unknown>>(),
+  countByStatus: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockHasher = () => ({
   name: 'PasswordHasherService',
   hash: jest.fn(() => Promise.resolve('$2b$12$hash')),
-  verify: jest.fn() as jest.Mock,
-  needsRehash: jest.fn() as jest.Mock,
+  verify: jest.fn<() => Promise<unknown>>(),
+  needsRehash: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockIdGen = () => ({

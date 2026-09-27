@@ -27,22 +27,22 @@ const buildToken = (overrides: Partial<Parameters<typeof AuthTokenEntity.create>
   });
 
 const mockTokenRepo = () => ({
-  findById: jest.fn() as jest.Mock,
-  findByValue: jest.fn() as jest.Mock,
-  findActiveBySubject: jest.fn() as jest.Mock,
-  findAll: jest.fn() as jest.Mock,
+  findById: jest.fn<() => Promise<unknown>>(),
+  findByValue: jest.fn<() => Promise<unknown>>(),
+  findActiveBySubject: jest.fn<() => Promise<unknown>>(),
+  findAll: jest.fn<() => Promise<unknown>>(),
   save: jest.fn((t: AuthTokenEntity) => Promise.resolve(t)),
-  delete: jest.fn() as jest.Mock,
-  exists: jest.fn() as jest.Mock,
-  revokeAllForSubject: jest.fn() as jest.Mock,
-  deleteExpired: jest.fn() as jest.Mock,
+  delete: jest.fn<() => Promise<unknown>>(),
+  exists: jest.fn<() => Promise<unknown>>(),
+  revokeAllForSubject: jest.fn<() => Promise<unknown>>(),
+  deleteExpired: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockSigner = () => ({
   name: 'TokenSignerService',
   sign: jest.fn(() => Promise.resolve('signed-token-value')),
-  verify: jest.fn() as jest.Mock,
-  decode: jest.fn() as jest.Mock,
+  verify: jest.fn<() => Promise<unknown>>(),
+  decode: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockIdGen = () => ({

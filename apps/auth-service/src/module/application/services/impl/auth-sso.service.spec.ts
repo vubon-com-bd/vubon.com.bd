@@ -28,45 +28,45 @@ const buildSso = (overrides: Partial<Parameters<typeof AuthSsoEntity.create>[0]>
   });
 
 const mockRepo = () => ({
-  findById: jest.fn() as jest.Mock,
-  findByUser: jest.fn() as jest.Mock,
-  findByProviderAndTenant: jest.fn() as jest.Mock,
-  findAll: jest.fn() as jest.Mock,
+  findById: jest.fn<() => Promise<unknown>>(),
+  findByUser: jest.fn<() => Promise<unknown>>(),
+  findByProviderAndTenant: jest.fn<() => Promise<unknown>>(),
+  findAll: jest.fn<() => Promise<unknown>>(),
   save: jest.fn((s: AuthSsoEntity) => Promise.resolve(s)),
-  delete: jest.fn() as jest.Mock,
-  exists: jest.fn() as jest.Mock,
+  delete: jest.fn<() => Promise<unknown>>(),
+  exists: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockUserRepo = () => ({
-  findById: jest.fn() as jest.Mock,
-  findByEmail: jest.fn() as jest.Mock,
-  existsByEmail: jest.fn() as jest.Mock,
-  findAll: jest.fn() as jest.Mock,
-  save: jest.fn() as jest.Mock,
-  delete: jest.fn() as jest.Mock,
-  exists: jest.fn() as jest.Mock,
-  findByIds: jest.fn() as jest.Mock,
-  countByStatus: jest.fn() as jest.Mock,
+  findById: jest.fn<() => Promise<unknown>>(),
+  findByEmail: jest.fn<() => Promise<unknown>>(),
+  existsByEmail: jest.fn<() => Promise<unknown>>(),
+  findAll: jest.fn<() => Promise<unknown>>(),
+  save: jest.fn<() => Promise<unknown>>(),
+  delete: jest.fn<() => Promise<unknown>>(),
+  exists: jest.fn<() => Promise<unknown>>(),
+  findByIds: jest.fn<() => Promise<unknown>>(),
+  countByStatus: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockSessionService = () => ({
   name: 'AuthSessionService',
-  create: jest.fn() as jest.Mock,
-  findActiveByUser: jest.fn() as jest.Mock,
-  revoke: jest.fn() as jest.Mock,
-  revokeAllForUser: jest.fn() as jest.Mock,
-  findByToken: jest.fn() as jest.Mock,
+  create: jest.fn<() => Promise<unknown>>(),
+  findActiveByUser: jest.fn<() => Promise<unknown>>(),
+  revoke: jest.fn<() => Promise<unknown>>(),
+  revokeAllForUser: jest.fn<() => Promise<unknown>>(),
+  findByToken: jest.fn<() => Promise<unknown>>(),
   toResponse: jest.fn(() => ({})),
 });
 
 const mockTokenService = () => ({
   name: 'AuthTokenService',
-  generate: jest.fn() as jest.Mock,
-  generatePair: jest.fn() as jest.Mock,
-  verify: jest.fn() as jest.Mock,
-  revoke: jest.fn() as jest.Mock,
-  revokeAllForSubject: jest.fn() as jest.Mock,
-  refresh: jest.fn() as jest.Mock,
+  generate: jest.fn<() => Promise<unknown>>(),
+  generatePair: jest.fn<() => Promise<unknown>>(),
+  verify: jest.fn<() => Promise<unknown>>(),
+  revoke: jest.fn<() => Promise<unknown>>(),
+  revokeAllForSubject: jest.fn<() => Promise<unknown>>(),
+  refresh: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockIdGen = () => ({

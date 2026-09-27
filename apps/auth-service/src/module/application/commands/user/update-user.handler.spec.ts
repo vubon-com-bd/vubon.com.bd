@@ -7,8 +7,8 @@ import { UpdateUserHandler } from './update-user.handler.js';
 import { UpdateUserCommand } from './update-user.command.js';
 
 const mockUserService = () => ({
-  update: jest.fn() as jest.Mock,
-  toResponse: jest.fn() as jest.Mock,
+  update: jest.fn<() => Promise<unknown>>(),
+  toResponse: jest.fn<() => unknown>(),
 });
 
 describe('UpdateUserHandler', () => {

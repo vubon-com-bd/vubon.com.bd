@@ -7,12 +7,12 @@ import { ResendVerificationHandler } from './resend-verification.handler.js';
 import { ResendVerificationCommand } from './resend-verification.command.js';
 
 const mockUserRepo = () => ({
-  findByEmail: jest.fn() as jest.Mock,
+  findByEmail: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockVerificationService = () => ({
   name: 'UserVerificationService',
-  request: jest.fn() as jest.Mock,
+  request: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('ResendVerificationHandler', () => {

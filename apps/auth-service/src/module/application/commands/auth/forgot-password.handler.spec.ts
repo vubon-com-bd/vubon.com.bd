@@ -8,7 +8,7 @@ import { ForgotPasswordCommand } from './forgot-password.command.js';
 
 const mockAuthService = () => ({
   name: 'AuthService',
-  forgotPassword: jest.fn() as jest.Mock,
+  forgotPassword: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('ForgotPasswordHandler', () => {

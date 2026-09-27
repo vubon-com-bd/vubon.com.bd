@@ -26,14 +26,14 @@ const buildLock = (overrides: Partial<Parameters<typeof AuthAccountLockEntity.cr
   });
 
 const mockRepo = () => ({
-  findById: jest.fn() as jest.Mock,
-  findActiveByUser: jest.fn() as jest.Mock,
-  findAllByUser: jest.fn() as jest.Mock,
-  findAutoUnlockable: jest.fn() as jest.Mock,
-  findAll: jest.fn() as jest.Mock,
+  findById: jest.fn<() => Promise<unknown>>(),
+  findActiveByUser: jest.fn<() => Promise<unknown>>(),
+  findAllByUser: jest.fn<() => Promise<unknown>>(),
+  findAutoUnlockable: jest.fn<() => Promise<unknown>>(),
+  findAll: jest.fn<() => Promise<unknown>>(),
   save: jest.fn((l: AuthAccountLockEntity) => Promise.resolve(l)),
-  delete: jest.fn() as jest.Mock,
-  exists: jest.fn() as jest.Mock,
+  delete: jest.fn<() => Promise<unknown>>(),
+  exists: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockIdGen = () => ({

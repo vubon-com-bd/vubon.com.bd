@@ -7,8 +7,8 @@ import { Test } from '@nestjs/testing';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UserAddressController } from './user-address.controller.js';
 
-const mockCommandBus = () => ({ execute: jest.fn() as jest.Mock });
-const mockQueryBus = () => ({ execute: jest.fn() as jest.Mock });
+const mockCommandBus = () => ({ execute: jest.fn<() => Promise<unknown>>() });
+const mockQueryBus = () => ({ execute: jest.fn<() => Promise<unknown>>() });
 
 describe('UserAddressController', () => {
   let controller: UserAddressController;

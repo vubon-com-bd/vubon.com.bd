@@ -25,14 +25,14 @@ const buildBio = (overrides: Partial<Parameters<typeof AuthBiometricEntity.creat
   });
 
 const mockRepo = () => ({
-  findById: jest.fn() as jest.Mock,
-  findByUser: jest.fn() as jest.Mock,
-  findByBiometricId: jest.fn() as jest.Mock,
-  findByUserAndKind: jest.fn() as jest.Mock,
-  findAll: jest.fn() as jest.Mock,
+  findById: jest.fn<() => Promise<unknown>>(),
+  findByUser: jest.fn<() => Promise<unknown>>(),
+  findByBiometricId: jest.fn<() => Promise<unknown>>(),
+  findByUserAndKind: jest.fn<() => Promise<unknown>>(),
+  findAll: jest.fn<() => Promise<unknown>>(),
   save: jest.fn((b: AuthBiometricEntity) => Promise.resolve(b)),
-  delete: jest.fn() as jest.Mock,
-  exists: jest.fn() as jest.Mock,
+  delete: jest.fn<() => Promise<unknown>>(),
+  exists: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockIdGen = () => ({

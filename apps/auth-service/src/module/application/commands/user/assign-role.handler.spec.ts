@@ -6,7 +6,7 @@ import { jest } from '@jest/globals';
 import { AssignRoleHandler } from './assign-role.handler.js';
 import { AssignRoleCommand } from './assign-role.command.js';
 
-const mockService = () => ({ assign: jest.fn() as jest.Mock });
+const mockService = () => ({ assign: jest.fn<() => Promise<unknown>>() });
 
 describe('AssignRoleHandler', () => {
   let handler: AssignRoleHandler;

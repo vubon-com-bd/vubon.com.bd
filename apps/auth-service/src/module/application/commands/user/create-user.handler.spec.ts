@@ -9,8 +9,8 @@ import { CreateUserCommand } from './create-user.command.js';
 
 const mockUserService = () => ({
   name: 'UserService',
-  create: jest.fn() as jest.Mock,
-  toResponse: jest.fn() as jest.Mock,
+  create: jest.fn<() => Promise<unknown>>(),
+  toResponse: jest.fn<() => unknown>(),
 });
 
 describe('CreateUserHandler', () => {

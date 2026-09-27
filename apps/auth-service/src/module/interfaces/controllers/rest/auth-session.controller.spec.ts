@@ -8,8 +8,8 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AuthSessionController } from './auth-session.controller.js';
 import { SessionControllerMapper } from '../../mappers/session.controller.mapper.js';
 
-const mockCommandBus = () => ({ execute: jest.fn() as jest.Mock });
-const mockQueryBus = () => ({ execute: jest.fn() as jest.Mock });
+const mockCommandBus = () => ({ execute: jest.fn<() => Promise<unknown>>() });
+const mockQueryBus = () => ({ execute: jest.fn<() => Promise<unknown>>() });
 const mockMapper = () => ({
   toResponse: jest.fn((x: unknown) => x),
   toResponseList: jest.fn((x: unknown[]) => x),

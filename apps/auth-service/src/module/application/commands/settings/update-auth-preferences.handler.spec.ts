@@ -6,7 +6,7 @@ import { jest } from '@jest/globals';
 import { UpdateAuthPreferencesHandler } from './update-auth-preferences.handler.js';
 import { UpdateAuthPreferencesCommand } from './update-auth-preferences.command.js';
 
-const mockService = () => ({ updatePreferences: jest.fn() as jest.Mock });
+const mockService = () => ({ updatePreferences: jest.fn<() => Promise<unknown>>() });
 
 describe('UpdateAuthPreferencesHandler', () => {
   let handler: UpdateAuthPreferencesHandler;

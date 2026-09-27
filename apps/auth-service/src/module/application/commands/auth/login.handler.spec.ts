@@ -9,12 +9,12 @@ import { LoginCommand } from './login.command.js';
 
 const mockAuthService = () => ({
   name: 'AuthService',
-  login: jest.fn() as jest.Mock,
-  register: jest.fn() as jest.Mock,
-  logout: jest.fn() as jest.Mock,
-  forgotPassword: jest.fn() as jest.Mock,
-  resetPassword: jest.fn() as jest.Mock,
-  verifyEmail: jest.fn() as jest.Mock,
+  login: jest.fn<() => Promise<unknown>>(),
+  register: jest.fn<() => Promise<unknown>>(),
+  logout: jest.fn<() => Promise<unknown>>(),
+  forgotPassword: jest.fn<() => Promise<unknown>>(),
+  resetPassword: jest.fn<() => Promise<unknown>>(),
+  verifyEmail: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('LoginHandler', () => {

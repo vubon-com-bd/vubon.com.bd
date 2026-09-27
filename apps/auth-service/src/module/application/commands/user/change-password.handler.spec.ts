@@ -6,8 +6,8 @@ import { jest } from '@jest/globals';
 import { ChangePasswordHandler } from './change-password.handler.js';
 import { ChangePasswordCommand } from './change-password.command.js';
 
-const mockUserRepo = () => ({ findById: jest.fn() as jest.Mock, save: jest.fn() as jest.Mock });
-const mockHasher = () => ({ verify: jest.fn() as jest.Mock, hash: jest.fn() as jest.Mock });
+const mockUserRepo = () => ({ findById: jest.fn<() => Promise<unknown>>(), save: jest.fn<() => Promise<unknown>>() });
+const mockHasher = () => ({ verify: jest.fn<() => Promise<unknown>>(), hash: jest.fn<() => Promise<unknown>>() });
 
 describe('ChangePasswordHandler', () => {
   let handler: ChangePasswordHandler;
@@ -50,7 +50,7 @@ describe('ChangePasswordHandler', () => {
   });
 
   it('should update password on valid input', async () => {
-    const user = { passwordHash: '$2b$hash', changePasswordHash: jest.fn() as jest.Mock };
+    const user = { passwordHash: '$2b$hash', changePasswordHash: jest.fn<() => Promise<unknown>>() };
     userRepo.findById.mockResolvedValue(user);
     hasher.verify.mockResolvedValue(true);
     hasher.hash.mockResolvedValue('$2b$new');

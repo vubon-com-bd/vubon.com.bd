@@ -6,7 +6,7 @@ import { jest } from '@jest/globals';
 import { UpdateAddressHandler } from './update-address.handler.js';
 import { UpdateAddressCommand } from './update-address.command.js';
 
-const mockService = () => ({ update: jest.fn() as jest.Mock, toResponse: jest.fn() as jest.Mock });
+const mockService = () => ({ update: jest.fn<() => Promise<unknown>>(), toResponse: jest.fn<() => unknown>() });
 
 describe('UpdateAddressHandler', () => {
   let handler: UpdateAddressHandler;

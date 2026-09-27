@@ -23,13 +23,13 @@ const buildContact = (overrides: Partial<Parameters<typeof UserContactEntity.cre
   });
 
 const mockRepo = () => ({
-  findById: jest.fn() as jest.Mock,
-  findByUserId: jest.fn() as jest.Mock,
-  findAll: jest.fn() as jest.Mock,
+  findById: jest.fn<() => Promise<unknown>>(),
+  findByUserId: jest.fn<() => Promise<unknown>>(),
+  findAll: jest.fn<() => Promise<unknown>>(),
   save: jest.fn((c: UserContactEntity) => Promise.resolve(c)),
-  delete: jest.fn() as jest.Mock,
-  exists: jest.fn() as jest.Mock,
-  findVerifiedByUserId: jest.fn() as jest.Mock,
+  delete: jest.fn<() => Promise<unknown>>(),
+  exists: jest.fn<() => Promise<unknown>>(),
+  findVerifiedByUserId: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockIdGen = () => ({

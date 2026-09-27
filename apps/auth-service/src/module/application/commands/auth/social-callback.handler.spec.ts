@@ -8,7 +8,7 @@ import { SocialCallbackCommand } from './social-callback.command.js';
 
 const mockSocialService = () => ({
   name: 'AuthSocialService',
-  handleCallback: jest.fn() as jest.Mock,
+  handleCallback: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('SocialCallbackHandler', () => {

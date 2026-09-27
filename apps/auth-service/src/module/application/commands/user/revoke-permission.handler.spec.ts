@@ -6,7 +6,7 @@ import { jest } from '@jest/globals';
 import { RevokePermissionHandler } from './revoke-permission.handler.js';
 import { RevokePermissionCommand } from './revoke-permission.command.js';
 
-const mockService = () => ({ removePermission: jest.fn() as jest.Mock });
+const mockService = () => ({ removePermission: jest.fn<() => Promise<unknown>>() });
 
 describe('RevokePermissionHandler', () => {
   let handler: RevokePermissionHandler;

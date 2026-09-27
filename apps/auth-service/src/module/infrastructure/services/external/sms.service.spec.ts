@@ -6,7 +6,11 @@ import { jest } from '@jest/globals';
 
 import { SmsService } from './sms.service.js';
 
-const mockKernelSms = () => ({ send: jest.fn().mockResolvedValue(undefined) as jest.Mock });
+const mockKernelSms = () => ({
+  send: jest
+    .fn<(message: { to: string; message: string }) => Promise<unknown>>()
+    .mockResolvedValue(undefined),
+});
 
 describe('SmsService (auth wrapper)', () => {
   let service: SmsService;
@@ -19,20 +23,20 @@ describe('SmsService (auth wrapper)', () => {
 
   it('should send OTP SMS', async () => {
     await service.sendOtp('+8801712345678', '123456');
-    const payload = kernel.send.mock.calls[0]![0] as { to: string; message: string };
+    const payload = kernel.send.mock.calls[0]![0];
     expect(payload.to).toBe('+8801712345678');
     expect(payload.message).toContain('123456');
   });
 
   it('should send MFA code SMS', async () => {
     await service.sendMfaCode('+8801712345678', '654321');
-    const payload = kernel.send.mock.calls[0]![0] as { message: string };
+    const payload = kernel.send.mock.calls[0]![0];
     expect(payload.message).toContain('654321');
   });
 
   it('should send account locked SMS with reason', async () => {
     await service.sendAccountLocked('+8801712345678', 'fraud detected');
-    const payload = kernel.send.mock.calls[0]![0] as { message: string };
+    const payload = kernel.send.mock.calls[0]![0];
     expect(payload.message).toContain('fraud detected');
   });
 });

@@ -6,7 +6,7 @@ import { jest } from '@jest/globals';
 import { DeleteUserHandler } from './delete-user.handler.js';
 import { DeleteUserCommand } from './delete-user.command.js';
 
-const mockUserService = () => ({ delete: jest.fn() as jest.Mock });
+const mockUserService = () => ({ delete: jest.fn<() => Promise<unknown>>() });
 
 describe('DeleteUserHandler', () => {
   let handler: DeleteUserHandler;

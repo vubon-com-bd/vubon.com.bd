@@ -22,14 +22,14 @@ const buildActivity = (overrides: Partial<Parameters<typeof UserActivityEntity.c
   });
 
 const mockRepo = () => ({
-  findById: jest.fn() as jest.Mock,
-  findByUserId: jest.fn() as jest.Mock,
-  findAll: jest.fn() as jest.Mock,
+  findById: jest.fn<() => Promise<unknown>>(),
+  findByUserId: jest.fn<() => Promise<unknown>>(),
+  findAll: jest.fn<() => Promise<unknown>>(),
   save: jest.fn((a: UserActivityEntity) => Promise.resolve(a)),
-  delete: jest.fn() as jest.Mock,
-  exists: jest.fn() as jest.Mock,
-  findRecentByUser: jest.fn() as jest.Mock,
-  deleteOlderThan: jest.fn() as jest.Mock,
+  delete: jest.fn<() => Promise<unknown>>(),
+  exists: jest.fn<() => Promise<unknown>>(),
+  findRecentByUser: jest.fn<() => Promise<unknown>>(),
+  deleteOlderThan: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockIdGen = () => ({

@@ -6,7 +6,7 @@ import { jest } from '@jest/globals';
 import { AssignPermissionHandler } from './assign-permission.handler.js';
 import { AssignPermissionCommand } from './assign-permission.command.js';
 
-const mockService = () => ({ addPermission: jest.fn() as jest.Mock });
+const mockService = () => ({ addPermission: jest.fn<() => Promise<unknown>>() });
 
 describe('AssignPermissionHandler', () => {
   let handler: AssignPermissionHandler;

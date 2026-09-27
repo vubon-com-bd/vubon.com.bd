@@ -6,7 +6,7 @@ import { jest } from '@jest/globals';
 import { LoginAttemptWorker } from './login-attempt.worker.js';
 
 const mockService = () => ({
-  getRecentForUser: jest.fn().mockResolvedValue([]) as jest.Mock,
+  getRecentForUser: jest.fn<() => Promise<readonly unknown[]>>().mockResolvedValue([]),
 });
 
 const mockJob = (data: Record<string, unknown> = {}, id = 'job-1') => ({

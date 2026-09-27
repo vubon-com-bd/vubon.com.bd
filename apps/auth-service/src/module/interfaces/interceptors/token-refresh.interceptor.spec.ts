@@ -16,7 +16,7 @@ const buildContext = (user: {
     getResponse: () => { setHeader: jest.Mock };
   };
 } => {
-  const setHeader = jest.fn() as jest.Mock;
+  const setHeader = jest.fn<() => Promise<unknown>>();
   return {
     switchToHttp: () => ({
       getRequest: () => ({ user }),

@@ -24,7 +24,7 @@ const buildRole = (name: string, perms: string[] = []) =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findAll: jest.fn() as jest.Mock });
+const mockRepo = () => ({ findAll: jest.fn<() => Promise<unknown>>() });
 
 describe('ListAuthRolesHandler', () => {
   let handler: ListAuthRolesHandler;

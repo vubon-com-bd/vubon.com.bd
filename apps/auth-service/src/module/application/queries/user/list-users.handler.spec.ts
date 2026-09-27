@@ -29,7 +29,7 @@ const buildUser = (id: string, email: string) =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findAll: jest.fn() as jest.Mock });
+const mockRepo = () => ({ findAll: jest.fn<() => Promise<unknown>>() });
 
 describe('ListUsersHandler', () => {
   let handler: ListUsersHandler;

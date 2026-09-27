@@ -24,7 +24,7 @@ const buildAttempt = () =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findRecentByUser: jest.fn() as jest.Mock });
+const mockRepo = () => ({ findRecentByUser: jest.fn<() => Promise<unknown>>() });
 
 describe('ListAuthLoginAttemptsHandler', () => {
   let handler: ListAuthLoginAttemptsHandler;

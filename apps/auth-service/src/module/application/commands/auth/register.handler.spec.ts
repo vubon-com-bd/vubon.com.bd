@@ -9,7 +9,7 @@ import { RegisterCommand } from './register.command.js';
 
 const mockAuthService = () => ({
   name: 'AuthService',
-  register: jest.fn() as jest.Mock,
+  register: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('RegisterHandler', () => {

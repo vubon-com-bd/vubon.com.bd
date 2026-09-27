@@ -8,7 +8,7 @@ import { VerifyMfaCommand } from './verify-mfa.command.js';
 
 const mockMfaService = () => ({
   name: 'AuthMfaService',
-  verify: jest.fn() as jest.Mock,
+  verify: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('VerifyMfaHandler', () => {

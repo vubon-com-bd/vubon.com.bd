@@ -28,13 +28,13 @@ const buildOAuth = (overrides: Partial<Parameters<typeof AuthOAuthEntity.create>
   });
 
 const mockRepo = () => ({
-  findById: jest.fn() as jest.Mock,
-  findByUser: jest.fn() as jest.Mock,
-  findByProvider: jest.fn() as jest.Mock,
-  findAll: jest.fn() as jest.Mock,
+  findById: jest.fn<() => Promise<unknown>>(),
+  findByUser: jest.fn<() => Promise<unknown>>(),
+  findByProvider: jest.fn<() => Promise<unknown>>(),
+  findAll: jest.fn<() => Promise<unknown>>(),
   save: jest.fn((o: AuthOAuthEntity) => Promise.resolve(o)),
-  delete: jest.fn() as jest.Mock,
-  exists: jest.fn() as jest.Mock,
+  delete: jest.fn<() => Promise<unknown>>(),
+  exists: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockIdGen = () => ({

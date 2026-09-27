@@ -8,7 +8,7 @@ import { SsoCallbackCommand } from './sso-callback.command.js';
 
 const mockSsoService = () => ({
   name: 'AuthSsoService',
-  handleCallback: jest.fn() as jest.Mock,
+  handleCallback: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('SsoCallbackHandler', () => {

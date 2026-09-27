@@ -26,14 +26,14 @@ const buildAttempt = (overrides: Partial<Parameters<typeof AuthLoginAttemptEntit
   });
 
 const mockRepo = () => ({
-  findById: jest.fn() as jest.Mock,
-  countRecentFailures: jest.fn() as jest.Mock,
-  findRecentByUser: jest.fn() as jest.Mock,
-  findByIp: jest.fn() as jest.Mock,
-  findAll: jest.fn() as jest.Mock,
+  findById: jest.fn<() => Promise<unknown>>(),
+  countRecentFailures: jest.fn<() => Promise<unknown>>(),
+  findRecentByUser: jest.fn<() => Promise<unknown>>(),
+  findByIp: jest.fn<() => Promise<unknown>>(),
+  findAll: jest.fn<() => Promise<unknown>>(),
   save: jest.fn((a: AuthLoginAttemptEntity) => Promise.resolve(a)),
-  delete: jest.fn() as jest.Mock,
-  exists: jest.fn() as jest.Mock,
+  delete: jest.fn<() => Promise<unknown>>(),
+  exists: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockIdGen = () => ({

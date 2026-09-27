@@ -5,8 +5,14 @@ import { jest } from '@jest/globals';
 
 import { AddAddressHandler } from './add-address.handler.js';
 import { AddAddressCommand } from './add-address.command.js';
+import type { UserAddressServiceInterface } from '../../services/interfaces/user-address.service.interface.js';
 
-const mockService = () => ({ add: jest.fn() as jest.Mock, toResponse: jest.fn() as jest.Mock });
+const mockService = (): jest.Mocked<
+  Pick<UserAddressServiceInterface, 'add' | 'toResponse'>
+> => ({
+  add: jest.fn<UserAddressServiceInterface['add']>(),
+  toResponse: jest.fn<UserAddressServiceInterface['toResponse']>(),
+});
 
 describe('AddAddressHandler', () => {
   let handler: AddAddressHandler;
@@ -22,8 +28,8 @@ describe('AddAddressHandler', () => {
   });
 
   it('should delegate add', async () => {
-    service.add.mockResolvedValue({ id: 'addr-1' });
-    service.toResponse.mockReturnValue({ id: 'addr-1' });
+    service.add.mockResolvedValue({ id: 'addr-1' } as never);
+    service.toResponse.mockReturnValue({ id: 'addr-1' } as never);
 
     const command = new AddAddressCommand('user-1' as never, { label: 'Home' } as never);
     const result = await handler.execute(command);

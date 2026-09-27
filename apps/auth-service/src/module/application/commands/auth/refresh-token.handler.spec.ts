@@ -8,7 +8,7 @@ import { RefreshTokenCommand } from './refresh-token.command.js';
 
 const mockTokenService = () => ({
   name: 'AuthTokenService',
-  refresh: jest.fn() as jest.Mock,
+  refresh: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('RefreshTokenHandler', () => {

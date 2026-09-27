@@ -6,7 +6,10 @@ import { jest } from '@jest/globals';
 import { RejectKycHandler } from './reject-kyc.handler.js';
 import { RejectKycCommand } from './reject-kyc.command.js';
 
-const mockService = () => ({ reject: jest.fn() as jest.Mock, toResponse: jest.fn() as jest.Mock });
+const mockService = () => ({
+  reject: jest.fn<() => Promise<unknown>>(),
+  toResponse: jest.fn<() => unknown>(),
+});
 
 describe('RejectKycHandler', () => {
   let handler: RejectKycHandler;

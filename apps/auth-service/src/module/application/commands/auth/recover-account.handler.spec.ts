@@ -7,18 +7,18 @@ import { RecoverAccountHandler } from './recover-account.handler.js';
 import { RecoverAccountCommand } from './recover-account.command.js';
 
 const mockUserRepo = () => ({
-  findByEmail: jest.fn() as jest.Mock,
-  save: jest.fn() as jest.Mock,
+  findByEmail: jest.fn<() => Promise<unknown>>(),
+  save: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockHasher = () => ({
   name: 'PasswordHasherService',
-  hash: jest.fn() as jest.Mock,
+  hash: jest.fn<() => Promise<unknown>>(),
 });
 
 const mockRecoveryService = () => ({
   name: 'AuthRecoveryCodeService',
-  consume: jest.fn() as jest.Mock,
+  consume: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('RecoverAccountHandler', () => {
@@ -69,7 +69,7 @@ describe('RecoverAccountHandler', () => {
   });
 
   it('should change password on valid recovery', async () => {
-    const user = { id: 'user-1', changePasswordHash: jest.fn() as jest.Mock };
+    const user = { id: 'user-1', changePasswordHash: jest.fn<() => Promise<unknown>>() };
     userRepo.findByEmail.mockResolvedValue(user);
     recoveryService.consume.mockResolvedValue(true);
     hasher.hash.mockResolvedValue('$2b$12$new');

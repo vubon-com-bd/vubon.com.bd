@@ -6,7 +6,7 @@ import { jest } from '@jest/globals';
 import { TokenCleanupWorker } from './token-cleanup.worker.js';
 
 const mockRepo = () => ({
-  deleteExpired: jest.fn().mockResolvedValue(0) as jest.Mock,
+  deleteExpired: jest.fn<() => Promise<unknown>>().mockResolvedValue(0),
 });
 
 const mockJob = (id = 'job-1') => ({ id, data: {}, name: 'token-cleanup' });

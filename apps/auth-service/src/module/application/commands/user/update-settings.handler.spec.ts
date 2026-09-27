@@ -7,8 +7,8 @@ import { UpdateSettingsHandler } from './update-settings.handler.js';
 import { UpdateSettingsCommand } from './update-settings.command.js';
 
 const mockService = () => ({
-  update: jest.fn() as jest.Mock,
-  toResponse: jest.fn() as jest.Mock,
+  update: jest.fn<() => Promise<unknown>>(),
+  toResponse: jest.fn<() => unknown>(),
 });
 
 describe('UpdateSettingsHandler', () => {

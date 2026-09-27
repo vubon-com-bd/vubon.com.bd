@@ -24,7 +24,7 @@ const buildToken = () =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findActiveBySubject: jest.fn() as jest.Mock });
+const mockRepo = () => ({ findActiveBySubject: jest.fn<() => Promise<unknown>>() });
 
 describe('ListAuthTokensHandler', () => {
   let handler: ListAuthTokensHandler;

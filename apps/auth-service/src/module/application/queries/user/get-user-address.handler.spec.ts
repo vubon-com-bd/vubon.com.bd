@@ -24,7 +24,7 @@ const buildAddress = () =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findById: jest.fn() as jest.Mock });
+const mockRepo = () => ({ findById: jest.fn<() => Promise<unknown>>() });
 
 describe('GetUserAddressHandler', () => {
   let handler: GetUserAddressHandler;

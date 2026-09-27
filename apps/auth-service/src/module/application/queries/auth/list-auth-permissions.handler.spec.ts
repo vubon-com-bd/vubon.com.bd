@@ -24,7 +24,7 @@ const buildPermission = (name: string) => {
   });
 };
 
-const mockRepo = () => ({ findAll: jest.fn() as jest.Mock, findByResource: jest.fn() as jest.Mock });
+const mockRepo = () => ({ findAll: jest.fn<() => Promise<unknown>>(), findByResource: jest.fn<() => Promise<unknown>>() });
 
 describe('ListAuthPermissionsHandler', () => {
   let handler: ListAuthPermissionsHandler;

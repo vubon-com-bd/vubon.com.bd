@@ -8,12 +8,12 @@ import { OAuthProviderVO } from '../../../../domain/value-objects/primitives/oau
 
 const mockPrisma = () => ({
   authOAuth: {
-    findUnique: jest.fn() as jest.Mock,
-    findFirst: jest.fn() as jest.Mock,
-    findMany: jest.fn() as jest.Mock,
-    create: jest.fn() as jest.Mock,
-    update: jest.fn() as jest.Mock,
-    delete: jest.fn() as jest.Mock,
+    findUnique: jest.fn<() => Promise<unknown>>(),
+    findFirst: jest.fn<() => Promise<unknown>>(),
+    findMany: jest.fn<() => Promise<unknown>>(),
+    create: jest.fn<() => Promise<unknown>>(),
+    update: jest.fn<() => Promise<unknown>>(),
+    delete: jest.fn<() => Promise<unknown>>(),
   },
 });
 

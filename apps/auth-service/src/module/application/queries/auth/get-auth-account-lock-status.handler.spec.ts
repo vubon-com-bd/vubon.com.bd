@@ -23,7 +23,7 @@ const buildLock = () =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findActiveByUser: jest.fn() as jest.Mock });
+const mockRepo = () => ({ findActiveByUser: jest.fn<() => Promise<unknown>>() });
 
 describe('GetAuthAccountLockStatusHandler', () => {
   let handler: GetAuthAccountLockStatusHandler;

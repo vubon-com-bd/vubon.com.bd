@@ -9,7 +9,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { AuthController } from './auth.controller.js';
 import { AuthControllerMapper } from '../../mappers/auth.controller.mapper.js';
 
-const mockCommandBus = () => ({ execute: jest.fn() as jest.Mock });
+const mockCommandBus = () => ({ execute: jest.fn<() => Promise<unknown>>() });
 const mockMapper = () => ({
   toLoginResponse: jest.fn((x: unknown) => x),
   toRegisterResponse: jest.fn((x: unknown) => x),

@@ -8,7 +8,7 @@ import { DisableMfaCommand } from './disable-mfa.command.js';
 
 const mockMfaService = () => ({
   name: 'AuthMfaService',
-  disable: jest.fn() as jest.Mock,
+  disable: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('DisableMfaHandler', () => {

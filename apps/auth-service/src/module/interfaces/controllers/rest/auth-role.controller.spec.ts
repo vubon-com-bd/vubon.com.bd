@@ -7,7 +7,7 @@ import { Test } from '@nestjs/testing';
 import { QueryBus } from '@nestjs/cqrs';
 import { AuthRoleController } from './auth-role.controller.js';
 
-const mockQueryBus = () => ({ execute: jest.fn() as jest.Mock });
+const mockQueryBus = () => ({ execute: jest.fn<() => Promise<unknown>>() });
 
 describe('AuthRoleController', () => {
   let controller: AuthRoleController;

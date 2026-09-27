@@ -8,7 +8,7 @@ import { UnlinkSocialCommand } from './unlink-social.command.js';
 
 const mockSocialService = () => ({
   name: 'AuthSocialService',
-  unlink: jest.fn() as jest.Mock,
+  unlink: jest.fn<() => Promise<unknown>>(),
 });
 
 describe('UnlinkSocialHandler', () => {
