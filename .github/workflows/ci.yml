@@ -47,7 +47,7 @@ jobs:
       - uses: actions/setup-node@v4
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
-      - name: Build shared packages
+      - name: Build shared packages (dependency order)
         run: |
           pnpm --filter @vubon/shared-constants build || true
           pnpm --filter @vubon/shared-types build || true
@@ -55,6 +55,8 @@ jobs:
           pnpm --filter @vubon/shared-utils build || true
           pnpm --filter @vubon/shared-config build || true
           pnpm --filter @vubon/shared-kernel build || true
+      - name: Generate Prisma client
+        run: pnpm --filter @vubon/shared-kernel prisma:generate || true
       - name: Type check all workspaces
         run: pnpm -r --no-bail run type-check || true
 
@@ -71,7 +73,17 @@ jobs:
       - uses: actions/setup-node@v4
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
-      - name: Build all packages
+      - name: Build shared packages (dependency order)
+        run: |
+          pnpm --filter @vubon/shared-constants build || true
+          pnpm --filter @vubon/shared-types build || true
+          pnpm --filter @vubon/shared-schemas build || true
+          pnpm --filter @vubon/shared-utils build || true
+          pnpm --filter @vubon/shared-config build || true
+          pnpm --filter @vubon/shared-kernel build || true
+      - name: Generate Prisma client
+        run: pnpm --filter @vubon/shared-kernel prisma:generate || true
+      - name: Build all remaining packages
         run: pnpm -r --no-bail run build
         env:
           NODE_OPTIONS: "--max-old-space-size=8192"
@@ -98,6 +110,16 @@ jobs:
       - uses: actions/setup-node@v4
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
+      - name: Build shared packages
+        run: |
+          pnpm --filter @vubon/shared-constants build || true
+          pnpm --filter @vubon/shared-types build || true
+          pnpm --filter @vubon/shared-schemas build || true
+          pnpm --filter @vubon/shared-utils build || true
+          pnpm --filter @vubon/shared-config build || true
+          pnpm --filter @vubon/shared-kernel build || true
+      - name: Generate Prisma client
+        run: pnpm --filter @vubon/shared-kernel prisma:generate || true
       - name: Run all tests
         run: pnpm -r --no-bail run test || true
 
