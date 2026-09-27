@@ -1,10 +1,12 @@
 /**
  * AddAddressHandler — Unit Tests
  */
-import { AddAddressHandler } from './add-address.handler';
-import { AddAddressCommand } from './add-address.command';
+import { jest } from '@jest/globals';
 
-const mockService = () => ({ add: jest.fn(), toResponse: jest.fn() });
+import { AddAddressHandler } from './add-address.handler.js';
+import { AddAddressCommand } from './add-address.command.js';
+
+const mockService = () => ({ add: jest.fn() as jest.Mock, toResponse: jest.fn() as jest.Mock });
 
 describe('AddAddressHandler', () => {
   let handler: AddAddressHandler;

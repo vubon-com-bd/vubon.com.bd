@@ -4,7 +4,7 @@
  */
 import type { UserId } from '@vubon/shared-types/common';
 import type { DomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
-import type { UserDomainEvent } from '../events/user.events';
+import type { UserDomainEvent } from '../events/user.events.js';
 
 export interface UserEventStore {
   append(event: UserDomainEvent): Promise<void>;

@@ -1,13 +1,13 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { ChangePasswordCommand } from './change-password.command';
-import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
-import type { PasswordHasherServiceInterface } from '../../services/interfaces/password-hasher.service.interface';
-import { UserNotFoundAppError } from '../../errors/user.errors';
-import { InvalidCredentialsError } from '../../errors/auth.errors';
-import { USER_REPO } from '../../tokens';
-import { PASSWORD_HASHER } from '../../tokens';
+import { ChangePasswordCommand } from './change-password.command.js';
+import type { UserRepository } from '../../../domain/repositories/user.repository.interface.js';
+import type { PasswordHasherServiceInterface } from '../../services/interfaces/password-hasher.service.interface.js';
+import { UserNotFoundAppError } from '../../errors/user.errors.js';
+import { InvalidCredentialsError } from '../../errors/auth.errors.js';
+import { USER_REPO } from '../../tokens.js';
+import { PASSWORD_HASHER } from '../../tokens.js';
 
 @CommandHandler(ChangePasswordCommand)
 export class ChangePasswordHandler

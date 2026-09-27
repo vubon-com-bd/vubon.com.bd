@@ -6,7 +6,7 @@
  */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma';
-import type { UnitOfWorkServiceInterface } from '../../../application/services/interfaces/unit-of-work.service.interface';
+import type { UnitOfWorkServiceInterface } from '../../../application/services/interfaces/unit-of-work.service.interface.js';
 
 @Injectable()
 export class UnitOfWorkService implements UnitOfWorkServiceInterface {

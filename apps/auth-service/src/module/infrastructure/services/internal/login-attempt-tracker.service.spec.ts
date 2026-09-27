@@ -2,7 +2,7 @@
  * LoginAttemptTrackerService — Unit Tests
  * @module auth-service/infrastructure/services/internal
  */
-import { LoginAttemptTrackerService } from './login-attempt-tracker.service';
+import { LoginAttemptTrackerService } from './login-attempt-tracker.service.js';
 
 describe('LoginAttemptTrackerService', () => {
   let service: LoginAttemptTrackerService;

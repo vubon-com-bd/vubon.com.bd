@@ -5,9 +5,9 @@
  * Values আসে domain/base/base.event থেকে (type only)।
  */
 import { Injectable } from '@nestjs/common';
-import type { DomainEvent } from '../../../domain/base/base.event';
-import { QueueService } from '../queue/queue.service';
-import { EVENT_BUS_CLIENT_CONFIG } from './event-bus.client';
+import type { DomainEvent } from '../../../domain/base/base.event.js';
+import { QueueService } from '../queue/queue.service.js';
+import { EVENT_BUS_CLIENT_CONFIG } from './event-bus.client.js';
 
 @Injectable()
 export class EventBusService {

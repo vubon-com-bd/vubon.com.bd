@@ -2,8 +2,8 @@
  * CanEnableMfaSpecification
  * @module auth-service/domain/specifications
  */
-import { UserEntity } from '../entities/user.entity';
-import { AuthMfaEntity } from '../entities/auth-mfa.entity';
+import { UserEntity } from '../entities/user.entity.js';
+import { AuthMfaEntity } from '../entities/auth-mfa.entity.js';
 
 export interface CanEnableMfaContext {
   readonly now: number;

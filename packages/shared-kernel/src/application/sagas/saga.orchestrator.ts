@@ -4,7 +4,7 @@
  *
  * References BaseSaga।
  */
-import type { BaseSaga } from './base.saga';
+import type { BaseSaga } from './base.saga.js';
 
 export interface SagaOrchestrator {
   register(name: string, saga: BaseSaga): void;

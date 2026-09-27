@@ -8,8 +8,8 @@
  * - Blocked/revoked devices NEVER auto-promote
  * - Untrusted devices require manual action
  */
-import { AuthDeviceEntity } from '../entities/auth-device.entity';
-import { UntrustedDeviceError } from '../errors/device.errors';
+import { AuthDeviceEntity } from '../entities/auth-device.entity.js';
+import { UntrustedDeviceError } from '../errors/device.errors.js';
 
 export class DeviceTrustService {
   static readonly PROMOTION_THRESHOLD = 3;

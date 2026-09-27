@@ -2,9 +2,9 @@
  * AuthRecoveryCodeEntity — Unit Tests
  * @module auth-service/domain/entities
  */
-import { AuthRecoveryCodeEntity } from './auth-recovery-code.entity';
-import { RecoveryCodeVO } from '../value-objects/primitives/recovery-code.vo';
-import { RecoveryCodeStatusVO } from '../value-objects/primitives/recovery-code-status.vo';
+import { AuthRecoveryCodeEntity } from './auth-recovery-code.entity.js';
+import { RecoveryCodeVO } from '../value-objects/primitives/recovery-code.vo.js';
+import { RecoveryCodeStatusVO } from '../value-objects/primitives/recovery-code-status.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();

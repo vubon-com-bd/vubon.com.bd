@@ -1,11 +1,15 @@
-import { BaseSagaCommand } from '@vubon/shared-kernel/application/sagas/base.saga.command';
+/**
+ * UpdateAnalyticsCommand
+ */
+import { BaseSagaCommand } from '@vubon/shared-kernel/application/sagas';
 
 export class UpdateAnalyticsCommand extends BaseSagaCommand {
-  readonly type = 'saga.user.update-analytics';
+  readonly type = 'saga.analytics.update';
 
   constructor(
-    public readonly eventType: string,
     public readonly userId: string,
+    public readonly eventName: string,
+    public readonly payload: Readonly<Record<string, unknown>>
   ) {
     super();
   }

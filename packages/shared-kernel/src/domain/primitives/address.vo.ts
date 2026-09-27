@@ -5,7 +5,7 @@
  * Values আসে shared-constants/common থেকে (VALIDATION.ADDRESS)।
  */
 import { VALIDATION } from '@vubon/shared-constants/common';
-import { BaseVO } from '../base/base.vo';
+import { BaseVO } from '../base/base.vo.js';
 
 export interface AddressValue {
   readonly line1: string;

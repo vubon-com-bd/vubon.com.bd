@@ -3,7 +3,7 @@
  * @module shared-kernel/infrastructure/external/sms
  */
 import { Global, Module } from '@nestjs/common';
-import { SmsService } from './sms.service';
+import { SmsService } from './sms.service.js';
 
 @Global()
 @Module({

@@ -1,8 +1,10 @@
+import { jest } from '@jest/globals';
+
 import { Test } from '@nestjs/testing';
 import { QueryBus } from '@nestjs/cqrs';
-import { UserPermissionController } from './user-permission.controller';
+import { UserPermissionController } from './user-permission.controller.js';
 
-const mockQueryBus = () => ({ execute: jest.fn() });
+const mockQueryBus = () => ({ execute: jest.fn() as jest.Mock });
 
 describe('UserPermissionController', () => {
   let controller: UserPermissionController;

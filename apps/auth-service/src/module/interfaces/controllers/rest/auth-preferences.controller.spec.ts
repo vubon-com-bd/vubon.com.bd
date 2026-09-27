@@ -1,9 +1,11 @@
+import { jest } from '@jest/globals';
+
 import { Test } from '@nestjs/testing';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { AuthPreferencesController } from './auth-preferences.controller';
+import { AuthPreferencesController } from './auth-preferences.controller.js';
 
-const mockCommandBus = () => ({ execute: jest.fn() });
-const mockQueryBus = () => ({ execute: jest.fn() });
+const mockCommandBus = () => ({ execute: jest.fn() as jest.Mock });
+const mockQueryBus = () => ({ execute: jest.fn() as jest.Mock });
 
 describe('AuthPreferencesController', () => {
   let controller: AuthPreferencesController;

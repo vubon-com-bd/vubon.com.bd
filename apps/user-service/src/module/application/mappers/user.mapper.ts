@@ -1,37 +1,44 @@
-import { UserEntity } from '../../domain/entities/user.entity';
-import type { UserResponseDTO } from '../dtos/responses/user-response.dto';
-import type { UserPublicResponseDTO } from '../dtos/responses/user-public-response.dto';
+/**
+ * UserMapper — Entity → DTO (pure transformation)
+ * @module user-service/application/mappers
+ */
+import { UserEntity } from '@domain/entities/user.entity';
+import type { UserResponseDTO } from '../dtos/responses/user-response.dto.js';
+import type { UserPublicResponseDTO } from '../dtos/responses/user-public-response.dto.js';
 
 export class UserMapper {
   static toResponse(user: UserEntity): UserResponseDTO {
     return {
-      success: true,
-      user: {
-        id: user.id.value,
-        email: user.email.value,
-        type: user.type.value,
-        status: user.status.value,
-        roles: [],
-        isMfaEnabled: false,
-        emailVerified: user.emailVerified,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-        deletedAt: user.deletedAt ?? undefined,
-      },
-    } as unknown as UserResponseDTO;
+      id: user.id,
+      email: user.email.value,
+      phone: user.phone?.value,
+      status: user.status.value,
+      type: user.type.value,
+      roles: [],
+      emailVerified: user.emailVerified,
+      phoneVerified: user.phoneVerified,
+      isMfaEnabled: false,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
   }
 
   static toPublicResponse(user: UserEntity): UserPublicResponseDTO {
     return {
-      id: user.id.value,
-      name: user.name.value,
-      type: user.type.value,
+      id: user.id,
+      displayName: user.name.value,
       status: user.status.value,
-      createdAt: user.createdAt,
-    } as unknown as UserPublicResponseDTO;
+      type: user.type.value,
+    };
   }
 
-  static toListResponse(users: readonly UserEntity[]): readonly UserResponseDTO[] {
+  static toResponseList(users: readonly UserEntity[]): readonly UserResponseDTO[] {
     return users.map((u) => UserMapper.toResponse(u));
+  }
+
+  static toPublicResponseList(
+    users: readonly UserEntity[]
+  ): readonly UserPublicResponseDTO[] {
+    return users.map((u) => UserMapper.toPublicResponse(u));
   }
 }

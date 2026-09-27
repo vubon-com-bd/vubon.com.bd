@@ -8,10 +8,13 @@
     "composite": false,
     "incremental": true,
     "tsBuildInfoFile": "./dist/.tsbuildinfo",
-    "module": "node16",
-    "target": "ES2020",
-    "moduleResolution": "node16",
-    "lib": ["ES2022", "DOM"],
+    "module": "ESNext",
+    "target": "ES2022",
+    "moduleResolution": "bundler",
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
@@ -24,8 +27,44 @@
     "skipLibCheck": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "types": ["node"]
+    "baseUrl": ".",
+    "paths": {
+      "@vubon/shared-config": [
+        "../shared-config/dist/index.d.ts"
+      ],
+      "@vubon/shared-config/*": [
+        "../shared-config/dist/*"
+      ],
+      "@vubon/shared-constants": [
+        "../shared-constants/dist/index.d.ts"
+      ],
+      "@vubon/shared-constants/*": [
+        "../shared-constants/dist/*"
+      ],
+      "@vubon/shared-types": [
+        "../shared-types/dist/index.d.ts"
+      ],
+      "@vubon/shared-types/*": [
+        "../shared-types/dist/*"
+      ],
+      "@vubon/shared-utils": [
+        "../shared-utils/dist/index.d.ts"
+      ],
+      "@vubon/shared-utils/*": [
+        "../shared-utils/dist/*"
+      ]
+    },
+    "types": [
+      "node"
+    ]
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
 }

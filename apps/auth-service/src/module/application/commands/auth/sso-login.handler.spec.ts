@@ -1,12 +1,14 @@
 /**
  * SsoLoginHandler — Unit Tests
  */
-import { SsoLoginHandler } from './sso-login.handler';
-import { SsoLoginCommand } from './sso-login.command';
+import { jest } from '@jest/globals';
+
+import { SsoLoginHandler } from './sso-login.handler.js';
+import { SsoLoginCommand } from './sso-login.command.js';
 
 const mockSsoService = () => ({
   name: 'AuthSsoService',
-  initiateLogin: jest.fn(),
+  initiateLogin: jest.fn() as jest.Mock,
 });
 
 describe('SsoLoginHandler', () => {

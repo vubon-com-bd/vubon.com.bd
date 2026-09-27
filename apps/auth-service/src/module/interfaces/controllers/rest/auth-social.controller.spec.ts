@@ -1,8 +1,10 @@
+import { jest } from '@jest/globals';
+
 import { Test } from '@nestjs/testing';
 import { CommandBus } from '@nestjs/cqrs';
-import { AuthSocialController } from './auth-social.controller';
+import { AuthSocialController } from './auth-social.controller.js';
 
-const mockCommandBus = () => ({ execute: jest.fn() });
+const mockCommandBus = () => ({ execute: jest.fn() as jest.Mock });
 
 describe('AuthSocialController', () => {
   let controller: AuthSocialController;

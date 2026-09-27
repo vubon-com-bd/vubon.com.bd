@@ -2,6 +2,6 @@
  * Application Services — Barrel
  * @module auth-service/application/services
  */
-export * from './tokens';
-export * from './interfaces';
-export * from './impl';
+export * from './tokens.js';
+export * from './interfaces/index.js';
+export * from './impl/index.js';

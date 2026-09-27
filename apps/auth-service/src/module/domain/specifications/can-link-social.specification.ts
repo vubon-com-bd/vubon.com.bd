@@ -2,8 +2,8 @@
  * CanLinkSocialSpecification
  * @module auth-service/domain/specifications
  */
-import { UserEntity } from '../entities/user.entity';
-import { SocialProviderVO } from '../value-objects/primitives/social-provider.vo';
+import { UserEntity } from '../entities/user.entity.js';
+import { SocialProviderVO } from '../value-objects/primitives/social-provider.vo.js';
 
 export interface CanLinkSocialContext {
   readonly provider: SocialProviderVO;

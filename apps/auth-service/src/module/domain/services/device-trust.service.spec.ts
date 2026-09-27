@@ -2,12 +2,12 @@
  * DeviceTrustService — Unit Tests
  * @module auth-service/domain/services
  */
-import { DeviceTrustService } from './device-trust.service';
-import { AuthDeviceEntity } from '../entities/auth-device.entity';
-import { DeviceFingerprintVO } from '../value-objects/primitives/device-fingerprint.vo';
-import { DeviceTypeVO } from '../value-objects/primitives/device-type.vo';
-import { DeviceStatusVO } from '../value-objects/primitives/device-status.vo';
-import { UntrustedDeviceError } from '../errors/device.errors';
+import { DeviceTrustService } from './device-trust.service.js';
+import { AuthDeviceEntity } from '../entities/auth-device.entity.js';
+import { DeviceFingerprintVO } from '../value-objects/primitives/device-fingerprint.vo.js';
+import { DeviceTypeVO } from '../value-objects/primitives/device-type.vo.js';
+import { DeviceStatusVO } from '../value-objects/primitives/device-status.vo.js';
+import { UntrustedDeviceError } from '../errors/device.errors.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();

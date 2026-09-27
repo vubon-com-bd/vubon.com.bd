@@ -3,8 +3,8 @@
  * @module auth-service/infrastructure/services/internal
  */
 import { Injectable } from '@nestjs/common';
-import { PermissionNameVO } from '../../../domain/value-objects/primitives/permission-name.vo';
-import { PermissionDeniedAppError } from '../../../application/errors/permission.errors';
+import { PermissionNameVO } from '../../../domain/value-objects/primitives/permission-name.vo.js';
+import { PermissionDeniedAppError } from '../../../application/errors/permission.errors.js';
 
 @Injectable()
 export class PermissionValidatorService {

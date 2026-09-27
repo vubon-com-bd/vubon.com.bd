@@ -1,9 +1,9 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { ListAuthTokensQuery } from './list-auth-tokens.query';
-import type { AuthTokenRepository } from '../../../domain/repositories/auth-token.repository.interface';
-import { AUTH_TOKEN_REPO } from '../../tokens';
+import { ListAuthTokensQuery } from './list-auth-tokens.query.js';
+import type { AuthTokenRepository } from '../../../domain/repositories/auth-token.repository.interface.js';
+import { AUTH_TOKEN_REPO } from '../../tokens.js';
 
 export interface AuthTokenListDTO {
   readonly id: string;

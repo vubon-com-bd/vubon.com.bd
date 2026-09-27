@@ -4,8 +4,8 @@
  */
 import { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
 import type { UserId } from '@vubon/shared-types/common';
-import { UserEntity } from '../entities/user.entity';
-import { UserEmailVO } from '../value-objects/primitives/user-email.vo';
+import { UserEntity } from '../entities/user.entity.js';
+import { UserEmailVO } from '../value-objects/primitives/user-email.vo.js';
 
 export interface UserRepository extends BaseRepository<UserEntity, UserId> {
   findByEmail(email: UserEmailVO): Promise<UserEntity | null>;

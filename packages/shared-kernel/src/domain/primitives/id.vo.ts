@@ -5,7 +5,7 @@
  * Values আসে shared-types/common/primitives থেকে (type only)।
  */
 import type { Branded, UserId, OrderId } from '@vubon/shared-types/common';
-import { BaseVO } from '../base/base.vo';
+import { BaseVO } from '../base/base.vo.js';
 
 export class BaseIdVO<T extends string = string> extends BaseVO<T> {
   protected constructor(value: T) {

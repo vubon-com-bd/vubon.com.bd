@@ -2,6 +2,6 @@
  * Commands + Handlers — Barrel
  * @module auth-service/application/commands
  */
-export * from './auth';
-export * from './user';
-export * from './settings';
+export * from './auth/index.js';
+export * from './user/index.js';
+export * from './settings/index.js';

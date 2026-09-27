@@ -2,7 +2,7 @@
  * PermissionResourceVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { PermissionResourceVO } from './permission-resource.vo';
+import { PermissionResourceVO } from './permission-resource.vo.js';
 
 describe('PermissionResourceVO', () => {
   describe('of()', () => {

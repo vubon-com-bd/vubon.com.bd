@@ -4,8 +4,8 @@
  */
 import type { BaseServiceInterface } from '@vubon/shared-kernel/application/services/base.service.interface';
 import type { UserId } from '@vubon/shared-types/common';
-import type { UserVerificationEntity } from '../../../domain/entities/user-verification.entity';
-import type { UserVerificationResponseDTO } from '../../dtos/responses/user-verification-response.dto';
+import type { UserVerificationEntity } from '../../../domain/entities/user-verification.entity.js';
+import type { UserVerificationResponseDTO } from '../../dtos/responses/user-verification-response.dto.js';
 
 export interface UserVerificationServiceInterface
   extends BaseServiceInterface<UserVerificationEntity, string> {

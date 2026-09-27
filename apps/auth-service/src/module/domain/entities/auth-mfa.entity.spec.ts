@@ -2,11 +2,11 @@
  * AuthMfaEntity — Unit Tests (Aggregate Root)
  * @module auth-service/domain/entities
  */
-import { AuthMfaEntity } from './auth-mfa.entity';
-import { MfaSecretVO } from '../value-objects/primitives/mfa-secret.vo';
-import { MfaTypeVO } from '../value-objects/primitives/mfa-type.vo';
-import { MfaStatusVO } from '../value-objects/primitives/mfa-status.vo';
-import { MfaAlreadyEnabledError } from '../errors/mfa.errors';
+import { AuthMfaEntity } from './auth-mfa.entity.js';
+import { MfaSecretVO } from '../value-objects/primitives/mfa-secret.vo.js';
+import { MfaTypeVO } from '../value-objects/primitives/mfa-type.vo.js';
+import { MfaStatusVO } from '../value-objects/primitives/mfa-status.vo.js';
+import { MfaAlreadyEnabledError } from '../errors/mfa.errors.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();

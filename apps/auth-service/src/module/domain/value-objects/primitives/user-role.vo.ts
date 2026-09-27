@@ -8,7 +8,7 @@
  */
 import { BaseTypeVO } from '@vubon/shared-kernel/domain/primitives/type.vo';
 import { ROLE } from '@vubon/shared-constants/common';
-import { InvalidRoleError } from '../../errors/permission.errors';
+import { InvalidRoleError } from '../../errors/permission.errors.js';
 
 type RoleValue = (typeof ROLE)[keyof typeof ROLE];
 

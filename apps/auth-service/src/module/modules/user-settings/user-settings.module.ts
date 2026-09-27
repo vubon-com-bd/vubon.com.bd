@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { UserSettingsController } from '../../interfaces/controllers/rest/user-settings.controller';
-import { UserSettingsService } from '../../application/services/impl/user-settings.service';
-import { UserSettingsPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/user-settings.prisma.repository';
-import { UpdateSettingsHandler } from '../../application/commands/user/update-settings.handler';
-import { GetUserSettingsHandler } from '../../application/queries/user/get-user-settings.handler';
+import { UserSettingsController } from '../../interfaces/controllers/rest/user-settings.controller.js';
+import { UserSettingsService } from '../../application/services/impl/user-settings.service.js';
+import { UserSettingsPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/user-settings.prisma.repository.js';
+import { UpdateSettingsHandler } from '../../application/commands/user/update-settings.handler.js';
+import { GetUserSettingsHandler } from '../../application/queries/user/get-user-settings.handler.js';
 import {
   USER_SETTINGS_REPO,
   USER_SETTINGS_SERVICE,
-} from '../../application/services/tokens';
+} from '../../application/services/tokens.js';
 
 const TOKEN_BINDINGS = [
   { provide: USER_SETTINGS_REPO, useExisting: UserSettingsPrismaRepository },

@@ -1,17 +1,17 @@
+/**
+ * PublicProfileModule
+ */
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-
-import { PublicProfileController } from '../../interfaces/controllers/rest/public-profile.controller';
-import { GetPublicProfileHandler } from '../../application/queries/profile/get-public-profile.handler';
-import { UserProfilePrismaRepository } from '../../infrastructure/persistence/prisma/repositories/user-profile.prisma.repository';
+import { PublicProfileController } from '@interfaces/controllers/rest/public-profile.controller';
+import { PrismaModule } from '@infrastructure/persistence/prisma/prisma.module';
+import { UserModule } from '../user/user.module.js';
+import { UserProfileModule } from '../user-profile/user-profile.module.js';
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, PrismaModule, UserModule, UserProfileModule],
   controllers: [PublicProfileController],
-  providers: [
-    UserProfilePrismaRepository,
-    GetPublicProfileHandler,
-  ],
+  providers: [],
   exports: [],
 })
 export class PublicProfileModule {}

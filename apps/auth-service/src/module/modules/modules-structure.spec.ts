@@ -6,33 +6,33 @@
  * WITHOUT bootstrapping DI (fast + safe).
  */
 import 'reflect-metadata';
-import { UserModule } from './user/user.module';
-import { AuthModule } from './auth/auth.module';
-import { AuthSessionModule } from './auth-session/auth-session.module';
-import { AuthTokenModule } from './auth-token/auth-token.module';
-import { AuthMfaModule } from './auth-mfa/auth-mfa.module';
-import { AuthRecoveryCodeModule } from './auth-recovery-code/auth-recovery-code.module';
-import { AuthAccountLockModule } from './auth-account-lock/auth-account-lock.module';
-import { AuthLoginAttemptModule } from './auth-login-attempt/auth-login-attempt.module';
-import { AuthDeviceModule } from './auth-device/auth-device.module';
-import { AuthSocialModule } from './auth-social/auth-social.module';
-import { AuthOAuthModule } from './auth-oauth/auth-oauth.module';
-import { AuthSsoModule } from './auth-sso/auth-sso.module';
-import { Auth2FaModule } from './auth-2fa/auth-2fa.module';
-import { AuthBiometricModule } from './auth-biometric/auth-biometric.module';
-import { AuthPermissionModule } from './auth-permission/auth-permission.module';
-import { AuthRoleModule } from './auth-role/auth-role.module';
-import { AuthSettingsModule } from './auth-settings/auth-settings.module';
-import { AuthPreferencesModule } from './auth-preferences/auth-preferences.module';
-import { UserProfileModule } from './user-profile/user-profile.module';
-import { UserSettingsModule } from './user-settings/user-settings.module';
-import { UserPreferencesModule } from './user-preferences/user-preferences.module';
-import { UserAddressModule } from './user-address/user-address.module';
-import { UserContactModule } from './user-contact/user-contact.module';
-import { UserVerificationModule } from './user-verification/user-verification.module';
-import { UserKycModule } from './user-kyc/user-kyc.module';
-import { UserActivityModule } from './user-activity/user-activity.module';
-import { UserRolePermissionModule } from './user-role-permission/user-role-permission.module';
+import { UserModule } from './user/user.module.js';
+import { AuthModule } from './auth/auth.module.js';
+import { AuthSessionModule } from './auth-session/auth-session.module.js';
+import { AuthTokenModule } from './auth-token/auth-token.module.js';
+import { AuthMfaModule } from './auth-mfa/auth-mfa.module.js';
+import { AuthRecoveryCodeModule } from './auth-recovery-code/auth-recovery-code.module.js';
+import { AuthAccountLockModule } from './auth-account-lock/auth-account-lock.module.js';
+import { AuthLoginAttemptModule } from './auth-login-attempt/auth-login-attempt.module.js';
+import { AuthDeviceModule } from './auth-device/auth-device.module.js';
+import { AuthSocialModule } from './auth-social/auth-social.module.js';
+import { AuthOAuthModule } from './auth-oauth/auth-oauth.module.js';
+import { AuthSsoModule } from './auth-sso/auth-sso.module.js';
+import { Auth2FaModule } from './auth-2fa/auth-2fa.module.js';
+import { AuthBiometricModule } from './auth-biometric/auth-biometric.module.js';
+import { AuthPermissionModule } from './auth-permission/auth-permission.module.js';
+import { AuthRoleModule } from './auth-role/auth-role.module.js';
+import { AuthSettingsModule } from './auth-settings/auth-settings.module.js';
+import { AuthPreferencesModule } from './auth-preferences/auth-preferences.module.js';
+import { UserProfileModule } from './user-profile/user-profile.module.js';
+import { UserSettingsModule } from './user-settings/user-settings.module.js';
+import { UserPreferencesModule } from './user-preferences/user-preferences.module.js';
+import { UserAddressModule } from './user-address/user-address.module.js';
+import { UserContactModule } from './user-contact/user-contact.module.js';
+import { UserVerificationModule } from './user-verification/user-verification.module.js';
+import { UserKycModule } from './user-kyc/user-kyc.module.js';
+import { UserActivityModule } from './user-activity/user-activity.module.js';
+import { UserRolePermissionModule } from './user-role-permission/user-role-permission.module.js';
 
 const MODULES = {
   UserModule,

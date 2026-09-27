@@ -2,8 +2,8 @@
  * TokenValueVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { TokenValueVO } from './token-value.vo';
-import { InvalidTokenError } from '../../errors/token.errors';
+import { TokenValueVO } from './token-value.vo.js';
+import { InvalidTokenError } from '../../errors/token.errors.js';
 
 describe('TokenValueVO', () => {
   const JWT_LIKE = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0.abcdefg';

@@ -1,14 +1,9 @@
-/**
- * User Service — Domain Layer Barrel
- *
- * Pure business logic — framework-free.
- */
-
-export * from './errors';
-export * from './value-objects';
-export * from './events';
-export * from './entities';
-export * from './repositories';
-export * from './event-store';
-export * from './services';
-export * from './specifications';
+// domain/index.ts — Domain Layer barrel export (FINAL)
+export * from './value-objects/index.js';
+export * from './entities/index.js';
+export * from './repositories/index.js';
+export * from './events/index.js';
+export * from './event-store/index.js';
+export * from './services/index.js';
+export * from './specifications/index.js';
+export * from './errors/index.js';

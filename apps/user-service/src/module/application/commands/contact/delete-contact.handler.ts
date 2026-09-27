@@ -1,23 +1,26 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { DeleteContactCommand } from './delete-contact.command';
-import type { UserContactServiceInterface } from '../../services/interfaces/user-contact.service.interface';
+/**
+ * DeleteContactHandler
+ */
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Inject } from '@nestjs/common';
+import { DeleteContactCommand } from './delete-contact.command.js';
+import { USER_CONTACT_REPOSITORY } from '@domain/repositories/user-contact.repository.interface';
+import type { UserContactRepository } from '@domain/repositories/user-contact.repository.interface';
+import { ContactNotFoundApplicationError } from '../../errors/contact.errors.js';
 
 @CommandHandler(DeleteContactCommand)
 export class DeleteContactHandler
-  extends BaseCommandHandler<DeleteContactCommand, void>
-  implements ICommandHandler<DeleteContactCommand>
+  implements ICommandHandler<DeleteContactCommand, { success: true }>
 {
-  readonly commandType = 'user.contact.delete';
-
   constructor(
-    private readonly contactService: UserContactServiceInterface,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
-  }
+    @Inject(USER_CONTACT_REPOSITORY)
+    private readonly contactRepo: UserContactRepository
+  ) {}
 
-  async execute(command: DeleteContactCommand): Promise<void> {
-    await this.contactService.delete(command.contactId);
+  async execute(command: DeleteContactCommand): Promise<{ success: true }> {
+    const existing = await this.contactRepo.findById(command.contactId);
+    if (!existing) throw new ContactNotFoundApplicationError(command.contactId);
+    await this.contactRepo.delete(command.contactId);
+    return { success: true };
   }
 }

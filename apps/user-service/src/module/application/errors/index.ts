@@ -1,32 +1,9 @@
-export {
-  UserOperationFailedError,
-  UserValidationFailedError,
-  UserNotFoundAppError,
-} from './user.errors';
-
-export {
-  ProfileOperationFailedError,
-  ProfileNotFoundAppError,
-} from './profile.errors';
-
-export {
-  AddressOperationFailedError,
-  AddressNotFoundAppError,
-  AddressLimitExceededAppError,
-} from './address.errors';
-
-export {
-  ContactOperationFailedError,
-  ContactNotFoundAppError,
-} from './contact.errors';
-
-export { PreferenceOperationFailedError } from './preference.errors';
-export { SettingsOperationFailedError } from './settings.errors';
-
-export {
-  KycOperationFailedError,
-  KycNotFoundAppError,
-  KycNotAllowedAppError,
-} from './kyc.errors';
-
-export { ActivityOperationFailedError } from './activity.errors';
+// application/errors/index.ts — Application errors barrel export
+export * from './user.errors.js';
+export * from './profile.errors.js';
+export * from './address.errors.js';
+export * from './contact.errors.js';
+export * from './preference.errors.js';
+export * from './settings.errors.js';
+export * from './kyc.errors.js';
+export * from './activity.errors.js';

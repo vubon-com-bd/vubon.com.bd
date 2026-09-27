@@ -3,10 +3,10 @@
  * @module auth-service/domain/value-objects/composites
  */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { DeviceFingerprintVO } from '../primitives/device-fingerprint.vo';
-import { DeviceTypeVO } from '../primitives/device-type.vo';
-import { DeviceStatusVO } from '../primitives/device-status.vo';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { DeviceFingerprintVO } from '../primitives/device-fingerprint.vo.js';
+import { DeviceTypeVO } from '../primitives/device-type.vo.js';
+import { DeviceStatusVO } from '../primitives/device-status.vo.js';
 
 export interface AuthDeviceVOProps {
   readonly deviceId: string;

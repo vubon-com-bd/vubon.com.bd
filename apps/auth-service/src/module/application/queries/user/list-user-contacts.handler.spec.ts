@@ -1,10 +1,12 @@
 /**
  * ListUserContactsHandler — Unit Tests
  */
-import { ListUserContactsHandler } from './list-user-contacts.handler';
-import { ListUserContactsQuery } from './list-user-contacts.query';
-import { UserContactEntity } from '../../../domain/entities/user-contact.entity';
-import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo';
+import { jest } from '@jest/globals';
+
+import { ListUserContactsHandler } from './list-user-contacts.handler.js';
+import { ListUserContactsQuery } from './list-user-contacts.query.js';
+import { UserContactEntity } from '../../../domain/entities/user-contact.entity.js';
+import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -18,7 +20,7 @@ const buildContact = (id: string, email: string) =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findByUserId: jest.fn() });
+const mockRepo = () => ({ findByUserId: jest.fn() as jest.Mock });
 
 describe('ListUserContactsHandler', () => {
   let handler: ListUserContactsHandler;

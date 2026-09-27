@@ -1,50 +1,37 @@
-import { ERROR_CODE, type ErrorCodeType } from '@vubon/shared-constants/common';
-import { DomainError } from '@vubon/shared-kernel/domain/errors/domain.error';
+/**
+ * KYC domain errors
+ */
+import { NotFoundError } from '@vubon/shared-kernel/domain/errors/not-found.error';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
+import { BusinessRuleError } from '@vubon/shared-kernel/domain/errors/business-rule.error';
 
-export class KycNotFoundError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.USER_NOT_FOUND;
-  readonly httpStatus = 404;
-  constructor(userId: string) {
-    super(`KYC not found for user: ${userId}`, { userId });
+export class KycNotFoundError extends NotFoundError {
+  constructor(kycId: string) {
+    super('UserKyc', kycId);
+    this.name = 'KycNotFoundError';
   }
 }
 
-export class KycExpiredError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.AUTH_VERIFICATION_EXPIRED;
-  readonly httpStatus = 410;
-  constructor(userId: string) {
-    super(`KYC expired for user: ${userId}`, { userId });
+export class KycExpiredError extends BusinessRuleError {
+  constructor(kycId: string) {
+    super(`KYC "${kycId}" has expired`, 'KYC_EXPIRED');
+    this.name = 'KycExpiredError';
   }
 }
 
-export class KycNotAllowedError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.AUTH_FORBIDDEN;
-  readonly httpStatus = 403;
+export class KycNotAllowedError extends BusinessRuleError {
   constructor(reason: string) {
-    super(`KYC not allowed: ${reason}`, { reason });
+    super(`KYC not allowed: ${reason}`, 'KYC_NOT_ALLOWED');
+    this.name = 'KycNotAllowedError';
   }
 }
 
-export class InvalidKycDocumentError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.VAL_INVALID_FORMAT;
-  readonly httpStatus = 400;
-  constructor(document: string) {
-    super(`Invalid KYC document: ${document}`, { document });
-  }
-}
-
-export class InvalidKycIdError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.VAL_REQUIRED;
-  readonly httpStatus = 400;
-  constructor(reason: string) {
-    super(`Invalid KYC ID: ${reason}`, { reason });
-  }
-}
-
-export class InvalidKycStatusError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.VAL_INVALID_FORMAT;
-  readonly httpStatus = 400;
-  constructor(status: string) {
-    super(`Invalid KYC status: ${status}`, { status });
+export class InvalidKycDocumentError extends ValidationError {
+  constructor(value: string, allowed: readonly string[]) {
+    super(
+      `Invalid KYC document "${value}". Allowed: ${allowed.join(', ')}`,
+      'kycDocument'
+    );
+    this.name = 'InvalidKycDocumentError';
   }
 }

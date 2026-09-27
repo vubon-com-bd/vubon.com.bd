@@ -1,4 +1,10 @@
-import { z } from 'zod';
-import { UserContactInputSchema } from '@vubon/shared-schemas/user';
-
-export type UpdateContactRequestDTO = z.infer<typeof UserContactInputSchema>;
+/**
+ * UpdateContactRequestDTO
+ */
+export interface UpdateContactRequestDTO {
+  readonly userId: string;
+  readonly contactId: string;
+  readonly value?: string;
+  readonly label?: string;
+  readonly isPrimary?: boolean;
+}

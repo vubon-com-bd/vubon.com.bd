@@ -1,5 +1,5 @@
 # ═══════════════════════════════════════════════════════════════
-# Vubon.com.bd — Git Ignore Rules
+# Vubon.com.bd — Git Ignore Rules (Monorepo-wide)
 # ═══════════════════════════════════════════════════════════════
 
 # ─── Dependencies ──────────────────────────────────────────────
@@ -16,9 +16,15 @@ node_modules/
 .env.production
 .env.test
 
-# But KEEP template files
+# Backups of env files
+.env.backup.*
+.env.*.backup.*
+
+# Keep templates
 !.env.example
 !**/.env.example
+!.env.production.example
+!**/.env.production.example
 
 # ─── Build Output ──────────────────────────────────────────────
 dist/
@@ -33,10 +39,12 @@ prisma/migrations/**/*.sql
 # ─── Test Coverage ─────────────────────────────────────────────
 coverage/
 .nyc_output/
+test-results/
 
 # ─── Logs ──────────────────────────────────────────────────────
 *.log
 logs/
+service.log
 npm-debug.log*
 pnpm-debug.log*
 yarn-debug.log*
@@ -54,13 +62,6 @@ Thumbs.db
 *.iml
 *.sublime-*
 
-# ─── Test / Scratch Files ──────────────────────────────────────
-*.test.ts.snap
-__snapshots__/
-.scratch/
-tmp/
-temp/
-
 # ─── Cache ─────────────────────────────────────────────────────
 .cache/
 .eslintcache
@@ -72,37 +73,28 @@ temp/
 storage/
 uploads/
 
-# Backup files
+# ─── Backup / Scratch Files ────────────────────────────────────
 *.bak
 *.bak.*
-.env.backup.*
 package.json.backup.*
+.backups/
+*.pre-esm
+*.pre-bundler
+*.pre-tscalias
+*.pre-dist
+*.pre-loose
+*.pre-spec-exclude
+*.pre-*
+tmp/
+temp/
+.scratch/
 
-# Jest
+# ─── Jest Skipped Tests ────────────────────────────────────────
 .skip/
 
-# Redis
+# ─── Redis Runtime ─────────────────────────────────────────────
 dump.rdb
 
-# tsbuildinfo
-*.tsbuildinfo
-
-
-# Backup files
-*.bak
-*.bak.*
-.env.backup.*
-package.json.backup.*
-
-# Jest
-.skip/
-
-# Redis
-dump.rdb
-
-# TypeScript build info
-*.tsbuildinfo
-
-# Auth-service test outputs
-apps/auth-service/coverage/
-
+# ─── Snapshot Files ────────────────────────────────────────────
+*.test.ts.snap
+__snapshots__/

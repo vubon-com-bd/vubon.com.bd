@@ -1,12 +1,14 @@
 /**
  * EnableMfaHandler — Unit Tests
  */
-import { EnableMfaHandler } from './enable-mfa.handler';
-import { EnableMfaCommand } from './enable-mfa.command';
+import { jest } from '@jest/globals';
+
+import { EnableMfaHandler } from './enable-mfa.handler.js';
+import { EnableMfaCommand } from './enable-mfa.command.js';
 
 const mockMfaService = () => ({
   name: 'AuthMfaService',
-  beginEnrollment: jest.fn(),
+  beginEnrollment: jest.fn() as jest.Mock,
 });
 
 describe('EnableMfaHandler', () => {

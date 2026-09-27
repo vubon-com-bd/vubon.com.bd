@@ -2,9 +2,9 @@
  * Auth2FaVO — Unit Tests
  * @module auth-service/domain/value-objects/composites
  */
-import { Auth2FaVO } from './auth-2fa.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { MfaTypeVO } from '../primitives/mfa-type.vo';
+import { Auth2FaVO } from './auth-2fa.vo.js';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { MfaTypeVO } from '../primitives/mfa-type.vo.js';
 
 describe('Auth2FaVO', () => {
   const userId = UserIdVO.of('user-1');

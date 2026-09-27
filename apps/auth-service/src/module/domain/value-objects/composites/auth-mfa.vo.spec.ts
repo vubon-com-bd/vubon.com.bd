@@ -2,10 +2,10 @@
  * AuthMfaVO — Unit Tests
  * @module auth-service/domain/value-objects/composites
  */
-import { AuthMfaVO } from './auth-mfa.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { MfaTypeVO } from '../primitives/mfa-type.vo';
-import { MfaStatusVO } from '../primitives/mfa-status.vo';
+import { AuthMfaVO } from './auth-mfa.vo.js';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { MfaTypeVO } from '../primitives/mfa-type.vo.js';
+import { MfaStatusVO } from '../primitives/mfa-status.vo.js';
 
 describe('AuthMfaVO', () => {
   const userId = UserIdVO.of('user-1');

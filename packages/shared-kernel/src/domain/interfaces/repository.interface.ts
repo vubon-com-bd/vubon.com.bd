@@ -4,9 +4,9 @@
  *
  * References base repository (type only)।
  */
-import type { BaseRepository } from '../base/base.repository.interface';
-import type { BaseEntity } from '../base/base.entity';
-import type { Specification } from '../base/base.specification';
+import type { BaseRepository } from '../base/base.repository.interface.js';
+import type { BaseEntity } from '../base/base.entity.js';
+import type { Specification } from '../base/base.specification.js';
 
 export type RepositoryShape<TEntity extends BaseEntity<TId>, TId = string> = BaseRepository<
   TEntity,

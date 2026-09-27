@@ -2,19 +2,19 @@
  * Infrastructure Config — Barrel
  * @module auth-service/infrastructure/config
  */
-export * from './auth.config';
-export * from './jwt.config';
-export * from './oauth.config';
-export * from './sso.config';
-export * from './mfa.config';
-export * from './session.config';
-export * from './token.config';
-export * from './password.config';
-export * from './account-lock.config';
-export * from './login-attempt.config';
-export * from './device.config';
-export * from './social.config';
-export * from './2fa.config';
-export * from './biometric.config';
-export * from './rate-limit.config';
-export * from './user.config';
+export * from './auth.config.js';
+export * from './jwt.config.js';
+export * from './oauth.config.js';
+export * from './sso.config.js';
+export * from './mfa.config.js';
+export * from './session.config.js';
+export * from './token.config.js';
+export * from './password.config.js';
+export * from './account-lock.config.js';
+export * from './login-attempt.config.js';
+export * from './device.config.js';
+export * from './social.config.js';
+export * from './2fa.config.js';
+export * from './biometric.config.js';
+export * from './rate-limit.config.js';
+export * from './user.config.js';

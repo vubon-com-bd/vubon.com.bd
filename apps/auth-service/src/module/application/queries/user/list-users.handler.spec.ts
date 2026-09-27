@@ -1,14 +1,16 @@
 /**
  * ListUsersHandler — Unit Tests
  */
-import { ListUsersHandler } from './list-users.handler';
-import { ListUsersQuery } from './list-users.query';
-import { UserEntity } from '../../../domain/entities/user.entity';
-import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo';
-import { UserNameVO } from '../../../domain/value-objects/primitives/user-name.vo';
-import { UserStatusVO } from '../../../domain/value-objects/primitives/user-status.vo';
-import { UserTypeVO } from '../../../domain/value-objects/primitives/user-type.vo';
-import { UserRoleVO } from '../../../domain/value-objects/primitives/user-role.vo';
+import { jest } from '@jest/globals';
+
+import { ListUsersHandler } from './list-users.handler.js';
+import { ListUsersQuery } from './list-users.query.js';
+import { UserEntity } from '../../../domain/entities/user.entity.js';
+import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo.js';
+import { UserNameVO } from '../../../domain/value-objects/primitives/user-name.vo.js';
+import { UserStatusVO } from '../../../domain/value-objects/primitives/user-status.vo.js';
+import { UserTypeVO } from '../../../domain/value-objects/primitives/user-type.vo.js';
+import { UserRoleVO } from '../../../domain/value-objects/primitives/user-role.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -27,7 +29,7 @@ const buildUser = (id: string, email: string) =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findAll: jest.fn() });
+const mockRepo = () => ({ findAll: jest.fn() as jest.Mock });
 
 describe('ListUsersHandler', () => {
   let handler: ListUsersHandler;

@@ -1,12 +1,14 @@
 /**
  * GenerateRecoveryCodesHandler — Unit Tests
  */
-import { GenerateRecoveryCodesHandler } from './generate-recovery-codes.handler';
-import { GenerateRecoveryCodesCommand } from './generate-recovery-codes.command';
+import { jest } from '@jest/globals';
+
+import { GenerateRecoveryCodesHandler } from './generate-recovery-codes.handler.js';
+import { GenerateRecoveryCodesCommand } from './generate-recovery-codes.command.js';
 
 const mockRecoveryService = () => ({
   name: 'AuthRecoveryCodeService',
-  generateForUser: jest.fn(),
+  generateForUser: jest.fn() as jest.Mock,
 });
 
 describe('GenerateRecoveryCodesHandler', () => {

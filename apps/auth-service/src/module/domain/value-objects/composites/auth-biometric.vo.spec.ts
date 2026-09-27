@@ -2,9 +2,9 @@
  * AuthBiometricVO — Unit Tests
  * @module auth-service/domain/value-objects/composites
  */
-import { AuthBiometricVO } from './auth-biometric.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { BiometricIdVO } from '../primitives/biometric-id.vo';
+import { AuthBiometricVO } from './auth-biometric.vo.js';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { BiometricIdVO } from '../primitives/biometric-id.vo.js';
 
 describe('AuthBiometricVO', () => {
   const userId = UserIdVO.of('user-1');

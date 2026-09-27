@@ -1,42 +1,51 @@
-import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
+/**
+ * UserPreferencesController
+ */
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import {
-  CurrentUser,
-  JwtAuthGuard,
-  type CurrentUserShape,
-} from '@vubon/shared-kernel/interfaces';
-import { UpdatePreferencesCommand } from '../../../application/commands/preferences/update-preferences.command';
-import { GetPreferencesQuery } from '../../../application/queries/preferences/get-preferences.query';
-import { UpdatePreferencesRequestDto } from '../../dtos/requests/preferences.request.dto';
+import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
+import { UpdatePreferencesCommand } from '@application/commands/preferences/update-preferences.command';
+import { ResetPreferencesCommand } from '@application/commands/preferences/reset-preferences.command';
+import { GetPreferencesQuery } from '@application/queries/preferences/get-preferences.query';
+import { UpdatePreferencesRequestDto } from '../../dtos/requests/preferences.request.dto.js';
 
-@ApiTags('Preferences')
-@Controller('users/preferences')
-@UseGuards(JwtAuthGuard)
+@ApiTags('user-preferences')
+@Controller('users/:userId/preferences')
 export class UserPreferencesController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly queryBus: QueryBus,
+    private readonly queryBus: QueryBus
   ) {}
 
   @Get()
-  async get(@CurrentUser() user: CurrentUserShape): Promise<unknown> {
-    return this.queryBus.execute(new GetPreferencesQuery(user.userId));
+  @UseGuards(JwtAuthGuard)
+  async get(@Param('userId') userId: string): Promise<unknown> {
+    return this.queryBus.execute(new GetPreferencesQuery(userId));
   }
 
-  @Patch()
+  @Put()
+  @UseGuards(JwtAuthGuard)
   async update(
-    @CurrentUser() user: CurrentUserShape,
-    @Body() body: UpdatePreferencesRequestDto,
+    @Param('userId') userId: string,
+    @Body() body: UpdatePreferencesRequestDto
   ): Promise<unknown> {
-    const patch: Record<string, string> = {};
-    if (body.newsletter !== undefined) patch.newsletter = String(body.newsletter);
-    if (body.promotions !== undefined) patch.promotions = String(body.promotions);
-    if (body.orderUpdates !== undefined) patch.orderUpdates = String(body.orderUpdates);
-    if (body.productRecommendations !== undefined)
-      patch.productRecommendations = String(body.productRecommendations);
-    if (body.securityAlerts !== undefined)
-      patch.securityAlerts = String(body.securityAlerts);
-    return this.commandBus.execute(new UpdatePreferencesCommand(user.userId, patch));
+    return this.commandBus.execute(
+      new UpdatePreferencesCommand({ ...body, userId })
+    );
+  }
+
+  @Post('reset')
+  @UseGuards(JwtAuthGuard)
+  async reset(@Param('userId') userId: string): Promise<unknown> {
+    return this.commandBus.execute(new ResetPreferencesCommand(userId));
   }
 }

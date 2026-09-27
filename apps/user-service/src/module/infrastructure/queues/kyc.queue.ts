@@ -1,23 +1,29 @@
+/**
+ * KYC Queue
+ */
 import { Injectable } from '@nestjs/common';
+import { QUEUE_PRIORITY } from '@vubon/shared-constants/infrastructure';
 import { QueueService } from '@vubon/shared-kernel/infrastructure';
-import { QUEUE_NAME, QUEUE_PRIORITY } from '@vubon/shared-constants/infrastructure';
 
 export interface KycExpiryJobPayload {
-  readonly olderThanMs: number;
+  readonly kycId: string;
+  readonly userId: string;
 }
 
 @Injectable()
 export class KycQueue {
-  readonly queueName = QUEUE_NAME.CLEANUP;
+  static readonly name = 'kyc';
 
-  constructor(private readonly queueService: QueueService) {}
+  constructor(private readonly queues: QueueService) {}
 
-  async enqueueExpiryCheck(payload: KycExpiryJobPayload): Promise<string> {
-    return this.queueService.enqueue(
-      this.queueName,
-      'kyc-expiry',
-      payload,
-      { priority: QUEUE_PRIORITY.LOW },
+  async enqueueExpiryCheck(payload: KycExpiryJobPayload): Promise<void> {
+    await this.queues.enqueue(
+      KycQueue.name,
+      'kyc.expiry.check',
+      { kycId: payload.kycId, userId: payload.userId },
+      {
+        priority: QUEUE_PRIORITY.NORMAL,
+      }
     );
   }
 }

@@ -1,5 +1,5 @@
 import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
-import type { SocialLoginRequestDTO } from '../../dtos/requests/auth/social-login.dto';
+import type { SocialLoginRequestDTO } from '../../dtos/requests/auth/social-login.dto.js';
 
 export class SocialLoginCommand extends BaseCommand {
   readonly type = 'auth.social-login';

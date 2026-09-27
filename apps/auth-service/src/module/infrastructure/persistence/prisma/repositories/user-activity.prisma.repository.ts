@@ -13,8 +13,8 @@ import type { UserId } from '@vubon/shared-types/common';
 import {
   UserActivityEntity,
   type ActivityType,
-} from '../../../../domain/entities/user-activity.entity';
-import type { UserActivityRepository } from '../../../../domain/repositories/user-activity.repository.interface';
+} from '../../../../domain/entities/user-activity.entity.js';
+import type { UserActivityRepository } from '../../../../domain/repositories/user-activity.repository.interface.js';
 
 @Injectable()
 export class UserActivityPrismaRepository

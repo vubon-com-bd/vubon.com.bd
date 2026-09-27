@@ -2,8 +2,10 @@
  * UserPreferencesService — Unit Tests
  * @module auth-service/application/services/impl
  */
-import { UserPreferencesService } from './user-preferences.service';
-import { UserPreferencesEntity } from '../../../domain/entities/user-preferences.entity';
+import { jest } from '@jest/globals';
+
+import { UserPreferencesService } from './user-preferences.service.js';
+import { UserPreferencesEntity } from '../../../domain/entities/user-preferences.entity.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -21,12 +23,12 @@ const buildPrefs = (overrides: Partial<Parameters<typeof UserPreferencesEntity.c
   });
 
 const mockRepo = () => ({
-  findById: jest.fn(),
-  findByUserId: jest.fn(),
-  findAll: jest.fn(),
+  findById: jest.fn() as jest.Mock,
+  findByUserId: jest.fn() as jest.Mock,
+  findAll: jest.fn() as jest.Mock,
   save: jest.fn((p: UserPreferencesEntity) => Promise.resolve(p)),
-  delete: jest.fn(),
-  exists: jest.fn(),
+  delete: jest.fn() as jest.Mock,
+  exists: jest.fn() as jest.Mock,
 });
 
 describe('UserPreferencesService', () => {

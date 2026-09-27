@@ -2,10 +2,10 @@
  * AuthSocialVO — Unit Tests
  * @module auth-service/domain/value-objects/composites
  */
-import { AuthSocialVO } from './auth-social.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { SocialProviderVO } from '../primitives/social-provider.vo';
-import { SocialStatusVO } from '../primitives/social-status.vo';
+import { AuthSocialVO } from './auth-social.vo.js';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { SocialProviderVO } from '../primitives/social-provider.vo.js';
+import { SocialStatusVO } from '../primitives/social-status.vo.js';
 
 describe('AuthSocialVO', () => {
   const userId = UserIdVO.of('user-1');

@@ -1,10 +1,10 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { ListUserContactsQuery } from './list-user-contacts.query';
-import type { UserContactRepository } from '../../../domain/repositories/user-contact.repository.interface';
-import type { UserContactResponseDTO } from '../../dtos/responses/user-contact-response.dto';
-import { USER_CONTACT_REPO } from '../../tokens';
+import { ListUserContactsQuery } from './list-user-contacts.query.js';
+import type { UserContactRepository } from '../../../domain/repositories/user-contact.repository.interface.js';
+import type { UserContactResponseDTO } from '../../dtos/responses/user-contact-response.dto.js';
+import { USER_CONTACT_REPO } from '../../tokens.js';
 
 @QueryHandler(ListUserContactsQuery)
 export class ListUserContactsHandler

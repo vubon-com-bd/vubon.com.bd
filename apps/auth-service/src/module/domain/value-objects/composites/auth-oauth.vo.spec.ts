@@ -2,10 +2,10 @@
  * AuthOAuthVO — Unit Tests
  * @module auth-service/domain/value-objects/composites
  */
-import { AuthOAuthVO } from './auth-oauth.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { OAuthProviderVO } from '../primitives/oauth-provider.vo';
-import { OAuthStatusVO } from '../primitives/oauth-status.vo';
+import { AuthOAuthVO } from './auth-oauth.vo.js';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { OAuthProviderVO } from '../primitives/oauth-provider.vo.js';
+import { OAuthStatusVO } from '../primitives/oauth-status.vo.js';
 
 describe('AuthOAuthVO', () => {
   const userId = UserIdVO.of('user-1');

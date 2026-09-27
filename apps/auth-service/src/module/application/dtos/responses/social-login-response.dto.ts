@@ -2,8 +2,8 @@
  * SocialLoginResponseDTO
  * @module auth-service/application/dtos/responses
  */
-import type { UserResponseDTO } from './user-response.dto';
-import type { AuthSessionResponseDTO } from './auth-session-response.dto';
+import type { UserResponseDTO } from './user-response.dto.js';
+import type { AuthSessionResponseDTO } from './auth-session-response.dto.js';
 
 export interface SocialLoginResponseDTO {
   readonly success: true;

@@ -1,9 +1,11 @@
-import type { BaseServiceInterface } from '@vubon/shared-kernel/application/services/base.service.interface';
-import type { UserSettingsEntity } from '../../../domain/entities/user-settings.entity';
-import type { SettingsResponseDTO } from '../../dtos/responses/settings-response.dto';
+/**
+ * UserSettingsServiceInterface
+ */
+import type { UpdateSettingsRequestDTO } from '../../dtos/requests/settings/index.js';
+import type { SettingsResponseDTO } from '../../dtos/responses/settings-response.dto.js';
 
-export interface UserSettingsServiceInterface
-  extends BaseServiceInterface<UserSettingsEntity, string> {
-  findByUserId(userId: string): Promise<SettingsResponseDTO | null>;
-  update(userId: string, patch: Record<string, string>): Promise<SettingsResponseDTO>;
+export interface UserSettingsServiceInterface {
+  findByUserId(userId: string): Promise<SettingsResponseDTO>;
+  update(userId: string, input: UpdateSettingsRequestDTO): Promise<SettingsResponseDTO>;
+  reset(userId: string): Promise<SettingsResponseDTO>;
 }

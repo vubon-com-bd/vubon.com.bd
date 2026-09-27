@@ -1,10 +1,12 @@
 /**
  * LoginAttemptWorker — Deep Unit Tests
  */
-import { LoginAttemptWorker } from './login-attempt.worker';
+import { jest } from '@jest/globals';
+
+import { LoginAttemptWorker } from './login-attempt.worker.js';
 
 const mockService = () => ({
-  getRecentForUser: jest.fn().mockResolvedValue([]),
+  getRecentForUser: jest.fn().mockResolvedValue([]) as jest.Mock,
 });
 
 const mockJob = (data: Record<string, unknown> = {}, id = 'job-1') => ({

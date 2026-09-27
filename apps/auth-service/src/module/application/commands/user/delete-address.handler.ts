@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { DeleteAddressCommand } from './delete-address.command';
-import type { UserAddressServiceInterface } from '../../services/interfaces/user-address.service.interface';
-import { USER_ADDRESS_SERVICE } from '../../tokens';
+import { DeleteAddressCommand } from './delete-address.command.js';
+import type { UserAddressServiceInterface } from '../../services/interfaces/user-address.service.interface.js';
+import { USER_ADDRESS_SERVICE } from '../../tokens.js';
 
 @CommandHandler(DeleteAddressCommand)
 export class DeleteAddressHandler

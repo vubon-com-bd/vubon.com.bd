@@ -1,42 +1,34 @@
-import { ERROR_CODE, type ErrorCodeType } from '@vubon/shared-constants/common';
-import { DomainError } from '@vubon/shared-kernel/domain/errors/domain.error';
+/**
+ * Contact domain errors
+ */
+import { NotFoundError } from '@vubon/shared-kernel/domain/errors/not-found.error';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
+import { BusinessRuleError } from '@vubon/shared-kernel/domain/errors/business-rule.error';
 
-export class ContactNotFoundError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.USER_NOT_FOUND;
-  readonly httpStatus = 404;
+export class ContactNotFoundError extends NotFoundError {
   constructor(contactId: string) {
-    super(`Contact not found: ${contactId}`, { contactId });
+    super('UserContact', contactId);
+    this.name = 'ContactNotFoundError';
   }
 }
 
-export class ContactLimitExceededError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.VAL_OUT_OF_RANGE;
-  readonly httpStatus = 400;
-  constructor(limit: number) {
-    super(`Contact limit exceeded: max ${limit}`, { limit });
+export class ContactLimitExceededError extends BusinessRuleError {
+  constructor(current: number, max: number) {
+    super(`Contact limit exceeded: ${current}/${max}`, 'CONTACT_LIMIT_EXCEEDED');
+    this.name = 'ContactLimitExceededError';
   }
 }
 
-export class InvalidContactValueError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.VAL_INVALID_FORMAT;
-  readonly httpStatus = 400;
+export class InvalidContactValueError extends ValidationError {
   constructor(type: string, value: string) {
-    super(`Invalid contact value for ${type}: ${value}`, { type, value });
+    super(`Invalid ${type} contact value: "${value}"`, 'contactValue');
+    this.name = 'InvalidContactValueError';
   }
 }
 
-export class InvalidContactIdError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.VAL_REQUIRED;
-  readonly httpStatus = 400;
-  constructor(reason: string) {
-    super(`Invalid contact ID: ${reason}`, { reason });
-  }
-}
-
-export class InvalidContactTypeError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.VAL_INVALID_FORMAT;
-  readonly httpStatus = 400;
-  constructor(type: string) {
-    super(`Invalid contact type: ${type}`, { type });
+export class ContactAlreadyVerifiedError extends BusinessRuleError {
+  constructor(contactId: string) {
+    super(`Contact "${contactId}" is already verified`, 'CONTACT_ALREADY_VERIFIED');
+    this.name = 'ContactAlreadyVerifiedError';
   }
 }

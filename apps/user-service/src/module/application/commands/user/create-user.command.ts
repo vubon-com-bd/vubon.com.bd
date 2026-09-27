@@ -1,19 +1,14 @@
-import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
+/**
+ * CreateUserCommand
+ * @module user-service/application/commands/user
+ */
+import { BaseCommand } from '@vubon/shared-kernel/application/commands';
+import type { CreateUserRequestDTO } from '../../dtos/requests/user/index.js';
 
 export class CreateUserCommand extends BaseCommand {
   readonly type = 'user.create';
 
-  constructor(
-    public readonly email: string,
-    public readonly password: string,
-    public readonly acceptTerms: true,
-    public readonly sendVerificationEmail: boolean = true,
-    public readonly userType: string = 'customer',
-    public readonly phone?: string,
-    public readonly firstName?: string,
-    public readonly lastName?: string,
-    public readonly username?: string,
-  ) {
+  constructor(public readonly payload: CreateUserRequestDTO) {
     super();
   }
 }

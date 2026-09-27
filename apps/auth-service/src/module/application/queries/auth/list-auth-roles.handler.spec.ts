@@ -2,12 +2,14 @@
  * ListAuthRolesHandler — Unit Tests
  * @module auth-service/application/queries/auth
  */
-import { ListAuthRolesHandler } from './list-auth-roles.handler';
-import { ListAuthRolesQuery } from './list-auth-roles.query';
-import { AuthRoleEntity } from '../../../domain/entities/auth-role.entity';
-import { RoleNameVO } from '../../../domain/value-objects/primitives/role-name.vo';
-import { RoleDescriptionVO } from '../../../domain/value-objects/primitives/role-description.vo';
-import { PermissionNameVO } from '../../../domain/value-objects/primitives/permission-name.vo';
+import { jest } from '@jest/globals';
+
+import { ListAuthRolesHandler } from './list-auth-roles.handler.js';
+import { ListAuthRolesQuery } from './list-auth-roles.query.js';
+import { AuthRoleEntity } from '../../../domain/entities/auth-role.entity.js';
+import { RoleNameVO } from '../../../domain/value-objects/primitives/role-name.vo.js';
+import { RoleDescriptionVO } from '../../../domain/value-objects/primitives/role-description.vo.js';
+import { PermissionNameVO } from '../../../domain/value-objects/primitives/permission-name.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -22,7 +24,7 @@ const buildRole = (name: string, perms: string[] = []) =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findAll: jest.fn() });
+const mockRepo = () => ({ findAll: jest.fn() as jest.Mock });
 
 describe('ListAuthRolesHandler', () => {
   let handler: ListAuthRolesHandler;

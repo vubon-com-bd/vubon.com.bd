@@ -1,23 +1,41 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { ActivateUserCommand } from './activate-user.command';
-import type { UserServiceInterface } from '../../services/interfaces/user.service.interface';
+/**
+ * ActivateUserHandler
+ */
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Inject } from '@nestjs/common';
+import { ActivateUserCommand } from './activate-user.command.js';
+import { USER_REPOSITORY } from '@domain/repositories/user.repository.interface';
+import type { UserRepository } from '@domain/repositories/user.repository.interface';
+import { UserIdVO } from '@domain/value-objects/primitives/user-id.vo';
+import { UserMapper } from '../../mappers/user.mapper.js';
+import type { UserResponseDTO } from '../../dtos/responses/user-response.dto.js';
+import {
+  UserNotFoundApplicationError,
+  UserUpdateFailedError,
+} from '../../errors/user.errors.js';
 
 @CommandHandler(ActivateUserCommand)
 export class ActivateUserHandler
-  extends BaseCommandHandler<ActivateUserCommand, void>
-  implements ICommandHandler<ActivateUserCommand>
+  implements ICommandHandler<ActivateUserCommand, UserResponseDTO>
 {
-  readonly commandType = 'user.activate';
-
   constructor(
-    private readonly userService: UserServiceInterface,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
-  }
+    @Inject(USER_REPOSITORY)
+    private readonly userRepo: UserRepository
+  ) {}
 
-  async execute(command: ActivateUserCommand): Promise<void> {
-    await this.userService.activate(command.userId);
+  async execute(command: ActivateUserCommand): Promise<UserResponseDTO> {
+    const { userId } = command;
+
+    const user = await this.userRepo.findById(UserIdVO.create(userId).value);
+    if (!user) throw new UserNotFoundApplicationError(userId);
+
+    try {
+      user.activate(new Date().toISOString());
+      await this.userRepo.save(user);
+      return UserMapper.toResponse(user);
+    } catch (err) {
+      const reason = err instanceof Error ? err.message : 'unknown error';
+      throw new UserUpdateFailedError(userId, reason);
+    }
   }
 }

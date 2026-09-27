@@ -1,10 +1,12 @@
 /**
  * GetUserProfileHandler — Unit Tests
  */
-import { GetUserProfileHandler } from './get-user-profile.handler';
-import { GetUserProfileQuery } from './get-user-profile.query';
-import { UserProfileEntity } from '../../../domain/entities/user-profile.entity';
-import { UserNameVO } from '../../../domain/value-objects/primitives/user-name.vo';
+import { jest } from '@jest/globals';
+
+import { GetUserProfileHandler } from './get-user-profile.handler.js';
+import { GetUserProfileQuery } from './get-user-profile.query.js';
+import { UserProfileEntity } from '../../../domain/entities/user-profile.entity.js';
+import { UserNameVO } from '../../../domain/value-objects/primitives/user-name.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -18,7 +20,7 @@ const buildProfile = () =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findByUserId: jest.fn() });
+const mockRepo = () => ({ findByUserId: jest.fn() as jest.Mock });
 
 describe('GetUserProfileHandler', () => {
   let handler: GetUserProfileHandler;

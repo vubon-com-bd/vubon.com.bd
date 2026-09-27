@@ -1,1 +1,1 @@
-export { UserProfileModule } from './user-profile.module';
+export * from './user-profile.module.js';

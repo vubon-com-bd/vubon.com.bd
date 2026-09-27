@@ -1,7 +1,10 @@
-import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
+/**
+ * ResetSettingsCommand
+ */
+import { BaseCommand } from '@vubon/shared-kernel/application/commands';
 
 export class ResetSettingsCommand extends BaseCommand {
-  readonly type = 'user.settings.reset';
+  readonly type = 'settings.reset';
 
   constructor(public readonly userId: string) {
     super();

@@ -1,6 +1,6 @@
 import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
 import type { UserId } from '@vubon/shared-types/common';
-import type { VerifyMfaRequestDTO } from '../../dtos/requests/auth/verify-mfa.dto';
+import type { VerifyMfaRequestDTO } from '../../dtos/requests/auth/verify-mfa.dto.js';
 
 export class VerifyMfaCommand extends BaseCommand {
   readonly type = 'auth.verify-mfa';

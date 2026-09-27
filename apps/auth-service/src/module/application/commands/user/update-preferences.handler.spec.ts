@@ -1,10 +1,12 @@
 /**
  * UpdatePreferencesHandler — Unit Tests
  */
-import { UpdatePreferencesHandler } from './update-preferences.handler';
-import { UpdatePreferencesCommand } from './update-preferences.command';
+import { jest } from '@jest/globals';
 
-const mockService = () => ({ update: jest.fn(), toResponse: jest.fn() });
+import { UpdatePreferencesHandler } from './update-preferences.handler.js';
+import { UpdatePreferencesCommand } from './update-preferences.command.js';
+
+const mockService = () => ({ update: jest.fn() as jest.Mock, toResponse: jest.fn() as jest.Mock });
 
 describe('UpdatePreferencesHandler', () => {
   let handler: UpdatePreferencesHandler;

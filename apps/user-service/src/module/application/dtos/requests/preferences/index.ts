@@ -1,2 +1,3 @@
-export type { UpdatePreferencesRequestDTO } from './update-preferences.dto';
-export type { ResetPreferencesRequestDTO } from './reset-preferences.dto';
+// requests/preferences/index.ts
+export * from './update-preferences.dto.js';
+export * from './reset-preferences.dto.js';

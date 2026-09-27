@@ -2,7 +2,7 @@
  * AccountLockPolicyService — Unit Tests
  * @module auth-service/domain/services
  */
-import { AccountLockPolicyService } from './account-lock-policy.service';
+import { AccountLockPolicyService } from './account-lock-policy.service.js';
 
 describe('AccountLockPolicyService', () => {
   // ═══════════════════════════════════════════════════════════

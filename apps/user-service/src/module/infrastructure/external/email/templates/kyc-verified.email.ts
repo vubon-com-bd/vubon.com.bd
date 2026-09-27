@@ -1,9 +1,23 @@
-import type { EmailTemplate } from '@vubon/shared-kernel/infrastructure';
+/**
+ * KYC Verified Email Template
+ */
+export interface KycVerifiedEmailVariables {
+  readonly userName: string;
+  readonly verifiedAt: string;
+}
 
-export const KycVerifiedEmailTemplate: EmailTemplate = {
+export const KycVerifiedEmailTemplate = {
   name: 'kyc-verified',
-  subject: 'KYC verified',
-  html: `<p>Hi {{name}}, your KYC has been verified.</p>`,
-  text: 'Hi {{name}}, your KYC has been verified.',
-  variables: ['name'],
-};
+  subjectKey: 'email.kycVerified.subject',
+  subjectFallback: 'Your KYC has been verified',
+  variables: {
+    userName: '{{user_name}}',
+    verifiedAt: '{{verified_at}}',
+  },
+  buildVariables(input: KycVerifiedEmailVariables): Record<string, string> {
+    return {
+      user_name: input.userName,
+      verified_at: input.verifiedAt,
+    };
+  },
+} as const;

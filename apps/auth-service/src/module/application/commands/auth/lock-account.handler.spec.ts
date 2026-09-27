@@ -1,12 +1,14 @@
 /**
  * LockAccountHandler — Unit Tests
  */
-import { LockAccountHandler } from './lock-account.handler';
-import { LockAccountCommand } from './lock-account.command';
+import { jest } from '@jest/globals';
+
+import { LockAccountHandler } from './lock-account.handler.js';
+import { LockAccountCommand } from './lock-account.command.js';
 
 const mockService = () => ({
   name: 'AuthAccountLockService',
-  lock: jest.fn(),
+  lock: jest.fn() as jest.Mock,
 });
 
 describe('LockAccountHandler', () => {

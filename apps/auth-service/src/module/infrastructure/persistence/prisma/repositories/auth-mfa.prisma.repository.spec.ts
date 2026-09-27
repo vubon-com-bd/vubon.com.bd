@@ -1,16 +1,18 @@
 /**
  * AuthMfaPrismaRepository — Unit Tests
  */
-import { AuthMfaPrismaRepository } from './auth-mfa.prisma.repository';
+import { jest } from '@jest/globals';
+
+import { AuthMfaPrismaRepository } from './auth-mfa.prisma.repository.js';
 
 const mockPrisma = () => ({
   authMfa: {
-    findUnique: jest.fn(),
-    findMany: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    count: jest.fn(),
+    findUnique: jest.fn() as jest.Mock,
+    findMany: jest.fn() as jest.Mock,
+    create: jest.fn() as jest.Mock,
+    update: jest.fn() as jest.Mock,
+    delete: jest.fn() as jest.Mock,
+    count: jest.fn() as jest.Mock,
   },
 });
 

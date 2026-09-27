@@ -4,7 +4,7 @@
  *
  * References BaseQuery।
  */
-import type { BaseQuery } from './base.query';
+import type { BaseQuery } from './base.query.js';
 
 export abstract class BaseQueryHandler<TQuery extends BaseQuery = BaseQuery, TResult = unknown> {
   abstract readonly queryType: string;

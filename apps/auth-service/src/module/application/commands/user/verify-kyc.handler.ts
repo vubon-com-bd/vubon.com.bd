@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { VerifyKycCommand } from './verify-kyc.command';
-import type { UserKycServiceInterface } from '../../services/interfaces/user-kyc.service.interface';
-import type { UserKycResponseDTO } from '../../dtos/responses/user-kyc-response.dto';
-import { USER_KYC_SERVICE } from '../../tokens';
+import { VerifyKycCommand } from './verify-kyc.command.js';
+import type { UserKycServiceInterface } from '../../services/interfaces/user-kyc.service.interface.js';
+import type { UserKycResponseDTO } from '../../dtos/responses/user-kyc-response.dto.js';
+import { USER_KYC_SERVICE } from '../../tokens.js';
 
 @CommandHandler(VerifyKycCommand)
 export class VerifyKycHandler

@@ -2,7 +2,7 @@
  * AccountLockReasonVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { AccountLockReasonVO } from './account-lock-reason.vo';
+import { AccountLockReasonVO } from './account-lock-reason.vo.js';
 
 describe('AccountLockReasonVO', () => {
   describe('of()', () => {

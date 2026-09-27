@@ -1,10 +1,12 @@
 /**
  * SubmitKycHandler — Unit Tests
  */
-import { SubmitKycHandler } from './submit-kyc.handler';
-import { SubmitKycCommand } from './submit-kyc.command';
+import { jest } from '@jest/globals';
 
-const mockService = () => ({ submit: jest.fn(), toResponse: jest.fn() });
+import { SubmitKycHandler } from './submit-kyc.handler.js';
+import { SubmitKycCommand } from './submit-kyc.command.js';
+
+const mockService = () => ({ submit: jest.fn() as jest.Mock, toResponse: jest.fn() as jest.Mock });
 
 describe('SubmitKycHandler', () => {
   let handler: SubmitKycHandler;

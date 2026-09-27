@@ -1,12 +1,14 @@
 /**
  * RefreshTokenHandler — Unit Tests
  */
-import { RefreshTokenHandler } from './refresh-token.handler';
-import { RefreshTokenCommand } from './refresh-token.command';
+import { jest } from '@jest/globals';
+
+import { RefreshTokenHandler } from './refresh-token.handler.js';
+import { RefreshTokenCommand } from './refresh-token.command.js';
 
 const mockTokenService = () => ({
   name: 'AuthTokenService',
-  refresh: jest.fn(),
+  refresh: jest.fn() as jest.Mock,
 });
 
 describe('RefreshTokenHandler', () => {

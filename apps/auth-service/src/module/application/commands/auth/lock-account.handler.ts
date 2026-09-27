@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { LockAccountCommand } from './lock-account.command';
-import type { AuthAccountLockServiceInterface } from '../../services/interfaces/auth-account-lock.service.interface';
-import type { AuthAccountLockEntity } from '../../../domain/entities/auth-account-lock.entity';
-import { AUTH_ACCOUNT_LOCK_SERVICE } from '../../tokens';
+import { LockAccountCommand } from './lock-account.command.js';
+import type { AuthAccountLockServiceInterface } from '../../services/interfaces/auth-account-lock.service.interface.js';
+import type { AuthAccountLockEntity } from '../../../domain/entities/auth-account-lock.entity.js';
+import { AUTH_ACCOUNT_LOCK_SERVICE } from '../../tokens.js';
 
 @CommandHandler(LockAccountCommand)
 export class LockAccountHandler

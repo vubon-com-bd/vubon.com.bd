@@ -1,5 +1,5 @@
 import { SECURITY } from '@vubon/shared-constants/security';
-import { BaseVO } from '../base/base.vo';
+import { BaseVO } from '../base/base.vo.js';
 
 export abstract class BasePasswordVO extends BaseVO<string> {
   protected constructor(value: string) {

@@ -14,10 +14,10 @@ import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
 import type { UserId } from '@vubon/shared-types/common';
 
-import { UpdateProfileCommand } from '../../../application/commands/user/update-profile.command';
-import { GetUserProfileQuery } from '../../../application/queries/user/get-user-profile.query';
-import { UpdateProfileRequestDTO } from '../../dtos/requests/profile.request.dto';
-import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
+import { UpdateProfileCommand } from '../../../application/commands/user/update-profile.command.js';
+import { GetUserProfileQuery } from '../../../application/queries/user/get-user-profile.query.js';
+import { UpdateProfileRequestDTO } from '../../dtos/requests/profile.request.dto.js';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator.js';
 
 @ApiTags('Users Profile')
 @Controller('users/profile')

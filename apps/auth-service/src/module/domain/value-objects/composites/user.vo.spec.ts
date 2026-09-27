@@ -2,12 +2,12 @@
  * UserVO — Unit Tests
  * @module auth-service/domain/value-objects/composites
  */
-import { UserVO } from './user.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { UserEmailVO } from '../primitives/user-email.vo';
-import { UserNameVO } from '../primitives/user-name.vo';
-import { UserStatusVO } from '../primitives/user-status.vo';
-import { UserTypeVO } from '../primitives/user-type.vo';
+import { UserVO } from './user.vo.js';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { UserEmailVO } from '../primitives/user-email.vo.js';
+import { UserNameVO } from '../primitives/user-name.vo.js';
+import { UserStatusVO } from '../primitives/user-status.vo.js';
+import { UserTypeVO } from '../primitives/user-type.vo.js';
 
 describe('UserVO', () => {
   const buildUser = (status = 'active') =>

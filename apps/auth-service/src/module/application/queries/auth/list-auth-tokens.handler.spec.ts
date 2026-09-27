@@ -1,12 +1,14 @@
 /**
  * ListAuthTokensHandler — Unit Tests
  */
-import { ListAuthTokensHandler } from './list-auth-tokens.handler';
-import { ListAuthTokensQuery } from './list-auth-tokens.query';
-import { AuthTokenEntity } from '../../../domain/entities/auth-token.entity';
-import { TokenValueVO } from '../../../domain/value-objects/primitives/token-value.vo';
-import { TokenTypeVO } from '../../../domain/value-objects/primitives/token-type.vo';
-import { TokenExpiryVO } from '../../../domain/value-objects/primitives/token-expiry.vo';
+import { jest } from '@jest/globals';
+
+import { ListAuthTokensHandler } from './list-auth-tokens.handler.js';
+import { ListAuthTokensQuery } from './list-auth-tokens.query.js';
+import { AuthTokenEntity } from '../../../domain/entities/auth-token.entity.js';
+import { TokenValueVO } from '../../../domain/value-objects/primitives/token-value.vo.js';
+import { TokenTypeVO } from '../../../domain/value-objects/primitives/token-type.vo.js';
+import { TokenExpiryVO } from '../../../domain/value-objects/primitives/token-expiry.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();
@@ -22,7 +24,7 @@ const buildToken = () =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findActiveBySubject: jest.fn() });
+const mockRepo = () => ({ findActiveBySubject: jest.fn() as jest.Mock });
 
 describe('ListAuthTokensHandler', () => {
   let handler: ListAuthTokensHandler;

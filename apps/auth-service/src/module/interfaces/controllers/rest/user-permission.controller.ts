@@ -8,7 +8,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
 import type { UserId } from '@vubon/shared-types/common';
 
-import { ListUserPermissionsQuery } from '../../../application/queries/user/list-user-permissions.query';
+import { ListUserPermissionsQuery } from '../../../application/queries/user/list-user-permissions.query.js';
 
 @ApiTags('Users Permissions')
 @Controller('users/permissions')

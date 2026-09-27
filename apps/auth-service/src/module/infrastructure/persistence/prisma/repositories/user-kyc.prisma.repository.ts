@@ -14,8 +14,8 @@ import {
   UserKycEntity,
   type KycStatus,
   type KycDocumentType,
-} from '../../../../domain/entities/user-kyc.entity';
-import type { UserKycRepository } from '../../../../domain/repositories/user-kyc.repository.interface';
+} from '../../../../domain/entities/user-kyc.entity.js';
+import type { UserKycRepository } from '../../../../domain/repositories/user-kyc.repository.interface.js';
 
 @Injectable()
 export class UserKycPrismaRepository
@@ -42,8 +42,8 @@ export class UserKycPrismaRepository
       userId: raw.userId as UserId,
       status: raw.status as KycStatus,
       documentType: raw.documentType as KycDocumentType,
-      documentNumber: raw.documentNumber,
-      frontImageUrl: raw.documentUrl,
+      documentNumber: raw.documentNumber ?? '',
+      frontImageUrl: raw.documentUrl ?? '',
       backImageUrl: undefined,
       rejectionReason: raw.rejectionReason ?? undefined,
       submittedAt: raw.submittedAt ? raw.submittedAt.toISOString() : undefined,

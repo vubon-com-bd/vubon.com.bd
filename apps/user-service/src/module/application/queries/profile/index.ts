@@ -1,4 +1,5 @@
-export { GetProfileQuery } from './get-profile.query';
-export { GetProfileHandler } from './get-profile.handler';
-export { GetPublicProfileQuery } from './get-public-profile.query';
-export { GetPublicProfileHandler } from './get-public-profile.handler';
+// queries/profile/index.ts
+export * from './get-profile.query.js';
+export * from './get-profile.handler.js';
+export * from './get-public-profile.query.js';
+export * from './get-public-profile.handler.js';

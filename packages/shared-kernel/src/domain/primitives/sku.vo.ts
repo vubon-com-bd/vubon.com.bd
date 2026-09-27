@@ -4,7 +4,7 @@
  *
  * Values আসে shared-constants/common থেকে।
  */
-import { BaseVO } from '../base/base.vo';
+import { BaseVO } from '../base/base.vo.js';
 
 const SKU_PATTERN = /^[A-Z0-9][A-Z0-9\-_]{1,63}$/;
 

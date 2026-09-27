@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { RevokeRoleCommand } from './revoke-role.command';
-import type { UserRoleServiceInterface } from '../../services/interfaces/user-role.service.interface';
+import { RevokeRoleCommand } from './revoke-role.command.js';
+import type { UserRoleServiceInterface } from '../../services/interfaces/user-role.service.interface.js';
 import type { UserId } from '@vubon/shared-types/common';
-import { USER_ROLE_SERVICE } from '../../tokens';
+import { USER_ROLE_SERVICE } from '../../tokens.js';
 
 @CommandHandler(RevokeRoleCommand)
 export class RevokeRoleHandler

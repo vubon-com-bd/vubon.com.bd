@@ -1,9 +1,11 @@
 /**
  * BiometricGuard — Unit Tests
  */
+import { jest } from '@jest/globals';
+
 import { Reflector } from '@nestjs/core';
 import { ForbiddenException } from '@nestjs/common';
-import { BiometricGuard } from './biometric.guard';
+import { BiometricGuard } from './biometric.guard.js';
 
 const buildExecutionContext = (headers?: Record<string, string>): unknown => ({
   switchToHttp: () => ({

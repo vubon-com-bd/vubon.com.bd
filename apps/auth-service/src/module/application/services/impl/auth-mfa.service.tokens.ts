@@ -7,4 +7,4 @@ export {
   USER_REPO,
   TOTP_SERVICE,
   RECOVERY_CODE_GENERATOR,
-} from '../../tokens';
+} from '../../tokens.js';

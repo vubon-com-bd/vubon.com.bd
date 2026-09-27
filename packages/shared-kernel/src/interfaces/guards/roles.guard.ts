@@ -8,7 +8,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import type { CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { HTTP_STATUS, ROLE } from '@vubon/shared-constants/common';
-import type { AuthenticatedUser } from './jwt-auth.guard';
+import type { AuthenticatedUser } from './jwt-auth.guard.js';
 
 export const ROLES_KEY = 'roles';
 

@@ -4,7 +4,7 @@
  *
  * Tests real RFC 6238 TOTP generation/verification.
  */
-import { TotpService } from './totp.service';
+import { TotpService } from './totp.service.js';
 
 describe('TotpService', () => {
   let service: TotpService;

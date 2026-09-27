@@ -1,2 +1,2 @@
-export * from './courier.client';
-export * from './courier.service';
+export * from './courier.client.js';
+export * from './courier.service.js';

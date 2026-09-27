@@ -1,11 +1,13 @@
 /**
  * ChangePasswordHandler — Unit Tests
  */
-import { ChangePasswordHandler } from './change-password.handler';
-import { ChangePasswordCommand } from './change-password.command';
+import { jest } from '@jest/globals';
 
-const mockUserRepo = () => ({ findById: jest.fn(), save: jest.fn() });
-const mockHasher = () => ({ verify: jest.fn(), hash: jest.fn() });
+import { ChangePasswordHandler } from './change-password.handler.js';
+import { ChangePasswordCommand } from './change-password.command.js';
+
+const mockUserRepo = () => ({ findById: jest.fn() as jest.Mock, save: jest.fn() as jest.Mock });
+const mockHasher = () => ({ verify: jest.fn() as jest.Mock, hash: jest.fn() as jest.Mock });
 
 describe('ChangePasswordHandler', () => {
   let handler: ChangePasswordHandler;
@@ -48,7 +50,7 @@ describe('ChangePasswordHandler', () => {
   });
 
   it('should update password on valid input', async () => {
-    const user = { passwordHash: '$2b$hash', changePasswordHash: jest.fn() };
+    const user = { passwordHash: '$2b$hash', changePasswordHash: jest.fn() as jest.Mock };
     userRepo.findById.mockResolvedValue(user);
     hasher.verify.mockResolvedValue(true);
     hasher.hash.mockResolvedValue('$2b$new');

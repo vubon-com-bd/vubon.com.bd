@@ -3,9 +3,9 @@
  * @module auth-service/domain/value-objects/composites
  */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { UserEmailVO } from '../primitives/user-email.vo';
-import { UserPhoneVO } from '../primitives/user-phone.vo';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { UserEmailVO } from '../primitives/user-email.vo.js';
+import { UserPhoneVO } from '../primitives/user-phone.vo.js';
 
 export interface UserContactVOProps {
   readonly userId: UserIdVO;

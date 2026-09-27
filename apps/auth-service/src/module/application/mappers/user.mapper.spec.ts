@@ -2,14 +2,14 @@
  * UserMapper — Unit Tests
  * @module auth-service/application/mappers
  */
-import { UserMapper } from './user.mapper';
-import { UserEntity } from '../../domain/entities/user.entity';
-import { UserEmailVO } from '../../domain/value-objects/primitives/user-email.vo';
-import { UserNameVO } from '../../domain/value-objects/primitives/user-name.vo';
-import { UserPhoneVO } from '../../domain/value-objects/primitives/user-phone.vo';
-import { UserStatusVO } from '../../domain/value-objects/primitives/user-status.vo';
-import { UserTypeVO } from '../../domain/value-objects/primitives/user-type.vo';
-import { UserRoleVO } from '../../domain/value-objects/primitives/user-role.vo';
+import { UserMapper } from './user.mapper.js';
+import { UserEntity } from '../../domain/entities/user.entity.js';
+import { UserEmailVO } from '../../domain/value-objects/primitives/user-email.vo.js';
+import { UserNameVO } from '../../domain/value-objects/primitives/user-name.vo.js';
+import { UserPhoneVO } from '../../domain/value-objects/primitives/user-phone.vo.js';
+import { UserStatusVO } from '../../domain/value-objects/primitives/user-status.vo.js';
+import { UserTypeVO } from '../../domain/value-objects/primitives/user-type.vo.js';
+import { UserRoleVO } from '../../domain/value-objects/primitives/user-role.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 

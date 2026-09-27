@@ -5,21 +5,21 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { AuthBiometricServiceInterface } from '../interfaces/auth-biometric.service.interface';
-import type { AuthBiometricRepository } from '../../../domain/repositories/auth-biometric.repository.interface';
-import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
+import type { AuthBiometricServiceInterface } from '../interfaces/auth-biometric.service.interface.js';
+import type { AuthBiometricRepository } from '../../../domain/repositories/auth-biometric.repository.interface.js';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface.js';
 import {
   AuthBiometricEntity,
   type BiometricKind,
-} from '../../../domain/entities/auth-biometric.entity';
-import { BiometricIdVO } from '../../../domain/value-objects/primitives/biometric-id.vo';
-import { BiometricFailedAppError } from '../../errors/biometric.errors';
-import type { EnableBiometricRequestDTO } from '../../dtos/requests/auth/enable-biometric.dto';
-import type { DisableBiometricRequestDTO } from '../../dtos/requests/auth/disable-biometric.dto';
-import type { VerifyBiometricRequestDTO } from '../../dtos/requests/auth/verify-biometric.dto';
-import type { BiometricResponseDTO } from '../../dtos/responses/biometric-response.dto';
-import { ID_GENERATOR } from '../tokens';
-import { AUTH_BIOMETRIC_REPO } from '../../tokens';
+} from '../../../domain/entities/auth-biometric.entity.js';
+import { BiometricIdVO } from '../../../domain/value-objects/primitives/biometric-id.vo.js';
+import { BiometricFailedAppError } from '../../errors/biometric.errors.js';
+import type { EnableBiometricRequestDTO } from '../../dtos/requests/auth/enable-biometric.dto.js';
+import type { DisableBiometricRequestDTO } from '../../dtos/requests/auth/disable-biometric.dto.js';
+import type { VerifyBiometricRequestDTO } from '../../dtos/requests/auth/verify-biometric.dto.js';
+import type { BiometricResponseDTO } from '../../dtos/responses/biometric-response.dto.js';
+import { ID_GENERATOR } from '../tokens.js';
+import { AUTH_BIOMETRIC_REPO } from '../../tokens.js';
 
 @Injectable()
 export class AuthBiometricService

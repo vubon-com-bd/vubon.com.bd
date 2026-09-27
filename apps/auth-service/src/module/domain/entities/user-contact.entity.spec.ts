@@ -2,9 +2,9 @@
  * UserContactEntity — Unit Tests
  * @module auth-service/domain/entities
  */
-import { UserContactEntity } from './user-contact.entity';
-import { UserEmailVO } from '../value-objects/primitives/user-email.vo';
-import { UserPhoneVO } from '../value-objects/primitives/user-phone.vo';
+import { UserContactEntity } from './user-contact.entity.js';
+import { UserEmailVO } from '../value-objects/primitives/user-email.vo.js';
+import { UserPhoneVO } from '../value-objects/primitives/user-phone.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 

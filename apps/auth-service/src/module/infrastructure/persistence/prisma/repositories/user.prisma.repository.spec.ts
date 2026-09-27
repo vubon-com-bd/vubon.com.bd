@@ -2,21 +2,23 @@
  * UserPrismaRepository — Unit Tests
  * @module auth-service/infrastructure/persistence/prisma/repositories
  */
-import { UserPrismaRepository } from './user.prisma.repository';
-import { UserEmailVO } from '../../../../domain/value-objects/primitives/user-email.vo';
-import { UserNameVO } from '../../../../domain/value-objects/primitives/user-name.vo';
-import { UserStatusVO } from '../../../../domain/value-objects/primitives/user-status.vo';
-import { UserTypeVO } from '../../../../domain/value-objects/primitives/user-type.vo';
-import { UserEntity } from '../../../../domain/entities/user.entity';
+
+import { UserPrismaRepository } from './user.prisma.repository.js';
+import { jest } from '@jest/globals';
+import { UserEmailVO } from '../../../../domain/value-objects/primitives/user-email.vo.js';
+import { UserNameVO } from '../../../../domain/value-objects/primitives/user-name.vo.js';
+import { UserStatusVO } from '../../../../domain/value-objects/primitives/user-status.vo.js';
+import { UserTypeVO } from '../../../../domain/value-objects/primitives/user-type.vo.js';
+import { UserEntity } from '../../../../domain/entities/user.entity.js';
 
 const mockPrisma = () => ({
   user: {
-    findUnique: jest.fn(),
-    findMany: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    count: jest.fn(),
+    findUnique: jest.fn() as jest.Mock,
+    findMany: jest.fn() as jest.Mock,
+    create: jest.fn() as jest.Mock,
+    update: jest.fn() as jest.Mock,
+    delete: jest.fn() as jest.Mock,
+    count: jest.fn() as jest.Mock,
   },
 });
 

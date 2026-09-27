@@ -1,11 +1,13 @@
 /**
  * ListUserRolesHandler — Unit Tests
  */
-import { ListUserRolesHandler } from './list-user-roles.handler';
-import { ListUserRolesQuery } from './list-user-roles.query';
-import { AuthRoleEntity } from '../../../domain/entities/auth-role.entity';
-import { RoleNameVO } from '../../../domain/value-objects/primitives/role-name.vo';
-import { RoleDescriptionVO } from '../../../domain/value-objects/primitives/role-description.vo';
+import { jest } from '@jest/globals';
+
+import { ListUserRolesHandler } from './list-user-roles.handler.js';
+import { ListUserRolesQuery } from './list-user-roles.query.js';
+import { AuthRoleEntity } from '../../../domain/entities/auth-role.entity.js';
+import { RoleNameVO } from '../../../domain/value-objects/primitives/role-name.vo.js';
+import { RoleDescriptionVO } from '../../../domain/value-objects/primitives/role-description.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -21,7 +23,7 @@ const buildRole = (name: string) =>
   });
 
 const mockService = () => ({
-  listForUser: jest.fn(),
+  listForUser: jest.fn() as jest.Mock,
   toResponse: jest.fn((r: AuthRoleEntity) => ({
     id: r.id,
     name: r.name.value,

@@ -1,15 +1,17 @@
-import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { InvalidKycIdError } from '../../errors/kyc.errors';
+/**
+ * KycId Value Object
+ */
+import { BaseIdVO } from '@vubon/shared-kernel/domain/primitives/id.vo';
 
-export class KycIdVO extends BaseVO<string> {
+export class KycIdVO extends BaseIdVO<string> {
   private constructor(value: string) {
     super(value);
   }
 
   static create(raw: string): KycIdVO {
-    if (!raw || raw.trim().length === 0) {
-      throw new InvalidKycIdError('KycId cannot be empty');
+    if (typeof raw !== 'string' || raw.trim().length === 0) {
+      throw new Error('KycId cannot be empty');
     }
-    return new KycIdVO(raw);
+    return new KycIdVO(raw.trim());
   }
 }

@@ -13,12 +13,12 @@ import { QueryBus, CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
 
-import { GetAuthSessionQuery } from '../../../application/queries/auth/get-auth-session.query';
-import { ListAuthSessionsQuery } from '../../../application/queries/auth/list-auth-sessions.query';
-import type { AuthSessionResponseDTO } from '../../../application/dtos/responses/auth-session-response.dto';
-import { SessionControllerMapper } from '../../mappers/session.controller.mapper';
-import { SessionSwagger } from '../../swagger/session.swagger';
-import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
+import { GetAuthSessionQuery } from '../../../application/queries/auth/get-auth-session.query.js';
+import { ListAuthSessionsQuery } from '../../../application/queries/auth/list-auth-sessions.query.js';
+import type { AuthSessionResponseDTO } from '../../../application/dtos/responses/auth-session-response.dto.js';
+import { SessionControllerMapper } from '../../mappers/session.controller.mapper.js';
+import { SessionSwagger } from '../../swagger/session.swagger.js';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator.js';
 
 @ApiTags('Auth Sessions')
 @Controller('auth/sessions')

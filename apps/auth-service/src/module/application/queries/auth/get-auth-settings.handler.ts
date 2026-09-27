@@ -1,10 +1,10 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { GetAuthSettingsQuery } from './get-auth-settings.query';
-import type { AuthSettingsServiceInterface } from '../../services/interfaces/auth-settings.service.interface';
-import type { AuthSettingsResponseDTO } from '../../dtos/responses/auth-settings-response.dto';
-import { AUTH_SETTINGS_SERVICE } from '../../tokens';
+import { GetAuthSettingsQuery } from './get-auth-settings.query.js';
+import type { AuthSettingsServiceInterface } from '../../services/interfaces/auth-settings.service.interface.js';
+import type { AuthSettingsResponseDTO } from '../../dtos/responses/auth-settings-response.dto.js';
+import { AUTH_SETTINGS_SERVICE } from '../../tokens.js';
 
 @QueryHandler(GetAuthSettingsQuery)
 export class GetAuthSettingsHandler

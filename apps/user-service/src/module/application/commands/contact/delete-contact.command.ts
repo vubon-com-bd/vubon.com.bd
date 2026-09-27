@@ -1,9 +1,15 @@
-import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
+/**
+ * DeleteContactCommand
+ */
+import { BaseCommand } from '@vubon/shared-kernel/application/commands';
 
 export class DeleteContactCommand extends BaseCommand {
-  readonly type = 'user.contact.delete';
+  readonly type = 'contact.delete';
 
-  constructor(public readonly contactId: string) {
+  constructor(
+    public readonly userId: string,
+    public readonly contactId: string
+  ) {
     super();
   }
 }

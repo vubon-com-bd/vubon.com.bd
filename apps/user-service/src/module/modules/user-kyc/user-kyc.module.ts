@@ -1,30 +1,35 @@
+/**
+ * UserKycModule
+ */
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-
-import { UserKycController } from '../../interfaces/controllers/rest/user-kyc.controller';
-import { KycControllerMapper } from '../../interfaces/mappers/kyc.controller.mapper';
-import { UserKycService } from '../../application/services/impl/user-kyc.service';
-import { SubmitKycHandler } from '../../application/commands/kyc/submit-kyc.handler';
-import { VerifyKycHandler } from '../../application/commands/kyc/verify-kyc.handler';
-import { RejectKycHandler } from '../../application/commands/kyc/reject-kyc.handler';
-import { ReverifyKycHandler } from '../../application/commands/kyc/reverify-kyc.handler';
-import { GetKycStatusHandler } from '../../application/queries/kyc/get-kyc-status.handler';
-import { ListKycDocumentsHandler } from '../../application/queries/kyc/list-kyc-documents.handler';
-import { KycVerificationSaga } from '../../application/sagas/kyc-verification.saga';
-import { UserKycPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/user-kyc.prisma.repository';
-import { UserKycCacheRepository } from '../../infrastructure/persistence/cache/repositories/user-kyc.cache.repository';
-import { KycDocumentValidatorService } from '../../infrastructure/services/internal/kyc-document-validator.service';
-import { KycVerifiedGuard } from '../../interfaces/guards/kyc-verified.guard';
+import { UserKycController } from '@interfaces/controllers/rest/user-kyc.controller';
+import { UserKycService } from '@application/services/impl/user-kyc.service';
+import {
+  SubmitKycHandler,
+  VerifyKycHandler,
+  RejectKycHandler,
+  ReverifyKycHandler,
+} from '@application/commands/kyc';
+import {
+  GetKycStatusHandler,
+  ListKycDocumentsHandler,
+} from '@application/queries/kyc';
+import { KycVerificationSaga } from '@application/sagas';
+import { UserKycPrismaRepository } from '@infrastructure/persistence/prisma/repositories';
+import { UserKycCacheRepository } from '@infrastructure/persistence/cache/repositories';
+import { USER_KYC_REPOSITORY } from '@domain/repositories/user-kyc.repository.interface';
+import { PrismaModule } from '@infrastructure/persistence/prisma/prisma.module';
+import { RedisModule } from '@infrastructure/persistence/cache/redis.module';
+import { UserModule } from '../user/user.module.js';
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, PrismaModule, RedisModule, UserModule],
   controllers: [UserKycController],
   providers: [
-    UserKycPrismaRepository,
-    UserKycCacheRepository,
-    KycDocumentValidatorService,
     UserKycService,
-    KycControllerMapper,
+    { provide: USER_KYC_REPOSITORY, useClass: UserKycPrismaRepository },
+    UserKycCacheRepository,
     SubmitKycHandler,
     VerifyKycHandler,
     RejectKycHandler,
@@ -32,8 +37,7 @@ import { KycVerifiedGuard } from '../../interfaces/guards/kyc-verified.guard';
     GetKycStatusHandler,
     ListKycDocumentsHandler,
     KycVerificationSaga,
-    KycVerifiedGuard,
   ],
-  exports: [UserKycService, UserKycPrismaRepository, KycVerifiedGuard],
+  exports: [UserKycService, USER_KYC_REPOSITORY],
 })
 export class UserKycModule {}

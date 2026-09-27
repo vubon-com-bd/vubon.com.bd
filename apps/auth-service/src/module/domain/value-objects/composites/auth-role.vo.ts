@@ -3,9 +3,9 @@
  * @module auth-service/domain/value-objects/composites
  */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { RoleNameVO } from '../primitives/role-name.vo';
-import { RoleDescriptionVO } from '../primitives/role-description.vo';
-import { PermissionNameVO } from '../primitives/permission-name.vo';
+import { RoleNameVO } from '../primitives/role-name.vo.js';
+import { RoleDescriptionVO } from '../primitives/role-description.vo.js';
+import { PermissionNameVO } from '../primitives/permission-name.vo.js';
 
 export interface AuthRoleVOProps {
   readonly name: RoleNameVO;

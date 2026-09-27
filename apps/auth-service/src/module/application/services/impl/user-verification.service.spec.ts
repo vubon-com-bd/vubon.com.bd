@@ -2,11 +2,13 @@
  * UserVerificationService — Unit Tests
  * @module auth-service/application/services/impl
  */
-import { UserVerificationService } from './user-verification.service';
-import { UserVerificationEntity } from '../../../domain/entities/user-verification.entity';
-import { VerificationCodeVO } from '../../../domain/value-objects/primitives/verification-code.vo';
-import { VerificationTypeVO } from '../../../domain/value-objects/primitives/verification-type.vo';
-import { VerificationStatusVO } from '../../../domain/value-objects/primitives/verification-status.vo';
+import { jest } from '@jest/globals';
+
+import { UserVerificationService } from './user-verification.service.js';
+import { UserVerificationEntity } from '../../../domain/entities/user-verification.entity.js';
+import { VerificationCodeVO } from '../../../domain/value-objects/primitives/verification-code.vo.js';
+import { VerificationTypeVO } from '../../../domain/value-objects/primitives/verification-type.vo.js';
+import { VerificationStatusVO } from '../../../domain/value-objects/primitives/verification-status.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -27,14 +29,14 @@ const buildVerification = () =>
   });
 
 const mockRepo = () => ({
-  findById: jest.fn(),
-  findByUserId: jest.fn(),
-  findAll: jest.fn(),
+  findById: jest.fn() as jest.Mock,
+  findByUserId: jest.fn() as jest.Mock,
+  findAll: jest.fn() as jest.Mock,
   save: jest.fn((v: UserVerificationEntity) => Promise.resolve(v)),
-  delete: jest.fn(),
-  exists: jest.fn(),
-  findLatestByUserAndType: jest.fn(),
-  deleteExpired: jest.fn(),
+  delete: jest.fn() as jest.Mock,
+  exists: jest.fn() as jest.Mock,
+  findLatestByUserAndType: jest.fn() as jest.Mock,
+  deleteExpired: jest.fn() as jest.Mock,
 });
 
 const mockIdGen = () => ({

@@ -1,13 +1,12 @@
-// Feature Modules
-export { UserModule } from './user';
-export { UserProfileModule } from './user-profile';
-export { UserSettingsModule } from './user-settings';
-export { UserPreferencesModule } from './user-preferences';
-export { UserAddressModule } from './user-address';
-export { UserContactModule } from './user-contact';
-export { UserKycModule } from './user-kyc';
-export { UserActivityModule } from './user-activity';
-export { PublicProfileModule } from './public-profile';
-
-// Common
-export { CommonModule } from './common';
+// modules/index.ts — Modules Layer barrel export
+export * from './app.module.js';
+export * from './common/index.js';
+export * from './user/index.js';
+export * from './user-profile/index.js';
+export * from './user-settings/index.js';
+export * from './user-preferences/index.js';
+export * from './user-address/index.js';
+export * from './user-contact/index.js';
+export * from './user-kyc/index.js';
+export * from './user-activity/index.js';
+export * from './public-profile/index.js';

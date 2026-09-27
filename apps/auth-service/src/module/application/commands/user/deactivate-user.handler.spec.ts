@@ -1,10 +1,12 @@
 /**
  * DeactivateUserHandler — Unit Tests
  */
-import { DeactivateUserHandler } from './deactivate-user.handler';
-import { DeactivateUserCommand } from './deactivate-user.command';
+import { jest } from '@jest/globals';
 
-const mockService = () => ({ deactivate: jest.fn() });
+import { DeactivateUserHandler } from './deactivate-user.handler.js';
+import { DeactivateUserCommand } from './deactivate-user.command.js';
+
+const mockService = () => ({ deactivate: jest.fn() as jest.Mock });
 
 describe('DeactivateUserHandler', () => {
   let handler: DeactivateUserHandler;

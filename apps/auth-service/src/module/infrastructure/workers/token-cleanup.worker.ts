@@ -6,7 +6,7 @@ import { Injectable, Inject, Logger } from '@nestjs/common';
 import { Worker, Job } from 'bullmq';
 import type { QueueJobResult } from '@vubon/shared-kernel/infrastructure/messaging/queue';
 import { QUEUE_NAME, QUEUE_LIMIT } from '@vubon/shared-constants/infrastructure';
-import { AuthTokenPrismaRepository } from '../persistence/prisma/repositories/auth-token.prisma.repository';
+import { AuthTokenPrismaRepository } from '../persistence/prisma/repositories/auth-token.prisma.repository.js';
 
 @Injectable()
 export class TokenCleanupWorker {

@@ -9,10 +9,10 @@ import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard, Public } from '@vubon/shared-kernel/interfaces';
 
-import { SocialLoginCommand } from '../../../application/commands/auth/social-login.command';
-import { SocialCallbackCommand } from '../../../application/commands/auth/social-callback.command';
-import { LinkSocialCommand } from '../../../application/commands/auth/link-social.command';
-import { UnlinkSocialCommand } from '../../../application/commands/auth/unlink-social.command';
+import { SocialLoginCommand } from '../../../application/commands/auth/social-login.command.js';
+import { SocialCallbackCommand } from '../../../application/commands/auth/social-callback.command.js';
+import { LinkSocialCommand } from '../../../application/commands/auth/link-social.command.js';
+import { UnlinkSocialCommand } from '../../../application/commands/auth/unlink-social.command.js';
 import type { UserId } from '@vubon/shared-types/common';
 
 import {
@@ -20,8 +20,8 @@ import {
   SocialCallbackRequestDTO,
   LinkSocialRequestDTO,
   UnlinkSocialRequestDTO,
-} from '../../dtos/requests/social.request.dto';
-import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
+} from '../../dtos/requests/social.request.dto.js';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator.js';
 
 @ApiTags('Auth Social')
 @Controller('auth/social')

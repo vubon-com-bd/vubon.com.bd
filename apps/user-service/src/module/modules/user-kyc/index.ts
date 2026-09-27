@@ -1,1 +1,1 @@
-export { UserKycModule } from './user-kyc.module';
+export * from './user-kyc.module.js';

@@ -16,16 +16,16 @@ import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
 import type { UserId } from '@vubon/shared-types/common';
 
-import { SubmitKycCommand } from '../../../application/commands/user/submit-kyc.command';
-import { VerifyKycCommand } from '../../../application/commands/user/verify-kyc.command';
-import { RejectKycCommand } from '../../../application/commands/user/reject-kyc.command';
-import { GetUserKycStatusQuery } from '../../../application/queries/user/get-user-kyc-status.query';
+import { SubmitKycCommand } from '../../../application/commands/user/submit-kyc.command.js';
+import { VerifyKycCommand } from '../../../application/commands/user/verify-kyc.command.js';
+import { RejectKycCommand } from '../../../application/commands/user/reject-kyc.command.js';
+import { GetUserKycStatusQuery } from '../../../application/queries/user/get-user-kyc-status.query.js';
 import {
   SubmitKycRequestDTO,
   VerifyKycRequestDTO,
   RejectKycRequestDTO,
-} from '../../dtos/requests/kyc.request.dto';
-import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
+} from '../../dtos/requests/kyc.request.dto.js';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator.js';
 
 @ApiTags('Users KYC')
 @Controller('users/kyc')

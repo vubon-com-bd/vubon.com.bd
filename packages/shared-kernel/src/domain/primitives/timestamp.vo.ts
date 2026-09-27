@@ -1,6 +1,6 @@
 import { TIMEZONE } from '@vubon/shared-constants/common';
 import type { Timestamp } from '@vubon/shared-types/common';
-import { BaseVO } from '../base/base.vo';
+import { BaseVO } from '../base/base.vo.js';
 
 export type TimezoneValue = (typeof TIMEZONE)[keyof typeof TIMEZONE];
 

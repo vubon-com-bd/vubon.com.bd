@@ -1,6 +1,7 @@
-export { UserMapper } from './user.mapper';
-export { UserProfileMapper } from './user-profile.mapper';
-export { UserAddressMapper } from './user-address.mapper';
-export { UserContactMapper } from './user-contact.mapper';
-export { UserKycMapper } from './user-kyc.mapper';
-export { UserActivityMapper } from './user-activity.mapper';
+// mappers/index.ts — Mappers barrel export
+export * from './user.mapper.js';
+export * from './user-profile.mapper.js';
+export * from './user-address.mapper.js';
+export * from './user-contact.mapper.js';
+export * from './user-kyc.mapper.js';
+export * from './user-activity.mapper.js';

@@ -10,11 +10,11 @@ import {
 } from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
 import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
 import type { UserId } from '@vubon/shared-types/common';
-import { AuthMfaEntity } from '../../../../domain/entities/auth-mfa.entity';
-import { MfaSecretVO } from '../../../../domain/value-objects/primitives/mfa-secret.vo';
-import { MfaTypeVO } from '../../../../domain/value-objects/primitives/mfa-type.vo';
-import { MfaStatusVO } from '../../../../domain/value-objects/primitives/mfa-status.vo';
-import type { AuthMfaRepository } from '../../../../domain/repositories/auth-mfa.repository.interface';
+import { AuthMfaEntity } from '../../../../domain/entities/auth-mfa.entity.js';
+import { MfaSecretVO } from '../../../../domain/value-objects/primitives/mfa-secret.vo.js';
+import { MfaTypeVO } from '../../../../domain/value-objects/primitives/mfa-type.vo.js';
+import { MfaStatusVO } from '../../../../domain/value-objects/primitives/mfa-status.vo.js';
+import type { AuthMfaRepository } from '../../../../domain/repositories/auth-mfa.repository.interface.js';
 
 @Injectable()
 export class AuthMfaPrismaRepository

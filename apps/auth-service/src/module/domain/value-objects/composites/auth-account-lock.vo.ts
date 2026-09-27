@@ -3,8 +3,8 @@
  * @module auth-service/domain/value-objects/composites
  */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { AccountLockReasonVO } from '../primitives/account-lock-reason.vo';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { AccountLockReasonVO } from '../primitives/account-lock-reason.vo.js';
 
 export interface AuthAccountLockVOProps {
   readonly lockId: string;

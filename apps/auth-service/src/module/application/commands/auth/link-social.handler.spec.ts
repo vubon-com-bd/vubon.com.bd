@@ -1,12 +1,14 @@
 /**
  * LinkSocialHandler — Unit Tests
  */
-import { LinkSocialHandler } from './link-social.handler';
-import { LinkSocialCommand } from './link-social.command';
+import { jest } from '@jest/globals';
+
+import { LinkSocialHandler } from './link-social.handler.js';
+import { LinkSocialCommand } from './link-social.command.js';
 
 const mockSocialService = () => ({
   name: 'AuthSocialService',
-  link: jest.fn(),
+  link: jest.fn() as jest.Mock,
 });
 
 describe('LinkSocialHandler', () => {

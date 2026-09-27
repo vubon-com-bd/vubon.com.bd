@@ -5,27 +5,27 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { UserServiceInterface } from '../interfaces/user.service.interface';
-import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
-import type { PasswordHasherServiceInterface } from '../interfaces/password-hasher.service.interface';
-import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
-import { UserEntity } from '../../../domain/entities/user.entity';
-import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo';
-import { UserPasswordVO } from '../../../domain/value-objects/primitives/user-password.vo';
-import { UserNameVO } from '../../../domain/value-objects/primitives/user-name.vo';
-import { UserPhoneVO } from '../../../domain/value-objects/primitives/user-phone.vo';
-import { UserStatusVO } from '../../../domain/value-objects/primitives/user-status.vo';
-import { UserTypeVO } from '../../../domain/value-objects/primitives/user-type.vo';
+import type { UserServiceInterface } from '../interfaces/user.service.interface.js';
+import type { UserRepository } from '../../../domain/repositories/user.repository.interface.js';
+import type { PasswordHasherServiceInterface } from '../interfaces/password-hasher.service.interface.js';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface.js';
+import { UserEntity } from '../../../domain/entities/user.entity.js';
+import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo.js';
+import { UserPasswordVO } from '../../../domain/value-objects/primitives/user-password.vo.js';
+import { UserNameVO } from '../../../domain/value-objects/primitives/user-name.vo.js';
+import { UserPhoneVO } from '../../../domain/value-objects/primitives/user-phone.vo.js';
+import { UserStatusVO } from '../../../domain/value-objects/primitives/user-status.vo.js';
+import { UserTypeVO } from '../../../domain/value-objects/primitives/user-type.vo.js';
 import {
   UserNotFoundAppError,
   UserAlreadyExistsAppError,
-} from '../../errors/user.errors';
-import type { CreateUserRequestDTO } from '../../dtos/requests/user/create-user.dto';
-import type { UpdateUserRequestDTO } from '../../dtos/requests/user/update-user.dto';
-import type { UserResponseDTO } from '../../dtos/responses/user-response.dto';
-import { USER_REPO } from '../../tokens';
-import { PASSWORD_HASHER } from '../../tokens';
-import { ID_GENERATOR } from '../tokens';
+} from '../../errors/user.errors.js';
+import type { CreateUserRequestDTO } from '../../dtos/requests/user/create-user.dto.js';
+import type { UpdateUserRequestDTO } from '../../dtos/requests/user/update-user.dto.js';
+import type { UserResponseDTO } from '../../dtos/responses/user-response.dto.js';
+import { USER_REPO } from '../../tokens.js';
+import { PASSWORD_HASHER } from '../../tokens.js';
+import { ID_GENERATOR } from '../tokens.js';
 
 @Injectable()
 export class UserService

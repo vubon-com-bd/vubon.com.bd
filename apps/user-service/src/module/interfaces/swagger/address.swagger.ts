@@ -1,19 +1,49 @@
+/**
+ * Address Swagger helpers
+ */
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AddressResponseDto } from '../dtos/responses/address.response.dto';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  AddressResponseDto,
+  AddressListResponseDto,
+} from '../dtos/responses/address.response.dto.js';
 
-export const AddressSwagger = {
-  Tag: () => ApiTags('Addresses'),
+export function ApiListAddresses() {
+  return applyDecorators(
+    ApiBearerAuth(),
+    ApiOperation({ summary: 'List addresses for current user' }),
+    ApiResponse({ status: 200, type: AddressListResponseDto })
+  );
+}
 
-  List: () =>
-    applyDecorators(
-      ApiOperation({ summary: 'List user addresses' }),
-      ApiResponse({ status: 200, type: [AddressResponseDto] }),
-    ),
+export function ApiAddAddress() {
+  return applyDecorators(
+    ApiBearerAuth(),
+    ApiOperation({ summary: 'Add new address' }),
+    ApiResponse({ status: 201, type: AddressResponseDto })
+  );
+}
 
-  Create: () =>
-    applyDecorators(
-      ApiOperation({ summary: 'Add new address' }),
-      ApiResponse({ status: 201, type: AddressResponseDto }),
-    ),
-};
+export function ApiUpdateAddress() {
+  return applyDecorators(
+    ApiBearerAuth(),
+    ApiOperation({ summary: 'Update address' }),
+    ApiResponse({ status: 200, type: AddressResponseDto })
+  );
+}
+
+export function ApiDeleteAddress() {
+  return applyDecorators(
+    ApiBearerAuth(),
+    ApiOperation({ summary: 'Delete address' }),
+    ApiResponse({ status: 204 })
+  );
+}
+
+export function ApiSetDefaultAddress() {
+  return applyDecorators(
+    ApiBearerAuth(),
+    ApiOperation({ summary: 'Set default address' }),
+    ApiResponse({ status: 200, type: AddressResponseDto })
+  );
+}

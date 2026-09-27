@@ -2,6 +2,7 @@
   "name": "@vubon/shared-config",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -114,6 +115,11 @@
       "types": "./dist/media/index.d.ts",
       "import": "./dist/media/index.js",
       "require": "./dist/media/index.js"
+    },
+    "./common/env": {
+      "types": "./dist/common/env/index.d.ts",
+      "import": "./dist/common/env/index.js",
+      "require": "./dist/common/env/index.js"
     }
   },
   "scripts": {
@@ -133,7 +139,8 @@
     "globals": "^15.0.0",
     "prettier": "^3.0.0",
     "typescript": "^5.0.0",
-    "zod": "^3.25.76"
+    "zod": "^3.25.76",
+    "tsc-alias": "^1.9.5"
   },
   "dependencies": {
     "@vubon/shared-constants": "workspace:*",

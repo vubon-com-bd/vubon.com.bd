@@ -1,70 +1,72 @@
+/**
+ * UserPreferencesEntity — Aggregate Root
+ */
 import { AggregateRoot } from '@vubon/shared-kernel/domain/base/base.aggregate';
-import { UserIdVO } from '../value-objects/primitives/user-id.vo';
-import { PreferenceKeyVO } from '../value-objects/primitives/preference-key.vo';
-import { PreferenceValueVO } from '../value-objects/primitives/preference-value.vo';
-import { PreferenceUpdatedEvent } from '../events/user-preferences.events';
-
-export interface PreferenceEntry {
-  readonly key: PreferenceKeyVO;
-  readonly value: PreferenceValueVO;
-}
+import { PreferenceKeyVO } from '../value-objects/primitives/preference-key.vo.js';
+import { PreferenceValueVO } from '../value-objects/primitives/preference-value.vo.js';
+import { UserPreferencesVO } from '../value-objects/composites/user-preferences.vo.js';
 
 export interface UserPreferencesEntityProps {
-  readonly userId: UserIdVO;
-  readonly entries: readonly PreferenceEntry[];
+  readonly userId: string;
+  readonly entries: readonly {
+    readonly key: PreferenceKeyVO;
+    readonly value: PreferenceValueVO;
+  }[];
 }
 
-export class UserPreferencesEntity extends AggregateRoot<UserIdVO> {
-  private readonly _userId: UserIdVO;
-  private readonly _entries: readonly PreferenceEntry[];
+export class UserPreferencesEntity extends AggregateRoot<string> {
+  private _entries: Map<string, { key: PreferenceKeyVO; value: PreferenceValueVO }>;
+  private readonly _userId: string;
 
   private constructor(
-    id: UserIdVO,
-    props: UserPreferencesEntityProps,
+    id: string,
     createdAt: string,
     updatedAt: string,
-    deletedAt: string | null,
+    props: UserPreferencesEntityProps,
+    deletedAt?: string | null
   ) {
     super(id, createdAt, updatedAt, deletedAt);
     this._userId = props.userId;
-    this._entries = Object.freeze([...props.entries]);
+    this._entries = new Map();
+    for (const e of props.entries) this._entries.set(e.key.value, e);
   }
 
-  static create(props: UserPreferencesEntityProps): UserPreferencesEntity {
-    const now = new Date().toISOString();
-    return new UserPreferencesEntity(props.userId, props, now, now, null);
+  get userId(): string { return this._userId; }
+
+  static create(params: { id: string; userId: string; now: string }): UserPreferencesEntity {
+    return new UserPreferencesEntity(params.id, params.now, params.now, { userId: params.userId, entries: [] }, null);
   }
 
-  static reconstitute(
-    id: UserIdVO,
-    props: UserPreferencesEntityProps,
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null,
-  ): UserPreferencesEntity {
-    return new UserPreferencesEntity(id, props, createdAt, updatedAt, deletedAt);
+  static reconstitute(params: {
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string | null;
+    props: UserPreferencesEntityProps;
+  }): UserPreferencesEntity {
+    return new UserPreferencesEntity(params.id, params.createdAt, params.updatedAt, params.props, params.deletedAt);
   }
 
-  setEntry(key: PreferenceKeyVO, value: PreferenceValueVO): UserPreferencesEntity {
-    const filtered = this._entries.filter((e) => e.key.value !== key.value);
-    const updated = new UserPreferencesEntity(
-      this.id,
-      { userId: this._userId, entries: [...filtered, { key, value }] },
-      this.createdAt,
-      new Date().toISOString(),
-      this.deletedAt ?? null,
-    );
-    updated.addDomainEvent(
-      new PreferenceUpdatedEvent(this.id.value, this.id.value, key.value, this.version + 1),
-    );
-    return updated;
+  set(key: PreferenceKeyVO, value: PreferenceValueVO): void {
+    this._entries.set(key.value, { key, value });
+    this.incrementVersion();
   }
-
-  get userId(): UserIdVO { return this._userId; }
-  get entries(): readonly PreferenceEntry[] { return this._entries; }
 
   get(key: string): PreferenceValueVO | null {
-    const entry = this._entries.find((e) => e.key.value === key);
-    return entry ? entry.value : null;
+    return this._entries.get(key)?.value ?? null;
+  }
+
+  isEnabled(key: string): boolean {
+    const v = this._entries.get(key)?.value;
+    return v !== undefined && v.isBoolean() && v.toBoolean();
+  }
+
+  count(): number { return this._entries.size; }
+
+  toPreferencesVO(): UserPreferencesVO {
+    return UserPreferencesVO.create({
+      userId: this._userId,
+      entries: [...this._entries.values()].map((e) => ({ key: e.key, value: e.value })),
+    });
   }
 }

@@ -1,12 +1,14 @@
 /**
  * VerifyBiometricHandler — Unit Tests
  */
-import { VerifyBiometricHandler } from './verify-biometric.handler';
-import { VerifyBiometricCommand } from './verify-biometric.command';
+import { jest } from '@jest/globals';
+
+import { VerifyBiometricHandler } from './verify-biometric.handler.js';
+import { VerifyBiometricCommand } from './verify-biometric.command.js';
 
 const mockService = () => ({
   name: 'AuthBiometricService',
-  verify: jest.fn(),
+  verify: jest.fn() as jest.Mock,
 });
 
 describe('VerifyBiometricHandler', () => {

@@ -10,9 +10,9 @@ import {
 } from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
 import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
 import type { UserId } from '@vubon/shared-types/common';
-import { Auth2FaEntity } from '../../../../domain/entities/auth-2fa.entity';
-import { MfaTypeVO } from '../../../../domain/value-objects/primitives/mfa-type.vo';
-import type { Auth2FaRepository } from '../../../../domain/repositories/auth-2fa.repository.interface';
+import { Auth2FaEntity } from '../../../../domain/entities/auth-2fa.entity.js';
+import { MfaTypeVO } from '../../../../domain/value-objects/primitives/mfa-type.vo.js';
+import type { Auth2FaRepository } from '../../../../domain/repositories/auth-2fa.repository.interface.js';
 
 @Injectable()
 export class Auth2FaPrismaRepository

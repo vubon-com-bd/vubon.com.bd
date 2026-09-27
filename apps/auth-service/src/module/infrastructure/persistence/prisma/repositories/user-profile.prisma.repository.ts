@@ -13,9 +13,9 @@ import {
 } from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
 import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
 import type { UserId } from '@vubon/shared-types/common';
-import { UserProfileEntity } from '../../../../domain/entities/user-profile.entity';
-import { UserNameVO } from '../../../../domain/value-objects/primitives/user-name.vo';
-import type { UserProfileRepository } from '../../../../domain/repositories/user-profile.repository.interface';
+import { UserProfileEntity } from '../../../../domain/entities/user-profile.entity.js';
+import { UserNameVO } from '../../../../domain/value-objects/primitives/user-name.vo.js';
+import type { UserProfileRepository } from '../../../../domain/repositories/user-profile.repository.interface.js';
 
 @Injectable()
 export class UserProfilePrismaRepository

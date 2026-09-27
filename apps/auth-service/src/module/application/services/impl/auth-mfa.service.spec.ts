@@ -2,18 +2,20 @@
  * AuthMfaService — Unit Tests
  * @module auth-service/application/services/impl
  */
-import { AuthMfaService } from './auth-mfa.service';
-import { AuthMfaEntity } from '../../../domain/entities/auth-mfa.entity';
-import { MfaTypeVO } from '../../../domain/value-objects/primitives/mfa-type.vo';
-import { MfaStatusVO } from '../../../domain/value-objects/primitives/mfa-status.vo';
-import { MfaSecretVO } from '../../../domain/value-objects/primitives/mfa-secret.vo';
-import { UserEntity } from '../../../domain/entities/user.entity';
-import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo';
-import { UserNameVO } from '../../../domain/value-objects/primitives/user-name.vo';
-import { UserStatusVO } from '../../../domain/value-objects/primitives/user-status.vo';
-import { UserTypeVO } from '../../../domain/value-objects/primitives/user-type.vo';
-import { UserRoleVO } from '../../../domain/value-objects/primitives/user-role.vo';
-import { MfaNotFoundAppError, MfaInvalidAppError } from '../../errors/mfa.errors';
+import { jest } from '@jest/globals';
+
+import { AuthMfaService } from './auth-mfa.service.js';
+import { AuthMfaEntity } from '../../../domain/entities/auth-mfa.entity.js';
+import { MfaTypeVO } from '../../../domain/value-objects/primitives/mfa-type.vo.js';
+import { MfaStatusVO } from '../../../domain/value-objects/primitives/mfa-status.vo.js';
+import { MfaSecretVO } from '../../../domain/value-objects/primitives/mfa-secret.vo.js';
+import { UserEntity } from '../../../domain/entities/user.entity.js';
+import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo.js';
+import { UserNameVO } from '../../../domain/value-objects/primitives/user-name.vo.js';
+import { UserStatusVO } from '../../../domain/value-objects/primitives/user-status.vo.js';
+import { UserTypeVO } from '../../../domain/value-objects/primitives/user-type.vo.js';
+import { UserRoleVO } from '../../../domain/value-objects/primitives/user-role.vo.js';
+import { MfaNotFoundAppError, MfaInvalidAppError } from '../../errors/mfa.errors.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -44,25 +46,25 @@ const buildMfa = (status: 'disabled' | 'pending' | 'enabled' = 'disabled') =>
   });
 
 const mockMfaRepo = () => ({
-  findById: jest.fn(),
-  findByUserId: jest.fn(),
-  findEnabledByUserIds: jest.fn(),
-  findAll: jest.fn(),
+  findById: jest.fn() as jest.Mock,
+  findByUserId: jest.fn() as jest.Mock,
+  findEnabledByUserIds: jest.fn() as jest.Mock,
+  findAll: jest.fn() as jest.Mock,
   save: jest.fn((m: AuthMfaEntity) => Promise.resolve(m)),
-  delete: jest.fn(),
-  exists: jest.fn(),
+  delete: jest.fn() as jest.Mock,
+  exists: jest.fn() as jest.Mock,
 });
 
 const mockUserRepo = () => ({
-  findById: jest.fn(),
-  findByEmail: jest.fn(),
-  existsByEmail: jest.fn(),
-  findAll: jest.fn(),
+  findById: jest.fn() as jest.Mock,
+  findByEmail: jest.fn() as jest.Mock,
+  existsByEmail: jest.fn() as jest.Mock,
+  findAll: jest.fn() as jest.Mock,
   save: jest.fn((u: UserEntity) => Promise.resolve(u)),
-  delete: jest.fn(),
-  exists: jest.fn(),
-  findByIds: jest.fn(),
-  countByStatus: jest.fn(),
+  delete: jest.fn() as jest.Mock,
+  exists: jest.fn() as jest.Mock,
+  findByIds: jest.fn() as jest.Mock,
+  countByStatus: jest.fn() as jest.Mock,
 });
 
 const mockTotp = () => ({
@@ -75,8 +77,8 @@ const mockTotp = () => ({
 const mockRecoveryGen = () => ({
   name: 'RecoveryCodeGeneratorService',
   generate: jest.fn((count: number) => Promise.resolve(Array(count).fill('ABCD-1234'))),
-  hash: jest.fn(),
-  verify: jest.fn(),
+  hash: jest.fn() as jest.Mock,
+  verify: jest.fn() as jest.Mock,
 });
 
 const mockIdGen = () => ({

@@ -10,15 +10,15 @@ import {
 } from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
 import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
 import type { UserId } from '@vubon/shared-types/common';
-import { UserEntity } from '../../../../domain/entities/user.entity';
-import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
-import { UserEmailVO } from '../../../../domain/value-objects/primitives/user-email.vo';
-import { UserNameVO } from '../../../../domain/value-objects/primitives/user-name.vo';
-import { UserPhoneVO } from '../../../../domain/value-objects/primitives/user-phone.vo';
-import { UserStatusVO } from '../../../../domain/value-objects/primitives/user-status.vo';
-import { UserTypeVO } from '../../../../domain/value-objects/primitives/user-type.vo';
-import { UserRoleVO } from '../../../../domain/value-objects/primitives/user-role.vo';
-import type { UserRepository } from '../../../../domain/repositories/user.repository.interface';
+import { UserEntity } from '../../../../domain/entities/user.entity.js';
+import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo.js';
+import { UserEmailVO } from '../../../../domain/value-objects/primitives/user-email.vo.js';
+import { UserNameVO } from '../../../../domain/value-objects/primitives/user-name.vo.js';
+import { UserPhoneVO } from '../../../../domain/value-objects/primitives/user-phone.vo.js';
+import { UserStatusVO } from '../../../../domain/value-objects/primitives/user-status.vo.js';
+import { UserTypeVO } from '../../../../domain/value-objects/primitives/user-type.vo.js';
+import { UserRoleVO } from '../../../../domain/value-objects/primitives/user-role.vo.js';
+import type { UserRepository } from '../../../../domain/repositories/user.repository.interface.js';
 
 @Injectable()
 export class UserPrismaRepository

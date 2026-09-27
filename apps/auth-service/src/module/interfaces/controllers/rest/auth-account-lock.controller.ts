@@ -9,16 +9,16 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
 
-import { LockAccountCommand } from '../../../application/commands/auth/lock-account.command';
-import { UnlockAccountCommand } from '../../../application/commands/auth/unlock-account.command';
-import { GetAuthAccountLockStatusQuery } from '../../../application/queries/auth/get-auth-account-lock-status.query';
+import { LockAccountCommand } from '../../../application/commands/auth/lock-account.command.js';
+import { UnlockAccountCommand } from '../../../application/commands/auth/unlock-account.command.js';
+import { GetAuthAccountLockStatusQuery } from '../../../application/queries/auth/get-auth-account-lock-status.query.js';
 import type { UserId } from '@vubon/shared-types/common';
 
 import {
   LockAccountRequestDTO,
   UnlockAccountRequestDTO,
-} from '../../dtos/requests/lock.request.dto';
-import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
+} from '../../dtos/requests/lock.request.dto.js';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator.js';
 
 @ApiTags('Auth Account Lock')
 @Controller('auth/account-lock')

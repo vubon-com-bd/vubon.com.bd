@@ -2,7 +2,7 @@
  * SsoTokenVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { SsoTokenVO } from './sso-token.vo';
+import { SsoTokenVO } from './sso-token.vo.js';
 
 describe('SsoTokenVO', () => {
   const VALID = 'x'.repeat(100);

@@ -4,8 +4,8 @@
  *
  * NOTE: Token fields are flat (matching LoginResponseSchema), not nested.
  */
-import type { UserResponseDTO } from './user-response.dto';
-import type { AuthSessionResponseDTO } from './auth-session-response.dto';
+import type { UserResponseDTO } from './user-response.dto.js';
+import type { AuthSessionResponseDTO } from './auth-session-response.dto.js';
 
 export interface LoginResponseDTO {
   readonly success: true;

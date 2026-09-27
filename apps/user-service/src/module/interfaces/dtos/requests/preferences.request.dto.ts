@@ -1,23 +1,13 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+/**
+ * Preferences Request DTOs
+ */
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsBoolean } from 'class-validator';
 
 export class UpdatePreferencesRequestDto {
-  @ApiPropertyOptional()
-  newsletter?: boolean;
-
-  @ApiPropertyOptional()
-  promotions?: boolean;
-
-  @ApiPropertyOptional()
-  orderUpdates?: boolean;
-
-  @ApiPropertyOptional()
-  productRecommendations?: boolean;
-
-  @ApiPropertyOptional()
-  securityAlerts?: boolean;
-}
-
-export class ResetPreferencesRequestDto {
-  @ApiProperty()
-  userId!: string;
+  @ApiPropertyOptional() @IsOptional() @IsBoolean() newsletter?: boolean;
+  @ApiPropertyOptional() @IsOptional() @IsBoolean() promotions?: boolean;
+  @ApiPropertyOptional() @IsOptional() @IsBoolean() orderUpdates?: boolean;
+  @ApiPropertyOptional() @IsOptional() @IsBoolean() productRecommendations?: boolean;
+  @ApiPropertyOptional() @IsOptional() @IsBoolean() securityAlerts?: boolean;
 }

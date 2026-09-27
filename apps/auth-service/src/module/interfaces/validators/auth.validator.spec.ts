@@ -8,7 +8,7 @@
  * - verifyEmail: uses token (not code)
  * - forgotPassword: identifier + optional channel
  */
-import { AuthValidator } from './auth.validator';
+import { AuthValidator } from './auth.validator.js';
 
 const STRONG = 'Str0ng!Pass@2024';
 const TOKEN = 'a'.repeat(64);

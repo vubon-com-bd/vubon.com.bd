@@ -2,11 +2,11 @@
  * AuthDeviceMapper — Unit Tests
  * @module auth-service/application/mappers
  */
-import { AuthDeviceMapper } from './auth-device.mapper';
-import { AuthDeviceEntity } from '../../domain/entities/auth-device.entity';
-import { DeviceFingerprintVO } from '../../domain/value-objects/primitives/device-fingerprint.vo';
-import { DeviceTypeVO } from '../../domain/value-objects/primitives/device-type.vo';
-import { DeviceStatusVO } from '../../domain/value-objects/primitives/device-status.vo';
+import { AuthDeviceMapper } from './auth-device.mapper.js';
+import { AuthDeviceEntity } from '../../domain/entities/auth-device.entity.js';
+import { DeviceFingerprintVO } from '../../domain/value-objects/primitives/device-fingerprint.vo.js';
+import { DeviceTypeVO } from '../../domain/value-objects/primitives/device-type.vo.js';
+import { DeviceStatusVO } from '../../domain/value-objects/primitives/device-status.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();

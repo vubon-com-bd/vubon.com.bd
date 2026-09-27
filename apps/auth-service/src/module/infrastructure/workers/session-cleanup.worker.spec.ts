@@ -1,10 +1,12 @@
 /**
  * SessionCleanupWorker — Deep Unit Tests
  */
-import { SessionCleanupWorker } from './session-cleanup.worker';
+import { jest } from '@jest/globals';
+
+import { SessionCleanupWorker } from './session-cleanup.worker.js';
 
 const mockRepo = () => ({
-  deleteExpired: jest.fn().mockResolvedValue(0),
+  deleteExpired: jest.fn().mockResolvedValue(0) as jest.Mock,
 });
 
 const mockJob = (id = 'job-1', data = {}) => ({

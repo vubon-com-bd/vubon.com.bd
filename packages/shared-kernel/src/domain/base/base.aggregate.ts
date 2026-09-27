@@ -4,8 +4,8 @@
  *
  * DDD aggregate root — consistency boundary।
  */
-import { BaseEntity } from './base.entity';
-import type { DomainEvent } from './base.event';
+import { BaseEntity } from './base.entity.js';
+import type { DomainEvent } from './base.event.js';
 
 export abstract class AggregateRoot<TId = string> extends BaseEntity<TId> {
   private readonly _domainEvents: DomainEvent[] = [];

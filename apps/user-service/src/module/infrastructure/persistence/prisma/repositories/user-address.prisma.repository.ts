@@ -1,98 +1,122 @@
+/**
+ * UserAddressPrismaRepository
+ */
 import { Injectable } from '@nestjs/common';
-import { UserAddress as PrismaUserAddress } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
-import { UserAddressEntity } from '../../../../domain/entities/user-address.entity';
-import { AddressIdVO } from '../../../../domain/value-objects/primitives/address-id.vo';
-import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
-import { AddressLabelVO } from '../../../../domain/value-objects/primitives/address-label.vo';
-import { AddressLineVO } from '../../../../domain/value-objects/primitives/address-line.vo';
-import { CityVO } from '../../../../domain/value-objects/primitives/city.vo';
-import { DistrictVO } from '../../../../domain/value-objects/primitives/district.vo';
-import { DivisionVO } from '../../../../domain/value-objects/primitives/division.vo';
-import { PostalCodeVO } from '../../../../domain/value-objects/primitives/postal-code.vo';
-import type { UserAddressRepository } from '../../../../domain/repositories/user-address.repository.interface';
+import type { UserAddress as PrismaUserAddress } from '@prisma/client';
+import { PrismaService } from '../prisma.service.js';
+import type { UserAddressRepository } from '@domain/repositories/user-address.repository.interface';
+import { UserAddressEntity } from '@domain/entities/user-address.entity';
+import { UserIdVO } from '@domain/value-objects/primitives/user-id.vo';
+import { AddressIdVO } from '@domain/value-objects/primitives/address-id.vo';
+import { AddressLabelVO } from '@domain/value-objects/primitives/address-label.vo';
+import { AddressLineVO } from '@domain/value-objects/primitives/address-line.vo';
+import { CityVO } from '@domain/value-objects/primitives/city.vo';
+import { DistrictVO } from '@domain/value-objects/primitives/district.vo';
+import { DivisionVO } from '@domain/value-objects/primitives/division.vo';
+import { PostalCodeVO } from '@domain/value-objects/primitives/postal-code.vo';
 
 @Injectable()
-export class UserAddressPrismaRepository
-  extends BasePrismaRepository<UserAddressEntity, AddressIdVO>
-  implements UserAddressRepository
-{
-  constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
-  }
+export class UserAddressPrismaRepository implements UserAddressRepository {
+  constructor(private readonly prisma: PrismaService) {}
 
   private toDomain(raw: PrismaUserAddress): UserAddressEntity {
-    return UserAddressEntity.reconstitute(
-      AddressIdVO.create(raw.id),
-      {
+    return UserAddressEntity.reconstitute({
+      id: raw.id,
+      createdAt: raw.createdAt.toISOString(),
+      updatedAt: raw.updatedAt.toISOString(),
+      deletedAt: raw.deletedAt ? raw.deletedAt.toISOString() : null,
+      props: {
+        addressId: AddressIdVO.create(raw.id),
         userId: UserIdVO.create(raw.userId),
-        label: raw.label ? AddressLabelVO.create(raw.label) : null,
-        line1: AddressLineVO.create(raw.line1),
-        line2: raw.line2 ? AddressLineVO.create(raw.line2) : null,
-        city: CityVO.create(raw.city),
+        label: AddressLabelVO.create(raw.label ?? 'home'),
+        line: AddressLineVO.create(raw.line1 ?? raw.addressLine),
+        city: CityVO.create(raw.city ?? raw.district),
         district: DistrictVO.create(raw.district),
         division: DivisionVO.create(raw.division),
-        postalCode: raw.postalCode ? PostalCodeVO.create(raw.postalCode) : null,
+        postalCode: PostalCodeVO.create(raw.postalCode ?? '1000'),
         isDefault: raw.isDefault,
       },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      raw.deletedAt?.toISOString() ?? null,
-    );
+    });
   }
 
-  async findById(id: AddressIdVO): Promise<UserAddressEntity | null> {
-    const raw = await this.prisma.userAddress.findUnique({ where: { id: id.value } });
+  async findById(id: string): Promise<UserAddressEntity | null> {
+    const raw = await this.prisma.userAddress.findUnique({ where: { id } });
     return raw ? this.toDomain(raw) : null;
   }
 
   async findAll(): Promise<readonly UserAddressEntity[]> {
-    const rows = await this.prisma.userAddress.findMany();
-    return rows.map((r) => this.toDomain(r));
+    const raws = await this.prisma.userAddress.findMany({ where: { deletedAt: null } });
+    return raws.map((r) => this.toDomain(r));
   }
 
   async save(entity: UserAddressEntity): Promise<UserAddressEntity> {
-    const data = {
-      userId: entity.userId.value,
-      label: entity.label?.value ?? null,
-      line1: entity.line1.value,
-      line2: entity.line2?.value ?? null,
-      city: entity.city.value,
-      district: entity.district.value,
-      division: entity.division.value,
-      postalCode: entity.postalCode?.value ?? null,
-      isDefault: entity.isDefault,
-      updatedAt: new Date(),
-      deletedAt: entity.deletedAt ? new Date(entity.deletedAt) : null,
-    };
     const raw = await this.prisma.userAddress.upsert({
-      where: { id: entity.id.value },
-      create: { id: entity.id.value, ...data },
-      update: data,
+      where: { id: entity.id },
+      create: {
+        id: entity.id,
+        userId: entity.userId.value,
+        label: entity.label.value,
+        line1: entity.line.value,
+          addressLine: entity.line.value,
+        city: entity.city.value,
+        district: entity.district.value,
+        division: entity.division.value,
+        postalCode: entity.postalCode.value,
+        isDefault: entity.isDefault,
+      },
+      update: {
+        label: entity.label.value,
+        line1: entity.line.value,
+        city: entity.city.value,
+        district: entity.district.value,
+        division: entity.division.value,
+        postalCode: entity.postalCode.value,
+        isDefault: entity.isDefault,
+        updatedAt: new Date(),
+      },
     });
     return this.toDomain(raw);
   }
 
-  async delete(id: AddressIdVO): Promise<void> {
-    await this.prisma.userAddress.delete({ where: { id: id.value } });
+  async delete(id: string): Promise<void> {
+    await this.prisma.userAddress.delete({ where: { id } });
+  }
+
+  async exists(id: string): Promise<boolean> {
+    const count = await this.prisma.userAddress.count({ where: { id } });
+    return count > 0;
   }
 
   async findByUserId(userId: UserIdVO): Promise<readonly UserAddressEntity[]> {
-    const rows = await this.prisma.userAddress.findMany({
-      where: { userId: userId.value },
+    const raws = await this.prisma.userAddress.findMany({
+      where: { userId: userId.value, deletedAt: null },
+      orderBy: [{ isDefault: 'desc' }, { createdAt: 'asc' }],
     });
-    return rows.map((r) => this.toDomain(r));
+    return raws.map((r) => this.toDomain(r));
   }
 
-  async findDefault(userId: UserIdVO): Promise<UserAddressEntity | null> {
+  async findDefaultByUserId(userId: UserIdVO): Promise<UserAddressEntity | null> {
     const raw = await this.prisma.userAddress.findFirst({
-      where: { userId: userId.value, isDefault: true },
+      where: { userId: userId.value, isDefault: true, deletedAt: null },
     });
     return raw ? this.toDomain(raw) : null;
   }
 
   async countByUserId(userId: UserIdVO): Promise<number> {
-    return this.prisma.userAddress.count({ where: { userId: userId.value } });
+    return this.prisma.userAddress.count({
+      where: { userId: userId.value, deletedAt: null },
+    });
+  }
+
+  async clearDefaultForUser(userId: UserIdVO): Promise<void> {
+    await this.prisma.userAddress.updateMany({
+      where: { userId: userId.value, isDefault: true },
+      data: { isDefault: false },
+    });
+  }
+
+  async existsById(id: AddressIdVO): Promise<boolean> {
+    const count = await this.prisma.userAddress.count({ where: { id: id.value } });
+    return count > 0;
   }
 }

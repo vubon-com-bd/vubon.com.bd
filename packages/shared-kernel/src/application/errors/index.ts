@@ -1,9 +1,9 @@
 // shared-kernel/application/errors/index.ts
 
-export * from './application.error';
-export * from './command.error';
-export * from './query.error';
-export * from './saga.error';
-export * from './validation.error';
-export * from './authorization.error';
-export * from './not-found.error';
+export * from './application.error.js';
+export * from './command.error.js';
+export * from './query.error.js';
+export * from './saga.error.js';
+export * from './validation.error.js';
+export * from './authorization.error.js';
+export * from './not-found.error.js';

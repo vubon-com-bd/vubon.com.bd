@@ -1,15 +1,17 @@
 /**
  * UserProfilePrismaRepository — Unit Tests
  */
-import { UserProfilePrismaRepository } from './user-profile.prisma.repository';
+import { jest } from '@jest/globals';
+
+import { UserProfilePrismaRepository } from './user-profile.prisma.repository.js';
 
 const mockPrisma = () => ({
   userProfile: {
-    findUnique: jest.fn(),
-    findMany: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
+    findUnique: jest.fn() as jest.Mock,
+    findMany: jest.fn() as jest.Mock,
+    create: jest.fn() as jest.Mock,
+    update: jest.fn() as jest.Mock,
+    delete: jest.fn() as jest.Mock,
   },
 });
 

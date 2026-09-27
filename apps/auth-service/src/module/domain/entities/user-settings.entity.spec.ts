@@ -2,8 +2,8 @@
  * UserSettingsEntity — Unit Tests
  * @module auth-service/domain/entities
  */
-import { UserSettingsEntity } from './user-settings.entity';
-import { UserIdVO } from '../value-objects/primitives/user-id.vo';
+import { UserSettingsEntity } from './user-settings.entity.js';
+import { UserIdVO } from '../value-objects/primitives/user-id.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 

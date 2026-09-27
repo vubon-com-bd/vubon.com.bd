@@ -1,5 +1,8 @@
+/**
+ * RequireKycVerified decorator
+ */
 import { SetMetadata } from '@nestjs/common';
 
-export const KYC_VERIFIED_KEY = 'kyc_verified';
-export const RequireKycVerified = (): MethodDecorator & ClassDecorator =>
-  SetMetadata(KYC_VERIFIED_KEY, true);
+export const REQUIRE_KYC_VERIFIED_KEY = 'require_kyc_verified';
+export const RequireKycVerified = () =>
+  SetMetadata(REQUIRE_KYC_VERIFIED_KEY, true);

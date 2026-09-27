@@ -5,12 +5,12 @@
  * Uses jsonwebtoken + JWT_CONFIG (env-loaded via shared-config helper).
  */
 import { Injectable } from '@nestjs/common';
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import type {
   TokenSignerPayload,
   TokenSignerServiceInterface,
-} from '../../../application/services/interfaces/token-signer.service.interface';
-import { JWT_CONFIG } from '../../config/jwt.config';
+} from '../../../application/services/interfaces/token-signer.service.interface.js';
+import { JWT_CONFIG } from '../../config/jwt.config.js';
 
 @Injectable()
 export class TokenSignerService implements TokenSignerServiceInterface {

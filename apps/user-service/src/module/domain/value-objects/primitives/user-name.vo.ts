@@ -1,16 +1,39 @@
-import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { InvalidUserNameError } from '../../errors/user.errors';
+/**
+ * UserName Value Object
+ */
+import { BaseNameVO } from '@vubon/shared-kernel/domain/primitives/name.vo';
 
-export class UserNameVO extends BaseVO<string> {
+export class UserNameVO extends BaseNameVO {
   private constructor(value: string) {
     super(value);
   }
 
   static create(raw: string): UserNameVO {
-    const trimmed = raw.trim();
-    if (trimmed.length < 1 || trimmed.length > 100) {
-      throw new InvalidUserNameError('Name must be 1-100 characters');
+    if (typeof raw !== 'string') {
+      throw new Error('Name must be a string');
     }
-    return new UserNameVO(trimmed);
+    UserNameVO.validate(raw);
+    return new UserNameVO(UserNameVO.normalize(raw));
+  }
+
+  get wordCount(): number {
+    return this.value.split(/\s+/).filter(Boolean).length;
+  }
+
+  hasMiddleName(): boolean {
+    return this.wordCount >= 3;
+  }
+
+  getFirstName(): string {
+    return this.value.split(' ')[0] ?? '';
+  }
+
+  getLastName(): string {
+    const parts = this.value.split(' ').filter(Boolean);
+    return parts.length > 1 ? parts[parts.length - 1] : '';
+  }
+
+  isSingleWord(): boolean {
+    return this.wordCount === 1;
   }
 }

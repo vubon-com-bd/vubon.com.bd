@@ -1,12 +1,7 @@
-/**
- * User Service — Infrastructure Layer Barrel
- */
-
-export { InfrastructureModule } from './infrastructure.module';
-
-export * from './config';
-export * from './persistence';
-export * from './services';
-export * from './queues';
-export * from './workers';
-export * from './external/email/templates';
+// infrastructure/index.ts — Infrastructure Layer barrel export (FINAL)
+export * from './persistence/index.js';
+export * from './external/index.js';
+export * from './services/index.js';
+export * from './workers/index.js';
+export * from './queues/index.js';
+export * from './config/index.js';

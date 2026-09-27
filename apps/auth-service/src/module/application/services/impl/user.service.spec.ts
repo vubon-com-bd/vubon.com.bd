@@ -2,17 +2,19 @@
  * UserService — Unit Tests
  * @module auth-service/application/services/impl
  */
-import { UserService } from './user.service';
-import { UserEntity } from '../../../domain/entities/user.entity';
-import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo';
-import { UserNameVO } from '../../../domain/value-objects/primitives/user-name.vo';
-import { UserStatusVO } from '../../../domain/value-objects/primitives/user-status.vo';
-import { UserTypeVO } from '../../../domain/value-objects/primitives/user-type.vo';
-import { UserRoleVO } from '../../../domain/value-objects/primitives/user-role.vo';
+import { jest } from '@jest/globals';
+
+import { UserService } from './user.service.js';
+import { UserEntity } from '../../../domain/entities/user.entity.js';
+import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo.js';
+import { UserNameVO } from '../../../domain/value-objects/primitives/user-name.vo.js';
+import { UserStatusVO } from '../../../domain/value-objects/primitives/user-status.vo.js';
+import { UserTypeVO } from '../../../domain/value-objects/primitives/user-type.vo.js';
+import { UserRoleVO } from '../../../domain/value-objects/primitives/user-role.vo.js';
 import {
   UserNotFoundAppError,
   UserAlreadyExistsAppError,
-} from '../../errors/user.errors';
+} from '../../errors/user.errors.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -33,22 +35,22 @@ const buildUser = (overrides: Partial<Parameters<typeof UserEntity.create>[0]> =
   });
 
 const mockUserRepo = () => ({
-  findById: jest.fn(),
-  findByEmail: jest.fn(),
-  existsByEmail: jest.fn(),
-  findAll: jest.fn(),
+  findById: jest.fn() as jest.Mock,
+  findByEmail: jest.fn() as jest.Mock,
+  existsByEmail: jest.fn() as jest.Mock,
+  findAll: jest.fn() as jest.Mock,
   save: jest.fn((u: UserEntity) => Promise.resolve(u)),
-  delete: jest.fn(),
-  exists: jest.fn(),
-  findByIds: jest.fn(),
-  countByStatus: jest.fn(),
+  delete: jest.fn() as jest.Mock,
+  exists: jest.fn() as jest.Mock,
+  findByIds: jest.fn() as jest.Mock,
+  countByStatus: jest.fn() as jest.Mock,
 });
 
 const mockHasher = () => ({
   name: 'PasswordHasherService',
   hash: jest.fn(() => Promise.resolve('$2b$12$hash')),
-  verify: jest.fn(),
-  needsRehash: jest.fn(),
+  verify: jest.fn() as jest.Mock,
+  needsRehash: jest.fn() as jest.Mock,
 });
 
 const mockIdGen = () => ({

@@ -3,8 +3,8 @@
  * @module auth-service/infrastructure/services/internal
  */
 import { Injectable } from '@nestjs/common';
-import { SocialProviderVO } from '../../../domain/value-objects/primitives/social-provider.vo';
-import { SocialProviderAppError } from '../../../application/errors/social.errors';
+import { SocialProviderVO } from '../../../domain/value-objects/primitives/social-provider.vo.js';
+import { SocialProviderAppError } from '../../../application/errors/social.errors.js';
 
 const SUPPORTED = new Set<string>([
   'google', 'facebook', 'apple', 'twitter',

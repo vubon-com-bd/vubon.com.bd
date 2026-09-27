@@ -2,7 +2,7 @@
  * RecoveryCodeVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { RecoveryCodeVO } from './recovery-code.vo';
+import { RecoveryCodeVO } from './recovery-code.vo.js';
 
 describe('RecoveryCodeVO', () => {
   const VALID_CODE = 'ABCD-1234';

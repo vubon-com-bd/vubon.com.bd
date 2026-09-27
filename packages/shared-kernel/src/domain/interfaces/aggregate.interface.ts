@@ -4,8 +4,8 @@
  *
  * References base aggregate root (type only)।
  */
-import type { AggregateRoot } from '../base/base.aggregate';
-import type { DomainEvent } from '../base/base.event';
+import type { AggregateRoot } from '../base/base.aggregate.js';
+import type { DomainEvent } from '../base/base.event.js';
 
 export interface AggregateMarker<TId = string> {
   readonly id: TId;

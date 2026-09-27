@@ -2,7 +2,7 @@
  * TokenSignerService — Unit Tests
  * @module auth-service/infrastructure/services/internal
  */
-import { TokenSignerService } from './token-signer.service';
+import { TokenSignerService } from './token-signer.service.js';
 
 describe('TokenSignerService', () => {
   let service: TokenSignerService;

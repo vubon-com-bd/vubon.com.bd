@@ -2,8 +2,8 @@
  * Auth2FaEntity — Unit Tests
  * @module auth-service/domain/entities
  */
-import { Auth2FaEntity } from './auth-2fa.entity';
-import { MfaTypeVO } from '../value-objects/primitives/mfa-type.vo';
+import { Auth2FaEntity } from './auth-2fa.entity.js';
+import { MfaTypeVO } from '../value-objects/primitives/mfa-type.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();

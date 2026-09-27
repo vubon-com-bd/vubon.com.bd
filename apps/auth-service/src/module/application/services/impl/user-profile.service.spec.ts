@@ -2,9 +2,11 @@
  * UserProfileService — Unit Tests
  * @module auth-service/application/services/impl
  */
-import { UserProfileService } from './user-profile.service';
-import { UserProfileEntity } from '../../../domain/entities/user-profile.entity';
-import { UserNameVO } from '../../../domain/value-objects/primitives/user-name.vo';
+import { jest } from '@jest/globals';
+
+import { UserProfileService } from './user-profile.service.js';
+import { UserProfileEntity } from '../../../domain/entities/user-profile.entity.js';
+import { UserNameVO } from '../../../domain/value-objects/primitives/user-name.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -20,12 +22,12 @@ const buildProfile = (overrides: Partial<Parameters<typeof UserProfileEntity.cre
   });
 
 const mockRepo = () => ({
-  findById: jest.fn(),
-  findByUserId: jest.fn(),
-  findAll: jest.fn(),
+  findById: jest.fn() as jest.Mock,
+  findByUserId: jest.fn() as jest.Mock,
+  findAll: jest.fn() as jest.Mock,
   save: jest.fn((p: UserProfileEntity) => Promise.resolve(p)),
-  delete: jest.fn(),
-  exists: jest.fn(),
+  delete: jest.fn() as jest.Mock,
+  exists: jest.fn() as jest.Mock,
 });
 
 describe('UserProfileService', () => {

@@ -1,8 +1,9 @@
-import { z } from 'zod';
-
-export const SetDefaultAddressRequestSchema = z.object({
-  userId: z.string().min(1),
-  addressId: z.string().min(1),
-});
-
-export type SetDefaultAddressRequestDTO = z.infer<typeof SetDefaultAddressRequestSchema>;
+/**
+ * SetDefaultAddressRequestDTO
+ */
+export interface SetDefaultAddressRequestDTO {
+  readonly userId: string;
+  readonly addressId: string;
+  readonly asShipping?: boolean;
+  readonly asBilling?: boolean;
+}

@@ -5,23 +5,23 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { AuthSsoServiceInterface } from '../interfaces/auth-sso.service.interface';
-import type { AuthSsoRepository } from '../../../domain/repositories/auth-sso.repository.interface';
-import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
-import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
-import type { AuthTokenServiceInterface } from '../interfaces/auth-token.service.interface';
-import type { AuthSessionServiceInterface } from '../interfaces/auth-session.service.interface';
-import { AuthSsoEntity } from '../../../domain/entities/auth-sso.entity';
-import { SsoProviderVO } from '../../../domain/value-objects/primitives/sso-provider.vo';
-import { SsoFailedAppError } from '../../errors/sso.errors';
-import type { SsoLoginRequestDTO } from '../../dtos/requests/auth/sso-login.dto';
-import type { SsoCallbackRequestDTO } from '../../dtos/requests/auth/sso-callback.dto';
-import type { SsoLoginResponseDTO } from '../../dtos/responses/sso-login-response.dto';
-import type { UserResponseDTO } from '../../dtos/responses/user-response.dto';
-import { USER_REPO } from '../../tokens';
-import { ID_GENERATOR } from '../tokens';
-import { AUTH_TOKEN_SERVICE, AUTH_SESSION_SERVICE } from '../../tokens';
-import { AUTH_SSO_REPO } from '../../tokens';
+import type { AuthSsoServiceInterface } from '../interfaces/auth-sso.service.interface.js';
+import type { AuthSsoRepository } from '../../../domain/repositories/auth-sso.repository.interface.js';
+import type { UserRepository } from '../../../domain/repositories/user.repository.interface.js';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface.js';
+import type { AuthTokenServiceInterface } from '../interfaces/auth-token.service.interface.js';
+import type { AuthSessionServiceInterface } from '../interfaces/auth-session.service.interface.js';
+import { AuthSsoEntity } from '../../../domain/entities/auth-sso.entity.js';
+import { SsoProviderVO } from '../../../domain/value-objects/primitives/sso-provider.vo.js';
+import { SsoFailedAppError } from '../../errors/sso.errors.js';
+import type { SsoLoginRequestDTO } from '../../dtos/requests/auth/sso-login.dto.js';
+import type { SsoCallbackRequestDTO } from '../../dtos/requests/auth/sso-callback.dto.js';
+import type { SsoLoginResponseDTO } from '../../dtos/responses/sso-login-response.dto.js';
+import type { UserResponseDTO } from '../../dtos/responses/user-response.dto.js';
+import { USER_REPO } from '../../tokens.js';
+import { ID_GENERATOR } from '../tokens.js';
+import { AUTH_TOKEN_SERVICE, AUTH_SESSION_SERVICE } from '../../tokens.js';
+import { AUTH_SSO_REPO } from '../../tokens.js';
 
 @Injectable()
 export class AuthSsoService

@@ -1,22 +1,24 @@
 /**
  * RecoverAccountHandler — Unit Tests
  */
-import { RecoverAccountHandler } from './recover-account.handler';
-import { RecoverAccountCommand } from './recover-account.command';
+import { jest } from '@jest/globals';
+
+import { RecoverAccountHandler } from './recover-account.handler.js';
+import { RecoverAccountCommand } from './recover-account.command.js';
 
 const mockUserRepo = () => ({
-  findByEmail: jest.fn(),
-  save: jest.fn(),
+  findByEmail: jest.fn() as jest.Mock,
+  save: jest.fn() as jest.Mock,
 });
 
 const mockHasher = () => ({
   name: 'PasswordHasherService',
-  hash: jest.fn(),
+  hash: jest.fn() as jest.Mock,
 });
 
 const mockRecoveryService = () => ({
   name: 'AuthRecoveryCodeService',
-  consume: jest.fn(),
+  consume: jest.fn() as jest.Mock,
 });
 
 describe('RecoverAccountHandler', () => {
@@ -67,7 +69,7 @@ describe('RecoverAccountHandler', () => {
   });
 
   it('should change password on valid recovery', async () => {
-    const user = { id: 'user-1', changePasswordHash: jest.fn() };
+    const user = { id: 'user-1', changePasswordHash: jest.fn() as jest.Mock };
     userRepo.findByEmail.mockResolvedValue(user);
     recoveryService.consume.mockResolvedValue(true);
     hasher.hash.mockResolvedValue('$2b$12$new');

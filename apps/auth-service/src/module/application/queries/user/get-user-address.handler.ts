@@ -1,10 +1,10 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { GetUserAddressQuery } from './get-user-address.query';
-import type { UserAddressRepository } from '../../../domain/repositories/user-address.repository.interface';
-import type { UserAddressResponseDTO } from '../../dtos/responses/user-address-response.dto';
-import { USER_ADDRESS_REPO } from '../../tokens';
+import { GetUserAddressQuery } from './get-user-address.query.js';
+import type { UserAddressRepository } from '../../../domain/repositories/user-address.repository.interface.js';
+import type { UserAddressResponseDTO } from '../../dtos/responses/user-address-response.dto.js';
+import { USER_ADDRESS_REPO } from '../../tokens.js';
 
 @QueryHandler(GetUserAddressQuery)
 export class GetUserAddressHandler

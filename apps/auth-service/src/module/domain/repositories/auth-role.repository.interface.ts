@@ -3,9 +3,9 @@
  * @module auth-service/domain/repositories
  */
 import { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
-import { AuthRoleEntity } from '../entities/auth-role.entity';
-import { RoleNameVO } from '../value-objects/primitives/role-name.vo';
-import { PermissionNameVO } from '../value-objects/primitives/permission-name.vo';
+import { AuthRoleEntity } from '../entities/auth-role.entity.js';
+import { RoleNameVO } from '../value-objects/primitives/role-name.vo.js';
+import { PermissionNameVO } from '../value-objects/primitives/permission-name.vo.js';
 
 export interface AuthRoleRepository extends BaseRepository<AuthRoleEntity, string> {
   findByName(name: RoleNameVO): Promise<AuthRoleEntity | null>;

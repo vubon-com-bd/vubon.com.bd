@@ -1,69 +1,80 @@
+/**
+ * Address Request DTOs
+ */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsEnum,
+  MinLength,
+  MaxLength,
+} from 'class-validator';
+import { USER_ADDRESS_TYPE, USER_ADDRESS } from '@vubon/shared-constants/user';
 
 export class AddAddressRequestDto {
-  @ApiProperty({ example: 'home' })
+  @ApiProperty({ enum: Object.values(USER_ADDRESS_TYPE) })
+  @IsEnum(Object.values(USER_ADDRESS_TYPE) as string[])
   type!: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'House 12, Road 5, Dhanmondi' })
+  @IsString()
+  @MinLength(USER_ADDRESS.LINE_MIN_LENGTH)
+  @MaxLength(USER_ADDRESS.LINE_MAX_LENGTH)
   line1!: string;
 
-  @ApiProperty()
-  city!: string;
-
-  @ApiProperty()
-  district!: string;
-
-  @ApiProperty()
-  division!: string;
-
-  @ApiProperty({ example: 'BD' })
-  country!: string;
-
-  @ApiProperty({ example: false })
-  isDefault!: boolean;
-
-  @ApiPropertyOptional()
+  @ApiPropertyOptional() @IsOptional() @IsString()
   line2?: string;
 
-  @ApiPropertyOptional()
-  postalCode?: string;
+  @ApiProperty({ example: 'Dhaka' })
+  @IsString() @MaxLength(USER_ADDRESS.CITY_MAX_LENGTH)
+  city!: string;
 
-  @ApiPropertyOptional()
-  label?: string;
+  @ApiPropertyOptional({ example: 'Dhaka' }) @IsOptional() @IsString()
+  district?: string;
+
+  @ApiPropertyOptional({ example: 'Dhaka' }) @IsOptional() @IsString()
+  division?: string;
+
+  @ApiProperty({ example: '1209' })
+  @IsString() @MaxLength(4)
+  postalCode!: string;
+
+  @ApiPropertyOptional({ example: 'BD' }) @IsOptional() @IsString()
+  country?: string;
+
+  @ApiPropertyOptional() @IsOptional() @IsBoolean()
+  isDefault?: boolean;
+
+  @ApiPropertyOptional() @IsOptional() @IsBoolean()
+  isDefaultShipping?: boolean;
+
+  @ApiPropertyOptional() @IsOptional() @IsBoolean()
+  isDefaultBilling?: boolean;
 }
 
 export class UpdateAddressRequestDto {
-  @ApiPropertyOptional()
+  @ApiPropertyOptional() @IsOptional() @IsString()
+  type?: string;
+
+  @ApiPropertyOptional() @IsOptional() @IsString() @MinLength(USER_ADDRESS.LINE_MIN_LENGTH)
   line1?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional() @IsOptional() @IsString()
   line2?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional() @IsOptional() @IsString()
   city?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional() @IsOptional() @IsString()
   district?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional() @IsOptional() @IsString()
   division?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional() @IsOptional() @IsString()
   postalCode?: string;
 
-  @ApiPropertyOptional()
-  label?: string;
-
-  @ApiPropertyOptional()
+  @ApiPropertyOptional() @IsOptional() @IsBoolean()
   isDefault?: boolean;
-}
-
-export class DeleteAddressRequestDto {
-  @ApiProperty()
-  addressId!: string;
-}
-
-export class SetDefaultAddressRequestDto {
-  @ApiProperty()
-  addressId!: string;
 }

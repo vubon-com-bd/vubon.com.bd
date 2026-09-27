@@ -1,6 +1,7 @@
-export { ListAddressesQuery } from './list-addresses.query';
-export { ListAddressesHandler } from './list-addresses.handler';
-export { GetAddressQuery } from './get-address.query';
-export { GetAddressHandler } from './get-address.handler';
-export { GetDefaultAddressQuery } from './get-default-address.query';
-export { GetDefaultAddressHandler } from './get-default-address.handler';
+// queries/address/index.ts
+export * from './list-addresses.query.js';
+export * from './list-addresses.handler.js';
+export * from './get-address.query.js';
+export * from './get-address.handler.js';
+export * from './get-default-address.query.js';
+export * from './get-default-address.handler.js';

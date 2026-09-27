@@ -3,8 +3,8 @@
  * @module auth-service/application/mappers
  */
 import { OneWayMapper } from '@vubon/shared-kernel/application/mappers/base.mapper';
-import { AuthDeviceEntity } from '../../domain/entities/auth-device.entity';
-import type { AuthDeviceResponseDTO } from '../dtos/responses/auth-device-response.dto';
+import { AuthDeviceEntity } from '../../domain/entities/auth-device.entity.js';
+import type { AuthDeviceResponseDTO } from '../dtos/responses/auth-device-response.dto.js';
 
 export class AuthDeviceMapper
   extends OneWayMapper<AuthDeviceEntity, AuthDeviceResponseDTO> {

@@ -2,8 +2,8 @@
  * PasswordValidatorService — Unit Tests
  * @module auth-service/infrastructure/services/internal
  */
-import { PasswordValidatorService } from './password-validator.service';
-import { WeakPasswordError } from '../../../domain/errors/password.errors';
+import { PasswordValidatorService } from './password-validator.service.js';
+import { WeakPasswordError } from '../../../domain/errors/password.errors.js';
 
 describe('PasswordValidatorService', () => {
   let service: PasswordValidatorService;

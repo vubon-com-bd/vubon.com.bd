@@ -14,7 +14,7 @@ import {
   RecoveryCodeEmailTemplate,
   AccountLockEmailTemplate,
   DeviceLoginEmailTemplate,
-} from '../../external/email/templates';
+} from '../../external/email/templates/index.js';
 
 @Injectable()
 export class EmailService {

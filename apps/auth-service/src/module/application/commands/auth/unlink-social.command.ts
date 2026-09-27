@@ -1,6 +1,6 @@
 import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
 import type { UserId } from '@vubon/shared-types/common';
-import type { UnlinkSocialRequestDTO } from '../../dtos/requests/auth/unlink-social.dto';
+import type { UnlinkSocialRequestDTO } from '../../dtos/requests/auth/unlink-social.dto.js';
 
 export class UnlinkSocialCommand extends BaseCommand {
   readonly type = 'auth.unlink-social';

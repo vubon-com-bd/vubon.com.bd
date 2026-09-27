@@ -1,25 +1,33 @@
+/**
+ * UserPreferencesModule
+ */
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-
-import { UserPreferencesController } from '../../interfaces/controllers/rest/user-preferences.controller';
-import { UserPreferencesService } from '../../application/services/impl/user-preferences.service';
-import { UpdatePreferencesHandler } from '../../application/commands/preferences/update-preferences.handler';
-import { ResetPreferencesHandler } from '../../application/commands/preferences/reset-preferences.handler';
-import { GetPreferencesHandler } from '../../application/queries/preferences/get-preferences.handler';
-import { UserPreferencesPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/user-preferences.prisma.repository';
-import { UserPreferencesCacheRepository } from '../../infrastructure/persistence/cache/repositories/user-preferences.cache.repository';
+import { UserPreferencesController } from '@interfaces/controllers/rest/user-preferences.controller';
+import { UserPreferencesService } from '@application/services/impl/user-preferences.service';
+import {
+  UpdatePreferencesHandler,
+  ResetPreferencesHandler,
+} from '@application/commands/preferences';
+import { GetPreferencesHandler } from '@application/queries/preferences';
+import { UserPreferencesPrismaRepository } from '@infrastructure/persistence/prisma/repositories';
+import { UserPreferencesCacheRepository } from '@infrastructure/persistence/cache/repositories';
+import { USER_PREFERENCES_REPOSITORY } from '@domain/repositories/user-preferences.repository.interface';
+import { PrismaModule } from '@infrastructure/persistence/prisma/prisma.module';
+import { RedisModule } from '@infrastructure/persistence/cache/redis.module';
+import { UserModule } from '../user/user.module.js';
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, PrismaModule, RedisModule, UserModule],
   controllers: [UserPreferencesController],
   providers: [
-    UserPreferencesPrismaRepository,
-    UserPreferencesCacheRepository,
     UserPreferencesService,
+    { provide: USER_PREFERENCES_REPOSITORY, useClass: UserPreferencesPrismaRepository },
+    UserPreferencesCacheRepository,
     UpdatePreferencesHandler,
     ResetPreferencesHandler,
     GetPreferencesHandler,
   ],
-  exports: [UserPreferencesService, UserPreferencesPrismaRepository],
+  exports: [UserPreferencesService, USER_PREFERENCES_REPOSITORY],
 })
 export class UserPreferencesModule {}

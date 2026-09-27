@@ -1,9 +1,9 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { GetAuthRecoveryCodesQuery } from './get-auth-recovery-codes.query';
-import type { AuthRecoveryCodeRepository } from '../../../domain/repositories/auth-recovery-code.repository.interface';
-import { AUTH_RECOVERY_CODE_REPO } from '../../tokens';
+import { GetAuthRecoveryCodesQuery } from './get-auth-recovery-codes.query.js';
+import type { AuthRecoveryCodeRepository } from '../../../domain/repositories/auth-recovery-code.repository.interface.js';
+import { AUTH_RECOVERY_CODE_REPO } from '../../tokens.js';
 
 export interface RecoveryCodeSummaryDTO {
   readonly id: string;

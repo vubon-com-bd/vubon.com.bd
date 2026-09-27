@@ -4,7 +4,7 @@
  *
  * Helper methods for extracting user context in controllers.
  */
-import type { CurrentUserShape } from '../decorators/current-user.decorator';
+import type { CurrentUserShape } from '../decorators/current-user.decorator.js';
 
 export abstract class BaseController {
   /**

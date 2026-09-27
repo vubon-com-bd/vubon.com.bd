@@ -7,10 +7,10 @@ import { RedisService } from '@vubon/shared-kernel/infrastructure/persistence/ca
 import { BaseCacheRepository } from '@vubon/shared-kernel/infrastructure/persistence/cache/base.cache.repository';
 import { CACHE_TTL } from '@vubon/shared-constants/infrastructure';
 import type { UserId } from '@vubon/shared-types/common';
-import { AuthMfaEntity } from '../../../../domain/entities/auth-mfa.entity';
-import { MfaSecretVO } from '../../../../domain/value-objects/primitives/mfa-secret.vo';
-import { MfaTypeVO } from '../../../../domain/value-objects/primitives/mfa-type.vo';
-import { MfaStatusVO } from '../../../../domain/value-objects/primitives/mfa-status.vo';
+import { AuthMfaEntity } from '../../../../domain/entities/auth-mfa.entity.js';
+import { MfaSecretVO } from '../../../../domain/value-objects/primitives/mfa-secret.vo.js';
+import { MfaTypeVO } from '../../../../domain/value-objects/primitives/mfa-type.vo.js';
+import { MfaStatusVO } from '../../../../domain/value-objects/primitives/mfa-status.vo.js';
 
 interface CachedMfa {
   readonly id: string;

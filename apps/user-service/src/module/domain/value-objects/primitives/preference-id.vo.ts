@@ -1,15 +1,17 @@
-import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { InvalidPreferenceIdError } from '../../errors/preference.errors';
+/**
+ * PreferenceId Value Object
+ */
+import { BaseIdVO } from '@vubon/shared-kernel/domain/primitives/id.vo';
 
-export class PreferenceIdVO extends BaseVO<string> {
+export class PreferenceIdVO extends BaseIdVO<string> {
   private constructor(value: string) {
     super(value);
   }
 
   static create(raw: string): PreferenceIdVO {
-    if (!raw || raw.trim().length === 0) {
-      throw new InvalidPreferenceIdError('PreferenceId cannot be empty');
+    if (typeof raw !== 'string' || raw.trim().length === 0) {
+      throw new Error('PreferenceId cannot be empty');
     }
-    return new PreferenceIdVO(raw);
+    return new PreferenceIdVO(raw.trim());
   }
 }

@@ -3,7 +3,7 @@
  * @module auth-service/infrastructure/services/internal
  */
 import { Injectable } from '@nestjs/common';
-import { AuthSessionEntity } from '../../../domain/entities/auth-session.entity';
+import { AuthSessionEntity } from '../../../domain/entities/auth-session.entity.js';
 
 const DEFAULT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const SLIDE_THRESHOLD_MS = 5 * 60 * 1000;

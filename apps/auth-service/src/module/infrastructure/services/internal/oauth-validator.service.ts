@@ -3,8 +3,8 @@
  * @module auth-service/infrastructure/services/internal
  */
 import { Injectable } from '@nestjs/common';
-import { OAuthProviderVO } from '../../../domain/value-objects/primitives/oauth-provider.vo';
-import { OAuthFailedAppError } from '../../../application/errors/oauth.errors';
+import { OAuthProviderVO } from '../../../domain/value-objects/primitives/oauth-provider.vo.js';
+import { OAuthFailedAppError } from '../../../application/errors/oauth.errors.js';
 
 const SUPPORTED = new Set<string>([
   'google', 'facebook', 'github', 'linkedin',

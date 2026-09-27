@@ -9,7 +9,7 @@
  *  10 failed attempts   → 24 hour lock
  *  >10 failed attempts  → permanent (admin unlock)
  */
-import { AccountLockDurationVO } from '../value-objects/primitives/account-lock-duration.vo';
+import { AccountLockDurationVO } from '../value-objects/primitives/account-lock-duration.vo.js';
 
 export interface LockDecision {
   readonly shouldLock: boolean;

@@ -1,17 +1,17 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { AuthRoleController } from '../../interfaces/controllers/rest/auth-role.controller';
-import { AuthRoleService } from '../../application/services/impl/auth-role.service';
-import { ListAuthRolesHandler } from '../../application/queries/auth/list-auth-roles.handler';
-import { AuthRolePrismaRepository } from '../../infrastructure/persistence/prisma/repositories/auth-role.prisma.repository';
-import { AuthPermissionPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/auth-permission.prisma.repository';
-import { UserPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/user.prisma.repository';
+import { AuthRoleController } from '../../interfaces/controllers/rest/auth-role.controller.js';
+import { AuthRoleService } from '../../application/services/impl/auth-role.service.js';
+import { ListAuthRolesHandler } from '../../application/queries/auth/list-auth-roles.handler.js';
+import { AuthRolePrismaRepository } from '../../infrastructure/persistence/prisma/repositories/auth-role.prisma.repository.js';
+import { AuthPermissionPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/auth-permission.prisma.repository.js';
+import { UserPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/user.prisma.repository.js';
 import {
   AUTH_ROLE_REPO,
   AUTH_PERMISSION_REPO,
   AUTH_ROLE_SERVICE,
   USER_REPO,
-} from '../../application/services/tokens';
+} from '../../application/services/tokens.js';
 
 const TOKEN_BINDINGS = [
   { provide: AUTH_ROLE_REPO, useExisting: AuthRolePrismaRepository },

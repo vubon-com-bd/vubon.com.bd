@@ -6,7 +6,7 @@
  */
 import { Injectable } from '@nestjs/common';
 import { EMAIL_CONFIG } from '@vubon/shared-config/platform';
-import type { EmailMessageInput, EmailSendResult } from './email.client';
+import type { EmailMessageInput, EmailSendResult } from './email.client.js';
 
 @Injectable()
 export class EmailService {

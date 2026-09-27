@@ -1,9 +1,11 @@
 /**
  * ListUserAddressesHandler — Unit Tests
  */
-import { ListUserAddressesHandler } from './list-user-addresses.handler';
-import { ListUserAddressesQuery } from './list-user-addresses.query';
-import { UserAddressEntity } from '../../../domain/entities/user-address.entity';
+import { jest } from '@jest/globals';
+
+import { ListUserAddressesHandler } from './list-user-addresses.handler.js';
+import { ListUserAddressesQuery } from './list-user-addresses.query.js';
+import { UserAddressEntity } from '../../../domain/entities/user-address.entity.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -22,7 +24,7 @@ const buildAddress = (id: string) =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findByUserId: jest.fn() });
+const mockRepo = () => ({ findByUserId: jest.fn() as jest.Mock });
 
 describe('ListUserAddressesHandler', () => {
   let handler: ListUserAddressesHandler;

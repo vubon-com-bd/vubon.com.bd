@@ -1,5 +1,5 @@
 import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
-import type { UnlockAccountRequestDTO } from '../../dtos/requests/auth/unlock-account.dto';
+import type { UnlockAccountRequestDTO } from '../../dtos/requests/auth/unlock-account.dto.js';
 
 export class UnlockAccountCommand extends BaseCommand {
   readonly type = 'auth.unlock-account';

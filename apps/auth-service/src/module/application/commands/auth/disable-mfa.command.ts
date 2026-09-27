@@ -1,6 +1,6 @@
 import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
 import type { UserId } from '@vubon/shared-types/common';
-import type { DisableMfaRequestDTO } from '../../dtos/requests/auth/disable-mfa.dto';
+import type { DisableMfaRequestDTO } from '../../dtos/requests/auth/disable-mfa.dto.js';
 
 export class DisableMfaCommand extends BaseCommand {
   readonly type = 'auth.disable-mfa';

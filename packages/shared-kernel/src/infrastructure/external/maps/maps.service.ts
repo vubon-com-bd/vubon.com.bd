@@ -3,7 +3,7 @@
  * @module shared-kernel/infrastructure/external/maps
  */
 import { Injectable } from '@nestjs/common';
-import type { GeoPoint, MapsDistanceResult } from './maps.client';
+import type { GeoPoint, MapsDistanceResult } from './maps.client.js';
 
 @Injectable()
 export abstract class BaseMapsService {

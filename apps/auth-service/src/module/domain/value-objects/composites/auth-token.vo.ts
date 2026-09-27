@@ -3,8 +3,8 @@
  * @module auth-service/domain/value-objects/composites
  */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { TokenValueVO } from '../primitives/token-value.vo';
-import { TokenTypeVO } from '../primitives/token-type.vo';
+import { TokenValueVO } from '../primitives/token-value.vo.js';
+import { TokenTypeVO } from '../primitives/token-type.vo.js';
 
 export interface AuthTokenVOProps {
   readonly tokenId: string;

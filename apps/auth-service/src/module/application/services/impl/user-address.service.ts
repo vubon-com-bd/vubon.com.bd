@@ -9,15 +9,15 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { UserAddressServiceInterface } from '../interfaces/user-address.service.interface';
-import type { UserAddressRepository } from '../../../domain/repositories/user-address.repository.interface';
-import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
-import { UserAddressEntity } from '../../../domain/entities/user-address.entity';
-import type { AddAddressRequestDTO } from '../../dtos/requests/user/add-address.dto';
-import type { UpdateAddressRequestDTO } from '../../dtos/requests/user/update-address.dto';
-import type { UserAddressResponseDTO } from '../../dtos/responses/user-address-response.dto';
-import { ID_GENERATOR } from '../tokens';
-import { USER_ADDRESS_REPO } from '../../tokens';
+import type { UserAddressServiceInterface } from '../interfaces/user-address.service.interface.js';
+import type { UserAddressRepository } from '../../../domain/repositories/user-address.repository.interface.js';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface.js';
+import { UserAddressEntity } from '../../../domain/entities/user-address.entity.js';
+import type { AddAddressRequestDTO } from '../../dtos/requests/user/add-address.dto.js';
+import type { UpdateAddressRequestDTO } from '../../dtos/requests/user/update-address.dto.js';
+import type { UserAddressResponseDTO } from '../../dtos/responses/user-address-response.dto.js';
+import { ID_GENERATOR } from '../tokens.js';
+import { USER_ADDRESS_REPO } from '../../tokens.js';
 
 type AddAddressInput = AddAddressRequestDTO & {
   line1: string;

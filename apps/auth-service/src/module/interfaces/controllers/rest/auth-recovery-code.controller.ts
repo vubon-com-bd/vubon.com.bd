@@ -15,16 +15,16 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard, Public } from '@vubon/shared-kernel/interfaces';
 
-import { GenerateRecoveryCodesCommand } from '../../../application/commands/auth/generate-recovery-codes.command';
-import { RecoverAccountCommand } from '../../../application/commands/auth/recover-account.command';
-import { GetAuthRecoveryCodesQuery } from '../../../application/queries/auth/get-auth-recovery-codes.query';
+import { GenerateRecoveryCodesCommand } from '../../../application/commands/auth/generate-recovery-codes.command.js';
+import { RecoverAccountCommand } from '../../../application/commands/auth/recover-account.command.js';
+import { GetAuthRecoveryCodesQuery } from '../../../application/queries/auth/get-auth-recovery-codes.query.js';
 import type { UserId } from '@vubon/shared-types/common';
 
 import {
   GenerateRecoveryCodesRequestDTO,
   RecoverAccountRequestDTO,
-} from '../../dtos/requests/recovery-code.request.dto';
-import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
+} from '../../dtos/requests/recovery-code.request.dto.js';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator.js';
 
 @ApiTags('Auth Recovery')
 @Controller('auth/recovery-codes')

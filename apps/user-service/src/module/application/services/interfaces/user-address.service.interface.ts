@@ -1,12 +1,17 @@
-import type { BaseServiceInterface } from '@vubon/shared-kernel/application/services/base.service.interface';
-import type { UserAddressEntity } from '../../../domain/entities/user-address.entity';
-import type { AddressResponseDTO } from '../../dtos/responses/address-response.dto';
+/**
+ * UserAddressServiceInterface
+ */
+import type { AddAddressRequestDTO } from '../../dtos/requests/address/index.js';
+import type { UpdateAddressRequestDTO } from '../../dtos/requests/address/index.js';
+import type { AddressResponseDTO } from '../../dtos/responses/address-response.dto.js';
+import type { ListAddressesResult } from '../../queries/address/list-addresses.handler.js';
 
-export interface UserAddressServiceInterface
-  extends BaseServiceInterface<UserAddressEntity, string> {
-  listByUser(userId: string): Promise<readonly AddressResponseDTO[]>;
-  add(userId: string, input: Record<string, unknown>): Promise<AddressResponseDTO>;
-  update(addressId: string, input: Record<string, unknown>): Promise<AddressResponseDTO>;
-  delete(addressId: string): Promise<void>;
-  setDefault(userId: string, addressId: string): Promise<void>;
+export interface UserAddressServiceInterface {
+  list(userId: string): Promise<ListAddressesResult>;
+  findById(userId: string, addressId: string): Promise<AddressResponseDTO>;
+  findDefault(userId: string): Promise<AddressResponseDTO>;
+  add(input: AddAddressRequestDTO): Promise<AddressResponseDTO>;
+  update(input: UpdateAddressRequestDTO): Promise<AddressResponseDTO>;
+  remove(userId: string, addressId: string): Promise<{ success: true }>;
+  setDefault(userId: string, addressId: string): Promise<AddressResponseDTO>;
 }

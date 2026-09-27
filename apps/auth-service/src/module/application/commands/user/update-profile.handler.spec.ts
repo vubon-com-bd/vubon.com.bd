@@ -1,12 +1,14 @@
 /**
  * UpdateProfileHandler — Unit Tests
  */
-import { UpdateProfileHandler } from './update-profile.handler';
-import { UpdateProfileCommand } from './update-profile.command';
+import { jest } from '@jest/globals';
+
+import { UpdateProfileHandler } from './update-profile.handler.js';
+import { UpdateProfileCommand } from './update-profile.command.js';
 
 const mockProfileService = () => ({
-  update: jest.fn(),
-  toResponse: jest.fn(),
+  update: jest.fn() as jest.Mock,
+  toResponse: jest.fn() as jest.Mock,
 });
 
 describe('UpdateProfileHandler', () => {

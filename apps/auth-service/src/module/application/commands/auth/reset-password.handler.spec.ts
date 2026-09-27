@@ -1,12 +1,14 @@
 /**
  * ResetPasswordHandler — Unit Tests
  */
-import { ResetPasswordHandler } from './reset-password.handler';
-import { ResetPasswordCommand } from './reset-password.command';
+import { jest } from '@jest/globals';
+
+import { ResetPasswordHandler } from './reset-password.handler.js';
+import { ResetPasswordCommand } from './reset-password.command.js';
 
 const mockAuthService = () => ({
   name: 'AuthService',
-  resetPassword: jest.fn(),
+  resetPassword: jest.fn() as jest.Mock,
 });
 
 describe('ResetPasswordHandler', () => {

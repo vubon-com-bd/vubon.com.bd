@@ -1,17 +1,19 @@
 /**
  * AuthOAuthPrismaRepository — Unit Tests
  */
-import { AuthOAuthPrismaRepository } from './auth-oauth.prisma.repository';
-import { OAuthProviderVO } from '../../../../domain/value-objects/primitives/oauth-provider.vo';
+import { jest } from '@jest/globals';
+
+import { AuthOAuthPrismaRepository } from './auth-oauth.prisma.repository.js';
+import { OAuthProviderVO } from '../../../../domain/value-objects/primitives/oauth-provider.vo.js';
 
 const mockPrisma = () => ({
   authOAuth: {
-    findUnique: jest.fn(),
-    findFirst: jest.fn(),
-    findMany: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
+    findUnique: jest.fn() as jest.Mock,
+    findFirst: jest.fn() as jest.Mock,
+    findMany: jest.fn() as jest.Mock,
+    create: jest.fn() as jest.Mock,
+    update: jest.fn() as jest.Mock,
+    delete: jest.fn() as jest.Mock,
   },
 });
 

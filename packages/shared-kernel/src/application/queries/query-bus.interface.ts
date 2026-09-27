@@ -4,7 +4,7 @@
  *
  * References BaseQuery।
  */
-import type { BaseQuery } from './base.query';
+import type { BaseQuery } from './base.query.js';
 
 export interface QueryBus {
   execute<TResult = unknown>(query: BaseQuery): Promise<TResult>;

@@ -2,8 +2,8 @@
  * VerificationCodeVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { VerificationCodeVO } from './verification-code.vo';
-import { VerificationCodeMismatchError } from '../../errors/verification.errors';
+import { VerificationCodeVO } from './verification-code.vo.js';
+import { VerificationCodeMismatchError } from '../../errors/verification.errors.js';
 
 describe('VerificationCodeVO', () => {
   describe('of()', () => {

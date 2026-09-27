@@ -3,7 +3,7 @@
  * @module auth-service/infrastructure/services/internal
  */
 import { Injectable } from '@nestjs/common';
-import { AccountLockPolicyService } from '../../../domain/services/account-lock-policy.service';
+import { AccountLockPolicyService } from '../../../domain/services/account-lock-policy.service.js';
 
 @Injectable()
 export class LoginAttemptTrackerService {

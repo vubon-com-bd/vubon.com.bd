@@ -1,8 +1,9 @@
-export { UserService } from './user.service';
-export { UserProfileService } from './user-profile.service';
-export { UserSettingsService } from './user-settings.service';
-export { UserPreferencesService } from './user-preferences.service';
-export { UserAddressService } from './user-address.service';
-export { UserContactService } from './user-contact.service';
-export { UserKycService } from './user-kyc.service';
-export { UserActivityService } from './user-activity.service';
+// services/impl/index.ts
+export * from './user.service.js';
+export * from './user-profile.service.js';
+export * from './user-settings.service.js';
+export * from './user-preferences.service.js';
+export * from './user-address.service.js';
+export * from './user-contact.service.js';
+export * from './user-kyc.service.js';
+export * from './user-activity.service.js';

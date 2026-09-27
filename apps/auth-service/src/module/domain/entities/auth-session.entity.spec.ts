@@ -2,10 +2,10 @@
  * AuthSessionEntity — Unit Tests (Aggregate Root)
  * @module auth-service/domain/entities
  */
-import { AuthSessionEntity } from './auth-session.entity';
-import { SessionTokenVO } from '../value-objects/primitives/session-token.vo';
-import { SessionExpiryVO } from '../value-objects/primitives/session-expiry.vo';
-import { SessionExpiredError } from '../errors/session.errors';
+import { AuthSessionEntity } from './auth-session.entity.js';
+import { SessionTokenVO } from '../value-objects/primitives/session-token.vo.js';
+import { SessionExpiryVO } from '../value-objects/primitives/session-expiry.vo.js';
+import { SessionExpiredError } from '../errors/session.errors.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();

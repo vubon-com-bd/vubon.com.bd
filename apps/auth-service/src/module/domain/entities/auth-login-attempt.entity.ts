@@ -4,8 +4,8 @@
  */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
 import type { UserId } from '@vubon/shared-types/common';
-import { LoginAttemptIpVO } from '../value-objects/primitives/login-attempt-ip.vo';
-import { LoginAttemptStatusVO } from '../value-objects/primitives/login-attempt-status.vo';
+import { LoginAttemptIpVO } from '../value-objects/primitives/login-attempt-ip.vo.js';
+import { LoginAttemptStatusVO } from '../value-objects/primitives/login-attempt-status.vo.js';
 
 export interface AuthLoginAttemptEntityProps {
   readonly id: string;

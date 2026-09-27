@@ -2,10 +2,10 @@
  * AuthAccountLockEntity — Unit Tests (Aggregate Root)
  * @module auth-service/domain/entities
  */
-import { AuthAccountLockEntity } from './auth-account-lock.entity';
-import { AccountLockReasonVO } from '../value-objects/primitives/account-lock-reason.vo';
-import { AccountLockDurationVO } from '../value-objects/primitives/account-lock-duration.vo';
-import { AccountNotLockedError } from '../errors/account-lock.errors';
+import { AuthAccountLockEntity } from './auth-account-lock.entity.js';
+import { AccountLockReasonVO } from '../value-objects/primitives/account-lock-reason.vo.js';
+import { AccountLockDurationVO } from '../value-objects/primitives/account-lock-duration.vo.js';
+import { AccountNotLockedError } from '../errors/account-lock.errors.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();

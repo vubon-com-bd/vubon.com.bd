@@ -5,29 +5,29 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { AuthSocialServiceInterface } from '../interfaces/auth-social.service.interface';
-import type { AuthSocialRepository } from '../../../domain/repositories/auth-social.repository.interface';
-import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
-import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
-import type { AuthTokenServiceInterface } from '../interfaces/auth-token.service.interface';
-import type { AuthSessionServiceInterface } from '../interfaces/auth-session.service.interface';
-import { AuthSocialEntity } from '../../../domain/entities/auth-social.entity';
-import { SocialProviderVO } from '../../../domain/value-objects/primitives/social-provider.vo';
-import { SocialStatusVO } from '../../../domain/value-objects/primitives/social-status.vo';
+import type { AuthSocialServiceInterface } from '../interfaces/auth-social.service.interface.js';
+import type { AuthSocialRepository } from '../../../domain/repositories/auth-social.repository.interface.js';
+import type { UserRepository } from '../../../domain/repositories/user.repository.interface.js';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface.js';
+import type { AuthTokenServiceInterface } from '../interfaces/auth-token.service.interface.js';
+import type { AuthSessionServiceInterface } from '../interfaces/auth-session.service.interface.js';
+import { AuthSocialEntity } from '../../../domain/entities/auth-social.entity.js';
+import { SocialProviderVO } from '../../../domain/value-objects/primitives/social-provider.vo.js';
+import { SocialStatusVO } from '../../../domain/value-objects/primitives/social-status.vo.js';
 import {
   SocialAlreadyLinkedAppError,
   SocialNotLinkedAppError,
-} from '../../errors/social.errors';
-import type { SocialLoginRequestDTO } from '../../dtos/requests/auth/social-login.dto';
-import type { SocialCallbackRequestDTO } from '../../dtos/requests/auth/social-callback.dto';
-import type { LinkSocialRequestDTO } from '../../dtos/requests/auth/link-social.dto';
-import type { UnlinkSocialRequestDTO } from '../../dtos/requests/auth/unlink-social.dto';
-import type { SocialLoginResponseDTO } from '../../dtos/responses/social-login-response.dto';
-import type { UserResponseDTO } from '../../dtos/responses/user-response.dto';
-import { USER_REPO } from '../../tokens';
-import { ID_GENERATOR } from '../tokens';
-import { AUTH_TOKEN_SERVICE, AUTH_SESSION_SERVICE } from '../../tokens';
-import { AUTH_SOCIAL_REPO } from '../../tokens';
+} from '../../errors/social.errors.js';
+import type { SocialLoginRequestDTO } from '../../dtos/requests/auth/social-login.dto.js';
+import type { SocialCallbackRequestDTO } from '../../dtos/requests/auth/social-callback.dto.js';
+import type { LinkSocialRequestDTO } from '../../dtos/requests/auth/link-social.dto.js';
+import type { UnlinkSocialRequestDTO } from '../../dtos/requests/auth/unlink-social.dto.js';
+import type { SocialLoginResponseDTO } from '../../dtos/responses/social-login-response.dto.js';
+import type { UserResponseDTO } from '../../dtos/responses/user-response.dto.js';
+import { USER_REPO } from '../../tokens.js';
+import { ID_GENERATOR } from '../tokens.js';
+import { AUTH_TOKEN_SERVICE, AUTH_SESSION_SERVICE } from '../../tokens.js';
+import { AUTH_SOCIAL_REPO } from '../../tokens.js';
 
 @Injectable()
 export class AuthSocialService

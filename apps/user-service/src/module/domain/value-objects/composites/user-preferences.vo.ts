@@ -1,35 +1,47 @@
+/**
+ * UserPreferencesVO — Composite VO
+ */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { PreferenceKeyVO } from '../primitives/preference-key.vo';
-import { PreferenceValueVO } from '../primitives/preference-value.vo';
+import { PreferenceKeyVO } from '../primitives/preference-key.vo.js';
+import { PreferenceValueVO } from '../primitives/preference-value.vo.js';
 
-export interface UserPreferencesEntry {
+export interface PreferenceEntry {
   readonly key: PreferenceKeyVO;
   readonly value: PreferenceValueVO;
 }
 
-export interface UserPreferencesProps {
-  readonly userId: UserIdVO;
-  readonly entries: readonly UserPreferencesEntry[];
+export interface UserPreferencesVOProps {
+  readonly userId: string;
+  readonly entries: readonly PreferenceEntry[];
 }
 
-export class UserPreferencesVO extends BaseVO<UserPreferencesProps> {
-  private constructor(props: UserPreferencesProps) {
-    super(Object.freeze({
-      ...props,
-      entries: Object.freeze([...props.entries]),
-    }));
+export class UserPreferencesVO extends BaseVO<UserPreferencesVOProps> {
+  private constructor(props: UserPreferencesVOProps) {
+    super(props);
   }
 
-  static create(props: UserPreferencesProps): UserPreferencesVO {
+  static create(props: UserPreferencesVOProps): UserPreferencesVO {
+    if (!props.userId) throw new Error('UserPreferencesVO: userId required');
+    const seen = new Set<string>();
+    for (const e of props.entries) {
+      const k = e.key.value;
+      if (seen.has(k)) throw new Error(`UserPreferencesVO: duplicate key "${k}"`);
+      seen.add(k);
+    }
     return new UserPreferencesVO(props);
   }
 
-  get userId(): UserIdVO { return this.value.userId; }
-  get entries(): readonly UserPreferencesEntry[] { return this.value.entries; }
+  get userId(): string { return this.value.userId; }
+  get entries(): readonly PreferenceEntry[] { return this.value.entries; }
 
-  get(key: string): PreferenceValueVO | null {
-    const entry = this.value.entries.find((e) => e.key.value === key);
-    return entry ? entry.value : null;
+  getBoolean(key: string): boolean | null {
+    const found = this.value.entries.find((e) => e.key.value === key);
+    if (!found) return null;
+    if (!found.value.isBoolean()) return null;
+    return found.value.toBoolean();
+  }
+
+  isNotificationEnabled(key: string): boolean {
+    return this.getBoolean(key) === true;
   }
 }

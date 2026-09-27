@@ -2,7 +2,7 @@
  * UserAddressEntity — Unit Tests
  * @module auth-service/domain/entities
  */
-import { UserAddressEntity } from './user-address.entity';
+import { UserAddressEntity } from './user-address.entity.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 

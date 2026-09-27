@@ -2,8 +2,8 @@
  * UserEligibilityService — Aggregated eligibility rules
  * @module auth-service/domain/services
  */
-import { UserEntity } from '../entities/user.entity';
-import { UserNotActiveError } from '../errors/user.errors';
+import { UserEntity } from '../entities/user.entity.js';
+import { UserNotActiveError } from '../errors/user.errors.js';
 
 export interface EligibilityContext {
   readonly now: number;

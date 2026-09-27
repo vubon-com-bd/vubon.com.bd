@@ -1,5 +1,5 @@
 import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
-import type { CreateUserRequestDTO } from '../../dtos/requests/user/create-user.dto';
+import type { CreateUserRequestDTO } from '../../dtos/requests/user/create-user.dto.js';
 
 export class CreateUserCommand extends BaseCommand {
   readonly type = 'user.create';

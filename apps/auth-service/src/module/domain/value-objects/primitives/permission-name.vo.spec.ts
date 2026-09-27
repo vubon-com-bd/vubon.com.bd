@@ -2,7 +2,7 @@
  * PermissionNameVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { PermissionNameVO } from './permission-name.vo';
+import { PermissionNameVO } from './permission-name.vo.js';
 
 describe('PermissionNameVO', () => {
   describe('of()', () => {

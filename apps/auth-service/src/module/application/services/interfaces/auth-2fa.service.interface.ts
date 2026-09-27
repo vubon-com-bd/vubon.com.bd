@@ -4,7 +4,7 @@
  */
 import type { BaseServiceInterface } from '@vubon/shared-kernel/application/services/base.service.interface';
 import type { UserId } from '@vubon/shared-types/common';
-import type { Auth2FaEntity } from '../../../domain/entities/auth-2fa.entity';
+import type { Auth2FaEntity } from '../../../domain/entities/auth-2fa.entity.js';
 
 export interface Auth2FaServiceInterface
   extends BaseServiceInterface<Auth2FaEntity, UserId> {

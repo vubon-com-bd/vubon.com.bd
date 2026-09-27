@@ -2,8 +2,8 @@
  * TokenTypeVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { TokenTypeVO } from './token-type.vo';
-import { InvalidTokenError } from '../../errors/token.errors';
+import { TokenTypeVO } from './token-type.vo.js';
+import { InvalidTokenError } from '../../errors/token.errors.js';
 
 describe('TokenTypeVO', () => {
   describe('of()', () => {

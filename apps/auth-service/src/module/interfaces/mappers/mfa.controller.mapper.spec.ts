@@ -1,7 +1,7 @@
 /**
  * MfaControllerMapper — Unit Tests
  */
-import { MfaControllerMapper } from './mfa.controller.mapper';
+import { MfaControllerMapper } from './mfa.controller.mapper.js';
 
 describe('MfaControllerMapper', () => {
   let mapper: MfaControllerMapper;

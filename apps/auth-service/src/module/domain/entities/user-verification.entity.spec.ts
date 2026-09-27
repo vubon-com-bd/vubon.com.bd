@@ -2,10 +2,10 @@
  * UserVerificationEntity — Unit Tests
  * @module auth-service/domain/entities
  */
-import { UserVerificationEntity } from './user-verification.entity';
-import { VerificationCodeVO } from '../value-objects/primitives/verification-code.vo';
-import { VerificationTypeVO } from '../value-objects/primitives/verification-type.vo';
-import { VerificationStatusVO } from '../value-objects/primitives/verification-status.vo';
+import { UserVerificationEntity } from './user-verification.entity.js';
+import { VerificationCodeVO } from '../value-objects/primitives/verification-code.vo.js';
+import { VerificationTypeVO } from '../value-objects/primitives/verification-type.vo.js';
+import { VerificationStatusVO } from '../value-objects/primitives/verification-status.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();

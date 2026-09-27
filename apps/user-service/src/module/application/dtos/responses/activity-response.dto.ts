@@ -1,4 +1,10 @@
-import { z } from 'zod';
-import { UserActivitySchema } from '@vubon/shared-schemas/user';
-
-export type ActivityResponseDTO = z.infer<typeof UserActivitySchema>;
+/**
+ * ActivityResponseDTO
+ */
+export interface ActivityResponseDTO {
+  readonly id: string;
+  readonly userId: string;
+  readonly type: string;
+  readonly timestamp: string;
+  readonly metadata?: Readonly<Record<string, unknown>>;
+}

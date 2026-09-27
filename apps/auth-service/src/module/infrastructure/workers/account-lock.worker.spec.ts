@@ -1,10 +1,12 @@
 /**
  * AccountLockWorker — Deep Unit Tests
  */
-import { AccountLockWorker } from './account-lock.worker';
+import { jest } from '@jest/globals';
+
+import { AccountLockWorker } from './account-lock.worker.js';
 
 const mockLockService = () => ({
-  autoUnlockExpired: jest.fn().mockResolvedValue(0),
+  autoUnlockExpired: jest.fn().mockResolvedValue(0) as jest.Mock,
 });
 
 const mockJob = (name = 'auto-unlock', id = 'job-1') => ({ id, name, data: {} });

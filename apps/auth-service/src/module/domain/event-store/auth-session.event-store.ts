@@ -3,7 +3,7 @@
  * @module auth-service/domain/event-store
  */
 import type { DomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
-import type { AuthSessionDomainEvent } from '../events/auth-session.events';
+import type { AuthSessionDomainEvent } from '../events/auth-session.events.js';
 
 export interface AuthSessionEventStore {
   append(event: AuthSessionDomainEvent): Promise<void>;

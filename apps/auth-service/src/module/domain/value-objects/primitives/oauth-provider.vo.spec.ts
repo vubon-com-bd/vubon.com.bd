@@ -2,7 +2,7 @@
  * OAuthProviderVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { OAuthProviderVO } from './oauth-provider.vo';
+import { OAuthProviderVO } from './oauth-provider.vo.js';
 
 describe('OAuthProviderVO', () => {
   describe('of()', () => {

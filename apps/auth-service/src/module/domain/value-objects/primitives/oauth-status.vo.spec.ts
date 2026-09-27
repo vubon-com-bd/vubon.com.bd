@@ -2,7 +2,7 @@
  * OAuthStatusVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { OAuthStatusVO } from './oauth-status.vo';
+import { OAuthStatusVO } from './oauth-status.vo.js';
 
 describe('OAuthStatusVO', () => {
   describe('of()', () => {

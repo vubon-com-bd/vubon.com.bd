@@ -9,8 +9,8 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { DEVICE_TRUSTED_KEY } from '../decorators/device-trusted.decorator';
-import type { AuthenticatedUser } from '../decorators/current-user.decorator';
+import { DEVICE_TRUSTED_KEY } from '../decorators/device-trusted.decorator.js';
+import type { AuthenticatedUser } from '../decorators/current-user.decorator.js';
 
 @Injectable()
 export class DeviceGuard implements CanActivate {

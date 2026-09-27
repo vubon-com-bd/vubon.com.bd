@@ -4,7 +4,7 @@
  */
 import { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
 import type { UserId } from '@vubon/shared-types/common';
-import { UserVerificationEntity } from '../entities/user-verification.entity';
+import { UserVerificationEntity } from '../entities/user-verification.entity.js';
 
 export interface UserVerificationRepository extends BaseRepository<UserVerificationEntity, string> {
   findLatestByUserAndType(

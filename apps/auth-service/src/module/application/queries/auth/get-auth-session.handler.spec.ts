@@ -2,12 +2,14 @@
  * GetAuthSessionHandler — Unit Tests
  * @module auth-service/application/queries/auth
  */
-import { GetAuthSessionHandler } from './get-auth-session.handler';
-import { GetAuthSessionQuery } from './get-auth-session.query';
-import { AuthSessionEntity } from '../../../domain/entities/auth-session.entity';
-import { SessionTokenVO } from '../../../domain/value-objects/primitives/session-token.vo';
-import { SessionExpiryVO } from '../../../domain/value-objects/primitives/session-expiry.vo';
-import { SessionNotFoundAppError } from '../../errors/session.errors';
+import { jest } from '@jest/globals';
+
+import { GetAuthSessionHandler } from './get-auth-session.handler.js';
+import { GetAuthSessionQuery } from './get-auth-session.query.js';
+import { AuthSessionEntity } from '../../../domain/entities/auth-session.entity.js';
+import { SessionTokenVO } from '../../../domain/value-objects/primitives/session-token.vo.js';
+import { SessionExpiryVO } from '../../../domain/value-objects/primitives/session-expiry.vo.js';
+import { SessionNotFoundAppError } from '../../errors/session.errors.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();
@@ -24,7 +26,7 @@ const buildSession = () =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findById: jest.fn() });
+const mockRepo = () => ({ findById: jest.fn() as jest.Mock });
 
 describe('GetAuthSessionHandler', () => {
   let handler: GetAuthSessionHandler;

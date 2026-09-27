@@ -2,7 +2,7 @@
  * IdGeneratorService — Unit Tests
  * @module auth-service/infrastructure/services/internal
  */
-import { IdGeneratorService } from './id-generator.service';
+import { IdGeneratorService } from './id-generator.service.js';
 
 describe('IdGeneratorService', () => {
   let service: IdGeneratorService;

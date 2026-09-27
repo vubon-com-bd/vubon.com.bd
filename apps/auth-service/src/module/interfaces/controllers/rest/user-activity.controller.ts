@@ -8,8 +8,8 @@ import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
 import type { UserId } from '@vubon/shared-types/common';
 
-import { ListUserActivitiesQuery } from '../../../application/queries/user/list-user-activities.query';
-import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
+import { ListUserActivitiesQuery } from '../../../application/queries/user/list-user-activities.query.js';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator.js';
 
 @ApiTags('Users Activity')
 @Controller('users/activity')

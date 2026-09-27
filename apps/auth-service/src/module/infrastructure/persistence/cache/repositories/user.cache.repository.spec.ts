@@ -2,13 +2,15 @@
  * UserCacheRepository — Unit Tests
  * @module auth-service/infrastructure/persistence/cache/repositories
  */
-import { UserCacheRepository } from './user.cache.repository';
-import { UserEntity } from '../../../../domain/entities/user.entity';
-import { UserEmailVO } from '../../../../domain/value-objects/primitives/user-email.vo';
-import { UserNameVO } from '../../../../domain/value-objects/primitives/user-name.vo';
-import { UserStatusVO } from '../../../../domain/value-objects/primitives/user-status.vo';
-import { UserTypeVO } from '../../../../domain/value-objects/primitives/user-type.vo';
-import { UserRoleVO } from '../../../../domain/value-objects/primitives/user-role.vo';
+import { jest } from '@jest/globals';
+
+import { UserCacheRepository } from './user.cache.repository.js';
+import { UserEntity } from '../../../../domain/entities/user.entity.js';
+import { UserEmailVO } from '../../../../domain/value-objects/primitives/user-email.vo.js';
+import { UserNameVO } from '../../../../domain/value-objects/primitives/user-name.vo.js';
+import { UserStatusVO } from '../../../../domain/value-objects/primitives/user-status.vo.js';
+import { UserTypeVO } from '../../../../domain/value-objects/primitives/user-type.vo.js';
+import { UserRoleVO } from '../../../../domain/value-objects/primitives/user-role.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 

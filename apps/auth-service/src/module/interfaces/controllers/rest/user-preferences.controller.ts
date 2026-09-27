@@ -14,10 +14,10 @@ import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
 import type { UserId } from '@vubon/shared-types/common';
 
-import { UpdatePreferencesCommand } from '../../../application/commands/user/update-preferences.command';
-import { GetUserPreferencesQuery } from '../../../application/queries/user/get-user-preferences.query';
-import { UpdatePreferencesRequestDTO } from '../../dtos/requests/preferences.request.dto';
-import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
+import { UpdatePreferencesCommand } from '../../../application/commands/user/update-preferences.command.js';
+import { GetUserPreferencesQuery } from '../../../application/queries/user/get-user-preferences.query.js';
+import { UpdatePreferencesRequestDTO } from '../../dtos/requests/preferences.request.dto.js';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator.js';
 
 @ApiTags('Users Preferences')
 @Controller('users/preferences')

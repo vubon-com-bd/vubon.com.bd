@@ -3,7 +3,7 @@
  * @module auth-service/infrastructure/services/internal
  */
 import { Injectable } from '@nestjs/common';
-import { BiometricFailedAppError } from '../../../application/errors/biometric.errors';
+import { BiometricFailedAppError } from '../../../application/errors/biometric.errors.js';
 
 const ALLOWED_KINDS = new Set<string>([
   'fingerprint', 'face', 'voice', 'iris',

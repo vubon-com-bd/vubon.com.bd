@@ -1,10 +1,12 @@
 /**
  * GetUserContactHandler — Unit Tests
  */
-import { GetUserContactHandler } from './get-user-contact.handler';
-import { GetUserContactQuery } from './get-user-contact.query';
-import { UserContactEntity } from '../../../domain/entities/user-contact.entity';
-import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo';
+import { jest } from '@jest/globals';
+
+import { GetUserContactHandler } from './get-user-contact.handler.js';
+import { GetUserContactQuery } from './get-user-contact.query.js';
+import { UserContactEntity } from '../../../domain/entities/user-contact.entity.js';
+import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -18,7 +20,7 @@ const buildContact = () =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findById: jest.fn() });
+const mockRepo = () => ({ findById: jest.fn() as jest.Mock });
 
 describe('GetUserContactHandler', () => {
   let handler: GetUserContactHandler;

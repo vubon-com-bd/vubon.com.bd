@@ -2,10 +2,10 @@
  * AuthSsoEntity — Unit Tests
  * @module auth-service/domain/entities
  */
-import { AuthSsoEntity } from './auth-sso.entity';
-import { SsoProviderVO } from '../value-objects/primitives/sso-provider.vo';
-import { SsoTokenVO } from '../value-objects/primitives/sso-token.vo';
-import { SsoStatusVO } from '../value-objects/primitives/sso-status.vo';
+import { AuthSsoEntity } from './auth-sso.entity.js';
+import { SsoProviderVO } from '../value-objects/primitives/sso-provider.vo.js';
+import { SsoTokenVO } from '../value-objects/primitives/sso-token.vo.js';
+import { SsoStatusVO } from '../value-objects/primitives/sso-status.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();

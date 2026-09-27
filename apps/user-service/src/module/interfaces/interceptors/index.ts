@@ -1,2 +1,3 @@
-export { UserCacheInterceptor } from './user-cache.interceptor';
-export { AvatarCacheInterceptor } from './avatar-cache.interceptor';
+// interceptors/index.ts
+export * from './user-cache.interceptor.js';
+export * from './avatar-cache.interceptor.js';

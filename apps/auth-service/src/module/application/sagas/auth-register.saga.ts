@@ -10,9 +10,9 @@ import { Saga, ICommand, ofType } from '@nestjs/cqrs';
 import { Observable, merge } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { BaseSaga } from '@vubon/shared-kernel/application/sagas/base.saga';
-import { UserCreatedEvent } from '../../domain/events/user.events';
-import { SendWelcomeEmailCommand } from './commands/send-welcome-email.command';
-import { SendVerificationEmailCommand } from './commands/send-verification-email.command';
+import { UserCreatedEvent } from '../../domain/events/user.events.js';
+import { SendWelcomeEmailCommand } from './commands/send-welcome-email.command.js';
+import { SendVerificationEmailCommand } from './commands/send-verification-email.command.js';
 
 @Injectable()
 export class AuthRegisterSaga extends BaseSaga<void> {

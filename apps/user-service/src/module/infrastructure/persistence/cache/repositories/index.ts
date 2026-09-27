@@ -1,4 +1,5 @@
-export { UserCacheRepository } from './user.cache.repository';
-export { UserProfileCacheRepository } from './user-profile.cache.repository';
-export { UserPreferencesCacheRepository } from './user-preferences.cache.repository';
-export { UserKycCacheRepository } from './user-kyc.cache.repository';
+// cache/repositories/index.ts
+export * from './user.cache.repository.js';
+export * from './user-profile.cache.repository.js';
+export * from './user-preferences.cache.repository.js';
+export * from './user-kyc.cache.repository.js';

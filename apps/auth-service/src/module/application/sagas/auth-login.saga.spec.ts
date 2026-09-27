@@ -3,8 +3,8 @@
  * @module auth-service/application/sagas
  */
 import { of } from 'rxjs';
-import { AuthLoginSaga } from './auth-login.saga';
-import { UserLoggedInEvent } from '../../domain/events/user.events';
+import { AuthLoginSaga } from './auth-login.saga.js';
+import { UserLoggedInEvent } from '../../domain/events/user.events.js';
 
 describe('AuthLoginSaga', () => {
   let saga: AuthLoginSaga;

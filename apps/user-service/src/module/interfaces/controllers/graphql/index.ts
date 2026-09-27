@@ -1,2 +1,3 @@
-export { UserResolver } from './user.resolver';
-export { ProfileResolver } from './profile.resolver';
+// controllers/graphql/index.ts
+// NOTE: GraphQL resolvers যোগ করা হবে যদি @nestjs/graphql ইনস্টল থাকে
+export {};

@@ -2,10 +2,12 @@
  * AuthAccountLockService — Unit Tests
  * @module auth-service/application/services/impl
  */
-import { AuthAccountLockService } from './auth-account-lock.service';
-import { AuthAccountLockEntity } from '../../../domain/entities/auth-account-lock.entity';
-import { AccountLockReasonVO } from '../../../domain/value-objects/primitives/account-lock-reason.vo';
-import { AccountLockDurationVO } from '../../../domain/value-objects/primitives/account-lock-duration.vo';
+import { jest } from '@jest/globals';
+
+import { AuthAccountLockService } from './auth-account-lock.service.js';
+import { AuthAccountLockEntity } from '../../../domain/entities/auth-account-lock.entity.js';
+import { AccountLockReasonVO } from '../../../domain/value-objects/primitives/account-lock-reason.vo.js';
+import { AccountLockDurationVO } from '../../../domain/value-objects/primitives/account-lock-duration.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();
@@ -24,14 +26,14 @@ const buildLock = (overrides: Partial<Parameters<typeof AuthAccountLockEntity.cr
   });
 
 const mockRepo = () => ({
-  findById: jest.fn(),
-  findActiveByUser: jest.fn(),
-  findAllByUser: jest.fn(),
-  findAutoUnlockable: jest.fn(),
-  findAll: jest.fn(),
+  findById: jest.fn() as jest.Mock,
+  findActiveByUser: jest.fn() as jest.Mock,
+  findAllByUser: jest.fn() as jest.Mock,
+  findAutoUnlockable: jest.fn() as jest.Mock,
+  findAll: jest.fn() as jest.Mock,
   save: jest.fn((l: AuthAccountLockEntity) => Promise.resolve(l)),
-  delete: jest.fn(),
-  exists: jest.fn(),
+  delete: jest.fn() as jest.Mock,
+  exists: jest.fn() as jest.Mock,
 });
 
 const mockIdGen = () => ({

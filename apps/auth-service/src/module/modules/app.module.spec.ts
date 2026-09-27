@@ -3,7 +3,7 @@
  * @module auth-service/modules
  */
 import 'reflect-metadata';
-import { AppModule } from './app.module';
+import { AppModule } from './app.module.js';
 
 describe('AppModule', () => {
   it('should be a valid class', () => {

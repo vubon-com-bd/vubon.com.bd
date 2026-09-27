@@ -1,8 +1,10 @@
+import { jest } from '@jest/globals';
+
 import { Test } from '@nestjs/testing';
 import { QueryBus } from '@nestjs/cqrs';
-import { AuthDeviceController } from './auth-device.controller';
+import { AuthDeviceController } from './auth-device.controller.js';
 
-const mockQueryBus = () => ({ execute: jest.fn() });
+const mockQueryBus = () => ({ execute: jest.fn() as jest.Mock });
 
 describe('AuthDeviceController', () => {
   let controller: AuthDeviceController;

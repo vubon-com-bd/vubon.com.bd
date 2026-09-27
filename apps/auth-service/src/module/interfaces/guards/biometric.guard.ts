@@ -9,7 +9,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { BIOMETRIC_REQUIRED_KEY } from '../decorators/biometric-required.decorator';
+import { BIOMETRIC_REQUIRED_KEY } from '../decorators/biometric-required.decorator.js';
 
 @Injectable()
 export class BiometricGuard implements CanActivate {

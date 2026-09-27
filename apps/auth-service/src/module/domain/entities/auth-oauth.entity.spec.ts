@@ -2,10 +2,10 @@
  * AuthOAuthEntity — Unit Tests
  * @module auth-service/domain/entities
  */
-import { AuthOAuthEntity } from './auth-oauth.entity';
-import { OAuthProviderVO } from '../value-objects/primitives/oauth-provider.vo';
-import { OAuthTokenVO } from '../value-objects/primitives/oauth-token.vo';
-import { OAuthStatusVO } from '../value-objects/primitives/oauth-status.vo';
+import { AuthOAuthEntity } from './auth-oauth.entity.js';
+import { OAuthProviderVO } from '../value-objects/primitives/oauth-provider.vo.js';
+import { OAuthTokenVO } from '../value-objects/primitives/oauth-token.vo.js';
+import { OAuthStatusVO } from '../value-objects/primitives/oauth-status.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();

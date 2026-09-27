@@ -2,7 +2,7 @@
  * DeviceStatusVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { DeviceStatusVO } from './device-status.vo';
+import { DeviceStatusVO } from './device-status.vo.js';
 
 describe('DeviceStatusVO', () => {
   describe('of()', () => {

@@ -1,4 +1,5 @@
-export { UserOnboardingSaga } from './user-onboarding.saga';
-export { UserVerificationSaga } from './user-verification.saga';
-export { KycVerificationSaga } from './kyc-verification.saga';
-export * from './commands';
+// sagas/index.ts — Sagas barrel export
+export * from './commands/index.js';
+export * from './user-onboarding.saga.js';
+export * from './user-verification.saga.js';
+export * from './kyc-verification.saga.js';

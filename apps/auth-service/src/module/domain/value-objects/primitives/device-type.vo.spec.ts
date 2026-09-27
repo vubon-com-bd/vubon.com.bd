@@ -2,7 +2,7 @@
  * DeviceTypeVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { DeviceTypeVO } from './device-type.vo';
+import { DeviceTypeVO } from './device-type.vo.js';
 
 describe('DeviceTypeVO', () => {
   describe('of()', () => {

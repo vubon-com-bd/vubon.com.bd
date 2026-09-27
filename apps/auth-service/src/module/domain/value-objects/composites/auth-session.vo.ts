@@ -3,8 +3,8 @@
  * @module auth-service/domain/value-objects/composites
  */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { SessionTokenVO } from '../primitives/session-token.vo';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { SessionTokenVO } from '../primitives/session-token.vo.js';
 
 export interface AuthSessionVOProps {
   readonly sessionId: string;

@@ -5,16 +5,16 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { UserVerificationServiceInterface } from '../interfaces/user-verification.service.interface';
-import type { UserVerificationRepository } from '../../../domain/repositories/user-verification.repository.interface';
-import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
-import { UserVerificationEntity } from '../../../domain/entities/user-verification.entity';
-import { VerificationCodeVO } from '../../../domain/value-objects/primitives/verification-code.vo';
-import { VerificationTypeVO } from '../../../domain/value-objects/primitives/verification-type.vo';
-import { VerificationStatusVO } from '../../../domain/value-objects/primitives/verification-status.vo';
-import type { UserVerificationResponseDTO } from '../../dtos/responses/user-verification-response.dto';
-import { ID_GENERATOR } from '../tokens';
-import { USER_VERIFICATION_REPO } from '../../tokens';
+import type { UserVerificationServiceInterface } from '../interfaces/user-verification.service.interface.js';
+import type { UserVerificationRepository } from '../../../domain/repositories/user-verification.repository.interface.js';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface.js';
+import { UserVerificationEntity } from '../../../domain/entities/user-verification.entity.js';
+import { VerificationCodeVO } from '../../../domain/value-objects/primitives/verification-code.vo.js';
+import { VerificationTypeVO } from '../../../domain/value-objects/primitives/verification-type.vo.js';
+import { VerificationStatusVO } from '../../../domain/value-objects/primitives/verification-status.vo.js';
+import type { UserVerificationResponseDTO } from '../../dtos/responses/user-verification-response.dto.js';
+import { ID_GENERATOR } from '../tokens.js';
+import { USER_VERIFICATION_REPO } from '../../tokens.js';
 
 const DEFAULT_TTL_MS = 15 * 60 * 1000;
 

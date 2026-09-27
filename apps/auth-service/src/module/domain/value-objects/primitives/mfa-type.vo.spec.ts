@@ -2,8 +2,8 @@
  * MfaTypeVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { MfaTypeVO } from './mfa-type.vo';
-import { MfaInvalidError } from '../../errors/mfa.errors';
+import { MfaTypeVO } from './mfa-type.vo.js';
+import { MfaInvalidError } from '../../errors/mfa.errors.js';
 
 describe('MfaTypeVO', () => {
   describe('of()', () => {

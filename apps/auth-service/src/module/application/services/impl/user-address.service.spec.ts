@@ -2,8 +2,10 @@
  * UserAddressService — Unit Tests
  * @module auth-service/application/services/impl
  */
-import { UserAddressService } from './user-address.service';
-import { UserAddressEntity } from '../../../domain/entities/user-address.entity';
+import { jest } from '@jest/globals';
+
+import { UserAddressService } from './user-address.service.js';
+import { UserAddressEntity } from '../../../domain/entities/user-address.entity.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -24,14 +26,14 @@ const buildAddress = (overrides: Partial<Parameters<typeof UserAddressEntity.cre
   });
 
 const mockRepo = () => ({
-  findById: jest.fn(),
-  findByUserId: jest.fn(),
-  findAll: jest.fn(),
+  findById: jest.fn() as jest.Mock,
+  findByUserId: jest.fn() as jest.Mock,
+  findAll: jest.fn() as jest.Mock,
   save: jest.fn((a: UserAddressEntity) => Promise.resolve(a)),
-  delete: jest.fn(),
-  exists: jest.fn(),
-  findDefaultByUserId: jest.fn(),
-  clearDefaultForUser: jest.fn(),
+  delete: jest.fn() as jest.Mock,
+  exists: jest.fn() as jest.Mock,
+  findDefaultByUserId: jest.fn() as jest.Mock,
+  clearDefaultForUser: jest.fn() as jest.Mock,
 });
 
 const mockIdGen = () => ({

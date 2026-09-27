@@ -1,5 +1,6 @@
-export { WelcomeEmailTemplate } from './welcome.email';
-export { ProfileCompleteEmailTemplate } from './profile-complete.email';
-export { KycSubmittedEmailTemplate } from './kyc-submitted.email';
-export { KycVerifiedEmailTemplate } from './kyc-verified.email';
-export { KycRejectedEmailTemplate } from './kyc-rejected.email';
+// templates/index.ts
+export * from './welcome.email.js';
+export * from './profile-complete.email.js';
+export * from './kyc-submitted.email.js';
+export * from './kyc-verified.email.js';
+export * from './kyc-rejected.email.js';

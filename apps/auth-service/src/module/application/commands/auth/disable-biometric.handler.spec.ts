@@ -1,12 +1,14 @@
 /**
  * DisableBiometricHandler — Unit Tests
  */
-import { DisableBiometricHandler } from './disable-biometric.handler';
-import { DisableBiometricCommand } from './disable-biometric.command';
+import { jest } from '@jest/globals';
+
+import { DisableBiometricHandler } from './disable-biometric.handler.js';
+import { DisableBiometricCommand } from './disable-biometric.command.js';
 
 const mockService = () => ({
   name: 'AuthBiometricService',
-  remove: jest.fn(),
+  remove: jest.fn() as jest.Mock,
 });
 
 describe('DisableBiometricHandler', () => {

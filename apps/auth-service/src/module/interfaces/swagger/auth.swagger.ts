@@ -9,7 +9,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { AuthResponseDTO } from '../dtos/responses/auth.response.dto';
+import { AuthResponseDTO } from '../dtos/responses/auth.response.dto.js';
 
 export const AuthSwagger = {
   Login: () =>

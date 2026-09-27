@@ -3,8 +3,8 @@
  * @module auth-service/application/mappers
  */
 import { BaseMapper } from '@vubon/shared-kernel/application/mappers/base.mapper';
-import { AuthSessionEntity } from '../../domain/entities/auth-session.entity';
-import type { AuthSessionResponseDTO } from '../dtos/responses/auth-session-response.dto';
+import { AuthSessionEntity } from '../../domain/entities/auth-session.entity.js';
+import type { AuthSessionResponseDTO } from '../dtos/responses/auth-session-response.dto.js';
 
 export class AuthSessionMapper
   extends BaseMapper<AuthSessionEntity, AuthSessionResponseDTO> {

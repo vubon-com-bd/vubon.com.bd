@@ -5,42 +5,42 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { AuthServiceInterface } from '../interfaces/auth.service.interface';
-import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
-import type { AuthSessionServiceInterface } from '../interfaces/auth-session.service.interface';
-import type { AuthTokenServiceInterface } from '../interfaces/auth-token.service.interface';
-import type { PasswordHasherServiceInterface } from '../interfaces/password-hasher.service.interface';
-import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
-import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo';
-import { UserPhoneVO } from '../../../domain/value-objects/primitives/user-phone.vo';
-import { UserNameVO } from '../../../domain/value-objects/primitives/user-name.vo';
-import { UserStatusVO } from '../../../domain/value-objects/primitives/user-status.vo';
-import { UserTypeVO } from '../../../domain/value-objects/primitives/user-type.vo';
-import { UserEntity } from '../../../domain/entities/user.entity';
+import type { AuthServiceInterface } from '../interfaces/auth.service.interface.js';
+import type { UserRepository } from '../../../domain/repositories/user.repository.interface.js';
+import type { AuthSessionServiceInterface } from '../interfaces/auth-session.service.interface.js';
+import type { AuthTokenServiceInterface } from '../interfaces/auth-token.service.interface.js';
+import type { PasswordHasherServiceInterface } from '../interfaces/password-hasher.service.interface.js';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface.js';
+import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo.js';
+import { UserPhoneVO } from '../../../domain/value-objects/primitives/user-phone.vo.js';
+import { UserNameVO } from '../../../domain/value-objects/primitives/user-name.vo.js';
+import { UserStatusVO } from '../../../domain/value-objects/primitives/user-status.vo.js';
+import { UserTypeVO } from '../../../domain/value-objects/primitives/user-type.vo.js';
+import { UserEntity } from '../../../domain/entities/user.entity.js';
 import {
   InvalidCredentialsError,
   UnauthorizedError,
-} from '../../errors/auth.errors';
-import { UserAlreadyExistsAppError } from '../../errors/user.errors';
-import type { LoginRequestDTO } from '../../dtos/requests/auth/login.dto';
-import type { RegisterRequestDTO } from '../../dtos/requests/auth/register.dto';
-import type { LogoutRequestDTO } from '../../dtos/requests/auth/logout.dto';
-import type { ForgotPasswordRequestDTO } from '../../dtos/requests/auth/forgot-password.dto';
-import type { ResetPasswordRequestDTO } from '../../dtos/requests/auth/reset-password.dto';
-import type { VerifyEmailRequestDTO } from '../../dtos/requests/auth/verify-email.dto';
+} from '../../errors/auth.errors.js';
+import { UserAlreadyExistsAppError } from '../../errors/user.errors.js';
+import type { LoginRequestDTO } from '../../dtos/requests/auth/login.dto.js';
+import type { RegisterRequestDTO } from '../../dtos/requests/auth/register.dto.js';
+import type { LogoutRequestDTO } from '../../dtos/requests/auth/logout.dto.js';
+import type { ForgotPasswordRequestDTO } from '../../dtos/requests/auth/forgot-password.dto.js';
+import type { ResetPasswordRequestDTO } from '../../dtos/requests/auth/reset-password.dto.js';
+import type { VerifyEmailRequestDTO } from '../../dtos/requests/auth/verify-email.dto.js';
 import type {
   LoginResponseDTO,
   LoginMfaRequiredResponseDTO,
-} from '../../dtos/responses/login-response.dto';
-import type { RegisterResponseDTO } from '../../dtos/responses/register-response.dto';
-import type { UserResponseDTO } from '../../dtos/responses/user-response.dto';
-import { USER_REPO } from '../../tokens';
+} from '../../dtos/responses/login-response.dto.js';
+import type { RegisterResponseDTO } from '../../dtos/responses/register-response.dto.js';
+import type { UserResponseDTO } from '../../dtos/responses/user-response.dto.js';
+import { USER_REPO } from '../../tokens.js';
 import {
   AUTH_SESSION_SERVICE,
   AUTH_TOKEN_SERVICE,
   PASSWORD_HASHER,
-} from '../../tokens';
-import { ID_GENERATOR } from '../tokens';
+} from '../../tokens.js';
+import { ID_GENERATOR } from '../tokens.js';
 
 @Injectable()
 export class AuthService

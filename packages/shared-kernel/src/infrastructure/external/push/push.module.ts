@@ -3,7 +3,7 @@
  * @module shared-kernel/infrastructure/external/push
  */
 import { Global, Module } from '@nestjs/common';
-import { PushService } from './push.service';
+import { PushService } from './push.service.js';
 
 @Global()
 @Module({

@@ -3,8 +3,8 @@
  * @module auth-service/application/services/interfaces
  */
 import type { BaseServiceInterface } from '@vubon/shared-kernel/application/services/base.service.interface';
-import type { AuthTokenEntity } from '../../../domain/entities/auth-token.entity';
-import type { AuthTokenResponseDTO } from '../../dtos/responses/auth-token-response.dto';
+import type { AuthTokenEntity } from '../../../domain/entities/auth-token.entity.js';
+import type { AuthTokenResponseDTO } from '../../dtos/responses/auth-token-response.dto.js';
 
 export type TokenPurpose =
   | 'access'

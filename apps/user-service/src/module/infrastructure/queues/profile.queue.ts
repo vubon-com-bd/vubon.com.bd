@@ -1,6 +1,9 @@
+/**
+ * Profile Queue
+ */
 import { Injectable } from '@nestjs/common';
+import { QUEUE_PRIORITY } from '@vubon/shared-constants/infrastructure';
 import { QueueService } from '@vubon/shared-kernel/infrastructure';
-import { QUEUE_NAME, QUEUE_PRIORITY } from '@vubon/shared-constants/infrastructure';
 
 export interface ProfileCompletionJobPayload {
   readonly userId: string;
@@ -8,16 +11,18 @@ export interface ProfileCompletionJobPayload {
 
 @Injectable()
 export class ProfileQueue {
-  readonly queueName = QUEUE_NAME.AUTH;
+  static readonly name = 'profile';
 
-  constructor(private readonly queueService: QueueService) {}
+  constructor(private readonly queues: QueueService) {}
 
-  async enqueueCompletionCheck(payload: ProfileCompletionJobPayload): Promise<string> {
-    return this.queueService.enqueue(
-      this.queueName,
-      'profile-completion',
-      payload,
-      { priority: QUEUE_PRIORITY.LOW },
+  async enqueueCompletion(payload: ProfileCompletionJobPayload): Promise<void> {
+    await this.queues.enqueue(
+      ProfileQueue.name,
+      'profile.completion',
+      { userId: payload.userId },
+      {
+        priority: QUEUE_PRIORITY.LOW,
+      }
     );
   }
 }

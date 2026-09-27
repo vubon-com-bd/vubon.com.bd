@@ -7,7 +7,7 @@
  * ⚠️ Note: নাম ApplicationNotFoundError, কারণ domain/errors/not-found.error.ts-এ NotFoundError আছে।
  */
 import { ERROR_CODE } from '@vubon/shared-constants/common';
-import { ApplicationError } from './application.error';
+import { ApplicationError } from './application.error.js';
 
 export class ApplicationNotFoundError extends ApplicationError {
   readonly code = ERROR_CODE.USER_NOT_FOUND;

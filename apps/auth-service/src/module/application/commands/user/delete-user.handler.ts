@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { DeleteUserCommand } from './delete-user.command';
-import type { UserServiceInterface } from '../../services/interfaces/user.service.interface';
-import { USER_SERVICE } from '../../tokens';
+import { DeleteUserCommand } from './delete-user.command.js';
+import type { UserServiceInterface } from '../../services/interfaces/user.service.interface.js';
+import { USER_SERVICE } from '../../tokens.js';
 
 @CommandHandler(DeleteUserCommand)
 export class DeleteUserHandler

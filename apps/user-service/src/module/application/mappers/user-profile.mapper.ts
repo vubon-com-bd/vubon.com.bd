@@ -1,22 +1,22 @@
-import { UserProfileEntity } from '../../domain/entities/user-profile.entity';
-import type { ProfileResponseDTO } from '../dtos/responses/profile-response.dto';
+/**
+ * UserProfileMapper
+ */
+import { UserProfileEntity } from '@domain/entities/user-profile.entity';
+import type { ProfileResponseDTO } from '../dtos/responses/profile-response.dto.js';
 
 export class UserProfileMapper {
   static toResponse(profile: UserProfileEntity): ProfileResponseDTO {
     return {
-      success: true,
-      profile: {
-        userId: profile.userId.value,
-        visibility: profile.visibility.value,
-        avatarUrl: profile.avatar?.value,
-        bio: profile.bio?.value,
-        updatedAt: profile.updatedAt,
-      },
-    } as unknown as ProfileResponseDTO;
+      userId: profile.userId.value,
+      bio: profile.bio.value.length > 0 ? profile.bio.value : undefined,
+      avatarUrl: profile.avatar.value.length > 0 ? profile.avatar.value : undefined,
+      visibility: profile.visibility.value,
+      updatedAt: profile.updatedAt,
+    };
   }
 
-  static toListResponse(
-    profiles: readonly UserProfileEntity[],
+  static toResponseList(
+    profiles: readonly UserProfileEntity[]
   ): readonly ProfileResponseDTO[] {
     return profiles.map((p) => UserProfileMapper.toResponse(p));
   }

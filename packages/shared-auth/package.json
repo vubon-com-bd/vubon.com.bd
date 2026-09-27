@@ -2,6 +2,7 @@
   "name": "@vubon/shared-auth",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -29,11 +30,19 @@
   "peerDependencies": {
     "react": "^18.2.0"
   },
+  "peerDependenciesMeta": {
+    "next": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    }
+  },
   "devDependencies": {
-    "@nestjs/common": "^10.4.22",
-    "@nestjs/core": "^10.4.22",
-    "@nestjs/jwt": "12.0.2",
-    "@nestjs/passport": "12.0.0",
+    "@nestjs/common": "^12.1.0",
+    "@nestjs/core": "^12.1.0",
+    "@nestjs/jwt": "^12.0.2",
+    "@nestjs/passport": "^12.0.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "9.0.10",
     "@types/node": "^20.19.43",
@@ -43,38 +52,15 @@
     "@types/passport-jwt": "4.0.1",
     "@types/passport-local": "1.0.38",
     "@types/react": "^18.3.31",
-    "@types/react-dom": "19.2.6",
+    "@types/react-dom": "18.3.7",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
-    "eslint-plugin-react": "^7.34.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
     "globals": "^15.0.0",
-    "jsonwebtoken": "9.0.3",
-    "passport": "0.7.0",
-    "passport-jwt": "4.0.1",
-    "passport-local": "1.0.0",
+    "next": "14.2.35",
     "prettier": "^3.0.0",
-    "react": "^18.3.1",
-    "react-dom": "19.2.8",
-    "reflect-metadata": "0.2.2",
-    "rxjs": "7.8.2",
-    "typescript": "^5.0.0"
-  },
-  "dependencies": {
-    "@nestjs/platform-express": "12.0.2",
-    "@vubon/shared-api": "workspace:*",
-    "@vubon/shared-config": "workspace:*",
-    "@vubon/shared-constants": "workspace:*",
-    "@vubon/shared-schemas": "workspace:*",
-    "@vubon/shared-types": "workspace:*",
-    "@vubon/shared-utils": "workspace:*",
-    "bcryptjs": "^2.4.3",
-    "next": "16.3.5",
-    "passport-facebook": "3.0.0",
-    "passport-github2": "0.1.12",
-    "passport-google-oauth20": "2.0.0",
-    "zod": "4.5.4"
+    "typescript": "^5.0.0",
+    "tsc-alias": "^1.9.5"
   }
 }

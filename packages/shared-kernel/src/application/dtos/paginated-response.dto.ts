@@ -4,8 +4,8 @@
  *
  * References sibling DTOs।
  */
-import { PaginationDTO } from './pagination.dto';
-import { BaseResponseDTO } from './base-response.dto';
+import { PaginationDTO } from './pagination.dto.js';
+import { BaseResponseDTO } from './base-response.dto.js';
 
 export interface PaginationMeta {
   readonly page: number;

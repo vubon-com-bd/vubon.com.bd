@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { UpdateAuthPreferencesCommand } from './update-auth-preferences.command';
-import type { AuthSettingsServiceInterface } from '../../services/interfaces/auth-settings.service.interface';
-import { AUTH_SETTINGS_SERVICE } from '../../tokens';
+import { UpdateAuthPreferencesCommand } from './update-auth-preferences.command.js';
+import type { AuthSettingsServiceInterface } from '../../services/interfaces/auth-settings.service.interface.js';
+import { AUTH_SETTINGS_SERVICE } from '../../tokens.js';
 
 @CommandHandler(UpdateAuthPreferencesCommand)
 export class UpdateAuthPreferencesHandler

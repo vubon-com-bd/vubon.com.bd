@@ -2,8 +2,8 @@
  * UserAddressVO — Unit Tests
  * @module auth-service/domain/value-objects/composites
  */
-import { UserAddressVO } from './user-address.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
+import { UserAddressVO } from './user-address.vo.js';
+import { UserIdVO } from '../primitives/user-id.vo.js';
 
 describe('UserAddressVO', () => {
   const userId = UserIdVO.of('user-1');

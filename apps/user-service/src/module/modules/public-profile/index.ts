@@ -1,1 +1,1 @@
-export { PublicProfileModule } from './public-profile.module';
+export * from './public-profile.module.js';

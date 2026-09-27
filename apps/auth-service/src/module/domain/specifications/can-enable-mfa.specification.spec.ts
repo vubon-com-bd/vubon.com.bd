@@ -2,16 +2,16 @@
  * CanEnableMfaSpecification — Unit Tests
  * @module auth-service/domain/specifications
  */
-import { CanEnableMfaSpecification } from './can-enable-mfa.specification';
-import { UserEntity } from '../entities/user.entity';
-import { AuthMfaEntity } from '../entities/auth-mfa.entity';
-import { UserEmailVO } from '../value-objects/primitives/user-email.vo';
-import { UserNameVO } from '../value-objects/primitives/user-name.vo';
-import { UserStatusVO } from '../value-objects/primitives/user-status.vo';
-import { UserTypeVO } from '../value-objects/primitives/user-type.vo';
-import { UserRoleVO } from '../value-objects/primitives/user-role.vo';
-import { MfaTypeVO } from '../value-objects/primitives/mfa-type.vo';
-import { MfaStatusVO } from '../value-objects/primitives/mfa-status.vo';
+import { CanEnableMfaSpecification } from './can-enable-mfa.specification.js';
+import { UserEntity } from '../entities/user.entity.js';
+import { AuthMfaEntity } from '../entities/auth-mfa.entity.js';
+import { UserEmailVO } from '../value-objects/primitives/user-email.vo.js';
+import { UserNameVO } from '../value-objects/primitives/user-name.vo.js';
+import { UserStatusVO } from '../value-objects/primitives/user-status.vo.js';
+import { UserTypeVO } from '../value-objects/primitives/user-type.vo.js';
+import { UserRoleVO } from '../value-objects/primitives/user-role.vo.js';
+import { MfaTypeVO } from '../value-objects/primitives/mfa-type.vo.js';
+import { MfaStatusVO } from '../value-objects/primitives/mfa-status.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();

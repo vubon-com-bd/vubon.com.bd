@@ -5,15 +5,15 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { AuthLoginAttemptServiceInterface } from '../interfaces/auth-login-attempt.service.interface';
-import type { AuthLoginAttemptRepository } from '../../../domain/repositories/auth-login-attempt.repository.interface';
-import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
-import { AuthLoginAttemptEntity } from '../../../domain/entities/auth-login-attempt.entity';
-import { LoginAttemptIpVO } from '../../../domain/value-objects/primitives/login-attempt-ip.vo';
-import { LoginAttemptStatusVO } from '../../../domain/value-objects/primitives/login-attempt-status.vo';
-import type { AuthLoginAttemptResponseDTO } from '../../dtos/responses/auth-login-attempt-response.dto';
-import { ID_GENERATOR } from '../tokens';
-import { AUTH_LOGIN_ATTEMPT_REPO } from '../../tokens';
+import type { AuthLoginAttemptServiceInterface } from '../interfaces/auth-login-attempt.service.interface.js';
+import type { AuthLoginAttemptRepository } from '../../../domain/repositories/auth-login-attempt.repository.interface.js';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface.js';
+import { AuthLoginAttemptEntity } from '../../../domain/entities/auth-login-attempt.entity.js';
+import { LoginAttemptIpVO } from '../../../domain/value-objects/primitives/login-attempt-ip.vo.js';
+import { LoginAttemptStatusVO } from '../../../domain/value-objects/primitives/login-attempt-status.vo.js';
+import type { AuthLoginAttemptResponseDTO } from '../../dtos/responses/auth-login-attempt-response.dto.js';
+import { ID_GENERATOR } from '../tokens.js';
+import { AUTH_LOGIN_ATTEMPT_REPO } from '../../tokens.js';
 
 @Injectable()
 export class AuthLoginAttemptService

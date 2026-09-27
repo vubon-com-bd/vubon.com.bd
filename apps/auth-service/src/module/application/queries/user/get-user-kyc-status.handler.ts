@@ -1,10 +1,10 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { GetUserKycStatusQuery } from './get-user-kyc-status.query';
-import type { UserKycRepository } from '../../../domain/repositories/user-kyc.repository.interface';
-import type { UserKycResponseDTO } from '../../dtos/responses/user-kyc-response.dto';
-import { USER_KYC_REPO } from '../../tokens';
+import { GetUserKycStatusQuery } from './get-user-kyc-status.query.js';
+import type { UserKycRepository } from '../../../domain/repositories/user-kyc.repository.interface.js';
+import type { UserKycResponseDTO } from '../../dtos/responses/user-kyc-response.dto.js';
+import { USER_KYC_REPO } from '../../tokens.js';
 
 @QueryHandler(GetUserKycStatusQuery)
 export class GetUserKycStatusHandler

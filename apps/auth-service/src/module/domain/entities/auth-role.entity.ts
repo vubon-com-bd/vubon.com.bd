@@ -3,10 +3,10 @@
  * @module auth-service/domain/entities
  */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
-import { RoleNameVO } from '../value-objects/primitives/role-name.vo';
-import { RoleDescriptionVO } from '../value-objects/primitives/role-description.vo';
-import { PermissionNameVO } from '../value-objects/primitives/permission-name.vo';
-import { RoleAlreadyAssignedError } from '../errors/permission.errors';
+import { RoleNameVO } from '../value-objects/primitives/role-name.vo.js';
+import { RoleDescriptionVO } from '../value-objects/primitives/role-description.vo.js';
+import { PermissionNameVO } from '../value-objects/primitives/permission-name.vo.js';
+import { RoleAlreadyAssignedError } from '../errors/permission.errors.js';
 
 export interface AuthRoleEntityProps {
   readonly id: string;

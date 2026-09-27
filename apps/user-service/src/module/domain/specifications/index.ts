@@ -1,6 +1,7 @@
-export { CanUpdateProfileSpecification } from './can-update-profile.specification';
-export { CanAddAddressSpecification } from './can-add-address.specification';
-export { CanSubmitKycSpecification } from './can-submit-kyc.specification';
-export { CanChangeEmailSpecification } from './can-change-email.specification';
-export { CanChangePhoneSpecification } from './can-change-phone.specification';
-export { CanDeleteAccountSpecification } from './can-delete-account.specification';
+// specifications/index.ts — Specifications barrel export
+export * from './can-update-profile.specification.js';
+export * from './can-add-address.specification.js';
+export * from './can-submit-kyc.specification.js';
+export * from './can-change-email.specification.js';
+export * from './can-change-phone.specification.js';
+export * from './can-delete-account.specification.js';

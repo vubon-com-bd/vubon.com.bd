@@ -4,9 +4,9 @@
  */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
 import type { UserId } from '@vubon/shared-types/common';
-import { AccountLockReasonVO } from '../value-objects/primitives/account-lock-reason.vo';
-import { AccountLockDurationVO } from '../value-objects/primitives/account-lock-duration.vo';
-import { AccountNotLockedError } from '../errors/account-lock.errors';
+import { AccountLockReasonVO } from '../value-objects/primitives/account-lock-reason.vo.js';
+import { AccountLockDurationVO } from '../value-objects/primitives/account-lock-duration.vo.js';
+import { AccountNotLockedError } from '../errors/account-lock.errors.js';
 
 export interface AuthAccountLockEntityProps {
   readonly id: string;

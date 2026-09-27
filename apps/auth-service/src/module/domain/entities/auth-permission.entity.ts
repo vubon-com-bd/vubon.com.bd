@@ -3,9 +3,9 @@
  * @module auth-service/domain/entities
  */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
-import { PermissionNameVO } from '../value-objects/primitives/permission-name.vo';
-import { PermissionActionVO } from '../value-objects/primitives/permission-action.vo';
-import { PermissionResourceVO } from '../value-objects/primitives/permission-resource.vo';
+import { PermissionNameVO } from '../value-objects/primitives/permission-name.vo.js';
+import { PermissionActionVO } from '../value-objects/primitives/permission-action.vo.js';
+import { PermissionResourceVO } from '../value-objects/primitives/permission-resource.vo.js';
 
 export interface AuthPermissionEntityProps {
   readonly id: string;

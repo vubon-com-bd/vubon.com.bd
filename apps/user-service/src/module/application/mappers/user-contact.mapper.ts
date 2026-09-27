@@ -1,21 +1,25 @@
-import { UserContactEntity } from '../../domain/entities/user-contact.entity';
-import type { ContactResponseDTO } from '../dtos/responses/contact-response.dto';
+/**
+ * UserContactMapper
+ */
+import { UserContactEntity } from '@domain/entities/user-contact.entity';
+import type { ContactResponseDTO } from '../dtos/responses/contact-response.dto.js';
 
 export class UserContactMapper {
   static toResponse(contact: UserContactEntity): ContactResponseDTO {
     return {
-      id: contact.id.value,
+      id: contact.id,
       userId: contact.userId.value,
       type: contact.type.value,
-      value: contact.value.value,
-      verified: contact.verified,
+      value: contact.contactValue.value,
+      isPrimary: contact.isPrimary,
+      isVerified: contact.isVerified,
       createdAt: contact.createdAt,
       updatedAt: contact.updatedAt,
-    } as unknown as ContactResponseDTO;
+    };
   }
 
-  static toListResponse(
-    contacts: readonly UserContactEntity[],
+  static toResponseList(
+    contacts: readonly UserContactEntity[]
   ): readonly ContactResponseDTO[] {
     return contacts.map((c) => UserContactMapper.toResponse(c));
   }

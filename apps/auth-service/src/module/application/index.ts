@@ -2,11 +2,11 @@
  * Application Layer — Barrel
  * @module auth-service/application
  */
-export * from './dtos';
-export * from './errors';
-export * from './services';
-export * from './commands';
-export * from './queries';
-export * from './sagas';
-export * from './mappers';
-export * from './validators';
+export * from './dtos/index.js';
+export * from './errors/index.js';
+export * from './services/index.js';
+export * from './commands/index.js';
+export * from './queries/index.js';
+export * from './sagas/index.js';
+export * from './mappers/index.js';
+export * from './validators/index.js';

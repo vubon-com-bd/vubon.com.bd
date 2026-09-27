@@ -1,12 +1,14 @@
 /**
  * EnableBiometricHandler — Unit Tests
  */
-import { EnableBiometricHandler } from './enable-biometric.handler';
-import { EnableBiometricCommand } from './enable-biometric.command';
+import { jest } from '@jest/globals';
+
+import { EnableBiometricHandler } from './enable-biometric.handler.js';
+import { EnableBiometricCommand } from './enable-biometric.command.js';
 
 const mockService = () => ({
   name: 'AuthBiometricService',
-  enroll: jest.fn(),
+  enroll: jest.fn() as jest.Mock,
 });
 
 describe('EnableBiometricHandler', () => {

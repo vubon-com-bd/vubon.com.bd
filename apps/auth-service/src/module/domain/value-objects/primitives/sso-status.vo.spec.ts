@@ -2,7 +2,7 @@
  * SsoStatusVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { SsoStatusVO } from './sso-status.vo';
+import { SsoStatusVO } from './sso-status.vo.js';
 
 describe('SsoStatusVO', () => {
   describe('of()', () => {

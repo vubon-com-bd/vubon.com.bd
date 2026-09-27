@@ -1,9 +1,11 @@
 /**
  * GetUserKycStatusHandler — Unit Tests
  */
-import { GetUserKycStatusHandler } from './get-user-kyc-status.handler';
-import { GetUserKycStatusQuery } from './get-user-kyc-status.query';
-import { UserKycEntity } from '../../../domain/entities/user-kyc.entity';
+import { jest } from '@jest/globals';
+
+import { GetUserKycStatusHandler } from './get-user-kyc-status.handler.js';
+import { GetUserKycStatusQuery } from './get-user-kyc-status.query.js';
+import { UserKycEntity } from '../../../domain/entities/user-kyc.entity.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -18,7 +20,7 @@ const buildKyc = () =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findByUserId: jest.fn() });
+const mockRepo = () => ({ findByUserId: jest.fn() as jest.Mock });
 
 describe('GetUserKycStatusHandler', () => {
   let handler: GetUserKycStatusHandler;

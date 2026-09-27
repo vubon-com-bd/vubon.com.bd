@@ -1,7 +1,8 @@
-export type { CreateUserRequestDTO } from './create-user.dto';
-export type { UpdateUserRequestDTO } from './update-user.dto';
-export type { DeleteUserRequestDTO } from './delete-user.dto';
-export type { ActivateUserRequestDTO } from './activate-user.dto';
-export type { DeactivateUserRequestDTO } from './deactivate-user.dto';
-export type { SuspendUserRequestDTO } from './suspend-user.dto';
-export type { UnsuspendUserRequestDTO } from './unsuspend-user.dto';
+// requests/user/index.ts
+export * from './create-user.dto.js';
+export * from './update-user.dto.js';
+export * from './delete-user.dto.js';
+export * from './activate-user.dto.js';
+export * from './deactivate-user.dto.js';
+export * from './suspend-user.dto.js';
+export * from './unsuspend-user.dto.js';

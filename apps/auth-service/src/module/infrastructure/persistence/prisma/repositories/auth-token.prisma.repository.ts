@@ -9,11 +9,11 @@ import {
   type PrismaDelegate,
 } from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
 import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
-import { AuthTokenEntity } from '../../../../domain/entities/auth-token.entity';
-import { TokenValueVO } from '../../../../domain/value-objects/primitives/token-value.vo';
-import { TokenTypeVO } from '../../../../domain/value-objects/primitives/token-type.vo';
-import { TokenExpiryVO } from '../../../../domain/value-objects/primitives/token-expiry.vo';
-import type { AuthTokenRepository } from '../../../../domain/repositories/auth-token.repository.interface';
+import { AuthTokenEntity } from '../../../../domain/entities/auth-token.entity.js';
+import { TokenValueVO } from '../../../../domain/value-objects/primitives/token-value.vo.js';
+import { TokenTypeVO } from '../../../../domain/value-objects/primitives/token-type.vo.js';
+import { TokenExpiryVO } from '../../../../domain/value-objects/primitives/token-expiry.vo.js';
+import type { AuthTokenRepository } from '../../../../domain/repositories/auth-token.repository.interface.js';
 
 @Injectable()
 export class AuthTokenPrismaRepository

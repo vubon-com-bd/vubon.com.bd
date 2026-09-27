@@ -2,11 +2,11 @@
  * AccountLockValidatorService — Unit Tests
  * @module auth-service/infrastructure/services/internal
  */
-import { AccountLockValidatorService } from './account-lock-validator.service';
-import { AuthAccountLockEntity } from '../../../domain/entities/auth-account-lock.entity';
-import { AccountLockReasonVO } from '../../../domain/value-objects/primitives/account-lock-reason.vo';
-import { AccountLockDurationVO } from '../../../domain/value-objects/primitives/account-lock-duration.vo';
-import { AccountLockedError } from '../../../domain/errors/account-lock.errors';
+import { AccountLockValidatorService } from './account-lock-validator.service.js';
+import { AuthAccountLockEntity } from '../../../domain/entities/auth-account-lock.entity.js';
+import { AccountLockReasonVO } from '../../../domain/value-objects/primitives/account-lock-reason.vo.js';
+import { AccountLockDurationVO } from '../../../domain/value-objects/primitives/account-lock-duration.vo.js';
+import { AccountLockedError } from '../../../domain/errors/account-lock.errors.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();

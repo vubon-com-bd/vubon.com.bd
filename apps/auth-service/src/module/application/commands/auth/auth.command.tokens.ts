@@ -24,4 +24,4 @@ export {
   TOKEN_SIGNER,
   TOTP_SERVICE,
   RECOVERY_CODE_GENERATOR,
-} from '../../tokens';
+} from '../../tokens.js';

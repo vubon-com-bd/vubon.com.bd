@@ -2,9 +2,11 @@
  * EmailService — Unit Tests (wrapper)
  * @module auth-service/infrastructure/services/external
  */
-import { EmailService } from './email.service';
+import { jest } from '@jest/globals';
 
-const mockKernelEmail = () => ({ send: jest.fn().mockResolvedValue({ success: true }) });
+import { EmailService } from './email.service.js';
+
+const mockKernelEmail = () => ({ send: jest.fn().mockResolvedValue({ success: true }) as jest.Mock });
 
 describe('EmailService (auth wrapper)', () => {
   let service: EmailService;

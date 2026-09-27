@@ -4,9 +4,9 @@
  */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
 import type { UserId } from '@vubon/shared-types/common';
-import { VerificationCodeVO } from '../value-objects/primitives/verification-code.vo';
-import { VerificationTypeVO } from '../value-objects/primitives/verification-type.vo';
-import { VerificationStatusVO } from '../value-objects/primitives/verification-status.vo';
+import { VerificationCodeVO } from '../value-objects/primitives/verification-code.vo.js';
+import { VerificationTypeVO } from '../value-objects/primitives/verification-type.vo.js';
+import { VerificationStatusVO } from '../value-objects/primitives/verification-status.vo.js';
 
 export interface UserVerificationEntityProps {
   readonly id: string;

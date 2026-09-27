@@ -2,9 +2,11 @@
  * SmsService — Unit Tests (wrapper)
  * @module auth-service/infrastructure/services/external
  */
-import { SmsService } from './sms.service';
+import { jest } from '@jest/globals';
 
-const mockKernelSms = () => ({ send: jest.fn().mockResolvedValue(undefined) });
+import { SmsService } from './sms.service.js';
+
+const mockKernelSms = () => ({ send: jest.fn().mockResolvedValue(undefined) as jest.Mock });
 
 describe('SmsService (auth wrapper)', () => {
   let service: SmsService;

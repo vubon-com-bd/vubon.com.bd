@@ -1,8 +1,9 @@
-export type { UserServiceInterface } from './user.service.interface';
-export type { UserProfileServiceInterface } from './user-profile.service.interface';
-export type { UserSettingsServiceInterface } from './user-settings.service.interface';
-export type { UserPreferencesServiceInterface } from './user-preferences.service.interface';
-export type { UserAddressServiceInterface } from './user-address.service.interface';
-export type { UserContactServiceInterface } from './user-contact.service.interface';
-export type { UserKycServiceInterface } from './user-kyc.service.interface';
-export type { UserActivityServiceInterface } from './user-activity.service.interface';
+// services/interfaces/index.ts
+export * from './user.service.interface.js';
+export * from './user-profile.service.interface.js';
+export * from './user-settings.service.interface.js';
+export * from './user-preferences.service.interface.js';
+export * from './user-address.service.interface.js';
+export * from './user-contact.service.interface.js';
+export * from './user-kyc.service.interface.js';
+export * from './user-activity.service.interface.js';

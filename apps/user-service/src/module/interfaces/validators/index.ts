@@ -1,3 +1,4 @@
-export { UserInterfaceValidator } from './user.validator';
-export { ProfileInterfaceValidator } from './profile.validator';
-export { KycInterfaceValidator } from './kyc.validator';
+// validators/index.ts
+export * from './user.validator.js';
+export * from './profile.validator.js';
+export * from './kyc.validator.js';

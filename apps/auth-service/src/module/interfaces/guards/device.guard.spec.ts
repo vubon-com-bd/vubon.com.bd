@@ -1,9 +1,11 @@
 /**
  * DeviceGuard — Unit Tests
  */
+import { jest } from '@jest/globals';
+
 import { Reflector } from '@nestjs/core';
 import { ForbiddenException } from '@nestjs/common';
-import { DeviceGuard } from './device.guard';
+import { DeviceGuard } from './device.guard.js';
 
 const buildExecutionContext = (user?: { deviceTrusted?: boolean }): unknown => ({
   switchToHttp: () => ({

@@ -2,10 +2,12 @@
  * AuthSessionService — Unit Tests
  * @module auth-service/application/services/impl
  */
-import { AuthSessionService } from './auth-session.service';
-import { AuthSessionEntity } from '../../../domain/entities/auth-session.entity';
-import { SessionTokenVO } from '../../../domain/value-objects/primitives/session-token.vo';
-import { SessionExpiryVO } from '../../../domain/value-objects/primitives/session-expiry.vo';
+import { jest } from '@jest/globals';
+
+import { AuthSessionService } from './auth-session.service.js';
+import { AuthSessionEntity } from '../../../domain/entities/auth-session.entity.js';
+import { SessionTokenVO } from '../../../domain/value-objects/primitives/session-token.vo.js';
+import { SessionExpiryVO } from '../../../domain/value-objects/primitives/session-expiry.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();
@@ -24,15 +26,15 @@ const buildSession = (overrides: Partial<Parameters<typeof AuthSessionEntity.cre
   });
 
 const mockSessionRepo = () => ({
-  findById: jest.fn(),
-  findByToken: jest.fn(),
-  findActiveByUser: jest.fn(),
-  findAll: jest.fn(),
+  findById: jest.fn() as jest.Mock,
+  findByToken: jest.fn() as jest.Mock,
+  findActiveByUser: jest.fn() as jest.Mock,
+  findAll: jest.fn() as jest.Mock,
   save: jest.fn((s: AuthSessionEntity) => Promise.resolve(s)),
-  delete: jest.fn(),
-  exists: jest.fn(),
-  revokeAllForUser: jest.fn(),
-  deleteExpired: jest.fn(),
+  delete: jest.fn() as jest.Mock,
+  exists: jest.fn() as jest.Mock,
+  revokeAllForUser: jest.fn() as jest.Mock,
+  deleteExpired: jest.fn() as jest.Mock,
 });
 
 const mockIdGen = () => ({

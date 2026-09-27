@@ -1,12 +1,14 @@
 /**
  * SocialLoginHandler — Unit Tests
  */
-import { SocialLoginHandler } from './social-login.handler';
-import { SocialLoginCommand } from './social-login.command';
+import { jest } from '@jest/globals';
+
+import { SocialLoginHandler } from './social-login.handler.js';
+import { SocialLoginCommand } from './social-login.command.js';
 
 const mockSocialService = () => ({
   name: 'AuthSocialService',
-  initiateLogin: jest.fn(),
+  initiateLogin: jest.fn() as jest.Mock,
 });
 
 describe('SocialLoginHandler', () => {

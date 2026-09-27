@@ -4,7 +4,7 @@
  */
 import type { UserId } from '@vubon/shared-types/common';
 import type { DomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
-import type { AuthAccountLockDomainEvent } from '../events/auth-account-lock.events';
+import type { AuthAccountLockDomainEvent } from '../events/auth-account-lock.events.js';
 
 export interface AuthAccountLockEventStore {
   append(event: AuthAccountLockDomainEvent): Promise<void>;

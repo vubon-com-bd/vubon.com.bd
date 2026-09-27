@@ -3,8 +3,8 @@
  * @module auth-service/domain/repositories
  */
 import { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
-import { AuthTokenEntity } from '../entities/auth-token.entity';
-import { TokenValueVO } from '../value-objects/primitives/token-value.vo';
+import { AuthTokenEntity } from '../entities/auth-token.entity.js';
+import { TokenValueVO } from '../value-objects/primitives/token-value.vo.js';
 
 export interface AuthTokenRepository extends BaseRepository<AuthTokenEntity, string> {
   findByValue(value: TokenValueVO): Promise<AuthTokenEntity | null>;

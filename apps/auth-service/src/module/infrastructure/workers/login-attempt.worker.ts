@@ -6,7 +6,7 @@ import { Injectable, Inject, Logger } from '@nestjs/common';
 import { Worker, Job } from 'bullmq';
 import type { QueueJobResult } from '@vubon/shared-kernel/infrastructure/messaging/queue';
 import { QUEUE_NAME, QUEUE_LIMIT } from '@vubon/shared-constants/infrastructure';
-import { AuthLoginAttemptService } from '../../application/services/impl/auth-login-attempt.service';
+import { AuthLoginAttemptService } from '../../application/services/impl/auth-login-attempt.service.js';
 
 @Injectable()
 export class LoginAttemptWorker {

@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { AuthSettingsController } from '../../interfaces/controllers/rest/auth-settings.controller';
-import { AuthSettingsService } from '../../application/services/impl/auth-settings.service';
-import { GetAuthSettingsHandler } from '../../application/queries/auth/get-auth-settings.handler';
-import { UpdateAuthSettingsHandler } from '../../application/commands/settings/update-auth-settings.handler';
-import { AUTH_SETTINGS_SERVICE } from '../../application/services/tokens';
+import { AuthSettingsController } from '../../interfaces/controllers/rest/auth-settings.controller.js';
+import { AuthSettingsService } from '../../application/services/impl/auth-settings.service.js';
+import { GetAuthSettingsHandler } from '../../application/queries/auth/get-auth-settings.handler.js';
+import { UpdateAuthSettingsHandler } from '../../application/commands/settings/update-auth-settings.handler.js';
+import { AUTH_SETTINGS_SERVICE } from '../../application/services/tokens.js';
 
 const TOKEN_BINDINGS = [
   { provide: AUTH_SETTINGS_SERVICE, useExisting: AuthSettingsService },

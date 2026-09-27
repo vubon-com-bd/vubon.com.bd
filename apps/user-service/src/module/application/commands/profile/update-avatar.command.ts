@@ -1,11 +1,16 @@
-import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
+/**
+ * UpdateAvatarCommand
+ */
+import { BaseCommand } from '@vubon/shared-kernel/application/commands';
 
 export class UpdateAvatarCommand extends BaseCommand {
-  readonly type = 'user.profile.update-avatar';
+  readonly type = 'profile.avatar.update';
 
   constructor(
     public readonly userId: string,
-    public readonly avatarUrl: string | null,
+    public readonly avatarUrl: string,
+    public readonly fileSizeMB?: number,
+    public readonly mimeType?: string
   ) {
     super();
   }

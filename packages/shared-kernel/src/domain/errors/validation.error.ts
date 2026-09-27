@@ -5,7 +5,7 @@
  * Values আসে shared-constants/common/error.constants থেকে (value)।
  */
 import { ERROR_CODE } from '@vubon/shared-constants/common';
-import { DomainError } from './domain.error';
+import { DomainError } from './domain.error.js';
 
 export class ValidationError extends DomainError {
   readonly code = ERROR_CODE.VAL_REQUIRED;

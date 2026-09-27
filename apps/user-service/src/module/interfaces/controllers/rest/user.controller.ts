@@ -1,3 +1,7 @@
+/**
+ * UserController — REST endpoints for user CRUD
+ * @module user-service/interfaces/controllers/rest
+ */
 import {
   Body,
   Controller,
@@ -6,8 +10,8 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  Patch,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -16,126 +20,141 @@ import { ApiTags } from '@nestjs/swagger';
 import {
   CurrentUser,
   JwtAuthGuard,
-  Permissions,
   type CurrentUserShape,
 } from '@vubon/shared-kernel/interfaces';
-import { PERMISSION } from '@vubon/shared-constants/common';
-import { CreateUserCommand } from '../../../application/commands/user/create-user.command';
-import { UpdateUserCommand } from '../../../application/commands/user/update-user.command';
-import { DeleteUserCommand } from '../../../application/commands/user/delete-user.command';
-import { ActivateUserCommand } from '../../../application/commands/user/activate-user.command';
-import { DeactivateUserCommand } from '../../../application/commands/user/deactivate-user.command';
-import { SuspendUserCommand } from '../../../application/commands/user/suspend-user.command';
-import { UnsuspendUserCommand } from '../../../application/commands/user/unsuspend-user.command';
-import { GetUserQuery } from '../../../application/queries/user/get-user.query';
-import { ListUsersQuery } from '../../../application/queries/user/list-users.query';
+import { CreateUserCommand } from '@application/commands/user/create-user.command';
+import { UpdateUserCommand } from '@application/commands/user/update-user.command';
+import { DeleteUserCommand } from '@application/commands/user/delete-user.command';
+import { ActivateUserCommand } from '@application/commands/user/activate-user.command';
+import { SuspendUserCommand } from '@application/commands/user/suspend-user.command';
+import { GetUserQuery } from '@application/queries/user/get-user.query';
+import { ListUsersQuery } from '@application/queries/user/list-users.query';
+import { SearchUsersQuery } from '@application/queries/user/search-users.query';
+import { CreateUserRequestDto } from '../../dtos/requests/user.request.dto.js';
+import { UpdateUserRequestDto, SuspendUserRequestDto } from '../../dtos/requests/user.request.dto.js';
+import { UserResponseDto, UserListResponseDto } from '../../dtos/responses/user.response.dto.js';
+import { UserControllerMapper } from '../../mappers/user.controller.mapper.js';
 import {
-  CreateUserRequestDto,
-  UpdateUserRequestDto,
-} from '../../dtos/requests/user.request.dto';
-import { UserSwagger } from '../../swagger/user.swagger';
+  ApiGetUser,
+  ApiListUsers,
+  ApiSearchUsers,
+  ApiCreateUser,
+  ApiUpdateUser,
+  ApiDeleteUser,
+} from '../../swagger/user.swagger.js';
 
-@ApiTags('Users')
+@ApiTags('users')
 @Controller('users')
-@UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly queryBus: QueryBus,
+    private readonly queryBus: QueryBus
   ) {}
 
-  @Post()
-  @Permissions(PERMISSION.USER_CREATE)
-  @UserSwagger.Create()
-  async create(@Body() body: CreateUserRequestDto): Promise<unknown> {
-    return this.commandBus.execute(
-      new CreateUserCommand(
-        body.email,
-        body.password,
-        body.acceptTerms,
-        true,
-        body.type ?? 'customer',
-        body.phone,
-        body.firstName,
-        body.lastName,
-      ),
-    );
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiGetUser()
+  async findById(@Param('id') id: string): Promise<UserResponseDto> {
+    const appDto = await this.queryBus.execute(new GetUserQuery(id));
+    return UserControllerMapper.toResponse(appDto);
   }
 
   @Get()
-  @Permissions(PERMISSION.USER_VIEW)
+  @UseGuards(JwtAuthGuard)
+  @ApiListUsers()
   async list(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
-  ): Promise<unknown> {
-    const p = page ? Number(page) : 1;
-    const l = limit ? Number(limit) : 20;
-    return this.queryBus.execute(new ListUsersQuery(p, l));
+    @Query('status') status?: string,
+    @Query('type') type?: string,
+    @Query('search') search?: string
+  ): Promise<UserListResponseDto> {
+    const p = Number(page) || 1;
+    const l = Number(limit) || 20;
+    const result = await this.queryBus.execute(
+      new ListUsersQuery(p, l, status, type, search)
+    );
+    return UserControllerMapper.toListResponse(
+      result.items,
+      result.total,
+      result.page,
+      result.limit,
+      result.totalPages
+    );
   }
 
-  @Get(':id')
-  @Permissions(PERMISSION.USER_VIEW)
-  @UserSwagger.Get()
-  async get(@Param('id') id: string): Promise<unknown> {
-    return this.queryBus.execute(new GetUserQuery(id));
+  @Get('search/:term')
+  @UseGuards(JwtAuthGuard)
+  @ApiSearchUsers()
+  async search(
+    @Param('term') term: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string
+  ): Promise<UserListResponseDto> {
+    const p = Number(page) || 1;
+    const l = Number(limit) || 20;
+    const result = await this.queryBus.execute(new SearchUsersQuery(term, p, l));
+    return UserControllerMapper.toListResponse(
+      result.items,
+      result.total,
+      result.page,
+      result.limit,
+      result.totalPages
+    );
   }
 
-  @Patch(':id')
-  @Permissions(PERMISSION.USER_UPDATE)
-  @UserSwagger.Update()
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiCreateUser()
+  async create(@Body() body: CreateUserRequestDto): Promise<UserResponseDto> {
+    const appDto = UserControllerMapper.toCreateAppDto(body);
+    const result = await this.commandBus.execute(new CreateUserCommand(appDto));
+    return UserControllerMapper.toResponse(result);
+  }
+
+  @Put(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiUpdateUser()
   async update(
     @Param('id') id: string,
-    @Body() body: UpdateUserRequestDto,
-  ): Promise<unknown> {
-    return this.commandBus.execute(
-      new UpdateUserCommand(
-        id,
-        body.emailVerified,
-        body.type,
-        body.status,
-        body.phone,
-        body.username,
-      ),
-    );
+    @Body() body: UpdateUserRequestDto
+  ): Promise<UserResponseDto> {
+    const appDto = UserControllerMapper.toUpdateAppDto(body);
+    const result = await this.commandBus.execute(new UpdateUserCommand(id, appDto));
+    return UserControllerMapper.toResponse(result);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Permissions(PERMISSION.USER_DELETE)
-  @UserSwagger.Delete()
+  @UseGuards(JwtAuthGuard)
+  @ApiDeleteUser()
   async delete(@Param('id') id: string): Promise<void> {
-    return this.commandBus.execute(new DeleteUserCommand(id));
+    await this.commandBus.execute(new DeleteUserCommand(id));
   }
 
   @Post(':id/activate')
-  @Permissions(PERMISSION.USER_UPDATE)
-  async activate(@Param('id') id: string): Promise<void> {
-    return this.commandBus.execute(new ActivateUserCommand(id));
-  }
-
-  @Post(':id/deactivate')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Permissions(PERMISSION.USER_UPDATE)
-  async deactivate(@Param('id') id: string): Promise<void> {
-    return this.commandBus.execute(new DeactivateUserCommand(id));
+  @UseGuards(JwtAuthGuard)
+  async activate(@Param('id') id: string): Promise<UserResponseDto> {
+    const result = await this.commandBus.execute(new ActivateUserCommand(id));
+    return UserControllerMapper.toResponse(result);
   }
 
   @Post(':id/suspend')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Permissions(PERMISSION.USER_UPDATE)
+  @UseGuards(JwtAuthGuard)
   async suspend(
     @Param('id') id: string,
-    @Body() body: { reason: string; until?: string },
-  ): Promise<void> {
-    return this.commandBus.execute(
-      new SuspendUserCommand(id, body.reason, body.until),
+    @Body() body: SuspendUserRequestDto
+  ): Promise<UserResponseDto> {
+    const result = await this.commandBus.execute(
+      new SuspendUserCommand(id, body.reason, body.suspendedUntil)
     );
+    return UserControllerMapper.toResponse(result);
   }
 
-  @Post(':id/unsuspend')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Permissions(PERMISSION.USER_UPDATE)
-  async unsuspend(@Param('id') id: string): Promise<void> {
-    return this.commandBus.execute(new UnsuspendUserCommand(id));
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async getMe(@CurrentUser() user: CurrentUserShape): Promise<UserResponseDto> {
+    const appDto = await this.queryBus.execute(new GetUserQuery(user.userId));
+    return UserControllerMapper.toResponse(appDto);
   }
 }

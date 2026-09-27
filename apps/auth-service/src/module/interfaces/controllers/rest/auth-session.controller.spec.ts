@@ -1,13 +1,15 @@
 /**
  * AuthSessionController — Unit Tests
  */
+import { jest } from '@jest/globals';
+
 import { Test } from '@nestjs/testing';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { AuthSessionController } from './auth-session.controller';
-import { SessionControllerMapper } from '../../mappers/session.controller.mapper';
+import { AuthSessionController } from './auth-session.controller.js';
+import { SessionControllerMapper } from '../../mappers/session.controller.mapper.js';
 
-const mockCommandBus = () => ({ execute: jest.fn() });
-const mockQueryBus = () => ({ execute: jest.fn() });
+const mockCommandBus = () => ({ execute: jest.fn() as jest.Mock });
+const mockQueryBus = () => ({ execute: jest.fn() as jest.Mock });
 const mockMapper = () => ({
   toResponse: jest.fn((x: unknown) => x),
   toResponseList: jest.fn((x: unknown[]) => x),

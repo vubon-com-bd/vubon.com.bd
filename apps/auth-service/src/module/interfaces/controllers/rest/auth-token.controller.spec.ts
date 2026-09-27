@@ -1,8 +1,10 @@
+import { jest } from '@jest/globals';
+
 import { Test } from '@nestjs/testing';
 import { QueryBus } from '@nestjs/cqrs';
-import { AuthTokenController } from './auth-token.controller';
+import { AuthTokenController } from './auth-token.controller.js';
 
-const mockQueryBus = () => ({ execute: jest.fn() });
+const mockQueryBus = () => ({ execute: jest.fn() as jest.Mock });
 
 describe('AuthTokenController', () => {
   let controller: AuthTokenController;

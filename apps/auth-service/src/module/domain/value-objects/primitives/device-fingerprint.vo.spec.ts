@@ -2,7 +2,7 @@
  * DeviceFingerprintVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { DeviceFingerprintVO } from './device-fingerprint.vo';
+import { DeviceFingerprintVO } from './device-fingerprint.vo.js';
 
 describe('DeviceFingerprintVO', () => {
   const VALID_FP = 'abcdef0123456789'.repeat(4); // 64 chars hex

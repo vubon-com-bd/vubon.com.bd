@@ -1,9 +1,14 @@
-import type { BaseServiceInterface } from '@vubon/shared-kernel/application/services/base.service.interface';
-import type { UserPreferencesEntity } from '../../../domain/entities/user-preferences.entity';
-import type { PreferencesResponseDTO } from '../../dtos/responses/preferences-response.dto';
+/**
+ * UserPreferencesServiceInterface
+ */
+import type { UpdatePreferencesRequestDTO } from '../../dtos/requests/preferences/index.js';
+import type { PreferencesResponseDTO } from '../../dtos/responses/preferences-response.dto.js';
 
-export interface UserPreferencesServiceInterface
-  extends BaseServiceInterface<UserPreferencesEntity, string> {
-  findByUserId(userId: string): Promise<PreferencesResponseDTO | null>;
-  update(userId: string, patch: Record<string, string>): Promise<PreferencesResponseDTO>;
+export interface UserPreferencesServiceInterface {
+  findByUserId(userId: string): Promise<PreferencesResponseDTO>;
+  update(
+    userId: string,
+    input: UpdatePreferencesRequestDTO
+  ): Promise<PreferencesResponseDTO>;
+  reset(userId: string): Promise<PreferencesResponseDTO>;
 }

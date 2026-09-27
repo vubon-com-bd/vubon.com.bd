@@ -2,9 +2,9 @@
  * AuthTokenVO — Unit Tests
  * @module auth-service/domain/value-objects/composites
  */
-import { AuthTokenVO } from './auth-token.vo';
-import { TokenValueVO } from '../primitives/token-value.vo';
-import { TokenTypeVO } from '../primitives/token-type.vo';
+import { AuthTokenVO } from './auth-token.vo.js';
+import { TokenValueVO } from '../primitives/token-value.vo.js';
+import { TokenTypeVO } from '../primitives/token-type.vo.js';
 
 describe('AuthTokenVO', () => {
   const value = TokenValueVO.of('a'.repeat(64));

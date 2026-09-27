@@ -1,8 +1,9 @@
-export { AddContactCommand } from './add-contact.command';
-export { AddContactHandler } from './add-contact.handler';
-export { UpdateContactCommand } from './update-contact.command';
-export { UpdateContactHandler } from './update-contact.handler';
-export { DeleteContactCommand } from './delete-contact.command';
-export { DeleteContactHandler } from './delete-contact.handler';
-export { VerifyContactCommand } from './verify-contact.command';
-export { VerifyContactHandler } from './verify-contact.handler';
+// commands/contact/index.ts
+export * from './add-contact.command.js';
+export * from './add-contact.handler.js';
+export * from './update-contact.command.js';
+export * from './update-contact.handler.js';
+export * from './delete-contact.command.js';
+export * from './delete-contact.handler.js';
+export * from './verify-contact.command.js';
+export * from './verify-contact.handler.js';

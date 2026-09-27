@@ -10,11 +10,11 @@ import {
 } from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
 import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
 import type { UserId } from '@vubon/shared-types/common';
-import { AuthSsoEntity } from '../../../../domain/entities/auth-sso.entity';
-import { SsoProviderVO } from '../../../../domain/value-objects/primitives/sso-provider.vo';
-import { SsoTokenVO } from '../../../../domain/value-objects/primitives/sso-token.vo';
-import { SsoStatusVO } from '../../../../domain/value-objects/primitives/sso-status.vo';
-import type { AuthSsoRepository } from '../../../../domain/repositories/auth-sso.repository.interface';
+import { AuthSsoEntity } from '../../../../domain/entities/auth-sso.entity.js';
+import { SsoProviderVO } from '../../../../domain/value-objects/primitives/sso-provider.vo.js';
+import { SsoTokenVO } from '../../../../domain/value-objects/primitives/sso-token.vo.js';
+import { SsoStatusVO } from '../../../../domain/value-objects/primitives/sso-status.vo.js';
+import type { AuthSsoRepository } from '../../../../domain/repositories/auth-sso.repository.interface.js';
 
 @Injectable()
 export class AuthSsoPrismaRepository

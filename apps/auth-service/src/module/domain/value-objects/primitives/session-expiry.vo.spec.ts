@@ -2,7 +2,7 @@
  * SessionExpiryVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { SessionExpiryVO } from './session-expiry.vo';
+import { SessionExpiryVO } from './session-expiry.vo.js';
 
 describe('SessionExpiryVO', () => {
   describe('fromEpoch()', () => {

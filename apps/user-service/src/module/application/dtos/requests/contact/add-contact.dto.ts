@@ -1,4 +1,14 @@
-import { z } from 'zod';
-import { AddContactRequestSchema } from '@vubon/shared-schemas/user';
+/**
+ * AddContactRequestDTO
+ */
+import type { AddContactRequestSchemaType } from '@vubon/shared-schemas/user';
 
-export type AddContactRequestDTO = z.infer<typeof AddContactRequestSchema>;
+export interface AddContactRequestDTO {
+  readonly userId: string;
+  readonly type: string;
+  readonly value: string;
+  readonly label?: string;
+  readonly isPrimary?: boolean;
+}
+
+export type AddContactRequestInput = AddContactRequestSchemaType;

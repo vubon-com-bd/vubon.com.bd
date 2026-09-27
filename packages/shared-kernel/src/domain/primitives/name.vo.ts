@@ -1,5 +1,5 @@
 import { VALIDATION } from '@vubon/shared-constants/common';
-import { BaseVO } from '../base/base.vo';
+import { BaseVO } from '../base/base.vo.js';
 
 export abstract class BaseNameVO extends BaseVO<string> {
   protected constructor(value: string) {

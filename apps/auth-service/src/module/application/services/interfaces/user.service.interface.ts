@@ -4,10 +4,10 @@
  */
 import type { BaseServiceInterface } from '@vubon/shared-kernel/application/services/base.service.interface';
 import type { UserId } from '@vubon/shared-types/common';
-import type { UserEntity } from '../../../domain/entities/user.entity';
-import type { CreateUserRequestDTO } from '../../dtos/requests/user/create-user.dto';
-import type { UpdateUserRequestDTO } from '../../dtos/requests/user/update-user.dto';
-import type { UserResponseDTO } from '../../dtos/responses/user-response.dto';
+import type { UserEntity } from '../../../domain/entities/user.entity.js';
+import type { CreateUserRequestDTO } from '../../dtos/requests/user/create-user.dto.js';
+import type { UpdateUserRequestDTO } from '../../dtos/requests/user/update-user.dto.js';
+import type { UserResponseDTO } from '../../dtos/responses/user-response.dto.js';
 
 export interface UserServiceInterface
   extends BaseServiceInterface<UserEntity, UserId> {

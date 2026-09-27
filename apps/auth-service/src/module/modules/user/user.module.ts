@@ -1,20 +1,20 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { UserController } from '../../interfaces/controllers/rest/user.controller';
-import { UserService } from '../../application/services/impl/user.service';
-import { CreateUserHandler } from '../../application/commands/user/create-user.handler';
-import { UpdateUserHandler } from '../../application/commands/user/update-user.handler';
-import { DeleteUserHandler } from '../../application/commands/user/delete-user.handler';
-import { ActivateUserHandler } from '../../application/commands/user/activate-user.handler';
-import { DeactivateUserHandler } from '../../application/commands/user/deactivate-user.handler';
-import { SuspendUserHandler } from '../../application/commands/user/suspend-user.handler';
-import { UnsuspendUserHandler } from '../../application/commands/user/unsuspend-user.handler';
-import { GetUserHandler } from '../../application/queries/user/get-user.handler';
-import { ListUsersHandler } from '../../application/queries/user/list-users.handler';
-import { UserPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/user.prisma.repository';
-import { UserCacheRepository } from '../../infrastructure/persistence/cache/repositories/user.cache.repository';
-import { UserControllerMapper } from '../../interfaces/mappers/user.controller.mapper';
-import { USER_REPO, USER_SERVICE } from '../../application/services/tokens';
+import { UserController } from '../../interfaces/controllers/rest/user.controller.js';
+import { UserService } from '../../application/services/impl/user.service.js';
+import { CreateUserHandler } from '../../application/commands/user/create-user.handler.js';
+import { UpdateUserHandler } from '../../application/commands/user/update-user.handler.js';
+import { DeleteUserHandler } from '../../application/commands/user/delete-user.handler.js';
+import { ActivateUserHandler } from '../../application/commands/user/activate-user.handler.js';
+import { DeactivateUserHandler } from '../../application/commands/user/deactivate-user.handler.js';
+import { SuspendUserHandler } from '../../application/commands/user/suspend-user.handler.js';
+import { UnsuspendUserHandler } from '../../application/commands/user/unsuspend-user.handler.js';
+import { GetUserHandler } from '../../application/queries/user/get-user.handler.js';
+import { ListUsersHandler } from '../../application/queries/user/list-users.handler.js';
+import { UserPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/user.prisma.repository.js';
+import { UserCacheRepository } from '../../infrastructure/persistence/cache/repositories/user.cache.repository.js';
+import { UserControllerMapper } from '../../interfaces/mappers/user.controller.mapper.js';
+import { USER_REPO, USER_SERVICE } from '../../application/services/tokens.js';
 
 const HANDLERS = [
   CreateUserHandler,

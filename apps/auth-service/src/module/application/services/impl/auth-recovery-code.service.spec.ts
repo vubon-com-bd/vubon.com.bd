@@ -2,10 +2,12 @@
  * AuthRecoveryCodeService — Unit Tests
  * @module auth-service/application/services/impl
  */
-import { AuthRecoveryCodeService } from './auth-recovery-code.service';
-import { AuthRecoveryCodeEntity } from '../../../domain/entities/auth-recovery-code.entity';
-import { RecoveryCodeVO } from '../../../domain/value-objects/primitives/recovery-code.vo';
-import { RecoveryCodeStatusVO } from '../../../domain/value-objects/primitives/recovery-code-status.vo';
+import { jest } from '@jest/globals';
+
+import { AuthRecoveryCodeService } from './auth-recovery-code.service.js';
+import { AuthRecoveryCodeEntity } from '../../../domain/entities/auth-recovery-code.entity.js';
+import { RecoveryCodeVO } from '../../../domain/value-objects/primitives/recovery-code.vo.js';
+import { RecoveryCodeStatusVO } from '../../../domain/value-objects/primitives/recovery-code-status.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -21,23 +23,23 @@ const buildCode = (overrides: Partial<Parameters<typeof AuthRecoveryCodeEntity.c
   });
 
 const mockRepo = () => ({
-  findById: jest.fn(),
-  findByUserId: jest.fn(),
-  findActiveByUserId: jest.fn(),
-  findByCode: jest.fn(),
-  invalidateAllForUser: jest.fn(),
-  findAll: jest.fn(),
+  findById: jest.fn() as jest.Mock,
+  findByUserId: jest.fn() as jest.Mock,
+  findActiveByUserId: jest.fn() as jest.Mock,
+  findByCode: jest.fn() as jest.Mock,
+  invalidateAllForUser: jest.fn() as jest.Mock,
+  findAll: jest.fn() as jest.Mock,
   save: jest.fn((c: AuthRecoveryCodeEntity) => Promise.resolve(c)),
-  delete: jest.fn(),
-  exists: jest.fn(),
+  delete: jest.fn() as jest.Mock,
+  exists: jest.fn() as jest.Mock,
 });
 
 const mockGenerator = () => ({
   name: 'RecoveryCodeGeneratorService',
   generate: jest.fn((count: number) =>
     Promise.resolve(Array.from({ length: count }, (_, i) => `CODE-${String(i).padStart(4, '0')}`))),
-  hash: jest.fn(),
-  verify: jest.fn(),
+  hash: jest.fn() as jest.Mock,
+  verify: jest.fn() as jest.Mock,
 });
 
 const mockIdGen = () => ({

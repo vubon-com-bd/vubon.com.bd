@@ -3,9 +3,9 @@
  * @module auth-service/domain/value-objects/composites
  */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { RecoveryCodeVO } from '../primitives/recovery-code.vo';
-import { RecoveryCodeStatusVO } from '../primitives/recovery-code-status.vo';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { RecoveryCodeVO } from '../primitives/recovery-code.vo.js';
+import { RecoveryCodeStatusVO } from '../primitives/recovery-code-status.vo.js';
 
 export interface AuthRecoveryCodeVOProps {
   readonly codeId: string;

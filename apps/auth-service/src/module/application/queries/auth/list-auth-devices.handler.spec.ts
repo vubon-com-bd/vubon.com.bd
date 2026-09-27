@@ -1,12 +1,14 @@
 /**
  * ListAuthDevicesHandler — Unit Tests
  */
-import { ListAuthDevicesHandler } from './list-auth-devices.handler';
-import { ListAuthDevicesQuery } from './list-auth-devices.query';
-import { AuthDeviceEntity } from '../../../domain/entities/auth-device.entity';
-import { DeviceFingerprintVO } from '../../../domain/value-objects/primitives/device-fingerprint.vo';
-import { DeviceTypeVO } from '../../../domain/value-objects/primitives/device-type.vo';
-import { DeviceStatusVO } from '../../../domain/value-objects/primitives/device-status.vo';
+import { jest } from '@jest/globals';
+
+import { ListAuthDevicesHandler } from './list-auth-devices.handler.js';
+import { ListAuthDevicesQuery } from './list-auth-devices.query.js';
+import { AuthDeviceEntity } from '../../../domain/entities/auth-device.entity.js';
+import { DeviceFingerprintVO } from '../../../domain/value-objects/primitives/device-fingerprint.vo.js';
+import { DeviceTypeVO } from '../../../domain/value-objects/primitives/device-type.vo.js';
+import { DeviceStatusVO } from '../../../domain/value-objects/primitives/device-status.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();
@@ -25,7 +27,7 @@ const buildDevice = (id: string) =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findByUser: jest.fn() });
+const mockRepo = () => ({ findByUser: jest.fn() as jest.Mock });
 
 describe('ListAuthDevicesHandler', () => {
   let handler: ListAuthDevicesHandler;

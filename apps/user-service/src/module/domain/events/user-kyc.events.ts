@@ -1,55 +1,96 @@
+/**
+ * UserKyc domain events
+ */
 import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
-import { toTimestamp } from '@vubon/shared-types/common';
+import type { Timestamp } from '@vubon/shared-types/common';
 
-const AGG = 'UserKyc';
+interface EventParams<TPayload> {
+  readonly id: string;
+  readonly aggregateId: string;
+  readonly payload: TPayload;
+  readonly occurredAt: Timestamp;
+  readonly version: number;
+}
 
-export class KycSubmittedEvent extends BaseDomainEvent<
-  'user.kyc.submitted',
-  { userId: string; kycId: string }
-> {
-  constructor(aggregateId: string, userId: string, kycId: string, version: number) {
+export interface KycSubmittedPayload {
+  readonly userId: string;
+  readonly kycId: string;
+  readonly document: string;
+}
+
+export class KycSubmittedEvent extends BaseDomainEvent<'kyc.submitted', KycSubmittedPayload> {
+  constructor(p: EventParams<KycSubmittedPayload>) {
     super({
-      id: crypto.randomUUID(),
-      type: 'user.kyc.submitted',
-      aggregateId,
-      aggregateType: AGG,
-      payload: { userId, kycId },
-      occurredAt: toTimestamp(Date.now()),
-      version,
+      id: p.id,
+      type: 'kyc.submitted',
+      aggregateId: p.aggregateId,
+      aggregateType: 'UserKyc',
+      payload: p.payload,
+      occurredAt: p.occurredAt,
+      version: p.version,
     });
   }
 }
 
-export class KycVerifiedEvent extends BaseDomainEvent<
-  'user.kyc.verified',
-  { userId: string; kycId: string }
-> {
-  constructor(aggregateId: string, userId: string, kycId: string, version: number) {
+export interface KycVerifiedPayload {
+  readonly userId: string;
+  readonly kycId: string;
+  readonly verifiedAt: string;
+}
+
+export class KycVerifiedEvent extends BaseDomainEvent<'kyc.verified', KycVerifiedPayload> {
+  constructor(p: EventParams<KycVerifiedPayload>) {
     super({
-      id: crypto.randomUUID(),
-      type: 'user.kyc.verified',
-      aggregateId,
-      aggregateType: AGG,
-      payload: { userId, kycId },
-      occurredAt: toTimestamp(Date.now()),
-      version,
+      id: p.id,
+      type: 'kyc.verified',
+      aggregateId: p.aggregateId,
+      aggregateType: 'UserKyc',
+      payload: p.payload,
+      occurredAt: p.occurredAt,
+      version: p.version,
     });
   }
 }
 
-export class KycRejectedEvent extends BaseDomainEvent<
-  'user.kyc.rejected',
-  { userId: string; kycId: string; reason: string }
-> {
-  constructor(aggregateId: string, userId: string, kycId: string, reason: string, version: number) {
+export interface KycRejectedPayload {
+  readonly userId: string;
+  readonly kycId: string;
+  readonly reason: string;
+}
+
+export class KycRejectedEvent extends BaseDomainEvent<'kyc.rejected', KycRejectedPayload> {
+  constructor(p: EventParams<KycRejectedPayload>) {
     super({
-      id: crypto.randomUUID(),
-      type: 'user.kyc.rejected',
-      aggregateId,
-      aggregateType: AGG,
-      payload: { userId, kycId, reason },
-      occurredAt: toTimestamp(Date.now()),
-      version,
+      id: p.id,
+      type: 'kyc.rejected',
+      aggregateId: p.aggregateId,
+      aggregateType: 'UserKyc',
+      payload: p.payload,
+      occurredAt: p.occurredAt,
+      version: p.version,
+    });
+  }
+}
+
+export interface KycReverifiedPayload {
+  readonly userId: string;
+  readonly kycId: string;
+  readonly reverifiedAt: string;
+}
+
+export class KycReverifiedEvent extends BaseDomainEvent<
+  'kyc.reverified',
+  KycReverifiedPayload
+> {
+  constructor(p: EventParams<KycReverifiedPayload>) {
+    super({
+      id: p.id,
+      type: 'kyc.reverified',
+      aggregateId: p.aggregateId,
+      aggregateType: 'UserKyc',
+      payload: p.payload,
+      occurredAt: p.occurredAt,
+      version: p.version,
     });
   }
 }

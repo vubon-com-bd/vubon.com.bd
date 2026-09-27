@@ -2,10 +2,10 @@
  * AuthPermissionEntity — Unit Tests
  * @module auth-service/domain/entities
  */
-import { AuthPermissionEntity } from './auth-permission.entity';
-import { PermissionNameVO } from '../value-objects/primitives/permission-name.vo';
-import { PermissionActionVO } from '../value-objects/primitives/permission-action.vo';
-import { PermissionResourceVO } from '../value-objects/primitives/permission-resource.vo';
+import { AuthPermissionEntity } from './auth-permission.entity.js';
+import { PermissionNameVO } from '../value-objects/primitives/permission-name.vo.js';
+import { PermissionActionVO } from '../value-objects/primitives/permission-action.vo.js';
+import { PermissionResourceVO } from '../value-objects/primitives/permission-resource.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 

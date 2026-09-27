@@ -10,7 +10,7 @@
  */
 import { BaseStatusVO } from '@vubon/shared-kernel/domain/primitives/status.vo';
 import { STATUS } from '@vubon/shared-constants/common';
-import { InvalidUserStatusError } from '../../errors/user.errors';
+import { InvalidUserStatusError } from '../../errors/user.errors.js';
 
 type UserStatusValue =
   | 'active'

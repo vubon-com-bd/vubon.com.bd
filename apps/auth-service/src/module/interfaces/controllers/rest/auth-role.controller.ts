@@ -7,7 +7,7 @@ import { QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
 
-import { ListAuthRolesQuery } from '../../../application/queries/auth/list-auth-roles.query';
+import { ListAuthRolesQuery } from '../../../application/queries/auth/list-auth-roles.query.js';
 
 @ApiTags('Auth Roles')
 @Controller('auth/roles')

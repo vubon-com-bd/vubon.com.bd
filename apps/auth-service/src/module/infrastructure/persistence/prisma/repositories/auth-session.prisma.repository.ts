@@ -10,10 +10,10 @@ import {
 } from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
 import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
 import type { UserId } from '@vubon/shared-types/common';
-import { AuthSessionEntity } from '../../../../domain/entities/auth-session.entity';
-import { SessionTokenVO } from '../../../../domain/value-objects/primitives/session-token.vo';
-import { SessionExpiryVO } from '../../../../domain/value-objects/primitives/session-expiry.vo';
-import type { AuthSessionRepository } from '../../../../domain/repositories/auth-session.repository.interface';
+import { AuthSessionEntity } from '../../../../domain/entities/auth-session.entity.js';
+import { SessionTokenVO } from '../../../../domain/value-objects/primitives/session-token.vo.js';
+import { SessionExpiryVO } from '../../../../domain/value-objects/primitives/session-expiry.vo.js';
+import type { AuthSessionRepository } from '../../../../domain/repositories/auth-session.repository.interface.js';
 
 @Injectable()
 export class AuthSessionPrismaRepository

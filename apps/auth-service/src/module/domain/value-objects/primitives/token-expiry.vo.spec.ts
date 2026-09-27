@@ -2,7 +2,7 @@
  * TokenExpiryVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { TokenExpiryVO } from './token-expiry.vo';
+import { TokenExpiryVO } from './token-expiry.vo.js';
 
 describe('TokenExpiryVO', () => {
   describe('forType()', () => {

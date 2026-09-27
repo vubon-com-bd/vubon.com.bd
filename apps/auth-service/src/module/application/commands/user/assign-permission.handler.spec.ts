@@ -1,10 +1,12 @@
 /**
  * AssignPermissionHandler — Unit Tests
  */
-import { AssignPermissionHandler } from './assign-permission.handler';
-import { AssignPermissionCommand } from './assign-permission.command';
+import { jest } from '@jest/globals';
 
-const mockService = () => ({ addPermission: jest.fn() });
+import { AssignPermissionHandler } from './assign-permission.handler.js';
+import { AssignPermissionCommand } from './assign-permission.command.js';
+
+const mockService = () => ({ addPermission: jest.fn() as jest.Mock });
 
 describe('AssignPermissionHandler', () => {
   let handler: AssignPermissionHandler;

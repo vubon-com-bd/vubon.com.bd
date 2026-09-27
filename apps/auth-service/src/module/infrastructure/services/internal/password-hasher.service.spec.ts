@@ -4,7 +4,7 @@
  *
  * Tests real bcrypt hashing. Uses low rounds to keep fast.
  */
-import { PasswordHasherService } from './password-hasher.service';
+import { PasswordHasherService } from './password-hasher.service.js';
 
 describe('PasswordHasherService', () => {
   let service: PasswordHasherService;

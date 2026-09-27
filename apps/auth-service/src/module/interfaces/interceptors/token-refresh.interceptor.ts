@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import type { AuthenticatedUser } from '../decorators/current-user.decorator';
+import type { AuthenticatedUser } from '../decorators/current-user.decorator.js';
 
 const SLIDE_THRESHOLD_SECONDS = 300;
 

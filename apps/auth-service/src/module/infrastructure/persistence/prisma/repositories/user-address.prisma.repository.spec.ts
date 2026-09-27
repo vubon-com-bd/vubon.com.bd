@@ -1,17 +1,19 @@
 /**
  * UserAddressPrismaRepository — Unit Tests
  */
-import { UserAddressPrismaRepository } from './user-address.prisma.repository';
+import { jest } from '@jest/globals';
+
+import { UserAddressPrismaRepository } from './user-address.prisma.repository.js';
 
 const mockPrisma = () => ({
   userAddress: {
-    findUnique: jest.fn(),
-    findFirst: jest.fn(),
-    findMany: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    updateMany: jest.fn(),
-    delete: jest.fn(),
+    findUnique: jest.fn() as jest.Mock,
+    findFirst: jest.fn() as jest.Mock,
+    findMany: jest.fn() as jest.Mock,
+    create: jest.fn() as jest.Mock,
+    update: jest.fn() as jest.Mock,
+    updateMany: jest.fn() as jest.Mock,
+    delete: jest.fn() as jest.Mock,
   },
 });
 

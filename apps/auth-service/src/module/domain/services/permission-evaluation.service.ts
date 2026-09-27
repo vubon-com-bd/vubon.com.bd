@@ -8,8 +8,8 @@
  * - "user:*" matches all user actions
  * - Exact match: "user:view" === "user:view"
  */
-import { AuthRoleEntity } from '../entities/auth-role.entity';
-import { PermissionNameVO } from '../value-objects/primitives/permission-name.vo';
+import { AuthRoleEntity } from '../entities/auth-role.entity.js';
+import { PermissionNameVO } from '../value-objects/primitives/permission-name.vo.js';
 import { ROLE } from '@vubon/shared-constants/common';
 
 export interface PermissionCheckInput {

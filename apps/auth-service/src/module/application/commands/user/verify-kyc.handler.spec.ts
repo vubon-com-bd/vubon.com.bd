@@ -1,10 +1,12 @@
 /**
  * VerifyKycHandler — Unit Tests
  */
-import { VerifyKycHandler } from './verify-kyc.handler';
-import { VerifyKycCommand } from './verify-kyc.command';
+import { jest } from '@jest/globals';
 
-const mockService = () => ({ approve: jest.fn(), toResponse: jest.fn() });
+import { VerifyKycHandler } from './verify-kyc.handler.js';
+import { VerifyKycCommand } from './verify-kyc.command.js';
+
+const mockService = () => ({ approve: jest.fn() as jest.Mock, toResponse: jest.fn() as jest.Mock });
 
 describe('VerifyKycHandler', () => {
   let handler: VerifyKycHandler;

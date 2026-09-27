@@ -1,9 +1,11 @@
 /**
  * VerifiedGuard — Unit Tests
  */
+import { jest } from '@jest/globals';
+
 import { Reflector } from '@nestjs/core';
 import { ForbiddenException } from '@nestjs/common';
-import { VerifiedGuard } from './verified.guard';
+import { VerifiedGuard } from './verified.guard.js';
 
 type User = {
   emailVerified?: boolean;

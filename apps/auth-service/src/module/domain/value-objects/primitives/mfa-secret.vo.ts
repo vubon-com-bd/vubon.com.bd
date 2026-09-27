@@ -8,7 +8,7 @@
  * - Never logged
  */
 import { BaseCodeVO } from '@vubon/shared-kernel/domain/primitives/code.vo';
-import { MfaInvalidError } from '../../errors/mfa.errors';
+import { MfaInvalidError } from '../../errors/mfa.errors.js';
 
 const BASE32 = /^[A-Z2-7]+=*$/;
 const MIN = 16;

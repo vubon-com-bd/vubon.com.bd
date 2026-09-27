@@ -1,11 +1,13 @@
 /**
  * ListAuthLoginAttemptsHandler — Unit Tests
  */
-import { ListAuthLoginAttemptsHandler } from './list-auth-login-attempts.handler';
-import { ListAuthLoginAttemptsQuery } from './list-auth-login-attempts.query';
-import { AuthLoginAttemptEntity } from '../../../domain/entities/auth-login-attempt.entity';
-import { LoginAttemptIpVO } from '../../../domain/value-objects/primitives/login-attempt-ip.vo';
-import { LoginAttemptStatusVO } from '../../../domain/value-objects/primitives/login-attempt-status.vo';
+import { jest } from '@jest/globals';
+
+import { ListAuthLoginAttemptsHandler } from './list-auth-login-attempts.handler.js';
+import { ListAuthLoginAttemptsQuery } from './list-auth-login-attempts.query.js';
+import { AuthLoginAttemptEntity } from '../../../domain/entities/auth-login-attempt.entity.js';
+import { LoginAttemptIpVO } from '../../../domain/value-objects/primitives/login-attempt-ip.vo.js';
+import { LoginAttemptStatusVO } from '../../../domain/value-objects/primitives/login-attempt-status.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();
@@ -22,7 +24,7 @@ const buildAttempt = () =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findRecentByUser: jest.fn() });
+const mockRepo = () => ({ findRecentByUser: jest.fn() as jest.Mock });
 
 describe('ListAuthLoginAttemptsHandler', () => {
   let handler: ListAuthLoginAttemptsHandler;

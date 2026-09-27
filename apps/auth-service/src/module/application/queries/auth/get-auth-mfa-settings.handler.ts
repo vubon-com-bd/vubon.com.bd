@@ -1,10 +1,10 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { GetAuthMfaSettingsQuery } from './get-auth-mfa-settings.query';
-import type { AuthMfaRepository } from '../../../domain/repositories/auth-mfa.repository.interface';
-import type { MfaResponseDTO } from '../../dtos/responses/mfa-response.dto';
-import { AUTH_MFA_REPO } from '../../tokens';
+import { GetAuthMfaSettingsQuery } from './get-auth-mfa-settings.query.js';
+import type { AuthMfaRepository } from '../../../domain/repositories/auth-mfa.repository.interface.js';
+import type { MfaResponseDTO } from '../../dtos/responses/mfa-response.dto.js';
+import { AUTH_MFA_REPO } from '../../tokens.js';
 
 @QueryHandler(GetAuthMfaSettingsQuery)
 export class GetAuthMfaSettingsHandler

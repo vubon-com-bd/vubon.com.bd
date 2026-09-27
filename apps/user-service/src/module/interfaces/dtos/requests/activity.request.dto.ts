@@ -1,11 +1,22 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+/**
+ * Activity Request DTOs
+ */
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsString } from 'class-validator';
 
-export class ListActivityRequestDto {
-  @ApiPropertyOptional({ default: 50 })
-  limit?: number;
-}
+export class ListActivityQueryDto {
+  @ApiPropertyOptional({ example: 1 })
+  @IsOptional()
+  @IsString()
+  page?: string;
 
-export class GetUserStatsRequestDto {
-  @ApiProperty()
-  userId!: string;
+  @ApiPropertyOptional({ example: 20 })
+  @IsOptional()
+  @IsString()
+  limit?: string;
+
+  @ApiPropertyOptional({ example: 'login' })
+  @IsOptional()
+  @IsString()
+  type?: string;
 }

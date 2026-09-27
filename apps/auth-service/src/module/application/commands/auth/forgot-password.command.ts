@@ -1,5 +1,5 @@
 import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
-import type { ForgotPasswordRequestDTO } from '../../dtos/requests/auth/forgot-password.dto';
+import type { ForgotPasswordRequestDTO } from '../../dtos/requests/auth/forgot-password.dto.js';
 
 export class ForgotPasswordCommand extends BaseCommand {
   readonly type = 'auth.forgot-password';

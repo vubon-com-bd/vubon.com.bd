@@ -1,15 +1,15 @@
-import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
+/**
+ * UpdateUserCommand
+ */
+import { BaseCommand } from '@vubon/shared-kernel/application/commands';
+import type { UpdateUserRequestDTO } from '../../dtos/requests/user/index.js';
 
 export class UpdateUserCommand extends BaseCommand {
   readonly type = 'user.update';
 
   constructor(
     public readonly userId: string,
-    public readonly emailVerified?: boolean,
-    public readonly userType?: string,
-    public readonly userStatus?: string,
-    public readonly phone?: string,
-    public readonly username?: string,
+    public readonly payload: UpdateUserRequestDTO
   ) {
     super();
   }

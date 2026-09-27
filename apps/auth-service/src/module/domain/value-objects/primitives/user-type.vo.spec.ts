@@ -2,8 +2,8 @@
  * UserTypeVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { UserTypeVO } from './user-type.vo';
-import { InvalidUserTypeError } from '../../errors/user.errors';
+import { UserTypeVO } from './user-type.vo.js';
+import { InvalidUserTypeError } from '../../errors/user.errors.js';
 
 describe('UserTypeVO', () => {
   describe('of()', () => {

@@ -2,6 +2,7 @@
   "name": "@vubon/shared-hooks",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -87,7 +88,8 @@
     "globals": "^15.15.0",
     "prettier": "^3.0.0",
     "react": "^18.2.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "tsc-alias": "^1.9.5"
   },
   "dependencies": {
     "@vubon/shared-api": "workspace:*",
@@ -98,6 +100,5 @@
     "@vubon/shared-types": "workspace:*",
     "@vubon/shared-utils": "workspace:*",
     "zod": "4.5.4"
-  },
-  "type": "module"
+  }
 }

@@ -1,10 +1,12 @@
 /**
  * DeleteUserHandler — Unit Tests
  */
-import { DeleteUserHandler } from './delete-user.handler';
-import { DeleteUserCommand } from './delete-user.command';
+import { jest } from '@jest/globals';
 
-const mockUserService = () => ({ delete: jest.fn() });
+import { DeleteUserHandler } from './delete-user.handler.js';
+import { DeleteUserCommand } from './delete-user.command.js';
+
+const mockUserService = () => ({ delete: jest.fn() as jest.Mock });
 
 describe('DeleteUserHandler', () => {
   let handler: DeleteUserHandler;

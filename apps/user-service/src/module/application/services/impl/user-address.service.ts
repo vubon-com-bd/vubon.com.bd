@@ -1,79 +1,52 @@
+/**
+ * UserAddressService
+ */
 import { Injectable } from '@nestjs/common';
-import { EventBus } from '@nestjs/cqrs';
-import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
-import type { UserAddressServiceInterface } from '../interfaces/user-address.service.interface';
-import type { UserAddressRepository } from '../../../domain/repositories/user-address.repository.interface';
-import { UserAddressEntity } from '../../../domain/entities/user-address.entity';
-import { AddressIdVO } from '../../../domain/value-objects/primitives/address-id.vo';
-import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
-import { AddressOperationFailedError } from '../../errors/address.errors';
-import type { AddressResponseDTO } from '../../dtos/responses/address-response.dto';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import type { UserAddressServiceInterface } from '../interfaces/user-address.service.interface.js';
+import { AddAddressCommand } from '../../commands/address/add-address.command.js';
+import { UpdateAddressCommand } from '../../commands/address/update-address.command.js';
+import { DeleteAddressCommand } from '../../commands/address/delete-address.command.js';
+import { SetDefaultAddressCommand } from '../../commands/address/set-default-address.command.js';
+import { ListAddressesQuery } from '../../queries/address/list-addresses.query.js';
+import { GetAddressQuery } from '../../queries/address/get-address.query.js';
+import { GetDefaultAddressQuery } from '../../queries/address/get-default-address.query.js';
+import type { AddAddressRequestDTO, UpdateAddressRequestDTO } from '../../dtos/requests/address/index.js';
+import type { AddressResponseDTO } from '../../dtos/responses/address-response.dto.js';
+import type { ListAddressesResult } from '../../queries/address/list-addresses.handler.js';
 
 @Injectable()
-export class UserAddressService
-  extends BaseService<UserAddressEntity, string>
-  implements UserAddressServiceInterface
-{
-  readonly name = 'UserAddressService';
-
+export class UserAddressService implements UserAddressServiceInterface {
   constructor(
-    private readonly addressRepo: UserAddressRepository,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus
+  ) {}
+
+  list(userId: string): Promise<ListAddressesResult> {
+    return this.queryBus.execute(new ListAddressesQuery(userId));
   }
 
-  async listByUser(userId: string): Promise<readonly AddressResponseDTO[]> {
-    const entities = await this.addressRepo.findByUserId(UserIdVO.create(userId));
-    return entities.map((e) => this.toDTO(e));
+  findById(userId: string, addressId: string): Promise<AddressResponseDTO> {
+    return this.queryBus.execute(new GetAddressQuery(userId, addressId));
   }
 
-  async add(userId: string, input: Record<string, unknown>): Promise<AddressResponseDTO> {
-    void input;
-    void userId;
-    throw new AddressOperationFailedError('add not yet wired');
+  findDefault(userId: string): Promise<AddressResponseDTO> {
+    return this.queryBus.execute(new GetDefaultAddressQuery(userId));
   }
 
-  async update(addressId: string, input: Record<string, unknown>): Promise<AddressResponseDTO> {
-    void input;
-    const entity = await this.addressRepo.findById(AddressIdVO.create(addressId));
-    if (!entity) throw new AddressOperationFailedError('address not found');
-    await this.addressRepo.save(entity);
-    return this.toDTO(entity);
+  add(input: AddAddressRequestDTO): Promise<AddressResponseDTO> {
+    return this.commandBus.execute(new AddAddressCommand(input));
   }
 
-  async delete(addressId: string): Promise<void> {
-    await this.addressRepo.delete(AddressIdVO.create(addressId));
+  update(input: UpdateAddressRequestDTO): Promise<AddressResponseDTO> {
+    return this.commandBus.execute(new UpdateAddressCommand(input));
   }
 
-  async setDefault(userId: string, addressId: string): Promise<void> {
-    void userId;
-    const entity = await this.addressRepo.findById(AddressIdVO.create(addressId));
-    if (!entity) throw new AddressOperationFailedError('address not found');
-    const updated = entity.markAsDefault();
-    await this.addressRepo.save(updated);
+  remove(userId: string, addressId: string): Promise<{ success: true }> {
+    return this.commandBus.execute(new DeleteAddressCommand(userId, addressId));
   }
 
-  private toDTO(entity: UserAddressEntity): AddressResponseDTO {
-    return {
-      success: true,
-      address: {
-        id: entity.id.value,
-        userId: entity.userId.value,
-        type: 'home',
-        label: entity.label?.value,
-        line1: entity.line1.value,
-        line2: entity.line2?.value,
-        city: entity.city.value,
-        state: entity.division.value,
-        country: 'BD',
-        postalCode: entity.postalCode?.value,
-        isDefault: entity.isDefault,
-        isDefaultShipping: entity.isDefault,
-        isDefaultBilling: false,
-        createdAt: entity.createdAt,
-        updatedAt: entity.updatedAt,
-      },
-    } as unknown as AddressResponseDTO;
+  setDefault(userId: string, addressId: string): Promise<AddressResponseDTO> {
+    return this.commandBus.execute(new SetDefaultAddressCommand(userId, addressId));
   }
 }

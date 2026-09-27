@@ -3,16 +3,16 @@
  * @module shared-kernel/modules/common
  */
 import { Global, Module } from '@nestjs/common';
-import { PrismaModule } from '../../infrastructure/persistence/prisma';
-import { RedisModule } from '../../infrastructure/persistence/cache';
-import { QueueModule } from '../../infrastructure/messaging/queue';
-import { KernelCqrsModule } from './cqrs.module';
-import { KernelEventBusModule } from './event-bus.module';
-import { KernelGuardsModule } from './guards.module';
-import { KernelInterceptorsModule } from './interceptors.module';
-import { KernelFiltersModule } from './filters.module';
-import { KernelPipesModule } from './pipes.module';
-import { KernelConfigModule } from './config.module';
+import { PrismaModule } from '../../infrastructure/persistence/prisma/index.js';
+import { RedisModule } from '../../infrastructure/persistence/cache/index.js';
+import { QueueModule } from '../../infrastructure/messaging/queue/index.js';
+import { KernelCqrsModule } from './cqrs.module.js';
+import { KernelEventBusModule } from './event-bus.module.js';
+import { KernelGuardsModule } from './guards.module.js';
+import { KernelInterceptorsModule } from './interceptors.module.js';
+import { KernelFiltersModule } from './filters.module.js';
+import { KernelPipesModule } from './pipes.module.js';
+import { KernelConfigModule } from './config.module.js';
 
 @Global()
 @Module({

@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { SocialCallbackCommand } from './social-callback.command';
-import type { AuthSocialServiceInterface } from '../../services/interfaces/auth-social.service.interface';
-import type { SocialLoginResponseDTO } from '../../dtos/responses/social-login-response.dto';
-import { AUTH_SOCIAL_SERVICE } from '../../tokens';
+import { SocialCallbackCommand } from './social-callback.command.js';
+import type { AuthSocialServiceInterface } from '../../services/interfaces/auth-social.service.interface.js';
+import type { SocialLoginResponseDTO } from '../../dtos/responses/social-login-response.dto.js';
+import { AUTH_SOCIAL_SERVICE } from '../../tokens.js';
 
 @CommandHandler(SocialCallbackCommand)
 export class SocialCallbackHandler

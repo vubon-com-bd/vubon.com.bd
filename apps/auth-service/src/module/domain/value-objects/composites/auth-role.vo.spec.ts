@@ -2,10 +2,10 @@
  * AuthRoleVO — Unit Tests
  * @module auth-service/domain/value-objects/composites
  */
-import { AuthRoleVO } from './auth-role.vo';
-import { RoleNameVO } from '../primitives/role-name.vo';
-import { RoleDescriptionVO } from '../primitives/role-description.vo';
-import { PermissionNameVO } from '../primitives/permission-name.vo';
+import { AuthRoleVO } from './auth-role.vo.js';
+import { RoleNameVO } from '../primitives/role-name.vo.js';
+import { RoleDescriptionVO } from '../primitives/role-description.vo.js';
+import { PermissionNameVO } from '../primitives/permission-name.vo.js';
 
 describe('AuthRoleVO', () => {
   const buildRole = (permissions: PermissionNameVO[] = []) =>

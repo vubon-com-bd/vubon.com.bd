@@ -1,21 +1,57 @@
+/**
+ * UserSettings domain events
+ */
 import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
-import { toTimestamp } from '@vubon/shared-types/common';
+import type { Timestamp } from '@vubon/shared-types/common';
 
-const AGG = 'UserSettings';
+interface EventParams<TPayload> {
+  readonly id: string;
+  readonly aggregateId: string;
+  readonly payload: TPayload;
+  readonly occurredAt: Timestamp;
+  readonly version: number;
+}
+
+export interface SettingsUpdatedPayload {
+  readonly userId: string;
+  readonly updatedKeys: readonly string[];
+}
 
 export class SettingsUpdatedEvent extends BaseDomainEvent<
-  'user.settings.updated',
-  { userId: string; keys: readonly string[] }
+  'settings.updated',
+  SettingsUpdatedPayload
 > {
-  constructor(aggregateId: string, userId: string, keys: readonly string[], version: number) {
+  constructor(p: EventParams<SettingsUpdatedPayload>) {
     super({
-      id: crypto.randomUUID(),
-      type: 'user.settings.updated',
-      aggregateId,
-      aggregateType: AGG,
-      payload: { userId, keys },
-      occurredAt: toTimestamp(Date.now()),
-      version,
+      id: p.id,
+      type: 'settings.updated',
+      aggregateId: p.aggregateId,
+      aggregateType: 'UserSettings',
+      payload: p.payload,
+      occurredAt: p.occurredAt,
+      version: p.version,
+    });
+  }
+}
+
+export interface SettingsResetPayload {
+  readonly userId: string;
+  readonly resetAt: string;
+}
+
+export class SettingsResetEvent extends BaseDomainEvent<
+  'settings.reset',
+  SettingsResetPayload
+> {
+  constructor(p: EventParams<SettingsResetPayload>) {
+    super({
+      id: p.id,
+      type: 'settings.reset',
+      aggregateId: p.aggregateId,
+      aggregateType: 'UserSettings',
+      payload: p.payload,
+      occurredAt: p.occurredAt,
+      version: p.version,
     });
   }
 }

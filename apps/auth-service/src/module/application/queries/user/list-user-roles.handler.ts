@@ -1,10 +1,10 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { ListUserRolesQuery } from './list-user-roles.query';
-import type { UserRoleServiceInterface } from '../../services/interfaces/user-role.service.interface';
-import type { UserRoleResponseDTO } from '../../dtos/responses/user-role-response.dto';
-import { USER_ROLE_SERVICE } from '../../tokens';
+import { ListUserRolesQuery } from './list-user-roles.query.js';
+import type { UserRoleServiceInterface } from '../../services/interfaces/user-role.service.interface.js';
+import type { UserRoleResponseDTO } from '../../dtos/responses/user-role-response.dto.js';
+import { USER_ROLE_SERVICE } from '../../tokens.js';
 
 @QueryHandler(ListUserRolesQuery)
 export class ListUserRolesHandler

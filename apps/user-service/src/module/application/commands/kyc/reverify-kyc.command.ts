@@ -1,11 +1,15 @@
-import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
+/**
+ * ReverifyKycCommand
+ */
+import { BaseCommand } from '@vubon/shared-kernel/application/commands';
 
 export class ReverifyKycCommand extends BaseCommand {
-  readonly type = 'user.kyc.reverify';
+  readonly type = 'kyc.reverify';
 
   constructor(
-    public readonly userId: string,
     public readonly kycId: string,
+    public readonly userId: string,
+    public readonly reason?: string
   ) {
     super();
   }

@@ -1,8 +1,9 @@
-export { UserPrismaRepository } from './user.prisma.repository';
-export { UserProfilePrismaRepository } from './user-profile.prisma.repository';
-export { UserSettingsPrismaRepository } from './user-settings.prisma.repository';
-export { UserPreferencesPrismaRepository } from './user-preferences.prisma.repository';
-export { UserAddressPrismaRepository } from './user-address.prisma.repository';
-export { UserContactPrismaRepository } from './user-contact.prisma.repository';
-export { UserKycPrismaRepository } from './user-kyc.prisma.repository';
-export { UserActivityPrismaRepository } from './user-activity.prisma.repository';
+// repositories/index.ts — Prisma repository barrel export
+export * from './user.prisma.repository.js';
+export * from './user-profile.prisma.repository.js';
+export * from './user-settings.prisma.repository.js';
+export * from './user-preferences.prisma.repository.js';
+export * from './user-address.prisma.repository.js';
+export * from './user-contact.prisma.repository.js';
+export * from './user-kyc.prisma.repository.js';
+export * from './user-activity.prisma.repository.js';

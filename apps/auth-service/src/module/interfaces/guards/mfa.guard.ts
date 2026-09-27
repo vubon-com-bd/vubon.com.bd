@@ -9,8 +9,8 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { MFA_REQUIRED_KEY } from '../decorators/mfa-required.decorator';
-import type { AuthenticatedUser } from '../decorators/current-user.decorator';
+import { MFA_REQUIRED_KEY } from '../decorators/mfa-required.decorator.js';
+import type { AuthenticatedUser } from '../decorators/current-user.decorator.js';
 
 @Injectable()
 export class MfaGuard implements CanActivate {

@@ -10,8 +10,8 @@ import { Saga, ICommand, ofType } from '@nestjs/cqrs';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { BaseSaga } from '@vubon/shared-kernel/application/sagas/base.saga';
-import { SocialLinkedEvent } from '../../domain/events/auth-social.events';
-import { UpdateAnalyticsCommand } from './commands/update-analytics.command';
+import { SocialLinkedEvent } from '../../domain/events/auth-social.events.js';
+import { UpdateAnalyticsCommand } from './commands/update-analytics.command.js';
 
 @Injectable()
 export class AuthSocialSaga extends BaseSaga<void> {

@@ -1,12 +1,14 @@
 /**
  * VerifyEmailHandler — Unit Tests
  */
-import { VerifyEmailHandler } from './verify-email.handler';
-import { VerifyEmailCommand } from './verify-email.command';
+import { jest } from '@jest/globals';
+
+import { VerifyEmailHandler } from './verify-email.handler.js';
+import { VerifyEmailCommand } from './verify-email.command.js';
 
 const mockAuthService = () => ({
   name: 'AuthService',
-  verifyEmail: jest.fn(),
+  verifyEmail: jest.fn() as jest.Mock,
 });
 
 describe('VerifyEmailHandler', () => {

@@ -5,16 +5,16 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { UserRoleServiceInterface } from '../interfaces/user-role.service.interface';
-import type { AuthRoleRepository } from '../../../domain/repositories/auth-role.repository.interface';
-import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
-import { AuthRoleEntity } from '../../../domain/entities/auth-role.entity';
-import { RoleNameVO } from '../../../domain/value-objects/primitives/role-name.vo';
-import { UserRoleVO } from '../../../domain/value-objects/primitives/user-role.vo';
-import { RoleAssignmentService } from '../../../domain/services/role-assignment.service';
-import type { UserRoleResponseDTO } from '../../dtos/responses/user-role-response.dto';
-import { USER_REPO } from '../../tokens';
-import { AUTH_ROLE_REPO } from '../../tokens';
+import type { UserRoleServiceInterface } from '../interfaces/user-role.service.interface.js';
+import type { AuthRoleRepository } from '../../../domain/repositories/auth-role.repository.interface.js';
+import type { UserRepository } from '../../../domain/repositories/user.repository.interface.js';
+import { AuthRoleEntity } from '../../../domain/entities/auth-role.entity.js';
+import { RoleNameVO } from '../../../domain/value-objects/primitives/role-name.vo.js';
+import { UserRoleVO } from '../../../domain/value-objects/primitives/user-role.vo.js';
+import { RoleAssignmentService } from '../../../domain/services/role-assignment.service.js';
+import type { UserRoleResponseDTO } from '../../dtos/responses/user-role-response.dto.js';
+import { USER_REPO } from '../../tokens.js';
+import { AUTH_ROLE_REPO } from '../../tokens.js';
 
 @Injectable()
 export class UserRoleService

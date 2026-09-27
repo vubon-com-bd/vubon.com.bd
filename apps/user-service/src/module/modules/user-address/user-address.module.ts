@@ -1,25 +1,32 @@
+/**
+ * UserAddressModule
+ */
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-
-import { UserAddressController } from '../../interfaces/controllers/rest/user-address.controller';
-import { AddressControllerMapper } from '../../interfaces/mappers/address.controller.mapper';
-import { UserAddressService } from '../../application/services/impl/user-address.service';
-import { AddAddressHandler } from '../../application/commands/address/add-address.handler';
-import { UpdateAddressHandler } from '../../application/commands/address/update-address.handler';
-import { DeleteAddressHandler } from '../../application/commands/address/delete-address.handler';
-import { SetDefaultAddressHandler } from '../../application/commands/address/set-default-address.handler';
-import { ListAddressesHandler } from '../../application/queries/address/list-addresses.handler';
-import { GetAddressHandler } from '../../application/queries/address/get-address.handler';
-import { GetDefaultAddressHandler } from '../../application/queries/address/get-default-address.handler';
-import { UserAddressPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/user-address.prisma.repository';
+import { UserAddressController } from '@interfaces/controllers/rest/user-address.controller';
+import { UserAddressService } from '@application/services/impl/user-address.service';
+import {
+  AddAddressHandler,
+  UpdateAddressHandler,
+  DeleteAddressHandler,
+  SetDefaultAddressHandler,
+} from '@application/commands/address';
+import {
+  ListAddressesHandler,
+  GetAddressHandler,
+  GetDefaultAddressHandler,
+} from '@application/queries/address';
+import { UserAddressPrismaRepository } from '@infrastructure/persistence/prisma/repositories';
+import { USER_ADDRESS_REPOSITORY } from '@domain/repositories/user-address.repository.interface';
+import { PrismaModule } from '@infrastructure/persistence/prisma/prisma.module';
+import { UserModule } from '../user/user.module.js';
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, PrismaModule, UserModule],
   controllers: [UserAddressController],
   providers: [
-    UserAddressPrismaRepository,
     UserAddressService,
-    AddressControllerMapper,
+    { provide: USER_ADDRESS_REPOSITORY, useClass: UserAddressPrismaRepository },
     AddAddressHandler,
     UpdateAddressHandler,
     DeleteAddressHandler,
@@ -28,6 +35,6 @@ import { UserAddressPrismaRepository } from '../../infrastructure/persistence/pr
     GetAddressHandler,
     GetDefaultAddressHandler,
   ],
-  exports: [UserAddressService, UserAddressPrismaRepository],
+  exports: [UserAddressService, USER_ADDRESS_REPOSITORY],
 })
 export class UserAddressModule {}

@@ -2,8 +2,8 @@
  * UserActivityVO — Unit Tests
  * @module auth-service/domain/value-objects/composites
  */
-import { UserActivityVO } from './user-activity.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
+import { UserActivityVO } from './user-activity.vo.js';
+import { UserIdVO } from '../primitives/user-id.vo.js';
 
 describe('UserActivityVO', () => {
   const userId = UserIdVO.of('user-1');

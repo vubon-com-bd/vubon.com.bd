@@ -10,10 +10,10 @@ import {
 } from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
 import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
 import type { UserId } from '@vubon/shared-types/common';
-import { AuthRecoveryCodeEntity } from '../../../../domain/entities/auth-recovery-code.entity';
-import { RecoveryCodeVO } from '../../../../domain/value-objects/primitives/recovery-code.vo';
-import { RecoveryCodeStatusVO } from '../../../../domain/value-objects/primitives/recovery-code-status.vo';
-import type { AuthRecoveryCodeRepository } from '../../../../domain/repositories/auth-recovery-code.repository.interface';
+import { AuthRecoveryCodeEntity } from '../../../../domain/entities/auth-recovery-code.entity.js';
+import { RecoveryCodeVO } from '../../../../domain/value-objects/primitives/recovery-code.vo.js';
+import { RecoveryCodeStatusVO } from '../../../../domain/value-objects/primitives/recovery-code-status.vo.js';
+import type { AuthRecoveryCodeRepository } from '../../../../domain/repositories/auth-recovery-code.repository.interface.js';
 
 @Injectable()
 export class AuthRecoveryCodePrismaRepository

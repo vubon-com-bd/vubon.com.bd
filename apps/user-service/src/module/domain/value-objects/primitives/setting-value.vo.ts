@@ -1,15 +1,39 @@
-import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { InvalidSettingValueError } from '../../errors/settings.errors';
+/**
+ * SettingValue Value Object
+ */
+import { BaseCodeVO } from '@vubon/shared-kernel/domain/primitives/code.vo';
 
-export class SettingValueVO extends BaseVO<string> {
+export class SettingValueVO extends BaseCodeVO {
+  private static readonly MAX_LENGTH = 2000;
+
   private constructor(value: string) {
     super(value);
   }
 
   static create(raw: string): SettingValueVO {
-    if (raw.length > 500) {
-      throw new InvalidSettingValueError('must not exceed 500 characters');
+    if (typeof raw !== 'string') {
+      throw new Error('Setting value must be a string');
     }
-    return new SettingValueVO(raw);
+    const trimmed = raw.trim();
+    if (trimmed.length > SettingValueVO.MAX_LENGTH) {
+      throw new Error(`Setting value too long (max ${SettingValueVO.MAX_LENGTH})`);
+    }
+    return new SettingValueVO(trimmed);
+  }
+
+  static fromBoolean(value: boolean): SettingValueVO {
+    return new SettingValueVO(value ? 'true' : 'false');
+  }
+
+  toBoolean(): boolean {
+    return this.value === 'true' || this.value === '1';
+  }
+
+  isBoolean(): boolean {
+    return this.value === 'true' || this.value === 'false';
+  }
+
+  isEmpty(): boolean {
+    return this.value.length === 0;
   }
 }

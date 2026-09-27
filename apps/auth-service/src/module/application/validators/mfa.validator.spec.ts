@@ -2,7 +2,7 @@
  * MfaValidator — Unit Tests (Schema-aware)
  * @module auth-service/application/validators
  */
-import { MfaValidator } from './mfa.validator';
+import { MfaValidator } from './mfa.validator.js';
 
 describe('MfaValidator', () => {
   // ═══════════════════════════════════════════════════════════

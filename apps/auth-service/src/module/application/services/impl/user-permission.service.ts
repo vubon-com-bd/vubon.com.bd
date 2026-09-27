@@ -5,18 +5,18 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { UserPermissionServiceInterface } from '../interfaces/user-permission.service.interface';
-import type { AuthPermissionRepository } from '../../../domain/repositories/auth-permission.repository.interface';
-import type { AuthRoleRepository } from '../../../domain/repositories/auth-role.repository.interface';
-import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
-import { AuthPermissionEntity } from '../../../domain/entities/auth-permission.entity';
-import { RoleNameVO } from '../../../domain/value-objects/primitives/role-name.vo';
-import { PermissionNameVO } from '../../../domain/value-objects/primitives/permission-name.vo';
-import { PermissionEvaluationService } from '../../../domain/services/permission-evaluation.service';
-import type { UserPermissionResponseDTO } from '../../dtos/responses/user-permission-response.dto';
-import { USER_REPO } from '../../tokens';
-import { AUTH_PERMISSION_REPO } from '../../tokens';
-import { AUTH_ROLE_REPO } from '../../tokens';
+import type { UserPermissionServiceInterface } from '../interfaces/user-permission.service.interface.js';
+import type { AuthPermissionRepository } from '../../../domain/repositories/auth-permission.repository.interface.js';
+import type { AuthRoleRepository } from '../../../domain/repositories/auth-role.repository.interface.js';
+import type { UserRepository } from '../../../domain/repositories/user.repository.interface.js';
+import { AuthPermissionEntity } from '../../../domain/entities/auth-permission.entity.js';
+import { RoleNameVO } from '../../../domain/value-objects/primitives/role-name.vo.js';
+import { PermissionNameVO } from '../../../domain/value-objects/primitives/permission-name.vo.js';
+import { PermissionEvaluationService } from '../../../domain/services/permission-evaluation.service.js';
+import type { UserPermissionResponseDTO } from '../../dtos/responses/user-permission-response.dto.js';
+import { USER_REPO } from '../../tokens.js';
+import { AUTH_PERMISSION_REPO } from '../../tokens.js';
+import { AUTH_ROLE_REPO } from '../../tokens.js';
 
 @Injectable()
 export class UserPermissionService

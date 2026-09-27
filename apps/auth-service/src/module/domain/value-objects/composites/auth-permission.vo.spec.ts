@@ -2,10 +2,10 @@
  * AuthPermissionVO — Unit Tests
  * @module auth-service/domain/value-objects/composites
  */
-import { AuthPermissionVO } from './auth-permission.vo';
-import { PermissionNameVO } from '../primitives/permission-name.vo';
-import { PermissionActionVO } from '../primitives/permission-action.vo';
-import { PermissionResourceVO } from '../primitives/permission-resource.vo';
+import { AuthPermissionVO } from './auth-permission.vo.js';
+import { PermissionNameVO } from '../primitives/permission-name.vo.js';
+import { PermissionActionVO } from '../primitives/permission-action.vo.js';
+import { PermissionResourceVO } from '../primitives/permission-resource.vo.js';
 
 describe('AuthPermissionVO', () => {
   describe('of()', () => {

@@ -3,9 +3,9 @@
  * @module auth-service/domain/entities
  */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
-import { TokenValueVO } from '../value-objects/primitives/token-value.vo';
-import { TokenTypeVO } from '../value-objects/primitives/token-type.vo';
-import { TokenExpiryVO } from '../value-objects/primitives/token-expiry.vo';
+import { TokenValueVO } from '../value-objects/primitives/token-value.vo.js';
+import { TokenTypeVO } from '../value-objects/primitives/token-type.vo.js';
+import { TokenExpiryVO } from '../value-objects/primitives/token-expiry.vo.js';
 
 export interface AuthTokenEntityProps {
   readonly id: string;

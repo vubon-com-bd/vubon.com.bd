@@ -1,81 +1,83 @@
+/**
+ * UserSettingsEntity — Aggregate Root
+ */
 import { AggregateRoot } from '@vubon/shared-kernel/domain/base/base.aggregate';
-import { UserIdVO } from '../value-objects/primitives/user-id.vo';
-import { SettingKeyVO } from '../value-objects/primitives/setting-key.vo';
-import { SettingValueVO } from '../value-objects/primitives/setting-value.vo';
-import { SettingsUpdatedEvent } from '../events/user-settings.events';
-
-export interface SettingEntry {
-  readonly key: SettingKeyVO;
-  readonly value: SettingValueVO;
-}
+import { SettingKeyVO } from '../value-objects/primitives/setting-key.vo.js';
+import { SettingValueVO } from '../value-objects/primitives/setting-value.vo.js';
 
 export interface UserSettingsEntityProps {
-  readonly userId: UserIdVO;
-  readonly entries: readonly SettingEntry[];
+  readonly userId: string;
+  readonly entries: readonly { readonly key: SettingKeyVO; readonly value: SettingValueVO }[];
 }
 
-export class UserSettingsEntity extends AggregateRoot<UserIdVO> {
-  private readonly _userId: UserIdVO;
-  private readonly _entries: readonly SettingEntry[];
+export class UserSettingsEntity extends AggregateRoot<string> {
+  private _entries: Map<string, SettingValueVO>;
+  private readonly _userId: string;
 
   private constructor(
-    id: UserIdVO,
-    props: UserSettingsEntityProps,
+    id: string,
     createdAt: string,
     updatedAt: string,
-    deletedAt: string | null,
+    props: UserSettingsEntityProps,
+    deletedAt?: string | null
   ) {
     super(id, createdAt, updatedAt, deletedAt);
     this._userId = props.userId;
-    this._entries = Object.freeze([...props.entries]);
+    this._entries = new Map();
+    for (const e of props.entries) this._entries.set(e.key.value, e.value);
   }
 
-  static create(props: UserSettingsEntityProps): UserSettingsEntity {
-    const now = new Date().toISOString();
-    return new UserSettingsEntity(props.userId, props, now, now, null);
-  }
+  get userId(): string { return this._userId; }
 
-  static reconstitute(
-    id: UserIdVO,
-    props: UserSettingsEntityProps,
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null,
-  ): UserSettingsEntity {
-    return new UserSettingsEntity(id, props, createdAt, updatedAt, deletedAt);
-  }
-
-  setEntry(key: SettingKeyVO, value: SettingValueVO): UserSettingsEntity {
-    const filtered = this._entries.filter((e) => e.key.value !== key.value);
-    const updated = new UserSettingsEntity(
-      this.id,
-      { userId: this._userId, entries: [...filtered, { key, value }] },
-      this.createdAt,
-      new Date().toISOString(),
-      this.deletedAt ?? null,
-    );
-    updated.addDomainEvent(
-      new SettingsUpdatedEvent(this.id.value, this.id.value, [key.value], this.version + 1),
-    );
-    return updated;
-  }
-
-  removeEntry(key: SettingKeyVO): UserSettingsEntity {
-    const filtered = this._entries.filter((e) => e.key.value !== key.value);
+  static create(params: { id: string; userId: string; now: string }): UserSettingsEntity {
     return new UserSettingsEntity(
-      this.id,
-      { userId: this._userId, entries: filtered },
-      this.createdAt,
-      new Date().toISOString(),
-      this.deletedAt ?? null,
+      params.id,
+      params.now,
+      params.now,
+      { userId: params.userId, entries: [] },
+      null
     );
   }
 
-  get userId(): UserIdVO { return this._userId; }
-  get entries(): readonly SettingEntry[] { return this._entries; }
+  static reconstitute(params: {
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string | null;
+    props: UserSettingsEntityProps;
+  }): UserSettingsEntity {
+    return new UserSettingsEntity(
+      params.id,
+      params.createdAt,
+      params.updatedAt,
+      params.props,
+      params.deletedAt
+    );
+  }
+
+  set(key: SettingKeyVO, value: SettingValueVO): void {
+    if (value.isEmpty()) throw new Error(`Setting value for "${key.value}" cannot be empty`);
+    this._entries.set(key.value, value);
+    this.incrementVersion();
+  }
 
   get(key: string): SettingValueVO | null {
-    const entry = this._entries.find((e) => e.key.value === key);
-    return entry ? entry.value : null;
+    return this._entries.get(key) ?? null;
+  }
+
+  remove(key: string): void {
+    if (!this._entries.has(key)) return;
+    this._entries.delete(key);
+    this.incrementVersion();
+  }
+
+  reset(): void {
+    if (this._entries.size === 0) return;
+    this._entries.clear();
+    this.incrementVersion();
+  }
+
+  count(): number {
+    return this._entries.size;
   }
 }

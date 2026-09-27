@@ -2,7 +2,7 @@
  * VerificationTypeVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { VerificationTypeVO } from './verification-type.vo';
+import { VerificationTypeVO } from './verification-type.vo.js';
 
 describe('VerificationTypeVO', () => {
   describe('of()', () => {

@@ -1,10 +1,10 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { GetUserPreferencesQuery } from './get-user-preferences.query';
-import type { UserPreferencesRepository } from '../../../domain/repositories/user-preferences.repository.interface';
-import type { UserPreferencesResponseDTO } from '../../dtos/responses/user-preferences-response.dto';
-import { USER_PREFERENCES_REPO } from '../../tokens';
+import { GetUserPreferencesQuery } from './get-user-preferences.query.js';
+import type { UserPreferencesRepository } from '../../../domain/repositories/user-preferences.repository.interface.js';
+import type { UserPreferencesResponseDTO } from '../../dtos/responses/user-preferences-response.dto.js';
+import { USER_PREFERENCES_REPO } from '../../tokens.js';
 
 @QueryHandler(GetUserPreferencesQuery)
 export class GetUserPreferencesHandler

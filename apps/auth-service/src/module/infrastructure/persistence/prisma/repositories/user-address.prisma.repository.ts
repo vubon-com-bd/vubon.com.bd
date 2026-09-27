@@ -10,8 +10,8 @@ import {
 } from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
 import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
 import type { UserId } from '@vubon/shared-types/common';
-import { UserAddressEntity } from '../../../../domain/entities/user-address.entity';
-import type { UserAddressRepository } from '../../../../domain/repositories/user-address.repository.interface';
+import { UserAddressEntity } from '../../../../domain/entities/user-address.entity.js';
+import type { UserAddressRepository } from '../../../../domain/repositories/user-address.repository.interface.js';
 
 @Injectable()
 export class UserAddressPrismaRepository
@@ -36,12 +36,12 @@ export class UserAddressPrismaRepository
     return UserAddressEntity.create({
       id: raw.id,
       userId: raw.userId as UserId,
-      label: raw.label,
+      label: raw.label ?? '',
       line1: raw.addressLine,
       line2: undefined,
       division: raw.division,
       district: raw.district,
-      upazila: raw.upazila,
+      upazila: raw.upazila ?? '',
       postalCode: raw.postalCode ?? '0000',
       isDefault: raw.isDefault,
       createdAt: raw.createdAt.toISOString(),

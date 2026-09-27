@@ -2,7 +2,9 @@
  * RateLimiterService — Unit Tests
  * @module auth-service/infrastructure/services/internal
  */
-import { RateLimiterService } from './rate-limiter.service';
+import { jest } from '@jest/globals';
+
+import { RateLimiterService } from './rate-limiter.service.js';
 
 const mockRedis = () => {
   const store: Record<string, { value: number; expireAt?: number }> = {};

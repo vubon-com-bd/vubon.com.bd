@@ -8,7 +8,7 @@ import type {
   CourierCreateShipmentResult,
   CourierTrackResult,
   CourierCancelResult,
-} from './courier.client';
+} from './courier.client.js';
 
 @Injectable()
 export abstract class BaseCourierService {

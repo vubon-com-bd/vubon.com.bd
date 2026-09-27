@@ -1,3 +1,3 @@
-export * from './push.client';
-export * from './push.service';
-export * from './push.module';
+export * from './push.client.js';
+export * from './push.service.js';
+export * from './push.module.js';

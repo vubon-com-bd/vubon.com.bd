@@ -8,23 +8,23 @@
 import {
   createAuthQueue,
   AUTH_QUEUE_NAME,
-} from './auth.queue';
+} from './auth.queue.js';
 import {
   createSessionQueue,
   SESSION_QUEUE_NAME,
-} from './session.queue';
+} from './session.queue.js';
 import {
   createTokenQueue,
   TOKEN_QUEUE_NAME,
-} from './token.queue';
+} from './token.queue.js';
 import {
   createNotificationQueue,
   NOTIFICATION_QUEUE_NAME,
-} from './notification.queue';
+} from './notification.queue.js';
 import {
   createAnalyticsQueue,
   ANALYTICS_QUEUE_NAME,
-} from './analytics.queue';
+} from './analytics.queue.js';
 import { QUEUE_NAME } from '@vubon/shared-constants/infrastructure';
 
 const connection = { host: 'localhost', port: 6379 };

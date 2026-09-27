@@ -1,12 +1,14 @@
 /**
  * DisableMfaHandler — Unit Tests
  */
-import { DisableMfaHandler } from './disable-mfa.handler';
-import { DisableMfaCommand } from './disable-mfa.command';
+import { jest } from '@jest/globals';
+
+import { DisableMfaHandler } from './disable-mfa.handler.js';
+import { DisableMfaCommand } from './disable-mfa.command.js';
 
 const mockMfaService = () => ({
   name: 'AuthMfaService',
-  disable: jest.fn(),
+  disable: jest.fn() as jest.Mock,
 });
 
 describe('DisableMfaHandler', () => {

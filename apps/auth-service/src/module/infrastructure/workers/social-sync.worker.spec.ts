@@ -1,7 +1,7 @@
 /**
  * SocialSyncWorker — Deep Unit Tests
  */
-import { SocialSyncWorker } from './social-sync.worker';
+import { SocialSyncWorker } from './social-sync.worker.js';
 
 const mockJob = (name = 'social-sync', data: Record<string, unknown> = {}) => ({
   id: 'job-1',

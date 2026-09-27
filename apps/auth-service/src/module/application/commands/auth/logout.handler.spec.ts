@@ -1,12 +1,14 @@
 /**
  * LogoutHandler — Unit Tests
  */
-import { LogoutHandler } from './logout.handler';
-import { LogoutCommand } from './logout.command';
+import { jest } from '@jest/globals';
+
+import { LogoutHandler } from './logout.handler.js';
+import { LogoutCommand } from './logout.command.js';
 
 const mockAuthService = () => ({
   name: 'AuthService',
-  logout: jest.fn(),
+  logout: jest.fn() as jest.Mock,
 });
 
 describe('LogoutHandler', () => {

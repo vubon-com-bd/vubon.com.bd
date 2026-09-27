@@ -1,10 +1,12 @@
 /**
  * DeleteContactHandler — Unit Tests
  */
-import { DeleteContactHandler } from './delete-contact.handler';
-import { DeleteContactCommand } from './delete-contact.command';
+import { jest } from '@jest/globals';
 
-const mockService = () => ({ remove: jest.fn() });
+import { DeleteContactHandler } from './delete-contact.handler.js';
+import { DeleteContactCommand } from './delete-contact.command.js';
+
+const mockService = () => ({ remove: jest.fn() as jest.Mock });
 
 describe('DeleteContactHandler', () => {
   let handler: DeleteContactHandler;

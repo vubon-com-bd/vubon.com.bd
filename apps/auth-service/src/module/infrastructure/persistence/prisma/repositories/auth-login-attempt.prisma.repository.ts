@@ -10,10 +10,10 @@ import {
 } from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
 import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
 import type { UserId } from '@vubon/shared-types/common';
-import { AuthLoginAttemptEntity } from '../../../../domain/entities/auth-login-attempt.entity';
-import { LoginAttemptIpVO } from '../../../../domain/value-objects/primitives/login-attempt-ip.vo';
-import { LoginAttemptStatusVO } from '../../../../domain/value-objects/primitives/login-attempt-status.vo';
-import type { AuthLoginAttemptRepository } from '../../../../domain/repositories/auth-login-attempt.repository.interface';
+import { AuthLoginAttemptEntity } from '../../../../domain/entities/auth-login-attempt.entity.js';
+import { LoginAttemptIpVO } from '../../../../domain/value-objects/primitives/login-attempt-ip.vo.js';
+import { LoginAttemptStatusVO } from '../../../../domain/value-objects/primitives/login-attempt-status.vo.js';
+import type { AuthLoginAttemptRepository } from '../../../../domain/repositories/auth-login-attempt.repository.interface.js';
 
 @Injectable()
 export class AuthLoginAttemptPrismaRepository

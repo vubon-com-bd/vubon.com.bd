@@ -2,8 +2,10 @@
  * UserActivityService — Unit Tests
  * @module auth-service/application/services/impl
  */
-import { UserActivityService } from './user-activity.service';
-import { UserActivityEntity } from '../../../domain/entities/user-activity.entity';
+import { jest } from '@jest/globals';
+
+import { UserActivityService } from './user-activity.service.js';
+import { UserActivityEntity } from '../../../domain/entities/user-activity.entity.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -20,14 +22,14 @@ const buildActivity = (overrides: Partial<Parameters<typeof UserActivityEntity.c
   });
 
 const mockRepo = () => ({
-  findById: jest.fn(),
-  findByUserId: jest.fn(),
-  findAll: jest.fn(),
+  findById: jest.fn() as jest.Mock,
+  findByUserId: jest.fn() as jest.Mock,
+  findAll: jest.fn() as jest.Mock,
   save: jest.fn((a: UserActivityEntity) => Promise.resolve(a)),
-  delete: jest.fn(),
-  exists: jest.fn(),
-  findRecentByUser: jest.fn(),
-  deleteOlderThan: jest.fn(),
+  delete: jest.fn() as jest.Mock,
+  exists: jest.fn() as jest.Mock,
+  findRecentByUser: jest.fn() as jest.Mock,
+  deleteOlderThan: jest.fn() as jest.Mock,
 });
 
 const mockIdGen = () => ({

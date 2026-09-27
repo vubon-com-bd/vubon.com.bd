@@ -5,15 +5,15 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { AuthSessionServiceInterface } from '../interfaces/auth-session.service.interface';
-import type { AuthSessionRepository } from '../../../domain/repositories/auth-session.repository.interface';
-import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
-import { AuthSessionEntity } from '../../../domain/entities/auth-session.entity';
-import { SessionTokenVO } from '../../../domain/value-objects/primitives/session-token.vo';
-import { SessionExpiryVO } from '../../../domain/value-objects/primitives/session-expiry.vo';
-import type { AuthSessionResponseDTO } from '../../dtos/responses/auth-session-response.dto';
-import { ID_GENERATOR } from '../tokens';
-import { AUTH_SESSION_REPO } from '../../tokens';
+import type { AuthSessionServiceInterface } from '../interfaces/auth-session.service.interface.js';
+import type { AuthSessionRepository } from '../../../domain/repositories/auth-session.repository.interface.js';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface.js';
+import { AuthSessionEntity } from '../../../domain/entities/auth-session.entity.js';
+import { SessionTokenVO } from '../../../domain/value-objects/primitives/session-token.vo.js';
+import { SessionExpiryVO } from '../../../domain/value-objects/primitives/session-expiry.vo.js';
+import type { AuthSessionResponseDTO } from '../../dtos/responses/auth-session-response.dto.js';
+import { ID_GENERATOR } from '../tokens.js';
+import { AUTH_SESSION_REPO } from '../../tokens.js';
 
 const DEFAULT_SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 

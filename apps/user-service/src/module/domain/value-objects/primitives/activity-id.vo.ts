@@ -1,15 +1,17 @@
-import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { InvalidActivityIdError } from '../../errors/activity.errors';
+/**
+ * ActivityId Value Object
+ */
+import { BaseIdVO } from '@vubon/shared-kernel/domain/primitives/id.vo';
 
-export class ActivityIdVO extends BaseVO<string> {
+export class ActivityIdVO extends BaseIdVO<string> {
   private constructor(value: string) {
     super(value);
   }
 
   static create(raw: string): ActivityIdVO {
-    if (!raw || raw.trim().length === 0) {
-      throw new InvalidActivityIdError('ActivityId cannot be empty');
+    if (typeof raw !== 'string' || raw.trim().length === 0) {
+      throw new Error('ActivityId cannot be empty');
     }
-    return new ActivityIdVO(raw);
+    return new ActivityIdVO(raw.trim());
   }
 }

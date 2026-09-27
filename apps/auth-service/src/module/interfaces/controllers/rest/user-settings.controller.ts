@@ -14,10 +14,10 @@ import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
 import type { UserId } from '@vubon/shared-types/common';
 
-import { UpdateSettingsCommand } from '../../../application/commands/user/update-settings.command';
-import { GetUserSettingsQuery } from '../../../application/queries/user/get-user-settings.query';
-import { UpdateSettingsRequestDTO } from '../../dtos/requests/settings.request.dto';
-import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
+import { UpdateSettingsCommand } from '../../../application/commands/user/update-settings.command.js';
+import { GetUserSettingsQuery } from '../../../application/queries/user/get-user-settings.query.js';
+import { UpdateSettingsRequestDTO } from '../../dtos/requests/settings.request.dto.js';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator.js';
 
 @ApiTags('Users Settings')
 @Controller('users/settings')

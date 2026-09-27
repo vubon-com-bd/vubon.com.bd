@@ -1,69 +1,47 @@
+/**
+ * UserProfileService
+ */
 import { Injectable } from '@nestjs/common';
-import { EventBus } from '@nestjs/cqrs';
-import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
-import type { UserProfileServiceInterface } from '../interfaces/user-profile.service.interface';
-import type { UserProfileRepository } from '../../../domain/repositories/user-profile.repository.interface';
-import { UserProfileEntity } from '../../../domain/entities/user-profile.entity';
-import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
-import { UserAvatarVO } from '../../../domain/value-objects/primitives/user-avatar.vo';
-import { UserBioVO } from '../../../domain/value-objects/primitives/user-bio.vo';
-import { ProfileVisibilityVO } from '../../../domain/value-objects/primitives/profile-visibility.vo';
-import { ProfileOperationFailedError } from '../../errors/profile.errors';
-import type { ProfileResponseDTO } from '../../dtos/responses/profile-response.dto';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import type { UserProfileServiceInterface } from '../interfaces/user-profile.service.interface.js';
+import { UpdateProfileCommand } from '../../commands/profile/update-profile.command.js';
+import { UpdateAvatarCommand } from '../../commands/profile/update-avatar.command.js';
+import { UpdateBioCommand } from '../../commands/profile/update-bio.command.js';
+import { UpdateVisibilityCommand } from '../../commands/profile/update-visibility.command.js';
+import { GetProfileQuery } from '../../queries/profile/get-profile.query.js';
+import type { UpdateProfileRequestDTO } from '../../dtos/requests/profile/index.js';
+import type { ProfileResponseDTO } from '../../dtos/responses/profile-response.dto.js';
+import type { ProfileVisibilitySchemaType } from '@vubon/shared-schemas/user';
 
 @Injectable()
-export class UserProfileService
-  extends BaseService<UserProfileEntity, string>
-  implements UserProfileServiceInterface
-{
-  readonly name = 'UserProfileService';
-
+export class UserProfileService implements UserProfileServiceInterface {
   constructor(
-    private readonly profileRepo: UserProfileRepository,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus
+  ) {}
+
+  findByUserId(userId: string): Promise<ProfileResponseDTO> {
+    return this.queryBus.execute(new GetProfileQuery(userId));
   }
 
-  async findByUserId(userId: string): Promise<ProfileResponseDTO | null> {
-    const entity = await this.profileRepo.findByUserId(UserIdVO.create(userId));
-    return entity ? this.toDTO(entity) : null;
+  update(userId: string, input: UpdateProfileRequestDTO): Promise<ProfileResponseDTO> {
+    return this.commandBus.execute(new UpdateProfileCommand(userId, input));
   }
 
-  async updateAvatar(userId: string, avatarUrl: string | null): Promise<ProfileResponseDTO> {
-    const entity = await this.profileRepo.findByUserId(UserIdVO.create(userId));
-    if (!entity) throw new ProfileOperationFailedError('profile not found');
-    const updated = entity.updateAvatar(avatarUrl ? UserAvatarVO.create(avatarUrl) : null);
-    await this.profileRepo.save(updated);
-    return this.toDTO(updated);
+  updateAvatar(userId: string, avatarUrl: string): Promise<ProfileResponseDTO> {
+    return this.commandBus.execute(new UpdateAvatarCommand(userId, avatarUrl));
   }
 
-  async updateBio(userId: string, bio: string | null): Promise<ProfileResponseDTO> {
-    const entity = await this.profileRepo.findByUserId(UserIdVO.create(userId));
-    if (!entity) throw new ProfileOperationFailedError('profile not found');
-    const updated = entity.updateBio(bio ? UserBioVO.create(bio) : null);
-    await this.profileRepo.save(updated);
-    return this.toDTO(updated);
+  updateBio(userId: string, bio: string): Promise<ProfileResponseDTO> {
+    return this.commandBus.execute(new UpdateBioCommand(userId, bio));
   }
 
-  async changeVisibility(userId: string, visibility: string): Promise<ProfileResponseDTO> {
-    const entity = await this.profileRepo.findByUserId(UserIdVO.create(userId));
-    if (!entity) throw new ProfileOperationFailedError('profile not found');
-    const updated = entity.changeVisibility(ProfileVisibilityVO.create(visibility));
-    await this.profileRepo.save(updated);
-    return this.toDTO(updated);
-  }
-
-  private toDTO(entity: UserProfileEntity): ProfileResponseDTO {
-    return {
-      success: true,
-      profile: {
-        userId: entity.userId.value,
-        visibility: entity.visibility.value,
-        avatarUrl: entity.avatar?.value,
-        bio: entity.bio?.value,
-        updatedAt: entity.updatedAt,
-      },
-    };
+  updateVisibility(
+    userId: string,
+    visibility: string
+  ): Promise<ProfileResponseDTO> {
+    return this.commandBus.execute(
+      new UpdateVisibilityCommand(userId, visibility as ProfileVisibilitySchemaType)
+    );
   }
 }

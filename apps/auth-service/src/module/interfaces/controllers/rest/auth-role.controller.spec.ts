@@ -1,11 +1,13 @@
 /**
  * AuthRoleController — Unit Tests
  */
+import { jest } from '@jest/globals';
+
 import { Test } from '@nestjs/testing';
 import { QueryBus } from '@nestjs/cqrs';
-import { AuthRoleController } from './auth-role.controller';
+import { AuthRoleController } from './auth-role.controller.js';
 
-const mockQueryBus = () => ({ execute: jest.fn() });
+const mockQueryBus = () => ({ execute: jest.fn() as jest.Mock });
 
 describe('AuthRoleController', () => {
   let controller: AuthRoleController;

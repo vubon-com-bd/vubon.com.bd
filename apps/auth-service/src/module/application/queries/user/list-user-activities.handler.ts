@@ -1,10 +1,10 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { ListUserActivitiesQuery } from './list-user-activities.query';
-import type { UserActivityRepository } from '../../../domain/repositories/user-activity.repository.interface';
-import type { UserActivityResponseDTO } from '../../dtos/responses/user-activity-response.dto';
-import { USER_ACTIVITY_REPO } from '../../tokens';
+import { ListUserActivitiesQuery } from './list-user-activities.query.js';
+import type { UserActivityRepository } from '../../../domain/repositories/user-activity.repository.interface.js';
+import type { UserActivityResponseDTO } from '../../dtos/responses/user-activity-response.dto.js';
+import { USER_ACTIVITY_REPO } from '../../tokens.js';
 
 @QueryHandler(ListUserActivitiesQuery)
 export class ListUserActivitiesHandler

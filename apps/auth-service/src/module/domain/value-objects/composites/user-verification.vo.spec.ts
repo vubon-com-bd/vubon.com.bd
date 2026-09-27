@@ -2,10 +2,10 @@
  * UserVerificationVO — Unit Tests
  * @module auth-service/domain/value-objects/composites
  */
-import { UserVerificationVO } from './user-verification.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { VerificationTypeVO } from '../primitives/verification-type.vo';
-import { VerificationStatusVO } from '../primitives/verification-status.vo';
+import { UserVerificationVO } from './user-verification.vo.js';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { VerificationTypeVO } from '../primitives/verification-type.vo.js';
+import { VerificationStatusVO } from '../primitives/verification-status.vo.js';
 
 describe('UserVerificationVO', () => {
   const userId = UserIdVO.of('user-1');

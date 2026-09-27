@@ -2,11 +2,13 @@
  * AuthMfaCacheRepository — Unit Tests
  * @module auth-service/infrastructure/persistence/cache/repositories
  */
-import { AuthMfaCacheRepository } from './auth-mfa.cache.repository';
-import { AuthMfaEntity } from '../../../../domain/entities/auth-mfa.entity';
-import { MfaTypeVO } from '../../../../domain/value-objects/primitives/mfa-type.vo';
-import { MfaStatusVO } from '../../../../domain/value-objects/primitives/mfa-status.vo';
-import { MfaSecretVO } from '../../../../domain/value-objects/primitives/mfa-secret.vo';
+import { jest } from '@jest/globals';
+
+import { AuthMfaCacheRepository } from './auth-mfa.cache.repository.js';
+import { AuthMfaEntity } from '../../../../domain/entities/auth-mfa.entity.js';
+import { MfaTypeVO } from '../../../../domain/value-objects/primitives/mfa-type.vo.js';
+import { MfaStatusVO } from '../../../../domain/value-objects/primitives/mfa-status.vo.js';
+import { MfaSecretVO } from '../../../../domain/value-objects/primitives/mfa-secret.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 

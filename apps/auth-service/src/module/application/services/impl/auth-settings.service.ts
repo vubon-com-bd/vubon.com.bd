@@ -5,10 +5,10 @@
 import { Injectable } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { AuthSettingsServiceInterface } from '../interfaces/auth-settings.service.interface';
-import type { UpdateAuthSettingsRequestDTO } from '../../dtos/requests/settings/update-auth-settings.dto';
-import type { UpdateAuthPreferencesRequestDTO } from '../../dtos/requests/settings/update-auth-preferences.dto';
-import type { AuthSettingsResponseDTO } from '../../dtos/responses/auth-settings-response.dto';
+import type { AuthSettingsServiceInterface } from '../interfaces/auth-settings.service.interface.js';
+import type { UpdateAuthSettingsRequestDTO } from '../../dtos/requests/settings/update-auth-settings.dto.js';
+import type { UpdateAuthPreferencesRequestDTO } from '../../dtos/requests/settings/update-auth-preferences.dto.js';
+import type { AuthSettingsResponseDTO } from '../../dtos/responses/auth-settings-response.dto.js';
 
 interface SettingsCache {
   sessionTimeoutMinutes: number;

@@ -9,7 +9,7 @@ import {
   ApiBearerAuth,
   ApiParam,
 } from '@nestjs/swagger';
-import { SessionResponseDTO } from '../dtos/responses/session.response.dto';
+import { SessionResponseDTO } from '../dtos/responses/session.response.dto.js';
 
 export const SessionSwagger = {
   Get: () =>

@@ -9,11 +9,11 @@ import {
   type PrismaDelegate,
 } from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
 import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
-import { AuthPermissionEntity } from '../../../../domain/entities/auth-permission.entity';
-import { PermissionNameVO } from '../../../../domain/value-objects/primitives/permission-name.vo';
-import { PermissionActionVO } from '../../../../domain/value-objects/primitives/permission-action.vo';
-import { PermissionResourceVO } from '../../../../domain/value-objects/primitives/permission-resource.vo';
-import type { AuthPermissionRepository } from '../../../../domain/repositories/auth-permission.repository.interface';
+import { AuthPermissionEntity } from '../../../../domain/entities/auth-permission.entity.js';
+import { PermissionNameVO } from '../../../../domain/value-objects/primitives/permission-name.vo.js';
+import { PermissionActionVO } from '../../../../domain/value-objects/primitives/permission-action.vo.js';
+import { PermissionResourceVO } from '../../../../domain/value-objects/primitives/permission-resource.vo.js';
+import type { AuthPermissionRepository } from '../../../../domain/repositories/auth-permission.repository.interface.js';
 
 @Injectable()
 export class AuthPermissionPrismaRepository

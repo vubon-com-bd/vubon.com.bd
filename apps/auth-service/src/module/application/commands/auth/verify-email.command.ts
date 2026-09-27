@@ -1,5 +1,5 @@
 import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
-import type { VerifyEmailRequestDTO } from '../../dtos/requests/auth/verify-email.dto';
+import type { VerifyEmailRequestDTO } from '../../dtos/requests/auth/verify-email.dto.js';
 
 export class VerifyEmailCommand extends BaseCommand {
   readonly type = 'auth.verify-email';

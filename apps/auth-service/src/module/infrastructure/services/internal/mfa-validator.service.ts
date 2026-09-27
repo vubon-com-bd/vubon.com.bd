@@ -3,8 +3,8 @@
  * @module auth-service/infrastructure/services/internal
  */
 import { Injectable } from '@nestjs/common';
-import { TotpService } from './totp.service';
-import { MfaInvalidError } from '../../../domain/errors/mfa.errors';
+import { TotpService } from './totp.service.js';
+import { MfaInvalidError } from '../../../domain/errors/mfa.errors.js';
 
 @Injectable()
 export class MfaValidatorService {

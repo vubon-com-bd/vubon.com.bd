@@ -1,9 +1,11 @@
 /**
  * TokenRefreshInterceptor — Unit Tests
  */
+import { jest } from '@jest/globals';
+
 import { of } from 'rxjs';
 import { firstValueFrom } from 'rxjs';
-import { TokenRefreshInterceptor } from './token-refresh.interceptor';
+import { TokenRefreshInterceptor } from './token-refresh.interceptor.js';
 
 const buildContext = (user: {
   sessionId?: string;
@@ -14,7 +16,7 @@ const buildContext = (user: {
     getResponse: () => { setHeader: jest.Mock };
   };
 } => {
-  const setHeader = jest.fn();
+  const setHeader = jest.fn() as jest.Mock;
   return {
     switchToHttp: () => ({
       getRequest: () => ({ user }),

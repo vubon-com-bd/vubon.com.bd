@@ -1,4 +1,5 @@
-export { UpdateSettingsCommand } from './update-settings.command';
-export { UpdateSettingsHandler } from './update-settings.handler';
-export { ResetSettingsCommand } from './reset-settings.command';
-export { ResetSettingsHandler } from './reset-settings.handler';
+// commands/settings/index.ts
+export * from './update-settings.command.js';
+export * from './update-settings.handler.js';
+export * from './reset-settings.command.js';
+export * from './reset-settings.handler.js';

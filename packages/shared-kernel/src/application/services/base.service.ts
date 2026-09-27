@@ -5,7 +5,7 @@
  * Uses shared-utils helpers.
  */
 import { pick, omit } from '@vubon/shared-utils/common';
-import type { BaseServiceInterface } from './base.service.interface';
+import type { BaseServiceInterface } from './base.service.interface.js';
 
 /**
  * Base Domain Service

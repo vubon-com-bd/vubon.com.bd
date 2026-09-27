@@ -1,9 +1,11 @@
 /**
  * AuthCacheInterceptor — Unit Tests
  */
+import { jest } from '@jest/globals';
+
 import { of } from 'rxjs';
 import { firstValueFrom } from 'rxjs';
-import { AuthCacheInterceptor } from './auth-cache.interceptor';
+import { AuthCacheInterceptor } from './auth-cache.interceptor.js';
 
 const mockRedis = () => {
   const store: Record<string, unknown> = {};

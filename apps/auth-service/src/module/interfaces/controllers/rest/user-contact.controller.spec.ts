@@ -1,9 +1,11 @@
+import { jest } from '@jest/globals';
+
 import { Test } from '@nestjs/testing';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { UserContactController } from './user-contact.controller';
+import { UserContactController } from './user-contact.controller.js';
 
-const mockCommandBus = () => ({ execute: jest.fn() });
-const mockQueryBus = () => ({ execute: jest.fn() });
+const mockCommandBus = () => ({ execute: jest.fn() as jest.Mock });
+const mockQueryBus = () => ({ execute: jest.fn() as jest.Mock });
 
 describe('UserContactController', () => {
   let controller: UserContactController;

@@ -1,10 +1,12 @@
 /**
  * SuspendUserHandler — Unit Tests
  */
-import { SuspendUserHandler } from './suspend-user.handler';
-import { SuspendUserCommand } from './suspend-user.command';
+import { jest } from '@jest/globals';
 
-const mockService = () => ({ suspend: jest.fn() });
+import { SuspendUserHandler } from './suspend-user.handler.js';
+import { SuspendUserCommand } from './suspend-user.command.js';
+
+const mockService = () => ({ suspend: jest.fn() as jest.Mock });
 
 describe('SuspendUserHandler', () => {
   let handler: SuspendUserHandler;

@@ -1,0 +1,40 @@
+# ═══════════════════════════════════════════════════════════════
+# user-service — Local gitignore (inherits from root)
+# ═══════════════════════════════════════════════════════════════
+
+# Build
+dist/
+build/
+*.tsbuildinfo
+
+# Test
+coverage/
+coverage-report/
+coverage-tmp/
+test-results/
+
+# Env
+.env
+.env.local
+.env.*.local
+.env.development
+.env.staging
+.env.production
+.env.test
+!.env.example
+!.env.production.example
+
+# Runtime
+*.log
+service.log
+nohup.out
+dump.rdb
+
+# Prisma
+prisma/migrations/**/migration_lock.toml.bak
+
+# Local state
+.DS_Store
+.idea
+.vscode/*
+!.vscode/extensions.json

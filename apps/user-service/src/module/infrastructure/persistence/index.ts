@@ -1,2 +1,3 @@
-export * from './prisma';
-export * from './cache';
+// persistence/index.ts
+export * from './prisma/index.js';
+export * from './cache/index.js';

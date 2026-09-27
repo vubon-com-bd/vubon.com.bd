@@ -1,18 +1,20 @@
 /**
  * AuthDevicePrismaRepository — Unit Tests
  */
-import { AuthDevicePrismaRepository } from './auth-device.prisma.repository';
-import { DeviceFingerprintVO } from '../../../../domain/value-objects/primitives/device-fingerprint.vo';
+import { jest } from '@jest/globals';
+
+import { AuthDevicePrismaRepository } from './auth-device.prisma.repository.js';
+import { DeviceFingerprintVO } from '../../../../domain/value-objects/primitives/device-fingerprint.vo.js';
 
 const mockPrisma = () => ({
   authDevice: {
-    findUnique: jest.fn(),
-    findFirst: jest.fn(),
-    findMany: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    count: jest.fn(),
+    findUnique: jest.fn() as jest.Mock,
+    findFirst: jest.fn() as jest.Mock,
+    findMany: jest.fn() as jest.Mock,
+    create: jest.fn() as jest.Mock,
+    update: jest.fn() as jest.Mock,
+    delete: jest.fn() as jest.Mock,
+    count: jest.fn() as jest.Mock,
   },
 });
 

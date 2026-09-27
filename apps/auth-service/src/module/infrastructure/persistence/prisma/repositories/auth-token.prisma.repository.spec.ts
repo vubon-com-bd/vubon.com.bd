@@ -1,19 +1,21 @@
 /**
  * AuthTokenPrismaRepository — Unit Tests
  */
-import { AuthTokenPrismaRepository } from './auth-token.prisma.repository';
-import { TokenValueVO } from '../../../../domain/value-objects/primitives/token-value.vo';
+import { jest } from '@jest/globals';
+
+import { AuthTokenPrismaRepository } from './auth-token.prisma.repository.js';
+import { TokenValueVO } from '../../../../domain/value-objects/primitives/token-value.vo.js';
 
 const mockPrisma = () => ({
   authToken: {
-    findUnique: jest.fn(),
-    findMany: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    updateMany: jest.fn(),
-    delete: jest.fn(),
-    deleteMany: jest.fn(),
-    count: jest.fn(),
+    findUnique: jest.fn() as jest.Mock,
+    findMany: jest.fn() as jest.Mock,
+    create: jest.fn() as jest.Mock,
+    update: jest.fn() as jest.Mock,
+    updateMany: jest.fn() as jest.Mock,
+    delete: jest.fn() as jest.Mock,
+    deleteMany: jest.fn() as jest.Mock,
+    count: jest.fn() as jest.Mock,
   },
 });
 

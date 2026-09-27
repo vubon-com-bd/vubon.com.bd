@@ -6,10 +6,10 @@
  * verify each helper returns a valid decorator function.
  */
 import 'reflect-metadata';
-import { AuthSwagger } from './auth.swagger';
-import { UserSwagger } from './user.swagger';
-import { MfaSwagger } from './mfa.swagger';
-import { SessionSwagger } from './session.swagger';
+import { AuthSwagger } from './auth.swagger.js';
+import { UserSwagger } from './user.swagger.js';
+import { MfaSwagger } from './mfa.swagger.js';
+import { SessionSwagger } from './session.swagger.js';
 
 describe('Interface Swagger Docs', () => {
   describe('AuthSwagger', () => {

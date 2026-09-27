@@ -2,7 +2,7 @@
  * CanLoginSpecification — Composite rule: "may this user log in?"
  * @module auth-service/domain/specifications
  */
-import { UserEntity } from '../entities/user.entity';
+import { UserEntity } from '../entities/user.entity.js';
 
 export interface CanLoginContext {
   readonly now: number;

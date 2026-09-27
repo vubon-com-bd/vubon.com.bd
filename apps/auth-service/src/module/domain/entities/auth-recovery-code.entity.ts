@@ -4,8 +4,8 @@
  */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
 import type { UserId } from '@vubon/shared-types/common';
-import { RecoveryCodeVO } from '../value-objects/primitives/recovery-code.vo';
-import { RecoveryCodeStatusVO } from '../value-objects/primitives/recovery-code-status.vo';
+import { RecoveryCodeVO } from '../value-objects/primitives/recovery-code.vo.js';
+import { RecoveryCodeStatusVO } from '../value-objects/primitives/recovery-code-status.vo.js';
 
 export interface AuthRecoveryCodeEntityProps {
   readonly id: string;

@@ -1,18 +1,20 @@
 /**
  * AuthSocialPrismaRepository — Unit Tests
  */
-import { AuthSocialPrismaRepository } from './auth-social.prisma.repository';
-import { SocialProviderVO } from '../../../../domain/value-objects/primitives/social-provider.vo';
+import { jest } from '@jest/globals';
+
+import { AuthSocialPrismaRepository } from './auth-social.prisma.repository.js';
+import { SocialProviderVO } from '../../../../domain/value-objects/primitives/social-provider.vo.js';
 
 const mockPrisma = () => ({
   authSocial: {
-    findUnique: jest.fn(),
-    findFirst: jest.fn(),
-    findMany: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    count: jest.fn(),
+    findUnique: jest.fn() as jest.Mock,
+    findFirst: jest.fn() as jest.Mock,
+    findMany: jest.fn() as jest.Mock,
+    create: jest.fn() as jest.Mock,
+    update: jest.fn() as jest.Mock,
+    delete: jest.fn() as jest.Mock,
+    count: jest.fn() as jest.Mock,
   },
 });
 

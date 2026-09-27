@@ -9,13 +9,13 @@
  */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
 import type { UserId } from '@vubon/shared-types/common';
-import { UserEmailVO } from '../value-objects/primitives/user-email.vo';
-import { UserNameVO } from '../value-objects/primitives/user-name.vo';
-import { UserPhoneVO } from '../value-objects/primitives/user-phone.vo';
-import { UserStatusVO } from '../value-objects/primitives/user-status.vo';
-import { UserTypeVO } from '../value-objects/primitives/user-type.vo';
-import { UserRoleVO } from '../value-objects/primitives/user-role.vo';
-import { UserNotActiveError } from '../errors/user.errors';
+import { UserEmailVO } from '../value-objects/primitives/user-email.vo.js';
+import { UserNameVO } from '../value-objects/primitives/user-name.vo.js';
+import { UserPhoneVO } from '../value-objects/primitives/user-phone.vo.js';
+import { UserStatusVO } from '../value-objects/primitives/user-status.vo.js';
+import { UserTypeVO } from '../value-objects/primitives/user-type.vo.js';
+import { UserRoleVO } from '../value-objects/primitives/user-role.vo.js';
+import { UserNotActiveError } from '../errors/user.errors.js';
 
 export interface UserEntityProps {
   readonly id: UserId;

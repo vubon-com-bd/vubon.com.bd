@@ -2,7 +2,7 @@
  * AuthProcessorWorker — Deep Unit Tests
  * @module auth-service/infrastructure/workers
  */
-import { AuthProcessorWorker } from './auth-processor.worker';
+import { AuthProcessorWorker } from './auth-processor.worker.js';
 
 describe('AuthProcessorWorker (deep)', () => {
   let worker: AuthProcessorWorker;

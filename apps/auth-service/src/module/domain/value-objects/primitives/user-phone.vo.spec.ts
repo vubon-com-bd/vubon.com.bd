@@ -2,8 +2,8 @@
  * UserPhoneVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { UserPhoneVO } from './user-phone.vo';
-import { InvalidPhoneError } from '../../errors/user.errors';
+import { UserPhoneVO } from './user-phone.vo.js';
+import { InvalidPhoneError } from '../../errors/user.errors.js';
 
 describe('UserPhoneVO', () => {
   describe('of()', () => {

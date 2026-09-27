@@ -1,10 +1,12 @@
 /**
  * RevokeRoleHandler — Unit Tests
  */
-import { RevokeRoleHandler } from './revoke-role.handler';
-import { RevokeRoleCommand } from './revoke-role.command';
+import { jest } from '@jest/globals';
 
-const mockService = () => ({ revoke: jest.fn() });
+import { RevokeRoleHandler } from './revoke-role.handler.js';
+import { RevokeRoleCommand } from './revoke-role.command.js';
+
+const mockService = () => ({ revoke: jest.fn() as jest.Mock });
 
 describe('RevokeRoleHandler', () => {
   let handler: RevokeRoleHandler;

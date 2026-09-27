@@ -2,15 +2,15 @@
  * UserEntity — Unit Tests (Aggregate Root)
  * @module auth-service/domain/entities
  */
-import { UserEntity } from './user.entity';
-import { UserIdVO } from '../value-objects/primitives/user-id.vo';
-import { UserEmailVO } from '../value-objects/primitives/user-email.vo';
-import { UserNameVO } from '../value-objects/primitives/user-name.vo';
-import { UserPhoneVO } from '../value-objects/primitives/user-phone.vo';
-import { UserStatusVO } from '../value-objects/primitives/user-status.vo';
-import { UserTypeVO } from '../value-objects/primitives/user-type.vo';
-import { UserRoleVO } from '../value-objects/primitives/user-role.vo';
-import { UserNotActiveError } from '../errors/user.errors';
+import { UserEntity } from './user.entity.js';
+import { UserIdVO } from '../value-objects/primitives/user-id.vo.js';
+import { UserEmailVO } from '../value-objects/primitives/user-email.vo.js';
+import { UserNameVO } from '../value-objects/primitives/user-name.vo.js';
+import { UserPhoneVO } from '../value-objects/primitives/user-phone.vo.js';
+import { UserStatusVO } from '../value-objects/primitives/user-status.vo.js';
+import { UserTypeVO } from '../value-objects/primitives/user-type.vo.js';
+import { UserRoleVO } from '../value-objects/primitives/user-role.vo.js';
+import { UserNotActiveError } from '../errors/user.errors.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 

@@ -2,7 +2,7 @@
  * SocialStatusVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { SocialStatusVO } from './social-status.vo';
+import { SocialStatusVO } from './social-status.vo.js';
 
 describe('SocialStatusVO', () => {
   describe('of()', () => {

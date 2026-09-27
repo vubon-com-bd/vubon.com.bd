@@ -4,9 +4,9 @@
  */
 import type { BaseServiceInterface } from '@vubon/shared-kernel/application/services/base.service.interface';
 import type { UserId } from '@vubon/shared-types/common';
-import type { UpdateAuthSettingsRequestDTO } from '../../dtos/requests/settings/update-auth-settings.dto';
-import type { UpdateAuthPreferencesRequestDTO } from '../../dtos/requests/settings/update-auth-preferences.dto';
-import type { AuthSettingsResponseDTO } from '../../dtos/responses/auth-settings-response.dto';
+import type { UpdateAuthSettingsRequestDTO } from '../../dtos/requests/settings/update-auth-settings.dto.js';
+import type { UpdateAuthPreferencesRequestDTO } from '../../dtos/requests/settings/update-auth-preferences.dto.js';
+import type { AuthSettingsResponseDTO } from '../../dtos/responses/auth-settings-response.dto.js';
 
 export interface AuthSettingsServiceInterface
   extends BaseServiceInterface<AuthSettingsResponseDTO, UserId> {

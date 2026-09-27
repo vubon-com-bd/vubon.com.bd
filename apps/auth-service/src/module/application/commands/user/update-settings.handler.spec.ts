@@ -1,12 +1,14 @@
 /**
  * UpdateSettingsHandler — Unit Tests
  */
-import { UpdateSettingsHandler } from './update-settings.handler';
-import { UpdateSettingsCommand } from './update-settings.command';
+import { jest } from '@jest/globals';
+
+import { UpdateSettingsHandler } from './update-settings.handler.js';
+import { UpdateSettingsCommand } from './update-settings.command.js';
 
 const mockService = () => ({
-  update: jest.fn(),
-  toResponse: jest.fn(),
+  update: jest.fn() as jest.Mock,
+  toResponse: jest.fn() as jest.Mock,
 });
 
 describe('UpdateSettingsHandler', () => {

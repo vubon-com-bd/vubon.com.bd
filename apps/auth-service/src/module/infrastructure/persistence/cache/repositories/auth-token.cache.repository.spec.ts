@@ -2,11 +2,13 @@
  * AuthTokenCacheRepository — Unit Tests
  * @module auth-service/infrastructure/persistence/cache/repositories
  */
-import { AuthTokenCacheRepository } from './auth-token.cache.repository';
-import { AuthTokenEntity } from '../../../../domain/entities/auth-token.entity';
-import { TokenValueVO } from '../../../../domain/value-objects/primitives/token-value.vo';
-import { TokenTypeVO } from '../../../../domain/value-objects/primitives/token-type.vo';
-import { TokenExpiryVO } from '../../../../domain/value-objects/primitives/token-expiry.vo';
+import { jest } from '@jest/globals';
+
+import { AuthTokenCacheRepository } from './auth-token.cache.repository.js';
+import { AuthTokenEntity } from '../../../../domain/entities/auth-token.entity.js';
+import { TokenValueVO } from '../../../../domain/value-objects/primitives/token-value.vo.js';
+import { TokenTypeVO } from '../../../../domain/value-objects/primitives/token-type.vo.js';
+import { TokenExpiryVO } from '../../../../domain/value-objects/primitives/token-expiry.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();

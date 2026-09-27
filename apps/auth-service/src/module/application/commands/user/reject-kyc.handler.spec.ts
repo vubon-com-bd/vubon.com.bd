@@ -1,10 +1,12 @@
 /**
  * RejectKycHandler — Unit Tests
  */
-import { RejectKycHandler } from './reject-kyc.handler';
-import { RejectKycCommand } from './reject-kyc.command';
+import { jest } from '@jest/globals';
 
-const mockService = () => ({ reject: jest.fn(), toResponse: jest.fn() });
+import { RejectKycHandler } from './reject-kyc.handler.js';
+import { RejectKycCommand } from './reject-kyc.command.js';
+
+const mockService = () => ({ reject: jest.fn() as jest.Mock, toResponse: jest.fn() as jest.Mock });
 
 describe('RejectKycHandler', () => {
   let handler: RejectKycHandler;

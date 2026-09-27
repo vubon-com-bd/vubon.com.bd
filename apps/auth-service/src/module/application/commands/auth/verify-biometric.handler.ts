@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { VerifyBiometricCommand } from './verify-biometric.command';
-import type { AuthBiometricServiceInterface } from '../../services/interfaces/auth-biometric.service.interface';
-import { AUTH_BIOMETRIC_SERVICE } from '../../tokens';
+import { VerifyBiometricCommand } from './verify-biometric.command.js';
+import type { AuthBiometricServiceInterface } from '../../services/interfaces/auth-biometric.service.interface.js';
+import { AUTH_BIOMETRIC_SERVICE } from '../../tokens.js';
 
 @CommandHandler(VerifyBiometricCommand)
 export class VerifyBiometricHandler

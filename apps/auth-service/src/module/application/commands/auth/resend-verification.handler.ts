@@ -5,12 +5,12 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { ResendVerificationCommand } from './resend-verification.command';
-import type { UserVerificationServiceInterface } from '../../services/interfaces/user-verification.service.interface';
-import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
-import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo';
-import { USER_REPO } from '../../tokens';
-import { USER_VERIFICATION_SERVICE } from '../../tokens';
+import { ResendVerificationCommand } from './resend-verification.command.js';
+import type { UserVerificationServiceInterface } from '../../services/interfaces/user-verification.service.interface.js';
+import type { UserRepository } from '../../../domain/repositories/user.repository.interface.js';
+import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo.js';
+import { USER_REPO } from '../../tokens.js';
+import { USER_VERIFICATION_SERVICE } from '../../tokens.js';
 
 @CommandHandler(ResendVerificationCommand)
 export class ResendVerificationHandler

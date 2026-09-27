@@ -1,41 +1,71 @@
+/**
+ * KycVerificationSaga — reacts to KYC state changes
+ */
 import { Injectable } from '@nestjs/common';
-import { Saga, ICommand, ofType } from '@nestjs/cqrs';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { BaseSaga } from '@vubon/shared-kernel/application/sagas/base.saga';
+import { Saga, ICommand, IEvent, ofType } from '@nestjs/cqrs';
+import { Observable, mergeMap } from 'rxjs';
 import {
+  KycSubmittedEvent,
   KycVerifiedEvent,
   KycRejectedEvent,
-} from '../../domain/events/user-kyc.events';
-import { NotifyKycStatusCommand } from './commands/notify-kyc-status.command';
+} from '@domain/events/user-kyc.events';
+import { NotifyKycStatusCommand } from './commands/notify-kyc-status.command.js';
+import { UpdateAnalyticsCommand } from './commands/update-analytics.command.js';
 
 @Injectable()
-export class KycVerificationSaga extends BaseSaga {
-  readonly name = 'KycVerificationSaga';
-
-  async execute(_input: unknown): Promise<void> {}
-
-  async compensate(): Promise<void> {}
-
+export class KycVerificationSaga {
   @Saga()
-  verified = (events$: Observable<unknown>): Observable<ICommand> => {
+  kycSubmitted = (events$: Observable<IEvent>): Observable<ICommand> => {
     return events$.pipe(
-      ofType(KycVerifiedEvent),
-      map(
-        (event: KycVerifiedEvent) =>
-          new NotifyKycStatusCommand(event.payload.userId, 'verified'),
-      ),
+      ofType(KycSubmittedEvent),
+      mergeMap((event: KycSubmittedEvent) => [
+        new NotifyKycStatusCommand(
+          event.payload.userId,
+          event.payload.kycId,
+          'pending'
+        ),
+        new UpdateAnalyticsCommand(event.payload.userId, 'kyc.submitted', {
+          kycId: event.payload.kycId,
+          document: event.payload.document,
+        }),
+      ])
     );
   };
 
   @Saga()
-  rejected = (events$: Observable<unknown>): Observable<ICommand> => {
+  kycVerified = (events$: Observable<IEvent>): Observable<ICommand> => {
+    return events$.pipe(
+      ofType(KycVerifiedEvent),
+      mergeMap((event: KycVerifiedEvent) => [
+        new NotifyKycStatusCommand(
+          event.payload.userId,
+          event.payload.kycId,
+          'approved'
+        ),
+        new UpdateAnalyticsCommand(event.payload.userId, 'kyc.verified', {
+          kycId: event.payload.kycId,
+          verifiedAt: event.payload.verifiedAt,
+        }),
+      ])
+    );
+  };
+
+  @Saga()
+  kycRejected = (events$: Observable<IEvent>): Observable<ICommand> => {
     return events$.pipe(
       ofType(KycRejectedEvent),
-      map(
-        (event: KycRejectedEvent) =>
-          new NotifyKycStatusCommand(event.payload.userId, 'rejected'),
-      ),
+      mergeMap((event: KycRejectedEvent) => [
+        new NotifyKycStatusCommand(
+          event.payload.userId,
+          event.payload.kycId,
+          'rejected',
+          event.payload.reason
+        ),
+        new UpdateAnalyticsCommand(event.payload.userId, 'kyc.rejected', {
+          kycId: event.payload.kycId,
+          reason: event.payload.reason,
+        }),
+      ])
     );
   };
 }

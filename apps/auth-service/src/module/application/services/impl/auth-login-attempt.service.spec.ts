@@ -2,10 +2,12 @@
  * AuthLoginAttemptService — Unit Tests
  * @module auth-service/application/services/impl
  */
-import { AuthLoginAttemptService } from './auth-login-attempt.service';
-import { AuthLoginAttemptEntity } from '../../../domain/entities/auth-login-attempt.entity';
-import { LoginAttemptIpVO } from '../../../domain/value-objects/primitives/login-attempt-ip.vo';
-import { LoginAttemptStatusVO } from '../../../domain/value-objects/primitives/login-attempt-status.vo';
+import { jest } from '@jest/globals';
+
+import { AuthLoginAttemptService } from './auth-login-attempt.service.js';
+import { AuthLoginAttemptEntity } from '../../../domain/entities/auth-login-attempt.entity.js';
+import { LoginAttemptIpVO } from '../../../domain/value-objects/primitives/login-attempt-ip.vo.js';
+import { LoginAttemptStatusVO } from '../../../domain/value-objects/primitives/login-attempt-status.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();
@@ -24,14 +26,14 @@ const buildAttempt = (overrides: Partial<Parameters<typeof AuthLoginAttemptEntit
   });
 
 const mockRepo = () => ({
-  findById: jest.fn(),
-  countRecentFailures: jest.fn(),
-  findRecentByUser: jest.fn(),
-  findByIp: jest.fn(),
-  findAll: jest.fn(),
+  findById: jest.fn() as jest.Mock,
+  countRecentFailures: jest.fn() as jest.Mock,
+  findRecentByUser: jest.fn() as jest.Mock,
+  findByIp: jest.fn() as jest.Mock,
+  findAll: jest.fn() as jest.Mock,
   save: jest.fn((a: AuthLoginAttemptEntity) => Promise.resolve(a)),
-  delete: jest.fn(),
-  exists: jest.fn(),
+  delete: jest.fn() as jest.Mock,
+  exists: jest.fn() as jest.Mock,
 });
 
 const mockIdGen = () => ({

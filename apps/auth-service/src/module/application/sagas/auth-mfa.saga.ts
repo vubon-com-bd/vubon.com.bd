@@ -10,8 +10,8 @@ import { Saga, ICommand, ofType } from '@nestjs/cqrs';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { BaseSaga } from '@vubon/shared-kernel/application/sagas/base.saga';
-import { MfaEnabledEvent } from '../../domain/events/auth-mfa.events';
-import { SendRecoveryCodeCommand } from './commands/send-recovery-code.command';
+import { MfaEnabledEvent } from '../../domain/events/auth-mfa.events.js';
+import { SendRecoveryCodeCommand } from './commands/send-recovery-code.command.js';
 
 @Injectable()
 export class AuthMfaSaga extends BaseSaga<void> {

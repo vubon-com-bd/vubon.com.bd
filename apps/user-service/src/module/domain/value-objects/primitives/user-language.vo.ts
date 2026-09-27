@@ -1,17 +1,32 @@
-import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { InvalidUserLanguageError } from '../../errors/user.errors';
+/**
+ * UserLanguage Value Object
+ */
+import { BaseTypeVO } from '@vubon/shared-kernel/domain/primitives/type.vo';
+import { LANGUAGE } from '@vubon/shared-constants/common';
 
-const VALID = new Set(['en', 'bn', 'ar', 'hi', 'ur']);
+export type UserLanguageType = (typeof LANGUAGE)[keyof typeof LANGUAGE];
 
-export class UserLanguageVO extends BaseVO<string> {
-  private constructor(value: string) {
+const LANGUAGE_VALUES: ReadonlySet<string> = new Set(Object.values(LANGUAGE));
+
+export class UserLanguageVO extends BaseTypeVO<UserLanguageType> {
+  private constructor(value: UserLanguageType) {
     super(value);
   }
 
+  protected static allowedValues(): ReadonlySet<string> {
+    return LANGUAGE_VALUES;
+  }
+
   static create(raw: string): UserLanguageVO {
-    if (!VALID.has(raw)) {
-      throw new InvalidUserLanguageError(raw);
+    if (typeof raw !== 'string') {
+      throw new Error('UserLanguage must be a string');
     }
-    return new UserLanguageVO(raw);
+    const normalized = raw.trim().toLowerCase();
+    if (!LANGUAGE_VALUES.has(normalized)) {
+      throw new Error(
+        `Invalid language: "${raw}". Allowed: ${[...LANGUAGE_VALUES].join(', ')}`
+      );
+    }
+    return new UserLanguageVO(normalized as UserLanguageType);
   }
 }

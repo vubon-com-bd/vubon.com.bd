@@ -1,5 +1,5 @@
 import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
-import type { DeactivateUserRequestDTO } from '../../dtos/requests/user/deactivate-user.dto';
+import type { DeactivateUserRequestDTO } from '../../dtos/requests/user/deactivate-user.dto.js';
 
 export class DeactivateUserCommand extends BaseCommand {
   readonly type = 'user.deactivate';

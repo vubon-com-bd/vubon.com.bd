@@ -5,17 +5,17 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { UserContactServiceInterface } from '../interfaces/user-contact.service.interface';
-import type { UserContactRepository } from '../../../domain/repositories/user-contact.repository.interface';
-import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
-import { UserContactEntity } from '../../../domain/entities/user-contact.entity';
-import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo';
-import { UserPhoneVO } from '../../../domain/value-objects/primitives/user-phone.vo';
-import type { AddContactRequestDTO } from '../../dtos/requests/user/add-contact.dto';
-import type { UpdateContactRequestDTO } from '../../dtos/requests/user/update-contact.dto';
-import type { UserContactResponseDTO } from '../../dtos/responses/user-contact-response.dto';
-import { ID_GENERATOR } from '../tokens';
-import { USER_CONTACT_REPO } from './user-contact.service.tokens';
+import type { UserContactServiceInterface } from '../interfaces/user-contact.service.interface.js';
+import type { UserContactRepository } from '../../../domain/repositories/user-contact.repository.interface.js';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface.js';
+import { UserContactEntity } from '../../../domain/entities/user-contact.entity.js';
+import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo.js';
+import { UserPhoneVO } from '../../../domain/value-objects/primitives/user-phone.vo.js';
+import type { AddContactRequestDTO } from '../../dtos/requests/user/add-contact.dto.js';
+import type { UpdateContactRequestDTO } from '../../dtos/requests/user/update-contact.dto.js';
+import type { UserContactResponseDTO } from '../../dtos/responses/user-contact-response.dto.js';
+import { ID_GENERATOR } from '../tokens.js';
+import { USER_CONTACT_REPO } from './user-contact.service.tokens.js';
 
 @Injectable()
 export class UserContactService

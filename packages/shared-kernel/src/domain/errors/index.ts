@@ -1,8 +1,8 @@
 // shared-kernel/domain/errors/index.ts
 
-export * from './domain.error';
-export * from './invariant.error';
-export * from './not-found.error';
-export * from './conflict.error';
-export * from './validation.error';
-export * from './business-rule.error';
+export * from './domain.error.js';
+export * from './invariant.error.js';
+export * from './not-found.error.js';
+export * from './conflict.error.js';
+export * from './validation.error.js';
+export * from './business-rule.error.js';

@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { RegisterCommand } from './register.command';
-import type { AuthServiceInterface } from '../../services/interfaces/auth.service.interface';
-import type { RegisterResponseDTO } from '../../dtos/responses/register-response.dto';
-import { AUTH_SERVICE } from '../../tokens';
+import { RegisterCommand } from './register.command.js';
+import type { AuthServiceInterface } from '../../services/interfaces/auth.service.interface.js';
+import type { RegisterResponseDTO } from '../../dtos/responses/register-response.dto.js';
+import { AUTH_SERVICE } from '../../tokens.js';
 
 @CommandHandler(RegisterCommand)
 export class RegisterHandler

@@ -4,7 +4,7 @@
  *
  * Persistent storage for domain events (event sourcing support)।
  */
-import type { DomainEvent, EventEnvelope } from './base.event';
+import type { DomainEvent, EventEnvelope } from './base.event.js';
 
 export interface BaseEventStore {
   append(event: DomainEvent): Promise<void>;

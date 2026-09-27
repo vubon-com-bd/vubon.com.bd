@@ -4,7 +4,7 @@
  *
  * References domain event (type only)।
  */
-import type { DomainEvent } from '../base/base.event';
+import type { DomainEvent } from '../base/base.event.js';
 
 export interface EventBus {
   publish(event: DomainEvent): Promise<void>;

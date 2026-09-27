@@ -1,24 +1,28 @@
+/**
+ * GetUserHandler
+ */
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
-import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { GetUserQuery } from './get-user.query';
-import type { UserServiceInterface } from '../../services/interfaces/user.service.interface';
-import type { UserResponseDTO } from '../../dtos/responses/user-response.dto';
-import { UserNotFoundAppError } from '../../errors/user.errors';
+import { Inject } from '@nestjs/common';
+import { GetUserQuery } from './get-user.query.js';
+import { USER_REPOSITORY } from '@domain/repositories/user.repository.interface';
+import type { UserRepository } from '@domain/repositories/user.repository.interface';
+import { UserIdVO } from '@domain/value-objects/primitives/user-id.vo';
+import { UserMapper } from '../../mappers/user.mapper.js';
+import type { UserResponseDTO } from '../../dtos/responses/user-response.dto.js';
+import { UserNotFoundApplicationError } from '../../errors/user.errors.js';
 
 @QueryHandler(GetUserQuery)
 export class GetUserHandler
-  extends BaseQueryHandler<GetUserQuery, UserResponseDTO>
-  implements IQueryHandler<GetUserQuery>
+  implements IQueryHandler<GetUserQuery, UserResponseDTO>
 {
-  readonly queryType = 'user.get';
-
-  constructor(private readonly userService: UserServiceInterface) {
-    super();
-  }
+  constructor(
+    @Inject(USER_REPOSITORY)
+    private readonly userRepo: UserRepository
+  ) {}
 
   async execute(query: GetUserQuery): Promise<UserResponseDTO> {
-    const user = await this.userService.findById(query.userId);
-    if (!user) throw new UserNotFoundAppError(query.userId);
-    return user;
+    const user = await this.userRepo.findById(UserIdVO.create(query.userId).value);
+    if (!user) throw new UserNotFoundApplicationError(query.userId);
+    return UserMapper.toResponse(user);
   }
 }

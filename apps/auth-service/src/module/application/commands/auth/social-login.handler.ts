@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { SocialLoginCommand } from './social-login.command';
-import type { AuthSocialServiceInterface } from '../../services/interfaces/auth-social.service.interface';
-import { AUTH_SOCIAL_SERVICE } from '../../tokens';
+import { SocialLoginCommand } from './social-login.command.js';
+import type { AuthSocialServiceInterface } from '../../services/interfaces/auth-social.service.interface.js';
+import { AUTH_SOCIAL_SERVICE } from '../../tokens.js';
 
 @CommandHandler(SocialLoginCommand)
 export class SocialLoginHandler

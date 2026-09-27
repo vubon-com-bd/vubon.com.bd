@@ -2,10 +2,12 @@
  * UserContactService — Unit Tests
  * @module auth-service/application/services/impl
  */
-import { UserContactService } from './user-contact.service';
-import { UserContactEntity } from '../../../domain/entities/user-contact.entity';
-import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo';
-import { UserPhoneVO } from '../../../domain/value-objects/primitives/user-phone.vo';
+import { jest } from '@jest/globals';
+
+import { UserContactService } from './user-contact.service.js';
+import { UserContactEntity } from '../../../domain/entities/user-contact.entity.js';
+import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo.js';
+import { UserPhoneVO } from '../../../domain/value-objects/primitives/user-phone.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -21,13 +23,13 @@ const buildContact = (overrides: Partial<Parameters<typeof UserContactEntity.cre
   });
 
 const mockRepo = () => ({
-  findById: jest.fn(),
-  findByUserId: jest.fn(),
-  findAll: jest.fn(),
+  findById: jest.fn() as jest.Mock,
+  findByUserId: jest.fn() as jest.Mock,
+  findAll: jest.fn() as jest.Mock,
   save: jest.fn((c: UserContactEntity) => Promise.resolve(c)),
-  delete: jest.fn(),
-  exists: jest.fn(),
-  findVerifiedByUserId: jest.fn(),
+  delete: jest.fn() as jest.Mock,
+  exists: jest.fn() as jest.Mock,
+  findVerifiedByUserId: jest.fn() as jest.Mock,
 });
 
 const mockIdGen = () => ({

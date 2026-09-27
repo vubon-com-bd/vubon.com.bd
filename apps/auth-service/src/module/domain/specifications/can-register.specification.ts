@@ -2,8 +2,8 @@
  * CanRegisterSpecification — Rules for new user registration
  * @module auth-service/domain/specifications
  */
-import { UserEmailVO } from '../value-objects/primitives/user-email.vo';
-import { UserPhoneVO } from '../value-objects/primitives/user-phone.vo';
+import { UserEmailVO } from '../value-objects/primitives/user-email.vo.js';
+import { UserPhoneVO } from '../value-objects/primitives/user-phone.vo.js';
 
 export interface CanRegisterInput {
   readonly email: UserEmailVO;

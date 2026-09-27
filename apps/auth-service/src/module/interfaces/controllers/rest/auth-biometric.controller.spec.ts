@@ -1,8 +1,10 @@
+import { jest } from '@jest/globals';
+
 import { Test } from '@nestjs/testing';
 import { CommandBus } from '@nestjs/cqrs';
-import { AuthBiometricController } from './auth-biometric.controller';
+import { AuthBiometricController } from './auth-biometric.controller.js';
 
-const mockCommandBus = () => ({ execute: jest.fn() });
+const mockCommandBus = () => ({ execute: jest.fn() as jest.Mock });
 
 describe('AuthBiometricController', () => {
   let controller: AuthBiometricController;

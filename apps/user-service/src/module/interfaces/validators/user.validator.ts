@@ -1,18 +1,41 @@
+/**
+ * User Validator — Zod-based validation for HTTP boundary
+ */
 import {
   CreateUserRequestSchema,
   UpdateUserRequestSchema,
 } from '@vubon/shared-schemas/user';
 
-export class UserInterfaceValidator {
-  static validateCreate(input: unknown) {
-    return CreateUserRequestSchema.parse(input);
+export interface UserValidationResult<T> {
+  readonly success: boolean;
+  readonly data?: T;
+  readonly errors?: readonly string[];
+}
+
+export class UserValidator {
+  static validateCreate(input: unknown): UserValidationResult<unknown> {
+    const result = CreateUserRequestSchema.safeParse(input);
+    if (!result.success) {
+      return {
+        success: false,
+        errors: result.error.issues.map(
+          (issue) => `${issue.path.join('.')}: ${issue.message}`
+        ),
+      };
+    }
+    return { success: true, data: result.data };
   }
 
-  static safeValidateCreate(input: unknown) {
-    return CreateUserRequestSchema.safeParse(input);
-  }
-
-  static validateUpdate(input: unknown) {
-    return UpdateUserRequestSchema.parse(input);
+  static validateUpdate(input: unknown): UserValidationResult<unknown> {
+    const result = UpdateUserRequestSchema.safeParse(input);
+    if (!result.success) {
+      return {
+        success: false,
+        errors: result.error.issues.map(
+          (issue) => `${issue.path.join('.')}: ${issue.message}`
+        ),
+      };
+    }
+    return { success: true, data: result.data };
   }
 }

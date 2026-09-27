@@ -1,7 +1,7 @@
 /**
  * AnalyticsProcessorWorker — Deep Unit Tests
  */
-import { AnalyticsProcessorWorker } from './analytics-processor.worker';
+import { AnalyticsProcessorWorker } from './analytics-processor.worker.js';
 
 const mockJob = (name = 'analytics', data: Record<string, unknown> = {}) => ({
   id: 'job-1',

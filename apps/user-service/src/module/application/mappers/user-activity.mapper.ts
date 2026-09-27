@@ -1,20 +1,22 @@
-import { UserActivityEntity } from '../../domain/entities/user-activity.entity';
-import type { ActivityResponseDTO } from '../dtos/responses/activity-response.dto';
+/**
+ * UserActivityMapper
+ */
+import { UserActivityEntity } from '@domain/entities/user-activity.entity';
+import type { ActivityResponseDTO } from '../dtos/responses/activity-response.dto.js';
 
 export class UserActivityMapper {
   static toResponse(activity: UserActivityEntity): ActivityResponseDTO {
     return {
-      id: activity.id.value,
+      id: activity.id,
       userId: activity.userId.value,
       type: activity.type.value,
-      category: 'general',
-      occurredAt: activity.timestamp.toISOString(),
-      createdAt: activity.createdAt,
-    } as unknown as ActivityResponseDTO;
+      timestamp: activity.timestamp.toISOString(),
+      metadata: activity.metadata,
+    };
   }
 
-  static toListResponse(
-    activities: readonly UserActivityEntity[],
+  static toResponseList(
+    activities: readonly UserActivityEntity[]
   ): readonly ActivityResponseDTO[] {
     return activities.map((a) => UserActivityMapper.toResponse(a));
   }

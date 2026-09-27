@@ -1,10 +1,20 @@
-import { getOptionalEnv, getOptionalEnvBool, getOptionalEnvInt } from '@vubon/shared-config/common';
+/**
+ * User Config
+ * @module user-service/infrastructure/config
+ */
+import {
+  getOptionalEnv,
+  getOptionalEnvInt,
+} from '@vubon/shared-config/common/env';
 
 export const USER_CONFIG = Object.freeze({
-  defaultRole: getOptionalEnv('USER_DEFAULT_ROLE', 'user'),
-  defaultStatus: getOptionalEnv('USER_DEFAULT_STATUS', 'active'),
-  defaultType: getOptionalEnv('USER_DEFAULT_TYPE', 'customer'),
-  requireEmailVerification: getOptionalEnvBool('USER_REQUIRE_EMAIL_VERIFY', true),
-  requirePhoneVerification: getOptionalEnvBool('USER_REQUIRE_PHONE_VERIFY', false),
-  maxUsersPerPage: getOptionalEnvInt('USER_MAX_PER_PAGE', 100),
+  maxProfiles: getOptionalEnvInt('USER_MAX_PROFILES', 5),
+  maxAddresses: getOptionalEnvInt('USER_MAX_ADDRESSES', 20),
+  maxContacts: getOptionalEnvInt('USER_MAX_CONTACTS', 10),
+  profileCompletionThreshold: getOptionalEnvInt('USER_PROFILE_COMPLETION_THRESHOLD', 80),
+  defaultTimezone: getOptionalEnv('USER_DEFAULT_TIMEZONE', 'Asia/Dhaka'),
+  defaultLanguage: getOptionalEnv('USER_DEFAULT_LANGUAGE', 'bn'),
+  defaultLocale: getOptionalEnv('USER_DEFAULT_LOCALE', 'bn-BD'),
 } as const);
+
+export type UserConfig = typeof USER_CONFIG;

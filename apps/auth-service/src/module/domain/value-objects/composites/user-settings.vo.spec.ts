@@ -2,8 +2,8 @@
  * UserSettingsVO — Unit Tests
  * @module auth-service/domain/value-objects/composites
  */
-import { UserSettingsVO } from './user-settings.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
+import { UserSettingsVO } from './user-settings.vo.js';
+import { UserIdVO } from '../primitives/user-id.vo.js';
 
 describe('UserSettingsVO', () => {
   const userId = UserIdVO.of('user-1');

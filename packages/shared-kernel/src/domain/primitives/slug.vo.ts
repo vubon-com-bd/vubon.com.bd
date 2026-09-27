@@ -5,7 +5,7 @@
  * Values আসে shared-constants/common থেকে।
  */
 import { REGEX } from '@vubon/shared-constants/common';
-import { BaseVO } from '../base/base.vo';
+import { BaseVO } from '../base/base.vo.js';
 
 export class SlugVO extends BaseVO<string> {
   private static readonly MAX_LENGTH = 120;

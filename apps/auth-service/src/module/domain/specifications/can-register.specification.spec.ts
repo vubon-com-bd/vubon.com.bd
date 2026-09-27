@@ -2,9 +2,9 @@
  * CanRegisterSpecification — Unit Tests
  * @module auth-service/domain/specifications
  */
-import { CanRegisterSpecification } from './can-register.specification';
-import { UserEmailVO } from '../value-objects/primitives/user-email.vo';
-import { UserPhoneVO } from '../value-objects/primitives/user-phone.vo';
+import { CanRegisterSpecification } from './can-register.specification.js';
+import { UserEmailVO } from '../value-objects/primitives/user-email.vo.js';
+import { UserPhoneVO } from '../value-objects/primitives/user-phone.vo.js';
 
 const cleanInput = {
   email: UserEmailVO.of('new@example.com'),

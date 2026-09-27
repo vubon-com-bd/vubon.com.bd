@@ -2,13 +2,15 @@
  * CreateUserHandler — Unit Tests
  * @module auth-service/application/commands/user
  */
-import { CreateUserHandler } from './create-user.handler';
-import { CreateUserCommand } from './create-user.command';
+import { jest } from '@jest/globals';
+
+import { CreateUserHandler } from './create-user.handler.js';
+import { CreateUserCommand } from './create-user.command.js';
 
 const mockUserService = () => ({
   name: 'UserService',
-  create: jest.fn(),
-  toResponse: jest.fn(),
+  create: jest.fn() as jest.Mock,
+  toResponse: jest.fn() as jest.Mock,
 });
 
 describe('CreateUserHandler', () => {

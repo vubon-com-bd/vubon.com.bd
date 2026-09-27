@@ -2,8 +2,8 @@
  * UserRoleVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { UserRoleVO } from './user-role.vo';
-import { InvalidRoleError } from '../../errors/permission.errors';
+import { UserRoleVO } from './user-role.vo.js';
+import { InvalidRoleError } from '../../errors/permission.errors.js';
 
 describe('UserRoleVO', () => {
   describe('of()', () => {

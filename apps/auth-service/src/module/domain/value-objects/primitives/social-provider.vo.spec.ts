@@ -2,7 +2,7 @@
  * SocialProviderVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { SocialProviderVO } from './social-provider.vo';
+import { SocialProviderVO } from './social-provider.vo.js';
 
 describe('SocialProviderVO', () => {
   describe('of()', () => {

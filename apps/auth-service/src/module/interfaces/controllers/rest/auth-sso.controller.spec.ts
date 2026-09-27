@@ -1,8 +1,10 @@
+import { jest } from '@jest/globals';
+
 import { Test } from '@nestjs/testing';
 import { CommandBus } from '@nestjs/cqrs';
-import { AuthSsoController } from './auth-sso.controller';
+import { AuthSsoController } from './auth-sso.controller.js';
 
-const mockCommandBus = () => ({ execute: jest.fn() });
+const mockCommandBus = () => ({ execute: jest.fn() as jest.Mock });
 
 describe('AuthSsoController', () => {
   let controller: AuthSsoController;

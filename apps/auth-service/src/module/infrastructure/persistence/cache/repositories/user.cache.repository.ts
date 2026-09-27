@@ -10,14 +10,14 @@ import { RedisService } from '@vubon/shared-kernel/infrastructure/persistence/ca
 import { BaseCacheRepository } from '@vubon/shared-kernel/infrastructure/persistence/cache/base.cache.repository';
 import { CACHE_TTL, CACHE_PREFIX } from '@vubon/shared-constants/infrastructure';
 import type { UserId } from '@vubon/shared-types/common';
-import { UserEntity } from '../../../../domain/entities/user.entity';
-import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
-import { UserEmailVO } from '../../../../domain/value-objects/primitives/user-email.vo';
-import { UserNameVO } from '../../../../domain/value-objects/primitives/user-name.vo';
-import { UserPhoneVO } from '../../../../domain/value-objects/primitives/user-phone.vo';
-import { UserStatusVO } from '../../../../domain/value-objects/primitives/user-status.vo';
-import { UserTypeVO } from '../../../../domain/value-objects/primitives/user-type.vo';
-import { UserRoleVO } from '../../../../domain/value-objects/primitives/user-role.vo';
+import { UserEntity } from '../../../../domain/entities/user.entity.js';
+import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo.js';
+import { UserEmailVO } from '../../../../domain/value-objects/primitives/user-email.vo.js';
+import { UserNameVO } from '../../../../domain/value-objects/primitives/user-name.vo.js';
+import { UserPhoneVO } from '../../../../domain/value-objects/primitives/user-phone.vo.js';
+import { UserStatusVO } from '../../../../domain/value-objects/primitives/user-status.vo.js';
+import { UserTypeVO } from '../../../../domain/value-objects/primitives/user-type.vo.js';
+import { UserRoleVO } from '../../../../domain/value-objects/primitives/user-role.vo.js';
 
 interface CachedUser {
   readonly id: string;

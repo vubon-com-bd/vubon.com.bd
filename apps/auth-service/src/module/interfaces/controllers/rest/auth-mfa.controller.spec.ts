@@ -1,13 +1,15 @@
 /**
  * AuthMfaController — Unit Tests
  */
+import { jest } from '@jest/globals';
+
 import { Test } from '@nestjs/testing';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { AuthMfaController } from './auth-mfa.controller';
-import { MfaControllerMapper } from '../../mappers/mfa.controller.mapper';
+import { AuthMfaController } from './auth-mfa.controller.js';
+import { MfaControllerMapper } from '../../mappers/mfa.controller.mapper.js';
 
-const mockCommandBus = () => ({ execute: jest.fn() });
-const mockQueryBus = () => ({ execute: jest.fn() });
+const mockCommandBus = () => ({ execute: jest.fn() as jest.Mock });
+const mockQueryBus = () => ({ execute: jest.fn() as jest.Mock });
 const mockMapper = () => ({ toResponse: jest.fn((x: unknown) => x) });
 
 describe('AuthMfaController', () => {

@@ -3,8 +3,8 @@
  * @module auth-service/interfaces/mappers
  */
 import { Injectable } from '@nestjs/common';
-import type { MfaResponseDTO as AppMfaResponse } from '../../application/dtos/responses/mfa-response.dto';
-import type { MfaResponseDTO } from '../dtos/responses/mfa.response.dto';
+import type { MfaResponseDTO as AppMfaResponse } from '../../application/dtos/responses/mfa-response.dto.js';
+import type { MfaResponseDTO } from '../dtos/responses/mfa.response.dto.js';
 
 @Injectable()
 export class MfaControllerMapper {

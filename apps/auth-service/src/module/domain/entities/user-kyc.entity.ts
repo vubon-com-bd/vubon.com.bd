@@ -10,7 +10,7 @@ import type { UserId } from '@vubon/shared-types/common';
 import type {
   KycStatus,
   KycDocumentType,
-} from '../value-objects/composites/user-kyc.vo';
+} from '../value-objects/composites/user-kyc.vo.js';
 
 export type { KycStatus, KycDocumentType };
 

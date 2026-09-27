@@ -5,22 +5,22 @@
  * Config files are module-level constants built from env vars.
  * This test file verifies shape + type safety of all 16 configs.
  */
-import { AUTH_CONFIG } from './auth.config';
-import { JWT_CONFIG } from './jwt.config';
-import { OAUTH_CONFIG } from './oauth.config';
-import { SSO_CONFIG } from './sso.config';
-import { MFA_CONFIG } from './mfa.config';
-import { SESSION_CONFIG } from './session.config';
-import { TOKEN_CONFIG } from './token.config';
-import { PASSWORD_CONFIG } from './password.config';
-import { ACCOUNT_LOCK_CONFIG } from './account-lock.config';
-import { LOGIN_ATTEMPT_CONFIG } from './login-attempt.config';
-import { DEVICE_CONFIG } from './device.config';
-import { SOCIAL_CONFIG } from './social.config';
-import { TWO_FA_CONFIG } from './2fa.config';
-import { BIOMETRIC_CONFIG } from './biometric.config';
-import { RATE_LIMIT_CONFIG } from './rate-limit.config';
-import { USER_CONFIG } from './user.config';
+import { AUTH_CONFIG } from './auth.config.js';
+import { JWT_CONFIG } from './jwt.config.js';
+import { OAUTH_CONFIG } from './oauth.config.js';
+import { SSO_CONFIG } from './sso.config.js';
+import { MFA_CONFIG } from './mfa.config.js';
+import { SESSION_CONFIG } from './session.config.js';
+import { TOKEN_CONFIG } from './token.config.js';
+import { PASSWORD_CONFIG } from './password.config.js';
+import { ACCOUNT_LOCK_CONFIG } from './account-lock.config.js';
+import { LOGIN_ATTEMPT_CONFIG } from './login-attempt.config.js';
+import { DEVICE_CONFIG } from './device.config.js';
+import { SOCIAL_CONFIG } from './social.config.js';
+import { TWO_FA_CONFIG } from './2fa.config.js';
+import { BIOMETRIC_CONFIG } from './biometric.config.js';
+import { RATE_LIMIT_CONFIG } from './rate-limit.config.js';
+import { USER_CONFIG } from './user.config.js';
 
 describe('Infrastructure Configs', () => {
   // ═══════════════════════════════════════════════════════════

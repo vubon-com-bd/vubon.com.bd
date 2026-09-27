@@ -4,9 +4,9 @@
  */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
 import type { UserId } from '@vubon/shared-types/common';
-import { SocialProviderVO } from '../value-objects/primitives/social-provider.vo';
-import { SocialTokenVO } from '../value-objects/primitives/social-token.vo';
-import { SocialStatusVO } from '../value-objects/primitives/social-status.vo';
+import { SocialProviderVO } from '../value-objects/primitives/social-provider.vo.js';
+import { SocialTokenVO } from '../value-objects/primitives/social-token.vo.js';
+import { SocialStatusVO } from '../value-objects/primitives/social-status.vo.js';
 
 export interface AuthSocialEntityProps {
   readonly id: string;

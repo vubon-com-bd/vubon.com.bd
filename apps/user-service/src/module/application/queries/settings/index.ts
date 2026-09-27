@@ -1,2 +1,3 @@
-export { GetSettingsQuery } from './get-settings.query';
-export { GetSettingsHandler } from './get-settings.handler';
+// queries/settings/index.ts
+export * from './get-settings.query.js';
+export * from './get-settings.handler.js';

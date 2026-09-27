@@ -5,7 +5,7 @@
  * Values আসে shared-config ও shared-constants থেকে।
  */
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
 import { REDIS_CONFIG } from '@vubon/shared-config/infrastructure';
 import { CACHE_TTL } from '@vubon/shared-constants/infrastructure';
 

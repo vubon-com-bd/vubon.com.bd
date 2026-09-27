@@ -7,8 +7,8 @@ import { QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
 
-import { ListAuthTokensQuery } from '../../../application/queries/auth/list-auth-tokens.query';
-import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
+import { ListAuthTokensQuery } from '../../../application/queries/auth/list-auth-tokens.query.js';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator.js';
 
 @ApiTags('Auth Tokens')
 @Controller('auth/tokens')

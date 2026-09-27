@@ -9,7 +9,7 @@
  */
 import { BaseNameVO } from '@vubon/shared-kernel/domain/primitives/name.vo';
 import { VALIDATION } from '@vubon/shared-constants/common';
-import { InvalidNameError } from '../../errors/user.errors';
+import { InvalidNameError } from '../../errors/user.errors.js';
 
 const FORBIDDEN = /[<>{}[\]\\/]|[\u0000-\u001F\u007F]/;
 

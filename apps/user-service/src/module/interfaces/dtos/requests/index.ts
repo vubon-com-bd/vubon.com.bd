@@ -1,53 +1,9 @@
-export {
-  CreateUserRequestDto,
-  UpdateUserRequestDto,
-  DeleteUserRequestDto,
-  ActivateUserRequestDto,
-  DeactivateUserRequestDto,
-  SuspendUserRequestDto,
-  UnsuspendUserRequestDto,
-} from './user.request.dto';
-
-export {
-  UpdateProfileRequestDto,
-  UpdateAvatarRequestDto,
-  UpdateBioRequestDto,
-  UpdateVisibilityRequestDto,
-} from './profile.request.dto';
-
-export {
-  AddAddressRequestDto,
-  UpdateAddressRequestDto,
-  DeleteAddressRequestDto,
-  SetDefaultAddressRequestDto,
-} from './address.request.dto';
-
-export {
-  AddContactRequestDto,
-  UpdateContactRequestDto,
-  DeleteContactRequestDto,
-  VerifyContactRequestDto,
-} from './contact.request.dto';
-
-export {
-  UpdatePreferencesRequestDto,
-  ResetPreferencesRequestDto,
-} from './preferences.request.dto';
-
-export {
-  UpdateSettingsRequestDto,
-  ResetSettingsRequestDto,
-} from './settings.request.dto';
-
-export {
-  KycDocumentInputDto,
-  SubmitKycRequestDto,
-  VerifyKycRequestDto,
-  RejectKycRequestDto,
-  ReverifyKycRequestDto,
-} from './kyc.request.dto';
-
-export {
-  ListActivityRequestDto,
-  GetUserStatsRequestDto,
-} from './activity.request.dto';
+// requests/index.ts
+export * from './user.request.dto.js';
+export * from './profile.request.dto.js';
+export * from './settings.request.dto.js';
+export * from './preferences.request.dto.js';
+export * from './address.request.dto.js';
+export * from './contact.request.dto.js';
+export * from './kyc.request.dto.js';
+export * from './activity.request.dto.js';

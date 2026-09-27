@@ -1,17 +1,19 @@
 /**
  * AuthSsoPrismaRepository — Unit Tests
  */
-import { AuthSsoPrismaRepository } from './auth-sso.prisma.repository';
-import { SsoProviderVO } from '../../../../domain/value-objects/primitives/sso-provider.vo';
+import { jest } from '@jest/globals';
+
+import { AuthSsoPrismaRepository } from './auth-sso.prisma.repository.js';
+import { SsoProviderVO } from '../../../../domain/value-objects/primitives/sso-provider.vo.js';
 
 const mockPrisma = () => ({
   authSso: {
-    findUnique: jest.fn(),
-    findFirst: jest.fn(),
-    findMany: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
+    findUnique: jest.fn() as jest.Mock,
+    findFirst: jest.fn() as jest.Mock,
+    findMany: jest.fn() as jest.Mock,
+    create: jest.fn() as jest.Mock,
+    update: jest.fn() as jest.Mock,
+    delete: jest.fn() as jest.Mock,
   },
 });
 

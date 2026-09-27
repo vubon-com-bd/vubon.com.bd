@@ -3,7 +3,7 @@
  * @module auth-service/domain/value-objects/composites
  */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
+import { UserIdVO } from '../primitives/user-id.vo.js';
 
 export type KycStatus = 'not_submitted' | 'pending' | 'approved' | 'rejected';
 export type KycDocumentType = 'nid' | 'passport' | 'driving_license' | 'birth_certificate';

@@ -2,11 +2,11 @@
  * PermissionEvaluationService — Unit Tests
  * @module auth-service/domain/services
  */
-import { PermissionEvaluationService } from './permission-evaluation.service';
-import { AuthRoleEntity } from '../entities/auth-role.entity';
-import { RoleNameVO } from '../value-objects/primitives/role-name.vo';
-import { RoleDescriptionVO } from '../value-objects/primitives/role-description.vo';
-import { PermissionNameVO } from '../value-objects/primitives/permission-name.vo';
+import { PermissionEvaluationService } from './permission-evaluation.service.js';
+import { AuthRoleEntity } from '../entities/auth-role.entity.js';
+import { RoleNameVO } from '../value-objects/primitives/role-name.vo.js';
+import { RoleDescriptionVO } from '../value-objects/primitives/role-description.vo.js';
+import { PermissionNameVO } from '../value-objects/primitives/permission-name.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 

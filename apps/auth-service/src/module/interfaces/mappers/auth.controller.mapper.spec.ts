@@ -1,7 +1,7 @@
 /**
  * AuthControllerMapper — Unit Tests
  */
-import { AuthControllerMapper } from './auth.controller.mapper';
+import { AuthControllerMapper } from './auth.controller.mapper.js';
 
 describe('AuthControllerMapper', () => {
   let mapper: AuthControllerMapper;

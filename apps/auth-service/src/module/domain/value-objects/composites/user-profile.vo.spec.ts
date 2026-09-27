@@ -2,9 +2,9 @@
  * UserProfileVO — Unit Tests
  * @module auth-service/domain/value-objects/composites
  */
-import { UserProfileVO } from './user-profile.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { UserNameVO } from '../primitives/user-name.vo';
+import { UserProfileVO } from './user-profile.vo.js';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { UserNameVO } from '../primitives/user-name.vo.js';
 
 describe('UserProfileVO', () => {
   const base = {

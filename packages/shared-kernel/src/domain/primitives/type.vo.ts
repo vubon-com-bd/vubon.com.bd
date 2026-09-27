@@ -1,5 +1,5 @@
 import { DATA_TYPE } from '@vubon/shared-constants/common';
-import { BaseVO } from '../base/base.vo';
+import { BaseVO } from '../base/base.vo.js';
 
 export type DataTypeValue = (typeof DATA_TYPE)[keyof typeof DATA_TYPE];
 

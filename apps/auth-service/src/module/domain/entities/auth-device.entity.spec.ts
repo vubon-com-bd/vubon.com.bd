@@ -2,10 +2,10 @@
  * AuthDeviceEntity — Unit Tests (Aggregate Root)
  * @module auth-service/domain/entities
  */
-import { AuthDeviceEntity } from './auth-device.entity';
-import { DeviceFingerprintVO } from '../value-objects/primitives/device-fingerprint.vo';
-import { DeviceTypeVO } from '../value-objects/primitives/device-type.vo';
-import { DeviceStatusVO } from '../value-objects/primitives/device-status.vo';
+import { AuthDeviceEntity } from './auth-device.entity.js';
+import { DeviceFingerprintVO } from '../value-objects/primitives/device-fingerprint.vo.js';
+import { DeviceTypeVO } from '../value-objects/primitives/device-type.vo.js';
+import { DeviceStatusVO } from '../value-objects/primitives/device-status.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();

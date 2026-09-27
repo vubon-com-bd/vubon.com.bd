@@ -5,10 +5,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { LoginCommand } from './login.command';
-import type { AuthServiceInterface } from '../../services/interfaces/auth.service.interface';
-import type { LoginResponseDTO, LoginMfaRequiredResponseDTO } from '../../dtos/responses/login-response.dto';
-import { AUTH_SERVICE } from '../../tokens';
+import { LoginCommand } from './login.command.js';
+import type { AuthServiceInterface } from '../../services/interfaces/auth.service.interface.js';
+import type { LoginResponseDTO, LoginMfaRequiredResponseDTO } from '../../dtos/responses/login-response.dto.js';
+import { AUTH_SERVICE } from '../../tokens.js';
 
 @CommandHandler(LoginCommand)
 export class LoginHandler

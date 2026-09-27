@@ -1,4 +1,5 @@
-export { UpdatePreferencesCommand } from './update-preferences.command';
-export { UpdatePreferencesHandler } from './update-preferences.handler';
-export { ResetPreferencesCommand } from './reset-preferences.command';
-export { ResetPreferencesHandler } from './reset-preferences.handler';
+// commands/preferences/index.ts
+export * from './update-preferences.command.js';
+export * from './update-preferences.handler.js';
+export * from './reset-preferences.command.js';
+export * from './reset-preferences.handler.js';

@@ -1,6 +1,6 @@
 import { REGEX, VALIDATION } from '@vubon/shared-constants/common';
 import type { Phone } from '@vubon/shared-types/common';
-import { BaseVO } from '../base/base.vo';
+import { BaseVO } from '../base/base.vo.js';
 
 export abstract class BasePhoneVO extends BaseVO<Phone> {
   protected constructor(value: Phone) {

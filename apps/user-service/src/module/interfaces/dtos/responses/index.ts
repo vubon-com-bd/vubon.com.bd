@@ -1,9 +1,10 @@
-export { UserResponseDto } from './user.response.dto';
-export { PublicUserResponseDto } from './public-user.response.dto';
-export { ProfileResponseDto } from './profile.response.dto';
-export { AddressResponseDto } from './address.response.dto';
-export { ContactResponseDto } from './contact.response.dto';
-export { PreferencesResponseDto } from './preferences.response.dto';
-export { SettingsResponseDto } from './settings.response.dto';
-export { KycResponseDto } from './kyc.response.dto';
-export { ActivityResponseDto } from './activity.response.dto';
+// responses/index.ts
+export * from './user.response.dto.js';
+export * from './public-user.response.dto.js';
+export * from './profile.response.dto.js';
+export * from './address.response.dto.js';
+export * from './contact.response.dto.js';
+export * from './preferences.response.dto.js';
+export * from './settings.response.dto.js';
+export * from './kyc.response.dto.js';
+export * from './activity.response.dto.js';

@@ -1,10 +1,12 @@
 /**
  * AssignRoleHandler — Unit Tests
  */
-import { AssignRoleHandler } from './assign-role.handler';
-import { AssignRoleCommand } from './assign-role.command';
+import { jest } from '@jest/globals';
 
-const mockService = () => ({ assign: jest.fn() });
+import { AssignRoleHandler } from './assign-role.handler.js';
+import { AssignRoleCommand } from './assign-role.command.js';
+
+const mockService = () => ({ assign: jest.fn() as jest.Mock });
 
 describe('AssignRoleHandler', () => {
   let handler: AssignRoleHandler;

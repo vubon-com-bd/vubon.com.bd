@@ -8,7 +8,7 @@
  */
 import { BaseCodeVO } from '@vubon/shared-kernel/domain/primitives/code.vo';
 import { VALIDATION } from '@vubon/shared-constants/common';
-import { VerificationCodeMismatchError } from '../../errors/verification.errors';
+import { VerificationCodeMismatchError } from '../../errors/verification.errors.js';
 
 export class VerificationCodeVO extends BaseCodeVO {
   private constructor(value: string) {

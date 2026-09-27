@@ -1,21 +1,34 @@
+/**
+ * ListContactsHandler
+ */
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
-import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { ListContactsQuery } from './list-contacts.query';
-import type { UserContactServiceInterface } from '../../services/interfaces/user-contact.service.interface';
-import type { ContactResponseDTO } from '../../dtos/responses/contact-response.dto';
+import { Inject } from '@nestjs/common';
+import { ListContactsQuery } from './list-contacts.query.js';
+import { USER_CONTACT_REPOSITORY } from '@domain/repositories/user-contact.repository.interface';
+import type { UserContactRepository } from '@domain/repositories/user-contact.repository.interface';
+import { UserIdVO } from '@domain/value-objects/primitives/user-id.vo';
+import { UserContactMapper } from '../../mappers/user-contact.mapper.js';
+import type { ContactResponseDTO } from '../../dtos/responses/contact-response.dto.js';
+
+export interface ListContactsResult {
+  readonly items: readonly ContactResponseDTO[];
+  readonly total: number;
+}
 
 @QueryHandler(ListContactsQuery)
 export class ListContactsHandler
-  extends BaseQueryHandler<ListContactsQuery, readonly ContactResponseDTO[]>
-  implements IQueryHandler<ListContactsQuery>
+  implements IQueryHandler<ListContactsQuery, ListContactsResult>
 {
-  readonly queryType = 'user.contact.list';
+  constructor(
+    @Inject(USER_CONTACT_REPOSITORY)
+    private readonly contactRepo: UserContactRepository
+  ) {}
 
-  constructor(private readonly contactService: UserContactServiceInterface) {
-    super();
-  }
-
-  async execute(query: ListContactsQuery): Promise<readonly ContactResponseDTO[]> {
-    return this.contactService.listByUser(query.userId);
+  async execute(query: ListContactsQuery): Promise<ListContactsResult> {
+    const items = await this.contactRepo.findByUserId(UserIdVO.create(query.userId));
+    return {
+      items: UserContactMapper.toResponseList(items),
+      total: items.length,
+    };
   }
 }

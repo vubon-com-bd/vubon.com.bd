@@ -1,16 +1,18 @@
 /**
  * ResendVerificationHandler — Unit Tests
  */
-import { ResendVerificationHandler } from './resend-verification.handler';
-import { ResendVerificationCommand } from './resend-verification.command';
+import { jest } from '@jest/globals';
+
+import { ResendVerificationHandler } from './resend-verification.handler.js';
+import { ResendVerificationCommand } from './resend-verification.command.js';
 
 const mockUserRepo = () => ({
-  findByEmail: jest.fn(),
+  findByEmail: jest.fn() as jest.Mock,
 });
 
 const mockVerificationService = () => ({
   name: 'UserVerificationService',
-  request: jest.fn(),
+  request: jest.fn() as jest.Mock,
 });
 
 describe('ResendVerificationHandler', () => {

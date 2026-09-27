@@ -1,13 +1,13 @@
-import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
+/**
+ * AddContactCommand
+ */
+import { BaseCommand } from '@vubon/shared-kernel/application/commands';
+import type { AddContactRequestDTO } from '../../dtos/requests/contact/index.js';
 
 export class AddContactCommand extends BaseCommand {
-  readonly type = 'user.contact.add';
+  readonly type = 'contact.add';
 
-  constructor(
-    public readonly userId: string,
-    public readonly contactType: string,
-    public readonly value: string,
-  ) {
+  constructor(public readonly payload: AddContactRequestDTO) {
     super();
   }
 }

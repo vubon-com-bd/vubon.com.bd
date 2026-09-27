@@ -1,8 +1,9 @@
-export type { UserRepository } from './user.repository.interface';
-export type { UserProfileRepository } from './user-profile.repository.interface';
-export type { UserSettingsRepository } from './user-settings.repository.interface';
-export type { UserPreferencesRepository } from './user-preferences.repository.interface';
-export type { UserAddressRepository } from './user-address.repository.interface';
-export type { UserContactRepository } from './user-contact.repository.interface';
-export type { UserKycRepository } from './user-kyc.repository.interface';
-export type { UserActivityRepository } from './user-activity.repository.interface';
+// repositories/index.ts — Repository interface barrel export
+export * from './user.repository.interface.js';
+export * from './user-profile.repository.interface.js';
+export * from './user-settings.repository.interface.js';
+export * from './user-preferences.repository.interface.js';
+export * from './user-address.repository.interface.js';
+export * from './user-contact.repository.interface.js';
+export * from './user-kyc.repository.interface.js';
+export * from './user-activity.repository.interface.js';

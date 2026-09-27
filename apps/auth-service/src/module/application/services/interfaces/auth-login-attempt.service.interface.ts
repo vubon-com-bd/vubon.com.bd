@@ -4,8 +4,8 @@
  */
 import type { BaseServiceInterface } from '@vubon/shared-kernel/application/services/base.service.interface';
 import type { UserId } from '@vubon/shared-types/common';
-import type { AuthLoginAttemptEntity } from '../../../domain/entities/auth-login-attempt.entity';
-import type { AuthLoginAttemptResponseDTO } from '../../dtos/responses/auth-login-attempt-response.dto';
+import type { AuthLoginAttemptEntity } from '../../../domain/entities/auth-login-attempt.entity.js';
+import type { AuthLoginAttemptResponseDTO } from '../../dtos/responses/auth-login-attempt-response.dto.js';
 
 export interface AuthLoginAttemptServiceInterface
   extends BaseServiceInterface<AuthLoginAttemptEntity, string> {

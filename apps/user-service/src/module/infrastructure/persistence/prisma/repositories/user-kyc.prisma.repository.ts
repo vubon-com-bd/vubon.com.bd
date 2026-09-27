@@ -1,75 +1,114 @@
+/**
+ * UserKycPrismaRepository
+ */
 import { Injectable } from '@nestjs/common';
-import { UserKyc as PrismaUserKyc } from '@prisma/client';
-import { BasePrismaRepository } from '@vubon/shared-kernel/infrastructure';
-import { PrismaService } from '../prisma.service';
-import { UserKycEntity } from '../../../../domain/entities/user-kyc.entity';
-import { KycIdVO } from '../../../../domain/value-objects/primitives/kyc-id.vo';
-import { UserIdVO } from '../../../../domain/value-objects/primitives/user-id.vo';
-import { KycDocumentVO } from '../../../../domain/value-objects/primitives/kyc-document.vo';
-import { KycStatusVO } from '../../../../domain/value-objects/primitives/kyc-status.vo';
-import type { UserKycRepository } from '../../../../domain/repositories/user-kyc.repository.interface';
+import type { UserKyc as PrismaUserKyc } from '@prisma/client';
+import { PrismaService } from '../prisma.service.js';
+import type { UserKycRepository } from '@domain/repositories/user-kyc.repository.interface';
+import { UserKycEntity } from '@domain/entities/user-kyc.entity';
+import { UserIdVO } from '@domain/value-objects/primitives/user-id.vo';
+import { KycIdVO } from '@domain/value-objects/primitives/kyc-id.vo';
+import { KycDocumentVO } from '@domain/value-objects/primitives/kyc-document.vo';
+import { KycStatusVO } from '@domain/value-objects/primitives/kyc-status.vo';
+import { ActivityTimestampVO } from '@domain/value-objects/primitives/activity-timestamp.vo';
 
 @Injectable()
-export class UserKycPrismaRepository
-  extends BasePrismaRepository<UserKycEntity, KycIdVO>
-  implements UserKycRepository
-{
-  constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
-  }
+export class UserKycPrismaRepository implements UserKycRepository {
+  constructor(private readonly prisma: PrismaService) {}
 
   private toDomain(raw: PrismaUserKyc): UserKycEntity {
-    return UserKycEntity.reconstitute(
-      KycIdVO.create(raw.id),
-      {
+    return UserKycEntity.reconstitute({
+      id: raw.id,
+      createdAt: raw.createdAt.toISOString(),
+      updatedAt: raw.updatedAt.toISOString(),
+      deletedAt: null,
+      props: {
+        kycId: KycIdVO.create(raw.id),
         userId: UserIdVO.create(raw.userId),
-        document: KycDocumentVO.create(raw.document),
+        document: KycDocumentVO.create(raw.document ?? raw.documentType ?? 'nid'),
         status: KycStatusVO.create(raw.status),
-        submittedAt: raw.submittedAt,
-        reviewedAt: raw.reviewedAt,
-        rejectionReason: raw.rejectionReason,
+        submittedAt: raw.submittedAt
+          ? ActivityTimestampVO.fromEpochMs(raw.submittedAt.getTime())
+          : null,
+        verifiedAt: raw.reviewedAt
+          ? ActivityTimestampVO.fromEpochMs(raw.reviewedAt.getTime())
+          : null,
+        rejectionReason: raw.rejectionReason ?? null,
       },
-      raw.createdAt.toISOString(),
-      raw.updatedAt.toISOString(),
-      null,
-    );
+    });
   }
 
-  async findById(id: KycIdVO): Promise<UserKycEntity | null> {
-    const raw = await this.prisma.userKyc.findUnique({ where: { id: id.value } });
+  async findById(id: string): Promise<UserKycEntity | null> {
+    const raw = await this.prisma.userKyc.findUnique({ where: { id } });
     return raw ? this.toDomain(raw) : null;
   }
 
   async findAll(): Promise<readonly UserKycEntity[]> {
-    const rows = await this.prisma.userKyc.findMany();
-    return rows.map((r) => this.toDomain(r));
+    const raws = await this.prisma.userKyc.findMany();
+    return raws.map((r) => this.toDomain(r));
   }
 
   async save(entity: UserKycEntity): Promise<UserKycEntity> {
-    const data = {
-      userId: entity.userId.value,
-      document: entity.document.value,
-      status: entity.status.value,
-      submittedAt: entity.submittedAt,
-      reviewedAt: entity.reviewedAt,
-      rejectionReason: entity.rejectionReason,
-      updatedAt: new Date(),
-    };
     const raw = await this.prisma.userKyc.upsert({
-      where: { id: entity.id.value },
-      create: { id: entity.id.value, ...data },
-      update: data,
+      where: { id: entity.id },
+      create: {
+        id: entity.id,
+        userId: entity.userId.value,
+        document: entity.document.value,
+        status: entity.status.value,
+        submittedAt: entity.submittedAt?.toDate() ?? null,
+        reviewedAt: entity.verifiedAt?.toDate() ?? null,
+        rejectionReason: entity.rejectionReason,
+      },
+      update: {
+        document: entity.document.value,
+        status: entity.status.value,
+        submittedAt: entity.submittedAt?.toDate() ?? null,
+        reviewedAt: entity.verifiedAt?.toDate() ?? null,
+        rejectionReason: entity.rejectionReason,
+        updatedAt: new Date(),
+      },
     });
     return this.toDomain(raw);
   }
 
-  async delete(id: KycIdVO): Promise<void> {
-    await this.prisma.userKyc.delete({ where: { id: id.value } });
+  async delete(id: string): Promise<void> {
+    await this.prisma.userKyc.delete({ where: { id } });
+  }
+
+  async exists(id: string): Promise<boolean> {
+    const count = await this.prisma.userKyc.count({ where: { id } });
+    return count > 0;
   }
 
   async findByUserId(userId: UserIdVO): Promise<UserKycEntity | null> {
     const raw = await this.prisma.userKyc.findUnique({
       where: { userId: userId.value },
+    });
+    return raw ? this.toDomain(raw) : null;
+  }
+
+  async findAllByUserId(userId: UserIdVO): Promise<readonly UserKycEntity[]> {
+    const raws = await this.prisma.userKyc.findMany({
+      where: { userId: userId.value },
+    });
+    return raws.map((r) => this.toDomain(r));
+  }
+
+  async findByStatus(status: KycStatusVO): Promise<readonly UserKycEntity[]> {
+    const raws = await this.prisma.userKyc.findMany({ where: { status: status.value } });
+    return raws.map((r) => this.toDomain(r));
+  }
+
+  async existsById(id: KycIdVO): Promise<boolean> {
+    const count = await this.prisma.userKyc.count({ where: { id: id.value } });
+    return count > 0;
+  }
+
+  async latestForUser(userId: UserIdVO): Promise<UserKycEntity | null> {
+    const raw = await this.prisma.userKyc.findFirst({
+      where: { userId: userId.value },
+      orderBy: { createdAt: 'desc' },
     });
     return raw ? this.toDomain(raw) : null;
   }

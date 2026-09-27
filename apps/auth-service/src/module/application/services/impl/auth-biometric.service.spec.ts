@@ -2,10 +2,12 @@
  * AuthBiometricService — Unit Tests
  * @module auth-service/application/services/impl
  */
-import { AuthBiometricService } from './auth-biometric.service';
-import { AuthBiometricEntity } from '../../../domain/entities/auth-biometric.entity';
-import { BiometricIdVO } from '../../../domain/value-objects/primitives/biometric-id.vo';
-import { BiometricFailedAppError } from '../../errors/biometric.errors';
+import { jest } from '@jest/globals';
+
+import { AuthBiometricService } from './auth-biometric.service.js';
+import { AuthBiometricEntity } from '../../../domain/entities/auth-biometric.entity.js';
+import { BiometricIdVO } from '../../../domain/value-objects/primitives/biometric-id.vo.js';
+import { BiometricFailedAppError } from '../../errors/biometric.errors.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();
@@ -23,14 +25,14 @@ const buildBio = (overrides: Partial<Parameters<typeof AuthBiometricEntity.creat
   });
 
 const mockRepo = () => ({
-  findById: jest.fn(),
-  findByUser: jest.fn(),
-  findByBiometricId: jest.fn(),
-  findByUserAndKind: jest.fn(),
-  findAll: jest.fn(),
+  findById: jest.fn() as jest.Mock,
+  findByUser: jest.fn() as jest.Mock,
+  findByBiometricId: jest.fn() as jest.Mock,
+  findByUserAndKind: jest.fn() as jest.Mock,
+  findAll: jest.fn() as jest.Mock,
   save: jest.fn((b: AuthBiometricEntity) => Promise.resolve(b)),
-  delete: jest.fn(),
-  exists: jest.fn(),
+  delete: jest.fn() as jest.Mock,
+  exists: jest.fn() as jest.Mock,
 });
 
 const mockIdGen = () => ({

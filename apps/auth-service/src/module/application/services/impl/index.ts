@@ -3,37 +3,37 @@
  * @module auth-service/application/services/impl
  */
 // Core services
-export * from './auth-token.service';
-export * from './auth-session.service';
-export * from './auth-mfa.service';
-export * from './auth.service';
-export * from './user.service';
-export * from './auth-recovery-code.service';
-export * from './auth-account-lock.service';
-export * from './auth-login-attempt.service';
+export * from './auth-token.service.js';
+export * from './auth-session.service.js';
+export * from './auth-mfa.service.js';
+export * from './auth.service.js';
+export * from './user.service.js';
+export * from './auth-recovery-code.service.js';
+export * from './auth-account-lock.service.js';
+export * from './auth-login-attempt.service.js';
 
 // Social / OAuth / SSO
-export * from './auth-social.service';
-export * from './auth-oauth.service';
-export * from './auth-sso.service';
+export * from './auth-social.service.js';
+export * from './auth-oauth.service.js';
+export * from './auth-sso.service.js';
 
 // 2FA / Biometric
-export * from './auth-2fa.service';
-export * from './auth-biometric.service';
+export * from './auth-2fa.service.js';
+export * from './auth-biometric.service.js';
 
 // Permission / Role / Settings
-export * from './auth-permission.service';
-export * from './auth-role.service';
-export * from './auth-settings.service';
+export * from './auth-permission.service.js';
+export * from './auth-role.service.js';
+export * from './auth-settings.service.js';
 
 // User services
-export * from './user-profile.service';
-export * from './user-settings.service';
-export * from './user-preferences.service';
-export * from './user-address.service';
-export * from './user-contact.service';
-export * from './user-verification.service';
-export * from './user-kyc.service';
-export * from './user-activity.service';
-export * from './user-permission.service';
-export * from './user-role.service';
+export * from './user-profile.service.js';
+export * from './user-settings.service.js';
+export * from './user-preferences.service.js';
+export * from './user-address.service.js';
+export * from './user-contact.service.js';
+export * from './user-verification.service.js';
+export * from './user-kyc.service.js';
+export * from './user-activity.service.js';
+export * from './user-permission.service.js';
+export * from './user-role.service.js';

@@ -12,7 +12,7 @@
  * - AddContactRequest: type + value
  * - SubmitKycRequest: documents[] + acceptTerms
  */
-import { UserValidator } from './user.validator';
+import { UserValidator } from './user.validator.js';
 
 const STRONG = 'Str0ng!Pass@2024';
 const UUID = '00000000-0000-0000-0000-000000000001';

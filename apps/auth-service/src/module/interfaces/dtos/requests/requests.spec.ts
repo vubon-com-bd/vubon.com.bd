@@ -6,71 +6,71 @@
  * verify shape, required fields, and metadata presence.
  */
 import 'reflect-metadata';
-import { AuthRequestDTO } from './auth.request.dto';
-import { SessionRequestDTO } from './session.request.dto';
-import { TokenRequestDTO } from './token.request.dto';
+import { AuthRequestDTO } from './auth.request.dto.js';
+import { SessionRequestDTO } from './session.request.dto.js';
+import { TokenRequestDTO } from './token.request.dto.js';
 import {
   EnableMfaRequestDTO,
   DisableMfaRequestDTO,
   VerifyMfaRequestDTO,
-} from './mfa.request.dto';
+} from './mfa.request.dto.js';
 import {
   GenerateRecoveryCodesRequestDTO,
   RecoverAccountRequestDTO,
-} from './recovery-code.request.dto';
+} from './recovery-code.request.dto.js';
 import {
   SocialLoginRequestDTO,
   SocialCallbackRequestDTO,
   LinkSocialRequestDTO,
   UnlinkSocialRequestDTO,
-} from './social.request.dto';
+} from './social.request.dto.js';
 import {
   SsoLoginRequestDTO,
   SsoCallbackRequestDTO,
-} from './sso.request.dto';
+} from './sso.request.dto.js';
 import {
   EnableBiometricRequestDTO,
   DisableBiometricRequestDTO,
   VerifyBiometricRequestDTO,
-} from './biometric.request.dto';
+} from './biometric.request.dto.js';
 import {
   LockAccountRequestDTO,
   UnlockAccountRequestDTO,
-} from './lock.request.dto';
+} from './lock.request.dto.js';
 import {
   VerifyEmailRequestDTO,
   ResendVerificationRequestDTO,
-} from './verification.request.dto';
+} from './verification.request.dto.js';
 import {
   CreateUserRequestDTO,
   UpdateUserRequestDTO,
   DeleteUserRequestDTO,
-} from './user.request.dto';
-import { UpdateProfileRequestDTO } from './profile.request.dto';
-import { UpdateSettingsRequestDTO } from './settings.request.dto';
-import { UpdatePreferencesRequestDTO } from './preferences.request.dto';
+} from './user.request.dto.js';
+import { UpdateProfileRequestDTO } from './profile.request.dto.js';
+import { UpdateSettingsRequestDTO } from './settings.request.dto.js';
+import { UpdatePreferencesRequestDTO } from './preferences.request.dto.js';
 import {
   AddAddressRequestDTO,
   UpdateAddressRequestDTO,
   DeleteAddressRequestDTO,
-} from './address.request.dto';
+} from './address.request.dto.js';
 import {
   AddContactRequestDTO,
   UpdateContactRequestDTO,
   DeleteContactRequestDTO,
-} from './contact.request.dto';
+} from './contact.request.dto.js';
 import {
   SubmitKycRequestDTO,
   VerifyKycRequestDTO,
   RejectKycRequestDTO,
-} from './kyc.request.dto';
+} from './kyc.request.dto.js';
 import {
   AssignRoleRequestDTO,
   RevokeRoleRequestDTO,
   AssignPermissionRequestDTO,
   RevokePermissionRequestDTO,
   LifecycleUserRequestDTO,
-} from './role-permission.request.dto';
+} from './role-permission.request.dto.js';
 
 describe('Interface Request DTOs', () => {
   describe('AuthRequestDTO', () => {

@@ -1,8 +1,9 @@
-export { AddAddressCommand } from './add-address.command';
-export { AddAddressHandler } from './add-address.handler';
-export { UpdateAddressCommand } from './update-address.command';
-export { UpdateAddressHandler } from './update-address.handler';
-export { DeleteAddressCommand } from './delete-address.command';
-export { DeleteAddressHandler } from './delete-address.handler';
-export { SetDefaultAddressCommand } from './set-default-address.command';
-export { SetDefaultAddressHandler } from './set-default-address.handler';
+// commands/address/index.ts
+export * from './add-address.command.js';
+export * from './add-address.handler.js';
+export * from './update-address.command.js';
+export * from './update-address.handler.js';
+export * from './delete-address.command.js';
+export * from './delete-address.handler.js';
+export * from './set-default-address.command.js';
+export * from './set-default-address.handler.js';

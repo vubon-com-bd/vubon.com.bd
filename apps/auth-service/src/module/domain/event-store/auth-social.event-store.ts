@@ -3,7 +3,7 @@
  * @module auth-service/domain/event-store
  */
 import type { DomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
-import type { AuthSocialDomainEvent } from '../events/auth-social.events';
+import type { AuthSocialDomainEvent } from '../events/auth-social.events.js';
 
 export interface AuthSocialEventStore {
   append(event: AuthSocialDomainEvent): Promise<void>;

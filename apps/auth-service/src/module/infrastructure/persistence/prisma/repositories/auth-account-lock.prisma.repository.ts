@@ -10,10 +10,10 @@ import {
 } from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
 import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
 import type { UserId } from '@vubon/shared-types/common';
-import { AuthAccountLockEntity } from '../../../../domain/entities/auth-account-lock.entity';
-import { AccountLockReasonVO } from '../../../../domain/value-objects/primitives/account-lock-reason.vo';
-import { AccountLockDurationVO } from '../../../../domain/value-objects/primitives/account-lock-duration.vo';
-import type { AuthAccountLockRepository } from '../../../../domain/repositories/auth-account-lock.repository.interface';
+import { AuthAccountLockEntity } from '../../../../domain/entities/auth-account-lock.entity.js';
+import { AccountLockReasonVO } from '../../../../domain/value-objects/primitives/account-lock-reason.vo.js';
+import { AccountLockDurationVO } from '../../../../domain/value-objects/primitives/account-lock-duration.vo.js';
+import type { AuthAccountLockRepository } from '../../../../domain/repositories/auth-account-lock.repository.interface.js';
 
 @Injectable()
 export class AuthAccountLockPrismaRepository

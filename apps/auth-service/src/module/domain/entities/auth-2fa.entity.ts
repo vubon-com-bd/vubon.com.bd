@@ -4,7 +4,7 @@
  */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
 import type { UserId } from '@vubon/shared-types/common';
-import { MfaTypeVO } from '../value-objects/primitives/mfa-type.vo';
+import { MfaTypeVO } from '../value-objects/primitives/mfa-type.vo.js';
 
 export interface Auth2FaEntityProps {
   readonly id: string;

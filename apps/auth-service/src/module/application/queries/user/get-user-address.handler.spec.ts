@@ -1,9 +1,11 @@
 /**
  * GetUserAddressHandler — Unit Tests
  */
-import { GetUserAddressHandler } from './get-user-address.handler';
-import { GetUserAddressQuery } from './get-user-address.query';
-import { UserAddressEntity } from '../../../domain/entities/user-address.entity';
+import { jest } from '@jest/globals';
+
+import { GetUserAddressHandler } from './get-user-address.handler.js';
+import { GetUserAddressQuery } from './get-user-address.query.js';
+import { UserAddressEntity } from '../../../domain/entities/user-address.entity.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -22,7 +24,7 @@ const buildAddress = () =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findById: jest.fn() });
+const mockRepo = () => ({ findById: jest.fn() as jest.Mock });
 
 describe('GetUserAddressHandler', () => {
   let handler: GetUserAddressHandler;

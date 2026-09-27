@@ -1,29 +1,32 @@
-import { ERROR_CODE, type ErrorCodeType } from '@vubon/shared-constants/common';
-import { ApplicationError } from '@vubon/shared-kernel/application/errors/application.error';
+/**
+ * KYC Application Errors
+ */
+import { ApplicationError } from '@vubon/shared-kernel/application/errors';
+import { ERROR_CODE } from '@vubon/shared-constants/common';
 
-export class KycOperationFailedError extends ApplicationError {
-  readonly code: ErrorCodeType = ERROR_CODE.SERVER_INTERNAL;
-  readonly httpStatus = 500;
-
-  constructor(reason: string) {
-    super(`KYC operation failed: ${reason}`, { reason });
-  }
-}
-
-export class KycNotFoundAppError extends ApplicationError {
-  readonly code: ErrorCodeType = ERROR_CODE.USER_NOT_FOUND;
+export class KycNotFoundApplicationError extends ApplicationError {
+  readonly code = ERROR_CODE.VAL_REQUIRED;
   readonly httpStatus = 404;
-
-  constructor(userId: string) {
-    super(`KYC not found for user: ${userId}`, { userId });
+  constructor(kycId: string) {
+    super(`KYC "${kycId}" not found`, { kycId });
+    this.name = 'KycNotFoundApplicationError';
   }
 }
 
-export class KycNotAllowedAppError extends ApplicationError {
-  readonly code: ErrorCodeType = ERROR_CODE.AUTH_FORBIDDEN;
-  readonly httpStatus = 403;
+export class KycSubmissionFailedError extends ApplicationError {
+  readonly code = ERROR_CODE.SERVER_INTERNAL;
+  readonly httpStatus = 500;
+  constructor(userId: string, reason: string) {
+    super(`KYC submission failed for "${userId}": ${reason}`, { userId, reason });
+    this.name = 'KycSubmissionFailedError';
+  }
+}
 
-  constructor(reason: string) {
-    super(`KYC not allowed: ${reason}`, { reason });
+export class KycVerificationFailedError extends ApplicationError {
+  readonly code = ERROR_CODE.SERVER_INTERNAL;
+  readonly httpStatus = 500;
+  constructor(kycId: string, reason: string) {
+    super(`KYC verification failed for "${kycId}": ${reason}`, { kycId, reason });
+    this.name = 'KycVerificationFailedError';
   }
 }

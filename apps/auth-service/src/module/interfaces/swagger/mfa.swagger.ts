@@ -4,7 +4,7 @@
  */
 import { applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { MfaResponseDTO } from '../dtos/responses/mfa.response.dto';
+import { MfaResponseDTO } from '../dtos/responses/mfa.response.dto.js';
 
 export const MfaSwagger = {
   Enable: () =>

@@ -1,12 +1,14 @@
 /**
  * UnlockAccountHandler — Unit Tests
  */
-import { UnlockAccountHandler } from './unlock-account.handler';
-import { UnlockAccountCommand } from './unlock-account.command';
+import { jest } from '@jest/globals';
+
+import { UnlockAccountHandler } from './unlock-account.handler.js';
+import { UnlockAccountCommand } from './unlock-account.command.js';
 
 const mockService = () => ({
   name: 'AuthAccountLockService',
-  unlock: jest.fn(),
+  unlock: jest.fn() as jest.Mock,
 });
 
 describe('UnlockAccountHandler', () => {

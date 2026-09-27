@@ -3,7 +3,7 @@
  * @module auth-service/domain/value-objects/primitives
  */
 import { BaseTypeVO } from '@vubon/shared-kernel/domain/primitives/type.vo';
-import { InvalidTokenError } from '../../errors/token.errors';
+import { InvalidTokenError } from '../../errors/token.errors.js';
 
 export type TokenTypeValue =
   | 'access'

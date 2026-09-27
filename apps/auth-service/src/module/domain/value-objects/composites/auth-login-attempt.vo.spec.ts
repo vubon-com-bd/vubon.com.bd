@@ -2,9 +2,9 @@
  * AuthLoginAttemptVO — Unit Tests
  * @module auth-service/domain/value-objects/composites
  */
-import { AuthLoginAttemptVO } from './auth-login-attempt.vo';
-import { LoginAttemptIpVO } from '../primitives/login-attempt-ip.vo';
-import { LoginAttemptStatusVO } from '../primitives/login-attempt-status.vo';
+import { AuthLoginAttemptVO } from './auth-login-attempt.vo.js';
+import { LoginAttemptIpVO } from '../primitives/login-attempt-ip.vo.js';
+import { LoginAttemptStatusVO } from '../primitives/login-attempt-status.vo.js';
 
 describe('AuthLoginAttemptVO', () => {
   const now = Date.now();

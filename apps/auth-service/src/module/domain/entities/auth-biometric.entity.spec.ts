@@ -2,8 +2,8 @@
  * AuthBiometricEntity — Unit Tests
  * @module auth-service/domain/entities
  */
-import { AuthBiometricEntity } from './auth-biometric.entity';
-import { BiometricIdVO } from '../value-objects/primitives/biometric-id.vo';
+import { AuthBiometricEntity } from './auth-biometric.entity.js';
+import { BiometricIdVO } from '../value-objects/primitives/biometric-id.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();

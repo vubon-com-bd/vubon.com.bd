@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { AuthLoginAttemptController } from '../../interfaces/controllers/rest/auth-login-attempt.controller';
-import { AuthLoginAttemptService } from '../../application/services/impl/auth-login-attempt.service';
-import { ListAuthLoginAttemptsHandler } from '../../application/queries/auth/list-auth-login-attempts.handler';
-import { AuthLoginAttemptPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/auth-login-attempt.prisma.repository';
+import { AuthLoginAttemptController } from '../../interfaces/controllers/rest/auth-login-attempt.controller.js';
+import { AuthLoginAttemptService } from '../../application/services/impl/auth-login-attempt.service.js';
+import { ListAuthLoginAttemptsHandler } from '../../application/queries/auth/list-auth-login-attempts.handler.js';
+import { AuthLoginAttemptPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/auth-login-attempt.prisma.repository.js';
 import {
   AUTH_LOGIN_ATTEMPT_REPO,
   AUTH_LOGIN_ATTEMPT_SERVICE,
-} from '../../application/services/tokens';
+} from '../../application/services/tokens.js';
 
 const TOKEN_BINDINGS = [
   { provide: AUTH_LOGIN_ATTEMPT_REPO, useExisting: AuthLoginAttemptPrismaRepository },

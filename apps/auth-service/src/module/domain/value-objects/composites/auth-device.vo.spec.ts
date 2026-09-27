@@ -2,11 +2,11 @@
  * AuthDeviceVO — Unit Tests
  * @module auth-service/domain/value-objects/composites
  */
-import { AuthDeviceVO } from './auth-device.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { DeviceFingerprintVO } from '../primitives/device-fingerprint.vo';
-import { DeviceTypeVO } from '../primitives/device-type.vo';
-import { DeviceStatusVO } from '../primitives/device-status.vo';
+import { AuthDeviceVO } from './auth-device.vo.js';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { DeviceFingerprintVO } from '../primitives/device-fingerprint.vo.js';
+import { DeviceTypeVO } from '../primitives/device-type.vo.js';
+import { DeviceStatusVO } from '../primitives/device-status.vo.js';
 
 describe('AuthDeviceVO', () => {
   const userId = UserIdVO.of('user-1');

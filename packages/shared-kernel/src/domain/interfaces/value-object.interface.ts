@@ -4,7 +4,7 @@
  *
  * References base value object (type only)।
  */
-import type { BaseVO } from '../base/base.vo';
+import type { BaseVO } from '../base/base.vo.js';
 
 export type ValueObjectShape<TValue = unknown> = BaseVO<TValue>;
 

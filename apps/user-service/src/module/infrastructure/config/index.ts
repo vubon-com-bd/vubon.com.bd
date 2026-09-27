@@ -1,9 +1,9 @@
-export { USER_CONFIG } from './user.config';
-export { PROFILE_CONFIG } from './profile.config';
-export { ADDRESS_CONFIG } from './address.config';
-export { CONTACT_CONFIG } from './contact.config';
-export { PREFERENCES_CONFIG } from './preferences.config';
-export { SETTINGS_CONFIG } from './settings.config';
-export { KYC_CONFIG } from './kyc.config';
-export { ACTIVITY_CONFIG } from './activity.config';
-export { AVATAR_CONFIG } from './avatar.config';
+// config/index.ts — Infrastructure config barrel export
+export * from './user.config.js';
+export * from './profile.config.js';
+export * from './address.config.js';
+export * from './contact.config.js';
+export * from './preferences.config.js';
+export * from './kyc.config.js';
+export * from './activity.config.js';
+export * from './avatar.config.js';

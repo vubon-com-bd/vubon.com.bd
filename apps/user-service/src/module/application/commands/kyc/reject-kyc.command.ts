@@ -1,12 +1,15 @@
-import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
+/**
+ * RejectKycCommand
+ */
+import { BaseCommand } from '@vubon/shared-kernel/application/commands';
 
 export class RejectKycCommand extends BaseCommand {
-  readonly type = 'user.kyc.reject';
+  readonly type = 'kyc.reject';
 
   constructor(
-    public readonly userId: string,
     public readonly kycId: string,
     public readonly reason: string,
+    public readonly rejectedBy: string
   ) {
     super();
   }

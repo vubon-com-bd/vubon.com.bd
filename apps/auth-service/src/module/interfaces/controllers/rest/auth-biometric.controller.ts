@@ -16,15 +16,15 @@ import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard, Public } from '@vubon/shared-kernel/interfaces';
 import type { UserId } from '@vubon/shared-types/common';
 
-import { EnableBiometricCommand } from '../../../application/commands/auth/enable-biometric.command';
-import { DisableBiometricCommand } from '../../../application/commands/auth/disable-biometric.command';
-import { VerifyBiometricCommand } from '../../../application/commands/auth/verify-biometric.command';
+import { EnableBiometricCommand } from '../../../application/commands/auth/enable-biometric.command.js';
+import { DisableBiometricCommand } from '../../../application/commands/auth/disable-biometric.command.js';
+import { VerifyBiometricCommand } from '../../../application/commands/auth/verify-biometric.command.js';
 import {
   EnableBiometricRequestDTO,
   DisableBiometricRequestDTO,
   VerifyBiometricRequestDTO,
-} from '../../dtos/requests/biometric.request.dto';
-import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
+} from '../../dtos/requests/biometric.request.dto.js';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator.js';
 
 @ApiTags('Auth Biometric')
 @Controller('auth/biometric')

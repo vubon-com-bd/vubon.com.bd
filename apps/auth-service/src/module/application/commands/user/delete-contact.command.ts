@@ -1,5 +1,5 @@
 import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
-import type { DeleteContactRequestDTO } from '../../dtos/requests/user/delete-contact.dto';
+import type { DeleteContactRequestDTO } from '../../dtos/requests/user/delete-contact.dto.js';
 
 export class DeleteContactCommand extends BaseCommand {
   readonly type = 'user.delete-contact';

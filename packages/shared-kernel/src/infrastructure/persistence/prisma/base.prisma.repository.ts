@@ -5,8 +5,8 @@
  * Abstract adapter for BaseRepository (from domain) using Prisma।
  */
 import type { BaseEntity } from '@vubon/shared-types/common';
-import type { BaseRepository } from '../../../domain/base/base.repository.interface';
-import type { PrismaService } from './prisma.service';
+import type { BaseRepository } from '../../../domain/base/base.repository.interface.js';
+import type { PrismaService } from './prisma.service.js';
 
 /**
  * Minimal Prisma transaction-client shape.

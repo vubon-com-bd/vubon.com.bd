@@ -1,60 +1,61 @@
+/**
+ * UserContactService
+ */
 import { Injectable } from '@nestjs/common';
-import { EventBus } from '@nestjs/cqrs';
-import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
-import type { UserContactServiceInterface } from '../interfaces/user-contact.service.interface';
-import type { UserContactRepository } from '../../../domain/repositories/user-contact.repository.interface';
-import { UserContactEntity } from '../../../domain/entities/user-contact.entity';
-import { ContactIdVO } from '../../../domain/value-objects/primitives/contact-id.vo';
-import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
-import { ContactOperationFailedError } from '../../errors/contact.errors';
-import type { ContactResponseDTO } from '../../dtos/responses/contact-response.dto';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import type { UserContactServiceInterface } from '../interfaces/user-contact.service.interface.js';
+import { AddContactCommand } from '../../commands/contact/add-contact.command.js';
+import { UpdateContactCommand } from '../../commands/contact/update-contact.command.js';
+import { DeleteContactCommand } from '../../commands/contact/delete-contact.command.js';
+import { VerifyContactCommand } from '../../commands/contact/verify-contact.command.js';
+import { ListContactsQuery } from '../../queries/contact/list-contacts.query.js';
+import { GetContactQuery } from '../../queries/contact/get-contact.query.js';
+import type { AddContactRequestDTO } from '../../dtos/requests/contact/index.js';
+import type { ContactResponseDTO } from '../../dtos/responses/contact-response.dto.js';
+import type { ListContactsResult } from '../../queries/contact/list-contacts.handler.js';
 
 @Injectable()
-export class UserContactService
-  extends BaseService<UserContactEntity, string>
-  implements UserContactServiceInterface
-{
-  readonly name = 'UserContactService';
-
+export class UserContactService implements UserContactServiceInterface {
   constructor(
-    private readonly contactRepo: UserContactRepository,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus
+  ) {}
+
+  list(userId: string): Promise<ListContactsResult> {
+    return this.queryBus.execute(new ListContactsQuery(userId));
   }
 
-  async listByUser(userId: string): Promise<readonly ContactResponseDTO[]> {
-    const entities = await this.contactRepo.findByUserId(UserIdVO.create(userId));
-    return entities.map((e) => this.toDTO(e));
+  findById(userId: string, contactId: string): Promise<ContactResponseDTO> {
+    return this.queryBus.execute(new GetContactQuery(userId, contactId));
   }
 
-  async add(userId: string, input: { type: string; value: string }): Promise<ContactResponseDTO> {
-    void input;
-    void userId;
-    throw new ContactOperationFailedError('add not yet wired');
+  add(input: AddContactRequestDTO): Promise<ContactResponseDTO> {
+    return this.commandBus.execute(new AddContactCommand(input));
   }
 
-  async delete(contactId: string): Promise<void> {
-    await this.contactRepo.delete(ContactIdVO.create(contactId));
+  update(
+    userId: string,
+    contactId: string,
+    value?: string,
+    label?: string,
+    isPrimary?: boolean
+  ): Promise<ContactResponseDTO> {
+    return this.commandBus.execute(
+      new UpdateContactCommand(userId, contactId, value, label, isPrimary)
+    );
   }
 
-  async verify(contactId: string): Promise<ContactResponseDTO> {
-    const entity = await this.contactRepo.findById(ContactIdVO.create(contactId));
-    if (!entity) throw new ContactOperationFailedError('contact not found');
-    const verified = entity.markVerified();
-    await this.contactRepo.save(verified);
-    return this.toDTO(verified);
+  remove(userId: string, contactId: string): Promise<{ success: true }> {
+    return this.commandBus.execute(new DeleteContactCommand(userId, contactId));
   }
 
-  private toDTO(entity: UserContactEntity): ContactResponseDTO {
-    return {
-      id: entity.id.value,
-      userId: entity.userId.value,
-      type: entity.type.value,
-      value: entity.value.value,
-      verified: entity.verified,
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
-    } as unknown as ContactResponseDTO;
+  verify(
+    userId: string,
+    contactId: string,
+    code: string
+  ): Promise<ContactResponseDTO> {
+    return this.commandBus.execute(
+      new VerifyContactCommand(userId, contactId, code)
+    );
   }
 }

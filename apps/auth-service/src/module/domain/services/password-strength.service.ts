@@ -5,7 +5,7 @@
  * Stateless. No framework dependency.
  */
 import { REGEX, VALIDATION } from '@vubon/shared-constants/common';
-import { WeakPasswordError } from '../errors/password.errors';
+import { WeakPasswordError } from '../errors/password.errors.js';
 
 export interface PasswordStrengthReport {
   readonly score: number;          // 0–100

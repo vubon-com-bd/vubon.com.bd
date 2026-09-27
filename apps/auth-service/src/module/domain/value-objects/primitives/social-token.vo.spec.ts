@@ -2,7 +2,7 @@
  * SocialTokenVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { SocialTokenVO } from './social-token.vo';
+import { SocialTokenVO } from './social-token.vo.js';
 
 describe('SocialTokenVO', () => {
   const VALID_TOKEN = 'ya29.a0AfH6SMBx' + 'x'.repeat(50);

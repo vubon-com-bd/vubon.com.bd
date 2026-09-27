@@ -1,21 +1,13 @@
-import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
-
-export interface KycDocumentInput {
-  readonly type: string;
-  readonly frontUrl: string;
-  readonly number?: string;
-  readonly backUrl?: string;
-  readonly selfieUrl?: string;
-}
+/**
+ * SubmitKycCommand
+ */
+import { BaseCommand } from '@vubon/shared-kernel/application/commands';
+import type { SubmitKycRequestDTO } from '../../dtos/requests/kyc/index.js';
 
 export class SubmitKycCommand extends BaseCommand {
-  readonly type = 'user.kyc.submit';
+  readonly type = 'kyc.submit';
 
-  constructor(
-    public readonly userId: string,
-    public readonly documents: readonly KycDocumentInput[],
-    public readonly acceptTerms: true = true,
-  ) {
+  constructor(public readonly payload: SubmitKycRequestDTO) {
     super();
   }
 }

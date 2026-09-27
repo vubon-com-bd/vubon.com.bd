@@ -2,12 +2,14 @@
  * AuthTokenService — Unit Tests
  * @module auth-service/application/services/impl
  */
-import { AuthTokenService } from './auth-token.service';
-import { AuthTokenEntity } from '../../../domain/entities/auth-token.entity';
-import { TokenValueVO } from '../../../domain/value-objects/primitives/token-value.vo';
-import { TokenTypeVO } from '../../../domain/value-objects/primitives/token-type.vo';
-import { TokenExpiryVO } from '../../../domain/value-objects/primitives/token-expiry.vo';
-import { TokenExpiredAppError, TokenInvalidAppError } from '../../errors/token.errors';
+import { jest } from '@jest/globals';
+
+import { AuthTokenService } from './auth-token.service.js';
+import { AuthTokenEntity } from '../../../domain/entities/auth-token.entity.js';
+import { TokenValueVO } from '../../../domain/value-objects/primitives/token-value.vo.js';
+import { TokenTypeVO } from '../../../domain/value-objects/primitives/token-type.vo.js';
+import { TokenExpiryVO } from '../../../domain/value-objects/primitives/token-expiry.vo.js';
+import { TokenExpiredAppError, TokenInvalidAppError } from '../../errors/token.errors.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();
@@ -25,22 +27,22 @@ const buildToken = (overrides: Partial<Parameters<typeof AuthTokenEntity.create>
   });
 
 const mockTokenRepo = () => ({
-  findById: jest.fn(),
-  findByValue: jest.fn(),
-  findActiveBySubject: jest.fn(),
-  findAll: jest.fn(),
+  findById: jest.fn() as jest.Mock,
+  findByValue: jest.fn() as jest.Mock,
+  findActiveBySubject: jest.fn() as jest.Mock,
+  findAll: jest.fn() as jest.Mock,
   save: jest.fn((t: AuthTokenEntity) => Promise.resolve(t)),
-  delete: jest.fn(),
-  exists: jest.fn(),
-  revokeAllForSubject: jest.fn(),
-  deleteExpired: jest.fn(),
+  delete: jest.fn() as jest.Mock,
+  exists: jest.fn() as jest.Mock,
+  revokeAllForSubject: jest.fn() as jest.Mock,
+  deleteExpired: jest.fn() as jest.Mock,
 });
 
 const mockSigner = () => ({
   name: 'TokenSignerService',
   sign: jest.fn(() => Promise.resolve('signed-token-value')),
-  verify: jest.fn(),
-  decode: jest.fn(),
+  verify: jest.fn() as jest.Mock,
+  decode: jest.fn() as jest.Mock,
 });
 
 const mockIdGen = () => ({

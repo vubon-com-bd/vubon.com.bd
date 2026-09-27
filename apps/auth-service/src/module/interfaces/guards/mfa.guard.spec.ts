@@ -2,9 +2,11 @@
  * MfaGuard — Unit Tests
  * @module auth-service/interfaces/guards
  */
+import { jest } from '@jest/globals';
+
 import { Reflector } from '@nestjs/core';
 import { ForbiddenException } from '@nestjs/common';
-import { MfaGuard } from './mfa.guard';
+import { MfaGuard } from './mfa.guard.js';
 
 const buildExecutionContext = (user?: { mfaVerified?: boolean }): unknown => ({
   switchToHttp: () => ({

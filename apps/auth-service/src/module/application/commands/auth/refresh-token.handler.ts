@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { RefreshTokenCommand } from './refresh-token.command';
-import type { AuthTokenServiceInterface } from '../../services/interfaces/auth-token.service.interface';
-import type { AuthTokenResponseDTO } from '../../dtos/responses/auth-token-response.dto';
-import { AUTH_TOKEN_SERVICE } from '../../tokens';
+import { RefreshTokenCommand } from './refresh-token.command.js';
+import type { AuthTokenServiceInterface } from '../../services/interfaces/auth-token.service.interface.js';
+import type { AuthTokenResponseDTO } from '../../dtos/responses/auth-token-response.dto.js';
+import { AUTH_TOKEN_SERVICE } from '../../tokens.js';
 
 @CommandHandler(RefreshTokenCommand)
 export class RefreshTokenHandler

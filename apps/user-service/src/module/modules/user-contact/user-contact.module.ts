@@ -1,24 +1,31 @@
+/**
+ * UserContactModule
+ */
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-
-import { UserContactController } from '../../interfaces/controllers/rest/user-contact.controller';
-import { ContactControllerMapper } from '../../interfaces/mappers/contact.controller.mapper';
-import { UserContactService } from '../../application/services/impl/user-contact.service';
-import { AddContactHandler } from '../../application/commands/contact/add-contact.handler';
-import { UpdateContactHandler } from '../../application/commands/contact/update-contact.handler';
-import { DeleteContactHandler } from '../../application/commands/contact/delete-contact.handler';
-import { VerifyContactHandler } from '../../application/commands/contact/verify-contact.handler';
-import { ListContactsHandler } from '../../application/queries/contact/list-contacts.handler';
-import { GetContactHandler } from '../../application/queries/contact/get-contact.handler';
-import { UserContactPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/user-contact.prisma.repository';
+import { UserContactController } from '@interfaces/controllers/rest/user-contact.controller';
+import { UserContactService } from '@application/services/impl/user-contact.service';
+import {
+  AddContactHandler,
+  UpdateContactHandler,
+  DeleteContactHandler,
+  VerifyContactHandler,
+} from '@application/commands/contact';
+import {
+  ListContactsHandler,
+  GetContactHandler,
+} from '@application/queries/contact';
+import { UserContactPrismaRepository } from '@infrastructure/persistence/prisma/repositories';
+import { USER_CONTACT_REPOSITORY } from '@domain/repositories/user-contact.repository.interface';
+import { PrismaModule } from '@infrastructure/persistence/prisma/prisma.module';
+import { UserModule } from '../user/user.module.js';
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, PrismaModule, UserModule],
   controllers: [UserContactController],
   providers: [
-    UserContactPrismaRepository,
     UserContactService,
-    ContactControllerMapper,
+    { provide: USER_CONTACT_REPOSITORY, useClass: UserContactPrismaRepository },
     AddContactHandler,
     UpdateContactHandler,
     DeleteContactHandler,
@@ -26,6 +33,6 @@ import { UserContactPrismaRepository } from '../../infrastructure/persistence/pr
     ListContactsHandler,
     GetContactHandler,
   ],
-  exports: [UserContactService, UserContactPrismaRepository],
+  exports: [UserContactService, USER_CONTACT_REPOSITORY],
 })
 export class UserContactModule {}

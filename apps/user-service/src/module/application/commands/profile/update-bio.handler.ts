@@ -1,24 +1,43 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { UpdateBioCommand } from './update-bio.command';
-import type { UserProfileServiceInterface } from '../../services/interfaces/user-profile.service.interface';
-import type { ProfileResponseDTO } from '../../dtos/responses/profile-response.dto';
+/**
+ * UpdateBioHandler
+ */
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Inject } from '@nestjs/common';
+import { UpdateBioCommand } from './update-bio.command.js';
+import { USER_PROFILE_REPOSITORY } from '@domain/repositories/user-profile.repository.interface';
+import type { UserProfileRepository } from '@domain/repositories/user-profile.repository.interface';
+import { UserIdVO } from '@domain/value-objects/primitives/user-id.vo';
+import { UserBioVO } from '@domain/value-objects/primitives/user-bio.vo';
+import { UserProfileMapper } from '../../mappers/user-profile.mapper.js';
+import type { ProfileResponseDTO } from '../../dtos/responses/profile-response.dto.js';
+import {
+  ProfileNotFoundApplicationError,
+  ProfileUpdateFailedError,
+} from '../../errors/profile.errors.js';
 
 @CommandHandler(UpdateBioCommand)
 export class UpdateBioHandler
-  extends BaseCommandHandler<UpdateBioCommand, ProfileResponseDTO>
-  implements ICommandHandler<UpdateBioCommand>
+  implements ICommandHandler<UpdateBioCommand, ProfileResponseDTO>
 {
-  readonly commandType = 'user.profile.update-bio';
-
   constructor(
-    private readonly profileService: UserProfileServiceInterface,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
-  }
+    @Inject(USER_PROFILE_REPOSITORY)
+    private readonly profileRepo: UserProfileRepository
+  ) {}
 
   async execute(command: UpdateBioCommand): Promise<ProfileResponseDTO> {
-    return this.profileService.updateBio(command.userId, command.bio);
+    const { userId, bio } = command;
+    const idVO = UserIdVO.create(userId);
+
+    const profile = await this.profileRepo.findByUserId(idVO);
+    if (!profile) throw new ProfileNotFoundApplicationError(userId);
+
+    try {
+      profile.updateBio(UserBioVO.create(bio), new Date().toISOString());
+      await this.profileRepo.save(profile);
+      return UserProfileMapper.toResponse(profile);
+    } catch (err) {
+      const reason = err instanceof Error ? err.message : 'unknown error';
+      throw new ProfileUpdateFailedError(userId, reason);
+    }
   }
 }

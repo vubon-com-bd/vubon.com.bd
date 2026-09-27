@@ -3,9 +3,9 @@
  * @module auth-service/domain/value-objects/composites
  */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { MfaTypeVO } from '../primitives/mfa-type.vo';
-import { MfaStatusVO } from '../primitives/mfa-status.vo';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { MfaTypeVO } from '../primitives/mfa-type.vo.js';
+import { MfaStatusVO } from '../primitives/mfa-status.vo.js';
 
 export interface AuthMfaVOProps {
   readonly userId: UserIdVO;

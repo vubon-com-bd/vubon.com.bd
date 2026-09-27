@@ -1,7 +1,7 @@
 /**
  * SessionControllerMapper — Unit Tests
  */
-import { SessionControllerMapper } from './session.controller.mapper';
+import { SessionControllerMapper } from './session.controller.mapper.js';
 
 const buildAppDto = () => ({
   sessionId: 'sess-1',

@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { SsoLoginCommand } from './sso-login.command';
-import type { AuthSsoServiceInterface } from '../../services/interfaces/auth-sso.service.interface';
-import { AUTH_SSO_SERVICE } from '../../tokens';
+import { SsoLoginCommand } from './sso-login.command.js';
+import type { AuthSsoServiceInterface } from '../../services/interfaces/auth-sso.service.interface.js';
+import { AUTH_SSO_SERVICE } from '../../tokens.js';
 
 @CommandHandler(SsoLoginCommand)
 export class SsoLoginHandler

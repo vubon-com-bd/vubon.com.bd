@@ -1,17 +1,19 @@
 /**
  * UserVerificationPrismaRepository — Unit Tests
  */
-import { UserVerificationPrismaRepository } from './user-verification.prisma.repository';
+
+import { UserVerificationPrismaRepository } from './user-verification.prisma.repository.js';
+import { jest } from '@jest/globals';
 
 const mockPrisma = () => ({
   userVerification: {
-    findUnique: jest.fn(),
-    findFirst: jest.fn(),
-    findMany: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    deleteMany: jest.fn(),
+    findUnique: jest.fn() as jest.Mock,
+    findFirst: jest.fn() as jest.Mock,
+    findMany: jest.fn() as jest.Mock,
+    create: jest.fn() as jest.Mock,
+    update: jest.fn() as jest.Mock,
+    delete: jest.fn() as jest.Mock,
+    deleteMany: jest.fn() as jest.Mock,
   },
 });
 

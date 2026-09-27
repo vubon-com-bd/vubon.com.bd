@@ -1,34 +1,65 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
+    "rootDir": "./src",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "composite": false,
-    "module": "CommonJS",
-    "target": "ES2020",
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "target": "ES2022",
+    "moduleResolution": "bundler",
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
     "strict": true,
     "skipLibCheck": true,
-    "noEmit": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "types": ["node"],
+    "noImplicitAny": true,
     "baseUrl": ".",
     "paths": {
-      "@vubon/shared-constants": ["../shared-constants/src/index.ts"],
-      "@vubon/shared-constants/*": ["../shared-constants/src/*"],
-      "@vubon/shared-types": ["../shared-types/src/index.ts"],
-      "@vubon/shared-types/*": ["../shared-types/src/*"],
-      "@vubon/shared-schemas": ["../shared-schemas/src/index.ts"],
-      "@vubon/shared-schemas/*": ["../shared-schemas/src/*"],
-      "@vubon/shared-utils": ["../shared-utils/src/index.ts"],
-      "@vubon/shared-utils/*": ["../shared-utils/src/*"],
-      "@vubon/shared-config": ["../shared-config/src/index.ts"],
-      "@vubon/shared-config/*": ["../shared-config/src/*"]
+      "@vubon/shared-constants": [
+        "../shared-constants/dist/index.d.ts"
+      ],
+      "@vubon/shared-constants/*": [
+        "../shared-constants/dist/*"
+      ],
+      "@vubon/shared-types": [
+        "../shared-types/dist/index.d.ts"
+      ],
+      "@vubon/shared-types/*": [
+        "../shared-types/dist/*"
+      ],
+      "@vubon/shared-schemas": [
+        "../shared-schemas/dist/index.d.ts"
+      ],
+      "@vubon/shared-schemas/*": [
+        "../shared-schemas/dist/*"
+      ],
+      "@vubon/shared-utils": [
+        "../shared-utils/dist/index.d.ts"
+      ],
+      "@vubon/shared-utils/*": [
+        "../shared-utils/dist/*"
+      ],
+      "@vubon/shared-config": [
+        "../shared-config/dist/index.d.ts"
+      ],
+      "@vubon/shared-config/*": [
+        "../shared-config/dist/*"
+      ]
     }
   },
-  "include": ["src/**/*", "../shared-constants/src/**/*", "../shared-types/src/**/*", "../shared-schemas/src/**/*", "../shared-utils/src/**/*", "../shared-config/src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
 }

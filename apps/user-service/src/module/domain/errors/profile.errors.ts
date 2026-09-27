@@ -1,34 +1,44 @@
-import { ERROR_CODE, type ErrorCodeType } from '@vubon/shared-constants/common';
-import { DomainError } from '@vubon/shared-kernel/domain/errors/domain.error';
+/**
+ * Profile domain errors
+ */
+import { NotFoundError } from '@vubon/shared-kernel/domain/errors/not-found.error';
+import { ValidationError } from '@vubon/shared-kernel/domain/errors/validation.error';
+import { BusinessRuleError } from '@vubon/shared-kernel/domain/errors/business-rule.error';
 
-export class ProfileNotFoundError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.USER_NOT_FOUND;
-  readonly httpStatus = 404;
+export class ProfileNotFoundError extends NotFoundError {
   constructor(userId: string) {
-    super(`Profile not found for user: ${userId}`, { userId });
+    super('UserProfile', userId);
+    this.name = 'ProfileNotFoundError';
   }
 }
 
-export class ProfileIncompleteError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.VAL_REQUIRED;
-  readonly httpStatus = 400;
-  constructor(reason: string) {
-    super(`Profile incomplete: ${reason}`, { reason });
+export class ProfileIncompleteError extends BusinessRuleError {
+  constructor(missingFields: readonly string[]) {
+    super(
+      `Profile is incomplete. Missing: ${missingFields.join(', ')}`,
+      'PROFILE_INCOMPLETE'
+    );
+    this.name = 'ProfileIncompleteError';
   }
 }
 
-export class InvalidVisibilityError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.VAL_INVALID_FORMAT;
-  readonly httpStatus = 400;
-  constructor(visibility: string) {
-    super(`Invalid visibility: ${visibility}`, { visibility });
+export class InvalidVisibilityError extends ValidationError {
+  constructor(value: string, allowed: readonly string[]) {
+    super(`Invalid visibility "${value}". Allowed: ${allowed.join(', ')}`, 'visibility');
+    this.name = 'InvalidVisibilityError';
   }
 }
 
-export class InvalidProfileVisibilityError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.VAL_INVALID_FORMAT;
-  readonly httpStatus = 400;
-  constructor(visibility: string) {
-    super(`Invalid profile visibility: ${visibility}`, { visibility });
+export class AvatarTooLargeError extends ValidationError {
+  constructor(sizeMB: number, maxMB: number) {
+    super(`Avatar size ${sizeMB}MB exceeds maximum ${maxMB}MB`, 'avatar');
+    this.name = 'AvatarTooLargeError';
+  }
+}
+
+export class BioTooLongError extends ValidationError {
+  constructor(length: number, max: number) {
+    super(`Bio length ${length} exceeds maximum ${max}`, 'bio');
+    this.name = 'BioTooLongError';
   }
 }

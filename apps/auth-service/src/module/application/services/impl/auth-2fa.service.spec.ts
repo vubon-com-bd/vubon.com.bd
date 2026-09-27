@@ -2,9 +2,11 @@
  * Auth2FaService — Unit Tests
  * @module auth-service/application/services/impl
  */
-import { Auth2FaService } from './auth-2fa.service';
-import { Auth2FaEntity } from '../../../domain/entities/auth-2fa.entity';
-import { MfaTypeVO } from '../../../domain/value-objects/primitives/mfa-type.vo';
+import { jest } from '@jest/globals';
+
+import { Auth2FaService } from './auth-2fa.service.js';
+import { Auth2FaEntity } from '../../../domain/entities/auth-2fa.entity.js';
+import { MfaTypeVO } from '../../../domain/value-objects/primitives/mfa-type.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();
@@ -21,13 +23,13 @@ const build2FA = (overrides: Partial<Parameters<typeof Auth2FaEntity.create>[0]>
   });
 
 const mockRepo = () => ({
-  findById: jest.fn(),
-  findByUser: jest.fn(),
-  findEnabledByUsers: jest.fn(),
-  findAll: jest.fn(),
+  findById: jest.fn() as jest.Mock,
+  findByUser: jest.fn() as jest.Mock,
+  findEnabledByUsers: jest.fn() as jest.Mock,
+  findAll: jest.fn() as jest.Mock,
   save: jest.fn((e: Auth2FaEntity) => Promise.resolve(e)),
-  delete: jest.fn(),
-  exists: jest.fn(),
+  delete: jest.fn() as jest.Mock,
+  exists: jest.fn() as jest.Mock,
 });
 
 const mockIdGen = () => ({

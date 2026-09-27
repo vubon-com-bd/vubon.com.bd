@@ -1,9 +1,9 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { ListAuthPermissionsQuery } from './list-auth-permissions.query';
-import type { AuthPermissionRepository } from '../../../domain/repositories/auth-permission.repository.interface';
-import { AUTH_PERMISSION_REPO } from '../../tokens';
+import { ListAuthPermissionsQuery } from './list-auth-permissions.query.js';
+import type { AuthPermissionRepository } from '../../../domain/repositories/auth-permission.repository.interface.js';
+import { AUTH_PERMISSION_REPO } from '../../tokens.js';
 
 export interface AuthPermissionDTO {
   readonly id: string;

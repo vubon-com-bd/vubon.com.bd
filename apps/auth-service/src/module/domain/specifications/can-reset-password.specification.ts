@@ -2,7 +2,7 @@
  * CanResetPasswordSpecification
  * @module auth-service/domain/specifications
  */
-import { UserEntity } from '../entities/user.entity';
+import { UserEntity } from '../entities/user.entity.js';
 
 export interface CanResetPasswordContext {
   readonly now: number;

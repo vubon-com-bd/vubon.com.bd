@@ -4,8 +4,8 @@
  */
 import { Injectable } from '@nestjs/common';
 import { randomBytes, randomInt, createHash, timingSafeEqual } from 'node:crypto';
-import * as bcrypt from 'bcryptjs';
-import type { RecoveryCodeGeneratorServiceInterface } from '../../../application/services/interfaces/recovery-code-generator.service.interface';
+import bcrypt from 'bcryptjs';
+import type { RecoveryCodeGeneratorServiceInterface } from '../../../application/services/interfaces/recovery-code-generator.service.interface.js';
 
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I
 const BLOCK = 4;

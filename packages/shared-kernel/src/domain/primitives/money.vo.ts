@@ -7,7 +7,7 @@
 import { CURRENCY } from '@vubon/shared-constants/common';
 import { NUMBER_FORMAT } from '@vubon/shared-constants/common';
 import type { Money, CurrencyCode } from '@vubon/shared-types/common';
-import { BaseVO } from '../base/base.vo';
+import { BaseVO } from '../base/base.vo.js';
 
 const VALID_CURRENCIES = new Set<string>(Object.values(CURRENCY));
 const CURRENCY_DECIMALS: Record<string, number> = {

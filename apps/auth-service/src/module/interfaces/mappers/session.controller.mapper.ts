@@ -3,8 +3,8 @@
  * @module auth-service/interfaces/mappers
  */
 import { Injectable } from '@nestjs/common';
-import type { AuthSessionResponseDTO as AppSessionResponse } from '../../application/dtos/responses/auth-session-response.dto';
-import type { SessionResponseDTO } from '../dtos/responses/session.response.dto';
+import type { AuthSessionResponseDTO as AppSessionResponse } from '../../application/dtos/responses/auth-session-response.dto.js';
+import type { SessionResponseDTO } from '../dtos/responses/session.response.dto.js';
 
 @Injectable()
 export class SessionControllerMapper {

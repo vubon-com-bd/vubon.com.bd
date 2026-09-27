@@ -1,1 +1,1 @@
-export { UserActivityModule } from './user-activity.module';
+export * from './user-activity.module.js';

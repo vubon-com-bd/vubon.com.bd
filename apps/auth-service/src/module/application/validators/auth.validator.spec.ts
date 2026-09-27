@@ -4,7 +4,7 @@
  *
  * Tests verify the wrapper contract against the REAL shared-schemas.
  */
-import { AuthValidator } from './auth.validator';
+import { AuthValidator } from './auth.validator.js';
 
 describe('AuthValidator', () => {
   // ═══════════════════════════════════════════════════════════

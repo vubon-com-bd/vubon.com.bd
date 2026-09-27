@@ -1,24 +1,46 @@
-import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
-import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { UpdateVisibilityCommand } from './update-visibility.command';
-import type { UserProfileServiceInterface } from '../../services/interfaces/user-profile.service.interface';
-import type { ProfileResponseDTO } from '../../dtos/responses/profile-response.dto';
+/**
+ * UpdateVisibilityHandler
+ */
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Inject } from '@nestjs/common';
+import { UpdateVisibilityCommand } from './update-visibility.command.js';
+import { USER_PROFILE_REPOSITORY } from '@domain/repositories/user-profile.repository.interface';
+import type { UserProfileRepository } from '@domain/repositories/user-profile.repository.interface';
+import { UserIdVO } from '@domain/value-objects/primitives/user-id.vo';
+import { ProfileVisibilityVO } from '@domain/value-objects/primitives/profile-visibility.vo';
+import { UserProfileMapper } from '../../mappers/user-profile.mapper.js';
+import type { ProfileResponseDTO } from '../../dtos/responses/profile-response.dto.js';
+import {
+  ProfileNotFoundApplicationError,
+  ProfileUpdateFailedError,
+} from '../../errors/profile.errors.js';
 
 @CommandHandler(UpdateVisibilityCommand)
 export class UpdateVisibilityHandler
-  extends BaseCommandHandler<UpdateVisibilityCommand, ProfileResponseDTO>
-  implements ICommandHandler<UpdateVisibilityCommand>
+  implements ICommandHandler<UpdateVisibilityCommand, ProfileResponseDTO>
 {
-  readonly commandType = 'user.profile.update-visibility';
-
   constructor(
-    private readonly profileService: UserProfileServiceInterface,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
-  }
+    @Inject(USER_PROFILE_REPOSITORY)
+    private readonly profileRepo: UserProfileRepository
+  ) {}
 
   async execute(command: UpdateVisibilityCommand): Promise<ProfileResponseDTO> {
-    return this.profileService.changeVisibility(command.userId, command.visibility);
+    const { userId, visibility } = command;
+    const idVO = UserIdVO.create(userId);
+
+    const profile = await this.profileRepo.findByUserId(idVO);
+    if (!profile) throw new ProfileNotFoundApplicationError(userId);
+
+    try {
+      profile.updateVisibility(
+        ProfileVisibilityVO.create(visibility),
+        new Date().toISOString()
+      );
+      await this.profileRepo.save(profile);
+      return UserProfileMapper.toResponse(profile);
+    } catch (err) {
+      const reason = err instanceof Error ? err.message : 'unknown error';
+      throw new ProfileUpdateFailedError(userId, reason);
+    }
   }
 }

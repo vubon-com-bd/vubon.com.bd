@@ -1,2 +1,2 @@
-export * from './maps.client';
-export * from './maps.service';
+export * from './maps.client.js';
+export * from './maps.service.js';

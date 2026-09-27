@@ -1,10 +1,12 @@
 /**
  * ActivateUserHandler — Unit Tests
  */
-import { ActivateUserHandler } from './activate-user.handler';
-import { ActivateUserCommand } from './activate-user.command';
+import { jest } from '@jest/globals';
 
-const mockService = () => ({ activate: jest.fn() });
+import { ActivateUserHandler } from './activate-user.handler.js';
+import { ActivateUserCommand } from './activate-user.command.js';
+
+const mockService = () => ({ activate: jest.fn() as jest.Mock });
 
 describe('ActivateUserHandler', () => {
   let handler: ActivateUserHandler;

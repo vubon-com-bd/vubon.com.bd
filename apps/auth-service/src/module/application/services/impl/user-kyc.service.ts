@@ -5,16 +5,16 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { UserKycServiceInterface } from '../interfaces/user-kyc.service.interface';
-import type { UserKycRepository } from '../../../domain/repositories/user-kyc.repository.interface';
-import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
-import { UserKycEntity } from '../../../domain/entities/user-kyc.entity';
-import type { SubmitKycRequestDTO } from '../../dtos/requests/user/submit-kyc.dto';
-import type { VerifyKycRequestDTO } from '../../dtos/requests/user/verify-kyc.dto';
-import type { RejectKycRequestDTO } from '../../dtos/requests/user/reject-kyc.dto';
-import type { UserKycResponseDTO } from '../../dtos/responses/user-kyc-response.dto';
-import { ID_GENERATOR } from '../tokens';
-import { USER_KYC_REPO } from './user-kyc.service.tokens';
+import type { UserKycServiceInterface } from '../interfaces/user-kyc.service.interface.js';
+import type { UserKycRepository } from '../../../domain/repositories/user-kyc.repository.interface.js';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface.js';
+import { UserKycEntity } from '../../../domain/entities/user-kyc.entity.js';
+import type { SubmitKycRequestDTO } from '../../dtos/requests/user/submit-kyc.dto.js';
+import type { VerifyKycRequestDTO } from '../../dtos/requests/user/verify-kyc.dto.js';
+import type { RejectKycRequestDTO } from '../../dtos/requests/user/reject-kyc.dto.js';
+import type { UserKycResponseDTO } from '../../dtos/responses/user-kyc-response.dto.js';
+import { ID_GENERATOR } from '../tokens.js';
+import { USER_KYC_REPO } from './user-kyc.service.tokens.js';
 
 interface KycDocument {
   readonly type: string;

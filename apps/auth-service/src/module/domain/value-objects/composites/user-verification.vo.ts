@@ -3,9 +3,9 @@
  * @module auth-service/domain/value-objects/composites
  */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { VerificationTypeVO } from '../primitives/verification-type.vo';
-import { VerificationStatusVO } from '../primitives/verification-status.vo';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { VerificationTypeVO } from '../primitives/verification-type.vo.js';
+import { VerificationStatusVO } from '../primitives/verification-status.vo.js';
 
 export interface UserVerificationVOProps {
   readonly userId: UserIdVO;

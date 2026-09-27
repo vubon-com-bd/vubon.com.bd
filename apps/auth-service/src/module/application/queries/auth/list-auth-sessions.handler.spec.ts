@@ -1,11 +1,13 @@
 /**
  * ListAuthSessionsHandler — Unit Tests
  */
-import { ListAuthSessionsHandler } from './list-auth-sessions.handler';
-import { ListAuthSessionsQuery } from './list-auth-sessions.query';
-import { AuthSessionEntity } from '../../../domain/entities/auth-session.entity';
-import { SessionTokenVO } from '../../../domain/value-objects/primitives/session-token.vo';
-import { SessionExpiryVO } from '../../../domain/value-objects/primitives/session-expiry.vo';
+import { jest } from '@jest/globals';
+
+import { ListAuthSessionsHandler } from './list-auth-sessions.handler.js';
+import { ListAuthSessionsQuery } from './list-auth-sessions.query.js';
+import { AuthSessionEntity } from '../../../domain/entities/auth-session.entity.js';
+import { SessionTokenVO } from '../../../domain/value-objects/primitives/session-token.vo.js';
+import { SessionExpiryVO } from '../../../domain/value-objects/primitives/session-expiry.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();
@@ -22,7 +24,7 @@ const buildSession = (id: string) =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findActiveByUser: jest.fn() });
+const mockRepo = () => ({ findActiveByUser: jest.fn() as jest.Mock });
 
 describe('ListAuthSessionsHandler', () => {
   let handler: ListAuthSessionsHandler;

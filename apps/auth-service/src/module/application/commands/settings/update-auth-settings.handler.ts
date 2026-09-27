@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { UpdateAuthSettingsCommand } from './update-auth-settings.command';
-import type { AuthSettingsServiceInterface } from '../../services/interfaces/auth-settings.service.interface';
-import type { AuthSettingsResponseDTO } from '../../dtos/responses/auth-settings-response.dto';
-import { AUTH_SETTINGS_SERVICE } from '../../tokens';
+import { UpdateAuthSettingsCommand } from './update-auth-settings.command.js';
+import type { AuthSettingsServiceInterface } from '../../services/interfaces/auth-settings.service.interface.js';
+import type { AuthSettingsResponseDTO } from '../../dtos/responses/auth-settings-response.dto.js';
+import { AUTH_SETTINGS_SERVICE } from '../../tokens.js';
 
 @CommandHandler(UpdateAuthSettingsCommand)
 export class UpdateAuthSettingsHandler

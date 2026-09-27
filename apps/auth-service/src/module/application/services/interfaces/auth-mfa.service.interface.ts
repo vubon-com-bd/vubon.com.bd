@@ -4,14 +4,14 @@
  */
 import type { BaseServiceInterface } from '@vubon/shared-kernel/application/services/base.service.interface';
 import type { UserId } from '@vubon/shared-types/common';
-import type { AuthMfaEntity } from '../../../domain/entities/auth-mfa.entity';
-import type { EnableMfaRequestDTO } from '../../dtos/requests/auth/enable-mfa.dto';
-import type { DisableMfaRequestDTO } from '../../dtos/requests/auth/disable-mfa.dto';
-import type { VerifyMfaRequestDTO } from '../../dtos/requests/auth/verify-mfa.dto';
+import type { AuthMfaEntity } from '../../../domain/entities/auth-mfa.entity.js';
+import type { EnableMfaRequestDTO } from '../../dtos/requests/auth/enable-mfa.dto.js';
+import type { DisableMfaRequestDTO } from '../../dtos/requests/auth/disable-mfa.dto.js';
+import type { VerifyMfaRequestDTO } from '../../dtos/requests/auth/verify-mfa.dto.js';
 import type {
   MfaResponseDTO,
   MfaChallengeResponseDTO,
-} from '../../dtos/responses/mfa-response.dto';
+} from '../../dtos/responses/mfa-response.dto.js';
 
 export interface AuthMfaServiceInterface
   extends BaseServiceInterface<AuthMfaEntity, UserId> {

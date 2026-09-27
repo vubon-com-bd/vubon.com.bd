@@ -7,7 +7,7 @@
  */
 import { Injectable } from '@nestjs/common';
 import { createHmac, randomBytes } from 'node:crypto';
-import type { TotpServiceInterface } from '../../../application/services/interfaces/totp.service.interface';
+import type { TotpServiceInterface } from '../../../application/services/interfaces/totp.service.interface.js';
 
 const BASE32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 const DIGITS = 6;

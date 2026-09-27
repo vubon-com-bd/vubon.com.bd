@@ -2,17 +2,19 @@
  * LoginHandler — Unit Tests
  * @module auth-service/application/commands/auth
  */
-import { LoginHandler } from './login.handler';
-import { LoginCommand } from './login.command';
+import { jest } from '@jest/globals';
+
+import { LoginHandler } from './login.handler.js';
+import { LoginCommand } from './login.command.js';
 
 const mockAuthService = () => ({
   name: 'AuthService',
-  login: jest.fn(),
-  register: jest.fn(),
-  logout: jest.fn(),
-  forgotPassword: jest.fn(),
-  resetPassword: jest.fn(),
-  verifyEmail: jest.fn(),
+  login: jest.fn() as jest.Mock,
+  register: jest.fn() as jest.Mock,
+  logout: jest.fn() as jest.Mock,
+  forgotPassword: jest.fn() as jest.Mock,
+  resetPassword: jest.fn() as jest.Mock,
+  verifyEmail: jest.fn() as jest.Mock,
 });
 
 describe('LoginHandler', () => {

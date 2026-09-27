@@ -1,18 +1,40 @@
-import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
+/**
+ * ActivityType Value Object
+ */
+import { BaseTypeVO } from '@vubon/shared-kernel/domain/primitives/type.vo';
 import { USER_ACTIVITY } from '@vubon/shared-constants/user';
-import { InvalidActivityTypeError } from '../../errors/activity.errors';
 
-const VALID = new Set<string>(Object.values(USER_ACTIVITY as Record<string, string>));
+export type ActivityTypeType = (typeof USER_ACTIVITY)[keyof typeof USER_ACTIVITY];
 
-export class ActivityTypeVO extends BaseVO<string> {
-  private constructor(value: string) {
+const ACTIVITY_TYPE_VALUES: ReadonlySet<string> = new Set(Object.values(USER_ACTIVITY));
+
+export class ActivityTypeVO extends BaseTypeVO<ActivityTypeType> {
+  private constructor(value: ActivityTypeType) {
     super(value);
   }
 
+  protected static allowedValues(): ReadonlySet<string> {
+    return ACTIVITY_TYPE_VALUES;
+  }
+
   static create(raw: string): ActivityTypeVO {
-    if (VALID.size > 0 && !VALID.has(raw)) {
-      throw new InvalidActivityTypeError(raw);
+    if (typeof raw !== 'string') {
+      throw new Error('ActivityType must be a string');
     }
-    return new ActivityTypeVO(raw);
+    const normalized = raw.trim().toLowerCase();
+    if (!ACTIVITY_TYPE_VALUES.has(normalized)) {
+      throw new Error(
+        `Invalid activity type: "${raw}". Allowed: ${[...ACTIVITY_TYPE_VALUES].join(', ')}`
+      );
+    }
+    return new ActivityTypeVO(normalized as ActivityTypeType);
+  }
+
+  isAuthActivity(): boolean {
+    return (
+      this.value === USER_ACTIVITY.LOGIN ||
+      this.value === USER_ACTIVITY.LOGOUT ||
+      this.value === USER_ACTIVITY.REGISTER
+    );
   }
 }

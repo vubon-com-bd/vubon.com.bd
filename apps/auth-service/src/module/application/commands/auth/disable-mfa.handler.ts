@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { DisableMfaCommand } from './disable-mfa.command';
-import type { AuthMfaServiceInterface } from '../../services/interfaces/auth-mfa.service.interface';
-import { AUTH_MFA_SERVICE } from '../../tokens';
+import { DisableMfaCommand } from './disable-mfa.command.js';
+import type { AuthMfaServiceInterface } from '../../services/interfaces/auth-mfa.service.interface.js';
+import { AUTH_MFA_SERVICE } from '../../tokens.js';
 
 @CommandHandler(DisableMfaCommand)
 export class DisableMfaHandler

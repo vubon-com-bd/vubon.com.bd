@@ -5,12 +5,12 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { UserSettingsServiceInterface } from '../interfaces/user-settings.service.interface';
-import type { UserSettingsRepository } from '../../../domain/repositories/user-settings.repository.interface';
-import { UserSettingsEntity } from '../../../domain/entities/user-settings.entity';
-import type { UpdateSettingsRequestDTO } from '../../dtos/requests/user/update-settings.dto';
-import type { UserSettingsResponseDTO } from '../../dtos/responses/user-settings-response.dto';
-import { USER_SETTINGS_REPO } from '../../tokens';
+import type { UserSettingsServiceInterface } from '../interfaces/user-settings.service.interface.js';
+import type { UserSettingsRepository } from '../../../domain/repositories/user-settings.repository.interface.js';
+import { UserSettingsEntity } from '../../../domain/entities/user-settings.entity.js';
+import type { UpdateSettingsRequestDTO } from '../../dtos/requests/user/update-settings.dto.js';
+import type { UserSettingsResponseDTO } from '../../dtos/responses/user-settings-response.dto.js';
+import { USER_SETTINGS_REPO } from '../../tokens.js';
 
 @Injectable()
 export class UserSettingsService

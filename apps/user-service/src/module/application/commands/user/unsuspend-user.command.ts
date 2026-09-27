@@ -1,4 +1,7 @@
-import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
+/**
+ * UnsuspendUserCommand
+ */
+import { BaseCommand } from '@vubon/shared-kernel/application/commands';
 
 export class UnsuspendUserCommand extends BaseCommand {
   readonly type = 'user.unsuspend';

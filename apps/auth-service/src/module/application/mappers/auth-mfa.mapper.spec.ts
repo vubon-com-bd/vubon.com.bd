@@ -2,10 +2,10 @@
  * AuthMfaMapper — Unit Tests
  * @module auth-service/application/mappers
  */
-import { AuthMfaMapper } from './auth-mfa.mapper';
-import { AuthMfaEntity } from '../../domain/entities/auth-mfa.entity';
-import { MfaTypeVO } from '../../domain/value-objects/primitives/mfa-type.vo';
-import { MfaStatusVO } from '../../domain/value-objects/primitives/mfa-status.vo';
+import { AuthMfaMapper } from './auth-mfa.mapper.js';
+import { AuthMfaEntity } from '../../domain/entities/auth-mfa.entity.js';
+import { MfaTypeVO } from '../../domain/value-objects/primitives/mfa-type.vo.js';
+import { MfaStatusVO } from '../../domain/value-objects/primitives/mfa-status.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 

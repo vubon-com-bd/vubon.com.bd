@@ -1,11 +1,13 @@
 /**
  * GetAuthRecoveryCodesHandler — Unit Tests
  */
-import { GetAuthRecoveryCodesHandler } from './get-auth-recovery-codes.handler';
-import { GetAuthRecoveryCodesQuery } from './get-auth-recovery-codes.query';
-import { AuthRecoveryCodeEntity } from '../../../domain/entities/auth-recovery-code.entity';
-import { RecoveryCodeVO } from '../../../domain/value-objects/primitives/recovery-code.vo';
-import { RecoveryCodeStatusVO } from '../../../domain/value-objects/primitives/recovery-code-status.vo';
+import { jest } from '@jest/globals';
+
+import { GetAuthRecoveryCodesHandler } from './get-auth-recovery-codes.handler.js';
+import { GetAuthRecoveryCodesQuery } from './get-auth-recovery-codes.query.js';
+import { AuthRecoveryCodeEntity } from '../../../domain/entities/auth-recovery-code.entity.js';
+import { RecoveryCodeVO } from '../../../domain/value-objects/primitives/recovery-code.vo.js';
+import { RecoveryCodeStatusVO } from '../../../domain/value-objects/primitives/recovery-code-status.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -19,7 +21,7 @@ const buildCode = (id: string) =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findByUserId: jest.fn() });
+const mockRepo = () => ({ findByUserId: jest.fn() as jest.Mock });
 
 describe('GetAuthRecoveryCodesHandler', () => {
   let handler: GetAuthRecoveryCodesHandler;

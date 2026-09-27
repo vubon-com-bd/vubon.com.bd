@@ -2,7 +2,7 @@
  * UserIdVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { UserIdVO } from './user-id.vo';
+import { UserIdVO } from './user-id.vo.js';
 
 describe('UserIdVO', () => {
   describe('of()', () => {

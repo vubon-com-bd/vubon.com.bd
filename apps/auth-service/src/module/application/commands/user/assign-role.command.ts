@@ -1,5 +1,5 @@
 import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
-import type { AssignRoleRequestDTO } from '../../dtos/requests/user/assign-role.dto';
+import type { AssignRoleRequestDTO } from '../../dtos/requests/user/assign-role.dto.js';
 
 export class AssignRoleCommand extends BaseCommand {
   readonly type = 'user.assign-role';

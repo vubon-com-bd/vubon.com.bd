@@ -1,11 +1,11 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { GetAuthDeviceQuery } from './get-auth-device.query';
-import type { AuthDeviceRepository } from '../../../domain/repositories/auth-device.repository.interface';
-import type { AuthDeviceResponseDTO } from '../../dtos/responses/auth-device-response.dto';
-import { DeviceNotFoundError } from '../../../domain/errors/device.errors';
-import { AUTH_DEVICE_REPO } from '../../tokens';
+import { GetAuthDeviceQuery } from './get-auth-device.query.js';
+import type { AuthDeviceRepository } from '../../../domain/repositories/auth-device.repository.interface.js';
+import type { AuthDeviceResponseDTO } from '../../dtos/responses/auth-device-response.dto.js';
+import { DeviceNotFoundError } from '../../../domain/errors/device.errors.js';
+import { AUTH_DEVICE_REPO } from '../../tokens.js';
 
 @QueryHandler(GetAuthDeviceQuery)
 export class GetAuthDeviceHandler

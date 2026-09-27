@@ -2,8 +2,8 @@
  * UserKycVO — Unit Tests
  * @module auth-service/domain/value-objects/composites
  */
-import { UserKycVO } from './user-kyc.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
+import { UserKycVO } from './user-kyc.vo.js';
+import { UserIdVO } from '../primitives/user-id.vo.js';
 
 describe('UserKycVO', () => {
   const userId = UserIdVO.of('user-1');

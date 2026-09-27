@@ -1,11 +1,11 @@
 // shared-kernel/application/index.ts
 // Application layer barrel export
 
-export * from './dtos';
-export * from './services';
-export * from './commands';
-export * from './queries';
-export * from './sagas';
-export * from './events';
-export * from './errors';
-export * from './mappers';
+export * from './dtos/index.js';
+export * from './services/index.js';
+export * from './commands/index.js';
+export * from './queries/index.js';
+export * from './sagas/index.js';
+export * from './events/index.js';
+export * from './errors/index.js';
+export * from './mappers/index.js';

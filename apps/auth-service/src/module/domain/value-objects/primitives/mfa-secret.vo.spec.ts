@@ -2,8 +2,8 @@
  * MfaSecretVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { MfaSecretVO } from './mfa-secret.vo';
-import { MfaInvalidError } from '../../errors/mfa.errors';
+import { MfaSecretVO } from './mfa-secret.vo.js';
+import { MfaInvalidError } from '../../errors/mfa.errors.js';
 
 describe('MfaSecretVO', () => {
   const VALID_SECRET = 'JBSWY3DPEHPK3PXP'; // 16 chars base32

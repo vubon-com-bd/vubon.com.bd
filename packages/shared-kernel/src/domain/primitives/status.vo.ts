@@ -1,5 +1,5 @@
 import { STATUS } from '@vubon/shared-constants/common';
-import { BaseVO } from '../base/base.vo';
+import { BaseVO } from '../base/base.vo.js';
 
 export type StatusValue = (typeof STATUS)[keyof typeof STATUS];
 

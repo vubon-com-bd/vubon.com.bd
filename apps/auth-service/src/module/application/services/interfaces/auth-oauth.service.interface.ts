@@ -4,7 +4,7 @@
  */
 import type { BaseServiceInterface } from '@vubon/shared-kernel/application/services/base.service.interface';
 import type { UserId } from '@vubon/shared-types/common';
-import type { AuthOAuthEntity } from '../../../domain/entities/auth-oauth.entity';
+import type { AuthOAuthEntity } from '../../../domain/entities/auth-oauth.entity.js';
 
 export interface AuthOAuthServiceInterface
   extends BaseServiceInterface<AuthOAuthEntity, string> {

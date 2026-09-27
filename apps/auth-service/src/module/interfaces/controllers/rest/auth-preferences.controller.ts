@@ -14,9 +14,9 @@ import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
 import type { UserId } from '@vubon/shared-types/common';
 
-import { GetUserPreferencesQuery } from '../../../application/queries/user/get-user-preferences.query';
-import { UpdateAuthPreferencesCommand } from '../../../application/commands/settings/update-auth-preferences.command';
-import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
+import { GetUserPreferencesQuery } from '../../../application/queries/user/get-user-preferences.query.js';
+import { UpdateAuthPreferencesCommand } from '../../../application/commands/settings/update-auth-preferences.command.js';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator.js';
 
 @ApiTags('Auth Preferences')
 @Controller('auth/preferences')

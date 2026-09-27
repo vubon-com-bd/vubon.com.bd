@@ -3,7 +3,7 @@
  * @module shared-kernel/infrastructure/external/sms
  */
 import { Injectable } from '@nestjs/common';
-import type { SmsMessageInput, SmsSendResult } from './sms.client';
+import type { SmsMessageInput, SmsSendResult } from './sms.client.js';
 
 @Injectable()
 export class SmsService {

@@ -2,7 +2,7 @@
  * RecoveryCodeGeneratorService — Unit Tests
  * @module auth-service/infrastructure/services/internal
  */
-import { RecoveryCodeGeneratorService } from './recovery-code-generator.service';
+import { RecoveryCodeGeneratorService } from './recovery-code-generator.service.js';
 
 describe('RecoveryCodeGeneratorService', () => {
   let service: RecoveryCodeGeneratorService;

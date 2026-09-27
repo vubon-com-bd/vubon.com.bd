@@ -1,9 +1,11 @@
 /**
  * GetUserSettingsHandler — Unit Tests
  */
-import { GetUserSettingsHandler } from './get-user-settings.handler';
-import { GetUserSettingsQuery } from './get-user-settings.query';
-import { UserSettingsEntity } from '../../../domain/entities/user-settings.entity';
+import { jest } from '@jest/globals';
+
+import { GetUserSettingsHandler } from './get-user-settings.handler.js';
+import { GetUserSettingsQuery } from './get-user-settings.query.js';
+import { UserSettingsEntity } from '../../../domain/entities/user-settings.entity.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -22,7 +24,7 @@ const buildSettings = () =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findByUserId: jest.fn() });
+const mockRepo = () => ({ findByUserId: jest.fn() as jest.Mock });
 
 describe('GetUserSettingsHandler', () => {
   let handler: GetUserSettingsHandler;

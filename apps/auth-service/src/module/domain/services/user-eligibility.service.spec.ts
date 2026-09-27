@@ -2,14 +2,14 @@
  * UserEligibilityService — Unit Tests
  * @module auth-service/domain/services
  */
-import { UserEligibilityService } from './user-eligibility.service';
-import { UserEntity } from '../entities/user.entity';
-import { UserEmailVO } from '../value-objects/primitives/user-email.vo';
-import { UserNameVO } from '../value-objects/primitives/user-name.vo';
-import { UserStatusVO } from '../value-objects/primitives/user-status.vo';
-import { UserTypeVO } from '../value-objects/primitives/user-type.vo';
-import { UserRoleVO } from '../value-objects/primitives/user-role.vo';
-import { UserNotActiveError } from '../errors/user.errors';
+import { UserEligibilityService } from './user-eligibility.service.js';
+import { UserEntity } from '../entities/user.entity.js';
+import { UserEmailVO } from '../value-objects/primitives/user-email.vo.js';
+import { UserNameVO } from '../value-objects/primitives/user-name.vo.js';
+import { UserStatusVO } from '../value-objects/primitives/user-status.vo.js';
+import { UserTypeVO } from '../value-objects/primitives/user-type.vo.js';
+import { UserRoleVO } from '../value-objects/primitives/user-role.vo.js';
+import { UserNotActiveError } from '../errors/user.errors.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();

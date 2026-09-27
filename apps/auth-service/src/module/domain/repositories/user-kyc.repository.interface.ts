@@ -4,7 +4,7 @@
  */
 import { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
 import type { UserId } from '@vubon/shared-types/common';
-import { UserKycEntity } from '../entities/user-kyc.entity';
+import { UserKycEntity } from '../entities/user-kyc.entity.js';
 
 export interface UserKycRepository extends BaseRepository<UserKycEntity, string> {
   findByUserId(userId: UserId): Promise<UserKycEntity | null>;

@@ -12,8 +12,8 @@ import { Reflector } from '@nestjs/core';
 import {
   VERIFIED_REQUIRED_KEY,
   type VerificationChannel,
-} from '../decorators/verified-required.decorator';
-import type { AuthenticatedUser } from '../decorators/current-user.decorator';
+} from '../decorators/verified-required.decorator.js';
+import type { AuthenticatedUser } from '../decorators/current-user.decorator.js';
 
 interface RequestWithVerifiedUser {
   user?: AuthenticatedUser & {

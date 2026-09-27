@@ -7,7 +7,7 @@ import { QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
 
-import { ListAuthPermissionsQuery } from '../../../application/queries/auth/list-auth-permissions.query';
+import { ListAuthPermissionsQuery } from '../../../application/queries/auth/list-auth-permissions.query.js';
 
 @ApiTags('Auth Permissions')
 @Controller('auth/permissions')

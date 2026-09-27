@@ -2,7 +2,7 @@ import {
   AUTH_TOKEN_REPO,
   TOKEN_SIGNER,
   ID_GENERATOR,
-} from '../tokens';
+} from '../tokens.js';
 
 /**
  * AuthTokenService — Token generation, verification, refresh
@@ -13,22 +13,22 @@ import { BaseService } from '@vubon/shared-kernel/application/services/base.serv
 import type {
   AuthTokenServiceInterface,
   TokenPurpose,
-} from '../interfaces/auth-token.service.interface';
-import type { AuthTokenRepository } from '../../../domain/repositories/auth-token.repository.interface';
-import type { TokenSignerServiceInterface } from '../interfaces/token-signer.service.interface';
-import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
-import { AuthTokenEntity } from '../../../domain/entities/auth-token.entity';
-import { TokenValueVO } from '../../../domain/value-objects/primitives/token-value.vo';
-import { TokenTypeVO } from '../../../domain/value-objects/primitives/token-type.vo';
+} from '../interfaces/auth-token.service.interface.js';
+import type { AuthTokenRepository } from '../../../domain/repositories/auth-token.repository.interface.js';
+import type { TokenSignerServiceInterface } from '../interfaces/token-signer.service.interface.js';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface.js';
+import { AuthTokenEntity } from '../../../domain/entities/auth-token.entity.js';
+import { TokenValueVO } from '../../../domain/value-objects/primitives/token-value.vo.js';
+import { TokenTypeVO } from '../../../domain/value-objects/primitives/token-type.vo.js';
 import {
   TokenExpiryVO,
   type TokenTypeHint,
-} from '../../../domain/value-objects/primitives/token-expiry.vo';
+} from '../../../domain/value-objects/primitives/token-expiry.vo.js';
 import {
   TokenExpiredAppError,
   TokenInvalidAppError,
-} from '../../errors/token.errors';
-import type { AuthTokenResponseDTO } from '../../dtos/responses/auth-token-response.dto';
+} from '../../errors/token.errors.js';
+import type { AuthTokenResponseDTO } from '../../dtos/responses/auth-token-response.dto.js';
 
 
 @Injectable()

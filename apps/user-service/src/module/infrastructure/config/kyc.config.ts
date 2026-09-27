@@ -1,14 +1,13 @@
-import { getOptionalEnvInt } from '@vubon/shared-config/common';
+/**
+ * KYC Config
+ */
+import { USER_KYC } from '@vubon/shared-constants/user';
 
 export const KYC_CONFIG = Object.freeze({
-  documentExpiryDays: getOptionalEnvInt('KYC_DOCUMENT_EXPIRY_DAYS', 365),
-  reviewTtlHours: getOptionalEnvInt('KYC_REVIEW_TTL_HOURS', 72),
-  maxRetryAttempts: getOptionalEnvInt('KYC_MAX_RETRY', 3),
-  allowedDocuments: Object.freeze([
-    'national_id',
-    'passport',
-    'driving_license',
-    'birth_certificate',
-  ] as const),
-  minAge: 18,
+  maxDocumentSizeMB: USER_KYC.MAX_DOCUMENT_SIZE_MB,
+  maxDocuments: USER_KYC.MAX_DOCUMENTS,
+  reviewSlaHours: USER_KYC.REVIEW_SLA_HOURS,
+  expiryDays: USER_KYC.EXPIRY_DAYS,
 } as const);
+
+export type KycConfig = typeof KYC_CONFIG;

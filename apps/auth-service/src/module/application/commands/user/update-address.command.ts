@@ -1,5 +1,5 @@
 import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
-import type { UpdateAddressRequestDTO } from '../../dtos/requests/user/update-address.dto';
+import type { UpdateAddressRequestDTO } from '../../dtos/requests/user/update-address.dto.js';
 
 export class UpdateAddressCommand extends BaseCommand {
   readonly type = 'user.update-address';

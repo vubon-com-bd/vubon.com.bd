@@ -1,10 +1,10 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { ListAuthLoginAttemptsQuery } from './list-auth-login-attempts.query';
-import type { AuthLoginAttemptRepository } from '../../../domain/repositories/auth-login-attempt.repository.interface';
-import type { AuthLoginAttemptResponseDTO } from '../../dtos/responses/auth-login-attempt-response.dto';
-import { AUTH_LOGIN_ATTEMPT_REPO } from '../../tokens';
+import { ListAuthLoginAttemptsQuery } from './list-auth-login-attempts.query.js';
+import type { AuthLoginAttemptRepository } from '../../../domain/repositories/auth-login-attempt.repository.interface.js';
+import type { AuthLoginAttemptResponseDTO } from '../../dtos/responses/auth-login-attempt-response.dto.js';
+import { AUTH_LOGIN_ATTEMPT_REPO } from '../../tokens.js';
 
 @QueryHandler(ListAuthLoginAttemptsQuery)
 export class ListAuthLoginAttemptsHandler

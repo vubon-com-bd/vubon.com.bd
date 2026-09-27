@@ -1,12 +1,14 @@
 /**
  * SsoCallbackHandler — Unit Tests
  */
-import { SsoCallbackHandler } from './sso-callback.handler';
-import { SsoCallbackCommand } from './sso-callback.command';
+import { jest } from '@jest/globals';
+
+import { SsoCallbackHandler } from './sso-callback.handler.js';
+import { SsoCallbackCommand } from './sso-callback.command.js';
 
 const mockSsoService = () => ({
   name: 'AuthSsoService',
-  handleCallback: jest.fn(),
+  handleCallback: jest.fn() as jest.Mock,
 });
 
 describe('SsoCallbackHandler', () => {

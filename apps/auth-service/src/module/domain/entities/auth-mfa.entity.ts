@@ -4,10 +4,10 @@
  */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
 import type { UserId } from '@vubon/shared-types/common';
-import { MfaSecretVO } from '../value-objects/primitives/mfa-secret.vo';
-import { MfaTypeVO } from '../value-objects/primitives/mfa-type.vo';
-import { MfaStatusVO } from '../value-objects/primitives/mfa-status.vo';
-import { MfaAlreadyEnabledError } from '../errors/mfa.errors';
+import { MfaSecretVO } from '../value-objects/primitives/mfa-secret.vo.js';
+import { MfaTypeVO } from '../value-objects/primitives/mfa-type.vo.js';
+import { MfaStatusVO } from '../value-objects/primitives/mfa-status.vo.js';
+import { MfaAlreadyEnabledError } from '../errors/mfa.errors.js';
 
 export interface AuthMfaEntityProps {
   readonly id: string;

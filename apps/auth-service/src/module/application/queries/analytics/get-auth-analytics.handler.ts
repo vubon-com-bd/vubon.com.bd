@@ -1,7 +1,7 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { GetAuthAnalyticsQuery } from './get-auth-analytics.query';
-import type { AuthAnalyticsResponseDTO } from '../../dtos/responses/auth-analytics-response.dto';
+import { GetAuthAnalyticsQuery } from './get-auth-analytics.query.js';
+import type { AuthAnalyticsResponseDTO } from '../../dtos/responses/auth-analytics-response.dto.js';
 
 @QueryHandler(GetAuthAnalyticsQuery)
 export class GetAuthAnalyticsHandler

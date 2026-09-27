@@ -5,7 +5,7 @@
 import { Injectable } from '@nestjs/common';
 import { REGEX } from '@vubon/shared-constants/common';
 import { VALIDATION } from '@vubon/shared-constants/common';
-import { WeakPasswordError } from '../../../domain/errors/password.errors';
+import { WeakPasswordError } from '../../../domain/errors/password.errors.js';
 
 const COMMON_WEAK = new Set<string>([
   'password', 'password1', 'password123', '12345678', '123456789',

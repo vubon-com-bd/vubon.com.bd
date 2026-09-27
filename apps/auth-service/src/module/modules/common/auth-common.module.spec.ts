@@ -6,7 +6,7 @@
  * These tests verify the module class exists and is exported.
  */
 import 'reflect-metadata';
-import { AuthCommonModule } from './auth-common.module';
+import { AuthCommonModule } from './auth-common.module.js';
 
 describe('AuthCommonModule', () => {
   it('should be a valid class', () => {

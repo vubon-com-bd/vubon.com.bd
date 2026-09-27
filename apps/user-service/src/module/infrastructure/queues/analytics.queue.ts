@@ -1,22 +1,34 @@
+/**
+ * Analytics Queue
+ */
 import { Injectable } from '@nestjs/common';
-import { QueueService } from '@vubon/shared-kernel/infrastructure';
 import { QUEUE_NAME, QUEUE_PRIORITY } from '@vubon/shared-constants/infrastructure';
+import { QueueService } from '@vubon/shared-kernel/infrastructure';
 
-export interface TrackEventJobPayload {
-  readonly eventType: string;
+export interface AnalyticsJobPayload {
   readonly userId: string;
-  readonly metadata?: Readonly<Record<string, unknown>>;
+  readonly eventName: string;
+  readonly metadata: Readonly<Record<string, unknown>>;
 }
 
 @Injectable()
 export class AnalyticsQueue {
-  readonly queueName = QUEUE_NAME.ANALYTICS;
+  static readonly name = QUEUE_NAME.ANALYTICS;
 
-  constructor(private readonly queueService: QueueService) {}
+  constructor(private readonly queues: QueueService) {}
 
-  async enqueueTrack(payload: TrackEventJobPayload): Promise<string> {
-    return this.queueService.enqueue(this.queueName, 'track-event', payload, {
-      priority: QUEUE_PRIORITY.BACKGROUND,
-    });
+  async enqueue(payload: AnalyticsJobPayload): Promise<void> {
+    await this.queues.enqueue(
+      AnalyticsQueue.name,
+      'analytics.process',
+      {
+        userId: payload.userId,
+        eventName: payload.eventName,
+        metadata: payload.metadata as Record<string, unknown>,
+      },
+      {
+        priority: QUEUE_PRIORITY.BACKGROUND,
+      }
+    );
   }
 }

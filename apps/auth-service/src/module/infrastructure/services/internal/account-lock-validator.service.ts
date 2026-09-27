@@ -3,8 +3,8 @@
  * @module auth-service/infrastructure/services/internal
  */
 import { Injectable } from '@nestjs/common';
-import { AuthAccountLockEntity } from '../../../domain/entities/auth-account-lock.entity';
-import { AccountLockedError } from '../../../domain/errors/account-lock.errors';
+import { AuthAccountLockEntity } from '../../../domain/entities/auth-account-lock.entity.js';
+import { AccountLockedError } from '../../../domain/errors/account-lock.errors.js';
 
 @Injectable()
 export class AccountLockValidatorService {

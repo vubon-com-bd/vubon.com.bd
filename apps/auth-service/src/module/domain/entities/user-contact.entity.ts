@@ -4,8 +4,8 @@
  */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
 import type { UserId } from '@vubon/shared-types/common';
-import { UserEmailVO } from '../value-objects/primitives/user-email.vo';
-import { UserPhoneVO } from '../value-objects/primitives/user-phone.vo';
+import { UserEmailVO } from '../value-objects/primitives/user-email.vo.js';
+import { UserPhoneVO } from '../value-objects/primitives/user-phone.vo.js';
 
 export interface UserContactEntityProps {
   readonly id: string;

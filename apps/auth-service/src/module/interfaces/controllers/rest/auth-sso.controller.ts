@@ -9,12 +9,12 @@ import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
 import { Public } from '@vubon/shared-kernel/interfaces';
 
-import { SsoLoginCommand } from '../../../application/commands/auth/sso-login.command';
-import { SsoCallbackCommand } from '../../../application/commands/auth/sso-callback.command';
+import { SsoLoginCommand } from '../../../application/commands/auth/sso-login.command.js';
+import { SsoCallbackCommand } from '../../../application/commands/auth/sso-callback.command.js';
 import {
   SsoLoginRequestDTO,
   SsoCallbackRequestDTO,
-} from '../../dtos/requests/sso.request.dto';
+} from '../../dtos/requests/sso.request.dto.js';
 
 @ApiTags('Auth SSO')
 @Controller('auth/sso')

@@ -1,12 +1,14 @@
 /**
  * UpdateUserHandler — Unit Tests
  */
-import { UpdateUserHandler } from './update-user.handler';
-import { UpdateUserCommand } from './update-user.command';
+import { jest } from '@jest/globals';
+
+import { UpdateUserHandler } from './update-user.handler.js';
+import { UpdateUserCommand } from './update-user.command.js';
 
 const mockUserService = () => ({
-  update: jest.fn(),
-  toResponse: jest.fn(),
+  update: jest.fn() as jest.Mock,
+  toResponse: jest.fn() as jest.Mock,
 });
 
 describe('UpdateUserHandler', () => {

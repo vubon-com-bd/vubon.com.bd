@@ -2,7 +2,7 @@
  * UserControllerMapper — Unit Tests
  * @module auth-service/interfaces/mappers
  */
-import { UserControllerMapper } from './user.controller.mapper';
+import { UserControllerMapper } from './user.controller.mapper.js';
 
 const buildAppDto = () => ({
   id: 'user-1',

@@ -2,10 +2,10 @@
  * UserContactVO — Unit Tests
  * @module auth-service/domain/value-objects/composites
  */
-import { UserContactVO } from './user-contact.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { UserEmailVO } from '../primitives/user-email.vo';
-import { UserPhoneVO } from '../primitives/user-phone.vo';
+import { UserContactVO } from './user-contact.vo.js';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { UserEmailVO } from '../primitives/user-email.vo.js';
+import { UserPhoneVO } from '../primitives/user-phone.vo.js';
 
 describe('UserContactVO', () => {
   const userId = UserIdVO.of('user-1');

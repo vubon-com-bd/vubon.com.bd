@@ -1,7 +1,10 @@
-import { BaseQuery } from '@vubon/shared-kernel/application/queries/base.query';
+/**
+ * ListContactsQuery
+ */
+import { BaseQuery } from '@vubon/shared-kernel/application/queries';
 
 export class ListContactsQuery extends BaseQuery {
-  readonly type = 'user.contact.list';
+  readonly type = 'contact.list';
 
   constructor(public readonly userId: string) {
     super();

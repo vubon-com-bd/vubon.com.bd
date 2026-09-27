@@ -2,7 +2,7 @@
  * RegisterResponseDTO
  * @module auth-service/application/dtos/responses
  */
-import type { UserResponseDTO } from './user-response.dto';
+import type { UserResponseDTO } from './user-response.dto.js';
 
 export interface RegisterResponseDTO {
   readonly user: UserResponseDTO;

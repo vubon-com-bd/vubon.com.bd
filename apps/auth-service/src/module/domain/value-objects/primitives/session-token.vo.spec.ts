@@ -2,8 +2,8 @@
  * SessionTokenVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { SessionTokenVO } from './session-token.vo';
-import { InvalidTokenError } from '../../errors/token.errors';
+import { SessionTokenVO } from './session-token.vo.js';
+import { InvalidTokenError } from '../../errors/token.errors.js';
 
 describe('SessionTokenVO', () => {
   const VALID_TOKEN = 'a'.repeat(32);

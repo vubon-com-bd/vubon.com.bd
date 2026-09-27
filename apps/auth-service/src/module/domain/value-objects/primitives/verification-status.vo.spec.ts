@@ -2,7 +2,7 @@
  * VerificationStatusVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { VerificationStatusVO } from './verification-status.vo';
+import { VerificationStatusVO } from './verification-status.vo.js';
 
 describe('VerificationStatusVO', () => {
   describe('of()', () => {

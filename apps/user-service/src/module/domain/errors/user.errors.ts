@@ -1,106 +1,48 @@
-import { ERROR_CODE, type ErrorCodeType } from '@vubon/shared-constants/common';
-import { DomainError } from '@vubon/shared-kernel/domain/errors/domain.error';
+/**
+ * User domain errors
+ * @module user-service/domain/errors
+ */
+import { NotFoundError } from '@vubon/shared-kernel/domain/errors/not-found.error';
+import { ConflictError } from '@vubon/shared-kernel/domain/errors/conflict.error';
+import { BusinessRuleError } from '@vubon/shared-kernel/domain/errors/business-rule.error';
 
-export class UserNotFoundError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.USER_NOT_FOUND;
-  readonly httpStatus = 404;
+export class UserNotFoundError extends NotFoundError {
   constructor(userId: string) {
-    super(`User not found: ${userId}`, { userId });
+    super('User', userId);
+    this.name = 'UserNotFoundError';
   }
 }
 
-export class UserAlreadyExistsError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.USER_ALREADY_EXISTS;
-  readonly httpStatus = 409;
+export class UserAlreadyExistsError extends ConflictError {
   constructor(email: string) {
-    super(`User already exists: ${email}`, { email });
+    super(`User already exists with email "${email}"`, 'email');
+    this.name = 'UserAlreadyExistsError';
   }
 }
 
-export class InvalidUserStatusError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.VAL_INVALID_FORMAT;
-  readonly httpStatus = 400;
-  constructor(status: string) {
-    super(`Invalid user status: ${status}`, { status });
+export class InvalidUserStatusError extends BusinessRuleError {
+  constructor(current: string, attempted: string) {
+    super(
+      `Cannot transition user status from "${current}" to "${attempted}"`,
+      'USER_STATUS_TRANSITION'
+    );
+    this.name = 'InvalidUserStatusError';
   }
 }
 
-export class UserSuspendedError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.USER_INACTIVE;
-  readonly httpStatus = 403;
+export class UserSuspendedError extends BusinessRuleError {
+  constructor(userId: string, reason?: string) {
+    super(
+      `User "${userId}" is suspended${reason ? `: ${reason}` : ''}`,
+      'USER_SUSPENDED'
+    );
+    this.name = 'UserSuspendedError';
+  }
+}
+
+export class UserDeletedError extends BusinessRuleError {
   constructor(userId: string) {
-    super(`User suspended: ${userId}`, { userId });
-  }
-}
-
-export class InvalidUserIdError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.VAL_REQUIRED;
-  readonly httpStatus = 400;
-  constructor(reason: string) {
-    super(`Invalid user ID: ${reason}`, { reason });
-  }
-}
-
-export class InvalidUserNameError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.AUTH_INVALID_NAME;
-  readonly httpStatus = 400;
-  constructor(reason: string) {
-    super(`Invalid user name: ${reason}`, { reason });
-  }
-}
-
-export class InvalidUserPhoneError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.AUTH_INVALID_PHONE;
-  readonly httpStatus = 400;
-  constructor(phone: string) {
-    super(`Invalid phone: ${phone}`, { phone });
-  }
-}
-
-export class InvalidUserTypeError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.AUTH_INVALID_TYPE;
-  readonly httpStatus = 400;
-  constructor(type: string) {
-    super(`Invalid user type: ${type}`, { type });
-  }
-}
-
-export class InvalidUserGenderError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.VAL_INVALID_FORMAT;
-  readonly httpStatus = 400;
-  constructor(gender: string) {
-    super(`Invalid gender: ${gender}`, { gender });
-  }
-}
-
-export class InvalidUserLanguageError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.VAL_INVALID_FORMAT;
-  readonly httpStatus = 400;
-  constructor(language: string) {
-    super(`Invalid language: ${language}`, { language });
-  }
-}
-
-export class InvalidUserTimezoneError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.VAL_INVALID_FORMAT;
-  readonly httpStatus = 400;
-  constructor(timezone: string) {
-    super(`Invalid timezone: ${timezone}`, { timezone });
-  }
-}
-
-export class InvalidUserAvatarError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.VAL_INVALID_FORMAT;
-  readonly httpStatus = 400;
-  constructor(url: string) {
-    super(`Invalid avatar URL: ${url}`, { url });
-  }
-}
-
-export class InvalidUserBioError extends DomainError {
-  readonly code: ErrorCodeType = ERROR_CODE.VAL_OUT_OF_RANGE;
-  readonly httpStatus = 400;
-  constructor(reason: string) {
-    super(`Invalid bio: ${reason}`, { reason });
+    super(`User "${userId}" has been deleted`, 'USER_DELETED');
+    this.name = 'UserDeletedError';
   }
 }

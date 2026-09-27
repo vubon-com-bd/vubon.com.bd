@@ -10,7 +10,7 @@ import {
   PublicGuard,
   RateLimitGuard,
   RolesGuard,
-} from '../../interfaces/guards';
+} from '../../interfaces/guards/index.js';
 
 @Global()
 @Module({

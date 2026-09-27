@@ -1,5 +1,5 @@
 import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
-import type { RevokePermissionRequestDTO } from '../../dtos/requests/user/revoke-permission.dto';
+import type { RevokePermissionRequestDTO } from '../../dtos/requests/user/revoke-permission.dto.js';
 
 export class RevokePermissionCommand extends BaseCommand {
   readonly type = 'user.revoke-permission';

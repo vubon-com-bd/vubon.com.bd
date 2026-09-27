@@ -2,13 +2,13 @@
  * CanResetPasswordSpecification — Unit Tests
  * @module auth-service/domain/specifications
  */
-import { CanResetPasswordSpecification } from './can-reset-password.specification';
-import { UserEntity } from '../entities/user.entity';
-import { UserEmailVO } from '../value-objects/primitives/user-email.vo';
-import { UserNameVO } from '../value-objects/primitives/user-name.vo';
-import { UserStatusVO } from '../value-objects/primitives/user-status.vo';
-import { UserTypeVO } from '../value-objects/primitives/user-type.vo';
-import { UserRoleVO } from '../value-objects/primitives/user-role.vo';
+import { CanResetPasswordSpecification } from './can-reset-password.specification.js';
+import { UserEntity } from '../entities/user.entity.js';
+import { UserEmailVO } from '../value-objects/primitives/user-email.vo.js';
+import { UserNameVO } from '../value-objects/primitives/user-name.vo.js';
+import { UserStatusVO } from '../value-objects/primitives/user-status.vo.js';
+import { UserTypeVO } from '../value-objects/primitives/user-type.vo.js';
+import { UserRoleVO } from '../value-objects/primitives/user-role.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();

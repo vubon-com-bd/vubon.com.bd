@@ -5,7 +5,7 @@
  * Values আসে shared-constants/common থেকে।
  */
 import { VALIDATION } from '@vubon/shared-constants/common';
-import { BaseVO } from '../base/base.vo';
+import { BaseVO } from '../base/base.vo.js';
 
 /**
  * Base Quantity VO — abstract, extend করার জন্য।

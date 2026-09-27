@@ -2,8 +2,8 @@
  * MfaStatusVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { MfaStatusVO } from './mfa-status.vo';
-import { MfaInvalidError } from '../../errors/mfa.errors';
+import { MfaStatusVO } from './mfa-status.vo.js';
+import { MfaInvalidError } from '../../errors/mfa.errors.js';
 
 describe('MfaStatusVO', () => {
   describe('of()', () => {

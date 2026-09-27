@@ -2,7 +2,7 @@
  * RecoveryCodeStatusVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { RecoveryCodeStatusVO } from './recovery-code-status.vo';
+import { RecoveryCodeStatusVO } from './recovery-code-status.vo.js';
 
 describe('RecoveryCodeStatusVO', () => {
   describe('of()', () => {

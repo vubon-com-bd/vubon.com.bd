@@ -3,7 +3,7 @@
  * @module auth-service/domain/value-objects/primitives
  */
 import { BaseStatusVO } from '@vubon/shared-kernel/domain/primitives/status.vo';
-import { MfaInvalidError } from '../../errors/mfa.errors';
+import { MfaInvalidError } from '../../errors/mfa.errors.js';
 
 export type MfaStatusValue = 'disabled' | 'pending' | 'enabled' | 'suspended';
 

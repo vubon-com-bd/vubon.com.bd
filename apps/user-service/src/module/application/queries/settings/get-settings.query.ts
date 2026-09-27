@@ -1,7 +1,10 @@
-import { BaseQuery } from '@vubon/shared-kernel/application/queries/base.query';
+/**
+ * GetSettingsQuery
+ */
+import { BaseQuery } from '@vubon/shared-kernel/application/queries';
 
 export class GetSettingsQuery extends BaseQuery {
-  readonly type = 'user.settings.get';
+  readonly type = 'settings.get';
 
   constructor(public readonly userId: string) {
     super();

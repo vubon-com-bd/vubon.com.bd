@@ -5,13 +5,13 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { AuthOAuthServiceInterface } from '../interfaces/auth-oauth.service.interface';
-import type { AuthOAuthRepository } from '../../../domain/repositories/auth-oauth.repository.interface';
-import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
-import { AuthOAuthEntity } from '../../../domain/entities/auth-oauth.entity';
-import { OAuthFailedAppError } from '../../errors/oauth.errors';
-import { ID_GENERATOR } from '../tokens';
-import { AUTH_OAUTH_REPO } from '../../tokens';
+import type { AuthOAuthServiceInterface } from '../interfaces/auth-oauth.service.interface.js';
+import type { AuthOAuthRepository } from '../../../domain/repositories/auth-oauth.repository.interface.js';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface.js';
+import { AuthOAuthEntity } from '../../../domain/entities/auth-oauth.entity.js';
+import { OAuthFailedAppError } from '../../errors/oauth.errors.js';
+import { ID_GENERATOR } from '../tokens.js';
+import { AUTH_OAUTH_REPO } from '../../tokens.js';
 
 @Injectable()
 export class AuthOAuthService

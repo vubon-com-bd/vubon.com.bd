@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { Auth2FaController } from './auth-2fa.controller';
+import { Auth2FaController } from './auth-2fa.controller.js';
 
 describe('Auth2FaController', () => {
   let controller: Auth2FaController;

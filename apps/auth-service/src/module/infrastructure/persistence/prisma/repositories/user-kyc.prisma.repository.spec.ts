@@ -1,16 +1,18 @@
 /**
  * UserKycPrismaRepository — Unit Tests
  */
-import { UserKycPrismaRepository } from './user-kyc.prisma.repository';
+import { jest } from '@jest/globals';
+
+import { UserKycPrismaRepository } from './user-kyc.prisma.repository.js';
 
 const mockPrisma = () => ({
   userKyc: {
-    findUnique: jest.fn(),
-    findFirst: jest.fn(),
-    findMany: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
+    findUnique: jest.fn() as jest.Mock,
+    findFirst: jest.fn() as jest.Mock,
+    findMany: jest.fn() as jest.Mock,
+    create: jest.fn() as jest.Mock,
+    update: jest.fn() as jest.Mock,
+    delete: jest.fn() as jest.Mock,
   },
 });
 

@@ -2,12 +2,14 @@
  * RegisterHandler — Unit Tests
  * @module auth-service/application/commands/auth
  */
-import { RegisterHandler } from './register.handler';
-import { RegisterCommand } from './register.command';
+import { jest } from '@jest/globals';
+
+import { RegisterHandler } from './register.handler.js';
+import { RegisterCommand } from './register.command.js';
 
 const mockAuthService = () => ({
   name: 'AuthService',
-  register: jest.fn(),
+  register: jest.fn() as jest.Mock,
 });
 
 describe('RegisterHandler', () => {

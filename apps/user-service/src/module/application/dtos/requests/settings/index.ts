@@ -1,2 +1,3 @@
-export type { UpdateSettingsRequestDTO } from './update-settings.dto';
-export type { ResetSettingsRequestDTO } from './reset-settings.dto';
+// requests/settings/index.ts
+export * from './update-settings.dto.js';
+export * from './reset-settings.dto.js';

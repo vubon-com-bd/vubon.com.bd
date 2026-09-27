@@ -2,10 +2,10 @@
  * AuthTokenEntity — Unit Tests
  * @module auth-service/domain/entities
  */
-import { AuthTokenEntity } from './auth-token.entity';
-import { TokenValueVO } from '../value-objects/primitives/token-value.vo';
-import { TokenTypeVO } from '../value-objects/primitives/token-type.vo';
-import { TokenExpiryVO } from '../value-objects/primitives/token-expiry.vo';
+import { AuthTokenEntity } from './auth-token.entity.js';
+import { TokenValueVO } from '../value-objects/primitives/token-value.vo.js';
+import { TokenTypeVO } from '../value-objects/primitives/token-type.vo.js';
+import { TokenExpiryVO } from '../value-objects/primitives/token-expiry.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();

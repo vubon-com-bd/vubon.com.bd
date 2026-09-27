@@ -1,12 +1,13 @@
-import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
+/**
+ * UpdateSettingsCommand
+ */
+import { BaseCommand } from '@vubon/shared-kernel/application/commands';
+import type { UpdateSettingsRequestDTO } from '../../dtos/requests/settings/index.js';
 
 export class UpdateSettingsCommand extends BaseCommand {
-  readonly type = 'user.settings.update';
+  readonly type = 'settings.update';
 
-  constructor(
-    public readonly userId: string,
-    public readonly patch: Record<string, string>,
-  ) {
+  constructor(public readonly payload: UpdateSettingsRequestDTO) {
     super();
   }
 }

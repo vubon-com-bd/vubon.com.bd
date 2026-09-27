@@ -3,9 +3,9 @@
  * @module auth-service/domain/value-objects/composites
  */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { SocialProviderVO } from '../primitives/social-provider.vo';
-import { SocialStatusVO } from '../primitives/social-status.vo';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { SocialProviderVO } from '../primitives/social-provider.vo.js';
+import { SocialStatusVO } from '../primitives/social-status.vo.js';
 
 export interface AuthSocialVOProps {
   readonly socialId: string;

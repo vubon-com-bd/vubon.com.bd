@@ -3,8 +3,8 @@
  * @module auth-service/application/sagas
  */
 import { of } from 'rxjs';
-import { AuthMfaSaga } from './auth-mfa.saga';
-import { MfaEnabledEvent } from '../../domain/events/auth-mfa.events';
+import { AuthMfaSaga } from './auth-mfa.saga.js';
+import { MfaEnabledEvent } from '../../domain/events/auth-mfa.events.js';
 
 describe('AuthMfaSaga', () => {
   let saga: AuthMfaSaga;

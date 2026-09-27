@@ -3,8 +3,8 @@
  * @module auth-service/application/mappers
  */
 import { BaseMapper } from '@vubon/shared-kernel/application/mappers/base.mapper';
-import { UserEntity } from '../../domain/entities/user.entity';
-import type { UserResponseDTO } from '../dtos/responses/user-response.dto';
+import { UserEntity } from '../../domain/entities/user.entity.js';
+import type { UserResponseDTO } from '../dtos/responses/user-response.dto.js';
 
 export class UserMapper extends BaseMapper<UserEntity, UserResponseDTO> {
   toTarget(entity: UserEntity): UserResponseDTO {

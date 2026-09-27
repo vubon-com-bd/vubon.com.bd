@@ -10,11 +10,11 @@ import {
 } from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
 import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
 import type { UserId } from '@vubon/shared-types/common';
-import { AuthOAuthEntity } from '../../../../domain/entities/auth-oauth.entity';
-import { OAuthProviderVO } from '../../../../domain/value-objects/primitives/oauth-provider.vo';
-import { OAuthTokenVO } from '../../../../domain/value-objects/primitives/oauth-token.vo';
-import { OAuthStatusVO } from '../../../../domain/value-objects/primitives/oauth-status.vo';
-import type { AuthOAuthRepository } from '../../../../domain/repositories/auth-oauth.repository.interface';
+import { AuthOAuthEntity } from '../../../../domain/entities/auth-oauth.entity.js';
+import { OAuthProviderVO } from '../../../../domain/value-objects/primitives/oauth-provider.vo.js';
+import { OAuthTokenVO } from '../../../../domain/value-objects/primitives/oauth-token.vo.js';
+import { OAuthStatusVO } from '../../../../domain/value-objects/primitives/oauth-status.vo.js';
+import type { AuthOAuthRepository } from '../../../../domain/repositories/auth-oauth.repository.interface.js';
 
 @Injectable()
 export class AuthOAuthPrismaRepository

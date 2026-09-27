@@ -1,5 +1,6 @@
-export { ProfileCompletionCalculatorService } from './profile-completion-calculator.service';
-export { AvatarProcessorService } from './avatar-processor.service';
-export { KycDocumentValidatorService } from './kyc-document-validator.service';
-export { UserTierEvaluatorService } from './user-tier-evaluator.service';
-export { ActivityRecorderService } from './activity-recorder.service';
+// services/internal/index.ts
+export * from './profile-completion-calculator.service.js';
+export * from './avatar-processor.service.js';
+export * from './kyc-document-validator.service.js';
+export * from './user-tier-evaluator.service.js';
+export * from './activity-recorder.service.js';

@@ -1,10 +1,10 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { ListUserPermissionsQuery } from './list-user-permissions.query';
-import type { UserPermissionServiceInterface } from '../../services/interfaces/user-permission.service.interface';
-import type { UserPermissionResponseDTO } from '../../dtos/responses/user-permission-response.dto';
-import { USER_PERMISSION_SERVICE } from '../../tokens';
+import { ListUserPermissionsQuery } from './list-user-permissions.query.js';
+import type { UserPermissionServiceInterface } from '../../services/interfaces/user-permission.service.interface.js';
+import type { UserPermissionResponseDTO } from '../../dtos/responses/user-permission-response.dto.js';
+import { USER_PERMISSION_SERVICE } from '../../tokens.js';
 
 @QueryHandler(ListUserPermissionsQuery)
 export class ListUserPermissionsHandler

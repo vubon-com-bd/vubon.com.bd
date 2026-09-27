@@ -1,15 +1,17 @@
 /**
  * UserContactPrismaRepository — Unit Tests
  */
-import { UserContactPrismaRepository } from './user-contact.prisma.repository';
+import { jest } from '@jest/globals';
+
+import { UserContactPrismaRepository } from './user-contact.prisma.repository.js';
 
 const mockPrisma = () => ({
   userContact: {
-    findUnique: jest.fn(),
-    findMany: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
+    findUnique: jest.fn() as jest.Mock,
+    findMany: jest.fn() as jest.Mock,
+    create: jest.fn() as jest.Mock,
+    update: jest.fn() as jest.Mock,
+    delete: jest.fn() as jest.Mock,
   },
 });
 

@@ -1,5 +1,6 @@
-export { UserControllerMapper } from './user.controller.mapper';
-export { ProfileControllerMapper } from './profile.controller.mapper';
-export { AddressControllerMapper } from './address.controller.mapper';
-export { ContactControllerMapper } from './contact.controller.mapper';
-export { KycControllerMapper } from './kyc.controller.mapper';
+// mappers/index.ts
+export * from './user.controller.mapper.js';
+export * from './profile.controller.mapper.js';
+export * from './address.controller.mapper.js';
+export * from './contact.controller.mapper.js';
+export * from './kyc.controller.mapper.js';

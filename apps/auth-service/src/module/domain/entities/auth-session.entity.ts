@@ -4,9 +4,9 @@
  */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
 import type { UserId } from '@vubon/shared-types/common';
-import { SessionTokenVO } from '../value-objects/primitives/session-token.vo';
-import { SessionExpiryVO } from '../value-objects/primitives/session-expiry.vo';
-import { SessionExpiredError } from '../errors/session.errors';
+import { SessionTokenVO } from '../value-objects/primitives/session-token.vo.js';
+import { SessionExpiryVO } from '../value-objects/primitives/session-expiry.vo.js';
+import { SessionExpiredError } from '../errors/session.errors.js';
 
 export interface AuthSessionEntityProps {
   readonly id: string;

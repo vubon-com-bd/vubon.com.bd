@@ -1,12 +1,14 @@
 /**
  * VerifyMfaHandler — Unit Tests
  */
-import { VerifyMfaHandler } from './verify-mfa.handler';
-import { VerifyMfaCommand } from './verify-mfa.command';
+import { jest } from '@jest/globals';
+
+import { VerifyMfaHandler } from './verify-mfa.handler.js';
+import { VerifyMfaCommand } from './verify-mfa.command.js';
 
 const mockMfaService = () => ({
   name: 'AuthMfaService',
-  verify: jest.fn(),
+  verify: jest.fn() as jest.Mock,
 });
 
 describe('VerifyMfaHandler', () => {

@@ -1,10 +1,12 @@
 /**
  * GetAuthSettingsHandler — Unit Tests
  */
-import { GetAuthSettingsHandler } from './get-auth-settings.handler';
-import { GetAuthSettingsQuery } from './get-auth-settings.query';
+import { jest } from '@jest/globals';
 
-const mockService = () => ({ getSettings: jest.fn() });
+import { GetAuthSettingsHandler } from './get-auth-settings.handler.js';
+import { GetAuthSettingsQuery } from './get-auth-settings.query.js';
+
+const mockService = () => ({ getSettings: jest.fn() as jest.Mock });
 
 describe('GetAuthSettingsHandler', () => {
   let handler: GetAuthSettingsHandler;

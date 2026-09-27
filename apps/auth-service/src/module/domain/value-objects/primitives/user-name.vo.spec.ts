@@ -2,8 +2,8 @@
  * UserNameVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { UserNameVO } from './user-name.vo';
-import { InvalidNameError } from '../../errors/user.errors';
+import { UserNameVO } from './user-name.vo.js';
+import { InvalidNameError } from '../../errors/user.errors.js';
 
 describe('UserNameVO', () => {
   describe('of()', () => {

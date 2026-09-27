@@ -10,11 +10,11 @@ import {
 } from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
 import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
 import type { UserId } from '@vubon/shared-types/common';
-import { AuthSocialEntity } from '../../../../domain/entities/auth-social.entity';
-import { SocialProviderVO } from '../../../../domain/value-objects/primitives/social-provider.vo';
-import { SocialTokenVO } from '../../../../domain/value-objects/primitives/social-token.vo';
-import { SocialStatusVO } from '../../../../domain/value-objects/primitives/social-status.vo';
-import type { AuthSocialRepository } from '../../../../domain/repositories/auth-social.repository.interface';
+import { AuthSocialEntity } from '../../../../domain/entities/auth-social.entity.js';
+import { SocialProviderVO } from '../../../../domain/value-objects/primitives/social-provider.vo.js';
+import { SocialTokenVO } from '../../../../domain/value-objects/primitives/social-token.vo.js';
+import { SocialStatusVO } from '../../../../domain/value-objects/primitives/social-status.vo.js';
+import type { AuthSocialRepository } from '../../../../domain/repositories/auth-social.repository.interface.js';
 
 @Injectable()
 export class AuthSocialPrismaRepository

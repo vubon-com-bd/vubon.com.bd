@@ -9,11 +9,11 @@ import {
   type PrismaDelegate,
 } from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
 import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
-import { AuthRoleEntity } from '../../../../domain/entities/auth-role.entity';
-import { RoleNameVO } from '../../../../domain/value-objects/primitives/role-name.vo';
-import { RoleDescriptionVO } from '../../../../domain/value-objects/primitives/role-description.vo';
-import { PermissionNameVO } from '../../../../domain/value-objects/primitives/permission-name.vo';
-import type { AuthRoleRepository } from '../../../../domain/repositories/auth-role.repository.interface';
+import { AuthRoleEntity } from '../../../../domain/entities/auth-role.entity.js';
+import { RoleNameVO } from '../../../../domain/value-objects/primitives/role-name.vo.js';
+import { RoleDescriptionVO } from '../../../../domain/value-objects/primitives/role-description.vo.js';
+import { PermissionNameVO } from '../../../../domain/value-objects/primitives/permission-name.vo.js';
+import type { AuthRoleRepository } from '../../../../domain/repositories/auth-role.repository.interface.js';
 
 @Injectable()
 export class AuthRolePrismaRepository

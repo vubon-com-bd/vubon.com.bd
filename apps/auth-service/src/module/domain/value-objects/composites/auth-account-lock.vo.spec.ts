@@ -2,9 +2,9 @@
  * AuthAccountLockVO — Unit Tests
  * @module auth-service/domain/value-objects/composites
  */
-import { AuthAccountLockVO } from './auth-account-lock.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { AccountLockReasonVO } from '../primitives/account-lock-reason.vo';
+import { AuthAccountLockVO } from './auth-account-lock.vo.js';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { AccountLockReasonVO } from '../primitives/account-lock-reason.vo.js';
 
 describe('AuthAccountLockVO', () => {
   const userId = UserIdVO.of('user-1');

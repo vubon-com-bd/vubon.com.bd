@@ -1,35 +1,35 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 
-import { AuthController } from '../../interfaces/controllers/rest/auth.controller';
+import { AuthController } from '../../interfaces/controllers/rest/auth.controller.js';
 
-import { AuthService } from '../../application/services/impl/auth.service';
-import { AuthSessionService } from '../../application/services/impl/auth-session.service';
-import { AuthTokenService } from '../../application/services/impl/auth-token.service';
-import { UserVerificationService } from '../../application/services/impl/user-verification.service';
+import { AuthService } from '../../application/services/impl/auth.service.js';
+import { AuthSessionService } from '../../application/services/impl/auth-session.service.js';
+import { AuthTokenService } from '../../application/services/impl/auth-token.service.js';
+import { UserVerificationService } from '../../application/services/impl/user-verification.service.js';
 
-import { LoginHandler } from '../../application/commands/auth/login.handler';
-import { RegisterHandler } from '../../application/commands/auth/register.handler';
-import { RefreshTokenHandler } from '../../application/commands/auth/refresh-token.handler';
-import { LogoutHandler } from '../../application/commands/auth/logout.handler';
-import { ForgotPasswordHandler } from '../../application/commands/auth/forgot-password.handler';
-import { ResetPasswordHandler } from '../../application/commands/auth/reset-password.handler';
-import { VerifyEmailHandler } from '../../application/commands/auth/verify-email.handler';
-import { ResendVerificationHandler } from '../../application/commands/auth/resend-verification.handler';
+import { LoginHandler } from '../../application/commands/auth/login.handler.js';
+import { RegisterHandler } from '../../application/commands/auth/register.handler.js';
+import { RefreshTokenHandler } from '../../application/commands/auth/refresh-token.handler.js';
+import { LogoutHandler } from '../../application/commands/auth/logout.handler.js';
+import { ForgotPasswordHandler } from '../../application/commands/auth/forgot-password.handler.js';
+import { ResetPasswordHandler } from '../../application/commands/auth/reset-password.handler.js';
+import { VerifyEmailHandler } from '../../application/commands/auth/verify-email.handler.js';
+import { ResendVerificationHandler } from '../../application/commands/auth/resend-verification.handler.js';
 
-import { AuthLoginSaga } from '../../application/sagas/auth-login.saga';
-import { AuthRegisterSaga } from '../../application/sagas/auth-register.saga';
+import { AuthLoginSaga } from '../../application/sagas/auth-login.saga.js';
+import { AuthRegisterSaga } from '../../application/sagas/auth-register.saga.js';
 
-import { UserPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/user.prisma.repository';
-import { AuthSessionPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/auth-session.prisma.repository';
-import { AuthTokenPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/auth-token.prisma.repository';
-import { UserVerificationPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/user-verification.prisma.repository';
+import { UserPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/user.prisma.repository.js';
+import { AuthSessionPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/auth-session.prisma.repository.js';
+import { AuthTokenPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/auth-token.prisma.repository.js';
+import { UserVerificationPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/user-verification.prisma.repository.js';
 
-import { AuthControllerMapper } from '../../interfaces/mappers/auth.controller.mapper';
+import { AuthControllerMapper } from '../../interfaces/mappers/auth.controller.mapper.js';
 
-import { UserModule } from '../user/user.module';
-import { AuthSessionModule } from '../auth-session/auth-session.module';
-import { AuthTokenModule } from '../auth-token/auth-token.module';
+import { UserModule } from '../user/user.module.js';
+import { AuthSessionModule } from '../auth-session/auth-session.module.js';
+import { AuthTokenModule } from '../auth-token/auth-token.module.js';
 
 import {
   USER_REPO,
@@ -40,7 +40,7 @@ import {
   AUTH_SESSION_SERVICE,
   AUTH_TOKEN_SERVICE,
   AUTH_SERVICE,
-} from '../../application/services/tokens';
+} from '../../application/services/tokens.js';
 
 const HANDLERS = [
   LoginHandler,

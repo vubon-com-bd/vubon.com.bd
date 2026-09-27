@@ -2,8 +2,8 @@
  * PasswordStrengthService — Unit Tests
  * @module auth-service/domain/services
  */
-import { PasswordStrengthService } from './password-strength.service';
-import { WeakPasswordError } from '../errors/password.errors';
+import { PasswordStrengthService } from './password-strength.service.js';
+import { WeakPasswordError } from '../errors/password.errors.js';
 
 describe('PasswordStrengthService', () => {
   // ═══════════════════════════════════════════════════════════

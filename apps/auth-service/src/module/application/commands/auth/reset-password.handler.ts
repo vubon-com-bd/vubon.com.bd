@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { ResetPasswordCommand } from './reset-password.command';
-import type { AuthServiceInterface } from '../../services/interfaces/auth.service.interface';
-import { AUTH_SERVICE } from '../../tokens';
+import { ResetPasswordCommand } from './reset-password.command.js';
+import type { AuthServiceInterface } from '../../services/interfaces/auth.service.interface.js';
+import { AUTH_SERVICE } from '../../tokens.js';
 
 @CommandHandler(ResetPasswordCommand)
 export class ResetPasswordHandler

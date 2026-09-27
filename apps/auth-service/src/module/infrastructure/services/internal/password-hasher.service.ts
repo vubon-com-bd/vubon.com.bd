@@ -3,8 +3,8 @@
  * @module auth-service/infrastructure/services/internal
  */
 import { Injectable } from '@nestjs/common';
-import * as bcrypt from 'bcryptjs';
-import type { PasswordHasherServiceInterface } from '../../../application/services/interfaces/password-hasher.service.interface';
+import bcrypt from 'bcryptjs';
+import type { PasswordHasherServiceInterface } from '../../../application/services/interfaces/password-hasher.service.interface.js';
 
 const BCRYPT_ROUNDS = 12;
 const BCRYPT_HASH_PATTERN = /^\$2[aby]\$\d{2}\$/;

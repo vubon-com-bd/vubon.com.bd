@@ -1,1 +1,1 @@
-export { UserContactModule } from './user-contact.module';
+export * from './user-contact.module.js';

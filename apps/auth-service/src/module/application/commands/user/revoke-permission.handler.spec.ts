@@ -1,10 +1,12 @@
 /**
  * RevokePermissionHandler — Unit Tests
  */
-import { RevokePermissionHandler } from './revoke-permission.handler';
-import { RevokePermissionCommand } from './revoke-permission.command';
+import { jest } from '@jest/globals';
 
-const mockService = () => ({ removePermission: jest.fn() });
+import { RevokePermissionHandler } from './revoke-permission.handler.js';
+import { RevokePermissionCommand } from './revoke-permission.command.js';
+
+const mockService = () => ({ removePermission: jest.fn() as jest.Mock });
 
 describe('RevokePermissionHandler', () => {
   let handler: RevokePermissionHandler;

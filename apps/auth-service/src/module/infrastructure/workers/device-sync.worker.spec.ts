@@ -1,7 +1,7 @@
 /**
  * DeviceSyncWorker — Deep Unit Tests
  */
-import { DeviceSyncWorker } from './device-sync.worker';
+import { DeviceSyncWorker } from './device-sync.worker.js';
 
 const mockJob = (name = 'device-sync', data: Record<string, unknown> = {}) => ({
   id: 'job-1',

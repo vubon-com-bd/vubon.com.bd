@@ -1,8 +1,9 @@
-export { UpdateProfileCommand } from './update-profile.command';
-export { UpdateProfileHandler } from './update-profile.handler';
-export { UpdateAvatarCommand } from './update-avatar.command';
-export { UpdateAvatarHandler } from './update-avatar.handler';
-export { UpdateBioCommand } from './update-bio.command';
-export { UpdateBioHandler } from './update-bio.handler';
-export { UpdateVisibilityCommand } from './update-visibility.command';
-export { UpdateVisibilityHandler } from './update-visibility.handler';
+// commands/profile/index.ts
+export * from './update-profile.command.js';
+export * from './update-profile.handler.js';
+export * from './update-avatar.command.js';
+export * from './update-avatar.handler.js';
+export * from './update-bio.command.js';
+export * from './update-bio.handler.js';
+export * from './update-visibility.command.js';
+export * from './update-visibility.handler.js';

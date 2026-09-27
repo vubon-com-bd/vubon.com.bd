@@ -3,47 +3,47 @@
  * @module auth-service/application/services/interfaces
  */
 // Core auth
-export * from './auth.service.interface';
-export * from './auth-session.service.interface';
-export * from './auth-token.service.interface';
-export * from './auth-mfa.service.interface';
+export * from './auth.service.interface.js';
+export * from './auth-session.service.interface.js';
+export * from './auth-token.service.interface.js';
+export * from './auth-mfa.service.interface.js';
 
 // Recovery / lock / attempts
-export * from './auth-recovery-code.service.interface';
-export * from './auth-account-lock.service.interface';
-export * from './auth-login-attempt.service.interface';
+export * from './auth-recovery-code.service.interface.js';
+export * from './auth-account-lock.service.interface.js';
+export * from './auth-login-attempt.service.interface.js';
 
 // Social / OAuth / SSO
-export * from './auth-social.service.interface';
-export * from './auth-oauth.service.interface';
-export * from './auth-sso.service.interface';
+export * from './auth-social.service.interface.js';
+export * from './auth-oauth.service.interface.js';
+export * from './auth-sso.service.interface.js';
 
 // 2FA / Biometric
-export * from './auth-2fa.service.interface';
-export * from './auth-biometric.service.interface';
+export * from './auth-2fa.service.interface.js';
+export * from './auth-biometric.service.interface.js';
 
 // Permission / Role / Settings
-export * from './auth-permission.service.interface';
-export * from './auth-role.service.interface';
-export * from './auth-settings.service.interface';
+export * from './auth-permission.service.interface.js';
+export * from './auth-role.service.interface.js';
+export * from './auth-settings.service.interface.js';
 
 // User services
-export * from './user.service.interface';
-export * from './user-profile.service.interface';
-export * from './user-settings.service.interface';
-export * from './user-preferences.service.interface';
-export * from './user-address.service.interface';
-export * from './user-contact.service.interface';
-export * from './user-verification.service.interface';
-export * from './user-kyc.service.interface';
-export * from './user-activity.service.interface';
-export * from './user-permission.service.interface';
-export * from './user-role.service.interface';
+export * from './user.service.interface.js';
+export * from './user-profile.service.interface.js';
+export * from './user-settings.service.interface.js';
+export * from './user-preferences.service.interface.js';
+export * from './user-address.service.interface.js';
+export * from './user-contact.service.interface.js';
+export * from './user-verification.service.interface.js';
+export * from './user-kyc.service.interface.js';
+export * from './user-activity.service.interface.js';
+export * from './user-permission.service.interface.js';
+export * from './user-role.service.interface.js';
 
 // Cross-cutting (impl in Infrastructure)
-export * from './password-hasher.service.interface';
-export * from './token-signer.service.interface';
-export * from './recovery-code-generator.service.interface';
-export * from './totp.service.interface';
-export * from './id-generator.service.interface';
-export * from './unit-of-work.service.interface';
+export * from './password-hasher.service.interface.js';
+export * from './token-signer.service.interface.js';
+export * from './recovery-code-generator.service.interface.js';
+export * from './totp.service.interface.js';
+export * from './id-generator.service.interface.js';
+export * from './unit-of-work.service.interface.js';

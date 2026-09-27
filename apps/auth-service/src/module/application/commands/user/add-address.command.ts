@@ -1,6 +1,6 @@
 import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
 import type { UserId } from '@vubon/shared-types/common';
-import type { AddAddressRequestDTO } from '../../dtos/requests/user/add-address.dto';
+import type { AddAddressRequestDTO } from '../../dtos/requests/user/add-address.dto.js';
 
 export class AddAddressCommand extends BaseCommand {
   readonly type = 'user.add-address';

@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { UpdatePreferencesCommand } from './update-preferences.command';
-import type { UserPreferencesServiceInterface } from '../../services/interfaces/user-preferences.service.interface';
-import type { UserPreferencesResponseDTO } from '../../dtos/responses/user-preferences-response.dto';
-import { USER_PREFERENCES_SERVICE } from '../../tokens';
+import { UpdatePreferencesCommand } from './update-preferences.command.js';
+import type { UserPreferencesServiceInterface } from '../../services/interfaces/user-preferences.service.interface.js';
+import type { UserPreferencesResponseDTO } from '../../dtos/responses/user-preferences-response.dto.js';
+import { USER_PREFERENCES_SERVICE } from '../../tokens.js';
 
 @CommandHandler(UpdatePreferencesCommand)
 export class UpdatePreferencesHandler

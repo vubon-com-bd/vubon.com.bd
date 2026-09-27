@@ -1,12 +1,14 @@
 /**
  * UnlinkSocialHandler — Unit Tests
  */
-import { UnlinkSocialHandler } from './unlink-social.handler';
-import { UnlinkSocialCommand } from './unlink-social.command';
+import { jest } from '@jest/globals';
+
+import { UnlinkSocialHandler } from './unlink-social.handler.js';
+import { UnlinkSocialCommand } from './unlink-social.command.js';
 
 const mockSocialService = () => ({
   name: 'AuthSocialService',
-  unlink: jest.fn(),
+  unlink: jest.fn() as jest.Mock,
 });
 
 describe('UnlinkSocialHandler', () => {

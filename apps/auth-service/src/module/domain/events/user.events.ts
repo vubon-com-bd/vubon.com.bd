@@ -4,7 +4,7 @@
  */
 import { BaseDomainEvent } from '@vubon/shared-kernel/domain/base/base.event';
 import type { UserId, Timestamp } from '@vubon/shared-types/common';
-import { UserEmailVO } from '../value-objects/primitives/user-email.vo';
+import { UserEmailVO } from '../value-objects/primitives/user-email.vo.js';
 
 type EventMeta = {
   correlationId?: string;

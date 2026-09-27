@@ -3,7 +3,7 @@
  * @module shared-kernel/infrastructure/external/push
  */
 import { Injectable } from '@nestjs/common';
-import type { PushMessageInput, PushSendResult } from './push.client';
+import type { PushMessageInput, PushSendResult } from './push.client.js';
 
 @Injectable()
 export class PushService {

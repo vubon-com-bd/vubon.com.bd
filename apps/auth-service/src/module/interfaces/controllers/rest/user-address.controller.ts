@@ -19,16 +19,16 @@ import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
 import type { UserId } from '@vubon/shared-types/common';
 
-import { AddAddressCommand } from '../../../application/commands/user/add-address.command';
-import { UpdateAddressCommand } from '../../../application/commands/user/update-address.command';
-import { DeleteAddressCommand } from '../../../application/commands/user/delete-address.command';
-import { ListUserAddressesQuery } from '../../../application/queries/user/list-user-addresses.query';
-import { GetUserAddressQuery } from '../../../application/queries/user/get-user-address.query';
+import { AddAddressCommand } from '../../../application/commands/user/add-address.command.js';
+import { UpdateAddressCommand } from '../../../application/commands/user/update-address.command.js';
+import { DeleteAddressCommand } from '../../../application/commands/user/delete-address.command.js';
+import { ListUserAddressesQuery } from '../../../application/queries/user/list-user-addresses.query.js';
+import { GetUserAddressQuery } from '../../../application/queries/user/get-user-address.query.js';
 import {
   AddAddressRequestDTO,
   UpdateAddressRequestDTO,
-} from '../../dtos/requests/address.request.dto';
-import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
+} from '../../dtos/requests/address.request.dto.js';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator.js';
 
 @ApiTags('Users Addresses')
 @Controller('users/addresses')

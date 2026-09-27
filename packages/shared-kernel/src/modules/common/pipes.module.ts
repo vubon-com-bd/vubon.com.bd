@@ -3,7 +3,7 @@
  * @module shared-kernel/modules/common
  */
 import { Global, Module } from '@nestjs/common';
-import { ParseUuidPipe, ValidationPipe } from '../../interfaces/pipes';
+import { ParseUuidPipe, ValidationPipe } from '../../interfaces/pipes/index.js';
 
 @Global()
 @Module({

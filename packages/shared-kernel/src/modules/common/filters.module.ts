@@ -8,7 +8,7 @@ import {
   DomainExceptionFilter,
   HttpExceptionFilter,
   ValidationExceptionFilter,
-} from '../../interfaces/filters';
+} from '../../interfaces/filters/index.js';
 
 @Global()
 @Module({

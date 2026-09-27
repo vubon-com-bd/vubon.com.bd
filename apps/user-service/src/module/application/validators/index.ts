@@ -1,5 +1,6 @@
-export { UserValidator } from './user.validator';
-export { ProfileValidator } from './profile.validator';
-export { AddressValidator } from './address.validator';
-export { ContactValidator } from './contact.validator';
-export { KycValidator } from './kyc.validator';
+// validators/index.ts — Application validators barrel export
+export * from './user.validator.js';
+export * from './profile.validator.js';
+export * from './address.validator.js';
+export * from './contact.validator.js';
+export * from './kyc.validator.js';

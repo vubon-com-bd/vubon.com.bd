@@ -1,10 +1,12 @@
 /**
  * UpdateContactHandler — Unit Tests
  */
-import { UpdateContactHandler } from './update-contact.handler';
-import { UpdateContactCommand } from './update-contact.command';
+import { jest } from '@jest/globals';
 
-const mockService = () => ({ update: jest.fn(), toResponse: jest.fn() });
+import { UpdateContactHandler } from './update-contact.handler.js';
+import { UpdateContactCommand } from './update-contact.command.js';
+
+const mockService = () => ({ update: jest.fn() as jest.Mock, toResponse: jest.fn() as jest.Mock });
 
 describe('UpdateContactHandler', () => {
   let handler: UpdateContactHandler;

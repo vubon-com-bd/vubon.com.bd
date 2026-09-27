@@ -2,9 +2,9 @@
  * MfaValidatorService — Unit Tests
  * @module auth-service/infrastructure/services/internal
  */
-import { MfaValidatorService } from './mfa-validator.service';
-import { TotpService } from './totp.service';
-import { MfaInvalidError } from '../../../domain/errors/mfa.errors';
+import { MfaValidatorService } from './mfa-validator.service.js';
+import { TotpService } from './totp.service.js';
+import { MfaInvalidError } from '../../../domain/errors/mfa.errors.js';
 
 describe('MfaValidatorService', () => {
   let service: MfaValidatorService;

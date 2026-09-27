@@ -1,7 +1,7 @@
 import { REGEX } from '@vubon/shared-constants/common';
 import { VALIDATION } from '@vubon/shared-constants/common';
 import type { Email } from '@vubon/shared-types/common';
-import { BaseVO } from '../base/base.vo';
+import { BaseVO } from '../base/base.vo.js';
 
 /**
  * Abstract Base Email VO — extend করার জন্য

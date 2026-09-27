@@ -7,8 +7,8 @@
  */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
 import type { UserId } from '@vubon/shared-types/common';
-import { BiometricIdVO } from '../value-objects/primitives/biometric-id.vo';
-import type { BiometricKind } from '../value-objects/composites/auth-biometric.vo';
+import { BiometricIdVO } from '../value-objects/primitives/biometric-id.vo.js';
+import type { BiometricKind } from '../value-objects/composites/auth-biometric.vo.js';
 
 export type { BiometricKind };
 

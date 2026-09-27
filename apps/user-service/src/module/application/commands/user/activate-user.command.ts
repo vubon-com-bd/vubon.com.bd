@@ -1,4 +1,7 @@
-import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
+/**
+ * ActivateUserCommand
+ */
+import { BaseCommand } from '@vubon/shared-kernel/application/commands';
 
 export class ActivateUserCommand extends BaseCommand {
   readonly type = 'user.activate';

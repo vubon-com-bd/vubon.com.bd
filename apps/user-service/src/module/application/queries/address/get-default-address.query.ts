@@ -1,7 +1,10 @@
-import { BaseQuery } from '@vubon/shared-kernel/application/queries/base.query';
+/**
+ * GetDefaultAddressQuery
+ */
+import { BaseQuery } from '@vubon/shared-kernel/application/queries';
 
 export class GetDefaultAddressQuery extends BaseQuery {
-  readonly type = 'user.address.get-default';
+  readonly type = 'address.getDefault';
 
   constructor(public readonly userId: string) {
     super();

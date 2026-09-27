@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { UserActivityController } from '../../interfaces/controllers/rest/user-activity.controller';
-import { UserActivityService } from '../../application/services/impl/user-activity.service';
-import { UserActivityPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/user-activity.prisma.repository';
-import { ListUserActivitiesHandler } from '../../application/queries/user/list-user-activities.handler';
+import { UserActivityController } from '../../interfaces/controllers/rest/user-activity.controller.js';
+import { UserActivityService } from '../../application/services/impl/user-activity.service.js';
+import { UserActivityPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/user-activity.prisma.repository.js';
+import { ListUserActivitiesHandler } from '../../application/queries/user/list-user-activities.handler.js';
 import {
   USER_ACTIVITY_REPO,
-} from '../../application/services/tokens';
+} from '../../application/services/tokens.js';
 
 const TOKEN_BINDINGS = [
   { provide: USER_ACTIVITY_REPO, useExisting: UserActivityPrismaRepository },

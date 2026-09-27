@@ -1,27 +1,40 @@
+/**
+ * UserVerificationSaga — reacts to user status changes
+ */
 import { Injectable } from '@nestjs/common';
-import { Saga, ICommand, ofType } from '@nestjs/cqrs';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { BaseSaga } from '@vubon/shared-kernel/application/sagas/base.saga';
-import { UserActivatedEvent } from '../../domain/events/user.events';
-import { UpdateAnalyticsCommand } from './commands/update-analytics.command';
+import { Saga, ICommand, IEvent, ofType } from '@nestjs/cqrs';
+import { Observable, map } from 'rxjs';
+import {
+  UserActivatedEvent,
+  UserSuspendedEvent,
+} from '@domain/events/user.events';
+import { UpdateAnalyticsCommand } from './commands/update-analytics.command.js';
 
 @Injectable()
-export class UserVerificationSaga extends BaseSaga {
-  readonly name = 'UserVerificationSaga';
-
-  async execute(_input: unknown): Promise<void> {}
-
-  async compensate(): Promise<void> {}
-
+export class UserVerificationSaga {
   @Saga()
-  analytics = (events$: Observable<unknown>): Observable<ICommand> => {
+  userActivated = (events$: Observable<IEvent>): Observable<ICommand> => {
     return events$.pipe(
       ofType(UserActivatedEvent),
       map(
         (event: UserActivatedEvent) =>
-          new UpdateAnalyticsCommand('user.activated', event.payload.userId),
-      ),
+          new UpdateAnalyticsCommand(event.payload.userId, 'user.activated', {
+            activatedAt: event.payload.activatedAt,
+          })
+      )
+    );
+  };
+
+  @Saga()
+  userSuspended = (events$: Observable<IEvent>): Observable<ICommand> => {
+    return events$.pipe(
+      ofType(UserSuspendedEvent),
+      map(
+        (event: UserSuspendedEvent) =>
+          new UpdateAnalyticsCommand(event.payload.userId, 'user.suspended', {
+            reason: event.payload.reason,
+          })
+      )
     );
   };
 }

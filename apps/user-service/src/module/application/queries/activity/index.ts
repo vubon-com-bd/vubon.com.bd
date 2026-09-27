@@ -1,4 +1,5 @@
-export { ListActivitiesQuery } from './list-activities.query';
-export { ListActivitiesHandler } from './list-activities.handler';
-export { GetUserStatsQuery } from './get-user-stats.query';
-export { GetUserStatsHandler } from './get-user-stats.handler';
+// queries/activity/index.ts
+export * from './list-activities.query.js';
+export * from './list-activities.handler.js';
+export * from './get-user-stats.query.js';
+export * from './get-user-stats.handler.js';

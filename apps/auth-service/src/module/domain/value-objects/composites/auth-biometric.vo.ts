@@ -3,8 +3,8 @@
  * @module auth-service/domain/value-objects/composites
  */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { BiometricIdVO } from '../primitives/biometric-id.vo';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { BiometricIdVO } from '../primitives/biometric-id.vo.js';
 
 export type BiometricKind = 'fingerprint' | 'face' | 'voice' | 'iris';
 

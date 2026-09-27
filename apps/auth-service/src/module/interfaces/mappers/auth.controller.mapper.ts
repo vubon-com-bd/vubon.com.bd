@@ -10,9 +10,9 @@ import { Injectable } from '@nestjs/common';
 import type {
   LoginResponseDTO,
   LoginMfaRequiredResponseDTO,
-} from '../../application/dtos/responses/login-response.dto';
-import type { RegisterResponseDTO } from '../../application/dtos/responses/register-response.dto';
-import type { AuthResponseDTO } from '../dtos/responses/auth.response.dto';
+} from '../../application/dtos/responses/login-response.dto.js';
+import type { RegisterResponseDTO } from '../../application/dtos/responses/register-response.dto.js';
+import type { AuthResponseDTO } from '../dtos/responses/auth.response.dto.js';
 
 @Injectable()
 export class AuthControllerMapper {

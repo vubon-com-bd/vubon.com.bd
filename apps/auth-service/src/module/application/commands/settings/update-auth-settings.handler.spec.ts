@@ -1,10 +1,12 @@
 /**
  * UpdateAuthSettingsHandler — Unit Tests
  */
-import { UpdateAuthSettingsHandler } from './update-auth-settings.handler';
-import { UpdateAuthSettingsCommand } from './update-auth-settings.command';
+import { jest } from '@jest/globals';
 
-const mockService = () => ({ updateSettings: jest.fn() });
+import { UpdateAuthSettingsHandler } from './update-auth-settings.handler.js';
+import { UpdateAuthSettingsCommand } from './update-auth-settings.command.js';
+
+const mockService = () => ({ updateSettings: jest.fn() as jest.Mock });
 
 describe('UpdateAuthSettingsHandler', () => {
   let handler: UpdateAuthSettingsHandler;

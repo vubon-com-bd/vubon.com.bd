@@ -5,13 +5,13 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { Auth2FaServiceInterface } from '../interfaces/auth-2fa.service.interface';
-import type { Auth2FaRepository } from '../../../domain/repositories/auth-2fa.repository.interface';
-import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
-import { Auth2FaEntity } from '../../../domain/entities/auth-2fa.entity';
-import { MfaTypeVO } from '../../../domain/value-objects/primitives/mfa-type.vo';
-import { ID_GENERATOR } from '../tokens';
-import { AUTH_2FA_REPO } from '../../tokens';
+import type { Auth2FaServiceInterface } from '../interfaces/auth-2fa.service.interface.js';
+import type { Auth2FaRepository } from '../../../domain/repositories/auth-2fa.repository.interface.js';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface.js';
+import { Auth2FaEntity } from '../../../domain/entities/auth-2fa.entity.js';
+import { MfaTypeVO } from '../../../domain/value-objects/primitives/mfa-type.vo.js';
+import { ID_GENERATOR } from '../tokens.js';
+import { AUTH_2FA_REPO } from '../../tokens.js';
 
 @Injectable()
 export class Auth2FaService

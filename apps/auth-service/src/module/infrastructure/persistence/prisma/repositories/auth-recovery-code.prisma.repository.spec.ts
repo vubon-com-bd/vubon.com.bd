@@ -1,18 +1,20 @@
 /**
  * AuthRecoveryCodePrismaRepository — Unit Tests
  */
-import { AuthRecoveryCodePrismaRepository } from './auth-recovery-code.prisma.repository';
-import { RecoveryCodeVO } from '../../../../domain/value-objects/primitives/recovery-code.vo';
+import { jest } from '@jest/globals';
+
+import { AuthRecoveryCodePrismaRepository } from './auth-recovery-code.prisma.repository.js';
+import { RecoveryCodeVO } from '../../../../domain/value-objects/primitives/recovery-code.vo.js';
 
 const mockPrisma = () => ({
   authRecoveryCode: {
-    findUnique: jest.fn(),
-    findFirst: jest.fn(),
-    findMany: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    updateMany: jest.fn(),
-    delete: jest.fn(),
+    findUnique: jest.fn() as jest.Mock,
+    findFirst: jest.fn() as jest.Mock,
+    findMany: jest.fn() as jest.Mock,
+    create: jest.fn() as jest.Mock,
+    update: jest.fn() as jest.Mock,
+    updateMany: jest.fn() as jest.Mock,
+    delete: jest.fn() as jest.Mock,
   },
 });
 

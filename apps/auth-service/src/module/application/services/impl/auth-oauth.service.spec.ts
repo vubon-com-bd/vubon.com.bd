@@ -2,11 +2,13 @@
  * AuthOAuthService — Unit Tests
  * @module auth-service/application/services/impl
  */
-import { AuthOAuthService } from './auth-oauth.service';
-import { AuthOAuthEntity } from '../../../domain/entities/auth-oauth.entity';
-import { OAuthProviderVO } from '../../../domain/value-objects/primitives/oauth-provider.vo';
-import { OAuthStatusVO } from '../../../domain/value-objects/primitives/oauth-status.vo';
-import { OAuthFailedAppError } from '../../errors/oauth.errors';
+import { jest } from '@jest/globals';
+
+import { AuthOAuthService } from './auth-oauth.service.js';
+import { AuthOAuthEntity } from '../../../domain/entities/auth-oauth.entity.js';
+import { OAuthProviderVO } from '../../../domain/value-objects/primitives/oauth-provider.vo.js';
+import { OAuthStatusVO } from '../../../domain/value-objects/primitives/oauth-status.vo.js';
+import { OAuthFailedAppError } from '../../errors/oauth.errors.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();
@@ -26,13 +28,13 @@ const buildOAuth = (overrides: Partial<Parameters<typeof AuthOAuthEntity.create>
   });
 
 const mockRepo = () => ({
-  findById: jest.fn(),
-  findByUser: jest.fn(),
-  findByProvider: jest.fn(),
-  findAll: jest.fn(),
+  findById: jest.fn() as jest.Mock,
+  findByUser: jest.fn() as jest.Mock,
+  findByProvider: jest.fn() as jest.Mock,
+  findAll: jest.fn() as jest.Mock,
   save: jest.fn((o: AuthOAuthEntity) => Promise.resolve(o)),
-  delete: jest.fn(),
-  exists: jest.fn(),
+  delete: jest.fn() as jest.Mock,
+  exists: jest.fn() as jest.Mock,
 });
 
 const mockIdGen = () => ({

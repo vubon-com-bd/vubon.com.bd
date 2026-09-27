@@ -2,10 +2,10 @@
  * AuthSocialEntity — Unit Tests
  * @module auth-service/domain/entities
  */
-import { AuthSocialEntity } from './auth-social.entity';
-import { SocialProviderVO } from '../value-objects/primitives/social-provider.vo';
-import { SocialTokenVO } from '../value-objects/primitives/social-token.vo';
-import { SocialStatusVO } from '../value-objects/primitives/social-status.vo';
+import { AuthSocialEntity } from './auth-social.entity.js';
+import { SocialProviderVO } from '../value-objects/primitives/social-provider.vo.js';
+import { SocialTokenVO } from '../value-objects/primitives/social-token.vo.js';
+import { SocialStatusVO } from '../value-objects/primitives/social-status.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();

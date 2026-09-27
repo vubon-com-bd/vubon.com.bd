@@ -3,7 +3,7 @@
  * @module auth-service/domain/value-objects/primitives
  */
 import { BaseTypeVO } from '@vubon/shared-kernel/domain/primitives/type.vo';
-import { MfaInvalidError } from '../../errors/mfa.errors';
+import { MfaInvalidError } from '../../errors/mfa.errors.js';
 
 export type MfaTypeValue = 'totp' | 'sms' | 'email' | 'webauthn' | 'push';
 

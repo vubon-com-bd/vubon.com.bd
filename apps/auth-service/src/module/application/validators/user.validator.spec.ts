@@ -2,7 +2,7 @@
  * UserValidator — Unit Tests (Schema-aware)
  * @module auth-service/application/validators
  */
-import { UserValidator } from './user.validator';
+import { UserValidator } from './user.validator.js';
 
 describe('UserValidator', () => {
   // ═══════════════════════════════════════════════════════════

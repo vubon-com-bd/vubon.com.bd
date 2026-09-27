@@ -3,7 +3,7 @@
  * @module auth-service/domain/value-objects/primitives
  */
 import { BaseTypeVO } from '@vubon/shared-kernel/domain/primitives/type.vo';
-import { InvalidUserTypeError } from '../../errors/user.errors';
+import { InvalidUserTypeError } from '../../errors/user.errors.js';
 
 type UserTypeValue =
   | 'customer'

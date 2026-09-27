@@ -5,30 +5,30 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { AuthMfaServiceInterface } from '../interfaces/auth-mfa.service.interface';
-import type { AuthMfaRepository } from '../../../domain/repositories/auth-mfa.repository.interface';
-import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
-import type { TotpServiceInterface } from '../interfaces/totp.service.interface';
-import type { RecoveryCodeGeneratorServiceInterface } from '../interfaces/recovery-code-generator.service.interface';
-import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
-import { AuthMfaEntity } from '../../../domain/entities/auth-mfa.entity';
-import { MfaSecretVO } from '../../../domain/value-objects/primitives/mfa-secret.vo';
-import { MfaTypeVO } from '../../../domain/value-objects/primitives/mfa-type.vo';
-import { MfaStatusVO } from '../../../domain/value-objects/primitives/mfa-status.vo';
+import type { AuthMfaServiceInterface } from '../interfaces/auth-mfa.service.interface.js';
+import type { AuthMfaRepository } from '../../../domain/repositories/auth-mfa.repository.interface.js';
+import type { UserRepository } from '../../../domain/repositories/user.repository.interface.js';
+import type { TotpServiceInterface } from '../interfaces/totp.service.interface.js';
+import type { RecoveryCodeGeneratorServiceInterface } from '../interfaces/recovery-code-generator.service.interface.js';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface.js';
+import { AuthMfaEntity } from '../../../domain/entities/auth-mfa.entity.js';
+import { MfaSecretVO } from '../../../domain/value-objects/primitives/mfa-secret.vo.js';
+import { MfaTypeVO } from '../../../domain/value-objects/primitives/mfa-type.vo.js';
+import { MfaStatusVO } from '../../../domain/value-objects/primitives/mfa-status.vo.js';
 import {
   MfaAlreadyEnabledAppError,
   MfaInvalidAppError,
   MfaNotFoundAppError,
-} from '../../errors/mfa.errors';
+} from '../../errors/mfa.errors.js';
 import type {
   MfaResponseDTO,
   MfaChallengeResponseDTO,
-} from '../../dtos/responses/mfa-response.dto';
-import type { EnableMfaRequestDTO } from '../../dtos/requests/auth/enable-mfa.dto';
-import type { DisableMfaRequestDTO } from '../../dtos/requests/auth/disable-mfa.dto';
-import type { VerifyMfaRequestDTO } from '../../dtos/requests/auth/verify-mfa.dto';
-import { ID_GENERATOR } from '../tokens';
-import { AUTH_MFA_REPO, USER_REPO, TOTP_SERVICE, RECOVERY_CODE_GENERATOR } from '../../tokens';
+} from '../../dtos/responses/mfa-response.dto.js';
+import type { EnableMfaRequestDTO } from '../../dtos/requests/auth/enable-mfa.dto.js';
+import type { DisableMfaRequestDTO } from '../../dtos/requests/auth/disable-mfa.dto.js';
+import type { VerifyMfaRequestDTO } from '../../dtos/requests/auth/verify-mfa.dto.js';
+import { ID_GENERATOR } from '../tokens.js';
+import { AUTH_MFA_REPO, USER_REPO, TOTP_SERVICE, RECOVERY_CODE_GENERATOR } from '../../tokens.js';
 
 const ISSUER = 'Vubon';
 const RECOVERY_CODE_COUNT = 10;

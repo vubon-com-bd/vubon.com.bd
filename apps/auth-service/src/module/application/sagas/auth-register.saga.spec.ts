@@ -3,9 +3,9 @@
  * @module auth-service/application/sagas
  */
 import { of } from 'rxjs';
-import { AuthRegisterSaga } from './auth-register.saga';
-import { UserCreatedEvent } from '../../domain/events/user.events';
-import { UserEmailVO } from '../../domain/value-objects/primitives/user-email.vo';
+import { AuthRegisterSaga } from './auth-register.saga.js';
+import { UserCreatedEvent } from '../../domain/events/user.events.js';
+import { UserEmailVO } from '../../domain/value-objects/primitives/user-email.vo.js';
 
 describe('AuthRegisterSaga', () => {
   let saga: AuthRegisterSaga;

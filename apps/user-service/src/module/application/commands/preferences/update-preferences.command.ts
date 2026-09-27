@@ -1,12 +1,13 @@
-import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
+/**
+ * UpdatePreferencesCommand
+ */
+import { BaseCommand } from '@vubon/shared-kernel/application/commands';
+import type { UpdatePreferencesRequestDTO } from '../../dtos/requests/preferences/index.js';
 
 export class UpdatePreferencesCommand extends BaseCommand {
-  readonly type = 'user.preferences.update';
+  readonly type = 'preferences.update';
 
-  constructor(
-    public readonly userId: string,
-    public readonly patch: Record<string, string>,
-  ) {
+  constructor(public readonly payload: UpdatePreferencesRequestDTO) {
     super();
   }
 }

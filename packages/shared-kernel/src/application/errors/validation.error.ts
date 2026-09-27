@@ -7,7 +7,7 @@
  * ⚠️ Note: নাম ApplicationValidationError, কারণ domain/errors/validation.error.ts-এ ValidationError আছে।
  */
 import { ERROR_CODE } from '@vubon/shared-constants/common';
-import { ApplicationError } from './application.error';
+import { ApplicationError } from './application.error.js';
 
 export class ApplicationValidationError extends ApplicationError {
   readonly code = ERROR_CODE.VAL_REQUIRED;

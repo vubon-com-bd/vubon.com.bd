@@ -2,8 +2,10 @@
  * UserSettingsService — Unit Tests
  * @module auth-service/application/services/impl
  */
-import { UserSettingsService } from './user-settings.service';
-import { UserSettingsEntity } from '../../../domain/entities/user-settings.entity';
+import { jest } from '@jest/globals';
+
+import { UserSettingsService } from './user-settings.service.js';
+import { UserSettingsEntity } from '../../../domain/entities/user-settings.entity.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -24,12 +26,12 @@ const buildSettings = (overrides: Partial<Parameters<typeof UserSettingsEntity.c
   });
 
 const mockRepo = () => ({
-  findById: jest.fn(),
-  findByUserId: jest.fn(),
-  findAll: jest.fn(),
+  findById: jest.fn() as jest.Mock,
+  findByUserId: jest.fn() as jest.Mock,
+  findAll: jest.fn() as jest.Mock,
   save: jest.fn((s: UserSettingsEntity) => Promise.resolve(s)),
-  delete: jest.fn(),
-  exists: jest.fn(),
+  delete: jest.fn() as jest.Mock,
+  exists: jest.fn() as jest.Mock,
 });
 
 describe('UserSettingsService', () => {

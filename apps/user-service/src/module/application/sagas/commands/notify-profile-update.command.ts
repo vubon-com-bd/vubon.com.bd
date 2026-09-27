@@ -1,9 +1,15 @@
-import { BaseSagaCommand } from '@vubon/shared-kernel/application/sagas/base.saga.command';
+/**
+ * NotifyProfileUpdateCommand
+ */
+import { BaseSagaCommand } from '@vubon/shared-kernel/application/sagas';
 
 export class NotifyProfileUpdateCommand extends BaseSagaCommand {
-  readonly type = 'saga.user.notify-profile-update';
+  readonly type = 'saga.notify.profileUpdate';
 
-  constructor(public readonly userId: string) {
+  constructor(
+    public readonly userId: string,
+    public readonly changedFields: readonly string[]
+  ) {
     super();
   }
 }

@@ -3,8 +3,8 @@
  * @module auth-service/domain/value-objects/composites
  */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { LoginAttemptIpVO } from '../primitives/login-attempt-ip.vo';
-import { LoginAttemptStatusVO } from '../primitives/login-attempt-status.vo';
+import { LoginAttemptIpVO } from '../primitives/login-attempt-ip.vo.js';
+import { LoginAttemptStatusVO } from '../primitives/login-attempt-status.vo.js';
 
 export interface AuthLoginAttemptVOProps {
   readonly attemptId: string;

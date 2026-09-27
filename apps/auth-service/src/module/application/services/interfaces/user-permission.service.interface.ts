@@ -4,8 +4,8 @@
  */
 import type { BaseServiceInterface } from '@vubon/shared-kernel/application/services/base.service.interface';
 import type { UserId } from '@vubon/shared-types/common';
-import type { AuthPermissionEntity } from '../../../domain/entities/auth-permission.entity';
-import type { UserPermissionResponseDTO } from '../../dtos/responses/user-permission-response.dto';
+import type { AuthPermissionEntity } from '../../../domain/entities/auth-permission.entity.js';
+import type { UserPermissionResponseDTO } from '../../dtos/responses/user-permission-response.dto.js';
 
 export interface UserPermissionServiceInterface
   extends BaseServiceInterface<AuthPermissionEntity, string> {

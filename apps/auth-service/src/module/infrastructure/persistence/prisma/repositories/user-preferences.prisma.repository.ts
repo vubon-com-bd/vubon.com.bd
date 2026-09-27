@@ -10,8 +10,8 @@ import {
 } from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
 import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
 import type { UserId } from '@vubon/shared-types/common';
-import { UserPreferencesEntity } from '../../../../domain/entities/user-preferences.entity';
-import type { UserPreferencesRepository } from '../../../../domain/repositories/user-preferences.repository.interface';
+import { UserPreferencesEntity } from '../../../../domain/entities/user-preferences.entity.js';
+import type { UserPreferencesRepository } from '../../../../domain/repositories/user-preferences.repository.interface.js';
 
 @Injectable()
 export class UserPreferencesPrismaRepository

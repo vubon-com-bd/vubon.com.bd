@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { ActivateUserCommand } from './activate-user.command';
-import type { UserServiceInterface } from '../../services/interfaces/user.service.interface';
+import { ActivateUserCommand } from './activate-user.command.js';
+import type { UserServiceInterface } from '../../services/interfaces/user.service.interface.js';
 import type { UserId } from '@vubon/shared-types/common';
-import { USER_SERVICE } from '../../tokens';
+import { USER_SERVICE } from '../../tokens.js';
 
 @CommandHandler(ActivateUserCommand)
 export class ActivateUserHandler

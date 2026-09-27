@@ -9,21 +9,21 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
 
-import { EnableMfaCommand } from '../../../application/commands/auth/enable-mfa.command';
-import { DisableMfaCommand } from '../../../application/commands/auth/disable-mfa.command';
-import { VerifyMfaCommand } from '../../../application/commands/auth/verify-mfa.command';
-import { GetAuthMfaSettingsQuery } from '../../../application/queries/auth/get-auth-mfa-settings.query';
-import type { MfaResponseDTO } from '../../../application/dtos/responses/mfa-response.dto';
+import { EnableMfaCommand } from '../../../application/commands/auth/enable-mfa.command.js';
+import { DisableMfaCommand } from '../../../application/commands/auth/disable-mfa.command.js';
+import { VerifyMfaCommand } from '../../../application/commands/auth/verify-mfa.command.js';
+import { GetAuthMfaSettingsQuery } from '../../../application/queries/auth/get-auth-mfa-settings.query.js';
+import type { MfaResponseDTO } from '../../../application/dtos/responses/mfa-response.dto.js';
 import type { UserId } from '@vubon/shared-types/common';
 
 import {
   EnableMfaRequestDTO,
   DisableMfaRequestDTO,
   VerifyMfaRequestDTO,
-} from '../../dtos/requests/mfa.request.dto';
-import { MfaControllerMapper } from '../../mappers/mfa.controller.mapper';
-import { MfaSwagger } from '../../swagger/mfa.swagger';
-import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
+} from '../../dtos/requests/mfa.request.dto.js';
+import { MfaControllerMapper } from '../../mappers/mfa.controller.mapper.js';
+import { MfaSwagger } from '../../swagger/mfa.swagger.js';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator.js';
 
 @ApiTags('Auth MFA')
 @Controller('auth/mfa')

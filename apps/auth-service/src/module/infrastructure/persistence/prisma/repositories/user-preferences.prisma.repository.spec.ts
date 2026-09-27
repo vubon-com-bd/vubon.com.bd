@@ -1,15 +1,17 @@
 /**
  * UserPreferencesPrismaRepository — Unit Tests
  */
-import { UserPreferencesPrismaRepository } from './user-preferences.prisma.repository';
+import { jest } from '@jest/globals';
+
+import { UserPreferencesPrismaRepository } from './user-preferences.prisma.repository.js';
 
 const mockPrisma = () => ({
   userPreferences: {
-    findUnique: jest.fn(),
-    findMany: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
+    findUnique: jest.fn() as jest.Mock,
+    findMany: jest.fn() as jest.Mock,
+    create: jest.fn() as jest.Mock,
+    update: jest.fn() as jest.Mock,
+    delete: jest.fn() as jest.Mock,
   },
 });
 

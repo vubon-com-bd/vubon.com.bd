@@ -5,16 +5,16 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { UserActivityServiceInterface } from '../interfaces/user-activity.service.interface';
-import type { UserActivityRepository } from '../../../domain/repositories/user-activity.repository.interface';
-import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
+import type { UserActivityServiceInterface } from '../interfaces/user-activity.service.interface.js';
+import type { UserActivityRepository } from '../../../domain/repositories/user-activity.repository.interface.js';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface.js';
 import {
   UserActivityEntity,
   type ActivityType,
-} from '../../../domain/entities/user-activity.entity';
-import type { UserActivityResponseDTO } from '../../dtos/responses/user-activity-response.dto';
-import { ID_GENERATOR } from '../tokens';
-import { USER_ACTIVITY_REPO } from '../../tokens';
+} from '../../../domain/entities/user-activity.entity.js';
+import type { UserActivityResponseDTO } from '../../dtos/responses/user-activity-response.dto.js';
+import { ID_GENERATOR } from '../tokens.js';
+import { USER_ACTIVITY_REPO } from '../../tokens.js';
 
 @Injectable()
 export class UserActivityService

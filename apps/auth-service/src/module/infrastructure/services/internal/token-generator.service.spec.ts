@@ -2,7 +2,7 @@
  * TokenGeneratorService — Unit Tests
  * @module auth-service/infrastructure/services/internal
  */
-import { TokenGeneratorService } from './token-generator.service';
+import { TokenGeneratorService } from './token-generator.service.js';
 
 describe('TokenGeneratorService', () => {
   let service: TokenGeneratorService;

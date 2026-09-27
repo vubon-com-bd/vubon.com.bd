@@ -1,11 +1,11 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { GetUserQuery } from './get-user.query';
-import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
-import type { UserResponseDTO } from '../../dtos/responses/user-response.dto';
-import { UserNotFoundAppError } from '../../errors/user.errors';
-import { USER_REPO } from '../../tokens';
+import { GetUserQuery } from './get-user.query.js';
+import type { UserRepository } from '../../../domain/repositories/user.repository.interface.js';
+import type { UserResponseDTO } from '../../dtos/responses/user-response.dto.js';
+import { UserNotFoundAppError } from '../../errors/user.errors.js';
+import { USER_REPO } from '../../tokens.js';
 
 @QueryHandler(GetUserQuery)
 export class GetUserHandler

@@ -2,6 +2,7 @@
   "name": "@vubon/shared-ui",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Shared design system — tokens, primitives, components, patterns, layouts",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -105,7 +106,8 @@
     "prettier": "^3.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "tsc-alias": "^1.9.5"
   },
   "dependencies": {
     "@vubon/shared-api": "workspace:*",

@@ -1,10 +1,10 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { GetAuthAccountLockStatusQuery } from './get-auth-account-lock-status.query';
-import type { AuthAccountLockRepository } from '../../../domain/repositories/auth-account-lock.repository.interface';
-import type { AuthAccountLockResponseDTO } from '../../dtos/responses/auth-account-lock-response.dto';
-import { AUTH_ACCOUNT_LOCK_REPO } from '../../tokens';
+import { GetAuthAccountLockStatusQuery } from './get-auth-account-lock-status.query.js';
+import type { AuthAccountLockRepository } from '../../../domain/repositories/auth-account-lock.repository.interface.js';
+import type { AuthAccountLockResponseDTO } from '../../dtos/responses/auth-account-lock-response.dto.js';
+import { AUTH_ACCOUNT_LOCK_REPO } from '../../tokens.js';
 
 @QueryHandler(GetAuthAccountLockStatusQuery)
 export class GetAuthAccountLockStatusHandler

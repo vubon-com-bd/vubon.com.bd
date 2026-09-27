@@ -1,10 +1,8 @@
-import { BaseQuery } from '@vubon/shared-kernel/application/queries/base.query';
-
-export interface ListUsersFilter {
-  readonly status?: string;
-  readonly type?: string;
-  readonly search?: string;
-}
+/**
+ * ListUsersQuery
+ * @module user-service/application/queries/user
+ */
+import { BaseQuery } from '@vubon/shared-kernel/application/queries';
 
 export class ListUsersQuery extends BaseQuery {
   readonly type = 'user.list';
@@ -12,7 +10,9 @@ export class ListUsersQuery extends BaseQuery {
   constructor(
     public readonly page: number = 1,
     public readonly limit: number = 20,
-    public readonly filter?: ListUsersFilter,
+    public readonly statusFilter?: string,
+    public readonly userTypeFilter?: string,
+    public readonly search?: string
   ) {
     super();
   }

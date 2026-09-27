@@ -2,8 +2,8 @@
  * SessionValidationService — Session validity rules
  * @module auth-service/domain/services
  */
-import { AuthSessionEntity } from '../entities/auth-session.entity';
-import { SessionExpiredError, SessionRevokedError } from '../errors/session.errors';
+import { AuthSessionEntity } from '../entities/auth-session.entity.js';
+import { SessionExpiredError, SessionRevokedError } from '../errors/session.errors.js';
 
 export interface SessionValidationContext {
   readonly now: number;

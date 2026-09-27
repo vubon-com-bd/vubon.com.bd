@@ -1,10 +1,10 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { ListAuthSessionsQuery } from './list-auth-sessions.query';
-import type { AuthSessionRepository } from '../../../domain/repositories/auth-session.repository.interface';
-import type { AuthSessionResponseDTO } from '../../dtos/responses/auth-session-response.dto';
-import { AUTH_SESSION_REPO } from '../../tokens';
+import { ListAuthSessionsQuery } from './list-auth-sessions.query.js';
+import type { AuthSessionRepository } from '../../../domain/repositories/auth-session.repository.interface.js';
+import type { AuthSessionResponseDTO } from '../../dtos/responses/auth-session-response.dto.js';
+import { AUTH_SESSION_REPO } from '../../tokens.js';
 
 @QueryHandler(ListAuthSessionsQuery)
 export class ListAuthSessionsHandler

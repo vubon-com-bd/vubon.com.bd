@@ -6,10 +6,10 @@ import { Injectable } from '@nestjs/common';
 import { RedisService } from '@vubon/shared-kernel/infrastructure/persistence/cache/redis.service';
 import { BaseCacheRepository } from '@vubon/shared-kernel/infrastructure/persistence/cache/base.cache.repository';
 import { CACHE_TTL } from '@vubon/shared-constants/infrastructure';
-import { AuthTokenEntity } from '../../../../domain/entities/auth-token.entity';
-import { TokenValueVO } from '../../../../domain/value-objects/primitives/token-value.vo';
-import { TokenTypeVO } from '../../../../domain/value-objects/primitives/token-type.vo';
-import { TokenExpiryVO } from '../../../../domain/value-objects/primitives/token-expiry.vo';
+import { AuthTokenEntity } from '../../../../domain/entities/auth-token.entity.js';
+import { TokenValueVO } from '../../../../domain/value-objects/primitives/token-value.vo.js';
+import { TokenTypeVO } from '../../../../domain/value-objects/primitives/token-type.vo.js';
+import { TokenExpiryVO } from '../../../../domain/value-objects/primitives/token-expiry.vo.js';
 
 interface CachedToken {
   readonly id: string;

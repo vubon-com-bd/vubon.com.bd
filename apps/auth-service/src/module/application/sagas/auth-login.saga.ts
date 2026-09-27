@@ -10,9 +10,9 @@ import { Saga, ICommand, ofType } from '@nestjs/cqrs';
 import { Observable, merge } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { BaseSaga } from '@vubon/shared-kernel/application/sagas/base.saga';
-import { UserLoggedInEvent } from '../../domain/events/user.events';
-import { NotifyLoginCommand } from './commands/notify-login.command';
-import { UpdateAnalyticsCommand } from './commands/update-analytics.command';
+import { UserLoggedInEvent } from '../../domain/events/user.events.js';
+import { NotifyLoginCommand } from './commands/notify-login.command.js';
+import { UpdateAnalyticsCommand } from './commands/update-analytics.command.js';
 
 @Injectable()
 export class AuthLoginSaga extends BaseSaga<void> {

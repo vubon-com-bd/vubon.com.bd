@@ -1,9 +1,26 @@
-import type { EmailTemplate } from '@vubon/shared-kernel/infrastructure';
+/**
+ * KYC Rejected Email Template
+ */
+export interface KycRejectedEmailVariables {
+  readonly userName: string;
+  readonly reason: string;
+  readonly retryUrl: string;
+}
 
-export const KycRejectedEmailTemplate: EmailTemplate = {
+export const KycRejectedEmailTemplate = {
   name: 'kyc-rejected',
-  subject: 'KYC rejected',
-  html: `<p>Hi {{name}}, your KYC was rejected: {{reason}}</p>`,
-  text: 'Hi {{name}}, your KYC was rejected: {{reason}}',
-  variables: ['name', 'reason'],
-};
+  subjectKey: 'email.kycRejected.subject',
+  subjectFallback: 'Your KYC submission needs attention',
+  variables: {
+    userName: '{{user_name}}',
+    reason: '{{reason}}',
+    retryUrl: '{{retry_url}}',
+  },
+  buildVariables(input: KycRejectedEmailVariables): Record<string, string> {
+    return {
+      user_name: input.userName,
+      reason: input.reason,
+      retry_url: input.retryUrl,
+    };
+  },
+} as const;

@@ -1,12 +1,14 @@
 /**
  * ListAuthPermissionsHandler — Unit Tests
  */
-import { ListAuthPermissionsHandler } from './list-auth-permissions.handler';
-import { ListAuthPermissionsQuery } from './list-auth-permissions.query';
-import { AuthPermissionEntity } from '../../../domain/entities/auth-permission.entity';
-import { PermissionNameVO } from '../../../domain/value-objects/primitives/permission-name.vo';
-import { PermissionActionVO } from '../../../domain/value-objects/primitives/permission-action.vo';
-import { PermissionResourceVO } from '../../../domain/value-objects/primitives/permission-resource.vo';
+import { jest } from '@jest/globals';
+
+import { ListAuthPermissionsHandler } from './list-auth-permissions.handler.js';
+import { ListAuthPermissionsQuery } from './list-auth-permissions.query.js';
+import { AuthPermissionEntity } from '../../../domain/entities/auth-permission.entity.js';
+import { PermissionNameVO } from '../../../domain/value-objects/primitives/permission-name.vo.js';
+import { PermissionActionVO } from '../../../domain/value-objects/primitives/permission-action.vo.js';
+import { PermissionResourceVO } from '../../../domain/value-objects/primitives/permission-resource.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -22,7 +24,7 @@ const buildPermission = (name: string) => {
   });
 };
 
-const mockRepo = () => ({ findAll: jest.fn(), findByResource: jest.fn() });
+const mockRepo = () => ({ findAll: jest.fn() as jest.Mock, findByResource: jest.fn() as jest.Mock });
 
 describe('ListAuthPermissionsHandler', () => {
   let handler: ListAuthPermissionsHandler;

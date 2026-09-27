@@ -4,7 +4,7 @@
  *
  * References BaseCommand।
  */
-import type { BaseCommand } from './base.command';
+import type { BaseCommand } from './base.command.js';
 
 export interface CommandBus {
   execute<TResult = unknown>(command: BaseCommand): Promise<TResult>;

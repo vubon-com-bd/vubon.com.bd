@@ -1,16 +1,34 @@
-import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { InvalidCityError } from '../../errors/address.errors';
+/**
+ * City Value Object
+ */
+import { BaseCodeVO } from '@vubon/shared-kernel/domain/primitives/code.vo';
+import { USER_ADDRESS } from '@vubon/shared-constants/user';
 
-export class CityVO extends BaseVO<string> {
+export class CityVO extends BaseCodeVO {
+  private static readonly MAX_LENGTH = USER_ADDRESS.CITY_MAX_LENGTH;
+
   private constructor(value: string) {
     super(value);
   }
 
   static create(raw: string): CityVO {
-    const trimmed = raw.trim();
-    if (trimmed.length < 1 || trimmed.length > 100) {
-      throw new InvalidCityError(raw);
+    if (typeof raw !== 'string') {
+      throw new Error('City must be a string');
+    }
+    const trimmed = raw.trim().replace(/\s+/g, ' ');
+    if (trimmed.length < 2) {
+      throw new Error('City name too short (min 2)');
+    }
+    if (trimmed.length > CityVO.MAX_LENGTH) {
+      throw new Error(`City name too long (max ${CityVO.MAX_LENGTH})`);
+    }
+    if (!/^[\p{L}\s'.-]+$/u.test(trimmed)) {
+      throw new Error('City name contains invalid characters');
     }
     return new CityVO(trimmed);
+  }
+
+  static maxLength(): number {
+    return CityVO.MAX_LENGTH;
   }
 }

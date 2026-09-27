@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { UserVerificationController } from '../../interfaces/controllers/rest/user-verification.controller';
-import { UserVerificationService } from '../../application/services/impl/user-verification.service';
-import { UserVerificationPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/user-verification.prisma.repository';
-import { VerifiedGuard } from '../../interfaces/guards/verified.guard';
+import { UserVerificationController } from '../../interfaces/controllers/rest/user-verification.controller.js';
+import { UserVerificationService } from '../../application/services/impl/user-verification.service.js';
+import { UserVerificationPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/user-verification.prisma.repository.js';
+import { VerifiedGuard } from '../../interfaces/guards/verified.guard.js';
 import {
   USER_VERIFICATION_REPO,
   USER_VERIFICATION_SERVICE,
-} from '../../application/services/tokens';
+} from '../../application/services/tokens.js';
 
 const TOKEN_BINDINGS = [
   { provide: USER_VERIFICATION_REPO, useExisting: UserVerificationPrismaRepository },

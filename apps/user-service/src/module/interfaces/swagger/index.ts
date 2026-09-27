@@ -1,5 +1,6 @@
-export { UserSwagger } from './user.swagger';
-export { ProfileSwagger } from './profile.swagger';
-export { AddressSwagger } from './address.swagger';
-export { ContactSwagger } from './contact.swagger';
-export { KycSwagger } from './kyc.swagger';
+// swagger/index.ts
+export * from './user.swagger.js';
+export * from './profile.swagger.js';
+export * from './address.swagger.js';
+export * from './contact.swagger.js';
+export * from './kyc.swagger.js';

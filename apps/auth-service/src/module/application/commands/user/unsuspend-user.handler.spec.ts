@@ -1,10 +1,12 @@
 /**
  * UnsuspendUserHandler — Unit Tests
  */
-import { UnsuspendUserHandler } from './unsuspend-user.handler';
-import { UnsuspendUserCommand } from './unsuspend-user.command';
+import { jest } from '@jest/globals';
 
-const mockService = () => ({ unsuspend: jest.fn() });
+import { UnsuspendUserHandler } from './unsuspend-user.handler.js';
+import { UnsuspendUserCommand } from './unsuspend-user.command.js';
+
+const mockService = () => ({ unsuspend: jest.fn() as jest.Mock });
 
 describe('UnsuspendUserHandler', () => {
   let handler: UnsuspendUserHandler;

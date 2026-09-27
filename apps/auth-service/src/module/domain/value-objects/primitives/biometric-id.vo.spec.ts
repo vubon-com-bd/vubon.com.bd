@@ -2,7 +2,7 @@
  * BiometricIdVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { BiometricIdVO } from './biometric-id.vo';
+import { BiometricIdVO } from './biometric-id.vo.js';
 
 describe('BiometricIdVO', () => {
   const VALID = 'bio_abc123-def456';

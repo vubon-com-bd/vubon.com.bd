@@ -1,7 +1,7 @@
 // shared-kernel/domain/types/index.ts
 
-export * from './base.types';
-export * from './entity.types';
-export * from './value-object.types';
-export * from './event.types';
-export * from './repository.types';
+export * from './base.types.js';
+export * from './entity.types.js';
+export * from './value-object.types.js';
+export * from './event.types.js';
+export * from './repository.types.js';

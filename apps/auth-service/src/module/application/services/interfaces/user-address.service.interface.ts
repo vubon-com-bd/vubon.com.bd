@@ -4,10 +4,10 @@
  */
 import type { BaseServiceInterface } from '@vubon/shared-kernel/application/services/base.service.interface';
 import type { UserId } from '@vubon/shared-types/common';
-import type { UserAddressEntity } from '../../../domain/entities/user-address.entity';
-import type { AddAddressRequestDTO } from '../../dtos/requests/user/add-address.dto';
-import type { UpdateAddressRequestDTO } from '../../dtos/requests/user/update-address.dto';
-import type { UserAddressResponseDTO } from '../../dtos/responses/user-address-response.dto';
+import type { UserAddressEntity } from '../../../domain/entities/user-address.entity.js';
+import type { AddAddressRequestDTO } from '../../dtos/requests/user/add-address.dto.js';
+import type { UpdateAddressRequestDTO } from '../../dtos/requests/user/update-address.dto.js';
+import type { UserAddressResponseDTO } from '../../dtos/responses/user-address-response.dto.js';
 
 export interface UserAddressServiceInterface
   extends BaseServiceInterface<UserAddressEntity, string> {

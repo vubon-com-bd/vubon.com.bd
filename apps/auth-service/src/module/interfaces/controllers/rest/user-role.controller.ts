@@ -8,7 +8,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
 import type { UserId } from '@vubon/shared-types/common';
 
-import { ListUserRolesQuery } from '../../../application/queries/user/list-user-roles.query';
+import { ListUserRolesQuery } from '../../../application/queries/user/list-user-roles.query.js';
 
 @ApiTags('Users Roles')
 @Controller('users/roles')

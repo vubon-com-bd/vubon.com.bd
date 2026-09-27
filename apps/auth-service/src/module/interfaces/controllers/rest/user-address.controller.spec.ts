@@ -1,12 +1,14 @@
 /**
  * UserAddressController — Unit Tests
  */
+import { jest } from '@jest/globals';
+
 import { Test } from '@nestjs/testing';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { UserAddressController } from './user-address.controller';
+import { UserAddressController } from './user-address.controller.js';
 
-const mockCommandBus = () => ({ execute: jest.fn() });
-const mockQueryBus = () => ({ execute: jest.fn() });
+const mockCommandBus = () => ({ execute: jest.fn() as jest.Mock });
+const mockQueryBus = () => ({ execute: jest.fn() as jest.Mock });
 
 describe('UserAddressController', () => {
   let controller: UserAddressController;

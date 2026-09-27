@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { AddContactCommand } from './add-contact.command';
-import type { UserContactServiceInterface } from '../../services/interfaces/user-contact.service.interface';
-import type { UserContactResponseDTO } from '../../dtos/responses/user-contact-response.dto';
-import { USER_CONTACT_SERVICE } from '../../tokens';
+import { AddContactCommand } from './add-contact.command.js';
+import type { UserContactServiceInterface } from '../../services/interfaces/user-contact.service.interface.js';
+import type { UserContactResponseDTO } from '../../dtos/responses/user-contact-response.dto.js';
+import { USER_CONTACT_SERVICE } from '../../tokens.js';
 
 @CommandHandler(AddContactCommand)
 export class AddContactHandler

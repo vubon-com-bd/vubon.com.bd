@@ -6,7 +6,7 @@
  */
 import { Global, Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { TOKENS } from '../tokens';
+import { TOKENS } from '../tokens.js';
 
 @Global()
 @Module({

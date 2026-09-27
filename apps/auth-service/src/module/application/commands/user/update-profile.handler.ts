@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { UpdateProfileCommand } from './update-profile.command';
-import type { UserProfileServiceInterface } from '../../services/interfaces/user-profile.service.interface';
-import type { UserProfileResponseDTO } from '../../dtos/responses/user-profile-response.dto';
-import { USER_PROFILE_SERVICE } from '../../tokens';
+import { UpdateProfileCommand } from './update-profile.command.js';
+import type { UserProfileServiceInterface } from '../../services/interfaces/user-profile.service.interface.js';
+import type { UserProfileResponseDTO } from '../../dtos/responses/user-profile-response.dto.js';
+import { USER_PROFILE_SERVICE } from '../../tokens.js';
 
 @CommandHandler(UpdateProfileCommand)
 export class UpdateProfileHandler

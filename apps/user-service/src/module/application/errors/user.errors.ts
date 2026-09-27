@@ -1,29 +1,50 @@
-import { ERROR_CODE, type ErrorCodeType } from '@vubon/shared-constants/common';
-import { ApplicationError } from '@vubon/shared-kernel/application/errors/application.error';
+/**
+ * User Application Errors
+ */
+import { ApplicationError } from '@vubon/shared-kernel/application/errors';
+import { ERROR_CODE } from '@vubon/shared-constants/common';
 
-export class UserOperationFailedError extends ApplicationError {
-  readonly code: ErrorCodeType = ERROR_CODE.SERVER_INTERNAL;
+export class UserCreationFailedError extends ApplicationError {
+  readonly code = ERROR_CODE.SERVER_INTERNAL;
   readonly httpStatus = 500;
-
   constructor(reason: string) {
-    super(`User operation failed: ${reason}`, { reason });
+    super(`User creation failed: ${reason}`, { reason });
+    this.name = 'UserCreationFailedError';
   }
 }
 
-export class UserValidationFailedError extends ApplicationError {
-  readonly code: ErrorCodeType = ERROR_CODE.VAL_INVALID_FORMAT;
-  readonly httpStatus = 400;
-
-  constructor(field: string, reason: string) {
-    super(`Validation failed for ${field}: ${reason}`, { field, reason });
+export class UserUpdateFailedError extends ApplicationError {
+  readonly code = ERROR_CODE.SERVER_INTERNAL;
+  readonly httpStatus = 500;
+  constructor(userId: string, reason: string) {
+    super(`User update failed for "${userId}": ${reason}`, { userId, reason });
+    this.name = 'UserUpdateFailedError';
   }
 }
 
-export class UserNotFoundAppError extends ApplicationError {
-  readonly code: ErrorCodeType = ERROR_CODE.USER_NOT_FOUND;
+export class UserDeletionFailedError extends ApplicationError {
+  readonly code = ERROR_CODE.SERVER_INTERNAL;
+  readonly httpStatus = 500;
+  constructor(userId: string, reason: string) {
+    super(`User deletion failed for "${userId}": ${reason}`, { userId, reason });
+    this.name = 'UserDeletionFailedError';
+  }
+}
+
+export class UserNotFoundApplicationError extends ApplicationError {
+  readonly code = ERROR_CODE.USER_NOT_FOUND;
   readonly httpStatus = 404;
-
   constructor(userId: string) {
-    super(`User not found: ${userId}`, { userId });
+    super(`User "${userId}" not found`, { userId });
+    this.name = 'UserNotFoundApplicationError';
+  }
+}
+
+export class UserAlreadyExistsApplicationError extends ApplicationError {
+  readonly code = ERROR_CODE.USER_ALREADY_EXISTS;
+  readonly httpStatus = 409;
+  constructor(email: string) {
+    super(`User already exists with email "${email}"`, { email });
+    this.name = 'UserAlreadyExistsApplicationError';
   }
 }

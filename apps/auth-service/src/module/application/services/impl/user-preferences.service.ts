@@ -5,12 +5,12 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { UserPreferencesServiceInterface } from '../interfaces/user-preferences.service.interface';
-import type { UserPreferencesRepository } from '../../../domain/repositories/user-preferences.repository.interface';
-import { UserPreferencesEntity } from '../../../domain/entities/user-preferences.entity';
-import type { UpdatePreferencesRequestDTO } from '../../dtos/requests/user/update-preferences.dto';
-import type { UserPreferencesResponseDTO } from '../../dtos/responses/user-preferences-response.dto';
-import { USER_PREFERENCES_REPO } from '../../tokens';
+import type { UserPreferencesServiceInterface } from '../interfaces/user-preferences.service.interface.js';
+import type { UserPreferencesRepository } from '../../../domain/repositories/user-preferences.repository.interface.js';
+import { UserPreferencesEntity } from '../../../domain/entities/user-preferences.entity.js';
+import type { UpdatePreferencesRequestDTO } from '../../dtos/requests/user/update-preferences.dto.js';
+import type { UserPreferencesResponseDTO } from '../../dtos/responses/user-preferences-response.dto.js';
+import { USER_PREFERENCES_REPO } from '../../tokens.js';
 
 @Injectable()
 export class UserPreferencesService

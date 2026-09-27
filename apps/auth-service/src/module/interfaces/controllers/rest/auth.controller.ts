@@ -9,24 +9,24 @@ import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard, Public } from '@vubon/shared-kernel/interfaces';
 
-import { LoginCommand } from '../../../application/commands/auth/login.command';
-import { RegisterCommand } from '../../../application/commands/auth/register.command';
-import { RefreshTokenCommand } from '../../../application/commands/auth/refresh-token.command';
-import { LogoutCommand } from '../../../application/commands/auth/logout.command';
-import { ForgotPasswordCommand } from '../../../application/commands/auth/forgot-password.command';
-import { ResetPasswordCommand } from '../../../application/commands/auth/reset-password.command';
-import { VerifyEmailCommand } from '../../../application/commands/auth/verify-email.command';
-import { ResendVerificationCommand } from '../../../application/commands/auth/resend-verification.command';
-import type { LoginResponseDTO } from '../../../application/dtos/responses/login-response.dto';
-import type { RegisterResponseDTO } from '../../../application/dtos/responses/register-response.dto';
+import { LoginCommand } from '../../../application/commands/auth/login.command.js';
+import { RegisterCommand } from '../../../application/commands/auth/register.command.js';
+import { RefreshTokenCommand } from '../../../application/commands/auth/refresh-token.command.js';
+import { LogoutCommand } from '../../../application/commands/auth/logout.command.js';
+import { ForgotPasswordCommand } from '../../../application/commands/auth/forgot-password.command.js';
+import { ResetPasswordCommand } from '../../../application/commands/auth/reset-password.command.js';
+import { VerifyEmailCommand } from '../../../application/commands/auth/verify-email.command.js';
+import { ResendVerificationCommand } from '../../../application/commands/auth/resend-verification.command.js';
+import type { LoginResponseDTO } from '../../../application/dtos/responses/login-response.dto.js';
+import type { RegisterResponseDTO } from '../../../application/dtos/responses/register-response.dto.js';
 
-import { AuthRequestDTO } from '../../dtos/requests/auth.request.dto';
-import { TokenRequestDTO } from '../../dtos/requests/token.request.dto';
-import { VerifyEmailRequestDTO, ResendVerificationRequestDTO } from '../../dtos/requests/verification.request.dto';
-import { RecoverAccountRequestDTO } from '../../dtos/requests/recovery-code.request.dto';
-import { AuthControllerMapper } from '../../mappers/auth.controller.mapper';
-import { AuthSwagger } from '../../swagger/auth.swagger';
-import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator';
+import { AuthRequestDTO } from '../../dtos/requests/auth.request.dto.js';
+import { TokenRequestDTO } from '../../dtos/requests/token.request.dto.js';
+import { VerifyEmailRequestDTO, ResendVerificationRequestDTO } from '../../dtos/requests/verification.request.dto.js';
+import { RecoverAccountRequestDTO } from '../../dtos/requests/recovery-code.request.dto.js';
+import { AuthControllerMapper } from '../../mappers/auth.controller.mapper.js';
+import { AuthSwagger } from '../../swagger/auth.swagger.js';
+import { CurrentUser, type AuthenticatedUser } from '../../decorators/current-user.decorator.js';
 
 @ApiTags('Auth')
 @Controller('auth')

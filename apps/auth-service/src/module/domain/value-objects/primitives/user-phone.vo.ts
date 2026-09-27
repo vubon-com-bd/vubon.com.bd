@@ -10,7 +10,7 @@
 import { BasePhoneVO } from '@vubon/shared-kernel/domain/primitives/phone.vo';
 import { REGEX } from '@vubon/shared-constants/common';
 import { toPhone } from '@vubon/shared-types/common';
-import { InvalidPhoneError } from '../../errors/user.errors';
+import { InvalidPhoneError } from '../../errors/user.errors.js';
 
 export class UserPhoneVO extends BasePhoneVO {
   private constructor(value: ReturnType<typeof toPhone>) {

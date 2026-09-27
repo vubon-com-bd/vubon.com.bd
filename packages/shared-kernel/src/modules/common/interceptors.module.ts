@@ -9,7 +9,7 @@ import {
   CorrelationIdInterceptor,
   LoggingInterceptor,
   TimeoutInterceptor,
-} from '../../interfaces/interceptors';
+} from '../../interfaces/interceptors/index.js';
 
 @Global()
 @Module({

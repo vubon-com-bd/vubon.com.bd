@@ -2,9 +2,9 @@
  * AuthSessionVO — Unit Tests
  * @module auth-service/domain/value-objects/composites
  */
-import { AuthSessionVO } from './auth-session.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { SessionTokenVO } from '../primitives/session-token.vo';
+import { AuthSessionVO } from './auth-session.vo.js';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { SessionTokenVO } from '../primitives/session-token.vo.js';
 
 describe('AuthSessionVO', () => {
   const userId = UserIdVO.of('user-1');

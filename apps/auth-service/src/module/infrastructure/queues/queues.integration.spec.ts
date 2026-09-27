@@ -4,12 +4,14 @@
  *
  * Requires Redis at localhost:6379.
  */
+import { jest } from '@jest/globals';
+
 import { Queue } from 'bullmq';
-import { createAuthQueue, AUTH_QUEUE_NAME } from './auth.queue';
-import { createSessionQueue, SESSION_QUEUE_NAME } from './session.queue';
-import { createTokenQueue, TOKEN_QUEUE_NAME } from './token.queue';
-import { createNotificationQueue, NOTIFICATION_QUEUE_NAME } from './notification.queue';
-import { createAnalyticsQueue, ANALYTICS_QUEUE_NAME } from './analytics.queue';
+import { createAuthQueue, AUTH_QUEUE_NAME } from './auth.queue.js';
+import { createSessionQueue, SESSION_QUEUE_NAME } from './session.queue.js';
+import { createTokenQueue, TOKEN_QUEUE_NAME } from './token.queue.js';
+import { createNotificationQueue, NOTIFICATION_QUEUE_NAME } from './notification.queue.js';
+import { createAnalyticsQueue, ANALYTICS_QUEUE_NAME } from './analytics.queue.js';
 
 const connection = {
   host: process.env['REDIS_HOST'] ?? '127.0.0.1',

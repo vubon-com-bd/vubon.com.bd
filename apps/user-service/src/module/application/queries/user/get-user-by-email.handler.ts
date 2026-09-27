@@ -1,24 +1,28 @@
+/**
+ * GetUserByEmailHandler
+ */
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
-import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { GetUserByEmailQuery } from './get-user-by-email.query';
-import type { UserServiceInterface } from '../../services/interfaces/user.service.interface';
-import type { UserResponseDTO } from '../../dtos/responses/user-response.dto';
-import { UserNotFoundAppError } from '../../errors/user.errors';
+import { Inject } from '@nestjs/common';
+import { GetUserByEmailQuery } from './get-user-by-email.query.js';
+import { USER_REPOSITORY } from '@domain/repositories/user.repository.interface';
+import type { UserRepository } from '@domain/repositories/user.repository.interface';
+import { UserEmailVO } from '@domain/value-objects/primitives/user-email.vo';
+import { UserMapper } from '../../mappers/user.mapper.js';
+import type { UserResponseDTO } from '../../dtos/responses/user-response.dto.js';
+import { UserNotFoundApplicationError } from '../../errors/user.errors.js';
 
 @QueryHandler(GetUserByEmailQuery)
 export class GetUserByEmailHandler
-  extends BaseQueryHandler<GetUserByEmailQuery, UserResponseDTO>
-  implements IQueryHandler<GetUserByEmailQuery>
+  implements IQueryHandler<GetUserByEmailQuery, UserResponseDTO>
 {
-  readonly queryType = 'user.get-by-email';
-
-  constructor(private readonly userService: UserServiceInterface) {
-    super();
-  }
+  constructor(
+    @Inject(USER_REPOSITORY)
+    private readonly userRepo: UserRepository
+  ) {}
 
   async execute(query: GetUserByEmailQuery): Promise<UserResponseDTO> {
-    const user = await this.userService.findByEmail(query.email);
-    if (!user) throw new UserNotFoundAppError(query.email);
-    return user;
+    const user = await this.userRepo.findByEmail(UserEmailVO.create(query.email));
+    if (!user) throw new UserNotFoundApplicationError(query.email);
+    return UserMapper.toResponse(user);
   }
 }

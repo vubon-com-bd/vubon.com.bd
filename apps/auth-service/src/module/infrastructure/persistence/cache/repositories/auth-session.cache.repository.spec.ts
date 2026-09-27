@@ -2,10 +2,12 @@
  * AuthSessionCacheRepository — Unit Tests
  * @module auth-service/infrastructure/persistence/cache/repositories
  */
-import { AuthSessionCacheRepository } from './auth-session.cache.repository';
-import { AuthSessionEntity } from '../../../../domain/entities/auth-session.entity';
-import { SessionTokenVO } from '../../../../domain/value-objects/primitives/session-token.vo';
-import { SessionExpiryVO } from '../../../../domain/value-objects/primitives/session-expiry.vo';
+import { jest } from '@jest/globals';
+
+import { AuthSessionCacheRepository } from './auth-session.cache.repository.js';
+import { AuthSessionEntity } from '../../../../domain/entities/auth-session.entity.js';
+import { SessionTokenVO } from '../../../../domain/value-objects/primitives/session-token.vo.js';
+import { SessionExpiryVO } from '../../../../domain/value-objects/primitives/session-expiry.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();

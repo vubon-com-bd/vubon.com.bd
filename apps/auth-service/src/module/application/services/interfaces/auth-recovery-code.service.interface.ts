@@ -4,8 +4,8 @@
  */
 import type { BaseServiceInterface } from '@vubon/shared-kernel/application/services/base.service.interface';
 import type { UserId } from '@vubon/shared-types/common';
-import type { AuthRecoveryCodeEntity } from '../../../domain/entities/auth-recovery-code.entity';
-import type { RecoveryCodesResponseDTO } from '../../dtos/responses/recovery-codes-response.dto';
+import type { AuthRecoveryCodeEntity } from '../../../domain/entities/auth-recovery-code.entity.js';
+import type { RecoveryCodesResponseDTO } from '../../dtos/responses/recovery-codes-response.dto.js';
 
 export interface AuthRecoveryCodeServiceInterface
   extends BaseServiceInterface<AuthRecoveryCodeEntity, string> {

@@ -1,4 +1,5 @@
-export { ListContactsQuery } from './list-contacts.query';
-export { ListContactsHandler } from './list-contacts.handler';
-export { GetContactQuery } from './get-contact.query';
-export { GetContactHandler } from './get-contact.handler';
+// queries/contact/index.ts
+export * from './list-contacts.query.js';
+export * from './list-contacts.handler.js';
+export * from './get-contact.query.js';
+export * from './get-contact.handler.js';

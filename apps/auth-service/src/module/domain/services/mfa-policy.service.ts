@@ -8,10 +8,10 @@
  * - New device from new country → required
  * - High-risk IP → required
  */
-import { UserEntity } from '../entities/user.entity';
-import { AuthMfaEntity } from '../entities/auth-mfa.entity';
-import { AuthDeviceEntity } from '../entities/auth-device.entity';
-import { MfaRequiredError } from '../errors/mfa.errors';
+import { UserEntity } from '../entities/user.entity.js';
+import { AuthMfaEntity } from '../entities/auth-mfa.entity.js';
+import { AuthDeviceEntity } from '../entities/auth-device.entity.js';
+import { MfaRequiredError } from '../errors/mfa.errors.js';
 
 export interface MfaRequiredContext {
   readonly user: UserEntity;

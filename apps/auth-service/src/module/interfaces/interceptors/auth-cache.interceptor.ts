@@ -14,7 +14,7 @@ import {
 import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { RedisService } from '@vubon/shared-kernel/infrastructure/persistence/cache/redis.service';
-import type { AuthenticatedUser } from '../decorators/current-user.decorator';
+import type { AuthenticatedUser } from '../decorators/current-user.decorator.js';
 
 const DEFAULT_TTL_SECONDS = 60;
 

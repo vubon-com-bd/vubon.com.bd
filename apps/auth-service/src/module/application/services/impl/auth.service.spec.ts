@@ -2,18 +2,20 @@
  * AuthService — Unit Tests
  * @module auth-service/application/services/impl
  */
-import { AuthService } from './auth.service';
-import { UserEntity } from '../../../domain/entities/user.entity';
-import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo';
-import { UserNameVO } from '../../../domain/value-objects/primitives/user-name.vo';
-import { UserStatusVO } from '../../../domain/value-objects/primitives/user-status.vo';
-import { UserTypeVO } from '../../../domain/value-objects/primitives/user-type.vo';
-import { UserRoleVO } from '../../../domain/value-objects/primitives/user-role.vo';
-import { AuthSessionEntity } from '../../../domain/entities/auth-session.entity';
-import { SessionTokenVO } from '../../../domain/value-objects/primitives/session-token.vo';
-import { SessionExpiryVO } from '../../../domain/value-objects/primitives/session-expiry.vo';
-import { UserNotFoundError } from '../../../domain/errors/user.errors';
-import { InvalidCredentialsError } from '../../errors/auth.errors';
+import { jest } from '@jest/globals';
+
+import { AuthService } from './auth.service.js';
+import { UserEntity } from '../../../domain/entities/user.entity.js';
+import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo.js';
+import { UserNameVO } from '../../../domain/value-objects/primitives/user-name.vo.js';
+import { UserStatusVO } from '../../../domain/value-objects/primitives/user-status.vo.js';
+import { UserTypeVO } from '../../../domain/value-objects/primitives/user-type.vo.js';
+import { UserRoleVO } from '../../../domain/value-objects/primitives/user-role.vo.js';
+import { AuthSessionEntity } from '../../../domain/entities/auth-session.entity.js';
+import { SessionTokenVO } from '../../../domain/value-objects/primitives/session-token.vo.js';
+import { SessionExpiryVO } from '../../../domain/value-objects/primitives/session-expiry.vo.js';
+import { UserNotFoundError } from '../../../domain/errors/user.errors.js';
+import { InvalidCredentialsError } from '../../errors/auth.errors.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();
@@ -51,47 +53,47 @@ const buildSession = (): AuthSessionEntity =>
   });
 
 const mockUserRepo = () => ({
-  findById: jest.fn(),
-  findByEmail: jest.fn(),
-  existsByEmail: jest.fn(),
-  findAll: jest.fn(),
+  findById: jest.fn() as jest.Mock,
+  findByEmail: jest.fn() as jest.Mock,
+  existsByEmail: jest.fn() as jest.Mock,
+  findAll: jest.fn() as jest.Mock,
   save: jest.fn((u: UserEntity) => Promise.resolve(u)),
-  delete: jest.fn(),
-  exists: jest.fn(),
-  findByIds: jest.fn(),
-  countByStatus: jest.fn(),
+  delete: jest.fn() as jest.Mock,
+  exists: jest.fn() as jest.Mock,
+  findByIds: jest.fn() as jest.Mock,
+  countByStatus: jest.fn() as jest.Mock,
 });
 
 const mockSessionService = () => ({
   name: 'AuthSessionService',
-  create: jest.fn(),
-  findActiveByUser: jest.fn(),
-  revoke: jest.fn(),
-  revokeAllForUser: jest.fn(),
-  findByToken: jest.fn(),
-  toResponse: jest.fn(),
+  create: jest.fn() as jest.Mock,
+  findActiveByUser: jest.fn() as jest.Mock,
+  revoke: jest.fn() as jest.Mock,
+  revokeAllForUser: jest.fn() as jest.Mock,
+  findByToken: jest.fn() as jest.Mock,
+  toResponse: jest.fn() as jest.Mock,
 });
 
 const mockTokenService = () => ({
   name: 'AuthTokenService',
-  generate: jest.fn(),
-  generatePair: jest.fn(),
-  verify: jest.fn(),
-  revoke: jest.fn(),
-  revokeAllForSubject: jest.fn(),
-  refresh: jest.fn(),
+  generate: jest.fn() as jest.Mock,
+  generatePair: jest.fn() as jest.Mock,
+  verify: jest.fn() as jest.Mock,
+  revoke: jest.fn() as jest.Mock,
+  revokeAllForSubject: jest.fn() as jest.Mock,
+  refresh: jest.fn() as jest.Mock,
 });
 
 const mockHasher = () => ({
   name: 'PasswordHasherService',
-  hash: jest.fn(),
-  verify: jest.fn(),
-  needsRehash: jest.fn(),
+  hash: jest.fn() as jest.Mock,
+  verify: jest.fn() as jest.Mock,
+  needsRehash: jest.fn() as jest.Mock,
 });
 
 const mockIdGen = () => ({
   name: 'IdGeneratorService',
-  generate: jest.fn(),
+  generate: jest.fn() as jest.Mock,
   generateUuid: jest.fn(() => 'uuid-test-1'),
 });
 

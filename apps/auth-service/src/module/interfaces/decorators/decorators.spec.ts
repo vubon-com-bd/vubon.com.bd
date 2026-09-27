@@ -6,19 +6,19 @@ import 'reflect-metadata';
 import {
   MfaRequired,
   MFA_REQUIRED_KEY,
-} from './mfa-required.decorator';
+} from './mfa-required.decorator.js';
 import {
   BiometricRequired,
   BIOMETRIC_REQUIRED_KEY,
-} from './biometric-required.decorator';
+} from './biometric-required.decorator.js';
 import {
   VerifiedRequired,
   VERIFIED_REQUIRED_KEY,
-} from './verified-required.decorator';
+} from './verified-required.decorator.js';
 import {
   DeviceTrusted,
   DEVICE_TRUSTED_KEY,
-} from './device-trusted.decorator';
+} from './device-trusted.decorator.js';
 
 describe('Interface Decorators', () => {
   describe('MfaRequired', () => {

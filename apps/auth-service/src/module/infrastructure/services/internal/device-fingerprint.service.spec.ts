@@ -2,7 +2,7 @@
  * DeviceFingerprintService — Unit Tests
  * @module auth-service/infrastructure/services/internal
  */
-import { DeviceFingerprintService } from './device-fingerprint.service';
+import { DeviceFingerprintService } from './device-fingerprint.service.js';
 
 describe('DeviceFingerprintService', () => {
   let service: DeviceFingerprintService;

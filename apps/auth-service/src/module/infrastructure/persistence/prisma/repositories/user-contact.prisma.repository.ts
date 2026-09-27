@@ -10,10 +10,10 @@ import {
 } from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
 import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
 import type { UserId } from '@vubon/shared-types/common';
-import { UserContactEntity } from '../../../../domain/entities/user-contact.entity';
-import { UserEmailVO } from '../../../../domain/value-objects/primitives/user-email.vo';
-import { UserPhoneVO } from '../../../../domain/value-objects/primitives/user-phone.vo';
-import type { UserContactRepository } from '../../../../domain/repositories/user-contact.repository.interface';
+import { UserContactEntity } from '../../../../domain/entities/user-contact.entity.js';
+import { UserEmailVO } from '../../../../domain/value-objects/primitives/user-email.vo.js';
+import { UserPhoneVO } from '../../../../domain/value-objects/primitives/user-phone.vo.js';
+import type { UserContactRepository } from '../../../../domain/repositories/user-contact.repository.interface.js';
 
 @Injectable()
 export class UserContactPrismaRepository
@@ -43,7 +43,7 @@ export class UserContactPrismaRepository
       verified: false,
       createdAt: raw.createdAt.toISOString(),
       updatedAt: raw.updatedAt.toISOString(),
-      deletedAt: raw.deletedAt ? raw.deletedAt.toISOString() : null,
+      deletedAt: null,
     });
   }
 

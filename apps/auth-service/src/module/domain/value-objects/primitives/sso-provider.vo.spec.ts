@@ -2,7 +2,7 @@
  * SsoProviderVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { SsoProviderVO } from './sso-provider.vo';
+import { SsoProviderVO } from './sso-provider.vo.js';
 
 describe('SsoProviderVO', () => {
   describe('of()', () => {

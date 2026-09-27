@@ -1,10 +1,10 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { ListAuthDevicesQuery } from './list-auth-devices.query';
-import type { AuthDeviceRepository } from '../../../domain/repositories/auth-device.repository.interface';
-import type { AuthDeviceResponseDTO } from '../../dtos/responses/auth-device-response.dto';
-import { AUTH_DEVICE_REPO } from '../../tokens';
+import { ListAuthDevicesQuery } from './list-auth-devices.query.js';
+import type { AuthDeviceRepository } from '../../../domain/repositories/auth-device.repository.interface.js';
+import type { AuthDeviceResponseDTO } from '../../dtos/responses/auth-device-response.dto.js';
+import { AUTH_DEVICE_REPO } from '../../tokens.js';
 
 @QueryHandler(ListAuthDevicesQuery)
 export class ListAuthDevicesHandler

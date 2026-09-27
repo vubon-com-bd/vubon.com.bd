@@ -1,17 +1,10 @@
-export { UserVO, type UserProps } from './user.vo';
-export { UserProfileVO, type UserProfileProps } from './user-profile.vo';
-export {
-  UserSettingsVO,
-  type UserSettingsProps,
-  type UserSettingsEntry,
-} from './user-settings.vo';
-export {
-  UserPreferencesVO,
-  type UserPreferencesProps,
-  type UserPreferencesEntry,
-} from './user-preferences.vo';
-export { UserAddressVO, type UserAddressProps } from './user-address.vo';
-export { UserContactVO, type UserContactProps } from './user-contact.vo';
-export { UserKycVO, type UserKycProps } from './user-kyc.vo';
-export { UserActivityVO, type UserActivityProps } from './user-activity.vo';
-export { UserPersonaVO, type UserPersonaProps } from './user-persona.vo';
+// composites/index.ts — Composite VOs barrel export
+export * from './user.vo.js';
+export * from './user-profile.vo.js';
+export * from './user-settings.vo.js';
+export * from './user-preferences.vo.js';
+export * from './user-address.vo.js';
+export * from './user-contact.vo.js';
+export * from './user-kyc.vo.js';
+export * from './user-activity.vo.js';
+export * from './user-persona.vo.js';

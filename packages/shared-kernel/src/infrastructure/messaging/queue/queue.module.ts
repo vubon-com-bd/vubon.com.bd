@@ -3,7 +3,7 @@
  * @module shared-kernel/infrastructure/messaging/queue
  */
 import { Global, Module } from '@nestjs/common';
-import { QueueService } from './queue.service';
+import { QueueService } from './queue.service.js';
 
 @Global()
 @Module({

@@ -11,18 +11,18 @@ import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@vubon/shared-kernel/interfaces';
 import type { UserId } from '@vubon/shared-types/common';
 
-import { CreateUserCommand } from '../../../application/commands/user/create-user.command';
-import { UpdateUserCommand } from '../../../application/commands/user/update-user.command';
-import { DeleteUserCommand } from '../../../application/commands/user/delete-user.command';
-import { GetUserQuery } from '../../../application/queries/user/get-user.query';
-import { ListUsersQuery } from '../../../application/queries/user/list-users.query';
+import { CreateUserCommand } from '../../../application/commands/user/create-user.command.js';
+import { UpdateUserCommand } from '../../../application/commands/user/update-user.command.js';
+import { DeleteUserCommand } from '../../../application/commands/user/delete-user.command.js';
+import { GetUserQuery } from '../../../application/queries/user/get-user.query.js';
+import { ListUsersQuery } from '../../../application/queries/user/list-users.query.js';
 import {
   CreateUserRequestDTO,
   UpdateUserRequestDTO,
   DeleteUserRequestDTO,
-} from '../../dtos/requests/user.request.dto';
-import { UserControllerMapper } from '../../mappers/user.controller.mapper';
-import { UserSwagger } from '../../swagger/user.swagger';
+} from '../../dtos/requests/user.request.dto.js';
+import { UserControllerMapper } from '../../mappers/user.controller.mapper.js';
+import { UserSwagger } from '../../swagger/user.swagger.js';
 
 @ApiTags('Users')
 @Controller('users')

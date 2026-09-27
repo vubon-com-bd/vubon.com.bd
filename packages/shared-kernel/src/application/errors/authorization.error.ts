@@ -5,7 +5,7 @@
  * Values আসে shared-constants/common/error.constants থেকে (value)।
  */
 import { ERROR_CODE } from '@vubon/shared-constants/common';
-import { ApplicationError } from './application.error';
+import { ApplicationError } from './application.error.js';
 
 export class AuthorizationError extends ApplicationError {
   readonly code = ERROR_CODE.AUTH_FORBIDDEN;

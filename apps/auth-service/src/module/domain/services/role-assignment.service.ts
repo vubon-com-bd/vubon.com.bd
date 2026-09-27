@@ -7,9 +7,9 @@
  * - A user cannot have duplicate roles
  * - Vendor role requires verified email + phone
  */
-import { UserEntity } from '../entities/user.entity';
-import { UserRoleVO } from '../value-objects/primitives/user-role.vo';
-import { InvalidRoleError, PermissionDeniedError } from '../errors/permission.errors';
+import { UserEntity } from '../entities/user.entity.js';
+import { UserRoleVO } from '../value-objects/primitives/user-role.vo.js';
+import { InvalidRoleError, PermissionDeniedError } from '../errors/permission.errors.js';
 import { ROLE } from '@vubon/shared-constants/common';
 
 export class RoleAssignmentService {

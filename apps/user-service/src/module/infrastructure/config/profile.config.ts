@@ -1,8 +1,14 @@
-import { getOptionalEnvBool, getOptionalEnvInt } from '@vubon/shared-config/common';
+/**
+ * Profile Config
+ */
+import { getOptionalEnvInt } from '@vubon/shared-config/common/env';
+import { USER_PROFILE } from '@vubon/shared-constants/user';
 
 export const PROFILE_CONFIG = Object.freeze({
-  bioMaxLength: getOptionalEnvInt('PROFILE_BIO_MAX_LENGTH', 500),
-  avatarMaxSizeMb: getOptionalEnvInt('PROFILE_AVATAR_MAX_SIZE_MB', 5),
-  defaultVisibility: 'public',
-  allowPublicProfiles: getOptionalEnvBool('PROFILE_ALLOW_PUBLIC', true),
+  bioMaxLength: USER_PROFILE.BIO_MAX_LENGTH,
+  nameMaxLength: USER_PROFILE.NAME_MAX_LENGTH,
+  websiteMaxLength: USER_PROFILE.WEBSITE_MAX_LENGTH,
+  completionCacheTtl: getOptionalEnvInt('PROFILE_COMPLETION_CACHE_TTL', 300),
 } as const);
+
+export type ProfileConfig = typeof PROFILE_CONFIG;

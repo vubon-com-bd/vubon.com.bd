@@ -6,7 +6,7 @@
  */
 import { Global, Module } from '@nestjs/common';
 import { APP_CONFIG, APP_MODE } from '@vubon/shared-config/common';
-import { TOKENS } from '../tokens';
+import { TOKENS } from '../tokens.js';
 
 @Global()
 @Module({

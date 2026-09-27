@@ -1,47 +1,45 @@
-// ═══════════ User Core ═══════════
-export { UserIdVO } from './user-id.vo';
-export { UserEmailVO } from './user-email.vo';
-export { UserNameVO } from './user-name.vo';
-export { UserPhoneVO } from './user-phone.vo';
-export { UserStatusVO } from './user-status.vo';
-export { UserTypeVO } from './user-type.vo';
-export { UserGenderVO } from './user-gender.vo';
-export { UserLanguageVO } from './user-language.vo';
-export { UserTimezoneVO } from './user-timezone.vo';
-export { UserAvatarVO } from './user-avatar.vo';
-export { UserBioVO } from './user-bio.vo';
-export { ProfileVisibilityVO } from './profile-visibility.vo';
+// primitives/index.ts — Atomic VOs barrel export
 
-// ═══════════ Address ═══════════
-export { AddressIdVO } from './address-id.vo';
-export { AddressLabelVO } from './address-label.vo';
-export { AddressLineVO } from './address-line.vo';
-export { CityVO } from './city.vo';
-export { DistrictVO } from './district.vo';
-export { DivisionVO } from './division.vo';
-export { PostalCodeVO } from './postal-code.vo';
+// ID VOs (7)
+export * from './user-id.vo.js';
+export * from './address-id.vo.js';
+export * from './contact-id.vo.js';
+export * from './preference-id.vo.js';
+export * from './kyc-id.vo.js';
+export * from './setting-id.vo.js';
+export * from './activity-id.vo.js';
 
-// ═══════════ Contact ═══════════
-export { ContactIdVO } from './contact-id.vo';
-export { ContactTypeVO } from './contact-type.vo';
-export { ContactValueVO } from './contact-value.vo';
+// Status VOs (2)
+export * from './user-status.vo.js';
+export * from './kyc-status.vo.js';
 
-// ═══════════ Preference ═══════════
-export { PreferenceIdVO } from './preference-id.vo';
-export { PreferenceKeyVO } from './preference-key.vo';
-export { PreferenceValueVO } from './preference-value.vo';
+// Type VOs (7)
+export * from './user-type.vo.js';
+export * from './user-gender.vo.js';
+export * from './user-language.vo.js';
+export * from './user-timezone.vo.js';
+export * from './profile-visibility.vo.js';
+export * from './contact-type.vo.js';
+export * from './activity-type.vo.js';
 
-// ═══════════ KYC ═══════════
-export { KycIdVO } from './kyc-id.vo';
-export { KycDocumentVO } from './kyc-document.vo';
-export { KycStatusVO } from './kyc-status.vo';
+// Code VOs (14)
+export * from './user-avatar.vo.js';
+export * from './user-bio.vo.js';
+export * from './address-label.vo.js';
+export * from './address-line.vo.js';
+export * from './city.vo.js';
+export * from './district.vo.js';
+export * from './division.vo.js';
+export * from './postal-code.vo.js';
+export * from './contact-value.vo.js';
+export * from './preference-key.vo.js';
+export * from './preference-value.vo.js';
+export * from './kyc-document.vo.js';
+export * from './setting-key.vo.js';
+export * from './setting-value.vo.js';
 
-// ═══════════ Setting ═══════════
-export { SettingIdVO } from './setting-id.vo';
-export { SettingKeyVO } from './setting-key.vo';
-export { SettingValueVO } from './setting-value.vo';
-
-// ═══════════ Activity ═══════════
-export { ActivityIdVO } from './activity-id.vo';
-export { ActivityTypeVO } from './activity-type.vo';
-export { ActivityTimestampVO } from './activity-timestamp.vo';
+// Special VOs (4)
+export * from './user-email.vo.js';
+export * from './user-name.vo.js';
+export * from './user-phone.vo.js';
+export * from './activity-timestamp.vo.js';

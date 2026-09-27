@@ -13,9 +13,9 @@ import type { UserId } from '@vubon/shared-types/common';
 import {
   AuthBiometricEntity,
   type BiometricKind,
-} from '../../../../domain/entities/auth-biometric.entity';
-import { BiometricIdVO } from '../../../../domain/value-objects/primitives/biometric-id.vo';
-import type { AuthBiometricRepository } from '../../../../domain/repositories/auth-biometric.repository.interface';
+} from '../../../../domain/entities/auth-biometric.entity.js';
+import { BiometricIdVO } from '../../../../domain/value-objects/primitives/biometric-id.vo.js';
+import type { AuthBiometricRepository } from '../../../../domain/repositories/auth-biometric.repository.interface.js';
 
 @Injectable()
 export class AuthBiometricPrismaRepository

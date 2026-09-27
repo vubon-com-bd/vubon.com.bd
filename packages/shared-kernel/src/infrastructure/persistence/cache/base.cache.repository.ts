@@ -5,9 +5,9 @@
  * Uses RedisService for cache-backed storage.
  */
 import { CACHE_TTL } from '@vubon/shared-constants/infrastructure';
-import type { BaseRepository } from '../../../domain/base/base.repository.interface';
+import type { BaseRepository } from '../../../domain/base/base.repository.interface.js';
 import type { BaseEntity } from '@vubon/shared-types/common';
-import type { RedisService } from './redis.service';
+import type { RedisService } from './redis.service.js';
 
 export abstract class BaseCacheRepository<
   TEntity extends BaseEntity<TId>,

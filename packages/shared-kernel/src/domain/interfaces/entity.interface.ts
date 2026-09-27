@@ -4,7 +4,7 @@
  *
  * References base entity (type only)।
  */
-import type { BaseEntity } from '../base/base.entity';
+import type { BaseEntity } from '../base/base.entity.js';
 
 export type EntityShape<TId = string> = BaseEntity<TId>;
 

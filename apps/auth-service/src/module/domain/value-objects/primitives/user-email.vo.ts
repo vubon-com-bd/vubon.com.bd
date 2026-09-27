@@ -10,7 +10,7 @@
  */
 import { BaseEmailVO } from '@vubon/shared-kernel/domain/primitives/email.vo';
 import type { Email } from '@vubon/shared-types/common';
-import { InvalidEmailError } from '../../errors/user.errors';
+import { InvalidEmailError } from '../../errors/user.errors.js';
 
 export class UserEmailVO extends BaseEmailVO {
   private constructor(value: Email) {

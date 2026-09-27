@@ -1,60 +1,28 @@
+/**
+ * UserActivityService
+ */
 import { Injectable } from '@nestjs/common';
-import { EventBus } from '@nestjs/cqrs';
-import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
-import type { UserActivityServiceInterface } from '../interfaces/user-activity.service.interface';
-import type { UserActivityRepository } from '../../../domain/repositories/user-activity.repository.interface';
-import { UserActivityEntity } from '../../../domain/entities/user-activity.entity';
-import { ActivityIdVO } from '../../../domain/value-objects/primitives/activity-id.vo';
-import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
-import { ActivityTypeVO } from '../../../domain/value-objects/primitives/activity-type.vo';
-import { ActivityTimestampVO } from '../../../domain/value-objects/primitives/activity-timestamp.vo';
-import type { ActivityResponseDTO } from '../../dtos/responses/activity-response.dto';
+import { QueryBus } from '@nestjs/cqrs';
+import type { UserActivityServiceInterface } from '../interfaces/user-activity.service.interface.js';
+import { ListActivitiesQuery } from '../../queries/activity/list-activities.query.js';
+import { GetUserStatsQuery } from '../../queries/activity/get-user-stats.query.js';
+import type { ListActivitiesResult } from '../../queries/activity/list-activities.handler.js';
+import type { UserStatsDTO } from '../../queries/activity/get-user-stats.handler.js';
 
 @Injectable()
-export class UserActivityService
-  extends BaseService<UserActivityEntity, string>
-  implements UserActivityServiceInterface
-{
-  readonly name = 'UserActivityService';
+export class UserActivityService implements UserActivityServiceInterface {
+  constructor(private readonly queryBus: QueryBus) {}
 
-  constructor(
-    private readonly activityRepo: UserActivityRepository,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
+  list(
+    userId: string,
+    page = 1,
+    limit = 20,
+    type?: string
+  ): Promise<ListActivitiesResult> {
+    return this.queryBus.execute(new ListActivitiesQuery(userId, page, limit, type));
   }
 
-  async record(input: {
-    userId: string;
-    type: string;
-    metadata?: Record<string, unknown>;
-  }): Promise<void> {
-    const entity = UserActivityEntity.create({
-      userId: UserIdVO.create(input.userId),
-      type: ActivityTypeVO.create(input.type),
-      timestamp: ActivityTimestampVO.now(),
-      metadata: input.metadata ?? {},
-    });
-    await this.activityRepo.save(entity);
-  }
-
-  async listByUser(userId: string, limit: number): Promise<readonly ActivityResponseDTO[]> {
-    const entities = await this.activityRepo.findRecent(
-      UserIdVO.create(userId),
-      limit,
-    );
-    return entities.map((e) => this.toDTO(e));
-  }
-
-  private toDTO(entity: UserActivityEntity): ActivityResponseDTO {
-    void ActivityIdVO;
-    return {
-      id: entity.id.value,
-      userId: entity.userId.value,
-      type: entity.type.value,
-      category: 'general',
-      occurredAt: entity.timestamp.toISOString(),
-      createdAt: entity.createdAt,
-    } as unknown as ActivityResponseDTO;
+  getStats(userId: string): Promise<UserStatsDTO> {
+    return this.queryBus.execute(new GetUserStatsQuery(userId));
   }
 }

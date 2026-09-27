@@ -1,10 +1,12 @@
 /**
  * DeleteAddressHandler — Unit Tests
  */
-import { DeleteAddressHandler } from './delete-address.handler';
-import { DeleteAddressCommand } from './delete-address.command';
+import { jest } from '@jest/globals';
 
-const mockService = () => ({ remove: jest.fn() });
+import { DeleteAddressHandler } from './delete-address.handler.js';
+import { DeleteAddressCommand } from './delete-address.command.js';
+
+const mockService = () => ({ remove: jest.fn() as jest.Mock });
 
 describe('DeleteAddressHandler', () => {
   let handler: DeleteAddressHandler;

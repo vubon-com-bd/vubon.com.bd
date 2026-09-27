@@ -10,11 +10,11 @@ import {
 } from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
 import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
 import type { UserId } from '@vubon/shared-types/common';
-import { AuthDeviceEntity } from '../../../../domain/entities/auth-device.entity';
-import { DeviceFingerprintVO } from '../../../../domain/value-objects/primitives/device-fingerprint.vo';
-import { DeviceTypeVO } from '../../../../domain/value-objects/primitives/device-type.vo';
-import { DeviceStatusVO } from '../../../../domain/value-objects/primitives/device-status.vo';
-import type { AuthDeviceRepository } from '../../../../domain/repositories/auth-device.repository.interface';
+import { AuthDeviceEntity } from '../../../../domain/entities/auth-device.entity.js';
+import { DeviceFingerprintVO } from '../../../../domain/value-objects/primitives/device-fingerprint.vo.js';
+import { DeviceTypeVO } from '../../../../domain/value-objects/primitives/device-type.vo.js';
+import { DeviceStatusVO } from '../../../../domain/value-objects/primitives/device-status.vo.js';
+import type { AuthDeviceRepository } from '../../../../domain/repositories/auth-device.repository.interface.js';
 
 @Injectable()
 export class AuthDevicePrismaRepository

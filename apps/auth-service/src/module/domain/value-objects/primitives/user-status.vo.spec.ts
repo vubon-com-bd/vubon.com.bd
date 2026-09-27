@@ -2,8 +2,8 @@
  * UserStatusVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { UserStatusVO } from './user-status.vo';
-import { InvalidUserStatusError } from '../../errors/user.errors';
+import { UserStatusVO } from './user-status.vo.js';
+import { InvalidUserStatusError } from '../../errors/user.errors.js';
 
 describe('UserStatusVO', () => {
   describe('of()', () => {

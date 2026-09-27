@@ -4,7 +4,7 @@
  *
  * Values আসে domain/base/base.event থেকে (type only)।
  */
-import type { DomainEvent } from '../../domain/base/base.event';
+import type { DomainEvent } from '../../domain/base/base.event.js';
 
 export abstract class BaseEventHandler<TEvent extends DomainEvent = DomainEvent> {
   abstract readonly eventType: string;

@@ -4,9 +4,9 @@
  */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
 import type { UserId } from '@vubon/shared-types/common';
-import { OAuthProviderVO } from '../value-objects/primitives/oauth-provider.vo';
-import { OAuthTokenVO } from '../value-objects/primitives/oauth-token.vo';
-import { OAuthStatusVO } from '../value-objects/primitives/oauth-status.vo';
+import { OAuthProviderVO } from '../value-objects/primitives/oauth-provider.vo.js';
+import { OAuthTokenVO } from '../value-objects/primitives/oauth-token.vo.js';
+import { OAuthStatusVO } from '../value-objects/primitives/oauth-status.vo.js';
 
 export interface AuthOAuthEntityProps {
   readonly id: string;

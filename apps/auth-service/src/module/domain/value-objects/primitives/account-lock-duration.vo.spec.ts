@@ -2,7 +2,7 @@
  * AccountLockDurationVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { AccountLockDurationVO } from './account-lock-duration.vo';
+import { AccountLockDurationVO } from './account-lock-duration.vo.js';
 
 describe('AccountLockDurationVO', () => {
   describe('ofMs()', () => {

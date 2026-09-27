@@ -4,8 +4,8 @@
  */
 import type { BaseServiceInterface } from '@vubon/shared-kernel/application/services/base.service.interface';
 import type { UserId } from '@vubon/shared-types/common';
-import type { UserActivityEntity } from '../../../domain/entities/user-activity.entity';
-import type { UserActivityResponseDTO } from '../../dtos/responses/user-activity-response.dto';
+import type { UserActivityEntity } from '../../../domain/entities/user-activity.entity.js';
+import type { UserActivityResponseDTO } from '../../dtos/responses/user-activity-response.dto.js';
 
 export interface UserActivityServiceInterface
   extends BaseServiceInterface<UserActivityEntity, string> {

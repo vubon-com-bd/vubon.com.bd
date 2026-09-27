@@ -1,9 +1,11 @@
 /**
  * GetUserPreferencesHandler — Unit Tests
  */
-import { GetUserPreferencesHandler } from './get-user-preferences.handler';
-import { GetUserPreferencesQuery } from './get-user-preferences.query';
-import { UserPreferencesEntity } from '../../../domain/entities/user-preferences.entity';
+import { jest } from '@jest/globals';
+
+import { GetUserPreferencesHandler } from './get-user-preferences.handler.js';
+import { GetUserPreferencesQuery } from './get-user-preferences.query.js';
+import { UserPreferencesEntity } from '../../../domain/entities/user-preferences.entity.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -19,7 +21,7 @@ const buildPrefs = () =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findByUserId: jest.fn() });
+const mockRepo = () => ({ findByUserId: jest.fn() as jest.Mock });
 
 describe('GetUserPreferencesHandler', () => {
   let handler: GetUserPreferencesHandler;

@@ -2,10 +2,10 @@
  * AuthRecoveryCodeVO — Unit Tests
  * @module auth-service/domain/value-objects/composites
  */
-import { AuthRecoveryCodeVO } from './auth-recovery-code.vo';
-import { UserIdVO } from '../primitives/user-id.vo';
-import { RecoveryCodeVO } from '../primitives/recovery-code.vo';
-import { RecoveryCodeStatusVO } from '../primitives/recovery-code-status.vo';
+import { AuthRecoveryCodeVO } from './auth-recovery-code.vo.js';
+import { UserIdVO } from '../primitives/user-id.vo.js';
+import { RecoveryCodeVO } from '../primitives/recovery-code.vo.js';
+import { RecoveryCodeStatusVO } from '../primitives/recovery-code-status.vo.js';
 
 describe('AuthRecoveryCodeVO', () => {
   const userId = UserIdVO.of('user-1');

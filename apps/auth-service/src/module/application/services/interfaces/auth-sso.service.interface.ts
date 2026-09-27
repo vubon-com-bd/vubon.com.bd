@@ -4,10 +4,10 @@
  */
 import type { BaseServiceInterface } from '@vubon/shared-kernel/application/services/base.service.interface';
 import type { UserId } from '@vubon/shared-types/common';
-import type { AuthSsoEntity } from '../../../domain/entities/auth-sso.entity';
-import type { SsoLoginRequestDTO } from '../../dtos/requests/auth/sso-login.dto';
-import type { SsoCallbackRequestDTO } from '../../dtos/requests/auth/sso-callback.dto';
-import type { SsoLoginResponseDTO } from '../../dtos/responses/sso-login-response.dto';
+import type { AuthSsoEntity } from '../../../domain/entities/auth-sso.entity.js';
+import type { SsoLoginRequestDTO } from '../../dtos/requests/auth/sso-login.dto.js';
+import type { SsoCallbackRequestDTO } from '../../dtos/requests/auth/sso-callback.dto.js';
+import type { SsoLoginResponseDTO } from '../../dtos/responses/sso-login-response.dto.js';
 
 export interface AuthSsoServiceInterface
   extends BaseServiceInterface<AuthSsoEntity, string> {

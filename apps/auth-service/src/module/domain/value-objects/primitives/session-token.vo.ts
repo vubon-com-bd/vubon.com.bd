@@ -9,7 +9,7 @@
  * - Timing-safe equality check
  */
 import { BaseCodeVO } from '@vubon/shared-kernel/domain/primitives/code.vo';
-import { InvalidTokenError } from '../../errors/token.errors';
+import { InvalidTokenError } from '../../errors/token.errors.js';
 
 const MIN_LENGTH = 16;
 const MAX_LENGTH = 512;

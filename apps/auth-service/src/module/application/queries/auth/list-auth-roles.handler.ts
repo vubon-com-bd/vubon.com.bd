@@ -1,10 +1,10 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { ListAuthRolesQuery } from './list-auth-roles.query';
-import type { AuthRoleRepository } from '../../../domain/repositories/auth-role.repository.interface';
-import type { UserRoleResponseDTO } from '../../dtos/responses/user-role-response.dto';
-import { AUTH_ROLE_REPO } from '../../tokens';
+import { ListAuthRolesQuery } from './list-auth-roles.query.js';
+import type { AuthRoleRepository } from '../../../domain/repositories/auth-role.repository.interface.js';
+import type { UserRoleResponseDTO } from '../../dtos/responses/user-role-response.dto.js';
+import { AUTH_ROLE_REPO } from '../../tokens.js';
 
 @QueryHandler(ListAuthRolesQuery)
 export class ListAuthRolesHandler

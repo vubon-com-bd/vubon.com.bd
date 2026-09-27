@@ -1,52 +1,36 @@
+/**
+ * UserSettingsService
+ */
 import { Injectable } from '@nestjs/common';
-import { EventBus } from '@nestjs/cqrs';
-import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
-import type { UserSettingsServiceInterface } from '../interfaces/user-settings.service.interface';
-import type { UserSettingsRepository } from '../../../domain/repositories/user-settings.repository.interface';
-import { UserSettingsEntity } from '../../../domain/entities/user-settings.entity';
-import { UserIdVO } from '../../../domain/value-objects/primitives/user-id.vo';
-import { SettingKeyVO } from '../../../domain/value-objects/primitives/setting-key.vo';
-import { SettingValueVO } from '../../../domain/value-objects/primitives/setting-value.vo';
-import { SettingsOperationFailedError } from '../../errors/settings.errors';
-import type { SettingsResponseDTO } from '../../dtos/responses/settings-response.dto';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import type { UserSettingsServiceInterface } from '../interfaces/user-settings.service.interface.js';
+import { UpdateSettingsCommand } from '../../commands/settings/update-settings.command.js';
+import { ResetSettingsCommand } from '../../commands/settings/reset-settings.command.js';
+import { GetSettingsQuery } from '../../queries/settings/get-settings.query.js';
+import type { UpdateSettingsRequestDTO } from '../../dtos/requests/settings/index.js';
+import type { SettingsResponseDTO } from '../../dtos/responses/settings-response.dto.js';
 
 @Injectable()
-export class UserSettingsService
-  extends BaseService<UserSettingsEntity, string>
-  implements UserSettingsServiceInterface
-{
-  readonly name = 'UserSettingsService';
-
+export class UserSettingsService implements UserSettingsServiceInterface {
   constructor(
-    private readonly settingsRepo: UserSettingsRepository,
-    private readonly eventBus: EventBus,
-  ) {
-    super();
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus
+  ) {}
+
+  findByUserId(userId: string): Promise<SettingsResponseDTO> {
+    return this.queryBus.execute(new GetSettingsQuery(userId));
   }
 
-  async findByUserId(userId: string): Promise<SettingsResponseDTO | null> {
-    const entity = await this.settingsRepo.findByUserId(UserIdVO.create(userId));
-    return entity ? this.toDTO(entity) : null;
+  update(
+    userId: string,
+    input: UpdateSettingsRequestDTO
+  ): Promise<SettingsResponseDTO> {
+    return this.commandBus.execute(
+      new UpdateSettingsCommand({ ...input, userId })
+    );
   }
 
-  async update(userId: string, patch: Record<string, string>): Promise<SettingsResponseDTO> {
-    let entity = await this.settingsRepo.findByUserId(UserIdVO.create(userId));
-    if (!entity) throw new SettingsOperationFailedError('settings not found');
-    for (const [key, value] of Object.entries(patch)) {
-      entity = entity.setEntry(SettingKeyVO.create(key), SettingValueVO.create(value));
-    }
-    await this.settingsRepo.save(entity);
-    return this.toDTO(entity);
-  }
-
-  private toDTO(entity: UserSettingsEntity): SettingsResponseDTO {
-    return {
-      success: true,
-      settings: {
-        userId: entity.userId.value,
-        entries: entity.entries.map((e) => ({ key: e.key.value, value: e.value.value })),
-        updatedAt: entity.updatedAt,
-      },
-    } as unknown as SettingsResponseDTO;
+  reset(userId: string): Promise<SettingsResponseDTO> {
+    return this.commandBus.execute(new ResetSettingsCommand(userId));
   }
 }

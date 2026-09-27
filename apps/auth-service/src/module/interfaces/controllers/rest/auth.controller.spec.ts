@@ -2,12 +2,14 @@
  * AuthController — Unit Tests
  * @module auth-service/interfaces/controllers/rest
  */
+import { jest } from '@jest/globals';
+
 import { Test } from '@nestjs/testing';
 import { CommandBus } from '@nestjs/cqrs';
-import { AuthController } from './auth.controller';
-import { AuthControllerMapper } from '../../mappers/auth.controller.mapper';
+import { AuthController } from './auth.controller.js';
+import { AuthControllerMapper } from '../../mappers/auth.controller.mapper.js';
 
-const mockCommandBus = () => ({ execute: jest.fn() });
+const mockCommandBus = () => ({ execute: jest.fn() as jest.Mock });
 const mockMapper = () => ({
   toLoginResponse: jest.fn((x: unknown) => x),
   toRegisterResponse: jest.fn((x: unknown) => x),

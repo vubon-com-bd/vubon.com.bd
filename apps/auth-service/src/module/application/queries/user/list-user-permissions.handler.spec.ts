@@ -1,10 +1,12 @@
 /**
  * ListUserPermissionsHandler — Unit Tests
  */
-import { ListUserPermissionsHandler } from './list-user-permissions.handler';
-import { ListUserPermissionsQuery } from './list-user-permissions.query';
+import { jest } from '@jest/globals';
 
-const mockService = () => ({ effectivePermissions: jest.fn() });
+import { ListUserPermissionsHandler } from './list-user-permissions.handler.js';
+import { ListUserPermissionsQuery } from './list-user-permissions.query.js';
+
+const mockService = () => ({ effectivePermissions: jest.fn() as jest.Mock });
 
 describe('ListUserPermissionsHandler', () => {
   let handler: ListUserPermissionsHandler;

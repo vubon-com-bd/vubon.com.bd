@@ -2,7 +2,7 @@
  * UserActivityEntity — Unit Tests
  * @module auth-service/domain/entities
  */
-import { UserActivityEntity } from './user-activity.entity';
+import { UserActivityEntity } from './user-activity.entity.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 

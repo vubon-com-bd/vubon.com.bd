@@ -4,7 +4,7 @@
  */
 import { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
 import type { UserId } from '@vubon/shared-types/common';
-import { AuthAccountLockEntity } from '../entities/auth-account-lock.entity';
+import { AuthAccountLockEntity } from '../entities/auth-account-lock.entity.js';
 
 export interface AuthAccountLockRepository
   extends BaseRepository<AuthAccountLockEntity, string> {

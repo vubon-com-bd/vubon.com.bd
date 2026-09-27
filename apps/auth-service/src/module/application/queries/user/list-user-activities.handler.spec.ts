@@ -1,9 +1,11 @@
 /**
  * ListUserActivitiesHandler — Unit Tests
  */
-import { ListUserActivitiesHandler } from './list-user-activities.handler';
-import { ListUserActivitiesQuery } from './list-user-activities.query';
-import { UserActivityEntity } from '../../../domain/entities/user-activity.entity';
+import { jest } from '@jest/globals';
+
+import { ListUserActivitiesHandler } from './list-user-activities.handler.js';
+import { ListUserActivitiesQuery } from './list-user-activities.query.js';
+import { UserActivityEntity } from '../../../domain/entities/user-activity.entity.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -18,7 +20,7 @@ const buildActivity = (id: string) =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findByUserId: jest.fn() });
+const mockRepo = () => ({ findByUserId: jest.fn() as jest.Mock });
 
 describe('ListUserActivitiesHandler', () => {
   let handler: ListUserActivitiesHandler;

@@ -1,15 +1,15 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { RecoverAccountCommand } from './recover-account.command';
-import type { AuthRecoveryCodeServiceInterface } from '../../services/interfaces/auth-recovery-code.service.interface';
-import type { UserRepository } from '../../../domain/repositories/user.repository.interface';
-import type { PasswordHasherServiceInterface } from '../../services/interfaces/password-hasher.service.interface';
-import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo';
-import { UnauthorizedError } from '../../errors/auth.errors';
-import { USER_REPO } from '../../tokens';
-import { PASSWORD_HASHER } from '../../tokens';
-import { AUTH_RECOVERY_CODE_SERVICE } from '../../tokens';
+import { RecoverAccountCommand } from './recover-account.command.js';
+import type { AuthRecoveryCodeServiceInterface } from '../../services/interfaces/auth-recovery-code.service.interface.js';
+import type { UserRepository } from '../../../domain/repositories/user.repository.interface.js';
+import type { PasswordHasherServiceInterface } from '../../services/interfaces/password-hasher.service.interface.js';
+import { UserEmailVO } from '../../../domain/value-objects/primitives/user-email.vo.js';
+import { UnauthorizedError } from '../../errors/auth.errors.js';
+import { USER_REPO } from '../../tokens.js';
+import { PASSWORD_HASHER } from '../../tokens.js';
+import { AUTH_RECOVERY_CODE_SERVICE } from '../../tokens.js';
 
 @CommandHandler(RecoverAccountCommand)
 export class RecoverAccountHandler

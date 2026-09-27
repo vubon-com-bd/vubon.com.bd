@@ -7,9 +7,9 @@ import { RedisService } from '@vubon/shared-kernel/infrastructure/persistence/ca
 import { BaseCacheRepository } from '@vubon/shared-kernel/infrastructure/persistence/cache/base.cache.repository';
 import { CACHE_TTL } from '@vubon/shared-constants/infrastructure';
 import type { UserId } from '@vubon/shared-types/common';
-import { AuthAccountLockEntity } from '../../../../domain/entities/auth-account-lock.entity';
-import { AccountLockReasonVO } from '../../../../domain/value-objects/primitives/account-lock-reason.vo';
-import { AccountLockDurationVO } from '../../../../domain/value-objects/primitives/account-lock-duration.vo';
+import { AuthAccountLockEntity } from '../../../../domain/entities/auth-account-lock.entity.js';
+import { AccountLockReasonVO } from '../../../../domain/value-objects/primitives/account-lock-reason.vo.js';
+import { AccountLockDurationVO } from '../../../../domain/value-objects/primitives/account-lock-duration.vo.js';
 
 interface CachedLock {
   readonly id: string;

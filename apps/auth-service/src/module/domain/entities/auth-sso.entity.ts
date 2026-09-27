@@ -4,9 +4,9 @@
  */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
 import type { UserId } from '@vubon/shared-types/common';
-import { SsoProviderVO } from '../value-objects/primitives/sso-provider.vo';
-import { SsoTokenVO } from '../value-objects/primitives/sso-token.vo';
-import { SsoStatusVO } from '../value-objects/primitives/sso-status.vo';
+import { SsoProviderVO } from '../value-objects/primitives/sso-provider.vo.js';
+import { SsoTokenVO } from '../value-objects/primitives/sso-token.vo.js';
+import { SsoStatusVO } from '../value-objects/primitives/sso-status.vo.js';
 
 export interface AuthSsoEntityProps {
   readonly id: string;

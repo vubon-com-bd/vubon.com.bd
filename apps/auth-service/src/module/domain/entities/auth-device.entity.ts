@@ -4,9 +4,9 @@
  */
 import { BaseEntity } from '@vubon/shared-kernel/domain/base/base.entity';
 import type { UserId } from '@vubon/shared-types/common';
-import { DeviceFingerprintVO } from '../value-objects/primitives/device-fingerprint.vo';
-import { DeviceTypeVO } from '../value-objects/primitives/device-type.vo';
-import { DeviceStatusVO } from '../value-objects/primitives/device-status.vo';
+import { DeviceFingerprintVO } from '../value-objects/primitives/device-fingerprint.vo.js';
+import { DeviceTypeVO } from '../value-objects/primitives/device-type.vo.js';
+import { DeviceStatusVO } from '../value-objects/primitives/device-status.vo.js';
 
 export interface AuthDeviceEntityProps {
   readonly id: string;

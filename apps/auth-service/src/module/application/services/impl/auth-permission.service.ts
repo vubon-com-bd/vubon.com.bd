@@ -5,15 +5,15 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { AuthPermissionServiceInterface } from '../interfaces/auth-permission.service.interface';
-import type { AuthPermissionRepository } from '../../../domain/repositories/auth-permission.repository.interface';
-import type { AuthRoleRepository } from '../../../domain/repositories/auth-role.repository.interface';
-import { AuthPermissionEntity } from '../../../domain/entities/auth-permission.entity';
-import { AuthRoleEntity } from '../../../domain/entities/auth-role.entity';
-import { PermissionNameVO } from '../../../domain/value-objects/primitives/permission-name.vo';
-import { PermissionEvaluationService } from '../../../domain/services/permission-evaluation.service';
-import { AUTH_PERMISSION_REPO } from '../../tokens';
-import { AUTH_ROLE_REPO } from '../../tokens';
+import type { AuthPermissionServiceInterface } from '../interfaces/auth-permission.service.interface.js';
+import type { AuthPermissionRepository } from '../../../domain/repositories/auth-permission.repository.interface.js';
+import type { AuthRoleRepository } from '../../../domain/repositories/auth-role.repository.interface.js';
+import { AuthPermissionEntity } from '../../../domain/entities/auth-permission.entity.js';
+import { AuthRoleEntity } from '../../../domain/entities/auth-role.entity.js';
+import { PermissionNameVO } from '../../../domain/value-objects/primitives/permission-name.vo.js';
+import { PermissionEvaluationService } from '../../../domain/services/permission-evaluation.service.js';
+import { AUTH_PERMISSION_REPO } from '../../tokens.js';
+import { AUTH_ROLE_REPO } from '../../tokens.js';
 
 @Injectable()
 export class AuthPermissionService

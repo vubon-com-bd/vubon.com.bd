@@ -5,17 +5,17 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { AuthRecoveryCodeServiceInterface } from '../interfaces/auth-recovery-code.service.interface';
-import type { AuthRecoveryCodeRepository } from '../../../domain/repositories/auth-recovery-code.repository.interface';
-import type { RecoveryCodeGeneratorServiceInterface } from '../interfaces/recovery-code-generator.service.interface';
-import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
-import { AuthRecoveryCodeEntity } from '../../../domain/entities/auth-recovery-code.entity';
-import { RecoveryCodeVO } from '../../../domain/value-objects/primitives/recovery-code.vo';
-import { RecoveryCodeStatusVO } from '../../../domain/value-objects/primitives/recovery-code-status.vo';
-import type { RecoveryCodesResponseDTO } from '../../dtos/responses/recovery-codes-response.dto';
-import { ID_GENERATOR } from '../tokens';
-import { RECOVERY_CODE_GENERATOR } from '../../tokens';
-import { AUTH_RECOVERY_CODE_REPO } from '../../tokens';
+import type { AuthRecoveryCodeServiceInterface } from '../interfaces/auth-recovery-code.service.interface.js';
+import type { AuthRecoveryCodeRepository } from '../../../domain/repositories/auth-recovery-code.repository.interface.js';
+import type { RecoveryCodeGeneratorServiceInterface } from '../interfaces/recovery-code-generator.service.interface.js';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface.js';
+import { AuthRecoveryCodeEntity } from '../../../domain/entities/auth-recovery-code.entity.js';
+import { RecoveryCodeVO } from '../../../domain/value-objects/primitives/recovery-code.vo.js';
+import { RecoveryCodeStatusVO } from '../../../domain/value-objects/primitives/recovery-code-status.vo.js';
+import type { RecoveryCodesResponseDTO } from '../../dtos/responses/recovery-codes-response.dto.js';
+import { ID_GENERATOR } from '../tokens.js';
+import { RECOVERY_CODE_GENERATOR } from '../../tokens.js';
+import { AUTH_RECOVERY_CODE_REPO } from '../../tokens.js';
 
 const DEFAULT_COUNT = 10;
 

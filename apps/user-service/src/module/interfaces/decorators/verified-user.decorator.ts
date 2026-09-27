@@ -1,5 +1,8 @@
+/**
+ * RequireVerifiedUser decorator
+ */
 import { SetMetadata } from '@nestjs/common';
 
-export const VERIFIED_USER_KEY = 'verified_user';
-export const RequireVerifiedUser = (): MethodDecorator & ClassDecorator =>
-  SetMetadata(VERIFIED_USER_KEY, true);
+export const REQUIRE_VERIFIED_USER_KEY = 'require_verified_user';
+export const RequireVerifiedUser = () =>
+  SetMetadata(REQUIRE_VERIFIED_USER_KEY, true);

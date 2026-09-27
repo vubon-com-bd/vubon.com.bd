@@ -1,10 +1,12 @@
 /**
  * UpdateAddressHandler — Unit Tests
  */
-import { UpdateAddressHandler } from './update-address.handler';
-import { UpdateAddressCommand } from './update-address.command';
+import { jest } from '@jest/globals';
 
-const mockService = () => ({ update: jest.fn(), toResponse: jest.fn() });
+import { UpdateAddressHandler } from './update-address.handler.js';
+import { UpdateAddressCommand } from './update-address.command.js';
+
+const mockService = () => ({ update: jest.fn() as jest.Mock, toResponse: jest.fn() as jest.Mock });
 
 describe('UpdateAddressHandler', () => {
   let handler: UpdateAddressHandler;

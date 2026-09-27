@@ -1,4 +1,13 @@
-import { z } from 'zod';
-import { UserPublicSchema } from '@vubon/shared-schemas/user';
+/**
+ * UserPublicResponseDTO — sensitive field বাদ
+ */
+import type { UserStatusValue, UserTypeValue } from '@vubon/shared-types/user';
 
-export type UserPublicResponseDTO = z.infer<typeof UserPublicSchema>;
+export interface UserPublicResponseDTO {
+  readonly id: string;
+  readonly username?: string;
+  readonly displayName?: string;
+  readonly avatarUrl?: string;
+  readonly status: UserStatusValue;
+  readonly type: UserTypeValue;
+}

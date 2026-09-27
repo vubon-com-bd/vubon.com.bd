@@ -1,11 +1,11 @@
 // shared-kernel/application/dtos/index.ts
 
-export * from './dto.interface';
-export * from './common.dto';
-export * from './pagination.dto';
-export * from './filter.dto';
-export * from './sort.dto';
-export * from './search.dto';
-export * from './base-response.dto';
-export * from './paginated-response.dto';
-export * from './common.validator';
+export * from './dto.interface.js';
+export * from './common.dto.js';
+export * from './pagination.dto.js';
+export * from './filter.dto.js';
+export * from './sort.dto.js';
+export * from './search.dto.js';
+export * from './base-response.dto.js';
+export * from './paginated-response.dto.js';
+export * from './common.validator.js';

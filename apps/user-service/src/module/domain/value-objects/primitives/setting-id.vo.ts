@@ -1,15 +1,17 @@
-import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { InvalidSettingIdError } from '../../errors/settings.errors';
+/**
+ * SettingId Value Object
+ */
+import { BaseIdVO } from '@vubon/shared-kernel/domain/primitives/id.vo';
 
-export class SettingIdVO extends BaseVO<string> {
+export class SettingIdVO extends BaseIdVO<string> {
   private constructor(value: string) {
     super(value);
   }
 
   static create(raw: string): SettingIdVO {
-    if (!raw || raw.trim().length === 0) {
-      throw new InvalidSettingIdError('SettingId cannot be empty');
+    if (typeof raw !== 'string' || raw.trim().length === 0) {
+      throw new Error('SettingId cannot be empty');
     }
-    return new SettingIdVO(raw);
+    return new SettingIdVO(raw.trim());
   }
 }

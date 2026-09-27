@@ -10,11 +10,11 @@ import {
 } from '@vubon/shared-kernel/infrastructure/persistence/prisma/repositories/base.prisma.repository';
 import { PrismaService } from '@vubon/shared-kernel/infrastructure/persistence/prisma/prisma.service';
 import type { UserId } from '@vubon/shared-types/common';
-import { UserVerificationEntity } from '../../../../domain/entities/user-verification.entity';
-import { VerificationCodeVO } from '../../../../domain/value-objects/primitives/verification-code.vo';
-import { VerificationTypeVO } from '../../../../domain/value-objects/primitives/verification-type.vo';
-import { VerificationStatusVO } from '../../../../domain/value-objects/primitives/verification-status.vo';
-import type { UserVerificationRepository } from '../../../../domain/repositories/user-verification.repository.interface';
+import { UserVerificationEntity } from '../../../../domain/entities/user-verification.entity.js';
+import { VerificationCodeVO } from '../../../../domain/value-objects/primitives/verification-code.vo.js';
+import { VerificationTypeVO } from '../../../../domain/value-objects/primitives/verification-type.vo.js';
+import { VerificationStatusVO } from '../../../../domain/value-objects/primitives/verification-status.vo.js';
+import type { UserVerificationRepository } from '../../../../domain/repositories/user-verification.repository.interface.js';
 
 @Injectable()
 export class UserVerificationPrismaRepository

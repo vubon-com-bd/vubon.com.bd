@@ -2,10 +2,10 @@
  * AuthRoleEntity — Unit Tests (Aggregate Root)
  * @module auth-service/domain/entities
  */
-import { AuthRoleEntity } from './auth-role.entity';
-import { RoleNameVO } from '../value-objects/primitives/role-name.vo';
-import { RoleDescriptionVO } from '../value-objects/primitives/role-description.vo';
-import { PermissionNameVO } from '../value-objects/primitives/permission-name.vo';
+import { AuthRoleEntity } from './auth-role.entity.js';
+import { RoleNameVO } from '../value-objects/primitives/role-name.vo.js';
+import { RoleDescriptionVO } from '../value-objects/primitives/role-description.vo.js';
+import { PermissionNameVO } from '../value-objects/primitives/permission-name.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 

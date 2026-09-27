@@ -1,11 +1,13 @@
 /**
  * GetAuthAccountLockStatusHandler — Unit Tests
  */
-import { GetAuthAccountLockStatusHandler } from './get-auth-account-lock-status.handler';
-import { GetAuthAccountLockStatusQuery } from './get-auth-account-lock-status.query';
-import { AuthAccountLockEntity } from '../../../domain/entities/auth-account-lock.entity';
-import { AccountLockReasonVO } from '../../../domain/value-objects/primitives/account-lock-reason.vo';
-import { AccountLockDurationVO } from '../../../domain/value-objects/primitives/account-lock-duration.vo';
+import { jest } from '@jest/globals';
+
+import { GetAuthAccountLockStatusHandler } from './get-auth-account-lock-status.handler.js';
+import { GetAuthAccountLockStatusQuery } from './get-auth-account-lock-status.query.js';
+import { AuthAccountLockEntity } from '../../../domain/entities/auth-account-lock.entity.js';
+import { AccountLockReasonVO } from '../../../domain/value-objects/primitives/account-lock-reason.vo.js';
+import { AccountLockDurationVO } from '../../../domain/value-objects/primitives/account-lock-duration.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();
@@ -21,7 +23,7 @@ const buildLock = () =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findActiveByUser: jest.fn() });
+const mockRepo = () => ({ findActiveByUser: jest.fn() as jest.Mock });
 
 describe('GetAuthAccountLockStatusHandler', () => {
   let handler: GetAuthAccountLockStatusHandler;

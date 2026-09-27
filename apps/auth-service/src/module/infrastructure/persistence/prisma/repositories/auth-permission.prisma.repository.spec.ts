@@ -1,17 +1,19 @@
 /**
  * AuthPermissionPrismaRepository — Unit Tests
  */
-import { AuthPermissionPrismaRepository } from './auth-permission.prisma.repository';
-import { PermissionNameVO } from '../../../../domain/value-objects/primitives/permission-name.vo';
+import { jest } from '@jest/globals';
+
+import { AuthPermissionPrismaRepository } from './auth-permission.prisma.repository.js';
+import { PermissionNameVO } from '../../../../domain/value-objects/primitives/permission-name.vo.js';
 
 const mockPrisma = () => ({
   authPermission: {
-    findUnique: jest.fn(),
-    findMany: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    count: jest.fn(),
+    findUnique: jest.fn() as jest.Mock,
+    findMany: jest.fn() as jest.Mock,
+    create: jest.fn() as jest.Mock,
+    update: jest.fn() as jest.Mock,
+    delete: jest.fn() as jest.Mock,
+    count: jest.fn() as jest.Mock,
   },
 });
 

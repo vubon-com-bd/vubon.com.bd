@@ -1,9 +1,26 @@
-import type { EmailTemplate } from '@vubon/shared-kernel/infrastructure';
+/**
+ * Profile Complete Email Template
+ */
+export interface ProfileCompleteEmailVariables {
+  readonly userName: string;
+  readonly profileUrl: string;
+  readonly completionScore: number;
+}
 
-export const ProfileCompleteEmailTemplate: EmailTemplate = {
+export const ProfileCompleteEmailTemplate = {
   name: 'profile-complete',
-  subject: 'Your profile is complete',
-  html: `<p>Hi {{name}}, your profile is 100% complete.</p>`,
-  text: 'Hi {{name}}, your profile is 100% complete.',
-  variables: ['name'],
-};
+  subjectKey: 'email.profileComplete.subject',
+  subjectFallback: 'Your Vubon profile is ready',
+  variables: {
+    userName: '{{user_name}}',
+    profileUrl: '{{profile_url}}',
+    completionScore: '{{completion_score}}',
+  },
+  buildVariables(input: ProfileCompleteEmailVariables): Record<string, string> {
+    return {
+      user_name: input.userName,
+      profile_url: input.profileUrl,
+      completion_score: String(input.completionScore),
+    };
+  },
+} as const;

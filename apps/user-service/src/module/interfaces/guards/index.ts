@@ -1,3 +1,6 @@
-export { OwnProfileGuard } from './own-profile.guard';
-export { VerifiedUserGuard } from './verified-user.guard';
-export { KycVerifiedGuard } from './kyc-verified.guard';
+// guards/index.ts
+export * from './own-profile.guard.js';
+export * from './verified-user.guard.js';
+export * from './kyc-verified.guard.js';
+export * from './roles.guard.js';
+export * from './permissions.guard.js';

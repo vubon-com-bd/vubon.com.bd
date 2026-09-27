@@ -4,7 +4,7 @@
  *
  * References BaseCommand।
  */
-import type { BaseCommand } from './base.command';
+import type { BaseCommand } from './base.command.js';
 
 export abstract class BaseCommandHandler<
   TCommand extends BaseCommand = BaseCommand,

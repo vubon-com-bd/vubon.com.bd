@@ -1,12 +1,14 @@
 /**
  * SocialCallbackHandler — Unit Tests
  */
-import { SocialCallbackHandler } from './social-callback.handler';
-import { SocialCallbackCommand } from './social-callback.command';
+import { jest } from '@jest/globals';
+
+import { SocialCallbackHandler } from './social-callback.handler.js';
+import { SocialCallbackCommand } from './social-callback.command.js';
 
 const mockSocialService = () => ({
   name: 'AuthSocialService',
-  handleCallback: jest.fn(),
+  handleCallback: jest.fn() as jest.Mock,
 });
 
 describe('SocialCallbackHandler', () => {

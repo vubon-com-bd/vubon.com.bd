@@ -3,41 +3,41 @@
  * @module auth-service/application/dtos/requests/user
  */
 // Core user
-export * from './create-user.dto';
-export * from './update-user.dto';
-export * from './update-profile.dto';
-export * from './update-settings.dto';
-export * from './update-preferences.dto';
-export * from './change-password.dto';
-export * from './delete-user.dto';
+export * from './create-user.dto.js';
+export * from './update-user.dto.js';
+export * from './update-profile.dto.js';
+export * from './update-settings.dto.js';
+export * from './update-preferences.dto.js';
+export * from './change-password.dto.js';
+export * from './delete-user.dto.js';
 
 // Address
-export * from './add-address.dto';
-export * from './update-address.dto';
-export * from './delete-address.dto';
+export * from './add-address.dto.js';
+export * from './update-address.dto.js';
+export * from './delete-address.dto.js';
 
 // Contact
-export * from './add-contact.dto';
-export * from './update-contact.dto';
-export * from './delete-contact.dto';
+export * from './add-contact.dto.js';
+export * from './update-contact.dto.js';
+export * from './delete-contact.dto.js';
 
 // KYC
-export * from './submit-kyc.dto';
-export * from './verify-kyc.dto';
-export * from './reject-kyc.dto';
+export * from './submit-kyc.dto.js';
+export * from './verify-kyc.dto.js';
+export * from './reject-kyc.dto.js';
 
 // Role / permission
-export * from './assign-role.dto';
-export * from './revoke-role.dto';
-export * from './assign-permission.dto';
-export * from './revoke-permission.dto';
+export * from './assign-role.dto.js';
+export * from './revoke-role.dto.js';
+export * from './assign-permission.dto.js';
+export * from './revoke-permission.dto.js';
 
 // Lifecycle
-export * from './activate-user.dto';
-export * from './deactivate-user.dto';
-export * from './suspend-user.dto';
-export * from './unsuspend-user.dto';
+export * from './activate-user.dto.js';
+export * from './deactivate-user.dto.js';
+export * from './suspend-user.dto.js';
+export * from './unsuspend-user.dto.js';
 
 // Verification (admin)
-export * from './verify-user-email.dto';
-export * from './verify-user-phone.dto';
+export * from './verify-user-email.dto.js';
+export * from './verify-user-phone.dto.js';

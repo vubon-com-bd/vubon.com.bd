@@ -3,8 +3,8 @@
  * @module auth-service/infrastructure/services/internal
  */
 import { Injectable } from '@nestjs/common';
-import { SsoProviderVO } from '../../../domain/value-objects/primitives/sso-provider.vo';
-import { SsoFailedAppError } from '../../../application/errors/sso.errors';
+import { SsoProviderVO } from '../../../domain/value-objects/primitives/sso-provider.vo.js';
+import { SsoFailedAppError } from '../../../application/errors/sso.errors.js';
 
 const SUPPORTED = new Set<string>([
   'saml', 'oidc', 'azure_ad', 'okta', 'keycloak',

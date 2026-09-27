@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { AuthPermissionController } from '../../interfaces/controllers/rest/auth-permission.controller';
-import { AuthPermissionService } from '../../application/services/impl/auth-permission.service';
-import { ListAuthPermissionsHandler } from '../../application/queries/auth/list-auth-permissions.handler';
-import { AuthPermissionPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/auth-permission.prisma.repository';
-import { AuthRolePrismaRepository } from '../../infrastructure/persistence/prisma/repositories/auth-role.prisma.repository';
+import { AuthPermissionController } from '../../interfaces/controllers/rest/auth-permission.controller.js';
+import { AuthPermissionService } from '../../application/services/impl/auth-permission.service.js';
+import { ListAuthPermissionsHandler } from '../../application/queries/auth/list-auth-permissions.handler.js';
+import { AuthPermissionPrismaRepository } from '../../infrastructure/persistence/prisma/repositories/auth-permission.prisma.repository.js';
+import { AuthRolePrismaRepository } from '../../infrastructure/persistence/prisma/repositories/auth-role.prisma.repository.js';
 import {
   AUTH_PERMISSION_REPO,
   AUTH_ROLE_REPO,
-} from '../../application/services/tokens';
+} from '../../application/services/tokens.js';
 
 const TOKEN_BINDINGS = [
   { provide: AUTH_PERMISSION_REPO, useExisting: AuthPermissionPrismaRepository },

@@ -5,17 +5,17 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BaseService } from '@vubon/shared-kernel/application/services/base.service';
 import type { UserId } from '@vubon/shared-types/common';
-import type { AuthAccountLockServiceInterface } from '../interfaces/auth-account-lock.service.interface';
-import type { AuthAccountLockRepository } from '../../../domain/repositories/auth-account-lock.repository.interface';
-import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface';
-import { AuthAccountLockEntity } from '../../../domain/entities/auth-account-lock.entity';
-import { AccountLockReasonVO } from '../../../domain/value-objects/primitives/account-lock-reason.vo';
-import { AccountLockDurationVO } from '../../../domain/value-objects/primitives/account-lock-duration.vo';
-import type { LockAccountRequestDTO } from '../../dtos/requests/auth/lock-account.dto';
-import type { UnlockAccountRequestDTO } from '../../dtos/requests/auth/unlock-account.dto';
-import type { AuthAccountLockResponseDTO } from '../../dtos/responses/auth-account-lock-response.dto';
-import { ID_GENERATOR } from '../tokens';
-import { AUTH_ACCOUNT_LOCK_REPO } from '../../tokens';
+import type { AuthAccountLockServiceInterface } from '../interfaces/auth-account-lock.service.interface.js';
+import type { AuthAccountLockRepository } from '../../../domain/repositories/auth-account-lock.repository.interface.js';
+import type { IdGeneratorServiceInterface } from '../interfaces/id-generator.service.interface.js';
+import { AuthAccountLockEntity } from '../../../domain/entities/auth-account-lock.entity.js';
+import { AccountLockReasonVO } from '../../../domain/value-objects/primitives/account-lock-reason.vo.js';
+import { AccountLockDurationVO } from '../../../domain/value-objects/primitives/account-lock-duration.vo.js';
+import type { LockAccountRequestDTO } from '../../dtos/requests/auth/lock-account.dto.js';
+import type { UnlockAccountRequestDTO } from '../../dtos/requests/auth/unlock-account.dto.js';
+import type { AuthAccountLockResponseDTO } from '../../dtos/responses/auth-account-lock-response.dto.js';
+import { ID_GENERATOR } from '../tokens.js';
+import { AUTH_ACCOUNT_LOCK_REPO } from '../../tokens.js';
 
 @Injectable()
 export class AuthAccountLockService

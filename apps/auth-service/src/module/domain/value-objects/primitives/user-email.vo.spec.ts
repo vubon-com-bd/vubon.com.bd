@@ -2,8 +2,8 @@
  * UserEmailVO — Unit Tests
  * @module auth-service/domain/value-objects/primitives
  */
-import { UserEmailVO } from './user-email.vo';
-import { InvalidEmailError } from '../../errors/user.errors';
+import { UserEmailVO } from './user-email.vo.js';
+import { InvalidEmailError } from '../../errors/user.errors.js';
 
 describe('UserEmailVO', () => {
   describe('of()', () => {

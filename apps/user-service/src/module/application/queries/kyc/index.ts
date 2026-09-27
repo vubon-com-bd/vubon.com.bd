@@ -1,4 +1,5 @@
-export { GetKycStatusQuery } from './get-kyc-status.query';
-export { GetKycStatusHandler } from './get-kyc-status.handler';
-export { ListKycDocumentsQuery } from './list-kyc-documents.query';
-export { ListKycDocumentsHandler } from './list-kyc-documents.handler';
+// queries/kyc/index.ts
+export * from './get-kyc-status.query.js';
+export * from './get-kyc-status.handler.js';
+export * from './list-kyc-documents.query.js';
+export * from './list-kyc-documents.handler.js';

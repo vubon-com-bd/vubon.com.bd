@@ -1,9 +1,15 @@
-import { BaseQuery } from '@vubon/shared-kernel/application/queries/base.query';
+/**
+ * GetAddressQuery
+ */
+import { BaseQuery } from '@vubon/shared-kernel/application/queries';
 
 export class GetAddressQuery extends BaseQuery {
-  readonly type = 'user.address.get';
+  readonly type = 'address.get';
 
-  constructor(public readonly addressId: string) {
+  constructor(
+    public readonly userId: string,
+    public readonly addressId: string
+  ) {
     super();
   }
 }

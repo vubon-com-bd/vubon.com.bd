@@ -4,7 +4,7 @@
  *
  * References base types (type only)।
  */
-import type { Identifiable, Versioned, Timestamped } from './base.types';
+import type { Identifiable, Versioned, Timestamped } from './base.types.js';
 
 export interface RepositoryFilter {
   readonly field: string;

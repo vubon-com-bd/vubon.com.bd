@@ -11,7 +11,7 @@
  */
 import { BasePasswordVO } from '@vubon/shared-kernel/domain/primitives/password.vo';
 import { REGEX, VALIDATION } from '@vubon/shared-constants/common';
-import { WeakPasswordError } from '../../errors/password.errors';
+import { WeakPasswordError } from '../../errors/password.errors.js';
 
 const WEAK_PASSWORDS = new Set<string>([
   'password', 'password1', 'password123', '12345678', '123456789',

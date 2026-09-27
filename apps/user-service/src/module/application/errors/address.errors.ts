@@ -1,29 +1,63 @@
-import { ERROR_CODE, type ErrorCodeType } from '@vubon/shared-constants/common';
-import { ApplicationError } from '@vubon/shared-kernel/application/errors/application.error';
+/**
+ * Address Application Errors
+ * @module user-service/application/errors
+ */
+import { ApplicationError } from '@vubon/shared-kernel/application/errors';
+import { ERROR_CODE } from '@vubon/shared-constants/common';
 
-export class AddressOperationFailedError extends ApplicationError {
-  readonly code: ErrorCodeType = ERROR_CODE.SERVER_INTERNAL;
-  readonly httpStatus = 500;
-
-  constructor(reason: string) {
-    super(`Address operation failed: ${reason}`, { reason });
-  }
-}
-
-export class AddressNotFoundAppError extends ApplicationError {
-  readonly code: ErrorCodeType = ERROR_CODE.USER_NOT_FOUND;
+export class AddressNotFoundApplicationError extends ApplicationError {
+  readonly code = ERROR_CODE.VAL_REQUIRED;
   readonly httpStatus = 404;
-
   constructor(addressId: string) {
-    super(`Address not found: ${addressId}`, { addressId });
+    super(`Address "${addressId}" not found`, { addressId });
+    this.name = 'AddressNotFoundApplicationError';
   }
 }
 
-export class AddressLimitExceededAppError extends ApplicationError {
-  readonly code: ErrorCodeType = ERROR_CODE.VAL_OUT_OF_RANGE;
-  readonly httpStatus = 400;
+export class AddressCreationFailedError extends ApplicationError {
+  readonly code = ERROR_CODE.SERVER_INTERNAL;
+  readonly httpStatus = 500;
+  constructor(reason: string) {
+    super(`Address creation failed: ${reason}`, { reason });
+    this.name = 'AddressCreationFailedError';
+  }
+}
 
-  constructor(limit: number) {
-    super(`Address limit exceeded: max ${limit}`, { limit });
+export class AddressUpdateFailedError extends ApplicationError {
+  readonly code = ERROR_CODE.SERVER_INTERNAL;
+  readonly httpStatus = 500;
+  constructor(addressId: string, reason: string) {
+    super(`Address update failed for "${addressId}": ${reason}`, { addressId, reason });
+    this.name = 'AddressUpdateFailedError';
+  }
+}
+
+export class AddressDeletionFailedError extends ApplicationError {
+  readonly code = ERROR_CODE.SERVER_INTERNAL;
+  readonly httpStatus = 500;
+  constructor(addressId: string, reason: string) {
+    super(`Address deletion failed for "${addressId}": ${reason}`, { addressId, reason });
+    this.name = 'AddressDeletionFailedError';
+  }
+}
+
+export class AddressLimitExceededError extends ApplicationError {
+  readonly code = ERROR_CODE.VAL_OUT_OF_RANGE;
+  readonly httpStatus = 422;
+  constructor(current: number, max: number) {
+    super(`Address limit exceeded: ${current}/${max}`, { current, max });
+    this.name = 'AddressLimitExceededError';
+  }
+}
+
+export class InvalidAddressTypeError extends ApplicationError {
+  readonly code = ERROR_CODE.VAL_INVALID_FORMAT;
+  readonly httpStatus = 422;
+  constructor(value: string, allowed: readonly string[]) {
+    super(`Invalid address type "${value}". Allowed: ${allowed.join(', ')}`, {
+      value,
+      allowed,
+    });
+    this.name = 'InvalidAddressTypeError';
   }
 }

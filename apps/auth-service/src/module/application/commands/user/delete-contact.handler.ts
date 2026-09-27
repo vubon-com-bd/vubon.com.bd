@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { BaseCommandHandler } from '@vubon/shared-kernel/application/commands/base.command-handler';
-import { DeleteContactCommand } from './delete-contact.command';
-import type { UserContactServiceInterface } from '../../services/interfaces/user-contact.service.interface';
-import { USER_CONTACT_SERVICE } from '../../tokens';
+import { DeleteContactCommand } from './delete-contact.command.js';
+import type { UserContactServiceInterface } from '../../services/interfaces/user-contact.service.interface.js';
+import { USER_CONTACT_SERVICE } from '../../tokens.js';
 
 @CommandHandler(DeleteContactCommand)
 export class DeleteContactHandler

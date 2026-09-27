@@ -1,11 +1,13 @@
 /**
  * GetAuthMfaSettingsHandler — Unit Tests
  */
-import { GetAuthMfaSettingsHandler } from './get-auth-mfa-settings.handler';
-import { GetAuthMfaSettingsQuery } from './get-auth-mfa-settings.query';
-import { AuthMfaEntity } from '../../../domain/entities/auth-mfa.entity';
-import { MfaTypeVO } from '../../../domain/value-objects/primitives/mfa-type.vo';
-import { MfaStatusVO } from '../../../domain/value-objects/primitives/mfa-status.vo';
+import { jest } from '@jest/globals';
+
+import { GetAuthMfaSettingsHandler } from './get-auth-mfa-settings.handler.js';
+import { GetAuthMfaSettingsQuery } from './get-auth-mfa-settings.query.js';
+import { AuthMfaEntity } from '../../../domain/entities/auth-mfa.entity.js';
+import { MfaTypeVO } from '../../../domain/value-objects/primitives/mfa-type.vo.js';
+import { MfaStatusVO } from '../../../domain/value-objects/primitives/mfa-status.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 
@@ -19,7 +21,7 @@ const buildMfa = (status: 'disabled' | 'enabled') =>
     updatedAt: NOW,
   });
 
-const mockRepo = () => ({ findByUserId: jest.fn() });
+const mockRepo = () => ({ findByUserId: jest.fn() as jest.Mock });
 
 describe('GetAuthMfaSettingsHandler', () => {
   let handler: GetAuthMfaSettingsHandler;

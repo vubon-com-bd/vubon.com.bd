@@ -3,35 +3,35 @@
  * @module auth-service/interfaces/dtos/responses
  */
 import 'reflect-metadata';
-import { AuthResponseDTO } from './auth.response.dto';
-import { SessionResponseDTO } from './session.response.dto';
-import { TokenResponseDTO } from './token.response.dto';
+import { AuthResponseDTO } from './auth.response.dto.js';
+import { SessionResponseDTO } from './session.response.dto.js';
+import { TokenResponseDTO } from './token.response.dto.js';
 import {
   MfaResponseDTO,
   MfaChallengeResponseDTO,
   EnableMfaEnrollResponseDTO,
-} from './mfa.response.dto';
+} from './mfa.response.dto.js';
 import {
   RecoveryCodesResponseDTO,
   RecoveryCodeSummaryDTO,
-} from './recovery-code.response.dto';
-import { SocialLoginResponseDTO } from './social.response.dto';
-import { SsoLoginResponseDTO } from './sso.response.dto';
-import { BiometricResponseDTO } from './biometric.response.dto';
-import { UserResponseDTO } from './user.response.dto';
-import { ProfileResponseDTO } from './profile.response.dto';
-import { SettingsResponseDTO } from './settings.response.dto';
-import { PreferencesResponseDTO } from './preferences.response.dto';
-import { AddressResponseDTO } from './address.response.dto';
-import { ContactResponseDTO } from './contact.response.dto';
-import { VerificationResponseDTO } from './verification.response.dto';
-import { KycResponseDTO } from './kyc.response.dto';
+} from './recovery-code.response.dto.js';
+import { SocialLoginResponseDTO } from './social.response.dto.js';
+import { SsoLoginResponseDTO } from './sso.response.dto.js';
+import { BiometricResponseDTO } from './biometric.response.dto.js';
+import { UserResponseDTO } from './user.response.dto.js';
+import { ProfileResponseDTO } from './profile.response.dto.js';
+import { SettingsResponseDTO } from './settings.response.dto.js';
+import { PreferencesResponseDTO } from './preferences.response.dto.js';
+import { AddressResponseDTO } from './address.response.dto.js';
+import { ContactResponseDTO } from './contact.response.dto.js';
+import { VerificationResponseDTO } from './verification.response.dto.js';
+import { KycResponseDTO } from './kyc.response.dto.js';
 import {
   PermissionResponseDTO,
   RoleResponseDTO,
   UserPermissionResponseDTO,
-} from './role-permission.response.dto';
-import { AccountLockResponseDTO } from './lock.response.dto';
+} from './role-permission.response.dto.js';
+import { AccountLockResponseDTO } from './lock.response.dto.js';
 
 describe('Interface Response DTOs', () => {
   describe('AuthResponseDTO', () => {

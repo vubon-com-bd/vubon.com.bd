@@ -3,9 +3,9 @@
  * @module auth-service/domain/value-objects/composites
  */
 import { BaseVO } from '@vubon/shared-kernel/domain/base/base.vo';
-import { PermissionNameVO } from '../primitives/permission-name.vo';
-import { PermissionActionVO } from '../primitives/permission-action.vo';
-import { PermissionResourceVO } from '../primitives/permission-resource.vo';
+import { PermissionNameVO } from '../primitives/permission-name.vo.js';
+import { PermissionActionVO } from '../primitives/permission-action.vo.js';
+import { PermissionResourceVO } from '../primitives/permission-resource.vo.js';
 
 export interface AuthPermissionVOProps {
   readonly name: PermissionNameVO;

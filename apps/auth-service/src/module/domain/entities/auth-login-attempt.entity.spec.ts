@@ -2,9 +2,9 @@
  * AuthLoginAttemptEntity — Unit Tests
  * @module auth-service/domain/entities
  */
-import { AuthLoginAttemptEntity } from './auth-login-attempt.entity';
-import { LoginAttemptIpVO } from '../value-objects/primitives/login-attempt-ip.vo';
-import { LoginAttemptStatusVO } from '../value-objects/primitives/login-attempt-status.vo';
+import { AuthLoginAttemptEntity } from './auth-login-attempt.entity.js';
+import { LoginAttemptIpVO } from '../value-objects/primitives/login-attempt-ip.vo.js';
+import { LoginAttemptStatusVO } from '../value-objects/primitives/login-attempt-status.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 const NOW_MS = new Date(NOW).getTime();

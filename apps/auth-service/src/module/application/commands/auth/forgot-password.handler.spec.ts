@@ -1,12 +1,14 @@
 /**
  * ForgotPasswordHandler — Unit Tests
  */
-import { ForgotPasswordHandler } from './forgot-password.handler';
-import { ForgotPasswordCommand } from './forgot-password.command';
+import { jest } from '@jest/globals';
+
+import { ForgotPasswordHandler } from './forgot-password.handler.js';
+import { ForgotPasswordCommand } from './forgot-password.command.js';
 
 const mockAuthService = () => ({
   name: 'AuthService',
-  forgotPassword: jest.fn(),
+  forgotPassword: jest.fn() as jest.Mock,
 });
 
 describe('ForgotPasswordHandler', () => {

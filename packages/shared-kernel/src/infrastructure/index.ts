@@ -1,10 +1,10 @@
 // shared-kernel/infrastructure/index.ts
 // Infrastructure layer barrel export
-
-export * from './persistence/prisma';
-export * from './persistence/cache';
-export * from './messaging/queue';
-export * from './messaging/event-bus';
-export * from './external';
-export * from './security';
-export * from './observability';
+export * from './persistence/prisma/index.js';
+export * from './persistence/cache/index.js';
+export * from './messaging/queue/index.js';
+export * from './messaging/event-bus/index.js';
+export * from './messaging/event-bridge/index.js';
+export * from './external/index.js';
+export * from './security/index.js';
+export * from './observability/index.js';

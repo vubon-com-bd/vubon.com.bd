@@ -2,8 +2,8 @@
  * Mappers — Barrel
  * @module auth-service/application/mappers
  */
-export * from './user.mapper';
-export * from './auth-session.mapper';
-export * from './auth-token.mapper';
-export * from './auth-mfa.mapper';
-export * from './auth-device.mapper';
+export * from './user.mapper.js';
+export * from './auth-session.mapper.js';
+export * from './auth-token.mapper.js';
+export * from './auth-mfa.mapper.js';
+export * from './auth-device.mapper.js';

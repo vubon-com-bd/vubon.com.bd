@@ -1,21 +1,41 @@
+/**
+ * GetSettingsHandler
+ */
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
-import { BaseQueryHandler } from '@vubon/shared-kernel/application/queries/base.query-handler';
-import { GetSettingsQuery } from './get-settings.query';
-import type { UserSettingsServiceInterface } from '../../services/interfaces/user-settings.service.interface';
-import type { SettingsResponseDTO } from '../../dtos/responses/settings-response.dto';
+import { Inject } from '@nestjs/common';
+import { GetSettingsQuery } from './get-settings.query.js';
+import { USER_SETTINGS_REPOSITORY } from '@domain/repositories/user-settings.repository.interface';
+import type { UserSettingsRepository } from '@domain/repositories/user-settings.repository.interface';
+import { UserIdVO } from '@domain/value-objects/primitives/user-id.vo';
+import type { SettingsResponseDTO } from '../../dtos/responses/settings-response.dto.js';
+import { SettingsNotFoundApplicationError } from '../../errors/settings.errors.js';
 
 @QueryHandler(GetSettingsQuery)
 export class GetSettingsHandler
-  extends BaseQueryHandler<GetSettingsQuery, SettingsResponseDTO | null>
-  implements IQueryHandler<GetSettingsQuery>
+  implements IQueryHandler<GetSettingsQuery, SettingsResponseDTO>
 {
-  readonly queryType = 'user.settings.get';
+  constructor(
+    @Inject(USER_SETTINGS_REPOSITORY)
+    private readonly settingsRepo: UserSettingsRepository
+  ) {}
 
-  constructor(private readonly settingsService: UserSettingsServiceInterface) {
-    super();
-  }
+  async execute(query: GetSettingsQuery): Promise<SettingsResponseDTO> {
+    const settings = await this.settingsRepo.findByUserId(UserIdVO.create(query.userId));
+    if (!settings) throw new SettingsNotFoundApplicationError(query.userId);
 
-  async execute(query: GetSettingsQuery): Promise<SettingsResponseDTO | null> {
-    return this.settingsService.findByUserId(query.userId);
+    return {
+      userId: query.userId,
+      theme: settings.get('theme')?.value ?? 'system',
+      language: settings.get('language')?.value ?? 'bn',
+      locale: 'bn-BD',
+      timezone: settings.get('timezone')?.value ?? 'Asia/Dhaka',
+      currency: settings.get('currency')?.value ?? 'BDT',
+      dateFormat: settings.get('date_format')?.value ?? 'DD/MM/YYYY',
+      timeFormat: settings.get('time_format')?.value ?? '24h',
+      itemsPerPage: 20,
+      notifications: settings.get('notifications')?.toBoolean() ?? true,
+      twoFactor: settings.get('two_factor')?.toBoolean() ?? false,
+      updatedAt: settings.updatedAt,
+    };
   }
 }

@@ -4,8 +4,8 @@
  */
 import { BaseRepository } from '@vubon/shared-kernel/domain/base/base.repository.interface';
 import type { UserId } from '@vubon/shared-types/common';
-import { AuthSessionEntity } from '../entities/auth-session.entity';
-import { SessionTokenVO } from '../value-objects/primitives/session-token.vo';
+import { AuthSessionEntity } from '../entities/auth-session.entity.js';
+import { SessionTokenVO } from '../value-objects/primitives/session-token.vo.js';
 
 export interface AuthSessionRepository extends BaseRepository<AuthSessionEntity, string> {
   findByToken(token: SessionTokenVO): Promise<AuthSessionEntity | null>;

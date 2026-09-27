@@ -2,9 +2,9 @@
  * UserProfileEntity — Unit Tests
  * @module auth-service/domain/entities
  */
-import { UserProfileEntity } from './user-profile.entity';
-import { UserIdVO } from '../value-objects/primitives/user-id.vo';
-import { UserNameVO } from '../value-objects/primitives/user-name.vo';
+import { UserProfileEntity } from './user-profile.entity.js';
+import { UserIdVO } from '../value-objects/primitives/user-id.vo.js';
+import { UserNameVO } from '../value-objects/primitives/user-name.vo.js';
 
 const NOW = '2024-01-01T00:00:00.000Z';
 

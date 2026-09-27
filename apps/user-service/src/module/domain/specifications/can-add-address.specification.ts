@@ -1,16 +1,30 @@
+/**
+ * CanAddAddressSpecification
+ */
 import { Specification } from '@vubon/shared-kernel/domain/base/base.specification';
-import { UserEntity } from '../entities/user.entity';
-
-const MAX_ADDRESSES = 10;
+import { USER_ADDRESS } from '@vubon/shared-constants/user';
+import { UserEntity } from '../entities/user.entity.js';
 
 export class CanAddAddressSpecification extends Specification<UserEntity> {
-  constructor(private readonly currentCount: number) {
+  constructor(
+    private readonly currentAddressCount: number,
+    private readonly maxAllowed: number = USER_ADDRESS.MAX_ADDRESSES
+  ) {
     super();
   }
 
-  isSatisfiedBy(candidate: UserEntity): boolean {
-    if (candidate.isDeleted()) return false;
-    if (!candidate.status.isActive()) return false;
-    return this.currentCount < MAX_ADDRESSES;
+  isSatisfiedBy(user: UserEntity): boolean {
+    if (user.isDeleted()) return false;
+    if (!user.isActive()) return false;
+    if (this.currentAddressCount >= this.maxAllowed) return false;
+    return true;
+  }
+
+  static check(
+    user: UserEntity,
+    currentAddressCount: number,
+    maxAllowed: number = USER_ADDRESS.MAX_ADDRESSES
+  ): boolean {
+    return new CanAddAddressSpecification(currentAddressCount, maxAllowed).isSatisfiedBy(user);
   }
 }

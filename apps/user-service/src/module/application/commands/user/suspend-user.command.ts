@@ -1,4 +1,7 @@
-import { BaseCommand } from '@vubon/shared-kernel/application/commands/base.command';
+/**
+ * SuspendUserCommand
+ */
+import { BaseCommand } from '@vubon/shared-kernel/application/commands';
 
 export class SuspendUserCommand extends BaseCommand {
   readonly type = 'user.suspend';
@@ -6,7 +9,7 @@ export class SuspendUserCommand extends BaseCommand {
   constructor(
     public readonly userId: string,
     public readonly reason: string,
-    public readonly until?: string,
+    public readonly suspendedUntil?: string
   ) {
     super();
   }

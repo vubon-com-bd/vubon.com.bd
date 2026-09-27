@@ -4,8 +4,8 @@
  */
 import type { BaseServiceInterface } from '@vubon/shared-kernel/application/services/base.service.interface';
 import type { UserId } from '@vubon/shared-types/common';
-import type { AuthRoleEntity } from '../../../domain/entities/auth-role.entity';
-import type { UserRoleResponseDTO } from '../../dtos/responses/user-role-response.dto';
+import type { AuthRoleEntity } from '../../../domain/entities/auth-role.entity.js';
+import type { UserRoleResponseDTO } from '../../dtos/responses/user-role-response.dto.js';
 
 export interface AuthRoleServiceInterface
   extends BaseServiceInterface<AuthRoleEntity, string> {

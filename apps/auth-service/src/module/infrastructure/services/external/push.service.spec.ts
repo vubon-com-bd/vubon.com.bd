@@ -2,9 +2,11 @@
  * PushService — Unit Tests (wrapper)
  * @module auth-service/infrastructure/services/external
  */
-import { PushService } from './push.service';
+import { jest } from '@jest/globals';
 
-const mockKernelPush = () => ({ send: jest.fn().mockResolvedValue(undefined) });
+import { PushService } from './push.service.js';
+
+const mockKernelPush = () => ({ send: jest.fn().mockResolvedValue(undefined) as jest.Mock });
 
 describe('PushService (auth wrapper)', () => {
   let service: PushService;

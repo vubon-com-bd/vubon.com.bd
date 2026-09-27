@@ -3,8 +3,8 @@
  * @module auth-service/interfaces/mappers
  */
 import { Injectable } from '@nestjs/common';
-import type { UserResponseDTO as AppUserResponse } from '../../application/dtos/responses/user-response.dto';
-import type { UserResponseDTO } from '../dtos/responses/user.response.dto';
+import type { UserResponseDTO as AppUserResponse } from '../../application/dtos/responses/user-response.dto.js';
+import type { UserResponseDTO } from '../dtos/responses/user.response.dto.js';
 
 @Injectable()
 export class UserControllerMapper {
